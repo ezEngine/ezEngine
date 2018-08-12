@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <EditorPluginParticle/DragDropHandlers/ParticleDragDropHandler.h>
+
 #include <EditorFramework/DragDrop/DragDropInfo.h>
+#include <EditorPluginParticle/DragDropHandlers/ParticleDragDropHandler.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezParticleComponentDragDropHandler>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -21,7 +22,8 @@ void ezParticleComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo
   if (pInfo->m_sTargetContext == "viewport")
     CreateDropObject(pInfo->m_vDropPosition, "ezParticleComponent", "Effect", GetAssetGuidString(pInfo), ezUuid(), -1);
   else
-    CreateDropObject(pInfo->m_vDropPosition, "ezParticleComponent", "Effect", GetAssetGuidString(pInfo), pInfo->m_TargetObject, pInfo->m_iTargetObjectInsertChildIndex);
+    CreateDropObject(pInfo->m_vDropPosition, "ezParticleComponent", "Effect", GetAssetGuidString(pInfo), pInfo->m_TargetObject,
+                     pInfo->m_iTargetObjectInsertChildIndex);
 
   SelectCreatedObjects();
   BeginTemporaryCommands();

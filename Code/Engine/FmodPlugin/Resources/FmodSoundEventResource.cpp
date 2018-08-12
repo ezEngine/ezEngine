@@ -1,12 +1,14 @@
-﻿#include <PCH.h>
-#include <FmodPlugin/Resources/FmodSoundEventResource.h>
-#include <FmodPlugin/FmodSingleton.h>
+#include <PCH.h>
+
 #include <FmodPlugin/FmodIncludes.h>
+#include <FmodPlugin/FmodSingleton.h>
+#include <FmodPlugin/Resources/FmodSoundEventResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodSoundEventResource, 1, ezRTTIDefaultAllocator<ezFmodSoundEventResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezFmodSoundEventResource::ezFmodSoundEventResource() : ezResource<ezFmodSoundEventResource, ezFmodSoundEventResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+ezFmodSoundEventResource::ezFmodSoundEventResource()
+    : ezResource<ezFmodSoundEventResource, ezFmodSoundEventResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
   ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezFmodSoundEventResource);
 }
@@ -33,7 +35,7 @@ ezResourceLoadDesc ezFmodSoundEventResource::UnloadData(Unload WhatToUnload)
   if (m_pEventDescription)
   {
     // this will kill all event pointers in the components
-     // which is why the components actually listen for unload events on these resources
+    // which is why the components actually listen for unload events on these resources
     m_pEventDescription->releaseAllInstances();
     m_pEventDescription->unloadSampleData();
     m_pEventDescription = nullptr;
@@ -89,7 +91,7 @@ void ezFmodSoundEventResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage
 ezResourceLoadDesc ezFmodSoundEventResource::CreateResource(const ezFmodSoundEventResourceDescriptor& descriptor)
 {
   // one missing resource is created this way
-  //EZ_REPORT_FAILURE("This resource type does not support creating data.");
+  // EZ_REPORT_FAILURE("This resource type does not support creating data.");
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -101,6 +103,4 @@ ezResourceLoadDesc ezFmodSoundEventResource::CreateResource(const ezFmodSoundEve
 
 
 
-
 EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Resources_FmodSoundEventResource);
-

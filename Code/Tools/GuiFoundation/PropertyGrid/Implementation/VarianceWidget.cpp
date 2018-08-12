@@ -1,11 +1,12 @@
 #include <PCH.h>
+
+#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/PropertyGrid/Implementation/VarianceWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <ToolsFoundation/Object/ObjectAccessorBase.h>
-#include <QBoxLayout>
-#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <QBoxLayout>
 #include <QSlider>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezQtVarianceTypeWidget::ezQtVarianceTypeWidget()
 {
@@ -65,7 +66,8 @@ void ezQtVarianceTypeWidget::SlotValueChanged()
 {
   onBeginTemporary();
 
-  ezStringBuilder sTemp; sTemp.Format("Change Property '{0}'", ezTranslate(m_pProp->GetPropertyName()));
+  ezStringBuilder sTemp;
+  sTemp.Format("Change Property '{0}'", ezTranslate(m_pProp->GetPropertyName()));
   m_pObjectAccessor->StartTransaction(sTemp);
   {
     ezVariant value;
@@ -78,7 +80,8 @@ void ezQtVarianceTypeWidget::SlotValueChanged()
 
 void ezQtVarianceTypeWidget::SlotVarianceChanged()
 {
-  ezStringBuilder sTemp; sTemp.Format("Change Property '{0}' Variance", ezTranslate(m_pProp->GetPropertyName()));
+  ezStringBuilder sTemp;
+  sTemp.Format("Change Property '{0}' Variance", ezTranslate(m_pProp->GetPropertyName()));
   m_pObjectAccessor->StartTransaction(sTemp);
   {
     double variance = ezMath::Clamp<double>(m_pVarianceWidget->value() / 100.0, 0, 1);
@@ -93,7 +96,7 @@ void ezQtVarianceTypeWidget::OnInit()
   // Property type adjustments
   ezQtScopedBlockSignals bs(m_pValueWidget);
   const ezAbstractProperty* pValueProp = GetProperty()->GetSpecificType()->FindPropertyByName("Value");
-  //const ezAbstractProperty* pVarianceProp = m_pResolvedType->FindPropertyByName("Variance");
+  // const ezAbstractProperty* pVarianceProp = m_pResolvedType->FindPropertyByName("Variance");
   m_pValueType = pValueProp->GetSpecificType();
   if (m_pValueType == ezGetStaticRTTI<ezTime>())
   {
@@ -143,7 +146,7 @@ void ezQtVarianceTypeWidget::OnPropertyChanged(const ezString& sProperty)
     }
     else
     {
-      //m_pVarianceWidget->setValueInvalid();
+      // m_pVarianceWidget->setValueInvalid();
       m_pVarianceWidget->setValue(50);
     }
   }

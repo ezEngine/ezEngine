@@ -1,8 +1,10 @@
 #include <PCH.h>
+
+#include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Pipeline/Passes/TransparentForwardRenderPass.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransparentForwardRenderPass, 1, ezRTTIDefaultAllocator<ezTransparentForwardRenderPass>)
 {
   EZ_BEGIN_PROPERTIES
@@ -12,9 +14,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransparentForwardRenderPass, 1, ezRTTIDefault
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezTransparentForwardRenderPass::ezTransparentForwardRenderPass(const char* szName)
-  : ezForwardRenderPass(szName)
+    : ezForwardRenderPass(szName)
 {
 }
 
@@ -27,7 +30,9 @@ ezTransparentForwardRenderPass::~ezTransparentForwardRenderPass()
   }
 }
 
-void ezTransparentForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezTransparentForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext,
+                                             const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+                                             const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   auto pColorInput = inputs[m_PinColor.m_uiInputIndex];
   if (pColorInput == nullptr)
@@ -62,8 +67,9 @@ void ezTransparentForwardRenderPass::Execute(const ezRenderViewContext& renderVi
   ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(hSceneColor);
 }
 
-void ezTransparentForwardRenderPass::SetupResources(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection * const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection * const> outputs)
+void ezTransparentForwardRenderPass::SetupResources(const ezRenderViewContext& renderViewContext,
+                                                    const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+                                                    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   SUPER::SetupResources(renderViewContext, inputs, outputs);
 
@@ -71,7 +77,8 @@ void ezTransparentForwardRenderPass::SetupResources(const ezRenderViewContext& r
 
   if (inputs[m_PinResolvedDepth.m_uiInputIndex])
   {
-    ezGALResourceViewHandle depthResourceViewHandle = pDevice->GetDefaultResourceView(inputs[m_PinResolvedDepth.m_uiInputIndex]->m_TextureHandle);
+    ezGALResourceViewHandle depthResourceViewHandle =
+        pDevice->GetDefaultResourceView(inputs[m_PinResolvedDepth.m_uiInputIndex]->m_TextureHandle);
     renderViewContext.m_pRenderContext->BindTexture2D("SceneDepth", depthResourceViewHandle);
   }
 }
@@ -87,8 +94,8 @@ void ezTransparentForwardRenderPass::RenderObjects(const ezRenderViewContext& re
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
 }
 
-void ezTransparentForwardRenderPass::UpdateSceneColorTexture(const ezRenderViewContext& renderViewContext, ezGALTextureHandle hSceneColorTexture,
-  ezGALTextureHandle hCurrentColorTexture)
+void ezTransparentForwardRenderPass::UpdateSceneColorTexture(const ezRenderViewContext& renderViewContext,
+                                                             ezGALTextureHandle hSceneColorTexture, ezGALTextureHandle hCurrentColorTexture)
 {
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
@@ -118,4 +125,3 @@ void ezTransparentForwardRenderPass::CreateSamplerState()
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_TransparentForwardRenderPass);
-

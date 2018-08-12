@@ -1,7 +1,9 @@
 #include <PCH.h>
+
 #include <GameEngine/Messages/DamageMessage.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 
+// clang-format off
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgDamage);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgDamage, 1, ezRTTIDefaultAllocator<ezMsgDamage>)
 {
@@ -38,13 +40,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_OnDamage, 1, ezRTTIDefaultAll
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_OnDamage::ezVisualScriptNode_OnDamage() { }
-ezVisualScriptNode_OnDamage::~ezVisualScriptNode_OnDamage() { }
+ezVisualScriptNode_OnDamage::ezVisualScriptNode_OnDamage() {}
+ezVisualScriptNode_OnDamage::~ezVisualScriptNode_OnDamage() {}
 
 void ezVisualScriptNode_OnDamage::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(sizeof(m_Msg.m_fDamage) == 8, "The damage value is directly used by a visual script node, so it must be a double.");
+  EZ_CHECK_AT_COMPILETIME_MSG(sizeof(m_Msg.m_fDamage) == 8,
+                              "The damage value is directly used by a visual script node, so it must be a double.");
 
   pInstance->SetOutputPinValue(this, 0, &m_Msg.m_fDamage);
   pInstance->ExecuteConnectedNodes(this, 0);
@@ -66,4 +70,3 @@ void ezVisualScriptNode_OnDamage::HandleMessage(ezMessage* pMsg)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Messages_Implementation_DamageMessage);
-

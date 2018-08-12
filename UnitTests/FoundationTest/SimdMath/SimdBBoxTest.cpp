@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Math/BoundingBox.h>
 #include <Foundation/Math/Transform.h>
 #include <Foundation/SimdMath/SimdBBox.h>
@@ -69,14 +70,9 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromPoints")
   {
-    ezSimdVec4f p[6] =
-    {
-      ezSimdVec4f(-4, 0, 0),
-      ezSimdVec4f(5, 0, 0),
-      ezSimdVec4f(0, -6, 0),
-      ezSimdVec4f(0, 7, 0),
-      ezSimdVec4f(0, 0, -8),
-      ezSimdVec4f(0, 0, 9),
+    ezSimdVec4f p[6] = {
+        ezSimdVec4f(-4, 0, 0), ezSimdVec4f(5, 0, 0),  ezSimdVec4f(0, -6, 0),
+        ezSimdVec4f(0, 7, 0),  ezSimdVec4f(0, 0, -8), ezSimdVec4f(0, 0, 9),
     };
 
     ezSimdBBox b;
@@ -109,13 +105,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclude (array)")
   {
-    ezSimdVec4f v[4] =
-    {
-      ezSimdVec4f(1, 1, 1),
-      ezSimdVec4f(-1, -1, -1),
-      ezSimdVec4f(2, 2, 2),
-      ezSimdVec4f(4, 4, 4)
-    };
+    ezSimdVec4f v[4] = {ezSimdVec4f(1, 1, 1), ezSimdVec4f(-1, -1, -1), ezSimdVec4f(2, 2, 2), ezSimdVec4f(4, 4, 4)};
 
     ezSimdBBox b;
     b.SetInvalid();
@@ -140,7 +130,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBox)
     EZ_TEST_BOOL((b1.m_Min == ezSimdVec4f(-1, -2, -3)).AllSet<3>());
     EZ_TEST_BOOL((b1.m_Max == ezSimdVec4f(4, 5, 6)).AllSet<3>());
 
-    ezSimdBBox b3; b3.SetInvalid();
+    ezSimdBBox b3;
+    b3.SetInvalid();
     b3.ExpandToInclude(b1);
     EZ_TEST_BOOL(b3 == b1);
 

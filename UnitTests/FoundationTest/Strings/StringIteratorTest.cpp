@@ -1,15 +1,19 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Strings/String.h>
 
-template<typename STRING>
+template <typename STRING>
 void TestConstruction(const STRING& value, const char* szStart, const char* szEnd)
 {
   ezStringUtf8 sUtf8(L"A単語F");
   EZ_TEST_BOOL(value.IsEqual(sUtf8.GetData()));
   const bool bEqualForwardItTypes = ezConversionTest<typename STRING::iterator, typename STRING::const_iterator>::sameType == 1;
-  EZ_CHECK_AT_COMPILETIME_MSG(bEqualForwardItTypes, "As the string iterator is read-only, both const and non-const versions should be the same type.");
-  const bool bEqualReverseItTypes = ezConversionTest<typename STRING::reverse_iterator, typename STRING::const_reverse_iterator>::sameType == 1;
-  EZ_CHECK_AT_COMPILETIME_MSG(bEqualReverseItTypes, "As the reverse string iterator is read-only, both const and non-const versions should be the same type.");
+  EZ_CHECK_AT_COMPILETIME_MSG(bEqualForwardItTypes,
+                              "As the string iterator is read-only, both const and non-const versions should be the same type.");
+  const bool bEqualReverseItTypes =
+      ezConversionTest<typename STRING::reverse_iterator, typename STRING::const_reverse_iterator>::sameType == 1;
+  EZ_CHECK_AT_COMPILETIME_MSG(bEqualReverseItTypes,
+                              "As the reverse string iterator is read-only, both const and non-const versions should be the same type.");
 
   typename STRING::iterator itInvalid;
   EZ_TEST_BOOL(!itInvalid.IsValid());
@@ -55,7 +59,7 @@ void TestConstruction(const STRING& value, const char* szStart, const char* szEn
   EZ_TEST_BOOL(*itEndR == 0);
 }
 
-template<typename STRING, typename IT>
+template <typename STRING, typename IT>
 void TestIteratorBegin(const STRING& value, const IT& it)
 {
   // It is safe to try to move beyond the iterator's range.
@@ -86,7 +90,7 @@ void TestIteratorBegin(const STRING& value, const IT& it)
   EZ_TEST_BOOL(itBegin == it);
 }
 
-template<typename STRING, typename IT>
+template <typename STRING, typename IT>
 void TestIteratorEnd(const STRING& value, const IT& it)
 {
   // It is safe to try to move beyond the iterator's range.
@@ -117,7 +121,7 @@ void TestIteratorEnd(const STRING& value, const IT& it)
   EZ_TEST_BOOL(itEnd == it);
 }
 
-template<typename STRING>
+template <typename STRING>
 void TestOperators(const STRING& value, const char* szStart, const char* szEnd)
 {
   ezStringUtf8 sUtf8(L"A単語F");
@@ -140,15 +144,13 @@ void TestOperators(const STRING& value, const char* szStart, const char* szEnd)
   TestIteratorEnd(value, itEndR);
 }
 
-template<typename STRING>
+template <typename STRING>
 void TestLoops(const STRING& value, const char* szStart, const char* szEnd)
 {
   ezStringUtf8 sUtf8(L"A単語F");
   ezUInt32 characters[] = {
-    ezUnicodeUtils::ConvertUtf8ToUtf32(ezStringUtf8(L"A").GetData()),
-    ezUnicodeUtils::ConvertUtf8ToUtf32(ezStringUtf8(L"単").GetData()),
-    ezUnicodeUtils::ConvertUtf8ToUtf32(ezStringUtf8(L"語").GetData()),
-    ezUnicodeUtils::ConvertUtf8ToUtf32(ezStringUtf8(L"F").GetData())};
+      ezUnicodeUtils::ConvertUtf8ToUtf32(ezStringUtf8(L"A").GetData()), ezUnicodeUtils::ConvertUtf8ToUtf32(ezStringUtf8(L"単").GetData()),
+      ezUnicodeUtils::ConvertUtf8ToUtf32(ezStringUtf8(L"語").GetData()), ezUnicodeUtils::ConvertUtf8ToUtf32(ezStringUtf8(L"F").GetData())};
 
   // Forward
   ezInt32 iIndex = 0;
@@ -195,29 +197,31 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
   ezStringBuilder sTestStringBuilder = sUtf8.GetData();
   sTestStringBuilder.Shrink(1, 1);
   ezString sTextString = sTestStringBuilder.GetData();
-  
+
   ezStringView view(sUtf8.GetData());
   view.Shrink(1, 1);
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Construction")
   {
     TestConstruction<ezString>(sTextString, sTextString.GetData(), sTextString.GetData() + sTextString.GetElementCount());
-    TestConstruction<ezStringBuilder>(sTestStringBuilder, sTestStringBuilder.GetData(), sTestStringBuilder.GetData() + sTestStringBuilder.GetElementCount());
+    TestConstruction<ezStringBuilder>(sTestStringBuilder, sTestStringBuilder.GetData(),
+                                      sTestStringBuilder.GetData() + sTestStringBuilder.GetElementCount());
     TestConstruction<ezStringView>(view, view.GetStartPosition(), view.GetEndPosition());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Operators")
   {
     TestOperators<ezString>(sTextString, sTextString.GetData(), sTextString.GetData() + sTextString.GetElementCount());
-    TestOperators<ezStringBuilder>(sTestStringBuilder, sTestStringBuilder.GetData(), sTestStringBuilder.GetData() + sTestStringBuilder.GetElementCount());
+    TestOperators<ezStringBuilder>(sTestStringBuilder, sTestStringBuilder.GetData(),
+                                   sTestStringBuilder.GetData() + sTestStringBuilder.GetElementCount());
     TestOperators<ezStringView>(view, view.GetStartPosition(), view.GetEndPosition());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Loops")
   {
     TestLoops<ezString>(sTextString, sTextString.GetData(), sTextString.GetData() + sTextString.GetElementCount());
-    TestLoops<ezStringBuilder>(sTestStringBuilder, sTestStringBuilder.GetData(), sTestStringBuilder.GetData() + sTestStringBuilder.GetElementCount());
+    TestLoops<ezStringBuilder>(sTestStringBuilder, sTestStringBuilder.GetData(),
+                               sTestStringBuilder.GetData() + sTestStringBuilder.GetElementCount());
     TestLoops<ezStringView>(view, view.GetStartPosition(), view.GetEndPosition());
   }
 }
-

@@ -1,13 +1,15 @@
 #include <PCH.h>
+
+#include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/GameObjectViewWidget.moc.h>
-#include <EditorFramework/InputContexts/SelectionContext.h>
 #include <EditorFramework/InputContexts/CameraMoveContext.h>
 #include <EditorFramework/InputContexts/OrthoGizmoContext.h>
-#include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
-#include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/InputContexts/SelectionContext.h>
 
-ezQtGameObjectViewWidget::ezQtGameObjectViewWidget(QWidget* pParent, ezQtGameObjectDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig)
-  : ezQtEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
+ezQtGameObjectViewWidget::ezQtGameObjectViewWidget(QWidget* pParent, ezQtGameObjectDocumentWindow* pOwnerWindow,
+                                                   ezEngineViewConfig* pViewConfig)
+    : ezQtEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
 {
   m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
   m_pCameraMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, pOwnerWindow, this);
@@ -88,6 +90,3 @@ void ezQtGameObjectViewWidget::HandleMarqueePickingResult(const ezViewMarqueePic
 
   pSelMan->SetSelection(newSelection);
 }
-
-
-

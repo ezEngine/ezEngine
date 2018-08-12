@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Math/FixedPoint.h>
 
 EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
@@ -8,14 +9,14 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     // positive values
     for (ezInt32 i = 0; i < 1024; ++i)
     {
-      ezFixedPoint<12> fp (i);
+      ezFixedPoint<12> fp(i);
       EZ_TEST_INT(fp.ToInt(), i);
     }
 
     // negative values
     for (ezInt32 i = 0; i < 1024; ++i)
     {
-      ezFixedPoint<12> fp (-i);
+      ezFixedPoint<12> fp(-i);
       EZ_TEST_INT(fp.ToInt(), -i);
     }
   }
@@ -25,7 +26,7 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     // positive values
     for (float f = 0.0f; f < 100.0f; f += 0.01f)
     {
-      ezFixedPoint<12> fp (f);
+      ezFixedPoint<12> fp(f);
 
       EZ_TEST_FLOAT(fp, f, 0.001f);
     }
@@ -33,7 +34,7 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     // negative values
     for (float f = 0.0f; f < 100.0f; f += 0.01f)
     {
-      ezFixedPoint<12> fp (-f);
+      ezFixedPoint<12> fp(-f);
 
       EZ_TEST_FLOAT(fp, -f, 0.001f);
     }
@@ -44,7 +45,7 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     // positive values
     for (double f = 0.0; f < 100.0; f += 0.01)
     {
-      ezFixedPoint<12> fp (f);
+      ezFixedPoint<12> fp(f);
 
       EZ_TEST_DOUBLE(fp.ToDouble(), f, 0.001);
     }
@@ -52,7 +53,7 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     // negative values
     for (double f = 0.0; f < 100.0f; f += 0.01)
     {
-      ezFixedPoint<12> fp (-f);
+      ezFixedPoint<12> fp(-f);
 
       EZ_TEST_DOUBLE(fp.ToDouble(), -f, 0.001);
     }
@@ -60,8 +61,8 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor (Other) / Assignment")
   {
-    ezFixedPoint<12> fp1 (2.4f);
-    ezFixedPoint<12> fp2 (fp1);
+    ezFixedPoint<12> fp1(2.4f);
+    ezFixedPoint<12> fp2(fp1);
     ezFixedPoint<12> fp3;
 
     fp3 = fp1;
@@ -77,21 +78,21 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Max Value")
   {
-    ezFixedPoint<12> fp1 ( (1 << 19) - 1);
-    ezFixedPoint<12> fp2 ( (1 << 19));
-    ezFixedPoint<12> fp3 (-(1 << 19)); // one more value available in the negative range
-    ezFixedPoint<12> fp4 (-(1 << 19) - 1);
+    ezFixedPoint<12> fp1((1 << 19) - 1);
+    ezFixedPoint<12> fp2((1 << 19));
+    ezFixedPoint<12> fp3(-(1 << 19)); // one more value available in the negative range
+    ezFixedPoint<12> fp4(-(1 << 19) - 1);
 
     // 12 Bits for the fraction -> 19 Bits for the integral part and 1 'Sign Bit'
-    EZ_TEST_BOOL(fp1.ToInt() ==  (1 << 19) - 1); // This maximum value is still representable
-    EZ_TEST_BOOL(fp2.ToInt() !=  (1 << 19));     // The next value isn't representable anymore
+    EZ_TEST_BOOL(fp1.ToInt() == (1 << 19) - 1); // This maximum value is still representable
+    EZ_TEST_BOOL(fp2.ToInt() != (1 << 19));     // The next value isn't representable anymore
     EZ_TEST_BOOL(fp3.ToInt() == -(1 << 19));
     EZ_TEST_BOOL(fp4.ToInt() != -(1 << 19) - 1);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(fp, int)")
   {
-    ezFixedPoint<12> fp (3.2f);
+    ezFixedPoint<12> fp(3.2f);
     fp = fp * 2;
 
     EZ_TEST_FLOAT(fp.ToFloat(), 6.4f, 0.001f);
@@ -103,7 +104,7 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator/(fp, int)")
   {
-    ezFixedPoint<12> fp (12.4f);
+    ezFixedPoint<12> fp(12.4f);
     fp = fp / 2;
 
     EZ_TEST_FLOAT(fp.ToFloat(), 6.2f, 0.001f);
@@ -115,7 +116,7 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator+(fp, fp)")
   {
-    ezFixedPoint<12> fp (3.2f);
+    ezFixedPoint<12> fp(3.2f);
     fp = fp + ezFixedPoint<12>(2);
 
     EZ_TEST_FLOAT(fp.ToFloat(), 5.2f, 0.001f);
@@ -127,7 +128,7 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator-(fp, fp)")
   {
-    ezFixedPoint<12> fp (3.2f);
+    ezFixedPoint<12> fp(3.2f);
     fp = fp - ezFixedPoint<12>(2);
 
     EZ_TEST_FLOAT(fp.ToFloat(), 1.2f, 0.001f);
@@ -139,7 +140,7 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(fp, fp)")
   {
-    ezFixedPoint<12> fp (3.2f);
+    ezFixedPoint<12> fp(3.2f);
 
     fp = fp * ezFixedPoint<12>(2.5f);
     EZ_TEST_FLOAT(fp.ToFloat(), 8.0f, 0.001f);
@@ -150,7 +151,7 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator/(fp, fp)")
   {
-    ezFixedPoint<12> fp (100000.248f);
+    ezFixedPoint<12> fp(100000.248f);
 
     fp = fp / ezFixedPoint<12>(-2);
     EZ_TEST_FLOAT(fp.ToFloat(), -50000.124f, 0.001f);
@@ -161,10 +162,10 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Operator<,>,<=,>=,==,!=")
   {
-    ezFixedPoint<12> fp1 (1);
-    ezFixedPoint<12> fp2 (2.0f);
-    ezFixedPoint<12> fp3 (3);
-    ezFixedPoint<12> fp3b (3.0f);
+    ezFixedPoint<12> fp1(1);
+    ezFixedPoint<12> fp2(2.0f);
+    ezFixedPoint<12> fp3(3);
+    ezFixedPoint<12> fp3b(3.0f);
 
     EZ_TEST_BOOL(fp1 < fp2);
     EZ_TEST_BOOL(fp3 > fp2);
@@ -260,7 +261,7 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Division Rounding")
   {
-    ezFixedPoint<12> fp2 (1000);
+    ezFixedPoint<12> fp2(1000);
     EZ_TEST_INT(fp2.GetRawValue(), 1000 << 12);
 
     fp2 /= ezFixedPoint<12>(2);
@@ -339,6 +340,3 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     EZ_TEST_INT(fp2.GetRawValue(), 0); // finally we round down
   }
 }
-
-
-

@@ -1,27 +1,26 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <Foundation/Logging/Log.h>
 #include <ModelImporter/Importers/PbrtImporter_Context.h>
 #include <ModelImporter/Material.h>
-#include <ModelImporter/Scene.h>
-#include <ModelImporter/Node.h>
 #include <ModelImporter/Mesh.h>
-#include <Foundation/Logging/Log.h>
+#include <ModelImporter/Node.h>
+#include <ModelImporter/Scene.h>
 
 namespace ezModelImporter
 {
   namespace Pbrt
   {
-    Object::Object() : m_Transform(ezTransform::Identity())
-    {}
-
-    Object::~Object()
-    {}
-
-    Object::Object(Object&& object)
+    Object::Object()
+        : m_Transform(ezTransform::Identity())
     {
-      *this = std::move(object);
     }
 
-    void Object::operator = (Object&& object)
+    Object::~Object() {}
+
+    Object::Object(Object&& object) { *this = std::move(object); }
+
+    void Object::operator=(Object&& object)
     {
       m_Transform = object.m_Transform;
       m_MeshesHandles = std::move(object.m_MeshesHandles);
@@ -36,10 +35,10 @@ namespace ezModelImporter
 
     ezArrayPtr<ObjectHandle> Object::InstantiateMeshes(Scene& scene)
     {
-      if(m_MeshesHandles.IsEmpty())
+      if (m_MeshesHandles.IsEmpty())
       {
         m_MeshesHandles.SetCountUninitialized(m_MeshesData.GetCount());
-        for(ezUInt32 i=0; i<m_MeshesData.GetCount(); ++i)
+        for (ezUInt32 i = 0; i < m_MeshesData.GetCount(); ++i)
         {
           m_MeshesHandles[i] = scene.AddMesh(std::move(m_MeshesData[i]));
         }
@@ -50,9 +49,9 @@ namespace ezModelImporter
     }
 
     ParseContext::ParseContext(const char* modelFilename)
-      : m_inWorld(false)
-      , m_modelFilename(modelFilename)
-      , m_activeObject(nullptr)
+        : m_inWorld(false)
+        , m_modelFilename(modelFilename)
+        , m_activeObject(nullptr)
     {
       m_transformStack.PushBack(ezTransform::Identity());
       m_activeMaterialStack.PushBack(MaterialHandle());
@@ -98,10 +97,7 @@ namespace ezModelImporter
       m_activeMaterialStack.PushBack(handle);
     }
 
-    void ParseContext::AddNamedMaterial(const char* name, MaterialHandle handle)
-    {
-      m_namedMaterials.Insert(name, handle);
-    }
+    void ParseContext::AddNamedMaterial(const char* name, MaterialHandle handle) { m_namedMaterials.Insert(name, handle); }
 
     ezResult ParseContext::MakeNamedMaterialActive(const char* name)
     {
@@ -127,15 +123,9 @@ namespace ezModelImporter
       }
     }
 
-    Object* ParseContext::GetActiveObject() const
-    {
-      return m_activeObject;
-    }
+    Object* ParseContext::GetActiveObject() const { return m_activeObject; }
 
-    void ParseContext::ObjectEnd()
-    {
-      m_activeObject = nullptr;
-    }
+    void ParseContext::ObjectEnd() { m_activeObject = nullptr; }
 
     Object* ParseContext::LookUpObject(const char* name)
     {
@@ -155,25 +145,13 @@ namespace ezModelImporter
       m_activeMaterialStack.PushBack(MaterialHandle());
     }
 
-    void ParseContext::ExitWorld()
-    {
-      m_inWorld = false;
-    }
+    void ParseContext::ExitWorld() { m_inWorld = false; }
 
-    bool ParseContext::IsInWorld() const
-    {
-      return m_inWorld;
-    }
+    bool ParseContext::IsInWorld() const { return m_inWorld; }
 
-    const char* ParseContext::GetModelFilename()
-    {
-      return m_modelFilename;
-    }
+    const char* ParseContext::GetModelFilename() { return m_modelFilename; }
 
-    void ParseContext::AddTexture(const char* name, const char* filename)
-    {
-      m_textureFilenames.Insert(name, filename);
-    }
+    void ParseContext::AddTexture(const char* name, const char* filename) { m_textureFilenames.Insert(name, filename); }
 
     const char* ParseContext::LookUpTextureFilename(const char* textureName) const
     {

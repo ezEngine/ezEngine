@@ -1,16 +1,17 @@
 #include <PCH.h>
-#include <EditorPluginAssets/DecalAsset/DecalAssetManager.h>
-#include <EditorPluginAssets/DecalAsset/DecalAsset.h>
-#include <EditorPluginAssets/DecalAsset/DecalAssetWindow.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
+
 #include <Core/Assets/AssetFileHeader.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Utilities/Textures/TextureGroupDesc.h>
+#include <EditorPluginAssets/DecalAsset/DecalAsset.h>
+#include <EditorPluginAssets/DecalAsset/DecalAssetManager.h>
+#include <EditorPluginAssets/DecalAsset/DecalAssetWindow.moc.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
+#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
+#include <Utilities/Textures/TextureGroupDesc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezDecalAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -56,7 +57,8 @@ void ezDecalAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirec
   }
 }
 
-ezString ezDecalAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const char* szPlatform) const
+ezString ezDecalAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory,
+                                                         const char* szPlatform) const
 {
   // means NO table entry will be written, because for decals we don't need a redirection
   return ezString();
@@ -66,7 +68,7 @@ void ezDecalAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager
 {
   switch (e.m_Type)
   {
-  case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case ezDocumentManager::Event::Type::DocumentWindowRequested:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezDecalAssetDocument>())
       {
@@ -84,7 +86,8 @@ ezStatus ezDecalAssetDocumentManager::InternalCreateDocument(const char* szDocum
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezDecalAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezDecalAssetDocumentManager::InternalGetSupportedDocumentTypes(
+    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
@@ -212,7 +215,6 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const char* szPlatfor
   }
 
   return result;
-
 }
 
 bool ezDecalAssetDocumentManager::IsDecalTextureUpToDate(const char* szDecalFile, ezUInt64 uiSettingsHash) const
@@ -270,7 +272,7 @@ ezStatus ezDecalAssetDocumentManager::RunTexConv(const char* szTargetFile, const
   arguments << "-out";
   arguments << szTargetFile;
 
-  //if (bUpdateThumbnail)
+  // if (bUpdateThumbnail)
   //{
   //  const ezStringBuilder sThumbnail = GetThumbnailFilePath();
 
@@ -295,7 +297,7 @@ ezStatus ezDecalAssetDocumentManager::RunTexConv(const char* szTargetFile, const
 
   EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
 
-  //if (bUpdateThumbnail)
+  // if (bUpdateThumbnail)
   //{
   //  ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(GetGuid());
   //  EZ_ASSERT_DEV(uiThumbnailHash != 0, "Thumbnail hash should never be zero when reaching this point!");

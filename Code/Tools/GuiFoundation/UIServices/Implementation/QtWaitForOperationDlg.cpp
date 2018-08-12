@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <GuiFoundation/UIServices/QtWaitForOperationDlg.moc.h>
 #include <QTimer>
 
@@ -8,7 +9,7 @@
 #endif
 
 ezQtWaitForOperationDlg::ezQtWaitForOperationDlg(QWidget* parent)
-  : QDialog(parent)
+    : QDialog(parent)
 {
   setupUi(this);
 

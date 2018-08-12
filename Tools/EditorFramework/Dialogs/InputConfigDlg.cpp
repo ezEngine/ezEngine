@@ -1,22 +1,23 @@
 #include <PCH.h>
+
+#include <EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Dialogs/InputConfigDlg.moc.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
 #include <Foundation/Containers/Set.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/IO/OSFile.h>
 #include <Foundation/Strings/String.h>
-#include <QTreeWidget>
-#include <QCheckBox>
-#include <QMessageBox>
+#include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QSpinBox>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QInputDialog>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <EditorApp/EditorApp.moc.h>
+#include <QMessageBox>
+#include <QSpinBox>
+#include <QTreeWidget>
+#include <ToolsFoundation/Project/ToolsProject.h>
 #include <qevent.h>
-#include <Foundation/IO/OSFile.h>
-#include <GuiFoundation/UIServices/DynamicStringEnum.h>
-#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 
 void UpdateInputDynamicEnumValues()
 {
@@ -41,7 +42,8 @@ void UpdateInputDynamicEnumValues()
   }
 }
 
-ezQtInputConfigDlg::ezQtInputConfigDlg(QWidget* parent) : QDialog(parent)
+ezQtInputConfigDlg::ezQtInputConfigDlg(QWidget* parent)
+    : QDialog(parent)
 {
   setupUi(this);
 
@@ -129,14 +131,16 @@ void ezQtInputConfigDlg::on_ButtonRemove_clicked()
 
   if (TreeActions->indexOfTopLevelItem(pItem) >= 0)
   {
-    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove the entire Input Set?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove the entire Input Set?",
+                                                           QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
       return;
 
     m_InputSetToItem.Remove(pItem->text(0).toUtf8().data());
   }
   else
   {
-    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove this action?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove this action?", QMessageBox::Yes | QMessageBox::No,
+                                                           QMessageBox::No) == QMessageBox::No)
       return;
   }
 
@@ -267,12 +271,12 @@ void ezQtInputConfigDlg::GetActionsFromList()
 
       for (int i = 0; i < 3; ++i)
       {
-        cfg.m_sInputSlotTrigger[i] = qobject_cast<QComboBox*>(TreeActions->itemWidget(pActionItem, 2 + i * 2))->currentText().toUtf8().data();
+        cfg.m_sInputSlotTrigger[i] =
+            qobject_cast<QComboBox*>(TreeActions->itemWidget(pActionItem, 2 + i * 2))->currentText().toUtf8().data();
         cfg.m_fInputSlotScale[i] = qobject_cast<QDoubleSpinBox*>(TreeActions->itemWidget(pActionItem, 3 + i * 2))->value();
       }
     }
   }
-
 }
 
 QTreeWidgetItem* ezQtInputConfigDlg::CreateActionItem(QTreeWidgetItem* pParentItem, const ezGameAppInputConfig& action)
@@ -320,7 +324,3 @@ QTreeWidgetItem* ezQtInputConfigDlg::CreateActionItem(QTreeWidgetItem* pParentIt
 
   return pItem;
 }
-
-
-
-

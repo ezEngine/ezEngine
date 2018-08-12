@@ -1,18 +1,19 @@
 #include <PCH.h>
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
-#include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
-#include <ToolsFoundation/Document/Document.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <GuiFoundation/Action/DocumentActions.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
-#include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
-#include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
+
 #include <Foundation/Logging/Log.h>
-#include <QSettings>
-#include <QMessageBox>
-#include <QTimer>
-#include <QStatusBar>
+#include <GuiFoundation/Action/ActionMapManager.h>
+#include <GuiFoundation/Action/DocumentActions.h>
+#include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
+#include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
+#include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
+#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QLabel>
+#include <QMessageBox>
+#include <QSettings>
+#include <QStatusBar>
+#include <QTimer>
+#include <ToolsFoundation/Document/Document.h>
 
 ezEvent<const ezQtDocumentWindowEvent&> ezQtDocumentWindow::s_Events;
 ezDynamicArray<ezQtDocumentWindow*> ezQtDocumentWindow::s_AllDocumentWindows;
@@ -99,13 +100,13 @@ void ezQtDocumentWindow::SetVisibleInContainer(bool bVisible)
     //if (m_iTargetFramerate != 0)
       TriggerRedraw();
     */
-/*
-    m_bIsDrawingATM = true;
-    InternalRedraw();
-    m_bIsDrawingATM = false;
+    /*
+        m_bIsDrawingATM = true;
+        InternalRedraw();
+        m_bIsDrawingATM = false;
 
-    if (m_iTargetFramerate != 0)
-      TriggerRedraw();*/
+        if (m_iTargetFramerate != 0)
+          TriggerRedraw();*/
     SlotRedraw();
   }
 }
@@ -150,7 +151,7 @@ void ezQtDocumentWindow::TriggerRedraw(float fLastFrameTimeMS)
   fDelay -= fLastFrameTimeMS;
   fDelay = ezMath::Max(fDelay, 0.0f);
 
-  //ezLog::Info("FT: {0}, delay: {1}", ezArgF(fLastFrameTimeMS, 3), ezArgF(fDelay, 3));
+  // ezLog::Info("FT: {0}, delay: {1}", ezArgF(fLastFrameTimeMS, 3), ezArgF(fDelay, 3));
 
   QTimer::singleShot((ezInt32)ezMath::Floor(fDelay), this, SLOT(SlotRedraw()));
 }
@@ -189,7 +190,7 @@ void ezQtDocumentWindow::DocumentEventHandler(const ezDocumentEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezDocumentEvent::Type::ModifiedChanged:
+    case ezDocumentEvent::Type::ModifiedChanged:
     {
       ezQtDocumentWindowEvent dwe;
       dwe.m_pWindow = this;
@@ -198,20 +199,20 @@ void ezQtDocumentWindow::DocumentEventHandler(const ezDocumentEvent& e)
     }
     break;
 
-  case ezDocumentEvent::Type::EnsureVisible:
+    case ezDocumentEvent::Type::EnsureVisible:
     {
       EnsureVisible();
     }
     break;
 
-  case ezDocumentEvent::Type::DocumentStatusMsg:
+    case ezDocumentEvent::Type::DocumentStatusMsg:
     {
       ShowTemporaryStatusBarMsg(e.m_szStatusMsg);
     }
     break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }
 
@@ -219,7 +220,7 @@ void ezQtDocumentWindow::DocumentManagerEventHandler(const ezDocumentManager::Ev
 {
   switch (e.m_Type)
   {
-  case ezDocumentManager::Event::Type::DocumentClosing:
+    case ezDocumentManager::Event::Type::DocumentClosing:
     {
       if (e.m_pDocument == m_pDocument)
       {
@@ -229,8 +230,8 @@ void ezQtDocumentWindow::DocumentManagerEventHandler(const ezDocumentManager::Ev
     }
     break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }
 
@@ -238,18 +239,18 @@ void ezQtDocumentWindow::UIServicesEventHandler(const ezQtUiServices::Event& e)
 {
   switch (e.m_Type)
   {
-  case ezQtUiServices::Event::Type::ShowDocumentStatusBarText:
+    case ezQtUiServices::Event::Type::ShowDocumentStatusBarText:
     {
       if (statusBar() == nullptr)
         setStatusBar(new QStatusBar());
 
       statusBar()->setHidden(e.m_sText.IsEmpty());
-      statusBar()->showMessage(QString::fromUtf8(e.m_sText.GetData()), (int) e.m_Time.GetMilliseconds());
+      statusBar()->showMessage(QString::fromUtf8(e.m_sText.GetData()), (int)e.m_Time.GetMilliseconds());
     }
     break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }
 
@@ -322,8 +323,11 @@ ezStatus ezQtDocumentWindow::SaveDocument()
     {
       if (m_pDocument->GetUnknownObjectTypeInstances() > 0)
       {
-        if (ezQtUiServices::MessageBoxQuestion("Warning! This document contained unknown object types that could not be loaded. Saving the document means those objects will get lost permanently.\n\nDo you really want to save this document?",
-                                             QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) != QMessageBox::StandardButton::Yes)
+        if (ezQtUiServices::MessageBoxQuestion("Warning! This document contained unknown object types that could not be loaded. Saving the "
+                                               "document means those objects will get lost permanently.\n\nDo you really want to save this "
+                                               "document?",
+                                               QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No,
+                                               QMessageBox::StandardButton::No) != QMessageBox::StandardButton::Yes)
           return ezStatus(EZ_SUCCESS); // failed successfully
       }
     }
@@ -346,7 +350,6 @@ ezStatus ezQtDocumentWindow::SaveDocument()
 
   ShowTemporaryStatusBarMsg("Document saved");
   return ezStatus(EZ_SUCCESS);
-
 }
 
 void ezQtDocumentWindow::ShowTemporaryStatusBarMsg(const ezFormatString& sMsg)
@@ -386,7 +389,10 @@ bool ezQtDocumentWindow::InternalCanCloseWindow()
 
   if (m_pDocument && m_pDocument->IsModified())
   {
-    QMessageBox::StandardButton res = QMessageBox::question(this, QLatin1String("ezEditor"), QLatin1String("Save before closing?"), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Cancel);
+    QMessageBox::StandardButton res =
+        QMessageBox::question(this, QLatin1String("ezEditor"), QLatin1String("Save before closing?"),
+                              QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel,
+                              QMessageBox::StandardButton::Cancel);
 
     if (res == QMessageBox::StandardButton::Cancel)
       return false;
@@ -439,9 +445,7 @@ void ezQtDocumentWindow::ShutdownDocumentWindow()
   s_Events.Broadcast(e);
 }
 
-void ezQtDocumentWindow::InternalCloseDocumentWindow()
-{
-}
+void ezQtDocumentWindow::InternalCloseDocumentWindow() {}
 
 void ezQtDocumentWindow::EnsureVisible()
 {

@@ -1,10 +1,11 @@
 #include <PCH.h>
-#include <GameEngine/VisualScript/VisualScriptResource.h>
+
 #include <Core/Assets/AssetFileHeader.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <Core/Messages/EventMessage.h>
+#include <Core/WorldSerializer/WorldReader.h>
 #include <GameEngine/VisualScript/Nodes/VisualScriptMessageNodes.h>
+#include <GameEngine/VisualScript/VisualScriptNode.h>
+#include <GameEngine/VisualScript/VisualScriptResource.h>
 
 //////////////////////////////////////////////////////////////////////////
 /// ezVisualScriptResource
@@ -13,13 +14,12 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptResource, 2, ezRTTIDefaultAllocator<ezVisualScriptResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezVisualScriptResource::ezVisualScriptResource() : ezResource<ezVisualScriptResource, ezVisualScriptResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+ezVisualScriptResource::ezVisualScriptResource()
+    : ezResource<ezVisualScriptResource, ezVisualScriptResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
 }
 
-ezVisualScriptResource::~ezVisualScriptResource()
-{
-}
+ezVisualScriptResource::~ezVisualScriptResource() {}
 
 ezResourceLoadDesc ezVisualScriptResource::UnloadData(Unload WhatToUnload)
 {
@@ -214,7 +214,7 @@ void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
   {
     if (node.m_pType != nullptr)
     {
-      sType  = node.m_pType->GetTypeName();
+      sType = node.m_pType->GetTypeName();
     }
     else
     {
@@ -286,7 +286,8 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
     if (pType->IsDerivedFrom<ezEventMessage>())
     {
       // TODO: just do the generic node logic here without allocating the node
-      ezVisualScriptNode_GenericEvent* pEvent = ezVisualScriptNode_GenericEvent::GetStaticRTTI()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
+      ezVisualScriptNode_GenericEvent* pEvent =
+          ezVisualScriptNode_GenericEvent::GetStaticRTTI()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
       pNode = pEvent;
 
       pEvent->m_sEventType = pType->GetTypeName();
@@ -314,4 +315,3 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Implementation_VisualScriptResource);
-

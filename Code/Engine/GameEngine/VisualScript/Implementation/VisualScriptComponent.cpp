@@ -1,13 +1,15 @@
 #include <PCH.h>
+
+#include <Core/ResourceManager/ResourceManager.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/VisualScript/VisualScriptComponent.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <Core/ResourceManager/ResourceManager.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 
 ezEvent<const ezVisualScriptComponentActivityEvent&> ezVisualScriptComponent::s_ActivityEvents;
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezVisualScriptComponent, 3, ezComponentMode::Static);
 {
   EZ_BEGIN_PROPERTIES
@@ -24,10 +26,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezVisualScriptComponent, 3, ezComponentMode::Static);
   EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
-ezVisualScriptComponent::ezVisualScriptComponent()
-{
-}
+ezVisualScriptComponent::ezVisualScriptComponent() {}
 
 ezVisualScriptComponent::~ezVisualScriptComponent()
 {
@@ -240,17 +241,15 @@ bool ezVisualScriptComponent::OnUnhandledMessage(ezMessage& msg) const
 
 const ezRangeView<const char*, ezUInt32> ezVisualScriptComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>(
-    [this]()-> ezUInt32 { return 0; },
-    [this]()-> ezUInt32 { return m_NumberParams.GetCount() + m_BoolParams.GetCount(); },
-    [this](ezUInt32& it) { ++it; },
-    [this](const ezUInt32& it)-> const char*
-  {
-    if (it < m_NumberParams.GetCount())
-      return m_NumberParams[it].m_sName.GetData();
-    else
-      return m_BoolParams[it - m_NumberParams.GetCount()].m_sName.GetData();
-  });
+  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; },
+                                            [this]() -> ezUInt32 { return m_NumberParams.GetCount() + m_BoolParams.GetCount(); },
+                                            [this](ezUInt32& it) { ++it; },
+                                            [this](const ezUInt32& it) -> const char* {
+                                              if (it < m_NumberParams.GetCount())
+                                                return m_NumberParams[it].m_sName.GetData();
+                                              else
+                                                return m_BoolParams[it - m_NumberParams.GetCount()].m_sName.GetData();
+                                            });
 }
 
 void ezVisualScriptComponent::SetParameter(const char* szKey, const ezVariant& var)
@@ -354,4 +353,3 @@ bool ezVisualScriptComponent::GetParameter(const char* szKey, ezVariant& out_val
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Implementation_VisualScriptComponent);
-

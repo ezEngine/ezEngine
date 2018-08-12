@@ -1,6 +1,5 @@
 #pragma once
 
-#include <PCH.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/RangeView.h>
 
@@ -9,10 +8,10 @@ struct ezExampleEnum
   typedef ezInt8 StorageType;
   enum Enum
   {
-    Value1 = 1,          // normal value
-    Value2 = -2,         // normal value
-    Value3 = 4,          // normal value
-    Default = Value1     // Default initialization value (required)
+    Value1 = 1,      // normal value
+    Value2 = -2,     // normal value
+    Value3 = 4,      // normal value
+    Default = Value1 // Default initialization value (required)
   };
 };
 
@@ -82,14 +81,8 @@ public:
 
   bool operator==(const ezTestStruct& rhs) const
   {
-    return m_fFloat1 == rhs.m_fFloat1 &&
-      m_UInt8 == rhs.m_UInt8 &&
-      m_variant == rhs.m_variant &&
-      m_iInt2 == rhs.m_iInt2 &&
-      m_vProperty3 == rhs.m_vProperty3 &&
-      m_Angle == rhs.m_Angle &&
-      m_DataBuffer == rhs.m_DataBuffer &&
-      m_vVec3I == rhs.m_vVec3I;
+    return m_fFloat1 == rhs.m_fFloat1 && m_UInt8 == rhs.m_UInt8 && m_variant == rhs.m_variant && m_iInt2 == rhs.m_iInt2 &&
+           m_vProperty3 == rhs.m_vProperty3 && m_Angle == rhs.m_Angle && m_DataBuffer == rhs.m_DataBuffer && m_vVec3I == rhs.m_vVec3I;
   }
 
   float m_fFloat1;
@@ -133,15 +126,13 @@ public:
     return m_fFloat1 == rhs.m_fFloat1 && m_iInt32 == rhs.m_iInt32 && m_UInt8 == rhs.m_UInt8;
   }
 
-  bool operator!=(const ezTestStruct3& rhs) const
-  {
-    return !(*this == rhs);
-  }
+  bool operator!=(const ezTestStruct3& rhs) const { return !(*this == rhs); }
 
   double m_fFloat1;
   ezInt16 m_UInt8;
 
   ezUInt32 GetIntPublic() const { return m_iInt32; }
+
 private:
   void SetInt(ezUInt32 i) { m_iInt32 = i; }
   ezUInt32 GetInt() const { return m_iInt32; }
@@ -175,9 +166,7 @@ public:
 
   bool operator==(const ezTestClass1& rhs) const
   {
-    return m_Struct == rhs.m_Struct &&
-      m_MyVector == rhs.m_MyVector &&
-      m_Color == rhs.m_Color;
+    return m_Struct == rhs.m_Struct && m_MyVector == rhs.m_MyVector && m_Color == rhs.m_Color;
   }
 
   ezVec3 GetVector() const { return m_MyVector; }
@@ -193,19 +182,12 @@ class ezTestClass2 : public ezTestClass1
   EZ_ADD_DYNAMIC_REFLECTION(ezTestClass2, ezTestClass1);
 
 public:
-  ezTestClass2()
-  {
-    m_Text = "Legen";
-  }
+  ezTestClass2() { m_Text = "Legen"; }
 
   bool operator==(const ezTestClass2& rhs) const
   {
-    return m_Time == rhs.m_Time &&
-      m_enumClass == rhs.m_enumClass &&
-      m_bitflagsClass == rhs.m_bitflagsClass &&
-      m_array == rhs.m_array &&
-      m_Variant == rhs.m_Variant &&
-      m_Text == rhs.m_Text;
+    return m_Time == rhs.m_Time && m_enumClass == rhs.m_enumClass && m_bitflagsClass == rhs.m_bitflagsClass && m_array == rhs.m_array &&
+           m_Variant == rhs.m_Variant && m_Text == rhs.m_Text;
   }
 
   const char* GetText() const { return m_Text.GetData(); }
@@ -235,7 +217,7 @@ struct ezTestClass2Allocator : public ezRTTIAllocator
   {
     ++m_iDeallocs;
 
-    ezTestClass2* pPointer = (ezTestClass2*) pObject;
+    ezTestClass2* pPointer = (ezTestClass2*)pObject;
     EZ_DEFAULT_DELETE(pPointer);
   }
 
@@ -249,10 +231,7 @@ class ezTestClass2b : ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezTestClass2b, ezReflectedClass);
 
 public:
-  ezTestClass2b()
-  {
-    m_Text = "Tut";
-  }
+  ezTestClass2b() { m_Text = "Tut"; }
 
   const char* GetText() const { return m_Text.GetData(); }
   void SetText(const char* sz) { m_Text = sz; }
@@ -270,19 +249,14 @@ class ezTestArrays : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezTestArrays, ezReflectedClass);
 
 public:
-  ezTestArrays()
-  {
-  }
+  ezTestArrays() {}
 
   bool operator==(const ezTestArrays& rhs) const
   {
     return m_Hybrid == rhs.m_Hybrid && m_Dynamic == rhs.m_Dynamic && m_Deque == rhs.m_Deque && m_HybridChar == rhs.m_HybridChar;
   }
 
-  bool operator!=(const ezTestArrays& rhs) const
-  {
-    return !(*this == rhs);
-  }
+  bool operator!=(const ezTestArrays& rhs) const { return !(*this == rhs); }
 
   ezUInt32 GetCount() const;
   double GetValue(ezUInt32 uiIndex) const;
@@ -320,20 +294,14 @@ class ezTestSets : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezTestSets, ezReflectedClass);
 
 public:
-  ezTestSets()
-  {
-  }
+  ezTestSets() {}
 
   bool operator==(const ezTestSets& rhs) const
   {
-    return m_SetMember == rhs.m_SetMember && m_SetAccessor == rhs.m_SetAccessor
-      && m_Deque == rhs.m_Deque && m_Array == rhs.m_Array;
+    return m_SetMember == rhs.m_SetMember && m_SetAccessor == rhs.m_SetAccessor && m_Deque == rhs.m_Deque && m_Array == rhs.m_Array;
   }
 
-  bool operator!=(const ezTestSets& rhs) const
-  {
-    return !(*this == rhs);
-  }
+  bool operator!=(const ezTestSets& rhs) const { return !(*this == rhs); }
 
   const ezSet<double>& GetSet() const;
   void Insert(double value);
@@ -370,9 +338,7 @@ class ezTestMaps : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezTestMaps, ezReflectedClass);
 
 public:
-  ezTestMaps()
-  {
-  }
+  ezTestMaps() {}
 
   bool operator==(const ezTestMaps& rhs) const;
 
@@ -432,9 +398,7 @@ public:
 
   bool operator==(const ezTestPtr& rhs) const
   {
-    if (m_sString != rhs.m_sString ||
-      (m_pArrays != rhs.m_pArrays &&
-      *m_pArrays != *rhs.m_pArrays))
+    if (m_sString != rhs.m_sString || (m_pArrays != rhs.m_pArrays && *m_pArrays != *rhs.m_pArrays))
       return false;
 
     if (m_ArrayPtr.GetCount() != rhs.m_ArrayPtr.GetCount())
@@ -453,19 +417,13 @@ public:
     if (m_SetPtr.GetCount() != 1 || rhs.m_SetPtr.GetCount() != 1)
       return true;
 
-    return  *m_SetPtr.GetIterator().Key() == *rhs.m_SetPtr.GetIterator().Key();
+    return *m_SetPtr.GetIterator().Key() == *rhs.m_SetPtr.GetIterator().Key();
   }
 
-  void SetString(const char* pzValue)
-  {
-    m_sString = pzValue;
-  }
+  void SetString(const char* pzValue) { m_sString = pzValue; }
   const char* GetString() const { return m_sString; }
 
-  void SetArrays(ezTestArrays* pValue)
-  {
-    m_pArrays = pValue;
-  }
+  void SetArrays(ezTestArrays* pValue) { m_pArrays = pValue; }
   ezTestArrays* GetArrays() const { return m_pArrays; }
 
 
@@ -492,10 +450,7 @@ public:
 
   bool operator==(const ezTestEnumStruct& rhs) const
   {
-    return m_enum2 == rhs.m_enum2 &&
-      m_enum == rhs.m_enum &&
-      m_enumClass == rhs.m_enumClass &&
-      m_enumClass2 == rhs.m_enumClass2;
+    return m_enum2 == rhs.m_enum2 && m_enum == rhs.m_enum && m_enumClass == rhs.m_enumClass && m_enumClass2 == rhs.m_enumClass2;
   }
 
   ezExampleEnum::Enum m_enum;
@@ -527,8 +482,7 @@ public:
 
   bool operator==(const ezTestBitflagsStruct& rhs) const
   {
-    return m_bitflagsClass == rhs.m_bitflagsClass &&
-      m_bitflagsClass2 == rhs.m_bitflagsClass2;
+    return m_bitflagsClass == rhs.m_bitflagsClass && m_bitflagsClass2 == rhs.m_bitflagsClass2;
   }
 
   ezBitflags<ezExampleBitflags> m_bitflagsClass;
@@ -541,4 +495,3 @@ private:
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTestBitflagsStruct);
-

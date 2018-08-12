@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Communication/Event.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Communication);
@@ -7,20 +8,14 @@ namespace
 {
   struct Test
   {
-    void DoStuff(ezInt32* pEventData)
-    {
-      *pEventData += m_iData;
-    }
+    void DoStuff(ezInt32* pEventData) { *pEventData += m_iData; }
 
     ezInt32 m_iData;
   };
 
   struct TestRecursion
   {
-    TestRecursion()
-    {
-      m_uiRecursionCount = 0;
-    }
+    TestRecursion() { m_uiRecursionCount = 0; }
     void DoStuff(ezUInt32 uiRecursions)
     {
       if (m_uiRecursionCount < uiRecursions)
@@ -88,8 +83,6 @@ EZ_CREATE_SIMPLE_TEST(Communication, Event)
       test.m_Event.Broadcast(i, 10);
       EZ_TEST_INT(test.m_uiRecursionCount, i);
       test.m_Event.RemoveEventHandler(TestRecursion::Event::Handler(&TestRecursion::DoStuff, &test));
-
     }
-
   }
 }

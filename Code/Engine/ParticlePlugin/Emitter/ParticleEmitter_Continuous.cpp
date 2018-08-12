@@ -1,16 +1,18 @@
 #include <PCH.h>
-#include <ParticlePlugin/Emitter/ParticleEmitter_Continuous.h>
-#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
-#include <Foundation/Math/Random.h>
-#include <ParticlePlugin/System/ParticleSystemInstance.h>
-#include <Foundation/Time/Clock.h>
+
 #include <Core/World/World.h>
-#include <GameEngine/Curves/Curve1DResource.h>
 #include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
+#include <Foundation/Math/Random.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Time/Clock.h>
+#include <GameEngine/Curves/Curve1DResource.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
+#include <ParticlePlugin/Emitter/ParticleEmitter_Continuous.h>
+#include <ParticlePlugin/System/ParticleSystemInstance.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_Continuous, 1, ezRTTIDefaultAllocator<ezParticleEmitterFactory_Continuous>)
 {
   EZ_BEGIN_PROPERTIES
@@ -30,6 +32,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitter_Continuous, 1, ezRTTIDefaultAllocator<ezParticleEmitter_Continuous>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezParticleEmitterFactory_Continuous::ezParticleEmitterFactory_Continuous()
 {
@@ -60,7 +63,8 @@ void ezParticleEmitterFactory_Continuous::CopyEmitterProperties(ezParticleEmitte
   pEmitter->m_CurveDuration = ezMath::Max(m_CurveDuration, ezTime::Seconds(1.0));
 }
 
-void ezParticleEmitterFactory_Continuous::QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const
+void ezParticleEmitterFactory_Continuous::QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs,
+                                                                ezUInt32& out_uiMaxParticlesPerSecond) const
 {
   out_uiMaxParticlesAbs = 0;
   out_uiMaxParticlesPerSecond = m_uiSpawnCountPerSec + (m_uiSpawnCountPerSecRange * 3 / 4); // don't be too pessimistic
@@ -231,4 +235,3 @@ ezUInt32 ezParticleEmitter_Continuous::ComputeSpawnCount(const ezTime& tDiff)
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Emitter_ParticleEmitter_Continuous);
-

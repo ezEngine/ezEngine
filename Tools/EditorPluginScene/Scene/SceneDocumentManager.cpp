@@ -1,6 +1,7 @@
-﻿#include <PCH.h>
-#include <EditorPluginScene/Scene/SceneDocumentManager.h>
+#include <PCH.h>
+
 #include <EditorPluginScene/Scene/SceneDocument.h>
+#include <EditorPluginScene/Scene/SceneDocumentManager.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentManager, 1, ezRTTIDefaultAllocator<ezSceneDocumentManager>);
@@ -56,8 +57,7 @@ ezStatus ezSceneDocumentManager::InternalCreateDocument(const char* szDocumentTy
   {
     out_pDocument = new ezSceneDocument(szPath, false);
   }
-  else
-  if (ezStringUtils::IsEqual(szDocumentTypeName, "Prefab"))
+  else if (ezStringUtils::IsEqual(szDocumentTypeName, "Prefab"))
   {
     out_pDocument = new ezSceneDocument(szPath, true);
   }
@@ -69,7 +69,7 @@ ezStatus ezSceneDocumentManager::InternalCreateDocument(const char* szDocumentTy
   if (out_pDocument)
   {
     status.m_Result = EZ_SUCCESS;
-    //out_pDocument->SetFilePath(szPath);
+    // out_pDocument->SetFilePath(szPath);
   }
 
   return status;
@@ -91,5 +91,3 @@ void ezSceneDocumentManager::QuerySupportedAssetTypes(ezSet<ezString>& inout_Ass
   inout_AssetTypeNames.Insert("Scene");
   inout_AssetTypeNames.Insert("Prefab");
 }
-
-

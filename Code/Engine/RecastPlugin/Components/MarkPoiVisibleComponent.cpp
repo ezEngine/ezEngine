@@ -1,13 +1,15 @@
-﻿#include <PCH.h>
-#include <RecastPlugin/Components/MarkPoiVisibleComponent.h>
-#include <RecastPlugin/WorldModule/RecastWorldModule.h>
-#include <Core/WorldSerializer/WorldWriter.h>
+#include <PCH.h>
+
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Memory/FrameAllocator.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <RecastPlugin/Components/MarkPoiVisibleComponent.h>
+#include <RecastPlugin/WorldModule/RecastWorldModule.h>
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezRcMarkPoiVisibleComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -18,9 +20,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezRcMarkPoiVisibleComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
-ezRcMarkPoiVisibleComponent::ezRcMarkPoiVisibleComponent() { }
-ezRcMarkPoiVisibleComponent::~ezRcMarkPoiVisibleComponent() { }
+ezRcMarkPoiVisibleComponent::ezRcMarkPoiVisibleComponent() {}
+ezRcMarkPoiVisibleComponent::~ezRcMarkPoiVisibleComponent() {}
 
 void ezRcMarkPoiVisibleComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -34,7 +37,7 @@ void ezRcMarkPoiVisibleComponent::SerializeComponent(ezWorldWriter& stream) cons
 void ezRcMarkPoiVisibleComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
   s >> m_fRadius;
@@ -121,6 +124,4 @@ void ezRcMarkPoiVisibleComponent::Update()
 void ezRcMarkPoiVisibleComponent::OnSimulationStarted()
 {
   m_pWorldModule = GetWorld()->GetOrCreateModule<ezRecastWorldModule>();
-
 }
-

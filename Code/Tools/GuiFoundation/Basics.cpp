@@ -1,8 +1,10 @@
 #include <PCH.h>
+
 #include <Foundation/Basics.h>
 #include <QWidget>
 
-ezQtScopedUpdatesDisabled::ezQtScopedUpdatesDisabled(QWidget* pWidget1, QWidget* pWidget2, QWidget* pWidget3, QWidget* pWidget4, QWidget* pWidget5, QWidget* pWidget6)
+ezQtScopedUpdatesDisabled::ezQtScopedUpdatesDisabled(QWidget* pWidget1, QWidget* pWidget2, QWidget* pWidget3, QWidget* pWidget4,
+                                                     QWidget* pWidget5, QWidget* pWidget6)
 {
   QWidget* pWidgets[] = {pWidget1, pWidget2, pWidget3, pWidget4, pWidget5, pWidget6};
 
@@ -31,7 +33,8 @@ ezQtScopedUpdatesDisabled::~ezQtScopedUpdatesDisabled()
   }
 }
 
-ezQtScopedBlockSignals::ezQtScopedBlockSignals(QObject* pObject1, QObject* pObject2, QObject* pObject3, QObject* pObject4, QObject* pObject5, QObject* pObject6)
+ezQtScopedBlockSignals::ezQtScopedBlockSignals(QObject* pObject1, QObject* pObject2, QObject* pObject3, QObject* pObject4,
+                                               QObject* pObject5, QObject* pObject6)
 {
   QObject* pObjects[] = {pObject1, pObject2, pObject3, pObject4, pObject5, pObject6};
 

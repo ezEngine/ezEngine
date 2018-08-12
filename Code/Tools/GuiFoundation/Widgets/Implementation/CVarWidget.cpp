@@ -1,23 +1,21 @@
-﻿#include <PCH.h>
-#include <GuiFoundation/Basics.h>
-#include <GuiFoundation/Widgets/CVarWidget.moc.h>
+#include <PCH.h>
+
 #include <Foundation/Configuration/CVar.h>
+#include <GuiFoundation/Basics.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QLabel>
+#include <GuiFoundation/Widgets/CVarWidget.moc.h>
 #include <QComboBox>
 #include <QDoubleSpinBox>
+#include <QLabel>
 #include <QLineEdit>
 
 ezQtCVarWidget::ezQtCVarWidget(QWidget* parent)
-  : QWidget(parent)
+    : QWidget(parent)
 {
   setupUi(this);
-
 }
 
-ezQtCVarWidget::~ezQtCVarWidget()
-{
-}
+ezQtCVarWidget::~ezQtCVarWidget() {}
 
 void ezQtCVarWidget::Clear()
 {
@@ -89,7 +87,7 @@ void ezQtCVarWidget::RebuildCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvar
 
       switch (it.Value().m_uiType)
       {
-      case ezCVarType::Bool:
+        case ezCVarType::Bool:
         {
           QComboBox* pValue = new QComboBox;
           pValue->setProperty("cvar", it.Key().GetData());
@@ -100,7 +98,7 @@ void ezQtCVarWidget::RebuildCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvar
           QWidget::connect(pValue, SIGNAL(currentIndexChanged(int)), this, SLOT(BoolChanged(int)));
         }
         break;
-      case ezCVarType::Float:
+        case ezCVarType::Float:
         {
           QDoubleSpinBox* pValue = new QDoubleSpinBox;
           pValue->setProperty("cvar", it.Key().GetData());
@@ -113,7 +111,7 @@ void ezQtCVarWidget::RebuildCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvar
           QWidget::connect(pValue, SIGNAL(editingFinished()), this, SLOT(FloatChanged()));
         }
         break;
-      case ezCVarType::Int:
+        case ezCVarType::Int:
         {
           QSpinBox* pValue = new QSpinBox;
           pValue->setProperty("cvar", it.Key().GetData());
@@ -124,7 +122,7 @@ void ezQtCVarWidget::RebuildCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvar
           QWidget::connect(pValue, SIGNAL(editingFinished()), this, SLOT(IntChanged()));
         }
         break;
-      case ezCVarType::String:
+        case ezCVarType::String:
         {
           QLineEdit* pValue = new QLineEdit;
           pValue->setProperty("cvar", it.Key().GetData());
@@ -146,7 +144,7 @@ void ezQtCVarWidget::RebuildCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvar
 
 void ezQtCVarWidget::UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars)
 {
-  
+
   for (auto it = cvars.GetIterator(); it.IsValid(); ++it)
   {
     const ezInt32 iRow = it.Value().m_iTableRow;
@@ -155,28 +153,28 @@ void ezQtCVarWidget::UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars
     {
       switch (it.Value().m_uiType)
       {
-      case ezCVarType::Bool:
+        case ezCVarType::Bool:
         {
           QComboBox* pValue = (QComboBox*)TableCVars->cellWidget(iRow, 3);
           ezQtScopedBlockSignals bs(pValue);
           pValue->setCurrentIndex(it.Value().m_bValue ? 0 : 1);
         }
         break;
-      case ezCVarType::Float:
+        case ezCVarType::Float:
         {
           QDoubleSpinBox* pValue = (QDoubleSpinBox*)TableCVars->cellWidget(iRow, 3);
           ezQtScopedBlockSignals bs(pValue);
           pValue->setValue(it.Value().m_fValue);
         }
         break;
-      case ezCVarType::Int:
+        case ezCVarType::Int:
         {
           QSpinBox* pValue = (QSpinBox*)TableCVars->cellWidget(iRow, 3);
           ezQtScopedBlockSignals bs(pValue);
           pValue->setValue(it.Value().m_iValue);
         }
         break;
-      case ezCVarType::String:
+        case ezCVarType::String:
         {
           QLineEdit* pValue = (QLineEdit*)TableCVars->cellWidget(iRow, 3);
           ezQtScopedBlockSignals bs(pValue);

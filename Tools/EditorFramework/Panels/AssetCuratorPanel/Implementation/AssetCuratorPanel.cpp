@@ -1,32 +1,34 @@
 #include <PCH.h>
+
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetProcessor.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Panels/AssetCuratorPanel/AssetCuratorPanel.moc.h>
 #include <GuiFoundation/Models/LogModel.moc.h>
-#include <EditorFramework/Assets/AssetProcessor.h>
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 ezQtAssetCuratorFilter::ezQtAssetCuratorFilter(QObject* pParent)
-  : ezQtAssetFilter(pParent)
+    : ezQtAssetFilter(pParent)
 {
 }
 
 bool ezQtAssetCuratorFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
 {
-  return !pInfo->m_bMainAsset || !(pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::MissingDependency || pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::MissingReference
-    || pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::TransformError);
+  return !pInfo->m_bMainAsset || !(pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::MissingDependency ||
+                                   pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::MissingReference ||
+                                   pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::TransformError);
 }
 
 bool ezQtAssetCuratorFilter::Less(const ezSubAsset* pInfoA, const ezSubAsset* pInfoB) const
 {
   // TODO: We can't sort on mutable data here as it destroys the set order, need to add a sorting model on top.
-  //if (pInfoA->m_pAssetInfo->m_TransformState != pInfoB->m_pAssetInfo->m_TransformState)
+  // if (pInfoA->m_pAssetInfo->m_TransformState != pInfoB->m_pAssetInfo->m_TransformState)
   //  return pInfoA->m_pAssetInfo->m_TransformState < pInfoB->m_pAssetInfo->m_TransformState;
 
   ezStringView sSortA = pInfoA->GetName();
   ezStringView sSortB = pInfoB->GetName();
 
-  ezInt32 iValue = ezStringUtils::Compare_NoCase(sSortA.GetData(), sSortB.GetData(),
-    sSortA.GetData() + sSortA.GetElementCount(), sSortB.GetData() + sSortB.GetElementCount());
+  ezInt32 iValue = ezStringUtils::Compare_NoCase(sSortA.GetData(), sSortB.GetData(), sSortA.GetData() + sSortA.GetElementCount(),
+                                                 sSortB.GetData() + sSortB.GetElementCount());
   if (iValue == 0)
   {
     return pInfoA->m_Data.m_Guid < pInfoB->m_Data.m_Guid;
@@ -37,8 +39,8 @@ bool ezQtAssetCuratorFilter::Less(const ezSubAsset* pInfoA, const ezSubAsset* pI
 EZ_IMPLEMENT_SINGLETON(ezQtAssetCuratorPanel);
 
 ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
-  : ezQtApplicationPanel("Panel.AssetCurator")
-  , m_SingletonRegistrar(this)
+    : ezQtApplicationPanel("Panel.AssetCurator")
+    , m_SingletonRegistrar(this)
 {
   setupUi(this);
 
@@ -50,20 +52,24 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
 
   ListAssets->setModel(m_pModel);
   ListAssets->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
-  EZ_VERIFY(connect(ListAssets->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ezQtAssetCuratorPanel::OnAssetSelectionChanged) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pModel, &QAbstractItemModel::dataChanged, this, [this](const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
-  {
-    if (m_selectedIndex.isValid() && topLeft.row() <= m_selectedIndex.row() && m_selectedIndex.row() <= bottomRight.row())
-    {
-      UpdateIssueInfo();
-    }
-  }), "signal/slot connection failed");
+  EZ_VERIFY(connect(ListAssets->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+                    &ezQtAssetCuratorPanel::OnAssetSelectionChanged) != nullptr,
+            "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pModel, &QAbstractItemModel::dataChanged, this,
+                    [this](const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles) {
+                      if (m_selectedIndex.isValid() && topLeft.row() <= m_selectedIndex.row() && m_selectedIndex.row() <= bottomRight.row())
+                      {
+                        UpdateIssueInfo();
+                      }
+                    }),
+            "signal/slot connection failed");
 
-  EZ_VERIFY(connect(m_pModel, &QAbstractItemModel::modelReset, this, [this]()
-  {
-    m_selectedIndex = QPersistentModelIndex();
-    UpdateIssueInfo();
-  }), "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pModel, &QAbstractItemModel::modelReset, this,
+                    [this]() {
+                      m_selectedIndex = QPersistentModelIndex();
+                      UpdateIssueInfo();
+                    }),
+            "signal/slot connection failed");
 }
 
 ezQtAssetCuratorPanel::~ezQtAssetCuratorPanel()
@@ -71,7 +77,7 @@ ezQtAssetCuratorPanel::~ezQtAssetCuratorPanel()
   ezAssetProcessor::GetSingleton()->RemoveLogWriter(ezMakeDelegate(&ezQtAssetCuratorPanel::LogWriter, this));
 }
 
-void ezQtAssetCuratorPanel::OnAssetSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+void ezQtAssetCuratorPanel::OnAssetSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
 {
   if (selected.isEmpty())
     m_selectedIndex = QModelIndex();
@@ -116,8 +122,7 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
 
   ezAssetInfo* pAssetInfo = pSubAsset->m_pAssetInfo;
 
-  auto getNiceName = [](const ezString& dep) -> ezStringBuilder
-  {
+  auto getNiceName = [](const ezString& dep) -> ezStringBuilder {
     if (ezConversionUtils::IsStringUuid(dep))
     {
       auto assetInfoDep = ezAssetCurator::GetSingleton()->GetSubAsset(ezConversionUtils::ConvertStringToUuid(dep));
@@ -130,10 +135,7 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
     return dep;
   };
 
-  ezLogEntryDelegate logger(([this](ezLogEntry& entry) -> void
-  {
-    TransformLog->GetLog()->AddLogMsg(std::move(entry));
-  }));
+  ezLogEntryDelegate logger(([this](ezLogEntry& entry) -> void { TransformLog->GetLog()->AddLogMsg(std::move(entry)); }));
   ezStringBuilder text;
   if (pAssetInfo->m_TransformState == ezAssetInfo::MissingDependency)
   {

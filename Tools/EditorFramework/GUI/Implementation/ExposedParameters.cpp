@@ -1,6 +1,8 @@
 #include <PCH.h>
+
 #include <EditorFramework/GUI/ExposedParameters.h>
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezExposedParameter, ezNoBase, 1, ezRTTIDefaultAllocator<ezExposedParameter>)
 {
   EZ_BEGIN_PROPERTIES
@@ -22,15 +24,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExposedParameters, 2, ezRTTIDefaultAllocator<e
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezExposedParameters::ezExposedParameters()
-{
-
-}
+ezExposedParameters::ezExposedParameters() {}
 
 const ezExposedParameter* ezExposedParameters::Find(const char* szParamName) const
 {
   const ezExposedParameter* pParam = std::find_if(cbegin(m_Parameters), cend(m_Parameters),
-    [szParamName](const ezExposedParameter& param) { return param.m_sName == szParamName; });
+                                                  [szParamName](const ezExposedParameter& param) { return param.m_sName == szParamName; });
   return pParam != cend(m_Parameters) ? pParam : nullptr;
 }

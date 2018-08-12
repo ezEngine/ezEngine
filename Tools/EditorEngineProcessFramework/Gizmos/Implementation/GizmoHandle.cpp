@@ -1,11 +1,13 @@
 #include <PCH.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoComponent.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererCore/Meshes/MeshResource.h>
+
 #include <Core/Graphics/Geometry.h>
 #include <Core/World/World.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoComponent.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
+#include <RendererCore/Meshes/MeshBufferResource.h>
+#include <RendererCore/Meshes/MeshResource.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoHandle, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
@@ -32,6 +34,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineGizmoHandle, 1, ezRTTIDefaultAllocator<e
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezGizmoHandle::ezGizmoHandle()
 {
@@ -67,7 +70,8 @@ void ezGizmoHandle::SetTransformation(const ezMat4& m)
   SetTransformation(t);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferResource(const ezGeometry& geom, const char* szResourceName, const char* szDescription, ezGALPrimitiveTopology::Enum topology)
+static ezMeshBufferResourceHandle CreateMeshBufferResource(const ezGeometry& geom, const char* szResourceName, const char* szDescription,
+                                                           ezGALPrimitiveTopology::Enum topology)
 {
   ezMeshBufferResourceDescriptor desc;
   desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
@@ -437,7 +441,8 @@ static ezMeshBufferResourceHandle CreateMeshBufferFrustum()
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Frustum", ezGALPrimitiveTopology::Lines);
 }
 
-static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, ezMeshBufferResourceHandle hMeshBuffer, const char* szMaterial)
+static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, ezMeshBufferResourceHandle hMeshBuffer,
+                                               const char* szMaterial)
 {
   const ezStringBuilder sIdentifier(szMeshResourceName, "@", szMaterial);
 
@@ -477,7 +482,8 @@ ezEngineGizmoHandle::~ezEngineGizmoHandle()
   m_pWorld->DeleteObjectDelayed(m_hGameObject);
 }
 
-void ezEngineGizmoHandle::Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize, bool bAlwaysOnTop, bool bVisualizer, bool bShowInOrtho, bool bIsPickable)
+void ezEngineGizmoHandle::Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize,
+                                    bool bAlwaysOnTop, bool bVisualizer, bool bShowInOrtho, bool bIsPickable)
 {
   SetParentGizmo(pParentGizmo);
 
@@ -502,104 +508,104 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
 
   switch (m_iHandleType)
   {
-  case ezEngineGizmoHandleType::Arrow:
+    case ezEngineGizmoHandleType::Arrow:
     {
       hMeshBuffer = CreateMeshBufferArrow();
       szMeshGuid = "{9D02CF27-7A15-44EA-A372-C417AF2A8E9B}";
     }
     break;
-  case ezEngineGizmoHandleType::Rect:
+    case ezEngineGizmoHandleType::Rect:
     {
       hMeshBuffer = CreateMeshBufferRect();
       szMeshGuid = "{3DF4DDDA-F598-4A37-9691-D4C3677905A8}";
     }
     break;
-  case ezEngineGizmoHandleType::LineRect:
+    case ezEngineGizmoHandleType::LineRect:
     {
       hMeshBuffer = CreateMeshBufferLineRect();
       szMeshGuid = "{96129543-897C-4DEE-922D-931BC91C5725}";
     }
     break;
-  case ezEngineGizmoHandleType::Ring:
+    case ezEngineGizmoHandleType::Ring:
     {
       hMeshBuffer = CreateMeshBufferRing();
       szMeshGuid = "{629AD0C6-C81B-4850-A5BC-41494DC0BF95}";
     }
     break;
-  case ezEngineGizmoHandleType::Box:
+    case ezEngineGizmoHandleType::Box:
     {
       hMeshBuffer = CreateMeshBufferBox();
       szMeshGuid = "{13A59253-4A98-4638-8B94-5AA370E929A7}";
     }
     break;
-  case ezEngineGizmoHandleType::Piston:
+    case ezEngineGizmoHandleType::Piston:
     {
       hMeshBuffer = CreateMeshBufferPiston();
       szMeshGuid = "{44A4FE37-6AE3-44C1-897D-E8B95AE53EF6}";
     }
     break;
-  case ezEngineGizmoHandleType::HalfPiston:
+    case ezEngineGizmoHandleType::HalfPiston:
     {
       hMeshBuffer = CreateMeshBufferHalfPiston();
       szMeshGuid = "{64A45DD0-D7F9-4D1D-9F68-782FA3274200}";
     }
     break;
-  case ezEngineGizmoHandleType::Sphere:
+    case ezEngineGizmoHandleType::Sphere:
     {
       hMeshBuffer = CreateMeshBufferSphere();
       szMeshGuid = "{FC322E80-5EB0-452F-9D8E-9E65FCFDA652}";
     }
     break;
-  case ezEngineGizmoHandleType::CylinderZ:
+    case ezEngineGizmoHandleType::CylinderZ:
     {
       hMeshBuffer = CreateMeshBufferCylinderZ();
       szMeshGuid = "{893384EA-2F43-4265-AF75-662E2C81C167}";
     }
     break;
-  case ezEngineGizmoHandleType::HalfSphereZ:
+    case ezEngineGizmoHandleType::HalfSphereZ:
     {
       hMeshBuffer = CreateMeshBufferHalfSphereZ();
       szMeshGuid = "{0FC9B680-7B6B-40B6-97BD-CBFFA47F0EFF}";
     }
     break;
-  case ezEngineGizmoHandleType::BoxCorners:
+    case ezEngineGizmoHandleType::BoxCorners:
     {
       hMeshBuffer = CreateMeshBufferBoxCorners();
       szMeshGuid = "{89CCC389-11D5-43F4-9C18-C634EE3154B9}";
     }
     break;
-  case ezEngineGizmoHandleType::BoxEdges:
+    case ezEngineGizmoHandleType::BoxEdges:
     {
       hMeshBuffer = CreateMeshBufferBoxEdges();
       szMeshGuid = "{21508253-2E74-44CE-9399-523214BE7C3D}";
     }
     break;
-  case ezEngineGizmoHandleType::BoxFaces:
+    case ezEngineGizmoHandleType::BoxFaces:
     {
       hMeshBuffer = CreateMeshBufferBoxFaces();
       szMeshGuid = "{FD1A3C29-F8F0-42B0-BBB0-D0A2B28A65A0}";
     }
     break;
-  case ezEngineGizmoHandleType::LineBox:
+    case ezEngineGizmoHandleType::LineBox:
     {
       hMeshBuffer = CreateMeshBufferLineBox();
       szMeshGuid = "{4B136D72-BF43-4C4B-96D7-51C5028A7006}";
     }
     break;
-  case ezEngineGizmoHandleType::Cone:
+    case ezEngineGizmoHandleType::Cone:
     {
       hMeshBuffer = CreateMeshBufferCone();
       szMeshGuid = "{9A48962D-127A-445C-899A-A054D6AD8A9A}";
     }
     break;
-  case ezEngineGizmoHandleType::Frustum:
+    case ezEngineGizmoHandleType::Frustum:
     {
       szMeshGuid = "{22EC5D48-E8BE-410B-8EAD-51B7775BA058}";
       hMeshBuffer = CreateMeshBufferFrustum();
     }
     break;
-  default:
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
   ezStringBuilder sName;
@@ -646,7 +652,8 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
     hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Materials/Editor/GizmoHandle.ezMaterial");
   }
 
-  m_pGizmoComponent->SetRenderDataCategory(m_bVisualizer ? ezDefaultRenderDataCategories::SimpleOpaque : ezDefaultRenderDataCategories::SimpleForeground);
+  m_pGizmoComponent->SetRenderDataCategory(m_bVisualizer ? ezDefaultRenderDataCategories::SimpleOpaque
+                                                         : ezDefaultRenderDataCategories::SimpleForeground);
   m_pGizmoComponent->m_GizmoColor = m_Color;
   m_pGizmoComponent->m_bUseDepthPrepass = !m_bVisualizer;
   m_pGizmoComponent->m_bIsPickable = m_bIsPickable;
@@ -680,6 +687,3 @@ void ezEngineGizmoHandle::SetColor(const ezColor& col)
   m_Color = col;
   SetModified();
 }
-
-
-

@@ -1,13 +1,13 @@
 #include <PCH.h>
-#include <Foundation/Time/Clock.h>
+
 #include <Core/World/World.h>
+#include <Foundation/Time/Clock.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(World);
 
 namespace
 {
-  union TestWorldObjects
-  {
+  union TestWorldObjects {
     struct
     {
       ezGameObject* pParent1;
@@ -23,7 +23,8 @@ namespace
     TestWorldObjects testWorldObjects;
     ezMemoryUtils::ZeroFill(&testWorldObjects);
 
-    ezQuat q; q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::Degree(90.0f));
+    ezQuat q;
+    q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::Degree(90.0f));
 
     ezGameObjectDesc desc;
     desc.m_bDynamic = bDynamic;
@@ -51,7 +52,8 @@ namespace
   void TestTransforms(const TestWorldObjects& o, ezVec3 offset = ezVec3(100.0f, 0.0f, 0.0f))
   {
     const float eps = ezMath::BasicType<float>::DefaultEpsilon();
-    ezQuat q; q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::Degree(90.0f));
+    ezQuat q;
+    q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::Degree(90.0f));
 
     for (ezUInt32 i = 0; i < 2; ++i)
     {
@@ -72,7 +74,10 @@ namespace
   {
     struct Traverser
     {
-      Traverser(ezWorld& world) : m_World(world) {}
+      Traverser(ezWorld& world)
+          : m_World(world)
+      {
+      }
 
       ezWorld& m_World;
       ezSet<ezGameObject*> m_Found;
@@ -108,14 +113,15 @@ namespace
   class CustomCoordinateSystemProvider : public ezCoordinateSystemProvider
   {
   public:
-    CustomCoordinateSystemProvider(const ezWorld* pWorld) : ezCoordinateSystemProvider(pWorld)
+    CustomCoordinateSystemProvider(const ezWorld* pWorld)
+        : ezCoordinateSystemProvider(pWorld)
     {
-
     }
 
     virtual void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_CoordinateSystem) const override
     {
-      ezMat3 mTmp; mTmp.SetLookInDirectionMatrix(-vGlobalPosition, ezVec3(0, 0, 1));
+      ezMat3 mTmp;
+      mTmp.SetLookInDirectionMatrix(-vGlobalPosition, ezVec3(0, 0, 1));
 
       out_CoordinateSystem.m_vRightDir = mTmp.GetRow(0);
       out_CoordinateSystem.m_vUpDir = mTmp.GetRow(1);
@@ -176,7 +182,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     o.pParent2->SetLocalPosition(offset);
 
     // No need to call world update since global transform is updated immediately for static objects.
-    //world.Update();
+    // world.Update();
 
     TestTransforms(o, offset);
   }
@@ -188,7 +194,8 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     EZ_LOCK(world.GetWriteMarker());
 
     const float eps = ezMath::BasicType<float>::DefaultEpsilon();
-    ezQuat q; q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::Degree(90.0f));
+    ezQuat q;
+    q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::Degree(90.0f));
 
     ezGameObjectDesc desc;
     desc.m_LocalPosition = ezVec3(100.0f, 0.0f, 0.0f);
@@ -251,7 +258,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     EZ_TEST_BOOL(!world.IsValidObject(childObjects[3]));
     EZ_TEST_BOOL(!world.IsValidObject(childObjects[9]));
 
-    ezUInt32 indices[7] = { 1, 2, 4, 5, 6, 7, 8 };
+    ezUInt32 indices[7] = {1, 2, 4, 5, 6, 7, 8};
 
     uiCounter = 0;
     for (auto it = pParentObject->GetChildren(); it.IsValid(); ++it)
@@ -323,7 +330,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     o.pParent2->SetParent(o.pParent1->GetHandle());
     SanityCheckWorld(world);
     // No need to update the world since re-parenting is now done immediately.
-    //world.Update();
+    // world.Update();
 
     TestTransforms(o);
 
@@ -357,7 +364,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     o.pChild21->SetParent(ezGameObjectHandle());
     SanityCheckWorld(world);
     // No need to update the world since re-parenting is now done immediately.
-    //world.Update();
+    // world.Update();
 
     TestTransforms(o);
 
@@ -398,7 +405,6 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     o.pChild21->SetParent(o.pParent1->GetHandle());
     SanityCheckWorld(world);
     // pChild21 has a previous (pChild11) sibling again.
-
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Traversal")
@@ -445,10 +451,22 @@ EZ_CREATE_SIMPLE_TEST(World, World)
 
         ezVisitorExecution::Enum Visit(ezGameObject* pObject)
         {
-          if      (m_uiCounter == 0) { EZ_TEST_BOOL(pObject == m_o.pParent1); }
-          else if (m_uiCounter == 1) { EZ_TEST_BOOL(pObject == m_o.pChild11); }
-          else if (m_uiCounter == 2) { EZ_TEST_BOOL(pObject == m_o.pParent2); }
-          else if (m_uiCounter == 3) { EZ_TEST_BOOL(pObject == m_o.pChild21); }
+          if (m_uiCounter == 0)
+          {
+            EZ_TEST_BOOL(pObject == m_o.pParent1);
+          }
+          else if (m_uiCounter == 1)
+          {
+            EZ_TEST_BOOL(pObject == m_o.pChild11);
+          }
+          else if (m_uiCounter == 2)
+          {
+            EZ_TEST_BOOL(pObject == m_o.pParent2);
+          }
+          else if (m_uiCounter == 3)
+          {
+            EZ_TEST_BOOL(pObject == m_o.pChild21);
+          }
 
           ++m_uiCounter;
           if (m_uiCounter >= EZ_ARRAY_SIZE(m_o.pObjects))

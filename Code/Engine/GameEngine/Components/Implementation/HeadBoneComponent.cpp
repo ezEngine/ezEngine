@@ -1,10 +1,12 @@
 #include <PCH.h>
-#include <GameEngine/Components/HeadBoneComponent.h>
-#include <Core/WorldSerializer/WorldWriter.h>
+
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <GameEngine/Components/HeadBoneComponent.h>
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSetVerticalHeadBoneRotation);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetVerticalHeadBoneRotation, 1, ezRTTIDefaultAllocator<ezMsgSetVerticalHeadBoneRotation>)
 {
@@ -63,6 +65,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezHeadBoneComponent, 1, ezComponentMode::Dynamic)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezHeadBoneComponent::ezHeadBoneComponent()
 {
@@ -74,7 +77,7 @@ ezHeadBoneComponent::ezHeadBoneComponent()
 void ezHeadBoneComponent::Update()
 {
   m_NewVerticalRotation = ezMath::Clamp(m_NewVerticalRotation, -m_MaxVerticalRotation, m_MaxVerticalRotation);
-    //GetOwner()->SetLocalPosition(GetOwner()->GetLocalPosition() + GetOwner()->GetLocalRotation() * vAxis * fDistanceDiff);
+  // GetOwner()->SetLocalPosition(GetOwner()->GetLocalPosition() + GetOwner()->GetLocalRotation() * vAxis * fDistanceDiff);
 
   ezQuat qOld, qNew;
   qOld.SetFromAxisAndAngle(ezVec3(0, 1, 0), m_CurVerticalRotation);
@@ -103,7 +106,7 @@ void ezHeadBoneComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezHeadBoneComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = stream.GetStream();
 
@@ -125,4 +128,3 @@ void ezHeadBoneComponent::OnChangeVerticalRotation(ezMsgChangeVerticalHeadBoneRo
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_HeadBoneComponent);
-

@@ -1,18 +1,20 @@
-﻿#include <PCH.h>
-#include <RendererCore/Shader/ShaderPermutationResource.h>
-#include <RendererCore/ShaderCompiler/ShaderManager.h>
-#include <RendererCore/ShaderCompiler/ShaderCompiler.h>
-#include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Shader/Shader.h>
+#include <PCH.h>
+
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
+#include <RendererCore/Shader/ShaderPermutationResource.h>
+#include <RendererCore/ShaderCompiler/ShaderCompiler.h>
+#include <RendererCore/ShaderCompiler/ShaderManager.h>
+#include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Shader/Shader.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderPermutationResource, 1, ezRTTIDefaultAllocator<ezShaderPermutationResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 static ezShaderPermutationResourceLoader g_PermutationResourceLoader;
 
-ezShaderPermutationResource::ezShaderPermutationResource() : ezResource<ezShaderPermutationResource, ezShaderPermutationResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+ezShaderPermutationResource::ezShaderPermutationResource()
+    : ezResource<ezShaderPermutationResource, ezShaderPermutationResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
   m_bShaderPermutationValid = false;
 
@@ -107,7 +109,7 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReader* St
     if (uiStageHash == 0) // not used
       continue;
 
-    ezShaderStageBinary* pStageBin = ezShaderStageBinary::LoadStageBinary((ezGALShaderStage::Enum) stage, uiStageHash);
+    ezShaderStageBinary* pStageBin = ezShaderStageBinary::LoadStageBinary((ezGALShaderStage::Enum)stage, uiStageHash);
 
     if (pStageBin == nullptr)
     {
@@ -119,7 +121,8 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReader* St
     // since it contains other useful information (resource bindings), that we need for shader binding
     m_pShaderStageBinaries[stage] = pStageBin;
 
-    EZ_ASSERT_DEV(pStageBin->m_Stage == stage, "Invalid shader stage! Expected stage '{0}', but loaded data is for stage '{1}'", ezGALShaderStage::Names[stage], ezGALShaderStage::Names[pStageBin->m_Stage]);
+    EZ_ASSERT_DEV(pStageBin->m_Stage == stage, "Invalid shader stage! Expected stage '{0}', but loaded data is for stage '{1}'",
+                  ezGALShaderStage::Names[stage], ezGALShaderStage::Names[pStageBin->m_Stage]);
 
     ShaderDesc.m_ByteCodes[stage] = pStageBin->m_pGALByteCode;
 
@@ -168,7 +171,8 @@ ezResourceTypeLoader* ezShaderPermutationResource::GetDefaultResourceTypeLoader(
 
 struct ShaderPermutationResourceLoadData
 {
-  ShaderPermutationResourceLoadData() : m_Reader(&m_Storage)
+  ShaderPermutationResourceLoadData()
+      : m_Reader(&m_Storage)
   {
   }
 
@@ -195,7 +199,8 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
     ezStringBuilder sPermutationFile = pResource->GetResourceID();
 
     sPermutationFile.ChangeFileExtension("");
-    sPermutationFile.Shrink(ezShaderManager::GetCacheDirectory().GetCharacterCount() + ezShaderManager::GetActivePlatform().GetCharacterCount() + 2, 1);
+    sPermutationFile.Shrink(
+        ezShaderManager::GetCacheDirectory().GetCharacterCount() + ezShaderManager::GetActivePlatform().GetCharacterCount() + 2, 1);
 
     sPermutationFile.Shrink(0, 8); // remove the hash at the end
     sPermutationFile.Append(".ezShader");
@@ -203,7 +208,8 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
     ezArrayPtr<const ezPermutationVar> permutationVars = static_cast<const ezShaderPermutationResource*>(pResource)->GetPermutationVars();
 
     ezShaderCompiler sc;
-    return sc.CompileShaderPermutationForPlatforms(sPermutationFile, permutationVars, ezLog::GetThreadLocalLogSystem(), ezShaderManager::GetActivePlatform());
+    return sc.CompileShaderPermutationForPlatforms(sPermutationFile, permutationVars, ezLog::GetThreadLocalLogSystem(),
+                                                   ezShaderManager::GetActivePlatform());
   }
   else
   {
@@ -336,7 +342,7 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
         continue;
 
       // this is where the preloading happens
-      ezShaderStageBinary::LoadStageBinary((ezGALShaderStage::Enum) stage, uiStageHash);
+      ezShaderStageBinary::LoadStageBinary((ezGALShaderStage::Enum)stage, uiStageHash);
     }
   }
 
@@ -355,6 +361,4 @@ void ezShaderPermutationResourceLoader::CloseDataStream(const ezResourceBase* pR
 
 
 
-
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Implementation_ShaderPermutationResource);
-

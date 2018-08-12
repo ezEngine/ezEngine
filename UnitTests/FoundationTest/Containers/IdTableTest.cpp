@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <Foundation/Containers/IdTable.h>
+
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Containers/IdTable.h>
 #include <Foundation/Strings/String.h>
 
 namespace
@@ -49,12 +50,11 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
       {
         Id id;
         id.m_Generation = 1;
-      
+
         do
         {
           id.m_InstanceIndex = rand() % 200;
-        }
-        while (!table1.Contains(id));
+        } while (!table1.Contains(id));
 
         EZ_TEST_BOOL(table1.Remove(id));
       }
@@ -108,7 +108,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
 
     ezUInt32 count1 = 0, count2 = 0;
 
-    TestObject x = { 11, "Test" };
+    TestObject x = {11, "Test"};
 
     while (true)
     {
@@ -150,7 +150,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
 
     for (int i = 0; i < 100; i++)
     {
-      TestObject x = { rand(), "Test" };
+      TestObject x = {rand(), "Test"};
       Id id = table.Insert(x);
       EZ_TEST_INT(id.m_InstanceIndex, i);
       EZ_TEST_INT(id.m_Generation, 1);
@@ -163,8 +163,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
     }
     EZ_TEST_INT(table.GetCount(), 100);
 
-    Id ids[10] = { Id(13, 1), Id(0, 1), Id(16, 1), Id(34, 1), Id(56, 1),
-      Id(57, 1), Id(79, 1), Id(85, 1), Id(91, 1), Id(97, 1) };
+    Id ids[10] = {Id(13, 1), Id(0, 1), Id(16, 1), Id(34, 1), Id(56, 1), Id(57, 1), Id(79, 1), Id(85, 1), Id(91, 1), Id(97, 1)};
 
 
     for (int i = 0; i < 10; i++)
@@ -177,7 +176,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
 
     for (int i = 0; i < 40; i++)
     {
-      TestObject x = { 1000, "Bla. This is a very long string which does not fit into 32 byte and will cause memory allocations." };
+      TestObject x = {1000, "Bla. This is a very long string which does not fit into 32 byte and will cause memory allocations."};
       Id newId = table.Insert(x);
 
       EZ_TEST_BOOL(table.Contains(newId));
@@ -197,20 +196,20 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
   {
     ezIdTable<Id, TestObject> table;
     ezDynamicArray<Id> ids;
-    
+
     for (ezUInt32 i = 0; i < 100000; ++i)
     {
       int action = rand() % 2;
       if (action == 0)
       {
-        TestObject x = { rand(), "Test" };
+        TestObject x = {rand(), "Test"};
         ids.PushBack(table.Insert(x));
       }
       else
       {
         if (ids.GetCount() > 0)
         {
-          ezUInt32 index = rand() % ids.GetCount();        
+          ezUInt32 index = rand() % ids.GetCount();
           EZ_TEST_BOOL(table.Remove(ids[index]));
           ids.RemoveAtSwap(index);
         }
@@ -271,7 +270,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
       EZ_TEST_BOOL(a.Remove(Id(i, 0), &oldValue));
       EZ_TEST_INT(oldValue.m_iData, i);
     }
-    
+
     a.Compact();
     EZ_TEST_BOOL(a.IsFreelistValid());
 

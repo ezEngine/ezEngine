@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Containers/StaticRingBuffer.h>
 
 typedef ezConstructionCounter cc;
@@ -28,7 +29,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticRingBuffer)
       for (ezUInt32 i = 0; i < 16; ++i)
         r1.PushBack(cc(i));
 
-      ezStaticRingBuffer<cc, 16> r2 (r1);
+      ezStaticRingBuffer<cc, 16> r2(r1);
 
       for (ezUInt32 i = 0; i < 16; ++i)
         EZ_TEST_BOOL(r2[i] == cc(i));
@@ -53,8 +54,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticRingBuffer)
       for (ezUInt32 i = 0; i < 16; ++i)
         r1.PushBack(cc(i));
 
-      ezStaticRingBuffer<cc, 16> r2 (r1);
-      ezStaticRingBuffer<cc, 16> r3 (r1);
+      ezStaticRingBuffer<cc, 16> r2(r1);
+      ezStaticRingBuffer<cc, 16> r3(r1);
       r3.PeekFront() = cc(3);
 
       EZ_TEST_BOOL(r1 == r1);

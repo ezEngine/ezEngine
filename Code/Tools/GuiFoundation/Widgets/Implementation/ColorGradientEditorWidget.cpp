@@ -1,9 +1,10 @@
 #include <PCH.h>
-#include <GuiFoundation/Widgets/ColorGradientEditorWidget.moc.h>
+
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <GuiFoundation/Widgets/ColorGradientEditorWidget.moc.h>
 
 ezQtColorGradientEditorWidget::ezQtColorGradientEditorWidget(QWidget* pParent)
-  : QWidget(pParent)
+    : QWidget(pParent)
 {
   setupUi(this);
 
@@ -18,7 +19,8 @@ ezQtColorGradientEditorWidget::ezQtColorGradientEditorWidget(QWidget* pParent)
 
   on_GradientWidget_selectionChanged(-1, -1, -1);
 
-  connect(GradientWidget, &ezQtColorGradientWidget::addColorCp, this, [this](double x, const ezColorGammaUB& color) { emit ColorCpAdded(x, color); });
+  connect(GradientWidget, &ezQtColorGradientWidget::addColorCp, this,
+          [this](double x, const ezColorGammaUB& color) { emit ColorCpAdded(x, color); });
   connect(GradientWidget, &ezQtColorGradientWidget::moveColorCpToPos, this, [this](ezInt32 idx, double x) { emit ColorCpMoved(idx, x); });
   connect(GradientWidget, &ezQtColorGradientWidget::deleteColorCp, this, [this](ezInt32 idx) { emit ColorCpDeleted(idx); });
 
@@ -26,8 +28,10 @@ ezQtColorGradientEditorWidget::ezQtColorGradientEditorWidget(QWidget* pParent)
   connect(GradientWidget, &ezQtColorGradientWidget::moveAlphaCpToPos, this, [this](ezInt32 idx, double x) { emit AlphaCpMoved(idx, x); });
   connect(GradientWidget, &ezQtColorGradientWidget::deleteAlphaCp, this, [this](ezInt32 idx) { emit AlphaCpDeleted(idx); });
 
-  connect(GradientWidget, &ezQtColorGradientWidget::addIntensityCp, this, [this](double x, float intensity) { emit IntensityCpAdded(x, intensity); });
-  connect(GradientWidget, &ezQtColorGradientWidget::moveIntensityCpToPos, this, [this](ezInt32 idx, double x) { emit IntensityCpMoved(idx, x); });
+  connect(GradientWidget, &ezQtColorGradientWidget::addIntensityCp, this,
+          [this](double x, float intensity) { emit IntensityCpAdded(x, intensity); });
+  connect(GradientWidget, &ezQtColorGradientWidget::moveIntensityCpToPos, this,
+          [this](ezInt32 idx, double x) { emit IntensityCpMoved(idx, x); });
   connect(GradientWidget, &ezQtColorGradientWidget::deleteIntensityCp, this, [this](ezInt32 idx) { emit IntensityCpDeleted(idx); });
 
   connect(GradientWidget, &ezQtColorGradientWidget::beginOperation, this, [this]() { emit BeginOperation(); });
@@ -37,9 +41,7 @@ ezQtColorGradientEditorWidget::ezQtColorGradientEditorWidget(QWidget* pParent)
 }
 
 
-ezQtColorGradientEditorWidget::~ezQtColorGradientEditorWidget()
-{
-}
+ezQtColorGradientEditorWidget::~ezQtColorGradientEditorWidget() {}
 
 
 void ezQtColorGradientEditorWidget::SetColorGradient(const ezColorGradient& gradient)
@@ -59,14 +61,14 @@ void ezQtColorGradientEditorWidget::SetColorGradient(const ezColorGradient& grad
       clearSelection = true;
   }
 
-  //const bool wasEmpty = m_Gradient.IsEmpty();
+  // const bool wasEmpty = m_Gradient.IsEmpty();
 
   m_Gradient = gradient;
 
   {
     ezQtScopedUpdatesDisabled ud(this);
 
-    //if (wasEmpty)
+    // if (wasEmpty)
     //  GradientWidget->FrameExtents();
 
     if (clearSelection)
@@ -181,7 +183,8 @@ void ezQtColorGradientEditorWidget::on_ButtonColor_clicked()
 
     emit BeginOperation();
 
-    ezQtUiServices::GetSingleton()->ShowColorDialog(m_PickColorStart, false, false, this, SLOT(onCurrentColorChanged(const ezColor&)), SLOT(onColorAccepted()), SLOT(onColorReset()));
+    ezQtUiServices::GetSingleton()->ShowColorDialog(m_PickColorStart, false, false, this, SLOT(onCurrentColorChanged(const ezColor&)),
+                                                    SLOT(onColorAccepted()), SLOT(onColorReset()));
   }
 }
 
@@ -254,5 +257,3 @@ void ezQtColorGradientEditorWidget::UpdateCpUi()
     SpinIntensity->setValue(m_Gradient.GetIntensityControlPoint(m_iSelectedIntensityCP).m_Intensity);
   }
 }
-
-

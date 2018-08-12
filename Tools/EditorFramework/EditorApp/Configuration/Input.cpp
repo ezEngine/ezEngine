@@ -1,7 +1,8 @@
 #include <PCH.h>
+
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 void ezQtEditorApp::GetKnownInputSlots(ezDynamicArray<ezString>& slotList) const
@@ -40,8 +41,6 @@ void ezQtEditorApp::GetKnownInputSlots(ezDynamicArray<ezString>& slotList) const
             slotList.PushBack(sSlot);
         }
       }
-    }
-    while (it.Next().Succeeded());
+    } while (it.Next().Succeeded());
   }
 }
-

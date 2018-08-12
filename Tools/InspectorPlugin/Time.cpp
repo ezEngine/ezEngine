@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Time/Clock.h>
 
@@ -30,4 +31,3 @@ void RemoveTimeEventHandler()
 
 
 EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Time);
-

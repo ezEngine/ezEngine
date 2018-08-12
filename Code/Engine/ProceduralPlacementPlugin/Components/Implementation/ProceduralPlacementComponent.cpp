@@ -1,16 +1,17 @@
 #include <PCH.h>
-#include <ProceduralPlacementPlugin/Components/ProceduralPlacementComponent.h>
-#include <ProceduralPlacementPlugin/Components/Implementation/ActiveTile.h>
-#include <ProceduralPlacementPlugin/Tasks/PlacementTask.h>
+
+#include <Core/Messages/UpdateLocalBoundsMessage.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/Configuration/CVar.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <ProceduralPlacementPlugin/Components/Implementation/ActiveTile.h>
+#include <ProceduralPlacementPlugin/Components/ProceduralPlacementComponent.h>
+#include <ProceduralPlacementPlugin/Tasks/PlacementTask.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <Core/Messages/UpdateLocalBoundsMessage.h>
-#include <Foundation/Configuration/CVar.h>
-#include <Foundation/Profiling/Profiling.h>
 
 namespace
 {
@@ -29,25 +30,22 @@ namespace
     return (sx << 42) | (sy << 21) | sz;
   }
 
-  #define EmptyTileIndex ezInvalidIndex
+#define EmptyTileIndex ezInvalidIndex
 }
 
 using namespace ezPPInternal;
 
-ezCVarFloat CVarCullDistanceScale("pp_CullDistanceScale", 1.0f, ezCVarFlags::Default, "Global scale to control cull distance for all layers");
+ezCVarFloat CVarCullDistanceScale("pp_CullDistanceScale", 1.0f, ezCVarFlags::Default,
+                                  "Global scale to control cull distance for all layers");
 ezCVarInt CVarMaxProcessingTiles("pp_MaxProcessingTiles", 10, ezCVarFlags::Default, "Maximum number of tiles in process");
 ezCVarBool CVarVisTiles("pp_VisTiles", false, ezCVarFlags::Default, "Enables debug visualization of procedural placement tiles");
 
 ezProceduralPlacementComponentManager::ezProceduralPlacementComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ezProceduralPlacementComponent, ezBlockStorageType::Compact>(pWorld)
+    : ezComponentManager<ezProceduralPlacementComponent, ezBlockStorageType::Compact>(pWorld)
 {
-
 }
 
-ezProceduralPlacementComponentManager::~ezProceduralPlacementComponentManager()
-{
-
-}
+ezProceduralPlacementComponentManager::~ezProceduralPlacementComponentManager() {}
 
 void ezProceduralPlacementComponentManager::Initialize()
 {
@@ -157,7 +155,7 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
 
           while (iX <= iRadius)
           {
-            if (iX*iX + iY*iY <= iRadiusSqr)
+            if (iX * iX + iY * iY <= iRadiusSqr)
             {
               ezUInt64 uiTileKey = GetTileKey(iPosX + iX, iPosY + iY, 0);
               if (!activeLayer.m_TileIndices.Contains(uiTileKey))
@@ -229,10 +227,7 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
       }
 
       // Sort by distance, larger distances come first since new tiles are processed in reverse order.
-      m_NewTiles.Sort([](auto& tileA, auto& tileB)
-      {
-        return tileA.m_fDistanceToCamera > tileB.m_fDistanceToCamera;
-      });
+      m_NewTiles.Sort([](auto& tileA, auto& tileB) { return tileA.m_fDistanceToCamera > tileB.m_fDistanceToCamera; });
     }
 
     ClearVisibleResources();
@@ -517,16 +512,15 @@ void ezProceduralPlacementComponentManager::OnResourceEvent(const ezResourceEven
   }
 }
 
-void ezProceduralPlacementComponentManager::AddVisibleResource(const ezProceduralPlacementResourceHandle& hResource, const ezVec3& cameraPosition,
-  const ezVec3& cameraDirection) const
+void ezProceduralPlacementComponentManager::AddVisibleResource(const ezProceduralPlacementResourceHandle& hResource,
+                                                               const ezVec3& cameraPosition, const ezVec3& cameraDirection) const
 {
   EZ_LOCK(m_VisibleResourcesMutex);
 
   for (auto& visibleResource : m_VisibleResources)
   {
-    if (visibleResource.m_hResource == hResource &&
-      visibleResource.m_vCameraPosition == cameraPosition &&
-      visibleResource.m_vCameraDirection == cameraDirection)
+    if (visibleResource.m_hResource == hResource && visibleResource.m_vCameraPosition == cameraPosition &&
+        visibleResource.m_vCameraDirection == cameraDirection)
     {
       return;
     }
@@ -547,25 +541,20 @@ void ezProceduralPlacementComponentManager::ClearVisibleResources()
 
 EZ_BEGIN_COMPONENT_TYPE(ezProceduralPlacementComponent, 1, ezComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("Procedural Placement")),
-    EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(10.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
-  }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS
-  {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
-  }
-  EZ_END_MESSAGEHANDLERS
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezCategoryAttribute("ProceduralPlacement"),
-    new ezBoxManipulatorAttribute("Extents"),
-    new ezBoxVisualizerAttribute("Extents"),
-  }
-  EZ_END_ATTRIBUTES;
+  EZ_BEGIN_PROPERTIES{
+      EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)
+          ->AddAttributes(new ezAssetBrowserAttribute("Procedural Placement")),
+      EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)
+          ->AddAttributes(new ezDefaultValueAttribute(ezVec3(10.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
+  } EZ_END_PROPERTIES;
+  EZ_BEGIN_MESSAGEHANDLERS{
+      EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
+      EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+  } EZ_END_MESSAGEHANDLERS EZ_BEGIN_ATTRIBUTES{
+      new ezCategoryAttribute("ProceduralPlacement"),
+      new ezBoxManipulatorAttribute("Extents"),
+      new ezBoxVisualizerAttribute("Extents"),
+  } EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
 
@@ -574,10 +563,7 @@ ezProceduralPlacementComponent::ezProceduralPlacementComponent()
   m_vExtents.Set(10.0f);
 }
 
-ezProceduralPlacementComponent::~ezProceduralPlacementComponent()
-{
-
-}
+ezProceduralPlacementComponent::~ezProceduralPlacementComponent() {}
 
 void ezProceduralPlacementComponent::OnActivated()
 {
@@ -597,7 +583,8 @@ void ezProceduralPlacementComponent::SetResourceFile(const char* szFile)
 
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
-    hResource = ezResourceManager::LoadResource<ezProceduralPlacementResource>(szFile, ezResourcePriority::High, ezProceduralPlacementResourceHandle());
+    hResource = ezResourceManager::LoadResource<ezProceduralPlacementResource>(szFile, ezResourcePriority::High,
+                                                                               ezProceduralPlacementResourceHandle());
     ezResourceManager::PreloadResource(hResource, ezTime::Seconds(0.0));
   }
 
@@ -653,7 +640,7 @@ void ezProceduralPlacementComponent::OnExtractRenderData(ezMsgExtractRenderData&
     return;
 
   if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::MainView ||
-    msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::EditorView)
+      msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::EditorView)
   {
     const ezCamera* pCamera = msg.m_pView->GetCullingCamera();
 
@@ -662,7 +649,8 @@ void ezProceduralPlacementComponent::OnExtractRenderData(ezMsgExtractRenderData&
 
     if (m_hResource.IsValid())
     {
-      GetWorld()->GetComponentManager<ezProceduralPlacementComponentManager>()->AddVisibleResource(m_hResource, cameraPosition, cameraDirection);
+      GetWorld()->GetComponentManager<ezProceduralPlacementComponentManager>()->AddVisibleResource(m_hResource, cameraPosition,
+                                                                                                   cameraDirection);
     }
   }
 }
@@ -680,7 +668,7 @@ void ezProceduralPlacementComponent::SerializeComponent(ezWorldWriter& stream) c
 void ezProceduralPlacementComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
   s >> m_hResource;

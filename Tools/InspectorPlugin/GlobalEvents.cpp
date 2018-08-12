@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <Foundation/Communication/Telemetry.h>
+
 #include <Foundation/Communication/GlobalEvent.h>
+#include <Foundation/Communication/Telemetry.h>
 
 static ezGlobalEvent::EventMap s_LastState;
 
@@ -89,15 +90,15 @@ namespace GlobalEventsDetail
 
     switch (e.m_EventType)
     {
-    case ezTelemetry::TelemetryEventData::ConnectedToClient:
-      SendAllGlobalEventTelemetry();
-      break;
-    case ezTelemetry::TelemetryEventData::PerFrameUpdate:
-      SendChangedGlobalEventTelemetry();
-      break;
+      case ezTelemetry::TelemetryEventData::ConnectedToClient:
+        SendAllGlobalEventTelemetry();
+        break;
+      case ezTelemetry::TelemetryEventData::PerFrameUpdate:
+        SendChangedGlobalEventTelemetry();
+        break;
 
-    default:
-      break;
+      default:
+        break;
     }
   }
 }
@@ -115,4 +116,3 @@ void RemoveGlobalEventHandler()
 
 
 EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_GlobalEvents);
-

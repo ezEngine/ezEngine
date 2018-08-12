@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Math/Intersection.h>
 #include <Foundation/Math/Mat4.h>
 
@@ -9,13 +10,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Intersection)
     for (ezUInt32 i = 0; i < 100; ++i)
     {
       ezMat4 m;
-      m.SetRotationMatrix(ezVec3(i + 1.0f, i * 3.0f, i * 7.0f).GetNormalized(), ezAngle::Degree((float) i));
-      m.SetTranslationVector(ezVec3((float) i, i * 2.0f, i * 3.0f));
+      m.SetRotationMatrix(ezVec3(i + 1.0f, i * 3.0f, i * 7.0f).GetNormalized(), ezAngle::Degree((float)i));
+      m.SetTranslationVector(ezVec3((float)i, i * 2.0f, i * 3.0f));
 
-      ezVec3 Vertices[8] = { m.TransformPosition(ezVec3(-10, -10, 0)), ezVec3(-10, -10, 0), 
-                             m.TransformPosition(ezVec3( 10, -10, 0)), ezVec3( 10, -10, 0), 
-                             m.TransformPosition(ezVec3( 10,  10, 0)), ezVec3( 10,  10, 0), 
-                             m.TransformPosition(ezVec3(-10,  10, 0)), ezVec3(-10,  10, 0) };
+      ezVec3 Vertices[8] = {
+          m.TransformPosition(ezVec3(-10, -10, 0)), ezVec3(-10, -10, 0), m.TransformPosition(ezVec3(10, -10, 0)), ezVec3(10, -10, 0),
+          m.TransformPosition(ezVec3(10, 10, 0)),   ezVec3(10, 10, 0),   m.TransformPosition(ezVec3(-10, 10, 0)), ezVec3(-10, 10, 0)};
 
       for (float y = -14.5; y <= 14.5f; y += 2.0f)
       {
@@ -28,8 +28,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Intersection)
 
           float fIntersection;
           ezVec3 vIntersection;
-          EZ_TEST_BOOL(ezIntersectionUtils::RayPolygonIntersection(vRayStart, vRayDir, Vertices, 4, &fIntersection, &vIntersection, sizeof(ezVec3) * 2) == bIntersects);
-        
+          EZ_TEST_BOOL(ezIntersectionUtils::RayPolygonIntersection(vRayStart, vRayDir, Vertices, 4, &fIntersection, &vIntersection,
+                                                                   sizeof(ezVec3) * 2) == bIntersects);
+
           if (bIntersects)
           {
             EZ_TEST_FLOAT(fIntersection, 3.0f, 0.0001f);
@@ -45,11 +46,11 @@ EZ_CREATE_SIMPLE_TEST(Math, Intersection)
     for (ezUInt32 i = 0; i < 100; ++i)
     {
       ezMat4 m;
-      m.SetRotationMatrix(ezVec3(i + 1.0f, i * 3.0f, i * 7.0f).GetNormalized(), ezAngle::Degree((float) i));
-      m.SetTranslationVector(ezVec3((float) i, i * 2.0f, i * 3.0f));
+      m.SetRotationMatrix(ezVec3(i + 1.0f, i * 3.0f, i * 7.0f).GetNormalized(), ezAngle::Degree((float)i));
+      m.SetTranslationVector(ezVec3((float)i, i * 2.0f, i * 3.0f));
 
       ezVec3 vSegment0 = m.TransformPosition(ezVec3(-10, 1, 2));
-      ezVec3 vSegment1 = m.TransformPosition(ezVec3( 10, 1, 2));
+      ezVec3 vSegment1 = m.TransformPosition(ezVec3(10, 1, 2));
 
       for (float f = -20; f <= -10; f += 0.5f)
       {
@@ -83,7 +84,6 @@ EZ_CREATE_SIMPLE_TEST(Math, Intersection)
         EZ_TEST_FLOAT(fFraction, 1.0f, 0.0001f);
         EZ_TEST_VEC3(vClosest, vSegment1, 0.0001f);
       }
-
     }
   }
 
@@ -92,11 +92,11 @@ EZ_CREATE_SIMPLE_TEST(Math, Intersection)
     for (ezUInt32 i = 0; i < 100; ++i)
     {
       ezMat4 m;
-      m.SetRotationMatrixZ(ezAngle::Degree((float) i));
-      m.SetTranslationVector(ezVec3((float) i, i * 2.0f, i * 3.0f));
+      m.SetRotationMatrixZ(ezAngle::Degree((float)i));
+      m.SetTranslationVector(ezVec3((float)i, i * 2.0f, i * 3.0f));
 
       const ezVec2 vSegment0 = m.TransformPosition(ezVec3(23, 42, 0)).GetAsVec2();
-      const ezVec2 vSegmentDir= m.TransformDirection(ezVec3(13, 15, 0)).GetAsVec2();
+      const ezVec2 vSegmentDir = m.TransformDirection(ezVec3(13, 15, 0)).GetAsVec2();
 
       const ezVec2 vSegment1 = vSegment0 + vSegmentDir;
 
@@ -110,7 +110,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Intersection)
 
         float fIntersection;
         ezVec2 vIntersection;
-        EZ_TEST_BOOL(ezIntersectionUtils::Ray2DLine2D(vRayStart, vRayDir, vSegment0, vSegment1, &fIntersection, &vIntersection) == bIntersection);
+        EZ_TEST_BOOL(ezIntersectionUtils::Ray2DLine2D(vRayStart, vRayDir, vSegment0, vSegment1, &fIntersection, &vIntersection) ==
+                     bIntersection);
 
         if (bIntersection)
         {
@@ -121,4 +122,3 @@ EZ_CREATE_SIMPLE_TEST(Math, Intersection)
     }
   }
 }
-

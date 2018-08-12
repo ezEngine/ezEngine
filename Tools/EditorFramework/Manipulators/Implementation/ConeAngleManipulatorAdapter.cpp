@@ -1,17 +1,14 @@
-﻿#include <PCH.h>
-#include <EditorFramework/Manipulators/ConeAngleManipulatorAdapter.h>
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
+#include <PCH.h>
+
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
+#include <EditorFramework/Manipulators/ConeAngleManipulatorAdapter.h>
+#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezConeAngleManipulatorAdapter::ezConeAngleManipulatorAdapter()
-{
-}
+ezConeAngleManipulatorAdapter::ezConeAngleManipulatorAdapter() {}
 
-ezConeAngleManipulatorAdapter::~ezConeAngleManipulatorAdapter()
-{
-}
+ezConeAngleManipulatorAdapter::~ezConeAngleManipulatorAdapter() {}
 
 void ezConeAngleManipulatorAdapter::Finalize()
 {
@@ -56,19 +53,19 @@ void ezConeAngleManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezGizmoEvent::Type::BeginInteractions:
-    BeginTemporaryInteraction();
-    break;
+    case ezGizmoEvent::Type::BeginInteractions:
+      BeginTemporaryInteraction();
+      break;
 
-  case ezGizmoEvent::Type::CancelInteractions:
-    CancelTemporayInteraction();
-    break;
+    case ezGizmoEvent::Type::CancelInteractions:
+      CancelTemporayInteraction();
+      break;
 
-  case ezGizmoEvent::Type::EndInteractions:
-    EndTemporaryInteraction();
-    break;
+    case ezGizmoEvent::Type::EndInteractions:
+      EndTemporaryInteraction();
+      break;
 
-  case ezGizmoEvent::Type::Interaction:
+    case ezGizmoEvent::Type::Interaction:
     {
       const ezConeAngleManipulatorAttribute* pAttr = static_cast<const ezConeAngleManipulatorAttribute*>(m_pManipulatorAttr);
 
@@ -82,5 +79,3 @@ void ezConeAngleManipulatorAdapter::UpdateGizmoTransform()
 {
   m_Gizmo.SetTransformation(GetObjectTransform());
 }
-
-

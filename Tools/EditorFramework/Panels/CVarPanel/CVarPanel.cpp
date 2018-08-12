@@ -1,16 +1,17 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <EditorFramework/Panels/CVarPanel/CVarPanel.moc.h>
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/CVarWidget.moc.h>
-#include <Foundation/Configuration/CVar.h>
 #include <QTimer>
 
 EZ_IMPLEMENT_SINGLETON(ezQtCVarPanel);
 
 ezQtCVarPanel::ezQtCVarPanel()
-  : ezQtApplicationPanel("Panel.CVar")
-  , m_SingletonRegistrar(this)
+    : ezQtApplicationPanel("Panel.CVar")
+    , m_SingletonRegistrar(this)
 {
   setWindowIcon(ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/CVar.png"));
   setWindowTitle(QString::fromUtf8(ezTranslate("Panel.CVar")));
@@ -35,14 +36,14 @@ void ezQtCVarPanel::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezToolsProjectEvent::Type::ProjectClosing:
+    case ezToolsProjectEvent::Type::ProjectClosing:
     {
       m_EngineCVarState.Clear();
       m_pCVarWidget->Clear();
 
-      // fallthrough
-  case ezToolsProjectEvent::Type::ProjectOpened:
-      setEnabled(e.m_Type == ezToolsProjectEvent::Type::ProjectOpened);
+        // fallthrough
+      case ezToolsProjectEvent::Type::ProjectOpened:
+        setEnabled(e.m_Type == ezToolsProjectEvent::Type::ProjectOpened);
     }
     break;
   }
@@ -54,12 +55,12 @@ void ezQtCVarPanel::EngineProcessMsgHandler(const ezEditorEngineProcessConnectio
 {
   switch (e.m_Type)
   {
-  case ezEditorEngineProcessConnection::Event::Type::ProcessMessage:
+    case ezEditorEngineProcessConnection::Event::Type::ProcessMessage:
     {
       if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezCVarMsgToEditor>())
       {
         const ezCVarMsgToEditor* pMsg = static_cast<const ezCVarMsgToEditor*>(e.m_pMsg);
-        
+
         bool bExisted = false;
         auto& cvar = m_EngineCVarState.FindOrAdd(pMsg->m_sName, &bExisted).Value();
         cvar.m_sDescription = pMsg->m_sDescription;
@@ -67,22 +68,22 @@ void ezQtCVarPanel::EngineProcessMsgHandler(const ezEditorEngineProcessConnectio
 
         switch (pMsg->m_Value.GetType())
         {
-        case ezVariantType::Float:
-          cvar.m_uiType = ezCVarType::Float;
-          cvar.m_fValue = pMsg->m_Value.ConvertTo<float>();
-          break;
-        case ezVariantType::Int32:
-          cvar.m_uiType = ezCVarType::Int;
-          cvar.m_iValue = pMsg->m_Value.ConvertTo<int>();
-          break;
-        case ezVariantType::Bool:
-          cvar.m_uiType = ezCVarType::Bool;
-          cvar.m_bValue = pMsg->m_Value.ConvertTo<bool>();
-          break;
-        case ezVariantType::String:
-          cvar.m_uiType = ezCVarType::String;
-          cvar.m_sValue = pMsg->m_Value.ConvertTo<ezString>();
-          break;
+          case ezVariantType::Float:
+            cvar.m_uiType = ezCVarType::Float;
+            cvar.m_fValue = pMsg->m_Value.ConvertTo<float>();
+            break;
+          case ezVariantType::Int32:
+            cvar.m_uiType = ezCVarType::Int;
+            cvar.m_iValue = pMsg->m_Value.ConvertTo<int>();
+            break;
+          case ezVariantType::Bool:
+            cvar.m_uiType = ezCVarType::Bool;
+            cvar.m_bValue = pMsg->m_Value.ConvertTo<bool>();
+            break;
+          case ezVariantType::String:
+            cvar.m_uiType = ezCVarType::String;
+            cvar.m_sValue = pMsg->m_Value.ConvertTo<ezString>();
+            break;
         }
 
         if (!bExisted)
@@ -146,4 +147,3 @@ void ezQtCVarPanel::StringChanged(const char* szCVar, const char* newValue)
   msg.m_NewValue = newValue;
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
-

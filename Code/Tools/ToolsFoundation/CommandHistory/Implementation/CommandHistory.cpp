@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
 #include <ToolsFoundation/Document/Document.h>
 
@@ -25,9 +26,7 @@ ezStatus ezCommandTransaction::UndoInternal(bool bFireEvents)
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezCommandTransaction::CleanupInternal(CommandState state)
-{
-}
+void ezCommandTransaction::CleanupInternal(CommandState state) {}
 
 ezStatus ezCommandTransaction::AddCommandTransaction(ezCommand* pCommand)
 {
@@ -40,7 +39,8 @@ ezStatus ezCommandTransaction::AddCommandTransaction(ezCommand* pCommand)
 // ezCommandHistory
 ////////////////////////////////////////////////////////////////////////
 
-ezCommandHistory::ezCommandHistory(ezDocument* pDocument) : m_pDocument(pDocument)
+ezCommandHistory::ezCommandHistory(ezDocument* pDocument)
+    : m_pDocument(pDocument)
 {
   m_bTemporaryMode = false;
   m_bIsInUndoRedo = false;
@@ -107,7 +107,7 @@ void ezCommandHistory::EndTemporaryCommands(bool bCancel)
 {
   EZ_ASSERT_DEV(m_bTemporaryMode, "Temporary Mode was not enabled");
   EZ_ASSERT_DEV(m_iTemporaryDepth == (ezInt32)m_TransactionStack.GetCount(), "Transaction stack is at depth {0} but temporary is at {1}",
-    m_TransactionStack.GetCount(), m_iTemporaryDepth);
+                m_TransactionStack.GetCount(), m_iTemporaryDepth);
   m_bTemporaryMode = false;
 
   EndTransaction(bCancel);
@@ -359,7 +359,7 @@ ezStatus ezCommandHistory::AddCommand(ezCommand& command)
   auto res = m_ActiveCommandStack.PeekBack()->AddSubCommand(command);
 
   // Error handling should be on the caller side.
-  //if (res.Failed() && !res.m_sMessage.IsEmpty())
+  // if (res.Failed() && !res.m_sMessage.IsEmpty())
   //{
   //  ezLog::Error("Command failed: '{0}'", res.m_sMessage);
   //}
@@ -432,5 +432,3 @@ const ezCommandTransaction* ezCommandHistory::GetRedoStackEntry(ezUInt32 iIndex)
 {
   return m_RedoHistory[GetRedoStackSize() - 1 - iIndex];
 }
-
-

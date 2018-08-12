@@ -1,14 +1,16 @@
 #include <PCH.h>
-#include <GameEngine/MixedReality/Components/SrmRenderComponent.h>
-#include <Core/WorldSerializer/WorldWriter.h>
+
 #include <Core/WorldSerializer/WorldReader.h>
-#include <RendererCore/Meshes/MeshResourceDescriptor.h>
-#include <RendererCore/Meshes/MeshResource.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <GameEngine/MixedReality/Components/SrmRenderComponent.h>
 #include <RendererCore/Meshes/MeshComponent.h>
+#include <RendererCore/Meshes/MeshResource.h>
+#include <RendererCore/Meshes/MeshResourceDescriptor.h>
 #include <WindowsMixedReality/SpatialMapping/SurfaceReconstructionMeshManager.h>
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezSrmRenderComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -23,13 +25,14 @@ EZ_BEGIN_COMPONENT_TYPE(ezSrmRenderComponent, 1, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
 ezSrmRenderComponent::ezSrmRenderComponent()
 {
   SetMaterialFile("Materials/Common/SRM_Visible.ezMaterial");
 }
 
-ezSrmRenderComponent::~ezSrmRenderComponent() { }
+ezSrmRenderComponent::~ezSrmRenderComponent() {}
 
 void ezSrmRenderComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -42,7 +45,7 @@ void ezSrmRenderComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezSrmRenderComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
   s >> m_hMaterial;
@@ -178,7 +181,8 @@ end:
 #endif
 }
 
-void ezSrmRenderComponent::CreateSurfaceRepresentation(const ezUuid& guid, SrmRenderObject& surface, const ezTransform& transform, const ezMeshBufferResourceDescriptor& mb)
+void ezSrmRenderComponent::CreateSurfaceRepresentation(const ezUuid& guid, SrmRenderObject& surface, const ezTransform& transform,
+                                                       const ezMeshBufferResourceDescriptor& mb)
 {
   EZ_LOCK(GetWorld()->GetWriteMarker());
 
@@ -224,4 +228,3 @@ void ezSrmRenderComponent::CreateSurfaceRepresentation(const ezUuid& guid, SrmRe
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_MixedReality_Components_SrmRenderComponent);
-

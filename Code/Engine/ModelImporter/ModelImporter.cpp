@@ -1,13 +1,14 @@
 #include <PCH.h>
+
 #include <ModelImporter/ModelImporter.h>
 
 #include <ModelImporter/ImporterImplementation.h>
-#include <ModelImporter/Node.h>
 #include <ModelImporter/Mesh.h>
+#include <ModelImporter/Node.h>
 
+#include <Foundation/Containers/HashSet.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Logging/Log.h>
-#include <Foundation/Containers/HashSet.h>
 #include <Foundation/Time/Stopwatch.h>
 
 EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_MODELIMPORTER_DLL, ezModelImporter);
@@ -17,13 +18,11 @@ EZ_IMPLEMENT_SINGLETON(ezModelImporter::Importer);
 namespace ezModelImporter
 {
   Importer::Importer()
-    : m_SingletonRegistrar(this)
+      : m_SingletonRegistrar(this)
   {
   }
 
-  Importer::~Importer()
-  {
-  }
+  Importer::~Importer() {}
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   void ValidateSceneGraph(Scene* scene)
@@ -36,7 +35,7 @@ namespace ezModelImporter
 
     for (const HierarchyObject* object : scene->GetRootObjects())
     {
-      //EZ_ASSERT_DEBUG(!object->GetParent().IsValid(), "Root object has a parent!");
+      // EZ_ASSERT_DEBUG(!object->GetParent().IsValid(), "Root object has a parent!");
 
       const Node* currentNode = object->Cast<Node>();
       if (currentNode)
@@ -53,7 +52,7 @@ namespace ezModelImporter
 
           for (ObjectHandle child : currentNode->m_Children)
           {
-            //EZ_ASSERT_DEBUG(scene->GetObject(object->GetParent()) == currentNode, "Child's parent pointer is incorrect!");
+            // EZ_ASSERT_DEBUG(scene->GetObject(object->GetParent()) == currentNode, "Child's parent pointer is incorrect!");
 
             const Node* childNode = object->Cast<Node>();
             if (childNode)
@@ -81,11 +80,11 @@ namespace ezModelImporter
     }
 
     // Newer implementations have higher priority.
-    for(int i=m_ImporterImplementations.GetCount() - 1; i >= 0; --i)
+    for (int i = m_ImporterImplementations.GetCount() - 1; i >= 0; --i)
     {
       auto supportedFormats = m_ImporterImplementations[i]->GetSupportedFileFormats();
-      if (std::any_of(cbegin(supportedFormats), cend(supportedFormats), [fileExtension](const char* ext)
-          { return ezStringUtils::IsEqual_NoCase(ext, fileExtension); }))
+      if (std::any_of(cbegin(supportedFormats), cend(supportedFormats),
+                      [fileExtension](const char* ext) { return ezStringUtils::IsEqual_NoCase(ext, fileExtension); }))
       {
         ezStopwatch timer;
         scene = m_ImporterImplementations[i]->ImportScene(szFileName, importFlags);
@@ -110,10 +109,7 @@ namespace ezModelImporter
     return nullptr;
   }
 
-  void Importer::ClearCachedScenes()
-  {
-    m_cachedScenes.Clear();
-  }
+  void Importer::ClearCachedScenes() { m_cachedScenes.Clear(); }
 
   void Importer::AddImporterImplementation(ezUniquePtr<ImporterImplementation> importerImplementation)
   {
@@ -135,7 +131,8 @@ namespace ezModelImporter
     return supportedFormats;
   }
 
-  ezStatus Importer::ImportMesh(const char* szSceneFile, const char* szSubMesh, ezSharedPtr<ezModelImporter::Scene>& outScene, ezModelImporter::Mesh*& outMesh)
+  ezStatus Importer::ImportMesh(const char* szSceneFile, const char* szSubMesh, ezSharedPtr<ezModelImporter::Scene>& outScene,
+                                ezModelImporter::Mesh*& outMesh)
   {
     outScene = ezModelImporter::Importer::GetSingleton()->ImportScene(szSceneFile, ImportFlags::Meshes | ImportFlags::Skeleton);
     if (!outScene)
@@ -172,5 +169,4 @@ namespace ezModelImporter
 
     return ezStatus(EZ_SUCCESS);
   }
-
 }

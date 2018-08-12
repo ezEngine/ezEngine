@@ -1,11 +1,13 @@
 #include <PCH.h>
-#include <RendererCore/Components/SpriteComponent.h>
-#include <RendererCore/Pipeline/View.h>
+
 #include <EnginePluginScene/RenderPipeline/EditorShapeIconsExtractor.h>
 #include <EnginePluginScene/SceneContext/SceneContext.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <RendererCore/Components/SpriteComponent.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <RendererCore/Pipeline/View.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorShapeIconsExtractor, 1, ezRTTIDefaultAllocator<ezEditorShapeIconsExtractor>)
 {
   EZ_BEGIN_PROPERTIES
@@ -17,10 +19,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorShapeIconsExtractor, 1, ezRTTIDefaultAll
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
+// clang-format on
 
 ezEditorShapeIconsExtractor::ezEditorShapeIconsExtractor(const char* szName)
-  : ezExtractor(szName)
+    : ezExtractor(szName)
 {
   m_fSize = 1.0f;
   m_fMaxScreenSize = 64.0f;
@@ -29,12 +31,10 @@ ezEditorShapeIconsExtractor::ezEditorShapeIconsExtractor(const char* szName)
   FillShapeIconInfo();
 }
 
-ezEditorShapeIconsExtractor::~ezEditorShapeIconsExtractor()
-{
-}
+ezEditorShapeIconsExtractor::~ezEditorShapeIconsExtractor() {}
 
 void ezEditorShapeIconsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-  ezExtractedRenderData& extractedRenderData)
+                                          ezExtractedRenderData& extractedRenderData)
 {
   EZ_LOCK(view.GetWorld()->GetReadMarker());
 
@@ -66,7 +66,8 @@ void ezEditorShapeIconsExtractor::Extract(const ezView& view, const ezDynamicArr
   }
 }
 
-void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, const ezView& view, ezExtractedRenderData& extractedRenderData, ezRenderData::Category category)
+void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, const ezView& view,
+                                                   ezExtractedRenderData& extractedRenderData, ezRenderData::Category category)
 {
   static const ezTag& tagHidden = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorHidden");
   static const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
@@ -88,7 +89,7 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, 
 
     const ezUInt32 uiTextureIDHash = pShapeIconInfo->m_hTexture.GetResourceIDHash();
 
-    ezUInt32 data[] = { (ezUInt32)blendMode, uiTextureIDHash };
+    ezUInt32 data[] = {(ezUInt32)blendMode, uiTextureIDHash};
     ezUInt32 uiBatchId = ezHashing::xxHash32(data, sizeof(data));
 
     ezSpriteRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezSpriteRenderData>(pObject, uiBatchId);
@@ -133,8 +134,7 @@ const ezTypedMemberProperty<ezColor>* ezEditorShapeIconsExtractor::FindColorProp
 
   for (const ezAbstractProperty* pProperty : properties)
   {
-    if (pProperty->GetCategory() == ezPropertyCategory::Member &&
-      pProperty->GetSpecificType() == ezGetStaticRTTI<ezColor>())
+    if (pProperty->GetCategory() == ezPropertyCategory::Member && pProperty->GetSpecificType() == ezGetStaticRTTI<ezColor>())
     {
       return static_cast<const ezTypedMemberProperty<ezColor>*>(pProperty);
     }
@@ -150,8 +150,7 @@ const ezTypedMemberProperty<ezColorGammaUB>* ezEditorShapeIconsExtractor::FindCo
 
   for (const ezAbstractProperty* pProperty : properties)
   {
-    if (pProperty->GetCategory() == ezPropertyCategory::Member &&
-        pProperty->GetSpecificType() == ezGetStaticRTTI<ezColorGammaUB>())
+    if (pProperty->GetCategory() == ezPropertyCategory::Member && pProperty->GetSpecificType() == ezGetStaticRTTI<ezColorGammaUB>())
     {
       return static_cast<const ezTypedMemberProperty<ezColorGammaUB>*>(pProperty);
     }

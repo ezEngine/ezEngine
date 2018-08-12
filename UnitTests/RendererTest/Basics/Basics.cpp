@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include "Basics.h"
 #include <Core/Graphics/Camera.h>
 
@@ -22,7 +23,6 @@ ezResult ezRendererTestBasics::InitializeSubTest(ezInt32 iIdentifier)
   m_hTorus = CreateTorus(16, 0.5f, 0.75f);
   m_hLongBox = CreateBox(0.4f, 0.2f, 2.0f);
   m_hLineBox = CreateLineBox(0.4f, 0.2f, 2.0f);
-
 
 
 
@@ -54,18 +54,18 @@ ezTestAppRun ezRendererTestBasics::SubtestClearScreen()
 
   switch (m_iFrame)
   {
-  case 0:
-    ClearScreen(ezColor(1, 0, 0));
-    break;
-  case 1:
-    ClearScreen(ezColor(0, 1, 0));
-    break;
-  case 2:
-    ClearScreen(ezColor(0, 0, 1));
-    break;
-  case 3:
-    ClearScreen(ezColor(0.5f, 0.5f, 0.5f, 0.5f));
-    break;
+    case 0:
+      ClearScreen(ezColor(1, 0, 0));
+      break;
+    case 1:
+      ClearScreen(ezColor(0, 1, 0));
+      break;
+    case 2:
+      ClearScreen(ezColor(0, 0, 1));
+      break;
+    case 3:
+      ClearScreen(ezColor(0.5f, 0.5f, 0.5f, 0.5f));
+      break;
   }
 
   EZ_TEST_IMAGE(1);
@@ -121,8 +121,6 @@ void ezRendererTestBasics::RenderLineObjects(ezBitflags<ezShaderBindFlags> Shade
   mOther.SetScalingMatrix(ezVec3(1.0f, 1.0f, 1.0f));
   mTransform.SetTranslationMatrix(ezVec3(-0.3f, -0.3f, 0.0f));
   RenderObject(m_hLineBox, mProj * mView * mTransform * mOther, ezColor(1, 0, 1, 0.25f), ShaderBindFlags);
-
 }
 
 static ezRendererTestBasics g_Test;
-

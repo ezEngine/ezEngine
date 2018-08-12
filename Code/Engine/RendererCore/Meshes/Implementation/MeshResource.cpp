@@ -1,7 +1,8 @@
 #include <PCH.h>
-#include <RendererCore/Meshes/MeshResource.h>
-#include <RendererCore/Material/MaterialResource.h>
+
 #include <Core/Assets/AssetFileHeader.h>
+#include <RendererCore/Material/MaterialResource.h>
+#include <RendererCore/Meshes/MeshResource.h>
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshResource, 1, ezRTTIDefaultAllocator<ezMeshResource>);
@@ -9,7 +10,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezUInt32 ezMeshResource::s_MeshBufferNameSuffix = 0;
 
-ezMeshResource::ezMeshResource() : ezResource<ezMeshResource, ezMeshResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+ezMeshResource::ezMeshResource()
+    : ezResource<ezMeshResource, ezMeshResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
   m_Bounds.SetInvalid();
 }
@@ -22,7 +24,7 @@ ezResourceLoadDesc ezMeshResource::UnloadData(Unload WhatToUnload)
   res.m_uiQualityLevelsLoadable = GetNumQualityLevelsLoadable();
 
   // we currently can only unload the entire mesh
-  //if (WhatToUnload == Unload::AllQualityLevels)
+  // if (WhatToUnload == Unload::AllQualityLevels)
   {
     m_SubMeshes.Clear();
     m_hMeshBuffer.Invalidate();
@@ -71,7 +73,7 @@ ezResourceLoadDesc ezMeshResource::UpdateContent(ezStreamReader* Stream)
 
 void ezMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezMeshResource) + (ezUInt32) m_SubMeshes.GetHeapMemoryUsage();
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezMeshResource) + (ezUInt32)m_SubMeshes.GetHeapMemoryUsage();
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
@@ -126,4 +128,3 @@ ezResourceLoadDesc ezMeshResource::CreateResource(const ezMeshResourceDescriptor
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshResource);
-

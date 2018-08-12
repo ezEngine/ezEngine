@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Strings/String.h>
@@ -18,10 +19,7 @@ namespace HashTableTestDetail
       this->key = key;
     }
 
-    inline bool operator==(const Collision& other) const
-    {
-      return key == other.key;
-    }
+    inline bool operator==(const Collision& other) const { return key == other.key; }
 
     EZ_DECLARE_POD_TYPE();
   };
@@ -29,51 +27,43 @@ namespace HashTableTestDetail
   class OnlyMovable
   {
   public:
-    OnlyMovable(ezUInt32 hash) : hash(hash), m_NumTimesMoved(0) {}
+    OnlyMovable(ezUInt32 hash)
+        : hash(hash)
+        , m_NumTimesMoved(0)
+    {
+    }
     OnlyMovable(OnlyMovable&& other) { *this = std::move(other); }
 
-    void operator = (OnlyMovable&& other)
+    void operator=(OnlyMovable&& other)
     {
       hash = other.hash;
       m_NumTimesMoved = 0;
       ++other.m_NumTimesMoved;
     }
 
-    bool operator==(const OnlyMovable& other) const
-    {
-      return hash == other.hash;
-    }
+    bool operator==(const OnlyMovable& other) const { return hash == other.hash; }
 
     int m_NumTimesMoved;
     ezUInt32 hash;
 
   private:
     OnlyMovable(const OnlyMovable&);
-    void operator = (const OnlyMovable&);
+    void operator=(const OnlyMovable&);
   };
 }
 
 template <>
 struct ezHashHelper<HashTableTestDetail::Collision>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const HashTableTestDetail::Collision& value)
-  {
-    return value.hash;
-  }
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const HashTableTestDetail::Collision& value) { return value.hash; }
 
-  EZ_ALWAYS_INLINE static bool Equal(const HashTableTestDetail::Collision& a, const HashTableTestDetail::Collision& b)
-  {
-    return a == b;
-  }
+  EZ_ALWAYS_INLINE static bool Equal(const HashTableTestDetail::Collision& a, const HashTableTestDetail::Collision& b) { return a == b; }
 };
 
 template <>
 struct ezHashHelper<HashTableTestDetail::OnlyMovable>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const HashTableTestDetail::OnlyMovable& value)
-  {
-    return value.hash;
-  }
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const HashTableTestDetail::OnlyMovable& value) { return value.hash; }
 
   EZ_ALWAYS_INLINE static bool Equal(const HashTableTestDetail::OnlyMovable& a, const HashTableTestDetail::OnlyMovable& b)
   {
@@ -109,8 +99,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
       do
       {
         key = rand() % 100000;
-      }
-      while (table1.Contains(key));
+      } while (table1.Contains(key));
 
       table1.Insert(key, ezConstructionCounter(i));
     }
@@ -190,7 +179,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
 
     {
       ezHashTable<HashTableTestDetail::OnlyMovable, int> noCopyKey;
-      //noCopyKey.Insert(noCopyObject, 10); // Should not compile
+      // noCopyKey.Insert(noCopyObject, 10); // Should not compile
       noCopyKey.Insert(std::move(noCopyObject), 10);
       EZ_TEST_INT(noCopyObject.m_NumTimesMoved, 1);
       EZ_TEST_BOOL(noCopyKey.Contains(noCopyObject));
@@ -198,7 +187,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
 
     {
       ezHashTable<int, HashTableTestDetail::OnlyMovable> noCopyValue;
-      //noCopyValue.Insert(10, noCopyObject); // Should not compile
+      // noCopyValue.Insert(10, noCopyObject); // Should not compile
       noCopyValue.Insert(10, std::move(noCopyObject));
       EZ_TEST_INT(noCopyObject.m_NumTimesMoved, 2);
       EZ_TEST_BOOL(noCopyValue.Contains(10));
@@ -206,8 +195,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
 
     {
       ezHashTable<HashTableTestDetail::OnlyMovable, HashTableTestDetail::OnlyMovable> noCopyAnything;
-      //noCopyAnything.Insert(10, noCopyObject); // Should not compile
-      //noCopyAnything.Insert(noCopyObject, 10); // Should not compile
+      // noCopyAnything.Insert(10, noCopyObject); // Should not compile
+      // noCopyAnything.Insert(noCopyObject, 10); // Should not compile
       noCopyAnything.Insert(std::move(noCopyObject), std::move(noCopyObject));
       EZ_TEST_INT(noCopyObject.m_NumTimesMoved, 4);
       EZ_TEST_BOOL(noCopyAnything.Contains(noCopyObject));

@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/IO/OSFile.h>
 
 EZ_CREATE_SIMPLE_TEST(IO, OSFile)
@@ -118,10 +119,12 @@ Only concrete and clocks.\n\
     ezStringBuilder dir = sOutputFile2.GetFileDirectory();
 
     EZ_TEST_BOOL(ezOSFile::GetFileStats(sOutputFile2.GetData(), s) == EZ_SUCCESS);
-    //printf("%s Name: '%s' (%lli Bytes), Modified Time: %lli\n", s.m_bIsDirectory ? "Directory" : "File", s.m_sFileName.GetData(), s.m_uiFileSize, s.m_LastModificationTime.GetInt64(ezSIUnitOfTime::Microsecond));
+    // printf("%s Name: '%s' (%lli Bytes), Modified Time: %lli\n", s.m_bIsDirectory ? "Directory" : "File", s.m_sFileName.GetData(),
+    // s.m_uiFileSize, s.m_LastModificationTime.GetInt64(ezSIUnitOfTime::Microsecond));
 
     EZ_TEST_BOOL(ezOSFile::GetFileStats(dir.GetData(), s) == EZ_SUCCESS);
-    //printf("%s Name: '%s' (%lli Bytes), Modified Time: %lli\n", s.m_bIsDirectory ? "Directory" : "File", s.m_sFileName.GetData(), s.m_uiFileSize, s.m_LastModificationTime.GetInt64(ezSIUnitOfTime::Microsecond));
+    // printf("%s Name: '%s' (%lli Bytes), Modified Time: %lli\n", s.m_bIsDirectory ? "Directory" : "File", s.m_sFileName.GetData(),
+    // s.m_uiFileSize, s.m_LastModificationTime.GetInt64(ezSIUnitOfTime::Microsecond));
   }
 
 #if (EZ_ENABLED(EZ_SUPPORTS_CASE_INSENSITIVE_PATHS) && EZ_ENABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS))
@@ -183,9 +186,8 @@ Only concrete and clocks.\n\
           ++uiFiles;
         }
 
-        //printf("%s: '%s'\n", it.GetStats().m_bIsDirectory ? "[Dir] " : "[File]", sFullPath.GetData());
-      }
-      while (it.Next() == EZ_SUCCESS);
+        // printf("%s: '%s'\n", it.GetStats().m_bIsDirectory ? "[Dir] " : "[File]", sFullPath.GetData());
+      } while (it.Next() == EZ_SUCCESS);
     }
 
     EZ_TEST_BOOL(uiFolders > 0);
@@ -203,7 +205,7 @@ Only concrete and clocks.\n\
     EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile2.GetData()) == EZ_SUCCESS); // second time should still 'succeed'
 
     ezOSFile f;
-    EZ_TEST_BOOL(f.Open(sOutputFile.GetData(), ezFileMode::Read) == EZ_FAILURE); // file should not exist anymore
+    EZ_TEST_BOOL(f.Open(sOutputFile.GetData(), ezFileMode::Read) == EZ_FAILURE);  // file should not exist anymore
     EZ_TEST_BOOL(f.Open(sOutputFile2.GetData(), ezFileMode::Read) == EZ_FAILURE); // file should not exist anymore
   }
 

@@ -1,8 +1,9 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Strings/FormatString.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Time/Stopwatch.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
 
 void TestFormat(const ezFormatString& str, const char* szExpected)
 {
@@ -61,7 +62,8 @@ void CompareSnprintf(ezStringBuilder& log, const ezFormatString& str, const char
     t3 = sw.Checkpoint();
   }
 
-  log.AppendFormat("ez: {0} msec, std: {1} msec, ezFmt: {2} msec : {3} -> {4}\n", ezArgF(t1.GetMilliseconds(), 2), ezArgF(t2.GetMilliseconds(), 2), ezArgF(t3.GetMilliseconds(), 2), szFormat, Temp1);
+  log.AppendFormat("ez: {0} msec, std: {1} msec, ezFmt: {2} msec : {3} -> {4}\n", ezArgF(t1.GetMilliseconds(), 2),
+                   ezArgF(t2.GetMilliseconds(), 2), ezArgF(t3.GetMilliseconds(), 2), szFormat, Temp1);
 
   va_end(args);
 }
@@ -91,9 +93,11 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
 
   EZ_TEST_BLOCK(ezTestBlock::Disabled, "Compare")
   {
-    CompareSnprintf(perfLog, ezFmt("Hello {0}, i = {1}, f = {2}", "World", 42, ezArgF(3.141f, 2)), "Hello %s, i = %i, f = %.2f", "World", 42, 3.141f);
+    CompareSnprintf(perfLog, ezFmt("Hello {0}, i = {1}, f = {2}", "World", 42, ezArgF(3.141f, 2)), "Hello %s, i = %i, f = %.2f", "World",
+                    42, 3.141f);
     CompareSnprintf(perfLog, ezFmt("No formatting at all"), "No formatting at all");
-    CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}", "AAAAAA", "BBBBBBB", "CCCCCC", "DDDDDDDDDDDDD", "EE"), "%s, %s, %s, %s, %s", "AAAAAA", "BBBBBBB", "CCCCCC", "DDDDDDDDDDDDD", "EE");
+    CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}", "AAAAAA", "BBBBBBB", "CCCCCC", "DDDDDDDDDDDDD", "EE"), "%s, %s, %s, %s, %s",
+                    "AAAAAA", "BBBBBBB", "CCCCCC", "DDDDDDDDDDDDD", "EE");
     CompareSnprintf(perfLog, ezFmt("{0}", 23), "%i", 23);
     CompareSnprintf(perfLog, ezFmt("{0}", 23.123456789), "%f", 23.123456789);
     CompareSnprintf(perfLog, ezFmt("{0}", ezArgF(23.123456789, 2)), "%.2f", 23.123456789);
@@ -102,17 +106,19 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
     CompareSnprintf(perfLog, ezFmt("{0}", ezArgU(1234567890987ll, 30, false, 16)), "% 30x", 1234567890987ll);
     CompareSnprintf(perfLog, ezFmt("{0}", ezArgU(1234567890987ll, 30, false, 16, true)), "% 30X", 1234567890987ll);
     CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}", 0, 1, 2, 3, 4), "%i, %i, %i, %i, %i", 0, 1, 2, 3, 4);
-    CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}", 0.1, 1.1, 2.1, 3.1, 4.1), "%.1f, %.1f, %.1f, %.1f, %.1f", 0.1, 1.1, 2.1, 3.1, 4.1);
-    CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9), "%i, %i, %i, %i, %i, %i, %i, %i, %i, %i", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-    CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}", 0.1, 1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1), "%.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f", 0.1, 1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1);
+    CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}", 0.1, 1.1, 2.1, 3.1, 4.1), "%.1f, %.1f, %.1f, %.1f, %.1f", 0.1, 1.1, 2.1, 3.1,
+                    4.1);
+    CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+                    "%i, %i, %i, %i, %i, %i, %i, %i, %i, %i", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+    CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}", 0.1, 1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1),
+                    "%.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f", 0.1, 1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1);
     CompareSnprintf(perfLog, ezFmt("{0}", ezArgC('z')), "%c", 'z');
 
-    //FILE* file = fopen("D:\\snprintf_perf.txt", "wb");
-    //if (file)
+    // FILE* file = fopen("D:\\snprintf_perf.txt", "wb");
+    // if (file)
     //{
     //  fwrite(perfLog.GetData(), 1, perfLog.GetElementCount(), file);
     //  fclose(file);
     //}
   }
 }
-

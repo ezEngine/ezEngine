@@ -1,17 +1,18 @@
 #include <PCH.h>
+
+#include <Core/ResourceManager/ResourceBase.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
 #include <RendererCore/Textures/Texture2DResource.h>
-#include <Core/ResourceManager/ResourceBase.h>
 
 
 ezCameraComponentManager::ezCameraComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ezCameraComponent, ezBlockStorageType::Compact>(pWorld)
+    : ezComponentManager<ezCameraComponent, ezBlockStorageType::Compact>(pWorld)
 {
 }
 
@@ -114,6 +115,7 @@ void ezCameraComponentManager::OnViewCreated(ezView* pView)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 7, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -148,6 +150,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 7, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezCameraComponent::ezCameraComponent()
 {
@@ -213,7 +216,8 @@ void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
   m_UsageHint.SetValue(usage);
 
   ezCameraMode::StorageType cam;
-  s >> cam; m_Mode.SetValue(cam);
+  s >> cam;
+  m_Mode.SetValue(cam);
 
   s >> m_fNearPlane;
   s >> m_fFarPlane;
@@ -249,7 +253,7 @@ void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
     s >> m_RenderTargetRectOffset;
     s >> m_RenderTargetRectSize;
   }
-  
+
   MarkAsModified();
 }
 
@@ -275,7 +279,8 @@ void ezCameraComponent::UpdateRenderTargetCamera()
   else
     m_RenderTargetCamera.SetCameraMode(GetCameraMode(), m_fOrthoDimension, m_fNearPlane, m_fFarPlane);
 
-  m_RenderTargetCamera.LookAt(GetOwner()->GetGlobalPosition(), GetOwner()->GetGlobalPosition() + GetOwner()->GetGlobalDirForwards(), GetOwner()->GetGlobalDirUp());
+  m_RenderTargetCamera.LookAt(GetOwner()->GetGlobalPosition(), GetOwner()->GetGlobalPosition() + GetOwner()->GetGlobalDirForwards(),
+                              GetOwner()->GetGlobalDirUp());
 }
 
 void ezCameraComponent::SetUsageHint(ezEnum<ezCameraUsageHint> val)
@@ -507,7 +512,8 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
       const char* szName = GetOwner()->GetName();
 
       ezStringBuilder sb;
-      sb.Format("Camera '{0}': EV100: {1}, Exposure: {2}", ezStringUtils::IsNullOrEmpty(szName) ? pView->GetName() : szName, GetEV100(), GetExposure());
+      sb.Format("Camera '{0}': EV100: {1}, Exposure: {2}", ezStringUtils::IsNullOrEmpty(szName) ? pView->GetName() : szName, GetEV100(),
+                GetExposure());
       ezDebugRenderer::DrawText(GetWorld(), sb, ezVec2I32(20, 20), ezColor::LimeGreen);
     }
 
@@ -529,7 +535,6 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
 
       ezDebugRenderer::DrawLineFrustum(GetWorld(), frustum, ezColor::LimeGreen);
     }
-
   }
 
   if (m_hRenderPipeline.IsValid())
@@ -542,25 +547,25 @@ void ezCameraComponent::ResourceChangeEventHandler(const ezResourceEvent& e)
 {
   switch (e.m_EventType)
   {
-  case ezResourceEventType::ResourceExists:
-  case ezResourceEventType::ResourceCreated:
-  case ezResourceEventType::ResourceInPreloadQueue:
-  case ezResourceEventType::ResourceOutOfPreloadQueue:
-  case ezResourceEventType::ResourcePriorityChanged:
-  case ezResourceEventType::ResourceDueDateChanged:
-    return;
+    case ezResourceEventType::ResourceExists:
+    case ezResourceEventType::ResourceCreated:
+    case ezResourceEventType::ResourceInPreloadQueue:
+    case ezResourceEventType::ResourceOutOfPreloadQueue:
+    case ezResourceEventType::ResourcePriorityChanged:
+    case ezResourceEventType::ResourceDueDateChanged:
+      return;
 
-  case ezResourceEventType::ResourceDeleted:
-  case ezResourceEventType::ResourceContentUnloading:
-  case ezResourceEventType::ResourceContentUpdated:
-    // triggers a recreation of the view
-    ezRenderWorld::DeleteView(m_hRenderTargetView);
-    m_hRenderTargetView.Invalidate();
-    break;
-    
-  default:
-    EZ_ASSERT_NOT_IMPLEMENTED;
-    break;
+    case ezResourceEventType::ResourceDeleted:
+    case ezResourceEventType::ResourceContentUnloading:
+    case ezResourceEventType::ResourceContentUpdated:
+      // triggers a recreation of the view
+      ezRenderWorld::DeleteView(m_hRenderTargetView);
+      m_hRenderTargetView.Invalidate();
+      break;
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
   }
 }
 
@@ -676,9 +681,9 @@ void ezCameraComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -687,7 +692,9 @@ class ezCameraComponentPatch_4_5 : public ezGraphPatch
 {
 public:
   ezCameraComponentPatch_4_5()
-    : ezGraphPatch("ezCameraComponent", 5) {}
+      : ezGraphPatch("ezCameraComponent", 5)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -707,4 +714,3 @@ ezCameraComponentPatch_4_5 g_ezCameraComponentPatch_4_5;
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_CameraComponent);
-

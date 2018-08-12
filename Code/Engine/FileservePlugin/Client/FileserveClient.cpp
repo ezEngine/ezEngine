@@ -1,11 +1,12 @@
 #include <PCH.h>
+
 #include <FileservePlugin/Client/FileserveClient.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Communication/RemoteInterfaceEnet.h>
-#include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
-#include <Foundation/Communication/GlobalEvent.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <FileservePlugin/Fileserver/ClientContext.h>
+#include <Foundation/Communication/GlobalEvent.h>
+#include <Foundation/Communication/RemoteInterfaceEnet.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Types/ScopeExit.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 
@@ -14,7 +15,7 @@ EZ_IMPLEMENT_SINGLETON(ezFileserveClient);
 bool ezFileserveClient::s_bEnableFileserve = true;
 
 ezFileserveClient::ezFileserveClient()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
   AddServerAddressToTry("localhost:1042");
 
@@ -193,7 +194,6 @@ void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, con
     WriteMetaFile(sCachedMetaFile, 0, uiHash);
 
     InvalidateFileCache(uiDataDirID, szFile, uiHash);
-
   }
 
   const ezUInt32 uiFileSize = fileContent.GetCount();
@@ -294,7 +294,8 @@ void ezFileserveClient::FillFileStatusCache(const char* szFile)
     it.Value() = 0; // fallback
 }
 
-void ezFileserveClient::BuildPathInCache(const char* szFile, const char* szMountPoint, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sFullPathMeta) const
+void ezFileserveClient::BuildPathInCache(const char* szFile, const char* szMountPoint, ezStringBuilder& out_sAbsPath,
+                                         ezStringBuilder& out_sFullPathMeta) const
 {
   EZ_ASSERT_DEV(!ezPathUtils::IsAbsolutePath(szFile), "Invalid path");
   EZ_LOCK(m_Mutex);
@@ -315,7 +316,8 @@ void ezFileserveClient::ComputeDataDirMountPoint(const char* szDataDir, ezString
   out_sMountPoint.Format("{0}", ezArgU(uiMountPoint, 8, true, 16));
 }
 
-void ezFileserveClient::GetFullDataDirCachePath(const char* szDataDir, ezStringBuilder& out_sFullPath, ezStringBuilder& out_sFullPathMeta) const
+void ezFileserveClient::GetFullDataDirCachePath(const char* szDataDir, ezStringBuilder& out_sFullPath,
+                                                ezStringBuilder& out_sFullPathMeta) const
 {
   EZ_LOCK(m_Mutex);
   ezStringBuilder sMountPoint;
@@ -392,8 +394,8 @@ ezUInt16 ezFileserveClient::MountDataDirectory(const char* szDataDirectory, cons
   m_Network->Send(ezRemoteTransmitMode::Reliable, msg);
 
   auto& dd = m_MountedDataDirs.ExpandAndGetRef();
-  //dd.m_sPathOnClient = szDataDirectory;
-  //dd.m_sRootName = sRoot;
+  // dd.m_sPathOnClient = szDataDirectory;
+  // dd.m_sRootName = sRoot;
   dd.m_sMountPoint = sMountPoint;
   dd.m_bMounted = true;
 
@@ -431,7 +433,7 @@ void ezFileserveClient::DeleteFile(ezUInt16 uiDataDir, const char* szFile)
   m_Network->Send(ezRemoteTransmitMode::Reliable, msg);
 }
 
-void ezFileserveClient::HandleFileTransferMsg(ezRemoteMessage &msg)
+void ezFileserveClient::HandleFileTransferMsg(ezRemoteMessage& msg)
 {
   EZ_LOCK(m_Mutex);
   {
@@ -440,7 +442,7 @@ void ezFileserveClient::HandleFileTransferMsg(ezRemoteMessage &msg)
 
     if (fileRequestGuid != m_CurFileRequestGuid)
     {
-      //ezLog::Debug("Fileserver is answering someone else");
+      // ezLog::Debug("Fileserver is answering someone else");
       return;
     }
   }
@@ -463,7 +465,7 @@ void ezFileserveClient::HandleFileTransferMsg(ezRemoteMessage &msg)
 }
 
 
-void ezFileserveClient::HandleFileTransferFinishedMsg(ezRemoteMessage &msg)
+void ezFileserveClient::HandleFileTransferFinishedMsg(ezRemoteMessage& msg)
 {
   EZ_LOCK(m_Mutex);
   EZ_SCOPE_EXIT(m_bDownloading = false);
@@ -474,7 +476,7 @@ void ezFileserveClient::HandleFileTransferFinishedMsg(ezRemoteMessage &msg)
 
     if (fileRequestGuid != m_CurFileRequestGuid)
     {
-      //ezLog::Debug("Fileserver is answering someone else");
+      // ezLog::Debug("Fileserver is answering someone else");
       return;
     }
   }
@@ -748,13 +750,12 @@ ezResult ezFileserveClient::TryConnectWithFileserver(const char* szAddress, ezTi
     return EZ_FAILURE;
 
   bool bServerFound = false;
-  network.SetMessageHandler('FSRV', [&bServerFound](ezRemoteMessage& msg)
-  {
+  network.SetMessageHandler('FSRV', [&bServerFound](ezRemoteMessage& msg) {
     switch (msg.GetMessageID())
     {
-    case ' YES':
-      bServerFound = true;
-      break;
+      case ' YES':
+        bServerFound = true;
+        break;
     }
   });
 
@@ -798,24 +799,24 @@ ezResult ezFileserveClient::WaitForServerInfo(ezTime timeout /*= ezTime::Seconds
     ezRemoteInterfaceEnet network; /// \todo Abstract this somehow ?
     network.SetMessageHandler('FSRV', [&sServerIPs, &uiPort](ezRemoteMessage& msg)
 
-    {
-      switch (msg.GetMessageID())
-      {
-      case 'MYIP':
-        msg.GetReader() >> uiPort;
+                              {
+                                switch (msg.GetMessageID())
+                                {
+                                  case 'MYIP':
+                                    msg.GetReader() >> uiPort;
 
-        ezUInt8 uiCount = 0;
-        msg.GetReader() >> uiCount;
+                                    ezUInt8 uiCount = 0;
+                                    msg.GetReader() >> uiCount;
 
-        sServerIPs.SetCount(uiCount);
-        for (ezUInt32 i = 0; i < uiCount; ++i)
-        {
-          msg.GetReader() >> sServerIPs[i];
-        }
+                                    sServerIPs.SetCount(uiCount);
+                                    for (ezUInt32 i = 0; i < uiCount; ++i)
+                                    {
+                                      msg.GetReader() >> sServerIPs[i];
+                                    }
 
-        break;
-      }
-    });
+                                    break;
+                                }
+                              });
 
     network.StartServer('EZIP', "2042", false);
 
@@ -881,4 +882,3 @@ EZ_ON_GLOBAL_EVENT(GameApp_UpdatePlugins)
 
 
 EZ_STATICLINK_FILE(FileservePlugin, FileservePlugin_Client_FileserveClient);
-

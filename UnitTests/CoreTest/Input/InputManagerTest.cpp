@@ -1,10 +1,11 @@
 #include <PCH.h>
+
 #include <Core/Input/InputManager.h>
 #include <Foundation/Memory/MemoryUtils.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Input);
 
-static bool operator== (const ezInputActionConfig& lhs, const ezInputActionConfig& rhs)
+static bool operator==(const ezInputActionConfig& lhs, const ezInputActionConfig& rhs)
 {
   if (lhs.m_bApplyTimeScaling != rhs.m_bApplyTimeScaling)
     return false;
@@ -42,7 +43,6 @@ static bool operator== (const ezInputActionConfig& lhs, const ezInputActionConfi
 class ezTestInputDevide : public ezInputDevice
 {
 public:
-
   void ActivateAll()
   {
     m_InputSlotValues["testdevice_button"] = 0.1f;
@@ -53,9 +53,8 @@ public:
   }
 
 private:
-
-  void InitializeDevice() override { }
-  void UpdateInputSlotValues() override { }
+  void InitializeDevice() override {}
+  void UpdateInputSlotValues() override {}
   void RegisterInputSlots() override
   {
     RegisterInputSlot("testdevice_button", "", ezInputSlotFlags::IsButton);
@@ -64,13 +63,10 @@ private:
     RegisterInputSlot("testdevice_touchpoint", "", ezInputSlotFlags::IsTouchPoint);
   }
 
-  void ResetInputSlotValues() override
-  {
-    m_InputSlotValues.Clear();
-  }
+  void ResetInputSlotValues() override { m_InputSlotValues.Clear(); }
 };
 
-static bool operator!= (const ezInputActionConfig& lhs, const ezInputActionConfig& rhs)
+static bool operator!=(const ezInputActionConfig& lhs, const ezInputActionConfig& rhs)
 {
   return !(lhs == rhs);
 }
@@ -151,8 +147,6 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     ezInputManager::RemoveInputAction("test_inputset", "test_action_2");
     ezInputManager::RemoveInputAction("test_inputset", "test_action_3");
     ezInputManager::RemoveInputAction("test_inputset", "test_action_4");
-
-
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Input Slot State Changes / Dead Zones")
@@ -528,4 +522,3 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     EZ_TEST_FLOAT(fVal, 0.0f, 0.0001f);
   }
 }
-

@@ -1,8 +1,9 @@
 #include <PCH.h>
+
 #include <GameEngine/AI/NavMesh/NavMeshDescription.h>
 
-ezNavMeshDescription::ezNavMeshDescription() { }
-ezNavMeshDescription::~ezNavMeshDescription() { }
+ezNavMeshDescription::ezNavMeshDescription() {}
+ezNavMeshDescription::~ezNavMeshDescription() {}
 
 void ezNavMeshDescription::Clear()
 {
@@ -14,4 +15,3 @@ void ezNavMeshDescription::Clear()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_AI_NavMesh_NavMeshDescription);
-

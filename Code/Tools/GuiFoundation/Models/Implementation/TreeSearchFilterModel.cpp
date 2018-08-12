@@ -1,9 +1,10 @@
 #include <PCH.h>
+
 #include <GuiFoundation/Models/TreeSearchFilterModel.moc.h>
 #include <QWidget>
 
 ezQtTreeSearchFilterModel::ezQtTreeSearchFilterModel(QWidget* parent)
-  : QSortFilterProxyModel(parent)
+    : QSortFilterProxyModel(parent)
 {
   m_bIncludeChildren = false;
 }
@@ -92,7 +93,7 @@ bool ezQtTreeSearchFilterModel::UpdateVisibility(const QModelIndex& idx, bool bP
   return bSubTreeAnyVisible;
 }
 
-bool ezQtTreeSearchFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+bool ezQtTreeSearchFilterModel::filterAcceptsRow(int source_row, const QModelIndex& source_parent) const
 {
   QModelIndex idx = sourceModel()->index(source_row, 0, source_parent);
 
@@ -103,4 +104,3 @@ bool ezQtTreeSearchFilterModel::filterAcceptsRow(int source_row, const QModelInd
 
   return itVis.IsValid() && itVis.Value();
 }
-

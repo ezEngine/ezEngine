@@ -1,17 +1,19 @@
 #include <PCH.h>
-#include <Inspector/LogDockWidget.moc.h>
-#include <qlistwidget.h>
+
 #include <Foundation/Communication/Telemetry.h>
-#include <MainWindow.moc.h>
 #include <Foundation/Logging/LogEntry.h>
 #include <GuiFoundation/Models/LogModel.moc.h>
+#include <Inspector/LogDockWidget.moc.h>
+#include <MainWindow.moc.h>
+#include <qlistwidget.h>
 
 ezQtLogDockWidget* ezQtLogDockWidget::s_pWidget = nullptr;
 
-ezQtLogDockWidget::ezQtLogDockWidget(QWidget* parent) : QDockWidget (parent)
+ezQtLogDockWidget::ezQtLogDockWidget(QWidget* parent)
+    : QDockWidget(parent)
 {
   s_pWidget = this;
-  setupUi (this);
+  setupUi(this);
   LogWidget->GetSearchWidget()->setPlaceholderText(QStringLiteral("Search Log"));
 }
 
@@ -51,7 +53,7 @@ void ezQtLogDockWidget::ProcessTelemetry(void* pUnuseed)
     if (iEventType == ezLogMsgType::EndGroup)
       Msg.GetReader() >> lm.m_fSeconds;
 
-    lm.m_Type = (ezLogMsgType::Enum) iEventType;
+    lm.m_Type = (ezLogMsgType::Enum)iEventType;
     s_pWidget->LogWidget->GetLog()->AddLogMsg(lm);
   }
 }

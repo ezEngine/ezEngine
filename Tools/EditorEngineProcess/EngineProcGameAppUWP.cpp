@@ -1,18 +1,13 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <EditorEngineProcess/EngineProcGameAppUWP.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessAppUWP.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
-ezEngineProcessGameApplicationUWP::ezEngineProcessGameApplicationUWP()
-{
+ezEngineProcessGameApplicationUWP::ezEngineProcessGameApplicationUWP() {}
 
-}
-
-ezEngineProcessGameApplicationUWP::~ezEngineProcessGameApplicationUWP()
-{
-
-}
+ezEngineProcessGameApplicationUWP::~ezEngineProcessGameApplicationUWP() {}
 
 ezUniquePtr<ezEditorEngineProcessApp> ezEngineProcessGameApplicationUWP::CreateEngineProcessApp()
 {

@@ -1,11 +1,14 @@
 #include <PCH.h>
-#include <GameEngine/Components/RotorComponent.h>
-#include <Core/WorldSerializer/WorldWriter.h>
+
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <GameEngine/Components/RotorComponent.h>
 
-float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, ezTime& fTimeSinceStartInSec);
+float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration,
+                                   ezTime& fTimeSinceStartInSec);
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezRotorComponent, 2, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
@@ -18,6 +21,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRotorComponent, 2, ezComponentMode::Dynamic)
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezRotorComponent::ezRotorComponent()
 {
@@ -30,30 +34,31 @@ ezRotorComponent::ezRotorComponent()
 
 void ezRotorComponent::Update()
 {
-  if (m_Flags.IsAnySet(ezTransformComponentFlags::Autorun) && !m_Flags.IsAnySet(ezTransformComponentFlags::Paused) && m_fAnimationSpeed > 0.0f)
+  if (m_Flags.IsAnySet(ezTransformComponentFlags::Autorun) && !m_Flags.IsAnySet(ezTransformComponentFlags::Paused) &&
+      m_fAnimationSpeed > 0.0f)
   {
     ezVec3 vAxis;
 
     switch (m_Axis)
     {
-    case ezBasisAxis::PositiveX:
-      vAxis.Set(1, 0, 0);
-      break;
-    case ezBasisAxis::PositiveY:
-      vAxis.Set(0, 1, 0);
-      break;
-    case ezBasisAxis::PositiveZ:
-      vAxis.Set(0, 0, 1);
-      break;
-    case ezBasisAxis::NegativeX:
-      vAxis.Set(-1, 0, 0);
-      break;
-    case ezBasisAxis::NegativeY:
-      vAxis.Set(0, -1, 0);
-      break;
-    case ezBasisAxis::NegativeZ:
-      vAxis.Set(0, 0, -1);
-      break;
+      case ezBasisAxis::PositiveX:
+        vAxis.Set(1, 0, 0);
+        break;
+      case ezBasisAxis::PositiveY:
+        vAxis.Set(0, 1, 0);
+        break;
+      case ezBasisAxis::PositiveZ:
+        vAxis.Set(0, 0, 1);
+        break;
+      case ezBasisAxis::NegativeX:
+        vAxis.Set(-1, 0, 0);
+        break;
+      case ezBasisAxis::NegativeY:
+        vAxis.Set(0, -1, 0);
+        break;
+      case ezBasisAxis::NegativeZ:
+        vAxis.Set(0, 0, -1);
+        break;
     }
 
     if (m_iDegreeToRotate > 0)
@@ -63,7 +68,8 @@ void ezRotorComponent::Update()
       else
         m_AnimationTime += GetWorld()->GetClock().GetTimeDiff();
 
-      const float fNewDistance = CalculateAcceleratedMovement((float)m_iDegreeToRotate, m_fAcceleration, m_fAnimationSpeed, m_fDeceleration, m_AnimationTime);
+      const float fNewDistance =
+          CalculateAcceleratedMovement((float)m_iDegreeToRotate, m_fAcceleration, m_fAnimationSpeed, m_fDeceleration, m_AnimationTime);
 
       ezQuat qRotation;
       qRotation.SetFromAxisAndAngle(vAxis, ezAngle::Degree(fNewDistance));
@@ -87,8 +93,8 @@ void ezRotorComponent::Update()
           }
 
           /// \todo Scripting integration
-          //if (PrepareEvent("ANIMATOR_OnReachEnd"))
-            //RaiseEvent();
+          // if (PrepareEvent("ANIMATOR_OnReachEnd"))
+          // RaiseEvent();
         }
       }
       else
@@ -106,8 +112,8 @@ void ezRotorComponent::Update()
           }
 
           /// \todo Scripting integration
-          //if (PrepareEvent("ANIMATOR_OnReachStart"))
-            //RaiseEvent();
+          // if (PrepareEvent("ANIMATOR_OnReachStart"))
+          // RaiseEvent();
         }
       }
     }
@@ -143,7 +149,7 @@ void ezRotorComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezRotorComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = stream.GetStream();
 
@@ -156,9 +162,9 @@ void ezRotorComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_LastRotation;
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 
@@ -166,7 +172,9 @@ class ezRotorComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezRotorComponentPatch_1_2()
-    : ezGraphPatch("ezRotorComponent", 2) {}
+      : ezGraphPatch("ezRotorComponent", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -182,4 +190,3 @@ ezRotorComponentPatch_1_2 g_ezRotorComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_RotorComponent);
-

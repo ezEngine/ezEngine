@@ -1,8 +1,10 @@
 #include <PCH.h>
+
 #include <GuiFoundation/Widgets/WidgetUtils.h>
 #include <QRect>
 
-void ezWidgetUtils::AdjustGridDensity(double& fFinestDensity, double& fRoughDensity, ezUInt32 uiWindowWidth, double fViewportSceneWidth, ezUInt32 uiMinPixelsForStep)
+void ezWidgetUtils::AdjustGridDensity(double& fFinestDensity, double& fRoughDensity, ezUInt32 uiWindowWidth, double fViewportSceneWidth,
+                                      ezUInt32 uiMinPixelsForStep)
 {
   const double fMaxStepsFitInWindow = (double)uiWindowWidth / (double)uiMinPixelsForStep;
 
@@ -10,7 +12,7 @@ void ezWidgetUtils::AdjustGridDensity(double& fFinestDensity, double& fRoughDens
 
   ezInt32 iFactor = 1;
   double fNewDensity = fFinestDensity;
-  ezInt32 iFactors[2] = { 5, 2 };
+  ezInt32 iFactors[2] = {5, 2};
   ezInt32 iLastFactor = 0;
 
   while (true)
@@ -43,4 +45,3 @@ void ezWidgetUtils::ComputeGridExtentsY(const QRectF& viewportSceneRect, double 
   out_fMinY = ezMath::Floor((double)viewportSceneRect.top(), fGridStops);
   out_fMaxY = ezMath::Ceil((double)viewportSceneRect.bottom(), fGridStops);
 }
-

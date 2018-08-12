@@ -1,7 +1,7 @@
-
 #include <PCH.h>
-#include <RendererFoundation/Shader/Shader.h>
+
 #include <RendererFoundation/Device/DeviceCapabilities.h>
+#include <RendererFoundation/Shader/Shader.h>
 
 ezGALDeviceCapabilities::ezGALDeviceCapabilities()
 {
@@ -41,4 +41,3 @@ ezGALDeviceCapabilities::ezGALDeviceCapabilities()
 
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Device_Implementation_DeviceCapabilities);
-

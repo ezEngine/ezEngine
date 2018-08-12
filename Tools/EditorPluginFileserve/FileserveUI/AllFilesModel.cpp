@@ -1,24 +1,25 @@
 #include <PCH.h>
+
 #include <EditorPluginFileserve/FileserveUI/AllFilesModel.moc.h>
 #include <QTimer>
 #include <QWidget>
 
 ezQtFileserveAllFilesModel::ezQtFileserveAllFilesModel(QWidget* parent)
-  : QAbstractListModel(parent)
+    : QAbstractListModel(parent)
 {
 }
 
-int ezQtFileserveAllFilesModel::rowCount(const QModelIndex &parent /*= QModelIndex()*/) const
+int ezQtFileserveAllFilesModel::rowCount(const QModelIndex& parent /*= QModelIndex()*/) const
 {
   return m_IndexedFiles.GetCount() - m_uiAddedItems;
 }
 
-int ezQtFileserveAllFilesModel::columnCount(const QModelIndex &parent /*= QModelIndex()*/) const
+int ezQtFileserveAllFilesModel::columnCount(const QModelIndex& parent /*= QModelIndex()*/) const
 {
   return 2;
 }
 
-QVariant ezQtFileserveAllFilesModel::data(const QModelIndex &index, int role /*= Qt::DisplayRole*/) const
+QVariant ezQtFileserveAllFilesModel::data(const QModelIndex& index, int role /*= Qt::DisplayRole*/) const
 {
   if (!index.isValid())
     return QVariant();
@@ -109,5 +110,3 @@ QVariant ezQtFileserveAllFilesModel::headerData(int section, Qt::Orientation ori
 
   return QVariant();
 }
-
-

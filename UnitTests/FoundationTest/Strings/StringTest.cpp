@@ -1,6 +1,7 @@
-﻿#include <PCH.h>
-#include <Foundation/Strings/String.h>
+#include <PCH.h>
+
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Strings/String.h>
 
 static ezString GetString(const char* sz)
 {
@@ -28,7 +29,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
 
     ezString s2("abc");
     EZ_TEST_BOOL(s2 == "abc");
-    
+
     ezString s3(s2);
     EZ_TEST_BOOL(s2 == s3);
     EZ_TEST_BOOL(s3 == "abc");
@@ -47,18 +48,21 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator=")
   {
-    ezString s2; s2 = "abc";
+    ezString s2;
+    s2 = "abc";
     EZ_TEST_BOOL(s2 == "abc");
-    
-    ezString s3; s3 = s2;
+
+    ezString s3;
+    s3 = s2;
     EZ_TEST_BOOL(s2 == s3);
     EZ_TEST_BOOL(s3 == "abc");
 
-    ezString s4; s4 = L"abc";
+    ezString s4;
+    s4 = L"abc";
     EZ_TEST_BOOL(s4 == "abc");
 
     ezString s5(L"abcdefghijklm");
-    ezStringView it (s5.GetData() + 2, s5.GetData() + 10);
+    ezStringView it(s5.GetData() + 2, s5.GetData() + 10);
     ezString s5b = it;
     EZ_TEST_STRING(s5b, "cdefghij");
 
@@ -85,13 +89,13 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move constructor / operator")
   {
-    ezString s1 (GetString("move me"));
+    ezString s1(GetString("move me"));
     EZ_TEST_STRING(s1.GetData(), "move me");
 
     s1 = GetString("move move move move move move move move ");
     EZ_TEST_STRING(s1.GetData(), "move move move move move move move move ");
 
-    ezString s2 (GetString("move move move move move move move move "));
+    ezString s2(GetString("move move move move move move move move "));
     EZ_TEST_STRING(s2.GetData(), "move move move move move move move move ");
 
     s2 = GetString("move me");
@@ -103,16 +107,16 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move constructor / operator (StringBuilder)")
   {
-    const ezString s1 (GetStringBuilder("move me"));
-    const ezString s2 (GetStringBuilder("move move move move move move move move "));
+    const ezString s1(GetStringBuilder("move me"));
+    const ezString s2(GetStringBuilder("move move move move move move move move "));
 
-    ezString s3 (GetStringBuilder("move me"));
+    ezString s3(GetStringBuilder("move me"));
     EZ_TEST_BOOL(s3 == s1);
 
     s3 = GetStringBuilder("move move move move move move move move ");
     EZ_TEST_BOOL(s3 == s2);
 
-    ezString s4 (GetStringBuilder("move move move move move move move move "));
+    ezString s4(GetStringBuilder("move move move move move move move move "));
     EZ_TEST_BOOL(s4 == s2);
 
     s4 = GetStringBuilder("move me");
@@ -131,7 +135,6 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
     EZ_TEST_BOOL(s.IsEmpty());
     EZ_TEST_BOOL(s == "");
     EZ_TEST_BOOL(s == nullptr);
-    
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetData")
@@ -194,11 +197,12 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadAll")
   {
     ezMemoryStreamStorage StreamStorage;
-    
+
     ezMemoryStreamWriter MemoryWriter(&StreamStorage);
     ezMemoryStreamReader MemoryReader(&StreamStorage);
 
-    const char* szText = "l;kjasdflkjdfasjlk asflkj asfljwe oiweq2390432 4 @#$ otrjk3l;2rlkhitoqhrn324:R l324h32kjr hnasfhsakfh234fas1440687873242321245";
+    const char* szText =
+        "l;kjasdflkjdfasjlk asflkj asfljwe oiweq2390432 4 @#$ otrjk3l;2rlkhitoqhrn324:R l324h32kjr hnasfhsakfh234fas1440687873242321245";
 
     MemoryWriter.WriteBytes(szText, ezStringUtils::GetStringElementCount(szText));
 
@@ -208,4 +212,3 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
     EZ_TEST_BOOL(s == szText);
   }
 }
-

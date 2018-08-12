@@ -1,8 +1,10 @@
 #include <PCH.h>
-#include <EnginePluginScene/Components/ShapeIconComponent.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
 
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <EnginePluginScene/Components/ShapeIconComponent.h>
+
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezShapeIconComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -12,14 +14,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezShapeIconComponent, 1, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
-ezShapeIconComponent::ezShapeIconComponent()
-{
-}
+ezShapeIconComponent::ezShapeIconComponent() {}
 
-ezShapeIconComponent::~ezShapeIconComponent()
-{
-}
+ezShapeIconComponent::~ezShapeIconComponent() {}
 
 void ezShapeIconComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -30,13 +29,14 @@ void ezShapeIconComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezShapeIconComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  //ezStreamReader& s = stream.GetStream();
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // ezStreamReader& s = stream.GetStream();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_RemoveShapeIconComponents, 1, ezRTTIDefaultAllocator<ezSceneExportModifier_RemoveShapeIconComponents>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_RemoveShapeIconComponents, 1,
+                                ezRTTIDefaultAllocator<ezSceneExportModifier_RemoveShapeIconComponents>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
@@ -51,7 +51,7 @@ void ezSceneExportModifier_RemoveShapeIconComponents::ModifyWorld(ezWorld& world
 
   ezUInt32 num = 0;
 
-  for (auto it = pSiMan->GetComponents(); it.IsValid(); )
+  for (auto it = pSiMan->GetComponents(); it.IsValid();)
   {
     ezShapeIconComponent* pComp = &(*it);
     it.Next();
@@ -61,5 +61,5 @@ void ezSceneExportModifier_RemoveShapeIconComponents::ModifyWorld(ezWorld& world
     ++num;
   }
 
-  //ezLog::Debug("Removed {0} shape icon components", num);
+  // ezLog::Debug("Removed {0} shape icon components", num);
 }

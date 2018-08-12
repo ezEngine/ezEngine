@@ -1,7 +1,8 @@
 #include <PCH.h>
+
 #include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
-#include <GuiFoundation/Models/LogModel.moc.h>
 #include <Foundation/Strings/TranslationLookup.h>
+#include <GuiFoundation/Models/LogModel.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
 #include <QSettings>
@@ -9,8 +10,8 @@
 EZ_IMPLEMENT_SINGLETON(ezQtLogPanel);
 
 ezQtLogPanel::ezQtLogPanel()
-  : ezQtApplicationPanel("Panel.Log")
-  , m_SingletonRegistrar(this)
+    : ezQtApplicationPanel("Panel.Log")
+    , m_SingletonRegistrar(this)
 {
   setupUi(this);
 
@@ -48,13 +49,13 @@ void ezQtLogPanel::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezToolsProjectEvent::Type::ProjectClosing:
+    case ezToolsProjectEvent::Type::ProjectClosing:
     {
       EditorLog->GetLog()->Clear();
       EngineLog->GetLog()->Clear();
-      // fallthrough
-  case ezToolsProjectEvent::Type::ProjectOpened:
-      setEnabled(e.m_Type == ezToolsProjectEvent::Type::ProjectOpened);
+        // fallthrough
+      case ezToolsProjectEvent::Type::ProjectOpened:
+        setEnabled(e.m_Type == ezToolsProjectEvent::Type::ProjectOpened);
     }
     break;
   }
@@ -78,7 +79,7 @@ void ezQtLogPanel::EngineProcessMsgHandler(const ezEditorEngineProcessConnection
 {
   switch (e.m_Type)
   {
-  case ezEditorEngineProcessConnection::Event::Type::ProcessMessage:
+    case ezEditorEngineProcessConnection::Event::Type::ProcessMessage:
     {
       if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezLogMsgToEditor>())
       {
@@ -88,8 +89,7 @@ void ezQtLogPanel::EngineProcessMsgHandler(const ezEditorEngineProcessConnection
     }
     break;
 
-  default:
-    return;
+    default:
+      return;
   }
 }
-

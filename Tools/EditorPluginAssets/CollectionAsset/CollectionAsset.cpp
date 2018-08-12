@@ -1,13 +1,15 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <Core/WorldSerializer/ResourceHandleWriter.h>
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/CollectionAsset/CollectionAsset.h>
 #include <EditorPluginAssets/CollectionAsset/CollectionAssetManager.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
-#include <EditorFramework/Assets/AssetCurator.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Image/Image.h>
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionAssetEntry, 1, ezRTTIDefaultAllocator<ezCollectionAssetEntry>)
 {
   EZ_BEGIN_PROPERTIES
@@ -31,12 +33,15 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionAssetDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezCollectionAssetDocument::ezCollectionAssetDocument(const char* szDocumentPath) : ezSimpleAssetDocument<ezCollectionAssetData>(szDocumentPath)
+ezCollectionAssetDocument::ezCollectionAssetDocument(const char* szDocumentPath)
+    : ezSimpleAssetDocument<ezCollectionAssetData>(szDocumentPath)
 {
 }
 
-ezStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
+                                                           const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   const ezCollectionAssetData* pProp = GetProperties();
 
@@ -67,4 +72,3 @@ ezStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& strea
 
   return ezStatus(EZ_SUCCESS);
 }
-

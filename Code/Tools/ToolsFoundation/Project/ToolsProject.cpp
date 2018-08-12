@@ -1,7 +1,8 @@
 #include <PCH.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
-#include <ToolsFoundation/Document/DocumentManager.h>
+
 #include <Foundation/IO/OSFile.h>
+#include <ToolsFoundation/Document/DocumentManager.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 
 EZ_IMPLEMENT_SINGLETON(ezToolsProject);
 
@@ -17,7 +18,7 @@ ezToolsProjectRequest::ezToolsProjectRequest()
 }
 
 ezToolsProject::ezToolsProject(const char* szProjectPath)
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
   m_bIsClosing = false;
 
@@ -25,9 +26,7 @@ ezToolsProject::ezToolsProject(const char* szProjectPath)
   EZ_ASSERT_DEV(!m_sProjectPath.IsEmpty(), "Path cannot be empty.");
 }
 
-ezToolsProject::~ezToolsProject()
-{
-}
+ezToolsProject::~ezToolsProject() {}
 
 ezStatus ezToolsProject::Create()
 {

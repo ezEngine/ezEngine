@@ -1,13 +1,14 @@
-﻿#include <PCH.h>
-#include <EditorFramework/Gizmos/CapsuleGizmo.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <Foundation/Logging/Log.h>
+#include <PCH.h>
+
 #include <Core/Graphics/Camera.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/Assets/AssetDocument.h>
-#include <QMouseEvent>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/Gizmos/CapsuleGizmo.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 #include <QDesktopWidget>
+#include <QMouseEvent>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCapsuleGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -198,4 +199,3 @@ void ezCapsuleGizmo::SetRadius(float fRadius)
   // update the scale
   OnTransformationChanged(GetTransformation());
 }
-

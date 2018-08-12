@@ -1,31 +1,28 @@
-﻿#include <PCH.h>
-#include <PhysXPlugin/Components/PxActorComponent.h>
-#include <Core/WorldSerializer/WorldWriter.h>
+#include <PCH.h>
+
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <PhysXPlugin/Components/PxActorComponent.h>
 #include <PhysXPlugin/Shapes/PxShapeComponent.h>
 
 using namespace physx;
 
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxActorComponent, 1)
-  //EZ_BEGIN_PROPERTIES
-  //EZ_END_PROPERTIES;
+// EZ_BEGIN_PROPERTIES
+// EZ_END_PROPERTIES;
 EZ_END_ABSTRACT_COMPONENT_TYPE
 
-ezPxActorComponent::ezPxActorComponent()
-{
-}
+ezPxActorComponent::ezPxActorComponent() {}
 
 void ezPxActorComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
-
 }
 
 void ezPxActorComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-
 }
 
 void ezPxActorComponent::AddShapesFromObject(ezGameObject* pObject, PxRigidActor* pRigidActor, const ezSimdTransform& ParentTransform)
@@ -77,4 +74,3 @@ void ezPxActorComponent::AddShapesToNavMesh(const ezGameObject* pObject, ezMsgBu
 }
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Components_Implementation_PxActorComponent);
-

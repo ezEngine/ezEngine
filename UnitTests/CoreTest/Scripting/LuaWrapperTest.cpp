@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Core/Scripting/LuaWrapper.h>
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
@@ -57,7 +58,6 @@ MyTable =\n\
 class ScriptLog : public ezLogInterface
 {
 public:
-
   virtual void HandleLogMessage(const ezLoggingEventData& le) override
   {
     EZ_TEST_FAILURE("Script Error", le.m_szText);
@@ -74,12 +74,12 @@ public:
   {
     switch (le.m_EventType)
     {
-    case ezLogMsgType::ErrorMsg:
-    case ezLogMsgType::SeriousWarningMsg:
-    case ezLogMsgType::WarningMsg:
-      ++g_iErrors;
-    default:
-      break;
+      case ezLogMsgType::ErrorMsg:
+      case ezLogMsgType::SeriousWarningMsg:
+      case ezLogMsgType::WarningMsg:
+        ++g_iErrors;
+      default:
+        break;
     }
   }
 };
@@ -609,4 +609,3 @@ EZ_CREATE_SIMPLE_TEST(Scripting, LuaWrapper)
 }
 
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
-

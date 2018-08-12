@@ -1,10 +1,24 @@
 #include <PCH.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
+
+#include <Core/Application/Config/FileSystemConfig.h>
+#include <Core/Application/Config/PluginConfig.h>
+#include <Foundation/Communication/Telemetry.h>
+#include <Foundation/Configuration/CVar.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/OSFile.h>
+#include <Foundation/IO/OpenDdlReader.h>
+#include <Foundation/Logging/ConsoleWriter.h>
+#include <Foundation/Logging/VisualStudioWriter.h>
 #include <GameEngine/Collection/CollectionResource.h>
-#include <GameEngine/Surfaces/SurfaceResource.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
 #include <GameEngine/Curves/Curve1DResource.h>
+#include <GameEngine/GameApplication/GameApplication.h>
+#include <GameEngine/Prefabs/PrefabResource.h>
+#include <GameEngine/Resources/PropertyAnimResource.h>
+#include <GameEngine/Surfaces/SurfaceResource.h>
+#include <RendererCore/AnimationSystem/AnimationClipResource.h>
+#include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
@@ -13,29 +27,16 @@
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
-#include <Core/Application/Config/FileSystemConfig.h>
-#include <Core/Application/Config/PluginConfig.h>
-#include <Foundation/Communication/Telemetry.h>
-#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/OpenDdlReader.h>
-#include <Foundation/IO/OSFile.h>
-#include <Foundation/Logging/ConsoleWriter.h>
-#include <Foundation/Logging/VisualStudioWriter.h>
 #include <RendererFoundation/Device/Device.h>
 #include <VisualScript/VisualScriptResource.h>
-#include <Foundation/Configuration/CVar.h>
-#include <GameEngine/Resources/PropertyAnimResource.h>
-#include <RendererCore/AnimationSystem/SkeletonResource.h>
-#include <RendererCore/AnimationSystem/AnimationClipResource.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  #include <RendererDX11/Device/DeviceDX11.h>
-  typedef ezGALDeviceDX11 ezGALDeviceDefault;
+#include <RendererDX11/Device/DeviceDX11.h>
+typedef ezGALDeviceDX11 ezGALDeviceDefault;
 #else
-  /// \todo We might need a dummy graphics device type
-  //#include <RendererGL/Device/DeviceGL.h>
-  //typedef ezGALDeviceGL ezGALDeviceDefault;
+/// \todo We might need a dummy graphics device type
+//#include <RendererGL/Device/DeviceGL.h>
+// typedef ezGALDeviceGL ezGALDeviceDefault;
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
@@ -91,10 +92,10 @@ void ezGameApplication::DoSetupDataDirectories()
   shaderCacheRoot = sUserData;
 #endif
 
-  ezFileSystem::AddDataDirectory("", "GameApplication", ":", ezFileSystem::ReadOnly); // for absolute paths
+  ezFileSystem::AddDataDirectory("", "GameApplication", ":", ezFileSystem::ReadOnly);                   // for absolute paths
   ezFileSystem::AddDataDirectory(writableBinRoot, "GameApplication", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
   ezFileSystem::AddDataDirectory(shaderCacheRoot, "GameApplication", "shadercache", ezFileSystem::AllowWrites); // for shader files
-  ezFileSystem::AddDataDirectory(sUserData, "GameApplication", "appdata", ezFileSystem::AllowWrites); // for writing app user data
+  ezFileSystem::AddDataDirectory(sUserData, "GameApplication", "appdata", ezFileSystem::AllowWrites);           // for writing app user data
 
   // setup the main data directories ":base/" and ":project/"
   {
@@ -109,12 +110,8 @@ void ezGameApplication::DoSetupDataDirectories()
   for (ezUInt32 i = appFileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
   {
     const ezString name = appFileSystemConfig.m_DataDirs[i - 1].m_sRootName;
-    if (name.IsEqual_NoCase("base") ||
-        name.IsEqual_NoCase("project") ||
-        name.IsEqual_NoCase("bin") ||
-        name.IsEqual_NoCase("shadercache") ||
-        name.IsEqual_NoCase(":") ||
-        name.IsEqual_NoCase("appdata"))
+    if (name.IsEqual_NoCase("base") || name.IsEqual_NoCase("project") || name.IsEqual_NoCase("bin") || name.IsEqual_NoCase("shadercache") ||
+        name.IsEqual_NoCase(":") || name.IsEqual_NoCase("appdata"))
     {
       appFileSystemConfig.m_DataDirs.RemoveAt(i - 1);
     }
@@ -141,7 +138,7 @@ void ezGameApplication::DoConfigureAssetManagement()
   ezResourceManager::RegisterResourceForAssetType("Surface", ezGetStaticRTTI<ezSurfaceResource>());
   ezResourceManager::RegisterResourceForAssetType("Texture 2D", ezGetStaticRTTI<ezTexture2DResource>());
   ezResourceManager::RegisterResourceForAssetType("Render Target", ezGetStaticRTTI<ezTexture2DResource>());
-  //ezResourceManager::RegisterResourceForAssetType("Texture 3D", ezGetStaticRTTI<ezTexture3DResource>());
+  // ezResourceManager::RegisterResourceForAssetType("Texture 3D", ezGetStaticRTTI<ezTexture3DResource>());
   ezResourceManager::RegisterResourceForAssetType("Texture Cube", ezGetStaticRTTI<ezTextureCubeResource>());
 }
 
@@ -150,8 +147,10 @@ void ezGameApplication::DoSetupDefaultResources()
   // Shaders
   {
     ezShaderResourceDescriptor desc;
-    ezShaderResourceHandle hFallbackShader = ezResourceManager::CreateResource<ezShaderResource>("FallbackShaderResource", desc, "FallbackShaderResource");
-    ezShaderResourceHandle hMissingShader = ezResourceManager::CreateResource<ezShaderResource>("MissingShaderResource", desc, "MissingShaderResource");
+    ezShaderResourceHandle hFallbackShader =
+        ezResourceManager::CreateResource<ezShaderResource>("FallbackShaderResource", desc, "FallbackShaderResource");
+    ezShaderResourceHandle hMissingShader =
+        ezResourceManager::CreateResource<ezShaderResource>("MissingShaderResource", desc, "MissingShaderResource");
 
     ezShaderResource::SetTypeFallbackResource(hFallbackShader);
     ezShaderResource::SetTypeMissingResource(hMissingShader);
@@ -160,14 +159,16 @@ void ezGameApplication::DoSetupDefaultResources()
   // Shader Permutation
   {
     ezShaderPermutationResourceDescriptor desc;
-    ezShaderPermutationResourceHandle hFallbackShaderPermutation = ezResourceManager::CreateResource<ezShaderPermutationResource>("FallbackShaderPermutationResource", desc, "FallbackShaderPermutationResource");
+    ezShaderPermutationResourceHandle hFallbackShaderPermutation = ezResourceManager::CreateResource<ezShaderPermutationResource>(
+        "FallbackShaderPermutationResource", desc, "FallbackShaderPermutationResource");
 
     ezShaderPermutationResource::SetTypeFallbackResource(hFallbackShaderPermutation);
   }
 
   // 2D Textures
   {
-    ezTexture2DResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/LoadingTexture_D.dds", ezResourcePriority::Highest, ezTexture2DResourceHandle());
+    ezTexture2DResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTexture2DResource>(
+        "Textures/LoadingTexture_D.dds", ezResourcePriority::Highest, ezTexture2DResourceHandle());
     ezTexture2DResourceHandle hMissingTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/MissingTexture_D.dds");
 
     ezTexture2DResource::SetTypeFallbackResource(hFallbackTexture);
@@ -187,8 +188,10 @@ void ezGameApplication::DoSetupDefaultResources()
 
   // Materials
   {
-    ezMaterialResourceHandle hMissingMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/MissingMaterial.ezMaterial");
-    ezMaterialResourceHandle hFallbackMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/LoadingMaterial.ezMaterial", ezResourcePriority::Highest, ezMaterialResourceHandle());
+    ezMaterialResourceHandle hMissingMaterial =
+        ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/MissingMaterial.ezMaterial");
+    ezMaterialResourceHandle hFallbackMaterial = ezResourceManager::LoadResource<ezMaterialResource>(
+        "Materials/BaseMaterials/LoadingMaterial.ezMaterial", ezResourcePriority::Highest, ezMaterialResourceHandle());
 
     ezMaterialResource::SetTypeFallbackResource(hFallbackMaterial);
     ezMaterialResource::SetTypeMissingResource(hMissingMaterial);
@@ -202,8 +205,9 @@ void ezGameApplication::DoSetupDefaultResources()
 
   // Prefabs
   {
-    //ezPrefabResourceDescriptor emptyPrefab;
-    //ezPrefabResourceHandle hMissingPrefab = ezResourceManager::CreateResource<ezPrefabResource>("MissingPrefabResource", emptyPrefab, "MissingPrefabResource");
+    // ezPrefabResourceDescriptor emptyPrefab;
+    // ezPrefabResourceHandle hMissingPrefab = ezResourceManager::CreateResource<ezPrefabResource>("MissingPrefabResource", emptyPrefab,
+    // "MissingPrefabResource");
 
     ezPrefabResourceHandle hMissingPrefab = ezResourceManager::LoadResource<ezPrefabResource>("Prefabs/MissingPrefab.ezObjectGraph");
     ezPrefabResource::SetTypeMissingResource(hMissingPrefab);
@@ -212,7 +216,8 @@ void ezGameApplication::DoSetupDefaultResources()
   // Collections
   {
     ezCollectionResourceDescriptor desc;
-    ezCollectionResourceHandle hMissingCollection = ezResourceManager::CreateResource<ezCollectionResource>("MissingCollectionResource", desc, "MissingCollectionResource");
+    ezCollectionResourceHandle hMissingCollection =
+        ezResourceManager::CreateResource<ezCollectionResource>("MissingCollectionResource", desc, "MissingCollectionResource");
 
     ezCollectionResource::SetTypeMissingResource(hMissingCollection);
   }
@@ -229,7 +234,8 @@ void ezGameApplication::DoSetupDefaultResources()
     cg.m_Gradient.AddColorControlPoint(0, ezColor::RebeccaPurple);
     cg.m_Gradient.AddColorControlPoint(1, ezColor::LawnGreen);
 
-    ezColorGradientResourceHandle hResource = ezResourceManager::CreateResource<ezColorGradientResource>("MissingColorGradient", cg, "Missing Color Gradient Resource");
+    ezColorGradientResourceHandle hResource =
+        ezResourceManager::CreateResource<ezColorGradientResource>("MissingColorGradient", cg, "Missing Color Gradient Resource");
     ezColorGradientResource::SetTypeMissingResource(hResource);
   }
 
@@ -240,7 +246,8 @@ void ezGameApplication::DoSetupDefaultResources()
     curve.AddControlPoint(0);
     curve.AddControlPoint(1);
 
-    ezCurve1DResourceHandle hResource = ezResourceManager::CreateResource<ezCurve1DResource>("MissingCurve1D", cd, "Missing Curve1D Resource");
+    ezCurve1DResourceHandle hResource =
+        ezResourceManager::CreateResource<ezCurve1DResource>("MissingCurve1D", cd, "Missing Curve1D Resource");
     ezCurve1DResource::SetTypeMissingResource(hResource);
   }
 
@@ -248,7 +255,8 @@ void ezGameApplication::DoSetupDefaultResources()
   {
     ezVisualScriptResourceDescriptor desc;
 
-    ezVisualScriptResourceHandle hResource = ezResourceManager::CreateResource<ezVisualScriptResource>("MissingVisualScript", desc, "Missing Visual Script Resource");
+    ezVisualScriptResourceHandle hResource =
+        ezResourceManager::CreateResource<ezVisualScriptResource>("MissingVisualScript", desc, "Missing Visual Script Resource");
     ezVisualScriptResource::SetTypeMissingResource(hResource);
   }
 
@@ -257,7 +265,8 @@ void ezGameApplication::DoSetupDefaultResources()
     ezPropertyAnimResourceDescriptor desc;
     desc.m_AnimationDuration = ezTime::Seconds(0.1);
 
-    ezPropertyAnimResourceHandle hResource = ezResourceManager::CreateResource<ezPropertyAnimResource>("MissingPropertyAnim", desc, "Missing Property Animation Resource");
+    ezPropertyAnimResourceHandle hResource =
+        ezResourceManager::CreateResource<ezPropertyAnimResource>("MissingPropertyAnim", desc, "Missing Property Animation Resource");
     ezPropertyAnimResource::SetTypeMissingResource(hResource);
   }
 
@@ -265,7 +274,8 @@ void ezGameApplication::DoSetupDefaultResources()
   {
     ezSkeletonResourceDescriptor desc;
 
-    ezSkeletonResourceHandle hResource = ezResourceManager::CreateResource<ezSkeletonResource>("MissingSkeleton", desc, "Missing Skeleton Resource");
+    ezSkeletonResourceHandle hResource =
+        ezResourceManager::CreateResource<ezSkeletonResource>("MissingSkeleton", desc, "Missing Skeleton Resource");
     ezSkeletonResource::SetTypeMissingResource(hResource);
   }
 
@@ -273,7 +283,8 @@ void ezGameApplication::DoSetupDefaultResources()
   {
     ezAnimationClipResourceDescriptor desc;
 
-    ezAnimationClipResourceHandle hResource = ezResourceManager::CreateResource<ezAnimationClipResource>("MissingAnimationClip", desc, "Missing Animation Clip Resource");
+    ezAnimationClipResourceHandle hResource =
+        ezResourceManager::CreateResource<ezAnimationClipResource>("MissingAnimationClip", desc, "Missing Animation Clip Resource");
     ezAnimationClipResource::SetTypeMissingResource(hResource);
   }
 }
@@ -403,12 +414,8 @@ void ezGameApplication::DoShutdownGraphicsDevice()
   ezGALDevice::SetDefaultDevice(nullptr);
 }
 
-void ezGameApplication::DoShutdownLogWriters()
-{
-
-}
+void ezGameApplication::DoShutdownLogWriters() {}
 
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_ProjectSetup);
-

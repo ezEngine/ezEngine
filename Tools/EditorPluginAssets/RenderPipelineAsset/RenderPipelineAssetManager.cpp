@@ -1,9 +1,10 @@
-﻿#include <PCH.h>
-#include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAssetManager.h>
+#include <PCH.h>
+
 #include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAsset.h>
+#include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAssetManager.h>
 #include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAssetWindow.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetManager, 1, ezRTTIDefaultAllocator<ezRenderPipelineAssetManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -13,7 +14,7 @@ ezRenderPipelineAssetManager::ezRenderPipelineAssetManager()
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezRenderPipelineAssetManager::OnDocumentManagerEvent, this));
 
   // additional whitelist for non-asset files where an asset may be selected
-  //ezAssetFileExtensionWhitelist::AddAssetFileExtension("Material", "ezMaterial");
+  // ezAssetFileExtensionWhitelist::AddAssetFileExtension("Material", "ezMaterial");
 
   m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "Render Pipeline Asset";
@@ -41,7 +42,7 @@ void ezRenderPipelineAssetManager::OnDocumentManagerEvent(const ezDocumentManage
 {
   switch (e.m_Type)
   {
-  case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case ezDocumentManager::Event::Type::DocumentWindowRequested:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezRenderPipelineAssetDocument>())
       {
@@ -52,17 +53,16 @@ void ezRenderPipelineAssetManager::OnDocumentManagerEvent(const ezDocumentManage
   }
 }
 
-ezStatus ezRenderPipelineAssetManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)
+ezStatus ezRenderPipelineAssetManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
+                                                              ezDocument*& out_pDocument)
 {
   out_pDocument = new ezRenderPipelineAssetDocument(szPath);
 
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezRenderPipelineAssetManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezRenderPipelineAssetManager::InternalGetSupportedDocumentTypes(
+    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
-
-
-

@@ -1,8 +1,9 @@
 #include <PCH.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
+
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 
 EZ_CREATE_SIMPLE_TEST(IO, FileSystem)
 {
@@ -37,7 +38,7 @@ Only concrete and clocks.\n\
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
-    //ezFileSystem::ClearAllDataDirectoryFactories();
+    // ezFileSystem::ClearAllDataDirectoryFactories();
 
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 

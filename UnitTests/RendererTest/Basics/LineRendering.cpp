@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include "Basics.h"
 
 ezTestAppRun ezRendererTestBasics::SubtestLineRendering()
@@ -16,6 +17,3 @@ ezTestAppRun ezRendererTestBasics::SubtestLineRendering()
 
   return m_iFrame < 0 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
 }
-
-
-

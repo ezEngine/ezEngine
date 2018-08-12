@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <RendererCore/Basics.h>
 
 #if EZ_ENABLED(EZ_EMBED_FONT_FILE)
@@ -12,6 +13,7 @@
 extern ezUInt32 g_FontFileTGASize;
 extern const ezUInt8 g_FontFileTGA[];
 
+// clang-format off
 ezUInt32 g_FontFileTGASize = 7892;
 const ezUInt8 g_FontFileTGA[] =
 {

@@ -1,19 +1,20 @@
 #include <PCH.h>
-#include <EditorFramework/Panels/GameObjectPanel/GameObjectPanel.moc.h>
-#include <EditorFramework/Panels/GameObjectPanel/GameObjectModel.moc.h>
+
 #include <Core/World/GameObject.h>
-#include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
+#include <EditorFramework/Panels/GameObjectPanel/GameObjectModel.moc.h>
+#include <EditorFramework/Panels/GameObjectPanel/GameObjectPanel.moc.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/EditActions.h>
-#include <GuiFoundation/Widgets/SearchWidget.moc.h>
+#include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 #include <GuiFoundation/Models/TreeSearchFilterModel.moc.h>
-#include <QSortFilterProxyModel>
+#include <GuiFoundation/Widgets/SearchWidget.moc.h>
 #include <QBoxLayout>
 #include <QMenu>
+#include <QSortFilterProxyModel>
 
-ezQtGameObjectPanel::ezQtGameObjectPanel(QWidget* pParent, ezGameObjectDocument* pDocument,
-  const char* szContextMenuMapping, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel)
-  : ezQtDocumentPanel(pParent)
+ezQtGameObjectPanel::ezQtGameObjectPanel(QWidget* pParent, ezGameObjectDocument* pDocument, const char* szContextMenuMapping,
+                                         std::unique_ptr<ezQtDocumentTreeModel> pCustomModel)
+    : ezQtDocumentPanel(pParent)
 {
   setObjectName("ScenegraphPanel");
   setWindowTitle("Scenegraph");
@@ -41,28 +42,28 @@ ezQtGameObjectPanel::ezQtGameObjectPanel(QWidget* pParent, ezGameObjectDocument*
 
   m_pTreeWidget->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
 
-  EZ_VERIFY(connect(m_pTreeWidget, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(OnItemDoubleClicked(const QModelIndex&))) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pTreeWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(OnRequestContextMenu(QPoint))) != nullptr, "signal/slot connection failed");
-
+  EZ_VERIFY(connect(m_pTreeWidget, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(OnItemDoubleClicked(const QModelIndex&))) !=
+                nullptr,
+            "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pTreeWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(OnRequestContextMenu(QPoint))) != nullptr,
+            "signal/slot connection failed");
 }
 
 ezQtGameObjectPanel::~ezQtGameObjectPanel()
 {
   m_pDocument->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezQtGameObjectPanel::DocumentSceneEventHandler, this));
-
 }
 
 void ezQtGameObjectPanel::DocumentSceneEventHandler(const ezGameObjectEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezGameObjectEvent::Type::TriggerShowSelectionInScenegraph:
+    case ezGameObjectEvent::Type::TriggerShowSelectionInScenegraph:
     {
       m_pTreeWidget->EnsureLastSelectedItemVisible();
     }
     break;
   }
-
 }
 
 void ezQtGameObjectPanel::OnItemDoubleClicked(const QModelIndex&)
@@ -81,14 +82,9 @@ void ezQtGameObjectPanel::OnRequestContextMenu(QPoint pos)
   menu.SetActionContext(context);
 
   menu.exec(m_pTreeWidget->mapToGlobal(pos));
-
 }
 
 void ezQtGameObjectPanel::OnFilterTextChanged(const QString& text)
 {
   m_pTreeWidget->GetProxyFilterModel()->SetFilterText(text);
 }
-
-
-
-

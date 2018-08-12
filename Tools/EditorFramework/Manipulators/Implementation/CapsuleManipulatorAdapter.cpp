@@ -1,17 +1,14 @@
-﻿#include <PCH.h>
-#include <EditorFramework/Manipulators/CapsuleManipulatorAdapter.h>
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
+#include <PCH.h>
+
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
+#include <EditorFramework/Manipulators/CapsuleManipulatorAdapter.h>
+#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezCapsuleManipulatorAdapter::ezCapsuleManipulatorAdapter()
-{
-}
+ezCapsuleManipulatorAdapter::ezCapsuleManipulatorAdapter() {}
 
-ezCapsuleManipulatorAdapter::~ezCapsuleManipulatorAdapter()
-{
-}
+ezCapsuleManipulatorAdapter::~ezCapsuleManipulatorAdapter() {}
 
 void ezCapsuleManipulatorAdapter::Finalize()
 {
@@ -55,19 +52,19 @@ void ezCapsuleManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezGizmoEvent::Type::BeginInteractions:
-    BeginTemporaryInteraction();
-    break;
+    case ezGizmoEvent::Type::BeginInteractions:
+      BeginTemporaryInteraction();
+      break;
 
-  case ezGizmoEvent::Type::CancelInteractions:
-    CancelTemporayInteraction();
-    break;
+    case ezGizmoEvent::Type::CancelInteractions:
+      CancelTemporayInteraction();
+      break;
 
-  case ezGizmoEvent::Type::EndInteractions:
-    EndTemporaryInteraction();
-    break;
+    case ezGizmoEvent::Type::EndInteractions:
+      EndTemporaryInteraction();
+      break;
 
-  case ezGizmoEvent::Type::Interaction:
+    case ezGizmoEvent::Type::Interaction:
     {
       const ezCapsuleManipulatorAttribute* pAttr = static_cast<const ezCapsuleManipulatorAttribute*>(m_pManipulatorAttr);
 
@@ -81,5 +78,3 @@ void ezCapsuleManipulatorAdapter::UpdateGizmoTransform()
 {
   m_Gizmo.SetTransformation(GetObjectTransform());
 }
-
-

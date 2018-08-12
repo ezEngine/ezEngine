@@ -1,14 +1,15 @@
 #include <PCH.h>
+
+#include <Foundation/Types/ScopeExit.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
-#include <QSettings>
-#include <QTimer>
 #include <QCloseEvent>
-#include <QTabBar>
-#include <QStatusBar>
 #include <QLabel>
+#include <QSettings>
+#include <QStatusBar>
+#include <QTabBar>
+#include <QTimer>
 #include <ToolsFoundation/Application/ApplicationServices.h>
-#include <Foundation/Types/ScopeExit.h>
 
 ezDynamicArray<ezQtContainerWindow*> ezQtContainerWindow::s_AllContainerWindows;
 bool ezQtContainerWindow::s_bForceClose = false;
@@ -47,8 +48,7 @@ ezQtContainerWindow::~ezQtContainerWindow()
 ezQtContainerWindow* ezQtContainerWindow::CreateNewContainerWindow()
 {
   ezInt32 iUniqueIdentifier = 0;
-  auto isIdInUse = [](ezInt32 iUniqueIdentifier)->bool
-  {
+  auto isIdInUse = [](ezInt32 iUniqueIdentifier) -> bool {
     for (auto pContainer : s_AllContainerWindows)
     {
       if (pContainer->m_iUniqueIdentifier == iUniqueIdentifier)
@@ -256,10 +256,14 @@ void ezQtContainerWindow::SetupDocumentTabArea()
   pTabs->setDocumentMode(true);
   pTabs->tabBar()->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
 
-  EZ_VERIFY(connect(pTabs->tabBar(), SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(SlotTabsContextMenuRequested(const QPoint&))) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(pTabs->tabBar(), SIGNAL(customContextMenuRequested(const QPoint&)), this,
+                    SLOT(SlotTabsContextMenuRequested(const QPoint&))) != nullptr,
+            "signal/slot connection failed");
 
-  EZ_VERIFY(connect(pTabs, SIGNAL(tabCloseRequested(int)), this, SLOT(SlotDocumentTabCloseRequested(int))) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(pTabs, SIGNAL(currentChanged(int)), this, SLOT(SlotDocumentTabCurrentChanged(int))) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(pTabs, SIGNAL(tabCloseRequested(int)), this, SLOT(SlotDocumentTabCloseRequested(int))) != nullptr,
+            "signal/slot connection failed");
+  EZ_VERIFY(connect(pTabs, SIGNAL(currentChanged(int)), this, SLOT(SlotDocumentTabCurrentChanged(int))) != nullptr,
+            "signal/slot connection failed");
 
   setCentralWidget(pTabs);
 }
@@ -445,7 +449,10 @@ void ezQtContainerWindow::GetDocumentWindows(ezHybridArray<ezQtDocumentWindow*, 
 {
   struct WindowComparer
   {
-    WindowComparer(QTabWidget* pTabs) : m_pTabs(pTabs) {}
+    WindowComparer(QTabWidget* pTabs)
+        : m_pTabs(pTabs)
+    {
+    }
     EZ_ALWAYS_INLINE bool Less(ezQtDocumentWindow* a, ezQtDocumentWindow* b) const
     {
       int iIndexA = m_pTabs->indexOf(a);
@@ -501,15 +508,15 @@ void ezQtContainerWindow::DocumentWindowEventHandler(const ezQtDocumentWindowEve
 {
   switch (e.m_Type)
   {
-  case ezQtDocumentWindowEvent::Type::WindowClosing:
-    RemoveDocumentWindowFromContainer(e.m_pWindow);
-    break;
-  case ezQtDocumentWindowEvent::Type::WindowDecorationChanged:
-    UpdateWindowDecoration(e.m_pWindow);
-    break;
+    case ezQtDocumentWindowEvent::Type::WindowClosing:
+      RemoveDocumentWindowFromContainer(e.m_pWindow);
+      break;
+    case ezQtDocumentWindowEvent::Type::WindowDecorationChanged:
+      UpdateWindowDecoration(e.m_pWindow);
+      break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }
 
@@ -517,13 +524,13 @@ void ezQtContainerWindow::ProjectEventHandler(const ezToolsProjectEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezToolsProjectEvent::Type::ProjectOpened:
-  case ezToolsProjectEvent::Type::ProjectClosed:
-    UpdateWindowTitle();
-    break;
+    case ezToolsProjectEvent::Type::ProjectOpened:
+    case ezToolsProjectEvent::Type::ProjectClosed:
+      UpdateWindowTitle();
+      break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }
 
@@ -531,7 +538,7 @@ void ezQtContainerWindow::UIServicesEventHandler(const ezQtUiServices::Event& e)
 {
   switch (e.m_Type)
   {
-  case ezQtUiServices::Event::Type::ShowGlobalStatusBarText:
+    case ezQtUiServices::Event::Type::ShowGlobalStatusBarText:
     {
       if (statusBar() == nullptr)
         setStatusBar(new QStatusBar());
@@ -551,8 +558,8 @@ void ezQtContainerWindow::UIServicesEventHandler(const ezQtUiServices::Event& e)
     }
     break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }
 

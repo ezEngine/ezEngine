@@ -1,11 +1,12 @@
 #include <PCH.h>
+
 #include <EditorFramework/Assets/AssetImportDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <QComboBox>
+#include <QFileDialog>
 #include <QTableWidget>
 #include <QToolButton>
-#include <QFileDialog>
 
 enum Columns
 {
@@ -18,8 +19,8 @@ enum Columns
 };
 
 ezQtAssetImportDlg::ezQtAssetImportDlg(QWidget* parent, ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports)
-  : QDialog(parent)
-  , m_allImports(allImports)
+    : QDialog(parent)
+    , m_allImports(allImports)
 {
   setupUi(this);
 
@@ -56,9 +57,7 @@ ezQtAssetImportDlg::ezQtAssetImportDlg(QWidget* parent, ezDynamicArray<ezAssetDo
   table->setColumnWidth(Columns::GeneratedDoc, table->columnWidth(Columns::GeneratedDoc) + 30);
 }
 
-ezQtAssetImportDlg::~ezQtAssetImportDlg()
-{
-}
+ezQtAssetImportDlg::~ezQtAssetImportDlg() {}
 
 void ezQtAssetImportDlg::InitRow(ezUInt32 uiRow)
 {
@@ -86,7 +85,8 @@ void ezQtAssetImportDlg::InitRow(ezUInt32 uiRow)
   connect(table, &QTableWidget::cellChanged, this, &ezQtAssetImportDlg::TableCellChanged);
 
   table->setItem(uiRow, Columns::GeneratedDoc, new QTableWidgetItem(QString()));
-  table->item(uiRow, Columns::GeneratedDoc)->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsEditable | Qt::ItemFlag::ItemIsSelectable);
+  table->item(uiRow, Columns::GeneratedDoc)
+      ->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsEditable | Qt::ItemFlag::ItemIsSelectable);
 
   QToolButton* pBrowse = new QToolButton();
   pBrowse->setText("Browse...");
@@ -124,7 +124,7 @@ void ezQtAssetImportDlg::UpdateRow(ezUInt32 uiRow)
     pBrowse->setEnabled(false);
     QComboBox* pCombo = qobject_cast<QComboBox*>(table->cellWidget(uiRow, Columns::Method));
     pCombo->setEnabled(false);
-    
+
     pBrowse->setEnabled(true);
     pBrowse->setText("Open");
     pStatusItem->setTextColor(QColor::fromRgba(qRgb(0, 200, 0)));
@@ -206,7 +206,8 @@ void ezQtAssetImportDlg::BrowseButtonClicked(bool)
   {
     ezStringBuilder filter;
     filter.Format("{0} (*.{0})", option.m_pGenerator->GetDocumentExtension());
-    QString result = QFileDialog::getSaveFileName(this, "Target Document", ezToolsProject::GetSingleton()->GetProjectDirectory().GetData(), filter.GetData(), nullptr, QFileDialog::Option::DontResolveSymlinks);
+    QString result = QFileDialog::getSaveFileName(this, "Target Document", ezToolsProject::GetSingleton()->GetProjectDirectory().GetData(),
+                                                  filter.GetData(), nullptr, QFileDialog::Option::DontResolveSymlinks);
 
     if (result.isEmpty())
       return;

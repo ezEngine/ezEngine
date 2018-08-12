@@ -1,25 +1,25 @@
 #include <PCH.h>
-#include <EditorPluginFmod/SoundBankAsset/SoundBankAssetManager.h>
-#include <EditorPluginFmod/SoundBankAsset/SoundBankAsset.h>
-#include <EditorPluginFmod/SoundBankAsset/SoundBankAssetWindow.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <Foundation/IO/OSFile.h>
-#include <FmodPlugin/FmodIncludes.h>
 
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorPluginFmod/SoundBankAsset/SoundBankAsset.h>
+#include <EditorPluginFmod/SoundBankAsset/SoundBankAssetManager.h>
+#include <EditorPluginFmod/SoundBankAsset/SoundBankAssetWindow.moc.h>
+#include <FmodPlugin/FmodIncludes.h>
+#include <Foundation/IO/OSFile.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundBankAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSoundBankAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 class ezSimpleFmod
 {
 public:
-  ezSimpleFmod() { }
-  ~ezSimpleFmod()
-  {
-    EZ_ASSERT_DEV(m_pSystem == nullptr, "FMod is not shut down");
-  }
+  ezSimpleFmod() {}
+  ~ezSimpleFmod() { EZ_ASSERT_DEV(m_pSystem == nullptr, "FMod is not shut down"); }
 
   void Startup()
   {
@@ -27,7 +27,7 @@ public:
 
     EZ_FMOD_ASSERT(FMOD::Studio::System::create(&m_pSystem));
 
-    void *extraDriverData = nullptr;
+    void* extraDriverData = nullptr;
     EZ_FMOD_ASSERT(m_pSystem->initialize(32, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, extraDriverData));
   }
 
@@ -79,7 +79,8 @@ ezSoundBankAssetDocumentManager::~ezSoundBankAssetDocumentManager()
   m_Fmod.Reset();
 }
 
-void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezHybridArray<ezSubAssetData, 4>& out_SubAssets) const
+void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo,
+                                                          ezHybridArray<ezSubAssetData, 4>& out_SubAssets) const
 {
   ezHashedString sAssetTypeName;
   sAssetTypeName.Assign("Sound Event");
@@ -125,8 +126,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
           {
             loadedBanks.PushBack(pStringsBank);
           }
-        }
-        while (fsIt.Next().Succeeded());
+        } while (fsIt.Next().Succeeded());
       }
 
       int iEvents = 0;
@@ -187,7 +187,8 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
   }
 }
 
-ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const char* szPlatform) const
+ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory,
+                                                                      const char* szPlatform) const
 {
   // at the moment we don't reference the actual transformed asset file
   // instead we reference the source fmod sound bank file
@@ -216,7 +217,8 @@ ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSu
   return ezString();
 }
 
-ezString ezSoundBankAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const char* szPlatform) const
+ezString ezSoundBankAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory,
+                                                             const char* szPlatform) const
 {
   if (pSubAsset->m_bMainAsset)
   {
@@ -239,7 +241,7 @@ void ezSoundBankAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
 {
   switch (e.m_Type)
   {
-  case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case ezDocumentManager::Event::Type::DocumentWindowRequested:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSoundBankAssetDocument>())
       {
@@ -250,17 +252,16 @@ void ezSoundBankAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
   }
 }
 
-ezStatus ezSoundBankAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)
+ezStatus ezSoundBankAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
+                                                                 ezDocument*& out_pDocument)
 {
   out_pDocument = new ezSoundBankAssetDocument(szPath);
 
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezSoundBankAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezSoundBankAssetDocumentManager::InternalGetSupportedDocumentTypes(
+    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
-
-
-

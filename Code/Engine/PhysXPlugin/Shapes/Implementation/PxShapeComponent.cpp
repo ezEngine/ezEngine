@@ -1,11 +1,13 @@
 #include <PCH.h>
-#include <PhysXPlugin/Shapes/PxShapeComponent.h>
-#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
-#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
-#include <PhysXPlugin/Utilities/PxConversionUtils.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
 
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <PhysXPlugin/Shapes/PxShapeComponent.h>
+#include <PhysXPlugin/Utilities/PxConversionUtils.h>
+#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
+
+// clang-format off
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxShapeComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
@@ -15,26 +17,24 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxShapeComponent, 2)
     EZ_MEMBER_PROPERTY("ReportContact", m_bReportContact)
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Physics/Shapes"),
   }
   EZ_END_ATTRIBUTES;
 }
 EZ_END_ABSTRACT_COMPONENT_TYPE
+// clang-format on
 
 ezPxShapeComponent::ezPxShapeComponent()
-  : m_uiCollisionLayer(0)
-  , m_bReportContact(false)
-  , m_uiShapeId(ezInvalidIndex)
-  , m_UserData(this)
+    : m_uiCollisionLayer(0)
+    , m_bReportContact(false)
+    , m_uiShapeId(ezInvalidIndex)
+    , m_UserData(this)
 {
 }
 
-ezPxShapeComponent::~ezPxShapeComponent()
-{
-
-}
+ezPxShapeComponent::~ezPxShapeComponent() {}
 
 void ezPxShapeComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -96,7 +96,6 @@ void ezPxShapeComponent::SetSurfaceFile(const char* szFile)
 
   if (m_hSurface.IsValid())
     ezResourceManager::PreloadResource(m_hSurface, ezTime::Seconds(5.0));
-
 }
 
 const char* ezPxShapeComponent::GetSurfaceFile() const
@@ -131,9 +130,7 @@ void ezPxShapeComponent::AddToActor(PxRigidActor* pActor, const ezSimdTransform&
   pShape->userData = &m_UserData;
 }
 
-void ezPxShapeComponent::AddToNavMesh(ezMsgBuildNavMesh& msg) const
-{
-}
+void ezPxShapeComponent::AddToNavMesh(ezMsgBuildNavMesh& msg) const {}
 
 PxMaterial* ezPxShapeComponent::GetPxMaterial()
 {
@@ -158,4 +155,3 @@ PxFilterData ezPxShapeComponent::CreateFilterData()
 
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Shapes_Implementation_PxShapeComponent);
-

@@ -1,18 +1,19 @@
 #include <PCH.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
+
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
-#include <ToolsFoundation/Application/ApplicationServices.h>
 #include <QProcess>
 #include <QTextStream>
 #include <QTimer>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 
 EZ_IMPLEMENT_SINGLETON(ezQtEditorApp);
 
 ezQtEditorApp::ezQtEditorApp()
-  : m_SingletonRegistrar(this)
-  , s_RecentProjects(5)
-  , s_RecentDocuments(50)
+    : m_SingletonRegistrar(this)
+    , s_RecentProjects(5)
+    , s_RecentDocuments(50)
 {
   m_pProgressbar = nullptr;
   m_pQtProgressbar = nullptr;
@@ -65,7 +66,7 @@ void ezQtEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnectio
 {
   switch (e.m_Type)
   {
-  case ezEditorEngineProcessConnection::Event::Type::ProcessMessage:
+    case ezEditorEngineProcessConnection::Event::Type::ProcessMessage:
     {
       if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezUpdateReflectionTypeMsgToEditor>())
       {
@@ -79,8 +80,8 @@ void ezQtEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnectio
     }
     break;
 
-  default:
-    return;
+    default:
+      return;
   }
 }
 

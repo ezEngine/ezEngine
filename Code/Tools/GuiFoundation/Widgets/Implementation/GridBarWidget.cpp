@@ -1,22 +1,24 @@
 #include <PCH.h>
-#include <GuiFoundation/Widgets/GridBarWidget.moc.h>
-#include <Foundation/Math/Math.h>
+
 #include <Foundation/Containers/HybridArray.h>
-#include <GuiFoundation/Widgets/WidgetUtils.h>
-#include <qevent.h>
-#include <QTextOption>
-#include <QPainter>
+#include <Foundation/Math/Math.h>
 #include <Foundation/Strings/StringBuilder.h>
+#include <GuiFoundation/Widgets/GridBarWidget.moc.h>
+#include <GuiFoundation/Widgets/WidgetUtils.h>
+#include <QPainter>
+#include <QTextOption>
+#include <qevent.h>
 
 ezQGridBarWidget::ezQGridBarWidget(QWidget* parent)
-  : QWidget(parent)
+    : QWidget(parent)
 {
   m_viewportSceneRect.setRect(0, 1, 1, 1);
   m_fFineGridStops = 10;
   m_fTextGridStops = 100;
 }
 
-void ezQGridBarWidget::SetConfig(const QRectF& viewportSceneRect, double fTextGridStops, double fFineGridStops, ezDelegate<QPoint(const QPointF&)> mapFromSceneFunc)
+void ezQGridBarWidget::SetConfig(const QRectF& viewportSceneRect, double fTextGridStops, double fFineGridStops,
+                                 ezDelegate<QPoint(const QPointF&)> mapFromSceneFunc)
 {
   MapFromSceneFunc = mapFromSceneFunc;
 
@@ -111,4 +113,3 @@ void ezQGridBarWidget::paintEvent(QPaintEvent* e)
     }
   }
 }
-

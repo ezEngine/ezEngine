@@ -1,16 +1,18 @@
 #include <PCH.h>
-#include <Inspector/SubsystemsWidget.moc.h>
+
 #include <Foundation/Communication/Telemetry.h>
-#include <MainWindow.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <Inspector/SubsystemsWidget.moc.h>
+#include <MainWindow.moc.h>
 
 ezQtSubsystemsWidget* ezQtSubsystemsWidget::s_pWidget = nullptr;
 
-ezQtSubsystemsWidget::ezQtSubsystemsWidget(QWidget* parent) : QDockWidget (parent)
+ezQtSubsystemsWidget::ezQtSubsystemsWidget(QWidget* parent)
+    : QDockWidget(parent)
 {
   s_pWidget = this;
 
-  setupUi (this);
+  setupUi(this);
 
   ResetStats();
 }
@@ -76,9 +78,10 @@ void ezQtSubsystemsWidget::UpdateSubSystems()
       else if (ssd.m_bStartupDone[ezStartupStage::Base])
         TableSubsystems->setCellWidget(iRow, 3, new QLabel("<p><span style=\"font-weight:600; color:#cece00;\">  Base  </span></p>"));
       else
-        TableSubsystems->setCellWidget(iRow, 3, new QLabel("<p><span style=\"font-weight:600; color:#ff0000;\">Not Initialized</span></p>"));
+        TableSubsystems->setCellWidget(iRow, 3,
+                                       new QLabel("<p><span style=\"font-weight:600; color:#ff0000;\">Not Initialized</span></p>"));
 
-      ((QLabel*) TableSubsystems->cellWidget(iRow, 3))->setAlignment(Qt::AlignHCenter);
+      ((QLabel*)TableSubsystems->cellWidget(iRow, 3))->setAlignment(Qt::AlignHCenter);
 
       sTemp.Format("  {0}  ", ssd.m_sDependencies);
       TableSubsystems->setCellWidget(iRow, 4, new QLabel(sTemp.GetData()));
@@ -103,14 +106,14 @@ void ezQtSubsystemsWidget::ProcessTelemetry(void* pUnuseed)
   {
     switch (Msg.GetMessageID())
     {
-    case ' CLR':
+      case ' CLR':
       {
         s_pWidget->m_Subsystems.Clear();
         s_pWidget->m_bUpdateSubsystems = true;
       }
       break;
 
-    case 'SYST':
+      case 'SYST':
       {
         ezString sGroup, sSystem;
 
@@ -155,5 +158,3 @@ void ezQtSubsystemsWidget::ProcessTelemetry(void* pUnuseed)
     }
   }
 }
-
-

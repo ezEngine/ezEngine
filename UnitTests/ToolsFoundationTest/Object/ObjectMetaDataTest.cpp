@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <ToolsFoundation/Object/ObjectMetaData.h>
+
 #include <Foundation/Types/Uuid.h>
+#include <ToolsFoundation/Object/ObjectMetaData.h>
 
 static int a = 0, b = 1, c = 2, d = 3;
 
@@ -55,10 +56,7 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, ObjectMetaData)
 
   struct md
   {
-    md()
-    {
-      b = false;
-    }
+    md() { b = false; }
 
     ezString s;
     bool b;
@@ -112,8 +110,3 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, ObjectMetaData)
     }
   }
 }
-
-
-
-
-

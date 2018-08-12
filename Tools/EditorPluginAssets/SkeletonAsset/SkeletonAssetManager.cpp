@@ -1,9 +1,10 @@
 #include <PCH.h>
-#include <EditorPluginAssets/SkeletonAsset/SkeletonAssetManager.h>
-#include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
-#include <EditorPluginAssets/SkeletonAsset/SkeletonAssetWindow.moc.h>
+
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
+#include <EditorPluginAssets/SkeletonAsset/SkeletonAssetManager.h>
+#include <EditorPluginAssets/SkeletonAsset/SkeletonAssetWindow.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSkeletonAssetDocumentManager>);
@@ -20,7 +21,7 @@ ezSkeletonAssetDocumentManager::ezSkeletonAssetDocumentManager()
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezSkeletonAssetDocument>();
   m_AssetDesc.m_pManager = this;
 
-  //ezQtImageCache::GetSingleton()->RegisterTypeImage("Skeleton", QPixmap(":/AssetIcons/Skeleton.png"));
+  // ezQtImageCache::GetSingleton()->RegisterTypeImage("Skeleton", QPixmap(":/AssetIcons/Skeleton.png"));
 }
 
 ezSkeletonAssetDocumentManager::~ezSkeletonAssetDocumentManager()
@@ -29,7 +30,8 @@ ezSkeletonAssetDocumentManager::~ezSkeletonAssetDocumentManager()
 }
 
 
-ezBitflags<ezAssetDocumentFlags> ezSkeletonAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
+ezBitflags<ezAssetDocumentFlags>
+ezSkeletonAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
 {
   EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
   return ezAssetDocumentFlags::SupportsThumbnail;
@@ -39,28 +41,28 @@ void ezSkeletonAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMana
 {
   switch (e.m_Type)
   {
-  case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case ezDocumentManager::Event::Type::DocumentWindowRequested:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSkeletonAssetDocument>())
       {
-        ezQtSkeletonAssetDocumentWindow* pDocWnd = new ezQtSkeletonAssetDocumentWindow(static_cast<ezSkeletonAssetDocument*>(e.m_pDocument));
+        ezQtSkeletonAssetDocumentWindow* pDocWnd =
+            new ezQtSkeletonAssetDocumentWindow(static_cast<ezSkeletonAssetDocument*>(e.m_pDocument));
       }
     }
     break;
   }
 }
 
-ezStatus ezSkeletonAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)
+ezStatus ezSkeletonAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
+                                                                ezDocument*& out_pDocument)
 {
   out_pDocument = new ezSkeletonAssetDocument(szPath);
 
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezSkeletonAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezSkeletonAssetDocumentManager::InternalGetSupportedDocumentTypes(
+    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
-
-
-

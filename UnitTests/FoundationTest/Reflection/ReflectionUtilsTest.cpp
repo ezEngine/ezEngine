@@ -1,11 +1,12 @@
 #include <PCH.h>
-#include <FoundationTest/Reflection/ReflectionTestClasses.h>
-#include <Foundation/Reflection/ReflectionUtils.h>
-#include <Foundation/IO/MemoryStream.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
 
-template<typename T>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
+#include <FoundationTest/Reflection/ReflectionTestClasses.h>
+
+template <typename T>
 static void SetComponentTest(ezVec2Template<T> vector, T value)
 {
   ezVariant var = vector;
@@ -14,7 +15,7 @@ static void SetComponentTest(ezVec2Template<T> vector, T value)
   ezReflectionUtils::SetComponent(var, 1, value);
   EZ_TEST_BOOL(var.Get<ezVec2Template<T>>().y == value);
 }
-template<typename T>
+template <typename T>
 static void SetComponentTest(ezVec3Template<T> vector, T value)
 {
   ezVariant var = vector;
@@ -25,7 +26,7 @@ static void SetComponentTest(ezVec3Template<T> vector, T value)
   ezReflectionUtils::SetComponent(var, 2, value);
   EZ_TEST_BOOL(var.Get<ezVec3Template<T>>().z == value);
 }
-template<typename T>
+template <typename T>
 static void SetComponentTest(ezVec4Template<T> vector, T value)
 {
   ezVariant var = vector;

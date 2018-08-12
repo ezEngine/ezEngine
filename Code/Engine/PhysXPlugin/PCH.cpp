@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <PhysXPlugin/Basics.h>
 
 EZ_STATICLINK_LIBRARY(PhysXPlugin)
@@ -27,4 +28,3 @@ EZ_STATICLINK_LIBRARY(PhysXPlugin)
   EZ_STATICLINK_REFERENCE(PhysXPlugin_WorldModule_Implementation_PhysX);
   EZ_STATICLINK_REFERENCE(PhysXPlugin_WorldModule_Implementation_PhysXWorldModule);
 }
-

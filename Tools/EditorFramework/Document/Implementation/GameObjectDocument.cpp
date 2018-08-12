@@ -1,14 +1,16 @@
 #include <PCH.h>
-#include <EditorFramework/Document/GameObjectDocument.h>
+
+#include <Core/World/GameObject.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/EditTools/EditTool.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
-#include <EditorFramework/EditTools/EditTool.h>
-#include <Core/World/GameObject.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectMetaData, 1, ezRTTINoAllocator)
 {
   //EZ_BEGIN_PROPERTIES
@@ -21,9 +23,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectDocument, 2, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezGameObjectDocument::ezGameObjectDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, bool bUseEngineConnection, bool bUseIPCObjectMirror)
-  : ezAssetDocument(szDocumentPath, pObjectManager, bUseEngineConnection, bUseIPCObjectMirror)
+ezGameObjectDocument::ezGameObjectDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, bool bUseEngineConnection,
+                                           bool bUseIPCObjectMirror)
+    : ezAssetDocument(szDocumentPath, pObjectManager, bUseEngineConnection, bUseIPCObjectMirror)
 {
   EZ_ASSERT_DEBUG(bUseEngineConnection && bUseIPCObjectMirror, "IPC mirror must be enabled for ezGameObjectDocument");
 
@@ -144,7 +148,8 @@ void ezGameObjectDocument::SetGizmoMoveParentOnly(bool bMoveParent)
   m_GameObjectEvents.Broadcast(e);
 }
 
-void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result, QIcon* out_pIcon /*= nullptr*/) const
+void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result,
+                                             QIcon* out_pIcon /*= nullptr*/) const
 {
   // tries to find a good name for a node by looking at the attached components and their properties
 
@@ -202,10 +207,10 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
 
     for (auto pProperty : properties)
     {
-      // search for string properties that also have an asset browser property -> they reference an asset, so this is most likely the most relevant property
+      // search for string properties that also have an asset browser property -> they reference an asset, so this is most likely the most
+      // relevant property
       if (pProperty->GetCategory() == ezPropertyCategory::Member &&
-        (pProperty->GetSpecificType() == ezGetStaticRTTI<const char*>() ||
-          pProperty->GetSpecificType() == ezGetStaticRTTI<ezString>()) &&
+          (pProperty->GetSpecificType() == ezGetStaticRTTI<const char*>() || pProperty->GetSpecificType() == ezGetStaticRTTI<ezString>()) &&
           pProperty->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr)
       {
         ezStringBuilder sValue = pChild->GetTypeAccessor().GetValue(pProperty->GetPropertyName()).ConvertTo<ezString>();
@@ -244,7 +249,8 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
 }
 
 
-void ezGameObjectDocument::QueryCachedNodeName(const ezDocumentObject* pObject, ezStringBuilder& out_Result, ezUuid* out_pPrefabGuid, QIcon* out_pIcon /*= nullptr*/) const
+void ezGameObjectDocument::QueryCachedNodeName(const ezDocumentObject* pObject, ezStringBuilder& out_Result, ezUuid* out_pPrefabGuid,
+                                               QIcon* out_pIcon /*= nullptr*/) const
 {
   auto pMetaScene = m_GameObjectMetaData.BeginReadMetaData(pObject->GetGuid());
   auto pMetaDoc = m_DocumentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
@@ -355,28 +361,28 @@ void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, c
 
   // unfortunately when we are dragging an object the 'temporary' transaction is undone every time before the new commands are sent
   // that means the values that we read here, are always the original values before the object was modified at all
-  // therefore when the original position and the new position are identical, that means the user dragged the object to the previous position
-  // it does NOT mean that there is no change, in fact there is a change, just back to the original value
+  // therefore when the original position and the new position are identical, that means the user dragged the object to the previous
+  // position it does NOT mean that there is no change, in fact there is a change, just back to the original value
 
-  //if (pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>() != vLocalPos)
+  // if (pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>() != vLocalPos)
   if ((transformationChanges & TransformationChanges::Translation) != 0)
   {
     pAccessor->SetValue(pObject, "LocalPosition", vLocalPos).LogFailure();
   }
 
-  //if (pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>() != qLocalRot)
+  // if (pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>() != qLocalRot)
   if ((transformationChanges & TransformationChanges::Rotation) != 0)
   {
     pAccessor->SetValue(pObject, "LocalRotation", qLocalRot).LogFailure();
   }
 
-  //if (pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>() != vLocalScale)
+  // if (pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>() != vLocalScale)
   if ((transformationChanges & TransformationChanges::Scale) != 0)
   {
     pAccessor->SetValue(pObject, "LocalScaling", vLocalScale).LogFailure();
   }
 
-  //if (pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>() != fUniformScale)
+  // if (pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>() != fUniformScale)
   if ((transformationChanges & TransformationChanges::UniformScale) != 0)
   {
     pAccessor->SetValue(pObject, "LocalUniformScaling", fUniformScale).LogFailure();
@@ -386,7 +392,8 @@ void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, c
   InvalidateGlobalTransformValue(pObject);
 }
 
-void ezGameObjectDocument::SetGlobalTransformParentOnly(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges) const
+void ezGameObjectDocument::SetGlobalTransformParentOnly(const ezDocumentObject* pObject, const ezTransform& t,
+                                                        ezUInt8 transformationChanges) const
 {
   ezHybridArray<ezTransform, 16> childTransforms;
   const auto& children = pObject->GetChildren();
@@ -549,7 +556,8 @@ void ezGameObjectDocument::SnapCameraToObject()
 void ezGameObjectDocument::MoveCameraHere()
 {
   const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
-  const bool bCanMove = ctxt.m_pLastHoveredViewWidget != nullptr && ctxt.m_pLastPickingResult && !ctxt.m_pLastPickingResult->m_vPickedPosition.IsNaN();
+  const bool bCanMove =
+      ctxt.m_pLastHoveredViewWidget != nullptr && ctxt.m_pLastPickingResult && !ctxt.m_pLastPickingResult->m_vPickedPosition.IsNaN();
 
   if (!bCanMove)
     return;
@@ -630,9 +638,7 @@ void ezGameObjectDocument::SetRenderShapeIcons(bool b)
 
 void ezGameObjectDocument::ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  if (e.m_sProperty == "LocalPosition" ||
-      e.m_sProperty == "LocalRotation" ||
-      e.m_sProperty == "LocalScaling" ||
+  if (e.m_sProperty == "LocalPosition" || e.m_sProperty == "LocalRotation" || e.m_sProperty == "LocalScaling" ||
       e.m_sProperty == "LocalUniformScaling")
   {
     InvalidateGlobalTransformValue(e.m_pObject);
@@ -652,14 +658,14 @@ void ezGameObjectDocument::ObjectStructureEventHandler(const ezDocumentObjectStr
   {
     switch (e.m_EventType)
     {
-    case ezDocumentObjectStructureEvent::Type::BeforeObjectMoved:
+      case ezDocumentObjectStructureEvent::Type::BeforeObjectMoved:
       {
         // make sure the cache is filled with a proper value
         GetGlobalTransform(e.m_pObject);
       }
       break;
 
-    case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
+      case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
       {
         // read cached value, hopefully it was not invalidated in between BeforeObjectMoved and AfterObjectMoved
         ezTransform t = GetGlobalTransform(e.m_pObject);
@@ -673,26 +679,26 @@ void ezGameObjectDocument::ObjectStructureEventHandler(const ezDocumentObjectStr
   {
     switch (e.m_EventType)
     {
-    case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
-    case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
-    case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
-      if (e.m_sParentProperty == "Components")
-      {
-        if (e.m_pPreviousParent != nullptr)
+      case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
+      case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
+      case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+        if (e.m_sParentProperty == "Components")
         {
-          auto pMeta = m_GameObjectMetaData.BeginModifyMetaData(e.m_pPreviousParent->GetGuid());
-          pMeta->m_CachedNodeName.Clear();
-          m_GameObjectMetaData.EndModifyMetaData(ezGameObjectMetaData::CachedName);
-        }
+          if (e.m_pPreviousParent != nullptr)
+          {
+            auto pMeta = m_GameObjectMetaData.BeginModifyMetaData(e.m_pPreviousParent->GetGuid());
+            pMeta->m_CachedNodeName.Clear();
+            m_GameObjectMetaData.EndModifyMetaData(ezGameObjectMetaData::CachedName);
+          }
 
-        if (e.m_pNewParent != nullptr)
-        {
-          auto pMeta = m_GameObjectMetaData.BeginModifyMetaData(e.m_pNewParent->GetGuid());
-          pMeta->m_CachedNodeName.Clear();
-          m_GameObjectMetaData.EndModifyMetaData(ezGameObjectMetaData::CachedName);
+          if (e.m_pNewParent != nullptr)
+          {
+            auto pMeta = m_GameObjectMetaData.BeginModifyMetaData(e.m_pNewParent->GetGuid());
+            pMeta->m_CachedNodeName.Clear();
+            m_GameObjectMetaData.EndModifyMetaData(ezGameObjectMetaData::CachedName);
+          }
         }
-      }
-      break;
+        break;
     }
   }
 }
@@ -705,15 +711,15 @@ void ezGameObjectDocument::ObjectEventHandler(const ezDocumentObjectEvent& e)
 
   switch (e.m_EventType)
   {
-  case ezDocumentObjectEvent::Type::BeforeObjectDestroyed:
+    case ezDocumentObjectEvent::Type::BeforeObjectDestroyed:
     {
       // clean up object meta data upon object destruction, because we can :-P
       if (GetObjectManager()->GetObject(e.m_pObject->GetGuid()) == nullptr)
       {
         // make sure there is no object with this GUID still "added" to the document
-        // this can happen if two objects use the same GUID, only one object can be "added" at a time, but multiple objects with the same GUID may exist
-        // the same GUID is in use, when a prefab is recreated (updated) and the GUIDs are restored, such that references don't change
-        // the object that is being destroyed is typically referenced by a command that was in the redo-queue that got purged
+        // this can happen if two objects use the same GUID, only one object can be "added" at a time, but multiple objects with the same
+        // GUID may exist the same GUID is in use, when a prefab is recreated (updated) and the GUIDs are restored, such that references
+        // don't change the object that is being destroyed is typically referenced by a command that was in the redo-queue that got purged
 
         m_DocumentObjectMetaData.ClearMetaData(e.m_pObject->GetGuid());
         m_GameObjectMetaData.ClearMetaData(e.m_pObject->GetGuid());
@@ -753,7 +759,7 @@ void ezGameObjectDocument::SendObjectSelection()
 
   GetEditorEngineConnection()->SendMessage(&msg);
 }
-//static
+// static
 ezTransform ezGameObjectDocument::QueryLocalTransform(const ezDocumentObject* pObject)
 {
   const ezVec3 vTranslation = pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
@@ -764,7 +770,7 @@ ezTransform ezGameObjectDocument::QueryLocalTransform(const ezDocumentObject* pO
   return ezTransform(vTranslation, qRotation, vScaling * fScaling);
 }
 
-//static
+// static
 ezSimdTransform ezGameObjectDocument::QueryLocalTransformSimd(const ezDocumentObject* pObject)
 {
   const ezVec3 vTranslation = pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
@@ -773,7 +779,7 @@ ezSimdTransform ezGameObjectDocument::QueryLocalTransformSimd(const ezDocumentOb
   const float fScaling = pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>();
 
   return ezSimdTransform(ezSimdConversion::ToVec3(vTranslation), ezSimdConversion::ToQuat(qRotation),
-    ezSimdConversion::ToVec3(vScaling * fScaling));
+                         ezSimdConversion::ToVec3(vScaling * fScaling));
 }
 
 
@@ -824,6 +830,3 @@ void ezGameObjectDocument::ComputeTopLevelSelectedGameObjects(ezDeque<ezSelected
     sgo.m_fLocalUniformScaling = Selection[sel]->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>();
   }
 }
-
-
-

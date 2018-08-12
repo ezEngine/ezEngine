@@ -1,7 +1,9 @@
 #include <PCH.h>
-#include <RtsGamePlugin/Components/SelectableComponent.h>
-#include <Core/Messages/UpdateLocalBoundsMessage.h>
 
+#include <Core/Messages/UpdateLocalBoundsMessage.h>
+#include <RtsGamePlugin/Components/SelectableComponent.h>
+
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(RtsSelectableComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -21,6 +23,7 @@ EZ_BEGIN_COMPONENT_TYPE(RtsSelectableComponent, 1, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
 RtsSelectableComponent::RtsSelectableComponent() = default;
 RtsSelectableComponent::~RtsSelectableComponent() = default;

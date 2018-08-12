@@ -1,16 +1,18 @@
 #include <PCH.h>
-#include <Inspector/ReflectionWidget.moc.h>
-#include <qlistwidget.h>
+
 #include <Foundation/Communication/Telemetry.h>
+#include <Inspector/ReflectionWidget.moc.h>
 #include <MainWindow.moc.h>
+#include <qlistwidget.h>
 
 ezQtReflectionWidget* ezQtReflectionWidget::s_pWidget = nullptr;
 
-ezQtReflectionWidget::ezQtReflectionWidget(QWidget* parent) : QDockWidget (parent)
+ezQtReflectionWidget::ezQtReflectionWidget(QWidget* parent)
+    : QDockWidget(parent)
 {
   s_pWidget = this;
 
-  setupUi (this);
+  setupUi(this);
 
   ResetStats();
 }
@@ -81,7 +83,7 @@ void ezQtReflectionWidget::ProcessTelemetry(void* pUnuseed)
 
           sd.m_Properties.PushBack(pd);
 
-found:
+        found:
           continue;
         }
       }
@@ -149,30 +151,30 @@ bool ezQtReflectionWidget::UpdateTree()
 
         switch (it.Value().m_Properties[i].m_iCategory)
         {
-        case -1:
-          pProperty->setText(0, "Message");
-          pProperty->setIcon(0, QIcon(":/Icons/Icons/Message.png"));
-          break;
-        case ezPropertyCategory::Member:
-          pProperty->setText(0, it.Value().m_Properties[i].m_sType.GetData());
-          pProperty->setIcon(0, QIcon(":/Icons/Icons/Member.png"));
-          break;
-        case ezPropertyCategory::Function:
-          pProperty->setText(0, "Function");
-          pProperty->setIcon(0, QIcon(":/Icons/Icons/Function.png"));
-          break;
-        case ezPropertyCategory::Array:
-          pProperty->setText(0, it.Value().m_Properties[i].m_sType.GetData());
-          pProperty->setIcon(0, QIcon(":/Icons/Icons/Array.png"));
-          break;
-        case ezPropertyCategory::Set:
-          pProperty->setText(0, it.Value().m_Properties[i].m_sType.GetData());
-          pProperty->setIcon(0, QIcon(":/Icons/Icons/Set.png"));
-          break;
-        case ezPropertyCategory::Map:
-          pProperty->setText(0, it.Value().m_Properties[i].m_sType.GetData());
-          pProperty->setIcon(0, QIcon(":/Icons/Icons/Map.png"));
-          break;
+          case -1:
+            pProperty->setText(0, "Message");
+            pProperty->setIcon(0, QIcon(":/Icons/Icons/Message.png"));
+            break;
+          case ezPropertyCategory::Member:
+            pProperty->setText(0, it.Value().m_Properties[i].m_sType.GetData());
+            pProperty->setIcon(0, QIcon(":/Icons/Icons/Member.png"));
+            break;
+          case ezPropertyCategory::Function:
+            pProperty->setText(0, "Function");
+            pProperty->setIcon(0, QIcon(":/Icons/Icons/Function.png"));
+            break;
+          case ezPropertyCategory::Array:
+            pProperty->setText(0, it.Value().m_Properties[i].m_sType.GetData());
+            pProperty->setIcon(0, QIcon(":/Icons/Icons/Array.png"));
+            break;
+          case ezPropertyCategory::Set:
+            pProperty->setText(0, it.Value().m_Properties[i].m_sType.GetData());
+            pProperty->setIcon(0, QIcon(":/Icons/Icons/Set.png"));
+            break;
+          case ezPropertyCategory::Map:
+            pProperty->setText(0, it.Value().m_Properties[i].m_sType.GetData());
+            pProperty->setIcon(0, QIcon(":/Icons/Icons/Map.png"));
+            break;
         }
 
         pProperty->setText(1, it.Value().m_Properties[i].m_sPropertyName.GetData());
@@ -184,4 +186,3 @@ bool ezQtReflectionWidget::UpdateTree()
 
   return bAddedAny;
 }
-

@@ -1,18 +1,20 @@
 #include <PCH.h>
-#include <GameEngine/Components/ProjectileComponent.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
-#include <Core/Messages/TriggerMessage.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <GameEngine/Messages/DamageMessage.h>
 
+#include <Core/Messages/TriggerMessage.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <GameEngine/Components/ProjectileComponent.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <GameEngine/Messages/DamageMessage.h>
+#include <GameEngine/Prefabs/PrefabResource.h>
+
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProjectileReaction, 1)
-EZ_ENUM_CONSTANT(ezProjectileReaction::Absorb),
-EZ_ENUM_CONSTANT(ezProjectileReaction::Reflect),
-EZ_ENUM_CONSTANT(ezProjectileReaction::Attach),
-EZ_ENUM_CONSTANT(ezProjectileReaction::PassThrough)
+  EZ_ENUM_CONSTANT(ezProjectileReaction::Absorb),
+  EZ_ENUM_CONSTANT(ezProjectileReaction::Reflect),
+  EZ_ENUM_CONSTANT(ezProjectileReaction::Attach),
+  EZ_ENUM_CONSTANT(ezProjectileReaction::PassThrough)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 3, ezRTTIDefaultAllocator<ezProjectileSurfaceInteraction>)
@@ -55,7 +57,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 4, ezComponentMode::Dynamic)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
+// clang-format on
 
 void ezProjectileSurfaceInteraction::SetSurface(const char* szSurface)
 {
@@ -129,7 +131,8 @@ void ezProjectileComponent::Update()
 
         if (!interaction.m_sInteraction.IsEmpty())
         {
-          TriggerSurfaceInteraction(hSurface, hitResult.m_hActorObject, hitResult.m_vPosition, hitResult.m_vNormal, vCurDirection, interaction.m_sInteraction);
+          TriggerSurfaceInteraction(hSurface, hitResult.m_hActorObject, hitResult.m_vPosition, hitResult.m_vNormal, vCurDirection,
+                                    interaction.m_sInteraction);
         }
 
         // if we hit some valid object
@@ -175,9 +178,9 @@ void ezProjectileComponent::Update()
           /// \todo Should reflect around the actual hit position
           /// \todo Should preserve travel distance while reflecting
 
-          //const float fLength = (vPos - pEntity->GetGlobalPosition()).GetLength();
+          // const float fLength = (vPos - pEntity->GetGlobalPosition()).GetLength();
 
-          vNewPosition = pEntity->GetGlobalPosition();// vPos;
+          vNewPosition = pEntity->GetGlobalPosition(); // vPos;
 
           const ezVec3 vNewDirection = vCurDirection.GetReflectedVector(hitResult.m_vNormal);
 
@@ -313,10 +316,13 @@ ezInt32 ezProjectileComponent::FindSurfaceInteraction(const ezSurfaceResourceHan
 }
 
 
-void ezProjectileComponent::TriggerSurfaceInteraction(const ezSurfaceResourceHandle& hSurface, ezGameObjectHandle hObject, const ezVec3& vPos, const ezVec3& vNormal, const ezVec3& vDirection, const char* szInteraction)
+void ezProjectileComponent::TriggerSurfaceInteraction(const ezSurfaceResourceHandle& hSurface, ezGameObjectHandle hObject,
+                                                      const ezVec3& vPos, const ezVec3& vNormal, const ezVec3& vDirection,
+                                                      const char* szInteraction)
 {
   ezResourceLock<ezSurfaceResource> pSurface(hSurface, ezResourceAcquireMode::NoFallback);
-  pSurface->InteractWithSurface(GetWorld(), hObject, vPos, vNormal, vDirection, ezTempHashedString(szInteraction), &GetOwner()->GetTeamID());
+  pSurface->InteractWithSurface(GetWorld(), hObject, vPos, vNormal, vDirection, ezTempHashedString(szInteraction),
+                                &GetOwner()->GetTeamID());
 }
 
 
@@ -348,7 +354,8 @@ void ezProjectileComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
   {
     ezResourceLock<ezPrefabResource> pPrefab(m_hTimeoutPrefab);
 
-    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr);
+    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(),
+                               nullptr);
   }
 
   GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
@@ -380,7 +387,6 @@ void ezProjectileComponent::SetFallbackSurfaceFile(const char* szFile)
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
     m_hFallbackSurface = ezResourceManager::LoadResource<ezSurfaceResource>(szFile);
-
   }
   if (m_hFallbackSurface.IsValid())
     ezResourceManager::PreloadResource(m_hFallbackSurface, ezTime::Seconds(1.0));
@@ -394,9 +400,9 @@ const char* ezProjectileComponent::GetFallbackSurfaceFile() const
   return m_hFallbackSurface.GetResourceID();
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 
@@ -404,7 +410,9 @@ class ezProjectileComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezProjectileComponentPatch_1_2()
-    : ezGraphPatch("ezProjectileComponent", 2) {}
+      : ezGraphPatch("ezProjectileComponent", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -420,4 +428,3 @@ ezProjectileComponentPatch_1_2 g_ezProjectileComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_ProjectileComponent);
-

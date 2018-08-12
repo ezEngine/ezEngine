@@ -1,14 +1,15 @@
 #include <PCH.h>
-#include <GuiFoundation/Action/EditActions.h>
+
+#include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Serialization/DdlSerializer.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
-#include <Foundation/IO/MemoryStream.h>
-#include <QClipboard>
+#include <GuiFoundation/Action/EditActions.h>
 #include <QApplication>
+#include <QClipboard>
 #include <QMimeData>
-#include <Foundation/Serialization/DdlSerializer.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -26,10 +27,14 @@ ezActionDescriptorHandle ezEditActions::s_hDelete;
 void ezEditActions::RegisterActions()
 {
   s_hEditCategory = EZ_REGISTER_CATEGORY("EditCategory");
-  s_hCopy = EZ_REGISTER_ACTION_1("Selection.Copy", ezActionScope::Document, "Document", "Ctrl+C", ezEditAction, ezEditAction::ButtonType::Copy);
-  s_hPaste = EZ_REGISTER_ACTION_1("Selection.Paste", ezActionScope::Document, "Document", "Ctrl+V", ezEditAction, ezEditAction::ButtonType::Paste);
-  s_hPasteAsChild = EZ_REGISTER_ACTION_1("Selection.PasteAsChild", ezActionScope::Document, "Document", "Ctrl+Shift+V", ezEditAction, ezEditAction::ButtonType::PasteAsChild);
-  s_hDelete = EZ_REGISTER_ACTION_1("Selection.Delete", ezActionScope::Document, "Document", "", ezEditAction, ezEditAction::ButtonType::Delete);
+  s_hCopy =
+      EZ_REGISTER_ACTION_1("Selection.Copy", ezActionScope::Document, "Document", "Ctrl+C", ezEditAction, ezEditAction::ButtonType::Copy);
+  s_hPaste =
+      EZ_REGISTER_ACTION_1("Selection.Paste", ezActionScope::Document, "Document", "Ctrl+V", ezEditAction, ezEditAction::ButtonType::Paste);
+  s_hPasteAsChild = EZ_REGISTER_ACTION_1("Selection.PasteAsChild", ezActionScope::Document, "Document", "Ctrl+Shift+V", ezEditAction,
+                                         ezEditAction::ButtonType::PasteAsChild);
+  s_hDelete =
+      EZ_REGISTER_ACTION_1("Selection.Delete", ezActionScope::Document, "Document", "", ezEditAction, ezEditAction::ButtonType::Delete);
 }
 
 void ezEditActions::UnregisterActions()
@@ -95,24 +100,24 @@ void ezEditActions::MapViewContextMenuActions(const char* szMapping, const char*
 ////////////////////////////////////////////////////////////////////////
 
 ezEditAction::ezEditAction(const ezActionContext& context, const char* szName, ButtonType button)
-  : ezButtonAction(context, szName, false, "")
+    : ezButtonAction(context, szName, false, "")
 {
   m_ButtonType = button;
 
   switch (m_ButtonType)
   {
-  case ezEditAction::ButtonType::Copy:
-    SetIconPath(":/GuiFoundation/Icons/Copy16.png");
-    break;
-  case ezEditAction::ButtonType::Paste:
-    SetIconPath(":/GuiFoundation/Icons/Paste16.png");
-    break;
-  case ezEditAction::ButtonType::PasteAsChild:
-    SetIconPath(":/GuiFoundation/Icons/Paste16.png"); /// \todo Icon
-    break;
-  case ezEditAction::ButtonType::Delete:
-    SetIconPath(":/GuiFoundation/Icons/Delete16.png");
-    break;
+    case ezEditAction::ButtonType::Copy:
+      SetIconPath(":/GuiFoundation/Icons/Copy16.png");
+      break;
+    case ezEditAction::ButtonType::Paste:
+      SetIconPath(":/GuiFoundation/Icons/Paste16.png");
+      break;
+    case ezEditAction::ButtonType::PasteAsChild:
+      SetIconPath(":/GuiFoundation/Icons/Paste16.png"); /// \todo Icon
+      break;
+    case ezEditAction::ButtonType::Delete:
+      SetIconPath(":/GuiFoundation/Icons/Delete16.png");
+      break;
   }
 
   m_Context.m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezEditAction::SelectionEventHandler, this));
@@ -135,7 +140,7 @@ void ezEditAction::Execute(const ezVariant& value)
 {
   switch (m_ButtonType)
   {
-  case ezEditAction::ButtonType::Copy:
+    case ezEditAction::ButtonType::Copy:
     {
       ezStringBuilder sMimeType;
 
@@ -160,8 +165,8 @@ void ezEditAction::Execute(const ezVariant& value)
     }
     break;
 
-  case ezEditAction::ButtonType::Paste:
-  case ezEditAction::ButtonType::PasteAsChild:
+    case ezEditAction::ButtonType::Paste:
+    case ezEditAction::ButtonType::PasteAsChild:
     {
       // Check for clipboard data of the correct type.
       QClipboard* clipboard = QApplication::clipboard();
@@ -209,7 +214,7 @@ void ezEditAction::Execute(const ezVariant& value)
     }
     break;
 
-  case ezEditAction::ButtonType::Delete:
+    case ezEditAction::ButtonType::Delete:
     {
       m_Context.m_pDocument->DeleteSelectedObjects();
     }
@@ -224,4 +229,3 @@ void ezEditAction::SelectionEventHandler(const ezSelectionManagerEvent& e)
     SetEnabled(!m_Context.m_pDocument->GetSelectionManager()->IsSelectionEmpty());
   }
 }
-

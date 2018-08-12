@@ -1,13 +1,14 @@
 #include <PCH.h>
-#include <GameEngine/Curves/ColorGradientResource.h>
+
 #include <Core/Assets/AssetFileHeader.h>
+#include <GameEngine/Curves/ColorGradientResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientResource, 1, ezRTTIDefaultAllocator<ezColorGradientResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 ezColorGradientResource::ezColorGradientResource()
-  : ezResource<ezColorGradientResource, ezColorGradientResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource<ezColorGradientResource, ezColorGradientResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -68,7 +69,8 @@ ezResourceLoadDesc ezColorGradientResource::UpdateContent(ezStreamReader* Stream
 void ezColorGradientResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
-  out_NewMemoryUsage.m_uiMemoryCPU = static_cast<ezUInt32>(m_Descriptor.m_Gradient.GetHeapMemoryUsage()) + static_cast<ezUInt32>(sizeof(m_Descriptor));
+  out_NewMemoryUsage.m_uiMemoryCPU =
+      static_cast<ezUInt32>(m_Descriptor.m_Gradient.GetHeapMemoryUsage()) + static_cast<ezUInt32>(sizeof(m_Descriptor));
 }
 
 void ezColorGradientResourceDescriptor::Save(ezStreamWriter& stream) const
@@ -94,4 +96,3 @@ void ezColorGradientResourceDescriptor::Load(ezStreamReader& stream)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Curves_Implementation_ColorGradientResource);
-

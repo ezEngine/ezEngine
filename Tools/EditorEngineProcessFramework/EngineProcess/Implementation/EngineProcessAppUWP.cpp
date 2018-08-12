@@ -1,29 +1,25 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessAppUWP.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <RendererCore/Pipeline/View.h>
-#include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-  #include <GameEngine/MixedReality/MixedRealityFramework.h>
-  #include <WindowsMixedReality/HolographicSpace.h>
-  #include <WindowsMixedReality/SpatialLocationService.h>
-  #include <WindowsMixedReality/SpatialReferenceFrame.h>
-  #include <WindowsMixedReality/SpatialAnchor.h>
-  #include <windows.perception.spatial.h>
+#include <GameEngine/MixedReality/MixedRealityFramework.h>
+#include <WindowsMixedReality/HolographicSpace.h>
+#include <WindowsMixedReality/SpatialAnchor.h>
+#include <WindowsMixedReality/SpatialLocationService.h>
+#include <WindowsMixedReality/SpatialReferenceFrame.h>
+#include <windows.perception.spatial.h>
 #endif
 
-ezEditorEngineProcessAppUWP::ezEditorEngineProcessAppUWP()
-{
+ezEditorEngineProcessAppUWP::ezEditorEngineProcessAppUWP() {}
 
-}
-
-ezEditorEngineProcessAppUWP::~ezEditorEngineProcessAppUWP()
-{
-}
+ezEditorEngineProcessAppUWP::~ezEditorEngineProcessAppUWP() {}
 
 ezViewHandle ezEditorEngineProcessAppUWP::CreateRemoteWindowAndView(ezCamera* pCamera)
 {
@@ -151,4 +147,3 @@ void ezEditorEngineProcessAppUWP::LoadAnchor()
 }
 
 #endif
-

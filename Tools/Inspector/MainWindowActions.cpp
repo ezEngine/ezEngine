@@ -1,20 +1,21 @@
 #include <PCH.h>
+
+#include <Foundation/Communication/Telemetry.h>
+#include <Inspector/CVarsWidget.moc.h>
+#include <Inspector/DataTransferWidget.moc.h>
+#include <Inspector/FileWidget.moc.h>
+#include <Inspector/GlobalEventsWidget.moc.h>
+#include <Inspector/InputWidget.moc.h>
+#include <Inspector/LogDockWidget.moc.h>
 #include <Inspector/MainWindow.moc.h>
 #include <Inspector/MemoryWidget.moc.h>
-#include <Inspector/TimeWidget.moc.h>
-#include <Inspector/InputWidget.moc.h>
-#include <Inspector/CVarsWidget.moc.h>
-#include <Inspector/ReflectionWidget.moc.h>
-#include <Inspector/LogDockWidget.moc.h>
-#include <Inspector/SubsystemsWidget.moc.h>
-#include <Inspector/FileWidget.moc.h>
 #include <Inspector/PluginsWidget.moc.h>
-#include <Inspector/GlobalEventsWidget.moc.h>
-#include <Inspector/DataTransferWidget.moc.h>
+#include <Inspector/ReflectionWidget.moc.h>
 #include <Inspector/ResourceWidget.moc.h>
-#include <Foundation/Communication/Telemetry.h>
-#include <qinputdialog.h>
+#include <Inspector/SubsystemsWidget.moc.h>
+#include <Inspector/TimeWidget.moc.h>
 #include <QSettings>
+#include <qinputdialog.h>
 
 void ezQtMainWindow::on_ActionShowWindowLog_triggered()
 {
@@ -109,7 +110,8 @@ void ezQtMainWindow::on_ButtonConnect_clicked()
   const QString sServer = Settings.value("LastConnection", QLatin1String("localhost:1040")).toString();
 
   bool bOk = false;
-  QString sRes = QInputDialog::getText(this, "Host", "Host Name or IP Address:\nDefault is 'localhost:1040'", QLineEdit::Normal, sServer, &bOk);
+  QString sRes =
+      QInputDialog::getText(this, "Host", "Host Name or IP Address:\nDefault is 'localhost:1040'", QLineEdit::Normal, sServer, &bOk);
 
   if (!bOk)
     return;
@@ -120,5 +122,3 @@ void ezQtMainWindow::on_ButtonConnect_clicked()
   {
   }
 }
-
-

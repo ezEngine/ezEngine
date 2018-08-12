@@ -1,16 +1,17 @@
 #include <PCH.h>
-#include <GuiFoundation/Widgets/EventTrackEditorWidget.moc.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QGraphicsItem>
-#include <QPainterPath>
-#include <QGraphicsSceneEvent>
+
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Math/Math.h>
-#include <QMenu>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <GuiFoundation/Widgets/EventTrackEditorWidget.moc.h>
+#include <QGraphicsItem>
+#include <QGraphicsSceneEvent>
 #include <QInputDialog>
+#include <QMenu>
+#include <QPainterPath>
 
 ezQtEventTrackEditorWidget::ezQtEventTrackEditorWidget(QWidget* pParent)
-  : QWidget(pParent)
+    : QWidget(pParent)
 {
   setupUi(this);
 
@@ -21,7 +22,7 @@ ezQtEventTrackEditorWidget::ezQtEventTrackEditorWidget(QWidget* pParent)
   connect(EventTrackEdit, &ezQtEventTrackWidget::MoveControlPointsEvent, this, &ezQtEventTrackEditorWidget::onMoveControlPoints);
   connect(EventTrackEdit, &ezQtEventTrackWidget::BeginOperationEvent, this, &ezQtEventTrackEditorWidget::onBeginOperation);
   connect(EventTrackEdit, &ezQtEventTrackWidget::EndOperationEvent, this, &ezQtEventTrackEditorWidget::onEndOperation);
-  //connect(EventTrackEdit, &ezQtEventTrackWidget::ScaleControlPointsEvent, this, &ezQtEventTrackEditorWidget::onScaleControlPoints);
+  // connect(EventTrackEdit, &ezQtEventTrackWidget::ScaleControlPointsEvent, this, &ezQtEventTrackEditorWidget::onScaleControlPoints);
   connect(EventTrackEdit, &ezQtEventTrackWidget::ContextMenuEvent, this, &ezQtEventTrackEditorWidget::onContextMenu);
   connect(EventTrackEdit, &ezQtEventTrackWidget::SelectionChangedEvent, this, &ezQtEventTrackEditorWidget::onSelectionChanged);
 
@@ -85,10 +86,7 @@ void ezQtEventTrackEditorWidget::onDeleteControlPoints()
 
   emit BeginCpChangesEvent("Delete Events");
 
-  selection.Sort([](ezUInt32 lhs, ezUInt32 rhs) -> bool
-  {
-    return lhs > rhs;
-  });
+  selection.Sort([](ezUInt32 lhs, ezUInt32 rhs) -> bool { return lhs > rhs; });
 
   // delete sorted from back to front to prevent point indices becoming invalidated
   for (ezUInt32 pt : selection)
@@ -129,7 +127,7 @@ void ezQtEventTrackEditorWidget::onMoveControlPoints(double x)
   emit EndCpChangesEvent();
 }
 
-//void ezQtEventTrackEditorWidget::onScaleControlPoints(QPointF refPt, double scaleX, double scaleY)
+// void ezQtEventTrackEditorWidget::onScaleControlPoints(QPointF refPt, double scaleX, double scaleY)
 //{
 //  const auto selection = EventTrackEdit->GetSelection();
 //
@@ -303,4 +301,3 @@ void ezQtEventTrackEditorWidget::on_LinePosition_editingFinished()
 
   emit EndCpChangesEvent();
 }
-

@@ -1,9 +1,11 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <Core/Graphics/Camera.h>
 #include <RendererCore/Pipeline/Passes/SourcePass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <Core/Graphics/Camera.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSourcePass, 2, ezRTTIDefaultAllocator<ezSourcePass>)
 {
   EZ_BEGIN_PROPERTIES
@@ -17,20 +19,20 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSourcePass, 2, ezRTTIDefaultAllocator<ezSource
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezSourcePass::ezSourcePass(const char* szName) : ezRenderPipelinePass(szName, true)
+ezSourcePass::ezSourcePass(const char* szName)
+    : ezRenderPipelinePass(szName, true)
 {
   m_Format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
   m_MsaaMode = ezGALMSAASampleCount::None;
   m_bClear = true;
 }
 
-ezSourcePass::~ezSourcePass()
-{
+ezSourcePass::~ezSourcePass() {}
 
-}
-
-bool ezSourcePass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezSourcePass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
+                                               ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   ezUInt32 uiWidth = static_cast<ezUInt32>(view.GetViewport().width);
   ezUInt32 uiHeight = static_cast<ezUInt32>(view.GetViewport().height);
@@ -49,7 +51,7 @@ bool ezSourcePass::GetRenderTargetDescriptions(const ezView& view, const ezArray
 }
 
 void ezSourcePass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+                           const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   if (!m_bClear)
     return;
@@ -80,9 +82,9 @@ void ezSourcePass::Execute(const ezRenderViewContext& renderViewContext, const e
   pGALContext->Clear(m_ClearColor);
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -91,7 +93,9 @@ class ezSourcePassPatch_1_2 : public ezGraphPatch
 {
 public:
   ezSourcePassPatch_1_2()
-    : ezGraphPatch("ezSourcePass", 2) {}
+      : ezGraphPatch("ezSourcePass", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -105,4 +109,3 @@ ezSourcePassPatch_1_2 g_ezSourcePassPatch_1_2;
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_SourcePass);
-

@@ -1,5 +1,6 @@
-#include <Foundation/Types/ScopeExit.h>
 #include <PCH.h>
+
+#include <Foundation/Types/ScopeExit.h>
 #include <ParticlePlugin/Type/Point/PointRenderer.h>
 #include <RendererCore/Pipeline/RenderDataBatch.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -9,11 +10,13 @@
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/ParticleSystemConstants.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticlePointRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticlePointRenderer, 1, ezRTTIDefaultAllocator<ezParticlePointRenderer>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezParticlePointRenderer::~ezParticlePointRenderer()
 {
@@ -47,7 +50,7 @@ void ezParticlePointRenderer::RenderBatch(const ezRenderViewContext& renderViewC
   {
     CreateDataBuffer();
     pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Points,
-                                                       s_uiParticlesPerBatch);
+                                   s_uiParticlesPerBatch);
     pRenderContext->BindBuffer("particleBaseData", pDevice->GetDefaultResourceView(m_hBaseDataBuffer));
     pRenderContext->BindBuffer("particleBillboardQuadData", pDevice->GetDefaultResourceView(m_hBillboardDataBuffer));
   }

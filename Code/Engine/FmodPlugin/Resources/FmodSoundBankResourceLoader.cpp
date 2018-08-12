@@ -1,11 +1,12 @@
 #include <PCH.h>
-#include <FmodPlugin/Resources/FmodSoundBankResource.h>
-#include <FmodPlugin/FmodSingleton.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/IO/OSFile.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
+
 #include <Core/Assets/AssetFileHeader.h>
 #include <FmodPlugin/FmodIncludes.h>
+#include <FmodPlugin/FmodSingleton.h>
+#include <FmodPlugin/Resources/FmodSoundBankResource.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/OSFile.h>
 
 ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourceBase* pResource)
 {
@@ -46,7 +47,8 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
     {
       pData->m_pSoundbankData = EZ_DEFAULT_NEW(ezDataBuffer);
       pData->m_pSoundbankData->SetCountUninitialized(uiSoundBankSize + FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT);
-      ezUInt8* pAlignedData = ezMemoryUtils::Align(pData->m_pSoundbankData->GetData() + FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT, FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT);
+      ezUInt8* pAlignedData =
+          ezMemoryUtils::Align(pData->m_pSoundbankData->GetData() + FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT, FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT);
 
       SoundBankAssetFile.ReadBytes(pAlignedData, uiSoundBankSize);
 
@@ -57,10 +59,11 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
       if (pStudio == nullptr)
         return res;
 
-      auto fmodRes = pStudio->loadBankMemory((const char*)pAlignedData, (int)uiSoundBankSize, FMOD_STUDIO_LOAD_MEMORY_POINT, FMOD_STUDIO_LOAD_BANK_NORMAL, &pData->m_pSoundBank);
+      auto fmodRes = pStudio->loadBankMemory((const char*)pAlignedData, (int)uiSoundBankSize, FMOD_STUDIO_LOAD_MEMORY_POINT,
+                                             FMOD_STUDIO_LOAD_BANK_NORMAL, &pData->m_pSoundBank);
 
-      // if this fails with res == FMOD_ERR_NOTREADY, that might be because two processes using fmod are running and both have the FMOD_STUDIO_INIT_LIVEUPDATE flag set
-      // somehow fmod cannot handle this and bank loading then fails
+      // if this fails with res == FMOD_ERR_NOTREADY, that might be because two processes using fmod are running and both have the
+      // FMOD_STUDIO_INIT_LIVEUPDATE flag set somehow fmod cannot handle this and bank loading then fails
       if (fmodRes != FMOD_OK)
       {
         ezLog::Error("Error '{1}' loading fmod sound bank '{0}'", SoundBankAssetFile.GetFilePathRelative().GetData(), (ezInt32)fmodRes);
@@ -136,4 +139,3 @@ bool ezFmodSoundBankResourceLoader::IsResourceOutdated(const ezResourceBase* pRe
 
 
 EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Resources_FmodSoundBankResourceLoader);
-

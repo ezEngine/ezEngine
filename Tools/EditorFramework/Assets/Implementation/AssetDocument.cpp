@@ -1,23 +1,25 @@
 #include <PCH.h>
-#include <EditorFramework/Assets/AssetDocument.h>
+
 #include <Core/Assets/AssetFileHeader.h>
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorEngineProcessFramework/IPC/SyncObject.h>
-#include <Foundation/Image/ImageConversion.h>
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Image/ImageConversion.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <Foundation/Utilities/Progress.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <QPainter>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, bool bUseEngineConnection, bool bUseIPCObjectMirror)
-  : ezDocument(szDocumentPath, pObjectManager)
+ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, bool bUseEngineConnection,
+                                 bool bUseIPCObjectMirror)
+    : ezDocument(szDocumentPath, pObjectManager)
 {
   m_EngineStatus = bUseEngineConnection ? EngineStatus::Disconnected : EngineStatus::Unsupported;
   m_bUseEngineConnection = bUseEngineConnection;
@@ -26,7 +28,8 @@ ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectMan
 
   if (m_bUseEngineConnection)
   {
-    ezEditorEngineProcessConnection::GetSingleton()->s_Events.AddEventHandler(ezMakeDelegate(&ezAssetDocument::EngineConnectionEventHandler, this));
+    ezEditorEngineProcessConnection::GetSingleton()->s_Events.AddEventHandler(
+        ezMakeDelegate(&ezAssetDocument::EngineConnectionEventHandler, this));
   }
 }
 
@@ -36,7 +39,8 @@ ezAssetDocument::~ezAssetDocument()
 
   if (m_bUseEngineConnection)
   {
-    ezEditorEngineProcessConnection::GetSingleton()->s_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetDocument::EngineConnectionEventHandler, this));
+    ezEditorEngineProcessConnection::GetSingleton()->s_Events.RemoveEventHandler(
+        ezMakeDelegate(&ezAssetDocument::EngineConnectionEventHandler, this));
 
     if (m_pEngineConnection)
     {
@@ -175,7 +179,7 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
     {
       switch (pProp->GetCategory())
       {
-      case ezPropertyCategory::Member:
+        case ezPropertyCategory::Member:
         {
           if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) && pProp->GetSpecificType()->GetVariantType() == ezVariantType::String)
           {
@@ -196,8 +200,8 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
           }
         }
         break;
-      case ezPropertyCategory::Array:
-      case ezPropertyCategory::Set:
+        case ezPropertyCategory::Array:
+        case ezPropertyCategory::Set:
         {
           if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) && pProp->GetSpecificType()->GetVariantType() == ezVariantType::String)
           {
@@ -216,7 +220,6 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
                 pInfo->m_RuntimeDependencies.Insert(value.Get<ezString>());
             }
           }
-
         }
         break;
       }
@@ -303,7 +306,8 @@ ezStatus ezAssetDocument::DoTransformAsset(const char* szPlatform /*= nullptr*/,
 
   ezUInt64 uiHash = 0;
   ezUInt64 uiThumbHash = 0;
-  ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), szPlatform, GetDocumentTypeDescriptor(), uiHash, uiThumbHash);
+  ezAssetInfo::TransformState state =
+      ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), szPlatform, GetDocumentTypeDescriptor(), uiHash, uiThumbHash);
   if (state == ezAssetInfo::TransformState::UpToDate && !bTriggeredManually)
     return ezStatus(EZ_SUCCESS, "Transformed asset is already up to date");
 
@@ -316,8 +320,7 @@ ezStatus ezAssetDocument::DoTransformAsset(const char* szPlatform /*= nullptr*/,
     AssetHeader.SetFileHashAndVersion(uiHash, GetAssetTypeVersion());
     const auto& outputs = GetAssetDocumentInfo()->m_Outputs;
 
-    auto GenerateOutput = [this, szPlatform, &AssetHeader, bTriggeredManually](const char* szOutputTag) -> ezStatus
-    {
+    auto GenerateOutput = [this, szPlatform, &AssetHeader, bTriggeredManually](const char* szOutputTag) -> ezStatus {
       const ezString sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(szPlatform);
       const ezString sTargetFile = GetAssetDocumentManager()->GetAbsoluteOutputFileName(GetDocumentPath(), szOutputTag, sPlatform);
       auto ret = InternalTransformAsset(sTargetFile, szOutputTag, sPlatform, AssetHeader, bTriggeredManually);
@@ -382,7 +385,8 @@ ezStatus ezAssetDocument::CreateThumbnail()
 {
   ezUInt64 uiHash = 0;
   ezUInt64 uiThumbHash = 0;
-  if (ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), nullptr, GetDocumentTypeDescriptor(), uiHash, uiThumbHash) == ezAssetInfo::TransformState::UpToDate)
+  if (ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), nullptr, GetDocumentTypeDescriptor(), uiHash, uiThumbHash) ==
+      ezAssetInfo::TransformState::UpToDate)
     return ezStatus(EZ_SUCCESS, "Transformed asset is already up to date");
 
   if (uiHash == 0)
@@ -391,7 +395,7 @@ ezStatus ezAssetDocument::CreateThumbnail()
   {
     ezAssetFileHeader AssetHeader;
     AssetHeader.SetFileHashAndVersion(uiThumbHash, GetAssetTypeVersion());
-    ezStatus res =  InternalCreateThumbnail(AssetHeader);
+    ezStatus res = InternalCreateThumbnail(AssetHeader);
 
     InvalidateAssetThumbnail();
     ezAssetCurator::GetSingleton()->NotifyOfAssetChange(GetGuid());
@@ -399,7 +403,8 @@ ezStatus ezAssetDocument::CreateThumbnail()
   }
 }
 
-ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform,
+                                                 const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   ezDeferredFileWriter file;
   file.SetOutput(szTargetFile);
@@ -542,11 +547,14 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
   }
   else if (GetEngineStatus() == ezAssetDocument::EngineStatus::Initializing)
   {
-    if (ezEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), ezDocumentOpenResponseMsgToEditor::GetStaticRTTI(), ezTime::Seconds(10)).Failed())
+    if (ezEditorEngineProcessConnection::GetSingleton()
+            ->WaitForDocumentMessage(GetGuid(), ezDocumentOpenResponseMsgToEditor::GetStaticRTTI(), ezTime::Seconds(10))
+            .Failed())
     {
       return ezStatus(ezFmt("Exporting {0} to \"{1}\" failed, document initialization timed out.", QueryAssetType(), szOutputTarget));
     }
-    EZ_ASSERT_DEV(GetEngineStatus() == ezAssetDocument::EngineStatus::Loaded, "After receiving ezDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
+    EZ_ASSERT_DEV(GetEngineStatus() == ezAssetDocument::EngineStatus::Loaded,
+                  "After receiving ezDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
   }
 
   range.BeginNextStep(szOutputTarget);
@@ -559,14 +567,15 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
   GetEditorEngineConnection()->SendMessage(&msg);
 
   bool bSuccess = false;
-  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&bSuccess](ezProcessMessage* pMsg)->bool
-  {
+  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&bSuccess](ezProcessMessage* pMsg) -> bool {
     ezExportDocumentMsgToEditor* pMsg2 = ezDynamicCast<ezExportDocumentMsgToEditor*>(pMsg);
     bSuccess = pMsg2->m_bOutputSuccess;
     return true;
   };
 
-  if (ezEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), ezExportDocumentMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60), &callback).Failed())
+  if (ezEditorEngineProcessConnection::GetSingleton()
+          ->WaitForDocumentMessage(GetGuid(), ezExportDocumentMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60), &callback)
+          .Failed())
   {
     return ezStatus(ezFmt("Remote exporting {0} to \"{1}\" timed out.", QueryAssetType(), msg.m_sOutputFile));
   }
@@ -603,25 +612,30 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ezAssetFileHeader& header)
   }
   else if (GetEngineStatus() == ezAssetDocument::EngineStatus::Initializing)
   {
-    if (ezEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), ezDocumentOpenResponseMsgToEditor::GetStaticRTTI(), ezTime::Seconds(10)).Failed())
+    if (ezEditorEngineProcessConnection::GetSingleton()
+            ->WaitForDocumentMessage(GetGuid(), ezDocumentOpenResponseMsgToEditor::GetStaticRTTI(), ezTime::Seconds(10))
+            .Failed())
     {
-      return ezStatus(ezFmt("Create {0} thumbnail for \"{1}\" failed, document initialization timed out.", QueryAssetType(), GetDocumentPath()));
+      return ezStatus(
+          ezFmt("Create {0} thumbnail for \"{1}\" failed, document initialization timed out.", QueryAssetType(), GetDocumentPath()));
     }
-    EZ_ASSERT_DEV(GetEngineStatus() == ezAssetDocument::EngineStatus::Loaded, "After receiving ezDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
+    EZ_ASSERT_DEV(GetEngineStatus() == ezAssetDocument::EngineStatus::Loaded,
+                  "After receiving ezDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
   }
 
   ezCreateThumbnailMsgToEngine msg;
   GetEditorEngineConnection()->SendMessage(&msg);
 
   ezDataBuffer data;
-  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg)->bool
-  {
+  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool {
     ezCreateThumbnailMsgToEditor* pThumbnailMsg = ezDynamicCast<ezCreateThumbnailMsgToEditor*>(pMsg);
     data = pThumbnailMsg->m_ThumbnailData;
     return true;
   };
 
-  if (ezEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), ezCreateThumbnailMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60), &callback).Failed())
+  if (ezEditorEngineProcessConnection::GetSingleton()
+          ->WaitForDocumentMessage(GetGuid(), ezCreateThumbnailMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60), &callback)
+          .Failed())
   {
     return ezStatus(ezFmt("Create {0} thumbnail for \"{1}\" failed timed out.", QueryAssetType(), GetDocumentPath()));
   }
@@ -685,10 +699,7 @@ void ezAssetDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
 
 void ezAssetDocument::AddSyncObject(ezEditorEngineSyncObject* pSync) const
 {
-  pSync->Configure(GetGuid(), [this](ezEditorEngineSyncObject* pSync)
-  {
-    RemoveSyncObject(pSync);
-  });
+  pSync->Configure(GetGuid(), [this](ezEditorEngineSyncObject* pSync) { RemoveSyncObject(pSync); });
 
   m_SyncObjects.PushBack(pSync);
   m_AllSyncObjects[pSync->GetGuid()] = pSync;

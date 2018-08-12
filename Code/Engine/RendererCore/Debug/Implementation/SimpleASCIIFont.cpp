@@ -1,8 +1,9 @@
 #include <PCH.h>
-#include <RendererCore/Debug/SimpleASCIIFont.h>
+
+#include <Foundation/IO/Stream.h>
 #include <Foundation/Image/Formats/TgaFileFormat.h>
 #include <Foundation/Image/ImageConversion.h>
-#include <Foundation/IO/Stream.h>
+#include <RendererCore/Debug/SimpleASCIIFont.h>
 
 #if EZ_ENABLED(EZ_EMBED_FONT_FILE)
 
@@ -11,6 +12,7 @@ extern const ezUInt8 g_FontFileTGA[];
 
 #else
 
+// clang-format off
 static const char* a = "\
           \
           \
@@ -949,14 +951,16 @@ static const char* at = "\
  +-       \
  -+ooooo+";
 
+// clang-format on
+
 // copies one 10x10 character into the 16x16 cell at offset x,y, adding the 3 pixel boundary and converting the bitmap into greyscale values
 static void CopyCharacter(ezUInt32* pImage, ezInt32 c, const char* szChar)
 {
-  ezInt32 x = ((ezInt32) c % 16) * 16;
-  ezInt32 y = ((ezInt32) c / 16) * 16;
+  ezInt32 x = ((ezInt32)c % 16) * 16;
+  ezInt32 y = ((ezInt32)c / 16) * 16;
 
   pImage += (y + 3) * 256; // 3 pixel boundary at the top
-  pImage += x + 3; // 3 pixel boundary at the left side
+  pImage += x + 3;         // 3 pixel boundary at the left side
 
   for (ezUInt32 i1 = 0; i1 < 10; ++i1)
   {
@@ -965,21 +969,21 @@ static void CopyCharacter(ezUInt32* pImage, ezInt32 c, const char* szChar)
       // convert character to greyscale value
       switch (*szChar)
       {
-      case 'o':
-        *pImage = 0xFFFFFFFF;  // white
-        break;
-      case '+':
-        *pImage = 0xFFFFFFFF / 4 * 3; // 75% grey
-        break;
-      case '/':
-        *pImage = 0xFFFFFFFF / 2; // 50% grey
-        break;
-      case '-':
-        *pImage = 0xFFFFFFFF / 4; // 25% grey
-        break;
-      default:
-        *pImage = 0; // black
-        break;
+        case 'o':
+          *pImage = 0xFFFFFFFF; // white
+          break;
+        case '+':
+          *pImage = 0xFFFFFFFF / 4 * 3; // 75% grey
+          break;
+        case '/':
+          *pImage = 0xFFFFFFFF / 2; // 50% grey
+          break;
+        case '-':
+          *pImage = 0xFFFFFFFF / 4; // 25% grey
+          break;
+        default:
+          *pImage = 0; // black
+          break;
       }
 
       // not used, but characters could be terminated early
@@ -1031,7 +1035,7 @@ void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& Img, bool bSetEmptyT
     }
   }
 
-// Lower Case Letters
+  // Lower Case Letters
   {
     CopyCharacter(pPixelData, 'a', a);
     CopyCharacter(pPixelData, 'b', b);
@@ -1192,8 +1196,4 @@ void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& Img, bool bSetEmptyT
 #endif
 }
 
-
-
-
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Debug_Implementation_SimpleASCIIFont);
-

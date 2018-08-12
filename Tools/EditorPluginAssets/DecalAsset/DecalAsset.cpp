@@ -1,12 +1,14 @@
 #include <PCH.h>
+
+#include <Core/Assets/AssetFileHeader.h>
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/DecalAsset/DecalAsset.h>
 #include <EditorPluginAssets/DecalAsset/DecalAssetManager.h>
-#include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/OSFile.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorFramework/Assets/AssetCurator.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezDecalMode, 1)
   EZ_ENUM_CONSTANT(ezDecalMode::All),
   EZ_ENUM_CONSTANT(ezDecalMode::BaseColor),
@@ -33,13 +35,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetProperties, 1, ezRTTIDefaultAllocato
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezDecalAssetProperties::ezDecalAssetProperties()
-  : m_fRoughnessValue(0.7f)
-  , m_fMetallicValue(0.0f)
-  , m_fOcclusionValue(1.0f)
+    : m_fRoughnessValue(0.7f)
+    , m_fMetallicValue(0.0f)
+    , m_fOcclusionValue(1.0f)
 {
-
 }
 
 void ezDecalAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
@@ -94,7 +96,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocument, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDecalAssetDocument::ezDecalAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezDecalAssetProperties>(szDocumentPath, true)
+    : ezSimpleAssetDocument<ezDecalAssetProperties>(szDocumentPath, true)
 {
 }
 
@@ -103,7 +105,8 @@ const char* ezDecalAssetDocument::QueryAssetType() const
   return "Decal";
 }
 
-ezStatus ezDecalAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezDecalAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
+                                                      const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   return static_cast<ezDecalAssetDocumentManager*>(GetAssetDocumentManager())->GenerateDecalTexture(szPlatform);
 }
@@ -178,11 +181,10 @@ ezDecalAssetDocumentGenerator::ezDecalAssetDocumentGenerator()
   AddSupportedFileType("png");
 }
 
-ezDecalAssetDocumentGenerator::~ezDecalAssetDocumentGenerator()
-{
-}
+ezDecalAssetDocumentGenerator::~ezDecalAssetDocumentGenerator() {}
 
-void ezDecalAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezDecalAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath,
+                                                   ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
 
@@ -202,7 +204,8 @@ void ezDecalAssetDocumentGenerator::GetImportModes(const char* szParentDirRelati
   }
 }
 
-ezStatus ezDecalAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezDecalAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info,
+                                                 ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -220,7 +223,3 @@ ezStatus ezDecalAssetDocumentGenerator::Generate(const char* szDataDirRelativePa
 
   return ezStatus(EZ_SUCCESS);
 }
-
-
-
-

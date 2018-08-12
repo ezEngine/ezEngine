@@ -1,7 +1,8 @@
 #include <PCH.h>
+
+#include <RendererCore/Textures/TextureUtils.h>
 #include <TestFramework/Framework/TestFramework.h>
 #include <TestFramework/Utilities/TestSetup.h>
-#include <RendererCore/Textures/TextureUtils.h>
 
 EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN("GameEngineTest", "GameEngine Tests")
 {

@@ -1,33 +1,35 @@
 #include <PCH.h>
-#include <Inspector/MainWindow.moc.h>
-#include <Inspector/MemoryWidget.moc.h>
-#include <Inspector/TimeWidget.moc.h>
-#include <Inspector/InputWidget.moc.h>
-#include <Inspector/CVarsWidget.moc.h>
-#include <Inspector/ReflectionWidget.moc.h>
-#include <Inspector/LogDockWidget.moc.h>
-#include <Inspector/SubsystemsWidget.moc.h>
-#include <Inspector/FileWidget.moc.h>
-#include <Inspector/PluginsWidget.moc.h>
-#include <Inspector/GlobalEventsWidget.moc.h>
-#include <Inspector/StatVisWidget.moc.h>
-#include <Inspector/DataTransferWidget.moc.h>
-#include <Inspector/ResourceWidget.moc.h>
+
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Threading/ThreadUtils.h>
-#include <qlistwidget.h>
-#include <qinputdialog.h>
-#include <qfile.h>
-#include <qstandardpaths.h>
-#include <qdir.h>
+#include <Inspector/CVarsWidget.moc.h>
+#include <Inspector/DataTransferWidget.moc.h>
+#include <Inspector/FileWidget.moc.h>
+#include <Inspector/GlobalEventsWidget.moc.h>
+#include <Inspector/InputWidget.moc.h>
+#include <Inspector/LogDockWidget.moc.h>
+#include <Inspector/MainWindow.moc.h>
+#include <Inspector/MemoryWidget.moc.h>
+#include <Inspector/PluginsWidget.moc.h>
+#include <Inspector/ReflectionWidget.moc.h>
+#include <Inspector/ResourceWidget.moc.h>
+#include <Inspector/StatVisWidget.moc.h>
+#include <Inspector/SubsystemsWidget.moc.h>
+#include <Inspector/TimeWidget.moc.h>
 #include <QSettings>
+#include <qdir.h>
+#include <qfile.h>
+#include <qinputdialog.h>
+#include <qlistwidget.h>
+#include <qstandardpaths.h>
 #include <qtimer.h>
 
 ezQtMainWindow* ezQtMainWindow::s_pWidget = nullptr;
 
 
 
-ezQtMainWindow::ezQtMainWindow() : QMainWindow()
+ezQtMainWindow::ezQtMainWindow()
+    : QMainWindow()
 {
   s_pWidget = this;
 
@@ -36,37 +38,43 @@ ezQtMainWindow::ezQtMainWindow() : QMainWindow()
   setupUi(this);
 
   QSettings Settings;
-  SetAlwaysOnTop((OnTopMode) Settings.value("AlwaysOnTop", (int) WhenConnected).toInt());
+  SetAlwaysOnTop((OnTopMode)Settings.value("AlwaysOnTop", (int)WhenConnected).toInt());
 
   Settings.beginGroup("MainWindow");
 
-  restoreGeometry(Settings.value("WindowGeometry", saveGeometry() ).toByteArray());
+  restoreGeometry(Settings.value("WindowGeometry", saveGeometry()).toByteArray());
 
-  ezQtLogDockWidget*          pLogWidget            = new ezQtLogDockWidget(this);
-  ezQtMemoryWidget*       pMemoryWidget         = new ezQtMemoryWidget(this);
-  ezQtTimeWidget*         pTimeWidget           = new ezQtTimeWidget(this);
-  ezQtInputWidget*        pInputWidget          = new ezQtInputWidget(this);
-  ezQtCVarsWidget*        pCVarsWidget          = new ezQtCVarsWidget(this);
-  ezQtSubsystemsWidget*   pSubsystemsWidget     = new ezQtSubsystemsWidget(this);
-  ezQtFileWidget*         pFileWidget           = new ezQtFileWidget(this);
-  ezQtPluginsWidget*      pPluginsWidget        = new ezQtPluginsWidget(this);
-  ezQtGlobalEventsWidget* pGlobalEventesWidget  = new ezQtGlobalEventsWidget(this);
-  ezQtReflectionWidget*   pReflectionWidget     = new ezQtReflectionWidget(this);
-  ezQtDataWidget*         pDataWidget           = new ezQtDataWidget(this);
-  ezQtResourceWidget*     pResourceWidget       = new ezQtResourceWidget(this);
+  ezQtLogDockWidget* pLogWidget = new ezQtLogDockWidget(this);
+  ezQtMemoryWidget* pMemoryWidget = new ezQtMemoryWidget(this);
+  ezQtTimeWidget* pTimeWidget = new ezQtTimeWidget(this);
+  ezQtInputWidget* pInputWidget = new ezQtInputWidget(this);
+  ezQtCVarsWidget* pCVarsWidget = new ezQtCVarsWidget(this);
+  ezQtSubsystemsWidget* pSubsystemsWidget = new ezQtSubsystemsWidget(this);
+  ezQtFileWidget* pFileWidget = new ezQtFileWidget(this);
+  ezQtPluginsWidget* pPluginsWidget = new ezQtPluginsWidget(this);
+  ezQtGlobalEventsWidget* pGlobalEventesWidget = new ezQtGlobalEventsWidget(this);
+  ezQtReflectionWidget* pReflectionWidget = new ezQtReflectionWidget(this);
+  ezQtDataWidget* pDataWidget = new ezQtDataWidget(this);
+  ezQtResourceWidget* pResourceWidget = new ezQtResourceWidget(this);
 
-  EZ_VERIFY(nullptr != QWidget::connect(pLogWidget,            SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pTimeWidget,           SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pMemoryWidget,         SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pInputWidget,          SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pCVarsWidget,          SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pReflectionWidget,     SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pSubsystemsWidget,     SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pFileWidget,           SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pPluginsWidget,        SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pGlobalEventesWidget,  SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pDataWidget,           SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pResourceWidget,       SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(nullptr != QWidget::connect(pLogWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(nullptr != QWidget::connect(pTimeWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(nullptr != QWidget::connect(pMemoryWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(nullptr != QWidget::connect(pInputWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(nullptr != QWidget::connect(pCVarsWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(nullptr != QWidget::connect(pReflectionWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))),
+            "");
+  EZ_VERIFY(nullptr != QWidget::connect(pSubsystemsWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))),
+            "");
+  EZ_VERIFY(nullptr != QWidget::connect(pFileWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(nullptr != QWidget::connect(pPluginsWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))),
+            "");
+  EZ_VERIFY(nullptr !=
+                QWidget::connect(pGlobalEventesWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))),
+            "");
+  EZ_VERIFY(nullptr != QWidget::connect(pDataWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(nullptr != QWidget::connect(pResourceWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))),
+            "");
 
   addDockWidget(Qt::BottomDockWidgetArea, pMemoryWidget);
   addDockWidget(Qt::BottomDockWidgetArea, pFileWidget);
@@ -85,7 +93,9 @@ ezQtMainWindow::ezQtMainWindow() : QMainWindow()
     addDockWidget(Qt::BottomDockWidgetArea, m_pStatHistoryWidgets[i]);
     tabifyDockWidget(pMemoryWidget, m_pStatHistoryWidgets[i]);
 
-    EZ_VERIFY(nullptr != QWidget::connect(m_pStatHistoryWidgets[i],  SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+    EZ_VERIFY(nullptr != QWidget::connect(m_pStatHistoryWidgets[i], SIGNAL(visibilityChanged(bool)), this,
+                                          SLOT(DockWidgetVisibilityChanged(bool))),
+              "");
 
     pHistoryMenu->addAction(&m_pStatHistoryWidgets[i]->m_ShowWindowAction);
 
@@ -93,7 +103,7 @@ ezQtMainWindow::ezQtMainWindow() : QMainWindow()
 
     m_pActionShowStatIn[i] = new QAction(this);
 
-    EZ_VERIFY(nullptr != QWidget::connect(m_pActionShowStatIn[i],  SIGNAL(triggered()), this, SLOT(ShowStatIn())), "");
+    EZ_VERIFY(nullptr != QWidget::connect(m_pActionShowStatIn[i], SIGNAL(triggered()), this, SLOT(ShowStatIn())), "");
   }
 
   setContextMenuPolicy(Qt::NoContextMenu);
@@ -226,13 +236,12 @@ void ezQtMainWindow::UpdateNetwork()
 
         ezQtLogDockWidget::s_pWidget->Log(s.GetData());
       }
-      else
-        if (!bConnected)
-        {
-          ezQtLogDockWidget::s_pWidget->Log("Reconnected to Server.");
-        }
+      else if (!bConnected)
+      {
+        ezQtLogDockWidget::s_pWidget->Log("Reconnected to Server.");
+      }
 
-        bConnected = true;
+      bConnected = true;
     }
     else
     {
@@ -271,7 +280,7 @@ void ezQtMainWindow::UpdateNetwork()
   ezQtTimeWidget::s_pWidget->UpdateStats();
   ezQtFileWidget::s_pWidget->UpdateStats();
   ezQtResourceWidget::s_pWidget->UpdateStats();
-  //ezQtDataWidget::s_pWidget->UpdateStats();
+  // ezQtDataWidget::s_pWidget->UpdateStats();
 
   for (ezInt32 i = 0; i < 10; ++i)
     m_pStatHistoryWidgets[i]->UpdateStats();
@@ -304,7 +313,7 @@ void ezQtMainWindow::SetAlwaysOnTop(OnTopMode Mode)
   m_OnTopMode = Mode;
 
   QSettings Settings;
-  Settings.setValue("AlwaysOnTop", (int) m_OnTopMode);
+  Settings.setValue("AlwaysOnTop", (int)m_OnTopMode);
 
   ActionNeverOnTop->setChecked((m_OnTopMode == Never) ? Qt::Checked : Qt::Unchecked);
   ActionAlwaysOnTop->setChecked((m_OnTopMode == Always) ? Qt::Checked : Qt::Unchecked);
@@ -352,7 +361,7 @@ void ezQtMainWindow::ProcessTelemetry(void* pUnuseed)
   {
     switch (Msg.GetMessageID())
     {
-    case ' DEL':
+      case ' DEL':
       {
         ezString sStatName;
         Msg.GetReader() >> sStatName;
@@ -372,7 +381,7 @@ void ezQtMainWindow::ProcessTelemetry(void* pUnuseed)
       }
       break;
 
-    case ' SET':
+      case ' SET':
       {
         ezString sStatName;
         Msg.GetReader() >> sStatName;
@@ -414,7 +423,7 @@ void ezQtMainWindow::ProcessTelemetry(void* pUnuseed)
   {
     switch (Msg.GetMessageID())
     {
-    case 'ASRT':
+      case 'ASRT':
       {
         ezString sSourceFile, sFunction, sExpression, sMessage;
         ezUInt32 uiLine = 0;
@@ -450,4 +459,3 @@ void ezQtMainWindow::ProcessTelemetry(void* pUnuseed)
     }
   }
 }
-

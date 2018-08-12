@@ -1,9 +1,10 @@
-﻿#include <PCH.h>
-#include <EditorPluginAssets/TextureAsset/TextureAssetManager.h>
+#include <PCH.h>
+
 #include <EditorPluginAssets/TextureAsset/TextureAsset.h>
+#include <EditorPluginAssets/TextureAsset/TextureAssetManager.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetWindow.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezTextureAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -59,7 +60,7 @@ void ezTextureAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
 {
   switch (e.m_Type)
   {
-  case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case ezDocumentManager::Event::Type::DocumentWindowRequested:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezTextureAssetDocument>())
       {
@@ -70,7 +71,8 @@ void ezTextureAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
   }
 }
 
-ezStatus ezTextureAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)
+ezStatus ezTextureAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
+                                                               ezDocument*& out_pDocument)
 {
   ezTextureAssetDocument* pDoc = new ezTextureAssetDocument(szPath);
   out_pDocument = pDoc;
@@ -83,11 +85,9 @@ ezStatus ezTextureAssetDocumentManager::InternalCreateDocument(const char* szDoc
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezTextureAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezTextureAssetDocumentManager::InternalGetSupportedDocumentTypes(
+    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
   inout_DocumentTypes.PushBack(&m_AssetDescRT);
 }
-
-
-

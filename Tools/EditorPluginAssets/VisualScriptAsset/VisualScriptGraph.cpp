@@ -1,8 +1,9 @@
 #include <PCH.h>
-#include <ToolsFoundation/Command/NodeCommands.h>
+
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraph.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
+#include <ToolsFoundation/Command/NodeCommands.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ezVisualScriptPin
@@ -12,7 +13,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptPin, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptPin::ezVisualScriptPin(Type type, const ezVisualScriptPinDescriptor* pDescriptor, const ezDocumentObject* pObject)
-  : ezPin(type, pDescriptor->m_sName, pDescriptor->m_Color, pObject)
+    : ezPin(type, pDescriptor->m_sName, pDescriptor->m_Color, pObject)
 {
   m_pDescriptor = pDescriptor;
 }
@@ -107,7 +108,8 @@ ezStatus ezVisualScriptNodeManager::InternalCanConnect(const ezPin* pSource, con
   {
     ezVisualScriptInstance::SetupPinDataTypeConversions();
 
-    if (ezVisualScriptInstance::FindDataPinAssignFunction(pPinSource->GetDescriptor()->m_DataType, pPinTarget->GetDescriptor()->m_DataType) == nullptr)
+    if (ezVisualScriptInstance::FindDataPinAssignFunction(pPinSource->GetDescriptor()->m_DataType,
+                                                          pPinTarget->GetDescriptor()->m_DataType) == nullptr)
     {
       out_Result = CanConnectResult::ConnectNever;
       return ezStatus(ezFmt("The pin data types are incompatible."));
@@ -147,5 +149,3 @@ const char* ezVisualScriptNodeManager::GetTypeCategory(const ezRTTI* pRtti) cons
 
   return pDesc->m_sCategory;
 }
-
-

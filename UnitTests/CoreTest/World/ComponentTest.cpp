@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <Foundation/Time/Clock.h>
+
 #include <Core/World/World.h>
+#include <Foundation/Time/Clock.h>
 
 namespace
 {
@@ -8,7 +9,8 @@ namespace
   class TestComponentManager : public ezComponentManager<TestComponent, ezBlockStorageType::FreeList>
   {
   public:
-    TestComponentManager(ezWorld* pWorld) : ezComponentManager<TestComponent, ezBlockStorageType::FreeList>(pWorld)
+    TestComponentManager(ezWorld* pWorld)
+        : ezComponentManager<TestComponent, ezBlockStorageType::FreeList>(pWorld)
     {
     }
 
@@ -49,18 +51,15 @@ namespace
     EZ_DECLARE_COMPONENT_TYPE(TestComponent, ezComponent, TestComponentManager);
 
   public:
-    TestComponent() : m_iSomeData(1) {}
+    TestComponent()
+        : m_iSomeData(1)
+    {
+    }
     ~TestComponent() {}
 
-    virtual void Initialize() override
-    {
-      ++s_iInitCounter;
-    }
+    virtual void Initialize() override { ++s_iInitCounter; }
 
-    virtual void Deinitialize() override
-    {
-      --s_iInitCounter;
-    }
+    virtual void Deinitialize() override { --s_iInitCounter; }
 
     virtual void OnActivated() override
     {
@@ -69,25 +68,13 @@ namespace
       SpawnOther();
     }
 
-    virtual void OnDeactivated() override
-    {
-      --s_iActivateCounter;
-    }
+    virtual void OnDeactivated() override { --s_iActivateCounter; }
 
-    virtual void OnSimulationStarted() override
-    {
-      ++s_iSimulationStartedCounter;
-    }
+    virtual void OnSimulationStarted() override { ++s_iSimulationStartedCounter; }
 
-    void Update()
-    {
-      m_iSomeData *= 5;
-    }
+    void Update() { m_iSomeData *= 5; }
 
-    void Update2()
-    {
-      m_iSomeData += 3;
-    }
+    void Update2() { m_iSomeData += 3; }
 
     void SpawnOther();
 
@@ -126,13 +113,9 @@ namespace
     }
   }
 
-  void TestComponentManager::Update3(const ezWorldModule::UpdateContext& context)
-  {
-  }
+  void TestComponentManager::Update3(const ezWorldModule::UpdateContext& context) {}
 
-  void TestComponentManager::AUpdate3(const ezWorldModule::UpdateContext& context)
-  {
-  }
+  void TestComponentManager::AUpdate3(const ezWorldModule::UpdateContext& context) {}
 
   void TestComponentManager::UpdateAsync(const ezWorldModule::UpdateContext& context)
   {
@@ -149,10 +132,7 @@ namespace
   {
     EZ_DECLARE_COMPONENT_TYPE(TestComponent2, ezComponent, TestComponent2Manager);
 
-    virtual void OnActivated()
-    {
-      TestComponent::s_iActivateCounter++;
-    }
+    virtual void OnActivated() { TestComponent::s_iActivateCounter++; }
   };
 
   EZ_BEGIN_COMPONENT_TYPE(TestComponent2, 1, ezComponentMode::Static)
@@ -282,9 +262,12 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     ezGameObject* pObjectB = nullptr;
     ezGameObject* pObjectC = nullptr;
 
-    desc.m_sName.Assign("A"); ezGameObjectHandle hObjectA = world.CreateObject(desc, pObjectA);
-    desc.m_sName.Assign("B"); ezGameObjectHandle hObjectB = world.CreateObject(desc, pObjectB);
-    desc.m_sName.Assign("C"); ezGameObjectHandle hObjectC = world.CreateObject(desc, pObjectC);
+    desc.m_sName.Assign("A");
+    ezGameObjectHandle hObjectA = world.CreateObject(desc, pObjectA);
+    desc.m_sName.Assign("B");
+    ezGameObjectHandle hObjectB = world.CreateObject(desc, pObjectB);
+    desc.m_sName.Assign("C");
+    ezGameObjectHandle hObjectC = world.CreateObject(desc, pObjectC);
 
     EZ_TEST_BOOL(!hObjectA.IsInvalidated());
     EZ_TEST_BOOL(!hObjectB.IsInvalidated());
@@ -322,8 +305,8 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     EZ_TEST_BOOL(world.TryGetObject(hObjectC, pObjectC));
 
     // Since we're not recompacting storage for components, pointer should still be valid.
-    //EZ_TEST_BOOL(world.TryGetComponent(hComponentA, pComponentA));
-    //EZ_TEST_BOOL(world.TryGetComponent(hComponentC, pComponentC));
+    // EZ_TEST_BOOL(world.TryGetComponent(hComponentA, pComponentA));
+    // EZ_TEST_BOOL(world.TryGetComponent(hComponentC, pComponentC));
 
     EZ_TEST_BOOL(pObjectA->IsActive());
     EZ_TEST_STRING(pObjectA->GetName(), "A");

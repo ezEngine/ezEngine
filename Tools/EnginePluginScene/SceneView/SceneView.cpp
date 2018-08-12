@@ -1,10 +1,11 @@
 #include <PCH.h>
-#include <EnginePluginScene/SceneView/SceneView.h>
+
 #include <Core/ResourceManager/ResourceManager.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EnginePluginScene/SceneContext/SceneContext.h>
+#include <EnginePluginScene/SceneView/SceneView.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <GameEngine/GameApplication/GameApplication.h>
@@ -15,7 +16,7 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 ezSceneViewContext::ezSceneViewContext(ezSceneContext* pSceneContext)
-  : ezEngineProcessViewContext(pSceneContext)
+    : ezEngineProcessViewContext(pSceneContext)
 {
   m_pSceneContext = pSceneContext;
   m_bUpdatePickingData = true;
@@ -27,10 +28,7 @@ ezSceneViewContext::ezSceneViewContext(ezSceneContext* pSceneContext)
   m_CullingCamera = m_Camera;
 }
 
-ezSceneViewContext::~ezSceneViewContext()
-{
-
-}
+ezSceneViewContext::~ezSceneViewContext() {}
 
 void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
 {
@@ -49,7 +47,7 @@ void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
     }
 
     if (pMsg2->m_CameraUsageHint == ezCameraUsageHint::EditorView &&
-      (pMsg2->m_iCameraMode == ezCameraMode::PerspectiveFixedFovX || pMsg2->m_iCameraMode == ezCameraMode::PerspectiveFixedFovY))
+        (pMsg2->m_iCameraMode == ezCameraMode::PerspectiveFixedFovX || pMsg2->m_iCameraMode == ezCameraMode::PerspectiveFixedFovY))
     {
       if (!m_pSceneContext->IsPlayTheGameActive())
       {
@@ -191,9 +189,10 @@ void ezSceneViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
     if (varMat.IsA<ezMat4>())
     {
       const ezUInt32 uiPickingID = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingID").ConvertTo<ezUInt32>();
-      //const float fPickingDepth = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingDepth").ConvertTo<float>();
+      // const float fPickingDepth = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingDepth").ConvertTo<float>();
       res.m_vPickedNormal = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingNormal").ConvertTo<ezVec3>();
-      res.m_vPickingRayStartPosition = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingRayStartPosition").ConvertTo<ezVec3>();
+      res.m_vPickingRayStartPosition =
+          pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingRayStartPosition").ConvertTo<ezVec3>();
       res.m_vPickedPosition = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingPosition").ConvertTo<ezVec3>();
 
       EZ_ASSERT_DEBUG(!res.m_vPickedPosition.IsNaN(), "");
@@ -250,7 +249,7 @@ void ezSceneViewContext::MarqueePickObjects(const ezViewMarqueePickingMsgToEngin
       return;
 
     if (!pView->IsRenderPassReadBackPropertyExisting("EditorPickingPass", "MarqueeActionID") ||
-      pView->GetRenderPassReadBackProperty("EditorPickingPass", "MarqueeActionID").ConvertTo<ezUInt32>() != pMsg->m_uiActionIdentifier)
+        pView->GetRenderPassReadBackProperty("EditorPickingPass", "MarqueeActionID").ConvertTo<ezUInt32>() != pMsg->m_uiActionIdentifier)
       return;
 
     res.m_uiActionIdentifier = pMsg->m_uiActionIdentifier;

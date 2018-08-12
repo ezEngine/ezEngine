@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <EditorFramework/Settings/SettingsTab.moc.h>
+
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Settings/SettingsTab.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 
 EZ_IMPLEMENT_SINGLETON(ezQtSettingsTab);
@@ -32,9 +33,9 @@ void ezQtEditorApp::CloseSettingsDocument()
   }
 }
 
-ezQtSettingsTab::ezQtSettingsTab() 
-  : ezQtDocumentWindow("")
-  , m_SingletonRegistrar(this)
+ezQtSettingsTab::ezQtSettingsTab()
+    : ezQtDocumentWindow("")
+    , m_SingletonRegistrar(this)
 {
   setCentralWidget(new QWidget());
 
@@ -43,7 +44,8 @@ ezQtSettingsTab::ezQtSettingsTab()
   setupUi(centralWidget());
   QMetaObject::connectSlotsByName(this);
 
-  //EZ_VERIFY(connect(AssetBrowserWidget, SIGNAL(ItemChosen(QString, QString, QString)), this, SLOT(SlotAssetChosen(QString, QString, QString))) != nullptr, "signal/slot connection failed");
+  // EZ_VERIFY(connect(AssetBrowserWidget, SIGNAL(ItemChosen(QString, QString, QString)), this, SLOT(SlotAssetChosen(QString, QString,
+  // QString))) != nullptr, "signal/slot connection failed");
 
   ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
   ezActionContext context;
@@ -54,9 +56,7 @@ ezQtSettingsTab::ezQtSettingsTab()
   FinishWindowCreation();
 }
 
-ezQtSettingsTab::~ezQtSettingsTab()
-{
-}
+ezQtSettingsTab::~ezQtSettingsTab() {}
 
 bool ezQtSettingsTab::InternalCanCloseWindow()
 {
@@ -74,4 +74,3 @@ void ezQtSettingsTab::SlotAssetChosen(QString sAssetGuid, QString sAssetPathRela
 {
   ezQtEditorApp::GetSingleton()->OpenDocument(sAssetPathAbsolute.toUtf8().data());
 }
-

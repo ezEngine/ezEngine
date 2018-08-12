@@ -1,15 +1,13 @@
 #include <PCH.h>
+
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimObjectManager.h>
 
-ezPropertyAnimObjectManager::ezPropertyAnimObjectManager()
-{
-}
+ezPropertyAnimObjectManager::ezPropertyAnimObjectManager() {}
 
-ezPropertyAnimObjectManager::~ezPropertyAnimObjectManager()
-{
-}
+ezPropertyAnimObjectManager::~ezPropertyAnimObjectManager() {}
 
-ezStatus ezPropertyAnimObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const
+ezStatus ezPropertyAnimObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty,
+                                                     const ezVariant& index) const
 {
   if (m_bAllowStructureChangeOnTemporaries)
     return ezStatus(EZ_SUCCESS);
@@ -29,7 +27,8 @@ ezStatus ezPropertyAnimObjectManager::InternalCanRemove(const ezDocumentObject* 
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezPropertyAnimObjectManager::InternalCanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const
+ezStatus ezPropertyAnimObjectManager::InternalCanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent,
+                                                      const char* szParentProperty, const ezVariant& index) const
 {
   if (m_bAllowStructureChangeOnTemporaries)
     return ezStatus(EZ_SUCCESS);
@@ -56,4 +55,3 @@ bool ezPropertyAnimObjectManager::IsTemporary(const ezDocumentObject* pParent, c
   }
   return IsTemporary(pParent);
 }
-

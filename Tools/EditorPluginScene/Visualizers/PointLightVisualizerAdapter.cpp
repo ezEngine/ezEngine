@@ -1,17 +1,14 @@
-﻿#include <PCH.h>
-#include <EditorPluginScene/Visualizers/PointLightVisualizerAdapter.h>
+#include <PCH.h>
+
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>
-#include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <EditorPluginScene/Visualizers/PointLightVisualizerAdapter.h>
 #include <RendererCore/Lights/PointLightComponent.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezPointLightVisualizerAdapter::ezPointLightVisualizerAdapter()
-{
-}
+ezPointLightVisualizerAdapter::ezPointLightVisualizerAdapter() {}
 
-ezPointLightVisualizerAdapter::~ezPointLightVisualizerAdapter()
-{
-}
+ezPointLightVisualizerAdapter::~ezPointLightVisualizerAdapter() {}
 
 void ezPointLightVisualizerAdapter::Finalize()
 {
@@ -63,5 +60,3 @@ void ezPointLightVisualizerAdapter::UpdateGizmoTransform()
 
   m_Gizmo.SetTransformation(t);
 }
-
-

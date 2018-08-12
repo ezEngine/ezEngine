@@ -1,16 +1,18 @@
 #include <PCH.h>
-#include <ParticlePlugin/Emitter/ParticleEmitter_OnEvent.h>
-#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
-#include <Foundation/Math/Random.h>
-#include <ParticlePlugin/System/ParticleSystemInstance.h>
-#include <Foundation/Time/Clock.h>
+
 #include <Core/World/World.h>
-#include <GameEngine/Curves/Curve1DResource.h>
 #include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
-#include <ParticlePlugin/Events/ParticleEvent.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
+#include <Foundation/Math/Random.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Time/Clock.h>
+#include <GameEngine/Curves/Curve1DResource.h>
+#include <ParticlePlugin/Emitter/ParticleEmitter_OnEvent.h>
+#include <ParticlePlugin/Events/ParticleEvent.h>
+#include <ParticlePlugin/System/ParticleSystemInstance.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_OnEvent, 1, ezRTTIDefaultAllocator<ezParticleEmitterFactory_OnEvent>)
 {
   EZ_BEGIN_PROPERTIES
@@ -23,10 +25,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitter_OnEvent, 1, ezRTTIDefaultAllocator<ezParticleEmitter_OnEvent>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezParticleEmitterFactory_OnEvent::ezParticleEmitterFactory_OnEvent()
-{
-}
+ezParticleEmitterFactory_OnEvent::ezParticleEmitterFactory_OnEvent() {}
 
 
 const ezRTTI* ezParticleEmitterFactory_OnEvent::GetEmitterType() const
@@ -131,4 +132,3 @@ void ezParticleEmitter_OnEvent::ProcessEventQueue(ezParticleEventQueue queue)
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Emitter_ParticleEmitter_OnEvent);
-

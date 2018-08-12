@@ -1,6 +1,7 @@
-﻿#include <PCH.h>
-#include <Foundation/IO/JSONParser.h>
+#include <PCH.h>
+
 #include <Foundation/Containers/Deque.h>
+#include <Foundation/IO/JSONParser.h>
 #include <Foundation/Strings/StringUtils.h>
 #include <FoundationTest/IO/JSONTestHelpers.h>
 
@@ -21,17 +22,13 @@ struct ParseResult
 {
   ParseFunction m_Function;
 
-  union
-  {
+  union {
     const char* m_szValue;
     bool m_bValue;
     double m_fValue;
   };
 
-  ParseResult(ParseFunction f)
-  {
-    m_Function = f;
-  }
+  ParseResult(ParseFunction f) { m_Function = f; }
 
   ParseResult(ParseFunction f, const char* v)
   {
@@ -83,10 +80,7 @@ public:
     ParseAll();
   }
 
-  void Add(ParseResult pr)
-  {
-    m_Results.PushBack(pr);
-  }
+  void Add(ParseResult pr) { m_Results.PushBack(pr); }
 
   virtual bool OnVariable(const char* szVarName) override
   {
@@ -195,8 +189,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "All Features")
   {
-    const char* szTestData =
-"{\n\
+    const char* szTestData = "{\n\
 \"myarray2\":[\"\",2.2],\n\
 \"myarray\" : [1, 2.2, 3.3, false, \"ende\" ],\n\
 \"String\"/**/ : \"testvalue\",\n\
@@ -232,80 +225,80 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.Add(ParseResult(BeginObject));
 
-      reader.Add(ParseResult(Variable, "myarray2"));
-      reader.Add(ParseResult(BeginArray));
-        reader.Add(ParseResult(""));
-        reader.Add(ParseResult(2.2));
-      reader.Add(ParseResult(EndArray));
+    reader.Add(ParseResult(Variable, "myarray2"));
+    reader.Add(ParseResult(BeginArray));
+    reader.Add(ParseResult(""));
+    reader.Add(ParseResult(2.2));
+    reader.Add(ParseResult(EndArray));
 
-      reader.Add(ParseResult(Variable, "myarray"));
-      reader.Add(ParseResult(BeginArray));
-        reader.Add(ParseResult(1.0));
-        reader.Add(ParseResult(2.2));
-        reader.Add(ParseResult(3.3));
-        reader.Add(ParseResult(false));
-        reader.Add(ParseResult("ende"));
-      reader.Add(ParseResult(EndArray));
+    reader.Add(ParseResult(Variable, "myarray"));
+    reader.Add(ParseResult(BeginArray));
+    reader.Add(ParseResult(1.0));
+    reader.Add(ParseResult(2.2));
+    reader.Add(ParseResult(3.3));
+    reader.Add(ParseResult(false));
+    reader.Add(ParseResult("ende"));
+    reader.Add(ParseResult(EndArray));
 
-      reader.Add(ParseResult(Variable, "String"));
-      reader.Add(ParseResult("testvalue"));
+    reader.Add(ParseResult(Variable, "String"));
+    reader.Add(ParseResult("testvalue"));
 
-      reader.Add(ParseResult(Variable, "double"));
-      reader.Add(ParseResult(43.56));
+    reader.Add(ParseResult(Variable, "double"));
+    reader.Add(ParseResult(43.56));
 
-      reader.Add(ParseResult(Variable, "float"));
-      reader.Add(ParseResult(64.720001));
+    reader.Add(ParseResult(Variable, "float"));
+    reader.Add(ParseResult(64.720001));
 
-      reader.Add(ParseResult(Variable, "bool"));
-      reader.Add(ParseResult(true));
+    reader.Add(ParseResult(Variable, "bool"));
+    reader.Add(ParseResult(true));
 
-      reader.Add(ParseResult(Variable, "int"));
-      reader.Add(ParseResult(23.0));
+    reader.Add(ParseResult(Variable, "int"));
+    reader.Add(ParseResult(23.0));
 
-      reader.Add(ParseResult(Variable, "MyNull"));
-      reader.Add(ParseResult(ValueNULL));
+    reader.Add(ParseResult(Variable, "MyNull"));
+    reader.Add(ParseResult(ValueNULL));
 
-      reader.Add(ParseResult(Variable, "object"));
-      reader.Add(ParseResult(BeginObject));
+    reader.Add(ParseResult(Variable, "object"));
+    reader.Add(ParseResult(BeginObject));
 
-        reader.Add(ParseResult(Variable, "variable in object"));
-        reader.Add(ParseResult("bla"));
+    reader.Add(ParseResult(Variable, "variable in object"));
+    reader.Add(ParseResult("bla"));
 
-        reader.Add(ParseResult(Variable, "Subobject"));
-        reader.Add(ParseResult(BeginObject));
+    reader.Add(ParseResult(Variable, "Subobject"));
+    reader.Add(ParseResult(BeginObject));
 
-          reader.Add(ParseResult(Variable, "variable in subobject"));
-          reader.Add(ParseResult("blub"));
+    reader.Add(ParseResult(Variable, "variable in subobject"));
+    reader.Add(ParseResult("blub"));
 
-          reader.Add(ParseResult(Variable, "array in sub"));
-          reader.Add(ParseResult(BeginArray));
+    reader.Add(ParseResult(Variable, "array in sub"));
+    reader.Add(ParseResult(BeginArray));
 
-            reader.Add(ParseResult(BeginObject));
+    reader.Add(ParseResult(BeginObject));
 
-              reader.Add(ParseResult(Variable, "obj var"));
-              reader.Add(ParseResult(234.0));
+    reader.Add(ParseResult(Variable, "obj var"));
+    reader.Add(ParseResult(234.0));
 
-            reader.Add(ParseResult(EndObject));
+    reader.Add(ParseResult(EndObject));
 
-            reader.Add(ParseResult(BeginObject));
+    reader.Add(ParseResult(BeginObject));
 
-              reader.Add(ParseResult(Variable, "obj var 2"));
-              reader.Add(ParseResult(-235.0));
+    reader.Add(ParseResult(Variable, "obj var 2"));
+    reader.Add(ParseResult(-235.0));
 
-            reader.Add(ParseResult(EndObject));
+    reader.Add(ParseResult(EndObject));
 
-            reader.Add(ParseResult(true));
-            reader.Add(ParseResult(4.0));
-            reader.Add(ParseResult(false));
+    reader.Add(ParseResult(true));
+    reader.Add(ParseResult(4.0));
+    reader.Add(ParseResult(false));
 
-          reader.Add(ParseResult(EndArray));
+    reader.Add(ParseResult(EndArray));
 
-        reader.Add(ParseResult(EndObject));
+    reader.Add(ParseResult(EndObject));
 
-      reader.Add(ParseResult(EndObject));
+    reader.Add(ParseResult(EndObject));
 
-      reader.Add(ParseResult(Variable, "test"));
-      reader.Add(ParseResult("text"));
+    reader.Add(ParseResult(Variable, "test"));
+    reader.Add(ParseResult("text"));
 
     reader.Add(ParseResult(EndObject));
 
@@ -374,17 +367,17 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.Add(ParseResult(BeginObject));
 
-      reader.Add(ParseResult(Variable, "a"));
-      reader.Add(ParseResult(4.0));
+    reader.Add(ParseResult(Variable, "a"));
+    reader.Add(ParseResult(4.0));
 
-      reader.Add(ParseResult(Variable, "b"));
-      reader.Add(ParseResult(true));
+    reader.Add(ParseResult(Variable, "b"));
+    reader.Add(ParseResult(true));
 
-      reader.Add(ParseResult(Variable, "c"));
-      reader.Add(ParseResult(""));
+    reader.Add(ParseResult(Variable, "c"));
+    reader.Add(ParseResult(""));
 
-      reader.Add(ParseResult(Variable, "d"));
-      reader.Add(ParseResult("v"));
+    reader.Add(ParseResult(Variable, "d"));
+    reader.Add(ParseResult("v"));
 
     reader.Add(ParseResult(EndObject));
 
@@ -404,23 +397,23 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.Add(ParseResult(BeginObject));
 
-      reader.Add(ParseResult(Variable, "a"));
-      reader.Add(ParseResult(BeginObject));
-      reader.Add(ParseResult(EndObject));
+    reader.Add(ParseResult(Variable, "a"));
+    reader.Add(ParseResult(BeginObject));
+    reader.Add(ParseResult(EndObject));
 
-      reader.Add(ParseResult(Variable, "b"));
-      reader.Add(ParseResult(BeginArray));
-      reader.Add(ParseResult(EndArray));
+    reader.Add(ParseResult(Variable, "b"));
+    reader.Add(ParseResult(BeginArray));
+    reader.Add(ParseResult(EndArray));
 
-      reader.Add(ParseResult(Variable, "c"));
-      reader.Add(ParseResult(BeginArray));
-        reader.Add(ParseResult(BeginObject));
-        reader.Add(ParseResult(EndObject));
-      reader.Add(ParseResult(EndArray));
+    reader.Add(ParseResult(Variable, "c"));
+    reader.Add(ParseResult(BeginArray));
+    reader.Add(ParseResult(BeginObject));
+    reader.Add(ParseResult(EndObject));
+    reader.Add(ParseResult(EndArray));
 
-      reader.Add(ParseResult(Variable, "d"));
-      reader.Add(ParseResult(BeginObject));
-      reader.Add(ParseResult(EndObject));
+    reader.Add(ParseResult(Variable, "d"));
+    reader.Add(ParseResult(BeginObject));
+    reader.Add(ParseResult(EndObject));
 
     reader.Add(ParseResult(EndObject));
 
@@ -443,23 +436,23 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.Add(ParseResult(BeginObject));
 
-      reader.Add(ParseResult(Variable, "a"));
-      reader.Add(ParseResult(BeginObject));
-      reader.Add(ParseResult(EndObject));
+    reader.Add(ParseResult(Variable, "a"));
+    reader.Add(ParseResult(BeginObject));
+    reader.Add(ParseResult(EndObject));
 
-      reader.Add(ParseResult(Variable, "b"));
-      reader.Add(ParseResult(BeginArray));
-        reader.Add(ParseResult(3.0));
-      reader.Add(ParseResult(EndArray));
+    reader.Add(ParseResult(Variable, "b"));
+    reader.Add(ParseResult(BeginArray));
+    reader.Add(ParseResult(3.0));
+    reader.Add(ParseResult(EndArray));
 
-      reader.Add(ParseResult(Variable, "c"));
-      reader.Add(ParseResult(BeginArray));
-        reader.Add(ParseResult(0.3));
-      reader.Add(ParseResult(EndArray));
+    reader.Add(ParseResult(Variable, "c"));
+    reader.Add(ParseResult(BeginArray));
+    reader.Add(ParseResult(0.3));
+    reader.Add(ParseResult(EndArray));
 
-      reader.Add(ParseResult(Variable, "d"));
-      reader.Add(ParseResult(BeginObject));
-      reader.Add(ParseResult(EndObject));
+    reader.Add(ParseResult(Variable, "d"));
+    reader.Add(ParseResult(BeginObject));
+    reader.Add(ParseResult(EndObject));
 
     reader.Add(ParseResult(EndObject));
 
@@ -480,11 +473,11 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.Add(ParseResult(BeginObject));
 
-      reader.Add(ParseResult(Variable, "a"));
-      reader.Add(ParseResult(BeginArray));
+    reader.Add(ParseResult(Variable, "a"));
+    reader.Add(ParseResult(BeginArray));
     //  reader.Add(ParseResult(EndArray)); // not reached anymore due to syntax error
 
-    //reader.Add(ParseResult(EndObject));
+    // reader.Add(ParseResult(EndObject));
 
     reader.ParseStream(stream);
 
@@ -502,11 +495,11 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.Add(ParseResult(BeginObject));
 
-      reader.Add(ParseResult(Variable, "a"));
-      reader.Add(ParseResult(true));
+    reader.Add(ParseResult(Variable, "a"));
+    reader.Add(ParseResult(true));
 
-      reader.Add(ParseResult(Variable, "b"));
-      reader.Add(ParseResult(23456.0));
+    reader.Add(ParseResult(Variable, "b"));
+    reader.Add(ParseResult(23456.0));
 
     reader.Add(ParseResult(EndObject));
 
@@ -543,7 +536,8 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Skip Array")
   {
     // I want C++ 11 raw string literals
-    const char* szTestData = "{ \"skip_array\" : [ \"a\",  1, \"b\",  2, \"c\", [ { }, { \"e\" : { } } ] ], \"d\" : 3, \"skip_array\" : [ ] }";
+    const char* szTestData =
+        "{ \"skip_array\" : [ \"a\",  1, \"b\",  2, \"c\", [ { }, { \"e\" : { } } ] ], \"d\" : 3, \"skip_array\" : [ ] }";
 
     StringStream stream(szTestData);
 
@@ -570,7 +564,8 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Skip Variable")
   {
     // I want C++ 11 raw string literals
-    const char* szTestData = "{ \"skip_var\" : { \"a\" : 1, \"b\" : 2, \"c\" : [ { }, { \"e\" : { } } ] }, \"d\" : 3, \"f\" : { \"g\" : 4, \"skip_var\" : [ { }, 3, [], true ], \"h\" : 5} }";
+    const char* szTestData = "{ \"skip_var\" : { \"a\" : 1, \"b\" : 2, \"c\" : [ { }, { \"e\" : { } } ] }, \"d\" : 3, \"f\" : { \"g\" : 4, "
+                             "\"skip_var\" : [ { }, 3, [], true ], \"h\" : 5} }";
 
     StringStream stream(szTestData);
 
@@ -578,25 +573,25 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.Add(ParseResult(BeginObject));
 
-      reader.Add(ParseResult(Variable, "skip_var"));
-      // skip here
+    reader.Add(ParseResult(Variable, "skip_var"));
+    // skip here
 
-      reader.Add(ParseResult(Variable, "d"));
-      reader.Add(ParseResult(3.0));
+    reader.Add(ParseResult(Variable, "d"));
+    reader.Add(ParseResult(3.0));
 
-      reader.Add(ParseResult(Variable, "f"));
-      reader.Add(ParseResult(BeginObject));
+    reader.Add(ParseResult(Variable, "f"));
+    reader.Add(ParseResult(BeginObject));
 
-        reader.Add(ParseResult(Variable, "g"));
-        reader.Add(ParseResult(4.0));
+    reader.Add(ParseResult(Variable, "g"));
+    reader.Add(ParseResult(4.0));
 
-        reader.Add(ParseResult(Variable, "skip_var"));
-        // skip here
+    reader.Add(ParseResult(Variable, "skip_var"));
+    // skip here
 
-        reader.Add(ParseResult(Variable, "h"));
-        reader.Add(ParseResult(5.0));
+    reader.Add(ParseResult(Variable, "h"));
+    reader.Add(ParseResult(5.0));
 
-      reader.Add(ParseResult(EndObject));
+    reader.Add(ParseResult(EndObject));
 
     reader.Add(ParseResult(EndObject));
 

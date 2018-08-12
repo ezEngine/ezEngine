@@ -1,10 +1,12 @@
 #include <PCH.h>
-#include <PhysXPlugin/VisualScriptNodes/PxVisualScriptNodes.h>
-#include <PhysXPlugin/Components/PxTriggerComponent.h>
+
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
+#include <PhysXPlugin/Components/PxTriggerComponent.h>
+#include <PhysXPlugin/VisualScriptNodes/PxVisualScriptNodes.h>
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_PxTriggerEvent, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_PxTriggerEvent>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -23,9 +25,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_PxTriggerEvent, 1, ezRTTIDefa
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_PxTriggerEvent::ezVisualScriptNode_PxTriggerEvent() { }
-ezVisualScriptNode_PxTriggerEvent::~ezVisualScriptNode_PxTriggerEvent() { }
+ezVisualScriptNode_PxTriggerEvent::ezVisualScriptNode_PxTriggerEvent() {}
+ezVisualScriptNode_PxTriggerEvent::~ezVisualScriptNode_PxTriggerEvent() {}
 
 void ezVisualScriptNode_PxTriggerEvent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -61,4 +64,3 @@ void ezVisualScriptNode_PxTriggerEvent::HandleMessage(ezMessage* pMsg)
 }
 
 //////////////////////////////////////////////////////////////////////////
-

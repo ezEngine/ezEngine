@@ -1,12 +1,11 @@
 #include <PCH.h>
-#include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
+
 #include <GuiFoundation/Action/ActionManager.h>
+#include <GuiFoundation/Action/ActionMapManager.h>
+#include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/QtProxy.moc.h>
 
-ezQtMenuActionMapView::ezQtMenuActionMapView(QWidget* parent)
-{
-}
+ezQtMenuActionMapView::ezQtMenuActionMapView(QWidget* parent) {}
 
 ezQtMenuActionMapView::~ezQtMenuActionMapView()
 {
@@ -17,7 +16,7 @@ void ezQtMenuActionMapView::SetActionContext(const ezActionContext& context)
 {
   auto pMap = ezActionMapManager::GetActionMap(context.m_sMapping);
 
-   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping '{0}' does not exist", context.m_sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping '{0}' does not exist", context.m_sMapping);
 
   m_pActionMap = pMap;
   m_Context = context;
@@ -30,7 +29,8 @@ void ezQtMenuActionMapView::ClearView()
   m_Proxies.Clear();
 }
 
-void ezQtMenuActionMapView::AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedPointer<ezQtProxy>>& Proxies, ezActionContext& Context, ezActionMap* pActionMap, QMenu* pCurrentRoot, const ezActionMap::TreeNode* pObject)
+void ezQtMenuActionMapView::AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedPointer<ezQtProxy>>& Proxies, ezActionContext& Context,
+                                                    ezActionMap* pActionMap, QMenu* pCurrentRoot, const ezActionMap::TreeNode* pObject)
 {
   if (pObject == nullptr)
     return;
@@ -43,14 +43,14 @@ void ezQtMenuActionMapView::AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedP
 
     switch (pDesc->m_hAction.GetDescriptor()->m_Type)
     {
-    case ezActionType::Action:
+      case ezActionType::Action:
       {
         QAction* pQtAction = static_cast<ezQtActionProxy*>(pProxy.data())->GetQAction();
         pCurrentRoot->addAction(pQtAction);
       }
       break;
 
-    case ezActionType::Category:
+      case ezActionType::Category:
       {
         pCurrentRoot->addSeparator();
 
@@ -60,7 +60,7 @@ void ezQtMenuActionMapView::AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedP
       }
       break;
 
-    case ezActionType::Menu:
+      case ezActionType::Menu:
       {
         QMenu* pQtMenu = static_cast<ezQtMenuProxy*>(pProxy.data())->GetQMenu();
         pCurrentRoot->addMenu(pQtMenu);
@@ -68,7 +68,7 @@ void ezQtMenuActionMapView::AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedP
       }
       break;
 
-    case ezActionType::ActionAndMenu:
+      case ezActionType::ActionAndMenu:
       {
         QAction* pQtAction = static_cast<ezQtDynamicActionAndMenuProxy*>(pProxy.data())->GetQAction();
         QMenu* pQtMenu = static_cast<ezQtDynamicActionAndMenuProxy*>(pProxy.data())->GetQMenu();

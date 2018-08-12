@@ -1,9 +1,10 @@
 #include <PCH.h>
-#include <Foundation/Reflection/Reflection.h>
+
 #include <Foundation/Communication/Message.h>
+#include <Foundation/Reflection/Reflection.h>
 
 #ifdef GetMessage
-  #undef GetMessage
+#undef GetMessage
 #endif
 
 namespace
@@ -12,14 +13,13 @@ namespace
   struct ezMsgTest : public ezMessage
   {
     EZ_DECLARE_MESSAGE_TYPE(ezMsgTest, ezMessage);
-
   };
 
   EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTest);
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTest, 1, ezRTTIDefaultAllocator<ezMsgTest>)
-    EZ_END_DYNAMIC_REFLECTED_TYPE;
+  EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-    struct AddMessage : public ezMsgTest
+  struct AddMessage : public ezMsgTest
   {
     EZ_DECLARE_MESSAGE_TYPE(AddMessage, ezMsgTest);
 
@@ -27,9 +27,9 @@ namespace
   };
   EZ_IMPLEMENT_MESSAGE_TYPE(AddMessage);
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(AddMessage, 1, ezRTTIDefaultAllocator<AddMessage>)
-    EZ_END_DYNAMIC_REFLECTED_TYPE;
+  EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-    struct SubMessage : public ezMsgTest
+  struct SubMessage : public ezMsgTest
   {
     EZ_DECLARE_MESSAGE_TYPE(SubMessage, ezMsgTest);
 
@@ -37,9 +37,9 @@ namespace
   };
   EZ_IMPLEMENT_MESSAGE_TYPE(SubMessage);
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(SubMessage, 1, ezRTTIDefaultAllocator<SubMessage>)
-    EZ_END_DYNAMIC_REFLECTED_TYPE;
+  EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-    struct MulMessage : public ezMsgTest
+  struct MulMessage : public ezMsgTest
   {
     EZ_DECLARE_MESSAGE_TYPE(MulMessage, ezMsgTest);
 
@@ -47,9 +47,9 @@ namespace
   };
   EZ_IMPLEMENT_MESSAGE_TYPE(MulMessage);
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(MulMessage, 1, ezRTTIDefaultAllocator<MulMessage>)
-    EZ_END_DYNAMIC_REFLECTED_TYPE;
+  EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-    struct GetMessage : public ezMsgTest
+  struct GetMessage : public ezMsgTest
   {
     EZ_DECLARE_MESSAGE_TYPE(GetMessage, ezMsgTest);
 
@@ -57,8 +57,7 @@ namespace
   };
   EZ_IMPLEMENT_MESSAGE_TYPE(GetMessage);
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(GetMessage, 1, ezRTTIDefaultAllocator<GetMessage>)
-    EZ_END_DYNAMIC_REFLECTED_TYPE;
-
+  EZ_END_DYNAMIC_REFLECTED_TYPE;
 }
 
 class BaseHandler : public ezReflectedClass
@@ -66,66 +65,40 @@ class BaseHandler : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(BaseHandler, ezReflectedClass);
 
 public:
-  BaseHandler() : m_iValue(0)
+  BaseHandler()
+      : m_iValue(0)
   {
   }
 
-  void OnAddMessage(AddMessage& msg)
-  {
-    m_iValue += msg.m_iValue;
-  }
+  void OnAddMessage(AddMessage& msg) { m_iValue += msg.m_iValue; }
 
-  void OnMulMessage(MulMessage& msg)
-  {
-    m_iValue *= msg.m_iValue;
-  }
+  void OnMulMessage(MulMessage& msg) { m_iValue *= msg.m_iValue; }
 
-  void OnGetMessage(GetMessage& msg) const
-  {
-    msg.m_iValue = m_iValue;
-  }
+  void OnGetMessage(GetMessage& msg) const { msg.m_iValue = m_iValue; }
 
   ezInt32 m_iValue;
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(BaseHandler, 1, ezRTTINoAllocator)
-{
-  EZ_BEGIN_MESSAGEHANDLERS
-  {
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(BaseHandler, 1, ezRTTINoAllocator){EZ_BEGIN_MESSAGEHANDLERS{
     EZ_MESSAGE_HANDLER(AddMessage, OnAddMessage),
     EZ_MESSAGE_HANDLER(MulMessage, OnMulMessage),
     EZ_MESSAGE_HANDLER(GetMessage, OnGetMessage),
-  }
-  EZ_END_MESSAGEHANDLERS
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+} EZ_END_MESSAGEHANDLERS} EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 class DerivedHandler : public BaseHandler
 {
   EZ_ADD_DYNAMIC_REFLECTION(DerivedHandler, BaseHandler);
 
 public:
-  void OnAddMessage(AddMessage& msg)
-  {
-    m_iValue += msg.m_iValue * 2;
-  }
+  void OnAddMessage(AddMessage& msg) { m_iValue += msg.m_iValue * 2; }
 
-  void OnSubMessage(SubMessage& msg)
-  {
-    m_iValue -= msg.m_iValue;
-  }
+  void OnSubMessage(SubMessage& msg) { m_iValue -= msg.m_iValue; }
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(DerivedHandler, 1, ezRTTINoAllocator)
-{
-  EZ_BEGIN_MESSAGEHANDLERS
-  {
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(DerivedHandler, 1, ezRTTINoAllocator){EZ_BEGIN_MESSAGEHANDLERS{
     EZ_MESSAGE_HANDLER(AddMessage, OnAddMessage),
     EZ_MESSAGE_HANDLER(SubMessage, OnSubMessage),
-  }
-  EZ_END_MESSAGEHANDLERS
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+} EZ_END_MESSAGEHANDLERS} EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 EZ_CREATE_SIMPLE_TEST(Reflection, MessageHandler)
@@ -209,4 +182,3 @@ EZ_CREATE_SIMPLE_TEST(Reflection, MessageHandler)
     EZ_TEST_INT(test.m_iValue, 16);
   }
 }
-

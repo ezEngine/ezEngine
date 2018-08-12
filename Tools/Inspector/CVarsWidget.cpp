@@ -1,20 +1,22 @@
-﻿#include <PCH.h>
-#include <Inspector/CVarsWidget.moc.h>
-#include <qlistwidget.h>
+#include <PCH.h>
+
 #include <Foundation/Communication/Telemetry.h>
-#include <MainWindow.moc.h>
-#include <qlineedit.h>
-#include <qcombobox.h>
-#include <qspinbox.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <Inspector/CVarsWidget.moc.h>
+#include <MainWindow.moc.h>
+#include <qcombobox.h>
+#include <qlineedit.h>
+#include <qlistwidget.h>
+#include <qspinbox.h>
 
 ezQtCVarsWidget* ezQtCVarsWidget::s_pWidget = nullptr;
 
-ezQtCVarsWidget::ezQtCVarsWidget(QWidget* parent) : QDockWidget (parent)
+ezQtCVarsWidget::ezQtCVarsWidget(QWidget* parent)
+    : QDockWidget(parent)
 {
   s_pWidget = this;
 
-  setupUi (this);
+  setupUi(this);
 
   connect(CVarWidget, &ezQtCVarWidget::onBoolChanged, this, &ezQtCVarsWidget::BoolChanged);
   connect(CVarWidget, &ezQtCVarWidget::onFloatChanged, this, &ezQtCVarsWidget::FloatChanged);
@@ -81,18 +83,18 @@ void ezQtCVarsWidget::ProcessTelemetry(void* pUnuseed)
 
       switch (sd.m_uiType)
       {
-      case ezCVarType::Bool:
-        msg.GetReader() >> sd.m_bValue;
-        break;
-      case ezCVarType::Float:
-        msg.GetReader() >> sd.m_fValue;
-        break;
-      case ezCVarType::Int:
-        msg.GetReader() >> sd.m_iValue;
-        break;
-      case ezCVarType::String:
-        msg.GetReader() >> sd.m_sValue;
-        break;
+        case ezCVarType::Bool:
+          msg.GetReader() >> sd.m_bValue;
+          break;
+        case ezCVarType::Float:
+          msg.GetReader() >> sd.m_fValue;
+          break;
+        case ezCVarType::Int:
+          msg.GetReader() >> sd.m_iValue;
+          break;
+        case ezCVarType::String:
+          msg.GetReader() >> sd.m_sValue;
+          break;
       }
 
       if (sd.m_iTableRow == -1)
@@ -104,10 +106,8 @@ void ezQtCVarsWidget::ProcessTelemetry(void* pUnuseed)
 
   if (bUpdateCVarsTable)
     s_pWidget->CVarWidget->RebuildCVarUI(s_pWidget->m_CVars);
-  else
-  if (bFillCVarsTable)
+  else if (bFillCVarsTable)
     s_pWidget->CVarWidget->UpdateCVarUI(s_pWidget->m_CVars);
-
 }
 
 void ezQtCVarsWidget::SyncAllCVarsToServer()
@@ -125,21 +125,21 @@ void ezQtCVarsWidget::SendCVarUpdateToServer(const char* szName, const ezCVarWid
 
   switch (cvd.m_uiType)
   {
-  case ezCVarType::Bool:
-    Msg.GetWriter() << cvd.m_bValue;
-    break;
+    case ezCVarType::Bool:
+      Msg.GetWriter() << cvd.m_bValue;
+      break;
 
-  case ezCVarType::Float:
-    Msg.GetWriter() << cvd.m_fValue;
-    break;
+    case ezCVarType::Float:
+      Msg.GetWriter() << cvd.m_fValue;
+      break;
 
-  case ezCVarType::Int:
-    Msg.GetWriter() << cvd.m_iValue;
-    break;
+    case ezCVarType::Int:
+      Msg.GetWriter() << cvd.m_iValue;
+      break;
 
-  case ezCVarType::String:
-    Msg.GetWriter() << cvd.m_sValue;
-    break;
+    case ezCVarType::String:
+      Msg.GetWriter() << cvd.m_sValue;
+      break;
   }
 
   ezTelemetry::SendToServer(Msg);

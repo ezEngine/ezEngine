@@ -1,20 +1,20 @@
 #include <PCH.h>
-#include <ProceduralPlacementPlugin/Components/Implementation/ActiveTile.h>
-#include <ProceduralPlacementPlugin/Tasks/PlacementTask.h>
-#include <GameEngine/Components/PrefabReferenceComponent.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
-#include <RendererCore/Messages/SetColorMessage.h>
+
 #include <Core/World/World.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/SimdMath/SimdRandom.h>
+#include <GameEngine/Components/PrefabReferenceComponent.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <ProceduralPlacementPlugin/Components/Implementation/ActiveTile.h>
+#include <ProceduralPlacementPlugin/Tasks/PlacementTask.h>
+#include <RendererCore/Messages/SetColorMessage.h>
 
 using namespace ezPPInternal;
 
 ActiveTile::ActiveTile()
-  : m_pLayer(nullptr)
-  , m_State(State::Invalid)
+    : m_pLayer(nullptr)
+    , m_State(State::Invalid)
 {
-
 }
 
 ActiveTile::ActiveTile(ActiveTile&& other)
@@ -87,12 +87,12 @@ ezColor ActiveTile::GetDebugColor() const
 {
   switch (m_State)
   {
-  case State::Initialized:
-    return ezColor::Orange;
-  case State::Scheduled:
-    return ezColor::Yellow;
-  case State::Finished:
-    return ezColor::Green;
+    case State::Initialized:
+      return ezColor::Orange;
+    case State::Scheduled:
+      return ezColor::Yellow;
+    case State::Finished:
+      return ezColor::Green;
   }
 
   return ezColor::DarkRed;
@@ -129,7 +129,8 @@ void ActiveTile::PrepareTask(const ezPhysicsWorldModuleInterface* pPhysicsModule
     rayStart.SetZ(fZStart);
 
     ezPhysicsHitResult hitResult;
-    if (!pPhysicsModule->CastRay(ezSimdConversion::ToVec3(rayStart), rayDir, fZRange, uiCollisionLayer, hitResult, ezPhysicsShapeType::Static))
+    if (!pPhysicsModule->CastRay(ezSimdConversion::ToVec3(rayStart), rayDir, fZRange, uiCollisionLayer, hitResult,
+                                 ezPhysicsShapeType::Static))
       continue;
 
     bool bInBoundingBox = false;
@@ -175,7 +176,7 @@ ezUInt32 ActiveTile::PlaceObjects(ezWorld& world, const PlacementTask& placement
     ezGameObject* pObject = nullptr;
     ezGameObjectHandle hObject = world.CreateObject(desc, pObject);
 
-    //pObject->GetTags().Set(tag);
+    // pObject->GetTags().Set(tag);
 
     ezPrefabReferenceComponent* pPrefabReferenceComponent = nullptr;
     ezPrefabReferenceComponent::CreateComponent(pObject, pPrefabReferenceComponent);

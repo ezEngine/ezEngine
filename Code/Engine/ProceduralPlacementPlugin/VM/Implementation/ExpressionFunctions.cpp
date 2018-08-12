@@ -1,7 +1,8 @@
 #include <PCH.h>
-#include <ProceduralPlacementPlugin/VM/ExpressionFunctions.h>
-#include <Foundation/SimdMath/SimdRandom.h>
+
 #include <Foundation/Containers/HashTable.h>
+#include <Foundation/SimdMath/SimdRandom.h>
+#include <ProceduralPlacementPlugin/VM/ExpressionFunctions.h>
 
 namespace
 {
@@ -14,7 +15,7 @@ namespace
   static ezHashTable<ezUInt32, FunctionInfo, ezHashHelper<ezUInt32>, ezStaticAllocatorWrapper> s_ExpressionFunctions;
 }
 
-//static
+// static
 bool ezExpressionFunctionRegistry::RegisterFunction(const char* szName, ezExpressionFunction func)
 {
   ezHashedString sName;
@@ -29,7 +30,7 @@ bool ezExpressionFunctionRegistry::RegisterFunction(const char* szName, ezExpres
   return true;
 }
 
-//static
+// static
 const char* ezExpressionFunctionRegistry::GetName(ezUInt32 uiNameHash)
 {
   FunctionInfo* pFunctionInfo = nullptr;
@@ -41,7 +42,7 @@ const char* ezExpressionFunctionRegistry::GetName(ezUInt32 uiNameHash)
   return nullptr;
 }
 
-//static
+// static
 ezExpressionFunction ezExpressionFunctionRegistry::GetFunction(ezUInt32 uiNameHash)
 {
   FunctionInfo* pFunctionInfo = nullptr;
@@ -53,7 +54,7 @@ ezExpressionFunction ezExpressionFunctionRegistry::GetFunction(ezUInt32 uiNameHa
   return ezExpressionFunction();
 }
 
-//static
+// static
 ezExpressionFunction ezExpressionFunctionRegistry::GetFunction(const char* szName)
 {
   ezUInt32 uiNameHash = ezTempHashedString(szName).GetHash();

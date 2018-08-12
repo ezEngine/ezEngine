@@ -1,11 +1,13 @@
 #include <PCH.h>
-#include <GameEngine/Components/TransformComponent.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
+
 #include <Core/World/World.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <GameEngine/Components/TransformComponent.h>
 #include <VisualScript/VisualScriptInstance.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 2, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
@@ -24,7 +26,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 2, ezRTTINoAllocator)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
+// clang-format on
 
 void ezTransformComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -39,7 +41,7 @@ void ezTransformComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezTransformComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   ezTransformComponentFlags::StorageType flags;
   stream.GetStream() >> flags;
@@ -86,13 +88,14 @@ bool ezTransformComponent::IsAnimationRunning() const
   return m_Flags.IsAnySet(ezTransformComponentFlags::Autorun);
 }
 
-/*! Distance should be given in meters, but can be anything else, too. E.g. "angles" or "radians". All other values need to use the same units.
-For example, when distance is given in angles, acceleration has to be in "angles per square seconds". Deceleration can be positive or negative, internally
-the absolute value is used. Distance, acceleration, max velocity and time need to be positive. Time is expected to be "in seconds".
-The returned value is 0, if time is negative. It is clamped to fDistanceInMeters, if time is too big.
+/*! Distance should be given in meters, but can be anything else, too. E.g. "angles" or "radians". All other values need to use the same
+units. For example, when distance is given in angles, acceleration has to be in "angles per square seconds". Deceleration can be positive or
+negative, internally the absolute value is used. Distance, acceleration, max velocity and time need to be positive. Time is expected to be
+"in seconds". The returned value is 0, if time is negative. It is clamped to fDistanceInMeters, if time is too big.
 */
 
-float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, ezTime& fTimeSinceStartInSec)
+float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration,
+                                   ezTime& fTimeSinceStartInSec)
 {
   // linear motion, if no acceleration or deceleration is present
   if ((fAcceleration <= 0.0f) && (fDeceleration <= 0.0f))
@@ -172,6 +175,7 @@ float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration,
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_TransformComponent, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_TransformComponent>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -189,6 +193,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_TransformComponent, 1, ezRTTI
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezVisualScriptNode_TransformComponent::ezVisualScriptNode_TransformComponent() {}
 
@@ -208,17 +213,17 @@ void ezVisualScriptNode_TransformComponent::Execute(ezVisualScriptInstance* pIns
 
   switch (uiExecPin)
   {
-  case 0:
-    pTransform->ResumeAnimation();
-    return;
+    case 0:
+      pTransform->ResumeAnimation();
+      return;
 
-  case 1:
-    pTransform->SetAnimationPaused(true);
-    return;
+    case 1:
+      pTransform->SetAnimationPaused(true);
+      return;
 
-  case 2:
-    pTransform->ReverseDirection();
-    return;
+    case 2:
+      pTransform->ReverseDirection();
+      return;
   }
 }
 
@@ -226,16 +231,16 @@ void* ezVisualScriptNode_TransformComponent::GetInputPinDataPointer(ezUInt8 uiPi
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_hComponent;
+    case 0:
+      return &m_hComponent;
   }
 
   return nullptr;
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 
@@ -243,7 +248,9 @@ class ezTransformComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezTransformComponentPatch_1_2()
-    : ezGraphPatch("ezTransformComponent", 2) {}
+      : ezGraphPatch("ezTransformComponent", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -258,4 +265,3 @@ ezTransformComponentPatch_1_2 g_ezTransformComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_TransformComponent);
-

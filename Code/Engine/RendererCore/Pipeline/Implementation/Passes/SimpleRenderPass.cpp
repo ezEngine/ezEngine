@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -8,6 +9,7 @@
 
 #include <RendererCore/Debug/DebugRenderer.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleRenderPass, 1, ezRTTIDefaultAllocator<ezSimpleRenderPass>)
 {
   EZ_BEGIN_PROPERTIES
@@ -19,17 +21,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleRenderPass, 1, ezRTTIDefaultAllocator<ez
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezSimpleRenderPass::ezSimpleRenderPass(const char* szName) : ezRenderPipelinePass(szName)
+ezSimpleRenderPass::ezSimpleRenderPass(const char* szName)
+    : ezRenderPipelinePass(szName)
 {
 }
 
-ezSimpleRenderPass::~ezSimpleRenderPass()
-{
-}
+ezSimpleRenderPass::~ezSimpleRenderPass() {}
 
-bool ezSimpleRenderPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs,
-  ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezSimpleRenderPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
+                                                     ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   const ezGALRenderTagetSetup& setup = view.GetRenderTargetSetup();
@@ -55,7 +57,6 @@ bool ezSimpleRenderPass::GetRenderTargetDescriptions(const ezView& view, const e
         outputs[m_PinColor.m_uiOutputIndex].m_ResourceAccess.m_bReadBack = false;
         outputs[m_PinColor.m_uiOutputIndex].m_ResourceAccess.m_bImmutable = true;
         outputs[m_PinColor.m_uiOutputIndex].m_pExisitingNativeObject = nullptr;
-
       }
     }
   }
@@ -83,8 +84,9 @@ bool ezSimpleRenderPass::GetRenderTargetDescriptions(const ezView& view, const e
   return true;
 }
 
-void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext,
+                                 const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+                                 const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -139,4 +141,3 @@ void ezSimpleRenderPass::SetMessage(const char* szMessage)
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_SimpleRenderPass);
-

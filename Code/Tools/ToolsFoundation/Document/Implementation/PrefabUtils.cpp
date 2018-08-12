@@ -1,11 +1,12 @@
 #include <PCH.h>
-#include <ToolsFoundation/Document/PrefabUtils.h>
+
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/MemoryStream.h>
-#include <ToolsFoundation/Document/PrefabCache.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <Foundation/Serialization/DdlSerializer.h>
+#include <ToolsFoundation/Document/PrefabCache.h>
+#include <ToolsFoundation/Document/PrefabUtils.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 #define PREFAB_DEBUG false
 
@@ -95,7 +96,8 @@ void ezPrefabUtils::GetRootNodes(ezAbstractObjectGraph& graph, ezHybridArray<ezA
   }
 }
 
-ezUuid ezPrefabUtils::GetPrefabRoot(const ezDocumentObject* pObject, const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>& documentObjectMetaData)
+ezUuid ezPrefabUtils::GetPrefabRoot(const ezDocumentObject* pObject,
+                                    const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>& documentObjectMetaData)
 {
   auto pMeta = documentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
   ezUuid source = pMeta->m_CreateFromPrefab;
@@ -114,7 +116,8 @@ ezUuid ezPrefabUtils::GetPrefabRoot(const ezDocumentObject* pObject, const ezObj
 }
 
 
-ezVariant ezPrefabUtils::GetDefaultValue(const ezAbstractObjectGraph& graph, const ezUuid& objectGuid, const char* szProperty, ezVariant index)
+ezVariant ezPrefabUtils::GetDefaultValue(const ezAbstractObjectGraph& graph, const ezUuid& objectGuid, const char* szProperty,
+                                         ezVariant index)
 {
   const ezAbstractObjectNode* pNode = graph.GetNode(objectGuid);
   if (!pNode)
@@ -149,30 +152,30 @@ void ezPrefabUtils::WriteDiff(const ezDeque<ezAbstractGraphDiffOperation>& merge
 
     switch (diff.m_Operation)
     {
-    case ezAbstractGraphDiffOperation::Op::NodeAdded:
+      case ezAbstractGraphDiffOperation::Op::NodeAdded:
       {
         out_sText.AppendFormat("<add> - {{0}} ({1})\n", Data, diff.m_sProperty);
       }
       break;
 
-    case ezAbstractGraphDiffOperation::Op::NodeRemoved:
+      case ezAbstractGraphDiffOperation::Op::NodeRemoved:
       {
         out_sText.AppendFormat("<del> - {{0}}\n", Data);
       }
       break;
 
-    case ezAbstractGraphDiffOperation::Op::PropertyChanged:
-      if (diff.m_Value.CanConvertTo<ezString>())
-        out_sText.AppendFormat("<set> - {{0}} - \"{1}\" = {2}\n", Data, diff.m_sProperty, diff.m_Value.ConvertTo<ezString>());
-      else
-        out_sText.AppendFormat("<set> - {{0}} - \"{1}\" = xxx\n", Data, diff.m_sProperty);
-      break;
-
+      case ezAbstractGraphDiffOperation::Op::PropertyChanged:
+        if (diff.m_Value.CanConvertTo<ezString>())
+          out_sText.AppendFormat("<set> - {{0}} - \"{1}\" = {2}\n", Data, diff.m_sProperty, diff.m_Value.ConvertTo<ezString>());
+        else
+          out_sText.AppendFormat("<set> - {{0}} - \"{1}\" = xxx\n", Data, diff.m_sProperty);
+        break;
     }
   }
 }
 
-void ezPrefabUtils::Merge(const ezAbstractObjectGraph& baseGraph, const ezAbstractObjectGraph& leftGraph, const ezAbstractObjectGraph& rightGraph, ezDeque<ezAbstractGraphDiffOperation>& out_mergedDiff)
+void ezPrefabUtils::Merge(const ezAbstractObjectGraph& baseGraph, const ezAbstractObjectGraph& leftGraph,
+                          const ezAbstractObjectGraph& rightGraph, ezDeque<ezAbstractGraphDiffOperation>& out_mergedDiff)
 {
   // debug output
   if (PREFAB_DEBUG)
@@ -222,7 +225,8 @@ void ezPrefabUtils::Merge(const ezAbstractObjectGraph& baseGraph, const ezAbstra
   }
 }
 
-void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObject* pRight, bool bRightIsNotPartOfPrefab, const ezUuid& PrefabSeed, ezStringBuilder& out_sNewGraph)
+void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObject* pRight, bool bRightIsNotPartOfPrefab,
+                          const ezUuid& PrefabSeed, ezStringBuilder& out_sNewGraph)
 {
   // prepare the original prefab as a graph
   ezAbstractObjectGraph baseGraph;
@@ -288,7 +292,6 @@ void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObje
       ezAbstractGraphDdlSerializer::Write(file, &baseGraph, nullptr, false, ezOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
     }
   }
-
 }
 
 ezString ezPrefabUtils::ReadDocumentAsString(const char* szFile)

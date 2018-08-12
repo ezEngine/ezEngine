@@ -1,39 +1,34 @@
 #include <PCH.h>
-#include <GuiFoundation/Widgets/SearchableMenu.moc.h>
+
 #include <GuiFoundation/Models/TreeSearchFilterModel.moc.h>
 #include <GuiFoundation/Widgets/SearchWidget.moc.h>
-#include <QTreeWidget>
+#include <GuiFoundation/Widgets/SearchableMenu.moc.h>
 #include <QBoxLayout>
-#include <QStandardItemModel>
 #include <QMouseEvent>
+#include <QStandardItemModel>
+#include <QTreeWidget>
 
 
 class QNullWidget : public QWidget
 {
 public:
-  QNullWidget() : QWidget(nullptr) {}
+  QNullWidget()
+      : QWidget(nullptr)
+  {
+  }
 
 protected:
-  virtual void mousePressEvent(QMouseEvent* e) override
-  {
-    e->accept();
-  }
+  virtual void mousePressEvent(QMouseEvent* e) override { e->accept(); }
 
-  virtual void mouseReleaseEvent(QMouseEvent* e) override
-  {
-    e->accept();
-  }
+  virtual void mouseReleaseEvent(QMouseEvent* e) override { e->accept(); }
 
-  virtual void mouseDoubleClickEvent(QMouseEvent* e) override
-  {
-    e->accept();
-  }
+  virtual void mouseDoubleClickEvent(QMouseEvent* e) override { e->accept(); }
 };
 
 
 
 ezQtSearchableMenu::ezQtSearchableMenu(QObject* parent)
-  : QWidgetAction(parent)
+    : QWidgetAction(parent)
 {
 
   m_pGroup = new QNullWidget();
@@ -113,7 +108,8 @@ bool ezQtSearchableMenu::SelectFirstLeaf(QModelIndex parent)
       if (m_pFilterModel->data(child, Qt::UserRole + 1).isValid())
       {
         // set this one item as the new selection
-        m_pTreeView->selectionModel()->setCurrentIndex(child, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::SelectionFlag::SelectCurrent);
+        m_pTreeView->selectionModel()->setCurrentIndex(child, QItemSelectionModel::ClearAndSelect |
+                                                                  QItemSelectionModel::SelectionFlag::SelectCurrent);
         m_pTreeView->scrollTo(child, QAbstractItemView::EnsureVisible);
         return true;
       }

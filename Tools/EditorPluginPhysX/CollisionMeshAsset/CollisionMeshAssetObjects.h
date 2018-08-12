@@ -59,8 +59,6 @@ public:
 
   ezHybridArray<ezSurfaceResourceSlot, 8> m_Slots;
 
-  const ezString GetResourceSlotProperty(ezUInt32 uiSlot) const;
-
   ezUInt32 m_uiVertices;
   ezUInt32 m_uiTriangles;
 

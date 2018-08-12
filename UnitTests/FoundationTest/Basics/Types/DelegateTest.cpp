@@ -1,43 +1,27 @@
 #include <PCH.h>
+
 #include <Foundation/Types/Delegate.h>
 
 namespace
 {
   struct TestType
   {
-    TestType()
-    {
-    }
+    TestType() {}
 
-    ezInt32 Method(ezInt32 b)
-    {
-      return b + m_iA;
-    }
+    ezInt32 Method(ezInt32 b) { return b + m_iA; }
 
-    ezInt32 ConstMethod(ezInt32 b) const
-    {
-      return b + m_iA + 4;
-    }
+    ezInt32 ConstMethod(ezInt32 b) const { return b + m_iA + 4; }
 
-    virtual ezInt32 VirtualMethod(ezInt32 b)
-    {
-      return b;
-    }
+    virtual ezInt32 VirtualMethod(ezInt32 b) { return b; }
 
     mutable ezInt32 m_iA;
   };
 
   struct TestTypeDerived : public TestType
   {
-    ezInt32 Method(ezInt32 b)
-    {
-      return b + 4;
-    }
+    ezInt32 Method(ezInt32 b) { return b + 4; }
 
-    virtual ezInt32 VirtualMethod(ezInt32 b) override
-    {
-      return b + 43;
-    }
+    virtual ezInt32 VirtualMethod(ezInt32 b) override { return b + 43; }
   };
 
   struct BaseA
@@ -51,16 +35,13 @@ namespace
   struct BaseB
   {
     virtual ~BaseB() {}
-    virtual void foo(){}
+    virtual void foo() {}
     int m_i2;
   };
 
   struct ComplexClass : public BaseA, public BaseB
   {
-    ComplexClass()
-    {
-      m_ctorDel = ezMakeDelegate(&ComplexClass::nonVirtualFunc, this);
-    }
+    ComplexClass() { m_ctorDel = ezMakeDelegate(&ComplexClass::nonVirtualFunc, this); }
 
     virtual ~ComplexClass()
     {
@@ -72,7 +53,12 @@ namespace
 
 
 
-    void nonVirtualFunc() { m_i1 = 1; m_i2 = 2; m_i3 = 3; }
+    void nonVirtualFunc()
+    {
+      m_i1 = 1;
+      m_i2 = 2;
+      m_i3 = 3;
+    }
 
     int m_i3;
 
@@ -80,15 +66,12 @@ namespace
     ezDelegate<void()> m_dtorDel;
   };
 
-  static ezInt32 Function(ezInt32 b)
-  {
-    return b + 2;
-  }
+  static ezInt32 Function(ezInt32 b) { return b + 2; }
 }
 
 EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
 {
-  typedef ezDelegate<ezInt32 (ezInt32)> TestDelegate;
+  typedef ezDelegate<ezInt32(ezInt32)> TestDelegate;
   TestDelegate d;
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
@@ -109,7 +92,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Complex Class")
   {
-    ComplexClass *c = new ComplexClass();
+    ComplexClass* c = new ComplexClass();
     delete c;
   }
 
@@ -162,7 +145,11 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     c = 10;
     EZ_TEST_INT(d(3), 20);
 
-    d = [c](ezInt32 b) mutable -> decltype(b + c) { auto result = b + c; c = 1; return result; };
+    d = [c](ezInt32 b) mutable -> decltype(b + c) {
+      auto result = b + c;
+      c = 1;
+      return result;
+    };
     EZ_TEST_INT(d(3), 13);
     EZ_TEST_INT(d(3), 4);
   }
@@ -170,7 +157,10 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture by reference")
   {
     ezInt32 c = 20;
-    d = [&c](ezInt32 i) -> decltype(i) { c = 5; return i; };
+    d = [&c](ezInt32 i) -> decltype(i) {
+      c = 5;
+      return i;
+    };
     EZ_TEST_INT(d(3), 3);
     EZ_TEST_INT(c, 5);
   }

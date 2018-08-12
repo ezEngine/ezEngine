@@ -1,8 +1,10 @@
 #include <PCH.h>
-#include <SampleGamePlugin/Components/DemoComponent.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
 
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <SampleGamePlugin/Components/DemoComponent.h>
+
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(DemoComponent, 2, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
@@ -19,14 +21,11 @@ EZ_BEGIN_COMPONENT_TYPE(DemoComponent, 2, ezComponentMode::Dynamic)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
-DemoComponent::DemoComponent()
-{
-}
+DemoComponent::DemoComponent() {}
 
-void DemoComponent::OnSimulationStarted()
-{
-}
+void DemoComponent::OnSimulationStarted() {}
 
 
 void DemoComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -63,4 +62,3 @@ void DemoComponent::Update()
 
   GetOwner()->SetLocalPosition(ezVec3(0, 0, curHeight));
 }
-

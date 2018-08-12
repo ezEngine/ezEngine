@@ -1,8 +1,9 @@
 #include <PCH.h>
-#include <GuiFoundation/Action/ActionManager.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
+
 #include <EditorPluginPhysX/Actions/PhysXActions.h>
 #include <EditorPluginPhysX/Dialogs/PhysXProjectSettingsDlg.moc.h>
+#include <GuiFoundation/Action/ActionManager.h>
+#include <GuiFoundation/Action/ActionMapManager.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXAction, 0, ezRTTINoAllocator);
@@ -14,7 +15,8 @@ ezActionDescriptorHandle ezPhysXActions::s_hProjectSettings;
 void ezPhysXActions::RegisterActions()
 {
   s_hCategoryPhysX = EZ_REGISTER_CATEGORY("PhysX");
-  s_hProjectSettings = EZ_REGISTER_ACTION_1("PhysX.Settings.Project", ezActionScope::Document, "PhysX", "", ezPhysXAction, ezPhysXAction::ActionType::ProjectSettings);
+  s_hProjectSettings = EZ_REGISTER_ACTION_1("PhysX.Settings.Project", ezActionScope::Document, "PhysX", "", ezPhysXAction,
+                                            ezPhysXAction::ActionType::ProjectSettings);
 }
 
 void ezPhysXActions::UnregisterActions()
@@ -33,21 +35,20 @@ void ezPhysXActions::MapMenuActions()
   pMap->MapAction(s_hProjectSettings, "Menu.Editor/ProjectCategory/Menu.ProjectSettings/PhysX", 1.0f);
 }
 
-ezPhysXAction::ezPhysXAction(const ezActionContext& context, const char* szName, ActionType type) : ezButtonAction(context, szName, false, "")
+ezPhysXAction::ezPhysXAction(const ezActionContext& context, const char* szName, ActionType type)
+    : ezButtonAction(context, szName, false, "")
 {
   m_Type = type;
 
   switch (m_Type)
   {
-  case ActionType::ProjectSettings:
-    //SetIconPath(":/EditorPluginScene/Icons/GizmoNone24.png"); /// \todo Icon
-    break;
+    case ActionType::ProjectSettings:
+      // SetIconPath(":/EditorPluginScene/Icons/GizmoNone24.png"); /// \todo Icon
+      break;
   }
 }
 
-ezPhysXAction::~ezPhysXAction()
-{
-}
+ezPhysXAction::~ezPhysXAction() {}
 
 void ezPhysXAction::Execute(const ezVariant& value)
 {
@@ -60,4 +61,3 @@ void ezPhysXAction::Execute(const ezVariant& value)
     }
   }
 }
-

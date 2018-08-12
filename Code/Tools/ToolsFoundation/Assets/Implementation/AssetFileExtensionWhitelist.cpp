@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 ezMap<ezString, ezSet<ezString>> ezAssetFileExtensionWhitelist::s_ExtensionWhitelist;
@@ -39,5 +40,3 @@ const ezSet<ezString>& ezAssetFileExtensionWhitelist::GetAssetFileExtensions(con
 {
   return s_ExtensionWhitelist[szAssetType];
 }
-
-

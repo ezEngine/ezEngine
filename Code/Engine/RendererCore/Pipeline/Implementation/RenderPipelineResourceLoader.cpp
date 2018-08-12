@@ -1,10 +1,11 @@
 #include <PCH.h>
+
+#include <Foundation/Serialization/BinarySerializer.h>
+#include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
+#include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/Pipeline/Extractor.h>
-#include <Foundation/Serialization/BinarySerializer.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezDocumentNodeManager Internal
@@ -14,7 +15,11 @@ struct ConnectionInternal
 {
   ConnectionInternal() {}
   ConnectionInternal(const char* szPinSource, const ezUuid& target, const char* szPinTarget)
-    : m_SourcePin(szPinSource), m_Target(target), m_TargetPin(szPinTarget) {}
+      : m_SourcePin(szPinSource)
+      , m_Target(target)
+      , m_TargetPin(szPinTarget)
+  {
+  }
 
   ezString m_SourcePin;
   ezUuid m_Target;
@@ -22,6 +27,7 @@ struct ConnectionInternal
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ConnectionInternal);
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ConnectionInternal, ezNoBase, 1, ezRTTIDefaultAllocator<ConnectionInternal>)
 {
   EZ_BEGIN_PROPERTIES
@@ -33,6 +39,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ConnectionInternal, ezNoBase, 1, ezRTTIDefaultAll
   EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
 
 struct NodeDataInternal
 {
@@ -41,6 +48,7 @@ struct NodeDataInternal
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, NodeDataInternal);
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(NodeDataInternal, ezNoBase, 1, ezRTTIDefaultAllocator<NodeDataInternal>)
 {
   EZ_BEGIN_PROPERTIES
@@ -51,7 +59,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(NodeDataInternal, ezNoBase, 1, ezRTTIDefaultAlloc
   EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
-
+// clang-format on
 
 void ezRenderPipelineRttiConverterContext::Clear()
 {
@@ -125,8 +133,9 @@ void ezRenderPipelineRttiConverterContext::DeleteObject(const ezUuid& guid)
   }
 }
 
-//static
-ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::CreateRenderPipeline(const ezRenderPipelineResourceDescriptor& desc)
+// static
+ezInternal::NewInstance<ezRenderPipeline>
+ezRenderPipelineResourceLoader::CreateRenderPipeline(const ezRenderPipelineResourceDescriptor& desc)
 {
   auto pPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
   ezRenderPipelineRttiConverterContext context;
@@ -195,7 +204,8 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::Create
 
       if (!pPipeline->Connect(pSource, con.m_SourcePin, pTarget, con.m_TargetPin))
       {
-        ezLog::Error("Failed to connect '{0}'::'{1}' to '{2}'::'{3}'!", pSource->GetName(), con.m_SourcePin, pTarget->GetName(), con.m_TargetPin);
+        ezLog::Error("Failed to connect '{0}'::'{1}' to '{2}'::'{3}'!", pSource->GetName(), con.m_SourcePin, pTarget->GetName(),
+                     con.m_TargetPin);
       }
     }
   }
@@ -203,8 +213,9 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::Create
   return pPipeline;
 }
 
-//static
-void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(const ezRenderPipeline* pPipeline, ezRenderPipelineResourceDescriptor& desc)
+// static
+void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(const ezRenderPipeline* pPipeline,
+                                                                            ezRenderPipelineResourceDescriptor& desc)
 {
   ezRenderPipelineRttiConverterContext context;
 
@@ -263,12 +274,12 @@ void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(cons
       {
         const ezUuid targetGuid = context.GetObjectGUID(pPinTarget->m_pParent->GetDynamicRTTI(), pPinTarget->m_pParent);
         EZ_ASSERT_DEBUG(targetGuid.IsValid(), "Connection target was not serialized in previous step!");
-        data.m_Connections.PushBack(ConnectionInternal(pSource->GetPinName(pPinSource).GetData(), targetGuid, pPinTarget->m_pParent->GetPinName(pPinTarget).GetData()));
+        data.m_Connections.PushBack(ConnectionInternal(pSource->GetPinName(pPinSource).GetData(), targetGuid,
+                                                       pPinTarget->m_pParent->GetPinName(pPinTarget).GetData()));
       }
     }
 
     rttiConverter.AddProperties(pNode, pType, &data);
-
   }
 
   ezMemoryStreamContainerWrapperStorage<ezDynamicArray<ezUInt8>> storage(&desc.m_SerializedPipeline);
@@ -278,4 +289,3 @@ void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(cons
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelineResourceLoader);
-

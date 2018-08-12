@@ -1,13 +1,15 @@
 #include <PCH.h>
-#include <ParticlePlugin/Behavior/ParticleBehavior_PullAlong.h>
-#include <Core/World/WorldModule.h>
-#include <ParticlePlugin/System/ParticleSystemInstance.h>
+
 #include <Core/World/World.h>
-#include <Foundation/Time/Clock.h>
+#include <Core/World/WorldModule.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Time/Clock.h>
+#include <ParticlePlugin/Behavior/ParticleBehavior_PullAlong.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
+#include <ParticlePlugin/System/ParticleSystemInstance.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_PullAlong, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_PullAlong>)
 {
   EZ_BEGIN_PROPERTIES
@@ -20,10 +22,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_PullAlong, 1, ezRTTIDefaultAllocator<ezParticleBehavior_PullAlong>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezParticleBehaviorFactory_PullAlong::ezParticleBehaviorFactory_PullAlong()
-{
-}
+ezParticleBehaviorFactory_PullAlong::ezParticleBehaviorFactory_PullAlong() {}
 
 const ezRTTI* ezParticleBehaviorFactory_PullAlong::GetBehaviorType() const
 {
@@ -107,5 +108,3 @@ void ezParticleBehavior_PullAlong::StepParticleSystem(const ezTime& tDiff, ezUIn
 
   m_vLastEmitterPosition = vPos;
 }
-
-

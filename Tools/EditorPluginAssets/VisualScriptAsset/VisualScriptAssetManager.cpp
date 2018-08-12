@@ -1,9 +1,10 @@
-﻿#include <PCH.h>
-#include <EditorPluginAssets/VisualScriptAsset/VisualScriptAssetManager.h>
+#include <PCH.h>
+
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAsset.h>
+#include <EditorPluginAssets/VisualScriptAsset/VisualScriptAssetManager.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAssetWindow.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetManager, 1, ezRTTIDefaultAllocator<ezVisualScriptAssetManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -13,7 +14,7 @@ ezVisualScriptAssetManager::ezVisualScriptAssetManager()
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezVisualScriptAssetManager::OnDocumentManagerEvent, this));
 
   // additional whitelist for non-asset files where an asset may be selected
-  //ezAssetFileExtensionWhitelist::AddAssetFileExtension("Material", "ezMaterial");
+  // ezAssetFileExtensionWhitelist::AddAssetFileExtension("Material", "ezMaterial");
 
   m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "Visual Script Asset";
@@ -41,7 +42,7 @@ void ezVisualScriptAssetManager::OnDocumentManagerEvent(const ezDocumentManager:
 {
   switch (e.m_Type)
   {
-  case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case ezDocumentManager::Event::Type::DocumentWindowRequested:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezVisualScriptAssetDocument>())
       {
@@ -59,10 +60,8 @@ ezStatus ezVisualScriptAssetManager::InternalCreateDocument(const char* szDocume
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezVisualScriptAssetManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezVisualScriptAssetManager::InternalGetSupportedDocumentTypes(
+    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
-
-
-

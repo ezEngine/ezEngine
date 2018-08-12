@@ -1,8 +1,9 @@
 #include <PCH.h>
-#include <EditorFramework/TestFramework/EditorTests.h>
+
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <ToolsFoundation/Application/ApplicationServices.h>
+#include <EditorFramework/TestFramework/EditorTests.h>
 #include <TestFramework/Framework/TestFramework.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 
 void ezQtEditorApp::ExecuteTests()
 {
@@ -14,18 +15,13 @@ void ezQtEditorApp::ExecuteTests()
   m_TestFramework->ShowTests();
 }
 
-ezEditorTests::ezEditorTests()
-{
-}
+ezEditorTests::ezEditorTests() {}
 
-ezEditorTests::~ezEditorTests()
-{
-
-}
+ezEditorTests::~ezEditorTests() {}
 
 void ezEditorTests::ShowTests()
 {
-  //if (m_TestFramework == nullptr)
+  // if (m_TestFramework == nullptr)
   //{
   //  ezStringBuilder sTestsDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
   //  sTestsDir.Append("Tests");
@@ -34,12 +30,10 @@ void ezEditorTests::ShowTests()
   //  m_TestFramework = EZ_DEFAULT_NEW(ezTestFramework, "Editor Tests", sTestsDir, 0, &argv);
   //}
 
-  //m_TestFramework->RunTestExecutionLoop();
+  // m_TestFramework->RunTestExecutionLoop();
 }
 
-ezEditorTest::ezEditorTest()
-{
-}
+ezEditorTest::ezEditorTest() {}
 
 ezResult ezEditorTest::InitializeSubTest(ezInt32 iIdentifier)
 {

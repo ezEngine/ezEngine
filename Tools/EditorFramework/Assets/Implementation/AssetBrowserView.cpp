@@ -1,12 +1,14 @@
-﻿#include <PCH.h>
-#include <EditorFramework/Assets/AssetBrowserView.moc.h>
+#include <PCH.h>
+
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <EditorFramework/Assets/AssetBrowserView.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 
 #include <QPainter>
 
-ezQtAssetBrowserView::ezQtAssetBrowserView(QWidget* parent) : ezQtItemView<QListView>(parent)
+ezQtAssetBrowserView::ezQtAssetBrowserView(QWidget* parent)
+    : ezQtItemView<QListView>(parent)
 {
   m_iIconSizePercentage = 100;
   m_pDelegate = new ezQtIconViewDelegate(this);
@@ -73,7 +75,7 @@ ezInt32 ezQtAssetBrowserView::GetIconScale() const
 
 void ezQtAssetBrowserView::wheelEvent(QWheelEvent* pEvent)
 {
-  if(pEvent->modifiers() == Qt::CTRL)
+  if (pEvent->modifiers() == Qt::CTRL)
   {
     ezInt32 iDelta = pEvent->delta() > 0 ? 5 : -5;
     SetIconScale(m_iIconSizePercentage + iDelta);
@@ -84,7 +86,8 @@ void ezQtAssetBrowserView::wheelEvent(QWheelEvent* pEvent)
   QListView::wheelEvent(pEvent);
 }
 
-ezQtIconViewDelegate::ezQtIconViewDelegate(ezQtAssetBrowserView* pParent) : ezQtItemDelegate(pParent)
+ezQtIconViewDelegate::ezQtIconViewDelegate(ezQtAssetBrowserView* pParent)
+    : ezQtItemDelegate(pParent)
 {
   m_bDrawTransformState = true;
   m_iIconSizePercentage = 100;
@@ -117,7 +120,7 @@ bool ezQtIconViewDelegate::mouseReleaseEvent(QMouseEvent* event, const QStyleOpt
   if (thumbnailRect.contains(event->localPos().toPoint()))
   {
     ezUuid guid = index.data(ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
-    
+
     auto ret = ezAssetCurator::GetSingleton()->TransformAsset(guid, false);
 
     if (ret.m_Result.Failed())
@@ -208,35 +211,45 @@ void ezQtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 
     switch (state)
     {
-    case ezAssetInfo::TransformState::Unknown:
-      ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetUnknown16.png").paint(painter, thumbnailRect);
-      break;
-    case ezAssetInfo::TransformState::NeedsThumbnail:
-      ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsThumbnail16.png").paint(painter, thumbnailRect);
-      break;
-    case ezAssetInfo::TransformState::NeedsTransform:
-      ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsTransform16.png").paint(painter, thumbnailRect);
-      break;
-    case ezAssetInfo::TransformState::UpToDate:
-      ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetOk16.png").paint(painter, thumbnailRect);
-      break;
-    case ezAssetInfo::TransformState::MissingDependency:
-      ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingDependency16.png").paint(painter, thumbnailRect);
-      break;
-    case ezAssetInfo::TransformState::MissingReference:
-      ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingReference16.png").paint(painter, thumbnailRect);
-      break;
-    case ezAssetInfo::TransformState::TransformError:
-      ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform16.png").paint(painter, thumbnailRect);
-      break;
+      case ezAssetInfo::TransformState::Unknown:
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetUnknown16.png").paint(painter, thumbnailRect);
+        break;
+      case ezAssetInfo::TransformState::NeedsThumbnail:
+        ezQtUiServices::GetSingleton()
+            ->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsThumbnail16.png")
+            .paint(painter, thumbnailRect);
+        break;
+      case ezAssetInfo::TransformState::NeedsTransform:
+        ezQtUiServices::GetSingleton()
+            ->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsTransform16.png")
+            .paint(painter, thumbnailRect);
+        break;
+      case ezAssetInfo::TransformState::UpToDate:
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetOk16.png").paint(painter, thumbnailRect);
+        break;
+      case ezAssetInfo::TransformState::MissingDependency:
+        ezQtUiServices::GetSingleton()
+            ->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingDependency16.png")
+            .paint(painter, thumbnailRect);
+        break;
+      case ezAssetInfo::TransformState::MissingReference:
+        ezQtUiServices::GetSingleton()
+            ->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingReference16.png")
+            .paint(painter, thumbnailRect);
+        break;
+      case ezAssetInfo::TransformState::TransformError:
+        ezQtUiServices::GetSingleton()
+            ->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform16.png")
+            .paint(painter, thumbnailRect);
+        break;
     }
   }
 
   // Draw caption.
   {
     painter->setFont(GetFont());
-    QRect textRect = opt.rect.adjusted(ItemSideMargin, ItemSideMargin + uiThumbnailSize + TextSpacing,
-                                      -ItemSideMargin, -ItemSideMargin - TextSpacing);
+    QRect textRect =
+        opt.rect.adjusted(ItemSideMargin, ItemSideMargin + uiThumbnailSize + TextSpacing, -ItemSideMargin, -ItemSideMargin - TextSpacing);
 
     QString caption = qvariant_cast<QString>(index.data(Qt::DisplayRole));
     painter->drawText(textRect, Qt::AlignHCenter | Qt::AlignTop | Qt::TextWrapAnywhere, caption);
@@ -246,7 +259,7 @@ void ezQtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
   painter->restore();
 }
 
-QSize	ezQtIconViewDelegate::sizeHint(const QStyleOptionViewItem& opt, const QModelIndex& index) const
+QSize ezQtIconViewDelegate::sizeHint(const QStyleOptionViewItem& opt, const QModelIndex& index) const
 {
   if (IsInIconMode())
   {

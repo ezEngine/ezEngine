@@ -1,15 +1,17 @@
-﻿#include <PCH.h>
-#include <PhysXPlugin/Resources/PxMeshResource.h>
-#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+#include <PCH.h>
+
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/ChunkStream.h>
-#include <GameEngine/Messages/BuildNavMeshMessage.h>
 #include <GameEngine/AI/NavMesh/NavMeshDescription.h>
+#include <GameEngine/Messages/BuildNavMeshMessage.h>
+#include <PhysXPlugin/Resources/PxMeshResource.h>
+#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPxMeshResource, 1, ezRTTIDefaultAllocator<ezPxMeshResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezPxMeshResource::ezPxMeshResource() : ezResource<ezPxMeshResource, ezPxMeshResourceDescriptor>(DoUpdate::OnMainThread, 1)
+ezPxMeshResource::ezPxMeshResource()
+    : ezResource<ezPxMeshResource, ezPxMeshResourceDescriptor>(DoUpdate::OnMainThread, 1)
 {
   m_pPxTriangleMesh = nullptr;
   m_pPxConvexMesh = nullptr;
@@ -55,12 +57,12 @@ ezResourceLoadDesc ezPxMeshResource::UnloadData(Unload WhatToUnload)
 class ezPxInputStream : public PxInputStream
 {
 public:
-  ezPxInputStream(ezStreamReader* pStream) : m_pStream(pStream) {}
-
-  virtual PxU32 read(void* dest, PxU32 count) override
+  ezPxInputStream(ezStreamReader* pStream)
+      : m_pStream(pStream)
   {
-    return (PxU32)m_pStream->ReadBytes(dest, count);
   }
+
+  virtual PxU32 read(void* dest, PxU32 count) override { return (PxU32)m_pStream->ReadBytes(dest, count); }
 
   ezStreamReader* m_pStream;
 };
@@ -159,7 +161,7 @@ void ezPxMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 
 ezResourceLoadDesc ezPxMeshResource::CreateResource(const ezPxMeshResourceDescriptor& descriptor)
 {
-  //EZ_REPORT_FAILURE("This resource type does not support creating data.");
+  // EZ_REPORT_FAILURE("This resource type does not support creating data.");
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -243,4 +245,3 @@ void ezPxMeshResource::AddToNavMesh(const ezTransform& transform, ezMsgBuildNavM
 }
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Resources_Implementation_PxMeshResource);
-

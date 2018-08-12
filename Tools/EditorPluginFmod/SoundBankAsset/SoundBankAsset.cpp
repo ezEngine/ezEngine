@@ -1,11 +1,13 @@
 #include <PCH.h>
+
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAsset.h>
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAssetManager.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/Strings/PathUtils.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Strings/PathUtils.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundBankAssetDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -18,8 +20,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundBankAssetProperties, 1, ezRTTIDefaultAllo
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezSoundBankAssetDocument::ezSoundBankAssetDocument(const char* szDocumentPath) : ezSimpleAssetDocument<ezSoundBankAssetProperties>(szDocumentPath)
+ezSoundBankAssetDocument::ezSoundBankAssetDocument(const char* szDocumentPath)
+    : ezSimpleAssetDocument<ezSoundBankAssetProperties>(szDocumentPath)
 {
 }
 
@@ -32,7 +36,8 @@ void ezSoundBankAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInf
   pInfo->m_AssetTransformDependencies.Insert(pProp->m_sSoundBank);
 }
 
-ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
+                                                          const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   const ezSoundBankAssetProperties* pProp = GetProperties();
 

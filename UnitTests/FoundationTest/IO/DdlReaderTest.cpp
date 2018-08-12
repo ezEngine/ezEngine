@@ -1,11 +1,12 @@
-﻿#include <PCH.h>
-#include <Foundation/IO/OpenDdlReader.h>
+#include <PCH.h>
+
 #include <Foundation/Containers/Deque.h>
+#include <Foundation/IO/MemoryStream.h>
+#include <Foundation/IO/OpenDdlReader.h>
+#include <Foundation/IO/OpenDdlUtils.h>
+#include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/Strings/StringUtils.h>
 #include <FoundationTest/IO/JSONTestHelpers.h>
-#include <Foundation/IO/OpenDdlWriter.h>
-#include <Foundation/IO/MemoryStream.h>
-#include <Foundation/IO/OpenDdlUtils.h>
 
 // Since ezOpenDdlReader is implemented by deriving from ezOpenDdlParser, this tests both classes
 
@@ -50,51 +51,51 @@ static void WriteObjectToDDL(const ezOpenDdlReaderElement* pElement, ezOpenDdlWr
 
     switch (type)
     {
-    case ezOpenDdlPrimitiveType::Bool:
-      writer.WriteBool(pElement->GetPrimitivesBool(), pElement->GetNumPrimitives());
-      break;
+      case ezOpenDdlPrimitiveType::Bool:
+        writer.WriteBool(pElement->GetPrimitivesBool(), pElement->GetNumPrimitives());
+        break;
 
-    case ezOpenDdlPrimitiveType::Int8:
-      writer.WriteInt8(pElement->GetPrimitivesInt8(), pElement->GetNumPrimitives());
-      break;
+      case ezOpenDdlPrimitiveType::Int8:
+        writer.WriteInt8(pElement->GetPrimitivesInt8(), pElement->GetNumPrimitives());
+        break;
 
-    case ezOpenDdlPrimitiveType::Int16:
-      writer.WriteInt16(pElement->GetPrimitivesInt16(), pElement->GetNumPrimitives());
-      break;
+      case ezOpenDdlPrimitiveType::Int16:
+        writer.WriteInt16(pElement->GetPrimitivesInt16(), pElement->GetNumPrimitives());
+        break;
 
-    case ezOpenDdlPrimitiveType::Int32:
-      writer.WriteInt32(pElement->GetPrimitivesInt32(), pElement->GetNumPrimitives());
-      break;
+      case ezOpenDdlPrimitiveType::Int32:
+        writer.WriteInt32(pElement->GetPrimitivesInt32(), pElement->GetNumPrimitives());
+        break;
 
-    case ezOpenDdlPrimitiveType::Int64:
-      writer.WriteInt64(pElement->GetPrimitivesInt64(), pElement->GetNumPrimitives());
-      break;
+      case ezOpenDdlPrimitiveType::Int64:
+        writer.WriteInt64(pElement->GetPrimitivesInt64(), pElement->GetNumPrimitives());
+        break;
 
-    case ezOpenDdlPrimitiveType::UInt8:
-      writer.WriteUInt8(pElement->GetPrimitivesUInt8(), pElement->GetNumPrimitives());
-      break;
+      case ezOpenDdlPrimitiveType::UInt8:
+        writer.WriteUInt8(pElement->GetPrimitivesUInt8(), pElement->GetNumPrimitives());
+        break;
 
-    case ezOpenDdlPrimitiveType::UInt16:
-      writer.WriteUInt16(pElement->GetPrimitivesUInt16(), pElement->GetNumPrimitives());
-      break;
+      case ezOpenDdlPrimitiveType::UInt16:
+        writer.WriteUInt16(pElement->GetPrimitivesUInt16(), pElement->GetNumPrimitives());
+        break;
 
-    case ezOpenDdlPrimitiveType::UInt32:
-      writer.WriteUInt32(pElement->GetPrimitivesUInt32(), pElement->GetNumPrimitives());
-      break;
+      case ezOpenDdlPrimitiveType::UInt32:
+        writer.WriteUInt32(pElement->GetPrimitivesUInt32(), pElement->GetNumPrimitives());
+        break;
 
-    case ezOpenDdlPrimitiveType::UInt64:
-      writer.WriteUInt64(pElement->GetPrimitivesUInt64(), pElement->GetNumPrimitives());
-      break;
+      case ezOpenDdlPrimitiveType::UInt64:
+        writer.WriteUInt64(pElement->GetPrimitivesUInt64(), pElement->GetNumPrimitives());
+        break;
 
-    case ezOpenDdlPrimitiveType::Float:
-      writer.WriteFloat(pElement->GetPrimitivesFloat(), pElement->GetNumPrimitives());
-      break;
+      case ezOpenDdlPrimitiveType::Float:
+        writer.WriteFloat(pElement->GetPrimitivesFloat(), pElement->GetNumPrimitives());
+        break;
 
-    case ezOpenDdlPrimitiveType::Double:
-      writer.WriteDouble(pElement->GetPrimitivesDouble(), pElement->GetNumPrimitives());
-      break;
+      case ezOpenDdlPrimitiveType::Double:
+        writer.WriteDouble(pElement->GetPrimitivesDouble(), pElement->GetNumPrimitives());
+        break;
 
-    case ezOpenDdlPrimitiveType::String:
+      case ezOpenDdlPrimitiveType::String:
       {
         for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
         {
@@ -103,10 +104,10 @@ static void WriteObjectToDDL(const ezOpenDdlReaderElement* pElement, ezOpenDdlWr
       }
       break;
 
-    case ezOpenDdlPrimitiveType::Custom:
-    default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
-      break;
+      case ezOpenDdlPrimitiveType::Custom:
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+        break;
     }
 
     writer.EndPrimitiveList();
@@ -157,18 +158,18 @@ static void TestEqual(const char* original, const char* recreation)
 
     if (cOrg != cAlt)
     {
-      EZ_TEST_FAILURE("String compare failed", "DDL Original and recreation don't match at character %u ('%c' -> '%c')", uiChar, cOrg, cAlt);
+      EZ_TEST_FAILURE("String compare failed", "DDL Original and recreation don't match at character %u ('%c' -> '%c')", uiChar, cOrg,
+                      cAlt);
       return;
     }
 
     ++uiChar;
-  }
-  while (original[uiChar - 1] != '\0');
+  } while (original[uiChar - 1] != '\0');
 }
 
-// These functions test the reader by doing a round trip from string -> reader -> writer -> string and then comparing the string to the original
-// Therefore the original must be formatted exactly as the writer would format it (mostly regarding indentation, newlines, spaces and floats)
-// and may not contain things that get removed (ie. comments)
+// These functions test the reader by doing a round trip from string -> reader -> writer -> string and then comparing the string to the
+// original Therefore the original must be formatted exactly as the writer would format it (mostly regarding indentation, newlines, spaces
+// and floats) and may not contain things that get removed (ie. comments)
 static void TestDoc(const ezOpenDdlReader& doc, const char* szOriginal)
 {
   ezStringBuilder recreation;
@@ -181,8 +182,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DdlReader)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Basics and Comments")
   {
-    const char* szTestData =
-"Node{\
+    const char* szTestData = "Node{\
   Name{ string{ \"ConstantColor\" } }\
 \
   OutputPins\
@@ -218,8 +218,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DdlReader)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Structure")
   {
-    const char* szTestData =
-"Node\n\
+    const char* szTestData = "Node\n\
 {\n\
 	Name\n\
 	{\n\

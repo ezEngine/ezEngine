@@ -1,17 +1,18 @@
-﻿#include <PCH.h>
-#include <EditorEngineProcess/EngineProcGameApp.h>
-#include <Foundation/Reflection/ReflectionUtils.h>
-#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
+#include <PCH.h>
+
 #include <Core/ResourceManager/ResourceManager.h>
+#include <EditorEngineProcess/EngineProcGameApp.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <Foundation/Configuration/Startup.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
+#include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <Foundation/Configuration/Startup.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
-#include <GameEngine/VisualScript/VisualScriptNode.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
+#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #include <InputXBox360/InputDeviceXBox.h>
@@ -20,10 +21,10 @@ ezInputDeviceXBox360 g_XboxInputDevice;
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
-  : ezGameApplication("ezEditorEngineProcess", ezGameApplicationType::EmbeddedInToolMixedReality, nullptr)
+    : ezGameApplication("ezEditorEngineProcess", ezGameApplicationType::EmbeddedInToolMixedReality, nullptr)
 #else
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
-  : ezGameApplication("ezEditorEngineProcess", ezGameApplicationType::EmbeddedInTool, nullptr)
+    : ezGameApplication("ezEditorEngineProcess", ezGameApplicationType::EmbeddedInTool, nullptr)
 #endif
 {
 }
@@ -56,7 +57,7 @@ void ezEngineProcessGameApplication::BeforeCoreStartup()
 void ezEngineProcessGameApplication::AfterCoreStartup()
 {
   // skip project creation at this point
-  //ezGameApplication::AfterCoreStartup();
+  // ezGameApplication::AfterCoreStartup();
 
   WaitForDebugger();
 
@@ -77,8 +78,7 @@ void ezEngineProcessGameApplication::ConnectToHost()
   m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerIPC, this));
 
   // wait indefinitely (not necessary anymore, should work regardless)
-  //m_IPC.WaitForMessage(ezGetStaticRTTI<ezSetupProjectMsgToEngine>(), ezTime());
-
+  // m_IPC.WaitForMessage(ezGetStaticRTTI<ezSetupProjectMsgToEngine>(), ezTime());
 }
 
 void ezEngineProcessGameApplication::DisableErrorReport()
@@ -130,14 +130,15 @@ ezApplication::ApplicationExecution ezEngineProcessGameApplication::Run()
   return ezGameApplication::Run();
 }
 
-void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData & e)
+void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData& e)
 {
   ezLogMsgToEditor msg;
   msg.m_Entry = ezLogEntry(e);
   m_IPC.SendMessage(&msg);
 }
 
-static bool EmptyAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
+static bool EmptyAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression,
+                               const char* szAssertMsg)
 {
   return false;
 }
@@ -146,11 +147,10 @@ bool ezEngineProcessGameApplication::ProcessIPCMessages(bool bPendingOpInProgres
 {
   if (!m_IPC.IsHostAlive()) // check whether the host crashed
   {
-    // The problem here is, that the editor process crashed (or was terminated through Visual Studio),
-    // but our process depends on it for cleanup!
-    // That means, this process created rendering resources through a device that is bound to a window handle, which belonged to the editor process.
-    // So now we can't clean up, and therefore we can only crash.
-    // Therefore we try to crash as silently as possible.
+  // The problem here is, that the editor process crashed (or was terminated through Visual Studio),
+  // but our process depends on it for cleanup!
+  // That means, this process created rendering resources through a device that is bound to a window handle, which belonged to the editor
+  // process. So now we can't clean up, and therefore we can only crash. Therefore we try to crash as silently as possible.
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     // Make sure that Windows doesn't show a default message box when we call abort
@@ -244,7 +244,8 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
       if (m_sProjectDirectory == pSetupMsg->m_sProjectDir)
         return;
 
-      ezLog::Error("Engine Process must restart to switch to another project ('{0}' -> '{1}').", m_sProjectDirectory, pSetupMsg->m_sProjectDir);
+      ezLog::Error("Engine Process must restart to switch to another project ('{0}' -> '{1}').", m_sProjectDirectory,
+                   pSetupMsg->m_sProjectDir);
       return;
     }
 
@@ -270,7 +271,8 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
       ezRenderContext::GetDefaultInstance()->SetAllowAsyncShaderLoading(true);
     }
 
-    // after the ezSetupProjectMsgToEngine was processed, all dynamic plugins should be loaded and we can finally send the reflection information over
+    // after the ezSetupProjectMsgToEngine was processed, all dynamic plugins should be loaded and we can finally send the reflection
+    // information over
     SendReflectionInformation();
 
     // Project setup, we are now ready to accept document messages.
@@ -438,11 +440,11 @@ void ezEngineProcessGameApplication::DoSetupDataDirectories()
   ezFileSystem::CreateDirectoryStructure(sAppDir);
   ezFileSystem::CreateDirectoryStructure(sUserData);
 
-  ezFileSystem::AddDataDirectory("", "EngineProcess", ":", ezFileSystem::AllowWrites); // for absolute paths
-  ezFileSystem::AddDataDirectory(">appdir/", "EngineProcess", "bin", ezFileSystem::ReadOnly); // writing to the binary directory
+  ezFileSystem::AddDataDirectory("", "EngineProcess", ":", ezFileSystem::AllowWrites);                   // for absolute paths
+  ezFileSystem::AddDataDirectory(">appdir/", "EngineProcess", "bin", ezFileSystem::ReadOnly);            // writing to the binary directory
   ezFileSystem::AddDataDirectory(">appdir/", "EngineProcess", "shadercache", ezFileSystem::AllowWrites); // for shader files
-  ezFileSystem::AddDataDirectory(sAppDir.GetData(), "EngineProcess", "app"); // app specific data
-  ezFileSystem::AddDataDirectory(sUserData, "EngineProcess", "appdata", ezFileSystem::AllowWrites); // for writing app user data
+  ezFileSystem::AddDataDirectory(sAppDir.GetData(), "EngineProcess", "app");                             // app specific data
+  ezFileSystem::AddDataDirectory(sUserData, "EngineProcess", "appdata", ezFileSystem::AllowWrites);      // for writing app user data
 
   m_CustomFileSystemConfig.Apply();
 }
@@ -492,7 +494,6 @@ void ezEngineProcessGameApplication::DoShutdownLogWriters()
   // used for sending CVar changes over to the editor
   ezCVar::s_AllCVarEvents.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVar, this));
   ezPlugin::s_PluginEvents.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVarPlugin, this));
-
 }
 
 void ezEngineProcessGameApplication::EventHandlerCVar(const ezCVar::CVarEvent& e)
@@ -527,18 +528,18 @@ void ezEngineProcessGameApplication::TransmitCVar(const ezCVar* pCVar)
 
   switch (pCVar->GetType())
   {
-  case ezCVarType::Int:
-    msg.m_Value = ((ezCVarInt*)pCVar)->GetValue();
-    break;
-  case ezCVarType::Float:
-    msg.m_Value = ((ezCVarFloat*)pCVar)->GetValue();
-    break;
-  case ezCVarType::Bool:
-    msg.m_Value = ((ezCVarBool*)pCVar)->GetValue();
-    break;
-  case ezCVarType::String:
-    msg.m_Value = ((ezCVarString*)pCVar)->GetValue();
-    break;
+    case ezCVarType::Int:
+      msg.m_Value = ((ezCVarInt*)pCVar)->GetValue();
+      break;
+    case ezCVarType::Float:
+      msg.m_Value = ((ezCVarFloat*)pCVar)->GetValue();
+      break;
+    case ezCVarType::Bool:
+      msg.m_Value = ((ezCVarBool*)pCVar)->GetValue();
+      break;
+    case ezCVarType::String:
+      msg.m_Value = ((ezCVarString*)pCVar)->GetValue();
+      break;
   }
 
   m_IPC.SendMessage(&msg);

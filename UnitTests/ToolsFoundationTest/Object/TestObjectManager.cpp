@@ -1,24 +1,19 @@
 #include <PCH.h>
+
 #include <ToolsFoundationTest/Object/TestObjectManager.h>
 
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestDocument, 1, ezRTTINoAllocator)
-
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
-ezTestDocumentObjectManager::ezTestDocumentObjectManager()
-{
-}
+ezTestDocumentObjectManager::ezTestDocumentObjectManager() {}
 
-ezTestDocumentObjectManager::~ezTestDocumentObjectManager()
-{
-}
+ezTestDocumentObjectManager::~ezTestDocumentObjectManager() {}
 
-ezTestDocument::ezTestDocument(const char* szDocumentPath, bool bUseIPCObjectMirror /*= false*/) : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezTestDocumentObjectManager))
-, m_bUseIPCObjectMirror(bUseIPCObjectMirror)
+ezTestDocument::ezTestDocument(const char* szDocumentPath, bool bUseIPCObjectMirror /*= false*/)
+    : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezTestDocumentObjectManager))
+    , m_bUseIPCObjectMirror(bUseIPCObjectMirror)
 {
-
 }
 
 ezTestDocument::~ezTestDocument()

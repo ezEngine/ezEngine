@@ -1,11 +1,12 @@
 #include <PCH.h>
+
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>
 
 ezConstantBufferStorageBase::ezConstantBufferStorageBase(ezUInt32 uiSizeInBytes)
-  : m_bHasBeenModified(false)
-  , m_uiLastHash(0)
+    : m_bHasBeenModified(false)
+    , m_uiLastHash(0)
 {
   m_Data = ezMakeArrayPtr(static_cast<ezUInt8*>(ezFoundation::GetAlignedAllocator()->Allocate(uiSizeInBytes, 16)), uiSizeInBytes);
 
@@ -48,6 +49,4 @@ void ezConstantBufferStorageBase::UploadData(ezGALContext* pContext)
 
 
 
-
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Implementation_ConstantBufferStorage);
-

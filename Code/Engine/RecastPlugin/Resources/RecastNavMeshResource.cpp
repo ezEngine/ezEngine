@@ -1,20 +1,19 @@
-﻿#include <PCH.h>
-#include <RecastPlugin/Resources/RecastNavMeshResource.h>
+#include <PCH.h>
+
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/ChunkStream.h>
+#include <RecastPlugin/Resources/RecastNavMeshResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecastNavMeshResource, 1, ezRTTIDefaultAllocator<ezRecastNavMeshResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezRecastNavMeshResource::ezRecastNavMeshResource() 
-  : ezResource<ezRecastNavMeshResource, ezRecastNavMeshResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+ezRecastNavMeshResource::ezRecastNavMeshResource()
+    : ezResource<ezRecastNavMeshResource, ezRecastNavMeshResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
   ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezRecastNavMeshResource);
 }
 
-ezRecastNavMeshResource::~ezRecastNavMeshResource()
-{
-}
+ezRecastNavMeshResource::~ezRecastNavMeshResource() {}
 
 ezResourceLoadDesc ezRecastNavMeshResource::UnloadData(Unload WhatToUnload)
 {
@@ -70,8 +69,3 @@ ezResourceLoadDesc ezRecastNavMeshResource::CreateResource(const ezRecastNavMesh
 
   return res;
 }
-
-
-
-
-

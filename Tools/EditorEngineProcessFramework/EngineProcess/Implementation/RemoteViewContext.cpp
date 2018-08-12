@@ -1,23 +1,23 @@
-﻿#include <PCH.h>
-#include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
-#include <RendererFoundation/Device/Device.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Pipeline/RenderPipelineResource.h>
+#include <PCH.h>
+
 #include <Core/ResourceManager/ResourceManager.h>
-#include <RendererCore/Pipeline/View.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
+#include <GameEngine/GameApplication/GameApplication.h>
+#include <RendererCore/Pipeline/RenderPipelineResource.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 ezUInt32 ezRemoteEngineProcessViewContext::s_uiActiveViewID = 0;
 ezRemoteEngineProcessViewContext* ezRemoteEngineProcessViewContext::s_pActiveRemoteViewContext = nullptr;
 
 ezRemoteEngineProcessViewContext::ezRemoteEngineProcessViewContext(ezEngineProcessDocumentContext* pContext)
-  : ezEngineProcessViewContext(pContext)
+    : ezEngineProcessViewContext(pContext)
 {
-
 }
 
 ezRemoteEngineProcessViewContext::~ezRemoteEngineProcessViewContext()
@@ -81,7 +81,7 @@ void ezRemoteEngineProcessViewContext::HandleViewMessage(const ezEditorEngineVie
     SetCamera(pMsg2);
 
     // skip the on-message redraw, in remote mode it will just render as fast as it can
-    //Redraw(false);
+    // Redraw(false);
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
     auto pHoloFramework = ezMixedRealityFramework::GetSingleton();

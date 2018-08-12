@@ -4,9 +4,11 @@
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezInputDevice);
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDevice, 1, ezRTTINoAllocator);
 // no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezKeyState::Enum ezKeyState::GetNewKeyState(ezKeyState::Enum PrevState, bool bKeyDown)
 {

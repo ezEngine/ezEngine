@@ -1,14 +1,14 @@
-﻿#include <PCH.h>
-#include <EditorEngineProcessFramework/IPC/IPCObjectMirrorEngine.h>
+#include <PCH.h>
+
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorEngineProcessFramework/IPC/IPCObjectMirrorEngine.h>
 
-ezIPCObjectMirrorEngine::ezIPCObjectMirrorEngine() : ezDocumentObjectMirror()
+ezIPCObjectMirrorEngine::ezIPCObjectMirrorEngine()
+    : ezDocumentObjectMirror()
 {
 }
 
-ezIPCObjectMirrorEngine::~ezIPCObjectMirrorEngine()
-{
-}
+ezIPCObjectMirrorEngine::~ezIPCObjectMirrorEngine() {}
 
 void ezIPCObjectMirrorEngine::ApplyOp(ezObjectChange& change)
 {

@@ -1,13 +1,10 @@
 #include <PCH.h>
+
 #include <EnginePluginAssets/Plugin.h>
 
-void OnLoadPlugin(bool bReloading)
-{
-}
+void OnLoadPlugin(bool bReloading) {}
 
-void OnUnloadPlugin(bool bReloading)  
-{
-}
+void OnUnloadPlugin(bool bReloading) {}
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
 

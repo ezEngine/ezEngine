@@ -1,11 +1,12 @@
 #include <PCH.h>
+
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
+#include <EditorFramework/Preferences/ScenePreferences.h>
 #include <EditorPluginScene/EditTools/GreyBoxEditTool.h>
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
-#include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
-#include <EditorFramework/Preferences/ScenePreferences.h>
-#include <EditorFramework/Gizmos/SnapProvider.h>
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGreyBoxEditTool, 1, ezRTTIDefaultAllocator<ezGreyBoxEditTool>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -45,8 +46,8 @@ void ezGreyBoxEditTool::GetGridSettings(ezGridSettingsMsgToEngine& msg)
   ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument());
 
   msg.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue(); // negative density = local space
-  msg.m_vGridTangent1.SetZero(); // indicates that the grid is disabled
-  msg.m_vGridTangent2.SetZero(); // indicates that the grid is disabled
+  msg.m_vGridTangent1.SetZero();                                  // indicates that the grid is disabled
+  msg.m_vGridTangent2.SetZero();                                  // indicates that the grid is disabled
 
   if (pPreferences->GetShowGrid())
   {
@@ -61,8 +62,8 @@ void ezGreyBoxEditTool::GetGridSettings(ezGridSettingsMsgToEngine& msg)
     {
       const ezVec3 vCamDir = GetWindow()->GetFocusedViewWidget()->m_pViewConfig->m_Camera.GetDirForwards();
 
-      //float dummy;
-      //m_DrawBoxGizmo.GetResult(msg.m_vGridCenter, dummy, dummy, dummy, dummy, dummy, dummy);
+      // float dummy;
+      // m_DrawBoxGizmo.GetResult(msg.m_vGridCenter, dummy, dummy, dummy, dummy, dummy, dummy);
 
       msg.m_vGridCenter = m_DrawBoxGizmo.GetStartPosition();
 
@@ -92,9 +93,9 @@ void ezGreyBoxEditTool::GameObjectEventHandler(const ezGameObjectEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezGameObjectEvent::Type::ActiveEditToolChanged:
-    UpdateGizmoState();
-    break;
+    case ezGameObjectEvent::Type::ActiveEditToolChanged:
+      UpdateGizmoState();
+      break;
   }
 }
 
@@ -104,7 +105,8 @@ void ezGreyBoxEditTool::ManipulatorManagerEventHandler(const ezManipulatorManage
     return;
 
   // make sure the gizmo is deactivated when a manipulator becomes active
-  if (e.m_pDocument == GetDocument() && e.m_pManipulator != nullptr && e.m_pSelection != nullptr && !e.m_pSelection->IsEmpty() && !e.m_bHideManipulators)
+  if (e.m_pDocument == GetDocument() && e.m_pManipulator != nullptr && e.m_pSelection != nullptr && !e.m_pSelection->IsEmpty() &&
+      !e.m_bHideManipulators)
   {
     GetDocument()->SetActiveEditTool(nullptr);
   }
@@ -201,4 +203,3 @@ void ezGreyBoxEditTool::GizmoEventHandler(const ezGizmoEvent& e)
     pDoc->GetSelectionManager()->SetSelection(pDoc->GetObjectManager()->GetObject(objGuid));
   }
 }
-

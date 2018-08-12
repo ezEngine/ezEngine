@@ -1,18 +1,14 @@
 #include <PCH.h>
-#include <Foundation/Time/Clock.h>
+
 #include <Foundation/Threading/ThreadUtils.h>
+#include <Foundation/Time/Clock.h>
 
 class ezSimpleTimeStepSmoother : public ezTimeStepSmoothing
 {
 public:
-  virtual ezTime GetSmoothedTimeStep(ezTime RawTimeStep, const ezClock* pClock) override
-  {
-    return ezTime::Seconds(0.42);
-  }
+  virtual ezTime GetSmoothedTimeStep(ezTime RawTimeStep, const ezClock* pClock) override { return ezTime::Seconds(0.42); }
 
-  virtual void Reset(const ezClock* pClock) override
-  {
-  }
+  virtual void Reset(const ezClock* pClock) override {}
 };
 
 EZ_CREATE_SIMPLE_TEST(Time, Clock)
@@ -28,7 +24,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
     EZ_TEST_DOUBLE(c.GetSpeed(), 1.0, 0.0);
     EZ_TEST_BOOL(c.GetPaused() == false);
     EZ_TEST_DOUBLE(c.GetMinimumTimeStep().GetSeconds(), 0.001, 0.0); // to ensure the tests fail if somebody changes these constants
-    EZ_TEST_DOUBLE(c.GetMaximumTimeStep().GetSeconds(), 0.1, 0.0); // to ensure the tests fail if somebody changes these constants
+    EZ_TEST_DOUBLE(c.GetMaximumTimeStep().GetSeconds(), 0.1, 0.0);   // to ensure the tests fail if somebody changes these constants
     EZ_TEST_BOOL(c.GetTimeDiff() > ezTime::Seconds(0.0));
 
     ezSimpleTimeStepSmoother s;
@@ -226,4 +222,3 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
     EZ_TEST_DOUBLE(c.GetTimeDiff().GetSeconds(), 0.42, 0.0);
   }
 }
-

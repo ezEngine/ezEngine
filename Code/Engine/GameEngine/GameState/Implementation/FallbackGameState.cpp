@@ -1,8 +1,9 @@
 #include <PCH.h>
-#include <GameEngine/GameState/FallbackGameState.h>
-#include <GameEngine/GameApplication/InputConfig.h>
-#include <RendererCore/Components/CameraComponent.h>
+
 #include <Core/Input/InputManager.h>
+#include <GameEngine/GameApplication/InputConfig.h>
+#include <GameEngine/GameState/FallbackGameState.h>
+#include <RendererCore/Components/CameraComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFallbackGameState, 1, ezRTTIDefaultAllocator<ezFallbackGameState>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -22,7 +23,8 @@ ezGameState::Priority ezFallbackGameState::DeterminePriority(ezGameApplicationTy
 
 static ezHybridArray<ezGameAppInputConfig, 16> g_AllInput;
 
-static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr, const char* szKey3 = nullptr)
+static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr,
+                                const char* szKey3 = nullptr)
 {
   ezGameAppInputConfig& gacfg = g_AllInput.ExpandAndGetRef();
   gacfg.m_sInputSet = szInputSet;
@@ -37,9 +39,12 @@ static void RegisterInputAction(const char* szInputSet, const char* szInputActio
   cfg = ezInputManager::GetInputActionConfig(szInputSet, szInputAction);
   cfg.m_bApplyTimeScaling = true;
 
-  if (szKey1 != nullptr)     cfg.m_sInputSlotTrigger[0] = szKey1;
-  if (szKey2 != nullptr)     cfg.m_sInputSlotTrigger[1] = szKey2;
-  if (szKey3 != nullptr)     cfg.m_sInputSlotTrigger[2] = szKey3;
+  if (szKey1 != nullptr)
+    cfg.m_sInputSlotTrigger[0] = szKey1;
+  if (szKey2 != nullptr)
+    cfg.m_sInputSlotTrigger[1] = szKey2;
+  if (szKey3 != nullptr)
+    cfg.m_sInputSlotTrigger[2] = szKey3;
 
   ezInputManager::SetInputActionConfig(szInputSet, szInputAction, cfg, true);
 }
@@ -48,7 +53,7 @@ void ezFallbackGameState::ConfigureInputActions()
 {
   g_AllInput.Clear();
 
-  //if ( !ezFileSystem::ExistsFile( ":project/InputConfig.ddl" ) )
+  // if ( !ezFileSystem::ExistsFile( ":project/InputConfig.ddl" ) )
   {
     RegisterInputAction("Game", "MoveForwards", ezInputSlot_KeyW);
     RegisterInputAction("Game", "MoveBackwards", ezInputSlot_KeyS);
@@ -72,7 +77,7 @@ void ezFallbackGameState::ConfigureInputActions()
     RegisterInputAction("Game", "NextCamera", ezInputSlot_KeyPageDown);
     RegisterInputAction("Game", "PrevCamera", ezInputSlot_KeyPageUp);
 
-    //if ( !g_AllInput.IsEmpty() )
+    // if ( !g_AllInput.IsEmpty() )
     //{
     //	ezFileWriter file;
     //	if ( file.Open( ":project/InputConfig.ddl" ).Succeeded() )
@@ -188,7 +193,6 @@ void ezFallbackGameState::ProcessInput()
     m_MainCamera.RotateLocally(ezAngle(), ezAngle::Degree(-fRotateSpeed * fInput), ezAngle());
   if (ezInputManager::GetInputActionState("Game", "TurnDown", &fInput) != ezKeyState::Up)
     m_MainCamera.RotateLocally(ezAngle(), ezAngle::Degree(fRotateSpeed * fInput), ezAngle());
-
 }
 
 void ezFallbackGameState::AfterWorldUpdate()
@@ -211,4 +215,3 @@ void ezFallbackGameState::AfterWorldUpdate()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameState_Implementation_FallbackGameState);
-

@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Strings/String.h>
 
 EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
@@ -92,7 +93,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
     }
 
     {
-      ezUInt32 u[2] = { L'\u0B87', 0 };
+      ezUInt32 u[2] = {L'\u0B87', 0};
       ezStringUtf8 s(u);
       EZ_TEST_INT(ezUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 3);
     }
@@ -113,14 +114,14 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Decode")
   {
-    char utf8[] = { 'a', 0 };
-    ezUInt16 utf16[] = { 'a', 0 };
-    wchar_t wchar[] = { L'a', 0 };
+    char utf8[] = {'a', 0};
+    ezUInt16 utf16[] = {'a', 0};
+    wchar_t wchar[] = {L'a', 0};
 
     char* szUtf8 = &utf8[0];
     ezUInt16* szUtf16 = &utf16[0];
     wchar_t* szWChar = &wchar[0];
-    
+
     ezUInt32 uiUtf321 = ezUnicodeUtils::DecodeUtf8ToUtf32(szUtf8);
     ezUInt32 uiUtf322 = ezUnicodeUtils::DecodeUtf16ToUtf32(szUtf16);
     ezUInt32 uiUtf323 = ezUnicodeUtils::DecodeWCharToUtf32(szWChar);
@@ -131,9 +132,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Encode")
   {
-    char utf8[4] = { 0 };
-    ezUInt16 utf16[4] = { 0 };
-    wchar_t wchar[4] = { 0 };
+    char utf8[4] = {0};
+    ezUInt16 utf16[4] = {0};
+    wchar_t wchar[4] = {0};
 
     char* szUtf8 = &utf8[0];
     ezUInt16* szUtf16 = &utf16[0];
@@ -219,8 +220,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
   {
     // C++ is really stupid, chars are signed, but Utf8 only works with unsigned values ... argh!
 
-    char szWithBom[] = { (char) 0xef, (char) 0xbb, (char) 0xbf, 'a' };
-    char szNoBom[] = { 'a' };
+    char szWithBom[] = {(char)0xef, (char)0xbb, (char)0xbf, 'a'};
+    char szNoBom[] = {'a'};
     const char* pString = szWithBom;
 
     EZ_TEST_BOOL(ezUnicodeUtils::SkipUtf8Bom(pString) == true);
@@ -234,8 +235,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SkipUtf16BomLE")
   {
-    ezUInt16 szWithBom[] = { 0xfffe, 'a' };
-    ezUInt16 szNoBom[] = { 'a' };
+    ezUInt16 szWithBom[] = {0xfffe, 'a'};
+    ezUInt16 szNoBom[] = {'a'};
 
     const ezUInt16* pString = szWithBom;
 
@@ -250,8 +251,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SkipUtf16BomBE")
   {
-    ezUInt16 szWithBom[] = { 0xfeff, 'a' };
-    ezUInt16 szNoBom[] = { 'a' };
+    ezUInt16 szWithBom[] = {0xfeff, 'a'};
+    ezUInt16 szNoBom[] = {'a'};
 
     const ezUInt16* pString = szWithBom;
 
@@ -264,4 +265,3 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
     EZ_TEST_BOOL(pString == szNoBom);
   }
 }
-

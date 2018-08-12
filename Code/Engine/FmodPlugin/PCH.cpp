@@ -1,8 +1,8 @@
-﻿#include <PCH.h>
 #include <PCH.h>
+
 #include <FmodPlugin/Basics.h>
-#include <Foundation/Strings/TranslationLookup.h>
 #include <Foundation/Configuration/Plugin.h>
+#include <Foundation/Strings/TranslationLookup.h>
 
 EZ_STATICLINK_LIBRARY(FmodPlugin)
 {
@@ -21,10 +21,9 @@ EZ_STATICLINK_LIBRARY(FmodPlugin)
   EZ_STATICLINK_REFERENCE(FmodPlugin_Resources_FmodSoundEventResourceLoader);
 }
 
-void OnLoadPlugin(bool bReloading) { }
-void OnUnloadPlugin(bool bReloading) { }
+void OnLoadPlugin(bool bReloading) {}
+void OnUnloadPlugin(bool bReloading) {}
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
 
 EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_FMODPLUGIN_DLL, ezFmodPlugin);
-

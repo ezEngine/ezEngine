@@ -1,9 +1,11 @@
-﻿#include <PCH.h>
-#include <EditorEngineProcessFramework/IPC/SyncObject.h>
-#include <ToolsFoundation/Document/Document.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <PCH.h>
 
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <EditorEngineProcessFramework/IPC/SyncObject.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
+#include <ToolsFoundation/Document/Document.h>
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineSyncObject, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
@@ -13,6 +15,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineSyncObject, 1, ezRTTINoAllocator)
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezEditorEngineSyncObject::ezEditorEngineSyncObject()
 {

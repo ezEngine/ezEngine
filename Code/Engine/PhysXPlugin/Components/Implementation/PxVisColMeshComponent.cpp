@@ -1,11 +1,13 @@
 #include <PCH.h>
+
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <PhysXPlugin/Components/PxStaticActorComponent.h>
 #include <PhysXPlugin/Components/PxVisColMeshComponent.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
 #include <RendererCore/Pipeline/RenderData.h>
-#include <PhysXPlugin/Components/PxStaticActorComponent.h>
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezPxVisColMeshComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -25,14 +27,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxVisColMeshComponent, 1, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezPxVisColMeshComponent::ezPxVisColMeshComponent()
-{
-}
+ezPxVisColMeshComponent::ezPxVisColMeshComponent() {}
 
-ezPxVisColMeshComponent::~ezPxVisColMeshComponent()
-{
-}
+ezPxVisColMeshComponent::~ezPxVisColMeshComponent() {}
 
 void ezPxVisColMeshComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -59,7 +58,7 @@ void ezPxVisColMeshComponent::DeserializeComponent(ezWorldReader& stream)
 ezResult ezPxVisColMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
   // have to assume this isn't thread safe
-  //CreateCollisionRenderMesh();
+  // CreateCollisionRenderMesh();
 
   if (m_hMesh.IsValid())
   {
@@ -127,7 +126,8 @@ void ezPxVisColMeshComponent::CreateCollisionRenderMesh()
     return;
 
   ezStringBuilder sColMeshName = pMesh->GetResourceID();
-  sColMeshName.AppendFormat("_{0}_VisColMesh", pMesh->GetCurrentResourceChangeCounter()); // the change counter allows to react to resource updates
+  sColMeshName.AppendFormat("_{0}_VisColMesh",
+                            pMesh->GetCurrentResourceChangeCounter()); // the change counter allows to react to resource updates
 
   m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sColMeshName);
 
@@ -257,7 +257,7 @@ void ezPxVisColMeshComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) c
     const ezUInt32 uiFlipWinding = GetOwner()->GetGlobalTransformSimd().ContainsNegativeScale() ? 1 : 0;
 
     // Generate batch id from mesh, material and part index.
-    ezUInt32 data[] = { uiMeshIDHash, uiMaterialIDHash, uiPartIndex, uiFlipWinding };
+    ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, uiPartIndex, uiFlipWinding};
     ezUInt32 uiBatchId = ezHashing::xxHash32(data, sizeof(data));
 
     ezMeshRenderData* pRenderData = CreateRenderData(uiBatchId);
@@ -320,8 +320,8 @@ void ezPxVisColMeshComponentManager::EnqueueUpdate(ezComponentHandle hComponent)
 
 void ezPxVisColMeshComponentManager::ResourceEventHandler(const ezResourceEvent& e)
 {
-  if ((e.m_EventType == ezResourceEventType::ResourceContentUnloading ||e.m_EventType == ezResourceEventType::ResourceContentUpdated) &&
-    e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezPxMeshResource>())
+  if ((e.m_EventType == ezResourceEventType::ResourceContentUnloading || e.m_EventType == ezResourceEventType::ResourceContentUpdated) &&
+      e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezPxMeshResource>())
   {
     EZ_LOCK(m_Mutex);
 

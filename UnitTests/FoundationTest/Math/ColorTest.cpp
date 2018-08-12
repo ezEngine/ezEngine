@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Math/Color.h>
 #include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Math/Mat4.h>
@@ -16,17 +17,13 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
     }
 #else
     // Placement new of the default constructor should not have any effect on the previous data.
-    float testBlock[4] = { 1.0f, 2.0f, 3.0f, 4.0f };
+    float testBlock[4] = {1.0f, 2.0f, 3.0f, 4.0f};
     ezColor* pDefCtor = ::new ((void*)&testBlock[0]) ezColor;
-    EZ_TEST_BOOL(pDefCtor->r == 1.0f &&
-      pDefCtor->g == 2.0f &&
-      pDefCtor->b == 3.0f &&
-      pDefCtor->a == 4.0f);
+    EZ_TEST_BOOL(pDefCtor->r == 1.0f && pDefCtor->g == 2.0f && pDefCtor->b == 3.0f && pDefCtor->a == 4.0f);
 #endif
 
     // Make sure the class didn't accidentally change in size
-    EZ_TEST_BOOL(sizeof(ezColor) == sizeof(float)*4);
-
+    EZ_TEST_BOOL(sizeof(ezColor) == sizeof(float) * 4);
   }
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor components")
   {
@@ -49,13 +46,13 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "Conversion float")
     {
       float* pFloats = cornflowerBlue.GetData();
-      EZ_TEST_BOOL(pFloats[0] == cornflowerBlue.r && pFloats[1] == cornflowerBlue.g && pFloats[2] == cornflowerBlue.b && pFloats[3] == cornflowerBlue.a);
+      EZ_TEST_BOOL(pFloats[0] == cornflowerBlue.r && pFloats[1] == cornflowerBlue.g && pFloats[2] == cornflowerBlue.b &&
+                   pFloats[3] == cornflowerBlue.a);
 
       const float* pConstFloats = cornflowerBlue.GetData();
-      EZ_TEST_BOOL(pConstFloats[0] == cornflowerBlue.r && pConstFloats[1] == cornflowerBlue.g && pConstFloats[2] == cornflowerBlue.b && pConstFloats[3] == cornflowerBlue.a);
+      EZ_TEST_BOOL(pConstFloats[0] == cornflowerBlue.r && pConstFloats[1] == cornflowerBlue.g && pConstFloats[2] == cornflowerBlue.b &&
+                   pConstFloats[3] == cornflowerBlue.a);
     }
-
-
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "HSV conversion")
@@ -73,10 +70,11 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
 
 
     // hsv test - took some samples from http://www.javascripter.net/faq/rgb2hsv.htm
-    const ezColorGammaUB rgb[] = { ezColorGammaUB(255,255,255), ezColorGammaUB(0,0,0), ezColorGammaUB(123, 12, 1), ezColorGammaUB(31, 112, 153) };
-    const ezVec3 hsv[] = { ezVec3(0,0,1), ezVec3(0,0,0), ezVec3(5.4f, 0.991f, 0.48f), ezVec3(200.2f, 0.797f, 0.600f)};
+    const ezColorGammaUB rgb[] = {ezColorGammaUB(255, 255, 255), ezColorGammaUB(0, 0, 0), ezColorGammaUB(123, 12, 1),
+                                  ezColorGammaUB(31, 112, 153)};
+    const ezVec3 hsv[] = {ezVec3(0, 0, 1), ezVec3(0, 0, 0), ezVec3(5.4f, 0.991f, 0.48f), ezVec3(200.2f, 0.797f, 0.600f)};
 
-    for (int i=0; i<4; ++i)
+    for (int i = 0; i < 4; ++i)
     {
       const ezColor color = rgb[i];
       float hue, sat, val;
@@ -98,16 +96,10 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
     if (ezMath::BasicType<ezMathTestType>::SupportsNaN())
     {
       float fNaN = ezMath::BasicType<float>::GetNaN();
-      const ezColor nanArray[4] = {
-        ezColor(fNaN, 0.0f, 0.0f, 0.0f),
-        ezColor(0.0f, fNaN, 0.0f, 0.0f),
-        ezColor(0.0f, 0.0f, fNaN, 0.0f),
-        ezColor(0.0f, 0.0f, 0.0f, fNaN) };
-      const ezColor compArray[4] = {
-        ezColor(1.0f, 0.0f, 0.0f, 0.0f),
-        ezColor(0.0f, 1.0f, 0.0f, 0.0f),
-        ezColor(0.0f, 0.0f, 1.0f, 0.0f),
-        ezColor(0.0f, 0.0f, 0.0f, 1.0f) };
+      const ezColor nanArray[4] = {ezColor(fNaN, 0.0f, 0.0f, 0.0f), ezColor(0.0f, fNaN, 0.0f, 0.0f), ezColor(0.0f, 0.0f, fNaN, 0.0f),
+                                   ezColor(0.0f, 0.0f, 0.0f, fNaN)};
+      const ezColor compArray[4] = {ezColor(1.0f, 0.0f, 0.0f, 0.0f), ezColor(0.0f, 1.0f, 0.0f, 0.0f), ezColor(0.0f, 0.0f, 1.0f, 0.0f),
+                                    ezColor(0.0f, 0.0f, 0.0f, 1.0f)};
 
 
       EZ_TEST_BLOCK(true, "IsNaN")
@@ -135,11 +127,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
 
   {
     const ezColor op1(-4.0, 0.2f, -7.0f, -0.0f);
-    const ezColor op2( 2.0, 0.3f,  0.0f,  1.0f);
-    const ezColor compArray[4] = { ezColor(1.0f, 0.0f, 0.0f, 0.0f),
-      ezColor(0.0f, 1.0f, 0.0f, 0.0f),
-      ezColor(0.0f, 0.0f, 1.0f, 0.0f),
-      ezColor(0.0f, 0.0f, 0.0f, 1.0f) };
+    const ezColor op2(2.0, 0.3f, 0.0f, 1.0f);
+    const ezColor compArray[4] = {ezColor(1.0f, 0.0f, 0.0f, 0.0f), ezColor(0.0f, 1.0f, 0.0f, 0.0f), ezColor(0.0f, 0.0f, 1.0f, 0.0f),
+                                  ezColor(0.0f, 0.0f, 0.0f, 1.0f)};
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetRGB / SetRGBA")
     {
@@ -188,10 +178,14 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
       EZ_TEST_BOOL(op1.IsEqualRGBA(op1, 0.0f));
       for (int i = 0; i < 4; ++i)
       {
-        EZ_TEST_BOOL(op1.IsEqualRGBA(op1 + ezMath::BasicType<float>::SmallEpsilon()   * compArray[i], 2 * ezMath::BasicType<float>::SmallEpsilon()));
-        EZ_TEST_BOOL(op1.IsEqualRGBA(op1 - ezMath::BasicType<float>::SmallEpsilon()   * compArray[i], 2 * ezMath::BasicType<float>::SmallEpsilon()));
-        EZ_TEST_BOOL(op1.IsEqualRGBA(op1 + ezMath::BasicType<float>::DefaultEpsilon() * compArray[i], 2 * ezMath::BasicType<float>::DefaultEpsilon()));
-        EZ_TEST_BOOL(op1.IsEqualRGBA(op1 - ezMath::BasicType<float>::DefaultEpsilon() * compArray[i], 2 * ezMath::BasicType<float>::DefaultEpsilon()));
+        EZ_TEST_BOOL(
+            op1.IsEqualRGBA(op1 + ezMath::BasicType<float>::SmallEpsilon() * compArray[i], 2 * ezMath::BasicType<float>::SmallEpsilon()));
+        EZ_TEST_BOOL(
+            op1.IsEqualRGBA(op1 - ezMath::BasicType<float>::SmallEpsilon() * compArray[i], 2 * ezMath::BasicType<float>::SmallEpsilon()));
+        EZ_TEST_BOOL(op1.IsEqualRGBA(op1 + ezMath::BasicType<float>::DefaultEpsilon() * compArray[i],
+                                     2 * ezMath::BasicType<float>::DefaultEpsilon()));
+        EZ_TEST_BOOL(op1.IsEqualRGBA(op1 - ezMath::BasicType<float>::DefaultEpsilon() * compArray[i],
+                                     2 * ezMath::BasicType<float>::DefaultEpsilon()));
       }
     }
 
@@ -241,7 +235,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
     {
       ezColor mulFloatVec4 = 2 * op1;
       EZ_TEST_BOOL(mulFloatVec4.IsEqualRGBA(ezColor(-8.0f, 0.4f, -14.0f, -0.0f), ezMath::BasicType<float>::SmallEpsilon()));
-      mulFloatVec4 = ((float) 0 * op1);
+      mulFloatVec4 = ((float)0 * op1);
       EZ_TEST_BOOL(mulFloatVec4.IsEqualRGBA(ezColor(0.0f, 0.0f, 0.0f, 0.0f), ezMath::BasicType<float>::SmallEpsilon()));
     }
 
@@ -249,7 +243,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
     {
       ezColor mulVec4Float = op1 * 2;
       EZ_TEST_BOOL(mulVec4Float.IsEqualRGBA(ezColor(-8.0f, 0.4f, -14.0f, -0.0f), ezMath::BasicType<float>::SmallEpsilon()));
-      mulVec4Float = (op1 * (float) 0);
+      mulVec4Float = (op1 * (float)0);
       EZ_TEST_BOOL(mulVec4Float.IsEqualRGBA(ezColor(0.0f, 0.0f, 0.0f, 0.0f), ezMath::BasicType<float>::SmallEpsilon()));
     }
 
@@ -264,8 +258,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
       EZ_TEST_BOOL(op1 == op1);
       for (int i = 0; i < 4; ++i)
       {
-        EZ_TEST_BOOL( !(op1 == (op1 + ezMath::BasicType<float>::SmallEpsilon() * compArray[i])) );
-        EZ_TEST_BOOL( !(op1 == (op1 - ezMath::BasicType<float>::SmallEpsilon() * compArray[i])) );
+        EZ_TEST_BOOL(!(op1 == (op1 + ezMath::BasicType<float>::SmallEpsilon() * compArray[i])));
+        EZ_TEST_BOOL(!(op1 == (op1 - ezMath::BasicType<float>::SmallEpsilon() * compArray[i])));
       }
     }
 
@@ -373,7 +367,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
       EZ_TEST_FLOAT(ezColor::Black.GetSaturation(), 0.0f, 0.001f);
       EZ_TEST_FLOAT(ezColor::White.GetSaturation(), 0.0f, 0.001f);
       EZ_TEST_FLOAT(ezColor::Red.GetSaturation(), 1.0f, 0.001f);
-      EZ_TEST_FLOAT(ezColor::Lime.GetSaturation(), 1.0f, 0.001f);;
+      EZ_TEST_FLOAT(ezColor::Lime.GetSaturation(), 1.0f, 0.001f);
+      ;
       EZ_TEST_FLOAT(ezColor::Blue.GetSaturation(), 1.0f, 0.001f);
     }
 

@@ -1,10 +1,12 @@
 #include <PCH.h>
+
+#include <Core/Messages/UpdateLocalBoundsMessage.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <Core/Messages/UpdateLocalBoundsMessage.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAmbientLightRenderData, 1, ezRTTIDefaultAllocator<ezAmbientLightRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -30,18 +32,16 @@ EZ_BEGIN_COMPONENT_TYPE(ezAmbientLightComponent, 2, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
 ezAmbientLightComponent::ezAmbientLightComponent()
-  : m_TopColor(ezColor(0.2f, 0.2f, 0.3f))
-  , m_BottomColor(ezColor(0.1f, 0.1f, 0.15f))
-  , m_fIntensity(1.0f)
+    : m_TopColor(ezColor(0.2f, 0.2f, 0.3f))
+    , m_BottomColor(ezColor(0.1f, 0.1f, 0.15f))
+    , m_fIntensity(1.0f)
 {
 }
 
-ezAmbientLightComponent::~ezAmbientLightComponent()
-{
-
-}
+ezAmbientLightComponent::~ezAmbientLightComponent() {}
 
 void ezAmbientLightComponent::Deinitialize()
 {
@@ -129,7 +129,7 @@ void ezAmbientLightComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezAmbientLightComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
   s >> m_TopColor;
@@ -139,9 +139,9 @@ void ezAmbientLightComponent::DeserializeComponent(ezWorldReader& stream)
 
 
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -150,7 +150,9 @@ class ezAmbientLightComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezAmbientLightComponentPatch_1_2()
-    : ezGraphPatch("ezAmbientLightComponent", 2) {}
+      : ezGraphPatch("ezAmbientLightComponent", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -163,7 +165,4 @@ ezAmbientLightComponentPatch_1_2 g_ezAmbientLightComponentPatch_1_2;
 
 
 
-
-
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_AmbientLightComponent);
-

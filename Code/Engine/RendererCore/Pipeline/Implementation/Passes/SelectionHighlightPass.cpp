@@ -1,17 +1,19 @@
-﻿#include <PCH.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
+#include <PCH.h>
+
+#include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Pipeline/Passes/SelectionHighlightPass.h>
+#include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
 
 #include <RendererCore/Meshes/MeshRenderer.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectionHighlightPass, 1, ezRTTIDefaultAllocator<ezSelectionHighlightPass>)
 {
   EZ_BEGIN_PROPERTIES
@@ -22,20 +24,21 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectionHighlightPass, 1, ezRTTIDefaultAlloca
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezSelectionHighlightPass::ezSelectionHighlightPass(const char* szName) : ezRenderPipelinePass(szName)
+ezSelectionHighlightPass::ezSelectionHighlightPass(const char* szName)
+    : ezRenderPipelinePass(szName)
 {
   // Load shader.
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/SelectionHighlight.ezShader");
   EZ_ASSERT_DEV(m_hShader.IsValid(), "Could not load selection highlight shader!");
 }
 
-ezSelectionHighlightPass::~ezSelectionHighlightPass()
-{
-}
+ezSelectionHighlightPass::~ezSelectionHighlightPass() {}
 
-bool ezSelectionHighlightPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs,
-  ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezSelectionHighlightPass::GetRenderTargetDescriptions(const ezView& view,
+                                                           const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
+                                                           ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   // Color
   if (inputs[m_PinColor.m_uiInputIndex])
@@ -47,8 +50,9 @@ bool ezSelectionHighlightPass::GetRenderTargetDescriptions(const ezView& view, c
   return false;
 }
 
-void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewContext,
+                                       const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+                                       const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   auto pColorOutput = outputs[m_PinColor.m_uiOutputIndex];
   if (pColorOutput == nullptr)
@@ -82,7 +86,8 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
     ezGALMSAASampleCount::Enum sampleCount = pColorOutput->m_Desc.m_SampleCount;
     ezUInt32 uiSliceCount = pColorOutput->m_Desc.m_uiArraySize;
 
-    hDepthTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::D24S8, sampleCount, uiSliceCount);
+    hDepthTexture =
+        ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::D24S8, sampleCount, uiSliceCount);
 
     ezGALRenderTagetSetup renderTargetSetup;
     renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(hDepthTexture));
@@ -104,7 +109,8 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
     renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
 
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
-    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
+                                                       1);
     renderViewContext.m_pRenderContext->BindTexture2D("SelectionDepthTexture", pDevice->GetDefaultResourceView(hDepthTexture));
     renderViewContext.m_pRenderContext->BindTexture2D("SceneDepthTexture", pDevice->GetDefaultResourceView(pDepthInput->m_TextureHandle));
 
@@ -117,4 +123,3 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_SelectionHighlightPass);
-

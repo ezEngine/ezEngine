@@ -1,11 +1,13 @@
 #include <PCH.h>
+
+#include <Components/InputComponent.h>
+#include <Core/World/World.h>
 #include <GameEngine/VisualScript/Nodes/VisualScriptMessageNodes.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
-#include <Core/World/World.h>
-#include <Components/InputComponent.h>
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SimpleUserEvent, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_SimpleUserEvent>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -25,9 +27,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SimpleUserEvent, 1, ezRTTIDef
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_SimpleUserEvent::ezVisualScriptNode_SimpleUserEvent() { }
-ezVisualScriptNode_SimpleUserEvent::~ezVisualScriptNode_SimpleUserEvent() { }
+ezVisualScriptNode_SimpleUserEvent::ezVisualScriptNode_SimpleUserEvent() {}
+ezVisualScriptNode_SimpleUserEvent::~ezVisualScriptNode_SimpleUserEvent() {}
 
 void ezVisualScriptNode_SimpleUserEvent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -51,6 +54,7 @@ void ezVisualScriptNode_SimpleUserEvent::HandleMessage(ezMessage* pMsg)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GenericEvent, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_GenericEvent>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -70,9 +74,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GenericEvent, 1, ezRTTIDefaul
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_GenericEvent::ezVisualScriptNode_GenericEvent() { }
-ezVisualScriptNode_GenericEvent::~ezVisualScriptNode_GenericEvent() { }
+ezVisualScriptNode_GenericEvent::ezVisualScriptNode_GenericEvent() {}
+ezVisualScriptNode_GenericEvent::~ezVisualScriptNode_GenericEvent() {}
 
 void ezVisualScriptNode_GenericEvent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -104,6 +109,7 @@ void ezVisualScriptNode_GenericEvent::HandleMessage(ezMessage* pMsg)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ScriptUpdateEvent, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_ScriptUpdateEvent>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -118,13 +124,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ScriptUpdateEvent, 1, ezRTTID
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezVisualScriptNode_ScriptUpdateEvent::ezVisualScriptNode_ScriptUpdateEvent()
 {
   m_bStepNode = true;
 }
 
-ezVisualScriptNode_ScriptUpdateEvent::~ezVisualScriptNode_ScriptUpdateEvent() { }
+ezVisualScriptNode_ScriptUpdateEvent::~ezVisualScriptNode_ScriptUpdateEvent() {}
 
 void ezVisualScriptNode_ScriptUpdateEvent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -136,6 +143,7 @@ void ezVisualScriptNode_ScriptUpdateEvent::Execute(ezVisualScriptInstance* pInst
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_InputState, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_InputState>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -154,9 +162,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_InputState, 1, ezRTTIDefaultA
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_InputState::ezVisualScriptNode_InputState() { }
-ezVisualScriptNode_InputState::~ezVisualScriptNode_InputState() { }
+ezVisualScriptNode_InputState::ezVisualScriptNode_InputState() {}
+ezVisualScriptNode_InputState::~ezVisualScriptNode_InputState() {}
 
 void ezVisualScriptNode_InputState::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -188,6 +197,7 @@ void* ezVisualScriptNode_InputState::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_InputEvent, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_InputEvent>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -208,9 +218,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_InputEvent, 1, ezRTTIDefaultA
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_InputEvent::ezVisualScriptNode_InputEvent() { }
-ezVisualScriptNode_InputEvent::~ezVisualScriptNode_InputEvent() { }
+ezVisualScriptNode_InputEvent::ezVisualScriptNode_InputEvent() {}
+ezVisualScriptNode_InputEvent::~ezVisualScriptNode_InputEvent() {}
 
 void ezVisualScriptNode_InputEvent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -255,4 +266,3 @@ void ezVisualScriptNode_InputEvent::HandleMessage(ezMessage* pMsg)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Nodes_VisualScriptMessageNodes);
-

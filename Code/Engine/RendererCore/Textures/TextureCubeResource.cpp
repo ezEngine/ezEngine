@@ -1,15 +1,18 @@
 #include <PCH.h>
-#include <RendererCore/Textures/TextureCubeResource.h>
-#include <RendererFoundation/Resources/Texture.h>
-#include <Foundation/Image/Formats/DdsFileFormat.h>
+
 #include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Image/Formats/DdsFileFormat.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererCore/Textures/TextureUtils.h>
+#include <RendererFoundation/Resources/Texture.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeResource, 1, ezRTTIDefaultAllocator<ezTextureCubeResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezTextureCubeResource::ezTextureCubeResource() : ezResource<ezTextureCubeResource, ezTextureCubeResourceDescriptor>(DoUpdate::OnAnyThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
+ezTextureCubeResource::ezTextureCubeResource()
+    : ezResource<ezTextureCubeResource, ezTextureCubeResourceDescriptor>(DoUpdate::OnAnyThread,
+                                                                         ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
 {
   m_uiLoadedTextures = 0;
   m_uiMemoryGPU[0] = 0;
@@ -88,12 +91,14 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
 
   const ezUInt32 uiNumMipmapsLowRes = ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : 6;
 
-  const ezUInt32 uiNumMipLevels = ezMath::Min(m_uiLoadedTextures == 0 ? uiNumMipmapsLowRes : pImage->GetNumMipLevels(), pImage->GetNumMipLevels());
+  const ezUInt32 uiNumMipLevels =
+      ezMath::Min(m_uiLoadedTextures == 0 ? uiNumMipmapsLowRes : pImage->GetNumMipLevels(), pImage->GetNumMipLevels());
   const ezUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
 
   if (pImage->GetWidth(uiHighestMipLevel) != pImage->GetHeight(uiHighestMipLevel))
   {
-    ezLog::Error("Cubemap width '{0}' is not identical to height '{1}'", pImage->GetWidth(uiHighestMipLevel), pImage->GetHeight(uiHighestMipLevel));
+    ezLog::Error("Cubemap width '{0}' is not identical to height '{1}'", pImage->GetWidth(uiHighestMipLevel),
+                 pImage->GetHeight(uiHighestMipLevel));
 
     ezResourceLoadDesc res;
     res.m_uiQualityLevelsDiscardable = 0;
@@ -120,7 +125,8 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
   if (pImage->GetNumFaces() == 6)
     texDesc.m_Type = ezGALTextureType::TextureCube;
 
-  EZ_ASSERT_DEV(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces (resource: '{0}')", GetResourceID());
+  EZ_ASSERT_DEV(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces (resource: '{0}')",
+                GetResourceID());
 
   m_uiMemoryGPU[m_uiLoadedTextures] = 0;
 
@@ -223,6 +229,4 @@ ezResourceLoadDesc ezTextureCubeResource::CreateResource(const ezTextureCubeReso
 
 
 
-
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_TextureCubeResource);
-

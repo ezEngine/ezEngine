@@ -1,13 +1,14 @@
 #include <PCH.h>
-#include <GuiFoundation/Action/ActionManager.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
-#include <EditorPluginFmod/Actions/FmodActions.h>
-#include <EditorPluginFmod/Dialogs/FmodProjectSettingsDlg.moc.h>
-#include <Foundation/Configuration/CVar.h>
+
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
 #include <EditorFramework/Preferences/Preferences.h>
+#include <EditorPluginFmod/Actions/FmodActions.h>
+#include <EditorPluginFmod/Dialogs/FmodProjectSettingsDlg.moc.h>
 #include <EditorPluginFmod/Preferences/FmodPreferences.h>
+#include <Foundation/Configuration/CVar.h>
+#include <GuiFoundation/Action/ActionManager.h>
+#include <GuiFoundation/Action/ActionMapManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodAction, 0, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -23,10 +24,12 @@ ezActionDescriptorHandle ezFmodActions::s_hMasterVolume;
 void ezFmodActions::RegisterActions()
 {
   s_hCategoryFmod = EZ_REGISTER_CATEGORY("Fmod");
-  s_hProjectSettings = EZ_REGISTER_ACTION_1("Fmod.Settings.Project", ezActionScope::Document, "Fmod", "", ezFmodAction, ezFmodAction::ActionType::ProjectSettings);
+  s_hProjectSettings = EZ_REGISTER_ACTION_1("Fmod.Settings.Project", ezActionScope::Document, "Fmod", "", ezFmodAction,
+                                            ezFmodAction::ActionType::ProjectSettings);
   s_hMuteSound = EZ_REGISTER_ACTION_1("Fmod.Mute", ezActionScope::Document, "Fmod", "", ezFmodAction, ezFmodAction::ActionType::MuteSound);
 
-  s_hMasterVolume = EZ_REGISTER_ACTION_1("Fmod.MasterVolume", ezActionScope::Document, "Volume", "", ezFmodSliderAction, ezFmodSliderAction::ActionType::MasterVolume);
+  s_hMasterVolume = EZ_REGISTER_ACTION_1("Fmod.MasterVolume", ezActionScope::Document, "Volume", "", ezFmodSliderAction,
+                                         ezFmodSliderAction::ActionType::MasterVolume);
 }
 
 void ezFmodActions::UnregisterActions()
@@ -63,17 +66,18 @@ void ezFmodActions::MapMenuActions()
   }
 }
 
-ezFmodAction::ezFmodAction(const ezActionContext& context, const char* szName, ActionType type) : ezButtonAction(context, szName, false, "")
+ezFmodAction::ezFmodAction(const ezActionContext& context, const char* szName, ActionType type)
+    : ezButtonAction(context, szName, false, "")
 {
   m_Type = type;
 
   switch (m_Type)
   {
-  case ActionType::ProjectSettings:
-    SetIconPath(":/AssetIcons/Sound_Event.png");
-    break;
+    case ActionType::ProjectSettings:
+      SetIconPath(":/AssetIcons/Sound_Event.png");
+      break;
 
-  case ActionType::MuteSound:
+    case ActionType::MuteSound:
     {
       SetCheckable(true);
 
@@ -133,13 +137,13 @@ void ezFmodAction::OnPreferenceChange(ezPreferences* pref)
 //////////////////////////////////////////////////////////////////////////
 
 ezFmodSliderAction::ezFmodSliderAction(const ezActionContext& context, const char* szName, ActionType type)
-  : ezSliderAction(context, szName)
+    : ezSliderAction(context, szName)
 {
   m_Type = type;
 
   switch (m_Type)
   {
-  case ActionType::MasterVolume:
+    case ActionType::MasterVolume:
     {
       ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
 
@@ -157,7 +161,7 @@ ezFmodSliderAction::~ezFmodSliderAction()
 {
   switch (m_Type)
   {
-  case ActionType::MasterVolume:
+    case ActionType::MasterVolume:
     {
       ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
       pPreferences->m_ChangedEvent.RemoveEventHandler(ezMakeDelegate(&ezFmodSliderAction::OnPreferenceChange, this));
@@ -172,7 +176,7 @@ void ezFmodSliderAction::Execute(const ezVariant& value)
 
   switch (m_Type)
   {
-  case ActionType::MasterVolume:
+    case ActionType::MasterVolume:
     {
       ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
 
@@ -191,7 +195,7 @@ void ezFmodSliderAction::UpdateState()
 {
   switch (m_Type)
   {
-  case ActionType::MasterVolume:
+    case ActionType::MasterVolume:
     {
       ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
 

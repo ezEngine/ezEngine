@@ -1,12 +1,14 @@
 #include <PCH.h>
-#include <GameEngine/Components/TimedDeathComponent.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <Core/ResourceManager/ResourceManager.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <Core/Messages/TriggerMessage.h>
 
+#include <Core/Messages/TriggerMessage.h>
+#include <Core/ResourceManager/ResourceManager.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <GameEngine/Components/TimedDeathComponent.h>
+#include <GameEngine/Prefabs/PrefabResource.h>
+
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezTimedDeathComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -28,6 +30,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezTimedDeathComponent, 2, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezTimedDeathComponent::ezTimedDeathComponent()
 {
@@ -48,7 +51,7 @@ void ezTimedDeathComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezTimedDeathComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = stream.GetStream();
 
@@ -64,7 +67,8 @@ void ezTimedDeathComponent::OnSimulationStarted()
 
   ezWorld* pWorld = GetWorld();
 
-  const ezTime tKill = ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleInRange(m_MinDelay.GetSeconds(), m_DelayRange.GetSeconds()));
+  const ezTime tKill =
+      ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleInRange(m_MinDelay.GetSeconds(), m_DelayRange.GetSeconds()));
 
   PostMessage(msg, ezObjectMsgQueueType::NextFrame, tKill);
 
@@ -84,7 +88,8 @@ void ezTimedDeathComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
   {
     ezResourceLock<ezPrefabResource> pPrefab(m_hTimeoutPrefab);
 
-    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr);
+    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(),
+                               nullptr);
   }
 
   GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
@@ -112,9 +117,9 @@ const char* ezTimedDeathComponent::GetTimeoutPrefab() const
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 
@@ -122,7 +127,9 @@ class ezTimedDeathComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezTimedDeathComponentPatch_1_2()
-    : ezGraphPatch("ezTimedDeathComponent", 2) {}
+      : ezGraphPatch("ezTimedDeathComponent", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -137,4 +144,3 @@ ezTimedDeathComponentPatch_1_2 g_ezTimedDeathComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_TimedDeathComponent);
-

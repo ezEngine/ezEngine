@@ -1,8 +1,10 @@
 #include <PCH.h>
-#include <GuiFoundation/Widgets/CurveEditData.h>
+
 #include <Foundation/Math/Math.h>
 #include <Foundation/Tracks/Curve1D.h>
+#include <GuiFoundation/Widgets/CurveEditData.h>
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCurveTangentMode, 1)
 EZ_ENUM_CONSTANTS(ezCurveTangentMode::Bezier, ezCurveTangentMode::FixedLength, ezCurveTangentMode::Linear, ezCurveTangentMode::Auto)
 EZ_END_STATIC_REFLECTED_ENUM;
@@ -44,7 +46,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurveGroupData, 2, ezRTTIDefaultAllocator<ezCu
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
+// clang-format on
 
 void ezCurveControlPointData::SetTickFromTime(double time, ezInt64 fps)
 {
@@ -143,9 +145,9 @@ void ezCurveGroupData::ConvertToRuntimeData(ezUInt32 uiCurveIdx, ezCurve1D& out_
   m_Curves[uiCurveIdx]->ConvertToRuntimeData(out_Result);
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -154,7 +156,9 @@ class ezCurve1DControlPoint_2_3 : public ezGraphPatch
 {
 public:
   ezCurve1DControlPoint_2_3()
-    : ezGraphPatch("ezCurve1DControlPoint", 3) {}
+      : ezGraphPatch("ezCurve1DControlPoint", 3)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -178,7 +182,9 @@ class ezCurve1DControlPoint_3_4 : public ezGraphPatch
 {
 public:
   ezCurve1DControlPoint_3_4()
-    : ezGraphPatch("ezCurve1DControlPoint", 4) {}
+      : ezGraphPatch("ezCurve1DControlPoint", 4)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -199,7 +205,9 @@ class ezCurve1DControlPoint_4_5 : public ezGraphPatch
 {
 public:
   ezCurve1DControlPoint_4_5()
-    : ezGraphPatch("ezCurve1DControlPoint", 5) {}
+      : ezGraphPatch("ezCurve1DControlPoint", 5)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -215,7 +223,9 @@ class ezCurve1DData_2_3 : public ezGraphPatch
 {
 public:
   ezCurve1DData_2_3()
-    : ezGraphPatch("ezCurve1DData", 3) {}
+      : ezGraphPatch("ezCurve1DData", 3)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -231,7 +241,9 @@ class ezCurve1DAssetData_1_2 : public ezGraphPatch
 {
 public:
   ezCurve1DAssetData_1_2()
-    : ezGraphPatch("ezCurve1DAssetData", 2) {}
+      : ezGraphPatch("ezCurve1DAssetData", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {

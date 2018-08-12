@@ -1,10 +1,12 @@
 #include <PCH.h>
+
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <QCloseEvent>
 
 ezDynamicArray<ezQtDocumentPanel*> ezQtDocumentPanel::s_AllDocumentPanels;
 
-ezQtDocumentPanel::ezQtDocumentPanel(QWidget* parent) : QDockWidget(parent)
+ezQtDocumentPanel::ezQtDocumentPanel(QWidget* parent)
+    : QDockWidget(parent)
 {
   s_AllDocumentPanels.PushBack(this);
 

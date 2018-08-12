@@ -1,25 +1,30 @@
 #include <PCH.h>
-#include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimModel.moc.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
+
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAsset.h>
+#include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimModel.moc.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QTimer>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 ezQtPropertyAnimModel::ezQtPropertyAnimModel(ezPropertyAnimAssetDocument* pDocument, QObject* pParent)
-  : QAbstractItemModel(pParent)
-  , m_pAssetDoc(pDocument)
+    : QAbstractItemModel(pParent)
+    , m_pAssetDoc(pDocument)
 {
-  m_pAssetDoc->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimModel::DocumentStructureEventHandler, this));
-  m_pAssetDoc->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimModel::DocumentPropertyEventHandler, this));
+  m_pAssetDoc->GetObjectManager()->m_StructureEvents.AddEventHandler(
+      ezMakeDelegate(&ezQtPropertyAnimModel::DocumentStructureEventHandler, this));
+  m_pAssetDoc->GetObjectManager()->m_PropertyEvents.AddEventHandler(
+      ezMakeDelegate(&ezQtPropertyAnimModel::DocumentPropertyEventHandler, this));
 
   TriggerBuildMapping();
 }
 
 ezQtPropertyAnimModel::~ezQtPropertyAnimModel()
 {
-  m_pAssetDoc->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimModel::DocumentPropertyEventHandler, this));
-  m_pAssetDoc->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimModel::DocumentStructureEventHandler, this));
+  m_pAssetDoc->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(
+      ezMakeDelegate(&ezQtPropertyAnimModel::DocumentPropertyEventHandler, this));
+  m_pAssetDoc->GetObjectManager()->m_StructureEvents.RemoveEventHandler(
+      ezMakeDelegate(&ezQtPropertyAnimModel::DocumentStructureEventHandler, this));
 }
 
 QVariant ezQtPropertyAnimModel::data(const QModelIndex& index, int role) const
@@ -32,23 +37,23 @@ QVariant ezQtPropertyAnimModel::data(const QModelIndex& index, int role) const
 
   switch (role)
   {
-  case Qt::DisplayRole:
-    return QString(pItem->m_sDisplay.GetData());
+    case Qt::DisplayRole:
+      return QString(pItem->m_sDisplay.GetData());
 
-  case Qt::DecorationRole:
-    return pItem->m_Icon;
+    case Qt::DecorationRole:
+      return pItem->m_Icon;
 
-  case UserRoles::TrackPtr:
-    return qVariantFromValue((void*)pItem->m_pTrack);
+    case UserRoles::TrackPtr:
+      return qVariantFromValue((void*)pItem->m_pTrack);
 
-  case UserRoles::TreeItem:
-    return qVariantFromValue((void*)pItem);
+    case UserRoles::TreeItem:
+      return qVariantFromValue((void*)pItem);
 
-  case UserRoles::TrackIdx:
-    return pItem->m_iTrackIdx;
+    case UserRoles::TrackIdx:
+      return pItem->m_iTrackIdx;
 
-  case UserRoles::Path:
-    return QString(pItem->m_sPathToItem.GetData());
+    case UserRoles::Path:
+      return QString(pItem->m_sPathToItem.GetData());
   }
 
   return QVariant();
@@ -91,7 +96,8 @@ QModelIndex ezQtPropertyAnimModel::parent(const QModelIndex& index) const
   if (pItem->m_iParent < 0)
     return QModelIndex();
 
-  return createIndex(m_AllEntries[m_iInUse][pItem->m_iParent].m_uiOwnRowIndex, index.column(), (void*)&m_AllEntries[m_iInUse][pItem->m_iParent]);
+  return createIndex(m_AllEntries[m_iInUse][pItem->m_iParent].m_uiOwnRowIndex, index.column(),
+                     (void*)&m_AllEntries[m_iInUse][pItem->m_iParent]);
 }
 
 int ezQtPropertyAnimModel::rowCount(const QModelIndex& parent /*= QModelIndex()*/) const
@@ -112,11 +118,11 @@ void ezQtPropertyAnimModel::DocumentStructureEventHandler(const ezDocumentObject
 {
   switch (e.m_EventType)
   {
-  case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
-  case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
-  case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
-    TriggerBuildMapping();
-    break;
+    case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
+    case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+    case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
+      TriggerBuildMapping();
+      break;
   }
 }
 
@@ -185,7 +191,8 @@ void ezQtPropertyAnimModel::BuildMapping(ezInt32 iToUse)
   }
 }
 
-void ezQtPropertyAnimModel::BuildMapping(ezInt32 iToUse, ezInt32 iTrackIdx, ezPropertyAnimationTrack* pTrack, ezDynamicArray<ezInt32>& treeItems, ezInt32 iParentEntry, const char* szPath)
+void ezQtPropertyAnimModel::BuildMapping(ezInt32 iToUse, ezInt32 iTrackIdx, ezPropertyAnimationTrack* pTrack,
+                                         ezDynamicArray<ezInt32>& treeItems, ezInt32 iParentEntry, const char* szPath)
 {
   const char* szSubPath = ezStringUtils::FindSubString(szPath, "/");
 
@@ -265,31 +272,31 @@ void ezQtPropertyAnimModel::BuildMapping(ezInt32 iToUse, ezInt32 iTrackIdx, ezPr
 
     switch (pTrack->m_Target)
     {
-    case ezPropertyAnimTarget::Color:
-      pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/AssetIcons/ColorGradient.png");
-      break;
-    case ezPropertyAnimTarget::Number:
-      pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/AssetIcons/Curve1D.png");
-      break;
-    case ezPropertyAnimTarget::VectorX:
-    case ezPropertyAnimTarget::RotationX:
-      pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveX.png");
-      name.Append(".x");
-      break;
-    case ezPropertyAnimTarget::VectorY:
-    case ezPropertyAnimTarget::RotationY:
-      pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveY.png");
-      name.Append(".y");
-      break;
-    case ezPropertyAnimTarget::VectorZ:
-    case ezPropertyAnimTarget::RotationZ:
-      pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveZ.png");
-      name.Append(".z");
-      break;
-    case ezPropertyAnimTarget::VectorW:
-      pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveW.png");
-      name.Append(".w");
-      break;
+      case ezPropertyAnimTarget::Color:
+        pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/AssetIcons/ColorGradient.png");
+        break;
+      case ezPropertyAnimTarget::Number:
+        pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/AssetIcons/Curve1D.png");
+        break;
+      case ezPropertyAnimTarget::VectorX:
+      case ezPropertyAnimTarget::RotationX:
+        pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveX.png");
+        name.Append(".x");
+        break;
+      case ezPropertyAnimTarget::VectorY:
+      case ezPropertyAnimTarget::RotationY:
+        pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveY.png");
+        name.Append(".y");
+        break;
+      case ezPropertyAnimTarget::VectorZ:
+      case ezPropertyAnimTarget::RotationZ:
+        pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveZ.png");
+        name.Append(".z");
+        break;
+      case ezPropertyAnimTarget::VectorW:
+        pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveW.png");
+        name.Append(".w");
+        break;
     }
 
     pThisEntry->m_sDisplay = name;
@@ -306,4 +313,3 @@ void ezQtPropertyAnimModel::BuildMapping(ezInt32 iToUse, ezInt32 iTrackIdx, ezPr
     }
   }
 }
-

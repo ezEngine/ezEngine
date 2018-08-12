@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include "Basics.h"
 
 ezTestAppRun ezRendererTestBasics::SubtestBlendStates()
@@ -12,7 +13,7 @@ ezTestAppRun ezRendererTestBasics::SubtestBlendStates()
 
   if (m_iFrame == 0)
   {
-    //StateDesc.m_RenderTargetBlendDescriptions[0].
+    // StateDesc.m_RenderTargetBlendDescriptions[0].
   }
 
   if (m_iFrame == 1)
@@ -22,13 +23,13 @@ ezTestAppRun ezRendererTestBasics::SubtestBlendStates()
   }
 
   ezColor clear(0, 0, 0, 0);
-  //if (StateDesc.m_bDepthClip)
+  // if (StateDesc.m_bDepthClip)
   //  clear.r = 0.5f;
-  //if (StateDesc.m_bFrontCounterClockwise)
+  // if (StateDesc.m_bFrontCounterClockwise)
   //  clear.g = 0.5f;
-  //if (StateDesc.m_CullMode == ezGALCullMode::Front)
+  // if (StateDesc.m_CullMode == ezGALCullMode::Front)
   //  clear.b = 0.5f;
-  //if (StateDesc.m_CullMode == ezGALCullMode::Back)
+  // if (StateDesc.m_CullMode == ezGALCullMode::Back)
   //  clear.b = 1.0f;
 
   ClearScreen(clear);
@@ -48,6 +49,3 @@ ezTestAppRun ezRendererTestBasics::SubtestBlendStates()
 
   return m_iFrame < 1 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
 }
-
-
-

@@ -1,20 +1,22 @@
 #include <PCH.h>
-#include <RecastPlugin/Components/RecastNavMeshComponent.h>
+
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/Configuration/CVar.h>
+#include <Foundation/Time/Stopwatch.h>
 #include <GameEngine/AI/NavMesh/NavMeshDescription.h>
 #include <GameEngine/Messages/BuildNavMeshMessage.h>
-#include <Foundation/Time/Stopwatch.h>
-#include <RendererCore/Debug/DebugRenderer.h>
+#include <RecastPlugin/Components/RecastNavMeshComponent.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
-#include <ThirdParty/Recast/Recast.h>
-#include <Foundation/Configuration/CVar.h>
 #include <RecastPlugin/WorldModule/RecastWorldModule.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <ThirdParty/Recast/Recast.h>
 
 ezCVarBool g_AiShowNavMesh("ai_ShowNavMesh", false, ezCVarFlags::Default, "Draws the navmesh, if one is available");
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRcComponent, 1)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -25,12 +27,14 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRcComponent, 1)
 }
 
 EZ_END_ABSTRACT_COMPONENT_TYPE
+// clang-format on
 
-ezRcComponent::ezRcComponent() { }
-ezRcComponent::~ezRcComponent() { }
+ezRcComponent::ezRcComponent() {}
+ezRcComponent::~ezRcComponent() {}
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezRcNavMeshComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -41,9 +45,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezRcNavMeshComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
-ezRcNavMeshComponent::ezRcNavMeshComponent() { }
-ezRcNavMeshComponent::~ezRcNavMeshComponent() { }
+ezRcNavMeshComponent::ezRcNavMeshComponent() {}
+ezRcNavMeshComponent::~ezRcNavMeshComponent() {}
 
 void ezRcNavMeshComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -56,7 +61,7 @@ void ezRcNavMeshComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezRcNavMeshComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
   s >> m_bShowNavMesh;
@@ -88,10 +93,12 @@ void ezRcNavMeshComponent::Update()
     return;
 
   GetWorld()->GetOrCreateModule<ezRecastWorldModule>()->SetNavMesh(m_NavMeshBuilder.m_pNavMesh);
-  GetWorld()->GetOrCreateModule<ezRecastWorldModule>()->m_NavMeshPointsOfInterest.ExtractInterestPointsFromMesh(*m_NavMeshBuilder.m_polyMesh, true);
+  GetWorld()->GetOrCreateModule<ezRecastWorldModule>()->m_NavMeshPointsOfInterest.ExtractInterestPointsFromMesh(
+      *m_NavMeshBuilder.m_polyMesh, true);
 }
 
-EZ_ALWAYS_INLINE static ezVec3 GetNavMeshVertex(const rcPolyMesh* pMesh, ezUInt16 uiVertex, const ezVec3& vMeshOrigin, float fCellSize, float fCellHeight)
+EZ_ALWAYS_INLINE static ezVec3 GetNavMeshVertex(const rcPolyMesh* pMesh, ezUInt16 uiVertex, const ezVec3& vMeshOrigin, float fCellSize,
+                                                float fCellHeight)
 {
   const ezUInt16* v = &pMesh->verts[uiVertex * 3];
   const float x = vMeshOrigin.x + v[0] * fCellSize;
@@ -119,19 +126,20 @@ void ezRcNavMeshComponent::VisualizeNavMesh()
     const float fCellSize = m_NavMeshBuilder.m_polyMesh->cs;
     const float fCellHeight = m_NavMeshBuilder.m_polyMesh->ch;
     // add a little height offset to move the visualization up a little
-    const ezVec3 vMeshOrigin(m_NavMeshBuilder.m_polyMesh->bmin[0], m_NavMeshBuilder.m_polyMesh->bmin[2], m_NavMeshBuilder.m_polyMesh->bmin[1] + fCellHeight * 0.3f);
+    const ezVec3 vMeshOrigin(m_NavMeshBuilder.m_polyMesh->bmin[0], m_NavMeshBuilder.m_polyMesh->bmin[2],
+                             m_NavMeshBuilder.m_polyMesh->bmin[1] + fCellHeight * 0.3f);
 
     for (ezInt32 i = 0; i < mesh.npolys; ++i)
     {
       const ezUInt16* polyVtxIndices = &mesh.polys[i * (iMaxNumVertInPoly * 2)];
       const ezUInt16* neighborData = &mesh.polys[i * (iMaxNumVertInPoly * 2) + iMaxNumVertInPoly];
 
-      //const ezUInt8 areaType = mesh.areas[i];
-      //if (areaType == RC_WALKABLE_AREA)
+      // const ezUInt8 areaType = mesh.areas[i];
+      // if (areaType == RC_WALKABLE_AREA)
       //  color = duRGBA(0, 192, 255, 64);
-      //else if (areaType == RC_NULL_AREA)
+      // else if (areaType == RC_NULL_AREA)
       //  color = duRGBA(0, 0, 0, 64);
-      //else
+      // else
       //  color = dd->areaToCol(area);
 
       ezInt32 j;
@@ -234,14 +242,12 @@ void ezRcNavMeshComponent::VisualizePointsOfInterest()
 //////////////////////////////////////////////////////////////////////////
 
 ezRcNavMeshComponentManager::ezRcNavMeshComponentManager(ezWorld* pWorld)
-  : SUPER(pWorld)
-  , m_pWorldModule(nullptr)
+    : SUPER(pWorld)
+    , m_pWorldModule(nullptr)
 {
 }
 
-ezRcNavMeshComponentManager::~ezRcNavMeshComponentManager()
-{
-}
+ezRcNavMeshComponentManager::~ezRcNavMeshComponentManager() {}
 
 void ezRcNavMeshComponentManager::Initialize()
 {

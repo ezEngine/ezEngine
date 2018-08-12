@@ -1,7 +1,8 @@
 #include <PCH.h>
+
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
-#include <EditorFramework/Assets/AssetCurator.h>
 #include <Foundation/Profiling/Profiling.h>
 
 void ezQtEditorApp::AddPluginDataDirDependency(const char* szSdkRootRelativePath, const char* szRootName, bool bWriteable)
@@ -147,7 +148,6 @@ bool ezQtEditorApp::MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder&
   }
 
   return false;
-
 }
 
 bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath) const
@@ -262,5 +262,3 @@ bool ezQtEditorApp::MakePathDataDirectoryRelative(ezString& sPath) const
   sPath = sTemp;
   return bRes;
 }
-
-

@@ -1,13 +1,15 @@
 #include <PCH.h>
-#include <PhysXPlugin/Joints/PxJointComponent.h>
-#include <PhysXPlugin/Components/PxDynamicActorComponent.h>
-#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
-#include <PhysXPlugin/Utilities/PxConversionUtils.h>
-#include <Core/WorldSerializer/WorldWriter.h>
+
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <PhysXPlugin/Components/PxDynamicActorComponent.h>
+#include <PhysXPlugin/Joints/PxJointComponent.h>
+#include <PhysXPlugin/Utilities/PxConversionUtils.h>
+#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 
 using namespace physx;
 
+// clang-format off
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxJointComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
@@ -24,6 +26,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxJointComponent, 1)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_ABSTRACT_COMPONENT_TYPE
+// clang-format on
 
 ezPxJointComponent::ezPxJointComponent()
 {
@@ -33,10 +36,7 @@ ezPxJointComponent::ezPxJointComponent()
   m_pJoint = nullptr;
 }
 
-ezPxJointComponent::~ezPxJointComponent()
-{
-
-}
+ezPxJointComponent::~ezPxJointComponent() {}
 
 void ezPxJointComponent::OnSimulationStarted()
 {
@@ -131,7 +131,8 @@ void ezPxJointComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_bPairCollision;
 }
 
-void ezPxJointComponent::SetActors(ezGameObjectHandle hActorA, const ezTransform& localFrameA, ezGameObjectHandle hActorB, const ezTransform& localFrameB)
+void ezPxJointComponent::SetActors(ezGameObjectHandle hActorA, const ezTransform& localFrameA, ezGameObjectHandle hActorB,
+                                   const ezTransform& localFrameB)
 {
   m_hActorA = hActorA;
   m_hActorB = hActorB;
@@ -172,13 +173,15 @@ void ezPxJointComponent::FindActorsInHierarchy()
 
   if (pChildRbComp == nullptr)
   {
-    ezLog::Error("{0} '{1}' does not have a direct child with a ezPxDynamicActorComponent component. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), pOwner->GetName());
+    ezLog::Error("{0} '{1}' does not have a direct child with a ezPxDynamicActorComponent component. Joint is ignored.",
+                 GetDynamicRTTI()->GetTypeName(), pOwner->GetName());
     return;
   }
 
   if (pChildRbComp->GetKinematic())
   {
-    ezLog::Error("{0} '{1}' has a child with a ezPxDynamicActorComponent which is set to be kinematic. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), pOwner->GetName());
+    ezLog::Error("{0} '{1}' has a child with a ezPxDynamicActorComponent which is set to be kinematic. Joint is ignored.",
+                 GetDynamicRTTI()->GetTypeName(), pOwner->GetName());
     return;
   }
 
@@ -199,4 +202,3 @@ void ezPxJointComponent::FindActorsInHierarchy()
 }
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Joints_Implementation_PxJointComponent);
-

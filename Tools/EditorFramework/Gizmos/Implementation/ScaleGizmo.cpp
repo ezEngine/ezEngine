@@ -1,12 +1,13 @@
-﻿#include <PCH.h>
-#include <EditorFramework/Gizmos/ScaleGizmo.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <Foundation/Logging/Log.h>
-#include <QMouseEvent>
+#include <PCH.h>
+
 #include <Core/Graphics/Camera.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/Gizmos/ScaleGizmo.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
+#include <QMouseEvent>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScaleGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -107,12 +108,12 @@ ezEditorInput ezScaleGizmo::DoMousePressEvent(QMouseEvent* e)
 
   m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
 
-  //m_AxisX.SetVisible(false);
-  //m_AxisY.SetVisible(false);
-  //m_AxisZ.SetVisible(false);
-  //m_AxisXYZ.SetVisible(false);
+  // m_AxisX.SetVisible(false);
+  // m_AxisY.SetVisible(false);
+  // m_AxisZ.SetVisible(false);
+  // m_AxisXYZ.SetVisible(false);
 
-  //m_pInteractionGizmoHandle->SetVisible(true);
+  // m_pInteractionGizmoHandle->SetVisible(true);
 
   m_vScalingResult.Set(1.0f);
   m_vScaleMouseMove.SetZero();
@@ -199,4 +200,3 @@ ezEditorInput ezScaleGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   return ezEditorInput::WasExclusivelyHandled;
 }
-

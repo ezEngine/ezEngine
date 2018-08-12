@@ -1,7 +1,8 @@
-﻿#include <PCH.h>
-#include <GuiFoundation/Action/StandardMenus.h>
+#include <PCH.h>
+
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
+#include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 
 ezActionDescriptorHandle ezStandardMenus::s_hMenuFile;
@@ -21,7 +22,6 @@ void ezStandardMenus::RegisterActions()
   s_hMenuScene = EZ_REGISTER_MENU("Menu.Scene");
   s_hMenuView = EZ_REGISTER_MENU("Menu.View");
   s_hMenuHelp = EZ_REGISTER_MENU("Menu.Help");
-
 }
 
 void ezStandardMenus::UnregisterActions()
@@ -61,8 +61,8 @@ void ezStandardMenus::MapActions(const char* szMapping, const ezBitflags<ezStand
     pMap->MapAction(s_hMenuPanels, "", 6.0f);
 
   // not used at the moment
-  //if (Menus.IsAnySet(ezStandardMenuTypes::Help))
-    //pMap->MapAction(s_hMenuHelp, "", 7.0f);
+  // if (Menus.IsAnySet(ezStandardMenuTypes::Help))
+  // pMap->MapAction(s_hMenuHelp, "", 7.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -98,8 +98,9 @@ void ezApplicationPanelsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction
     item.m_sDisplay = pPanel->windowTitle().toUtf8().data();
     item.m_UserValue = pPanel;
     item.m_Icon = pPanel->windowIcon();
-    item.m_CheckState = pPanel->isVisible() ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-    
+    item.m_CheckState =
+        pPanel->isVisible() ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+
     out_Entries.PushBack(item);
   }
 

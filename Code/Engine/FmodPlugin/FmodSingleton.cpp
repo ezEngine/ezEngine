@@ -1,10 +1,11 @@
 #include <PCH.h>
-#include <FmodPlugin/Resources/FmodSoundBankResource.h>
-#include <FmodPlugin/FmodSingleton.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <FmodPlugin/Resources/FmodSoundEventResource.h>
+
 #include <FmodPlugin/FmodIncludes.h>
+#include <FmodPlugin/FmodSingleton.h>
+#include <FmodPlugin/Resources/FmodSoundBankResource.h>
+#include <FmodPlugin/Resources/FmodSoundEventResource.h>
 #include <Foundation/Configuration/CVar.h>
+#include <GameEngine/GameApplication/GameApplication.h>
 
 EZ_IMPLEMENT_SINGLETON(ezFmod);
 
@@ -18,7 +19,7 @@ ezCVarFloat g_FmodMasterVolume("fmod_MasterVolume", 1.0f, ezCVarFlags::Default, 
 ezCVarBool g_FmodMute("fmod_Mute", false, ezCVarFlags::Default, "Whether Fmod sound output is muted");
 
 ezFmod::ezFmod()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
   m_bInitialized = false;
 
@@ -60,22 +61,23 @@ void ezFmod::Startup()
     ezString sMode = "Unknown";
     switch (config.m_SpeakerMode)
     {
-    case ezFmodSpeakerMode::ModeStereo:
-      sMode = "Stereo";
-      fmodMode = FMOD_SPEAKERMODE_STEREO;
-      break;
-    case ezFmodSpeakerMode::Mode5Point1:
-      sMode = "5.1";
-      fmodMode = FMOD_SPEAKERMODE_5POINT1;
-      break;
-    case ezFmodSpeakerMode::Mode7Point1:
-      sMode = "7.1";
-      fmodMode = FMOD_SPEAKERMODE_7POINT1;
-      break;
+      case ezFmodSpeakerMode::ModeStereo:
+        sMode = "Stereo";
+        fmodMode = FMOD_SPEAKERMODE_STEREO;
+        break;
+      case ezFmodSpeakerMode::Mode5Point1:
+        sMode = "5.1";
+        fmodMode = FMOD_SPEAKERMODE_5POINT1;
+        break;
+      case ezFmodSpeakerMode::Mode7Point1:
+        sMode = "7.1";
+        fmodMode = FMOD_SPEAKERMODE_7POINT1;
+        break;
     }
 
     EZ_LOG_BLOCK("Fmod Configuration");
-    ezLog::Dev("Platform = '{0}', Mode = {1}, Channels = {2}, SamplerRate = {3}", m_pData->m_sPlatform, sMode, config.m_uiVirtualChannels, config.m_uiSamplerRate);
+    ezLog::Dev("Platform = '{0}', Mode = {1}, Channels = {2}, SamplerRate = {3}", m_pData->m_sPlatform, sMode, config.m_uiVirtualChannels,
+               config.m_uiSamplerRate);
     ezLog::Dev("Master Bank = '{0}'", config.m_sMasterSoundBank);
   }
 
@@ -85,7 +87,7 @@ void ezFmod::Startup()
   EZ_FMOD_ASSERT(m_pStudioSystem->getLowLevelSystem(&m_pLowLevelSystem));
   EZ_FMOD_ASSERT(m_pLowLevelSystem->setSoftwareFormat(config.m_uiSamplerRate, fmodMode, 0));
 
-  void *extraDriverData = nullptr;
+  void* extraDriverData = nullptr;
   FMOD_STUDIO_INITFLAGS studioflags = FMOD_STUDIO_INIT_NORMAL;
 
   // fmod live update doesn't work with multiple instances and the same default IP

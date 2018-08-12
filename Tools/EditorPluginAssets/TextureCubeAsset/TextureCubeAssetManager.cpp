@@ -1,8 +1,9 @@
-﻿#include <PCH.h>
-#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetManager.h>
-#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAsset.h>
-#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetWindow.moc.h>
+#include <PCH.h>
+
 #include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
+#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAsset.h>
+#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetManager.h>
+#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetWindow.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezTextureCubeAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -28,7 +29,8 @@ ezTextureCubeAssetDocumentManager::~ezTextureCubeAssetDocumentManager()
 }
 
 
-ezBitflags<ezAssetDocumentFlags> ezTextureCubeAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
+ezBitflags<ezAssetDocumentFlags>
+ezTextureCubeAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
 {
   return ezAssetDocumentFlags::AutoThumbnailOnTransform;
 }
@@ -37,28 +39,28 @@ void ezTextureCubeAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentM
 {
   switch (e.m_Type)
   {
-  case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case ezDocumentManager::Event::Type::DocumentWindowRequested:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezTextureCubeAssetDocument>())
       {
-        ezQtTextureCubeAssetDocumentWindow* pDocWnd = new ezQtTextureCubeAssetDocumentWindow(static_cast<ezTextureCubeAssetDocument*>(e.m_pDocument));
+        ezQtTextureCubeAssetDocumentWindow* pDocWnd =
+            new ezQtTextureCubeAssetDocumentWindow(static_cast<ezTextureCubeAssetDocument*>(e.m_pDocument));
       }
     }
     break;
   }
 }
 
-ezStatus ezTextureCubeAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)
+ezStatus ezTextureCubeAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
+                                                                   ezDocument*& out_pDocument)
 {
   out_pDocument = new ezTextureCubeAssetDocument(szPath);
 
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezTextureCubeAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezTextureCubeAssetDocumentManager::InternalGetSupportedDocumentTypes(
+    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
-
-
-

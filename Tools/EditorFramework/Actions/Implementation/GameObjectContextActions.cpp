@@ -1,10 +1,11 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <Core/World/GameObject.h>
+#include <EditorFramework/Actions/GameObjectContextActions.h>
+#include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
+#include <EditorFramework/Document/GameObjectContextDocument.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
-#include <EditorFramework/Actions/GameObjectContextActions.h>
-#include <EditorFramework/Document/GameObjectContextDocument.h>
-#include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
-#include <Core/World/GameObject.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectContextAction, 1, ezRTTINoAllocator);
@@ -18,10 +19,12 @@ ezActionDescriptorHandle ezGameObjectContextActions::s_hClearContextObject;
 void ezGameObjectContextActions::RegisterActions()
 {
   s_hCategory = EZ_REGISTER_CATEGORY("GameObjectContextCategory");
-  s_hPickContextScene = EZ_REGISTER_ACTION_1("GameObjectContext.PickContextScene", ezActionScope::Window, "Game Object Context", "", ezGameObjectContextAction, ezGameObjectContextAction::ActionType::PickContextScene);
-  s_hPickContextObject = EZ_REGISTER_ACTION_1("GameObjectContext.PickContextObject", ezActionScope::Window, "Game Object Context", "", ezGameObjectContextAction, ezGameObjectContextAction::ActionType::PickContextObject);
-  s_hClearContextObject = EZ_REGISTER_ACTION_1("GameObjectContext.ClearContextObject", ezActionScope::Window, "Game Object Context", "", ezGameObjectContextAction, ezGameObjectContextAction::ActionType::ClearContextObject);
-
+  s_hPickContextScene = EZ_REGISTER_ACTION_1("GameObjectContext.PickContextScene", ezActionScope::Window, "Game Object Context", "",
+                                             ezGameObjectContextAction, ezGameObjectContextAction::ActionType::PickContextScene);
+  s_hPickContextObject = EZ_REGISTER_ACTION_1("GameObjectContext.PickContextObject", ezActionScope::Window, "Game Object Context", "",
+                                              ezGameObjectContextAction, ezGameObjectContextAction::ActionType::PickContextObject);
+  s_hClearContextObject = EZ_REGISTER_ACTION_1("GameObjectContext.ClearContextObject", ezActionScope::Window, "Game Object Context", "",
+                                               ezGameObjectContextAction, ezGameObjectContextAction::ActionType::ClearContextObject);
 }
 
 
@@ -55,34 +58,36 @@ void ezGameObjectContextActions::MapContextMenuActions(const char* szMapping, co
   ezStringBuilder szSubPath(szPath, "/GameObjectContextCategory");
   pMap->MapAction(s_hPickContextObject, szSubPath, 1.0f);
   pMap->MapAction(s_hClearContextObject, szSubPath, 2.0f);
-
 }
 
-ezGameObjectContextAction::ezGameObjectContextAction(const ezActionContext& context, const char* szName, ezGameObjectContextAction::ActionType type)
-  : ezButtonAction(context, szName, false, "")
+ezGameObjectContextAction::ezGameObjectContextAction(const ezActionContext& context, const char* szName,
+                                                     ezGameObjectContextAction::ActionType type)
+    : ezButtonAction(context, szName, false, "")
 {
   m_Type = type;
 
   switch (m_Type)
   {
-  case ActionType::PickContextScene:
-    SetIconPath(":/EditorPluginAssets/PickTarget16.png");
-    break;
-  case ActionType::PickContextObject:
-    SetIconPath(":/EditorPluginAssets/PickTarget16.png");
-    break;
-  case ActionType::ClearContextObject:
-    SetIconPath(":/EditorPluginAssets/PickTarget16.png");
-    break;
+    case ActionType::PickContextScene:
+      SetIconPath(":/EditorPluginAssets/PickTarget16.png");
+      break;
+    case ActionType::PickContextObject:
+      SetIconPath(":/EditorPluginAssets/PickTarget16.png");
+      break;
+    case ActionType::ClearContextObject:
+      SetIconPath(":/EditorPluginAssets/PickTarget16.png");
+      break;
   }
 
-  m_Context.m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezGameObjectContextAction::SelectionEventHandler, this));
+  m_Context.m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(
+      ezMakeDelegate(&ezGameObjectContextAction::SelectionEventHandler, this));
   Update();
 }
 
 ezGameObjectContextAction::~ezGameObjectContextAction()
 {
-  m_Context.m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezGameObjectContextAction::SelectionEventHandler, this));
+  m_Context.m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(
+      ezMakeDelegate(&ezGameObjectContextAction::SelectionEventHandler, this));
 }
 
 void ezGameObjectContextAction::Execute(const ezVariant& value)
@@ -91,7 +96,7 @@ void ezGameObjectContextAction::Execute(const ezVariant& value)
   ezUuid document = pDocument->GetContextDocumentGuid();
   switch (m_Type)
   {
-  case ActionType::PickContextScene:
+    case ActionType::PickContextScene:
     {
       ezQtAssetBrowserDlg dlg(GetContext().m_pWindow, document, "Scene;Prefab");
       if (dlg.exec() == 0)
@@ -101,7 +106,7 @@ void ezGameObjectContextAction::Execute(const ezVariant& value)
       pDocument->SetContext(document, ezUuid()).LogFailure();
       return;
     }
-  case ActionType::PickContextObject:
+    case ActionType::PickContextObject:
     {
       const auto& selection = pDocument->GetSelectionManager()->GetSelection();
       if (selection.GetCount() == 1)
@@ -112,12 +117,12 @@ void ezGameObjectContextAction::Execute(const ezVariant& value)
         }
       }
     }
-    return;
-  case ActionType::ClearContextObject:
+      return;
+    case ActionType::ClearContextObject:
     {
       pDocument->SetContext(document, ezUuid()).LogFailure();
     }
-    return;
+      return;
   }
 }
 
@@ -132,14 +137,12 @@ void ezGameObjectContextAction::Update()
 
   switch (m_Type)
   {
-  case ActionType::PickContextObject:
+    case ActionType::PickContextObject:
     {
       const auto& selection = pDocument->GetSelectionManager()->GetSelection();
       bool bIsSingleGameObject = selection.GetCount() == 1 && selection[0]->GetType() == ezGetStaticRTTI<ezGameObject>();
       SetEnabled(bIsSingleGameObject);
     }
-    return;
+      return;
   }
 }
-
-

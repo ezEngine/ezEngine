@@ -1,8 +1,9 @@
 #include <PCH.h>
+
+#include <Core/Graphics/Geometry.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
-#include <Core/Graphics/Geometry.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshBufferResource, 1, ezRTTIDefaultAllocator<ezMeshBufferResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -14,9 +15,7 @@ ezMeshBufferResourceDescriptor::ezMeshBufferResourceDescriptor()
   m_uiVertexCount = 0;
 }
 
-ezMeshBufferResourceDescriptor::~ezMeshBufferResourceDescriptor()
-{
-}
+ezMeshBufferResourceDescriptor::~ezMeshBufferResourceDescriptor() {}
 
 void ezMeshBufferResourceDescriptor::Clear()
 {
@@ -57,7 +56,8 @@ ezUInt32 ezMeshBufferResourceDescriptor::AddStream(ezGALVertexAttributeSemantic:
 
   for (ezUInt32 i = 0; i < m_VertexDeclaration.m_VertexStreams.GetCount(); ++i)
   {
-    EZ_ASSERT_DEV(m_VertexDeclaration.m_VertexStreams[i].m_Semantic != Semantic, "The given semantic {0} is already used by a previous stream", Semantic);
+    EZ_ASSERT_DEV(m_VertexDeclaration.m_VertexStreams[i].m_Semantic != Semantic,
+                  "The given semantic {0} is already used by a previous stream", Semantic);
   }
 
   ezVertexStreamInfo si;
@@ -71,14 +71,16 @@ ezUInt32 ezMeshBufferResourceDescriptor::AddStream(ezGALVertexAttributeSemantic:
   EZ_ASSERT_DEV(si.m_uiElementSize > 0, "Invalid Element Size. Format not supported?");
 
   if (!m_VertexDeclaration.m_VertexStreams.IsEmpty())
-    si.m_uiOffset = m_VertexDeclaration.m_VertexStreams.PeekBack().m_uiOffset + m_VertexDeclaration.m_VertexStreams.PeekBack().m_uiElementSize;
+    si.m_uiOffset =
+        m_VertexDeclaration.m_VertexStreams.PeekBack().m_uiOffset + m_VertexDeclaration.m_VertexStreams.PeekBack().m_uiElementSize;
 
   m_VertexDeclaration.m_VertexStreams.PushBack(si);
 
   return m_VertexDeclaration.m_VertexStreams.GetCount() - 1;
 }
 
-void ezMeshBufferResourceDescriptor::AllocateStreams(ezUInt32 uiNumVertices, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiNumPrimitives)
+void ezMeshBufferResourceDescriptor::AllocateStreams(ezUInt32 uiNumVertices, ezGALPrimitiveTopology::Enum topology,
+                                                     ezUInt32 uiNumPrimitives)
 {
   EZ_ASSERT_DEV(!m_VertexDeclaration.m_VertexStreams.IsEmpty(), "You have to add streams via 'AddStream' before calling this function");
 
@@ -149,7 +151,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
     const ezVertexStreamInfo& si = m_VertexDeclaration.m_VertexStreams[s];
     switch (si.m_Semantic)
     {
-    case ezGALVertexAttributeSemantic::Position:
+      case ezGALVertexAttributeSemantic::Position:
       {
         if (si.m_Format == ezGALResourceFormat::XYZFloat)
         {
@@ -165,7 +167,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
       }
       break;
 
-    case ezGALVertexAttributeSemantic::Normal:
+      case ezGALVertexAttributeSemantic::Normal:
       {
         if (si.m_Format == ezGALResourceFormat::XYZFloat)
         {
@@ -181,7 +183,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
       }
       break;
 
-    case ezGALVertexAttributeSemantic::Tangent:
+      case ezGALVertexAttributeSemantic::Tangent:
       {
         if (si.m_Format == ezGALResourceFormat::XYZFloat)
         {
@@ -197,7 +199,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
       }
       break;
 
-    case ezGALVertexAttributeSemantic::Color:
+      case ezGALVertexAttributeSemantic::Color:
       {
         if (si.m_Format == ezGALResourceFormat::RGBAUByteNormalized)
         {
@@ -213,8 +215,8 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
       }
       break;
 
-    case ezGALVertexAttributeSemantic::TexCoord0:
-    case ezGALVertexAttributeSemantic::TexCoord1:
+      case ezGALVertexAttributeSemantic::TexCoord0:
+      case ezGALVertexAttributeSemantic::TexCoord1:
       {
         if (si.m_Format == ezGALResourceFormat::UVFloat)
         {
@@ -230,7 +232,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
       }
       break;
 
-    case ezGALVertexAttributeSemantic::BoneIndices0:
+      case ezGALVertexAttributeSemantic::BoneIndices0:
       {
         // if a bone index array is available, move the custom index into it
 
@@ -245,7 +247,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
       }
       break;
 
-    case ezGALVertexAttributeSemantic::BoneWeights0:
+      case ezGALVertexAttributeSemantic::BoneWeights0:
       {
         // if a bone weight array is available, set it to fully use the first bone
 
@@ -261,12 +263,12 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
       }
       break;
 
-    case ezGALVertexAttributeSemantic::BoneIndices1:
-    case ezGALVertexAttributeSemantic::BoneWeights1:
-      // Don't error out for these semantics as they may be used by the user (e.g. breakable mesh construction)
-      break;
+      case ezGALVertexAttributeSemantic::BoneIndices1:
+      case ezGALVertexAttributeSemantic::BoneWeights1:
+        // Don't error out for these semantics as they may be used by the user (e.g. breakable mesh construction)
+        break;
 
-    default:
+      default:
       {
         ezLog::Error("Streams semantic '{0}' is not supported.", (int)si.m_Semantic);
       }
@@ -394,7 +396,8 @@ ezBoundingBoxSphere ezMeshBufferResourceDescriptor::ComputeBounds() const
   return bounds;
 }
 
-ezMeshBufferResource::ezMeshBufferResource() : ezResource<ezMeshBufferResource, ezMeshBufferResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+ezMeshBufferResource::ezMeshBufferResource()
+    : ezResource<ezMeshBufferResource, ezMeshBufferResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -459,7 +462,8 @@ ezResourceLoadDesc ezMeshBufferResource::CreateResource(const ezMeshBufferResour
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  m_hVertexBuffer = pDevice->CreateVertexBuffer(descriptor.GetVertexDataSize(), descriptor.GetVertexCount(), descriptor.GetVertexBufferData());
+  m_hVertexBuffer =
+      pDevice->CreateVertexBuffer(descriptor.GetVertexDataSize(), descriptor.GetVertexCount(), descriptor.GetVertexBufferData());
 
   ezStringBuilder sName;
   sName.Format("{0} Vertex Buffer", GetResourceDescription());
@@ -468,7 +472,8 @@ ezResourceLoadDesc ezMeshBufferResource::CreateResource(const ezMeshBufferResour
   if (descriptor.HasIndexBuffer())
   {
     m_hIndexBuffer = pDevice->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort,
-      m_uiPrimitiveCount * ezGALPrimitiveTopology::VerticesPerPrimitive(m_Topology), descriptor.GetIndexBufferData());
+                                                m_uiPrimitiveCount * ezGALPrimitiveTopology::VerticesPerPrimitive(m_Topology),
+                                                descriptor.GetIndexBufferData());
 
     sName.Format("{0} Index Buffer", GetResourceDescription());
     pDevice->GetBuffer(m_hIndexBuffer)->SetDebugName(sName);
@@ -500,4 +505,3 @@ void ezVertexDeclarationInfo::ComputeHash()
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshBufferResource);
-

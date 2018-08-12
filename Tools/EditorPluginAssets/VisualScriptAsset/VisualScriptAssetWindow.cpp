@@ -1,24 +1,25 @@
 #include <PCH.h>
-#include <EditorPluginAssets/VisualScriptAsset/VisualScriptAssetWindow.moc.h>
-#include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraphQt.moc.h>
-#include <EditorPluginAssets/VisualScriptAsset/VisualScriptAsset.h>
-#include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
-#include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
-#include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
-#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
-#include <GuiFoundation/NodeEditor/NodeView.moc.h>
-#include <GuiFoundation/Dialogs/PickDocumentObjectDlg.moc.h>
-#include <GameEngine/VisualScript/VisualScriptComponent.h>
+
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAsset.h>
+#include <EditorPluginAssets/VisualScriptAsset/VisualScriptAssetWindow.moc.h>
+#include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraphQt.moc.h>
+#include <GameEngine/VisualScript/VisualScriptComponent.h>
+#include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
+#include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
+#include <GuiFoundation/Dialogs/PickDocumentObjectDlg.moc.h>
+#include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
+#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
+#include <GuiFoundation/NodeEditor/NodeView.moc.h>
+#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 
+#include <EditorFramework/Preferences/Preferences.h>
 #include <QLabel>
 #include <QLayout>
-#include <EditorFramework/Preferences/Preferences.h>
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptPreferences, 1, ezRTTIDefaultAllocator<ezVisualScriptPreferences>)
 {
   EZ_BEGIN_PROPERTIES
@@ -28,16 +29,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptPreferences, 1, ezRTTIDefaultAlloc
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptPreferences::ezVisualScriptPreferences() 
-  : ezPreferences(ezPreferences::Domain::Document, "Visual Script")
-{ 
+ezVisualScriptPreferences::ezVisualScriptPreferences()
+    : ezPreferences(ezPreferences::Domain::Document, "Visual Script")
+{
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 ezQtVisualScriptAssetDocumentWindow::ezQtVisualScriptAssetDocumentWindow(ezDocument* pDocument, const ezDocumentObject* pOpenContext)
-  : ezQtDocumentWindow(pDocument)
+    : ezQtDocumentWindow(pDocument)
 {
 
   // Menu Bar
@@ -80,10 +82,13 @@ ezQtVisualScriptAssetDocumentWindow::ezQtVisualScriptAssetDocumentWindow(ezDocum
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
   }
 
-  static_cast<ezVisualScriptAssetDocument*>(pDocument)->m_ActivityEvents.AddEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler, m_pScene));
-  static_cast<ezVisualScriptAssetDocument*>(pDocument)->m_InterDocumentMessages.AddEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptInterDocumentMessageHandler, m_pScene));
+  static_cast<ezVisualScriptAssetDocument*>(pDocument)->m_ActivityEvents.AddEventHandler(
+      ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler, m_pScene));
+  static_cast<ezVisualScriptAssetDocument*>(pDocument)->m_InterDocumentMessages.AddEventHandler(
+      ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptInterDocumentMessageHandler, m_pScene));
 
-  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetDocumentWindow::SelectionEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(
+      ezMakeDelegate(&ezQtVisualScriptAssetDocumentWindow::SelectionEventHandler, this));
 
   if (pOpenContext != nullptr)
   {
@@ -105,10 +110,13 @@ ezQtVisualScriptAssetDocumentWindow::~ezQtVisualScriptAssetDocumentWindow()
 {
   if (GetDocument() != nullptr)
   {
-    GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetDocumentWindow::SelectionEventHandler, this));
+    GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(
+        ezMakeDelegate(&ezQtVisualScriptAssetDocumentWindow::SelectionEventHandler, this));
 
-    GetVisualScriptDocument()->m_ActivityEvents.RemoveEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler, m_pScene));
-    GetVisualScriptDocument()->m_InterDocumentMessages.RemoveEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptInterDocumentMessageHandler, m_pScene));
+    GetVisualScriptDocument()->m_ActivityEvents.RemoveEventHandler(
+        ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler, m_pScene));
+    GetVisualScriptDocument()->m_InterDocumentMessages.RemoveEventHandler(
+        ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptInterDocumentMessageHandler, m_pScene));
   }
 }
 
@@ -167,10 +175,6 @@ void ezQtVisualScriptAssetDocumentWindow::SelectionEventHandler(const ezSelectio
   if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
   {
     // delayed execution
-    QTimer::singleShot(1, [this]()
-    {
-      GetDocument()->GetSelectionManager()->SetSelection(GetVisualScriptDocument()->GetPropertyObject());
-    });
+    QTimer::singleShot(1, [this]() { GetDocument()->GetSelectionManager()->SetSelection(GetVisualScriptDocument()->GetPropertyObject()); });
   }
 }
-

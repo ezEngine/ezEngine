@@ -1,27 +1,28 @@
 #include <PCH.h>
-#include <GameEngine/MixedReality/MixedRealityFramework.h>
+
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <GameEngine/MixedReality/MixedRealityFramework.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
 //////////////////////////////////////////////////////////////////////////
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
 
-#include <WindowsMixedReality/HolographicSpace.h>
-#include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
-#include <WindowsMixedReality/SpatialMapping/SurfaceReconstructionMeshManager.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Pipeline/View.h>
-#include <WindowsMixedReality/Graphics/MixedRealityCamera.h>
-#include <RendererCore/Components/CameraComponent.h>
 #include <Core/World/World.h>
 #include <Interfaces/SoundInterface.h>
+#include <RendererCore/Components/CameraComponent.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
+#include <WindowsMixedReality/Graphics/MixedRealityCamera.h>
+#include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
+#include <WindowsMixedReality/HolographicSpace.h>
+#include <WindowsMixedReality/SpatialMapping/SurfaceReconstructionMeshManager.h>
 
 EZ_IMPLEMENT_SINGLETON(ezMixedRealityFramework);
 
 ezMixedRealityFramework::ezMixedRealityFramework(ezCamera* pCameraForSynchronization)
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
   Startup(pCameraForSynchronization);
 }
@@ -33,8 +34,7 @@ ezMixedRealityFramework::~ezMixedRealityFramework()
 
 void ezMixedRealityFramework::Startup(ezCamera* pCameraForSynchronization)
 {
-  ezGameApplication::SetOverrideDefaultDeviceCreator([this](const ezGALDeviceCreationDescription& desc) -> ezGALDevice*
-  {
+  ezGameApplication::SetOverrideDefaultDeviceCreator([this](const ezGALDeviceCreationDescription& desc) -> ezGALDevice* {
     auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
     if (pHoloSpace->IsAvailable())
     {
@@ -69,7 +69,8 @@ void ezMixedRealityFramework::Startup(ezCamera* pCameraForSynchronization)
 
 void ezMixedRealityFramework::Shutdown()
 {
-  ezGameApplication::GetGameApplicationInstance()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezMixedRealityFramework::GameApplicationEventHandler, this));
+  ezGameApplication::GetGameApplicationInstance()->m_Events.RemoveEventHandler(
+      ezMakeDelegate(&ezMixedRealityFramework::GameApplicationEventHandler, this));
 
   m_pSpatialMappingManager = nullptr;
   m_pHolospaceToDestroy = nullptr;
@@ -94,7 +95,8 @@ void ezMixedRealityFramework::GameApplicationEventHandler(const ezGameApplicatio
       // put the camera orientation into the sound listener and enable the listener override mode
       if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>("ezSoundInterface"))
       {
-        pSoundInterface->SetListener(-1, m_pCameraToSynchronize->GetCenterPosition(), m_pCameraToSynchronize->GetCenterDirForwards(), m_pCameraToSynchronize->GetCenterDirUp(), ezVec3::ZeroVector());
+        pSoundInterface->SetListener(-1, m_pCameraToSynchronize->GetCenterPosition(), m_pCameraToSynchronize->GetCenterDirForwards(),
+                                     m_pCameraToSynchronize->GetCenterDirUp(), ezVec3::ZeroVector());
       }
     }
   }
@@ -109,7 +111,8 @@ void ezMixedRealityFramework::OnDeviceCreated(bool bHolographicDevice)
 {
   if (bHolographicDevice)
   {
-    ezGameApplication::GetGameApplicationInstance()->m_Events.AddEventHandler(ezMakeDelegate(&ezMixedRealityFramework::GameApplicationEventHandler, this));
+    ezGameApplication::GetGameApplicationInstance()->m_Events.AddEventHandler(
+        ezMakeDelegate(&ezMixedRealityFramework::GameApplicationEventHandler, this));
 
     m_pSpatialMappingManager = EZ_DEFAULT_NEW(ezSurfaceReconstructionMeshManager);
   }
@@ -140,7 +143,8 @@ void ezMixedRealityFramework::SetAdditionalCameraTransform(const ezTransform& tr
   m_AdditionalCameraTransform = transform;
 }
 
-ezViewHandle ezMixedRealityFramework::CreateHolographicView(ezWindowBase* pWindow, const ezRenderPipelineResourceHandle& hRenderPipeline, ezCamera* pCamera, ezWorld* pWorld /*= nullptr*/)
+ezViewHandle ezMixedRealityFramework::CreateHolographicView(ezWindowBase* pWindow, const ezRenderPipelineResourceHandle& hRenderPipeline,
+                                                            ezCamera* pCamera, ezWorld* pWorld /*= nullptr*/)
 {
   auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
 
@@ -165,7 +169,8 @@ ezViewHandle ezMixedRealityFramework::CreateHolographicView(ezWindowBase* pWindo
   SetCameraForPredictionSynchronization(pCamera);
 
   auto hRemoteWindowSwapChain = ezGALDevice::GetDefaultDevice()->GetPrimarySwapChain();
-  EZ_ASSERT_DEBUG(!hRemoteWindowSwapChain.IsInvalidated(), "Primary swap chain is still invalid after a holographic camera has been added.");
+  EZ_ASSERT_DEBUG(!hRemoteWindowSwapChain.IsInvalidated(),
+                  "Primary swap chain is still invalid after a holographic camera has been added.");
 
   const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(hRemoteWindowSwapChain);
   auto hBackBufferRTV = ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(pSwapChain->GetBackBufferTexture());
@@ -203,7 +208,7 @@ void ezMixedRealityFramework::SynchronizeCameraOrientationToCameraObjects(ezWorl
     if (it->IsActiveAndInitialized() && it->GetUsageHint() == ezCameraUsageHint::MainView)
     {
       ezGameObject* pOwner = it->GetOwner();
-      
+
       SynchronizeCameraOrientationToGameObject(pOwner);
     }
   }
@@ -237,4 +242,3 @@ void ezMixedRealityFramework::SynchronizeCameraOrientationToGameObject(ezGameObj
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_MixedReality_MixedRealityFramework);
-

@@ -1,13 +1,14 @@
 #include <PCH.h>
-#include <GuiFoundation/Widgets/CollapsibleGroupBox.moc.h>
+
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QPainter>
+#include <GuiFoundation/Widgets/CollapsibleGroupBox.moc.h>
 #include <QMouseEvent>
+#include <QPainter>
 #include <QScrollArea>
 
 ezQtCollapsibleGroupBox::ezQtCollapsibleGroupBox(QWidget* pParent)
-  : ezQtGroupBoxBase(pParent, true)
-  , m_bCollapsed(false)
+    : ezQtGroupBoxBase(pParent, true)
+    , m_bCollapsed(false)
 {
   setupUi(this);
 
@@ -72,17 +73,17 @@ bool ezQtCollapsibleGroupBox::eventFilter(QObject* object, QEvent* event)
 {
   switch (event->type())
   {
-  case QEvent::Type::MouseButtonPress:
-    HeaderMousePress(static_cast<QMouseEvent*>(event));
-    return true;
-  case QEvent::Type::MouseMove:
-    HeaderMouseMove(static_cast<QMouseEvent*>(event));
-    return true;
-  case QEvent::Type::MouseButtonRelease:
-    HeaderMouseRelease(static_cast<QMouseEvent*>(event));
-    return true;
-  default:
-    break;
+    case QEvent::Type::MouseButtonPress:
+      HeaderMousePress(static_cast<QMouseEvent*>(event));
+      return true;
+    case QEvent::Type::MouseMove:
+      HeaderMouseMove(static_cast<QMouseEvent*>(event));
+      return true;
+    case QEvent::Type::MouseButtonRelease:
+      HeaderMouseRelease(static_cast<QMouseEvent*>(event));
+      return true;
+    default:
+      break;
   }
   return false;
 }

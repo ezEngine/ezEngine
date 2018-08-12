@@ -1,15 +1,12 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <Foundation/Containers/StaticArray.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshPointsOfInterest.h>
 #include <ThirdParty/Recast/Recast.h>
-#include <Foundation/Containers/StaticArray.h>
 
-ezNavMeshPointOfInterestGraph::ezNavMeshPointOfInterestGraph()
-{
-}
+ezNavMeshPointOfInterestGraph::ezNavMeshPointOfInterestGraph() {}
 
-ezNavMeshPointOfInterestGraph::~ezNavMeshPointOfInterestGraph()
-{
-}
+ezNavMeshPointOfInterestGraph::~ezNavMeshPointOfInterestGraph() {}
 
 void ezNavMeshPointOfInterestGraph::IncreaseCheckVisibiblityTimeStamp(ezTime tNow)
 {
@@ -20,7 +17,8 @@ void ezNavMeshPointOfInterestGraph::IncreaseCheckVisibiblityTimeStamp(ezTime tNo
   m_uiCheckVisibilityTimeStamp += 4;
 }
 
-EZ_ALWAYS_INLINE static ezVec3 GetNavMeshVertex(const rcPolyMesh* pMesh, ezUInt16 uiVertex, const ezVec3& vMeshOrigin, float fCellSize, float fCellHeight)
+EZ_ALWAYS_INLINE static ezVec3 GetNavMeshVertex(const rcPolyMesh* pMesh, ezUInt16 uiVertex, const ezVec3& vMeshOrigin, float fCellSize,
+                                                float fCellHeight)
 {
   const ezUInt16* v = &pMesh->verts[uiVertex * 3];
   const float x = vMeshOrigin.x + v[0] * fCellSize;
@@ -41,7 +39,8 @@ struct PotentialPoI
   ezVec3 m_vLineDir;
 };
 
-EZ_ALWAYS_INLINE static void AddToInterestPoints(ezDeque<PotentialPoI>& interestPoints, ezInt32 iVertexIdx, const ezVec3& pos, const ezVec3& vPolyCenter, ezVec3 vLineDir)
+EZ_ALWAYS_INLINE static void AddToInterestPoints(ezDeque<PotentialPoI>& interestPoints, ezInt32 iVertexIdx, const ezVec3& pos,
+                                                 const ezVec3& vPolyCenter, ezVec3 vLineDir)
 {
   ezVec3 toCenter = vPolyCenter - pos;
   toCenter.SetLength(toCenterOffset);
@@ -302,6 +301,4 @@ void ezNavMeshPointOfInterestGraph::ExtractInterestPointsFromMesh(const rcPolyMe
 
     ezLog::Dev("Num Points of Interest: {0}", uiNumPoints);
   }
-
 }
-

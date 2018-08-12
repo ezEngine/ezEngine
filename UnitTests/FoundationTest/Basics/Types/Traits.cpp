@@ -38,7 +38,6 @@ namespace
 
   class ClassType
   {
-
   };
 
   struct AggregateClass

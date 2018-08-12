@@ -1,11 +1,12 @@
 #include <PCH.h>
-#include <EditorFramework/Preferences/EditorPreferences.h>
+
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Profiling/Profiling.h>
 
 //////////////////////////////////////////////////////////////////////////
 
-
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesUser, 1, ezRTTIDefaultAllocator<ezEditorPreferencesUser>)
 {
   EZ_BEGIN_PROPERTIES
@@ -18,9 +19,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesUser, 1, ezRTTIDefaultAllocat
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezEditorPreferencesUser::ezEditorPreferencesUser()
-  : ezPreferences(Domain::Application, "General")
+    : ezPreferences(Domain::Application, "General")
 {
   m_fPerspectiveFieldOfView = 70.0f;
   m_fGizmoScale = 1.0f;

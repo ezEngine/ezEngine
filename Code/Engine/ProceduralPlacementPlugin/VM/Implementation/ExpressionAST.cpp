@@ -1,32 +1,33 @@
 #include <PCH.h>
+
 #include <ProceduralPlacementPlugin/VM/ExpressionAST.h>
 #include <Utilities/DGML/DGMLWriter.h>
 
-//static
+// static
 bool ezExpressionAST::NodeType::IsUnary(Enum nodeType)
 {
   return nodeType > FirstUnary && nodeType < LastUnary;
 }
 
-//static
+// static
 bool ezExpressionAST::NodeType::IsBinary(Enum nodeType)
 {
   return nodeType > FirstBinary && nodeType < LastBinary;
 }
 
-//static
+// static
 bool ezExpressionAST::NodeType::IsConstant(Enum nodeType)
 {
   return nodeType == FloatConstant;
 }
 
-//static
+// static
 bool ezExpressionAST::NodeType::IsInput(Enum nodeType)
 {
   return nodeType == FloatInput;
 }
 
-//static
+// static
 bool ezExpressionAST::NodeType::IsOutput(Enum nodeType)
 {
   return nodeType == FloatOutput;
@@ -34,43 +35,30 @@ bool ezExpressionAST::NodeType::IsOutput(Enum nodeType)
 
 namespace
 {
-  static const char* s_szNodeTypeNames[] =
-  {
-    "Invalid",
+  static const char* s_szNodeTypeNames[] = {"Invalid",
 
-    // Unary
-    "",
-    "Negate",
-    "Absolute",
-    "Sqrt",
-    "",
+                                            // Unary
+                                            "", "Negate", "Absolute", "Sqrt", "",
 
-    // Binary
-    "",
-    "Add",
-    "Subtract",
-    "Multiply",
-    "Divide",
-    "Min",
-    "Max",
-    "",
+                                            // Binary
+                                            "", "Add", "Subtract", "Multiply", "Divide", "Min", "Max", "",
 
-    // Constant
-    "FloatConstant",
+                                            // Constant
+                                            "FloatConstant",
 
-    // Input
-    "FloatInput",
+                                            // Input
+                                            "FloatInput",
 
-    // Output
-    "FloatOutput",
+                                            // Output
+                                            "FloatOutput",
 
-    "FunctionCall"
-  };
+                                            "FunctionCall"};
 
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_ARRAY_SIZE(s_szNodeTypeNames) == ezExpressionAST::NodeType::Count, "Node name array size does not match node type count");
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_ARRAY_SIZE(s_szNodeTypeNames) == ezExpressionAST::NodeType::Count,
+                              "Node name array size does not match node type count");
 }
 
-//static
+// static
 const char* ezExpressionAST::NodeType::GetName(Enum nodeType)
 {
   EZ_ASSERT_DEBUG(nodeType >= 0 && nodeType < EZ_ARRAY_SIZE(s_szNodeTypeNames), "Out of bounds access");
@@ -80,13 +68,11 @@ const char* ezExpressionAST::NodeType::GetName(Enum nodeType)
 //////////////////////////////////////////////////////////////////////////
 
 ezExpressionAST::ezExpressionAST()
-  : m_Allocator("Expression AST", ezFoundation::GetAlignedAllocator())
+    : m_Allocator("Expression AST", ezFoundation::GetAlignedAllocator())
 {
 }
 
-ezExpressionAST::~ezExpressionAST()
-{
-}
+ezExpressionAST::~ezExpressionAST() {}
 
 ezExpressionAST::UnaryOperator* ezExpressionAST::CreateUnaryOperator(NodeType::Enum type, Node* pOperand)
 {
@@ -140,7 +126,7 @@ ezExpressionAST::FunctionCall* ezExpressionAST::CreateFunctionCall(const ezHashe
   return pFunctionCall;
 }
 
-//static
+// static
 ezArrayPtr<ezExpressionAST::Node*> ezExpressionAST::GetChildren(Node* pNode)
 {
   NodeType::Enum nodeType = pNode->m_Type;
@@ -168,7 +154,7 @@ ezArrayPtr<ezExpressionAST::Node*> ezExpressionAST::GetChildren(Node* pNode)
   return ezArrayPtr<Node*>();
 }
 
-//static
+// static
 ezArrayPtr<const ezExpressionAST::Node*> ezExpressionAST::GetChildren(const Node* pNode)
 {
   NodeType::Enum nodeType = pNode->m_Type;
@@ -221,7 +207,7 @@ void ezExpressionAST::PrintGraph(ezDGMLGraph& graph) const
 
     ezUInt32 uiGraphNode = graph.AddNode(sTmp, ezColor::LightBlue);
 
-    nodeStack.PushBack({ pOutputNode->m_pExpression, uiGraphNode });
+    nodeStack.PushBack({pOutputNode->m_pExpression, uiGraphNode});
   }
 
   ezHashTable<const Node*, ezUInt32> nodeCache;
@@ -262,7 +248,7 @@ void ezExpressionAST::PrintGraph(ezDGMLGraph& graph) const
         auto children = GetChildren(currentNodeInfo.m_pNode);
         for (auto pChild : children)
         {
-          nodeStack.PushBack({ pChild, uiGraphNode });
+          nodeStack.PushBack({pChild, uiGraphNode});
         }
       }
     }

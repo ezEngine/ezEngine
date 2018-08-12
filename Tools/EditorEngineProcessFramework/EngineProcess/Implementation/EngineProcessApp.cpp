@@ -1,18 +1,18 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <RendererCore/Pipeline/View.h>
-#include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
 
 EZ_IMPLEMENT_SINGLETON(ezEditorEngineProcessApp);
 
 ezEditorEngineProcessApp::ezEditorEngineProcessApp()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
-
 }
 
 ezEditorEngineProcessApp::~ezEditorEngineProcessApp()
@@ -84,7 +84,8 @@ ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCame
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-    m_hRemoteWindowSwapChain = static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->AddWindow(m_pRemoteWindow.Borrow());
+    m_hRemoteWindowSwapChain =
+        static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->AddWindow(m_pRemoteWindow.Borrow());
     const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(m_hRemoteWindowSwapChain);
     EZ_ASSERT_DEV(pPrimarySwapChain != nullptr, "Failed to init swapchain");
 
@@ -99,14 +100,15 @@ ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCame
       m_hRemoteView = ezRenderWorld::CreateView("Remote Process", pView);
 
       // EditorRenderPipeline.ezRenderPipelineAsset
-      pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>("{ da463c4d-c984-4910-b0b7-a0b3891d0448 }"));
+      pView->SetRenderPipelineResource(
+          ezResourceManager::LoadResource<ezRenderPipelineResource>("{ da463c4d-c984-4910-b0b7-a0b3891d0448 }"));
 
       pView->SetRenderTargetSetup(BackBufferRenderTargetSetup);
-      pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)m_pRemoteWindow->GetClientAreaSize().width, (float)m_pRemoteWindow->GetClientAreaSize().height));
+      pView->SetViewport(
+          ezRectFloat(0.0f, 0.0f, (float)m_pRemoteWindow->GetClientAreaSize().width, (float)m_pRemoteWindow->GetClientAreaSize().height));
       pView->SetCamera(pCamera);
     }
   }
 
   return m_hRemoteView;
 }
-

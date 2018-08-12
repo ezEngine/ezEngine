@@ -1,10 +1,12 @@
 #include <PCH.h>
-#include <GameEngine/Components/CharacterControllerComponent.h>
-#include <Core/WorldSerializer/WorldWriter.h>
+
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <GameEngine/Components/CharacterControllerComponent.h>
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgMoveCharacterController);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgMoveCharacterController, 1, ezRTTIDefaultAllocator<ezMsgMoveCharacterController>)
 {
@@ -46,28 +48,24 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezCharacterControllerComponent, 1)
   }
   EZ_END_MESSAGEHANDLERS
 }
-EZ_END_ABSTRACT_COMPONENT_TYPE
+EZ_END_ABSTRACT_COMPONENT_TYPE;
+// clang-format on
 
-ezCharacterControllerComponent::ezCharacterControllerComponent()
-{
-}
+ezCharacterControllerComponent::ezCharacterControllerComponent() {}
 
 void ezCharacterControllerComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
-
 }
 
 void ezCharacterControllerComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
-
 }
 
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_CharacterControllerComponent);
-

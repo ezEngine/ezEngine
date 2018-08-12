@@ -1,19 +1,21 @@
-﻿#include <PCH.h>
-#include <Foundation/Time/Clock.h>
-#include <Foundation/Memory/FrameAllocator.h>
+#include <PCH.h>
+
 #include <Core/World/World.h>
+#include <Foundation/Memory/FrameAllocator.h>
+#include <Foundation/Time/Clock.h>
 
 namespace
 {
   struct ezMsgTest : public ezMessage
   {
     EZ_DECLARE_MESSAGE_TYPE(ezMsgTest, ezMessage);
-
   };
 
+  // clang-format off
   EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTest);
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTest, 1, ezRTTIDefaultAllocator<ezMsgTest>)
   EZ_END_DYNAMIC_REFLECTED_TYPE;
+  // clang-format on
 
   struct TestMessage1 : public ezMsgTest
   {
@@ -26,14 +28,12 @@ namespace
   {
     EZ_DECLARE_MESSAGE_TYPE(TestMessage2, ezMsgTest);
 
-    virtual ezInt32 GetSortingKey() const override
-    {
-      return 2;
-    }
+    virtual ezInt32 GetSortingKey() const override { return 2; }
 
     int m_iValue;
   };
 
+  // clang-format off
   EZ_IMPLEMENT_MESSAGE_TYPE(TestMessage1);
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(TestMessage1, 1, ezRTTIDefaultAllocator<TestMessage1>)
   EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -41,6 +41,7 @@ namespace
   EZ_IMPLEMENT_MESSAGE_TYPE(TestMessage2);
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(TestMessage2, 1, ezRTTIDefaultAllocator<TestMessage2>)
   EZ_END_DYNAMIC_REFLECTED_TYPE;
+  // clang-format on
 
   class TestComponentMsg;
   typedef ezComponentManager<TestComponentMsg, ezBlockStorageType::FreeList> TestComponentMsgManager;
@@ -50,26 +51,25 @@ namespace
     EZ_DECLARE_COMPONENT_TYPE(TestComponentMsg, ezComponent, TestComponentMsgManager);
 
   public:
-    TestComponentMsg() : m_iSomeData(1), m_iSomeData2(2) {}
+    TestComponentMsg()
+        : m_iSomeData(1)
+        , m_iSomeData2(2)
+    {
+    }
     ~TestComponentMsg() {}
 
     virtual void SerializeComponent(ezWorldWriter& stream) const override {}
     virtual void DeserializeComponent(ezWorldReader& stream) override {}
 
-    void OnTestMessage(TestMessage1& msg)
-    {
-      m_iSomeData += msg.m_iValue;
-    }
+    void OnTestMessage(TestMessage1& msg) { m_iSomeData += msg.m_iValue; }
 
-    void OnTestMessage2(TestMessage2& msg)
-    {
-      m_iSomeData2 += 2 * msg.m_iValue;
-    }
+    void OnTestMessage2(TestMessage2& msg) { m_iSomeData2 += 2 * msg.m_iValue; }
 
     ezInt32 m_iSomeData;
     ezInt32 m_iSomeData2;
   };
 
+  // clang-format off
   EZ_BEGIN_COMPONENT_TYPE(TestComponentMsg, 1, ezComponentMode::Static)
   {
     EZ_BEGIN_MESSAGEHANDLERS
@@ -79,7 +79,8 @@ namespace
     }
     EZ_END_MESSAGEHANDLERS
   }
-  EZ_END_COMPONENT_TYPE
+  EZ_END_COMPONENT_TYPE;
+  // clang-format on
 
   void ResetComponents(ezGameObject& object)
   {
@@ -128,7 +129,7 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
     for (ezUInt32 j = 0; j < 4; ++j)
     {
       ezStringBuilder sb;
-      sb.AppendFormat("Parent{0}_Child{1}", i+1, j+1);
+      sb.AppendFormat("Parent{0}_Child{1}", i + 1, j + 1);
       desc.m_sName.Assign(sb.GetData());
 
       ezGameObject* pObject = nullptr;
@@ -207,11 +208,11 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
     {
       TestMessage1 msg;
       msg.m_iValue = i;
-      pRoot->PostMessage(msg, ezObjectMsgQueueType::NextFrame, ezTime::Seconds(i+1));
+      pRoot->PostMessage(msg, ezObjectMsgQueueType::NextFrame, ezTime::Seconds(i + 1));
 
       TestMessage2 msg2;
       msg2.m_iValue = i;
-      pRoot->PostMessage(msg2, ezObjectMsgQueueType::NextFrame, ezTime::Seconds(i+1));
+      pRoot->PostMessage(msg2, ezObjectMsgQueueType::NextFrame, ezTime::Seconds(i + 1));
     }
 
     world.GetClock().SetFixedTimeStep(ezTime::Seconds(1.001f));

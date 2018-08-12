@@ -1,10 +1,8 @@
-
 #include <PCH.h>
+
 #include <RendererFoundation/Shader/ShaderByteCode.h>
 
-ezGALShaderByteCode::ezGALShaderByteCode()
-{
-}
+ezGALShaderByteCode::ezGALShaderByteCode() {}
 
 ezGALShaderByteCode::ezGALShaderByteCode(const ezArrayPtr<const ezUInt8>& pByteCode)
 {
@@ -21,4 +19,3 @@ void ezGALShaderByteCode::CopyFrom(const ezArrayPtr<const ezUInt8>& pByteCode)
 
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Shader_Implementation_ShaderByteCode);
-

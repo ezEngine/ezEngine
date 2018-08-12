@@ -1,17 +1,17 @@
 #include <PCH.h>
-#include <ToolsFoundation/Application/ApplicationServices.h>
+
 #include <Foundation/IO/OSFile.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 
 EZ_IMPLEMENT_SINGLETON(ezApplicationServices);
 
 static ezApplicationServices g_instance;
 
 ezApplicationServices::ezApplicationServices()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
-
 }
 
 void ezApplicationServices::SetApplicationName(const char* szName)
@@ -72,7 +72,6 @@ ezString ezApplicationServices::GetDocumentPreferencesFolder(const ezDocument* p
 
   path.MakeCleanPath();
   return path;
-
 }
 
 ezString ezApplicationServices::GetPrecompiledToolsFolder(bool bUsePrecompiledTools) const
@@ -88,5 +87,3 @@ ezString ezApplicationServices::GetPrecompiledToolsFolder(bool bUsePrecompiledTo
 
   return sPath;
 }
-
-

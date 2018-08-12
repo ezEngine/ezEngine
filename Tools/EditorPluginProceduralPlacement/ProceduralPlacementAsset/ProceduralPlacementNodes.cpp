@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementNodes.h>
 
 namespace
@@ -21,14 +22,17 @@ namespace
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementNodeBase, 1, ezRTTINoAllocator)
 {
   flags.Add(ezTypeFlags::Abstract);
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementLayerOutput, 1, ezRTTIDefaultAllocator<ezProceduralPlacementLayerOutput>)
 {
   EZ_BEGIN_PROPERTIES
@@ -54,8 +58,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementLayerOutput, 1, ezRTTIDefau
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezExpressionAST::Node* ezProceduralPlacementLayerOutput::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast)
+ezExpressionAST::Node* ezProceduralPlacementLayerOutput::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs,
+                                                                                   ezExpressionAST& out_Ast)
 {
   out_Ast.m_OutputNodes.Clear();
 
@@ -141,6 +147,7 @@ void ezProceduralPlacementLayerOutput::Save(ezStreamWriter& stream)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementRandom, 1, ezRTTIDefaultAllocator<ezProceduralPlacementRandom>)
 {
   EZ_BEGIN_PROPERTIES
@@ -158,8 +165,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementRandom, 1, ezRTTIDefaultAll
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezExpressionAST::Node* ezProceduralPlacementRandom::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast)
+ezExpressionAST::Node* ezProceduralPlacementRandom::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs,
+                                                                              ezExpressionAST& out_Ast)
 {
   auto pRandom = CreateRandom(m_iSeed, out_Ast);
   return pRandom;
@@ -167,6 +176,7 @@ ezExpressionAST::Node* ezProceduralPlacementRandom::GenerateExpressionASTNode(ez
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementBlend, 1, ezRTTIDefaultAllocator<ezProceduralPlacementBlend>)
 {
   EZ_BEGIN_PROPERTIES
@@ -187,8 +197,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementBlend, 1, ezRTTIDefaultAllo
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezExpressionAST::Node* ezProceduralPlacementBlend::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast)
+ezExpressionAST::Node* ezProceduralPlacementBlend::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs,
+                                                                             ezExpressionAST& out_Ast)
 {
   auto pInputA = inputs[0];
   if (pInputA == nullptr)
@@ -208,6 +220,7 @@ ezExpressionAST::Node* ezProceduralPlacementBlend::GenerateExpressionASTNode(ezA
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementHeight, 1, ezRTTIDefaultAllocator<ezProceduralPlacementHeight>)
 {
   EZ_BEGIN_PROPERTIES
@@ -227,8 +240,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementHeight, 1, ezRTTIDefaultAll
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezExpressionAST::Node* ezProceduralPlacementHeight::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast)
+ezExpressionAST::Node* ezProceduralPlacementHeight::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs,
+                                                                              ezExpressionAST& out_Ast)
 {
   auto pHeight = out_Ast.CreateInput(ezPPInternal::ExpressionInputs::s_sPositionZ);
   auto pOffset = out_Ast.CreateConstant(m_fMinHeight);

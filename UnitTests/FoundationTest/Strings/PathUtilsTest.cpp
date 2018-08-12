@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Strings/String.h>
 
 EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
@@ -11,8 +12,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
       {
         EZ_TEST_BOOL(ezPathUtils::IsPathSeparator(i));
       }
-      else
-      if (i == '\\')
+      else if (i == '\\')
       {
         EZ_TEST_BOOL(ezPathUtils::IsPathSeparator(i));
       }
@@ -31,10 +31,10 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
     EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath + 20) == szPath + 11);
     EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath + 11) == szPath + 10);
     EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath + 10) == szPath + 7);
-    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath + 7)  == szPath + 4);
-    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath + 4)  == nullptr);
-    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath)  == nullptr);
-    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(nullptr, nullptr)  == nullptr);
+    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath + 7) == szPath + 4);
+    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath + 4) == nullptr);
+    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath) == nullptr);
+    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(nullptr, nullptr) == nullptr);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "HasAnyExtension")
@@ -99,24 +99,23 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsAbsolutePath")
   {
-    #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-      EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("C:\\temp.stuff"));
-      EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("C:/temp.stuff"));
-      EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("\\\\myserver\\temp.stuff"));
-      EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("\\myserver\\temp.stuff"));
-      EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("temp.stuff"));
-      EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("/temp.stuff"));
-      EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("\\temp.stuff"));
-      EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("..\\temp.stuff"));
-      EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath(".\\temp.stuff"));
-    #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-      EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("/usr/local/.stuff"));
-      EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("/file.test"));
-      EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("./file.stuff"));
-      EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("file.stuff"));
-    #else
-      #error "Unknown platform."
-    #endif
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("C:\\temp.stuff"));
+    EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("C:/temp.stuff"));
+    EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("\\\\myserver\\temp.stuff"));
+    EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("\\myserver\\temp.stuff"));
+    EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("temp.stuff"));
+    EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("/temp.stuff"));
+    EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("\\temp.stuff"));
+    EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("..\\temp.stuff"));
+    EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath(".\\temp.stuff"));
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+    EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("/usr/local/.stuff"));
+    EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("/file.test"));
+    EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("./file.stuff"));
+    EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("file.stuff"));
+#else
+#error "Unknown platform."
+#endif
   }
 }
-

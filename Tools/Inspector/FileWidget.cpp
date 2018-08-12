@@ -1,17 +1,19 @@
 #include <PCH.h>
-#include <Inspector/FileWidget.moc.h>
+
 #include <Foundation/Communication/Telemetry.h>
-#include <MainWindow.moc.h>
 #include <Foundation/IO/OSFile.h>
+#include <Inspector/FileWidget.moc.h>
+#include <MainWindow.moc.h>
 #include <qgraphicsitem.h>
 
 ezQtFileWidget* ezQtFileWidget::s_pWidget = nullptr;
 
-ezQtFileWidget::ezQtFileWidget(QWidget* parent) : QDockWidget (parent)
+ezQtFileWidget::ezQtFileWidget(QWidget* parent)
+    : QDockWidget(parent)
 {
   s_pWidget = this;
 
-  setupUi (this);
+  setupUi(this);
 
   ResetStats();
 }
@@ -66,7 +68,7 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
 
     switch (Msg.GetMessageID())
     {
-    case 'OPEN':
+      case 'OPEN':
       {
         ezUInt8 uiMode = 0;
         bool bSuccess = false;
@@ -77,38 +79,38 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
 
         switch (uiMode)
         {
-        case ezFileMode::Write:
-        case ezFileMode::Append:
-          data.m_State = bSuccess ? OpenWriting : OpenWritingFailed;
-          break;
-        case ezFileMode::Read:
-          data.m_State = bSuccess ? OpenReading: OpenReadingFailed;
-          break;
-        default:
-          EZ_REPORT_FAILURE("Unknown File Open Mode {0}", uiMode);
-          break;
+          case ezFileMode::Write:
+          case ezFileMode::Append:
+            data.m_State = bSuccess ? OpenWriting : OpenWritingFailed;
+            break;
+          case ezFileMode::Read:
+            data.m_State = bSuccess ? OpenReading : OpenReadingFailed;
+            break;
+          default:
+            EZ_REPORT_FAILURE("Unknown File Open Mode {0}", uiMode);
+            break;
         }
       }
       break;
-    case 'CLOS':
+      case 'CLOS':
       {
         switch (data.m_State)
         {
-        case OpenReading:
-          data.m_State = ClosedReading;
-          break;
-        case OpenWriting:
-          data.m_State = ClosedWriting;
-          break;
-        default:
+          case OpenReading:
+            data.m_State = ClosedReading;
+            break;
+          case OpenWriting:
+            data.m_State = ClosedWriting;
+            break;
+          default:
 
-          // dangling 'read' or 'write', just ignore it
-          s_pWidget->m_FileOps.Remove(iFileID);
-          return;
+            // dangling 'read' or 'write', just ignore it
+            s_pWidget->m_FileOps.Remove(iFileID);
+            return;
         }
       }
       break;
-    case 'WRIT':
+      case 'WRIT':
       {
         ezUInt64 uiSize;
         bool bSuccess = false;
@@ -125,7 +127,7 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
           data.m_State = OpenWritingFailed;
       }
       break;
-    case 'READ':
+      case 'READ':
       {
         ezUInt64 uiRead;
         Msg.GetReader() >> uiRead;
@@ -137,7 +139,7 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
       }
       break;
 
-    case 'EXST':
+      case 'EXST':
       {
         bool bSuccess;
 
@@ -148,7 +150,7 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
       }
       break;
 
-    case ' DEL':
+      case ' DEL':
       {
         bool bSuccess;
 
@@ -159,7 +161,7 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
       }
       break;
 
-    case 'CDIR':
+      case 'CDIR':
       {
         bool bSuccess;
 
@@ -170,7 +172,7 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
       }
       break;
 
-    case 'COPY':
+      case 'COPY':
       {
         bool bSuccess;
         ezString sFile1, sFile2;
@@ -187,7 +189,7 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
       }
       break;
 
-    case 'STAT':
+      case 'STAT':
       {
         bool bSuccess;
 
@@ -198,7 +200,7 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
       }
       break;
 
-    case 'CASE':
+      case 'CASE':
       {
         bool bSuccess;
 
@@ -217,7 +219,6 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
     ezUInt8 uiThreadTypes = 0;
     Msg.GetReader() >> uiThreadTypes;
     data.m_uiThreadTypes |= uiThreadTypes;
-
   }
 }
 
@@ -228,85 +229,85 @@ QTableWidgetItem* ezQtFileWidget::GetStateString(FileOpState State) const
 
   switch (State)
   {
-  case None:
-    pItem->setText("Unknown");
-    pItem->setTextColor(Qt::red);
-    break;
-  case ClosedReading:
-    pItem->setText("Read");
-    pItem->setTextColor(QColor::fromRgb(110, 60, 185));
-    break;
-  case ClosedWriting:
-    pItem->setText("Write");
-    pItem->setTextColor(QColor::fromRgb(255, 140, 0));
-    break;
-  case CreateDirs:
-    pItem->setText("MakeDir");
-    pItem->setTextColor(Qt::darkYellow);
-    break;
-  case CreateDirsFailed:
-    pItem->setText("MakeDir (fail)");
-    pItem->setTextColor(Qt::red);
-    break;
-  case FileCopy:
-    pItem->setText("Copy");
-    pItem->setTextColor(QColor::fromRgb(255, 0, 255));
-    break;
-  case FileCopyFailed:
-    pItem->setText("Copy (fail)");
-    pItem->setTextColor(Qt::red);
-    break;
-  case FileDelete:
-    pItem->setText("Delete");
-    pItem->setTextColor(Qt::darkYellow);
-    break;
-  case FileDeleteFailed:
-    pItem->setText("Delete (fail)");
-    pItem->setTextColor(Qt::red);
-    break;
-  case FileExists:
-    pItem->setText("Exists");
-    pItem->setTextColor(Qt::lightGray);
-    break;
-  case FileExistsFailed:
-    pItem->setText("Exists (not)");
-    pItem->setTextColor(Qt::red);
-    break;
-  case OpenReading:
-    pItem->setText("Read (Open)");
-    pItem->setTextColor(QColor::fromRgb(160, 90, 255));
-    break;
-  case OpenReadingFailed:
-    pItem->setText("Read (fail)");
-    pItem->setTextColor(Qt::red);
-    break;
-  case OpenWriting:
-    pItem->setText("Write (Open)");
-    pItem->setTextColor(QColor::fromRgb(255, 64, 0));
-    break;
-  case OpenWritingFailed:
-    pItem->setText("Write (fail)");
-    pItem->setTextColor(Qt::red);
-    break;
-  case FileStat:
-    pItem->setText("Stat");
-    pItem->setTextColor(QColor::fromRgb(128, 128, 128));
-    break;
-  case FileStatFailed:
-    pItem->setText("Stat (fail)");
-    pItem->setTextColor(Qt::red);
-    break;
-  case FileCasing:
-    pItem->setText("Casing");
-    pItem->setTextColor(Qt::cyan);
-    break;
-  case FileCasingFailed:
-    pItem->setText("Casing (fail)");
-    pItem->setTextColor(Qt::red);
-    break;
-  default:
-    EZ_REPORT_FAILURE("Unknown File Operation {0}", (ezInt32) State);
-    break;
+    case None:
+      pItem->setText("Unknown");
+      pItem->setTextColor(Qt::red);
+      break;
+    case ClosedReading:
+      pItem->setText("Read");
+      pItem->setTextColor(QColor::fromRgb(110, 60, 185));
+      break;
+    case ClosedWriting:
+      pItem->setText("Write");
+      pItem->setTextColor(QColor::fromRgb(255, 140, 0));
+      break;
+    case CreateDirs:
+      pItem->setText("MakeDir");
+      pItem->setTextColor(Qt::darkYellow);
+      break;
+    case CreateDirsFailed:
+      pItem->setText("MakeDir (fail)");
+      pItem->setTextColor(Qt::red);
+      break;
+    case FileCopy:
+      pItem->setText("Copy");
+      pItem->setTextColor(QColor::fromRgb(255, 0, 255));
+      break;
+    case FileCopyFailed:
+      pItem->setText("Copy (fail)");
+      pItem->setTextColor(Qt::red);
+      break;
+    case FileDelete:
+      pItem->setText("Delete");
+      pItem->setTextColor(Qt::darkYellow);
+      break;
+    case FileDeleteFailed:
+      pItem->setText("Delete (fail)");
+      pItem->setTextColor(Qt::red);
+      break;
+    case FileExists:
+      pItem->setText("Exists");
+      pItem->setTextColor(Qt::lightGray);
+      break;
+    case FileExistsFailed:
+      pItem->setText("Exists (not)");
+      pItem->setTextColor(Qt::red);
+      break;
+    case OpenReading:
+      pItem->setText("Read (Open)");
+      pItem->setTextColor(QColor::fromRgb(160, 90, 255));
+      break;
+    case OpenReadingFailed:
+      pItem->setText("Read (fail)");
+      pItem->setTextColor(Qt::red);
+      break;
+    case OpenWriting:
+      pItem->setText("Write (Open)");
+      pItem->setTextColor(QColor::fromRgb(255, 64, 0));
+      break;
+    case OpenWritingFailed:
+      pItem->setText("Write (fail)");
+      pItem->setTextColor(Qt::red);
+      break;
+    case FileStat:
+      pItem->setText("Stat");
+      pItem->setTextColor(QColor::fromRgb(128, 128, 128));
+      break;
+    case FileStatFailed:
+      pItem->setText("Stat (fail)");
+      pItem->setTextColor(Qt::red);
+      break;
+    case FileCasing:
+      pItem->setText("Casing");
+      pItem->setTextColor(Qt::cyan);
+      break;
+    case FileCasingFailed:
+      pItem->setText("Casing (fail)");
+      pItem->setTextColor(Qt::red);
+      break;
+    default:
+      EZ_REPORT_FAILURE("Unknown File Operation {0}", (ezInt32)State);
+      break;
   }
 
   return pItem;
@@ -364,13 +365,13 @@ void ezQtFileWidget::UpdateTable()
     if (!sFilter.IsEmpty() && (it.Value().m_sFile.FindSubString_NoCase(sFilter.GetData()) == nullptr))
       continue;
 
-    if (uiRow >= (ezUInt32) Table->rowCount())
+    if (uiRow >= (ezUInt32)Table->rowCount())
       Table->insertRow(Table->rowCount());
 
     QTableWidgetItem* pItem;
 
     pItem = new QTableWidgetItem();
-    pItem->setData(Qt::DisplayRole, QVariant((ezUInt64) it.Value().m_StartTime.GetMicroseconds()));
+    pItem->setData(Qt::DisplayRole, QVariant((ezUInt64)it.Value().m_StartTime.GetMicroseconds()));
     Table->setItem(uiRow, 0, pItem);
 
     pItem = GetStateString(it.Value().m_State);
@@ -391,8 +392,7 @@ void ezQtFileWidget::UpdateTable()
 
     if ((it.Value().m_uiThreadTypes & (1 << 0)) != 0) // Main Thread
       pItem->setTextColor(QColor::fromRgb(255, 64, 0));
-    else
-    if ((it.Value().m_uiThreadTypes & (1 << 2)) != 0) // Other Thread
+    else if ((it.Value().m_uiThreadTypes & (1 << 2)) != 0) // Other Thread
       pItem->setTextColor(QColor::fromRgb(160, 90, 255));
     else // Task Loading Thread
       pItem->setTextColor(QColor::fromRgb(0, 255, 0));
@@ -446,6 +446,3 @@ void ezQtFileWidget::on_ComboThread_currentIndexChanged(int state)
 {
   m_bUpdateTable = true;
 }
-
-
-

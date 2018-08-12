@@ -1,11 +1,13 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <PhysXPlugin/Shapes/PxShapeSphereComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
 
 using namespace physx;
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezPxShapeSphereComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -26,6 +28,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeSphereComponent, 1, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezPxShapeSphereComponent::ezPxShapeSphereComponent()
 {
@@ -50,7 +53,6 @@ void ezPxShapeSphereComponent::DeserializeComponent(ezWorldReader& stream)
 
   auto& s = stream.GetStream();
   s >> m_fRadius;
-
 }
 
 
@@ -80,4 +82,3 @@ PxShape* ezPxShapeSphereComponent::CreateShape(PxRigidActor* pActor, PxTransform
 
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Shapes_Implementation_PxShapeSphereComponent);
-

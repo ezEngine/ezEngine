@@ -1,21 +1,23 @@
 #include <PCH.h>
-#include <ToolsFoundation/Document/Document.h>
+
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Serialization/RttiConverter.h>
+#include <Foundation/Time/Stopwatch.h>
+#include <Foundation/Utilities/Progress.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
+#include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/Document/DocumentManager.h>
 #include <ToolsFoundation/Document/PrefabCache.h>
 #include <ToolsFoundation/Document/PrefabUtils.h>
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <Foundation/Serialization/DdlSerializer.h>
-#include <Foundation/IO/MemoryStream.h>
-#include <Foundation/Time/Stopwatch.h>
-#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
-#include <Foundation/Utilities/Progress.h>
-#include <ToolsFoundation/Document/DocumentManager.h>
-#include <Foundation/Profiling/Profiling.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentObjectMetaData, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
@@ -38,6 +40,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentInfo, 1, ezRTTINoAllocator)
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezDocumentInfo::ezDocumentInfo()
 {
@@ -46,13 +49,12 @@ ezDocumentInfo::ezDocumentInfo()
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocument, 1, ezRTTINoAllocator)
-
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezEvent<const ezDocumentEvent&> ezDocument::s_EventsAny;
 
-ezDocument::ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObjectManagerImpl) :
-  m_CommandHistory(this)
+ezDocument::ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObjectManagerImpl)
+    : m_CommandHistory(this)
 {
   m_pDocumentInfo = nullptr;
   m_sDocumentPath = szPath;
@@ -178,12 +180,10 @@ ezStatus ezDocument::InternalSaveDocument()
     ezRttiConverterWriter rttiConverter(&headerGraph, &context, true, true);
     context.RegisterObject(GetGuid(), m_pDocumentInfo->GetDynamicRTTI(), m_pDocumentInfo);
     rttiConverter.AddObjectToGraph(m_pDocumentInfo, "Header");
-
   }
   {
     // Do not serialize any temporary properties into the document.
-    auto filter = [](const ezAbstractProperty* pProp) -> bool
-    {
+    auto filter = [](const ezAbstractProperty* pProp) -> bool {
       if (pProp->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
         return false;
       return true;
@@ -213,7 +213,7 @@ ezStatus ezDocument::InternalLoadDocument()
 {
   EZ_PROFILE("InternalLoadDocument");
   // this would currently crash in Qt, due to the processEvents in the QtProgressBar
-  //ezProgressRange range("Loading Document", 5, false);
+  // ezProgressRange range("Loading Document", 5, false);
 
   ezUniquePtr<ezAbstractObjectGraph> header;
   ezUniquePtr<ezAbstractObjectGraph> objects;
@@ -230,10 +230,10 @@ ezStatus ezDocument::InternalLoadDocument()
       return ezStatus("Unable to open file for reading!");
     }
 
-    //range.BeginNextStep("Reading File");
+    // range.BeginNextStep("Reading File");
     storage.ReadAll(file);
 
-    //range.BeginNextStep("Parsing Graph");
+    // range.BeginNextStep("Parsing Graph");
     {
       EZ_PROFILE("parse DDL graph");
       ezStopwatch sw;
@@ -247,7 +247,7 @@ ezStatus ezDocument::InternalLoadDocument()
 
   {
     EZ_PROFILE("Deserializing Types");
-    //range.BeginNextStep("Deserializing Types");
+    // range.BeginNextStep("Deserializing Types");
 
     // Deserialize and register serialized phantom types.
     ezString sDescTypeName = ezGetStaticRTTI<ezReflectedTypeDescriptor>()->GetTypeName();
@@ -283,7 +283,6 @@ ezStatus ezDocument::InternalLoadDocument()
     }
 
     //
-
   }
 
   {
@@ -296,8 +295,9 @@ ezStatus ezDocument::InternalLoadDocument()
 
   {
     EZ_PROFILE("Restoring Objects");
-    ezDocumentObjectConverterReader objectConverter(objects.Borrow(), GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
-    //range.BeginNextStep("Restoring Objects");
+    ezDocumentObjectConverterReader objectConverter(objects.Borrow(), GetObjectManager(),
+                                                    ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+    // range.BeginNextStep("Restoring Objects");
     auto* pRootNode = objects->GetNodeByName("ObjectTree");
     objectConverter.ApplyPropertiesToObject(pRootNode, GetObjectManager()->GetRootObject());
 
@@ -306,7 +306,7 @@ ezStatus ezDocument::InternalLoadDocument()
 
   {
     EZ_PROFILE("Restoring Meta-Data");
-    //range.BeginNextStep("Restoring Meta-Data");
+    // range.BeginNextStep("Restoring Meta-Data");
     RestoreMetaDataAfterLoading(*objects.Borrow(), false);
   }
 
@@ -434,7 +434,6 @@ ezVariant ezDocument::GetDefaultValue(const ezDocumentObject* pObject, const cha
 
   ezVariant defaultValue = ezToolsReflectionUtils::GetDefaultValue(pProp);
   return defaultValue;
-
 }
 
 bool ezDocument::IsDefaultValue(const ezDocumentObject* pObject, const char* szProperty, bool bReturnOnInvalid, ezVariant index) const

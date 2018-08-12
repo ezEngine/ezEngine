@@ -1,7 +1,8 @@
 #include <PCH.h>
-#include <Foundation/Communication/Telemetry.h>
+
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Foundation/Communication/Telemetry.h>
 
 namespace ResourceManagerDetail
 {
@@ -62,21 +63,18 @@ namespace ResourceManagerDetail
     ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
   }
 
-  static void SendAllResourceTelemetry()
-  {
-    ezResourceManager::BroadcastExistsEvent();
-  }
+  static void SendAllResourceTelemetry() { ezResourceManager::BroadcastExistsEvent(); }
 
   static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
   {
     switch (e.m_EventType)
     {
-    case ezTelemetry::TelemetryEventData::ConnectedToClient:
-      SendAllResourceTelemetry();
-      break;
+      case ezTelemetry::TelemetryEventData::ConnectedToClient:
+        SendAllResourceTelemetry();
+        break;
 
-    default:
-      break;
+      default:
+        break;
     }
   }
 
@@ -85,8 +83,7 @@ namespace ResourceManagerDetail
     if (!ezTelemetry::IsConnectedToClient())
       return;
 
-    if (e.m_EventType == ezResourceEventType::ResourceCreated ||
-        e.m_EventType == ezResourceEventType::ResourceExists ||
+    if (e.m_EventType == ezResourceEventType::ResourceCreated || e.m_EventType == ezResourceEventType::ResourceExists ||
         e.m_EventType == ezResourceEventType::ResourceContentUpdated)
     {
       SendFullResourceInfo(e.m_pResource);
@@ -104,7 +101,6 @@ namespace ResourceManagerDetail
 
     SendSmallResourceInfo(e.m_pResource);
   }
-
 }
 
 void AddResourceManagerEventHandler()
@@ -118,6 +114,3 @@ void RemoveResourceManagerEventHandler()
   ezResourceManager::s_ResourceEvents.RemoveEventHandler(ResourceManagerDetail::ResourceManagerEventHandler);
   ezTelemetry::RemoveEventHandler(ResourceManagerDetail::TelemetryEventsHandler);
 }
-
-
-

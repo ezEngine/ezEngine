@@ -1,12 +1,13 @@
 #include <PCH.h>
-#include <GameEngine/MixedReality/Components/SpatialAnchorComponent.h>
-#include <Core/WorldSerializer/WorldWriter.h>
+
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <GameEngine/MixedReality/Components/SpatialAnchorComponent.h>
 #include <WindowsMixedReality/HolographicSpace.h>
+#include <WindowsMixedReality/SpatialAnchor.h>
 #include <WindowsMixedReality/SpatialLocationService.h>
 #include <WindowsMixedReality/SpatialReferenceFrame.h>
-#include <Foundation/Profiling/Profiling.h>
-#include <WindowsMixedReality/SpatialAnchor.h>
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
 #include <windows.perception.spatial.h>
@@ -14,6 +15,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezSpatialAnchorComponent, 1, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
@@ -28,9 +30,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpatialAnchorComponent, 1, ezComponentMode::Dynamic)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
-ezSpatialAnchorComponent::ezSpatialAnchorComponent() { }
-ezSpatialAnchorComponent::~ezSpatialAnchorComponent() { }
+ezSpatialAnchorComponent::ezSpatialAnchorComponent() {}
+ezSpatialAnchorComponent::~ezSpatialAnchorComponent() {}
 
 void ezSpatialAnchorComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -43,7 +46,7 @@ void ezSpatialAnchorComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezSpatialAnchorComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
   s >> m_sAnchorName;
@@ -139,7 +142,7 @@ void ezSpatialAnchorComponent::Update()
   ezMath::Swap(vPos.y, vPos.z); // Y up in other coordinate system
 
   ezQuat qRot;
-  //qRot.SetIdentity();
+  // qRot.SetIdentity();
   qRot.SetFromMat3(mFinalFinal.GetRotationalPart());
 
   GetOwner()->SetGlobalTransform(ezTransform(vPos, qRot));
@@ -168,4 +171,3 @@ void ezSpatialAnchorComponent::OnDeactivated()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_MixedReality_Components_SpatialAnchorComponent);
-

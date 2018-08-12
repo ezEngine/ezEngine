@@ -1,11 +1,12 @@
 #include <PCH.h>
-#include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorFramework/Assets/AssetBrowserModel.moc.h>
-#include <EditorFramework/Assets/AssetBrowserFilter.moc.h>
 
-#include <QSettings>
+#include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
+#include <EditorFramework/Assets/AssetBrowserFilter.moc.h>
+#include <EditorFramework/Assets/AssetBrowserModel.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
+
 #include <QFileDialog>
+#include <QSettings>
 
 bool ezQtAssetBrowserDlg::s_bShowItemsInSubFolder = true;
 bool ezQtAssetBrowserDlg::s_bShowItemsInHiddenFolder = false;
@@ -14,7 +15,8 @@ ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_sTextFilter;
 ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_sPathFilter;
 ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_sTypeFilter;
 
-ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* parent, const ezUuid& preselectedAsset, const char* szVisibleFilters) : QDialog(parent)
+ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* parent, const ezUuid& preselectedAsset, const char* szVisibleFilters)
+    : QDialog(parent)
 {
   setupUi(this);
 
@@ -109,7 +111,8 @@ void ezQtAssetBrowserDlg::on_ButtonFileDialog_clicked()
   m_sSelectedAssetPathRelative.Clear();
   m_sSelectedAssetPathAbsolute.Clear();
 
-  const QString sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open File"), sLastPath, QString(), nullptr, QFileDialog::Option::DontResolveSymlinks);
+  const QString sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open File"), sLastPath, QString(),
+                                                     nullptr, QFileDialog::Option::DontResolveSymlinks);
 
   if (sFile.isEmpty())
   {
@@ -124,8 +127,8 @@ void ezQtAssetBrowserDlg::on_ButtonFileDialog_clicked()
   {
     // \todo Message Box: Invalid Path
 
-    //reject();
-    //return;
+    // reject();
+    // return;
   }
 
   sLastPath = sFile;

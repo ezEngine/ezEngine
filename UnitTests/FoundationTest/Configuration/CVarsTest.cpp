@@ -1,7 +1,8 @@
 #include <PCH.h>
+
 #include <Foundation/Configuration/CVar.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Configuration);
 
@@ -10,15 +11,15 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Configuration);
 #define ezCVarValueRestart ezCVarValue::Restart
 
 // Interestingly using 'ezCVarValue::Default' directly inside a macro does not work. (?!)
-#define CHECK_CVAR(var, Current, Default, Stored, Restart) \
-  EZ_TEST_BOOL(var != nullptr); \
-  if (var != nullptr) \
-  { \
-    EZ_TEST_BOOL(var->GetValue() == Current); \
-    EZ_TEST_BOOL(var->GetValue(ezCVarValueDefault) == Default); \
-    EZ_TEST_BOOL(var->GetValue(ezCVarValueStored) == Stored); \
-    EZ_TEST_BOOL(var->GetValue(ezCVarValueRestart) == Restart); \
-  } \
+#define CHECK_CVAR(var, Current, Default, Stored, Restart)                                                                                 \
+  EZ_TEST_BOOL(var != nullptr);                                                                                                            \
+  if (var != nullptr)                                                                                                                      \
+  {                                                                                                                                        \
+    EZ_TEST_BOOL(var->GetValue() == Current);                                                                                              \
+    EZ_TEST_BOOL(var->GetValue(ezCVarValueDefault) == Default);                                                                            \
+    EZ_TEST_BOOL(var->GetValue(ezCVarValueStored) == Stored);                                                                              \
+    EZ_TEST_BOOL(var->GetValue(ezCVarValueRestart) == Restart);                                                                            \
+  }
 
 static ezInt32 iChangedValue = 0;
 static ezInt32 iChangedRestart = 0;
@@ -29,12 +30,12 @@ static void ChangedCVar(const ezCVar::CVarEvent& e)
 {
   switch (e.m_EventType)
   {
-  case ezCVar::CVarEvent::ValueChanged:
-    ++iChangedValue;
-    break;
-  case ezCVar::CVarEvent::RestartValueChanged:
-    ++iChangedRestart;
-    break;
+    case ezCVar::CVarEvent::ValueChanged:
+      ++iChangedValue;
+      break;
+    case ezCVar::CVarEvent::RestartValueChanged:
+      ++iChangedRestart;
+      break;
   }
 }
 
@@ -161,7 +162,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
     // CVars from Plugin 1
     {
-      ezCVarInt* pInt = (ezCVarInt*) ezCVar::FindCVarByName("test1_Int");
+      ezCVarInt* pInt = (ezCVarInt*)ezCVar::FindCVarByName("test1_Int");
       CHECK_CVAR(pInt, 11, 11, 11, 11);
       EZ_TEST_BOOL(pInt->GetType() == ezCVarType::Int);
       EZ_TEST_BOOL(ezStringUtils::IsEqual(pInt->GetName(), "test1_Int"));
@@ -179,7 +180,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       EZ_TEST_INT(iChangedValue, 1);
       EZ_TEST_INT(iChangedRestart, 0);
 
-      ezCVarFloat* pFloat = (ezCVarFloat*) ezCVar::FindCVarByName("test1_Float");
+      ezCVarFloat* pFloat = (ezCVarFloat*)ezCVar::FindCVarByName("test1_Float");
       CHECK_CVAR(pFloat, 1.1f, 1.1f, 1.1f, 1.1f);
       EZ_TEST_BOOL(pFloat->GetType() == ezCVarType::Float);
       EZ_TEST_BOOL(ezStringUtils::IsEqual(pFloat->GetName(), "test1_Float"));
@@ -204,7 +205,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       EZ_TEST_INT(iChangedValue, 2);
       EZ_TEST_INT(iChangedRestart, 1);
 
-      ezCVarBool* pBool = (ezCVarBool*) ezCVar::FindCVarByName("test1_Bool");
+      ezCVarBool* pBool = (ezCVarBool*)ezCVar::FindCVarByName("test1_Bool");
       CHECK_CVAR(pBool, false, false, false, false);
       EZ_TEST_BOOL(pBool->GetType() == ezCVarType::Bool);
       EZ_TEST_BOOL(ezStringUtils::IsEqual(pBool->GetName(), "test1_Bool"));
@@ -213,7 +214,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       *pBool = true;
       CHECK_CVAR(pBool, true, false, false, true);
 
-      ezCVarString* pString = (ezCVarString*) ezCVar::FindCVarByName("test1_String");
+      ezCVarString* pString = (ezCVarString*)ezCVar::FindCVarByName("test1_String");
       CHECK_CVAR(pString, "test1", "test1", "test1", "test1");
       EZ_TEST_BOOL(pString->GetType() == ezCVarType::String);
       EZ_TEST_BOOL(ezStringUtils::IsEqual(pString->GetName(), "test1_String"));
@@ -225,7 +226,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
     // CVars from Plugin 2
     {
-      ezCVarInt* pInt = (ezCVarInt*) ezCVar::FindCVarByName("test2_Int");
+      ezCVarInt* pInt = (ezCVarInt*)ezCVar::FindCVarByName("test2_Int");
       CHECK_CVAR(pInt, 22, 22, 22, 22);
 
       pInt->m_CVarEvents.AddEventHandler(ChangedCVar);
@@ -235,19 +236,19 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       EZ_TEST_INT(iChangedValue, 3);
       EZ_TEST_INT(iChangedRestart, 1);
 
-      ezCVarFloat* pFloat = (ezCVarFloat*) ezCVar::FindCVarByName("test2_Float");
+      ezCVarFloat* pFloat = (ezCVarFloat*)ezCVar::FindCVarByName("test2_Float");
       CHECK_CVAR(pFloat, 2.2f, 2.2f, 2.2f, 2.2f);
 
       *pFloat = 2.3f;
       CHECK_CVAR(pFloat, 2.3f, 2.2f, 2.2f, 2.3f);
 
-      ezCVarBool* pBool = (ezCVarBool*) ezCVar::FindCVarByName("test2_Bool");
+      ezCVarBool* pBool = (ezCVarBool*)ezCVar::FindCVarByName("test2_Bool");
       CHECK_CVAR(pBool, true, true, true, true);
 
       *pBool = false;
       CHECK_CVAR(pBool, false, true, true, false);
 
-      ezCVarString* pString = (ezCVarString*) ezCVar::FindCVarByName("test2_String");
+      ezCVarString* pString = (ezCVarString*)ezCVar::FindCVarByName("test2_String");
       CHECK_CVAR(pString, "test2", "test2", "test2", "test2");
 
       *pString = "test2_value2";
@@ -266,31 +267,31 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
     // CVars from Plugin 1
     {
-      ezCVarInt* pInt = (ezCVarInt*) ezCVar::FindCVarByName("test1_Int");
+      ezCVarInt* pInt = (ezCVarInt*)ezCVar::FindCVarByName("test1_Int");
       CHECK_CVAR(pInt, 12, 11, 12, 12);
 
-      ezCVarFloat* pFloat = (ezCVarFloat*) ezCVar::FindCVarByName("test1_Float");
+      ezCVarFloat* pFloat = (ezCVarFloat*)ezCVar::FindCVarByName("test1_Float");
       CHECK_CVAR(pFloat, 1.2f, 1.1f, 1.2f, 1.2f);
 
-      ezCVarBool* pBool = (ezCVarBool*) ezCVar::FindCVarByName("test1_Bool");
+      ezCVarBool* pBool = (ezCVarBool*)ezCVar::FindCVarByName("test1_Bool");
       CHECK_CVAR(pBool, false, false, false, false);
 
-      ezCVarString* pString = (ezCVarString*) ezCVar::FindCVarByName("test1_String");
+      ezCVarString* pString = (ezCVarString*)ezCVar::FindCVarByName("test1_String");
       CHECK_CVAR(pString, "test1", "test1", "test1", "test1");
     }
 
     // CVars from Plugin 2
     {
-      ezCVarInt* pInt = (ezCVarInt*) ezCVar::FindCVarByName("test2_Int");
+      ezCVarInt* pInt = (ezCVarInt*)ezCVar::FindCVarByName("test2_Int");
       CHECK_CVAR(pInt, 22, 22, 22, 22);
 
-      ezCVarFloat* pFloat = (ezCVarFloat*) ezCVar::FindCVarByName("test2_Float");
+      ezCVarFloat* pFloat = (ezCVarFloat*)ezCVar::FindCVarByName("test2_Float");
       CHECK_CVAR(pFloat, 2.2f, 2.2f, 2.2f, 2.2f);
 
-      ezCVarBool* pBool = (ezCVarBool*) ezCVar::FindCVarByName("test2_Bool");
+      ezCVarBool* pBool = (ezCVarBool*)ezCVar::FindCVarByName("test2_Bool");
       CHECK_CVAR(pBool, false, true, false, false);
 
-      ezCVarString* pString = (ezCVarString*) ezCVar::FindCVarByName("test2_String");
+      ezCVarString* pString = (ezCVarString*)ezCVar::FindCVarByName("test2_String");
       CHECK_CVAR(pString, "test2_value2", "test2", "test2_value2", "test2_value2");
     }
 
@@ -302,4 +303,3 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
   ezFileSystem::ClearAllDataDirectories();
   ezFileSystem::ClearAllDataDirectoryFactories();
 }
-

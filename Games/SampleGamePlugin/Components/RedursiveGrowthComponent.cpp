@@ -1,8 +1,10 @@
 #include <PCH.h>
-#include <SampleGamePlugin/Components/RedursiveGrowthComponent.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
 
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <SampleGamePlugin/Components/RedursiveGrowthComponent.h>
+
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(RecursiveGrowthComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -19,6 +21,7 @@ EZ_BEGIN_COMPONENT_TYPE(RecursiveGrowthComponent, 2, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
 RecursiveGrowthComponent::RecursiveGrowthComponent()
 {
@@ -97,7 +100,4 @@ void RecursiveGrowthComponent::Update()
 void RecursiveGrowthComponent::Initialize()
 {
   ezLog::Info("RecursiveGrowthComponent::Initialize: Child {0}, Recursions: {1}", m_uiChild, m_uiRecursionDepth);
-
-
 }
-

@@ -1,12 +1,11 @@
 #include <PCH.h>
+
 #include <Foundation/CodeUtils/MathExpression.h>
 
 class IgnoreLogInterface : public ezLogInterface
 {
 public:
-  virtual void HandleLogMessage(const ezLoggingEventData& le) override
-  {
-  }
+  virtual void HandleLogMessage(const ezLoggingEventData& le) override {}
 };
 
 EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
@@ -98,8 +97,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
       ezMathExpression expr("_var1 + v2Ar");
       EZ_TEST_BOOL(expr.IsValid());
 
-      double result = expr.Evaluate([](const ezStringView& str)
-      {
+      double result = expr.Evaluate([](const ezStringView& str) {
         if (str == "_var1")
           return 1.0;
         else if (str == "v2Ar")
@@ -112,8 +110,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
       });
       EZ_TEST_DOUBLE(result, 3.0, 0.0);
 
-      result = expr.Evaluate([](const ezStringView& str)
-      {
+      result = expr.Evaluate([](const ezStringView& str) {
         if (str == "_var1")
           return 2.0;
         else if (str == "v2Ar")
@@ -131,8 +128,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
     {
       ezMathExpression expr("  a +  b /c*d");
       EZ_TEST_BOOL(expr.IsValid());
-      double result = expr.Evaluate([](const ezStringView& str)
-      {
+      double result = expr.Evaluate([](const ezStringView& str) {
         if (str == "a")
           return 1.0;
         else if (str == "b")

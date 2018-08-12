@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/SimdMath/SimdBSphere.h>
 
 EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBSphere)
@@ -41,13 +42,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBSphere)
   {
     ezSimdBSphere s(ezSimdVec4f(2, 2, 0), 0.0f);
 
-    ezSimdVec4f p[4] =
-    {
-      ezSimdVec4f(0, 2, 0),
-      ezSimdVec4f(4, 2, 0),
-      ezSimdVec4f(2, 0, 0),
-      ezSimdVec4f(2, 4, 0)
-    };
+    ezSimdVec4f p[4] = {ezSimdVec4f(0, 2, 0), ezSimdVec4f(4, 2, 0), ezSimdVec4f(2, 0, 0), ezSimdVec4f(2, 4, 0)};
 
     s.ExpandToInclude(p, 4);
 

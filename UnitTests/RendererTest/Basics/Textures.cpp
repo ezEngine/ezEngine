@@ -1,10 +1,11 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include "Basics.h"
-#include <RendererFoundation/Context/Context.h>
 #include <Core/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
+#include <RendererFoundation/Context/Context.h>
 
 ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
 {
@@ -96,7 +97,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
 
   EndFrame();
 
-  return m_iFrame < (iNumFrames-1) ? ezTestAppRun::Continue : ezTestAppRun::Quit;
+  return m_iFrame < (iNumFrames - 1) ? ezTestAppRun::Continue : ezTestAppRun::Quit;
 }
 
 
@@ -125,7 +126,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures3D()
 
   EndFrame();
 
-  return m_iFrame < (iNumFrames-1) ? ezTestAppRun::Continue : ezTestAppRun::Quit;
+  return m_iFrame < (iNumFrames - 1) ? ezTestAppRun::Continue : ezTestAppRun::Quit;
 }
 
 
@@ -209,6 +210,5 @@ ezTestAppRun ezRendererTestBasics::SubtestTexturesCube()
 
   EndFrame();
 
-  return m_iFrame < (iNumFrames-1) ? ezTestAppRun::Continue : ezTestAppRun::Quit;
+  return m_iFrame < (iNumFrames - 1) ? ezTestAppRun::Continue : ezTestAppRun::Quit;
 }
-

@@ -1,8 +1,9 @@
-﻿#include <PCH.h>
-#include <Foundation/Types/Tag.h>
-#include <Foundation/Types/TagSet.h>
-#include <Foundation/Types/TagRegistry.h>
+#include <PCH.h>
+
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Types/Tag.h>
+#include <Foundation/Types/TagRegistry.h>
+#include <Foundation/Types/TagSet.h>
 
 EZ_CREATE_SIMPLE_TEST(Basics, TagSet)
 {
@@ -152,8 +153,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, TagSet)
 
     // Also test allocating a tag in an earlier block than the first tag allocated in the set
     Non0BlockStartSet.Set(RegisteredTags[0]);
-    EZ_TEST_BOOL( Non0BlockStartSet.IsSet( RegisteredTags[100] ) );
-    EZ_TEST_BOOL( Non0BlockStartSet.IsSet( RegisteredTags[0] ) );
+    EZ_TEST_BOOL(Non0BlockStartSet.IsSet(RegisteredTags[100]));
+    EZ_TEST_BOOL(Non0BlockStartSet.IsSet(RegisteredTags[0]));
 
     // Copying a tag set should work as well
     ezTagSet SecondTagSet = BigTagSet;
@@ -304,4 +305,3 @@ EZ_CREATE_SIMPLE_TEST(Basics, TagSet)
     EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == false);
   }
 }
-

@@ -1,14 +1,16 @@
 #include <PCH.h>
-#include <StochasticRenderingPlugin/Passes/StochasticResolvePass.h>
-#include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
+
 #include <RendererCore/Pipeline/View.h>
-#include <RendererFoundation/Resources/Resource.h>
-#include <RendererFoundation/Resources/RenderTargetView.h>
-#include <RendererFoundation/Resources/Texture.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderResource.h>
+#include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
+#include <RendererFoundation/Resources/RenderTargetView.h>
+#include <RendererFoundation/Resources/Resource.h>
+#include <RendererFoundation/Resources/Texture.h>
+#include <StochasticRenderingPlugin/Passes/StochasticResolvePass.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStochasticResolvePass, 1, ezRTTIDefaultAllocator<ezStochasticResolvePass>)
 {
   EZ_BEGIN_PROPERTIES
@@ -20,21 +22,21 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStochasticResolvePass, 1, ezRTTIDefaultAllocat
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezStochasticResolvePass::ezStochasticResolvePass(const char* name /* = "StoachsticResolvePass" */)
-  : ezRenderPipelinePass(name)
+    : ezRenderPipelinePass(name)
 {
   // Load shader.
   m_hResolveShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/StochasticResolve.ezShader");
   EZ_ASSERT_DEV(m_hResolveShader.IsValid(), "Could not load stochastic resolve shader!");
 }
 
-ezStochasticResolvePass::~ezStochasticResolvePass()
-{
+ezStochasticResolvePass::~ezStochasticResolvePass() {}
 
-}
-
-bool ezStochasticResolvePass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription * const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezStochasticResolvePass::GetRenderTargetDescriptions(const ezView& view,
+                                                          const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
+                                                          ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   // Color
   if (inputs[m_PinColor.m_uiInputIndex])
@@ -49,7 +51,9 @@ bool ezStochasticResolvePass::GetRenderTargetDescriptions(const ezView& view, co
   return true;
 }
 
-void ezStochasticResolvePass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection * const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection * const> outputs)
+void ezStochasticResolvePass::Execute(const ezRenderViewContext& renderViewContext,
+                                      const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+                                      const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -63,10 +67,12 @@ void ezStochasticResolvePass::Execute(const ezRenderViewContext& renderViewConte
   renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
 
   renderViewContext.m_pRenderContext->BindShader(m_hResolveShader);
-  renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-  renderViewContext.m_pRenderContext->BindTexture2D("ColorTexture", pDevice->GetDefaultResourceView(inputs[m_PinStochasticColor.m_uiInputIndex]->m_TextureHandle));
-  renderViewContext.m_pRenderContext->BindTexture2D("SampleCountTexture", pDevice->GetDefaultResourceView(inputs[m_PinSampleCount.m_uiInputIndex]->m_TextureHandle));
+  renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
+                                                     1);
+  renderViewContext.m_pRenderContext->BindTexture2D(
+      "ColorTexture", pDevice->GetDefaultResourceView(inputs[m_PinStochasticColor.m_uiInputIndex]->m_TextureHandle));
+  renderViewContext.m_pRenderContext->BindTexture2D(
+      "SampleCountTexture", pDevice->GetDefaultResourceView(inputs[m_PinSampleCount.m_uiInputIndex]->m_TextureHandle));
 
   renderViewContext.m_pRenderContext->DrawMeshBuffer();
 }
-

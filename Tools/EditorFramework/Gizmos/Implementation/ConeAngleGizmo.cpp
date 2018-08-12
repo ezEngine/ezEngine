@@ -1,11 +1,12 @@
-﻿#include <PCH.h>
-#include <EditorFramework/Gizmos/ConeAngleGizmo.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <PCH.h>
+
 #include <EditorFramework/Assets/AssetDocument.h>
-#include <QMouseEvent>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/Gizmos/ConeAngleGizmo.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 #include <QDesktopWidget>
+#include <QMouseEvent>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConeAngleGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -154,4 +155,3 @@ void ezConeAngleGizmo::SetAngle(ezAngle angle)
   // update the scale
   OnTransformationChanged(GetTransformation());
 }
-

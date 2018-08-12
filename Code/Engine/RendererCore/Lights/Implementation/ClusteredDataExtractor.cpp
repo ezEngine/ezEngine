@@ -1,4 +1,8 @@
 #include <PCH.h>
+
+#include <Core/Graphics/Camera.h>
+#include <Foundation/Configuration/CVar.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <RendererCore/Components/FogComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
@@ -6,13 +10,11 @@
 #include <RendererCore/Lights/Implementation/ClusteredDataUtils.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
-#include <Core/Graphics/Camera.h>
-#include <Foundation/Configuration/CVar.h>
-#include <Foundation/Profiling/Profiling.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool CVarVisClusteredData("r_VisClusteredData", false, ezCVarFlags::Default, "Enables debug visualization of clustered light data");
-ezCVarInt CVarVisClusterDepthSlice("r_VisClusterDepthSlice", -1, ezCVarFlags::Default, "Show the debug visualization only for the given depth slice");
+ezCVarInt CVarVisClusterDepthSlice("r_VisClusterDepthSlice", -1, ezCVarFlags::Default,
+                                   "Show the debug visualization only for the given depth slice");
 
 namespace
 {
@@ -66,22 +68,22 @@ namespace
             float g = ezMath::Clamp(decalCount / 16.0f, 0.0f, 1.0f);
 
             ezDebugRenderer::Triangle tris[12];
-            //back
+            // back
             tris[0] = ezDebugRenderer::Triangle(cc[0], cc[2], cc[1]);
             tris[1] = ezDebugRenderer::Triangle(cc[2], cc[3], cc[1]);
-            //front
+            // front
             tris[2] = ezDebugRenderer::Triangle(cc[4], cc[5], cc[6]);
             tris[3] = ezDebugRenderer::Triangle(cc[6], cc[5], cc[7]);
-            //top
+            // top
             tris[4] = ezDebugRenderer::Triangle(cc[4], cc[0], cc[5]);
             tris[5] = ezDebugRenderer::Triangle(cc[0], cc[1], cc[5]);
-            //bottom
+            // bottom
             tris[6] = ezDebugRenderer::Triangle(cc[6], cc[7], cc[2]);
             tris[7] = ezDebugRenderer::Triangle(cc[2], cc[7], cc[3]);
-            //left
+            // left
             tris[8] = ezDebugRenderer::Triangle(cc[4], cc[6], cc[0]);
             tris[9] = ezDebugRenderer::Triangle(cc[0], cc[6], cc[2]);
-            //right
+            // right
             tris[10] = ezDebugRenderer::Triangle(cc[5], cc[1], cc[7]);
             tris[11] = ezDebugRenderer::Triangle(cc[1], cc[3], cc[7]);
 
@@ -137,21 +139,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClusteredDataCPU, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezClusteredDataCPU::ezClusteredDataCPU()
-  : m_AmbientTopColor(ezColor::Black)
-  , m_AmbientBottomColor(ezColor::Black)
-  , m_fFogHeight(0.0f)
-  , m_fFogHeightFalloff(0.0f)
-  , m_fFogDensityAtCameraPos(0.0f)
-  , m_fFogDensity(0.0f)
-  , m_FogColor(ezColor::Black)
+    : m_AmbientTopColor(ezColor::Black)
+    , m_AmbientBottomColor(ezColor::Black)
+    , m_fFogHeight(0.0f)
+    , m_fFogHeightFalloff(0.0f)
+    , m_fFogDensityAtCameraPos(0.0f)
+    , m_fFogDensity(0.0f)
+    , m_FogColor(ezColor::Black)
 {
-
 }
 
-ezClusteredDataCPU::~ezClusteredDataCPU()
-{
-
-}
+ezClusteredDataCPU::~ezClusteredDataCPU() {}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -159,7 +157,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClusteredDataExtractor, 1, ezRTTIDefaultAlloca
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezClusteredDataExtractor::ezClusteredDataExtractor(const char* szName)
-  : ezExtractor(szName)
+    : ezExtractor(szName)
 {
   m_DependsOn.PushBack(ezMakeHashedString("ezVisibleObjectsExtractor"));
 
@@ -168,13 +166,10 @@ ezClusteredDataExtractor::ezClusteredDataExtractor(const char* szName)
   m_ClusterBoundingSpheres.SetCountUninitialized(NUM_CLUSTERS);
 }
 
-ezClusteredDataExtractor::~ezClusteredDataExtractor()
-{
-
-}
+ezClusteredDataExtractor::~ezClusteredDataExtractor() {}
 
 void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-  ezExtractedRenderData& extractedRenderData)
+                                                ezExtractedRenderData& extractedRenderData)
 {
   const ezCamera* pCamera = view.GetCullingCamera();
   const float fAspectRatio = view.GetViewport().width / view.GetViewport().height;
@@ -216,8 +211,10 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
         {
           FillPointLightData(m_TempLightData.ExpandAndGetRef(), pPointLightRenderData);
 
-          ezSimdBSphere pointLightSphere = ezSimdBSphere(ezSimdConversion::ToVec3(pPointLightRenderData->m_GlobalTransform.m_vPosition), pPointLightRenderData->m_fRange);
-          RasterizePointLight(pointLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+          ezSimdBSphere pointLightSphere = ezSimdBSphere(ezSimdConversion::ToVec3(pPointLightRenderData->m_GlobalTransform.m_vPosition),
+                                                         pPointLightRenderData->m_fRange);
+          RasterizePointLight(pointLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(),
+                              m_ClusterBoundingSpheres.GetData());
 
           if (false)
           {
@@ -242,7 +239,8 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
           cone.m_PositionAndRange.SetW(pSpotLightRenderData->m_fRange);
           cone.m_ForwardDir = ezSimdConversion::ToVec3(pSpotLightRenderData->m_GlobalTransform.m_qRotation * ezVec3(1.0f, 0.0f, 0.0f));
           cone.m_SinCosAngle = ezSimdVec4f(ezMath::Sin(halfAngle), ezMath::Cos(halfAngle), 0.0f);
-          RasterizeSpotLight(cone, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+          RasterizeSpotLight(cone, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(),
+                             m_ClusterBoundingSpheres.GetData());
         }
         else if (auto pDirLightRenderData = ezDynamicCast<const ezDirectionalLightRenderData*>(it))
         {
@@ -309,7 +307,8 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
         {
           FillDecalData(m_TempDecalData.ExpandAndGetRef(), pDecalRenderData);
 
-          RasterizeDecal(pDecalRenderData, uiDecalIndex, viewProjectionMatrix, m_TempDecalsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+          RasterizeDecal(pDecalRenderData, uiDecalIndex, viewProjectionMatrix, m_TempDecalsClusters.GetData(),
+                         m_ClusterBoundingSpheres.GetData());
         }
         else
         {
@@ -333,10 +332,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
 
 namespace
 {
-  ezUInt32 PackIndex(ezUInt32 uiLightIndex, ezUInt32 uiDecalIndex)
-  {
-    return uiDecalIndex << 10 | uiLightIndex;
-  }
+  ezUInt32 PackIndex(ezUInt32 uiLightIndex, ezUInt32 uiDecalIndex) { return uiDecalIndex << 10 | uiLightIndex; }
 }
 
 void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pData)
@@ -417,4 +413,3 @@ void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pD
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ClusteredDataExtractor);
-

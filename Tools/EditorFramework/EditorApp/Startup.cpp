@@ -30,8 +30,8 @@
 #include <EditorFramework/Visualizers/BoxVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/CameraVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/CapsuleVisualizerAdapter.h>
-#include <EditorFramework/Visualizers/CylinderVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/ConeVisualizerAdapter.h>
+#include <EditorFramework/Visualizers/CylinderVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/DirectionVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/SphereVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/VisualizerAdapterRegistry.h>
@@ -218,14 +218,14 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
     ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
   }
   ezUniquePtr<ezTranslatorFromFiles> pTranslatorEn = EZ_DEFAULT_NEW(ezTranslatorFromFiles);
-  //ezUniquePtr<ezTranslatorFromFiles> pTranslatorDe = EZ_DEFAULT_NEW(ezTranslatorFromFiles);
+  // ezUniquePtr<ezTranslatorFromFiles> pTranslatorDe = EZ_DEFAULT_NEW(ezTranslatorFromFiles);
 
   pTranslatorEn->LoadTranslationFilesFromFolder(":app/Localization/en");
-  //pTranslatorDe->LoadTranslationFilesFromFolder(":app/Localization/de");
+  // pTranslatorDe->LoadTranslationFilesFromFolder(":app/Localization/de");
 
   ezTranslationLookup::AddTranslator(EZ_DEFAULT_NEW(ezTranslatorLogMissing));
   ezTranslationLookup::AddTranslator(std::move(pTranslatorEn));
-  //ezTranslationLookup::AddTranslator(std::move(pTranslatorDe));
+  // ezTranslationLookup::AddTranslator(std::move(pTranslatorDe));
 
   LoadEditorPreferences();
 

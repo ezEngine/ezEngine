@@ -1,26 +1,26 @@
 #include <PCH.h>
+
 #include <Foundation/Math/Quat.h>
 
 EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Default Constructor")
   {
-    #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-      if (ezMath::BasicType<ezMat3T::ComponentType>::SupportsNaN())
-      {
-        // In debug the default constructor initializes everything with NaN.
-        ezQuatT p;
-        EZ_TEST_BOOL(ezMath::IsNaN(p.v.x) && ezMath::IsNaN(p.v.y) && ezMath::IsNaN(p.v.z) && ezMath::IsNaN(p.w));
-      }
-    #else
-        // Placement new of the default constructor should not have any effect on the previous data.
-        ezQuatT::ComponentType testBlock[4] = { (ezQuatT::ComponentType) 1, (ezQuatT::ComponentType) 2, (ezQuatT::ComponentType) 3, (ezQuatT::ComponentType) 4 };
-        ezQuatT* p = ::new ((void*) &testBlock[0]) ezQuatT;
-        EZ_TEST_BOOL(p->v.x == (ezMat3T::ComponentType) 1 && 
-                p->v.y == (ezMat3T::ComponentType) 2 && 
-                p->v.z == (ezMat3T::ComponentType) 3 && 
-                p->w   == (ezMat3T::ComponentType) 4);
-    #endif
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    if (ezMath::BasicType<ezMat3T::ComponentType>::SupportsNaN())
+    {
+      // In debug the default constructor initializes everything with NaN.
+      ezQuatT p;
+      EZ_TEST_BOOL(ezMath::IsNaN(p.v.x) && ezMath::IsNaN(p.v.y) && ezMath::IsNaN(p.v.z) && ezMath::IsNaN(p.w));
+    }
+#else
+    // Placement new of the default constructor should not have any effect on the previous data.
+    ezQuatT::ComponentType testBlock[4] = {(ezQuatT::ComponentType)1, (ezQuatT::ComponentType)2, (ezQuatT::ComponentType)3,
+                                           (ezQuatT::ComponentType)4};
+    ezQuatT* p = ::new ((void*)&testBlock[0]) ezQuatT;
+    EZ_TEST_BOOL(p->v.x == (ezMat3T::ComponentType)1 && p->v.y == (ezMat3T::ComponentType)2 && p->v.z == (ezMat3T::ComponentType)3 &&
+                 p->w == (ezMat3T::ComponentType)4);
+#endif
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor(x,y,z,w)")
@@ -256,6 +256,4 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
 
     EZ_TEST_BOOL(temp1.IsEqual(temp2, 0.01f));
   }
-
 }
-

@@ -1,13 +1,14 @@
 #include <PCH.h>
-#include <EditorFramework/InputContexts/OrbitCameraContext.h>
+
+#include <Core/Graphics/Camera.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/InputContexts/OrbitCameraContext.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
-#include <Core/Graphics/Camera.h>
-#include <QKeyEvent>
 #include <QDesktopWidget>
+#include <QKeyEvent>
 
 ezOrbitCameraContext::ezOrbitCameraContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
@@ -36,7 +37,8 @@ ezCamera* ezOrbitCameraContext::GetCamera() const
   return m_pCamera;
 }
 
-void ezOrbitCameraContext::SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vDefaultCameraPosition, bool bSetCamLookat)
+void ezOrbitCameraContext::SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vDefaultCameraPosition,
+                                          bool bSetCamLookat)
 {
   m_vOrbitPoint = vCenterPos;
   m_Volume.SetCenterAndHalfExtents(vCenterPos, vHalfBoxSize);
@@ -103,11 +105,11 @@ ezEditorInput ezOrbitCameraContext::DoMousePressEvent(QMouseEvent* e)
   return ezEditorInput::MayBeHandledByOthers;
 
 activate:
-  {
-    m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
-    MakeActiveInputContext();
-    return ezEditorInput::WasExclusivelyHandled;
-  }
+{
+  m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
+  MakeActiveInputContext();
+  return ezEditorInput::WasExclusivelyHandled;
+}
 }
 
 ezEditorInput ezOrbitCameraContext::DoMouseReleaseEvent(QMouseEvent* e)

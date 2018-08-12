@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Threading/Thread.h>
 
 namespace AtomicsTestDetail
@@ -46,8 +47,9 @@ namespace AtomicsTestDetail
   class TestThread : public ezThread
   {
   public:
-
-    TestThread(ezInt32 iIndex) : ezThread("Test Thread"), m_iIndex(iIndex)
+    TestThread(ezInt32 iIndex)
+        : ezThread("Test Thread")
+        , m_iIndex(iIndex)
     {
     }
 
@@ -68,7 +70,7 @@ namespace AtomicsTestDetail
       g_iMaxVariable.Max(m_iIndex);
 
       g_iSetVariable.Set(m_iIndex);
-      
+
       if (g_iCompSwapVariable.TestAndSet(0, m_iIndex))
       {
         ++g_iCompSwapCounter;
@@ -88,7 +90,7 @@ namespace AtomicsTestDetail
       g_iMaxVariable64.Max(m_iIndex);
 
       g_iSetVariable64.Set(m_iIndex);
-      
+
       if (g_iCompSwapVariable64.TestAndSet(0, m_iIndex))
       {
         ++g_iCompSwapCounter64;
@@ -163,7 +165,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
       pTestThread = new AtomicsTestDetail::TestThread(1);
       pTestThread2 = new AtomicsTestDetail::TestThread(2);
     }
-    catch(...)
+    catch (...)
     {
     }
 
@@ -222,4 +224,3 @@ EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
     EZ_TEST_INT(AtomicsTestDetail::g_iCompSwapPointerCounter, 1); // only one thread should have set the variable
   }
 }
-

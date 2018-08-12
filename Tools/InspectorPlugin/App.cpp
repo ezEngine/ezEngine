@@ -1,12 +1,14 @@
 #include <PCH.h>
+
 #include <Foundation/Communication/Telemetry.h>
-#include <Foundation/Threading/Thread.h>
 #include <Foundation/System/SystemInformation.h>
+#include <Foundation/Threading/Thread.h>
 #include <Foundation/Utilities/Stats.h>
 
 static ezAssertHandler g_PreviousAssertHandler = nullptr;
 
-static bool TelemetryAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
+static bool TelemetryAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression,
+                                   const char* szAssertMsg)
 {
   if (ezTelemetry::IsConnectedToClient())
   {
@@ -63,40 +65,37 @@ void SetAppStats()
   sOut = info.Is64BitOS() ? "64 Bit" : "32 Bit";
   ezStats::SetStat("Platform/Architecture", sOut.GetData());
 
-  #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    sOut = "Debug";
-  #elif EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    sOut = "Dev";
-  #else
-    sOut = "Release";
-  #endif
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  sOut = "Debug";
+#elif EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  sOut = "Dev";
+#else
+  sOut = "Release";
+#endif
   ezStats::SetStat("Platform/Build", sOut.GetData());
 
-  #if EZ_ENABLED(EZ_USE_PROFILING)
-    sOut = "Enabled";
-  #else
-    sOut = "Disabled";
-  #endif
+#if EZ_ENABLED(EZ_USE_PROFILING)
+  sOut = "Enabled";
+#else
+  sOut = "Disabled";
+#endif
   ezStats::SetStat("Features/Profiling", sOut.GetData());
 
-  #if EZ_ENABLED(EZ_USE_ALLOCATION_STACK_TRACING)
-    sOut = "Enabled";
-  #else
-    sOut = "Disabled";
-  #endif
+#if EZ_ENABLED(EZ_USE_ALLOCATION_STACK_TRACING)
+  sOut = "Enabled";
+#else
+  sOut = "Disabled";
+#endif
   ezStats::SetStat("Features/Allocation Stack Tracing", sOut.GetData());
 
-  #if EZ_ENABLED(EZ_PLATFORM_LITTLE_ENDIAN)
-    sOut = "Little";
-  #else
-    sOut = "Big";
-  #endif
+#if EZ_ENABLED(EZ_PLATFORM_LITTLE_ENDIAN)
+  sOut = "Little";
+#else
+  sOut = "Big";
+#endif
   ezStats::SetStat("Platform/Endianess", sOut.GetData());
-
 }
 
 
 
-
 EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_App);
-

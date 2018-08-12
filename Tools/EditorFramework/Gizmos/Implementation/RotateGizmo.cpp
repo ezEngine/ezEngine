@@ -1,12 +1,13 @@
-﻿#include <PCH.h>
-#include <EditorFramework/Gizmos/RotateGizmo.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <Foundation/Logging/Log.h>
-#include <QMouseEvent>
+#include <PCH.h>
+
 #include <Core/Graphics/Camera.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/Gizmos/RotateGizmo.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
+#include <QMouseEvent>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRotateGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -212,4 +213,3 @@ ezEditorInput ezRotateGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   return ezEditorInput::WasExclusivelyHandled;
 }
-

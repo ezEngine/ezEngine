@@ -1,9 +1,10 @@
 #include <PCH.h>
+
+#include <Foundation/Communication/Telemetry.h>
 #include <Inspector/MainWindow.moc.h>
 #include <Inspector/StatVisWidget.moc.h>
-#include <Foundation/Communication/Telemetry.h>
-#include <QGraphicsView>
 #include <QGraphicsPathItem>
+#include <QGraphicsView>
 #include <QSettings>
 
 ezQtStatVisWidget* ezQtStatVisWidget::s_pWidget = nullptr;
@@ -11,28 +12,29 @@ ezInt32 ezQtStatVisWidget::s_iCurColor = 0;
 
 namespace StatVisWidgetDetail
 {
-  static QColor s_Colors[ezQtStatVisWidget::s_uiMaxColors] =
-  {
-    QColor(255, 106, 0), // orange
-    QColor(182, 255, 0), // lime green
-    QColor(255, 0, 255), // pink
-    QColor(0, 148, 255), // light blue
-    QColor(255, 0, 0), // red
-    QColor(0, 255, 255), // turquoise
-    QColor(178, 0, 255), // purple
-    QColor(0, 38, 255), // dark blue
-    QColor(72, 0, 255), // lilac
+  static QColor s_Colors[ezQtStatVisWidget::s_uiMaxColors] = {
+      QColor(255, 106, 0), // orange
+      QColor(182, 255, 0), // lime green
+      QColor(255, 0, 255), // pink
+      QColor(0, 148, 255), // light blue
+      QColor(255, 0, 0),   // red
+      QColor(0, 255, 255), // turquoise
+      QColor(178, 0, 255), // purple
+      QColor(0, 38, 255),  // dark blue
+      QColor(72, 0, 255),  // lilac
   };
 }
 
-ezQtStatVisWidget::ezQtStatVisWidget(QWidget* parent, ezInt32 iWindowNumber) : QDockWidget (parent), m_ShowWindowAction(parent)
+ezQtStatVisWidget::ezQtStatVisWidget(QWidget* parent, ezInt32 iWindowNumber)
+    : QDockWidget(parent)
+    , m_ShowWindowAction(parent)
 {
   m_iWindowNumber = iWindowNumber;
   m_DisplayInterval = ezTime::Seconds(60.0);
 
   s_pWidget = this;
 
-  setupUi (this);
+  setupUi(this);
 
   ComboTimeframe->blockSignals(true);
   ComboTimeframe->addItem("Timeframe: 1 minute");
@@ -50,21 +52,21 @@ ezQtStatVisWidget::ezQtStatVisWidget(QWidget* parent, ezInt32 iWindowNumber) : Q
 
   ButtonRemove->setEnabled(false);
 
-  m_pPathMax = m_Scene.addPath (QPainterPath (), QPen (QBrush (QColor(64, 64, 64)), 0 ));
+  m_pPathMax = m_Scene.addPath(QPainterPath(), QPen(QBrush(QColor(64, 64, 64)), 0));
 
   for (ezUInt32 i = 0; i < s_uiMaxColors; ++i)
     m_pPath[i] = m_Scene.addPath(QPainterPath(), QPen(QBrush(StatVisWidgetDetail::s_Colors[i]), 0));
 
-  QTransform t = StatHistoryView->transform ();
-  t.scale (1, -1);
-  StatHistoryView->setTransform (t);
+  QTransform t = StatHistoryView->transform();
+  t.scale(1, -1);
+  StatHistoryView->setTransform(t);
 
   StatHistoryView->setScene(&m_Scene);
 
   StatHistoryView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   StatHistoryView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   StatHistoryView->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-  //TimeView->setMaximumHeight(100);
+  // TimeView->setMaximumHeight(100);
 
   m_ShowWindowAction.setCheckable(true);
 
@@ -78,9 +80,7 @@ ezQtStatVisWidget::ezQtStatVisWidget(QWidget* parent, ezInt32 iWindowNumber) : Q
   SpinMax->setValue(Settings.value(QLatin1String("Max"), 1.0).toDouble());
   Settings.endGroup();
 
-  EZ_VERIFY(nullptr != QWidget::connect(&m_ShowWindowAction,  SIGNAL(triggered()), this, SLOT(on_ToggleVisible())), "");
-
-
+  EZ_VERIFY(nullptr != QWidget::connect(&m_ShowWindowAction, SIGNAL(triggered()), this, SLOT(on_ToggleVisible())), "");
 }
 
 void ezQtStatVisWidget::on_ComboTimeframe_currentIndexChanged(int index)
@@ -159,7 +159,8 @@ void ezQtStatVisWidget::Save()
   sStatHistory.Format("/StatWindow{0}.stats", m_iWindowNumber);
 
   QString sFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-  QDir d; d.mkpath(sFile);
+  QDir d;
+  d.mkpath(sFile);
 
   sFile.append(sStatHistory.GetData());
 
@@ -188,7 +189,8 @@ void ezQtStatVisWidget::Load()
   sStatHistory.Format("/StatWindow{0}.stats", m_iWindowNumber);
 
   QString sFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-  QDir d; d.mkpath(sFile);
+  QDir d;
+  d.mkpath(sFile);
 
   sFile.append(sStatHistory.GetData());
 
@@ -291,10 +293,7 @@ void ezQtStatVisWidget::UpdateStats()
     double dMin = SpinMin->value();
     double dHeight = SpinMax->value() - SpinMin->value();
 
-    StatHistoryView->setSceneRect (QRectF (-m_DisplayInterval.GetSeconds(), dMin, m_DisplayInterval.GetSeconds(), dHeight));
-    StatHistoryView->fitInView    (QRectF (-m_DisplayInterval.GetSeconds(), dMin, m_DisplayInterval.GetSeconds(), dHeight));
+    StatHistoryView->setSceneRect(QRectF(-m_DisplayInterval.GetSeconds(), dMin, m_DisplayInterval.GetSeconds(), dHeight));
+    StatHistoryView->fitInView(QRectF(-m_DisplayInterval.GetSeconds(), dMin, m_DisplayInterval.GetSeconds(), dHeight));
   }
 }
-
-
-

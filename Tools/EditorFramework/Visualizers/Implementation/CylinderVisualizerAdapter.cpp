@@ -69,7 +69,7 @@ void ezCylinderVisualizerAdapter::Update()
 
   m_vPositionOffset = pAttr->m_vOffset;
 
-    if (!pAttr->GetOffsetProperty().IsEmpty())
+  if (!pAttr->GetOffsetProperty().IsEmpty())
   {
     ezVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetOffsetProperty()), value);

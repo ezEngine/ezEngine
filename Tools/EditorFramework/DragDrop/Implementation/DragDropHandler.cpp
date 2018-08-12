@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <EditorFramework/DragDrop/DragDropHandler.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDragDropHandler, 1, ezRTTINoAllocator)
@@ -6,10 +7,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDragDropHandler* ezDragDropHandler::s_pActiveDnD = nullptr;
 
-ezDragDropHandler::ezDragDropHandler()
-{
-
-}
+ezDragDropHandler::ezDragDropHandler() {}
 
 
 ezDragDropHandler* ezDragDropHandler::FindDragDropHandler(const ezDragDropInfo* pInfo)
@@ -120,4 +118,3 @@ bool ezDragDropHandler::DropOnly(const ezDragDropInfo* pInfo)
 
   return false;
 }
-

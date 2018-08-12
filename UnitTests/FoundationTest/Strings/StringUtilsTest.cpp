@@ -1,4 +1,8 @@
 ﻿#include <PCH.h>
+
+// NOTE: Always save this file as "Unicode (UTF-8 with signature)"
+// otherwise important Unicode characters are not encoded
+
 #include <Foundation/Strings/String.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Strings);
@@ -7,7 +11,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNullOrEmpty")
   {
-    EZ_TEST_BOOL(ezStringUtils::IsNullOrEmpty((char*) nullptr) == true);
+    EZ_TEST_BOOL(ezStringUtils::IsNullOrEmpty((char*)nullptr) == true);
     EZ_TEST_BOOL(ezStringUtils::IsNullOrEmpty("") == true);
 
     // all other characters are not empty
@@ -17,7 +21,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetStringElementCount")
   {
-    EZ_TEST_INT(ezStringUtils::GetStringElementCount((char*) nullptr), 0);
+    EZ_TEST_INT(ezStringUtils::GetStringElementCount((char*)nullptr), 0);
 
     // Counts the Bytes
     EZ_TEST_INT(ezStringUtils::GetStringElementCount(""), 0);
@@ -714,12 +718,15 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
 
     EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "abc", ezStringUtils::IsWordDelimiter_English) == &s.GetData()[34]);
     EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "def", ezStringUtils::IsWordDelimiter_English) == &s.GetData()[38]);
-    EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "mompfh", ezStringUtils::IsWordDelimiter_English) == &s.GetData()[0]); // ü is not english
+    EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "mompfh", ezStringUtils::IsWordDelimiter_English) ==
+                 &s.GetData()[0]); // ü is not english
 
     // substring test
-    EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "abc", ezStringUtils::IsWordDelimiter_English, s.GetData() + 37) == &s.GetData()[34]);
+    EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "abc", ezStringUtils::IsWordDelimiter_English, s.GetData() + 37) ==
+                 &s.GetData()[34]);
     EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "abc", ezStringUtils::IsWordDelimiter_English, s.GetData() + 36) == nullptr);
-    EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "abc", ezStringUtils::IsWordDelimiter_English, s.GetData() + 30) == s.GetData() + 27);
+    EZ_TEST_BOOL(ezStringUtils::FindWholeWord(s.GetData(), "abc", ezStringUtils::IsWordDelimiter_English, s.GetData() + 30) ==
+                 s.GetData() + 27);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindWholeWord_NoCase")
@@ -731,8 +738,10 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST_BOOL(ezStringUtils::FindWholeWord_NoCase(s.GetData(), "momPFH", ezStringUtils::IsWordDelimiter_English) == &s.GetData()[0]);
 
     // substring test
-    EZ_TEST_BOOL(ezStringUtils::FindWholeWord_NoCase(s.GetData(), "ABC", ezStringUtils::IsWordDelimiter_English, s.GetData() + 37) == &s.GetData()[34]);
-    EZ_TEST_BOOL(ezStringUtils::FindWholeWord_NoCase(s.GetData(), "ABC", ezStringUtils::IsWordDelimiter_English, s.GetData() + 36) == nullptr);
+    EZ_TEST_BOOL(ezStringUtils::FindWholeWord_NoCase(s.GetData(), "ABC", ezStringUtils::IsWordDelimiter_English, s.GetData() + 37) ==
+                 &s.GetData()[34]);
+    EZ_TEST_BOOL(ezStringUtils::FindWholeWord_NoCase(s.GetData(), "ABC", ezStringUtils::IsWordDelimiter_English, s.GetData() + 36) ==
+                 nullptr);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SkipCharacters")
@@ -741,9 +750,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     const char* szEmpty = "";
 
     EZ_TEST_BOOL(ezStringUtils::SkipCharacters(s.GetData(), ezStringUtils::IsWhiteSpace, false) == &s.GetData()[0]);
-    EZ_TEST_BOOL(ezStringUtils::SkipCharacters(s.GetData(), ezStringUtils::IsWhiteSpace, true ) == &s.GetData()[1]);
+    EZ_TEST_BOOL(ezStringUtils::SkipCharacters(s.GetData(), ezStringUtils::IsWhiteSpace, true) == &s.GetData()[1]);
     EZ_TEST_BOOL(ezStringUtils::SkipCharacters(&s.GetData()[5], ezStringUtils::IsWhiteSpace, false) == &s.GetData()[8]);
-    EZ_TEST_BOOL(ezStringUtils::SkipCharacters(&s.GetData()[5], ezStringUtils::IsWhiteSpace, true ) == &s.GetData()[8]);
+    EZ_TEST_BOOL(ezStringUtils::SkipCharacters(&s.GetData()[5], ezStringUtils::IsWhiteSpace, true) == &s.GetData()[8]);
     EZ_TEST_BOOL(ezStringUtils::SkipCharacters(szEmpty, ezStringUtils::IsWhiteSpace, false) == szEmpty);
     EZ_TEST_BOOL(ezStringUtils::SkipCharacters(szEmpty, ezStringUtils::IsWhiteSpace, true) == szEmpty);
   }
@@ -753,11 +762,11 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     ezStringUtf8 s(L"mompf   hüßß ßßß öäü abcdef abc def");
     const char* szEmpty = "";
 
-    EZ_TEST_BOOL(ezStringUtils::FindWordEnd(s.GetData(), ezStringUtils::IsWhiteSpace, true ) == &s.GetData()[5]);
+    EZ_TEST_BOOL(ezStringUtils::FindWordEnd(s.GetData(), ezStringUtils::IsWhiteSpace, true) == &s.GetData()[5]);
     EZ_TEST_BOOL(ezStringUtils::FindWordEnd(s.GetData(), ezStringUtils::IsWhiteSpace, false) == &s.GetData()[5]);
-    EZ_TEST_BOOL(ezStringUtils::FindWordEnd(&s.GetData()[5], ezStringUtils::IsWhiteSpace, true ) == &s.GetData()[6]);
+    EZ_TEST_BOOL(ezStringUtils::FindWordEnd(&s.GetData()[5], ezStringUtils::IsWhiteSpace, true) == &s.GetData()[6]);
     EZ_TEST_BOOL(ezStringUtils::FindWordEnd(&s.GetData()[5], ezStringUtils::IsWhiteSpace, false) == &s.GetData()[5]);
-    EZ_TEST_BOOL(ezStringUtils::FindWordEnd(szEmpty, ezStringUtils::IsWhiteSpace, true ) == szEmpty);
+    EZ_TEST_BOOL(ezStringUtils::FindWordEnd(szEmpty, ezStringUtils::IsWhiteSpace, true) == szEmpty);
     EZ_TEST_BOOL(ezStringUtils::FindWordEnd(szEmpty, ezStringUtils::IsWhiteSpace, false) == szEmpty);
   }
 
@@ -805,8 +814,5 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
 
     EZ_TEST_BOOL(ezStringUtils::IsValidIdentifierName("asdf1"));
     EZ_TEST_BOOL(ezStringUtils::IsValidIdentifierName("_asdf"));
-
   }
 }
-
-

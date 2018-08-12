@@ -1,11 +1,12 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
+#include <Foundation/Communication/IpcChannel.h>
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/Utilities/ConversionUtils.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Communication/IpcChannel.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 
 bool ezEngineProcessCommunicationChannel::IsHostAlive() const
 {
@@ -55,12 +56,12 @@ ezResult ezEngineProcessCommunicationChannel::ConnectToHostProcess()
 
     ezLog::Debug("Host Process ID: {0}", m_iHostPID);
 
-    m_pChannel = ezIpcChannel::CreatePipeChannel(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC"), ezIpcChannel::Mode::Client);
+    m_pChannel =
+        ezIpcChannel::CreatePipeChannel(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC"), ezIpcChannel::Mode::Client);
   }
   else
   {
     m_pChannel = ezIpcChannel::CreateNetworkChannel("localhost:1050", ezIpcChannel::Mode::Server);
-
   }
 
   m_pChannel->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::MessageFunc, this));

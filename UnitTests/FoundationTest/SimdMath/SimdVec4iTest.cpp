@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/SimdMath/SimdVec4i.h>
 
 EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
@@ -8,14 +9,12 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     // In debug the default constructor initializes everything with 0xCDCDCDCD.
     ezSimdVec4i vDefCtor;
-    EZ_TEST_BOOL(vDefCtor.x() == 0xCDCDCDCD && vDefCtor.y() == 0xCDCDCDCD &&
-      vDefCtor.z() == 0xCDCDCDCD && vDefCtor.w() == 0xCDCDCDCD);
+    EZ_TEST_BOOL(vDefCtor.x() == 0xCDCDCDCD && vDefCtor.y() == 0xCDCDCDCD && vDefCtor.z() == 0xCDCDCDCD && vDefCtor.w() == 0xCDCDCDCD);
 #else
     // Placement new of the default constructor should not have any effect on the previous data.
-    float EZ_ALIGN_16(testBlock[4]) = { 1, 2, 3, 4 };
+    float EZ_ALIGN_16(testBlock[4]) = {1, 2, 3, 4};
     ezSimdVec4i* pDefCtor = ::new ((void*)&testBlock[0]) ezSimdVec4i;
-    EZ_TEST_BOOL(testBlock[0] == 1 && testBlock[1] == 2 &&
-      testBlock[2] == 3 && testBlock[3] == 4);
+    EZ_TEST_BOOL(testBlock[0] == 1 && testBlock[1] == 2 && testBlock[2] == 3 && testBlock[3] == 4);
 #endif
 
     // Make sure the class didn't accidentally change in size.
@@ -32,20 +31,16 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
 
     // Make sure all components have the correct values
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-    EZ_TEST_BOOL(b.m_v.m128i_i32[0] == 1 && b.m_v.m128i_i32[1] == 2 &&
-      b.m_v.m128i_i32[2] == 3 && b.m_v.m128i_i32[3] == 4);
+    EZ_TEST_BOOL(b.m_v.m128i_i32[0] == 1 && b.m_v.m128i_i32[1] == 2 && b.m_v.m128i_i32[2] == 3 && b.m_v.m128i_i32[3] == 4);
 #endif
 
     ezSimdVec4i copy(b);
-    EZ_TEST_BOOL(copy.x() == 1 && copy.y() == 2 &&
-      copy.z() == 3 && copy.w() == 4);
+    EZ_TEST_BOOL(copy.x() == 1 && copy.y() == 2 && copy.z() == 3 && copy.w() == 4);
 
-    EZ_TEST_BOOL(copy.GetComponent<0>() == 1 && copy.GetComponent<1>() == 2 &&
-      copy.GetComponent<2>() == 3 && copy.GetComponent<3>() == 4);
+    EZ_TEST_BOOL(copy.GetComponent<0>() == 1 && copy.GetComponent<1>() == 2 && copy.GetComponent<2>() == 3 && copy.GetComponent<3>() == 4);
 
     ezSimdVec4i vZero = ezSimdVec4i::ZeroVector();
-    EZ_TEST_BOOL(vZero.x() == 0 && vZero.y() == 0 &&
-      vZero.z() == 0 && vZero.w() == 0);
+    EZ_TEST_BOOL(vZero.x() == 0 && vZero.y() == 0 && vZero.z() == 0 && vZero.w() == 0);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Setter")
@@ -60,8 +55,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
 
     ezSimdVec4i vSetZero;
     vSetZero.SetZero();
-    EZ_TEST_BOOL(vSetZero.x() == 0 && vSetZero.y() == 0 &&
-      vSetZero.z() == 0 && vSetZero.w() == 0);
+    EZ_TEST_BOOL(vSetZero.x() == 0 && vSetZero.y() == 0 && vSetZero.z() == 0 && vSetZero.w() == 0);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Conversion")
@@ -69,8 +63,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
     ezSimdVec4i ia(-3, 5, -7, 11);
 
     ezSimdVec4f fa = ia.ToFloat();
-    EZ_TEST_BOOL(fa.x() == -3.0f && fa.y() == 5.0f &&
-      fa.z() == -7.0f && fa.w() == 11.0f);
+    EZ_TEST_BOOL(fa.x() == -3.0f && fa.y() == 5.0f && fa.z() == -7.0f && fa.w() == 11.0f);
 
     fa += ezSimdVec4f(0.7f);
     ezSimdVec4i b = ezSimdVec4i::Truncate(fa);
@@ -123,28 +116,22 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
       ezSimdVec4i c;
 
       c = a | b;
-      EZ_TEST_BOOL(c.x() == (EZ_BIT(1) | EZ_BIT(4)) && c.y() == (EZ_BIT(2) | EZ_BIT(3)) &&
-        c.z() == EZ_BIT(3) && c.w() == EZ_BIT(5) - 1);
+      EZ_TEST_BOOL(c.x() == (EZ_BIT(1) | EZ_BIT(4)) && c.y() == (EZ_BIT(2) | EZ_BIT(3)) && c.z() == EZ_BIT(3) && c.w() == EZ_BIT(5) - 1);
 
       c = a & b;
-      EZ_TEST_BOOL(c.x() == 0 && c.y() == 0 &&
-        c.z() == EZ_BIT(3) && c.w() == EZ_BIT(4));
+      EZ_TEST_BOOL(c.x() == 0 && c.y() == 0 && c.z() == EZ_BIT(3) && c.w() == EZ_BIT(4));
 
       c = a ^ b;
-      EZ_TEST_BOOL(c.x() == (EZ_BIT(1) | EZ_BIT(4)) && c.y() == (EZ_BIT(2) | EZ_BIT(3)) &&
-        c.z() == 0 && c.w() == EZ_BIT(4) - 1);
+      EZ_TEST_BOOL(c.x() == (EZ_BIT(1) | EZ_BIT(4)) && c.y() == (EZ_BIT(2) | EZ_BIT(3)) && c.z() == 0 && c.w() == EZ_BIT(4) - 1);
 
       c = ~a;
-      EZ_TEST_BOOL(c.x() == ~EZ_BIT(1) && c.y() == ~EZ_BIT(2) &&
-        c.z() == ~EZ_BIT(3) && c.w() == ~EZ_BIT(4));
+      EZ_TEST_BOOL(c.x() == ~EZ_BIT(1) && c.y() == ~EZ_BIT(2) && c.z() == ~EZ_BIT(3) && c.w() == ~EZ_BIT(4));
 
       c = a << 3;
-      EZ_TEST_BOOL(c.x() == EZ_BIT(4) && c.y() == EZ_BIT(5) &&
-        c.z() == EZ_BIT(6) && c.w() == EZ_BIT(7));
+      EZ_TEST_BOOL(c.x() == EZ_BIT(4) && c.y() == EZ_BIT(5) && c.z() == EZ_BIT(6) && c.w() == EZ_BIT(7));
 
       c = a >> 1;
-      EZ_TEST_BOOL(c.x() == EZ_BIT(0) && c.y() == EZ_BIT(1) &&
-        c.z() == EZ_BIT(2) && c.w() == EZ_BIT(3));
+      EZ_TEST_BOOL(c.x() == EZ_BIT(0) && c.y() == EZ_BIT(1) && c.z() == EZ_BIT(2) && c.w() == EZ_BIT(3));
     }
 
     {
@@ -166,28 +153,23 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
 
       ezSimdVec4i c = a;
       c |= b;
-      EZ_TEST_BOOL(c.x() == (EZ_BIT(1) | EZ_BIT(4)) && c.y() == (EZ_BIT(2) | EZ_BIT(3)) &&
-        c.z() == EZ_BIT(3) && c.w() == EZ_BIT(5) - 1);
+      EZ_TEST_BOOL(c.x() == (EZ_BIT(1) | EZ_BIT(4)) && c.y() == (EZ_BIT(2) | EZ_BIT(3)) && c.z() == EZ_BIT(3) && c.w() == EZ_BIT(5) - 1);
 
       c = a;
       c &= b;
-      EZ_TEST_BOOL(c.x() == 0 && c.y() == 0 &&
-        c.z() == EZ_BIT(3) && c.w() == EZ_BIT(4));
+      EZ_TEST_BOOL(c.x() == 0 && c.y() == 0 && c.z() == EZ_BIT(3) && c.w() == EZ_BIT(4));
 
       c = a;
       c ^= b;
-      EZ_TEST_BOOL(c.x() == (EZ_BIT(1) | EZ_BIT(4)) && c.y() == (EZ_BIT(2) | EZ_BIT(3)) &&
-        c.z() == 0 && c.w() == EZ_BIT(4) - 1);
+      EZ_TEST_BOOL(c.x() == (EZ_BIT(1) | EZ_BIT(4)) && c.y() == (EZ_BIT(2) | EZ_BIT(3)) && c.z() == 0 && c.w() == EZ_BIT(4) - 1);
 
       c = a;
       c <<= 3;
-      EZ_TEST_BOOL(c.x() == EZ_BIT(4) && c.y() == EZ_BIT(5) &&
-        c.z() == EZ_BIT(6) && c.w() == EZ_BIT(7));
+      EZ_TEST_BOOL(c.x() == EZ_BIT(4) && c.y() == EZ_BIT(5) && c.z() == EZ_BIT(6) && c.w() == EZ_BIT(7));
 
       c = a;
       c >>= 1;
-      EZ_TEST_BOOL(c.x() == EZ_BIT(0) && c.y() == EZ_BIT(1) &&
-        c.z() == EZ_BIT(2) && c.w() == EZ_BIT(3));
+      EZ_TEST_BOOL(c.x() == EZ_BIT(0) && c.y() == EZ_BIT(1) && c.z() == EZ_BIT(2) && c.w() == EZ_BIT(3));
     }
 
     {

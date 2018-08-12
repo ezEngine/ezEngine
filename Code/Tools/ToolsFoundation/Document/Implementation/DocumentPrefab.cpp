@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <ToolsFoundation/Document/Document.h>
+
 #include <ToolsFoundation/Command/TreeCommands.h>
+#include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <ToolsFoundation/Document/PrefabCache.h>
 #include <ToolsFoundation/Document/PrefabUtils.h>
@@ -75,7 +76,8 @@ ezStatus ezDocument::CreatePrefabDocumentFromSelection(const char* szFile, const
   return res;
 }
 
-ezStatus ezDocument::CreatePrefabDocument(const char* szFile, const ezDocumentObject* pSaveAsPrefab, const ezUuid& invPrefabSeed, ezUuid& out_NewDocumentGuid)
+ezStatus ezDocument::CreatePrefabDocument(const char* szFile, const ezDocumentObject* pSaveAsPrefab, const ezUuid& invPrefabSeed,
+                                          ezUuid& out_NewDocumentGuid)
 {
   EZ_ASSERT_DEV(pSaveAsPrefab != nullptr, "CreatePrefabDocument: pSaveAsPrefab must be a valod object!");
   const ezRTTI* pRootType = pSaveAsPrefab->GetTypeAccessor().GetType();
@@ -107,7 +109,8 @@ ezStatus ezDocument::CreatePrefabDocument(const char* szFile, const ezDocumentOb
   ezDocumentObject* pPrefabSceneMainObject = pSceneDocument->GetObjectManager()->CreateObject(pRootType, rootGuid);
   pSceneDocument->GetObjectManager()->AddObject(pPrefabSceneMainObject, pPrefabSceneRoot, "Children", 0);
 
-  ezDocumentObjectConverterReader reader(&PrefabGraph, pSceneDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+  ezDocumentObjectConverterReader reader(&PrefabGraph, pSceneDocument->GetObjectManager(),
+                                         ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
   reader.ApplyPropertiesToObject(pPrefabGraphMainNode, pPrefabSceneMainObject);
 
   pSceneDocument->SetModified(true);
@@ -118,7 +121,8 @@ ezStatus ezDocument::CreatePrefabDocument(const char* szFile, const ezDocumentOb
 }
 
 
-ezUuid ezDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed)
+ezUuid ezDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset,
+                                   const ezUuid& PrefabSeed)
 {
   GetCommandHistory()->StartTransaction("Replace by Prefab");
 
@@ -130,7 +134,8 @@ ezUuid ezDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const ch
   instCmd.m_bAllowPickedPosition = false;
   instCmd.m_CreateFromPrefab = PrefabAsset;
   instCmd.m_Parent = pRootObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pRootObject->GetParent()->GetGuid();
-  instCmd.m_sBasePrefabGraph = ezPrefabUtils::ReadDocumentAsString(szPrefabFile); // since the prefab might have been created just now, going through the cache (via GUID) will most likely fail
+  instCmd.m_sBasePrefabGraph = ezPrefabUtils::ReadDocumentAsString(
+      szPrefabFile); // since the prefab might have been created just now, going through the cache (via GUID) will most likely fail
   instCmd.m_RemapGuid = PrefabSeed;
 
   GetCommandHistory()->AddCommand(remCmd);
@@ -203,7 +208,8 @@ void ezDocument::UpdatePrefabsRecursive(ezDocumentObject* pObject)
   }
 }
 
-void ezDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab)
+void ezDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed,
+                                    const char* szBasePrefab)
 {
   const ezStringBuilder& sNewBasePrefab = ezPrefabCache::GetSingleton()->GetCachedPrefabDocument(PrefabAsset);
 

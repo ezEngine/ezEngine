@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <ToolsFoundationTest/Object/TestObjectManager.h>
 #include <ToolsFoundationTest/Reflection/ReflectionTestClasses.h>
 
@@ -9,8 +10,8 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, DocumentObjectManager)
   ezTestDocumentObjectManager manager;
   ezDocumentObject* pObject = nullptr;
   ezDocumentObject* pChildObject = nullptr;
-  ezDocumentObject* pChildren[4] = { nullptr };
-  ezDocumentObject* pSubElementObject[4] = { nullptr };
+  ezDocumentObject* pChildren[4] = {nullptr};
+  ezDocumentObject* pSubElementObject[4] = {nullptr};
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "DocumentObject")
   {
@@ -42,8 +43,6 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, DocumentObjectManager)
     EZ_TEST_BOOL_MSG(manager.CanMove(pChildren[1], pChildObject, szProperty, 1).m_Result.Failed(), "Can't move before onself");
     EZ_TEST_BOOL_MSG(manager.CanMove(pChildren[1], pChildObject, szProperty, 2).m_Result.Failed(), "Can't move after oneself");
     EZ_TEST_BOOL_MSG(manager.CanMove(pChildren[1], pChildren[1], szProperty, 0).m_Result.Failed(), "Can't move into yourself");
-
-
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "DocumentSubElementObject")
@@ -109,4 +108,3 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, DocumentObjectManager)
 
   manager.DestroyAllObjects();
 }
-

@@ -1,32 +1,36 @@
 #include <PCH.h>
+
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Components/SpriteComponent.h>
 #include <RendererCore/Messages/SetColorMessage.h>
-#include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSpriteBlendMode, 1)
-EZ_ENUM_CONSTANTS(ezSpriteBlendMode::Masked, ezSpriteBlendMode::Transparent, ezSpriteBlendMode::Additive)
+  EZ_ENUM_CONSTANTS(ezSpriteBlendMode::Masked, ezSpriteBlendMode::Transparent, ezSpriteBlendMode::Additive)
 EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
 
-//static
+// static
 ezTempHashedString ezSpriteBlendMode::GetPermutationValue(Enum blendMode)
 {
   switch (blendMode)
   {
-  case ezSpriteBlendMode::Masked:
-    return "BLEND_MODE_MASKED";
-  case ezSpriteBlendMode::Transparent:
-    return "BLEND_MODE_TRANSPARENT";
-  case ezSpriteBlendMode::Additive:
-    return "BLEND_MODE_ADDITIVE";
+    case ezSpriteBlendMode::Masked:
+      return "BLEND_MODE_MASKED";
+    case ezSpriteBlendMode::Transparent:
+      return "BLEND_MODE_TRANSPARENT";
+    case ezSpriteBlendMode::Additive:
+      return "BLEND_MODE_ADDITIVE";
   }
 
   return "";
 }
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpriteRenderData, 1, ezRTTIDefaultAllocator<ezSpriteRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -42,31 +46,30 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 3, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("AspectRatio", m_fAspectRatio)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering"),
   }
   EZ_END_ATTRIBUTES;
-    EZ_BEGIN_MESSAGEHANDLERS
+  EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMsgSetColor, OnSetColor),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE
+EZ_END_COMPONENT_TYPE;
+// clang-format on
 
 ezSpriteComponent::ezSpriteComponent()
-  : m_Color(ezColor::White)
-  , m_fSize(1.0f)
-  , m_fMaxScreenSize(64.0f)
-  , m_fAspectRatio(1.0f)
+    : m_Color(ezColor::White)
+    , m_fSize(1.0f)
+    , m_fMaxScreenSize(64.0f)
+    , m_fAspectRatio(1.0f)
 {
 }
 
-ezSpriteComponent::~ezSpriteComponent()
-{
-}
+ezSpriteComponent::~ezSpriteComponent() {}
 
 ezResult ezSpriteComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
@@ -86,7 +89,7 @@ void ezSpriteComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
   const ezUInt32 uiTextureIDHash = m_hTexture.GetResourceIDHash();
 
   // Generate batch id from mode and texture
-  ezUInt32 data[] = { (ezUInt32)m_BlendMode, uiTextureIDHash };
+  ezUInt32 data[] = {(ezUInt32)m_BlendMode, uiTextureIDHash};
   ezUInt32 uiBatchId = ezHashing::xxHash32(data, sizeof(data));
 
   ezSpriteRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezSpriteRenderData>(GetOwner(), uiBatchId);
@@ -225,9 +228,9 @@ void ezSpriteComponent::OnSetColor(ezMsgSetColor& msg)
   msg.ModifyColor(m_Color);
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -236,7 +239,9 @@ class ezSpriteComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezSpriteComponentPatch_1_2()
-    : ezGraphPatch("ezSpriteComponent", 2) {}
+      : ezGraphPatch("ezSpriteComponent", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -248,6 +253,4 @@ ezSpriteComponentPatch_1_2 g_ezSpriteComponentPatch_1_2;
 
 
 
-
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_SpriteComponent);
-

@@ -1,15 +1,16 @@
 #include <PCH.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/GameApplication/InputConfig.h>
-#include <GameEngine/Console/Console.h>
-#include <System/Window/Window.h>
+
 #include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Clock.h>
-#include <Foundation/Configuration/CVar.h>
+#include <GameEngine/Console/Console.h>
+#include <GameEngine/GameApplication/GameApplication.h>
+#include <GameEngine/GameApplication/InputConfig.h>
+#include <System/Window/Window.h>
 
 extern ezCVarBool CVarShowFPS;
 
@@ -153,4 +154,3 @@ void ezGameApplication::UpdateInput()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_Input);
-

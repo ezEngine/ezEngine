@@ -1,12 +1,14 @@
 #include <PCH.h>
-#include <ParticlePlugin/Behavior/ParticleBehavior_SizeCurve.h>
-#include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
+
 #include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
-#include <Foundation/Profiling/Profiling.h>
-#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <Foundation/Math/Float16.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <ParticlePlugin/Behavior/ParticleBehavior_SizeCurve.h>
+#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_SizeCurve, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_SizeCurve>)
 {
   EZ_BEGIN_PROPERTIES
@@ -21,6 +23,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_SizeCurve, 1, ezRTTIDefaultAllocator<ezParticleBehavior_SizeCurve>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 const ezRTTI* ezParticleBehaviorFactory_SizeCurve::GetBehaviorType() const
 {
@@ -167,4 +170,3 @@ void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_SizeCurve);
-

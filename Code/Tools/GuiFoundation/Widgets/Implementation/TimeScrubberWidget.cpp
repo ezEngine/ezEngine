@@ -1,25 +1,24 @@
 #include <PCH.h>
-#include <GuiFoundation/Widgets/TimeScrubberWidget.moc.h>
-#include <QPainter>
-#include <Foundation/Math/Color8UNorm.h>
-#include <GuiFoundation/Widgets/WidgetUtils.h>
+
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Strings/StringBuilder.h>
-#include <qevent.h>
-#include <QPushButton>
+#include <GuiFoundation/Widgets/TimeScrubberWidget.moc.h>
+#include <GuiFoundation/Widgets/WidgetUtils.h>
 #include <QLineEdit>
+#include <QPainter>
+#include <QPushButton>
+#include <qevent.h>
 
 ezQtTimeScrubberWidget::ezQtTimeScrubberWidget(QWidget* pParent)
-  : QWidget(pParent)
+    : QWidget(pParent)
 {
   setMinimumWidth(100);
   setMinimumHeight(24);
   setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Expanding);
 }
 
-ezQtTimeScrubberWidget::~ezQtTimeScrubberWidget()
-{
-}
+ezQtTimeScrubberWidget::~ezQtTimeScrubberWidget() {}
 
 void ezQtTimeScrubberWidget::SetDuration(ezUInt64 uiNumTicks, ezUInt32 uiFramesPerSecond)
 {
@@ -199,7 +198,7 @@ void ezQtTimeScrubberWidget::SetScrubberPosFromPixelCoord(ezInt32 posX)
 //////////////////////////////////////////////////////////////////////////
 
 ezQtTimeScrubberToolbar::ezQtTimeScrubberToolbar(QWidget* parent)
-  : QToolBar("Time Scrubber", parent)
+    : QToolBar("Time Scrubber", parent)
 {
   m_pScrubber = new ezQtTimeScrubberWidget(this);
   setObjectName("TimeScrubberToolbar");
@@ -229,12 +228,12 @@ ezQtTimeScrubberToolbar::ezQtTimeScrubberToolbar(QWidget* parent)
   addWidget(m_pAdjustDurationButton);
 
   // Pass event through
-  connect(m_pScrubber, &ezQtTimeScrubberWidget::ScrubberPosChangedEvent, this, [this](ezUInt64 uiNewScrubberTickPos) {emit ScrubberPosChangedEvent(uiNewScrubberTickPos); });
+  connect(m_pScrubber, &ezQtTimeScrubberWidget::ScrubberPosChangedEvent, this,
+          [this](ezUInt64 uiNewScrubberTickPos) { emit ScrubberPosChangedEvent(uiNewScrubberTickPos); });
 
   connect(m_pPlayButton, &QPushButton::clicked, this, [this](bool) { emit PlayPauseEvent(); });
   connect(m_pRepeatButton, &QPushButton::clicked, this, [this](bool) { emit RepeatEvent(); });
-  connect(m_pDuration, &QLineEdit::textChanged, this, [this](const QString& text)
-  {
+  connect(m_pDuration, &QLineEdit::textChanged, this, [this](const QString& text) {
     bool ok = false;
     double val = text.toDouble(&ok);
 
@@ -273,4 +272,3 @@ void ezQtTimeScrubberToolbar::SetButtonState(bool playing, bool repeatEnabled)
 
   m_pRepeatButton->setChecked(repeatEnabled);
 }
-

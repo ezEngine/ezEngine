@@ -1,8 +1,10 @@
 #include <PCH.h>
-#include <GameEngine/Collection/CollectionComponent.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
 
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <GameEngine/Collection/CollectionComponent.h>
+
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezCollectionComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -19,6 +21,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCollectionComponent, 1, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezCollectionComponent::ezCollectionComponent()
 {
@@ -36,7 +39,7 @@ void ezCollectionComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezCollectionComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
   s >> m_hCollection;
@@ -89,4 +92,3 @@ void ezCollectionComponent::InitiatePreload()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Collection_Implementation_CollectionComponent);
-

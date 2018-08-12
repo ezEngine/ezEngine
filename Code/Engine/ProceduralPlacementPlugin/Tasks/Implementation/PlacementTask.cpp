@@ -1,13 +1,14 @@
 #include <PCH.h>
-#include <ProceduralPlacementPlugin/Tasks/PlacementTask.h>
-#include <GameEngine/Curves/ColorGradientResource.h>
+
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/SimdMath/SimdRandom.h>
+#include <GameEngine/Curves/ColorGradientResource.h>
+#include <ProceduralPlacementPlugin/Tasks/PlacementTask.h>
 
 using namespace ezPPInternal;
 
 EZ_CHECK_AT_COMPILETIME(sizeof(PlacementPoint) == 32);
-//EZ_CHECK_AT_COMPILETIME(sizeof(PlacementTransform) == 64); // TODO: Fails on Linux and Mac
+// EZ_CHECK_AT_COMPILETIME(sizeof(PlacementTransform) == 64); // TODO: Fails on Linux and Mac
 
 namespace
 {
@@ -20,13 +21,9 @@ namespace
   }
 }
 
-PlacementTask::PlacementTask()
-{
-}
+PlacementTask::PlacementTask() {}
 
-PlacementTask::~PlacementTask()
-{
-}
+PlacementTask::~PlacementTask() {}
 
 void ezPPInternal::PlacementTask::Clear()
 {
@@ -47,13 +44,19 @@ void PlacementTask::Execute()
 
     ezHybridArray<ezExpression::Stream, 8> inputs;
     {
-      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.x), ezPPInternal::ExpressionInputs::s_sPositionX));
-      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.y), ezPPInternal::ExpressionInputs::s_sPositionY));
-      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.z), ezPPInternal::ExpressionInputs::s_sPositionZ));
+      inputs.PushBack(
+          MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.x), ezPPInternal::ExpressionInputs::s_sPositionX));
+      inputs.PushBack(
+          MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.y), ezPPInternal::ExpressionInputs::s_sPositionY));
+      inputs.PushBack(
+          MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.z), ezPPInternal::ExpressionInputs::s_sPositionZ));
 
-      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.x), ezPPInternal::ExpressionInputs::s_sNormalX));
-      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.y), ezPPInternal::ExpressionInputs::s_sNormalY));
-      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.z), ezPPInternal::ExpressionInputs::s_sNormalZ));
+      inputs.PushBack(
+          MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.x), ezPPInternal::ExpressionInputs::s_sNormalX));
+      inputs.PushBack(
+          MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.y), ezPPInternal::ExpressionInputs::s_sNormalY));
+      inputs.PushBack(
+          MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.z), ezPPInternal::ExpressionInputs::s_sNormalZ));
 
       // Point index
       ezArrayPtr<float> pointIndex = m_TempData.GetArrayPtr().GetSubArray(0, uiNumInstances);
@@ -138,12 +141,15 @@ void PlacementTask::Execute()
 
     placementTransform.m_Transform.SetIdentity();
 
-    ezSimdVec4f offset = ezSimdVec4f::ZeroVector(); offset.SetZ(random.y());
+    ezSimdVec4f offset = ezSimdVec4f::ZeroVector();
+    offset.SetZ(random.y());
     placementTransform.m_Transform.m_Position = ezSimdConversion::ToVec3(placementPoint.m_vPosition) + offset;
 
-    ezSimdQuat qYawRot; qYawRot.SetFromAxisAndAngle(vUp, random.x());
+    ezSimdQuat qYawRot;
+    qYawRot.SetFromAxisAndAngle(vUp, random.x());
     ezSimdVec4f vNormal = ezSimdConversion::ToVec3(placementPoint.m_vNormal);
-    ezSimdQuat qToNormalRot; qToNormalRot.SetShortestRotation(vUp, ezSimdVec4f::Lerp(vUp, vNormal, vAlignToNormal));
+    ezSimdQuat qToNormalRot;
+    qToNormalRot.SetShortestRotation(vUp, ezSimdVec4f::Lerp(vUp, vNormal, vAlignToNormal));
     placementTransform.m_Transform.m_Rotation = qToNormalRot * qYawRot;
 
     ezSimdVec4f scale = ezSimdVec4f(ezMath::Clamp(placementPoint.m_fScale, 0.0f, 1.0f));

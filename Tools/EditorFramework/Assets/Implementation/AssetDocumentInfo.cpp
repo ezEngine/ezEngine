@@ -1,6 +1,8 @@
 #include <PCH.h>
+
 #include <EditorFramework/Assets/AssetDocumentInfo.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentInfo, 2, ezRTTIDefaultAllocator<ezAssetDocumentInfo>)
 {
   EZ_BEGIN_PROPERTIES
@@ -15,6 +17,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentInfo, 2, ezRTTIDefaultAllocator<e
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezAssetDocumentInfo::ezAssetDocumentInfo()
 {

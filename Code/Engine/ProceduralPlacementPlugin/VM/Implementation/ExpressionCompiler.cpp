@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <ProceduralPlacementPlugin/VM/ExpressionCompiler.h>
+
 #include <ProceduralPlacementPlugin/VM/ExpressionByteCode.h>
+#include <ProceduralPlacementPlugin/VM/ExpressionCompiler.h>
 
 namespace
 {
@@ -8,38 +9,32 @@ namespace
   {
     switch (nodeType)
     {
-    case ezExpressionAST::NodeType::Absolute:
-      return ezExpressionByteCode::OpCode::Abs_R;
-    case ezExpressionAST::NodeType::Sqrt:
-      return ezExpressionByteCode::OpCode::Sqrt_R;
-    case ezExpressionAST::NodeType::Add:
-      return ezExpressionByteCode::OpCode::Add_RR;
-    case ezExpressionAST::NodeType::Subtract:
-      return ezExpressionByteCode::OpCode::Sub_RR;
-    case ezExpressionAST::NodeType::Multiply:
-      return ezExpressionByteCode::OpCode::Mul_RR;
-    case ezExpressionAST::NodeType::Divide:
-      return ezExpressionByteCode::OpCode::Div_RR;
-    case ezExpressionAST::NodeType::Min:
-      return ezExpressionByteCode::OpCode::Min_RR;
-    case ezExpressionAST::NodeType::Max:
-      return ezExpressionByteCode::OpCode::Max_RR;
-    default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
-      return ezExpressionByteCode::OpCode::FirstUnary;
+      case ezExpressionAST::NodeType::Absolute:
+        return ezExpressionByteCode::OpCode::Abs_R;
+      case ezExpressionAST::NodeType::Sqrt:
+        return ezExpressionByteCode::OpCode::Sqrt_R;
+      case ezExpressionAST::NodeType::Add:
+        return ezExpressionByteCode::OpCode::Add_RR;
+      case ezExpressionAST::NodeType::Subtract:
+        return ezExpressionByteCode::OpCode::Sub_RR;
+      case ezExpressionAST::NodeType::Multiply:
+        return ezExpressionByteCode::OpCode::Mul_RR;
+      case ezExpressionAST::NodeType::Divide:
+        return ezExpressionByteCode::OpCode::Div_RR;
+      case ezExpressionAST::NodeType::Min:
+        return ezExpressionByteCode::OpCode::Min_RR;
+      case ezExpressionAST::NodeType::Max:
+        return ezExpressionByteCode::OpCode::Max_RR;
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+        return ezExpressionByteCode::OpCode::FirstUnary;
     }
   }
 }
 
-ezExpressionCompiler::ezExpressionCompiler()
-{
+ezExpressionCompiler::ezExpressionCompiler() {}
 
-}
-
-ezExpressionCompiler::~ezExpressionCompiler()
-{
-
-}
+ezExpressionCompiler::~ezExpressionCompiler() {}
 
 ezResult ezExpressionCompiler::Compile(ezExpressionAST& ast, ezExpressionByteCode& out_byteCode)
 {
@@ -135,7 +130,7 @@ ezResult ezExpressionCompiler::BuildNodeInstructions(const ezExpressionAST& ast)
       ++uiNextRegisterIndex;
 
       ezUInt32 uiCurrentInstructionIndex = m_NodeInstructions.GetCount() - 1;
-      m_LiveIntervals.PushBack({ uiCurrentInstructionIndex, uiCurrentInstructionIndex, pCurrentNode });
+      m_LiveIntervals.PushBack({uiCurrentInstructionIndex, uiCurrentInstructionIndex, pCurrentNode});
       EZ_ASSERT_DEV(m_LiveIntervals.GetCount() == uiNextRegisterIndex, "Implementation error");
     }
   }
@@ -186,7 +181,7 @@ ezResult ezExpressionCompiler::AssignRegisters()
   for (auto& liveInterval : m_LiveIntervals)
   {
     // Expire old intervals
-    for (ezUInt32 uiActiveIndex = activeIntervals.GetCount(); uiActiveIndex-- > 0; )
+    for (ezUInt32 uiActiveIndex = activeIntervals.GetCount(); uiActiveIndex-- > 0;)
     {
       auto& activeInterval = activeIntervals[uiActiveIndex];
       if (activeInterval.m_uiEnd <= liveInterval.m_uiStart)

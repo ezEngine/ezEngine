@@ -1,24 +1,22 @@
 #include <PCH.h>
+
 #include <EditorFramework/Document/GameObjectContextDocument.h>
-#include <ToolsFoundation/Object/ObjectAccessorBase.h>
-#include <ToolsFoundation/Document/PrefabCache.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <Preferences/GameObjectContextPreferences.h>
+#include <ToolsFoundation/Document/PrefabCache.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectContextDocument, 2, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezGameObjectContextDocument::ezGameObjectContextDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, bool bUseEngineConnection, bool bUseIPCObjectMirror)
-  : ezGameObjectDocument(szDocumentPath, pObjectManager, bUseEngineConnection, bUseIPCObjectMirror)
+ezGameObjectContextDocument::ezGameObjectContextDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager,
+                                                         bool bUseEngineConnection, bool bUseIPCObjectMirror)
+    : ezGameObjectDocument(szDocumentPath, pObjectManager, bUseEngineConnection, bUseIPCObjectMirror)
 {
-
 }
 
-ezGameObjectContextDocument::~ezGameObjectContextDocument()
-{
-
-}
+ezGameObjectContextDocument::~ezGameObjectContextDocument() {}
 
 ezStatus ezGameObjectContextDocument::SetContext(ezUuid documentGuid, ezUuid objectGuid)
 {
@@ -53,7 +51,8 @@ ezStatus ezGameObjectContextDocument::SetContext(ezUuid documentGuid, ezUuid obj
 
   ezRttiConverterContext context;
   ezRttiConverterReader rttiConverter(&graph, &context);
-  ezDocumentObjectConverterReader objectConverter(&graph, GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+  ezDocumentObjectConverterReader objectConverter(&graph, GetObjectManager(),
+                                                  ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
   {
     EZ_PROFILE("Restoring Objects");
     auto* pRootNode = graph.GetNodeByName("ObjectTree");
@@ -90,7 +89,6 @@ ezUuid ezGameObjectContextDocument::GetContextDocumentGuid() const
 ezUuid ezGameObjectContextDocument::GetContextObjectGuid() const
 {
   return m_ContextObject;
-
 }
 
 const ezDocumentObject* ezGameObjectContextDocument::GetContextObject() const

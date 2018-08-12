@@ -1,12 +1,13 @@
 #include <PCH.h>
+
+#include <Core/World/GameObject.h>
 #include <EditorFramework/Manipulators/ManipulatorAdapter.h>
+#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
+#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
+#include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <ToolsFoundation/Document/Document.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
-#include <Core/World/GameObject.h>
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
-#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezManipulatorAdapter::ezManipulatorAdapter()
@@ -24,8 +25,10 @@ ezManipulatorAdapter::~ezManipulatorAdapter()
 
   if (m_pObject)
   {
-    m_pObject->GetDocumentObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezManipulatorAdapter::DocumentObjectPropertyEventHandler, this));
-    m_pObject->GetDocumentObjectManager()->GetDocument()->m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezManipulatorAdapter::DocumentObjectMetaDataEventHandler, this));
+    m_pObject->GetDocumentObjectManager()->m_PropertyEvents.RemoveEventHandler(
+        ezMakeDelegate(&ezManipulatorAdapter::DocumentObjectPropertyEventHandler, this));
+    m_pObject->GetDocumentObjectManager()->GetDocument()->m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(
+        ezMakeDelegate(&ezManipulatorAdapter::DocumentObjectMetaDataEventHandler, this));
   }
 }
 
@@ -36,7 +39,8 @@ void ezManipulatorAdapter::SetManipulator(const ezManipulatorAttribute* pAttribu
 
   auto& meta = m_pObject->GetDocumentObjectManager()->GetDocument()->m_DocumentObjectMetaData;
 
-  m_pObject->GetDocumentObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezManipulatorAdapter::DocumentObjectPropertyEventHandler, this));
+  m_pObject->GetDocumentObjectManager()->m_PropertyEvents.AddEventHandler(
+      ezMakeDelegate(&ezManipulatorAdapter::DocumentObjectPropertyEventHandler, this));
   meta.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezManipulatorAdapter::DocumentObjectMetaDataEventHandler, this));
 
   {
@@ -56,12 +60,9 @@ void ezManipulatorAdapter::DocumentObjectPropertyEventHandler(const ezDocumentOb
   {
     if (e.m_pObject == m_pObject)
     {
-      if (e.m_sProperty == m_pManipulatorAttr->m_sProperty1 ||
-          e.m_sProperty == m_pManipulatorAttr->m_sProperty2 ||
-          e.m_sProperty == m_pManipulatorAttr->m_sProperty3 ||
-          e.m_sProperty == m_pManipulatorAttr->m_sProperty4 ||
-          e.m_sProperty == m_pManipulatorAttr->m_sProperty5 ||
-          e.m_sProperty == m_pManipulatorAttr->m_sProperty6)
+      if (e.m_sProperty == m_pManipulatorAttr->m_sProperty1 || e.m_sProperty == m_pManipulatorAttr->m_sProperty2 ||
+          e.m_sProperty == m_pManipulatorAttr->m_sProperty3 || e.m_sProperty == m_pManipulatorAttr->m_sProperty4 ||
+          e.m_sProperty == m_pManipulatorAttr->m_sProperty5 || e.m_sProperty == m_pManipulatorAttr->m_sProperty6)
       {
         Update();
       }
@@ -71,7 +72,8 @@ void ezManipulatorAdapter::DocumentObjectPropertyEventHandler(const ezDocumentOb
 
 void ezManipulatorAdapter::DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e)
 {
-  if (e.m_Type == ezQtDocumentWindowEvent::BeforeRedraw && e.m_pWindow->GetDocument() == m_pObject->GetDocumentObjectManager()->GetDocument())
+  if (e.m_Type == ezQtDocumentWindowEvent::BeforeRedraw &&
+      e.m_pWindow->GetDocument() == m_pObject->GetDocumentObjectManager()->GetDocument())
   {
     UpdateGizmoTransform();
   }
@@ -79,8 +81,7 @@ void ezManipulatorAdapter::DocumentWindowEventHandler(const ezQtDocumentWindowEv
 
 void ezManipulatorAdapter::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e)
 {
-  if ((e.m_uiModifiedFlags & ezDocumentObjectMetaData::HiddenFlag) != 0 &&
-      e.m_ObjectKey == m_pObject->GetGuid())
+  if ((e.m_uiModifiedFlags & ezDocumentObjectMetaData::HiddenFlag) != 0 && e.m_ObjectKey == m_pObject->GetGuid())
   {
     m_bManipulatorIsVisible = !e.m_pValue->m_bHidden;
 
@@ -154,7 +155,12 @@ void ezManipulatorAdapter::ClampProperty(const char* szProperty, ezVariant& valu
   }
 }
 
-void ezManipulatorAdapter::ChangeProperties(const char* szProperty1, ezVariant value1, const char* szProperty2 /*= nullptr*/, ezVariant value2 /*= ezVariant()*/, const char* szProperty3 /*= nullptr*/, ezVariant value3 /*= ezVariant()*/, const char* szProperty4 /*= nullptr*/, ezVariant value4 /*= ezVariant()*/, const char* szProperty5 /*= nullptr*/, ezVariant value5 /*= ezVariant()*/, const char* szProperty6 /*= nullptr*/, ezVariant value6 /*= ezVariant()*/)
+void ezManipulatorAdapter::ChangeProperties(const char* szProperty1, ezVariant value1, const char* szProperty2 /*= nullptr*/,
+                                            ezVariant value2 /*= ezVariant()*/, const char* szProperty3 /*= nullptr*/,
+                                            ezVariant value3 /*= ezVariant()*/, const char* szProperty4 /*= nullptr*/,
+                                            ezVariant value4 /*= ezVariant()*/, const char* szProperty5 /*= nullptr*/,
+                                            ezVariant value5 /*= ezVariant()*/, const char* szProperty6 /*= nullptr*/,
+                                            ezVariant value6 /*= ezVariant()*/)
 {
   ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
 
@@ -201,6 +207,3 @@ void ezManipulatorAdapter::ChangeProperties(const char* szProperty1, ezVariant v
 
   pObjectAccessor->FinishTransaction();
 }
-
-
-

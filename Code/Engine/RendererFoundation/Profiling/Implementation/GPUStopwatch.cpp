@@ -1,13 +1,14 @@
 #include <PCH.h>
-#include <RendererFoundation/Profiling/GPUStopwatch.h>
-#include <RendererFoundation/Device/Device.h>
+
 #include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Profiling/GPUStopwatch.h>
 
 ezGPUStopwatch::ezGPUStopwatch(ezGALDevice& device, unsigned int numFramesDelay)
-  : m_nextQuery(0)
-  , m_running(false)
-  , m_device(device)
-  , m_lastResult(ezTime::Zero())
+    : m_nextQuery(0)
+    , m_running(false)
+    , m_device(device)
+    , m_lastResult(ezTime::Zero())
 {
   m_queries.SetCount(numFramesDelay);
 
@@ -45,7 +46,7 @@ ezResult ezGPUStopwatch::End(ezGALContext& context, ezTime* outTimeDifference)
   context.EndQuery(m_queries[m_nextQuery].endQuery);
   m_nextQuery = (m_nextQuery + 1) % m_queries.GetCount();
 
-  if(outTimeDifference)
+  if (outTimeDifference)
     *outTimeDifference = ezTime::Zero();
 
   // Retrieve oldest query data and convert to time.
@@ -71,4 +72,3 @@ ezResult ezGPUStopwatch::End(ezGALContext& context, ezTime* outTimeDifference)
 
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Profiling_Implementation_GPUStopwatch);
-

@@ -1,19 +1,19 @@
 #include <PCH.h>
+
 #include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
-#include <ToolsFoundation/Document/Document.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
 #include <GuiFoundation/Models/TreeSearchFilterModel.moc.h>
 #include <QKeyEvent>
 #include <QSortFilterProxyModel>
+#include <ToolsFoundation/Command/TreeCommands.h>
+#include <ToolsFoundation/Document/Document.h>
 
 ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* parent)
-  : QTreeView(parent)
+    : QTreeView(parent)
 {
-
 }
 
 ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* pParent, ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pModel)
-  : QTreeView(pParent)
+    : QTreeView(pParent)
 {
   Initialize(pDocument, std::move(pModel));
 }
@@ -38,7 +38,9 @@ void ezQtDocumentTreeView::Initialize(ezDocument* pDocument, std::unique_ptr<ezQ
   setEditTriggers(QAbstractItemView::EditTrigger::EditKeyPressed);
   setUniformRowHeights(true);
 
-  EZ_VERIFY(connect(selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this, SLOT(on_selectionChanged_triggered(const QItemSelection&, const QItemSelection&))) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this,
+                    SLOT(on_selectionChanged_triggered(const QItemSelection&, const QItemSelection&))) != nullptr,
+            "signal/slot connection failed");
   pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtDocumentTreeView::SelectionEventHandler, this));
 }
 
@@ -56,7 +58,7 @@ void ezQtDocumentTreeView::on_selectionChanged_triggered(const QItemSelection& s
 
   ezDeque<const ezDocumentObject*> sel;
 
-  foreach(QModelIndex index, selection)
+  foreach (QModelIndex index, selection)
   {
     if (index.isValid())
     {
@@ -68,14 +70,14 @@ void ezQtDocumentTreeView::on_selectionChanged_triggered(const QItemSelection& s
   }
 
   // TODO const cast
-  ((ezSelectionManager*) m_pDocument->GetSelectionManager())->SetSelection(sel);
+  ((ezSelectionManager*)m_pDocument->GetSelectionManager())->SetSelection(sel);
 }
 
 void ezQtDocumentTreeView::SelectionEventHandler(const ezSelectionManagerEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezSelectionManagerEvent::Type::SelectionCleared:
+    case ezSelectionManagerEvent::Type::SelectionCleared:
     {
       // Can't block signals on selection model or view won't update.
       m_bBlockSelectionSignal = true;
@@ -83,9 +85,9 @@ void ezQtDocumentTreeView::SelectionEventHandler(const ezSelectionManagerEvent& 
       m_bBlockSelectionSignal = false;
     }
     break;
-  case ezSelectionManagerEvent::Type::SelectionSet:
-  case ezSelectionManagerEvent::Type::ObjectAdded:
-  case ezSelectionManagerEvent::Type::ObjectRemoved:
+    case ezSelectionManagerEvent::Type::SelectionSet:
+    case ezSelectionManagerEvent::Type::ObjectAdded:
+    case ezSelectionManagerEvent::Type::ObjectRemoved:
     {
       // Can't block signals on selection model or view won't update.
       m_bBlockSelectionSignal = true;

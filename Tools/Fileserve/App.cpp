@@ -1,11 +1,12 @@
 #include <PCH.h>
+
 #include <Fileserve/Main.h>
 #include <FileservePlugin/Fileserver/Fileserver.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Logging/ConsoleWriter.h>
-#include <Foundation/Logging/VisualStudioWriter.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/Logging/ConsoleWriter.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 
 void ezFileserverApp::AfterCoreStartup()
@@ -81,4 +82,3 @@ ezApplication::ApplicationExecution ezFileserverApp::Run()
 
   return ezApplication::Continue;
 }
-

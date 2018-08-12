@@ -1,33 +1,33 @@
 #include <PCH.h>
-#include <EditorPluginScene/Scene/SceneDocument.h>
-#include <EditorPluginScene/Objects/SceneObjectManager.h>
-#include <EditorPluginScene/Dialogs/DuplicateDlg.moc.h>
-#include <EditorPluginScene/Dialogs/DeltaTransformDlg.moc.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
-#include <Core/World/GameObject.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+
 #include <Commands/SceneCommands.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
 #include <Core/Assets/AssetFileHeader.h>
-#include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <Core/World/GameObject.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/GUI/ExposedParameters.h>
+#include <EditorFramework/Object/ObjectPropertyPath.h>
+#include <EditorPluginScene/Dialogs/DeltaTransformDlg.moc.h>
+#include <EditorPluginScene/Dialogs/DuplicateDlg.moc.h>
+#include <EditorPluginScene/Objects/SceneObjectManager.h>
+#include <EditorPluginScene/Scene/SceneDocument.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Strings/TranslationLookup.h>
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/GUI/ExposedParameters.h>
-#include <ToolsFoundation/Object/ObjectDirectAccessor.h>
-#include <EditorFramework/Object/ObjectPropertyPath.h>
+#include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <SharedPluginScene/Common/Messages.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
+#include <ToolsFoundation/Object/ObjectDirectAccessor.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 4, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab)
-  : ezGameObjectDocument(szDocumentPath, EZ_DEFAULT_NEW(ezSceneObjectManager))
+    : ezGameObjectDocument(szDocumentPath, EZ_DEFAULT_NEW(ezSceneObjectManager))
 {
   m_bIsPrefab = bIsPrefab;
   m_GameMode = GameMode::Off;
@@ -50,13 +50,11 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab)
 void ezSceneDocument::InitializeAfterLoading()
 {
   // (Local mirror only mirrors settings)
-  m_ObjectMirror.SetFilterFunction([this](const ezDocumentObject* pObject, const char* szProperty) -> bool
-  {
+  m_ObjectMirror.SetFilterFunction([this](const ezDocumentObject* pObject, const char* szProperty) -> bool {
     return GetObjectManager()->IsUnderRootProperty("Settings", pObject, szProperty);
   });
   // (Remote IPC mirror only sends scene)
-  m_Mirror.SetFilterFunction([this](const ezDocumentObject* pObject, const char* szProperty) -> bool
-  {
+  m_Mirror.SetFilterFunction([this](const ezDocumentObject* pObject, const char* szProperty) -> bool {
     return GetObjectManager()->IsUnderRootProperty("Children", pObject, szProperty);
   });
 
@@ -65,7 +63,8 @@ void ezSceneDocument::InitializeAfterLoading()
 
   m_DocumentObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezSceneDocument::DocumentObjectMetaDataEventHandler, this));
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ToolsProjectEventHandler, this));
-  ezEditorEngineProcessConnection::GetSingleton()->s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
+  ezEditorEngineProcessConnection::GetSingleton()->s_Events.AddEventHandler(
+      ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
 
   m_ObjectMirror.InitSender(GetObjectManager());
   m_ObjectMirror.InitReceiver(&m_Context);
@@ -74,11 +73,13 @@ void ezSceneDocument::InitializeAfterLoading()
 
 ezSceneDocument::~ezSceneDocument()
 {
-  m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::DocumentObjectMetaDataEventHandler, this));
+  m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(
+      ezMakeDelegate(&ezSceneDocument::DocumentObjectMetaDataEventHandler, this));
 
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ToolsProjectEventHandler, this));
 
-  ezEditorEngineProcessConnection::GetSingleton()->s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
+  ezEditorEngineProcessConnection::GetSingleton()->s_Events.RemoveEventHandler(
+      ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
 
   m_ObjectMirror.Clear();
   m_ObjectMirror.DeInit();
@@ -107,7 +108,7 @@ void ezSceneDocument::GroupSelection()
   }
 
   vCenter /= sel.GetCount();
-  //vCenter.SetZero();
+  // vCenter.SetZero();
 
   auto pHistory = GetCommandHistory();
 
@@ -234,7 +235,6 @@ void ezSceneDocument::SnapObjectToCamera()
     }
   }
   pHistory->FinishTransaction();
-
 }
 
 
@@ -246,7 +246,8 @@ void ezSceneDocument::AttachToObject()
     return;
 
   const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
-  if (ctxt.m_pLastHoveredViewWidget == nullptr || ctxt.m_pLastPickingResult == nullptr || !ctxt.m_pLastPickingResult->m_PickedObject.IsValid())
+  if (ctxt.m_pLastHoveredViewWidget == nullptr || ctxt.m_pLastPickingResult == nullptr ||
+      !ctxt.m_pLastPickingResult->m_PickedObject.IsValid())
     return;
 
   ezMoveObjectCommand cmd;
@@ -425,10 +426,9 @@ void ezSceneDocument::ShowOrHideSelectedObjects(ShowOrHide action)
     if (!pItem->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
       continue;
 
-    ApplyRecursive(pItem, [this, bHide](const ezDocumentObject* pObj)
-    {
-      //if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
-        //return;
+    ApplyRecursive(pItem, [this, bHide](const ezDocumentObject* pObj) {
+      // if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+      // return;
 
       auto pMeta = m_DocumentObjectMetaData.BeginModifyMetaData(pObj->GetGuid());
       if (pMeta->m_bHidden != bHide)
@@ -439,7 +439,6 @@ void ezSceneDocument::ShowOrHideSelectedObjects(ShowOrHide action)
       else
         m_DocumentObjectMetaData.EndModifyMetaData(0);
     });
-
   }
 }
 
@@ -462,15 +461,15 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
 
   switch (m_GameMode)
   {
-  case GameMode::Off:
-    ShowDocumentStatus("Game Mode: Off");
-    break;
-  case GameMode::Simulate:
-    ShowDocumentStatus("Game Mode: Simulate");
-    break;
-  case GameMode::Play:
-    ShowDocumentStatus("Game Mode: Play");
-    break;
+    case GameMode::Off:
+      ShowDocumentStatus("Game Mode: Off");
+      break;
+    case GameMode::Simulate:
+      ShowDocumentStatus("Game Mode: Simulate");
+      break;
+    case GameMode::Play:
+      ShowDocumentStatus("Game Mode: Play");
+      break;
   }
 
   SetRenderSelectionOverlay(m_GameModeData[m_GameMode].m_bRenderSelectionOverlay);
@@ -565,10 +564,9 @@ void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
 {
   const bool bHide = action == ShowOrHide::Hide;
 
-  ApplyRecursive(GetObjectManager()->GetRootObject(), [this, bHide](const ezDocumentObject* pObj)
-  {
-    //if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
-      //return;
+  ApplyRecursive(GetObjectManager()->GetRootObject(), [this, bHide](const ezDocumentObject* pObj) {
+    // if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+    // return;
 
     ezUInt32 uiFlags = 0;
 
@@ -672,7 +670,8 @@ bool ezSceneDocument::PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info)
   return true;
 }
 
-bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition,
+                            const char* szMimeType)
 {
   const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
 
@@ -740,12 +739,14 @@ void ezSceneDocument::EnsureSettingsObjectExist()
   // undo ops for this operation.
   ezObjectDirectAccessor accessor(GetObjectManager());
   ezVariant value;
-  EZ_VERIFY(accessor.ezObjectAccessorBase::GetValue(pRoot, "Settings", value).Succeeded(), "The scene doc root should have a settings property.");
+  EZ_VERIFY(accessor.ezObjectAccessorBase::GetValue(pRoot, "Settings", value).Succeeded(),
+            "The scene doc root should have a settings property.");
   ezUuid id = value.Get<ezUuid>();
   if (!id.IsValid())
   {
-    EZ_VERIFY(accessor.ezObjectAccessorBase::AddObject(pRoot, "Settings", ezVariant(), ezGetStaticRTTI<ezSceneDocumentSettings>(), id).Succeeded(),
-      "Adding scene settings object to root failed.");
+    EZ_VERIFY(accessor.ezObjectAccessorBase::AddObject(pRoot, "Settings", ezVariant(), ezGetStaticRTTI<ezSceneDocumentSettings>(), id)
+                  .Succeeded(),
+              "Adding scene settings object to root failed.");
   }
 }
 
@@ -763,14 +764,15 @@ const ezSceneDocumentSettings* ezSceneDocument::GetSettings() const
   return static_cast<const ezSceneDocumentSettings*>(m_ObjectMirror.GetNativeObjectPointer(GetSettingsObject()));
 }
 
-ezStatus ezSceneDocument::CreateExposedProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const
+ezStatus ezSceneDocument::CreateExposedProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index,
+                                                ezExposedSceneProperty& out_key) const
 {
   const ezDocumentObject* pNodeComponent = ezObjectPropertyPath::FindParentNodeComponent(pObject);
   if (!pObject)
     return ezStatus("No parent node or component found.");
 
-  ezObjectPropertyPathContext context = { pNodeComponent, GetObjectAccessor(), "Children" };
-  ezPropertyReference propertyRef = { pObject->GetGuid(), pProperty, index };
+  ezObjectPropertyPathContext context = {pNodeComponent, GetObjectAccessor(), "Children"};
+  ezPropertyReference propertyRef = {pObject->GetGuid(), pProperty, index};
   ezStringBuilder sPropertyPath;
   ezStatus res = ezObjectPropertyPath::CreatePropertyPath(context, propertyRef, sPropertyPath);
   if (res.Failed())
@@ -781,7 +783,8 @@ ezStatus ezSceneDocument::CreateExposedProperty(const ezDocumentObject* pObject,
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezSceneDocument::AddExposedParameter(const char* szName, const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index)
+ezStatus ezSceneDocument::AddExposedParameter(const char* szName, const ezDocumentObject* pObject, const ezAbstractProperty* pProperty,
+                                              ezVariant index)
 {
   if (FindExposedParameter(pObject, pProperty, index) != -1)
     return ezStatus("Exposed parameter already exists.");
@@ -815,7 +818,6 @@ ezInt32 ezSceneDocument::FindExposedParameter(const ezDocumentObject* pObject, c
     const auto& param = settings->m_ExposedProperties[i];
     if (param.m_Object == key.m_Object && param.m_sPropertyPath == key.m_sPropertyPath)
       return (ezInt32)i;
-
   }
   return -1;
 }
@@ -848,11 +850,11 @@ void ezSceneDocument::EngineConnectionEventHandler(const ezEditorEngineProcessCo
 {
   switch (e.m_Type)
   {
-  case ezEditorEngineProcessConnection::Event::Type::ProcessCrashed:
-  case ezEditorEngineProcessConnection::Event::Type::ProcessShutdown:
-  case ezEditorEngineProcessConnection::Event::Type::ProcessStarted:
-    SetGameMode(GameMode::Off);
-    break;
+    case ezEditorEngineProcessConnection::Event::Type::ProcessCrashed:
+    case ezEditorEngineProcessConnection::Event::Type::ProcessShutdown:
+    case ezEditorEngineProcessConnection::Event::Type::ProcessStarted:
+      SetGameMode(GameMode::Off);
+      break;
   }
 }
 
@@ -861,7 +863,7 @@ void ezSceneDocument::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezToolsProjectEvent::Type::ProjectConfigChanged:
+    case ezToolsProjectEvent::Type::ProjectConfigChanged:
     {
       // we are lazy and just re-select everything here
       // that ensures that ui elements will rebuild their content
@@ -1003,7 +1005,7 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
         continue;
       }
 
-      ezObjectPropertyPathContext context = { pObject, GetObjectAccessor(), "Children" };
+      ezObjectPropertyPathContext context = {pObject, GetObjectAccessor(), "Children"};
 
       ezPropertyReference key;
       auto res = ezObjectPropertyPath::ResolvePropertyPath(context, prop.m_sPropertyPath, key);
@@ -1076,7 +1078,8 @@ void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
   }
 }
 
-ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform,
+                                                 const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   const ezSceneDocumentSettings* pSettings = GetSettings();
 
@@ -1089,7 +1092,8 @@ ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const
 }
 
 
-ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
+                                                 const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 
@@ -1146,10 +1150,9 @@ void ezSceneDocument::UpdateObjectDebugTargets()
     ezObjectsForDebugVisMsgToEngine msgToEngine;
     msgToEngine.m_Objects.SetCountUninitialized(sizeof(ezUuid) * msg.m_Objects.GetCount());
 
-    ezMemoryUtils::Copy<ezUInt8>(msgToEngine.m_Objects.GetData(), reinterpret_cast<ezUInt8*>(msg.m_Objects.GetData()), msgToEngine.m_Objects.GetCount());
+    ezMemoryUtils::Copy<ezUInt8>(msgToEngine.m_Objects.GetData(), reinterpret_cast<ezUInt8*>(msg.m_Objects.GetData()),
+                                 msgToEngine.m_Objects.GetCount());
 
     GetEditorEngineConnection()->SendMessage(&msgToEngine);
   }
 }
-
-

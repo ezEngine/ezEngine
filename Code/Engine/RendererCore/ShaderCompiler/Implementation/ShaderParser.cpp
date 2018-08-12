@@ -1,17 +1,15 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <Foundation/CodeUtils/Tokenizer.h>
+#include <Foundation/Types/Variant.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 #include <RendererCore/Shader/Implementation/Helper.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
-#include <Foundation/Types/Variant.h>
-#include <Foundation/Utilities/ConversionUtils.h>
-#include <Foundation/CodeUtils/Tokenizer.h>
 
 namespace
 {
-  bool IsIdentifier(ezUInt32 c)
-  {
-    return !ezStringUtils::IsIdentifierDelimiter_C_Code(c);
-  }
+  bool IsIdentifier(ezUInt32 c) { return !ezStringUtils::IsIdentifierDelimiter_C_Code(c); }
 
   void SkipWhitespace(ezStringView& s)
   {
@@ -28,7 +26,7 @@ namespace
     if (!s.IsValid() || s.GetCharacter() != '@')
       return;
 
-    ++s; //skip @
+    ++s; // skip @
 
     const char* szNameStart = s.GetData();
     while (s.IsValid() && IsIdentifier(s.GetCharacter()))
@@ -44,7 +42,7 @@ namespace
     if (!s.IsValid() || s.GetCharacter() != '(')
       return;
 
-    ++s; //skip (
+    ++s; // skip (
     int braces = 0;
 
     const char* szValueStart = s.GetData();
@@ -54,7 +52,7 @@ namespace
       {
         braces++;
 
-        ++s; //skip (
+        ++s; // skip (
         szValueStart = s.GetData();
       }
       else
@@ -74,7 +72,7 @@ namespace
 
     ezStringView view = ezStringView(szValueStart, s.GetData());
 
-    ++s; //skip )
+    ++s; // skip )
 
     // remove " at the start and end of the string, if given
     if (view.StartsWith("\""))
@@ -90,7 +88,7 @@ namespace
   }
 }
 
-//static
+// static
 void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& stream, ezHybridArray<ParameterDefinition, 16>& out_Parameter)
 {
   ezString sContent;
@@ -140,7 +138,7 @@ void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& stream, ezHyb
       break;
 
     if (s.GetCharacter() == ';')
-      ++s; //skip ;
+      ++s; // skip ;
 
     if (!def.m_sType.IsEmpty() && !def.m_sName.IsEmpty())
     {
@@ -157,8 +155,9 @@ void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& stream, ezHyb
   }
 }
 
-//static
-void ezShaderParser::ParsePermutationSection(ezStreamReader& stream, ezHybridArray<ezHashedString, 16>& out_PermVars, ezHybridArray<ezPermutationVar, 16>& out_FixedPermVars)
+// static
+void ezShaderParser::ParsePermutationSection(ezStreamReader& stream, ezHybridArray<ezHashedString, 16>& out_PermVars,
+                                             ezHybridArray<ezPermutationVar, 16>& out_FixedPermVars)
 {
   ezString sContent;
   sContent.ReadAll(stream);
@@ -171,8 +170,9 @@ void ezShaderParser::ParsePermutationSection(ezStreamReader& stream, ezHybridArr
   ParsePermutationSection(sPermutations, out_PermVars, out_FixedPermVars);
 }
 
-//static
-void ezShaderParser::ParsePermutationSection(ezStringView s, ezHybridArray<ezHashedString, 16>& out_PermVars, ezHybridArray<ezPermutationVar, 16>& out_FixedPermVars)
+// static
+void ezShaderParser::ParsePermutationSection(ezStringView s, ezHybridArray<ezHashedString, 16>& out_PermVars,
+                                             ezHybridArray<ezPermutationVar, 16>& out_FixedPermVars)
 {
   out_PermVars.Clear();
   out_FixedPermVars.Clear();
@@ -193,13 +193,10 @@ void ezShaderParser::ParsePermutationSection(ezStringView s, ezHybridArray<ezHas
 
   for (const auto& token : tokenizer.GetTokens())
   {
-    if (token.m_iType == ezTokenType::Whitespace ||
-        token.m_iType == ezTokenType::BlockComment ||
-        token.m_iType == ezTokenType::LineComment)
+    if (token.m_iType == ezTokenType::Whitespace || token.m_iType == ezTokenType::BlockComment || token.m_iType == ezTokenType::LineComment)
       continue;
 
-    if (token.m_iType == ezTokenType::String1 ||
-        token.m_iType == ezTokenType::String2)
+    if (token.m_iType == ezTokenType::String1 || token.m_iType == ezTokenType::String2)
     {
       sToken = token.m_DataView;
       ezLog::Error("Strings are not allowed in the permutation section: '{0}'", sToken);
@@ -256,8 +253,9 @@ void ezShaderParser::ParsePermutationSection(ezStringView s, ezHybridArray<ezHas
   }
 }
 
-//static
-void ezShaderParser::ParsePermutationVarConfig(const char* szPermVarName, ezStringView s, ezVariant& out_DefaultValue, ezHybridArray<ezHashedString, 16>& out_EnumValues)
+// static
+void ezShaderParser::ParsePermutationVarConfig(const char* szPermVarName, ezStringView s, ezVariant& out_DefaultValue,
+                                               ezHybridArray<ezHashedString, 16>& out_EnumValues)
 {
   SkipWhitespace(s);
 
@@ -361,4 +359,3 @@ void ezShaderParser::ParsePermutationVarConfig(const char* szPermVarName, ezStri
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_ShaderCompiler_Implementation_ShaderParser);
-

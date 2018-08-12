@@ -1,10 +1,13 @@
 #include <PCH.h>
-#include <GameEngine/Components/SliderComponent.h>
-#include <Core/WorldSerializer/WorldWriter.h>
+
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <GameEngine/Components/SliderComponent.h>
 
-float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, ezTime& fTimeSinceStartInSec);
+float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration,
+                                   ezTime& fTimeSinceStartInSec);
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezSliderComponent, 3, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
@@ -18,6 +21,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSliderComponent, 3, ezComponentMode::Dynamic)
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezSliderComponent::ezSliderComponent()
 {
@@ -36,24 +40,24 @@ void ezSliderComponent::Update()
 
     switch (m_Axis)
     {
-    case ezBasisAxis::PositiveX:
-      vAxis.Set(1, 0, 0);
-      break;
-    case ezBasisAxis::PositiveY:
-      vAxis.Set(0, 1, 0);
-      break;
-    case ezBasisAxis::PositiveZ:
-      vAxis.Set(0, 0, 1);
-      break;
-    case ezBasisAxis::NegativeX:
-      vAxis.Set(-1, 0, 0);
-      break;
-    case ezBasisAxis::NegativeY:
-      vAxis.Set(0, -1, 0);
-      break;
-    case ezBasisAxis::NegativeZ:
-      vAxis.Set(0, 0, -1);
-      break;
+      case ezBasisAxis::PositiveX:
+        vAxis.Set(1, 0, 0);
+        break;
+      case ezBasisAxis::PositiveY:
+        vAxis.Set(0, 1, 0);
+        break;
+      case ezBasisAxis::PositiveZ:
+        vAxis.Set(0, 0, 1);
+        break;
+      case ezBasisAxis::NegativeX:
+        vAxis.Set(-1, 0, 0);
+        break;
+      case ezBasisAxis::NegativeY:
+        vAxis.Set(0, -1, 0);
+        break;
+      case ezBasisAxis::NegativeZ:
+        vAxis.Set(0, 0, -1);
+        break;
     }
 
     if (m_Flags.IsAnySet(ezTransformComponentFlags::AnimationReversed))
@@ -61,7 +65,8 @@ void ezSliderComponent::Update()
     else
       m_AnimationTime += GetWorld()->GetClock().GetTimeDiff();
 
-    const float fNewDistance = CalculateAcceleratedMovement(m_fDistanceToTravel, m_fAcceleration, m_fAnimationSpeed, m_fDeceleration, m_AnimationTime);
+    const float fNewDistance =
+        CalculateAcceleratedMovement(m_fDistanceToTravel, m_fAcceleration, m_fAnimationSpeed, m_fDeceleration, m_AnimationTime);
 
     const float fDistanceDiff = fNewDistance - m_fLastDistance;
 
@@ -83,8 +88,8 @@ void ezSliderComponent::Update()
             m_Flags.Add(ezTransformComponentFlags::AnimationReversed);
         }
 
-        //if (PrepareEvent("ANIMATOR_OnReachEnd"))
-          //RaiseEvent();
+        // if (PrepareEvent("ANIMATOR_OnReachEnd"))
+        // RaiseEvent();
       }
     }
     else
@@ -101,8 +106,8 @@ void ezSliderComponent::Update()
             m_Flags.Remove(ezTransformComponentFlags::AnimationReversed);
         }
 
-        //if (PrepareEvent("ANIMATOR_OnReachStart"))
-          //RaiseEvent();
+        // if (PrepareEvent("ANIMATOR_OnReachStart"))
+        // RaiseEvent();
       }
     }
   }
@@ -154,9 +159,9 @@ void ezSliderComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 
@@ -164,7 +169,9 @@ class ezSliderComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezSliderComponentPatch_1_2()
-    : ezGraphPatch("ezSliderComponent", 2) {}
+      : ezGraphPatch("ezSliderComponent", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -177,4 +184,3 @@ ezSliderComponentPatch_1_2 g_ezSliderComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_SliderComponent);
-

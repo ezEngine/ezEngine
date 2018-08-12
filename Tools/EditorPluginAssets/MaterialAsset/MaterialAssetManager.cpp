@@ -1,9 +1,10 @@
-﻿#include <PCH.h>
-#include <EditorPluginAssets/MaterialAsset/MaterialAssetManager.h>
+#include <PCH.h>
+
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
+#include <EditorPluginAssets/MaterialAsset/MaterialAssetManager.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezMaterialAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -31,14 +32,16 @@ ezMaterialAssetDocumentManager::~ezMaterialAssetDocumentManager()
 }
 
 
-ezBitflags<ezAssetDocumentFlags> ezMaterialAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
+ezBitflags<ezAssetDocumentFlags>
+ezMaterialAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
 {
   EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
   return ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 
-ezString ezMaterialAssetDocumentManager::GetRelativeOutputFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const char* szPlatform) const
+ezString ezMaterialAssetDocumentManager::GetRelativeOutputFileName(const char* szDataDirectory, const char* szDocumentPath,
+                                                                   const char* szOutputTag, const char* szPlatform) const
 {
   if (ezStringUtils::IsEqual(szOutputTag, s_szShaderOutputTag))
   {
@@ -52,7 +55,8 @@ ezString ezMaterialAssetDocumentManager::GetRelativeOutputFileName(const char* s
 }
 
 
-bool ezMaterialAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath, const char* szOutputTag, ezUInt64 uiHash, ezUInt16 uiTypeVersion)
+bool ezMaterialAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath, const char* szOutputTag, ezUInt64 uiHash,
+                                                      ezUInt16 uiTypeVersion)
 {
   if (ezStringUtils::IsEqual(szOutputTag, s_szShaderOutputTag))
   {
@@ -84,28 +88,28 @@ void ezMaterialAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMana
 {
   switch (e.m_Type)
   {
-  case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case ezDocumentManager::Event::Type::DocumentWindowRequested:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezMaterialAssetDocument>())
       {
-        ezQtMaterialAssetDocumentWindow* pDocWnd = new ezQtMaterialAssetDocumentWindow(static_cast<ezMaterialAssetDocument*>(e.m_pDocument));
+        ezQtMaterialAssetDocumentWindow* pDocWnd =
+            new ezQtMaterialAssetDocumentWindow(static_cast<ezMaterialAssetDocument*>(e.m_pDocument));
       }
     }
     break;
   }
 }
 
-ezStatus ezMaterialAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)
+ezStatus ezMaterialAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
+                                                                ezDocument*& out_pDocument)
 {
   out_pDocument = new ezMaterialAssetDocument(szPath);
 
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezMaterialAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezMaterialAssetDocumentManager::InternalGetSupportedDocumentTypes(
+    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
-
-
-

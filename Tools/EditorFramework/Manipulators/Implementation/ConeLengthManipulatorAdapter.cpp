@@ -1,17 +1,14 @@
-﻿#include <PCH.h>
-#include <EditorFramework/Manipulators/ConeLengthManipulatorAdapter.h>
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
+#include <PCH.h>
+
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
+#include <EditorFramework/Manipulators/ConeLengthManipulatorAdapter.h>
+#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezConeLengthManipulatorAdapter::ezConeLengthManipulatorAdapter()
-{
-}
+ezConeLengthManipulatorAdapter::ezConeLengthManipulatorAdapter() {}
 
-ezConeLengthManipulatorAdapter::~ezConeLengthManipulatorAdapter()
-{
-}
+ezConeLengthManipulatorAdapter::~ezConeLengthManipulatorAdapter() {}
 
 void ezConeLengthManipulatorAdapter::Finalize()
 {
@@ -49,19 +46,19 @@ void ezConeLengthManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezGizmoEvent::Type::BeginInteractions:
-    BeginTemporaryInteraction();
-    break;
+    case ezGizmoEvent::Type::BeginInteractions:
+      BeginTemporaryInteraction();
+      break;
 
-  case ezGizmoEvent::Type::CancelInteractions:
-    CancelTemporayInteraction();
-    break;
+    case ezGizmoEvent::Type::CancelInteractions:
+      CancelTemporayInteraction();
+      break;
 
-  case ezGizmoEvent::Type::EndInteractions:
-    EndTemporaryInteraction();
-    break;
+    case ezGizmoEvent::Type::EndInteractions:
+      EndTemporaryInteraction();
+      break;
 
-  case ezGizmoEvent::Type::Interaction:
+    case ezGizmoEvent::Type::Interaction:
     {
       const ezConeLengthManipulatorAttribute* pAttr = static_cast<const ezConeLengthManipulatorAttribute*>(m_pManipulatorAttr);
 
@@ -75,5 +72,3 @@ void ezConeLengthManipulatorAdapter::UpdateGizmoTransform()
 {
   m_Gizmo.SetTransformation(GetObjectTransform());
 }
-
-

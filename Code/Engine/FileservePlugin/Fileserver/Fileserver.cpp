@@ -1,15 +1,16 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <FileservePlugin/Client/FileserveClient.h>
 #include <FileservePlugin/Fileserver/Fileserver.h>
+#include <Foundation/Algorithm/Hashing.h>
 #include <Foundation/Communication/RemoteInterfaceEnet.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Algorithm/Hashing.h>
-#include <FileservePlugin/Client/FileserveClient.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 
 EZ_IMPLEMENT_SINGLETON(ezFileserver);
 
 ezFileserver::ezFileserver()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
   // once a server exists, the client should stay inactive
   ezFileserveClient::DisabledFileserveClient();
@@ -145,7 +146,7 @@ void ezFileserver::NetworkEventHandler(const ezRemoteEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezRemoteEvent::DisconnectedFromClient:
+    case ezRemoteEvent::DisconnectedFromClient:
     {
       if (m_Clients.Contains(e.m_uiOtherAppID))
       {
@@ -160,12 +161,12 @@ void ezFileserver::NetworkEventHandler(const ezRemoteEvent& e)
     }
     break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }
 
-ezFileserveClientContext& ezFileserver::DetermineClient(ezRemoteMessage &msg)
+ezFileserveClientContext& ezFileserver::DetermineClient(ezRemoteMessage& msg)
 {
   ezFileserveClientContext& client = m_Clients[msg.GetApplicationID()];
 
@@ -191,7 +192,7 @@ ezFileserveClientContext& ezFileserver::DetermineClient(ezRemoteMessage &msg)
   return client;
 }
 
-void ezFileserver::HandleMountRequest(ezFileserveClientContext& client, ezRemoteMessage &msg)
+void ezFileserver::HandleMountRequest(ezFileserveClientContext& client, ezRemoteMessage& msg)
 {
   ezStringBuilder sDataDir, sRootName, sMountPoint, sRedir;
   ezUInt16 uiDataDirID = 0xffff;
@@ -231,7 +232,7 @@ void ezFileserver::HandleMountRequest(ezFileserveClientContext& client, ezRemote
 }
 
 
-void ezFileserver::HandleUnmountRequest(ezFileserveClientContext& client, ezRemoteMessage &msg)
+void ezFileserver::HandleUnmountRequest(ezFileserveClientContext& client, ezRemoteMessage& msg)
 {
   ezUInt16 uiDataDirID = 0xffff;
   msg.GetReader() >> uiDataDirID;
@@ -249,7 +250,7 @@ void ezFileserver::HandleUnmountRequest(ezFileserveClientContext& client, ezRemo
   m_Events.Broadcast(e);
 }
 
-void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezRemoteMessage &msg)
+void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezRemoteMessage& msg)
 {
   ezUInt16 uiDataDirID = 0;
   bool bForceThisDataDir = false;
@@ -311,8 +312,7 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezRemoteM
         e.m_uiSentTotal = uiNextByte;
         m_Events.Broadcast(e);
       }
-    }
-    while (uiNextByte < m_SendToClient.GetCount());
+    } while (uiNextByte < m_SendToClient.GetCount());
   }
 
   // final answer to client
@@ -334,7 +334,7 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezRemoteM
   }
 }
 
-void ezFileserver::HandleDeleteFileRequest(ezFileserveClientContext& client, ezRemoteMessage &msg)
+void ezFileserver::HandleDeleteFileRequest(ezFileserveClientContext& client, ezRemoteMessage& msg)
 {
   ezUInt16 uiDataDirID = 0xffff;
   msg.GetReader() >> uiDataDirID;
@@ -359,7 +359,7 @@ void ezFileserver::HandleDeleteFileRequest(ezFileserveClientContext& client, ezR
   ezOSFile::DeleteFile(sAbsPath);
 }
 
-void ezFileserver::HandleUploadFileHeader(ezFileserveClientContext& client, ezRemoteMessage &msg)
+void ezFileserver::HandleUploadFileHeader(ezFileserveClientContext& client, ezRemoteMessage& msg)
 {
   ezUInt16 uiDataDirID = 0;
 
@@ -381,7 +381,7 @@ void ezFileserver::HandleUploadFileHeader(ezFileserveClientContext& client, ezRe
   m_Events.Broadcast(e);
 }
 
-void ezFileserver::HandleUploadFileTransfer(ezFileserveClientContext& client, ezRemoteMessage &msg)
+void ezFileserver::HandleUploadFileTransfer(ezFileserveClientContext& client, ezRemoteMessage& msg)
 {
   ezUuid transferGuid;
   msg.GetReader() >> transferGuid;
@@ -406,7 +406,7 @@ void ezFileserver::HandleUploadFileTransfer(ezFileserveClientContext& client, ez
   m_Events.Broadcast(e);
 }
 
-void ezFileserver::HandleUploadFileFinished(ezFileserveClientContext& client, ezRemoteMessage &msg)
+void ezFileserver::HandleUploadFileFinished(ezFileserveClientContext& client, ezRemoteMessage& msg)
 {
   ezUuid transferGuid;
   msg.GetReader() >> transferGuid;
@@ -453,7 +453,8 @@ void ezFileserver::HandleUploadFileFinished(ezFileserveClientContext& client, ez
 }
 
 
-ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, ezUInt16 uiMyPort, const ezArrayPtr<ezStringBuilder>& MyIPs, ezTime timeout)
+ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, ezUInt16 uiMyPort, const ezArrayPtr<ezStringBuilder>& MyIPs,
+                                          ezTime timeout)
 {
   ezStringBuilder sAddress = szClientAddress;
   sAddress.Append(":2042"); // hard-coded port
@@ -494,4 +495,3 @@ ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, ezUInt16 
 
 
 EZ_STATICLINK_FILE(FileservePlugin, FileservePlugin_Fileserver_Fileserver);
-

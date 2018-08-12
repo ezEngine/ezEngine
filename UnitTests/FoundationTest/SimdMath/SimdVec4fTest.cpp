@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Math/Vec4.h>
 #include <Foundation/SimdMath/SimdVec4f.h>
 
@@ -7,7 +8,8 @@ namespace
   static bool AllCompSame(const ezSimdFloat& a)
   {
     // Make sure all components are the same
-    ezSimdVec4f test; test.m_v = a.m_v;
+    ezSimdVec4f test;
+    test.m_v = a.m_v;
     return test.x() == test.y() && test.x() == test.z() && test.x() == test.w();
   }
 
@@ -88,10 +90,14 @@ namespace
     EZ_TEST_BOOL(!a2.IsNormalized<3>(eps));
     EZ_TEST_BOOL(!a3.IsNormalized<4>(eps));
 
-    a1 = a; a1.Normalize<1, acc>();
-    a2 = a; a2.Normalize<2, acc>();
-    a3 = a; a3.Normalize<3, acc>();
-    a4 = a; a4.Normalize<4, acc>();
+    a1 = a;
+    a1.Normalize<1, acc>();
+    a2 = a;
+    a2.Normalize<2, acc>();
+    a3 = a;
+    a3.Normalize<3, acc>();
+    a4 = a;
+    a4.Normalize<4, acc>();
     EZ_TEST_BOOL(a1.IsEqual(n[0], eps).AllSet());
     EZ_TEST_BOOL(a2.IsEqual(n[1], eps).AllSet());
     EZ_TEST_BOOL(a3.IsEqual(n[2], eps).AllSet());
@@ -101,10 +107,14 @@ namespace
   template <ezMathAcc::Enum acc>
   static void TestNormalizeIfNotZero(const ezSimdVec4f& a, ezSimdVec4f n[4], const ezSimdFloat& eps)
   {
-    ezSimdVec4f a1 = a; a1.NormalizeIfNotZero<1>(eps);
-    ezSimdVec4f a2 = a; a2.NormalizeIfNotZero<2>(eps);
-    ezSimdVec4f a3 = a; a3.NormalizeIfNotZero<3>(eps);
-    ezSimdVec4f a4 = a; a4.NormalizeIfNotZero<4>(eps);
+    ezSimdVec4f a1 = a;
+    a1.NormalizeIfNotZero<1>(eps);
+    ezSimdVec4f a2 = a;
+    a2.NormalizeIfNotZero<2>(eps);
+    ezSimdVec4f a3 = a;
+    a3.NormalizeIfNotZero<3>(eps);
+    ezSimdVec4f a4 = a;
+    a4.NormalizeIfNotZero<4>(eps);
     EZ_TEST_BOOL(a1.IsEqual(n[0], eps).AllSet());
     EZ_TEST_BOOL(a2.IsEqual(n[1], eps).AllSet());
     EZ_TEST_BOOL(a3.IsEqual(n[2], eps).AllSet());
@@ -134,10 +144,9 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
     EZ_TEST_BOOL(vDefCtor.IsNaN<4>());
 #else
     // Placement new of the default constructor should not have any effect on the previous data.
-    float EZ_ALIGN_16(testBlock[4]) = { 1, 2, 3, 4 };
+    float EZ_ALIGN_16(testBlock[4]) = {1, 2, 3, 4};
     ezSimdVec4f* pDefCtor = ::new ((void*)&testBlock[0]) ezSimdVec4f;
-    EZ_TEST_BOOL(pDefCtor->x() == 1.0f && pDefCtor->y() == 2.0f &&
-      pDefCtor->z() == 3.0f && pDefCtor->w() == 4.0f);
+    EZ_TEST_BOOL(pDefCtor->x() == 1.0f && pDefCtor->y() == 2.0f && pDefCtor->z() == 3.0f && pDefCtor->w() == 4.0f);
 #endif
 
     // Make sure the class didn't accidentally change in size.
@@ -147,83 +156,71 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
 #endif
 
     ezSimdVec4f vInit1F(2.0f);
-    EZ_TEST_BOOL(vInit1F.x() == 2.0f && vInit1F.y() == 2.0f &&
-      vInit1F.z() == 2.0f && vInit1F.w() == 2.0f);
+    EZ_TEST_BOOL(vInit1F.x() == 2.0f && vInit1F.y() == 2.0f && vInit1F.z() == 2.0f && vInit1F.w() == 2.0f);
 
     ezSimdFloat a(3.0f);
     ezSimdVec4f vInit1SF(a);
-    EZ_TEST_BOOL(vInit1SF.x() == 3.0f && vInit1SF.y() == 3.0f &&
-      vInit1SF.z() == 3.0f && vInit1SF.w() == 3.0f);
+    EZ_TEST_BOOL(vInit1SF.x() == 3.0f && vInit1SF.y() == 3.0f && vInit1SF.z() == 3.0f && vInit1SF.w() == 3.0f);
 
     ezSimdVec4f vInit4F(1.0f, 2.0f, 3.0f, 4.0f);
-    EZ_TEST_BOOL(vInit4F.x() == 1.0f && vInit4F.y() == 2.0f &&
-      vInit4F.z() == 3.0f && vInit4F.w() == 4.0f);
+    EZ_TEST_BOOL(vInit4F.x() == 1.0f && vInit4F.y() == 2.0f && vInit4F.z() == 3.0f && vInit4F.w() == 4.0f);
 
     // Make sure all components have the correct values
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-    EZ_TEST_BOOL(vInit4F.m_v.m128_f32[0] == 1.0f && vInit4F.m_v.m128_f32[1] == 2.0f &&
-      vInit4F.m_v.m128_f32[2] == 3.0f && vInit4F.m_v.m128_f32[3] == 4.0f);
+    EZ_TEST_BOOL(vInit4F.m_v.m128_f32[0] == 1.0f && vInit4F.m_v.m128_f32[1] == 2.0f && vInit4F.m_v.m128_f32[2] == 3.0f &&
+                 vInit4F.m_v.m128_f32[3] == 4.0f);
 #endif
 
     ezSimdVec4f vCopy(vInit4F);
-    EZ_TEST_BOOL(vCopy.x() == 1.0f && vCopy.y() == 2.0f &&
-      vCopy.z() == 3.0f && vCopy.w() == 4.0f);
+    EZ_TEST_BOOL(vCopy.x() == 1.0f && vCopy.y() == 2.0f && vCopy.z() == 3.0f && vCopy.w() == 4.0f);
 
     ezSimdVec4f vZero = ezSimdVec4f::ZeroVector();
-    EZ_TEST_BOOL(vZero.x() == 0.0f && vZero.y() == 0.0f &&
-      vZero.z() == 0.0f && vZero.w() == 0.0f);
+    EZ_TEST_BOOL(vZero.x() == 0.0f && vZero.y() == 0.0f && vZero.z() == 0.0f && vZero.w() == 0.0f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Setter")
   {
     ezSimdVec4f a;
     a.Set(2.0f);
-    EZ_TEST_BOOL(a.x() == 2.0f && a.y() == 2.0f &&
-      a.z() == 2.0f && a.w() == 2.0f);
+    EZ_TEST_BOOL(a.x() == 2.0f && a.y() == 2.0f && a.z() == 2.0f && a.w() == 2.0f);
 
     ezSimdVec4f b;
     b.Set(1.0f, 2.0f, 3.0f, 4.0f);
-    EZ_TEST_BOOL(b.x() == 1.0f && b.y() == 2.0f &&
-      b.z() == 3.0f && b.w() == 4.0f);
+    EZ_TEST_BOOL(b.x() == 1.0f && b.y() == 2.0f && b.z() == 3.0f && b.w() == 4.0f);
 
     b.SetX(5.0f);
-    EZ_TEST_BOOL(b.x() == 5.0f && b.y() == 2.0f &&
-      b.z() == 3.0f && b.w() == 4.0f);
+    EZ_TEST_BOOL(b.x() == 5.0f && b.y() == 2.0f && b.z() == 3.0f && b.w() == 4.0f);
 
     b.SetY(6.0f);
-    EZ_TEST_BOOL(b.x() == 5.0f && b.y() == 6.0f &&
-      b.z() == 3.0f && b.w() == 4.0f);
+    EZ_TEST_BOOL(b.x() == 5.0f && b.y() == 6.0f && b.z() == 3.0f && b.w() == 4.0f);
 
     b.SetZ(7.0f);
-    EZ_TEST_BOOL(b.x() == 5.0f && b.y() == 6.0f &&
-      b.z() == 7.0f && b.w() == 4.0f);
+    EZ_TEST_BOOL(b.x() == 5.0f && b.y() == 6.0f && b.z() == 7.0f && b.w() == 4.0f);
 
     b.SetW(8.0f);
-    EZ_TEST_BOOL(b.x() == 5.0f && b.y() == 6.0f &&
-      b.z() == 7.0f && b.w() == 8.0f);
+    EZ_TEST_BOOL(b.x() == 5.0f && b.y() == 6.0f && b.z() == 7.0f && b.w() == 8.0f);
 
     ezSimdVec4f c;
     c.SetZero();
-    EZ_TEST_BOOL(c.x() == 0.0f && c.y() == 0.0f &&
-      c.z() == 0.0f && c.w() == 0.0f);
+    EZ_TEST_BOOL(c.x() == 0.0f && c.y() == 0.0f && c.z() == 0.0f && c.w() == 0.0f);
 
     {
-      float testBlock[4] = { 1, 2, 3, 4 };
-      ezSimdVec4f x; x.Load<1>(testBlock);
-      EZ_TEST_BOOL(x.x() == 1.0f && x.y() == 0.0f &&
-        x.z() == 0.0f && x.w() == 0.0f);
+      float testBlock[4] = {1, 2, 3, 4};
+      ezSimdVec4f x;
+      x.Load<1>(testBlock);
+      EZ_TEST_BOOL(x.x() == 1.0f && x.y() == 0.0f && x.z() == 0.0f && x.w() == 0.0f);
 
-      ezSimdVec4f xy; xy.Load<2>(testBlock);
-      EZ_TEST_BOOL(xy.x() == 1.0f && xy.y() == 2.0f &&
-        xy.z() == 0.0f && xy.w() == 0.0f);
+      ezSimdVec4f xy;
+      xy.Load<2>(testBlock);
+      EZ_TEST_BOOL(xy.x() == 1.0f && xy.y() == 2.0f && xy.z() == 0.0f && xy.w() == 0.0f);
 
-      ezSimdVec4f xyz; xyz.Load<3>(testBlock);
-      EZ_TEST_BOOL(xyz.x() == 1.0f && xyz.y() == 2.0f &&
-        xyz.z() == 3.0f && xyz.w() == 0.0f);
+      ezSimdVec4f xyz;
+      xyz.Load<3>(testBlock);
+      EZ_TEST_BOOL(xyz.x() == 1.0f && xyz.y() == 2.0f && xyz.z() == 3.0f && xyz.w() == 0.0f);
 
-      ezSimdVec4f xyzw; xyzw.Load<4>(testBlock);
-      EZ_TEST_BOOL(xyzw.x() == 1.0f && xyzw.y() == 2.0f &&
-        xyzw.z() == 3.0f && xyzw.w() == 4.0f);
+      ezSimdVec4f xyzw;
+      xyzw.Load<4>(testBlock);
+      EZ_TEST_BOOL(xyzw.x() == 1.0f && xyzw.y() == 2.0f && xyzw.z() == 3.0f && xyzw.w() == 4.0f);
 
       EZ_TEST_BOOL(xyzw.GetComponent(0) == 1.0f);
       EZ_TEST_BOOL(xyzw.GetComponent(1) == 2.0f);
@@ -233,8 +230,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
 
       // Make sure all components have the correct values
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-      EZ_TEST_BOOL(xyzw.m_v.m128_f32[0] == 1.0f && xyzw.m_v.m128_f32[1] == 2.0f &&
-        xyzw.m_v.m128_f32[2] == 3.0f && xyzw.m_v.m128_f32[3] == 4.0f);
+      EZ_TEST_BOOL(xyzw.m_v.m128_f32[0] == 1.0f && xyzw.m_v.m128_f32[1] == 2.0f && xyzw.m_v.m128_f32[2] == 3.0f &&
+                   xyzw.m_v.m128_f32[3] == 4.0f);
 #endif
     }
 
@@ -567,9 +564,9 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       ezSimdVec4f a(-3.0f, 5.0f, -7.0f, 9.0f);
 
       EZ_TEST_FLOAT(a.HorizontalSum<1>(), -3.0f, 0.0f);
-      EZ_TEST_FLOAT(a.HorizontalSum<2>(),  2.0f, 0.0f);
+      EZ_TEST_FLOAT(a.HorizontalSum<2>(), 2.0f, 0.0f);
       EZ_TEST_FLOAT(a.HorizontalSum<3>(), -5.0f, 0.0f);
-      EZ_TEST_FLOAT(a.HorizontalSum<4>(),  4.0f, 0.0f);
+      EZ_TEST_FLOAT(a.HorizontalSum<4>(), 4.0f, 0.0f);
       EZ_TEST_BOOL(AllCompSame(a.HorizontalSum<1>()));
       EZ_TEST_BOOL(AllCompSame(a.HorizontalSum<2>()));
       EZ_TEST_BOOL(AllCompSame(a.HorizontalSum<3>()));
@@ -585,9 +582,9 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       EZ_TEST_BOOL(AllCompSame(a.HorizontalMin<4>()));
 
       EZ_TEST_FLOAT(a.HorizontalMax<1>(), -3.0f, 0.0f);
-      EZ_TEST_FLOAT(a.HorizontalMax<2>(),  5.0f, 0.0f);
-      EZ_TEST_FLOAT(a.HorizontalMax<3>(),  5.0f, 0.0f);
-      EZ_TEST_FLOAT(a.HorizontalMax<4>(),  9.0f, 0.0f);
+      EZ_TEST_FLOAT(a.HorizontalMax<2>(), 5.0f, 0.0f);
+      EZ_TEST_FLOAT(a.HorizontalMax<3>(), 5.0f, 0.0f);
+      EZ_TEST_FLOAT(a.HorizontalMax<4>(), 9.0f, 0.0f);
       EZ_TEST_BOOL(AllCompSame(a.HorizontalMax<1>()));
       EZ_TEST_BOOL(AllCompSame(a.HorizontalMax<2>()));
       EZ_TEST_BOOL(AllCompSame(a.HorizontalMax<3>()));
@@ -599,9 +596,9 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       ezSimdVec4f b(8.0f, 6.0f, 4.0f, 2.0f);
 
       EZ_TEST_FLOAT(a.Dot<1>(b), -24.0f, 0.0f);
-      EZ_TEST_FLOAT(a.Dot<2>(b),   6.0f, 0.0f);
+      EZ_TEST_FLOAT(a.Dot<2>(b), 6.0f, 0.0f);
       EZ_TEST_FLOAT(a.Dot<3>(b), -22.0f, 0.0f);
-      EZ_TEST_FLOAT(a.Dot<4>(b),  -4.0f, 0.0f);
+      EZ_TEST_FLOAT(a.Dot<4>(b), -4.0f, 0.0f);
       EZ_TEST_BOOL(AllCompSame(a.Dot<1>(b)));
       EZ_TEST_BOOL(AllCompSame(a.Dot<2>(b)));
       EZ_TEST_BOOL(AllCompSame(a.Dot<3>(b)));

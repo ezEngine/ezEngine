@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <EditorFramework/EditorApp/Configuration/Plugins.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
@@ -10,7 +11,8 @@ void ezQtEditorApp::DetectAvailableEnginePlugins()
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
   {
-    ezStringBuilder sSearch = ezOSFile::GetApplicationDirectory();;
+    ezStringBuilder sSearch = ezOSFile::GetApplicationDirectory();
+    ;
     sSearch.AppendPath("*.dll");
 
     ezFileSystemIterator fsit;
@@ -21,13 +23,11 @@ void ezQtEditorApp::DetectAvailableEnginePlugins()
         ezStringBuilder sPlugin = fsit.GetStats().m_sFileName;
         sPlugin.RemoveFileExtension();
 
-        if (sPlugin.FindSubString_NoCase("EnginePlugin") != nullptr ||
-            sPlugin.EndsWith_NoCase("Plugin"))
+        if (sPlugin.FindSubString_NoCase("EnginePlugin") != nullptr || sPlugin.EndsWith_NoCase("Plugin"))
         {
           s_EnginePlugins.m_Plugins[sPlugin].m_bAvailable = true;
         }
-      }
-      while (fsit.Next().Succeeded());
+      } while (fsit.Next().Succeeded());
     }
   }
 #endif
@@ -97,7 +97,7 @@ void ezQtEditorApp::ReadEnginePluginConfig()
   }
 
   ezUInt32 count = m_EnginePluginConfig.m_Plugins.GetCount();
-  for (ezUInt32 i = 0; i < count; )
+  for (ezUInt32 i = 0; i < count;)
   {
     if (m_EnginePluginConfig.m_Plugins[i].m_sDependecyOf.IsEmpty())
     {
@@ -157,10 +157,12 @@ void ezQtEditorApp::ValidateEnginePluginConfig()
 
     if (!sIllformedPlugins.IsEmpty())
     {
-      sMsg.AppendFormat("Plugins that do not conform to the expected naming scheme:\n{0}\nPure runtime plugins should use the suffix 'Plugin'.\nPlugins that implement editor functionality but need to run on the engine side should use the prefix 'EnginePlugin'.", sIllformedPlugins);
+      sMsg.AppendFormat("Plugins that do not conform to the expected naming scheme:\n{0}\nPure runtime plugins should use the suffix "
+                        "'Plugin'.\nPlugins that implement editor functionality but need to run on the engine side should use the prefix "
+                        "'EnginePlugin'.",
+                        sIllformedPlugins);
     }
 
     ezQtUiServices::MessageBoxWarning(sMsg);
   }
 }
-

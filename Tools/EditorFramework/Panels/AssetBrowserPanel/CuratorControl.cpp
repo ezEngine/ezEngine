@@ -1,17 +1,18 @@
 #include <PCH.h>
-#include <EditorFramework/Panels/AssetBrowserPanel/CuratorControl.moc.h>
+
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Panels/AssetBrowserPanel/CuratorControl.moc.h>
 #include <QBoxLayout>
 #include <QPainter>
 #include <QTimer>
 #include <QToolButton>
 
 ezQtCuratorControl::ezQtCuratorControl(QWidget* pParent)
-  : QWidget(pParent)
-  , m_bScheduled(false)
-  , m_pBackgroundProcess(nullptr)
+    : QWidget(pParent)
+    , m_bScheduled(false)
+    , m_pBackgroundProcess(nullptr)
 {
   QHBoxLayout* pLayout = new QHBoxLayout();
   setLayout(pLayout);
@@ -76,9 +77,10 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
   }
 
   ezStringBuilder s;
-  s.Format("[Un: {0}, Tr: {1}, Th: {2}, Err: {3}]", sections[ezAssetInfo::TransformState::Unknown], sections[ezAssetInfo::TransformState::NeedsTransform],
-    sections[ezAssetInfo::TransformState::NeedsThumbnail],
-    sections[ezAssetInfo::TransformState::MissingDependency] + sections[ezAssetInfo::TransformState::MissingReference] + sections[ezAssetInfo::TransformState::TransformError]);
+  s.Format("[Un: {0}, Tr: {1}, Th: {2}, Err: {3}]", sections[ezAssetInfo::TransformState::Unknown],
+           sections[ezAssetInfo::TransformState::NeedsTransform], sections[ezAssetInfo::TransformState::NeedsThumbnail],
+           sections[ezAssetInfo::TransformState::MissingDependency] + sections[ezAssetInfo::TransformState::MissingReference] +
+               sections[ezAssetInfo::TransformState::TransformError]);
 
   painter.setPen(QPen(Qt::white));
   painter.drawText(rect, s.GetData(), QTextOption(Qt::AlignCenter));
@@ -88,9 +90,11 @@ void ezQtCuratorControl::UpdateBackgroundProcessState()
 {
   bool bRunning = ezAssetProcessor::GetSingleton()->IsProcessTaskRunning();
   if (bRunning)
-    m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingPause16.png"));
+    m_pBackgroundProcess->setIcon(
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingPause16.png"));
   else
-    m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingStart16.png"));
+    m_pBackgroundProcess->setIcon(
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingStart16.png"));
   m_pBackgroundProcess->setCheckable(true);
   m_pBackgroundProcess->setChecked(bRunning);
 }
@@ -115,9 +119,11 @@ void ezQtCuratorControl::SlotUpdateTransformStats()
 
   if (uiNumAssets > 0)
   {
-    s.Format("Unknown: {0}\nTransform Needed: {1}\nThumbnail Needed: {2}\nMissing Dependency: {3}\nMissing Reference: {4}\nFailed Transform: {5}",
-      sections[ezAssetInfo::TransformState::Unknown], sections[ezAssetInfo::TransformState::NeedsTransform], sections[ezAssetInfo::TransformState::NeedsThumbnail],
-      sections[ezAssetInfo::TransformState::MissingDependency], sections[ezAssetInfo::TransformState::MissingReference], sections[ezAssetInfo::TransformState::TransformError]);
+    s.Format("Unknown: {0}\nTransform Needed: {1}\nThumbnail Needed: {2}\nMissing Dependency: {3}\nMissing Reference: {4}\nFailed "
+             "Transform: {5}",
+             sections[ezAssetInfo::TransformState::Unknown], sections[ezAssetInfo::TransformState::NeedsTransform],
+             sections[ezAssetInfo::TransformState::NeedsThumbnail], sections[ezAssetInfo::TransformState::MissingDependency],
+             sections[ezAssetInfo::TransformState::MissingReference], sections[ezAssetInfo::TransformState::TransformError]);
     setToolTip(s.GetData());
   }
   else
@@ -141,24 +147,24 @@ void ezQtCuratorControl::AssetCuratorEvents(const ezAssetCuratorEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezAssetCuratorEvent::Type::AssetUpdated:
-    ScheduleUpdateTransformStats();
-    break;
-  default:
-    break;
+    case ezAssetCuratorEvent::Type::AssetUpdated:
+      ScheduleUpdateTransformStats();
+      break;
+    default:
+      break;
   }
 }
 void ezQtCuratorControl::AssetProcessorEvents(const ezAssetProcessorEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezAssetProcessorEvent::Type::ProcessTaskStateChanged:
+    case ezAssetProcessorEvent::Type::ProcessTaskStateChanged:
     {
       UpdateBackgroundProcessState();
     }
     break;
-  default:
-    break;
+    default:
+      break;
   }
 }
 
@@ -166,13 +172,13 @@ void ezQtCuratorControl::ProjectEvents(const ezToolsProjectEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezToolsProjectEvent::Type::ProjectClosing:
-  case ezToolsProjectEvent::Type::ProjectClosed:
-  case ezToolsProjectEvent::Type::ProjectOpened:
-    ScheduleUpdateTransformStats();
-    break;
+    case ezToolsProjectEvent::Type::ProjectClosing:
+    case ezToolsProjectEvent::Type::ProjectClosed:
+    case ezToolsProjectEvent::Type::ProjectOpened:
+      ScheduleUpdateTransformStats();
+      break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }

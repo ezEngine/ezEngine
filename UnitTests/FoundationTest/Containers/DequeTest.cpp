@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Types/UniquePtr.h>
 
@@ -497,7 +498,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
     for (ezInt32 i = 0; i < 100; ++i)
       a1.PushBack(i % 2);
 
-    while (a1.Remove(1)) { }
+    while (a1.Remove(1))
+    {
+    }
 
     EZ_TEST_BOOL(a1.GetCount() == 50);
 
@@ -812,8 +815,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
   {
     ezDeque<ezInt32> a1, a2;
 
-    ezInt32 content1[] = { 1, 2, 3, 4 };
-    ezInt32 content2[] = { 5, 6, 7, 8, 9 };
+    ezInt32 content1[] = {1, 2, 3, 4};
+    ezInt32 content2[] = {5, 6, 7, 8, 9};
     for (ezInt32 i : content1)
     {
       a1.PushBack(i);
@@ -864,4 +867,3 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
     EZ_TEST_INT(*a2[1].Borrow(), 2);
   }
 }
-

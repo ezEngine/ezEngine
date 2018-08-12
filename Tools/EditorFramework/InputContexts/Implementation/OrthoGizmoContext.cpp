@@ -1,16 +1,17 @@
 #include <PCH.h>
-#include <EditorFramework/InputContexts/OrthoGizmoContext.h>
+
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorEngineProcessFramework/IPC/SyncObject.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
+#include <EditorFramework/InputContexts/OrthoGizmoContext.h>
 #include <Foundation/Logging/Log.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <EditorFramework/Assets/AssetDocument.h>
 #include <QKeyEvent>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezOrthoGizmoContext, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -49,7 +50,6 @@ ezEditorInput ezOrthoGizmoContext::DoMousePressEvent(QMouseEvent* e)
   if (e->button() == Qt::MouseButton::LeftButton)
   {
     m_bCanInteract = true;
-
   }
 
   return ezEditorInput::MayBeHandledByOthers;
@@ -173,6 +173,3 @@ bool ezOrthoGizmoContext::IsViewInOthoMode() const
 {
   return (GetOwnerView()->m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective);
 }
-
-
-

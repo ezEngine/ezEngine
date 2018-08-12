@@ -1,9 +1,10 @@
 #include <PCH.h>
-#include <Inspector/ResourceWidget.moc.h>
+
 #include <Foundation/Communication/Telemetry.h>
+#include <Inspector/ResourceWidget.moc.h>
 #include <MainWindow.moc.h>
-#include <qgraphicsitem.h>
 #include <QComboBox>
+#include <qgraphicsitem.h>
 
 /// \todo Refcount ? (Max?)
 /// \todo Select Resource -> send to App for preview
@@ -12,7 +13,8 @@ void FormatSize(ezStringBuilder& s, const char* szPrefix, ezUInt64 uiSize);
 
 ezQtResourceWidget* ezQtResourceWidget::s_pWidget = nullptr;
 
-ezQtResourceWidget::ezQtResourceWidget(QWidget* parent) : QDockWidget(parent)
+ezQtResourceWidget::ezQtResourceWidget(QWidget* parent)
+    : QDockWidget(parent)
 {
   s_pWidget = this;
 
@@ -68,15 +70,13 @@ void ezQtResourceWidget::UpdateStats()
 class ByteSizeItem : public QTableWidgetItem
 {
 public:
-  ByteSizeItem(ezUInt32 uiBytes, const char* szString) : QTableWidgetItem(szString)
+  ByteSizeItem(ezUInt32 uiBytes, const char* szString)
+      : QTableWidgetItem(szString)
   {
     m_uiBytes = uiBytes;
   }
 
-  bool operator< (const QTableWidgetItem& other) const
-  {
-    return m_uiBytes < ((ByteSizeItem&)other).m_uiBytes;
-  }
+  bool operator<(const QTableWidgetItem& other) const { return m_uiBytes < ((ByteSizeItem&)other).m_uiBytes; }
 
   ezUInt32 m_uiBytes;
 };
@@ -151,7 +151,8 @@ void ezQtResourceWidget::UpdateTable()
       {
         bShowItem = false;
       }
-      else if (!m_sNameFilter.IsEmpty() && res.m_sResourceID.FindSubString_NoCase(m_sNameFilter) == nullptr && res.m_sResourceDescription.FindSubString_NoCase(m_sNameFilter) == nullptr)
+      else if (!m_sNameFilter.IsEmpty() && res.m_sResourceID.FindSubString_NoCase(m_sNameFilter) == nullptr &&
+               res.m_sResourceDescription.FindSubString_NoCase(m_sNameFilter) == nullptr)
       {
         bShowItem = false;
       }
@@ -228,29 +229,29 @@ void ezQtResourceWidget::UpdateTable()
 
       switch (res.m_Priority)
       {
-      case ezResourcePriority::Highest:
-        pItem->setText("Highest");
-        pItem->setTextColor(QColor::fromRgb(255, 106, 0));
-        break;
-      case ezResourcePriority::High:
-        pItem->setText("High");
-        pItem->setTextColor(QColor::fromRgb(255, 216, 0));
-        break;
-      case ezResourcePriority::Normal:
-        pItem->setText("Normal");
-        pItem->setTextColor(QColor::fromRgb(0, 148, 255));
-        break;
-      case ezResourcePriority::Low:
-        pItem->setText("Low");
-        pItem->setTextColor(QColor::fromRgb(127, 146, 255));
-        break;
-      case ezResourcePriority::Lowest:
-        pItem->setText("Lowest");
-        pItem->setTextColor(QColor::fromRgb(127, 201, 255));
-        break;
+        case ezResourcePriority::Highest:
+          pItem->setText("Highest");
+          pItem->setTextColor(QColor::fromRgb(255, 106, 0));
+          break;
+        case ezResourcePriority::High:
+          pItem->setText("High");
+          pItem->setTextColor(QColor::fromRgb(255, 216, 0));
+          break;
+        case ezResourcePriority::Normal:
+          pItem->setText("Normal");
+          pItem->setTextColor(QColor::fromRgb(0, 148, 255));
+          break;
+        case ezResourcePriority::Low:
+          pItem->setText("Low");
+          pItem->setTextColor(QColor::fromRgb(127, 146, 255));
+          break;
+        case ezResourcePriority::Lowest:
+          pItem->setText("Lowest");
+          pItem->setTextColor(QColor::fromRgb(127, 201, 255));
+          break;
 
-      case ezResourcePriority::Unchanged:
-        break;
+        case ezResourcePriority::Unchanged:
+          break;
       }
 
       if (res.m_Flags.IsAnySet(ezResourceFlags::IsPreloading))
@@ -263,26 +264,26 @@ void ezQtResourceWidget::UpdateTable()
       pItem->setTextAlignment(Qt::AlignHCenter);
       switch (res.m_LoadingState.m_State)
       {
-      case ezResourceState::Invalid:
-        pItem->setText("Deleted");
-        pItem->setTextColor(QColor::fromRgb(128, 128, 128));
-        break;
-      case ezResourceState::Unloaded:
-        pItem->setText("Unloaded");
-        pItem->setTextColor(QColor::fromRgb(255, 216, 0));
-        break;
-      case ezResourceState::UnloadedMetaInfoAvailable:
-        pItem->setText("Meta Data");
-        pItem->setTextColor(QColor::fromRgb(255, 127, 237));
-        break;
-      case ezResourceState::Loaded:
-        pItem->setText("Loaded");
-        pItem->setTextColor(QColor::fromRgb(182, 255, 0));
-        break;
-      case ezResourceState::LoadedResourceMissing:
-        pItem->setText("Missing");
-        pItem->setTextColor(QColor::fromRgb(255, 0, 0));
-        break;
+        case ezResourceState::Invalid:
+          pItem->setText("Deleted");
+          pItem->setTextColor(QColor::fromRgb(128, 128, 128));
+          break;
+        case ezResourceState::Unloaded:
+          pItem->setText("Unloaded");
+          pItem->setTextColor(QColor::fromRgb(255, 216, 0));
+          break;
+        case ezResourceState::UnloadedMetaInfoAvailable:
+          pItem->setText("Meta Data");
+          pItem->setTextColor(QColor::fromRgb(255, 127, 237));
+          break;
+        case ezResourceState::Loaded:
+          pItem->setText("Loaded");
+          pItem->setTextColor(QColor::fromRgb(182, 255, 0));
+          break;
+        case ezResourceState::LoadedResourceMissing:
+          pItem->setText("Missing");
+          pItem->setTextColor(QColor::fromRgb(255, 0, 0));
+          break;
       }
 
       pItem = Table->item(iTableRow, 3);
@@ -314,9 +315,9 @@ void ezQtResourceWidget::UpdateTable()
       if (res.m_LoadingState.m_State == ezResourceState::Invalid)
       {
         Table->item(iTableRow, 7)->setIcon(QIcon(":/Icons/Icons/ResourceDeleted.png"));
-        //Table->item(iTableRow, 1)->setText(""); // Priority
-        //Table->item(iTableRow, 3)->setText(""); // QL D
-        //Table->item(iTableRow, 4)->setText(""); // QL L
+        // Table->item(iTableRow, 1)->setText(""); // Priority
+        // Table->item(iTableRow, 3)->setText(""); // QL D
+        // Table->item(iTableRow, 4)->setText(""); // QL L
 
         for (int i = 0; i < 8; ++i)
           Table->item(iTableRow, i)->setTextColor(QColor::fromRgb(128, 128, 128));
@@ -402,7 +403,7 @@ void ezQtResourceWidget::ProcessTelemetry(void* pUnuseed)
       ezUInt8 uiFlags = 0;
       Msg.GetReader() >> uiFlags;
       rd.m_Flags.Clear();
-      rd.m_Flags.Add((ezResourceFlags::Enum) uiFlags);
+      rd.m_Flags.Add((ezResourceFlags::Enum)uiFlags);
 
       ezUInt8 uiLoadingState = 0;
       Msg.GetReader() >> uiLoadingState;
@@ -425,7 +426,7 @@ void ezQtResourceWidget::ProcessTelemetry(void* pUnuseed)
       ezUInt8 uiFlags = 0;
       Msg.GetReader() >> uiFlags;
       rd.m_Flags.Clear();
-      rd.m_Flags.Add((ezResourceFlags::Enum) uiFlags);
+      rd.m_Flags.Add((ezResourceFlags::Enum)uiFlags);
 
       ezUInt8 uiLoadingState = 0;
       Msg.GetReader() >> uiLoadingState;

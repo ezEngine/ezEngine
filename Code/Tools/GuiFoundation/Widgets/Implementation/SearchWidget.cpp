@@ -1,9 +1,10 @@
 #include <PCH.h>
+
 #include <GuiFoundation/Widgets/SearchWidget.moc.h>
-#include <QPushButton>
-#include <QLineEdit>
-#include <QLayout>
 #include <QKeyEvent>
+#include <QLayout>
+#include <QLineEdit>
+#include <QPushButton>
 
 ezQtSearchWidget::ezQtSearchWidget(QWidget* pParent)
 {

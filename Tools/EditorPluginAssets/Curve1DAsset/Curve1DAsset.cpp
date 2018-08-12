@@ -1,18 +1,19 @@
 #include <PCH.h>
+
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAsset.h>
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAssetManager.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Image/Image.h>
 #include <Foundation/Tracks/Curve1D.h>
 #include <GameEngine/Curves/Curve1DResource.h>
-#include <QPainter>
 #include <QPaintEngine>
+#include <QPainter>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DAssetDocument, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezCurve1DAssetDocument::ezCurve1DAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezCurveGroupData>(szDocumentPath)
+    : ezSimpleAssetDocument<ezCurveGroupData>(szDocumentPath)
 {
 }
 
@@ -28,7 +29,8 @@ ezUInt32 ezCurve1DAssetDocument::GetCurveCount() const
   return pProp->m_Curves.GetCount();
 }
 
-ezStatus ezCurve1DAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezCurve1DAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
+                                                        const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   const ezCurveGroupData* pProp = GetProperties();
 
@@ -105,12 +107,11 @@ ezStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader
     const float range2 = highValue - lowValue;
 
 
-    QColor curveColor[] =
-    {
-      QColor(255, 100, 100),
-      QColor(100, 255, 100),
-      QColor(100, 100, 255),
-      QColor(200, 200, 200),
+    QColor curveColor[] = {
+        QColor(255, 100, 100),
+        QColor(100, 255, 100),
+        QColor(100, 100, 255),
+        QColor(200, 200, 200),
     };
 
     for (ezUInt32 curveIdx = 0; curveIdx < pProp->m_Curves.GetCount(); ++curveIdx)
@@ -146,9 +147,9 @@ ezStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader
   return SaveThumbnail(qimg, AssetHeader);
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 
@@ -156,7 +157,9 @@ class ezCurve1DControlPointPatch_1_2 : public ezGraphPatch
 {
 public:
   ezCurve1DControlPointPatch_1_2()
-    : ezGraphPatch("ezCurve1DControlPoint", 2) {}
+      : ezGraphPatch("ezCurve1DControlPoint", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -172,7 +175,9 @@ class ezCurve1DDataPatch_1_2 : public ezGraphPatch
 {
 public:
   ezCurve1DDataPatch_1_2()
-    : ezGraphPatch("ezCurve1DData", 2) {}
+      : ezGraphPatch("ezCurve1DData", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -181,4 +186,3 @@ public:
 };
 
 ezCurve1DDataPatch_1_2 g_ezCurve1DDataPatch_1_2;
-

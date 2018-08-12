@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <GuiFoundation/Action/Action.h>
 #include <GuiFoundation/Action/ActionManager.h>
 
@@ -7,16 +8,16 @@ const ezActionDescriptor* ezActionDescriptorHandle::GetDescriptor() const
   return ezActionManager::GetActionDescriptor(*this);
 }
 
-ezActionDescriptor::ezActionDescriptor(ezActionType::Enum type, ezActionScope::Enum scope, const char* szName, const char* szCategoryPath, const char* szShortcut,
-                                       CreateActionFunc createAction, DeleteActionFunc deleteAction)
-  : m_Type(type)
-  , m_Scope(scope)
-  , m_sActionName(szName)
-  , m_sCategoryPath(szCategoryPath)
-  , m_sShortcut(szShortcut)
-  , m_sDefaultShortcut(szShortcut)
-  , m_CreateAction(createAction)
-  , m_DeleteAction(deleteAction)
+ezActionDescriptor::ezActionDescriptor(ezActionType::Enum type, ezActionScope::Enum scope, const char* szName, const char* szCategoryPath,
+                                       const char* szShortcut, CreateActionFunc createAction, DeleteActionFunc deleteAction)
+    : m_Type(type)
+    , m_Scope(scope)
+    , m_sActionName(szName)
+    , m_sCategoryPath(szCategoryPath)
+    , m_sShortcut(szShortcut)
+    , m_sDefaultShortcut(szShortcut)
+    , m_CreateAction(createAction)
+    , m_DeleteAction(deleteAction)
 {
 }
 

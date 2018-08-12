@@ -1,15 +1,17 @@
 #include <PCH.h>
-#include <GameEngine/VisualScript/VisualScriptNode.h>
-#include <GameEngine/VisualScript/VisualScriptInstance.h>
-#include <Core/Messages/TriggerMessage.h>
+
 #include <Core/Messages/CollisionMessage.h>
+#include <Core/Messages/TriggerMessage.h>
 #include <Core/World/World.h>
+#include <GameEngine/VisualScript/VisualScriptInstance.h>
+#include <GameEngine/VisualScript/VisualScriptNode.h>
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVisualScriptDataPinType, 1)
-EZ_ENUM_CONSTANTS(ezVisualScriptDataPinType::None, ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Boolean, ezVisualScriptDataPinType::Vec3)
-EZ_ENUM_CONSTANTS(ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptDataPinType::ComponentHandle)
+  EZ_ENUM_CONSTANTS(ezVisualScriptDataPinType::None, ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Boolean, ezVisualScriptDataPinType::Vec3)
+  EZ_ENUM_CONSTANTS(ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptDataPinType::ComponentHandle)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisScriptExecPinOutAttribute, 1, ezRTTIDefaultAllocator<ezVisScriptExecPinOutAttribute>)
@@ -18,7 +20,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisScriptExecPinOutAttribute, 1, ezRTTIDefault
   {
     EZ_MEMBER_PROPERTY("Slot", m_uiPinSlot)
   }
-    EZ_END_PROPERTIES;
+  EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -28,7 +30,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisScriptExecPinInAttribute, 1, ezRTTIDefaultA
   {
     EZ_MEMBER_PROPERTY("Slot", m_uiPinSlot)
   }
-    EZ_END_PROPERTIES;
+  EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -39,7 +41,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisScriptDataPinInAttribute, 1, ezRTTIDefaultA
     EZ_MEMBER_PROPERTY("Slot", m_uiPinSlot),
     EZ_ENUM_MEMBER_PROPERTY("Type", ezVisualScriptDataPinType, m_DataType)
   }
-    EZ_END_PROPERTIES;
+  EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -50,7 +52,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisScriptDataPinOutAttribute, 1, ezRTTIDefault
     EZ_MEMBER_PROPERTY("Slot", m_uiPinSlot),
     EZ_ENUM_MEMBER_PROPERTY("Type", ezVisualScriptDataPinType, m_DataType)
   }
-    EZ_END_PROPERTIES;
+  EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -58,9 +60,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode::ezVisualScriptNode() { }
-ezVisualScriptNode::~ezVisualScriptNode() { }
+ezVisualScriptNode::ezVisualScriptNode() {}
+ezVisualScriptNode::~ezVisualScriptNode() {}
 
 
 ezInt32 ezVisualScriptNode::HandlesMessagesWithID() const
@@ -68,9 +71,7 @@ ezInt32 ezVisualScriptNode::HandlesMessagesWithID() const
   return -1;
 }
 
-void ezVisualScriptNode::HandleMessage(ezMessage* pMsg)
-{
-}
+void ezVisualScriptNode::HandleMessage(ezMessage* pMsg) {}
 
 bool ezVisualScriptNode::IsManuallyStepped() const
 {
@@ -91,6 +92,7 @@ bool ezVisualScriptNode::IsManuallyStepped() const
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_MessageSender, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_MessageSender>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -98,9 +100,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_MessageSender, 1, ezRTTIDefau
     new ezCategoryAttribute("Messages"),
     new ezHiddenAttribute()
   }
-    EZ_END_ATTRIBUTES;
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezVisualScriptNode_MessageSender::ezVisualScriptNode_MessageSender()
 {
@@ -210,6 +213,7 @@ void* ezVisualScriptNode_MessageSender::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Log, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Log>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -232,9 +236,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Log, 1, ezRTTIDefaultAllocato
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_Log::ezVisualScriptNode_Log() { }
-ezVisualScriptNode_Log::~ezVisualScriptNode_Log() { }
+ezVisualScriptNode_Log::ezVisualScriptNode_Log() {}
+ezVisualScriptNode_Log::~ezVisualScriptNode_Log() {}
 
 void ezVisualScriptNode_Log::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -247,10 +252,10 @@ void* ezVisualScriptNode_Log::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_Value1;
-  case 1:
-    return &m_Value2;
+    case 0:
+      return &m_Value1;
+    case 1:
+      return &m_Value2;
   }
 
   return nullptr;
@@ -261,4 +266,3 @@ void* ezVisualScriptNode_Log::GetInputPinDataPointer(ezUInt8 uiPin)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Implementation_VisualScriptNode);
-

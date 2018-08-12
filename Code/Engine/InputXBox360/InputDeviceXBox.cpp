@@ -1,10 +1,11 @@
 #include <PCH.h>
+
 #include <InputXBox360/InputDeviceXBox.h>
 #include <Xinput.h>
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceXBox360, 1, ezRTTINoAllocator);
-  // no properties or message handlers
+// no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezInputDeviceXBox360::ezInputDeviceXBox360()
@@ -13,9 +14,7 @@ ezInputDeviceXBox360::ezInputDeviceXBox360()
     m_bControllerConnected[i] = false;
 }
 
-ezInputDeviceXBox360::~ezInputDeviceXBox360()
-{
-}
+ezInputDeviceXBox360::~ezInputDeviceXBox360() {}
 
 void ezInputDeviceXBox360::RegisterControllerButton(const char* szButton, const char* szName, ezBitflags<ezInputSlotFlags> SlotFlags)
 {
@@ -83,17 +82,10 @@ void ezInputDeviceXBox360::RegisterInputSlots()
   ezLog::Success("Initialized XBox 360 Controller.");
 }
 
-const char* szControllerName[] =
-{
-  "controller0_",
-  "controller1_",
-  "controller2_",
-  "controller3_",
+const char* szControllerName[] = {
+    "controller0_", "controller1_", "controller2_", "controller3_",
 
-  "controller4_",
-  "controller5_",
-  "controller6_",
-  "controller7_",
+    "controller4_", "controller5_", "controller6_", "controller7_",
 };
 
 EZ_CHECK_AT_COMPILETIME(EZ_ARRAY_SIZE(szControllerName) >= ezInputDeviceXBox360::MaxControllers);
@@ -164,36 +156,36 @@ void ezInputDeviceXBox360::UpdateInputSlotValues()
     if (!m_bControllerConnected[iPhysical])
       continue;
 
-    SetValue(iVirtual, "pad_up"                , ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP)        != 0) ? 1.0f : 0.0f);
-    SetValue(iVirtual, "pad_down"              , ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN)      != 0) ? 1.0f : 0.0f);
-    SetValue(iVirtual, "pad_left"              , ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT)      != 0) ? 1.0f : 0.0f);
-    SetValue(iVirtual, "pad_right"             , ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT)     != 0) ? 1.0f : 0.0f);
-    SetValue(iVirtual, "button_start"          , ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_START)          != 0) ? 1.0f : 0.0f);
-    SetValue(iVirtual, "button_back"           , ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_BACK)           != 0) ? 1.0f : 0.0f);
-    SetValue(iVirtual, "left_stick"            , ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB)     != 0) ? 1.0f : 0.0f);
-    SetValue(iVirtual, "right_stick"           , ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB)    != 0) ? 1.0f : 0.0f);
-    SetValue(iVirtual, "left_shoulder"         , ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER)  != 0) ? 1.0f : 0.0f);
-    SetValue(iVirtual, "right_shoulder"        , ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) != 0) ? 1.0f : 0.0f);
-    SetValue(iVirtual, "button_a"              , ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_A)              != 0) ? 1.0f : 0.0f);
-    SetValue(iVirtual, "button_b"              , ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_B)              != 0) ? 1.0f : 0.0f);
-    SetValue(iVirtual, "button_x"              , ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_X)              != 0) ? 1.0f : 0.0f);
-    SetValue(iVirtual, "button_y"              , ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_Y)              != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "pad_up", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "pad_down", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "pad_left", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "pad_right", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "button_start", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_START) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "button_back", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_BACK) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "left_stick", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "right_stick", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "left_shoulder", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "right_shoulder", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "button_a", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "button_b", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_B) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "button_x", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_X) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "button_y", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_Y) != 0) ? 1.0f : 0.0f);
 
     const float fTriggerRange = 255.0f;
 
-    SetValue(iVirtual, "left_trigger",     State[iPhysical].Gamepad.bLeftTrigger  / fTriggerRange);
-    SetValue(iVirtual, "right_trigger",    State[iPhysical].Gamepad.bRightTrigger / fTriggerRange);
+    SetValue(iVirtual, "left_trigger", State[iPhysical].Gamepad.bLeftTrigger / fTriggerRange);
+    SetValue(iVirtual, "right_trigger", State[iPhysical].Gamepad.bRightTrigger / fTriggerRange);
 
     // all input points have dead-zones, so we can let the state handler do the rest
-    SetValue(iVirtual, "leftstick_negx",  (State[iPhysical].Gamepad.sThumbLX < 0) ? (-State[iPhysical].Gamepad.sThumbLX / 32767.0f) : 0.0f);
-    SetValue(iVirtual, "leftstick_posx",  (State[iPhysical].Gamepad.sThumbLX > 0) ? ( State[iPhysical].Gamepad.sThumbLX / 32767.0f) : 0.0f);
-    SetValue(iVirtual, "leftstick_negy",  (State[iPhysical].Gamepad.sThumbLY < 0) ? (-State[iPhysical].Gamepad.sThumbLY / 32767.0f) : 0.0f);
-    SetValue(iVirtual, "leftstick_posy",  (State[iPhysical].Gamepad.sThumbLY > 0) ? ( State[iPhysical].Gamepad.sThumbLY / 32767.0f) : 0.0f);
+    SetValue(iVirtual, "leftstick_negx", (State[iPhysical].Gamepad.sThumbLX < 0) ? (-State[iPhysical].Gamepad.sThumbLX / 32767.0f) : 0.0f);
+    SetValue(iVirtual, "leftstick_posx", (State[iPhysical].Gamepad.sThumbLX > 0) ? (State[iPhysical].Gamepad.sThumbLX / 32767.0f) : 0.0f);
+    SetValue(iVirtual, "leftstick_negy", (State[iPhysical].Gamepad.sThumbLY < 0) ? (-State[iPhysical].Gamepad.sThumbLY / 32767.0f) : 0.0f);
+    SetValue(iVirtual, "leftstick_posy", (State[iPhysical].Gamepad.sThumbLY > 0) ? (State[iPhysical].Gamepad.sThumbLY / 32767.0f) : 0.0f);
 
     SetValue(iVirtual, "rightstick_negx", (State[iPhysical].Gamepad.sThumbRX < 0) ? (-State[iPhysical].Gamepad.sThumbRX / 32767.0f) : 0.0f);
-    SetValue(iVirtual, "rightstick_posx", (State[iPhysical].Gamepad.sThumbRX > 0) ? ( State[iPhysical].Gamepad.sThumbRX / 32767.0f) : 0.0f);
+    SetValue(iVirtual, "rightstick_posx", (State[iPhysical].Gamepad.sThumbRX > 0) ? (State[iPhysical].Gamepad.sThumbRX / 32767.0f) : 0.0f);
     SetValue(iVirtual, "rightstick_negy", (State[iPhysical].Gamepad.sThumbRY < 0) ? (-State[iPhysical].Gamepad.sThumbRY / 32767.0f) : 0.0f);
-    SetValue(iVirtual, "rightstick_posy", (State[iPhysical].Gamepad.sThumbRY > 0) ? ( State[iPhysical].Gamepad.sThumbRY / 32767.0f) : 0.0f);
+    SetValue(iVirtual, "rightstick_posy", (State[iPhysical].Gamepad.sThumbRY > 0) ? (State[iPhysical].Gamepad.sThumbRY / 32767.0f) : 0.0f);
   }
 
   for (ezInt32 iPhysical = 0; iPhysical < MaxControllers; ++iPhysical)
@@ -215,11 +207,11 @@ void ezInputDeviceXBox360::ApplyVibration(ezUInt8 uiPhysicalController, Motor::E
   static XINPUT_VIBRATION v[MaxControllers];
 
   if (eMotor == Motor::LeftMotor)
-    v[uiPhysicalController].wLeftMotorSpeed = (WORD) (fStrength * 65535.0f);
+    v[uiPhysicalController].wLeftMotorSpeed = (WORD)(fStrength * 65535.0f);
 
   if (eMotor == Motor::RightMotor)
   {
-    v[uiPhysicalController].wRightMotorSpeed = (WORD) (fStrength * 65535.0f);
+    v[uiPhysicalController].wRightMotorSpeed = (WORD)(fStrength * 65535.0f);
 
     XInputSetState(uiPhysicalController, &v[uiPhysicalController]);
   }
@@ -227,6 +219,4 @@ void ezInputDeviceXBox360::ApplyVibration(ezUInt8 uiPhysicalController, Motor::E
 
 
 
-
 EZ_STATICLINK_FILE(InputXBox360, InputXBox360_InputDeviceXBox);
-

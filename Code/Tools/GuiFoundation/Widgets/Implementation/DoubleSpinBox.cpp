@@ -1,13 +1,15 @@
 #include <PCH.h>
+
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
-#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
-#include <QLineEdit>
 #include <QApplication>
 #include <QDesktopWidget>
-#include <QStyleOption>
+#include <QLineEdit>
 #include <QMouseEvent>
+#include <QStyleOption>
+#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
-inline ezQtDoubleSpinBox::ezQtDoubleSpinBox(QWidget* pParent, bool bIntMode) : QDoubleSpinBox(pParent)
+inline ezQtDoubleSpinBox::ezQtDoubleSpinBox(QWidget* pParent, bool bIntMode)
+    : QDoubleSpinBox(pParent)
 {
   m_fDefaultValue = 0.0;
   m_fDisplayedValue = ezMath::BasicType<float>::GetNaN();
@@ -171,7 +173,7 @@ double ezQtDoubleSpinBox::value() const
   return m_bIntMode ? ezMath::Round(QDoubleSpinBox::value()) : QDoubleSpinBox::value();
 }
 
-void ezQtDoubleSpinBox::focusInEvent(QFocusEvent *event)
+void ezQtDoubleSpinBox::focusInEvent(QFocusEvent* event)
 {
   if (!m_sSuffix.isEmpty())
   {
@@ -188,7 +190,7 @@ void ezQtDoubleSpinBox::focusInEvent(QFocusEvent *event)
   QDoubleSpinBox::focusInEvent(event);
 }
 
-void ezQtDoubleSpinBox::focusOutEvent(QFocusEvent *event)
+void ezQtDoubleSpinBox::focusOutEvent(QFocusEvent* event)
 {
   QDoubleSpinBox::focusOutEvent(event);
 }

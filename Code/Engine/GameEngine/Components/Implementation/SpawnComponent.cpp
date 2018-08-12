@@ -1,11 +1,13 @@
 #include <PCH.h>
-#include <GameEngine/Components/SpawnComponent.h>
+
+#include <Core/Messages/TriggerMessage.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <Core/Messages/TriggerMessage.h>
+#include <GameEngine/Components/SpawnComponent.h>
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTriggerSpawnComponent);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTriggerSpawnComponent, 1, ezRTTIDefaultAllocator<ezMsgTriggerSpawnComponent>)
 {
@@ -38,7 +40,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 2, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("Deviation", m_MaxDeviation)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::Degree(179.0))),
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::YellowGreen),
@@ -46,7 +48,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 2, ezComponentMode::Static)
     new ezConeAngleManipulatorAttribute("Deviation", 0.5f),
   }
   EZ_END_ATTRIBUTES;
-    EZ_BEGIN_MESSAGEHANDLERS
+  EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
     EZ_MESSAGE_HANDLER(ezMsgTriggerSpawnComponent, OnSpawn),
@@ -54,10 +56,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 2, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezSpawnComponent::ezSpawnComponent()
-{
-}
+ezSpawnComponent::ezSpawnComponent() {}
 
 void ezSpawnComponent::OnSimulationStarted()
 {
@@ -82,8 +83,10 @@ bool ezSpawnComponent::SpawnOnce()
       const ezVec3 vTiltAxis = ezVec3(0, 1, 0);
       const ezVec3 vTurnAxis = ezVec3(1, 0, 0);
 
-      const ezAngle tiltAngle = ezAngle::Radian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, (double)m_MaxDeviation.GetRadian()));
-      const ezAngle turnAngle = ezAngle::Radian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::BasicType<double>::Pi() * 2.0));
+      const ezAngle tiltAngle =
+          ezAngle::Radian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, (double)m_MaxDeviation.GetRadian()));
+      const ezAngle turnAngle =
+          ezAngle::Radian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::BasicType<double>::Pi() * 2.0));
 
       ezQuat qTilt, qTurn, qDeviate;
       qTilt.SetFromAxisAndAngle(vTiltAxis, tiltAngle);
@@ -131,7 +134,8 @@ void ezSpawnComponent::ScheduleSpawn()
 
   ezWorld* pWorld = GetWorld();
 
-  const ezTime tKill = ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleInRange(m_MinDelay.GetSeconds(), m_DelayRange.GetSeconds()));
+  const ezTime tKill =
+      ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleInRange(m_MinDelay.GetSeconds(), m_DelayRange.GetSeconds()));
 
   PostMessage(msg, ezObjectMsgQueueType::NextFrame, tKill);
 }
@@ -153,7 +157,7 @@ void ezSpawnComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezSpawnComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = stream.GetStream();
 
@@ -238,9 +242,9 @@ void ezSpawnComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
   }
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 
@@ -248,7 +252,9 @@ class ezSpawnComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezSpawnComponentPatch_1_2()
-    : ezGraphPatch("ezSpawnComponent", 2) {}
+      : ezGraphPatch("ezSpawnComponent", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -265,4 +271,3 @@ ezSpawnComponentPatch_1_2 g_ezSpawnComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_SpawnComponent);
-

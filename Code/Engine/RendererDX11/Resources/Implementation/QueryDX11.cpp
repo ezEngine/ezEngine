@@ -1,18 +1,17 @@
-﻿
 #include <PCH.h>
-#include <RendererDX11/Resources/QueryDX11.h>
+
 #include <RendererDX11/Device/DeviceDX11.h>
+#include <RendererDX11/Resources/QueryDX11.h>
 
 #include <d3d11.h>
 
 ezGALQueryDX11::ezGALQueryDX11(const ezGALQueryCreationDescription& Description)
-  : ezGALQuery(Description), m_pDXQuery(nullptr)
+    : ezGALQuery(Description)
+    , m_pDXQuery(nullptr)
 {
 }
 
-ezGALQueryDX11::~ezGALQueryDX11()
-{
-}
+ezGALQueryDX11::~ezGALQueryDX11() {}
 
 void ezGALQueryDX11::SetDebugName(const char* szName) const
 {
@@ -36,17 +35,17 @@ ezResult ezGALQueryDX11::InitPlatform(ezGALDevice* pDevice)
 
   switch (m_Description.m_type)
   {
-  case ezGALQueryType::NumSamplesPassed:
-    desc.Query = D3D11_QUERY_OCCLUSION;
-    break;
-  case ezGALQueryType::AnySamplesPassed:
-    desc.Query = D3D11_QUERY_OCCLUSION_PREDICATE;
-    break;
-  case ezGALQueryType::Timestamp:
-    desc.Query = D3D11_QUERY_TIMESTAMP;
-    break;
-  default:
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    case ezGALQueryType::NumSamplesPassed:
+      desc.Query = D3D11_QUERY_OCCLUSION;
+      break;
+    case ezGALQueryType::AnySamplesPassed:
+      desc.Query = D3D11_QUERY_OCCLUSION_PREDICATE;
+      break;
+    case ezGALQueryType::Timestamp:
+      desc.Query = D3D11_QUERY_TIMESTAMP;
+      break;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
   if (SUCCEEDED(pDXDevice->GetDXDevice()->CreateQuery(&desc, &m_pDXQuery)))

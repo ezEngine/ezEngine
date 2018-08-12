@@ -1,9 +1,9 @@
 #include <PCH.h>
+
 #include <GameEngine/GameState/GameStateWindow.h>
 
-
 ezGameStateWindow::ezGameStateWindow(const ezWindowCreationDesc& windowdesc, ezDelegate<void()> onClickClose)
-  : m_OnClickClose(onClickClose)
+    : m_OnClickClose(onClickClose)
 {
   m_CreationDescription = windowdesc;
   m_CreationDescription.AdjustWindowSizeAndPosition();
@@ -35,4 +35,3 @@ void ezGameStateWindow::OnResize(const ezSizeU32& newWindowSize)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameState_Implementation_GameStateWindow);
-

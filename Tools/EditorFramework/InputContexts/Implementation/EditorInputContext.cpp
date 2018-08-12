@@ -1,11 +1,12 @@
 #include <PCH.h>
-#include <EditorFramework/InputContexts/EditorInputContext.h>
-#include <QKeyEvent>
-#include <QCursor>
-#include <QApplication>
-#include <QDesktopWidget>
-#include <Foundation/Logging/Log.h>
+
 #include "DocumentWindow/EngineViewWidget.moc.h"
+#include <EditorFramework/InputContexts/EditorInputContext.h>
+#include <Foundation/Logging/Log.h>
+#include <QApplication>
+#include <QCursor>
+#include <QDesktopWidget>
+#include <QKeyEvent>
 
 ezEditorInputContext* ezEditorInputContext::s_pActiveInputContext = nullptr;
 
@@ -175,7 +176,7 @@ ezVec2I32 ezEditorInputContext::UpdateMouseMode(QMouseEvent* e)
   if (curPos.x < (ezInt32)m_MouseWrapRect.Left())
     newPos.x = m_MouseWrapRect.Right() - (m_MouseWrapRect.Left() - curPos.x);
 
-  if (curPos.y >(ezInt32)m_MouseWrapRect.Bottom())
+  if (curPos.y > (ezInt32)m_MouseWrapRect.Bottom())
     newPos.y = m_MouseWrapRect.Top() + (curPos.y - m_MouseWrapRect.Bottom());
 
   if (curPos.y < (ezInt32)m_MouseWrapRect.Top())

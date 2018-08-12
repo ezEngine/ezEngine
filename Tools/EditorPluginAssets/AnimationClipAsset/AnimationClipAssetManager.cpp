@@ -1,9 +1,10 @@
 #include <PCH.h>
-#include <EditorPluginAssets/AnimationClipAsset/AnimationClipAssetManager.h>
-#include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
-#include <EditorPluginAssets/AnimationClipAsset/AnimationClipAssetWindow.moc.h>
+
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
+#include <EditorPluginAssets/AnimationClipAsset/AnimationClipAssetManager.h>
+#include <EditorPluginAssets/AnimationClipAsset/AnimationClipAssetWindow.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezAnimationClipAssetDocumentManager>);
@@ -29,7 +30,8 @@ ezAnimationClipAssetDocumentManager::~ezAnimationClipAssetDocumentManager()
 }
 
 
-ezBitflags<ezAssetDocumentFlags> ezAnimationClipAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
+ezBitflags<ezAssetDocumentFlags>
+ezAnimationClipAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
 {
   EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
   return ezAssetDocumentFlags::None;
@@ -39,28 +41,28 @@ void ezAnimationClipAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
 {
   switch (e.m_Type)
   {
-  case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case ezDocumentManager::Event::Type::DocumentWindowRequested:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezAnimationClipAssetDocument>())
       {
-        ezQtAnimationClipAssetDocumentWindow* pDocWnd = new ezQtAnimationClipAssetDocumentWindow(static_cast<ezAnimationClipAssetDocument*>(e.m_pDocument));
+        ezQtAnimationClipAssetDocumentWindow* pDocWnd =
+            new ezQtAnimationClipAssetDocumentWindow(static_cast<ezAnimationClipAssetDocument*>(e.m_pDocument));
       }
     }
     break;
   }
 }
 
-ezStatus ezAnimationClipAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)
+ezStatus ezAnimationClipAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
+                                                                     ezDocument*& out_pDocument)
 {
   out_pDocument = new ezAnimationClipAssetDocument(szPath);
 
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezAnimationClipAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezAnimationClipAssetDocumentManager::InternalGetSupportedDocumentTypes(
+    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
-
-
-

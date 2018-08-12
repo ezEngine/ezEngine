@@ -1,11 +1,12 @@
 #include <PCH.h>
+
 #include <GuiFoundation/NodeEditor/Connection.h>
 #include <QApplication>
 #include <QPalette>
 
 ezQtConnection::ezQtConnection(QGraphicsItem* parent)
-  : QGraphicsPathItem(parent)
-  , m_pConnection(nullptr)
+    : QGraphicsPathItem(parent)
+    , m_pConnection(nullptr)
 {
   auto palette = QApplication::palette();
 
@@ -18,9 +19,7 @@ ezQtConnection::ezQtConnection(QGraphicsItem* parent)
   setZValue(-1);
 }
 
-ezQtConnection::~ezQtConnection()
-{
-}
+ezQtConnection::~ezQtConnection() {}
 
 void ezQtConnection::SetPosIn(const QPointF& point)
 {
@@ -37,7 +36,7 @@ void ezQtConnection::SetPosOut(const QPointF& point)
 void ezQtConnection::SetDirIn(const QPointF& dir)
 {
   m_InDir = dir;
-  //m_InDir
+  // m_InDir
   UpdateConnection();
 }
 

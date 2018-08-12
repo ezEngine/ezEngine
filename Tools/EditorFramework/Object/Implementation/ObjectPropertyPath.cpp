@@ -1,11 +1,13 @@
 #include <PCH.h>
-#include <EditorFramework/Object/ObjectPropertyPath.h>
+
 #include <Core/World/GameObject.h>
-#include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <EditorFramework/Object/ObjectPropertyPath.h>
 #include <ToolsFoundation/Object/DocumentObjectVisitor.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezStatus ezObjectPropertyPath::CreatePath(const ezObjectPropertyPathContext& context, const ezPropertyReference& prop,
-  ezStringBuilder& sObjectSearchSequence, ezStringBuilder& sComponentType, ezStringBuilder& sPropertyPath)
+                                          ezStringBuilder& sObjectSearchSequence, ezStringBuilder& sComponentType,
+                                          ezStringBuilder& sPropertyPath)
 {
   EZ_ASSERT_DEV(context.m_pAccessor && context.m_pContextObject && !context.m_sRootProperty.IsEmpty(), "All context fields must be valid.");
   const ezRTTI* pObjType = ezGetStaticRTTI<ezGameObject>();
@@ -64,7 +66,8 @@ ezStatus ezObjectPropertyPath::CreatePath(const ezObjectPropertyPathContext& con
       sObjectSearchSequence.Clear();
       sComponentType.Clear();
       sPropertyPath.Clear();
-      return ezStatus(ezFmt("Only ezGameObject objects should be found in the hierarchy, found '{0}' instead.", pObject->GetType()->GetTypeName()));
+      return ezStatus(
+          ezFmt("Only ezGameObject objects should be found in the hierarchy, found '{0}' instead.", pObject->GetType()->GetTypeName()));
     }
 
     pObject = pObject->GetParent();
@@ -72,7 +75,8 @@ ezStatus ezObjectPropertyPath::CreatePath(const ezObjectPropertyPathContext& con
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezObjectPropertyPath::CreatePropertyPath(const ezObjectPropertyPathContext& context, const ezPropertyReference& prop, ezStringBuilder& out_sPropertyPath)
+ezStatus ezObjectPropertyPath::CreatePropertyPath(const ezObjectPropertyPathContext& context, const ezPropertyReference& prop,
+                                                  ezStringBuilder& out_sPropertyPath)
 {
   EZ_ASSERT_DEV(context.m_pAccessor && context.m_pContextObject && !context.m_sRootProperty.IsEmpty(), "All context fields must be valid.");
   const ezDocumentObject* pObject = context.m_pAccessor->GetObjectManager()->GetObject(prop.m_Object);
@@ -96,7 +100,7 @@ ezStatus ezObjectPropertyPath::CreatePropertyPath(const ezObjectPropertyPathCont
 }
 
 ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& context, ezHybridArray<ezPropertyReference, 1>& keys,
-  const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath)
+                                           const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath)
 {
   EZ_ASSERT_DEV(context.m_pAccessor && context.m_pContextObject && !context.m_sRootProperty.IsEmpty(), "All context fields must be valid.");
   keys.Clear();
@@ -114,8 +118,7 @@ ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& co
   {
     for (const ezDocumentObject* pObj : input)
     {
-      visitor.Visit(pContext, false, [&output, &sName](const ezDocumentObject* pObject) -> bool
-      {
+      visitor.Visit(pContext, false, [&output, &sName](const ezDocumentObject* pObject) -> bool {
         const auto& sObjectName = pObject->GetTypeAccessor().GetValue("Name").Get<ezString>();
         if (sObjectName == sName)
         {
@@ -174,7 +177,8 @@ ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& co
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezObjectPropertyPath::ResolvePropertyPath(const ezObjectPropertyPathContext& context, const char* szPropertyPath, ezPropertyReference& out_key)
+ezStatus ezObjectPropertyPath::ResolvePropertyPath(const ezObjectPropertyPathContext& context, const char* szPropertyPath,
+                                                   ezPropertyReference& out_key)
 {
   EZ_ASSERT_DEV(context.m_pAccessor && context.m_pContextObject && szPropertyPath != nullptr, "All context fields must be valid.");
   const ezDocumentObject* pObject = context.m_pContextObject;
@@ -228,34 +232,37 @@ ezStatus ezObjectPropertyPath::ResolvePropertyPath(const ezObjectPropertyPathCon
       }
       else
       {
-        return ezStatus(ezFmt("Property '{0}' of type '{1}' is not an object and can't be traversed further.", pProperty->GetPropertyName(), pProperty->GetSpecificType()->GetTypeName()));
+        return ezStatus(ezFmt("Property '{0}' of type '{1}' is not an object and can't be traversed further.", pProperty->GetPropertyName(),
+                              pProperty->GetSpecificType()->GetTypeName()));
       }
     }
   }
   return ezStatus(EZ_FAILURE);
 }
 
-ezStatus ezObjectPropertyPath::PrependProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index, ezStringBuilder& out_sPropertyPath)
+ezStatus ezObjectPropertyPath::PrependProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index,
+                                               ezStringBuilder& out_sPropertyPath)
 {
   switch (pProperty->GetCategory())
   {
-  case ezPropertyCategory::Enum::Member:
+    case ezPropertyCategory::Enum::Member:
     {
       if (!out_sPropertyPath.IsEmpty())
         out_sPropertyPath.Prepend("/");
       out_sPropertyPath.Prepend(pProperty->GetPropertyName());
       return ezStatus(EZ_SUCCESS);
     }
-  case ezPropertyCategory::Enum::Array:
-  case ezPropertyCategory::Enum::Map:
+    case ezPropertyCategory::Enum::Array:
+    case ezPropertyCategory::Enum::Map:
     {
       if (!out_sPropertyPath.IsEmpty())
         out_sPropertyPath.Prepend("/");
       out_sPropertyPath.PrependFormat("{0}[{1}]", pProperty->GetPropertyName(), index);
       return ezStatus(EZ_SUCCESS);
     }
-  default:
-    return ezStatus(ezFmt("The property '{0}' of category '{1}' which is not supported in property paths", pProperty->GetPropertyName(), pProperty->GetCategory()));
+    default:
+      return ezStatus(ezFmt("The property '{0}' of category '{1}' which is not supported in property paths", pProperty->GetPropertyName(),
+                            pProperty->GetCategory()));
   }
 }
 
@@ -278,4 +285,3 @@ const ezDocumentObject* ezObjectPropertyPath::FindParentNodeComponent(const ezDo
   }
   return nullptr;
 }
-

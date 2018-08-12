@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 
 #include <ModelImporter/Importers/PbrtImporter_ParsingFunctions.h>
 
@@ -35,8 +35,8 @@ namespace ezModelImporter
       SkipWhiteSpaces(remainingSceneText);
 
       const char* begin = remainingSceneText.GetData();
-      while (remainingSceneText.GetCharacter() != '\0' && remainingSceneText.GetCharacter() != '\r' && remainingSceneText.GetCharacter() != '\n' &&
-        !ezStringUtils::IsWhiteSpace(remainingSceneText.GetCharacter()))
+      while (remainingSceneText.GetCharacter() != '\0' && remainingSceneText.GetCharacter() != '\r' &&
+             remainingSceneText.GetCharacter() != '\n' && !ezStringUtils::IsWhiteSpace(remainingSceneText.GetCharacter()))
       {
         ++remainingSceneText;
       }
@@ -88,8 +88,8 @@ namespace ezModelImporter
       else if (ezStringUtils::IsEqualN_NoCase(type.GetData(), "integer", stringLen, type.GetEndPosition()))
         return ParamType::INT;
       else if (ezStringUtils::IsEqualN_NoCase(type.GetData(), "point", stringLen, type.GetEndPosition()) ||
-        ezStringUtils::IsEqualN_NoCase(type.GetData(), "normal", stringLen, type.GetEndPosition()) ||
-        ezStringUtils::IsEqualN_NoCase(type.GetData(), "vector", stringLen, type.GetEndPosition()))
+               ezStringUtils::IsEqualN_NoCase(type.GetData(), "normal", stringLen, type.GetEndPosition()) ||
+               ezStringUtils::IsEqualN_NoCase(type.GetData(), "vector", stringLen, type.GetEndPosition()))
         return ParamType::VECTOR3;
       else if (ezStringUtils::IsEqualN_NoCase(type.GetData(), "rgb", stringLen, type.GetEndPosition()) ||
                ezStringUtils::IsEqualN_NoCase(type.GetData(), "color", stringLen, type.GetEndPosition()))
@@ -105,8 +105,8 @@ namespace ezModelImporter
       double x, y, z;
       const char* newStartPos;
       if (ezConversionUtils::StringToFloat(params.GetData(), x, &newStartPos).Failed() ||
-        ezConversionUtils::StringToFloat(newStartPos, y, &newStartPos).Failed() ||
-        ezConversionUtils::StringToFloat(newStartPos, z, &newStartPos).Failed())
+          ezConversionUtils::StringToFloat(newStartPos, y, &newStartPos).Failed() ||
+          ezConversionUtils::StringToFloat(newStartPos, z, &newStartPos).Failed())
         return EZ_FAILURE;
       else
       {
@@ -185,70 +185,70 @@ namespace ezModelImporter
       {
         switch (type)
         {
-        case ParamType::FLOAT:
-        {
-          double d = 0;
-          const char* newStartPos = params.GetData();
-          if (ezConversionUtils::StringToFloat(params.GetData(), d, &newStartPos).Failed())
-            stopParsing = true;
-          else
-            entries.PushBack(static_cast<float>(d));
-          params.SetStartPosition(newStartPos);
-          break;
-        }
-        case ParamType::INT:
-        {
-          ezInt32 i = 0;
-          const char* newStartPos = params.GetData();
-          if (ezConversionUtils::StringToInt(params.GetData(), i, &newStartPos).Failed())
-            stopParsing = true;
-          else
-            entries.PushBack(i);
-          params.SetStartPosition(newStartPos);
-          break;
-        }
+          case ParamType::FLOAT:
+          {
+            double d = 0;
+            const char* newStartPos = params.GetData();
+            if (ezConversionUtils::StringToFloat(params.GetData(), d, &newStartPos).Failed())
+              stopParsing = true;
+            else
+              entries.PushBack(static_cast<float>(d));
+            params.SetStartPosition(newStartPos);
+            break;
+          }
+          case ParamType::INT:
+          {
+            ezInt32 i = 0;
+            const char* newStartPos = params.GetData();
+            if (ezConversionUtils::StringToInt(params.GetData(), i, &newStartPos).Failed())
+              stopParsing = true;
+            else
+              entries.PushBack(i);
+            params.SetStartPosition(newStartPos);
+            break;
+          }
 
-        case ParamType::STRING:
-        case ParamType::TEXTURE:
-        case ParamType::SPECTRUM:
-        {
-          ezString actualString(params);
-          entries.PushBack(actualString);
-          stopParsing = true;
-          break;
-        }
-
-        case ParamType::VECTOR3:
-        {
-          ezVec3 vec;
-          if (ParseVec3(params, vec).Failed())
+          case ParamType::STRING:
+          case ParamType::TEXTURE:
+          case ParamType::SPECTRUM:
+          {
+            ezString actualString(params);
+            entries.PushBack(actualString);
             stopParsing = true;
-          else
-            entries.PushBack(vec);
-          break;
-        }
-        case ParamType::COLOR:
-        {
-          ezVec3 vec;
-          if (ParseVec3(params, vec).Failed())
-            stopParsing = true;
-          else
-            entries.PushBack(ezColor(vec.x, vec.y, vec.z));
-          break;
-        }
-        case ParamType::BOOL:
-        {
-          if (params.IsEqual_NoCase("\"true\""))
-            entries.PushBack(true);
-          else
-            entries.PushBack(false);
-          const char* next = params.FindSubString(" ");
-          params.SetStartPosition(next ? next : params.GetEndPosition());
-          break;
-        }
+            break;
+          }
 
-        default:
-          return Parameter::DataArray();
+          case ParamType::VECTOR3:
+          {
+            ezVec3 vec;
+            if (ParseVec3(params, vec).Failed())
+              stopParsing = true;
+            else
+              entries.PushBack(vec);
+            break;
+          }
+          case ParamType::COLOR:
+          {
+            ezVec3 vec;
+            if (ParseVec3(params, vec).Failed())
+              stopParsing = true;
+            else
+              entries.PushBack(ezColor(vec.x, vec.y, vec.z));
+            break;
+          }
+          case ParamType::BOOL:
+          {
+            if (params.IsEqual_NoCase("\"true\""))
+              entries.PushBack(true);
+            else
+              entries.PushBack(false);
+            const char* next = params.FindSubString(" ");
+            params.SetStartPosition(next ? next : params.GetEndPosition());
+            break;
+          }
+
+          default:
+            return Parameter::DataArray();
         }
 
         SkipWhiteSpaces(params);

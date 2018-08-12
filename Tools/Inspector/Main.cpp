@@ -1,27 +1,27 @@
 #include <PCH.h>
+
 #include <Core/Application/Application.h>
 #include <Foundation/Communication/Telemetry.h>
-#include <Inspector/MainWindow.moc.h>
-#include <Inspector/LogDockWidget.moc.h>
-#include <Inspector/MemoryWidget.moc.h>
-#include <Inspector/TimeWidget.moc.h>
-#include <Inspector/InputWidget.moc.h>
 #include <Inspector/CVarsWidget.moc.h>
-#include <Inspector/ReflectionWidget.moc.h>
-#include <Inspector/SubsystemsWidget.moc.h>
-#include <Inspector/FileWidget.moc.h>
-#include <Inspector/PluginsWidget.moc.h>
-#include <Inspector/GlobalEventsWidget.moc.h>
 #include <Inspector/DataTransferWidget.moc.h>
+#include <Inspector/FileWidget.moc.h>
+#include <Inspector/GlobalEventsWidget.moc.h>
+#include <Inspector/InputWidget.moc.h>
+#include <Inspector/LogDockWidget.moc.h>
+#include <Inspector/MainWindow.moc.h>
+#include <Inspector/MemoryWidget.moc.h>
+#include <Inspector/PluginsWidget.moc.h>
+#include <Inspector/ReflectionWidget.moc.h>
 #include <Inspector/ResourceWidget.moc.h>
+#include <Inspector/SubsystemsWidget.moc.h>
+#include <Inspector/TimeWidget.moc.h>
 #include <QApplication>
-#include <qstylefactory.h>
 #include <QSettings>
+#include <qstylefactory.h>
 
 class ezInspectorApp : public ezApplication
 {
 public:
-
   void SetStyleSheet()
   {
     QApplication::setStyle(QStyleFactory::create("fusion"));
@@ -70,7 +70,7 @@ public:
   virtual ApplicationExecution Run() override
   {
     int iArgs = GetArgumentCount();
-    char** cArgs = (char**) GetArgumentsArray();
+    char** cArgs = (char**)GetArgumentsArray();
 
     QApplication app(iArgs, cArgs);
     QCoreApplication::setOrganizationDomain("www.ezengine.net");
@@ -114,4 +114,3 @@ public:
 };
 
 EZ_APPLICATION_ENTRY_POINT(ezInspectorApp);
-

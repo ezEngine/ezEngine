@@ -1,10 +1,12 @@
 #include <PCH.h>
+
+#include <Core/Messages/UpdateLocalBoundsMessage.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Components/FogComponent.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <Core/Messages/UpdateLocalBoundsMessage.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFogRenderData, 1, ezRTTIDefaultAllocator<ezFogRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -30,18 +32,16 @@ EZ_BEGIN_COMPONENT_TYPE(ezFogComponent, 1, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
 ezFogComponent::ezFogComponent()
-  : m_Color(ezColor(0.2f, 0.2f, 0.3f))
-  , m_fDensity(1.0f)
-  , m_fHeightFalloff(10.0f)
+    : m_Color(ezColor(0.2f, 0.2f, 0.3f))
+    , m_fDensity(1.0f)
+    , m_fHeightFalloff(10.0f)
 {
 }
 
-ezFogComponent::~ezFogComponent()
-{
-
-}
+ezFogComponent::~ezFogComponent() {}
 
 void ezFogComponent::Deinitialize()
 {
@@ -130,7 +130,7 @@ void ezFogComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezFogComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
   s >> m_Color;
@@ -140,6 +140,4 @@ void ezFogComponent::DeserializeComponent(ezWorldReader& stream)
 
 
 
-
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_FogComponent);
-

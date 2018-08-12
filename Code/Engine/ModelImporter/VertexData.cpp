@@ -1,11 +1,12 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <ModelImporter/VertexData.h>
 
 namespace ezModelImporter
 {
   VertexDataStream::VertexDataStream(ezUInt32 uiNumElementsPerVertex, ezUInt32 uiNumTriangles, VertexElementType elementType)
-    : m_uiNumElementsPerVertex(uiNumElementsPerVertex)
-    , m_ElementType(elementType)
+      : m_uiNumElementsPerVertex(uiNumElementsPerVertex)
+      , m_ElementType(elementType)
   {
     m_IndexToData.SetCount(uiNumTriangles * 3);
   }

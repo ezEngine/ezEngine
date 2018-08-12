@@ -1,15 +1,18 @@
 #include <PCH.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/RttiConverter.h>
-#include <ToolsFoundation/CommandHistory/CommandHistory.h>
 #include <ToolsFoundation/Command/NodeCommands.h>
+#include <ToolsFoundation/CommandHistory/CommandHistory.h>
+#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConnection, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPin, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ////////////////////////////////////////////////////////////////////////
 // ezDocumentNodeManager Internal
@@ -19,7 +22,11 @@ struct ConnectionInternal
 {
   ConnectionInternal() {}
   ConnectionInternal(const char* szPinSource, const ezUuid& target, const char* szPinTarget)
-  : m_SourcePin(szPinSource), m_Target(target), m_TargetPin(szPinTarget) {}
+      : m_SourcePin(szPinSource)
+      , m_Target(target)
+      , m_TargetPin(szPinTarget)
+  {
+  }
 
   ezString m_SourcePin;
   ezUuid m_Target;
@@ -27,6 +34,7 @@ struct ConnectionInternal
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ConnectionInternal);
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ConnectionInternal, ezNoBase, 1, ezRTTIDefaultAllocator<ConnectionInternal>)
 {
   EZ_BEGIN_PROPERTIES
@@ -38,6 +46,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ConnectionInternal, ezNoBase, 1, ezRTTIDefaultAll
   EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
 
 struct NodeDataInternal
 {
@@ -46,6 +55,7 @@ struct NodeDataInternal
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, NodeDataInternal);
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(NodeDataInternal, ezNoBase, 1, ezRTTIDefaultAllocator<NodeDataInternal>)
 {
   EZ_BEGIN_PROPERTIES
@@ -56,6 +66,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(NodeDataInternal, ezNoBase, 1, ezRTTIDefaultAlloc
   EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
 
 ////////////////////////////////////////////////////////////////////////
 // ezDocumentNodeManager
@@ -73,7 +84,6 @@ ezDocumentNodeManager::~ezDocumentNodeManager()
   m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezDocumentNodeManager::StructureEventHandler, this));
 
   EZ_ASSERT_DEV(m_PinsToConnection.IsEmpty(), "Not all pins have been destroyed!");
-
 }
 
 void ezDocumentNodeManager::DestroyAllObjects()
@@ -298,7 +308,6 @@ void ezDocumentNodeManager::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& gr
       rttiConverter.AddProperties(pNode, pType, &data);
     }
   }
-
 }
 
 void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
@@ -375,7 +384,8 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
 }
 
 
-bool ezDocumentNodeManager::CanReachNode(const ezDocumentObject* pSource, const ezDocumentObject* pTarget, ezSet<const ezDocumentObject*>& Visited) const
+bool ezDocumentNodeManager::CanReachNode(const ezDocumentObject* pSource, const ezDocumentObject* pTarget,
+                                         ezSet<const ezDocumentObject*>& Visited) const
 {
   if (pSource == pTarget)
     return true;
@@ -417,7 +427,7 @@ void ezDocumentNodeManager::ObjectHandler(const ezDocumentObjectEvent& e)
 {
   switch (e.m_EventType)
   {
-  case ezDocumentObjectEvent::Type::AfterObjectCreated:
+    case ezDocumentObjectEvent::Type::AfterObjectCreated:
     {
       if (IsNode(e.m_pObject))
       {
@@ -428,7 +438,7 @@ void ezDocumentNodeManager::ObjectHandler(const ezDocumentObjectEvent& e)
       }
     }
     break;
-  case ezDocumentObjectEvent::Type::BeforeObjectDestroyed:
+    case ezDocumentObjectEvent::Type::BeforeObjectDestroyed:
     {
       if (IsNode(e.m_pObject))
       {
@@ -447,7 +457,7 @@ void ezDocumentNodeManager::StructureEventHandler(const ezDocumentObjectStructur
 {
   switch (e.m_EventType)
   {
-  case ezDocumentObjectStructureEvent::Type::BeforeObjectAdded:
+    case ezDocumentObjectStructureEvent::Type::BeforeObjectAdded:
     {
       if (IsNode(e.m_pObject))
       {
@@ -456,7 +466,7 @@ void ezDocumentNodeManager::StructureEventHandler(const ezDocumentObjectStructur
       }
     }
     break;
-  case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
+    case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
     {
       if (IsNode(e.m_pObject))
       {
@@ -465,7 +475,7 @@ void ezDocumentNodeManager::StructureEventHandler(const ezDocumentObjectStructur
       }
     }
     break;
-  case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
+    case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
     {
       if (IsNode(e.m_pObject))
       {
@@ -474,7 +484,7 @@ void ezDocumentNodeManager::StructureEventHandler(const ezDocumentObjectStructur
       }
     }
     break;
-  case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+    case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
     {
       if (IsNode(e.m_pObject))
       {
@@ -484,7 +494,7 @@ void ezDocumentNodeManager::StructureEventHandler(const ezDocumentObjectStructur
     }
     break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }

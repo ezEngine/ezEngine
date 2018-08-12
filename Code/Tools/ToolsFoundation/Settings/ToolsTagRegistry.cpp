@@ -1,12 +1,13 @@
-﻿#include <PCH.h>
-#include <ToolsFoundation/Settings/ToolsTagRegistry.h>
+#include <PCH.h>
+
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Configuration/Startup.h>
-#include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
+#include <Foundation/IO/OpenDdlWriter.h>
+#include <Foundation/Logging/Log.h>
+#include <ToolsFoundation/Settings/ToolsTagRegistry.h>
 
 struct TagComparer
 {
@@ -15,7 +16,8 @@ struct TagComparer
     if (a->m_sCategory != b->m_sCategory)
       return a->m_sCategory < b->m_sCategory;
 
-    return a->m_sName < b->m_sName;;
+    return a->m_sName < b->m_sName;
+    ;
   }
 };
 ////////////////////////////////////////////////////////////////////////
@@ -26,7 +28,7 @@ ezMap<ezString, ezToolsTag> ezToolsTagRegistry::m_NameToTags;
 
 void ezToolsTagRegistry::Clear()
 {
-  for (auto it = m_NameToTags.GetIterator(); it.IsValid(); )
+  for (auto it = m_NameToTags.GetIterator(); it.IsValid();)
   {
     if (!it.Value().m_bBuiltInTag)
     {

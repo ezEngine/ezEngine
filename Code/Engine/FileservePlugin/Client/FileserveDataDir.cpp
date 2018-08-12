@@ -1,8 +1,9 @@
 #include <PCH.h>
+
 #include <FileservePlugin/Client/FileserveDataDir.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Communication/RemoteInterfaceEnet.h>
 #include <Foundation/Algorithm/Hashing.h>
+#include <Foundation/Communication/RemoteInterfaceEnet.h>
+#include <Foundation/Logging/Log.h>
 
 void ezDataDirectory::FileserveType::ReloadExternalConfigs()
 {
@@ -94,13 +95,14 @@ ezResult ezDataDirectory::FileserveType::GetFileStats(const char* szFileOrFolder
 bool ezDataDirectory::FileserveType::ExistsFile(const char* szFile, bool bOneSpecificDataDir)
 {
   /// \todo Not sure whether this needs to be done here
-  //ezStringBuilder sRedirectedAsset;
-  //ResolveAssetRedirection(szFile, sRedirectedAsset);
+  // ezStringBuilder sRedirectedAsset;
+  // ResolveAssetRedirection(szFile, sRedirectedAsset);
 
   return ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, szFile, bOneSpecificDataDir).Succeeded();
 }
 
-ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage)
+ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName,
+                                                             ezFileSystem::DataDirUsage Usage)
 {
   if (!ezFileserveClient::s_bEnableFileserve || ezFileserveClient::GetSingleton() == nullptr)
     return nullptr; // this would only happen if the functionality is switched off, but not before the factory was added
@@ -159,4 +161,3 @@ void ezDataDirectory::FileserveType::FinishedWriting(FolderWriter* pWriter)
 
 
 EZ_STATICLINK_FILE(FileservePlugin, FileservePlugin_Client_FileserveDataDir);
-

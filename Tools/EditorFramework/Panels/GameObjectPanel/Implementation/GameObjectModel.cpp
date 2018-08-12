@@ -1,32 +1,36 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <Core/World/GameObject.h>
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorFramework/Panels/GameObjectPanel/GameObjectModel.moc.h>
 #include <Foundation/Reflection/Implementation/StaticRTTI.h>
-#include <Core/World/GameObject.h>
-#include <ToolsFoundation/Document/Document.h>
-#include <EditorFramework/Document/GameObjectDocument.h>
-#include <EditorFramework/Assets/AssetCurator.h>
 #include <Foundation/Strings/TranslationLookup.h>
+#include <ToolsFoundation/Document/Document.h>
 
 ezQtGameObjectAdapter::ezQtGameObjectAdapter(ezGameObjectDocument* pDocument)
-  : ezQtNameableAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezGameObject>(), "Children", "Name")
+    : ezQtNameableAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezGameObject>(), "Children", "Name")
 {
   m_pGameObjectDocument = pDocument;
-  m_pGameObjectDocument->m_GameObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezQtGameObjectAdapter::GameObjectMetaDataEventHandler, this));
-  m_pGameObjectDocument->m_DocumentObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezQtGameObjectAdapter::DocumentObjectMetaDataEventHandler, this));
-
+  m_pGameObjectDocument->m_GameObjectMetaData.m_DataModifiedEvent.AddEventHandler(
+      ezMakeDelegate(&ezQtGameObjectAdapter::GameObjectMetaDataEventHandler, this));
+  m_pGameObjectDocument->m_DocumentObjectMetaData.m_DataModifiedEvent.AddEventHandler(
+      ezMakeDelegate(&ezQtGameObjectAdapter::DocumentObjectMetaDataEventHandler, this));
 }
 
 ezQtGameObjectAdapter::~ezQtGameObjectAdapter()
 {
-  m_pGameObjectDocument->m_GameObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtGameObjectAdapter::GameObjectMetaDataEventHandler, this));
-  m_pGameObjectDocument->m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtGameObjectAdapter::DocumentObjectMetaDataEventHandler, this));
+  m_pGameObjectDocument->m_GameObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(
+      ezMakeDelegate(&ezQtGameObjectAdapter::GameObjectMetaDataEventHandler, this));
+  m_pGameObjectDocument->m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(
+      ezMakeDelegate(&ezQtGameObjectAdapter::DocumentObjectMetaDataEventHandler, this));
 }
 
 QVariant ezQtGameObjectAdapter::data(const ezDocumentObject* pObject, int column, int role) const
 {
   switch (role)
   {
-  case Qt::DisplayRole:
+    case Qt::DisplayRole:
     {
       ezStringBuilder sName;
       ezUuid prefabGuid;
@@ -43,7 +47,7 @@ QVariant ezQtGameObjectAdapter::data(const ezDocumentObject* pObject, int column
     }
     break;
 
-  case Qt::DecorationRole:
+    case Qt::DecorationRole:
     {
       auto pMeta = m_pGameObjectDocument->m_GameObjectMetaData.BeginReadMetaData(pObject->GetGuid());
       QIcon icon = pMeta->m_Icon;
@@ -53,7 +57,7 @@ QVariant ezQtGameObjectAdapter::data(const ezDocumentObject* pObject, int column
     }
     break;
 
-  case Qt::EditRole:
+    case Qt::EditRole:
     {
       ezStringBuilder sName = pObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
 
@@ -68,7 +72,7 @@ QVariant ezQtGameObjectAdapter::data(const ezDocumentObject* pObject, int column
     }
     break;
 
-  case Qt::ToolTipRole:
+    case Qt::ToolTipRole:
     {
       auto pMeta = m_pGameObjectDocument->m_DocumentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
       const ezUuid prefab = pMeta->m_CreateFromPrefab;
@@ -83,11 +87,10 @@ QVariant ezQtGameObjectAdapter::data(const ezDocumentObject* pObject, int column
 
         return QStringLiteral("Prefab asset could not be found");
       }
-
     }
     break;
 
-  case Qt::FontRole:
+    case Qt::FontRole:
     {
       auto pMeta = m_pGameObjectDocument->m_DocumentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
       const bool bHidden = pMeta->m_bHidden;
@@ -109,7 +112,7 @@ QVariant ezQtGameObjectAdapter::data(const ezDocumentObject* pObject, int column
     }
     break;
 
-  case Qt::ForegroundRole:
+    case Qt::ForegroundRole:
     {
       ezStringBuilder sName = pObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
 
@@ -127,7 +130,6 @@ QVariant ezQtGameObjectAdapter::data(const ezDocumentObject* pObject, int column
         // uses an auto generated name
         return QColor(128, 128, 128);
       }
-
     }
     break;
   }
@@ -145,7 +147,7 @@ bool ezQtGameObjectAdapter::setData(const ezDocumentObject* pObject, int column,
 
     const ezStringBuilder sOldValue = pMetaWrite->m_CachedNodeName;
 
-    //pMetaWrite->m_CachedNodeName.Clear();
+    // pMetaWrite->m_CachedNodeName.Clear();
     m_pGameObjectDocument->m_GameObjectMetaData.EndModifyMetaData(0); // no need to broadcast this change
 
     if (sOldValue == sNewValue && !sOldValue.IsEmpty())
@@ -187,7 +189,7 @@ void ezQtGameObjectAdapter::GameObjectMetaDataEventHandler(const ezObjectMetaDat
   if (e.m_uiModifiedFlags == 0)
     return;
 
-    auto pObject = m_pGameObjectDocument->GetObjectManager()->GetObject(e.m_ObjectKey);
+  auto pObject = m_pGameObjectDocument->GetObjectManager()->GetObject(e.m_ObjectKey);
 
   if (pObject == nullptr)
   {
@@ -206,10 +208,8 @@ void ezQtGameObjectAdapter::GameObjectMetaDataEventHandler(const ezObjectMetaDat
 }
 
 ezQtGameObjectModel::ezQtGameObjectModel(ezGameObjectDocument* pDocument)
-  : ezQtDocumentTreeModel(pDocument->GetObjectManager())
+    : ezQtDocumentTreeModel(pDocument->GetObjectManager())
 {
 }
 
-ezQtGameObjectModel::~ezQtGameObjectModel()
-{
-}
+ezQtGameObjectModel::~ezQtGameObjectModel() {}

@@ -1,8 +1,10 @@
 #include <PCH.h>
-#include <PhysXPlugin/Components/PxSettingsComponent.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
 
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <PhysXPlugin/Components/PxSettingsComponent.h>
+
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezPxSettingsComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -17,16 +19,14 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxSettingsComponent, 3, ezComponentMode::Static)
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezPxSettingsComponent::ezPxSettingsComponent()
-  : m_Settings()
+    : m_Settings()
 {
 }
 
-ezPxSettingsComponent::~ezPxSettingsComponent()
-{
-
-}
+ezPxSettingsComponent::~ezPxSettingsComponent() {}
 
 void ezPxSettingsComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -103,6 +103,4 @@ void ezPxSettingsComponent::SetMaxSubSteps(ezUInt32 uiMaxSubSteps)
 
 
 
-
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Components_Implementation_PxSettingsComponent);
-

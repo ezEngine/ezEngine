@@ -56,7 +56,7 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
   ezEditableSkeleton* pProp = GetProperties();
 
   const float fScale = 1.0f;
-  //ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
+  // ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
   ezMat3 mTransformation = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir, fScale);
   ezMat3 mTransformRotations = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir);
 

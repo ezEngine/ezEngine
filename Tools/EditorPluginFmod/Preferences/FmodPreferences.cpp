@@ -1,8 +1,10 @@
-﻿#include <PCH.h>
-#include <EditorPluginFmod/Preferences/FmodPreferences.h>
+#include <PCH.h>
+
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
+#include <EditorPluginFmod/Preferences/FmodPreferences.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodProjectPreferences, 1, ezRTTIDefaultAllocator<ezFmodProjectPreferences>)
 {
   EZ_BEGIN_PROPERTIES
@@ -13,9 +15,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodProjectPreferences, 1, ezRTTIDefaultAlloca
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezFmodProjectPreferences::ezFmodProjectPreferences()
-  : ezPreferences(Domain::Project, "Fmod")
+    : ezPreferences(Domain::Project, "Fmod")
 {
 }
 
@@ -53,5 +56,3 @@ void ezFmodProjectPreferences::SyncCVars()
     ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }
 }
-
-

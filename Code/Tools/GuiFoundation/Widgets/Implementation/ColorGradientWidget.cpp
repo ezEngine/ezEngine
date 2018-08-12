@@ -1,7 +1,8 @@
 #include <PCH.h>
+
+#include <Foundation/Math/Color8UNorm.h>
 #include <GuiFoundation/Widgets/ColorGradientWidget.moc.h>
 #include <QPainter>
-#include <Foundation/Math/Color8UNorm.h>
 #include <qevent.h>
 
 static const ezUInt32 CpAreaHeight = 20;
@@ -10,7 +11,7 @@ static const ezUInt32 MaxCpPickDistance = 5;
 static const ezUInt32 CpRoundedCorner = 3;
 
 ezQtColorGradientWidget::ezQtColorGradientWidget(QWidget* pParent)
-  : QWidget(pParent)
+    : QWidget(pParent)
 {
   m_pColorGradientData = nullptr;
 
@@ -57,9 +58,7 @@ ezQtColorGradientWidget::ezQtColorGradientWidget(QWidget* pParent)
 }
 
 
-ezQtColorGradientWidget::~ezQtColorGradientWidget()
-{
-}
+ezQtColorGradientWidget::~ezQtColorGradientWidget() {}
 
 void ezQtColorGradientWidget::SetScrubberPosition(double fPosition)
 {
@@ -208,7 +207,8 @@ void ezQtColorGradientWidget::PaintColorGradient(QPainter& p) const
     const ezInt32 yOnlyAlpha = yTop + GradientArea.height() / 4;
     const ezInt32 yColorDark = yOnlyAlpha + GradientArea.height() / 4;
     const ezInt32 yColorTransp = yColorDark + GradientArea.height() / 4;
-    const ezInt32 yOnlyColorHeight = GradientArea.bottom() - yColorTransp; // GradientArea.height() / 4 has rounding errors, so last segment has to fill the rest
+    const ezInt32 yOnlyColorHeight =
+        GradientArea.bottom() - yColorTransp; // GradientArea.height() / 4 has rounding errors, so last segment has to fill the rest
 
     QImage qiOnlyAlpha(width, 1, QImage::Format::Format_RGB32);
     QImage qiColorDark(width, 1, QImage::Format::Format_RGB32);
@@ -377,7 +377,8 @@ void ezQtColorGradientWidget::PaintCoordinateLines(QPainter& p)
   p.restore();
 }
 
-void ezQtColorGradientWidget::PaintControlPoint(QPainter& p, const QRect& area, double posX, const ezColorGammaUB& outlineColor, const ezColorGammaUB& fillColor, bool selected) const
+void ezQtColorGradientWidget::PaintControlPoint(QPainter& p, const QRect& area, double posX, const ezColorGammaUB& outlineColor,
+                                                const ezColorGammaUB& fillColor, bool selected) const
 {
   const ezInt32 iPosX = GradientToWindowCoord(posX);
 
@@ -408,7 +409,7 @@ void ezQtColorGradientWidget::PaintControlPoint(QPainter& p, const QRect& area, 
   else
   {
     p.drawEllipse(QPoint(iPosX, iPosY), CpRadius, CpRadius);
-    //p.drawRoundRect(QRect(iPosX - CpRadius, iPosY - CpRadius, 2 * CpRadius, 2 * CpRadius), CpRoundedCorner);
+    // p.drawRoundRect(QRect(iPosX - CpRadius, iPosY - CpRadius, 2 * CpRadius, 2 * CpRadius), CpRoundedCorner);
   }
 }
 
@@ -430,7 +431,8 @@ void ezQtColorGradientWidget::PaintColorCPs(QPainter& p) const
 
     const bool selected = (i == m_iSelectedColorCP);
 
-    PaintControlPoint(p, area, cp.m_PosX, selected ? ezColor::White : ezColor::Black, ezColorGammaUB(cp.m_GammaRed, cp.m_GammaGreen, cp.m_GammaBlue), selected);
+    PaintControlPoint(p, area, cp.m_PosX, selected ? ezColor::White : ezColor::Black,
+                      ezColorGammaUB(cp.m_GammaRed, cp.m_GammaGreen, cp.m_GammaBlue), selected);
   }
 }
 
@@ -453,7 +455,8 @@ void ezQtColorGradientWidget::PaintAlphaCPs(QPainter& p) const
 
     const bool selected = i == m_iSelectedAlphaCP;
 
-    PaintControlPoint(p, area, cp.m_PosX, selected ? ezColor::White : ezColor::Black, ezColorGammaUB(cp.m_Alpha, cp.m_Alpha, cp.m_Alpha), selected);
+    PaintControlPoint(p, area, cp.m_PosX, selected ? ezColor::White : ezColor::Black, ezColorGammaUB(cp.m_Alpha, cp.m_Alpha, cp.m_Alpha),
+                      selected);
   }
 }
 
@@ -485,7 +488,8 @@ void ezQtColorGradientWidget::PaintIntensityCPs(QPainter& p) const
     const bool selected = i == m_iSelectedIntensityCP;
 
     float fIntensity = cp.m_Intensity * fInvMaxIntensity;
-    PaintControlPoint(p, area, cp.m_PosX, selected ? ezColor::White : ezColor::Black, ezColor(fIntensity, fIntensity, fIntensity), selected);
+    PaintControlPoint(p, area, cp.m_PosX, selected ? ezColor::White : ezColor::Black, ezColor(fIntensity, fIntensity, fIntensity),
+                      selected);
   }
 }
 
@@ -961,7 +965,8 @@ bool ezQtColorGradientWidget::HoversControlPoint(const QPoint& windowPos) const
   return HoversControlPoint(windowPos, iHoverColorCp, iHoverAlphaCp, iHoverIntensityCp);
 }
 
-bool ezQtColorGradientWidget::HoversControlPoint(const QPoint& windowPos, ezInt32& iHoverColorCp, ezInt32& iHoverAlphaCp, ezInt32& iHoverIntensityCp) const
+bool ezQtColorGradientWidget::HoversControlPoint(const QPoint& windowPos, ezInt32& iHoverColorCp, ezInt32& iHoverAlphaCp,
+                                                 ezInt32& iHoverIntensityCp) const
 {
   iHoverColorCp = -1;
   iHoverAlphaCp = -1;
@@ -1083,5 +1088,3 @@ void ezQtColorGradientWidget::FrameExtents()
     m_fDisplayExtentMaxX += border;
   }
 }
-
-

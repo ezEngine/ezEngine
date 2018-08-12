@@ -1,26 +1,27 @@
-
 #include <PCH.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
+
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 ezGALRenderTagetSetup::ezGALRenderTagetSetup()
-  : m_uiMaxRTIndex( 0xFFu )
+    : m_uiMaxRTIndex(0xFFu)
 {
 }
 
 ezGALRenderTagetSetup& ezGALRenderTagetSetup::SetRenderTarget(ezUInt8 uiIndex, ezGALRenderTargetViewHandle hRenderTarget)
 {
-  EZ_ASSERT_DEV( uiIndex < EZ_GAL_MAX_RENDERTARGET_COUNT, "Render target index out of bounds - should be less than EZ_GAL_MAX_RENDERTARGET_COUNT" );
+  EZ_ASSERT_DEV(uiIndex < EZ_GAL_MAX_RENDERTARGET_COUNT,
+                "Render target index out of bounds - should be less than EZ_GAL_MAX_RENDERTARGET_COUNT");
 
   m_hRTs[uiIndex] = hRenderTarget;
 
-  if ( !HasRenderTargets() )
+  if (!HasRenderTargets())
   {
     m_uiMaxRTIndex = uiIndex;
   }
   else
   {
-    m_uiMaxRTIndex = ezMath::Max( m_uiMaxRTIndex, uiIndex );
+    m_uiMaxRTIndex = ezMath::Max(m_uiMaxRTIndex, uiIndex);
   }
 
   return *this;
@@ -33,17 +34,17 @@ ezGALRenderTagetSetup& ezGALRenderTagetSetup::SetDepthStencilTarget(ezGALRenderT
   return *this;
 }
 
-bool ezGALRenderTagetSetup::operator == (const ezGALRenderTagetSetup& Other) const
+bool ezGALRenderTagetSetup::operator==(const ezGALRenderTagetSetup& Other) const
 {
-  if ( m_hDSTarget != Other.m_hDSTarget )
-    return false;
-  
-  if ( m_uiMaxRTIndex != Other.m_uiMaxRTIndex )
+  if (m_hDSTarget != Other.m_hDSTarget)
     return false;
 
-  for ( ezUInt8 uiRTIndex = 0; uiRTIndex <= m_uiMaxRTIndex; ++uiRTIndex )
+  if (m_uiMaxRTIndex != Other.m_uiMaxRTIndex)
+    return false;
+
+  for (ezUInt8 uiRTIndex = 0; uiRTIndex <= m_uiMaxRTIndex; ++uiRTIndex)
   {
-    if ( m_hRTs[uiRTIndex] != Other.m_hRTs[uiRTIndex] )
+    if (m_hRTs[uiRTIndex] != Other.m_hRTs[uiRTIndex])
       return false;
   }
 
@@ -73,4 +74,3 @@ void ezGALRenderTagetSetup::DestroyAllAttachedViews()
 }
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Resources_Implementation_RenderTargetSetup);
-

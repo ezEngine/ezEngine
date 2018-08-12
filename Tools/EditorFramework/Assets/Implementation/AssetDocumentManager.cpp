@@ -1,11 +1,12 @@
 #include <PCH.h>
-#include <EditorFramework/Assets/AssetDocumentManager.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <EditorFramework/Assets/AssetCurator.h>
+
 #include <Core/Assets/AssetFileHeader.h>
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetDocumentManager.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Serialization/RttiConverter.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentManager, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -38,7 +39,8 @@ ezStatus ezAssetDocumentManager::ReadAssetDocumentInfo(ezUniquePtr<ezAssetDocume
 
 ezString ezAssetDocumentManager::GenerateResourceThumbnailPath(const char* szDocumentPath)
 {
-  ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(szDocumentPath);;
+  ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(szDocumentPath);
+  ;
 
   ezStringBuilder sRelativePath = szDocumentPath;
 
@@ -85,7 +87,6 @@ bool ezAssetDocumentManager::IsThumbnailUpToDate(const char* szDocumentPath, ezU
 void ezAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const char* szPlatform,
                                                     ezMap<ezString, ezString>& inout_GuidToPath) const
 {
-
 }
 
 ezString ezAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const char* szPlatform) const
@@ -93,7 +94,8 @@ ezString ezAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset,
   return GetRelativeOutputFileName(szDataDirectory, pSubAsset->m_pAssetInfo->m_sAbsolutePath, "", szPlatform);
 }
 
-ezString ezAssetDocumentManager::GetAbsoluteOutputFileName(const char* szDocumentPath, const char* szOutputTag, const char* szPlatform) const
+ezString ezAssetDocumentManager::GetAbsoluteOutputFileName(const char* szDocumentPath, const char* szOutputTag,
+                                                           const char* szPlatform) const
 {
   ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(szDocumentPath);
 
@@ -104,10 +106,12 @@ ezString ezAssetDocumentManager::GetAbsoluteOutputFileName(const char* szDocumen
   return sFinalPath;
 }
 
-ezString ezAssetDocumentManager::GetRelativeOutputFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const char* szPlatform) const
+ezString ezAssetDocumentManager::GetRelativeOutputFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag,
+                                                           const char* szPlatform) const
 {
   const ezString sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(szPlatform);
-  EZ_ASSERT_DEBUG(ezStringUtils::IsNullOrEmpty(szOutputTag), "The output tag '%s' for '%s' is not supported, override GetRelativeOutputFileName", szOutputTag, szDocumentPath);
+  EZ_ASSERT_DEBUG(ezStringUtils::IsNullOrEmpty(szOutputTag),
+                  "The output tag '%s' for '%s' is not supported, override GetRelativeOutputFileName", szOutputTag, szDocumentPath);
   ezStringBuilder sRelativePath(szDocumentPath);
   sRelativePath.MakeRelativeTo(szDataDirectory);
   GenerateOutputFilename(sRelativePath, sPlatform, GetResourceTypeExtension(), GeneratesPlatformSpecificAssets());
@@ -115,7 +119,8 @@ ezString ezAssetDocumentManager::GetRelativeOutputFileName(const char* szDataDir
   return sRelativePath;
 }
 
-bool ezAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath, const ezSet<ezString>& outputs, ezUInt64 uiHash, ezUInt16 uiTypeVersion)
+bool ezAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath, const ezSet<ezString>& outputs, ezUInt64 uiHash,
+                                              ezUInt16 uiTypeVersion)
 {
   CURATOR_PROFILE(szDocumentPath);
   if (!IsOutputUpToDate(szDocumentPath, "", uiHash, uiTypeVersion))
@@ -158,8 +163,8 @@ ezResult ezAssetDocumentManager::TryOpenAssetDocument(const char* szPathOrGuid)
   }
   else
   {
-    // I think this is even wrong, either the string is a GUID, or it is not an asset at all, in which case we cannot find it this way either
-    // left as an exercise for whoever needs non-asset references
+    // I think this is even wrong, either the string is a GUID, or it is not an asset at all, in which case we cannot find it this way
+    // either left as an exercise for whoever needs non-asset references
     pSubAsset = ezAssetCurator::GetSingleton()->FindSubAsset(szPathOrGuid);
   }
 
@@ -189,7 +194,8 @@ bool ezAssetDocumentManager::IsResourceUpToDate(const char* szResourceFile, ezUI
   return AssetHeader.IsFileUpToDate(uiHash, uiTypeVersion);
 }
 
-void ezAssetDocumentManager::GenerateOutputFilename(ezStringBuilder& inout_sRelativeDocumentPath, const char* szPlatform, const char* szExtension, bool bPlatformSpecific)
+void ezAssetDocumentManager::GenerateOutputFilename(ezStringBuilder& inout_sRelativeDocumentPath, const char* szPlatform,
+                                                    const char* szExtension, bool bPlatformSpecific)
 {
   inout_sRelativeDocumentPath.ChangeFileExtension(szExtension);
   inout_sRelativeDocumentPath.MakeCleanPath();

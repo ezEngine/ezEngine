@@ -1,10 +1,12 @@
 #include <PCH.h>
+
+#include <Core/Graphics/Camera.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Lights/LightComponent.h>
 #include <RendererCore/Messages/SetColorMessage.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <Core/Graphics/Camera.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLightRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -32,20 +34,19 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 4)
   EZ_END_MESSAGEHANDLERS
 }
 EZ_END_ABSTRACT_COMPONENT_TYPE
+// clang-format on
 
 ezLightComponent::ezLightComponent()
-  : m_LightColor(ezColor::White)
-  , m_fIntensity(10.0f)
-  , m_fPenumbraSize(0.1f)
-  , m_fSlopeBias(0.25f)
-  , m_fConstantBias(0.1f)
-  , m_bCastShadows(false)
+    : m_LightColor(ezColor::White)
+    , m_fIntensity(10.0f)
+    , m_fPenumbraSize(0.1f)
+    , m_fSlopeBias(0.25f)
+    , m_fConstantBias(0.1f)
+    , m_bCastShadows(false)
 {
 }
 
-ezLightComponent::~ezLightComponent()
-{
-}
+ezLightComponent::~ezLightComponent() {}
 
 void ezLightComponent::SetLightColor(ezColorGammaUB LightColor)
 {
@@ -151,7 +152,7 @@ void ezLightComponent::OnSetColor(ezMsgSetColor& msg)
   msg.ModifyColor(m_LightColor);
 }
 
-//static
+// static
 float ezLightComponent::CalculateEffectiveRange(float fRange, float fIntensity)
 {
   const float fThreshold = 0.10f; // aggressive threshold to prevent large lights
@@ -167,7 +168,7 @@ float ezLightComponent::CalculateEffectiveRange(float fRange, float fIntensity)
   return ezMath::Min(fRange, fEffectiveRange);
 }
 
-//static
+// static
 float ezLightComponent::CalculateScreenSpaceSize(const ezBoundingSphere& sphere, const ezCamera& camera)
 {
   if (camera.IsPerspective())
@@ -183,9 +184,9 @@ float ezLightComponent::CalculateScreenSpaceSize(const ezBoundingSphere& sphere,
   }
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -194,7 +195,9 @@ class ezLightComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezLightComponentPatch_1_2()
-    : ezGraphPatch("ezLightComponent", 2) {}
+      : ezGraphPatch("ezLightComponent", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -206,6 +209,4 @@ ezLightComponentPatch_1_2 g_ezLightComponentPatch_1_2;
 
 
 
-
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_LightComponent);
-

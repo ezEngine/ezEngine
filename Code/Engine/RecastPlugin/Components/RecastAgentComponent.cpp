@@ -1,16 +1,18 @@
 #include <PCH.h>
-#include <RecastPlugin/Components/RecastAgentComponent.h>
-#include <RecastPlugin/WorldModule/RecastWorldModule.h>
-#include <ThirdParty/Recast/DetourCrowd.h>
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <Core/WorldSerializer/WorldWriter.h>
+
 #include <Core/WorldSerializer/WorldReader.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Components/CharacterControllerComponent.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <RecastPlugin/Components/RecastAgentComponent.h>
 #include <RecastPlugin/Utils/RcMath.h>
+#include <RecastPlugin/WorldModule/RecastWorldModule.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <ThirdParty/Recast/DetourCrowd.h>
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezRcAgentComponent, 2, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
@@ -20,9 +22,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezRcAgentComponent, 2, ezComponentMode::Dynamic)
   EZ_END_PROPERTIES;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
-ezRcAgentComponent::ezRcAgentComponent() { }
-ezRcAgentComponent::~ezRcAgentComponent() { }
+ezRcAgentComponent::ezRcAgentComponent() {}
+ezRcAgentComponent::~ezRcAgentComponent() {}
 
 void ezRcAgentComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -35,7 +38,7 @@ void ezRcAgentComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezRcAgentComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
   s >> m_fWalkSpeed;
@@ -102,7 +105,8 @@ ezVec3 ezRcAgentComponent::GetTargetPosition() const
   return m_vTargetPosition;
 }
 
-ezResult ezRcAgentComponent::FindNavMeshPolyAt(const ezVec3& vPosition, dtPolyRef& out_PolyRef, ezVec3* out_vAdjustedPosition /*= nullptr*/, float fPlaneEpsilon /*= 0.01f*/, float fHeightEpsilon /*= 1.0f*/) const
+ezResult ezRcAgentComponent::FindNavMeshPolyAt(const ezVec3& vPosition, dtPolyRef& out_PolyRef, ezVec3* out_vAdjustedPosition /*= nullptr*/,
+                                               float fPlaneEpsilon /*= 0.01f*/, float fHeightEpsilon /*= 1.0f*/) const
 {
   ezRcPos rcPos = vPosition;
   ezVec3 vSize(fPlaneEpsilon, fHeightEpsilon, fPlaneEpsilon);
@@ -113,8 +117,7 @@ ezResult ezRcAgentComponent::FindNavMeshPolyAt(const ezVec3& vPosition, dtPolyRe
     return EZ_FAILURE;
 
   if (!ezMath::IsEqual(vPosition.x, resultPos.m_Pos[0], fPlaneEpsilon) ||
-      !ezMath::IsEqual(vPosition.y, resultPos.m_Pos[2], fPlaneEpsilon) ||
-      !ezMath::IsEqual(vPosition.z, resultPos.m_Pos[1], fHeightEpsilon))
+      !ezMath::IsEqual(vPosition.y, resultPos.m_Pos[2], fPlaneEpsilon) || !ezMath::IsEqual(vPosition.z, resultPos.m_Pos[1], fHeightEpsilon))
     return EZ_FAILURE;
 
   if (out_vAdjustedPosition != nullptr)
@@ -136,7 +139,9 @@ ezResult ezRcAgentComponent::ComputePathCorridor(dtPolyRef startPoly, dtPolyRef 
 
   // make enough room
   m_PathCorridor.SetCountUninitialized(256);
-  if (dtStatusFailed(m_pQuery->findPath(startPoly, endPoly, rcStart, rcEnd, &m_QueryFilter, m_PathCorridor.GetData(), &iPathCorridorLength, (int)m_PathCorridor.GetCount())) || iPathCorridorLength <= 0)
+  if (dtStatusFailed(m_pQuery->findPath(startPoly, endPoly, rcStart, rcEnd, &m_QueryFilter, m_PathCorridor.GetData(), &iPathCorridorLength,
+                                        (int)m_PathCorridor.GetCount())) ||
+      iPathCorridorLength <= 0)
   {
     m_PathCorridor.Clear();
     return EZ_FAILURE;
@@ -413,7 +418,7 @@ void ezRcAgentComponent::ComputeSteeringDirection(float fMaxDistance)
 
   if (iNextStep < m_iFirstNextStep)
   {
-    //ezLog::Error("Next step not visible");
+    // ezLog::Error("Next step not visible");
     iNextStep = m_iFirstNextStep;
   }
 
@@ -549,8 +554,11 @@ void ezRcAgentComponent::VisualizeCurrentPath()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezRcAgentComponentManager::ezRcAgentComponentManager(ezWorld* pWorld) : SUPER(pWorld) { }
-ezRcAgentComponentManager::~ezRcAgentComponentManager() { }
+ezRcAgentComponentManager::ezRcAgentComponentManager(ezWorld* pWorld)
+    : SUPER(pWorld)
+{
+}
+ezRcAgentComponentManager::~ezRcAgentComponentManager() {}
 
 void ezRcAgentComponentManager::Initialize()
 {

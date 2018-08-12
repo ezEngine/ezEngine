@@ -1,11 +1,13 @@
 #include <PCH.h>
-#include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
-#include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
+
 #include <Foundation/Strings/TranslationLookup.h>
+#include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
+#include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 
 ezDynamicArray<ezQtApplicationPanel*> ezQtApplicationPanel::s_AllApplicationPanels;
 
-ezQtApplicationPanel::ezQtApplicationPanel(const char* szPanelName) : QDockWidget(ezQtContainerWindow::GetAllContainerWindows()[0])
+ezQtApplicationPanel::ezQtApplicationPanel(const char* szPanelName)
+    : QDockWidget(ezQtContainerWindow::GetAllContainerWindows()[0])
 {
   ezStringBuilder sPanel("AppPanel_", szPanelName);
 
@@ -42,14 +44,14 @@ void ezQtApplicationPanel::ToolsProjectEventHandler(const ezToolsProjectEvent& e
 {
   switch (e.m_Type)
   {
-  case ezToolsProjectEvent::Type::ProjectClosing:
-    setEnabled(false);
-    break;
-  case ezToolsProjectEvent::Type::ProjectOpened:
-    setEnabled(true);
-    break;
+    case ezToolsProjectEvent::Type::ProjectClosing:
+      setEnabled(false);
+      break;
+    case ezToolsProjectEvent::Type::ProjectOpened:
+      setEnabled(true);
+      break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }

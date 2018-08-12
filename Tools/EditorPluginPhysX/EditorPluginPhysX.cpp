@@ -1,22 +1,23 @@
-﻿#include <PCH.h>
-#include <EditorPluginPhysX/EditorPluginPhysX.h>
-#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
-#include <Foundation/Reflection/Reflection.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
-#include <EditorFramework/Actions/ProjectActions.h>
-#include <EditorFramework/Actions/AssetActions.h>
-#include <GuiFoundation/Action/StandardMenus.h>
-#include <GuiFoundation/Action/DocumentActions.h>
-#include <GuiFoundation/Action/CommandHistoryActions.h>
-#include <Foundation/Strings/TranslationLookup.h>
+#include <PCH.h>
 
-#include <PhysXCooking/PhysXCooking.h>
+#include <EditorFramework/Actions/AssetActions.h>
+#include <EditorFramework/Actions/ProjectActions.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorPluginPhysX/EditorPluginPhysX.h>
+#include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Strings/TranslationLookup.h>
+#include <GuiFoundation/Action/ActionMapManager.h>
+#include <GuiFoundation/Action/CommandHistoryActions.h>
+#include <GuiFoundation/Action/DocumentActions.h>
+#include <GuiFoundation/Action/StandardMenus.h>
+#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
+
 #include <EditorPluginPhysX/Actions/PhysXActions.h>
-#include <GuiFoundation/UIServices/DynamicEnums.h>
-#include <GameEngine/CollisionFilter/CollisionFilter.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetObjects.h>
+#include <GameEngine/CollisionFilter/CollisionFilter.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
+#include <GuiFoundation/UIServices/DynamicEnums.h>
+#include <PhysXCooking/PhysXCooking.h>
 
 void UpdateCollisionLayerDynamicEnumValues();
 
@@ -38,7 +39,8 @@ void OnLoadPlugin(bool bReloading)
     {
       ezActionMapManager::RegisterActionMap("CollisionMeshAssetMenuBar");
       ezProjectActions::MapActions("CollisionMeshAssetMenuBar");
-      ezStandardMenus::MapActions("CollisionMeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions("CollisionMeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit |
+                                                                   ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezDocumentActions::MapActions("CollisionMeshAssetMenuBar", "Menu.File", false);
       ezCommandHistoryActions::MapActions("CollisionMeshAssetMenuBar", "Menu.Edit");
     }
@@ -62,7 +64,6 @@ void OnLoadPlugin(bool bReloading)
 
     // Tool Bar
     {
-
     }
   }
 }

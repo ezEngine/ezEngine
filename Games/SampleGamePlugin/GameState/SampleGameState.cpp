@@ -1,16 +1,15 @@
 #include <PCH.h>
-#include <SampleGamePlugin/GameState/SampleGameState.h>
-#include <Foundation/Logging/Log.h>
+
 #include <Core/World/World.h>
+#include <Foundation/Logging/Log.h>
 #include <GameEngine/DearImgui/DearImgui.h>
+#include <SampleGamePlugin/GameState/SampleGameState.h>
 #include <System/Window/Window.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(SampleGameState, 1, ezRTTIDefaultAllocator<SampleGameState>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-SampleGameState::SampleGameState()
-{
-}
+SampleGameState::SampleGameState() {}
 
 void SampleGameState::OnActivation(ezWorld* pWorld)
 {
@@ -49,7 +48,8 @@ void SampleGameState::BeforeWorldUpdate()
     static float slider = 0.5f;
 
     ezImgui::GetSingleton()->BeginNewFrame(m_pMainWindow->GetClientAreaSize());
-    ezImgui::GetSingleton()->SetPassInputToImgui(false); // reset this state, to deactivate input processing as long as SampleGameState::ProcessInput() isn't called again
+    ezImgui::GetSingleton()->SetPassInputToImgui(
+        false); // reset this state, to deactivate input processing as long as SampleGameState::ProcessInput() isn't called again
 
     ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
     ImGui::Begin("Imgui Window", &window);
@@ -69,7 +69,6 @@ void SampleGameState::BeforeWorldUpdate()
     }
 
     ImGui::End();
-
   }
 }
 

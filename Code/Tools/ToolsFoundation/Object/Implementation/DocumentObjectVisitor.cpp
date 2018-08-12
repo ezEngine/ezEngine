@@ -1,16 +1,23 @@
 #include <PCH.h>
-#include <ToolsFoundation/Object/DocumentObjectVisitor.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-ezDocumentObjectVisitor::ezDocumentObjectVisitor(const ezDocumentObjectManager* pManager, const char* szChildrenProperty /*= "Children"*/, const char* szRootProperty /*= "Children"*/) : m_pManager(pManager), m_sChildrenProperty(szChildrenProperty), m_sRootProperty(szRootProperty)
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <ToolsFoundation/Object/DocumentObjectVisitor.h>
+
+ezDocumentObjectVisitor::ezDocumentObjectVisitor(const ezDocumentObjectManager* pManager, const char* szChildrenProperty /*= "Children"*/,
+                                                 const char* szRootProperty /*= "Children"*/)
+    : m_pManager(pManager)
+    , m_sChildrenProperty(szChildrenProperty)
+    , m_sRootProperty(szRootProperty)
 {
   const ezAbstractProperty* pRootProp = m_pManager->GetRootObject()->GetType()->FindPropertyByName(szRootProperty);
   EZ_ASSERT_DEV(pRootProp, "Given root property '{0}' does not exist on root object", szRootProperty);
-  EZ_ASSERT_DEV(pRootProp->GetCategory() == ezPropertyCategory::Set || pRootProp->GetCategory() == ezPropertyCategory::Array, "Traverser only works on arrays and sets.");
+  EZ_ASSERT_DEV(pRootProp->GetCategory() == ezPropertyCategory::Set || pRootProp->GetCategory() == ezPropertyCategory::Array,
+                "Traverser only works on arrays and sets.");
 
-  //const ezAbstractProperty* pChildProp = pRootProp->GetSpecificType()->FindPropertyByName(szChildrenProperty);
-  //EZ_ASSERT_DEV(pChildProp, "Given child property '{0}' does not exist", szChildrenProperty);
-  //EZ_ASSERT_DEV(pChildProp->GetCategory() == ezPropertyCategory::Set || pRootProp->GetCategory() == ezPropertyCategory::Array, "Traverser only works on arrays and sets.");
+  // const ezAbstractProperty* pChildProp = pRootProp->GetSpecificType()->FindPropertyByName(szChildrenProperty);
+  // EZ_ASSERT_DEV(pChildProp, "Given child property '{0}' does not exist", szChildrenProperty);
+  // EZ_ASSERT_DEV(pChildProp->GetCategory() == ezPropertyCategory::Set || pRootProp->GetCategory() == ezPropertyCategory::Array, "Traverser
+  // only works on arrays and sets.");
 }
 
 void ezDocumentObjectVisitor::Visit(const ezDocumentObject* pObject, bool bVisitStart, VisitorFunction function)

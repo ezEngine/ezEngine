@@ -1,18 +1,20 @@
 #include <PCH.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
+
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <GameEngine/Prefabs/PrefabResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPrefabResource, 1, ezRTTIDefaultAllocator<ezPrefabResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezPrefabResource::ezPrefabResource()
-  : ezResource<ezPrefabResource, ezPrefabResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource<ezPrefabResource, ezPrefabResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
-
 }
 
-void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID, const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues)
+void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent,
+                                         ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID,
+                                         const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues)
 {
   if (GetLoadingState() != ezResourceState::Loaded)
     return;
@@ -35,7 +37,9 @@ void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& root
   }
 }
 
-void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues, const ezHybridArray<ezGameObject *, 8>& createdChildObjects, const ezHybridArray<ezGameObject *, 8>& createdRootObjects) const
+void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues,
+                                                   const ezHybridArray<ezGameObject*, 8>& createdChildObjects,
+                                                   const ezHybridArray<ezGameObject*, 8>& createdRootObjects) const
 {
   const ezRTTI* pGameObjectRtti = ezGetStaticRTTI<ezGameObject>();
   const ezUInt32 uiNumParamDescs = m_PrefabParamDescs.GetCount();
@@ -54,7 +58,8 @@ void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedStri
       if (ppd.m_sExposeName.GetHash() != uiNameHash)
         break;
 
-      ezGameObject* pTarget = ppd.m_uiWorldReaderChildObject ? createdChildObjects[ppd.m_uiWorldReaderObjectIndex] : createdRootObjects[ppd.m_uiWorldReaderObjectIndex];
+      ezGameObject* pTarget = ppd.m_uiWorldReaderChildObject ? createdChildObjects[ppd.m_uiWorldReaderObjectIndex]
+                                                             : createdRootObjects[ppd.m_uiWorldReaderObjectIndex];
 
       if (ppd.m_uiComponentTypeHash == 0)
       {
@@ -62,7 +67,8 @@ void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedStri
 
         if (pAbstract && pAbstract->GetCategory() == ezPropertyCategory::Member)
         {
-          ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pAbstract), pTarget, pExposedParamValues->GetValue(i));
+          ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pAbstract), pTarget,
+                                                    pExposedParamValues->GetValue(i));
         }
       }
       else
@@ -78,7 +84,8 @@ void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedStri
 
             if (pAbstract && pAbstract->GetCategory() == ezPropertyCategory::Member)
             {
-              ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pAbstract), pComp, pExposedParamValues->GetValue(i));
+              ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pAbstract), pComp,
+                                                        pExposedParamValues->GetValue(i));
             }
           }
         }
@@ -158,8 +165,7 @@ ezResourceLoadDesc ezPrefabResource::UpdateContent(ezStreamReader* Stream)
     }
 
     // sort exposed parameter descriptions by name hash for quicker access
-    m_PrefabParamDescs.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool
-    {
+    m_PrefabParamDescs.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool {
       return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash();
     });
   }
@@ -229,4 +235,3 @@ void ezExposedPrefabParameterDesc::Load(ezStreamReader& stream)
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Prefabs_Implementation_PrefabResource);
-

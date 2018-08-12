@@ -1,13 +1,14 @@
 #include <PCH.h>
-#include <GuiFoundation/Widgets/GraphicsView.moc.h>
-#include <GuiFoundation/Widgets/Curve1DEditorWidget.moc.h>
+
 #include <Foundation/Math/Math.h>
+#include <GuiFoundation/Widgets/Curve1DEditorWidget.moc.h>
+#include <GuiFoundation/Widgets/GraphicsView.moc.h>
 #include <QScrollBar>
-#include <qevent.h>
 #include <QTextOption>
+#include <qevent.h>
 
 ezQtGraphicsView::ezQtGraphicsView(QWidget* parent /*= nullptr*/)
-  : QGraphicsView(parent)
+    : QGraphicsView(parent)
 {
   m_fZoom = 50.0f;
   m_fMinZoom = 10.0f;
@@ -105,7 +106,8 @@ void ezQtGraphicsView::mouseMoveEvent(QMouseEvent* e)
     vBar->setValue(vBar->value() - diff.y());
   }
 
-  if (!m_bForwardMouseEvents /*|| (e->buttons() != Qt::LeftButton && e->buttons() != Qt::NoButton)*/) // only forward if EXACTLY the left button is down
+  if (!m_bForwardMouseEvents /*|| (e->buttons() != Qt::LeftButton && e->buttons() != Qt::NoButton)*/) // only forward if EXACTLY the left
+                                                                                                      // button is down
   {
     e->accept();
     return;
@@ -145,4 +147,3 @@ void ezQtGraphicsView::UpdateTransform()
 
   setTransform(QTransform::fromScale(m_fZoom, -m_fZoom));
 }
-

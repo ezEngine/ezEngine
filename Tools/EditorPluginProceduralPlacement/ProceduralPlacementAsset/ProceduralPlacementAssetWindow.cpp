@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementAsset.h>
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
@@ -10,9 +11,11 @@
 #include <QLabel>
 #include <QLayout>
 
-ezProceduralPlacementAssetDocumentWindow::ezProceduralPlacementAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
+ezProceduralPlacementAssetDocumentWindow::ezProceduralPlacementAssetDocumentWindow(ezDocument* pDocument)
+    : ezQtDocumentWindow(pDocument)
 {
-  //GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezProceduralPlacementAssetDocumentWindow::PropertyEventHandler, this));
+  // GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezProceduralPlacementAssetDocumentWindow::PropertyEventHandler,
+  // this));
 
   // Menu Bar
   {
@@ -59,11 +62,6 @@ ezProceduralPlacementAssetDocumentWindow::ezProceduralPlacementAssetDocumentWind
 
 ezProceduralPlacementAssetDocumentWindow::~ezProceduralPlacementAssetDocumentWindow()
 {
-  //GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezProceduralPlacementAssetDocumentWindow::PropertyEventHandler, this));
+  // GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezProceduralPlacementAssetDocumentWindow::PropertyEventHandler,
+  // this));
 }
-
-
-
-
-
-

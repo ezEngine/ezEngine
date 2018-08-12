@@ -1,13 +1,14 @@
 #include <PCH.h>
-#include <GameEngine/Collection/CollectionResource.h>
+
 #include <Core/Assets/AssetFileHeader.h>
+#include <GameEngine/Collection/CollectionResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionResource, 1, ezRTTIDefaultAllocator<ezCollectionResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 ezCollectionResource::ezCollectionResource()
-  : ezResource<ezCollectionResource, ezCollectionResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource<ezCollectionResource, ezCollectionResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
   m_bRegistered = false;
 }
@@ -99,7 +100,8 @@ ezResourceLoadDesc ezCollectionResource::UpdateContent(ezStreamReader* Stream)
 void ezCollectionResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
-  out_NewMemoryUsage.m_uiMemoryCPU = static_cast<ezUInt32>(m_hPreloadedResources.GetHeapMemoryUsage() + m_Collection.m_Resources.GetHeapMemoryUsage());
+  out_NewMemoryUsage.m_uiMemoryCPU =
+      static_cast<ezUInt32>(m_hPreloadedResources.GetHeapMemoryUsage() + m_Collection.m_Resources.GetHeapMemoryUsage());
 }
 
 
@@ -184,4 +186,3 @@ void ezCollectionResourceDescriptor::Load(ezStreamReader& stream)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Collection_Implementation_CollectionResource);
-

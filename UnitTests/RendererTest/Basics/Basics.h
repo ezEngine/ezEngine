@@ -1,13 +1,11 @@
-﻿#pragma once
+#pragma once
 
-#include <PCH.h>
 #include "../TestClass/TestClass.h"
 #include <RendererCore/Textures/Texture2DResource.h>
 
 class ezRendererTestBasics : public ezGraphicsTest
 {
 public:
-
   virtual const char* GetTestName() const override { return "Basics"; }
 
 private:
@@ -28,7 +26,7 @@ private:
     AddSubTest("Rasterizer States", SubTests::ST_RasterizerStates);
     AddSubTest("Blend States", SubTests::ST_BlendStates);
     AddSubTest("2D Textures", SubTests::ST_Textures2D);
-    //AddSubTest("3D Textures", SubTests::ST_Textures3D); /// \todo 3D Texture support is currently not implemented
+    // AddSubTest("3D Textures", SubTests::ST_Textures3D); /// \todo 3D Texture support is currently not implemented
     AddSubTest("Cube Textures", SubTests::ST_TexturesCube);
     AddSubTest("Line Rendering", SubTests::ST_LineRendering);
   }
@@ -85,5 +83,3 @@ private:
   ezTexture2DResourceHandle m_hTexture2D;
   ezTextureCubeResourceHandle m_hTextureCube;
 };
-
-

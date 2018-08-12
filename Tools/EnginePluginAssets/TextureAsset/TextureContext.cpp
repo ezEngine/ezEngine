@@ -1,19 +1,20 @@
 #include <PCH.h>
+
 #include <EnginePluginAssets/TextureAsset/TextureContext.h>
 #include <EnginePluginAssets/TextureAsset/TextureView.h>
 
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/Lights/PointLightComponent.h>
-#include <RendererCore/Lights/DirectionalLightComponent.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 #include <Core/Graphics/Geometry.h>
-#include <SharedPluginAssets/Common/Messages.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
-#include <SharedPluginAssets/Common/Messages.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
+#include <RendererCore/Lights/DirectionalLightComponent.h>
+#include <RendererCore/Lights/PointLightComponent.h>
+#include <RendererCore/Meshes/MeshComponent.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <SharedPluginAssets/Common/Messages.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureContext, 1, ezRTTIDefaultAllocator<ezTextureContext>)
 {
   EZ_BEGIN_PROPERTIES
@@ -23,6 +24,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureContext, 1, ezRTTIDefaultAllocator<ezTe
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 static void CreatePreviewRect(ezGeometry& geom)
 {
@@ -43,12 +45,11 @@ static void CreatePreviewRect(ezGeometry& geom)
 }
 
 ezTextureContext::ezTextureContext()
-  : m_TextureFormat(ezGALResourceFormat::Invalid)
-  , m_uiTextureWidth(0)
-  , m_uiTextureHeight(0)
-  , m_bAddedEventHandler(false)
+    : m_TextureFormat(ezGALResourceFormat::Invalid)
+    , m_uiTextureWidth(0)
+    , m_uiTextureHeight(0)
+    , m_bAddedEventHandler(false)
 {
-
 }
 
 void ezTextureContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
@@ -204,7 +205,7 @@ void ezTextureContext::OnResourceEvent(const ezResourceEvent& e)
     m_uiTextureHeight = pTexture->GetHeight();
 
     // cannot call this here, because the event happens on another thread at any possible time
-    //UpdatePreview();
+    // UpdatePreview();
   }
 }
 
@@ -223,4 +224,3 @@ void ezTextureContext::UpdatePreview()
     }
   }
 }
-

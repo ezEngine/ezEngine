@@ -1,16 +1,13 @@
 #include <PCH.h>
-#include <EditorFramework/Visualizers/SphereVisualizerAdapter.h>
+
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/Visualizers/SphereVisualizerAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezSphereVisualizerAdapter::ezSphereVisualizerAdapter()
-{
-}
+ezSphereVisualizerAdapter::ezSphereVisualizerAdapter() {}
 
-ezSphereVisualizerAdapter::~ezSphereVisualizerAdapter()
-{
-}
+ezSphereVisualizerAdapter::~ezSphereVisualizerAdapter() {}
 
 void ezSphereVisualizerAdapter::Finalize()
 {
@@ -73,5 +70,3 @@ void ezSphereVisualizerAdapter::UpdateGizmoTransform()
 
   m_Gizmo.SetTransformation(GetObjectTransform() * t);
 }
-
-

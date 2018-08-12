@@ -1,14 +1,15 @@
 #include <PCH.h>
-#include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementGraphQt.h>
-#include <ToolsFoundation/Command/NodeCommands.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <GameEngine/VisualScript/VisualScriptInstance.h>
+
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <QPainter>
-#include <QTimer>
+#include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementGraphQt.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/TranslationLookup.h>
+#include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <GuiFoundation/NodeEditor/Pin.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <QPainter>
+#include <QTimer>
+#include <ToolsFoundation/Command/NodeCommands.h>
 
 namespace
 {
@@ -105,4 +106,3 @@ void ezQtProceduralPlacementNode::UpdateTitle()
 
   m_pLabel->setPlainText(sTitle.GetData());
 }
-

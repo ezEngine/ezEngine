@@ -1,11 +1,13 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderResource, 1, ezRTTIDefaultAllocator<ezShaderResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezShaderResource::ezShaderResource() : ezResource<ezShaderResource, ezShaderResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+ezShaderResource::ezShaderResource()
+    : ezResource<ezShaderResource, ezShaderResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
   m_bShaderResourceIsValid = false;
 }
@@ -54,7 +56,7 @@ ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReader* stream)
 
 void ezShaderResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezShaderResource) + (ezUInt32) m_PermutationVarsUsed.GetHeapMemoryUsage();
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezShaderResource) + (ezUInt32)m_PermutationVarsUsed.GetHeapMemoryUsage();
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
@@ -73,4 +75,3 @@ ezResourceLoadDesc ezShaderResource::CreateResource(const ezShaderResourceDescri
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Implementation_ShaderResource);
-

@@ -1,11 +1,12 @@
 #include <PCH.h>
-#include <GuiFoundation/Widgets/LogWidget.moc.h>
+
 #include <GuiFoundation/Models/LogModel.moc.h>
-#include <QKeyEvent>
+#include <GuiFoundation/Widgets/LogWidget.moc.h>
 #include <QClipboard>
+#include <QKeyEvent>
 
 ezQtLogWidget::ezQtLogWidget(QWidget* parent)
-  : QWidget(parent)
+    : QWidget(parent)
 {
   setupUi(this);
 
@@ -13,19 +14,14 @@ ezQtLogWidget::ezQtLogWidget(QWidget* parent)
   ListViewLog->setModel(m_pLog);
   ListViewLog->setUniformItemSizes(true);
   ListViewLog->installEventFilter(this);
-  connect(m_pLog, &QAbstractItemModel::rowsInserted, this, [this](const QModelIndex &parent, int first, int last)
-  {
-    ScrollToBottomIfAtEnd(first);
-  });
+  connect(m_pLog, &QAbstractItemModel::rowsInserted, this,
+          [this](const QModelIndex& parent, int first, int last) { ScrollToBottomIfAtEnd(first); });
 
   const int logIndex = (ezLogMsgType::All - ezLogMsgType::InfoMsg);
   ComboFilter->setCurrentIndex(logIndex);
-
 }
 
-ezQtLogWidget::~ezQtLogWidget()
-{
-}
+ezQtLogWidget::~ezQtLogWidget() {}
 
 ezQtLogModel* ezQtLogWidget::GetLog()
 {
@@ -46,7 +42,7 @@ void ezQtLogWidget::SetLogLevel(ezLogMsgType::Enum logLevel)
 ezLogMsgType::Enum ezQtLogWidget::GetLogLevel() const
 {
   int index = ComboFilter->currentIndex();
-  return (ezLogMsgType::Enum) (ezLogMsgType::All - index);
+  return (ezLogMsgType::Enum)(ezLogMsgType::All - index);
 }
 
 bool ezQtLogWidget::eventFilter(QObject* pObject, QEvent* pEvent)
@@ -115,7 +111,6 @@ void ezQtLogWidget::on_Search_textChanged(const QString& text)
 
 void ezQtLogWidget::on_ComboFilter_currentIndexChanged(int index)
 {
-  const ezLogMsgType::Enum LogLevel = (ezLogMsgType::Enum) (ezLogMsgType::All - index);
+  const ezLogMsgType::Enum LogLevel = (ezLogMsgType::Enum)(ezLogMsgType::All - index);
   m_pLog->SetLogLevel(LogLevel);
 }
-

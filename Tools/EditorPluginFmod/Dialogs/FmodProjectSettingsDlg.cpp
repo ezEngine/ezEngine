@@ -1,17 +1,19 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginFmod/Dialogs/FmodProjectSettingsDlg.moc.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <GuiFoundation/Basics.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <QInputDialog>
 #include <QFileDialog>
+#include <QInputDialog>
+#include <ToolsFoundation/Project/ToolsProject.h>
 
-ezQtFmodProjectSettingsDlg::ezQtFmodProjectSettingsDlg(QWidget* parent) : QDialog(parent)
+ezQtFmodProjectSettingsDlg::ezQtFmodProjectSettingsDlg(QWidget* parent)
+    : QDialog(parent)
 {
   setupUi(this);
-  
+
   Load();
 
   for (auto it = m_Configs.m_PlatformConfigs.GetIterator(); it.IsValid(); ++it)
@@ -93,15 +95,15 @@ void ezQtFmodProjectSettingsDlg::SetCurrentPlatform(const char* szPlatform)
 
   switch (cfg.m_SpeakerMode)
   {
-  case ezFmodSpeakerMode::ModeStereo:
-    ComboMode->setCurrentIndex(0);
-    break;
-  case ezFmodSpeakerMode::Mode7Point1:
-    ComboMode->setCurrentIndex(2);
-  case ezFmodSpeakerMode::Mode5Point1:
-  default:
-    ComboMode->setCurrentIndex(1);
-    break;
+    case ezFmodSpeakerMode::ModeStereo:
+      ComboMode->setCurrentIndex(0);
+      break;
+    case ezFmodSpeakerMode::Mode7Point1:
+      ComboMode->setCurrentIndex(2);
+    case ezFmodSpeakerMode::Mode5Point1:
+    default:
+      ComboMode->setCurrentIndex(1);
+      break;
   }
 }
 
@@ -121,15 +123,15 @@ void ezQtFmodProjectSettingsDlg::StoreCurrentPlatform()
 
   switch (ComboMode->currentIndex())
   {
-  case 0:
-    cfg.m_SpeakerMode = ezFmodSpeakerMode::ModeStereo;
-    break;
-  case 1:
-    cfg.m_SpeakerMode = ezFmodSpeakerMode::Mode5Point1;
-    break;
-  case 2:
-    cfg.m_SpeakerMode = ezFmodSpeakerMode::Mode7Point1;
-    break;
+    case 0:
+      cfg.m_SpeakerMode = ezFmodSpeakerMode::ModeStereo;
+      break;
+    case 1:
+      cfg.m_SpeakerMode = ezFmodSpeakerMode::Mode5Point1;
+      break;
+    case 2:
+      cfg.m_SpeakerMode = ezFmodSpeakerMode::Mode7Point1;
+      break;
   }
 }
 
@@ -141,7 +143,9 @@ void ezQtFmodProjectSettingsDlg::on_ButtonBox_clicked(QAbstractButton* pButton)
 
     if (m_ConfigsOld.m_PlatformConfigs != m_Configs.m_PlatformConfigs)
     {
-      if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Save the changes to the Fmod configuration?\nYou need to reload the project for the changes to take effect.", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
+      if (ezQtUiServices::GetSingleton()->MessageBoxQuestion(
+              "Save the changes to the Fmod configuration?\nYou need to reload the project for the changes to take effect.",
+              QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
       {
         ezQtEditorApp::GetSingleton()->AddReloadProjectRequiredReason("Fmod configuration was modified.");
 
@@ -190,7 +194,7 @@ void ezQtFmodProjectSettingsDlg::on_ButtonAdd_clicked()
 
     ListPlatforms->addItem(sName.GetData());
   }
-  
+
   SetCurrentPlatform(sName);
 }
 
@@ -209,7 +213,8 @@ void ezQtFmodProjectSettingsDlg::on_ButtonRemove_clicked()
 void ezQtFmodProjectSettingsDlg::on_ButtonMB_clicked()
 {
   static QString sLastPath = ezToolsProject::GetSingleton()->GetProjectDirectory().GetData();
-  const QString sFile = QFileDialog::getOpenFileName(this, QLatin1String("Select Master Sound Bank"), sLastPath, "Sound Banks (*.bank)", nullptr, QFileDialog::Option::DontResolveSymlinks);
+  const QString sFile = QFileDialog::getOpenFileName(this, QLatin1String("Select Master Sound Bank"), sLastPath, "Sound Banks (*.bank)",
+                                                     nullptr, QFileDialog::Option::DontResolveSymlinks);
 
   if (sFile.isEmpty())
     return;
@@ -229,4 +234,3 @@ void ezQtFmodProjectSettingsDlg::on_ButtonMB_clicked()
 
   EditMasterBank->setText(sRelative.GetData());
 }
-

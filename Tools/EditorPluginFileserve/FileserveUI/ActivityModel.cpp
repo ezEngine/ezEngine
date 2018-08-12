@@ -1,24 +1,25 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <EditorPluginFileserve/FileserveUI/ActivityModel.moc.h>
 #include <QTimer>
 #include <QWidget>
 
 ezQtFileserveActivityModel::ezQtFileserveActivityModel(QWidget* parent)
-  : QAbstractListModel(parent)
+    : QAbstractListModel(parent)
 {
 }
 
-int ezQtFileserveActivityModel::rowCount(const QModelIndex &parent /*= QModelIndex()*/) const
+int ezQtFileserveActivityModel::rowCount(const QModelIndex& parent /*= QModelIndex()*/) const
 {
   return m_Items.GetCount() - m_uiAddedItems;
 }
 
-int ezQtFileserveActivityModel::columnCount(const QModelIndex &parent /*= QModelIndex()*/) const
+int ezQtFileserveActivityModel::columnCount(const QModelIndex& parent /*= QModelIndex()*/) const
 {
   return 2;
 }
 
-QVariant ezQtFileserveActivityModel::data(const QModelIndex &index, int role /*= Qt::DisplayRole*/) const
+QVariant ezQtFileserveActivityModel::data(const QModelIndex& index, int role /*= Qt::DisplayRole*/) const
 {
   if (!index.isValid())
     return QVariant();
@@ -41,31 +42,31 @@ QVariant ezQtFileserveActivityModel::data(const QModelIndex &index, int role /*=
     {
       switch (item.m_Type)
       {
-      case ezFileserveActivityType::StartServer:
-        return "Server Started";
-      case ezFileserveActivityType::StopServer:
-        return "Server Stopped";
-      case ezFileserveActivityType::ClientConnect:
-        return "Client Connected";
-      case ezFileserveActivityType::ClientReconnected:
-        return "Client Re-connected";
-      case ezFileserveActivityType::ClientDisconnect:
-        return "Client Disconnect";
-      case ezFileserveActivityType::Mount:
-        return "Mount";
-      case ezFileserveActivityType::MountFailed:
-        return "Failed Mount";
-      case ezFileserveActivityType::Unmount:
-        return "Unmount";
-      case ezFileserveActivityType::ReadFile:
-        return "Read";
-      case ezFileserveActivityType::WriteFile:
-        return "Write";
-      case ezFileserveActivityType::DeleteFile:
-        return "Delete";
+        case ezFileserveActivityType::StartServer:
+          return "Server Started";
+        case ezFileserveActivityType::StopServer:
+          return "Server Stopped";
+        case ezFileserveActivityType::ClientConnect:
+          return "Client Connected";
+        case ezFileserveActivityType::ClientReconnected:
+          return "Client Re-connected";
+        case ezFileserveActivityType::ClientDisconnect:
+          return "Client Disconnect";
+        case ezFileserveActivityType::Mount:
+          return "Mount";
+        case ezFileserveActivityType::MountFailed:
+          return "Failed Mount";
+        case ezFileserveActivityType::Unmount:
+          return "Unmount";
+        case ezFileserveActivityType::ReadFile:
+          return "Read";
+        case ezFileserveActivityType::WriteFile:
+          return "Write";
+        case ezFileserveActivityType::DeleteFile:
+          return "Delete";
 
-      default:
-        return QVariant();
+        default:
+          return QVariant();
       }
     }
 
@@ -73,33 +74,33 @@ QVariant ezQtFileserveActivityModel::data(const QModelIndex &index, int role /*=
     {
       switch (item.m_Type)
       {
-      case ezFileserveActivityType::StartServer:
-        return QColor::fromRgb(0, 200, 0);
-      case ezFileserveActivityType::StopServer:
-        return QColor::fromRgb(200, 200, 0);
+        case ezFileserveActivityType::StartServer:
+          return QColor::fromRgb(0, 200, 0);
+        case ezFileserveActivityType::StopServer:
+          return QColor::fromRgb(200, 200, 0);
 
-      case ezFileserveActivityType::ClientConnect:
-      case ezFileserveActivityType::ClientReconnected:
-        return QColor::fromRgb(50, 200, 0);
-      case ezFileserveActivityType::ClientDisconnect:
-        return QColor::fromRgb(250, 100, 0);
+        case ezFileserveActivityType::ClientConnect:
+        case ezFileserveActivityType::ClientReconnected:
+          return QColor::fromRgb(50, 200, 0);
+        case ezFileserveActivityType::ClientDisconnect:
+          return QColor::fromRgb(250, 100, 0);
 
-      case ezFileserveActivityType::Mount:
-        return QColor::fromRgb(0, 0, 200);
-      case ezFileserveActivityType::MountFailed:
-        return QColor::fromRgb(255, 0, 0);
-      case ezFileserveActivityType::Unmount:
-        return QColor::fromRgb(150, 0, 200);
+        case ezFileserveActivityType::Mount:
+          return QColor::fromRgb(0, 0, 200);
+        case ezFileserveActivityType::MountFailed:
+          return QColor::fromRgb(255, 0, 0);
+        case ezFileserveActivityType::Unmount:
+          return QColor::fromRgb(150, 0, 200);
 
-      case ezFileserveActivityType::ReadFile:
-        return QColor::fromRgb(100, 100, 100);
-      case ezFileserveActivityType::WriteFile:
-        return QColor::fromRgb(255, 150, 0);
-      case ezFileserveActivityType::DeleteFile:
-        return QColor::fromRgb(200, 50, 50);
+        case ezFileserveActivityType::ReadFile:
+          return QColor::fromRgb(100, 100, 100);
+        case ezFileserveActivityType::WriteFile:
+          return QColor::fromRgb(255, 150, 0);
+        case ezFileserveActivityType::DeleteFile:
+          return QColor::fromRgb(200, 50, 50);
 
-      default:
-        return QVariant();
+        default:
+          return QVariant();
       }
     }
   }
@@ -173,4 +174,3 @@ void ezQtFileserveActivityModel::UpdateViewSlot()
 
   UpdateView();
 }
-

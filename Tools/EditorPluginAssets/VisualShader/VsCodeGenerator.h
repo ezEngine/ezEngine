@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
 
@@ -32,10 +33,7 @@ private:
 
   struct OutputPinState
   {
-    OutputPinState()
-    {
-      m_bCodeGenerated = false;
-    }
+    OutputPinState() { m_bCodeGenerated = false; }
 
     bool m_bCodeGenerated;
     ezString m_sCodeAtPin;
@@ -50,8 +48,9 @@ private:
   ezStatus InsertPropertyValues(const ezDocumentObject* pNode, const ezVisualShaderNodeDescriptor* pDesc, ezStringBuilder& sString);
   ezStatus GenerateOutputPinCode(const ezDocumentObject* pOwnerNode, const ezPin* pPinSource);
 
-  ezStatus ReplaceInputPinsByCode(const ezDocumentObject* pOwnerNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder &sInlineCode);
-  void SetPinDefines(const ezDocumentObject* pOwnerNode, ezStringBuilder &sInlineCode);
+  ezStatus ReplaceInputPinsByCode(const ezDocumentObject* pOwnerNode, const ezVisualShaderNodeDescriptor* pNodeDesc,
+                                  ezStringBuilder& sInlineCode);
+  void SetPinDefines(const ezDocumentObject* pOwnerNode, ezStringBuilder& sInlineCode);
   static void AppendStringIfUnique(ezStringBuilder& inout_String, const char* szAppend);
 
   const ezDocumentObject* m_pMainNode;
@@ -75,4 +74,3 @@ private:
   ezStringBuilder m_sShaderPermutations;
   ezStringBuilder m_sFinalShaderCode;
 };
-

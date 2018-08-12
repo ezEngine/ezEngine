@@ -1,17 +1,19 @@
 #include <PCH.h>
+
+#include <EditorFramework/Actions/TransformGizmoActions.h>
+#include <EditorFramework/EditTools/StandardGizmoEditTools.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
+#include <EditorPluginScene/Actions/GizmoActions.h>
+#include <EditorPluginScene/EditTools/GreyBoxEditTool.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
-#include <EditorPluginScene/Actions/GizmoActions.h>
-#include <EditorFramework/Gizmos/SnapProvider.h>
-#include <EditorFramework/EditTools/StandardGizmoEditTools.h>
-#include <EditorPluginScene/EditTools/GreyBoxEditTool.h>
-#include <EditorFramework/Actions/TransformGizmoActions.h>
 
 ezActionDescriptorHandle ezSceneGizmoActions::s_hGreyBoxingGizmo;
 
 void ezSceneGizmoActions::RegisterActions()
 {
-  s_hGreyBoxingGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.GreyBoxing", ezActionScope::Document, "Gizmo", "B", ezGizmoAction, ezGetStaticRTTI<ezGreyBoxEditTool>());
+  s_hGreyBoxingGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.GreyBoxing", ezActionScope::Document, "Gizmo", "B", ezGizmoAction,
+                                            ezGetStaticRTTI<ezGreyBoxEditTool>());
 }
 
 void ezSceneGizmoActions::UnregisterActions()

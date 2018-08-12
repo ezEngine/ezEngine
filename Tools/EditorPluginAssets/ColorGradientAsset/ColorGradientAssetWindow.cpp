@@ -1,21 +1,25 @@
 #include <PCH.h>
+
+#include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAssetWindow.moc.h>
+#include <Foundation/Image/ImageConversion.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
-#include <GuiFoundation/Widgets/ImageWidget.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
+#include <GuiFoundation/Widgets/ColorGradientEditorWidget.moc.h>
+#include <GuiFoundation/Widgets/ImageWidget.moc.h>
 #include <QLabel>
 #include <QLayout>
-#include <Foundation/Image/ImageConversion.h>
-#include <GuiFoundation/Widgets/ColorGradientEditorWidget.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
-#include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
 
-ezQtColorGradientAssetDocumentWindow::ezQtColorGradientAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
+ezQtColorGradientAssetDocumentWindow::ezQtColorGradientAssetDocumentWindow(ezDocument* pDocument)
+    : ezQtDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtColorGradientAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtColorGradientAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(
+      ezMakeDelegate(&ezQtColorGradientAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(
+      ezMakeDelegate(&ezQtColorGradientAssetDocumentWindow::StructureEventHandler, this));
 
   // Menu Bar
   {
@@ -50,25 +54,40 @@ ezQtColorGradientAssetDocumentWindow::ezQtColorGradientAssetDocumentWindow(ezDoc
 
   setCentralWidget(pContainer);
 
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpAdded, this, &ezQtColorGradientAssetDocumentWindow::onGradientColorCpAdded);
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpMoved, this, &ezQtColorGradientAssetDocumentWindow::onGradientColorCpMoved);
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpDeleted, this, &ezQtColorGradientAssetDocumentWindow::onGradientColorCpDeleted);
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpChanged, this, &ezQtColorGradientAssetDocumentWindow::onGradientColorCpChanged);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpAdded, this,
+          &ezQtColorGradientAssetDocumentWindow::onGradientColorCpAdded);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpMoved, this,
+          &ezQtColorGradientAssetDocumentWindow::onGradientColorCpMoved);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpDeleted, this,
+          &ezQtColorGradientAssetDocumentWindow::onGradientColorCpDeleted);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpChanged, this,
+          &ezQtColorGradientAssetDocumentWindow::onGradientColorCpChanged);
 
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpAdded, this, &ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpAdded);
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpMoved, this, &ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpMoved);
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpDeleted, this, &ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpDeleted);
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpChanged, this, &ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpChanged);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpAdded, this,
+          &ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpAdded);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpMoved, this,
+          &ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpMoved);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpDeleted, this,
+          &ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpDeleted);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpChanged, this,
+          &ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpChanged);
 
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpAdded, this, &ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpAdded);
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpMoved, this, &ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpMoved);
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpDeleted, this, &ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpDeleted);
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpChanged, this, &ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpChanged);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpAdded, this,
+          &ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpAdded);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpMoved, this,
+          &ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpMoved);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpDeleted, this,
+          &ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpDeleted);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpChanged, this,
+          &ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpChanged);
 
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::BeginOperation, this, &ezQtColorGradientAssetDocumentWindow::onGradientBeginOperation);
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::EndOperation, this, &ezQtColorGradientAssetDocumentWindow::onGradientEndOperation);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::BeginOperation, this,
+          &ezQtColorGradientAssetDocumentWindow::onGradientBeginOperation);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::EndOperation, this,
+          &ezQtColorGradientAssetDocumentWindow::onGradientEndOperation);
 
-  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::NormalizeRange, this, &ezQtColorGradientAssetDocumentWindow::onGradientNormalizeRange);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::NormalizeRange, this,
+          &ezQtColorGradientAssetDocumentWindow::onGradientNormalizeRange);
 
   // property grid, if needed
   if (false)
@@ -93,8 +112,10 @@ ezQtColorGradientAssetDocumentWindow::ezQtColorGradientAssetDocumentWindow(ezDoc
 
 ezQtColorGradientAssetDocumentWindow::~ezQtColorGradientAssetDocumentWindow()
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtColorGradientAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtColorGradientAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(
+      ezMakeDelegate(&ezQtColorGradientAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(
+      ezMakeDelegate(&ezQtColorGradientAssetDocumentWindow::StructureEventHandler, this));
 }
 
 
@@ -361,7 +382,10 @@ void ezQtColorGradientAssetDocumentWindow::onGradientEndOperation(bool commit)
 
 void ezQtColorGradientAssetDocumentWindow::onGradientNormalizeRange()
 {
-  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("This will adjust the positions of all control points, such that the minimum is at 0 and the maximum at 1.\n\nContinue?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) != QMessageBox::StandardButton::Yes)
+  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion(
+          "This will adjust the positions of all control points, such that the minimum is at 0 and the maximum at 1.\n\nContinue?",
+          QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No,
+          QMessageBox::StandardButton::Yes) != QMessageBox::StandardButton::Yes)
     return;
 
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
@@ -442,6 +466,3 @@ void ezQtColorGradientAssetDocumentWindow::StructureEventHandler(const ezDocumen
 {
   UpdatePreview();
 }
-
-
-

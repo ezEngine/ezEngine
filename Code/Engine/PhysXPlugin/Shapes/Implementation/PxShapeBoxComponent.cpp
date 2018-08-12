@@ -1,13 +1,15 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <GameEngine/AI/NavMesh/NavMeshDescription.h>
+#include <GameEngine/Messages/BuildNavMeshMessage.h>
 #include <PhysXPlugin/Shapes/PxShapeBoxComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <GameEngine/Messages/BuildNavMeshMessage.h>
-#include <GameEngine/AI/NavMesh/NavMeshDescription.h>
 
 using namespace physx;
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezPxShapeBoxComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -28,6 +30,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeBoxComponent, 1, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezPxShapeBoxComponent::ezPxShapeBoxComponent()
 {
@@ -91,4 +94,3 @@ PxShape* ezPxShapeBoxComponent::CreateShape(PxRigidActor* pActor, PxTransform& o
 
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Shapes_Implementation_PxShapeBoxComponent);
-

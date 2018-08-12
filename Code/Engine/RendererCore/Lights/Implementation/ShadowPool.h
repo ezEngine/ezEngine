@@ -7,6 +7,7 @@ class ezPointLightComponent;
 class ezSpotLightComponent;
 class ezGALTextureHandle;
 class ezGALBufferHandle;
+class ezView;
 
 class EZ_RENDERERCORE_DLL ezShadowPool
 {

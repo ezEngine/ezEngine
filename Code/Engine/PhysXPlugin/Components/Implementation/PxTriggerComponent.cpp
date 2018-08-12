@@ -1,23 +1,22 @@
 #include <PCH.h>
+
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <PhysXPlugin/Components/PxTriggerComponent.h>
-#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
-#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <PhysXPlugin/Shapes/PxShapeComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <Foundation/Profiling/Profiling.h>
+#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 
 using namespace physx;
 
 ezPxTriggerComponentManager::ezPxTriggerComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ezPxTriggerComponent, ezBlockStorageType::FreeList>(pWorld)
+    : ezComponentManager<ezPxTriggerComponent, ezBlockStorageType::FreeList>(pWorld)
 {
 }
 
-ezPxTriggerComponentManager::~ezPxTriggerComponentManager()
-{
-}
+ezPxTriggerComponentManager::~ezPxTriggerComponentManager() {}
 
 void ezPxTriggerComponentManager::UpdateKinematicActors()
 {
@@ -42,13 +41,15 @@ void ezPxTriggerComponentManager::UpdateKinematicActors()
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPxTriggerTriggered)
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPxTriggerTriggered, 1, ezRTTIDefaultAllocator<ezMsgPxTriggerTriggered>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
+// clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezPxTriggerComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -64,9 +65,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxTriggerComponent, 1, ezComponentMode::Static)
   EZ_END_MESSAGESENDERS
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezPxTriggerComponent::ezPxTriggerComponent()
-  : m_UserData(this)
+    : m_UserData(this)
 {
   m_pActor = nullptr;
 }

@@ -1,17 +1,13 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Visualizers/CapsuleVisualizerAdapter.h>
-#include <EditorFramework/Assets/AssetDocument.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezCapsuleVisualizerAdapter::ezCapsuleVisualizerAdapter()
-{
-}
+ezCapsuleVisualizerAdapter::ezCapsuleVisualizerAdapter() {}
 
-ezCapsuleVisualizerAdapter::~ezCapsuleVisualizerAdapter()
-{
-}
+ezCapsuleVisualizerAdapter::~ezCapsuleVisualizerAdapter() {}
 
 void ezCapsuleVisualizerAdapter::Finalize()
 {
@@ -56,7 +52,8 @@ void ezCapsuleVisualizerAdapter::Update()
     ezVariant value;
     pObjectAccessor->GetValue(m_pObject, pProp, value);
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property '{0}' bound to ezCapsuleVisualizerAttribute 'radius'", pAttr->GetRadiusProperty());
+    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property '{0}' bound to ezCapsuleVisualizerAttribute 'radius'",
+                    pAttr->GetRadiusProperty());
     m_fRadius = value.ConvertTo<float>();
   }
 
@@ -99,7 +96,5 @@ void ezCapsuleVisualizerAdapter::UpdateGizmoTransform()
 
   m_SphereTop.SetTransformation(GetObjectTransform() * tSphereTop);
   m_SphereBottom.SetTransformation(GetObjectTransform() * tSphereBottom);
-  m_Cylinder.SetTransformation(GetObjectTransform()* tCylinder);
+  m_Cylinder.SetTransformation(GetObjectTransform() * tCylinder);
 }
-
-

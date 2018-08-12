@@ -1,14 +1,15 @@
 #include <PCH.h>
-#include <RendererCore/Material/MaterialResource.h>
-#include <RendererCore/Textures/Texture2DResource.h>
-#include <RendererCore/Textures/TextureCubeResource.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/ShaderCompiler/ShaderManager.h>
-#include <RendererCore/Shader/ShaderPermutationResource.h>
+
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/Image/Formats/DdsFileFormat.h>
+#include <RendererCore/Material/MaterialResource.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/Shader/ShaderPermutationResource.h>
+#include <RendererCore/ShaderCompiler/ShaderManager.h>
+#include <RendererCore/Textures/Texture2DResource.h>
+#include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererCore/Textures/TextureLoader.h>
 
 void ezMaterialResourceDescriptor::Clear()
@@ -24,12 +25,9 @@ void ezMaterialResourceDescriptor::Clear()
 
 bool ezMaterialResourceDescriptor::operator==(const ezMaterialResourceDescriptor& other) const
 {
-  return m_hBaseMaterial == other.m_hBaseMaterial &&
-    m_hShader == other.m_hShader &&
-    m_PermutationVars == other.m_PermutationVars &&
-    m_Parameters == other.m_Parameters &&
-    m_Texture2DBindings == other.m_Texture2DBindings &&
-    m_TextureCubeBindings == other.m_TextureCubeBindings;
+  return m_hBaseMaterial == other.m_hBaseMaterial && m_hShader == other.m_hShader && m_PermutationVars == other.m_PermutationVars &&
+         m_Parameters == other.m_Parameters && m_Texture2DBindings == other.m_Texture2DBindings &&
+         m_TextureCubeBindings == other.m_TextureCubeBindings;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -38,7 +36,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialResource, 1, ezRTTIDefaultAllocator<ez
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 /// \todo Should be done on any thread, but currently crashes when deleting custom loaders in the resource manager
-ezMaterialResource::ezMaterialResource() : ezResource<ezMaterialResource, ezMaterialResourceDescriptor>(DoUpdate::OnMainThread, 1)
+ezMaterialResource::ezMaterialResource()
+    : ezResource<ezMaterialResource, ezMaterialResourceDescriptor>(DoUpdate::OnMainThread, 1)
 {
   m_iLastUpdated = 0;
   m_iLastConstantsUpdated = 0;
@@ -497,8 +496,8 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
     }
 
     // Fallback low res texture
-    //ezMemoryStreamStorage storage;
-    //ezImage img;
+    // ezMemoryStreamStorage storage;
+    // ezImage img;
     //{
     //  const ezColorGammaUB color = ezColor::RebeccaPurple;
 
@@ -555,13 +554,13 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
         if (sTemp.IsEmpty() || sTemp2.IsEmpty())
           continue;
 
-        //ezMemoryStreamReader fallbackTextureStream(&storage);
+        // ezMemoryStreamReader fallbackTextureStream(&storage);
 
         ezMaterialResourceDescriptor::Texture2DBinding& tc = m_Desc.m_Texture2DBindings.ExpandAndGetRef();
         tc.m_Name.Assign(sTemp.GetData());
         tc.m_Value = ezResourceManager::LoadResource<ezTexture2DResource>(sTemp2, ezResourcePriority::Lowest, ezTexture2DResourceHandle());
 
-        //ezResourceManager::SetResourceLowResData(tc.m_Value, &fallbackTextureStream);
+        // ezResourceManager::SetResourceLowResData(tc.m_Value, &fallbackTextureStream);
       }
     }
 
@@ -583,7 +582,8 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
         ezMaterialResourceDescriptor::TextureCubeBinding& tc = m_Desc.m_TextureCubeBindings.ExpandAndGetRef();
         tc.m_Name.Assign(sTemp.GetData());
-        tc.m_Value = ezResourceManager::LoadResource<ezTextureCubeResource>(sTemp2, ezResourcePriority::Lowest, ezTextureCubeResourceHandle());
+        tc.m_Value =
+            ezResourceManager::LoadResource<ezTextureCubeResource>(sTemp2, ezResourcePriority::Lowest, ezTextureCubeResourceHandle());
       }
     }
 
@@ -743,7 +743,8 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
           tc.m_Name.Assign(tmp.GetData());
 
           tmp = pValue->GetPrimitivesString()[0];
-          tc.m_Value = ezResourceManager::LoadResource<ezTextureCubeResource>(tmp, ezResourcePriority::Lowest, ezTextureCubeResourceHandle());
+          tc.m_Value =
+              ezResourceManager::LoadResource<ezTextureCubeResource>(tmp, ezResourcePriority::Lowest, ezTextureCubeResourceHandle());
         }
       }
     }
@@ -767,18 +768,14 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
 void ezMaterialResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezMaterialResource) +
-    (ezUInt32)(m_Desc.m_PermutationVars.GetHeapMemoryUsage() +
-      m_Desc.m_Parameters.GetHeapMemoryUsage() +
-      m_Desc.m_Texture2DBindings.GetHeapMemoryUsage() +
-      m_Desc.m_TextureCubeBindings.GetHeapMemoryUsage() +
-      m_OriginalDesc.m_PermutationVars.GetHeapMemoryUsage() +
-      m_OriginalDesc.m_Parameters.GetHeapMemoryUsage() +
-      m_OriginalDesc.m_Texture2DBindings.GetHeapMemoryUsage() +
-      m_OriginalDesc.m_TextureCubeBindings.GetHeapMemoryUsage());
+  out_NewMemoryUsage.m_uiMemoryCPU =
+      sizeof(ezMaterialResource) +
+      (ezUInt32)(m_Desc.m_PermutationVars.GetHeapMemoryUsage() + m_Desc.m_Parameters.GetHeapMemoryUsage() +
+                 m_Desc.m_Texture2DBindings.GetHeapMemoryUsage() + m_Desc.m_TextureCubeBindings.GetHeapMemoryUsage() +
+                 m_OriginalDesc.m_PermutationVars.GetHeapMemoryUsage() + m_OriginalDesc.m_Parameters.GetHeapMemoryUsage() +
+                 m_OriginalDesc.m_Texture2DBindings.GetHeapMemoryUsage() + m_OriginalDesc.m_TextureCubeBindings.GetHeapMemoryUsage());
 
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
-
 }
 
 ezResourceLoadDesc ezMaterialResource::CreateResource(const ezMaterialResourceDescriptor& descriptor)
@@ -826,8 +823,10 @@ void ezMaterialResource::OnResourceEvent(const ezResourceEvent& resourceEvent)
 
 void ezMaterialResource::AddPermutationVar(const char* szName, const char* szValue)
 {
-  ezHashedString sName; sName.Assign(szName);
-  ezHashedString sValue; sValue.Assign(szValue);
+  ezHashedString sName;
+  sName.Assign(szName);
+  ezHashedString sValue;
+  sValue.Assign(szValue);
 
   if (ezShaderManager::IsPermutationValueAllowed(sName, sValue))
   {
@@ -877,7 +876,7 @@ void ezMaterialResource::UpdateCaches()
   }
 
   // set state of parent material first
-  for (ezUInt32 i = materialHierarchy.GetCount(); i-- > 0; )
+  for (ezUInt32 i = materialHierarchy.GetCount(); i-- > 0;)
   {
     ezMaterialResource* pMaterial = materialHierarchy[i];
     const ezMaterialResourceDescriptor& desc = pMaterial->m_Desc;
@@ -922,7 +921,8 @@ void ezMaterialResource::UpdateConstantBuffer(ezShaderPermutationResource* pShad
     return;
 
   ezTempHashedString sConstantBufferName("ezMaterialConstants");
-  const ezShaderResourceBinding* pBinding = pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::PixelShader)->GetShaderResourceBinding(sConstantBufferName);
+  const ezShaderResourceBinding* pBinding =
+      pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::PixelShader)->GetShaderResourceBinding(sConstantBufferName);
   if (pBinding == nullptr)
   {
     pBinding = pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::VertexShader)->GetShaderResourceBinding(sConstantBufferName);
@@ -971,4 +971,3 @@ void ezMaterialResource::UpdateConstantBuffer(ezShaderPermutationResource* pShad
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Material_Implementation_MaterialResource);
-

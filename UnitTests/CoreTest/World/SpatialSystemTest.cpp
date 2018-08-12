@@ -1,11 +1,12 @@
-﻿#include <PCH.h>
-#include <Foundation/Containers/HashSet.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
-#include <Foundation/Profiling/Profiling.h>
+#include <PCH.h>
+
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/World/World.h>
+#include <Foundation/Containers/HashSet.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Profiling/Profiling.h>
 
 namespace
 {
@@ -16,10 +17,7 @@ namespace
     EZ_DECLARE_COMPONENT_TYPE(TestBoundsComponent, ezComponent, TestBoundsComponentManager);
 
   public:
-    virtual void Initialize() override
-    {
-      GetOwner()->UpdateLocalBounds();
-    }
+    virtual void Initialize() override { GetOwner()->UpdateLocalBounds(); }
 
     void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
     {
@@ -36,6 +34,7 @@ namespace
     }
   };
 
+  // clang-format off
   EZ_BEGIN_COMPONENT_TYPE(TestBoundsComponent, 1, ezComponentMode::Static)
   {
     EZ_BEGIN_MESSAGEHANDLERS
@@ -44,7 +43,8 @@ namespace
     }
     EZ_END_MESSAGEHANDLERS
   }
-  EZ_END_COMPONENT_TYPE
+  EZ_END_COMPONENT_TYPE;
+  // clang-format on
 }
 
 EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
@@ -105,8 +105,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     objectsInSphere.Clear();
     uniqueObjects.Clear();
 
-    world.GetSpatialSystem().FindObjectsInSphere(testSphere, [&](ezGameObject* pObject)
-    {
+    world.GetSpatialSystem().FindObjectsInSphere(testSphere, [&](ezGameObject* pObject) {
       objectsInSphere.PushBack(pObject);
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
 
@@ -161,8 +160,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     objectsInBox.Clear();
     uniqueObjects.Clear();
 
-    world.GetSpatialSystem().FindObjectsInBox(testBox, [&](ezGameObject* pObject)
-    {
+    world.GetSpatialSystem().FindObjectsInBox(testBox, [&](ezGameObject* pObject) {
       objectsInBox.PushBack(pObject);
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
 

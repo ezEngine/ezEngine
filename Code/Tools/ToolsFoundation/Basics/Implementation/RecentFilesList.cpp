@@ -1,10 +1,11 @@
 #include <PCH.h>
-#include <ToolsFoundation/Basics/RecentFilesList.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Utilities/ConversionUtils.h>
+
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Utilities/ConversionUtils.h>
+#include <ToolsFoundation/Basics/RecentFilesList.h>
 
 void ezRecentFilesList::Insert(const char* szFile, ezInt32 iContainerWindow)
 {
@@ -74,6 +75,5 @@ void ezRecentFilesList::Load(const char* szFile)
       ezConversionUtils::StringToInt(sContainer, iContainerWindow);
       m_Files.PushBack(RecentFile(Parts[0], iContainerWindow));
     }
-
   }
 }

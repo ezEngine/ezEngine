@@ -1,17 +1,19 @@
 #include <PCH.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoComponent.h>
 
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/Pipeline/RenderDataBatch.h>
-#include <RendererCore/Pipeline/ViewData.h>
-#include <RendererCore/Shader/ConstantBufferStorage.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoComponent.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
+
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Types/ScopeExit.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Pipeline/RenderDataBatch.h>
+#include <RendererCore/Pipeline/ViewData.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/Shader/ConstantBufferStorage.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Editor/GizmoConstants.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoRenderer, 1, ezRTTIDefaultAllocator<ezGizmoRenderer>);
 {
   EZ_BEGIN_PROPERTIES
@@ -23,6 +25,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoRenderer, 1, ezRTTIDefaultAllocator<ezGiz
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 float ezGizmoRenderer::s_fGizmoScale = 1.0f;
 
@@ -32,9 +35,7 @@ ezGizmoRenderer::ezGizmoRenderer()
   m_uiHighlightID = 0;
 }
 
-ezGizmoRenderer::~ezGizmoRenderer()
-{
-}
+ezGizmoRenderer::~ezGizmoRenderer() {}
 
 void ezGizmoRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)
 {
@@ -112,4 +113,3 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshRenderer);
-

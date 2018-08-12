@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Utilities/CommandLineUtils.h>
 
 EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
@@ -6,15 +7,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetParameterCount / GetParameter")
   {
     const int argc = 9;
-    const char* argv[argc] =
-    {
-      "bla/blub/myprogram.exe",
-      "-Test1", "true",
-      "-Test2", "off",
-      "-Test3",
-      "-Test4", "on",
-      "-Test5"
-    };
+    const char* argv[argc] = {"bla/blub/myprogram.exe", "-Test1", "true", "-Test2", "off", "-Test3", "-Test4", "on", "-Test5"};
 
     ezCommandLineUtils CmdLn;
     CmdLn.SetCommandLine(argc, argv);
@@ -40,16 +33,21 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetOptionIndex / GetStringOptionArguments  / GetStringOption")
   {
     const int argc = 15;
-    const char* argv[argc] =
-    {
-      "bla/blub/myprogram.exe",
-      "-opt1", "true", "false",
-      "-opt2", "\"test2\"",
-      "-opt3",
-      "-opt4", "one", "two = three", "four", "   five  ", " six ",
-      "-opt5",
-      "-opt6"
-    };
+    const char* argv[argc] = {"bla/blub/myprogram.exe",
+                              "-opt1",
+                              "true",
+                              "false",
+                              "-opt2",
+                              "\"test2\"",
+                              "-opt3",
+                              "-opt4",
+                              "one",
+                              "two = three",
+                              "four",
+                              "   five  ",
+                              " six ",
+                              "-opt5",
+                              "-opt6"};
 
     ezCommandLineUtils CmdLn;
     CmdLn.SetCommandLine(argc, argv);
@@ -92,62 +90,46 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetBoolOption")
   {
     const int argc = 9;
-    const char* argv[argc] =
-    {
-      "bla/blub/myprogram.exe",
-      "-Test1", "true",
-      "-Test2", "off",
-      "-Test3",
-      "-Test4", "on",
-      "-Test5"
-    };
+    const char* argv[argc] = {"bla/blub/myprogram.exe", "-Test1", "true", "-Test2", "off", "-Test3", "-Test4", "on", "-Test5"};
 
     ezCommandLineUtils CmdLn;
     CmdLn.SetCommandLine(argc, argv);
 
     // case sensitive and wrong
-    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test1", true, true)  == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test1", true, true) == true);
     EZ_TEST_BOOL(CmdLn.GetBoolOption("-test1", false, true) == false);
 
-    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test2", true, true)  == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test2", true, true) == true);
     EZ_TEST_BOOL(CmdLn.GetBoolOption("-test2", false, true) == false);
 
     // case insensitive and wrong
-    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test1", true)  == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test1", true) == true);
     EZ_TEST_BOOL(CmdLn.GetBoolOption("-test1", false) == true);
 
-    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test2", true)  == false);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test2", true) == false);
     EZ_TEST_BOOL(CmdLn.GetBoolOption("-test2", false) == false);
 
     // case sensitive and correct
-    EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test1", true)  == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test1", true) == true);
     EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test1", false) == true);
 
-    EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test2", true)  == false);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test2", true) == false);
     EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test2", false) == false);
 
-    EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test3", true)  == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test3", true) == true);
     EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test3", false) == true);
 
-    EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test4", true)  == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test4", true) == true);
     EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test4", false) == true);
 
-    EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test5", true)  == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test5", true) == true);
     EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test5", false) == true);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetIntOption")
   {
     const int argc = 9;
-    const char* argv[argc] =
-    {
-      "bla/blub/myprogram.exe",
-      "-Test1", "23",
-      "-Test2", "42",
-      "-Test3",
-      "-Test4", "11",
-      "-Test5"
-    };
+    const char* argv[argc] = {"bla/blub/myprogram.exe", "-Test1", "23", "-Test2", "42", "-Test3", "-Test4", "11", "-Test5"};
 
     ezCommandLineUtils CmdLn;
     CmdLn.SetCommandLine(argc, argv);
@@ -171,15 +153,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFloatOption")
   {
     const int argc = 9;
-    const char* argv[argc] =
-    {
-      "bla/blub/myprogram.exe",
-      "-Test1", "23.45",
-      "-Test2", "42.3",
-      "-Test3",
-      "-Test4", "11",
-      "-Test5"
-    };
+    const char* argv[argc] = {"bla/blub/myprogram.exe", "-Test1", "23.45", "-Test2", "42.3", "-Test3", "-Test4", "11", "-Test5"};
 
     ezCommandLineUtils CmdLn;
     CmdLn.SetCommandLine(argc, argv);
@@ -199,7 +173,4 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
     EZ_TEST_DOUBLE(CmdLn.GetFloatOption("-Test4", 5.6), 11, 0.0);
     EZ_TEST_DOUBLE(CmdLn.GetFloatOption("-Test5"), 0, 0.0);
   }
-
 }
-
-

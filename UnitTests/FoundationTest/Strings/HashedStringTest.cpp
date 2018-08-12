@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Strings/HashedString.h>
 
 EZ_CREATE_SIMPLE_TEST(Strings, HashedString)
@@ -6,7 +7,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, HashedString)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
     ezHashedString s;
-    ezHashedString s2; s2.Assign("test"); // compile time hashing
+    ezHashedString s2;
+    s2.Assign("test"); // compile time hashing
 
     EZ_TEST_STRING(s.GetString().GetData(), "");
     EZ_TEST_BOOL(s.GetString().IsEmpty());
@@ -34,11 +36,11 @@ EZ_CREATE_SIMPLE_TEST(Strings, HashedString)
     s.Assign(sb.GetData()); // runtime hashing
     EZ_TEST_STRING(s.GetString().GetData(), "test2");
     EZ_TEST_INT(s.GetHash(), 0x77e1287c);
-    
+
     ezTempHashedString ts("dummy");
     ts = "test"; // compile time hashing
     EZ_TEST_INT(ts.GetHash(), 0x1812752e);
-    
+
     ts = sb.GetData(); // runtime hashing
     EZ_TEST_INT(ts.GetHash(), 0x77e1287c);
   }
@@ -135,7 +137,6 @@ EZ_CREATE_SIMPLE_TEST(Strings, HashedString)
     EZ_TEST_BOOL((s1 < s1) == (s1 < t1));
     EZ_TEST_BOOL((s1 < s2) == (s1 < t2));
     EZ_TEST_BOOL((s1 < s3) == (s1 < t3));
-
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetString")
@@ -164,6 +165,4 @@ EZ_CREATE_SIMPLE_TEST(Strings, HashedString)
     EZ_TEST_INT(ezHashedString::ClearUnusedStrings(), 3);
     EZ_TEST_INT(ezHashedString::ClearUnusedStrings(), 0);
   }
-
 }
-

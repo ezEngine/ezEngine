@@ -1,19 +1,23 @@
 #include <PCH.h>
-#include <EditorFramework/PropertyGrid/ExposedParametersPropertyWidget.moc.h>
-#include <ToolsFoundation/Object/ObjectAccessorBase.h>
-#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <GuiFoundation/Widgets/GroupBoxBase.moc.h>
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
 
-ezExposedParameterCommandAccessor::ezExposedParameterCommandAccessor(ezObjectAccessorBase* pSource, const ezAbstractProperty* pParameterProp, const ezAbstractProperty* pParameterSourceProp)
-  : ezObjectProxyAccessor(pSource)
-  , m_pParameterProp(pParameterProp)
-  , m_pParameterSourceProp(pParameterSourceProp)
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/PropertyGrid/ExposedParametersPropertyWidget.moc.h>
+#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <GuiFoundation/Widgets/GroupBoxBase.moc.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
+
+ezExposedParameterCommandAccessor::ezExposedParameterCommandAccessor(ezObjectAccessorBase* pSource,
+                                                                     const ezAbstractProperty* pParameterProp,
+                                                                     const ezAbstractProperty* pParameterSourceProp)
+    : ezObjectProxyAccessor(pSource)
+    , m_pParameterProp(pParameterProp)
+    , m_pParameterSourceProp(pParameterSourceProp)
 {
 }
 
-ezStatus ezExposedParameterCommandAccessor::GetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value, ezVariant index /*= ezVariant()*/)
+ezStatus ezExposedParameterCommandAccessor::GetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value,
+                                                     ezVariant index /*= ezVariant()*/)
 {
   ezStatus res = ezObjectProxyAccessor::GetValue(pObject, pProp, out_value, index);
   if (res.Failed() && m_pParameterProp == pProp && index.IsA<ezString>())
@@ -28,7 +32,8 @@ ezStatus ezExposedParameterCommandAccessor::GetValue(const ezDocumentObject* pOb
   return res;
 }
 
-ezStatus ezExposedParameterCommandAccessor::SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
+ezStatus ezExposedParameterCommandAccessor::SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp,
+                                                     const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
 {
   ezStatus res = ezObjectProxyAccessor::SetValue(pObject, pProp, newValue, index);
   // As we pretend the exposed params always exist the actual SetValue will fail if this is not actually true,
@@ -40,7 +45,8 @@ ezStatus ezExposedParameterCommandAccessor::SetValue(const ezDocumentObject* pOb
   return res;
 }
 
-ezStatus ezExposedParameterCommandAccessor::RemoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index /*= ezVariant()*/)
+ezStatus ezExposedParameterCommandAccessor::RemoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp,
+                                                        ezVariant index /*= ezVariant()*/)
 {
   ezStatus res = ezObjectProxyAccessor::RemoveValue(pObject, pProp, index);
   if (res.Failed() && m_pParameterProp == pProp && index.IsA<ezString>())
@@ -66,7 +72,8 @@ ezStatus ezExposedParameterCommandAccessor::GetCount(const ezDocumentObject* pOb
   return ezObjectProxyAccessor::GetCount(pObject, pProp, out_iCount);
 }
 
-ezStatus ezExposedParameterCommandAccessor::GetKeys(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezHybridArray<ezVariant, 16>& out_keys)
+ezStatus ezExposedParameterCommandAccessor::GetKeys(const ezDocumentObject* pObject, const ezAbstractProperty* pProp,
+                                                    ezHybridArray<ezVariant, 16>& out_keys)
 {
   if (m_pParameterProp == pProp)
   {
@@ -92,7 +99,8 @@ ezStatus ezExposedParameterCommandAccessor::GetKeys(const ezDocumentObject* pObj
   return ezObjectProxyAccessor::GetKeys(pObject, pProp, out_keys);
 }
 
-ezStatus ezExposedParameterCommandAccessor::GetValues(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezHybridArray<ezVariant, 16>& out_values)
+ezStatus ezExposedParameterCommandAccessor::GetValues(const ezDocumentObject* pObject, const ezAbstractProperty* pProp,
+                                                      ezHybridArray<ezVariant, 16>& out_values)
 {
   if (m_pParameterProp == pProp)
   {
@@ -138,14 +146,14 @@ const ezExposedParameter* ezExposedParameterCommandAccessor::GetExposedParam(con
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtExposedParametersPropertyWidget::ezQtExposedParametersPropertyWidget()
-{
-}
+ezQtExposedParametersPropertyWidget::ezQtExposedParametersPropertyWidget() {}
 
 ezQtExposedParametersPropertyWidget::~ezQtExposedParametersPropertyWidget()
 {
-  m_pGrid->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtExposedParametersPropertyWidget::PropertyEventHandler, this));
-  m_pGrid->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtExposedParametersPropertyWidget::CommandHistoryEventHandler, this));
+  m_pGrid->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(
+      ezMakeDelegate(&ezQtExposedParametersPropertyWidget::PropertyEventHandler, this));
+  m_pGrid->GetCommandHistory()->m_Events.RemoveEventHandler(
+      ezMakeDelegate(&ezQtExposedParametersPropertyWidget::CommandHistoryEventHandler, this));
 }
 
 void ezQtExposedParametersPropertyWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
@@ -156,15 +164,18 @@ void ezQtExposedParametersPropertyWidget::SetSelection(const ezHybridArray<ezPro
 
 void ezQtExposedParametersPropertyWidget::OnInit()
 {
-  m_pGrid->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtExposedParametersPropertyWidget::PropertyEventHandler, this));
-  m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtExposedParametersPropertyWidget::CommandHistoryEventHandler, this));
+  m_pGrid->GetObjectManager()->m_PropertyEvents.AddEventHandler(
+      ezMakeDelegate(&ezQtExposedParametersPropertyWidget::PropertyEventHandler, this));
+  m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(
+      ezMakeDelegate(&ezQtExposedParametersPropertyWidget::CommandHistoryEventHandler, this));
 
   const auto* pAttrib = m_pProp->GetAttributeByType<ezExposedParametersAttribute>();
-  EZ_ASSERT_DEV(pAttrib, "ezQtExposedParametersPropertyWidget was created for a property that does not have the ezExposedParametersAttribute.");
+  EZ_ASSERT_DEV(pAttrib,
+                "ezQtExposedParametersPropertyWidget was created for a property that does not have the ezExposedParametersAttribute.");
   m_sExposedParamProperty = pAttrib->GetParametersSource();
   const ezAbstractProperty* pParameterSourceProp = m_pType->FindPropertyByName(m_sExposedParamProperty);
-  EZ_ASSERT_DEV(pParameterSourceProp, "The exposed parameter source '{}' does not exist on type '{}'",
-    m_sExposedParamProperty, m_pType->GetTypeName());
+  EZ_ASSERT_DEV(pParameterSourceProp, "The exposed parameter source '{}' does not exist on type '{}'", m_sExposedParamProperty,
+                m_pType->GetTypeName());
   m_pSourceObjectAccessor = m_pObjectAccessor;
   m_Proxy = EZ_DEFAULT_NEW(ezExposedParameterCommandAccessor, m_pSourceObjectAccessor, m_pProp, pParameterSourceProp);
   m_pObjectAccessor = m_Proxy.Borrow();
@@ -183,7 +194,8 @@ void ezQtExposedParametersPropertyWidget::OnInit()
     QMenu* pFixMeMenu = new QMenu(m_pFixMeButton);
     {
       m_pRemoveUnusedAction = pFixMeMenu->addAction(QStringLiteral("Remove unused keys"));
-      m_pRemoveUnusedAction->setToolTip(QStringLiteral("The map contains keys that are no longer used by the asset's exposed parameters and thus can be removed."));
+      m_pRemoveUnusedAction->setToolTip(
+          QStringLiteral("The map contains keys that are no longer used by the asset's exposed parameters and thus can be removed."));
       connect(m_pRemoveUnusedAction, &QAction::triggered, this, [this](bool checked) { RemoveUnusedKeys(false); });
     }
     {
@@ -212,8 +224,7 @@ void ezQtExposedParametersPropertyWidget::PropertyEventHandler(const ezDocumentO
   if (IsUndead())
     return;
 
-  if (std::none_of(cbegin(m_Items), cend(m_Items),
-    [=](const ezPropertySelection& sel) { return e.m_pObject == sel.m_pObject; }))
+  if (std::none_of(cbegin(m_Items), cend(m_Items), [=](const ezPropertySelection& sel) { return e.m_pObject == sel.m_pObject; }))
     return;
 
   if (!m_bNeedsUpdate && m_sExposedParamProperty == e.m_sProperty)
@@ -238,17 +249,17 @@ void ezQtExposedParametersPropertyWidget::CommandHistoryEventHandler(const ezCom
 
   switch (e.m_Type)
   {
-  case ezCommandHistoryEvent::Type::UndoEnded:
-  case ezCommandHistoryEvent::Type::RedoEnded:
-  case ezCommandHistoryEvent::Type::TransactionEnded:
-  case ezCommandHistoryEvent::Type::TransactionCanceled:
+    case ezCommandHistoryEvent::Type::UndoEnded:
+    case ezCommandHistoryEvent::Type::RedoEnded:
+    case ezCommandHistoryEvent::Type::TransactionEnded:
+    case ezCommandHistoryEvent::Type::TransactionCanceled:
     {
       FlushQueuedChanges();
     }
     break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }
 
@@ -327,7 +338,8 @@ bool ezQtExposedParametersPropertyWidget::FixKeyTypes(bool bTestOnly)
               }
               else
               {
-                m_pObjectAccessor->SetValue(item.m_pObject, m_pProp, ezToolsReflectionUtils::GetDefaultVariantFromType(type), key).LogFailure();
+                m_pObjectAccessor->SetValue(item.m_pObject, m_pProp, ezToolsReflectionUtils::GetDefaultVariantFromType(type), key)
+                    .LogFailure();
               }
             }
             else

@@ -1,15 +1,16 @@
-﻿#include <PCH.h>
-#include <Foundation/Math/Random.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <PCH.h>
+
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Math/Random.h>
 
 
 // only works when also linking against CoreUtils
 //#define USE_EZIMAGE
 
 #ifdef USE_EZIMAGE
-  #include <Foundation/Image/Image.h>
+#include <Foundation/Image/Image.h>
 #endif
 
 
@@ -69,7 +70,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Random)
     {
       const ezInt32 val = r.IntMinMax(-i, i);
       EZ_TEST_BOOL(val >= -i);
-      EZ_TEST_BOOL(val <=  i);
+      EZ_TEST_BOOL(val <= i);
     }
   }
 
@@ -141,7 +142,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Random)
     {
       const double val = r.DoubleMinMax(-i, i);
       EZ_TEST_BOOL(val >= -i);
-      EZ_TEST_BOOL(val <=  i);
+      EZ_TEST_BOOL(val <= i);
     }
   }
 
@@ -172,10 +173,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Random)
       EZ_TEST_INT(temp[i], r2.UInt());
     }
   }
-
 }
 
-static void SaveToImage(ezDynamicArray<ezUInt32> &Values, ezUInt32 uiMaxValue, const char* szFile)
+static void SaveToImage(ezDynamicArray<ezUInt32>& Values, ezUInt32 uiMaxValue, const char* szFile)
 {
 #ifdef USE_EZIMAGE
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
@@ -263,7 +263,7 @@ EZ_CREATE_SIMPLE_TEST(Math, RandomGauss)
 
       val += 100;
 
-      if (val < (ezInt32) Values.GetCount())
+      if (val < (ezInt32)Values.GetCount())
       {
         Values[val]++;
 
@@ -302,5 +302,3 @@ EZ_CREATE_SIMPLE_TEST(Math, RandomGauss)
     }
   }
 }
-
-

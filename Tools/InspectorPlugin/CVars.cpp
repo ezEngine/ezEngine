@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/CVar.h>
 
@@ -23,40 +24,40 @@ static void TelemetryMessage(void* pPassThrough)
 
       switch (uiType)
       {
-      case ezCVarType::Float:
-        Msg.GetReader() >> fValue;
-        break;
-      case ezCVarType::Int:
-        Msg.GetReader() >> iValue;
-        break;
-      case ezCVarType::Bool:
-        Msg.GetReader() >> bValue;
-        break;
-      case ezCVarType::String:
-        Msg.GetReader() >> sValue;
-        break;
+        case ezCVarType::Float:
+          Msg.GetReader() >> fValue;
+          break;
+        case ezCVarType::Int:
+          Msg.GetReader() >> iValue;
+          break;
+        case ezCVarType::Bool:
+          Msg.GetReader() >> bValue;
+          break;
+        case ezCVarType::String:
+          Msg.GetReader() >> sValue;
+          break;
       }
 
       ezCVar* pCVar = ezCVar::GetFirstInstance();
 
       while (pCVar)
       {
-        if (((ezUInt8) pCVar->GetType() == uiType) && (pCVar->GetName() == sCVar))
+        if (((ezUInt8)pCVar->GetType() == uiType) && (pCVar->GetName() == sCVar))
         {
           switch (uiType)
           {
-          case ezCVarType::Float:
-            *((ezCVarFloat*) pCVar) = fValue;
-            break;
-          case ezCVarType::Int:
-            *((ezCVarInt*) pCVar) = iValue;
-            break;
-          case ezCVarType::Bool:
-            *((ezCVarBool*) pCVar) = bValue;
-            break;
-          case ezCVarType::String:
-            *((ezCVarString*) pCVar) = sValue;
-            break;
+            case ezCVarType::Float:
+              *((ezCVarFloat*)pCVar) = fValue;
+              break;
+            case ezCVarType::Int:
+              *((ezCVarInt*)pCVar) = iValue;
+              break;
+            case ezCVarType::Bool:
+              *((ezCVarBool*)pCVar) = bValue;
+              break;
+            case ezCVarType::String:
+              *((ezCVarString*)pCVar) = sValue;
+              break;
           }
         }
 
@@ -72,40 +73,40 @@ static void SendCVarTelemetry(ezCVar* pCVar)
   msg.SetMessageID('CVAR', 'DATA');
   msg.GetWriter() << pCVar->GetName();
   msg.GetWriter() << pCVar->GetPluginName();
-  //msg.GetWriter() << (ezUInt8) pCVar->GetFlags().GetValue(); // currently not used
-  msg.GetWriter() << (ezUInt8) pCVar->GetType();
+  // msg.GetWriter() << (ezUInt8) pCVar->GetFlags().GetValue(); // currently not used
+  msg.GetWriter() << (ezUInt8)pCVar->GetType();
   msg.GetWriter() << pCVar->GetDescription();
 
   switch (pCVar->GetType())
   {
-  case ezCVarType::Float:
+    case ezCVarType::Float:
     {
-      const float val = ((ezCVarFloat*) pCVar)->GetValue();
+      const float val = ((ezCVarFloat*)pCVar)->GetValue();
       msg.GetWriter() << val;
     }
     break;
-  case ezCVarType::Int:
+    case ezCVarType::Int:
     {
-      const int val = ((ezCVarInt*) pCVar)->GetValue();
+      const int val = ((ezCVarInt*)pCVar)->GetValue();
       msg.GetWriter() << val;
     }
     break;
-  case ezCVarType::Bool:
+    case ezCVarType::Bool:
     {
-      const bool val = ((ezCVarBool*) pCVar)->GetValue();
+      const bool val = ((ezCVarBool*)pCVar)->GetValue();
       msg.GetWriter() << val;
     }
     break;
-  case ezCVarType::String:
+    case ezCVarType::String:
     {
-      const char* val = ((ezCVarString*) pCVar)->GetValue().GetData();
+      const char* val = ((ezCVarString*)pCVar)->GetValue().GetData();
       msg.GetWriter() << val;
     }
     break;
 
-  case ezCVarType::ENUM_COUNT:
-    EZ_ASSERT_NOT_IMPLEMENTED;
-    break;
+    case ezCVarType::ENUM_COUNT:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
   }
 
   ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
@@ -144,12 +145,12 @@ namespace CVarsDetail
   {
     switch (e.m_EventType)
     {
-    case ezTelemetry::TelemetryEventData::ConnectedToClient:
-      SendAllCVarTelemetry();
-      break;
+      case ezTelemetry::TelemetryEventData::ConnectedToClient:
+        SendAllCVarTelemetry();
+        break;
 
-    default:
-      break;
+      default:
+        break;
     }
   }
 
@@ -160,12 +161,12 @@ namespace CVarsDetail
 
     switch (e.m_EventType)
     {
-    case ezCVar::CVarEvent::ValueChanged:
-      SendCVarTelemetry(e.m_pCVar);
-      break;
+      case ezCVar::CVarEvent::ValueChanged:
+        SendCVarTelemetry(e.m_pCVar);
+        break;
 
-    default:
-      break;
+      default:
+        break;
     }
   }
 
@@ -173,15 +174,14 @@ namespace CVarsDetail
   {
     switch (e.m_EventType)
     {
-    case ezPlugin::PluginEvent::AfterPluginChanges:
-      SendAllCVarTelemetry();
-      break;
+      case ezPlugin::PluginEvent::AfterPluginChanges:
+        SendAllCVarTelemetry();
+        break;
 
-    default:
-      break;
+      default:
+        break;
     }
   }
-
 }
 
 void AddCVarEventHandler()
@@ -205,4 +205,3 @@ void RemoveCVarEventHandler()
 
 
 EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_CVars);
-

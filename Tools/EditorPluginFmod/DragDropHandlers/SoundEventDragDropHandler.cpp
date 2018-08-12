@@ -1,6 +1,7 @@
-﻿#include <PCH.h>
-#include <EditorPluginFmod/DragDropHandlers/SoundEventDragDropHandler.h>
+#include <PCH.h>
+
 #include <EditorFramework/DragDrop/DragDropInfo.h>
+#include <EditorPluginFmod/DragDropHandlers/SoundEventDragDropHandler.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundEventComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezSoundEventComponentDragDropHandler>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -21,7 +22,8 @@ void ezSoundEventComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pIn
   if (pInfo->m_sTargetContext == "viewport")
     CreateDropObject(pInfo->m_vDropPosition, "ezFmodEventComponent", "SoundEvent", GetAssetGuidString(pInfo), ezUuid(), -1);
   else
-    CreateDropObject(pInfo->m_vDropPosition, "ezFmodEventComponent", "SoundEvent", GetAssetGuidString(pInfo), pInfo->m_TargetObject, pInfo->m_iTargetObjectInsertChildIndex);
+    CreateDropObject(pInfo->m_vDropPosition, "ezFmodEventComponent", "SoundEvent", GetAssetGuidString(pInfo), pInfo->m_TargetObject,
+                     pInfo->m_iTargetObjectInsertChildIndex);
 
   SelectCreatedObjects();
   BeginTemporaryCommands();

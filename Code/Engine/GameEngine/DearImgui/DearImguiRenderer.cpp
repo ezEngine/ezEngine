@@ -1,13 +1,14 @@
 #include <PCH.h>
+
+#include <GameEngine/DearImgui/DearImgui.h>
 #include <GameEngine/DearImgui/DearImguiRenderer.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
-#include <RendererFoundation/Device/Device.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderResource.h>
-#include <GameEngine/DearImgui/DearImgui.h>
+#include <RendererFoundation/Device/Device.h>
 #include <ThirdParty/Imgui/imgui_internal.h>
 
-
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImguiRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -16,15 +17,15 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImguiRenderer, 1, ezRTTIDefaultAllocator<ezImguiRenderer>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezImguiExtractor::ezImguiExtractor(const char* szName)
-  : ezExtractor(szName)
+    : ezExtractor(szName)
 {
-
 }
 
 void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-  ezExtractedRenderData& extractedRenderData)
+                               ezExtractedRenderData& extractedRenderData)
 {
   // ignore ImGui as long as it hasn't been used
   if (ImGui::GetCurrentContext() == nullptr || !ImGui::GetCurrentContext()->Initialized)
@@ -79,7 +80,8 @@ void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ez
           ezImguiBatch& batch = pRenderData->m_Batches[cmdIdx];
           batch.m_uiVertexCount = pCmd->ElemCount;
           batch.m_uiTextureID = (ezUInt16)iTextureID;
-          batch.m_ScissorRect = ezRectU32((ezUInt32)pCmd->ClipRect.x, (ezUInt32)pCmd->ClipRect.y, (ezUInt32)(pCmd->ClipRect.z - pCmd->ClipRect.x), (ezUInt32)(pCmd->ClipRect.w - pCmd->ClipRect.y));
+          batch.m_ScissorRect = ezRectU32((ezUInt32)pCmd->ClipRect.x, (ezUInt32)pCmd->ClipRect.y,
+                                          (ezUInt32)(pCmd->ClipRect.z - pCmd->ClipRect.x), (ezUInt32)(pCmd->ClipRect.w - pCmd->ClipRect.y));
         }
       }
 
@@ -88,9 +90,7 @@ void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ez
   }
 }
 
-ezImguiRenderer::ezImguiRenderer()
-{
-}
+ezImguiRenderer::ezImguiRenderer() {}
 
 ezImguiRenderer::~ezImguiRenderer()
 {
@@ -129,10 +129,13 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, ezRe
     EZ_ASSERT_DEV(pRenderData->m_Vertices.GetCount() < VertexBufferSize, "GUI has too many elements to render in one drawcall");
     EZ_ASSERT_DEV(pRenderData->m_Indices.GetCount() < IndexBufferSize, "GUI has too many elements to render in one drawcall");
 
-    pGALContext->UpdateBuffer(m_hVertexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Vertices.GetPtr(), pRenderData->m_Vertices.GetCount()).ToByteArray());
-    pGALContext->UpdateBuffer(m_hIndexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Indices.GetPtr(), pRenderData->m_Indices.GetCount()).ToByteArray());
+    pGALContext->UpdateBuffer(m_hVertexBuffer, 0,
+                              ezMakeArrayPtr(pRenderData->m_Vertices.GetPtr(), pRenderData->m_Vertices.GetCount()).ToByteArray());
+    pGALContext->UpdateBuffer(m_hIndexBuffer, 0,
+                              ezMakeArrayPtr(pRenderData->m_Indices.GetPtr(), pRenderData->m_Indices.GetCount()).ToByteArray());
 
-    pRenderContext->BindMeshBuffer(m_hVertexBuffer, m_hIndexBuffer, &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, pRenderData->m_Indices.GetCount() / 3);
+    pRenderContext->BindMeshBuffer(m_hVertexBuffer, m_hIndexBuffer, &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles,
+                                   pRenderData->m_Indices.GetCount() / 3);
 
     ezUInt32 uiFirstIndex = 0;
     const ezUInt32 numBatches = pRenderData->m_Batches.GetCount();
@@ -215,4 +218,3 @@ void ezImguiRenderer::SetupRenderer()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_DearImgui_DearImguiRenderer);
-

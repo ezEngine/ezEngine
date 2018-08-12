@@ -1,18 +1,19 @@
 #include <PCH.h>
-#include <ModelImporter/Importers/FBXSDKImporter.h>
-#include <ModelImporter/Scene.h>
-#include <ModelImporter/Node.h>
-#include <ModelImporter/Mesh.h>
-#include <ModelImporter/VertexData.h>
-#include <ModelImporter/Material.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Types/ScopeExit.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Containers/DynamicArray.h>
 
-#include <RendererCore/AnimationSystem/SkeletonBuilder.h>
-#include <RendererCore/AnimationSystem/Skeleton.h>
+#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Types/ScopeExit.h>
+#include <ModelImporter/Importers/FBXSDKImporter.h>
+#include <ModelImporter/Material.h>
+#include <ModelImporter/Mesh.h>
+#include <ModelImporter/Node.h>
+#include <ModelImporter/Scene.h>
+#include <ModelImporter/VertexData.h>
+
 #include <RendererCore/AnimationSystem/AnimationPose.h>
+#include <RendererCore/AnimationSystem/Skeleton.h>
+#include <RendererCore/AnimationSystem/SkeletonBuilder.h>
 
 #if defined(BUILDSYSTEM_BUILD_WITH_OFFICIAL_FBX_SDK)
 #include <fbxsdk.h>
@@ -37,17 +38,20 @@ namespace ezModelImporter
 
   ezVec3 ConvertFromFBX(const FbxDouble3& fbxDouble3)
   {
-    return ezVec3(static_cast<float>(fbxDouble3.mData[0]), static_cast<float>(fbxDouble3.mData[1]), static_cast<float>(fbxDouble3.mData[2]));
+    return ezVec3(static_cast<float>(fbxDouble3.mData[0]), static_cast<float>(fbxDouble3.mData[1]),
+                  static_cast<float>(fbxDouble3.mData[2]));
   }
 
   ezVec4 ConvertFromFBX(const FbxVector4& fbxVec4)
   {
-    return ezVec4(static_cast<float>(fbxVec4.mData[0]), static_cast<float>(fbxVec4.mData[1]), static_cast<float>(fbxVec4.mData[2]), static_cast<float>(fbxVec4.mData[3]));
+    return ezVec4(static_cast<float>(fbxVec4.mData[0]), static_cast<float>(fbxVec4.mData[1]), static_cast<float>(fbxVec4.mData[2]),
+                  static_cast<float>(fbxVec4.mData[3]));
   }
 
   ezVec4 ConvertFromFBX(const FbxColor& fbxColor)
   {
-    return ezVec4(static_cast<float>(fbxColor.mRed), static_cast<float>(fbxColor.mGreen), static_cast<float>(fbxColor.mBlue), static_cast<float>(fbxColor.mAlpha));
+    return ezVec4(static_cast<float>(fbxColor.mRed), static_cast<float>(fbxColor.mGreen), static_cast<float>(fbxColor.mBlue),
+                  static_cast<float>(fbxColor.mAlpha));
   }
 
   ezVec2 ConvertFromFBX(const FbxVector2& fbxVec2)
@@ -57,7 +61,8 @@ namespace ezModelImporter
 
   ezQuat ConvertFromFBX(const FbxQuaternion& fbxQuat)
   {
-    return ezQuat(static_cast<float>(fbxQuat.mData[0]), static_cast<float>(fbxQuat.mData[1]), static_cast<float>(fbxQuat.mData[2]), static_cast<float>(fbxQuat.mData[3]));
+    return ezQuat(static_cast<float>(fbxQuat.mData[0]), static_cast<float>(fbxQuat.mData[1]), static_cast<float>(fbxQuat.mData[2]),
+                  static_cast<float>(fbxQuat.mData[3]));
   }
 
   ezMat4 ConvertFromFBX(const FbxAMatrix& fbxMatrix)
@@ -79,21 +84,19 @@ namespace ezModelImporter
     EZ_DECLARE_POD_TYPE();
 
     FBXVertex()
-      : pos(ezVec3::ZeroVector())
-      , normal(ezVec3::ZeroVector())
-      , tangent(ezVec3::ZeroVector())
-      , binormal(ezVec3::ZeroVector())
-      , uv0(ezVec2::ZeroVector())
-      , uv1(ezVec2::ZeroVector())
-      , color(1, 1, 1, 1)
-      , boneIndices(ezInvalidIndex, ezInvalidIndex, ezInvalidIndex, ezInvalidIndex)
-      , boneWeights(ezVec4::ZeroVector())
-    {}
-
-    bool operator == (const FBXVertex& other) const
+        : pos(ezVec3::ZeroVector())
+        , normal(ezVec3::ZeroVector())
+        , tangent(ezVec3::ZeroVector())
+        , binormal(ezVec3::ZeroVector())
+        , uv0(ezVec2::ZeroVector())
+        , uv1(ezVec2::ZeroVector())
+        , color(1, 1, 1, 1)
+        , boneIndices(ezInvalidIndex, ezInvalidIndex, ezInvalidIndex, ezInvalidIndex)
+        , boneWeights(ezVec4::ZeroVector())
     {
-      return ezMemoryUtils::ByteCompare(this, &other) == 0;
     }
+
+    bool operator==(const FBXVertex& other) const { return ezMemoryUtils::ByteCompare(this, &other) == 0; }
 
     ezVec3 pos;
     ezVec3 normal;
@@ -111,20 +114,23 @@ namespace ezModelImporter
     EZ_DECLARE_POD_TYPE();
 
     BlendWeightAndBone()
-      : pBone(nullptr)
-      , fBlendWeight(0)
-    {}
+        : pBone(nullptr)
+        , fBlendWeight(0)
+    {
+    }
 
     BlendWeightAndBone(FbxNode* pBone, float fBlendWeight)
-      : pBone(pBone)
-      , fBlendWeight(fBlendWeight)
-    {}
+        : pBone(pBone)
+        , fBlendWeight(fBlendWeight)
+    {
+    }
 
     FbxNode* pBone;
     float fBlendWeight;
   };
 
-  void TryAddTextureReference(fbxsdk::FbxSurfaceMaterial* pMaterial, const char* szFBXName, SemanticHint::Enum semanticHint, const char* szSemantic, ezModelImporter::Material* pMat)
+  void TryAddTextureReference(fbxsdk::FbxSurfaceMaterial* pMaterial, const char* szFBXName, SemanticHint::Enum semanticHint,
+                              const char* szSemantic, ezModelImporter::Material* pMat)
   {
     FbxProperty pProperty = pMaterial->FindProperty(szFBXName);
     if (int iNumTextures = pProperty.GetSrcObjectCount<FbxTexture>())
@@ -263,26 +269,27 @@ namespace ezModelImporter
 
       switch (pMaterialElement->GetMappingMode())
       {
-      case FbxGeometryElement::eAllSame:
+        case FbxGeometryElement::eAllSame:
         {
           FbxSurfaceMaterial* pMaterial = pMesh->GetNode()->GetMaterial(pMaterialElement->GetIndexArray().GetAt(0));
 
           if (!ImportContext.fbxMaterialsToEz.Contains(pMaterial))
           {
-            ezLog::Warning("FBX material mapping type is set to eAllSame but the referenced material wasn't imported. Assigning default material.");
+            ezLog::Warning(
+                "FBX material mapping type is set to eAllSame but the referenced material wasn't imported. Assigning default material.");
           }
 
           AllSameMaterial = *ImportContext.fbxMaterialsToEz.GetValue(pMaterial);
         }
         break;
 
-      case FbxGeometryElement::eByPolygon:
+        case FbxGeometryElement::eByPolygon:
         {
           // Mapping is handled with sub mesh creation
         }
         break;
 
-      default:
+        default:
         {
           ezLog::Warning("FBX import encountered unsupported material mapping mode, currently supported are: eAllSame, eByPolygon.");
         }
@@ -387,19 +394,19 @@ namespace ezModelImporter
           {
             switch (pNormalElement->GetReferenceMode())
             {
-            case FbxGeometryElement::eDirect:
-              vertex.normal = ConvertFromFBX(pNormalElement->GetDirectArray().GetAt(vertexId)).GetAsVec3();
-              break;
+              case FbxGeometryElement::eDirect:
+                vertex.normal = ConvertFromFBX(pNormalElement->GetDirectArray().GetAt(vertexId)).GetAsVec3();
+                break;
 
-            case FbxGeometryElement::eIndexToDirect:
+              case FbxGeometryElement::eIndexToDirect:
               {
                 int id = pNormalElement->GetIndexArray().GetAt(vertexId);
                 vertex.normal = ConvertFromFBX(pNormalElement->GetDirectArray().GetAt(id)).GetAsVec3();
               }
               break;
 
-            default:
-              break; // other reference modes not shown here!
+              default:
+                break; // other reference modes not shown here!
             }
           }
         }
@@ -411,19 +418,19 @@ namespace ezModelImporter
           {
             switch (pTangentElement->GetReferenceMode())
             {
-            case FbxGeometryElement::eDirect:
-              vertex.tangent = ConvertFromFBX(pTangentElement->GetDirectArray().GetAt(vertexId)).GetAsVec3();
-              break;
+              case FbxGeometryElement::eDirect:
+                vertex.tangent = ConvertFromFBX(pTangentElement->GetDirectArray().GetAt(vertexId)).GetAsVec3();
+                break;
 
-            case FbxGeometryElement::eIndexToDirect:
+              case FbxGeometryElement::eIndexToDirect:
               {
                 int id = pTangentElement->GetIndexArray().GetAt(vertexId);
                 vertex.tangent = ConvertFromFBX(pTangentElement->GetDirectArray().GetAt(id)).GetAsVec3();
               }
               break;
 
-            default:
-              break; // other reference modes not shown here!
+              default:
+                break; // other reference modes not shown here!
             }
           }
         }
@@ -435,19 +442,19 @@ namespace ezModelImporter
           {
             switch (pBinormalElement->GetReferenceMode())
             {
-            case FbxGeometryElement::eDirect:
-              vertex.binormal = ConvertFromFBX(pBinormalElement->GetDirectArray().GetAt(vertexId)).GetAsVec3();
-              break;
+              case FbxGeometryElement::eDirect:
+                vertex.binormal = ConvertFromFBX(pBinormalElement->GetDirectArray().GetAt(vertexId)).GetAsVec3();
+                break;
 
-            case FbxGeometryElement::eIndexToDirect:
+              case FbxGeometryElement::eIndexToDirect:
               {
                 int id = pBinormalElement->GetIndexArray().GetAt(vertexId);
                 vertex.binormal = ConvertFromFBX(pBinormalElement->GetDirectArray().GetAt(id)).GetAsVec3();
               }
               break;
 
-            default:
-              break; // other reference modes not shown here!
+              default:
+                break; // other reference modes not shown here!
             }
           }
         }
@@ -462,46 +469,46 @@ namespace ezModelImporter
 
           switch (pUVElement->GetMappingMode())
           {
-          case FbxGeometryElement::eByControlPoint:
-            switch (pUVElement->GetReferenceMode())
-            {
-            case FbxGeometryElement::eDirect:
-              uv = ConvertFromFBX(pUVElement->GetDirectArray().GetAt(iIndex));
-              break;
-            case FbxGeometryElement::eIndexToDirect:
+            case FbxGeometryElement::eByControlPoint:
+              switch (pUVElement->GetReferenceMode())
               {
-                int id = pUVElement->GetIndexArray().GetAt(iIndex);
-                uv = ConvertFromFBX(pUVElement->GetDirectArray().GetAt(id));
+                case FbxGeometryElement::eDirect:
+                  uv = ConvertFromFBX(pUVElement->GetDirectArray().GetAt(iIndex));
+                  break;
+                case FbxGeometryElement::eIndexToDirect:
+                {
+                  int id = pUVElement->GetIndexArray().GetAt(iIndex);
+                  uv = ConvertFromFBX(pUVElement->GetDirectArray().GetAt(id));
+                }
+                break;
+                default:
+                  break; // other reference modes not implemented yet
               }
               break;
-            default:
-              break; // other reference modes not implemented yet
-            }
-            break;
 
-          case FbxGeometryElement::eByPolygonVertex:
+            case FbxGeometryElement::eByPolygonVertex:
             {
               int textureUVIndex = pMesh->GetTextureUVIndex(poly, polyVertex);
               switch (pUVElement->GetReferenceMode())
               {
-              case FbxGeometryElement::eDirect:
-              case FbxGeometryElement::eIndexToDirect:
+                case FbxGeometryElement::eDirect:
+                case FbxGeometryElement::eIndexToDirect:
                 {
                   uv = ConvertFromFBX(pUVElement->GetDirectArray().GetAt(textureUVIndex));
                 }
                 break;
-              default:
-                break; // other reference modes not shown here!
+                default:
+                  break; // other reference modes not shown here!
               }
             }
             break;
 
-          case FbxGeometryElement::eByPolygon: // doesn't make much sense for UVs
-          case FbxGeometryElement::eAllSame:   // doesn't make much sense for UVs
-          case FbxGeometryElement::eNone:       // doesn't make much sense for UVs
-            break;
-          default:
-            break;
+            case FbxGeometryElement::eByPolygon: // doesn't make much sense for UVs
+            case FbxGeometryElement::eAllSame:   // doesn't make much sense for UVs
+            case FbxGeometryElement::eNone:      // doesn't make much sense for UVs
+              break;
+            default:
+              break;
           }
 
           // make the V coordinate conform with the expected convention
@@ -510,14 +517,14 @@ namespace ezModelImporter
 
           switch (uvElement)
           {
-          case 0:
-            vertex.uv0 = uv;
-            break;
-          case 1:
-            vertex.uv1 = uv;
-            break;
-          default:
-            break;
+            case 0:
+              vertex.uv0 = uv;
+              break;
+            case 1:
+              vertex.uv1 = uv;
+              break;
+            default:
+              break;
           }
         }
 
@@ -527,48 +534,48 @@ namespace ezModelImporter
 
           switch (pVertexColorElement->GetMappingMode())
           {
-          default:
-            break;
-          case FbxGeometryElement::eByControlPoint:
-            switch (pVertexColorElement->GetReferenceMode())
-            {
-            case FbxGeometryElement::eDirect:
-              vertex.color = ConvertFromFBX(pVertexColorElement->GetDirectArray().GetAt(iIndex));
+            default:
               break;
-            case FbxGeometryElement::eIndexToDirect:
+            case FbxGeometryElement::eByControlPoint:
+              switch (pVertexColorElement->GetReferenceMode())
               {
-                int id = pVertexColorElement->GetIndexArray().GetAt(iIndex);
-                vertex.color = ConvertFromFBX(pVertexColorElement->GetDirectArray().GetAt(id));
+                case FbxGeometryElement::eDirect:
+                  vertex.color = ConvertFromFBX(pVertexColorElement->GetDirectArray().GetAt(iIndex));
+                  break;
+                case FbxGeometryElement::eIndexToDirect:
+                {
+                  int id = pVertexColorElement->GetIndexArray().GetAt(iIndex);
+                  vertex.color = ConvertFromFBX(pVertexColorElement->GetDirectArray().GetAt(id));
+                }
+                break;
+                default:
+                  break; // other reference modes not implemented
               }
               break;
-            default:
-              break; // other reference modes not implemented
-            }
-            break;
 
-          case FbxGeometryElement::eByPolygonVertex:
+            case FbxGeometryElement::eByPolygonVertex:
             {
               switch (pVertexColorElement->GetReferenceMode())
               {
-              case FbxGeometryElement::eDirect:
-                vertex.color = ConvertFromFBX(pVertexColorElement->GetDirectArray().GetAt(vertexId));
-                break;
-              case FbxGeometryElement::eIndexToDirect:
+                case FbxGeometryElement::eDirect:
+                  vertex.color = ConvertFromFBX(pVertexColorElement->GetDirectArray().GetAt(vertexId));
+                  break;
+                case FbxGeometryElement::eIndexToDirect:
                 {
                   int id = pVertexColorElement->GetIndexArray().GetAt(vertexId);
                   vertex.color = ConvertFromFBX(pVertexColorElement->GetDirectArray().GetAt(id));
                 }
                 break;
-              default:
-                break; // other reference modes not shown here!
+                default:
+                  break; // other reference modes not shown here!
               }
             }
             break;
 
-          case FbxGeometryElement::eByPolygon: // doesn't make much sense for UVs
-          case FbxGeometryElement::eAllSame:   // doesn't make much sense for UVs
-          case FbxGeometryElement::eNone:       // doesn't make much sense for UVs
-            break;
+            case FbxGeometryElement::eByPolygon: // doesn't make much sense for UVs
+            case FbxGeometryElement::eAllSame:   // doesn't make much sense for UVs
+            case FbxGeometryElement::eNone:      // doesn't make much sense for UVs
+              break;
           }
         }
 
@@ -591,13 +598,14 @@ namespace ezModelImporter
                 ezUInt32 uiTemp = 0;
                 if (vertex.boneWeights.GetData()[iSubBone] > 0.0f)
                 {
-                  if (pSkeleton->FindBoneByName(blendWeightsForVertex[iSubBone].pBone->GetName(), uiTemp))
+                  if (pSkeleton->FindJointByName(ezTempHashedString(blendWeightsForVertex[iSubBone].pBone->GetName()), uiTemp).Succeeded())
                   {
                     vertex.boneIndices.GetData()[iSubBone] = uiTemp;
                   }
                   else
                   {
-                    ezLog::Error("Couldn't find bone '{0}' in skeleton, aborting import.", blendWeightsForVertex[iSubBone].pBone->GetName());
+                    ezLog::Error("Couldn't find bone '{0}' in skeleton, aborting import.",
+                                 blendWeightsForVertex[iSubBone].pBone->GetName());
                     return ObjectHandle();
                   }
                 }
@@ -610,7 +618,7 @@ namespace ezModelImporter
               if (vertex.boneWeights.x > 0.0f)
               {
                 ezUInt32 uiTemp = 0;
-                if (pSkeleton->FindBoneByName(blendWeightsForVertex[0].pBone->GetName(), uiTemp))
+                if (pSkeleton->FindJointByName(ezTempHashedString(blendWeightsForVertex[0].pBone->GetName()), uiTemp).Succeeded())
                 {
                   vertex.boneIndices.x = uiTemp;
                 }
@@ -631,20 +639,22 @@ namespace ezModelImporter
 
     // De-duplicate the vertices to build a proper indexed mesh
     // This might require speed up for large models since this is quadratic in complexity
-    ezDynamicArray<FBXVertex> deduplicatedVertices; deduplicatedVertices.Reserve(uniqueVertices.GetCount() / 2);
-    ezDynamicArray<ezUInt32> indices; indices.Reserve(uniqueVertices.GetCount());
+    ezDynamicArray<FBXVertex> deduplicatedVertices;
+    deduplicatedVertices.Reserve(uniqueVertices.GetCount() / 2);
+    ezDynamicArray<ezUInt32> indices;
+    indices.Reserve(uniqueVertices.GetCount());
 
     for (const auto& vertex : uniqueVertices)
     {
       // TODO: Unfortunately it is a problem to deduplicate vertices this way:
       // when data streams such as normals, tangents etc. are not available, or contain garbage data (normals are all zero, this happens)
-      // it will deduplicate vertices that must not be merged, ie. from triangles that face into different directions (e.g. double-sided geometry)
-      // Additionally, even if the data is 'good', but the user enabled 'recalculate normals', we must not deduplicate this BEFORE we have the final,
-      // recomputed data, otherwise we merge vertices into one, that may be different after the recomputation
+      // it will deduplicate vertices that must not be merged, ie. from triangles that face into different directions (e.g. double-sided
+      // geometry) Additionally, even if the data is 'good', but the user enabled 'recalculate normals', we must not deduplicate this BEFORE
+      // we have the final, recomputed data, otherwise we merge vertices into one, that may be different after the recomputation
       //
       // since this breaks some meshes, I deactivated deduplication for now
 
-      ezUInt32 deduplicatedIndex = ezInvalidIndex;// deduplicatedVertices.IndexOf(vertex);
+      ezUInt32 deduplicatedIndex = ezInvalidIndex; // deduplicatedVertices.IndexOf(vertex);
       if (deduplicatedIndex != ezInvalidIndex)
       {
         indices.PushBack(deduplicatedIndex);
@@ -869,7 +879,8 @@ namespace ezModelImporter
     return ImportContext.pOutScene->AddNode(std::move(node));
   }
 
-  ezResult ImportSkeletonRecursive(FbxNode* pNode, ezSkeletonBuilder& SkeletonBuilder, ezUInt32 uiParentBoneIndex, FBXImportContext& ImportContext)
+  ezResult ImportSkeletonRecursive(FbxNode* pNode, ezSkeletonBuilder& SkeletonBuilder, ezUInt32 uiParentBoneIndex,
+                                   FBXImportContext& ImportContext)
   {
     ezUInt32 uiBoneIndex = uiParentBoneIndex;
 
@@ -877,7 +888,7 @@ namespace ezModelImporter
     {
       if (pSkeleton->IsSkeletonRoot())
       {
-        if (SkeletonBuilder.HasBones())
+        if (SkeletonBuilder.HasJoints())
         {
           ezLog::Error("Skeleton has more than one root bone. This is currently not supported, aborting skeleton import.");
           return EZ_FAILURE;
@@ -885,7 +896,7 @@ namespace ezModelImporter
       }
       else
       {
-        if(!SkeletonBuilder.HasBones())
+        if (!SkeletonBuilder.HasJoints())
         {
           ezLog::Error("Malformed skeleton: Bone found before any root bone, aborting skeleton import.");
           return EZ_FAILURE;
@@ -894,7 +905,9 @@ namespace ezModelImporter
 
       const FbxAMatrix localTransform = pNode->EvaluateLocalTransform();
 
-      uiBoneIndex = SkeletonBuilder.AddBone(pNode->GetName(), ConvertFromFBX(localTransform), uiParentBoneIndex);
+      ezTransform transform;
+      transform.SetFromMat4(ConvertFromFBX(localTransform));
+      uiBoneIndex = SkeletonBuilder.AddJoint(pNode->GetName(), transform, uiParentBoneIndex);
     }
 
     for (int i = 0; i < pNode->GetChildCount(); ++i)
@@ -943,10 +956,7 @@ namespace ezModelImporter
     }
   }
 
-  ezArrayPtr<const ezString> FBXSDKImporter::GetSupportedFileFormats() const
-  {
-    return ezMakeArrayPtr(m_supportedFileFormats);
-  }
+  ezArrayPtr<const ezString> FBXSDKImporter::GetSupportedFileFormats() const { return ezMakeArrayPtr(m_supportedFileFormats); }
 
   ezSharedPtr<Scene> FBXSDKImporter::ImportScene(const char* szFileName, ezBitflags<ImportFlags> importFlags)
   {
@@ -957,7 +967,10 @@ namespace ezModelImporter
     }
 
     FbxImporter* pImporter = FbxImporter::Create(m_pFBXManager, szFileName);
-    EZ_SCOPE_EXIT(if (pImporter) { pImporter->Destroy(); pImporter = nullptr; });
+    EZ_SCOPE_EXIT(if (pImporter) {
+      pImporter->Destroy();
+      pImporter = nullptr;
+    });
 
     const bool importStatus = pImporter->Initialize(szFileName, -1, m_pFBXManager->GetIOSettings());
 
@@ -989,7 +1002,10 @@ namespace ezModelImporter
     ezLog::Info("FBX file format of file: {0}.{1}.{2}", fileMajor, fileMinor, fileRevision);
 
     FbxScene* pScene = FbxScene::Create(m_pFBXManager, szFileName);
-    EZ_SCOPE_EXIT(if (pScene) { pScene->Destroy(); pScene = nullptr; });
+    EZ_SCOPE_EXIT(if (pScene) {
+      pScene->Destroy();
+      pScene = nullptr;
+    });
 
     // Do the actual import into the FBX data structure
     if (!pImporter->Import(pScene))
@@ -1009,7 +1025,7 @@ namespace ezModelImporter
     ezSharedPtr<Scene> outScene = EZ_DEFAULT_NEW(Scene);
 
     {
-      FBXImportContext ImportContext{ pImporter, pScene, outScene };
+      FBXImportContext ImportContext{pImporter, pScene, outScene};
 
       // Triangulate all meshes in the scene
       {
@@ -1035,22 +1051,21 @@ namespace ezModelImporter
             return nullptr;
           }
 
-          if (!SkeletonBuilder.HasBones())
+          if (!SkeletonBuilder.HasJoints())
           {
             ezLog::Info("FBX '{0}' has no skeleton associated");
           }
           else
           {
-            outScene->m_pSkeleton = SkeletonBuilder.CreateSkeletonInstance();
+            SkeletonBuilder.BuildSkeleton(outScene->m_Skeleton);
           }
         }
 
-        if (!ImportNodeRecursive(pScene->GetRootNode(), outScene->m_pSkeleton.Borrow(), ImportContext).IsValid())
+        if (!ImportNodeRecursive(pScene->GetRootNode(), &outScene->m_Skeleton, ImportContext).IsValid())
         {
           ezLog::Error("Errors during FBX import of '{0}'", szFileName);
           return nullptr;
         }
-
       }
     }
 
@@ -1059,24 +1074,13 @@ namespace ezModelImporter
 
 #else
   // Empty stub implementation when not building with the official FBX SDK
-  FBXSDKImporter::FBXSDKImporter()
-  {
-  }
+  FBXSDKImporter::FBXSDKImporter() {}
 
-  FBXSDKImporter::~FBXSDKImporter()
-  {
-  }
+  FBXSDKImporter::~FBXSDKImporter() {}
 
-  ezArrayPtr<const ezString> FBXSDKImporter::GetSupportedFileFormats() const
-  {
-    return ezMakeArrayPtr(m_supportedFileFormats);
-  }
+  ezArrayPtr<const ezString> FBXSDKImporter::GetSupportedFileFormats() const { return ezMakeArrayPtr(m_supportedFileFormats); }
 
-  ezSharedPtr<Scene> FBXSDKImporter::ImportScene(const char* szFileName, ezBitflags<ImportFlags> importFlags)
-  {
-    return nullptr;
-  }
+  ezSharedPtr<Scene> FBXSDKImporter::ImportScene(const char* szFileName, ezBitflags<ImportFlags> importFlags) { return nullptr; }
 
 #endif
-
-  }
+}

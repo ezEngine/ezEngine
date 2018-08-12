@@ -1,16 +1,17 @@
 #include <PCH.h>
-#include <GuiFoundation/Widgets/Curve1DEditorWidget.moc.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <Foundation/Math/Color8UNorm.h>
-#include <QGraphicsItem>
-#include <QPainterPath>
-#include <QGraphicsSceneEvent>
+
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Math/Math.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <GuiFoundation/Widgets/Curve1DEditorWidget.moc.h>
+#include <QGraphicsItem>
+#include <QGraphicsSceneEvent>
 #include <QMenu>
+#include <QPainterPath>
 
 ezQtCurve1DEditorWidget::ezQtCurve1DEditorWidget(QWidget* pParent)
-  : QWidget(pParent)
+    : QWidget(pParent)
 {
   setupUi(this);
 
@@ -31,9 +32,7 @@ ezQtCurve1DEditorWidget::ezQtCurve1DEditorWidget(QWidget* pParent)
   LineValue->setEnabled(false);
 }
 
-ezQtCurve1DEditorWidget::~ezQtCurve1DEditorWidget()
-{
-}
+ezQtCurve1DEditorWidget::~ezQtCurve1DEditorWidget() {}
 
 void ezQtCurve1DEditorWidget::SetCurves(ezCurveGroupData& curves, double fMinCurveLength, bool bCurveLengthIsFixed)
 {
@@ -114,7 +113,6 @@ void ezQtCurve1DEditorWidget::MakeRepeatable(bool bAdjustLastPoint)
     {
       emit CpMovedEvent(iCurveIdx, uiMinCp, 0, cpRight.m_fValue);
       emit TangentMovedEvent(iCurveIdx, uiMinCp, -cpRight.m_LeftTangent.x, -cpRight.m_LeftTangent.y, true);
-
     }
   }
 
@@ -228,10 +226,7 @@ struct PtToDelete
   ezUInt32 m_uiCurveIdx;
   ezUInt32 m_uiPointIdx;
 
-  bool operator<(const PtToDelete& rhs) const
-  {
-    return m_uiPointIdx > rhs.m_uiPointIdx;
-  }
+  bool operator<(const PtToDelete& rhs) const { return m_uiPointIdx > rhs.m_uiPointIdx; }
 };
 
 void ezQtCurve1DEditorWidget::onDeleteControlPoints()
@@ -522,7 +517,8 @@ bool ezQtCurve1DEditorWidget::PickCurveAt(double x, double y, double fMaxDistanc
   return out_iCurveIdx >= 0;
 }
 
-bool ezQtCurve1DEditorWidget::PickControlPointAt(double x, double y, ezVec2d vMaxDistance, ezInt32& out_iCurveIdx, ezInt32& out_iCpIdx) const
+bool ezQtCurve1DEditorWidget::PickControlPointAt(double x, double y, ezVec2d vMaxDistance, ezInt32& out_iCurveIdx,
+                                                 ezInt32& out_iCpIdx) const
 {
   const ezVec2d at(x, y);
 
@@ -706,5 +702,3 @@ void ezQtCurve1DEditorWidget::SetTangentMode(ezCurveTangentMode::Enum mode, bool
 
   emit EndCpChangesEvent();
 }
-
-

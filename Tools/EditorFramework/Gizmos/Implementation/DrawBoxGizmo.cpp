@@ -1,14 +1,15 @@
 #include <PCH.h>
-#include <EditorFramework/Gizmos/DrawBoxGizmo.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <Foundation/Logging/Log.h>
+
 #include <Core/Graphics/Camera.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <Foundation/Math/Mat4.h>
 #include <EditorFramework/Assets/AssetDocument.h>
-#include <QMouseEvent>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/Gizmos/DrawBoxGizmo.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Math/Mat4.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
+#include <QMouseEvent>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDrawBoxGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -24,28 +25,22 @@ ezDrawBoxGizmo::ezDrawBoxGizmo()
   SetTransformation(ezTransform::Identity());
 }
 
-ezDrawBoxGizmo::~ezDrawBoxGizmo()
-{
-}
+ezDrawBoxGizmo::~ezDrawBoxGizmo() {}
 
 void ezDrawBoxGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
   pOwnerWindow->GetDocument()->AddSyncObject(&m_Box);
 }
 
-void ezDrawBoxGizmo::OnVisibleChanged(bool bVisible)
-{
-}
+void ezDrawBoxGizmo::OnVisibleChanged(bool bVisible) {}
 
-void ezDrawBoxGizmo::OnTransformationChanged(const ezTransform& transform)
-{
-}
+void ezDrawBoxGizmo::OnTransformationChanged(const ezTransform& transform) {}
 
 void ezDrawBoxGizmo::DoFocusLost(bool bCancel)
 {
   ezViewHighlightMsgToEngine msg;
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
-  
+
   m_ManipulateMode = ManipulateMode::None;
   UpdateBox();
 
@@ -75,7 +70,9 @@ ezEditorInput ezDrawBoxGizmo::DoMousePressEvent(QMouseEvent* e)
       }
       else
       {
-        if (GetOwnerView()->PickPlane(e->pos().x(), e->pos().y(), GetOwnerView()->GetFallbackPickingPlane(m_vLastStartPoint), m_vCurrentPosition).Failed())
+        if (GetOwnerView()
+                ->PickPlane(e->pos().x(), e->pos().y(), GetOwnerView()->GetFallbackPickingPlane(m_vLastStartPoint), m_vCurrentPosition)
+                .Failed())
           return ezEditorInput::WasExclusivelyHandled; // failed to pick anything
       }
 
@@ -261,7 +258,8 @@ void ezDrawBoxGizmo::UpdateBox()
   m_Box.SetVisible(true);
 }
 
-void ezDrawBoxGizmo::GetResult(ezVec3& out_Origin, float& out_fSizeNegX, float& out_fSizePosX, float& out_fSizeNegY, float& out_fSizePosY, float& out_fSizeNegZ, float& out_fSizePosZ) const
+void ezDrawBoxGizmo::GetResult(ezVec3& out_Origin, float& out_fSizeNegX, float& out_fSizePosX, float& out_fSizeNegY, float& out_fSizePosY,
+                               float& out_fSizeNegZ, float& out_fSizePosZ) const
 {
   out_Origin = m_vFirstCorner;
 
@@ -321,15 +319,14 @@ void ezDrawBoxGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
 {
   switch (m_ManipulateMode)
   {
-  case ManipulateMode::None:
-    pWindow->SetPermanentStatusBarMsg("Hold CTRL and click-drag to draw a box.");
-    break;
-  case ManipulateMode::DrawBase:
-    pWindow->SetPermanentStatusBarMsg("Release the mouse to finish the base. ESC to cancel.");
-    break;
-  case ManipulateMode::DrawHeight:
-    pWindow->SetPermanentStatusBarMsg("Draw up/down to specify the box height. Click to finish, ESC to cancel.");
-    break;
+    case ManipulateMode::None:
+      pWindow->SetPermanentStatusBarMsg("Hold CTRL and click-drag to draw a box.");
+      break;
+    case ManipulateMode::DrawBase:
+      pWindow->SetPermanentStatusBarMsg("Release the mouse to finish the base. ESC to cancel.");
+      break;
+    case ManipulateMode::DrawHeight:
+      pWindow->SetPermanentStatusBarMsg("Draw up/down to specify the box height. Click to finish, ESC to cancel.");
+      break;
   }
 }
-

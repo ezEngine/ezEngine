@@ -1,20 +1,18 @@
-﻿#include <PCH.h>
-#include <EnginePluginAssets/DecalAsset/DecalView.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Pipeline/View.h>
+#include <PCH.h>
+
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 #include <EnginePluginAssets/DecalAsset/DecalContext.h>
+#include <EnginePluginAssets/DecalAsset/DecalView.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 ezDecalViewContext::ezDecalViewContext(ezDecalContext* pDecalContext)
-  : ezEngineProcessViewContext(pDecalContext)
+    : ezEngineProcessViewContext(pDecalContext)
 {
   m_pDecalContext = pDecalContext;
 }
 
-ezDecalViewContext::~ezDecalViewContext()
-{
-
-}
+ezDecalViewContext::~ezDecalViewContext() {}
 
 ezViewHandle ezDecalViewContext::CreateView()
 {

@@ -1,7 +1,8 @@
 #include <PCH.h>
+
 #include "Basics.h"
-#include <RendererFoundation/Context/Context.h>
 #include <Core/Graphics/Camera.h>
+#include <RendererFoundation/Context/Context.h>
 
 ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
 {
@@ -134,4 +135,3 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
 
   return m_iFrame < 11 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
 }
-

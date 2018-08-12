@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 
 namespace
 {
@@ -94,5 +94,4 @@ EZ_CREATE_SIMPLE_TEST(Basics, Bitflags)
 
     EZ_TEST_BOOL(f.GetValue() == AutoFlags::Bit3);
   }
-
 }

@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 
 ezMap<ezString, ezDynamicStringEnum> ezDynamicStringEnum::s_DynamicEnums;

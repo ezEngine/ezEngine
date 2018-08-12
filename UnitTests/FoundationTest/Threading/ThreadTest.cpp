@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/Thread.h>
 #include <Foundation/Time/Time.h>
@@ -11,9 +12,8 @@ namespace
   class TestThread : public ezThread
   {
   public:
-
     TestThread()
-      : ezThread("Test Thread")
+        : ezThread("Test Thread")
     {
     }
 
@@ -53,7 +53,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, Thread)
       pTestThread = new TestThread;
       pTestThread2 = new TestThread;
     }
-    catch(...)
+    catch (...)
     {
     }
 
@@ -92,6 +92,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, Thread)
 
     // We test for 0.25 - 0.35 since the threading functions are a bit varying in their precision
     EZ_TEST_BOOL(duration.GetSeconds() > 0.25);
-    EZ_TEST_BOOL_MSG(duration.GetSeconds() < 1.0, "This test can fail when the machine is under too much load and blocks the process for too long.");
+    EZ_TEST_BOOL_MSG(duration.GetSeconds() < 1.0,
+                     "This test can fail when the machine is under too much load and blocks the process for too long.");
   }
 }

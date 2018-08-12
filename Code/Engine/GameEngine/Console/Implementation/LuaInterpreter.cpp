@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <GameEngine/Console/LuaInterpreter.h>
+
 #include <Core/Scripting/LuaWrapper.h>
+#include <GameEngine/Console/LuaInterpreter.h>
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
@@ -25,11 +26,12 @@ static int LUAFUNC_ConsoleFunc(lua_State* state)
 {
   ezLuaWrapper s(state);
 
-  ezConsoleFunctionBase* pFunc = (ezConsoleFunctionBase*) s.GetFunctionLightUserData();
+  ezConsoleFunctionBase* pFunc = (ezConsoleFunctionBase*)s.GetFunctionLightUserData();
 
   if (pFunc->GetNumParameters() != s.GetNumberOfFunctionParameters())
   {
-    ezLog::Error("Function '{0}' expects {1} parameters, {2} were provided.", pFunc->GetName(), pFunc->GetNumParameters(), s.GetNumberOfFunctionParameters());
+    ezLog::Error("Function '{0}' expects {1} parameters, {2} were provided.", pFunc->GetName(), pFunc->GetNumParameters(),
+                 s.GetNumberOfFunctionParameters());
     return s.ReturnToScript();
   }
 
@@ -40,29 +42,29 @@ static int LUAFUNC_ConsoleFunc(lua_State* state)
   {
     switch (pFunc->GetParameterType(p))
     {
-    case ezVariant::Type::Bool:
-      m_Params[p] = s.GetBoolParameter(p);
-      break;
-    case ezVariant::Type::Int8:
-    case ezVariant::Type::Int16:
-    case ezVariant::Type::Int32:
-    case ezVariant::Type::Int64:
-    case ezVariant::Type::UInt8:
-    case ezVariant::Type::UInt16:
-    case ezVariant::Type::UInt32:
-    case ezVariant::Type::UInt64:
-      m_Params[p] = s.GetIntParameter(p);
-      break;
-    case ezVariant::Type::Float:
-    case ezVariant::Type::Double:
-      m_Params[p] = s.GetFloatParameter(p);
-      break;
-    case ezVariant::Type::String:
-      m_Params[p] = s.GetStringParameter(p);
-      break;
-    default:
-      ezLog::Error("Function '{0}': Type of parameter {1} is not supported by the Lua interpreter.", pFunc->GetName(), p);
-      return s.ReturnToScript();
+      case ezVariant::Type::Bool:
+        m_Params[p] = s.GetBoolParameter(p);
+        break;
+      case ezVariant::Type::Int8:
+      case ezVariant::Type::Int16:
+      case ezVariant::Type::Int32:
+      case ezVariant::Type::Int64:
+      case ezVariant::Type::UInt8:
+      case ezVariant::Type::UInt16:
+      case ezVariant::Type::UInt32:
+      case ezVariant::Type::UInt64:
+        m_Params[p] = s.GetIntParameter(p);
+        break;
+      case ezVariant::Type::Float:
+      case ezVariant::Type::Double:
+        m_Params[p] = s.GetFloatParameter(p);
+        break;
+      case ezVariant::Type::String:
+        m_Params[p] = s.GetStringParameter(p);
+        break;
+      default:
+        ezLog::Error("Function '{0}': Type of parameter {1} is not supported by the Lua interpreter.", pFunc->GetName(), p);
+        return s.ReturnToScript();
     }
   }
 
@@ -198,32 +200,32 @@ static int LUAFUNC_ReadCVAR(lua_State* state)
 
   switch (pCVar->GetType())
   {
-  case ezCVarType::Int:
+    case ezCVarType::Int:
     {
-      ezCVarInt* pVar = (ezCVarInt*) pCVar;
+      ezCVarInt* pVar = (ezCVarInt*)pCVar;
       s.PushReturnValue(pVar->GetValue());
     }
     break;
-  case ezCVarType::Bool:
+    case ezCVarType::Bool:
     {
-      ezCVarBool* pVar = (ezCVarBool*) pCVar;
+      ezCVarBool* pVar = (ezCVarBool*)pCVar;
       s.PushReturnValue(pVar->GetValue());
     }
     break;
-  case ezCVarType::Float:
+    case ezCVarType::Float:
     {
-      ezCVarFloat* pVar = (ezCVarFloat*) pCVar;
+      ezCVarFloat* pVar = (ezCVarFloat*)pCVar;
       s.PushReturnValue(pVar->GetValue());
     }
     break;
-  case ezCVarType::String:
+    case ezCVarType::String:
     {
-      ezCVarString* pVar = (ezCVarString*) pCVar;
+      ezCVarString* pVar = (ezCVarString*)pCVar;
       s.PushReturnValue(pVar->GetValue().GetData());
     }
     break;
-  case ezCVarType::ENUM_COUNT:
-    break;
+    case ezCVarType::ENUM_COUNT:
+      break;
   }
 
   return s.ReturnToScript();
@@ -246,31 +248,31 @@ static int LUAFUNC_WriteCVAR(lua_State* state)
 
   switch (pCVar->GetType())
   {
-  case ezCVarType::Int:
+    case ezCVarType::Int:
     {
-      ezCVarInt* pVar = (ezCVarInt*) pCVar;
+      ezCVarInt* pVar = (ezCVarInt*)pCVar;
       *pVar = s.GetIntParameter(1);
     }
     break;
-  case ezCVarType::Bool:
+    case ezCVarType::Bool:
     {
-      ezCVarBool* pVar = (ezCVarBool*) pCVar;
+      ezCVarBool* pVar = (ezCVarBool*)pCVar;
       *pVar = s.GetBoolParameter(1);
     }
     break;
-  case ezCVarType::Float:
+    case ezCVarType::Float:
     {
-      ezCVarFloat* pVar = (ezCVarFloat*) pCVar;
+      ezCVarFloat* pVar = (ezCVarFloat*)pCVar;
       *pVar = s.GetFloatParameter(1);
     }
     break;
-  case ezCVarType::String:
+    case ezCVarType::String:
     {
-      ezCVarString* pVar = (ezCVarString*) pCVar;
+      ezCVarString* pVar = (ezCVarString*)pCVar;
       *pVar = s.GetStringParameter(1);
     }
     break;
-  case ezCVarType::ENUM_COUNT:
+    case ezCVarType::ENUM_COUNT:
       break;
   }
 
@@ -282,8 +284,7 @@ static void AllowScriptCVarAccess(ezLuaWrapper& Script)
   Script.RegisterCFunction("ReadCVar", LUAFUNC_ReadCVAR);
   Script.RegisterCFunction("WriteCVar", LUAFUNC_WriteCVAR);
 
-  ezStringBuilder sInit =
-"\
+  ezStringBuilder sInit = "\
 function readcvar (t, key)\n\
 return (ReadCVar (key))\n\
 end\n\
@@ -307,4 +308,3 @@ __metatable = \"Access Denied\",\n\
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Console_Implementation_LuaInterpreter);
-

@@ -1,11 +1,12 @@
 #include <PCH.h>
-#include <ToolsFoundation/Object/DocumentObjectMirror.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <Foundation/Serialization/BinarySerializer.h>
+
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Serialization/BinarySerializer.h>
+#include <ToolsFoundation/Object/DocumentObjectMirror.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezObjectChangeStep, ezNoBase, 1, ezRTTIDefaultAllocator<ezObjectChangeStep>)
 {
   EZ_BEGIN_PROPERTIES
@@ -30,6 +31,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezObjectChange, ezNoBase, 1, ezRTTIDefaultAllocat
   EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
 
 ezObjectChange::ezObjectChange(const ezObjectChange&)
 {
@@ -53,12 +55,12 @@ void ezObjectChange::SetGraph(ezAbstractObjectGraph& graph)
   m_GraphData = ezArrayPtr<const ezUInt8>(storage.GetData(), storage.GetStorageSize());
 }
 
-ezObjectChange::ezObjectChange( ezObjectChange&& rhs )
+ezObjectChange::ezObjectChange(ezObjectChange&& rhs)
 {
-	m_Change = std::move( rhs.m_Change );
-	m_Root = rhs.m_Root;
-	m_Steps = std::move( rhs.m_Steps );
-  m_GraphData = std::move( rhs.m_GraphData);
+  m_Change = std::move(rhs.m_Change);
+  m_Root = rhs.m_Root;
+  m_Steps = std::move(rhs.m_Steps);
+  m_GraphData = std::move(rhs.m_GraphData);
 }
 
 void ezObjectChange::operator=(ezObjectChange&& rhs)
@@ -174,7 +176,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
 
   switch (e.m_EventType)
   {
-  case ezDocumentObjectStructureEvent::Type::AfterObjectMoved:
+    case ezDocumentObjectStructureEvent::Type::AfterObjectMoved:
     {
       if (IsHeapAllocated(e.m_pNewParent, e.m_sParentProperty))
       {
@@ -201,8 +203,8 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
       }
       // Intended falltrough as non ptr object might as well be destroyed and rebuild.
     }
-    //case ezDocumentObjectStructureEvent::Type::BeforeObjectAdded:
-  case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
+      // case ezDocumentObjectStructureEvent::Type::BeforeObjectAdded:
+    case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
     {
       ezObjectChange change;
       CreatePath(change, e.m_pNewParent, e.m_sParentProperty);
@@ -219,11 +221,12 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
       ApplyOp(change);
     }
     break;
-  case ezDocumentObjectStructureEvent::Type::BeforeObjectMoved:
+    case ezDocumentObjectStructureEvent::Type::BeforeObjectMoved:
     {
       if (IsHeapAllocated(e.m_pPreviousParent, e.m_sParentProperty))
       {
-        EZ_ASSERT_DEBUG(IsHeapAllocated(e.m_pNewParent, e.m_sParentProperty), "Old and new parent must have the same heap allocation state!");
+        EZ_ASSERT_DEBUG(IsHeapAllocated(e.m_pNewParent, e.m_sParentProperty),
+                        "Old and new parent must have the same heap allocation state!");
         if (e.m_pPreviousParent == nullptr || e.m_pPreviousParent == m_pManager->GetRootObject())
         {
           // Object is currently a root object, nothing to do to detach it from its parent.
@@ -260,8 +263,8 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
         break;
       }
     }
-    //case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
-  case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
+      // case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+    case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
     {
       ezObjectChange change;
       CreatePath(change, e.m_pPreviousParent, e.m_sParentProperty);
@@ -274,8 +277,8 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
     }
     break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }
 
@@ -286,7 +289,7 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
 
   switch (e.m_EventType)
   {
-  case ezDocumentObjectPropertyEvent::Type::PropertySet:
+    case ezDocumentObjectPropertyEvent::Type::PropertySet:
     {
       ezObjectChange change;
       CreatePath(change, e.m_pObject, e.m_sProperty);
@@ -297,7 +300,7 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
       ApplyOp(change);
     }
     break;
-  case ezDocumentObjectPropertyEvent::Type::PropertyInserted:
+    case ezDocumentObjectPropertyEvent::Type::PropertyInserted:
     {
       ezObjectChange change;
       CreatePath(change, e.m_pObject, e.m_sProperty);
@@ -308,7 +311,7 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
       ApplyOp(change);
     }
     break;
-  case ezDocumentObjectPropertyEvent::Type::PropertyRemoved:
+    case ezDocumentObjectPropertyEvent::Type::PropertyRemoved:
     {
       ezObjectChange change;
       CreatePath(change, e.m_pObject, e.m_sProperty);
@@ -319,7 +322,7 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
       ApplyOp(change);
     }
     break;
-  case ezDocumentObjectPropertyEvent::Type::PropertyMoved:
+    case ezDocumentObjectPropertyEvent::Type::PropertyMoved:
     {
       ezUInt32 uiOldIndex = e.m_OldIndex.ConvertTo<ezUInt32>();
       ezUInt32 uiNewIndex = e.m_NewIndex.ConvertTo<ezUInt32>();
@@ -420,7 +423,8 @@ ezUuid ezDocumentObjectMirror::FindRootOpObject(const ezDocumentObject* pParent,
   }
 }
 
-void ezDocumentObjectMirror::FlattenSteps(const ezArrayPtr<const ezDocumentObject* const> path, ezHybridArray<ezObjectChangeStep, 2>& out_steps)
+void ezDocumentObjectMirror::FlattenSteps(const ezArrayPtr<const ezDocumentObject* const> path,
+                                          ezHybridArray<ezObjectChangeStep, 2>& out_steps)
 {
   ezUInt32 uiCount = path.GetCount();
   EZ_ASSERT_DEV(uiCount > 0, "Path must not be empty!");
@@ -445,7 +449,7 @@ void ezDocumentObjectMirror::ApplyOp(ezObjectChange& change)
     object = m_pContext->GetObjectByGUID(change.m_Root);
     if (!object.m_pObject)
       return;
-    //EZ_ASSERT_DEV(object.m_pObject != nullptr, "Root objext does not exist in mirrored native object!");
+    // EZ_ASSERT_DEV(object.m_pObject != nullptr, "Root objext does not exist in mirrored native object!");
   }
   RetrieveObject(object, change, change.m_Steps);
 }
@@ -466,7 +470,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
 
   switch (change.m_Change.m_Operation)
   {
-  case ezObjectChangeType::NodeAdded:
+    case ezObjectChangeType::NodeAdded:
     {
       ezAbstractObjectGraph graph;
       change.GetGraph(graph);
@@ -535,7 +539,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
       }
     }
     break;
-  case ezObjectChangeType::NodeRemoved:
+    case ezObjectChangeType::NodeRemoved:
     {
       if (!change.m_Root.IsValid())
       {
@@ -580,7 +584,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
       }
     }
     break;
-  case ezObjectChangeType::PropertySet:
+    case ezObjectChangeType::PropertySet:
     {
       if (pProp->GetCategory() == ezPropertyCategory::Member)
       {
@@ -590,7 +594,8 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
       else if (pProp->GetCategory() == ezPropertyCategory::Array)
       {
         auto pSpecificProp = static_cast<ezAbstractArrayProperty*>(pProp);
-        ezReflectionUtils::SetArrayPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>(), change.m_Change.m_Value);
+        ezReflectionUtils::SetArrayPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>(),
+                                                 change.m_Change.m_Value);
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Set)
       {
@@ -600,11 +605,12 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
       else if (pProp->GetCategory() == ezPropertyCategory::Map)
       {
         auto pSpecificProp = static_cast<ezAbstractMapProperty*>(pProp);
-        ezReflectionUtils::SetMapPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.Get<ezString>(), change.m_Change.m_Value);
+        ezReflectionUtils::SetMapPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.Get<ezString>(),
+                                               change.m_Change.m_Value);
       }
     }
     break;
-  case ezObjectChangeType::PropertyInserted:
+    case ezObjectChangeType::PropertyInserted:
     {
       ezVariant value = change.m_Change.m_Value;
       if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
@@ -630,7 +636,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
       }
     }
     break;
-  case ezObjectChangeType::PropertyRemoved:
+    case ezObjectChangeType::PropertyRemoved:
     {
       if (pProp->GetCategory() == ezPropertyCategory::Array)
       {
@@ -659,7 +665,8 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
   }
 }
 
-void ezDocumentObjectMirror::RetrieveObject(ezRttiConverterObject object, const ezObjectChange& change, const ezArrayPtr<const ezObjectChangeStep> path)
+void ezDocumentObjectMirror::RetrieveObject(ezRttiConverterObject object, const ezObjectChange& change,
+                                            const ezArrayPtr<const ezObjectChangeStep> path)
 {
   const ezUInt32 uiCount = path.GetCount();
 
@@ -676,11 +683,11 @@ void ezDocumentObjectMirror::RetrieveObject(ezRttiConverterObject object, const 
     const ezRTTI* pPropType = pProp->GetSpecificType();
 
     EZ_ASSERT_DEV(pProp->GetFlags().IsAnySet(ezPropertyFlags::Class) && !pProp->GetFlags().IsSet(ezPropertyFlags::Pointer),
-      "Anything else wouldn't need to be traversed as a path but could be accessed directly or is already the end of a path.");
+                  "Anything else wouldn't need to be traversed as a path but could be accessed directly or is already the end of a path.");
 
     switch (pProp->GetCategory())
     {
-    case ezPropertyCategory::Member:
+      case ezPropertyCategory::Member:
       {
         ezAbstractMemberProperty* pSpecific = static_cast<ezAbstractMemberProperty*>(pProp);
         if (pPropType->GetProperties().GetCount() > 0)
@@ -711,7 +718,7 @@ void ezDocumentObjectMirror::RetrieveObject(ezRttiConverterObject object, const 
         }
       }
       break;
-    case ezPropertyCategory::Array:
+      case ezPropertyCategory::Array:
       {
         ezAbstractArrayProperty* pSpecific = static_cast<ezAbstractArrayProperty*>(pProp);
 
@@ -733,7 +740,7 @@ void ezDocumentObjectMirror::RetrieveObject(ezRttiConverterObject object, const 
         }
       }
       break;
-    case ezPropertyCategory::Map:
+      case ezPropertyCategory::Map:
       {
         ezAbstractMapProperty* pSpecific = static_cast<ezAbstractMapProperty*>(pProp);
 
@@ -755,13 +762,12 @@ void ezDocumentObjectMirror::RetrieveObject(ezRttiConverterObject object, const 
         }
       }
       break;
-    case ezPropertyCategory::Set:
-    default:
+      case ezPropertyCategory::Set:
+      default:
       {
         EZ_REPORT_FAILURE("Property of type Set should not be part of an object chain!");
       }
       break;
     }
   }
-
 }

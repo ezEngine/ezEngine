@@ -1,6 +1,8 @@
 #include <PCH.h>
+
 #include <EditorEngineProcessFramework/Gizmos/GizmoComponent.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -12,7 +14,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezGizmoComponent, 1, ezComponentMode::Static)
   }
   EZ_END_ATTRIBUTES;
 }
-EZ_END_COMPONENT_TYPE
+EZ_END_COMPONENT_TYPE;
+// clang-format on
 
 ezGizmoComponent::ezGizmoComponent()
 {
@@ -28,4 +31,3 @@ ezMeshRenderData* ezGizmoComponent::CreateRenderData(ezUInt32 uiBatchId) const
 
   return pRenderData;
 }
-

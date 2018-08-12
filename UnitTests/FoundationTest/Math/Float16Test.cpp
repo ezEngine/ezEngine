@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Math/Float16.h>
 #include <Foundation/Strings/String.h>
 
@@ -22,7 +23,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Float16)
     EZ_TEST_FLOAT(static_cast<float>(ezFloat16(42.0f)), 42.0f, ezMath::BasicType<float>::LargeEpsilon());
     EZ_TEST_FLOAT(static_cast<float>(ezFloat16(1.e3f)), 1.e3f, ezMath::BasicType<float>::LargeEpsilon());
     EZ_TEST_FLOAT(static_cast<float>(ezFloat16(-1230.0f)), -1230.0f, ezMath::BasicType<float>::LargeEpsilon());
-    EZ_TEST_FLOAT(static_cast<float>(ezFloat16(ezMath::BasicType<float>::Pi())), ezMath::BasicType<float>::Pi(), ezMath::BasicType<float>::HugeEpsilon());
+    EZ_TEST_FLOAT(static_cast<float>(ezFloat16(ezMath::BasicType<float>::Pi())), ezMath::BasicType<float>::Pi(),
+                  ezMath::BasicType<float>::HugeEpsilon());
 
     // Denormalized float.
     EZ_TEST_FLOAT(static_cast<float>(ezFloat16(1.e-40f)), 0.0f, 0);

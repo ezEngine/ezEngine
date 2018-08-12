@@ -1,10 +1,12 @@
 #include <PCH.h>
+
 #include <EditorFramework/PropertyGrid/DynamicStringEnumPropertyWidget.moc.h>
+#include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <QBoxLayout>
 #include <QComboBox>
-#include <GuiFoundation/UIServices/DynamicStringEnum.h>
 
-ezQtDynamicStringEnumPropertyWidget::ezQtDynamicStringEnumPropertyWidget() : ezQtStandardPropertyWidget()
+ezQtDynamicStringEnumPropertyWidget::ezQtDynamicStringEnumPropertyWidget()
+    : ezQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
@@ -19,7 +21,8 @@ ezQtDynamicStringEnumPropertyWidget::ezQtDynamicStringEnumPropertyWidget() : ezQ
 
 void ezQtDynamicStringEnumPropertyWidget::OnInit()
 {
-  EZ_ASSERT_DEV(m_pProp->GetAttributeByType<ezDynamicStringEnumAttribute>() != nullptr, "ezQtDynamicStringEnumPropertyWidget was created without a ezDynamicStringEnumAttribute!");
+  EZ_ASSERT_DEV(m_pProp->GetAttributeByType<ezDynamicStringEnumAttribute>() != nullptr,
+                "ezQtDynamicStringEnumPropertyWidget was created without a ezDynamicStringEnumAttribute!");
 
   const ezDynamicStringEnumAttribute* pAttr = m_pProp->GetAttributeByType<ezDynamicStringEnumAttribute>();
 
@@ -41,7 +44,7 @@ void ezQtDynamicStringEnumPropertyWidget::InternalSetValue(const ezVariant& valu
   if (value.IsValid())
   {
     ezInt32 iIndex = m_pWidget->findText(value.ConvertTo<ezString>().GetData());
-    //EZ_ASSERT_DEV(iIndex != -1, "Enum widget is set to an invalid value!"); // 'invalid value'
+    // EZ_ASSERT_DEV(iIndex != -1, "Enum widget is set to an invalid value!"); // 'invalid value'
     m_pWidget->setCurrentIndex(iIndex);
   }
   else

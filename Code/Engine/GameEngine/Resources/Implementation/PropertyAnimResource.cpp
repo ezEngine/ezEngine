@@ -1,11 +1,13 @@
 #include <PCH.h>
-#include <GameEngine/Resources/PropertyAnimResource.h>
+
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
-#include <GameEngine/Curves/Curve1DResource.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
+#include <GameEngine/Curves/Curve1DResource.h>
+#include <GameEngine/Resources/PropertyAnimResource.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimResource, 1, ezRTTIDefaultAllocator<ezPropertyAnimResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -17,9 +19,10 @@ EZ_END_STATIC_REFLECTED_ENUM;
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezPropertyAnimMode, 1)
 EZ_ENUM_CONSTANTS(ezPropertyAnimMode::Once, ezPropertyAnimMode::Loop, ezPropertyAnimMode::BackAndForth)
 EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
 
 ezPropertyAnimResource::ezPropertyAnimResource()
-  : ezResource<ezPropertyAnimResource, ezPropertyAnimResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource<ezPropertyAnimResource, ezPropertyAnimResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -95,7 +98,8 @@ void ezPropertyAnimResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 
   if (m_pDescriptor)
   {
-    out_NewMemoryUsage.m_uiMemoryCPU = static_cast<ezUInt32>(m_pDescriptor->m_FloatAnimations.GetHeapMemoryUsage() + sizeof(ezPropertyAnimResourceDescriptor));
+    out_NewMemoryUsage.m_uiMemoryCPU =
+        static_cast<ezUInt32>(m_pDescriptor->m_FloatAnimations.GetHeapMemoryUsage() + sizeof(ezPropertyAnimResourceDescriptor));
   }
 }
 
@@ -212,4 +216,3 @@ void ezPropertyAnimResourceDescriptor::Load(ezStreamReader& stream)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Resources_Implementation_PropertyAnimResource);
-

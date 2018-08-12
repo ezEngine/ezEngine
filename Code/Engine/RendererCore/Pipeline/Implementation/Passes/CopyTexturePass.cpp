@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <RendererCore/Pipeline/Passes/CopyTexturePass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -6,6 +7,7 @@
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCopyTexturePass, 1, ezRTTIDefaultAllocator<ezCopyTexturePass>)
 {
   EZ_BEGIN_PROPERTIES
@@ -16,15 +18,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCopyTexturePass, 1, ezRTTIDefaultAllocator<ezC
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezCopyTexturePass::ezCopyTexturePass()
-  : ezRenderPipelinePass("CopyTexturePass")
+    : ezRenderPipelinePass("CopyTexturePass")
 {
 }
 
 ezCopyTexturePass::~ezCopyTexturePass() = default;
 
-bool ezCopyTexturePass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezCopyTexturePass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
+                                                    ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -45,8 +49,9 @@ bool ezCopyTexturePass::GetRenderTargetDescriptions(const ezView& view, const ez
   return true;
 }
 
-void ezCopyTexturePass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezCopyTexturePass::Execute(const ezRenderViewContext& renderViewContext,
+                                const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+                                const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   auto pInput = inputs[m_PinInput.m_uiInputIndex];
   auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
@@ -76,6 +81,4 @@ void ezCopyTexturePass::Execute(const ezRenderViewContext& renderViewContext, co
 
 
 
-
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_CopyTexturePass);
-

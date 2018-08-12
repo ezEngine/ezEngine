@@ -1,7 +1,9 @@
 #include <PCH.h>
+
 #include <GameEngine/VisualScript/Nodes/VisualScriptMathExpressionNode.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_MathExpression, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_MathExpression>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -24,9 +26,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_MathExpression, 1, ezRTTIDefa
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_MathExpression::ezVisualScriptNode_MathExpression() { }
-ezVisualScriptNode_MathExpression::~ezVisualScriptNode_MathExpression() { }
+ezVisualScriptNode_MathExpression::ezVisualScriptNode_MathExpression() {}
+ezVisualScriptNode_MathExpression::~ezVisualScriptNode_MathExpression() {}
 
 double ezVisualScriptNode_MathExpression::ResolveVariable(const ezStringView& variableString)
 {
@@ -55,14 +58,14 @@ void* ezVisualScriptNode_MathExpression::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_ValueA;
-  case 1:
-    return &m_ValueB;
-  case 2:
-    return &m_ValueC;
-  case 3:
-    return &m_ValueD;
+    case 0:
+      return &m_ValueA;
+    case 1:
+      return &m_ValueB;
+    case 2:
+      return &m_ValueC;
+    case 3:
+      return &m_ValueD;
   }
 
   return nullptr;
@@ -81,4 +84,3 @@ void ezVisualScriptNode_MathExpression::SetExpression(const char* e)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Nodes_VisualScriptMathExpressionNode);
-

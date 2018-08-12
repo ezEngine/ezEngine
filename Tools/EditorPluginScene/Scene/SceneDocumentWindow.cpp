@@ -1,41 +1,39 @@
 #include <PCH.h>
+
+#include <Core/Assets/AssetFileHeader.h>
+#include <EditorFramework/DocumentWindow/QuadViewWidget.moc.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
+#include <EditorFramework/InputContexts/OrthoGizmoContext.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
+#include <EditorFramework/Preferences/Preferences.h>
+#include <EditorFramework/Preferences/ScenePreferences.h>
+#include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
+#include <EditorPluginScene/Scene/SceneDocument.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
 #include <EditorPluginScene/Scene/SceneViewWidget.moc.h>
-#include <EditorPluginScene/Scene/SceneDocument.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
-#include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
+#include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <QGridLayout>
-#include <QSettings>
-#include <EditorFramework/InputContexts/OrthoGizmoContext.h>
-#include <Core/Assets/AssetFileHeader.h>
-#include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
-#include <EditorFramework/Preferences/EditorPreferences.h>
-#include <EditorFramework/Preferences/ScenePreferences.h>
-#include <EditorFramework/Gizmos/SnapProvider.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
-#include <EditorFramework/Preferences/Preferences.h>
-#include <EditorFramework/DocumentWindow/QuadViewWidget.moc.h>
 #include <QInputDialog>
+#include <QSettings>
+#include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 
 ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
-  : ezQtGameObjectDocumentWindow(pDocument)
+    : ezQtGameObjectDocumentWindow(pDocument)
 {
-  auto ViewFactory = [](ezQtEngineDocumentWindow* pWindow, ezEngineViewConfig* pConfig) -> ezQtEngineViewWidget*
-  {
+  auto ViewFactory = [](ezQtEngineDocumentWindow* pWindow, ezEngineViewConfig* pConfig) -> ezQtEngineViewWidget* {
     ezQtSceneViewWidget* pWidget = new ezQtSceneViewWidget(nullptr, static_cast<ezQtSceneDocumentWindow*>(pWindow), pConfig);
     pWindow->AddViewWidget(pWidget);
     return pWidget;
   };
   m_pQuadViewWidget = new ezQtQuadViewWidget(pDocument, this, ViewFactory, "EditorPluginScene_ViewToolBar");
 
-  pDocument->SetEditToolConfigDelegate([this](ezGameObjectEditTool* pTool)
-  {
-    pTool->ConfigureTool(static_cast<ezGameObjectDocument*>(GetDocument()), this, this);
-  });
+  pDocument->SetEditToolConfigDelegate(
+      [this](ezGameObjectEditTool* pTool) { pTool->ConfigureTool(static_cast<ezGameObjectDocument*>(GetDocument()), this, this); });
 
   setCentralWidget(m_pQuadViewWidget);
 
@@ -77,7 +75,9 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
-    EZ_VERIFY(connect(pPropertyGrid, &ezQtPropertyGridWidget::ExtendContextMenu, this, &ezQtSceneDocumentWindow::ExtendPropertyGridContextMenu), "");
+    EZ_VERIFY(
+        connect(pPropertyGrid, &ezQtPropertyGridWidget::ExtendContextMenu, this, &ezQtSceneDocumentWindow::ExtendPropertyGridContextMenu),
+        "");
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
     addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
@@ -214,23 +214,23 @@ void ezQtSceneDocumentWindow::GameObjectEventHandler(const ezGameObjectEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezGameObjectEvent::Type::TriggerFocusOnSelection_Hovered:
-    // Focus is done by ezQtGameObjectDocumentWindow
-    GetSceneDocument()->ShowOrHideSelectedObjects(ezSceneDocument::ShowOrHide::Show);
-    break;
+    case ezGameObjectEvent::Type::TriggerFocusOnSelection_Hovered:
+      // Focus is done by ezQtGameObjectDocumentWindow
+      GetSceneDocument()->ShowOrHideSelectedObjects(ezSceneDocument::ShowOrHide::Show);
+      break;
 
-  case ezGameObjectEvent::Type::TriggerFocusOnSelection_All:
-    // Focus is done by ezQtGameObjectDocumentWindow
-    GetSceneDocument()->ShowOrHideSelectedObjects(ezSceneDocument::ShowOrHide::Show);
-    break;
+    case ezGameObjectEvent::Type::TriggerFocusOnSelection_All:
+      // Focus is done by ezQtGameObjectDocumentWindow
+      GetSceneDocument()->ShowOrHideSelectedObjects(ezSceneDocument::ShowOrHide::Show);
+      break;
 
-  case ezGameObjectEvent::Type::TriggerSnapSelectionPivotToGrid:
-    SnapSelectionToPosition(false);
-    break;
+    case ezGameObjectEvent::Type::TriggerSnapSelectionPivotToGrid:
+      SnapSelectionToPosition(false);
+      break;
 
-  case ezGameObjectEvent::Type::TriggerSnapEachSelectedObjectToGrid:
-    SnapSelectionToPosition(true);
-    break;
+    case ezGameObjectEvent::Type::TriggerSnapEachSelectedObjectToGrid:
+      SnapSelectionToPosition(true);
+      break;
   }
 }
 
@@ -284,7 +284,8 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
   }
 }
 
-void ezQtSceneDocumentWindow::ExtendPropertyGridContextMenu(QMenu& menu, const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProp)
+void ezQtSceneDocumentWindow::ExtendPropertyGridContextMenu(QMenu& menu, const ezHybridArray<ezPropertySelection, 8>& items,
+                                                            const ezAbstractProperty* pProp)
 {
   if (!GetSceneDocument()->IsPrefab())
     return;
@@ -300,8 +301,7 @@ void ezQtSceneDocumentWindow::ExtendPropertyGridContextMenu(QMenu& menu, const e
   {
     QAction* pAction = menu.addAction("Expose as Parameter");
     pAction->setEnabled(iExposed < items.GetCount());
-    connect(pAction, &QAction::triggered, pAction, [this, &menu, &items, pProp]()
-    {
+    connect(pAction, &QAction::triggered, pAction, [this, &menu, &items, pProp]() {
       while (true)
       {
         bool bOk = false;
@@ -312,7 +312,8 @@ void ezQtSceneDocumentWindow::ExtendPropertyGridContextMenu(QMenu& menu, const e
 
         if (!ezStringUtils::IsValidIdentifierName(name.toUtf8().data()))
         {
-          ezQtUiServices::GetSingleton()->MessageBoxInformation("This name is not a valid identifier.\nAllowed characters are a-z, A-Z, 0-9 and _.\nWhitespace and special characters are not allowed.");
+          ezQtUiServices::GetSingleton()->MessageBoxInformation("This name is not a valid identifier.\nAllowed characters are a-z, A-Z, "
+                                                                "0-9 and _.\nWhitespace and special characters are not allowed.");
           continue; // try again
         }
 
@@ -334,8 +335,7 @@ void ezQtSceneDocumentWindow::ExtendPropertyGridContextMenu(QMenu& menu, const e
   {
     QAction* pAction = menu.addAction("Remove Exposed Parameter");
     pAction->setEnabled(iExposed > 0);
-    connect(pAction, &QAction::triggered, pAction, [this, &menu, &items, pProp]()
-    {
+    connect(pAction, &QAction::triggered, pAction, [this, &menu, &items, pProp]() {
       auto pAccessor = GetSceneDocument()->GetObjectAccessor();
       pAccessor->StartTransaction("Remove Exposed Parameter");
       for (const ezPropertySelection& sel : items)
@@ -355,6 +355,3 @@ void ezQtSceneDocumentWindow::ProcessMessageEventHandler(const ezEditorEngineDoc
 {
   ezQtGameObjectDocumentWindow::ProcessMessageEventHandler(pMsg);
 }
-
-
-

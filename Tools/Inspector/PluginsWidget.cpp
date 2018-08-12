@@ -1,16 +1,18 @@
 #include <PCH.h>
-#include <Inspector/PluginsWidget.moc.h>
+
 #include <Foundation/Communication/Telemetry.h>
-#include <MainWindow.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <Inspector/PluginsWidget.moc.h>
+#include <MainWindow.moc.h>
 
 ezQtPluginsWidget* ezQtPluginsWidget::s_pWidget = nullptr;
 
-ezQtPluginsWidget::ezQtPluginsWidget(QWidget* parent) : QDockWidget (parent)
+ezQtPluginsWidget::ezQtPluginsWidget(QWidget* parent)
+    : QDockWidget(parent)
 {
   s_pWidget = this;
 
-  setupUi (this);
+  setupUi(this);
 
   ResetStats();
 }
@@ -68,7 +70,7 @@ void ezQtPluginsWidget::UpdatePlugins()
       else
         TablePlugins->setCellWidget(iRow, 2, new QLabel("<p><span style=\"font-weight:600; color:#ffaa00;\">  No  </span></p>"));
 
-      ((QLabel*) TablePlugins->cellWidget(iRow, 2))->setAlignment(Qt::AlignHCenter);
+      ((QLabel*)TablePlugins->cellWidget(iRow, 2))->setAlignment(Qt::AlignHCenter);
 
       TablePlugins->setCellWidget(iRow, 3, new QLabel(it.Value().m_sDependencies.GetData()));
 
@@ -92,14 +94,14 @@ void ezQtPluginsWidget::ProcessTelemetry(void* pUnuseed)
   {
     switch (Msg.GetMessageID())
     {
-    case ' CLR':
+      case ' CLR':
       {
         s_pWidget->m_Plugins.Clear();
         s_pWidget->m_bUpdatePlugins = true;
       }
       break;
 
-    case 'DATA':
+      case 'DATA':
       {
         ezString sName;
 
@@ -116,5 +118,3 @@ void ezQtPluginsWidget::ProcessTelemetry(void* pUnuseed)
     }
   }
 }
-
-

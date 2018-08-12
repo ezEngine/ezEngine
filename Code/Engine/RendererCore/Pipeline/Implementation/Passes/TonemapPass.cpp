@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <RendererCore/Pipeline/Passes/TonemapPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -9,6 +10,7 @@
 
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/TonemapConstants.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTonemapPass, 1, ezRTTIDefaultAllocator<ezTonemapPass>)
 {
   EZ_BEGIN_PROPERTIES
@@ -25,8 +27,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTonemapPass, 1, ezRTTIDefaultAllocator<ezTonem
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezTonemapPass::ezTonemapPass() : ezRenderPipelinePass("TonemapPass")
+ezTonemapPass::ezTonemapPass()
+    : ezRenderPipelinePass("TonemapPass")
 {
   m_hVignettingTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
   m_hNoiseTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/BlueNoise.dds");
@@ -48,8 +52,8 @@ ezTonemapPass::~ezTonemapPass()
   m_hConstantBuffer.Invalidate();
 }
 
-bool ezTonemapPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs,
-  ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezTonemapPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
+                                                ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -61,7 +65,7 @@ bool ezTonemapPass::GetRenderTargetDescriptions(const ezView& view, const ezArra
     {
       const ezGALTexture* pTexture = pTargetView->GetTexture();
       const ezGALTextureCreationDescription& desc = pTexture->GetDescription();
-      //if (desc.m_uiWidth != pColorInput->m_uiWidth || desc.m_uiHeight != pColorInput->m_uiHeight)
+      // if (desc.m_uiWidth != pColorInput->m_uiWidth || desc.m_uiHeight != pColorInput->m_uiHeight)
       //{
       //  ezLog::Error("Render target sizes don't match");
       //  return false;
@@ -85,7 +89,7 @@ bool ezTonemapPass::GetRenderTargetDescriptions(const ezView& view, const ezArra
 }
 
 void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+                            const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   auto pColorInput = inputs[m_PinColorInput.m_uiInputIndex];
   auto pColorOutput = outputs[m_PinOutput.m_uiOutputIndex];
@@ -126,7 +130,8 @@ void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const 
 
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
   renderViewContext.m_pRenderContext->BindConstantBuffer("ezTonemapConstants", m_hConstantBuffer);
-  renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+  renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
+                                                     1);
   renderViewContext.m_pRenderContext->BindTexture2D("VignettingTexture", m_hVignettingTexture, ezResourceAcquireMode::NoFallback);
   renderViewContext.m_pRenderContext->BindTexture2D("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::NoFallback);
   renderViewContext.m_pRenderContext->BindTexture2D("SceneColorTexture", pDevice->GetDefaultResourceView(pColorInput->m_TextureHandle));
@@ -154,4 +159,3 @@ const char* ezTonemapPass::GetVignettingTextureFile() const
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_TonemapPass);
-

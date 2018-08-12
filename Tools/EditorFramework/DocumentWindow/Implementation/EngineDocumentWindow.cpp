@@ -1,15 +1,17 @@
 #include <PCH.h>
+
+#include <EditorEngineProcessFramework/IPC/SyncObject.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <EditorEngineProcessFramework/IPC/SyncObject.h>
-#include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Time/Timestamp.h>
 
-#include <Foundation/Serialization/ReflectionSerializer.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
 
-ezQtEngineDocumentWindow::ezQtEngineDocumentWindow(ezAssetDocument* pDocument) : ezQtDocumentWindow(pDocument)
+ezQtEngineDocumentWindow::ezQtEngineDocumentWindow(ezAssetDocument* pDocument)
+    : ezQtDocumentWindow(pDocument)
 {
   pDocument->m_ProcessMessageEvent.AddEventHandler(ezMakeDelegate(&ezQtEngineDocumentWindow::ProcessMessageEventHandler, this));
 }
@@ -30,7 +32,8 @@ ezEditorEngineConnection* ezQtEngineDocumentWindow::GetEditorEngineConnection() 
 
 static ezObjectPickingResult s_DummyResult;
 
-const ezObjectPickingResult& ezQtEngineDocumentWindow::PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY, ezQtEngineViewWidget* pView) const
+const ezObjectPickingResult& ezQtEngineDocumentWindow::PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY,
+                                                                  ezQtEngineViewWidget* pView) const
 {
   if (pView == nullptr)
     pView = GetHoveredViewWidget();
@@ -61,7 +64,7 @@ void ezQtEngineDocumentWindow::InternalRedraw()
     if (m_uiRedrawCountSent > m_uiRedrawCountReceived)
     {
       ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(),
-        ezTime::Seconds(2.0));
+                                                                      ezTime::Seconds(2.0));
     }
 
     ++m_uiRedrawCountSent;
@@ -170,5 +173,3 @@ void ezQtEngineDocumentWindow::DestroyAllViews()
     delete m_ViewWidgets[0];
   }
 }
-
-

@@ -1,7 +1,8 @@
 #include <PCH.h>
-#include <Foundation/IO/MemoryStream.h>
+
 #include <Foundation/Algorithm/Hashing.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/IO/MemoryStream.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(IO);
 
@@ -18,7 +19,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryStream)
     ezMemoryStreamWriter StreamWriter(&StreamStorage);
 
     // Temp read pointer
-    ezUInt8* pPointer = reinterpret_cast<ezUInt8*>(0x41); // Should crash when accessed 
+    ezUInt8* pPointer = reinterpret_cast<ezUInt8*>(0x41); // Should crash when accessed
 
     // Try reading from an empty stream (should not crash, just return 0 bytes read)
     ezUInt64 uiBytesRead = StreamReader.ReadBytes(pPointer, 128);
@@ -47,7 +48,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryStream)
     uiBytesRead = StreamReader.ReadBytes(reinterpret_cast<ezUInt8*>(uiData), sizeof(ezUInt32) * 1024);
 
     EZ_TEST_BOOL(uiBytesRead == sizeof(ezUInt32) * 1024);
-    
+
     const ezUInt32 uiHashAfterReading = ezHashing::xxHash32(uiData, sizeof(ezUInt32) * 1024);
 
     EZ_TEST_BOOL(uiHashAfterReading == uiHashBeforeWriting);
@@ -74,7 +75,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryStream)
 
     const ezUInt32 uiHashAfterReadingOfModifiedData = ezHashing::xxHash32(uiData, sizeof(ezUInt32) * 4);
 
-    EZ_TEST_BOOL(uiHashAfterReadingOfModifiedData == uiHashOfModifiedData);    
+    EZ_TEST_BOOL(uiHashAfterReadingOfModifiedData == uiHashOfModifiedData);
 
     // Test skipping
     StreamReader.SetReadPosition(0);

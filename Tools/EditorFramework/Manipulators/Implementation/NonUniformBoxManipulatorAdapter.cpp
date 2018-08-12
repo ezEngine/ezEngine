@@ -1,17 +1,14 @@
 #include <PCH.h>
-#include <EditorFramework/Manipulators/NonUniformBoxManipulatorAdapter.h>
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
+
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
+#include <EditorFramework/Manipulators/NonUniformBoxManipulatorAdapter.h>
+#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezNonUniformBoxManipulatorAdapter::ezNonUniformBoxManipulatorAdapter()
-{
-}
+ezNonUniformBoxManipulatorAdapter::ezNonUniformBoxManipulatorAdapter() {}
 
-ezNonUniformBoxManipulatorAdapter::~ezNonUniformBoxManipulatorAdapter()
-{
-}
+ezNonUniformBoxManipulatorAdapter::~ezNonUniformBoxManipulatorAdapter() {}
 
 void ezNonUniformBoxManipulatorAdapter::Finalize()
 {
@@ -54,7 +51,6 @@ void ezNonUniformBoxManipulatorAdapter::Update()
     const float fSizeZ = pObjectAccessor->Get<float>(m_pObject, GetProperty(pAttr->GetSizeZProperty()));
 
     m_Gizmo.SetSize(ezVec3(fSizeX, fSizeY, fSizeZ) * 0.5f, ezVec3(fSizeX, fSizeY, fSizeZ) * 0.5f, true);
-
   }
 
   m_Gizmo.SetTransformation(GetObjectTransform());
@@ -64,19 +60,19 @@ void ezNonUniformBoxManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezGizmoEvent::Type::BeginInteractions:
-    BeginTemporaryInteraction();
-    break;
+    case ezGizmoEvent::Type::BeginInteractions:
+      BeginTemporaryInteraction();
+      break;
 
-  case ezGizmoEvent::Type::CancelInteractions:
-    CancelTemporayInteraction();
-    break;
+    case ezGizmoEvent::Type::CancelInteractions:
+      CancelTemporayInteraction();
+      break;
 
-  case ezGizmoEvent::Type::EndInteractions:
-    EndTemporaryInteraction();
-    break;
+    case ezGizmoEvent::Type::EndInteractions:
+      EndTemporaryInteraction();
+      break;
 
-  case ezGizmoEvent::Type::Interaction:
+    case ezGizmoEvent::Type::Interaction:
     {
       const ezNonUniformBoxManipulatorAttribute* pAttr = static_cast<const ezNonUniformBoxManipulatorAttribute*>(m_pManipulatorAttr);
 
@@ -85,18 +81,12 @@ void ezNonUniformBoxManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 
       if (pAttr->HasSixAxis())
       {
-        ChangeProperties(pAttr->GetNegXProperty(), neg.x,
-          pAttr->GetPosXProperty(), pos.x,
-          pAttr->GetNegYProperty(), neg.y,
-          pAttr->GetPosYProperty(), pos.y,
-          pAttr->GetNegZProperty(), neg.z,
-          pAttr->GetPosZProperty(), pos.z);
+        ChangeProperties(pAttr->GetNegXProperty(), neg.x, pAttr->GetPosXProperty(), pos.x, pAttr->GetNegYProperty(), neg.y,
+                         pAttr->GetPosYProperty(), pos.y, pAttr->GetNegZProperty(), neg.z, pAttr->GetPosZProperty(), pos.z);
       }
       else
       {
-        ChangeProperties(pAttr->GetSizeXProperty(), pos.x * 2,
-          pAttr->GetSizeYProperty(), pos.y * 2,
-          pAttr->GetSizeZProperty(), pos.z * 2);
+        ChangeProperties(pAttr->GetSizeXProperty(), pos.x * 2, pAttr->GetSizeYProperty(), pos.y * 2, pAttr->GetSizeZProperty(), pos.z * 2);
       }
     }
     break;
@@ -107,5 +97,3 @@ void ezNonUniformBoxManipulatorAdapter::UpdateGizmoTransform()
 {
   m_Gizmo.SetTransformation(GetObjectTransform());
 }
-
-

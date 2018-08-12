@@ -1,7 +1,8 @@
 #include <PCH.h>
-#include <GameEngine/CollisionFilter/CollisionFilter.h>
+
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <GameEngine/CollisionFilter/CollisionFilter.h>
 
 
 ezCollisionFilterConfig::ezCollisionFilterConfig()
@@ -142,4 +143,3 @@ void ezCollisionFilterConfig::Load(ezStreamReader& stream)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_CollisionFilter_CollisionFilter);
-

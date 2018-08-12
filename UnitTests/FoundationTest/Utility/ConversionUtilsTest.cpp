@@ -1,6 +1,7 @@
-﻿#include <PCH.h>
-#include <Foundation/Utilities/ConversionUtils.h>
+#include <PCH.h>
+
 #include <Foundation/Math/Random.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Utility);
 
@@ -405,7 +406,6 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     szResultPos = nullptr;
     EZ_TEST_BOOL(ezConversionUtils::StringToBool(szString, bRes, &szResultPos) == EZ_FAILURE);
     EZ_TEST_BOOL(szResultPos == nullptr);
-
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "HexCharacterToIntValue")
@@ -470,10 +470,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     }
 
     ezStringBuilder sHex;
-    ezConversionUtils::ConvertBinaryToHex(binary.GetData(), binary.GetCount(), [&sHex](const char* s)
-    {
-      sHex.Append(s);
-    });
+    ezConversionUtils::ConvertBinaryToHex(binary.GetData(), binary.GetCount(), [&sHex](const char* s) { sHex.Append(s); });
 
     ezDynamicArray<ezUInt8> binary2;
     binary2.SetCountUninitialized(1024);
@@ -559,23 +556,23 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetColorByName and GetColorName")
   {
-#define Check(name) \
-{\
-    bool valid = false; \
-    const ezColor c = ezConversionUtils::GetColorByName(EZ_STRINGIZE(name), &valid); \
-    EZ_TEST_BOOL(valid); \
-    ezString sName = ezConversionUtils::GetColorName(c); \
-    EZ_TEST_STRING(sName, EZ_STRINGIZE(name)); \
-}
+#define Check(name)                                                                                                                        \
+  {                                                                                                                                        \
+    bool valid = false;                                                                                                                    \
+    const ezColor c = ezConversionUtils::GetColorByName(EZ_STRINGIZE(name), &valid);                                                       \
+    EZ_TEST_BOOL(valid);                                                                                                                   \
+    ezString sName = ezConversionUtils::GetColorName(c);                                                                                   \
+    EZ_TEST_STRING(sName, EZ_STRINGIZE(name));                                                                                             \
+  }
 
-#define Check2(name, otherName) \
-{\
-    bool valid = false; \
-    const ezColor c = ezConversionUtils::GetColorByName(EZ_STRINGIZE(name), &valid); \
-    EZ_TEST_BOOL(valid); \
-    ezString sName = ezConversionUtils::GetColorName(c); \
-    EZ_TEST_STRING(sName, EZ_STRINGIZE(otherName)); \
-}
+#define Check2(name, otherName)                                                                                                            \
+  {                                                                                                                                        \
+    bool valid = false;                                                                                                                    \
+    const ezColor c = ezConversionUtils::GetColorByName(EZ_STRINGIZE(name), &valid);                                                       \
+    EZ_TEST_BOOL(valid);                                                                                                                   \
+    ezString sName = ezConversionUtils::GetColorName(c);                                                                                   \
+    EZ_TEST_STRING(sName, EZ_STRINGIZE(otherName));                                                                                        \
+  }
 
     Check(AliceBlue);
     Check(AntiqueWhite);
@@ -726,7 +723,4 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     Check(Yellow);
     Check(YellowGreen);
   }
-
 }
-
-

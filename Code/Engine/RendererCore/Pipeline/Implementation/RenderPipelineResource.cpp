@@ -1,11 +1,12 @@
-﻿#include <PCH.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/Pipeline/RenderPipelineResource.h>
+#include <PCH.h>
+
+#include <Core/Assets/AssetFileHeader.h>
+#include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
 #include <RendererCore/Pipeline/Passes/SourcePass.h>
 #include <RendererCore/Pipeline/Passes/TargetPass.h>
-#include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
-#include <Core/Assets/AssetFileHeader.h>
+#include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/Pipeline/RenderPipelineResource.h>
 
 void ezRenderPipelineResourceDescriptor::CreateFromRenderPipeline(const ezRenderPipeline* pPipeline)
 {
@@ -15,7 +16,8 @@ void ezRenderPipelineResourceDescriptor::CreateFromRenderPipeline(const ezRender
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineResource, 1, ezRTTIDefaultAllocator<ezRenderPipelineResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezRenderPipelineResource::ezRenderPipelineResource() : ezResource<ezRenderPipelineResource, ezRenderPipelineResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+ezRenderPipelineResource::ezRenderPipelineResource()
+    : ezResource<ezRenderPipelineResource, ezRenderPipelineResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -117,7 +119,8 @@ ezResourceLoadDesc ezRenderPipelineResource::UpdateContent(ezStreamReader* Strea
   }
   else
   {
-    EZ_REPORT_FAILURE("The file '{0}' is unsupported, only '.ezRenderPipelineBin' files can be loaded as ezRenderPipelineResource", sAbsFilePath);
+    EZ_REPORT_FAILURE("The file '{0}' is unsupported, only '.ezRenderPipelineBin' files can be loaded as ezRenderPipelineResource",
+                      sAbsFilePath);
   }
 
   return res;
@@ -125,11 +128,9 @@ ezResourceLoadDesc ezRenderPipelineResource::UpdateContent(ezStreamReader* Strea
 
 void ezRenderPipelineResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezRenderPipelineResource) +
-                                     (ezUInt32) (m_Desc.m_SerializedPipeline.GetCount());
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezRenderPipelineResource) + (ezUInt32)(m_Desc.m_SerializedPipeline.GetCount());
 
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
-
 }
 
 ezResourceLoadDesc ezRenderPipelineResource::CreateResource(const ezRenderPipelineResourceDescriptor& descriptor)
@@ -147,4 +148,3 @@ ezResourceLoadDesc ezRenderPipelineResource::CreateResource(const ezRenderPipeli
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelineResource);
-

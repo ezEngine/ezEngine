@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <RendererCore/Pipeline/Passes/StereoTestPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -8,6 +9,7 @@
 
 #include <Core/Graphics/Camera.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStereoTestPass, 1, ezRTTIDefaultAllocator<ezStereoTestPass>)
 {
   EZ_BEGIN_PROPERTIES
@@ -18,9 +20,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStereoTestPass, 1, ezRTTIDefaultAllocator<ezSt
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezStereoTestPass::ezStereoTestPass()
-  : ezRenderPipelinePass("StereoTestPass", true)
+    : ezRenderPipelinePass("StereoTestPass", true)
 {
   {
     // Load shader.
@@ -29,11 +32,10 @@ ezStereoTestPass::ezStereoTestPass()
   }
 }
 
-ezStereoTestPass::~ezStereoTestPass()
-{
-}
+ezStereoTestPass::~ezStereoTestPass() {}
 
-bool ezStereoTestPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezStereoTestPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
+                                                   ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   auto pInput = inputs[m_PinInput.m_uiInputIndex];
   if (pInput != nullptr)
@@ -52,7 +54,8 @@ bool ezStereoTestPass::GetRenderTargetDescriptions(const ezView& view, const ezA
   return true;
 }
 
-void ezStereoTestPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezStereoTestPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+                               const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   auto pInput = inputs[m_PinInput.m_uiInputIndex];
   auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
@@ -72,7 +75,8 @@ void ezStereoTestPass::Execute(const ezRenderViewContext& renderViewContext, con
 
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
 
-  renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+  renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
+                                                     1);
   renderViewContext.m_pRenderContext->BindTexture2D("ColorTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
 
   renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1);
@@ -81,4 +85,3 @@ void ezStereoTestPass::Execute(const ezRenderViewContext& renderViewContext, con
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_StereoTestPass);
-

@@ -1,10 +1,11 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Core/Application/Application.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <QApplication>
 #include <QSettings>
 #include <QtNetwork/QHostInfo>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
 
 class ezEditorApplication : public ezApplication
 {
@@ -50,4 +51,3 @@ private:
 };
 
 EZ_APPLICATION_ENTRY_POINT(ezEditorApplication);
-

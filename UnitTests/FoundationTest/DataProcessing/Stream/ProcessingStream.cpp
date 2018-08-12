@@ -1,7 +1,8 @@
 
 #include <PCH.h>
-#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
+
 #include <Foundation/DataProcessing/Stream/DefaultImplementations/ZeroInitializer.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
 #include <Foundation/Reflection/Reflection.h>
@@ -15,18 +16,14 @@ class AddOneStreamProcessor : public ezProcessingStreamProcessor
   EZ_ADD_DYNAMIC_REFLECTION(AddOneStreamProcessor, ezProcessingStreamProcessor);
 
 public:
-
   AddOneStreamProcessor()
-    : m_pStream(nullptr)
-  {}
-
-  void SetStreamName(ezHashedString StreamName)
+      : m_pStream(nullptr)
   {
-    m_StreamName = StreamName;
   }
 
-protected:
+  void SetStreamName(ezHashedString StreamName) { m_StreamName = StreamName; }
 
+protected:
   virtual ezResult UpdateStreamBindings() override
   {
     m_pStream = m_pStreamGroup->GetStreamByName(m_StreamName);
@@ -34,7 +31,7 @@ protected:
     return m_pStream ? EZ_SUCCESS : EZ_FAILURE;
   }
 
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override { }
+  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override {}
 
   virtual void Process(ezUInt64 uiNumElements) override
   {
@@ -159,5 +156,4 @@ EZ_CREATE_SIMPLE_TEST(DataProcessing, ProcessingStream)
       stream1Iterator.Advance();
     }
   }
-
 }

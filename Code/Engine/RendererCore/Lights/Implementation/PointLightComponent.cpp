@@ -1,10 +1,12 @@
 #include <PCH.h>
-#include <RendererCore/Lights/PointLightComponent.h>
-#include <RendererCore/Lights/Implementation/ShadowPool.h>
-#include <RendererCore/Pipeline/View.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
 
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <RendererCore/Lights/Implementation/ShadowPool.h>
+#include <RendererCore/Lights/PointLightComponent.h>
+#include <RendererCore/Pipeline/View.h>
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPointLightRenderData, 1, ezRTTIDefaultAllocator<ezPointLightRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -29,17 +31,15 @@ EZ_BEGIN_COMPONENT_TYPE(ezPointLightComponent, 2, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
 ezPointLightComponent::ezPointLightComponent()
-  : m_fRange(0.0f)
+    : m_fRange(0.0f)
 {
   m_fEffectiveRange = CalculateEffectiveRange(m_fRange, m_fIntensity);
 }
 
-ezPointLightComponent::~ezPointLightComponent()
-{
-
-}
+ezPointLightComponent::~ezPointLightComponent() {}
 
 ezResult ezPointLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
@@ -107,7 +107,8 @@ void ezPointLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) con
 
   ezTransform t = GetOwner()->GetGlobalTransform();
 
-  float fScreenSpaceSize = CalculateScreenSpaceSize(ezBoundingSphere(t.m_vPosition, m_fEffectiveRange * 0.5f), *msg.m_pView->GetCullingCamera());
+  float fScreenSpaceSize =
+      CalculateScreenSpaceSize(ezBoundingSphere(t.m_vPosition, m_fEffectiveRange * 0.5f), *msg.m_pView->GetCullingCamera());
 
   ezUInt32 uiBatchId = m_bCastShadows ? 0 : 1;
   auto pRenderData = ezCreateRenderDataForThisFrame<ezPointLightRenderData>(GetOwner(), uiBatchId);
@@ -136,7 +137,7 @@ void ezPointLightComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezPointLightComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
   s >> m_fRange;
@@ -149,17 +150,18 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPointLightVisualizerAttribute, 1, ezRTTIDefaul
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezPointLightVisualizerAttribute::ezPointLightVisualizerAttribute()
-  : ezVisualizerAttribute(nullptr)
+    : ezVisualizerAttribute(nullptr)
 {
 }
 
-ezPointLightVisualizerAttribute::ezPointLightVisualizerAttribute(const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty)
-  : ezVisualizerAttribute(szRangeProperty, szIntensityProperty, szColorProperty)
+ezPointLightVisualizerAttribute::ezPointLightVisualizerAttribute(const char* szRangeProperty, const char* szIntensityProperty,
+                                                                 const char* szColorProperty)
+    : ezVisualizerAttribute(szRangeProperty, szIntensityProperty, szColorProperty)
 {
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -168,7 +170,9 @@ class ezPointLightComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezPointLightComponentPatch_1_2()
-    : ezGraphPatch("ezPointLightComponent", 2) {}
+      : ezGraphPatch("ezPointLightComponent", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -179,4 +183,3 @@ public:
 ezPointLightComponentPatch_1_2 g_ezPointLightComponentPatch_1_2;
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_PointLightComponent);
-

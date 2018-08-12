@@ -1,40 +1,33 @@
-﻿#include <PCH.h>
-#include <RecastPlugin/Components/SoldierComponent.h>
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <Core/WorldSerializer/WorldWriter.h>
+#include <PCH.h>
+
 #include <Core/WorldSerializer/WorldReader.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Components/AgentSteeringComponent.h>
-#include <ThirdParty/Recast/DetourCrowd.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <RecastPlugin/Components/SoldierComponent.h>
 #include <RecastPlugin/WorldModule/RecastWorldModule.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <ThirdParty/Recast/DetourCrowd.h>
 
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_COMPONENT_TYPE(ezSoldierComponent, 1, ezComponentMode::Dynamic)
-{
-  //EZ_BEGIN_PROPERTIES
-  //{
-  //}
-  //EZ_END_PROPERTIES;
-}
 EZ_END_COMPONENT_TYPE
 
-ezSoldierComponent::ezSoldierComponent() { }
-ezSoldierComponent::~ezSoldierComponent() { }
+ezSoldierComponent::ezSoldierComponent() {}
+ezSoldierComponent::~ezSoldierComponent() {}
 
 void ezSoldierComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
   ezStreamWriter& s = stream.GetStream();
-
 }
 
 void ezSoldierComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
-
 }
 
 void ezSoldierComponent::OnSimulationStarted()
@@ -161,25 +154,25 @@ void ezSoldierComponent::SteeringEventHandler(const ezAgentSteeringEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezAgentSteeringEvent::TargetReached:
-  case ezAgentSteeringEvent::TargetCleared:
-  case ezAgentSteeringEvent::ErrorInvalidTargetPosition:
-  case ezAgentSteeringEvent::ErrorNoPathToTarget:
-  case ezAgentSteeringEvent::WarningNoFullPathToTarget:
+    case ezAgentSteeringEvent::TargetReached:
+    case ezAgentSteeringEvent::TargetCleared:
+    case ezAgentSteeringEvent::ErrorInvalidTargetPosition:
+    case ezAgentSteeringEvent::ErrorNoPathToTarget:
+    case ezAgentSteeringEvent::WarningNoFullPathToTarget:
     {
       e.m_pComponent->ClearTargetPosition();
       m_State = State::Idle;
     }
     break;
 
-  case ezAgentSteeringEvent::PathToTargetFound:
+    case ezAgentSteeringEvent::PathToTargetFound:
     {
       m_State = State::Walking;
     }
     break;
 
-  case ezAgentSteeringEvent::ErrorOutsideNavArea:
-  case ezAgentSteeringEvent::ErrorSteeringFailed:
+    case ezAgentSteeringEvent::ErrorOutsideNavArea:
+    case ezAgentSteeringEvent::ErrorSteeringFailed:
     {
       EZ_ASSERT_DEV(m_State != State::ErrorState, "Multi-error state?");
 
@@ -191,4 +184,3 @@ void ezSoldierComponent::SteeringEventHandler(const ezAgentSteeringEvent& e)
     break;
   }
 }
-

@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Math/Transform.h>
 
 EZ_CREATE_SIMPLE_TEST(Math, Transform)
@@ -85,7 +86,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
     EZ_TEST_VEC3(t1.m_vPosition, ezVec3T(-2, 1, 3), 0.0001f);
   }
 
-  //EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator *=")
+  // EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator *=")
   //{
   //  ezQuat qRotX, qRotY;
   //  qRotX.SetFromAxisAndAngle(ezVec3T(1, 0, 0), ezAngle::Degree(90.0f));
@@ -117,11 +118,11 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
 
     t1 = qRotX * t0;
     EZ_TEST_VEC3(t1.m_vPosition, ezVec3T(0, 0, 0), 0.0001f);
-    //EZ_TEST_BOOL(t1.m_qRotation.IsEqual(ezMat3(1, 0, 0, 0, 0, -1, 0, 1, 0), 0.0001f));
+    // EZ_TEST_BOOL(t1.m_qRotation.IsEqual(ezMat3(1, 0, 0, 0, 0, -1, 0, 1, 0), 0.0001f));
 
     t1 = qRotY * t1;
     EZ_TEST_VEC3(t1.m_vPosition, ezVec3T(0, 0, 0), 0.0001f);
-    //EZ_TEST_BOOL(t1.m_qRotation.IsEqual(ezMat3(0, 1, 0, 0, 0, -1, -1, 0, 0), 0.0001f));
+    // EZ_TEST_BOOL(t1.m_qRotation.IsEqual(ezMat3(0, 1, 0, 0, 0, -1, -1, 0, 0), 0.0001f));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator * (vec3)")
@@ -151,7 +152,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
     EZ_TEST_VEC3(t.m_vPosition, ezVec3T(1, 2, 3), 0.0001f);
     EZ_TEST_VEC3(t.m_vScale, ezVec3T(1, 1, 1), 0.0001f);
 
-    //EZ_TEST_BOOL(t.m_qRotation.IsEqual(ezMat3(0, 1, 0, 0, 0, -1, -1, 0, 0), 0.0001f));
+    // EZ_TEST_BOOL(t.m_qRotation.IsEqual(ezMat3(0, 1, 0, 0, 0, -1, -1, 0, 0), 0.0001f));
 
     ezVec3T v;
     v = t * ezVec3T(4, 5, 6);
@@ -159,7 +160,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
     EZ_TEST_VEC3(v, ezVec3T(5 + 1, -6 + 2, -4 + 3), 0.0001f);
   }
 
-  //EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetGlobalTransform")
+  // EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetGlobalTransform")
   //{
   //  ezTransformT tParent(ezVec3T(1, 2, 3));
   //  tParent.m_qRotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
@@ -176,7 +177,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
   //  EZ_TEST_BOOL(tChild.m_qRotation.IsEqual(ezMat3(0, 0, 8, 8, 0, 0, 0, 8, 0), 0.0001f));
   //}
 
-  //EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetLocalTransform")
+  // EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetLocalTransform")
   //{
   //  // the inverse of the SetGlobalTransform test
 
@@ -199,7 +200,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
   //  EZ_TEST_BOOL(tToChild.m_qRotation.IsEqual(mRot, 0.0001f));
   //}
 
-  //EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsIdentical")
+  // EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsIdentical")
   //{
   //  ezTransformT t(ezVec3T(1, 2, 3));
   //  t.m_qRotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
@@ -217,7 +218,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
   //  EZ_TEST_BOOL(!t.IsIdentical(t3));
   //}
 
-  //EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator == / !=")
+  // EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator == / !=")
   //{
   //  ezTransformT t(ezVec3T(1, 2, 3));
   //  t.m_qRotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
@@ -235,7 +236,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
   //  EZ_TEST_BOOL(t != t3);
   //}
 
-  //EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
+  // EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
   //{
   //  ezTransformT t(ezVec3T(1, 2, 3));
   //  t.m_qRotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
@@ -255,7 +256,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
   //  EZ_TEST_BOOL(!t.IsEqual(t3, 0.0001f));
   //}
 
-  //EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(ezTransformT, ezTransformT)")
+  // EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(ezTransformT, ezTransformT)")
   //{
   //  ezTransformT tParent(ezVec3T(1, 2, 3));
   //  tParent.m_qRotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
@@ -280,7 +281,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
   //  EZ_TEST_BOOL(mChild.IsEqual(tChild.GetAsMat4(), 0.0001f));
   //}
 
-  //EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(ezTransformT, ezMat4)")
+  // EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(ezTransformT, ezMat4)")
   //{
   //  ezTransformT tParent(ezVec3T(1, 2, 3));
   //  tParent.m_qRotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
@@ -305,7 +306,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
   //  EZ_TEST_BOOL(mChild.IsEqual(tChild.GetAsMat4(), 0.0001f));
   //}
 
-  //EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(ezMat4, ezTransformT)")
+  // EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(ezMat4, ezTransformT)")
   //{
   //  ezTransformT tParent(ezVec3T(1, 2, 3));
   //  tParent.m_qRotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
@@ -330,7 +331,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
   //  EZ_TEST_BOOL(mChild.IsEqual(tChild.GetAsMat4(), 0.0001f));
   //}
 
-  //EZ_TEST_BLOCK(ezTestBlock::Enabled, "Invert / GetInverse")
+  // EZ_TEST_BLOCK(ezTestBlock::Enabled, "Invert / GetInverse")
   //{
   //  ezTransformT tParent(ezVec3T(1, 2, 3));
   //  tParent.m_qRotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
@@ -355,7 +356,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
   //  EZ_TEST_BOOL(tParent.IsEqual(tParentFromChild, 0.0001f));
   //}
 
-  //EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsArray")
+  // EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsArray")
   //{
   //  ezTransformT t;
   //  t.m_qRotation.SetElements(1, 2, 3,
@@ -546,17 +547,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
     }
     EZ_TEST_BOOL(m.IsEqual(refM, 0.00001f));
 
-    ezVec3 p[8] =
-    {
-      ezVec3(-4, 0, 0),
-      ezVec3(5, 0, 0),
-      ezVec3(0, -6, 0),
-      ezVec3(0, 7, 0),
-      ezVec3(0, 0, -8),
-      ezVec3(0, 0, 9),
-      ezVec3(1, -2, 3),
-      ezVec3(-4, 5, 7)
-    };
+    ezVec3 p[8] = {ezVec3(-4, 0, 0), ezVec3(5, 0, 0), ezVec3(0, -6, 0), ezVec3(0, 7, 0),
+                   ezVec3(0, 0, -8), ezVec3(0, 0, 9), ezVec3(1, -2, 3), ezVec3(-4, 5, 7)};
 
     for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(p); ++i)
     {
@@ -716,11 +708,4 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
 
     EZ_TEST_BOOL(t != t3);
   }
-
-
-
-
-
 }
-
-

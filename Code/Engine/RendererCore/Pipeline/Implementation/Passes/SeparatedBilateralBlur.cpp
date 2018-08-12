@@ -1,13 +1,14 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Pipeline/Passes/SeparatedBilateralBlur.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/BilateralBlurConstants.h>
 
-
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSeparatedBilateralBlurPass, 2, ezRTTIDefaultAllocator<ezSeparatedBilateralBlurPass>)
 {
   EZ_BEGIN_PROPERTIES
@@ -24,12 +25,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSeparatedBilateralBlurPass, 2, ezRTTIDefaultAl
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-  ezSeparatedBilateralBlurPass::ezSeparatedBilateralBlurPass()
-  : ezRenderPipelinePass("SeparatedBilateral")
-  , m_uiRadius(7)
-  , m_fGaussianSigma(3.5f)
-  , m_fSharpness(120.0f)
+ezSeparatedBilateralBlurPass::ezSeparatedBilateralBlurPass()
+    : ezRenderPipelinePass("SeparatedBilateral")
+    , m_uiRadius(7)
+    , m_fGaussianSigma(3.5f)
+    , m_fSharpness(120.0f)
 {
   {
     // Load shader.
@@ -48,7 +50,9 @@ ezSeparatedBilateralBlurPass::~ezSeparatedBilateralBlurPass()
   m_hBilateralBlurCB.Invalidate();
 }
 
-bool ezSeparatedBilateralBlurPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezSeparatedBilateralBlurPass::GetRenderTargetDescriptions(const ezView& view,
+                                                               const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
+                                                               ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   EZ_ASSERT_DEBUG(inputs.GetCount() == 2, "Unexpected number of inputs for ezSeparatedBilateralBlurPass.");
 
@@ -76,7 +80,7 @@ bool ezSeparatedBilateralBlurPass::GetRenderTargetDescriptions(const ezView& vie
     return false;
   }
   if (inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_uiWidth != inputs[m_PinDepthInput.m_uiInputIndex]->m_uiWidth ||
-    inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_uiHeight != inputs[m_PinDepthInput.m_uiInputIndex]->m_uiHeight)
+      inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_uiHeight != inputs[m_PinDepthInput.m_uiInputIndex]->m_uiHeight)
   {
     ezLog::Error("Blur target and depth buffer for bilateral blur pass need to have the same dimensions.");
     return false;
@@ -89,7 +93,9 @@ bool ezSeparatedBilateralBlurPass::GetRenderTargetDescriptions(const ezView& vie
   return true;
 }
 
-void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderViewContext,
+                                           const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+                                           const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   if (outputs[m_PinOutput.m_uiOutputIndex])
   {
@@ -116,7 +122,8 @@ void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderView
 
     // Bind shader and inputs
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
-    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
+                                                       1);
     renderViewContext.m_pRenderContext->BindTexture2D("DepthBuffer", hDepthInputView);
     renderViewContext.m_pRenderContext->BindConstantBuffer("ezBilateralBlurConstants", m_hBilateralBlurCB);
 
@@ -180,9 +187,9 @@ float ezSeparatedBilateralBlurPass::GetSharpness() const
 
 
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -191,7 +198,9 @@ class ezSeparatedBilateralBlurPassPatch_1_2 : public ezGraphPatch
 {
 public:
   ezSeparatedBilateralBlurPassPatch_1_2()
-    : ezGraphPatch("ezSeparatedBilateralBlurPass", 2) {}
+      : ezGraphPatch("ezSeparatedBilateralBlurPass", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -205,6 +214,4 @@ ezSeparatedBilateralBlurPassPatch_1_2 g_ezSeparatedBilateralBlurPassPatch_1_2;
 
 
 
-
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_SeparatedBilateralBlur);
-

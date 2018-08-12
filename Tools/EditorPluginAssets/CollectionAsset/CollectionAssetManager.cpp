@@ -1,9 +1,10 @@
-﻿#include <PCH.h>
-#include <EditorPluginAssets/CollectionAsset/CollectionAssetManager.h>
+#include <PCH.h>
+
 #include <EditorPluginAssets/CollectionAsset/CollectionAsset.h>
+#include <EditorPluginAssets/CollectionAsset/CollectionAssetManager.h>
 #include <EditorPluginAssets/CollectionAsset/CollectionAssetWindow.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezCollectionAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -28,7 +29,8 @@ ezCollectionAssetDocumentManager::~ezCollectionAssetDocumentManager()
 }
 
 
-ezBitflags<ezAssetDocumentFlags> ezCollectionAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
+ezBitflags<ezAssetDocumentFlags>
+ezCollectionAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
 {
   EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
   return ezAssetDocumentFlags::AutoTransformOnSave;
@@ -38,7 +40,7 @@ void ezCollectionAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
 {
   switch (e.m_Type)
   {
-  case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case ezDocumentManager::Event::Type::DocumentWindowRequested:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezCollectionAssetDocument>())
       {
@@ -49,17 +51,16 @@ void ezCollectionAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
   }
 }
 
-ezStatus ezCollectionAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)
+ezStatus ezCollectionAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
+                                                                  ezDocument*& out_pDocument)
 {
   out_pDocument = new ezCollectionAssetDocument(szPath);
 
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezCollectionAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezCollectionAssetDocumentManager::InternalGetSupportedDocumentTypes(
+    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
-
-
-

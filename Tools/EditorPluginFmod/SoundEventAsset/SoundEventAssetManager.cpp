@@ -1,9 +1,10 @@
-﻿#include <PCH.h>
-#include <EditorPluginFmod/SoundEventAsset/SoundEventAssetManager.h>
+#include <PCH.h>
+
 #include <EditorPluginFmod/SoundEventAsset/SoundEventAsset.h>
+#include <EditorPluginFmod/SoundEventAsset/SoundEventAssetManager.h>
 #include <EditorPluginFmod/SoundEventAsset/SoundEventAssetWindow.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundEventAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSoundEventAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -31,7 +32,7 @@ void ezSoundEventAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
 {
   switch (e.m_Type)
   {
-  case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case ezDocumentManager::Event::Type::DocumentWindowRequested:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSoundEventAssetDocument>())
       {
@@ -42,17 +43,16 @@ void ezSoundEventAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
   }
 }
 
-ezStatus ezSoundEventAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)
+ezStatus ezSoundEventAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
+                                                                  ezDocument*& out_pDocument)
 {
   out_pDocument = new ezSoundEventAssetDocument(szPath);
 
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezSoundEventAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezSoundEventAssetDocumentManager::InternalGetSupportedDocumentTypes(
+    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
-
-
-

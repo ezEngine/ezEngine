@@ -1,7 +1,8 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <Core/Graphics/Camera.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/SortingFunctions.h>
-#include <Core/Graphics/Camera.h>
 
 namespace
 {
@@ -20,8 +21,9 @@ namespace
   }
 }
 
-//static
-ezUInt64 ezRenderSortingFunctions::ByRenderDataThenFrontToBack(const ezRenderData* pRenderData, ezUInt32 uiRenderDataSortingKey, const ezCamera& camera)
+// static
+ezUInt64 ezRenderSortingFunctions::ByRenderDataThenFrontToBack(const ezRenderData* pRenderData, ezUInt32 uiRenderDataSortingKey,
+                                                               const ezCamera& camera)
 {
   const ezUInt64 uiTypeHash = CalculateTypeHash(pRenderData);
   const ezUInt64 uiRenderDataSortingKey64 = uiRenderDataSortingKey;
@@ -31,8 +33,9 @@ ezUInt64 ezRenderSortingFunctions::ByRenderDataThenFrontToBack(const ezRenderDat
   return uiSortingKey;
 }
 
-//static
-ezUInt64 ezRenderSortingFunctions::BackToFrontThenByRenderData(const ezRenderData* pRenderData, ezUInt32 uiRenderDataSortingKey, const ezCamera& camera)
+// static
+ezUInt64 ezRenderSortingFunctions::BackToFrontThenByRenderData(const ezRenderData* pRenderData, ezUInt32 uiRenderDataSortingKey,
+                                                               const ezCamera& camera)
 {
   const ezUInt64 uiTypeHash = CalculateTypeHash(pRenderData);
   const ezUInt64 uiRenderDataSortingKey64 = uiRenderDataSortingKey;
@@ -45,4 +48,3 @@ ezUInt64 ezRenderSortingFunctions::BackToFrontThenByRenderData(const ezRenderDat
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_SortingFunctions);
-

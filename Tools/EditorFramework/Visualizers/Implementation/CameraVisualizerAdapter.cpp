@@ -1,17 +1,14 @@
-﻿#include <PCH.h>
-#include <EditorFramework/Visualizers/CameraVisualizerAdapter.h>
+#include <PCH.h>
+
+#include <Core/Graphics/Camera.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/Visualizers/CameraVisualizerAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
-#include <Core/Graphics/Camera.h>
 
-ezCameraVisualizerAdapter::ezCameraVisualizerAdapter()
-{
-}
+ezCameraVisualizerAdapter::ezCameraVisualizerAdapter() {}
 
-ezCameraVisualizerAdapter::~ezCameraVisualizerAdapter()
-{
-}
+ezCameraVisualizerAdapter::~ezCameraVisualizerAdapter() {}
 
 void ezCameraVisualizerAdapter::Finalize()
 {
@@ -119,7 +116,8 @@ void ezCameraVisualizerAdapter::Update()
     {
       const float fAngleScale = ezMath::Tan(ezAngle::Degree(fFOV) * 0.5f);
       const float fFrustumScale = ezMath::Min(fFarPlane, 10.0f);
-      const float fFarPlaneScale = ezMath::Min(fFarPlane, 9.0f);;
+      const float fFarPlaneScale = ezMath::Min(fFarPlane, 9.0f);
+      ;
 
       // indicate whether the shown far plane is the actual distance, or just the maximum visualization distance
       m_FarPlaneGizmo.SetColor(fFarPlane > 9.0f ? ezColor::DodgerBlue : ezColor::PaleVioletRed);
@@ -141,7 +139,6 @@ void ezCameraVisualizerAdapter::Update()
     m_FrustumGizmo.SetVisible(m_bVisualizerIsVisible);
     m_NearPlaneGizmo.SetVisible(m_bVisualizerIsVisible);
     m_FarPlaneGizmo.SetVisible(m_bVisualizerIsVisible);
-
   }
 }
 
@@ -153,5 +150,3 @@ void ezCameraVisualizerAdapter::UpdateGizmoTransform()
   m_NearPlaneGizmo.SetTransformation(t * m_LocalTransformNearPlane);
   m_FarPlaneGizmo.SetTransformation(t * m_LocalTransformFarPlane);
 }
-
-

@@ -1,11 +1,13 @@
 #include <PCH.h>
-#include <GameEngine/GameApplication/InputConfig.h>
-#include <Core/Input/InputManager.h>
-#include <Foundation/IO/OpenDdlWriter.h>
-#include <Foundation/IO/OpenDdlUtils.h>
-#include <Foundation/IO/OpenDdlReader.h>
 
-EZ_CHECK_AT_COMPILETIME_MSG(ezGameAppInputConfig::MaxInputSlotAlternatives == ezInputActionConfig::MaxInputSlotAlternatives, "Max values should be kept in sync");
+#include <Core/Input/InputManager.h>
+#include <Foundation/IO/OpenDdlReader.h>
+#include <Foundation/IO/OpenDdlUtils.h>
+#include <Foundation/IO/OpenDdlWriter.h>
+#include <GameEngine/GameApplication/InputConfig.h>
+
+EZ_CHECK_AT_COMPILETIME_MSG(ezGameAppInputConfig::MaxInputSlotAlternatives == ezInputActionConfig::MaxInputSlotAlternatives,
+                            "Max values should be kept in sync");
 
 ezGameAppInputConfig::ezGameAppInputConfig()
 {
@@ -46,7 +48,7 @@ void ezGameAppInputConfig::WriteToDDL(ezStreamWriter& stream, const ezArrayPtr<e
   }
 }
 
-void ezGameAppInputConfig::WriteToDDL(ezOpenDdlWriter &writer) const
+void ezGameAppInputConfig::WriteToDDL(ezOpenDdlWriter& writer) const
 {
   writer.BeginObject("InputAction");
   {
@@ -139,4 +141,3 @@ void ezGameAppInputConfig::ApplyAll(const ezArrayPtr<ezGameAppInputConfig>& acti
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_InputConfig);
-

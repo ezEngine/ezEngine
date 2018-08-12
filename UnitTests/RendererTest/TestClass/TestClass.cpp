@@ -1,20 +1,21 @@
 #include <PCH.h>
+
 #include "TestClass.h"
+#include <Core/ResourceManager/ResourceManager.h>
+#include <Foundation/Configuration/Startup.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/Image/Image.h>
+#include <Foundation/Image/ImageConversion.h>
+#include <Foundation/Image/ImageUtils.h>
+#include <Foundation/Memory/MemoryTracker.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/Shader/ShaderResource.h>
+#include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/SwapChain.h>
-#include <Foundation/Image/Image.h>
-#include <Foundation/Image/ImageUtils.h>
-#include <Foundation/Image/ImageConversion.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Configuration/Startup.h>
-#include <Foundation/Memory/MemoryTracker.h>
-#include <Core/ResourceManager/ResourceManager.h>
-#include <RendererCore/ShaderCompiler/ShaderManager.h>
-#include <RendererCore/Shader/ShaderResource.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 
 
 
@@ -199,10 +200,11 @@ void ezGraphicsTest::ClearScreen(const ezColor& color)
 
   ezGALRenderTagetSetup RTS;
   RTS.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture()))
-     .SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture));
+      .SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture));
 
   pContext->SetRenderTargetSetup(RTS);
-  pContext->SetViewport(ezRectFloat(0.0f, 0.0f, (float) m_pWindow->GetClientAreaSize().width, (float) m_pWindow->GetClientAreaSize().height), 0.0f, 1.0f);
+  pContext->SetViewport(ezRectFloat(0.0f, 0.0f, (float)m_pWindow->GetClientAreaSize().width, (float)m_pWindow->GetClientAreaSize().height),
+                        0.0f, 1.0f);
   pContext->Clear(color);
 }
 
@@ -284,20 +286,20 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateLineBox(float fWidth, float fHe
   return CreateMesh(geom, sName);
 }
 
-void ezGraphicsTest::RenderObject(ezMeshBufferResourceHandle hObject, const ezMat4& mTransform, const ezColor& color, ezBitflags<ezShaderBindFlags> ShaderBindFlags)
+void ezGraphicsTest::RenderObject(ezMeshBufferResourceHandle hObject, const ezMat4& mTransform, const ezColor& color,
+                                  ezBitflags<ezShaderBindFlags> ShaderBindFlags)
 {
   ezRenderContext::GetDefaultInstance()->BindShader(m_hShader, ShaderBindFlags);
 
-  //ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  //ezGALContext* pContext = pDevice->GetPrimaryContext();
+  // ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  // ezGALContext* pContext = pDevice->GetPrimaryContext();
 
   ObjectCB* ocb = ezRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
-    ocb->m_MVP = mTransform;
-    ocb->m_Color = color;
+  ocb->m_MVP = mTransform;
+  ocb->m_Color = color;
 
   ezRenderContext::GetDefaultInstance()->BindConstantBuffer("PerObject", m_hObjectTransformCB);
 
   ezRenderContext::GetDefaultInstance()->BindMeshBuffer(hObject);
   ezRenderContext::GetDefaultInstance()->DrawMeshBuffer();
 }
-

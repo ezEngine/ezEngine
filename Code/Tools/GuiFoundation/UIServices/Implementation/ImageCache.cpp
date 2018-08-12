@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
+
 #include <Foundation/Threading/ThreadUtils.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <QtConcurrent/qtconcurrentrun.h>
 
 static ezQtImageCache g_ImageCacheSingleton;
@@ -9,7 +10,7 @@ EZ_IMPLEMENT_SINGLETON(ezQtImageCache);
 
 
 ezQtImageCache::ezQtImageCache()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
   m_bCacheEnabled = true;
   m_bTaskRunning = false;
@@ -49,7 +50,8 @@ void ezQtImageCache::InvalidateCache(const char* szAbsolutePath)
   emit g_ImageCacheSingleton.ImageInvalidated(sPath, id);
 }
 
-const QPixmap* ezQtImageCache::QueryPixmap(const char* szAbsolutePath, QModelIndex index, QVariant UserData1, QVariant UserData2, ezUInt32* out_pImageID)
+const QPixmap* ezQtImageCache::QueryPixmap(const char* szAbsolutePath, QModelIndex index, QVariant UserData1, QVariant UserData2,
+                                           ezUInt32* out_pImageID)
 {
   if (out_pImageID)
     *out_pImageID = 0;
@@ -99,7 +101,9 @@ const QPixmap* ezQtImageCache::QueryPixmap(const char* szAbsolutePath, QModelInd
 }
 
 
-const QPixmap* ezQtImageCache::QueryPixmapForType(const char* szType, const char* szAbsolutePath, QModelIndex index /*= QModelIndex()*/, QVariant UserData1 /*= QVariant()*/, QVariant UserData2 /*= QVariant()*/, ezUInt32* out_pImageID /*= nullptr*/)
+const QPixmap* ezQtImageCache::QueryPixmapForType(const char* szType, const char* szAbsolutePath, QModelIndex index /*= QModelIndex()*/,
+                                                  QVariant UserData1 /*= QVariant()*/, QVariant UserData2 /*= QVariant()*/,
+                                                  ezUInt32* out_pImageID /*= nullptr*/)
 {
   const QPixmap* pTypeImage = QueryTypeImage(szType);
 
@@ -237,8 +241,7 @@ void ezQtImageCache::LoadingTask(QString sPath, QModelIndex index, QVariant User
 
   if (bImageAvailable)
     entry.m_Pixmap = QPixmap::fromImage(Image);
-  else
-  if (pCache->m_pImageUnavailable)
+  else if (pCache->m_pImageUnavailable)
     entry.m_Pixmap = *pCache->m_pImageUnavailable;
 
   entry.m_LastAccess = ezTime::Now();

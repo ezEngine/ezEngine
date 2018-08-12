@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <Foundation/Time/Stopwatch.h>
+
 #include <Foundation/Threading/ThreadUtils.h>
+#include <Foundation/Time/Stopwatch.h>
 
 EZ_CREATE_SIMPLE_TEST(Time, Stopwatch)
 {
@@ -57,4 +58,3 @@ EZ_CREATE_SIMPLE_TEST(Time, Stopwatch)
     EZ_TEST_BOOL(tTotal2 == tTotal3);
   }
 }
-

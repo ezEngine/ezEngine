@@ -1,18 +1,16 @@
 #include <PCH.h>
-#include <ToolsFoundation/Selection/SelectionManager.h>
+
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <ToolsFoundation/Selection/SelectionManager.h>
 
-ezSelectionManager::ezSelectionManager()
-{
-}
+ezSelectionManager::ezSelectionManager() {}
 
 void ezSelectionManager::SetOwner(const ezDocument* pDocument)
 {
   if (pDocument)
   {
     pDocument->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSelectionManager::TreeEventHandler, this));
-
   }
   else
   {
@@ -26,11 +24,11 @@ void ezSelectionManager::TreeEventHandler(const ezDocumentObjectStructureEvent& 
 {
   switch (e.m_EventType)
   {
-  case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
-    RemoveObject(e.m_pObject, true);
-    break;
-  default:
-    return;
+    case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
+      RemoveObject(e.m_pObject, true);
+      break;
+    default:
+      return;
   }
 }
 

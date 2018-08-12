@@ -1,6 +1,8 @@
 #include <PCH.h>
+
 #include <SharedPluginAssets/Common/Messages.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineRestoreResourceMsg, 1, ezRTTIDefaultAllocator<ezEditorEngineRestoreResourceMsg>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -27,3 +29,4 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineLoopAnimationMsg, 1, ezRTTIDefault
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on

@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <EditorPluginAssets/VisualShader/VisualShaderNodeManager.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
 #include <Foundation/Utilities/Node.h>
@@ -11,7 +12,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualShaderPin, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualShaderPin::ezVisualShaderPin(Type type, const ezVisualShaderPinDescriptor* pDescriptor, const ezDocumentObject* pObject)
-  : ezPin(type, pDescriptor->m_sName, pDescriptor->m_Color, pObject)
+    : ezPin(type, pDescriptor->m_sName, pDescriptor->m_Color, pObject)
 {
   m_pDescriptor = pDescriptor;
 }
@@ -103,14 +104,14 @@ ezStatus ezVisualShaderNodeManager::InternalCanConnect(const ezPin* pSource, con
   const ezRTTI* pStringType = ezGetStaticRTTI<ezString>();
 
   if ((pPinSource->GetDataType() == pSamplerType && pPinTarget->GetDataType() != pSamplerType) ||
-    (pPinSource->GetDataType() != pSamplerType && pPinTarget->GetDataType() == pSamplerType))
+      (pPinSource->GetDataType() != pSamplerType && pPinTarget->GetDataType() == pSamplerType))
   {
     out_Result = CanConnectResult::ConnectNever;
     return ezStatus("Pin of type 'sampler' cannot be connected with a pin of a different type.");
   }
 
   if ((pPinSource->GetDataType() == pStringType && pPinTarget->GetDataType() != pStringType) ||
-    (pPinSource->GetDataType() != pStringType && pPinTarget->GetDataType() == pStringType))
+      (pPinSource->GetDataType() != pStringType && pPinTarget->GetDataType() == pStringType))
   {
     out_Result = CanConnectResult::ConnectNever;
     return ezStatus("Pin of type 'string' cannot be connected with a pin of a different type.");
@@ -137,7 +138,8 @@ const char* ezVisualShaderNodeManager::GetTypeCategory(const ezRTTI* pRtti) cons
 }
 
 
-ezStatus ezVisualShaderNodeManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const
+ezStatus ezVisualShaderNodeManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty,
+                                                   const ezVariant& index) const
 {
   auto pDesc = ezVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(pRtti);
 
@@ -178,4 +180,3 @@ ezUInt32 ezVisualShaderNodeManager::CountNodesOfType(ezVisualShaderNodeType::Enu
 
   return count;
 }
-

@@ -1,13 +1,15 @@
 #include <PCH.h>
+
 #include <EditorFramework/Dialogs/DataDirsDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Foundation/IO/OSFile.h>
-#include <QMessageBox>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QProcess>
 
-ezQtDataDirsDlg::ezQtDataDirsDlg(QWidget* parent) : QDialog(parent)
+ezQtDataDirsDlg::ezQtDataDirsDlg(QWidget* parent)
+    : QDialog(parent)
 {
   setupUi(this);
 
@@ -68,7 +70,8 @@ void ezQtDataDirsDlg::on_ButtonOK_clicked()
 {
   if (m_Config.CreateDataDirStubFiles().Failed())
   {
-    ezQtUiServices::MessageBoxWarning("Failed to create all data dir stub files ('DataDir.ezManifest'). Please review the selected folders, some might not be accessible. See the log for more details.");
+    ezQtUiServices::MessageBoxWarning("Failed to create all data dir stub files ('DataDir.ezManifest'). Please review the selected "
+                                      "folders, some might not be accessible. See the log for more details.");
     return;
   }
 
@@ -105,7 +108,8 @@ void ezQtDataDirsDlg::on_ButtonAdd_clicked()
     sPreviousFolder = QString::fromUtf8(ezToolsProject::GetSingleton()->GetProjectFile().GetData());
   }
 
-  QString sFolder = QFileDialog::getExistingDirectory(this, QLatin1String("Select Directory"), sPreviousFolder, QFileDialog::Option::ShowDirsOnly | QFileDialog::Option::DontResolveSymlinks);
+  QString sFolder = QFileDialog::getExistingDirectory(this, QLatin1String("Select Directory"), sPreviousFolder,
+                                                      QFileDialog::Option::ShowDirsOnly | QFileDialog::Option::DontResolveSymlinks);
 
   if (sFolder.isEmpty())
     return;
@@ -147,7 +151,7 @@ void ezQtDataDirsDlg::on_ListDataDirs_itemSelectionChanged()
 
   ButtonRemove->setEnabled(bCanRemove);
   ButtonUp->setEnabled(m_iSelection > 0);
-  ButtonDown->setEnabled(m_iSelection != -1 && m_iSelection < (ezInt32) m_Config.m_DataDirs.GetCount() - 1);
+  ButtonDown->setEnabled(m_iSelection != -1 && m_iSelection < (ezInt32)m_Config.m_DataDirs.GetCount() - 1);
 }
 
 void ezQtDataDirsDlg::on_ButtonOpenFolder_clicked()

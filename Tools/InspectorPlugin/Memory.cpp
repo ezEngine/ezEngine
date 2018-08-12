@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Memory/MemoryTracker.h>
 #include <Foundation/Utilities/Stats.h>
@@ -41,15 +42,14 @@ namespace MemoryDetail
 
     switch (e.m_EventType)
     {
-    case ezTelemetry::TelemetryEventData::PerFrameUpdate:
-      BroadcastMemoryStats();
-      break;
+      case ezTelemetry::TelemetryEventData::PerFrameUpdate:
+        BroadcastMemoryStats();
+        break;
 
-    default:
-      break;
+      default:
+        break;
     }
   }
-
 }
 
 
@@ -66,4 +66,3 @@ void RemoveMemoryEventHandler()
 
 
 EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Memory);
-

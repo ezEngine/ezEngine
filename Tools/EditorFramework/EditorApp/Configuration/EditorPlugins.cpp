@@ -1,12 +1,13 @@
 #include <PCH.h>
+
 #include <EditorFramework/EditorApp/Configuration/Plugins.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/IO/OSFile.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/OpenDdlWriter.h>
-#include <Foundation/IO/OpenDdlUtils.h>
-#include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/OSFile.h>
+#include <Foundation/IO/OpenDdlReader.h>
+#include <Foundation/IO/OpenDdlUtils.h>
+#include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 
 void ezQtEditorApp::DetectAvailableEditorPlugins()
@@ -15,7 +16,8 @@ void ezQtEditorApp::DetectAvailableEditorPlugins()
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
   {
-    ezStringBuilder sSearch = ezOSFile::GetApplicationDirectory();;
+    ezStringBuilder sSearch = ezOSFile::GetApplicationDirectory();
+    ;
     sSearch.AppendPath("ezEditorPlugin*.dll");
 
     ezFileSystemIterator fsit;
@@ -27,8 +29,7 @@ void ezQtEditorApp::DetectAvailableEditorPlugins()
         sPlugin.RemoveFileExtension();
 
         s_EditorPlugins.m_Plugins[sPlugin].m_bAvailable = true;
-      }
-      while (fsit.Next().Succeeded());
+      } while (fsit.Next().Succeeded());
     }
   }
 #endif
@@ -156,4 +157,3 @@ void ezQtEditorApp::UnloadEditorPlugins()
     }
   }
 }
-

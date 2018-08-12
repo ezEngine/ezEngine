@@ -1,10 +1,12 @@
 #include <PCH.h>
+
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Pipeline/View.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDirectionalLightRenderData, 1, ezRTTIDefaultAllocator<ezDirectionalLightRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -31,21 +33,18 @@ EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 3, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
 ezDirectionalLightComponent::ezDirectionalLightComponent()
-  : m_uiNumCascades(3)
-  , m_fMinShadowRange(50.0f)
-  , m_fFadeOutStart(0.8f)
-  , m_fSplitModeWeight(0.7f)
-  , m_fNearPlaneOffset(100.0f)
+    : m_uiNumCascades(3)
+    , m_fMinShadowRange(50.0f)
+    , m_fFadeOutStart(0.8f)
+    , m_fSplitModeWeight(0.7f)
+    , m_fNearPlaneOffset(100.0f)
 {
-
 }
 
-ezDirectionalLightComponent::~ezDirectionalLightComponent()
-{
-
-}
+ezDirectionalLightComponent::~ezDirectionalLightComponent() {}
 
 ezResult ezDirectionalLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
@@ -153,9 +152,9 @@ void ezDirectionalLightComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -164,7 +163,9 @@ class ezDirectionalLightComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezDirectionalLightComponentPatch_1_2()
-    : ezGraphPatch("ezDirectionalLightComponent", 2) {}
+      : ezGraphPatch("ezDirectionalLightComponent", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -177,4 +178,3 @@ ezDirectionalLightComponentPatch_1_2 g_ezDirectionalLightComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_DirectionalLightComponent);
-

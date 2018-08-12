@@ -1,18 +1,19 @@
 
 #include <PCH.h>
-#include <GameEngine/GameState/GameStateWindow.h>
+
+#include <Core/World/World.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <GameEngine/GameState/GameStateWindow.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 #include <System/Screen/Screen.h>
-#include <Core/World/World.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-  #include <MixedReality/MixedRealityFramework.h>
-  #include <WindowsMixedReality/HolographicSpace.h>
+#include <MixedReality/MixedRealityFramework.h>
+#include <WindowsMixedReality/HolographicSpace.h>
 #endif
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameState, 1, ezRTTINoAllocator);
@@ -20,15 +21,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameState_Implementation_GameState);
 
-ezGameState::ezGameState()
-{
+ezGameState::ezGameState() {}
 
-}
-
-ezGameState::~ezGameState()
-{
-
-}
+ezGameState::~ezGameState() {}
 
 void ezGameState::OnActivation(ezWorld* pWorld)
 {
@@ -37,7 +32,8 @@ void ezGameState::OnActivation(ezWorld* pWorld)
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   if ((GetApplication()->GetAppType() == ezGameApplicationType::StandAloneMixedReality ||
-       GetApplication()->GetAppType() == ezGameApplicationType::EmbeddedInToolMixedReality) && ezWindowsHolographicSpace::GetSingleton()->IsAvailable())
+       GetApplication()->GetAppType() == ezGameApplicationType::EmbeddedInToolMixedReality) &&
+      ezWindowsHolographicSpace::GetSingleton()->IsAvailable())
   {
     m_bMixedRealityMode = true;
   }
@@ -125,7 +121,7 @@ void ezGameState::CreateMainWindow()
 
   ezWindowCreationDesc wndDesc;
   wndDesc.LoadFromDDL(sWndCfg);
-  //wndDesc.SaveToDDL(":project/Window.ddl");
+  // wndDesc.SaveToDDL(":project/Window.ddl");
 
   GetApplication()->AdjustWindowCreation(wndDesc);
 
@@ -149,10 +145,7 @@ void ezGameState::ConfigureInputDevices()
   m_pMainWindow->GetInputDevice()->SetMouseSpeed(ezVec2(0.002f));
 }
 
-void ezGameState::ConfigureInputActions()
-{
-
-}
+void ezGameState::ConfigureInputActions() {}
 
 void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer)
 {
@@ -222,4 +215,3 @@ void ezGameState::ConfigureMainCamera()
     m_MainCamera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 60.0f, 0.1f, 1000.0f);
   }
 }
-

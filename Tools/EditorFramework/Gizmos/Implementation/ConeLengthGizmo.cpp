@@ -1,11 +1,12 @@
-﻿#include <PCH.h>
-#include <EditorFramework/Gizmos/ConeLengthGizmo.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
+#include <PCH.h>
+
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <QMouseEvent>
+#include <EditorFramework/Gizmos/ConeLengthGizmo.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 #include <QDesktopWidget>
+#include <QMouseEvent>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConeLengthGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -17,7 +18,8 @@ ezConeLengthGizmo::ezConeLengthGizmo()
 
   m_ManipulateMode = ManipulateMode::None;
 
-  m_ConeRadius.Configure(this, ezEngineGizmoHandleType::Cone, ezColorLinearUB(200, 200, 200, 128), false, true); // this gizmo should be rendered very last so it is always on top
+  m_ConeRadius.Configure(this, ezEngineGizmoHandleType::Cone, ezColorLinearUB(200, 200, 200, 128), false,
+                         true); // this gizmo should be rendered very last so it is always on top
 
   SetVisible(false);
   SetTransformation(ezTransform::Identity());
@@ -151,4 +153,3 @@ void ezConeLengthGizmo::SetRadius(float fRadius)
   // update the scale
   OnTransformationChanged(GetTransformation());
 }
-

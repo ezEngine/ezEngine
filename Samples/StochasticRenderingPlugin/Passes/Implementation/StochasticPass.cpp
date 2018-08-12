@@ -1,13 +1,15 @@
-﻿#include <PCH.h>
-#include <StochasticRenderingPlugin/Passes/StochasticPass.h>
+#include <PCH.h>
+
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <RendererCore/Pipeline/View.h>
-#include <RendererFoundation/Resources/Resource.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
+#include <RendererFoundation/Resources/Resource.h>
 #include <RendererFoundation/Resources/Texture.h>
-#include <RendererCore/RenderContext/RenderContext.h>
+#include <StochasticRenderingPlugin/Passes/StochasticPass.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStochasticPass, 1, ezRTTIDefaultAllocator<ezStochasticPass>)
 {
   EZ_BEGIN_PROPERTIES
@@ -19,9 +21,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStochasticPass, 1, ezRTTIDefaultAllocator<ezSt
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezStochasticPass::ezStochasticPass(const char* name /*= "StoachsticPass"*/)
-  : ezRenderPipelinePass(name)
+    : ezRenderPipelinePass(name)
 {
   m_lastViewProjection.SetIdentity();
   m_randomGenerator.InitializeFromCurrentTime();
@@ -37,7 +40,8 @@ ezStochasticPass::~ezStochasticPass()
   ezFoundation::GetAlignedAllocator()->Deallocate(m_randomNumbers.GetPtr());
 }
 
-bool ezStochasticPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription * const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezStochasticPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
+                                                   ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   const ezGALRenderTagetSetup& setup = view.GetRenderTargetSetup();
@@ -86,7 +90,8 @@ bool ezStochasticPass::GetRenderTargetDescriptions(const ezView& view, const ezA
   return true;
 }
 
-void ezStochasticPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection * const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection * const> outputs)
+void ezStochasticPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+                               const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
@@ -110,7 +115,7 @@ void ezStochasticPass::Execute(const ezRenderViewContext& renderViewContext, con
 
   renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
 
-  if (!m_lastViewProjection.IsIdentical(renderViewContext.m_pViewData->m_ViewProjectionMatrix[0]))  // Not stereo aware.
+  if (!m_lastViewProjection.IsIdentical(renderViewContext.m_pViewData->m_ViewProjectionMatrix[0])) // Not stereo aware.
   {
     m_lastViewProjection = renderViewContext.m_pViewData->m_ViewProjectionMatrix[0];
     pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f), 0x1, false, false); // Clear render target with index 0 to 0.0f
@@ -141,7 +146,8 @@ void ezStochasticPass::Execute(const ezRenderViewContext& renderViewContext, con
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("STOCHASTIC_PASS", "FALSE");
 }
 
-void ezStochasticPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection * const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection * const> outputs)
+void ezStochasticPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+                                              const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -149,7 +155,8 @@ void ezStochasticPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelineP
 
   if (m_randomNumbers.IsEmpty())
   {
-    m_randomNumbers = ezMakeArrayPtr((float*)ezFoundation::GetAlignedAllocator()->Allocate(numRandomNumbers * sizeof(float), 16), numRandomNumbers);
+    m_randomNumbers =
+        ezMakeArrayPtr((float*)ezFoundation::GetAlignedAllocator()->Allocate(numRandomNumbers * sizeof(float), 16), numRandomNumbers);
   }
 
   ezGALBufferCreationDescription desc;
@@ -162,4 +169,3 @@ void ezStochasticPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelineP
 
   m_randomNumberBuffer = pDevice->CreateBuffer(desc);
 }
-

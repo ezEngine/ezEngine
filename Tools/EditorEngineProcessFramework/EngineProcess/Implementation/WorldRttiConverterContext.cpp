@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <EditorEngineProcessFramework/Plugin.h>
+
 #include <EditorEngineProcessFramework/EngineProcess/WorldRttiConverterContext.h>
+#include <EditorEngineProcessFramework/Plugin.h>
 
 void ezWorldRttiConverterContext::Clear()
 {
@@ -47,7 +48,7 @@ void ezWorldRttiConverterContext::DeleteExistingObjects()
   // Need to do this to make sure all deleted objects are actually deleted as singleton components are
   // still considered alive until Update actually deletes them.
   m_pWorld->Update();
-  //m_OtherPickingMap.Clear(); // do not clear this
+  // m_OtherPickingMap.Clear(); // do not clear this
 }
 
 void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
@@ -166,7 +167,7 @@ void ezWorldRttiConverterContext::UnregisterObject(const ezUuid& guid)
   ezRttiConverterObject object = GetObjectByGUID(guid);
 
   // this can happen when running a game simulation and the object is destroyed by the game code
-  //EZ_ASSERT_DEBUG(object.m_pObject, "Failed to retrieve object by guid!");
+  // EZ_ASSERT_DEBUG(object.m_pObject, "Failed to retrieve object by guid!");
 
   if (object.m_pType != nullptr)
   {
@@ -214,7 +215,7 @@ ezRttiConverterObject ezWorldRttiConverterContext::GetObjectByGUID(const ezUuid&
     if (!m_pWorld->TryGetComponent(hComponent, pComponent))
     {
       // this can happen when one manipulates a running scene, and an object just deleted itself
-      //EZ_REPORT_FAILURE("Can't resolve component GUID!");
+      // EZ_REPORT_FAILURE("Can't resolve component GUID!");
       return object;
     }
 

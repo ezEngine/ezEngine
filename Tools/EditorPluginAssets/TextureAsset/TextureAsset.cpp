@@ -15,13 +15,15 @@
 #include <QTextStream>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocument, 5, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureChannelMode, 1)
-EZ_ENUM_CONSTANTS(ezTextureChannelMode::RGB, ezTextureChannelMode::Red, ezTextureChannelMode::Green, ezTextureChannelMode::Blue,
+  EZ_ENUM_CONSTANTS(ezTextureChannelMode::RGB, ezTextureChannelMode::Red, ezTextureChannelMode::Green, ezTextureChannelMode::Blue,
                   ezTextureChannelMode::Alpha)
 EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
 
 ezTextureAssetDocument::ezTextureAssetDocument(const char* szDocumentPath)
     : ezSimpleAssetDocument<ezTextureAssetProperties>(szDocumentPath, true)
@@ -602,7 +604,6 @@ ezStatus ezTextureAssetDocumentGenerator::Generate(const char* szDataDirRelative
   }
   else if (info.m_sName == "TextureImport.Linear")
   {
-    
   }
   else if (info.m_sName == "TextureImport.AO")
   {

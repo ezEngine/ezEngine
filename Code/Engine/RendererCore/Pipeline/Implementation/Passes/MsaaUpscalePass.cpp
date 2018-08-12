@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <RendererCore/Pipeline/Passes/MsaaUpscalePass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -6,6 +7,7 @@
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsaaUpscalePass, 2, ezRTTIDefaultAllocator<ezMsaaUpscalePass>)
 {
   EZ_BEGIN_PROPERTIES
@@ -17,10 +19,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsaaUpscalePass, 2, ezRTTIDefaultAllocator<ezM
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezMsaaUpscalePass::ezMsaaUpscalePass()
-  : ezRenderPipelinePass("MsaaUpscalePass")
-  , m_MsaaMode(ezGALMSAASampleCount::None)
+    : ezRenderPipelinePass("MsaaUpscalePass")
+    , m_MsaaMode(ezGALMSAASampleCount::None)
 {
   {
     // Load shader.
@@ -29,12 +32,10 @@ ezMsaaUpscalePass::ezMsaaUpscalePass()
   }
 }
 
-ezMsaaUpscalePass::~ezMsaaUpscalePass()
-{
-}
+ezMsaaUpscalePass::~ezMsaaUpscalePass() {}
 
-bool ezMsaaUpscalePass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs,
-  ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezMsaaUpscalePass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
+                                                    ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -61,8 +62,9 @@ bool ezMsaaUpscalePass::GetRenderTargetDescriptions(const ezView& view, const ez
   return true;
 }
 
-void ezMsaaUpscalePass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezMsaaUpscalePass::Execute(const ezRenderViewContext& renderViewContext,
+                                const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+                                const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   auto pInput = inputs[m_PinInput.m_uiInputIndex];
   auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
@@ -82,7 +84,8 @@ void ezMsaaUpscalePass::Execute(const ezRenderViewContext& renderViewContext, co
   renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
 
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
-  renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+  renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
+                                                     1);
   renderViewContext.m_pRenderContext->BindTexture2D("ColorTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
 
   renderViewContext.m_pRenderContext->DrawMeshBuffer();
@@ -90,9 +93,9 @@ void ezMsaaUpscalePass::Execute(const ezRenderViewContext& renderViewContext, co
 
 
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -101,7 +104,9 @@ class ezMsaaUpscalePassPatch_1_2 : public ezGraphPatch
 {
 public:
   ezMsaaUpscalePassPatch_1_2()
-    : ezGraphPatch("ezMsaaUpscalePass", 2) {}
+      : ezGraphPatch("ezMsaaUpscalePass", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -113,6 +118,4 @@ ezMsaaUpscalePassPatch_1_2 g_ezMsaaUpscalePassPatch_1_2;
 
 
 
-
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_MsaaUpscalePass);
-

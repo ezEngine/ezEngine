@@ -1,23 +1,21 @@
-﻿#include <PCH.h>
-#include <EnginePluginAssets/TextureCubeAsset/TextureCubeView.h>
-#include <EnginePluginAssets/TextureCubeAsset/TextureCubeContext.h>
+#include <PCH.h>
 
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Pipeline/View.h>
-#include <GameEngine/GameApplication/GameApplication.h>
+#include <EnginePluginAssets/TextureCubeAsset/TextureCubeContext.h>
+#include <EnginePluginAssets/TextureCubeAsset/TextureCubeView.h>
+
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <GameEngine/GameApplication/GameApplication.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 ezTextureCubeViewContext::ezTextureCubeViewContext(ezTextureCubeContext* pContext)
-  : ezEngineProcessViewContext(pContext)
+    : ezEngineProcessViewContext(pContext)
 {
   m_pTextureContext = pContext;
 }
 
-ezTextureCubeViewContext::~ezTextureCubeViewContext()
-{
-
-}
+ezTextureCubeViewContext::~ezTextureCubeViewContext() {}
 
 ezViewHandle ezTextureCubeViewContext::CreateView()
 {

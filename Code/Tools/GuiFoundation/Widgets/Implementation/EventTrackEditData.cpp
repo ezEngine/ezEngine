@@ -1,12 +1,14 @@
 #include <PCH.h>
-#include <GuiFoundation/Widgets/EventTrackEditData.h>
-#include <Foundation/Tracks/EventTrack.h>
-#include <Foundation/IO/OpenDdlWriter.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
+
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OpenDdlReader.h>
+#include <Foundation/IO/OpenDdlWriter.h>
+#include <Foundation/Tracks/EventTrack.h>
+#include <GuiFoundation/Widgets/EventTrackEditData.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventTrackControlPointData, 1, ezRTTIDefaultAllocator<ezEventTrackControlPointData>)
 {
   EZ_BEGIN_PROPERTIES
@@ -27,6 +29,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventTrackData, 3, ezRTTIDefaultAllocator<ezEv
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 void ezEventTrackControlPointData::SetTickFromTime(double time, ezInt64 fps)
 {

@@ -1,11 +1,13 @@
 #include <PCH.h>
-#include <GameEngine/VisualScript/Nodes/VisualScriptObjectNodes.h>
-#include <GameEngine/VisualScript/VisualScriptInstance.h>
+
 #include <Core/World/GameObject.h>
 #include <Core/World/World.h>
+#include <GameEngine/VisualScript/Nodes/VisualScriptObjectNodes.h>
+#include <GameEngine/VisualScript/VisualScriptInstance.h>
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_DeleteObject, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_DeleteObject>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -25,8 +27,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_DeleteObject, 1, ezRTTIDefaul
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_DeleteObject::ezVisualScriptNode_DeleteObject() { }
+ezVisualScriptNode_DeleteObject::ezVisualScriptNode_DeleteObject() {}
 
 void ezVisualScriptNode_DeleteObject::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -46,8 +49,8 @@ void* ezVisualScriptNode_DeleteObject::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_hObject;
+    case 0:
+      return &m_hObject;
   }
 
   return nullptr;
@@ -55,6 +58,7 @@ void* ezVisualScriptNode_DeleteObject::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ActivateComponent, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_ActivateComponent>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -75,8 +79,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ActivateComponent, 1, ezRTTID
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_ActivateComponent::ezVisualScriptNode_ActivateComponent() { }
+ezVisualScriptNode_ActivateComponent::ezVisualScriptNode_ActivateComponent() {}
 
 void ezVisualScriptNode_ActivateComponent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -109,4 +114,3 @@ void* ezVisualScriptNode_ActivateComponent::GetInputPinDataPointer(ezUInt8 uiPin
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Nodes_VisualScriptObjectNodes);
-

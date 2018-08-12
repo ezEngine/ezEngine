@@ -1,14 +1,16 @@
 #include <PCH.h>
+
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementAsset.h>
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementAssetManager.h>
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementAssetWindow.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <Foundation/IO/OSFile.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezProceduralPlacementAssetDocumentManager>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementAssetDocumentManager, 1,
+                                ezRTTIDefaultAllocator<ezProceduralPlacementAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezProceduralPlacementAssetDocumentManager::ezProceduralPlacementAssetDocumentManager()
@@ -34,7 +36,7 @@ void ezProceduralPlacementAssetDocumentManager::OnDocumentManagerEvent(const ezD
 {
   switch (e.m_Type)
   {
-  case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case ezDocumentManager::Event::Type::DocumentWindowRequested:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezProceduralPlacementAssetDocument>())
       {
@@ -45,17 +47,16 @@ void ezProceduralPlacementAssetDocumentManager::OnDocumentManagerEvent(const ezD
   }
 }
 
-ezStatus ezProceduralPlacementAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)
+ezStatus ezProceduralPlacementAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
+                                                                           ezDocument*& out_pDocument)
 {
   out_pDocument = new ezProceduralPlacementAssetDocument(szPath);
 
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezProceduralPlacementAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezProceduralPlacementAssetDocumentManager::InternalGetSupportedDocumentTypes(
+    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
-
-
-

@@ -1,8 +1,9 @@
 #include <PCH.h>
+
 #include <Foundation/Communication/Telemetry.h>
-#include <Foundation/Threading/ThreadUtils.h>
-#include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Threading/TaskSystem.h>
+#include <Foundation/Threading/ThreadUtils.h>
 
 static void OSFileEventHandler(const ezOSFile::EventData& e)
 {
@@ -14,23 +15,23 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
 
   switch (e.m_EventType)
   {
-  case ezOSFile::EventType::FileOpen:
+    case ezOSFile::EventType::FileOpen:
     {
       Msg.SetMessageID('FILE', 'OPEN');
       Msg.GetWriter() << e.m_szFile;
-      Msg.GetWriter() << (ezUInt8) e.m_FileMode;
+      Msg.GetWriter() << (ezUInt8)e.m_FileMode;
       Msg.GetWriter() << e.m_bSuccess;
     }
     break;
 
-  case ezOSFile::EventType::FileRead:
+    case ezOSFile::EventType::FileRead:
     {
       Msg.SetMessageID('FILE', 'READ');
       Msg.GetWriter() << e.m_uiBytesAccessed;
     }
     break;
 
-  case ezOSFile::EventType::FileWrite:
+    case ezOSFile::EventType::FileWrite:
     {
       Msg.SetMessageID('FILE', 'WRIT');
       Msg.GetWriter() << e.m_uiBytesAccessed;
@@ -38,23 +39,22 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
     }
     break;
 
-  case ezOSFile::EventType::FileClose:
+    case ezOSFile::EventType::FileClose:
     {
       Msg.SetMessageID('FILE', 'CLOS');
     }
     break;
 
-  case ezOSFile::EventType::FileExists:
-  case ezOSFile::EventType::DirectoryExists:
+    case ezOSFile::EventType::FileExists:
+    case ezOSFile::EventType::DirectoryExists:
     {
       Msg.SetMessageID('FILE', 'EXST');
       Msg.GetWriter() << e.m_szFile;
       Msg.GetWriter() << e.m_bSuccess;
-
     }
     break;
 
-  case ezOSFile::EventType::FileDelete:
+    case ezOSFile::EventType::FileDelete:
     {
       Msg.SetMessageID('FILE', ' DEL');
       Msg.GetWriter() << e.m_szFile;
@@ -62,7 +62,7 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
     }
     break;
 
-  case ezOSFile::EventType::MakeDir:
+    case ezOSFile::EventType::MakeDir:
     {
       Msg.SetMessageID('FILE', 'CDIR');
       Msg.GetWriter() << e.m_szFile;
@@ -70,7 +70,7 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
     }
     break;
 
-  case ezOSFile::EventType::FileCopy:
+    case ezOSFile::EventType::FileCopy:
     {
       Msg.SetMessageID('FILE', 'COPY');
       Msg.GetWriter() << e.m_szFile;
@@ -79,7 +79,7 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
     }
     break;
 
-  case ezOSFile::EventType::FileStat:
+    case ezOSFile::EventType::FileStat:
     {
       Msg.SetMessageID('FILE', 'STAT');
       Msg.GetWriter() << e.m_szFile;
@@ -87,7 +87,7 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
     }
     break;
 
-  case ezOSFile::EventType::FileCasing:
+    case ezOSFile::EventType::FileCasing:
     {
       Msg.SetMessageID('FILE', 'CASE');
       Msg.GetWriter() << e.m_szFile;
@@ -95,16 +95,15 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
     }
     break;
 
-  case ezOSFile::EventType::None:
-    break;
+    case ezOSFile::EventType::None:
+      break;
   }
 
   ezUInt8 uiThreadType = 0;
 
   if (ezThreadUtils::IsMainThread())
     uiThreadType = 1 << 0;
-  else
-  if (ezTaskSystem::IsLoadingThread())
+  else if (ezTaskSystem::IsLoadingThread())
     uiThreadType = 1 << 1;
   else
     uiThreadType = 1 << 2;
@@ -128,4 +127,3 @@ void RemoveOSFileEventHandler()
 
 
 EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_OSFile);
-

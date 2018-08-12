@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <Foundation/Communication/Telemetry.h>
+
 #include <Foundation/Communication/GlobalEvent.h>
+#include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Startup.h>
 
 namespace StartupDetail
@@ -49,7 +50,7 @@ namespace StartupDetail
       msg.GetWriter() << pSub->GetPluginName();
 
       for (ezUInt32 i = 0; i < ezStartupStage::ENUM_COUNT; ++i)
-        msg.GetWriter() << pSub->IsStartupPhaseDone((ezStartupStage::Enum) i);
+        msg.GetWriter() << pSub->IsStartupPhaseDone((ezStartupStage::Enum)i);
 
       ezUInt8 uiDependencies = 0;
       while (pSub->GetDependency(uiDependencies) != nullptr)
@@ -73,15 +74,14 @@ namespace StartupDetail
 
     switch (e.m_EventType)
     {
-    case ezTelemetry::TelemetryEventData::ConnectedToClient:
-      SendSubsystemTelemetry();
-      break;
+      case ezTelemetry::TelemetryEventData::ConnectedToClient:
+        SendSubsystemTelemetry();
+        break;
 
-    default:
-      break;
+      default:
+        break;
     }
   }
-
 }
 
 void AddStartupEventHandler()
@@ -99,4 +99,3 @@ void RemoveStartupEventHandler()
 
 
 EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Startup);
-

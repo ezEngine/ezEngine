@@ -1,6 +1,6 @@
 #include <PCH.h>
-#include <GameEngine/Console/Console.h>
 
+#include <GameEngine/Console/Console.h>
 
 void ezConsole::AutoCompleteInputLine()
 {
@@ -60,7 +60,8 @@ void ezConsole::AutoCompleteInputLine()
   }
 }
 
-void ezConsole::FindPossibleCVars(const char* szVariable, ezDeque<ezString>& AutoCompleteOptions, ezDeque<ConsoleString>& AutoCompleteDescriptions)
+void ezConsole::FindPossibleCVars(const char* szVariable, ezDeque<ezString>& AutoCompleteOptions,
+                                  ezDeque<ConsoleString>& AutoCompleteDescriptions)
 {
   ezStringBuilder sText;
 
@@ -85,7 +86,8 @@ void ezConsole::FindPossibleCVars(const char* szVariable, ezDeque<ezString>& Aut
   }
 }
 
-void ezConsole::FindPossibleFunctions(const char* szVariable, ezDeque<ezString>& AutoCompleteOptions, ezDeque<ConsoleString>& AutoCompleteDescriptions)
+void ezConsole::FindPossibleFunctions(const char* szVariable, ezDeque<ezString>& AutoCompleteOptions,
+                                      ezDeque<ConsoleString>& AutoCompleteDescriptions)
 {
   ezStringBuilder sText;
 
@@ -117,16 +119,16 @@ const ezString ezConsole::GetValueAsString(ezCVar* pCVar)
 
   switch (pCVar->GetType())
   {
-  case ezCVarType::Int:
+    case ezCVarType::Int:
     {
-      ezCVarInt* pInt = static_cast<ezCVarInt*> (pCVar);
+      ezCVarInt* pInt = static_cast<ezCVarInt*>(pCVar);
       s.Format("{0}", pInt->GetValue());
     }
     break;
 
-  case ezCVarType::Bool:
+    case ezCVarType::Bool:
     {
-      ezCVarBool* pBool = static_cast<ezCVarBool*> (pCVar);
+      ezCVarBool* pBool = static_cast<ezCVarBool*>(pCVar);
       if (pBool->GetValue() == true)
         s = "true";
       else
@@ -134,22 +136,22 @@ const ezString ezConsole::GetValueAsString(ezCVar* pCVar)
     }
     break;
 
-  case ezCVarType::String:
+    case ezCVarType::String:
     {
-      ezCVarString* pString = static_cast<ezCVarString*> (pCVar);
+      ezCVarString* pString = static_cast<ezCVarString*>(pCVar);
       s.Format("\"{0}\"", pString->GetValue());
     }
     break;
 
-  case ezCVarType::Float:
+    case ezCVarType::Float:
     {
-      ezCVarFloat* pFloat = static_cast<ezCVarFloat*> (pCVar);
+      ezCVarFloat* pFloat = static_cast<ezCVarFloat*>(pCVar);
       s.Format("{0}", ezArgF(pFloat->GetValue(), 3));
     }
     break;
 
-  case ezCVarType::ENUM_COUNT:
-    break;
+    case ezCVarType::ENUM_COUNT:
+      break;
   }
 
   return s.GetData();
@@ -187,7 +189,7 @@ const ezString ezConsole::FindCommonString(const ezDeque<ezString>& vStrings)
   {
     c = it1.GetCharacter();
 
-    for (int v = 1; v < (int) vStrings.GetCount(); v++)
+    for (int v = 1; v < (int)vStrings.GetCount(); v++)
     {
       auto it2 = vStrings[v].GetIteratorFront();
 
@@ -209,4 +211,3 @@ const ezString ezConsole::FindCommonString(const ezDeque<ezString>& vStrings)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Console_Implementation_Autocomplete);
-

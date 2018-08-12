@@ -1,6 +1,7 @@
-﻿#include <PCH.h>
-#include <EditorPluginAssets/ColorGradientAsset/ColorGradientAssetManager.h>
+#include <PCH.h>
+
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
+#include <EditorPluginAssets/ColorGradientAsset/ColorGradientAssetManager.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAssetWindow.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
@@ -25,7 +26,8 @@ ezColorGradientAssetDocumentManager::~ezColorGradientAssetDocumentManager()
 }
 
 
-ezBitflags<ezAssetDocumentFlags> ezColorGradientAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
+ezBitflags<ezAssetDocumentFlags>
+ezColorGradientAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
 {
   EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
   return ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
@@ -35,7 +37,7 @@ void ezColorGradientAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
 {
   switch (e.m_Type)
   {
-  case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case ezDocumentManager::Event::Type::DocumentWindowRequested:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezColorGradientAssetDocument>())
       {
@@ -46,17 +48,16 @@ void ezColorGradientAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
   }
 }
 
-ezStatus ezColorGradientAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)
+ezStatus ezColorGradientAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
+                                                                     ezDocument*& out_pDocument)
 {
   out_pDocument = new ezColorGradientAssetDocument(szPath);
 
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezColorGradientAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezColorGradientAssetDocumentManager::InternalGetSupportedDocumentTypes(
+    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
-
-
-

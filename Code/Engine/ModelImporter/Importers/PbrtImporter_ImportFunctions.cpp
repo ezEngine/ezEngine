@@ -1,11 +1,12 @@
 #include <PCH.h>
+
 #include <ModelImporter/Importers/PbrtImporter_Context.h>
 #include <ModelImporter/Importers/PbrtImporter_ImportFunctions.h>
 #include <ModelImporter/Importers/PbrtImporter_ParsingFunctions.h>
-#include <ModelImporter/Mesh.h>
-#include <ModelImporter/VertexData.h>
 #include <ModelImporter/Material.h>
+#include <ModelImporter/Mesh.h>
 #include <ModelImporter/ModelImporter.h>
+#include <ModelImporter/VertexData.h>
 
 #include <Foundation/Logging/Log.h>
 
@@ -15,50 +16,32 @@ namespace ezModelImporter
 
   namespace PbrtScopeFunctions
   {
-    void WorldBegin(ParseContext& context)
-    {
-      context.EnterWorld();
-    }
+    void WorldBegin(ParseContext& context) { context.EnterWorld(); }
 
-    void WorldEnd(ParseContext& context)
-    {
-      context.ExitWorld();
-    }
+    void WorldEnd(ParseContext& context) { context.ExitWorld(); }
 
     void AttributeBegin(ParseContext& context)
     {
-      //context.PushActiveMaterial();
+      // context.PushActiveMaterial();
       context.PushActiveTransform();
     }
 
     void AttributeEnd(ParseContext& context)
     {
-      //context.PopActiveMaterial();
+      // context.PopActiveMaterial();
       context.PopActiveTransform();
     }
 
-    void TransformBegin(ParseContext& context)
-    {
-      context.PushActiveTransform();
-    }
+    void TransformBegin(ParseContext& context) { context.PushActiveTransform(); }
 
-    void TransformEnd(ParseContext& context)
-    {
-      context.PopActiveTransform();
-    }
+    void TransformEnd(ParseContext& context) { context.PopActiveTransform(); }
 
-    void ObjectEnd(ParseContext& context)
-    {
-      context.ObjectEnd();
-    }
+    void ObjectEnd(ParseContext& context) { context.ObjectEnd(); }
   }
 
   namespace PbrtTransformFunctions
   {
-    void Identity(Pbrt::ParseContext& context, ezStringView& remainingSceneText)
-    {
-      context.PeekActiveTransform().SetIdentity();
-    }
+    void Identity(Pbrt::ParseContext& context, ezStringView& remainingSceneText) { context.PeekActiveTransform().SetIdentity(); }
 
     void Translate(ParseContext& context, ezStringView& remainingSceneText)
     {
@@ -87,7 +70,8 @@ namespace ezModelImporter
       ezVec3 scale;
       if (PbrtParseHelper::ParseVec3(remainingSceneText, scale).Succeeded())
       {
-        context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(), ezTransform(ezVec3(0.0f), ezQuat::IdentityQuaternion(), scale));
+        context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(),
+                                                         ezTransform(ezVec3(0.0f), ezQuat::IdentityQuaternion(), scale));
       }
       else
         ezLog::Error("Failed parsing Scale transform command.");
@@ -99,7 +83,8 @@ namespace ezModelImporter
       if (PbrtParseHelper::ParseFloats(remainingSceneText, ezMakeArrayPtr(values), 9).Succeeded())
       {
         ezMat4 lookAt;
-        lookAt.SetLookAtMatrix(ezVec3(values[0], values[1], values[2]), ezVec3(values[3], values[4], values[5]), ezVec3(values[6], values[7], values[8]));
+        lookAt.SetLookAtMatrix(ezVec3(values[0], values[1], values[2]), ezVec3(values[3], values[4], values[5]),
+                               ezVec3(values[6], values[7], values[8]));
         ezTransform tLookAt;
         tLookAt.SetFromMat4(lookAt);
         context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(), tLookAt);
@@ -138,19 +123,19 @@ namespace ezModelImporter
         ezLog::Error("Failed parsing Transform transform command.");
     }
 
-    //void CoordinateSystem(Pbrt::ParseContext& context, ezStringView& remainingSceneText)
+    // void CoordinateSystem(Pbrt::ParseContext& context, ezStringView& remainingSceneText)
     //{
     //  ezStringView name = PbrtParseHelper::ReadBlock(remainingSceneText, '\"', '\"');
     //}
 
-    //void CoordSysTransform(Pbrt::ParseContext& context, ezStringView& remainingSceneText)
+    // void CoordSysTransform(Pbrt::ParseContext& context, ezStringView& remainingSceneText)
     //{
     //}
   }
 
   namespace PbrtObjectParseFunctions
   {
-    template<typename T>
+    template <typename T>
     void CopyParamToArray(ezDynamicArray<T>& targetArray, const Parameter& param)
     {
       targetArray.Reserve(param.data.GetCount());
@@ -358,7 +343,8 @@ namespace ezModelImporter
       }
     }
 
-    void ReadMaterialParameter(ParseContext& context, SemanticHint::Enum semantic, const char* materialParameter, ezModelImporter::Material& material, ezArrayPtr<Parameter> parameters, ezVariant defaultValue)
+    void ReadMaterialParameter(ParseContext& context, SemanticHint::Enum semantic, const char* materialParameter,
+                               ezModelImporter::Material& material, ezArrayPtr<Parameter> parameters, ezVariant defaultValue)
     {
       for (const Parameter& param : parameters)
       {
@@ -383,7 +369,8 @@ namespace ezModelImporter
         material.m_Properties.PushBack(Property(semantic, materialParameter, defaultValue));
     }
 
-    ezUniquePtr<ezModelImporter::Material> PareMaterialImpl(ezStringView type, ezArrayPtr<Parameter> parameters, ParseContext& context, ezModelImporter::Scene& outScene)
+    ezUniquePtr<ezModelImporter::Material> PareMaterialImpl(ezStringView type, ezArrayPtr<Parameter> parameters, ParseContext& context,
+                                                            ezModelImporter::Scene& outScene)
     {
       ezUniquePtr<ezModelImporter::Material> newMaterial = EZ_DEFAULT_NEW(ezModelImporter::Material);
 
@@ -393,85 +380,136 @@ namespace ezModelImporter
       // http://www.pbrt.org/fileformat.html#materials
       if (type.IsEqual_NoCase("glass"))
       {
-        ReadMaterialParameter(context, SemanticHint::REFLECTIVITY, "Kr", *newMaterial, parameters, 1.0f); // The reflectivity of the surface.
+        ReadMaterialParameter(context, SemanticHint::REFLECTIVITY, "Kr", *newMaterial, parameters,
+                              1.0f);                                                                 // The reflectivity of the surface.
         ReadMaterialParameter(context, SemanticHint::OPACITY, "Kt", *newMaterial, parameters, 1.0f); // The transmissivity of the surface.
-        ReadMaterialParameter(context, SemanticHint::REFRACTIONINDEX, "index", *newMaterial, parameters, 1.5f); // The index of refraction of the inside of the object. (pbrt implicitly assumes that the exterior of objects is a vacuum, with IOR of 1.)
+        ReadMaterialParameter(context, SemanticHint::REFRACTIONINDEX, "index", *newMaterial, parameters,
+                              1.5f); // The index of refraction of the inside of the object. (pbrt implicitly assumes that the exterior of
+                                     // objects is a vacuum, with IOR of 1.)
       }
       else if (type.IsEqual_NoCase("KdSubsurface"))
       {
-        ReadMaterialParameter(context, SemanticHint::DIFFUSE, "Kd", *newMaterial, parameters, 0.5f); // Diffuse scattering coefficient used to derive scattering properties.
-        ReadMaterialParameter(context, SemanticHint::UNKNOWN, "meanfreepath", *newMaterial, parameters, 1.0f); // Average distance light travels in the medium before scattering.
-        ReadMaterialParameter(context, SemanticHint::REFRACTIONINDEX, "index", *newMaterial, parameters, 1.0f); // The index of refraction inside the object.
-        ReadMaterialParameter(context, SemanticHint::REFLECTIVITY, "Kr", *newMaterial, parameters, 1.0f); // Specular reflection term; this coefficient is modulated with the dielectric Fresnel equation to give the amount of specular reflection.
+        ReadMaterialParameter(context, SemanticHint::DIFFUSE, "Kd", *newMaterial, parameters,
+                              0.5f); // Diffuse scattering coefficient used to derive scattering properties.
+        ReadMaterialParameter(context, SemanticHint::UNKNOWN, "meanfreepath", *newMaterial, parameters,
+                              1.0f); // Average distance light travels in the medium before scattering.
+        ReadMaterialParameter(context, SemanticHint::REFRACTIONINDEX, "index", *newMaterial, parameters,
+                              1.0f); // The index of refraction inside the object.
+        ReadMaterialParameter(context, SemanticHint::REFLECTIVITY, "Kr", *newMaterial, parameters,
+                              1.0f); // Specular reflection term; this coefficient is modulated with the dielectric Fresnel equation to give
+                                     // the amount of specular reflection.
       }
       if (type.IsEqual_NoCase("matte"))
       {
-        ReadMaterialParameter(context, SemanticHint::DIFFUSE, "Kd", *newMaterial, parameters, 0.5f); // The diffuse reflectivity of the surface.
-        ReadMaterialParameter(context, SemanticHint::UNKNOWN, "sigma", *newMaterial, parameters, 0.0f); // The sigma parameter for the Oren-Nayar model, in degrees. If this is zero, the surface exhibits pure Lambertian reflection.
+        ReadMaterialParameter(context, SemanticHint::DIFFUSE, "Kd", *newMaterial, parameters,
+                              0.5f); // The diffuse reflectivity of the surface.
+        ReadMaterialParameter(context, SemanticHint::UNKNOWN, "sigma", *newMaterial, parameters,
+                              0.0f); // The sigma parameter for the Oren-Nayar model, in degrees. If this is zero, the surface exhibits pure
+                                     // Lambertian reflection.
       }
       else if (type.IsEqual_NoCase("measured"))
       {
-        ReadMaterialParameter(context, SemanticHint::UNKNOWN, "filename", *newMaterial, parameters, ezVariant()); // The diffuse reflectivity of the surface.
+        ReadMaterialParameter(context, SemanticHint::UNKNOWN, "filename", *newMaterial, parameters,
+                              ezVariant()); // The diffuse reflectivity of the surface.
       }
       else if (type.IsEqual_NoCase("metal"))
       {
-        ReadMaterialParameter(context, SemanticHint::REFRACTIONINDEX, "eta", *newMaterial, parameters, 0.5f); // Index of refraction to use in computing the material's reflectance.
-        ReadMaterialParameter(context, SemanticHint::REFLECTIVITY, "k", *newMaterial, parameters, 0.5f); // Absorption coefficient to use in computing the material's reflectance.
-        ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "roughness", *newMaterial, parameters, 0.01f); // Roughness of the material's microfacet distribution. Smaller values become increasingly close to perfect specular reflection. This value should be between zero and one.
+        ReadMaterialParameter(context, SemanticHint::REFRACTIONINDEX, "eta", *newMaterial, parameters,
+                              0.5f); // Index of refraction to use in computing the material's reflectance.
+        ReadMaterialParameter(context, SemanticHint::REFLECTIVITY, "k", *newMaterial, parameters,
+                              0.5f); // Absorption coefficient to use in computing the material's reflectance.
+        ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "roughness", *newMaterial, parameters,
+                              0.01f); // Roughness of the material's microfacet distribution. Smaller values become increasingly close to
+                                      // perfect specular reflection. This value should be between zero and one.
       }
       else if (type.IsEqual_NoCase("mirror"))
       {
-        ReadMaterialParameter(context, SemanticHint::REFLECTIVITY, "Kr", *newMaterial, parameters, 0.5f); // The reflectivity of the mirror. This value can be used to make colored or dim reflections.
+        ReadMaterialParameter(context, SemanticHint::REFLECTIVITY, "Kr", *newMaterial, parameters,
+                              0.5f); // The reflectivity of the mirror. This value can be used to make colored or dim reflections.
       }
       else if (type.IsEqual_NoCase("mixture"))
       {
-        ReadMaterialParameter(context, SemanticHint::UNKNOWN, "amount", *newMaterial, parameters, 0.5f); // Weighting factor for the blend between materials. A value of zero corresponds to just "namedmaterial1", a value of one corredponds to just "namedmaterial2", and values in between interpolate linearly.
-        ReadMaterialParameter(context, SemanticHint::UNKNOWN, "namedmaterial1", *newMaterial, parameters, ezVariant()); // Name of first material to be interpolated between.
-        ReadMaterialParameter(context, SemanticHint::UNKNOWN, "namedmaterial2", *newMaterial, parameters, ezVariant()); // Name of second material to be interpolated between.
+        ReadMaterialParameter(context, SemanticHint::UNKNOWN, "amount", *newMaterial, parameters,
+                              0.5f); // Weighting factor for the blend between materials. A value of zero corresponds to just
+                                     // "namedmaterial1", a value of one corredponds to just "namedmaterial2", and values in between
+                                     // interpolate linearly.
+        ReadMaterialParameter(context, SemanticHint::UNKNOWN, "namedmaterial1", *newMaterial, parameters,
+                              ezVariant()); // Name of first material to be interpolated between.
+        ReadMaterialParameter(context, SemanticHint::UNKNOWN, "namedmaterial2", *newMaterial, parameters,
+                              ezVariant()); // Name of second material to be interpolated between.
       }
       else if (type.IsEqual_NoCase("plastic"))
       {
-        ReadMaterialParameter(context, SemanticHint::DIFFUSE, "Kd", *newMaterial, parameters, 0.25f); // The diffuse reflectivity of the surface.
-        ReadMaterialParameter(context, SemanticHint::METALLIC, "Ks", *newMaterial, parameters, 0.25f); // The specular reflectivity of the surface.
-        ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "roughness", *newMaterial, parameters, 0.1f); // The roughness of the surface, from 0 to 1. Larger values result in larger, more blurry highlights.
+        ReadMaterialParameter(context, SemanticHint::DIFFUSE, "Kd", *newMaterial, parameters,
+                              0.25f); // The diffuse reflectivity of the surface.
+        ReadMaterialParameter(context, SemanticHint::METALLIC, "Ks", *newMaterial, parameters,
+                              0.25f); // The specular reflectivity of the surface.
+        ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "roughness", *newMaterial, parameters,
+                              0.1f); // The roughness of the surface, from 0 to 1. Larger values result in larger, more blurry highlights.
       }
       else if (type.IsEqual_NoCase("shinymetal"))
       {
-        ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "roughness", *newMaterial, parameters, 0.1f); // The roughness of the surface.
-        ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "Ks", *newMaterial, parameters, 1.0f); // The coefficient of glossy reflection.
-        ReadMaterialParameter(context, SemanticHint::METALLIC, "Kr", *newMaterial, parameters, 1.0f); // The coefficient of specular reflection.
+        ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "roughness", *newMaterial, parameters,
+                              0.1f); // The roughness of the surface.
+        ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "Ks", *newMaterial, parameters,
+                              1.0f); // The coefficient of glossy reflection.
+        ReadMaterialParameter(context, SemanticHint::METALLIC, "Kr", *newMaterial, parameters,
+                              1.0f); // The coefficient of specular reflection.
       }
       else if (type.IsEqual_NoCase("substrate"))
       {
-        ReadMaterialParameter(context, SemanticHint::DIFFUSE, "Kd", *newMaterial, parameters, 0.5f); // The coefficient of diffuse reflection.
-        ReadMaterialParameter(context, SemanticHint::METALLIC, "Ks", *newMaterial, parameters, 0.5f); // The coefficient of specular reflection.
-        ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "uroughness", *newMaterial, parameters, 0.1f); // The roughness of the surface in the u direction.
-        ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "vroughness", *newMaterial, parameters, 0.1f); // The roughness of the surface in the v direction.
+        ReadMaterialParameter(context, SemanticHint::DIFFUSE, "Kd", *newMaterial, parameters,
+                              0.5f); // The coefficient of diffuse reflection.
+        ReadMaterialParameter(context, SemanticHint::METALLIC, "Ks", *newMaterial, parameters,
+                              0.5f); // The coefficient of specular reflection.
+        ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "uroughness", *newMaterial, parameters,
+                              0.1f); // The roughness of the surface in the u direction.
+        ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "vroughness", *newMaterial, parameters,
+                              0.1f); // The roughness of the surface in the v direction.
       }
       else if (type.IsEqual_NoCase("subsurface"))
       {
-        ReadMaterialParameter(context, SemanticHint::UNKNOWN, "name", *newMaterial, parameters, ezVariant()); // Name of measured subsurface scattering coefficients. See the file src/core/volume.cpp in the pbrt distribution for all of the measurements that are available.
-        ReadMaterialParameter(context, SemanticHint::UNKNOWN, "sigma_a", *newMaterial, parameters, ezVec3(0.0011f, 0.0024f, 0.014f)); // Absorption coefficient of the volume, measured in mm^-1.
-        ReadMaterialParameter(context, SemanticHint::UNKNOWN, "sigma_prime_s", *newMaterial, parameters, ezVec3(2.55f, 3.12f, 3.77f)); // Reduced scattering coefficient of the volume, measured in mm^-1.
-        ReadMaterialParameter(context, SemanticHint::UNKNOWN, "scale", *newMaterial, parameters, 1.0f); // Scale factor that is applied to sigma_a and sigma_prime_s. This is particularly useful when the scene is not measured in mm and the coefficients need to be scaled accordingly. For example, if the scene is modeled in meters, then a scale factor of 0.001 would be appropriate.
-        ReadMaterialParameter(context, SemanticHint::REFRACTIONINDEX, "index", *newMaterial, parameters, 1.3f); // Index of refraction of the scattering volume.
+        ReadMaterialParameter(context, SemanticHint::UNKNOWN, "name", *newMaterial, parameters,
+                              ezVariant()); // Name of measured subsurface scattering coefficients. See the file src/core/volume.cpp in the
+                                            // pbrt distribution for all of the measurements that are available.
+        ReadMaterialParameter(context, SemanticHint::UNKNOWN, "sigma_a", *newMaterial, parameters,
+                              ezVec3(0.0011f, 0.0024f, 0.014f)); // Absorption coefficient of the volume, measured in mm^-1.
+        ReadMaterialParameter(context, SemanticHint::UNKNOWN, "sigma_prime_s", *newMaterial, parameters,
+                              ezVec3(2.55f, 3.12f, 3.77f)); // Reduced scattering coefficient of the volume, measured in mm^-1.
+        ReadMaterialParameter(context, SemanticHint::UNKNOWN, "scale", *newMaterial, parameters,
+                              1.0f); // Scale factor that is applied to sigma_a and sigma_prime_s. This is particularly useful when the
+                                     // scene is not measured in mm and the coefficients need to be scaled accordingly. For example, if the
+                                     // scene is modeled in meters, then a scale factor of 0.001 would be appropriate.
+        ReadMaterialParameter(context, SemanticHint::REFRACTIONINDEX, "index", *newMaterial, parameters,
+                              1.3f); // Index of refraction of the scattering volume.
       }
       else if (type.IsEqual_NoCase("translucent"))
       {
-        ReadMaterialParameter(context, SemanticHint::DIFFUSE, "Kd", *newMaterial, parameters, 0.25f); // The coefficient of diffuse reflection and transmission.
-        ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "Ks", *newMaterial, parameters, 0.25f); // The coefficient of specular reflection and transmission.
+        ReadMaterialParameter(context, SemanticHint::DIFFUSE, "Kd", *newMaterial, parameters,
+                              0.25f); // The coefficient of diffuse reflection and transmission.
+        ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "Ks", *newMaterial, parameters,
+                              0.25f); // The coefficient of specular reflection and transmission.
         ReadMaterialParameter(context, SemanticHint::METALLIC, "reflect", *newMaterial, parameters, 0.5f); // Fraction of light reflected.
         ReadMaterialParameter(context, SemanticHint::OPACITY, "transmit", *newMaterial, parameters, 0.5f); // Fraction of light transmitted.
-        ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "roughness", *newMaterial, parameters, 0.1f); // The roughness of the surface. (This value should be between 0 and 1).
+        ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "roughness", *newMaterial, parameters,
+                              0.1f); // The roughness of the surface. (This value should be between 0 and 1).
       }
       else if (type.IsEqual_NoCase("uber"))
       {
-        ReadMaterialParameter(context, SemanticHint::DIFFUSE, "Kd", *newMaterial, parameters, 0.25f); // The coefficient of diffuse reflection.
-        ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "Ks", *newMaterial, parameters, 0.25f); // The coefficient of glossy reflection.
-        ReadMaterialParameter(context, SemanticHint::METALLIC, "Kr", *newMaterial, parameters, 0.25f); // The coefficient of specular reflection.
-        ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "roughness", *newMaterial, parameters, 0.1f); // The roughness of the surface.
-        ReadMaterialParameter(context, SemanticHint::REFRACTIONINDEX, "index", *newMaterial, parameters, 0.1f); // Index of refraction of the surface. This value is used in both the microfacet model for specular reflection as well as for computing a Fresnel reflection term for perfect specular reflection.
-        ReadMaterialParameter(context, SemanticHint::OPACITY, "opacity", *newMaterial, parameters, 1.0f); // The opacity of the surface.Note that when less than one, the uber material transmits light without refracting it.
+        ReadMaterialParameter(context, SemanticHint::DIFFUSE, "Kd", *newMaterial, parameters,
+                              0.25f); // The coefficient of diffuse reflection.
+        ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "Ks", *newMaterial, parameters,
+                              0.25f); // The coefficient of glossy reflection.
+        ReadMaterialParameter(context, SemanticHint::METALLIC, "Kr", *newMaterial, parameters,
+                              0.25f); // The coefficient of specular reflection.
+        ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "roughness", *newMaterial, parameters,
+                              0.1f); // The roughness of the surface.
+        ReadMaterialParameter(context, SemanticHint::REFRACTIONINDEX, "index", *newMaterial, parameters,
+                              0.1f); // Index of refraction of the surface. This value is used in both the microfacet model for specular
+                                     // reflection as well as for computing a Fresnel reflection term for perfect specular reflection.
+        ReadMaterialParameter(
+            context, SemanticHint::OPACITY, "opacity", *newMaterial, parameters,
+            1.0f); // The opacity of the surface.Note that when less than one, the uber material transmits light without refracting it.
       }
 
       // Put in all parameters not loaded yet.
@@ -479,10 +517,14 @@ namespace ezModelImporter
       {
         // More general semantic hint mapping.
         SemanticHint::Enum semanticHint = SemanticHint::UNKNOWN;
-        if(param.name.IsEqual_NoCase("kd")) semanticHint = SemanticHint::DIFFUSE;
-        else if (param.name.IsEqual_NoCase("ks")) semanticHint = SemanticHint::ROUGHNESS;
-        else if (param.name.IsEqual_NoCase("kr")) semanticHint = SemanticHint::METALLIC;
-        else if (param.name.IsEqual_NoCase("bumpmap")) semanticHint = SemanticHint::NORMAL;
+        if (param.name.IsEqual_NoCase("kd"))
+          semanticHint = SemanticHint::DIFFUSE;
+        else if (param.name.IsEqual_NoCase("ks"))
+          semanticHint = SemanticHint::ROUGHNESS;
+        else if (param.name.IsEqual_NoCase("kr"))
+          semanticHint = SemanticHint::METALLIC;
+        else if (param.name.IsEqual_NoCase("bumpmap"))
+          semanticHint = SemanticHint::NORMAL;
 
         bool found = false;
         if (param.type == ParamType::TEXTURE)
@@ -529,15 +571,17 @@ namespace ezModelImporter
       context.PushActiveMaterial(outScene.AddMaterial(std::move(newMaterial)));
     }
 
-    void MakeNamedMaterial(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context, ezModelImporter::Scene& outScene)
+    void MakeNamedMaterial(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context,
+                           ezModelImporter::Scene& outScene)
     {
       // "type" is name and the first parameter is the type.
       ezString name = type;
       ezString materialType;
-      if (parameters.IsEmpty() || parameters[0].type != ParamType::STRING ||
-        parameters[0].data.IsEmpty() || parameters[0].name.Compare_NoCase("type"))
+      if (parameters.IsEmpty() || parameters[0].type != ParamType::STRING || parameters[0].data.IsEmpty() ||
+          parameters[0].name.Compare_NoCase("type"))
       {
-        ezLog::Warning("PBRT make named material '{0}' should have a type parameter.", type); // This sometimes happens and need to handle that.
+        ezLog::Warning("PBRT make named material '{0}' should have a type parameter.",
+                       type); // This sometimes happens and need to handle that.
       }
       else
       {
@@ -550,7 +594,8 @@ namespace ezModelImporter
       context.AddNamedMaterial(name, outScene.AddMaterial(std::move(newMaterial)));
     }
 
-    void NamedMaterial(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context, ezModelImporter::Scene& outScene)
+    void NamedMaterial(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context,
+                       ezModelImporter::Scene& outScene)
     {
       ezString materialName(type);
       if (context.MakeNamedMaterialActive(materialName).Failed())
@@ -568,7 +613,7 @@ namespace ezModelImporter
       // All other parameters don't matter either, only the "filename" parameter, without that the texture is useless to us.
 
       ezString filename;
-      for(const Parameter& param : parameters)
+      for (const Parameter& param : parameters)
       {
         if (param.name.IsEqual_NoCase("filename"))
         {
@@ -583,7 +628,8 @@ namespace ezModelImporter
         }
 
         // Can't load "scale" and similar texture correctly, but if they contain a txture reference, we can try to use that.
-        else if ((param.name.IsEqual_NoCase("tex1") || param.name.IsEqual_NoCase("tex2")) && param.type == ParamType::TEXTURE && !param.data.IsEmpty())
+        else if ((param.name.IsEqual_NoCase("tex1") || param.name.IsEqual_NoCase("tex2")) && param.type == ParamType::TEXTURE &&
+                 !param.data.IsEmpty())
         {
           filename = context.LookUpTextureFilename(param.data[0].Get<ezString>());
         }
@@ -599,7 +645,8 @@ namespace ezModelImporter
       }
     }
 
-    void ObjectBegin(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context, ezModelImporter::Scene& outScene)
+    void ObjectBegin(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context,
+                     ezModelImporter::Scene& outScene)
     {
       ezString objectName(type);
       if (parameters.GetCount() != 0)
@@ -608,7 +655,8 @@ namespace ezModelImporter
       context.ObjectBegin(objectName);
     }
 
-    void ObjectInstance(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context, ezModelImporter::Scene& outScene)
+    void ObjectInstance(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context,
+                        ezModelImporter::Scene& outScene)
     {
       ezString objectName(type);
       if (parameters.GetCount() != 0)

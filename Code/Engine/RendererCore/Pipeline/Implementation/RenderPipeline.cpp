@@ -1,24 +1,27 @@
-﻿#include <PCH.h>
-#include <RendererCore/Pipeline/Extractor.h>
-#include <RendererCore/Pipeline/FrameDataProvider.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/Pipeline/View.h>
-#include <RendererCore/Pipeline/Passes/TargetPass.h>
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/GPUResourcePool/GPUResourcePool.h>
-#include <RendererFoundation/Profiling/Profiling.h>
+#include <PCH.h>
+
 #include <Core/World/World.h>
 #include <Foundation/Time/Clock.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/GPUResourcePool/GPUResourcePool.h>
+#include <RendererCore/Pipeline/Extractor.h>
+#include <RendererCore/Pipeline/FrameDataProvider.h>
+#include <RendererCore/Pipeline/Passes/TargetPass.h>
+#include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererFoundation/Profiling/Profiling.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  ezCVarBool ezRenderPipeline::s_DebugCulling("r_DebugCulling", false, ezCVarFlags::Default, "Enables debug visualization of visibility culling");
+ezCVarBool ezRenderPipeline::s_DebugCulling("r_DebugCulling", false, ezCVarFlags::Default,
+                                            "Enables debug visualization of visibility culling");
 
-  ezCVarBool CVarCullingStats("r_CullingStats", false, ezCVarFlags::Default, "Display some stats of the visibility culling");
+ezCVarBool CVarCullingStats("r_CullingStats", false, ezCVarFlags::Default, "Display some stats of the visibility culling");
 #endif
 
-ezRenderPipeline::ezRenderPipeline() : m_PipelineState(PipelineState::Uninitialized)
+ezRenderPipeline::ezRenderPipeline()
+    : m_PipelineState(PipelineState::Uninitialized)
 {
   m_CurrentExtractThread = (ezThreadID)0;
   m_CurrentRenderThread = (ezThreadID)0;
@@ -109,7 +112,8 @@ ezRenderPipelinePass* ezRenderPipeline::GetPassByName(const ezStringView& sPassN
 }
 
 
-bool ezRenderPipeline::Connect(ezRenderPipelinePass* pOutputNode, const char* szOutputPinName, ezRenderPipelinePass* pInputNode, const char* szInputPinName)
+bool ezRenderPipeline::Connect(ezRenderPipelinePass* pOutputNode, const char* szOutputPinName, ezRenderPipelinePass* pInputNode,
+                               const char* szInputPinName)
 {
   ezHashedString sOutputPinName;
   sOutputPinName.Assign(szOutputPinName);
@@ -118,7 +122,8 @@ bool ezRenderPipeline::Connect(ezRenderPipelinePass* pOutputNode, const char* sz
   return Connect(pOutputNode, sOutputPinName, pInputNode, sInputPinName);
 }
 
-bool ezRenderPipeline::Connect(ezRenderPipelinePass* pOutputNode, ezHashedString sOutputPinName, ezRenderPipelinePass* pInputNode, ezHashedString sInputPinName)
+bool ezRenderPipeline::Connect(ezRenderPipelinePass* pOutputNode, ezHashedString sOutputPinName, ezRenderPipelinePass* pInputNode,
+                               ezHashedString sInputPinName)
 {
   ezLogBlock b("ezRenderPipeline::Connect");
 
@@ -148,7 +153,8 @@ bool ezRenderPipeline::Connect(ezRenderPipelinePass* pOutputNode, ezHashedString
   }
   if (itIn.Value().m_Inputs[pPinTarget->m_uiInputIndex] != nullptr)
   {
-    ezLog::Error("Pins already connected: '{0}::{1}' -> '{2}::{3}'!", pOutputNode->GetName(), sOutputPinName, pInputNode->GetName(), sInputPinName);
+    ezLog::Error("Pins already connected: '{0}::{1}' -> '{2}::{3}'!", pOutputNode->GetName(), sOutputPinName, pInputNode->GetName(),
+                 sInputPinName);
     return false;
   }
 
@@ -183,7 +189,8 @@ bool ezRenderPipeline::Connect(ezRenderPipelinePass* pOutputNode, ezHashedString
   return true;
 }
 
-bool ezRenderPipeline::Disconnect(ezRenderPipelinePass* pOutputNode, ezHashedString sOutputPinName, ezRenderPipelinePass* pInputNode, ezHashedString sInputPinName)
+bool ezRenderPipeline::Disconnect(ezRenderPipelinePass* pOutputNode, ezHashedString sOutputPinName, ezRenderPipelinePass* pInputNode,
+                                  ezHashedString sInputPinName)
 {
   ezLogBlock b("ezRenderPipeline::Connect");
 
@@ -211,9 +218,11 @@ bool ezRenderPipeline::Disconnect(ezRenderPipelinePass* pOutputNode, ezHashedStr
     ezLog::Error("Target pin '{0}::{1}' does not exist!", pInputNode->GetName(), sInputPinName);
     return false;
   }
-  if (itIn.Value().m_Inputs[pPinTarget->m_uiInputIndex] == nullptr || itIn.Value().m_Inputs[pPinTarget->m_uiInputIndex] != itOut.Value().m_Outputs[pPinSource->m_uiOutputIndex])
+  if (itIn.Value().m_Inputs[pPinTarget->m_uiInputIndex] == nullptr ||
+      itIn.Value().m_Inputs[pPinTarget->m_uiInputIndex] != itOut.Value().m_Outputs[pPinSource->m_uiOutputIndex])
   {
-    ezLog::Error("Pins not connected: '{0}::{1}' -> '{2}::{3}'!", pOutputNode->GetName(), sOutputPinName, pInputNode->GetName(), sInputPinName);
+    ezLog::Error("Pins not connected: '{0}::{1}' -> '{2}::{3}'!", pOutputNode->GetName(), sOutputPinName, pInputNode->GetName(),
+                 sInputPinName);
     return false;
   }
 
@@ -247,7 +256,8 @@ const ezRenderPipelinePassConnection* ezRenderPipeline::GetInputConnection(ezRen
   return data.m_Inputs[pPin->m_uiInputIndex];
 }
 
-const ezRenderPipelinePassConnection* ezRenderPipeline::GetOutputConnection(ezRenderPipelinePass* pPass, ezHashedString sOutputPinName) const
+const ezRenderPipelinePassConnection* ezRenderPipeline::GetOutputConnection(ezRenderPipelinePass* pPass,
+                                                                            ezHashedString sOutputPinName) const
 {
   auto it = m_Connections.Find(pPass);
   if (!it.IsValid())
@@ -304,13 +314,14 @@ bool ezRenderPipeline::SortPasses()
   ezDynamicArray<ezRenderPipelinePass*> done;
   done.Reserve(m_Passes.GetCount());
 
-  ezHybridArray<ezRenderPipelinePass*, 8> usable; // Stack of passes with all connections setup, they can be asked for descriptions.
+  ezHybridArray<ezRenderPipelinePass*, 8> usable;     // Stack of passes with all connections setup, they can be asked for descriptions.
   ezHybridArray<ezRenderPipelinePass*, 8> candidates; // Not usable yet, but all input connections are available
 
   // Find all source passes from which we can start the output description propagation.
   for (auto& pPass : m_Passes)
   {
-    //if (std::all_of(cbegin(it.Value().m_Inputs), cend(it.Value().m_Inputs), [](ezRenderPipelinePassConnection* pConn){return pConn == nullptr; }))
+    // if (std::all_of(cbegin(it.Value().m_Inputs), cend(it.Value().m_Inputs), [](ezRenderPipelinePassConnection* pConn){return pConn ==
+    // nullptr; }))
     if (AreInputDescriptionsAvailable(pPass.Borrow(), done))
     {
       usable.PushBack(pPass.Borrow());
@@ -408,7 +419,8 @@ bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
 
     if (view.GetCamera()->IsStereoscopic() && !pPass->IsStereoAware())
     {
-      ezLog::Error("View '{0}' uses a stereoscopic camera, but the render pass '{1}' does not support stereo rendering!", view.GetName(), pPass->GetName());
+      ezLog::Error("View '{0}' uses a stereoscopic camera, but the render pass '{1}' does not support stereo rendering!", view.GetName(),
+                   pPass->GetName());
     }
 
     ConnectionData& data = m_Connections[pPass.Borrow()];
@@ -458,12 +470,14 @@ bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
         {
           if (data.m_Inputs[pPin->m_uiInputIndex] == nullptr)
           {
-            //ezLog::Error("The pass of type '{0}' has a pass through pin '{1}' that has an output but no input!", pPass->GetDynamicRTTI()->GetTypeName(), pPass->GetPinName(pPin));
-            //return false;
+            // ezLog::Error("The pass of type '{0}' has a pass through pin '{1}' that has an output but no input!",
+            // pPass->GetDynamicRTTI()->GetTypeName(), pPass->GetPinName(pPin));  return false;
           }
-          else if (data.m_Outputs[pPin->m_uiOutputIndex]->m_Desc.CalculateHash() != data.m_Inputs[pPin->m_uiInputIndex]->m_Desc.CalculateHash())
+          else if (data.m_Outputs[pPin->m_uiOutputIndex]->m_Desc.CalculateHash() !=
+                   data.m_Inputs[pPin->m_uiInputIndex]->m_Desc.CalculateHash())
           {
-            ezLog::Error("The pass has a pass through pin '{0}' that has different descriptors for input and output!", pPass->GetPinName(pPin));
+            ezLog::Error("The pass has a pass through pin '{0}' that has different descriptors for input and output!",
+                         pPass->GetPinName(pPin));
             return false;
           }
         }
@@ -563,7 +577,10 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
   // TODO: Lambda sort function PLOX!
   struct FirstUsageComparer
   {
-    FirstUsageComparer(ezDynamicArray<TextureUsageData>& textureUsage) : m_TextureUsage(textureUsage) {}
+    FirstUsageComparer(ezDynamicArray<TextureUsageData>& textureUsage)
+        : m_TextureUsage(textureUsage)
+    {
+    }
 
     EZ_ALWAYS_INLINE bool Less(ezUInt16 a, ezUInt16 b) const
     {
@@ -575,7 +592,10 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
 
   struct LastUsageComparer
   {
-    LastUsageComparer(ezDynamicArray<TextureUsageData>& textureUsage) : m_TextureUsage(textureUsage) {}
+    LastUsageComparer(ezDynamicArray<TextureUsageData>& textureUsage)
+        : m_TextureUsage(textureUsage)
+    {
+    }
 
     EZ_ALWAYS_INLINE bool Less(ezUInt16 a, ezUInt16 b) const
     {
@@ -761,7 +781,7 @@ void ezRenderPipeline::ClearRenderPassGraphTextures()
   m_TextureUsageIdxSortedByFirstUsage.Clear();
   m_TextureUsageIdxSortedByLastUsage.Clear();
 
-  //ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  // ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   for (auto it = m_Connections.GetIterator(); it.IsValid(); ++it)
   {
@@ -780,7 +800,8 @@ void ezRenderPipeline::ClearRenderPassGraphTextures()
   }
 }
 
-bool ezRenderPipeline::AreInputDescriptionsAvailable(const ezRenderPipelinePass* pPass, const ezDynamicArray<ezRenderPipelinePass*>& done) const
+bool ezRenderPipeline::AreInputDescriptionsAvailable(const ezRenderPipelinePass* pPass,
+                                                     const ezDynamicArray<ezRenderPipelinePass*>& done) const
 {
   auto it = m_Connections.Find(pPass);
   const ConnectionData& data = it.Value();
@@ -913,7 +934,8 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
   EZ_LOCK(view.GetWorld()->GetReadMarker());
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const bool bIsMainView = (view.GetCameraUsageHint() == ezCameraUsageHint::MainView || view.GetCameraUsageHint() == ezCameraUsageHint::EditorView);
+  const bool bIsMainView =
+      (view.GetCameraUsageHint() == ezCameraUsageHint::MainView || view.GetCameraUsageHint() == ezCameraUsageHint::EditorView);
   const bool bRecordStats = CVarCullingStats && bIsMainView;
   ezSpatialSystem::QueryStats stats;
 
@@ -1014,7 +1036,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 
   if (pCamera->IsOrthographic())
     pRenderContext->SetShaderPermutationVariable(sCameraMode, sOrtho);
-  else if(pCamera->IsStereoscopic())
+  else if (pCamera->IsStereoscopic())
     pRenderContext->SetShaderPermutationVariable(sCameraMode, sStereo);
   else
     pRenderContext->SetShaderPermutationVariable(sCameraMode, sPerspective);
@@ -1026,7 +1048,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
     auto& pPass = m_Passes[i];
 
     // Create pool textures
-    for (; uiCurrentFirstUsageIdx < m_TextureUsageIdxSortedByFirstUsage.GetCount(); )
+    for (; uiCurrentFirstUsageIdx < m_TextureUsageIdxSortedByFirstUsage.GetCount();)
     {
       ezUInt16 uiCurrentUsageData = m_TextureUsageIdxSortedByFirstUsage[uiCurrentFirstUsageIdx];
       TextureUsageData& usageData = m_TextureUsage[uiCurrentUsageData];
@@ -1063,7 +1085,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
     }
 
     // Release pool textures
-    for (; uiCurrentLastUsageIdx < m_TextureUsageIdxSortedByLastUsage.GetCount(); )
+    for (; uiCurrentLastUsageIdx < m_TextureUsageIdxSortedByLastUsage.GetCount();)
     {
       ezUInt16 uiCurrentUsageData = m_TextureUsageIdxSortedByLastUsage[uiCurrentLastUsageIdx];
       TextureUsageData& usageData = m_TextureUsage[uiCurrentUsageData];
@@ -1083,8 +1105,10 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
       }
     }
   }
-  EZ_ASSERT_DEV(uiCurrentFirstUsageIdx == m_TextureUsageIdxSortedByFirstUsage.GetCount(), "Rendering all passes should have moved us through all texture usage blocks!");
-  EZ_ASSERT_DEV(uiCurrentLastUsageIdx == m_TextureUsageIdxSortedByLastUsage.GetCount(), "Rendering all passes should have moved us through all texture usage blocks!");
+  EZ_ASSERT_DEV(uiCurrentFirstUsageIdx == m_TextureUsageIdxSortedByFirstUsage.GetCount(),
+                "Rendering all passes should have moved us through all texture usage blocks!");
+  EZ_ASSERT_DEV(uiCurrentLastUsageIdx == m_TextureUsageIdxSortedByLastUsage.GetCount(),
+                "Rendering all passes should have moved us through all texture usage blocks!");
 
   data.Clear();
 
@@ -1096,11 +1120,11 @@ const ezExtractedRenderData& ezRenderPipeline::GetRenderData() const
   return m_Data[ezRenderWorld::GetDataIndexForRendering()];
 }
 
-ezRenderDataBatchList ezRenderPipeline::GetRenderDataBatchesWithCategory(ezRenderData::Category category, ezRenderDataBatch::Filter filter) const
+ezRenderDataBatchList ezRenderPipeline::GetRenderDataBatchesWithCategory(ezRenderData::Category category,
+                                                                         ezRenderDataBatch::Filter filter) const
 {
   auto& data = m_Data[ezRenderWorld::GetDataIndexForRendering()];
   return data.GetRenderDataBatchesWithCategory(category, filter);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipeline);
-

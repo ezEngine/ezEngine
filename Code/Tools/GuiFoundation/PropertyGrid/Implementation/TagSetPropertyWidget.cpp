@@ -1,19 +1,21 @@
 #include <PCH.h>
+
 #include <GuiFoundation/PropertyGrid/Implementation/TagSetPropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
-#include <ToolsFoundation/Settings/ToolsTagRegistry.h>
-#include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <QCheckBox>
 #include <QHBoxLayout>
 #include <QMenu>
 #include <QPushButton>
 #include <QWidgetAction>
-#include <QCheckBox>
+#include <ToolsFoundation/Command/TreeCommands.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <ToolsFoundation/Settings/ToolsTagRegistry.h>
 
 /// *** Tag Set ***
 
-ezQtPropertyEditorTagSetWidget::ezQtPropertyEditorTagSetWidget() : ezQtPropertyWidget()
+ezQtPropertyEditorTagSetWidget::ezQtPropertyEditorTagSetWidget()
+    : ezQtPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
@@ -46,8 +48,8 @@ void ezQtPropertyEditorTagSetWidget::SetSelection(const ezHybridArray<ezProperty
 
 void ezQtPropertyEditorTagSetWidget::OnInit()
 {
-  EZ_ASSERT_DEV(m_pProp->GetCategory() == ezPropertyCategory::Set && m_pProp->GetSpecificType() == ezGetStaticRTTI<ezConstCharPtr>()
-    , "ezQtPropertyEditorTagSetWidget only works with ezTagSet.");
+  EZ_ASSERT_DEV(m_pProp->GetCategory() == ezPropertyCategory::Set && m_pProp->GetSpecificType() == ezGetStaticRTTI<ezConstCharPtr>(),
+                "ezQtPropertyEditorTagSetWidget only works with ezTagSet.");
 
   // Retrieve tag categories.
   const ezTagSetWidgetAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezTagSetWidgetAttribute>();
@@ -67,7 +69,9 @@ void ezQtPropertyEditorTagSetWidget::OnInit()
   {
     if (!pTag->m_sCategory.IsEqual(szCurrentCategory))
     {
-      /*QAction* pCategory = */m_pMenu->addSection(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"), QLatin1String("[") + QString(pTag->m_sCategory.GetData()) + QLatin1String("]"));
+      /*QAction* pCategory = */ m_pMenu->addSection(
+          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"),
+          QLatin1String("[") + QString(pTag->m_sCategory.GetData()) + QLatin1String("]"));
 
       szCurrentCategory = pTag->m_sCategory;
 
@@ -102,7 +106,9 @@ void ezQtPropertyEditorTagSetWidget::OnInit()
   // therefore, for every empty category, add an entry
   for (const auto& catname : categories)
   {
-    /*QAction* pCategory = */m_pMenu->addSection(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"), QLatin1String("[") + QString(catname.GetData()) + QLatin1String("]"));
+    /*QAction* pCategory = */ m_pMenu->addSection(
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"),
+        QLatin1String("[") + QString(catname.GetData()) + QLatin1String("]"));
   }
 }
 
@@ -155,7 +161,7 @@ void ezQtPropertyEditorTagSetWidget::InternalUpdateValue()
   else
     sText = "<none>";
 
-  //m_pWidget->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"));
+  // m_pWidget->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"));
   m_pWidget->setText(sText);
 }
 

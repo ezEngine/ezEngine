@@ -1,12 +1,13 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <GuiFoundation/Widgets/InlinedGroupBox.moc.h>
-#include <QStyleOptionToolButton>
-#include <QPainter>
 #include <QBoxLayout>
 #include <QMouseEvent>
+#include <QPainter>
+#include <QStyleOptionToolButton>
 
 ezQtInlinedGroupBox::ezQtInlinedGroupBox(QWidget* pParent)
-  : ezQtGroupBoxBase(pParent, false)
+    : ezQtGroupBoxBase(pParent, false)
 {
   QHBoxLayout* pRootLayout = new QHBoxLayout(this);
   pRootLayout->setContentsMargins(0, 1, 0, 1);
@@ -58,9 +59,7 @@ void ezQtInlinedGroupBox::SetFillColor(const QColor& color)
   update();
 }
 
-void ezQtInlinedGroupBox::SetCollapseState(bool bCollapsed)
-{
-}
+void ezQtInlinedGroupBox::SetCollapseState(bool bCollapsed) {}
 
 bool ezQtInlinedGroupBox::GetCollapseState() const
 {
@@ -103,17 +102,17 @@ bool ezQtInlinedGroupBox::eventFilter(QObject* object, QEvent* event)
 {
   switch (event->type())
   {
-  case QEvent::Type::MouseButtonPress:
-    HeaderMousePress(static_cast<QMouseEvent*>(event));
-    return true;
-  case QEvent::Type::MouseMove:
-    HeaderMouseMove(static_cast<QMouseEvent*>(event));
-    return true;
-  case QEvent::Type::MouseButtonRelease:
-    HeaderMouseRelease(static_cast<QMouseEvent*>(event));
-    return true;
-  default:
-    break;
+    case QEvent::Type::MouseButtonPress:
+      HeaderMousePress(static_cast<QMouseEvent*>(event));
+      return true;
+    case QEvent::Type::MouseMove:
+      HeaderMouseMove(static_cast<QMouseEvent*>(event));
+      return true;
+    case QEvent::Type::MouseButtonRelease:
+      HeaderMouseRelease(static_cast<QMouseEvent*>(event));
+      return true;
+    default:
+      break;
   }
   return false;
 }

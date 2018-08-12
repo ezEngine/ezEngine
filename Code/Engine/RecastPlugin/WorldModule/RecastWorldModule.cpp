@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <RecastPlugin/WorldModule/RecastWorldModule.h>
+
 #include <Core/World/World.h>
+#include <RecastPlugin/WorldModule/RecastWorldModule.h>
 #include <ThirdParty/Recast/DetourCrowd.h>
 
 EZ_IMPLEMENT_WORLD_MODULE(ezRecastWorldModule);
@@ -8,13 +9,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecastWorldModule, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezRecastWorldModule::ezRecastWorldModule(ezWorld* pWorld)
-  : ezWorldModule(pWorld)
+    : ezWorldModule(pWorld)
 {
 }
 
-ezRecastWorldModule::~ezRecastWorldModule()
-{
-}
+ezRecastWorldModule::~ezRecastWorldModule() {}
 
 void ezRecastWorldModule::Initialize()
 {
@@ -50,4 +49,3 @@ void ezRecastWorldModule::UpdateCrowd(const UpdateContext& ctxt)
     m_pCrowd->update((float)GetWorld()->GetClock().GetTimeDiff().GetSeconds(), nullptr);
   }
 }
-

@@ -1,30 +1,28 @@
 #include <PCH.h>
+
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <RendererCore/Shader/ShaderStageBinary.h>
 #include <RendererCore/Shader/Types.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
 
-ezUInt32 ezShaderConstantBufferLayout::Constant::s_TypeSize[(ezUInt32)Type::ENUM_COUNT] =
-{
-  0,
-  sizeof(float) * 1,
-  sizeof(float) * 2,
-  sizeof(float) * 3,
-  sizeof(float) * 4,
-  sizeof(int) * 1,
-  sizeof(int) * 2,
-  sizeof(int) * 3,
-  sizeof(int) * 4,
-  sizeof(ezUInt32) * 1,
-  sizeof(ezUInt32) * 2,
-  sizeof(ezUInt32) * 3,
-  sizeof(ezUInt32) * 4,
-  sizeof(ezShaderMat3),
-  sizeof(ezMat4),
-  sizeof(ezShaderTransform),
-  sizeof(ezShaderBool)
-};
+ezUInt32 ezShaderConstantBufferLayout::Constant::s_TypeSize[(ezUInt32)Type::ENUM_COUNT] = {0,
+                                                                                           sizeof(float) * 1,
+                                                                                           sizeof(float) * 2,
+                                                                                           sizeof(float) * 3,
+                                                                                           sizeof(float) * 4,
+                                                                                           sizeof(int) * 1,
+                                                                                           sizeof(int) * 2,
+                                                                                           sizeof(int) * 3,
+                                                                                           sizeof(int) * 4,
+                                                                                           sizeof(ezUInt32) * 1,
+                                                                                           sizeof(ezUInt32) * 2,
+                                                                                           sizeof(ezUInt32) * 3,
+                                                                                           sizeof(ezUInt32) * 4,
+                                                                                           sizeof(ezShaderMat3),
+                                                                                           sizeof(ezMat4),
+                                                                                           sizeof(ezShaderTransform),
+                                                                                           sizeof(ezShaderBool)};
 
 void ezShaderConstantBufferLayout::Constant::CopyDataFormVariant(ezUInt8* pDest, ezVariant* pValue) const
 {
@@ -36,54 +34,69 @@ void ezShaderConstantBufferLayout::Constant::CopyDataFormVariant(ezUInt8* pDest,
   {
     switch (m_Type)
     {
-    case Type::Float1:
-      *reinterpret_cast<float*>(pDest) = pValue->ConvertTo<float>(&conversionResult); break;
-    case Type::Float2:
-      *reinterpret_cast<ezVec2*>(pDest) = pValue->Get<ezVec2>(); return;
-    case Type::Float3:
-      *reinterpret_cast<ezVec3*>(pDest) = pValue->Get<ezVec3>(); return;
-    case Type::Float4:
-      if (pValue->GetType() == ezVariant::Type::Color || pValue->GetType() == ezVariant::Type::ColorGamma)
-      {
-        const ezColor tmp = pValue->ConvertTo<ezColor>();
-        *reinterpret_cast<ezVec4*>(pDest) = *reinterpret_cast<const ezVec4*>(&tmp);
-      }
-      else
-      {
-        *reinterpret_cast<ezVec4*>(pDest) = pValue->Get<ezVec4>();
-      }
-      return;
+      case Type::Float1:
+        *reinterpret_cast<float*>(pDest) = pValue->ConvertTo<float>(&conversionResult);
+        break;
+      case Type::Float2:
+        *reinterpret_cast<ezVec2*>(pDest) = pValue->Get<ezVec2>();
+        return;
+      case Type::Float3:
+        *reinterpret_cast<ezVec3*>(pDest) = pValue->Get<ezVec3>();
+        return;
+      case Type::Float4:
+        if (pValue->GetType() == ezVariant::Type::Color || pValue->GetType() == ezVariant::Type::ColorGamma)
+        {
+          const ezColor tmp = pValue->ConvertTo<ezColor>();
+          *reinterpret_cast<ezVec4*>(pDest) = *reinterpret_cast<const ezVec4*>(&tmp);
+        }
+        else
+        {
+          *reinterpret_cast<ezVec4*>(pDest) = pValue->Get<ezVec4>();
+        }
+        return;
 
-    case Type::Int1:
-      *reinterpret_cast<ezInt32*>(pDest) = pValue->ConvertTo<ezInt32>(&conversionResult); break;
-    case Type::Int2:
-      *reinterpret_cast<ezVec2I32*>(pDest) = pValue->Get<ezVec2I32>(); return;
-    case Type::Int3:
-      *reinterpret_cast<ezVec3I32*>(pDest) = pValue->Get<ezVec3I32>(); return;
-    case Type::Int4:
-      *reinterpret_cast<ezVec4I32*>(pDest) = pValue->Get<ezVec4I32>(); return;
+      case Type::Int1:
+        *reinterpret_cast<ezInt32*>(pDest) = pValue->ConvertTo<ezInt32>(&conversionResult);
+        break;
+      case Type::Int2:
+        *reinterpret_cast<ezVec2I32*>(pDest) = pValue->Get<ezVec2I32>();
+        return;
+      case Type::Int3:
+        *reinterpret_cast<ezVec3I32*>(pDest) = pValue->Get<ezVec3I32>();
+        return;
+      case Type::Int4:
+        *reinterpret_cast<ezVec4I32*>(pDest) = pValue->Get<ezVec4I32>();
+        return;
 
-    case Type::UInt1:
-      *reinterpret_cast<ezUInt32*>(pDest) = pValue->ConvertTo<ezUInt32>(&conversionResult); break;
-    case Type::UInt2:
-      *reinterpret_cast<ezVec2U32*>(pDest) = pValue->Get<ezVec2U32>(); return;
-    case Type::UInt3:
-      *reinterpret_cast<ezVec3U32*>(pDest) = pValue->Get<ezVec3U32>(); return;
-    case Type::UInt4:
-      *reinterpret_cast<ezVec4U32*>(pDest) = pValue->Get<ezVec4U32>(); return;
+      case Type::UInt1:
+        *reinterpret_cast<ezUInt32*>(pDest) = pValue->ConvertTo<ezUInt32>(&conversionResult);
+        break;
+      case Type::UInt2:
+        *reinterpret_cast<ezVec2U32*>(pDest) = pValue->Get<ezVec2U32>();
+        return;
+      case Type::UInt3:
+        *reinterpret_cast<ezVec3U32*>(pDest) = pValue->Get<ezVec3U32>();
+        return;
+      case Type::UInt4:
+        *reinterpret_cast<ezVec4U32*>(pDest) = pValue->Get<ezVec4U32>();
+        return;
 
-    case Type::Mat3x3:
-      *reinterpret_cast<ezShaderMat3*>(pDest) = pValue->Get<ezMat3>(); return;
-    case Type::Mat4x4:
-      *reinterpret_cast<ezMat4*>(pDest) = pValue->Get<ezMat4>(); return;
-    case Type::Transform:
-      *reinterpret_cast<ezShaderTransform*>(pDest) = pValue->Get<ezTransform>(); return;
+      case Type::Mat3x3:
+        *reinterpret_cast<ezShaderMat3*>(pDest) = pValue->Get<ezMat3>();
+        return;
+      case Type::Mat4x4:
+        *reinterpret_cast<ezMat4*>(pDest) = pValue->Get<ezMat4>();
+        return;
+      case Type::Transform:
+        *reinterpret_cast<ezShaderTransform*>(pDest) = pValue->Get<ezTransform>();
+        return;
 
-    case Type::Bool:
-      *reinterpret_cast<ezShaderBool*>(pDest) = pValue->ConvertTo<bool>(&conversionResult); break;
+      case Type::Bool:
+        *reinterpret_cast<ezShaderBool*>(pDest) = pValue->ConvertTo<bool>(&conversionResult);
+        break;
 
-    default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
     }
   }
 
@@ -92,7 +105,7 @@ void ezShaderConstantBufferLayout::Constant::CopyDataFormVariant(ezUInt8* pDest,
     return;
   }
 
-  //ezLog::Error("Constant '{0}' is not set, invalid or couldn't be converted to target type and will be set to zero.", m_sName);
+  // ezLog::Error("Constant '{0}' is not set, invalid or couldn't be converted to target type and will be set to zero.", m_sName);
   const ezUInt32 uiSize = s_TypeSize[m_Type];
   ezMemoryUtils::ZeroFill(pDest, uiSize);
 }
@@ -102,9 +115,7 @@ ezShaderConstantBufferLayout::ezShaderConstantBufferLayout()
   m_uiTotalSize = 0;
 }
 
-ezShaderConstantBufferLayout::~ezShaderConstantBufferLayout()
-{
-}
+ezShaderConstantBufferLayout::~ezShaderConstantBufferLayout() {}
 
 ezResult ezShaderConstantBufferLayout::Write(ezStreamWriter& stream) const
 {
@@ -153,10 +164,7 @@ ezShaderResourceBinding::ezShaderResourceBinding()
   m_pLayout = nullptr;
 }
 
-ezShaderResourceBinding::~ezShaderResourceBinding()
-{
-
-}
+ezShaderResourceBinding::~ezShaderResourceBinding() {}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -203,7 +211,7 @@ ezResult ezShaderStageBinary::Write(ezStreamWriter& stream) const
   if (stream.WriteDWordValue(&m_uiSourceHash).Failed())
     return EZ_FAILURE;
 
-  const ezUInt8 uiStage = (ezUInt8) m_Stage;
+  const ezUInt8 uiStage = (ezUInt8)m_Stage;
 
   if (stream.WriteBytes(&uiStage, sizeof(ezUInt8)).Failed())
     return EZ_FAILURE;
@@ -223,7 +231,7 @@ ezResult ezShaderStageBinary::Write(ezStreamWriter& stream) const
   {
     stream << r.m_sName.GetData();
     stream << r.m_iSlot;
-    stream << (ezUInt8) r.m_Type;
+    stream << (ezUInt8)r.m_Type;
 
     if (r.m_Type == ezShaderResourceBinding::ConstantBuffer)
     {
@@ -251,7 +259,7 @@ ezResult ezShaderStageBinary::Read(ezStreamReader& stream)
   if (stream.ReadBytes(&uiStage, sizeof(ezUInt8)) != sizeof(ezUInt8))
     return EZ_FAILURE;
 
-  m_Stage = (ezGALShaderStage::Enum) uiStage;
+  m_Stage = (ezGALShaderStage::Enum)uiStage;
 
   ezUInt32 uiByteCodeSize = 0;
 
@@ -280,7 +288,7 @@ ezResult ezShaderStageBinary::Read(ezStreamReader& stream)
 
       ezUInt8 uiType = 0;
       stream >> uiType;
-      r.m_Type = (ezShaderResourceBinding::ResourceType) uiType;
+      r.m_Type = (ezShaderResourceBinding::ResourceType)uiType;
 
       if (r.m_Type == ezShaderResourceBinding::ConstantBuffer && uiVersion >= ezShaderStageBinary::Version4)
       {
@@ -353,7 +361,7 @@ ezResult ezShaderStageBinary::WriteStageBinary(ezLogInterface* pLog) const
   return EZ_SUCCESS;
 }
 
-//static
+// static
 ezShaderStageBinary* ezShaderStageBinary::LoadStageBinary(ezGALShaderStage::Enum Stage, ezUInt32 uiHash)
 {
   auto itStage = s_ShaderStageBinaries[Stage].Find(uiHash);
@@ -397,7 +405,7 @@ ezShaderStageBinary* ezShaderStageBinary::LoadStageBinary(ezGALShaderStage::Enum
   return pShaderStageBinary;
 }
 
-//static
+// static
 void ezShaderStageBinary::OnEngineShutdown()
 {
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
@@ -409,4 +417,3 @@ void ezShaderStageBinary::OnEngineShutdown()
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Implementation_ShaderStageBinary);
-

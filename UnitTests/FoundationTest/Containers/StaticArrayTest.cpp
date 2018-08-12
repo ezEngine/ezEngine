@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Containers/StaticArray.h>
 
 namespace StaticArrayTestDetail
@@ -9,10 +10,22 @@ namespace StaticArrayTestDetail
     int a;
     std::string s;
 
-    Dummy() : a(0), s("Test") { }
-    Dummy(int a) : a(a), s("Test") { }
-    Dummy(const Dummy& other) : a(other.a), s(other.s) { }
-    ~Dummy() { }
+    Dummy()
+        : a(0)
+        , s("Test")
+    {
+    }
+    Dummy(int a)
+        : a(a)
+        , s("Test")
+    {
+    }
+    Dummy(const Dummy& other)
+        : a(other.a)
+        , s(other.s)
+    {
+    }
+    ~Dummy() {}
 
     Dummy& operator=(const Dummy& other)
     {
@@ -30,9 +43,9 @@ namespace StaticArrayTestDetail
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezStaticArray<ezInt32, 1>) == 24);
+EZ_CHECK_AT_COMPILETIME(sizeof(ezStaticArray<ezInt32, 1>) == 24);
 #else
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezStaticArray<ezInt32, 1>) == 16);
+EZ_CHECK_AT_COMPILETIME(sizeof(ezStaticArray<ezInt32, 1>) == 16);
 #endif
 
 
@@ -57,7 +70,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
       a1.PushBack(rand() % 100000);
 
     ezStaticArray<ezInt32, 64> a2 = a1;
-    ezStaticArray<ezInt32, 32> a3 (a1);
+    ezStaticArray<ezInt32, 32> a3(a1);
 
     EZ_TEST_BOOL(a1 == a2);
     EZ_TEST_BOOL(a1 == a3);
@@ -76,7 +89,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
 
     ezArrayPtr<ezInt32> ap = a1;
 
-    EZ_TEST_BOOL(ap.GetCount () == a1.GetCount());
+    EZ_TEST_BOOL(ap.GetCount() == a1.GetCount());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator =")
@@ -100,7 +113,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator == / !=")
   {
     ezStaticArray<ezInt32, 128> a1, a2;
-    
+
     EZ_TEST_BOOL(a1 == a1);
     EZ_TEST_BOOL(a2 == a2);
     EZ_TEST_BOOL(a1 == a2);
@@ -500,7 +513,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
 
     // foreach
     ezUInt32 prev = 0;
-    for(ezUInt32 val : a1)
+    for (ezUInt32 val : a1)
     {
       EZ_TEST_BOOL(prev <= val);
       prev = val;
@@ -531,7 +544,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
 
     // foreach
     ezUInt32 prev = 1000;
-    for(ezUInt32 val : a1)
+    for (ezUInt32 val : a1)
     {
       EZ_TEST_BOOL(prev >= val);
       prev = val;

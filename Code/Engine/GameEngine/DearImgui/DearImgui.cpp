@@ -54,7 +54,11 @@ void ezImgui::Startup()
     ImGuiIO& io = ImGui::GetIO();
     unsigned char* pixels;
     int width, height;
-    io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height); // Load as RGBA 32-bits (75% of the memory is wasted, but default font is so small) because it is more likely to be compatible with user's existing shaders. If your ImTextureId represent a higher-level concept than just a GL texture id, consider calling GetTexDataAsAlpha8() instead to save on GPU memory.
+    io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height); // Load as RGBA 32-bits (75% of the memory is wasted, but default font is so
+                                                            // small) because it is more likely to be compatible with user's existing
+                                                            // shaders. If your ImTextureId represent a higher-level concept than just a GL
+                                                            // texture id, consider calling GetTexDataAsAlpha8() instead to save on GPU
+                                                            // memory.
 
     ezTexture2DResourceHandle hFont = ezResourceManager::GetExistingResource<ezTexture2DResource>("ImguiFont");
 
@@ -124,10 +128,14 @@ void ezImgui::BeginNewFrame(ezSizeU32 windowResolution)
     if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelUp) == ezKeyState::Pressed)
       cfg.MouseWheel = +1;
 
-    cfg.KeyAlt = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftAlt) >= ezKeyState::Pressed || ezInputManager::GetInputSlotState(ezInputSlot_KeyRightAlt) >= ezKeyState::Pressed;
-    cfg.KeyCtrl = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftCtrl) >= ezKeyState::Pressed || ezInputManager::GetInputSlotState(ezInputSlot_KeyRightCtrl) >= ezKeyState::Pressed;
-    cfg.KeyShift = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftShift) >= ezKeyState::Pressed || ezInputManager::GetInputSlotState(ezInputSlot_KeyRightShift) >= ezKeyState::Pressed;
-    cfg.KeySuper = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftWin) >= ezKeyState::Pressed || ezInputManager::GetInputSlotState(ezInputSlot_KeyRightWin) >= ezKeyState::Pressed;
+    cfg.KeyAlt = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftAlt) >= ezKeyState::Pressed ||
+                 ezInputManager::GetInputSlotState(ezInputSlot_KeyRightAlt) >= ezKeyState::Pressed;
+    cfg.KeyCtrl = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftCtrl) >= ezKeyState::Pressed ||
+                  ezInputManager::GetInputSlotState(ezInputSlot_KeyRightCtrl) >= ezKeyState::Pressed;
+    cfg.KeyShift = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftShift) >= ezKeyState::Pressed ||
+                   ezInputManager::GetInputSlotState(ezInputSlot_KeyRightShift) >= ezKeyState::Pressed;
+    cfg.KeySuper = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftWin) >= ezKeyState::Pressed ||
+                   ezInputManager::GetInputSlotState(ezInputSlot_KeyRightWin) >= ezKeyState::Pressed;
 
     cfg.KeysDown[ImGuiKey_Tab] = ezInputManager::GetInputSlotState(ezInputSlot_KeyTab) >= ezKeyState::Pressed;
     cfg.KeysDown[ImGuiKey_LeftArrow] = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeft) >= ezKeyState::Pressed;
@@ -140,7 +148,8 @@ void ezImgui::BeginNewFrame(ezSizeU32 windowResolution)
     cfg.KeysDown[ImGuiKey_End] = ezInputManager::GetInputSlotState(ezInputSlot_KeyEnd) >= ezKeyState::Pressed;
     cfg.KeysDown[ImGuiKey_Delete] = ezInputManager::GetInputSlotState(ezInputSlot_KeyDelete) >= ezKeyState::Pressed;
     cfg.KeysDown[ImGuiKey_Backspace] = ezInputManager::GetInputSlotState(ezInputSlot_KeyBackspace) >= ezKeyState::Pressed;
-    cfg.KeysDown[ImGuiKey_Enter] = ezInputManager::GetInputSlotState(ezInputSlot_KeyReturn) >= ezKeyState::Pressed || ezInputManager::GetInputSlotState(ezInputSlot_KeyNumpadEnter) >= ezKeyState::Pressed;
+    cfg.KeysDown[ImGuiKey_Enter] = ezInputManager::GetInputSlotState(ezInputSlot_KeyReturn) >= ezKeyState::Pressed ||
+                                   ezInputManager::GetInputSlotState(ezInputSlot_KeyNumpadEnter) >= ezKeyState::Pressed;
     cfg.KeysDown[ImGuiKey_Escape] = ezInputManager::GetInputSlotState(ezInputSlot_KeyEscape) >= ezKeyState::Pressed;
     cfg.KeysDown[ImGuiKey_A] = ezInputManager::GetInputSlotState(ezInputSlot_KeyA) >= ezKeyState::Pressed;
     cfg.KeysDown[ImGuiKey_C] = ezInputManager::GetInputSlotState(ezInputSlot_KeyC) >= ezKeyState::Pressed;

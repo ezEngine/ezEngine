@@ -1,29 +1,27 @@
-﻿#include <PCH.h>
-#include <EnginePluginAssets/MaterialAsset/MaterialView.h>
-#include <RendererFoundation/Device/SwapChain.h>
+#include <PCH.h>
+
 #include <Core/ResourceManager/ResourceManager.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Pipeline/View.h>
+#include <Core/World/Component.h>
+#include <Core/World/GameObject.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <Core/World/GameObject.h>
-#include <Core/World/Component.h>
 #include <EnginePluginAssets/MaterialAsset/MaterialContext.h>
+#include <EnginePluginAssets/MaterialAsset/MaterialView.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererFoundation/Device/SwapChain.h>
 
 ezMaterialViewContext::ezMaterialViewContext(ezMaterialContext* pMaterialContext)
-  : ezEngineProcessViewContext(pMaterialContext)
+    : ezEngineProcessViewContext(pMaterialContext)
 {
   m_pMaterialContext = pMaterialContext;
 }
 
-ezMaterialViewContext::~ezMaterialViewContext()
-{
-
-}
+ezMaterialViewContext::~ezMaterialViewContext() {}
 
 void ezMaterialViewContext::PositionThumbnailCamera()
 {

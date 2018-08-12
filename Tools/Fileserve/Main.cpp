@@ -1,13 +1,14 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Fileserve/Main.h>
-#include <Foundation/Utilities/CommandLineUtils.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 
 #ifdef EZ_USE_QT
-  #include <QApplication>
-  #include <Gui.moc.h>
-  #include <Windows.h>
+#include <Gui.moc.h>
+#include <QApplication>
+#include <Windows.h>
 #endif
 
 #ifdef EZ_USE_QT
@@ -45,7 +46,8 @@ int main(int argc, const char** argv)
   {
 
     std::string text = pApp->TranslateReturnCode();
-    if (!text.empty()) printf("Return Code: '%s'\n", text.c_str());
+    if (!text.empty())
+      printf("Return Code: '%s'\n", text.c_str());
   }
 
   delete pApp;
@@ -65,21 +67,20 @@ void ezFileserverApp::FileserverEventHandler(const ezFileserverEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezFileserverEvent::Type::ClientConnected:
-  case ezFileserverEvent::Type::ClientReconnected:
-    ++m_uiConnections;
-    m_TimeTillClosing.SetZero();
-    break;
-  case ezFileserverEvent::Type::ClientDisconnected:
-    --m_uiConnections;
+    case ezFileserverEvent::Type::ClientConnected:
+    case ezFileserverEvent::Type::ClientReconnected:
+      ++m_uiConnections;
+      m_TimeTillClosing.SetZero();
+      break;
+    case ezFileserverEvent::Type::ClientDisconnected:
+      --m_uiConnections;
 
-    if (m_uiConnections == 0 && m_CloseAppTimeout.GetSeconds() > 0)
-    {
-      // reset the timer
-      m_TimeTillClosing = ezTime::Now() + m_CloseAppTimeout;
-    }
+      if (m_uiConnections == 0 && m_CloseAppTimeout.GetSeconds() > 0)
+      {
+        // reset the timer
+        m_TimeTillClosing = ezTime::Now() + m_CloseAppTimeout;
+      }
 
-    break;
+      break;
   }
 }
-

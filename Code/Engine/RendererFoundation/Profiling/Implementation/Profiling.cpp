@@ -1,23 +1,26 @@
 #include <PCH.h>
-#include <RendererFoundation/Profiling/Profiling.h>
-#include <RendererFoundation/Profiling/GPUStopwatch.h>
-#include <RendererFoundation/Context/Context.h>
-#include <RendererFoundation/Device/Device.h>
+
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <Foundation/Utilities/Stats.h>
+#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Profiling/GPUStopwatch.h>
+#include <RendererFoundation/Profiling/Profiling.h>
 
 namespace
 {
-  ezCVarBool CVarGPUProfiling("r_GPUProfiling", false, ezCVarFlags::None, "If true, every ezProfilingScopeAndMarker scope uses a ezGPUStopwatch to measure the passed GPU time and writes the result in ms to ezStats");
+  ezCVarBool CVarGPUProfiling("r_GPUProfiling", false, ezCVarFlags::None,
+                              "If true, every ezProfilingScopeAndMarker scope uses a ezGPUStopwatch to measure the passed GPU time and "
+                              "writes the result in ms to ezStats");
   ezHybridArray<ezString, 4> s_previousProfilingScopes;
 }
 
 ezProfilingScopeAndMarker::ezProfilingScopeAndMarker(ezGALContext* pGALContext, const char* szName, const char* szFunctionName)
-  : ezProfilingScope(szName, szFunctionName)
-  , m_pGALContext(pGALContext)
+    : ezProfilingScope(szName, szFunctionName)
+    , m_pGALContext(pGALContext)
 {
   m_pGALContext->PushMarker(m_szName);
   s_previousProfilingScopes.PushBack(m_szName);
@@ -57,4 +60,3 @@ ezProfilingScopeAndMarker::~ezProfilingScopeAndMarker()
 
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Profiling_Implementation_Profiling);
-

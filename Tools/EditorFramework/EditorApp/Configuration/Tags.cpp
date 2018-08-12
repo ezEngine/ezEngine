@@ -1,8 +1,9 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <ToolsFoundation/Settings/ToolsTagRegistry.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <ToolsFoundation/Settings/ToolsTagRegistry.h>
 
 ezStatus ezQtEditorApp::SaveTagRegistry()
 {
@@ -61,4 +62,3 @@ void ezQtEditorApp::ReadTagRegistry()
   tag.m_sCategory = "Editor";
   ezToolsTagRegistry::AddTag(tag);
 }
-

@@ -1,7 +1,8 @@
 #include <PCH.h>
+
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <ToolsFoundationTest/Object/TestObjectManager.h>
 #include <ToolsFoundationTest/Reflection/ReflectionTestClasses.h>
-#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 void MirrorCheck(ezTestDocument* pDoc, const ezDocumentObject* pObject)
 {
@@ -35,60 +36,60 @@ ezVariant GetVariantFromType(ezVariant::Type::Enum type)
 {
   switch (type)
   {
-  case ezVariant::Type::Invalid:
-    return ezVariant();
-  case ezVariant::Type::Bool:
-    return ezVariant(true);
-  case ezVariant::Type::Int8:
-    return ezVariant((ezInt8)-55);
-  case ezVariant::Type::UInt8:
-    return ezVariant((ezUInt8)44);
-  case ezVariant::Type::Int16:
-    return ezVariant((ezInt16)-444);
-  case ezVariant::Type::UInt16:
-    return ezVariant((ezUInt16)666);
-  case ezVariant::Type::Int32:
-    return ezVariant((ezInt32)-88880);
-  case ezVariant::Type::UInt32:
-    return ezVariant((ezUInt32)123445);
-  case ezVariant::Type::Int64:
-    return ezVariant((ezInt64)-888800000);
-  case ezVariant::Type::UInt64:
-    return ezVariant((ezUInt64)123445000);
-  case ezVariant::Type::Float:
-    return ezVariant(1024.0f);
-  case ezVariant::Type::Double:
-    return ezVariant(-2048.0f);
-  case ezVariant::Type::Color:
-    return ezVariant(ezColor(0.5f, 33.0f, 2.0f, 0.3f));
-  case ezVariant::Type::ColorGamma:
-    return ezVariant(ezColorGammaUB(ezColor(0.5f, 33.0f, 2.0f, 0.3f)));
-  case ezVariant::Type::Vector2:
-    return ezVariant(ezVec2(2.0f, 4.0f));
-  case ezVariant::Type::Vector3:
-    return ezVariant(ezVec3(2.0f, 4.0f, -8.0f));
-  case ezVariant::Type::Vector4:
-    return ezVariant(ezVec4(1.0f, 7.0f, 8.0f, -10.0f));
-  case ezVariant::Type::Vector2I:
-    return ezVariant(ezVec2I32(1, 2));
-  case ezVariant::Type::Vector3I:
-    return ezVariant(ezVec3I32(3, 4, 5));
-  case ezVariant::Type::Vector4I:
-    return ezVariant(ezVec4I32(6, 7, 8, 9));
-  case ezVariant::Type::Quaternion:
+    case ezVariant::Type::Invalid:
+      return ezVariant();
+    case ezVariant::Type::Bool:
+      return ezVariant(true);
+    case ezVariant::Type::Int8:
+      return ezVariant((ezInt8)-55);
+    case ezVariant::Type::UInt8:
+      return ezVariant((ezUInt8)44);
+    case ezVariant::Type::Int16:
+      return ezVariant((ezInt16)-444);
+    case ezVariant::Type::UInt16:
+      return ezVariant((ezUInt16)666);
+    case ezVariant::Type::Int32:
+      return ezVariant((ezInt32)-88880);
+    case ezVariant::Type::UInt32:
+      return ezVariant((ezUInt32)123445);
+    case ezVariant::Type::Int64:
+      return ezVariant((ezInt64)-888800000);
+    case ezVariant::Type::UInt64:
+      return ezVariant((ezUInt64)123445000);
+    case ezVariant::Type::Float:
+      return ezVariant(1024.0f);
+    case ezVariant::Type::Double:
+      return ezVariant(-2048.0f);
+    case ezVariant::Type::Color:
+      return ezVariant(ezColor(0.5f, 33.0f, 2.0f, 0.3f));
+    case ezVariant::Type::ColorGamma:
+      return ezVariant(ezColorGammaUB(ezColor(0.5f, 33.0f, 2.0f, 0.3f)));
+    case ezVariant::Type::Vector2:
+      return ezVariant(ezVec2(2.0f, 4.0f));
+    case ezVariant::Type::Vector3:
+      return ezVariant(ezVec3(2.0f, 4.0f, -8.0f));
+    case ezVariant::Type::Vector4:
+      return ezVariant(ezVec4(1.0f, 7.0f, 8.0f, -10.0f));
+    case ezVariant::Type::Vector2I:
+      return ezVariant(ezVec2I32(1, 2));
+    case ezVariant::Type::Vector3I:
+      return ezVariant(ezVec3I32(3, 4, 5));
+    case ezVariant::Type::Vector4I:
+      return ezVariant(ezVec4I32(6, 7, 8, 9));
+    case ezVariant::Type::Quaternion:
     {
       ezQuat quat;
       quat.SetFromEulerAngles(ezAngle::Degree(30), ezAngle::Degree(-15), ezAngle::Degree(20));
       return ezVariant(quat);
     }
-  case ezVariant::Type::Matrix3:
+    case ezVariant::Type::Matrix3:
     {
       ezMat3 mat = ezMat3::IdentityMatrix();
 
       mat.SetRotationMatrix(ezVec3(1.0f, 0.0f, 0.0f), ezAngle::Degree(30));
       return ezVariant(mat);
     }
-  case ezVariant::Type::Matrix4:
+    case ezVariant::Type::Matrix4:
     {
       ezMat4 mat = ezMat4::IdentityMatrix();
 
@@ -96,21 +97,21 @@ ezVariant GetVariantFromType(ezVariant::Type::Enum type)
       mat.SetTranslationVector(ezVec3(1.0f, 2.0f, 3.0f));
       return ezVariant(mat);
     }
-  case ezVariant::Type::String:
-    return ezVariant("Test");
-  case ezVariant::Type::StringView:
-    return ezVariant("Test");
-  case ezVariant::Type::Time:
-    return ezVariant(ezTime::Seconds(123.0f));
-  case ezVariant::Type::Uuid:
+    case ezVariant::Type::String:
+      return ezVariant("Test");
+    case ezVariant::Type::StringView:
+      return ezVariant("Test");
+    case ezVariant::Type::Time:
+      return ezVariant(ezTime::Seconds(123.0f));
+    case ezVariant::Type::Uuid:
     {
       ezUuid guid;
       guid.CreateNewUuid();
       return ezVariant(guid);
     }
-  case ezVariant::Type::Angle:
-    return ezVariant(ezAngle::Degree(30.0f));
-  case ezVariant::Type::DataBuffer:
+    case ezVariant::Type::Angle:
+      return ezVariant(ezAngle::Degree(30.0f));
+    case ezVariant::Type::DataBuffer:
     {
       ezDataBuffer data;
       data.PushBack(12);
@@ -118,18 +119,18 @@ ezVariant GetVariantFromType(ezVariant::Type::Enum type)
       data.PushBack(88);
       return ezVariant(data);
     }
-  case ezVariant::Type::VariantArray:
-    return ezVariantArray();
-  case ezVariant::Type::VariantDictionary:
-    return ezVariantDictionary();
-  case ezVariant::Type::ReflectedPointer:
-    return ezVariant();
-  case ezVariant::Type::VoidPointer:
-    return ezVariant();
+    case ezVariant::Type::VariantArray:
+      return ezVariantArray();
+    case ezVariant::Type::VariantDictionary:
+      return ezVariantDictionary();
+    case ezVariant::Type::ReflectedPointer:
+      return ezVariant();
+    case ezVariant::Type::VoidPointer:
+      return ezVariant();
 
-  default:
-    EZ_REPORT_FAILURE("Invalid case statement");
-    return ezVariant();
+    default:
+      EZ_REPORT_FAILURE("Invalid case statement");
+      return ezVariant();
   }
   return ezVariant();
 }
@@ -177,7 +178,8 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
   else if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
   {
     ezInt32 iCurrentCount = pObjectAccessor->GetCount(pObject, pProp);
-    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) &&
+        !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
     {
       for (ezInt32 i = iCurrentCount - 1; i >= 0; --i)
       {
@@ -210,7 +212,8 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
   else if (pProp->GetCategory() == ezPropertyCategory::Map)
   {
     ezInt32 iCurrentCount = pObjectAccessor->GetCount(pObject, pProp);
-    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) &&
+        !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
     {
       ezHybridArray<ezVariant, 16> keys;
       pObjectAccessor->GetKeys(pObject, pProp, keys);
@@ -287,4 +290,3 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, ObjectMirror)
     MirrorCheck(&doc, pObject);
   }
 }
-

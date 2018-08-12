@@ -1,12 +1,10 @@
 #include <PCH.h>
+
 #include <Foundation/Containers/List.h>
 
 EZ_CREATE_SIMPLE_TEST(Containers, List)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
-  {
-    ezList<ezInt32> l;
-  }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor") { ezList<ezInt32> l; }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "PushBack() / PeekBack")
   {
@@ -189,7 +187,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
       if (i > 1000)
         EZ_TEST_INT(*it, 0)
       else
-      EZ_TEST_INT(*it, i);
+        EZ_TEST_INT(*it, i);
 
       ++i;
     }
@@ -325,4 +323,3 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     EZ_TEST_BOOL(l == l2);
   }
 }
-

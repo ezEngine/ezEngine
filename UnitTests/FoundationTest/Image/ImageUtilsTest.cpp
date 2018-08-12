@@ -1,8 +1,9 @@
 #include <PCH.h>
-#include <Foundation/Image/ImageUtils.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
+
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/Image/ImageUtils.h>
 
 
 EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
@@ -109,4 +110,3 @@ EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
 
   ezFileSystem::RemoveDataDirectoryGroup("ImageTest");
 }
-

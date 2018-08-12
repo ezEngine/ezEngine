@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <Foundation/Types/Uuid.h>
+
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Types/Uuid.h>
 
 
 EZ_CREATE_SIMPLE_TEST(Basics, Uuid)
@@ -53,18 +54,20 @@ EZ_CREATE_SIMPLE_TEST(Basics, Uuid)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Stable Uuid From String")
   {
-	  ezUuid uuid1 = ezUuid::StableUuidForString("TEST 1");
-	  ezUuid uuid2 = ezUuid::StableUuidForString("TEST 2");
-	  ezUuid uuid3 = ezUuid::StableUuidForString("TEST 1");
+    ezUuid uuid1 = ezUuid::StableUuidForString("TEST 1");
+    ezUuid uuid2 = ezUuid::StableUuidForString("TEST 2");
+    ezUuid uuid3 = ezUuid::StableUuidForString("TEST 1");
 
-	  EZ_TEST_BOOL(uuid1 == uuid3);
-	  EZ_TEST_BOOL(uuid1 != uuid2);
+    EZ_TEST_BOOL(uuid1 == uuid3);
+    EZ_TEST_BOOL(uuid1 != uuid2);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Uuid Combine")
   {
-    ezUuid uuid1; uuid1.CreateNewUuid();
-    ezUuid uuid2; uuid2.CreateNewUuid();
+    ezUuid uuid1;
+    uuid1.CreateNewUuid();
+    ezUuid uuid2;
+    uuid2.CreateNewUuid();
     ezUuid combined = uuid1;
     combined.CombineWithSeed(uuid2);
     EZ_TEST_BOOL(combined != uuid1);
@@ -79,4 +82,3 @@ EZ_CREATE_SIMPLE_TEST(Basics, Uuid)
     EZ_TEST_BOOL(hashA != hashB);
   }
 }
-

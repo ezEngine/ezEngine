@@ -1,17 +1,18 @@
 #include <PCH.h>
-#include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
-#include <EditorFramework/EditTools/EditTool.h>
+
 #include <EditorFramework/Document/GameObjectDocument.h>
-#include <Preferences/ScenePreferences.h>
+#include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
+#include <EditorFramework/DocumentWindow/GameObjectViewWidget.moc.h>
+#include <EditorFramework/EditTools/EditTool.h>
+#include <EditorFramework/InputContexts/CameraMoveContext.h>
 #include <Gizmos/SnapProvider.h>
 #include <Gizmos/TranslateGizmo.h>
-#include <Preferences/EditorPreferences.h>
-#include <EditorFramework/DocumentWindow/GameObjectViewWidget.moc.h>
-#include <EditorFramework/InputContexts/CameraMoveContext.h>
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
+#include <Preferences/EditorPreferences.h>
+#include <Preferences/ScenePreferences.h>
 
 ezQtGameObjectDocumentWindow::ezQtGameObjectDocumentWindow(ezGameObjectDocument* pDocument)
-  : ezQtEngineDocumentWindow(pDocument)
+    : ezQtEngineDocumentWindow(pDocument)
 {
   pDocument->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezQtGameObjectDocumentWindow::GameObjectEventHandler, this));
   ezSnapProvider::s_Events.AddEventHandler(ezMakeDelegate(&ezQtGameObjectDocumentWindow::SnapProviderEventHandler, this));
@@ -19,7 +20,8 @@ ezQtGameObjectDocumentWindow::ezQtGameObjectDocumentWindow(ezGameObjectDocument*
 
 ezQtGameObjectDocumentWindow::~ezQtGameObjectDocumentWindow()
 {
-  GetGameObjectDocument()->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezQtGameObjectDocumentWindow::GameObjectEventHandler, this));
+  GetGameObjectDocument()->m_GameObjectEvents.RemoveEventHandler(
+      ezMakeDelegate(&ezQtGameObjectDocumentWindow::GameObjectEventHandler, this));
   ezSnapProvider::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtGameObjectDocumentWindow::SnapProviderEventHandler, this));
 }
 
@@ -96,13 +98,13 @@ void ezQtGameObjectDocumentWindow::GameObjectEventHandler(const ezGameObjectEven
 {
   switch (e.m_Type)
   {
-  case ezGameObjectEvent::Type::TriggerFocusOnSelection_Hovered:
-    FocusOnSelectionHoveredView();
-    break;
+    case ezGameObjectEvent::Type::TriggerFocusOnSelection_Hovered:
+      FocusOnSelectionHoveredView();
+      break;
 
-  case ezGameObjectEvent::Type::TriggerFocusOnSelection_All:
-    FocusOnSelectionAllViews();
-    break;
+    case ezGameObjectEvent::Type::TriggerFocusOnSelection_All:
+      FocusOnSelectionAllViews();
+      break;
   }
 }
 
@@ -140,7 +142,8 @@ void ezQtGameObjectDocumentWindow::FocusOnSelectionHoveredView()
   msg.m_iPurpose = 0;
   GetDocument()->SendMessageToEngine(&msg);
 }
-void ezQtGameObjectDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg, ezQtGameObjectViewWidget* pSceneView)
+void ezQtGameObjectDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg,
+                                                          ezQtGameObjectViewWidget* pSceneView)
 {
   const ezVec3 vPivotPoint = pMsg->m_vCenter;
 
@@ -167,8 +170,7 @@ void ezQtGameObjectDocumentWindow::HandleFocusOnSelection(const ezQuerySelection
   const ezVec3 vCurrentOrbitPoint = pSceneView->m_pCameraMoveContext->GetOrbitPoint();
   const bool bZoomIn = vPivotPoint.IsEqual(vCurrentOrbitPoint, 0.1f);
 
-  if (cam.GetCameraMode() == ezCameraMode::PerspectiveFixedFovX ||
-    cam.GetCameraMode() == ezCameraMode::PerspectiveFixedFovY)
+  if (cam.GetCameraMode() == ezCameraMode::PerspectiveFixedFovX || cam.GetCameraMode() == ezCameraMode::PerspectiveFixedFovY)
   {
     const float maxExt = pMsg->m_vHalfExtents.GetLength();
     const float fMinDistance = cam.GetNearPlane() * 1.1f + maxExt;
@@ -248,16 +250,16 @@ void ezQtGameObjectDocumentWindow::SnapProviderEventHandler(const ezSnapProvider
 {
   switch (e.m_Type)
   {
-  case ezSnapProviderEvent::Type::RotationSnapChanged:
-    ShowTemporaryStatusBarMsg(ezFmt(ezStringUtf8(L"Snapping Angle: {0}°").GetData(), ezSnapProvider::GetRotationSnapValue().GetDegree()));
-    break;
+    case ezSnapProviderEvent::Type::RotationSnapChanged:
+      ShowTemporaryStatusBarMsg(ezFmt(ezStringUtf8(L"Snapping Angle: {0}°").GetData(), ezSnapProvider::GetRotationSnapValue().GetDegree()));
+      break;
 
-  case ezSnapProviderEvent::Type::ScaleSnapChanged:
-    ShowTemporaryStatusBarMsg(ezFmt("Snapping Value: {0}", ezSnapProvider::GetScaleSnapValue()));
-    break;
+    case ezSnapProviderEvent::Type::ScaleSnapChanged:
+      ShowTemporaryStatusBarMsg(ezFmt("Snapping Value: {0}", ezSnapProvider::GetScaleSnapValue()));
+      break;
 
-  case ezSnapProviderEvent::Type::TranslationSnapChanged:
-    ShowTemporaryStatusBarMsg(ezFmt("Snapping Value: {0}", ezSnapProvider::GetTranslationSnapValue()));
-    break;
+    case ezSnapProviderEvent::Type::TranslationSnapChanged:
+      ShowTemporaryStatusBarMsg(ezFmt("Snapping Value: {0}", ezSnapProvider::GetTranslationSnapValue()));
+      break;
   }
 }

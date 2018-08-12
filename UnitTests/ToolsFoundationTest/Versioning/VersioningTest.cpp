@@ -1,11 +1,12 @@
 #include <PCH.h>
+
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphVersioning.h>
+#include <Foundation/Serialization/RttiConverter.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <ToolsFoundationTest/Reflection/ReflectionTestClasses.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <Foundation/Serialization/RttiConverter.h>
-#include <Foundation/Serialization/GraphVersioning.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Versioning);
 
@@ -23,6 +24,7 @@ public:
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezPatchTestBase);
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezPatchTestBase, ezNoBase, 1, ezRTTIDefaultAllocator<ezPatchTestBase>)
 {
   EZ_BEGIN_PROPERTIES
@@ -33,19 +35,18 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezPatchTestBase, ezNoBase, 1, ezRTTIDefaultAlloca
   EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
 
 struct ezPatchTest : public ezPatchTestBase
 {
 public:
-  ezPatchTest()
-  {
-    m_iInt32 = 1;
-  }
+  ezPatchTest() { m_iInt32 = 1; }
 
   ezInt32 m_iInt32;
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezPatchTest);
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezPatchTest, ezPatchTestBase, 1, ezRTTIDefaultAllocator<ezPatchTest>)
 {
   EZ_BEGIN_PROPERTIES
@@ -55,7 +56,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezPatchTest, ezPatchTestBase, 1, ezRTTIDefaultAll
   EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
-
+// clang-format on
 
 namespace
 {
@@ -63,7 +64,10 @@ namespace
   class ezPatchTestP : public ezGraphPatch
   {
   public:
-    ezPatchTestP() : ezGraphPatch("ezPatchTestP", 2) {}
+    ezPatchTestP()
+        : ezGraphPatch("ezPatchTestP", 2)
+    {
+    }
     virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
     {
       pNode->RenameProperty("Int", "IntRenamed");
@@ -76,7 +80,10 @@ namespace
   class ezPatchTestBaseBP : public ezGraphPatch
   {
   public:
-    ezPatchTestBaseBP() : ezGraphPatch("ezPatchTestBaseBP", 2) {}
+    ezPatchTestBaseBP()
+        : ezGraphPatch("ezPatchTestBaseBP", 2)
+    {
+    }
     virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
     {
       pNode->ChangeProperty("String", "BaseClassPatched");
@@ -88,7 +95,10 @@ namespace
   class ezPatchTestRN : public ezGraphPatch
   {
   public:
-    ezPatchTestRN() : ezGraphPatch("ezPatchTestRN", 2) {}
+    ezPatchTestRN()
+        : ezGraphPatch("ezPatchTestRN", 2)
+    {
+    }
     virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
     {
       context.RenameClass("ezPatchTestRN2");
@@ -101,7 +111,10 @@ namespace
   class ezPatchTestRN2 : public ezGraphPatch
   {
   public:
-    ezPatchTestRN2() : ezGraphPatch("ezPatchTestRN2", 3) {}
+    ezPatchTestRN2()
+        : ezGraphPatch("ezPatchTestRN2", 3)
+    {
+    }
     virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
     {
       pNode->ChangeProperty("String2", "Patched");
@@ -113,10 +126,13 @@ namespace
   class ezPatchTestCB : public ezGraphPatch
   {
   public:
-    ezPatchTestCB() : ezGraphPatch("ezPatchTestCB", 2) {}
+    ezPatchTestCB()
+        : ezGraphPatch("ezPatchTestCB", 2)
+    {
+    }
     virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
     {
-      ezVersionKey bases[] = { { "ezPatchTestBaseBP", 1 } };
+      ezVersionKey bases[] = {{"ezPatchTestBaseBP", 1}};
       context.ChangeBaseClass(bases);
       pNode->ChangeProperty("String2", "ChangedBase");
     }
@@ -149,8 +165,7 @@ namespace
     }
   }
 
-  ezAbstractObjectNode* SerializeObject(ezAbstractObjectGraph& graph, ezAbstractObjectGraph& typesGraph,
-    const ezRTTI* pRtti, void* pObject)
+  ezAbstractObjectNode* SerializeObject(ezAbstractObjectGraph& graph, ezAbstractObjectGraph& typesGraph, const ezRTTI* pRtti, void* pObject)
   {
     ezAbstractObjectNode* pNode = nullptr;
     {

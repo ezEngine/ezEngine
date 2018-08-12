@@ -1,6 +1,7 @@
-﻿#include <PCH.h>
-#include <EditorPluginAssets/Curve1DAsset/Curve1DAssetManager.h>
+#include <PCH.h>
+
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAsset.h>
+#include <EditorPluginAssets/Curve1DAsset/Curve1DAssetManager.h>
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAssetWindow.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
@@ -35,7 +36,7 @@ void ezCurve1DAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
 {
   switch (e.m_Type)
   {
-  case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case ezDocumentManager::Event::Type::DocumentWindowRequested:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezCurve1DAssetDocument>())
       {
@@ -46,17 +47,16 @@ void ezCurve1DAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
   }
 }
 
-ezStatus ezCurve1DAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)
+ezStatus ezCurve1DAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
+                                                               ezDocument*& out_pDocument)
 {
   out_pDocument = new ezCurve1DAssetDocument(szPath);
 
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezCurve1DAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezCurve1DAssetDocumentManager::InternalGetSupportedDocumentTypes(
+    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
-
-
-

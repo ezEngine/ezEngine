@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <FoundationTest/Reflection/ReflectionTestClasses.h>
+
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <FoundationTest/Reflection/ReflectionTestClasses.h>
 
 struct FunctionTest
 {
@@ -43,7 +44,8 @@ struct FunctionTest
     return "StringRet";
   }
 
-  ezEnum<ezExampleEnum> EnumFunction(ezEnum<ezExampleEnum> e, ezEnum<ezExampleEnum>& re, const ezEnum<ezExampleEnum>& cre, ezEnum<ezExampleEnum>* pe, const ezEnum<ezExampleEnum>* cpe)
+  ezEnum<ezExampleEnum> EnumFunction(ezEnum<ezExampleEnum> e, ezEnum<ezExampleEnum>& re, const ezEnum<ezExampleEnum>& cre,
+                                     ezEnum<ezExampleEnum>* pe, const ezEnum<ezExampleEnum>* cpe)
   {
     EZ_TEST_BOOL(m_values[0].Get<ezInt64>() == e);
     EZ_TEST_BOOL(m_values[1].Get<ezInt64>() == re);
@@ -61,7 +63,9 @@ struct FunctionTest
     return ezExampleEnum::Value1;
   }
 
-  ezBitflags<ezExampleBitflags> BitflagsFunction(ezBitflags<ezExampleBitflags> e, ezBitflags<ezExampleBitflags>& re, const ezBitflags<ezExampleBitflags>& cre, ezBitflags<ezExampleBitflags>* pe, const ezBitflags<ezExampleBitflags>* cpe)
+  ezBitflags<ezExampleBitflags> BitflagsFunction(ezBitflags<ezExampleBitflags> e, ezBitflags<ezExampleBitflags>& re,
+                                                 const ezBitflags<ezExampleBitflags>& cre, ezBitflags<ezExampleBitflags>* pe,
+                                                 const ezBitflags<ezExampleBitflags>* cpe)
   {
     EZ_TEST_BOOL(e == m_values[0].Get<ezInt64>());
     EZ_TEST_BOOL(re == m_values[1].Get<ezInt64>());
@@ -79,7 +83,8 @@ struct FunctionTest
     return ezExampleBitflags::Value1 | ezExampleBitflags::Value2;
   }
 
-  ezTestStruct3 StructFunction(ezTestStruct3 s, const ezTestStruct3 cs, ezTestStruct3& rs, const ezTestStruct3& crs, ezTestStruct3* ps, const ezTestStruct3* cps)
+  ezTestStruct3 StructFunction(ezTestStruct3 s, const ezTestStruct3 cs, ezTestStruct3& rs, const ezTestStruct3& crs, ezTestStruct3* ps,
+                               const ezTestStruct3* cps)
   {
     EZ_TEST_BOOL(*static_cast<ezTestStruct3*>(m_values[0].Get<void*>()) == s);
     EZ_TEST_BOOL(*static_cast<ezTestStruct3*>(m_values[1].Get<void*>()) == cs);
@@ -102,11 +107,14 @@ struct FunctionTest
       ps->m_fFloat1 = 666.0f;
       ps->m_UInt8 = 999;
     }
-    ezTestStruct3 retS; retS.m_fFloat1 = 42; retS.m_UInt8 = 42;
+    ezTestStruct3 retS;
+    retS.m_fFloat1 = 42;
+    retS.m_UInt8 = 42;
     return retS;
   }
 
-  ezTestClass1 ReflectedClassFunction(ezTestClass1 s, const ezTestClass1 cs, ezTestClass1& rs, const ezTestClass1& crs, ezTestClass1* ps, const ezTestClass1* cps)
+  ezTestClass1 ReflectedClassFunction(ezTestClass1 s, const ezTestClass1 cs, ezTestClass1& rs, const ezTestClass1& crs, ezTestClass1* ps,
+                                      const ezTestClass1* cps)
   {
     EZ_TEST_BOOL(*static_cast<ezTestClass1*>(m_values[0].ConvertTo<void*>()) == s);
     EZ_TEST_BOOL(*static_cast<ezTestClass1*>(m_values[1].ConvertTo<void*>()) == cs);
@@ -129,7 +137,9 @@ struct FunctionTest
       ps->m_Color.SetRGB(1, 2, 3);
       ps->m_MyVector.Set(1, 2, 3);
     }
-    ezTestClass1 retS; retS.m_Color.SetRGB(42,42,42); retS.m_MyVector.Set(42, 42, 42);
+    ezTestClass1 retS;
+    retS.m_Color.SetRGB(42, 42, 42);
+    retS.m_MyVector.Set(42, 42, 42);
     return retS;
   }
 
@@ -165,16 +175,13 @@ struct FunctionTest
     EZ_TEST_BOOL(v == 4.0f);
   }
 
-  static int StaticFunction2()
-  {
-    return 42;
-  }
+  static int StaticFunction2() { return 42; }
 
   bool m_bPtrAreNull = false;
   ezDynamicArray<ezVariant> m_values;
 };
 
-typedef std::tuple< const ezRTTI*, ezBitflags<ezPropertyFlags> > ParamSig;
+typedef std::tuple<const ezRTTI*, ezBitflags<ezPropertyFlags>> ParamSig;
 
 void VerifyFunctionSignature(const ezAbstractFunctionProperty* pFunc, ezArrayPtr<ParamSig> params, ParamSig ret)
 {
@@ -194,12 +201,12 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
   {
     ezFunctionProperty<decltype(&FunctionTest::StandardTypeFunction)> funccall("", &FunctionTest::StandardTypeFunction);
     ParamSig testSet[] = {
-      ParamSig(ezGetStaticRTTI<int>(), ezPropertyFlags::StandardType),
-      ParamSig(ezGetStaticRTTI<ezVec2>(), ezPropertyFlags::StandardType),
-      ParamSig(ezGetStaticRTTI<ezVec3>(), ezPropertyFlags::StandardType | ezPropertyFlags::Reference),
-      ParamSig(ezGetStaticRTTI<ezVec4>(), ezPropertyFlags::StandardType | ezPropertyFlags::Const | ezPropertyFlags::Reference),
-      ParamSig(ezGetStaticRTTI<ezVec2U32>(), ezPropertyFlags::StandardType | ezPropertyFlags::Pointer),
-      ParamSig(ezGetStaticRTTI<ezVec3U32>(), ezPropertyFlags::StandardType | ezPropertyFlags::Const | ezPropertyFlags::Pointer),
+        ParamSig(ezGetStaticRTTI<int>(), ezPropertyFlags::StandardType),
+        ParamSig(ezGetStaticRTTI<ezVec2>(), ezPropertyFlags::StandardType),
+        ParamSig(ezGetStaticRTTI<ezVec3>(), ezPropertyFlags::StandardType | ezPropertyFlags::Reference),
+        ParamSig(ezGetStaticRTTI<ezVec4>(), ezPropertyFlags::StandardType | ezPropertyFlags::Const | ezPropertyFlags::Reference),
+        ParamSig(ezGetStaticRTTI<ezVec2U32>(), ezPropertyFlags::StandardType | ezPropertyFlags::Pointer),
+        ParamSig(ezGetStaticRTTI<ezVec3U32>(), ezPropertyFlags::StandardType | ezPropertyFlags::Const | ezPropertyFlags::Pointer),
     };
     VerifyFunctionSignature(&funccall, ezArrayPtr<ParamSig>(testSet), ParamSig(ezGetStaticRTTI<int>(), ezPropertyFlags::StandardType));
     EZ_TEST_BOOL(funccall.GetFunctionType() == ezFunctionType::Member);
@@ -232,11 +239,12 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
   {
     ezFunctionProperty<decltype(&FunctionTest::StringTypeFunction)> funccall("", &FunctionTest::StringTypeFunction);
     ParamSig testSet[] = {
-      ParamSig(ezGetStaticRTTI<const char*>(), ezPropertyFlags::StandardType | ezPropertyFlags::Const),
-      ParamSig(ezGetStaticRTTI<ezString>(), ezPropertyFlags::StandardType | ezPropertyFlags::Reference),
-      ParamSig(ezGetStaticRTTI<ezStringView>(), ezPropertyFlags::StandardType),
+        ParamSig(ezGetStaticRTTI<const char*>(), ezPropertyFlags::StandardType | ezPropertyFlags::Const),
+        ParamSig(ezGetStaticRTTI<ezString>(), ezPropertyFlags::StandardType | ezPropertyFlags::Reference),
+        ParamSig(ezGetStaticRTTI<ezStringView>(), ezPropertyFlags::StandardType),
     };
-    VerifyFunctionSignature(&funccall, ezArrayPtr<ParamSig>(testSet), ParamSig(ezGetStaticRTTI<const char*>(), ezPropertyFlags::StandardType | ezPropertyFlags::Const));
+    VerifyFunctionSignature(&funccall, ezArrayPtr<ParamSig>(testSet),
+                            ParamSig(ezGetStaticRTTI<const char*>(), ezPropertyFlags::StandardType | ezPropertyFlags::Const));
     EZ_TEST_BOOL(funccall.GetFunctionType() == ezFunctionType::Member);
 
     FunctionTest test;
@@ -261,11 +269,11 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
   {
     ezFunctionProperty<decltype(&FunctionTest::EnumFunction)> funccall("", &FunctionTest::EnumFunction);
     ParamSig testSet[] = {
-      ParamSig(ezGetStaticRTTI<ezExampleEnum>(), ezPropertyFlags::IsEnum),
-      ParamSig(ezGetStaticRTTI<ezExampleEnum>(), ezPropertyFlags::IsEnum | ezPropertyFlags::Reference),
-      ParamSig(ezGetStaticRTTI<ezExampleEnum>(), ezPropertyFlags::IsEnum | ezPropertyFlags::Const | ezPropertyFlags::Reference),
-      ParamSig(ezGetStaticRTTI<ezExampleEnum>(), ezPropertyFlags::IsEnum | ezPropertyFlags::Pointer),
-      ParamSig(ezGetStaticRTTI<ezExampleEnum>(), ezPropertyFlags::IsEnum | ezPropertyFlags::Const | ezPropertyFlags::Pointer),
+        ParamSig(ezGetStaticRTTI<ezExampleEnum>(), ezPropertyFlags::IsEnum),
+        ParamSig(ezGetStaticRTTI<ezExampleEnum>(), ezPropertyFlags::IsEnum | ezPropertyFlags::Reference),
+        ParamSig(ezGetStaticRTTI<ezExampleEnum>(), ezPropertyFlags::IsEnum | ezPropertyFlags::Const | ezPropertyFlags::Reference),
+        ParamSig(ezGetStaticRTTI<ezExampleEnum>(), ezPropertyFlags::IsEnum | ezPropertyFlags::Pointer),
+        ParamSig(ezGetStaticRTTI<ezExampleEnum>(), ezPropertyFlags::IsEnum | ezPropertyFlags::Const | ezPropertyFlags::Pointer),
     };
     VerifyFunctionSignature(&funccall, ezArrayPtr<ParamSig>(testSet), ParamSig(ezGetStaticRTTI<ezExampleEnum>(), ezPropertyFlags::IsEnum));
     EZ_TEST_BOOL(funccall.GetFunctionType() == ezFunctionType::Member);
@@ -295,13 +303,14 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
   {
     ezFunctionProperty<decltype(&FunctionTest::BitflagsFunction)> funccall("", &FunctionTest::BitflagsFunction);
     ParamSig testSet[] = {
-      ParamSig(ezGetStaticRTTI<ezExampleBitflags>(), ezPropertyFlags::Bitflags),
-      ParamSig(ezGetStaticRTTI<ezExampleBitflags>(), ezPropertyFlags::Bitflags | ezPropertyFlags::Reference),
-      ParamSig(ezGetStaticRTTI<ezExampleBitflags>(), ezPropertyFlags::Bitflags | ezPropertyFlags::Const | ezPropertyFlags::Reference),
-      ParamSig(ezGetStaticRTTI<ezExampleBitflags>(), ezPropertyFlags::Bitflags | ezPropertyFlags::Pointer),
-      ParamSig(ezGetStaticRTTI<ezExampleBitflags>(), ezPropertyFlags::Bitflags | ezPropertyFlags::Const | ezPropertyFlags::Pointer),
+        ParamSig(ezGetStaticRTTI<ezExampleBitflags>(), ezPropertyFlags::Bitflags),
+        ParamSig(ezGetStaticRTTI<ezExampleBitflags>(), ezPropertyFlags::Bitflags | ezPropertyFlags::Reference),
+        ParamSig(ezGetStaticRTTI<ezExampleBitflags>(), ezPropertyFlags::Bitflags | ezPropertyFlags::Const | ezPropertyFlags::Reference),
+        ParamSig(ezGetStaticRTTI<ezExampleBitflags>(), ezPropertyFlags::Bitflags | ezPropertyFlags::Pointer),
+        ParamSig(ezGetStaticRTTI<ezExampleBitflags>(), ezPropertyFlags::Bitflags | ezPropertyFlags::Const | ezPropertyFlags::Pointer),
     };
-    VerifyFunctionSignature(&funccall, ezArrayPtr<ParamSig>(testSet), ParamSig(ezGetStaticRTTI<ezExampleBitflags>(), ezPropertyFlags::Bitflags));
+    VerifyFunctionSignature(&funccall, ezArrayPtr<ParamSig>(testSet),
+                            ParamSig(ezGetStaticRTTI<ezExampleBitflags>(), ezPropertyFlags::Bitflags));
     EZ_TEST_BOOL(funccall.GetFunctionType() == ezFunctionType::Member);
 
     FunctionTest test;
@@ -329,21 +338,27 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
   {
     ezFunctionProperty<decltype(&FunctionTest::StructFunction)> funccall("", &FunctionTest::StructFunction);
     ParamSig testSet[] = {
-      ParamSig(ezGetStaticRTTI<ezTestStruct3>(), ezPropertyFlags::Class ),
-      ParamSig(ezGetStaticRTTI<ezTestStruct3>(), ezPropertyFlags::Class ),
-      ParamSig(ezGetStaticRTTI<ezTestStruct3>(), ezPropertyFlags::Class | ezPropertyFlags::Reference ),
-      ParamSig(ezGetStaticRTTI<ezTestStruct3>(), ezPropertyFlags::Class | ezPropertyFlags::Const | ezPropertyFlags::Reference ),
-      ParamSig(ezGetStaticRTTI<ezTestStruct3>(), ezPropertyFlags::Class | ezPropertyFlags::Pointer ),
-      ParamSig(ezGetStaticRTTI<ezTestStruct3>(), ezPropertyFlags::Class | ezPropertyFlags::Const | ezPropertyFlags::Pointer ),
+        ParamSig(ezGetStaticRTTI<ezTestStruct3>(), ezPropertyFlags::Class),
+        ParamSig(ezGetStaticRTTI<ezTestStruct3>(), ezPropertyFlags::Class),
+        ParamSig(ezGetStaticRTTI<ezTestStruct3>(), ezPropertyFlags::Class | ezPropertyFlags::Reference),
+        ParamSig(ezGetStaticRTTI<ezTestStruct3>(), ezPropertyFlags::Class | ezPropertyFlags::Const | ezPropertyFlags::Reference),
+        ParamSig(ezGetStaticRTTI<ezTestStruct3>(), ezPropertyFlags::Class | ezPropertyFlags::Pointer),
+        ParamSig(ezGetStaticRTTI<ezTestStruct3>(), ezPropertyFlags::Class | ezPropertyFlags::Const | ezPropertyFlags::Pointer),
     };
     VerifyFunctionSignature(&funccall, ezArrayPtr<ParamSig>(testSet), ParamSig(ezGetStaticRTTI<ezTestStruct3>(), ezPropertyFlags::Class));
     EZ_TEST_BOOL(funccall.GetFunctionType() == ezFunctionType::Member);
 
     FunctionTest test;
-    ezTestStruct3 retS; retS.m_fFloat1 = 0; retS.m_UInt8 = 0;
-    ezTestStruct3 value; value.m_fFloat1 = 0; value.m_UInt8 = 0;
-    ezTestStruct3 rs; rs.m_fFloat1 = 42;
-    ezTestStruct3 ps; ps.m_fFloat1 = 18;
+    ezTestStruct3 retS;
+    retS.m_fFloat1 = 0;
+    retS.m_UInt8 = 0;
+    ezTestStruct3 value;
+    value.m_fFloat1 = 0;
+    value.m_UInt8 = 0;
+    ezTestStruct3 rs;
+    rs.m_fFloat1 = 42;
+    ezTestStruct3 ps;
+    ps.m_fFloat1 = 18;
 
     test.m_values.PushBack(&value);
     test.m_values.PushBack(&value);
@@ -373,21 +388,25 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
   {
     ezFunctionProperty<decltype(&FunctionTest::ReflectedClassFunction)> funccall("", &FunctionTest::ReflectedClassFunction);
     ParamSig testSet[] = {
-      ParamSig(ezGetStaticRTTI<ezTestClass1>(), ezPropertyFlags::Class ),
-      ParamSig(ezGetStaticRTTI<ezTestClass1>(), ezPropertyFlags::Class ),
-      ParamSig(ezGetStaticRTTI<ezTestClass1>(), ezPropertyFlags::Class | ezPropertyFlags::Reference ),
-      ParamSig(ezGetStaticRTTI<ezTestClass1>(), ezPropertyFlags::Class | ezPropertyFlags::Const | ezPropertyFlags::Reference ),
-      ParamSig(ezGetStaticRTTI<ezTestClass1>(), ezPropertyFlags::Class | ezPropertyFlags::Pointer ),
-      ParamSig(ezGetStaticRTTI<ezTestClass1>(), ezPropertyFlags::Class | ezPropertyFlags::Const | ezPropertyFlags::Pointer ),
+        ParamSig(ezGetStaticRTTI<ezTestClass1>(), ezPropertyFlags::Class),
+        ParamSig(ezGetStaticRTTI<ezTestClass1>(), ezPropertyFlags::Class),
+        ParamSig(ezGetStaticRTTI<ezTestClass1>(), ezPropertyFlags::Class | ezPropertyFlags::Reference),
+        ParamSig(ezGetStaticRTTI<ezTestClass1>(), ezPropertyFlags::Class | ezPropertyFlags::Const | ezPropertyFlags::Reference),
+        ParamSig(ezGetStaticRTTI<ezTestClass1>(), ezPropertyFlags::Class | ezPropertyFlags::Pointer),
+        ParamSig(ezGetStaticRTTI<ezTestClass1>(), ezPropertyFlags::Class | ezPropertyFlags::Const | ezPropertyFlags::Pointer),
     };
     VerifyFunctionSignature(&funccall, ezArrayPtr<ParamSig>(testSet), ParamSig(ezGetStaticRTTI<ezTestClass1>(), ezPropertyFlags::Class));
     EZ_TEST_BOOL(funccall.GetFunctionType() == ezFunctionType::Member);
 
     FunctionTest test;
-    ezTestClass1 retS; retS.m_Color = ezColor::Chocolate;
-    ezTestClass1 value; value.m_Color = ezColor::AliceBlue;
-    ezTestClass1 rs; rs.m_Color = ezColor::Beige;
-    ezTestClass1 ps; ps.m_Color = ezColor::DarkBlue;
+    ezTestClass1 retS;
+    retS.m_Color = ezColor::Chocolate;
+    ezTestClass1 value;
+    value.m_Color = ezColor::AliceBlue;
+    ezTestClass1 rs;
+    rs.m_Color = ezColor::Beige;
+    ezTestClass1 ps;
+    ps.m_Color = ezColor::DarkBlue;
 
     test.m_values.PushBack(&value);
     test.m_values.PushBack(&value);
@@ -421,14 +440,15 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
   {
     ezFunctionProperty<decltype(&FunctionTest::VariantFunction)> funccall("", &FunctionTest::VariantFunction);
     ParamSig testSet[] = {
-      ParamSig(ezGetStaticRTTI<ezVariant>(), ezPropertyFlags::StandardType ),
-      ParamSig(ezGetStaticRTTI<ezVariant>(), ezPropertyFlags::StandardType ),
-      ParamSig(ezGetStaticRTTI<ezVariant>(), ezPropertyFlags::StandardType | ezPropertyFlags::Reference ),
-      ParamSig(ezGetStaticRTTI<ezVariant>(), ezPropertyFlags::StandardType | ezPropertyFlags::Const | ezPropertyFlags::Reference ),
-      ParamSig(ezGetStaticRTTI<ezVariant>(), ezPropertyFlags::StandardType | ezPropertyFlags::Pointer ),
-      ParamSig(ezGetStaticRTTI<ezVariant>(), ezPropertyFlags::StandardType | ezPropertyFlags::Const | ezPropertyFlags::Pointer ),
+        ParamSig(ezGetStaticRTTI<ezVariant>(), ezPropertyFlags::StandardType),
+        ParamSig(ezGetStaticRTTI<ezVariant>(), ezPropertyFlags::StandardType),
+        ParamSig(ezGetStaticRTTI<ezVariant>(), ezPropertyFlags::StandardType | ezPropertyFlags::Reference),
+        ParamSig(ezGetStaticRTTI<ezVariant>(), ezPropertyFlags::StandardType | ezPropertyFlags::Const | ezPropertyFlags::Reference),
+        ParamSig(ezGetStaticRTTI<ezVariant>(), ezPropertyFlags::StandardType | ezPropertyFlags::Pointer),
+        ParamSig(ezGetStaticRTTI<ezVariant>(), ezPropertyFlags::StandardType | ezPropertyFlags::Const | ezPropertyFlags::Pointer),
     };
-    VerifyFunctionSignature(&funccall, ezArrayPtr<ParamSig>(testSet), ParamSig(ezGetStaticRTTI<ezVariant>(), ezPropertyFlags::StandardType));
+    VerifyFunctionSignature(&funccall, ezArrayPtr<ParamSig>(testSet),
+                            ParamSig(ezGetStaticRTTI<ezVariant>(), ezPropertyFlags::StandardType));
     EZ_TEST_BOOL(funccall.GetFunctionType() == ezFunctionType::Member);
 
     FunctionTest test;
@@ -460,8 +480,8 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
     // Void return
     ezFunctionProperty<decltype(&FunctionTest::StaticFunction)> funccall("", &FunctionTest::StaticFunction);
     ParamSig testSet[] = {
-      ParamSig(ezGetStaticRTTI<bool>(), ezPropertyFlags::StandardType),
-      ParamSig(ezGetStaticRTTI<ezVariant>(), ezPropertyFlags::StandardType),
+        ParamSig(ezGetStaticRTTI<bool>(), ezPropertyFlags::StandardType),
+        ParamSig(ezGetStaticRTTI<ezVariant>(), ezPropertyFlags::StandardType),
     };
     VerifyFunctionSignature(&funccall, ezArrayPtr<ParamSig>(testSet), ParamSig(ezGetStaticRTTI<void>(), ezPropertyFlags::Void));
     EZ_TEST_BOOL(funccall.GetFunctionType() == ezFunctionType::StaticMember);
@@ -487,12 +507,13 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
   {
     ezConstructorFunctionProperty<ezVec4, float, float, float, float> funccall;
     ParamSig testSet[] = {
-      ParamSig(ezGetStaticRTTI<float>(), ezPropertyFlags::StandardType),
-      ParamSig(ezGetStaticRTTI<float>(), ezPropertyFlags::StandardType),
-      ParamSig(ezGetStaticRTTI<float>(), ezPropertyFlags::StandardType),
-      ParamSig(ezGetStaticRTTI<float>(), ezPropertyFlags::StandardType),
+        ParamSig(ezGetStaticRTTI<float>(), ezPropertyFlags::StandardType),
+        ParamSig(ezGetStaticRTTI<float>(), ezPropertyFlags::StandardType),
+        ParamSig(ezGetStaticRTTI<float>(), ezPropertyFlags::StandardType),
+        ParamSig(ezGetStaticRTTI<float>(), ezPropertyFlags::StandardType),
     };
-    VerifyFunctionSignature(&funccall, ezArrayPtr<ParamSig>(testSet), ParamSig(ezGetStaticRTTI<ezVec4>(), ezPropertyFlags::StandardType | ezPropertyFlags::Pointer));
+    VerifyFunctionSignature(&funccall, ezArrayPtr<ParamSig>(testSet),
+                            ParamSig(ezGetStaticRTTI<ezVec4>(), ezPropertyFlags::StandardType | ezPropertyFlags::Pointer));
     EZ_TEST_BOOL(funccall.GetFunctionType() == ezFunctionType::Constructor);
 
     ezDynamicArray<ezVariant> values;
@@ -503,17 +524,18 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
     ezVariant ret;
     funccall.Execute(nullptr, values, ret);
     EZ_TEST_BOOL(ret.GetType() == ezVariantType::Vector4);
-    EZ_TEST_BOOL(ret == ezVec4(1.0f,2.0f,3.0f,4.0f));
+    EZ_TEST_BOOL(ret == ezVec4(1.0f, 2.0f, 3.0f, 4.0f));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor Functions - Struct")
   {
     ezConstructorFunctionProperty<ezTestStruct3, double, ezInt16> funccall;
     ParamSig testSet[] = {
-      ParamSig(ezGetStaticRTTI<double>(), ezPropertyFlags::StandardType),
-      ParamSig(ezGetStaticRTTI<ezInt16>(), ezPropertyFlags::StandardType),
+        ParamSig(ezGetStaticRTTI<double>(), ezPropertyFlags::StandardType),
+        ParamSig(ezGetStaticRTTI<ezInt16>(), ezPropertyFlags::StandardType),
     };
-    VerifyFunctionSignature(&funccall, ezArrayPtr<ParamSig>(testSet), ParamSig(ezGetStaticRTTI<ezTestStruct3>(), ezPropertyFlags::Class | ezPropertyFlags::Pointer));
+    VerifyFunctionSignature(&funccall, ezArrayPtr<ParamSig>(testSet),
+                            ParamSig(ezGetStaticRTTI<ezTestStruct3>(), ezPropertyFlags::Class | ezPropertyFlags::Pointer));
     EZ_TEST_BOOL(funccall.GetFunctionType() == ezFunctionType::Constructor);
 
     ezDynamicArray<ezVariant> values;
@@ -537,10 +559,11 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
     // The function signature does not actually need to match the ctor 100% as long as implicit conversion is possible.
     ezConstructorFunctionProperty<ezTestClass1, const ezColor&, const ezTestStruct&> funccall;
     ParamSig testSet[] = {
-      ParamSig(ezGetStaticRTTI<ezColor>(), ezPropertyFlags::StandardType | ezPropertyFlags::Const | ezPropertyFlags::Reference),
-      ParamSig(ezGetStaticRTTI<ezTestStruct>(), ezPropertyFlags::Class | ezPropertyFlags::Const | ezPropertyFlags::Reference),
+        ParamSig(ezGetStaticRTTI<ezColor>(), ezPropertyFlags::StandardType | ezPropertyFlags::Const | ezPropertyFlags::Reference),
+        ParamSig(ezGetStaticRTTI<ezTestStruct>(), ezPropertyFlags::Class | ezPropertyFlags::Const | ezPropertyFlags::Reference),
     };
-    VerifyFunctionSignature(&funccall, ezArrayPtr<ParamSig>(testSet), ParamSig(ezGetStaticRTTI<ezTestClass1>(), ezPropertyFlags::Class | ezPropertyFlags::Pointer));
+    VerifyFunctionSignature(&funccall, ezArrayPtr<ParamSig>(testSet),
+                            ParamSig(ezGetStaticRTTI<ezTestClass1>(), ezPropertyFlags::Class | ezPropertyFlags::Pointer));
     EZ_TEST_BOOL(funccall.GetFunctionType() == ezFunctionType::Constructor);
 
     ezDynamicArray<ezVariant> values;

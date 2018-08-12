@@ -1,28 +1,31 @@
 #include <PCH.h>
-#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAsset.h>
-#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetObjects.h>
-#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetManager.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
+
+#include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAsset.h>
+#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetManager.h>
+#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetObjects.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/IO/OSFile.h>
 #include <Foundation/Image/Formats/DdsFileFormat.h>
 #include <Foundation/Image/ImageConversion.h>
-#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
-#include <Core/Assets/AssetFileHeader.h>
 #include <QStringList>
 #include <QTextStream>
-#include <Foundation/IO/OSFile.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeAssetDocument, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureCubeChannelMode, 1)
-EZ_ENUM_CONSTANTS(ezTextureCubeChannelMode::RGB, ezTextureCubeChannelMode::Red, ezTextureCubeChannelMode::Green, ezTextureCubeChannelMode::Blue, ezTextureCubeChannelMode::Alpha)
+  EZ_ENUM_CONSTANTS(ezTextureCubeChannelMode::RGB, ezTextureCubeChannelMode::Red, ezTextureCubeChannelMode::Green, ezTextureCubeChannelMode::Blue, ezTextureCubeChannelMode::Alpha)
 EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
 
 ezTextureCubeAssetDocument::ezTextureCubeAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezTextureCubeAssetProperties>(szDocumentPath, true)
+    : ezSimpleAssetDocument<ezTextureCubeAssetProperties>(szDocumentPath, true)
 {
   m_iTextureLod = -1;
 }
@@ -125,7 +128,8 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform,
+                                                            const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
   const bool bUpdateThumbnail = ezStringUtils::IsEqual(szPlatform, "PC");
@@ -161,18 +165,16 @@ ezTextureCubeAssetDocumentGenerator::ezTextureCubeAssetDocumentGenerator()
 
   // these formats would need to use 6 files for the faces
   // more elaborate detection and mapping would need to be implemented
-  //AddSupportedFileType("tga");
-  //AddSupportedFileType("jpg");
-  //AddSupportedFileType("jpeg");
-  //AddSupportedFileType("png");
+  // AddSupportedFileType("tga");
+  // AddSupportedFileType("jpg");
+  // AddSupportedFileType("jpeg");
+  // AddSupportedFileType("png");
 }
 
-ezTextureCubeAssetDocumentGenerator::~ezTextureCubeAssetDocumentGenerator()
-{
+ezTextureCubeAssetDocumentGenerator::~ezTextureCubeAssetDocumentGenerator() {}
 
-}
-
-void ezTextureCubeAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezTextureCubeAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath,
+                                                         ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
 
@@ -180,7 +182,8 @@ void ezTextureCubeAssetDocumentGenerator::GetImportModes(const char* szParentDir
   const bool isHDR = ezPathUtils::HasExtension(szParentDirRelativePath, "hdr");
 
   /// \todo Make this configurable
-  const bool isCubemap = ((baseFilename.FindSubString_NoCase("cubemap") != nullptr) || (baseFilename.FindSubString_NoCase("skybox") != nullptr));
+  const bool isCubemap =
+      ((baseFilename.FindSubString_NoCase("cubemap") != nullptr) || (baseFilename.FindSubString_NoCase("skybox") != nullptr));
 
   baseOutputFile.ChangeFileExtension(GetDocumentExtension());
 
@@ -193,7 +196,6 @@ void ezTextureCubeAssetDocumentGenerator::GetImportModes(const char* szParentDir
       info.m_sOutputFileParentRelative = baseOutputFile;
       info.m_sIcon = ":/AssetIcons/Texture_Cube.png";
     }
-
   }
   else
   {
@@ -207,7 +209,8 @@ void ezTextureCubeAssetDocumentGenerator::GetImportModes(const char* szParentDir
   }
 }
 
-ezStatus ezTextureCubeAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezTextureCubeAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info,
+                                                       ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -234,7 +237,3 @@ ezStatus ezTextureCubeAssetDocumentGenerator::Generate(const char* szDataDirRela
 
   return ezStatus(EZ_SUCCESS);
 }
-
-
-
-

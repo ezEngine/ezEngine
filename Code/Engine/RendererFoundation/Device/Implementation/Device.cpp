@@ -1,17 +1,17 @@
-
 #include <PCH.h>
+
+#include <Foundation/Logging/Log.h>
+#include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
-#include <RendererFoundation/State/State.h>
-#include <RendererFoundation/Shader/VertexDeclaration.h>
-#include <RendererFoundation/Resources/Buffer.h>
-#include <RendererFoundation/Resources/Texture.h>
-#include <RendererFoundation/Resources/RenderTargetView.h>
-#include <RendererFoundation/Resources/UnorderedAccesView.h>
-#include <RendererFoundation/Resources/ResourceView.h>
-#include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Profiling/GPUStopwatch.h>
-#include <Foundation/Logging/Log.h>
+#include <RendererFoundation/Resources/Buffer.h>
+#include <RendererFoundation/Resources/RenderTargetView.h>
+#include <RendererFoundation/Resources/ResourceView.h>
+#include <RendererFoundation/Resources/Texture.h>
+#include <RendererFoundation/Resources/UnorderedAccesView.h>
+#include <RendererFoundation/Shader/VertexDeclaration.h>
+#include <RendererFoundation/State/State.h>
 
 namespace
 {
@@ -56,11 +56,11 @@ ezGALDevice* ezGALDevice::s_pDefaultDevice = nullptr;
 
 
 ezGALDevice::ezGALDevice(const ezGALDeviceCreationDescription& desc)
-  : m_Allocator("GALDevice", ezFoundation::GetDefaultAllocator())
-  , m_AllocatorWrapper(&m_Allocator)
-  , m_Description(desc)
-  , m_pPrimaryContext(nullptr)
-  , m_bFrameBeginCalled(false)
+    : m_Allocator("GALDevice", ezFoundation::GetDefaultAllocator())
+    , m_AllocatorWrapper(&m_Allocator)
+    , m_Description(desc)
+    , m_pPrimaryContext(nullptr)
+    , m_bFrameBeginCalled(false)
 {
 }
 
@@ -543,7 +543,8 @@ ezGALBufferHandle ezGALDevice::CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt3
   return CreateBuffer(desc, pInitialData);
 }
 
-ezGALBufferHandle ezGALDevice::CreateIndexBuffer(ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, ezArrayPtr<const ezUInt8> pInitialData)
+ezGALBufferHandle ezGALDevice::CreateIndexBuffer(ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount,
+                                                 ezArrayPtr<const ezUInt8> pInitialData)
 {
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = ezGALIndexType::GetSize(IndexType);
@@ -567,13 +568,15 @@ ezGALBufferHandle ezGALDevice::CreateConstantBuffer(ezUInt32 uiBufferSize)
 
 
 
-ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescription& desc, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
+ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescription& desc,
+                                              ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   /// \todo Platform independent validation (desc width & height < platform maximum, format, etc.)
 
-  if (desc.m_ResourceAccess.IsImmutable() && (pInitialData.IsEmpty() || pInitialData.GetCount() < desc.m_uiMipLevelCount) && !desc.m_bCreateRenderTarget)
+  if (desc.m_ResourceAccess.IsImmutable() && (pInitialData.IsEmpty() || pInitialData.GetCount() < desc.m_uiMipLevelCount) &&
+      !desc.m_bCreateRenderTarget)
   {
     ezLog::Error("Trying to create an immutable texture but not supplying initial data (or not enough data pointers) is not possible!");
     return ezGALTextureHandle();
@@ -1089,7 +1092,6 @@ ezGALTextureHandle ezGALDevice::GetBackBufferTextureFromSwapChain(ezGALSwapChain
 
 
 
-
 // Misc functions
 
 void ezGALDevice::BeginFrame()
@@ -1244,7 +1246,7 @@ void ezGALDevice::DestroyDeadObjects()
 
     switch (deadObject.m_uiType)
     {
-    case GALObjectType::BlendState:
+      case GALObjectType::BlendState:
       {
         ezGALBlendStateHandle hBlendState(ezGAL::ez16_16Id(deadObject.m_uiHandle));
         ezGALBlendState* pBlendState = nullptr;
@@ -1256,7 +1258,7 @@ void ezGALDevice::DestroyDeadObjects()
 
         break;
       }
-    case GALObjectType::DepthStencilState:
+      case GALObjectType::DepthStencilState:
       {
         ezGALDepthStencilStateHandle hDepthStencilState(ezGAL::ez16_16Id(deadObject.m_uiHandle));
         ezGALDepthStencilState* pDepthStencilState = nullptr;
@@ -1268,7 +1270,7 @@ void ezGALDevice::DestroyDeadObjects()
 
         break;
       }
-    case GALObjectType::RasterizerState:
+      case GALObjectType::RasterizerState:
       {
         ezGALRasterizerStateHandle hRasterizerState(ezGAL::ez16_16Id(deadObject.m_uiHandle));
         ezGALRasterizerState* pRasterizerState = nullptr;
@@ -1280,7 +1282,7 @@ void ezGALDevice::DestroyDeadObjects()
 
         break;
       }
-    case GALObjectType::SamplerState:
+      case GALObjectType::SamplerState:
       {
         ezGALSamplerStateHandle hSamplerState(ezGAL::ez16_16Id(deadObject.m_uiHandle));
         ezGALSamplerState* pSamplerState = nullptr;
@@ -1292,7 +1294,7 @@ void ezGALDevice::DestroyDeadObjects()
 
         break;
       }
-    case GALObjectType::Shader:
+      case GALObjectType::Shader:
       {
         ezGALShaderHandle hShader(ezGAL::ez18_14Id(deadObject.m_uiHandle));
         ezGALShader* pShader = nullptr;
@@ -1303,7 +1305,7 @@ void ezGALDevice::DestroyDeadObjects()
 
         break;
       }
-    case GALObjectType::Buffer:
+      case GALObjectType::Buffer:
       {
         ezGALBufferHandle hBuffer(ezGAL::ez18_14Id(deadObject.m_uiHandle));
         ezGALBuffer* pBuffer = nullptr;
@@ -1315,7 +1317,7 @@ void ezGALDevice::DestroyDeadObjects()
 
         break;
       }
-    case GALObjectType::Texture:
+      case GALObjectType::Texture:
       {
         ezGALTextureHandle hTexture(ezGAL::ez18_14Id(deadObject.m_uiHandle));
         ezGALTexture* pTexture = nullptr;
@@ -1327,7 +1329,7 @@ void ezGALDevice::DestroyDeadObjects()
 
         break;
       }
-    case GALObjectType::ResourceView:
+      case GALObjectType::ResourceView:
       {
         ezGALResourceViewHandle hResourceView(ezGAL::ez18_14Id(deadObject.m_uiHandle));
         ezGALResourceView* pResourceView = nullptr;
@@ -1342,7 +1344,7 @@ void ezGALDevice::DestroyDeadObjects()
 
         break;
       }
-    case GALObjectType::RenderTargetView:
+      case GALObjectType::RenderTargetView:
       {
         ezGALRenderTargetViewHandle hRenderTargetView(ezGAL::ez18_14Id(deadObject.m_uiHandle));
         ezGALRenderTargetView* pRenderTargetView = nullptr;
@@ -1357,7 +1359,7 @@ void ezGALDevice::DestroyDeadObjects()
 
         break;
       }
-    case GALObjectType::UnorderedAccessView:
+      case GALObjectType::UnorderedAccessView:
       {
         ezGALUnorderedAccessViewHandle hUnorderedAccessViewHandle(ezGAL::ez18_14Id(deadObject.m_uiHandle));
         ezGALUnorderedAccessView* pUnorderedAccesssView = nullptr;
@@ -1372,7 +1374,7 @@ void ezGALDevice::DestroyDeadObjects()
 
         break;
       }
-    case GALObjectType::SwapChain:
+      case GALObjectType::SwapChain:
       {
         ezGALSwapChainHandle hSwapChain(ezGAL::ez16_16Id(deadObject.m_uiHandle));
         ezGALSwapChain* pSwapChain = nullptr;
@@ -1386,7 +1388,7 @@ void ezGALDevice::DestroyDeadObjects()
 
         break;
       }
-    case GALObjectType::Fence:
+      case GALObjectType::Fence:
       {
         ezGALFenceHandle hFence(ezGAL::ez20_12Id(deadObject.m_uiHandle));
         ezGALFence* pFence = nullptr;
@@ -1397,7 +1399,7 @@ void ezGALDevice::DestroyDeadObjects()
 
         break;
       }
-    case GALObjectType::Query:
+      case GALObjectType::Query:
       {
         ezGALQueryHandle hQuery(ezGAL::ez20_12Id(deadObject.m_uiHandle));
         ezGALQuery* pQuery = nullptr;
@@ -1408,7 +1410,7 @@ void ezGALDevice::DestroyDeadObjects()
 
         break;
       }
-    case GALObjectType::VertexDeclaration:
+      case GALObjectType::VertexDeclaration:
       {
         ezGALVertexDeclarationHandle hVertexDeclaration(ezGAL::ez18_14Id(deadObject.m_uiHandle));
         ezGALVertexDeclaration* pVertexDeclaration = nullptr;
@@ -1420,8 +1422,8 @@ void ezGALDevice::DestroyDeadObjects()
 
         break;
       }
-    default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
     }
   }
 
@@ -1429,4 +1431,3 @@ void ezGALDevice::DestroyDeadObjects()
 }
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Device_Implementation_Device);
-

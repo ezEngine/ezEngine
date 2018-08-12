@@ -1,21 +1,22 @@
 #include <PCH.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
-#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
-#include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Device/SwapChain.h>
+
 #include <Core/ResourceManager/ResourceManager.h>
-#include <RendererCore/Components/CameraComponent.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Pipeline/View.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
+#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
+#include <RendererCore/Components/CameraComponent.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/SwapChain.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 ezEngineProcessViewContext::ezEngineProcessViewContext(ezEngineProcessDocumentContext* pContext)
-  : m_pDocumentContext(pContext)
+    : m_pDocumentContext(pContext)
 {
   m_uiViewID = 0xFFFFFFFF;
 }
@@ -55,7 +56,7 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   EZ_REPORT_FAILURE("This code path should never be executed on UWP.");
 #elif
-#   error "Unsupported platform."
+#error "Unsupported platform."
 #endif
 }
 
@@ -128,7 +129,7 @@ void ezEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
     pState->AddAllMainViews();
   }
   // setting to only update one view ?
-  //else
+  // else
 
   ezView* pView = nullptr;
   if (ezRenderWorld::TryGetView(m_hView, pView))
@@ -149,7 +150,8 @@ void ezEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
   }
 }
 
-bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& camera, const ezBoundingBoxSphere& objectBounds, float fFov, const ezVec3& vViewDir)
+bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& camera, const ezBoundingBoxSphere& objectBounds, float fFov,
+                                                     const ezVec3& vViewDir)
 {
   ezVec3 vDir = vViewDir;
   bool bChanged = false;

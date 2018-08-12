@@ -1,11 +1,13 @@
 #include <PCH.h>
+
 #include <EditorFramework/Dialogs/EditorPluginConfigDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Foundation/IO/OSFile.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QMessageBox>
 
-ezQtEditorPluginConfigDlg::ezQtEditorPluginConfigDlg(QWidget* parent) : QDialog(parent)
+ezQtEditorPluginConfigDlg::ezQtEditorPluginConfigDlg(QWidget* parent)
+    : QDialog(parent)
 {
   setupUi(this);
 
@@ -35,7 +37,6 @@ void ezQtEditorPluginConfigDlg::FillPluginList()
       sText.Append(" (missing)");
 
       pItem->setBackgroundColor(Qt::red);
-
     }
     else if (it.Value().m_bActive)
     {
@@ -84,5 +85,3 @@ void ezQtEditorPluginConfigDlg::on_ButtonCancel_clicked()
 {
   reject();
 }
-
-

@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Containers/HashSet.h>
 #include <Foundation/Containers/StaticArray.h>
 
@@ -17,10 +18,7 @@ namespace
       this->key = key;
     }
 
-    inline bool operator==(const Collision& other) const
-    {
-      return key == other.key;
-    }
+    inline bool operator==(const Collision& other) const { return key == other.key; }
 
     EZ_DECLARE_POD_TYPE();
   };
@@ -28,56 +26,45 @@ namespace
   class OnlyMovable
   {
   public:
-    OnlyMovable(ezUInt32 hash) : hash(hash), m_NumTimesMoved(0) {}
+    OnlyMovable(ezUInt32 hash)
+        : hash(hash)
+        , m_NumTimesMoved(0)
+    {
+    }
     OnlyMovable(OnlyMovable&& other) { *this = std::move(other); }
 
-    void operator = (OnlyMovable&& other)
+    void operator=(OnlyMovable&& other)
     {
       hash = other.hash;
       m_NumTimesMoved = 0;
       ++other.m_NumTimesMoved;
     }
 
-    bool operator==(const OnlyMovable& other) const
-    {
-      return hash == other.hash;
-    }
+    bool operator==(const OnlyMovable& other) const { return hash == other.hash; }
 
     int m_NumTimesMoved;
     ezUInt32 hash;
 
   private:
     OnlyMovable(const OnlyMovable&);
-    void operator = (const OnlyMovable&);
+    void operator=(const OnlyMovable&);
   };
 }
 
 template <>
 struct ezHashHelper<Collision>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const Collision& value)
-  {
-    return value.hash;
-  }
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const Collision& value) { return value.hash; }
 
-  EZ_ALWAYS_INLINE static bool Equal(const Collision& a, const Collision& b)
-  {
-    return a == b;
-  }
+  EZ_ALWAYS_INLINE static bool Equal(const Collision& a, const Collision& b) { return a == b; }
 };
 
 template <>
 struct ezHashHelper<OnlyMovable>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const OnlyMovable& value)
-  {
-    return value.hash;
-  }
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const OnlyMovable& value) { return value.hash; }
 
-  EZ_ALWAYS_INLINE static bool Equal(const OnlyMovable& a, const OnlyMovable& b)
-  {
-    return a.hash == b.hash;
-  }
+  EZ_ALWAYS_INLINE static bool Equal(const OnlyMovable& a, const OnlyMovable& b) { return a.hash == b.hash; }
 };
 
 EZ_CREATE_SIMPLE_TEST(Containers, HashSet)
@@ -120,8 +107,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashSet)
       do
       {
         key = rand() % 100000;
-      }
-      while (table1.Contains(key));
+      } while (table1.Contains(key));
 
       table1.Insert(key);
     }
@@ -276,7 +262,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashSet)
     OnlyMovable noCopyObject(42);
 
     ezHashSet<OnlyMovable> noCopyKey;
-    //noCopyKey.Insert(noCopyObject); // Should not compile
+    // noCopyKey.Insert(noCopyObject); // Should not compile
     noCopyKey.Insert(std::move(noCopyObject));
     EZ_TEST_INT(noCopyObject.m_NumTimesMoved, 1);
     EZ_TEST_BOOL(noCopyKey.Contains(noCopyObject));

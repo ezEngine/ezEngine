@@ -1,13 +1,16 @@
 #include <PCH.h>
-#include <GuiFoundation/Action/ActionMap.h>
-#include <GuiFoundation/Action/ActionManager.h>
+
 #include <Foundation/Logging/Log.h>
+#include <GuiFoundation/Action/ActionManager.h>
+#include <GuiFoundation/Action/ActionMap.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezActionMapDescriptor, ezNoBase, 0, ezRTTINoAllocator);
 //  EZ_BEGIN_PROPERTIES
 //  EZ_END_PROPERTIES;
 EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
 
 ////////////////////////////////////////////////////////////////////////
 // ezActionMap public functions
@@ -15,14 +18,14 @@ EZ_END_STATIC_REFLECTED_TYPE;
 
 ezActionMap::ezActionMap()
 {
-  //ezReflectedTypeDescriptor desc;
-  //ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(ezGetStaticRTTI<ezActionMapDescriptor>(), desc);
-  //m_pRtti = ezPhantomRttiManager::RegisterType(desc);
+  // ezReflectedTypeDescriptor desc;
+  // ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(ezGetStaticRTTI<ezActionMapDescriptor>(), desc);
+  // m_pRtti = ezPhantomRttiManager::RegisterType(desc);
 }
 
 ezActionMap::~ezActionMap()
 {
-  //DestroyAllObjects();
+  // DestroyAllObjects();
 }
 
 void ezActionMap::MapAction(ezActionDescriptorHandle hAction, const char* szPath, float fOrder)
@@ -63,7 +66,8 @@ ezUuid ezActionMap::MapAction(const ezActionMapDescriptor& desc)
     const ezActionMapDescriptor* pDesc = GetDescriptor(pParent);
     if (pDesc->m_hAction.GetDescriptor()->m_Type == ezActionType::Action)
     {
-      ezLog::Error("Can't map descriptor '{0}' as its parent is an action itself and thus can't have any children.", desc.m_hAction.GetDescriptor()->m_sActionName);
+      ezLog::Error("Can't map descriptor '{0}' as its parent is an action itself and thus can't have any children.",
+                   desc.m_hAction.GetDescriptor()->m_sActionName);
       return ezUuid();
     }
   }
@@ -75,7 +79,7 @@ ezUuid ezActionMap::MapAction(const ezActionMapDescriptor& desc)
   }
 
   ezInt32 iIndex = 0;
-  for(iIndex = 0; iIndex < (ezInt32) pParent->GetChildren().GetCount(); ++iIndex)
+  for (iIndex = 0; iIndex < (ezInt32)pParent->GetChildren().GetCount(); ++iIndex)
   {
     const ezTreeNode<ezActionMapDescriptor>* pChild = pParent->GetChildren()[iIndex];
     const ezActionMapDescriptor* pDesc = GetDescriptor(pChild);
@@ -114,7 +118,7 @@ bool ezActionMap::FindObjectByPath(const ezStringView& sPath, ezUuid& out_guid) 
   sPathBuilder.Split(false, parts, "/");
 
   const ezTreeNode<ezActionMapDescriptor>* pParent = &m_Root;
-  for(const ezStringView& name : parts)
+  for (const ezStringView& name : parts)
   {
     pParent = GetChildByName(pParent, name);
     if (pParent == nullptr)
@@ -141,9 +145,10 @@ const ezActionMapDescriptor* ezActionMap::GetDescriptor(const ezTreeNode<ezActio
   return &pObject->m_Data;
 }
 
-const ezTreeNode<ezActionMapDescriptor>* ezActionMap::GetChildByName(const ezTreeNode<ezActionMapDescriptor>* pObject, const ezStringView& sName) const
+const ezTreeNode<ezActionMapDescriptor>* ezActionMap::GetChildByName(const ezTreeNode<ezActionMapDescriptor>* pObject,
+                                                                     const ezStringView& sName) const
 {
-  for(const ezTreeNode<ezActionMapDescriptor>* pChild : pObject->GetChildren())
+  for (const ezTreeNode<ezActionMapDescriptor>* pChild : pObject->GetChildren())
   {
     const ezActionMapDescriptor& pDesc = pChild->m_Data;
     if (sName.IsEqual_NoCase(pDesc.m_hAction.GetDescriptor()->m_sActionName.GetData()))
@@ -153,4 +158,3 @@ const ezTreeNode<ezActionMapDescriptor>* ezActionMap::GetChildByName(const ezTre
   }
   return nullptr;
 }
-

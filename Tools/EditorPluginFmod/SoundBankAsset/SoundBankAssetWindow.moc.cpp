@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
@@ -7,9 +8,11 @@
 #include <QLabel>
 #include <QLayout>
 
-ezSoundBankAssetDocumentWindow::ezSoundBankAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
+ezSoundBankAssetDocumentWindow::ezSoundBankAssetDocumentWindow(ezDocument* pDocument)
+    : ezQtDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSoundBankAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(
+      ezMakeDelegate(&ezSoundBankAssetDocumentWindow::PropertyEventHandler, this));
 
   // Menu Bar
   {
@@ -61,30 +64,27 @@ ezSoundBankAssetDocumentWindow::ezSoundBankAssetDocumentWindow(ezDocument* pDocu
 
 ezSoundBankAssetDocumentWindow::~ezSoundBankAssetDocumentWindow()
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezSoundBankAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(
+      ezMakeDelegate(&ezSoundBankAssetDocumentWindow::PropertyEventHandler, this));
 }
 
 void ezSoundBankAssetDocumentWindow::UpdatePreview()
 {
   const auto& prop = ((ezSoundBankAssetDocument*)GetDocument())->GetProperties();
 
-  //ezStringBuilder s;
-  //s.Format("Vertices: {0}\nTriangles: {1}\nSubMeshes: {2}", prop->m_uiVertices, prop->m_uiTriangles, prop->m_SlotNames.GetCount());
+  // ezStringBuilder s;
+  // s.Format("Vertices: {0}\nTriangles: {1}\nSubMeshes: {2}", prop->m_uiVertices, prop->m_uiTriangles, prop->m_SlotNames.GetCount());
 
-  //for (ezUInt32 m = 0; m < prop->m_SlotNames.GetCount(); ++m)
+  // for (ezUInt32 m = 0; m < prop->m_SlotNames.GetCount(); ++m)
   //  s.AppendFormat("\nSlot {0}: {1}", m, prop->m_SlotNames[m]);
 
-  //m_pLabelInfo->setText(QString::fromUtf8(s.GetData()));
+  // m_pLabelInfo->setText(QString::fromUtf8(s.GetData()));
 }
 
 void ezSoundBankAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  //if (e.m_sPropertyPath == "Texture File")
+  // if (e.m_sPropertyPath == "Texture File")
   //{
   //  UpdatePreview();
   //}
 }
-
-
-
-

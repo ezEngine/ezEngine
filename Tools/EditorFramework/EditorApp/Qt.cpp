@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <QStyleFactory>
 #include <QtGlobal>
@@ -47,15 +48,15 @@ static void QtDebugMessageHandler(QtMsgType type, const QMessageLogContext& cont
 
   switch (type)
   {
-  case QtDebugMsg:
-    ezLog::Debug("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
-    break;
+    case QtDebugMsg:
+      ezLog::Debug("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
+      break;
 #if QT_VERSION >= 0x050500
-  case QtInfoMsg:
-    ezLog::Info("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
-    break;
+    case QtInfoMsg:
+      ezLog::Info("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
+      break;
 #endif
-  case QtWarningMsg:
+    case QtWarningMsg:
     {
       // I just hate this pointless message
       if (sMsg.FindSubString("iCCP") != nullptr)
@@ -64,12 +65,12 @@ static void QtDebugMessageHandler(QtMsgType type, const QMessageLogContext& cont
       ezLog::Warning("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
       break;
     }
-  case QtCriticalMsg:
-    ezLog::Error("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
-    break;
-  case QtFatalMsg:
-    EZ_ASSERT_DEBUG("|Qt| {0} ({1}:{2} {3})", sMsg, context.file, context.line, context.function);
-    break;
+    case QtCriticalMsg:
+      ezLog::Error("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
+      break;
+    case QtFatalMsg:
+      EZ_ASSERT_DEBUG("|Qt| {0} ({1}:{2} {3})", sMsg, context.file, context.line, context.function);
+      break;
   }
 }
 
@@ -81,7 +82,7 @@ void ezQtEditorApp::InitQt(int argc, char** argv)
   s_pQtApplication = new QApplication(argc, argv);
   QFont font = s_pQtApplication->font();
   int ps = font.pixelSize();
-  //font.setPixelSize(11);
+  // font.setPixelSize(11);
   s_pQtApplication->setFont(font);
 }
 
@@ -89,4 +90,3 @@ void ezQtEditorApp::DeInitQt()
 {
   delete s_pQtApplication;
 }
-

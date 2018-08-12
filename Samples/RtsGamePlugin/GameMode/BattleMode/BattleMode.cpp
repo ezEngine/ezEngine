@@ -1,18 +1,15 @@
 #include <PCH.h>
+
+#include <RtsGamePlugin/Components/ComponentMessages.h>
 #include <RtsGamePlugin/GameMode/BattleMode/BattleMode.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
-#include <RtsGamePlugin/Components/ComponentMessages.h>
 
 RtsBattleMode::RtsBattleMode() = default;
 RtsBattleMode::~RtsBattleMode() = default;
 
-void RtsBattleMode::OnActivateMode()
-{
-}
+void RtsBattleMode::OnActivateMode() {}
 
-void RtsBattleMode::OnDeactivateMode()
-{
-}
+void RtsBattleMode::OnDeactivateMode() {}
 
 void RtsBattleMode::OnBeforeWorldUpdate()
 {
@@ -21,9 +18,7 @@ void RtsBattleMode::OnBeforeWorldUpdate()
   m_pGameState->RenderUnitSelection();
 }
 
-void RtsBattleMode::RegisterInputActions()
-{
-}
+void RtsBattleMode::RegisterInputActions() {}
 
 void RtsBattleMode::OnProcessInput(const RtsMouseInputState& MouseInput)
 {

@@ -1,25 +1,27 @@
 #include <PCH.h>
+
+#include <Core/WorldSerializer/ResourceHandleWriter.h>
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/GUI/ExposedParameters.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAsset.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAssetManager.h>
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
-#include <Foundation/Serialization/BinarySerializer.h>
-#include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraph.h>
-#include <VisualShader/VisualShaderTypeRegistry.h>
-#include <GameEngine/VisualScript/VisualScriptResource.h>
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
+#include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Serialization/BinarySerializer.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
+#include <GameEngine/VisualScript/VisualScriptResource.h>
 #include <ToolsFoundation/Command/NodeCommands.h>
-#include <EditorFramework/GUI/ExposedParameters.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <VisualShader/VisualShaderTypeRegistry.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ezVisualScriptAssetDocument
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptParameter, 1, ezRTTINoAllocator);
 {
   EZ_BEGIN_PROPERTIES
@@ -61,6 +63,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetProperties, 1, ezRTTIDefaultA
     EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 // ezVisualScriptAssetDocument
@@ -70,7 +73,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetDocument, 4, ezRTTINoAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptAssetDocument::ezVisualScriptAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezVisualScriptAssetProperties>(EZ_DEFAULT_NEW(ezVisualScriptNodeManager), szDocumentPath, false, false)
+    : ezSimpleAssetDocument<ezVisualScriptAssetProperties>(EZ_DEFAULT_NEW(ezVisualScriptNodeManager), szDocumentPath, false, false)
 {
   ezVisualScriptTypeRegistry::GetSingleton()->UpdateNodeTypes();
 }
@@ -114,7 +117,8 @@ void ezVisualScriptAssetDocument::HandleVsActivityMsg(const ezVisualScriptActivi
   m_ActivityEvents.Broadcast(ae);
 }
 
-ezStatus ezVisualScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezVisualScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
+                                                             const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   ezVisualScriptResourceDescriptor desc;
   if (GenerateVisualScriptDescriptor(desc).Failed())
@@ -148,8 +152,10 @@ void ezVisualScriptAssetDocument::InternalGetMetaDataHash(const ezDocumentObject
 
         inout_uiHash = ezHashing::xxHash64(&pPinSource->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
         inout_uiHash = ezHashing::xxHash64(&pPinTarget->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
-        inout_uiHash = ezHashing::xxHash64(pPinSource->GetName(), ezStringUtils::GetStringElementCount(pPinSource->GetName()), inout_uiHash);
-        inout_uiHash = ezHashing::xxHash64(pPinTarget->GetName(), ezStringUtils::GetStringElementCount(pPinTarget->GetName()), inout_uiHash);
+        inout_uiHash =
+            ezHashing::xxHash64(pPinSource->GetName(), ezStringUtils::GetStringElementCount(pPinSource->GetName()), inout_uiHash);
+        inout_uiHash =
+            ezHashing::xxHash64(pPinTarget->GetName(), ezStringUtils::GetStringElementCount(pPinTarget->GetName()), inout_uiHash);
       }
     }
   }
@@ -159,7 +165,6 @@ void ezVisualScriptAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGra
 {
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
   pManager->AttachMetaDataBeforeSaving(graph);
-
 }
 
 void ezVisualScriptAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
@@ -237,7 +242,6 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
 
           path.m_uiTargetNode = ObjectToIndex[pVsPinTarget->GetParent()];
           path.m_uiInputPin = pVsPinTarget->GetDescriptor()->m_uiPinIndex;
-
         }
         else if (pVsPinSource->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::Data)
         {
@@ -295,22 +299,23 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
       const ezDocumentObject* pObject = allNodes[i];
       const ezVisualScriptNodeDescriptor* pDesc = pTypeRegistry->GetDescriptorForType(pObject->GetType());
 
-      if (pDesc->m_sTypeName == "ezVisualScriptNode_Bool"
-        || pDesc->m_sTypeName == "ezVisualScriptNode_Number"
-        || pDesc->m_sTypeName == "ezVisualScriptNode_StoreNumber"
-        || pDesc->m_sTypeName == "ezVisualScriptNode_StoreBool"
-        || pDesc->m_sTypeName == "ezVisualScriptNode_ToggleBool")
+      if (pDesc->m_sTypeName == "ezVisualScriptNode_Bool" || pDesc->m_sTypeName == "ezVisualScriptNode_Number" ||
+          pDesc->m_sTypeName == "ezVisualScriptNode_StoreNumber" || pDesc->m_sTypeName == "ezVisualScriptNode_StoreBool" ||
+          pDesc->m_sTypeName == "ezVisualScriptNode_ToggleBool")
       {
         const ezVariant varName = pObject->GetTypeAccessor().GetValue("Name");
         EZ_ASSERT_DEBUG(varName.IsA<ezString>(), "Missing or invalid property");
 
-        enum class ValueType { Bool, Number };
+        enum class ValueType
+        {
+          Bool,
+          Number
+        };
 
         ValueType eValueType = ValueType::Number;
 
-        if (pDesc->m_sTypeName == "ezVisualScriptNode_Bool"
-          || pDesc->m_sTypeName == "ezVisualScriptNode_StoreBool"
-          || pDesc->m_sTypeName == "ezVisualScriptNode_ToggleBool")
+        if (pDesc->m_sTypeName == "ezVisualScriptNode_Bool" || pDesc->m_sTypeName == "ezVisualScriptNode_StoreBool" ||
+            pDesc->m_sTypeName == "ezVisualScriptNode_ToggleBool")
         {
           eValueType = ValueType::Bool;
         }
@@ -345,20 +350,17 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
 
         if (!found)
         {
-          ezLog::Error("Visual Script uses undeclared {0} variable '{1}'.",
-            (eValueType == ValueType::Bool) ? "bool" : "number",
-            name);
+          ezLog::Error("Visual Script uses undeclared {0} variable '{1}'.", (eValueType == ValueType::Bool) ? "bool" : "number", name);
         }
       }
     }
-
   }
 
   return EZ_SUCCESS;
 }
 
 
-void ezVisualScriptAssetDocument::GetAllVsNodes(ezDynamicArray<const ezDocumentObject *>& allNodes) const
+void ezVisualScriptAssetDocument::GetAllVsNodes(ezDynamicArray<const ezDocumentObject*>& allNodes) const
 {
   ezVisualScriptTypeRegistry* pTypeRegistry = ezVisualScriptTypeRegistry::GetSingleton();
   const ezRTTI* pNodeBaseRtti = pTypeRegistry->GetNodeBaseType();
@@ -438,7 +440,8 @@ bool ezVisualScriptAssetDocument::Copy(ezAbstractObjectGraph& out_objectGraph, e
   return true;
 }
 
-bool ezVisualScriptAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+bool ezVisualScriptAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph,
+                                        bool bAllowPickedPosition, const char* szMimeType)
 {
   bool bAddedAll = true;
 
@@ -488,7 +491,6 @@ bool ezVisualScriptAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const
     {
       ezLog::Info("[EditorStatus]Not all nodes were allowed to be added to the document");
     }
-
   }
 
   GetSelectionManager()->SetSelection(AddedNodes);
@@ -501,9 +503,9 @@ bool ezVisualScriptAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const
 
 //#include <Foundation/Serialization/GraphPatch.h>
 //
-//class ezVisScriptAsset_3_4 : public ezGraphPatch
+// class ezVisScriptAsset_3_4 : public ezGraphPatch
 //{
-//public:
+// public:
 //  ezVisScriptAsset_3_4()
 //    : ezGraphPatch("ezVisualScriptAssetDocument", 4) {}
 //
@@ -514,4 +516,4 @@ bool ezVisualScriptAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const
 //  }
 //};
 //
-//ezVisScriptAsset_3_4 g_ezVisScriptAsset_3_4;
+// ezVisScriptAsset_3_4 g_ezVisScriptAsset_3_4;

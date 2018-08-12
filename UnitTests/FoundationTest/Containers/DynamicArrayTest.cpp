@@ -1,6 +1,7 @@
-﻿#include <PCH.h>
-#include <Foundation/Memory/CommonAllocators.h>
+#include <PCH.h>
+
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Types/UniquePtr.h>
 
 namespace DynamicArrayTestDetail
@@ -16,8 +17,18 @@ namespace DynamicArrayTestDetail
     int b;
     std::string s;
 
-    Dummy() : a(0), b(g_iDummyCounter++), s("Test") { }
-    Dummy(int a) : a(a), b(g_iDummyCounter++), s("Test") { }
+    Dummy()
+        : a(0)
+        , b(g_iDummyCounter++)
+        , s("Test")
+    {
+    }
+    Dummy(int a)
+        : a(a)
+        , b(g_iDummyCounter++)
+        , s("Test")
+    {
+    }
 
     bool operator<=(const Dummy& dummy) const { return a <= dummy.a; }
     bool operator>=(const Dummy& dummy) const { return a >= dummy.a; }
@@ -46,9 +57,9 @@ namespace DynamicArrayTestDetail
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezDynamicArray<ezInt32>) == 24);
+EZ_CHECK_AT_COMPILETIME(sizeof(ezDynamicArray<ezInt32>) == 24);
 #else
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezDynamicArray<ezInt32>) == 16);
+EZ_CHECK_AT_COMPILETIME(sizeof(ezDynamicArray<ezInt32>) == 16);
 #endif
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Containers);
@@ -81,13 +92,13 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST_BOOL(a1.GetHeapMemoryUsage() >= 32 * sizeof(ezInt32));
 
     ezDynamicArray<ezInt32> a2 = a1;
-    ezDynamicArray<ezInt32> a3 (a1);
+    ezDynamicArray<ezInt32> a3(a1);
 
     EZ_TEST_BOOL(a1 == a2);
     EZ_TEST_BOOL(a1 == a3);
     EZ_TEST_BOOL(a2 == a3);
 
-    ezInt32 test[] = { 1, 2, 3, 4 };
+    ezInt32 test[] = {1, 2, 3, 4};
     ezArrayPtr<ezInt32> aptr(test);
 
     ezDynamicArray<ezInt32> a4(aptr);
@@ -101,7 +112,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
     {
       // move constructor
-      ezDynamicArray<DynamicArrayTestDetail::st, DynamicArrayTestDetail::ezTestAllocatorWrapper> a1(DynamicArrayTestDetail::CreateArray(100, 20));
+      ezDynamicArray<DynamicArrayTestDetail::st, DynamicArrayTestDetail::ezTestAllocatorWrapper> a1(
+          DynamicArrayTestDetail::CreateArray(100, 20));
 
       EZ_TEST_INT(a1.GetCount(), 100);
       for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
@@ -130,7 +142,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
     ezArrayPtr<ezInt32> ap = a1;
 
-    EZ_TEST_BOOL(ap.GetCount () == a1.GetCount());
+    EZ_TEST_BOOL(ap.GetCount() == a1.GetCount());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator =")
@@ -273,7 +285,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     for (ezInt32 i = 0; i < 100; ++i)
       EZ_TEST_INT(a1[i], i);
 
-    ezInt32 temp[] = { 100, 101, 102, 103, 104 };
+    ezInt32 temp[] = {100, 101, 102, 103, 104};
     ezArrayPtr<ezInt32> range(temp);
 
     a1.PushBackRange(range);
@@ -807,7 +819,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
     // foreach
     ezUInt32 prev = 1000;
-    for(ezUInt32 val : a1)
+    for (ezUInt32 val : a1)
     {
       EZ_TEST_BOOL(prev >= val);
       prev = val;
@@ -823,24 +835,24 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetArrayPtr")
   {
-      ezDynamicArray<ezInt32> a1;
-      a1.SetCountUninitialized(10);
+    ezDynamicArray<ezInt32> a1;
+    a1.SetCountUninitialized(10);
 
-      EZ_TEST_BOOL(a1.GetArrayPtr().GetCount() == 10);
-      EZ_TEST_BOOL(a1.GetArrayPtr().GetPtr() == a1.GetData());
+    EZ_TEST_BOOL(a1.GetArrayPtr().GetCount() == 10);
+    EZ_TEST_BOOL(a1.GetArrayPtr().GetPtr() == a1.GetData());
 
-      const ezDynamicArray<ezInt32>& a1ref = a1;
+    const ezDynamicArray<ezInt32>& a1ref = a1;
 
-      EZ_TEST_BOOL(a1ref.GetArrayPtr().GetCount() == 10);
-      EZ_TEST_BOOL(a1ref.GetArrayPtr().GetPtr() == a1ref.GetData());
+    EZ_TEST_BOOL(a1ref.GetArrayPtr().GetCount() == 10);
+    EZ_TEST_BOOL(a1ref.GetArrayPtr().GetPtr() == a1ref.GetData());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swap")
   {
     ezDynamicArray<ezInt32> a1, a2;
 
-    ezInt32 content1[] = { 1, 2, 3, 4 };
-    ezInt32 content2[] = { 5, 6, 7, 8, 9 };
+    ezInt32 content1[] = {1, 2, 3, 4};
+    ezInt32 content2[] = {5, 6, 7, 8, 9};
 
     a1 = ezMakeArrayPtr(content1);
     a2 = ezMakeArrayPtr(content2);
@@ -859,6 +871,3 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST_BOOL(a2.GetArrayPtr() == ezMakeArrayPtr(content1));
   }
 }
-
-
-

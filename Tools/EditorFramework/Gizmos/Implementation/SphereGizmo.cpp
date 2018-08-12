@@ -1,13 +1,14 @@
-﻿#include <PCH.h>
-#include <EditorFramework/Gizmos/SphereGizmo.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorFramework/Assets/AssetDocument.h>
-#include <Foundation/Logging/Log.h>
+#include <PCH.h>
+
 #include <Core/Graphics/Camera.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
+#include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <QMouseEvent>
+#include <EditorFramework/Gizmos/SphereGizmo.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 #include <QDesktopWidget>
+#include <QMouseEvent>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSphereGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -21,7 +22,8 @@ ezSphereGizmo::ezSphereGizmo()
 
   m_ManipulateMode = ManipulateMode::None;
 
-  m_InnerSphere.Configure(this, ezEngineGizmoHandleType::Sphere, ezColorLinearUB(200, 200, 0, 128), false, true); // this gizmo should be rendered very last so it is always on top
+  m_InnerSphere.Configure(this, ezEngineGizmoHandleType::Sphere, ezColorLinearUB(200, 200, 0, 128), false,
+                          true); // this gizmo should be rendered very last so it is always on top
   m_OuterSphere.Configure(this, ezEngineGizmoHandleType::Sphere, ezColorLinearUB(200, 200, 200, 128), false);
 
   SetVisible(false);
@@ -93,10 +95,10 @@ ezEditorInput ezSphereGizmo::DoMousePressEvent(QMouseEvent* e)
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
-  //m_InnerSphere.SetVisible(false);
-  //m_OuterSphere.SetVisible(false);
+  // m_InnerSphere.SetVisible(false);
+  // m_OuterSphere.SetVisible(false);
 
-  //m_pInteractionGizmoHandle->SetVisible(true);
+  // m_pInteractionGizmoHandle->SetVisible(true);
 
   m_LastInteraction = ezTime::Now();
 
@@ -191,4 +193,3 @@ void ezSphereGizmo::SetOuterSphere(float fRadius)
   // update the scale
   OnTransformationChanged(GetTransformation());
 }
-

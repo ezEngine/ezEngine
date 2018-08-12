@@ -1,16 +1,19 @@
 #include <PCH.h>
-#include <GuiFoundation/Dialogs/ShortcutEditorDlg.moc.h>
-#include <GuiFoundation/Action/ActionManager.h>
+
 #include <Foundation/Strings/TranslationLookup.h>
+#include <GuiFoundation/Action/ActionManager.h>
+#include <GuiFoundation/Dialogs/ShortcutEditorDlg.moc.h>
+#include <QKeySequenceEdit>
 #include <QTableWidget>
 #include <QTreeWidget>
-#include <QKeySequenceEdit>
 
-ezQtShortcutEditorDlg::ezQtShortcutEditorDlg(QWidget* parent) : QDialog(parent)
+ezQtShortcutEditorDlg::ezQtShortcutEditorDlg(QWidget* parent)
+    : QDialog(parent)
 {
   setupUi(this);
 
-  EZ_VERIFY(connect(Shortcuts, SIGNAL(itemSelectionChanged()), this, SLOT(SlotSelectionChanged())) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(Shortcuts, SIGNAL(itemSelectionChanged()), this, SLOT(SlotSelectionChanged())) != nullptr,
+            "signal/slot connection failed");
 
   m_iSelectedAction = -1;
   KeyEditor->setEnabled(false);
@@ -168,7 +171,7 @@ void ezQtShortcutEditorDlg::UpdateKeyEdit()
   ButtonAssign->setEnabled(!sText.isEmpty());
 }
 
-void ezQtShortcutEditorDlg::on_KeyEditor_keySequenceChanged(const QKeySequence & keySequence)
+void ezQtShortcutEditorDlg::on_KeyEditor_keySequenceChanged(const QKeySequence& keySequence)
 {
   UpdateKeyEdit();
 }
@@ -203,4 +206,3 @@ void ezQtShortcutEditorDlg::on_ButtonReset_clicked()
 
   UpdateTable();
 }
-

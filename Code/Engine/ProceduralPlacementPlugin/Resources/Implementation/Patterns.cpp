@@ -1,6 +1,7 @@
-﻿#include <PCH.h>
-#include <ProceduralPlacementPlugin/Basics.h>
+#include <PCH.h>
+
 #include <Foundation/Containers/HashTable.h>
+#include <ProceduralPlacementPlugin/Basics.h>
 
 namespace ezPPInternal
 {
@@ -25,9 +26,9 @@ namespace ezPPInternal
           v |= ((xc >> mask) & 1) << bit++;
         }
 
-        auto& point = s_BayerPoints[y*n + x];
+        auto& point = s_BayerPoints[y * n + x];
         point.m_Coordinates.Set(x + 0.5f, y + 0.5f);
-        point.m_fThreshold = (v + 1.0f) / (n*n);
+        point.m_fThreshold = (v + 1.0f) / (n * n);
       }
     }
 
@@ -42,8 +43,5 @@ namespace ezPPInternal
 
   static bool s_bFillPatternsDummy = FillPatterns();
 
-  Pattern* GetPattern(ezTempHashedString sName)
-  {
-    return s_Patterns.GetValue(sName.GetHash());
-  }
+  Pattern* GetPattern(ezTempHashedString sName) { return s_Patterns.GetValue(sName.GetHash()); }
 }

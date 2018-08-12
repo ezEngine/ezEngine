@@ -1,17 +1,18 @@
 #include <PCH.h>
-#include <EditorPluginAssets/SkeletonAsset/SkeletonPanel.moc.h>
-#include <EditorPluginAssets/SkeletonAsset/SkeletonModel.moc.h>
-#include <GuiFoundation/Widgets/SearchWidget.moc.h>
-#include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
-#include <RendererCore/AnimationSystem/EditableSkeleton.h>
+
 #include <EditorFramework/GUI/RawDocumentTreeModel.moc.h>
+#include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
+#include <EditorPluginAssets/SkeletonAsset/SkeletonModel.moc.h>
+#include <EditorPluginAssets/SkeletonAsset/SkeletonPanel.moc.h>
 #include <GuiFoundation/Models/TreeSearchFilterModel.moc.h>
-#include <QTreeView>
+#include <GuiFoundation/Widgets/SearchWidget.moc.h>
 #include <QLayout>
+#include <QTreeView>
+#include <RendererCore/AnimationSystem/EditableSkeleton.h>
 
 ezQtSkeletonPanel::ezQtSkeletonPanel(QWidget* pParent, ezSkeletonAssetDocument* pDocument)
-  : ezQtDocumentPanel(pParent)
+    : ezQtDocumentPanel(pParent)
 {
   m_pSkeletonDocument = pDocument;
 
@@ -23,10 +24,8 @@ ezQtSkeletonPanel::ezQtSkeletonPanel(QWidget* pParent, ezSkeletonAssetDocument* 
   m_pMainWidget->setContentsMargins(0, 0, 0, 0);
   m_pMainWidget->layout()->setContentsMargins(0, 0, 0, 0);
   m_pFilterWidget = new ezQtSearchWidget(this);
-  connect(m_pFilterWidget, &ezQtSearchWidget::textChanged, this, [this](const QString& text)
-  {
-    m_pTreeWidget->GetProxyFilterModel()->SetFilterText(text);
-  });
+  connect(m_pFilterWidget, &ezQtSearchWidget::textChanged, this,
+          [this](const QString& text) { m_pTreeWidget->GetProxyFilterModel()->SetFilterText(text); });
 
   m_pMainWidget->layout()->addWidget(m_pFilterWidget);
 
@@ -43,4 +42,3 @@ ezQtSkeletonPanel::ezQtSkeletonPanel(QWidget* pParent, ezSkeletonAssetDocument* 
 }
 
 ezQtSkeletonPanel::~ezQtSkeletonPanel() = default;
-

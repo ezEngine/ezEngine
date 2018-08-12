@@ -1,8 +1,10 @@
-﻿#include <PCH.h>
-#include <SampleGamePlugin/Script/VisualScriptNodes.h>
+#include <PCH.h>
+
 #include <Foundation/Logging/Log.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
+#include <SampleGamePlugin/Script/VisualScriptNodes.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SampleNode, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_SampleNode>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -23,6 +25,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SampleNode, 1, ezRTTIDefaultA
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezVisualScriptNode_SampleNode::ezVisualScriptNode_SampleNode()
 {
@@ -48,10 +51,9 @@ void* ezVisualScriptNode_SampleNode::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_Value;
+    case 0:
+      return &m_Value;
   }
 
   return nullptr;
 }
-

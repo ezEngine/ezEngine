@@ -3,6 +3,7 @@
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Declarations.h>
+#include <Core/Graphics/Camera.h>
 
 class ezSceneContext;
 class ezCameraComponent;

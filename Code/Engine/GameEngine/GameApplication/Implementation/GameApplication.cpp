@@ -1,5 +1,15 @@
-
 #include <PCH.h>
+
+#include <Core/World/World.h>
+#include <Foundation/Communication/GlobalEvent.h>
+#include <Foundation/Communication/Telemetry.h>
+#include <Foundation/Configuration/Startup.h>
+#include <Foundation/IO/OSFile.h>
+#include <Foundation/Image/Formats/TgaFileFormat.h>
+#include <Foundation/Image/Image.h>
+#include <Foundation/Memory/FrameAllocator.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Time/DefaultTimeStepSmoothing.h>
 #include <GameEngine/Console/Console.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <RendererCore/Debug/DebugRenderer.h>
@@ -7,31 +17,21 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
-#include <Core/World/World.h>
-#include <Foundation/Communication/Telemetry.h>
-#include <Foundation/Configuration/Startup.h>
-#include <Foundation/IO/OSFile.h>
-#include <Foundation/Memory/FrameAllocator.h>
-#include <Foundation/Profiling/Profiling.h>
-#include <Foundation/Time/DefaultTimeStepSmoothing.h>
-#include <Foundation/Communication/GlobalEvent.h>
 #include <RendererFoundation/Resources/Texture.h>
-#include <Foundation/Image/Formats/TgaFileFormat.h>
-#include <Foundation/Image/Image.h>
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
 #include <GameEngine/MixedReality/MixedRealityFramework.h>
 #endif
 
 ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
-ezDelegate<ezGALDevice* (const ezGALDeviceCreationDescription&)> ezGameApplication::s_DefaultDeviceCreator;
+ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> ezGameApplication::s_DefaultDeviceCreator;
 ezCVarBool CVarEnableVSync("g_VSync", false, ezCVarFlags::Save, "Enables V-Sync");
 ezCVarBool CVarShowFPS("g_ShowFPS", false, ezCVarFlags::Save, "Show frames per second counter");
 
 ezGameApplication::ezGameApplication(const char* szAppName, ezGameApplicationType type, const char* szProjectPath /*= nullptr*/)
-  : m_sAppProjectPath(szProjectPath)
-  , m_UpdateTask("GameApplication.Update", ezMakeDelegate(&ezGameApplication::UpdateWorldsAndExtractViews, this))
-  , m_ConFunc_TakeScreenshot("Screenshot", "()", ezMakeDelegate(&ezGameApplication::TakeScreenshot, this))
+    : m_sAppProjectPath(szProjectPath)
+    , m_UpdateTask("GameApplication.Update", ezMakeDelegate(&ezGameApplication::UpdateWorldsAndExtractViews, this))
+    , m_ConFunc_TakeScreenshot("Screenshot", "()", ezMakeDelegate(&ezGameApplication::TakeScreenshot, this))
 {
   m_sAppName = szAppName;
   s_pGameApplicationInstance = this;
@@ -100,7 +100,7 @@ ezGALSwapChainHandle ezGameApplication::GetSwapChain(const ezWindowBase* pWindow
 }
 
 // static
-void ezGameApplication::SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice* (const ezGALDeviceCreationDescription&)> creator)
+void ezGameApplication::SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> creator)
 {
   s_DefaultDeviceCreator = creator;
 }
@@ -228,8 +228,7 @@ void ezGameApplication::BeforeCoreStartup()
   ezApplication::BeforeCoreStartup();
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-  if (m_AppType == ezGameApplicationType::StandAloneMixedReality ||
-      m_AppType == ezGameApplicationType::EmbeddedInToolMixedReality)
+  if (m_AppType == ezGameApplicationType::StandAloneMixedReality || m_AppType == ezGameApplicationType::EmbeddedInToolMixedReality)
   {
     m_pMixedRealityFramework = EZ_DEFAULT_NEW(ezMixedRealityFramework, nullptr);
   }
@@ -393,7 +392,7 @@ void ezGameApplication::AfterCoreStartup()
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
       || m_AppType == ezGameApplicationType::StandAloneMixedReality
 #endif
-      )
+  )
   {
     CreateGameStateForWorld(nullptr);
   }
@@ -414,7 +413,7 @@ void ezGameApplication::AfterCoreStartup()
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
       || m_AppType == ezGameApplicationType::StandAloneMixedReality
 #endif
-      )
+  )
   {
     ActivateAllGameStates();
   }
@@ -489,7 +488,9 @@ ezString ezGameApplication::SearchProjectDirectory(const char* szStartDirectory,
 
 ezString ezGameApplication::FindProjectDirectory() const
 {
-  EZ_ASSERT_RELEASE(!m_sAppProjectPath.IsEmpty(), "Either the project must have a built in project directory passed to the ezGameApplication constructor, or m_sAppProjectPath must be set manually before doing project setup, or ezGameApplication::FindProjectDirectory() must be overridden.");
+  EZ_ASSERT_RELEASE(!m_sAppProjectPath.IsEmpty(), "Either the project must have a built in project directory passed to the "
+                                                  "ezGameApplication constructor, or m_sAppProjectPath must be set manually before doing "
+                                                  "project setup, or ezGameApplication::FindProjectDirectory() must be overridden.");
 
   if (ezPathUtils::IsAbsolutePath(m_sAppProjectPath))
     return m_sAppProjectPath;
@@ -529,7 +530,6 @@ ezApplication::ApplicationExecution ezGameApplication::Run()
       e.m_Type = ezGameApplicationEvent::Type::EndAppTick;
       m_Events.Broadcast(e);
     }
-
   }
 
   return m_bWasQuitRequested ? ezApplication::Quit : ezApplication::Continue;
@@ -768,7 +768,8 @@ void ezGameApplication::RenderFps()
     if (const ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView))
     {
       ezStringBuilder sFps;
-      sFps.Format("{0} fps, {1} ms", ezArgF(1.0 / fElapsedTime.GetSeconds(), 1, false, 4), ezArgF(fElapsedTime.GetSeconds() * 1000.0, 1, false, 4));
+      sFps.Format("{0} fps, {1} ms", ezArgF(1.0 / fElapsedTime.GetSeconds(), 1, false, 4),
+                  ezArgF(fElapsedTime.GetSeconds() * 1000.0, 1, false, 4));
 
       ezInt32 viewHeight = (ezInt32)(pView->GetViewport().height);
 
@@ -803,8 +804,11 @@ void ezGameApplication::RenderConsole()
     ezDebugRenderer::Draw2DRectangle(hView, ezRectFloat(0.0f, 0.0f, fViewWidth, fConsoleHeight), 0.0f, backgroundColor);
 
     ezColor foregroundColor(0.0f, 0.0f, 0.0f, 0.8f);
-    ezDebugRenderer::Draw2DRectangle(hView, ezRectFloat(fBorderWidth, 0.0f, fViewWidth - (2.0f * fBorderWidth), fConsoleTextAreaHeight), 0.0f, foregroundColor);
-    ezDebugRenderer::Draw2DRectangle(hView, ezRectFloat(fBorderWidth, fConsoleTextAreaHeight + fBorderWidth, fViewWidth - (2.0f * fBorderWidth), fTextHeight), 0.0f, foregroundColor);
+    ezDebugRenderer::Draw2DRectangle(hView, ezRectFloat(fBorderWidth, 0.0f, fViewWidth - (2.0f * fBorderWidth), fConsoleTextAreaHeight),
+                                     0.0f, foregroundColor);
+    ezDebugRenderer::Draw2DRectangle(
+        hView, ezRectFloat(fBorderWidth, fConsoleTextAreaHeight + fBorderWidth, fViewWidth - (2.0f * fBorderWidth), fTextHeight), 0.0f,
+        foregroundColor);
   }
 
   {
@@ -820,7 +824,8 @@ void ezGameApplication::RenderConsole()
     for (ezUInt32 i = uiSkippedLines; i < uiNumConsoleLines; ++i)
     {
       auto& consoleString = consoleStrings[uiFirstLine - i];
-      ezDebugRenderer::DrawText(hView, consoleString.m_sText, ezVec2I32(iTextLeft, iFirstLinePos + i * iTextHeight), consoleString.m_TextColor);
+      ezDebugRenderer::DrawText(hView, consoleString.m_sText, ezVec2I32(iTextLeft, iFirstLinePos + i * iTextHeight),
+                                consoleString.m_TextColor);
     }
 
     ezStringView sInputLine(m_pConsole->GetInputLine());
@@ -830,7 +835,10 @@ void ezGameApplication::RenderConsole()
     {
       float fCaretPosition = (float)m_pConsole->GetCaretPosition();
       ezColor caretColor(1.0f, 1.0f, 1.0f, 0.5f);
-      ezDebugRenderer::Draw2DRectangle(hView, ezRectFloat(fBorderWidth + fCaretPosition * 8.0f + 2.0f, fConsoleTextAreaHeight + fBorderWidth + 1.0f, 2.0f, fTextHeight - 2.0f), 0.0f, caretColor);
+      ezDebugRenderer::Draw2DRectangle(
+          hView,
+          ezRectFloat(fBorderWidth + fCaretPosition * 8.0f + 2.0f, fConsoleTextAreaHeight + fBorderWidth + 1.0f, 2.0f, fTextHeight - 2.0f),
+          0.0f, caretColor);
     }
   }
 }
@@ -887,10 +895,9 @@ void ezGameApplication::DoSaveScreenshot(ezImage& image)
       const ezDateTime dt = ezTimestamp::CurrentTimestamp();
 
       ezStringBuilder sPath;
-      sPath.Format(":appdata/Screenshots/{6} {0}-{1}-{2} {3}-{4}-{5}-{7}.tga",
-                   dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true),
-                   ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true),
-                   ezGameApplication::GetGameApplicationInstance()->GetAppName(),
+      sPath.Format(":appdata/Screenshots/{6} {0}-{1}-{2} {3}-{4}-{5}-{7}.tga", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true),
+                   ezArgU(dt.GetDay(), 2, true), ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true),
+                   ezArgU(dt.GetSecond(), 2, true), ezGameApplication::GetGameApplicationInstance()->GetAppName(),
                    ezArgU(dt.GetMicroseconds() / 1000, 3, true));
 
       /// \todo Get rid of Alpha channel before saving
@@ -904,10 +911,7 @@ void ezGameApplication::DoSaveScreenshot(ezImage& image)
 
   WriteFileTask* pWriteTask = EZ_DEFAULT_NEW(WriteFileTask);
   pWriteTask->m_Image = image;
-  pWriteTask->SetOnTaskFinished([](ezTask* pTask)
-  {
-    EZ_DEFAULT_DELETE(pTask);
-  });
+  pWriteTask->SetOnTaskFinished([](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
 
   // we move the file writing off to another thread to save some time
   // if we moved it to the 'FileAccess' thread, writing a screenshot would block resource loading, which can reduce game performance
@@ -928,4 +932,3 @@ bool ezGameApplication::HasAnyActiveGameState() const
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_GameApplication);
-

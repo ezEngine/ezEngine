@@ -1,10 +1,13 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <PhysXPlugin/Utilities/PxUserData.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezPxSteppingMode, 1)
   EZ_ENUM_CONSTANTS(ezPxSteppingMode::Variable, ezPxSteppingMode::Fixed, ezPxSteppingMode::SemiFixed)
 EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -12,34 +15,34 @@ void ezPxErrorCallback::reportError(PxErrorCode::Enum code, const char* message,
 {
   switch (code)
   {
-  case PxErrorCode::eABORT:
-    ezLog::Error("PhysX: {0}", message);
-    break;
-  case PxErrorCode::eDEBUG_INFO:
-    ezLog::Dev("PhysX: {0}", message);
-    break;
-  case PxErrorCode::eDEBUG_WARNING:
-    ezLog::Warning("PhysX: {0}", message);
-    break;
-  case PxErrorCode::eINTERNAL_ERROR:
-    ezLog::Error("PhysX Internal: {0}", message);
-    break;
-  case PxErrorCode::eINVALID_OPERATION:
-    EZ_REPORT_FAILURE("PhysX Invalid Operation: {0}", message);
-    break;
-  case PxErrorCode::eINVALID_PARAMETER:
-    EZ_REPORT_FAILURE("PhysX Invalid Parameter: {0}", message);
-    break;
-  case PxErrorCode::eOUT_OF_MEMORY:
-    ezLog::Error("PhysX Out-of-Memory: {0}", message);
-    break;
-  case PxErrorCode::ePERF_WARNING:
-    ezLog::Warning("PhysX Performance: {0}", message);
-    break;
+    case PxErrorCode::eABORT:
+      ezLog::Error("PhysX: {0}", message);
+      break;
+    case PxErrorCode::eDEBUG_INFO:
+      ezLog::Dev("PhysX: {0}", message);
+      break;
+    case PxErrorCode::eDEBUG_WARNING:
+      ezLog::Warning("PhysX: {0}", message);
+      break;
+    case PxErrorCode::eINTERNAL_ERROR:
+      ezLog::Error("PhysX Internal: {0}", message);
+      break;
+    case PxErrorCode::eINVALID_OPERATION:
+      EZ_REPORT_FAILURE("PhysX Invalid Operation: {0}", message);
+      break;
+    case PxErrorCode::eINVALID_PARAMETER:
+      EZ_REPORT_FAILURE("PhysX Invalid Parameter: {0}", message);
+      break;
+    case PxErrorCode::eOUT_OF_MEMORY:
+      ezLog::Error("PhysX Out-of-Memory: {0}", message);
+      break;
+    case PxErrorCode::ePERF_WARNING:
+      ezLog::Warning("PhysX Performance: {0}", message);
+      break;
 
-  default:
-    ezLog::Error("PhysX: Unknown error type '{0}': {1}", code, message);
-    break;
+    default:
+      ezLog::Error("PhysX: Unknown error type '{0}': {1}", code, message);
+      break;
   }
 }
 
@@ -49,9 +52,8 @@ void ezPxErrorCallback::reportError(PxErrorCode::Enum code, const char* message,
 #define EZ_PX_DETAILED_MEMORY_STATS EZ_OFF
 
 ezPxAllocatorCallback::ezPxAllocatorCallback()
-  : m_Allocator("PhysX", ezFoundation::GetAlignedAllocator())
+    : m_Allocator("PhysX", ezFoundation::GetAlignedAllocator())
 {
-
 }
 
 void* ezPxAllocatorCallback::allocate(size_t size, const char* typeName, const char* filename, int line)
@@ -94,7 +96,8 @@ void ezPxAllocatorCallback::VerifyAllocations()
 
 //////////////////////////////////////////////////////////////////////////
 
-PxQueryHitType::Enum ezPxQueryFilter::preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags)
+PxQueryHitType::Enum ezPxQueryFilter::preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor,
+                                                PxHitFlags& queryFlags)
 {
   if (shape->getFlags().isSet(PxShapeFlag::eTRIGGER_SHAPE))
   {
@@ -134,7 +137,7 @@ EZ_IMPLEMENT_SINGLETON(ezPhysX);
 static ezPhysX g_PhysXSingleton;
 
 ezPhysX::ezPhysX()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
   m_bInitialized = false;
 
@@ -145,10 +148,7 @@ ezPhysX::ezPhysX()
   m_PvdConnection = nullptr;
 }
 
-ezPhysX::~ezPhysX()
-{
-
-}
+ezPhysX::~ezPhysX() {}
 
 void ezPhysX::Startup()
 {
@@ -220,7 +220,7 @@ void ezPhysX::StartupVDB()
 {
   // disconnect if we already have a connection
   // this check does not work when the PVD app was closed, instead just always call disconnect
-  //if (m_PvdConnection->isConnected(false))
+  // if (m_PvdConnection->isConnected(false))
   {
     m_PvdConnection->disconnect();
   }
@@ -234,11 +234,11 @@ void ezPhysX::StartupVDB()
 
   // setup connection parameters
   const char* pvd_host_ip = "127.0.0.1"; // IP of the PC which is running PVD
-  int port = 5425; // TCP port to connect to, where PVD is listening
+  int port = 5425;                       // TCP port to connect to, where PVD is listening
 
   // timeout in milliseconds to wait for PVD to respond, consoles and remote PCs need a higher timeout.
   // for some reason having a timeout of 100ms will block indefinitely when a second process tries to connect and should fail
-  unsigned int timeout = 10; 
+  unsigned int timeout = 10;
 
   pTransport = PxDefaultPvdSocketTransportCreate(pvd_host_ip, port, timeout);
   m_PvdConnection->connect(*pTransport, PxPvdInstrumentationFlag::eALL);
@@ -298,7 +298,8 @@ void ezPhysX::SurfaceResourceEventHandler(const ezSurfaceResource::Event& e)
   {
     const auto& desc = e.m_pSurface->GetDescriptor();
 
-    PxMaterial* pMaterial = m_pPhysX->createMaterial(desc.m_fPhysicsFrictionStatic, desc.m_fPhysicsFrictionDynamic, desc.m_fPhysicsRestitution);
+    PxMaterial* pMaterial =
+        m_pPhysX->createMaterial(desc.m_fPhysicsFrictionStatic, desc.m_fPhysicsFrictionDynamic, desc.m_fPhysicsRestitution);
     pMaterial->userData = EZ_DEFAULT_NEW(ezPxUserData, e.m_pSurface);
 
     e.m_pSurface->m_pPhysicsMaterial = pMaterial;
@@ -322,4 +323,3 @@ void ezPhysX::SurfaceResourceEventHandler(const ezSurfaceResource::Event& e)
 
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_WorldModule_Implementation_PhysX);
-

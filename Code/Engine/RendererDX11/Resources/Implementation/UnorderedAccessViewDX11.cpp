@@ -1,33 +1,33 @@
 #include <PCH.h>
-#include <RendererDX11/Resources/UnorderedAccessViewDX11.h>
+
 #include <RendererDX11/Device/DeviceDX11.h>
-#include <RendererDX11/Resources/TextureDX11.h>
 #include <RendererDX11/Resources/BufferDX11.h>
+#include <RendererDX11/Resources/TextureDX11.h>
+#include <RendererDX11/Resources/UnorderedAccessViewDX11.h>
 
 #include <d3d11.h>
 
 
-ezGALUnorderedAccessViewDX11::ezGALUnorderedAccessViewDX11(ezGALResourceBase* pResource, const ezGALUnorderedAccessViewCreationDescription& Description)
-  : ezGALUnorderedAccessView(pResource, Description)
-  , m_pDXUnorderedAccessView(nullptr)
+ezGALUnorderedAccessViewDX11::ezGALUnorderedAccessViewDX11(ezGALResourceBase* pResource,
+                                                           const ezGALUnorderedAccessViewCreationDescription& Description)
+    : ezGALUnorderedAccessView(pResource, Description)
+    , m_pDXUnorderedAccessView(nullptr)
 {
 }
 
-ezGALUnorderedAccessViewDX11::~ezGALUnorderedAccessViewDX11()
-{
-}
+ezGALUnorderedAccessViewDX11::~ezGALUnorderedAccessViewDX11() {}
 
 ezResult ezGALUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
 {
   const ezGALTextureDX11* pTexture = nullptr;
-  if(!m_Description.m_hTexture.IsInvalidated())
-    pTexture =  static_cast<const ezGALTextureDX11*>(pDevice->GetTexture(m_Description.m_hTexture));
+  if (!m_Description.m_hTexture.IsInvalidated())
+    pTexture = static_cast<const ezGALTextureDX11*>(pDevice->GetTexture(m_Description.m_hTexture));
 
   const ezGALBufferDX11* pBuffer = nullptr;
-  if(!m_Description.m_hBuffer.IsInvalidated())
+  if (!m_Description.m_hBuffer.IsInvalidated())
     pBuffer = static_cast<const ezGALBufferDX11*>(pDevice->GetBuffer(m_Description.m_hBuffer));
 
-  if(pTexture == nullptr && pBuffer == nullptr)
+  if (pTexture == nullptr && pBuffer == nullptr)
   {
     ezLog::Error("No valid texture handle or buffer handle given for unordered access view creation!");
     return EZ_FAILURE;
@@ -36,11 +36,11 @@ ezResult ezGALUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
 
   ezGALResourceFormat::Enum ViewFormat = m_Description.m_OverrideViewFormat;
 
-  if(pTexture)
+  if (pTexture)
   {
     const ezGALTextureCreationDescription& TexDesc = pTexture->GetDescription();
 
-    if(ViewFormat == ezGALResourceFormat::Invalid)
+    if (ViewFormat == ezGALResourceFormat::Invalid)
       ViewFormat = TexDesc.m_Format;
   }
 
@@ -57,7 +57,7 @@ ezResult ezGALUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
     DXViewFormat = pDXDevice->GetFormatLookupTable().GetFormatInfo(ViewFormat).m_eResourceViewType;
   }
 
-  if(DXViewFormat == DXGI_FORMAT_UNKNOWN)
+  if (DXViewFormat == DXGI_FORMAT_UNKNOWN)
   {
     ezLog::Error("Couldn't get valid DXGI format for resource view! ({0})", ViewFormat);
     return EZ_FAILURE;
@@ -69,16 +69,16 @@ ezResult ezGALUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
 
   ID3D11Resource* pDXResource = nullptr;
 
-  if(pTexture)
+  if (pTexture)
   {
     pDXResource = pTexture->GetDXTexture();
     const ezGALTextureCreationDescription& TexDesc = pTexture->GetDescription();
 
-    switch(TexDesc.m_Type)
+    switch (TexDesc.m_Type)
     {
       case ezGALTextureType::Texture2D:
 
-        if(TexDesc.m_uiArraySize == 1)
+        if (TexDesc.m_uiArraySize == 1)
         {
           DXUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
           DXUAVDesc.Texture2D.MipSlice = m_Description.m_uiMipLevelToUse;
@@ -104,9 +104,8 @@ ezResult ezGALUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
         EZ_ASSERT_NOT_IMPLEMENTED;
         return EZ_FAILURE;
     }
-
   }
-  else if(pBuffer)
+  else if (pBuffer)
   {
     pDXResource = pBuffer->GetDXBuffer();
 
@@ -123,7 +122,7 @@ ezResult ezGALUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
       DXUAVDesc.Buffer.Flags |= D3D11_BUFFER_UAV_FLAG_APPEND;
   }
 
-  if(FAILED(pDXDevice->GetDXDevice()->CreateUnorderedAccessView(pDXResource, &DXUAVDesc, &m_pDXUnorderedAccessView)))
+  if (FAILED(pDXDevice->GetDXDevice()->CreateUnorderedAccessView(pDXResource, &DXUAVDesc, &m_pDXUnorderedAccessView)))
   {
     return EZ_FAILURE;
   }
@@ -142,4 +141,3 @@ ezResult ezGALUnorderedAccessViewDX11::DeInitPlatform(ezGALDevice* pDevice)
 
 
 EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Resources_Implementation_UnorderedAccessViewDX11);
-

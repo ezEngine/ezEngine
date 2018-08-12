@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/MemoryStream.h>
 
@@ -19,8 +20,3 @@ EZ_CREATE_SIMPLE_TEST(Assets, AssetFileHeader)
     EZ_TEST_INT(uiRequiredSize, ezAssetFileHeader::GetSerializedSize());
   }
 }
-
-
-
-
-

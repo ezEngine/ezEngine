@@ -1,14 +1,15 @@
 #include <PCH.h>
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorFramework/InputContexts/EditorInputContext.h>
+
 #include <EditorFramework/Assets/AssetDocument.h>
-#include <QPaintEvent>
-#include <QPushButton>
-#include <QHBoxLayout>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/InputContexts/EditorInputContext.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <Preferences/EditorPreferences.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
+#include <QHBoxLayout>
+#include <QPaintEvent>
+#include <QPushButton>
 
 ezUInt32 ezQtEngineViewWidget::s_uiNextViewID = 0;
 
@@ -30,15 +31,15 @@ void ezObjectPickingResult::Reset()
 ////////////////////////////////////////////////////////////////////////
 
 ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentWindow* pDocumentWindow, ezEngineViewConfig* pViewConfig)
-  : QWidget(pParent)
-  , m_pDocumentWindow(pDocumentWindow)
-  , m_pViewConfig(pViewConfig)
+    : QWidget(pParent)
+    , m_pDocumentWindow(pDocumentWindow)
+    , m_pViewConfig(pViewConfig)
 {
   m_pRestartButtonLayout = nullptr;
   m_pRestartButton = nullptr;
 
   setFocusPolicy(Qt::FocusPolicy::StrongFocus);
-  //setAttribute(Qt::WA_OpaquePaintEvent);
+  // setAttribute(Qt::WA_OpaquePaintEvent);
   setAutoFillBackground(false);
   setMouseTracking(true);
   setMinimumSize(64, 64); // prevent the window from becoming zero sized, otherwise the rendering code may crash
@@ -106,7 +107,9 @@ void ezQtEngineViewWidget::SyncToEngine()
   cam.m_uiWindowWidth = width() * this->devicePixelRatio();
   cam.m_uiWindowHeight = height() * this->devicePixelRatio();
   cam.m_bUpdatePickingData = m_bUpdatePickingData;
-  cam.m_bEnablePickingSelected = IsPickingAgainstSelectionAllowed() && (!ezEditorInputContext::IsAnyInputContextActive() || ezEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
+  cam.m_bEnablePickingSelected =
+      IsPickingAgainstSelectionAllowed() &&
+      (!ezEditorInputContext::IsAnyInputContextActive() || ezEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
 
   m_pDocumentWindow->GetEditorEngineConnection()->SendMessage(&cam);
 }
@@ -149,7 +152,8 @@ void ezQtEngineViewWidget::UpdateCameraInterpolation()
   cam.SetCameraMode(cam.GetCameraMode(), fNewFovOrDim, cam.GetNearPlane(), cam.GetFarPlane());
 }
 
-void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim, const ezVec3* pNewUpDirection)
+void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim,
+                                               const ezVec3* pNewUpDirection)
 {
   m_vCameraStartPosition = m_pViewConfig->m_Camera.GetPosition();
   m_vCameraTargetPosition = vPosition;
@@ -175,8 +179,7 @@ void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ez
 
   EZ_ASSERT_DEV(m_fCameraTargetFovOrDim > 0, "Invalid FOV or ortho dimension");
 
-  if (m_vCameraStartPosition == m_vCameraTargetPosition &&
-      m_vCameraStartDirection == m_vCameraTargetDirection &&
+  if (m_vCameraStartPosition == m_vCameraTargetPosition && m_vCameraStartDirection == m_vCameraTargetDirection &&
       m_fCameraStartFovOrDim == m_fCameraTargetFovOrDim)
     return;
 
@@ -298,8 +301,7 @@ bool ezQtEngineViewWidget::eventFilter(QObject* object, QEvent* event)
 
 void ezQtEngineViewWidget::paintEvent(QPaintEvent* event)
 {
-  //event->accept();
-
+  // event->accept();
 }
 
 void ezQtEngineViewWidget::resizeEvent(QResizeEvent* event)
@@ -576,20 +578,20 @@ void ezQtEngineViewWidget::EngineViewProcessEventHandler(const ezEditorEnginePro
 {
   switch (e.m_Type)
   {
-  case ezEditorEngineProcessConnection::Event::Type::ProcessCrashed:
+    case ezEditorEngineProcessConnection::Event::Type::ProcessCrashed:
     {
       ShowRestartButton(true);
     }
     break;
 
-  case ezEditorEngineProcessConnection::Event::Type::ProcessStarted:
+    case ezEditorEngineProcessConnection::Event::Type::ProcessStarted:
     {
       ShowRestartButton(false);
     }
     break;
 
-  case ezEditorEngineProcessConnection::Event::Type::ProcessShutdown:
-    break;
+    case ezEditorEngineProcessConnection::Event::Type::ProcessShutdown:
+      break;
   }
 }
 
@@ -638,7 +640,7 @@ void ezQtEngineViewWidget::SlotRestartEngineProcess()
 ////////////////////////////////////////////////////////////////////////
 
 ezQtViewWidgetContainer::ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineViewWidget* pViewWidget, const char* szToolBarMapping)
-  : QWidget(pParent)
+    : QWidget(pParent)
 {
   setBackgroundRole(QPalette::Base);
   setAutoFillBackground(true);
@@ -666,10 +668,7 @@ ezQtViewWidgetContainer::ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineVie
   m_pLayout->addWidget(m_pViewWidget, 1);
 }
 
-ezQtViewWidgetContainer::~ezQtViewWidgetContainer()
-{
-
-}
+ezQtViewWidgetContainer::~ezQtViewWidgetContainer() {}
 
 ezQtEngineViewWidget::InteractionContext::InteractionContext()
 {

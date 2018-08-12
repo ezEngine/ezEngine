@@ -1,8 +1,9 @@
-﻿#include <PCH.h>
-#include <EditorPluginAssets/SurfaceAsset/SurfaceAssetManager.h>
-#include <EditorPluginAssets/SurfaceAsset/SurfaceAsset.h>
-#include <EditorPluginAssets/SurfaceAsset/SurfaceAssetWindow.moc.h>
+#include <PCH.h>
+
 #include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
+#include <EditorPluginAssets/SurfaceAsset/SurfaceAsset.h>
+#include <EditorPluginAssets/SurfaceAsset/SurfaceAssetManager.h>
+#include <EditorPluginAssets/SurfaceAsset/SurfaceAssetWindow.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSurfaceAssetDocumentManager>);
@@ -13,7 +14,7 @@ ezSurfaceAssetDocumentManager::ezSurfaceAssetDocumentManager()
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezSurfaceAssetDocumentManager::OnDocumentManagerEvent, this));
 
   // additional whitelist for non-asset files where an asset may be selected
-  //ezAssetFileExtensionWhitelist::AddAssetFileExtension("Surface", "ezSurface");
+  // ezAssetFileExtensionWhitelist::AddAssetFileExtension("Surface", "ezSurface");
   m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "Surface Asset";
   m_AssetDesc.m_sFileExtension = "ezSurfaceAsset";
@@ -40,7 +41,7 @@ void ezSurfaceAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
 {
   switch (e.m_Type)
   {
-  case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case ezDocumentManager::Event::Type::DocumentWindowRequested:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSurfaceAssetDocument>())
       {
@@ -51,17 +52,16 @@ void ezSurfaceAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
   }
 }
 
-ezStatus ezSurfaceAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)
+ezStatus ezSurfaceAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
+                                                               ezDocument*& out_pDocument)
 {
   out_pDocument = new ezSurfaceAssetDocument(szPath);
 
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezSurfaceAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezSurfaceAssetDocumentManager::InternalGetSupportedDocumentTypes(
+    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
-
-
-

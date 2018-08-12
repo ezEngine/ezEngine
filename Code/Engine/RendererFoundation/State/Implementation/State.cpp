@@ -1,50 +1,41 @@
-
 #include <PCH.h>
+
 #include <RendererFoundation/Basics.h>
 #include <RendererFoundation/State/State.h>
 
 ezGALBlendState::ezGALBlendState(const ezGALBlendStateCreationDescription& Description)
-  : ezGALObject(Description)
+    : ezGALObject(Description)
 {
 }
 
-ezGALBlendState::~ezGALBlendState()
-{
-}
+ezGALBlendState::~ezGALBlendState() {}
 
 
 
 ezGALDepthStencilState::ezGALDepthStencilState(const ezGALDepthStencilStateCreationDescription& Description)
-  : ezGALObject(Description)
+    : ezGALObject(Description)
 {
 }
 
-ezGALDepthStencilState::~ezGALDepthStencilState()
-{
-}
+ezGALDepthStencilState::~ezGALDepthStencilState() {}
 
 
 
 ezGALRasterizerState::ezGALRasterizerState(const ezGALRasterizerStateCreationDescription& Description)
-  : ezGALObject(Description)
+    : ezGALObject(Description)
 {
 }
 
-ezGALRasterizerState::~ezGALRasterizerState()
-{
-}
+ezGALRasterizerState::~ezGALRasterizerState() {}
 
 
 ezGALSamplerState::ezGALSamplerState(const ezGALSamplerStateCreationDescription& Description)
-: ezGALObject(Description)
+    : ezGALObject(Description)
 {
 }
 
-ezGALSamplerState::~ezGALSamplerState()
-{
-}
+ezGALSamplerState::~ezGALSamplerState() {}
 
 
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_State_Implementation_State);
-

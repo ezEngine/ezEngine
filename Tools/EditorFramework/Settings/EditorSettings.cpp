@@ -1,8 +1,9 @@
 #include <PCH.h>
+
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Preferences/Preferences.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <EditorFramework/Preferences/Preferences.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 void ezQtEditorApp::SaveRecentFiles()
@@ -43,8 +44,7 @@ void ezQtEditorApp::SaveOpenDocumentsList()
   {
     if (allWindows[w]->GetDocument())
     {
-      allDocs.Insert(allWindows[w]->GetDocument()->GetDocumentPath(),
-        allWindows[w]->GetContainerWindow()->GetUniqueIdentifier());
+      allDocs.Insert(allWindows[w]->GetDocument()->GetDocumentPath(), allWindows[w]->GetContainerWindow()->GetUniqueIdentifier());
     }
   }
 
@@ -81,6 +81,3 @@ void ezQtEditorApp::SaveSettings()
     m_EnginePluginConfig.Save();
   }
 }
-
-
-

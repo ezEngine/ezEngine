@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
@@ -225,20 +226,20 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
 
     const ezInt32 uiElements = 100000;
 
-    //const ezTime t0 = s.Checkpoint();
+    // const ezTime t0 = s.Checkpoint();
 
     {
       sa.Reserve(uiElements);
 
       for (ezUInt32 i = 0; i < uiElements; ++i)
       {
-        sa.Insert(uiElements - i, i*2);
+        sa.Insert(uiElements - i, i * 2);
       }
 
       sa.Sort();
     }
 
-    //const ezTime t1 = s.Checkpoint();
+    // const ezTime t1 = s.Checkpoint();
 
     {
       for (ezInt32 i = 0; i < uiElements; ++i)
@@ -247,16 +248,16 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
       }
     }
 
-    //const ezTime t2 = s.Checkpoint();
+    // const ezTime t2 = s.Checkpoint();
 
     {
       for (ezUInt32 i = 0; i < uiElements; ++i)
       {
-        map.Insert(uiElements - i, i*2);
+        map.Insert(uiElements - i, i * 2);
       }
     }
 
-    //const ezTime t3 = s.Checkpoint();
+    // const ezTime t3 = s.Checkpoint();
 
     {
       for (ezUInt32 i = 0; i < uiElements; ++i)
@@ -265,20 +266,20 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
       }
     }
 
-    //const ezTime t4 = s.Checkpoint();
+    // const ezTime t4 = s.Checkpoint();
 
-    //int breakpoint = 0;
+    // int breakpoint = 0;
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lower Bound / Upper Bound")
   {
     ezArrayMap<ezInt32, ezInt32> sa;
-    sa[1 ] = 23;
-    sa[3 ] = 23;
-    sa[4 ] = 23;
-    sa[6 ] = 23;
-    sa[7 ] = 23;
-    sa[9 ] = 23;
+    sa[1] = 23;
+    sa[3] = 23;
+    sa[4] = 23;
+    sa[6] = 23;
+    sa[7] = 23;
+    sa[9] = 23;
     sa[11] = 23;
     sa[14] = 23;
     sa[17] = 23;
@@ -326,7 +327,5 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
     EZ_TEST_INT(sa.UpperBound(18), ezInvalidIndex);
     EZ_TEST_INT(sa.UpperBound(19), ezInvalidIndex);
     EZ_TEST_INT(sa.UpperBound(20), ezInvalidIndex);
-
   }
 }
-

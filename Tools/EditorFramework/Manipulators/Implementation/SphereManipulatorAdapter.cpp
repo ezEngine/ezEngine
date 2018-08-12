@@ -1,17 +1,14 @@
-﻿#include <PCH.h>
-#include <EditorFramework/Manipulators/SphereManipulatorAdapter.h>
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
+#include <PCH.h>
+
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
+#include <EditorFramework/Manipulators/SphereManipulatorAdapter.h>
+#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezSphereManipulatorAdapter::ezSphereManipulatorAdapter()
-{
-}
+ezSphereManipulatorAdapter::ezSphereManipulatorAdapter() {}
 
-ezSphereManipulatorAdapter::~ezSphereManipulatorAdapter()
-{
-}
+ezSphereManipulatorAdapter::~ezSphereManipulatorAdapter() {}
 
 void ezSphereManipulatorAdapter::Finalize()
 {
@@ -55,23 +52,24 @@ void ezSphereManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezGizmoEvent::Type::BeginInteractions:
-    BeginTemporaryInteraction();
-    break;
+    case ezGizmoEvent::Type::BeginInteractions:
+      BeginTemporaryInteraction();
+      break;
 
-  case ezGizmoEvent::Type::CancelInteractions:
-    CancelTemporayInteraction();
-    break;
+    case ezGizmoEvent::Type::CancelInteractions:
+      CancelTemporayInteraction();
+      break;
 
-  case ezGizmoEvent::Type::EndInteractions:
-    EndTemporaryInteraction();
-    break;
+    case ezGizmoEvent::Type::EndInteractions:
+      EndTemporaryInteraction();
+      break;
 
-  case ezGizmoEvent::Type::Interaction:
+    case ezGizmoEvent::Type::Interaction:
     {
       const ezSphereManipulatorAttribute* pAttr = static_cast<const ezSphereManipulatorAttribute*>(m_pManipulatorAttr);
 
-      ChangeProperties(pAttr->GetInnerRadiusProperty(), m_Gizmo.GetInnerRadius(), pAttr->GetOuterRadiusProperty(), m_Gizmo.GetOuterRadius());
+      ChangeProperties(pAttr->GetInnerRadiusProperty(), m_Gizmo.GetInnerRadius(), pAttr->GetOuterRadiusProperty(),
+                       m_Gizmo.GetOuterRadius());
     }
     break;
   }
@@ -81,5 +79,3 @@ void ezSphereManipulatorAdapter::UpdateGizmoTransform()
 {
   m_Gizmo.SetTransformation(GetObjectTransform());
 }
-
-

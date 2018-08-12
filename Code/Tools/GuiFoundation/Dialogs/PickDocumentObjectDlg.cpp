@@ -1,12 +1,13 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <GuiFoundation/Dialogs/PickDocumentObjectDlg.moc.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 ezQtPickDocumentObjectDlg::ezQtPickDocumentObjectDlg(QWidget* parent, const ezArrayPtr<Element>& objects, const ezUuid& currentObject)
-  : QDialog(parent)
-  , m_Objects(objects)
-  , m_CurrentObject(currentObject)
+    : QDialog(parent)
+    , m_Objects(objects)
+    , m_CurrentObject(currentObject)
 {
   setupUi(this);
 
@@ -82,6 +83,3 @@ void ezQtPickDocumentObjectDlg::on_ObjectTree_itemDoubleClicked(QTreeWidgetItem*
     accept();
   }
 }
-
-
-

@@ -1,9 +1,10 @@
-﻿#include <PCH.h>
-#include <ProceduralPlacementPlugin/Resources/ProceduralPlacementResource.h>
-#include <ProceduralPlacementPlugin/VM/ExpressionByteCode.h>
-#include <GameEngine/Curves/ColorGradientResource.h>
+#include <PCH.h>
+
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/ChunkStream.h>
+#include <GameEngine/Curves/ColorGradientResource.h>
+#include <ProceduralPlacementPlugin/Resources/ProceduralPlacementResource.h>
+#include <ProceduralPlacementPlugin/VM/ExpressionByteCode.h>
 
 namespace ezPPInternal
 {
@@ -14,15 +15,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementResource, 1, ezRTTIDefaultA
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezProceduralPlacementResource::ezProceduralPlacementResource()
-  : ezResource<ezProceduralPlacementResource, ezProceduralPlacementResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource<ezProceduralPlacementResource, ezProceduralPlacementResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
-
 }
 
-ezProceduralPlacementResource::~ezProceduralPlacementResource()
-{
-
-}
+ezProceduralPlacementResource::~ezProceduralPlacementResource() {}
 
 const ezDynamicArray<ezSharedPtr<const ezPPInternal::Layer>>& ezProceduralPlacementResource::GetLayers() const
 {
@@ -175,7 +172,7 @@ void ezProceduralPlacementResource::UpdateMemoryUsage(MemoryUsage& out_NewMemory
 
 ezResourceLoadDesc ezProceduralPlacementResource::CreateResource(const ezProceduralPlacementResourceDescriptor& descriptor)
 {
-  //EZ_REPORT_FAILURE("This resource type does not support creating data.");
+  // EZ_REPORT_FAILURE("This resource type does not support creating data.");
 
   // Missing resource
 
@@ -199,4 +196,3 @@ ezResourceLoadDesc ezProceduralPlacementResource::CreateResource(const ezProcedu
 
   return res;
 }
-

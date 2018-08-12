@@ -1,14 +1,16 @@
 #include <PCH.h>
+
+#include <Foundation/Types/Status.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeStorageAccessor.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
-#include <Foundation/Types/Status.h>
 
 
 ////////////////////////////////////////////////////////////////////////
 // ezReflectedTypeStorageAccessor public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezReflectedTypeStorageAccessor::ezReflectedTypeStorageAccessor(const ezRTTI* pRtti, ezDocumentObject* pOwner) : ezIReflectedTypeAccessor(pRtti, pOwner)
+ezReflectedTypeStorageAccessor::ezReflectedTypeStorageAccessor(const ezRTTI* pRtti, ezDocumentObject* pOwner)
+    : ezIReflectedTypeAccessor(pRtti, pOwner)
 {
   const ezRTTI* pType = pRtti;
   EZ_ASSERT_DEV(pType != nullptr, "Trying to construct an ezReflectedTypeStorageAccessor for an invalid type!");
@@ -58,10 +60,10 @@ const ezVariant ezReflectedTypeStorageAccessor::GetValue(const char* szProperty,
 
     switch (pProp->GetCategory())
     {
-    case ezPropertyCategory::Member:
-      return m_Data[storageInfo->m_uiIndex];
-    case ezPropertyCategory::Array:
-    case ezPropertyCategory::Set:
+      case ezPropertyCategory::Member:
+        return m_Data[storageInfo->m_uiIndex];
+      case ezPropertyCategory::Array:
+      case ezPropertyCategory::Set:
       {
         const ezVariantArray& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantArray>();
         if (index.CanConvertTo<ezUInt32>())
@@ -76,7 +78,7 @@ const ezVariant ezReflectedTypeStorageAccessor::GetValue(const char* szProperty,
           *pRes = ezStatus(ezFmt("Index '{0}' for property '{1}' is invalid or out of bounds.", index, szProperty));
       }
       break;
-    case ezPropertyCategory::Map:
+      case ezPropertyCategory::Map:
       {
         const ezVariantDictionary& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantDictionary>();
         if (index.IsA<ezString>())
@@ -91,8 +93,8 @@ const ezVariant ezReflectedTypeStorageAccessor::GetValue(const char* szProperty,
           *pRes = ezStatus(ezFmt("Index '{0}' for property '{1}' is invalid or out of bounds.", index, szProperty));
       }
       break;
-    default:
-      break;
+      default:
+        break;
     }
   }
   return ezVariant();
@@ -113,7 +115,7 @@ bool ezReflectedTypeStorageAccessor::SetValue(const char* szProperty, const ezVa
 
     switch (pProp->GetCategory())
     {
-    case ezPropertyCategory::Member:
+      case ezPropertyCategory::Member:
       {
         if (value.IsA<ezString>() && pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
         {
@@ -136,8 +138,8 @@ bool ezReflectedTypeStorageAccessor::SetValue(const char* szProperty, const ezVa
         }
       }
       break;
-    case ezPropertyCategory::Array:
-    case ezPropertyCategory::Set:
+      case ezPropertyCategory::Array:
+      case ezPropertyCategory::Set:
       {
         const ezVariantArray& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantArray>();
         if (index.CanConvertTo<ezUInt32>())
@@ -154,7 +156,8 @@ bool ezReflectedTypeStorageAccessor::SetValue(const char* szProperty, const ezVa
             }
             else
             {
-              const auto SpecVarType = pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+              const auto SpecVarType =
+                  pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
               if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
               {
                 m_Data[storageInfo->m_uiIndex] = value;
@@ -173,7 +176,7 @@ bool ezReflectedTypeStorageAccessor::SetValue(const char* szProperty, const ezVa
         }
       }
       break;
-    case ezPropertyCategory::Map:
+      case ezPropertyCategory::Map:
       {
         const ezVariantDictionary& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantDictionary>();
         if (index.IsA<ezString>() && values.Contains(index.Get<ezString>()))
@@ -188,7 +191,8 @@ bool ezReflectedTypeStorageAccessor::SetValue(const char* szProperty, const ezVa
           }
           else
           {
-            const auto SpecVarType = pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+            const auto SpecVarType =
+                pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
             if (value.CanConvertTo(SpecVarType))
             {
               // We are lenient here regarding the type, as we may have stored values in the undo-redo stack
@@ -201,8 +205,8 @@ bool ezReflectedTypeStorageAccessor::SetValue(const char* szProperty, const ezVa
         }
       }
       break;
-    default:
-      break;
+      default:
+        break;
     }
   }
   return false;
@@ -222,19 +226,19 @@ ezInt32 ezReflectedTypeStorageAccessor::GetCount(const char* szProperty) const
 
     switch (pProp->GetCategory())
     {
-    case ezPropertyCategory::Array:
-    case ezPropertyCategory::Set:
+      case ezPropertyCategory::Array:
+      case ezPropertyCategory::Set:
       {
         const ezVariantArray& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantArray>();
         return values.GetCount();
       }
-    case ezPropertyCategory::Map:
+      case ezPropertyCategory::Map:
       {
         const ezVariantDictionary& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantDictionary>();
         return values.GetCount();
       }
-    default:
-      break;
+      default:
+        break;
     }
   }
   return -1;
@@ -256,8 +260,8 @@ bool ezReflectedTypeStorageAccessor::GetKeys(const char* szProperty, ezHybridArr
 
     switch (pProp->GetCategory())
     {
-    case ezPropertyCategory::Array:
-    case ezPropertyCategory::Set:
+      case ezPropertyCategory::Array:
+      case ezPropertyCategory::Set:
       {
         const ezVariantArray& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantArray>();
         out_keys.Reserve(values.GetCount());
@@ -268,7 +272,7 @@ bool ezReflectedTypeStorageAccessor::GetKeys(const char* szProperty, ezHybridArr
         return true;
       }
       break;
-    case ezPropertyCategory::Map:
+      case ezPropertyCategory::Map:
       {
         const ezVariantDictionary& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantDictionary>();
         out_keys.Reserve(values.GetCount());
@@ -280,8 +284,8 @@ bool ezReflectedTypeStorageAccessor::GetKeys(const char* szProperty, ezHybridArr
       }
       break;
 
-    default:
-      break;
+      default:
+        break;
     }
   }
   return false;
@@ -300,8 +304,8 @@ bool ezReflectedTypeStorageAccessor::InsertValue(const char* szProperty, ezVaria
 
     switch (pProp->GetCategory())
     {
-    case ezPropertyCategory::Array:
-    case ezPropertyCategory::Set:
+      case ezPropertyCategory::Array:
+      case ezPropertyCategory::Set:
       {
         const ezVariantArray& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantArray>();
         if (index.CanConvertTo<ezUInt32>())
@@ -310,7 +314,8 @@ bool ezReflectedTypeStorageAccessor::InsertValue(const char* szProperty, ezVaria
           if (uiIndex <= values.GetCount())
           {
             ezVariantArray changedValues = values;
-            const auto SpecVarType = pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+            const auto SpecVarType =
+                pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
             if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
             {
               changedValues.Insert(value, uiIndex);
@@ -329,14 +334,15 @@ bool ezReflectedTypeStorageAccessor::InsertValue(const char* szProperty, ezVaria
         }
       }
       break;
-    case ezPropertyCategory::Map:
+      case ezPropertyCategory::Map:
       {
         const ezVariantDictionary& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantDictionary>();
         if (index.IsA<ezString>() && !values.Contains(index.Get<ezString>()))
         {
           const ezString& sIndex = index.Get<ezString>();
           ezVariantDictionary changedValues = values;
-          const auto SpecVarType = pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+          const auto SpecVarType =
+              pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
           if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
           {
             changedValues.Insert(sIndex, value);
@@ -354,8 +360,8 @@ bool ezReflectedTypeStorageAccessor::InsertValue(const char* szProperty, ezVaria
         }
       }
       break;
-    default:
-      break;
+      default:
+        break;
     }
   }
   return false;
@@ -375,8 +381,8 @@ bool ezReflectedTypeStorageAccessor::RemoveValue(const char* szProperty, ezVaria
 
     switch (pProp->GetCategory())
     {
-    case ezPropertyCategory::Array:
-    case ezPropertyCategory::Set:
+      case ezPropertyCategory::Array:
+      case ezPropertyCategory::Set:
       {
         const ezVariantArray& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantArray>();
         if (index.CanConvertTo<ezUInt32>())
@@ -392,7 +398,7 @@ bool ezReflectedTypeStorageAccessor::RemoveValue(const char* szProperty, ezVaria
         }
       }
       break;
-    case ezPropertyCategory::Map:
+      case ezPropertyCategory::Map:
       {
         const ezVariantDictionary& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantDictionary>();
         if (index.IsA<ezString>() && values.Contains(index.Get<ezString>()))
@@ -405,8 +411,8 @@ bool ezReflectedTypeStorageAccessor::RemoveValue(const char* szProperty, ezVaria
         }
       }
       break;
-    default:
-      break;
+      default:
+        break;
     }
   }
   return false;
@@ -426,8 +432,8 @@ bool ezReflectedTypeStorageAccessor::MoveValue(const char* szProperty, ezVariant
 
     switch (pProp->GetCategory())
     {
-    case ezPropertyCategory::Array:
-    case ezPropertyCategory::Set:
+      case ezPropertyCategory::Array:
+      case ezPropertyCategory::Set:
       {
         const ezVariantArray& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantArray>();
         if (oldIndex.CanConvertTo<ezUInt32>() && newIndex.CanConvertTo<ezUInt32>())
@@ -451,7 +457,7 @@ bool ezReflectedTypeStorageAccessor::MoveValue(const char* szProperty, ezVariant
         }
       }
       break;
-    case ezPropertyCategory::Map:
+      case ezPropertyCategory::Map:
       {
         const ezVariantDictionary& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantDictionary>();
         if (oldIndex.IsA<ezString>() && values.Contains(oldIndex.Get<ezString>()) && newIndex.IsA<ezString>())
@@ -464,8 +470,8 @@ bool ezReflectedTypeStorageAccessor::MoveValue(const char* szProperty, ezVariant
           return true;
         }
       }
-    default:
-      break;
+      default:
+        break;
     }
   }
   return false;
@@ -485,10 +491,11 @@ ezVariant ezReflectedTypeStorageAccessor::GetPropertyChildIndex(const char* szPr
 
     switch (pProp->GetCategory())
     {
-    case ezPropertyCategory::Array:
-    case ezPropertyCategory::Set:
+      case ezPropertyCategory::Array:
+      case ezPropertyCategory::Set:
       {
-        const auto SpecVarType = pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+        const auto SpecVarType =
+            pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
         if (value.CanConvertTo(SpecVarType))
         {
           const ezVariantArray& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantArray>();
@@ -500,9 +507,10 @@ ezVariant ezReflectedTypeStorageAccessor::GetPropertyChildIndex(const char* szPr
         }
       }
       break;
-    case ezPropertyCategory::Map:
+      case ezPropertyCategory::Map:
       {
-        const auto SpecVarType = pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+        const auto SpecVarType =
+            pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
         if (value.CanConvertTo(SpecVarType))
         {
           const ezVariantDictionary& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantDictionary>();
@@ -514,11 +522,9 @@ ezVariant ezReflectedTypeStorageAccessor::GetPropertyChildIndex(const char* szPr
         }
       }
       break;
-    default:
-      break;
+      default:
+        break;
     }
   }
   return ezVariant();
 }
-
-

@@ -1,14 +1,15 @@
 #include <PCH.h>
-#include <EditorFramework/DocumentWindow/QuadViewWidget.moc.h>
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorFramework/Preferences/QuadViewPreferences.h>
-#include <EditorFramework/Preferences/EditorPreferences.h>
+
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/DocumentWindow/QuadViewWidget.moc.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
+#include <EditorFramework/Preferences/QuadViewPreferences.h>
 #include <QGridLayout>
 
-ezQtQuadViewWidget::ezQtQuadViewWidget(ezAssetDocument* pDocument, ezQtEngineDocumentWindow* pWindow,
-  ViewFactory viewFactory, const char* szViewToolBarMapping)
+ezQtQuadViewWidget::ezQtQuadViewWidget(ezAssetDocument* pDocument, ezQtEngineDocumentWindow* pWindow, ViewFactory viewFactory,
+                                       const char* szViewToolBarMapping)
 {
   m_pDocument = pDocument;
   m_pWindow = pWindow;
@@ -59,7 +60,6 @@ void ezQtQuadViewWidget::LoadViewConfig(ezEngineViewConfig& cfg, ezEngineViewPre
   pref.m_vCamUp.NormalizeIfNotZero(pref.m_vCamDir.GetOrthogonalVector().GetNormalized());
 
   cfg.m_Camera.LookAt(pref.m_vCamPos, pref.m_vCamPos + pref.m_vCamDir, pref.m_vCamUp);
-
 }
 
 void ezQtQuadViewWidget::SaveViewConfigs() const
@@ -104,7 +104,6 @@ void ezQtQuadViewWidget::CreateViews(bool bQuad)
       ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(m_pWindow, pViewWidget, m_sViewToolBarMapping);
       m_ActiveMainViews.PushBack(pContainer);
       m_pViewLayout->addWidget(pContainer, i / 2, i % 2);
-
     }
   }
   else
@@ -135,5 +134,3 @@ void ezQtQuadViewWidget::ToggleViews(QWidget* pView)
     CreateViews(true);
   }
 }
-
-

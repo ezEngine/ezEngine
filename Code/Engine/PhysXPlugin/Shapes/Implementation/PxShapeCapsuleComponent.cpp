@@ -1,11 +1,13 @@
 #include <PCH.h>
+
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <PhysXPlugin/Shapes/PxShapeCapsuleComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
 
 using namespace physx;
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezPxShapeCapsuleComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -27,6 +29,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeCapsuleComponent, 1, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezPxShapeCapsuleComponent::ezPxShapeCapsuleComponent()
 {
@@ -99,7 +102,4 @@ PxShape* ezPxShapeCapsuleComponent::CreateShape(PxRigidActor* pActor, PxTransfor
 
 
 
-
-
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Shapes_Implementation_PxShapeCapsuleComponent);
-

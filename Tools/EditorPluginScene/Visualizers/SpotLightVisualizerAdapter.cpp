@@ -1,17 +1,14 @@
-﻿#include <PCH.h>
-#include <EditorPluginScene/Visualizers/SpotLightVisualizerAdapter.h>
+#include <PCH.h>
+
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>
-#include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <EditorPluginScene/Visualizers/SpotLightVisualizerAdapter.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezSpotLightVisualizerAdapter::ezSpotLightVisualizerAdapter()
-{
-}
+ezSpotLightVisualizerAdapter::ezSpotLightVisualizerAdapter() {}
 
-ezSpotLightVisualizerAdapter::~ezSpotLightVisualizerAdapter()
-{
-}
+ezSpotLightVisualizerAdapter::~ezSpotLightVisualizerAdapter() {}
 
 void ezSpotLightVisualizerAdapter::Finalize()
 {
@@ -73,5 +70,3 @@ void ezSpotLightVisualizerAdapter::UpdateGizmoTransform()
   t.m_vScale = t.m_vScale.CompMul(ezVec3(1.0f, m_fAngleScale, m_fAngleScale) * m_fScale);
   m_Gizmo.SetTransformation(t);
 }
-
-

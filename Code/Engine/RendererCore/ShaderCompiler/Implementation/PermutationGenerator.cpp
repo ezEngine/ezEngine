@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 
 void ezPermutationGenerator::Clear()
@@ -54,4 +55,3 @@ void ezPermutationGenerator::GetPermutation(ezUInt32 uiPerm, ezHybridArray<ezPer
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_ShaderCompiler_Implementation_PermutationGenerator);
-

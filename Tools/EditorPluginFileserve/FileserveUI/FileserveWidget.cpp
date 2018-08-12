@@ -1,21 +1,22 @@
 #include <PCH.h>
-#include <EditorPluginFileserve/FileserveUI/FileserveWidget.moc.h>
+
 #include <EditorPluginFileserve/FileserveUI/ActivityModel.moc.h>
 #include <EditorPluginFileserve/FileserveUI/AllFilesModel.moc.h>
+#include <EditorPluginFileserve/FileserveUI/FileserveWidget.moc.h>
 #include <FileservePlugin/Fileserver/Fileserver.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <GuiFoundation/Basics.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <QMessageBox>
-#include <QTimer>
-#include <QHostAddress>
 #include <QAbstractSocket>
-#include <QNetworkInterface>
-#include <QTableWidget>
+#include <QHostAddress>
 #include <QInputDialog>
+#include <QMessageBox>
+#include <QNetworkInterface>
 #include <QSettings>
+#include <QTableWidget>
+#include <QTimer>
 
-ezQtFileserveWidget::ezQtFileserveWidget(QWidget *parent /*= nullptr*/)
+ezQtFileserveWidget::ezQtFileserveWidget(QWidget* parent /*= nullptr*/)
 {
   setupUi(this);
   Progress->reset();
@@ -40,13 +41,13 @@ ezQtFileserveWidget::ezQtFileserveWidget(QWidget *parent /*= nullptr*/)
   }
 
   {
-    QHeaderView *verticalHeader = ActivityList->verticalHeader();
+    QHeaderView* verticalHeader = ActivityList->verticalHeader();
     verticalHeader->setSectionResizeMode(QHeaderView::Fixed);
     verticalHeader->setDefaultSectionSize(24);
   }
 
   {
-    QHeaderView *verticalHeader = AllFilesList->verticalHeader();
+    QHeaderView* verticalHeader = AllFilesList->verticalHeader();
     verticalHeader->setSectionResizeMode(QHeaderView::Fixed);
     verticalHeader->setDefaultSectionSize(24);
   }
@@ -77,11 +78,13 @@ ezQtFileserveWidget::ezQtFileserveWidget(QWidget *parent /*= nullptr*/)
   SpecialDirBrowseButton->setVisible(false);
   SpecialDirRemoveButton->setVisible(false);
 
-  SpecialDirList->setToolTip("Special directories allow to redirect mount requests from the client to a specific folder on the server.\n\n"
-                             "Some special directories are built in (e.g. 'sdk', 'user' and 'appdir') but you can add custom ones, if your app needs one.\n"
-                             "To add special directories, run Fileserve with the command line argument '-specialdirs' followed by the name and the path to a directory.\n\n"
-                             "For instance:\n"
-                             "-specialdirs project \"C:\\path\\to\\project\" secondDir \"d:\\another\\path\"");
+  SpecialDirList->setToolTip(
+      "Special directories allow to redirect mount requests from the client to a specific folder on the server.\n\n"
+      "Some special directories are built in (e.g. 'sdk', 'user' and 'appdir') but you can add custom ones, if your app needs one.\n"
+      "To add special directories, run Fileserve with the command line argument '-specialdirs' followed by the name and the path to a "
+      "directory.\n\n"
+      "For instance:\n"
+      "-specialdirs project \"C:\\path\\to\\project\" secondDir \"d:\\another\\path\"");
 
   ConfigureSpecialDirectories();
 
@@ -153,7 +156,8 @@ void ezQtFileserveWidget::on_StartServerButton_clicked()
   {
     if (ezFileserver::GetSingleton()->IsServerRunning())
     {
-      if (QMessageBox::question(this, "Stop Server?", "Stop Server?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+      if (QMessageBox::question(this, "Stop Server?", "Stop Server?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) ==
+          QMessageBox::No)
         return;
 
       ezFileserver::GetSingleton()->StopServer();
@@ -235,7 +239,7 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezFileserverEvent::Type::ServerStarted:
+    case ezFileserverEvent::Type::ServerStarted:
     {
       LogActivity("", ezFileserveActivityType::StartServer);
       PortLineEdit->setEnabled(false);
@@ -249,7 +253,7 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
     }
     break;
 
-  case ezFileserverEvent::Type::ServerStopped:
+    case ezFileserverEvent::Type::ServerStopped:
     {
       LogActivity("", ezFileserveActivityType::StopServer);
       PortLineEdit->setEnabled(true);
@@ -260,7 +264,7 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
     }
     break;
 
-  case ezFileserverEvent::Type::ClientConnected:
+    case ezFileserverEvent::Type::ClientConnected:
     {
       LogActivity("", ezFileserveActivityType::ClientConnect);
       m_Clients[e.m_uiClientID].m_bConnected = true;
@@ -269,7 +273,7 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
     }
     break;
 
-  case ezFileserverEvent::Type::ClientReconnected:
+    case ezFileserverEvent::Type::ClientReconnected:
     {
       LogActivity("", ezFileserveActivityType::ClientReconnected);
       m_Clients[e.m_uiClientID].m_bConnected = true;
@@ -278,7 +282,7 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
     }
     break;
 
-  case ezFileserverEvent::Type::ClientDisconnected:
+    case ezFileserverEvent::Type::ClientDisconnected:
     {
       LogActivity("", ezFileserveActivityType::ClientDisconnect);
       m_Clients[e.m_uiClientID].m_bConnected = false;
@@ -287,7 +291,7 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
     }
     break;
 
-  case ezFileserverEvent::Type::MountDataDir:
+    case ezFileserverEvent::Type::MountDataDir:
     {
       LogActivity(e.m_szPath, ezFileserveActivityType::Mount);
 
@@ -300,7 +304,7 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
     }
     break;
 
-  case ezFileserverEvent::Type::MountDataDirFailed:
+    case ezFileserverEvent::Type::MountDataDirFailed:
     {
       LogActivity(e.m_szPath, ezFileserveActivityType::MountFailed);
 
@@ -313,7 +317,7 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
     }
     break;
 
-  case ezFileserverEvent::Type::UnmountDataDir:
+    case ezFileserverEvent::Type::UnmountDataDir:
     {
       LogActivity(e.m_szName, ezFileserveActivityType::Unmount);
 
@@ -331,7 +335,7 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
     }
     break;
 
-  case ezFileserverEvent::Type::FileDownloadRequest:
+    case ezFileserverEvent::Type::FileDownloadRequest:
     {
       m_pAllFilesModel->AddAccessedFile(e.m_szPath);
       TransferLabel->setText(QString("Downloading: %1").arg(e.m_szPath));
@@ -354,7 +358,7 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
     }
     break;
 
-  case ezFileserverEvent::Type::FileDownloading:
+    case ezFileserverEvent::Type::FileDownloading:
     {
       if (ezTime::Now() - m_LastProgressUpdate > ezTime::Milliseconds(100))
       {
@@ -364,18 +368,18 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
     }
     break;
 
-  case ezFileserverEvent::Type::FileDownloadFinished:
+    case ezFileserverEvent::Type::FileDownloadFinished:
     {
       TransferLabel->setText(QString());
       Progress->reset();
     }
     break;
 
-  case ezFileserverEvent::Type::FileDeleteRequest:
-    LogActivity(e.m_szPath, ezFileserveActivityType::DeleteFile);
-    break;
+    case ezFileserverEvent::Type::FileDeleteRequest:
+      LogActivity(e.m_szPath, ezFileserveActivityType::DeleteFile);
+      break;
 
-  case ezFileserverEvent::Type::FileUploadRequest:
+    case ezFileserverEvent::Type::FileUploadRequest:
     {
       LogActivity(ezFmt("({1} KB) {0}", e.m_szPath, ezArgF(e.m_uiSizeTotal / 1024.0f, 1)), ezFileserveActivityType::WriteFile);
       TransferLabel->setText(QString("Uploading: %1").arg(e.m_szPath));
@@ -383,7 +387,7 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
     }
     break;
 
-  case ezFileserverEvent::Type::FileUploading:
+    case ezFileserverEvent::Type::FileUploading:
     {
       if (ezTime::Now() - m_LastProgressUpdate > ezTime::Milliseconds(100))
       {
@@ -393,14 +397,14 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
     }
     break;
 
-  case ezFileserverEvent::Type::FileUploadFinished:
+    case ezFileserverEvent::Type::FileUploadFinished:
     {
       TransferLabel->setText(QString());
       Progress->reset();
     }
     break;
 
-  case ezFileserverEvent::Type::AreYouThereRequest:
+    case ezFileserverEvent::Type::AreYouThereRequest:
     {
       LogActivity("Client searching for Server", ezFileserveActivityType::Other);
     }
@@ -501,8 +505,6 @@ void ezQtFileserveWidget::UpdateSpecialDirectoryUI()
 
     ++row;
   }
-
-
 }
 
 void ezQtFileserveWidget::UpdateClientList()
@@ -570,4 +572,3 @@ void ezQtFileserveWidget::ConfigureSpecialDirectories()
     sd.m_sPath = sPath;
   }
 }
-

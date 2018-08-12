@@ -1,15 +1,16 @@
 #include <PCH.h>
+
+#include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Strings/StringBuilder.h>
 #include <GuiFoundation/Widgets/EventTrackWidget.moc.h>
 #include <GuiFoundation/Widgets/GridBarWidget.moc.h>
 #include <GuiFoundation/Widgets/WidgetUtils.h>
-#include <Foundation/Containers/HybridArray.h>
-#include <Foundation/Strings/StringBuilder.h>
 #include <QPainter>
-#include <qevent.h>
 #include <QRubberBand>
+#include <qevent.h>
 
 ezQtEventTrackWidget::ezQtEventTrackWidget(QWidget* parent)
-  : QWidget(parent)
+    : QWidget(parent)
 {
   setFocusPolicy(Qt::FocusPolicy::ClickFocus);
   setMouseTracking(true);
@@ -83,7 +84,7 @@ void ezQtEventTrackWidget::RecreateSortedData()
   // and when we sort, the selection index does not match when moving points around
 
   // sort points by X position
-  //for (auto& cat : m_Categories)
+  // for (auto& cat : m_Categories)
   //{
   //  cat.m_SortedPoints.Sort([](const ezQtEventTrackWidget::Point& lhs, const ezQtEventTrackWidget::Point& rhs) -> bool
   //  {
@@ -123,8 +124,8 @@ void ezQtEventTrackWidget::FrameCurve()
       maxX = ezMath::Max(maxX, pos);
     }
 
-    //fWidth = m_selectionBRect.width();
-    //fOffsetX = m_selectionBRect.left();
+    // fWidth = m_selectionBRect.width();
+    // fOffsetX = m_selectionBRect.left();
     fWidth = maxX - minX;
     fOffsetX = minX;
   }
@@ -270,18 +271,15 @@ QRectF ezQtEventTrackWidget::ComputeViewportSceneRect() const
   return QRectF(topLeft, bottomRight);
 }
 
-static ezColorGammaUB g_EventColors[10 * 3] =
-{
-  ezColorGammaUB(255, 102, 0), ezColorGammaUB(76, 255, 0), ezColorGammaUB(0, 255, 255),
-  ezColorGammaUB(239, 35, 0), ezColorGammaUB(127, 255, 0), ezColorGammaUB(0, 0 ,255),
-  ezColorGammaUB(205, 92, 92), ezColorGammaUB(120, 158, 39), ezColorGammaUB(81, 120, 188),
-  ezColorGammaUB(255, 105, 180), ezColorGammaUB(0, 250, 154), ezColorGammaUB(0, 191, 255),
-  ezColorGammaUB(220, 20, 60), ezColorGammaUB(0, 255, 127), ezColorGammaUB(30, 144, 255),
-  ezColorGammaUB(240, 128, 128), ezColorGammaUB(60, 179, 113), ezColorGammaUB(135, 206, 250),
-  ezColorGammaUB(178, 34, 34), ezColorGammaUB(46, 139, 87), ezColorGammaUB(65, 105, 225),
-  ezColorGammaUB(211, 122, 122), ezColorGammaUB(144, 238, 144), ezColorGammaUB(135, 206, 235),
-  ezColorGammaUB(219, 112, 147), ezColorGammaUB(0, 128, 0), ezColorGammaUB(70, 130, 180),
-  ezColorGammaUB(255, 182, 193), ezColorGammaUB(102, 205, 170), ezColorGammaUB(100, 149, 237),
+static ezColorGammaUB g_EventColors[10 * 3] = {
+    ezColorGammaUB(255, 102, 0),   ezColorGammaUB(76, 255, 0),    ezColorGammaUB(0, 255, 255),   ezColorGammaUB(239, 35, 0),
+    ezColorGammaUB(127, 255, 0),   ezColorGammaUB(0, 0, 255),     ezColorGammaUB(205, 92, 92),   ezColorGammaUB(120, 158, 39),
+    ezColorGammaUB(81, 120, 188),  ezColorGammaUB(255, 105, 180), ezColorGammaUB(0, 250, 154),   ezColorGammaUB(0, 191, 255),
+    ezColorGammaUB(220, 20, 60),   ezColorGammaUB(0, 255, 127),   ezColorGammaUB(30, 144, 255),  ezColorGammaUB(240, 128, 128),
+    ezColorGammaUB(60, 179, 113),  ezColorGammaUB(135, 206, 250), ezColorGammaUB(178, 34, 34),   ezColorGammaUB(46, 139, 87),
+    ezColorGammaUB(65, 105, 225),  ezColorGammaUB(211, 122, 122), ezColorGammaUB(144, 238, 144), ezColorGammaUB(135, 206, 235),
+    ezColorGammaUB(219, 112, 147), ezColorGammaUB(0, 128, 0),     ezColorGammaUB(70, 130, 180),  ezColorGammaUB(255, 182, 193),
+    ezColorGammaUB(102, 205, 170), ezColorGammaUB(100, 149, 237),
 };
 
 void ezQtEventTrackWidget::paintEvent(QPaintEvent* e)
@@ -307,10 +305,8 @@ void ezQtEventTrackWidget::paintEvent(QPaintEvent* e)
 
   if (m_pGridBar)
   {
-    m_pGridBar->SetConfig(viewportSceneRect, fRoughGridDensity, fFineGridDensity, [this](const QPointF& pt) -> QPoint
-    {
-      return MapFromScene(pt);
-    });
+    m_pGridBar->SetConfig(viewportSceneRect, fRoughGridDensity, fFineGridDensity,
+                          [this](const QPointF& pt) -> QPoint { return MapFromScene(pt); });
   }
 
   PaintOutsideAreaOverlay(&painter);
@@ -352,18 +348,18 @@ void ezQtEventTrackWidget::mousePressEvent(QMouseEvent* e)
 
         switch (WhereIsPoint(e->pos()))
         {
-        case ezQtEventTrackWidget::SelectArea::Center:
-          m_State = EditState::DraggingPoints;
-          m_totalPointDrag = QPointF();
-          break;
-        case ezQtEventTrackWidget::SelectArea::Left:
-          m_State = EditState::ScaleLeftRight;
-          m_scaleReferencePoint = m_selectionBRect.topRight();
-          break;
-        case ezQtEventTrackWidget::SelectArea::Right:
-          m_State = EditState::ScaleLeftRight;
-          m_scaleReferencePoint = m_selectionBRect.topLeft();
-          break;
+          case ezQtEventTrackWidget::SelectArea::Center:
+            m_State = EditState::DraggingPoints;
+            m_totalPointDrag = QPointF();
+            break;
+          case ezQtEventTrackWidget::SelectArea::Left:
+            m_State = EditState::ScaleLeftRight;
+            m_scaleReferencePoint = m_selectionBRect.topRight();
+            break;
+          case ezQtEventTrackWidget::SelectArea::Right:
+            m_State = EditState::ScaleLeftRight;
+            m_scaleReferencePoint = m_selectionBRect.topLeft();
+            break;
         }
       }
 
@@ -445,9 +441,7 @@ void ezQtEventTrackWidget::mouseReleaseEvent(QMouseEvent* e)
   }
 
   if (e->button() == Qt::LeftButton &&
-    (m_State == EditState::DraggingPoints ||
-      m_State == EditState::ScaleLeftRight ||
-      m_State == EditState::MultiSelect))
+      (m_State == EditState::DraggingPoints || m_State == EditState::ScaleLeftRight || m_State == EditState::MultiSelect))
   {
     m_State = EditState::None;
     m_totalPointDrag = QPointF();
@@ -518,7 +512,7 @@ void ezQtEventTrackWidget::mouseMoveEvent(QMouseEvent* e)
 
   const QPoint diff = e->pos() - m_LastMousePos;
   double moveX = (double)diff.x() / m_SceneToPixelScale.x();
-  double moveY = 0;// (double)diff.y() / m_SceneToPixelScale.y();
+  double moveY = 0; // (double)diff.y() / m_SceneToPixelScale.y();
 
   if (m_State == EditState::RightClick || m_State == EditState::Panning)
   {
@@ -549,13 +543,13 @@ void ezQtEventTrackWidget::mouseMoveEvent(QMouseEvent* e)
   {
     switch (WhereIsPoint(e->pos()))
     {
-    case ezQtEventTrackWidget::SelectArea::Center:
-      //cursor = Qt::SizeAllCursor;
-      break;
-    case ezQtEventTrackWidget::SelectArea::Left:
-    case ezQtEventTrackWidget::SelectArea::Right:
-      cursor = Qt::SizeHorCursor;
-      break;
+      case ezQtEventTrackWidget::SelectArea::Center:
+        // cursor = Qt::SizeAllCursor;
+        break;
+      case ezQtEventTrackWidget::SelectArea::Left:
+      case ezQtEventTrackWidget::SelectArea::Right:
+        cursor = Qt::SizeHorCursor;
+        break;
     }
   }
 
@@ -803,8 +797,8 @@ void ezQtEventTrackWidget::PaintMultiSelectionSquare(QPainter* painter) const
 
   painter->drawLine(tl.x() - 10, tl.y(), tl.x() - 10, br.y());
   painter->drawLine(br.x() + 10, tl.y(), br.x() + 10, br.y());
-  //painter->drawLine(tl.x(), br.y() - 10, br.x(), br.y() - 10);
-  //painter->drawLine(tl.x(), tl.y() + 10, br.x(), tl.y() + 10);
+  // painter->drawLine(tl.x(), br.y() - 10, br.x(), br.y() - 10);
+  // painter->drawLine(tl.x(), tl.y() + 10, br.x(), tl.y() + 10);
 
   painter->restore();
 }
@@ -953,7 +947,8 @@ void ezQtEventTrackWidget::ExecMultiSelection(ezHybridArray<SelectedPoint, 32>& 
   }
 }
 
-bool ezQtEventTrackWidget::CombineSelection(ezHybridArray<SelectedPoint, 32 >& inout_Selection, const ezHybridArray<SelectedPoint, 32>& change, bool add)
+bool ezQtEventTrackWidget::CombineSelection(ezHybridArray<SelectedPoint, 32>& inout_Selection,
+                                            const ezHybridArray<SelectedPoint, 32>& change, bool add)
 {
   bool bChange = false;
 
@@ -986,7 +981,7 @@ void ezQtEventTrackWidget::ComputeSelectionRect()
   bbox.SetInvalid();
 
   // TODO: properly implement the Y value
-  //for (const auto& cpSel : m_SelectedPoints)
+  // for (const auto& cpSel : m_SelectedPoints)
   //{
   //  const double pos = m_Categories[cpSel.m_uiCategory].m_SortedPoints[cpSel.m_uiSortedIdx].m_fPosX;
 

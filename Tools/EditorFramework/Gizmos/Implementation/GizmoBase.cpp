@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <EditorFramework/Gizmos/GizmoBase.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmo, 1, ezRTTINoAllocator);
@@ -30,4 +31,3 @@ void ezGizmo::SetTransformation(const ezTransform& transform)
 
   OnTransformationChanged(m_Transformation);
 }
-

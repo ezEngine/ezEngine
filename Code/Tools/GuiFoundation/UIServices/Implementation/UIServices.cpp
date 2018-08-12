@@ -1,11 +1,12 @@
 #include <PCH.h>
+
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QSettings>
-#include <QProcess>
+#include <QDesktopServices>
 #include <QDir>
 #include <QIcon>
+#include <QProcess>
+#include <QSettings>
 #include <QUrl>
-#include <QDesktopServices>
 
 EZ_IMPLEMENT_SINGLETON(ezQtUiServices);
 
@@ -19,7 +20,7 @@ bool ezQtUiServices::s_bHeadless;
 static ezQtUiServices g_instance;
 
 ezQtUiServices::ezQtUiServices()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
   int id = qRegisterMetaType<ezUuid>();
   m_pColorDlg = nullptr;
@@ -148,4 +149,3 @@ void ezQtUiServices::OpenInExplorer(const char* szPath, bool bIsFile)
 
   QProcess::startDetached("explorer", args);
 }
-

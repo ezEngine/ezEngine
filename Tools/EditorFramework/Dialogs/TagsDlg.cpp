@@ -1,10 +1,12 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <EditorFramework/Dialogs/TagsDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <QInputDialog>
 #include <QTreeWidget>
 
-ezQtTagsDlg::ezQtTagsDlg(QWidget* parent) : QDialog(parent)
+ezQtTagsDlg::ezQtTagsDlg(QWidget* parent)
+    : QDialog(parent)
 {
   setupUi(this);
 
@@ -65,7 +67,7 @@ void ezQtTagsDlg::on_ButtonNewTag_clicked()
 
   TreeTags->clearSelection();
   TreeTags->setItemSelected(pNewItem, true);
-  //TreeTags->editItem(pNewItem);
+  // TreeTags->editItem(pNewItem);
 }
 
 void ezQtTagsDlg::on_ButtonRemove_clicked()
@@ -80,14 +82,16 @@ void ezQtTagsDlg::on_ButtonRemove_clicked()
 
   if (TreeTags->indexOfTopLevelItem(pItem) >= 0)
   {
-    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove the entire Tag Category?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove the entire Tag Category?",
+                                                           QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
       return;
 
     m_CategoryToItem.Remove(pItem->text(0).toUtf8().data());
   }
   else
   {
-    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove this Tag?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove this Tag?", QMessageBox::Yes | QMessageBox::No,
+                                                           QMessageBox::No) == QMessageBox::No)
       return;
   }
 

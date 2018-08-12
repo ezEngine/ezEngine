@@ -1,74 +1,68 @@
 #include <PCH.h>
+
+#include <Foundation/IO/ChunkStream.h>
 #include <ProceduralPlacementPlugin/VM/ExpressionByteCode.h>
 #include <ProceduralPlacementPlugin/VM/ExpressionFunctions.h>
-#include <Foundation/IO/ChunkStream.h>
 
 ezExpressionByteCode::ezExpressionByteCode()
-  : m_uiNumInstructions(0)
-  , m_uiNumTempRegisters(0)
+    : m_uiNumInstructions(0)
+    , m_uiNumTempRegisters(0)
 {
-
 }
 
-ezExpressionByteCode::~ezExpressionByteCode()
-{
-
-}
+ezExpressionByteCode::~ezExpressionByteCode() {}
 
 namespace
 {
-  static const char* s_szOpCodeNames[] =
-  {
-    // Unary
-    "",
+  static const char* s_szOpCodeNames[] = {
+      // Unary
+      "",
 
-    "Abs_R",
-    "Sqrt_R",
+      "Abs_R",
+      "Sqrt_R",
 
-    "Mov_R",
-    "Mov_C",
-    "Mov_I",
-    "Mov_O",
+      "Mov_R",
+      "Mov_C",
+      "Mov_I",
+      "Mov_O",
 
-    "",
+      "",
 
-    // Binary
-    "",
+      // Binary
+      "",
 
-    "Add_RR",
-    "Add_CR",
+      "Add_RR",
+      "Add_CR",
 
-    "Sub_RR",
-    "Sub_CR",
+      "Sub_RR",
+      "Sub_CR",
 
-    "Mul_RR",
-    "Mul_CR",
+      "Mul_RR",
+      "Mul_CR",
 
-    "Div_RR",
-    "Div_CR",
+      "Div_RR",
+      "Div_CR",
 
-    "Min_RR",
-    "Min_CR",
+      "Min_RR",
+      "Min_CR",
 
-    "Max_RR",
-    "Max_CR",
+      "Max_RR",
+      "Max_CR",
 
-    "",
+      "",
 
-    "Call",
+      "Call",
   };
 
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_ARRAY_SIZE(s_szOpCodeNames) == ezExpressionByteCode::OpCode::Count, "OpCode name array size does not match OpCode type count");
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_ARRAY_SIZE(s_szOpCodeNames) == ezExpressionByteCode::OpCode::Count,
+                              "OpCode name array size does not match OpCode type count");
 
   static bool FirstArgIsConstant(ezExpressionByteCode::OpCode::Enum opCode)
   {
-    return opCode == ezExpressionByteCode::OpCode::Mov_C ||
-      opCode == ezExpressionByteCode::OpCode::Add_CR ||
-      opCode == ezExpressionByteCode::OpCode::Sub_CR ||
-      opCode == ezExpressionByteCode::OpCode::Mul_CR ||
-      opCode == ezExpressionByteCode::OpCode::Div_CR ||
-      opCode == ezExpressionByteCode::OpCode::Min_CR ||
-      opCode == ezExpressionByteCode::OpCode::Max_CR;
+    return opCode == ezExpressionByteCode::OpCode::Mov_C || opCode == ezExpressionByteCode::OpCode::Add_CR ||
+           opCode == ezExpressionByteCode::OpCode::Sub_CR || opCode == ezExpressionByteCode::OpCode::Mul_CR ||
+           opCode == ezExpressionByteCode::OpCode::Div_CR || opCode == ezExpressionByteCode::OpCode::Min_CR ||
+           opCode == ezExpressionByteCode::OpCode::Max_CR;
   }
 }
 

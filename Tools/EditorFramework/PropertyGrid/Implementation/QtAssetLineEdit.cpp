@@ -1,16 +1,17 @@
 #include <PCH.h>
-#include <EditorFramework/PropertyGrid/QtAssetLineEdit.moc.h>
-#include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
-#include <qevent.h>
-#include <QMimeData>
+
 #include "EditorApp/EditorApp.moc.h"
+#include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
+#include <EditorFramework/PropertyGrid/QtAssetLineEdit.moc.h>
+#include <QMimeData>
+#include <qevent.h>
 
-ezQtAssetLineEdit::ezQtAssetLineEdit(QWidget* parent /*= nullptr*/) : QLineEdit(parent)
+ezQtAssetLineEdit::ezQtAssetLineEdit(QWidget* parent /*= nullptr*/)
+    : QLineEdit(parent)
 {
-
 }
 
-void ezQtAssetLineEdit::dragMoveEvent(QDragMoveEvent *e)
+void ezQtAssetLineEdit::dragMoveEvent(QDragMoveEvent* e)
 {
   if (e->mimeData()->hasUrls() && !e->mimeData()->urls().isEmpty())
   {
@@ -18,14 +19,14 @@ void ezQtAssetLineEdit::dragMoveEvent(QDragMoveEvent *e)
 
     if (m_pOwner->IsValidAssetType(str.toUtf8().data()))
       e->acceptProposedAction();
-   
+
     return;
   }
 
   QLineEdit::dragMoveEvent(e);
 }
 
-void ezQtAssetLineEdit::dragEnterEvent(QDragEnterEvent * e)
+void ezQtAssetLineEdit::dragEnterEvent(QDragEnterEvent* e)
 {
   if (e->mimeData()->hasUrls() && !e->mimeData()->urls().isEmpty())
   {
@@ -33,7 +34,7 @@ void ezQtAssetLineEdit::dragEnterEvent(QDragEnterEvent * e)
 
     if (m_pOwner->IsValidAssetType(str.toUtf8().data()))
       e->acceptProposedAction();
-    
+
     return;
   }
 

@@ -1,5 +1,5 @@
-
 #include <PCH.h>
+
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
 #include <RendererFoundation/Shader/Shader.h>
@@ -7,63 +7,24 @@
 #include <d3d11.h>
 
 ezGALVertexDeclarationDX11::ezGALVertexDeclarationDX11(const ezGALVertexDeclarationCreationDescription& Description)
-  : ezGALVertexDeclaration(Description),
-    m_pDXInputLayout(nullptr)
+    : ezGALVertexDeclaration(Description)
+    , m_pDXInputLayout(nullptr)
 {
 }
 
-ezGALVertexDeclarationDX11::~ezGALVertexDeclarationDX11()
-{
-}
+ezGALVertexDeclarationDX11::~ezGALVertexDeclarationDX11() {}
 
-static const char* GALSemanticToDX11[ezGALVertexAttributeSemantic::ENUM_COUNT] =
-{
-  "POSITION",
-  "NORMAL",
-  "TANGENT",
-  "COLOR",
-  "TEXCOORD",
-  "TEXCOORD",
-  "TEXCOORD",
-  "TEXCOORD",
-  "TEXCOORD",
-  "TEXCOORD",
-  "TEXCOORD",
-  "TEXCOORD",
-  "TEXCOORD",
-  "TEXCOORD",
-  "BITANGENT",
-  "BONEINDICES",
-  "BONEINDICES",
-  "BONEWEIGHTS",
-  "BONEWEIGHTS"
-};
+static const char* GALSemanticToDX11[ezGALVertexAttributeSemantic::ENUM_COUNT] = {
+    "POSITION", "NORMAL",   "TANGENT",  "COLOR",    "TEXCOORD",  "TEXCOORD",    "TEXCOORD",    "TEXCOORD",    "TEXCOORD",   "TEXCOORD",
+    "TEXCOORD", "TEXCOORD", "TEXCOORD", "TEXCOORD", "BITANGENT", "BONEINDICES", "BONEINDICES", "BONEWEIGHTS", "BONEWEIGHTS"};
 
-static UINT GALSemanticToIndexDX11[ezGALVertexAttributeSemantic::ENUM_COUNT] =
-{
-  0,
-  0,
-  0,
-  0,
-  0,
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  8,
-  9,
-  0,
-  0,
-  1,
-  0,
-  1
-};
+static UINT GALSemanticToIndexDX11[ezGALVertexAttributeSemantic::ENUM_COUNT] = {0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 1, 0, 1};
 
 // ??
-template<> struct ezIsPodType<D3D11_INPUT_ELEMENT_DESC> : public ezTypeIsPod { };
+template <>
+struct ezIsPodType<D3D11_INPUT_ELEMENT_DESC> : public ezTypeIsPod
+{
+};
 
 
 ezResult ezGALVertexDeclarationDX11::InitPlatform(ezGALDevice* pDevice)
@@ -74,13 +35,13 @@ ezResult ezGALVertexDeclarationDX11::InitPlatform(ezGALDevice* pDevice)
 
   const ezGALShader* pShader = pDevice->GetShader(m_Description.m_hShader);
 
-  if(pShader == nullptr || !pShader->GetDescription().HasByteCodeForStage(ezGALShaderStage::VertexShader))
+  if (pShader == nullptr || !pShader->GetDescription().HasByteCodeForStage(ezGALShaderStage::VertexShader))
   {
     return EZ_FAILURE;
   }
 
   // Copy attribute descriptions
-  for(ezUInt32 i = 0; i < m_Description.m_VertexAttributes.GetCount(); i++)
+  for (ezUInt32 i = 0; i < m_Description.m_VertexAttributes.GetCount(); i++)
   {
     const ezGALVertexAttribute& Current = m_Description.m_VertexAttributes[i];
 
@@ -88,7 +49,7 @@ ezResult ezGALVertexDeclarationDX11::InitPlatform(ezGALDevice* pDevice)
     DXDesc.AlignedByteOffset = Current.m_uiOffset;
     DXDesc.Format = pDXDevice->GetFormatLookupTable().GetFormatInfo(Current.m_eFormat).m_eVertexAttributeType;
 
-    if(DXDesc.Format == DXGI_FORMAT_UNKNOWN)
+    if (DXDesc.Format == DXGI_FORMAT_UNKNOWN)
     {
       ezLog::Error("Vertex attribute format {0} of attribute at index {1} is unknown!", Current.m_eFormat, i);
       return EZ_FAILURE;
@@ -106,7 +67,8 @@ ezResult ezGALVertexDeclarationDX11::InitPlatform(ezGALDevice* pDevice)
 
   const ezScopedRefPointer<ezGALShaderByteCode>& pByteCode = pShader->GetDescription().m_ByteCodes[ezGALShaderStage::VertexShader];
 
-  if(FAILED(pDXDevice->GetDXDevice()->CreateInputLayout(&DXInputElementDescs[0], DXInputElementDescs.GetCount(), pByteCode->GetByteCode(), pByteCode->GetSize(), &m_pDXInputLayout)))
+  if (FAILED(pDXDevice->GetDXDevice()->CreateInputLayout(&DXInputElementDescs[0], DXInputElementDescs.GetCount(), pByteCode->GetByteCode(),
+                                                         pByteCode->GetSize(), &m_pDXInputLayout)))
   {
     return EZ_FAILURE;
   }
@@ -125,4 +87,3 @@ ezResult ezGALVertexDeclarationDX11::DeInitPlatform(ezGALDevice* pDevice)
 
 
 EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Shader_Implementation_VertexDeclarationDX11);
-

@@ -1,14 +1,16 @@
-﻿#include <PCH.h>
-#include <GuiFoundation/Widgets/GroupBoxBase.moc.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QStyleOptionToolButton>
-#include <QPainter>
-#include <QBoxLayout>
-#include <QMimeData>
-#include <QDrag>
-#include <QMouseEvent>
+#include <PCH.h>
 
-ezQtGroupBoxBase::ezQtGroupBoxBase(QWidget* pParent, bool bCollapsible) : QWidget(pParent)
+#include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <GuiFoundation/Widgets/GroupBoxBase.moc.h>
+#include <QBoxLayout>
+#include <QDrag>
+#include <QMimeData>
+#include <QMouseEvent>
+#include <QPainter>
+#include <QStyleOptionToolButton>
+
+ezQtGroupBoxBase::ezQtGroupBoxBase(QWidget* pParent, bool bCollapsible)
+    : QWidget(pParent)
 {
   m_bCollapsible = bCollapsible;
 }
@@ -74,7 +76,8 @@ void ezQtGroupBoxBase::DrawHeader(QPainter& p, const QRect& rect)
     QRect iconRect = remainingRect;
     iconRect.setWidth(iconRect.height() / 2);
     bool bCollapsed = GetCollapseState();
-    QIcon collapseIcon = bCollapsed ? ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/groupClosed.png") : ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/groupOpen.png");
+    QIcon collapseIcon = bCollapsed ? ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/groupClosed.png")
+                                    : ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/groupOpen.png");
     collapseIcon.paint(&p, iconRect);
     remainingRect.adjust(iconRect.width() + Spacing, 0, 0, 0);
   }

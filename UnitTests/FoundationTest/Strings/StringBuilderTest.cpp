@@ -1,7 +1,8 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Strings/String.h>
-#include <Foundation/IO/MemoryStream.h>
 
 EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 {
@@ -82,7 +83,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor(multiple)")
   {
     ezStringUtf8 sUtf8(L"⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺");
-    ezStringUtf8 sUtf2(L"⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺");
+    ezStringUtf8 sUtf2(
+        L"⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺");
 
     ezStringBuilder sb(sUtf8.GetData(), sUtf8.GetData(), sUtf8.GetData(), sUtf8.GetData(), sUtf8.GetData(), sUtf8.GetData());
 
@@ -145,7 +147,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator=(StringView)")
   {
-    ezStringBuilder s ("abcdefghi");
+    ezStringBuilder s("abcdefghi");
     ezStringView it(s.GetData() + 2, s.GetData() + 8);
     it.SetStartPosition(s.GetData() + 3);
 
@@ -208,7 +210,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Append(single unicode char)")
   {
-    ezStringUtf32 u32 (L"äöüß");
+    ezStringUtf32 u32(L"äöüß");
 
     ezStringBuilder s("abc");
     s.Append(u32.GetData()[0]);
@@ -218,7 +220,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Prepend(single unicode char)")
   {
-    ezStringUtf32 u32 (L"äöüß");
+    ezStringUtf32 u32(L"äöüß");
 
     ezStringBuilder s("abc");
     s.Prepend(u32.GetData()[0]);
@@ -461,19 +463,25 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_INT(s.GetElementCount(), 7);
 
     // insert very large block
-    s = ezStringBuilder("a");  // hard reset to keep buffer small
-    ezString insertString("omfg this string is so long it possibly won't never ever ever ever fit into the current buffer - this will hopefully lead to a buffer resize :)"
-      "........................................................................................................................................................................"
-      "........................................................................................................................................................................"
-      "........................................................................................................................................................................"
-      "........................................................................................................................................................................"
-      "........................................................................................................................................................................"
-      "........................................................................................................................................................................");
-    s.ReplaceSubString(s.GetData(), s.GetData()+s.GetElementCount(), insertString.GetData());
+    s = ezStringBuilder("a"); // hard reset to keep buffer small
+    ezString insertString("omfg this string is so long it possibly won't never ever ever ever fit into the current buffer - this will "
+                          "hopefully lead to a buffer resize :)"
+                          "................................................................................................................"
+                          "........................................................"
+                          "................................................................................................................"
+                          "........................................................"
+                          "................................................................................................................"
+                          "........................................................"
+                          "................................................................................................................"
+                          "........................................................"
+                          "................................................................................................................"
+                          "........................................................"
+                          "................................................................................................................"
+                          "........................................................");
+    s.ReplaceSubString(s.GetData(), s.GetData() + s.GetElementCount(), insertString.GetData());
     EZ_TEST_BOOL(s == insertString.GetData());
     EZ_TEST_INT(s.GetCharacterCount(), insertString.GetCharacterCount());
     EZ_TEST_INT(s.GetElementCount(), insertString.GetElementCount());
-
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert")
@@ -926,15 +934,15 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
     // It should be valid to append an absolute path to an empty string.
     {
-      #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-        const char* szAbsPath = "C:\\folder";
-        const char* szAbsPathAppendResult = "C:\\folder/File.ext";
-      #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-        const char* szAbsPath = "/folder";
-        const char* szAbsPathAppendResult = "/folder/File.ext";
-      #else
-        #error "An absolute path example must be defined for the 'AppendPath' test for each platform!"
-      #endif
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+      const char* szAbsPath = "C:\\folder";
+      const char* szAbsPathAppendResult = "C:\\folder/File.ext";
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+      const char* szAbsPath = "/folder";
+      const char* szAbsPathAppendResult = "/folder/File.ext";
+#else
+#error "An absolute path example must be defined for the 'AppendPath' test for each platform!"
+#endif
 
       p = "";
       p.AppendPath(szAbsPath, "File.ext");
@@ -1163,97 +1171,97 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(p.IsRelativePath());
     EZ_TEST_BOOL(!p.IsRootedPath());
 
-    #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-      p = "C:\\temp.stuff";
-      EZ_TEST_BOOL(p.IsAbsolutePath());
-      EZ_TEST_BOOL(!p.IsRelativePath());
-      EZ_TEST_BOOL(!p.IsRootedPath());
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    p = "C:\\temp.stuff";
+    EZ_TEST_BOOL(p.IsAbsolutePath());
+    EZ_TEST_BOOL(!p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
 
-      p = "C:/temp.stuff";
-      EZ_TEST_BOOL(p.IsAbsolutePath());
-      EZ_TEST_BOOL(!p.IsRelativePath());
-      EZ_TEST_BOOL(!p.IsRootedPath());
+    p = "C:/temp.stuff";
+    EZ_TEST_BOOL(p.IsAbsolutePath());
+    EZ_TEST_BOOL(!p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
 
-      p = "\\\\myserver\\temp.stuff";
-      EZ_TEST_BOOL(p.IsAbsolutePath());
-      EZ_TEST_BOOL(!p.IsRelativePath());
-      EZ_TEST_BOOL(!p.IsRootedPath());
+    p = "\\\\myserver\\temp.stuff";
+    EZ_TEST_BOOL(p.IsAbsolutePath());
+    EZ_TEST_BOOL(!p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
 
-      p = "\\myserver\\temp.stuff";
-      EZ_TEST_BOOL(!p.IsAbsolutePath());
-      EZ_TEST_BOOL(!p.IsRelativePath()); // neither absolute nor relativ, just stupid
-      EZ_TEST_BOOL(!p.IsRootedPath());
+    p = "\\myserver\\temp.stuff";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(!p.IsRelativePath()); // neither absolute nor relativ, just stupid
+    EZ_TEST_BOOL(!p.IsRootedPath());
 
-      p = "temp.stuff";
-      EZ_TEST_BOOL(!p.IsAbsolutePath());
-      EZ_TEST_BOOL(p.IsRelativePath());
-      EZ_TEST_BOOL(!p.IsRootedPath());
+    p = "temp.stuff";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
 
-      p = "/temp.stuff";
-      EZ_TEST_BOOL(!p.IsAbsolutePath());
-      EZ_TEST_BOOL(!p.IsRelativePath()); // bloed
-      EZ_TEST_BOOL(!p.IsRootedPath());
+    p = "/temp.stuff";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(!p.IsRelativePath()); // bloed
+    EZ_TEST_BOOL(!p.IsRootedPath());
 
-      p = "\\temp.stuff";
-      EZ_TEST_BOOL(!p.IsAbsolutePath());
-      EZ_TEST_BOOL(!p.IsRelativePath()); // bloed
-      EZ_TEST_BOOL(!p.IsRootedPath());
+    p = "\\temp.stuff";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(!p.IsRelativePath()); // bloed
+    EZ_TEST_BOOL(!p.IsRootedPath());
 
-      p = "..\\temp.stuff";
-      EZ_TEST_BOOL(!p.IsAbsolutePath());
-      EZ_TEST_BOOL(p.IsRelativePath());
-      EZ_TEST_BOOL(!p.IsRootedPath());
+    p = "..\\temp.stuff";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
 
-      p = ".\\temp.stuff";
-      EZ_TEST_BOOL(!p.IsAbsolutePath());
-      EZ_TEST_BOOL(p.IsRelativePath());
-      EZ_TEST_BOOL(!p.IsRootedPath());
+    p = ".\\temp.stuff";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
 
-      p = ":MyDataDir\bla";
-      EZ_TEST_BOOL(!p.IsAbsolutePath());
-      EZ_TEST_BOOL(!p.IsRelativePath());
-      EZ_TEST_BOOL(p.IsRootedPath());
+    p = ":MyDataDir\bla";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(!p.IsRelativePath());
+    EZ_TEST_BOOL(p.IsRootedPath());
 
-      p = ":\\MyDataDir\bla";
-      EZ_TEST_BOOL(!p.IsAbsolutePath());
-      EZ_TEST_BOOL(!p.IsRelativePath());
-      EZ_TEST_BOOL(p.IsRootedPath());
+    p = ":\\MyDataDir\bla";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(!p.IsRelativePath());
+    EZ_TEST_BOOL(p.IsRootedPath());
 
-      p = ":/MyDataDir/bla";
-      EZ_TEST_BOOL(!p.IsAbsolutePath());
-      EZ_TEST_BOOL(!p.IsRelativePath());
-      EZ_TEST_BOOL(p.IsRootedPath());
+    p = ":/MyDataDir/bla";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(!p.IsRelativePath());
+    EZ_TEST_BOOL(p.IsRootedPath());
 
-    #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
 
-      p = "C:\\temp.stuff";
-      EZ_TEST_BOOL(!p.IsAbsolutePath());
-      EZ_TEST_BOOL(p.IsRelativePath());
-      EZ_TEST_BOOL(!p.IsRootedPath());
+    p = "C:\\temp.stuff";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
 
-      p = "temp.stuff";
-      EZ_TEST_BOOL(!p.IsAbsolutePath());
-      EZ_TEST_BOOL(p.IsRelativePath());
-      EZ_TEST_BOOL(!p.IsRootedPath());
+    p = "temp.stuff";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
 
-      p = "/temp.stuff";
-      EZ_TEST_BOOL(p.IsAbsolutePath());
-      EZ_TEST_BOOL(!p.IsRelativePath());
-      EZ_TEST_BOOL(!p.IsRootedPath());
+    p = "/temp.stuff";
+    EZ_TEST_BOOL(p.IsAbsolutePath());
+    EZ_TEST_BOOL(!p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
 
-      p = "..\\temp.stuff";
-      EZ_TEST_BOOL(!p.IsAbsolutePath());
-      EZ_TEST_BOOL(p.IsRelativePath());
-      EZ_TEST_BOOL(!p.IsRootedPath());
+    p = "..\\temp.stuff";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
 
-      p = ".\\temp.stuff";
-      EZ_TEST_BOOL(!p.IsAbsolutePath());
-      EZ_TEST_BOOL(p.IsRelativePath());
-      EZ_TEST_BOOL(!p.IsRootedPath());
+    p = ".\\temp.stuff";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
 
-    #else
-      #error "Unknown platform."
-    #endif
+#else
+#error "Unknown platform."
+#endif
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetRootedPathRootName")
@@ -1362,7 +1370,6 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 #else
     EZ_TEST_STRING(p.GetData(), "This/is/a/temp/path/to/my/file");
 #endif
-
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadAll")
@@ -1372,7 +1379,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     ezMemoryStreamWriter MemoryWriter(&StreamStorage);
     ezMemoryStreamReader MemoryReader(&StreamStorage);
 
-    const char* szText = "l;kjasdflkjdfasjlk asflkj asfljwe oiweq2390432 4 @#$ otrjk3l;2rlkhitoqhrn324:R l324h32kjr hnasfhsakfh234fas1440687873242321245";
+    const char* szText =
+        "l;kjasdflkjdfasjlk asflkj asfljwe oiweq2390432 4 @#$ otrjk3l;2rlkhitoqhrn324:R l324h32kjr hnasfhsakfh234fas1440687873242321245";
 
     MemoryWriter.WriteBytes(szText, ezStringUtils::GetStringElementCount(szText));
 
@@ -1463,6 +1471,4 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     sb.Trim(ezStringUtf8(L"ですにぱ").GetData());
     EZ_TEST_STRING(sb.GetData(), ezStringUtf8(L"A").GetData());
   }
-
 }
-

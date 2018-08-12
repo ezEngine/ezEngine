@@ -1,28 +1,19 @@
 #include <PCH.h>
+
 #include <RendererCore/Messages/SetColorMessage.h>
 #include <RtsGamePlugin/GameMode/EditLevelMode/EditLevelMode.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
 
-const char* g_BuildItemTypes[] =
-    {
-        "FederationShip1",
-        "FederationShip2",
-        "FederationShip3",
-        "KlingonShip1",
-        "KlingonShip2",
-        "KlingonShip3",
+const char* g_BuildItemTypes[] = {
+    "FederationShip1", "FederationShip2", "FederationShip3", "KlingonShip1", "KlingonShip2", "KlingonShip3",
 };
 
 RtsEditLevelMode::RtsEditLevelMode() = default;
 RtsEditLevelMode::~RtsEditLevelMode() = default;
 
-void RtsEditLevelMode::OnActivateMode()
-{
-}
+void RtsEditLevelMode::OnActivateMode() {}
 
-void RtsEditLevelMode::OnDeactivateMode()
-{
-}
+void RtsEditLevelMode::OnDeactivateMode() {}
 
 void RtsEditLevelMode::OnBeforeWorldUpdate()
 {
@@ -40,7 +31,8 @@ void RtsEditLevelMode::DisplayEditUI()
 
   ImGui::SetNextWindowPos(ImVec2((float)resolution.width - ww - 10, 10));
   ImGui::SetNextWindowSize(ImVec2(ww, 150));
-  ImGui::Begin("Edit Level", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
+  ImGui::Begin("Edit Level", nullptr,
+               ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
 
   int iTeam = m_uiTeam;
   if (ImGui::Combo("Team", &iTeam, "Red\0Green\0Blue\0Yellow\0\0", 4))
@@ -85,7 +77,8 @@ void RtsEditLevelMode::OnProcessInput(const RtsMouseInputState& MouseInput)
   {
     ezGameObject* pSpawned = nullptr;
 
-    pSpawned = m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), g_BuildItemTypes[m_iShipType], m_uiTeam);
+    pSpawned = m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()),
+                                                g_BuildItemTypes[m_iShipType], m_uiTeam);
 
     ezMsgSetColor msg;
     msg.m_Color = RtsGameMode::GetTeamColor(m_uiTeam);

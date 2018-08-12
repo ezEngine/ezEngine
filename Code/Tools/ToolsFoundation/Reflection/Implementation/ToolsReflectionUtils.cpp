@@ -1,20 +1,24 @@
 #include <PCH.h>
+
+#include <Foundation/Configuration/Startup.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
+#include <Foundation/Serialization/RttiConverter.h>
+#include <ToolsFoundation/Object/DocumentObjectBase.h>
+#include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
-#include <Foundation/Configuration/Startup.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
-#include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
-#include <ToolsFoundation/Object/DocumentObjectBase.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <Foundation/Serialization/RttiConverter.h>
 
 namespace
 {
   struct GetDoubleFunc
   {
-    GetDoubleFunc(const ezVariant& value) : m_Value(value) {}
+    GetDoubleFunc(const ezVariant& value)
+        : m_Value(value)
+    {
+    }
     template <typename T>
     void operator()()
     {
@@ -31,14 +35,14 @@ namespace
   };
 
   template <>
-  void GetDoubleFunc::operator() < ezAngle > ()
+  void GetDoubleFunc::operator()<ezAngle>()
   {
     m_fValue = m_Value.Get<ezAngle>().GetDegree();
     m_bValid = true;
   }
 
   template <>
-  void GetDoubleFunc::operator() < ezTime > ()
+  void GetDoubleFunc::operator()<ezTime>()
   {
     m_fValue = m_Value.Get<ezTime>().GetSeconds();
     m_bValid = true;
@@ -47,7 +51,11 @@ namespace
   struct GetVariantFunc
   {
     GetVariantFunc(double fValue, ezVariantType::Enum type, ezVariant& out_value)
-      : m_fValue(fValue), m_Type(type), m_Value(out_value) {}
+        : m_fValue(fValue)
+        , m_Type(type)
+        , m_Value(out_value)
+    {
+    }
     template <typename T>
     void operator()()
     {
@@ -70,14 +78,14 @@ namespace
   };
 
   template <>
-  void GetVariantFunc::operator() < ezAngle > ()
+  void GetVariantFunc::operator()<ezAngle>()
   {
     m_Value = ezAngle::Degree((float)m_fValue);
     m_bValid = true;
   }
 
   template <>
-  void GetVariantFunc::operator() < ezTime > ()
+  void GetVariantFunc::operator()<ezTime>()
   {
     m_Value = ezTime::Seconds(m_fValue);
     m_bValid = true;
@@ -91,84 +99,84 @@ ezVariant ezToolsReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enu
 {
   switch (type)
   {
-  case ezVariant::Type::Invalid:
-    return ezVariant();
-  case ezVariant::Type::Bool:
-    return ezVariant(false);
-  case ezVariant::Type::Int8:
-    return ezVariant((ezInt8)0);
-  case ezVariant::Type::UInt8:
-    return ezVariant((ezUInt8)0);
-  case ezVariant::Type::Int16:
-    return ezVariant((ezInt16)0);
-  case ezVariant::Type::UInt16:
-    return ezVariant((ezUInt16)0);
-  case ezVariant::Type::Int32:
-    return ezVariant((ezInt32)0);
-  case ezVariant::Type::UInt32:
-    return ezVariant((ezUInt32)0);
-  case ezVariant::Type::Int64:
-    return ezVariant((ezInt64)0);
-  case ezVariant::Type::UInt64:
-    return ezVariant((ezUInt64)0);
-  case ezVariant::Type::Float:
-    return ezVariant(0.0f);
-  case ezVariant::Type::Double:
-    return ezVariant(0.0);
-  case ezVariant::Type::Color:
-    return ezVariant(ezColor(1.0f, 1.0f, 1.0f));
-  case ezVariant::Type::ColorGamma:
-    return ezVariant(ezColorGammaUB(255, 255, 255));
-  case ezVariant::Type::Vector2:
-    return ezVariant(ezVec2(0.0f, 0.0f));
-  case ezVariant::Type::Vector3:
-    return ezVariant(ezVec3(0.0f, 0.0f, 0.0f));
-  case ezVariant::Type::Vector4:
-    return ezVariant(ezVec4(0.0f, 0.0f, 0.0f, 0.0f));
-  case ezVariant::Type::Vector2I:
-    return ezVariant(ezVec2I32(0, 0));
-  case ezVariant::Type::Vector3I:
-    return ezVariant(ezVec3I32(0, 0, 0));
-  case ezVariant::Type::Vector4I:
-    return ezVariant(ezVec4I32(0, 0, 0, 0));
-  case ezVariant::Type::Vector2U:
-    return ezVariant(ezVec2U32(0, 0));
-  case ezVariant::Type::Vector3U:
-    return ezVariant(ezVec3U32(0, 0, 0));
-  case ezVariant::Type::Vector4U:
-    return ezVariant(ezVec4U32(0, 0, 0, 0));
-  case ezVariant::Type::Quaternion:
-    return ezVariant(ezQuat(0.0f, 0.0f, 0.0f, 1.0f));
-  case ezVariant::Type::Matrix3:
-    return ezVariant(ezMat3::IdentityMatrix());
-  case ezVariant::Type::Matrix4:
-    return ezVariant(ezMat4::IdentityMatrix());
-  case ezVariant::Type::Transform:
-    return ezVariant(ezTransform::Identity());
-  case ezVariant::Type::String:
-    return ezVariant("");
-  case ezVariant::Type::StringView:
-    return ezVariant("");
-  case ezVariant::Type::DataBuffer:
-    return ezVariant(ezDataBuffer());
-  case ezVariant::Type::Time:
-    return ezVariant(ezTime());
-  case ezVariant::Type::Uuid:
-    return ezVariant(ezUuid());
-  case ezVariant::Type::Angle:
-    return ezVariant(ezAngle());
-  case ezVariant::Type::VariantArray:
-    return ezVariantArray();
-  case ezVariant::Type::VariantDictionary:
-    return ezVariantDictionary();
-  case ezVariant::Type::ReflectedPointer:
-    return ezVariant();
-  case ezVariant::Type::VoidPointer:
-    return ezVariant();
+    case ezVariant::Type::Invalid:
+      return ezVariant();
+    case ezVariant::Type::Bool:
+      return ezVariant(false);
+    case ezVariant::Type::Int8:
+      return ezVariant((ezInt8)0);
+    case ezVariant::Type::UInt8:
+      return ezVariant((ezUInt8)0);
+    case ezVariant::Type::Int16:
+      return ezVariant((ezInt16)0);
+    case ezVariant::Type::UInt16:
+      return ezVariant((ezUInt16)0);
+    case ezVariant::Type::Int32:
+      return ezVariant((ezInt32)0);
+    case ezVariant::Type::UInt32:
+      return ezVariant((ezUInt32)0);
+    case ezVariant::Type::Int64:
+      return ezVariant((ezInt64)0);
+    case ezVariant::Type::UInt64:
+      return ezVariant((ezUInt64)0);
+    case ezVariant::Type::Float:
+      return ezVariant(0.0f);
+    case ezVariant::Type::Double:
+      return ezVariant(0.0);
+    case ezVariant::Type::Color:
+      return ezVariant(ezColor(1.0f, 1.0f, 1.0f));
+    case ezVariant::Type::ColorGamma:
+      return ezVariant(ezColorGammaUB(255, 255, 255));
+    case ezVariant::Type::Vector2:
+      return ezVariant(ezVec2(0.0f, 0.0f));
+    case ezVariant::Type::Vector3:
+      return ezVariant(ezVec3(0.0f, 0.0f, 0.0f));
+    case ezVariant::Type::Vector4:
+      return ezVariant(ezVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    case ezVariant::Type::Vector2I:
+      return ezVariant(ezVec2I32(0, 0));
+    case ezVariant::Type::Vector3I:
+      return ezVariant(ezVec3I32(0, 0, 0));
+    case ezVariant::Type::Vector4I:
+      return ezVariant(ezVec4I32(0, 0, 0, 0));
+    case ezVariant::Type::Vector2U:
+      return ezVariant(ezVec2U32(0, 0));
+    case ezVariant::Type::Vector3U:
+      return ezVariant(ezVec3U32(0, 0, 0));
+    case ezVariant::Type::Vector4U:
+      return ezVariant(ezVec4U32(0, 0, 0, 0));
+    case ezVariant::Type::Quaternion:
+      return ezVariant(ezQuat(0.0f, 0.0f, 0.0f, 1.0f));
+    case ezVariant::Type::Matrix3:
+      return ezVariant(ezMat3::IdentityMatrix());
+    case ezVariant::Type::Matrix4:
+      return ezVariant(ezMat4::IdentityMatrix());
+    case ezVariant::Type::Transform:
+      return ezVariant(ezTransform::Identity());
+    case ezVariant::Type::String:
+      return ezVariant("");
+    case ezVariant::Type::StringView:
+      return ezVariant("");
+    case ezVariant::Type::DataBuffer:
+      return ezVariant(ezDataBuffer());
+    case ezVariant::Type::Time:
+      return ezVariant(ezTime());
+    case ezVariant::Type::Uuid:
+      return ezVariant(ezUuid());
+    case ezVariant::Type::Angle:
+      return ezVariant(ezAngle());
+    case ezVariant::Type::VariantArray:
+      return ezVariantArray();
+    case ezVariant::Type::VariantDictionary:
+      return ezVariantDictionary();
+    case ezVariant::Type::ReflectedPointer:
+      return ezVariant();
+    case ezVariant::Type::VoidPointer:
+      return ezVariant();
 
-  default:
-    EZ_REPORT_FAILURE("Invalid case statement");
-    return ezVariant();
+    default:
+      EZ_REPORT_FAILURE("Invalid case statement");
+      return ezVariant();
   }
   return ezVariant();
 }
@@ -176,19 +184,21 @@ ezVariant ezToolsReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enu
 ezVariant ezToolsReflectionUtils::GetStorageDefault(const ezAbstractProperty* pProperty)
 {
   const ezDefaultValueAttribute* pAttrib = pProperty->GetAttributeByType<ezDefaultValueAttribute>();
-  auto type = pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+  auto type =
+      pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
 
   switch (pProperty->GetCategory())
   {
-  case ezPropertyCategory::Member:
+    case ezPropertyCategory::Member:
     {
       return ezToolsReflectionUtils::GetDefaultValue(pProperty);
     }
     break;
-  case ezPropertyCategory::Array:
-  case ezPropertyCategory::Set:
+    case ezPropertyCategory::Array:
+    case ezPropertyCategory::Set:
     {
-      if (pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::StandardType) && pAttrib && pAttrib->GetValue().IsA<ezVariantArray>())
+      if (pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::StandardType) && pAttrib &&
+          pAttrib->GetValue().IsA<ezVariantArray>())
       {
         const ezVariantArray& value = pAttrib->GetValue().Get<ezVariantArray>();
         ezVariantArray ret;
@@ -202,7 +212,7 @@ ezVariant ezToolsReflectionUtils::GetStorageDefault(const ezAbstractProperty* pP
       return ezVariantArray();
     }
     break;
-  case ezPropertyCategory::Map:
+    case ezPropertyCategory::Map:
     {
       return ezVariantDictionary();
     }
@@ -215,7 +225,8 @@ ezVariant ezToolsReflectionUtils::GetStorageDefault(const ezAbstractProperty* pP
 ezVariant ezToolsReflectionUtils::GetDefaultValue(const ezAbstractProperty* pProperty)
 {
   const ezDefaultValueAttribute* pAttrib = pProperty->GetAttributeByType<ezDefaultValueAttribute>();
-  auto type = pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+  auto type =
+      pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
   if (pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::StandardType))
   {
     if (pAttrib)
@@ -281,7 +292,7 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
 
     switch (prop->GetCategory())
     {
-    case ezPropertyCategory::Constant:
+      case ezPropertyCategory::Constant:
       {
         ezAbstractConstantProperty* constantProp = static_cast<ezAbstractConstantProperty*>(prop);
         const ezRTTI* pPropRtti = constantProp->GetSpecificType();
@@ -298,21 +309,22 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
       }
       break;
 
-    case ezPropertyCategory::Member:
-    case ezPropertyCategory::Array:
-    case ezPropertyCategory::Set:
-    case ezPropertyCategory::Map:
+      case ezPropertyCategory::Member:
+      case ezPropertyCategory::Array:
+      case ezPropertyCategory::Set:
+      case ezPropertyCategory::Map:
       {
         const ezRTTI* pPropRtti = prop->GetSpecificType();
-        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(prop->GetCategory(), prop->GetPropertyName(), pPropRtti->GetTypeName(), prop->GetFlags(), prop->GetAttributes()));
+        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(prop->GetCategory(), prop->GetPropertyName(), pPropRtti->GetTypeName(),
+                                                                     prop->GetFlags(), prop->GetAttributes()));
       }
       break;
 
-    case ezPropertyCategory::Function:
-      break;
+      case ezPropertyCategory::Function:
+        break;
 
-    default:
-      break;
+      default:
+        break;
     }
   }
 
@@ -323,9 +335,11 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
   for (ezUInt32 i = 0; i < uiFuncCount; ++i)
   {
     ezAbstractFunctionProperty* prop = rttiFunc[i];
-    out_desc.m_Functions.PushBack(ezReflectedFunctionDescriptor(prop->GetPropertyName(), prop->GetFlags(), prop->GetFunctionType(), prop->GetAttributes()));
+    out_desc.m_Functions.PushBack(
+        ezReflectedFunctionDescriptor(prop->GetPropertyName(), prop->GetFlags(), prop->GetFunctionType(), prop->GetAttributes()));
     ezReflectedFunctionDescriptor& desc = out_desc.m_Functions.PeekBack();
-    desc.m_ReturnValue = ezFunctionArgumentDescriptor(prop->GetReturnType() ? prop->GetReturnType()->GetTypeName() : "", prop->GetReturnFlags());
+    desc.m_ReturnValue =
+        ezFunctionArgumentDescriptor(prop->GetReturnType() ? prop->GetReturnType()->GetTypeName() : "", prop->GetReturnFlags());
     const ezUInt32 uiArguments = prop->GetArgumentCount();
     desc.m_Arguments.Reserve(uiArguments);
     for (ezUInt32 a = 0; a < uiArguments; ++a)
@@ -397,7 +411,7 @@ void ezToolsReflectionUtils::SerializeTypes(const ezSet<const ezRTTI*>& types, e
 
 bool ezToolsReflectionUtils::DependencySortTypeDescriptorArray(ezDynamicArray<ezReflectedTypeDescriptor*>& descriptors)
 {
-  ezMap<ezReflectedTypeDescriptor*, ezSet<ezString> > dependencies;
+  ezMap<ezReflectedTypeDescriptor*, ezSet<ezString>> dependencies;
 
   ezSet<ezString> typesInArray;
   // Gather all types in array
@@ -453,5 +467,3 @@ bool ezToolsReflectionUtils::DependencySortTypeDescriptorArray(ezDynamicArray<ez
   descriptors = sorted;
   return true;
 }
-
-

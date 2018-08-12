@@ -1,14 +1,15 @@
 #include <PCH.h>
-#include <EditorFramework/Gizmos/NonUniformBoxGizmo.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <Foundation/Logging/Log.h>
+
 #include <Core/Graphics/Camera.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <Foundation/Math/Mat4.h>
 #include <EditorFramework/Assets/AssetDocument.h>
-#include <QMouseEvent>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/Gizmos/NonUniformBoxGizmo.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Math/Mat4.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
+#include <QMouseEvent>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezNonUniformBoxGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -22,14 +23,9 @@ ezNonUniformBoxGizmo::ezNonUniformBoxGizmo()
 
   m_Outline.Configure(this, ezEngineGizmoHandleType::LineBox, ezColor::CornflowerBlue, false, false, false, true, false);
 
-  ezColor cols[6] =
-  {
-    ezColorGammaUB(255, 200, 200),
-    ezColorGammaUB(255, 200, 200),
-    ezColorGammaUB(200, 255, 200),
-    ezColorGammaUB(200, 255, 200),
-    ezColorGammaUB(200, 200, 255),
-    ezColorGammaUB(200, 200, 255),
+  ezColor cols[6] = {
+      ezColorGammaUB(255, 200, 200), ezColorGammaUB(255, 200, 200), ezColorGammaUB(200, 255, 200),
+      ezColorGammaUB(200, 255, 200), ezColorGammaUB(200, 200, 255), ezColorGammaUB(200, 200, 255),
   };
 
   for (ezUInt32 i = 0; i < 6; ++i)
@@ -80,30 +76,30 @@ void ezNonUniformBoxGizmo::OnTransformationChanged(const ezTransform& transform)
 
     switch (i)
     {
-    case ManipulateMode::DragNegX:
-      pos.x = -m_vNegSize.x;
-      dir.Set(-1, 0, 0);
-      break;
-    case ManipulateMode::DragPosX:
-      pos.x = m_vPosSize.x;
-      dir.Set(+1, 0, 0);
-      break;
-    case ManipulateMode::DragNegY:
-      pos.y = -m_vNegSize.y;
-      dir.Set(0, -1, 0);
-      break;
-    case ManipulateMode::DragPosY:
-      pos.y = m_vPosSize.y;
-      dir.Set(0, +1, 0);
-      break;
-    case ManipulateMode::DragNegZ:
-      pos.z = -m_vNegSize.z;
-      dir.Set(0, 0, -1);
-      break;
-    case ManipulateMode::DragPosZ:
-      pos.z = m_vPosSize.z;
-      dir.Set(0, 0, +1);
-      break;
+      case ManipulateMode::DragNegX:
+        pos.x = -m_vNegSize.x;
+        dir.Set(-1, 0, 0);
+        break;
+      case ManipulateMode::DragPosX:
+        pos.x = m_vPosSize.x;
+        dir.Set(+1, 0, 0);
+        break;
+      case ManipulateMode::DragNegY:
+        pos.y = -m_vNegSize.y;
+        dir.Set(0, -1, 0);
+        break;
+      case ManipulateMode::DragPosY:
+        pos.y = m_vPosSize.y;
+        dir.Set(0, +1, 0);
+        break;
+      case ManipulateMode::DragNegZ:
+        pos.z = -m_vNegSize.z;
+        dir.Set(0, 0, -1);
+        break;
+      case ManipulateMode::DragPosZ:
+        pos.z = m_vPosSize.z;
+        dir.Set(0, 0, +1);
+        break;
     }
     pos = pos.CompMul(transform.m_vScale);
 
@@ -127,7 +123,7 @@ void ezNonUniformBoxGizmo::DoFocusLost(bool bCancel)
 
   ezViewHighlightMsgToEngine msg;
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
-  
+
   m_ManipulateMode = ManipulateMode::None;
 }
 
@@ -156,13 +152,13 @@ ezEditorInput ezNonUniformBoxGizmo::DoMousePressEvent(QMouseEvent* e)
 
 modify:
 
-  {
-    ezMat4 mView = m_pCamera->GetViewMatrix();
-    ezMat4 mProj;
-    m_pCamera->GetProjectionMatrix((float)m_Viewport.x / (float)m_Viewport.y, mProj);
-    ezMat4 mViewProj = mProj * mView;
-    m_InvViewProj = mViewProj.GetInverse();
-  }
+{
+  ezMat4 mView = m_pCamera->GetViewMatrix();
+  ezMat4 mProj;
+  m_pCamera->GetProjectionMatrix((float)m_Viewport.x / (float)m_Viewport.y, mProj);
+  ezMat4 mViewProj = mProj * mView;
+  m_InvViewProj = mViewProj.GetInverse();
+}
 
   m_vStartNegSize = m_vNegSize;
   m_vStartPosSize = m_vPosSize;
@@ -245,36 +241,36 @@ ezEditorInput ezNonUniformBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
     switch (m_ManipulateMode)
     {
-    case DragNegX:
-      m_vNegSize.x -= vTranslate.x;
-      if (m_bLinkAxis)
-        m_vPosSize.x -= vTranslate.x;
-      break;
-    case DragPosX:
-      m_vPosSize.x += vTranslate.x;
-      if (m_bLinkAxis)
-        m_vNegSize.x += vTranslate.x;
-      break;
-    case DragNegY:
-      m_vNegSize.y -= vTranslate.y;
-      if (m_bLinkAxis)
-        m_vPosSize.y -= vTranslate.y;
-      break;
-    case DragPosY:
-      m_vPosSize.y += vTranslate.y;
-      if (m_bLinkAxis)
-        m_vNegSize.y += vTranslate.y;
-      break;
-    case DragNegZ:
-      m_vNegSize.z -= vTranslate.z;
-      if (m_bLinkAxis)
-        m_vPosSize.z -= vTranslate.z;
-      break;
-    case DragPosZ:
-      m_vPosSize.z += vTranslate.z;
-      if (m_bLinkAxis)
-        m_vNegSize.z += vTranslate.z;
-      break;
+      case DragNegX:
+        m_vNegSize.x -= vTranslate.x;
+        if (m_bLinkAxis)
+          m_vPosSize.x -= vTranslate.x;
+        break;
+      case DragPosX:
+        m_vPosSize.x += vTranslate.x;
+        if (m_bLinkAxis)
+          m_vNegSize.x += vTranslate.x;
+        break;
+      case DragNegY:
+        m_vNegSize.y -= vTranslate.y;
+        if (m_bLinkAxis)
+          m_vPosSize.y -= vTranslate.y;
+        break;
+      case DragPosY:
+        m_vPosSize.y += vTranslate.y;
+        if (m_bLinkAxis)
+          m_vNegSize.y += vTranslate.y;
+        break;
+      case DragNegZ:
+        m_vNegSize.z -= vTranslate.z;
+        if (m_bLinkAxis)
+          m_vPosSize.z -= vTranslate.z;
+        break;
+      case DragPosZ:
+        m_vPosSize.z += vTranslate.z;
+        if (m_bLinkAxis)
+          m_vNegSize.z += vTranslate.z;
+        break;
     }
   }
 
@@ -306,7 +302,9 @@ ezResult ezNonUniformBoxGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScre
   out_Result = m_vStartPosition;
 
   ezVec3 vPos, vRayDir;
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(iScreenPosX, iScreenPosY, 0), vPos, &vRayDir).Failed())
+  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(iScreenPosX, iScreenPosY, 0),
+                                                  vPos, &vRayDir)
+          .Failed())
     return EZ_FAILURE;
 
   const ezVec3 vDir = m_pCamera->GetDirForwards();

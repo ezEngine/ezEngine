@@ -1,27 +1,29 @@
 #include <PCH.h>
+
 #include <EnginePluginScene/SceneContext/SceneContext.h>
 #include <EnginePluginScene/SceneView/SceneView.h>
 
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
-#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Core/Assets/AssetFileHeader.h>
+#include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <RendererCore/Lights/AmbientLightComponent.h>
-#include <RendererCore/Lights/DirectionalLightComponent.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
+#include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
+#include <Foundation/Configuration/Singleton.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <GameEngine/GameApplication/GameApplication.h>
+#include <GameEngine/Interfaces/SoundInterface.h>
+#include <GameEngine/Prefabs/PrefabResource.h>
 #include <GameEngine/VisualScript/VisualScriptComponent.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
-#include <GameEngine/Interfaces/SoundInterface.h>
-#include <Foundation/Configuration/Singleton.h>
-#include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
-#include <Core/ResourceManager/ResourceManager.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Lights/AmbientLightComponent.h>
+#include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
 #include <SharedPluginScene/Common/Messages.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)
 {
   EZ_BEGIN_PROPERTIES
@@ -31,6 +33,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezScen
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 void ezSceneContext::ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds)
 {
@@ -267,7 +270,7 @@ void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
     }
   }
 
-  //EZ_ASSERT_DEV(bounds.IsValid() && !bounds.IsNaN(), "Invalid bounds");
+  // EZ_ASSERT_DEV(bounds.IsValid() && !bounds.IsNaN(), "Invalid bounds");
 
   if (!bounds.IsValid() || bounds.IsNaN())
   {
@@ -463,7 +466,8 @@ void ezSceneContext::HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgTo
 {
   EZ_LOCK(GetWorld()->GetWriteMarker());
 
-  const ezArrayPtr<const ezUuid> guids(reinterpret_cast<const ezUuid*>(pMsg->m_Objects.GetData()), pMsg->m_Objects.GetCount() / sizeof(ezUuid));
+  const ezArrayPtr<const ezUuid> guids(reinterpret_cast<const ezUuid*>(pMsg->m_Objects.GetData()),
+                                       pMsg->m_Objects.GetCount() / sizeof(ezUuid));
 
   for (auto guid : guids)
   {
@@ -623,8 +627,7 @@ void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferred
     paramdesc.m_sProperty.Assign(esp.m_sPropertyPath.GetData());
   }
 
-  exposedParams.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool
-  {
+  exposedParams.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool {
     return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash();
   });
 
@@ -684,8 +687,8 @@ void ezSceneContext::AddAmbientLight(bool bSetEditorTag)
 
   EZ_LOCK(GetWorld()->GetWriteMarker());
 
-  const ezColorGammaUB ambient[3] = { ezColor::White, ezColor::White, ezColor::White };
-  const float intensity[3] = { 10, 5, 3 };
+  const ezColorGammaUB ambient[3] = {ezColor::White, ezColor::White, ezColor::White};
+  const float intensity[3] = {10, 5, 3};
 
   for (ezUInt32 i = 0; i < 3; ++i)
   {
@@ -723,9 +726,9 @@ void ezSceneContext::AddAmbientLight(bool bSetEditorTag)
   // the actual ambient light component is dangerous to add, because it is a singleton and you cannot have more than one in a scene
   // which means if the user added one, this makes trouble
   // also the Remove/Add pattern doesn't work, because components are always delayed deleted, and the singleton lives longer than it should
-  //ezAmbientLightComponent* pAmbLight = nullptr;
-  //ezAmbientLightComponent::CreateComponent(GetWorld(), pAmbLight);
-  //if (pAmbLight != nullptr)
+  // ezAmbientLightComponent* pAmbLight = nullptr;
+  // ezAmbientLightComponent::CreateComponent(GetWorld(), pAmbLight);
+  // if (pAmbLight != nullptr)
   //{
   //  pLight->AttachComponent(pAmbLight);
   //}
@@ -749,4 +752,3 @@ void ezSceneContext::HandleExposedPropertiesMsg(const ezExposedDocumentObjectPro
 {
   m_ExposedSceneProperties = pMsg->m_Properties;
 }
-

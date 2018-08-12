@@ -1,11 +1,13 @@
 #include <PCH.h>
-#include <GuiFoundation/Widgets/ImageWidget.moc.h>
+
 #include <Foundation/Math/Math.h>
+#include <GuiFoundation/Widgets/ImageWidget.moc.h>
+#include <QGraphicsPixmapItem>
 #include <QScrollArea>
 #include <QScrollBar>
-#include <QGraphicsPixmapItem>
 
-ezQtImageScene::ezQtImageScene(QObject* pParent) : QGraphicsScene(pParent)
+ezQtImageScene::ezQtImageScene(QObject* pParent)
+    : QGraphicsScene(pParent)
 {
   m_pImageItem = nullptr;
   setItemIndexMethod(QGraphicsScene::NoIndex);
@@ -23,7 +25,8 @@ void ezQtImageScene::SetImage(QPixmap pixmap)
 
 
 
-ezQtImageWidget::ezQtImageWidget(QWidget* parent, bool bShowButtons) : QWidget(parent)
+ezQtImageWidget::ezQtImageWidget(QWidget* parent, bool bShowButtons)
+    : QWidget(parent)
 {
   setupUi(this);
   m_pScene = new ezQtImageScene(GraphicsView);
@@ -35,9 +38,7 @@ ezQtImageWidget::ezQtImageWidget(QWidget* parent, bool bShowButtons) : QWidget(p
     ButtonBar->setVisible(false);
 }
 
-ezQtImageWidget::~ezQtImageWidget()
-{
-}
+ezQtImageWidget::~ezQtImageWidget() {}
 
 void ezQtImageWidget::SetImageSize(float fScale)
 {

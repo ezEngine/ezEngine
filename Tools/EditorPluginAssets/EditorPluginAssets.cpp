@@ -425,8 +425,8 @@ static void ConfigureAnimatedMeshAsset()
   {
     ezActionMapManager::RegisterActionMap("AnimatedMeshAssetMenuBar");
     ezProjectActions::MapActions("AnimatedMeshAssetMenuBar");
-    ezStandardMenus::MapActions("AnimatedMeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels |
-                                                        ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions("AnimatedMeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit |
+                                                                ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezDocumentActions::MapActions("AnimatedMeshAssetMenuBar", "Menu.File", false);
     ezCommandHistoryActions::MapActions("AnimatedMeshAssetMenuBar", "Menu.Edit");
   }

@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <QFileDialog>
 
@@ -18,9 +19,15 @@ void ezQtEditorApp::GuiCreateOrOpenDocument(bool bCreate)
   ezString sFile;
 
   if (bCreate)
-    sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Document"), sDir, QString::fromUtf8(sAllFilters.GetData()), &sSelectedExt, QFileDialog::Option::DontResolveSymlinks).toUtf8().data();
+    sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Document"), sDir,
+                                         QString::fromUtf8(sAllFilters.GetData()), &sSelectedExt, QFileDialog::Option::DontResolveSymlinks)
+                .toUtf8()
+                .data();
   else
-    sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open Document"), sDir, QString::fromUtf8(sAllFilters.GetData()), &sSelectedExt, QFileDialog::Option::DontResolveSymlinks).toUtf8().data();
+    sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open Document"), sDir,
+                                         QString::fromUtf8(sAllFilters.GetData()), &sSelectedExt, QFileDialog::Option::DontResolveSymlinks)
+                .toUtf8()
+                .data();
 
   if (sFile.IsEmpty())
     return;
@@ -80,7 +87,7 @@ void ezQtEditorApp::DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezQtDocumentWindowEvent::WindowClosed:
+    case ezQtDocumentWindowEvent::WindowClosed:
     {
       // if all windows are closed, show at least the settings window
       if (ezQtDocumentWindow::GetAllDocumentWindows().GetCount() == 0)

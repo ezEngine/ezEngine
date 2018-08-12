@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Communication/MessageQueue.h>
 
 namespace
@@ -6,12 +7,11 @@ namespace
   struct ezMsgTest : public ezMessage
   {
     EZ_DECLARE_MESSAGE_TYPE(ezMsgTest, ezMessage);
-
   };
 
   EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTest);
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTest, 1, ezRTTIDefaultAllocator<ezMsgTest>)
-    EZ_END_DYNAMIC_REFLECTED_TYPE;
+  EZ_END_DYNAMIC_REFLECTED_TYPE;
 
   struct TestMessage : public ezMsgTest
   {

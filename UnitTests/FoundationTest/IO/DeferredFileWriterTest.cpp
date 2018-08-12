@@ -1,6 +1,7 @@
-﻿#include <PCH.h>
-#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <PCH.h>
+
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 
 EZ_CREATE_SIMPLE_TEST(IO, DeferredFileWriter)
@@ -108,4 +109,3 @@ EZ_CREATE_SIMPLE_TEST(IO, DeferredFileWriter)
   ezFileSystem::DeleteFile(sTempFile);
   ezFileSystem::ClearAllDataDirectories();
 }
-

@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <EditorPluginScene/DragDropHandlers/MeshDragDropHandler.h>
+
 #include <EditorFramework/DragDrop/DragDropInfo.h>
+#include <EditorPluginScene/DragDropHandlers/MeshDragDropHandler.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezMeshComponentDragDropHandler>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -21,7 +22,8 @@ void ezMeshComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
   if (pInfo->m_sTargetContext == "viewport")
     CreateDropObject(pInfo->m_vDropPosition, "ezMeshComponent", "Mesh", GetAssetGuidString(pInfo), ezUuid(), -1);
   else
-    CreateDropObject(pInfo->m_vDropPosition, "ezMeshComponent", "Mesh", GetAssetGuidString(pInfo), pInfo->m_TargetObject, pInfo->m_iTargetObjectInsertChildIndex);
+    CreateDropObject(pInfo->m_vDropPosition, "ezMeshComponent", "Mesh", GetAssetGuidString(pInfo), pInfo->m_TargetObject,
+                     pInfo->m_iTargetObjectInsertChildIndex);
 
   SelectCreatedObjects();
   BeginTemporaryCommands();

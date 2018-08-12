@@ -1,18 +1,20 @@
 #include <PCH.h>
+
 #include <EditorFramework/DragDrop/ComponentDragDropHandler.h>
 #include <EditorFramework/DragDrop/DragDropInfo.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
 
-#include <QMimeData>
 #include <QDataStream>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <QMimeData>
 #include <ToolsFoundation/Document/DocumentManager.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponentDragDropHandler, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-void ezComponentDragDropHandler::CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const char* szValue, ezUuid parent, ezInt32 iInsertChildIndex)
+void ezComponentDragDropHandler::CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const char* szValue,
+                                                  ezUuid parent, ezInt32 iInsertChildIndex)
 {
   ezVec3 vPos = vPosition;
 
@@ -171,8 +173,7 @@ void ezComponentDragDropHandler::OnDrop(const ezDragDropInfo* pInfo)
 
 float ezComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const
 {
-  if (pInfo->m_sTargetContext != "viewport" &&
-      pInfo->m_sTargetContext != "scenetree")
+  if (pInfo->m_sTargetContext != "viewport" && pInfo->m_sTargetContext != "scenetree")
     return 0.0f;
 
   const ezDocument* pDocument = ezDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument);

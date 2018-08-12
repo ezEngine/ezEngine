@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <EditorPluginScene/DragDropHandlers/CollisionMeshDragDropHandler.h>
+
 #include <EditorFramework/DragDrop/DragDropInfo.h>
+#include <EditorPluginScene/DragDropHandlers/CollisionMeshDragDropHandler.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezCollisionMeshComponentDragDropHandler>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -30,7 +31,8 @@ void ezCollisionMeshComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* 
       m_DraggedObjects.PushBack(pInfo->m_TargetObject);
     }
     else
-      CreateDropObject(pInfo->m_vDropPosition, "ezPxStaticActorComponent", "CollisionMesh", GetAssetGuidString(pInfo), pInfo->m_TargetObject, pInfo->m_iTargetObjectInsertChildIndex);
+      CreateDropObject(pInfo->m_vDropPosition, "ezPxStaticActorComponent", "CollisionMesh", GetAssetGuidString(pInfo),
+                       pInfo->m_TargetObject, pInfo->m_iTargetObjectInsertChildIndex);
   }
 
   SelectCreatedObjects();

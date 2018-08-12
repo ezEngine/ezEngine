@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Plugin.h>
 
@@ -45,12 +46,12 @@ namespace PluginsDetail
   {
     switch (e.m_EventType)
     {
-    case ezTelemetry::TelemetryEventData::ConnectedToClient:
-      SendPluginTelemetry();
-      break;
+      case ezTelemetry::TelemetryEventData::ConnectedToClient:
+        SendPluginTelemetry();
+        break;
 
-    default:
-      break;
+      default:
+        break;
     }
   }
 
@@ -58,15 +59,14 @@ namespace PluginsDetail
   {
     switch (e.m_EventType)
     {
-    case ezPlugin::PluginEvent::AfterPluginChanges:
-      SendPluginTelemetry();
-      break;
+      case ezPlugin::PluginEvent::AfterPluginChanges:
+        SendPluginTelemetry();
+        break;
 
-    default:
-      break;
+      default:
+        break;
     }
   }
-
 }
 
 void AddPluginEventHandler()
@@ -84,4 +84,3 @@ void RemovePluginEventHandler()
 
 
 EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Plugins);
-

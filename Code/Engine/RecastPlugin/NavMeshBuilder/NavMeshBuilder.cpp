@@ -1,13 +1,15 @@
-﻿#include <PCH.h>
-#include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
-#include <ThirdParty/Recast/Recast.h>
-#include <Foundation/Types/ScopeExit.h>
-#include <Foundation/Time/Stopwatch.h>
-#include <Core/World/World.h>
-#include <GameEngine/Messages/BuildNavMeshMessage.h>
-#include <ThirdParty/Recast/DetourNavMeshBuilder.h>
-#include <ThirdParty/Recast/DetourNavMesh.h>
+#include <PCH.h>
 
+#include <Core/World/World.h>
+#include <Foundation/Time/Stopwatch.h>
+#include <Foundation/Types/ScopeExit.h>
+#include <GameEngine/Messages/BuildNavMeshMessage.h>
+#include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
+#include <ThirdParty/Recast/DetourNavMesh.h>
+#include <ThirdParty/Recast/DetourNavMeshBuilder.h>
+#include <ThirdParty/Recast/Recast.h>
+
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRecastConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezRecastConfig>)
 {
   EZ_BEGIN_PROPERTIES
@@ -28,6 +30,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRecastConfig, ezNoBase, 1, ezRTTIDefaultAllocat
   EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
 
 class ezRcBuildContext : public rcContext
 {
@@ -39,24 +42,24 @@ protected:
   {
     switch (category)
     {
-    case RC_LOG_ERROR:
-      ezLog::Error("Recast: {0}", msg);
-      return;
-    case RC_LOG_WARNING:
-      ezLog::Warning("Recast: {0}", msg);
-      return;
-    case RC_LOG_PROGRESS:
-      ezLog::Debug("Recast: {0}", msg);
-      return;
+      case RC_LOG_ERROR:
+        ezLog::Error("Recast: {0}", msg);
+        return;
+      case RC_LOG_WARNING:
+        ezLog::Warning("Recast: {0}", msg);
+        return;
+      case RC_LOG_PROGRESS:
+        ezLog::Debug("Recast: {0}", msg);
+        return;
 
-    default:
-      ezLog::Error("Unknwon recast log: {0}", msg);
-      return;
+      default:
+        ezLog::Error("Unknwon recast log: {0}", msg);
+        return;
     }
   }
 };
 
-ezRecastNavMeshBuilder::ezRecastNavMeshBuilder() { }
+ezRecastNavMeshBuilder::ezRecastNavMeshBuilder() {}
 
 ezRecastNavMeshBuilder::~ezRecastNavMeshBuilder()
 {
@@ -260,9 +263,11 @@ ezResult ezRecastNavMeshBuilder::BuildRecastNavMesh(const ezRecastConfig& config
   }
 
   // TODO Instead of this, it should use area IDs and then clear the non-walkable triangles
-  rcMarkWalkableTriangles(pContext, cfg.walkableSlopeAngle, pVertices, m_Vertices.GetCount(), pTriangles, m_Triangles.GetCount(), m_TriangleAreaIDs.GetData());
+  rcMarkWalkableTriangles(pContext, cfg.walkableSlopeAngle, pVertices, m_Vertices.GetCount(), pTriangles, m_Triangles.GetCount(),
+                          m_TriangleAreaIDs.GetData());
 
-  if (!rcRasterizeTriangles(pContext, pVertices, m_Vertices.GetCount(), pTriangles, m_TriangleAreaIDs.GetData(), m_Triangles.GetCount(), *heightfield, cfg.walkableClimb))
+  if (!rcRasterizeTriangles(pContext, pVertices, m_Vertices.GetCount(), pTriangles, m_TriangleAreaIDs.GetData(), m_Triangles.GetCount(),
+                            *heightfield, cfg.walkableClimb))
   {
     pContext->log(RC_LOG_ERROR, "Could not rasterize triangles");
     return EZ_FAILURE;
@@ -270,13 +275,13 @@ ezResult ezRecastNavMeshBuilder::BuildRecastNavMesh(const ezRecastConfig& config
 
   // Optional stuff
   {
-    //if (m_filterLowHangingObstacles)
+    // if (m_filterLowHangingObstacles)
     rcFilterLowHangingWalkableObstacles(pContext, cfg.walkableClimb, *heightfield);
 
-    //if (m_filterLedgeSpans)
+    // if (m_filterLedgeSpans)
     rcFilterLedgeSpans(pContext, cfg.walkableHeight, cfg.walkableClimb, *heightfield);
 
-    //if (m_filterWalkableLowHeightSpans)
+    // if (m_filterWalkableLowHeightSpans)
     rcFilterWalkableLowHeightSpans(pContext, cfg.walkableHeight, *heightfield);
   }
 
@@ -299,7 +304,8 @@ ezResult ezRecastNavMeshBuilder::BuildRecastNavMesh(const ezRecastConfig& config
   //{
   //  const ConvexVolume* vols = m_geom->getConvexVolumes();
   //  for (int i = 0; i < m_geom->getConvexVolumeCount(); ++i)
-  //    rcMarkConvexPolyArea(pContext, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, (unsigned char)vols[i].area, *compactHeightfield);
+  //    rcMarkConvexPolyArea(pContext, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, (unsigned char)vols[i].area,
+  //    *compactHeightfield);
   //}
 
 
@@ -366,7 +372,7 @@ ezResult ezRecastNavMeshBuilder::BuildRecastNavMesh(const ezRecastConfig& config
   //////////////////////////////////////////////////////////////////////////
   // Detour Navmesh
 
-  // TODO modify area IDs and flags 
+  // TODO modify area IDs and flags
 
   for (int i = 0; i < m_polyMesh->npolys; ++i)
   {
@@ -421,5 +427,3 @@ ezResult ezRecastNavMeshBuilder::CreateDetourNavMesh(const ezRecastConfig& confi
 
   return EZ_SUCCESS;
 }
-
-

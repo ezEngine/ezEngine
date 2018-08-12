@@ -1,23 +1,25 @@
 #include <PCH.h>
-#include <EditorPluginAssets/SceneImport/SceneImportDlg.moc.h>
-#include <ModelImporter/ModelImporter.h>
-#include <ModelImporter/Mesh.h>
-#include <ModelImporter/Node.h>
-#include <EditorPluginAssets/MeshAsset/MeshAsset.h>
 
-#include <Foundation/Types/ScopeExit.h>
+#include <EditorPluginAssets/MeshAsset/MeshAsset.h>
+#include <EditorPluginAssets/SceneImport/SceneImportDlg.moc.h>
+#include <ModelImporter/Mesh.h>
+#include <ModelImporter/ModelImporter.h>
+#include <ModelImporter/Node.h>
+
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
+#include <Foundation/Types/ScopeExit.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 
 #include <QDialogButtonBox>
-#include <QPushButton>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QPushButton>
 
-ezQtSceneImportDlg::ezQtSceneImportDlg(QWidget *parent) : QDialog(parent)
+ezQtSceneImportDlg::ezQtSceneImportDlg(QWidget* parent)
+    : QDialog(parent)
 {
   setupUi(this);
 
@@ -37,11 +39,12 @@ namespace
   {
     RecursiveMeshImport(ezObjectAccessorBase& sceneAccessor, const ezDocumentObjectManager& objectManager,
                         const ezModelImporter::Scene& scene, const ezHashTable<const ezModelImporter::Mesh*, ezString>& rawMeshToFile)
-      : sceneAccessor(sceneAccessor)
-      , objectManager(objectManager)
-      , scene(scene)
-      , rawMeshToFile(rawMeshToFile)
-    {}
+        : sceneAccessor(sceneAccessor)
+        , objectManager(objectManager)
+        , scene(scene)
+        , rawMeshToFile(rawMeshToFile)
+    {
+    }
 
     ezObjectAccessorBase& sceneAccessor;
     const ezDocumentObjectManager& objectManager;
@@ -59,7 +62,9 @@ namespace
         if (parentNode)
           sceneAccessor.AddObject(parentNode, "Children", -1, ezRTTI::FindTypeByName("ezGameObject"), newGameObjectId).LogFailure();
         else
-          sceneAccessor.AddObject(nullptr, static_cast<ezAbstractProperty*>(nullptr), -1, ezRTTI::FindTypeByName("ezGameObject"), newGameObjectId).LogFailure();
+          sceneAccessor
+              .AddObject(nullptr, static_cast<ezAbstractProperty*>(nullptr), -1, ezRTTI::FindTypeByName("ezGameObject"), newGameObjectId)
+              .LogFailure();
         currentGameObject = objectManager.GetObject(newGameObjectId);
       }
       else
@@ -73,39 +78,39 @@ namespace
       // Setup rest...
       switch (object->m_Type)
       {
-      case ezModelImporter::ObjectHandle::NODE:
-      {
-        const ezModelImporter::Node* node = object->Cast<ezModelImporter::Node>();
-
-        sceneAccessor.SetValue(currentGameObject, "LocalPosition", node->m_RelativeTransform.m_vPosition);
-        sceneAccessor.SetValue(currentGameObject, "LocalRotation", node->m_RelativeTransform.m_qRotation);
-        sceneAccessor.SetValue(currentGameObject, "LocalScaling", node->m_RelativeTransform.m_vScale);
-
-        for (ezModelImporter::ObjectHandle childHandle : node->m_Children)
+        case ezModelImporter::ObjectHandle::NODE:
         {
-          ImportNodeRecursive(scene.GetObject(childHandle), currentGameObject);
-        }
-      }
-      break;
+          const ezModelImporter::Node* node = object->Cast<ezModelImporter::Node>();
 
-      case ezModelImporter::ObjectHandle::MESH:
-      {
-        EZ_ASSERT_DEBUG(currentGameObject, "No node to attach a parent component to.");
-        const ezString* meshId = nullptr;
-        if (rawMeshToFile.TryGetValue(object->Cast<ezModelImporter::Mesh>(), meshId))
-        {
-          ezUuid newMeshComponentId;
-          sceneAccessor.AddObject(currentGameObject, "Components", -1, ezRTTI::FindTypeByName("ezMeshComponent"), newMeshComponentId).LogFailure();
-          const ezDocumentObject* newMeshComponent = objectManager.GetObject(newMeshComponentId);
-          sceneAccessor.SetValue(newMeshComponent, "Mesh", *meshId);
-        }
-        else
-        {
-          // Silently ignore, error should have already been handled.
-        }
-      }
-      break;
+          sceneAccessor.SetValue(currentGameObject, "LocalPosition", node->m_RelativeTransform.m_vPosition);
+          sceneAccessor.SetValue(currentGameObject, "LocalRotation", node->m_RelativeTransform.m_qRotation);
+          sceneAccessor.SetValue(currentGameObject, "LocalScaling", node->m_RelativeTransform.m_vScale);
 
+          for (ezModelImporter::ObjectHandle childHandle : node->m_Children)
+          {
+            ImportNodeRecursive(scene.GetObject(childHandle), currentGameObject);
+          }
+        }
+        break;
+
+        case ezModelImporter::ObjectHandle::MESH:
+        {
+          EZ_ASSERT_DEBUG(currentGameObject, "No node to attach a parent component to.");
+          const ezString* meshId = nullptr;
+          if (rawMeshToFile.TryGetValue(object->Cast<ezModelImporter::Mesh>(), meshId))
+          {
+            ezUuid newMeshComponentId;
+            sceneAccessor.AddObject(currentGameObject, "Components", -1, ezRTTI::FindTypeByName("ezMeshComponent"), newMeshComponentId)
+                .LogFailure();
+            const ezDocumentObject* newMeshComponent = objectManager.GetObject(newMeshComponentId);
+            sceneAccessor.SetValue(newMeshComponent, "Mesh", *meshId);
+          }
+          else
+          {
+            // Silently ignore, error should have already been handled.
+          }
+        }
+        break;
       }
 
       // "LocalPosition";
@@ -143,7 +148,7 @@ void ezQtSceneImportDlg::on_accepted()
   ezStringBuilder meshDirectory = outputFilename;
   meshDirectory = meshDirectory.GetFileDirectory();
   meshDirectory.AppendPath("Meshes");
-  for (auto meshIt=rawScene->GetMeshes().GetIterator(); meshIt.IsValid(); ++meshIt)
+  for (auto meshIt = rawScene->GetMeshes().GetIterator(); meshIt.IsValid(); ++meshIt)
   {
     // Figure out a good filename.
     ezStringBuilder validFileMeshName;
@@ -166,7 +171,8 @@ void ezQtSceneImportDlg::on_accepted()
     }
 
     // Create document.
-    ezMeshAssetDocument* meshDocument = ezDynamicCast<ezMeshAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateOrOpenDocument(true, meshFilename, false, false));
+    ezMeshAssetDocument* meshDocument =
+        ezDynamicCast<ezMeshAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateOrOpenDocument(true, meshFilename, false, false));
     if (!meshDocument)
     {
       ezLog::Error("Failed to create a document for mesh '{0}' in '{1}'", meshIt.Value()->m_Name, meshFilename);
@@ -196,7 +202,6 @@ void ezQtSceneImportDlg::on_accepted()
 
       meshDocument->GetDocumentManager()->CloseDocument(meshDocument);
     }
-
   }
 
   // Create scene.
@@ -214,7 +219,7 @@ void ezQtSceneImportDlg::on_accepted()
 
     RecursiveMeshImport import(*pAccessor, *sceneDocument->GetObjectManager(), *rawScene, rawMeshToFile);
 
-    for(const ezModelImporter::HierarchyObject* rootObject : rawScene->GetRootObjects())
+    for (const ezModelImporter::HierarchyObject* rootObject : rawScene->GetRootObjects())
     {
       import.ImportNodeRecursive(rootObject, nullptr);
     }
@@ -253,8 +258,9 @@ void ezQtSceneImportDlg::on_InputBrowse_clicked()
   }
   filter.push_back(");;All files (*.*)");
 
-  QString filename = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Input Model"), ezToolsProject::GetSingleton()->GetProjectDirectory().GetData(),
-                                                  filter, nullptr, QFileDialog::Option::DontResolveSymlinks);
+  QString filename = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Input Model"),
+                                                  ezToolsProject::GetSingleton()->GetProjectDirectory().GetData(), filter, nullptr,
+                                                  QFileDialog::Option::DontResolveSymlinks);
 
   if (!filename.isEmpty())
     lineEditSourceFilename->setText(filename);
@@ -262,8 +268,9 @@ void ezQtSceneImportDlg::on_InputBrowse_clicked()
 
 void ezQtSceneImportDlg::on_OutputBrowse_clicked()
 {
-  QString filename = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Output Scene"), ezToolsProject::GetSingleton()->GetProjectDirectory().GetData(),
-                                                    "ezScene (*.ezScene)", nullptr, QFileDialog::Option::DontResolveSymlinks | QFileDialog::Option::DontConfirmOverwrite);
+  QString filename = QFileDialog::getSaveFileName(
+      QApplication::activeWindow(), QLatin1String("Output Scene"), ezToolsProject::GetSingleton()->GetProjectDirectory().GetData(),
+      "ezScene (*.ezScene)", nullptr, QFileDialog::Option::DontResolveSymlinks | QFileDialog::Option::DontConfirmOverwrite);
 
   if (!filename.isEmpty())
   {

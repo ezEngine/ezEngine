@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Math/Frustum.h>
 
 EZ_CREATE_SIMPLE_TEST(Math, Frustum)
@@ -75,4 +76,3 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
     EZ_TEST_BOOL(f.GetPlane(1) == p[1]);
   }
 }
-

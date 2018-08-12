@@ -1,7 +1,9 @@
 #include <PCH.h>
+
 #include <Foundation/Reflection/Reflection.h>
 #include <ToolsFoundationTest/Reflection/ReflectionTestClasses.h>
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezIntegerStruct, ezNoBase, 1, ezRTTIDefaultAllocator<ezIntegerStruct>)
 {
   EZ_BEGIN_PROPERTIES
@@ -145,6 +147,18 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectTest, 1, ezRTTIDefaultAllocator<ezObject
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMirrorTest, 1, ezRTTIDefaultAllocator<ezMirrorTest>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Math", m_math),
+    EZ_MEMBER_PROPERTY("Object", m_object),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
 ezArrayPtr<const ezString> ezObjectTest::GetStandardTypeSet() const
 {
   return m_StandardTypeSet;
@@ -160,15 +174,3 @@ void ezObjectTest::StandardTypeSetRemove(const ezString& value)
 {
   m_StandardTypeSet.Remove(value);
 }
-
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMirrorTest, 1, ezRTTIDefaultAllocator<ezMirrorTest>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Math", m_math),
-    EZ_MEMBER_PROPERTY("Object", m_object),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;

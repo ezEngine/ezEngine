@@ -1,21 +1,23 @@
 #include <PCH.h>
-#include <ParticlePlugin/Type/Light/ParticleTypeLight.h>
-#include <RendererCore/Shader/ShaderResource.h>
-#include <RendererFoundation/Descriptors/Descriptors.h>
-#include <RendererFoundation/Device/Device.h>
-#include <RendererCore/Pipeline/Declarations.h>
-#include <RendererCore/Pipeline/RenderPipelinePass.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererCore/Textures/Texture2DResource.h>
-#include <RendererCore/Pipeline/RenderData.h>
-#include <RendererCore/Lights/PointLightComponent.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
+
+#include <Foundation/Math/Color16f.h>
+#include <Foundation/Math/Float16.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
-#include <Foundation/Math/Float16.h>
-#include <Foundation/Math/Color16f.h>
+#include <ParticlePlugin/Type/Light/ParticleTypeLight.h>
+#include <RendererCore/Lights/PointLightComponent.h>
+#include <RendererCore/Meshes/MeshBufferResource.h>
+#include <RendererCore/Pipeline/Declarations.h>
+#include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Pipeline/RenderPipelinePass.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/Shader/ShaderResource.h>
+#include <RendererCore/Textures/Texture2DResource.h>
+#include <RendererFoundation/Descriptors/Descriptors.h>
+#include <RendererFoundation/Device/Device.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeLightFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeLightFactory>)
 {
   EZ_BEGIN_PROPERTIES
@@ -33,6 +35,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeLight, 1, ezRTTIDefaultAllocator<ezParticleTypeLight>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezParticleTypeLightFactory::ezParticleTypeLightFactory()
 {
@@ -119,7 +122,8 @@ void ezParticleTypeLight::CreateRequiredStreams()
 }
 
 
-void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData,
+                                                const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   EZ_PROFILE("PFX: Light");
 
@@ -192,4 +196,3 @@ void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedR
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Light_ParticleTypeLight);
-

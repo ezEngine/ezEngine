@@ -1,33 +1,30 @@
-
-
 #include <PCH.h>
+
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
-#include <RendererFoundation/Resources/Texture.h>
+#include <RendererFoundation/Resources/Query.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/ResourceView.h>
+#include <RendererFoundation/Resources/Texture.h>
 #include <RendererFoundation/Resources/UnorderedAccesView.h>
-#include <RendererFoundation/Resources/Query.h>
 
 ezGALContext::ezGALContext(ezGALDevice* pDevice)
-  : m_pDevice(pDevice),
-    m_uiDrawCalls(0),
-    m_uiDispatchCalls(0),
-    m_uiStateChanges(0),
-    m_uiRedundantStateChanges(0)
+    : m_pDevice(pDevice)
+    , m_uiDrawCalls(0)
+    , m_uiDispatchCalls(0)
+    , m_uiStateChanges(0)
+    , m_uiRedundantStateChanges(0)
 {
   EZ_ASSERT_DEV(pDevice != nullptr, "The context needs a valid device pointer!");
 
   InvalidateState();
 }
 
-ezGALContext::~ezGALContext()
-{
-}
+ezGALContext::~ezGALContext() {}
 
-void ezGALContext::Clear(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask /*= 0xFFFFFFFFu*/, bool bClearDepth /*= true*/, bool bClearStencil /*= true*/,
-                          float fDepthClear /*= 1.0f*/, ezUInt8 uiStencilClear /*= 0x0u*/)
+void ezGALContext::Clear(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask /*= 0xFFFFFFFFu*/, bool bClearDepth /*= true*/,
+                         bool bClearStencil /*= true*/, float fDepthClear /*= 1.0f*/, ezUInt8 uiStencilClear /*= 0x0u*/)
 {
   AssertRenderingThread();
 
@@ -66,7 +63,8 @@ void ezGALContext::Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex)
 {
   AssertRenderingThread();
 
-  /// \todo If platform indicates that non-indexed rendering is not possible bind a helper index buffer which contains continuous indices (0, 1, 2, ..)
+  /// \todo If platform indicates that non-indexed rendering is not possible bind a helper index buffer which contains continuous indices
+  /// (0, 1, 2, ..)
 
   DrawPlatform(uiVertexCount, uiStartVertex);
 
@@ -113,7 +111,8 @@ void ezGALContext::DrawInstanced(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiI
   AssertRenderingThread();
   /// \todo Assert for instancing
 
-  /// \todo If platform indicates that non-indexed rendering is not possible bind a helper index buffer which contains continuous indices (0, 1, 2, ..)
+  /// \todo If platform indicates that non-indexed rendering is not possible bind a helper index buffer which contains continuous indices
+  /// (0, 1, 2, ..)
 
   DrawInstancedPlatform(uiVertexCountPerInstance, uiInstanceCount, uiStartVertex);
 
@@ -167,7 +166,8 @@ void ezGALContext::Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroup
 {
   AssertRenderingThread();
 
-  EZ_ASSERT_DEBUG(uiThreadGroupCountX > 0 && uiThreadGroupCountY > 0 && uiThreadGroupCountZ > 0, "Thread group counts of zero are not meaningful. Did you mean 1?");
+  EZ_ASSERT_DEBUG(uiThreadGroupCountX > 0 && uiThreadGroupCountY > 0 && uiThreadGroupCountZ > 0,
+                  "Thread group counts of zero are not meaningful. Did you mean 1?");
 
   /// \todo Assert for compute
 
@@ -359,16 +359,16 @@ void ezGALContext::SetRenderTargetSetup(const ezGALRenderTagetSetup& RenderTarge
     return;
   }
 
-  const ezGALRenderTargetView* pRenderTargetViews[EZ_GAL_MAX_RENDERTARGET_COUNT] = { nullptr };
+  const ezGALRenderTargetView* pRenderTargetViews[EZ_GAL_MAX_RENDERTARGET_COUNT] = {nullptr};
   const ezGALRenderTargetView* pDepthStencilView = nullptr;
 
   ezUInt32 uiRenderTargetCount = 0;
 
   bool bFlushNeeded = false;
 
-  if ( RenderTargetSetup.HasRenderTargets() )
+  if (RenderTargetSetup.HasRenderTargets())
   {
-    for ( ezUInt8 uiIndex = 0; uiIndex <= RenderTargetSetup.GetMaxRenderTargetIndex(); ++uiIndex )
+    for (ezUInt8 uiIndex = 0; uiIndex <= RenderTargetSetup.GetMaxRenderTargetIndex(); ++uiIndex)
     {
       const ezGALRenderTargetView* pRenderTargetView = m_pDevice->GetRenderTargetView(RenderTargetSetup.GetRenderTarget(uiIndex));
       if (pRenderTargetView != nullptr)
@@ -394,7 +394,7 @@ void ezGALContext::SetRenderTargetSetup(const ezGALRenderTagetSetup& RenderTarge
   {
     FlushPlatform();
   }
-  SetRenderTargetSetupPlatform( ezMakeArrayPtr(pRenderTargetViews, uiRenderTargetCount), pDepthStencilView );
+  SetRenderTargetSetupPlatform(ezMakeArrayPtr(pRenderTargetViews, uiRenderTargetCount), pDepthStencilView);
 
   m_State.m_RenderTargetSetup = RenderTargetSetup;
 
@@ -437,7 +437,8 @@ void ezGALContext::SetBlendState(ezGALBlendStateHandle hBlendState, const ezColo
 {
   AssertRenderingThread();
 
-  if (m_State.m_hBlendState == hBlendState && m_State.m_BlendFactor.IsEqualRGBA(BlendFactor, 0.001f) && m_State.m_uiSampleMask == uiSampleMask)
+  if (m_State.m_hBlendState == hBlendState && m_State.m_BlendFactor.IsEqualRGBA(BlendFactor, 0.001f) &&
+      m_State.m_uiSampleMask == uiSampleMask)
   {
     CountRedundantStateChange();
     return;
@@ -560,7 +561,8 @@ void ezGALContext::BeginQuery(ezGALQueryHandle hQuery)
   AssertRenderingThread();
 
   auto query = m_pDevice->GetQuery(hQuery);
-  EZ_ASSERT_DEV(query->GetDescription().m_type != ezGALQueryType::Timestamp, "You can only call 'EndQuery' on queries of type ezGALQueryType::Timestamp.");
+  EZ_ASSERT_DEV(query->GetDescription().m_type != ezGALQueryType::Timestamp,
+                "You can only call 'EndQuery' on queries of type ezGALQueryType::Timestamp.");
   EZ_ASSERT_DEV(!query->m_bStarted, "Can't stat ezGALQuery because it is already running.");
 
   BeginQueryPlatform(query);
@@ -571,7 +573,8 @@ void ezGALContext::EndQuery(ezGALQueryHandle hQuery)
   AssertRenderingThread();
 
   auto query = m_pDevice->GetQuery(hQuery);
-  EZ_ASSERT_DEV(query->m_bStarted || query->GetDescription().m_type == ezGALQueryType::Timestamp, "Can't end ezGALQuery, query hasn't started yet.");
+  EZ_ASSERT_DEV(query->m_bStarted || query->GetDescription().m_type == ezGALQueryType::Timestamp,
+                "Can't end ezGALQuery, query hasn't started yet.");
 
   EndQueryPlatform(query);
 }
@@ -603,7 +606,8 @@ void ezGALContext::CopyBuffer(ezGALBufferHandle hDest, ezGALBufferHandle hSource
   }
 }
 
-void ezGALContext::CopyBufferRegion(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezGALBufferHandle hSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount)
+void ezGALContext::CopyBufferRegion(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezGALBufferHandle hSource, ezUInt32 uiSourceOffset,
+                                    ezUInt32 uiByteCount)
 {
   AssertRenderingThread();
 
@@ -626,7 +630,8 @@ void ezGALContext::CopyBufferRegion(ezGALBufferHandle hDest, ezUInt32 uiDestOffs
   }
 }
 
-void ezGALContext::UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData, ezGALUpdateMode::Enum updateMode)
+void ezGALContext::UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData,
+                                ezGALUpdateMode::Enum updateMode)
 {
   AssertRenderingThread();
 
@@ -667,7 +672,9 @@ void ezGALContext::CopyTexture(ezGALTextureHandle hDest, ezGALTextureHandle hSou
   }
 }
 
-void ezGALContext::CopyTextureRegion(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource, const ezVec3U32& DestinationPoint, ezGALTextureHandle hSource, const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box)
+void ezGALContext::CopyTextureRegion(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource,
+                                     const ezVec3U32& DestinationPoint, ezGALTextureHandle hSource,
+                                     const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box)
 {
   AssertRenderingThread();
 
@@ -684,7 +691,8 @@ void ezGALContext::CopyTextureRegion(ezGALTextureHandle hDest, const ezGALTextur
   }
 }
 
-void ezGALContext::UpdateTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource, const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData)
+void ezGALContext::UpdateTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource,
+                                 const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData)
 {
   AssertRenderingThread();
 
@@ -700,7 +708,8 @@ void ezGALContext::UpdateTexture(ezGALTextureHandle hDest, const ezGALTextureSub
   }
 }
 
-void ezGALContext::ResolveTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource, ezGALTextureHandle hSource, const ezGALTextureSubresource& SourceSubResource)
+void ezGALContext::ResolveTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource,
+                                  ezGALTextureHandle hSource, const ezGALTextureSubresource& SourceSubResource)
 {
   AssertRenderingThread();
 
@@ -725,7 +734,8 @@ void ezGALContext::ReadbackTexture(ezGALTextureHandle hTexture)
 
   if (pTexture != nullptr)
   {
-    EZ_ASSERT_RELEASE(pTexture->GetDescription().m_ResourceAccess.m_bReadBack, "A texture supplied to read-back needs to be created with the correct resource usage (m_bReadBack = true)!");
+    EZ_ASSERT_RELEASE(pTexture->GetDescription().m_ResourceAccess.m_bReadBack,
+                      "A texture supplied to read-back needs to be created with the correct resource usage (m_bReadBack = true)!");
 
     ReadbackTexturePlatform(pTexture);
   }
@@ -739,7 +749,8 @@ void ezGALContext::CopyTextureReadbackResult(ezGALTextureHandle hTexture, const 
 
   if (pTexture != nullptr)
   {
-    EZ_ASSERT_RELEASE(pTexture->GetDescription().m_ResourceAccess.m_bReadBack, "A texture supplied to read-back needs to be created with the correct resource usage (m_bReadBack = true)!");
+    EZ_ASSERT_RELEASE(pTexture->GetDescription().m_ResourceAccess.m_bReadBack,
+                      "A texture supplied to read-back needs to be created with the correct resource usage (m_bReadBack = true)!");
 
     CopyTextureReadbackResultPlatform(pTexture, pData);
   }
@@ -838,4 +849,3 @@ bool ezGALContext::UnsetUnorderedAccessViews(const ezGALResourceBase* pResource)
 }
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Context_Implementation_Context);
-

@@ -1,15 +1,15 @@
 #include <PCH.h>
-#include <EditorFramework/EditTools/EditTool.h>
+
 #include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
+#include <EditorFramework/EditTools/EditTool.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectEditTool, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezGameObjectEditTool::ezGameObjectEditTool()
-{
-}
+ezGameObjectEditTool::ezGameObjectEditTool() {}
 
-void ezGameObjectEditTool::ConfigureTool(ezGameObjectDocument* pDocument, ezQtGameObjectDocumentWindow* pWindow, ezGameObjectGizmoInterface* pInterface)
+void ezGameObjectEditTool::ConfigureTool(ezGameObjectDocument* pDocument, ezQtGameObjectDocumentWindow* pWindow,
+                                         ezGameObjectGizmoInterface* pInterface)
 {
   m_pDocument = pDocument;
   m_pWindow = pWindow;
@@ -31,4 +31,3 @@ void ezGameObjectEditTool::SetActive(bool active)
     m_pWindow->SetPermanentStatusBarMsg("");
   }
 }
-

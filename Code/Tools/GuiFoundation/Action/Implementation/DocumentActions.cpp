@@ -203,8 +203,6 @@ void ezDocumentAction::Execute(const ezVariant& value)
     case ezDocumentAction::ButtonType::SaveAll:
     {
       ezToolsProject::GetSingleton()->BroadcastSaveAll();
-
-
     }
     break;
 

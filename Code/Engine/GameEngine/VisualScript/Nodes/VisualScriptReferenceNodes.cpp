@@ -1,11 +1,13 @@
 #include <PCH.h>
-#include <GameEngine/VisualScript/Nodes/VisualScriptReferenceNodes.h>
-#include <GameEngine/VisualScript/VisualScriptInstance.h>
+
 #include <Core/World/GameObject.h>
 #include <Core/World/World.h>
+#include <GameEngine/VisualScript/Nodes/VisualScriptReferenceNodes.h>
+#include <GameEngine/VisualScript/VisualScriptInstance.h>
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetScriptOwner, 2, ezRTTIDefaultAllocator<ezVisualScriptNode_GetScriptOwner>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -21,6 +23,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetScriptOwner, 2, ezRTTIDefa
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezVisualScriptNode_GetScriptOwner::ezVisualScriptNode_GetScriptOwner() {}
 ezVisualScriptNode_GetScriptOwner::~ezVisualScriptNode_GetScriptOwner() {}
@@ -38,6 +41,7 @@ void ezVisualScriptNode_GetScriptOwner::Execute(ezVisualScriptInstance* pInstanc
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetComponentOwner, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_GetComponentOwner>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -55,6 +59,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetComponentOwner, 1, ezRTTID
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezVisualScriptNode_GetComponentOwner::ezVisualScriptNode_GetComponentOwner() {}
 ezVisualScriptNode_GetComponentOwner::~ezVisualScriptNode_GetComponentOwner() {}
@@ -79,8 +84,8 @@ void* ezVisualScriptNode_GetComponentOwner::GetInputPinDataPointer(ezUInt8 uiPin
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_hComponent;
+    case 0:
+      return &m_hComponent;
   }
 
   return nullptr;
@@ -88,6 +93,7 @@ void* ezVisualScriptNode_GetComponentOwner::GetInputPinDataPointer(ezUInt8 uiPin
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindChildObject, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_FindChildObject>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -108,6 +114,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindChildObject, 1, ezRTTIDef
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezVisualScriptNode_FindChildObject::ezVisualScriptNode_FindChildObject() {}
 ezVisualScriptNode_FindChildObject::~ezVisualScriptNode_FindChildObject() {}
@@ -147,8 +154,8 @@ void* ezVisualScriptNode_FindChildObject::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_hObject;
+    case 0:
+      return &m_hObject;
   }
 
   return nullptr;
@@ -156,6 +163,7 @@ void* ezVisualScriptNode_FindChildObject::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindComponent, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_FindComponent>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -176,6 +184,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindComponent, 1, ezRTTIDefau
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezVisualScriptNode_FindComponent::ezVisualScriptNode_FindComponent() {}
 ezVisualScriptNode_FindComponent::~ezVisualScriptNode_FindComponent() {}
@@ -219,8 +228,8 @@ void* ezVisualScriptNode_FindComponent::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_hObject;
+    case 0:
+      return &m_hObject;
   }
 
   return nullptr;
@@ -228,6 +237,7 @@ void* ezVisualScriptNode_FindComponent::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_QueryGlobalObject, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_QueryGlobalObject>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -246,6 +256,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_QueryGlobalObject, 1, ezRTTID
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezVisualScriptNode_QueryGlobalObject::ezVisualScriptNode_QueryGlobalObject() {}
 ezVisualScriptNode_QueryGlobalObject::~ezVisualScriptNode_QueryGlobalObject() {}
@@ -270,6 +281,7 @@ void ezVisualScriptNode_QueryGlobalObject::Execute(ezVisualScriptInstance* pInst
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindParent, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_FindParent>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -290,6 +302,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindParent, 1, ezRTTIDefaultA
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezVisualScriptNode_FindParent::ezVisualScriptNode_FindParent() {}
 ezVisualScriptNode_FindParent::~ezVisualScriptNode_FindParent() {}
@@ -334,8 +347,8 @@ void* ezVisualScriptNode_FindParent::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_hObject;
+    case 0:
+      return &m_hObject;
   }
 
   return nullptr;
@@ -345,6 +358,4 @@ void* ezVisualScriptNode_FindParent::GetInputPinDataPointer(ezUInt8 uiPin)
 
 
 
-
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Nodes_VisualScriptReferenceNodes);
-

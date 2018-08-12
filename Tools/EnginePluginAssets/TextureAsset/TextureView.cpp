@@ -1,23 +1,21 @@
-﻿#include <PCH.h>
-#include <EnginePluginAssets/TextureAsset/TextureView.h>
-#include <EnginePluginAssets/TextureAsset/TextureContext.h>
+#include <PCH.h>
 
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Pipeline/View.h>
-#include <GameEngine/GameApplication/GameApplication.h>
+#include <EnginePluginAssets/TextureAsset/TextureContext.h>
+#include <EnginePluginAssets/TextureAsset/TextureView.h>
+
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <GameEngine/GameApplication/GameApplication.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 ezTextureViewContext::ezTextureViewContext(ezTextureContext* pContext)
-  : ezEngineProcessViewContext(pContext)
+    : ezEngineProcessViewContext(pContext)
 {
   m_pTextureContext = pContext;
 }
 
-ezTextureViewContext::~ezTextureViewContext()
-{
-
-}
+ezTextureViewContext::~ezTextureViewContext() {}
 
 ezViewHandle ezTextureViewContext::CreateView()
 {

@@ -1,8 +1,9 @@
 #include <PCH.h>
+
 #include <ModelImporter/Importers/PbrtImporter.h>
 #include <ModelImporter/Importers/PbrtImporter_Context.h>
-#include <ModelImporter/Importers/PbrtImporter_ParsingFunctions.h>
 #include <ModelImporter/Importers/PbrtImporter_ImportFunctions.h>
+#include <ModelImporter/Importers/PbrtImporter_ParsingFunctions.h>
 #include <ModelImporter/Scene.h>
 
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -15,12 +16,13 @@ namespace ezModelImporter
   namespace PbrtCommandLookup
   {
     // Reads a readily parsed object into the scene.
-    typedef void(*ReadObjectFunc)(ezStringView type, ezArrayPtr<Parameter> parameters, ParseContext& context, ezModelImporter::Scene& outScene);
+    typedef void (*ReadObjectFunc)(ezStringView type, ezArrayPtr<Parameter> parameters, ParseContext& context,
+                                   ezModelImporter::Scene& outScene);
     // Scopes have some effect on the context, but don't have any additional data.
-    typedef void(*ReadScopeFunc)(ParseContext& context);
+    typedef void (*ReadScopeFunc)(ParseContext& context);
     // Transform applies itself to the top element in the transform stack.
     // Parsing is different for each transform.
-    typedef void(*ParseTransformFunc)(ParseContext& context, ezStringView& remainingSceneText);
+    typedef void (*ParseTransformFunc)(ParseContext& context, ezStringView& remainingSceneText);
 
     bool s_initialized = false;
     ezHashTable<ezString, ReadScopeFunc> s_scopes;
@@ -148,7 +150,7 @@ namespace ezModelImporter
           {
             parameter.type = ParamType::INVALID;
             parameter.name = parameterDesc;
-            //parameter.data;
+            // parameter.data;
           }
           else
           {
@@ -157,7 +159,8 @@ namespace ezModelImporter
             if (paramType == ParamType::INVALID)
             {
               ezString paramTypeStringInst = paramTypeString;
-              ezLog::Error("Unknown parameter type '{0}' in pbrt file '{1}' for an object '{2}'.", paramTypeStringInst, commandName, szFileName);
+              ezLog::Error("Unknown parameter type '{0}' in pbrt file '{1}' for an object '{2}'.", paramTypeStringInst, commandName,
+                           szFileName);
               break;
             }
 
@@ -192,9 +195,8 @@ namespace ezModelImporter
 
       // Skip lines until something does not start like a parameter.
       PbrtParseHelper::SkipWhiteSpaces(remainingSceneText);
-      while (remainingSceneText.IsValid() &&
-              !(remainingSceneText.GetCharacter() >= 'A' && remainingSceneText.GetCharacter() <= 'Z') &&
-              !(remainingSceneText.GetCharacter() >= 'a' && remainingSceneText.GetCharacter() <= 'z'))
+      while (remainingSceneText.IsValid() && !(remainingSceneText.GetCharacter() >= 'A' && remainingSceneText.GetCharacter() <= 'Z') &&
+             !(remainingSceneText.GetCharacter() >= 'a' && remainingSceneText.GetCharacter() <= 'z'))
       {
         PbrtParseHelper::SkipWhiteSpaces(remainingSceneText);
         PbrtParseHelper::SkipCurrentLine(remainingSceneText);

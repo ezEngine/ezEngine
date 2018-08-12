@@ -1,6 +1,7 @@
-﻿#include <PCH.h>
-#include <RecastPlugin/Utils/RcMath.h>
+#include <PCH.h>
+
 #include <Foundation/Math/Vec3.h>
+#include <RecastPlugin/Utils/RcMath.h>
 
 ezRcPos::ezRcPos()
 {

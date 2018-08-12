@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <EditorPluginProceduralPlacement/Actions/ProceduralPlacementActions.h>
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementAsset.h>
 #include <GuiFoundation/Action/ActionManager.h>
@@ -11,8 +12,10 @@ ezActionDescriptorHandle ezProceduralPlacementActions::s_hDumpDisassembly;
 void ezProceduralPlacementActions::RegisterActions()
 {
   s_hCategoryProceduralPlacement = EZ_REGISTER_CATEGORY("ProceduralPlacement");
-  s_hDumpAST = EZ_REGISTER_ACTION_1("ProceduralPlacement.DumpAST", ezActionScope::Document, "ProceduralPlacement", "", ezProceduralPlacementAction, ezProceduralPlacementAction::ActionType::DumpAST);
-  s_hDumpDisassembly = EZ_REGISTER_ACTION_1("ProceduralPlacement.DumpDisassembly", ezActionScope::Document, "ProceduralPlacement", "", ezProceduralPlacementAction, ezProceduralPlacementAction::ActionType::DumpDisassembly);
+  s_hDumpAST = EZ_REGISTER_ACTION_1("ProceduralPlacement.DumpAST", ezActionScope::Document, "ProceduralPlacement", "",
+                                    ezProceduralPlacementAction, ezProceduralPlacementAction::ActionType::DumpAST);
+  s_hDumpDisassembly = EZ_REGISTER_ACTION_1("ProceduralPlacement.DumpDisassembly", ezActionScope::Document, "ProceduralPlacement", "",
+                                            ezProceduralPlacementAction, ezProceduralPlacementAction::ActionType::DumpDisassembly);
 }
 
 void ezProceduralPlacementActions::UnregisterActions()
@@ -45,16 +48,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementAction, 0, ezRTTINoAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezProceduralPlacementAction::ezProceduralPlacementAction(const ezActionContext& context, const char* szName, ActionType type)
-  : ezButtonAction(context, szName, false, "")
-  , m_Type(type)
+    : ezButtonAction(context, szName, false, "")
+    , m_Type(type)
 {
-
 }
 
-ezProceduralPlacementAction::~ezProceduralPlacementAction()
-{
-
-}
+ezProceduralPlacementAction::~ezProceduralPlacementAction() {}
 
 void ezProceduralPlacementAction::Execute(const ezVariant& value)
 {

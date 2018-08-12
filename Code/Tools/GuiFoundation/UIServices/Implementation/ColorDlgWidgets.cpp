@@ -1,11 +1,12 @@
 #include <PCH.h>
-#include <GuiFoundation/UIServices/ColorDlgWidgets.moc.h>
+
 #include <Foundation/Math/Color8UNorm.h>
+#include <GuiFoundation/UIServices/ColorDlgWidgets.moc.h>
 #include <QPainter>
 #include <qevent.h>
 
 ezQtColorAreaWidget::ezQtColorAreaWidget(QWidget* parent)
-  : QWidget(parent)
+    : QWidget(parent)
 {
   setAutoFillBackground(false);
 
@@ -109,7 +110,7 @@ void ezQtColorAreaWidget::mousePressEvent(QMouseEvent* event)
 //////////////////////////////////////////////////////////////////////////
 
 ezQtColorRangeWidget::ezQtColorRangeWidget(QWidget* parent)
-  : QWidget(parent)
+    : QWidget(parent)
 {
   setAutoFillBackground(false);
 }
@@ -231,7 +232,7 @@ void ezQtColorCompareWidget::SetInitialColor(const ezColor& color)
   m_NewColor = color;
 }
 
-void ezQtColorCompareWidget::paintEvent(QPaintEvent *)
+void ezQtColorCompareWidget::paintEvent(QPaintEvent*)
 {
   const QRect area = rect();
   const QRect areaTop(area.left(), area.top(), area.width(), area.height() / 2);

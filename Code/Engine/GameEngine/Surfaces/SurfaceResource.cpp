@@ -1,15 +1,17 @@
 #include <PCH.h>
-#include <GameEngine/Surfaces/SurfaceResource.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
-#include <RendererCore/Messages/ApplyOnlyToMessage.h>
+
 #include <Core/Assets/AssetFileHeader.h>
+#include <GameEngine/Prefabs/PrefabResource.h>
+#include <GameEngine/Surfaces/SurfaceResource.h>
+#include <RendererCore/Messages/ApplyOnlyToMessage.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResource, 1, ezRTTIDefaultAllocator<ezSurfaceResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezEvent<const ezSurfaceResource::Event&, ezMutex> ezSurfaceResource::s_Events;
 
-ezSurfaceResource::ezSurfaceResource() : ezResource<ezSurfaceResource, ezSurfaceResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+ezSurfaceResource::ezSurfaceResource()
+    : ezResource<ezSurfaceResource, ezSurfaceResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
   m_pPhysicsMaterial = nullptr;
 }
@@ -112,8 +114,9 @@ ezResourceLoadDesc ezSurfaceResource::CreateResource(const ezSurfaceResourceDesc
 }
 
 
-bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle hObject, const ezVec3& vPosition, const ezVec3& vSurfaceNormal, const ezVec3& vIncomingDirection,
-  const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID)
+bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle hObject, const ezVec3& vPosition,
+                                            const ezVec3& vSurfaceNormal, const ezVec3& vIncomingDirection,
+                                            const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID)
 {
   const ezSurfaceInteraction* pIA = nullptr;
   if (!m_Interactions.TryGetValue(sInteraction.GetHash(), pIA))
@@ -139,29 +142,31 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
 
   switch (pIA->m_Alignment)
   {
-  case  ezSurfaceInteractionAlignment::SurfaceNormal:
-    vDir = vSurfaceNormal;
-    break;
+    case ezSurfaceInteractionAlignment::SurfaceNormal:
+      vDir = vSurfaceNormal;
+      break;
 
-  case ezSurfaceInteractionAlignment::IncidentDirection:
-    vDir = -vIncomingDirection;;
-    break;
+    case ezSurfaceInteractionAlignment::IncidentDirection:
+      vDir = -vIncomingDirection;
+      ;
+      break;
 
-  case ezSurfaceInteractionAlignment::ReflectedDirection:
-    vDir = vIncomingDirection.GetReflectedVector(vSurfaceNormal);
-    break;
+    case ezSurfaceInteractionAlignment::ReflectedDirection:
+      vDir = vIncomingDirection.GetReflectedVector(vSurfaceNormal);
+      break;
 
-  case  ezSurfaceInteractionAlignment::ReverseSurfaceNormal:
-    vDir = -vSurfaceNormal;
-    break;
+    case ezSurfaceInteractionAlignment::ReverseSurfaceNormal:
+      vDir = -vSurfaceNormal;
+      break;
 
-  case ezSurfaceInteractionAlignment::ReverseIncidentDirection:
-    vDir = vIncomingDirection;;
-    break;
+    case ezSurfaceInteractionAlignment::ReverseIncidentDirection:
+      vDir = vIncomingDirection;
+      ;
+      break;
 
-  case ezSurfaceInteractionAlignment::ReverseReflectedDirection:
-    vDir = -vIncomingDirection.GetReflectedVector(vSurfaceNormal);
-    break;
+    case ezSurfaceInteractionAlignment::ReverseReflectedDirection:
+      vDir = -vIncomingDirection.GetReflectedVector(vSurfaceNormal);
+      break;
   }
 
   vDir.Normalize();
@@ -184,8 +189,8 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
     /// \todo do random deviation, make sure to clamp max deviation angle
     switch (pIA->m_Alignment)
     {
-    case ezSurfaceInteractionAlignment::IncidentDirection:
-    case ezSurfaceInteractionAlignment::ReverseReflectedDirection:
+      case ezSurfaceInteractionAlignment::IncidentDirection:
+      case ezSurfaceInteractionAlignment::ReverseReflectedDirection:
       {
         const float fCosAngle = vDir.Dot(-vSurfaceNormal);
         const float fMaxDeviation = ezMath::BasicType<float>::Pi() - ezMath::ACos(fCosAngle).GetRadian();
@@ -194,8 +199,8 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
       }
       break;
 
-    case ezSurfaceInteractionAlignment::ReflectedDirection:
-    case ezSurfaceInteractionAlignment::ReverseIncidentDirection:
+      case ezSurfaceInteractionAlignment::ReflectedDirection:
+      case ezSurfaceInteractionAlignment::ReverseIncidentDirection:
       {
         const float fCosAngle = vDir.Dot(vSurfaceNormal);
         const float fMaxDeviation = ezMath::BasicType<float>::Pi() - ezMath::ACos(fCosAngle).GetRadian();
@@ -204,12 +209,13 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
       }
       break;
 
-    default:
-      maxDeviation = pIA->m_Deviation;
-      break;
+      default:
+        maxDeviation = pIA->m_Deviation;
+        break;
     }
 
-    const ezAngle deviation = ezAngle::Radian((float)pWorld->GetRandomNumberGenerator().DoubleMinMax(-maxDeviation.GetRadian(), maxDeviation.GetRadian()));
+    const ezAngle deviation =
+        ezAngle::Radian((float)pWorld->GetRandomNumberGenerator().DoubleMinMax(-maxDeviation.GetRadian(), maxDeviation.GetRadian()));
 
     // tilt around the tangent (we don't want to compute another random rotation here)
     ezMat3 matTilt;
@@ -262,4 +268,3 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Surfaces_SurfaceResource);
-

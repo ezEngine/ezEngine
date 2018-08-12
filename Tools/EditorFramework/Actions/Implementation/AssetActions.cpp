@@ -1,9 +1,10 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <EditorFramework/Actions/AssetActions.h>
-#include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 #include <GuiFoundation/Action/ActionManager.h>
+#include <GuiFoundation/Action/ActionMapManager.h>
 
 ezActionDescriptorHandle ezAssetActions::s_hAssetCategory;
 ezActionDescriptorHandle ezAssetActions::s_hTransformAsset;
@@ -16,11 +17,16 @@ ezActionDescriptorHandle ezAssetActions::s_hWriteLookupTable;
 void ezAssetActions::RegisterActions()
 {
   s_hAssetCategory = EZ_REGISTER_CATEGORY("AssetCategory");
-  s_hTransformAsset = EZ_REGISTER_ACTION_1("Asset.Transform", ezActionScope::Document, "Assets", "Ctrl+T", ezAssetAction, ezAssetAction::ButtonType::TransformAsset);
-  s_hTransformAllAssets = EZ_REGISTER_ACTION_1("Asset.TransformAll", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::TransformAllAssets);
-  s_hResaveAllAssets = EZ_REGISTER_ACTION_1("Asset.ResaveAll", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::ResaveAllAssets);
-  s_hCheckFileSystem = EZ_REGISTER_ACTION_1("Asset.CheckFilesystem", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::CheckFileSystem);
-  s_hWriteLookupTable = EZ_REGISTER_ACTION_1("Asset.WriteLookupTable", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::WriteLookupTable);
+  s_hTransformAsset = EZ_REGISTER_ACTION_1("Asset.Transform", ezActionScope::Document, "Assets", "Ctrl+T", ezAssetAction,
+                                           ezAssetAction::ButtonType::TransformAsset);
+  s_hTransformAllAssets = EZ_REGISTER_ACTION_1("Asset.TransformAll", ezActionScope::Global, "Assets", "", ezAssetAction,
+                                               ezAssetAction::ButtonType::TransformAllAssets);
+  s_hResaveAllAssets = EZ_REGISTER_ACTION_1("Asset.ResaveAll", ezActionScope::Global, "Assets", "", ezAssetAction,
+                                            ezAssetAction::ButtonType::ResaveAllAssets);
+  s_hCheckFileSystem = EZ_REGISTER_ACTION_1("Asset.CheckFilesystem", ezActionScope::Global, "Assets", "", ezAssetAction,
+                                            ezAssetAction::ButtonType::CheckFileSystem);
+  s_hWriteLookupTable = EZ_REGISTER_ACTION_1("Asset.WriteLookupTable", ezActionScope::Global, "Assets", "", ezAssetAction,
+                                             ezAssetAction::ButtonType::WriteLookupTable);
 }
 
 void ezAssetActions::UnregisterActions()
@@ -49,7 +55,7 @@ void ezAssetActions::MapActions(const char* szMapping, bool bDocument)
     pMap->MapAction(s_hCheckFileSystem, "AssetCategory", 0.0f);
     pMap->MapAction(s_hTransformAllAssets, "AssetCategory", 3.0f);
     pMap->MapAction(s_hResaveAllAssets, "AssetCategory", 4.0f);
-    //pMap->MapAction(s_hWriteLookupTable, "AssetCategory", 5.0f);
+    // pMap->MapAction(s_hWriteLookupTable, "AssetCategory", 5.0f);
   }
 }
 
@@ -61,39 +67,37 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezAssetAction::ezAssetAction(const ezActionContext& context, const char* szName, ButtonType button)
-  : ezButtonAction(context, szName, false, "")
+    : ezButtonAction(context, szName, false, "")
 {
   m_ButtonType = button;
 
   switch (m_ButtonType)
   {
-  case ezAssetAction::ButtonType::TransformAsset:
-    SetIconPath(":/EditorFramework/Icons/TransformAssets16.png");
-    break;
-  case ezAssetAction::ButtonType::TransformAllAssets:
-    SetIconPath(":/EditorFramework/Icons/TransformAllAssets16.png");
-    break;
-  case ezAssetAction::ButtonType::ResaveAllAssets:
-    SetIconPath(":/EditorFramework/Icons/ResavAllAssets16.png");
-    break;
-  case ezAssetAction::ButtonType::CheckFileSystem:
-    SetIconPath(":/EditorFramework/Icons/CheckFileSystem16.png");
-    break;
-  case ezAssetAction::ButtonType::WriteLookupTable:
-    SetIconPath(":/EditorFramework/Icons/WriteLookupTable16.png");
-    break;
+    case ezAssetAction::ButtonType::TransformAsset:
+      SetIconPath(":/EditorFramework/Icons/TransformAssets16.png");
+      break;
+    case ezAssetAction::ButtonType::TransformAllAssets:
+      SetIconPath(":/EditorFramework/Icons/TransformAllAssets16.png");
+      break;
+    case ezAssetAction::ButtonType::ResaveAllAssets:
+      SetIconPath(":/EditorFramework/Icons/ResavAllAssets16.png");
+      break;
+    case ezAssetAction::ButtonType::CheckFileSystem:
+      SetIconPath(":/EditorFramework/Icons/CheckFileSystem16.png");
+      break;
+    case ezAssetAction::ButtonType::WriteLookupTable:
+      SetIconPath(":/EditorFramework/Icons/WriteLookupTable16.png");
+      break;
   }
 }
 
-ezAssetAction::~ezAssetAction()
-{
-}
+ezAssetAction::~ezAssetAction() {}
 
 void ezAssetAction::Execute(const ezVariant& value)
 {
   switch (m_ButtonType)
   {
-  case ezAssetAction::ButtonType::TransformAsset:
+    case ezAssetAction::ButtonType::TransformAsset:
     {
       if (m_Context.m_pDocument->IsModified())
       {
@@ -118,30 +122,29 @@ void ezAssetAction::Execute(const ezVariant& value)
     }
     break;
 
-  case ezAssetAction::ButtonType::TransformAllAssets:
+    case ezAssetAction::ButtonType::TransformAllAssets:
     {
       ezAssetCurator::GetSingleton()->TransformAllAssets();
     }
     break;
 
-  case ezAssetAction::ButtonType::ResaveAllAssets:
+    case ezAssetAction::ButtonType::ResaveAllAssets:
     {
       ezAssetCurator::GetSingleton()->ResaveAllAssets();
     }
     break;
 
-  case ezAssetAction::ButtonType::CheckFileSystem:
+    case ezAssetAction::ButtonType::CheckFileSystem:
     {
       ezAssetCurator::GetSingleton()->CheckFileSystem();
       ezAssetCurator::GetSingleton()->WriteAssetTables();
     }
     break;
 
-  case ezAssetAction::ButtonType::WriteLookupTable:
+    case ezAssetAction::ButtonType::WriteLookupTable:
     {
       ezAssetCurator::GetSingleton()->WriteAssetTables();
     }
     break;
   }
 }
-

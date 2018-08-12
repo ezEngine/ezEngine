@@ -1,13 +1,15 @@
-﻿#include <PCH.h>
-#include <EditorPluginScene/Commands/SceneCommands.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <Foundation/IO/MemoryStream.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <EditorPluginScene/Scene/SceneDocument.h>
-#include <Foundation/Math/Transform.h>
-#include <Foundation/Math/Random.h>
-#include <Foundation/Serialization/DdlSerializer.h>
+#include <PCH.h>
 
+#include <EditorPluginScene/Commands/SceneCommands.h>
+#include <EditorPluginScene/Scene/SceneDocument.h>
+#include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Math/Random.h>
+#include <Foundation/Math/Transform.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/DdlSerializer.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDuplicateObjectsCommand, 1, ezRTTIDefaultAllocator<ezDuplicateObjectsCommand>)
 {
   EZ_BEGIN_PROPERTIES
@@ -28,7 +30,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDuplicateObjectsCommand, 1, ezRTTIDefaultAlloc
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
+// clang-format on
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -60,7 +62,8 @@ ezStatus ezDuplicateObjectsCommand::DoInternal(bool bRedo)
 
     if (m_uiNumberOfCopies == 0)
     {
-      /// \todo Christopher: Duplicating 4 objects (or so) that have the same parent (via shift+drag), will crash the engine process but otherwise work fine.
+      /// \todo Christopher: Duplicating 4 objects (or so) that have the same parent (via shift+drag), will crash the engine process but
+      /// otherwise work fine.
 
       ezHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
       CreateOneDuplicate(graph, ToBePasted);
@@ -138,7 +141,7 @@ void ezDuplicateObjectsCommand::DeserializeGraph(ezAbstractObjectGraph& graph)
   ezAbstractGraphDdlSerializer::Read(memoryReader, &graph);
 }
 
-void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph &graph, ezHybridArray<ezDocument::PasteInfo, 16>& ToBePasted)
+void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph, ezHybridArray<ezDocument::PasteInfo, 16>& ToBePasted)
 {
   ezSceneDocument* pDocument = static_cast<ezSceneDocument*>(GetDocument());
 
@@ -217,7 +220,9 @@ void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph &graph,
 }
 
 
-void ezDuplicateObjectsCommand::AdjustObjectPositions(ezHybridArray<ezDocument::PasteInfo, 16>& Duplicates, ezUInt32 uiNumDuplicate, ezRandomGauss& rngRotX, ezRandomGauss& rngRotY, ezRandomGauss& rngRotZ, ezRandomGauss& rngTransX, ezRandomGauss& rngTransY, ezRandomGauss& rngTransZ)
+void ezDuplicateObjectsCommand::AdjustObjectPositions(ezHybridArray<ezDocument::PasteInfo, 16>& Duplicates, ezUInt32 uiNumDuplicate,
+                                                      ezRandomGauss& rngRotX, ezRandomGauss& rngRotY, ezRandomGauss& rngRotZ,
+                                                      ezRandomGauss& rngTransX, ezRandomGauss& rngTransY, ezRandomGauss& rngTransZ)
 {
   ezSceneDocument* pScene = static_cast<ezSceneDocument*>(m_pDocument);
 
@@ -249,9 +254,18 @@ void ezDuplicateObjectsCommand::AdjustObjectPositions(ezHybridArray<ezDocument::
 
     switch (m_iRevolveAxis)
     {
-    case 1: vRevolveAxis.Set(1, 0, 0); vPosOffset.Set(0, 0, m_fRevolveRadius); break;
-    case 2: vRevolveAxis.Set(0, 1, 0); vPosOffset.Set(m_fRevolveRadius, 0, 0); break;
-    case 3: vRevolveAxis.Set(0, 0, 1); vPosOffset.Set(0, m_fRevolveRadius, 0); break;
+      case 1:
+        vRevolveAxis.Set(1, 0, 0);
+        vPosOffset.Set(0, 0, m_fRevolveRadius);
+        break;
+      case 2:
+        vRevolveAxis.Set(0, 1, 0);
+        vPosOffset.Set(m_fRevolveRadius, 0, 0);
+        break;
+      case 3:
+        vRevolveAxis.Set(0, 0, 1);
+        vPosOffset.Set(0, m_fRevolveRadius, 0);
+        break;
     }
 
     revolve += fStep * m_RevolveAngleStep;
@@ -275,12 +289,11 @@ void ezDuplicateObjectsCommand::AdjustObjectPositions(ezHybridArray<ezDocument::
     tGlobal.m_vPosition += vPosOffset + fStep * m_vAccumulativeTranslation + vRandT;
     tGlobal.m_qRotation = qRot * tGlobal.m_qRotation;
 
-    /// \todo Christopher: Modifying the position through a command after creating the object seems to destroy the undo-ability of this operation
-    /// Duplicating multiple objects (with some translation) and then undoing that will crash the editor process
+    /// \todo Christopher: Modifying the position through a command after creating the object seems to destroy the undo-ability of this
+    /// operation Duplicating multiple objects (with some translation) and then undoing that will crash the editor process
 
     pScene->SetGlobalTransform(pi.m_pObject, tGlobal, TransformationChanges::Translation | TransformationChanges::Rotation);
   }
-
 }
 
 ezStatus ezDuplicateObjectsCommand::UndoInternal(bool bFireEvents)
@@ -308,6 +321,4 @@ void ezDuplicateObjectsCommand::CleanupInternal(CommandState state)
     }
     m_DuplicatedObjects.Clear();
   }
-
 }
-

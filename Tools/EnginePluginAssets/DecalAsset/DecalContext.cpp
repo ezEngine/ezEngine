@@ -1,13 +1,15 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <Core/Graphics/Geometry.h>
 #include <EnginePluginAssets/DecalAsset/DecalContext.h>
 #include <EnginePluginAssets/DecalAsset/DecalView.h>
-#include <RendererCore/Lights/DirectionalLightComponent.h>
-#include <RendererCore/Lights/AmbientLightComponent.h>
-#include <RendererCore/Meshes/MeshResource.h>
-#include <Core/Graphics/Geometry.h>
-#include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Decals/DecalComponent.h>
+#include <RendererCore/Lights/AmbientLightComponent.h>
+#include <RendererCore/Lights/DirectionalLightComponent.h>
+#include <RendererCore/Meshes/MeshComponent.h>
+#include <RendererCore/Meshes/MeshResource.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalContext, 1, ezRTTIDefaultAllocator<ezDecalContext>)
 {
   EZ_BEGIN_PROPERTIES
@@ -17,11 +19,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalContext, 1, ezRTTIDefaultAllocator<ezDeca
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-
-ezDecalContext::ezDecalContext()
-{
-}
+ezDecalContext::ezDecalContext() {}
 
 void ezDecalContext::OnInitialize()
 {

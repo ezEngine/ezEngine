@@ -3,8 +3,10 @@
 #include <Core/World/SpatialSystem.h>
 #include <Foundation/Time/Stopwatch.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpatialSystem, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezSpatialData) == 64);
 

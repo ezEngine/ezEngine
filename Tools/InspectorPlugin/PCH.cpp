@@ -18,4 +18,3 @@ EZ_STATICLINK_LIBRARY(InspectorPlugin)
   EZ_STATICLINK_REFERENCE(InspectorPlugin_Stats);
   EZ_STATICLINK_REFERENCE(InspectorPlugin_Time);
 }
-

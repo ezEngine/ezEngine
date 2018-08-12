@@ -1,18 +1,20 @@
-﻿#include <PCH.h>
-#include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAssetWindow.moc.h>
+#include <PCH.h>
+
 #include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAssetScene.moc.h>
+#include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
-#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/NodeEditor/NodeView.moc.h>
+#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 
 #include <QLabel>
 #include <QLayout>
 
 
-ezQtRenderPipelineAssetDocumentWindow::ezQtRenderPipelineAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
+ezQtRenderPipelineAssetDocumentWindow::ezQtRenderPipelineAssetDocumentWindow(ezDocument* pDocument)
+    : ezQtDocumentWindow(pDocument)
 {
 
   // Menu Bar
@@ -58,6 +60,4 @@ ezQtRenderPipelineAssetDocumentWindow::ezQtRenderPipelineAssetDocumentWindow(ezD
   FinishWindowCreation();
 }
 
-ezQtRenderPipelineAssetDocumentWindow::~ezQtRenderPipelineAssetDocumentWindow()
-{
-}
+ezQtRenderPipelineAssetDocumentWindow::~ezQtRenderPipelineAssetDocumentWindow() {}

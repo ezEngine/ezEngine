@@ -4,7 +4,7 @@
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
 
 ezQtOrbitCamViewWidget::ezQtOrbitCamViewWidget(ezQtEngineDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig)
-  : ezQtEngineViewWidget(nullptr, pOwnerWindow, pViewConfig)
+    : ezQtEngineViewWidget(nullptr, pOwnerWindow, pViewConfig)
 {
   setAcceptDrops(true);
 

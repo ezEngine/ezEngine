@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Containers/DynamicArray.h>
 
 static void testArrayPtr(ezArrayPtr<ezInt32> ints, ezInt32* pExtectedPtr, ezUInt32 uiExpectedCount)
@@ -19,7 +20,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
-    ezInt32 pIntData[] = { 1, 2, 3, 4, 5 };
+    ezInt32 pIntData[] = {1, 2, 3, 4, 5};
 
     ezArrayPtr<ezInt32> ap(pIntData, 3);
     EZ_TEST_BOOL(ap.GetPtr() == pIntData);
@@ -40,7 +41,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "szMakeArrayPtr")
   {
-    ezInt32 pIntData[] = { 1, 2, 3, 4, 5 };
+    ezInt32 pIntData[] = {1, 2, 3, 4, 5};
 
     testArrayPtr(ezMakeArrayPtr(pIntData, 3), pIntData, 3);
     testArrayPtr(ezMakeArrayPtr(pIntData, 0), nullptr, 0);
@@ -49,7 +50,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator=")
   {
-    ezInt32 pIntData[] = { 1, 2, 3, 4, 5 };
+    ezInt32 pIntData[] = {1, 2, 3, 4, 5};
 
     ezArrayPtr<ezInt32> ap(pIntData, 3);
     EZ_TEST_BOOL(ap.GetPtr() == pIntData);
@@ -64,7 +65,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Reset")
   {
-    ezInt32 pIntData[] = { 1, 2, 3, 4, 5 };
+    ezInt32 pIntData[] = {1, 2, 3, 4, 5};
 
     ezArrayPtr<ezInt32> ap(pIntData, 3);
     EZ_TEST_BOOL(ap.GetPtr() == pIntData);
@@ -78,7 +79,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator== / operator!=")
   {
-    ezInt32 pIntData[] = { 1, 2, 3, 4, 5 };
+    ezInt32 pIntData[] = {1, 2, 3, 4, 5};
 
     ezArrayPtr<ezInt32> ap1(pIntData, 3);
     ezArrayPtr<ezInt32> ap2(pIntData, 3);
@@ -92,7 +93,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator[]")
   {
-    ezInt32 pIntData[] = { 1, 2, 3, 4, 5 };
+    ezInt32 pIntData[] = {1, 2, 3, 4, 5};
 
     ezArrayPtr<ezInt32> ap(pIntData + 1, 3);
     EZ_TEST_INT(ap[0], 2);
@@ -104,7 +105,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "const operator[]")
   {
-    ezInt32 pIntData[] = { 1, 2, 3, 4, 5 };
+    ezInt32 pIntData[] = {1, 2, 3, 4, 5};
 
     const ezArrayPtr<ezInt32> ap(pIntData + 1, 3);
     EZ_TEST_INT(ap[0], 2);
@@ -114,8 +115,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CopyFrom")
   {
-    ezInt32 pIntData1[] = { 1, 2, 3, 4, 5 };
-    ezInt32 pIntData2[] = { 6, 7, 8, 9, 0 };
+    ezInt32 pIntData1[] = {1, 2, 3, 4, 5};
+    ezInt32 pIntData2[] = {6, 7, 8, 9, 0};
 
     ezArrayPtr<ezInt32> ap1(pIntData1 + 1, 3);
     ezArrayPtr<ezInt32> ap2(pIntData2 + 2, 3);
@@ -131,7 +132,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetSubArray")
   {
-    ezInt32 pIntData1[] = { 1, 2, 3, 4, 5 };
+    ezInt32 pIntData1[] = {1, 2, 3, 4, 5};
 
     ezArrayPtr<ezInt32> ap1(pIntData1, 5);
     ezArrayPtr<ezInt32> ap2 = ap1.GetSubArray(2, 3);
@@ -142,7 +143,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Const Conversions")
   {
-    ezInt32 pIntData1[] = { 1, 2, 3, 4, 5 };
+    ezInt32 pIntData1[] = {1, 2, 3, 4, 5};
     ezArrayPtr<ezInt32> ap1(pIntData1);
     ezArrayPtr<const ezInt32> ap2(ap1);
     ezArrayPtr<const ezInt32> ap3(pIntData1);
@@ -160,7 +161,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor (const)")
   {
-    const ezInt32 pIntData[] = { 1, 2, 3, 4, 5 };
+    const ezInt32 pIntData[] = {1, 2, 3, 4, 5};
 
     ezArrayPtr<const ezInt32> ap(pIntData, 3);
     EZ_TEST_BOOL(ap.GetPtr() == pIntData);
@@ -181,7 +182,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator=  (const)")
   {
-    const ezInt32 pIntData[] = { 1, 2, 3, 4, 5 };
+    const ezInt32 pIntData[] = {1, 2, 3, 4, 5};
 
     ezArrayPtr<const ezInt32> ap(pIntData, 3);
     EZ_TEST_BOOL(ap.GetPtr() == pIntData);
@@ -196,7 +197,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Reset  (const)")
   {
-    const ezInt32 pIntData[] = { 1, 2, 3, 4, 5 };
+    const ezInt32 pIntData[] = {1, 2, 3, 4, 5};
 
     ezArrayPtr<const ezInt32> ap(pIntData, 3);
     EZ_TEST_BOOL(ap.GetPtr() == pIntData);
@@ -210,7 +211,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator== / operator!=  (const)")
   {
-    ezInt32 pIntData[] = { 1, 2, 3, 4, 5 };
+    ezInt32 pIntData[] = {1, 2, 3, 4, 5};
 
     ezArrayPtr<ezInt32> ap1(pIntData, 3);
     ezArrayPtr<const ezInt32> ap2(pIntData, 3);
@@ -224,7 +225,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator[]  (const)")
   {
-    const ezInt32 pIntData[] = { 1, 2, 3, 4, 5 };
+    const ezInt32 pIntData[] = {1, 2, 3, 4, 5};
 
     ezArrayPtr<const ezInt32> ap(pIntData + 1, 3);
     EZ_TEST_INT(ap[0], 2);
@@ -234,7 +235,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "const operator[] (const)")
   {
-    const ezInt32 pIntData[] = { 1, 2, 3, 4, 5 };
+    const ezInt32 pIntData[] = {1, 2, 3, 4, 5};
 
     const ezArrayPtr<const ezInt32> ap(pIntData + 1, 3);
     EZ_TEST_INT(ap[0], 2);
@@ -244,7 +245,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetSubArray (const)")
   {
-    const ezInt32 pIntData1[] = { 1, 2, 3, 4, 5 };
+    const ezInt32 pIntData1[] = {1, 2, 3, 4, 5};
 
     ezArrayPtr<const ezInt32> ap1(pIntData1, 5);
     ezArrayPtr<const ezInt32> ap2 = ap1.GetSubArray(2, 3);
@@ -272,7 +273,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
     // foreach
     ezUInt32 prev = 0;
-    for(ezUInt32 val : ptr1)
+    for (ezUInt32 val : ptr1)
     {
       EZ_TEST_BOOL(prev <= val);
       prev = val;
@@ -307,7 +308,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
     // foreach
     ezUInt32 prev = 1000;
-    for(ezUInt32 val : ptr1)
+    for (ezUInt32 val : ptr1)
     {
       EZ_TEST_BOOL(prev >= val);
       prev = val;
@@ -322,5 +323,4 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
     auto lb = std::lower_bound(rbegin(ptr2), rend(ptr2), 400);
     EZ_TEST_BOOL(*lb == ptr2[1000 - 400 - 1]);
   }
-
 }

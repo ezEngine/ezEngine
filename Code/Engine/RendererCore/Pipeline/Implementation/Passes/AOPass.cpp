@@ -1,14 +1,16 @@
 #include <PCH.h>
+
+#include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Pipeline/Passes/AOPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/DownscaleDepthConstants.h>
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/SSAOConstants.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAOPass, 1, ezRTTIDefaultAllocator<ezAOPass>)
 {
   EZ_BEGIN_PROPERTIES
@@ -28,18 +30,19 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAOPass, 1, ezRTTIDefaultAllocator<ezAOPass>)
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezAOPass::ezAOPass()
-  : ezRenderPipelinePass("AOPass")
-  , m_fRadius(1.0f)
-  , m_fMaxScreenSpaceRadius(1.0f)
-  , m_fContrast(2.0f)
-  , m_fIntensity(0.7f)
-  , m_fFadeOutStart(80.0f)
-  , m_fFadeOutEnd(100.0f)
-  , m_fPositionBias(5.0f)
-  , m_fMipLevelScale(10.0f)
-  , m_fDepthBlurThreshold(2.0f)
+    : ezRenderPipelinePass("AOPass")
+    , m_fRadius(1.0f)
+    , m_fMaxScreenSpaceRadius(1.0f)
+    , m_fContrast(2.0f)
+    , m_fIntensity(0.7f)
+    , m_fFadeOutStart(80.0f)
+    , m_fFadeOutEnd(100.0f)
+    , m_fPositionBias(5.0f)
+    , m_fMipLevelScale(10.0f)
+    , m_fDepthBlurThreshold(2.0f)
 {
   m_hNoiseTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/SSAONoise.dds");
 
@@ -71,8 +74,8 @@ ezAOPass::~ezAOPass()
   m_hSSAOConstantBuffer.Invalidate();
 }
 
-bool ezAOPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs,
-  ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezAOPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
+                                           ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   if (auto pDepthInput = inputs[m_PinDepthInput.m_uiInputIndex])
   {
@@ -103,7 +106,7 @@ bool ezAOPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<
 }
 
 void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+                       const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   auto pDepthInput = inputs[m_PinDepthInput.m_uiInputIndex];
   auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
@@ -173,11 +176,13 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
       }
     }
 
-    tempSSAOTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::RGHalf, ezGALMSAASampleCount::None, desc.m_uiArraySize);
+    tempSSAOTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::RGHalf,
+                                                                               ezGALMSAASampleCount::None, desc.m_uiArraySize);
   }
 
   // Bind common data
-  renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+  renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
+                                                     1);
 
   ezGALRenderTagetSetup renderTargetSetup;
 
@@ -285,7 +290,8 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
   }
 }
 
-void ezAOPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezAOPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+                               const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
   if (pOutput == nullptr)
@@ -350,4 +356,3 @@ void ezAOPass::CreateSamplerState()
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_AOPass);
-

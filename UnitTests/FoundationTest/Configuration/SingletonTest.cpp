@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Configuration/Singleton.h>
 
 class TestSingleton
@@ -6,7 +7,8 @@ class TestSingleton
   EZ_DECLARE_SINGLETON(TestSingleton);
 
 public:
-  TestSingleton() : m_SingletonRegistrar(this)
+  TestSingleton()
+      : m_SingletonRegistrar(this)
   {
   }
 
@@ -26,14 +28,12 @@ class TestSingletonOfInterface : public SingletonInterface
   EZ_DECLARE_SINGLETON_OF_INTERFACE(TestSingletonOfInterface, SingletonInterface);
 
 public:
-  TestSingletonOfInterface() : m_SingletonRegistrar(this)
+  TestSingletonOfInterface()
+      : m_SingletonRegistrar(this)
   {
   }
 
-  virtual ezInt32 GetValue()
-  {
-    return 23;
-  }
+  virtual ezInt32 GetValue() { return 23; }
 };
 
 EZ_IMPLEMENT_SINGLETON(TestSingletonOfInterface);
@@ -87,4 +87,3 @@ EZ_CREATE_SIMPLE_TEST(Configuration, Singleton)
     }
   }
 }
-

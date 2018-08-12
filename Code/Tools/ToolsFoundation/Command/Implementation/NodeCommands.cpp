@@ -1,8 +1,10 @@
 #include <PCH.h>
+
 #include <ToolsFoundation/Command/NodeCommands.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRemoveNodeCommand, 1, ezRTTIDefaultAllocator<ezRemoveNodeCommand>)
 {
   EZ_BEGIN_PROPERTIES
@@ -49,13 +51,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDisconnectNodePinsCommand, 1, ezRTTIDefaultAll
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ////////////////////////////////////////////////////////////////////////
 // ezRemoveNodeCommand
 ////////////////////////////////////////////////////////////////////////
 
-ezRemoveNodeCommand::ezRemoveNodeCommand() :
-  m_pObject(nullptr)
+ezRemoveNodeCommand::ezRemoveNodeCommand()
+    : m_pObject(nullptr)
 {
 }
 
@@ -134,9 +137,7 @@ ezStatus ezRemoveNodeCommand::UndoInternal(bool bFireEvents)
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezRemoveNodeCommand::CleanupInternal(CommandState state)
-{
-}
+void ezRemoveNodeCommand::CleanupInternal(CommandState state) {}
 
 
 ////////////////////////////////////////////////////////////////////////

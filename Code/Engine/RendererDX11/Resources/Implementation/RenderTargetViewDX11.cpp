@@ -1,22 +1,20 @@
-﻿
 #include <PCH.h>
+
+#include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
 #include <RendererDX11/Resources/TextureDX11.h>
-#include <RendererDX11/Device/DeviceDX11.h>
 
 #include <d3d11.h>
 
 ezGALRenderTargetViewDX11::ezGALRenderTargetViewDX11(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description)
-  : ezGALRenderTargetView(pTexture, Description)
-  , m_pRenderTargetView(nullptr)
-  , m_pDepthStencilView(nullptr)
-  , m_pUnorderedAccessView(nullptr)
+    : ezGALRenderTargetView(pTexture, Description)
+    , m_pRenderTargetView(nullptr)
+    , m_pDepthStencilView(nullptr)
+    , m_pUnorderedAccessView(nullptr)
 {
 }
 
-ezGALRenderTargetViewDX11::~ezGALRenderTargetViewDX11()
-{
-}
+ezGALRenderTargetViewDX11::~ezGALRenderTargetViewDX11() {}
 
 ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 {
@@ -82,7 +80,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
       if (texDesc.m_uiArraySize == 1)
       {
         DSViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
-        //DSViewDesc.Texture2DMS.UnusedField_NothingToDefine;
+        // DSViewDesc.Texture2DMS.UnusedField_NothingToDefine;
       }
       else
       {
@@ -131,7 +129,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
       if (texDesc.m_uiArraySize == 1)
       {
         RTViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
-        //RTViewDesc.Texture2DMS.UnusedField_NothingToDefine;
+        // RTViewDesc.Texture2DMS.UnusedField_NothingToDefine;
       }
       else
       {
@@ -165,4 +163,3 @@ ezResult ezGALRenderTargetViewDX11::DeInitPlatform(ezGALDevice* pDevice)
 
 
 EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Resources_Implementation_RenderTargetViewDX11);
-

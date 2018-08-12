@@ -1,16 +1,17 @@
 #include <PCH.h>
-#include <GameEngine/Console/Console.h>
+
 #include <Core/Input/InputManager.h>
+#include <GameEngine/Console/Console.h>
 
 bool ezConsole::ProcessInputCharacter(ezUInt32 uiChar)
 {
   switch (uiChar)
   {
-  case 27: // Escape
-    ClearInputLine();
-    return false;
+    case 27: // Escape
+      ClearInputLine();
+      return false;
 
-  case '\b': // backspace
+    case '\b': // backspace
     {
       if (!m_sInputLine.IsEmpty() && m_iCaretPosition > 0)
       {
@@ -18,17 +19,17 @@ bool ezConsole::ProcessInputCharacter(ezUInt32 uiChar)
         MoveCaret(-1);
       }
     }
-    return false;
+      return false;
 
-  case '\t':
-    AutoCompleteInputLine();
-    return false;
+    case '\t':
+      AutoCompleteInputLine();
+      return false;
 
-  case 13: // Enter
-    AddToInputHistory(m_sInputLine.GetData());
-    ProcessCommand(m_sInputLine.GetData());
-    ClearInputLine();
-    return false;
+    case 13: // Enter
+      AddToInputHistory(m_sInputLine.GetData());
+      ProcessCommand(m_sInputLine.GetData());
+      ClearInputLine();
+      return false;
   }
 
   return true;
@@ -110,7 +111,7 @@ void ezConsole::AddInputCharacter(ezUInt32 uiChar)
   auto it = m_sInputLine.GetIteratorFront();
   it += m_iCaretPosition;
 
-  ezUInt32 uiString[2] = { uiChar, 0 };
+  ezUInt32 uiString[2] = {uiChar, 0};
 
   m_sInputLine.Insert(it.GetData(), ezStringUtf8(uiString).GetData());
 
@@ -210,10 +211,8 @@ void ezConsole::DoDefaultInputHandling(bool bConsoleOpen)
     if (GetInputHistory().GetCount() >= 2)
       ProcessCommand(GetInputHistory()[1].GetData());
   }
-
 }
 
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Console_Implementation_Input);
-

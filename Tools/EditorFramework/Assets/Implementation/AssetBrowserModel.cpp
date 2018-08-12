@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
@@ -8,7 +9,7 @@
 #include <QUrl>
 
 ezQtAssetFilter::ezQtAssetFilter(QObject* pParent)
-  : QObject(pParent)
+    : QObject(pParent)
 {
 }
 
@@ -19,7 +20,8 @@ ezQtAssetFilter::ezQtAssetFilter(QObject* pParent)
 struct AssetComparer
 {
   AssetComparer(ezQtAssetBrowserModel* model, const ezMap<ezUuid, ezSubAsset>& allAssets)
-    : m_Model(model), m_AllAssets(allAssets)
+      : m_Model(model)
+      , m_AllAssets(allAssets)
   {
   }
 
@@ -41,22 +43,22 @@ struct AssetComparer
 };
 
 ezQtAssetBrowserModel::ezQtAssetBrowserModel(QObject* pParent, ezQtAssetFilter* pFilter)
-  : QAbstractItemModel(pParent)
-  , m_pFilter(pFilter)
+    : QAbstractItemModel(pParent)
+    , m_pFilter(pFilter)
 {
   EZ_ASSERT_DEBUG(pFilter != nullptr, "ezQtAssetBrowserModel requires a valid filter.");
-  connect(pFilter, &ezQtAssetFilter::FilterChanged, this, [this]()
-  {
-    resetModel();
-  });
+  connect(pFilter, &ezQtAssetFilter::FilterChanged, this, [this]() { resetModel(); });
 
   ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAssetBrowserModel::AssetCuratorEventHandler, this));
 
   resetModel();
   SetIconMode(true);
 
-  EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageLoaded, this, &ezQtAssetBrowserModel::ThumbnailLoaded) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageInvalidated, this, &ezQtAssetBrowserModel::ThumbnailInvalidated) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageLoaded, this, &ezQtAssetBrowserModel::ThumbnailLoaded) != nullptr,
+            "signal/slot connection failed");
+  EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageInvalidated, this,
+                    &ezQtAssetBrowserModel::ThumbnailInvalidated) != nullptr,
+            "signal/slot connection failed");
 }
 
 ezQtAssetBrowserModel::~ezQtAssetBrowserModel()
@@ -68,18 +70,18 @@ void ezQtAssetBrowserModel::AssetCuratorEventHandler(const ezAssetCuratorEvent& 
 {
   switch (e.m_Type)
   {
-  case ezAssetCuratorEvent::Type::AssetAdded:
-    HandleAsset(e.m_pInfo, AssetOp::Add);
-    break;
-  case ezAssetCuratorEvent::Type::AssetRemoved:
-    HandleAsset(e.m_pInfo, AssetOp::Remove);
-    break;
-  case ezAssetCuratorEvent::Type::AssetListReset:
-    resetModel();
-    break;
-  case ezAssetCuratorEvent::Type::AssetUpdated:
-    HandleAsset(e.m_pInfo, AssetOp::Updated);
-    break;
+    case ezAssetCuratorEvent::Type::AssetAdded:
+      HandleAsset(e.m_pInfo, AssetOp::Add);
+      break;
+    case ezAssetCuratorEvent::Type::AssetRemoved:
+      HandleAsset(e.m_pInfo, AssetOp::Remove);
+      break;
+    case ezAssetCuratorEvent::Type::AssetListReset:
+      resetModel();
+      break;
+    case ezAssetCuratorEvent::Type::AssetUpdated:
+      HandleAsset(e.m_pInfo, AssetOp::Updated);
+      break;
   }
 }
 
@@ -156,7 +158,7 @@ void ezQtAssetBrowserModel::HandleAsset(const ezSubAsset* pInfo, AssetOp op)
   AssetComparer cmp(this, AllAssets);
   AssetEntry* pLB = std::lower_bound(begin(m_AssetsToDisplay), end(m_AssetsToDisplay), ae, cmp);
   ezUInt32 uiInsertIndex = pLB - m_AssetsToDisplay.GetData();
-  //TODO: Due to sorting issues the above can fail (we need to add a sorting model ontop of this as we use mutable data (name) for sorting.
+  // TODO: Due to sorting issues the above can fail (we need to add a sorting model ontop of this as we use mutable data (name) for sorting.
   if (uiInsertIndex >= m_AssetsToDisplay.GetCount())
   {
     for (ezUInt32 i = 0; i < m_AssetsToDisplay.GetCount(); i++)
@@ -270,43 +272,51 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
 
   switch (role)
   {
-  case Qt::DisplayRole:
+    case Qt::DisplayRole:
     {
       ezStringBuilder sFilename = pSubAsset->GetName();
       return QString::fromUtf8(sFilename);
     }
     break;
 
-  case Qt::ToolTipRole:
+    case Qt::ToolTipRole:
     {
       ezStringBuilder sToolTip = pSubAsset->GetName();
       sToolTip.Append("\n", pSubAsset->m_pAssetInfo->m_sDataDirRelativePath);
       sToolTip.Append("\nTransform State: ");
       switch (pSubAsset->m_pAssetInfo->m_TransformState)
       {
-      case ezAssetInfo::Unknown:
-        sToolTip.Append("Unknown"); break;
-      case ezAssetInfo::UpToDate:
-        sToolTip.Append("Up To Date"); break;
-      case ezAssetInfo::Updating:
-        sToolTip.Append("Updating"); break;
-      case ezAssetInfo::NeedsTransform:
-        sToolTip.Append("Needs Transform"); break;
-      case ezAssetInfo::NeedsThumbnail:
-        sToolTip.Append("Needs Thumbnail"); break;
-      case ezAssetInfo::TransformError:
-        sToolTip.Append("Transform Error"); break;
-      case ezAssetInfo::MissingDependency:
-        sToolTip.Append("Missing Dependency"); break;
-      case ezAssetInfo::MissingReference:
-        sToolTip.Append("Missing Reference"); break;
-      default:
-        break;
+        case ezAssetInfo::Unknown:
+          sToolTip.Append("Unknown");
+          break;
+        case ezAssetInfo::UpToDate:
+          sToolTip.Append("Up To Date");
+          break;
+        case ezAssetInfo::Updating:
+          sToolTip.Append("Updating");
+          break;
+        case ezAssetInfo::NeedsTransform:
+          sToolTip.Append("Needs Transform");
+          break;
+        case ezAssetInfo::NeedsThumbnail:
+          sToolTip.Append("Needs Thumbnail");
+          break;
+        case ezAssetInfo::TransformError:
+          sToolTip.Append("Transform Error");
+          break;
+        case ezAssetInfo::MissingDependency:
+          sToolTip.Append("Missing Dependency");
+          break;
+        case ezAssetInfo::MissingReference:
+          sToolTip.Append("Missing Reference");
+          break;
+        default:
+          break;
       }
 
       return QString::fromUtf8(sToolTip);
     }
-  case Qt::DecorationRole:
+    case Qt::DecorationRole:
     {
       if (m_bIconMode)
       {
@@ -315,7 +325,9 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
         ezUInt64 uiUserData1, uiUserData2;
         AssetGuid.GetValues(uiUserData1, uiUserData2);
 
-        const QPixmap* pThumbnailPixmap = ezQtImageCache::GetSingleton()->QueryPixmapForType(pSubAsset->m_Data.m_sAssetTypeName, sThumbnailPath, index, QVariant(uiUserData1), QVariant(uiUserData2), &asset.m_uiThumbnailID);
+        const QPixmap* pThumbnailPixmap =
+            ezQtImageCache::GetSingleton()->QueryPixmapForType(pSubAsset->m_Data.m_sAssetTypeName, sThumbnailPath, index,
+                                                               QVariant(uiUserData1), QVariant(uiUserData2), &asset.m_uiThumbnailID);
 
         return *pThumbnailPixmap;
       }
@@ -332,21 +344,21 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
     }
     break;
 
-  case UserRoles::SubAssetGuid:
+    case UserRoles::SubAssetGuid:
     {
       return qVariantFromValue(pSubAsset->m_Data.m_Guid);
     }
-  case UserRoles::AssetGuid:
+    case UserRoles::AssetGuid:
     {
       return qVariantFromValue(pSubAsset->m_pAssetInfo->m_Info->m_DocumentID);
     }
-  case UserRoles::AbsolutePath:
-    return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sAbsolutePath);
+    case UserRoles::AbsolutePath:
+      return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sAbsolutePath);
 
-  case UserRoles::RelativePath:
-    return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sDataDirRelativePath);
+    case UserRoles::RelativePath:
+      return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sDataDirRelativePath);
 
-  case UserRoles::AssetIconPath:
+    case UserRoles::AssetIconPath:
     {
       ezStringBuilder sIconName;
       sIconName.Set(":/AssetIcons/", pSubAsset->m_Data.m_sAssetTypeName);
@@ -357,8 +369,8 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
       return ezQtUiServices::GetCachedPixmapResource(sIconName.GetData());
     }
 
-  case UserRoles::TransformState:
-    return (int)pSubAsset->m_pAssetInfo->m_TransformState;
+    case UserRoles::TransformState:
+      return (int)pSubAsset->m_pAssetInfo->m_TransformState;
   }
 
   return QVariant();
@@ -378,8 +390,8 @@ QVariant ezQtAssetBrowserModel::headerData(int section, Qt::Orientation orientat
   {
     switch (section)
     {
-    case 0:
-      return QString("Asset");
+      case 0:
+        return QString("Asset");
     }
   }
   return QVariant();

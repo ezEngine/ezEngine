@@ -1,11 +1,13 @@
 #include <PCH.h>
-#include <EditorFramework/Preferences/Preferences.h>
+
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Preferences/Preferences.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
-#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPreferences, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
@@ -15,6 +17,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPreferences, 1, ezRTTINoAllocator)
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezMap<const ezDocument*, ezMap<const ezRTTI*, ezPreferences*>> ezPreferences::s_Preferences;
 
@@ -145,7 +148,7 @@ void ezPreferences::ClearPreferences(const ezDocument* pDocument, Domain domain)
   auto& docPrefs = s_Preferences[pDocument];
 
   // save all preferences for the given document
-  for (auto it = docPrefs.GetIterator(); it.IsValid(); )
+  for (auto it = docPrefs.GetIterator(); it.IsValid();)
   {
     ezPreferences* pPref = it.Value();
 
@@ -221,4 +224,3 @@ ezString ezPreferences::GetName() const
 
   return s;
 }
-

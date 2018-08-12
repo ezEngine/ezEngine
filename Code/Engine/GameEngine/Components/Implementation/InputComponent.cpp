@@ -1,11 +1,13 @@
 #include <PCH.h>
-#include <GameEngine/Components/InputComponent.h>
+
 #include <Core/Input/InputManager.h>
 #include <Core/Messages/TriggerMessage.h>
-#include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <GameEngine/Components/InputComponent.h>
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezInputMessageGranularity, 1)
   EZ_ENUM_CONSTANT(ezInputMessageGranularity::PressOnly),
   EZ_ENUM_CONSTANT(ezInputMessageGranularity::PressAndRelease),
@@ -36,6 +38,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 2, ezComponentMode::Static)
   EZ_END_MESSAGESENDERS
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezInputComponent::ezInputComponent() {}
 ezInputComponent::~ezInputComponent() {}
@@ -44,14 +47,14 @@ static inline ezTriggerState::Enum ToTriggerState(ezKeyState::Enum s)
 {
   switch (s)
   {
-  case ezKeyState::Pressed:
-    return ezTriggerState::Activated;
+    case ezKeyState::Pressed:
+      return ezTriggerState::Activated;
 
-  case ezKeyState::Released:
-    return ezTriggerState::Deactivated;
+    case ezKeyState::Released:
+      return ezTriggerState::Deactivated;
 
-  default:
-    return ezTriggerState::Continuing;
+    default:
+      return ezTriggerState::Continuing;
   }
 }
 
@@ -116,18 +119,19 @@ void ezInputComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezInputComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
 
   s >> m_sInputSet;
   ezInputMessageGranularity::StorageType gran;
-  s >> gran; m_Granularity.SetValue(gran);
+  s >> gran;
+  m_Granularity.SetValue(gran);
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 
@@ -135,7 +139,9 @@ class ezInputComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezInputComponentPatch_1_2()
-    : ezGraphPatch("ezInputComponent", 2) {}
+      : ezGraphPatch("ezInputComponent", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -148,4 +154,3 @@ ezInputComponentPatch_1_2 g_ezInputComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_InputComponent);
-

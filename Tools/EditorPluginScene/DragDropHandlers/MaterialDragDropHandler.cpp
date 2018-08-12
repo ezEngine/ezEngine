@@ -1,10 +1,11 @@
 #include <PCH.h>
-#include <EditorPluginScene/DragDropHandlers/MaterialDragDropHandler.h>
+
 #include <EditorFramework/DragDrop/DragDropInfo.h>
-#include <ToolsFoundation/Document/DocumentManager.h>
+#include <EditorPluginScene/DragDropHandlers/MaterialDragDropHandler.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
 #include <RendererCore/Meshes/MeshComponent.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
+#include <ToolsFoundation/Document/DocumentManager.h>
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialDragDropHandler, 1, ezRTTIDefaultAllocator<ezMaterialDragDropHandler>)
@@ -46,8 +47,7 @@ void ezMaterialDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
   if (!pComponent || !pComponent->GetTypeAccessor().GetType()->IsDerivedFrom<ezMeshComponent>())
     return;
 
-  if (m_AppliedToComponent == pInfo->m_TargetComponent &&
-      m_uiAppliedToSlot == pInfo->m_iTargetObjectSubID)
+  if (m_AppliedToComponent == pInfo->m_TargetComponent && m_uiAppliedToSlot == pInfo->m_iTargetObjectSubID)
     return;
 
   m_AppliedToComponent = pInfo->m_TargetComponent;

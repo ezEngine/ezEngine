@@ -1,9 +1,14 @@
 #include <PCH.h>
-#include <GuiFoundation/NodeEditor/NodeView.moc.h>
+
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
+#include <GuiFoundation/NodeEditor/NodeView.moc.h>
 #include <QMouseEvent>
 
-ezQtNodeView::ezQtNodeView(QWidget* parent) : QGraphicsView(parent), m_pScene(nullptr), m_bPanning(false), m_iPanCounter(0)
+ezQtNodeView::ezQtNodeView(QWidget* parent)
+    : QGraphicsView(parent)
+    , m_pScene(nullptr)
+    , m_bPanning(false)
+    , m_iPanCounter(0)
 {
   setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
   setDragMode(QGraphicsView::DragMode::RubberBandDrag);
@@ -14,10 +19,7 @@ ezQtNodeView::ezQtNodeView(QWidget* parent) : QGraphicsView(parent), m_pScene(nu
   m_ViewScale = QPointF(1, 1);
 }
 
-ezQtNodeView::~ezQtNodeView()
-{
-
-}
+ezQtNodeView::~ezQtNodeView() {}
 
 void ezQtNodeView::SetScene(ezQtNodeScene* pScene)
 {
@@ -121,4 +123,3 @@ void ezQtNodeView::UpdateView()
   setSceneRect(sceneRect);
   fitInView(sceneRect, Qt::KeepAspectRatio);
 }
-

@@ -1,20 +1,20 @@
 #include <PCH.h>
-#include <RendererCore/Decals/DecalComponent.h>
+
+#include <Core/Graphics/Camera.h>
+#include <Core/Messages/TriggerMessage.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <RendererCore/Decals/DecalAtlasResource.h>
+#include <RendererCore/Decals/DecalComponent.h>
 #include <RendererCore/Decals/DecalResource.h>
 #include <RendererCore/Messages/ApplyOnlyToMessage.h>
 #include <RendererCore/Messages/SetColorMessage.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <Core/Graphics/Camera.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <Core/Messages/TriggerMessage.h>
 
 
 ezDecalComponentManager::ezDecalComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ezDecalComponent, ezBlockStorageType::Compact>(pWorld)
+    : ezComponentManager<ezDecalComponent, ezBlockStorageType::Compact>(pWorld)
 {
-
 }
 
 void ezDecalComponentManager::Initialize()
@@ -24,6 +24,7 @@ void ezDecalComponentManager::Initialize()
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalRenderData, 1, ezRTTIDefaultAllocator<ezDecalRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -67,25 +68,24 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 3, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
 ezUInt16 ezDecalComponent::s_uiNextSortKey = 0;
 
 ezDecalComponent::ezDecalComponent()
-  : m_vExtents(1.0f)
-  , m_fSizeVariance(0.0f)
-  , m_Color(ezColor::White)
-  , m_InnerFadeAngle(ezAngle::Degree(50.0f))
-  , m_OuterFadeAngle(ezAngle::Degree(80.0f))
-  , m_fSortOrder(0.0f)
-  , m_bWrapAround(false)
-  , m_uiApplyOnlyToId(0)
-  , m_uiInternalSortKey(s_uiNextSortKey++)
+    : m_vExtents(1.0f)
+    , m_fSizeVariance(0.0f)
+    , m_Color(ezColor::White)
+    , m_InnerFadeAngle(ezAngle::Degree(50.0f))
+    , m_OuterFadeAngle(ezAngle::Degree(80.0f))
+    , m_fSortOrder(0.0f)
+    , m_bWrapAround(false)
+    , m_uiApplyOnlyToId(0)
+    , m_uiInternalSortKey(s_uiNextSortKey++)
 {
 }
 
-ezDecalComponent::~ezDecalComponent()
-{
-}
+ezDecalComponent::~ezDecalComponent() {}
 
 void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -106,7 +106,6 @@ void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fSizeVariance;
   s << m_OnFinishedAction;
   s << m_bWrapAround;
-
 }
 
 void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
@@ -324,8 +323,9 @@ void ezDecalComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 
   ezUInt32 uiSortingId = (ezUInt32)(ezMath::Min(m_fSortOrder * 512.0f, 32767.0f) + 32768.0f);
   uiSortingId = (uiSortingId << 16) | (m_uiInternalSortKey & 0xFFFF);
-  ezRenderData::Caching::Enum caching = (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0) ?
-    ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
+  ezRenderData::Caching::Enum caching = (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
+                                            ? ezRenderData::Caching::Never
+                                            : ezRenderData::Caching::IfStatic;
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Decal, uiSortingId, caching);
 }
 
@@ -340,11 +340,13 @@ void ezDecalComponent::OnSimulationStarted()
   ezWorld* pWorld = GetWorld();
 
   // no fade out -> fade out pretty late
-  m_StartFadeOutTime = ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 100.0); // 100 years should be enough for everybody (ignoring leap years)
+  m_StartFadeOutTime =
+      ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 100.0); // 100 years should be enough for everybody (ignoring leap years)
 
   if (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
   {
-    const ezTime tFadeOutDelay = ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleVariance(m_FadeOutDelay.m_Value.GetSeconds(), m_FadeOutDelay.m_fVariance));
+    const ezTime tFadeOutDelay =
+        ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleVariance(m_FadeOutDelay.m_Value.GetSeconds(), m_FadeOutDelay.m_fVariance));
     m_StartFadeOutTime = pWorld->GetClock().GetAccumulatedTime() + tFadeOutDelay;
 
     if (m_OnFinishedAction != ezOnComponentFinishedAction::None)
@@ -395,4 +397,3 @@ void ezDecalComponent::OnSetColor(ezMsgSetColor& msg)
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Decals_Implementation_DecalComponent);
-

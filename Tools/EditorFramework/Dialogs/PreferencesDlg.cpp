@@ -1,18 +1,17 @@
 #include <PCH.h>
+
 #include <EditorFramework/Dialogs/PreferencesDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <EditorFramework/Preferences/ProjectPreferences.h>
+#include <Foundation/Serialization/BinarySerializer.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <Foundation/Serialization/BinarySerializer.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
 
 class ezPreferencesObjectManager : public ezDocumentObjectManager
 {
 public:
-
   virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override
   {
     for (auto pRtti : m_KnownTypes)
@@ -28,26 +27,21 @@ public:
 class ezPreferencesDocument : public ezDocument
 {
 public:
-  ezPreferencesDocument(const char* szDocumentPath) : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezPreferencesObjectManager))
+  ezPreferencesDocument(const char* szDocumentPath)
+      : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezPreferencesObjectManager))
   {
   }
 
-  virtual const char* GetDocumentTypeDisplayString() const override
-  {
-    return "Preferences";
-  }
+  virtual const char* GetDocumentTypeDisplayString() const override { return "Preferences"; }
 
 public:
-
-  virtual ezDocumentInfo* CreateDocumentInfo() override
-  {
-    return EZ_DEFAULT_NEW(ezDocumentInfo);
-  }
+  virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezDocumentInfo); }
 };
 
 
 
-ezQtPreferencesDlg::ezQtPreferencesDlg(QWidget* parent) : QDialog(parent)
+ezQtPreferencesDlg::ezQtPreferencesDlg(QWidget* parent)
+    : QDialog(parent)
 {
   setupUi(this);
 
@@ -57,7 +51,8 @@ ezQtPreferencesDlg::ezQtPreferencesDlg(QWidget* parent) : QDialog(parent)
   m_pDocument = EZ_DEFAULT_NEW(ezPreferencesDocument, "<none>");
 
   // if this is set, all properties are applied immediatly
-  //m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPreferencesDlg::PropertyChangedEventHandler, this));
+  // m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPreferencesDlg::PropertyChangedEventHandler,
+  // this));
   std::unique_ptr<ezQtDocumentTreeModel> pModel(new ezQtDocumentTreeModel(m_pDocument->GetObjectManager()));
   pModel->AddAdapter(new ezQtDummyAdapter(m_pDocument->GetObjectManager(), ezGetStaticRTTI<ezDocumentRoot>(), "Children"));
   pModel->AddAdapter(new ezQtNamedAdapter(m_pDocument->GetObjectManager(), ezPreferences::GetStaticRTTI(), "", "Name"));
@@ -103,7 +98,8 @@ ezUuid ezQtPreferencesDlg::NativeToObject(ezPreferences* pPreferences)
   ezDocumentObject* pObject = m_pDocument->GetObjectManager()->CreateObject(pType);
   m_pDocument->GetObjectManager()->AddObject(pObject, pRoot, "Children", -1);
 
-  ezDocumentObjectConverterReader objectConverter(&graph, m_pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+  ezDocumentObjectConverterReader objectConverter(&graph, m_pDocument->GetObjectManager(),
+                                                  ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
   objectConverter.ApplyPropertiesToObject(pNode, pObject);
 
   return pObject->GetGuid();
@@ -116,8 +112,7 @@ void ezQtPreferencesDlg::ObjectToNative(ezUuid objectGuid, const ezDocument* pPr
 
   // Write object to graph.
   ezAbstractObjectGraph graph;
-  auto filter = [](const ezAbstractProperty* pProp) -> bool
-  {
+  auto filter = [](const ezAbstractProperty* pProp) -> bool {
     if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
       return false;
     return true;
@@ -188,15 +183,15 @@ void ezQtPreferencesDlg::AllPreferencesToObject()
 
     switch (pref->GetDomain())
     {
-    case ezPreferences::Domain::Application:
-      appPref[pref->GetName()] = pref;
-      break;
-    case ezPreferences::Domain::Project:
-      projPref[pref->GetName()] = pref;
-      break;
-    case ezPreferences::Domain::Document:
-      docPref[pref->GetName()] = pref;
-      break;
+      case ezPreferences::Domain::Application:
+        appPref[pref->GetName()] = pref;
+        break;
+      case ezPreferences::Domain::Project:
+        projPref[pref->GetName()] = pref;
+        break;
+      case ezPreferences::Domain::Document:
+        docPref[pref->GetName()] = pref;
+        break;
     }
   }
 
@@ -233,7 +228,3 @@ void ezQtPreferencesDlg::ApplyAllChanges()
     ObjectToNative(it.Key(), it.Value());
   }
 }
-
-
-
-

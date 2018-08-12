@@ -1,9 +1,10 @@
 #include <PCH.h>
-#include <RendererCore/Meshes/MeshResourceDescriptor.h>
+
 #include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/ChunkStream.h>
+#include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
 
 ezMeshResourceDescriptor::ezMeshResourceDescriptor()
@@ -112,8 +113,8 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
     // each material
     for (ezUInt32 idx = 0; idx < m_Materials.GetCount(); ++idx)
     {
-      chunk << idx;                       // Material Index
-      chunk << m_Materials[idx].m_sPath;  // Material Path (data directory relative)
+      chunk << idx;                      // Material Index
+      chunk << m_Materials[idx].m_sPath; // Material Path (data directory relative)
       /// \todo Material Path (relative to mesh file)
     }
 
@@ -128,8 +129,8 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
 
     for (ezUInt32 idx = 0; idx < m_SubMeshes.GetCount(); ++idx)
     {
-      chunk << idx;                                   // Sub-Mesh index
-      chunk << m_SubMeshes[idx].m_uiMaterialIndex;    // The material to use
+      chunk << idx;                                // Sub-Mesh index
+      chunk << m_SubMeshes[idx].m_uiMaterialIndex; // The material to use
       chunk << m_SubMeshes[idx].m_uiFirstPrimitive;
       chunk << m_SubMeshes[idx].m_uiPrimitiveCount;
     }
@@ -162,11 +163,11 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
     {
       const auto& vs = m_MeshBufferDescriptor.GetVertexDeclaration().m_VertexStreams[idx];
 
-      chunk << idx;                     // Vertex stream index
-      chunk << (ezInt32) vs.m_Format;
-      chunk << (ezInt32) vs.m_Semantic;
-      chunk << vs.m_uiElementSize;      // not needed, but can be used to check that memory layout has not changed
-      chunk << vs.m_uiOffset;           // not needed, but can be used to check that memory layout has not changed
+      chunk << idx; // Vertex stream index
+      chunk << (ezInt32)vs.m_Format;
+      chunk << (ezInt32)vs.m_Semantic;
+      chunk << vs.m_uiElementSize; // not needed, but can be used to check that memory layout has not changed
+      chunk << vs.m_uiOffset;      // not needed, but can be used to check that memory layout has not changed
     }
 
     // Version 2
@@ -265,8 +266,8 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
       for (ezUInt32 i = 0; i < m_Materials.GetCount(); ++i)
       {
         ezUInt32 idx;
-        chunk >> idx;                       // Material Index
-        chunk >> m_Materials[idx].m_sPath;  // Material Path (data directory relative)
+        chunk >> idx;                      // Material Index
+        chunk >> m_Materials[idx].m_sPath; // Material Path (data directory relative)
         /// \todo Material Path (relative to mesh file)
       }
     }
@@ -286,8 +287,8 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
       for (ezUInt32 i = 0; i < m_SubMeshes.GetCount(); ++i)
       {
         ezUInt32 idx;
-        chunk >> idx;                                   // Sub-Mesh index
-        chunk >> m_SubMeshes[idx].m_uiMaterialIndex;    // The material to use
+        chunk >> idx;                                // Sub-Mesh index
+        chunk >> m_SubMeshes[idx].m_uiMaterialIndex; // The material to use
         chunk >> m_SubMeshes[idx].m_uiFirstPrimitive;
         chunk >> m_SubMeshes[idx].m_uiPrimitiveCount;
 
@@ -331,7 +332,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
       for (ezUInt32 i = 0; i < uiStreamCount; ++i)
       {
         ezUInt32 idx;
-        chunk >> idx;                     // Vertex stream index
+        chunk >> idx; // Vertex stream index
         EZ_ASSERT_DEV(idx == i, "Invalid stream index ({0}) in file (should be {1})", idx, i);
 
         ezInt32 iFormat, iSemantic;
@@ -339,13 +340,13 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
 
         chunk >> iFormat;
         chunk >> iSemantic;
-        chunk >> uiElementSize;      // not needed, but can be used to check that memory layout has not changed
-        chunk >> uiOffset;           // not needed, but can be used to check that memory layout has not changed
+        chunk >> uiElementSize; // not needed, but can be used to check that memory layout has not changed
+        chunk >> uiOffset;      // not needed, but can be used to check that memory layout has not changed
 
-        m_MeshBufferDescriptor.AddStream((ezGALVertexAttributeSemantic::Enum) iSemantic, (ezGALResourceFormat::Enum) iFormat);
+        m_MeshBufferDescriptor.AddStream((ezGALVertexAttributeSemantic::Enum)iSemantic, (ezGALResourceFormat::Enum)iFormat);
       }
 
-      m_MeshBufferDescriptor.AllocateStreams(uiVertexCount, (ezGALPrimitiveTopology::Enum) uiTopology, uiPrimitiveCount);
+      m_MeshBufferDescriptor.AllocateStreams(uiVertexCount, (ezGALPrimitiveTopology::Enum)uiTopology, uiPrimitiveCount);
 
       // Version 2
       if (ci.m_uiChunkVersion >= 2)
@@ -411,7 +412,9 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
     ComputeBounds();
 
     auto b = m_Bounds;
-    ezLog::Info("Calculated Bounds: {0} | {1} | {2} - {3} | {4} | {5}", ezArgF(b.m_vCenter.x, 2), ezArgF(b.m_vCenter.y, 2), ezArgF(b.m_vCenter.z, 2), ezArgF(b.m_vBoxHalfExtends.x, 2), ezArgF(b.m_vBoxHalfExtends.y, 2), ezArgF(b.m_vBoxHalfExtends.z, 2));
+    ezLog::Info("Calculated Bounds: {0} | {1} | {2} - {3} | {4} | {5}", ezArgF(b.m_vCenter.x, 2), ezArgF(b.m_vCenter.y, 2),
+                ezArgF(b.m_vCenter.z, 2), ezArgF(b.m_vBoxHalfExtends.x, 2), ezArgF(b.m_vBoxHalfExtends.y, 2),
+                ezArgF(b.m_vBoxHalfExtends.z, 2));
   }
 
   return EZ_SUCCESS;
@@ -433,4 +436,3 @@ void ezMeshResourceDescriptor::ComputeBounds()
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshResourceDescriptor);
-

@@ -1,15 +1,17 @@
 #include <PCH.h>
-#include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
+
+#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/Action/ActionManager.h>
-#include <GuiFoundation/ActionViews/QtProxy.moc.h>
+#include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
+#include <GuiFoundation/ActionViews/QtProxy.moc.h>
+#include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QMenu>
 #include <QToolButton>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <Foundation/Strings/TranslationLookup.h>
 
-ezQtToolBarActionMapView::ezQtToolBarActionMapView(QString title, QWidget* parent) : QToolBar(title, parent)
+ezQtToolBarActionMapView::ezQtToolBarActionMapView(QString title, QWidget* parent)
+    : QToolBar(title, parent)
 {
   setIconSize(QSize(16, 16));
   setFloatable(false);
@@ -63,14 +65,14 @@ void ezQtToolBarActionMapView::CreateView(const ezActionMap::TreeNode* pObject)
 
     switch (pDesc->m_hAction.GetDescriptor()->m_Type)
     {
-    case ezActionType::Action:
+      case ezActionType::Action:
       {
         QAction* pQtAction = static_cast<ezQtActionProxy*>(pProxy.data())->GetQAction();
         addAction(pQtAction);
       }
       break;
 
-    case ezActionType::Category:
+      case ezActionType::Category:
       {
         if (!actions().isEmpty() && !actions().back()->isSeparator())
           addSeparator()->setParent(pProxy.data());
@@ -82,7 +84,7 @@ void ezQtToolBarActionMapView::CreateView(const ezActionMap::TreeNode* pObject)
       }
       break;
 
-    case ezActionType::Menu:
+      case ezActionType::Menu:
       {
         ezNamedAction* pNamed = static_cast<ezNamedAction*>(pProxy->GetAction());
 
@@ -103,7 +105,7 @@ void ezQtToolBarActionMapView::CreateView(const ezActionMap::TreeNode* pObject)
       }
       break;
 
-    case ezActionType::ActionAndMenu:
+      case ezActionType::ActionAndMenu:
       {
         ezNamedAction* pNamed = static_cast<ezNamedAction*>(pProxy->GetAction());
 

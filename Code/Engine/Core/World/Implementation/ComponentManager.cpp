@@ -2,8 +2,10 @@
 
 #include <Core/World/World.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponentManagerBase, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezComponentManagerBase::ezComponentManagerBase(ezWorld* pWorld)
     : ezWorldModule(pWorld)

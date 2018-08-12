@@ -1,11 +1,12 @@
-﻿#include <PCH.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <PCH.h>
+
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
-#include <ToolsFoundation/Application/ApplicationServices.h>
 #include <QProcess>
 #include <QTextStream>
 #include <QTimer>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 
 ezString ezQtEditorApp::GetExternalToolsFolder(bool bForceUseCustomTools)
 {
@@ -31,7 +32,8 @@ ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
   return szToolName;
 }
 
-ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout, ezLogInterface* pLogOutput /*= nullptr*/, ezLogMsgType::Enum LogLevel /*= ezLogMsgType::InfoMsg*/)
+ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout,
+                                    ezLogInterface* pLogOutput /*= nullptr*/, ezLogMsgType::Enum LogLevel /*= ezLogMsgType::InfoMsg*/)
 {
   // this block is supposed to be in the global log, not the given log interface
   EZ_LOG_BLOCK("Executing Tool", szTool);
@@ -56,8 +58,8 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
     struct LogBlockData
     {
       LogBlockData(ezLogInterface* pInterface, const char* szName)
-        : m_Name(szName)
-        , m_Block(pInterface, m_Name)
+          : m_Name(szName)
+          , m_Block(pInterface, m_Name)
       {
       }
 
@@ -158,10 +160,8 @@ void ezQtEditorApp::RunFileserve()
   const ezStringBuilder sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
 
   QStringList args;
-  args << "-specialdirs" << "project" << sProjectDir.GetData() << "-fs_start";
+  args << "-specialdirs"
+       << "project" << sProjectDir.GetData() << "-fs_start";
 
   QProcess::startDetached(sToolPath.GetData(), args);
 }
-
-
-

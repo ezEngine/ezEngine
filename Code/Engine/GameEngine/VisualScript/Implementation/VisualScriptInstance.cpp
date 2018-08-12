@@ -1,14 +1,15 @@
 #include <PCH.h>
-#include <GameEngine/VisualScript/VisualScriptInstance.h>
-#include <GameEngine/VisualScript/VisualScriptNode.h>
-#include <Foundation/Strings/HashedString.h>
-#include <GameEngine/VisualScript/VisualScriptResource.h>
-#include <Foundation/Reflection/ReflectionUtils.h>
+
+#include <Core/Messages/EventMessage.h>
 #include <Core/World/Declarations.h>
 #include <Core/World/GameObject.h>
 #include <Foundation/Communication/Message.h>
-#include <Core/Messages/EventMessage.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Strings/HashedString.h>
 #include <GameEngine/VisualScript/Nodes/VisualScriptMessageNodes.h>
+#include <GameEngine/VisualScript/VisualScriptInstance.h>
+#include <GameEngine/VisualScript/VisualScriptNode.h>
+#include <GameEngine/VisualScript/VisualScriptResource.h>
 
 ezMap<ezVisualScriptInstance::AssignFuncKey, ezVisualScriptDataPinAssignFunc> ezVisualScriptInstance::s_DataPinAssignFunctions;
 
@@ -78,8 +79,10 @@ void ezVisualScriptInstance::SetupPinDataTypeConversions()
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Boolean, ezVisualScriptDataPinType::Boolean, ezVisualScriptAssignBoolBool);
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Vec3, ezVisualScriptDataPinType::Vec3, ezVisualScriptAssignVec3Vec3);
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Vec3, ezVisualScriptAssignNumberVec3);
-  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptAssignGameObject);
-  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::ComponentHandle, ezVisualScriptDataPinType::ComponentHandle, ezVisualScriptAssignComponent);
+  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptDataPinType::GameObjectHandle,
+                                ezVisualScriptAssignGameObject);
+  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::ComponentHandle, ezVisualScriptDataPinType::ComponentHandle,
+                                ezVisualScriptAssignComponent);
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Boolean, ezVisualScriptAssignNumberBool);
 }
 
@@ -197,7 +200,8 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScri
 
   for (const auto& con : resource.m_DataPaths)
   {
-    ConnectDataPins(con.m_uiSourceNode, con.m_uiOutputPin, (ezVisualScriptDataPinType::Enum) con.m_uiOutputPinType, con.m_uiTargetNode, con.m_uiInputPin, (ezVisualScriptDataPinType::Enum) con.m_uiInputPinType);
+    ConnectDataPins(con.m_uiSourceNode, con.m_uiOutputPin, (ezVisualScriptDataPinType::Enum)con.m_uiOutputPinType, con.m_uiTargetNode,
+                    con.m_uiInputPin, (ezVisualScriptDataPinType::Enum)con.m_uiInputPinType);
   }
 
   ComputeNodeDependencies();
@@ -245,7 +249,8 @@ void ezVisualScriptInstance::CreateFunctionMessageNode(ezUInt32 uiNodeIdx, const
 {
   const auto& node = resource.m_Nodes[uiNodeIdx];
 
-  ezVisualScriptNode_MessageSender* pNode = ezGetStaticRTTI<ezVisualScriptNode_MessageSender>()->GetAllocator()->Allocate<ezVisualScriptNode_MessageSender>();
+  ezVisualScriptNode_MessageSender* pNode =
+      ezGetStaticRTTI<ezVisualScriptNode_MessageSender>()->GetAllocator()->Allocate<ezVisualScriptNode_MessageSender>();
   pNode->m_uiNodeID = uiNodeIdx;
 
   pNode->m_pMessageToSend = node.m_pType->GetAllocator()->Allocate<ezMessage>();
@@ -286,7 +291,8 @@ void ezVisualScriptInstance::CreateEventMessageNode(ezUInt32 uiNodeIdx, const ez
 {
   const auto& node = resource.m_Nodes[uiNodeIdx];
 
-  ezVisualScriptNode_GenericEvent* pNode = ezGetStaticRTTI<ezVisualScriptNode_GenericEvent>()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
+  ezVisualScriptNode_GenericEvent* pNode =
+      ezGetStaticRTTI<ezVisualScriptNode_GenericEvent>()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
   pNode->m_uiNodeID = uiNodeIdx;
 
   pNode->m_sEventType = node.m_sTypeName;
@@ -346,7 +352,8 @@ void ezVisualScriptInstance::ConnectExecutionPins(ezUInt16 uiSourceNode, ezUInt8
   con.m_uiTargetPin = uiTargetPin;
 }
 
-void ezVisualScriptInstance::ConnectDataPins(ezUInt16 uiSourceNode, ezUInt8 uiSourcePin, ezVisualScriptDataPinType::Enum sourcePinType, ezUInt16 uiTargetNode, ezUInt8 uiTargetPin, ezVisualScriptDataPinType::Enum targetPinType)
+void ezVisualScriptInstance::ConnectDataPins(ezUInt16 uiSourceNode, ezUInt8 uiSourcePin, ezVisualScriptDataPinType::Enum sourcePinType,
+                                             ezUInt16 uiTargetNode, ezUInt8 uiTargetPin, ezVisualScriptDataPinType::Enum targetPinType)
 {
   DataPinConnection& con = m_DataConnections[((ezUInt32)uiSourceNode << 16) | (ezUInt32)uiSourcePin].ExpandAndGetRef();
   con.m_uiTargetNode = uiTargetNode;
@@ -401,7 +408,8 @@ void ezVisualScriptInstance::ExecuteConnectedNodes(const ezVisualScriptNode* pNo
   }
 }
 
-void ezVisualScriptInstance::RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType, ezVisualScriptDataPinAssignFunc func)
+void ezVisualScriptInstance::RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Enum sourceType,
+                                                           ezVisualScriptDataPinType::Enum dstType, ezVisualScriptDataPinAssignFunc func)
 {
   AssignFuncKey key;
   key.m_SourceType = sourceType;
@@ -410,13 +418,14 @@ void ezVisualScriptInstance::RegisterDataPinAssignFunction(ezVisualScriptDataPin
   s_DataPinAssignFunctions[key] = func;
 }
 
-ezVisualScriptDataPinAssignFunc ezVisualScriptInstance::FindDataPinAssignFunction(ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType)
+ezVisualScriptDataPinAssignFunc ezVisualScriptInstance::FindDataPinAssignFunction(ezVisualScriptDataPinType::Enum sourceType,
+                                                                                  ezVisualScriptDataPinType::Enum dstType)
 {
   AssignFuncKey key;
   key.m_SourceType = sourceType;
   key.m_DstType = dstType;
 
-  return  s_DataPinAssignFunctions.GetValueOrDefault(key, nullptr);
+  return s_DataPinAssignFunctions.GetValueOrDefault(key, nullptr);
 }
 
 bool ezVisualScriptInstance::HandlesEventMessage(const ezEventMessage& msg) const
@@ -430,4 +439,3 @@ bool ezVisualScriptInstance::HandlesEventMessage(const ezEventMessage& msg) cons
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Implementation_VisualScriptInstance);
-

@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <RendererCore/Pipeline/Passes/DepthOnlyPass.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
@@ -7,7 +8,7 @@
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
 
-
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDepthOnlyPass, 1, ezRTTIDefaultAllocator<ezDepthOnlyPass>)
 {
   EZ_BEGIN_PROPERTIES
@@ -17,17 +18,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDepthOnlyPass, 1, ezRTTIDefaultAllocator<ezDep
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezDepthOnlyPass::ezDepthOnlyPass(const char* szName) : ezRenderPipelinePass(szName)
+ezDepthOnlyPass::ezDepthOnlyPass(const char* szName)
+    : ezRenderPipelinePass(szName)
 {
 }
 
-ezDepthOnlyPass::~ezDepthOnlyPass()
-{
-}
+ezDepthOnlyPass::~ezDepthOnlyPass() {}
 
-bool ezDepthOnlyPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs,
-  ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezDepthOnlyPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
+                                                  ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   // DepthStencil
   if (inputs[m_PinDepthStencil.m_uiInputIndex])
@@ -44,7 +45,7 @@ bool ezDepthOnlyPass::GetRenderTargetDescriptions(const ezView& view, const ezAr
 }
 
 void ezDepthOnlyPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+                              const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -68,4 +69,3 @@ void ezDepthOnlyPass::Execute(const ezRenderViewContext& renderViewContext, cons
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_DepthOnlyPass);
-

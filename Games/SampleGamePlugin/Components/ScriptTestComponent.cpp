@@ -1,18 +1,13 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <SampleGamePlugin/Components/ScriptTestComponent.h>
 #include <SampleGamePlugin/Script/ScriptRegistry.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ScriptContainerBase, 1, ezRTTIDefaultAllocator<ScriptContainerBase>)
-{
-}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-ScriptContainerBase::ScriptContainerBase()
-{
-
-}
 
 EZ_BEGIN_COMPONENT_TYPE(ScriptTestComponent, 2, ezComponentMode::Static)
 {
@@ -30,6 +25,9 @@ EZ_BEGIN_COMPONENT_TYPE(ScriptTestComponent, 2, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
+
+ScriptContainerBase::ScriptContainerBase() {}
 
 namespace
 {
@@ -47,9 +45,7 @@ namespace
   };
 }
 
-ScriptTestComponent::ScriptTestComponent()
-{
-}
+ScriptTestComponent::ScriptTestComponent() {}
 
 
 ScriptTestComponent::~ScriptTestComponent()
@@ -125,10 +121,7 @@ void ScriptTestComponent::SetProperty(const ezScriptMemberProperty* pProp, void*
   }
 }
 
-void ScriptTestComponent::GetProperty(const ezScriptMemberProperty* pProp, void* pValue) const
-{
-
-}
+void ScriptTestComponent::GetProperty(const ezScriptMemberProperty* pProp, void* pValue) const {}
 
 void ScriptTestComponent::OnSimulationStarted()
 {
@@ -140,8 +133,4 @@ void ScriptTestComponent::Update()
   // do stuff
 }
 
-void ScriptTestComponent::Initialize()
-{
-
-}
-
+void ScriptTestComponent::Initialize() {}

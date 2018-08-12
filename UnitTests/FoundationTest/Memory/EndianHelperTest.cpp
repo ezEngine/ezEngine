@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Memory/EndianHelper.h>
 
 namespace
@@ -7,14 +8,14 @@ namespace
   {
     float fVal;
     ezUInt32 uiDVal;
-    ezUInt16 uiWVal1; ezUInt16 uiWVal2;
+    ezUInt16 uiWVal1;
+    ezUInt16 uiWVal2;
     char pad[4];
   };
-  
+
   struct FloatAndInt
   {
-    union
-    {
+    union {
       float fVal;
       ezUInt32 uiVal;
     };
@@ -26,12 +27,12 @@ EZ_CREATE_SIMPLE_TEST(Memory, Endian)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Basics")
   {
-    // Test if the IsBigEndian() delivers the same result as the #define
-    #if EZ_ENABLED(EZ_PLATFORM_LITTLE_ENDIAN)
-      EZ_TEST_BOOL(!ezEndianHelper::IsBigEndian());
-    #elif EZ_ENABLED(EZ_PLATFORM_BIG_ENDIAN)
-      EZ_TEST_BOOL(ezEndianHelper::IsBigEndian());
-    #endif
+// Test if the IsBigEndian() delivers the same result as the #define
+#if EZ_ENABLED(EZ_PLATFORM_LITTLE_ENDIAN)
+    EZ_TEST_BOOL(!ezEndianHelper::IsBigEndian());
+#elif EZ_ENABLED(EZ_PLATFORM_BIG_ENDIAN)
+    EZ_TEST_BOOL(ezEndianHelper::IsBigEndian());
+#endif
 
     // Test conversion functions for single elements
     EZ_TEST_BOOL(ezEndianHelper::Switch(static_cast<ezUInt16>(0x15FF)) == 0xFF15);
@@ -96,7 +97,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Endian)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Switching Structs")
   {
-    TempStruct instance = { 42.0f, 0x34AA12FF, 0x15FF, 0x23FF, {'E', 'Z', 'F', 'T'} };
+    TempStruct instance = {42.0f, 0x34AA12FF, 0x15FF, 0x23FF, {'E', 'Z', 'F', 'T'}};
 
     ezEndianHelper::SwitchStruct(&instance, "ddwwcccc");
 
@@ -116,4 +117,3 @@ EZ_CREATE_SIMPLE_TEST(Memory, Endian)
     EZ_TEST_BOOL(instance.pad[3] == 'T');
   }
 }
-

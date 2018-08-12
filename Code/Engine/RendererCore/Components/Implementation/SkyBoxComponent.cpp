@@ -1,11 +1,13 @@
 #include <PCH.h>
-#include <RendererCore/Components/SkyBoxComponent.h>
-#include <RendererCore/Textures/TextureCubeResource.h>
-#include <RendererCore/Pipeline/View.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <Core/Graphics/Geometry.h>
 
+#include <Core/Graphics/Geometry.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <RendererCore/Components/SkyBoxComponent.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/Textures/TextureCubeResource.h>
+
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -17,30 +19,29 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 4, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("VirtualDistance", GetVirtualDistance, SetVirtualDistance)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1000.0f))
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering"),
   }
   EZ_END_ATTRIBUTES;
-    EZ_BEGIN_MESSAGEHANDLERS
+  EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE
+EZ_END_COMPONENT_TYPE;
+// clang-format on
 
 ezSkyBoxComponent::ezSkyBoxComponent()
-  : m_fExposureBias(0.0f)
-  , m_fVirtualDistance(1000.0f)
-  , m_bInverseTonemap(false)
-  , m_bUseFog(true)
+    : m_fExposureBias(0.0f)
+    , m_fVirtualDistance(1000.0f)
+    , m_bInverseTonemap(false)
+    , m_bUseFog(true)
 {
 }
 
-ezSkyBoxComponent::~ezSkyBoxComponent()
-{
-}
+ezSkyBoxComponent::~ezSkyBoxComponent() {}
 
 void ezSkyBoxComponent::Initialize()
 {
@@ -105,7 +106,7 @@ void ezSkyBoxComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
   const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? hMaterial.GetResourceIDHash() : 0;
 
   // Generate batch id from mesh, material and part index.
-  ezUInt32 data[] = { uiMeshIDHash, uiMaterialIDHash };
+  ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash};
   ezUInt32 uiBatchId = ezHashing::xxHash32(data, sizeof(data));
 
   ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
@@ -244,9 +245,9 @@ void ezSkyBoxComponent::UpdateMaterials()
   }
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -255,7 +256,9 @@ class ezSkyBoxComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezSkyBoxComponentPatch_1_2()
-    : ezGraphPatch("ezSkyBoxComponent", 2) {}
+      : ezGraphPatch("ezSkyBoxComponent", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -274,6 +277,4 @@ ezSkyBoxComponentPatch_1_2 g_ezSkyBoxComponentPatch_1_2;
 
 
 
-
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_SkyBoxComponent);
-

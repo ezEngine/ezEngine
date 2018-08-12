@@ -1,11 +1,12 @@
 #include <PCH.h>
-#include <RendererCore/Textures/Texture2DResource.h>
-#include <RendererFoundation/Resources/Texture.h>
-#include <Foundation/Image/Formats/DdsFileFormat.h>
+
 #include <Core/Assets/AssetFileHeader.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/Textures/TextureUtils.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/Image/Formats/DdsFileFormat.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/Textures/Texture2DResource.h>
+#include <RendererCore/Textures/TextureUtils.h>
+#include <RendererFoundation/Resources/Texture.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTexture2DResource, 1, ezRTTIDefaultAllocator<ezTexture2DResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -13,7 +14,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezCVarInt CVarRenderTargetResolution1("r_RenderTargetResolution1", 256, ezCVarFlags::Default, "Configurable render target resolution");
 ezCVarInt CVarRenderTargetResolution2("r_RenderTargetResolution2", 512, ezCVarFlags::Default, "Configurable render target resolution");
 
-ezTexture2DResource::ezTexture2DResource() : ezResource<ezTexture2DResource, ezTexture2DResourceDescriptor>(DoUpdate::OnAnyThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
+ezTexture2DResource::ezTexture2DResource()
+    : ezResource<ezTexture2DResource, ezTexture2DResourceDescriptor>(DoUpdate::OnAnyThread,
+                                                                     ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
 {
   m_uiLoadedTextures = 0;
   m_uiMemoryGPU[0] = 0;
@@ -62,7 +65,8 @@ ezResourceLoadDesc ezTexture2DResource::UnloadData(Unload WhatToUnload)
   return res;
 }
 
-void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& td, const ezImage* pImage, bool bSRGB, ezUInt32 uiNumMipLevels, ezUInt32& out_MemoryUsed, ezHybridArray<ezGALSystemMemoryDescription, 32>& initData)
+void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& td, const ezImage* pImage, bool bSRGB, ezUInt32 uiNumMipLevels,
+                                            ezUInt32& out_MemoryUsed, ezHybridArray<ezGALSystemMemoryDescription, 32>& initData)
 {
   const ezUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
 
@@ -242,7 +246,8 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
   else
   {
 
-    const ezUInt32 uiNumMipmapsLowRes = ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : ezMath::Min(pImage->GetNumMipLevels(), 6U);
+    const ezUInt32 uiNumMipmapsLowRes =
+        ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : ezMath::Min(pImage->GetNumMipLevels(), 6U);
     ezUInt32 uiUploadNumMipLevels = 0;
     bool bCouldLoadMore = false;
 
@@ -347,4 +352,3 @@ ezResourceLoadDesc ezTexture2DResource::CreateResource(const ezTexture2DResource
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_Texture2DResource);
-

@@ -1,11 +1,13 @@
 #include <PCH.h>
-#include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
-#include <GuiFoundation/Action/ActionManager.h>
-#include <GuiFoundation/ActionViews/QtProxy.moc.h>
-#include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 
-ezQtMenuBarActionMapView::ezQtMenuBarActionMapView(QWidget* parent) : QMenuBar(parent)
+#include <GuiFoundation/Action/ActionManager.h>
+#include <GuiFoundation/Action/ActionMapManager.h>
+#include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
+#include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
+#include <GuiFoundation/ActionViews/QtProxy.moc.h>
+
+ezQtMenuBarActionMapView::ezQtMenuBarActionMapView(QWidget* parent)
+    : QMenuBar(parent)
 {
 }
 
@@ -18,7 +20,7 @@ void ezQtMenuBarActionMapView::SetActionContext(const ezActionContext& context)
 {
   auto pMap = ezActionMapManager::GetActionMap(context.m_sMapping);
 
-   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping '{0}' does not exist", context.m_sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping '{0}' does not exist", context.m_sMapping);
 
   m_pActionMap = pMap;
   m_Context = context;
@@ -46,19 +48,19 @@ void ezQtMenuBarActionMapView::CreateView()
 
     switch (pDesc->m_hAction.GetDescriptor()->m_Type)
     {
-    case ezActionType::Action:
+      case ezActionType::Action:
       {
         EZ_REPORT_FAILURE("Cannot map actions in a menubar view!");
       }
       break;
 
-    case ezActionType::Category:
+      case ezActionType::Category:
       {
         EZ_REPORT_FAILURE("Cannot map category in a menubar view!");
       }
       break;
 
-    case ezActionType::Menu:
+      case ezActionType::Menu:
       {
         QMenu* pQtMenu = static_cast<ezQtMenuProxy*>(pProxy.data())->GetQMenu();
         addMenu(pQtMenu);
@@ -66,7 +68,7 @@ void ezQtMenuBarActionMapView::CreateView()
       }
       break;
 
-    case ezActionType::ActionAndMenu:
+      case ezActionType::ActionAndMenu:
       {
         EZ_REPORT_FAILURE("Cannot map ActionAndMenu in a menubar view!");
       }

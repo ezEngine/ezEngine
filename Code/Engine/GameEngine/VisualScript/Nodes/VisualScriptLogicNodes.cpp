@@ -1,9 +1,11 @@
 #include <PCH.h>
+
 #include <GameEngine/VisualScript/Nodes/VisualScriptLogicNodes.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Sequence, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Sequence>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -25,8 +27,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Sequence, 1, ezRTTIDefaultAll
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_Sequence::ezVisualScriptNode_Sequence() { }
+ezVisualScriptNode_Sequence::ezVisualScriptNode_Sequence() {}
 
 void ezVisualScriptNode_Sequence::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -39,6 +42,7 @@ void ezVisualScriptNode_Sequence::Execute(ezVisualScriptInstance* pInstance, ezU
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezLogicOperator, 1)
 EZ_ENUM_CONSTANTS(ezLogicOperator::Equal, ezLogicOperator::Unequal, ezLogicOperator::Less, ezLogicOperator::LessEqual, ezLogicOperator::Greater, ezLogicOperator::GreaterEqual)
 EZ_END_STATIC_REFLECTED_ENUM;
@@ -65,9 +69,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Compare, 1, ezRTTIDefaultAllo
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_Compare::ezVisualScriptNode_Compare() { }
-ezVisualScriptNode_Compare::~ezVisualScriptNode_Compare() { }
+ezVisualScriptNode_Compare::ezVisualScriptNode_Compare() {}
+ezVisualScriptNode_Compare::~ezVisualScriptNode_Compare() {}
 
 void ezVisualScriptNode_Compare::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -75,26 +80,26 @@ void ezVisualScriptNode_Compare::Execute(ezVisualScriptInstance* pInstance, ezUI
 
   switch (m_Operator)
   {
-  case ezLogicOperator::Equal:
-    result = m_Value1 == m_Value2;
-    break;
-  case ezLogicOperator::Unequal:
-    result = m_Value1 != m_Value2;
-    break;
-  case ezLogicOperator::Less:
-    result = m_Value1 < m_Value2;
-    break;
-  case ezLogicOperator::LessEqual:
-    result = m_Value1 <= m_Value2;
-    break;
-  case ezLogicOperator::Greater:
-    result = m_Value1 > m_Value2;
-    break;
-  case ezLogicOperator::GreaterEqual:
-    result = m_Value1 >= m_Value2;
-    break;
-  default:
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    case ezLogicOperator::Equal:
+      result = m_Value1 == m_Value2;
+      break;
+    case ezLogicOperator::Unequal:
+      result = m_Value1 != m_Value2;
+      break;
+    case ezLogicOperator::Less:
+      result = m_Value1 < m_Value2;
+      break;
+    case ezLogicOperator::LessEqual:
+      result = m_Value1 <= m_Value2;
+      break;
+    case ezLogicOperator::Greater:
+      result = m_Value1 > m_Value2;
+      break;
+    case ezLogicOperator::GreaterEqual:
+      result = m_Value1 >= m_Value2;
+      break;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
   // we can skip this and save some performance, if the inputs did not change, because the result won't have changed either
@@ -110,11 +115,11 @@ void* ezVisualScriptNode_Compare::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_Value1;
+    case 0:
+      return &m_Value1;
 
-  case 1:
-    return &m_Value2;
+    case 1:
+      return &m_Value2;
   }
 
   return nullptr;
@@ -122,6 +127,7 @@ void* ezVisualScriptNode_Compare::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_CompareExec, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_CompareExec>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -147,9 +153,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_CompareExec, 1, ezRTTIDefault
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_CompareExec::ezVisualScriptNode_CompareExec() { }
-ezVisualScriptNode_CompareExec::~ezVisualScriptNode_CompareExec() { }
+ezVisualScriptNode_CompareExec::ezVisualScriptNode_CompareExec() {}
+ezVisualScriptNode_CompareExec::~ezVisualScriptNode_CompareExec() {}
 
 void ezVisualScriptNode_CompareExec::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -157,26 +164,26 @@ void ezVisualScriptNode_CompareExec::Execute(ezVisualScriptInstance* pInstance, 
 
   switch (m_Operator)
   {
-  case ezLogicOperator::Equal:
-    result = m_Value1 == m_Value2;
-    break;
-  case ezLogicOperator::Unequal:
-    result = m_Value1 != m_Value2;
-    break;
-  case ezLogicOperator::Less:
-    result = m_Value1 < m_Value2;
-    break;
-  case ezLogicOperator::LessEqual:
-    result = m_Value1 <= m_Value2;
-    break;
-  case ezLogicOperator::Greater:
-    result = m_Value1 > m_Value2;
-    break;
-  case ezLogicOperator::GreaterEqual:
-    result = m_Value1 >= m_Value2;
-    break;
-  default:
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    case ezLogicOperator::Equal:
+      result = m_Value1 == m_Value2;
+      break;
+    case ezLogicOperator::Unequal:
+      result = m_Value1 != m_Value2;
+      break;
+    case ezLogicOperator::Less:
+      result = m_Value1 < m_Value2;
+      break;
+    case ezLogicOperator::LessEqual:
+      result = m_Value1 <= m_Value2;
+      break;
+    case ezLogicOperator::Greater:
+      result = m_Value1 > m_Value2;
+      break;
+    case ezLogicOperator::GreaterEqual:
+      result = m_Value1 >= m_Value2;
+      break;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
   pInstance->SetOutputPinValue(this, 0, &result);
@@ -187,11 +194,11 @@ void* ezVisualScriptNode_CompareExec::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_Value1;
+    case 0:
+      return &m_Value1;
 
-  case 1:
-    return &m_Value2;
+    case 1:
+      return &m_Value2;
   }
 
   return nullptr;
@@ -200,6 +207,7 @@ void* ezVisualScriptNode_CompareExec::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_If, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_If>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -219,9 +227,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_If, 1, ezRTTIDefaultAllocator
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_If::ezVisualScriptNode_If() { }
-ezVisualScriptNode_If::~ezVisualScriptNode_If() { }
+ezVisualScriptNode_If::ezVisualScriptNode_If() {}
+ezVisualScriptNode_If::~ezVisualScriptNode_If() {}
 
 void ezVisualScriptNode_If::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -232,8 +241,8 @@ void* ezVisualScriptNode_If::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_Value;
+    case 0:
+      return &m_Value;
   }
 
   return nullptr;
@@ -241,6 +250,7 @@ void* ezVisualScriptNode_If::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Logic, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Logic>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -262,9 +272,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Logic, 1, ezRTTIDefaultAlloca
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_Logic::ezVisualScriptNode_Logic() { }
-ezVisualScriptNode_Logic::~ezVisualScriptNode_Logic() { }
+ezVisualScriptNode_Logic::ezVisualScriptNode_Logic() {}
+ezVisualScriptNode_Logic::~ezVisualScriptNode_Logic() {}
 
 void ezVisualScriptNode_Logic::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -286,11 +297,11 @@ void* ezVisualScriptNode_Logic::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_Value1;
+    case 0:
+      return &m_Value1;
 
-  case 1:
-    return &m_Value2;
+    case 1:
+      return &m_Value2;
   }
 
   return nullptr;
@@ -300,7 +311,4 @@ void* ezVisualScriptNode_Logic::GetInputPinDataPointer(ezUInt8 uiPin)
 
 
 
-
-
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Nodes_VisualScriptLogicNodes);
-

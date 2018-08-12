@@ -1,6 +1,7 @@
-﻿#include <PCH.h>
-#include <GuiFoundation/NodeEditor/Pin.h>
+#include <PCH.h>
+
 #include <GuiFoundation/NodeEditor/Connection.h>
+#include <GuiFoundation/NodeEditor/Pin.h>
 #include <QApplication>
 #include <QPalette>
 
@@ -18,10 +19,7 @@ ezQtPin::ezQtPin()
   m_pLabel = new QGraphicsTextItem(this);
 }
 
-ezQtPin::~ezQtPin()
-{
-
-}
+ezQtPin::~ezQtPin() {}
 
 void ezQtPin::AddConnection(ezQtConnection* pConnection)
 {
@@ -104,7 +102,8 @@ QPointF ezQtPin::GetPinDir() const
   }
   else
   {
-    return QPointF(1.0f, 0.0f);;
+    return QPointF(1.0f, 0.0f);
+    ;
   }
 }
 
@@ -160,7 +159,7 @@ bool ezQtPin::AdjustRenderingForHighlight(ezQtPinHighlightState state)
 
   switch (state)
   {
-  case ezQtPinHighlightState::None:
+    case ezQtPinHighlightState::None:
     {
       QPen p = pen();
       p.setColor(qRgb(pinColor.r, pinColor.g, pinColor.b));
@@ -170,8 +169,8 @@ bool ezQtPin::AdjustRenderingForHighlight(ezQtPinHighlightState state)
     }
     break;
 
-  case ezQtPinHighlightState::CannotConnect:
-  case ezQtPinHighlightState::CannotConnectSameDirection:
+    case ezQtPinHighlightState::CannotConnect:
+    case ezQtPinHighlightState::CannotConnectSameDirection:
     {
       QPen p = pen();
       p.setColor(QApplication::palette().base().color().lighter());
@@ -181,8 +180,8 @@ bool ezQtPin::AdjustRenderingForHighlight(ezQtPinHighlightState state)
     }
     break;
 
-  case ezQtPinHighlightState::CanReplaceConnection:
-  case ezQtPinHighlightState::CanAddConnection:
+    case ezQtPinHighlightState::CanReplaceConnection:
+    case ezQtPinHighlightState::CanAddConnection:
     {
       QPen p = pen();
       p.setColor(qRgb(pinColor.r, pinColor.g, pinColor.b));

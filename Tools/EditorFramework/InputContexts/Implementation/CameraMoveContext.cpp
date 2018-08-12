@@ -1,43 +1,23 @@
 #include <PCH.h>
-#include <EditorFramework/InputContexts/CameraMoveContext.h>
+
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/InputContexts/CameraMoveContext.h>
 #include <EditorFramework/Preferences/ScenePreferences.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <QKeyEvent>
 
-static const float s_fMoveSpeed[25] =
-{
-  0.5f,
-  0.75f,
-  1.0f,
-  1.5f,
-  2.0f,
+static const float s_fMoveSpeed[25] = {
+    0.5f,   0.75f,  1.0f,    1.5f,    2.0f,
 
-  3.0f,
-  4.0f,
-  6.0f,
-  8.0f,
-  12.0f,
+    3.0f,   4.0f,   6.0f,    8.0f,    12.0f,
 
-  16.0f,
-  24.0f,
-  32.0f,
-  48.0f,
-  64.0f,
+    16.0f,  24.0f,  32.0f,   48.0f,   64.0f,
 
-  96.0f,
-  128.0f,
-  192.0f,
-  256.0f,
-  384.0f,
+    96.0f,  128.0f, 192.0f,  256.0f,  384.0f,
 
-  512.0f,
-  768.0f,
-  1024.0f,
-  1536.0f,
-  2048.0f,
+    512.0f, 768.0f, 1024.0f, 1536.0f, 2048.0f,
 };
 
 ezCameraMoveContext::ezCameraMoveContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -166,19 +146,8 @@ void ezCameraMoveContext::UpdateContext()
 
 void ezCameraMoveContext::DeactivateIfLast()
 {
-  if (m_bRotateCamera ||
-      m_bMoveCamera ||
-      m_bMoveCameraInPlane ||
-      m_bOrbitCamera ||
-      m_bSlideForwards ||
-      m_bPanOrbitPoint ||
-      m_bMoveForwards ||
-      m_bMoveBackwards ||
-      m_bMoveRight ||
-      m_bMoveLeft ||
-      m_bMoveUp ||
-      m_bMoveDown ||
-      m_bMoveForwardsInPlane ||
+  if (m_bRotateCamera || m_bMoveCamera || m_bMoveCameraInPlane || m_bOrbitCamera || m_bSlideForwards || m_bPanOrbitPoint ||
+      m_bMoveForwards || m_bMoveBackwards || m_bMoveRight || m_bMoveLeft || m_bMoveUp || m_bMoveDown || m_bMoveForwardsInPlane ||
       m_bMoveBackwardsInPlane)
     return;
 
@@ -198,40 +167,40 @@ ezEditorInput ezCameraMoveContext::DoKeyReleaseEvent(QKeyEvent* e)
 
   switch (e->key())
   {
-  case Qt::Key_W:
-    m_bMoveForwards = false;
-    return ezEditorInput::WasExclusivelyHandled;
-  case Qt::Key_S:
-    m_bMoveBackwards = false;
-    return ezEditorInput::WasExclusivelyHandled;
-  case Qt::Key_A:
-    m_bMoveLeft = false;
-    return ezEditorInput::WasExclusivelyHandled;
-  case Qt::Key_D:
-    m_bMoveRight = false;
-    return ezEditorInput::WasExclusivelyHandled;
-  case Qt::Key_Q:
-    m_bMoveUp = false;
-    return ezEditorInput::WasExclusivelyHandled;
-  case Qt::Key_E:
-    m_bMoveDown = false;
-    return ezEditorInput::WasExclusivelyHandled;
-  case Qt::Key_Left:
-    m_bMoveLeft = false;
-    DeactivateIfLast();
-    return ezEditorInput::WasExclusivelyHandled;
-  case Qt::Key_Right:
-    m_bMoveRight = false;
-    DeactivateIfLast();
-    return ezEditorInput::WasExclusivelyHandled;
-  case Qt::Key_Up:
-    m_bMoveForwardsInPlane = false;
-    DeactivateIfLast();
-    return ezEditorInput::WasExclusivelyHandled;
-  case Qt::Key_Down:
-    m_bMoveBackwardsInPlane = false;
-    DeactivateIfLast();
-    return ezEditorInput::WasExclusivelyHandled;
+    case Qt::Key_W:
+      m_bMoveForwards = false;
+      return ezEditorInput::WasExclusivelyHandled;
+    case Qt::Key_S:
+      m_bMoveBackwards = false;
+      return ezEditorInput::WasExclusivelyHandled;
+    case Qt::Key_A:
+      m_bMoveLeft = false;
+      return ezEditorInput::WasExclusivelyHandled;
+    case Qt::Key_D:
+      m_bMoveRight = false;
+      return ezEditorInput::WasExclusivelyHandled;
+    case Qt::Key_Q:
+      m_bMoveUp = false;
+      return ezEditorInput::WasExclusivelyHandled;
+    case Qt::Key_E:
+      m_bMoveDown = false;
+      return ezEditorInput::WasExclusivelyHandled;
+    case Qt::Key_Left:
+      m_bMoveLeft = false;
+      DeactivateIfLast();
+      return ezEditorInput::WasExclusivelyHandled;
+    case Qt::Key_Right:
+      m_bMoveRight = false;
+      DeactivateIfLast();
+      return ezEditorInput::WasExclusivelyHandled;
+    case Qt::Key_Up:
+      m_bMoveForwardsInPlane = false;
+      DeactivateIfLast();
+      return ezEditorInput::WasExclusivelyHandled;
+    case Qt::Key_Down:
+      m_bMoveBackwardsInPlane = false;
+      DeactivateIfLast();
+      return ezEditorInput::WasExclusivelyHandled;
   }
 
   return ezEditorInput::MayBeHandledByOthers;
@@ -246,26 +215,26 @@ ezEditorInput ezCameraMoveContext::DoKeyPressEvent(QKeyEvent* e)
     return ezEditorInput::MayBeHandledByOthers;
 
   m_bRun = (e->modifiers() & Qt::KeyboardModifier::ShiftModifier) != 0;
-  //m_bSlowDown = false;
+  // m_bSlowDown = false;
 
   switch (e->key())
   {
-  case Qt::Key_Left:
-    m_bMoveLeft = true;
-    SetActiveInputContext(this);
-    return ezEditorInput::WasExclusivelyHandled;
-  case Qt::Key_Right:
-    m_bMoveRight = true;
-    SetActiveInputContext(this);
-    return ezEditorInput::WasExclusivelyHandled;
-  case Qt::Key_Up:
-    m_bMoveForwardsInPlane = true;
-    SetActiveInputContext(this);
-    return ezEditorInput::WasExclusivelyHandled;
-  case Qt::Key_Down:
-    m_bMoveBackwardsInPlane = true;
-    SetActiveInputContext(this);
-    return ezEditorInput::WasExclusivelyHandled;
+    case Qt::Key_Left:
+      m_bMoveLeft = true;
+      SetActiveInputContext(this);
+      return ezEditorInput::WasExclusivelyHandled;
+    case Qt::Key_Right:
+      m_bMoveRight = true;
+      SetActiveInputContext(this);
+      return ezEditorInput::WasExclusivelyHandled;
+    case Qt::Key_Up:
+      m_bMoveForwardsInPlane = true;
+      SetActiveInputContext(this);
+      return ezEditorInput::WasExclusivelyHandled;
+    case Qt::Key_Down:
+      m_bMoveBackwardsInPlane = true;
+      SetActiveInputContext(this);
+      return ezEditorInput::WasExclusivelyHandled;
   }
 
   if (!m_bRotateCamera)
@@ -273,24 +242,24 @@ ezEditorInput ezCameraMoveContext::DoKeyPressEvent(QKeyEvent* e)
 
   switch (e->key())
   {
-  case Qt::Key_W:
-    m_bMoveForwards = true;
-    return ezEditorInput::WasExclusivelyHandled;
-  case Qt::Key_S:
-    m_bMoveBackwards = true;
-    return ezEditorInput::WasExclusivelyHandled;
-  case Qt::Key_A:
-    m_bMoveLeft = true;
-    return ezEditorInput::WasExclusivelyHandled;
-  case Qt::Key_D:
-    m_bMoveRight = true;
-    return ezEditorInput::WasExclusivelyHandled;
-  case Qt::Key_Q:
-    m_bMoveUp = true;
-    return ezEditorInput::WasExclusivelyHandled;
-  case Qt::Key_E:
-    m_bMoveDown = true;
-    return ezEditorInput::WasExclusivelyHandled;
+    case Qt::Key_W:
+      m_bMoveForwards = true;
+      return ezEditorInput::WasExclusivelyHandled;
+    case Qt::Key_S:
+      m_bMoveBackwards = true;
+      return ezEditorInput::WasExclusivelyHandled;
+    case Qt::Key_A:
+      m_bMoveLeft = true;
+      return ezEditorInput::WasExclusivelyHandled;
+    case Qt::Key_D:
+      m_bMoveRight = true;
+      return ezEditorInput::WasExclusivelyHandled;
+    case Qt::Key_Q:
+      m_bMoveUp = true;
+      return ezEditorInput::WasExclusivelyHandled;
+    case Qt::Key_E:
+      m_bMoveDown = true;
+      return ezEditorInput::WasExclusivelyHandled;
   }
 
   return ezEditorInput::MayBeHandledByOthers;
@@ -660,7 +629,9 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
       ezMat4 mvp = projectionMatrix * viewMatrix;
 
       ezVec3 vScreenPos(0);
-      if (ezGraphicsUtils::ConvertWorldPosToScreenPos(mvp, 0, 0, GetOwnerView()->width(), GetOwnerView()->height(), m_vOrbitPoint, vScreenPos).Succeeded())
+      if (ezGraphicsUtils::ConvertWorldPosToScreenPos(mvp, 0, 0, GetOwnerView()->width(), GetOwnerView()->height(), m_vOrbitPoint,
+                                                      vScreenPos)
+              .Succeeded())
       {
         ezMat4 invMvp = mvp.GetInverse();
 
@@ -668,14 +639,14 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
         vScreenPos.y += diff.y;
 
         ezVec3 vNewPoint(0);
-        if (ezGraphicsUtils::ConvertScreenPosToWorldPos(invMvp, 0, 0, GetOwnerView()->width(), GetOwnerView()->height(), vScreenPos, vNewPoint).Succeeded())
+        if (ezGraphicsUtils::ConvertScreenPosToWorldPos(invMvp, 0, 0, GetOwnerView()->width(), GetOwnerView()->height(), vScreenPos,
+                                                        vNewPoint)
+                .Succeeded())
         {
           const ezVec3 vDiff = vNewPoint - m_vOrbitPoint;
 
           m_vOrbitPoint = vNewPoint;
           m_pCamera->MoveGlobally(vDiff);
-
-
         }
       }
 

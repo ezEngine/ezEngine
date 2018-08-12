@@ -1,12 +1,14 @@
 #include <PCH.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <Foundation/IO/MemoryStream.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <ToolsFoundation/Document/PrefabUtils.h>
-#include <Foundation/Serialization/DdlSerializer.h>
 
+#include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Serialization/DdlSerializer.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
+#include <ToolsFoundation/Document/PrefabUtils.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAddObjectCommand, 1, ezRTTIDefaultAllocator<ezAddObjectCommand>)
 {
   EZ_BEGIN_PROPERTIES
@@ -146,13 +148,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMoveObjectPropertyCommand, 1, ezRTTIDefaultAll
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ////////////////////////////////////////////////////////////////////////
 // ezAddObjectCommand
 ////////////////////////////////////////////////////////////////////////
 
-ezAddObjectCommand::ezAddObjectCommand() :
-  m_pType(nullptr), m_pObject(nullptr)
+ezAddObjectCommand::ezAddObjectCommand()
+    : m_pType(nullptr)
+    , m_pObject(nullptr)
 {
 }
 
@@ -216,7 +220,6 @@ void ezAddObjectCommand::CleanupInternal(CommandState state)
     GetDocument()->GetObjectManager()->DestroyObject(m_pObject);
     m_pObject = nullptr;
   }
-
 }
 
 
@@ -224,9 +227,7 @@ void ezAddObjectCommand::CleanupInternal(CommandState state)
 // ezPasteObjectsCommand
 ////////////////////////////////////////////////////////////////////////
 
-ezPasteObjectsCommand::ezPasteObjectsCommand()
-{
-}
+ezPasteObjectsCommand::ezPasteObjectsCommand() {}
 
 ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
 {
@@ -336,7 +337,6 @@ void ezPasteObjectsCommand::CleanupInternal(CommandState state)
     }
     m_PastedObjects.Clear();
   }
-
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -488,7 +488,6 @@ void ezInstantiatePrefabCommand::CleanupInternal(CommandState state)
     }
     m_PastedObjects.Clear();
   }
-
 }
 
 
@@ -551,9 +550,9 @@ ezStatus ezUnlinkPrefabCommand::UndoInternal(bool bFireEvents)
 // ezRemoveObjectCommand
 ////////////////////////////////////////////////////////////////////////
 
-ezRemoveObjectCommand::ezRemoveObjectCommand() :
-  m_pParent(nullptr),
-  m_pObject(nullptr)
+ezRemoveObjectCommand::ezRemoveObjectCommand()
+    : m_pParent(nullptr)
+    , m_pObject(nullptr)
 {
 }
 
@@ -589,7 +588,8 @@ ezStatus ezRemoveObjectCommand::UndoInternal(bool bFireEvents)
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
   ezDocument* pDocument = GetDocument();
-  EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanAdd(m_pObject->GetTypeAccessor().GetType(), m_pParent, m_sParentProperty, m_Index));
+  EZ_SUCCEED_OR_RETURN(
+      pDocument->GetObjectManager()->CanAdd(m_pObject->GetTypeAccessor().GetType(), m_pParent, m_sParentProperty, m_Index));
 
   pDocument->GetObjectManager()->AddObject(m_pObject, m_pParent, m_sParentProperty, m_Index);
   return ezStatus(EZ_SUCCESS);
@@ -657,9 +657,9 @@ ezStatus ezMoveObjectCommand::UndoInternal(bool bFireEvents)
 
   if (m_Index.CanConvertTo<ezInt32>() && m_pOldParent == m_pNewParent)
   {
-    // If we are moving an object downwards, we must move by more than 1 (+1 would be behind the same object, which is still the same position)
-    // so an object must always be moved by at least +2
-    // moving UP can be done by -1, so when we undo that, we must ensure to move +2
+    // If we are moving an object downwards, we must move by more than 1 (+1 would be behind the same object, which is still the same
+    // position) so an object must always be moved by at least +2 moving UP can be done by -1, so when we undo that, we must ensure to move
+    // +2
 
     ezInt32 iNew = m_Index.ConvertTo<ezInt32>();
     ezInt32 iOld = m_OldIndex.ConvertTo<ezInt32>();
@@ -887,7 +887,8 @@ ezStatus ezRemoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
     ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
     if (!accessor.InsertValue(m_sProperty, m_Index, m_OldValue))
     {
-      return ezStatus(ezFmt("Remove Property: Undo failed! The index '{0}' in property '{1}' does not exist", m_Index.ConvertTo<ezString>(), m_sProperty));
+      return ezStatus(ezFmt("Remove Property: Undo failed! The index '{0}' in property '{1}' does not exist", m_Index.ConvertTo<ezString>(),
+                            m_sProperty));
     }
   }
   return ezStatus(EZ_SUCCESS);
@@ -926,9 +927,9 @@ ezStatus ezMoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
 
   if (m_OldIndex.CanConvertTo<ezInt32>())
   {
-    // If we are moving an object downwards, we must move by more than 1 (+1 would be behind the same object, which is still the same position)
-    // so an object must always be moved by at least +2
-    // moving UP can be done by -1, so when we undo that, we must ensure to move +2
+    // If we are moving an object downwards, we must move by more than 1 (+1 would be behind the same object, which is still the same
+    // position) so an object must always be moved by at least +2 moving UP can be done by -1, so when we undo that, we must ensure to move
+    // +2
 
     ezInt32 iNew = m_NewIndex.ConvertTo<ezInt32>();
     ezInt32 iOld = m_OldIndex.ConvertTo<ezInt32>();

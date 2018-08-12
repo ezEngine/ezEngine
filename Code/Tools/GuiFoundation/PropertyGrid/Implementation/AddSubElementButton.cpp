@@ -1,16 +1,17 @@
 #include <PCH.h>
-#include <GuiFoundation/PropertyGrid/Implementation/AddSubElementButton.moc.h>
-#include <QPushButton>
-#include <QHBoxLayout>
-#include <QMenu>
-#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <ToolsFoundation/Object/ObjectAccessorBase.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
+
 #include <Foundation/Strings/TranslationLookup.h>
+#include <GuiFoundation/PropertyGrid/Implementation/AddSubElementButton.moc.h>
+#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <QHBoxLayout>
 #include <QInputDialog>
+#include <QMenu>
+#include <QPushButton>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezQtAddSubElementButton::ezQtAddSubElementButton()
-  : ezQtPropertyWidget()
+    : ezQtPropertyWidget()
 {
   // Reset base class size policy as we are put in a layout that would cause us to vanish instead.
   setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
@@ -33,7 +34,6 @@ ezQtAddSubElementButton::ezQtAddSubElementButton()
   m_pLayout->setStretch(2, 1);
 
   m_pMenu = nullptr;
-
 }
 
 void ezQtAddSubElementButton::OnInit()
@@ -151,17 +151,17 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
         else
         {
           ezLog::Error("ezConstrainPointerAttribute set for '{0}' but the constant value property '{1}' has an unsupported type.",
-            pType->GetTypeName(), m_pConstraint->GetConstantValueProperty().GetData());
+                       pType->GetTypeName(), m_pConstraint->GetConstantValueProperty().GetData());
         }
       }
       else
       {
         ezLog::Error("ezConstrainPointerAttribute set for '{0}' but the constant value property '{1}' does not exist.",
-          pType->GetTypeName(), m_pConstraint->GetConstantValueProperty().GetData());
+                     pType->GetTypeName(), m_pConstraint->GetConstantValueProperty().GetData());
       }
     }
     // remove all types that are marked as hidden
-    for (auto it = m_SupportedTypes.GetIterator(); it.IsValid(); )
+    for (auto it = m_SupportedTypes.GetIterator(); it.IsValid();)
     {
       if (it.Key()->GetAttributeByType<ezHiddenAttribute>() != nullptr)
       {
@@ -172,7 +172,7 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
       {
         const ezAbstractProperty* pConstraintProp = it.Key()->FindPropertyByName(m_pConstraint->GetConstantName());
         if (!constraintValue.IsValid() || !pConstraintProp || pConstraintProp->GetCategory() != ezPropertyCategory::Constant ||
-          static_cast<const ezAbstractConstantProperty*>(pConstraintProp)->GetConstant() != constraintValue)
+            static_cast<const ezAbstractConstantProperty*>(pConstraintProp)->GetConstant() != constraintValue)
         {
           it = m_SupportedTypes.Remove(it);
           continue;
@@ -380,5 +380,3 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
 
   ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
 }
-
-

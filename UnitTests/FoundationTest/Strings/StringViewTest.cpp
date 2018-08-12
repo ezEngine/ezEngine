@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Strings/String.h>
 
 EZ_CREATE_SIMPLE_TEST(Strings, StringView)
@@ -137,13 +138,20 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     ezStringUtf8 s(L"abcäöü€");
     ezStringView it = ezStringView(s.GetData());
 
-    EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[0])); ++it;
-    EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[1])); ++it;
-    EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[2])); ++it;
-    EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[3])); ++it;
-    EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[5])); ++it;
-    EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[7])); ++it;
-    EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[9])); ++it;
+    EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[0]));
+    ++it;
+    EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[1]));
+    ++it;
+    EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[2]));
+    ++it;
+    EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[3]));
+    ++it;
+    EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[5]));
+    ++it;
+    EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[7]));
+    ++it;
+    EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[9]));
+    ++it;
     EZ_TEST_BOOL(!it.IsValid());
   }
 
@@ -152,14 +160,30 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     ezStringUtf8 s(L"abcäöü€");
     ezStringView it = ezStringView(s.GetData());
 
-    EZ_TEST_INT(it.GetElementCount(), 12); ++it;    EZ_TEST_BOOL(it.IsValid());
-    EZ_TEST_INT(it.GetElementCount(), 11); ++it;    EZ_TEST_BOOL(it.IsValid());
-    EZ_TEST_INT(it.GetElementCount(), 10); ++it;    EZ_TEST_BOOL(it.IsValid());
-    EZ_TEST_INT(it.GetElementCount(),  9); ++it;    EZ_TEST_BOOL(it.IsValid());
-    EZ_TEST_INT(it.GetElementCount(),  7); ++it;    EZ_TEST_BOOL(it.IsValid());
-    EZ_TEST_INT(it.GetElementCount(),  5); ++it;    EZ_TEST_BOOL(it.IsValid());
-    EZ_TEST_INT(it.GetElementCount(),  3); ++it;    EZ_TEST_BOOL(!it.IsValid());
-    EZ_TEST_INT(it.GetElementCount(),  0); ++it;    EZ_TEST_BOOL(!it.IsValid());
+    EZ_TEST_INT(it.GetElementCount(), 12);
+    ++it;
+    EZ_TEST_BOOL(it.IsValid());
+    EZ_TEST_INT(it.GetElementCount(), 11);
+    ++it;
+    EZ_TEST_BOOL(it.IsValid());
+    EZ_TEST_INT(it.GetElementCount(), 10);
+    ++it;
+    EZ_TEST_BOOL(it.IsValid());
+    EZ_TEST_INT(it.GetElementCount(), 9);
+    ++it;
+    EZ_TEST_BOOL(it.IsValid());
+    EZ_TEST_INT(it.GetElementCount(), 7);
+    ++it;
+    EZ_TEST_BOOL(it.IsValid());
+    EZ_TEST_INT(it.GetElementCount(), 5);
+    ++it;
+    EZ_TEST_BOOL(it.IsValid());
+    EZ_TEST_INT(it.GetElementCount(), 3);
+    ++it;
+    EZ_TEST_BOOL(!it.IsValid());
+    EZ_TEST_INT(it.GetElementCount(), 0);
+    ++it;
+    EZ_TEST_BOOL(!it.IsValid());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetStartPosition")
@@ -256,7 +280,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     EZ_TEST_BOOL(view.IsEqual(ezStringUtf8(L"").GetData()));
 
     // Clear all from one side
-    ezStringUtf8 sUnicode(L"私はクリストハさんです"); 
+    ezStringUtf8 sUnicode(L"私はクリストハさんです");
     view = sUnicode.GetData();
     view.Trim(nullptr, sUnicode.GetData());
     EZ_TEST_BOOL(view.IsEqual(""));
@@ -279,4 +303,3 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     EZ_TEST_BOOL(view.IsEqual(ezStringUtf8(L"A").GetData()));
   }
 }
-

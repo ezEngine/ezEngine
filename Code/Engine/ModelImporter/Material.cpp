@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <ModelImporter/Material.h>
 
 namespace ezModelImporter

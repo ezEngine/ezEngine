@@ -1,52 +1,52 @@
 #include <PCH.h>
-#include <Foundation/Logging/Log.h>
+
+#include <Foundation/Configuration/Startup.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/HTMLWriter.h>
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
-#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
-#include <Foundation/Configuration/Startup.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Logging);
 
 class ezTestLogInterface : public ezLogInterface
 {
 public:
-
   virtual void HandleLogMessage(const ezLoggingEventData& le) override
   {
     switch (le.m_EventType)
     {
-    case ezLogMsgType::BeginGroup:
-      m_Result.Append(">", le.m_szTag, " ", le.m_szText, "\n");
-      break;
-    case ezLogMsgType::EndGroup:
-      m_Result.Append("<", le.m_szTag, " ", le.m_szText, "\n");
-      break;
-    case ezLogMsgType::ErrorMsg:
-      m_Result.Append("E:", le.m_szTag, " ", le.m_szText, "\n");
-      break;
-    case ezLogMsgType::SeriousWarningMsg:
-      m_Result.Append("SW:", le.m_szTag, " ", le.m_szText, "\n");
-      break;
-    case ezLogMsgType::WarningMsg:
-      m_Result.Append("W:", le.m_szTag, " ", le.m_szText, "\n");
-      break;
-    case ezLogMsgType::SuccessMsg:
-      m_Result.Append("S:", le.m_szTag, " ", le.m_szText, "\n");
-      break;
-    case ezLogMsgType::InfoMsg:
-      m_Result.Append("I:", le.m_szTag, " ", le.m_szText, "\n");
-      break;
-    case ezLogMsgType::DevMsg:
-      m_Result.Append("E:", le.m_szTag, " ", le.m_szText, "\n");
-      break;
-    case ezLogMsgType::DebugMsg:
-      m_Result.Append("D:", le.m_szTag, " ", le.m_szText, "\n");
-      break;
+      case ezLogMsgType::BeginGroup:
+        m_Result.Append(">", le.m_szTag, " ", le.m_szText, "\n");
+        break;
+      case ezLogMsgType::EndGroup:
+        m_Result.Append("<", le.m_szTag, " ", le.m_szText, "\n");
+        break;
+      case ezLogMsgType::ErrorMsg:
+        m_Result.Append("E:", le.m_szTag, " ", le.m_szText, "\n");
+        break;
+      case ezLogMsgType::SeriousWarningMsg:
+        m_Result.Append("SW:", le.m_szTag, " ", le.m_szText, "\n");
+        break;
+      case ezLogMsgType::WarningMsg:
+        m_Result.Append("W:", le.m_szTag, " ", le.m_szText, "\n");
+        break;
+      case ezLogMsgType::SuccessMsg:
+        m_Result.Append("S:", le.m_szTag, " ", le.m_szText, "\n");
+        break;
+      case ezLogMsgType::InfoMsg:
+        m_Result.Append("I:", le.m_szTag, " ", le.m_szText, "\n");
+        break;
+      case ezLogMsgType::DevMsg:
+        m_Result.Append("E:", le.m_szTag, " ", le.m_szText, "\n");
+        break;
+      case ezLogMsgType::DebugMsg:
+        m_Result.Append("D:", le.m_szTag, " ", le.m_szText, "\n");
+        break;
 
-    default:
-      EZ_REPORT_FAILURE("Invalid msg type");
-      break;
+      default:
+        EZ_REPORT_FAILURE("Invalid msg type");
+        break;
     }
   }
 
@@ -148,7 +148,8 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
   }
 
   /// \todo This test will fail if EZ_COMPILE_FOR_DEVELOPMENT is disabled.
-  /// We also currently don't test ezLog::Debug, because our build machines compile in release and then the text below would need to be different.
+  /// We also currently don't test ezLog::Debug, because our build machines compile in release and then the text below would need to be
+  /// different.
 
   const char* szResult = log.m_Result;
   const char* szExpected = "\
@@ -197,4 +198,3 @@ E: Remember when you tried to kill me twice?\n\
 
   ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::All);
 }
-

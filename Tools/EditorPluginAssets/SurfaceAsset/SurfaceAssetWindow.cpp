@@ -1,15 +1,17 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <EditorPluginAssets/SurfaceAsset/SurfaceAssetWindow.moc.h>
+#include <Foundation/Image/ImageConversion.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
-#include <GuiFoundation/Widgets/ImageWidget.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
+#include <GuiFoundation/Widgets/ImageWidget.moc.h>
 #include <QLabel>
 #include <QLayout>
-#include <Foundation/Image/ImageConversion.h>
 
-ezQtSurfaceAssetDocumentWindow::ezQtSurfaceAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
+ezQtSurfaceAssetDocumentWindow::ezQtSurfaceAssetDocumentWindow(ezDocument* pDocument)
+    : ezQtDocumentWindow(pDocument)
 {
   // Menu Bar
   {
@@ -49,6 +51,3 @@ ezQtSurfaceAssetDocumentWindow::ezQtSurfaceAssetDocumentWindow(ezDocument* pDocu
 
   FinishWindowCreation();
 }
-
-
-

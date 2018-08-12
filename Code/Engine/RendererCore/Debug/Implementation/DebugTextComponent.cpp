@@ -1,11 +1,13 @@
 #include <PCH.h>
-#include <RendererCore/Debug/DebugTextComponent.h>
+
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Debug/DebugTextComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/View.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezDebugTextComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -18,32 +20,31 @@ EZ_BEGIN_COMPONENT_TYPE(ezDebugTextComponent, 1, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("Color", m_Color),
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_MESSAGEHANDLERS
+  EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),
   }
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezDebugTextComponent::ezDebugTextComponent()
-  : m_sText("Value0: {0}, Value1: {1}, Value2: {2}, Value3: {3}")
-  , m_fValue0(0.0f)
-  , m_fValue1(0.0f)
-  , m_fValue2(0.0f)
-  , m_fValue3(0.0f)
-  , m_Color(ezColor::White)
+    : m_sText("Value0: {0}, Value1: {1}, Value2: {2}, Value3: {3}")
+    , m_fValue0(0.0f)
+    , m_fValue1(0.0f)
+    , m_fValue2(0.0f)
+    , m_fValue3(0.0f)
+    , m_Color(ezColor::White)
 {
 }
 
-ezDebugTextComponent::~ezDebugTextComponent()
-{
-}
+ezDebugTextComponent::~ezDebugTextComponent() {}
 
 void ezDebugTextComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -61,7 +62,7 @@ void ezDebugTextComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezDebugTextComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = stream.GetStream();
 
@@ -113,4 +114,3 @@ void ezDebugTextComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Debug_Implementation_DebugTextComponent);
-

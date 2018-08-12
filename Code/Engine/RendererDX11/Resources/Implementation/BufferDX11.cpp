@@ -1,21 +1,19 @@
-﻿
 #include <PCH.h>
+
 #include <RendererDX11/Basics.h>
-#include <RendererDX11/Resources/BufferDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>
+#include <RendererDX11/Resources/BufferDX11.h>
 
 #include <d3d11.h>
 
 ezGALBufferDX11::ezGALBufferDX11(const ezGALBufferCreationDescription& Description)
-  : ezGALBuffer(Description),
-  m_pDXBuffer(nullptr),
-  m_IndexFormat(DXGI_FORMAT_UNKNOWN)
+    : ezGALBuffer(Description)
+    , m_pDXBuffer(nullptr)
+    , m_IndexFormat(DXGI_FORMAT_UNKNOWN)
 {
 }
 
-ezGALBufferDX11::~ezGALBufferDX11()
-{
-}
+ezGALBufferDX11::~ezGALBufferDX11() {}
 
 void ezGALBufferDX11::SetDebugName(const char* szName) const
 {
@@ -35,24 +33,24 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ez
 
   switch (m_Description.m_BufferType)
   {
-  case ezGALBufferType::ConstantBuffer:
-    BufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    break;
-  case ezGALBufferType::IndexBuffer:
-    BufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    case ezGALBufferType::ConstantBuffer:
+      BufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+      break;
+    case ezGALBufferType::IndexBuffer:
+      BufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
-    m_IndexFormat = m_Description.m_uiStructSize == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
+      m_IndexFormat = m_Description.m_uiStructSize == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
 
-    break;
-  case ezGALBufferType::VertexBuffer:
-    BufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    break;
-  case ezGALBufferType::Generic:
-    BufferDesc.BindFlags = 0;
-    break;
-  default:
-    ezLog::Error("Unknown buffer type supplied to CreateBuffer()!");
-    return EZ_FAILURE;
+      break;
+    case ezGALBufferType::VertexBuffer:
+      BufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+      break;
+    case ezGALBufferType::Generic:
+      BufferDesc.BindFlags = 0;
+      break;
+    default:
+      ezLog::Error("Unknown buffer type supplied to CreateBuffer()!");
+      return EZ_FAILURE;
   }
 
   if (m_Description.m_bAllowShaderResourceView)
@@ -132,4 +130,3 @@ ezResult ezGALBufferDX11::DeInitPlatform(ezGALDevice* pDevice)
 
 
 EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Resources_Implementation_BufferDX11);
-

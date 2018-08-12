@@ -1,14 +1,16 @@
 #include <PCH.h>
+
 #include <EnginePluginScene/Grid/GridRenderer.h>
-#include <RendererCore/Pipeline/RenderData.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
-#include <RendererFoundation/Device/Device.h>
+#include <EnginePluginScene/SceneContext/SceneContext.h>
 #include <RendererCore/Pipeline/Declarations.h>
+#include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderResource.h>
-#include <EnginePluginScene/SceneContext/SceneContext.h>
-#include <RendererCore/Pipeline/View.h>
+#include <RendererFoundation/Device/Device.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGridRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -24,9 +26,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGridRenderer, 1, ezRTTIDefaultAllocator<ezGridRenderer>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezEditorGridExtractor::ezEditorGridExtractor(const char* szName)
-  : ezExtractor(szName)
+    : ezExtractor(szName)
 {
   m_pSceneContext = nullptr;
 }
@@ -188,7 +191,8 @@ void ezGridRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
 
       pGALContext->UpdateBuffer(m_hVertexBuffer, 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray());
 
-      pRenderContext->BindMeshBuffer(m_hVertexBuffer, ezGALBufferHandle(), &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
+      pRenderContext->BindMeshBuffer(m_hVertexBuffer, ezGALBufferHandle(), &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Lines,
+                                     uiNumLineVerticesInBatch / 2);
       pRenderContext->DrawMeshBuffer();
 
       uiNumLineVertices -= uiNumLineVerticesInBatch;
@@ -205,7 +209,7 @@ float AdjustGridDensity(float fDensity, ezUInt32 uiWindowWidth, float fOrthoDimX
   while (true)
   {
     const float stepsAtDensity = fOrthoDimX / fNewDensity;
-    const float minPixelsAtDensity = stepsAtDensity* uiMinPixelsDist;
+    const float minPixelsAtDensity = stepsAtDensity * uiMinPixelsDist;
 
     if (minPixelsAtDensity < uiWindowWidth)
       break;
@@ -218,7 +222,7 @@ float AdjustGridDensity(float fDensity, ezUInt32 uiWindowWidth, float fOrthoDimX
 }
 
 void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-  ezExtractedRenderData& extractedRenderData)
+                                    ezExtractedRenderData& extractedRenderData)
 {
   if (m_pSceneContext == nullptr || m_pSceneContext->GetGridDensity() == 0.0f)
     return;
@@ -293,8 +297,3 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
 
   extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleTransparent, 0);
 }
-
-
-
-
-

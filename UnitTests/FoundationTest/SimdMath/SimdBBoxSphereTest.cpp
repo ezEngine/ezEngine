@@ -1,7 +1,8 @@
 #include <PCH.h>
+
 #include <Foundation/Math/BoundingBoxSphere.h>
-#include <Foundation/Math/Transform.h>
 #include <Foundation/Math/Random.h>
+#include <Foundation/Math/Transform.h>
 #include <Foundation/SimdMath/SimdBBoxSphere.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 
@@ -86,14 +87,9 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBoxSphere)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromPoints")
   {
-    ezSimdVec4f p[6] =
-    {
-      ezSimdVec4f(-4, 0, 0),
-      ezSimdVec4f(5, 0, 0),
-      ezSimdVec4f(0, -6, 0),
-      ezSimdVec4f(0, 7, 0),
-      ezSimdVec4f(0, 0, -8),
-      ezSimdVec4f(0, 0, 9),
+    ezSimdVec4f p[6] = {
+        ezSimdVec4f(-4, 0, 0), ezSimdVec4f(5, 0, 0),  ezSimdVec4f(0, -6, 0),
+        ezSimdVec4f(0, 7, 0),  ezSimdVec4f(0, 0, -8), ezSimdVec4f(0, 0, 9),
     };
 
     ezSimdBBoxSphere b;
@@ -107,7 +103,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBoxSphere)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclude")
   {
-    ezSimdBBoxSphere b1; b1.SetInvalid();
+    ezSimdBBoxSphere b1;
+    b1.SetInvalid();
     ezSimdBBoxSphere b2(ezSimdBBox(ezSimdVec4f(2, 2, 2), ezSimdVec4f(4, 4, 4)));
 
     b1.ExpandToInclude(b2);

@@ -1,12 +1,15 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <GuiFoundation/NodeEditor/Node.h>
 #include <GuiFoundation/NodeEditor/Pin.h>
-#include <ToolsFoundation/Document/Document.h>
 #include <QApplication>
 #include <QGraphicsDropShadowEffect>
 #include <QPainter>
+#include <ToolsFoundation/Document/Document.h>
 
-ezQtNode::ezQtNode() : m_pManager(nullptr), m_pObject(nullptr)
+ezQtNode::ezQtNode()
+    : m_pManager(nullptr)
+    , m_pObject(nullptr)
 {
   auto palette = QApplication::palette();
 
@@ -263,7 +266,7 @@ QVariant ezQtNode::itemChange(GraphicsItemChange change, const QVariant& value)
   ezCommandHistory* pHistory = m_pManager->GetDocument()->GetCommandHistory();
   switch (change)
   {
-  case QGraphicsItem::ItemSelectedHasChanged:
+    case QGraphicsItem::ItemSelectedHasChanged:
     {
       if (!pHistory->IsInUndoRedo() && !pHistory->IsInTransaction())
         m_DirtyFlags.Add(ezNodeFlags::SelectionChanged);
@@ -272,16 +275,15 @@ QVariant ezQtNode::itemChange(GraphicsItemChange change, const QVariant& value)
       m_pLabel->setDefaultTextColor(isSelected() ? palette.highlightedText().color() : palette.buttonText().color());
     }
     break;
-  case QGraphicsItem::ItemPositionHasChanged:
+    case QGraphicsItem::ItemPositionHasChanged:
     {
       if (!pHistory->IsInUndoRedo() && !pHistory->IsInTransaction())
         m_DirtyFlags.Add(ezNodeFlags::Moved);
     }
     break;
 
-  default:
-    break;
+    default:
+      break;
   }
   return QGraphicsPathItem::itemChange(change, value);
 }
-

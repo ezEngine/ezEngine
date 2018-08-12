@@ -1,9 +1,11 @@
 #include <PCH.h>
+
 #include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
+// clang-format on
 
 void ezSceneExportModifier::CreateModifiers(ezHybridArray<ezSceneExportModifier*, 8>& modifiers)
 {

@@ -1,19 +1,21 @@
 #include <PCH.h>
-#include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
+
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
+#include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 #include <QClipboard>
 #include <QFileDialog>
 #include <QMenu>
 #include <QMimeData>
 #include <QToolButton>
+#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
-ezQtAssetPropertyWidget::ezQtAssetPropertyWidget() : ezQtStandardPropertyWidget()
+ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
+    : ezQtStandardPropertyWidget()
 {
   m_uiThumbnailID = 0;
 
@@ -28,8 +30,10 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget() : ezQtStandardPropertyWidget(
   m_pWidget->m_pOwner = this;
   setFocusProxy(m_pWidget);
 
-  EZ_VERIFY(connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_TextFinished_triggered())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pWidget, SIGNAL(textChanged(const QString&)), this, SLOT(on_TextChanged_triggered(const QString&))) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_TextFinished_triggered())) != nullptr,
+            "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pWidget, SIGNAL(textChanged(const QString&)), this, SLOT(on_TextChanged_triggered(const QString&))) != nullptr,
+            "signal/slot connection failed");
 
   m_pButton = new QToolButton(this);
   m_pButton->setText(QStringLiteral("..."));
@@ -37,13 +41,19 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget() : ezQtStandardPropertyWidget(
   m_pButton->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
 
   EZ_VERIFY(connect(m_pButton, SIGNAL(clicked()), this, SLOT(on_BrowseFile_clicked())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pButton, &QWidget::customContextMenuRequested, this, &ezQtAssetPropertyWidget::on_customContextMenuRequested) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pButton, &QWidget::customContextMenuRequested, this, &ezQtAssetPropertyWidget::on_customContextMenuRequested) !=
+                nullptr,
+            "signal/slot connection failed");
 
   m_pLayout->addWidget(m_pWidget);
   m_pLayout->addWidget(m_pButton);
 
-  EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageLoaded, this, &ezQtAssetPropertyWidget::ThumbnailLoaded) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageInvalidated, this, &ezQtAssetPropertyWidget::ThumbnailInvalidated) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageLoaded, this, &ezQtAssetPropertyWidget::ThumbnailLoaded) !=
+                nullptr,
+            "signal/slot connection failed");
+  EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageInvalidated, this,
+                    &ezQtAssetPropertyWidget::ThumbnailInvalidated) != nullptr,
+            "signal/slot connection failed");
 }
 
 
@@ -85,7 +95,8 @@ bool ezQtAssetPropertyWidget::IsValidAssetType(const char* szAssetReference) con
 
 void ezQtAssetPropertyWidget::OnInit()
 {
-  EZ_ASSERT_DEV(m_pProp->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr, "ezQtAssetPropertyWidget was created without a ezAssetBrowserAttribute!");
+  EZ_ASSERT_DEV(m_pProp->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr,
+                "ezQtAssetPropertyWidget was created without a ezAssetBrowserAttribute!");
 }
 
 void ezQtAssetPropertyWidget::UpdateThumbnail(const ezUuid& guid, const char* szThumbnailPath)
@@ -101,7 +112,8 @@ void ezQtAssetPropertyWidget::UpdateThumbnail(const ezUuid& guid, const char* sz
     ezStringBuilder sTypeFilter = pAssetAttribute->GetTypeFilter();
     sTypeFilter.Trim(" ;");
 
-    pThumbnailPixmap = ezQtImageCache::GetSingleton()->QueryPixmapForType(sTypeFilter, szThumbnailPath, QModelIndex(), QVariant(uiUserData1), QVariant(uiUserData2), &m_uiThumbnailID);
+    pThumbnailPixmap = ezQtImageCache::GetSingleton()->QueryPixmapForType(sTypeFilter, szThumbnailPath, QModelIndex(),
+                                                                          QVariant(uiUserData1), QVariant(uiUserData2), &m_uiThumbnailID);
   }
 
   m_pButton->setCursor(Qt::WhatsThisCursor);
@@ -181,7 +193,6 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
 
     m_pWidget->setPlaceholderText(QString());
     m_pWidget->setText(QString::fromUtf8(sText.GetData()));
-
   }
 }
 
@@ -191,10 +202,14 @@ void ezQtAssetPropertyWidget::ExtendContextMenu(QMenu& menu)
     menu.addSeparator();
   const bool bAsset = m_AssetGuid.IsValid();
   menu.setDefaultAction(menu.addAction(QIcon(), QLatin1String("Select Asset"), this, SLOT(on_BrowseFile_clicked())));
-  menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open Asset"), this, SLOT(OnOpenAssetDocument()))->setEnabled(bAsset);
+  menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open Asset"), this,
+                 SLOT(OnOpenAssetDocument()))
+      ->setEnabled(bAsset);
   menu.addAction(QIcon(), QLatin1String("Select in Asset Browser"), this, SLOT(OnSelectInAssetBrowser()))->setEnabled(bAsset);
-  menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnOpenExplorer()));
-  menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnCopyAssetGuid()));
+  menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this,
+                 SLOT(OnOpenExplorer()));
+  menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this,
+                 SLOT(OnCopyAssetGuid()));
   menu.addAction(QIcon(), QLatin1String("Create New Asset"), this, SLOT(OnCreateNewAsset()));
   menu.addAction(QIcon(":/GuiFoundation/Icons/Delete16.png"), QLatin1String("Clear Asset Reference"), this, SLOT(OnClearReference()));
 }
@@ -250,7 +265,8 @@ void ezQtAssetPropertyWidget::on_customContextMenuRequested(const QPoint& pt)
 
 void ezQtAssetPropertyWidget::OnOpenAssetDocument()
 {
-  ezQtEditorApp::GetSingleton()->OpenDocument(ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_sAbsolutePath, GetSelection()[0].m_pObject);
+  ezQtEditorApp::GetSingleton()->OpenDocument(ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_sAbsolutePath,
+                                              GetSelection()[0].m_pObject);
 }
 
 void ezQtAssetPropertyWidget::OnSelectInAssetBrowser()
@@ -363,7 +379,10 @@ found:
 
     QString sStartDir = sTemp.GetData();
     QString sSelectedFilter = sExtension.GetData();
-    sOutput = QFileDialog::getSaveFileName(QApplication::activeWindow(), title.GetData(), sStartDir, sFilter.GetData(), &sSelectedFilter, QFileDialog::Option::DontResolveSymlinks).toUtf8().data();
+    sOutput = QFileDialog::getSaveFileName(QApplication::activeWindow(), title.GetData(), sStartDir, sFilter.GetData(), &sSelectedFilter,
+                                           QFileDialog::Option::DontResolveSymlinks)
+                  .toUtf8()
+                  .data();
 
     if (sOutput.IsEmpty())
       return;
@@ -418,4 +437,3 @@ void ezQtAssetPropertyWidget::on_BrowseFile_clicked()
 
   on_TextFinished_triggered();
 }
-

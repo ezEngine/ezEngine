@@ -1,13 +1,14 @@
 #include <PCH.h>
+
+#include <Foundation/Math/Frustum.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <Foundation/Math/Frustum.h>
-#include <Foundation/Reflection/ReflectionUtils.h>
 
-
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCameraUsageHint, 1)
   EZ_ENUM_CONSTANT(ezCameraUsageHint::None),
   EZ_ENUM_CONSTANT(ezCameraUsageHint::MainView),
@@ -29,9 +30,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezView, 1, ezRTTINoAllocator)
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezView::ezView()
-  : m_ExtractTask("", ezMakeDelegate(&ezView::ExtractData, this))
+    : m_ExtractTask("", ezMakeDelegate(&ezView::ExtractData, this))
 {
   m_pWorld = nullptr;
   m_pCamera = nullptr;
@@ -44,10 +46,7 @@ ezView::ezView()
   m_uiRenderPipelineResourceDescriptionCounter = 0;
 }
 
-ezView::~ezView()
-{
-
-}
+ezView::~ezView() {}
 
 void ezView::SetName(const char* szName)
 {
@@ -181,9 +180,9 @@ void ezView::UpdateCachedMatrices() const
     m_Data.m_InverseViewMatrix[1] = m_Data.m_ViewMatrix[1].GetInverse(0.0f);
   }
 
-  const float fViewportAspectRatio = m_Data.m_ViewPortRect.HasNonZeroArea() ? m_Data.m_ViewPortRect.width / m_Data.m_ViewPortRect.height : 1.0f;
-  if (m_uiLastCameraSettingsModification != pCamera->GetSettingsModificationCounter() ||
-    m_fLastViewportAspectRatio != fViewportAspectRatio)
+  const float fViewportAspectRatio =
+      m_Data.m_ViewPortRect.HasNonZeroArea() ? m_Data.m_ViewPortRect.width / m_Data.m_ViewPortRect.height : 1.0f;
+  if (m_uiLastCameraSettingsModification != pCamera->GetSettingsModificationCounter() || m_fLastViewportAspectRatio != fViewportAspectRatio)
   {
     bUpdateVP = true;
     m_uiLastCameraSettingsModification = pCamera->GetSettingsModificationCounter();
@@ -249,7 +248,8 @@ void ezView::SetProperty(ezMap<ezString, PropertyValue>& map, const char* szPass
 }
 
 
-void ezView::SetReadBackProperty(ezMap<ezString, PropertyValue>& map, const char* szPassName, const char* szPropertyName, const ezVariant& value)
+void ezView::SetReadBackProperty(ezMap<ezString, PropertyValue>& map, const char* szPassName, const char* szPropertyName,
+                                 const ezVariant& value)
 {
   ezStringBuilder sKey(szPassName, "::", szPropertyName);
 
@@ -314,7 +314,8 @@ void ezView::ApplyRenderPassProperties()
 
     if (pObject == nullptr)
     {
-      ezLog::Error("The render pass '{0}' does not exist. Property '{1}' cannot be applied.", propertyValue.m_sObjectName, propertyValue.m_sPropertyName);
+      ezLog::Error("The render pass '{0}' does not exist. Property '{1}' cannot be applied.", propertyValue.m_sObjectName,
+                   propertyValue.m_sPropertyName);
 
       propertyValue.m_bIsValid = false;
       continue;
@@ -336,7 +337,8 @@ void ezView::ApplyExtractorProperties()
     ezExtractor* pExtractor = m_pRenderPipeline->GetExtractorByName(it.Value().m_sObjectName);
     if (pExtractor == nullptr)
     {
-      ezLog::Error("The extractor '{0}' does not exist. Property '{1}' cannot be applied.", it.Value().m_sObjectName, it.Value().m_sPropertyName);
+      ezLog::Error("The extractor '{0}' does not exist. Property '{1}' cannot be applied.", it.Value().m_sObjectName,
+                   it.Value().m_sPropertyName);
 
       it.Value().m_bIsValid = false;
       continue;
@@ -346,12 +348,13 @@ void ezView::ApplyExtractorProperties()
   }
 }
 
-void ezView::ApplyProperty(ezReflectedClass* pClass, PropertyValue &data, const char* szTypeName)
+void ezView::ApplyProperty(ezReflectedClass* pClass, PropertyValue& data, const char* szTypeName)
 {
   ezAbstractProperty* pAbstractProperty = pClass->GetDynamicRTTI()->FindPropertyByName(data.m_sPropertyName);
   if (pAbstractProperty == nullptr)
   {
-    ezLog::Error("The {0} '{1}' does not have a property called '{2}', it cannot be applied.", szTypeName, data.m_sObjectName, data.m_sPropertyName);
+    ezLog::Error("The {0} '{1}' does not have a property called '{2}', it cannot be applied.", szTypeName, data.m_sObjectName,
+                 data.m_sPropertyName);
 
     data.m_bIsValid = false;
     return;
@@ -359,7 +362,8 @@ void ezView::ApplyProperty(ezReflectedClass* pClass, PropertyValue &data, const 
 
   if (pAbstractProperty->GetCategory() != ezPropertyCategory::Member)
   {
-    ezLog::Error("The {0} property '{1}::{2}' is not a member property, it cannot be applied.", szTypeName, data.m_sObjectName, data.m_sPropertyName);
+    ezLog::Error("The {0} property '{1}::{2}' is not a member property, it cannot be applied.", szTypeName, data.m_sObjectName,
+                 data.m_sPropertyName);
 
     data.m_bIsValid = false;
     return;
@@ -369,4 +373,3 @@ void ezView::ApplyProperty(ezReflectedClass* pClass, PropertyValue &data, const 
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_View);
-

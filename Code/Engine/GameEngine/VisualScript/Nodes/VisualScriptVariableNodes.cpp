@@ -1,11 +1,13 @@
 #include <PCH.h>
-#include <GameEngine/VisualScript/Nodes/VisualScriptVariableNodes.h>
-#include <GameEngine/VisualScript/VisualScriptInstance.h>
+
 #include <Core/World/World.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <GameEngine/VisualScript/Nodes/VisualScriptVariableNodes.h>
+#include <GameEngine/VisualScript/VisualScriptInstance.h>
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetNumberProperty, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_GetNumberProperty>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -23,9 +25,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetNumberProperty, 1, ezRTTID
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_GetNumberProperty::ezVisualScriptNode_GetNumberProperty() { }
-ezVisualScriptNode_GetNumberProperty::~ezVisualScriptNode_GetNumberProperty() { }
+ezVisualScriptNode_GetNumberProperty::ezVisualScriptNode_GetNumberProperty() {}
+ezVisualScriptNode_GetNumberProperty::~ezVisualScriptNode_GetNumberProperty() {}
 
 void ezVisualScriptNode_GetNumberProperty::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -63,6 +66,7 @@ void* ezVisualScriptNode_GetNumberProperty::GetInputPinDataPointer(ezUInt8 uiPin
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetNumberProperty, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_SetNumberProperty>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -82,9 +86,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetNumberProperty, 1, ezRTTID
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_SetNumberProperty::ezVisualScriptNode_SetNumberProperty() { }
-ezVisualScriptNode_SetNumberProperty::~ezVisualScriptNode_SetNumberProperty() { }
+ezVisualScriptNode_SetNumberProperty::ezVisualScriptNode_SetNumberProperty() {}
+ezVisualScriptNode_SetNumberProperty::~ezVisualScriptNode_SetNumberProperty() {}
 
 void ezVisualScriptNode_SetNumberProperty::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -108,10 +113,10 @@ void* ezVisualScriptNode_SetNumberProperty::GetInputPinDataPointer(ezUInt8 uiPin
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_hComponent;
-  case 1:
-    return &m_fValue;
+    case 0:
+      return &m_hComponent;
+    case 1:
+      return &m_fValue;
   }
 
   return nullptr;
@@ -119,6 +124,7 @@ void* ezVisualScriptNode_SetNumberProperty::GetInputPinDataPointer(ezUInt8 uiPin
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetBoolProperty, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_GetBoolProperty>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -136,9 +142,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetBoolProperty, 1, ezRTTIDef
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_GetBoolProperty::ezVisualScriptNode_GetBoolProperty() { }
-ezVisualScriptNode_GetBoolProperty::~ezVisualScriptNode_GetBoolProperty() { }
+ezVisualScriptNode_GetBoolProperty::ezVisualScriptNode_GetBoolProperty() {}
+ezVisualScriptNode_GetBoolProperty::~ezVisualScriptNode_GetBoolProperty() {}
 
 void ezVisualScriptNode_GetBoolProperty::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -175,6 +182,7 @@ void* ezVisualScriptNode_GetBoolProperty::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetBoolProperty, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_SetBoolProperty>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -194,9 +202,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetBoolProperty, 1, ezRTTIDef
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_SetBoolProperty::ezVisualScriptNode_SetBoolProperty() { }
-ezVisualScriptNode_SetBoolProperty::~ezVisualScriptNode_SetBoolProperty() { }
+ezVisualScriptNode_SetBoolProperty::ezVisualScriptNode_SetBoolProperty() {}
+ezVisualScriptNode_SetBoolProperty::~ezVisualScriptNode_SetBoolProperty() {}
 
 void ezVisualScriptNode_SetBoolProperty::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -220,10 +229,10 @@ void* ezVisualScriptNode_SetBoolProperty::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_hComponent;
-  case 1:
-    return &m_bValue;
+    case 0:
+      return &m_hComponent;
+    case 1:
+      return &m_bValue;
   }
 
   return nullptr;
@@ -231,6 +240,7 @@ void* ezVisualScriptNode_SetBoolProperty::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Number, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Number>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -247,9 +257,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Number, 1, ezRTTIDefaultAlloc
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_Number::ezVisualScriptNode_Number() { }
-ezVisualScriptNode_Number::~ezVisualScriptNode_Number() { }
+ezVisualScriptNode_Number::ezVisualScriptNode_Number() {}
+ezVisualScriptNode_Number::~ezVisualScriptNode_Number() {}
 
 void ezVisualScriptNode_Number::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -264,6 +275,7 @@ void ezVisualScriptNode_Number::Execute(ezVisualScriptInstance* pInstance, ezUIn
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_StoreNumber, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_StoreNumber>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -282,9 +294,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_StoreNumber, 1, ezRTTIDefault
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_StoreNumber::ezVisualScriptNode_StoreNumber() { }
-ezVisualScriptNode_StoreNumber::~ezVisualScriptNode_StoreNumber() { }
+ezVisualScriptNode_StoreNumber::ezVisualScriptNode_StoreNumber() {}
+ezVisualScriptNode_StoreNumber::~ezVisualScriptNode_StoreNumber() {}
 
 void ezVisualScriptNode_StoreNumber::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -304,7 +317,7 @@ void* ezVisualScriptNode_StoreNumber::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
-
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Bool, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Bool>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -321,9 +334,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Bool, 1, ezRTTIDefaultAllocat
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_Bool::ezVisualScriptNode_Bool() { }
-ezVisualScriptNode_Bool::~ezVisualScriptNode_Bool() { }
+ezVisualScriptNode_Bool::ezVisualScriptNode_Bool() {}
+ezVisualScriptNode_Bool::~ezVisualScriptNode_Bool() {}
 
 void ezVisualScriptNode_Bool::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -338,6 +352,7 @@ void ezVisualScriptNode_Bool::Execute(ezVisualScriptInstance* pInstance, ezUInt8
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_StoreBool, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_StoreBool>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -356,9 +371,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_StoreBool, 1, ezRTTIDefaultAl
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_StoreBool::ezVisualScriptNode_StoreBool() { }
-ezVisualScriptNode_StoreBool::~ezVisualScriptNode_StoreBool() { }
+ezVisualScriptNode_StoreBool::ezVisualScriptNode_StoreBool() {}
+ezVisualScriptNode_StoreBool::~ezVisualScriptNode_StoreBool() {}
 
 void ezVisualScriptNode_StoreBool::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -378,6 +394,7 @@ void* ezVisualScriptNode_StoreBool::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ToggleBool, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_ToggleBool>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -397,9 +414,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ToggleBool, 1, ezRTTIDefaultA
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_ToggleBool::ezVisualScriptNode_ToggleBool() { }
-ezVisualScriptNode_ToggleBool::~ezVisualScriptNode_ToggleBool() { }
+ezVisualScriptNode_ToggleBool::ezVisualScriptNode_ToggleBool() {}
+ezVisualScriptNode_ToggleBool::~ezVisualScriptNode_ToggleBool() {}
 
 void ezVisualScriptNode_ToggleBool::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -422,4 +440,3 @@ void ezVisualScriptNode_ToggleBool::Execute(ezVisualScriptInstance* pInstance, e
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Nodes_VisualScriptVariableNodes);
-

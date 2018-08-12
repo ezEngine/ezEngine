@@ -1,27 +1,26 @@
-﻿#include <PCH.h>
-#include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
+#include <PCH.h>
+
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorPluginAssets/VisualScriptAsset/VisualScriptAsset.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraph.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraphQt.moc.h>
-#include <EditorPluginAssets/VisualScriptAsset/VisualScriptAsset.h>
-#include <ToolsFoundation/Command/NodeCommands.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <GameEngine/VisualScript/VisualScriptInstance.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <QPainter>
-#include <QTimer>
+#include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/TranslationLookup.h>
+#include <GameEngine/VisualScript/VisualScriptInstance.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <QPainter>
+#include <QTimer>
+#include <ToolsFoundation/Command/NodeCommands.h>
 
 ezQtVisualScriptAssetScene::ezQtVisualScriptAssetScene(QObject* parent)
-  : ezQtNodeScene(parent)
+    : ezQtNodeScene(parent)
 {
 }
 
-ezQtVisualScriptAssetScene::~ezQtVisualScriptAssetScene()
-{
-}
+ezQtVisualScriptAssetScene::~ezQtVisualScriptAssetScene() {}
 
-void ezQtVisualScriptAssetScene::GetAllVsNodes(ezDynamicArray<const ezDocumentObject *>& allNodes) const
+void ezQtVisualScriptAssetScene::GetAllVsNodes(ezDynamicArray<const ezDocumentObject*>& allNodes) const
 {
   ezVisualScriptTypeRegistry* pTypeRegistry = ezVisualScriptTypeRegistry::GetSingleton();
   const ezRTTI* pNodeBaseRtti = pTypeRegistry->GetNodeBaseType();
@@ -50,7 +49,7 @@ void ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler(const ezVisual
 
   const ezDocumentNodeManager* pNodeManager = GetDocumentNodeManager();
 
-  ezDynamicArray<const ezDocumentObject *> allNodes;
+  ezDynamicArray<const ezDocumentObject*> allNodes;
   GetAllVsNodes(allNodes);
 
   const ezTime tNow = ezTime::Now();
@@ -128,7 +127,7 @@ void ezQtVisualScriptAssetScene::SetDebugObject(const ezUuid& objectGuid)
   m_DebugObject = objectGuid;
 }
 
-void ezQtVisualScriptAssetScene::ResetActiveConnections(ezDynamicArray<const ezDocumentObject *> &allNodes)
+void ezQtVisualScriptAssetScene::ResetActiveConnections(ezDynamicArray<const ezDocumentObject*>& allNodes)
 {
   const ezDocumentNodeManager* pNodeManager = GetDocumentNodeManager();
 
@@ -180,7 +179,7 @@ void ezQtVisualScriptAssetScene::ResetActiveConnections(ezDynamicArray<const ezD
 
 void ezQtVisualScriptAssetScene::OnUpdateDisplay()
 {
-  ezDynamicArray<const ezDocumentObject *> allNodes;
+  ezDynamicArray<const ezDocumentObject*> allNodes;
   GetAllVsNodes(allNodes);
 
   ResetActiveConnections(allNodes);
@@ -190,9 +189,7 @@ void ezQtVisualScriptAssetScene::OnUpdateDisplay()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezQtVisualScriptPin::ezQtVisualScriptPin()
-{
-}
+ezQtVisualScriptPin::ezQtVisualScriptPin() {}
 
 void ezQtVisualScriptPin::SetPin(const ezPin* pPin)
 {
@@ -240,10 +237,7 @@ void ezQtVisualScriptPin::paint(QPainter* painter, const QStyleOptionGraphicsIte
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezQtVisualScriptConnection::ezQtVisualScriptConnection(QGraphicsItem* parent /*= 0*/)
-{
-
-}
+ezQtVisualScriptConnection::ezQtVisualScriptConnection(QGraphicsItem* parent /*= 0*/) {}
 
 
 QPen ezQtVisualScriptConnection::DeterminePen() const
@@ -344,4 +338,3 @@ void ezQtVisualScriptNode::UpdateTitle()
 
   m_pLabel->setPlainText(sTitle.GetData());
 }
-

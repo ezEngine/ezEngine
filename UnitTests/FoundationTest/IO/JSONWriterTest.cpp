@@ -1,6 +1,7 @@
-﻿#include <PCH.h>
-#include <Foundation/IO/OSFile.h>
+#include <PCH.h>
+
 #include <Foundation/IO/JSONWriter.h>
+#include <Foundation/IO/OSFile.h>
 #include <FoundationTest/IO/JSONTestHelpers.h>
 
 
@@ -8,8 +9,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Object")
   {
-    StreamComparer sc(
-"\"TestObject\" : {\n\
+    StreamComparer sc("\"TestObject\" : {\n\
   \n\
 }");
 
@@ -22,8 +22,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Anonymous Object")
   {
-    StreamComparer sc(
-"{\n\
+    StreamComparer sc("{\n\
   \n\
 }");
 
@@ -175,7 +174,8 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableColor")
   {
-    StreamComparer sc("\"var1\" : { \"$t\" : \"color\", \"$v\" : \"(1.0000, 2.0000, 3.0000, 4.0000)\", \"$b\" : \"0x0000803F000000400000404000008040\" }");
+    StreamComparer sc("\"var1\" : { \"$t\" : \"color\", \"$v\" : \"(1.0000, 2.0000, 3.0000, 4.0000)\", \"$b\" : "
+                      "\"0x0000803F000000400000404000008040\" }");
 
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
@@ -205,7 +205,8 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVec4")
   {
-    StreamComparer sc("\"var1\" : { \"$t\" : \"vec4\", \"$v\" : \"(1.0000, 2.0000, 3.0000, 4.0000)\", \"$b\" : \"0x0000803F000000400000404000008040\" }");
+    StreamComparer sc(
+        "\"var1\" : { \"$t\" : \"vec4\", \"$v\" : \"(1.0000, 2.0000, 3.0000, 4.0000)\", \"$b\" : \"0x0000803F000000400000404000008040\" }");
 
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
@@ -269,7 +270,8 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableMat3")
   {
-    StreamComparer sc("\"var1\" : { \"$t\" : \"mat3\", \"$b\" : \"0x0000803F000080400000E040000000400000A04000000041000040400000C04000001041\" }");
+    StreamComparer sc(
+        "\"var1\" : { \"$t\" : \"mat3\", \"$b\" : \"0x0000803F000080400000E040000000400000A04000000041000040400000C04000001041\" }");
 
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
@@ -279,7 +281,9 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableMat4")
   {
-    StreamComparer sc("\"var1\" : { \"$t\" : \"mat4\", \"$b\" : \"0x0000803F0000A0400000104100005041000000400000C0400000204100006041000040400000E040000030410000704100008040000000410000404100008041\" }");
+    StreamComparer sc("\"var1\" : { \"$t\" : \"mat4\", \"$b\" : "
+                      "\"0x0000803F0000A0400000104100005041000000400000C0400000204100006041000040400000E04000003041000070410000804000000041"
+                      "0000404100008041\" }");
 
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
@@ -320,40 +324,40 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     js.SetOutputStream(&sc);
 
     js.BeginObject();
-      js.BeginArray("EmptyArray");
-      js.EndArray();
+    js.BeginArray("EmptyArray");
+    js.EndArray();
 
-      js.BeginArray("NamedArray");
-        js.WriteInt32(13);
-      js.EndArray();
+    js.BeginArray("NamedArray");
+    js.WriteInt32(13);
+    js.EndArray();
 
-      js.BeginArray("NamedArray2");
-        js.WriteInt32(1337);
-        js.WriteInt32(-4996);
-      js.EndArray();
+    js.BeginArray("NamedArray2");
+    js.WriteInt32(1337);
+    js.WriteInt32(-4996);
+    js.EndArray();
 
-      js.BeginVariable("Nested");
-        js.BeginArray();
-          js.WriteNULL();
+    js.BeginVariable("Nested");
+    js.BeginArray();
+    js.WriteNULL();
 
-          js.BeginArray();
-            js.WriteInt32(1);
-            js.WriteInt32(2);
-            js.WriteInt32(3);
-          js.EndArray();
+    js.BeginArray();
+    js.WriteInt32(1);
+    js.WriteInt32(2);
+    js.WriteInt32(3);
+    js.EndArray();
 
-          js.BeginArray();
-            js.WriteInt32(4);
-            js.WriteInt32(5);
-            js.WriteInt32(6);
-          js.EndArray();
+    js.BeginArray();
+    js.WriteInt32(4);
+    js.WriteInt32(5);
+    js.WriteInt32(6);
+    js.EndArray();
 
-          js.BeginArray();
-          js.EndArray();
+    js.BeginArray();
+    js.EndArray();
 
-          js.WriteString("That was an empty array");
-        js.EndArray();
-      js.EndVariable();
+    js.WriteString("That was an empty array");
+    js.EndArray();
+    js.EndVariable();
 
     js.EndObject();
   }
@@ -390,43 +394,41 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
     js.BeginObject();
 
-      js.AddVariableString("String", ezStringUtf8(L"testvälue").GetData()); // Unicode / Utf-8 test (in string)
-      js.AddVariableDouble("double", 43.56);
-      js.AddVariableFloat("float", 64.72f);
-      js.AddVariableBool(ezStringUtf8(L"bööl").GetData(), true); // Unicode / Utf-8 test (identifier)
-      js.AddVariableInt32("int", 23);
+    js.AddVariableString("String", ezStringUtf8(L"testvälue").GetData()); // Unicode / Utf-8 test (in string)
+    js.AddVariableDouble("double", 43.56);
+    js.AddVariableFloat("float", 64.72f);
+    js.AddVariableBool(ezStringUtf8(L"bööl").GetData(), true); // Unicode / Utf-8 test (identifier)
+    js.AddVariableInt32("int", 23);
 
-      js.BeginArray("myarray");
-        js.WriteInt32(1);
-        js.WriteFloat(2.2f);
-        js.WriteDouble(3.3);
-        js.WriteBool(false);
-        js.WriteString("ende");
-      js.EndArray();
+    js.BeginArray("myarray");
+    js.WriteInt32(1);
+    js.WriteFloat(2.2f);
+    js.WriteDouble(3.3);
+    js.WriteBool(false);
+    js.WriteString("ende");
+    js.EndArray();
 
-      js.BeginObject("object");
-        js.AddVariableString("variable in object", "bla/*asdf*/ //tuff"); // 'comment' in string
-        js.BeginObject("Subobject");
-          js.AddVariableString("variable in subobject", "bla\\"); // character to be escaped
+    js.BeginObject("object");
+    js.AddVariableString("variable in object", "bla/*asdf*/ //tuff"); // 'comment' in string
+    js.BeginObject("Subobject");
+    js.AddVariableString("variable in subobject", "bla\\"); // character to be escaped
 
-          js.BeginArray("array in sub");
-            js.BeginObject();
-              js.AddVariableUInt64("obj var", 234);
-            js.EndObject();
-            js.BeginObject();
-              js.AddVariableInt64("obj var 2", -235);
-            js.EndObject();
-            js.WriteBool(true);
-            js.WriteInt32(4);
-            js.WriteBool(false);
-          js.EndArray();
-        js.EndObject();
-      js.EndObject();
+    js.BeginArray("array in sub");
+    js.BeginObject();
+    js.AddVariableUInt64("obj var", 234);
+    js.EndObject();
+    js.BeginObject();
+    js.AddVariableInt64("obj var 2", -235);
+    js.EndObject();
+    js.WriteBool(true);
+    js.WriteInt32(4);
+    js.WriteBool(false);
+    js.EndArray();
+    js.EndObject();
+    js.EndObject();
 
-      js.AddVariableString("test", "text");
+    js.AddVariableString("test", "text");
 
     js.EndObject();
   }
 }
-
-

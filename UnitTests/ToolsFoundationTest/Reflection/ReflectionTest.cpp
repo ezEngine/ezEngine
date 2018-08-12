@@ -1,10 +1,11 @@
 #include <PCH.h>
+
 #include <Foundation/Reflection/Reflection.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
-#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeStorageAccessor.h>
-#include <ToolsFoundationTest/Reflection/ReflectionTestClasses.h>
+#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <ToolsFoundationTest/Object/TestObjectManager.h>
+#include <ToolsFoundationTest/Reflection/ReflectionTestClasses.h>
 EZ_CREATE_SIMPLE_TEST_GROUP(Reflection);
 
 
@@ -164,7 +165,7 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, const ezRTTI
 
     switch (pProp->GetCategory())
     {
-    case ezPropertyCategory::Member:
+      case ezPropertyCategory::Member:
       {
         ezAbstractMemberProperty* pProp3 = static_cast<ezAbstractMemberProperty*>(pProp);
         if (pProp->GetFlags().IsSet(ezPropertyFlags::IsEnum))
@@ -191,16 +192,16 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, const ezRTTI
         }
       }
       break;
-    case ezPropertyCategory::Array:
+      case ezPropertyCategory::Array:
       {
-        //ezAbstractArrayProperty* pProp3 = static_cast<ezAbstractArrayProperty*>(pProp);
+        // ezAbstractArrayProperty* pProp3 = static_cast<ezAbstractArrayProperty*>(pProp);
         // TODO
       }
       break;
 
-    default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
-      break;
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+        break;
     }
   }
   return uiPropertiesSet;
@@ -238,16 +239,16 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
 {
   ezTestDocumentObjectManager manager;
 
-  /*const ezRTTI* pRttiBase =*/ RegisterType("ezReflectedClass");
-  /*const ezRTTI* pRttiEnumBase =*/ RegisterType("ezEnumBase");
-  /*const ezRTTI* pRttiBitflagsBase =*/ RegisterType("ezBitflagsBase");
+  /*const ezRTTI* pRttiBase =*/RegisterType("ezReflectedClass");
+  /*const ezRTTI* pRttiEnumBase =*/RegisterType("ezEnumBase");
+  /*const ezRTTI* pRttiBitflagsBase =*/RegisterType("ezBitflagsBase");
 
   const ezRTTI* pRttiInt = RegisterType("ezIntegerStruct");
   const ezRTTI* pRttiFloat = RegisterType("ezFloatStruct");
   const ezRTTI* pRttiPOD = RegisterType("ezPODClass");
   const ezRTTI* pRttiMath = RegisterType("ezMathClass");
-  /*const ezRTTI* pRttiEnum =*/ RegisterType("ezExampleEnum");
-  /*const ezRTTI* pRttiFlags =*/ RegisterType("ezExampleBitflags");
+  /*const ezRTTI* pRttiEnum =*/RegisterType("ezExampleEnum");
+  /*const ezRTTI* pRttiFlags =*/RegisterType("ezExampleBitflags");
   const ezRTTI* pRttiEnumerations = RegisterType("ezEnumerationsClass");
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezReflectedTypeStorageAccessor")
@@ -334,7 +335,9 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedTypeReloading)
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddProperty")
     {
       // Say we reload the engine and the InnerStruct now has a second property: IP2.
-      descInner.m_Properties.PushBack(ezReflectedPropertyDescriptor(ezPropertyCategory::Member, "IP2", "ezVec4", ezBitflags<ezPropertyFlags>(ezPropertyFlags::StandardType), ezArrayPtr<ezPropertyAttribute* const>() ));
+      descInner.m_Properties.PushBack(ezReflectedPropertyDescriptor(ezPropertyCategory::Member, "IP2", "ezVec4",
+                                                                    ezBitflags<ezPropertyFlags>(ezPropertyFlags::StandardType),
+                                                                    ezArrayPtr<ezPropertyAttribute* const>()));
       const ezRTTI* NewInnerHandle = ezPhantomRttiManager::RegisterType(descInner);
       EZ_TEST_BOOL(NewInnerHandle == pRttiInnerP);
 

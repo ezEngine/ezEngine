@@ -1,13 +1,14 @@
-﻿#include <PCH.h>
-#include <EditorFramework/Gizmos/DragToPositionGizmo.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <Foundation/Logging/Log.h>
-#include <QMouseEvent>
+#include <PCH.h>
+
 #include <Core/Graphics/Camera.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <EditorFramework/Gizmos/SnapProvider.h>
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/Gizmos/DragToPositionGizmo.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
+#include <QMouseEvent>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDragToPositionGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -72,7 +73,6 @@ void ezDragToPositionGizmo::OnTransformationChanged(const ezTransform& transform
   m_AlignPZ.SetTransformation(transform * m);
   m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(+90));
   m_AlignNZ.SetTransformation(transform * m);
-
 }
 
 void ezDragToPositionGizmo::DoFocusLost(bool bCancel)
@@ -108,14 +108,14 @@ ezEditorInput ezDragToPositionGizmo::DoMousePressEvent(QMouseEvent* e)
 
   // The gizmo is actually "hidden" somewhere else during dragging,
   // because it musn't be rendered into the picking buffer, to avoid picking against the gizmo
-  //m_Bobble.SetVisible(false);
-  //m_AlignPX.SetVisible(false);
-  //m_AlignNX.SetVisible(false);
-  //m_AlignPY.SetVisible(false);
-  //m_AlignNY.SetVisible(false);
-  //m_AlignPZ.SetVisible(false);
-  //m_AlignNZ.SetVisible(false);
-  //m_pInteractionGizmoHandle->SetVisible(true);
+  // m_Bobble.SetVisible(false);
+  // m_AlignPX.SetVisible(false);
+  // m_AlignNX.SetVisible(false);
+  // m_AlignPY.SetVisible(false);
+  // m_AlignNY.SetVisible(false);
+  // m_AlignPZ.SetVisible(false);
+  // m_AlignNZ.SetVisible(false);
+  // m_pInteractionGizmoHandle->SetVisible(true);
 
   m_vStartPosition = GetTransformation().m_vPosition;
 
@@ -240,4 +240,3 @@ ezEditorInput ezDragToPositionGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   return ezEditorInput::WasExclusivelyHandled;
 }
-

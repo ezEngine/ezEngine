@@ -1,18 +1,19 @@
 #include <PCH.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
+
 #include <EnginePluginScene/RenderPipeline/EditorSelectedObjectsExtractor.h>
 #include <EnginePluginScene/SceneContext/SceneContext.h>
-#include <RendererFoundation/Device/Device.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Components/CameraComponent.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Meshes/MeshBufferResource.h>
+#include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererFoundation/Device/Device.h>
 
-
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorSelectedObjectsExtractor, 1, ezRTTIDefaultAllocator<ezEditorSelectedObjectsExtractor>)
 {
   EZ_BEGIN_PROPERTIES
@@ -22,7 +23,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorSelectedObjectsExtractor, 1, ezRTTIDefau
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
+// clang-format on
 
 ezEditorSelectedObjectsExtractor::ezEditorSelectedObjectsExtractor()
 {
@@ -42,7 +43,8 @@ const ezDeque<ezGameObjectHandle>* ezEditorSelectedObjectsExtractor::GetSelectio
   return &m_pSceneContext->GetSelectionWithChildren();
 }
 
-void ezEditorSelectedObjectsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
+void ezEditorSelectedObjectsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
+                                               ezExtractedRenderData& extractedRenderData)
 {
   const bool bShowCameraOverlays = view.GetCameraUsageHint() == ezCameraUsageHint::EditorView;
 
@@ -144,11 +146,13 @@ void ezEditorSelectedObjectsExtractor::UpdateRenderTargetCamera(const ezCameraCo
 {
   if (pCamComp->GetCameraMode() == ezCameraMode::OrthoFixedHeight || pCamComp->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
   {
-    m_RenderTargetCamera.SetCameraMode(pCamComp->GetCameraMode(), pCamComp->GetOrthoDimension(), pCamComp->GetNearPlane(), pCamComp->GetFarPlane());
+    m_RenderTargetCamera.SetCameraMode(pCamComp->GetCameraMode(), pCamComp->GetOrthoDimension(), pCamComp->GetNearPlane(),
+                                       pCamComp->GetFarPlane());
   }
   else
   {
-    m_RenderTargetCamera.SetCameraMode(pCamComp->GetCameraMode(), pCamComp->GetFieldOfView(), pCamComp->GetNearPlane(), pCamComp->GetFarPlane());
+    m_RenderTargetCamera.SetCameraMode(pCamComp->GetCameraMode(), pCamComp->GetFieldOfView(), pCamComp->GetNearPlane(),
+                                       pCamComp->GetFarPlane());
   }
 
   ezView* pRenderTargetView = nullptr;

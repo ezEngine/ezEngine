@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/String.h>
 
@@ -11,10 +12,22 @@ namespace HybridArrayTestDetail
     int a;
     std::string s;
 
-    Dummy() : a(0), s("Test") { }
-    Dummy(int a) : a(a), s("Test") { }
-    Dummy(const Dummy& other) : a(other.a), s(other.s) { }
-    ~Dummy() { }
+    Dummy()
+        : a(0)
+        , s("Test")
+    {
+    }
+    Dummy(int a)
+        : a(a)
+        , s("Test")
+    {
+    }
+    Dummy(const Dummy& other)
+        : a(other.a)
+        , s(other.s)
+    {
+    }
+    ~Dummy() {}
 
     Dummy& operator=(const Dummy& other)
     {
@@ -43,9 +56,9 @@ namespace HybridArrayTestDetail
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezHybridArray<ezInt32, 1>) == 32);
+EZ_CHECK_AT_COMPILETIME(sizeof(ezHybridArray<ezInt32, 1>) == 32);
 #else
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezHybridArray<ezInt32, 1>) == 20);
+EZ_CHECK_AT_COMPILETIME(sizeof(ezHybridArray<ezInt32, 1>) == 20);
 #endif
 
 EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
@@ -82,13 +95,13 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     }
 
     ezHybridArray<ezInt32, 16> a2 = a1;
-    ezHybridArray<ezInt32, 16> a3 (a1);
+    ezHybridArray<ezInt32, 16> a3(a1);
 
     EZ_TEST_BOOL(a1 == a2);
     EZ_TEST_BOOL(a1 == a3);
     EZ_TEST_BOOL(a2 == a3);
 
-    ezInt32 test[] = { 1, 2, 3, 4 };
+    ezInt32 test[] = {1, 2, 3, 4};
     ezArrayPtr<ezInt32> aptr(test);
 
     ezHybridArray<ezInt32, 16> a4(aptr);
@@ -102,7 +115,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 
     {
       // move constructor
-      ezHybridArray<ezConstructionCounter, 16> a1 (HybridArrayTestDetail::CreateArray(100, 20));
+      ezHybridArray<ezConstructionCounter, 16> a1(HybridArrayTestDetail::CreateArray(100, 20));
 
       EZ_TEST_INT(a1.GetCount(), 100);
       for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
@@ -120,7 +133,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 
     {
       // move constructor
-      ezHybridArray<ezConstructionCounter, 16> a2 (HybridArrayTestDetail::CreateArray(10, 30));
+      ezHybridArray<ezConstructionCounter, 16> a2(HybridArrayTestDetail::CreateArray(10, 30));
 
       EZ_TEST_INT(a2.GetCount(), 10);
       for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
@@ -149,7 +162,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 
     ezArrayPtr<ezInt32> ap = a1;
 
-    EZ_TEST_BOOL(ap.GetCount () == a1.GetCount());
+    EZ_TEST_BOOL(ap.GetCount() == a1.GetCount());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator =")
@@ -713,7 +726,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 
     // foreach
     ezUInt32 prev = 0;
-    for(ezUInt32 val : a1)
+    for (ezUInt32 val : a1)
     {
       EZ_TEST_BOOL(prev <= val);
       prev = val;
@@ -744,7 +757,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 
     // foreach
     ezUInt32 prev = 1000;
-    for(ezUInt32 val : a1)
+    for (ezUInt32 val : a1)
     {
       EZ_TEST_BOOL(prev >= val);
       prev = val;
@@ -761,10 +774,10 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swap")
   {
 
-    ezInt32 content1[] = { 1, 2, 3, 4 };
-    ezInt32 content2[] = { 5, 6, 7, 8, 9 };
-    ezInt32 contentHeap1[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
-    ezInt32 contentHeap2[] = { 11, 12, 13, 14, 15, 16, 17, 18, 19, 110, 111, 112, 113 };
+    ezInt32 content1[] = {1, 2, 3, 4};
+    ezInt32 content2[] = {5, 6, 7, 8, 9};
+    ezInt32 contentHeap1[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
+    ezInt32 contentHeap2[] = {11, 12, 13, 14, 15, 16, 17, 18, 19, 110, 111, 112, 113};
 
     {
       // local <-> local
@@ -838,4 +851,3 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     }
   }
 }
-

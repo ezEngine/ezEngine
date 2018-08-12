@@ -1,17 +1,19 @@
 #include <PCH.h>
-#include <Inspector/InputWidget.moc.h>
-#include <qlistwidget.h>
+
 #include <Foundation/Communication/Telemetry.h>
-#include <MainWindow.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <Inspector/InputWidget.moc.h>
+#include <MainWindow.moc.h>
+#include <qlistwidget.h>
 
 ezQtInputWidget* ezQtInputWidget::s_pWidget = nullptr;
 
-ezQtInputWidget::ezQtInputWidget(QWidget* parent) : QDockWidget (parent)
+ezQtInputWidget::ezQtInputWidget(QWidget* parent)
+    : QDockWidget(parent)
 {
   s_pWidget = this;
 
-  setupUi (this);
+  setupUi(this);
 
   ResetStats();
 }
@@ -90,7 +92,7 @@ void ezQtInputWidget::ProcessTelemetry(void* pUnuseed)
 
       ezUInt8 uiKeyState = 0;
       msg.GetReader() >> uiKeyState;
-      sd.m_KeyState = (ezKeyState::Enum) uiKeyState;
+      sd.m_KeyState = (ezKeyState::Enum)uiKeyState;
 
       msg.GetReader() >> sd.m_fValue;
       msg.GetReader() >> sd.m_fDeadZone;
@@ -117,7 +119,7 @@ void ezQtInputWidget::ProcessTelemetry(void* pUnuseed)
 
       ezUInt8 uiKeyState = 0;
       msg.GetReader() >> uiKeyState;
-      sd.m_KeyState = (ezKeyState::Enum) uiKeyState;
+      sd.m_KeyState = (ezKeyState::Enum)uiKeyState;
 
       msg.GetReader() >> sd.m_fValue;
       msg.GetReader() >> sd.m_bUseTimeScaling;
@@ -137,15 +139,14 @@ void ezQtInputWidget::ProcessTelemetry(void* pUnuseed)
 
   if (bUpdateSlotTable)
     s_pWidget->UpdateSlotTable(true);
-  else
-  if (bFillSlotTable)
+  else if (bFillSlotTable)
     s_pWidget->UpdateSlotTable(false);
 
   if (bUpdateActionTable)
     s_pWidget->UpdateActionTable(true);
-  else
-  if (bFillActionTable)
-    s_pWidget->UpdateActionTable(false);}
+  else if (bFillActionTable)
+    s_pWidget->UpdateActionTable(false);
+}
 
 void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
 {
@@ -196,7 +197,7 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
         ezStringBuilder sFlags;
         sFlags.Printf("  %16b  ", uiFlags);
 
-        QLabel* pFlags = (QLabel*) TableInputSlots->cellWidget(iRow, 5);
+        QLabel* pFlags = (QLabel*)TableInputSlots->cellWidget(iRow, 5);
         pFlags->setAlignment(Qt::AlignRight);
         pFlags->setText(sFlags.GetData());
       }
@@ -205,21 +206,21 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
       {
         // in VS 2012 at least the snprintf fails when "yes" and "no" are passed directly, instead of as const char* variables
         const char* szYes = "<b>yes</b>";
-        const char* szNo  = "no";
+        const char* szNo = "no";
 
         ezStringBuilder tt("<p>");
-        tt.AppendFormat("ReportsRelativeValues: {0}<br>",      (uiFlags & ezInputSlotFlags::ReportsRelativeValues)     ? szYes : szNo);
-        tt.AppendFormat("ValueBinaryZeroOrOne: {0}<br>",       (uiFlags & ezInputSlotFlags::ValueBinaryZeroOrOne)      ? szYes : szNo);
-        tt.AppendFormat("ValueRangeZeroToOne: {0}<br>",        (uiFlags & ezInputSlotFlags::ValueRangeZeroToOne)       ? szYes : szNo);
-        tt.AppendFormat("ValueRangeZeroToInf: {0}<br>",        (uiFlags & ezInputSlotFlags::ValueRangeZeroToInf)       ? szYes : szNo);
-        tt.AppendFormat("Pressable: {0}<br>",                  (uiFlags & ezInputSlotFlags::Pressable)                 ? szYes : szNo);
-        tt.AppendFormat("Holdable: {0}<br>",                   (uiFlags & ezInputSlotFlags::Holdable)                  ? szYes : szNo);
-        tt.AppendFormat("HalfAxis: {0}<br>",                   (uiFlags & ezInputSlotFlags::HalfAxis)                  ? szYes : szNo);
-        tt.AppendFormat("FullAxis: {0}<br>",                   (uiFlags & ezInputSlotFlags::FullAxis)                  ? szYes : szNo);
-        tt.AppendFormat("RequiresDeadZone: {0}<br>",           (uiFlags & ezInputSlotFlags::RequiresDeadZone)          ? szYes : szNo);
-        tt.AppendFormat("ValuesAreNonContinuous: {0}<br>",     (uiFlags & ezInputSlotFlags::ValuesAreNonContinuous)    ? szYes : szNo);
-        tt.AppendFormat("ActivationDependsOnOthers: {0}<br>",  (uiFlags & ezInputSlotFlags::ActivationDependsOnOthers) ? szYes : szNo);
-        tt.AppendFormat("NeverTimeScale: {0}<br>",             (uiFlags & ezInputSlotFlags::NeverTimeScale)            ? szYes : szNo);
+        tt.AppendFormat("ReportsRelativeValues: {0}<br>", (uiFlags & ezInputSlotFlags::ReportsRelativeValues) ? szYes : szNo);
+        tt.AppendFormat("ValueBinaryZeroOrOne: {0}<br>", (uiFlags & ezInputSlotFlags::ValueBinaryZeroOrOne) ? szYes : szNo);
+        tt.AppendFormat("ValueRangeZeroToOne: {0}<br>", (uiFlags & ezInputSlotFlags::ValueRangeZeroToOne) ? szYes : szNo);
+        tt.AppendFormat("ValueRangeZeroToInf: {0}<br>", (uiFlags & ezInputSlotFlags::ValueRangeZeroToInf) ? szYes : szNo);
+        tt.AppendFormat("Pressable: {0}<br>", (uiFlags & ezInputSlotFlags::Pressable) ? szYes : szNo);
+        tt.AppendFormat("Holdable: {0}<br>", (uiFlags & ezInputSlotFlags::Holdable) ? szYes : szNo);
+        tt.AppendFormat("HalfAxis: {0}<br>", (uiFlags & ezInputSlotFlags::HalfAxis) ? szYes : szNo);
+        tt.AppendFormat("FullAxis: {0}<br>", (uiFlags & ezInputSlotFlags::FullAxis) ? szYes : szNo);
+        tt.AppendFormat("RequiresDeadZone: {0}<br>", (uiFlags & ezInputSlotFlags::RequiresDeadZone) ? szYes : szNo);
+        tt.AppendFormat("ValuesAreNonContinuous: {0}<br>", (uiFlags & ezInputSlotFlags::ValuesAreNonContinuous) ? szYes : szNo);
+        tt.AppendFormat("ActivationDependsOnOthers: {0}<br>", (uiFlags & ezInputSlotFlags::ActivationDependsOnOthers) ? szYes : szNo);
+        tt.AppendFormat("NeverTimeScale: {0}<br>", (uiFlags & ezInputSlotFlags::NeverTimeScale) ? szYes : szNo);
         tt.Append("</p>");
 
         TableInputSlots->cellWidget(iRow, 5)->setToolTip(tt.GetData());
@@ -237,28 +238,28 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
     ezInt32 iRow = 0;
     for (ezMap<ezString, SlotData>::Iterator it = m_InputSlots.GetIterator(); it.IsValid(); ++it)
     {
-      QLabel* pState = (QLabel*) TableInputSlots->cellWidget(iRow, 2);
+      QLabel* pState = (QLabel*)TableInputSlots->cellWidget(iRow, 2);
       pState->setAlignment(Qt::AlignHCenter);
 
       switch (it.Value().m_KeyState)
       {
-      case ezKeyState::Down:
-        pState->setText("Down");
-        break;
-      case ezKeyState::Pressed:
-        pState->setText("Pressed");
-        break;
-      case ezKeyState::Released:
-        pState->setText("Released");
-        break;
-      case ezKeyState::Up:
-        pState->setText("");
-        break;
+        case ezKeyState::Down:
+          pState->setText("Down");
+          break;
+        case ezKeyState::Pressed:
+          pState->setText("Pressed");
+          break;
+        case ezKeyState::Released:
+          pState->setText("Released");
+          break;
+        case ezKeyState::Up:
+          pState->setText("");
+          break;
       }
 
       // Value
       {
-        QLabel* pValue = (QLabel*) TableInputSlots->cellWidget(iRow, 3);
+        QLabel* pValue = (QLabel*)TableInputSlots->cellWidget(iRow, 3);
         pValue->setAlignment(Qt::AlignHCenter);
 
         if (it.Value().m_fValue == 0.0f)
@@ -272,7 +273,7 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
 
       // Dead-zone
       {
-        QLabel* pDeadZone = (QLabel*) TableInputSlots->cellWidget(iRow, 4);
+        QLabel* pDeadZone = (QLabel*)TableInputSlots->cellWidget(iRow, 4);
         pDeadZone->setAlignment(Qt::AlignHCenter);
 
         if (it.Value().m_fDeadZone == 0.0f)
@@ -341,7 +342,7 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
         else
           sTemp.Format("  [Scale: {0}] {1}  ", ezArgF(it.Value().m_fTriggerScaling[slot], 2), it.Value().m_sTrigger[slot]);
 
-        QLabel* pValue = (QLabel*) TableInputActions->cellWidget(iRow, 4 + slot);
+        QLabel* pValue = (QLabel*)TableInputActions->cellWidget(iRow, 4 + slot);
         pValue->setText(sTemp.GetData());
       }
 
@@ -357,28 +358,28 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
     ezInt32 iRow = 0;
     for (ezMap<ezString, ActionData>::Iterator it = m_InputActions.GetIterator(); it.IsValid(); ++it)
     {
-      QLabel* pState = (QLabel*) TableInputActions->cellWidget(iRow, 2);
+      QLabel* pState = (QLabel*)TableInputActions->cellWidget(iRow, 2);
       pState->setAlignment(Qt::AlignHCenter);
 
       switch (it.Value().m_KeyState)
       {
-      case ezKeyState::Down:
-        pState->setText("Down");
-        break;
-      case ezKeyState::Pressed:
-        pState->setText("Pressed");
-        break;
-      case ezKeyState::Released:
-        pState->setText("Released");
-        break;
-      case ezKeyState::Up:
-        pState->setText("");
-        break;
+        case ezKeyState::Down:
+          pState->setText("Down");
+          break;
+        case ezKeyState::Pressed:
+          pState->setText("Pressed");
+          break;
+        case ezKeyState::Released:
+          pState->setText("Released");
+          break;
+        case ezKeyState::Up:
+          pState->setText("");
+          break;
       }
 
       // Value
       {
-        QLabel* pValue = (QLabel*) TableInputActions->cellWidget(iRow, 3);
+        QLabel* pValue = (QLabel*)TableInputActions->cellWidget(iRow, 3);
         pValue->setAlignment(Qt::AlignHCenter);
 
         if (it.Value().m_fValue == 0.0f)
@@ -411,4 +412,3 @@ void ezQtInputWidget::on_ButtonClearActions_clicked()
 {
   ClearActions();
 }
-

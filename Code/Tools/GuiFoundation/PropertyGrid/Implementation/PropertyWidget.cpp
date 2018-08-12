@@ -1,21 +1,22 @@
 #include <PCH.h>
+
+#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
-#include <Foundation/Strings/TranslationLookup.h>
+#include <QComboBox>
+#include <QLineEdit>
+#include <QMenu>
+#include <QPushButton>
+#include <QWidgetAction>
 #include <qcheckbox.h>
 #include <qlayout.h>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QComboBox>
-#include <QMenu>
-#include <QWidgetAction>
 
 
 /// *** CHECKBOX ***
 
 ezQtPropertyEditorCheckboxWidget::ezQtPropertyEditorCheckboxWidget()
-  : ezQtStandardPropertyWidget()
+    : ezQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
@@ -25,7 +26,8 @@ ezQtPropertyEditorCheckboxWidget::ezQtPropertyEditorCheckboxWidget()
   m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
   m_pLayout->addWidget(m_pWidget);
 
-  EZ_VERIFY(connect(m_pWidget, SIGNAL(stateChanged(int)), this, SLOT(on_StateChanged_triggered(int))) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pWidget, SIGNAL(stateChanged(int)), this, SLOT(on_StateChanged_triggered(int))) != nullptr,
+            "signal/slot connection failed");
 }
 
 void ezQtPropertyEditorCheckboxWidget::InternalSetValue(const ezVariant& value)
@@ -67,7 +69,8 @@ void ezQtPropertyEditorCheckboxWidget::on_StateChanged_triggered(int state)
 
 /// *** DOUBLE SPINBOX ***
 
-ezQtPropertyEditorDoubleSpinboxWidget::ezQtPropertyEditorDoubleSpinboxWidget(ezInt8 iNumComponents) : ezQtStandardPropertyWidget()
+ezQtPropertyEditorDoubleSpinboxWidget::ezQtPropertyEditorDoubleSpinboxWidget(ezInt8 iNumComponents)
+    : ezQtStandardPropertyWidget()
 {
   m_iNumComponents = iNumComponents;
   m_bTemporaryCommand = false;
@@ -111,14 +114,14 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
   {
     switch (m_iNumComponents)
     {
-    case 1:
+      case 1:
       {
         ezQtScopedBlockSignals bs(m_pWidget[0]);
         m_pWidget[0]->setMinimum(pClamp->GetMinValue());
         m_pWidget[0]->setMaximum(pClamp->GetMaxValue());
         break;
       }
-    case 2:
+      case 2:
       {
         ezQtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1]);
 
@@ -136,7 +139,7 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
         }
         break;
       }
-    case 3:
+      case 3:
       {
         ezQtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2]);
 
@@ -156,7 +159,7 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
         }
         break;
       }
-    case 4:
+      case 4:
       {
         ezQtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2], m_pWidget[3]);
 
@@ -185,7 +188,7 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
   {
     switch (m_iNumComponents)
     {
-    case 1:
+      case 1:
       {
         ezQtScopedBlockSignals bs(m_pWidget[0]);
 
@@ -195,7 +198,7 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
         }
         break;
       }
-    case 2:
+      case 2:
       {
         ezQtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1]);
 
@@ -206,7 +209,7 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
         }
         break;
       }
-    case 3:
+      case 3:
       {
         ezQtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2]);
 
@@ -218,7 +221,7 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
         }
         break;
       }
-    case 4:
+      case 4:
       {
         ezQtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2], m_pWidget[3]);
 
@@ -263,51 +266,50 @@ void ezQtPropertyEditorDoubleSpinboxWidget::InternalSetValue(const ezVariant& va
   {
     switch (m_iNumComponents)
     {
-    case 1:
-      m_pWidget[0]->setValue(value.ConvertTo<double>());
-      break;
-    case 2:
-      m_pWidget[0]->setValue(value.ConvertTo<ezVec2>().x);
-      m_pWidget[1]->setValue(value.ConvertTo<ezVec2>().y);
-      break;
-    case 3:
-      m_pWidget[0]->setValue(value.ConvertTo<ezVec3>().x);
-      m_pWidget[1]->setValue(value.ConvertTo<ezVec3>().y);
-      m_pWidget[2]->setValue(value.ConvertTo<ezVec3>().z);
-      break;
-    case 4:
-      m_pWidget[0]->setValue(value.ConvertTo<ezVec4>().x);
-      m_pWidget[1]->setValue(value.ConvertTo<ezVec4>().y);
-      m_pWidget[2]->setValue(value.ConvertTo<ezVec4>().z);
-      m_pWidget[3]->setValue(value.ConvertTo<ezVec4>().w);
-      break;
+      case 1:
+        m_pWidget[0]->setValue(value.ConvertTo<double>());
+        break;
+      case 2:
+        m_pWidget[0]->setValue(value.ConvertTo<ezVec2>().x);
+        m_pWidget[1]->setValue(value.ConvertTo<ezVec2>().y);
+        break;
+      case 3:
+        m_pWidget[0]->setValue(value.ConvertTo<ezVec3>().x);
+        m_pWidget[1]->setValue(value.ConvertTo<ezVec3>().y);
+        m_pWidget[2]->setValue(value.ConvertTo<ezVec3>().z);
+        break;
+      case 4:
+        m_pWidget[0]->setValue(value.ConvertTo<ezVec4>().x);
+        m_pWidget[1]->setValue(value.ConvertTo<ezVec4>().y);
+        m_pWidget[2]->setValue(value.ConvertTo<ezVec4>().z);
+        m_pWidget[3]->setValue(value.ConvertTo<ezVec4>().w);
+        break;
     }
   }
   else
   {
     switch (m_iNumComponents)
     {
-    case 1:
-      m_pWidget[0]->setValueInvalid();
-      break;
-    case 2:
-      m_pWidget[0]->setValueInvalid();
-      m_pWidget[1]->setValueInvalid();
-      break;
-    case 3:
-      m_pWidget[0]->setValueInvalid();
-      m_pWidget[1]->setValueInvalid();
-      m_pWidget[2]->setValueInvalid();
-      break;
-    case 4:
-      m_pWidget[0]->setValueInvalid();
-      m_pWidget[1]->setValueInvalid();
-      m_pWidget[2]->setValueInvalid();
-      m_pWidget[3]->setValueInvalid();
-      break;
+      case 1:
+        m_pWidget[0]->setValueInvalid();
+        break;
+      case 2:
+        m_pWidget[0]->setValueInvalid();
+        m_pWidget[1]->setValueInvalid();
+        break;
+      case 3:
+        m_pWidget[0]->setValueInvalid();
+        m_pWidget[1]->setValueInvalid();
+        m_pWidget[2]->setValueInvalid();
+        break;
+      case 4:
+        m_pWidget[0]->setValueInvalid();
+        m_pWidget[1]->setValueInvalid();
+        m_pWidget[2]->setValueInvalid();
+        m_pWidget[3]->setValueInvalid();
+        break;
     }
   }
-
 }
 
 void ezQtPropertyEditorDoubleSpinboxWidget::on_EditingFinished_triggered()
@@ -327,25 +329,26 @@ void ezQtPropertyEditorDoubleSpinboxWidget::SlotValueChanged()
 
   switch (m_iNumComponents)
   {
-  case 1:
-    BroadcastValueChanged(m_pWidget[0]->value());
-    break;
-  case 2:
-    BroadcastValueChanged(ezVec2(m_pWidget[0]->value(), m_pWidget[1]->value()));
-    break;
-  case 3:
-    BroadcastValueChanged(ezVec3(m_pWidget[0]->value(), m_pWidget[1]->value(), m_pWidget[2]->value()));
-    break;
-  case 4:
-    BroadcastValueChanged(ezVec4(m_pWidget[0]->value(), m_pWidget[1]->value(), m_pWidget[2]->value(), m_pWidget[3]->value()));
-    break;
+    case 1:
+      BroadcastValueChanged(m_pWidget[0]->value());
+      break;
+    case 2:
+      BroadcastValueChanged(ezVec2(m_pWidget[0]->value(), m_pWidget[1]->value()));
+      break;
+    case 3:
+      BroadcastValueChanged(ezVec3(m_pWidget[0]->value(), m_pWidget[1]->value(), m_pWidget[2]->value()));
+      break;
+    case 4:
+      BroadcastValueChanged(ezVec4(m_pWidget[0]->value(), m_pWidget[1]->value(), m_pWidget[2]->value(), m_pWidget[3]->value()));
+      break;
   }
 }
 
 
 /// *** TIME SPINBOX ***
 
-ezQtPropertyEditorTimeWidget::ezQtPropertyEditorTimeWidget() : ezQtStandardPropertyWidget()
+ezQtPropertyEditorTimeWidget::ezQtPropertyEditorTimeWidget()
+    : ezQtStandardPropertyWidget()
 {
   m_bTemporaryCommand = false;
 
@@ -420,7 +423,8 @@ void ezQtPropertyEditorTimeWidget::SlotValueChanged()
 
 /// *** ANGLE SPINBOX ***
 
-ezQtPropertyEditorAngleWidget::ezQtPropertyEditorAngleWidget() : ezQtStandardPropertyWidget()
+ezQtPropertyEditorAngleWidget::ezQtPropertyEditorAngleWidget()
+    : ezQtStandardPropertyWidget()
 {
   m_bTemporaryCommand = false;
 
@@ -507,7 +511,8 @@ void ezQtPropertyEditorAngleWidget::SlotValueChanged()
 /// *** INT SPINBOX ***
 
 
-ezQtPropertyEditorIntSpinboxWidget::ezQtPropertyEditorIntSpinboxWidget(ezInt32 iMinValue, ezInt32 iMaxValue) : ezQtStandardPropertyWidget()
+ezQtPropertyEditorIntSpinboxWidget::ezQtPropertyEditorIntSpinboxWidget(ezInt32 iMinValue, ezInt32 iMaxValue)
+    : ezQtStandardPropertyWidget()
 {
   m_bTemporaryCommand = false;
   m_pLayout = new QHBoxLayout(this);
@@ -580,7 +585,8 @@ void ezQtPropertyEditorIntSpinboxWidget::on_EditingFinished_triggered()
 
 /// *** QUATERNION ***
 
-ezQtPropertyEditorQuaternionWidget::ezQtPropertyEditorQuaternionWidget() : ezQtStandardPropertyWidget()
+ezQtPropertyEditorQuaternionWidget::ezQtPropertyEditorQuaternionWidget()
+    : ezQtStandardPropertyWidget()
 {
   m_bTemporaryCommand = false;
 
@@ -613,9 +619,7 @@ ezQtPropertyEditorQuaternionWidget::ezQtPropertyEditorQuaternionWidget() : ezQtS
   }
 }
 
-void ezQtPropertyEditorQuaternionWidget::OnInit()
-{
-}
+void ezQtPropertyEditorQuaternionWidget::OnInit() {}
 
 void ezQtPropertyEditorQuaternionWidget::InternalSetValue(const ezVariant& value)
 {
@@ -668,7 +672,8 @@ void ezQtPropertyEditorQuaternionWidget::SlotValueChanged()
 
 /// *** LINEEDIT ***
 
-ezQtPropertyEditorLineEditWidget::ezQtPropertyEditorLineEditWidget() : ezQtStandardPropertyWidget()
+ezQtPropertyEditorLineEditWidget::ezQtPropertyEditorLineEditWidget()
+    : ezQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
@@ -727,7 +732,8 @@ void ezQtPropertyEditorLineEditWidget::on_TextFinished_triggered()
 
 /// *** COLOR ***
 
-ezQtColorButtonWidget::ezQtColorButtonWidget(QWidget* parent) : QFrame(parent)
+ezQtColorButtonWidget::ezQtColorButtonWidget(QWidget* parent)
+    : QFrame(parent)
 {
   setAutoFillBackground(true);
 }
@@ -763,7 +769,8 @@ void ezQtColorButtonWidget::mouseReleaseEvent(QMouseEvent* event)
   emit clicked();
 }
 
-ezQtPropertyEditorColorWidget::ezQtPropertyEditorColorWidget() : ezQtStandardPropertyWidget()
+ezQtPropertyEditorColorWidget::ezQtPropertyEditorColorWidget()
+    : ezQtStandardPropertyWidget()
 {
   m_bExposeAlpha = false;
 
@@ -806,7 +813,8 @@ void ezQtPropertyEditorColorWidget::on_Button_triggered()
     temp = m_OriginalValue.ConvertTo<ezColor>();
   }
 
-  ezQtUiServices::GetSingleton()->ShowColorDialog(temp, m_bExposeAlpha, bShowHDR, this, SLOT(on_CurrentColor_changed(const ezColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
+  ezQtUiServices::GetSingleton()->ShowColorDialog(temp, m_bExposeAlpha, bShowHDR, this, SLOT(on_CurrentColor_changed(const ezColor&)),
+                                                  SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
 }
 
 void ezQtPropertyEditorColorWidget::on_CurrentColor_changed(const ezColor& color)
@@ -842,7 +850,8 @@ void ezQtPropertyEditorColorWidget::on_Color_accepted()
 
 /// *** ENUM COMBOBOX ***
 
-ezQtPropertyEditorEnumWidget::ezQtPropertyEditorEnumWidget() : ezQtStandardPropertyWidget()
+ezQtPropertyEditorEnumWidget::ezQtPropertyEditorEnumWidget()
+    : ezQtStandardPropertyWidget()
 {
 
   m_pLayout = new QHBoxLayout(this);
@@ -904,7 +913,8 @@ void ezQtPropertyEditorEnumWidget::on_CurrentEnum_changed(int iEnum)
 
 /// *** BITFLAGS COMBOBOX ***
 
-ezQtPropertyEditorBitflagsWidget::ezQtPropertyEditorBitflagsWidget() : ezQtStandardPropertyWidget()
+ezQtPropertyEditorBitflagsWidget::ezQtPropertyEditorBitflagsWidget()
+    : ezQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
@@ -1010,4 +1020,3 @@ void ezQtPropertyEditorBitflagsWidget::on_Menu_aboutToHide()
     BroadcastValueChanged(m_iCurrentBitflags);
   }
 }
-

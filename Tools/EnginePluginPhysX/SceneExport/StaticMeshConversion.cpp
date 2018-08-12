@@ -1,14 +1,16 @@
 #include <PCH.h>
-#include <EnginePluginPhysX/SceneExport/StaticMeshConversion.h>
+
+#include <Core/Assets/AssetFileHeader.h>
 #include <Core/World/World.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
-#include <PhysXCooking/PhysXCooking.h>
+#include <EnginePluginPhysX/SceneExport/StaticMeshConversion.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <PhysXCooking/PhysXCooking.h>
 #include <PhysXPlugin/Components/PxStaticActorComponent.h>
-#include <Core/Assets/AssetFileHeader.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_StaticMeshConversion, 1, ezRTTIDefaultAllocator<ezSceneExportModifier_StaticMeshConversion>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_StaticMeshConversion, 1,
+                                ezRTTIDefaultAllocator<ezSceneExportModifier_StaticMeshConversion>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 void ezSceneExportModifier_StaticMeshConversion::ModifyWorld(ezWorld& world, const ezUuid& documentGuid)
@@ -85,7 +87,7 @@ void ezSceneExportModifier_StaticMeshConversion::ModifyWorld(ezWorld& world, con
   ezConversionUtils::ToString(documentGuid, sDocGuid);
 
   sOutputFile.Format(":project/AssetCache/Generated/{0}.ezPhysXMesh", sDocGuid);
-  
+
   ezDeferredFileWriter file;
   file.SetOutput(sOutputFile);
 

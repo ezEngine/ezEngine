@@ -1,9 +1,10 @@
 #include <PCH.h>
-#include <FmodPlugin/Resources/FmodSoundEventResource.h>
-#include <FmodPlugin/Resources/FmodSoundBankResource.h>
-#include <FmodPlugin/FmodSingleton.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
+
 #include <FmodPlugin/FmodIncludes.h>
+#include <FmodPlugin/FmodSingleton.h>
+#include <FmodPlugin/Resources/FmodSoundBankResource.h>
+#include <FmodPlugin/Resources/FmodSoundEventResource.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 
 ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResourceBase* pResource)
 {
@@ -36,7 +37,8 @@ ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResour
 
   pData->m_hSoundBank = ezResourceManager::LoadResource<ezFmodSoundBankResource>(sBankPath);
 
-  // make sure the sound bank is fully loaded before trying to get the event descriptor (even though we go through the Fmod 'system' the bank resource must be loaded first)
+  // make sure the sound bank is fully loaded before trying to get the event descriptor (even though we go through the Fmod 'system' the
+  // bank resource must be loaded first)
   {
     ezResourceLock<ezFmodSoundBankResource> pBank(pData->m_hSoundBank, ezResourceAcquireMode::NoFallback);
 
@@ -105,4 +107,3 @@ bool ezFmodSoundEventResourceLoader::IsResourceOutdated(const ezResourceBase* pR
 
 
 EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Resources_FmodSoundEventResourceLoader);
-

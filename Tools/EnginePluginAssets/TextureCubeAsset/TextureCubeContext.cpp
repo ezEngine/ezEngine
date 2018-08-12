@@ -1,19 +1,20 @@
 #include <PCH.h>
+
 #include <EnginePluginAssets/TextureCubeAsset/TextureCubeContext.h>
 #include <EnginePluginAssets/TextureCubeAsset/TextureCubeView.h>
 
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/Lights/PointLightComponent.h>
-#include <RendererCore/Lights/DirectionalLightComponent.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 #include <Core/Graphics/Geometry.h>
-#include <SharedPluginAssets/Common/Messages.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
-#include <SharedPluginAssets/Common/Messages.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
+#include <RendererCore/Lights/DirectionalLightComponent.h>
+#include <RendererCore/Lights/PointLightComponent.h>
+#include <RendererCore/Meshes/MeshComponent.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <SharedPluginAssets/Common/Messages.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeContext, 1, ezRTTIDefaultAllocator<ezTextureCubeContext>)
 {
   EZ_BEGIN_PROPERTIES
@@ -23,13 +24,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeContext, 1, ezRTTIDefaultAllocator<
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezTextureCubeContext::ezTextureCubeContext()
-  : m_TextureFormat(ezGALResourceFormat::Invalid)
-  , m_uiTextureWidthAndHeight(0)
-  , m_bAddedEventHandler(false)
+    : m_TextureFormat(ezGALResourceFormat::Invalid)
+    , m_uiTextureWidthAndHeight(0)
+    , m_bAddedEventHandler(false)
 {
-
 }
 
 void ezTextureCubeContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
@@ -182,7 +183,7 @@ void ezTextureCubeContext::OnResourceEvent(const ezResourceEvent& e)
     m_uiTextureWidthAndHeight = pTexture->GetWidthAndHeight();
 
     // cannot call this here, because the event happens on another thread at any possible time
-    //UpdatePreview();
+    // UpdatePreview();
   }
 }
 
@@ -201,4 +202,3 @@ void ezTextureCubeContext::UpdatePreview()
     }
   }
 }
-

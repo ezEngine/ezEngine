@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 
@@ -9,7 +10,7 @@ static void FileSystemEventHandler(const ezFileSystem::FileEvent& e)
 {
   switch (e.m_EventType)
   {
-  case ezFileSystem::FileEventType::AddDataDirectorySucceeded:
+    case ezFileSystem::FileEventType::AddDataDirectorySucceeded:
     {
       bool bExisted = false;
       auto it = s_KnownDataDirs.FindOrAdd(e.m_szFileOrDirectory, &bExisted);
@@ -27,7 +28,7 @@ static void FileSystemEventHandler(const ezFileSystem::FileEvent& e)
     }
     break;
 
-  case ezFileSystem::FileEventType::RemoveDataDirectory:
+    case ezFileSystem::FileEventType::RemoveDataDirectory:
     {
       auto it = s_KnownDataDirs.Find(e.m_szFileOrDirectory);
 
@@ -41,8 +42,8 @@ static void FileSystemEventHandler(const ezFileSystem::FileEvent& e)
     }
     break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }
 
@@ -55,6 +56,3 @@ void RemoveFileSystemEventHandler()
 {
   ezFileSystem::UnregisterEventHandler(FileSystemEventHandler);
 }
-
-
-

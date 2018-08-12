@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Reflection/Reflection.h>
 
@@ -24,28 +25,17 @@ namespace ReflectionDetail
     if (pRTTI->GetParentType())
       return pRTTI->GetParentType()->GetTypeName();
 
-    if ((ezStringUtils::IsEqual(pRTTI->GetTypeName(), "bool")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "float")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "double")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezInt8")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezUInt8")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezInt16")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezUInt16")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezInt32")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezUInt32")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezInt64")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezUInt64")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezConstCharPtr")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezVec2")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezVec3")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezVec4")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezMat3")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezMat4")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezTime")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezUuid")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezColor")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezVariant")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezQuat")))
+    if ((ezStringUtils::IsEqual(pRTTI->GetTypeName(), "bool")) || (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "float")) ||
+        (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "double")) || (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezInt8")) ||
+        (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezUInt8")) || (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezInt16")) ||
+        (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezUInt16")) || (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezInt32")) ||
+        (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezUInt32")) || (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezInt64")) ||
+        (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezUInt64")) || (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezConstCharPtr")) ||
+        (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezVec2")) || (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezVec3")) ||
+        (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezVec4")) || (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezMat3")) ||
+        (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezMat4")) || (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezTime")) ||
+        (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezUuid")) || (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezColor")) ||
+        (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezVariant")) || (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezQuat")))
       return "Basic Types";
 
     return "";
@@ -75,16 +65,16 @@ namespace ReflectionDetail
       }
     }
 
-  {
-    const ezArrayPtr<ezAbstractMessageHandler*>& Messages = pRTTI->GetMessageHandlers();
-
-    msg.GetWriter() << Messages.GetCount();
-
-    for (ezUInt32 i = 0; i < Messages.GetCount(); ++i)
     {
-      msg.GetWriter() << Messages[i]->GetMessageId();
+      const ezArrayPtr<ezAbstractMessageHandler*>& Messages = pRTTI->GetMessageHandlers();
+
+      msg.GetWriter() << Messages.GetCount();
+
+      for (ezUInt32 i = 0; i < Messages.GetCount(); ++i)
+      {
+        msg.GetWriter() << Messages[i]->GetMessageId();
+      }
     }
-  }
 
     ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
   }
@@ -117,12 +107,12 @@ namespace ReflectionDetail
   {
     switch (e.m_EventType)
     {
-    case ezTelemetry::TelemetryEventData::ConnectedToClient:
-      SendAllReflectionTelemetry();
-      break;
+      case ezTelemetry::TelemetryEventData::ConnectedToClient:
+        SendAllReflectionTelemetry();
+        break;
 
-    default:
-      break;
+      default:
+        break;
     }
   }
 
@@ -130,15 +120,14 @@ namespace ReflectionDetail
   {
     switch (e.m_EventType)
     {
-    case ezPlugin::PluginEvent::AfterPluginChanges:
-      SendAllReflectionTelemetry();
-      break;
+      case ezPlugin::PluginEvent::AfterPluginChanges:
+        SendAllReflectionTelemetry();
+        break;
 
-    default:
-      break;
+      default:
+        break;
     }
   }
-
 }
 
 void AddReflectionEventHandler()
@@ -158,4 +147,3 @@ void RemoveReflectionEventHandler()
 
 
 EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Reflection);
-

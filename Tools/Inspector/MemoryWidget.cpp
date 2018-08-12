@@ -1,24 +1,24 @@
 #include <PCH.h>
-#include <Inspector/MemoryWidget.moc.h>
+
 #include <Foundation/Communication/Telemetry.h>
-#include <QGraphicsView>
+#include <Inspector/MemoryWidget.moc.h>
 #include <QGraphicsPathItem>
+#include <QGraphicsView>
 
 ezQtMemoryWidget* ezQtMemoryWidget::s_pWidget = nullptr;
 
 namespace MemoryWidgetDetail
 {
-  static QColor s_Colors[ezQtMemoryWidget::s_uiMaxColors] =
-  {
-    QColor(255, 106, 0), // orange
-    QColor(182, 255, 0), // lime green
-    QColor(255, 0, 255), // pink
-    QColor(0, 148, 255), // light blue
-    QColor(255, 0, 0), // red
-    QColor(0, 255, 255), // turquoise
-    QColor(217, 128, 255), // purple
-    QColor(128, 147, 255), // dark blue
-    QColor(164, 128, 255), // lilac
+  static QColor s_Colors[ezQtMemoryWidget::s_uiMaxColors] = {
+      QColor(255, 106, 0),   // orange
+      QColor(182, 255, 0),   // lime green
+      QColor(255, 0, 255),   // pink
+      QColor(0, 148, 255),   // light blue
+      QColor(255, 0, 0),     // red
+      QColor(0, 255, 255),   // turquoise
+      QColor(217, 128, 255), // purple
+      QColor(128, 147, 255), // dark blue
+      QColor(164, 128, 255), // lilac
   };
 }
 
@@ -34,7 +34,8 @@ void FormatSize(ezStringBuilder& s, const char* szPrefix, ezUInt64 uiSize)
     s.Format("{0}{1} GB", szPrefix, ezArgF(uiSize / 1024.0 / 1024.0 / 1024.0, 2));
 }
 
-ezQtMemoryWidget::ezQtMemoryWidget(QWidget* parent) : QDockWidget(parent)
+ezQtMemoryWidget::ezQtMemoryWidget(QWidget* parent)
+    : QDockWidget(parent)
 {
   s_pWidget = this;
 
@@ -68,7 +69,7 @@ ezQtMemoryWidget::ezQtMemoryWidget(QWidget* parent) : QDockWidget(parent)
   UsedMemoryView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   UsedMemoryView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   UsedMemoryView->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-  //UsedMemoryView->setMaximumHeight(100);
+  // UsedMemoryView->setMaximumHeight(100);
 
   ResetStats();
 }
@@ -168,7 +169,8 @@ void ezQtMemoryWidget::UpdateStats()
       sText.AppendFormat(" [{0}]", sSize);
 
       ezStringBuilder sTooltip;
-      sTooltip.Format("<p>Current Memory Used: <b>{0}</b><br>Max Memory Used: <b>{1}</b><br>Live Allocations: <b>{2}</b><br>Allocations: <b>{3}</b><br>Deallocations: <b>{4}</b><br>",
+      sTooltip.Format("<p>Current Memory Used: <b>{0}</b><br>Max Memory Used: <b>{1}</b><br>Live Allocations: <b>{2}</b><br>Allocations: "
+                      "<b>{3}</b><br>Deallocations: <b>{4}</b><br>",
                       sSize.GetData(), sMaxSize.GetData(), it.Value().m_uiLiveAllocs, it.Value().m_uiAllocs, it.Value().m_uiDeallocs);
 
       it.Value().m_pTreeItem->setText(0, sText.GetData());
@@ -187,7 +189,8 @@ void ezQtMemoryWidget::UpdateStats()
       sText.AppendFormat(" [{0}]", sSize);
 
       ezStringBuilder sTooltip;
-      sTooltip.Format("<p>Current Memory Used: <b>{0}</b><br>Max Memory Used: <b>{1}</b><br>Live Allocations: <b>{2}</b><br>Allocations: <b>{3}</b><br>Deallocations: <b>{4}</b><br>",
+      sTooltip.Format("<p>Current Memory Used: <b>{0}</b><br>Max Memory Used: <b>{1}</b><br>Live Allocations: <b>{2}</b><br>Allocations: "
+                      "<b>{3}</b><br>Deallocations: <b>{4}</b><br>",
                       sSize.GetData(), sMaxSize.GetData(), m_Accu.m_uiLiveAllocs, m_Accu.m_uiAllocs, m_Accu.m_uiDeallocs);
 
       m_Accu.m_pTreeItem->setText(0, sText.GetData());
@@ -262,8 +265,10 @@ void ezQtMemoryWidget::UpdateStats()
 
     uiMaxSamples = ezMath::Max(uiMaxSamples, ezMath::Min(m_uiDisplaySamples, it.Value().m_UsedMemory.GetCount()));
 
-    const ezUInt32 uiFirstSample = (it.Value().m_UsedMemory.GetCount() <= m_uiDisplaySamples) ? 0 : (it.Value().m_UsedMemory.GetCount() - m_uiDisplaySamples);
-    const ezUInt32 uiStartPos = (it.Value().m_UsedMemory.GetCount() >= m_uiDisplaySamples) ? 0 : (m_uiDisplaySamples - it.Value().m_UsedMemory.GetCount());
+    const ezUInt32 uiFirstSample =
+        (it.Value().m_UsedMemory.GetCount() <= m_uiDisplaySamples) ? 0 : (it.Value().m_UsedMemory.GetCount() - m_uiDisplaySamples);
+    const ezUInt32 uiStartPos =
+        (it.Value().m_UsedMemory.GetCount() >= m_uiDisplaySamples) ? 0 : (m_uiDisplaySamples - it.Value().m_UsedMemory.GetCount());
 
     pp[uiColorPath].moveTo(QPointF(uiStartPos, it.Value().m_UsedMemory[uiFirstSample]));
     uiMinUsedMemoryThis = ezMath::Min(uiMinUsedMemoryThis, it.Value().m_UsedMemory[uiFirstSample]);
@@ -330,20 +335,16 @@ void ezQtMemoryWidget::UpdateStats()
     LabelMinMemory->setText(QString::fromUtf8(s.GetData()));
 
     s.Format("<p>Recent Minimum Memory Usage:<br>{0} GB<br>{1} MB<br>{2} KB<br>{3} Byte</p>",
-             ezArgF(uiMinUsedMemory / 1024.0 / 1024.0 / 1024.0, 2),
-             ezArgF(uiMinUsedMemory / 1024.0 / 1024.0, 2),
-             ezArgF(uiMinUsedMemory / 1024.0, 2),
-             uiMinUsedMemory);
+             ezArgF(uiMinUsedMemory / 1024.0 / 1024.0 / 1024.0, 2), ezArgF(uiMinUsedMemory / 1024.0 / 1024.0, 2),
+             ezArgF(uiMinUsedMemory / 1024.0, 2), uiMinUsedMemory);
     LabelMinMemory->setToolTip(QString::fromUtf8(s.GetData()));
 
     FormatSize(s, "Max: ", uiMaxUsedMemory);
     LabelMaxMemory->setText(QString::fromUtf8(s.GetData()));
 
     s.Format("<p>Recent Maximum Memory Usage:<br>{0} GB<br>{1} MB<br>{2} KB<br>{3} Byte</p>",
-             ezArgF(uiMaxUsedMemory / 1024.0 / 1024.0 / 1024.0, 2),
-             ezArgF(uiMaxUsedMemory / 1024.0 / 1024.0, 2),
-             ezArgF(uiMaxUsedMemory / 1024.0, 2),
-             uiMaxUsedMemory);
+             ezArgF(uiMaxUsedMemory / 1024.0 / 1024.0 / 1024.0, 2), ezArgF(uiMaxUsedMemory / 1024.0 / 1024.0, 2),
+             ezArgF(uiMaxUsedMemory / 1024.0, 2), uiMaxUsedMemory);
     LabelMaxMemory->setToolTip(QString::fromUtf8(s.GetData()));
 
     const ezUInt64 uiCurUsedMemory = uiUsedMemory;
@@ -352,10 +353,8 @@ void ezQtMemoryWidget::UpdateStats()
     LabelCurMemory->setText(QString::fromUtf8(s.GetData()));
 
     s.Format("<p>Current Memory Usage:<br>{0} GB<br>{1} MB<br>{2} KB<br>{3} Byte</p>",
-             ezArgF(uiCurUsedMemory / 1024.0 / 1024.0 / 1024.0, 2),
-             ezArgF(uiCurUsedMemory / 1024.0 / 1024.0, 2),
-             ezArgF(uiCurUsedMemory / 1024.0, 2),
-             uiCurUsedMemory);
+             ezArgF(uiCurUsedMemory / 1024.0 / 1024.0 / 1024.0, 2), ezArgF(uiCurUsedMemory / 1024.0 / 1024.0, 2),
+             ezArgF(uiCurUsedMemory / 1024.0, 2), uiCurUsedMemory);
     LabelCurMemory->setToolTip(QString::fromUtf8(s.GetData()));
 
     s.Format("Allocs: {0}", uiLiveAllocs);

@@ -1,15 +1,18 @@
-﻿#include <PCH.h>
-#include <Foundation/Types/Variant.h>
+#include <PCH.h>
+
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Types/Variant.h>
 
 class Blubb : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(Blubb, ezReflectedClass);
+
 public:
   float u;
   float v;
 };
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Blubb, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
@@ -20,11 +23,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Blubb, 1, ezRTTINoAllocator)
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 template <typename T>
 inline void TestIntegerVariant(ezVariant::Type::Enum type)
 {
-  ezVariant b((T) 23);
+  ezVariant b((T)23);
   EZ_TEST_BOOL(b.IsValid());
   EZ_TEST_BOOL(b.GetType() == type);
   EZ_TEST_BOOL(b.IsA<T>());
@@ -32,19 +36,19 @@ inline void TestIntegerVariant(ezVariant::Type::Enum type)
 
   EZ_TEST_BOOL(b == ezVariant(23));
   EZ_TEST_BOOL(b != ezVariant(11));
-  EZ_TEST_BOOL(b == ezVariant((T) 23));
-  EZ_TEST_BOOL(b != ezVariant((T) 11));
+  EZ_TEST_BOOL(b == ezVariant((T)23));
+  EZ_TEST_BOOL(b != ezVariant((T)11));
 
   EZ_TEST_BOOL(b == 23);
   EZ_TEST_BOOL(b != 24);
-  EZ_TEST_BOOL(b == (T) 23);
-  EZ_TEST_BOOL(b != (T) 24);
+  EZ_TEST_BOOL(b == (T)23);
+  EZ_TEST_BOOL(b != (T)24);
 
-  b = (T) 17;
-  EZ_TEST_BOOL(b == (T) 17);
+  b = (T)17;
+  EZ_TEST_BOOL(b == (T)17);
 
-  b = ezVariant((T) 19);
-  EZ_TEST_BOOL(b == (T) 19);
+  b = ezVariant((T)19);
+  EZ_TEST_BOOL(b == (T)19);
 }
 
 inline void TestNumberCanConvertTo(const ezVariant& v)
@@ -131,7 +135,8 @@ inline void TestCanOnlyConvertToID(const ezVariant& v, ezVariant::Type::Enum typ
   }
 }
 
-inline void TestCanOnlyConvertToStringAndID(const ezVariant& v, ezVariant::Type::Enum type, ezVariant::Type::Enum type2 = ezVariant::Type::Invalid)
+inline void TestCanOnlyConvertToStringAndID(const ezVariant& v, ezVariant::Type::Enum type,
+                                            ezVariant::Type::Enum type2 = ezVariant::Type::Invalid)
 {
   if (type2 == ezVariant::Type::Invalid)
     type2 = type;
@@ -191,45 +196,21 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(!b[0].IsValid());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezInt8")
-  {
-    TestIntegerVariant<ezInt8>(ezVariant::Type::Int8);
-  }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezInt8") { TestIntegerVariant<ezInt8>(ezVariant::Type::Int8); }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezUInt8")
-  {
-    TestIntegerVariant<ezUInt8>(ezVariant::Type::UInt8);
-  }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezUInt8") { TestIntegerVariant<ezUInt8>(ezVariant::Type::UInt8); }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezInt16")
-  {
-    TestIntegerVariant<ezInt16>(ezVariant::Type::Int16);
-  }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezInt16") { TestIntegerVariant<ezInt16>(ezVariant::Type::Int16); }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezUInt16")
-  {
-    TestIntegerVariant<ezUInt16>(ezVariant::Type::UInt16);
-  }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezUInt16") { TestIntegerVariant<ezUInt16>(ezVariant::Type::UInt16); }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezInt32")
-  {
-    TestIntegerVariant<ezInt32>(ezVariant::Type::Int32);
-  }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezInt32") { TestIntegerVariant<ezInt32>(ezVariant::Type::Int32); }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezUInt32")
-  {
-    TestIntegerVariant<ezUInt32>(ezVariant::Type::UInt32);
-  }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezUInt32") { TestIntegerVariant<ezUInt32>(ezVariant::Type::UInt32); }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezInt64")
-  {
-    TestIntegerVariant<ezInt64>(ezVariant::Type::Int64);
-  }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezInt64") { TestIntegerVariant<ezInt64>(ezVariant::Type::Int64); }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezUInt64")
-  {
-    TestIntegerVariant<ezUInt64>(ezVariant::Type::UInt64);
-  }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezUInt64") { TestIntegerVariant<ezUInt64>(ezVariant::Type::UInt64); }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "float")
   {
@@ -664,7 +645,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.GetType() == ezVariant::Type::StringView);
     EZ_TEST_BOOL(v.IsA<ezStringView>());
 
-    const ezString sCopy =  szTemp;
+    const ezString sCopy = szTemp;
     EZ_TEST_BOOL(v.Get<ezStringView>() == sCopy);
 
     EZ_TEST_BOOL(v == ezVariant(ezStringView(sCopy.GetData())));
@@ -844,7 +825,10 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "void*")
   {
-    struct bla { bool pups; };
+    struct bla
+    {
+      bool pups;
+    };
     bla blub, blub2;
 
     ezVariant v(&blub);
@@ -922,61 +906,61 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezInt8)")
   {
-    ezVariant v((ezInt8) 3);
+    ezVariant v((ezInt8)3);
     TestNumberCanConvertTo(v);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezUInt8)")
   {
-    ezVariant v((ezUInt8) 3);
+    ezVariant v((ezUInt8)3);
     TestNumberCanConvertTo(v);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezInt16)")
   {
-    ezVariant v((ezInt16) 3);
+    ezVariant v((ezInt16)3);
     TestNumberCanConvertTo(v);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezUInt16)")
   {
-    ezVariant v((ezUInt16) 3);
+    ezVariant v((ezUInt16)3);
     TestNumberCanConvertTo(v);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezInt32)")
   {
-    ezVariant v((ezInt32) 3);
+    ezVariant v((ezInt32)3);
     TestNumberCanConvertTo(v);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezUInt32)")
   {
-    ezVariant v((ezUInt32) 3);
+    ezVariant v((ezUInt32)3);
     TestNumberCanConvertTo(v);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezInt64)")
   {
-    ezVariant v((ezInt64) 3);
+    ezVariant v((ezInt64)3);
     TestNumberCanConvertTo(v);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezUInt64)")
   {
-    ezVariant v((ezUInt64) 3);
+    ezVariant v((ezUInt64)3);
     TestNumberCanConvertTo(v);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (float)")
   {
-    ezVariant v((float) 3.0f);
+    ezVariant v((float)3.0f);
     TestNumberCanConvertTo(v);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (double)")
   {
-    ezVariant v((double) 3.0f);
+    ezVariant v((double)3.0f);
     TestNumberCanConvertTo(v);
   }
 
@@ -1117,7 +1101,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ c1r1=1, c2r1=2, c3r1=3, c1r2=4, c2r2=5, c3r2=6, c1r3=7, c2r3=8, c3r3=9 }");
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Matrix3).Get<ezMat3>() == m);
-    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ c1r1=1, c2r1=2, c3r1=3, c1r2=4, c2r2=5, c3r2=6, c1r3=7, c2r3=8, c3r3=9 }");
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() ==
+                 "{ c1r1=1, c2r1=2, c3r1=3, c1r2=4, c2r2=5, c3r2=6, c1r3=7, c2r3=8, c3r3=9 }");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezMat4)")
@@ -1128,10 +1113,13 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Matrix4);
 
     EZ_TEST_BOOL(v.ConvertTo<ezMat4>() == m);
-    EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ c1r1=1, c2r1=2, c3r1=3, c4r1=4, c1r2=5, c2r2=6, c3r2=7, c4r2=8, c1r3=9, c2r3=0, c3r3=1, c4r3=2, c1r4=3, c2r4=4, c3r4=5, c4r4=6 }");
+    EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ c1r1=1, c2r1=2, c3r1=3, c4r1=4, c1r2=5, c2r2=6, c3r2=7, c4r2=8, c1r3=9, c2r3=0, c3r3=1, "
+                                            "c4r3=2, c1r4=3, c2r4=4, c3r4=5, c4r4=6 }");
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Matrix4).Get<ezMat4>() == m);
-    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ c1r1=1, c2r1=2, c3r1=3, c4r1=4, c1r2=5, c2r2=6, c3r2=7, c4r2=8, c1r3=9, c2r3=0, c3r3=1, c4r3=2, c1r4=3, c2r4=4, c3r4=5, c4r4=6 }");
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ c1r1=1, c2r1=2, c3r1=3, c4r1=4, c1r2=5, c2r2=6, c3r2=7, "
+                                                                         "c4r2=8, c1r3=9, c2r3=0, c3r3=1, c4r3=2, c1r4=3, c2r4=4, c3r4=5, "
+                                                                         "c4r4=6 }");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezString)")
@@ -1369,10 +1357,10 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Time);
 
     EZ_TEST_BOOL(v.ConvertTo<ezTime>() == t);
-    //EZ_TEST_BOOL(v.ConvertTo<ezString>() == "");
+    // EZ_TEST_BOOL(v.ConvertTo<ezString>() == "");
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Time).Get<ezTime>() == t);
-    //EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "");
+    // EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezUuid)")
@@ -1384,10 +1372,10 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Uuid);
 
     EZ_TEST_BOOL(v.ConvertTo<ezUuid>() == uuid);
-    //EZ_TEST_BOOL(v.ConvertTo<ezString>() == "");
+    // EZ_TEST_BOOL(v.ConvertTo<ezString>() == "");
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Uuid).Get<ezUuid>() == uuid);
-    //EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "");
+    // EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezAngle)")
@@ -1398,10 +1386,10 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Angle);
 
     EZ_TEST_BOOL(v.ConvertTo<ezAngle>() == t);
-    //EZ_TEST_BOOL(v.ConvertTo<ezString>() == "");
+    // EZ_TEST_BOOL(v.ConvertTo<ezString>() == "");
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Angle).Get<ezAngle>() == t);
-    //EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "");
+    // EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (VariantArray)")
@@ -1428,7 +1416,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (void*)")
   {
-    ezVariant v((void*) 0);
+    ezVariant v((void*)0);
 
     TestCanOnlyConvertToID(v, ezVariant::Type::VoidPointer);
 

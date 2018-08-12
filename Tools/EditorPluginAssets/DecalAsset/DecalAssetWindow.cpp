@@ -1,20 +1,21 @@
 #include <PCH.h>
-#include <EditorPluginAssets/DecalAsset/DecalAssetWindow.moc.h>
-#include <EditorPluginAssets/DecalAsset/DecalAsset.h>
-#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
+
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
+#include <EditorFramework/InputContexts/EditorInputContext.h>
+#include <EditorPluginAssets/DecalAsset/DecalAsset.h>
+#include <EditorPluginAssets/DecalAsset/DecalAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
-#include <EditorFramework/InputContexts/EditorInputContext.h>
-#include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
+#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ezQtDecalAssetDocumentWindow
 //////////////////////////////////////////////////////////////////////////
 
 ezQtDecalAssetDocumentWindow::ezQtDecalAssetDocumentWindow(ezDecalAssetDocument* pDocument)
-  : ezQtEngineDocumentWindow(pDocument)
+    : ezQtEngineDocumentWindow(pDocument)
 {
   // Menu Bar
   {
@@ -67,7 +68,6 @@ ezQtDecalAssetDocumentWindow::ezQtDecalAssetDocumentWindow(ezDecalAssetDocument*
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
-
   }
 
   FinishWindowCreation();
@@ -93,4 +93,3 @@ void ezQtDecalAssetDocumentWindow::SendRedrawMsg()
     pView->SyncToEngine();
   }
 }
-

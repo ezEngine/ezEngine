@@ -1,6 +1,5 @@
 #include <PCH.h>
 
-
 EZ_STATICLINK_LIBRARY(RendererFoundation)
 {
   if (bReturn)
@@ -28,4 +27,3 @@ EZ_STATICLINK_LIBRARY(RendererFoundation)
   EZ_STATICLINK_REFERENCE(RendererFoundation_Shader_Implementation_VertexDeclaration);
   EZ_STATICLINK_REFERENCE(RendererFoundation_State_Implementation_State);
 }
-

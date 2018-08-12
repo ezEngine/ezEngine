@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/Vec4.h>
@@ -18,9 +19,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
     }
 #else
     // Placement new of the default constructor should not have any effect on the previous data.
-    ezVec2T::ComponentType testBlock[2] = { (ezVec2T::ComponentType) 1, (ezVec2T::ComponentType) 2 };
+    ezVec2T::ComponentType testBlock[2] = {(ezVec2T::ComponentType)1, (ezVec2T::ComponentType)2};
     ezVec2T* pDefCtor = ::new ((void*)&testBlock[0]) ezVec2T;
-    EZ_TEST_BOOL(pDefCtor->x == (ezVec2T::ComponentType) 1 && pDefCtor->y == (ezVec2T::ComponentType) 2);
+    EZ_TEST_BOOL(pDefCtor->x == (ezVec2T::ComponentType)1 && pDefCtor->y == (ezVec2T::ComponentType)2);
 #endif
   }
 
@@ -37,20 +38,11 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
     EZ_TEST_VEC2(v, ezVec2T(3, 3), 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ZeroVector")
-  {
-    EZ_TEST_VEC2(ezVec2T::ZeroVector(), ezVec2T(0, 0), 0);
-  }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ZeroVector") { EZ_TEST_VEC2(ezVec2T::ZeroVector(), ezVec2T(0, 0), 0); }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsVec3")
-  {
-    EZ_TEST_VEC3(ezVec2T(2, 3).GetAsVec3(4), ezVec3T(2, 3, 4), 0);
-  }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsVec3") { EZ_TEST_VEC3(ezVec2T(2, 3).GetAsVec3(4), ezVec3T(2, 3, 4), 0); }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsVec4")
-  {
-    EZ_TEST_VEC4(ezVec2T(2, 3).GetAsVec4(4, 5), ezVec4T(2, 3, 4, 5), 0);
-  }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsVec4") { EZ_TEST_VEC4(ezVec2T(2, 3).GetAsVec4(4, 5), ezVec4T(2, 3, 4, 5), 0); }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Set(x, y)")
   {
@@ -92,7 +84,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
     EZ_TEST_FLOAT(v.GetLength(), 1, 0.0001f);
 
     v.Set(2, 3);
-    EZ_TEST_FLOAT(v.GetLength(), ezMath::Sqrt((ezMathTestType) (4 + 9)), 0.0001f);
+    EZ_TEST_FLOAT(v.GetLength(), ezMath::Sqrt((ezMathTestType)(4 + 9)), 0.0001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLengthSquared")
@@ -129,7 +121,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
 
     v.Set(2, 3);
     l = v.GetLengthAndNormalize();
-    EZ_TEST_FLOAT(l, ezMath::Sqrt((ezMathTestType) (4 + 9)), 0.0001f);
+    EZ_TEST_FLOAT(l, ezMath::Sqrt((ezMathTestType)(4 + 9)), 0.0001f);
     EZ_TEST_FLOAT(v.GetLength(), 1, 0.0001f);
   }
 
@@ -177,7 +169,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsZero")
   {
     ezVec2T v;
-    
+
     v.Set(1);
     EZ_TEST_BOOL(v.IsZero() == false);
 
@@ -296,9 +288,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
     ezVec2T v1(1, 0);
     ezVec2T v2(0, 1);
 
-    EZ_TEST_FLOAT(v1.GetAngleBetween(v1).GetDegree(),  0, 0.001f);
-    EZ_TEST_FLOAT(v2.GetAngleBetween(v2).GetDegree(),  0, 0.001f);
-    EZ_TEST_FLOAT(v1.GetAngleBetween(v2).GetDegree(),   90, 0.001f);
+    EZ_TEST_FLOAT(v1.GetAngleBetween(v1).GetDegree(), 0, 0.001f);
+    EZ_TEST_FLOAT(v2.GetAngleBetween(v2).GetDegree(), 0, 0.001f);
+    EZ_TEST_FLOAT(v1.GetAngleBetween(v2).GetDegree(), 90, 0.001f);
     EZ_TEST_FLOAT(v1.GetAngleBetween(-v1).GetDegree(), 180, 0.001f);
   }
 
@@ -308,10 +300,10 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
     ezVec2T v2(0, 1);
     ezVec2T v0(0, 0);
 
-    EZ_TEST_FLOAT(v0.Dot(v0),   0, 0.001f);
-    EZ_TEST_FLOAT(v1.Dot(v1),   1, 0.001f);
-    EZ_TEST_FLOAT(v2.Dot(v2),   1, 0.001f);
-    EZ_TEST_FLOAT(v1.Dot(v2),   0, 0.001f);
+    EZ_TEST_FLOAT(v0.Dot(v0), 0, 0.001f);
+    EZ_TEST_FLOAT(v1.Dot(v1), 1, 0.001f);
+    EZ_TEST_FLOAT(v2.Dot(v2), 1, 0.001f);
+    EZ_TEST_FLOAT(v1.Dot(v2), 0, 0.001f);
     EZ_TEST_FLOAT(v1.Dot(-v1), -1, 0.001f);
   }
 
@@ -355,7 +347,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeOrthogonalTo")
   {
     ezVec2T v;
-    
+
     v.Set(1, 1);
     v.MakeOrthogonalTo(ezVec2T(1, 0));
     EZ_TEST_VEC2(v, ezVec2T(0, 1), 0.001f);
@@ -368,7 +360,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetOrthogonalVector")
   {
     ezVec2T v;
-   
+
     for (float i = 1; i < 360; i += 3)
     {
       v.Set(i, i * 3);

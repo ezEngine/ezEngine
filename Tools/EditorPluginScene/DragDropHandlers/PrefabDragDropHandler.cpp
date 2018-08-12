@@ -1,8 +1,9 @@
 #include <PCH.h>
-#include <EditorPluginScene/DragDropHandlers/PrefabDragDropHandler.h>
+
 #include <EditorFramework/DragDrop/DragDropInfo.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
+#include <EditorPluginScene/DragDropHandlers/PrefabDragDropHandler.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Document/PrefabCache.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPrefabComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezPrefabComponentDragDropHandler>)
@@ -33,14 +34,16 @@ void ezPrefabComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
     if (pInfo->m_sTargetContext == "viewport")
       CreateDropObject(pInfo->m_vDropPosition, "ezPrefabReferenceComponent", "Prefab", GetAssetGuidString(pInfo), ezUuid(), -1);
     else
-      CreateDropObject(pInfo->m_vDropPosition, "ezPrefabReferenceComponent", "Prefab", GetAssetGuidString(pInfo), pInfo->m_TargetObject, pInfo->m_iTargetObjectInsertChildIndex);
+      CreateDropObject(pInfo->m_vDropPosition, "ezPrefabReferenceComponent", "Prefab", GetAssetGuidString(pInfo), pInfo->m_TargetObject,
+                       pInfo->m_iTargetObjectInsertChildIndex);
   }
 
   SelectCreatedObjects();
   BeginTemporaryCommands();
 }
 
-void ezPrefabComponentDragDropHandler::CreatePrefab(const ezVec3& vPosition, const ezUuid& AssetGuid, ezUuid parent, ezInt32 iInsertChildIndex)
+void ezPrefabComponentDragDropHandler::CreatePrefab(const ezVec3& vPosition, const ezUuid& AssetGuid, ezUuid parent,
+                                                    ezInt32 iInsertChildIndex)
 {
   ezVec3 vPos = vPosition;
 

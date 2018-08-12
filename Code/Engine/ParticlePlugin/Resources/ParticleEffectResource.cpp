@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Core/Assets/AssetFileHeader.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 
@@ -6,18 +7,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectResource, 1, ezRTTIDefaultAlloca
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleEffectResource::ezParticleEffectResource()
-  : ezResource<ezParticleEffectResource, ezParticleEffectResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource<ezParticleEffectResource, ezParticleEffectResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
 }
 
-ezParticleEffectResource::~ezParticleEffectResource()
-{
-}
+ezParticleEffectResource::~ezParticleEffectResource() {}
 
 ezResourceLoadDesc ezParticleEffectResource::UnloadData(Unload WhatToUnload)
 {
   /// \todo Clear something
-  //m_Desc.m_System1
+  // m_Desc.m_System1
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -83,4 +82,3 @@ void ezParticleEffectResourceDescriptor::Load(ezStreamReader& stream)
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Resources_ParticleEffectResource);
-

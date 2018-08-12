@@ -1,12 +1,14 @@
 #include <PCH.h>
-#include <FmodPlugin/Resources/FmodSoundBankResource.h>
-#include <FmodPlugin/FmodSingleton.h>
+
 #include <FmodPlugin/FmodIncludes.h>
+#include <FmodPlugin/FmodSingleton.h>
+#include <FmodPlugin/Resources/FmodSoundBankResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodSoundBankResource, 1, ezRTTIDefaultAllocator<ezFmodSoundBankResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezFmodSoundBankResource::ezFmodSoundBankResource() : ezResource<ezFmodSoundBankResource, ezFmodSoundBankResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+ezFmodSoundBankResource::ezFmodSoundBankResource()
+    : ezResource<ezFmodSoundBankResource, ezFmodSoundBankResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
   ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezFmodSoundBankResource);
 }
@@ -80,7 +82,7 @@ void ezFmodSoundBankResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 ezResourceLoadDesc ezFmodSoundBankResource::CreateResource(const ezFmodSoundBankResourceDescriptor& descriptor)
 {
   // have to create one 'missing' resource
-  //EZ_REPORT_FAILURE("This resource type does not support creating data.");
+  // EZ_REPORT_FAILURE("This resource type does not support creating data.");
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -92,6 +94,4 @@ ezResourceLoadDesc ezFmodSoundBankResource::CreateResource(const ezFmodSoundBank
 
 
 
-
 EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Resources_FmodSoundBankResource);
-

@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Utilities/Stats.h>
 
@@ -11,10 +12,10 @@ static void StatsEventHandler(const ezStats::StatsEventData& e)
 
   switch (e.m_EventType)
   {
-  case ezStats::StatsEventData::Set:
-    Mode = ezTelemetry::Unreliable;
-    // fall-through
-  case ezStats::StatsEventData::Add:
+    case ezStats::StatsEventData::Set:
+      Mode = ezTelemetry::Unreliable;
+      // fall-through
+    case ezStats::StatsEventData::Add:
     {
       ezTelemetryMessage msg;
       msg.SetMessageID('STAT', ' SET');
@@ -25,7 +26,7 @@ static void StatsEventHandler(const ezStats::StatsEventData& e)
       ezTelemetry::Broadcast(Mode, msg);
     }
     break;
-  case ezStats::StatsEventData::Remove:
+    case ezStats::StatsEventData::Remove:
     {
       ezTelemetryMessage msg;
       msg.SetMessageID('STAT', ' DEL');
@@ -59,11 +60,11 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
 {
   switch (e.m_EventType)
   {
-  case ezTelemetry::TelemetryEventData::ConnectedToClient:
-    SendAllStatsTelemetry();
-    break;
+    case ezTelemetry::TelemetryEventData::ConnectedToClient:
+      SendAllStatsTelemetry();
+      break;
 
-  case ezTelemetry::TelemetryEventData::PerFrameUpdate:
+    case ezTelemetry::TelemetryEventData::PerFrameUpdate:
     {
       const ezTime Now = ezTime::Now();
 
@@ -145,8 +146,8 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
     }
     break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }
 
@@ -168,4 +169,3 @@ void RemoveStatsEventHandler()
 
 
 EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Stats);
-

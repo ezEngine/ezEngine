@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <EditorPluginAssets/VisualShader/VsCodeGenerator.h>
 #include <Foundation/Types/ScopeExit.h>
 
@@ -8,66 +9,66 @@ static ezString ToShaderString(const ezVariant& value)
 
   switch (value.GetType())
   {
-  case ezVariantType::String:
+    case ezVariantType::String:
     {
       temp = value.Get<ezString>();
     }
     break;
 
-  case ezVariantType::Color:
-  case ezVariantType::ColorGamma:
+    case ezVariantType::Color:
+    case ezVariantType::ColorGamma:
     {
       ezColor v = value.ConvertTo<ezColor>();
       temp.Format("float4({0}, {1}, {2}, {3})", v.r, v.g, v.b, v.a);
     }
     break;
 
-  case ezVariantType::Vector4:
+    case ezVariantType::Vector4:
     {
       ezVec4 v = value.Get<ezVec4>();
       temp.Format("float4({0}, {1}, {2}, {3})", v.x, v.y, v.z, v.w);
     }
     break;
 
-  case ezVariantType::Vector3:
+    case ezVariantType::Vector3:
     {
       ezVec3 v = value.Get<ezVec3>();
       temp.Format("float3({0}, {1}, {2})", v.x, v.y, v.z);
     }
     break;
 
-  case ezVariantType::Vector2:
+    case ezVariantType::Vector2:
     {
       ezVec2 v = value.Get<ezVec2>();
       temp.Format("float2({0}, {1})", v.x, v.y);
     }
     break;
 
-  case ezVariantType::Float:
-  case ezVariantType::Int32:
-  case ezVariantType::Bool:
+    case ezVariantType::Float:
+    case ezVariantType::Int32:
+    case ezVariantType::Bool:
     {
       temp.Format("{0}", value);
     }
     break;
 
-  case ezVariantType::Time:
+    case ezVariantType::Time:
     {
       float v = value.Get<ezTime>().GetSeconds();
       temp.Format("{0}", v);
     }
     break;
 
-  case ezVariantType::Angle:
+    case ezVariantType::Angle:
     {
       float v = value.Get<ezAngle>().GetRadian();
       temp.Format("{0}", v);
     }
     break;
 
-  default:
-    temp = "<Invalid Type>";
-    break;
+    default:
+      temp = "<Invalid Type>";
+      break;
   }
 
   return temp;
@@ -145,7 +146,8 @@ ezUInt16 ezVisualShaderCodeGenerator::DeterminePinId(const ezDocumentObject* pOw
   return 0xFFFF;
 }
 
-ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezDocumentNodeManager* pNodeManager, const char* szPlatform, ezStringBuilder& out_sCheckPerms)
+ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezDocumentNodeManager* pNodeManager, const char* szPlatform,
+                                                           ezStringBuilder& out_sCheckPerms)
 {
   out_sCheckPerms.Clear();
 
@@ -205,7 +207,8 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
 
   EZ_SUCCEED_OR_RETURN(GenerateInputPinCode(m_pNodeManager->GetInputPins(pNode)));
 
-  ezStringBuilder sConstantsCode, sPsBodyCode, sMaterialParamCode, sPixelSamplersCode, sVsBodyCode, sGsBodyCode, sMaterialCB, sPermutations, sRenderStates, sPixelDefines, sPixelIncludes;
+  ezStringBuilder sConstantsCode, sPsBodyCode, sMaterialParamCode, sPixelSamplersCode, sVsBodyCode, sGsBodyCode, sMaterialCB, sPermutations,
+      sRenderStates, sPixelDefines, sPixelIncludes;
 
   sConstantsCode = pDesc->m_sShaderCodePixelConstants;
   sPsBodyCode = pDesc->m_sShaderCodePixelBody;
@@ -317,7 +320,8 @@ ezStatus ezVisualShaderCodeGenerator::GenerateOutputPinCode(const ezDocumentObje
 
 
 
-ezStatus ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(const ezDocumentObject* pOwnerNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder &sInlineCode)
+ezStatus ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(const ezDocumentObject* pOwnerNode,
+                                                             const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder& sInlineCode)
 {
   const ezArrayPtr<ezPin* const> inputPins = m_pNodeManager->GetInputPins(pOwnerNode);
 
@@ -437,14 +441,17 @@ ezStatus ezVisualShaderCodeGenerator::CheckPropertyValues(const ezDocumentObject
 
       if (!ezStringUtils::IsValidIdentifierName(sPropValue))
       {
-        return ezStatus(ezFmt("A '{0}' node has a '{1}' property that is not a valid identifier: '{2}'. Only letters, digits and _ are allowed.", pDesc->m_sName, props[p].m_sName, sPropValue));
+        return ezStatus(
+            ezFmt("A '{0}' node has a '{1}' property that is not a valid identifier: '{2}'. Only letters, digits and _ are allowed.",
+                  pDesc->m_sName, props[p].m_sName, sPropValue));
       }
 
       auto& set = m_UsedUniqueValues[iUniqueValueGroup];
 
       if (set.Contains(sPropValue))
       {
-        return ezStatus(ezFmt("A '{0}' node has a '{1}' property that has the same value ('{2}') as another parameter.", pDesc->m_sName, props[p].m_sName, sPropValue));
+        return ezStatus(ezFmt("A '{0}' node has a '{1}' property that has the same value ('{2}') as another parameter.", pDesc->m_sName,
+                              props[p].m_sName, sPropValue));
       }
 
       set.Insert(sPropValue);
@@ -454,7 +461,8 @@ ezStatus ezVisualShaderCodeGenerator::CheckPropertyValues(const ezDocumentObject
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezVisualShaderCodeGenerator::InsertPropertyValues(const ezDocumentObject* pNode, const ezVisualShaderNodeDescriptor* pDesc, ezStringBuilder& sString)
+ezStatus ezVisualShaderCodeGenerator::InsertPropertyValues(const ezDocumentObject* pNode, const ezVisualShaderNodeDescriptor* pDesc,
+                                                           ezStringBuilder& sString)
 {
   const auto& TypeAccess = pNode->GetTypeAccessor();
 

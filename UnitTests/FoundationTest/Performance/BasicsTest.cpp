@@ -1,8 +1,9 @@
 #include <PCH.h>
+
+#include <Foundation/Communication/Message.h>
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Time/Time.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Communication/Message.h>
 
 /* Performance Statistics:
 
@@ -58,7 +59,6 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Performance);
 struct ezMsgTest : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgTest, ezMessage);
-
 };
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTest);
@@ -81,6 +81,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 class Base : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(Base, ezReflectedClass);
+
 public:
   virtual ~Base() {}
 
@@ -91,24 +92,25 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Base, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  #define EZ_FASTCALL __fastcall
-  #define EZ_NO_INLINE __declspec(noinline)
+#define EZ_FASTCALL __fastcall
+#define EZ_NO_INLINE __declspec(noinline)
 #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-  #if EZ_ENABLED(EZ_PLATFORM_64BIT)
-    #define EZ_FASTCALL
-  #else
-    #define EZ_FASTCALL __attribute((fastcall)) // Fastcall only relevant on x86-32 and would otherwise generate warnings
-  #endif
-  #define EZ_NO_INLINE __attribute__((noinline))
+#if EZ_ENABLED(EZ_PLATFORM_64BIT)
+#define EZ_FASTCALL
 #else
-  #warning Unknown Platform.
-  #define EZ_FASTCALL
-  #define EZ_NO_INLINE __attribute__((noinline)) /* should work on GCC */
+#define EZ_FASTCALL __attribute((fastcall)) // Fastcall only relevant on x86-32 and would otherwise generate warnings
+#endif
+#define EZ_NO_INLINE __attribute__((noinline))
+#else
+#warning Unknown Platform.
+#define EZ_FASTCALL
+#define EZ_NO_INLINE __attribute__((noinline)) /* should work on GCC */
 #endif
 
 class Derived1 : public Base
 {
   EZ_ADD_DYNAMIC_REFLECTION(Derived1, Base);
+
 public:
   EZ_NO_INLINE ezInt32 EZ_FASTCALL FastCall() { return 1; }
   EZ_NO_INLINE ezInt32 NonVirtual() { return 1; }
@@ -116,19 +118,14 @@ public:
   EZ_NO_INLINE void OnGetValueMessage(GetValueMessage& msg) { msg.m_iValue = 1; }
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived1, 1, ezRTTINoAllocator)
-{
-  EZ_BEGIN_MESSAGEHANDLERS
-  {
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived1, 1, ezRTTINoAllocator){EZ_BEGIN_MESSAGEHANDLERS{
     EZ_MESSAGE_HANDLER(GetValueMessage, OnGetValueMessage),
-  }
-  EZ_END_MESSAGEHANDLERS
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+} EZ_END_MESSAGEHANDLERS} EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 class Derived2 : public Base
 {
   EZ_ADD_DYNAMIC_REFLECTION(Derived2, Base);
+
 public:
   EZ_NO_INLINE ezInt32 EZ_FASTCALL FastCall() { return 2; }
   EZ_NO_INLINE ezInt32 NonVirtual() { return 2; }
@@ -136,20 +133,14 @@ public:
   EZ_NO_INLINE void OnGetValueMessage(GetValueMessage& msg) { msg.m_iValue = 2; }
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived2, 1, ezRTTINoAllocator)
-{
-  EZ_BEGIN_MESSAGEHANDLERS
-  {
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived2, 1, ezRTTINoAllocator){EZ_BEGIN_MESSAGEHANDLERS{
     EZ_MESSAGE_HANDLER(GetValueMessage, OnGetValueMessage),
-  }
-  EZ_END_MESSAGEHANDLERS
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+} EZ_END_MESSAGEHANDLERS} EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_CREATE_SIMPLE_TEST(Performance, Basics)
 {
   const ezInt32 iNumObjects = 1000000;
-  const float fNumObjects = (float) iNumObjects;
+  const float fNumObjects = (float)iNumObjects;
 
   ezDynamicArray<Derived1> Der1;
   Der1.SetCount(iNumObjects / 2);
@@ -192,7 +183,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     EZ_TEST_INT(iResult, iNumObjects * 1 + iNumObjects * 2);
 
     ezTime tdiff = t1 - t0;
-    double tFC = tdiff.GetNanoseconds() / (double) iNumObjects;
+    double tFC = tdiff.GetNanoseconds() / (double)iNumObjects;
 
     ezLog::Info("[test]Dispatch Message: {0}ns", ezArgF(tFC, 2), iResult);
   }
@@ -215,7 +206,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     EZ_TEST_INT(iResult, iNumObjects * 1 + iNumObjects * 2);
 
     ezTime tdiff = t1 - t0;
-    double tFC = tdiff.GetNanoseconds() / (double) iNumObjects;
+    double tFC = tdiff.GetNanoseconds() / (double)iNumObjects;
 
     ezLog::Info("[test]Virtual Function Calls: {0}ns", ezArgF(tFC, 2), iResult);
   }
@@ -227,16 +218,16 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     // warm up
     for (ezUInt32 i = 0; i < iNumObjects; i += 2)
     {
-      iResult += ((Derived1*) Objects[i])->NonVirtual();
-      iResult += ((Derived2*) Objects[i])->NonVirtual();
+      iResult += ((Derived1*)Objects[i])->NonVirtual();
+      iResult += ((Derived2*)Objects[i])->NonVirtual();
     }
 
     ezTime t0 = ezTime::Now();
 
     for (ezUInt32 i = 0; i < iNumObjects; i += 2)
     {
-      iResult += ((Derived1*) Objects[i])->NonVirtual();
-      iResult += ((Derived2*) Objects[i])->NonVirtual();
+      iResult += ((Derived1*)Objects[i])->NonVirtual();
+      iResult += ((Derived2*)Objects[i])->NonVirtual();
     }
 
     ezTime t1 = ezTime::Now();
@@ -244,7 +235,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     EZ_TEST_INT(iResult, iNumObjects * 1 + iNumObjects * 2);
 
     ezTime tdiff = t1 - t0;
-    double tFC = tdiff.GetNanoseconds() / (double) iNumObjects;
+    double tFC = tdiff.GetNanoseconds() / (double)iNumObjects;
 
     ezLog::Info("[test]Non-Virtual Function Calls: {0}ns", ezArgF(tFC, 2), iResult);
   }
@@ -256,16 +247,16 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     // warm up
     for (ezUInt32 i = 0; i < iNumObjects; i += 2)
     {
-      iResult += ((Derived1*) Objects[i])->FastCall();
-      iResult += ((Derived2*) Objects[i])->FastCall();
+      iResult += ((Derived1*)Objects[i])->FastCall();
+      iResult += ((Derived2*)Objects[i])->FastCall();
     }
 
     ezTime t0 = ezTime::Now();
 
     for (ezUInt32 i = 0; i < iNumObjects; i += 2)
     {
-      iResult += ((Derived1*) Objects[i])->FastCall();
-      iResult += ((Derived2*) Objects[i])->FastCall();
+      iResult += ((Derived1*)Objects[i])->FastCall();
+      iResult += ((Derived2*)Objects[i])->FastCall();
     }
 
     ezTime t1 = ezTime::Now();
@@ -273,7 +264,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     EZ_TEST_INT(iResult, iNumObjects * 1 + iNumObjects * 2);
 
     ezTime tdiff = t1 - t0;
-    double tFC = tdiff.GetNanoseconds() / (double) iNumObjects;
+    double tFC = tdiff.GetNanoseconds() / (double)iNumObjects;
 
     ezLog::Info("[test]FastCall Function Calls: {0}ns", ezArgF(tFC, 2), iResult);
   }
@@ -296,7 +287,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime t1 = ezTime::Now();
 
     ezTime tdiff = t1 - t0;
-    double t = tdiff.GetNanoseconds() / (double) (iNumObjects-1);
+    double t = tdiff.GetNanoseconds() / (double)(iNumObjects - 1);
 
     ezLog::Info("[test]32 Bit Integer Division: {0}ns", ezArgF(t, 2), iResult);
   }
@@ -319,7 +310,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime t1 = ezTime::Now();
 
     ezTime tdiff = t1 - t0;
-    double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
+    double t = tdiff.GetNanoseconds() / (double)(iNumObjects);
 
     ezLog::Info("[test]32 Bit Integer Multiplication: {0}ns", ezArgF(t, 2), iResult);
   }
@@ -330,19 +321,19 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     Ints.SetCountUninitialized(iNumObjects);
 
     for (ezInt32 i = 0; i < iNumObjects; i += 1)
-      Ints[i] = (ezInt64) i * (ezInt64) 100;
+      Ints[i] = (ezInt64)i * (ezInt64)100;
 
     ezTime t0 = ezTime::Now();
 
     ezInt64 iResult = 0;
 
     for (ezInt32 i = 1; i < iNumObjects; i += 1)
-      iResult += Ints[i] / (ezInt64) i;
+      iResult += Ints[i] / (ezInt64)i;
 
     ezTime t1 = ezTime::Now();
 
     ezTime tdiff = t1 - t0;
-    double t = tdiff.GetNanoseconds() / (double) (iNumObjects-1);
+    double t = tdiff.GetNanoseconds() / (double)(iNumObjects - 1);
 
     ezLog::Info("[test]64 Bit Integer Division: {0}ns", ezArgF(t, 2), iResult);
   }
@@ -360,12 +351,12 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezInt64 iResult = 0;
 
     for (ezInt32 i = 0; i < iNumObjects; i += 1)
-      iResult += Ints[i] * (ezInt64) i;
+      iResult += Ints[i] * (ezInt64)i;
 
     ezTime t1 = ezTime::Now();
 
     ezTime tdiff = t1 - t0;
-    double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
+    double t = tdiff.GetNanoseconds() / (double)(iNumObjects);
 
     ezLog::Info("[test]64 Bit Integer Multiplication: {0}ns", ezArgF(t, 2), iResult);
   }
@@ -389,7 +380,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime t1 = ezTime::Now();
 
     ezTime tdiff = t1 - t0;
-    double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
+    double t = tdiff.GetNanoseconds() / (double)(iNumObjects);
 
     ezLog::Info("[test]32 Bit Float Division: {0}ns", ezArgF(t, 2), fResult);
   }
@@ -400,7 +391,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     Ints.SetCountUninitialized(iNumObjects);
 
     for (ezInt32 i = 0; i < iNumObjects; i++)
-      Ints[i] = (float) (fNumObjects) - (float) (i);
+      Ints[i] = (float)(fNumObjects) - (float)(i);
 
     ezTime t0 = ezTime::Now();
 
@@ -413,7 +404,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime t1 = ezTime::Now();
 
     ezTime tdiff = t1 - t0;
-    double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
+    double t = tdiff.GetNanoseconds() / (double)(iNumObjects);
 
     ezLog::Info("[test]32 Bit Float Multiplication: {0}ns", ezArgF(t, 2), iResult);
   }
@@ -437,7 +428,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime t1 = ezTime::Now();
 
     ezTime tdiff = t1 - t0;
-    double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
+    double t = tdiff.GetNanoseconds() / (double)(iNumObjects);
 
     ezLog::Info("[test]64 Bit Double Division: {0}ns", ezArgF(t, 2), fResult);
   }
@@ -448,7 +439,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     Ints.SetCountUninitialized(iNumObjects);
 
     for (ezInt32 i = 0; i < iNumObjects; i++)
-      Ints[i] = (double) (fNumObjects) - (double) (i);
+      Ints[i] = (double)(fNumObjects) - (double)(i);
 
     ezTime t0 = ezTime::Now();
 
@@ -461,10 +452,8 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime t1 = ezTime::Now();
 
     ezTime tdiff = t1 - t0;
-    double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
+    double t = tdiff.GetNanoseconds() / (double)(iNumObjects);
 
     ezLog::Info("[test]64 Bit Double Multiplication: {0}ns", ezArgF(t, 2), iResult);
   }
 }
-
-

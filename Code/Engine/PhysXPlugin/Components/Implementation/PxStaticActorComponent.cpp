@@ -1,12 +1,14 @@
 #include <PCH.h>
-#include <PhysXPlugin/Components/PxStaticActorComponent.h>
-#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
-#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
-#include <PhysXPlugin/Utilities/PxConversionUtils.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <GameEngine/Messages/BuildNavMeshMessage.h>
 
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <GameEngine/Messages/BuildNavMeshMessage.h>
+#include <PhysXPlugin/Components/PxStaticActorComponent.h>
+#include <PhysXPlugin/Utilities/PxConversionUtils.h>
+#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
+
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezPxStaticActorComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -23,18 +25,17 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxStaticActorComponent, 2, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezPxStaticActorComponent::ezPxStaticActorComponent()
-  : m_uiCollisionLayer(0)
-  , m_uiShapeId(ezInvalidIndex)
-  , m_pActor(nullptr)
-  , m_UserData(this)
+    : m_uiCollisionLayer(0)
+    , m_uiShapeId(ezInvalidIndex)
+    , m_pActor(nullptr)
+    , m_UserData(this)
 {
 }
 
-ezPxStaticActorComponent::~ezPxStaticActorComponent()
-{
-}
+ezPxStaticActorComponent::~ezPxStaticActorComponent() {}
 
 void ezPxStaticActorComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -153,7 +154,8 @@ void ezPxStaticActorComponent::OnSimulationStarted()
 
     if (pMesh->GetTriangleMesh() != nullptr)
     {
-      pShape = m_pActor->createShape(PxTriangleMeshGeometry(pMesh->GetTriangleMesh(), scale), pxMaterials.GetData(), pxMaterials.GetCount());
+      pShape =
+          m_pActor->createShape(PxTriangleMeshGeometry(pMesh->GetTriangleMesh(), scale), pxMaterials.GetData(), pxMaterials.GetCount());
     }
     else if (pMesh->GetConvexMesh() != nullptr)
     {
@@ -161,7 +163,8 @@ void ezPxStaticActorComponent::OnSimulationStarted()
     }
     else
     {
-      ezLog::Warning("ezPxStaticActorComponent: Collision mesh resource is valid, but it contains no triangle mesh ('{0}' - '{1}')", pMesh->GetResourceID(), pMesh->GetResourceDescription());
+      ezLog::Warning("ezPxStaticActorComponent: Collision mesh resource is valid, but it contains no triangle mesh ('{0}' - '{1}')",
+                     pMesh->GetResourceID(), pMesh->GetResourceDescription());
     }
   }
 
@@ -232,4 +235,3 @@ void ezPxStaticActorComponent::SetMesh(const ezPxMeshResourceHandle& hMesh)
 
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Components_Implementation_PxStaticActorComponent);
-

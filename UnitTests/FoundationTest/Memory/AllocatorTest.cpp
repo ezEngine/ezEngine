@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Memory/LargeBlockAllocator.h>
 #include <Foundation/Memory/StackAllocator.h>
@@ -86,12 +87,15 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "LargeBlockAllocator")
   {
-    enum { BLOCK_SIZE_IN_BYTES = 4096 * 2 };
+    enum
+    {
+      BLOCK_SIZE_IN_BYTES = 4096 * 2
+    };
     const ezUInt32 uiPageSize = ezSystemInformation::Get().GetMemoryPageSize();
 
     ezLargeBlockAllocator<BLOCK_SIZE_IN_BYTES> allocator("Test", ezFoundation::GetDefaultAllocator());
 
-    ezDynamicArray<ezDataBlock<int, BLOCK_SIZE_IN_BYTES> > blocks;
+    ezDynamicArray<ezDataBlock<int, BLOCK_SIZE_IN_BYTES>> blocks;
     blocks.Reserve(1000);
 
     for (ezUInt32 i = 0; i < 17; ++i)
@@ -177,7 +181,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
       allocator.Deallocate(blocks[i]);
     }
 
-    size_t sizes[] = { 128, 128, 4096, 1024, 1024, 16000, 512, 512, 768, 768, 16000, 16000, 16000, 16000 };
+    size_t sizes[] = {128, 128, 4096, 1024, 1024, 16000, 512, 512, 768, 768, 16000, 16000, 16000, 16000};
     void* allocs[EZ_ARRAY_SIZE(sizes)];
     for (size_t i = 0; i < EZ_ARRAY_SIZE(sizes); i++)
     {
@@ -191,8 +195,8 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
 
     for (size_t i = 0; i < EZ_ARRAY_SIZE(sizes); i++)
     {
-        allocs[i] = allocator.Allocate(sizes[i], sizeof(void*), nullptr);
-        EZ_TEST_BOOL(allocs[i] != nullptr);
+      allocs[i] = allocator.Allocate(sizes[i], sizeof(void*), nullptr);
+      EZ_TEST_BOOL(allocs[i] != nullptr);
     }
     allocator.Reset();
     allocs[0] = allocator.Allocate(8, sizeof(void*), nullptr);

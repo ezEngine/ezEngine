@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <RendererCore/Shader/ShaderPermutationBinary.h>
 
 struct ezShaderPermutationBinaryVersion
@@ -86,8 +87,10 @@ ezResult ezShaderPermutationBinary::Read(ezStreamReader& Stream, bool& out_bOldV
     {
       auto& var = m_PermutationVars[i];
 
-      Stream >> tmp; var.m_sName.Assign(tmp.GetData());
-      Stream >> tmp; var.m_sValue.Assign(tmp.GetData());
+      Stream >> tmp;
+      var.m_sName.Assign(tmp.GetData());
+      Stream >> tmp;
+      var.m_sValue.Assign(tmp.GetData());
     }
   }
 
@@ -96,6 +99,4 @@ ezResult ezShaderPermutationBinary::Read(ezStreamReader& Stream, bool& out_bOldV
 
 
 
-
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Implementation_ShaderPermutationBinary);
-

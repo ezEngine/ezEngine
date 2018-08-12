@@ -1,10 +1,11 @@
 #include <PCH.h>
+
 #include <EditorFramework/Assets/AssetBrowserFilter.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 
 
 ezQtAssetBrowserFilter::ezQtAssetBrowserFilter(QObject* pParent)
-  : ezQtAssetFilter(pParent)
+    : ezQtAssetFilter(pParent)
 {
 }
 
@@ -102,14 +103,16 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
     {
       // do we find another path separator after the prefix path?
       // if so, there is a sub-folder, and thus we ignore it
-      if (ezStringUtils::FindSubString(pInfo->m_pAssetInfo->m_sDataDirRelativePath.GetData() + m_sPathFilter.GetElementCount() + 1, "/") != nullptr)
+      if (ezStringUtils::FindSubString(pInfo->m_pAssetInfo->m_sDataDirRelativePath.GetData() + m_sPathFilter.GetElementCount() + 1, "/") !=
+          nullptr)
         return true;
     }
   }
 
   if (!m_bShowItemsInHiddenFolders)
   {
-    if (ezStringUtils::FindSubString_NoCase(pInfo->m_pAssetInfo->m_sDataDirRelativePath.GetData() + m_sPathFilter.GetElementCount() + 1, "_data/") != nullptr)
+    if (ezStringUtils::FindSubString_NoCase(pInfo->m_pAssetInfo->m_sDataDirRelativePath.GetData() + m_sPathFilter.GetElementCount() + 1,
+                                            "_data/") != nullptr)
       return true;
   }
 
@@ -149,8 +152,8 @@ bool ezQtAssetBrowserFilter::Less(const ezSubAsset* pInfoA, const ezSubAsset* pI
   ezStringView sSortA = pInfoA->GetName();
   ezStringView sSortB = pInfoB->GetName();
 
-  ezInt32 iValue = ezStringUtils::Compare_NoCase(sSortA.GetData(), sSortB.GetData(),
-    sSortA.GetData() + sSortA.GetElementCount(), sSortB.GetData() + sSortB.GetElementCount());
+  ezInt32 iValue = ezStringUtils::Compare_NoCase(sSortA.GetData(), sSortB.GetData(), sSortA.GetData() + sSortA.GetElementCount(),
+                                                 sSortB.GetData() + sSortB.GetElementCount());
   if (iValue == 0)
   {
     return pInfoA->m_Data.m_Guid < pInfoB->m_Data.m_Guid;

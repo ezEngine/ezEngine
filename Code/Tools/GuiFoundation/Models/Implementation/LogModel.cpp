@@ -1,11 +1,12 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <GuiFoundation/Models/LogModel.moc.h>
-#include <QThread>
 #include <QColor>
+#include <QThread>
 
 
 ezQtLogModel::ezQtLogModel(QObject* parent)
-  :QAbstractItemModel(parent)
+    : QAbstractItemModel(parent)
 {
   m_bIsValid = true;
   m_LogLevel = ezLogMsgType::InfoMsg;
@@ -104,30 +105,38 @@ QVariant ezQtLogModel::data(const QModelIndex& index, int role) const
 
   switch (role)
   {
-  case Qt::DisplayRole:
-  case Qt::ToolTipRole:
+    case Qt::DisplayRole:
+    case Qt::ToolTipRole:
     {
       return QString::fromUtf8(msg.m_sMsg.GetData());
     }
-  case Qt::TextColorRole:
+    case Qt::TextColorRole:
     {
       switch (msg.m_Type)
       {
-      case ezLogMsgType::BeginGroup:          return QColor::fromRgb(160, 90, 255);
-      case ezLogMsgType::EndGroup:            return QColor::fromRgb(110, 60, 185);
-      case ezLogMsgType::ErrorMsg:            return QColor::fromRgb(255, 0, 0);
-      case ezLogMsgType::SeriousWarningMsg:   return QColor::fromRgb(255, 64, 0);
-      case ezLogMsgType::WarningMsg:          return QColor::fromRgb(255, 140, 0);
-      case ezLogMsgType::SuccessMsg:          return QColor::fromRgb(0, 128, 0);
-      case ezLogMsgType::DevMsg:              return QColor::fromRgb(63, 143, 210);
-      case ezLogMsgType::DebugMsg:            return QColor::fromRgb(128, 128, 128);
-      default:
-        return QVariant();
+        case ezLogMsgType::BeginGroup:
+          return QColor::fromRgb(160, 90, 255);
+        case ezLogMsgType::EndGroup:
+          return QColor::fromRgb(110, 60, 185);
+        case ezLogMsgType::ErrorMsg:
+          return QColor::fromRgb(255, 0, 0);
+        case ezLogMsgType::SeriousWarningMsg:
+          return QColor::fromRgb(255, 64, 0);
+        case ezLogMsgType::WarningMsg:
+          return QColor::fromRgb(255, 140, 0);
+        case ezLogMsgType::SuccessMsg:
+          return QColor::fromRgb(0, 128, 0);
+        case ezLogMsgType::DevMsg:
+          return QColor::fromRgb(63, 143, 210);
+        case ezLogMsgType::DebugMsg:
+          return QColor::fromRgb(128, 128, 128);
+        default:
+          return QVariant();
       }
     }
 
-  default:
-    return QVariant();
+    default:
+      return QVariant();
   }
 }
 

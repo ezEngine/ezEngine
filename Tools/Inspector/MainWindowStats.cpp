@@ -1,14 +1,16 @@
-﻿#include <PCH.h>
-#include <Inspector/MainWindow.moc.h>
+#include <PCH.h>
+
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Utilities/ConversionUtils.h>
-#include <qstandardpaths.h>
+#include <Inspector/MainWindow.moc.h>
 #include <qdir.h>
+#include <qstandardpaths.h>
 
 void ezQtMainWindow::SaveFavourites()
 {
   QString sFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-  QDir d; d.mkpath(sFile);
+  QDir d;
+  d.mkpath(sFile);
 
   sFile.append("/Favourites.stats");
 
@@ -33,7 +35,8 @@ void ezQtMainWindow::SaveFavourites()
 void ezQtMainWindow::LoadFavourites()
 {
   QString sFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-  QDir d; d.mkpath(sFile);
+  QDir d;
+  d.mkpath(sFile);
   sFile.append("/Favourites.stats");
 
   QFile f(sFile);
@@ -73,7 +76,7 @@ void ezQtMainWindow::UpdateStats()
   const bool bIsConnected = ezTelemetry::IsConnectedToServer();
 
   if (bIsConnected)
-    LabelPing->setText(QString::fromUtf8("<p>Ping: %1ms</p>").arg((ezUInt32) ezTelemetry::GetPingToServer().GetMilliseconds()));
+    LabelPing->setText(QString::fromUtf8("<p>Ping: %1ms</p>").arg((ezUInt32)ezTelemetry::GetPingToServer().GetMilliseconds()));
 
   if (bWasConnected == bIsConnected)
     return;
@@ -83,12 +86,14 @@ void ezQtMainWindow::UpdateStats()
   if (!bIsConnected)
   {
     LabelPing->setText("<p>Ping: N/A</p>");
-    LabelStatus->setText("<p><span style=\" font-weight:600;\">Status: </span><span style=\" font-weight:600; color:#ff0000;\">Not Connected</span></p>");
+    LabelStatus->setText(
+        "<p><span style=\" font-weight:600;\">Status: </span><span style=\" font-weight:600; color:#ff0000;\">Not Connected</span></p>");
     LabelServer->setText("<p>Server: N/A</p>");
   }
   else
   {
-    LabelStatus->setText("<p><span style=\" font-weight:600;\">Status: </span><span style=\" font-weight:600; color:#00aa00;\">Connected</span></p>");
+    LabelStatus->setText(
+        "<p><span style=\" font-weight:600;\">Status: </span><span style=\" font-weight:600; color:#00aa00;\">Connected</span></p>");
     LabelServer->setText(QString::fromUtf8("<p>Server: %1:%2</p>").arg(ezTelemetry::GetServerIP()).arg(ezTelemetry::s_uiPort));
   }
 
@@ -230,7 +235,6 @@ void ezQtMainWindow::on_TreeStats_itemChanged(QTreeWidgetItem* item, int column)
     ezString sPath = item->data(0, Qt::UserRole).toString().toUtf8().data();
 
     SetFavourite(sPath, (item->checkState(0) == Qt::Checked));
-
   }
 }
 
@@ -264,7 +268,7 @@ void ezQtMainWindow::ShowStatIn()
   if (!TreeStats->currentItem())
     return;
 
-  QAction* pAction = (QAction*) sender();
+  QAction* pAction = (QAction*)sender();
 
   ezInt32 iHistoryWidget = 0;
   for (iHistoryWidget = 0; iHistoryWidget < 10; ++iHistoryWidget)
@@ -278,8 +282,6 @@ void ezQtMainWindow::ShowStatIn()
 found:
 
   ezString sPath = TreeStats->currentItem()->data(0, Qt::UserRole).toString().toUtf8().data();
-  
+
   m_pStatHistoryWidgets[iHistoryWidget]->AddStat(sPath);
 }
-
-

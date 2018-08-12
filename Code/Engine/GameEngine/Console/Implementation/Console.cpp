@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <GameEngine/Console/LuaInterpreter.h>
 
 ezConsole::ezConsole()
@@ -57,7 +58,7 @@ void ezConsole::AddToInputHistory(const char* szString)
 
   const ezString sString = szString;
 
-  for (ezInt32 i = 0; i < (ezInt32) m_InputHistory.GetCount(); i++)
+  for (ezInt32 i = 0; i < (ezInt32)m_InputHistory.GetCount(); i++)
   {
     if (m_InputHistory[i] == sString) // already in the History
     {
@@ -103,35 +104,35 @@ void ezConsole::LogHandler(const ezLoggingEventData& data)
 
   switch (data.m_EventType)
   {
-  case ezLogMsgType::BeginGroup:
-  case ezLogMsgType::EndGroup:
-  case ezLogMsgType::None:
-  case ezLogMsgType::ENUM_COUNT:
-  case ezLogMsgType::All:
-    return;
+    case ezLogMsgType::BeginGroup:
+    case ezLogMsgType::EndGroup:
+    case ezLogMsgType::None:
+    case ezLogMsgType::ENUM_COUNT:
+    case ezLogMsgType::All:
+      return;
 
-  case ezLogMsgType::ErrorMsg:
-    color = ezColor(1.0f, 0.2f, 0.2f);
-    bShow = true;
-    break;
-  case ezLogMsgType::SeriousWarningMsg:
-    color = ezColor(1.0f, 0.4f, 0.1f);
-    bShow = true;
-    break;
-  case ezLogMsgType::WarningMsg:
-    color = ezColor(1.0f, 0.6f, 0.1f);
-    break;
-  case ezLogMsgType::SuccessMsg:
-    color = ezColor(0.1f, 1.0f, 0.1f);
-    break;
-  case ezLogMsgType::InfoMsg:
-    break;
-  case ezLogMsgType::DevMsg:
-    color = ezColor(0.6f, 0.6f, 0.6f);
-    break;
-  case ezLogMsgType::DebugMsg:
-    color = ezColor(0.4f, 0.6f, 0.8f);
-    break;
+    case ezLogMsgType::ErrorMsg:
+      color = ezColor(1.0f, 0.2f, 0.2f);
+      bShow = true;
+      break;
+    case ezLogMsgType::SeriousWarningMsg:
+      color = ezColor(1.0f, 0.4f, 0.1f);
+      bShow = true;
+      break;
+    case ezLogMsgType::WarningMsg:
+      color = ezColor(1.0f, 0.6f, 0.1f);
+      break;
+    case ezLogMsgType::SuccessMsg:
+      color = ezColor(0.1f, 1.0f, 0.1f);
+      break;
+    case ezLogMsgType::InfoMsg:
+      break;
+    case ezLogMsgType::DevMsg:
+      color = ezColor(0.6f, 0.6f, 0.6f);
+      break;
+    case ezLogMsgType::DebugMsg:
+      color = ezColor(0.4f, 0.6f, 0.8f);
+      break;
   }
 
   ezStringBuilder sFormat;
@@ -213,6 +214,4 @@ void ezConsole::LoadState(ezStreamReader& Stream)
 
 
 
-
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Console_Implementation_Console);
-

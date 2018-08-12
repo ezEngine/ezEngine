@@ -1,7 +1,9 @@
 #include <PCH.h>
+
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
+// clang-format off
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRenderComponent, 1)
 {
   EZ_BEGIN_MESSAGEHANDLERS
@@ -10,18 +12,12 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRenderComponent, 1)
   }
   EZ_END_MESSAGEHANDLERS
 }
-EZ_END_ABSTRACT_COMPONENT_TYPE
+EZ_END_ABSTRACT_COMPONENT_TYPE;
+// clang-format on
 
+ezRenderComponent::ezRenderComponent() {}
 
-ezRenderComponent::ezRenderComponent()
-{
-
-}
-
-ezRenderComponent::~ezRenderComponent()
-{
-
-}
+ezRenderComponent::~ezRenderComponent() {}
 
 void ezRenderComponent::Deinitialize()
 {
@@ -70,8 +66,9 @@ void ezRenderComponent::TriggerLocalBoundsUpdate()
   }
 }
 
-//static
-ezUInt32 ezRenderComponent::GetUniqueIdForRendering(const ezComponent* pComponent, ezUInt32 uiInnerIndex /*= 0*/, ezUInt32 uiInnerIndexShift /*= 24*/)
+// static
+ezUInt32 ezRenderComponent::GetUniqueIdForRendering(const ezComponent* pComponent, ezUInt32 uiInnerIndex /*= 0*/,
+                                                    ezUInt32 uiInnerIndexShift /*= 24*/)
 {
   ezUInt32 uniqueId = pComponent->GetUniqueID();
   if (uniqueId == ezInvalidIndex)
@@ -89,4 +86,3 @@ ezUInt32 ezRenderComponent::GetUniqueIdForRendering(const ezComponent* pComponen
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_RenderComponent);
-

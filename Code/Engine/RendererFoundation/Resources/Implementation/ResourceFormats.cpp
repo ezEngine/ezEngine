@@ -1,6 +1,8 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <RendererFoundation/Resources/ResourceFormats.h>
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALResourceFormat, 1)
   EZ_ENUM_CONSTANTS(ezGALResourceFormat::RGBAFloat, ezGALResourceFormat::RGBAHalf)
   EZ_ENUM_CONSTANTS(ezGALResourceFormat::RGB10A2UIntNormalized, ezGALResourceFormat::RG11B10Float)
@@ -16,7 +18,9 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALResourceFormat, 1)
   EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC7UNormalized, ezGALResourceFormat::BC7UNormalizedsRGB)
   EZ_ENUM_CONSTANTS(ezGALResourceFormat::RFloat)
 EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
 
+// clang-format off
 const ezUInt8 ezGALResourceFormat::s_BitsPerElement[ezGALResourceFormat::ENUM_COUNT] =
 {
   0, // Invalid
@@ -191,7 +195,7 @@ const ezUInt8 ezGALResourceFormat::s_ChannelCount[ezGALResourceFormat::ENUM_COUN
   4, // BC7UNormalized
   4  // BC7UNormalizedsRGB
 };
-
+// clang-format off
 
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Resources_Implementation_ResourceFormats);

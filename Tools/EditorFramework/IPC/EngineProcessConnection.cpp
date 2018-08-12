@@ -1,26 +1,27 @@
-﻿#include <PCH.h>
-#include <EditorFramework/IPC/EngineProcessConnection.h>
-#include <Foundation/Logging/Log.h>
-#include <ToolsFoundation/Document/Document.h>
-#include <ToolsFoundation/Object/DocumentObjectBase.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <ToolsFoundation/Application/ApplicationServices.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
+#include <PCH.h>
+
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Dialogs/RemoteConnectionDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <QProcess>
+#include <EditorFramework/IPC/EngineProcessConnection.h>
+#include <Foundation/Communication/Implementation/IpcChannelEnet.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <GuiFoundation/UIServices/QtWaitForOperationDlg.moc.h>
-#include <Foundation/Communication/Implementation/IpcChannelEnet.h>
+#include <QProcess>
+#include <ToolsFoundation/Application/ApplicationServices.h>
+#include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/Object/DocumentObjectBase.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 
 EZ_IMPLEMENT_SINGLETON(ezEditorEngineProcessConnection);
 
 ezEvent<const ezEditorEngineProcessConnection::Event&> ezEditorEngineProcessConnection::s_Events;
 
 ezEditorEngineProcessConnection::ezEditorEngineProcessConnection()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
   m_bProcessShouldBeRunning = false;
   m_bProcessCrashed = false;
@@ -184,8 +185,7 @@ bool ezEditorEngineProcessConnection::ConnectToRemoteProcess()
   m_pRemoteProcess->ConnectToServer(dlg.GetResultingAddress().toUtf8().data());
 
   ezQtWaitForOperationDlg waitDialog(QApplication::activeWindow());
-  waitDialog.m_OnIdle = [this]() -> bool
-  {
+  waitDialog.m_OnIdle = [this]() -> bool {
     if (m_pRemoteProcess->IsConnected())
       return false;
 
@@ -250,19 +250,23 @@ void ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
   }
 }
 
-ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback)
+ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout,
+                                                         ezProcessCommunicationChannel::WaitForMessageCallback* pCallback)
 {
   EZ_PROFILE(pMessageType->GetTypeName());
   return m_IPC.WaitForMessage(pMessageType, tTimeout, pCallback);
 }
 
-ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback /*= nullptr*/)
+ezResult
+ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime tTimeout,
+                                                        ezProcessCommunicationChannel::WaitForMessageCallback* pCallback /*= nullptr*/)
 {
-  if(!m_bProcessShouldBeRunning)
+  if (!m_bProcessShouldBeRunning)
   {
     return EZ_FAILURE; // if the process is not running, we can't wait for a message
   }
-  EZ_ASSERT_DEBUG(pMessageType->IsDerivedFrom(ezGetStaticRTTI<ezEditorEngineDocumentMsg>()), "The type of the message to wait for must be a document message.");
+  EZ_ASSERT_DEBUG(pMessageType->IsDerivedFrom(ezGetStaticRTTI<ezEditorEngineDocumentMsg>()),
+                  "The type of the message to wait for must be a document message.");
   struct WaitData
   {
     ezUuid m_AssetGuid;
@@ -273,8 +277,7 @@ ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& a
   data.m_AssetGuid = assetGuid;
   data.m_pCallback = pCallback;
 
-  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg)->bool
-  {
+  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool {
     ezEditorEngineDocumentMsg* pMsg2 = ezDynamicCast<ezEditorEngineDocumentMsg*>(pMsg);
     if (pMsg2 && data.m_AssetGuid == pMsg2->m_DocumentGuid)
     {
@@ -365,7 +368,8 @@ void ezEditorEngineProcessConnection::Update()
 
 void ezEditorEngineConnection::SendMessage(ezEditorEngineDocumentMsg* pMessage)
 {
-  EZ_ASSERT_DEV(this != nullptr, "No connection between editor and engine was created. This typically happens when an asset document does not enable the engine-connection through the constructor of ezAssetDocument.");
+  EZ_ASSERT_DEV(this != nullptr, "No connection between editor and engine was created. This typically happens when an asset document does "
+                                 "not enable the engine-connection through the constructor of ezAssetDocument.");
 
   pMessage->m_DocumentGuid = m_pDocument->GetGuid();
 

@@ -1,11 +1,10 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <EditorEngineProcessFramework/IPC/ProcessCommunicationChannel.h>
 #include <Foundation/Communication/IpcChannel.h>
 #include <Foundation/Logging/Log.h>
 
-ezProcessCommunicationChannel::ezProcessCommunicationChannel()
-{
-}
+ezProcessCommunicationChannel::ezProcessCommunicationChannel() {}
 
 ezProcessCommunicationChannel::~ezProcessCommunicationChannel()
 {
@@ -85,7 +84,7 @@ void ezProcessCommunicationChannel::MessageFunc(const ezProcessMessage* msg)
 ezResult ezProcessCommunicationChannel::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, WaitForMessageCallback* pMessageCallack)
 {
   EZ_ASSERT_DEV(m_pChannel != nullptr, "Need to connect first before waiting for a message.");
-  //EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function is not thread safe");
+  // EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function is not thread safe");
   EZ_ASSERT_DEV(m_pWaitForMessageType == nullptr, "Already waiting for another message!");
 
   m_pWaitForMessageType = pMessageType;
@@ -109,7 +108,8 @@ ezResult ezProcessCommunicationChannel::WaitForMessage(const ezRTTI* pMessageTyp
       if (ezTime::Now() - tStart > tTimeout)
       {
         m_pWaitForMessageType = nullptr;
-        ezLog::Error("Reached time-out of {0} seconds while waiting for {1}", ezArgF(tTimeout.GetSeconds(), 1), pMessageType->GetTypeName());
+        ezLog::Error("Reached time-out of {0} seconds while waiting for {1}", ezArgF(tTimeout.GetSeconds(), 1),
+                     pMessageType->GetTypeName());
         return EZ_FAILURE;
       }
     }

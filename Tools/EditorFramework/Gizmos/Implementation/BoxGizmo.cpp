@@ -1,12 +1,13 @@
-﻿#include <PCH.h>
-#include <EditorFramework/Gizmos/BoxGizmo.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <Foundation/Logging/Log.h>
+#include <PCH.h>
+
 #include <Core/Graphics/Camera.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <Foundation/Math/Mat4.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/Gizmos/BoxGizmo.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Math/Mat4.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 #include <QMouseEvent>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoxGizmo, 1, ezRTTINoAllocator);
@@ -57,7 +58,7 @@ void ezBoxGizmo::OnTransformationChanged(const ezTransform& transform)
   ezMat4 scale, rot;
   scale.SetScalingMatrix(m_vSize);
   scale = transform.GetAsMat4() * scale;
-  
+
   m_Corners.SetTransformation(scale);
 
   rot.SetRotationMatrixX(ezAngle::Degree(90));
@@ -88,7 +89,7 @@ void ezBoxGizmo::DoFocusLost(bool bCancel)
 
   ezViewHighlightMsgToEngine msg;
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
-  
+
   m_ManipulateMode = ManipulateMode::None;
 }
 
@@ -230,4 +231,3 @@ void ezBoxGizmo::SetSize(const ezVec3& size)
   // update the scale
   OnTransformationChanged(GetTransformation());
 }
-

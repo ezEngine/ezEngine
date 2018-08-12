@@ -1,10 +1,11 @@
 #include <PCH.h>
+
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/DragDrop/AssetDragDropHandler.h>
 #include <EditorFramework/DragDrop/DragDropInfo.h>
-#include <EditorFramework/Assets/AssetCurator.h>
 
-#include <QMimeData>
 #include <QDataStream>
+#include <QMimeData>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDragDropHandler, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

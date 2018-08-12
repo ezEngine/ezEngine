@@ -1,15 +1,16 @@
 #include <PCH.h>
+
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/CuratorControl.moc.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <QStatusBar>
 
 EZ_IMPLEMENT_SINGLETON(ezQtAssetBrowserPanel);
 
 ezQtAssetBrowserPanel::ezQtAssetBrowserPanel()
-  : ezQtApplicationPanel("Panel.AssetBrowser")
-  , m_SingletonRegistrar(this)
+    : ezQtApplicationPanel("Panel.AssetBrowser")
+    , m_SingletonRegistrar(this)
 {
   setupUi(this);
 
@@ -26,7 +27,8 @@ ezQtAssetBrowserPanel::ezQtAssetBrowserPanel()
   setWindowIcon(ezQtUiServices::GetCachedIconResource(":/EditorFramework/Icons/Asset16.png"));
   setWindowTitle(QString::fromUtf8(ezTranslate("Panel.AssetBrowser")));
 
-  EZ_VERIFY(connect(AssetBrowserWidget, &ezQtAssetBrowserWidget::ItemChosen, this, &ezQtAssetBrowserPanel::SlotAssetChosen) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(AssetBrowserWidget, &ezQtAssetBrowserWidget::ItemChosen, this, &ezQtAssetBrowserPanel::SlotAssetChosen) != nullptr,
+            "signal/slot connection failed");
 
   AssetBrowserWidget->RestoreState("AssetBrowserPanel2");
 }
@@ -40,5 +42,3 @@ void ezQtAssetBrowserPanel::SlotAssetChosen(ezUuid guid, QString sAssetPathRelat
 {
   ezQtEditorApp::GetSingleton()->OpenDocument(sAssetPathAbsolute.toUtf8().data());
 }
-
-

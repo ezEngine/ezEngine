@@ -1,16 +1,17 @@
 #include <PCH.h>
-#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetObjects.h>
+
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetObjects.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
-
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureCubeUsageEnum, 1)
-EZ_ENUM_CONSTANTS(ezTextureCubeUsageEnum::Unknown, ezTextureCubeUsageEnum::Skybox, ezTextureCubeUsageEnum::SkyboxHDR, ezTextureCubeUsageEnum::LookupTable)
-EZ_ENUM_CONSTANTS(ezTextureCubeUsageEnum::Other_sRGB, ezTextureCubeUsageEnum::Other_Linear)
+  EZ_ENUM_CONSTANTS(ezTextureCubeUsageEnum::Unknown, ezTextureCubeUsageEnum::Skybox, ezTextureCubeUsageEnum::SkyboxHDR, ezTextureCubeUsageEnum::LookupTable)
+  EZ_ENUM_CONSTANTS(ezTextureCubeUsageEnum::Other_sRGB, ezTextureCubeUsageEnum::Other_Linear)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureCubeChannelMappingEnum, 1)
-EZ_ENUM_CONSTANTS(ezTextureCubeChannelMappingEnum::RGB1, ezTextureCubeChannelMappingEnum::RGBA1, ezTextureCubeChannelMappingEnum::RGB1TO6, ezTextureCubeChannelMappingEnum::RGBA1TO6)
+  EZ_ENUM_CONSTANTS(ezTextureCubeChannelMappingEnum::RGB1, ezTextureCubeChannelMappingEnum::RGBA1, ezTextureCubeChannelMappingEnum::RGB1TO6, ezTextureCubeChannelMappingEnum::RGBA1TO6)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeAssetProperties, 2, ezRTTIDefaultAllocator<ezTextureCubeAssetProperties>)
@@ -39,6 +40,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeAssetProperties, 2, ezRTTIDefaultAl
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 void ezTextureCubeAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
@@ -77,14 +79,14 @@ void ezTextureCubeAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaS
 
     switch (mapping)
     {
-    case ezTextureCubeChannelMappingEnum::RGB1TO6:
-    case ezTextureCubeChannelMappingEnum::RGBA1TO6:
-      props["Input6"].m_Visibility = ezPropertyUiState::Default;
-      props["Input5"].m_Visibility = ezPropertyUiState::Default;
-      props["Input4"].m_Visibility = ezPropertyUiState::Default;
-      props["Input3"].m_Visibility = ezPropertyUiState::Default;
-      props["Input2"].m_Visibility = ezPropertyUiState::Default;
-      break;
+      case ezTextureCubeChannelMappingEnum::RGB1TO6:
+      case ezTextureCubeChannelMappingEnum::RGBA1TO6:
+        props["Input6"].m_Visibility = ezPropertyUiState::Default;
+        props["Input5"].m_Visibility = ezPropertyUiState::Default;
+        props["Input4"].m_Visibility = ezPropertyUiState::Default;
+        props["Input3"].m_Visibility = ezPropertyUiState::Default;
+        props["Input2"].m_Visibility = ezPropertyUiState::Default;
+        break;
     }
   }
 }
@@ -107,13 +109,13 @@ ezInt32 ezTextureCubeAssetProperties::GetNumInputFiles() const
 {
   switch (m_ChannelMapping)
   {
-  case ezTextureCubeChannelMappingEnum::RGB1:
-  case ezTextureCubeChannelMappingEnum::RGBA1:
-    return 1;
+    case ezTextureCubeChannelMappingEnum::RGB1:
+    case ezTextureCubeChannelMappingEnum::RGBA1:
+      return 1;
 
-  case ezTextureCubeChannelMappingEnum::RGB1TO6:
-  case ezTextureCubeChannelMappingEnum::RGBA1TO6:
-    return 6;
+    case ezTextureCubeChannelMappingEnum::RGB1TO6:
+    case ezTextureCubeChannelMappingEnum::RGBA1TO6:
+      return 6;
   }
 
   EZ_REPORT_FAILURE("Invalid Code Path");
@@ -125,13 +127,13 @@ ezInt32 ezTextureCubeAssetProperties::GetNumChannels() const
 {
   switch (m_ChannelMapping)
   {
-  case ezTextureCubeChannelMappingEnum::RGB1:
-  case ezTextureCubeChannelMappingEnum::RGB1TO6:
-    return 3;
+    case ezTextureCubeChannelMappingEnum::RGB1:
+    case ezTextureCubeChannelMappingEnum::RGB1TO6:
+      return 3;
 
-  case ezTextureCubeChannelMappingEnum::RGBA1:
-  case ezTextureCubeChannelMappingEnum::RGBA1TO6:
-    return 4;
+    case ezTextureCubeChannelMappingEnum::RGBA1:
+    case ezTextureCubeChannelMappingEnum::RGBA1TO6:
+      return 4;
   }
 
   EZ_REPORT_FAILURE("Invalid Code Path");
@@ -140,8 +142,7 @@ ezInt32 ezTextureCubeAssetProperties::GetNumChannels() const
 
 bool ezTextureCubeAssetProperties::IsSRGB() const
 {
-  if (m_TextureUsage == ezTextureCubeUsageEnum::SkyboxHDR ||
-      m_TextureUsage == ezTextureCubeUsageEnum::LookupTable ||
+  if (m_TextureUsage == ezTextureCubeUsageEnum::SkyboxHDR || m_TextureUsage == ezTextureCubeUsageEnum::LookupTable ||
       m_TextureUsage == ezTextureCubeUsageEnum::Other_Linear)
     return false;
 
@@ -153,4 +154,3 @@ bool ezTextureCubeAssetProperties::IsHDR() const
 {
   return m_TextureUsage == ezTextureCubeUsageEnum::SkyboxHDR;
 }
-

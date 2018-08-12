@@ -1,11 +1,13 @@
 #include <PCH.h>
+
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <PhysXPlugin/Joints/PxDistanceJointComponent.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
 
 using namespace physx;
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezPxDistanceJointComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -19,6 +21,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDistanceJointComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezPxDistanceJointComponent::ezPxDistanceJointComponent()
 {
@@ -59,7 +62,8 @@ void ezPxDistanceJointComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fSpringTolerance;
 }
 
-PxJoint* ezPxDistanceJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+PxJoint* ezPxDistanceJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1,
+                                                     const PxTransform& localFrame1)
 {
   PxDistanceJoint* pJoint = PxDistanceJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
 
@@ -82,4 +86,3 @@ PxJoint* ezPxDistanceJointComponent::CreateJointType(PxRigidActor* actor0, const
 
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Joints_Implementation_PxDistanceJointComponent);
-

@@ -1,9 +1,11 @@
 #include <PCH.h>
+
 #include <GameEngine/VisualScript/Nodes/VisualScriptMathNodes.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_MultiplyAdd, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_MultiplyAdd>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -25,9 +27,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_MultiplyAdd, 1, ezRTTIDefault
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_MultiplyAdd::ezVisualScriptNode_MultiplyAdd() { }
-ezVisualScriptNode_MultiplyAdd::~ezVisualScriptNode_MultiplyAdd() { }
+ezVisualScriptNode_MultiplyAdd::ezVisualScriptNode_MultiplyAdd() {}
+ezVisualScriptNode_MultiplyAdd::~ezVisualScriptNode_MultiplyAdd() {}
 
 void ezVisualScriptNode_MultiplyAdd::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -42,14 +45,14 @@ void* ezVisualScriptNode_MultiplyAdd::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_Value1;
-  case 1:
-    return &m_Value2;
-  case 2:
-    return &m_Value3;
-  case 3:
-    return &m_Value4;
+    case 0:
+      return &m_Value1;
+    case 1:
+      return &m_Value2;
+    case 2:
+      return &m_Value3;
+    case 3:
+      return &m_Value4;
   }
 
   return nullptr;
@@ -57,6 +60,7 @@ void* ezVisualScriptNode_MultiplyAdd::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Div, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Div>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -76,9 +80,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Div, 1, ezRTTIDefaultAllocato
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_Div::ezVisualScriptNode_Div() { }
-ezVisualScriptNode_Div::~ezVisualScriptNode_Div() { }
+ezVisualScriptNode_Div::ezVisualScriptNode_Div() {}
+ezVisualScriptNode_Div::~ezVisualScriptNode_Div() {}
 
 void ezVisualScriptNode_Div::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -93,10 +98,10 @@ void* ezVisualScriptNode_Div::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_Value1;
-  case 1:
-    return &m_Value2;
+    case 0:
+      return &m_Value1;
+    case 1:
+      return &m_Value2;
   }
 
   return nullptr;
@@ -104,6 +109,7 @@ void* ezVisualScriptNode_Div::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Min, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Min>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -123,9 +129,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Min, 1, ezRTTIDefaultAllocato
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_Min::ezVisualScriptNode_Min() { }
-ezVisualScriptNode_Min::~ezVisualScriptNode_Min() { }
+ezVisualScriptNode_Min::ezVisualScriptNode_Min() {}
+ezVisualScriptNode_Min::~ezVisualScriptNode_Min() {}
 
 void ezVisualScriptNode_Min::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -140,10 +147,10 @@ void* ezVisualScriptNode_Min::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_Value1;
-  case 1:
-    return &m_Value2;
+    case 0:
+      return &m_Value1;
+    case 1:
+      return &m_Value2;
   }
 
   return nullptr;
@@ -151,6 +158,7 @@ void* ezVisualScriptNode_Min::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Max, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Max>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -170,9 +178,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Max, 1, ezRTTIDefaultAllocato
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_Max::ezVisualScriptNode_Max() { }
-ezVisualScriptNode_Max::~ezVisualScriptNode_Max() { }
+ezVisualScriptNode_Max::ezVisualScriptNode_Max() {}
+ezVisualScriptNode_Max::~ezVisualScriptNode_Max() {}
 
 void ezVisualScriptNode_Max::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -187,10 +196,10 @@ void* ezVisualScriptNode_Max::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_Value1;
-  case 1:
-    return &m_Value2;
+    case 0:
+      return &m_Value1;
+    case 1:
+      return &m_Value2;
   }
 
   return nullptr;
@@ -198,6 +207,7 @@ void* ezVisualScriptNode_Max::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Clamp, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Clamp>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -218,9 +228,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Clamp, 1, ezRTTIDefaultAlloca
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_Clamp::ezVisualScriptNode_Clamp() { }
-ezVisualScriptNode_Clamp::~ezVisualScriptNode_Clamp() { }
+ezVisualScriptNode_Clamp::ezVisualScriptNode_Clamp() {}
+ezVisualScriptNode_Clamp::~ezVisualScriptNode_Clamp() {}
 
 void ezVisualScriptNode_Clamp::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -235,12 +246,12 @@ void* ezVisualScriptNode_Clamp::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_Value;
-  case 1:
-    return &m_MinValue;
-  case 2:
-    return &m_MaxValue;
+    case 0:
+      return &m_Value;
+    case 1:
+      return &m_MinValue;
+    case 2:
+      return &m_MaxValue;
   }
 
   return nullptr;
@@ -248,6 +259,7 @@ void* ezVisualScriptNode_Clamp::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Abs, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Abs>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -265,9 +277,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Abs, 1, ezRTTIDefaultAllocato
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_Abs::ezVisualScriptNode_Abs() { }
-ezVisualScriptNode_Abs::~ezVisualScriptNode_Abs() { }
+ezVisualScriptNode_Abs::ezVisualScriptNode_Abs() {}
+ezVisualScriptNode_Abs::~ezVisualScriptNode_Abs() {}
 
 void ezVisualScriptNode_Abs::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -282,8 +295,8 @@ void* ezVisualScriptNode_Abs::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_Value;
+    case 0:
+      return &m_Value;
   }
 
   return nullptr;
@@ -291,7 +304,7 @@ void* ezVisualScriptNode_Abs::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
-
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Sign, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Sign>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -309,9 +322,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Sign, 1, ezRTTIDefaultAllocat
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezVisualScriptNode_Sign::ezVisualScriptNode_Sign() { }
-ezVisualScriptNode_Sign::~ezVisualScriptNode_Sign() { }
+ezVisualScriptNode_Sign::ezVisualScriptNode_Sign() {}
+ezVisualScriptNode_Sign::~ezVisualScriptNode_Sign() {}
 
 void ezVisualScriptNode_Sign::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -326,8 +340,8 @@ void* ezVisualScriptNode_Sign::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_Value;
+    case 0:
+      return &m_Value;
   }
 
   return nullptr;
@@ -338,4 +352,3 @@ void* ezVisualScriptNode_Sign::GetInputPinDataPointer(ezUInt8 uiPin)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Nodes_VisualScriptMathNodes);
-

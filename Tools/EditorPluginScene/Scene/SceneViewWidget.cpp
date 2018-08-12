@@ -1,4 +1,6 @@
 #include <PCH.h>
+
+#include <EditorFramework/Actions/GameObjectSelectionActions.h>
 #include <EditorFramework/DragDrop/DragDropHandler.h>
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
@@ -13,30 +15,25 @@
 #include <GuiFoundation/Action/EditActions.h>
 #include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <EditorFramework/Actions/GameObjectSelectionActions.h>
 #include <QKeyEvent>
 #include <QMimeData>
 #include <QVBoxLayout>
+#include <ToolsFoundation/Command/TreeCommands.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 
 
 bool ezQtSceneViewWidget::s_bContextMenuInitialized = false;
 
 ezQtSceneViewWidget::ezQtSceneViewWidget(QWidget* pParent, ezQtGameObjectDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig)
-  : ezQtGameObjectViewWidget(pParent, pOwnerWindow, pViewConfig)
+    : ezQtGameObjectViewWidget(pParent, pOwnerWindow, pViewConfig)
 {
   setAcceptDrops(true);
 
   m_bAllowPickSelectedWhileDragging = false;
-
-
 }
 
-ezQtSceneViewWidget::~ezQtSceneViewWidget()
-{
-}
+ezQtSceneViewWidget::~ezQtSceneViewWidget() {}
 
 bool ezQtSceneViewWidget::IsPickingAgainstSelectionAllowed() const
 {
@@ -81,8 +78,8 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
   // can only drag & drop objects around in perspective mode
   // when dragging between two windows, the editor crashes
   // can be reproduced with two perspective windows as well
-  //if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
-    //return;
+  // if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
+  // return;
 
   m_LastDragMoveEvent = ezTime::Now();
   m_bAllowPickSelectedWhileDragging = false;
@@ -116,7 +113,7 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
   m_bInDragAndDropOperation = false;
 }
 
-void ezQtSceneViewWidget::dragLeaveEvent(QDragLeaveEvent * e)
+void ezQtSceneViewWidget::dragLeaveEvent(QDragLeaveEvent* e)
 {
   ezDragDropHandler::CancelDragDrop();
 
@@ -153,7 +150,7 @@ void ezQtSceneViewWidget::dragMoveEvent(QDragMoveEvent* e)
   }
 }
 
-void ezQtSceneViewWidget::dropEvent(QDropEvent * e)
+void ezQtSceneViewWidget::dropEvent(QDropEvent* e)
 {
   if (ezDragDropHandler::IsHandlerActive())
   {

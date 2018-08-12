@@ -1,11 +1,13 @@
 #include <PCH.h>
+
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Components/RenderTargetActivatorComponent.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezRenderTargetActivatorComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -22,9 +24,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezRenderTargetActivatorComponent, 1, ezComponentMode::St
   {
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
 }
-EZ_END_COMPONENT_TYPE
+EZ_END_COMPONENT_TYPE;
+// clang-format on
 
 ezRenderTargetActivatorComponent::ezRenderTargetActivatorComponent() = default;
 ezRenderTargetActivatorComponent::~ezRenderTargetActivatorComponent() = default;
@@ -40,7 +43,7 @@ void ezRenderTargetActivatorComponent::SerializeComponent(ezWorldWriter& stream)
 void ezRenderTargetActivatorComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   ezStreamReader& s = stream.GetStream();
 
@@ -63,7 +66,7 @@ void ezRenderTargetActivatorComponent::OnExtractRenderData(ezMsgExtractRenderDat
   // only add render target views from main views
   // otherwise every shadow casting light source would activate a render target
   if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView &&
-    msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView)
+      msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView)
     return;
 
   if (!m_hTexture.IsValid())
@@ -73,7 +76,7 @@ void ezRenderTargetActivatorComponent::OnExtractRenderData(ezMsgExtractRenderDat
 
   for (auto hView : pTexture->GetAllRenderViews())
   {
-    //ezLog::Debug("Adding camera view");
+    // ezLog::Debug("Adding camera view");
     ezRenderWorld::AddViewToRender(hView);
   }
 }
@@ -107,6 +110,4 @@ const char* ezRenderTargetActivatorComponent::GetTextureFile() const
 
 
 
-
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_RenderTargetActivatorComponent);
-

@@ -1,21 +1,20 @@
-﻿#include <PCH.h>
-#include <EditorFramework/IPC/IPCObjectMirrorEditor.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <PCH.h>
 
-ezIPCObjectMirrorEditor::ezIPCObjectMirrorEditor() : ezDocumentObjectMirror()
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorFramework/IPC/IPCObjectMirrorEditor.h>
+
+ezIPCObjectMirrorEditor::ezIPCObjectMirrorEditor()
+    : ezDocumentObjectMirror()
 {
   m_pIPC = nullptr;
 }
 
-ezIPCObjectMirrorEditor::~ezIPCObjectMirrorEditor()
-{
-}
+ezIPCObjectMirrorEditor::~ezIPCObjectMirrorEditor() {}
 
 void ezIPCObjectMirrorEditor::SetIPC(ezEditorEngineConnection* pIPC)
 {
   EZ_ASSERT_DEBUG(m_pContext == nullptr, "Need to call SetIPC before SetReceiver");
   m_pIPC = pIPC;
-
 }
 
 void ezIPCObjectMirrorEditor::ApplyOp(ezObjectChange& change)

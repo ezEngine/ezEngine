@@ -1,6 +1,8 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <EditorFramework/Preferences/GameObjectContextPreferences.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectContextPreferencesUser, 1, ezRTTIDefaultAllocator<ezGameObjectContextPreferencesUser>)
 {
   EZ_BEGIN_PROPERTIES
@@ -11,8 +13,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectContextPreferencesUser, 1, ezRTTIDef
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezGameObjectContextPreferencesUser::ezGameObjectContextPreferencesUser() : ezPreferences(Domain::Document, "GameObjectContext")
+ezGameObjectContextPreferencesUser::ezGameObjectContextPreferencesUser()
+    : ezPreferences(Domain::Document, "GameObjectContext")
 {
 }
 

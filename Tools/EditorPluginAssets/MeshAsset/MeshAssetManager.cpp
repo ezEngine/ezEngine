@@ -1,11 +1,12 @@
 #include <PCH.h>
-#include <EditorPluginAssets/MeshAsset/MeshAssetManager.h>
-#include <EditorPluginAssets/MeshAsset/MeshAsset.h>
-#include <EditorPluginAssets/MeshAsset/MeshAssetWindow.moc.h>
-#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
-#include <RendererCore/Meshes/MeshComponent.h>
+
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorPluginAssets/MeshAsset/MeshAsset.h>
+#include <EditorPluginAssets/MeshAsset/MeshAssetManager.h>
+#include <EditorPluginAssets/MeshAsset/MeshAssetWindow.moc.h>
+#include <RendererCore/Meshes/MeshComponent.h>
+#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezMeshAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -82,7 +83,8 @@ ezResult ezMeshAssetDocumentManager::OpenPickedDocument(const ezDocumentObject* 
 
   // now we need to open the mesh and we cannot wait for it (usually that is queued for GUI reasons)
   // though we do not want a window
-  ezMeshAssetDocument* pMeshDoc = static_cast<ezMeshAssetDocument*>(ezQtEditorApp::GetSingleton()->OpenDocumentImmediate(pSubAsset->m_pAssetInfo->m_sAbsolutePath, false, false));
+  ezMeshAssetDocument* pMeshDoc = static_cast<ezMeshAssetDocument*>(
+      ezQtEditorApp::GetSingleton()->OpenDocumentImmediate(pSubAsset->m_pAssetInfo->m_sAbsolutePath, false, false));
 
   if (!pMeshDoc)
     return EZ_FAILURE;
@@ -107,7 +109,7 @@ void ezMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager:
 {
   switch (e.m_Type)
   {
-  case ezDocumentManager::Event::Type::DocumentWindowRequested:
+    case ezDocumentManager::Event::Type::DocumentWindowRequested:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezMeshAssetDocument>())
       {
@@ -125,10 +127,8 @@ ezStatus ezMeshAssetDocumentManager::InternalCreateDocument(const char* szDocume
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(
+    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
-
-
-

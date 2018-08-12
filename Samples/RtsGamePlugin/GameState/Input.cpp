@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <RtsGamePlugin/GameState/RtsGameState.h>
 
 void RtsGameState::ConfigureInputDevices()
@@ -82,8 +83,12 @@ void RtsGameState::UpdateMousePosition()
     m_MouseInputState.m_bRightMouseMoved = false;
   }
 
-  m_MouseInputState.m_bLeftMouseMoved = m_MouseInputState.m_bLeftMouseMoved || RtsMouseInputState::HasMouseMoved(m_MouseInputState.m_MousePosLeftClick, m_MouseInputState.m_MousePos);
-  m_MouseInputState.m_bRightMouseMoved = m_MouseInputState.m_bRightMouseMoved || RtsMouseInputState::HasMouseMoved(m_MouseInputState.m_MousePosRightClick, m_MouseInputState.m_MousePos);
+  m_MouseInputState.m_bLeftMouseMoved =
+      m_MouseInputState.m_bLeftMouseMoved ||
+      RtsMouseInputState::HasMouseMoved(m_MouseInputState.m_MousePosLeftClick, m_MouseInputState.m_MousePos);
+  m_MouseInputState.m_bRightMouseMoved =
+      m_MouseInputState.m_bRightMouseMoved ||
+      RtsMouseInputState::HasMouseMoved(m_MouseInputState.m_MousePosRightClick, m_MouseInputState.m_MousePos);
 
   ComputePickingRay();
 }

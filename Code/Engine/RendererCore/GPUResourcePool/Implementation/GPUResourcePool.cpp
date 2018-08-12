@@ -1,5 +1,5 @@
-﻿
 #include <PCH.h>
+
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
@@ -14,10 +14,10 @@ ezGPUResourcePool* ezGPUResourcePool::s_pDefaultInstance = nullptr;
 
 
 ezGPUResourcePool::ezGPUResourcePool()
-  : m_uiMemoryThresholdForGC(256 * 1024 * 1024)
-  , m_uiCurrentlyAllocatedMemory(0)
-  , m_uiNumAllocationsThresholdForGC(128)
-  , m_uiNumAllocationsSinceLastGC(0)
+    : m_uiMemoryThresholdForGC(256 * 1024 * 1024)
+    , m_uiCurrentlyAllocatedMemory(0)
+    , m_uiNumAllocationsThresholdForGC(128)
+    , m_uiNumAllocationsSinceLastGC(0)
 {
   m_pDevice = ezGALDevice::GetDefaultDevice();
 }
@@ -72,7 +72,8 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreation
 
   if (hNewTexture.IsInvalidated())
   {
-    ezLog::Error("GPU resource pool couldn't create new texture for given desc (size: {0} x {1}, format: {2})", TextureDesc.m_uiWidth, TextureDesc.m_uiHeight, TextureDesc.m_Format);
+    ezLog::Error("GPU resource pool couldn't create new texture for given desc (size: {0} x {1}, format: {2})", TextureDesc.m_uiWidth,
+                 TextureDesc.m_uiHeight, TextureDesc.m_Format);
     return ezGALTextureHandle();
   }
 
@@ -87,7 +88,8 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreation
   return hNewTexture;
 }
 
-ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum eFormat, ezGALMSAASampleCount::Enum sampleCount, ezUInt32 uiSliceColunt)
+ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum eFormat,
+                                                      ezGALMSAASampleCount::Enum sampleCount, ezUInt32 uiSliceColunt)
 {
   ezGALTextureCreationDescription TextureDesc;
   TextureDesc.m_bCreateRenderTarget = true;
@@ -282,7 +284,7 @@ void ezGPUResourcePool::CheckAndPotentiallyRunGC()
 
 void ezGPUResourcePool::UpdateMemoryStats() const
 {
-  #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 
   float fMegaBytes = float(m_uiCurrentlyAllocatedMemory) / (1024.0f * 1024.0f);
 
@@ -290,10 +292,9 @@ void ezGPUResourcePool::UpdateMemoryStats() const
   sOut.Format("{0} (Mb)", ezArgF(fMegaBytes, 4));
   ezStats::SetStat("GPU Resource Pool/Memory Consumption", sOut.GetData());
 
-  #endif
+#endif
 }
 
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_GPUResourcePool_Implementation_GPUResourcePool);
-

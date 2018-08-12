@@ -1,12 +1,13 @@
 #include <PCH.h>
-#include <FoundationTest/Reflection/ReflectionTestClasses.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <Foundation/Serialization/RttiConverter.h>
-#include <Foundation/Serialization/BinarySerializer.h>
+
 #include <Foundation/IO/MemoryStream.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/BinarySerializer.h>
 #include <Foundation/Serialization/DdlSerializer.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
+#include <Foundation/Serialization/RttiConverter.h>
+#include <FoundationTest/Reflection/ReflectionTestClasses.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Serialization);
 
@@ -29,7 +30,7 @@ public:
   }
 };
 
-template<typename T>
+template <typename T>
 void TestSerialize(T* pObject)
 {
   ezAbstractObjectGraph graph;
@@ -330,4 +331,3 @@ EZ_CREATE_SIMPLE_TEST(Serialization, RttiConverter)
     }
   }
 }
-

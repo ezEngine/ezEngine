@@ -1,16 +1,17 @@
 #include <PCH.h>
+
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAsset.h>
 #include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAssetManager.h>
-#include <EditorFramework/Assets/AssetCurator.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <RendererCore/Pipeline/RenderPipelinePass.h>
-#include <RendererCore/Pipeline/Extractor.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Serialization/BinarySerializer.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
+#include <RendererCore/Pipeline/Extractor.h>
+#include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <ToolsFoundation/Command/NodeCommands.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetDocument, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -105,11 +106,12 @@ ezStatus ezRenderPipelineNodeManager::InternalCanConnect(const ezPin* pSource, c
 }
 
 ezRenderPipelineAssetDocument::ezRenderPipelineAssetDocument(const char* szDocumentPath)
-  : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezRenderPipelineNodeManager), false, false)
+    : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezRenderPipelineNodeManager), false, false)
 {
 }
 
-ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
+                                                               const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   const ezUInt8 uiVersion = 1;
   stream << uiVersion;
@@ -161,8 +163,10 @@ void ezRenderPipelineAssetDocument::InternalGetMetaDataHash(const ezDocumentObje
 
         inout_uiHash = ezHashing::xxHash64(&pPinSource->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
         inout_uiHash = ezHashing::xxHash64(&pPinTarget->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
-        inout_uiHash = ezHashing::xxHash64(pPinSource->GetName(), ezStringUtils::GetStringElementCount(pPinSource->GetName()), inout_uiHash);
-        inout_uiHash = ezHashing::xxHash64(pPinTarget->GetName(), ezStringUtils::GetStringElementCount(pPinTarget->GetName()), inout_uiHash);
+        inout_uiHash =
+            ezHashing::xxHash64(pPinSource->GetName(), ezStringUtils::GetStringElementCount(pPinSource->GetName()), inout_uiHash);
+        inout_uiHash =
+            ezHashing::xxHash64(pPinTarget->GetName(), ezStringUtils::GetStringElementCount(pPinTarget->GetName()), inout_uiHash);
       }
     }
   }
@@ -172,7 +176,6 @@ void ezRenderPipelineAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectG
 {
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
   pManager->AttachMetaDataBeforeSaving(graph);
-
 }
 
 void ezRenderPipelineAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
@@ -212,7 +215,8 @@ bool ezRenderPipelineAssetDocument::Copy(ezAbstractObjectGraph& out_objectGraph,
   return true;
 }
 
-bool ezRenderPipelineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+bool ezRenderPipelineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph,
+                                          bool bAllowPickedPosition, const char* szMimeType)
 {
   bool bAddedAll = true;
 
@@ -262,7 +266,6 @@ bool ezRenderPipelineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, con
     {
       ezLog::Info("[EditorStatus]Not all nodes were allowed to be added to the document");
     }
-
   }
 
   GetSelectionManager()->SetSelection(AddedNodes);

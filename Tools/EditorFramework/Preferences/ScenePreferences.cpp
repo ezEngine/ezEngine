@@ -1,7 +1,9 @@
-﻿#include <PCH.h>
-#include <EditorFramework/Preferences/ScenePreferences.h>
-#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
+#include <PCH.h>
 
+#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorFramework/Preferences/ScenePreferences.h>
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScenePreferencesUser, 1, ezRTTIDefaultAllocator<ezScenePreferencesUser>)
 {
   EZ_BEGIN_PROPERTIES
@@ -12,8 +14,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScenePreferencesUser, 1, ezRTTIDefaultAllocato
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezScenePreferencesUser::ezScenePreferencesUser() : ezPreferences(Domain::Document, "Scene")
+ezScenePreferencesUser::ezScenePreferencesUser()
+    : ezPreferences(Domain::Document, "Scene")
 {
   m_iCameraSpeed = 9;
 }

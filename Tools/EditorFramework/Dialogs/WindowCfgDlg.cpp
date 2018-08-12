@@ -1,12 +1,14 @@
 #include <PCH.h>
+
 #include <EditorFramework/Dialogs/WindowCfgDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <ToolsFoundation/Application/ApplicationServices.h>
-#include <QPushButton>
 #include <Foundation/IO/OSFile.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <QPushButton>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 
-ezQtWindowCfgDlg::ezQtWindowCfgDlg(QWidget* parent) : QDialog(parent)
+ezQtWindowCfgDlg::ezQtWindowCfgDlg(QWidget* parent)
+    : QDialog(parent)
 {
   setupUi(this);
   LoadDescs();
@@ -158,4 +160,3 @@ void ezQtWindowCfgDlg::on_m_CheckOverrideDefault_stateChanged(int state)
 
   UpdateUI();
 }
-

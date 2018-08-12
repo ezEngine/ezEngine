@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Types/RefCounted.h>
 
 class RefCountedTestClass : public ezRefCounted
@@ -74,4 +75,3 @@ EZ_CREATE_SIMPLE_TEST(Basics, RefCounted)
     EZ_TEST_BOOL(!Instance.IsReferenced());
   }
 }
-

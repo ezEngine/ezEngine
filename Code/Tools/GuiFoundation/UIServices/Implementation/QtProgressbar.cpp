@@ -1,12 +1,13 @@
 #include <PCH.h>
+
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/UIServices/QtProgressbar.h>
-#include <QProgressDialog>
 #include <QApplication>
+#include <QProgressDialog>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  #include <QtWinExtras/QWinTaskbarButton>
-  #include <QtWinExtras/QWinTaskbarProgress>
+#include <QtWinExtras/QWinTaskbarButton>
+#include <QtWinExtras/QWinTaskbarProgress>
 #endif
 
 
@@ -45,19 +46,19 @@ void ezQtProgressbar::ProgressbarEventHandler(const ezProgressEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezProgressEvent::Type::ProgressStarted:
+    case ezProgressEvent::Type::ProgressStarted:
     {
       EnsureCreated();
     }
     break;
 
-  case ezProgressEvent::Type::ProgressEnded:
+    case ezProgressEvent::Type::ProgressEnded:
     {
       EnsureDestroyed();
     }
     break;
 
-  case ezProgressEvent::Type::ProgressChanged:
+    case ezProgressEvent::Type::ProgressChanged:
     {
       EnsureCreated();
 
@@ -84,8 +85,8 @@ void ezQtProgressbar::EnsureCreated()
   if (m_pDialog)
     return;
 
-  m_pDialog = new QProgressDialog("                                                                                ",
-                                  "Cancel", 0, 1000, QApplication::activeWindow());
+  m_pDialog = new QProgressDialog("                                                                                ", "Cancel", 0, 1000,
+                                  QApplication::activeWindow());
 
   m_pDialog->setWindowModality(Qt::WindowModal);
   m_pDialog->setMinimumDuration((int)500);
@@ -134,8 +135,4 @@ void ezQtProgressbar::EnsureDestroyed()
     m_pWinTaskBarButton = nullptr;
   }
 #endif
-
 }
-
-
-

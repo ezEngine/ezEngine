@@ -1,14 +1,15 @@
 #include <PCH.h>
+
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
-#include <GameEngine/Surfaces/SurfaceResource.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <GameEngine/Prefabs/PrefabResource.h>
+#include <GameEngine/Surfaces/SurfaceResource.h>
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSurfaceInteractionAlignment, 2)
-EZ_ENUM_CONSTANTS(ezSurfaceInteractionAlignment::SurfaceNormal, ezSurfaceInteractionAlignment::IncidentDirection, ezSurfaceInteractionAlignment::ReflectedDirection)
-EZ_ENUM_CONSTANTS(ezSurfaceInteractionAlignment::ReverseSurfaceNormal, ezSurfaceInteractionAlignment::ReverseIncidentDirection, ezSurfaceInteractionAlignment::ReverseReflectedDirection)
+  EZ_ENUM_CONSTANTS(ezSurfaceInteractionAlignment::SurfaceNormal, ezSurfaceInteractionAlignment::IncidentDirection, ezSurfaceInteractionAlignment::ReflectedDirection)
+  EZ_ENUM_CONSTANTS(ezSurfaceInteractionAlignment::ReverseSurfaceNormal, ezSurfaceInteractionAlignment::ReverseIncidentDirection, ezSurfaceInteractionAlignment::ReverseReflectedDirection)
 EZ_END_STATIC_REFLECTED_ENUM;
-
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSurfaceInteraction, ezNoBase, 1, ezRTTIDefaultAllocator<ezSurfaceInteraction>)
 {
@@ -23,7 +24,6 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSurfaceInteraction, ezNoBase, 1, ezRTTIDefaultA
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResourceDescriptor, 2, ezRTTIDefaultAllocator<ezSurfaceResourceDescriptor>)
 {
   EZ_BEGIN_PROPERTIES
@@ -37,7 +37,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResourceDescriptor, 2, ezRTTIDefaultAll
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
+// clang-format on
 
 void ezSurfaceInteraction::SetPrefab(const char* szPrefab)
 {
@@ -132,9 +132,9 @@ const char* ezSurfaceResourceDescriptor::GetBaseSurfaceFile() const
   return m_hBaseSurface.GetResourceID();
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 
@@ -142,7 +142,9 @@ class ezSurfaceResourceDescriptorPatch_1_2 : public ezGraphPatch
 {
 public:
   ezSurfaceResourceDescriptorPatch_1_2()
-    : ezGraphPatch("ezSurfaceResourceDescriptor", 2) {}
+      : ezGraphPatch("ezSurfaceResourceDescriptor", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -157,4 +159,3 @@ ezSurfaceResourceDescriptorPatch_1_2 g_ezSurfaceResourceDescriptorPatch_1_2;
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Surfaces_SurfaceResourceDescriptor);
-

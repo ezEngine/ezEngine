@@ -1,6 +1,7 @@
-﻿#include <PCH.h>
-#include <EditorPluginScene/DragDropHandlers/DecalDragDropHandler.h>
+#include <PCH.h>
+
 #include <EditorFramework/DragDrop/DragDropInfo.h>
+#include <EditorPluginScene/DragDropHandlers/DecalDragDropHandler.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezDecalComponentDragDropHandler>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -21,7 +22,8 @@ void ezDecalComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
   if (pInfo->m_sTargetContext == "viewport")
     CreateDropObject(pInfo->m_vDropPosition, "ezDecalComponent", "Decal", GetAssetGuidString(pInfo), ezUuid(), -1);
   else
-    CreateDropObject(pInfo->m_vDropPosition, "ezDecalComponent", "Decal", GetAssetGuidString(pInfo), pInfo->m_TargetObject, pInfo->m_iTargetObjectInsertChildIndex);
+    CreateDropObject(pInfo->m_vDropPosition, "ezDecalComponent", "Decal", GetAssetGuidString(pInfo), pInfo->m_TargetObject,
+                     pInfo->m_iTargetObjectInsertChildIndex);
 
   SelectCreatedObjects();
   BeginTemporaryCommands();

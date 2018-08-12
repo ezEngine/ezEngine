@@ -1,8 +1,10 @@
 #include <PCH.h>
-#include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetObjects.h>
+
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetObjects.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSurfaceResourceSlot, ezNoBase, 1, ezRTTIDefaultAllocator<ezSurfaceResourceSlot>)
 {
   EZ_BEGIN_PROPERTIES
@@ -15,12 +17,12 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSurfaceResourceSlot, ezNoBase, 1, ezRTTIDefault
 EZ_END_STATIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCollisionMeshType, 2)
-EZ_ENUM_CONSTANT(ezCollisionMeshType::ConvexHull),
-EZ_ENUM_CONSTANT(ezCollisionMeshType::TriangleMesh),
-EZ_ENUM_CONSTANT(ezCollisionMeshType::Cylinder),
-//EZ_ENUM_CONSTANT(ezCollisionMeshType::Tetraeder),
-//EZ_ENUM_CONSTANT(ezCollisionMeshType::Oktaeder),
-//EZ_ENUM_CONSTANT(ezCollisionMeshType::Pyramid),
+  EZ_ENUM_CONSTANT(ezCollisionMeshType::ConvexHull),
+  EZ_ENUM_CONSTANT(ezCollisionMeshType::TriangleMesh),
+  EZ_ENUM_CONSTANT(ezCollisionMeshType::Cylinder),
+  //EZ_ENUM_CONSTANT(ezCollisionMeshType::Tetraeder),
+  //EZ_ENUM_CONSTANT(ezCollisionMeshType::Oktaeder),
+  //EZ_ENUM_CONSTANT(ezCollisionMeshType::Pyramid),
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetProperties, 1, ezRTTIDefaultAllocator<ezCollisionMeshAssetProperties>)
@@ -44,6 +46,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetProperties, 1, ezRTTIDefault
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezCollisionMeshAssetProperties::ezCollisionMeshAssetProperties()
 {
@@ -58,15 +61,6 @@ ezCollisionMeshAssetProperties::ezCollisionMeshAssetProperties()
   m_fRadius2 = 0.5f;
   m_fHeight = 1.0f;
   m_uiDetail = 1;
-}
-
-const ezString ezCollisionMeshAssetProperties::GetResourceSlotProperty(ezUInt32 uiSlot) const
-{
-  if (m_Slots.IsEmpty())
-    return "";
-
-  uiSlot %= m_Slots.GetCount();
-  return m_Slots[uiSlot].m_sResource;
 }
 
 void ezCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
@@ -87,25 +81,22 @@ void ezCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMet
 
   switch (meshType)
   {
-  case ezCollisionMeshType::ConvexHull:
-  case ezCollisionMeshType::TriangleMesh:
-    props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
-    props["SubmeshName"].m_Visibility = ezPropertyUiState::Default;
-    break;
+    case ezCollisionMeshType::ConvexHull:
+    case ezCollisionMeshType::TriangleMesh:
+      props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
+      props["SubmeshName"].m_Visibility = ezPropertyUiState::Default;
+      break;
 
-  case ezCollisionMeshType::Cylinder:
-    props["Radius"].m_Visibility = ezPropertyUiState::Default;
-    props["Radius2"].m_Visibility = ezPropertyUiState::Default;
-    props["Height"].m_Visibility = ezPropertyUiState::Default;
-    props["Detail"].m_Visibility = ezPropertyUiState::Default;
-    break;
+    case ezCollisionMeshType::Cylinder:
+      props["Radius"].m_Visibility = ezPropertyUiState::Default;
+      props["Radius2"].m_Visibility = ezPropertyUiState::Default;
+      props["Height"].m_Visibility = ezPropertyUiState::Default;
+      props["Detail"].m_Visibility = ezPropertyUiState::Default;
+      break;
 
-  //case ezCollisionMeshType::Oktaeder:
-  //case ezCollisionMeshType::Pyramid:
-  //case ezCollisionMeshType::Tetraeder:
-  //  break;
+      // case ezCollisionMeshType::Oktaeder:
+      // case ezCollisionMeshType::Pyramid:
+      // case ezCollisionMeshType::Tetraeder:
+      //  break;
   }
 }
-
-
-

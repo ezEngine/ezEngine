@@ -1,14 +1,15 @@
 #include <PCH.h>
+
 #include <Foundation/Math/BoundingBoxSphere.h>
 
 EZ_CREATE_SIMPLE_TEST(Math, BoundingBoxSphere)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
-    ezBoundingBoxSphereT b(ezVec3T(-1,-2,-3), ezVec3T(1, 2, 3), 2);
+    ezBoundingBoxSphereT b(ezVec3T(-1, -2, -3), ezVec3T(1, 2, 3), 2);
 
-    EZ_TEST_BOOL(b.m_vCenter == ezVec3T(-1,-2,-3));
-    EZ_TEST_BOOL(b.m_vBoxHalfExtends == ezVec3T( 1, 2, 3));
+    EZ_TEST_BOOL(b.m_vCenter == ezVec3T(-1, -2, -3));
+    EZ_TEST_BOOL(b.m_vBoxHalfExtends == ezVec3T(1, 2, 3));
     EZ_TEST_BOOL(b.m_fSphereRadius == 2);
 
     ezBoundingBoxT box(ezVec3T(1, 1, 1), ezVec3T(3, 3, 3));
@@ -39,14 +40,8 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBoxSphere)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromPoints")
   {
-    ezVec3T p[6] =
-    {
-      ezVec3T(-4, 0, 0),
-      ezVec3T(5, 0, 0),
-      ezVec3T(0, -6, 0),
-      ezVec3T(0, 7, 0),
-      ezVec3T(0, 0, -8),
-      ezVec3T(0, 0, 9),
+    ezVec3T p[6] = {
+        ezVec3T(-4, 0, 0), ezVec3T(5, 0, 0), ezVec3T(0, -6, 0), ezVec3T(0, 7, 0), ezVec3T(0, 0, -8), ezVec3T(0, 0, 9),
     };
 
     ezBoundingBoxSphereT b;
@@ -68,7 +63,8 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBoxSphere)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclude")
   {
-    ezBoundingBoxSphereT b1; b1.SetInvalid();
+    ezBoundingBoxSphereT b1;
+    b1.SetInvalid();
     ezBoundingBoxSphereT b2(ezBoundingBoxT(ezVec3T(2, 2, 2), ezVec3T(4, 4, 4)));
 
     b1.ExpandToInclude(b2);

@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <Foundation/Time/Clock.h>
+
 #include <Core/World/World.h>
+#include <Foundation/Time/Clock.h>
 
 namespace
 {
@@ -11,10 +12,7 @@ namespace
     EZ_DECLARE_COMPONENT_TYPE(TestComponentBase, ezComponent, TestComponentBaseManager);
 
   public:
-    void Update()
-    {
-      ++s_iUpdateCounter;
-    }
+    void Update() { ++s_iUpdateCounter; }
 
     static int s_iUpdateCounter;
   };
@@ -33,10 +31,7 @@ namespace
     EZ_DECLARE_COMPONENT_TYPE(TestComponentDerived1, TestComponentBase, TestComponentDerived1Manager);
 
   public:
-    void Update()
-    {
-      ++s_iUpdateCounter;
-    }
+    void Update() { ++s_iUpdateCounter; }
 
     static int s_iUpdateCounter;
   };

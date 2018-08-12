@@ -1,16 +1,19 @@
-﻿#include <PCH.h>
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Lights/SpotLightComponent.h>
-#include <RendererCore/Lights/Implementation/ShadowPool.h>
-#include <RendererCore/Pipeline/View.h>
-#include <Core/WorldSerializer/WorldWriter.h>
+#include <PCH.h>
+
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Configuration/CVar.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Lights/Implementation/ShadowPool.h>
+#include <RendererCore/Lights/SpotLightComponent.h>
+#include <RendererCore/Pipeline/View.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  ezCVarBool CVarVisLightSize("r_VisLightScreenSpaceSize", false, ezCVarFlags::Default, "Enables debug visualization of light screen space size calculation");
+ezCVarBool CVarVisLightSize("r_VisLightScreenSpaceSize", false, ezCVarFlags::Default,
+                            "Enables debug visualization of light screen space size calculation");
 #endif
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpotLightRenderData, 1, ezRTTIDefaultAllocator<ezSpotLightRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -39,19 +42,17 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 2, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
 ezSpotLightComponent::ezSpotLightComponent()
-  : m_fRange(0.0f)
-  , m_InnerSpotAngle(ezAngle::Degree(15.0f))
-  , m_OuterSpotAngle(ezAngle::Degree(30.0f))
+    : m_fRange(0.0f)
+    , m_InnerSpotAngle(ezAngle::Degree(15.0f))
+    , m_OuterSpotAngle(ezAngle::Degree(30.0f))
 {
   m_fEffectiveRange = CalculateEffectiveRange(m_fRange, m_fIntensity);
 }
 
-ezSpotLightComponent::~ezSpotLightComponent()
-{
-
-}
+ezSpotLightComponent::~ezSpotLightComponent() {}
 
 ezResult ezSpotLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
@@ -188,7 +189,7 @@ void ezSpotLightComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezSpotLightComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
   s >> m_fRange;
@@ -227,17 +228,18 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpotLightVisualizerAttribute, 1, ezRTTIDefault
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSpotLightVisualizerAttribute::ezSpotLightVisualizerAttribute()
-  : ezVisualizerAttribute(nullptr)
+    : ezVisualizerAttribute(nullptr)
 {
 }
 
-ezSpotLightVisualizerAttribute::ezSpotLightVisualizerAttribute(const char* szAngleProperty, const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty)
-  : ezVisualizerAttribute(szAngleProperty, szRangeProperty, szIntensityProperty, szColorProperty)
+ezSpotLightVisualizerAttribute::ezSpotLightVisualizerAttribute(const char* szAngleProperty, const char* szRangeProperty,
+                                                               const char* szIntensityProperty, const char* szColorProperty)
+    : ezVisualizerAttribute(szAngleProperty, szRangeProperty, szIntensityProperty, szColorProperty)
 {
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -246,7 +248,9 @@ class ezSpotLightComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezSpotLightComponentPatch_1_2()
-    : ezGraphPatch("ezSpotLightComponent", 2) {}
+      : ezGraphPatch("ezSpotLightComponent", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -261,4 +265,3 @@ ezSpotLightComponentPatch_1_2 g_ezSpotLightComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_SpotLightComponent);
-

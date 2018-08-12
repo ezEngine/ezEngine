@@ -1,17 +1,17 @@
 #include <PCH.h>
-#include <EditorFramework/EditTools/StandardGizmoEditTools.h>
+
 #include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/GameObjectViewWidget.moc.h>
+#include <EditorFramework/EditTools/StandardGizmoEditTools.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
+#include <EditorFramework/InputContexts/CameraMoveContext.h>
 #include <EditorFramework/InputContexts/OrthoGizmoContext.h>
+#include <EditorFramework/Preferences/ScenePreferences.h>
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
-#include <EditorFramework/InputContexts/CameraMoveContext.h>
-#include <EditorFramework/Preferences/ScenePreferences.h>
-#include <EditorFramework/Gizmos/SnapProvider.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmoEditTool, 1, ezRTTIDefaultAllocator<ezTranslateGizmoEditTool>)
-
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezTranslateGizmoEditTool::ezTranslateGizmoEditTool()
@@ -35,7 +35,8 @@ void ezTranslateGizmoEditTool::OnConfigured()
 
   m_TranslateGizmo.SetOwner(GetWindow(), nullptr);
 
-  ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument())->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezTranslateGizmoEditTool::OnPreferenceChange, this));
+  ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument())
+      ->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezTranslateGizmoEditTool::OnPreferenceChange, this));
 }
 
 void ezTranslateGizmoEditTool::ApplyGizmoVisibleState(bool visible)
@@ -53,9 +54,10 @@ void ezTranslateGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmo
   ezObjectAccessorBase* pAccessor = GetGizmoInterface()->GetObjectAccessor();
   switch (e.m_Type)
   {
-  case ezGizmoEvent::Type::BeginInteractions:
+    case ezGizmoEvent::Type::BeginInteractions:
     {
-      const bool bDuplicate = QApplication::keyboardModifiers().testFlag(Qt::KeyboardModifier::ShiftModifier) && GetGizmoInterface()->CanDuplicateSelection();
+      const bool bDuplicate =
+          QApplication::keyboardModifiers().testFlag(Qt::KeyboardModifier::ShiftModifier) && GetGizmoInterface()->CanDuplicateSelection();
 
       // duplicate the object when shift is held while dragging the item
       if (bDuplicate && (e.m_pGizmo == &m_TranslateGizmo || e.m_pGizmo->GetDynamicRTTI()->IsDerivedFrom<ezOrthoGizmoContext>()))
@@ -71,7 +73,7 @@ void ezTranslateGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmo
     }
     break;
 
-  case ezGizmoEvent::Type::Interaction:
+    case ezGizmoEvent::Type::Interaction:
     {
       auto pDocument = GetDocument();
       ezTransform tNew;
@@ -155,9 +157,10 @@ void ezTranslateGizmoEditTool::GetGridSettings(ezGridSettingsMsgToEngine& msg)
   auto pSceneDoc = GetDocument();
   ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument());
 
-  msg.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue() * (pSceneDoc->GetGizmoWorldSpace() ? 1.0f : -1.0f); // negative density = local space
-  msg.m_vGridTangent1.SetZero(); // indicates that the grid is disabled
-  msg.m_vGridTangent2.SetZero(); // indicates that the grid is disabled
+  msg.m_fGridDensity =
+      ezSnapProvider::GetTranslationSnapValue() * (pSceneDoc->GetGizmoWorldSpace() ? 1.0f : -1.0f); // negative density = local space
+  msg.m_vGridTangent1.SetZero();                                                                    // indicates that the grid is disabled
+  msg.m_vGridTangent2.SetZero();                                                                    // indicates that the grid is disabled
 
   ezTranslateGizmo& translateGizmo = m_TranslateGizmo;
 
@@ -174,35 +177,35 @@ void ezTranslateGizmoEditTool::GetGridSettings(ezGridSettingsMsgToEngine& msg)
 
       switch (translateGizmo.GetLastPlaneInteraction())
       {
-      case ezTranslateGizmo::PlaneInteraction::PlaneX:
-        msg.m_vGridCenter.y = ezMath::Round(msg.m_vGridCenter.y, ezSnapProvider::GetTranslationSnapValue() * 10);
-        msg.m_vGridCenter.z = ezMath::Round(msg.m_vGridCenter.z, ezSnapProvider::GetTranslationSnapValue() * 10);
-        break;
-      case ezTranslateGizmo::PlaneInteraction::PlaneY:
-        msg.m_vGridCenter.x = ezMath::Round(msg.m_vGridCenter.x, ezSnapProvider::GetTranslationSnapValue() * 10);
-        msg.m_vGridCenter.z = ezMath::Round(msg.m_vGridCenter.z, ezSnapProvider::GetTranslationSnapValue() * 10);
-        break;
-      case ezTranslateGizmo::PlaneInteraction::PlaneZ:
-        msg.m_vGridCenter.x = ezMath::Round(msg.m_vGridCenter.x, ezSnapProvider::GetTranslationSnapValue() * 10);
-        msg.m_vGridCenter.y = ezMath::Round(msg.m_vGridCenter.y, ezSnapProvider::GetTranslationSnapValue() * 10);
-        break;
+        case ezTranslateGizmo::PlaneInteraction::PlaneX:
+          msg.m_vGridCenter.y = ezMath::Round(msg.m_vGridCenter.y, ezSnapProvider::GetTranslationSnapValue() * 10);
+          msg.m_vGridCenter.z = ezMath::Round(msg.m_vGridCenter.z, ezSnapProvider::GetTranslationSnapValue() * 10);
+          break;
+        case ezTranslateGizmo::PlaneInteraction::PlaneY:
+          msg.m_vGridCenter.x = ezMath::Round(msg.m_vGridCenter.x, ezSnapProvider::GetTranslationSnapValue() * 10);
+          msg.m_vGridCenter.z = ezMath::Round(msg.m_vGridCenter.z, ezSnapProvider::GetTranslationSnapValue() * 10);
+          break;
+        case ezTranslateGizmo::PlaneInteraction::PlaneZ:
+          msg.m_vGridCenter.x = ezMath::Round(msg.m_vGridCenter.x, ezSnapProvider::GetTranslationSnapValue() * 10);
+          msg.m_vGridCenter.y = ezMath::Round(msg.m_vGridCenter.y, ezSnapProvider::GetTranslationSnapValue() * 10);
+          break;
       }
     }
 
     switch (translateGizmo.GetLastPlaneInteraction())
     {
-    case ezTranslateGizmo::PlaneInteraction::PlaneX:
-      msg.m_vGridTangent1 = translateGizmo.GetTransformation().m_qRotation * ezVec3(0, 1, 0);
-      msg.m_vGridTangent2 = translateGizmo.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
-      break;
-    case ezTranslateGizmo::PlaneInteraction::PlaneY:
-      msg.m_vGridTangent1 = translateGizmo.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
-      msg.m_vGridTangent2 = translateGizmo.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
-      break;
-    case ezTranslateGizmo::PlaneInteraction::PlaneZ:
-      msg.m_vGridTangent1 = translateGizmo.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
-      msg.m_vGridTangent2 = translateGizmo.GetTransformation().m_qRotation * ezVec3(0, 1, 0);
-      break;
+      case ezTranslateGizmo::PlaneInteraction::PlaneX:
+        msg.m_vGridTangent1 = translateGizmo.GetTransformation().m_qRotation * ezVec3(0, 1, 0);
+        msg.m_vGridTangent2 = translateGizmo.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
+        break;
+      case ezTranslateGizmo::PlaneInteraction::PlaneY:
+        msg.m_vGridTangent1 = translateGizmo.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
+        msg.m_vGridTangent2 = translateGizmo.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
+        break;
+      case ezTranslateGizmo::PlaneInteraction::PlaneZ:
+        msg.m_vGridTangent1 = translateGizmo.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
+        msg.m_vGridTangent2 = translateGizmo.GetTransformation().m_qRotation * ezVec3(0, 1, 0);
+        break;
     }
   }
 }
@@ -244,9 +247,10 @@ void ezRotateGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEve
   ezObjectAccessorBase* pAccessor = GetGizmoInterface()->GetObjectAccessor();
   switch (e.m_Type)
   {
-  case ezGizmoEvent::Type::BeginInteractions:
+    case ezGizmoEvent::Type::BeginInteractions:
     {
-      const bool bDuplicate = QApplication::keyboardModifiers().testFlag(Qt::KeyboardModifier::ShiftModifier) && GetGizmoInterface()->CanDuplicateSelection();
+      const bool bDuplicate =
+          QApplication::keyboardModifiers().testFlag(Qt::KeyboardModifier::ShiftModifier) && GetGizmoInterface()->CanDuplicateSelection();
 
       // duplicate the object when shift is held while dragging the item
       if (e.m_pGizmo == &m_RotateGizmo && bDuplicate)
@@ -257,7 +261,7 @@ void ezRotateGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEve
     }
     break;
 
-  case ezGizmoEvent::Type::Interaction:
+    case ezGizmoEvent::Type::Interaction:
     {
       auto pDocument = GetDocument();
       ezTransform tNew;
@@ -276,7 +280,8 @@ void ezRotateGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEve
           tNew.m_vPosition = vPivot + qRotation * (obj.m_GlobalTransform.m_vPosition - vPivot);
 
           if (GetDocument()->GetGizmoMoveParentOnly())
-            pDocument->SetGlobalTransformParentOnly(obj.m_pObject, tNew, TransformationChanges::Rotation | TransformationChanges::Translation);
+            pDocument->SetGlobalTransformParentOnly(obj.m_pObject, tNew,
+                                                    TransformationChanges::Rotation | TransformationChanges::Translation);
           else
             pDocument->SetGlobalTransform(obj.m_pObject, tNew, TransformationChanges::Rotation | TransformationChanges::Translation);
         }
@@ -288,7 +293,7 @@ void ezRotateGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEve
 
         const ezQuat qRotation = pOrtho->GetRotationResult();
 
-        //const ezVec3 vPivot(0);
+        // const ezVec3 vPivot(0);
 
         for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
         {
@@ -296,7 +301,7 @@ void ezRotateGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEve
 
           tNew = obj.m_GlobalTransform;
           tNew.m_qRotation = qRotation * obj.m_GlobalTransform.m_qRotation;
-          //tNew.m_vPosition = vPivot + qRotation * (obj.m_GlobalTransform.m_vPosition - vPivot);
+          // tNew.m_vPosition = vPivot + qRotation * (obj.m_GlobalTransform.m_vPosition - vPivot);
 
           pDocument->SetGlobalTransform(obj.m_pObject, tNew, TransformationChanges::Rotation);
         }
@@ -345,7 +350,7 @@ void ezScaleGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEven
   ezObjectAccessorBase* pAccessor = GetGizmoInterface()->GetObjectAccessor();
   switch (e.m_Type)
   {
-  case ezGizmoEvent::Type::Interaction:
+    case ezGizmoEvent::Type::Interaction:
     {
       auto pDocument = GetDocument();
       ezTransform tNew;
@@ -450,9 +455,10 @@ void ezDragToPositionGizmoEditTool::TransformationGizmoEventHandlerImpl(const ez
   ezObjectAccessorBase* pAccessor = GetGizmoInterface()->GetObjectAccessor();
   switch (e.m_Type)
   {
-  case ezGizmoEvent::Type::BeginInteractions:
+    case ezGizmoEvent::Type::BeginInteractions:
     {
-      const bool bDuplicate = QApplication::keyboardModifiers().testFlag(Qt::KeyboardModifier::ShiftModifier) && GetGizmoInterface()->CanDuplicateSelection();
+      const bool bDuplicate =
+          QApplication::keyboardModifiers().testFlag(Qt::KeyboardModifier::ShiftModifier) && GetGizmoInterface()->CanDuplicateSelection();
 
       // duplicate the object when shift is held while dragging the item
       if (e.m_pGizmo == &m_DragToPosGizmo && bDuplicate)
@@ -463,7 +469,7 @@ void ezDragToPositionGizmoEditTool::TransformationGizmoEventHandlerImpl(const ez
     }
     break;
 
-  case ezGizmoEvent::Type::Interaction:
+    case ezGizmoEvent::Type::Interaction:
     {
       auto pDocument = GetDocument();
       ezTransform tNew;
@@ -486,7 +492,8 @@ void ezDragToPositionGizmoEditTool::TransformationGizmoEventHandlerImpl(const ez
           }
 
           if (GetDocument()->GetGizmoMoveParentOnly())
-            pDocument->SetGlobalTransformParentOnly(obj.m_pObject, tNew, TransformationChanges::Rotation | TransformationChanges::Translation);
+            pDocument->SetGlobalTransformParentOnly(obj.m_pObject, tNew,
+                                                    TransformationChanges::Rotation | TransformationChanges::Translation);
           else
             pDocument->SetGlobalTransform(obj.m_pObject, tNew, TransformationChanges::Translation | TransformationChanges::Rotation);
         }

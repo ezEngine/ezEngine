@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <EditorPluginScene/Dialogs/DuplicateDlg.moc.h>
 #include <QDialogButtonBox>
 #include <QPushButton>
@@ -15,7 +16,8 @@ int ezQtDuplicateDlg::s_iRevolveAngleStep = 0;
 float ezQtDuplicateDlg::s_fRevolveRadius = 1.0f;
 
 
-ezQtDuplicateDlg::ezQtDuplicateDlg(QWidget *parent) : QDialog(parent)
+ezQtDuplicateDlg::ezQtDuplicateDlg(QWidget* parent)
+    : QDialog(parent)
 {
   setupUi(this);
 
@@ -130,11 +132,10 @@ void ezQtDuplicateDlg::on_toolButtonTransX_clicked()
 
   if (f == m_vBoundingBoxSize.x)
     SpinBoxTransX->setValue(-m_vBoundingBoxSize.x);
+  else if (f == -m_vBoundingBoxSize.x)
+    SpinBoxTransX->setValue(0.0);
   else
-    if (f == -m_vBoundingBoxSize.x)
-      SpinBoxTransX->setValue(0.0);
-    else
-      SpinBoxTransX->setValue(m_vBoundingBoxSize.x);
+    SpinBoxTransX->setValue(m_vBoundingBoxSize.x);
 }
 
 void ezQtDuplicateDlg::on_toolButtonTransY_clicked()
@@ -143,11 +144,10 @@ void ezQtDuplicateDlg::on_toolButtonTransY_clicked()
 
   if (f == m_vBoundingBoxSize.y)
     SpinBoxTransY->setValue(-m_vBoundingBoxSize.y);
+  else if (f == -m_vBoundingBoxSize.y)
+    SpinBoxTransY->setValue(0.0);
   else
-    if (f == -m_vBoundingBoxSize.y)
-      SpinBoxTransY->setValue(0.0);
-    else
-      SpinBoxTransY->setValue(m_vBoundingBoxSize.y);
+    SpinBoxTransY->setValue(m_vBoundingBoxSize.y);
 }
 
 void ezQtDuplicateDlg::on_toolButtonTransZ_clicked()
@@ -156,11 +156,10 @@ void ezQtDuplicateDlg::on_toolButtonTransZ_clicked()
 
   if (f == m_vBoundingBoxSize.z)
     SpinBoxTransZ->setValue(-m_vBoundingBoxSize.z);
+  else if (f == -m_vBoundingBoxSize.z)
+    SpinBoxTransZ->setValue(0.0);
   else
-    if (f == -m_vBoundingBoxSize.z)
-      SpinBoxTransZ->setValue(0.0);
-    else
-      SpinBoxTransZ->setValue(m_vBoundingBoxSize.z);
+    SpinBoxTransZ->setValue(m_vBoundingBoxSize.z);
 }
 
 void ezQtDuplicateDlg::on_RevolveNone_clicked()

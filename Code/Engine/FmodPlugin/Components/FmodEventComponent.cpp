@@ -1,15 +1,17 @@
 #include <PCH.h>
-#include <FmodPlugin/Components/FmodEventComponent.h>
-#include <Core/WorldSerializer/WorldWriter.h>
+
+#include <Core/ResourceManager/ResourceBase.h>
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <FmodPlugin/Components/FmodEventComponent.h>
+#include <FmodPlugin/FmodIncludes.h>
 #include <FmodPlugin/FmodSingleton.h>
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
-#include <Core/ResourceManager/ResourceBase.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
-#include <FmodPlugin/FmodIncludes.h>
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgFmodRestartSound);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgFmodRestartSound, 1, ezRTTIDefaultAllocator<ezMsgFmodRestartSound>)
 {
@@ -79,20 +81,21 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 2, ezComponentMode::Static)
     //EZ_FUNCTION_PROPERTY("Preview", StartOneShot), // This doesn't seem to be working anymore, and I cannot find code for exposing it in the UI either
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_MESSAGEHANDLERS
+  EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgFmodRestartSound, RestartSound),
     EZ_MESSAGE_HANDLER(ezMsgFmodStopSound, StopSound),
     EZ_MESSAGE_HANDLER(ezMsgFmodAddSoundCue, SoundCue),
   }
   EZ_END_MESSAGEHANDLERS
-    EZ_BEGIN_MESSAGESENDERS
+  EZ_BEGIN_MESSAGESENDERS
   {
     EZ_MESSAGE_SENDER(m_SoundFinishedEventSender),
   }
   EZ_END_MESSAGESENDERS
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezFmodEventComponent::ezFmodEventComponent()
 {
@@ -103,10 +106,7 @@ ezFmodEventComponent::ezFmodEventComponent()
   m_fVolume = 1.0f;
 }
 
-ezFmodEventComponent::~ezFmodEventComponent()
-{
-
-}
+ezFmodEventComponent::~ezFmodEventComponent() {}
 
 void ezFmodEventComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -130,9 +130,7 @@ void ezFmodEventComponent::SerializeComponent(ezWorldWriter& stream) const
     FMOD_STUDIO_PLAYBACK_STATE state;
     m_pEventInstance->getPlaybackState(&state);
 
-    if (state == FMOD_STUDIO_PLAYBACK_STARTING ||
-        state == FMOD_STUDIO_PLAYBACK_PLAYING ||
-        state == FMOD_STUDIO_PLAYBACK_SUSTAINING)
+    if (state == FMOD_STUDIO_PLAYBACK_STARTING || state == FMOD_STUDIO_PLAYBACK_PLAYING || state == FMOD_STUDIO_PLAYBACK_SUSTAINING)
     {
       m_pEventInstance->getTimelinePosition(&iTimelinePosition);
     }
@@ -155,7 +153,7 @@ void ezFmodEventComponent::DeserializeComponent(ezWorldReader& stream)
 
   ezOnComponentFinishedAction::StorageType type;
   s >> type;
-  m_OnFinishedAction = (ezOnComponentFinishedAction::Enum) type;
+  m_OnFinishedAction = (ezOnComponentFinishedAction::Enum)type;
 
   s >> m_iTimelinePosition;
 }
@@ -328,7 +326,8 @@ void ezFmodEventComponent::StartOneShot()
   // do not start sounds that will not terminate
   if (!bIsOneShot)
   {
-    ezLog::Warning("ezFmodEventComponent::StartOneShot: Request ignored, because sound event '{0}' ('{0}') is not a one-shot event.", pEvent->GetResourceID(), pEvent->GetResourceDescription());
+    ezLog::Warning("ezFmodEventComponent::StartOneShot: Request ignored, because sound event '{0}' ('{0}') is not a one-shot event.",
+                   pEvent->GetResourceID(), pEvent->GetResourceDescription());
     return;
   }
 
@@ -493,9 +492,7 @@ void ezFmodEventComponent::InvalidateResource(bool bTryToRestore)
       FMOD_STUDIO_PLAYBACK_STATE state;
       m_pEventInstance->getPlaybackState(&state);
 
-      if (state == FMOD_STUDIO_PLAYBACK_STARTING ||
-          state == FMOD_STUDIO_PLAYBACK_PLAYING ||
-          state == FMOD_STUDIO_PLAYBACK_SUSTAINING)
+      if (state == FMOD_STUDIO_PLAYBACK_STARTING || state == FMOD_STUDIO_PLAYBACK_PLAYING || state == FMOD_STUDIO_PLAYBACK_SUSTAINING)
       {
         m_pEventInstance->getTimelinePosition(&m_iTimelinePosition);
       }
@@ -509,16 +506,15 @@ void ezFmodEventComponent::InvalidateResource(bool bTryToRestore)
     // pointer is no longer valid!
     m_pEventInstance = nullptr;
 
-    //ezLog::Debug("Fmod instance pointer has been invalidated.");
+    // ezLog::Debug("Fmod instance pointer has been invalidated.");
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 ezFmodEventComponentManager::ezFmodEventComponentManager(ezWorld* pWorld)
-  : ezComponentManagerSimple(pWorld)
+    : ezComponentManagerSimple(pWorld)
 {
-
 }
 
 void ezFmodEventComponentManager::Initialize()
@@ -537,7 +533,8 @@ void ezFmodEventComponentManager::Deinitialize()
 
 void ezFmodEventComponentManager::ResourceEventHandler(const ezResourceEvent& e)
 {
-  if (e.m_EventType == ezResourceEventType::ResourceContentUnloading && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezFmodSoundEventResource>())
+  if (e.m_EventType == ezResourceEventType::ResourceContentUnloading &&
+      e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezFmodSoundEventResource>())
   {
     ezFmodSoundEventResourceHandle hResource((ezFmodSoundEventResource*)(e.m_pResource));
 
@@ -553,30 +550,27 @@ void ezFmodEventComponentManager::ResourceEventHandler(const ezResourceEvent& e)
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetFmodEventParameter, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_SetFmodEventParameter>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetFmodEventParameter, 1,
+                                ezRTTIDefaultAllocator<ezVisualScriptNode_SetFmodEventParameter>)
 {
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezCategoryAttribute("Sound"),
-    new ezTitleAttribute("Fmod Param '{Parameter}' = {Value}"),
-  }
-    EZ_END_ATTRIBUTES;
-    EZ_BEGIN_PROPERTIES
-  {
-    EZ_ACCESSOR_PROPERTY("Parameter", GetParameterName, SetParameterName),
-    // Execution Pins (Input)
-    EZ_INPUT_EXECUTION_PIN("run", 0),
-    // Execution Pins (Output)
-    EZ_OUTPUT_EXECUTION_PIN("then", 0),
-    // Data Pins (Input)
-    EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
-    EZ_INPUT_DATA_PIN_AND_PROPERTY("Value", 1, ezVisualScriptDataPinType::Number, m_fValue),
-  }
-  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES{
+      new ezCategoryAttribute("Sound"),
+      new ezTitleAttribute("Fmod Param '{Parameter}' = {Value}"),
+  } EZ_END_ATTRIBUTES;
+  EZ_BEGIN_PROPERTIES{
+      EZ_ACCESSOR_PROPERTY("Parameter", GetParameterName, SetParameterName),
+      // Execution Pins (Input)
+      EZ_INPUT_EXECUTION_PIN("run", 0),
+      // Execution Pins (Output)
+      EZ_OUTPUT_EXECUTION_PIN("then", 0),
+      // Data Pins (Input)
+      EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
+      EZ_INPUT_DATA_PIN_AND_PROPERTY("Value", 1, ezVisualScriptDataPinType::Number, m_fValue),
+  } EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezVisualScriptNode_SetFmodEventParameter::ezVisualScriptNode_SetFmodEventParameter() { }
+ezVisualScriptNode_SetFmodEventParameter::ezVisualScriptNode_SetFmodEventParameter() {}
 
 void ezVisualScriptNode_SetFmodEventParameter::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -603,7 +597,8 @@ void ezVisualScriptNode_SetFmodEventParameter::Execute(ezVisualScriptInstance* p
   return;
 
 failure:
-  ezLog::Warning("Script: Fmod Event Parameter '{0}' could not be found. Note that event parameters are not available for one-shot events.", m_sParameterName.GetString());
+  ezLog::Warning("Script: Fmod Event Parameter '{0}' could not be found. Note that event parameters are not available for one-shot events.",
+                 m_sParameterName.GetString());
 
   m_iParameterIndex = -2; // make sure we don't try this again
   pInstance->ExecuteConnectedNodes(this, 0);
@@ -613,11 +608,11 @@ void* ezVisualScriptNode_SetFmodEventParameter::GetInputPinDataPointer(ezUInt8 u
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_hComponent;
+    case 0:
+      return &m_hComponent;
 
-  case 1:
-    return &m_fValue;
+    case 1:
+      return &m_fValue;
   }
 
   return nullptr;
@@ -625,6 +620,4 @@ void* ezVisualScriptNode_SetFmodEventParameter::GetInputPinDataPointer(ezUInt8 u
 
 
 
-
 EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Components_FmodEventComponent);
-

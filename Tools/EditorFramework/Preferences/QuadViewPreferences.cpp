@@ -1,8 +1,10 @@
 #include <PCH.h>
-#include <EditorFramework/Preferences/QuadViewPreferences.h>
+
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorFramework/Preferences/QuadViewPreferences.h>
 #include <Foundation/Serialization/GraphPatch.h>
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezEngineViewPreferences, ezNoBase, 2, ezRTTIDefaultAllocator<ezEngineViewPreferences>)
 {
   EZ_BEGIN_PROPERTIES
@@ -17,6 +19,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezEngineViewPreferences, ezNoBase, 2, ezRTTIDefau
   EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
 
 namespace
 {
@@ -24,7 +27,10 @@ namespace
   class ezSceneViewPreferencesPatch_1_2 : public ezGraphPatch
   {
   public:
-    ezSceneViewPreferencesPatch_1_2() : ezGraphPatch("ezSceneViewPreferences", 2) {}
+    ezSceneViewPreferencesPatch_1_2()
+        : ezGraphPatch("ezSceneViewPreferences", 2)
+    {
+    }
     virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
     {
       context.RenameClass("ezEngineViewPreferences");
@@ -33,6 +39,7 @@ namespace
   ezSceneViewPreferencesPatch_1_2 g_ezSceneViewPreferencesPatch_1_2;
 }
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezQuadViewPreferencesUser, 1, ezRTTIDefaultAllocator<ezQuadViewPreferencesUser>)
 {
   EZ_BEGIN_PROPERTIES
@@ -47,8 +54,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezQuadViewPreferencesUser, 1, ezRTTIDefaultAlloc
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezQuadViewPreferencesUser::ezQuadViewPreferencesUser() : ezPreferences(Domain::Document, "View")
+ezQuadViewPreferencesUser::ezQuadViewPreferencesUser()
+    : ezPreferences(Domain::Document, "View")
 {
   m_bQuadView = false;
 

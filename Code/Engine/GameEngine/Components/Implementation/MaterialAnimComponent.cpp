@@ -1,10 +1,12 @@
 #include <PCH.h>
-#include <GameEngine/Components/MaterialAnimComponent.h>
-#include <Core/WorldSerializer/WorldWriter.h>
+
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <GameEngine/Components/MaterialAnimComponent.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
 #include <GameEngine/Curves/Curve1DResource.h>
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezMaterialAnimComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -20,10 +22,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezMaterialAnimComponent, 1, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezMaterialAnimComponent::ezMaterialAnimComponent()
-{
-}
+ezMaterialAnimComponent::ezMaterialAnimComponent() {}
 
 void ezMaterialAnimComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -39,7 +40,7 @@ void ezMaterialAnimComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezMaterialAnimComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
   s >> m_hPropertyAnim;
@@ -119,12 +120,12 @@ void ezMaterialAnimComponent::Update()
     return;
 
   /// \todo IsFallbackResource ...
-  //if (pMaterial->IsFallbackResource())
+  // if (pMaterial->IsFallbackResource())
   ////  return;
 
-  //auto pDesc = pAnim->GetDescriptor();
+  // auto pDesc = pAnim->GetDescriptor();
 
-  //for (ezUInt32 i = 0; i < pDesc->m_Animations.GetCount(); ++i)
+  // for (ezUInt32 i = 0; i < pDesc->m_Animations.GetCount(); ++i)
   //{
   //  const auto& anim = pDesc->m_Animations[i];
 
@@ -165,6 +166,4 @@ void ezMaterialAnimComponent::Update()
 
 
 
-
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_MaterialAnimComponent);
-

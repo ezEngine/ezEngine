@@ -1,12 +1,14 @@
 #include <PCH.h>
-#include <ParticlePlugin/Behavior/ParticleBehavior_FadeOut.h>
-#include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
+
 #include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
-#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
-#include <Foundation/Profiling/Profiling.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <Foundation/Math/Color16f.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <ParticlePlugin/Behavior/ParticleBehavior_FadeOut.h>
+#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_FadeOut, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_FadeOut>)
 {
   EZ_BEGIN_PROPERTIES
@@ -20,6 +22,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_FadeOut, 1, ezRTTIDefaultAllocator<ezParticleBehavior_FadeOut>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 const ezRTTI* ezParticleBehaviorFactory_FadeOut::GetBehaviorType() const
 {
@@ -127,4 +130,3 @@ void ezParticleBehavior_FadeOut::Process(ezUInt64 uiNumElements)
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_FadeOut);
-

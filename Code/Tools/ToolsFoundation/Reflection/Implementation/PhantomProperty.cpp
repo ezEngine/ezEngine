@@ -1,9 +1,10 @@
 #include <PCH.h>
+
 #include <ToolsFoundation/Reflection/PhantomProperty.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 
 ezPhantomConstantProperty::ezPhantomConstantProperty(const ezReflectedPropertyDescriptor* pDesc)
-  : ezAbstractConstantProperty(nullptr)
+    : ezAbstractConstantProperty(nullptr)
 {
   m_sPropertyNameStorage = pDesc->m_sName;
   m_szPropertyName = m_sPropertyNameStorage.GetData();
@@ -35,7 +36,7 @@ void* ezPhantomConstantProperty::GetPropertyPointer() const
 
 
 ezPhantomMemberProperty::ezPhantomMemberProperty(const ezReflectedPropertyDescriptor* pDesc)
-  : ezAbstractMemberProperty(nullptr)
+    : ezAbstractMemberProperty(nullptr)
 {
   m_sPropertyNameStorage = pDesc->m_sName;
   m_szPropertyName = m_sPropertyNameStorage.GetData();
@@ -60,9 +61,8 @@ const ezRTTI* ezPhantomMemberProperty::GetSpecificType() const
 
 
 
-
 ezPhantomFunctionProperty::ezPhantomFunctionProperty(ezReflectedFunctionDescriptor* pDesc)
-  : ezAbstractFunctionProperty(nullptr)
+    : ezAbstractFunctionProperty(nullptr)
 {
   m_sPropertyNameStorage = pDesc->m_sName;
   m_szPropertyName = m_sPropertyNameStorage.GetData();
@@ -120,7 +120,7 @@ void ezPhantomFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVariant> v
 }
 
 ezPhantomArrayProperty::ezPhantomArrayProperty(const ezReflectedPropertyDescriptor* pDesc)
-  : ezAbstractArrayProperty(nullptr)
+    : ezAbstractArrayProperty(nullptr)
 {
   m_sPropertyNameStorage = pDesc->m_sName;
   m_szPropertyName = m_sPropertyNameStorage.GetData();
@@ -144,7 +144,7 @@ const ezRTTI* ezPhantomArrayProperty::GetSpecificType() const
 }
 
 ezPhantomSetProperty::ezPhantomSetProperty(const ezReflectedPropertyDescriptor* pDesc)
-  : ezAbstractSetProperty(nullptr)
+    : ezAbstractSetProperty(nullptr)
 {
   m_sPropertyNameStorage = pDesc->m_sName;
   m_szPropertyName = m_sPropertyNameStorage.GetData();
@@ -168,7 +168,7 @@ const ezRTTI* ezPhantomSetProperty::GetSpecificType() const
 }
 
 ezPhantomMapProperty::ezPhantomMapProperty(const ezReflectedPropertyDescriptor* pDesc)
-  : ezAbstractMapProperty(nullptr)
+    : ezAbstractMapProperty(nullptr)
 {
   m_sPropertyNameStorage = pDesc->m_sName;
   m_szPropertyName = m_sPropertyNameStorage.GetData();

@@ -1,7 +1,8 @@
 #include <PCH.h>
+
+#include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Time/Timestamp.h>
-#include <Foundation/Threading/ThreadUtils.h>
 
 EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
 {
@@ -21,12 +22,16 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
     // Kind of hard to hit a moving target, let's just test if it is in a probable range.
     EZ_TEST_BOOL(currentTimestamp.IsValid());
     EZ_TEST_BOOL_MSG(currentTimestamp.GetInt64(ezSIUnitOfTime::Second) > 1384597970LL, "The current time is before this test was written!");
-    EZ_TEST_BOOL_MSG(currentTimestamp.GetInt64(ezSIUnitOfTime::Second) < 32531209845LL, "This current time is after the year 3000! If this is actually the case, please fix this test.");
+    EZ_TEST_BOOL_MSG(currentTimestamp.GetInt64(ezSIUnitOfTime::Second) < 32531209845LL,
+                     "This current time is after the year 3000! If this is actually the case, please fix this test.");
 
     // Sleep for 10 milliseconds
     ezThreadUtils::Sleep(ezTime::Milliseconds(10));
-    EZ_TEST_BOOL_MSG(currentTimestamp.GetInt64(ezSIUnitOfTime::Microsecond) < ezTimestamp::CurrentTimestamp().GetInt64(ezSIUnitOfTime::Microsecond), "Sleeping for 10 ms should cause the timestamp to change!");
-    EZ_TEST_BOOL_MSG(!currentTimestamp.Compare(ezTimestamp::CurrentTimestamp(), ezTimestamp::CompareMode::Identical), "Sleeping for 10 ms should cause the timestamp to change!");
+    EZ_TEST_BOOL_MSG(currentTimestamp.GetInt64(ezSIUnitOfTime::Microsecond) <
+                         ezTimestamp::CurrentTimestamp().GetInt64(ezSIUnitOfTime::Microsecond),
+                     "Sleeping for 10 ms should cause the timestamp to change!");
+    EZ_TEST_BOOL_MSG(!currentTimestamp.Compare(ezTimestamp::CurrentTimestamp(), ezTimestamp::CompareMode::Identical),
+                     "Sleeping for 10 ms should cause the timestamp to change!");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Public Accessors")
@@ -53,7 +58,8 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
     EZ_TEST_BOOL(firstContactTest.Compare(firstContact, ezTimestamp::CompareMode::Identical));
 
     // IsEqual
-    const ezTimestamp firstContactPlusAFewMicroseconds(firstContact.GetInt64(ezSIUnitOfTime::Microsecond) + 42, ezSIUnitOfTime::Microsecond);
+    const ezTimestamp firstContactPlusAFewMicroseconds(firstContact.GetInt64(ezSIUnitOfTime::Microsecond) + 42,
+                                                       ezSIUnitOfTime::Microsecond);
     EZ_TEST_BOOL(firstContact.Compare(firstContactPlusAFewMicroseconds, ezTimestamp::CompareMode::FileTimeEqual));
     EZ_TEST_BOOL(!firstContact.Compare(firstContactPlusAFewMicroseconds, ezTimestamp::CompareMode::Identical));
   }
@@ -119,7 +125,8 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
     currentDateTime.SetTimestamp(currentTimestamp);
     ezTimestamp currentTimestamp2 = currentDateTime.GetTimestamp();
     // OS date time functions should be accurate within one second.
-    ezInt64 iDiff = ezMath::Abs(currentTimestamp.GetInt64(ezSIUnitOfTime::Microsecond) - currentTimestamp2.GetInt64(ezSIUnitOfTime::Microsecond));
+    ezInt64 iDiff =
+        ezMath::Abs(currentTimestamp.GetInt64(ezSIUnitOfTime::Microsecond) - currentTimestamp2.GetInt64(ezSIUnitOfTime::Microsecond));
     EZ_TEST_BOOL(iDiff <= 1000000);
 
     // Setter
@@ -137,4 +144,3 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
     EZ_TEST_INT(oneSmallStepTimestamp.GetInt64(ezSIUnitOfTime::Second), -14159040LL);
   }
 }
-

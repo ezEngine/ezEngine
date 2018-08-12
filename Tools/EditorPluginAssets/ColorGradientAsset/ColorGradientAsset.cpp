@@ -1,16 +1,18 @@
 #include <PCH.h>
+
+#include <Core/WorldSerializer/ResourceHandleWriter.h>
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAssetManager.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
-#include <EditorFramework/Assets/AssetCurator.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Image/Image.h>
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Foundation/Tracks/ColorGradient.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
 #include <GuiFoundation/Widgets/CurveEditData.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorControlPoint, 2, ezRTTIDefaultAllocator<ezColorControlPoint>)
 {
   EZ_BEGIN_PROPERTIES
@@ -64,7 +66,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientAssetDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
+// clang-format on
 
 void ezColorControlPoint::SetTickFromTime(double time, ezInt64 fps)
 {
@@ -84,7 +86,8 @@ void ezIntensityControlPoint::SetTickFromTime(double time, ezInt64 fps)
   m_iTick = (ezInt64)ezMath::Round(time * 4800.0, (double)uiTicksPerStep);
 }
 
-ezColorGradientAssetDocument::ezColorGradientAssetDocument(const char* szDocumentPath) : ezSimpleAssetDocument<ezColorGradientAssetData>(szDocumentPath)
+ezColorGradientAssetDocument::ezColorGradientAssetDocument(const char* szDocumentPath)
+    : ezSimpleAssetDocument<ezColorGradientAssetData>(szDocumentPath)
 {
 }
 
@@ -172,7 +175,8 @@ ezColor ezColorGradientAssetData::Evaluate(ezInt64 iTick) const
   return color;
 }
 
-ezStatus ezColorGradientAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezColorGradientAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
+                                                              const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   const ezColorGradientAssetData* pProp = GetProperties();
 
@@ -246,9 +250,9 @@ ezStatus ezColorGradientAssetDocument::InternalCreateThumbnail(const ezAssetFile
   return SaveThumbnail(img, AssetHeader);
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 
@@ -256,7 +260,9 @@ class ezColorGradientAssetDataPatch_1_2 : public ezGraphPatch
 {
 public:
   ezColorGradientAssetDataPatch_1_2()
-    : ezGraphPatch("ezColorGradientAssetData", 2) {}
+      : ezGraphPatch("ezColorGradientAssetData", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -274,7 +280,9 @@ class ezColorControlPoint_1_2 : public ezGraphPatch
 {
 public:
   ezColorControlPoint_1_2()
-    : ezGraphPatch("ezColorControlPoint", 2) {}
+      : ezGraphPatch("ezColorControlPoint", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -295,7 +303,9 @@ class ezAlphaControlPoint_1_2 : public ezGraphPatch
 {
 public:
   ezAlphaControlPoint_1_2()
-    : ezGraphPatch("ezAlphaControlPoint", 2) {}
+      : ezGraphPatch("ezAlphaControlPoint", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -316,7 +326,9 @@ class ezIntensityControlPoint_1_2 : public ezGraphPatch
 {
 public:
   ezIntensityControlPoint_1_2()
-    : ezGraphPatch("ezIntensityControlPoint", 2) {}
+      : ezGraphPatch("ezIntensityControlPoint", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {

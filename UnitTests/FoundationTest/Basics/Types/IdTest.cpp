@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Types/Id.h>
 
 struct TestId
@@ -15,8 +16,7 @@ struct TestId
     m_SystemIndex = systemIndex;
   }
 
-  union
-  {
+  union {
     StorageType m_Data;
     struct
     {
@@ -63,4 +63,3 @@ EZ_CREATE_SIMPLE_TEST(Basics, Id)
   EZ_TEST_INT(id4.m_InstanceIndex, 1);
   EZ_TEST_INT(id4.m_Generation, 200);
 }
-

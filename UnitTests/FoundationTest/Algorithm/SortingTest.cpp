@@ -1,20 +1,15 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Containers/DynamicArray.h>
 
 namespace
 {
   struct CustomComparer
   {
-    EZ_ALWAYS_INLINE bool Less(ezInt32 a, ezInt32 b) const
-    {
-      return a > b;
-    }
+    EZ_ALWAYS_INLINE bool Less(ezInt32 a, ezInt32 b) const { return a > b; }
 
     // Comparision via operator. Sorting algorithm should prefer Less operator
-    bool operator ()(ezInt32 a, ezInt32 b) const
-    {
-      return a < b;
-    }
+    bool operator()(ezInt32 a, ezInt32 b) const { return a < b; }
   };
 }
 

@@ -1,12 +1,14 @@
-﻿#include <PCH.h>
-#include <PhysXPlugin/Shapes/PxShapeConvexComponent.h>
-#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
-#include <PhysXPlugin/Utilities/PxConversionUtils.h>
-#include <Core/WorldSerializer/WorldWriter.h>
+#include <PCH.h>
+
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <PhysXPlugin/Shapes/PxShapeConvexComponent.h>
+#include <PhysXPlugin/Utilities/PxConversionUtils.h>
+#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 
 using namespace physx;
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezPxShapeConvexComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -16,10 +18,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeConvexComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezPxShapeConvexComponent::ezPxShapeConvexComponent()
-{
-}
+ezPxShapeConvexComponent::ezPxShapeConvexComponent() {}
 
 
 void ezPxShapeConvexComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -72,7 +73,8 @@ PxShape* ezPxShapeConvexComponent::CreateShape(PxRigidActor* pActor, PxTransform
 
   if (!pMesh->GetConvexMesh())
   {
-    ezLog::Warning("ezPxShapeConvexComponent '{0}' has a collision mesh set that does not contain a convex mesh: '{1}' ('{2}')", GetOwner()->GetName(), pMesh->GetResourceID(), pMesh->GetResourceDescription());
+    ezLog::Warning("ezPxShapeConvexComponent '{0}' has a collision mesh set that does not contain a convex mesh: '{1}' ('{2}')",
+                   GetOwner()->GetName(), pMesh->GetResourceID(), pMesh->GetResourceDescription());
     return nullptr;
   }
 
@@ -115,4 +117,3 @@ void ezPxShapeConvexComponent::AddToNavMesh(ezMsgBuildNavMesh& msg) const
 }
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Shapes_Implementation_PxShapeConvexComponent);
-

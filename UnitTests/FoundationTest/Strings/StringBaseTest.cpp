@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Strings/String.h>
 
 EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
@@ -10,7 +11,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEmpty")
   {
-    ezStringView it (nullptr);
+    ezStringView it(nullptr);
     EZ_TEST_BOOL(it.IsEmpty());
 
     ezStringView it2("");
@@ -471,7 +472,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
 
     EZ_TEST_BOOL(it.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English) == &it.GetData()[34]);
     EZ_TEST_BOOL(it.FindWholeWord("def", ezStringUtils::IsWordDelimiter_English) == &it.GetData()[38]);
-    EZ_TEST_BOOL(it.FindWholeWord("mompfh", ezStringUtils::IsWordDelimiter_English) == &it.GetData()[0]); // ü is not english (thus a delimiter)
+    EZ_TEST_BOOL(it.FindWholeWord("mompfh", ezStringUtils::IsWordDelimiter_English) ==
+                 &it.GetData()[0]); // ü is not english (thus a delimiter)
 
     EZ_TEST_BOOL(it.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 34) == &it.GetData()[34]);
     EZ_TEST_BOOL(it.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 35) == nullptr);
@@ -505,4 +507,3 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_STRING(s.ComputeCharacterPosition(14), ezStringUtf8(L"öäü abcdef abc def abc def").GetData());
   }
 }
-

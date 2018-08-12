@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <Foundation/Communication/Telemetry.h>
+
 #include <Core/Input/InputManager.h>
+#include <Foundation/Communication/Telemetry.h>
 
 namespace InputDetail
 {
@@ -75,13 +76,13 @@ namespace InputDetail
 
     switch (e.m_EventType)
     {
-    case ezTelemetry::TelemetryEventData::ConnectedToClient:
-      SendAllInputSlots();
-      SendAllInputActions();
-      break;
+      case ezTelemetry::TelemetryEventData::ConnectedToClient:
+        SendAllInputSlots();
+        SendAllInputActions();
+        break;
 
-    default:
-      break;
+      default:
+        break;
     }
   }
 
@@ -92,18 +93,17 @@ namespace InputDetail
 
     switch (e.m_EventType)
     {
-    case ezInputManager::InputEventData::InputActionChanged:
-      SendInputActionData(e.m_szInputSet, e.m_szInputAction);
-      break;
-    case ezInputManager::InputEventData::InputSlotChanged:
-      SendInputSlotData(e.m_szInputSlot);
-      break;
+      case ezInputManager::InputEventData::InputActionChanged:
+        SendInputActionData(e.m_szInputSet, e.m_szInputAction);
+        break;
+      case ezInputManager::InputEventData::InputSlotChanged:
+        SendInputSlotData(e.m_szInputSlot);
+        break;
 
-    default:
-      break;
+      default:
+        break;
     }
   }
-
 }
 
 void AddInputEventHandler()
@@ -121,4 +121,3 @@ void RemoveInputEventHandler()
 
 
 EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Input);
-
