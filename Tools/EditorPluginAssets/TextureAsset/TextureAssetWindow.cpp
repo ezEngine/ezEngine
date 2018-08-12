@@ -1,18 +1,19 @@
-﻿#include <PCH.h>
-#include <EditorPluginAssets/TextureAsset/TextureAssetWindow.moc.h>
-#include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
+#include <PCH.h>
+
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
+#include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorPluginAssets/TextureAsset/TextureAsset.h>
+#include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
+#include <EditorPluginAssets/TextureAsset/TextureAssetWindow.moc.h>
+#include <Foundation/Image/ImageConversion.h>
+#include <GuiFoundation/Action/ActionManager.h>
+#include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
-#include <GuiFoundation/Widgets/ImageWidget.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <Foundation/Image/ImageConversion.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorPluginAssets/TextureAsset/TextureViewWidget.moc.h>
-#include <EditorFramework/InputContexts/EditorInputContext.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
-#include <GuiFoundation/Action/ActionManager.h>
+#include <GuiFoundation/Widgets/ImageWidget.moc.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezTextureChannelModeAction
@@ -22,7 +23,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureChannelModeAction, 1, ezRTTINoAllocator
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezTextureChannelModeAction::ezTextureChannelModeAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-  : ezEnumerationMenuAction(context, szName, szIconPath)
+    : ezEnumerationMenuAction(context, szName, szIconPath)
 {
   InitEnumerationType(ezGetStaticRTTI<ezTextureChannelMode>());
 }
@@ -46,7 +47,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 ezTextureLodSliderAction::ezTextureLodSliderAction(const ezActionContext& context, const char* szName)
-  : ezSliderAction(context, szName)
+    : ezSliderAction(context, szName)
 {
   m_pDocument = const_cast<ezTextureAssetDocument*>(static_cast<const ezTextureAssetDocument*>(context.m_pDocument));
 
@@ -71,7 +72,8 @@ ezActionDescriptorHandle ezTextureAssetActions::s_hLodSlider;
 
 void ezTextureAssetActions::RegisterActions()
 {
-  s_hTextureChannelMode = EZ_REGISTER_DYNAMIC_MENU("TextureAsset.ChannelMode", ezTextureChannelModeAction, ":/EditorFramework/Icons/RenderMode.png");
+  s_hTextureChannelMode =
+      EZ_REGISTER_DYNAMIC_MENU("TextureAsset.ChannelMode", ezTextureChannelModeAction, ":/EditorFramework/Icons/RenderMode.png");
   s_hLodSlider = EZ_REGISTER_ACTION_0("TextureAsset.LodSlider", ezActionScope::Document, "Texture Asset", "", ezTextureLodSliderAction);
 }
 
@@ -96,7 +98,7 @@ void ezTextureAssetActions::MapActions(const char* szMapping, const char* szPath
 //////////////////////////////////////////////////////////////////////////
 
 ezQtTextureAssetDocumentWindow::ezQtTextureAssetDocumentWindow(ezTextureAssetDocument* pDocument)
-  : ezQtEngineDocumentWindow(pDocument)
+    : ezQtEngineDocumentWindow(pDocument)
 {
   // Menu Bar
   {
@@ -127,7 +129,8 @@ ezQtTextureAssetDocumentWindow::ezQtTextureAssetDocumentWindow(ezTextureAssetDoc
     m_ViewConfig.m_Camera.LookAt(ezVec3(-2, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
-    m_pViewWidget = new ezQtTextureViewWidget(nullptr, this, &m_ViewConfig);
+    m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
+    m_pViewWidget->ConfigureOrbitCameraVolume(ezVec3(0), ezVec3(1.0f), ezVec3(-1, 0, 0));
     AddViewWidget(m_pViewWidget);
     ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, nullptr);
 
@@ -146,7 +149,6 @@ ezQtTextureAssetDocumentWindow::ezQtTextureAssetDocumentWindow(ezTextureAssetDoc
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
-
   }
 
   FinishWindowCreation();
@@ -183,4 +185,3 @@ void ezQtTextureAssetDocumentWindow::SendRedrawMsg()
     pView->SyncToEngine();
   }
 }
-

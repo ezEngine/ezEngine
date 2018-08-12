@@ -1,15 +1,11 @@
-﻿#pragma once
+#pragma once
 
-#include <Foundation/Basics.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAsset.h>
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAsset.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class QLabel;
-class QScrollArea;
-class ezQtImageWidget;
-class ezQtCollisionMeshViewWidget;
+class ezQtOrbitCamViewWidget;
 
 class ezQtCollisionMeshAssetDocumentWindow : public ezQtEngineDocumentWindow
 {
@@ -29,6 +25,6 @@ private:
   void QueryObjectBBox(ezInt32 iPurpose);
 
   ezEngineViewConfig m_ViewConfig;
-  ezQtCollisionMeshViewWidget* m_pViewWidget;
+  ezQtOrbitCamViewWidget* m_pViewWidget;
   ezCollisionMeshAssetDocument* m_pAssetDoc;
 };

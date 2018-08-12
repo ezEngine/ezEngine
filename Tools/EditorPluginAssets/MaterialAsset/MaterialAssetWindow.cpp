@@ -1,30 +1,30 @@
 #include <PCH.h>
-#include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
-#include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
-#include <EditorPluginAssets/MaterialAsset/MaterialViewWidget.moc.h>
-#include <EditorPluginAssets/MaterialAsset/MaterialAssetManager.h>
-#include <SharedPluginAssets/Common/Messages.h>
-#include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
-#include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
-#include <GuiFoundation/Widgets/ImageWidget.moc.h>
-#include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
-#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <EditorFramework/InputContexts/EditorInputContext.h>
-#include <EditorFramework/Preferences/Preferences.h>
-#include <EditorFramework/Preferences/EditorPreferences.h>
-#include <EditorFramework/Assets/AssetDocumentManager.h>
+
 #include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <SharedPluginAssets/Common/Messages.h>
-#include <VisualShader/VisualShaderScene.moc.h>
-#include <GuiFoundation/NodeEditor/NodeView.moc.h>
-#include <Foundation/IO/DirectoryWatcher.h>
-#include <ToolsFoundation/Application/ApplicationServices.h>
+#include <EditorFramework/Assets/AssetDocumentManager.h>
+#include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
+#include <EditorFramework/InputContexts/EditorInputContext.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
+#include <EditorFramework/Preferences/Preferences.h>
+#include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
+#include <EditorPluginAssets/MaterialAsset/MaterialAssetManager.h>
+#include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
+#include <Foundation/IO/DirectoryWatcher.h>
 #include <Foundation/IO/OSFile.h>
+#include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
+#include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
+#include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
+#include <GuiFoundation/NodeEditor/NodeView.moc.h>
+#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
+#include <GuiFoundation/Widgets/ImageWidget.moc.h>
 #include <QSplitter>
-#include <QTimer>
 #include <QTextEdit>
+#include <QTimer>
+#include <SharedPluginAssets/Common/Messages.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
+#include <VisualShader/VisualShaderScene.moc.h>
 
 
 ezInt32 ezQtMaterialAssetDocumentWindow::s_iNodeConfigWatchers = 0;
@@ -32,10 +32,12 @@ ezDirectoryWatcher* ezQtMaterialAssetDocumentWindow::s_pNodeConfigWatcher = null
 
 
 ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAssetDocument* pDocument)
-  : ezQtEngineDocumentWindow(pDocument)
+    : ezQtEngineDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(
+      ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(
+      ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
 
   pDocument->m_VisualShaderEvents.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler, this));
 
@@ -69,7 +71,8 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
     m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
     m_ViewConfig.ApplyPerspectiveSetting(90, 0.01f, 100.0f);
 
-    m_pViewWidget = new ezQtMaterialViewWidget(nullptr, this, &m_ViewConfig);
+    m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
+    m_pViewWidget->ConfigureOrbitCameraVolume(ezVec3(0), ezVec3(0.0f), ezVec3(-0.2, 0, 0));
     AddViewWidget(m_pViewWidget);
     ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(nullptr, m_pViewWidget, "MaterialAssetViewToolBar");
 
@@ -147,14 +150,18 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
 
 ezQtMaterialAssetDocumentWindow::~ezQtMaterialAssetDocumentWindow()
 {
-  GetMaterialDocument()->m_VisualShaderEvents.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler, this));
+  GetMaterialDocument()->m_VisualShaderEvents.RemoveEventHandler(
+      ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler, this));
 
   RestoreResource();
 
-  GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(
+      ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(
+      ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
 
-  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
+  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() ==
+                       ezMaterialShaderMode::Custom;
 
   if (bCustom)
   {
@@ -211,7 +218,8 @@ void ezQtMaterialAssetDocumentWindow::OnOpenShaderClicked(bool)
 {
   ezAssetDocumentManager* pManager = (ezAssetDocumentManager*)GetMaterialDocument()->GetDocumentManager();
 
-  ezString sAutoGenShader = pManager->GetAbsoluteOutputFileName(GetMaterialDocument()->GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+  ezString sAutoGenShader =
+      pManager->GetAbsoluteOutputFileName(GetMaterialDocument()->GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
 
   if (ezOSFile::ExistsFile(sAutoGenShader))
   {
@@ -269,11 +277,7 @@ void ezQtMaterialAssetDocumentWindow::SelectionEventHandler(const ezSelectionMan
   if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
   {
     // delayed execution
-    QTimer::singleShot(1, [this]()
-    {
-      GetDocument()->GetSelectionManager()->SetSelection(GetMaterialDocument()->GetPropertyObject());
-    });
-
+    QTimer::singleShot(1, [this]() { GetDocument()->GetSelectionManager()->SetSelection(GetMaterialDocument()->GetPropertyObject()); });
   }
 }
 
@@ -299,11 +303,12 @@ void ezQtMaterialAssetDocumentWindow::RestoreResource()
 
 void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
 {
-  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
+  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() ==
+                       ezMaterialShaderMode::Custom;
 
   // when this is called during construction, it seems to be overridden again (probably by the dock widget code or the splitter)
   // by delaying it a bit, we have the last word
-  QTimer::singleShot(10, this, [this, bCustom]() {m_pVsePanel->setVisible(bCustom); });
+  QTimer::singleShot(10, this, [this, bCustom]() { m_pVsePanel->setVisible(bCustom); });
 
   if (m_bVisualShaderEnabled != bCustom)
   {
@@ -337,7 +342,8 @@ void ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler(const ezMaterialV
 
   if (e.m_Type == ezMaterialVisualShaderEvent::VisualShaderNotUsed)
   {
-    text = "<span style=\"color:#bbbb00;\">Visual Shader is not used by the material.</span><br><br>Change the ShaderMode in the asset properties to enable Visual Shader mode.";
+    text = "<span style=\"color:#bbbb00;\">Visual Shader is not used by the material.</span><br><br>Change the ShaderMode in the asset "
+           "properties to enable Visual Shader mode.";
   }
   else
   {
@@ -366,6 +372,3 @@ void ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler(const ezMaterialV
   m_pOutputLine->setAcceptRichText(true);
   m_pOutputLine->setHtml(text.GetData());
 }
-
-
-

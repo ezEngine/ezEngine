@@ -1,54 +1,55 @@
 #include <PCH.h>
+
+#include <EditorFramework/DocumentWindow/GameObjectViewWidget.moc.h>
+#include <EditorFramework/DocumentWindow/QuadViewWidget.moc.h>
+#include <EditorFramework/EditTools/EditTool.h>
+#include <EditorFramework/InputContexts/EditorInputContext.h>
+#include <EditorFramework/Panels/GameObjectPanel/GameObjectModel.moc.h>
+#include <EditorFramework/Panels/GameObjectPanel/GameObjectPanel.moc.h>
+#include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
+#include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAsset.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAssetWindow.moc.h>
+#include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimModel.moc.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimObjectManager.h>
+#include <Foundation/Image/ImageConversion.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
-#include <GuiFoundation/Widgets/ImageWidget.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
-#include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimModel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <Foundation/Image/ImageConversion.h>
-#include <GuiFoundation/Widgets/Curve1DEditorWidget.moc.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
-#include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAsset.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <EditorFramework/Panels/GameObjectPanel/GameObjectPanel.moc.h>
-#include <EditorFramework/Panels/GameObjectPanel/GameObjectModel.moc.h>
 #include <GuiFoundation/Widgets/ColorGradientEditorWidget.moc.h>
+#include <GuiFoundation/Widgets/Curve1DEditorWidget.moc.h>
 #include <GuiFoundation/Widgets/EventTrackEditorWidget.moc.h>
-#include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
-#include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimViewWidget.moc.h>
-#include <EditorFramework/EditTools/EditTool.h>
-#include <EditorFramework/DocumentWindow/QuadViewWidget.moc.h>
+#include <GuiFoundation/Widgets/ImageWidget.moc.h>
 #include <GuiFoundation/Widgets/TimeScrubberWidget.moc.h>
-#include <EditorFramework/InputContexts/EditorInputContext.h>
-#include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
-#include <ToolsFoundation/Object/ObjectCommandAccessor.h>
+#include <QInputDialog>
 #include <QItemSelectionModel>
 #include <QLabel>
 #include <QLayout>
+#include <QPushButton>
 #include <QTimer>
 #include <QToolBar>
-#include <QPushButton>
+#include <ToolsFoundation/Command/TreeCommands.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <ToolsFoundation/Object/ObjectCommandAccessor.h>
+#include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
 #include <qevent.h>
-#include <QInputDialog>
 
-ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPropertyAnimAssetDocument* pDocument) : ezQtGameObjectDocumentWindow(pDocument)
+ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPropertyAnimAssetDocument* pDocument)
+    : ezQtGameObjectDocumentWindow(pDocument)
 {
-  auto ViewFactory = [](ezQtEngineDocumentWindow* pWindow, ezEngineViewConfig* pConfig) -> ezQtEngineViewWidget*
-  {
-    ezQtPropertyAnimViewWidget* pWidget = new ezQtPropertyAnimViewWidget(nullptr, static_cast<ezQtPropertyAnimAssetDocumentWindow*>(pWindow), pConfig);
+  auto ViewFactory = [](ezQtEngineDocumentWindow* pWindow, ezEngineViewConfig* pConfig) -> ezQtEngineViewWidget* {
+    ezQtGameObjectViewWidget* pWidget =
+        new ezQtGameObjectViewWidget(nullptr, static_cast<ezQtPropertyAnimAssetDocumentWindow*>(pWindow), pConfig);
     pWindow->AddViewWidget(pWidget);
     return pWidget;
   };
   m_pQuadViewWidget = new ezQtQuadViewWidget(pDocument, this, ViewFactory, "PropertyAnimAssetViewToolBar");
 
-  pDocument->SetEditToolConfigDelegate([this](ezGameObjectEditTool* pTool)
-  {
-    pTool->ConfigureTool(static_cast<ezGameObjectDocument*>(GetDocument()), this, this);
-  });
+  pDocument->SetEditToolConfigDelegate(
+      [this](ezGameObjectEditTool* pTool) { pTool->ConfigureTool(static_cast<ezGameObjectDocument*>(GetDocument()), this, this); });
 
-  pDocument->m_PropertyAnimEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler, this));
+  pDocument->m_PropertyAnimEvents.AddEventHandler(
+      ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler, this));
 
   setCentralWidget(m_pQuadViewWidget);
   SetTargetFramerate(25);
@@ -81,7 +82,8 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     pModel->AddAdapter(new ezQtDummyAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezDocumentRoot>(), "TempObjects"));
     pModel->AddAdapter(new ezQtGameObjectAdapter(pDocument));
 
-    ezQtDocumentPanel* pGameObjectPanel = new ezQtGameObjectPanel(this, pDocument, "PropertyAnimAsset_ScenegraphContextMenu", std::move(pModel));
+    ezQtDocumentPanel* pGameObjectPanel =
+        new ezQtGameObjectPanel(this, pDocument, "PropertyAnimAsset_ScenegraphContextMenu", std::move(pModel));
     addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pGameObjectPanel);
   }
 
@@ -112,11 +114,14 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     m_pPropertyTreeView->setExpandsOnDoubleClick(false);
     pPanel->setWidget(m_pPropertyTreeView);
 
-    connect(m_pPropertyTreeView, &ezQtPropertyAnimAssetTreeView::DeleteSelectedItemsEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems);
-    connect(m_pPropertyTreeView, &ezQtPropertyAnimAssetTreeView::RebindSelectedItemsEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onRebindSelectedItems);
+    connect(m_pPropertyTreeView, &ezQtPropertyAnimAssetTreeView::DeleteSelectedItemsEvent, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems);
+    connect(m_pPropertyTreeView, &ezQtPropertyAnimAssetTreeView::RebindSelectedItemsEvent, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onRebindSelectedItems);
 
     connect(m_pPropertyTreeView, &QTreeView::doubleClicked, this, &ezQtPropertyAnimAssetDocumentWindow::onTreeItemDoubleClicked);
-    connect(m_pPropertyTreeView, &ezQtPropertyAnimAssetTreeView::FrameSelectedItemsEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onFrameSelectedTracks);
+    connect(m_pPropertyTreeView, &ezQtPropertyAnimAssetTreeView::FrameSelectedItemsEvent, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onFrameSelectedTracks);
 
     addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanel);
   }
@@ -182,17 +187,20 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
   // Time Scrubber
   {
     m_pScrubberToolbar = new ezQtTimeScrubberToolbar(this);
-    connect(m_pScrubberToolbar, &ezQtTimeScrubberToolbar::ScrubberPosChangedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onScrubberPosChanged);
+    connect(m_pScrubberToolbar, &ezQtTimeScrubberToolbar::ScrubberPosChangedEvent, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onScrubberPosChanged);
     connect(m_pScrubberToolbar, &ezQtTimeScrubberToolbar::PlayPauseEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onPlayPauseClicked);
     connect(m_pScrubberToolbar, &ezQtTimeScrubberToolbar::RepeatEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onRepeatClicked);
-    connect(m_pScrubberToolbar, &ezQtTimeScrubberToolbar::DurationChangedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onDurationChangedEvent);
-    connect(m_pScrubberToolbar, &ezQtTimeScrubberToolbar::AdjustDurationEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onAdjustDurationClicked);
+    connect(m_pScrubberToolbar, &ezQtTimeScrubberToolbar::DurationChangedEvent, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onDurationChangedEvent);
+    connect(m_pScrubberToolbar, &ezQtTimeScrubberToolbar::AdjustDurationEvent, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onAdjustDurationClicked);
 
     addToolBar(Qt::ToolBarArea::BottomToolBarArea, m_pScrubberToolbar);
   }
 
   // this would show the document properties
-  //pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
+  // pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
 
   // Curve editor events
   {
@@ -201,53 +209,82 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpDeletedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveCpDeleted);
     connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::TangentMovedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveTangentMoved);
     connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::TangentLinkEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onLinkCurveTangents);
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpTangentModeEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveTangentModeChanged);
+    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpTangentModeEvent, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onCurveTangentModeChanged);
 
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::BeginOperationEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveBeginOperation);
+    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::BeginOperationEvent, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onCurveBeginOperation);
     connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::EndOperationEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveEndOperation);
-    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::BeginCpChangesEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveBeginCpChanges);
+    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::BeginCpChangesEvent, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onCurveBeginCpChanges);
     connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::EndCpChangesEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveEndCpChanges);
   }
 
   // Gradient editor events
   {
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpAdded, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpAdded);
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpMoved, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpMoved);
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpDeleted, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpDeleted);
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpChanged, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpChanged);
+    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpAdded, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpAdded);
+    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpMoved, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpMoved);
+    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpDeleted, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpDeleted);
+    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpChanged, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpChanged);
 
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpAdded, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpAdded);
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpMoved, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpMoved);
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpDeleted, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpDeleted);
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpChanged, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpChanged);
+    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpAdded, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpAdded);
+    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpMoved, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpMoved);
+    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpDeleted, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpDeleted);
+    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpChanged, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpChanged);
 
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpAdded, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpAdded);
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpMoved, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpMoved);
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpDeleted, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpDeleted);
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpChanged, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpChanged);
+    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpAdded, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpAdded);
+    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpMoved, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpMoved);
+    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpDeleted, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpDeleted);
+    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpChanged, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpChanged);
 
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::BeginOperation, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientBeginOperation);
-    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::EndOperation, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientEndOperation);
+    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::BeginOperation, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onGradientBeginOperation);
+    connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::EndOperation, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onGradientEndOperation);
 
-    //connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::NormalizeRange, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientNormalizeRange);
+    // connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::NormalizeRange, this,
+    // &ezQtPropertyAnimAssetDocumentWindow::onGradientNormalizeRange);
   }
 
   // Event track editor events
   {
-    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::InsertCpEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackInsertCpAt);
-    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::CpMovedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackCpMoved);
-    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::CpDeletedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackCpDeleted);
+    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::InsertCpEvent, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onEventTrackInsertCpAt);
+    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::CpMovedEvent, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onEventTrackCpMoved);
+    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::CpDeletedEvent, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onEventTrackCpDeleted);
 
-    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::BeginOperationEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackBeginOperation);
-    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::EndOperationEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackEndOperation);
-    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::BeginCpChangesEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackBeginCpChanges);
-    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::EndCpChangesEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackEndCpChanges);
+    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::BeginOperationEvent, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onEventTrackBeginOperation);
+    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::EndOperationEvent, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onEventTrackEndOperation);
+    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::BeginCpChangesEvent, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onEventTrackBeginCpChanges);
+    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::EndCpChangesEvent, this,
+            &ezQtPropertyAnimAssetDocumentWindow::onEventTrackEndCpChanges);
   }
 
-  //GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler, this));
-  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler, this));
-  GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::CommandHistoryEventHandler, this));
+  // GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler,
+  // this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(
+      ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(
+      ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler, this));
+  GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(
+      ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::CommandHistoryEventHandler, this));
 
   FinishWindowCreation();
 
@@ -263,11 +300,16 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
 ezQtPropertyAnimAssetDocumentWindow::~ezQtPropertyAnimAssetDocumentWindow()
 {
-  GetPropertyAnimDocument()->m_PropertyAnimEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler, this));
-  //GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler, this));
-  GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler, this));
-  GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::CommandHistoryEventHandler, this));
+  GetPropertyAnimDocument()->m_PropertyAnimEvents.RemoveEventHandler(
+      ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler, this));
+  // GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler,
+  // this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(
+      ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(
+      ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler, this));
+  GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(
+      ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::CommandHistoryEventHandler, this));
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::ToggleViews(QWidget* pView)
@@ -381,12 +423,12 @@ void ezQtPropertyAnimAssetDocumentWindow::UpdateSelectionData()
 
   for (const QModelIndex& selIdx : m_pSelectionModel->selection().indexes())
   {
-    ezQtPropertyAnimModelTreeEntry* pTreeItem = reinterpret_cast<ezQtPropertyAnimModelTreeEntry*>(m_pPropertiesModel->data(selIdx, ezQtPropertyAnimModel::UserRoles::TreeItem).value<void*>());
+    ezQtPropertyAnimModelTreeEntry* pTreeItem = reinterpret_cast<ezQtPropertyAnimModelTreeEntry*>(
+        m_pPropertiesModel->data(selIdx, ezQtPropertyAnimModel::UserRoles::TreeItem).value<void*>());
 
     ezQtPropertyAnimModel* pModel = m_pPropertiesModel;
 
-    auto addRecursive = [&tracks, pModel](auto& self, const ezQtPropertyAnimModelTreeEntry* pTreeItem)->void
-    {
+    auto addRecursive = [&tracks, pModel](auto& self, const ezQtPropertyAnimModelTreeEntry* pTreeItem) -> void {
       if (pTreeItem->m_pTrack != nullptr)
         tracks.Insert(pTreeItem->m_iTrackIdx);
 
@@ -524,7 +566,8 @@ void ezQtPropertyAnimAssetDocumentWindow::onRebindSelectedItems()
 
   m_pSelectionModel->clear();
 
-  ezStringBuilder path = result.toUtf8().data();;
+  ezStringBuilder path = result.toUtf8().data();
+  ;
   path.MakeCleanPath();
   const ezVariant varRes = path.GetData();
 
@@ -578,7 +621,8 @@ void ezQtPropertyAnimAssetDocumentWindow::onDurationChangedEvent(double duration
 
 void ezQtPropertyAnimAssetDocumentWindow::onTreeItemDoubleClicked(const QModelIndex& index)
 {
-  ezQtPropertyAnimModelTreeEntry* pTreeItem = reinterpret_cast<ezQtPropertyAnimModelTreeEntry*>(m_pPropertiesModel->data(index, ezQtPropertyAnimModel::UserRoles::TreeItem).value<void*>());
+  ezQtPropertyAnimModelTreeEntry* pTreeItem = reinterpret_cast<ezQtPropertyAnimModelTreeEntry*>(
+      m_pPropertiesModel->data(index, ezQtPropertyAnimModel::UserRoles::TreeItem).value<void*>());
 
   if (pTreeItem != nullptr && pTreeItem->m_pTrack != nullptr)
   {
@@ -627,7 +671,7 @@ ezPropertyAnimAssetDocument* ezQtPropertyAnimAssetDocumentWindow::GetPropertyAni
   return static_cast<ezPropertyAnimAssetDocument*>(GetDocument());
 }
 
-//void ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+// void ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 //{
 //  if (static_cast<ezPropertyAnimObjectManager*>(GetDocument()->GetObjectManager())->IsTemporary(e.m_pObject, e.m_sProperty))
 //    return;
@@ -641,18 +685,20 @@ ezPropertyAnimAssetDocument* ezQtPropertyAnimAssetDocumentWindow::GetPropertyAni
 
 void ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
-  if (e.m_pNewParent && static_cast<ezPropertyAnimObjectManager*>(GetDocument()->GetObjectManager())->IsTemporary(e.m_pNewParent, e.m_sParentProperty))
+  if (e.m_pNewParent &&
+      static_cast<ezPropertyAnimObjectManager*>(GetDocument()->GetObjectManager())->IsTemporary(e.m_pNewParent, e.m_sParentProperty))
     return;
-  if (e.m_pPreviousParent && static_cast<ezPropertyAnimObjectManager*>(GetDocument()->GetObjectManager())->IsTemporary(e.m_pPreviousParent, e.m_sParentProperty))
+  if (e.m_pPreviousParent &&
+      static_cast<ezPropertyAnimObjectManager*>(GetDocument()->GetObjectManager())->IsTemporary(e.m_pPreviousParent, e.m_sParentProperty))
     return;
 
   switch (e.m_EventType)
   {
-  case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
-  case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
-  case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
-    UpdateSelectionData();
-    break;
+    case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
+    case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+    case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
+      UpdateSelectionData();
+      break;
   }
 }
 
@@ -660,7 +706,7 @@ void ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler(const ezDocument
 void ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler(const ezSelectionManagerEvent& e)
 {
   // this would show the document properties
-  //if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
+  // if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
   //{
   //  // delayed execution
   //  QTimer::singleShot(1, [this]()
@@ -673,9 +719,8 @@ void ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler(const ezSelectio
 
 void ezQtPropertyAnimAssetDocumentWindow::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
 {
-  if (e.m_Type == ezCommandHistoryEvent::Type::TransactionEnded ||
-    e.m_Type == ezCommandHistoryEvent::Type::UndoEnded ||
-    e.m_Type == ezCommandHistoryEvent::Type::RedoEnded)
+  if (e.m_Type == ezCommandHistoryEvent::Type::TransactionEnded || e.m_Type == ezCommandHistoryEvent::Type::UndoEnded ||
+      e.m_Type == ezCommandHistoryEvent::Type::RedoEnded)
   {
     UpdateCurveEditor();
     UpdateGradientEditor();
@@ -810,7 +855,8 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveCpDeleted(ezUInt32 uiCurveIdx, 
   pDoc->GetCommandHistory()->AddCommand(cmdSet);
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentMoved(ezUInt32 uiCurveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent)
+void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentMoved(ezUInt32 uiCurveIdx, ezUInt32 cpIdx, float newPosX, float newPosY,
+                                                              bool rightTangent)
 {
   if (uiCurveIdx >= m_MapSelectionToTrack.GetCount())
     return;
@@ -1133,7 +1179,6 @@ void ezQtPropertyAnimAssetDocumentWindow::onEventTrackInsertCpAt(ezInt64 tickX, 
 {
   ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
   pDoc->InsertEventTrackCpAt(tickX, value.toUtf8().data());
-
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onEventTrackCpMoved(ezUInt32 cpIdx, ezInt64 iTickX)
@@ -1209,7 +1254,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onEventTrackEndCpChanges()
 //////////////////////////////////////////////////////////////////////////
 
 ezQtPropertyAnimAssetTreeView::ezQtPropertyAnimAssetTreeView(QWidget* parent)
-  : QTreeView(parent)
+    : QTreeView(parent)
 {
   setContextMenuPolicy(Qt::ContextMenuPolicy::DefaultContextMenu);
 }
@@ -1286,8 +1331,7 @@ void ezQtPropertyAnimAssetTreeView::onAfterModelReset()
 
   // changing the selection is not possible in onAfterModelReset, probably because the items are not yet fully valid
   // has to be done shortly after
-  QTimer::singleShot(0, this, [this, newSelection]()
-  {
+  QTimer::singleShot(0, this, [this, newSelection]() {
     selectionModel()->clearSelection();
     for (const auto& idx : newSelection)
     {
@@ -1308,7 +1352,7 @@ void ezQtPropertyAnimAssetTreeView::keyPressEvent(QKeyEvent* e)
   }
 }
 
-void ezQtPropertyAnimAssetTreeView::contextMenuEvent(QContextMenuEvent *event)
+void ezQtPropertyAnimAssetTreeView::contextMenuEvent(QContextMenuEvent* event)
 {
   QMenu m;
   QAction* pFrameAction = m.addAction("Frame Curve");

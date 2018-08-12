@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginAssets/DecalAsset/DecalAssetWindow.moc.h>
 #include <EditorPluginAssets/DecalAsset/DecalAsset.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
@@ -6,8 +6,8 @@
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
-#include <EditorPluginAssets/DecalAsset/DecalViewWidget.moc.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
+#include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ezQtDecalAssetDocumentWindow
@@ -45,7 +45,8 @@ ezQtDecalAssetDocumentWindow::ezQtDecalAssetDocumentWindow(ezDecalAssetDocument*
     m_ViewConfig.m_Camera.LookAt(ezVec3(-2, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
-    m_pViewWidget = new ezQtDecalViewWidget(nullptr, this, &m_ViewConfig);
+    m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
+    m_pViewWidget->ConfigureOrbitCameraVolume(ezVec3(0), ezVec3(0.0f), ezVec3(-2, 0, 0));
     AddViewWidget(m_pViewWidget);
 
     ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(nullptr, m_pViewWidget, "DecalAssetViewToolBar");

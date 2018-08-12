@@ -6,10 +6,7 @@
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 
-class QLabel;
-class QScrollArea;
-class ezQtImageWidget;
-class ezQtSkeletonViewWidget;
+class ezQtOrbitCamViewWidget;
 
 class ezQtSkeletonAssetDocumentWindow : public ezQtEngineDocumentWindow
 {
@@ -30,5 +27,5 @@ private:
   void QueryObjectBBox(ezInt32 iPurpose);
 
   ezEngineViewConfig m_ViewConfig;
-  ezQtSkeletonViewWidget* m_pViewWidget;
+  ezQtOrbitCamViewWidget* m_pViewWidget;
 };

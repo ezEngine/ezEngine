@@ -6,9 +6,7 @@
 #include <Foundation/Basics.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class QLabel;
-class QScrollArea;
-class ezQtMeshViewWidget;
+class ezQtOrbitCamViewWidget;
 
 class ezQtAnimatedMeshAssetDocumentWindow : public ezQtEngineDocumentWindow
 {
@@ -29,5 +27,5 @@ private:
   void QueryObjectBBox(ezInt32 iPurpose);
 
   ezEngineViewConfig m_ViewConfig;
-  ezQtMeshViewWidget* m_pViewWidget;
+  ezQtOrbitCamViewWidget* m_pViewWidget;
 };

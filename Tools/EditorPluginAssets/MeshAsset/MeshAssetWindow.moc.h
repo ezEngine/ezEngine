@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
@@ -6,10 +6,7 @@
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 
-class QLabel;
-class QScrollArea;
-class ezQtImageWidget;
-class ezQtMeshViewWidget;
+class ezQtOrbitCamViewWidget;
 
 class ezQtMeshAssetDocumentWindow : public ezQtEngineDocumentWindow
 {
@@ -30,5 +27,5 @@ private:
   void QueryObjectBBox(ezInt32 iPurpose);
 
   ezEngineViewConfig m_ViewConfig;
-  ezQtMeshViewWidget* m_pViewWidget;
+  ezQtOrbitCamViewWidget* m_pViewWidget;
 };

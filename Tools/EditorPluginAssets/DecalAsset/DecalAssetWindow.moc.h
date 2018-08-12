@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
@@ -7,7 +7,7 @@
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 
 class ezDecalAssetDocument;
-class ezQtDecalViewWidget;
+class ezQtOrbitCamViewWidget;
 
 class ezQtDecalAssetDocumentWindow : public ezQtEngineDocumentWindow
 {
@@ -23,6 +23,6 @@ private:
   void SendRedrawMsg();
 
   ezEngineViewConfig m_ViewConfig;
-  ezQtDecalViewWidget* m_pViewWidget;
+  ezQtOrbitCamViewWidget* m_pViewWidget;
 };
 

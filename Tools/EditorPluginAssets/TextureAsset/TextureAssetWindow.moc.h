@@ -1,14 +1,14 @@
-﻿#pragma once
+#pragma once
 
-#include <Foundation/Basics.h>
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <Foundation/Basics.h>
 #include <GuiFoundation/Action/Action.h>
 #include <GuiFoundation/Action/BaseActions.h>
+#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezQtTextureViewWidget;
+class ezQtOrbitCamViewWidget;
 class ezTextureAssetDocument;
 
 class ezQtTextureAssetDocumentWindow : public ezQtEngineDocumentWindow
@@ -25,14 +25,14 @@ private:
   void SendRedrawMsg();
 
   ezEngineViewConfig m_ViewConfig;
-  ezQtTextureViewWidget* m_pViewWidget;
+  ezQtOrbitCamViewWidget* m_pViewWidget;
 };
 
 class ezTextureChannelModeAction : public ezEnumerationMenuAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTextureChannelModeAction, ezEnumerationMenuAction);
-public:
 
+public:
   ezTextureChannelModeAction(const ezActionContext& context, const char* szName, const char* szIconPath);
   virtual ezInt64 GetValue() const override;
   virtual void Execute(const ezVariant& value) override;
@@ -43,7 +43,6 @@ class ezTextureLodSliderAction : public ezSliderAction
   EZ_ADD_DYNAMIC_REFLECTION(ezTextureLodSliderAction, ezSliderAction);
 
 public:
-
   ezTextureLodSliderAction(const ezActionContext& context, const char* szName);
 
   virtual void Execute(const ezVariant& value) override;

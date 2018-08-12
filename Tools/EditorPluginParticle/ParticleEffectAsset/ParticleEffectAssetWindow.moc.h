@@ -7,7 +7,7 @@
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 
-class ezQtParticleViewWidget;
+class ezQtOrbitCamViewWidget;
 class ezParticleEffectAssetDocument;
 class QComboBox;
 class QToolButton;
@@ -47,7 +47,7 @@ private:
   ezParticleEffectAssetDocument* m_pAssetDoc;
 
   ezEngineViewConfig m_ViewConfig;
-  ezQtParticleViewWidget* m_pViewWidget;
+  ezQtOrbitCamViewWidget* m_pViewWidget;
 
   QComboBox* m_pSystemsCombo = nullptr;
   QToolButton* m_pAddSystem = nullptr;

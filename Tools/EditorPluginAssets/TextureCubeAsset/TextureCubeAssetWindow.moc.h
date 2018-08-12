@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
@@ -8,7 +8,7 @@
 #include <GuiFoundation/Action/Action.h>
 #include <GuiFoundation/Action/BaseActions.h>
 
-class ezQtTextureCubeViewWidget;
+class ezQtOrbitCamViewWidget;
 class ezTextureCubeAssetDocument;
 
 class ezQtTextureCubeAssetDocumentWindow : public ezQtEngineDocumentWindow
@@ -25,7 +25,7 @@ private:
   void SendRedrawMsg();
 
   ezEngineViewConfig m_ViewConfig;
-  ezQtTextureCubeViewWidget* m_pViewWidget;
+  ezQtOrbitCamViewWidget* m_pViewWidget;
 };
 
 class ezTextureCubeChannelModeAction : public ezEnumerationMenuAction

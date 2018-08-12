@@ -5,11 +5,8 @@
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 
-class QLabel;
-class QScrollArea;
-class ezQtImageWidget;
 class ezMaterialAssetDocument;
-class ezQtMaterialViewWidget;
+class ezQtOrbitCamViewWidget;
 class ezQtVisualShaderScene;
 class ezQtNodeView;
 struct ezSelectionManagerEvent;
@@ -48,7 +45,7 @@ private:
   void SetupDirectoryWatcher(bool needIt);
 
   ezEngineViewConfig m_ViewConfig;
-  ezQtMaterialViewWidget* m_pViewWidget = nullptr;
+  ezQtOrbitCamViewWidget* m_pViewWidget = nullptr;
   ezQtVisualShaderScene* m_pScene = nullptr;
   ezQtNodeView* m_pNodeView = nullptr;
   ezQtDocumentPanel* m_pVsePanel = nullptr;

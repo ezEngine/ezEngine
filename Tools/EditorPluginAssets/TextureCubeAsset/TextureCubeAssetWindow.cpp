@@ -1,18 +1,19 @@
-﻿#include <PCH.h>
-#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetWindow.moc.h>
-#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetObjects.h>
+#include <PCH.h>
+
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
+#include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAsset.h>
+#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetObjects.h>
+#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetWindow.moc.h>
+#include <Foundation/Image/ImageConversion.h>
+#include <GuiFoundation/Action/ActionManager.h>
+#include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
-#include <GuiFoundation/Widgets/ImageWidget.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <Foundation/Image/ImageConversion.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorPluginAssets/TextureCubeAsset/TextureCubeViewWidget.moc.h>
-#include <EditorFramework/InputContexts/EditorInputContext.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
-#include <GuiFoundation/Action/ActionManager.h>
+#include <GuiFoundation/Widgets/ImageWidget.moc.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezTextureCubeChannelModeAction
@@ -22,7 +23,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeChannelModeAction, 1, ezRTTINoAlloc
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezTextureCubeChannelModeAction::ezTextureCubeChannelModeAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-  : ezEnumerationMenuAction(context, szName, szIconPath)
+    : ezEnumerationMenuAction(context, szName, szIconPath)
 {
   InitEnumerationType(ezGetStaticRTTI<ezTextureCubeChannelMode>());
 }
@@ -46,7 +47,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 ezTextureCubeLodSliderAction::ezTextureCubeLodSliderAction(const ezActionContext& context, const char* szName)
-  : ezSliderAction(context, szName)
+    : ezSliderAction(context, szName)
 {
   m_pDocument = const_cast<ezTextureCubeAssetDocument*>(static_cast<const ezTextureCubeAssetDocument*>(context.m_pDocument));
 
@@ -71,8 +72,10 @@ ezActionDescriptorHandle ezTextureCubeAssetActions::s_hLodSlider;
 
 void ezTextureCubeAssetActions::RegisterActions()
 {
-  s_hTextureChannelMode = EZ_REGISTER_DYNAMIC_MENU("TextureCubeAsset.ChannelMode", ezTextureCubeChannelModeAction, ":/EditorFramework/Icons/RenderMode.png");
-  s_hLodSlider = EZ_REGISTER_ACTION_0("TextureCubeAsset.LodSlider", ezActionScope::Document, "TextureCube Asset", "", ezTextureCubeLodSliderAction);
+  s_hTextureChannelMode =
+      EZ_REGISTER_DYNAMIC_MENU("TextureCubeAsset.ChannelMode", ezTextureCubeChannelModeAction, ":/EditorFramework/Icons/RenderMode.png");
+  s_hLodSlider =
+      EZ_REGISTER_ACTION_0("TextureCubeAsset.LodSlider", ezActionScope::Document, "TextureCube Asset", "", ezTextureCubeLodSliderAction);
 }
 
 void ezTextureCubeAssetActions::UnregisterActions()
@@ -96,7 +99,7 @@ void ezTextureCubeAssetActions::MapActions(const char* szMapping, const char* sz
 //////////////////////////////////////////////////////////////////////////
 
 ezQtTextureCubeAssetDocumentWindow::ezQtTextureCubeAssetDocumentWindow(ezTextureCubeAssetDocument* pDocument)
-  : ezQtEngineDocumentWindow(pDocument)
+    : ezQtEngineDocumentWindow(pDocument)
 {
   // Menu Bar
   {
@@ -127,7 +130,8 @@ ezQtTextureCubeAssetDocumentWindow::ezQtTextureCubeAssetDocumentWindow(ezTexture
     m_ViewConfig.m_Camera.LookAt(ezVec3(-2, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
-    m_pViewWidget = new ezQtTextureCubeViewWidget(nullptr, this, &m_ViewConfig);
+    m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
+    m_pViewWidget->ConfigureOrbitCameraVolume(ezVec3(0), ezVec3(1.0f), ezVec3(-1, 0, 0));
     AddViewWidget(m_pViewWidget);
     ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, nullptr);
 
@@ -146,7 +150,6 @@ ezQtTextureCubeAssetDocumentWindow::ezQtTextureCubeAssetDocumentWindow(ezTexture
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
-
   }
 
   FinishWindowCreation();
@@ -183,4 +186,3 @@ void ezQtTextureCubeAssetDocumentWindow::SendRedrawMsg()
     pView->SyncToEngine();
   }
 }
-

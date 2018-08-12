@@ -1,15 +1,11 @@
 #pragma once
 
-#include <Foundation/Basics.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class QLabel;
-class QScrollArea;
-class ezQtImageWidget;
-class ezQtAnimationClipViewWidget;
+class ezQtOrbitCamViewWidget;
 
 class ezQtAnimationClipAssetDocumentWindow : public ezQtEngineDocumentWindow
 {
@@ -30,5 +26,5 @@ private:
   void QueryObjectBBox(ezInt32 iPurpose);
 
   ezEngineViewConfig m_ViewConfig;
-  ezQtAnimationClipViewWidget* m_pViewWidget;
+  ezQtOrbitCamViewWidget* m_pViewWidget;
 };
