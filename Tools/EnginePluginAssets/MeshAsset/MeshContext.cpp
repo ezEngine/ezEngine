@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EnginePluginAssets/MeshAsset/MeshContext.h>
 #include <EnginePluginAssets/MeshAsset/MeshView.h>
 
@@ -27,7 +27,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshContext, 1, ezRTTIDefaultAllocator<ezMeshC
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Mesh Asset"),
+    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Mesh Asset;Animated Mesh Asset"),
   }
   EZ_END_PROPERTIES;
 }

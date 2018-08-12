@@ -1,24 +1,25 @@
 #include <PCH.h>
-#include <EnginePluginAssets/MeshAsset/MeshView.h>
-#include <RendererFoundation/Device/SwapChain.h>
+
 #include <Core/ResourceManager/ResourceManager.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Pipeline/View.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <GameEngine/GameApplication/GameApplication.h>
+#include <Core/World/Component.h>
+#include <Core/World/GameObject.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <Core/World/GameObject.h>
-#include <Core/World/Component.h>
 #include <EnginePluginAssets/MeshAsset/MeshContext.h>
-#include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
+#include <EnginePluginAssets/MeshAsset/MeshView.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
+#include <GameEngine/GameApplication/GameApplication.h>
 #include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererFoundation/Device/SwapChain.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 ezMeshViewContext::ezMeshViewContext(ezMeshContext* pMeshContext)
-  : ezEngineProcessViewContext(pMeshContext)
+    : ezEngineProcessViewContext(pMeshContext)
 {
   m_pMeshContext = pMeshContext;
 
@@ -27,10 +28,7 @@ ezMeshViewContext::ezMeshViewContext(ezMeshContext* pMeshContext)
   m_Camera.LookAt(ezVec3(1, 1, 1), ezVec3::ZeroVector(), ezVec3(0.0f, 0.0f, 1.0f));
 }
 
-ezMeshViewContext::~ezMeshViewContext()
-{
-
-}
+ezMeshViewContext::~ezMeshViewContext() {}
 
 bool ezMeshViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds)
 {
@@ -67,7 +65,8 @@ void ezMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     bbox = pResource->GetBounds().GetBox();
 
     ezStringBuilder sText;
-    sText.PrependFormat("Bounding Box: width={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2), ezArgF(bbox.GetHalfExtents().y * 2, 2), ezArgF(bbox.GetHalfExtents().z * 2, 2));
+    sText.PrependFormat("Bounding Box: width={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2),
+                        ezArgF(bbox.GetHalfExtents().y * 2, 2), ezArgF(bbox.GetHalfExtents().z * 2, 2));
 
     ezDebugRenderer::DrawText(m_hView, sText, ezVec2I32(10, viewHeight - 26), ezColor::White);
   }

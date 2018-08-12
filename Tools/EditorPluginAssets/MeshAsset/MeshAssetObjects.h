@@ -1,15 +1,10 @@
-﻿#pragma once
+#pragma once
 
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
+#include <EditorPluginAssets/Util/AssetUtils.h>
 
 struct ezPropertyMetaStateEvent;
-
-struct ezMaterialResourceSlot
-{
-  ezString m_sLabel;
-  ezString m_sResource;
-};
 
 struct ezMeshPrimitive
 {
@@ -34,8 +29,6 @@ struct ezMeshPrimitive
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezMeshPrimitive);
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezMaterialResourceSlot);
 
 class ezMeshAssetProperties : public ezReflectedClass
 {

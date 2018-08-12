@@ -22,6 +22,7 @@
     <file>Animation_Clip.png</file>
     <file>Skeleton.png</file>
     <file>Render_Target.png</file>
+	<file>Animated_Mesh.png</file>
   </qresource>
   <qresource prefix="EditorPluginAssets">
     <file>VSE_CleanGraph16.png</file>

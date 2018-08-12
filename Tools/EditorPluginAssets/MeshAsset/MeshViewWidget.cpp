@@ -1,13 +1,14 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorPluginAssets/MeshAsset/MeshViewWidget.moc.h>
+#include <EditorFramework/InputContexts/OrbitCameraContext.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetWindow.moc.h>
+#include <EditorPluginAssets/MeshAsset/MeshViewWidget.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
-#include <EditorFramework/InputContexts/OrbitCameraContext.h>
 
-ezQtMeshViewWidget::ezQtMeshViewWidget(QWidget* pParent, ezQtMeshAssetDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig)
-  : ezQtEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
+ezQtMeshViewWidget::ezQtMeshViewWidget(QWidget* pParent, ezQtEngineDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig)
+    : ezQtEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
 {
   setAcceptDrops(true);
 
@@ -18,6 +19,4 @@ ezQtMeshViewWidget::ezQtMeshViewWidget(QWidget* pParent, ezQtMeshAssetDocumentWi
   m_InputContexts.PushBack(m_pOrbitCameraContext.Borrow());
 }
 
-ezQtMeshViewWidget::~ezQtMeshViewWidget()
-{
-}
+ezQtMeshViewWidget::~ezQtMeshViewWidget() {}
