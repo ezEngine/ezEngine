@@ -3,7 +3,6 @@
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorPluginPhysX/EditorPluginPhysX.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/Action/ActionMapManager.h>

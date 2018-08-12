@@ -209,13 +209,4 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
   }
 }
 
-const ezString ezMeshAssetProperties::GetResourceSlotProperty(ezUInt32 uiSlot) const
-{
-  if (m_Slots.IsEmpty())
-    return "";
-
-  uiSlot %= m_Slots.GetCount();
-  return m_Slots[uiSlot].m_sResource;
-}
-
 

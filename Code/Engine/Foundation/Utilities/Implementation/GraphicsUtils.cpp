@@ -122,4 +122,9 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4d& InverseModel
   return EZ_SUCCESS;
 }
 
+bool ezGraphicsUtils::IsTriangleFlipRequired(const ezMat3& mTransformation)
+{
+  return (mTransformation.GetColumn(0).Cross(mTransformation.GetColumn(1)).Dot(mTransformation.GetColumn(2)) < 0.0f);
+}
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_GraphicsUtils);

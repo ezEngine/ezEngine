@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7881024186004347053,4683856107289637145}}
-		u4 %Hash{5421073864348230832}
+		u4 %Hash{12617921375972815410}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -22,8 +22,8 @@ o
 			s{"{ 3cd008a7-effe-428c-a7da-3306d854565d }"}
 			s{"{ 538ab906-480a-4f02-8447-7d004c2a721c }"}
 			s{"{ 60167e7e-fcee-4e3f-9ad9-b48d6505fd5d }"}
+			s{"{ 7a4998b8-fa02-40f7-8399-270b9d93ae23 }"}
 			s{"{ 80d5d290-49ca-4cf8-a5dc-5c6f6b3c8636 }"}
-			s{"{ af18877b-6691-4d20-801d-951edac59762 }"}
 			s{"{ c0c74bee-966f-4916-b340-239ee07d5341 }"}
 			s{"{ d65cd59b-50e0-44f3-aefb-a88943b81900 }"}
 			s{"{ dd0f0197-08b7-469f-8a7e-eaa448c638af }"}
@@ -70,7 +70,7 @@ o
 		s %AnimationClip{"{ 538ab906-480a-4f02-8447-7d004c2a721c }"}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
-		s %Mesh{"{ af18877b-6691-4d20-801d-951edac59762 }"}
+		s %Mesh{"{ 7a4998b8-fa02-40f7-8399-270b9d93ae23 }"}
 		s %Skeleton{"{ 2f688f8c-6694-45f9-a559-b176edf4f3f1 }"}
 	}
 }
@@ -111,7 +111,7 @@ o
 		s %AnimationClip{"{ 80d5d290-49ca-4cf8-a5dc-5c6f6b3c8636 }"}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
-		s %Mesh{"{ af18877b-6691-4d20-801d-951edac59762 }"}
+		s %Mesh{"{ 7a4998b8-fa02-40f7-8399-270b9d93ae23 }"}
 		s %Skeleton{"{ 2f688f8c-6694-45f9-a559-b176edf4f3f1 }"}
 	}
 }
@@ -184,7 +184,7 @@ o
 		s %AnimationClip{"{ c0c74bee-966f-4916-b340-239ee07d5341 }"}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
-		s %Mesh{"{ af18877b-6691-4d20-801d-951edac59762 }"}
+		s %Mesh{"{ 7a4998b8-fa02-40f7-8399-270b9d93ae23 }"}
 		s %Skeleton{"{ 2f688f8c-6694-45f9-a559-b176edf4f3f1 }"}
 	}
 }
@@ -512,7 +512,7 @@ o
 		s %AnimationClip{"{ 60167e7e-fcee-4e3f-9ad9-b48d6505fd5d }"}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
-		s %Mesh{"{ af18877b-6691-4d20-801d-951edac59762 }"}
+		s %Mesh{"{ 7a4998b8-fa02-40f7-8399-270b9d93ae23 }"}
 		s %Skeleton{"{ 2f688f8c-6694-45f9-a559-b176edf4f3f1 }"}
 	}
 }
@@ -564,7 +564,7 @@ o
 		s %AnimationClip{"{ dd0f0197-08b7-469f-8a7e-eaa448c638af }"}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
-		s %Mesh{"{ af18877b-6691-4d20-801d-951edac59762 }"}
+		s %Mesh{"{ 7a4998b8-fa02-40f7-8399-270b9d93ae23 }"}
 		s %Skeleton{"{ 2f688f8c-6694-45f9-a559-b176edf4f3f1 }"}
 	}
 }
@@ -605,7 +605,7 @@ o
 		s %AnimationClip{"{ 03488a3b-f78a-4672-8dca-702265bfc79d }"}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
-		s %Mesh{"{ af18877b-6691-4d20-801d-951edac59762 }"}
+		s %Mesh{"{ 7a4998b8-fa02-40f7-8399-270b9d93ae23 }"}
 		s %Skeleton{"{ 2f688f8c-6694-45f9-a559-b176edf4f3f1 }"}
 	}
 }

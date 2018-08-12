@@ -5,6 +5,10 @@
 
 namespace ezModelImporter
 {
+  struct Material;
+  class Mesh;
+  class Scene;
+
   /// Semantical meaning of a material property or texture
   ///
   /// Depending on the model format and the use by the artist, there may be different semantic specifier for the same property/texture or
@@ -90,4 +94,6 @@ namespace ezModelImporter
 
     ezDynamicArray<JointAnimation> m_JointAnimations;
   };
+
+
 }

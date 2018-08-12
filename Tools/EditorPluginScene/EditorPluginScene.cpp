@@ -12,7 +12,6 @@
 #include <EditorFramework/Visualizers/VisualizerAdapterRegistry.h>
 #include <EditorPluginScene/Actions/GizmoActions.h>
 #include <EditorPluginScene/Actions/SelectionActions.h>
-#include <EditorPluginScene/EditorPluginScene.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
 #include <EditorPluginScene/Visualizers/PointLightVisualizerAdapter.h>
 #include <EditorPluginScene/Visualizers/SpotLightVisualizerAdapter.h>

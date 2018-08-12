@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <RendererFoundation/Basics.h>
@@ -22,5 +21,4 @@ protected:
   virtual ~ezGALShader();
 };
 
-#include <RendererFoundation/Shader/Implementation/Shader_inl.h>
 

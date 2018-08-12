@@ -29,14 +29,8 @@ protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
                                           const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
 
-  ezStatus CreateMeshFromFile(ezAnimatedMeshAssetProperties* pProp, ezMeshResourceDescriptor& desc, const ezMat3& mTransformation);
+  ezStatus CreateMeshFromFile(ezAnimatedMeshAssetProperties* pProp, ezMeshResourceDescriptor& desc);
 
-  void ImportMaterials(const ezModelImporter::Scene& scene, const ezModelImporter::Mesh& mesh, ezAnimatedMeshAssetProperties* pProp,
-                       const char* szImportSourceFolder, const char* szImportTargetFolder);
-  void ImportMaterial(ezMaterialAssetDocument* materialDocument, const ezModelImporter::Material* material,
-                      const char* szImportSourceFolder, const char* szImportTargetFolder);
-  ezString ImportOrResolveTexture(const char* szImportSourceFolder, const char* szImportTargetFolder, const char* szTexturePath,
-                                  ezModelImporter::SemanticHint::Enum hint);
 
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
 };

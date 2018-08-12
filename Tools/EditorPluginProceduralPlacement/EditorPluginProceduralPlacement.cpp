@@ -4,7 +4,6 @@
 #include <EditorFramework/Actions/ProjectActions.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginProceduralPlacement/Actions/ProceduralPlacementActions.h>
-#include <EditorPluginProceduralPlacement/EditorPluginProceduralPlacement.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>

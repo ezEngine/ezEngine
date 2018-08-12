@@ -13,7 +13,6 @@
 #include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAsset.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
 #include <EditorPluginAssets/DecalAsset/DecalAsset.h>
-#include <EditorPluginAssets/EditorPluginAssets.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>

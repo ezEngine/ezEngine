@@ -131,10 +131,15 @@ namespace ezModelImporter
     return supportedFormats;
   }
 
-  ezStatus Importer::ImportMesh(const char* szSceneFile, const char* szSubMesh, ezSharedPtr<ezModelImporter::Scene>& outScene,
-                                ezModelImporter::Mesh*& outMesh)
+  ezStatus Importer::ImportMesh(const char* szSceneFile, const char* szSubMesh, bool bSkinnedMesh,
+                                ezSharedPtr<ezModelImporter::Scene>& outScene, ezModelImporter::Mesh*& outMesh)
   {
-    outScene = ezModelImporter::Importer::GetSingleton()->ImportScene(szSceneFile, ImportFlags::Meshes | ImportFlags::Skeleton);
+    ezBitflags<ImportFlags> importFlags = ImportFlags::Meshes;
+
+    if (bSkinnedMesh)
+      importFlags |= ImportFlags::Skeleton;
+
+    outScene = ezModelImporter::Importer::GetSingleton()->ImportScene(szSceneFile, importFlags);
     if (!outScene)
     {
       return ezStatus(ezFmt("Input file '{0}' could not be imported", szSceneFile));

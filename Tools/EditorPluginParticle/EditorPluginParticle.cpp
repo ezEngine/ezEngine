@@ -5,7 +5,6 @@
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginParticle/Actions/ParticleActions.h>
-#include <EditorPluginParticle/EditorPluginParticle.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/Action/ActionMapManager.h>

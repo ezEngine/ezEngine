@@ -51,4 +51,6 @@ namespace ezGraphicsUtils
                                                         const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint,
                                                         ezVec3* out_vDirection = nullptr,
                                                         ezProjectionDepthRange::Enum DepthRange = ezProjectionDepthRange::Default);
+
+  EZ_FOUNDATION_DLL bool IsTriangleFlipRequired(const ezMat3& mTransformation);
 }
