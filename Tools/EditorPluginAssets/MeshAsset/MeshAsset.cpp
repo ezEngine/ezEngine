@@ -1,25 +1,14 @@
 #include <PCH.h>
 
 #include <Core/Graphics/Geometry.h>
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
-#include <EditorPluginAssets/TextureAsset/TextureAsset.h>
 #include <EditorPluginAssets/Util/MeshImportUtils.h>
-#include <Foundation/Time/Stopwatch.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
 #include <Foundation/Utilities/Progress.h>
-#include <ModelImporter/Material.h>
 #include <ModelImporter/Mesh.h>
 #include <ModelImporter/ModelImporter.h>
-#include <ModelImporter/VertexData.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
-#include <ToolsFoundation/Object/ObjectAccessorBase.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 4, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 5, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 static ezMat3 CalculateTransformationMatrix(const ezMeshAssetProperties* pProp)

@@ -1,11 +1,12 @@
 #include <PCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+#include <Core/WorldSerializer/ResourceHandleReader.h>
+#include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
-
 
 ezMeshResourceDescriptor::ezMeshResourceDescriptor()
 {
@@ -32,12 +33,12 @@ const ezMeshBufferResourceHandle& ezMeshResourceDescriptor::GetExistingMeshBuffe
   return m_hMeshBuffer;
 }
 
-const ezHybridArray<ezMeshResourceDescriptor::Material, 32>& ezMeshResourceDescriptor::GetMaterials() const
+ezArrayPtr<const ezMeshResourceDescriptor::Material> ezMeshResourceDescriptor::GetMaterials() const
 {
   return m_Materials;
 }
 
-const ezHybridArray<ezMeshResourceDescriptor::SubMesh, 32>& ezMeshResourceDescriptor::GetSubMeshes() const
+ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> ezMeshResourceDescriptor::GetSubMeshes() const
 {
   return m_SubMeshes;
 }
@@ -45,6 +46,16 @@ const ezHybridArray<ezMeshResourceDescriptor::SubMesh, 32>& ezMeshResourceDescri
 const ezBoundingBoxSphere& ezMeshResourceDescriptor::GetBounds() const
 {
   return m_Bounds;
+}
+
+void ezMeshResourceDescriptor::SetSkeleton(const ezSkeletonResourceHandle& hSkeleton)
+{
+  m_hSkeleton = hSkeleton;
+}
+
+const ezSkeletonResourceHandle& ezMeshResourceDescriptor::GetSkeleton() const
+{
+  return m_hSkeleton;
 }
 
 void ezMeshResourceDescriptor::AddSubMesh(ezUInt32 uiPrimitiveCount, ezUInt32 uiFirstPrimitive, ezUInt32 uiMaterialIndex)
@@ -66,23 +77,6 @@ void ezMeshResourceDescriptor::SetMaterial(ezUInt32 uiMaterialIndex, const char*
   m_Materials[uiMaterialIndex].m_sPath = szPathToMaterial;
 }
 
-void ezMeshResourceDescriptor::SetSkeleton(const ezSkeleton* pSkeleton)
-{
-  if (pSkeleton)
-  {
-    m_pSkeleton = EZ_DEFAULT_NEW(ezSkeleton, *pSkeleton);
-  }
-  else
-  {
-    m_pSkeleton.Reset();
-  }
-}
-
-const ezSkeleton* ezMeshResourceDescriptor::GetSkeleton() const
-{
-  return m_pSkeleton.Borrow();
-}
-
 ezResult ezMeshResourceDescriptor::Save(const char* szFile)
 {
   EZ_LOG_BLOCK("ezMeshResourceDescriptor::Save", szFile);
@@ -100,9 +94,14 @@ ezResult ezMeshResourceDescriptor::Save(const char* szFile)
 
 void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
 {
-  ezChunkStreamWriter chunk(stream);
+  ezUInt8 uiVersion = 4;
+  stream << uiVersion;
 
-  chunk.BeginStream();
+  ezResourceHandleWriteContext HandleContext;
+  HandleContext.BeginWritingToStream(&stream);
+
+  ezChunkStreamWriter chunk(stream);
+  chunk.BeginStream(1);
 
   {
     chunk.BeginChunk("Materials", 1);
@@ -204,17 +203,18 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
     chunk.EndChunk();
   }
 
-  // Write skeleton chunk if this mesh has one
-  if (m_pSkeleton)
+  if (m_hSkeleton.IsValid())
   {
-    chunk.BeginChunk("Skeleton", 1);
+    chunk.BeginChunk("Animation", 1);
 
-    m_pSkeleton->Save(chunk);
+    chunk << m_hSkeleton;
 
     chunk.EndChunk();
   }
 
   chunk.EndStream();
+
+  HandleContext.EndWritingToStream(&stream);
 }
 
 ezResult ezMeshResourceDescriptor::Load(const char* szFile)
@@ -237,8 +237,21 @@ ezResult ezMeshResourceDescriptor::Load(const char* szFile)
 
 ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
 {
-  ezChunkStreamReader chunk(stream);
+  ezUInt8 uiVersion = 0;
+  stream >> uiVersion;
 
+  if (uiVersion != 3 && uiVersion != 4)
+    return EZ_FAILURE;
+
+  ezResourceHandleReadContext HandleContext;
+
+  if (uiVersion >= 4)
+  {
+    HandleContext.BeginReadingFromStream(&stream);
+    HandleContext.BeginRestoringHandles(&stream);
+  }
+
+  ezChunkStreamReader chunk(stream);
   chunk.BeginStream();
 
   ezUInt32 count;
@@ -390,22 +403,27 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
         chunk.ReadBytes(m_MeshBufferDescriptor.GetIndexBufferData().GetData(), m_MeshBufferDescriptor.GetIndexBufferData().GetCount());
     }
 
-    if (ci.m_sChunkName == "Skeleton")
+    if (ci.m_sChunkName == "Animation")
     {
       if (ci.m_uiChunkVersion != 1)
       {
-        ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName.GetData(), ci.m_uiChunkVersion);
+        ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
         return EZ_FAILURE;
       }
 
-      m_pSkeleton = EZ_DEFAULT_NEW(ezSkeleton);
-      m_pSkeleton->Load(chunk);
+      chunk >> m_hSkeleton;
     }
 
     chunk.NextChunk();
   }
 
   chunk.EndStream();
+
+  if (uiVersion >= 4)
+  {
+    HandleContext.EndReadingFromStream(&stream);
+    HandleContext.EndRestoringHandles();
+  }
 
   if (bCalculateBounds)
   {

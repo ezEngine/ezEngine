@@ -85,7 +85,7 @@ ezStatus ezProceduralPlacementAssetDocument::InternalTransformAsset(ezStreamWrit
   ezUInt32 uiNumOutputNodes = outputNodes.GetCount();
 
   ezChunkStreamWriter chunk(stream);
-  chunk.BeginStream();
+  chunk.BeginStream(1);
 
   {
     chunk.BeginChunk("ByteCode", 1);

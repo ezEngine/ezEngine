@@ -14,11 +14,12 @@ o
 			s{"Models/Skeleton/skeleton_animated.FBX"}
 		}
 		Uuid %DocumentID{u4{2571154739981425027,4681485226223442104}}
-		u4 %Hash{14804384639520677249}
+		u4 %Hash{7565088124567369362}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
+			s{"{ 2f688f8c-6694-45f9-a559-b176edf4f3f1 }"}
 			s{"{ 66aae422-7414-4d2d-9e68-3023d0aaaf37 }"}
 		}
 	}
@@ -54,6 +55,7 @@ o
 		s %MeshFile{"Models/Skeleton/skeleton_animated.FBX"}
 		b %RecalculateNormals{0}
 		s %RightDir{"ezBasisAxis::NegativeZ"}
+		s %Skeleton{"{ 2f688f8c-6694-45f9-a559-b176edf4f3f1 }"}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}
 		b %UseSubfolderForMaterialImport{1}
@@ -90,7 +92,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimatedMeshAssetProperties"}
-		u3 %TypeSize{1136}
+		u3 %TypeSize{1200}
 		u3 %TypeVersion{2}
 	}
 }

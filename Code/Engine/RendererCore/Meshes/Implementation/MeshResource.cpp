@@ -33,8 +33,6 @@ ezResourceLoadDesc ezMeshResource::UnloadData(Unload WhatToUnload)
     res.m_uiQualityLevelsDiscardable = 0;
     res.m_uiQualityLevelsLoadable = 0;
     res.m_State = ezResourceState::Unloaded;
-
-    m_pSkeleton.Reset();
   }
 
   return res;
@@ -108,14 +106,11 @@ ezResourceLoadDesc ezMeshResource::CreateResource(const ezMeshResourceDescriptor
     m_Materials.PushBack(hMat); // may be an invalid handle
   }
 
-  // Copy skeleton
-  if (const ezSkeleton* pSkeleton = desc.GetSkeleton())
-  {
-    m_pSkeleton = EZ_DEFAULT_NEW(ezSkeleton, *pSkeleton);
-  }
-
   m_Bounds = desc.GetBounds();
   EZ_ASSERT_DEV(m_Bounds.IsValid(), "The mesh bounds are invalid. Make sure to call ezMeshResourceDescriptor::ComputeBounds()");
+
+  // copy the skeleton handle over, will be an invalid handle for static meshes
+  m_hSkeleton = desc.GetSkeleton();
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

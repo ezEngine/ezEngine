@@ -8,7 +8,7 @@
 #include <RendererFoundation/Device/Device.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 5, ezComponentMode::Dynamic);
+EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 6, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -17,7 +17,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 5, ezComponentMode::Dynamic);
     EZ_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new ezAssetBrowserAttribute("Material")),
 
     EZ_ACCESSOR_PROPERTY("AnimationClip", GetAnimationClipFile, SetAnimationClipFile)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
-    EZ_ACCESSOR_PROPERTY("Skeleton", GetSkeletonFile, SetSkeletonFile)->AddAttributes(new ezAssetBrowserAttribute("Skeleton")),
   }
   EZ_END_PROPERTIES;
 
@@ -42,7 +41,6 @@ void ezAnimatedMeshComponent::SerializeComponent(ezWorldWriter& stream) const
   ezAngle m_DegreePerSecond;
   s << m_DegreePerSecond;
   s << m_hAnimationClip;
-  s << m_hSkeleton;
 }
 
 void ezAnimatedMeshComponent::DeserializeComponent(ezWorldReader& stream)
@@ -55,9 +53,10 @@ void ezAnimatedMeshComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_DegreePerSecond;
   s >> m_hAnimationClip;
 
-  if (uiVersion >= 4)
+  if (uiVersion >= 4 && uiVersion < 6)
   {
-    s >> m_hSkeleton;
+    ezSkeletonResourceHandle hSkeleton;
+    s >> hSkeleton;
   }
 }
 
@@ -67,6 +66,12 @@ void ezAnimatedMeshComponent::OnActivated()
 
   // make sure the skinning buffer is deleted
   EZ_ASSERT_DEBUG(m_hSkinningTransformsBuffer.IsInvalidated(), "The skinning buffer should not exist at this time");
+
+  if (m_hMesh.IsValid())
+  {
+    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::NoFallback);
+    m_hSkeleton = pMesh->GetSkeleton();
+  }
 
   if (m_hSkeleton.IsValid())
   {
@@ -117,35 +122,9 @@ const char* ezAnimatedMeshComponent::GetAnimationClipFile() const
   return m_hAnimationClip.GetResourceID();
 }
 
-
-void ezAnimatedMeshComponent::SetSkeleton(const ezSkeletonResourceHandle& hResource)
-{
-  m_hSkeleton = hResource;
-}
-
-void ezAnimatedMeshComponent::SetSkeletonFile(const char* szFile)
-{
-  ezSkeletonResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezSkeletonResource>(szFile);
-  }
-
-  SetSkeleton(hResource);
-}
-
-const char* ezAnimatedMeshComponent::GetSkeletonFile() const
-{
-  if (!m_hSkeleton.IsValid())
-    return "";
-
-  return m_hSkeleton.GetResourceID();
-}
-
 void ezAnimatedMeshComponent::Update()
 {
-  if (!m_hAnimationClip.IsValid())
+  if (!m_hAnimationClip.IsValid() || !m_hSkeleton.IsValid())
     return;
 
   ezResourceLock<ezAnimationClipResource> pAnimClip(m_hAnimationClip);
@@ -199,7 +178,7 @@ void ezAnimatedMeshComponent::Update()
   m_SkinningMatrices = pRenderMatrices;
 }
 
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 

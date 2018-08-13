@@ -171,7 +171,7 @@ void ezExpressionByteCode::Save(ezStreamWriter& stream) const
 {
   ezChunkStreamWriter chunk(stream);
 
-  chunk.BeginStream();
+  chunk.BeginStream(1);
 
   {
     chunk.BeginChunk("MetaData", 2);

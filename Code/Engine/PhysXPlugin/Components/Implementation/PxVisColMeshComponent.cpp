@@ -243,7 +243,7 @@ void ezPxVisColMeshComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) c
   const ezUInt32 uiMeshIDHash = m_hMesh.GetResourceIDHash();
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh);
-  const ezDynamicArray<ezMeshResourceDescriptor::SubMesh>& parts = pMesh->GetSubMeshes();
+  ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
 
   for (ezUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
   {

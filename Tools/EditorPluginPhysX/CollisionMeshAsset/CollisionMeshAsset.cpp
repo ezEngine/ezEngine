@@ -61,7 +61,7 @@ ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
 
   ezChunkStreamWriter chunk(stream);
 
-  chunk.BeginStream();
+  chunk.BeginStream(1);
 
   {
     range.BeginNextStep("Preparing Mesh");

@@ -37,20 +37,11 @@ public:
   void SetAnimationClipFile(const char* szFile);
   const char* GetAnimationClipFile() const;
 
-  void SetSkeleton(const ezSkeletonResourceHandle& hResource);
-  EZ_ALWAYS_INLINE const ezSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; }
-
-  void SetSkeletonFile(const char* szFile);
-  const char* GetSkeletonFile() const;
-
-
   void Update();
 
 protected:
   ezAnimationClipResourceHandle m_hAnimationClip;
-  ezSkeletonResourceHandle m_hSkeleton;
-
   ezAnimationPose m_AnimationPose;
-
+  ezSkeletonResourceHandle m_hSkeleton;
   ezTime m_AnimationTime;
 };

@@ -15,7 +15,7 @@ EZ_CREATE_SIMPLE_TEST(IO, ChunkStream)
   {
     ezChunkStreamWriter writer(MemoryWriter);
 
-    writer.BeginStream();
+    writer.BeginStream(1);
 
     {
       writer.BeginChunk("Chunk1", 1);

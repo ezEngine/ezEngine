@@ -2,8 +2,6 @@
 
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
-#include <Foundation/Types/UniquePtr.h>
-#include <RendererCore/AnimationSystem/Skeleton.h>
 
 typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
 
@@ -15,34 +13,19 @@ public:
   ezMeshResource();
 
   /// \brief Returns the array of sub-meshes in this mesh.
-  const ezDynamicArray<ezMeshResourceDescriptor::SubMesh>& GetSubMeshes() const
-  {
-    return m_SubMeshes;
-  }
+  ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> GetSubMeshes() const { return m_SubMeshes; }
 
   /// \brief Returns the mesh buffer that is used by this resource.
-  const ezMeshBufferResourceHandle& GetMeshBuffer() const
-  {
-    return m_hMeshBuffer;
-  }
+  const ezMeshBufferResourceHandle& GetMeshBuffer() const { return m_hMeshBuffer; }
 
   /// \brief Returns the default materials for this mesh.
-  const ezDynamicArray<ezMaterialResourceHandle>& GetMaterials() const
-  {
-    return m_Materials;
-  }
+  ezArrayPtr<const ezMaterialResourceHandle> GetMaterials() const { return m_Materials; }
 
   /// \brief Returns the bounds of this mesh.
-  const ezBoundingBoxSphere& GetBounds() const
-  {
-    return m_Bounds;
-  }
+  const ezBoundingBoxSphere& GetBounds() const { return m_Bounds; }
 
-  /// \brief Returns the skeleton of this mesh, returns nullptr if the mesh has no skeleton.
-  const ezSkeleton* GetSkeleton() const
-  {
-    return m_pSkeleton.Borrow();
-  }
+  /// \brief Returns the skeleton for this mesh. Will be an invalid handle for static meshes.
+  const ezSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; }
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
@@ -53,8 +36,7 @@ private:
   ezDynamicArray<ezMeshResourceDescriptor::SubMesh> m_SubMeshes;
   ezMeshBufferResourceHandle m_hMeshBuffer;
   ezDynamicArray<ezMaterialResourceHandle> m_Materials;
-
-  ezUniquePtr<ezSkeleton> m_pSkeleton;
+  ezSkeletonResourceHandle m_hSkeleton;
 
   ezBoundingBoxSphere m_Bounds;
 
@@ -62,4 +44,3 @@ private:
 };
 
 typedef ezTypedResourceHandle<class ezMeshResource> ezMeshResourceHandle;
-

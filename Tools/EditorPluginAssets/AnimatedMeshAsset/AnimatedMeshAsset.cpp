@@ -1,22 +1,11 @@
 #include <PCH.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAsset.h>
-#include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
-#include <EditorPluginAssets/TextureAsset/TextureAsset.h>
 #include <EditorPluginAssets/Util/MeshImportUtils.h>
-#include <Foundation/Time/Stopwatch.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
 #include <Foundation/Utilities/Progress.h>
-#include <ModelImporter/Material.h>
 #include <ModelImporter/Mesh.h>
 #include <ModelImporter/ModelImporter.h>
-#include <ModelImporter/VertexData.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
-#include <ToolsFoundation/Object/ObjectAccessorBase.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetDocument, 4, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -40,17 +29,18 @@ ezStatus ezAnimatedMeshAssetDocument::InternalTransformAsset(ezStreamWriter& str
 
   ezAnimatedMeshAssetProperties* pProp = GetProperties();
 
+  if (pProp->m_sSkeletonFile.IsEmpty())
+    return ezStatus("No skeleton was specified for animated mesh asset");
+
   ezMeshResourceDescriptor desc;
 
   range.SetStepWeighting(0, 0.9);
   range.BeginNextStep("Importing Mesh");
 
-  auto ret = CreateMeshFromFile(pProp, desc);
-
-  if (ret.m_Result.Failed())
-    return ret;
+  EZ_SUCCEED_OR_RETURN(CreateMeshFromFile(pProp, desc));
 
   range.BeginNextStep("Writing Result");
+  desc.SetSkeleton(ezResourceManager::LoadResource<ezSkeletonResource>(pProp->m_sSkeletonFile)); // we actually only want the handle for serialization
   desc.Save(stream);
 
   return ezStatus(EZ_SUCCESS);

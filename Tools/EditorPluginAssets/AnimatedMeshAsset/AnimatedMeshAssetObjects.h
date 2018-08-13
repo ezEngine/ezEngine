@@ -13,8 +13,8 @@ class ezAnimatedMeshAssetProperties : public ezReflectedClass
 public:
   ezAnimatedMeshAssetProperties();
 
+  ezString m_sSkeletonFile;
   ezString m_sMeshFile;
-  // ezString m_sSubMeshName;
   float m_fUniformScaling;
 
   ezEnum<ezBasisAxis> m_ForwardDir;

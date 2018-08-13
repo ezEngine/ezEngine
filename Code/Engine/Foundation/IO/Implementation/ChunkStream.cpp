@@ -2,20 +2,23 @@
 
 #include <Foundation/IO/ChunkStream.h>
 
-ezChunkStreamWriter::ezChunkStreamWriter(ezStreamWriter& pStream) : m_Stream(pStream)
+ezChunkStreamWriter::ezChunkStreamWriter(ezStreamWriter& pStream)
+    : m_Stream(pStream)
 {
   m_bWritingFile = false;
   m_bWritingChunk = false;
 }
 
-void ezChunkStreamWriter::BeginStream()
+void ezChunkStreamWriter::BeginStream(ezUInt16 uiVersion)
 {
   EZ_ASSERT_DEV(!m_bWritingFile, "Already writing the file.");
+  EZ_ASSERT_DEV(uiVersion > 0, "The version number must be larger than 0");
 
   m_bWritingFile = true;
 
-  const char* szTag = "BGN CHNK";
+  const char* szTag = "BGNCHNK2";
   m_Stream.WriteBytes(szTag, 8);
+  m_Stream.WriteBytes(&uiVersion, 2);
 }
 
 void ezChunkStreamWriter::EndStream()
@@ -84,7 +87,8 @@ ezResult ezChunkStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBy
 
 
 
-ezChunkStreamReader::ezChunkStreamReader(ezStreamReader& stream) : m_Stream(stream)
+ezChunkStreamReader::ezChunkStreamReader(ezStreamReader& stream)
+    : m_Stream(stream)
 {
   m_ChunkInfo.m_bValid = false;
   m_EndChunkFileMode = EndChunkFileMode::JustClose;
@@ -100,7 +104,7 @@ ezUInt64 ezChunkStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRea
   return m_Stream.ReadBytes(pReadBuffer, uiBytesToRead);
 }
 
-void ezChunkStreamReader::BeginStream()
+ezUInt16 ezChunkStreamReader::BeginStream()
 {
   m_ChunkInfo.m_bValid = false;
 
@@ -108,9 +112,20 @@ void ezChunkStreamReader::BeginStream()
   m_Stream.ReadBytes(szTag, 8);
   szTag[8] = '\0';
 
-  EZ_ASSERT_DEV(ezStringUtils::IsEqual(szTag, "BGN CHNK"), "Not a valid chunk file.");
+  ezUInt16 uiVersion = 0;
+
+  if (ezStringUtils::IsEqual(szTag, "BGNCHNK2"))
+  {
+    m_Stream.ReadBytes(&uiVersion, 2);
+  }
+  else
+  {
+    // "BGN CHNK" is the old chunk identifier, before a version number was written
+    EZ_ASSERT_DEV(ezStringUtils::IsEqual(szTag, "BGN CHNK"), "Not a valid chunk file.");
+  }
 
   TryReadChunkHeader();
+  return uiVersion;
 }
 
 void ezChunkStreamReader::EndStream()
@@ -155,7 +170,8 @@ void ezChunkStreamReader::NextChunk()
 
   const ezUInt64 uiToSkip = m_ChunkInfo.m_uiUnreadChunkBytes;
   const ezUInt64 uiSkipped = SkipBytes(uiToSkip);
-  EZ_VERIFY(uiSkipped == uiToSkip, "Corrupt chunk '{0}' (version {1}), tried to skip {2} bytes, could only read {3} bytes", m_ChunkInfo.m_sChunkName, m_ChunkInfo.m_uiChunkVersion, uiToSkip, uiSkipped);
+  EZ_VERIFY(uiSkipped == uiToSkip, "Corrupt chunk '{0}' (version {1}), tried to skip {2} bytes, could only read {3} bytes",
+            m_ChunkInfo.m_sChunkName, m_ChunkInfo.m_uiChunkVersion, uiToSkip, uiSkipped);
 
   TryReadChunkHeader();
 }

@@ -95,7 +95,7 @@ void ezSceneExportModifier_StaticMeshConversion::ModifyWorld(ezWorld& world, con
   header.Write(file);
 
   ezChunkStreamWriter chunk(file);
-  chunk.BeginStream();
+  chunk.BeginStream(1);
 
   ezPhysXCooking::WriteResourceToStream(chunk, xMesh, surfaces, false);
 

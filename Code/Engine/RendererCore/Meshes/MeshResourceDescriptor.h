@@ -3,7 +3,7 @@
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Math/BoundingBoxSphere.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererCore/AnimationSystem/Skeleton.h>
+#include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 class EZ_RENDERERCORE_DLL ezMeshResourceDescriptor
 {
@@ -37,9 +37,6 @@ public:
 
   void SetMaterial(ezUInt32 uiMaterialIndex, const char* szPathToMaterial);
 
-  void SetSkeleton(const ezSkeleton* pSkeleton);
-  const ezSkeleton* GetSkeleton() const;
-
   void Save(ezStreamWriter& stream);
   ezResult Save(const char* szFile);
 
@@ -48,21 +45,23 @@ public:
 
   const ezMeshBufferResourceHandle& GetExistingMeshBuffer() const;
 
-  const ezHybridArray<Material, 32>& GetMaterials() const;
+  ezArrayPtr<const Material> GetMaterials() const;
 
-  const ezHybridArray<SubMesh, 32>& GetSubMeshes() const;
+  ezArrayPtr<const SubMesh> GetSubMeshes() const;
 
   void ComputeBounds();
   const ezBoundingBoxSphere& GetBounds() const;
 
+  void SetSkeleton(const ezSkeletonResourceHandle& hSkeleton);
+  const ezSkeletonResourceHandle& GetSkeleton() const;
+
 private:
 
-  ezHybridArray<Material, 32> m_Materials;
-  ezHybridArray<SubMesh, 32> m_SubMeshes;
+  ezHybridArray<Material, 8> m_Materials;
+  ezHybridArray<SubMesh, 8> m_SubMeshes;
   ezMeshBufferResourceDescriptor m_MeshBufferDescriptor;
   ezMeshBufferResourceHandle m_hMeshBuffer;
-
-  ezUniquePtr<ezSkeleton> m_pSkeleton;
+  ezSkeletonResourceHandle m_hSkeleton;
 
   ezBoundingBoxSphere m_Bounds;
 };
