@@ -161,7 +161,6 @@ ezSkeletonJointGeometryType::None;None
 ezSkeletonJointGeometryType::Capsule;Capsule
 ezSkeletonJointGeometryType::Sphere;Sphere
 ezSkeletonJointGeometryType::Box;Box
-ezSimpleAnimationComponent;Simple Animation
 ezVisualizeSkeletonComponent;Visualize Skeleton
 BoolParameters;Bool Variables
 NumberParameters;Number Variables

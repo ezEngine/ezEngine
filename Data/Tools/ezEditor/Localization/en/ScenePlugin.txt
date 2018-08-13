@@ -175,3 +175,4 @@ ExposedProperties;Exposed Properties
 ezExposedSceneProperty;Exposed Property
 Parameters;Parameters
 ezSimpleWindComponent;Simple Wind
+ezAnimatedMeshComponent;Animated Mesh

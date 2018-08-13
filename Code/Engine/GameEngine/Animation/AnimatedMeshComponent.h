@@ -1,23 +1,21 @@
 #pragma once
 
-#include <Core/World/ComponentManager.h>
-#include <Core/World/World.h>
 #include <GameEngine/Basics.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
-#include <RendererCore/Meshes/MeshComponent.h>
+#include <RendererCore/Meshes/RenderMeshComponent.h>
 
 typedef ezTypedResourceHandle<class ezAnimationClipResource> ezAnimationClipResourceHandle;
 typedef ezTypedResourceHandle<class ezSkeletonResource> ezSkeletonResourceHandle;
 
-typedef ezComponentManagerSimple<class ezSimpleAnimationComponent, ezComponentUpdateType::WhenSimulating> ezSimpleAnimationComponentManager;
+typedef ezComponentManagerSimple<class ezAnimatedMeshComponent, ezComponentUpdateType::WhenSimulating> ezSimpleAnimationComponentManager;
 
-class EZ_GAMEENGINE_DLL ezSimpleAnimationComponent : public ezMeshComponent
+class EZ_GAMEENGINE_DLL ezAnimatedMeshComponent : public ezRenderMeshComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezSimpleAnimationComponent, ezMeshComponent, ezSimpleAnimationComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezAnimatedMeshComponent, ezRenderMeshComponent, ezSimpleAnimationComponentManager);
 
 public:
-  ezSimpleAnimationComponent();
-  ~ezSimpleAnimationComponent();
+  ezAnimatedMeshComponent();
+  ~ezAnimatedMeshComponent();
 
   //////////////////////////////////////////////////////////////////////////
   // ezComponent Interface

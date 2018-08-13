@@ -7,7 +7,6 @@ EZ_STATICLINK_LIBRARY(GameEngine)
 
   EZ_STATICLINK_REFERENCE(GameEngine_AI_Implementation_PointOfInterestGraph);
   EZ_STATICLINK_REFERENCE(GameEngine_AI_NavMesh_NavMeshDescription);
-  EZ_STATICLINK_REFERENCE(GameEngine_Animation_Implementation_SimpleAnimationComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_Collection_Implementation_CollectionComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_Collection_Implementation_CollectionResource);
   EZ_STATICLINK_REFERENCE(GameEngine_CollisionFilter_CollisionFilter);

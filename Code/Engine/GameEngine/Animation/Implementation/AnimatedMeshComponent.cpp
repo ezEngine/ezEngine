@@ -2,16 +2,20 @@
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <GameEngine/Animation/SimpleAnimationComponent.h>
+#include <GameEngine/Animation/AnimatedMeshComponent.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <RendererFoundation/Device/Device.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 4, ezComponentMode::Dynamic);
+EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 5, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_ACCESSOR_PROPERTY("Mesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Animated Mesh")),
+    EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
+    EZ_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new ezAssetBrowserAttribute("Material")),
+
     EZ_ACCESSOR_PROPERTY("AnimationClip", GetAnimationClipFile, SetAnimationClipFile)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
     EZ_ACCESSOR_PROPERTY("Skeleton", GetSkeletonFile, SetSkeletonFile)->AddAttributes(new ezAssetBrowserAttribute("Skeleton")),
   }
@@ -26,11 +30,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 4, ezComponentMode::Dynamic)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezSimpleAnimationComponent::ezSimpleAnimationComponent() {}
+ezAnimatedMeshComponent::ezAnimatedMeshComponent() {}
 
-ezSimpleAnimationComponent::~ezSimpleAnimationComponent() {}
+ezAnimatedMeshComponent::~ezAnimatedMeshComponent() {}
 
-void ezSimpleAnimationComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezAnimatedMeshComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
@@ -41,7 +45,7 @@ void ezSimpleAnimationComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_hSkeleton;
 }
 
-void ezSimpleAnimationComponent::DeserializeComponent(ezWorldReader& stream)
+void ezAnimatedMeshComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
@@ -57,7 +61,7 @@ void ezSimpleAnimationComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-void ezSimpleAnimationComponent::OnActivated()
+void ezAnimatedMeshComponent::OnActivated()
 {
   SUPER::OnActivated();
 
@@ -72,7 +76,7 @@ void ezSimpleAnimationComponent::OnActivated()
     m_AnimationPose.Configure(skeleton);
     m_AnimationPose.CalculateObjectSpaceTransforms(skeleton);
 
-    //m_SkinningMatrices = m_AnimationPose.GetAllTransforms();
+    // m_SkinningMatrices = m_AnimationPose.GetAllTransforms();
 
     // Create the buffer for the skinning matrices
     ezGALBufferCreationDescription BufferDesc;
@@ -88,12 +92,12 @@ void ezSimpleAnimationComponent::OnActivated()
   }
 }
 
-void ezSimpleAnimationComponent::SetAnimationClip(const ezAnimationClipResourceHandle& hResource)
+void ezAnimatedMeshComponent::SetAnimationClip(const ezAnimationClipResourceHandle& hResource)
 {
   m_hAnimationClip = hResource;
 }
 
-void ezSimpleAnimationComponent::SetAnimationClipFile(const char* szFile)
+void ezAnimatedMeshComponent::SetAnimationClipFile(const char* szFile)
 {
   ezAnimationClipResourceHandle hResource;
 
@@ -105,7 +109,7 @@ void ezSimpleAnimationComponent::SetAnimationClipFile(const char* szFile)
   SetAnimationClip(hResource);
 }
 
-const char* ezSimpleAnimationComponent::GetAnimationClipFile() const
+const char* ezAnimatedMeshComponent::GetAnimationClipFile() const
 {
   if (!m_hAnimationClip.IsValid())
     return "";
@@ -114,12 +118,12 @@ const char* ezSimpleAnimationComponent::GetAnimationClipFile() const
 }
 
 
-void ezSimpleAnimationComponent::SetSkeleton(const ezSkeletonResourceHandle& hResource)
+void ezAnimatedMeshComponent::SetSkeleton(const ezSkeletonResourceHandle& hResource)
 {
   m_hSkeleton = hResource;
 }
 
-void ezSimpleAnimationComponent::SetSkeletonFile(const char* szFile)
+void ezAnimatedMeshComponent::SetSkeletonFile(const char* szFile)
 {
   ezSkeletonResourceHandle hResource;
 
@@ -131,7 +135,7 @@ void ezSimpleAnimationComponent::SetSkeletonFile(const char* szFile)
   SetSkeleton(hResource);
 }
 
-const char* ezSimpleAnimationComponent::GetSkeletonFile() const
+const char* ezAnimatedMeshComponent::GetSkeletonFile() const
 {
   if (!m_hSkeleton.IsValid())
     return "";
@@ -139,7 +143,7 @@ const char* ezSimpleAnimationComponent::GetSkeletonFile() const
   return m_hSkeleton.GetResourceID();
 }
 
-void ezSimpleAnimationComponent::Update()
+void ezAnimatedMeshComponent::Update()
 {
   if (!m_hAnimationClip.IsValid())
     return;
@@ -195,4 +199,21 @@ void ezSimpleAnimationComponent::Update()
   m_SkinningMatrices = pRenderMatrices;
 }
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_SimpleAnimationComponent);
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezAnimatedMeshComponentPatch_4_5 : public ezGraphPatch
+{
+public:
+  ezAnimatedMeshComponentPatch_4_5()
+      : ezGraphPatch("ezSimpleAnimationComponent", 5)
+  {
+  }
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    context.RenameClass("ezAnimatedMeshComponent");
+  }
+};
+
+ezAnimatedMeshComponentPatch_4_5 g_ezAnimatedMeshComponentPatch_4_5;
