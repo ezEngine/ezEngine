@@ -8,7 +8,7 @@
 #include <RendererFoundation/Device/Device.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 6, ezComponentMode::Dynamic);
+EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 7, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -17,6 +17,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 6, ezComponentMode::Dynamic);
     EZ_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new ezAssetBrowserAttribute("Material")),
 
     EZ_ACCESSOR_PROPERTY("AnimationClip", GetAnimationClipFile, SetAnimationClipFile)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
+    EZ_ACCESSOR_PROPERTY("Loop", GetLoopAnimation, SetLoopAnimation),
+    EZ_ACCESSOR_PROPERTY("Speed", GetAnimationSpeed, SetAnimationSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
   }
   EZ_END_PROPERTIES;
 
@@ -40,7 +42,13 @@ void ezAnimatedMeshComponent::SerializeComponent(ezWorldWriter& stream) const
 
   ezAngle m_DegreePerSecond;
   s << m_DegreePerSecond;
-  s << m_hAnimationClip;
+  s << m_AnimationClipSampler.GetAnimationClip();
+
+  const bool bLoop = m_AnimationClipSampler.GetLooping();
+  s << bLoop;
+
+  const float fSpeed = m_AnimationClipSampler.GetPlaybackSpeed();
+  s << fSpeed;
 }
 
 void ezAnimatedMeshComponent::DeserializeComponent(ezWorldReader& stream)
@@ -51,13 +59,27 @@ void ezAnimatedMeshComponent::DeserializeComponent(ezWorldReader& stream)
 
   ezAngle m_DegreePerSecond;
   s >> m_DegreePerSecond;
-  s >> m_hAnimationClip;
+
+  ezAnimationClipResourceHandle hAnimationClip;
+  s >> hAnimationClip;
+  m_AnimationClipSampler.SetAnimationClip(hAnimationClip);
 
   if (uiVersion >= 4 && uiVersion < 6)
   {
     ezSkeletonResourceHandle hSkeleton;
     s >> hSkeleton;
   }
+
+  bool bLoop = true;
+  float fSpeed = 1.0f;
+  if (uiVersion >= 7)
+  {
+    s >> bLoop;
+    s >> fSpeed;
+  }
+
+  m_AnimationClipSampler.SetLooping(bLoop);
+  m_AnimationClipSampler.SetPlaybackSpeed(fSpeed);
 }
 
 void ezAnimatedMeshComponent::OnActivated()
@@ -99,7 +121,12 @@ void ezAnimatedMeshComponent::OnActivated()
 
 void ezAnimatedMeshComponent::SetAnimationClip(const ezAnimationClipResourceHandle& hResource)
 {
-  m_hAnimationClip = hResource;
+  m_AnimationClipSampler.SetAnimationClip(hResource);
+}
+
+const ezAnimationClipResourceHandle& ezAnimatedMeshComponent::GetAnimationClip() const
+{
+  return m_AnimationClipSampler.GetAnimationClip();
 }
 
 void ezAnimatedMeshComponent::SetAnimationClipFile(const char* szFile)
@@ -116,59 +143,44 @@ void ezAnimatedMeshComponent::SetAnimationClipFile(const char* szFile)
 
 const char* ezAnimatedMeshComponent::GetAnimationClipFile() const
 {
-  if (!m_hAnimationClip.IsValid())
+  if (!m_AnimationClipSampler.GetAnimationClip().IsValid())
     return "";
 
-  return m_hAnimationClip.GetResourceID();
+  return m_AnimationClipSampler.GetAnimationClip().GetResourceID();
+}
+
+bool ezAnimatedMeshComponent::GetLoopAnimation() const
+{
+  return m_AnimationClipSampler.GetLooping();
+}
+
+void ezAnimatedMeshComponent::SetLoopAnimation(bool loop)
+{
+  m_AnimationClipSampler.SetLooping(loop);
+}
+
+
+float ezAnimatedMeshComponent::GetAnimationSpeed() const
+{
+  return m_AnimationClipSampler.GetPlaybackSpeed();
+}
+
+void ezAnimatedMeshComponent::SetAnimationSpeed(float speed)
+{
+  m_AnimationClipSampler.SetPlaybackSpeed(speed);
 }
 
 void ezAnimatedMeshComponent::Update()
 {
-  if (!m_hAnimationClip.IsValid() || !m_hSkeleton.IsValid())
+  if (!m_AnimationClipSampler.GetAnimationClip().IsValid() || !m_hSkeleton.IsValid())
     return;
 
-  ezResourceLock<ezAnimationClipResource> pAnimClip(m_hAnimationClip);
   ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton);
   const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
 
-  const ezTime animDuration = pAnimClip->GetDescriptor().GetDuration();
-
-  if (animDuration < ezTime::Zero())
-    return;
-
-  m_AnimationTime += GetWorld()->GetClock().GetTimeDiff();
-
-  // loop the animation
-  while (m_AnimationTime >= animDuration)
-  {
-    m_AnimationTime -= animDuration;
-  }
-
   m_AnimationPose.SetToBindPose(skeleton);
-
-  {
-    const auto& animDesc = pAnimClip->GetDescriptor();
-
-    double fAnimLerp = 0;
-    const ezUInt32 uiFirstFrame = animDesc.GetFrameAt(m_AnimationTime, fAnimLerp);
-
-    const auto& animatedJoints = animDesc.GetAllJointIndices();
-    for (ezUInt32 b = 0; b < animatedJoints.GetCount(); ++b)
-    {
-      const ezHashedString sJointName = animatedJoints.GetKey(b);
-      const ezUInt32 uiAnimJointIdx = animatedJoints.GetValue(b);
-
-      ezUInt32 uiSkeletonJointIdx;
-      if (skeleton.FindJointByName(sJointName, uiSkeletonJointIdx).Succeeded())
-      {
-        const ezTransform jointTransform = animDesc.GetJointKeyframes(uiAnimJointIdx)[uiFirstFrame];
-
-        // TODO: animations are not scaled yet, these matrices do not include the rotation and down-scale that the skeleton already has
-
-        m_AnimationPose.SetTransform(uiSkeletonJointIdx, jointTransform.GetAsMat4());
-      }
-    }
-  }
+  m_AnimationClipSampler.Step(GetWorld()->GetClock().GetTimeDiff());
+  m_AnimationClipSampler.Execute(skeleton, m_AnimationPose);
 
   m_AnimationPose.CalculateObjectSpaceTransforms(skeleton);
 

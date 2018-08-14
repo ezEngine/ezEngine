@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GameEngine/Basics.h>
+#include <RendererCore/AnimationSystem/AnimationGraph/AnimationClipSampler.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/Meshes/RenderMeshComponent.h>
 
@@ -32,16 +33,21 @@ public:
   //
 
   void SetAnimationClip(const ezAnimationClipResourceHandle& hResource);
-  EZ_ALWAYS_INLINE const ezAnimationClipResourceHandle& GetAnimationClip() const { return m_hAnimationClip; }
+  const ezAnimationClipResourceHandle& GetAnimationClip() const;
 
   void SetAnimationClipFile(const char* szFile);
   const char* GetAnimationClipFile() const;
 
+  bool GetLoopAnimation() const;
+  void SetLoopAnimation(bool loop);
+
+  float GetAnimationSpeed() const;
+  void SetAnimationSpeed(float speed);
+
   void Update();
 
 protected:
-  ezAnimationClipResourceHandle m_hAnimationClip;
   ezAnimationPose m_AnimationPose;
   ezSkeletonResourceHandle m_hSkeleton;
-  ezTime m_AnimationTime;
+  ezAnimationClipSampler m_AnimationClipSampler;
 };
