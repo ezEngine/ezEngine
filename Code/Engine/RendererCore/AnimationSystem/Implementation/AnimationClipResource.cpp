@@ -70,32 +70,44 @@ void ezAnimationClipResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezAnimationClipResource) + static_cast<ezUInt32>(m_Descriptor.GetHeapMemoryUsage());
 }
 
-void ezAnimationClipResourceDescriptor::Configure(ezUInt16 uiNumJoints, ezUInt16 uiNumFrames, ezUInt8 uiFramesPerSecond)
+void ezAnimationClipResourceDescriptor::Configure(ezUInt16 uiNumJoints, ezUInt16 uiNumFrames, ezUInt8 uiFramesPerSecond,
+                                                  bool bIncludeRootMotion)
 {
-  EZ_ASSERT_DEV(uiNumFrames > 0, "Invalid number of animation frames");
-  EZ_ASSERT_DEV(uiNumJoints > 0, "Invalid number of animation joints");
-  EZ_ASSERT_DEV(uiFramesPerSecond > 0, "Invalid number of animation fps");
+  EZ_ASSERT_DEV(uiNumFrames >= 2, "Invalid number of key frames");
+  EZ_ASSERT_DEV(uiNumJoints > 0, "Invalid number of joints");
+  EZ_ASSERT_DEV(uiFramesPerSecond > 0, "Invalid number of frames per second");
 
   m_uiNumJoints = uiNumJoints;
   m_uiNumFrames = uiNumFrames;
   m_uiFramesPerSecond = uiFramesPerSecond;
 
-  m_Duration = ezTime::Seconds((double)m_uiNumFrames / (double)m_uiFramesPerSecond);
+  m_Duration = ezTime::Seconds((double)(m_uiNumFrames-1) / (double)m_uiFramesPerSecond);
 
-  m_JointTransforms.SetCount(m_uiNumJoints * m_uiNumFrames);
+  ezUInt32 uiNumTransforms = m_uiNumJoints * m_uiNumFrames;
+
+  if (bIncludeRootMotion)
+  {
+    uiNumTransforms += m_uiNumFrames;
+    ezHashedString name;
+    name.Assign("ezRootMotionTransform");
+    AddJointName(name);
+  }
+
+  m_JointTransforms.SetCount(uiNumTransforms);
 }
 
 ezUInt16 ezAnimationClipResourceDescriptor::GetFrameAt(ezTime time, double& out_fLerpToNext) const
 {
   const double fFrameIdx = time.GetSeconds() * m_uiFramesPerSecond;
 
-  if (fFrameIdx >= m_uiNumFrames)
+  const ezUInt16 uiLowerFrame = static_cast<ezUInt16>(ezMath::Trunc(fFrameIdx));
+
+  if (uiLowerFrame + 1 >= m_uiNumFrames)
   {
-    out_fLerpToNext = 0;
-    return m_uiNumFrames - 1;
+    out_fLerpToNext = 1;
+    return m_uiNumFrames - 2;
   }
 
-  const ezUInt16 uiLowerFrame = static_cast<ezUInt16>(ezMath::Trunc(fFrameIdx));
   out_fLerpToNext = ezMath::Fraction(fFrameIdx);
 
   return uiLowerFrame;
@@ -163,7 +175,7 @@ void ezAnimationClipResourceDescriptor::Load(ezStreamReader& stream)
 
   stream >> m_JointTransforms;
 
-  m_Duration = ezTime::Seconds((double)m_uiNumFrames / (double)m_uiFramesPerSecond);
+  m_Duration = ezTime::Seconds((double)(m_uiNumFrames-1) / (double)m_uiFramesPerSecond);
 
   // version 2
   if (uiVersion >= 2)
@@ -192,6 +204,27 @@ void ezAnimationClipResourceDescriptor::Load(ezStreamReader& stream)
 ezUInt64 ezAnimationClipResourceDescriptor::GetHeapMemoryUsage() const
 {
   return m_JointTransforms.GetHeapMemoryUsage();
+}
+
+bool ezAnimationClipResourceDescriptor::HasRootMotion() const
+{
+  return m_NameToFirstKeyframe.Contains(ezTempHashedString("ezRootMotionTransform"));
+}
+
+ezUInt16 ezAnimationClipResourceDescriptor::GetRootMotionJoint() const
+{
+  ezUInt16 jointIdx = 0;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+
+  const ezUInt32 idx = m_NameToFirstKeyframe.Find(ezTempHashedString("ezRootMotionTransform"));
+  EZ_ASSERT_DEBUG(idx != ezInvalidIndex, "Animation Clip has no root motion transforms");
+
+  jointIdx = m_NameToFirstKeyframe.GetValue(idx);
+  EZ_ASSERT_DEBUG(jointIdx == 0, "The root motion joint should always be at index 0");
+#endif
+
+  return jointIdx;
 }
 
 ezTime ezAnimationClipResourceDescriptor::GetDuration() const

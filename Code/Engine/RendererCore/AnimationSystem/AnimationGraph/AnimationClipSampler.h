@@ -1,7 +1,8 @@
 #pragma once
 
-#include <Foundation/Time/Time.h>
 #include <RendererCore/AnimationSystem/AnimationGraph/AnimationGraphNode.h>
+
+struct ezAnimationClipResourceDescriptor;
 
 enum class ezAnimationClipSamplerState
 {
@@ -17,7 +18,7 @@ public:
   ~ezAnimationClipSampler();
 
   virtual void Step(ezTime tDiff) override;
-  virtual void Execute(const ezSkeleton& skeleton, ezAnimationPose& currentPose) override;
+  virtual bool Execute(const ezSkeleton& skeleton, ezAnimationPose& currentPose, ezTransform* pRootMotion) override;
 
   void RestartAnimation();
   void SetPaused(bool pause);
@@ -25,7 +26,7 @@ public:
   void SetAnimationClip(const ezAnimationClipResourceHandle& hAnimationClip);
   const ezAnimationClipResourceHandle& GetAnimationClip() const { return m_hAnimationClip; }
   
-  void SetSampleTime(ezTime time);
+  void JumpToSampleTime(ezTime time);
 
   ezTime GetClipDuration() const { return m_ClipDuration; }
   // ezTime GetDurationAtCurrentSpeed() const
@@ -39,9 +40,11 @@ public:
 
 private:
   void AdjustSampleTime();
+  ezTransform ComputeRootMotion(const ezAnimationClipResourceDescriptor& animDesc, ezTime tPrev, ezTime tNow) const;
 
   ezAnimationClipSamplerState m_State = ezAnimationClipSamplerState::Stopped;
   ezAnimationClipResourceHandle m_hAnimationClip;
+  ezTime m_PrevSampleTime;
   ezTime m_SampleTime;
   ezTime m_ClipDuration;
   float m_fPlaybackSpeed = 1.0f;

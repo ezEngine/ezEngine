@@ -197,9 +197,7 @@ void ezRenderMeshComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) con
     if (!m_SkinningMatrices.IsEmpty())
     {
       // TODO: When skinning is enabled, batching is prevented. Review this.
-      //data[2] = GetUniqueID(); // this only works in the editor which sets the unique id, at runtime no unique id is currently set!
-      const void* pThis = this;
-      data[2] = ezHashing::xxHash32(&pThis, sizeof(pThis));
+      data[2] = this->GetUniqueIdForRendering();
     }
 
     ezUInt32 uiBatchId = ezHashing::xxHash32(data, sizeof(data));

@@ -1,8 +1,8 @@
 #include <PCH.h>
 
 #include <Core/ResourceManager/ResourceManager.h>
-#include <RendererCore/AnimationSystem/AnimationGraph/AnimationClipSampler.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
+#include <RendererCore/AnimationSystem/AnimationGraph/AnimationClipSampler.h>
 #include <RendererCore/AnimationSystem/Skeleton.h>
 
 ezAnimationClipSampler::ezAnimationClipSampler() = default;
@@ -14,19 +14,20 @@ void ezAnimationClipSampler::Step(ezTime tDiff)
   if (m_State != ezAnimationClipSamplerState::Playing)
     return;
 
-  SetSampleTime(m_SampleTime + tDiff * m_fPlaybackSpeed);
+  m_PrevSampleTime = m_SampleTime;
+  m_SampleTime = m_SampleTime + tDiff * m_fPlaybackSpeed;
 }
 
-void ezAnimationClipSampler::Execute(const ezSkeleton& skeleton, ezAnimationPose& currentPose)
+bool ezAnimationClipSampler::Execute(const ezSkeleton& skeleton, ezAnimationPose& currentPose, ezTransform* pRootMotion)
 {
   // early out, when this is already known
   if (m_State == ezAnimationClipSamplerState::Stopped)
-    return;
+    return false;
 
   // allow animation streaming, don't block
   ezResourceLock<ezAnimationClipResource> pAnimClip(m_hAnimationClip);
   if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
-    return;
+    return false;
 
   // make sure we now know the animation clip length
   m_ClipDuration = pAnimClip->GetDescriptor().GetDuration();
@@ -35,14 +36,26 @@ void ezAnimationClipSampler::Execute(const ezSkeleton& skeleton, ezAnimationPose
 
   // AdjustSampleTime() may reach the end
   if (m_State == ezAnimationClipSamplerState::Stopped)
-    return;
+    return false;
 
   const auto& animDesc = pAnimClip->GetDescriptor();
+  const auto& animatedJoints = animDesc.GetAllJointIndices();
 
   double fAnimLerp = 0;
   const ezUInt32 uiFirstFrame = animDesc.GetFrameAt(m_SampleTime, fAnimLerp);
 
-  const auto& animatedJoints = animDesc.GetAllJointIndices();
+  if (pRootMotion)
+  {
+    if (animDesc.HasRootMotion())
+    {
+      *pRootMotion = ComputeRootMotion(animDesc, m_PrevSampleTime, m_SampleTime);
+    }
+    else
+    {
+      pRootMotion->SetIdentity();
+    }
+  }
+
   for (ezUInt32 b = 0; b < animatedJoints.GetCount(); ++b)
   {
     const ezHashedString sJointName = animatedJoints.GetKey(b);
@@ -51,16 +64,28 @@ void ezAnimationClipSampler::Execute(const ezSkeleton& skeleton, ezAnimationPose
     ezUInt32 uiSkeletonJointIdx;
     if (skeleton.FindJointByName(sJointName, uiSkeletonJointIdx).Succeeded())
     {
-      const ezTransform jointTransform = animDesc.GetJointKeyframes(uiAnimJointIdx)[uiFirstFrame];
+      const ezTransform* pTransforms = animDesc.GetJointKeyframes(uiAnimJointIdx);
+      const ezTransform jointTransform1 = pTransforms[uiFirstFrame];
+      const ezTransform jointTransform2 = pTransforms[uiFirstFrame + 1];
 
-      currentPose.SetTransform(uiSkeletonJointIdx, jointTransform.GetAsMat4());
+      const float fFraction = (float)fAnimLerp;
+
+      ezTransform res;
+      res.m_vPosition = ezMath::Lerp(jointTransform1.m_vPosition, jointTransform2.m_vPosition, fFraction);
+      res.m_qRotation.SetSlerp(jointTransform1.m_qRotation, jointTransform2.m_qRotation, fFraction);
+      res.m_vScale = ezMath::Lerp(jointTransform1.m_vScale, jointTransform2.m_vScale, fFraction);
+
+      currentPose.SetTransform(uiSkeletonJointIdx, res.GetAsMat4());
     }
   }
+
+  return true;
 }
 
 void ezAnimationClipSampler::RestartAnimation()
 {
   m_SampleTime = ezTime::Zero();
+  m_PrevSampleTime = ezTime::Zero();
   m_State = ezAnimationClipSamplerState::Playing;
 }
 
@@ -83,8 +108,9 @@ void ezAnimationClipSampler::SetAnimationClip(const ezAnimationClipResourceHandl
   }
 }
 
-void ezAnimationClipSampler::SetSampleTime(ezTime time)
+void ezAnimationClipSampler::JumpToSampleTime(ezTime time)
 {
+  m_PrevSampleTime = time;
   m_SampleTime = time;
 }
 
@@ -135,4 +161,61 @@ void ezAnimationClipSampler::AdjustSampleTime()
       m_State = ezAnimationClipSamplerState::Stopped;
     }
   }
+}
+
+ezTransform ezAnimationClipSampler::ComputeRootMotion(const ezAnimationClipResourceDescriptor& animDesc, ezTime tPrev, ezTime tNow) const
+{
+  const ezUInt16 uiRootMotionJoint = animDesc.GetRootMotionJoint();
+
+  double fAnimLerpFirst = 0;
+  const ezUInt32 uiFirstFrame = animDesc.GetFrameAt(tPrev, fAnimLerpFirst);
+
+  double fAnimLerpLast = 0;
+  const ezUInt32 uiLastFrame = animDesc.GetFrameAt(tNow, fAnimLerpLast);
+
+  const ezTransform* pKeyframes = animDesc.GetJointKeyframes(uiRootMotionJoint);
+
+  ezTransform res;
+  res.SetIdentity();
+
+  if (uiFirstFrame == uiLastFrame)
+  {
+    const ezTransform rm = pKeyframes[uiFirstFrame];
+
+    const float fFraction = (float)(fAnimLerpLast - fAnimLerpFirst);
+
+    res.m_vPosition = fFraction * rm.m_vPosition;
+    res.m_qRotation.SetSlerp(ezQuat::IdentityQuaternion(), rm.m_qRotation, fFraction);
+  }
+  else
+  {
+    {
+      const ezTransform rm = pKeyframes[uiFirstFrame];
+
+      const float fFraction = (float)(1.0 - fAnimLerpFirst);
+
+      res.m_vPosition += fFraction * rm.m_vPosition;
+      // res.m_qRotation.SetSlerp(ezQuat::IdentityQuaternion(), rm.m_qRotation, fFraction);
+    }
+
+    for (ezUInt32 i = uiFirstFrame + 1; i < uiLastFrame; ++i)
+    {
+      const ezTransform rm = pKeyframes[i];
+
+      res.m_vPosition += rm.m_vPosition;
+      // rotation
+    }
+
+
+    {
+      const ezTransform rm = pKeyframes[uiLastFrame];
+
+      const float fFraction = (float)fAnimLerpLast;
+
+      res.m_vPosition += fFraction * rm.m_vPosition;
+      // res.m_qRotation.SetSlerp(ezQuat::IdentityQuaternion(), rm.m_qRotation, fFraction);
+    }
+  }
+
+  return res;
 }

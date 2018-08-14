@@ -13,7 +13,7 @@ public:
   ezString m_sAnimationFile;
   ezUInt32 m_uiFirstFrame = 0;
   ezUInt32 m_uiNumFrames = 0;
-
+  ezVec3 m_vCustomRootMotion;
 };
 
 //////////////////////////////////////////////////////////////////////////

@@ -2,6 +2,7 @@
 
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
+#include <Foundation/Time/Time.h>
 
 typedef ezTypedResourceHandle<class ezAnimationClipResource> ezAnimationClipResourceHandle;
 typedef ezTypedResourceHandle<class ezSkeletonResource> ezSkeletonResourceHandle;
@@ -13,6 +14,6 @@ public:
   ~ezAnimationGraphNode();
 
   virtual void Step(ezTime tDiff);
-  virtual void Execute(const ezSkeleton& skeleton, ezAnimationPose& currentPose) = 0;
+  virtual bool Execute(const ezSkeleton& skeleton, ezAnimationPose& currentPose, ezTransform* pRootMotion) = 0;
 
 };

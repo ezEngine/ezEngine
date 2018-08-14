@@ -8,7 +8,7 @@
 #include <RendererFoundation/Device/Device.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 7, ezComponentMode::Dynamic);
+EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 8, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -19,6 +19,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 7, ezComponentMode::Dynamic);
     EZ_ACCESSOR_PROPERTY("AnimationClip", GetAnimationClipFile, SetAnimationClipFile)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
     EZ_ACCESSOR_PROPERTY("Loop", GetLoopAnimation, SetLoopAnimation),
     EZ_ACCESSOR_PROPERTY("Speed", GetAnimationSpeed, SetAnimationSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("ApplyRootMotion", m_bApplyRootMotion),
   }
   EZ_END_PROPERTIES;
 
@@ -49,6 +50,8 @@ void ezAnimatedMeshComponent::SerializeComponent(ezWorldWriter& stream) const
 
   const float fSpeed = m_AnimationClipSampler.GetPlaybackSpeed();
   s << fSpeed;
+
+  s << m_bApplyRootMotion;
 }
 
 void ezAnimatedMeshComponent::DeserializeComponent(ezWorldReader& stream)
@@ -80,6 +83,11 @@ void ezAnimatedMeshComponent::DeserializeComponent(ezWorldReader& stream)
 
   m_AnimationClipSampler.SetLooping(bLoop);
   m_AnimationClipSampler.SetPlaybackSpeed(fSpeed);
+
+  if (uiVersion >= 8)
+  {
+    s >> m_bApplyRootMotion;
+  }
 }
 
 void ezAnimatedMeshComponent::OnActivated()
@@ -178,9 +186,12 @@ void ezAnimatedMeshComponent::Update()
   ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton);
   const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
 
+  ezTransform rootMotion;
+  rootMotion.SetIdentity();
+
   m_AnimationPose.SetToBindPose(skeleton);
   m_AnimationClipSampler.Step(GetWorld()->GetClock().GetTimeDiff());
-  m_AnimationClipSampler.Execute(skeleton, m_AnimationPose);
+  m_AnimationClipSampler.Execute(skeleton, m_AnimationPose, &rootMotion);
 
   m_AnimationPose.CalculateObjectSpaceTransforms(skeleton);
 
@@ -188,6 +199,18 @@ void ezAnimatedMeshComponent::Update()
   ezMemoryUtils::Copy(pRenderMatrices.GetPtr(), m_AnimationPose.GetAllTransforms().GetPtr(), m_AnimationPose.GetTransformCount());
 
   m_SkinningMatrices = pRenderMatrices;
+
+  if (m_bApplyRootMotion)
+  {
+    auto* pOwner = GetOwner();
+
+    const ezQuat qOldRot = pOwner->GetLocalRotation();
+    const ezVec3 vNewPos = qOldRot * rootMotion.m_vPosition + pOwner->GetLocalPosition();
+    const ezQuat qNewRot = rootMotion.m_qRotation * qOldRot;
+
+    pOwner->SetLocalPosition(vNewPos);
+    pOwner->SetLocalRotation(qNewRot);
+  }
 }
 
   //////////////////////////////////////////////////////////////////////////

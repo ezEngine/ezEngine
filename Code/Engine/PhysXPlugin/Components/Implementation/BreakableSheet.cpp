@@ -273,11 +273,7 @@ void ezBreakableSheetComponent::OnExtractRenderData(ezMsgExtractRenderData& msg)
   const ezUInt32 uiMeshIDHash = hMesh.GetResourceIDHash();
 
   // Generate batch id from mesh, material and part index.
-  const void* pThis = this;
-  const ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash,
-                           // GetUniqueID() /* TODO: Stop preventing batching because of skinning -> this does not work outside the editor,
-                           // see ezRenderMeshComponent*/,
-                           ezHashing::xxHash32(&pThis, sizeof(pThis)), uiFlipWinding};
+  const ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, GetUniqueIdForRendering(), uiFlipWinding};
   const ezUInt32 uiBatchId = ezHashing::xxHash32(data, sizeof(data));
 
   pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);

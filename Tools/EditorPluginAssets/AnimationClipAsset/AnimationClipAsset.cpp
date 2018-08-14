@@ -19,6 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 1, ezRTTIDefault
     EZ_MEMBER_PROPERTY("File", m_sAnimationFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.fbx")),
     EZ_MEMBER_PROPERTY("FirstFrame", m_uiFirstFrame),
     EZ_MEMBER_PROPERTY("NumFrames", m_uiNumFrames),
+    EZ_MEMBER_PROPERTY("RootMotionVelocity", m_vCustomRootMotion),
   }
   EZ_END_PROPERTIES;
 }
@@ -30,8 +31,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezAnimationClipAssetProperties::ezAnimationClipAssetProperties()
 {
-  m_uiFirstFrame = 0;
-  m_uiNumFrames = 0;
+  m_vCustomRootMotion.SetZero();
 }
 
 ezAnimationClipAssetDocument::ezAnimationClipAssetDocument(const char* szDocumentPath)
@@ -81,11 +81,28 @@ ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& st
 
   // first and last frame are inclusive and may be equal to pick only a single frame
   const ezUInt32 uiFirstKeyframe = ezMath::Min(pProp->m_uiFirstFrame, animClip.m_uiNumKeyframes - 1);
-  const ezUInt32 uiMaxKeyframes = animClip.m_uiNumKeyframes - uiFirstKeyframe; 
+  const ezUInt32 uiMaxKeyframes = animClip.m_uiNumKeyframes - uiFirstKeyframe;
   const ezUInt32 uiNumKeyframes = ezMath::Min((pProp->m_uiNumFrames == 0) ? uiMaxKeyframes : pProp->m_uiNumFrames, uiMaxKeyframes);
 
   ezAnimationClipResourceDescriptor anim;
-  anim.Configure(animClip.m_JointAnimations.GetCount(), uiNumKeyframes, animClip.m_uiFramesPerSecond);
+  anim.Configure(animClip.m_JointAnimations.GetCount(), uiNumKeyframes, animClip.m_uiFramesPerSecond, !pProp->m_vCustomRootMotion.IsZero());
+
+  if (anim.HasRootMotion())
+  {
+    const ezUInt16 uiRootMotionJointIdx = anim.GetRootMotionJoint();
+    ezTransform* pRootTransforms = anim.GetJointKeyframes(uiRootMotionJointIdx);
+
+    if (!pProp->m_vCustomRootMotion.IsZero())
+    {
+      const ezVec3 vKeyframeMotion = pProp->m_vCustomRootMotion / (float)animClip.m_uiFramesPerSecond;
+      const ezTransform rootTransform(vKeyframeMotion);
+
+      for (ezUInt32 kf = 0; kf < uiNumKeyframes; ++kf)
+      {
+        pRootTransforms[kf] = rootTransform;
+      }
+    }
+  }
 
   for (ezUInt32 b = 0; b < anim.GetNumJoints(); ++b)
   {

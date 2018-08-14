@@ -47,6 +47,7 @@ public:
   void Update();
 
 protected:
+  bool m_bApplyRootMotion = false;
   ezAnimationPose m_AnimationPose;
   ezSkeletonResourceHandle m_hSkeleton;
   ezAnimationClipSampler m_AnimationClipSampler;

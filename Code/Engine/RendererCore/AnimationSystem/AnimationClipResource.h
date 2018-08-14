@@ -8,7 +8,7 @@
 struct EZ_RENDERERCORE_DLL ezAnimationClipResourceDescriptor
 {
 public:
-  void Configure(ezUInt16 uiNumJoints, ezUInt16 uiNumFrames, ezUInt8 uiFramesPerSecond);
+  void Configure(ezUInt16 uiNumJoints, ezUInt16 uiNumFrames, ezUInt8 uiFramesPerSecond, bool bIncludeRootMotion);
 
   ezUInt16 GetNumJoints() const { return m_uiNumJoints; }
   ezUInt16 GetNumFrames() const { return m_uiNumFrames; }
@@ -32,6 +32,10 @@ public:
 
   const ezArrayMap<ezHashedString, ezUInt32>& GetAllJointIndices() const { return m_NameToFirstKeyframe; }
 
+  bool HasRootMotion() const;
+
+  ezUInt16 GetRootMotionJoint() const;
+  
 private:
   ezUInt16 m_uiNumJoints = 0;
   ezUInt16 m_uiNumFrames = 0;
