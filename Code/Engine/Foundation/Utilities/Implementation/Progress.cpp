@@ -98,7 +98,7 @@ void ezProgress::UserClickedCancel()
   e.m_Type = ezProgressEvent::Type::CancelClicked;
   e.m_pProgressbar = this;
 
-  m_Events.Broadcast(e);
+  m_Events.Broadcast(e, 1);
 }
 
 bool ezProgress::AllowUserCancel() const

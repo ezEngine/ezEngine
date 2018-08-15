@@ -66,7 +66,8 @@ endif()
 
 SET (LINK_LIBRARIES
     ${LINK_LIBRARIES}
-    debug ${ASSIMP_DIR}/assimp-debug.lib
+    #debug ${ASSIMP_DIR}/assimp-debug.lib
+    debug ${ASSIMP_DIR}/assimp.lib
     optimized ${ASSIMP_DIR}/assimp.lib
 )
 
@@ -80,6 +81,7 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          ${ASSIMP_DIR}/assimp-debug.dll
+          #${ASSIMP_DIR}/assimp-debug.dll
+          ${ASSIMP_DIR}/assimp.dll
           $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 

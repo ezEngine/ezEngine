@@ -63,7 +63,8 @@ endif()
 
 SET (LINK_LIBRARIES
     ${LINK_LIBRARIES}
-    debug ${ASSIMP_DIR}/assimp-debug.lib
+    #debug ${ASSIMP_DIR}/assimp-debug.lib
+    debug ${ASSIMP_DIR}/assimp.lib
     optimized ${ASSIMP_DIR}/assimp.lib
 )
 

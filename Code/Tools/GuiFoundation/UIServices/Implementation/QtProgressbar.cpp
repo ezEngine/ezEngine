@@ -74,6 +74,11 @@ void ezQtProgressbar::ProgressbarEventHandler(const ezProgressEvent& e)
         m_pWinTaskBarProgress->setValue(uiProMille);
 #endif
 
+      if (m_pDialog->wasCanceled())
+      {
+        m_pProgress->UserClickedCancel();
+      }
+
       QCoreApplication::processEvents();
     }
     break;
