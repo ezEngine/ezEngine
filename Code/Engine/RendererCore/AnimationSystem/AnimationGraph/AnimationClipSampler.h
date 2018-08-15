@@ -3,6 +3,8 @@
 #include <RendererCore/AnimationSystem/AnimationGraph/AnimationGraphNode.h>
 
 struct ezAnimationClipResourceDescriptor;
+class ezStreamWriter;
+class ezStreamReader;
 
 enum class ezAnimationClipSamplerState
 {
@@ -19,6 +21,9 @@ public:
 
   virtual void Step(ezTime tDiff) override;
   virtual bool Execute(const ezSkeleton& skeleton, ezAnimationPose& currentPose, ezTransform* pRootMotion) override;
+
+  void Save(ezStreamWriter& stream) const;
+  void Load(ezStreamReader& stream);
 
   void RestartAnimation();
   void SetPaused(bool pause);

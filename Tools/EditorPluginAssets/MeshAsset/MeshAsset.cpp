@@ -8,7 +8,7 @@
 #include <ModelImporter/ModelImporter.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 5, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 6, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 static ezMat3 CalculateTransformationMatrix(const ezMeshAssetProperties* pProp)

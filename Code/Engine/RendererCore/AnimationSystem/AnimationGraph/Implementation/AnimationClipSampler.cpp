@@ -4,6 +4,10 @@
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/AnimationGraph/AnimationClipSampler.h>
 #include <RendererCore/AnimationSystem/Skeleton.h>
+#include <RendererCore/AnimationSystem/SkeletonResource.h>
+#include <Foundation/IO/Stream.h>
+#include <Core/WorldSerializer/ResourceHandleReader.h>
+#include <Core/WorldSerializer/ResourceHandleWriter.h>
 
 ezAnimationClipSampler::ezAnimationClipSampler() = default;
 ezAnimationClipSampler::~ezAnimationClipSampler() = default;
@@ -82,6 +86,29 @@ bool ezAnimationClipSampler::Execute(const ezSkeleton& skeleton, ezAnimationPose
   return true;
 }
 
+
+void ezAnimationClipSampler::Save(ezStreamWriter& stream) const
+{
+  const ezUInt8 uiVersion = 1;
+  stream << uiVersion;
+
+  stream << m_hAnimationClip;
+  stream << m_bLoop;
+  stream << m_fPlaybackSpeed;
+}
+
+void ezAnimationClipSampler::Load(ezStreamReader& stream)
+{
+  ezUInt8 uiVersion = 0;
+  stream >> uiVersion;
+
+  EZ_ASSERT_DEBUG(uiVersion == 1, "Invalid ezAnimationClipSampler version");
+
+  stream >> m_hAnimationClip;
+  stream >> m_bLoop;
+  stream >> m_fPlaybackSpeed;
+}
+
 void ezAnimationClipSampler::RestartAnimation()
 {
   m_SampleTime = ezTime::Zero();
@@ -101,11 +128,6 @@ void ezAnimationClipSampler::SetAnimationClip(const ezAnimationClipResourceHandl
 {
   m_hAnimationClip = hAnimationClip;
   m_ClipDuration = ezTime::Zero();
-
-  if (m_hAnimationClip.IsValid())
-  {
-    RestartAnimation();
-  }
 }
 
 void ezAnimationClipSampler::JumpToSampleTime(ezTime time)

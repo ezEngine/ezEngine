@@ -1,8 +1,6 @@
 #include <PCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
-#include <Core/WorldSerializer/ResourceHandleReader.h>
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -94,11 +92,8 @@ ezResult ezMeshResourceDescriptor::Save(const char* szFile)
 
 void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
 {
-  ezUInt8 uiVersion = 4;
+  ezUInt8 uiVersion = 5;
   stream << uiVersion;
-
-  ezResourceHandleWriteContext HandleContext;
-  HandleContext.BeginWritingToStream(&stream);
 
   ezChunkStreamWriter chunk(stream);
   chunk.BeginStream(1);
@@ -205,16 +200,14 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
 
   if (m_hSkeleton.IsValid())
   {
-    chunk.BeginChunk("Animation", 1);
+    chunk.BeginChunk("Animation", 2);
 
-    chunk << m_hSkeleton;
+    chunk << m_hSkeleton.GetResourceID();
 
     chunk.EndChunk();
   }
 
   chunk.EndStream();
-
-  HandleContext.EndWritingToStream(&stream);
 }
 
 ezResult ezMeshResourceDescriptor::Load(const char* szFile)
@@ -240,16 +233,12 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
 
-  if (uiVersion != 3 && uiVersion != 4)
+  // version 4 is broken
+  if (uiVersion == 4)
     return EZ_FAILURE;
 
-  ezResourceHandleReadContext HandleContext;
-
-  if (uiVersion >= 4)
-  {
-    HandleContext.BeginReadingFromStream(&stream);
-    HandleContext.BeginRestoringHandles(&stream);
-  }
+  if (uiVersion != 3 && uiVersion != 5)
+    return EZ_FAILURE;
 
   ezChunkStreamReader chunk(stream);
   chunk.BeginStream();
@@ -405,25 +394,18 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
 
     if (ci.m_sChunkName == "Animation")
     {
-      if (ci.m_uiChunkVersion != 1)
+      if (ci.m_uiChunkVersion == 2)
       {
-        ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
-        return EZ_FAILURE;
+        ezStringBuilder skeleton;
+        chunk >> skeleton;
+        m_hSkeleton = ezResourceManager::LoadResource<ezSkeletonResource>(skeleton);
       }
-
-      chunk >> m_hSkeleton;
     }
 
     chunk.NextChunk();
   }
 
   chunk.EndStream();
-
-  if (uiVersion >= 4)
-  {
-    HandleContext.EndReadingFromStream(&stream);
-    HandleContext.EndRestoringHandles();
-  }
 
   if (bCalculateBounds)
   {

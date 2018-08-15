@@ -15,7 +15,7 @@ static ezFmod g_FmodSingleton;
 HANDLE g_hLiveUpdateMutex = NULL;
 #endif
 
-ezCVarFloat g_FmodMasterVolume("fmod_MasterVolume", 1.0f, ezCVarFlags::Default, "Master volume for all fmod output");
+ezCVarFloat g_FmodMasterVolume("fmod_MasterVolume", 1.0f, ezCVarFlags::Save, "Master volume for all fmod output");
 ezCVarBool g_FmodMute("fmod_Mute", false, ezCVarFlags::Default, "Whether Fmod sound output is muted");
 
 ezFmod::ezFmod()

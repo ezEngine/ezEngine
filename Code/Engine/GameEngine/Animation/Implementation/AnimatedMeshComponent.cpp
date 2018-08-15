@@ -8,7 +8,7 @@
 #include <RendererFoundation/Device/Device.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 8, ezComponentMode::Dynamic);
+EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 9, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -41,17 +41,8 @@ void ezAnimatedMeshComponent::SerializeComponent(ezWorldWriter& stream) const
   SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
 
-  ezAngle m_DegreePerSecond;
-  s << m_DegreePerSecond;
-  s << m_AnimationClipSampler.GetAnimationClip();
-
-  const bool bLoop = m_AnimationClipSampler.GetLooping();
-  s << bLoop;
-
-  const float fSpeed = m_AnimationClipSampler.GetPlaybackSpeed();
-  s << fSpeed;
-
   s << m_bApplyRootMotion;
+  m_AnimationClipSampler.Save(s);
 }
 
 void ezAnimatedMeshComponent::DeserializeComponent(ezWorldReader& stream)
@@ -60,34 +51,10 @@ void ezAnimatedMeshComponent::DeserializeComponent(ezWorldReader& stream)
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
-  ezAngle m_DegreePerSecond;
-  s >> m_DegreePerSecond;
+  EZ_ASSERT_DEV(uiVersion == 9, "Unsupported version, delete the file and reexport it");
 
-  ezAnimationClipResourceHandle hAnimationClip;
-  s >> hAnimationClip;
-  m_AnimationClipSampler.SetAnimationClip(hAnimationClip);
-
-  if (uiVersion >= 4 && uiVersion < 6)
-  {
-    ezSkeletonResourceHandle hSkeleton;
-    s >> hSkeleton;
-  }
-
-  bool bLoop = true;
-  float fSpeed = 1.0f;
-  if (uiVersion >= 7)
-  {
-    s >> bLoop;
-    s >> fSpeed;
-  }
-
-  m_AnimationClipSampler.SetLooping(bLoop);
-  m_AnimationClipSampler.SetPlaybackSpeed(fSpeed);
-
-  if (uiVersion >= 8)
-  {
-    s >> m_bApplyRootMotion;
-  }
+  s >> m_bApplyRootMotion;
+  m_AnimationClipSampler.Load(s);
 }
 
 void ezAnimatedMeshComponent::OnActivated()
@@ -125,6 +92,8 @@ void ezAnimatedMeshComponent::OnActivated()
         BufferDesc,
         ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(m_AnimationPose.GetAllTransforms().GetPtr()), BufferDesc.m_uiTotalSize));
   }
+
+  m_AnimationClipSampler.RestartAnimation();
 }
 
 void ezAnimatedMeshComponent::SetAnimationClip(const ezAnimationClipResourceHandle& hResource)
