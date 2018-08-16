@@ -7,6 +7,7 @@
 #include <Foundation/Math/Transform.h>
 
 class ezSkeleton;
+class ezDebugRendererContext;
 
 /// \brief The animation pose encapsulates the final transform matrices for each joint in a given skeleton.
 /// For each joint there is also a bit flag indicating whether the transform is valid or not. An IK system for example may only
@@ -21,11 +22,19 @@ public:
 
   /// \brief Sets all transforms to the local bind pose of the skeleton.
   /// This is typically used to initialize a skeleton to a default start state.
-  void SetToBindPose(const ezSkeleton& skeleton);
+  void SetToBindPoseInLocalSpace(const ezSkeleton& skeleton);
 
-  /// \brief Converts the pose from a collection of local transforms to a usable object space transform collection.
-  /// This modifies the transforms in place. This is typically the very last modification on a pose before it is sent to the renderer for skinning.
-  void CalculateObjectSpaceTransforms(const ezSkeleton& skeleton);
+  /// \brief Converts each joint from local space to object space, ie. it concatenates parent transforms and bakes them into each joint.
+  /// 
+  /// The result is a pose that can be used for instance for visualizing the skeleton by drawing lines from each joint position to
+  /// the parent and child joints.
+  /// It is, however, not (yet) suitable for actual GPU skinning, as that happens in a different space.
+  void ConvertFromLocalSpaceToObjectSpace(const ezSkeleton& skeleton);
+
+  /// \brief Converts each joint from the hierarchical object space position to the final skinning space, which is used to modify a mesh.
+  /// 
+  /// This is typically the very last operation done on a pose before it is sent to the GPU for skinning.
+  void ConvertFromObjectSpaceToSkinningSpace(const ezSkeleton& skeleton);
 
   const ezMat4& GetTransform(ezUInt32 uiIndex) const { return m_Transforms[uiIndex]; }
 
@@ -64,6 +73,11 @@ public:
   /// Note that this shouldn't be used for "real" skinning - this is just for anchors etc. so they are available
   /// on the CPU side of things.
   ezVec3 SkinDirectionWithFourJoints(const ezVec3& Direction, const ezVec4U32& indices, const ezVec4& weights) const;
+
+  /// \brief Renders a debug visualization of this pose. \a objectTransform is used to position, rotate and scale the stick-figure as needed.
+  ///
+  /// Object scale is, however, only partially used, joint indicators are always sized according to the distance to the parent joints (after scaling).
+  void VisualizePose(const ezDebugRendererContext& context, const ezSkeleton& skeleton, const ezTransform& objectTransform, ezUInt32 uiStartJoint = 0xFFFFFFFFu) const;
 
 private:
   // TODO: would be nicer to use ezTransform or ezShaderTransform for this data

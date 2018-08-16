@@ -8,11 +8,11 @@
 typedef ezTypedResourceHandle<class ezAnimationClipResource> ezAnimationClipResourceHandle;
 typedef ezTypedResourceHandle<class ezSkeletonResource> ezSkeletonResourceHandle;
 
-typedef ezComponentManagerSimple<class ezAnimatedMeshComponent, ezComponentUpdateType::WhenSimulating> ezSimpleAnimationComponentManager;
+typedef ezComponentManagerSimple<class ezAnimatedMeshComponent, ezComponentUpdateType::WhenSimulating> ezAnimatedMeshComponentManager;
 
 class EZ_GAMEENGINE_DLL ezAnimatedMeshComponent : public ezRenderMeshComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezAnimatedMeshComponent, ezRenderMeshComponent, ezSimpleAnimationComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezAnimatedMeshComponent, ezRenderMeshComponent, ezAnimatedMeshComponentManager);
 
 public:
   ezAnimatedMeshComponent();
@@ -23,7 +23,7 @@ public:
   //
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
-  virtual void OnActivated() override;
+  virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
   //
@@ -48,6 +48,7 @@ public:
 
 protected:
   bool m_bApplyRootMotion = false;
+  bool m_bVisualizeSkeleton = false;
   ezAnimationPose m_AnimationPose;
   ezSkeletonResourceHandle m_hSkeleton;
   ezAnimationClipSampler m_AnimationClipSampler;

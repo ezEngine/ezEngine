@@ -2,11 +2,12 @@
 
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/AnimationSystem/Skeleton.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 
- ezAnimationPose::ezAnimationPose() = default;
- ezAnimationPose::~ezAnimationPose() = default;
+ezAnimationPose::ezAnimationPose() = default;
+ezAnimationPose::~ezAnimationPose() = default;
 
- void ezAnimationPose::Configure(const ezSkeleton& skeleton)
+void ezAnimationPose::Configure(const ezSkeleton& skeleton)
 {
   EZ_ASSERT_DEV(skeleton.GetJointCount() > 0, "Animation pose needs a valid skeleton which also has at least one joint!");
 
@@ -17,10 +18,10 @@
   m_TransformsValid.SetCount(skeleton.GetJointCount());
   m_TransformsValid.ClearAllBits();
 
-  SetToBindPose(skeleton);
+  SetToBindPoseInLocalSpace(skeleton);
 }
 
-void ezAnimationPose::SetToBindPose(const ezSkeleton& skeleton)
+void ezAnimationPose::SetToBindPoseInLocalSpace(const ezSkeleton& skeleton)
 {
   EZ_ASSERT_DEV(skeleton.GetJointCount() == GetTransformCount(), "Pose and skeleton have different joint count!");
 
@@ -33,17 +34,15 @@ void ezAnimationPose::SetToBindPose(const ezSkeleton& skeleton)
     m_Transforms[i] = skeleton.GetJointByIndex(i).GetBindPoseLocalTransform().GetAsMat4();
   }
 }
-
-void ezAnimationPose::CalculateObjectSpaceTransforms(const ezSkeleton& skeleton)
+void ezAnimationPose::ConvertFromLocalSpaceToObjectSpace(const ezSkeleton& skeleton)
 {
+  // TODO: store current space and assert that it is correct ?
+
   const ezUInt32 numTransforms = GetTransformCount();
 
   EZ_ASSERT_DEV(skeleton.GetJointCount() == numTransforms, "Pose and skeleton have different joint count!");
 
-  // STEP 1: convert pose matrices from local space to global space by concatenating parent transforms
-  // STEP 2: multiply each joint's individual inverse-global-pose matrix into the result
-  // this should (theoretically) first move the vertices into "joint space" such that afterwards the global skeleton transform
-  // moves it back into the animated global space
+  // STEP 1: convert pose matrices from local (joint) space to object (skeleton) space by concatenating parent transforms
 
   // Since the joints are sorted (at least no child joint comes before it's parent joint)
   // we can simply grab the already stored parent transform from the pose to get the multiplied
@@ -59,6 +58,15 @@ void ezAnimationPose::CalculateObjectSpaceTransforms(const ezSkeleton& skeleton)
       m_Transforms[i] = m_Transforms[joint.GetParentIndex()] * m_Transforms[i];
     }
   }
+}
+
+void ezAnimationPose::ConvertFromObjectSpaceToSkinningSpace(const ezSkeleton& skeleton)
+{
+  // TODO: store current space and assert that it is correct ?
+
+  // STEP 2: multiply each joint's individual inverse-global-pose matrix into the result
+
+  const ezUInt32 numTransforms = GetTransformCount();
 
   for (ezUInt32 i = 0; i < numTransforms; ++i)
   {
@@ -95,6 +103,67 @@ ezVec3 ezAnimationPose::SkinDirectionWithFourJoints(const ezVec3& Direction, con
   ezVec3 Dir4 = m_Transforms[indices.w].TransformDirection(Direction);
 
   return (Dir1 * weights.x) + (Dir2 * weights.y) + (Dir3 * weights.z) + (Dir4 * weights.w);
+}
+
+void ezAnimationPose::VisualizePose(const ezDebugRendererContext& context, const ezSkeleton& skeleton, const ezTransform& objectTransform,
+                                    ezUInt32 uiStartJoint /*= 0xFFFFFFFFu*/) const
+{
+  // TODO: store current space and assert that it is correct ?
+
+  ezHybridArray<ezDebugRenderer::Line, 128> lines;
+
+  const ezUInt32 numJoints = skeleton.GetJointCount();
+  for (ezUInt32 thisJointIdx = 0; thisJointIdx < numJoints; ++thisJointIdx)
+  {
+    const ezSkeletonJoint& thisJoint = skeleton.GetJointByIndex(thisJointIdx);
+
+    if (uiStartJoint != 0xFFFFFFFFu)
+    {
+      ezUInt32 uiParentIdx = thisJointIdx;
+      while (uiParentIdx != 0xFFFFFFFFu)
+      {
+        if (uiParentIdx == uiStartJoint)
+          goto render;
+
+        uiParentIdx = skeleton.GetJointByIndex(uiParentIdx).GetParentIndex();
+      }
+
+      // parent joint not found in hierarchy -> skip this one
+      continue;
+    }
+
+  render:
+
+    ezTransform thisJointTransform;
+    thisJointTransform.SetFromMat4(GetTransform(thisJointIdx));
+    thisJointTransform = objectTransform * thisJointTransform;
+
+    if (thisJoint.IsRootJoint() || thisJointIdx == uiStartJoint)
+    {
+      const ezBoundingSphere sphere(ezVec3::ZeroVector(), 0.05f);
+      thisJointTransform.m_vScale.Set(1);
+      ezDebugRenderer::DrawLineSphere(context, sphere, ezColor::MediumVioletRed, thisJointTransform);
+    }
+    else
+    {
+      const ezUInt32 parentJointIdx = thisJoint.GetParentIndex();
+      const ezSkeletonJoint& parentJoint = skeleton.GetJointByIndex(parentJointIdx);
+      ezTransform parentJointTransform;
+      parentJointTransform.SetFromMat4(GetTransform(parentJointIdx));
+      parentJointTransform = objectTransform * parentJointTransform;
+
+      thisJointTransform.m_vScale.Set(1);
+
+      auto& line = lines.ExpandAndGetRef();
+      line.m_start = thisJointTransform.m_vPosition;
+      line.m_end = parentJointTransform.m_vPosition;
+
+      const ezBoundingSphere sphere(ezVec3::ZeroVector(), (line.m_start - line.m_end).GetLength() * 0.2f);
+      ezDebugRenderer::DrawLineSphere(context, sphere, ezColor::Yellow, thisJointTransform);
+    }
+  }
+
+  ezDebugRenderer::DrawLines(context, lines, ezColor::GreenYellow);
 }
 
 void ezAnimationPose::SetTransform(ezUInt32 uiIndex, const ezMat4& transform)

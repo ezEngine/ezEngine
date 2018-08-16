@@ -5,10 +5,11 @@
 #include <GameEngine/Animation/AnimatedMeshComponent.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
+#include <RendererCore/Debug/DebugRendererContext.h>
 #include <RendererFoundation/Device/Device.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 9, ezComponentMode::Dynamic);
+EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 10, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -20,6 +21,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 9, ezComponentMode::Dynamic);
     EZ_ACCESSOR_PROPERTY("Loop", GetLoopAnimation, SetLoopAnimation),
     EZ_ACCESSOR_PROPERTY("Speed", GetAnimationSpeed, SetAnimationSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("ApplyRootMotion", m_bApplyRootMotion),
+    EZ_MEMBER_PROPERTY("VisualizeSkeleton", m_bVisualizeSkeleton),
   }
   EZ_END_PROPERTIES;
 
@@ -43,6 +45,8 @@ void ezAnimatedMeshComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_bApplyRootMotion;
   m_AnimationClipSampler.Save(s);
+
+  s << m_bVisualizeSkeleton;
 }
 
 void ezAnimatedMeshComponent::DeserializeComponent(ezWorldReader& stream)
@@ -51,13 +55,15 @@ void ezAnimatedMeshComponent::DeserializeComponent(ezWorldReader& stream)
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
-  EZ_ASSERT_DEV(uiVersion == 9, "Unsupported version, delete the file and reexport it");
+  EZ_ASSERT_DEV(uiVersion >= 9, "Unsupported version, delete the file and reexport it");
 
   s >> m_bApplyRootMotion;
   m_AnimationClipSampler.Load(s);
+
+  s >> m_bVisualizeSkeleton;
 }
 
-void ezAnimatedMeshComponent::OnActivated()
+void ezAnimatedMeshComponent::OnSimulationStarted()
 {
   SUPER::OnActivated();
 
@@ -76,7 +82,8 @@ void ezAnimatedMeshComponent::OnActivated()
 
     const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
     m_AnimationPose.Configure(skeleton);
-    m_AnimationPose.CalculateObjectSpaceTransforms(skeleton);
+    m_AnimationPose.ConvertFromLocalSpaceToObjectSpace(skeleton);
+    m_AnimationPose.ConvertFromObjectSpaceToSkinningSpace(skeleton);
 
     // m_SkinningMatrices = m_AnimationPose.GetAllTransforms();
 
@@ -158,11 +165,18 @@ void ezAnimatedMeshComponent::Update()
   ezTransform rootMotion;
   rootMotion.SetIdentity();
 
-  m_AnimationPose.SetToBindPose(skeleton);
+  m_AnimationPose.SetToBindPoseInLocalSpace(skeleton);
   m_AnimationClipSampler.Step(GetWorld()->GetClock().GetTimeDiff());
   m_AnimationClipSampler.Execute(skeleton, m_AnimationPose, &rootMotion);
 
-  m_AnimationPose.CalculateObjectSpaceTransforms(skeleton);
+  m_AnimationPose.ConvertFromLocalSpaceToObjectSpace(skeleton);
+
+  if (m_bVisualizeSkeleton)
+  {
+    m_AnimationPose.VisualizePose(GetWorld(), skeleton, GetOwner()->GetGlobalTransform());
+  }
+
+  m_AnimationPose.ConvertFromObjectSpaceToSkinningSpace(skeleton);
 
   ezArrayPtr<ezMat4> pRenderMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, m_AnimationPose.GetTransformCount());
   ezMemoryUtils::Copy(pRenderMatrices.GetPtr(), m_AnimationPose.GetAllTransforms().GetPtr(), m_AnimationPose.GetTransformCount());
@@ -182,7 +196,7 @@ void ezAnimatedMeshComponent::Update()
   }
 }
 
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 
