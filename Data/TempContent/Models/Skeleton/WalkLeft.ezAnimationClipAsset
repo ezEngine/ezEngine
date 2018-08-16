@@ -14,7 +14,7 @@ o
 			s{"Models/Skeleton/skeleton_animated.FBX"}
 		}
 		Uuid %DocumentID{u4{5679128402610608553,5047631875997432200}}
-		u4 %Hash{5170060247515503854}
+		u4 %Hash{5775651846892629955}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -31,8 +31,9 @@ o
 	p
 	{
 		s %File{"Models/Skeleton/skeleton_animated.FBX"}
-		u3 %FirstFrame{1239}
+		u3 %FirstFrame{1271}
 		u3 %NumFrames{32}
+		Vec3 %RootMotionVelocity{f{0xCDCCCCBE,0,0}}
 	}
 }
 o
@@ -84,7 +85,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimationClipAssetProperties"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{96}
 		u3 %TypeVersion{1}
 	}
 }
