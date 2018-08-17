@@ -290,6 +290,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     else if (pMsg->m_sWhatToDo == "ReloadResources")
     {
       ezResourceManager::ReloadAllResources(false);
+      ezRenderWorld::DeleteAllCachedRenderData();
     }
     else
       ezLog::Warning("Unknown ezSimpleConfigMsgToEngine '{0}'", pMsg->m_sWhatToDo);

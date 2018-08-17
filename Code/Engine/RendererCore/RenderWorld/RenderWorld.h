@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Pipeline/Declarations.h>
 
@@ -18,6 +18,8 @@ public:
 
   static void CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent,
     ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries);
+
+  static void DeleteAllCachedRenderData();
   static void DeleteCachedRenderData(const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent);
   static void DeleteCachedRenderDataRecursive(const ezGameObject* pOwnerObject);
   static ezArrayPtr<ezInternal::RenderDataCacheEntry> GetCachedRenderData(const ezView& view, const ezGameObjectHandle& hOwner);
