@@ -187,6 +187,8 @@ void ezAnimationClipSampler::AdjustSampleTime()
 
 ezTransform ezAnimationClipSampler::ComputeRootMotion(const ezAnimationClipResourceDescriptor& animDesc, ezTime tPrev, ezTime tNow) const
 {
+  // TODO: handle loops when tNow wrapped around, and also when playing back an animation backwards
+
   const ezUInt16 uiRootMotionJoint = animDesc.GetRootMotionJoint();
 
   double fAnimLerpFirst = 0;
