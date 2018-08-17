@@ -188,7 +188,7 @@ void ezAnimatedMeshComponent::Update()
     auto* pOwner = GetOwner();
 
     const ezQuat qOldRot = pOwner->GetLocalRotation();
-    const ezVec3 vNewPos = qOldRot * rootMotion.m_vPosition + pOwner->GetLocalPosition();
+    const ezVec3 vNewPos = qOldRot * (rootMotion.m_vPosition * pOwner->GetGlobalScaling().x) + pOwner->GetLocalPosition();
     const ezQuat qNewRot = rootMotion.m_qRotation * qOldRot;
 
     pOwner->SetLocalPosition(vNewPos);

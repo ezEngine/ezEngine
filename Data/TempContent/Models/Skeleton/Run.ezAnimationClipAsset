@@ -14,7 +14,7 @@ o
 			s{"Models/Skeleton/skeleton_animated.FBX"}
 		}
 		Uuid %DocumentID{u4{9338181294583131803,4786154233471015250}}
-		u4 %Hash{10895971337931789259}
+		u4 %Hash{18138187629778186399}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -33,7 +33,7 @@ o
 		s %File{"Models/Skeleton/skeleton_animated.FBX"}
 		u3 %FirstFrame{814}
 		u3 %NumFrames{17}
-		Vec3 %RootMotionVelocity{f{0,0xCDCC4CC0,0}}
+		Vec3 %RootMotionVelocity{f{0,0x000000C3,0}}
 	}
 }
 o

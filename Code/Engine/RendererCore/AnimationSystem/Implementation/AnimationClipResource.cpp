@@ -115,19 +115,19 @@ ezUInt16 ezAnimationClipResourceDescriptor::GetFrameAt(ezTime time, double& out_
 
 ezUInt16 ezAnimationClipResourceDescriptor::AddJointName(const ezHashedString& sJointName)
 {
-  const ezUInt16 uiJointIdx = m_NameToFirstKeyframe.GetCount();
-  m_NameToFirstKeyframe.Insert(sJointName, uiJointIdx);
+  const ezUInt16 uiJointIdx = m_JointNameToIndex.GetCount();
+  m_JointNameToIndex.Insert(sJointName, uiJointIdx);
   return uiJointIdx;
 }
 
 ezUInt16 ezAnimationClipResourceDescriptor::FindJointIndexByName(const ezTempHashedString& sJointName) const
 {
-  const ezUInt32 uiIndex = m_NameToFirstKeyframe.Find(sJointName);
+  const ezUInt32 uiIndex = m_JointNameToIndex.Find(sJointName);
 
   if (uiIndex == ezInvalidIndex)
     return 0xFFFF;
 
-  return m_NameToFirstKeyframe.GetValue(uiIndex);
+  return m_JointNameToIndex.GetValue(uiIndex);
 }
 
 const ezTransform* ezAnimationClipResourceDescriptor::GetJointKeyframes(ezUInt16 uiJoint) const
@@ -153,13 +153,13 @@ void ezAnimationClipResourceDescriptor::Save(ezStreamWriter& stream) const
 
   // version 2
   {
-    m_NameToFirstKeyframe.Sort();
-    const ezUInt32 uiJointCount = m_NameToFirstKeyframe.GetCount();
+    m_JointNameToIndex.Sort();
+    const ezUInt32 uiJointCount = m_JointNameToIndex.GetCount();
     stream << uiJointCount;
     for (ezUInt32 b = 0; b < uiJointCount; ++b)
     {
-      stream << m_NameToFirstKeyframe.GetKey(b);
-      stream << m_NameToFirstKeyframe.GetValue(b);
+      stream << m_JointNameToIndex.GetKey(b);
+      stream << m_JointNameToIndex.GetValue(b);
     }
   }
 }
@@ -180,7 +180,7 @@ void ezAnimationClipResourceDescriptor::Load(ezStreamReader& stream)
   // version 2
   if (uiVersion >= 2)
   {
-    m_NameToFirstKeyframe.Clear();
+    m_JointNameToIndex.Clear();
     ezUInt32 uiJointCount = 0;
     stream >> uiJointCount;
 
@@ -192,11 +192,11 @@ void ezAnimationClipResourceDescriptor::Load(ezStreamReader& stream)
       stream >> hs;
       stream >> idx;
 
-      m_NameToFirstKeyframe.Insert(hs, idx);
+      m_JointNameToIndex.Insert(hs, idx);
     }
 
     // should do nothing
-    m_NameToFirstKeyframe.Sort();
+    m_JointNameToIndex.Sort();
   }
 }
 
@@ -208,7 +208,7 @@ ezUInt64 ezAnimationClipResourceDescriptor::GetHeapMemoryUsage() const
 
 bool ezAnimationClipResourceDescriptor::HasRootMotion() const
 {
-  return m_NameToFirstKeyframe.Contains(ezTempHashedString("ezRootMotionTransform"));
+  return m_JointNameToIndex.Contains(ezTempHashedString("ezRootMotionTransform"));
 }
 
 ezUInt16 ezAnimationClipResourceDescriptor::GetRootMotionJoint() const
@@ -217,10 +217,10 @@ ezUInt16 ezAnimationClipResourceDescriptor::GetRootMotionJoint() const
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
 
-  const ezUInt32 idx = m_NameToFirstKeyframe.Find(ezTempHashedString("ezRootMotionTransform"));
+  const ezUInt32 idx = m_JointNameToIndex.Find(ezTempHashedString("ezRootMotionTransform"));
   EZ_ASSERT_DEBUG(idx != ezInvalidIndex, "Animation Clip has no root motion transforms");
 
-  jointIdx = m_NameToFirstKeyframe.GetValue(idx);
+  jointIdx = m_JointNameToIndex.GetValue(idx);
   EZ_ASSERT_DEBUG(jointIdx == 0, "The root motion joint should always be at index 0");
 #endif
 

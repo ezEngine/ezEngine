@@ -30,7 +30,7 @@ public:
 
   ezUInt64 GetHeapMemoryUsage() const;
 
-  const ezArrayMap<ezHashedString, ezUInt32>& GetAllJointIndices() const { return m_NameToFirstKeyframe; }
+  const ezArrayMap<ezHashedString, ezUInt32>& GetAllJointIndices() const { return m_JointNameToIndex; }
 
   bool HasRootMotion() const;
 
@@ -44,7 +44,7 @@ private:
   ezTime m_Duration;
 
   ezDynamicArray<ezTransform> m_JointTransforms;
-  ezArrayMap<ezHashedString, ezUInt32> m_NameToFirstKeyframe;
+  ezArrayMap<ezHashedString, ezUInt32> m_JointNameToIndex;
 };
 
 typedef ezTypedResourceHandle<class ezAnimationClipResource> ezAnimationClipResourceHandle;
