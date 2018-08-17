@@ -21,6 +21,7 @@
 #include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Meshes/MeshComponent.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <SharedPluginScene/Common/Messages.h>
 
 // clang-format off
@@ -161,15 +162,21 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
 void ezSceneContext::HandleViewRedrawMsg(const ezViewRedrawMsgToEngine* pMsg)
 {
-  if (m_bUpdateAllLocalBounds)
+  if (m_bUpdateBoundsAndCaches)
   {
-    m_bUpdateAllLocalBounds = false;
+    m_bUpdateBoundsAndCaches = false;
 
     EZ_LOCK(m_pWorld->GetWriteMarker());
 
     for (auto it = m_pWorld->GetObjects(); it.IsValid(); ++it)
     {
       it->UpdateLocalBounds();
+
+      auto components = it->GetComponents();
+      for (auto pComponent : components)
+      {
+        ezRenderWorld::DeleteCachedRenderData(it->GetHandle(), pComponent->GetHandle());
+      }
     }
   }
 
@@ -458,7 +465,7 @@ void ezSceneContext::OnResourceManagerEvent(const ezResourceManagerEvent& e)
   {
     // when resources get reloaded, make sure to update all object bounds
     // this is to prevent culling errors after meshes got transformed etc.
-    m_bUpdateAllLocalBounds = true;
+    m_bUpdateBoundsAndCaches = true;
   }
 }
 

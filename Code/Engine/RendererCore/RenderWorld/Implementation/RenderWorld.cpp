@@ -530,29 +530,27 @@ void ezRenderWorld::UpdateRenderDataCache()
       if (uiNumCachedRenderData == 0) // Nothing cached yet
       {
         cachedRenderDataPerComponent = CachedRenderDataPerComponent(s_pCacheAllocator);
+      }
 
-        for (auto& newEntry : newEntries.m_CacheEntries)
+      ezUInt32 uiCachedRenderDataIndex = 0;
+      for (auto& newEntry : newEntries.m_CacheEntries)
+      {
+        if (newEntry.m_pRenderData != nullptr)
         {
-          if (newEntry.m_pRenderData != nullptr)
+          if (uiCachedRenderDataIndex >= cachedRenderDataPerComponent.GetCount())
           {
             const ezRTTI* pRtti = newEntry.m_pRenderData->GetDynamicRTTI();
             newEntry.m_pRenderData = pRtti->GetAllocator()->Clone<ezRenderData>(newEntry.m_pRenderData, s_pCacheAllocator);
 
             cachedRenderDataPerComponent.PushBack(newEntry.m_pRenderData);
           }
-        }
-      }
-      else
-      {
-        // replace with cached render data
-        ezUInt32 uiCachedRenderDataIndex = 0;
-        for (auto& newEntry : newEntries.m_CacheEntries)
-        {
-          if (newEntry.m_pRenderData != nullptr)
+          else
           {
+            // replace with cached render data
             newEntry.m_pRenderData = cachedRenderDataPerComponent[uiCachedRenderDataIndex];
-            ++uiCachedRenderDataIndex;
           }
+
+          ++uiCachedRenderDataIndex;
         }
       }
 

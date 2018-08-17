@@ -81,7 +81,7 @@ private:
   void OnVisualScriptActivity(const ezVisualScriptComponentActivityEvent& e);
   void OnResourceManagerEvent(const ezResourceManagerEvent& e);
 
-  bool m_bUpdateAllLocalBounds = false;
+  bool m_bUpdateBoundsAndCaches = false;
   bool m_bRenderSelectionOverlay;
   bool m_bRenderShapeIcons;
   bool m_bRenderSelectionBoxes;
