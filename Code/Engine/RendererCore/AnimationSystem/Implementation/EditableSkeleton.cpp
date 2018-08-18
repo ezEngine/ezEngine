@@ -58,41 +58,46 @@ void ezEditableSkeleton::ClearJoints()
   m_Children.Clear();
 }
 
-void ezEditableSkeleton::FillResourceDescriptor(ezSkeletonResourceDescriptor& desc)
+void ezEditableSkeleton::GenerateSkeleton(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor* pDesc) const
 {
-  desc.m_Geometry.Clear();
-
-  // create the ezSkeleton
+  auto AddChildJoints = [&sb, pDesc](auto& self, const ezEditableSkeletonJoint* pJoint, ezUInt32 uiJointIdx) -> void
   {
-    ezSkeletonBuilder sb;
-
-    auto AddChildJoints = [&sb, &desc](auto& self, const ezEditableSkeletonJoint* pJoint, ezUInt32 uiJointIdx) -> void {
-      if (pJoint->m_Geometry != ezSkeletonJointGeometryType::None)
-      {
-        auto& geo = desc.m_Geometry.ExpandAndGetRef();
-        geo.m_Type = pJoint->m_Geometry;
-        geo.m_uiAttachedToJoint = uiJointIdx;
-        geo.m_Transform.SetIdentity();
-        geo.m_Transform.m_vScale.Set(pJoint->m_fLength, pJoint->m_fWidth, pJoint->m_fThickness);
-      }
-
-      for (const auto* pChildJoint : pJoint->m_Children)
-      {
-        const ezUInt32 idx = sb.AddJoint(pChildJoint->GetName(), pChildJoint->m_Transform, uiJointIdx);
-
-        self(self, pChildJoint, idx);
-      }
-    };
-
-    for (const auto* pJoint : m_Children)
+    if (pDesc != nullptr && pJoint->m_Geometry != ezSkeletonJointGeometryType::None)
     {
-      const ezUInt32 idx = sb.AddJoint(pJoint->GetName(), pJoint->m_Transform);
-
-      AddChildJoints(AddChildJoints, pJoint, idx);
+      auto& geo = pDesc->m_Geometry.ExpandAndGetRef();
+      geo.m_Type = pJoint->m_Geometry;
+      geo.m_uiAttachedToJoint = uiJointIdx;
+      geo.m_Transform.SetIdentity();
+      geo.m_Transform.m_vScale.Set(pJoint->m_fLength, pJoint->m_fWidth, pJoint->m_fThickness);
     }
 
-    sb.BuildSkeleton(desc.m_Skeleton);
+    for (const auto* pChildJoint : pJoint->m_Children)
+    {
+      const ezUInt32 idx = sb.AddJoint(pChildJoint->GetName(), pChildJoint->m_Transform, uiJointIdx);
+
+      self(self, pChildJoint, idx);
+    }
+  };
+
+  for (const auto* pJoint : m_Children)
+  {
+    const ezUInt32 idx = sb.AddJoint(pJoint->GetName(), pJoint->m_Transform);
+
+    AddChildJoints(AddChildJoints, pJoint, idx);
   }
+}
+
+void ezEditableSkeleton::GenerateSkeleton(ezSkeleton& skeleton, ezSkeletonResourceDescriptor* pDesc) const
+{
+  ezSkeletonBuilder sb;
+  GenerateSkeleton(sb, pDesc);
+  sb.BuildSkeleton(skeleton);
+}
+
+void ezEditableSkeleton::FillResourceDescriptor(ezSkeletonResourceDescriptor& desc) const
+{
+  desc.m_Geometry.Clear();
+GenerateSkeleton(desc.m_Skeleton, &desc);
 }
 
 ezEditableSkeletonJoint::ezEditableSkeletonJoint()

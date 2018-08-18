@@ -5,6 +5,9 @@
 #include <Foundation/Strings/HashedString.h>
 #include <RendererCore/Basics.h>
 
+class ezAnimationPose;
+class ezSkeleton;
+
 struct EZ_RENDERERCORE_DLL ezAnimationClipResourceDescriptor
 {
 public:
@@ -35,6 +38,9 @@ public:
   bool HasRootMotion() const;
 
   ezUInt16 GetRootMotionJoint() const;
+
+  void SetPoseToKeyframe(ezAnimationPose& pose, const ezSkeleton& skeleton, ezUInt16 uiKeyframe) const;
+  void SetPoseToBlendedKeyframe(ezAnimationPose& pose, const ezSkeleton& skeleton, ezUInt16 uiKeyframe0, float fBlendToKeyframe1) const;
   
 private:
   ezUInt16 m_uiNumJoints = 0;

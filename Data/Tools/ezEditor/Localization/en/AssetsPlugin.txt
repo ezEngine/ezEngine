@@ -166,3 +166,7 @@ BoolParameters;Bool Variables
 NumberParameters;Number Variables
 ezVisualScriptParameterNumber;Number Variable
 ezVisualScriptParameterBool;Bool Variable
+ezRootMotionExtractionMode::None;None
+ezRootMotionExtractionMode::Custom;Custom
+ezRootMotionExtractionMode::FromFeet;From Feet
+ezRootMotionExtractionMode::AvgFromFeet;Average From Feet

@@ -36,7 +36,7 @@ public:
   /// This is typically the very last operation done on a pose before it is sent to the GPU for skinning.
   void ConvertFromObjectSpaceToSkinningSpace(const ezSkeleton& skeleton);
 
-  const ezMat4& GetTransform(ezUInt32 uiIndex) const { return m_Transforms[uiIndex]; }
+  const ezMat4& GetTransform(ezUInt32 uiJointIndex) const { return m_Transforms[uiJointIndex]; }
 
   ezArrayPtr<const ezMat4> GetAllTransforms() const { return m_Transforms.GetArrayPtr(); }
   bool IsTransformValid(ezUInt32 uiIndex) const { return m_TransformsValid.IsSet(uiIndex); }

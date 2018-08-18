@@ -10,6 +10,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Time/Stopwatch.h>
+#include <RendererCore/AnimationSystem/EditableSkeleton.h>
 
 EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_MODELIMPORTER_DLL, ezModelImporter);
 
@@ -174,4 +175,62 @@ namespace ezModelImporter
 
     return ezStatus(EZ_SUCCESS);
   }
+
+  ezStatus Importer::ImportSkeleton(ezEditableSkeleton& out_Skeleton, const ezSharedPtr<Scene>& scene)
+  {
+    const float fScale = 1.0f;
+    const ezMat3 mTransformation = ezMat3::IdentityMatrix();
+    const ezMat3 mTransformRotations = ezMat3::IdentityMatrix();
+
+    const ezUInt32 numJoints = scene->m_Skeleton.GetJointCount();
+
+    ezDynamicArray<ezEditableSkeletonJoint*> allJoints;
+    allJoints.SetCountUninitialized(numJoints);
+
+    ezSet<ezString> jointNames;
+    ezStringBuilder tmp;
+
+    for (ezUInt32 b = 0; b < numJoints; ++b)
+    {
+      const ezTransform mJointTransform = scene->m_Skeleton.GetJointByIndex(b).GetBindPoseLocalTransform();
+
+      allJoints[b] = EZ_DEFAULT_NEW(ezEditableSkeletonJoint);
+      allJoints[b]->m_sName = scene->m_Skeleton.GetJointByIndex(b).GetName();
+      allJoints[b]->m_Transform = mJointTransform;
+      allJoints[b]->m_Transform.m_vScale.Set(1.0f);
+
+      allJoints[b]->m_fLength = 0.1f;
+      allJoints[b]->m_fThickness = 0.01f;
+      allJoints[b]->m_fWidth = 0.01f;
+      allJoints[b]->m_Geometry = ezSkeletonJointGeometryType::None;
+
+      if (jointNames.Contains(allJoints[b]->m_sName))
+      {
+        tmp = allJoints[b]->m_sName.GetData();
+        tmp.AppendFormat("_joint{0}", b);
+        allJoints[b]->m_sName.Assign(tmp.GetData());
+      }
+
+      jointNames.Insert(allJoints[b]->m_sName.GetString());
+
+      if (scene->m_Skeleton.GetJointByIndex(b).IsRootJoint())
+      {
+        allJoints[b]->m_Transform.m_vPosition = mTransformation * allJoints[b]->m_Transform.m_vPosition;
+        allJoints[b]->m_Transform.m_qRotation.SetFromMat3(mTransformRotations * allJoints[b]->m_Transform.m_qRotation.GetAsMat3());
+
+        out_Skeleton.m_Children.PushBack(allJoints[b]);
+      }
+      else
+      {
+        allJoints[b]->m_Transform.m_vPosition = fScale * allJoints[b]->m_Transform.m_vPosition;
+
+        ezUInt32 parentIdx = scene->m_Skeleton.GetJointByIndex(b).GetParentIndex();
+        EZ_ASSERT_DEBUG(parentIdx < b, "Invalid parent joint index");
+        allJoints[parentIdx]->m_Children.PushBack(allJoints[b]);
+      }
+    }
+
+    return ezStatus(EZ_SUCCESS);
+  }
+
 }

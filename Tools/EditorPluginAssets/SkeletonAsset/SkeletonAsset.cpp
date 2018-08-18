@@ -55,71 +55,22 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
   ezEditableSkeleton* pProp = GetProperties();
 
-  const float fScale = 1.0f;
+  //const float fScale = 1.0f;
   // ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
-  ezMat3 mTransformation = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir, fScale);
-  ezMat3 mTransformRotations = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir);
+  //ezMat3 mTransformation = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir, fScale);
+  //ezMat3 mTransformRotations = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir);
 
-  mTransformation.SetIdentity();
-  mTransformRotations.SetIdentity();
+  //mTransformation.SetIdentity();
+  //mTransformRotations.SetIdentity();
 
   ezSharedPtr<Scene> scene;
   EZ_SUCCEED_OR_RETURN(ImportSkeleton(pProp->m_sAnimationFile, scene));
 
-  ezEditableSkeleton* pNewSkeleton = EZ_DEFAULT_NEW(ezEditableSkeleton);
-
-  const ezUInt32 numJoints = scene->m_Skeleton.GetJointCount();
-
-  ezDynamicArray<ezEditableSkeletonJoint*> allJoints;
-  allJoints.SetCountUninitialized(numJoints);
-
-  ezSet<ezString> jointNames;
-  ezStringBuilder tmp;
-
-  for (ezUInt32 b = 0; b < numJoints; ++b)
-  {
-    const ezTransform mJointTransform = scene->m_Skeleton.GetJointByIndex(b).GetBindPoseLocalTransform();
-
-    allJoints[b] = EZ_DEFAULT_NEW(ezEditableSkeletonJoint);
-    allJoints[b]->m_sName = scene->m_Skeleton.GetJointByIndex(b).GetName();
-    allJoints[b]->m_Transform = mJointTransform;
-    allJoints[b]->m_Transform.m_vScale.Set(1.0f);
-
-    allJoints[b]->m_fLength = 0.1f;
-    allJoints[b]->m_fThickness = 0.01f;
-    allJoints[b]->m_fWidth = 0.01f;
-    allJoints[b]->m_Geometry = ezSkeletonJointGeometryType::None;
-
-    if (jointNames.Contains(allJoints[b]->m_sName))
-    {
-      tmp = allJoints[b]->m_sName.GetData();
-      tmp.AppendFormat("_joint{0}", b);
-      allJoints[b]->m_sName.Assign(tmp.GetData());
-    }
-
-    jointNames.Insert(allJoints[b]->m_sName.GetString());
-
-    if (scene->m_Skeleton.GetJointByIndex(b).IsRootJoint())
-    {
-      allJoints[b]->m_Transform.m_vPosition = mTransformation * allJoints[b]->m_Transform.m_vPosition;
-      allJoints[b]->m_Transform.m_qRotation.SetFromMat3(mTransformRotations * allJoints[b]->m_Transform.m_qRotation.GetAsMat3());
-
-      pNewSkeleton->m_Children.PushBack(allJoints[b]);
-    }
-    else
-    {
-      allJoints[b]->m_Transform.m_vPosition = fScale * allJoints[b]->m_Transform.m_vPosition;
-
-      ezUInt32 parentIdx = scene->m_Skeleton.GetJointByIndex(b).GetParentIndex();
-      EZ_ASSERT_DEBUG(parentIdx < b, "Invalid parent joint index");
-      allJoints[parentIdx]->m_Children.PushBack(allJoints[b]);
-    }
-  }
+  ezEditableSkeleton newSkeleton;
+  ezModelImporter::Importer::ImportSkeleton(newSkeleton, scene);
 
   // synchronize the old data (collision geometry etc.) with the new hierarchy
-  // this function deletes pNewSkeleton when it's done
-  MergeWithNewSkeleton(pNewSkeleton);
-  pNewSkeleton = nullptr;
+  MergeWithNewSkeleton(newSkeleton);
 
   // merge the new data with the actual asset document
   ApplyNativePropertyChangesToObjectManager(true);
@@ -140,7 +91,7 @@ ezStatus ezSkeletonAssetDocument::InternalCreateThumbnail(const ezAssetFileHeade
   return status;
 }
 
-void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton* pNewSkeleton)
+void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton& newSkeleton)
 {
   ezEditableSkeleton* pOldSkeleton = GetProperties();
   ezMap<ezString, const ezEditableSkeletonJoint*> prevJoints;
@@ -177,7 +128,7 @@ void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton* pNewSkele
       }
     };
 
-    for (ezEditableSkeletonJoint* pChild : pNewSkeleton->m_Children)
+    for (ezEditableSkeletonJoint* pChild : newSkeleton.m_Children)
     {
       TraverseJoints(TraverseJoints, pChild);
     }
@@ -187,11 +138,8 @@ void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton* pNewSkele
   pOldSkeleton->ClearJoints();
 
   // move the new top level joints over to our own skeleton
-  pOldSkeleton->m_Children = pNewSkeleton->m_Children;
-  pNewSkeleton->m_Children.Clear(); // prevent this skeleton from deallocating the joints
-
-  // there is no use for the new skeleton anymore
-  EZ_DEFAULT_DELETE(pNewSkeleton);
+  pOldSkeleton->m_Children = newSkeleton.m_Children;
+  newSkeleton.m_Children.Clear(); // prevent this skeleton from deallocating the joints
 }
 
 

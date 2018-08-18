@@ -196,9 +196,9 @@ void ezMotionMatchingComponent::Update()
       m_Keyframe0 = m_Keyframe1;
       m_Keyframe1 = FindNextKeyframe(m_Keyframe1, vTargetDir);
 
-      ezLog::Info("Old KF: {0} | {1} - {2}", m_Keyframe0.m_uiAnimClip, m_Keyframe0.m_uiKeyframe, m_fKeyframeLerp);
+      //ezLog::Info("Old KF: {0} | {1} - {2}", m_Keyframe0.m_uiAnimClip, m_Keyframe0.m_uiKeyframe, m_fKeyframeLerp);
       m_fKeyframeLerp -= 1.0f;
-      ezLog::Info("New KF: {0} | {1} - {2}", m_Keyframe1.m_uiAnimClip, m_Keyframe1.m_uiKeyframe, m_fKeyframeLerp);
+      //ezLog::Info("New KF: {0} | {1} - {2}", m_Keyframe1.m_uiAnimClip, m_Keyframe1.m_uiKeyframe, m_fKeyframeLerp);
     }
   }
 

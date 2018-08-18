@@ -2,6 +2,8 @@
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
+#include <RendererCore/AnimationSystem/Skeleton.h>
+#include <RendererCore/AnimationSystem/AnimationPose.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipResource, 1, ezRTTIDefaultAllocator<ezAnimationClipResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -225,6 +227,49 @@ ezUInt16 ezAnimationClipResourceDescriptor::GetRootMotionJoint() const
 #endif
 
   return jointIdx;
+}
+
+void ezAnimationClipResourceDescriptor::SetPoseToKeyframe(ezAnimationPose& pose, const ezSkeleton& skeleton, ezUInt16 uiKeyframe) const
+{
+  for (ezUInt32 b = 0; b < m_JointNameToIndex.GetCount(); ++b)
+  {
+    const ezHashedString& sJointName = m_JointNameToIndex.GetKey(b);
+    const ezUInt32 uiAnimJointIdx = m_JointNameToIndex.GetValue(b);
+
+    ezUInt32 uiSkeletonJointIdx;
+    if (skeleton.FindJointByName(sJointName, uiSkeletonJointIdx).Succeeded())
+    {
+      const ezTransform* pTransforms = GetJointKeyframes(uiAnimJointIdx);
+
+      pose.SetTransform(uiSkeletonJointIdx, pTransforms[uiKeyframe].GetAsMat4());
+    }
+  }
+}
+
+
+void ezAnimationClipResourceDescriptor::SetPoseToBlendedKeyframe(ezAnimationPose& pose, const ezSkeleton& skeleton, ezUInt16 uiKeyframe0,
+                                                                 float fBlendToKeyframe1) const
+{
+  for (ezUInt32 b = 0; b < m_JointNameToIndex.GetCount(); ++b)
+  {
+    const ezHashedString& sJointName = m_JointNameToIndex.GetKey(b);
+    const ezUInt32 uiAnimJointIdx = m_JointNameToIndex.GetValue(b);
+
+    ezUInt32 uiSkeletonJointIdx;
+    if (skeleton.FindJointByName(sJointName, uiSkeletonJointIdx).Succeeded())
+    {
+      const ezTransform* pTransforms = GetJointKeyframes(uiAnimJointIdx);
+      const ezTransform jointTransform1 = pTransforms[uiKeyframe0];
+      const ezTransform jointTransform2 = pTransforms[uiKeyframe0 + 1];
+
+      ezTransform res;
+      res.m_vPosition = ezMath::Lerp(jointTransform1.m_vPosition, jointTransform2.m_vPosition, fBlendToKeyframe1);
+      res.m_qRotation.SetSlerp(jointTransform1.m_qRotation, jointTransform2.m_qRotation, fBlendToKeyframe1);
+      res.m_vScale = ezMath::Lerp(jointTransform1.m_vScale, jointTransform2.m_vScale, fBlendToKeyframe1);
+
+      pose.SetTransform(uiSkeletonJointIdx, res.GetAsMat4());
+    }
+  }
 }
 
 ezTime ezAnimationClipResourceDescriptor::GetDuration() const

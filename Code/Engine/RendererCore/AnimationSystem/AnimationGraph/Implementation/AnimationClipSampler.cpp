@@ -43,7 +43,6 @@ bool ezAnimationClipSampler::Execute(const ezSkeleton& skeleton, ezAnimationPose
     return false;
 
   const auto& animDesc = pAnimClip->GetDescriptor();
-  const auto& animatedJoints = animDesc.GetAllJointIndices();
 
   double fAnimLerp = 0;
   const ezUInt32 uiFirstFrame = animDesc.GetFrameAt(m_SampleTime, fAnimLerp);
@@ -60,28 +59,7 @@ bool ezAnimationClipSampler::Execute(const ezSkeleton& skeleton, ezAnimationPose
     }
   }
 
-  for (ezUInt32 b = 0; b < animatedJoints.GetCount(); ++b)
-  {
-    const ezHashedString sJointName = animatedJoints.GetKey(b);
-    const ezUInt32 uiAnimJointIdx = animatedJoints.GetValue(b);
-
-    ezUInt32 uiSkeletonJointIdx;
-    if (skeleton.FindJointByName(sJointName, uiSkeletonJointIdx).Succeeded())
-    {
-      const ezTransform* pTransforms = animDesc.GetJointKeyframes(uiAnimJointIdx);
-      const ezTransform jointTransform1 = pTransforms[uiFirstFrame];
-      const ezTransform jointTransform2 = pTransforms[uiFirstFrame + 1];
-
-      const float fFraction = (float)fAnimLerp;
-
-      ezTransform res;
-      res.m_vPosition = ezMath::Lerp(jointTransform1.m_vPosition, jointTransform2.m_vPosition, fFraction);
-      res.m_qRotation.SetSlerp(jointTransform1.m_qRotation, jointTransform2.m_qRotation, fFraction);
-      res.m_vScale = ezMath::Lerp(jointTransform1.m_vScale, jointTransform2.m_vScale, fFraction);
-
-      currentPose.SetTransform(uiSkeletonJointIdx, res.GetAsMat4());
-    }
-  }
+  animDesc.SetPoseToBlendedKeyframe(currentPose, skeleton, uiFirstFrame, (float)fAnimLerp);
 
   return true;
 }

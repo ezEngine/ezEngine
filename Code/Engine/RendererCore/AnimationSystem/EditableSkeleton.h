@@ -6,6 +6,9 @@
 #include <Foundation/Strings/HashedString.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
 
+class ezSkeletonBuilder;
+class ezSkeleton;
+
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSkeletonJointGeometryType);
 
 class EZ_RENDERERCORE_DLL ezEditableSkeletonJoint : public ezReflectedClass
@@ -45,7 +48,9 @@ public:
   ~ezEditableSkeleton();
 
   void ClearJoints();
-  void FillResourceDescriptor(ezSkeletonResourceDescriptor& desc);
+  void GenerateSkeleton(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor* pDesc = nullptr) const;
+  void GenerateSkeleton(ezSkeleton& skeleton, ezSkeletonResourceDescriptor* pDesc = nullptr) const;
+  void FillResourceDescriptor(ezSkeletonResourceDescriptor& desc) const;
 
   ezString m_sAnimationFile;
 
