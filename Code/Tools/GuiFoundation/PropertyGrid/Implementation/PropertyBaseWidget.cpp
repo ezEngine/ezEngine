@@ -1400,3 +1400,9 @@ void ezQtVariantPropertyWidget::ChangeVariantType(ezVariantType::Enum type)
   }
   m_pObjectAccessor->FinishTransaction();
 }
+
+void ezQtVariantPropertyWidget::DoPrepareToDie()
+{
+  if (m_pWidget)
+    m_pWidget->PrepareToDie();
+}

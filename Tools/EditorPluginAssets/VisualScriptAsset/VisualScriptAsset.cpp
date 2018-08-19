@@ -390,9 +390,10 @@ void ezVisualScriptAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* p
     {
       if (p.m_bExpose)
       {
-        auto& param = pExposedParams->m_Parameters.ExpandAndGetRef();
-        param.m_sName = p.m_sName;
-        param.m_DefaultValue = p.m_DefaultValue;
+        ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
+        pExposedParams->m_Parameters.PushBack(param);
+        param->m_sName = p.m_sName;
+        param->m_DefaultValue = p.m_DefaultValue;
       }
     }
 
@@ -400,9 +401,10 @@ void ezVisualScriptAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* p
     {
       if (p.m_bExpose)
       {
-        auto& param = pExposedParams->m_Parameters.ExpandAndGetRef();
-        param.m_sName = p.m_sName;
-        param.m_DefaultValue = p.m_DefaultValue;
+        ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
+        pExposedParams->m_Parameters.PushBack(param);
+        param->m_sName = p.m_sName;
+        param->m_DefaultValue = p.m_DefaultValue;
       }
     }
   }

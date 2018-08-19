@@ -488,12 +488,24 @@ void ezQtPropertyGridWidget::SelectionEventHandler(const ezSelectionManagerEvent
 
 void ezQtPropertyGridWidget::FactoryEventHandler(const ezRttiMappedObjectFactory<ezQtPropertyWidget>::Event& e)
 {
-  SetSelection(m_pDocument->GetSelectionManager()->GetSelection());
+  if (m_bBindToSelectionManager)
+    SetSelection(m_pDocument->GetSelectionManager()->GetSelection());
+  else
+  {
+    ezDeque<const ezDocumentObject*> selection = m_Selection;
+    SetSelection(selection);
+  }
 }
 
 void ezQtPropertyGridWidget::TypeEventHandler(const ezPhantomRttiManagerEvent& e)
 {
-  SetSelection(m_pDocument->GetSelectionManager()->GetSelection());
+  if (m_bBindToSelectionManager)
+    SetSelection(m_pDocument->GetSelectionManager()->GetSelection());
+  else
+  {
+    ezDeque<const ezDocumentObject*> selection = m_Selection;
+    SetSelection(selection);
+  }
 }
 
 ezUInt32 ezQtPropertyGridWidget::GetGroupBoxHash(ezQtGroupBoxBase* pBox) const

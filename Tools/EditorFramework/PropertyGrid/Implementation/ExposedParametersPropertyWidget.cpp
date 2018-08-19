@@ -6,6 +6,7 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/GroupBoxBase.moc.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <EditorFramework/GUI/ExposedParametersTypeRegistry.h>
 
 ezExposedParameterCommandAccessor::ezExposedParameterCommandAccessor(ezObjectAccessorBase* pSource,
                                                                      const ezAbstractProperty* pParameterProp,
@@ -19,6 +20,9 @@ ezExposedParameterCommandAccessor::ezExposedParameterCommandAccessor(ezObjectAcc
 ezStatus ezExposedParameterCommandAccessor::GetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value,
                                                      ezVariant index /*= ezVariant()*/)
 {
+  if (IsExposedProperty(pObject, pProp))
+    pProp = m_pParameterProp;
+
   ezStatus res = ezObjectProxyAccessor::GetValue(pObject, pProp, out_value, index);
   if (res.Failed() && m_pParameterProp == pProp && index.IsA<ezString>())
   {
@@ -35,6 +39,9 @@ ezStatus ezExposedParameterCommandAccessor::GetValue(const ezDocumentObject* pOb
 ezStatus ezExposedParameterCommandAccessor::SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp,
                                                      const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
 {
+  if (IsExposedProperty(pObject, pProp))
+    pProp = m_pParameterProp;
+
   ezStatus res = ezObjectProxyAccessor::SetValue(pObject, pProp, newValue, index);
   // As we pretend the exposed params always exist the actual SetValue will fail if this is not actually true,
   // so we redirect to insert to make it true.
@@ -81,7 +88,7 @@ ezStatus ezExposedParameterCommandAccessor::GetKeys(const ezDocumentObject* pObj
     {
       for (const auto& pParam : pParams->m_Parameters)
       {
-        out_keys.PushBack(pParam.m_sName);
+        out_keys.PushBack(pParam->m_sName);
       }
 
       ezHybridArray<ezVariant, 16> realKeys;
@@ -142,6 +149,99 @@ const ezExposedParameter* ezExposedParameterCommandAccessor::GetExposedParam(con
     return pParams->Find(szParamName);
   }
   return nullptr;
+}
+
+
+const ezRTTI* ezExposedParameterCommandAccessor::GetExposedParamsType(const ezDocumentObject* pObject)
+{
+  ezVariant value;
+  if (ezObjectProxyAccessor::GetValue(pObject, m_pParameterSourceProp, value).Succeeded())
+  {
+    if (value.IsA<ezString>())
+    {
+      const auto& sValue = value.Get<ezString>();
+      if (const auto asset = ezAssetCurator::GetSingleton()->FindSubAsset(sValue.GetData()))
+      {
+        return ezExposedParametersTypeRegistry::GetSingleton()->GetExposedParametersType(sValue);
+      }
+    }
+  }
+  return nullptr;
+}
+
+const ezRTTI* ezExposedParameterCommandAccessor::GetCommonExposedParamsType(const ezHybridArray<ezPropertySelection, 8>& items)
+{
+  const ezRTTI* type = nullptr;
+  bool bFirst = true;
+  // check if we have multiple values
+  for (const auto& item : items)
+  {
+    if (bFirst)
+    {
+      type = GetExposedParamsType(item.m_pObject);
+    }
+    else
+    {
+      auto type2 = GetExposedParamsType(item.m_pObject);
+      if (type != type2)
+      {
+        return nullptr;
+      }
+    }
+  }
+  return type;
+}
+
+bool ezExposedParameterCommandAccessor::IsExposedProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp)
+{
+  if (auto type = GetExposedParamsType(pObject))
+  {
+    auto props = type->GetProperties();
+    return std::any_of(cbegin(props), cend(props), [pProp](const ezAbstractProperty* prop) { return prop == pProp; });
+  }
+  return false;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void ezQtExposedParameterPropertyWidget::InternalSetValue(const ezVariant& value)
+{
+  ezVariantType::Enum commonType = ezVariantType::Invalid;
+  const bool sameType = GetCommonVariantSubType(m_Items, m_pProp, commonType);
+  const ezRTTI* pNewtSubType = commonType != ezVariantType::Invalid ? ezReflectionUtils::GetTypeFromVariant(commonType) : nullptr;
+
+  ezExposedParameterCommandAccessor* proxy = static_cast<ezExposedParameterCommandAccessor*>(m_pObjectAccessor);
+  if (auto type = proxy->GetCommonExposedParamsType(m_Items))
+  {
+    if (auto prop = type->FindPropertyByName(m_Items[0].m_Index.Get<ezString>()))
+    {
+      auto paramDefault = ezToolsReflectionUtils::GetStorageDefault(prop);
+      if (paramDefault.GetType() == commonType)
+      {
+        if (prop->GetSpecificType() != m_pCurrentSubType || m_pWidget == nullptr)
+        {
+          if (m_pWidget)
+          {
+            m_pWidget->PrepareToDie();
+            m_pWidget->deleteLater();
+            m_pWidget = nullptr;
+          }
+          m_pCurrentSubType = pNewtSubType;
+          m_pWidget = ezQtPropertyGridWidget::CreateMemberPropertyWidget(prop);
+          if (!m_pWidget)
+            m_pWidget = new ezQtUnsupportedPropertyWidget("Unsupported type");
+
+          m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+          m_pWidget->setParent(this);
+          m_pLayout->addWidget(m_pWidget);
+          m_pWidget->Init(m_pGrid, m_pObjectAccessor, type, prop);
+        }
+        m_pWidget->SetSelection(m_Items);
+        return;
+      }
+    }
+  }
+  ezQtVariantPropertyWidget::InternalSetValue(value);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -211,12 +311,7 @@ void ezQtExposedParametersPropertyWidget::OnInit()
 
 ezQtPropertyWidget* ezQtExposedParametersPropertyWidget::CreateWidget(ezUInt32 index)
 {
-  return ezQtPropertyStandardTypeContainerWidget::CreateWidget(index);
-}
-
-void ezQtExposedParametersPropertyWidget::UpdateElement(ezUInt32 index)
-{
-  return ezQtPropertyStandardTypeContainerWidget::UpdateElement(index);
+  return new ezQtExposedParameterPropertyWidget();
 }
 
 void ezQtExposedParametersPropertyWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)

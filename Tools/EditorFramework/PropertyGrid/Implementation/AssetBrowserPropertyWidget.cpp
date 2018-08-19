@@ -101,6 +101,8 @@ void ezQtAssetPropertyWidget::OnInit()
 
 void ezQtAssetPropertyWidget::UpdateThumbnail(const ezUuid& guid, const char* szThumbnailPath)
 {
+  if (IsUndead())
+    return;
   const QPixmap* pThumbnailPixmap = nullptr;
 
   if (guid.IsValid())

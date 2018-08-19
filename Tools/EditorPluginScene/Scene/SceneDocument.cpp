@@ -22,6 +22,7 @@
 #include <ToolsFoundation/Object/ObjectDirectAccessor.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 4, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -1026,9 +1027,15 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 
       alreadyExposed.Insert(prop.m_sName);
 
-      auto& p = pExposedParams->m_Parameters.ExpandAndGetRef();
-      p.m_sName = prop.m_sName;
-      p.m_DefaultValue = value;
+      ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
+      pExposedParams->m_Parameters.PushBack(param);
+      param->m_sName = prop.m_sName;
+      param->m_sType = key.m_pProperty->GetSpecificType()->GetTypeName();
+      param->m_DefaultValue = value;
+      for (auto attrib : key.m_pProperty->GetAttributes())
+      {
+        param->m_Attributes.PushBack(ezReflectionSerializer::Clone(attrib));
+      }
     }
   }
 

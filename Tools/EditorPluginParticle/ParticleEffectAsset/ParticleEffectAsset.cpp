@@ -198,15 +198,17 @@ void ezParticleEffectAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo*
   ezExposedParameters* pExposedParams = EZ_DEFAULT_NEW(ezExposedParameters);
   for (auto it = desc->m_FloatParameters.GetIterator(); it.IsValid(); ++it)
   {
-    auto& param = pExposedParams->m_Parameters.ExpandAndGetRef();
-    param.m_sName = it.Key();
-    param.m_DefaultValue = it.Value();
+    ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
+    pExposedParams->m_Parameters.PushBack(param);
+    param->m_sName = it.Key();
+    param->m_DefaultValue = it.Value();
   }
   for (auto it = desc->m_ColorParameters.GetIterator(); it.IsValid(); ++it)
   {
-    auto& param = pExposedParams->m_Parameters.ExpandAndGetRef();
-    param.m_sName = it.Key();
-    param.m_DefaultValue = it.Value();
+    ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
+    pExposedParams->m_Parameters.PushBack(param);
+    param->m_sName = it.Key();
+    param->m_DefaultValue = it.Value();
   }
 
   // Info takes ownership of meta data.

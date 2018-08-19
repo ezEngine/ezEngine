@@ -23,8 +23,20 @@ public:
 public:
   const ezExposedParameters* GetExposedParams(const ezDocumentObject* pObject);
   const ezExposedParameter* GetExposedParam(const ezDocumentObject* pObject, const char* szParamName);
+  const ezRTTI* GetExposedParamsType(const ezDocumentObject* pObject);
+  const ezRTTI* GetCommonExposedParamsType(const ezHybridArray<ezPropertySelection, 8>& items);
+  bool IsExposedProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp);
+
+public:
   const ezAbstractProperty* m_pParameterProp = nullptr;
   const ezAbstractProperty* m_pParameterSourceProp = nullptr;
+};
+
+class EZ_EDITORFRAMEWORK_DLL ezQtExposedParameterPropertyWidget : public ezQtVariantPropertyWidget
+{
+  Q_OBJECT;
+protected:
+  virtual void InternalSetValue(const ezVariant& value);
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezQtExposedParametersPropertyWidget : public ezQtPropertyStandardTypeContainerWidget
@@ -39,7 +51,6 @@ public:
 protected:
   virtual void OnInit() override;
   virtual ezQtPropertyWidget* CreateWidget(ezUInt32 index) override;
-  virtual void UpdateElement(ezUInt32 index) override;
 
 private:
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);

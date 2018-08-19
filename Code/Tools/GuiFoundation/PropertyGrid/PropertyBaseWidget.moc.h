@@ -320,9 +320,10 @@ public:
 protected:
   virtual void OnInit() override {};
   virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void DoPrepareToDie() override;
   void ChangeVariantType(ezVariantType::Enum type);
 
-private:
+protected:
   QHBoxLayout* m_pLayout = nullptr;
   QWidget* m_pSelectType = nullptr;
   ezQtPropertyWidget* m_pWidget = nullptr;
