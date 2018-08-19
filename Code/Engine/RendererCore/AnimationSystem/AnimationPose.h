@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
+#include <RendererCore/AnimationSystem/Declarations.h>
 
 #include <Foundation/Containers/Bitfield.h>
 #include <Foundation/Containers/DynamicArray.h>
@@ -36,23 +36,23 @@ public:
   /// This is typically the very last operation done on a pose before it is sent to the GPU for skinning.
   void ConvertFromObjectSpaceToSkinningSpace(const ezSkeleton& skeleton);
 
-  const ezMat4& GetTransform(ezUInt32 uiJointIndex) const { return m_Transforms[uiJointIndex]; }
+  const ezMat4& GetTransform(ezUInt16 uiJointIndex) const { return m_Transforms[uiJointIndex]; }
 
   ezArrayPtr<const ezMat4> GetAllTransforms() const { return m_Transforms.GetArrayPtr(); }
-  bool IsTransformValid(ezUInt32 uiIndex) const { return m_TransformsValid.IsSet(uiIndex); }
+  bool IsTransformValid(ezUInt16 uiIndex) const { return m_TransformsValid.IsSet(uiIndex); }
 
   /// \brief Sets the transform for the given index.
   /// This will also set the flag indicating that the transform is valid.
-  void SetTransform(ezUInt32 uiIndex, const ezMat4& transform);
+  void SetTransform(ezUInt16 uiIndex, const ezMat4& transform);
 
   /// \brief Sets the valid flag for a given transform manually.
-  void SetTransformValid(ezUInt32 uiIndex, bool bValid);
+  void SetTransformValid(ezUInt16 uiIndex, bool bValid);
 
   /// \brief Helper to set the valid flag of all transforms to a single value.
   void SetValidityOfAllTransforms(bool bValid);
 
   /// \brief Returns the number of transforms in the pose.
-  ezUInt32 GetTransformCount() const { return m_Transforms.GetCount(); }
+  ezUInt16 GetTransformCount() const { return m_Transforms.GetCount(); }
 
   /// \brief Helper to skin a position with a single joint (rigid skinning)
   /// Note that this shouldn't be used for "real" skinning - this is just for anchors etc. so they are available
@@ -77,7 +77,7 @@ public:
   /// \brief Renders a debug visualization of this pose. \a objectTransform is used to position, rotate and scale the stick-figure as needed.
   ///
   /// Object scale is, however, only partially used, joint indicators are always sized according to the distance to the parent joints (after scaling).
-  void VisualizePose(const ezDebugRendererContext& context, const ezSkeleton& skeleton, const ezTransform& objectTransform, ezUInt32 uiStartJoint = 0xFFFFFFFFu) const;
+  void VisualizePose(const ezDebugRendererContext& context, const ezSkeleton& skeleton, const ezTransform& objectTransform, ezUInt16 uiStartJoint = ezInvalidJointIndex) const;
 
 private:
   // TODO: would be nicer to use ezTransform or ezShaderTransform for this data

@@ -106,21 +106,21 @@ ezVec3 ezAnimationPose::SkinDirectionWithFourJoints(const ezVec3& Direction, con
 }
 
 void ezAnimationPose::VisualizePose(const ezDebugRendererContext& context, const ezSkeleton& skeleton, const ezTransform& objectTransform,
-                                    ezUInt32 uiStartJoint /*= 0xFFFFFFFFu*/) const
+                                    ezUInt16 uiStartJoint) const
 {
   // TODO: store current space and assert that it is correct ?
 
   ezHybridArray<ezDebugRenderer::Line, 128> lines;
 
-  const ezUInt32 numJoints = skeleton.GetJointCount();
-  for (ezUInt32 thisJointIdx = 0; thisJointIdx < numJoints; ++thisJointIdx)
+  const ezUInt16 numJoints = skeleton.GetJointCount();
+  for (ezUInt16 thisJointIdx = 0; thisJointIdx < numJoints; ++thisJointIdx)
   {
     const ezSkeletonJoint& thisJoint = skeleton.GetJointByIndex(thisJointIdx);
 
-    if (uiStartJoint != 0xFFFFFFFFu)
+    if (uiStartJoint != ezInvalidJointIndex)
     {
-      ezUInt32 uiParentIdx = thisJointIdx;
-      while (uiParentIdx != 0xFFFFFFFFu)
+      ezUInt16 uiParentIdx = thisJointIdx;
+      while (uiParentIdx != ezInvalidJointIndex)
       {
         if (uiParentIdx == uiStartJoint)
           goto render;
@@ -146,7 +146,7 @@ void ezAnimationPose::VisualizePose(const ezDebugRendererContext& context, const
     }
     else
     {
-      const ezUInt32 parentJointIdx = thisJoint.GetParentIndex();
+      const ezUInt16 parentJointIdx = thisJoint.GetParentIndex();
       const ezSkeletonJoint& parentJoint = skeleton.GetJointByIndex(parentJointIdx);
       ezTransform parentJointTransform;
       parentJointTransform.SetFromMat4(GetTransform(parentJointIdx));
@@ -166,13 +166,13 @@ void ezAnimationPose::VisualizePose(const ezDebugRendererContext& context, const
   ezDebugRenderer::DrawLines(context, lines, ezColor::GreenYellow);
 }
 
-void ezAnimationPose::SetTransform(ezUInt32 uiIndex, const ezMat4& transform)
+void ezAnimationPose::SetTransform(ezUInt16 uiIndex, const ezMat4& transform)
 {
   m_Transforms[uiIndex] = transform;
   m_TransformsValid.SetBit(uiIndex);
 }
 
-void ezAnimationPose::SetTransformValid(ezUInt32 uiIndex, bool bValid)
+void ezAnimationPose::SetTransformValid(ezUInt16 uiIndex, bool bValid)
 {
   if (bValid)
   {

@@ -22,18 +22,18 @@ public:
 
   ezUInt16 AddJointName(const ezHashedString& sJointName);
 
-  /// \brief returns 0xFFFF if no joint with the given name is known
+  /// \brief returns ezInvalidJointIndex if no joint with the given name is known
   ezUInt16 FindJointIndexByName(const ezTempHashedString& sJointName) const;
 
-  const ezTransform* GetJointKeyframes(ezUInt16 uiJoint) const;
-  ezTransform* GetJointKeyframes(ezUInt16 uiJoint);
+  ezArrayPtr<const ezTransform> GetJointKeyframes(ezUInt16 uiJoint) const;
+  ezArrayPtr<ezTransform> GetJointKeyframes(ezUInt16 uiJoint);
 
   void Save(ezStreamWriter& stream) const;
   void Load(ezStreamReader& stream);
 
   ezUInt64 GetHeapMemoryUsage() const;
 
-  const ezArrayMap<ezHashedString, ezUInt32>& GetAllJointIndices() const { return m_JointNameToIndex; }
+  const ezArrayMap<ezHashedString, ezUInt16>& GetAllJointIndices() const { return m_JointNameToIndex; }
 
   bool HasRootMotion() const;
 
@@ -41,7 +41,7 @@ public:
 
   void SetPoseToKeyframe(ezAnimationPose& pose, const ezSkeleton& skeleton, ezUInt16 uiKeyframe) const;
   void SetPoseToBlendedKeyframe(ezAnimationPose& pose, const ezSkeleton& skeleton, ezUInt16 uiKeyframe0, float fBlendToKeyframe1) const;
-  
+
 private:
   ezUInt16 m_uiNumJoints = 0;
   ezUInt16 m_uiNumFrames = 0;
@@ -50,7 +50,7 @@ private:
   ezTime m_Duration;
 
   ezDynamicArray<ezTransform> m_JointTransforms;
-  ezArrayMap<ezHashedString, ezUInt32> m_JointNameToIndex;
+  ezArrayMap<ezHashedString, ezUInt16> m_JointNameToIndex;
 };
 
 typedef ezTypedResourceHandle<class ezAnimationClipResource> ezAnimationClipResourceHandle;

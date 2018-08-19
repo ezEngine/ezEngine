@@ -175,7 +175,7 @@ ezTransform ezAnimationClipSampler::ComputeRootMotion(const ezAnimationClipResou
   double fAnimLerpLast = 0;
   const ezUInt32 uiLastFrame = animDesc.GetFrameAt(tNow, fAnimLerpLast);
 
-  const ezTransform* pKeyframes = animDesc.GetJointKeyframes(uiRootMotionJoint);
+  ezArrayPtr<const ezTransform> pKeyframes = animDesc.GetJointKeyframes(uiRootMotionJoint);
 
   ezTransform res;
   res.SetIdentity();

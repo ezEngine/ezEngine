@@ -10,7 +10,7 @@ PointerAlignment: Left
 IndentCaseLabels: true
 AllowShortFunctionsOnASingleLine: Inline
 MaxEmptyLinesToKeep: 3
-#IndentPPDirectives: PPDIS_AfterHash
+IndentPPDirectives: AfterHash
 NamespaceIndentation: All
 BreakConstructorInitializers: BeforeComma
 AlwaysBreakTemplateDeclarations: true

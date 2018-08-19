@@ -5,6 +5,9 @@
 class ezSkeleton;
 struct ezSkeletonResourceDescriptor;
 class ezEditableSkeletonJoint;
+struct ezAnimationClipResourceDescriptor;
+
+#define ezInvalidJointIndex 0xFFFFu
 
 struct ezSkeletonJointGeometryType
 {

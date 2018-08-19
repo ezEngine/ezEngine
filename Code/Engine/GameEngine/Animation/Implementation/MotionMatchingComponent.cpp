@@ -129,7 +129,7 @@ void ezMotionMatchingComponent::ConfigureInput()
   iac.m_bApplyTimeScaling = true;
 
   iac.m_sInputSlotTrigger[0] = ezInputSlot_Controller0_RightStick_PosX;
-  //iac.m_sInputSlotTrigger[1] = ezInputSlot_KeyRight;
+  // iac.m_sInputSlotTrigger[1] = ezInputSlot_KeyRight;
   ezInputManager::SetInputActionConfig("mm", "turnright", iac, true);
 
   iac.m_sInputSlotTrigger[0] = ezInputSlot_Controller0_RightStick_NegX;
@@ -177,8 +177,8 @@ void ezMotionMatchingComponent::Update()
   ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton);
   const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
 
-  //ezTransform rootMotion;
-  //rootMotion.SetIdentity();
+  // ezTransform rootMotion;
+  // rootMotion.SetIdentity();
 
   const float fKeyframeFraction = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds() * 24.0f; // assuming 24 FPS in the animations
 
@@ -196,9 +196,9 @@ void ezMotionMatchingComponent::Update()
       m_Keyframe0 = m_Keyframe1;
       m_Keyframe1 = FindNextKeyframe(m_Keyframe1, vTargetDir);
 
-      //ezLog::Info("Old KF: {0} | {1} - {2}", m_Keyframe0.m_uiAnimClip, m_Keyframe0.m_uiKeyframe, m_fKeyframeLerp);
+      // ezLog::Info("Old KF: {0} | {1} - {2}", m_Keyframe0.m_uiAnimClip, m_Keyframe0.m_uiKeyframe, m_fKeyframeLerp);
       m_fKeyframeLerp -= 1.0f;
-      //ezLog::Info("New KF: {0} | {1} - {2}", m_Keyframe1.m_uiAnimClip, m_Keyframe1.m_uiKeyframe, m_fKeyframeLerp);
+      // ezLog::Info("New KF: {0} | {1} - {2}", m_Keyframe1.m_uiAnimClip, m_Keyframe1.m_uiKeyframe, m_fKeyframeLerp);
     }
   }
 
@@ -219,11 +219,11 @@ void ezMotionMatchingComponent::Update()
       const ezUInt32 uiAnimJointIdx0 = animatedJoints0.GetValue(b);
       const ezUInt32 uiAnimJointIdx1 = animDesc1.FindJointIndexByName(sJointName);
 
-      ezUInt32 uiSkeletonJointIdx;
-      if (skeleton.FindJointByName(sJointName, uiSkeletonJointIdx).Succeeded())
+      const ezUInt16 uiSkeletonJointIdx = skeleton.FindJointByName(sJointName);
+      if (uiSkeletonJointIdx != ezInvalidJointIndex)
       {
-        const ezTransform* pTransforms0 = animDesc0.GetJointKeyframes(uiAnimJointIdx0);
-        const ezTransform* pTransforms1 = animDesc1.GetJointKeyframes(uiAnimJointIdx1);
+        ezArrayPtr<const ezTransform> pTransforms0 = animDesc0.GetJointKeyframes(uiAnimJointIdx0);
+        ezArrayPtr<const ezTransform> pTransforms1 = animDesc1.GetJointKeyframes(uiAnimJointIdx1);
 
         const ezTransform jointTransform1 = pTransforms0[m_Keyframe0.m_uiKeyframe];
         const ezTransform jointTransform2 = pTransforms1[m_Keyframe1.m_uiKeyframe];
@@ -250,7 +250,8 @@ void ezMotionMatchingComponent::Update()
       if (animDesc1.HasRootMotion())
         vRootMotion1 = animDesc1.GetJointKeyframes(animDesc1.GetRootMotionJoint())[m_Keyframe1.m_uiKeyframe].m_vPosition;
 
-      const ezVec3 vRootMotion = ezMath::Lerp(vRootMotion0, vRootMotion1, m_fKeyframeLerp) * fKeyframeFraction * pOwner->GetGlobalScaling().x;
+      const ezVec3 vRootMotion =
+          ezMath::Lerp(vRootMotion0, vRootMotion1, m_fKeyframeLerp) * fKeyframeFraction * pOwner->GetGlobalScaling().x;
 
       const ezQuat qRotate = GetInputRotation();
 
@@ -265,9 +266,9 @@ void ezMotionMatchingComponent::Update()
 
   m_AnimationPose.ConvertFromLocalSpaceToObjectSpace(skeleton);
 
-  ezUInt32 uiLeftFootJoint, uiRightFootJoint;
-  if (skeleton.FindJointByName("Bip01_L_Foot", uiLeftFootJoint).Succeeded() &&
-      skeleton.FindJointByName("Bip01_R_Foot", uiRightFootJoint).Succeeded())
+  const ezUInt16 uiLeftFootJoint = skeleton.FindJointByName("Bip01_L_Foot");
+  const ezUInt16 uiRightFootJoint = skeleton.FindJointByName("Bip01_R_Foot");
+  if (uiLeftFootJoint != ezInvalidJointIndex && uiRightFootJoint != ezInvalidJointIndex)
   {
     ezTransform tLeft, tRight;
     ezBoundingSphere sphere(ezVec3::ZeroVector(), 0.5f);
@@ -400,9 +401,9 @@ void ezMotionMatchingComponent::PrecomputeMotion(ezDynamicArray<MotionData>& mot
   const ezUInt16 uiJoint1IndexInAnim = animClip.FindJointIndexByName(jointName1);
   const ezUInt16 uiJoint2IndexInAnim = animClip.FindJointIndexByName(jointName2);
 
-  ezUInt32 uiJoint1IndexInSkeleton, uiJoint2IndexInSkeleton;
-  if (skeleton.FindJointByName(jointName1, uiJoint1IndexInSkeleton).Failed() ||
-      skeleton.FindJointByName(jointName2, uiJoint2IndexInSkeleton).Failed())
+  const ezUInt16 uiJoint1IndexInSkeleton = skeleton.FindJointByName(jointName1);
+  const ezUInt16 uiJoint2IndexInSkeleton = skeleton.FindJointByName(jointName2);
+  if (uiJoint1IndexInSkeleton == ezInvalidJointIndex || uiJoint2IndexInSkeleton == ezInvalidJointIndex)
     return;
 
   const auto& jointNamesToIndices = animClip.GetAllJointIndices();
@@ -421,8 +422,8 @@ void ezMotionMatchingComponent::PrecomputeMotion(ezDynamicArray<MotionData>& mot
 
     for (ezUInt32 b = 0; b < jointNamesToIndices.GetCount(); ++b)
     {
-      ezUInt32 uiJointIndexInPose;
-      if (skeleton.FindJointByName(jointNamesToIndices.GetKey(b), uiJointIndexInPose).Succeeded())
+      const ezUInt16 uiJointIndexInPose = skeleton.FindJointByName(jointNamesToIndices.GetKey(b));
+      if (uiJointIndexInPose != ezInvalidJointIndex)
       {
         const ezTransform jointTransform = animClip.GetJointKeyframes(jointNamesToIndices.GetValue(b))[uiFrameIdx];
 

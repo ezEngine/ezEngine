@@ -110,9 +110,9 @@ ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& st
     hs.Assign(animClip.m_JointAnimations[b].m_sJointName.GetData());
     ezUInt16 uiJointIdx = anim.AddJointName(hs);
 
-    ezTransform* pJointTransforms = anim.GetJointKeyframes(uiJointIdx);
+    ezArrayPtr<ezTransform> pJointTransforms = anim.GetJointKeyframes(uiJointIdx);
 
-    ezMemoryUtils::Copy(pJointTransforms, &animClip.m_JointAnimations[b].m_Keyframes.GetData()[uiFirstKeyframe], uiNumKeyframes);
+    ezMemoryUtils::Copy(pJointTransforms.GetPtr(), &animClip.m_JointAnimations[b].m_Keyframes.GetData()[uiFirstKeyframe], uiNumKeyframes);
   }
 
   if (anim.HasRootMotion())
@@ -147,7 +147,7 @@ void ezAnimationClipAssetDocument::ApplyCustomRootMotion(ezAnimationClipResource
 {
   const ezAnimationClipAssetProperties* pProp = GetProperties();
   const ezUInt16 uiRootMotionJointIdx = anim.GetRootMotionJoint();
-  ezTransform* pRootTransforms = anim.GetJointKeyframes(uiRootMotionJointIdx);
+  ezArrayPtr<ezTransform> pRootTransforms = anim.GetJointKeyframes(uiRootMotionJointIdx);
 
   const ezVec3 vKeyframeMotion = pProp->m_vCustomRootMotion / (float)anim.GetFramesPerSecond();
   const ezTransform rootTransform(vKeyframeMotion);
@@ -162,11 +162,12 @@ void ezAnimationClipAssetDocument::ExtractRootMotionFromFeet(ezAnimationClipReso
 {
   const ezAnimationClipAssetProperties* pProp = GetProperties();
   const ezUInt16 uiRootMotionJointIdx = anim.GetRootMotionJoint();
-  ezTransform* pRootTransforms = anim.GetJointKeyframes(uiRootMotionJointIdx);
+  ezArrayPtr<ezTransform> pRootTransforms = anim.GetJointKeyframes(uiRootMotionJointIdx);
 
-  ezUInt32 uiFoot1, uiFoot2;
-  if (skeleton.FindJointByName(ezTempHashedString(pProp->m_sJoint1.GetData()), uiFoot1).Failed() ||
-      skeleton.FindJointByName(ezTempHashedString(pProp->m_sJoint2.GetData()), uiFoot2).Failed())
+  const ezUInt16 uiFoot1 = skeleton.FindJointByName(ezTempHashedString(pProp->m_sJoint1.GetData()));
+  const ezUInt16 uiFoot2 = skeleton.FindJointByName(ezTempHashedString(pProp->m_sJoint2.GetData()));
+
+  if (uiFoot1 == ezInvalidJointIndex || uiFoot2 == ezInvalidJointIndex)
   {
     ezLog::Error("Joints '{0}' and '{1}' could not be found in animation clip", pProp->m_sJoint1, pProp->m_sJoint2);
     return;
@@ -275,7 +276,7 @@ void ezAnimationClipAssetDocument::ExtractRootMotionFromFeet(ezAnimationClipReso
 void ezAnimationClipAssetDocument::MakeRootMotionConstantAverage(ezAnimationClipResourceDescriptor& anim) const
 {
   const ezUInt16 uiRootMotionJointIdx = anim.GetRootMotionJoint();
-  ezTransform* pRootTransforms = anim.GetJointKeyframes(uiRootMotionJointIdx);
+  ezArrayPtr<ezTransform> pRootTransforms = anim.GetJointKeyframes(uiRootMotionJointIdx);
   const ezUInt16 numFrames = anim.GetNumFrames();
 
   ezVec3 avgFootTranslation(0);

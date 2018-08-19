@@ -5,20 +5,17 @@
 ezSkeleton::ezSkeleton() = default;
 ezSkeleton::~ezSkeleton() = default;
 
-ezResult ezSkeleton::FindJointByName(const ezTempHashedString& sJointName, ezUInt32& out_uiIndex) const
+ezUInt16 ezSkeleton::FindJointByName(const ezTempHashedString& sJointName) const
 {
-  for (ezUInt32 i = 0; i < m_Joints.GetCount(); ++i)
+  for (ezUInt16 i = 0; i < m_Joints.GetCount(); ++i)
   {
     if (m_Joints[i].GetName() == sJointName)
     {
-      out_uiIndex = i;
-      return EZ_SUCCESS;
+      return i;
     }
   }
 
-  // Also fill joint index with bogus value to detect incorrect usage (no return value check) earlier.
-  out_uiIndex = 0xFFFFFFFFu;
-  return EZ_FAILURE;
+  return ezInvalidJointIndex;
 }
 
 bool ezSkeleton::IsCompatibleWith(const ezSkeleton& other) const
@@ -44,12 +41,13 @@ bool ezSkeleton::IsCompatibleWith(const ezSkeleton& other) const
 enum ezSkeletonVersion : ezUInt32
 {
   Version1 = 1,
+  Version2,
 
   ENUM_COUNT,
   Version_Current = ENUM_COUNT - 1
 };
 
-const ezUInt32 uiCurrentSkeletonVersion = 1;
+const ezUInt32 uiCurrentSkeletonVersion = 2;
 
 void ezSkeleton::Save(ezStreamWriter& stream) const
 {
@@ -57,6 +55,7 @@ void ezSkeleton::Save(ezStreamWriter& stream) const
 
   const ezUInt32 uiNumJoints = m_Joints.GetCount();
   stream << uiNumJoints;
+
 
   for (ezUInt32 i = 0; i < uiNumJoints; ++i)
   {
@@ -81,15 +80,48 @@ void ezSkeleton::Load(ezStreamReader& stream)
 
   m_Joints.Reserve(uiNumJoints);
 
-  for (ezUInt32 i = 0; i < uiNumJoints; ++i)
+  if (uiVersion == 1)
   {
-    ezSkeletonJoint& joint = m_Joints.ExpandAndGetRef();
+    for (ezUInt32 i = 0; i < uiNumJoints; ++i)
+    {
+      ezSkeletonJoint& joint = m_Joints.ExpandAndGetRef();
 
-    stream >> joint.m_sName;
-    stream >> joint.m_uiParentIndex;
-    stream >> joint.m_BindPoseLocal;
-    stream >> joint.m_InverseBindPoseGlobal;
+      ezUInt32 dummy;
+      stream >> joint.m_sName;
+      stream >> dummy;
+      joint.m_uiParentIndex = dummy;
+      stream >> joint.m_BindPoseLocal;
+      stream >> joint.m_InverseBindPoseGlobal;
+    }
   }
+  else
+  {
+    for (ezUInt32 i = 0; i < uiNumJoints; ++i)
+    {
+      ezSkeletonJoint& joint = m_Joints.ExpandAndGetRef();
+
+      stream >> joint.m_sName;
+      stream >> joint.m_uiParentIndex;
+      stream >> joint.m_BindPoseLocal;
+      stream >> joint.m_InverseBindPoseGlobal;
+    }
+  }
+}
+
+bool ezSkeleton::IsJointDescendantOf(ezUInt16 uiJoint, ezUInt16 uiExpectedParent) const
+{
+  if (uiExpectedParent == ezInvalidJointIndex)
+    return true;
+
+  while (uiJoint != ezInvalidJointIndex)
+  {
+    if (uiJoint == uiExpectedParent)
+      return true;
+
+    uiJoint = m_Joints[uiJoint].m_uiParentIndex;
+  }
+
+  return false;
 }
 
 // void ezSkeleton::ApplyGlobalTransform(const ezMat3& transform)

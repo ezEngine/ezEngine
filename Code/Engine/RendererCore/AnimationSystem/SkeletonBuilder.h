@@ -30,7 +30,7 @@ protected:
     ezTransform m_BindPoseLocal;
     ezTransform m_BindPoseGlobal; // this one is temporary and not stored in the final ezSkeleton
     ezTransform m_InverseBindPoseGlobal;
-    ezUInt32 m_uiParentIndex = 0xFFFFFFFFu;
+    ezUInt16 m_uiParentIndex = 0xFFFFu;
     ezHashedString m_sName;
   };
 

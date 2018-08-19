@@ -127,19 +127,19 @@ ezUInt16 ezAnimationClipResourceDescriptor::FindJointIndexByName(const ezTempHas
   const ezUInt32 uiIndex = m_JointNameToIndex.Find(sJointName);
 
   if (uiIndex == ezInvalidIndex)
-    return 0xFFFF;
+    return ezInvalidJointIndex;
 
   return m_JointNameToIndex.GetValue(uiIndex);
 }
 
-const ezTransform* ezAnimationClipResourceDescriptor::GetJointKeyframes(ezUInt16 uiJoint) const
+ezArrayPtr<const ezTransform> ezAnimationClipResourceDescriptor::GetJointKeyframes(ezUInt16 uiJoint) const
 {
-  return &m_JointTransforms[uiJoint * m_uiNumFrames];
+  return ezArrayPtr<const ezTransform>(&m_JointTransforms[uiJoint * m_uiNumFrames], m_uiNumFrames);
 }
 
-ezTransform* ezAnimationClipResourceDescriptor::GetJointKeyframes(ezUInt16 uiJoint)
+ezArrayPtr<ezTransform> ezAnimationClipResourceDescriptor::GetJointKeyframes(ezUInt16 uiJoint)
 {
-  return &m_JointTransforms[uiJoint * m_uiNumFrames];
+  return ezArrayPtr<ezTransform>(&m_JointTransforms[uiJoint * m_uiNumFrames], m_uiNumFrames);
 }
 
 void ezAnimationClipResourceDescriptor::Save(ezStreamWriter& stream) const
@@ -236,10 +236,10 @@ void ezAnimationClipResourceDescriptor::SetPoseToKeyframe(ezAnimationPose& pose,
     const ezHashedString& sJointName = m_JointNameToIndex.GetKey(b);
     const ezUInt32 uiAnimJointIdx = m_JointNameToIndex.GetValue(b);
 
-    ezUInt32 uiSkeletonJointIdx;
-    if (skeleton.FindJointByName(sJointName, uiSkeletonJointIdx).Succeeded())
+    const ezUInt16 uiSkeletonJointIdx = skeleton.FindJointByName(sJointName);
+    if (uiSkeletonJointIdx != ezInvalidJointIndex)
     {
-      const ezTransform* pTransforms = GetJointKeyframes(uiAnimJointIdx);
+      ezArrayPtr<const ezTransform> pTransforms = GetJointKeyframes(uiAnimJointIdx);
 
       pose.SetTransform(uiSkeletonJointIdx, pTransforms[uiKeyframe].GetAsMat4());
     }
@@ -255,10 +255,10 @@ void ezAnimationClipResourceDescriptor::SetPoseToBlendedKeyframe(ezAnimationPose
     const ezHashedString& sJointName = m_JointNameToIndex.GetKey(b);
     const ezUInt32 uiAnimJointIdx = m_JointNameToIndex.GetValue(b);
 
-    ezUInt32 uiSkeletonJointIdx;
-    if (skeleton.FindJointByName(sJointName, uiSkeletonJointIdx).Succeeded())
+    const ezUInt16 uiSkeletonJointIdx = skeleton.FindJointByName(sJointName);
+    if (uiSkeletonJointIdx != ezInvalidJointIndex)
     {
-      const ezTransform* pTransforms = GetJointKeyframes(uiAnimJointIdx);
+      ezArrayPtr<const ezTransform> pTransforms = GetJointKeyframes(uiAnimJointIdx);
       const ezTransform jointTransform1 = pTransforms[uiKeyframe0];
       const ezTransform jointTransform2 = pTransforms[uiKeyframe0 + 1];
 

@@ -6,6 +6,7 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <RendererCore/AnimationSystem/Declarations.h>
 
 class ezStreamWriter;
 class ezStreamReader;
@@ -22,10 +23,10 @@ public:
   const ezTransform& GetBindPoseLocalTransform() const { return m_BindPoseLocal; }
   const ezTransform& GetInverseBindPoseGlobalTransform() const { return m_InverseBindPoseGlobal; }
 
-  /// \brief Returns 0xFFFFFFFFu if no parent
-  ezUInt32 GetParentIndex() const { return m_uiParentIndex; }
+  /// \brief Returns ezInvalidJointIndex if no parent
+  ezUInt16 GetParentIndex() const { return m_uiParentIndex; }
 
-  bool IsRootJoint() const { return m_uiParentIndex == 0xFFFFFFFFu; }
+  bool IsRootJoint() const { return m_uiParentIndex == ezInvalidJointIndex; }
   const ezHashedString& GetName() const { return m_sName; }
 
 protected:
@@ -34,7 +35,7 @@ protected:
 
   ezTransform m_BindPoseLocal;
   ezTransform m_InverseBindPoseGlobal;
-  ezUInt32 m_uiParentIndex = 0xFFFFFFFFu;
+  ezUInt16 m_uiParentIndex = ezInvalidJointIndex;
   ezHashedString m_sName;
 };
 
@@ -46,13 +47,13 @@ public:
   ~ezSkeleton();
 
   /// \brief Returns the number of joints in the skeleton.
-  ezUInt32 GetJointCount() const { return m_Joints.GetCount(); }
+  ezUInt16 GetJointCount() const { return m_Joints.GetCount(); }
 
   /// \brief Returns the nth joint.
-  const ezSkeletonJoint& GetJointByIndex(ezUInt32 uiIndex) const { return m_Joints[uiIndex]; }
+  const ezSkeletonJoint& GetJointByIndex(ezUInt16 uiIndex) const { return m_Joints[uiIndex]; }
 
-  /// \brief Allows to find a specific joint in the skeleton by name.
-  ezResult FindJointByName(const ezTempHashedString& sName, ezUInt32& out_uiIndex) const;
+  /// \brief Allows to find a specific joint in the skeleton by name. Returns ezInvalidJointIndex if not found
+  ezUInt16 FindJointByName(const ezTempHashedString& sName) const;
 
   /// \brief Checks if two skeletons are compatible (same joint count and hierarchy)
   bool IsCompatibleWith(const ezSkeleton& other) const;
@@ -62,6 +63,8 @@ public:
 
   /// \brief Loads the skeleton from the given stream.
   void Load(ezStreamReader& stream);
+
+  bool IsJointDescendantOf(ezUInt16 uiJoint, ezUInt16 uiExpectedParent) const;
 
   /// \brief Applies a global transform to the skeleton (used by the importer to correct scale and up-axis)
   // void ApplyGlobalTransform(const ezMat3& transform);
