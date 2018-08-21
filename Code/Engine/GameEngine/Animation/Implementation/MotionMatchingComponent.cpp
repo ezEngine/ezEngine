@@ -10,7 +10,7 @@
 #include <RendererFoundation/Device/Device.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezMotionMatchingComponent, 1, ezComponentMode::Dynamic);
+EZ_BEGIN_COMPONENT_TYPE(ezMotionMatchingComponent, 2, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -36,6 +36,8 @@ void ezMotionMatchingComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
+
+  s << m_Animations;
 }
 
 void ezMotionMatchingComponent::DeserializeComponent(ezWorldReader& stream)
@@ -43,6 +45,11 @@ void ezMotionMatchingComponent::DeserializeComponent(ezWorldReader& stream)
   SUPER::DeserializeComponent(stream);
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
+
+  if (uiVersion >= 2)
+  {
+    s >> m_Animations;
+  }
 }
 
 void ezMotionMatchingComponent::OnSimulationStarted()
@@ -119,20 +126,22 @@ void ezMotionMatchingComponent::ConfigureInput()
   ezInputManager::SetInputActionConfig("mm", "backward", iac, true);
 
   iac.m_sInputSlotTrigger[0] = ezInputSlot_Controller0_LeftStick_NegX;
-  iac.m_sInputSlotTrigger[1] = ezInputSlot_KeyLeft;
+  iac.m_sInputSlotTrigger[1].Clear(); 
   ezInputManager::SetInputActionConfig("mm", "left", iac, true);
 
   iac.m_sInputSlotTrigger[0] = ezInputSlot_Controller0_LeftStick_PosX;
-  iac.m_sInputSlotTrigger[1] = ezInputSlot_KeyRight;
+  iac.m_sInputSlotTrigger[1].Clear();
   ezInputManager::SetInputActionConfig("mm", "right", iac, true);
 
   iac.m_bApplyTimeScaling = true;
 
   iac.m_sInputSlotTrigger[0] = ezInputSlot_Controller0_RightStick_PosX;
+  iac.m_sInputSlotTrigger[1] = ezInputSlot_KeyRight;
   // iac.m_sInputSlotTrigger[1] = ezInputSlot_KeyRight;
   ezInputManager::SetInputActionConfig("mm", "turnright", iac, true);
 
   iac.m_sInputSlotTrigger[0] = ezInputSlot_Controller0_RightStick_NegX;
+  iac.m_sInputSlotTrigger[1] = ezInputSlot_KeyLeft;
   // iac.m_sInputSlotTrigger[1] = ezInputSlot_KeyRight;
   ezInputManager::SetInputActionConfig("mm", "turnleft", iac, true);
 }

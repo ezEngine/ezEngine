@@ -162,7 +162,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
   range.BeginNextStep("Importing Materials");
 
-  // Option material slot count correction & material import.
+  // Optional material slot count correction & material import.
   if (pProp->m_bImportMaterials || pProp->m_Slots.GetCount() != pMesh->GetNumSubMeshes())
   {
     GetObjectAccessor()->StartTransaction("Update Mesh Material Info");
