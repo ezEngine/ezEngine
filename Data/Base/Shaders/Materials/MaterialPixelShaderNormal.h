@@ -206,8 +206,8 @@ PS_OUT main(PS_IN Input)
     }
     else if (RenderPass == EDITOR_RENDER_PASS_BONE_WEIGHTS)
     {
-      #ifdef USE_NORMAL
-        Output.Color = float4(Input.Normal, 1);
+      #ifdef USE_CUSTOM_VERTEX_COLOR
+        Output.Color = Input.CustomColor;
       #else
         Output.Color = float4(0.05, 0.05, 0.1, 1);
       #endif

@@ -105,17 +105,6 @@ VS_OUT FillVertexData(VS_IN Input)
     Output.Color = Input.Color;
   #endif
 
-  #if defined(USE_NORMAL) && (RENDER_PASS == RENDER_PASS_EDITOR)
-    if (RenderPass == EDITOR_RENDER_PASS_BONE_WEIGHTS)
-    {
-      #if defined(USE_SKINNING)
-        Output.Normal = Input.BoneWeights;
-      #else
-        Output.Normal = float4(0.1, 0.1, 0.1, 1.0);
-      #endif
-    }
-  #endif
-
   Output.InstanceID = Input.InstanceID;
 
   return Output;

@@ -10,6 +10,7 @@
 // USE_TEXCOORD1
 // USE_COLOR
 // USE_SKINNING
+// USE_CUSTOM_VERTEX_COLOR
 
 struct VS_IN
 {
@@ -89,6 +90,10 @@ struct VS_OUT
     #if TWO_SIDED == TRUE
       uint FrontFace : SV_IsFrontFace;
     #endif
+  #endif
+
+  #if defined(USE_CUSTOM_VERTEX_COLOR)
+    float4 CustomColor : TEXCOORD2;
   #endif
 };
 
