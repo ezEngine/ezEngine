@@ -96,11 +96,17 @@ ezImguiRenderer::~ezImguiRenderer()
 {
   m_hShader.Invalidate();
 
-  ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hVertexBuffer);
-  ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hIndexBuffer);
+  if (!m_hVertexBuffer.IsInvalidated())
+  {
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hVertexBuffer);
+    m_hVertexBuffer.Invalidate();
+  }
 
-  m_hVertexBuffer.Invalidate();
-  m_hIndexBuffer.Invalidate();
+  if (!m_hIndexBuffer.IsInvalidated())
+  {
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hIndexBuffer);
+    m_hIndexBuffer.Invalidate();
+  }
 }
 
 void ezImguiRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)

@@ -105,7 +105,7 @@ void ezDebugTextComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
       {
         ezDebugRenderer::DrawText(msg.m_pView->GetHandle(), line, ezVec2I32(screenPosX, screenPosY), m_Color);
 
-        screenPosY -= 20;
+        screenPosY += 20;
       }
     }
   }

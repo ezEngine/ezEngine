@@ -240,25 +240,28 @@ void ezRenderWorld::CacheRenderData(const ezView& view, const ezGameObjectHandle
 
 void ezRenderWorld::DeleteAllCachedRenderData()
 {
-  EZ_LOCK(s_ViewsMutex);
+  EZ_ASSERT_DEV(!s_bInExtract, "Cannot delete cached render data during extraction");
 
-  for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
   {
-    ezView* pView = it.Value();
-    pView->m_pRenderDataCache->m_EntriesPerObject.Clear();
+    EZ_LOCK(s_ViewsMutex);
+
+    for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
+    {
+      ezView* pView = it.Value();
+      pView->m_pRenderDataCache->m_EntriesPerObject.Clear();
+    }
   }
 
-  CachedRenderDataPerComponent* pCachedRenderDataPerComponent = nullptr;
   for (auto it = s_CachedRenderData.GetIterator(); it.IsValid(); ++it)
   {
-    pCachedRenderDataPerComponent = &(it.Value());
+    auto& cachedRenderDataPerComponent = it.Value();
 
-    for (auto pCachedRenderData : *pCachedRenderDataPerComponent)
+    for (auto pCachedRenderData : cachedRenderDataPerComponent)
     {
       s_DeletedRenderData.PushBack(pCachedRenderData);
     }
 
-    pCachedRenderDataPerComponent->Clear();
+    cachedRenderDataPerComponent.Clear();
   }
 }
 

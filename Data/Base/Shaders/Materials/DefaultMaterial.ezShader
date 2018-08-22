@@ -53,11 +53,11 @@ Texture2D OcclusionTexture;
 #define USE_TEXCOORD0
 
 #if VERTEX_SKINNING
-    #define USE_SKINNING
+  #define USE_SKINNING
 #endif
 
 #if RENDER_PASS == RENDER_PASS_EDITOR
-    #define USE_CUSTOM_VERTEX_COLOR
+  #define USE_DEBUG_INTERPOLATOR
 #endif
 
 #include <Shaders/Materials/DefaultMaterialCB.h>
@@ -65,20 +65,7 @@ Texture2D OcclusionTexture;
 
 VS_OUT main(VS_IN Input)
 {
-  VS_OUT Output = FillVertexData(Input);
-
-  #if RENDER_PASS == RENDER_PASS_EDITOR
-    if (RenderPass == EDITOR_RENDER_PASS_BONE_WEIGHTS)
-    {
-      #if defined(USE_SKINNING)
-        Output.CustomColor = Input.BoneWeights;
-      #else
-        Output.CustomColor = float4(0.1, 0.1, 0.1, 1.0);
-      #endif
-    }
-  #endif
-
-  return Output;
+  return FillVertexData(Input);
 }
 
 
@@ -104,7 +91,7 @@ VS_OUT main(VS_IN Input)
 #define USE_FOG
 
 #if RENDER_PASS == RENDER_PASS_EDITOR
-    #define USE_CUSTOM_VERTEX_COLOR
+  #define USE_DEBUG_INTERPOLATOR
 #endif
 
 #include <Shaders/Materials/DefaultMaterialCB.h>

@@ -72,6 +72,10 @@ struct VS_OUT
   #if defined(USE_COLOR)
     float4 Color : COLOR;
   #endif
+  
+  #if defined(USE_DEBUG_INTERPOLATOR)
+    float4 DebugInterpolator : DEBUG_INTERPOLATOR;
+  #endif
 
   #if defined(CUSTOM_INTERPOLATOR)
     CUSTOM_INTERPOLATOR
@@ -90,10 +94,6 @@ struct VS_OUT
     #if TWO_SIDED == TRUE
       uint FrontFace : SV_IsFrontFace;
     #endif
-  #endif
-
-  #if defined(USE_CUSTOM_VERTEX_COLOR)
-    float4 CustomColor : TEXCOORD2;
   #endif
 };
 

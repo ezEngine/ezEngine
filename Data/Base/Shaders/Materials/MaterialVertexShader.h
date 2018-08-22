@@ -104,6 +104,17 @@ VS_OUT FillVertexData(VS_IN Input)
   #if defined(USE_COLOR)
     Output.Color = Input.Color;
   #endif
+  
+  #if defined(USE_DEBUG_INTERPOLATOR)
+    Output.DebugInterpolator = float4(0.1, 0.1, 0.1, 1.0);
+    
+    #if defined(USE_SKINNING)
+      if (RenderPass == EDITOR_RENDER_PASS_BONE_WEIGHTS)
+      {   
+        Output.DebugInterpolator = Input.BoneWeights;
+      }
+    #endif
+  #endif
 
   Output.InstanceID = Input.InstanceID;
 
