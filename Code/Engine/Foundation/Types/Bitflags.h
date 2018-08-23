@@ -85,9 +85,9 @@ private:
   typedef typename T::StorageType StorageType;
 
 public:
-  /// \brief Constructor. Initializes the flags to all empty.
+  /// \brief Constructor. Initializes the flags to the default value.
   EZ_ALWAYS_INLINE ezBitflags()
-      : m_Value(0) // [tested]
+      : m_Value(T::Default) // [tested]
   {
   }
 
@@ -240,7 +240,7 @@ private:
 /// Each flag will use a different bit. If you need to define flags that are combinations of several
 /// other flags, you need to declare the bitflag struct manually. See the ezBitflags class for more
 /// information on how to do that.
-#define EZ_DECLARE_FLAGS(InternalStorageType, BitflagsTypeName, ...)                                                                       \
+#define EZ_DECLARE_FLAGS_WITH_DEFAULT(InternalStorageType, BitflagsTypeName, DefaultValue, ...)                                            \
   struct BitflagsTypeName                                                                                                                  \
   {                                                                                                                                        \
     static const ezUInt32 Count = EZ_VA_NUM_ARGS(__VA_ARGS__);                                                                             \
@@ -248,6 +248,7 @@ private:
     enum Enum                                                                                                                              \
     {                                                                                                                                      \
       EZ_EXPAND_ARGS_WITH_INDEX(EZ_DECLARE_FLAGS_ENUM, ##__VA_ARGS__)                                                                      \
+      Default = DefaultValue                                                                                                               \
     };                                                                                                                                     \
     struct Bits                                                                                                                            \
     {                                                                                                                                      \
@@ -257,6 +258,8 @@ private:
   };                                                                                                                                       \
   EZ_DECLARE_FLAGS_OPERATORS(BitflagsTypeName)
 
+#define EZ_DECLARE_FLAGS(InternalStorageType, BitflagsTypeName, ...) \
+  EZ_DECLARE_FLAGS_WITH_DEFAULT(InternalStorageType, BitflagsTypeName, 0, __VA_ARGS__)
 /// \cond
 
 /// Internal Do not use.

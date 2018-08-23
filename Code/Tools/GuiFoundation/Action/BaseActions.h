@@ -65,6 +65,7 @@ public:
 
       enum Enum
       {
+        Default = 0,
         Separator = EZ_BIT(0),
       };
       struct Bits
@@ -98,7 +99,7 @@ public:
 
   bool IsEnabled() const { return m_bEnabled; }
   void SetEnabled(bool bEnable, bool bTriggerUpdate = true) { m_bEnabled = bEnable; if (bTriggerUpdate) TriggerUpdate(); }
-  
+
   bool IsVisible() const { return m_bVisible; }
   void SetVisible(bool bVisible, bool bTriggerUpdate = true) { m_bVisible = bVisible; if (bTriggerUpdate) TriggerUpdate(); }
 

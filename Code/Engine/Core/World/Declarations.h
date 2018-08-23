@@ -181,6 +181,8 @@ struct ezObjectFlags
     SimulationStarted = EZ_BIT(5),
     SimulationStarting = EZ_BIT(6),
     UnhandledMessageHandler = EZ_BIT(7), ///< For components, when a message is not handled, a virtual function is called
+
+    Default = None
   };
 
   struct Bits

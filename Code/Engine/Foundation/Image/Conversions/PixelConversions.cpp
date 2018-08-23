@@ -16,7 +16,7 @@ public:
 
   ezImageConversion_4444_8888()
   {
-    m_subConversions.PushBack(SubConversion(ezImageFormat::B4G4R4A4_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::None));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::B4G4R4A4_UNORM, ezImageFormat::B8G8R8A8_UNORM));
   }
 
   static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
@@ -121,7 +121,7 @@ struct ezImageConversion_U8_F32 : public ezImageConversionMixinLinear<ezImageCon
 
   ezImageConversion_U8_F32()
   {
-    m_subConversions.PushBack(SubConversion(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::None));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::R32G32B32A32_FLOAT));
   }
 
   static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
@@ -149,7 +149,7 @@ struct ezImageConversion_R_RGBA : public ezImageConversionMixinLinear<ezImageCon
 
   ezImageConversion_R_RGBA()
   {
-    m_subConversions.PushBack(SubConversion(ezImageFormat::R8_UNORM, ezImageFormat::R8G8B8A8_UNORM, ezImageConversionFlags::None));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::R8_UNORM, ezImageFormat::R8G8B8A8_UNORM));
   }
 
   static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
@@ -181,7 +181,7 @@ public:
 
   ezImageConversion_BGR_BGRA()
   {
-    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::None));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8_UNORM, ezImageFormat::B8G8R8A8_UNORM));
   }
 
   static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
@@ -213,7 +213,7 @@ public:
 
   ezImageConversion_RGB_RGBA_F()
   {
-    m_subConversions.PushBack(SubConversion(ezImageFormat::R32G32B32_FLOAT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::None));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::R32G32B32_FLOAT, ezImageFormat::R32G32B32A32_FLOAT));
   }
 
   static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
@@ -245,7 +245,7 @@ public:
 
   ezImageConversion_R_BGRA()
   {
-    m_subConversions.PushBack(SubConversion(ezImageFormat::R8_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::None));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::R8_UNORM, ezImageFormat::B8G8R8A8_UNORM));
   }
 
   static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
@@ -277,7 +277,7 @@ public:
 
   ezImageConversion_R_RGBA_F()
   {
-    m_subConversions.PushBack(SubConversion(ezImageFormat::R32_FLOAT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::None));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::R32_FLOAT, ezImageFormat::R32G32B32A32_FLOAT));
   }
 
   static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)

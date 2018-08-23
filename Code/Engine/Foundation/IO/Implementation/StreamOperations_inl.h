@@ -3,6 +3,7 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/Enum.h>
 
 // Standard operators for overloads of common data types
@@ -203,6 +204,26 @@ inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezEnum<T>& value
 
 template <typename T>
 inline ezStreamReader& operator>>(ezStreamReader& Stream, ezEnum<T>& value)
+{
+  typename T::StorageType storedValue = T::Default;
+  Stream >> storedValue;
+  value.SetValue(storedValue);
+
+  return Stream;
+}
+
+// ezBitflags
+
+template <typename T>
+inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezBitflags<T>& value)
+{
+  Stream << value.GetValue();
+
+  return Stream;
+}
+
+template <typename T>
+inline ezStreamReader& operator >> (ezStreamReader& Stream, ezBitflags<T>& value)
 {
   typename T::StorageType storedValue = T::Default;
   Stream >> storedValue;

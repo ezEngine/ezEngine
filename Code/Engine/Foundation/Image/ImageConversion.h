@@ -6,7 +6,7 @@
 
 #include <Foundation/Image/Image.h>
 
-EZ_DECLARE_FLAGS(ezUInt8, ezImageConversionFlags, None, InPlace, Lossy);
+EZ_DECLARE_FLAGS(ezUInt8, ezImageConversionFlags, InPlace, Lossy);
 
 /// \brief Helper class containing utilities to convert between different image formats and layouts.
 class EZ_FOUNDATION_DLL ezImageConversion : public ezEnumerable<ezImageConversion>
@@ -40,10 +40,9 @@ protected:
     {
       m_sourceFormat = ezImageFormat::UNKNOWN;
       m_targetFormat = ezImageFormat::UNKNOWN;
-      m_flags = ezImageConversionFlags::None;
     }
 
-    SubConversion(ezImageFormat::Enum source, ezImageFormat::Enum target, const ezBitflags<ezImageConversionFlags>& flags)
+    SubConversion(ezImageFormat::Enum source, ezImageFormat::Enum target, const ezBitflags<ezImageConversionFlags>& flags = ezBitflags<ezImageConversionFlags>())
     {
       m_sourceFormat = source;
       m_targetFormat = target;

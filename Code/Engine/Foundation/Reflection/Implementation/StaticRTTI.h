@@ -530,11 +530,11 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 /// an enum value into a constant RTTI property.
 #define EZ_ENUM_CONSTANT(Value) EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Value), (Storage)Value)
 
-/// \brief Within a EZ_BEGIN_STATIC_REFLECTED_ENUM / EZ_END_STATIC_REFLECTED_ENUM block, this converts a
+/// \brief Within a EZ_BEGIN_STATIC_REFLECTED_BITFLAGS / EZ_END_STATIC_REFLECTED_BITFLAGS block, this converts a
 /// list of bitflags into constant RTTI properties.
 #define EZ_BITFLAGS_CONSTANTS(...) EZ_EXPAND_ARGS(EZ_ENUM_VALUE_TO_CONSTANT_PROPERTY, ##__VA_ARGS__)
 
-/// \brief Within a EZ_BEGIN_STATIC_REFLECTED_ENUM / EZ_END_STATIC_REFLECTED_ENUM block, this converts a
+/// \brief Within a EZ_BEGIN_STATIC_REFLECTED_BITFLAGS / EZ_END_STATIC_REFLECTED_BITFLAGS block, this converts a
 /// an bitflags into a constant RTTI property.
 #define EZ_BITFLAGS_CONSTANT(Value) EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Value), (Storage)Value)
 
