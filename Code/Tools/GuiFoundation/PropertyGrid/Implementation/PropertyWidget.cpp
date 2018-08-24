@@ -958,7 +958,7 @@ void ezQtPropertyEditorBitflagsWidget::OnInit()
     const ezAbstractConstantProperty* pConstant = static_cast<const ezAbstractConstantProperty*>(pProp);
 
     QWidgetAction* pAction = new QWidgetAction(m_pMenu);
-    QCheckBox* pCheckBox = new QCheckBox(QString::fromUtf8(pConstant->GetPropertyName()), m_pMenu);
+    QCheckBox* pCheckBox = new QCheckBox(QString::fromUtf8(ezTranslate(pConstant->GetPropertyName())), m_pMenu);
     pCheckBox->setCheckable(true);
     pCheckBox->setCheckState(Qt::Unchecked);
     pAction->setDefaultWidget(pCheckBox);

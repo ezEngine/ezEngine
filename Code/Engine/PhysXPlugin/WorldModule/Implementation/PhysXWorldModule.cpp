@@ -123,6 +123,7 @@ namespace
       }
 
       pairFlags |= PxPairFlag::eCONTACT_DEFAULT;
+      pairFlags |= PxPairFlag::eDETECT_CCD_CONTACT;
 
       return PxFilterFlag::eDEFAULT;
     }
@@ -339,6 +340,7 @@ void ezPhysXWorldModule::Initialize()
     desc.flags |= PxSceneFlag::eENABLE_KINEMATIC_PAIRS;
     desc.flags |= PxSceneFlag::eADAPTIVE_FORCE;
     desc.flags |= PxSceneFlag::eREQUIRE_RW_LOCK;
+    desc.flags |= PxSceneFlag::eENABLE_CCD;
 
     desc.gravity = ezPxConversionUtils::ToVec3(m_Settings.m_vObjectGravity);
 

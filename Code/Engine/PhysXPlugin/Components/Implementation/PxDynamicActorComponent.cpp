@@ -98,7 +98,7 @@ void ezPxDynamicActorComponentManager::UpdateMaxDepenetrationVelocity(float fMax
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 2, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 3, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES{
       EZ_ACCESSOR_PROPERTY("Kinematic", GetKinematic, SetKinematic),
@@ -109,6 +109,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 2, ezComponentMode::Dynamic)
       EZ_MEMBER_PROPERTY("AngularDamping", m_fAngularDamping)->AddAttributes(new ezDefaultValueAttribute(0.05f)),
       EZ_MEMBER_PROPERTY("MaxContactImpulse", m_fMaxContactImpulse)
           ->AddAttributes(new ezDefaultValueAttribute(1000000.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+      EZ_ACCESSOR_PROPERTY("ContinuousCollisionDetection", GetContinuousCollisionDetection, SetContinuousCollisionDetection)
   } EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS{
       EZ_MESSAGE_HANDLER(ezMsgPhysicsAddForce, AddForceAtPos),
@@ -122,6 +123,7 @@ ezPxDynamicActorComponent::ezPxDynamicActorComponent()
 {
   m_bKinematic = false;
   m_bDisableGravity = false;
+  m_bCCD = false;
   m_pActor = nullptr;
 
   m_fLinearDamping = 0.1f;
@@ -144,6 +146,7 @@ void ezPxDynamicActorComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fLinearDamping;
   s << m_fAngularDamping;
   s << m_fMaxContactImpulse;
+  s << m_bCCD;
 }
 
 void ezPxDynamicActorComponent::DeserializeComponent(ezWorldReader& stream)
@@ -163,6 +166,11 @@ void ezPxDynamicActorComponent::DeserializeComponent(ezWorldReader& stream)
     s >> m_fLinearDamping;
     s >> m_fAngularDamping;
     s >> m_fMaxContactImpulse;
+  }
+
+  if (uiVersion >= 3)
+  {
+    s >> m_bCCD;
   }
 }
 
@@ -203,6 +211,22 @@ void ezPxDynamicActorComponent::SetDisableGravity(bool b)
     EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
 
     m_pActor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, m_bDisableGravity);
+    m_pActor->wakeUp();
+  }
+}
+
+void ezPxDynamicActorComponent::SetContinuousCollisionDetection(bool b)
+{
+  if (m_bCCD == b)
+    return;
+
+  m_bCCD = b;
+
+  if (m_pActor)
+  {
+    EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
+
+    m_pActor->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, m_bCCD);
     m_pActor->wakeUp();
   }
 }
@@ -284,6 +308,7 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
 
   m_pActor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, m_bDisableGravity);
   m_pActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, m_bKinematic);
+  m_pActor->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, m_bCCD);
 
   if (m_bKinematic)
   {

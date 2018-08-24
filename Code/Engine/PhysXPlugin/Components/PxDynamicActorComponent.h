@@ -51,6 +51,9 @@ public:
   bool GetDisableGravity() const { return m_bDisableGravity; }
   void SetDisableGravity(bool b);
 
+  bool GetContinuousCollisionDetection() const { return m_bCCD; }
+  void SetContinuousCollisionDetection(bool b);
+
   float GetMass() const { return m_fMass; }
   void SetMass(float fMass);
 
@@ -86,6 +89,7 @@ private:
   float m_fMass;
   bool m_bDisableGravity;
   bool m_bKinematic;
+  bool m_bCCD;
 
   ezPxUserData m_UserData;
 };

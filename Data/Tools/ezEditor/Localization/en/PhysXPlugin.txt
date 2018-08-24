@@ -7,6 +7,7 @@ ezPxCharacterControllerComponent;Character Controller
 ezPxCharacterProxyComponent;Character Proxy
 ezPxDynamicActorComponent;Dynamic Actor
 ezPxStaticActorComponent;Static Actor
+ezPx6DOFJointComponent;6DOF Joint
 ezPxDistanceJointComponent;Distance Joint
 ezPxFixedJointComponent;Fixed Joint
 ezPxShapeBoxComponent;Box Shape
@@ -28,3 +29,6 @@ ezPxVisColMeshComponent;Collision Mesh Visualization
 CollisionMeshImport.TriangleMesh;Triangle Collision Mesh
 CollisionMeshImport.ConvexMesh;Convex Collision Mesh
 ezBreakableSheetComponent;Breakable Sheet
+ezPxAxis::X;X
+ezPxAxis::Y;Y
+ezPxAxis::Z;Z
