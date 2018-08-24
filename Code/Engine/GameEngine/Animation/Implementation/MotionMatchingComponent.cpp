@@ -54,7 +54,7 @@ void ezMotionMatchingComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezMotionMatchingComponent::OnSimulationStarted()
 {
-  SUPER::OnActivated();
+  SUPER::OnSimulationStarted();
 
   // make sure the skinning buffer is deleted
   EZ_ASSERT_DEBUG(m_hSkinningTransformsBuffer.IsInvalidated(), "The skinning buffer should not exist at this time");

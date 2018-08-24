@@ -4,6 +4,10 @@
 #include <RendererCore/AnimationSystem/Skeleton.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAnimationPoseUpdated);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAnimationPoseUpdated, 1, ezRTTIDefaultAllocator<ezMsgAnimationPoseUpdated>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 ezAnimationPose::ezAnimationPose() = default;
 ezAnimationPose::~ezAnimationPose() = default;
 

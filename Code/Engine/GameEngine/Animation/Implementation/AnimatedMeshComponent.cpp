@@ -65,7 +65,7 @@ void ezAnimatedMeshComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezAnimatedMeshComponent::OnSimulationStarted()
 {
-  SUPER::OnActivated();
+  SUPER::OnSimulationStarted();
 
   // make sure the skinning buffer is deleted
   EZ_ASSERT_DEBUG(m_hSkinningTransformsBuffer.IsInvalidated(), "The skinning buffer should not exist at this time");
@@ -174,6 +174,16 @@ void ezAnimatedMeshComponent::Update()
   if (m_bVisualizeSkeleton)
   {
     m_AnimationPose.VisualizePose(GetWorld(), skeleton, GetOwner()->GetGlobalTransform());
+  }
+
+  // inform child nodes/components that a new skinning pose is available
+  // do this before the pose is transformed into skinning space
+  {
+    ezMsgAnimationPoseUpdated msg;
+    msg.m_pSkeleton = &skeleton;
+    msg.m_pPose = &m_AnimationPose;
+
+    GetOwner()->SendMessageRecursive(msg);
   }
 
   m_AnimationPose.ConvertFromObjectSpaceToSkinningSpace(skeleton);
