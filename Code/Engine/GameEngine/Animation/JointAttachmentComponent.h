@@ -4,7 +4,7 @@
 #include <GameEngine/Basics.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 
-typedef ezComponentManagerSimple<class ezJointAttachmentComponent, ezComponentUpdateType::WhenSimulating> ezJointAttachmentComponentManager;
+typedef ezComponentManagerNoUpdate<class ezJointAttachmentComponent> ezJointAttachmentComponentManager;
 
 class EZ_GAMEENGINE_DLL ezJointAttachmentComponent : public ezComponent
 {
@@ -19,7 +19,6 @@ public:
   //
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
-  virtual void OnSimulationStarted() override;
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -31,8 +30,6 @@ public:
   //////////////////////////////////////////////////////////////////////////
   //
   void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg);
-
-  void Update();
 
 protected:
   ezHashedString m_sJointToAttachTo;

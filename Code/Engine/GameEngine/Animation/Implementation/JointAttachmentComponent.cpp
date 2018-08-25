@@ -5,7 +5,7 @@
 #include <GameEngine/Animation/JointAttachmentComponent.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJointAttachmentComponent, 1, ezComponentMode::Dynamic);
+EZ_BEGIN_COMPONENT_TYPE(ezJointAttachmentComponent, 2, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -28,14 +28,15 @@ EZ_BEGIN_COMPONENT_TYPE(ezJointAttachmentComponent, 1, ezComponentMode::Dynamic)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezJointAttachmentComponent::ezJointAttachmentComponent() {}
-
-ezJointAttachmentComponent::~ezJointAttachmentComponent() {}
+ezJointAttachmentComponent::ezJointAttachmentComponent() = default;
+ezJointAttachmentComponent::~ezJointAttachmentComponent() = default;
 
 void ezJointAttachmentComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
+
+  s << m_sJointToAttachTo;
 }
 
 void ezJointAttachmentComponent::DeserializeComponent(ezWorldReader& stream)
@@ -43,16 +44,19 @@ void ezJointAttachmentComponent::DeserializeComponent(ezWorldReader& stream)
   SUPER::DeserializeComponent(stream);
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
-}
 
-void ezJointAttachmentComponent::OnSimulationStarted()
-{
-  SUPER::OnSimulationStarted();
+  if (uiVersion >= 2)
+  {
+    s >> m_sJointToAttachTo;
+  }
+
+  m_uiJointIndex = ezInvalidJointIndex;
 }
 
 void ezJointAttachmentComponent::SetJointName(const char* szName)
 {
   m_sJointToAttachTo.Assign(szName);
+  m_uiJointIndex = ezInvalidJointIndex;
 }
 
 const char* ezJointAttachmentComponent::GetJointName() const
@@ -78,5 +82,3 @@ void ezJointAttachmentComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdate
   pOwner->SetLocalPosition(t.m_vPosition);
   pOwner->SetLocalRotation(t.m_qRotation);
 }
-
-void ezJointAttachmentComponent::Update() {}

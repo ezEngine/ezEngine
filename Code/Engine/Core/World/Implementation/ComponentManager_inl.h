@@ -215,3 +215,11 @@ void ezComponentManagerSimple<ComponentType, UpdateType>::SimpleUpdateName(ezStr
     out_sName = sName;
   }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename ComponentType>
+ezComponentManagerNoUpdate<ComponentType>::ezComponentManagerNoUpdate(ezWorld* pWorld)
+    : ezComponentManager<ComponentType, ezBlockStorageType::FreeList>(pWorld)
+{
+}
