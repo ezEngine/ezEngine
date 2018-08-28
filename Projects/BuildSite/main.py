@@ -17,6 +17,9 @@ from werkzeug.contrib.profiler import ProfilerMiddleware
 import pysvn
 import threading
 import sys
+from logging.handlers import RotatingFileHandler
+import logging
+import traceback
 
 ########################################################################
 ## App config
@@ -44,6 +47,7 @@ app.config.update(dict(
     SITE_ROOT = '',                         # Used to make the img src address absolute in the html mail.
     DEBUG = False                           # Determines whether we are deployed on the site or debugging locally.
 ))
+os.environ["BUILDSITE_SETTINGS"] = "/var/www/settings.cfg" #TODO: lighttpd refuses to read env vars.
 app.config.from_envvar('BUILDSITE_SETTINGS', silent=False)
 app.config['PROFILE'] = False
 #app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions = [2])
@@ -129,7 +133,7 @@ def determineOSIcons(machines):
 @app.route('/<int:machineID>/<int:revision>')
 def show_entriesRev(machineID, revision):
     """Actual template execution for the given machine and revision."""
-    #DBWrite.CheckToSendMail(481)
+    DBWrite.CheckToSendMail(481)
 
     head = DBRead.HeadRevision()
     # Build Machines
@@ -172,12 +176,11 @@ def show_entriesHead(machineID):
     return show_entriesRev(machineID, head)
 
 
-@app.route('/')
+@app.route('/build')
 def show_entries():
     """Main page: Shows the build results of the HEAD revision."""
     head = DBRead.HeadRevision()
     return show_entriesRev(1, head)
-
 
 @app.route('/post/', methods=['POST'])
 def PostBuildResult():
@@ -198,6 +201,7 @@ def close_db(error):
 ## Mail Sender
 ######################################################################## 
 def SendMail(rev, mailAddress):
+  with app.app_context():
     try:
         if (not app.config['MAIL_USERNAME']):
             return
@@ -230,8 +234,11 @@ def SendMail(rev, mailAddress):
         msg = Message(subject, sender = app.config['MAIL_USERNAME'], recipients = [mailAddress])
         msg.html = MailPage
         mail.send(msg)
-    except:
-        app.logger.debug('*** SendMail: Unexpected error: %s', sys.exc_info()[0])
+    except Exception as e:
+        print(e)
+        app.logger.error(e)
+        traceback.print_exc()
+        app.logger.error('*** SendMail: Unexpected error: %s', sys.exc_info()[0])
 
 
 ########################################################################
@@ -245,9 +252,10 @@ def svn_get_login(realm, username, may_save):
 
 def WakeUpBuildMachine():
     app.logger.debug('*** WakeUpBuildMachine ***')
+    app.logger.debug(app.config['WAKE_UP_COMMAND'])
     returnCode = os.system(app.config['WAKE_UP_COMMAND'])
     if (returnCode != 0):
-        app.logger.debug('*** WakeUpBuildMachine FAILED: Return Code %d', returnCode)
+        app.logger.error('*** WakeUpBuildMachine FAILED: Return Code %d', returnCode)
 
 def CheckSVN():
     try:
@@ -266,12 +274,21 @@ def CheckSVN():
                 else:
                     app.logger.debug('*** CheckSVN: at HEAD %d', rev)
             else:
-                app.logger.debug('*** CheckSVN FAILED: revlog is empty')
+                app.logger.error('*** CheckSVN FAILED: revlog is empty')
     except:
-        app.logger.debug('*** CheckSVN: Unexpected error: %s', sys.exc_info()[0])
+        app.logger.error('*** CheckSVN: Unexpected error: %s', sys.exc_info()[0])
 
     threading.Timer(60, CheckSVN).start()
 
+# Without logging, lighttpd is hard to debug.
+logging.basicConfig(filename='/var/www/debug.txt',level=logging.DEBUG)
+app.logger.debug('***Start Server***')
+
+# In lighttpd, main is not called so we need to do setup here. 
+DBWrite.callback_SendMail = SendMail
+CheckSVN()
+# Start SVN check timer
+threading.Timer(5, CheckSVN).start()
 
 ########################################################################
 ## Main function
@@ -279,10 +296,6 @@ def CheckSVN():
 if __name__ == '__main__':
     #DB.init(app)
     DB.close("")
-    
-    DBWrite.callback_SendMail = SendMail
-    # Start SVN check timer
-    threading.Timer(5, CheckSVN).start()
 
     if (app.config['DEBUG'] == True):
         # Used for debugging

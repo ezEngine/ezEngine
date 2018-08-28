@@ -13,7 +13,15 @@ class DBWriter:
         self.DB = dbAccess
         self.config = app.config
         self.callback_SendMail = None
+        
+        def ssl_server_trust_prompt(trust_dict):
+            return True, 5, True
 
+        def svn_get_login(realm, username, may_save):
+            return True, self.config['SVN_USER'], self.config['SVN_PASS'], False
+
+        self.callback_ssl_server_trust_prompt = ssl_server_trust_prompt
+        self.callback_svn_get_login = svn_get_login
 
     ########################################################################
     ## DBWriter public functions
@@ -107,8 +115,8 @@ class DBWriter:
         """Updates the 'Revisions' table to have an entry for every revision that we have build data for."""
         # SVN setup
         svn_api = pysvn.Client()
-        svn_api.callback_ssl_server_trust_prompt = self.ssl_server_trust_prompt
-        svn_api.callback_get_login = self.svn_get_login
+        svn_api.callback_ssl_server_trust_prompt = self.callback_ssl_server_trust_prompt
+        svn_api.callback_get_login = self.callback_svn_get_login
 
         db = self.DB.getDB()
         # Test if there is a revision for which we currently have build data but no revision data.
@@ -139,11 +147,7 @@ class DBWriter:
         # This function is only called by 'AddBuildProcessResult', so no DB commit here.
         return
 
-    def ssl_server_trust_prompt(trust_dict):
-        return True, 5, True
 
-    def svn_get_login(realm, username, may_save):
-        return True, self.config['SVN_USER'], self.config['SVN_PASS'], False
 
 
     def AddBuildMachine(self, jsonConfiguration):
@@ -246,3 +250,5 @@ class DBWriter:
     DB = None
     config = None
     callback_SendMail = None
+    callback_ssl_server_trust_prompt = None
+    callback_svn_get_login = None

@@ -1,0 +1,6 @@
+AddHandler fcgid-script .fcgi
+Options +FollowSymLinks +ExecCGI
+RewriteEngine On
+RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ build.fcgi/$1 [QSA,L]
