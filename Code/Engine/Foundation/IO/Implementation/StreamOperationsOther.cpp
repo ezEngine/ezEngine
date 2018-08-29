@@ -57,7 +57,7 @@ void operator<<(ezStreamWriter& Stream, const ezHashedString& Value)
 
 void operator>>(ezStreamReader& Stream, ezHashedString& Value)
 {
-  ezString sTemp;
+  ezStringBuilder sTemp;
   Stream >> sTemp;
   Value.Assign(sTemp.GetData());
 }

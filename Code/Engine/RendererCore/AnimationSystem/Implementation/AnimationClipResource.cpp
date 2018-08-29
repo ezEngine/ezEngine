@@ -189,7 +189,7 @@ void ezAnimationClipResourceDescriptor::Load(ezStreamReader& stream)
     for (ezUInt32 b = 0; b < uiJointCount; ++b)
     {
       ezHashedString hs;
-      ezUInt32 idx;
+      ezUInt16 idx;
 
       stream >> hs;
       stream >> idx;
