@@ -38,6 +38,8 @@ public:
   ezVisualizeSkeletonComponent();
   ~ezVisualizeSkeletonComponent();
 
+  void Render();
+
 protected:
   // ezComponent interface
   virtual void SerializeComponent(ezWorldWriter& stream) const override;

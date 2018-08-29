@@ -3,6 +3,8 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Animation/JointAttachmentComponent.h>
+#include <RendererCore/AnimationSystem/Skeleton.h>
+#include <RendererCore/AnimationSystem/AnimationPose.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezJointAttachmentComponent, 2, ezComponentMode::Dynamic);

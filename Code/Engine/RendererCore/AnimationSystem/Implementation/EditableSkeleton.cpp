@@ -60,8 +60,7 @@ void ezEditableSkeleton::ClearJoints()
 
 void ezEditableSkeleton::GenerateSkeleton(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor* pDesc) const
 {
-  auto AddChildJoints = [&sb, pDesc](auto& self, const ezEditableSkeletonJoint* pJoint, ezUInt32 uiJointIdx) -> void
-  {
+  auto AddChildJoints = [&sb, pDesc](auto& self, const ezEditableSkeletonJoint* pJoint, ezUInt32 uiJointIdx) -> void {
     if (pDesc != nullptr && pJoint->m_Geometry != ezSkeletonJointGeometryType::None)
     {
       auto& geo = pDesc->m_Geometry.ExpandAndGetRef();
@@ -97,7 +96,7 @@ void ezEditableSkeleton::GenerateSkeleton(ezSkeleton& skeleton, ezSkeletonResour
 void ezEditableSkeleton::FillResourceDescriptor(ezSkeletonResourceDescriptor& desc) const
 {
   desc.m_Geometry.Clear();
-GenerateSkeleton(desc.m_Skeleton, &desc);
+  GenerateSkeleton(desc.m_Skeleton, &desc);
 }
 
 ezEditableSkeletonJoint::ezEditableSkeletonJoint()

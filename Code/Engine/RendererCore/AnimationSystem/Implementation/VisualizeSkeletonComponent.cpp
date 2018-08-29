@@ -37,6 +37,26 @@ ezVisualizeSkeletonComponentManager::ezVisualizeSkeletonComponentManager(ezWorld
 ezVisualizeSkeletonComponent::ezVisualizeSkeletonComponent() = default;
 ezVisualizeSkeletonComponent::~ezVisualizeSkeletonComponent() = default;
 
+void ezVisualizeSkeletonComponent::Render()
+{
+  if (!m_hSkeleton.IsValid())
+    return;
+
+  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::NoFallback);
+
+  if (pSkeleton->IsMissingResource())
+    return;
+
+  const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
+
+  ezAnimationPose pose;
+  pose.Configure(skeleton);
+  pose.SetToBindPoseInLocalSpace(skeleton);
+  pose.ConvertFromLocalSpaceToObjectSpace(skeleton);
+
+  pose.VisualizePose(GetWorld(), skeleton, GetOwner()->GetGlobalTransform());
+}
+
 void ezVisualizeSkeletonComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
@@ -249,8 +269,7 @@ void ezVisualizeSkeletonComponent::CreateHitBoxGeometry(const ezSkeletonResource
       case ezSkeletonJointGeometryType::Capsule:
       {
         geo.AddCapsule(jointGeo.m_Transform.m_vScale.z, jointGeo.m_Transform.m_vScale.x, 16, 4, ezColor::White,
-                       jointTransform.GetAsMat4() * mRotCapsule,
-                       jointGeo.m_uiAttachedToJoint);
+                       jointTransform.GetAsMat4() * mRotCapsule, jointGeo.m_uiAttachedToJoint);
       }
       break;
 
@@ -329,14 +348,19 @@ void ezVisualizeSkeletonComponentManager::Deinitialize()
 
 void ezVisualizeSkeletonComponentManager::Update(const ezWorldModule::UpdateContext& context)
 {
-  for (const auto& hComp : m_RequireUpdate)
+  for (auto it = GetComponents(); it.IsValid(); ++it)
   {
-    ezVisualizeSkeletonComponent* pComp = nullptr;
-    if (!TryGetComponent(hComp, pComp))
-      continue;
-
-    pComp->CreateRenderMesh();
+    it->Render();
   }
+
+  //for (const auto& hComp : m_RequireUpdate)
+  //{
+  //  ezVisualizeSkeletonComponent* pComp = nullptr;
+  //  if (!TryGetComponent(hComp, pComp))
+  //    continue;
+
+  //  pComp->CreateRenderMesh();
+  //}
 
   m_RequireUpdate.Clear();
 }
