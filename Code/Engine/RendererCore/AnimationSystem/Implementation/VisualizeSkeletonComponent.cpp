@@ -7,6 +7,7 @@
 #include <RendererCore/AnimationSystem/VisualizeSkeletonComponent.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Debug/DebugRendererContext.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezVisualizeSkeletonComponent, 1, ezComponentMode::Static)
