@@ -241,7 +241,10 @@ void ezPhysX::StartupVDB()
   unsigned int timeout = 10;
 
   pTransport = PxDefaultPvdSocketTransportCreate(pvd_host_ip, port, timeout);
-  m_PvdConnection->connect(*pTransport, PxPvdInstrumentationFlag::eALL);
+  if (m_PvdConnection->connect(*pTransport, PxPvdInstrumentationFlag::eALL))
+  {
+    ezLog::Success("Connected to the PhysX Visual Debugger");
+  }
 }
 
 void ezPhysX::ShutdownVDB()

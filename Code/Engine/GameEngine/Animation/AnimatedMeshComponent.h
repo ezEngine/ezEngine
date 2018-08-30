@@ -5,6 +5,7 @@
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/Meshes/RenderMeshComponent.h>
 
+struct ezSkeletonResourceDescriptor;
 typedef ezTypedResourceHandle<class ezAnimationClipResource> ezAnimationClipResourceHandle;
 typedef ezTypedResourceHandle<class ezSkeletonResource> ezSkeletonResourceHandle;
 
@@ -47,6 +48,9 @@ public:
   void Update();
 
 protected:
+  void CreatePhysicsShapes(const ezSkeletonResourceDescriptor& skeleton, const ezAnimationPose& pose);
+  void* m_pRagdoll = nullptr;
+
   bool m_bApplyRootMotion = false;
   bool m_bVisualizeSkeleton = false;
   ezAnimationPose m_AnimationPose;

@@ -7,6 +7,7 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <RendererCore/Debug/DebugRendererContext.h>
 #include <RendererFoundation/Device/Device.h>
+#include <Interfaces/PhysicsWorldModule.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 10, ezComponentMode::Dynamic);
@@ -83,6 +84,9 @@ void ezAnimatedMeshComponent::OnSimulationStarted()
     const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
     m_AnimationPose.Configure(skeleton);
     m_AnimationPose.ConvertFromLocalSpaceToObjectSpace(skeleton);
+
+    CreatePhysicsShapes(pSkeleton->GetDescriptor(), m_AnimationPose);
+
     m_AnimationPose.ConvertFromObjectSpaceToSkinningSpace(skeleton);
 
     // m_SkinningMatrices = m_AnimationPose.GetAllTransforms();
@@ -98,9 +102,11 @@ void ezAnimatedMeshComponent::OnSimulationStarted()
     m_hSkinningTransformsBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(
         BufferDesc,
         ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(m_AnimationPose.GetAllTransforms().GetPtr()), BufferDesc.m_uiTotalSize));
+
   }
 
   m_AnimationClipSampler.RestartAnimation();
+
 }
 
 void ezAnimatedMeshComponent::SetAnimationClip(const ezAnimationClipResourceHandle& hResource)
@@ -204,6 +210,16 @@ void ezAnimatedMeshComponent::Update()
     pOwner->SetLocalPosition(vNewPos);
     pOwner->SetLocalRotation(qNewRot);
   }
+}
+
+void ezAnimatedMeshComponent::CreatePhysicsShapes(const ezSkeletonResourceDescriptor& skeleton, const ezAnimationPose& pose)
+{
+  ezPhysicsWorldModuleInterface* pPhysicsInterface = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
+
+  if (pPhysicsInterface == nullptr)
+    return;
+
+  m_pRagdoll = pPhysicsInterface->CreateRagdoll(skeleton, GetOwner()->GetGlobalTransform(), pose);
 }
 
 //////////////////////////////////////////////////////////////////////////

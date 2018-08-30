@@ -14,7 +14,7 @@ o
 			s{"Models/Skeleton/skeleton_animated.FBX"}
 		}
 		Uuid %DocumentID{u4{17434547883217082789,5042174044454555532}}
-		u4 %Hash{12089108277005907483}
+		u4 %Hash{12330308886969238552}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -160,12 +160,12 @@ o
 		{
 			Uuid{u4{5913401288579330467,5421339136508884817}}
 		}
-		s %Geometry{"ezSkeletonJointGeometryType::None"}
-		f %Length{0xCDCCCC3D}
+		s %Geometry{"ezSkeletonJointGeometryType::Capsule"}
+		f %Length{0x295C8F3D}
 		s %Name{"Bip01_R_Thigh"}
 		f %Thickness{0x0AD7233C}
 		Transform %Transform{f{0xF0FC78C0,0,0x00008C36,0x6F31F1BE,0x1401073F,0xD5A500BF,0x4FAFFE3E,0x0000803F,0x0000803F,0x0000803F}}
-		f %Width{0x0AD7233C}
+		f %Width{0xCDCCCC3D}
 	}
 }
 o
@@ -220,11 +220,11 @@ o
 			Uuid{u4{2870460137838397882,5433858782755371925}}
 		}
 		s %Geometry{"ezSkeletonJointGeometryType::None"}
-		f %Length{0xCDCCCC3D}
+		f %Length{0xCDCC4C3D}
 		s %Name{"Bip01_Spine"}
-		f %Thickness{0x0AD7233C}
+		f %Thickness{0xCDCC4C3D}
 		Transform %Transform{f{0x000080B6,0xFADC1C40,0x75A32742,0x4C0435BF,0xDF8E743B,0x4F0435BF,0x480A753B,0x0000803F,0x0000803F,0x0000803F}}
-		f %Width{0x0AD7233C}
+		f %Width{0xCDCC4C3D}
 	}
 }
 o
@@ -276,12 +276,12 @@ o
 		{
 			Uuid{u4{16062458534512839350,5185484147244812242}}
 		}
-		s %Geometry{"ezSkeletonJointGeometryType::None"}
-		f %Length{0xCDCCCC3D}
+		s %Geometry{"ezSkeletonJointGeometryType::Capsule"}
+		f %Length{0x295C8F3D}
 		s %Name{"Bip01_R_Forearm"}
 		f %Thickness{0x0AD7233C}
 		Transform %Transform{f{0xB4CA2541,0x00000035,0xC07D03BF,0x000008B4,0x00D02734,0x3340EDBD,0xC6467E3F,0x0000803F,0x0000803F,0x0000803F}}
-		f %Width{0x0AD7233C}
+		f %Width{0xCDCC4C3D}
 	}
 }
 o
@@ -387,12 +387,12 @@ o
 		{
 			Uuid{u4{14347091211970054278,5551340152902701440}}
 		}
-		s %Geometry{"ezSkeletonJointGeometryType::None"}
-		f %Length{0xCDCCCC3D}
+		s %Geometry{"ezSkeletonJointGeometryType::Capsule"}
+		f %Length{0x295C8F3D}
 		s %Name{"Bip01_L_Calf"}
 		f %Thickness{0x0AD7233C}
 		Transform %Transform{f{0x342C8F41,0x00008034,0x00002036,0x00003434,0x00A08233,0x7C6E913C,0xACF57F3F,0x0000803F,0x0000803F,0x0000803F}}
-		f %Width{0x0AD7233C}
+		f %Width{0xCDCCCC3D}
 	}
 }
 o
@@ -442,12 +442,12 @@ o
 			Uuid{u4{15038121610878089895,5636077166322313413}}
 			Uuid{u4{6090465753736858527,4833495418214081237}}
 		}
-		s %Geometry{"ezSkeletonJointGeometryType::None"}
-		f %Length{0xCDCCCC3D}
+		s %Geometry{"ezSkeletonJointGeometryType::Sphere"}
+		f %Length{0xCDCC4C3D}
 		s %Name{"Bip01"}
 		f %Thickness{0x0AD7233C}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		f %Width{0x0AD7233C}
+		f %Width{0xCDCC4C3E}
 	}
 }
 o
@@ -534,12 +534,12 @@ o
 		{
 			Uuid{u4{9613425102353248926,5645486365213672874}}
 		}
-		s %Geometry{"ezSkeletonJointGeometryType::None"}
-		f %Length{0xCDCCCC3D}
+		s %Geometry{"ezSkeletonJointGeometryType::Capsule"}
+		f %Length{0x295C8F3D}
 		s %Name{"Bip01_L_UpperArm"}
 		f %Thickness{0x0AD7233C}
 		Transform %Transform{f{0x2E82B540,0x00EC08BF,0x0028243D,0xEA3E34BF,0xFB862B3E,0xAEE29CBE,0xF4491E3F,0x0000803F,0x0000803F,0x0000803F}}
-		f %Width{0x0AD7233C}
+		f %Width{0x295C8F3D}
 	}
 }
 o
@@ -761,12 +761,12 @@ o
 		{
 			Uuid{u4{113474572141676184,4898995566583193836}}
 		}
-		s %Geometry{"ezSkeletonJointGeometryType::None"}
-		f %Length{0xCDCCCC3D}
+		s %Geometry{"ezSkeletonJointGeometryType::Capsule"}
+		f %Length{0x295C8F3D}
 		s %Name{"Bip01_R_Calf"}
 		f %Thickness{0x0AD7233C}
 		Transform %Transform{f{0x4C068F41,0x0000B035,0x0000C0B5,0x00C03135,0x00705DB4,0xBFC6913C,0xA0F57F3F,0x0000803F,0x0000803F,0x0000803F}}
-		f %Width{0x0AD7233C}
+		f %Width{0xCDCCCC3D}
 	}
 }
 o
@@ -781,11 +781,11 @@ o
 			Uuid{u4{11757926462069236919,5537620594096916802}}
 		}
 		s %Geometry{"ezSkeletonJointGeometryType::None"}
-		f %Length{0xCDCCCC3D}
+		f %Length{0xCDCC4C3D}
 		s %Name{"Bip01_Spine1"}
-		f %Thickness{0x0AD7233C}
+		f %Thickness{0xCDCC4C3D}
 		Transform %Transform{f{0x90DD7E40,0x00000035,0xB0AA4736,0x0060B5B6,0x008CFDB4,0x56F0D0BD,0x0DAA7E3F,0x0000803F,0x0000803F,0x0000803F}}
-		f %Width{0x0AD7233C}
+		f %Width{0xCDCCCC3D}
 	}
 }
 o
@@ -877,7 +877,7 @@ o
 		s %Name{"Bip01_Spine2"}
 		f %Thickness{0x0AD7233C}
 		Transform %Transform{f{0x30129440,0x00000035,0x403F7CB4,0x000094B3,0x000096B2,0xE6B6443D,0x61B47F3F,0x0000803F,0x0000803F,0x0000803F}}
-		f %Width{0x0AD7233C}
+		f %Width{0xCDCC4C3D}
 	}
 }
 o
@@ -891,12 +891,12 @@ o
 		{
 			Uuid{u4{16915431414876655034,4865122761355088413}}
 		}
-		s %Geometry{"ezSkeletonJointGeometryType::None"}
-		f %Length{0xCDCCCC3D}
+		s %Geometry{"ezSkeletonJointGeometryType::Capsule"}
+		f %Length{0x295C8F3D}
 		s %Name{"Bip01_R_UpperArm"}
 		f %Thickness{0x0AD7233C}
 		Transform %Transform{f{0xD884B540,0x806804BF,0x00039DBD,0xE64A393F,0xA08025BE,0x74CEA2BE,0x9335173F,0x0000803F,0x0000803F,0x0000803F}}
-		f %Width{0x0AD7233C}
+		f %Width{0x295C8F3D}
 	}
 }
 o
@@ -910,12 +910,12 @@ o
 		{
 			Uuid{u4{5593243248194904456,4998739386068974641}}
 		}
-		s %Geometry{"ezSkeletonJointGeometryType::None"}
-		f %Length{0xCDCCCC3D}
+		s %Geometry{"ezSkeletonJointGeometryType::Capsule"}
+		f %Length{0x295C8F3D}
 		s %Name{"Bip01_L_Thigh"}
 		f %Thickness{0x0AD7233C}
 		Transform %Transform{f{0x08FD7840,0,0x00008C36,0xD72201BF,0xC4AFFD3E,0x4BDFEFBE,0x4A98073F,0x0000803F,0x0000803F,0x0000803F}}
-		f %Width{0x0AD7233C}
+		f %Width{0xCDCCCC3D}
 	}
 }
 o
@@ -966,7 +966,7 @@ o
 		s %Name{"Bip01_Head1"}
 		f %Thickness{0xCDCCCC3D}
 		Transform %Transform{f{0xB09E3340,0x000080B7,0x0032A436,0x00000034,0x000007B5,0xB5C47F3E,0xCAE2773F,0x0000803F,0x0000803F,0x0000803F}}
-		f %Width{0xCDCCCC3D}
+		f %Width{0x9A99193E}
 	}
 }
 o
@@ -1038,12 +1038,12 @@ o
 		{
 			Uuid{u4{1867270409238531212,5280741969726236426}}
 		}
-		s %Geometry{"ezSkeletonJointGeometryType::None"}
-		f %Length{0xCDCCCC3D}
+		s %Geometry{"ezSkeletonJointGeometryType::Capsule"}
+		f %Length{0x295C8F3D}
 		s %Name{"Bip01_L_Forearm"}
 		f %Thickness{0x0AD7233C}
 		Transform %Transform{f{0xCCCA2541,0x000000B5,0x00EAC33E,0x000064B4,0x00E0BB33,0x665CEBBD,0xCB4D7E3F,0x0000803F,0x0000803F,0x0000803F}}
-		f %Width{0x0AD7233C}
+		f %Width{0xCDCC4C3D}
 	}
 }
 o

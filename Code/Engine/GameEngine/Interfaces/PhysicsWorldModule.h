@@ -1,11 +1,13 @@
 #pragma once
 
-#include <GameEngine/Basics.h>
-#include <Core/World/WorldModule.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Core/World/WorldModule.h>
 #include <Foundation/Communication/Message.h>
+#include <GameEngine/Basics.h>
 
 struct ezGameObjectHandle;
+struct ezSkeletonResourceDescriptor;
+class ezAnimationPose;
 
 typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 
@@ -29,7 +31,7 @@ struct ezPhysicsOverlapResult
   {
     ezGameObjectHandle m_hShapeObject; ///< The game object to which the hit physics shape is attached.
     ezGameObjectHandle m_hActorObject; ///< The game object to which the parent actor of the hit physics shape is attached.
-    ezUInt32 m_uiShapeId; ///< The shape id of the hit physics shape
+    ezUInt32 m_uiShapeId;              ///< The shape id of the hit physics shape
   };
 
   ezDynamicArray<Hit> m_Results;
@@ -42,34 +44,41 @@ class EZ_GAMEENGINE_DLL ezPhysicsWorldModuleInterface : public ezWorldModule
   EZ_ADD_DYNAMIC_REFLECTION(ezPhysicsWorldModuleInterface, ezWorldModule);
 
 protected:
-  ezPhysicsWorldModuleInterface(ezWorld* pWorld) : ezWorldModule(pWorld) { }
+  ezPhysicsWorldModuleInterface(ezWorld* pWorld)
+      : ezWorldModule(pWorld)
+  {
+  }
 
 public:
-
   virtual bool CastRay(const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer,
-    ezPhysicsHitResult& out_HitResult, ezBitflags<ezPhysicsShapeType> shapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic,
-    ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const = 0;
+                       ezPhysicsHitResult& out_HitResult,
+                       ezBitflags<ezPhysicsShapeType> shapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic,
+                       ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const = 0;
 
-  virtual bool SweepTestSphere(float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance,
-    ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const = 0;
+  virtual bool SweepTestSphere(float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer,
+                               ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const = 0;
 
-  virtual bool SweepTestBox(ezVec3 vBoxExtends, const ezTransform& start, const ezVec3& vDir, float fDistance,
-    ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const = 0;
+  virtual bool SweepTestBox(ezVec3 vBoxExtends, const ezTransform& start, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer,
+                            ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const = 0;
 
   virtual bool SweepTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& start, const ezVec3& vDir, float fDistance,
-    ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const = 0;
+                                ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult,
+                                ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const = 0;
 
-  virtual bool OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const = 0;
-  virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const = 0;
+  virtual bool OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer,
+                                 ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const = 0;
+  virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& vPosition, ezUInt8 uiCollisionLayer,
+                                  ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const = 0;
 
-  virtual void QueryDynamicShapesInSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezPhysicsOverlapResult& out_Results, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const = 0;
+  virtual void QueryDynamicShapesInSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer,
+                                          ezPhysicsOverlapResult& out_Results, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const = 0;
 
   virtual ezVec3 GetGravity() const = 0;
 
   virtual void AddStaticCollisionBox(ezGameObject* pObject, ezVec3 boxSize) {}
 
-private:
-
+  virtual void* CreateRagdoll(const ezSkeletonResourceDescriptor& skeleton, const ezTransform& rootTransform,
+                             const ezAnimationPose& initPose) = 0;
 };
 
 /// \brief Used to apply a physical impulse on the object
@@ -126,4 +135,3 @@ struct EZ_GAMEENGINE_DLL ezMsgBuildStaticMesh : public ezMessage
   /// \brief Append data to this description to add meshes to the automatic static mesh generation
   ezSmcDescription* m_pStaticMeshDescription;
 };
-
