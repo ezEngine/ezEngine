@@ -210,7 +210,7 @@ namespace
       s_hDataBuffer[bufferType].Invalidate();
     }
   }
-}
+} // namespace
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DebugRenderer)
@@ -352,6 +352,98 @@ void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, cons
     lines[s * 3 + 2].m_end = transform * (vCenter + ezVec3(fCos2, fSin2, 0.0f) * fRadius);
   }
 
+  DrawLines(context, lines, color);
+}
+
+
+void ezDebugRenderer::DrawLineCapsuleZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color,
+                                       const ezTransform& transform /*= ezTransform::Identity()*/)
+{
+  enum
+  {
+    NUM_SEGMENTS = 32,
+    NUM_HALF_SEGMENTS = 16,
+    NUM_LINES = NUM_SEGMENTS + NUM_SEGMENTS + NUM_SEGMENTS + NUM_SEGMENTS + 4,
+  };
+
+  const ezAngle stepAngle = ezAngle::Degree(360.0f / NUM_SEGMENTS);
+
+  Line lines[NUM_LINES];
+
+  const float fOffsetZ = fLength * 0.5f;
+
+  ezUInt32 curLine = 0;
+
+  // render 4 straight lines
+  lines[curLine].m_start = transform * ezVec3(-fRadius, 0, fOffsetZ);
+  lines[curLine].m_end = transform * ezVec3(-fRadius, 0, -fOffsetZ);
+  ++curLine;
+
+  lines[curLine].m_start = transform * ezVec3(+fRadius, 0, fOffsetZ);
+  lines[curLine].m_end = transform * ezVec3(+fRadius, 0, -fOffsetZ);
+  ++curLine;
+
+  lines[curLine].m_start = transform * ezVec3(0, -fRadius, fOffsetZ);
+  lines[curLine].m_end = transform * ezVec3(0, -fRadius, -fOffsetZ);
+  ++curLine;
+
+  lines[curLine].m_start = transform * ezVec3(0, +fRadius, fOffsetZ);
+  lines[curLine].m_end = transform * ezVec3(0, +fRadius, -fOffsetZ);
+  ++curLine;
+
+  // render top and bottom circle
+  for (ezUInt32 s = 0; s < NUM_SEGMENTS; ++s)
+  {
+    const float fS1 = (float)s;
+    const float fS2 = (float)(s + 1);
+
+    const float fCos1 = ezMath::Cos(fS1 * stepAngle);
+    const float fCos2 = ezMath::Cos(fS2 * stepAngle);
+
+    const float fSin1 = ezMath::Sin(fS1 * stepAngle);
+    const float fSin2 = ezMath::Sin(fS2 * stepAngle);
+
+    lines[curLine].m_start = transform * ezVec3(fCos1 * fRadius, fSin1 * fRadius, fOffsetZ);
+    lines[curLine].m_end = transform * ezVec3(fCos2 * fRadius, fSin2 * fRadius, fOffsetZ);
+    ++curLine;
+
+    lines[curLine].m_start = transform * ezVec3(fCos1 * fRadius, fSin1 * fRadius, -fOffsetZ);
+    lines[curLine].m_end = transform * ezVec3(fCos2 * fRadius, fSin2 * fRadius, -fOffsetZ);
+    ++curLine;
+  }
+
+  // render top and bottom half circles
+  for (ezUInt32 s = 0; s < NUM_HALF_SEGMENTS; ++s)
+  {
+    const float fS1 = (float)s;
+    const float fS2 = (float)(s + 1);
+
+    const float fCos1 = ezMath::Cos(fS1 * stepAngle);
+    const float fCos2 = ezMath::Cos(fS2 * stepAngle);
+
+    const float fSin1 = ezMath::Sin(fS1 * stepAngle);
+    const float fSin2 = ezMath::Sin(fS2 * stepAngle);
+
+    // top two bows
+    lines[curLine].m_start = transform * ezVec3(0.0f, fCos1 * fRadius, fSin1 * fRadius + fOffsetZ);
+    lines[curLine].m_end = transform * ezVec3(0.0f, fCos2 * fRadius, fSin2 * fRadius + fOffsetZ);
+    ++curLine;
+
+    lines[curLine].m_start = transform * ezVec3(fCos1 * fRadius, 0.0f, fSin1 * fRadius + fOffsetZ);
+    lines[curLine].m_end = transform * ezVec3(fCos2 * fRadius, 0.0f, fSin2 * fRadius + fOffsetZ);
+    ++curLine;
+
+    // bottom two bows
+    lines[curLine].m_start = transform * ezVec3(0.0f, fCos1 * fRadius, -fSin1 * fRadius - fOffsetZ);
+    lines[curLine].m_end = transform * ezVec3(0.0f, fCos2 * fRadius, -fSin2 * fRadius - fOffsetZ);
+    ++curLine;
+
+    lines[curLine].m_start = transform * ezVec3(fCos1 * fRadius, 0.0f, -fSin1 * fRadius - fOffsetZ);
+    lines[curLine].m_end = transform * ezVec3(fCos2 * fRadius, 0.0f, -fSin2 * fRadius - fOffsetZ);
+    ++curLine;
+  }
+
+  EZ_ASSERT_DEBUG(curLine == NUM_LINES, "Invalid line count");
   DrawLines(context, lines, color);
 }
 

@@ -99,6 +99,18 @@ namespace
       return PxFilterFlag::eSUPPRESS;
     }
 
+    // even though the documentation says that bodies in an articulation that are connected by a joint are generally ignored,
+    // this is currently not true in reality
+    // thus all shapes in an articulation (ragdoll) will collide with each other, which makes it impossible to build a proper ragdoll
+    // the only way to prevent this, seems to be to disable ALL self-collision, unfortunately this also disables collisions with all other
+    // articulations
+    // TODO: this needs to be revisited with later PhysX versions
+    if (PxGetFilterObjectType(attributes0) == PxFilterObjectType::eARTICULATION &&
+        PxGetFilterObjectType(attributes1) == PxFilterObjectType::eARTICULATION)
+    {
+      return PxFilterFlag::eSUPPRESS;
+    }
+
     pairFlags = (PxPairFlag::Enum)0;
 
     // trigger the contact callback for pairs (A,B) where
@@ -484,49 +496,49 @@ void* ezPhysXWorldModule::CreateRagdoll(const ezSkeletonResourceDescriptor& skel
 
   physx::PxArticulation* pArt = m_pPxScene->getPhysics().createArticulation();
 
-  if (false)
-  {
-    ezTransform tRoot;
-    tRoot.SetIdentity();
-    tRoot.m_vPosition.z = 5.0f;
-    PxArticulationLink* pRootLink = pArt->createLink(nullptr, ezPxConversionUtils::ToTransform(tRoot));
-    // pRootLink->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+  //if (false)
+  //{
+  //  ezTransform tRoot;
+  //  tRoot.SetIdentity();
+  //  tRoot.m_vPosition.z = 5.0f;
+  //  PxArticulationLink* pRootLink = pArt->createLink(nullptr, ezPxConversionUtils::ToTransform(tRoot));
+  //  // pRootLink->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 
-    {
-      // PxBoxGeometry shape(1, 0.1, 0.5);
-      PxSphereGeometry shape(0.5f);
-      PxShape* pShape = PxRigidActorExt::createExclusiveShape(*pRootLink, shape, *pPxMaterial);
-      PxRigidBodyExt::updateMassAndInertia(*pRootLink, 1.0f);
-      pShape->setSimulationFilterData(filter);
-      pShape->setQueryFilterData(filter);
-    }
+  //  {
+  //    // PxBoxGeometry shape(1, 0.1, 0.5);
+  //    PxSphereGeometry shape(0.5f);
+  //    PxShape* pShape = PxRigidActorExt::createExclusiveShape(*pRootLink, shape, *pPxMaterial);
+  //    PxRigidBodyExt::updateMassAndInertia(*pRootLink, 1.0f);
+  //    pShape->setSimulationFilterData(filter);
+  //    pShape->setQueryFilterData(filter);
+  //  }
 
-    ezTransform tChild;
-    tChild.SetIdentity();
-    tChild.m_vPosition.z = 5.0f;
-    tChild.m_vPosition.x = 2.0f;
-    PxArticulationLink* pChildLink = pArt->createLink(pRootLink, ezPxConversionUtils::ToTransform(tChild));
-    pChildLink->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+  //  ezTransform tChild;
+  //  tChild.SetIdentity();
+  //  tChild.m_vPosition.z = 5.0f;
+  //  tChild.m_vPosition.x = 2.0f;
+  //  PxArticulationLink* pChildLink = pArt->createLink(pRootLink, ezPxConversionUtils::ToTransform(tChild));
+  //  pChildLink->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 
-    ezTransform jointParentPose;
-    jointParentPose.SetIdentity();
-    pChildLink->getInboundJoint()->setParentPose(ezPxConversionUtils::ToTransform(jointParentPose));
+  //  ezTransform jointParentPose;
+  //  jointParentPose.SetIdentity();
+  //  pChildLink->getInboundJoint()->setParentPose(ezPxConversionUtils::ToTransform(jointParentPose));
 
-    ezTransform jointChildPose;
-    jointChildPose.SetIdentity();
-    jointChildPose.m_vPosition.x = -2.0f;
-    // jointChildPose.SetLocalTransform(tChild, ezTransform::Identity());
-    pChildLink->getInboundJoint()->setChildPose(ezPxConversionUtils::ToTransform(jointChildPose));
+  //  ezTransform jointChildPose;
+  //  jointChildPose.SetIdentity();
+  //  jointChildPose.m_vPosition.x = -2.0f;
+  //  // jointChildPose.SetLocalTransform(tChild, ezTransform::Identity());
+  //  pChildLink->getInboundJoint()->setChildPose(ezPxConversionUtils::ToTransform(jointChildPose));
 
-    {
-      PxBoxGeometry shape(0.8, 0.1, 0.4);
-      PxShape* pShape = PxRigidActorExt::createExclusiveShape(*pChildLink, shape, *pPxMaterial);
-      PxRigidBodyExt::updateMassAndInertia(*pChildLink, 1.0f);
-      pShape->setSimulationFilterData(filter);
-      pShape->setQueryFilterData(filter);
-    }
-  }
-  else
+  //  {
+  //    PxBoxGeometry shape(0.8, 0.1, 0.4);
+  //    PxShape* pShape = PxRigidActorExt::createExclusiveShape(*pChildLink, shape, *pPxMaterial);
+  //    PxRigidBodyExt::updateMassAndInertia(*pChildLink, 1.0f);
+  //    pShape->setSimulationFilterData(filter);
+  //    pShape->setQueryFilterData(filter);
+  //  }
+  //}
+  //else
   {
     ezMap<ezUInt16, PxArticulationLink*> links;
 
@@ -616,21 +628,22 @@ void* ezPhysXWorldModule::CreateRagdoll(const ezSkeletonResourceDescriptor& skel
       {
         case ezSkeletonJointGeometryType::Box:
         {
-          PxBoxGeometry shape(geom.m_Transform.m_vScale.x, geom.m_Transform.m_vScale.y, geom.m_Transform.m_vScale.z);
+          PxBoxGeometry shape(fScale * geom.m_Transform.m_vScale.x, fScale * geom.m_Transform.m_vScale.y,
+                              fScale * geom.m_Transform.m_vScale.z);
           pShape = PxRigidActorExt::createExclusiveShape(*itLink.Value(), shape, *pPxMaterial);
           break;
         }
 
         case ezSkeletonJointGeometryType::Sphere:
         {
-          PxSphereGeometry shape(geom.m_Transform.m_vScale.x);
+          PxSphereGeometry shape(fScale * geom.m_Transform.m_vScale.z);
           pShape = PxRigidActorExt::createExclusiveShape(*itLink.Value(), shape, *pPxMaterial);
           break;
         }
 
         case ezSkeletonJointGeometryType::Capsule:
         {
-          PxCapsuleGeometry shape(geom.m_Transform.m_vScale.x, geom.m_Transform.m_vScale.y);
+          PxCapsuleGeometry shape(fScale * geom.m_Transform.m_vScale.z, fScale * geom.m_Transform.m_vScale.x);
           pShape = PxRigidActorExt::createExclusiveShape(*itLink.Value(), shape, *pPxMaterial);
           break;
         }

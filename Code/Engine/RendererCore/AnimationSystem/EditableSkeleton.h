@@ -32,7 +32,7 @@ public:
   ezTransform m_Transform;
   ezEnum<ezSkeletonJointGeometryType> m_Geometry;
 
-  float m_fLength = 0;    // Box, Capsule, 0 means parent joint to this joint
+  float m_fLength = 0;    // Box, Capsule; 0 means parent joint to this joint (auto mode)
   float m_fWidth = 0;     // Box
   float m_fThickness = 0; // Sphere radius, Capsule radius
 

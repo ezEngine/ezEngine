@@ -3,11 +3,11 @@
 #include <Core/Graphics/Geometry.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/AnimationSystem/SkeletonBuilder.h>
 #include <RendererCore/AnimationSystem/VisualizeSkeletonComponent.h>
-#include <RendererCore/AnimationSystem/AnimationPose.h>
-#include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Debug/DebugRendererContext.h>
+#include <RendererCore/Pipeline/RenderData.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezVisualizeSkeletonComponent, 1, ezComponentMode::Static)
@@ -49,14 +49,52 @@ void ezVisualizeSkeletonComponent::Render()
   if (pSkeleton->IsMissingResource())
     return;
 
-  const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
+  const ezSkeletonResourceDescriptor& desc = pSkeleton->GetDescriptor();
+  const ezSkeleton& skeleton = desc.m_Skeleton;
 
   ezAnimationPose pose;
   pose.Configure(skeleton);
   pose.SetToBindPoseInLocalSpace(skeleton);
   pose.ConvertFromLocalSpaceToObjectSpace(skeleton);
 
-  pose.VisualizePose(GetWorld(), skeleton, GetOwner()->GetGlobalTransform());
+  pose.VisualizePose(GetWorld(), skeleton, GetOwner()->GetGlobalTransform(), 0);
+
+  ezQuat qRotCapsule;
+  qRotCapsule.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
+
+  for (const auto& geo : desc.m_Geometry)
+  {
+    const ezVec3 scale = geo.m_Transform.m_vScale;
+
+    ezTransform geoPose;
+    geoPose.SetFromMat4(pose.GetTransform(geo.m_uiAttachedToJoint));
+    geoPose = geoPose * ezTransform(geo.m_Transform.m_vPosition, geo.m_Transform.m_qRotation); // remove scale
+
+    switch (geo.m_Type)
+    {
+      case ezSkeletonJointGeometryType::Box:
+      {
+        ezBoundingBox box;
+        box.SetCenterAndHalfExtents(ezVec3::ZeroVector(), scale);
+        ezDebugRenderer::DrawLineBox(GetWorld(), box, ezColor::IndianRed, geoPose);
+        break;
+      }
+
+      case ezSkeletonJointGeometryType::Capsule:
+      {
+        geoPose.m_qRotation = geoPose.m_qRotation * qRotCapsule;
+        ezDebugRenderer::DrawLineCapsuleZ(GetWorld(), scale.x, scale.z, ezColor::IndianRed, geoPose);
+        break;
+      }
+
+      case ezSkeletonJointGeometryType::Sphere:
+      {
+        ezBoundingSphere sphere(ezVec3::ZeroVector(), scale.z);
+        ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, ezColor::IndianRed, geoPose);
+        break;
+      }
+    }
+  }
 }
 
 void ezVisualizeSkeletonComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -355,7 +393,7 @@ void ezVisualizeSkeletonComponentManager::Update(const ezWorldModule::UpdateCont
     it->Render();
   }
 
-  //for (const auto& hComp : m_RequireUpdate)
+  // for (const auto& hComp : m_RequireUpdate)
   //{
   //  ezVisualizeSkeletonComponent* pComp = nullptr;
   //  if (!TryGetComponent(hComp, pComp))

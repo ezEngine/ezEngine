@@ -77,7 +77,7 @@ public:
   /// \brief Renders a debug visualization of this pose. \a objectTransform is used to position, rotate and scale the stick-figure as needed.
   ///
   /// Object scale is, however, only partially used, joint indicators are always sized according to the distance to the parent joints (after scaling).
-  void VisualizePose(const ezDebugRendererContext& context, const ezSkeleton& skeleton, const ezTransform& objectTransform, ezUInt16 uiStartJoint = ezInvalidJointIndex) const;
+  void VisualizePose(const ezDebugRendererContext& context, const ezSkeleton& skeleton, const ezTransform& objectTransform, float fJointSizeRatio = 1.0f / 6.0f, ezUInt16 uiStartJoint = ezInvalidJointIndex) const;
 
 private:
   // TODO: would be nicer to use ezTransform or ezShaderTransform for this data

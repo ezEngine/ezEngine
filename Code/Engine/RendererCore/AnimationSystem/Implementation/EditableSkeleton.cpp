@@ -58,31 +58,39 @@ void ezEditableSkeleton::ClearJoints()
   m_Children.Clear();
 }
 
+static void AddChildJoints(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor* pDesc, const ezEditableSkeletonJoint* pParentJoint,
+                           const ezEditableSkeletonJoint* pJoint, ezUInt32 uiJointIdx)
+{
+  if (pDesc != nullptr && pJoint->m_Geometry != ezSkeletonJointGeometryType::None)
+  {
+    auto& geo = pDesc->m_Geometry.ExpandAndGetRef();
+    geo.m_Type = pJoint->m_Geometry;
+    geo.m_uiAttachedToJoint = uiJointIdx;
+    geo.m_Transform.SetIdentity();
+    geo.m_Transform.m_vScale.Set(pJoint->m_fLength, pJoint->m_fWidth, pJoint->m_fThickness);
+
+    if (pParentJoint)
+    {
+      const float fBoneLength = (pParentJoint->m_Transform.m_vPosition - pJoint->m_Transform.m_vPosition).GetLength();
+      //geo.m_Transform.m_vPosition.y = fBoneLength * 0.5f;
+    }
+  }
+
+  for (const auto* pChildJoint : pJoint->m_Children)
+  {
+    const ezUInt32 idx = sb.AddJoint(pChildJoint->GetName(), pChildJoint->m_Transform, uiJointIdx);
+
+    AddChildJoints(sb, pDesc, pJoint, pChildJoint, idx);
+  }
+}
+
 void ezEditableSkeleton::GenerateSkeleton(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor* pDesc) const
 {
-  auto AddChildJoints = [&sb, pDesc](auto& self, const ezEditableSkeletonJoint* pJoint, ezUInt32 uiJointIdx) -> void {
-    if (pDesc != nullptr && pJoint->m_Geometry != ezSkeletonJointGeometryType::None)
-    {
-      auto& geo = pDesc->m_Geometry.ExpandAndGetRef();
-      geo.m_Type = pJoint->m_Geometry;
-      geo.m_uiAttachedToJoint = uiJointIdx;
-      geo.m_Transform.SetIdentity();
-      geo.m_Transform.m_vScale.Set(pJoint->m_fLength, pJoint->m_fWidth, pJoint->m_fThickness);
-    }
-
-    for (const auto* pChildJoint : pJoint->m_Children)
-    {
-      const ezUInt32 idx = sb.AddJoint(pChildJoint->GetName(), pChildJoint->m_Transform, uiJointIdx);
-
-      self(self, pChildJoint, idx);
-    }
-  };
-
   for (const auto* pJoint : m_Children)
   {
     const ezUInt32 idx = sb.AddJoint(pJoint->GetName(), pJoint->m_Transform);
 
-    AddChildJoints(AddChildJoints, pJoint, idx);
+    AddChildJoints(sb, pDesc, nullptr, pJoint, idx);
   }
 }
 

@@ -110,7 +110,7 @@ ezVec3 ezAnimationPose::SkinDirectionWithFourJoints(const ezVec3& Direction, con
 }
 
 void ezAnimationPose::VisualizePose(const ezDebugRendererContext& context, const ezSkeleton& skeleton, const ezTransform& objectTransform,
-                                    ezUInt16 uiStartJoint) const
+                                    float fJointSizeRatio /*= 1.0f / 6.0f*/, ezUInt16 uiStartJoint /*= ezInvalidJointIndex*/) const
 {
   // TODO: store current space and assert that it is correct ?
 
@@ -151,7 +151,6 @@ void ezAnimationPose::VisualizePose(const ezDebugRendererContext& context, const
     else
     {
       const ezUInt16 parentJointIdx = thisJoint.GetParentIndex();
-      const ezSkeletonJoint& parentJoint = skeleton.GetJointByIndex(parentJointIdx);
       ezTransform parentJointTransform;
       parentJointTransform.SetFromMat4(GetTransform(parentJointIdx));
       parentJointTransform = objectTransform * parentJointTransform;
@@ -162,8 +161,11 @@ void ezAnimationPose::VisualizePose(const ezDebugRendererContext& context, const
       line.m_start = thisJointTransform.m_vPosition;
       line.m_end = parentJointTransform.m_vPosition;
 
-      const ezBoundingSphere sphere(ezVec3::ZeroVector(), (line.m_start - line.m_end).GetLength() * 0.2f);
-      ezDebugRenderer::DrawLineSphere(context, sphere, ezColor::Yellow, thisJointTransform);
+      if (fJointSizeRatio > 0.0f)
+      {
+        const ezBoundingSphere sphere(ezVec3::ZeroVector(), (line.m_start - line.m_end).GetLength() * fJointSizeRatio);
+        ezDebugRenderer::DrawLineSphere(context, sphere, ezColor::Yellow, thisJointTransform);
+      }
     }
   }
 

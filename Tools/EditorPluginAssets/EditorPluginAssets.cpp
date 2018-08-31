@@ -31,6 +31,7 @@
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
+#include <SkeletonAsset/SkeletonAsset.h>
 
 static void ConfigureTexture2DAsset()
 {
@@ -393,6 +394,8 @@ static void ConfigureAnimationClipAsset()
 
 static void ConfigureSkeletonAsset()
 {
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezSkeletonAssetDocument::PropertyMetaStateEventHandler);
+
   // Menu Bar
   {
     ezActionMapManager::RegisterActionMap("SkeletonAssetMenuBar");
@@ -481,6 +484,7 @@ void OnUnloadPlugin(bool bReloading)
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezDecalAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezTextureCubeAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezMaterialAssetProperties::PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezSkeletonAssetDocument::PropertyMetaStateEventHandler);
 }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);

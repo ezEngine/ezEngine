@@ -285,8 +285,8 @@ void ezMotionMatchingComponent::Update()
     tLeft.SetFromMat4(m_AnimationPose.GetTransform(uiLeftFootJoint));
     tRight.SetFromMat4(m_AnimationPose.GetTransform(uiRightFootJoint));
 
-    m_AnimationPose.VisualizePose(GetWorld(), skeleton, GetOwner()->GetGlobalTransform(), uiLeftFootJoint);
-    m_AnimationPose.VisualizePose(GetWorld(), skeleton, GetOwner()->GetGlobalTransform(), uiRightFootJoint);
+    m_AnimationPose.VisualizePose(GetWorld(), skeleton, GetOwner()->GetGlobalTransform(), 1.0f / 6.0f, uiLeftFootJoint);
+    m_AnimationPose.VisualizePose(GetWorld(), skeleton, GetOwner()->GetGlobalTransform(), 1.0f / 6.0f, uiRightFootJoint);
 
     // const float fScaleToPerSec = (float)(1.0 / GetWorld()->GetClock().GetTimeDiff().GetSeconds());
 

@@ -6,6 +6,7 @@
 #include <Foundation/Math/Random.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Utilities/Progress.h>
+#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <ModelImporter/Mesh.h>
 #include <ModelImporter/ModelImporter.h>
 #include <ModelImporter/Scene.h>
@@ -23,6 +24,45 @@ ezSkeletonAssetDocument::ezSkeletonAssetDocument(const char* szDocumentPath)
 }
 
 ezSkeletonAssetDocument::~ezSkeletonAssetDocument() = default;
+
+
+void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezEditableSkeletonJoint>())
+  {
+    auto& props = *e.m_pPropertyStates;
+
+    const ezSkeletonJointGeometryType::Enum geomType =
+        (ezSkeletonJointGeometryType::Enum)e.m_pObject->GetTypeAccessor().GetValue("Geometry").ConvertTo<ezInt32>();
+
+    props["Length"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Width"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Thickness"].m_Visibility = ezPropertyUiState::Invisible;
+
+    props["Length"].m_sNewLabelText = "Length";
+    props["Width"].m_sNewLabelText = "Width";
+    props["Thickness"].m_sNewLabelText = "Thickness";
+
+    if (geomType == ezSkeletonJointGeometryType::Box)
+    {
+      props["Length"].m_Visibility = ezPropertyUiState::Default;
+      props["Width"].m_Visibility = ezPropertyUiState::Default;
+      props["Thickness"].m_Visibility = ezPropertyUiState::Default;
+    }
+    else if (geomType == ezSkeletonJointGeometryType::Sphere)
+    {
+      props["Thickness"].m_Visibility = ezPropertyUiState::Default;
+      props["Thickness"].m_sNewLabelText = "Radius";
+    }
+    else if (geomType == ezSkeletonJointGeometryType::Capsule)
+    {
+      props["Length"].m_Visibility = ezPropertyUiState::Default;
+
+      props["Thickness"].m_Visibility = ezPropertyUiState::Default;
+      props["Thickness"].m_sNewLabelText = "Radius";
+    }
+  }
+}
 
 using namespace ezModelImporter;
 
@@ -55,13 +95,13 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
   ezEditableSkeleton* pProp = GetProperties();
 
-  //const float fScale = 1.0f;
+  // const float fScale = 1.0f;
   // ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
-  //ezMat3 mTransformation = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir, fScale);
-  //ezMat3 mTransformRotations = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir);
+  // ezMat3 mTransformation = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir, fScale);
+  // ezMat3 mTransformRotations = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir);
 
-  //mTransformation.SetIdentity();
-  //mTransformRotations.SetIdentity();
+  // mTransformation.SetIdentity();
+  // mTransformRotations.SetIdentity();
 
   ezSharedPtr<Scene> scene;
   EZ_SUCCEED_OR_RETURN(ImportSkeleton(pProp->m_sAnimationFile, scene));
