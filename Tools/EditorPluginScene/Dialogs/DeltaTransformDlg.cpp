@@ -3,6 +3,7 @@
 #include <Core/World/GameObject.h>
 #include <EditorPluginScene/Dialogs/DeltaTransformDlg.moc.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
+#include <Foundation/Math/Random.h>
 
 ezQtDeltaTransformDlg::Mode ezQtDeltaTransformDlg::s_Mode = ezQtDeltaTransformDlg::Mode::Translate;
 ezQtDeltaTransformDlg::Space ezQtDeltaTransformDlg::s_Space = ezQtDeltaTransformDlg::Space::World;
@@ -10,6 +11,7 @@ ezVec3 ezQtDeltaTransformDlg::s_vTranslate(0.0f);
 ezVec3 ezQtDeltaTransformDlg::s_vScale(1.0f);
 float ezQtDeltaTransformDlg::s_fUniformScale = 1.0f;
 ezVec3 ezQtDeltaTransformDlg::s_vRotate(0.0f);
+bool ezQtDeltaTransformDlg::s_bRandomDeviation = false;
 
 ezQtDeltaTransformDlg::ezQtDeltaTransformDlg(QWidget* parent, ezSceneDocument* pSceneDoc)
     : QDialog(parent)
@@ -41,6 +43,8 @@ void ezQtDeltaTransformDlg::on_ComboSpace_currentIndexChanged(int index)
 
 void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
 {
+  s_bRandomDeviation = CheckRandom->isChecked();
+
   ezStringBuilder sAction;
 
   // early out when nothing is to do
@@ -109,10 +113,40 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
 
   history->StartTransaction(sAction.GetData());
 
+  ezRandom rng;
+
+  if (s_bRandomDeviation)
+  {
+    rng.InitializeFromCurrentTime();
+  }
+
   for (const ezDocumentObject* pObject : selection)
   {
     if (!pObject->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
       continue;
+
+    ezVec3 vTranslate = s_vTranslate;
+    ezVec3 vRotate = s_vRotate;
+    ezVec3 vScale = s_vScale;
+    float fUniformScale = s_fUniformScale;
+
+    if (s_bRandomDeviation)
+    {
+      vTranslate.x = rng.DoubleMinMax(-s_vTranslate.x, +s_vTranslate.x);
+      vTranslate.y = rng.DoubleMinMax(-s_vTranslate.y, +s_vTranslate.y);
+      vTranslate.z = rng.DoubleMinMax(-s_vTranslate.z, +s_vTranslate.z);
+
+      vRotate.x = rng.DoubleMinMax(-s_vRotate.x, +s_vRotate.x);
+      vRotate.y = rng.DoubleMinMax(-s_vRotate.y, +s_vRotate.y);
+      vRotate.z = rng.DoubleMinMax(-s_vRotate.z, +s_vRotate.z);
+
+
+      vScale.x = rng.DoubleMinMax(ezMath::Min(1.0f / s_vScale.x, s_vScale.x), ezMath::Max(1.0f / s_vScale.x, s_vScale.x));
+      vScale.y = rng.DoubleMinMax(ezMath::Min(1.0f / s_vScale.y, s_vScale.y), ezMath::Max(1.0f / s_vScale.y, s_vScale.y));
+      vScale.z = rng.DoubleMinMax(ezMath::Min(1.0f / s_vScale.z, s_vScale.z), ezMath::Max(1.0f / s_vScale.z, s_vScale.z));
+
+      fUniformScale = rng.DoubleMinMax(ezMath::Min(1.0f / s_fUniformScale, s_fUniformScale), ezMath::Max(1.0f / s_fUniformScale, s_fUniformScale));
+    }
 
     if (space == Space::LocalEach)
     {
@@ -126,12 +160,12 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
     switch (s_Mode)
     {
       case Mode::Translate:
-        trans.m_vPosition += tReference.m_qRotation * s_vTranslate;
+        trans.m_vPosition += tReference.m_qRotation * vTranslate;
         m_pSceneDocument->SetGlobalTransform(pObject, trans, TransformationChanges::Translation);
         break;
 
       case Mode::RotateX:
-        qRot.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(s_vRotate.x));
+        qRot.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(vRotate.x));
         localTrans.m_qRotation = qRot * localTrans.m_qRotation;
         localTrans.m_vPosition = qRot * localTrans.m_vPosition;
         trans = tReference * localTrans;
@@ -140,7 +174,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
         break;
 
       case Mode::RotateY:
-        qRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(s_vRotate.y));
+        qRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(vRotate.y));
         localTrans.m_qRotation = qRot * localTrans.m_qRotation;
         localTrans.m_vPosition = qRot * localTrans.m_vPosition;
         trans = tReference * localTrans;
@@ -149,7 +183,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
         break;
 
       case Mode::RotateZ:
-        qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(s_vRotate.z));
+        qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(vRotate.z));
         localTrans.m_qRotation = qRot * localTrans.m_qRotation;
         localTrans.m_vPosition = qRot * localTrans.m_vPosition;
         trans = tReference * localTrans;
@@ -158,12 +192,12 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
         break;
 
       case Mode::Scale:
-        trans.m_vScale = trans.m_vScale.CompMul(s_vScale);
+        trans.m_vScale = trans.m_vScale.CompMul(vScale);
         m_pSceneDocument->SetGlobalTransform(pObject, trans, TransformationChanges::Scale);
         break;
 
       case Mode::UniformScale:
-        trans.m_vScale *= s_fUniformScale;
+        trans.m_vScale *= fUniformScale;
 
         if (trans.m_vScale.x == trans.m_vScale.y && trans.m_vScale.x == trans.m_vScale.z)
           m_pSceneDocument->SetGlobalTransform(pObject, trans, TransformationChanges::UniformScale);
@@ -222,6 +256,8 @@ void ezQtDeltaTransformDlg::on_ButtonReset_clicked()
 
 void ezQtDeltaTransformDlg::QueryUI()
 {
+  s_bRandomDeviation = CheckRandom->isChecked();
+
   switch (s_Mode)
   {
     case Mode::Translate:
@@ -266,6 +302,7 @@ void ezQtDeltaTransformDlg::UpdateUI()
   Label1->setText("X");
   Label2->setText("Y");
   Label3->setText("Z");
+  CheckRandom->setChecked(s_bRandomDeviation);
 
   switch (s_Mode)
   {

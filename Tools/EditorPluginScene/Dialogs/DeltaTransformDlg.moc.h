@@ -50,6 +50,7 @@ private:
   static ezVec3 s_vScale;
   static float s_fUniformScale;
   static ezVec3 s_vRotate;
+  static bool s_bRandomDeviation;
 
   ezUInt32 m_uiActionsApplied = 0;
   ezSceneDocument* m_pSceneDocument = nullptr;
