@@ -11,6 +11,16 @@ ezMeshResourceDescriptor::ezMeshResourceDescriptor()
   m_Bounds.SetInvalid();
 }
 
+void ezMeshResourceDescriptor::Clear()
+{
+  m_Bounds.SetInvalid();
+  m_hMeshBuffer.Invalidate();
+  m_hSkeleton.Invalidate();
+  m_Materials.Clear();
+  m_MeshBufferDescriptor.Clear();
+  m_SubMeshes.Clear();
+}
+
 ezMeshBufferResourceDescriptor& ezMeshResourceDescriptor::MeshBufferDesc()
 {
   return m_MeshBufferDescriptor;

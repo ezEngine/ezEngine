@@ -27,6 +27,8 @@ public:
 
   ezMeshResourceDescriptor();
 
+  void Clear();
+
   ezMeshBufferResourceDescriptor& MeshBufferDesc();
 
   const ezMeshBufferResourceDescriptor& MeshBufferDesc() const;

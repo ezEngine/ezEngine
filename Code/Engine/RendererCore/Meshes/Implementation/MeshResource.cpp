@@ -4,7 +4,6 @@
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshResource, 1, ezRTTIDefaultAllocator<ezMeshResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -71,7 +70,8 @@ ezResourceLoadDesc ezMeshResource::UpdateContent(ezStreamReader* Stream)
 
 void ezMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezMeshResource) + (ezUInt32)m_SubMeshes.GetHeapMemoryUsage();
+  out_NewMemoryUsage.m_uiMemoryCPU =
+      sizeof(ezMeshResource) + (ezUInt32)m_SubMeshes.GetHeapMemoryUsage() + (ezUInt32)m_Materials.GetHeapMemoryUsage();
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
@@ -119,7 +119,5 @@ ezResourceLoadDesc ezMeshResource::CreateResource(const ezMeshResourceDescriptor
 
   return res;
 }
-
-
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshResource);
