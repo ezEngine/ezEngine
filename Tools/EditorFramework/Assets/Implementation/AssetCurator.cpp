@@ -15,6 +15,7 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Utilities/Progress.h>
 #include <QDir>
+#include <atomic>
 
 #define EZ_CURATOR_CACHE_VERSION 2
 #define EZ_CURATOR_CACHE_FILE_VERSION 6
@@ -287,21 +288,24 @@ void WatcherCallback(const char* szDirectory, const char* szFilename, ezDirector
 void ezAssetCurator::MainThreadTick()
 {
   CURATOR_PROFILE("MainThreadTick");
-  EZ_LOCK(m_CuratorMutex);
 
-  static bool bReentry = false;
+  static std::atomic<bool> bReentry = false;
   if (bReentry)
     return;
 
   bReentry = true;
 
-  for (ezDirectoryWatcher* pWatcher : m_Watchers)
   {
-    pWatcher->EnumerateChanges([pWatcher](const char* szFilename, ezDirectoryWatcherAction action) {
-      WatcherCallback(pWatcher->GetDirectory(), szFilename, action);
-    });
+    CURATOR_PROFILE("Watcher");
+    for (ezDirectoryWatcher* pWatcher : m_Watchers)
+    {
+      pWatcher->EnumerateChanges([pWatcher](const char* szFilename, ezDirectoryWatcherAction action) {
+        WatcherCallback(pWatcher->GetDirectory(), szFilename, action);
+      });
+    }
   }
 
+  EZ_LOCK(m_CuratorMutex);
   ezHybridArray<ezAssetInfo*, 32> deletedAssets;
   for (const ezUuid& guid : m_SubAssetChanged)
   {
@@ -478,11 +482,14 @@ ezStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, bool bTriggered
 {
   EZ_LOCK(m_CuratorMutex);
 
+  ezStopwatch timer;
   ezAssetInfo* pInfo = nullptr;
   if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
     return ezStatus("Transform failed, unknown asset.");
 
-  return ProcessAsset(pInfo, szPlatform, bTriggeredManually);
+  auto res = ProcessAsset(pInfo, szPlatform, bTriggeredManually);
+  ezLog::Info("Transform asset time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
+  return res;
 }
 
 ezStatus ezAssetCurator::CreateThumbnail(const ezUuid& assetGuid)
