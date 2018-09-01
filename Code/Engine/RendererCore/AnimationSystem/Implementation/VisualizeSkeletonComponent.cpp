@@ -7,6 +7,7 @@
 #include <RendererCore/AnimationSystem/SkeletonBuilder.h>
 #include <RendererCore/AnimationSystem/VisualizeSkeletonComponent.h>
 #include <RendererCore/Debug/DebugRendererContext.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
 // clang-format off

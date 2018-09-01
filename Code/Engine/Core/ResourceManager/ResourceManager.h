@@ -178,9 +178,9 @@ public:
   /// \brief Sets up a new or existing category of resources.
   ///
   /// Each resource can be assigned to one category. All resources with the same category share the same total memory limits.
-  static void ConfigureResourceCategory(const char* szCategoryName, ezUInt64 uiMemoryLimitCPU, ezUInt64 uiMemoryLimitGPU);
+  //static void ConfigureResourceCategory(const char* szCategoryName, ezUInt64 uiMemoryLimitCPU, ezUInt64 uiMemoryLimitGPU);
 
-  static const ezResourceCategory& GetResourceCategory(const char* szCategoryName);
+  //static const ezResourceCategory& GetResourceCategory(const char* szCategoryName);
 
   /// \brief Registers a 'named' resource. When a resource is looked up using \a szLookupName, the lookup will be redirected to \a
   /// szRedirectionResource.
@@ -258,7 +258,12 @@ private:
 
   static ezResourceTypeLoader* GetResourceTypeLoader(const ezRTTI* pRTTI);
 
-  static ezHashTable<ezTempHashedString, ezResourceBase*> m_LoadedResources;
+  struct LoadedResources
+  {
+    ezHashTable<ezTempHashedString, ezResourceBase*> m_Resources;
+  };
+
+  static ezHashTable<const ezRTTI*, LoadedResources> s_LoadedResources;
   static ezMap<ezString, ezResourceTypeLoader*> m_ResourceTypeLoader;
 
   static ezResourceLoaderFromFile m_FileResourceLoader;
@@ -297,7 +302,7 @@ private:
   static ezTime m_LastDeadLineUpdate;
   static ezTime m_LastFrameUpdate;
   static bool m_bBroadcastExistsEvent;
-  static ezHashTable<ezUInt32, ezResourceCategory> m_ResourceCategories;
+  //static ezHashTable<ezUInt32, ezResourceCategory> m_ResourceCategories;
   static ezMutex s_ResourceMutex;
   static ezHashTable<ezTempHashedString, ezHashedString> s_NamedResources;
   static ezMap<ezString, const ezRTTI*> s_AssetToResourceType;

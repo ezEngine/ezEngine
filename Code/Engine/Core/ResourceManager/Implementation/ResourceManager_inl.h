@@ -41,8 +41,8 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::GetExistingResource(const
   const ezTempHashedString sResourceHash(szResourceID);
 
   EZ_LOCK(s_ResourceMutex);
-
-  if (m_LoadedResources.TryGetValue(sResourceHash, pResource))
+  
+  if (s_LoadedResources[ezGetStaticRTTI<ResourceType>()].m_Resources.TryGetValue(sResourceHash, pResource))
     return ezTypedResourceHandle<ResourceType>((ResourceType*)pResource);
 
   return ezTypedResourceHandle<ResourceType>();

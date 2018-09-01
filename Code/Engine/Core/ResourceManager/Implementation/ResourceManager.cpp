@@ -26,9 +26,7 @@
 // Resource Loader
 //   Requires No File Access -> on non-File Thread
 
-
-
-ezHashTable<ezTempHashedString, ezResourceBase*> ezResourceManager::m_LoadedResources;
+ezHashTable<const ezRTTI*, ezResourceManager::LoadedResources> ezResourceManager::s_LoadedResources;
 ezMap<ezString, ezResourceTypeLoader*> ezResourceManager::m_ResourceTypeLoader;
 ezResourceLoaderFromFile ezResourceManager::m_FileResourceLoader;
 ezResourceTypeLoader* ezResourceManager::m_pDefaultResourceLoader = &m_FileResourceLoader;
@@ -42,7 +40,7 @@ ezUInt8 ezResourceManager::m_iCurrentWorkerDiskRead = 0;
 ezTime ezResourceManager::m_LastDeadLineUpdate;
 ezTime ezResourceManager::m_LastFrameUpdate;
 bool ezResourceManager::m_bBroadcastExistsEvent = false;
-ezHashTable<ezUInt32, ezResourceCategory> ezResourceManager::m_ResourceCategories;
+// ezHashTable<ezUInt32, ezResourceCategory> ezResourceManager::m_ResourceCategories;
 ezEvent<const ezResourceEvent&> ezResourceManager::s_ResourceEvents;
 ezEvent<const ezResourceManagerEvent&> ezResourceManager::s_ManagerEvents;
 ezMutex ezResourceManager::s_ResourceMutex;
@@ -86,8 +84,6 @@ ezResourceTypeLoader* ezResourceManager::GetResourceTypeLoader(const ezRTTI* pRT
 {
   return m_ResourceTypeLoader[pRTTI->GetTypeName()];
 }
-
-
 
 void ezResourceManager::BroadcastResourceEvent(const ezResourceEvent& e)
 {
@@ -507,43 +503,50 @@ ezUInt32 ezResourceManager::FreeUnusedResources(bool bFreeAllUnused)
   {
     bUnloadedAny = false;
 
-    for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); /* empty */)
+    for (auto itType = s_LoadedResources.GetIterator(); itType.IsValid(); ++itType)
     {
-      ezResourceBase* pReference = it.Value();
+      const ezRTTI* pRtti = itType.Key();
+      LoadedResources& lr = itType.Value();
 
-      if (pReference->m_iReferenceCount > 0)
+      for (auto it = lr.m_Resources.GetIterator(); it.IsValid(); /* empty */)
       {
+        ezResourceBase* pReference = it.Value();
+
+        if (pReference->m_iReferenceCount > 0)
+        {
+          ++it;
+          continue;
+        }
+
+        const auto& CurKey = it.Key();
+
+        EZ_ASSERT_DEBUG(pReference->m_iLockCount == 0, "Resource '{0}' has a refcount of zero, but is still in an acquired state.",
+                        pReference->GetResourceID());
+
+        bUnloadedAny = true;
+        ++uiUnloaded;
+        pReference->CallUnloadData(ezResourceBase::Unload::AllQualityLevels);
+
+        EZ_ASSERT_DEBUG(pReference->GetLoadingState() <= ezResourceState::UnloadedMetaInfoAvailable,
+                        "Resource '{0}' should be in an unloaded state now.", pReference->GetResourceID());
+
+        // broadcast that we are going to delete the resource
+        {
+          ezResourceEvent e;
+          e.m_pResource = pReference;
+          e.m_EventType = ezResourceEventType::ResourceDeleted;
+          ezResourceManager::BroadcastResourceEvent(e);
+        }
+
+        // delete the resource via the RTTI provided allocator
+        pReference->GetDynamicRTTI()->GetAllocator()->Deallocate(pReference);
+
         ++it;
-        continue;
+
+        lr.m_Resources.Remove(CurKey);
       }
-
-      const auto& CurKey = it.Key();
-
-      EZ_ASSERT_DEV(pReference->m_iLockCount == 0, "Resource '{0}' has a refcount of zero, but is still in an acquired state.",
-                    pReference->GetResourceID());
-
-      bUnloadedAny = true;
-      ++uiUnloaded;
-      pReference->CallUnloadData(ezResourceBase::Unload::AllQualityLevels);
-
-      EZ_ASSERT_DEV(pReference->GetLoadingState() <= ezResourceState::UnloadedMetaInfoAvailable,
-                    "Resource '{0}' should be in an unloaded state now.", pReference->GetResourceID());
-
-      // broadcast that we are going to delete the resource
-      {
-        ezResourceEvent e;
-        e.m_pResource = pReference;
-        e.m_EventType = ezResourceEventType::ResourceDeleted;
-        ezResourceManager::BroadcastResourceEvent(e);
-      }
-
-      // delete the resource via the RTTI provided allocator
-      pReference->GetDynamicRTTI()->GetAllocator()->Deallocate(pReference);
-
-      ++it;
-
-      m_LoadedResources.Remove(CurKey);
     }
+
   } while (bFreeAllUnused && bUnloadedAny);
 
   return uiUnloaded;
@@ -680,13 +683,12 @@ ezUInt32 ezResourceManager::ReloadResourcesOfType(const ezRTTI* pType, bool bFor
 
   ezUInt32 count = 0;
 
-  for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
+  LoadedResources& lr = s_LoadedResources[pType];
+
+  for (auto it = lr.m_Resources.GetIterator(); it.IsValid(); ++it)
   {
-    if (it.Value()->GetDynamicRTTI() == pType)
-    {
-      if (ReloadResource(it.Value(), bForce))
-        ++count;
-    }
+    if (ReloadResource(it.Value(), bForce))
+      ++count;
   }
 
   return count;
@@ -706,10 +708,13 @@ ezUInt32 ezResourceManager::ReloadAllResources(bool bForce)
 
   ezUInt32 count = 0;
 
-  for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
+  for (auto itType = s_LoadedResources.GetIterator(); itType.IsValid(); ++itType)
   {
-    if (ReloadResource(it.Value(), bForce))
-      ++count;
+    for (auto it = itType.Value().m_Resources.GetIterator(); it.IsValid(); ++it)
+    {
+      if (ReloadResource(it.Value(), bForce))
+        ++count;
+    }
   }
 
   if (count > 0)
@@ -729,10 +734,13 @@ void ezResourceManager::ResetAllResources()
   EZ_LOCK(s_ResourceMutex);
   EZ_LOG_BLOCK("ezResourceManager::ReloadAllResources");
 
-  for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
+  for (auto itType = s_LoadedResources.GetIterator(); itType.IsValid(); ++itType)
   {
-    ezResourceBase* pResource = it.Value();
-    pResource->ResetResource();
+    for (auto it = itType.Value().m_Resources.GetIterator(); it.IsValid(); ++it)
+    {
+      ezResourceBase* pResource = it.Value();
+      pResource->ResetResource();
+    }
   }
 }
 
@@ -746,13 +754,16 @@ void ezResourceManager::PerFrameUpdate()
 
     m_bBroadcastExistsEvent = false;
 
-    for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
+    for (auto itType = s_LoadedResources.GetIterator(); itType.IsValid(); ++itType)
     {
-      ezResourceEvent e;
-      e.m_EventType = ezResourceEventType::ResourceExists;
-      e.m_pResource = it.Value();
+      for (auto it = itType.Value().m_Resources.GetIterator(); it.IsValid(); ++it)
+      {
+        ezResourceEvent e;
+        e.m_EventType = ezResourceEventType::ResourceExists;
+        e.m_pResource = it.Value();
 
-      ezResourceManager::BroadcastResourceEvent(e);
+        ezResourceManager::BroadcastResourceEvent(e);
+      }
     }
   }
 }
@@ -762,34 +773,34 @@ void ezResourceManager::BroadcastExistsEvent()
   m_bBroadcastExistsEvent = true;
 }
 
-void ezResourceManager::ConfigureResourceCategory(const char* szCategoryName, ezUInt64 uiMemoryLimitCPU, ezUInt64 uiMemoryLimitGPU)
-{
-  EZ_LOCK(s_ResourceMutex);
-
-  ezTempHashedString sHash(szCategoryName);
-
-  auto& cat = m_ResourceCategories[sHash.GetHash()];
-
-  cat.m_sName = szCategoryName;
-  cat.m_uiMemoryLimitCPU = uiMemoryLimitCPU;
-  cat.m_uiMemoryLimitGPU = uiMemoryLimitGPU;
-
-  ezResourceManagerEvent e;
-  e.m_EventType = ezResourceManagerEventType::ResourceCategoryChanged;
-  e.m_pCategory = &cat;
-
-  s_ManagerEvents.Broadcast(e);
-}
-
-const ezResourceCategory& ezResourceManager::GetResourceCategory(const char* szCategoryName)
-{
-  ezTempHashedString sHash(szCategoryName);
-
-  ezResourceCategory* pCat = nullptr;
-  EZ_VERIFY(m_ResourceCategories.TryGetValue(sHash.GetHash(), pCat), "Resource Category '{0}' does not exist", szCategoryName);
-
-  return *pCat;
-}
+// void ezResourceManager::ConfigureResourceCategory(const char* szCategoryName, ezUInt64 uiMemoryLimitCPU, ezUInt64 uiMemoryLimitGPU)
+//{
+//  EZ_LOCK(s_ResourceMutex);
+//
+//  ezTempHashedString sHash(szCategoryName);
+//
+//  auto& cat = m_ResourceCategories[sHash.GetHash()];
+//
+//  cat.m_sName = szCategoryName;
+//  cat.m_uiMemoryLimitCPU = uiMemoryLimitCPU;
+//  cat.m_uiMemoryLimitGPU = uiMemoryLimitGPU;
+//
+//  ezResourceManagerEvent e;
+//  e.m_EventType = ezResourceManagerEventType::ResourceCategoryChanged;
+//  e.m_pCategory = &cat;
+//
+//  s_ManagerEvents.Broadcast(e);
+//}
+//
+// const ezResourceCategory& ezResourceManager::GetResourceCategory(const char* szCategoryName)
+//{
+//  ezTempHashedString sHash(szCategoryName);
+//
+//  ezResourceCategory* pCat = nullptr;
+//  EZ_VERIFY(m_ResourceCategories.TryGetValue(sHash.GetHash(), pCat), "Resource Category '{0}' does not exist", szCategoryName);
+//
+//  return *pCat;
+//}
 
 /* Not yet good enough for prime time
 void ezResourceManager::CleanUpResources()
@@ -931,18 +942,25 @@ void ezResourceManager::OnCoreShutdown()
 {
   OnEngineShutdown();
 
-  if (!m_LoadedResources.IsEmpty())
+  EZ_LOG_BLOCK("Referenced Resources");
+
+  for (auto itType = s_LoadedResources.GetIterator(); itType.IsValid(); ++itType)
   {
-    EZ_LOG_BLOCK("Referenced Resources");
+    const ezRTTI* pRtti = itType.Key();
+    LoadedResources& lr = itType.Value();
 
-    ezLog::Error("There are {0} resource still referenced.", m_LoadedResources.GetCount());
-
-    for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
+    if (!lr.m_Resources.IsEmpty())
     {
-      ezResourceBase* pReference = it.Value();
+      EZ_LOG_BLOCK("Type", pRtti->GetTypeName());
 
-      ezLog::Info("Refcount = {0}, Type = '{1}', ResourceID = '{2}'", pReference->GetReferenceCount(),
-                  pReference->GetDynamicRTTI()->GetTypeName(), pReference->GetResourceID());
+      ezLog::Error("{0} resource of type '{1}' are still referenced.", lr.m_Resources.GetCount(), pRtti->GetTypeName());
+
+      for (auto it = lr.m_Resources.GetIterator(); it.IsValid(); ++it)
+      {
+        ezResourceBase* pReference = it.Value();
+
+        ezLog::Info("RC = {0}, ID = '{1}'", pReference->GetReferenceCount(), pReference->GetResourceID());
+      }
     }
   }
 
@@ -954,33 +972,31 @@ ezResourceBase* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* 
   if (ezStringUtils::IsNullOrEmpty(szResourceID))
     return nullptr;
 
-  ezResourceBase* pResource = nullptr;
+  EZ_ASSERT_DEBUG(pRtti != nullptr, "There is no RTTI information available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
+  EZ_ASSERT_DEBUG(pRtti->GetAllocator() != nullptr, "There is no RTTI allocator available for the given resource type '{0}'",
+                  EZ_STRINGIZE(ResourceType));
 
-  ezTempHashedString sResourceHash(szResourceID);
+  ezResourceBase* pResource = nullptr;
+  ezTempHashedString sHashedResourceID(szResourceID);
 
   EZ_LOCK(s_ResourceMutex);
 
   ezHashedString* redirection;
-  if (s_NamedResources.TryGetValue(sResourceHash, redirection))
+  if (s_NamedResources.TryGetValue(sHashedResourceID, redirection))
   {
-    sResourceHash = *redirection;
+    sHashedResourceID = *redirection;
     szResourceID = redirection->GetData();
   }
 
-  if (m_LoadedResources.TryGetValue(sResourceHash, pResource))
-  {
-    EZ_ASSERT_DEBUG(pResource->GetDynamicRTTI() == pRtti, "Resource is not of expected type");
-    return pResource;
-  }
+  LoadedResources& lr = s_LoadedResources[pRtti];
 
-  EZ_ASSERT_DEV(pRtti != nullptr, "There is no RTTI information available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
-  EZ_ASSERT_DEV(pRtti->GetAllocator() != nullptr, "There is no RTTI allocator available for the given resource type '{0}'",
-                EZ_STRINGIZE(ResourceType));
+  if (lr.m_Resources.TryGetValue(sHashedResourceID, pResource))
+    return pResource;
 
   ezResourceBase* pNewResource = pRtti->GetAllocator()->Allocate<ezResourceBase>();
   pNewResource->SetUniqueID(szResourceID, bIsReloadable);
 
-  m_LoadedResources.Insert(sResourceHash, pNewResource);
+  lr.m_Resources.Insert(sHashedResourceID, pNewResource);
 
   return pNewResource;
 }
