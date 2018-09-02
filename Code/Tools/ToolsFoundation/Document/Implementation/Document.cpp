@@ -1,5 +1,5 @@
 #include <PCH.h>
-
+#include <ToolsFoundation/Document/Document.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -10,12 +10,13 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Utilities/Progress.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
-#include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <ToolsFoundation/Document/PrefabCache.h>
 #include <ToolsFoundation/Document/PrefabUtils.h>
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <Foundation/Threading/TaskSystem.h>
+#include <ToolsFoundation/Document/DocumentTasks.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentObjectMetaData, 1, ezRTTINoAllocator)
@@ -130,29 +131,23 @@ ezStatus ezDocument::SaveDocument(bool bForce)
   if (!IsModified() && !bForce)
     return ezStatus(EZ_SUCCESS);
 
-  ezStatus ret = InternalSaveDocument();
-
-  if (ret.m_Result.Succeeded())
+  ezStatus result;
+  m_activeSaveTask = InternalSaveDocument([&result](ezDocument* doc, ezStatus res)
   {
-    ezDocumentEvent e;
-    e.m_pDocument = this;
-    e.m_Type = ezDocumentEvent::Type::DocumentSaved;
-    m_EventsOne.Broadcast(e);
-    s_EventsAny.Broadcast(e);
+    result = res;
+  });
+  ezTaskSystem::WaitForGroup(m_activeSaveTask);
+  return result;
+}
 
-    SetModified(false);
 
-    // after saving once, this information is pointless
-    m_uiUnknownObjectTypeInstances = 0;
-    m_UnknownObjectTypes.Clear();
-  }
+ezTaskGroupID ezDocument::SaveDocumentAsync(AfterSaveCallback callback, bool bForce)
+{
+  if (!IsModified() && !bForce)
+    return ezTaskGroupID();
 
-  if (ret.m_Result.Succeeded())
-  {
-    InternalAfterSaveDocument();
-  }
-
-  return ret;
+  m_activeSaveTask = InternalSaveDocument(callback);
+  return m_activeSaveTask;
 }
 
 void ezDocument::EnsureVisible()
@@ -165,48 +160,59 @@ void ezDocument::EnsureVisible()
   s_EventsAny.Broadcast(e);
 }
 
-ezStatus ezDocument::InternalSaveDocument()
+ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
 {
   EZ_PROFILE("InternalSaveDocument");
-  ezDeferredFileWriter file;
-  file.SetOutput(m_sDocumentPath);
-
-
-  ezAbstractObjectGraph headerGraph;
-  ezAbstractObjectGraph objectGraph;
-  ezAbstractObjectGraph typesGraph;
+  ezTaskGroupID saveID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::LongRunningHighPriority);
+  auto saveTask = EZ_DEFAULT_NEW(ezSaveDocumentTask);
   {
-    ezRttiConverterContext context;
-    ezRttiConverterWriter rttiConverter(&headerGraph, &context, true, true);
-    context.RegisterObject(GetGuid(), m_pDocumentInfo->GetDynamicRTTI(), m_pDocumentInfo);
-    rttiConverter.AddObjectToGraph(m_pDocumentInfo, "Header");
-  }
-  {
-    // Do not serialize any temporary properties into the document.
-    auto filter = [](const ezAbstractProperty* pProp) -> bool {
-      if (pProp->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
-        return false;
-      return true;
-    };
-    ezDocumentObjectConverterWriter objectConverter(&objectGraph, GetObjectManager(), filter);
-    objectConverter.AddObjectToGraph(GetObjectManager()->GetRootObject(), "ObjectTree");
+    saveTask->m_document = this;
+    saveTask->file.SetOutput(m_sDocumentPath);
+    saveTask->SetOnTaskFinished([](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
+    ezTaskSystem::AddTaskToGroup(saveID, saveTask);
 
-    AttachMetaDataBeforeSaving(objectGraph);
-  }
-  {
-    ezSet<const ezRTTI*> types;
-    ezToolsReflectionUtils::GatherObjectTypes(GetObjectManager()->GetRootObject(), types);
-    ezToolsReflectionUtils::SerializeTypes(types, typesGraph);
-  }
+    {
+      ezRttiConverterContext context;
+      ezRttiConverterWriter rttiConverter(&saveTask->headerGraph, &context, true, true);
+      context.RegisterObject(GetGuid(), m_pDocumentInfo->GetDynamicRTTI(), m_pDocumentInfo);
+      rttiConverter.AddObjectToGraph(m_pDocumentInfo, "Header");
+    }
+    {
+      // Do not serialize any temporary properties into the document.
+      auto filter = [](const ezAbstractProperty* pProp) -> bool {
+        if (pProp->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+          return false;
+        return true;
+      };
+      ezDocumentObjectConverterWriter objectConverter(&saveTask->objectGraph, GetObjectManager(), filter);
+      objectConverter.AddObjectToGraph(GetObjectManager()->GetRootObject(), "ObjectTree");
 
-  ezAbstractGraphDdlSerializer::WriteDocument(file, &headerGraph, &objectGraph, &typesGraph, false);
-
-  if (file.Close() == EZ_FAILURE)
-  {
-    return ezStatus(ezFmt("Unable to open file '{0}' for writing!", m_sDocumentPath));
+      AttachMetaDataBeforeSaving(saveTask->objectGraph);
+    }
+    {
+      ezSet<const ezRTTI*> types;
+      ezToolsReflectionUtils::GatherObjectTypes(GetObjectManager()->GetRootObject(), types);
+      ezToolsReflectionUtils::SerializeTypes(types, saveTask->typesGraph);
+    }
   }
 
-  return ezStatus(EZ_SUCCESS);
+  ezTaskGroupID afterSaveID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::SomeFrameMainThread);
+  {
+    auto afterSaveTask = EZ_DEFAULT_NEW(ezAfterSaveDocumentTask);
+    afterSaveTask->m_document = this;
+    afterSaveTask->m_callback = callback;
+    afterSaveTask->SetOnTaskFinished([](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
+    ezTaskSystem::AddTaskToGroup(afterSaveID, afterSaveTask);
+  }
+  ezTaskSystem::AddTaskGroupDependency(afterSaveID, saveID);
+  if (!ezTaskSystem::IsTaskGroupFinished(m_activeSaveTask))
+  {
+    ezTaskSystem::AddTaskGroupDependency(saveID, m_activeSaveTask);
+  }
+
+  ezTaskSystem::StartTaskGroup(saveID);
+  ezTaskSystem::StartTaskGroup(afterSaveID);
+  return afterSaveID;
 }
 
 ezStatus ezDocument::InternalLoadDocument()

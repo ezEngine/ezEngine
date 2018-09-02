@@ -50,7 +50,7 @@ public:
 
   //
   // External Tools
-  // 
+  //
 
   /// \brief Returns the folder in which the tools binaries can be found. If enabled in the preferences, it uses the pre-compiled tools, otherwise the currently compiled ones.
   /// If bForceUseCustomTools is true, it always returns the folder in which custom compiled tools are stored (app binary dir)
@@ -129,15 +129,11 @@ public:
   void GuiCreateProject();
   void GuiOpenProject();
 
-  void OpenDocument(const char* szDocument, const ezDocumentObject* pOpenContext = nullptr);
-  ezDocument* OpenDocumentImmediate(const char* szDocument, bool bRequestWindow = true, bool bAddToRecentFilesList = true);
+  void OpenDocumentQueued(const char* szDocument, const ezDocumentObject* pOpenContext = nullptr);
+  ezDocument* OpenDocument(const char* szDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext = nullptr);
+  ezDocument* CreateDocument(const char* szDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext = nullptr);
 
-  ezDocument* CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow = true, bool bAddToRecentFilesList = true, const ezDocumentObject* pOpenContext = nullptr);
   void CreateOrOpenProject(bool bCreate, const char* szFile);
-
-  /// \brief Starts at szStartDirectory and goes up until it finds a folder that contains the given sub folder structure.
-  /// Returns an empty string if nothing is found. Otherwise the returned path concatenated with szSubPath will be a valid, existing path.
-  ezString FindFolderWithSubPath(const char* szStartDirectory, const char* szSubPath) const;
 
   /// \brief Adds a data directory as a hard dependency to the project. Should be used by plugins to ensure their required data is available.
   /// The path must be relative to the SdkRoot folder.

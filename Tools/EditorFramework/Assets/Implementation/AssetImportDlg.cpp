@@ -200,7 +200,7 @@ void ezQtAssetImportDlg::BrowseButtonClicked(bool)
   {
     // asset was already imported
 
-    ezQtEditorApp::GetSingleton()->OpenDocument(option.m_sOutputFileAbsolute);
+    ezQtEditorApp::GetSingleton()->OpenDocumentQueued(option.m_sOutputFileAbsolute);
   }
   else
   {

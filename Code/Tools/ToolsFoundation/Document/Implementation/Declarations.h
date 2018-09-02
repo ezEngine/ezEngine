@@ -5,6 +5,30 @@ class ezDocumentManager;
 class ezDocumentObjectManager;
 class ezAbstractObjectGraph;
 
+struct ezDocumentFlags
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    None = 0,
+    RequestWindow = EZ_BIT(0),
+    AddToRecentFilesList = EZ_BIT(1),
+    AsyncSave = EZ_BIT(2),
+    Default = None,
+  };
+
+  struct Bits
+  {
+    StorageType RequestWindow : 1;
+    StorageType AddToRecentFilesList : 1;
+    StorageType AsyncSave : 1;
+  };
+};
+
+EZ_DECLARE_FLAGS_OPERATORS(ezDocumentFlags);
+
+
 struct EZ_TOOLSFOUNDATION_DLL ezDocumentTypeDescriptor
 {
   ezDocumentTypeDescriptor()

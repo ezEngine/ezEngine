@@ -4,74 +4,50 @@
 #include <EditorFramework/Preferences/Preferences.h>
 #include <Foundation/Profiling/Profiling.h>
 
-void ezQtEditorApp::OpenDocument(const char* szDocument, const ezDocumentObject* pOpenContext /*= nullptr*/)
+void ezQtEditorApp::OpenDocumentQueued(const char* szDocument, const ezDocumentObject* pOpenContext /*= nullptr*/)
 {
   QMetaObject::invokeMethod(this, "SlotQueuedOpenDocument", Qt::ConnectionType::QueuedConnection, Q_ARG(QString, szDocument),
                             Q_ARG(void*, (void*)pOpenContext));
 }
 
-ezDocument* ezQtEditorApp::OpenDocumentImmediate(const char* szDocument, bool bRequestWindow, bool bAddToRecentFilesList)
+ezDocument* ezQtEditorApp::OpenDocument(const char* szDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
 {
-  return CreateOrOpenDocument(false, szDocument, bRequestWindow, bAddToRecentFilesList);
-}
-
-void ezQtEditorApp::SlotQueuedOpenDocument(QString sProject, void* pOpenContext)
-{
-  CreateOrOpenDocument(false, sProject.toUtf8().data(), true, true, static_cast<const ezDocumentObject*>(pOpenContext));
-}
-
-ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow, bool bAddToRecentFilesList,
-                                                const ezDocumentObject* pOpenContext)
-{
-  EZ_PROFILE("CreateOrOpenDocument");
+  EZ_PROFILE("OpenDocument");
 
   if (m_bHeadless)
-    bRequestWindow = false;
+    flags.Remove(ezDocumentFlags::RequestWindow);
 
   const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
 
-  if (ezDocumentManager::FindDocumentTypeFromPath(szFile, bCreate, pTypeDesc).Failed())
+  if (ezDocumentManager::FindDocumentTypeFromPath(szDocument, false, pTypeDesc).Failed())
   {
-    ezStringBuilder sTemp = szFile;
-    ezStringBuilder sExt = sTemp.GetFileExtension();
-
-    sTemp.Format("The selected file extension '{0}' is not registered with any known type.\nCannot open file '{1}'", sExt, szFile);
-
+    ezStringBuilder sTemp;
+    sTemp.Format("The selected file extension '{0}' is not registered with any known type.\nCannot open file '{1}'",
+      ezPathUtils::GetFileExtension(szDocument), szDocument);
     ezQtUiServices::MessageBoxWarning(sTemp);
     return nullptr;
   }
 
   // does the same document already exist and is open ?
-  ezDocument* pDocument = pTypeDesc->m_pManager->GetDocumentByPath(szFile);
-
+  ezDocument* pDocument = pTypeDesc->m_pManager->GetDocumentByPath(szDocument);
   if (!pDocument)
   {
-    ezStatus res;
-
-    if (bCreate)
-      res = pTypeDesc->m_pManager->CreateDocument(pTypeDesc->m_sDocumentTypeName, szFile, pDocument, bRequestWindow);
-    else
+    ezStatus res = pTypeDesc->m_pManager->CanOpenDocument(szDocument);
+    if (res.m_Result.Succeeded())
     {
-      res = pTypeDesc->m_pManager->CanOpenDocument(szFile);
-
-      if (res.m_Result.Succeeded())
-      {
-        res = pTypeDesc->m_pManager->OpenDocument(pTypeDesc->m_sDocumentTypeName, szFile, pDocument, bRequestWindow, bAddToRecentFilesList,
-                                                  pOpenContext);
-      }
+      res = pTypeDesc->m_pManager->OpenDocument(pTypeDesc->m_sDocumentTypeName, szDocument, pDocument, flags, pOpenContext);
     }
 
     if (res.m_Result.Failed())
     {
       ezStringBuilder s;
-      s.Format("Failed to open document: \n'{0}'", szFile);
-
+      s.Format("Failed to open document: \n'{0}'", szDocument);
       ezQtUiServices::MessageBoxStatus(res, s);
       return nullptr;
     }
 
-    EZ_ASSERT_DEV(pDocument != nullptr, "Creation of document type '{0}' succeeded, but returned pointer is nullptr",
-                  pTypeDesc->m_sDocumentTypeName);
+    EZ_ASSERT_DEV(pDocument != nullptr, "Opening of document type '{0}' succeeded, but returned pointer is nullptr",
+      pTypeDesc->m_sDocumentTypeName);
 
     if (pDocument->GetUnknownObjectTypeInstances() > 0)
     {
@@ -79,30 +55,73 @@ ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile
       s.Format("The document contained {0} objects of an unknown type. Necessary plugins may be missing.\n\n\
 If you save this document, all data for these objects is lost permanently!\n\n\
 The following types are missing:\n",
-               pDocument->GetUnknownObjectTypeInstances());
+pDocument->GetUnknownObjectTypeInstances());
 
       for (auto it = pDocument->GetUnknownObjectTypes().GetIterator(); it.IsValid(); ++it)
       {
         s.AppendFormat(" '{0}' ", (*it));
       }
-
       ezQtUiServices::MessageBoxWarning(s);
     }
   }
-  else
-  {
-    if (bCreate)
-    {
-      ezQtUiServices::MessageBoxInformation(
-          "The selected document is already open. You need to close the document before you can re-create it.");
-      return nullptr;
-    }
-  }
 
-  if (bRequestWindow)
+  if (flags.IsSet(ezDocumentFlags::RequestWindow))
     ezQtContainerWindow::EnsureVisibleAnyContainer(pDocument);
 
   return pDocument;
+}
+
+ezDocument* ezQtEditorApp::CreateDocument(const char* szDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
+{
+  EZ_PROFILE("CreateDocument");
+
+  if (m_bHeadless)
+    flags.Remove(ezDocumentFlags::RequestWindow);
+
+  const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
+
+  if (ezDocumentManager::FindDocumentTypeFromPath(szDocument, true, pTypeDesc).Failed())
+  {
+    ezStringBuilder sTemp;
+    sTemp.Format("The selected file extension '{0}' is not registered with any known type.\nCannot create file '{1}'",
+      ezPathUtils::GetFileExtension(szDocument), szDocument);
+    ezQtUiServices::MessageBoxWarning(sTemp);
+    return nullptr;
+  }
+
+  // does the same document already exist and is open ?
+  ezDocument* pDocument = pTypeDesc->m_pManager->GetDocumentByPath(szDocument);
+  if (!pDocument)
+  {
+    ezStatus res = pTypeDesc->m_pManager->CreateDocument(pTypeDesc->m_sDocumentTypeName, szDocument, pDocument, flags);
+    if (res.m_Result.Failed())
+    {
+      ezStringBuilder s;
+      s.Format("Failed to create document: \n'{0}'", szDocument);
+      ezQtUiServices::MessageBoxStatus(res, s);
+      return nullptr;
+    }
+
+    EZ_ASSERT_DEV(pDocument != nullptr, "Creation of document type '{0}' succeeded, but returned pointer is nullptr",
+      pTypeDesc->m_sDocumentTypeName);
+    EZ_ASSERT_DEV(pDocument->GetUnknownObjectTypeInstances() == 0, "Newly created documents should not contain unknown types.");
+  }
+  else
+  {
+    ezQtUiServices::MessageBoxInformation(
+      "The selected document is already open. You need to close the document before you can re-create it.");
+    return nullptr;
+  }
+
+  if (flags.IsSet(ezDocumentFlags::RequestWindow))
+    ezQtContainerWindow::EnsureVisibleAnyContainer(pDocument);
+
+  return pDocument;
+}
+
+void ezQtEditorApp::SlotQueuedOpenDocument(QString sProject, void* pOpenContext)
+{
+  OpenDocument(sProject.toUtf8().data(), ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList, static_cast<const ezDocumentObject*>(pOpenContext));
 }
 
 void ezQtEditorApp::DocumentEventHandler(const ezDocumentEvent& e)

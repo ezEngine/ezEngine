@@ -267,7 +267,7 @@ void ezQtAssetPropertyWidget::on_customContextMenuRequested(const QPoint& pt)
 
 void ezQtAssetPropertyWidget::OnOpenAssetDocument()
 {
-  ezQtEditorApp::GetSingleton()->OpenDocument(ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_sAbsolutePath,
+  ezQtEditorApp::GetSingleton()->OpenDocumentQueued(ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_sAbsolutePath,
                                               GetSelection()[0].m_pObject);
 }
 
@@ -391,7 +391,7 @@ found:
   }
 
   ezDocument* pDoc;
-  if (pAssetManToUse->CreateDocument(sAssetType, sOutput, pDoc).m_Result.Succeeded())
+  if (pAssetManToUse->CreateDocument(sAssetType, sOutput, pDoc, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList).m_Result.Succeeded())
   {
     pDoc->EnsureVisible();
 

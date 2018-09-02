@@ -172,7 +172,7 @@ void ezQtSceneImportDlg::on_accepted()
 
     // Create document.
     ezMeshAssetDocument* meshDocument =
-        ezDynamicCast<ezMeshAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateOrOpenDocument(true, meshFilename, false, false));
+        ezDynamicCast<ezMeshAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateDocument(meshFilename, ezDocumentFlags::None));
     if (!meshDocument)
     {
       ezLog::Error("Failed to create a document for mesh '{0}' in '{1}'", meshIt.Value()->m_Name, meshFilename);
@@ -205,7 +205,7 @@ void ezQtSceneImportDlg::on_accepted()
   }
 
   // Create scene.
-  ezDocument* sceneDocument = ezQtEditorApp::GetSingleton()->CreateOrOpenDocument(true, outputFilename, true, true);
+  ezDocument* sceneDocument = ezQtEditorApp::GetSingleton()->CreateDocument(outputFilename, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList);
   if (!sceneDocument)
   {
     QMessageBox::critical(this, "Failed to load import", "Failed to create scene document.");

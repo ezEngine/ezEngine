@@ -69,7 +69,7 @@ ezDocumentInfo* ezAssetDocument::CreateDocumentInfo()
   return EZ_DEFAULT_NEW(ezAssetDocumentInfo);
 }
 
-ezStatus ezAssetDocument::InternalSaveDocument()
+ezTaskGroupID ezAssetDocument::InternalSaveDocument(AfterSaveCallback callback)
 {
   ezAssetDocumentInfo* pInfo = static_cast<ezAssetDocumentInfo*>(m_pDocumentInfo);
 
@@ -85,7 +85,7 @@ ezStatus ezAssetDocument::InternalSaveDocument()
   pInfo->m_AssetTransformDependencies.Remove(ezString());
   pInfo->m_RuntimeDependencies.Remove(ezString());
 
-  return ezDocument::InternalSaveDocument();
+  return ezDocument::InternalSaveDocument(callback);
 }
 
 void ezAssetDocument::InternalAfterSaveDocument()
@@ -353,6 +353,7 @@ ezStatus ezAssetDocument::DoTransformAsset(const char* szPlatform /*= nullptr*/,
 
 ezStatus ezAssetDocument::TransformAsset(bool bTriggeredManually, const char* szPlatform)
 {
+  EZ_PROFILE("TransformAsset");
   if (!bTriggeredManually)
   {
     if (IsModified())

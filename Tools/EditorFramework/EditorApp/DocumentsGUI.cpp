@@ -40,7 +40,10 @@ void ezQtEditorApp::GuiCreateOrOpenDocument(bool bCreate)
     sSelectedExt = pTypeDesc->m_sDocumentTypeName;
   }
 
-  CreateOrOpenDocument(bCreate, sFile);
+  if (bCreate)
+    CreateDocument(sFile, ezDocumentFlags::AddToRecentFilesList | ezDocumentFlags::RequestWindow);
+  else
+    OpenDocument(sFile, ezDocumentFlags::AddToRecentFilesList | ezDocumentFlags::RequestWindow);
 }
 
 void ezQtEditorApp::GuiCreateDocument()

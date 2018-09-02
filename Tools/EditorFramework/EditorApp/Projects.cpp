@@ -77,7 +77,7 @@ void ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
       // break;
 
       // range.BeginNextStep(doc.m_File);
-      OpenDocument(doc.m_File);
+      OpenDocumentQueued(doc.m_File);
     }
   }
 }

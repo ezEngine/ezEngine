@@ -51,6 +51,7 @@ void ezQtEditorApp::SlotTimedUpdate()
     ezEditorEngineProcessConnection::GetSingleton()->Update();
 
   ezAssetCurator::GetSingleton()->MainThreadTick();
+  ezTaskSystem::FinishFrameTasks();
 
   emit IdleEvent();
 

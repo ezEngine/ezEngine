@@ -170,7 +170,7 @@ ezResult ezAssetDocumentManager::TryOpenAssetDocument(const char* szPathOrGuid)
 
   if (pSubAsset)
   {
-    ezQtEditorApp::GetSingleton()->OpenDocument(pSubAsset->m_pAssetInfo->m_sAbsolutePath);
+    ezQtEditorApp::GetSingleton()->OpenDocumentQueued(pSubAsset->m_pAssetInfo->m_sAbsolutePath);
     return EZ_SUCCESS;
   }
 

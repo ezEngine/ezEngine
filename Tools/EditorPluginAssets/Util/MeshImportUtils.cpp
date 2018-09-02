@@ -40,7 +40,7 @@ namespace ezMeshImportUtils
     else
     {
       ezTextureAssetDocument* textureDocument =
-          ezDynamicCast<ezTextureAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateOrOpenDocument(true, newAssetPathAbs, false, false));
+        ezDynamicCast<ezTextureAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateDocument(newAssetPathAbs, ezDocumentFlags::None));
       if (!textureDocument)
       {
         ezLog::Error("Failed to create new texture asset '{0}'", szTexturePath);
@@ -216,6 +216,7 @@ namespace ezMeshImportUtils
                            ezHybridArray<ezMaterialResourceSlot, 8>& inout_MaterialSlots, const char* szImportSourceFolder,
                            const char* szImportTargetFolder)
   {
+    EZ_PROFILE("ImportMeshMaterials");
     ezStringBuilder materialName, tmp;
     ezStringBuilder materialNameTemp;
     ezStringBuilder newResourcePathAbs;
@@ -223,6 +224,18 @@ namespace ezMeshImportUtils
     ezProgressRange range("Importing Materials", mesh.GetNumSubMeshes(), false);
 
     ezHashTable<const ezModelImporter::Material*, ezString> importMatToMaterialGuid;
+    ezDynamicArray<ezTaskGroupID> pendingSaveTasks;
+    pendingSaveTasks.Reserve(mesh.GetNumSubMeshes());
+    auto WaitForPendingTasks = [&pendingSaveTasks]()
+    {
+      EZ_PROFILE("WaitForPendingTasks");
+      for (ezTaskGroupID& id : pendingSaveTasks)
+      {
+        ezTaskSystem::WaitForGroup(id);
+      }
+      pendingSaveTasks.Clear();
+    };
+
     for (ezUInt32 subMeshIdx = 0; subMeshIdx < mesh.GetNumSubMeshes(); ++subMeshIdx)
     {
       range.BeginNextStep("Importing Material");
@@ -269,7 +282,7 @@ namespace ezMeshImportUtils
         }
 
         ezMaterialAssetDocument* materialDocument = ezDynamicCast<ezMaterialAssetDocument*>(
-            ezQtEditorApp::GetSingleton()->CreateOrOpenDocument(true, newResourcePathAbs, false, false));
+          ezQtEditorApp::GetSingleton()->CreateDocument(newResourcePathAbs, ezDocumentFlags::AsyncSave));
         if (!materialDocument)
         {
           ezLog::Error("Failed to create new material '{0}'", material->m_Name);
@@ -277,12 +290,19 @@ namespace ezMeshImportUtils
         }
 
         ezMeshImportUtils::ImportMaterial(materialDocument, material, szImportSourceFolder, szImportTargetFolder);
-        materialDocument->SaveDocument();
-
         // ezAssetCurator::GetSingleton()->TransformAsset(materialDocument->GetGuid());
         inout_MaterialSlots[subMeshIdx].m_sResource = ezConversionUtils::ToString(materialDocument->GetGuid(), tmp);
 
-        materialDocument->GetDocumentManager()->CloseDocument(materialDocument);
+        ezTaskGroupID id = materialDocument->SaveDocumentAsync([](ezDocument* doc, ezStatus res)
+        {
+          doc->GetDocumentManager()->CloseDocument(doc);
+        });
+        pendingSaveTasks.PushBack(id);
+
+        // TODO: We have to flush because Materials create worlds in the engine process and there
+        // is a world limit of 64. So at half of that we flush.
+        if ((subMeshIdx % 32) == 0)
+          WaitForPendingTasks();
       }
 
       // If we have a material now, fill the mapping.
@@ -295,6 +315,7 @@ namespace ezMeshImportUtils
         importMatToMaterialGuid.Insert(material, inout_MaterialSlots[subMeshIdx].m_sResource);
       }
     }
+    WaitForPendingTasks();
   }
 
   void ImportMeshAssetMaterials(const char* szAssetDocument, const char* szMeshFile, bool bUseSubFolderForImportedMaterials,
@@ -302,7 +323,6 @@ namespace ezMeshImportUtils
                                 ezHybridArray<ezMaterialResourceSlot, 8>& inout_MaterialSlots)
   {
     EZ_LOG_BLOCK("Import Mesh Materials");
-
     ezStringBuilder importTargetDirectory = szAssetDocument;
 
     if (bUseSubFolderForImportedMaterials)
@@ -372,6 +392,7 @@ namespace ezMeshImportUtils
                            bool bImportMaterials, bool bUseSubFolderForImportedMaterials, const char* szMeshFile,
                            ezHybridArray<ezMaterialResourceSlot, 8>& inout_MaterialSlots)
   {
+    EZ_PROFILE("UpdateMaterialSlots");
     inout_MaterialSlots.SetCount(mesh.GetNumSubMeshes());
     for (ezUInt32 subMeshIdx = 0; subMeshIdx < mesh.GetNumSubMeshes(); ++subMeshIdx)
     {

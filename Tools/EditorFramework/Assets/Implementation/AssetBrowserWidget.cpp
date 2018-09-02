@@ -791,7 +791,7 @@ void ezQtAssetBrowserWidget::OnNewAsset()
     return;
 
   ezDocument* pDoc;
-  if (pManager->CreateDocument(sAssetType, sOutput, pDoc).m_Result.Succeeded())
+  if (pManager->CreateDocument(sAssetType, sOutput, pDoc, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList).m_Result.Succeeded())
   {
     pDoc->EnsureVisible();
   }

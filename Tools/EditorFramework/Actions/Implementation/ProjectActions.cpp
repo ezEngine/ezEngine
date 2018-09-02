@@ -248,7 +248,7 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::
 
 void ezRecentDocumentsMenuAction::Execute(const ezVariant& value)
 {
-  ezQtEditorApp::GetSingleton()->OpenDocument(value.ConvertTo<ezString>());
+  ezQtEditorApp::GetSingleton()->OpenDocumentQueued(value.ConvertTo<ezString>());
 }
 
 

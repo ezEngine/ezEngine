@@ -142,7 +142,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const char* szPlatfor
       if (pDoc)
         bWasOpen = true;
       else
-        pDoc = pEditorApp->OpenDocumentImmediate(asset.m_pAssetInfo->m_sAbsolutePath, false, false);
+        pDoc = pEditorApp->OpenDocument(asset.m_pAssetInfo->m_sAbsolutePath, ezDocumentFlags::None);
 
       if (pDoc == nullptr)
         return ezStatus(ezFmt("Could not open asset document '{0}'", asset.m_pAssetInfo->m_sDataDirRelativePath));

@@ -163,6 +163,19 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
 
       m_Watchers.PushBack(pWatcher);
     }
+    m_WatcherTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Update", [this]()
+    {
+      CURATOR_PROFILE("Watcher");
+      for (ezDirectoryWatcher* pWatcher : m_Watchers)
+      {
+        pWatcher->EnumerateChanges([pWatcher, this](const char* szFilename, ezDirectoryWatcherAction action)
+        {
+          ezStringBuilder sTemp = pWatcher->GetDirectory();
+          sTemp.AppendPath(szFilename);
+          m_WatcherResults.PushBack(sTemp);
+        });
+      }
+    });
   }
 
   ezDelegateTask<void>* pInitTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Initialize Curator", [this]() {
@@ -216,12 +229,17 @@ void ezAssetCurator::WaitForInitialize()
 void ezAssetCurator::Deinitialize()
 {
   EZ_PROFILE("Deinitialize");
+
   ShutdownUpdateTask();
   ezAssetProcessor::GetSingleton()->ShutdownProcessTask();
   SaveCaches();
 
   {
     EZ_LOCK(m_CuratorMutex);
+
+    ezTaskSystem::WaitForGroup(m_WatcherGroup);
+    EZ_DEFAULT_DELETE(m_WatcherTask);
+    m_WatcherResults.Clear();
 
     for (ezDirectoryWatcher* pWatcher : m_Watchers)
     {
@@ -268,23 +286,6 @@ void ezAssetCurator::SetActivePlatform(const char* szPlatform)
   m_Events.Broadcast(e);
 }
 
-void WatcherCallback(const char* szDirectory, const char* szFilename, ezDirectoryWatcherAction action)
-{
-  switch (action)
-  {
-    case ezDirectoryWatcherAction::Added:
-    case ezDirectoryWatcherAction::Removed:
-    case ezDirectoryWatcherAction::Modified:
-    case ezDirectoryWatcherAction::RenamedOldName:
-    case ezDirectoryWatcherAction::RenamedNewName:
-    {
-      ezStringBuilder sTemp = szDirectory;
-      sTemp.AppendPath(szFilename);
-      ezAssetCurator::GetSingleton()->NotifyOfFileChange(sTemp);
-    }
-  }
-}
-
 void ezAssetCurator::MainThreadTick()
 {
   CURATOR_PROFILE("MainThreadTick");
@@ -295,14 +296,14 @@ void ezAssetCurator::MainThreadTick()
 
   bReentry = true;
 
+  if (m_WatcherTask && ezTaskSystem::IsTaskGroupFinished(m_WatcherGroup))
   {
-    CURATOR_PROFILE("Watcher");
-    for (ezDirectoryWatcher* pWatcher : m_Watchers)
+    for (const ezString& sFile : m_WatcherResults)
     {
-      pWatcher->EnumerateChanges([pWatcher](const char* szFilename, ezDirectoryWatcherAction action) {
-        WatcherCallback(pWatcher->GetDirectory(), szFilename, action);
-      });
+      NotifyOfFileChange(sFile);
     }
+    m_WatcherResults.Clear();
+    m_WatcherGroup = ezTaskSystem::StartSingleTask(m_WatcherTask, ezTaskPriority::LongRunningHighPriority);
   }
 
   EZ_LOCK(m_CuratorMutex);
@@ -949,7 +950,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
   if (pDoc)
     bWasOpen = true;
   else
-    pDoc = ezQtEditorApp::GetSingleton()->OpenDocumentImmediate(pAssetInfo->m_sAbsolutePath, false, false);
+    pDoc = ezQtEditorApp::GetSingleton()->OpenDocument(pAssetInfo->m_sAbsolutePath, ezDocumentFlags::None);
 
   if (pDoc == nullptr)
     return ezStatus(ezFmt("Could not open asset document '{0}'", pAssetInfo->m_sDataDirRelativePath));
@@ -990,7 +991,7 @@ ezStatus ezAssetCurator::ResaveAsset(ezAssetInfo* pAssetInfo)
   if (pDoc)
     bWasOpen = true;
   else
-    pDoc = ezQtEditorApp::GetSingleton()->OpenDocumentImmediate(pAssetInfo->m_sAbsolutePath, false, false);
+    pDoc = ezQtEditorApp::GetSingleton()->OpenDocument(pAssetInfo->m_sAbsolutePath, ezDocumentFlags::None);
 
   if (pDoc == nullptr)
     return ezStatus(ezFmt("Could not open asset document '{0}'", pAssetInfo->m_sDataDirRelativePath));

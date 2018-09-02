@@ -10,6 +10,7 @@
 #include <ToolsFoundation/Document/Implementation/Declarations.h>
 #include <ToolsFoundation/Object/ObjectMetaData.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <Foundation/Threading/Implementation/TaskSystemDeclarations.h>
 
 class ezObjectAccessorBase;
 class ezObjectCommandAccessor;
@@ -82,6 +83,8 @@ public:
   /// \brief Saves the document, if it is modified.
   /// If bForce is true, the document will be written, even if it is not considered modified.
   ezStatus SaveDocument(bool bForce = false);
+  typedef ezDelegate<void(ezDocument* doc, ezStatus res)> AfterSaveCallback;
+  ezTaskGroupID SaveDocumentAsync(AfterSaveCallback callback, bool bForce = false);
   ezStatus LoadDocument() { return InternalLoadDocument(); }
 
   /// \brief Brings the corresponding window to the front.
@@ -192,7 +195,7 @@ public:
 protected:
   void SetModified(bool b);
   void SetReadOnly(bool b);
-  virtual ezStatus InternalSaveDocument();
+  virtual ezTaskGroupID InternalSaveDocument(AfterSaveCallback callback);
   virtual ezStatus InternalLoadDocument();
   virtual ezDocumentInfo* CreateDocumentInfo() = 0;
 
@@ -224,6 +227,8 @@ protected:
 private:
   friend class ezDocumentManager;
   friend class ezCommandHistory;
+  friend class ezSaveDocumentTask;
+  friend class ezAfterSaveDocumentTask;
 
   void SetupDocumentInfo(const ezDocumentTypeDescriptor* pTypeDescriptor);
 
@@ -238,4 +243,7 @@ private:
 
   ezSet<ezString> m_UnknownObjectTypes;
   ezUInt32 m_uiUnknownObjectTypeInstances;
+
+  ezTaskGroupID m_activeSaveTask;
+  ezStatus m_lastSaveResult;
 };

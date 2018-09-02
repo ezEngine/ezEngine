@@ -347,6 +347,10 @@ private:
 
   mutable ezCuratorMutex m_CuratorMutex;
   ezDynamicArray<ezDirectoryWatcher*> m_Watchers;
+  ezTask* m_WatcherTask = nullptr;
+  ezTaskGroupID m_WatcherGroup;
+  ezDynamicArray<ezString> m_WatcherResults;
+
   ezUpdateTask* m_pUpdateTask;
 };
 

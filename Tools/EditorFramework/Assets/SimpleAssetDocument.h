@@ -6,6 +6,7 @@
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <Foundation/Profiling/Profiling.h>
 
 class ezApplyNativePropertyChangesContext : public ezRttiConverterContext
 {
@@ -158,6 +159,7 @@ protected:
   // not incremental changes to the existing data.
   void ApplyNativePropertyChangesToObjectManager(bool bForceIndexBasedRemapping = false)
   {
+    EZ_PROFILE("ApplyNativePropertyChangesToObjectManager");
     // Create object manager graph
     ezAbstractObjectGraph origGraph;
     ezAbstractObjectNode* pOrigRootNode = nullptr;

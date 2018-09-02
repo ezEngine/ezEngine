@@ -115,7 +115,7 @@ protected:
   ///@{
 
   /// \brief Overrides the base function to call UpdateAssetDocumentInfo() to update the settings hash
-  virtual ezStatus InternalSaveDocument() override;
+  virtual ezTaskGroupID InternalSaveDocument(AfterSaveCallback callback) override;
 
   /// \brief Implements auto transform on save
   virtual void InternalAfterSaveDocument() override;

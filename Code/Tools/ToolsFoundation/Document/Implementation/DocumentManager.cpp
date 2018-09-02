@@ -4,6 +4,7 @@
 #include <Foundation/Configuration/SubSystem.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
+#include <Foundation/IO/OSFile.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentManager, 1, ezRTTINoAllocator);
@@ -181,11 +182,16 @@ void ezDocumentManager::EnsureWindowRequested(ezDocument* pDocument, const ezDoc
 }
 
 ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath,
-                                                 ezDocument*& out_pDocument, bool bRequestWindow, bool bAddToRecentFilesList,
+                                                 ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags,
                                                  const ezDocumentObject* pOpenContext /*= nullptr*/)
 {
+  ezFileStats fs;
   ezStringBuilder sPath = szPath;
   sPath.MakeCleanPath();
+  if (!bCreate && ezOSFile::GetFileStats(sPath, fs).Failed())
+  {
+    return ezStatus("The file does not exist.");
+  }
 
   Request r;
   r.m_Type = Request::Type::DocumentAllowedToOpen;
@@ -217,7 +223,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
         EZ_ASSERT_DEV(status.m_Result == EZ_FAILURE || out_pDocument != nullptr,
                       "Status was success, but the document manager returned a nullptr document.");
       }
-      out_pDocument->SetAddToResetFilesList(bAddToRecentFilesList);
+      out_pDocument->SetAddToResetFilesList(flags.IsSet(ezDocumentFlags::AddToRecentFilesList));
 
       if (status.m_Result.Succeeded())
       {
@@ -240,7 +246,15 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
         if (bCreate)
         {
           out_pDocument->SetModified(true);
-          status = out_pDocument->SaveDocument();
+          if (flags.IsSet(ezDocumentFlags::AsyncSave))
+          {
+            out_pDocument->SaveDocumentAsync({});
+            status = ezStatus(EZ_SUCCESS);
+          }
+          else
+          {
+            status = out_pDocument->SaveDocument();
+          }
         }
         Event e;
         e.m_pDocument = out_pDocument;
@@ -248,7 +262,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
 
         s_Events.Broadcast(e);
 
-        if (bRequestWindow)
+        if (flags.IsSet(ezDocumentFlags::RequestWindow))
           EnsureWindowRequested(out_pDocument, pOpenContext);
       }
 
@@ -261,16 +275,15 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
 }
 
 ezStatus ezDocumentManager::CreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument,
-                                           bool bRequestWindow)
+  ezBitflags<ezDocumentFlags> flags)
 {
-  return CreateOrOpenDocument(true, szDocumentTypeName, szPath, out_pDocument, bRequestWindow, true);
+  return CreateOrOpenDocument(true, szDocumentTypeName, szPath, out_pDocument, flags);
 }
 
 ezStatus ezDocumentManager::OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument,
-                                         bool bRequestWindow, bool bAddToRecentFilesList,
-                                         const ezDocumentObject* pOpenContext /*= nullptr*/)
+  ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
 {
-  return CreateOrOpenDocument(false, szDocumentTypeName, szPath, out_pDocument, bRequestWindow, bAddToRecentFilesList, pOpenContext);
+  return CreateOrOpenDocument(false, szDocumentTypeName, szPath, out_pDocument, flags, pOpenContext);
 }
 
 void ezDocumentManager::CloseDocument(ezDocument* pDocument)

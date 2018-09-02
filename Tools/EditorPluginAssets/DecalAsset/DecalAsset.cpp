@@ -208,8 +208,8 @@ ezStatus ezDecalAssetDocumentGenerator::Generate(const char* szDataDirRelativePa
                                                  ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
+  out_pGeneratedDocument = pApp->CreateDocument(info.m_sOutputFileAbsolute, ezDocumentFlags::None);
 
-  out_pGeneratedDocument = pApp->CreateOrOpenDocument(true, info.m_sOutputFileAbsolute, false, false);
   if (out_pGeneratedDocument == nullptr)
     return ezStatus("Could not create target document");
 
