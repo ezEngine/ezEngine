@@ -23,6 +23,7 @@
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <SharedPluginScene/Common/Messages.h>
+#include <GameEngine/Utils/ExtractWorldGeoUtil.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)
@@ -148,6 +149,12 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezExposedDocumentObjectPropertiesMsgToEngine>())
   {
     HandleExposedPropertiesMsg(static_cast<const ezExposedDocumentObjectPropertiesMsgToEngine*>(pMsg));
+    return;
+  }
+
+  if (const ezExportSceneGeometryMsgToEngine* msg = ezDynamicCast<const ezExportSceneGeometryMsgToEngine*>(pMsg))
+  {
+    HandleSceneGeometryMsg(msg);
     return;
   }
 
@@ -752,4 +759,16 @@ void ezSceneContext::RemoveAmbientLight()
 void ezSceneContext::HandleExposedPropertiesMsg(const ezExposedDocumentObjectPropertiesMsgToEngine* pMsg)
 {
   m_ExposedSceneProperties = pMsg->m_Properties;
+}
+
+void ezSceneContext::HandleSceneGeometryMsg(const ezExportSceneGeometryMsgToEngine* pMsg)
+{
+  ezWorldUtils::Geometry geo;
+
+  if (pMsg->m_bSelectionOnly)
+    ezWorldUtils::ExtractWorldGeometry(*m_pWorld, geo, m_SelectionWithChildren);
+  else
+    ezWorldUtils::ExtractWorldGeometry(*m_pWorld, geo);
+
+  ezWorldUtils::WriteWorldGeometryToOBJ(geo, pMsg->m_sOutputFile);
 }

@@ -21,3 +21,11 @@ public:
   ezDynamicArray<ezExposedSceneProperty> m_Properties;
 };
 
+class EZ_SHAREDPLUGINSCENE_DLL ezExportSceneGeometryMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezExportSceneGeometryMsgToEngine, ezEditorEngineDocumentMsg);
+
+public:
+  bool m_bSelectionOnly = false;
+  ezString m_sOutputFile;
+};

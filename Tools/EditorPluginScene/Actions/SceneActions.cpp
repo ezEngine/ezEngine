@@ -9,6 +9,7 @@
 #include <Foundation/Logging/Log.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
+#include <QFileDialog>
 #include <QProcess>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
@@ -16,15 +17,20 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezActionDescriptorHandle ezSceneActions::s_hSceneCategory;
+ezActionDescriptorHandle ezSceneActions::s_hSceneUtilsMenu;
 ezActionDescriptorHandle ezSceneActions::s_hExportScene;
 ezActionDescriptorHandle ezSceneActions::s_hRunScene;
 ezActionDescriptorHandle ezSceneActions::s_hGameModeSimulate;
 ezActionDescriptorHandle ezSceneActions::s_hGameModePlay;
 ezActionDescriptorHandle ezSceneActions::s_hGameModeStop;
+ezActionDescriptorHandle ezSceneActions::s_hUtilExportSceneToOBJ;
+ezActionDescriptorHandle ezSceneActions::s_hUtilExportSelectionToOBJ;
 
 void ezSceneActions::RegisterActions()
 {
   s_hSceneCategory = EZ_REGISTER_CATEGORY("SceneCategory");
+  s_hSceneUtilsMenu = EZ_REGISTER_MENU_WITH_ICON("Scene.Utils.Menu", "");
+
   s_hExportScene = EZ_REGISTER_ACTION_1("Scene.Export", ezActionScope::Document, "Scene", "Ctrl+E", ezSceneAction,
                                         ezSceneAction::ActionType::ExportScene);
   s_hRunScene =
@@ -35,16 +41,24 @@ void ezSceneActions::RegisterActions()
                                          ezSceneAction::ActionType::StartGameModePlay);
   s_hGameModeStop = EZ_REGISTER_ACTION_1("Scene.GameMode.Stop", ezActionScope::Document, "Scene", "Shift+F5", ezSceneAction,
                                          ezSceneAction::ActionType::StopGameMode);
+
+  s_hUtilExportSceneToOBJ = EZ_REGISTER_ACTION_1("Scene.ExportSceneToOBJ", ezActionScope::Document, "Scene", "", ezSceneAction,
+                                                 ezSceneAction::ActionType::ExportSceneToOBJ);
+  s_hUtilExportSelectionToOBJ = EZ_REGISTER_ACTION_1("Scene.ExportSelectionToOBJ", ezActionScope::Document, "Scene", "", ezSceneAction,
+                                                     ezSceneAction::ActionType::ExportSelectionToOBJ);
 }
 
 void ezSceneActions::UnregisterActions()
 {
   ezActionManager::UnregisterAction(s_hSceneCategory);
+  ezActionManager::UnregisterAction(s_hSceneUtilsMenu);
   ezActionManager::UnregisterAction(s_hExportScene);
   ezActionManager::UnregisterAction(s_hRunScene);
   ezActionManager::UnregisterAction(s_hGameModeSimulate);
   ezActionManager::UnregisterAction(s_hGameModePlay);
   ezActionManager::UnregisterAction(s_hGameModeStop);
+  ezActionManager::UnregisterAction(s_hUtilExportSceneToOBJ);
+  ezActionManager::UnregisterAction(s_hUtilExportSelectionToOBJ);
 }
 
 
@@ -55,6 +69,7 @@ void ezSceneActions::MapMenuActions()
 
   {
     const char* szSubPath = "Menu.Scene/SceneCategory";
+    const char* szUtilsSubPath = "Menu.Scene/Scene.Utils.Menu";
 
     pMap->MapAction(s_hSceneCategory, "Menu.Scene", 1.0f);
     pMap->MapAction(s_hExportScene, szSubPath, 1.0f);
@@ -62,6 +77,10 @@ void ezSceneActions::MapMenuActions()
     pMap->MapAction(s_hGameModeStop, szSubPath, 4.0f);
     pMap->MapAction(s_hGameModeSimulate, szSubPath, 5.0f);
     pMap->MapAction(s_hGameModePlay, szSubPath, 6.0f);
+
+    pMap->MapAction(s_hSceneUtilsMenu, "Menu.Scene", 10.0f);
+    pMap->MapAction(s_hUtilExportSceneToOBJ, szUtilsSubPath, 1.0f);
+    pMap->MapAction(s_hUtilExportSelectionToOBJ, szUtilsSubPath, 2.0f);
   }
 }
 
@@ -114,6 +133,11 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
 
     case ActionType::StopGameMode:
       SetIconPath(":/EditorPluginScene/Icons/SceneStop16.png");
+      break;
+
+    case ActionType::ExportSceneToOBJ:
+    case ActionType::ExportSelectionToOBJ:
+      // SetIconPath(":/EditorPluginScene/Icons/SceneStop16.png"); // TODO: icon
       break;
   }
 
@@ -172,6 +196,25 @@ void ezSceneAction::Execute(const ezVariant& value)
     case ActionType::StopGameMode:
       m_pSceneDocument->StopGameMode();
       return;
+
+    case ActionType::ExportSceneToOBJ:
+    {
+      QString allFilters = "OBJ (*.obj)";
+      QString sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Export to"), QString(), allFilters, nullptr,
+                                                   QFileDialog::Option::DontResolveSymlinks);
+
+      m_pSceneDocument->ExportSceneGeometry(sFile.toUtf8().data(), false);
+      return;
+    }
+    case ActionType::ExportSelectionToOBJ:
+    {
+      QString allFilters = "OBJ (*.obj)";
+      QString sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Export to"), QString(), allFilters, nullptr,
+                                                   QFileDialog::Option::DontResolveSymlinks);
+
+      m_pSceneDocument->ExportSceneGeometry(sFile.toUtf8().data(), true);
+      return;
+    }
   }
 }
 

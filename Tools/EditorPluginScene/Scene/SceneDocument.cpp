@@ -1062,6 +1062,14 @@ ezStatus ezSceneDocument::ExportScene()
   return res;
 }
 
+void ezSceneDocument::ExportSceneGeometry(const char* szFile, bool bOnlySelection)
+{
+  ezExportSceneGeometryMsgToEngine msg;
+  msg.m_sOutputFile = szFile;
+  msg.m_bSelectionOnly = bOnlySelection;
+
+  SendMessageToEngine(&msg);
+}
 
 void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
 {

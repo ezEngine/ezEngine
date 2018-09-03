@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Basics.h>
 #include <Core/ResourceManager/Resource.h>
@@ -14,8 +14,8 @@ struct EZ_RENDERERCORE_DLL ezVertexStreamInfo : public ezHashableStruct<ezVertex
 
   ezGALVertexAttributeSemantic::Enum m_Semantic;
   ezGALResourceFormat::Enum m_Format;
-  ezUInt16 m_uiOffset;
-  ezUInt16 m_uiElementSize;
+  ezUInt16 m_uiOffset; ///< at which byte offset the first element starts
+  ezUInt16 m_uiElementSize; ///< the number of bytes for this element type (depends on the format); this is not the stride between elements!
 };
 
 struct EZ_RENDERERCORE_DLL ezVertexDeclarationInfo

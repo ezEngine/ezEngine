@@ -69,6 +69,7 @@ private:
   void HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgToEngine* pMsg);
   void ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds);
   void HandleExposedPropertiesMsg(const ezExposedDocumentObjectPropertiesMsgToEngine* pMsg);
+  void HandleSceneGeometryMsg(const ezExportSceneGeometryMsgToEngine* pMsg);
 
   void DrawSelectionBounds(const ezViewHandle& hView);
 

@@ -18,12 +18,14 @@ public:
   static void MapToolbarActions();
 
   static ezActionDescriptorHandle s_hSceneCategory;
+  static ezActionDescriptorHandle s_hSceneUtilsMenu;
   static ezActionDescriptorHandle s_hExportScene;
   static ezActionDescriptorHandle s_hRunScene;
   static ezActionDescriptorHandle s_hGameModeSimulate;
   static ezActionDescriptorHandle s_hGameModePlay;
   static ezActionDescriptorHandle s_hGameModeStop;
-
+  static ezActionDescriptorHandle s_hUtilExportSceneToOBJ;
+  static ezActionDescriptorHandle s_hUtilExportSelectionToOBJ;
 };
 
 ///
@@ -40,6 +42,8 @@ public:
     StartGameModeSimulate,
     StartGameModePlay,
     StopGameMode,
+    ExportSelectionToOBJ,
+    ExportSceneToOBJ,
   };
 
   ezSceneAction(const ezActionContext& context, const char* szName, ActionType type);
