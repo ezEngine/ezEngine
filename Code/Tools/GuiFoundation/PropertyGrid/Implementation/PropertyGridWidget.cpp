@@ -344,7 +344,7 @@ ezQtPropertyWidget* ezQtPropertyGridWidget::CreatePropertyWidget(const ezAbstrac
       }
       else
       {
-        ezQtPropertyWidget* pWidget = CreateMemberPropertyWidget(pProp);
+        ezQtPropertyWidget* pWidget = ezQtPropertyGridWidget::GetFactory().CreateObject(pProp->GetSpecificType());
         if (pWidget != nullptr)
           return pWidget;
 
