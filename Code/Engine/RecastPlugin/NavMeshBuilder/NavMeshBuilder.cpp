@@ -137,7 +137,12 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGe
   {
     for (const auto& v : desc.m_Vertices)
     {
-      m_Vertices.PushBack(v.m_vPosition);
+      ezVec3 pos = v.m_vPosition;
+
+    // convert from ez convention (Y up) to recast convention (Z up)
+      ezMath::Swap(pos.y, pos.z);
+
+      m_Vertices.PushBack(pos);
     }
 
     for (const auto& tri : desc.m_Triangles)

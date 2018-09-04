@@ -59,7 +59,7 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
 
   ezStringBuilder line;
 
-  line.Format("\n\n# {0} vertices\n", geo.m_Vertices.GetCount());
+  line.Format("\n\n# {0} vertices\n\n", geo.m_Vertices.GetCount());
   file.WriteBytes(line.GetData(), line.GetElementCount());
 
   for (ezUInt32 i = 0; i < geo.m_Vertices.GetCount(); ++i)
@@ -67,12 +67,12 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
     const ezVec3 pos = mTransform.TransformDirection(geo.m_Vertices[i].m_vPosition);
 
     line.Format("v {0} {1} {2}\n", ezArgF(pos.x, 8), ezArgF(pos.y, 8), ezArgF(pos.z, 8));
-
     file.WriteBytes(line.GetData(), line.GetElementCount());
   }
 
-  line.Format("\n\n# {0} triangles\n", geo.m_Triangles.GetCount());
+  line.Format("\n\n# {0} triangles\n\n", geo.m_Triangles.GetCount());
   file.WriteBytes(line.GetData(), line.GetElementCount());
+
 
   for (ezUInt32 i = 0; i < geo.m_Triangles.GetCount(); ++i)
   {
@@ -82,7 +82,74 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
     file.WriteBytes(line.GetData(), line.GetElementCount());
   }
 
-  // TODO: write object geometry
+  ezUInt32 idxOff = geo.m_Vertices.GetCount() + 1;
+
+  // write object geometry
+  {
+    line.Format("\n\n# {0} boxes\n\n", geo.m_BoxShapes.GetCount());
+    file.WriteBytes(line.GetData(), line.GetElementCount());
+
+    for (const auto& shape : geo.m_BoxShapes)
+    {
+      const ezVec3 he = shape.m_vHalfExtents;
+      ezVec3 v[8];
+      v[0] = mTransform * (shape.m_vPosition + shape.m_qRotation * ezVec3(-he.x, -he.y, -he.z));
+      v[1] = mTransform * (shape.m_vPosition + shape.m_qRotation * ezVec3(-he.x, -he.y, +he.z));
+      v[2] = mTransform * (shape.m_vPosition + shape.m_qRotation * ezVec3(-he.x, +he.y, -he.z));
+      v[3] = mTransform * (shape.m_vPosition + shape.m_qRotation * ezVec3(-he.x, +he.y, +he.z));
+      v[4] = mTransform * (shape.m_vPosition + shape.m_qRotation * ezVec3(+he.x, -he.y, -he.z));
+      v[5] = mTransform * (shape.m_vPosition + shape.m_qRotation * ezVec3(+he.x, -he.y, +he.z));
+      v[6] = mTransform * (shape.m_vPosition + shape.m_qRotation * ezVec3(+he.x, +he.y, -he.z));
+      v[7] = mTransform * (shape.m_vPosition + shape.m_qRotation * ezVec3(+he.x, +he.y, +he.z));
+
+      for (ezUInt32 i = 0; i < 8; ++i)
+      {
+        line.Format("v {0} {1} {2}\n", ezArgF(v[i].x, 8), ezArgF(v[i].y, 8), ezArgF(v[i].z, 8));
+        file.WriteBytes(line.GetData(), line.GetElementCount());
+      }
+
+      // box faces
+      {
+        line.Format("\nf {0} {1} {2}\n", idxOff + 0, idxOff + 5, idxOff + 1);
+        file.WriteBytes(line.GetData(), line.GetElementCount());
+
+        line.Format("f {0} {1} {2}\n", idxOff + 1, idxOff + 4, idxOff + 5);
+        file.WriteBytes(line.GetData(), line.GetElementCount());
+
+        line.Format("f {0} {1} {2}\n", idxOff + 2, idxOff + 1, idxOff + 3);
+        file.WriteBytes(line.GetData(), line.GetElementCount());
+
+        line.Format("f {0} {1} {2}\n", idxOff + 2, idxOff + 0, idxOff + 1);
+        file.WriteBytes(line.GetData(), line.GetElementCount());
+
+        line.Format("f {0} {1} {2}\n", idxOff + 6, idxOff + 3, idxOff + 7);
+        file.WriteBytes(line.GetData(), line.GetElementCount());
+
+        line.Format("f {0} {1} {2}\n", idxOff + 6, idxOff + 2, idxOff + 3);
+        file.WriteBytes(line.GetData(), line.GetElementCount());
+
+        line.Format("f {0} {1} {2}\n", idxOff + 4, idxOff + 7, idxOff + 5);
+        file.WriteBytes(line.GetData(), line.GetElementCount());
+
+        line.Format("f {0} {1} {2}\n", idxOff + 4, idxOff + 6, idxOff + 7);
+        file.WriteBytes(line.GetData(), line.GetElementCount());
+
+        line.Format("f {0} {1} {2}\n", idxOff + 4, idxOff + 2, idxOff + 6);
+        file.WriteBytes(line.GetData(), line.GetElementCount());
+
+        line.Format("f {0} {1} {2}\n", idxOff + 4, idxOff + 0, idxOff + 2);
+        file.WriteBytes(line.GetData(), line.GetElementCount());
+
+        line.Format("f {0} {1} {2}\n", idxOff + 7, idxOff + 1, idxOff + 5);
+        file.WriteBytes(line.GetData(), line.GetElementCount());
+
+        line.Format("f {0} {1} {2}\n\n\n", idxOff + 7, idxOff + 3, idxOff + 1);
+        file.WriteBytes(line.GetData(), line.GetElementCount());
+      }
+
+      idxOff += 8;
+    }
+  }
 
   ezLog::Success("Wrote world geometry to '{0}'", file.GetFilePathAbsolute().GetView());
 }

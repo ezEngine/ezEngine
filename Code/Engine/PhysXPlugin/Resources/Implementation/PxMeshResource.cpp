@@ -185,7 +185,6 @@ void ezPxMeshResource::ExtractGeometry(const ezTransform& transform, ezMsgExtrac
     {
       auto& vertex = msg.m_pWorldGeometry->m_Vertices.ExpandAndGetRef();
       vertex.m_vPosition = transform * reinterpret_cast<const ezVec3&>(pConvex->getVertices()[v]);
-      ezMath::Swap(vertex.m_vPosition.y, vertex.m_vPosition.z);
     }
 
     const auto pIndices = pConvex->getIndexBuffer();
@@ -215,7 +214,6 @@ void ezPxMeshResource::ExtractGeometry(const ezTransform& transform, ezMsgExtrac
     {
       auto& vertex = msg.m_pWorldGeometry->m_Vertices.ExpandAndGetRef();
       vertex.m_vPosition = transform * reinterpret_cast<const ezVec3&>(pTriMesh->getVertices()[vtx]);
-      ezMath::Swap(vertex.m_vPosition.y, vertex.m_vPosition.z);
     }
 
     if (pTriMesh->getTriangleMeshFlags().isSet(PxTriangleMeshFlag::e16_BIT_INDICES))
