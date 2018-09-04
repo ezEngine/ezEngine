@@ -25,7 +25,6 @@ public:
   static ezActionDescriptorHandle s_hGameModePlay;
   static ezActionDescriptorHandle s_hGameModeStop;
   static ezActionDescriptorHandle s_hUtilExportSceneToOBJ;
-  static ezActionDescriptorHandle s_hUtilExportSelectionToOBJ;
 };
 
 ///
@@ -42,7 +41,6 @@ public:
     StartGameModeSimulate,
     StartGameModePlay,
     StopGameMode,
-    ExportSelectionToOBJ,
     ExportSceneToOBJ,
   };
 

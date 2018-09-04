@@ -766,9 +766,10 @@ void ezSceneContext::HandleSceneGeometryMsg(const ezExportSceneGeometryMsgToEngi
   ezWorldGeoExtractionUtil::Geometry geo;
 
   if (pMsg->m_bSelectionOnly)
-    ezWorldGeoExtractionUtil::ExtractWorldGeometry(geo, *m_pWorld, ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh, m_SelectionWithChildren);
+    ezWorldGeoExtractionUtil::ExtractWorldGeometry(geo, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), m_SelectionWithChildren);
   else
-    ezWorldGeoExtractionUtil::ExtractWorldGeometry(geo, *m_pWorld, ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh);
+    ezWorldGeoExtractionUtil::ExtractWorldGeometry(geo, *m_pWorld,
+                                                   static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode));
 
   ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(pMsg->m_sOutputFile, geo, ezMat3::IdentityMatrix());
 }

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ExtractGeometryDlg</class>
+ <widget class="QDialog" name="ExtractGeometryDlg">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>326</width>
+    <height>159</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1000</width>
+    <height>1000</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Delta Transform</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+    <normaloff>:/GuiFoundation/Icons/ezEditor16.png</normaloff>:/GuiFoundation/Icons/ezEditor16.png</iconset>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Write to file:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLineEdit" name="DestinationFile"/>
+     </item>
+     <item>
+      <widget class="QToolButton" name="BrowseButton">
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Geometry Type:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="ExtractionMode"/>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="ExtractOnlySelection">
+     <property name="text">
+      <string>Only selected objects</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>13</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="ButtonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../QtResources/resources.qrc"/>
+  <include location="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc"/>
+  <include location="../../EditorFramework/QtResources/resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

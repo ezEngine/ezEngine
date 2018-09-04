@@ -28,4 +28,5 @@ class EZ_SHAREDPLUGINSCENE_DLL ezExportSceneGeometryMsgToEngine : public ezEdito
 public:
   bool m_bSelectionOnly = false;
   ezString m_sOutputFile;
+  int m_iExtractionMode; // ezWorldGeoExtractionUtil::ExtractionMode
 };

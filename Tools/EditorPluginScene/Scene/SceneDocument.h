@@ -105,7 +105,7 @@ public:
   bool StopGameMode();
 
   ezStatus ExportScene();
-  void ExportSceneGeometry(const char* szFile, bool bOnlySelection);
+  void ExportSceneGeometry(const char* szFile, bool bOnlySelection, int iExtractionMode /* ezWorldGeoExtractionUtil::ExtractionMode */);
 
   virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
   void HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg);

@@ -123,7 +123,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IdentityMatrix")
   {
-    ezSimdMat4f m = ezSimdMat4f::Identity();
+    ezSimdMat4f m = ezSimdMat4f::IdentityMatrix();
 
     EZ_TEST_BOOL((m.m_col0 == ezSimdVec4f(1, 0, 0, 0)).AllSet());
     EZ_TEST_BOOL((m.m_col1 == ezSimdVec4f(0, 1, 0, 0)).AllSet());

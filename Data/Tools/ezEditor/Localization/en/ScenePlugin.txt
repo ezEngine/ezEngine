@@ -179,4 +179,3 @@ ezAnimatedMeshComponent;Animated Mesh
 ezMotionMatchingComponent;Motion Matching
 Scene.Utils.Menu;Utilities
 Scene.ExportSceneToOBJ;Export Scene Geometry to OBJ
-Scene.ExportSelectionToOBJ;Export Selected Geometry to OBJ	

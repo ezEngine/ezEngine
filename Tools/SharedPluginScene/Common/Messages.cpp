@@ -31,6 +31,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExportSceneGeometryMsgToEngine, 1, ezRTTIDefau
   {
     EZ_MEMBER_PROPERTY("Selection", m_bSelectionOnly),
     EZ_MEMBER_PROPERTY("File", m_sOutputFile),
+    EZ_MEMBER_PROPERTY("Mode", m_iExtractionMode),
   }
   EZ_END_PROPERTIES;
 }

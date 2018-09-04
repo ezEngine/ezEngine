@@ -4,6 +4,7 @@
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/Preferences/ScenePreferences.h>
 #include <EditorPluginScene/Actions/SceneActions.h>
+#include <EditorPluginScene/Dialogs/ExtractGeometryDlg.moc.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
@@ -24,7 +25,6 @@ ezActionDescriptorHandle ezSceneActions::s_hGameModeSimulate;
 ezActionDescriptorHandle ezSceneActions::s_hGameModePlay;
 ezActionDescriptorHandle ezSceneActions::s_hGameModeStop;
 ezActionDescriptorHandle ezSceneActions::s_hUtilExportSceneToOBJ;
-ezActionDescriptorHandle ezSceneActions::s_hUtilExportSelectionToOBJ;
 
 void ezSceneActions::RegisterActions()
 {
@@ -44,8 +44,6 @@ void ezSceneActions::RegisterActions()
 
   s_hUtilExportSceneToOBJ = EZ_REGISTER_ACTION_1("Scene.ExportSceneToOBJ", ezActionScope::Document, "Scene", "", ezSceneAction,
                                                  ezSceneAction::ActionType::ExportSceneToOBJ);
-  s_hUtilExportSelectionToOBJ = EZ_REGISTER_ACTION_1("Scene.ExportSelectionToOBJ", ezActionScope::Document, "Scene", "", ezSceneAction,
-                                                     ezSceneAction::ActionType::ExportSelectionToOBJ);
 }
 
 void ezSceneActions::UnregisterActions()
@@ -58,7 +56,6 @@ void ezSceneActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hGameModePlay);
   ezActionManager::UnregisterAction(s_hGameModeStop);
   ezActionManager::UnregisterAction(s_hUtilExportSceneToOBJ);
-  ezActionManager::UnregisterAction(s_hUtilExportSelectionToOBJ);
 }
 
 
@@ -80,7 +77,6 @@ void ezSceneActions::MapMenuActions()
 
     pMap->MapAction(s_hSceneUtilsMenu, "Menu.Scene", 10.0f);
     pMap->MapAction(s_hUtilExportSceneToOBJ, szUtilsSubPath, 1.0f);
-    pMap->MapAction(s_hUtilExportSelectionToOBJ, szUtilsSubPath, 2.0f);
   }
 }
 
@@ -136,7 +132,6 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
       break;
 
     case ActionType::ExportSceneToOBJ:
-    case ActionType::ExportSelectionToOBJ:
       // SetIconPath(":/EditorPluginScene/Icons/SceneStop16.png"); // TODO: icon
       break;
   }
@@ -199,20 +194,11 @@ void ezSceneAction::Execute(const ezVariant& value)
 
     case ActionType::ExportSceneToOBJ:
     {
-      QString allFilters = "OBJ (*.obj)";
-      QString sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Export to"), QString(), allFilters, nullptr,
-                                                   QFileDialog::Option::DontResolveSymlinks);
-
-      m_pSceneDocument->ExportSceneGeometry(sFile.toUtf8().data(), false);
-      return;
-    }
-    case ActionType::ExportSelectionToOBJ:
-    {
-      QString allFilters = "OBJ (*.obj)";
-      QString sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Export to"), QString(), allFilters, nullptr,
-                                                   QFileDialog::Option::DontResolveSymlinks);
-
-      m_pSceneDocument->ExportSceneGeometry(sFile.toUtf8().data(), true);
+      ezQtExtractGeometryDlg dlg(nullptr);
+      if (dlg.exec() == QDialog::Accepted)
+      {
+        m_pSceneDocument->ExportSceneGeometry(dlg.s_sDestinationFile.toUtf8().data(), dlg.s_bOnlySelection, dlg.s_iExtractionMode);
+      }
       return;
     }
   }
