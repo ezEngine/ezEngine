@@ -2,11 +2,11 @@
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <GameEngine/Messages/BuildNavMeshMessage.h>
 #include <PhysXPlugin/Components/PxStaticActorComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
+#include <Core/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezPxStaticActorComponent, 2, ezComponentMode::Static)
@@ -20,9 +20,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxStaticActorComponent, 2, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgBuildNavMesh, OnBuildNavMesh),
+    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnExtractGeometry),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -190,16 +190,20 @@ void ezPxStaticActorComponent::OnSimulationStarted()
   }
 }
 
-void ezPxStaticActorComponent::OnBuildNavMesh(ezMsgBuildNavMesh& msg) const
+void ezPxStaticActorComponent::OnExtractGeometry(ezMsgExtractGeometry& msg) const
 {
   if (!m_bIncludeInNavmesh)
+    return;
+
+  if (msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh &&
+      msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
     return;
 
   if (m_hCollisionMesh.IsValid())
   {
     ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::NoFallback);
 
-    pMesh->AddToNavMesh(GetOwner()->GetGlobalTransform(), msg);
+    pMesh->ExtractGeometry(GetOwner()->GetGlobalTransform(), msg);
   }
 
   AddShapesToNavMesh(GetOwner(), msg);

@@ -15,7 +15,7 @@ EZ_BEGIN_COMPONENT_TYPE(RtsSelectableComponent, 1, ezComponentMode::Static)
   {
     EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds)
   }
-    EZ_END_MESSAGEHANDLERS
+    EZ_END_MESSAGEHANDLERS;
     EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("RTS Sample"),

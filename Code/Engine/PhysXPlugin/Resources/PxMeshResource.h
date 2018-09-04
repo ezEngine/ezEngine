@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <PhysXPlugin/Basics.h>
 #include <Core/ResourceManager/Resource.h>
@@ -7,7 +7,7 @@
 typedef ezTypedResourceHandle<class ezPxMeshResource> ezPxMeshResourceHandle;
 typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 
-struct ezMsgBuildNavMesh;
+struct ezMsgExtractGeometry;
 
 struct EZ_PHYSXPLUGIN_DLL ezPxMeshResourceDescriptor
 {
@@ -37,8 +37,8 @@ public:
   /// Use the default physics material as a fallback.
   const ezDynamicArray<ezSurfaceResourceHandle>& GetSurfaces() const { return m_Surfaces; }
 
-  /// \brief Adds the geometry of the triangle or convex mesh to the nav mesh descriptor
-  void AddToNavMesh(const ezTransform& transform, ezMsgBuildNavMesh& msg) const;
+  /// \brief Adds the geometry of the triangle or convex mesh to the descriptor
+  void ExtractGeometry(const ezTransform& transform, ezMsgExtractGeometry& msg) const;
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;

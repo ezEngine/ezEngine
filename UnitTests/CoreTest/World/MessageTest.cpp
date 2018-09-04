@@ -77,7 +77,7 @@ namespace
       EZ_MESSAGE_HANDLER(TestMessage1, OnTestMessage),
       EZ_MESSAGE_HANDLER(TestMessage2, OnTestMessage2),
     }
-    EZ_END_MESSAGEHANDLERS
+    EZ_END_MESSAGEHANDLERS;
   }
   EZ_END_COMPONENT_TYPE;
   // clang-format on

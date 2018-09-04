@@ -39,7 +39,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 3, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnSetPlaying),
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
 
 }
 EZ_END_COMPONENT_TYPE

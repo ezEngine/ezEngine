@@ -87,7 +87,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 2, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgFmodStopSound, StopSound),
     EZ_MESSAGE_HANDLER(ezMsgFmodAddSoundCue, SoundCue),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_MESSAGESENDERS
   {
     EZ_MESSAGE_SENDER(m_SoundFinishedEventSender),

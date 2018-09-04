@@ -64,7 +64,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 3, ezComponentMode::Dynamic)
     EZ_MESSAGE_HANDLER(ezMsgPropertyAnimationPlayRange, OnPlayAnimationRange),
     EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnSetPlaying),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_MESSAGESENDERS
   {
     EZ_MESSAGE_SENDER(m_EventTrackMsgSender),

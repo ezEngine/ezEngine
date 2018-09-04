@@ -550,7 +550,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProceduralPlacementComponent, 1, ezComponentMode::Stat
   EZ_BEGIN_MESSAGEHANDLERS{
       EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
       EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
-  } EZ_END_MESSAGEHANDLERS EZ_BEGIN_ATTRIBUTES{
+  } EZ_END_MESSAGEHANDLERS; EZ_BEGIN_ATTRIBUTES{
       new ezCategoryAttribute("ProceduralPlacement"),
       new ezBoxManipulatorAttribute("Extents"),
       new ezBoxVisualizerAttribute("Extents"),

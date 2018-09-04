@@ -41,7 +41,7 @@ namespace
     {
       EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds)
     }
-    EZ_END_MESSAGEHANDLERS
+    EZ_END_MESSAGEHANDLERS;
   }
   EZ_END_COMPONENT_TYPE;
   // clang-format on

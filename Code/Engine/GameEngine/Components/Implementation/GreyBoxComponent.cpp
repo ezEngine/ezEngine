@@ -44,7 +44,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 2, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMsgBuildStaticMesh, OnBuildStaticMesh),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_COMPONENT_TYPE;
 // clang-format on

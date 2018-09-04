@@ -72,7 +72,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 5, ezComponentMode::Dy
       EZ_ACCESSOR_PROPERTY("FallbackWalkSurface", GetFallbackWalkSurfaceFile, SetFallbackWalkSurfaceFile)
           ->AddAttributes(new ezAssetBrowserAttribute("Surface")),
   } EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS{EZ_MESSAGE_HANDLER(ezMsgCollision, OnCollision)} EZ_END_MESSAGEHANDLERS
+  EZ_BEGIN_MESSAGEHANDLERS{EZ_MESSAGE_HANDLER(ezMsgCollision, OnCollision)} EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_COMPONENT_TYPE
 

@@ -26,7 +26,7 @@ EZ_BEGIN_COMPONENT_TYPE(RtsUnitComponent, 2, ezComponentMode::Dynamic)
     EZ_MESSAGE_HANDLER(RtsMsgGatherUnitStats, OnMsgGatherUnitStats),
     EZ_MESSAGE_HANDLER(RtsMsgArrivedAtLocation, OnMsgArrivedAtLocation),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
 
   EZ_BEGIN_ATTRIBUTES
   {

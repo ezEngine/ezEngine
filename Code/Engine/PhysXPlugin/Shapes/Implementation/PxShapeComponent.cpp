@@ -130,7 +130,7 @@ void ezPxShapeComponent::AddToActor(PxRigidActor* pActor, const ezSimdTransform&
   pShape->userData = &m_UserData;
 }
 
-void ezPxShapeComponent::AddToNavMesh(ezMsgBuildNavMesh& msg) const {}
+void ezPxShapeComponent::ExtractGeometry(ezMsgExtractGeometry& msg) const {}
 
 PxMaterial* ezPxShapeComponent::GetPxMaterial()
 {

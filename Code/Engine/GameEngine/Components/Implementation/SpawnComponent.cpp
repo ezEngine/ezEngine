@@ -53,7 +53,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 2, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
     EZ_MESSAGE_HANDLER(ezMsgTriggerSpawnComponent, OnSpawn),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

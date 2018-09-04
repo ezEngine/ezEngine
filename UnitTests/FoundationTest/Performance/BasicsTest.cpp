@@ -92,19 +92,19 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Base, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#define EZ_FASTCALL __fastcall
-#define EZ_NO_INLINE __declspec(noinline)
+#  define EZ_FASTCALL __fastcall
+#  define EZ_NO_INLINE __declspec(noinline)
 #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-#if EZ_ENABLED(EZ_PLATFORM_64BIT)
-#define EZ_FASTCALL
+#  if EZ_ENABLED(EZ_PLATFORM_64BIT)
+#    define EZ_FASTCALL
+#  else
+#    define EZ_FASTCALL __attribute((fastcall)) // Fastcall only relevant on x86-32 and would otherwise generate warnings
+#  endif
+#  define EZ_NO_INLINE __attribute__((noinline))
 #else
-#define EZ_FASTCALL __attribute((fastcall)) // Fastcall only relevant on x86-32 and would otherwise generate warnings
-#endif
-#define EZ_NO_INLINE __attribute__((noinline))
-#else
-#warning Unknown Platform.
-#define EZ_FASTCALL
-#define EZ_NO_INLINE __attribute__((noinline)) /* should work on GCC */
+#  warning Unknown Platform.
+#  define EZ_FASTCALL
+#  define EZ_NO_INLINE __attribute__((noinline)) /* should work on GCC */
 #endif
 
 class Derived1 : public Base
@@ -118,9 +118,17 @@ public:
   EZ_NO_INLINE void OnGetValueMessage(GetValueMessage& msg) { msg.m_iValue = 1; }
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived1, 1, ezRTTINoAllocator){EZ_BEGIN_MESSAGEHANDLERS{
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived1, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
     EZ_MESSAGE_HANDLER(GetValueMessage, OnGetValueMessage),
-} EZ_END_MESSAGEHANDLERS} EZ_END_DYNAMIC_REFLECTED_TYPE;
+  }
+  EZ_END_MESSAGEHANDLERS;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 class Derived2 : public Base
 {
@@ -133,9 +141,17 @@ public:
   EZ_NO_INLINE void OnGetValueMessage(GetValueMessage& msg) { msg.m_iValue = 2; }
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived2, 1, ezRTTINoAllocator){EZ_BEGIN_MESSAGEHANDLERS{
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived2, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
     EZ_MESSAGE_HANDLER(GetValueMessage, OnGetValueMessage),
-} EZ_END_MESSAGEHANDLERS} EZ_END_DYNAMIC_REFLECTED_TYPE;
+  }
+  EZ_END_MESSAGEHANDLERS;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 EZ_CREATE_SIMPLE_TEST(Performance, Basics)
 {

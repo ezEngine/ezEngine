@@ -1,9 +1,8 @@
-﻿#pragma once
+#pragma once
 
 #include <RecastPlugin/Basics.h>
 #include <Core/World/World.h>
 #include <Core/World/Component.h>
-#include <GameEngine/AI/NavMesh/NavMeshDescription.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
 
 class ezRecastWorldModule;

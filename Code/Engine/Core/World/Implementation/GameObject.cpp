@@ -36,7 +36,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
   {
     EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnDeleteObject),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on

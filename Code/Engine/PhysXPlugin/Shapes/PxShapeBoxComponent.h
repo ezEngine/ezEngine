@@ -1,10 +1,8 @@
-﻿#pragma once
+#pragma once
 
 #include <PhysXPlugin/Shapes/PxShapeComponent.h>
 
 typedef ezComponentManager<class ezPxShapeBoxComponent, ezBlockStorageType::FreeList> ezPxShapeBoxComponentManager;
-
-struct ezMsgBuildNavMesh;
 
 class EZ_PHYSXPLUGIN_DLL ezPxShapeBoxComponent : public ezPxShapeComponent
 {
@@ -34,7 +32,7 @@ protected:
 public:
 
   virtual physx::PxShape* CreateShape(physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform) override;
-  virtual void AddToNavMesh(ezMsgBuildNavMesh& msg) const override;
+  virtual void ExtractGeometry(ezMsgExtractGeometry& msg) const override;
 
 protected:
 

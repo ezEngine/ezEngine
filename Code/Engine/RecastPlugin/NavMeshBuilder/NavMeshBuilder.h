@@ -1,9 +1,9 @@
-﻿#pragma once
+#pragma once
 
 #include <RecastPlugin/Basics.h>
-#include <GameEngine/AI/NavMesh/NavMeshDescription.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Core/Utils/WorldGeoExtractionUtil.h>
 
 class ezRcBuildContext;
 struct rcPolyMesh;
@@ -38,14 +38,14 @@ public:
   ~ezRecastNavMeshBuilder();
 
   ezResult Build(const ezRecastConfig& config, const ezWorld& world);
-  ezResult Build(const ezRecastConfig& config, const ezNavMeshDescription& desc);
+  ezResult Build(const ezRecastConfig& config, const ezWorldGeoExtractionUtil::Geometry& desc);
 
   rcPolyMesh* m_polyMesh = nullptr;
   dtNavMesh* m_pNavMesh = nullptr;
 
 private:
-  void ReserveMemory(const ezNavMeshDescription& desc);
-  void GenerateTriangleMeshFromDescription(const ezNavMeshDescription& desc);
+  void ReserveMemory(const ezWorldGeoExtractionUtil::Geometry& desc);
+  void GenerateTriangleMeshFromDescription(const ezWorldGeoExtractionUtil::Geometry& desc);
   void ComputeBoundingBox();
   ezResult BuildRecastNavMesh(const ezRecastConfig& config);
   void FillOutConfig(struct rcConfig& cfg, const ezRecastConfig& config);

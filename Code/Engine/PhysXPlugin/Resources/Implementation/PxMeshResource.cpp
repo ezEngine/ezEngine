@@ -2,8 +2,7 @@
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/ChunkStream.h>
-#include <GameEngine/AI/NavMesh/NavMeshDescription.h>
-#include <GameEngine/Messages/BuildNavMeshMessage.h>
+#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 
@@ -171,19 +170,22 @@ ezResourceLoadDesc ezPxMeshResource::CreateResource(const ezPxMeshResourceDescri
   return res;
 }
 
-void ezPxMeshResource::AddToNavMesh(const ezTransform& transform, ezMsgBuildNavMesh& msg) const
+void ezPxMeshResource::ExtractGeometry(const ezTransform& transform, ezMsgExtractGeometry& msg) const
 {
+  if (msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh &&
+      msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
+    return;
+
   if (GetConvexMesh() != nullptr)
   {
     const auto pConvex = GetConvexMesh();
-    const ezUInt32 uiFirstVertexIdx = msg.m_pNavMeshDescription->m_Vertices.GetCount();
+    const ezUInt32 uiFirstVertexIdx = msg.m_pWorldGeometry->m_Vertices.GetCount();
 
     for (ezUInt32 v = 0; v < pConvex->getNbVertices(); ++v)
     {
-      ezVec3 pos = reinterpret_cast<const ezVec3&>(pConvex->getVertices()[v]);
-      pos = transform * pos;
-      ezMath::Swap(pos.y, pos.z);
-      msg.m_pNavMeshDescription->m_Vertices.PushBack(pos);
+      auto& vertex = msg.m_pWorldGeometry->m_Vertices.ExpandAndGetRef();
+      vertex.m_vPosition = transform * reinterpret_cast<const ezVec3&>(pConvex->getVertices()[v]);
+      ezMath::Swap(vertex.m_vPosition.y, vertex.m_vPosition.z);
     }
 
     const auto pIndices = pConvex->getIndexBuffer();
@@ -197,7 +199,7 @@ void ezPxMeshResource::AddToNavMesh(const ezTransform& transform, ezMsgBuildNavM
 
       for (ezUInt32 tri = 2; tri < poly.mNbVerts; ++tri)
       {
-        auto& triangle = msg.m_pNavMeshDescription->m_Triangles.ExpandAndGetRef();
+        auto& triangle = msg.m_pWorldGeometry->m_Triangles.ExpandAndGetRef();
         triangle.m_uiVertexIndices[0] = uiFirstVertexIdx + pLocalIdx[0];
         triangle.m_uiVertexIndices[2] = uiFirstVertexIdx + pLocalIdx[tri - 1];
         triangle.m_uiVertexIndices[1] = uiFirstVertexIdx + pLocalIdx[tri];
@@ -207,14 +209,13 @@ void ezPxMeshResource::AddToNavMesh(const ezTransform& transform, ezMsgBuildNavM
   else if (GetTriangleMesh() != nullptr)
   {
     const auto pTriMesh = GetTriangleMesh();
-    const ezUInt32 uiFirstVertexIdx = msg.m_pNavMeshDescription->m_Vertices.GetCount();
+    const ezUInt32 uiFirstVertexIdx = msg.m_pWorldGeometry->m_Vertices.GetCount();
 
     for (ezUInt32 vtx = 0; vtx < pTriMesh->getNbVertices(); ++vtx)
     {
-      ezVec3 pos = reinterpret_cast<const ezVec3&>(pTriMesh->getVertices()[vtx]);
-      pos = transform * pos;
-      ezMath::Swap(pos.y, pos.z);
-      msg.m_pNavMeshDescription->m_Vertices.PushBack(pos);
+      auto& vertex = msg.m_pWorldGeometry->m_Vertices.ExpandAndGetRef();
+      vertex.m_vPosition = transform * reinterpret_cast<const ezVec3&>(pTriMesh->getVertices()[vtx]);
+      ezMath::Swap(vertex.m_vPosition.y, vertex.m_vPosition.z);
     }
 
     if (pTriMesh->getTriangleMeshFlags().isSet(PxTriangleMeshFlag::e16_BIT_INDICES))
@@ -223,7 +224,7 @@ void ezPxMeshResource::AddToNavMesh(const ezTransform& transform, ezMsgBuildNavM
 
       for (ezUInt32 tri = 0; tri < pTriMesh->getNbTriangles(); ++tri)
       {
-        auto& triangle = msg.m_pNavMeshDescription->m_Triangles.ExpandAndGetRef();
+        auto& triangle = msg.m_pWorldGeometry->m_Triangles.ExpandAndGetRef();
         triangle.m_uiVertexIndices[0] = uiFirstVertexIdx + pIndices[tri * 3 + 0];
         triangle.m_uiVertexIndices[2] = uiFirstVertexIdx + pIndices[tri * 3 + 1];
         triangle.m_uiVertexIndices[1] = uiFirstVertexIdx + pIndices[tri * 3 + 2];
@@ -235,7 +236,7 @@ void ezPxMeshResource::AddToNavMesh(const ezTransform& transform, ezMsgBuildNavM
 
       for (ezUInt32 tri = 0; tri < pTriMesh->getNbTriangles(); ++tri)
       {
-        auto& triangle = msg.m_pNavMeshDescription->m_Triangles.ExpandAndGetRef();
+        auto& triangle = msg.m_pWorldGeometry->m_Triangles.ExpandAndGetRef();
         triangle.m_uiVertexIndices[0] = uiFirstVertexIdx + pIndices[tri * 3 + 0];
         triangle.m_uiVertexIndices[2] = uiFirstVertexIdx + pIndices[tri * 3 + 1];
         triangle.m_uiVertexIndices[1] = uiFirstVertexIdx + pIndices[tri * 3 + 2];

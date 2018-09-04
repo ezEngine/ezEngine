@@ -6,8 +6,6 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
-#include <GameEngine/AI/NavMesh/NavMeshDescription.h>
-#include <GameEngine/Messages/BuildNavMeshMessage.h>
 #include <PhysXPlugin/Components/BreakableSheet.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
@@ -18,6 +16,7 @@
 
 #define JC_VORONOI_IMPLEMENTATION
 #include <ThirdParty/jc_voronoi/jc_voronoi.h>
+#include <Core/Utils/WorldGeoExtractionUtil.h>
 
 EZ_DEFINE_AS_POD_TYPE(jcv_point);
 
@@ -71,11 +70,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezBreakableSheetComponent, 1, ezComponentMode::Dynamic)
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgBuildNavMesh, OnBuildNavMesh),
+    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnExtractGeometry),
     EZ_MESSAGE_HANDLER(ezMsgCollision, OnCollision),
     EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, AddImpulseAtPos),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -195,14 +194,14 @@ ezResult ezBreakableSheetComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, 
   return EZ_FAILURE;
 }
 
-void ezBreakableSheetComponent::OnBuildNavMesh(ezMsgBuildNavMesh& msg) const
+void ezBreakableSheetComponent::OnExtractGeometry(ezMsgExtractGeometry& msg) const
 {
   if (!m_bIncludeInNavmesh)
     return;
 
   const ezVec3 vScale = ezSimdConversion::ToVec3(GetOwner()->GetGlobalTransformSimd().m_Scale.Abs());
 
-  ezNavMeshBoxObstacle& box = msg.m_pNavMeshDescription->m_BoxObstacles.ExpandAndGetRef();
+  auto& box = msg.m_pWorldGeometry->m_BoxShapes.ExpandAndGetRef();
   box.m_vPosition = GetOwner()->GetGlobalPosition();
   box.m_qRotation = GetOwner()->GetGlobalRotation();
 

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <PhysXPlugin/Shapes/PxShapeComponent.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>
@@ -32,7 +32,7 @@ public:
 
   virtual physx::PxShape* CreateShape(physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform) override;
 
-  virtual void AddToNavMesh(ezMsgBuildNavMesh& msg) const override;
+  virtual void ExtractGeometry(ezMsgExtractGeometry& msg) const override;
 
 protected:
 

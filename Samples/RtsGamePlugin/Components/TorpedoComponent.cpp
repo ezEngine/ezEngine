@@ -18,7 +18,7 @@ EZ_BEGIN_COMPONENT_TYPE(RtsTorpedoComponent, 1, ezComponentMode::Dynamic)
   {
     EZ_MESSAGE_HANDLER(RtsMsgSetTarget, OnMsgSetTarget),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
 
   EZ_BEGIN_ATTRIBUTES
   {

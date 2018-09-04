@@ -1,10 +1,10 @@
-﻿#pragma once
+#pragma once
 
 #include <PhysXPlugin/Components/PxComponent.h>
 #include <PhysXPlugin/Utilities/PxUserData.h>
 #include <GameEngine/Surfaces/SurfaceResource.h>
 
-struct ezMsgBuildNavMesh;
+struct ezMsgExtractGeometry;
 
 class EZ_PHYSXPLUGIN_DLL ezPxShapeComponent : public ezPxComponent
 {
@@ -46,7 +46,7 @@ protected:
 
 public:
   void AddToActor(physx::PxRigidActor* pActor, const ezSimdTransform& parentTransform);
-  virtual void AddToNavMesh(ezMsgBuildNavMesh& msg) const;
+  virtual void ExtractGeometry(ezMsgExtractGeometry& msg) const;
 
 protected:
   virtual physx::PxShape* CreateShape(physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform) = 0;

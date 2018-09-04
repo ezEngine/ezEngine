@@ -23,7 +23,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAreaDamageComponent, 1, ezComponentMode::Static)
     //{
     //  EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
     //}
-    //EZ_END_MESSAGEHANDLERS
+    //EZ_END_MESSAGEHANDLERS;
     EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),

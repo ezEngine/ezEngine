@@ -4,7 +4,7 @@
 #include <Foundation/Reflection/Reflection.h>
 
 #ifdef GetMessage
-#undef GetMessage
+#  undef GetMessage
 #endif
 
 namespace
@@ -58,7 +58,7 @@ namespace
   EZ_IMPLEMENT_MESSAGE_TYPE(GetMessage);
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(GetMessage, 1, ezRTTIDefaultAllocator<GetMessage>)
   EZ_END_DYNAMIC_REFLECTED_TYPE;
-}
+} // namespace
 
 class BaseHandler : public ezReflectedClass
 {
@@ -79,11 +79,17 @@ public:
   ezInt32 m_iValue;
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(BaseHandler, 1, ezRTTINoAllocator){EZ_BEGIN_MESSAGEHANDLERS{
-    EZ_MESSAGE_HANDLER(AddMessage, OnAddMessage),
-    EZ_MESSAGE_HANDLER(MulMessage, OnMulMessage),
-    EZ_MESSAGE_HANDLER(GetMessage, OnGetMessage),
-} EZ_END_MESSAGEHANDLERS} EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(BaseHandler, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_MESSAGEHANDLERS{
+      EZ_MESSAGE_HANDLER(AddMessage, OnAddMessage),
+      EZ_MESSAGE_HANDLER(MulMessage, OnMulMessage),
+      EZ_MESSAGE_HANDLER(GetMessage, OnGetMessage),
+  } EZ_END_MESSAGEHANDLERS;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 class DerivedHandler : public BaseHandler
 {
@@ -95,11 +101,18 @@ public:
   void OnSubMessage(SubMessage& msg) { m_iValue -= msg.m_iValue; }
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(DerivedHandler, 1, ezRTTINoAllocator){EZ_BEGIN_MESSAGEHANDLERS{
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(DerivedHandler, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
     EZ_MESSAGE_HANDLER(AddMessage, OnAddMessage),
     EZ_MESSAGE_HANDLER(SubMessage, OnSubMessage),
-} EZ_END_MESSAGEHANDLERS} EZ_END_DYNAMIC_REFLECTED_TYPE;
-
+  }
+  EZ_END_MESSAGEHANDLERS;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 EZ_CREATE_SIMPLE_TEST(Reflection, MessageHandler)
 {

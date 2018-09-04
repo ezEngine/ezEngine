@@ -46,7 +46,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezCharacterControllerComponent, 1)
   {
     EZ_MESSAGE_HANDLER(ezMsgMoveCharacterController, MoveCharacter),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_ABSTRACT_COMPONENT_TYPE;
 // clang-format on

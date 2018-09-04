@@ -21,7 +21,7 @@ EZ_BEGIN_COMPONENT_TYPE(RtsShipSteeringComponent, 1, ezComponentMode::Dynamic)
     EZ_MESSAGE_HANDLER(RtsMsgNavigateTo, OnMsgNavigateTo),
     EZ_MESSAGE_HANDLER(RtsMsgStopNavigation, OnMsgStopNavigation),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
 
   EZ_BEGIN_ATTRIBUTES
   {

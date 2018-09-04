@@ -24,7 +24,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleFinisherComponent, 1, ezComponentMode::Static)
   {
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_COMPONENT_TYPE
 // clang-format on

@@ -24,7 +24,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFogComponent, 1, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering"),

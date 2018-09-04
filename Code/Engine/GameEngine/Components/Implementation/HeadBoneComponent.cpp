@@ -57,7 +57,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezHeadBoneComponent, 1, ezComponentMode::Dynamic)
     EZ_MESSAGE_HANDLER(ezMsgSetVerticalHeadBoneRotation, OnSetVerticalRotation),
     EZ_MESSAGE_HANDLER(ezMsgChangeVerticalHeadBoneRotation, OnChangeVerticalRotation),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
     EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Transform"),

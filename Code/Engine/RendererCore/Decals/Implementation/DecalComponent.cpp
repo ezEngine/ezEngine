@@ -65,7 +65,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 3, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgOnlyApplyToObject, OnApplyOnlyTo),
     EZ_MESSAGE_HANDLER(ezMsgSetColor, OnSetColor),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_COMPONENT_TYPE
 // clang-format on

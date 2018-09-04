@@ -4,8 +4,6 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Time/Stopwatch.h>
-#include <GameEngine/AI/NavMesh/NavMeshDescription.h>
-#include <GameEngine/Messages/BuildNavMeshMessage.h>
 #include <RecastPlugin/Components/RecastNavMeshComponent.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
 #include <RecastPlugin/WorldModule/RecastWorldModule.h>

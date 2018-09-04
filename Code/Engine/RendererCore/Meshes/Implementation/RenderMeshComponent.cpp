@@ -83,7 +83,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRenderMeshComponent, 1)
     EZ_MESSAGE_HANDLER(ezMsgSetMeshMaterial, OnSetMaterial),
     EZ_MESSAGE_HANDLER(ezMsgSetColor, OnSetColor),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_ABSTRACT_COMPONENT_TYPE;
 // clang-format on

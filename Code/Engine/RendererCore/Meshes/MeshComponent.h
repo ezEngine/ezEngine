@@ -2,6 +2,7 @@
 
 #include <RendererCore/Meshes/RenderMeshComponent.h>
 
+struct ezMsgExtractGeometry;
 typedef ezComponentManager<class ezMeshComponent, ezBlockStorageType::Compact> ezMeshComponentManager;
 
 class EZ_RENDERERCORE_DLL ezMeshComponent : public ezRenderMeshComponent
@@ -12,4 +13,6 @@ public:
   ezMeshComponent();
   ~ezMeshComponent();
 
+  /// \brief Extracts the render geometry for export etc.
+  void OnExtractGeometry(ezMsgExtractGeometry& msg);
 };

@@ -23,7 +23,7 @@
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <SharedPluginScene/Common/Messages.h>
-#include <GameEngine/Utils/ExtractWorldGeoUtil.h>
+#include <Core/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)
@@ -763,12 +763,12 @@ void ezSceneContext::HandleExposedPropertiesMsg(const ezExposedDocumentObjectPro
 
 void ezSceneContext::HandleSceneGeometryMsg(const ezExportSceneGeometryMsgToEngine* pMsg)
 {
-  ezWorldUtils::Geometry geo;
+  ezWorldGeoExtractionUtil::Geometry geo;
 
   if (pMsg->m_bSelectionOnly)
-    ezWorldUtils::ExtractWorldGeometry(*m_pWorld, geo, m_SelectionWithChildren);
+    ezWorldGeoExtractionUtil::ExtractWorldGeometry(geo, *m_pWorld, ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh, m_SelectionWithChildren);
   else
-    ezWorldUtils::ExtractWorldGeometry(*m_pWorld, geo);
+    ezWorldGeoExtractionUtil::ExtractWorldGeometry(geo, *m_pWorld, ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh);
 
-  ezWorldUtils::WriteWorldGeometryToOBJ(geo, pMsg->m_sOutputFile);
+  ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(pMsg->m_sOutputFile, geo);
 }

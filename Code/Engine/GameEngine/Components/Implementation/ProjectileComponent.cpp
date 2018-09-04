@@ -48,7 +48,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 4, ezComponentMode::Dynamic)
   {
     EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
     EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),

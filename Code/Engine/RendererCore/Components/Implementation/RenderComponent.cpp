@@ -10,7 +10,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRenderComponent, 1)
   {
     EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds)
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_ABSTRACT_COMPONENT_TYPE;
 // clang-format on

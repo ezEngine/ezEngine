@@ -591,10 +591,10 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 /// \brief Ends the block to declare message handlers that was started with EZ_BEGIN_MESSAGEHANDLERS.
 #define EZ_END_MESSAGEHANDLERS                                                                                                             \
   ;                                                                                                                                        \
-  MessageHandlers = HandlerList;
+  MessageHandlers = HandlerList 
 
 
-/// \brief Within an EZ_BEGIN_MESSAGEHANDLERS / EZ_END_MESSAGEHANDLERS block, this adds another message handler.
+/// \brief Within an EZ_BEGIN_MESSAGEHANDLERS / EZ_END_MESSAGEHANDLERS; block, this adds another message handler.
 ///
 /// \param MessageType
 ///   The type of message that this handler function accepts. You may add 'const' in front of it.

@@ -2,10 +2,9 @@
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <GameEngine/AI/NavMesh/NavMeshDescription.h>
-#include <GameEngine/Messages/BuildNavMeshMessage.h>
 #include <PhysXPlugin/Shapes/PxShapeBoxComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
+#include <Core/Utils/WorldGeoExtractionUtil.h>
 
 using namespace physx;
 
@@ -21,7 +20,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeBoxComponent, 1, ezComponentMode::Static)
   {
     EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezBoxManipulatorAttribute("Extents"),
@@ -61,11 +60,11 @@ void ezPxShapeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) con
   msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f));
 }
 
-void ezPxShapeBoxComponent::AddToNavMesh(ezMsgBuildNavMesh& msg) const
+void ezPxShapeBoxComponent::ExtractGeometry(ezMsgExtractGeometry& msg) const
 {
   const ezVec3 vScale = ezSimdConversion::ToVec3(GetOwner()->GetGlobalTransformSimd().m_Scale.Abs());
 
-  ezNavMeshBoxObstacle& box = msg.m_pNavMeshDescription->m_BoxObstacles.ExpandAndGetRef();
+  auto& box = msg.m_pWorldGeometry->m_BoxShapes.ExpandAndGetRef();
   box.m_vPosition = GetOwner()->GetGlobalPosition();
   box.m_qRotation = GetOwner()->GetGlobalRotation();
   box.m_vHalfExtents = m_vExtents.CompMul(vScale) * 0.5f;

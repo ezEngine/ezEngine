@@ -4,7 +4,7 @@
 #include <PhysXPlugin/Resources/PxMeshResource.h>
 #include <PhysXPlugin/Utilities/PxUserData.h>
 
-struct ezMsgBuildNavMesh;
+struct ezMsgExtractGeometry;
 typedef ezComponentManager<class ezPxStaticActorComponent, ezBlockStorageType::FreeList> ezPxStaticActorComponentManager;
 
 class EZ_PHYSXPLUGIN_DLL ezPxStaticActorComponent : public ezPxActorComponent
@@ -27,7 +27,7 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // ezPxStaticActorComponent Interface
 
-  void OnBuildNavMesh(ezMsgBuildNavMesh& msg) const;
+  void OnExtractGeometry(ezMsgExtractGeometry& msg) const;
 
   // ************************************* PROPERTIES ***********************************
 public:

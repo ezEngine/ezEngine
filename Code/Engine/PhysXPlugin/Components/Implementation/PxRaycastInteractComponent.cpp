@@ -37,7 +37,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxRaycastInteractComponent, 1, ezComponentMode::Static
   {
     EZ_MESSAGE_HANDLER(ezMsgTriggerRaycastInteractionComponent, OnTrigger),
   }
-  EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Input"),

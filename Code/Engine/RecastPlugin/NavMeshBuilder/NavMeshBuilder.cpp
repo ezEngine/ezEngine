@@ -3,11 +3,11 @@
 #include <Core/World/World.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Types/ScopeExit.h>
-#include <GameEngine/Messages/BuildNavMeshMessage.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
 #include <ThirdParty/Recast/DetourNavMesh.h>
 #include <ThirdParty/Recast/DetourNavMeshBuilder.h>
 #include <ThirdParty/Recast/Recast.h>
+#include <Core/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRecastConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezRecastConfig>)
@@ -72,24 +72,16 @@ ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezWor
 
   ezStopwatch sw;
 
-  ezNavMeshDescription desc;
-
-  ezMsgBuildNavMesh msg;
-  msg.m_pNavMeshDescription = &desc;
-
-  // gather all nav mesh related information from all objects in the world
-  for (auto it = world.GetObjects(); it.IsValid(); ++it)
-  {
-    it->SendMessage(msg);
-  }
+  ezWorldGeoExtractionUtil::Geometry geo;
+  ezWorldGeoExtractionUtil::ExtractWorldGeometry(geo, world, ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration);
 
   ezLog::Debug("Gathering NavMesh description: {0}ms", ezArgF(sw.Checkpoint().GetMilliseconds(), 2));
-  ezLog::Debug("NavMesh Box Obstacles: {0}", desc.m_BoxObstacles.GetCount());
+  ezLog::Debug("NavMesh Box Obstacles: {0}", geo.m_BoxShapes.GetCount());
 
-  return Build(config, desc);
+  return Build(config, geo);
 }
 
-ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezNavMeshDescription& desc)
+ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezWorldGeoExtractionUtil::Geometry& geo)
 {
   EZ_LOG_BLOCK("ezRecastNavMeshBuilder::Build (desc)");
 
@@ -98,7 +90,7 @@ ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezNav
   ezUniquePtr<ezRcBuildContext> recastContext = EZ_DEFAULT_NEW(ezRcBuildContext);
   m_pRecastContext = recastContext.Borrow();
 
-  GenerateTriangleMeshFromDescription(desc);
+  GenerateTriangleMeshFromDescription(geo);
 
   if (m_Vertices.IsEmpty())
   {
@@ -118,9 +110,9 @@ ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezNav
   return EZ_SUCCESS;
 }
 
-void ezRecastNavMeshBuilder::ReserveMemory(const ezNavMeshDescription& desc)
+void ezRecastNavMeshBuilder::ReserveMemory(const ezWorldGeoExtractionUtil::Geometry& desc)
 {
-  const ezUInt32 uiBoxes = desc.m_BoxObstacles.GetCount();
+  const ezUInt32 uiBoxes = desc.m_BoxShapes.GetCount();
   const ezUInt32 uiBoxTriangles = uiBoxes * 12;
   const ezUInt32 uiBoxVertices = uiBoxes * 8;
 
@@ -132,7 +124,7 @@ void ezRecastNavMeshBuilder::ReserveMemory(const ezNavMeshDescription& desc)
   m_Vertices.Reserve(uiVertices);
 }
 
-void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezNavMeshDescription& desc)
+void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGeoExtractionUtil::Geometry& desc)
 {
   EZ_LOG_BLOCK("ezRecastNavMeshBuilder::GenerateTriangleMesh");
 
@@ -145,7 +137,7 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezNavMesh
   {
     for (const auto& v : desc.m_Vertices)
     {
-      m_Vertices.PushBack(v);
+      m_Vertices.PushBack(v.m_vPosition);
     }
 
     for (const auto& tri : desc.m_Triangles)
@@ -157,7 +149,7 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezNavMesh
     }
   }
 
-  for (const auto& box : desc.m_BoxObstacles)
+  for (const auto& box : desc.m_BoxShapes)
   {
     const ezUInt32 uiFirstVtx = m_Vertices.GetCount();
 

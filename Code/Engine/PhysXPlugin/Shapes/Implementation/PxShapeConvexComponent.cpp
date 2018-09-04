@@ -5,6 +5,7 @@
 #include <PhysXPlugin/Shapes/PxShapeConvexComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+#include <Core/Utils/WorldGeoExtractionUtil.h>
 
 using namespace physx;
 
@@ -106,13 +107,17 @@ PxShape* ezPxShapeConvexComponent::CreateShape(PxRigidActor* pActor, PxTransform
   return pActor->createShape(PxConvexMeshGeometry(pMesh->GetConvexMesh(), scale), *pMaterial);
 }
 
-void ezPxShapeConvexComponent::AddToNavMesh(ezMsgBuildNavMesh& msg) const
+void ezPxShapeConvexComponent::ExtractGeometry(ezMsgExtractGeometry& msg) const
 {
+  if (msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh &&
+      msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
+    return;
+
   if (m_hCollisionMesh.IsValid())
   {
     ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::NoFallback);
 
-    pMesh->AddToNavMesh(GetOwner()->GetGlobalTransform(), msg);
+    pMesh->ExtractGeometry(GetOwner()->GetGlobalTransform(), msg);
   }
 }
 

@@ -11,9 +11,9 @@
 typedef ezComponentManagerSimple<class ezBreakableSheetComponent, ezComponentUpdateType::Always /* TODO: When simulating */> ezBreakableSheetComponentManager;
 
 struct ezMsgExtractRenderData;
-struct ezMsgBuildNavMesh;
 struct ezMsgCollision;
 struct ezMsgPhysicsAddImpulse;
+struct ezMsgExtractGeometry;
 
 /// \brief Sent when a breakable sheet breaks
 struct EZ_PHYSXPLUGIN_DLL ezMsgBreakableSheetBroke : public ezEventMessage
@@ -39,7 +39,7 @@ public:
 
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
 
-  void OnBuildNavMesh(ezMsgBuildNavMesh& msg) const;
+  void OnExtractGeometry(ezMsgExtractGeometry& msg) const;
   void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
   void OnCollision(ezMsgCollision& msg);
   void AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg);
