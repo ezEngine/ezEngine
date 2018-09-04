@@ -301,5 +301,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec4)
 
     // CompDiv
     EZ_TEST_BOOL(vOp1.CompDiv(vOp2).IsEqual(ezVec4T(-2.0f, -0.66666666f, -14.0f, 0.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+
+    // Abs
+    EZ_TEST_VEC4(vOp1.Abs(), ezVec4T(4.0, 0.2f, 7.0f, 0.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon());
   }
 }

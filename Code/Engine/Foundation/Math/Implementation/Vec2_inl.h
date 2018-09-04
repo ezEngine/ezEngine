@@ -271,6 +271,14 @@ EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::CompDiv(const e
 }
 
 template <typename Type>
+inline const ezVec2Template<Type> ezVec2Template<Type>::Abs() const
+{
+  EZ_NAN_ASSERT(this);
+
+  return ezVec2Template<Type>(ezMath::Abs(x), ezMath::Abs(y));
+}
+
+template <typename Type>
 EZ_FORCE_INLINE const ezVec2Template<Type> operator+(const ezVec2Template<Type>& v1, const ezVec2Template<Type>& v2)
 {
   EZ_NAN_ASSERT(&v1);

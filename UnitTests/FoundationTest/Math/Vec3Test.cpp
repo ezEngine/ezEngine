@@ -362,6 +362,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 
     // CompDiv
     EZ_TEST_BOOL(vOp1.CompDiv(vOp2).IsEqual(ezVec3T(-2.0f, -0.66666666f, -14.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+
+    // Abs
+    EZ_TEST_VEC3(vOp1.Abs(), ezVec3T(4.0, 0.2f, 7.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CalculateNormal")

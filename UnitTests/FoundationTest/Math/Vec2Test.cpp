@@ -344,6 +344,13 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
     EZ_TEST_VEC2(v2, ezVec2T(4, 8), 0);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Abs")
+  {
+    ezVec2T v1(-5, 7);
+    ezVec2T v2 = v1.Abs();
+    EZ_TEST_VEC2(v2, ezVec2T(5, 7), 0);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeOrthogonalTo")
   {
     ezVec2T v;

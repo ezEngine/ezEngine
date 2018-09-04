@@ -163,6 +163,9 @@ public:
   /// \brief Returns the component-wise division of *this and rhs
   const ezVec3Template CompDiv(const ezVec3Template& rhs) const; // [tested]
 
+  /// brief Returns the component-wise absolute of *this.
+  const ezVec3Template Abs() const; // [tested]
+
 
   // *** Other common operations ***
 public:

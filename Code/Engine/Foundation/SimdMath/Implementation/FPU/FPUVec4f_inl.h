@@ -249,13 +249,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CompMax(const ezSimdVec4f& v) const
 
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Abs() const
 {
-  ezSimdVec4f result;
-  result.m_v.x = ezMath::Abs(m_v.x);
-  result.m_v.y = ezMath::Abs(m_v.y);
-  result.m_v.z = ezMath::Abs(m_v.z);
-  result.m_v.w = ezMath::Abs(m_v.w);
-
-  return result;
+  return m_v.Abs();
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Floor() const

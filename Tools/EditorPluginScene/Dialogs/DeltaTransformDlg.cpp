@@ -132,13 +132,15 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
 
     if (s_bRandomDeviation)
     {
-      vTranslate.x = rng.DoubleMinMax(-s_vTranslate.x, +s_vTranslate.x);
-      vTranslate.y = rng.DoubleMinMax(-s_vTranslate.y, +s_vTranslate.y);
-      vTranslate.z = rng.DoubleMinMax(-s_vTranslate.z, +s_vTranslate.z);
+      ezVec3 vAbsTranslate = s_vTranslate.Abs();
+      vTranslate.x = rng.DoubleMinMax(-vAbsTranslate.x, +vAbsTranslate.x);
+      vTranslate.y = rng.DoubleMinMax(-vAbsTranslate.y, +vAbsTranslate.y);
+      vTranslate.z = rng.DoubleMinMax(-vAbsTranslate.z, +vAbsTranslate.z);
 
-      vRotate.x = rng.DoubleMinMax(-s_vRotate.x, +s_vRotate.x);
-      vRotate.y = rng.DoubleMinMax(-s_vRotate.y, +s_vRotate.y);
-      vRotate.z = rng.DoubleMinMax(-s_vRotate.z, +s_vRotate.z);
+      ezVec3 vAbsRotate = s_vRotate.Abs();
+      vRotate.x = rng.DoubleMinMax(-vAbsRotate.x, +vAbsRotate.x);
+      vRotate.y = rng.DoubleMinMax(-vAbsRotate.y, +vAbsRotate.y);
+      vRotate.z = rng.DoubleMinMax(-vAbsRotate.z, +vAbsRotate.z);
 
 
       vScale.x = rng.DoubleMinMax(ezMath::Min(1.0f / s_vScale.x, s_vScale.x), ezMath::Max(1.0f / s_vScale.x, s_vScale.x));
