@@ -11,7 +11,7 @@ public:
   ezSimdTransform(); // [tested]
 
   /// \brief Sets position, rotation and scale.
-  explicit ezSimdTransform(const ezSimdVec4f& position, const ezSimdQuat& rotation = ezSimdQuat::Identity(),
+  explicit ezSimdTransform(const ezSimdVec4f& position, const ezSimdQuat& rotation = ezSimdQuat::IdentityQuaternion(),
                            const ezSimdVec4f& scale = ezSimdVec4f(1.0f)); // [tested]
 
   /// \brief Sets rotation.
@@ -21,7 +21,7 @@ public:
   void SetIdentity(); // [tested]
 
   /// \brief Returns an Identity Transform.
-  static ezSimdTransform Identity(); // [tested]
+  static ezSimdTransform IdentityTransform(); // [tested]
 
   /// \brief Returns the scale component with maximum magnitude.
   ezSimdFloat GetMaxScale() const; // [tested]

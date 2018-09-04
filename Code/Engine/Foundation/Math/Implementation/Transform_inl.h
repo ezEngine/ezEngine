@@ -31,7 +31,7 @@ inline void ezTransformTemplate<Type>::SetIdentity()
 
 //static
 template <typename Type>
-inline const ezTransformTemplate<Type> ezTransformTemplate<Type>::Identity()
+inline const ezTransformTemplate<Type> ezTransformTemplate<Type>::IdentityTransform()
 {
   return ezTransformTemplate<Type>(ezVec3Template<Type>::ZeroVector(), ezQuatTemplate<Type>::IdentityQuaternion(), ezVec3Template<Type>(1));
 }

@@ -50,7 +50,7 @@ public:
   void SetIdentity(); // [tested]
 
   /// \brief Returns an Identity Transform.
-  static const ezTransformTemplate<Type> Identity();
+  static const ezTransformTemplate<Type> IdentityTransform();
 
   // *** Equality ***
 public:

@@ -28,7 +28,7 @@ ezTranslateGizmo::ezTranslateGizmo()
   m_PlaneYZ.Configure(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(255, 128, 128));
 
   SetVisible(false);
-  SetTransformation(ezTransform::Identity());
+  SetTransformation(ezTransform::IdentityTransform());
 
   m_Mode = TranslateMode::None;
   m_MovementMode = MovementMode::ScreenProjection;

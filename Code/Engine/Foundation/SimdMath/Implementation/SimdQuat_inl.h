@@ -8,7 +8,7 @@ EZ_ALWAYS_INLINE ezSimdQuat::ezSimdQuat(const ezSimdVec4f& v)
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdQuat ezSimdQuat::Identity()
+EZ_ALWAYS_INLINE ezSimdQuat ezSimdQuat::IdentityQuaternion()
 {
   return ezSimdQuat(ezSimdVec4f(0.0f, 0.0f, 0.0f, 1.0f));
 }

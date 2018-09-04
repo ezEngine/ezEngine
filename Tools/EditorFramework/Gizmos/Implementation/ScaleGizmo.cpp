@@ -20,7 +20,7 @@ ezScaleGizmo::ezScaleGizmo()
   m_AxisXYZ.Configure(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(128, 128, 0));
 
   SetVisible(false);
-  SetTransformation(ezTransform::Identity());
+  SetTransformation(ezTransform::IdentityTransform());
 }
 
 void ezScaleGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)

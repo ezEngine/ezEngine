@@ -22,7 +22,7 @@ ezConeAngleGizmo::ezConeAngleGizmo()
   m_ConeAngle.Configure(this, ezEngineGizmoHandleType::Cone, ezColorLinearUB(200, 200, 0, 128), false);
 
   SetVisible(false);
-  SetTransformation(ezTransform::Identity());
+  SetTransformation(ezTransform::IdentityTransform());
 }
 
 void ezConeAngleGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)

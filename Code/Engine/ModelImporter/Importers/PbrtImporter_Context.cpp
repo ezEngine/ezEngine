@@ -12,7 +12,7 @@ namespace ezModelImporter
   namespace Pbrt
   {
     Object::Object()
-        : m_Transform(ezTransform::Identity())
+        : m_Transform(ezTransform::IdentityTransform())
     {
     }
 
@@ -53,7 +53,7 @@ namespace ezModelImporter
         , m_modelFilename(modelFilename)
         , m_activeObject(nullptr)
     {
-      m_transformStack.PushBack(ezTransform::Identity());
+      m_transformStack.PushBack(ezTransform::IdentityTransform());
       m_activeMaterialStack.PushBack(MaterialHandle());
     }
 
@@ -140,7 +140,7 @@ namespace ezModelImporter
 
       // There should be only one transform and one material on the stack, but we better be failsafe here!
       m_transformStack.Clear();
-      m_transformStack.PushBack(ezTransform::Identity());
+      m_transformStack.PushBack(ezTransform::IdentityTransform());
       m_activeMaterialStack.Clear();
       m_activeMaterialStack.PushBack(MaterialHandle());
     }

@@ -80,7 +80,7 @@ void ezEditorEngineProcessAppUWP::SetAnchor(const ezVec3& position)
   {
     pHoloSpace->SetDefaultReferenceFrame(std::move(pCurLoc));
 
-    auto pAnchor = locService.CreateSpatialAnchor(ezTransform::Identity());
+    auto pAnchor = locService.CreateSpatialAnchor(ezTransform::IdentityTransform());
 
     locService.SavePersistentAnchor(*pAnchor, "EngineProcessOrigin");
   }
@@ -100,7 +100,7 @@ void ezEditorEngineProcessAppUWP::SetAnchor(const ezTransform& offset)
   {
     pHoloSpace->SetDefaultReferenceFrame(std::move(pCurLoc));
 
-    auto pAnchor = locService.CreateSpatialAnchor(ezTransform::Identity());
+    auto pAnchor = locService.CreateSpatialAnchor(ezTransform::IdentityTransform());
 
     locService.SavePersistentAnchor(*pAnchor, "EngineProcessOrigin");
   }

@@ -90,7 +90,7 @@ namespace ezModelImporter
     void ApplyTransform(const ezTransform& transform);
 
     /// \brief Adds all triangles, vertices and submeshes from an existing mesh.
-    void AddData(const Mesh& mesh, const ezTransform& transform = ezTransform::Identity());
+    void AddData(const Mesh& mesh, const ezTransform& transform = ezTransform::IdentityTransform());
 
     /// \brief Merges all sub-meshes that use the same material.
     ///

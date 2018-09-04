@@ -58,7 +58,7 @@ ezResult ezSpotLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool&
 {
   m_fEffectiveRange = CalculateEffectiveRange(m_fRange, m_fIntensity);
 
-  bounds = CalculateBoundingSphere(ezTransform::Identity(), m_fEffectiveRange);
+  bounds = CalculateBoundingSphere(ezTransform::IdentityTransform(), m_fEffectiveRange);
   return EZ_SUCCESS;
 }
 

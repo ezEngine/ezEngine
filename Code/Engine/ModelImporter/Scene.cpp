@@ -150,7 +150,7 @@ namespace ezModelImporter
       ezDynamicArray<HierarchyObject*> treeStack;
       ezDynamicArray<ezTransform> transformStack;
       treeStack.PushBack(rootObject);
-      transformStack.PushBack(ezTransform::Identity());
+      transformStack.PushBack(ezTransform::IdentityTransform());
 
       while (!treeStack.IsEmpty())
       {

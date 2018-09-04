@@ -19,7 +19,7 @@ ezRotateGizmo::ezRotateGizmo()
   m_AxisZ.Configure(this, ezEngineGizmoHandleType::Ring, ezColorLinearUB(0, 0, 128));
 
   SetVisible(false);
-  SetTransformation(ezTransform::Identity());
+  SetTransformation(ezTransform::IdentityTransform());
 }
 
 void ezRotateGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)

@@ -26,7 +26,7 @@ public:
   void SetIdentity(); // [tested]
 
   /// \brief Returns an Identity Matrix.
-  static ezSimdMat4f Identity(); // [tested]
+  static ezSimdMat4f IdentityMatrix(); // [tested]
 
 public:
   /// \brief Transposes this matrix.

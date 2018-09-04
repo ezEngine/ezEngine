@@ -34,7 +34,7 @@ ezNonUniformBoxGizmo::ezNonUniformBoxGizmo()
   }
 
   SetVisible(false);
-  SetTransformation(ezTransform::Identity());
+  SetTransformation(ezTransform::IdentityTransform());
 }
 
 void ezNonUniformBoxGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)

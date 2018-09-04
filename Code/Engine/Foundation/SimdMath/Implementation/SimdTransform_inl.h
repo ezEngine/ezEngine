@@ -24,7 +24,7 @@ EZ_ALWAYS_INLINE void ezSimdTransform::SetIdentity()
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdTransform ezSimdTransform::Identity()
+EZ_ALWAYS_INLINE ezSimdTransform ezSimdTransform::IdentityTransform()
 {
   ezSimdTransform result;
   result.SetIdentity();

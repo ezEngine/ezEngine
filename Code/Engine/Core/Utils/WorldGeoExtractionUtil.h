@@ -70,7 +70,7 @@ public:
   static void ExtractWorldGeometry(Geometry& geo, const ezWorld& world, ExtractionMode mode, const ezDeque<ezGameObjectHandle>& selection);
 
   /// \brief Writes the given geometry in .obj format to file
-  static void WriteWorldGeometryToOBJ(const char* szFile, const Geometry& geo);
+  static void WriteWorldGeometryToOBJ(const char* szFile, const Geometry& geo, const ezMat3& mTransform);
 };
 
 /// \brief Sent by ezWorldGeoExtractionUtil to gather geometry information about objects in a world

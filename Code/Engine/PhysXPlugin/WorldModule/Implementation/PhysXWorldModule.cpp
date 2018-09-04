@@ -527,7 +527,7 @@ void* ezPhysXWorldModule::CreateRagdoll(const ezSkeletonResourceDescriptor& skel
   //  ezTransform jointChildPose;
   //  jointChildPose.SetIdentity();
   //  jointChildPose.m_vPosition.x = -2.0f;
-  //  // jointChildPose.SetLocalTransform(tChild, ezTransform::Identity());
+  //  // jointChildPose.SetLocalTransform(tChild, ezTransform::IdentityTransform());
   //  pChildLink->getInboundJoint()->setChildPose(ezPxConversionUtils::ToTransform(jointChildPose));
 
   //  {
@@ -606,7 +606,7 @@ void* ezPhysXWorldModule::CreateRagdoll(const ezSkeletonResourceDescriptor& skel
 
         if (PxArticulationJoint* pJoint = pThisLink->getInboundJoint())
         {
-          pJoint->setChildPose(ezPxConversionUtils::ToTransform(ezTransform::Identity()));
+          pJoint->setChildPose(ezPxConversionUtils::ToTransform(ezTransform::IdentityTransform()));
 
           ezTransform parentJointTransform;
           parentJointTransform.SetLocalTransform(parentTransformAbs, thisTransformAbs);

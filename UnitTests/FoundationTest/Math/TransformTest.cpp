@@ -456,7 +456,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
       EZ_TEST_BOOL(t.m_qRotation == ezQuat::IdentityQuaternion());
       EZ_TEST_BOOL((t.m_vScale == ezVec3(1)));
 
-      EZ_TEST_BOOL(t == ezTransform::Identity());
+      EZ_TEST_BOOL(t == ezTransform::IdentityTransform());
     }
   }
 

@@ -86,7 +86,7 @@ void ezGreyBoxEditTool::UpdateGizmoState()
   ezManipulatorManager::GetSingleton()->HideActiveManipulator(GetDocument(), GetDocument()->GetActiveEditTool() != nullptr);
 
   m_DrawBoxGizmo.SetVisible(IsActive());
-  m_DrawBoxGizmo.SetTransformation(ezTransform::Identity());
+  m_DrawBoxGizmo.SetTransformation(ezTransform::IdentityTransform());
 }
 
 void ezGreyBoxEditTool::GameObjectEventHandler(const ezGameObjectEvent& e)

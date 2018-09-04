@@ -147,7 +147,7 @@ namespace ezModelImporter
     {
       // Get/Create node for current transform.
       ObjectHandle parentNodeHandle;
-      if (!context.GetActiveObject() && !context.PeekActiveTransform().IsIdentical(ezTransform::Identity()))
+      if (!context.GetActiveObject() && !context.PeekActiveTransform().IsIdentical(ezTransform::IdentityTransform()))
       {
         // todo: Recycle node if it hasn't changed since last time.
         ezUniquePtr<Node> node = EZ_DEFAULT_NEW(Node);

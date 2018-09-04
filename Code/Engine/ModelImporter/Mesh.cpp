@@ -143,7 +143,7 @@ namespace ezModelImporter
 
   void Mesh::ApplyTransform(const ezTransform& transform)
   {
-    if (transform.IsIdentical(ezTransform::Identity()))
+    if (transform.IsIdentical(ezTransform::IdentityTransform()))
       return;
 
     ezMat4 transformMat = transform.GetAsMat4();
@@ -211,7 +211,7 @@ namespace ezModelImporter
       targetStream->m_Data.PushBackRange(sourceStream->m_Data);
 
       // Transform data.
-      if (!transform.IsIdentical(ezTransform::Identity()))
+      if (!transform.IsIdentical(ezTransform::IdentityTransform()))
       {
         const ezUInt32 attributeSize = targetStream->GetAttributeSize();
 

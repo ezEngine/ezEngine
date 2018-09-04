@@ -26,7 +26,7 @@ ezDragToPositionGizmo::ezDragToPositionGizmo()
   m_AlignNZ.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor::SteelBlue);
 
   SetVisible(false);
-  SetTransformation(ezTransform::Identity());
+  SetTransformation(ezTransform::IdentityTransform());
 }
 
 void ezDragToPositionGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)

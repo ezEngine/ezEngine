@@ -126,7 +126,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBoxSphere)
   {
     ezSimdBBoxSphere b(ezSimdVec4f(1), ezSimdVec4f(5), 5);
 
-    ezSimdTransform t(ezSimdVec4f(1, 1, 1), ezSimdQuat::Identity(), ezSimdVec4f(2, 3, -2));
+    ezSimdTransform t(ezSimdVec4f(1, 1, 1), ezSimdQuat::IdentityQuaternion(), ezSimdVec4f(2, 3, -2));
 
     b.Transform(t);
 

@@ -22,7 +22,7 @@ ezConeLengthGizmo::ezConeLengthGizmo()
                          true); // this gizmo should be rendered very last so it is always on top
 
   SetVisible(false);
-  SetTransformation(ezTransform::Identity());
+  SetTransformation(ezTransform::IdentityTransform());
 }
 
 void ezConeLengthGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)

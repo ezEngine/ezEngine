@@ -22,7 +22,7 @@ ezDrawBoxGizmo::ezDrawBoxGizmo()
   m_Box.Configure(this, ezEngineGizmoHandleType::LineBox, ezColorLinearUB(255, 100, 0), false, false, false, true, false);
 
   SetVisible(false);
-  SetTransformation(ezTransform::Identity());
+  SetTransformation(ezTransform::IdentityTransform());
 }
 
 ezDrawBoxGizmo::~ezDrawBoxGizmo() {}

@@ -25,7 +25,7 @@ ezCapsuleGizmo::ezCapsuleGizmo()
   m_LengthBottom.Configure(this, ezEngineGizmoHandleType::HalfSphereZ, ezColorLinearUB(200, 200, 200, 128), false);
 
   SetVisible(false);
-  SetTransformation(ezTransform::Identity());
+  SetTransformation(ezTransform::IdentityTransform());
 }
 
 void ezCapsuleGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)

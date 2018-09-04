@@ -19,7 +19,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransform)
 
       ezSimdTransform t(pos);
       EZ_TEST_BOOL((t.m_Position == pos).AllSet<3>());
-      EZ_TEST_BOOL(t.m_Rotation == ezSimdQuat::Identity());
+      EZ_TEST_BOOL(t.m_Rotation == ezSimdQuat::IdentityQuaternion());
       EZ_TEST_BOOL((t.m_Scale == ezSimdVec4f(1)).AllSet<3>());
 
       t = ezSimdTransform(pos, qRot);
@@ -43,10 +43,10 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransform)
       t.SetIdentity();
 
       EZ_TEST_BOOL(t.m_Position.IsZero<3>());
-      EZ_TEST_BOOL(t.m_Rotation == ezSimdQuat::Identity());
+      EZ_TEST_BOOL(t.m_Rotation == ezSimdQuat::IdentityQuaternion());
       EZ_TEST_BOOL((t.m_Scale == ezSimdVec4f(1)).AllSet<3>());
 
-      EZ_TEST_BOOL(t == ezSimdTransform::Identity());
+      EZ_TEST_BOOL(t == ezSimdTransform::IdentityTransform());
     }
   }
 

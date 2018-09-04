@@ -12,7 +12,7 @@ public:
   ezSimdQuat(const ezSimdVec4f& v); // [tested]
 
   /// \brief Static function that returns a quaternion that represents the identity rotation (none).
-  static ezSimdQuat Identity(); // [tested]
+  static ezSimdQuat IdentityQuaternion(); // [tested]
 
 public:
   /// \brief Sets the Quaternion to the identity.

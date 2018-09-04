@@ -62,7 +62,7 @@ EZ_ALWAYS_INLINE void ezSimdMat4f::SetIdentity()
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdMat4f ezSimdMat4f::Identity()
+EZ_ALWAYS_INLINE ezSimdMat4f ezSimdMat4f::IdentityMatrix()
 {
   ezSimdMat4f result;
   result.SetIdentity();

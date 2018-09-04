@@ -787,8 +787,8 @@ ezTransform ezGameObjectDocument::ComputeGlobalTransform(const ezDocumentObject*
 {
   if (pObject == nullptr || pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())
   {
-    m_GlobalTransforms[pObject] = ezSimdTransform::Identity();
-    return ezTransform::Identity();
+    m_GlobalTransforms[pObject] = ezSimdTransform::IdentityTransform();
+    return ezTransform::IdentityTransform();
   }
 
   const ezSimdTransform tParent = ezSimdConversion::ToTransform(ComputeGlobalTransform(pObject->GetParent()));

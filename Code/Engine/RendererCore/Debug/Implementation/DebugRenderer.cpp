@@ -319,7 +319,7 @@ void ezDebugRenderer::DrawLineBoxCorners(const ezDebugRendererContext& context, 
 
 // static
 void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, const ezBoundingSphere& sphere, const ezColor& color,
-                                     const ezTransform& transform /*= ezTransform::Identity()*/)
+                                     const ezTransform& transform /*= ezTransform::IdentityTransform()*/)
 {
   enum
   {
@@ -357,7 +357,7 @@ void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, cons
 
 
 void ezDebugRenderer::DrawLineCapsuleZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color,
-                                       const ezTransform& transform /*= ezTransform::Identity()*/)
+                                       const ezTransform& transform /*= ezTransform::IdentityTransform()*/)
 {
   enum
   {

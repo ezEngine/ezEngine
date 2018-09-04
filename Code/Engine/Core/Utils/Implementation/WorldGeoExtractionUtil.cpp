@@ -3,6 +3,7 @@
 #include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Core/World/World.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Math/Mat3.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Meshes/RenderMeshComponent.h>
 
@@ -45,7 +46,7 @@ void ezWorldGeoExtractionUtil::ExtractWorldGeometry(Geometry& geo, const ezWorld
   }
 }
 
-void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const Geometry& geo)
+void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const Geometry& geo, const ezMat3& mTransform)
 {
   EZ_LOG_BLOCK("Write World Geometry to OBJ", szFile);
 
@@ -63,8 +64,9 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
 
   for (ezUInt32 i = 0; i < geo.m_Vertices.GetCount(); ++i)
   {
-    line.Format("v {0} {1} {2}\n", ezArgF(geo.m_Vertices[i].m_vPosition.x, 8), ezArgF(geo.m_Vertices[i].m_vPosition.y, 8),
-                ezArgF(geo.m_Vertices[i].m_vPosition.z, 8));
+    const ezVec3 pos = mTransform.TransformDirection(geo.m_Vertices[i].m_vPosition);
+
+    line.Format("v {0} {1} {2}\n", ezArgF(pos.x, 8), ezArgF(pos.y, 8), ezArgF(pos.z, 8));
 
     file.WriteBytes(line.GetData(), line.GetElementCount());
   }

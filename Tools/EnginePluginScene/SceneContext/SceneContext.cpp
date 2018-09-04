@@ -770,5 +770,5 @@ void ezSceneContext::HandleSceneGeometryMsg(const ezExportSceneGeometryMsgToEngi
   else
     ezWorldGeoExtractionUtil::ExtractWorldGeometry(geo, *m_pWorld, ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh);
 
-  ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(pMsg->m_sOutputFile, geo);
+  ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(pMsg->m_sOutputFile, geo, ezMat3::IdentityMatrix());
 }

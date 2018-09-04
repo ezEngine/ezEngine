@@ -101,7 +101,7 @@ void ezRemoteEngineProcessViewContext::HandleViewMessage(const ezEditorEngineVie
       }
       else
       {
-        pHoloFramework->SetAdditionalCameraTransform(ezTransform::Identity());
+        pHoloFramework->SetAdditionalCameraTransform(ezTransform::IdentityTransform());
       }
     }
 #endif
