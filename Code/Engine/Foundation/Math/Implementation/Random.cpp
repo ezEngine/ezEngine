@@ -128,6 +128,15 @@ double ezRandom::DoubleVariance(double fValue, double fVariance)
   return DoubleMinMax(fValue - offset, fValue + offset);
 }
 
+double ezRandom::DoubleVarianceAroundZero(double fAbsMaxValue)
+{
+  /// \todo Test whether this is actually correct
+
+  const double dev = DoubleZeroToOneInclusive();
+  const double offset = fAbsMaxValue * dev;
+  return DoubleMinMax(-offset, +offset);
+}
+
 static double Gauss(double x, double fSigma)
 {
   // taken from https://en.wikipedia.org/wiki/Normal_distribution

@@ -56,6 +56,9 @@ public:
   /// \brief Returns a double value around fValue with a given variance (0 - 1 range)
   double DoubleVariance(double fValue, double fVariance);
 
+    /// \brief Returns a double value between [-fAbsMaxValue; +fAbsMaxValue] with a Gaussian distribution.
+  double DoubleVarianceAroundZero(double fAbsMaxValue);
+
 private:
   ezUInt32 m_uiIndex;
   ezUInt32 m_uiState[16];

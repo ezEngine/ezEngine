@@ -133,21 +133,26 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
     if (s_bRandomDeviation)
     {
       ezVec3 vAbsTranslate = s_vTranslate.Abs();
-      vTranslate.x = rng.DoubleMinMax(-vAbsTranslate.x, +vAbsTranslate.x);
-      vTranslate.y = rng.DoubleMinMax(-vAbsTranslate.y, +vAbsTranslate.y);
-      vTranslate.z = rng.DoubleMinMax(-vAbsTranslate.z, +vAbsTranslate.z);
+      vTranslate.x = rng.DoubleVarianceAroundZero(vAbsTranslate.x);
+      vTranslate.y = rng.DoubleVarianceAroundZero(vAbsTranslate.y);
+      vTranslate.z = rng.DoubleVarianceAroundZero(vAbsTranslate.z);
 
       ezVec3 vAbsRotate = s_vRotate.Abs();
-      vRotate.x = rng.DoubleMinMax(-vAbsRotate.x, +vAbsRotate.x);
-      vRotate.y = rng.DoubleMinMax(-vAbsRotate.y, +vAbsRotate.y);
-      vRotate.z = rng.DoubleMinMax(-vAbsRotate.z, +vAbsRotate.z);
+      vRotate.x = rng.DoubleVarianceAroundZero(vAbsRotate.x);
+      vRotate.y = rng.DoubleVarianceAroundZero(vAbsRotate.y);
+      vRotate.z = rng.DoubleVarianceAroundZero(vAbsRotate.z);
 
+      const ezVec3 vScaleMin = s_vScale.CompMin(ezVec3(1.0f).CompDiv(s_vScale));
+      const ezVec3 vScaleMax = s_vScale.CompMax(ezVec3(1.0f).CompDiv(s_vScale));
 
-      vScale.x = rng.DoubleMinMax(ezMath::Min(1.0f / s_vScale.x, s_vScale.x), ezMath::Max(1.0f / s_vScale.x, s_vScale.x));
-      vScale.y = rng.DoubleMinMax(ezMath::Min(1.0f / s_vScale.y, s_vScale.y), ezMath::Max(1.0f / s_vScale.y, s_vScale.y));
-      vScale.z = rng.DoubleMinMax(ezMath::Min(1.0f / s_vScale.z, s_vScale.z), ezMath::Max(1.0f / s_vScale.z, s_vScale.z));
+      vScale.x = rng.DoubleVariance((vScaleMax.x - vScaleMin.x) * 0.5, 1.0) + vScaleMin.x;
+      vScale.y = rng.DoubleVariance((vScaleMax.y - vScaleMin.y) * 0.5, 1.0) + vScaleMin.y;
+      vScale.z = rng.DoubleVariance((vScaleMax.z - vScaleMin.z) * 0.5, 1.0) + vScaleMin.z;
 
-      fUniformScale = rng.DoubleMinMax(ezMath::Min(1.0f / s_fUniformScale, s_fUniformScale), ezMath::Max(1.0f / s_fUniformScale, s_fUniformScale));
+      const float fUniScaleMin = ezMath::Min(1.0f / s_fUniformScale, s_fUniformScale);
+      const float fUniScaleMax = ezMath::Max(1.0f / s_fUniformScale, s_fUniformScale);
+
+      fUniformScale = rng.DoubleVariance((fUniScaleMax - fUniScaleMin) * 0.5, 1.0) + fUniScaleMin;
     }
 
     if (space == Space::LocalEach)
