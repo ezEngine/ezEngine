@@ -24,6 +24,7 @@ public:
 
   void ClearMetaData(const KEY ObjectKey);
 
+  /// \brief Will always return a non-null result. May be a default object.
   const VALUE* BeginReadMetaData(const KEY ObjectKey) const;
   void EndReadMetaData() const;
 

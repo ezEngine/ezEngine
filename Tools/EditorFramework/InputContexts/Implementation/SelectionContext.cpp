@@ -305,14 +305,26 @@ static const bool IsInSelection(const ezDeque<const ezDocumentObject*>& selectio
   return false;
 }
 
-static const ezDocumentObject* GetTopMostParent(const ezDocumentObject* pObject, const ezDocumentObject* pRootObject)
+static const ezDocumentObject* GetPrefabParentOrSelf(const ezDocumentObject* pObject)
 {
   const ezDocumentObject* pParent = pObject;
+  const ezDocument* pDocument = pObject->GetDocumentObjectManager()->GetDocument();
+  const auto& metaData = pDocument->m_DocumentObjectMetaData;
 
-  while (pParent->GetParent() != pRootObject)
+  while (pParent != nullptr)
+  {
+    {
+      const ezDocumentObjectMetaData* pMeta = metaData.BeginReadMetaData(pParent->GetGuid());
+      bool bIsPrefab = pMeta->m_CreateFromPrefab.IsValid();
+      metaData.EndReadMetaData();
+
+      if (bIsPrefab)
+        return pParent;
+    }
     pParent = pParent->GetParent();
+  }
 
-  return pParent;
+  return pObject;
 }
 
 const ezDocumentObject* ezSelectionContext::determineObjectToSelect(const ezDocumentObject* pickedObject, bool bToggle, bool bDirect) const
@@ -330,7 +342,7 @@ const ezDocumentObject* ezSelectionContext::determineObjectToSelect(const ezDocu
     if (bDirect)
       return pickedObject;
 
-    return GetTopMostParent(pickedObject, pRootObject);
+    return GetPrefabParentOrSelf(pickedObject);
   }
   else
   {
@@ -347,7 +359,7 @@ const ezDocumentObject* ezSelectionContext::determineObjectToSelect(const ezDocu
     {
       // multi-selection, but no toggle, so we are about to set the selection
       // -> always use the top-level parent in this case
-      return GetTopMostParent(pickedObject, pRootObject);
+      return GetPrefabParentOrSelf(pickedObject);
     }
 
     if (pParentInSelection == pickedObject)
