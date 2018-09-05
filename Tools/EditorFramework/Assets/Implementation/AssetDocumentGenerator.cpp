@@ -42,13 +42,19 @@ void ezAssetDocumentGenerator::AppendFileFilterStrings(ezStringBuilder& out_Filt
 {
   for (const ezString ext : m_SupportedFileTypes)
   {
+    ezStringBuilder extWithStarDot;
+    extWithStarDot.AppendFormat("*.{0}", ext);
+
+    if (out_Filter.FindSubString(extWithStarDot.GetData()) != nullptr)
+      continue;
+
     if (semicolon)
     {
-      out_Filter.AppendFormat("; *.{0}", ext);
+      out_Filter.AppendFormat("; {0}", extWithStarDot.GetView());
     }
     else
     {
-      out_Filter.AppendFormat("*.{0}", ext);
+      out_Filter.Append(extWithStarDot.GetView());
       semicolon = true;
     }
   }
