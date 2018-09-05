@@ -71,7 +71,7 @@ void ezQtLogPanel::LogWriter(const ezLoggingEventData& e)
 
   if (msg.m_sTag == "EditorStatus")
   {
-    ezQtUiServices::GetSingleton()->ShowAllDocumentsStatusBarMessage(msg.m_sMsg, ezTime::Seconds(5));
+    ezQtUiServices::GetSingleton()->ShowAllDocumentsStatusBarMessage(ezFmt(msg.m_sMsg), ezTime::Seconds(5));
   }
 }
 

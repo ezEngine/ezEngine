@@ -29,4 +29,5 @@ public:
   bool m_bSelectionOnly = false;
   ezString m_sOutputFile;
   int m_iExtractionMode; // ezWorldGeoExtractionUtil::ExtractionMode
+  ezMat3 m_Transform;
 };

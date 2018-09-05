@@ -22,7 +22,7 @@ namespace ezInternal
   };
 
   typedef ezLargeBlockAllocator<DEFAULT_BLOCK_SIZE> WorldLargeBlockAllocator;
-}
+} // namespace ezInternal
 
 class ezGameObject;
 struct ezGameObjectDesc;
@@ -173,13 +173,14 @@ struct ezObjectFlags
   enum Enum
   {
     None = 0,
-    Dynamic = EZ_BIT(0),
-    ForceDynamic = EZ_BIT(1),
-    Active = EZ_BIT(2),
-    Initialized = EZ_BIT(3),
-    Initializing = EZ_BIT(4),
-    SimulationStarted = EZ_BIT(5),
-    SimulationStarting = EZ_BIT(6),
+    Dynamic = EZ_BIT(0),            ///< Usually detected automatically. A dynamic object will not cache render data across frames.
+    ForceDynamic = EZ_BIT(1),       ///< Set by the user to enforce the 'Dynamic' mode. Necessary when user code (or scripts) should change
+                                    ///< objects, and the automatic detection cannot know that.
+    Active = EZ_BIT(2),             ///< The node/component is currently in the 'active' state
+    Initialized = EZ_BIT(3),        ///< The node/component has been initialized
+    Initializing = EZ_BIT(4),       ///< The node/component is currently initializing. Used to prevent recursions during initialization.
+    SimulationStarted = EZ_BIT(5),  ///< OnSimulationStarted() has been called on the component
+    SimulationStarting = EZ_BIT(6), ///< Used to prevent recursion during OnSimulationStarted()
     UnhandledMessageHandler = EZ_BIT(7), ///< For components, when a message is not handled, a virtual function is called
 
     Default = None
@@ -200,7 +201,9 @@ struct ezObjectFlags
 
 EZ_DECLARE_FLAGS_OPERATORS(ezObjectFlags);
 
-/// \brief Specifies the mode of an object. Only relevant in editor.
+/// \brief Specifies the mode of an object. This enum is only used in the editor.
+///
+/// \sa ezObjectFlags
 struct ezObjectMode
 {
   typedef ezUInt8 StorageType;
@@ -217,6 +220,8 @@ struct ezObjectMode
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezObjectMode);
 
 /// \brief Specifies the mode of a component. Dynamic components may change an object's transform, static components must not.
+///
+/// \sa ezObjectFlags
 struct ezComponentMode
 {
   enum Enum
@@ -279,9 +284,9 @@ struct ezVisitorExecution
 {
   enum Enum
   {
-    Continue,
-    Skip,
-    Stop
+    Continue, ///< Continue regular iteration
+    Skip,     ///< In a depth-first iteration mode this will skip the entire sub-tree below the current object
+    Stop      ///< Stop the entire iteration
   };
 };
 

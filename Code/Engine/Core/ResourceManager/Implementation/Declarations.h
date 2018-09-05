@@ -37,6 +37,7 @@ struct EZ_CORE_DLL ezResourceFlags
     HasCustomDataLoader   = EZ_BIT(6),  ///< True if someone wants to update a resource with custom data and has created a resource loader to update this specific resource
     PreventFileReload     = EZ_BIT(7),  ///< Once this flag is set, no reloading from file is done, until the flag is manually removed. Automatically set when a custom loader is used. To restore a file to the disk state, this flag must be removed and then the resource can be reloaded.
     HasLowResData         = EZ_BIT(8),  ///< Whether low resolution data was set on a resource once before
+    IsCreatedResource     = EZ_BIT(9),  ///< When this is set, the resource was created and not loaded from file
     Default               = 0,
   };
 
@@ -101,6 +102,8 @@ enum class ezResourceAcquireMode
               ///< cannot be used. This will block until at least the meta info is available.
   NoFallback, ///< The full resource data is required. The loader will block until the resource is in the 'Loaded' state. This does NOT mean
               ///< that all quality levels are loaded.
+  NoFallbackAllowMissing, ///< Same as 'NoFallback' but in case the resource is actually missing, no assertion triggers and no error is
+                          ///< logged. The calling code signals with this that it can handle the situation.
 };
 
 enum class ezResourceAcquireResult

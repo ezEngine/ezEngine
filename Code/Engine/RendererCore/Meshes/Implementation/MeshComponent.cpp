@@ -34,13 +34,25 @@ void ezMeshComponent::OnExtractGeometry(ezMsgExtractGeometry& msg)
   if (msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh)
     return;
 
+  // ignore invalid and created resources
+  {
+    ezMeshResourceHandle hRenderMesh = GetMesh();
+    if (!hRenderMesh.IsValid())
+      return;
+
+    ezResourceLock<ezMeshResource> pRenderMesh(hRenderMesh, ezResourceAcquireMode::PointerOnly);
+    if (pRenderMesh->GetBaseResourceFlags().IsAnySet(ezResourceFlags::IsCreatedResource))
+      return;
+  }
+
   const char* szMesh = GetMeshFile();
+
 
   EZ_LOG_BLOCK("ExtractWorldGeometry_RenderMesh", szMesh);
 
   ezCpuMeshResourceHandle hCpuMesh = ezResourceManager::LoadResource<ezCpuMeshResource>(szMesh);
 
-  ezResourceLock<ezCpuMeshResource> pCpuMesh(hCpuMesh, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezCpuMeshResource> pCpuMesh(hCpuMesh, ezResourceAcquireMode::NoFallbackAllowMissing);
 
   if (pCpuMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
   {

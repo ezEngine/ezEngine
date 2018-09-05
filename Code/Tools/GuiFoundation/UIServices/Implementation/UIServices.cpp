@@ -112,21 +112,27 @@ void ezQtUiServices::LoadState()
   Settings.endGroup();
 }
 
-void ezQtUiServices::ShowAllDocumentsStatusBarMessage(const char* szMsg, ezTime timeOut)
+void ezQtUiServices::ShowAllDocumentsStatusBarMessage(const ezFormatString& msg, ezTime timeOut)
 {
+  ezStringBuilder tmp;
+  msg.GetText(tmp);
+
   Event e;
   e.m_Type = Event::ShowDocumentStatusBarText;
-  e.m_sText = szMsg;
+  e.m_sText = tmp;
   e.m_Time = timeOut;
 
   s_Events.Broadcast(e);
 }
 
-void ezQtUiServices::ShowGlobalStatusBarMessage(const char* szMsg)
+void ezQtUiServices::ShowGlobalStatusBarMessage(const ezFormatString& msg)
 {
+  ezStringBuilder tmp;
+  msg.GetText(tmp);
+
   Event e;
   e.m_Type = Event::ShowGlobalStatusBarText;
-  e.m_sText = szMsg;
+  e.m_sText = tmp;
   e.m_Time = ezTime::Seconds(0);
 
   s_Events.Broadcast(e);

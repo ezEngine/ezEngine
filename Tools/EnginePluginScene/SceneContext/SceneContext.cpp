@@ -5,6 +5,7 @@
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
@@ -23,7 +24,6 @@
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <SharedPluginScene/Common/Messages.h>
-#include <Core/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)
@@ -765,11 +765,15 @@ void ezSceneContext::HandleSceneGeometryMsg(const ezExportSceneGeometryMsgToEngi
 {
   ezWorldGeoExtractionUtil::Geometry geo;
 
-  if (pMsg->m_bSelectionOnly)
-    ezWorldGeoExtractionUtil::ExtractWorldGeometry(geo, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), m_SelectionWithChildren);
-  else
-    ezWorldGeoExtractionUtil::ExtractWorldGeometry(geo, *m_pWorld,
-                                                   static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode));
+  ezTagSet excludeTags;
+  excludeTags.SetByName("Editor");
 
-  ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(pMsg->m_sOutputFile, geo, ezMat3::IdentityMatrix());
+  if (pMsg->m_bSelectionOnly)
+    ezWorldGeoExtractionUtil::ExtractWorldGeometry(
+        geo, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), m_SelectionWithChildren);
+  else
+    ezWorldGeoExtractionUtil::ExtractWorldGeometry(
+        geo, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), &excludeTags);
+
+  ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(pMsg->m_sOutputFile, geo, pMsg->m_Transform);
 }

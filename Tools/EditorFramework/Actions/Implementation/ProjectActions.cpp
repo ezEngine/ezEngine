@@ -525,6 +525,8 @@ void ezProjectAction::Execute(const ezVariant& value)
       {
         ezProfilingSystem::Capture(fileWriter);
         ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
+        ezQtUiServices::GetSingleton()->ShowAllDocumentsStatusBarMessage(ezFmt("Profiling capture saved to '{0}'.",
+                                                                         fileWriter.GetFilePathAbsolute().GetData()), ezTime::Seconds(5.0));
       }
       else
       {

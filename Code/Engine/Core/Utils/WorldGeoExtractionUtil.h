@@ -4,6 +4,7 @@
 #include <Foundation/Communication/Message.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Math/Vec3.h>
+#include <Foundation/Types/TagSet.h>
 
 class ezWorld;
 
@@ -62,7 +63,7 @@ public:
   /// \brief Extracts the desired geometry from all objects in a world
   ///
   /// The geometry object is not cleared, so this can be called repeatedly to append more data.
-  static void ExtractWorldGeometry(Geometry& geo, const ezWorld& world, ExtractionMode mode);
+  static void ExtractWorldGeometry(Geometry& geo, const ezWorld& world, ExtractionMode mode, ezTagSet* pExcludeTags = nullptr);
 
   /// \brief Extracts the desired geometry from a specified subset of objects in a world
   ///

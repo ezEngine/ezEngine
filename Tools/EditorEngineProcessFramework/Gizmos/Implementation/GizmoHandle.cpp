@@ -444,7 +444,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferFrustum()
 static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, ezMeshBufferResourceHandle hMeshBuffer,
                                                const char* szMaterial)
 {
-  const ezStringBuilder sIdentifier(szMeshResourceName, "@", szMaterial);
+  const ezStringBuilder sIdentifier(szMeshResourceName, "-with-", szMaterial);
 
   ezMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sIdentifier);
 

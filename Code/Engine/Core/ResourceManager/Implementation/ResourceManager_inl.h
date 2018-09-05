@@ -41,7 +41,7 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::GetExistingResource(const
   const ezTempHashedString sResourceHash(szResourceID);
 
   EZ_LOCK(s_ResourceMutex);
-  
+
   if (s_LoadedResources[ezGetStaticRTTI<ResourceType>()].m_Resources.TryGetValue(sResourceHash, pResource))
     return ezTypedResourceHandle<ResourceType>((ResourceType*)pResource);
 
@@ -61,6 +61,7 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(const char
 
   ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
   pResource->SetResourceDescription(szResourceDescription);
+  pResource->m_Flags.Add(ezResourceFlags::IsCreatedResource);
 
   EZ_ASSERT_DEV(pResource->GetLoadingState() == ezResourceState::Unloaded,
                 "CreateResource was called on a resource that is already created");
@@ -175,8 +176,11 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
       return (ResourceType*)BeginAcquireResource(ResourceType::GetTypeMissingResource(), ezResourceAcquireMode::NoFallback);
     }
 
-    EZ_REPORT_FAILURE("The resource '{0}' of type '{1}' is missing and no fallback is available", pResource->GetResourceID(),
-                      ezGetStaticRTTI<ResourceType>()->GetTypeName());
+    if (mode != ezResourceAcquireMode::NoFallbackAllowMissing)
+    {
+      EZ_REPORT_FAILURE("The resource '{0}' of type '{1}' is missing and no fallback is available", pResource->GetResourceID(),
+                        ezGetStaticRTTI<ResourceType>()->GetTypeName());
+    }
 
     if (out_AcquireResult)
       *out_AcquireResult = ezResourceAcquireResult::None;

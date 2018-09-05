@@ -57,13 +57,14 @@ public:
   static void MessageBoxWarning(const ezFormatString& msg);
 
   /// \brief Shows a question message box and returns which button the user pressed
-  static QMessageBox::StandardButton MessageBoxQuestion(const char* szMsg, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton);
+  static QMessageBox::StandardButton MessageBoxQuestion(const ezFormatString& msg, QMessageBox::StandardButtons buttons,
+                                                        QMessageBox::StandardButton defaultButton);
 
   /// \brief Use this if you need to display a status bar message in any/all documents. Go directly through the document, if you only want to show a message in a single document window.
-  static void ShowAllDocumentsStatusBarMessage(const char* szMsg, ezTime timeOut);
+  static void ShowAllDocumentsStatusBarMessage(const ezFormatString& msg, ezTime timeOut);
 
   /// \brief Shows a 'critical' message in all container windows (in red), which does not disappear, until it is replaced with another (empty) string.
-  static void ShowGlobalStatusBarMessage(const char* szMsg);
+  static void ShowGlobalStatusBarMessage(const ezFormatString& msg);
 
   /// \brief Opens the given file in the program that is registered in the OS to handle that file type.
   static bool OpenFileInDefaultProgram(const char* szPath);

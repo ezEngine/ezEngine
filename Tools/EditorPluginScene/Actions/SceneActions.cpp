@@ -68,15 +68,15 @@ void ezSceneActions::MapMenuActions()
     const char* szSubPath = "Menu.Scene/SceneCategory";
     const char* szUtilsSubPath = "Menu.Scene/Scene.Utils.Menu";
 
-    pMap->MapAction(s_hSceneCategory, "Menu.Scene", 1.0f);
+    pMap->MapAction(s_hSceneUtilsMenu, "Menu.Scene", 2.0f);
+    pMap->MapAction(s_hUtilExportSceneToOBJ, szUtilsSubPath, 1.0f);
+
+    pMap->MapAction(s_hSceneCategory, "Menu.Scene", 3.0f);
     pMap->MapAction(s_hExportScene, szSubPath, 1.0f);
     pMap->MapAction(s_hRunScene, szSubPath, 2.0f);
     pMap->MapAction(s_hGameModeStop, szSubPath, 4.0f);
     pMap->MapAction(s_hGameModeSimulate, szSubPath, 5.0f);
     pMap->MapAction(s_hGameModePlay, szSubPath, 6.0f);
-
-    pMap->MapAction(s_hSceneUtilsMenu, "Menu.Scene", 10.0f);
-    pMap->MapAction(s_hUtilExportSceneToOBJ, szUtilsSubPath, 1.0f);
   }
 }
 
@@ -197,7 +197,9 @@ void ezSceneAction::Execute(const ezVariant& value)
       ezQtExtractGeometryDlg dlg(nullptr);
       if (dlg.exec() == QDialog::Accepted)
       {
-        m_pSceneDocument->ExportSceneGeometry(dlg.s_sDestinationFile.toUtf8().data(), dlg.s_bOnlySelection, dlg.s_iExtractionMode);
+        m_pSceneDocument->ExportSceneGeometry(dlg.s_sDestinationFile.toUtf8().data(), dlg.s_bOnlySelection, dlg.s_iExtractionMode, dlg.GetCoordinateSystemTransform());
+
+        ezQtUiServices::GetSingleton()->ShowAllDocumentsStatusBarMessage(ezFmt("Geometry exported to '{0}'", dlg.s_sDestinationFile.toUtf8().data()), ezTime::Seconds(5.0f));
       }
       return;
     }

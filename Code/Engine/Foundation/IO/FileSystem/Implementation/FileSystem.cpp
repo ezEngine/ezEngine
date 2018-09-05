@@ -50,7 +50,8 @@ void ezFileSystem::UnregisterEventHandler(ezEvent<const FileEvent&>::Handler han
 ezResult ezFileSystem::AddDataDirectory(const char* szDataDirectory, const char* szGroup, const char* szRootName, DataDirUsage Usage)
 {
   EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
-  EZ_ASSERT_DEV(Usage != AllowWrites || !ezStringUtils::IsNullOrEmpty(szRootName), "A data directory must have a non-empty, unique name to be mounted for write access");
+  EZ_ASSERT_DEV(Usage != AllowWrites || !ezStringUtils::IsNullOrEmpty(szRootName),
+                "A data directory must have a non-empty, unique name to be mounted for write access");
 
 
   ezStringBuilder sPath = szDataDirectory;
@@ -359,7 +360,8 @@ const char* ezFileSystem::ExtractRootName(const char* szPath, ezString& rootName
     ++it;
   }
 
-  EZ_ASSERT_DEV(!it.IsEmpty(), "Cannot parse the path \"{0}\". The data-dir root name starts with a ':' but does not end with '/'.", szPath);
+  EZ_ASSERT_DEV(!it.IsEmpty(), "Cannot parse the path \"{0}\". The data-dir root name starts with a ':' but does not end with '/'.",
+                szPath);
 
   sCur.ToUpper();
   rootName = sCur;
@@ -371,6 +373,9 @@ const char* ezFileSystem::ExtractRootName(const char* szPath, ezString& rootName
 ezDataDirectoryReader* ezFileSystem::GetFileReader(const char* szFile, bool bAllowFileEvents)
 {
   EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
+
+  if (ezStringUtils::IsNullOrEmpty(szFile))
+    return nullptr;
 
   ezString sRootName;
   szFile = ExtractRootName(szFile, sRootName);
@@ -435,11 +440,17 @@ ezDataDirectoryWriter* ezFileSystem::GetFileWriter(const char* szFile, bool bAll
 {
   EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
+  if (ezStringUtils::IsNullOrEmpty(szFile))
+    return nullptr;
+
   ezString sRootName;
 
   if (!ezPathUtils::IsAbsolutePath(szFile))
   {
-    EZ_ASSERT_DEV(ezStringUtils::StartsWith(szFile, ":"), "Only native absolute paths or rooted paths (starting with a colon and then the data dir root name) are allowed for writing to files. This path is neither: '{0}'", szFile);
+    EZ_ASSERT_DEV(ezStringUtils::StartsWith(szFile, ":"),
+                  "Only native absolute paths or rooted paths (starting with a colon and then the data dir root name) are allowed for "
+                  "writing to files. This path is neither: '{0}'",
+                  szFile);
     szFile = ExtractRootName(szFile, sRootName);
   }
 
@@ -518,7 +529,8 @@ ezResult ezFileSystem::ResolvePath(const char* szPath, ezStringBuilder* out_sAbs
 
     relPath = &szPath[sRootName.GetElementCount() + 2];
 
-    absPath = pDataDir->m_pDataDirectory->GetRedirectedDataDirectoryPath(); /// \todo We might also need the none-redirected path as an output
+    absPath =
+        pDataDir->m_pDataDirectory->GetRedirectedDataDirectoryPath(); /// \todo We might also need the none-redirected path as an output
     absPath.AppendPath(relPath);
   }
   else
@@ -531,7 +543,8 @@ ezResult ezFileSystem::ResolvePath(const char* szPath, ezStringBuilder* out_sAbs
 
     relPath = pReader->GetFilePath();
 
-    absPath = pReader->GetDataDirectory()->GetRedirectedDataDirectoryPath(); /// \todo We might also need the none-redirected path as an output
+    absPath =
+        pReader->GetDataDirectory()->GetRedirectedDataDirectoryPath(); /// \todo We might also need the none-redirected path as an output
     absPath.AppendPath(relPath);
 
     pReader->Close();
@@ -636,7 +649,8 @@ ezResult ezFileSystem::DetectSdkRootDirectory()
 #else
   if (ezFileSystem::FindFolderWithSubPath(ezOSFile::GetApplicationDirectory(), "Data/Base", sdkRoot).Failed())
   {
-    ezLog::Error("Could not find SDK root. Application dir is '{0}'. Searched for parent with 'Data\\Base' sub-folder.", ezOSFile::GetApplicationDirectory());
+    ezLog::Error("Could not find SDK root. Application dir is '{0}'. Searched for parent with 'Data\\Base' sub-folder.",
+                 ezOSFile::GetApplicationDirectory());
     return EZ_FAILURE;
   }
 #endif

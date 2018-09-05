@@ -11,18 +11,36 @@ EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractGeometry);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractGeometry, 1, ezRTTIDefaultAllocator<ezMsgExtractGeometry>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-void ezWorldGeoExtractionUtil::ExtractWorldGeometry(Geometry& geo, const ezWorld& world, ExtractionMode mode)
+struct GatherObjectsTraverser
 {
-  EZ_LOCK(world.GetReadMarker());
+  ezTagSet* m_pExcludeTags = nullptr;
+  ezDeque<ezGameObjectHandle> m_Selection;
 
-  ezDeque<ezGameObjectHandle> selection;
-
-  for (auto it = world.GetObjects(); it.IsValid(); ++it)
+  ezVisitorExecution::Enum Run(ezGameObject* pObject)
   {
-    selection.PushBack(it->GetHandle());
-  }
+    if (m_pExcludeTags && pObject->GetTags().IsAnySet(*m_pExcludeTags))
+      return ezVisitorExecution::Skip;
 
-  ExtractWorldGeometry(geo, world, mode, selection);
+    m_Selection.PushBack(pObject->GetHandle());
+
+    return ezVisitorExecution::Continue;
+  }
+};
+
+void ezWorldGeoExtractionUtil::ExtractWorldGeometry(Geometry& geo, const ezWorld& world0, ExtractionMode mode,
+                                                    ezTagSet* pExcludeTags /*= nullptr*/)
+{
+  // we don't modify the world, but the traverser is a non-const function
+  ezWorld& world = const_cast<ezWorld&>(world0);
+
+  EZ_LOCK(world.GetWriteMarker());
+
+  GatherObjectsTraverser traverser;
+  traverser.m_pExcludeTags = pExcludeTags;
+
+  world.Traverse(ezMakeDelegate(&GatherObjectsTraverser::Run, &traverser), ezWorld::TraversalMethod::DepthFirst);
+
+  ExtractWorldGeometry(geo, world, mode, traverser.m_Selection);
 }
 
 void ezWorldGeoExtractionUtil::ExtractWorldGeometry(Geometry& geo, const ezWorld& world, ExtractionMode mode,

@@ -56,7 +56,7 @@ void ezQtUiServices::MessageBoxWarning(const ezFormatString& msg)
                          QString::fromUtf8(msg.GetText(tmp)), QMessageBox::StandardButton::Ok);
 }
 
-QMessageBox::StandardButton ezQtUiServices::MessageBoxQuestion(const char* szMsg, QMessageBox::StandardButtons buttons,
+QMessageBox::StandardButton ezQtUiServices::MessageBoxQuestion(const ezFormatString& msg, QMessageBox::StandardButtons buttons,
                                                                QMessageBox::StandardButton defaultButton)
 {
   if (s_bHeadless)
@@ -64,7 +64,11 @@ QMessageBox::StandardButton ezQtUiServices::MessageBoxQuestion(const char* szMsg
     return defaultButton;
   }
   else
+  {
+    ezStringBuilder tmp;
     return QMessageBox::question(QApplication::activeWindow(),
-                                 QString::fromUtf8(ezApplicationServices::GetSingleton()->GetApplicationName()), QString::fromUtf8(szMsg),
+                                 QString::fromUtf8(ezApplicationServices::GetSingleton()->GetApplicationName()),
+                                 QString::fromUtf8(msg.GetText(tmp)),
                                  buttons, defaultButton);
+    }
 }

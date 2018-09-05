@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>326</width>
-    <height>159</height>
+    <height>207</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -60,6 +60,16 @@
    </item>
    <item>
     <widget class="QComboBox" name="ExtractionMode"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Coordinate System:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="CoordinateSystem"/>
    </item>
    <item>
     <widget class="QCheckBox" name="ExtractOnlySelection">
