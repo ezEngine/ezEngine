@@ -25,6 +25,7 @@ public:
   static ezActionDescriptorHandle s_hGameModePlay;
   static ezActionDescriptorHandle s_hGameModeStop;
   static ezActionDescriptorHandle s_hUtilExportSceneToOBJ;
+  static ezActionDescriptorHandle s_hPullObjectEngineState;
 };
 
 ///
@@ -42,6 +43,7 @@ public:
     StartGameModePlay,
     StopGameMode,
     ExportSceneToOBJ,
+    PullObjectEngineState,
   };
 
   ezSceneAction(const ezActionContext& context, const char* szName, ActionType type);

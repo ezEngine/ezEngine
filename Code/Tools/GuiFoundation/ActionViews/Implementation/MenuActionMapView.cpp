@@ -5,7 +5,10 @@
 #include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/QtProxy.moc.h>
 
-ezQtMenuActionMapView::ezQtMenuActionMapView(QWidget* parent) {}
+ezQtMenuActionMapView::ezQtMenuActionMapView(QWidget* parent)
+{
+  setToolTipsVisible(true);
+}
 
 ezQtMenuActionMapView::~ezQtMenuActionMapView()
 {

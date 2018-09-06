@@ -87,7 +87,7 @@ void ezProjectActions::RegisterActions()
                                           ezProjectAction::ButtonType::EditorPlugins);
   s_hEnginePlugins = EZ_REGISTER_ACTION_1("Engine.Plugins", ezActionScope::Global, "Editor", "", ezProjectAction,
                                           ezProjectAction::ButtonType::EnginePlugins);
-  s_hPreferencesDlg = EZ_REGISTER_ACTION_1("Editor.ezQtPreferencesDlg", ezActionScope::Global, "Editor", "Ctrl+P", ezProjectAction,
+  s_hPreferencesDlg = EZ_REGISTER_ACTION_1("Editor.ezQtPreferencesDlg", ezActionScope::Global, "Editor", "", ezProjectAction,
                                            ezProjectAction::ButtonType::PreferencesDialog);
   s_hTagsDlg = EZ_REGISTER_ACTION_1("Engine.ezQtTagsDlg", ezActionScope::Global, "Editor", "", ezProjectAction,
                                     ezProjectAction::ButtonType::TagsDialog);

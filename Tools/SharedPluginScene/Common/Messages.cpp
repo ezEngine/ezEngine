@@ -38,4 +38,29 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExportSceneGeometryMsgToEngine, 1, ezRTTIDefau
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPullObjectStateMsgToEngine, 1, ezRTTIDefaultAllocator<ezPullObjectStateMsgToEngine>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezPushObjectStateData, ezNoBase, 1, ezRTTIDefaultAllocator<ezPushObjectStateData>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Guid", m_ObjectGuid),
+    EZ_MEMBER_PROPERTY("Pos", m_vPosition),
+    EZ_MEMBER_PROPERTY("Rot", m_qRotation)
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_STATIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPushObjectStateMsgToEditor, 1, ezRTTIDefaultAllocator<ezPushObjectStateMsgToEditor>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ARRAY_MEMBER_PROPERTY("States", m_ObjectStates)
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 // clang-format on

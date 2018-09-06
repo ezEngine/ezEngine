@@ -15,6 +15,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/DdlSerializer.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <SharedPluginScene/Common/Messages.h>
@@ -22,7 +23,6 @@
 #include <ToolsFoundation/Object/ObjectDirectAccessor.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 4, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -907,6 +907,26 @@ void ezSceneDocument::HandleVisualScriptActivityMsg(const ezVisualScriptActivity
   BroadcastInterDocumentMessage(const_cast<ezVisualScriptActivityMsgToEditor*>(pMsg), this);
 }
 
+void ezSceneDocument::HandleObjectStateFromEngineMsg(const ezPushObjectStateMsgToEditor* pMsg)
+{
+  auto pHistory = GetCommandHistory();
+
+  pHistory->StartTransaction("Pull Object State");
+
+  for (const auto& state : pMsg->m_ObjectStates)
+  {
+    auto pObject = GetObjectManager()->GetObject(state.m_ObjectGuid);
+
+    if (pObject)
+    {
+      SetGlobalTransform(pObject, ezTransform(state.m_vPosition, state.m_qRotation),
+                         TransformationChanges::Translation | TransformationChanges::Rotation);
+    }
+  }
+
+  pHistory->FinishTransaction();
+}
+
 void ezSceneDocument::SendObjectMsg(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg)
 {
   // if ezObjectTagMsgToEngine were derived from a general 'object msg' one could send other message types as well
@@ -1071,27 +1091,34 @@ void ezSceneDocument::ExportSceneGeometry(const char* szFile, bool bOnlySelectio
   msg.m_Transform = mTransform;
 
   SendMessageToEngine(&msg);
+
+  ezQtUiServices::GetSingleton()->ShowAllDocumentsStatusBarMessage(ezFmt("Geometry exported to '{0}'", szFile), ezTime::Seconds(5.0f));
 }
 
 void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
   ezGameObjectDocument::HandleEngineMessage(pMsg);
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezGameModeMsgToEditor>())
+  if (const ezGameModeMsgToEditor* msg = ezDynamicCast<const ezGameModeMsgToEditor*>(pMsg))
   {
-    HandleGameModeMsg(static_cast<const ezGameModeMsgToEditor*>(pMsg));
+    HandleGameModeMsg(msg);
     return;
   }
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezVisualScriptActivityMsgToEditor>())
+  if (const ezVisualScriptActivityMsgToEditor* msg = ezDynamicCast<const ezVisualScriptActivityMsgToEditor*>(pMsg))
   {
-    HandleVisualScriptActivityMsg(static_cast<const ezVisualScriptActivityMsgToEditor*>(pMsg));
+    HandleVisualScriptActivityMsg(msg);
     return;
   }
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
+  if (const ezDocumentOpenResponseMsgToEditor* msg = ezDynamicCast<const ezDocumentOpenResponseMsgToEditor*>(pMsg))
   {
     SyncObjectHiddenState();
+  }
+
+  if (const ezPushObjectStateMsgToEditor* msg = ezDynamicCast<const ezPushObjectStateMsgToEditor*>(pMsg))
+  {
+    HandleObjectStateFromEngineMsg(msg);
   }
 }
 

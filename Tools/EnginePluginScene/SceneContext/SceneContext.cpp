@@ -158,6 +158,12 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     return;
   }
 
+  if (const ezPullObjectStateMsgToEngine* msg = ezDynamicCast<const ezPullObjectStateMsgToEngine*>(pMsg))
+  {
+    HandlePullObjectStateMsg(msg);
+    return;
+  }
+
   if (pMsg->IsInstanceOf<ezViewRedrawMsgToEngine>())
   {
     HandleViewRedrawMsg(static_cast<const ezViewRedrawMsgToEngine*>(pMsg));
@@ -776,4 +782,34 @@ void ezSceneContext::HandleSceneGeometryMsg(const ezExportSceneGeometryMsgToEngi
         geo, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), &excludeTags);
 
   ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(pMsg->m_sOutputFile, geo, pMsg->m_Transform);
+}
+
+void ezSceneContext::HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine* pMsg)
+{
+  const ezWorld* pWorld = GetWorld();
+  EZ_LOCK(pWorld->GetReadMarker());
+
+  const auto& objectMapper = GetDocumentContext(GetDocumentGuid())->m_Context.m_GameObjectMap;
+
+  ezPushObjectStateMsgToEditor retMsg;
+  retMsg.m_ObjectStates.Reserve(m_SelectionWithChildren.GetCount());
+
+  for (ezGameObjectHandle hObject : m_SelectionWithChildren)
+  {
+    const ezUuid objectGuid = objectMapper.GetGuid(hObject);
+
+    const ezGameObject* pObject = nullptr;
+    if (objectGuid.IsValid() && pWorld->TryGetObject(hObject, pObject))
+    {
+      auto& state = retMsg.m_ObjectStates.ExpandAndGetRef();
+
+      state.m_ObjectGuid = objectGuid;
+      state.m_vPosition = pObject->GetGlobalPosition();
+      state.m_qRotation = pObject->GetGlobalRotation();
+    }
+  }
+
+  // send a return message with the result
+  retMsg.m_DocumentGuid = pMsg->m_DocumentGuid;
+  SendProcessMessage(&retMsg);
 }

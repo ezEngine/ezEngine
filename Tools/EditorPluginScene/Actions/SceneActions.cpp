@@ -12,6 +12,7 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <QFileDialog>
 #include <QProcess>
+#include <SharedPluginScene/Common/Messages.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneAction, 1, ezRTTINoAllocator);
@@ -25,6 +26,7 @@ ezActionDescriptorHandle ezSceneActions::s_hGameModeSimulate;
 ezActionDescriptorHandle ezSceneActions::s_hGameModePlay;
 ezActionDescriptorHandle ezSceneActions::s_hGameModeStop;
 ezActionDescriptorHandle ezSceneActions::s_hUtilExportSceneToOBJ;
+ezActionDescriptorHandle ezSceneActions::s_hPullObjectEngineState;
 
 void ezSceneActions::RegisterActions()
 {
@@ -44,6 +46,9 @@ void ezSceneActions::RegisterActions()
 
   s_hUtilExportSceneToOBJ = EZ_REGISTER_ACTION_1("Scene.ExportSceneToOBJ", ezActionScope::Document, "Scene", "", ezSceneAction,
                                                  ezSceneAction::ActionType::ExportSceneToOBJ);
+
+  s_hPullObjectEngineState = EZ_REGISTER_ACTION_1("Scene.PullObjectEngineState", ezActionScope::Document, "Scene", "Ctrl+K,Ctrl+P", ezSceneAction,
+                                                  ezSceneAction::ActionType::PullObjectEngineState);
 }
 
 void ezSceneActions::UnregisterActions()
@@ -56,6 +61,7 @@ void ezSceneActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hGameModePlay);
   ezActionManager::UnregisterAction(s_hGameModeStop);
   ezActionManager::UnregisterAction(s_hUtilExportSceneToOBJ);
+  ezActionManager::UnregisterAction(s_hPullObjectEngineState);
 }
 
 
@@ -69,7 +75,8 @@ void ezSceneActions::MapMenuActions()
     const char* szUtilsSubPath = "Menu.Scene/Scene.Utils.Menu";
 
     pMap->MapAction(s_hSceneUtilsMenu, "Menu.Scene", 2.0f);
-    pMap->MapAction(s_hUtilExportSceneToOBJ, szUtilsSubPath, 1.0f);
+    pMap->MapAction(s_hPullObjectEngineState, szUtilsSubPath, 1.0f);
+    pMap->MapAction(s_hUtilExportSceneToOBJ, szUtilsSubPath, 2.0f);
 
     pMap->MapAction(s_hSceneCategory, "Menu.Scene", 3.0f);
     pMap->MapAction(s_hExportScene, szSubPath, 1.0f);
@@ -79,7 +86,6 @@ void ezSceneActions::MapMenuActions()
     pMap->MapAction(s_hGameModePlay, szSubPath, 6.0f);
   }
 }
-
 
 void ezSceneActions::MapToolbarActions()
 {
@@ -133,6 +139,10 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
 
     case ActionType::ExportSceneToOBJ:
       // SetIconPath(":/EditorPluginScene/Icons/SceneStop16.png"); // TODO: icon
+      break;
+
+    case ActionType::PullObjectEngineState:
+      SetIconPath(":/EditorPluginScene/Icons/PullObjectState16.png");
       break;
   }
 
@@ -197,10 +207,16 @@ void ezSceneAction::Execute(const ezVariant& value)
       ezQtExtractGeometryDlg dlg(nullptr);
       if (dlg.exec() == QDialog::Accepted)
       {
-        m_pSceneDocument->ExportSceneGeometry(dlg.s_sDestinationFile.toUtf8().data(), dlg.s_bOnlySelection, dlg.s_iExtractionMode, dlg.GetCoordinateSystemTransform());
-
-        ezQtUiServices::GetSingleton()->ShowAllDocumentsStatusBarMessage(ezFmt("Geometry exported to '{0}'", dlg.s_sDestinationFile.toUtf8().data()), ezTime::Seconds(5.0f));
+        m_pSceneDocument->ExportSceneGeometry(dlg.s_sDestinationFile.toUtf8().data(), dlg.s_bOnlySelection, dlg.s_iExtractionMode,
+                                              dlg.GetCoordinateSystemTransform());
       }
+      return;
+    }
+
+    case ActionType::PullObjectEngineState:
+    {
+      ezPullObjectStateMsgToEngine msg;
+      m_pSceneDocument->SendMessageToEngine(&msg);
       return;
     }
   }
@@ -227,5 +243,10 @@ void ezSceneAction::UpdateState()
   if (m_Type == ActionType::StopGameMode)
   {
     SetEnabled(m_pSceneDocument->GetGameMode() != GameMode::Off);
+  }
+
+  if (m_Type == ActionType::PullObjectEngineState)
+  {
+    SetEnabled(m_pSceneDocument->GetGameMode() != GameMode::Off && !m_pSceneDocument->GetSelectionManager()->IsSelectionEmpty());
   }
 }

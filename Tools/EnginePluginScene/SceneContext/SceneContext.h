@@ -70,6 +70,7 @@ private:
   void ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds);
   void HandleExposedPropertiesMsg(const ezExposedDocumentObjectPropertiesMsgToEngine* pMsg);
   void HandleSceneGeometryMsg(const ezExportSceneGeometryMsgToEngine* pMsg);
+  void HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine* pMsg);
 
   void DrawSelectionBounds(const ezViewHandle& hView);
 

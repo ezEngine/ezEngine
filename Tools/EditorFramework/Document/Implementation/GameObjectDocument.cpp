@@ -579,8 +579,6 @@ void ezGameObjectDocument::MoveCameraHere()
 void ezGameObjectDocument::SendGameWorldToEngine()
 {
   ezEditorEngineProcessConnection::GetSingleton()->SendDocumentOpenMessage(this, true);
-
-  m_iResendSelection = 2;
 }
 
 void ezGameObjectDocument::SetSimulationSpeed(float f)
@@ -828,5 +826,15 @@ void ezGameObjectDocument::ComputeTopLevelSelectedGameObjects(ezDeque<ezSelected
     sgo.m_GlobalTransform = GetGlobalTransform(sgo.m_pObject);
     sgo.m_vLocalScaling = Selection[sel]->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
     sgo.m_fLocalUniformScaling = Selection[sel]->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>();
+  }
+}
+
+void ezGameObjectDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
+{
+  SUPER::HandleEngineMessage(pMsg);
+
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
+  {
+    m_iResendSelection = 2;
   }
 }

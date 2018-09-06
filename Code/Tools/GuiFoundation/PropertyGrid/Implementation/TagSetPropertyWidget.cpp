@@ -25,6 +25,7 @@ ezQtPropertyEditorTagSetWidget::ezQtPropertyEditorTagSetWidget()
   m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
   m_pMenu = nullptr;
   m_pMenu = new QMenu(m_pWidget);
+  m_pMenu->setToolTipsVisible(true);
   m_pWidget->setMenu(m_pMenu);
   m_pLayout->addWidget(m_pWidget);
 

@@ -41,6 +41,7 @@ void ezQtAddSubElementButton::OnInit()
   if (m_pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
   {
     m_pMenu = new QMenu(m_pButton);
+    m_pMenu->setToolTipsVisible(true);
     connect(m_pMenu, &QMenu::aboutToShow, this, &ezQtAddSubElementButton::onMenuAboutToShow);
     m_pButton->setMenu(m_pMenu);
     m_pButton->setObjectName("Button");

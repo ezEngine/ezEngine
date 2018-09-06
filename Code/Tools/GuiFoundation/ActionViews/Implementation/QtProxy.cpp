@@ -215,6 +215,7 @@ void ezQtMenuProxy::SetAction(ezAction* pAction)
   ezQtProxy::SetAction(pAction);
 
   m_pMenu = new QMenu();
+  m_pMenu->setToolTipsVisible(true);
   Update();
 }
 

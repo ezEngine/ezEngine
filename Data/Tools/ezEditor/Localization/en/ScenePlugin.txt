@@ -179,3 +179,4 @@ ezAnimatedMeshComponent;Animated Mesh
 ezMotionMatchingComponent;Motion Matching
 Scene.Utils.Menu;Utilities
 Scene.ExportSceneToOBJ;Export Scene Geometry to OBJ
+Scene.PullObjectEngineState;Pull Object State from Engine;Only possible during simulation and with selected objects. Synchronizes the position of objects back to the editor state.

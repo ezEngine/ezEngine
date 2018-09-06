@@ -118,6 +118,8 @@ public:
   /// to then do modifications on this base transformation every frame.
   void ComputeTopLevelSelectedGameObjects(ezDeque<ezSelectedGameObject>& out_Selection);
 
+  virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
+
 private:
   void DeallocateEditTools();
 
