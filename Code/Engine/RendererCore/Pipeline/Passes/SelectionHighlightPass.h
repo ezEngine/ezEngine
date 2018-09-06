@@ -21,5 +21,9 @@ protected:
   ezInputNodePin m_PinDepthStencil;
 
   ezShaderResourceHandle m_hShader;
+  ezConstantBufferStorageHandle m_hConstantBuffer;
+
+  ezColor m_HighlightColor;
+  float m_fOverlayOpacity;
 };
 

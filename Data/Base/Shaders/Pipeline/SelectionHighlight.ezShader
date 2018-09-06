@@ -25,6 +25,7 @@ SourceBlend0 = Blend_SrcAlpha
 
 #include <Shaders/Common/Common.h>
 #include <Shaders/Common/GlobalConstants.h>
+#include "SelectionHighlightConstants.h"
 
 struct PS_IN
 {
@@ -54,9 +55,6 @@ float4 main(PS_IN Input) : SV_Target
 {
   int2 coords = Input.Position.xy;
   float depth = SampleDepth(SelectionDepthTexture, coords, Input);
-
-  // maybe we should expose this color
-  float3 selectionColor = float3(177.0 / 255.0, 135.0 / 255.0, 27.0 / 255.0);
 
   if (depth == 1.0f)
   {
@@ -98,7 +96,7 @@ float4 main(PS_IN Input) : SV_Target
     float x = (avgEdgeDistance / validSampleCount) - 2.0f;
 
     float edgeOpacity = saturate((x * x) * -1.0f + 1.0f);
-    return float4(selectionColor, edgeOpacity);
+    return float4(HighlightColor.rgb, edgeOpacity);
   }
   else
   {
@@ -108,6 +106,6 @@ float4 main(PS_IN Input) : SV_Target
       discard;
     }
 
-    return float4(selectionColor, 0.1);
+    return float4(HighlightColor.rgb, OverlayOpacity);
   }
 }

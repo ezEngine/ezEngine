@@ -11,7 +11,7 @@
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
 
-#include <RendererCore/Meshes/MeshRenderer.h>
+#include <RendererCore/../../../Data/Base/Shaders/Pipeline/SelectionHighlightConstants.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectionHighlightPass, 1, ezRTTIDefaultAllocator<ezSelectionHighlightPass>)
@@ -19,7 +19,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectionHighlightPass, 1, ezRTTIDefaultAlloca
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Color", m_PinColor),
-    EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil)->AddAttributes(new ezColorAttribute(ezColor::LightCoral))
+    EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil)->AddAttributes(new ezColorAttribute(ezColor::LightCoral)),
+
+    EZ_MEMBER_PROPERTY("HighlightColor", m_HighlightColor)->AddAttributes(new ezDefaultValueAttribute(ezColor(177.0 / 255.0, 135.0 / 255.0, 27.0 / 255.0))),
+    EZ_MEMBER_PROPERTY("OverlayOpacity", m_fOverlayOpacity)->AddAttributes(new ezDefaultValueAttribute(0.1f))
   }
   EZ_END_PROPERTIES;
 }
@@ -32,9 +35,18 @@ ezSelectionHighlightPass::ezSelectionHighlightPass(const char* szName)
   // Load shader.
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/SelectionHighlight.ezShader");
   EZ_ASSERT_DEV(m_hShader.IsValid(), "Could not load selection highlight shader!");
+
+  m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezSelectionHighlightConstants>();
+
+  m_HighlightColor = ezColor::Yellow;
+  m_fOverlayOpacity = 0.1f;
 }
 
-ezSelectionHighlightPass::~ezSelectionHighlightPass() {}
+ezSelectionHighlightPass::~ezSelectionHighlightPass()
+{
+  ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
+  m_hConstantBuffer.Invalidate();
+}
 
 bool ezSelectionHighlightPass::GetRenderTargetDescriptions(const ezView& view,
                                                            const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
@@ -103,12 +115,17 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
 
   // reconstruct selection overlay from depth target
   {
+    auto constants = ezRenderContext::GetConstantBufferData<ezSelectionHighlightConstants>(m_hConstantBuffer);
+    constants->HighlightColor = m_HighlightColor;
+    constants->OverlayOpacity = m_fOverlayOpacity;
+
     ezGALRenderTagetSetup renderTargetSetup;
     renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
 
     renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
 
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
+    renderViewContext.m_pRenderContext->BindConstantBuffer("ezSelectionHighlightConstants", m_hConstantBuffer);
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
                                                        1);
     renderViewContext.m_pRenderContext->BindTexture2D("SelectionDepthTexture", pDevice->GetDefaultResourceView(hDepthTexture));
