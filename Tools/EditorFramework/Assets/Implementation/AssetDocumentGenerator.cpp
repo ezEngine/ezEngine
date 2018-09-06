@@ -45,8 +45,13 @@ void ezAssetDocumentGenerator::AppendFileFilterStrings(ezStringBuilder& out_Filt
     ezStringBuilder extWithStarDot;
     extWithStarDot.AppendFormat("*.{0}", ext);
 
-    if (out_Filter.FindSubString(extWithStarDot.GetData()) != nullptr)
-      continue;
+    if (const char* pos = out_Filter.FindSubString(extWithStarDot.GetData()))
+    {
+      const char afterExt = *(pos + extWithStarDot.GetElementCount());
+
+      if (afterExt == '\0' || afterExt == ';')
+        continue;
+    }
 
     if (semicolon)
     {
