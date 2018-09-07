@@ -2,6 +2,7 @@
 
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Shader/ShaderResource.h>
+#include <RendererCore/Shader/ConstantBufferStorage.h>
 
 class EZ_RENDERERCORE_DLL ezSelectionHighlightPass : public ezRenderPipelinePass
 {

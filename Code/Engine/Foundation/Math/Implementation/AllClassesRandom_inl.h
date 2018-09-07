@@ -33,28 +33,17 @@ ezVec3Template<Type> ezVec3Template<Type>::CreateRandomDirection(ezRandom& rng)
 template <typename Type>
 ezVec3Template<Type> ezVec3Template<Type>::CreateRandomDeviationX(ezRandom& rng, const ezAngle& maxDeviation)
 {
-  EZ_ASSERT_DEBUG(maxDeviation.GetRadian() > 0.0, "Deviation must not be zero");
+  const double twoPi = 2.0 * ezMath::BasicType<double>::Pi();
 
-  // two coordinates are always on a unit circle, the distance of the third coordinate defines the opening angle
-  const double dist = 1.0 / ezMath::Tan(maxDeviation);
+  const double cosAngle = ezMath::Cos(maxDeviation);
 
-  double lenSqr;
-  double p1;
-  double p2;
+  const double x = rng.DoubleZeroToOneInclusive() * (1 - cosAngle) + cosAngle;
+  const ezAngle phi = ezAngle::Radian((float)(rng.DoubleZeroToOneInclusive() * twoPi));
+  const double invSqrt = ezMath::Sqrt(1 - (x * x));
+  const double y = invSqrt * ezMath::Cos(phi);
+  const double z = invSqrt * ezMath::Sin(phi);
 
-  // create a random sample inside a unit circle
-  do
-  {
-    p1 = rng.DoubleMinMax(-1.0, 1.0);
-    p2 = rng.DoubleMinMax(-1.0, 1.0);
-
-    lenSqr = (p1 * p1 + p2 * p2);
-  } while (lenSqr > 1.0);
-
-  ezVec3Template<Type> vec((Type)dist, (Type)p1, (Type)p2);
-  vec.Normalize();
-
-  return vec;
+  return ezVec3((float)x, (float)y, (float)z);
 }
 
 template <typename Type>

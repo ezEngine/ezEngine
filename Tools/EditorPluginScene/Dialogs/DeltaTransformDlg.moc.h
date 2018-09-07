@@ -16,11 +16,21 @@ public:
   enum Mode
   {
     Translate,
+    TranslateDeviation,
     RotateX,
+    RotateXRandom,
+    RotateXDeviation,
     RotateY,
+    RotateYRandom,
+    RotateYDeviation,
     RotateZ,
+    RotateZRandom,
+    RotateZDeviation,
     Scale,
+    ScaleDeviation,
     UniformScale,
+    UniformScaleDeviation,
+    OrientationZDeviation,
   };
 
   enum Space
@@ -47,10 +57,15 @@ private:
   static Mode s_Mode;
   static Space s_Space;
   static ezVec3 s_vTranslate;
+  static ezVec3 s_vTranslateDeviation;
   static ezVec3 s_vScale;
+  static ezVec3 s_vScaleDeviation;
   static float s_fUniformScale;
+  static float s_fUniformScaleDeviation;
   static ezVec3 s_vRotate;
-  static bool s_bRandomDeviation;
+  static ezVec3 s_vRotateRandom;
+  static ezVec3 s_vRotateDeviation;
+  static float s_fOrientationDeviationZ;
 
   ezUInt32 m_uiActionsApplied = 0;
   ezSceneDocument* m_pSceneDocument = nullptr;
