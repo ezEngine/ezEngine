@@ -30,7 +30,7 @@ public:
     ScaleDeviation,
     UniformScale,
     UniformScaleDeviation,
-    OrientationZDeviation,
+    NaturalDeviationZ,
   };
 
   enum Space
@@ -43,7 +43,6 @@ public:
 private slots:
   void on_ButtonApply_clicked();
   void on_ButtonUndo_clicked();
-  void on_ButtonReset_clicked();
   void on_ComboMode_currentIndexChanged(int index);
   void on_ComboSpace_currentIndexChanged(int index);
   void on_Value1_valueChanged(double value);
@@ -65,7 +64,7 @@ private:
   static ezVec3 s_vRotate;
   static ezVec3 s_vRotateRandom;
   static ezVec3 s_vRotateDeviation;
-  static float s_fOrientationDeviationZ;
+  static float s_fNaturalDeviationZ;
 
   ezUInt32 m_uiActionsApplied = 0;
   ezSceneDocument* m_pSceneDocument = nullptr;

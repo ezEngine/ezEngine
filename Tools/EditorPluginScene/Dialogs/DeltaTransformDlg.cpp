@@ -20,7 +20,7 @@ ezVec3 ezQtDeltaTransformDlg::s_vRotate(0.0f);
 ezVec3 ezQtDeltaTransformDlg::s_vRotateRandom(180.0f);
 ezVec3 ezQtDeltaTransformDlg::s_vRotateDeviation(180.0f);
 
-float ezQtDeltaTransformDlg::s_fOrientationDeviationZ = 10.0f;
+float ezQtDeltaTransformDlg::s_fNaturalDeviationZ = 10.0f;
 
 ezQtDeltaTransformDlg::ezQtDeltaTransformDlg(QWidget* parent, ezSceneDocument* pSceneDoc)
   : QDialog(parent)
@@ -48,7 +48,7 @@ ezQtDeltaTransformDlg::ezQtDeltaTransformDlg(QWidget* parent, ezSceneDocument* p
     ComboMode->addItem("Scale (deviation)");
     ComboMode->addItem("Uniform Scale");
     ComboMode->addItem("Uniform Scale (deviation)");
-    ComboMode->addItem("Orientation Deviation Z");
+    ComboMode->addItem("Natural Deviation Z");
   }
 
   UpdateUI();
@@ -184,8 +184,8 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
     sAction.Format("Scale (deviation): {0}", ezArgF(s_fUniformScaleDeviation, 2));
     break;
 
-  case Mode::OrientationZDeviation:
-    sAction.Format("Orientation Deviation Z: {0}", ezArgF(s_fOrientationDeviationZ, 1));
+  case Mode::NaturalDeviationZ:
+    sAction.Format("Natural Deviation Z: {0}", ezArgF(s_fNaturalDeviationZ, 1));
     break;
   }
 
@@ -197,7 +197,10 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
   if (selection.IsEmpty())
     return;
 
-  const Space space = (Space)ComboSpace->currentIndex();
+  Space space = (Space)ComboSpace->currentIndex();
+
+  if (s_Mode == Mode::NaturalDeviationZ)
+    space = Space::LocalEach;
 
   ezTransform tReference = m_pSceneDocument->GetGlobalTransform(selection.PeekBack());
 
@@ -344,16 +347,16 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
 
       break;
 
-    case Mode::OrientationZDeviation:
+    case Mode::NaturalDeviationZ:
       {
         const ezAngle randomRotationZ = ezAngle::Degree(rng.DoubleInRange(0, 360));
 
         ezQuat qDeviation;
         qDeviation.SetIdentity();
 
-        if (s_fOrientationDeviationZ > 0.0f)
+        if (s_fNaturalDeviationZ > 0.0f)
         {
-          const ezVec3 vDeviationAxis = ezVec3::CreateRandomDeviationZ(rng, ezAngle::Degree(s_fOrientationDeviationZ));
+          const ezVec3 vDeviationAxis = ezVec3::CreateRandomDeviationZ(rng, ezAngle::Degree(s_fNaturalDeviationZ));
           qDeviation.SetShortestRotation(ezVec3(0, 0, 1), vDeviationAxis);
         }
 
@@ -386,63 +389,6 @@ void ezQtDeltaTransformDlg::on_ButtonUndo_clicked()
   }
 
   ButtonUndo->setEnabled(m_uiActionsApplied > 0 && m_pSceneDocument->GetCommandHistory()->CanUndo());
-}
-
-void ezQtDeltaTransformDlg::on_ButtonReset_clicked()
-{
-  switch (s_Mode)
-  {
-  case ezQtDeltaTransformDlg::Translate:
-    s_vTranslate.SetZero();
-    break;
-  case ezQtDeltaTransformDlg::RotateX:
-    s_vRotate.x = 0;
-    break;
-  case ezQtDeltaTransformDlg::RotateY:
-    s_vRotate.y = 0;
-    break;
-  case ezQtDeltaTransformDlg::RotateZ:
-    s_vRotate.z = 0;
-    break;
-  case ezQtDeltaTransformDlg::Scale:
-    s_vScale.Set(1.0f);
-    break;
-  case ezQtDeltaTransformDlg::UniformScale:
-    s_fUniformScale = 1.0f;
-    break;
-  case ezQtDeltaTransformDlg::TranslateDeviation:
-    s_vTranslateDeviation.SetZero();
-    break;
-  case ezQtDeltaTransformDlg::RotateXRandom:
-    s_vRotateRandom.x = 0;
-    break;
-  case ezQtDeltaTransformDlg::RotateXDeviation:
-    s_vRotateDeviation.x = 0;
-    break;
-  case ezQtDeltaTransformDlg::RotateYRandom:
-    s_vRotateRandom.y = 0;
-    break;
-  case ezQtDeltaTransformDlg::RotateYDeviation:
-    s_vRotateDeviation.y = 0;
-    break;
-  case ezQtDeltaTransformDlg::RotateZRandom:
-    s_vRotateRandom.z = 0;
-    break;
-  case ezQtDeltaTransformDlg::RotateZDeviation:
-    s_vRotateDeviation.z = 0;
-    break;
-  case ezQtDeltaTransformDlg::ScaleDeviation:
-    s_vScaleDeviation.Set(1.0f);
-    break;
-  case ezQtDeltaTransformDlg::UniformScaleDeviation:
-    s_fUniformScaleDeviation = 1.0f;
-    break;
-  case ezQtDeltaTransformDlg::OrientationZDeviation:
-    s_fOrientationDeviationZ = 10.0f;
-    break;
-  }
-
-  UpdateUI();
 }
 
 void ezQtDeltaTransformDlg::QueryUI()
@@ -517,8 +463,8 @@ void ezQtDeltaTransformDlg::QueryUI()
     s_fUniformScaleDeviation = (float)Value1->value();
     break;
 
-  case ezQtDeltaTransformDlg::OrientationZDeviation:
-    s_fOrientationDeviationZ = (float)Value1->value();
+  case ezQtDeltaTransformDlg::NaturalDeviationZ:
+    s_fNaturalDeviationZ = (float)Value1->value();
     break;
   }
 }
@@ -532,9 +478,9 @@ void ezQtDeltaTransformDlg::UpdateUI()
   Label1->setVisible(true);
   Label2->setVisible(true);
   Label3->setVisible(true);
-  Label1->setText("X");
-  Label2->setText("Y");
-  Label3->setText("Z");
+  Label1->setText("X:");
+  Label2->setText("Y:");
+  Label3->setText("Z:");
 
   switch (s_Mode)
   {
@@ -588,7 +534,7 @@ void ezQtDeltaTransformDlg::UpdateUI()
     Value3->setVisible(false);
     Label2->setVisible(false);
     Label3->setVisible(false);
-    Label1->setText("Y");
+    Label1->setText("Y:");
     Value1->setValue(s_vRotate.y);
     Value1->setSingleStep(5.0f);
     break;
@@ -616,7 +562,7 @@ void ezQtDeltaTransformDlg::UpdateUI()
     Value3->setVisible(false);
     Label2->setVisible(false);
     Label3->setVisible(false);
-    Label1->setText("Z");
+    Label1->setText("Z:");
     Value1->setValue(s_vRotate.z);
     Value1->setSingleStep(5.0f);
     break;
@@ -661,7 +607,7 @@ void ezQtDeltaTransformDlg::UpdateUI()
     Value3->setVisible(false);
     Label2->setVisible(false);
     Label3->setVisible(false);
-    Label1->setText("XYZ");
+    Label1->setText("XYZ:");
     Value1->setValue(s_fUniformScale);
     Value1->setSingleStep(1.0f);
     break;
@@ -672,18 +618,19 @@ void ezQtDeltaTransformDlg::UpdateUI()
     Value3->setVisible(false);
     Label2->setVisible(false);
     Label3->setVisible(false);
-    Label1->setText("XYZ");
+    Label1->setText("XYZ:");
     Value1->setValue(s_fUniformScaleDeviation);
     Value1->setSingleStep(1.0f);
     break;
 
-  case Mode::OrientationZDeviation:
+  case Mode::NaturalDeviationZ:
+    ComboSpace->setVisible(false);
     Value2->setVisible(false);
     Value3->setVisible(false);
     Label2->setVisible(false);
     Label3->setVisible(false);
-    Label1->setText("Z Tilt");
-    Value1->setValue(s_fOrientationDeviationZ);
+    Label1->setText("Max Tilt:");
+    Value1->setValue(s_fNaturalDeviationZ);
     Value1->setSingleStep(1.0f);
     break;
   }
@@ -753,8 +700,8 @@ void ezQtDeltaTransformDlg::on_Value1_valueChanged(double value)
     s_fUniformScaleDeviation = (float)Value1->value();
     break;
 
-  case ezQtDeltaTransformDlg::OrientationZDeviation:
-    s_fOrientationDeviationZ = (float)Value1->value();
+  case ezQtDeltaTransformDlg::NaturalDeviationZ:
+    s_fNaturalDeviationZ = (float)Value1->value();
     break;
   }
 }
