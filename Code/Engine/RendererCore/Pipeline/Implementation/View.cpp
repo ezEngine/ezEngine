@@ -15,6 +15,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCameraUsageHint, 1)
   EZ_ENUM_CONSTANT(ezCameraUsageHint::EditorView),
   EZ_ENUM_CONSTANT(ezCameraUsageHint::RenderTarget),
   EZ_ENUM_CONSTANT(ezCameraUsageHint::Culling),
+  EZ_ENUM_CONSTANT(ezCameraUsageHint::Thumbnail),
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezView, 1, ezRTTINoAllocator)

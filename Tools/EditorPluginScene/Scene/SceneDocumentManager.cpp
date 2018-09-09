@@ -32,6 +32,7 @@ ezSceneDocumentManager::ezSceneDocumentManager()
     m_PrefabDesc.m_pManager = this;
   }
 
+  // if scene thumbnails are desired, this needs to be removed
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Scene", QPixmap(":/AssetIcons/Scene.png"));
 }
 
@@ -45,7 +46,8 @@ ezBitflags<ezAssetDocumentFlags> ezSceneDocumentManager::GetAssetDocumentTypeFla
   }
   else
   {
-    return ezAssetDocumentFlags::OnlyTransformManually;
+    // if scene thumbnails are desired, this needs to be added
+    return ezAssetDocumentFlags::OnlyTransformManually /*| ezAssetDocumentFlags::SupportsThumbnail*/;
   }
 }
 

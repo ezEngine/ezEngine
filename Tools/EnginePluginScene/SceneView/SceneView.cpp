@@ -84,7 +84,29 @@ bool ezSceneViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds
     pView->SetRenderPassProperty("EditorPickingPass", "PickSelected", true);
   }
 
-  bool bResult = !FocusCameraOnObject(m_Camera, bounds, 45.0f, -ezVec3(5, -2, 3));
+  EZ_LOCK(m_pSceneContext->GetWorld()->GetWriteMarker());
+  const ezCameraComponentManager* pCamMan = m_pSceneContext->GetWorld()->GetComponentManager<ezCameraComponentManager>();
+  if (pCamMan)
+  {
+    for (auto it = pCamMan->GetComponents(); it.IsValid(); ++it)
+    {
+      const ezCameraComponent* pCamComp = it;
+
+      if (pCamComp->GetUsageHint() == ezCameraUsageHint::Thumbnail)
+      {
+        m_Camera.LookAt(pCamComp->GetOwner()->GetGlobalPosition(),
+                        pCamComp->GetOwner()->GetGlobalPosition() + pCamComp->GetOwner()->GetGlobalDirForwards(),
+                        pCamComp->GetOwner()->GetGlobalDirUp());
+
+        m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 70.0f, 0.1f, 100.0f);
+
+        m_CullingCamera = m_Camera;
+        return true;
+      }
+    }
+  }
+
+  bool bResult = !FocusCameraOnObject(m_Camera, bounds, 70.0f, -ezVec3(5, -2, 3));
   m_CullingCamera = m_Camera;
   return bResult;
 }

@@ -1106,6 +1106,8 @@ ezStatus ezSceneDocument::ExportScene()
     return saveres;
 
   auto res = TransformAsset(true);
+  // this would be needed to generate a scene thumbnail, however that has a larger overhead (1 sec or so)
+  //auto res = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), true);
 
   if (res.m_Result.Failed())
     ezLog::Error(res.m_sMessage);

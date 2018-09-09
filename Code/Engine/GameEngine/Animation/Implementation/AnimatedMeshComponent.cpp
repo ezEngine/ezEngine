@@ -219,7 +219,7 @@ void ezAnimatedMeshComponent::CreatePhysicsShapes(const ezSkeletonResourceDescri
   if (pPhysicsInterface == nullptr)
     return;
 
-  m_pRagdoll = pPhysicsInterface->CreateRagdoll(skeleton, GetOwner()->GetGlobalTransform(), pose);
+  //m_pRagdoll = pPhysicsInterface->CreateRagdoll(skeleton, GetOwner()->GetGlobalTransform(), pose);
 }
 
 //////////////////////////////////////////////////////////////////////////

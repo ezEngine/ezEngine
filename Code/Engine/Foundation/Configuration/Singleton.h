@@ -60,27 +60,27 @@ private:
 ///        through GetSingleton(). This is necessary, if you want to decouple library link dependencies and thus not put
 ///        any singleton code into the interface declaration, to keep it a pure virtual interface.
 ///        You can then query that class pointer also through the name of the interface using ezSingletonRegistry.
-#define EZ_DECLARE_SINGLETON(self)                     \
-public:                                                \
-  static self* GetSingleton() { return s_pSingleton; } \
-                                                       \
-private:                                               \
-  EZ_DISALLOW_COPY_AND_ASSIGN(self);                   \
-  void RegisterSingleton()                             \
-  {                                                    \
-    s_pSingleton = this;                               \
-    ezSingletonRegistry::Register(this, #self);        \
-  }                                                    \
-  static void UnregisterSingleton()                    \
-  {                                                    \
-    if (s_pSingleton)                                  \
-    {                                                  \
-      ezSingletonRegistry::Unregister(#self);          \
-      s_pSingleton = nullptr;                          \
-    }                                                  \
-  }                                                    \
-  friend class ezSingletonRegistrar<self>;             \
-  ezSingletonRegistrar<self> m_SingletonRegistrar;     \
+#define EZ_DECLARE_SINGLETON(self)                                                                                                         \
+public:                                                                                                                                    \
+  EZ_ALWAYS_INLINE static self* GetSingleton() { return s_pSingleton; }                                                                    \
+                                                                                                                                           \
+private:                                                                                                                                   \
+  EZ_DISALLOW_COPY_AND_ASSIGN(self);                                                                                                       \
+  void RegisterSingleton()                                                                                                                 \
+  {                                                                                                                                        \
+    s_pSingleton = this;                                                                                                                   \
+    ezSingletonRegistry::Register(this, #self);                                                                                            \
+  }                                                                                                                                        \
+  static void UnregisterSingleton()                                                                                                        \
+  {                                                                                                                                        \
+    if (s_pSingleton)                                                                                                                      \
+    {                                                                                                                                      \
+      ezSingletonRegistry::Unregister(#self);                                                                                              \
+      s_pSingleton = nullptr;                                                                                                              \
+    }                                                                                                                                      \
+  }                                                                                                                                        \
+  friend class ezSingletonRegistrar<self>;                                                                                                 \
+  ezSingletonRegistrar<self> m_SingletonRegistrar;                                                                                         \
   static self* s_pSingleton
 
 /// \brief Insert this into a class declaration to turn the class into a singleton.
@@ -97,34 +97,33 @@ private:                                               \
 ///        through GetSingleton(). This is necessary, if you want to decouple library link dependencies and thus not put
 ///        any singleton code into the interface declaration, to keep it a pure virtual interface.
 ///        You can then query that class pointer also through the name of the interface using ezSingletonRegistry.
-#define EZ_DECLARE_SINGLETON_OF_INTERFACE(self, interface) \
-public:                                                    \
-  static self* GetSingleton() { return s_pSingleton; }     \
-                                                           \
-private:                                                   \
-  void RegisterSingleton()                                 \
-  {                                                        \
-    s_pSingleton = this;                                   \
-    ezSingletonRegistry::Register(this, #self);            \
-    ezSingletonRegistry::Register(this, #interface);       \
-  }                                                        \
-  static void UnregisterSingleton()                        \
-  {                                                        \
-    if (s_pSingleton)                                      \
-    {                                                      \
-      ezSingletonRegistry::Unregister(#interface);         \
-      ezSingletonRegistry::Unregister(#self);              \
-      s_pSingleton = nullptr;                              \
-    }                                                      \
-  }                                                        \
-  friend class ezSingletonRegistrar<self>;                 \
-  ezSingletonRegistrar<self> m_SingletonRegistrar;         \
+#define EZ_DECLARE_SINGLETON_OF_INTERFACE(self, interface)                                                                                 \
+public:                                                                                                                                    \
+  EZ_ALWAYS_INLINE static self* GetSingleton() { return s_pSingleton; }                                                                    \
+                                                                                                                                           \
+private:                                                                                                                                   \
+  void RegisterSingleton()                                                                                                                 \
+  {                                                                                                                                        \
+    s_pSingleton = this;                                                                                                                   \
+    ezSingletonRegistry::Register(this, #self);                                                                                            \
+    ezSingletonRegistry::Register(this, #interface);                                                                                       \
+  }                                                                                                                                        \
+  static void UnregisterSingleton()                                                                                                        \
+  {                                                                                                                                        \
+    if (s_pSingleton)                                                                                                                      \
+    {                                                                                                                                      \
+      ezSingletonRegistry::Unregister(#interface);                                                                                         \
+      ezSingletonRegistry::Unregister(#self);                                                                                              \
+      s_pSingleton = nullptr;                                                                                                              \
+    }                                                                                                                                      \
+  }                                                                                                                                        \
+  friend class ezSingletonRegistrar<self>;                                                                                                 \
+  ezSingletonRegistrar<self> m_SingletonRegistrar;                                                                                         \
   static self* s_pSingleton
 
 
 /// \brief Put this into the cpp of a singleton class
-#define EZ_IMPLEMENT_SINGLETON(self) \
-  self* self::s_pSingleton = nullptr
+#define EZ_IMPLEMENT_SINGLETON(self) self* self::s_pSingleton = nullptr
 
 
 
@@ -136,12 +135,12 @@ template <class TYPE>
 class ezSingletonRegistrar
 {
 public:
-  ezSingletonRegistrar(TYPE* pType) // [tested]
+  EZ_ALWAYS_INLINE ezSingletonRegistrar(TYPE* pType) // [tested]
   {
     pType->RegisterSingleton();
   }
 
-  ~ezSingletonRegistrar() // [tested]
+  EZ_ALWAYS_INLINE ~ezSingletonRegistrar() // [tested]
   {
     TYPE::UnregisterSingleton();
   }

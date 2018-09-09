@@ -163,13 +163,11 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
 
       m_Watchers.PushBack(pWatcher);
     }
-    m_WatcherTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Update", [this]()
-    {
+    m_WatcherTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Update", [this]() {
       CURATOR_PROFILE("Watcher");
       for (ezDirectoryWatcher* pWatcher : m_Watchers)
       {
-        pWatcher->EnumerateChanges([pWatcher, this](const char* szFilename, ezDirectoryWatcherAction action)
-        {
+        pWatcher->EnumerateChanges([pWatcher, this](const char* szFilename, ezDirectoryWatcherAction action) {
           ezStringBuilder sTemp = pWatcher->GetDirectory();
           sTemp.AppendPath(szFilename);
           m_WatcherResults.PushBack(sTemp);
@@ -887,6 +885,7 @@ void ezAssetCurator::CheckFileSystem()
 
 ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPlatform, bool bTriggeredManually)
 {
+
   for (const auto& dep : pAssetInfo->m_Info->m_AssetTransformDependencies)
   {
     if (ezAssetInfo* pInfo = GetAssetInfo(dep))
@@ -914,12 +913,19 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
                           pAssetInfo->m_sDataDirRelativePath));
   }
 
-  // Skip assets that cannot be auto-transformed.
   EZ_ASSERT_DEV(pTypeDesc->m_pDocumentType->IsDerivedFrom<ezAssetDocument>(),
                 "Asset document does not derive from correct base class ('{0}')", pAssetInfo->m_sDataDirRelativePath);
+
   auto assetFlags = static_cast<ezAssetDocumentManager*>(pTypeDesc->m_pManager)->GetAssetDocumentTypeFlags(pTypeDesc);
-  if (assetFlags.IsAnySet(ezAssetDocumentFlags::DisableTransform | ezAssetDocumentFlags::OnlyTransformManually))
-    return ezStatus(EZ_SUCCESS);
+
+  // Skip assets that cannot be auto-transformed.
+  {
+    if (assetFlags.IsAnySet(ezAssetDocumentFlags::DisableTransform))
+      return ezStatus(EZ_SUCCESS);
+
+    if (!bTriggeredManually && assetFlags.IsAnySet(ezAssetDocumentFlags::OnlyTransformManually))
+      return ezStatus(EZ_SUCCESS);
+  }
 
   // If references are not complete and we generate thumbnails on transform we can cancel right away.
   if (assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform) && resReferences.m_Result.Failed())
@@ -958,7 +964,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
   ezStatus ret(EZ_SUCCESS);
   ezAssetDocument* pAsset = static_cast<ezAssetDocument*>(pDoc);
   if (state == ezAssetInfo::TransformState::NeedsTransform ||
-      state == ezAssetInfo::TransformState::NeedsThumbnail && assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform))
+      (state == ezAssetInfo::TransformState::NeedsThumbnail && assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform)))
   {
     ret = pAsset->TransformAsset(bTriggeredManually, szPlatform);
   }

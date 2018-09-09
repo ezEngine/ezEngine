@@ -35,6 +35,7 @@ public:
   const ezDeque<ezGameObjectHandle>& GetSelectionWithChildren() const { return m_SelectionWithChildren; }
   bool GetRenderSelectionOverlay() const { return m_bRenderSelectionOverlay; }
   bool GetRenderShapeIcons() const { return m_bRenderShapeIcons; }
+  bool GetRenderSelectionBoxes() const { return m_bRenderSelectionBoxes; }
   float GetGridDensity() const { return ezMath::Abs(m_fGridDensity); }
   bool IsGridInGlobalSpace() const { return m_fGridDensity >= 0.0f; }
   ezTransform GetGridTransform() const { return m_GridTransform; }

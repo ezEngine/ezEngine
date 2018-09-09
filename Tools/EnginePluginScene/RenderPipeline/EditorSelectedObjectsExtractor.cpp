@@ -48,7 +48,7 @@ void ezEditorSelectedObjectsExtractor::Extract(const ezView& view, const ezDynam
 {
   const bool bShowCameraOverlays = view.GetCameraUsageHint() == ezCameraUsageHint::EditorView;
 
-  if (bShowCameraOverlays)
+  if (bShowCameraOverlays && m_pSceneContext && m_pSceneContext->GetRenderSelectionBoxes())
   {
     const ezDeque<ezGameObjectHandle>* pSelection = GetSelection();
     if (pSelection == nullptr)
