@@ -23,6 +23,7 @@
 #include <ToolsFoundation/Object/ObjectDirectAccessor.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <EditorFramework/Preferences/QuadViewPreferences.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 4, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -832,6 +833,40 @@ ezStatus ezSceneDocument::RemoveExposedParameter(ezInt32 index)
 
   ezUuid id = value.Get<ezUuid>();
   return GetObjectAccessor()->RemoveObject(GetObjectManager()->GetObject(id));
+}
+
+
+void ezSceneDocument::StoreFavouriteCamera(ezUInt8 uiSlot)
+{
+  ezQuadViewPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezQuadViewPreferencesUser>(this);
+  auto& cam = pPreferences->m_FavouriteCamera[uiSlot];
+
+  auto* pView = ezQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
+
+  if (pView)
+  {
+    const auto& camera = pView->m_pViewConfig->m_Camera;
+
+    cam.m_vCamPos = camera.GetCenterPosition();
+    cam.m_vCamDir = camera.GetCenterDirForwards();
+    cam.m_vCamUp = camera.GetCenterDirUp();
+
+    // make sure the data gets saved
+    pPreferences->TriggerPreferencesChangedEvent();
+  }
+}
+
+void ezSceneDocument::RestoreFavouriteCamera(ezUInt8 uiSlot)
+{
+  ezQuadViewPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezQuadViewPreferencesUser>(this);
+  auto& cam = pPreferences->m_FavouriteCamera[uiSlot];
+
+  auto* pView = ezQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
+
+  if (pView)
+  {
+    pView->InterpolateCameraTo(cam.m_vCamPos, cam.m_vCamDir, pView->m_pViewConfig->m_Camera.GetFovOrDim(), &cam.m_vCamUp);
+  }
 }
 
 void ezSceneDocument::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e)

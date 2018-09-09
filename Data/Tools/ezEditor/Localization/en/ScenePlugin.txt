@@ -180,3 +180,24 @@ ezMotionMatchingComponent;Motion Matching
 Scene.Utils.Menu;Utilities
 Scene.ExportSceneToOBJ;Export Scene Geometry to OBJ
 Scene.PullObjectEngineState;Pull Object State from Engine;Only possible during simulation and with selected objects. Synchronizes the position of objects back to the editor state.
+Scene.FavouriteCams.Menu;Favourite Cameras
+Scene.Camera.Store.0;Save favourite position 0
+Scene.Camera.Store.1;Save favourite position 1
+Scene.Camera.Store.2;Save favourite position 2
+Scene.Camera.Store.3;Save favourite position 3
+Scene.Camera.Store.4;Save favourite position 4
+Scene.Camera.Store.5;Save favourite position 5
+Scene.Camera.Store.6;Save favourite position 6
+Scene.Camera.Store.7;Save favourite position 7
+Scene.Camera.Store.8;Save favourite position 8
+Scene.Camera.Store.9;Save favourite position 9
+Scene.Camera.Restore.0;Go to favourite position 0
+Scene.Camera.Restore.1;Go to favourite position 1
+Scene.Camera.Restore.2;Go to favourite position 2
+Scene.Camera.Restore.3;Go to favourite position 3
+Scene.Camera.Restore.4;Go to favourite position 4
+Scene.Camera.Restore.5;Go to favourite position 5
+Scene.Camera.Restore.6;Go to favourite position 6
+Scene.Camera.Restore.7;Go to favourite position 7
+Scene.Camera.Restore.8;Go to favourite position 8
+Scene.Camera.Restore.9;Go to favourite position 9

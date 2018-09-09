@@ -127,6 +127,21 @@ public:
   ezStatus RemoveExposedParameter(ezInt32 index);
   ///@}
 
+  /// \name Editor Camera
+  ///@{
+
+  /// \brief Stores the current editor camera position in a user preference. Slot can be 0 to 9.
+  ///
+  /// Since the preference is stored on disk, this position can be restored in another session.
+  void StoreFavouriteCamera(ezUInt8 uiSlot);
+
+  /// \brief Applies the previously stored camera position from slot 0 to 9 to the current camera position.
+  ///
+  /// The camera will quickly interpolate to the stored position.
+  void RestoreFavouriteCamera(ezUInt8 uiSlot);
+
+  ///@}
+
 protected:
   void SetGameMode(GameMode::Enum mode);
 

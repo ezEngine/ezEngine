@@ -2,6 +2,8 @@
 
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/Preferences/QuadViewPreferences.h>
 #include <EditorFramework/Preferences/ScenePreferences.h>
 #include <EditorPluginScene/Actions/SceneActions.h>
 #include <EditorPluginScene/Dialogs/ExtractGeometryDlg.moc.h>
@@ -27,6 +29,9 @@ ezActionDescriptorHandle ezSceneActions::s_hGameModePlay;
 ezActionDescriptorHandle ezSceneActions::s_hGameModeStop;
 ezActionDescriptorHandle ezSceneActions::s_hUtilExportSceneToOBJ;
 ezActionDescriptorHandle ezSceneActions::s_hPullObjectEngineState;
+ezActionDescriptorHandle ezSceneActions::s_hFavouriteCamsMenu;
+ezActionDescriptorHandle ezSceneActions::s_hStoreEditorCamera[10];
+ezActionDescriptorHandle ezSceneActions::s_hRestoreEditorCamera[10];
 
 void ezSceneActions::RegisterActions()
 {
@@ -47,8 +52,55 @@ void ezSceneActions::RegisterActions()
   s_hUtilExportSceneToOBJ = EZ_REGISTER_ACTION_1("Scene.ExportSceneToOBJ", ezActionScope::Document, "Scene", "", ezSceneAction,
                                                  ezSceneAction::ActionType::ExportSceneToOBJ);
 
-  s_hPullObjectEngineState = EZ_REGISTER_ACTION_1("Scene.PullObjectEngineState", ezActionScope::Document, "Scene", "Ctrl+K,Ctrl+P", ezSceneAction,
-                                                  ezSceneAction::ActionType::PullObjectEngineState);
+  s_hPullObjectEngineState = EZ_REGISTER_ACTION_1("Scene.PullObjectEngineState", ezActionScope::Document, "Scene", "Ctrl+K,Ctrl+P",
+                                                  ezSceneAction, ezSceneAction::ActionType::PullObjectEngineState);
+
+  // unfortunately the macros use lambdas thus using a loop to generate the strings does not work
+  {
+    s_hFavouriteCamsMenu = EZ_REGISTER_MENU_WITH_ICON("Scene.FavouriteCams.Menu", "");
+
+    s_hStoreEditorCamera[0] = EZ_REGISTER_ACTION_1("Scene.Camera.Store.0", ezActionScope::Document, "Scene", "Ctrl+0", ezSceneAction,
+                                                   ezSceneAction::ActionType::StoreEditorCamera0);
+    s_hStoreEditorCamera[1] = EZ_REGISTER_ACTION_1("Scene.Camera.Store.1", ezActionScope::Document, "Scene", "Ctrl+1", ezSceneAction,
+                                                   ezSceneAction::ActionType::StoreEditorCamera1);
+    s_hStoreEditorCamera[2] = EZ_REGISTER_ACTION_1("Scene.Camera.Store.2", ezActionScope::Document, "Scene", "Ctrl+2", ezSceneAction,
+                                                   ezSceneAction::ActionType::StoreEditorCamera2);
+    s_hStoreEditorCamera[3] = EZ_REGISTER_ACTION_1("Scene.Camera.Store.3", ezActionScope::Document, "Scene", "Ctrl+3", ezSceneAction,
+                                                   ezSceneAction::ActionType::StoreEditorCamera3);
+    s_hStoreEditorCamera[4] = EZ_REGISTER_ACTION_1("Scene.Camera.Store.4", ezActionScope::Document, "Scene", "Ctrl+4", ezSceneAction,
+                                                   ezSceneAction::ActionType::StoreEditorCamera4);
+    s_hStoreEditorCamera[5] = EZ_REGISTER_ACTION_1("Scene.Camera.Store.5", ezActionScope::Document, "Scene", "Ctrl+5", ezSceneAction,
+                                                   ezSceneAction::ActionType::StoreEditorCamera5);
+    s_hStoreEditorCamera[6] = EZ_REGISTER_ACTION_1("Scene.Camera.Store.6", ezActionScope::Document, "Scene", "Ctrl+6", ezSceneAction,
+                                                   ezSceneAction::ActionType::StoreEditorCamera6);
+    s_hStoreEditorCamera[7] = EZ_REGISTER_ACTION_1("Scene.Camera.Store.7", ezActionScope::Document, "Scene", "Ctrl+7", ezSceneAction,
+                                                   ezSceneAction::ActionType::StoreEditorCamera7);
+    s_hStoreEditorCamera[8] = EZ_REGISTER_ACTION_1("Scene.Camera.Store.8", ezActionScope::Document, "Scene", "Ctrl+8", ezSceneAction,
+                                                   ezSceneAction::ActionType::StoreEditorCamera8);
+    s_hStoreEditorCamera[9] = EZ_REGISTER_ACTION_1("Scene.Camera.Store.9", ezActionScope::Document, "Scene", "Ctrl+9", ezSceneAction,
+                                                   ezSceneAction::ActionType::StoreEditorCamera9);
+
+    s_hRestoreEditorCamera[0] = EZ_REGISTER_ACTION_1("Scene.Camera.Restore.0", ezActionScope::Document, "Scene", "0", ezSceneAction,
+                                                     ezSceneAction::ActionType::RestoreEditorCamera0);
+    s_hRestoreEditorCamera[1] = EZ_REGISTER_ACTION_1("Scene.Camera.Restore.1", ezActionScope::Document, "Scene", "1", ezSceneAction,
+                                                     ezSceneAction::ActionType::RestoreEditorCamera1);
+    s_hRestoreEditorCamera[2] = EZ_REGISTER_ACTION_1("Scene.Camera.Restore.2", ezActionScope::Document, "Scene", "2", ezSceneAction,
+                                                     ezSceneAction::ActionType::RestoreEditorCamera2);
+    s_hRestoreEditorCamera[3] = EZ_REGISTER_ACTION_1("Scene.Camera.Restore.3", ezActionScope::Document, "Scene", "3", ezSceneAction,
+                                                     ezSceneAction::ActionType::RestoreEditorCamera3);
+    s_hRestoreEditorCamera[4] = EZ_REGISTER_ACTION_1("Scene.Camera.Restore.4", ezActionScope::Document, "Scene", "4", ezSceneAction,
+                                                     ezSceneAction::ActionType::RestoreEditorCamera4);
+    s_hRestoreEditorCamera[5] = EZ_REGISTER_ACTION_1("Scene.Camera.Restore.5", ezActionScope::Document, "Scene", "5", ezSceneAction,
+                                                     ezSceneAction::ActionType::RestoreEditorCamera5);
+    s_hRestoreEditorCamera[6] = EZ_REGISTER_ACTION_1("Scene.Camera.Restore.6", ezActionScope::Document, "Scene", "6", ezSceneAction,
+                                                     ezSceneAction::ActionType::RestoreEditorCamera6);
+    s_hRestoreEditorCamera[7] = EZ_REGISTER_ACTION_1("Scene.Camera.Restore.7", ezActionScope::Document, "Scene", "7", ezSceneAction,
+                                                     ezSceneAction::ActionType::RestoreEditorCamera7);
+    s_hRestoreEditorCamera[8] = EZ_REGISTER_ACTION_1("Scene.Camera.Restore.8", ezActionScope::Document, "Scene", "8", ezSceneAction,
+                                                     ezSceneAction::ActionType::RestoreEditorCamera8);
+    s_hRestoreEditorCamera[9] = EZ_REGISTER_ACTION_1("Scene.Camera.Restore.9", ezActionScope::Document, "Scene", "9", ezSceneAction,
+                                                     ezSceneAction::ActionType::RestoreEditorCamera9);
+  }
 }
 
 void ezSceneActions::UnregisterActions()
@@ -62,8 +114,14 @@ void ezSceneActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hGameModeStop);
   ezActionManager::UnregisterAction(s_hUtilExportSceneToOBJ);
   ezActionManager::UnregisterAction(s_hPullObjectEngineState);
-}
+  ezActionManager::UnregisterAction(s_hFavouriteCamsMenu);
 
+  for (ezUInt32 i = 0; i < 10; ++i)
+  {
+    ezActionManager::UnregisterAction(s_hStoreEditorCamera[i]);
+    ezActionManager::UnregisterAction(s_hRestoreEditorCamera[i]);
+  }
+}
 
 void ezSceneActions::MapMenuActions()
 {
@@ -78,7 +136,16 @@ void ezSceneActions::MapMenuActions()
     pMap->MapAction(s_hPullObjectEngineState, szUtilsSubPath, 1.0f);
     pMap->MapAction(s_hUtilExportSceneToOBJ, szUtilsSubPath, 2.0f);
 
-    pMap->MapAction(s_hSceneCategory, "Menu.Scene", 3.0f);
+    pMap->MapAction(s_hFavouriteCamsMenu, "Menu.Scene", 3.0f);
+    const char* szFavCamsSubPath = "Menu.Scene/Scene.FavouriteCams.Menu";
+
+    for (ezUInt32 i = 0; i < 10; ++i)
+    {
+      pMap->MapAction(s_hStoreEditorCamera[i], szFavCamsSubPath, 10.0f + i);
+      pMap->MapAction(s_hRestoreEditorCamera[i], szFavCamsSubPath, 20.0f + i);
+    }
+
+    pMap->MapAction(s_hSceneCategory, "Menu.Scene", 4.0f);
     pMap->MapAction(s_hExportScene, szSubPath, 1.0f);
     pMap->MapAction(s_hRunScene, szSubPath, 2.0f);
     pMap->MapAction(s_hGameModeStop, szSubPath, 4.0f);
@@ -217,6 +284,43 @@ void ezSceneAction::Execute(const ezVariant& value)
     {
       ezPullObjectStateMsgToEngine msg;
       m_pSceneDocument->SendMessageToEngine(&msg);
+      return;
+    }
+
+    case ActionType::StoreEditorCamera0:
+    case ActionType::StoreEditorCamera1:
+    case ActionType::StoreEditorCamera2:
+    case ActionType::StoreEditorCamera3:
+    case ActionType::StoreEditorCamera4:
+    case ActionType::StoreEditorCamera5:
+    case ActionType::StoreEditorCamera6:
+    case ActionType::StoreEditorCamera7:
+    case ActionType::StoreEditorCamera8:
+    case ActionType::StoreEditorCamera9:
+    {
+      const ezInt32 iCamIdx = (int)m_Type - (int)ActionType::StoreEditorCamera0;
+
+      m_pSceneDocument->StoreFavouriteCamera(iCamIdx);
+      m_pSceneDocument->ShowDocumentStatus(ezFmt("Stored favourite camera position {0}", iCamIdx));
+
+      return;
+    }
+
+    case ActionType::RestoreEditorCamera0:
+    case ActionType::RestoreEditorCamera1:
+    case ActionType::RestoreEditorCamera2:
+    case ActionType::RestoreEditorCamera3:
+    case ActionType::RestoreEditorCamera4:
+    case ActionType::RestoreEditorCamera5:
+    case ActionType::RestoreEditorCamera6:
+    case ActionType::RestoreEditorCamera7:
+    case ActionType::RestoreEditorCamera8:
+    case ActionType::RestoreEditorCamera9:
+    {
+      const ezInt32 iCamIdx = (int)m_Type - (int)ActionType::RestoreEditorCamera0;
+
+      m_pSceneDocument->RestoreFavouriteCamera(iCamIdx);
+
       return;
     }
   }
