@@ -487,6 +487,8 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
   ezGameObjectEvent e;
   e.m_Type = ezGameObjectEvent::Type::GameModeChanged;
   m_GameObjectEvents.Broadcast(e);
+
+  ScheduleSendObjectSelection();
 }
 
 

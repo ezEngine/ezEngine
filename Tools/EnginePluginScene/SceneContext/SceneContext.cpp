@@ -191,55 +191,59 @@ void ezSceneContext::HandleViewRedrawMsg(const ezViewRedrawMsgToEngine* pMsg)
   if (pDocView)
     DrawSelectionBounds(pDocView->GetViewHandle());
 
-  if (!m_pWorld->GetWorldSimulationEnabled() && !m_PushObjectStateMsg.m_ObjectStates.IsEmpty())
+  AnswerObjectStatePullRequest(pMsg);
+}
+
+void ezSceneContext::AnswerObjectStatePullRequest(const ezViewRedrawMsgToEngine* pMsg)
+{
+  if (m_pWorld->GetWorldSimulationEnabled() || m_PushObjectStateMsg.m_ObjectStates.IsEmpty())
+    return;
+
+  EZ_LOCK(m_pWorld->GetReadMarker());
+
+  const auto& objectMapper = GetDocumentContext(GetDocumentGuid())->m_Context.m_GameObjectMap;
+
+  // if the handle map is currently empty, the scene has not yet been sent over
+  // return and try again later
+  if (objectMapper.GetHandleToGuidMap().IsEmpty())
+    return;
+
+  // now we need to adjust the transforms for all objects that were not directly pulled
+  // ie. nodes inside instantiated prefabs
+  for (auto& state : m_PushObjectStateMsg.m_ObjectStates)
   {
-    if (!m_AdjustPushedObjectStates.IsEmpty())
-    {
-      EZ_LOCK(m_pWorld->GetReadMarker());
+    // ignore the ones that we accessed directly, their transform is correct already
+    if (!state.m_bAdjustFromPrefabRootChild)
+      continue;
 
-      bool bAnyFailure = false;
+    ezGameObjectHandle hObject = objectMapper.GetHandle(state.m_ObjectGuid);
 
-      const auto& objectMapper = GetDocumentContext(GetDocumentGuid())->m_Context.m_GameObjectMap;
-      if (objectMapper.GetHandleToGuidMap().IsEmpty())
-        return;
+    // if this object does not exist anymore, this is not considered a problem (user may have deleted it)
+    ezGameObject* pObject;
+    if (!m_pWorld->TryGetObject(hObject, pObject))
+      continue;
 
-      for (auto remapIdx : m_AdjustPushedObjectStates)
-      {
-        auto& state = m_PushObjectStateMsg.m_ObjectStates[remapIdx];
-        ezGameObjectHandle hObject = objectMapper.GetHandle(state.m_ObjectGuid);
+    // we expect the object to have a child, if none is there yet, we assume the prefab
+    // instantiation has not happened yet
+    // stop the whole process and try again later
+    if (pObject->GetChildCount() == 0)
+      return;
 
-        ezGameObject* pObject;
-        if (m_pWorld->TryGetObject(hObject, pObject))
-        {
-          if (pObject->GetChildCount() == 0)
-          {
-            bAnyFailure = true;
-            break;
-          }
+    const ezGameObject* pChild = pObject->GetChildren();
 
-          const ezQuat qRotChange = state.m_qRotation * -pObject->GetGlobalRotation();
+    const ezVec3 localPos = pChild->GetLocalPosition();
+    const ezQuat localRot = pChild->GetLocalRotation();
 
-          const ezGameObject* pChild = pObject->GetChildren();
-
-          const ezVec3 localPos = pChild->GetLocalPosition();
-          const ezQuat localRot = pChild->GetLocalRotation();
-
-          state.m_vPosition -= qRotChange * localPos;
-          state.m_qRotation = -localRot * state.m_qRotation;
-        }
-      }
-
-      if (bAnyFailure)
-        return;
-    }
-
-    // send a return message with the result
-    m_PushObjectStateMsg.m_DocumentGuid = pMsg->m_DocumentGuid;
-    SendProcessMessage(&m_PushObjectStateMsg);
-
-    m_PushObjectStateMsg.m_ObjectStates.Clear();
-    m_AdjustPushedObjectStates.Clear();
+    // now adjust the position
+    state.m_vPosition -= state.m_qRotation * -localRot * localPos;
+    state.m_qRotation = state.m_qRotation * -localRot;
   }
+
+  // send a return message with the result
+  m_PushObjectStateMsg.m_DocumentGuid = pMsg->m_DocumentGuid;
+  SendProcessMessage(&m_PushObjectStateMsg);
+
+  m_PushObjectStateMsg.m_ObjectStates.Clear();
 }
 
 void ezSceneContext::HandleGridSettingsMsg(const ezGridSettingsMsgToEngine* pMsg)
@@ -853,6 +857,7 @@ void ezSceneContext::HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine
       continue;
 
     ezUuid objectGuid = objectMapper.GetGuid(hObject);
+    bool bAdjust = false;
 
     if (!objectGuid.IsValid())
     {
@@ -873,24 +878,23 @@ void ezSceneContext::HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine
         continue;
 
       objectGuid = parentGuid;
+      bAdjust = true;
 
       for (ezUInt32 i = 0; i < m_PushObjectStateMsg.m_ObjectStates.GetCount(); ++i)
       {
         if (m_PushObjectStateMsg.m_ObjectStates[i].m_ObjectGuid == objectGuid)
         {
-          m_PushObjectStateMsg.m_ObjectStates.RemoveAtSwap(i);
+          m_PushObjectStateMsg.m_ObjectStates.RemoveAt(i);
           break;
         }
       }
-
-      // remember that this object position comes from its child and thus needs to be remapped before we send it back
-      m_AdjustPushedObjectStates.ExpandAndGetRef() = m_PushObjectStateMsg.m_ObjectStates.GetCount();
     }
 
     {
       auto& state = m_PushObjectStateMsg.m_ObjectStates.ExpandAndGetRef();
 
       state.m_ObjectGuid = objectGuid;
+      state.m_bAdjustFromPrefabRootChild = bAdjust;
       state.m_vPosition = pObject->GetGlobalPosition();
       state.m_qRotation = pObject->GetGlobalRotation();
     }

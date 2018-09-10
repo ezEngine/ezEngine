@@ -575,6 +575,10 @@ void ezGameObjectDocument::MoveCameraHere()
   ctxt.m_pLastHoveredViewWidget->InterpolateCameraTo(vPos, vForward, pCamera->GetFovOrDim(), &vUp);
 }
 
+void ezGameObjectDocument::ScheduleSendObjectSelection()
+{
+  m_iResendSelection = 2;
+}
 
 void ezGameObjectDocument::SendGameWorldToEngine()
 {
@@ -730,7 +734,7 @@ void ezGameObjectDocument::ObjectEventHandler(const ezDocumentObjectEvent& e)
 
 void ezGameObjectDocument::SelectionManagerEventHandler(const ezSelectionManagerEvent& e)
 {
-  m_iResendSelection = 2;
+  ScheduleSendObjectSelection();
 }
 
 void ezGameObjectDocument::SendObjectSelection()
@@ -835,6 +839,6 @@ void ezGameObjectDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* 
 
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
   {
-    m_iResendSelection = 2;
+    ScheduleSendObjectSelection();
   }
 }

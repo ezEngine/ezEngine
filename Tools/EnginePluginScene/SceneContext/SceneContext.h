@@ -60,6 +60,7 @@ protected:
 private:
   void AddAmbientLight(bool bSetEditorTag);
   void RemoveAmbientLight();
+
   void HandleViewRedrawMsg(const ezViewRedrawMsgToEngine* pMsg);
   void HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg);
   void HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg);
@@ -72,6 +73,7 @@ private:
   void HandleExposedPropertiesMsg(const ezExposedDocumentObjectPropertiesMsgToEngine* pMsg);
   void HandleSceneGeometryMsg(const ezExportSceneGeometryMsgToEngine* pMsg);
   void HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine* pMsg);
+  void AnswerObjectStatePullRequest(const ezViewRedrawMsgToEngine* pMsg);
 
   void DrawSelectionBounds(const ezViewHandle& hView);
 
@@ -98,7 +100,6 @@ private:
   ezDynamicArray<ezExposedSceneProperty> m_ExposedSceneProperties;
 
   ezPushObjectStateMsgToEditor m_PushObjectStateMsg;
-  ezDynamicArray<ezUInt16> m_AdjustPushedObjectStates;
 };
 
 

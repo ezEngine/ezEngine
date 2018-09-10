@@ -141,6 +141,10 @@ public:
   void SnapCameraToObject();
   /// \brief Moves the camera to the current picking position
   void MoveCameraHere();
+
+  void ScheduleSendObjectSelection();
+
+  /// \brief Sends the current object selection, but only if it was modified or specifically tagged for resending with ScheduleSendObjectSelection().
   void SendObjectSelection();
 
   ///@}
