@@ -96,6 +96,9 @@ private:
   ezSet<ezGameObjectHandle> m_SelectionWithChildrenSet;
   ezGameObjectHandle m_hAmbientLight[3];
   ezDynamicArray<ezExposedSceneProperty> m_ExposedSceneProperties;
+
+  ezPushObjectStateMsgToEditor m_PushObjectStateMsg;
+  ezDynamicArray<ezUInt16> m_AdjustPushedObjectStates;
 };
 
 

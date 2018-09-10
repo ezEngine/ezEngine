@@ -190,6 +190,56 @@ void ezSceneContext::HandleViewRedrawMsg(const ezViewRedrawMsgToEngine* pMsg)
   auto pDocView = GetViewContext(pMsg->m_uiViewID);
   if (pDocView)
     DrawSelectionBounds(pDocView->GetViewHandle());
+
+  if (!m_pWorld->GetWorldSimulationEnabled() && !m_PushObjectStateMsg.m_ObjectStates.IsEmpty())
+  {
+    if (!m_AdjustPushedObjectStates.IsEmpty())
+    {
+      EZ_LOCK(m_pWorld->GetReadMarker());
+
+      bool bAnyFailure = false;
+
+      const auto& objectMapper = GetDocumentContext(GetDocumentGuid())->m_Context.m_GameObjectMap;
+      if (objectMapper.GetHandleToGuidMap().IsEmpty())
+        return;
+
+      for (auto remapIdx : m_AdjustPushedObjectStates)
+      {
+        auto& state = m_PushObjectStateMsg.m_ObjectStates[remapIdx];
+        ezGameObjectHandle hObject = objectMapper.GetHandle(state.m_ObjectGuid);
+
+        ezGameObject* pObject;
+        if (m_pWorld->TryGetObject(hObject, pObject))
+        {
+          if (pObject->GetChildCount() == 0)
+          {
+            bAnyFailure = true;
+            break;
+          }
+
+          const ezQuat qRotChange = state.m_qRotation * -pObject->GetGlobalRotation();
+
+          const ezGameObject* pChild = pObject->GetChildren();
+
+          const ezVec3 localPos = pChild->GetLocalPosition();
+          const ezQuat localRot = pChild->GetLocalRotation();
+
+          state.m_vPosition -= qRotChange * localPos;
+          state.m_qRotation = -localRot * state.m_qRotation;
+        }
+      }
+
+      if (bAnyFailure)
+        return;
+    }
+
+    // send a return message with the result
+    m_PushObjectStateMsg.m_DocumentGuid = pMsg->m_DocumentGuid;
+    SendProcessMessage(&m_PushObjectStateMsg);
+
+    m_PushObjectStateMsg.m_ObjectStates.Clear();
+    m_AdjustPushedObjectStates.Clear();
+  }
 }
 
 void ezSceneContext::HandleGridSettingsMsg(const ezGridSettingsMsgToEngine* pMsg)
@@ -786,22 +836,59 @@ void ezSceneContext::HandleSceneGeometryMsg(const ezExportSceneGeometryMsgToEngi
 
 void ezSceneContext::HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine* pMsg)
 {
+  if (!m_pWorld->GetWorldSimulationEnabled())
+    return;
+
   const ezWorld* pWorld = GetWorld();
   EZ_LOCK(pWorld->GetReadMarker());
 
   const auto& objectMapper = GetDocumentContext(GetDocumentGuid())->m_Context.m_GameObjectMap;
 
-  ezPushObjectStateMsgToEditor retMsg;
-  retMsg.m_ObjectStates.Reserve(m_SelectionWithChildren.GetCount());
+  m_PushObjectStateMsg.m_ObjectStates.Reserve(m_PushObjectStateMsg.m_ObjectStates.GetCount() + m_SelectionWithChildren.GetCount());
 
   for (ezGameObjectHandle hObject : m_SelectionWithChildren)
   {
-    const ezUuid objectGuid = objectMapper.GetGuid(hObject);
-
     const ezGameObject* pObject = nullptr;
-    if (objectGuid.IsValid() && pWorld->TryGetObject(hObject, pObject))
+    if (!pWorld->TryGetObject(hObject, pObject))
+      continue;
+
+    ezUuid objectGuid = objectMapper.GetGuid(hObject);
+
+    if (!objectGuid.IsValid())
     {
-      auto& state = retMsg.m_ObjectStates.ExpandAndGetRef();
+      // this must be an object created on the runtime side, try to match it to some editor object
+      // we only try the direct parent, more steps than that are not allowed
+
+      const ezGameObject* pParentObject = pObject->GetParent();
+      if (pParentObject == nullptr)
+        continue;
+
+      // if the parent has more than one child, remapping the position from the child to the parent is not possible, so skip those
+      if (pParentObject->GetChildCount() > 1)
+        continue;
+
+      auto parentGuid = objectMapper.GetGuid(pParentObject->GetHandle());
+
+      if (!parentGuid.IsValid())
+        continue;
+
+      objectGuid = parentGuid;
+
+      for (ezUInt32 i = 0; i < m_PushObjectStateMsg.m_ObjectStates.GetCount(); ++i)
+      {
+        if (m_PushObjectStateMsg.m_ObjectStates[i].m_ObjectGuid == objectGuid)
+        {
+          m_PushObjectStateMsg.m_ObjectStates.RemoveAtSwap(i);
+          break;
+        }
+      }
+
+      // remember that this object position comes from its child and thus needs to be remapped before we send it back
+      m_AdjustPushedObjectStates.ExpandAndGetRef() = m_PushObjectStateMsg.m_ObjectStates.GetCount();
+    }
+
+    {
+      auto& state = m_PushObjectStateMsg.m_ObjectStates.ExpandAndGetRef();
 
       state.m_ObjectGuid = objectGuid;
       state.m_vPosition = pObject->GetGlobalPosition();
@@ -809,7 +896,5 @@ void ezSceneContext::HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine
     }
   }
 
-  // send a return message with the result
-  retMsg.m_DocumentGuid = pMsg->m_DocumentGuid;
-  SendProcessMessage(&retMsg);
+  // the return message is sent after the simulation has stopped
 }
