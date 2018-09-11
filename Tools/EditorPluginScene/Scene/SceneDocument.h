@@ -140,6 +140,8 @@ public:
   /// The camera will quickly interpolate to the stored position.
   void RestoreFavouriteCamera(ezUInt8 uiSlot);
 
+  ezResult JumpToLevelCamera(ezUInt8 uiSlot);
+
   ///@}
 
 protected:

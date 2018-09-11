@@ -120,6 +120,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 7, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_MEMBER_PROPERTY("EditorShortcut", m_iEditorShortcut)->AddAttributes(new ezDefaultValueAttribute(-1), new ezClampValueAttribute(-1, 9)),
     EZ_ENUM_ACCESSOR_PROPERTY("UsageHint", ezCameraUsageHint, GetUsageHint, SetUsageHint),
     EZ_ENUM_ACCESSOR_PROPERTY("Mode", ezCameraMode, GetCameraMode, SetCameraMode),
     EZ_ACCESSOR_PROPERTY("RenderTarget", GetRenderTargetFile, SetRenderTargetFile)->AddAttributes(new ezAssetBrowserAttribute("Render Target")),

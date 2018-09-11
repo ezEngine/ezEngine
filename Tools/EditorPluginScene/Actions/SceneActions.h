@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorPluginScene/Plugin.h>
-#include <GuiFoundation/Basics.h>
-#include <GuiFoundation/Action/BaseActions.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
+#include <GuiFoundation/Action/BaseActions.h>
+#include <GuiFoundation/Basics.h>
 
 class ezPreferences;
 
@@ -29,6 +29,7 @@ public:
   static ezActionDescriptorHandle s_hFavouriteCamsMenu;
   static ezActionDescriptorHandle s_hStoreEditorCamera[10];
   static ezActionDescriptorHandle s_hRestoreEditorCamera[10];
+  static ezActionDescriptorHandle s_hJumpToCamera[10];
 };
 
 ///
@@ -37,7 +38,6 @@ class EZ_EDITORPLUGINSCENE_DLL ezSceneAction : public ezButtonAction
   EZ_ADD_DYNAMIC_REFLECTION(ezSceneAction, ezButtonAction);
 
 public:
-
   enum class ActionType
   {
     ExportScene,
@@ -69,6 +69,17 @@ public:
     RestoreEditorCamera7,
     RestoreEditorCamera8,
     RestoreEditorCamera9,
+
+    JumpToCamera0,
+    JumpToCamera1,
+    JumpToCamera2,
+    JumpToCamera3,
+    JumpToCamera4,
+    JumpToCamera5,
+    JumpToCamera6,
+    JumpToCamera7,
+    JumpToCamera8,
+    JumpToCamera9,
   };
 
   ezSceneAction(const ezActionContext& context, const char* szName, ActionType type);
@@ -83,4 +94,3 @@ private:
   ezSceneDocument* m_pSceneDocument;
   ActionType m_Type;
 };
-

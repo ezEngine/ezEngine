@@ -138,6 +138,7 @@ private:
   bool m_bIsModified;
   bool m_bShowStats;
   bool m_bRenderTargetInitialized = false;
+  ezInt8 m_iEditorShortcut = -1; // -1 for none, 0 to 9 for ALT+Number
 
   void ActivateRenderToTexture();
   void DeactivateRenderToTexture();

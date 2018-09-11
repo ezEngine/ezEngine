@@ -8,6 +8,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/GUI/ExposedParameters.h>
 #include <EditorFramework/Object/ObjectPropertyPath.h>
+#include <EditorFramework/Preferences/QuadViewPreferences.h>
 #include <EditorPluginScene/Dialogs/DeltaTransformDlg.moc.h>
 #include <EditorPluginScene/Dialogs/DuplicateDlg.moc.h>
 #include <EditorPluginScene/Objects/SceneObjectManager.h>
@@ -18,12 +19,12 @@
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
+#include <RendererCore/Components/CameraComponent.h>
 #include <SharedPluginScene/Common/Messages.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectDirectAccessor.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <EditorFramework/Preferences/QuadViewPreferences.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 4, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -840,6 +841,8 @@ ezStatus ezSceneDocument::RemoveExposedParameter(ezInt32 index)
 
 void ezSceneDocument::StoreFavouriteCamera(ezUInt8 uiSlot)
 {
+  EZ_ASSERT_DEBUG(uiSlot < 10, "Invalid slot");
+
   ezQuadViewPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezQuadViewPreferencesUser>(this);
   auto& cam = pPreferences->m_FavouriteCamera[uiSlot];
 
@@ -860,6 +863,8 @@ void ezSceneDocument::StoreFavouriteCamera(ezUInt8 uiSlot)
 
 void ezSceneDocument::RestoreFavouriteCamera(ezUInt8 uiSlot)
 {
+  EZ_ASSERT_DEBUG(uiSlot < 10, "Invalid slot");
+
   ezQuadViewPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezQuadViewPreferencesUser>(this);
   auto& cam = pPreferences->m_FavouriteCamera[uiSlot];
 
@@ -869,6 +874,53 @@ void ezSceneDocument::RestoreFavouriteCamera(ezUInt8 uiSlot)
   {
     pView->InterpolateCameraTo(cam.m_vCamPos, cam.m_vCamDir, pView->m_pViewConfig->m_Camera.GetFovOrDim(), &cam.m_vCamUp);
   }
+}
+
+ezResult ezSceneDocument::JumpToLevelCamera(ezUInt8 uiSlot)
+{
+  EZ_ASSERT_DEBUG(uiSlot < 10, "Invalid slot");
+
+  auto* pView = ezQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
+
+  if (pView == nullptr)
+    return EZ_FAILURE;
+
+  auto* pObjMan = GetObjectManager();
+
+  ezHybridArray<ezDocumentObject*, 8> stack;
+  stack.PushBack(pObjMan->GetRootObject());
+
+  const ezRTTI* pCamType = ezGetStaticRTTI<ezCameraComponent>();
+  const ezDocumentObject* pCamObj = nullptr;
+
+  while (!stack.IsEmpty())
+  {
+    const ezDocumentObject* pObj = stack.PeekBack();
+    stack.PopBack();
+
+    stack.PushBackRange(pObj->GetChildren());
+
+    if (pObj->GetType() == pCamType)
+    {
+      ezInt32 iShortcut = pObj->GetTypeAccessor().GetValue("EditorShortcut").ConvertTo<ezInt32>();
+
+      if (iShortcut == uiSlot)
+      {
+        pCamObj = pObj->GetParent();
+        break;
+      }
+    }
+  }
+
+  if (pCamObj == nullptr)
+    return EZ_FAILURE;
+
+  const ezTransform tCam = GetGlobalTransform(pCamObj);
+
+  ezVec3 vUp = tCam.m_qRotation * ezVec3(0, 0, 1);
+  pView->InterpolateCameraTo(tCam.m_vPosition, tCam.m_qRotation * ezVec3(1, 0, 0), pView->m_pViewConfig->m_Camera.GetFovOrDim(), &vUp);
+
+  return EZ_SUCCESS;
 }
 
 void ezSceneDocument::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e)
@@ -1109,7 +1161,7 @@ ezStatus ezSceneDocument::ExportScene()
 
   auto res = TransformAsset(true);
   // this would be needed to generate a scene thumbnail, however that has a larger overhead (1 sec or so)
-  //auto res = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), true);
+  // auto res = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), true);
 
   if (res.m_Result.Failed())
     ezLog::Error(res.m_sMessage);
