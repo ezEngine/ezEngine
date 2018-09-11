@@ -301,6 +301,13 @@ ezResult ezTexConv::SaveLowResImage(const ezImage& img)
   if (m_sOutputLowRes.IsEmpty())
     return EZ_SUCCESS;
 
+  // get rid of any previous low-res file
+  ezFileSystem::DeleteFile(m_sOutputLowRes);
+
+  // if the source image actually does not have (enough) mipmaps (e.g. none), then don't write out a low-res version at all
+  if (img.GetNumMipLevels() < m_uiLowResMipmaps)
+    return EZ_SUCCESS;
+
   ezImage imgLow;
 
   ezDeferredFileWriter file;
