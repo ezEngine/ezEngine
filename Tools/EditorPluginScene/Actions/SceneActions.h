@@ -30,6 +30,7 @@ public:
   static ezActionDescriptorHandle s_hStoreEditorCamera[10];
   static ezActionDescriptorHandle s_hRestoreEditorCamera[10];
   static ezActionDescriptorHandle s_hJumpToCamera[10];
+  static ezActionDescriptorHandle s_hCreateLevelCamera[10];
 };
 
 ///
@@ -80,6 +81,17 @@ public:
     JumpToCamera7,
     JumpToCamera8,
     JumpToCamera9,
+
+    CreateLevelCamera0,
+    CreateLevelCamera1,
+    CreateLevelCamera2,
+    CreateLevelCamera3,
+    CreateLevelCamera4,
+    CreateLevelCamera5,
+    CreateLevelCamera6,
+    CreateLevelCamera7,
+    CreateLevelCamera8,
+    CreateLevelCamera9,
   };
 
   ezSceneAction(const ezActionContext& context, const char* szName, ActionType type);

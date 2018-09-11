@@ -211,5 +211,15 @@ Scene.Camera.JumpTo.6;Jump to Level Camera 6;Moves the editor camera to a camera
 Scene.Camera.JumpTo.7;Jump to Level Camera 7;Moves the editor camera to a camera position that is stored in the level file
 Scene.Camera.JumpTo.8;Jump to Level Camera 8;Moves the editor camera to a camera position that is stored in the level file
 Scene.Camera.JumpTo.9;Jump to Level Camera 9;Moves the editor camera to a camera position that is stored in the level file
+Scene.Camera.Create.0;Create Level Camera 0;Creates a camera node at the current editor camera position and configures its shortcut
+Scene.Camera.Create.1;Create Level Camera 1;Creates a camera node at the current editor camera position and configures its shortcut
+Scene.Camera.Create.2;Create Level Camera 2;Creates a camera node at the current editor camera position and configures its shortcut
+Scene.Camera.Create.3;Create Level Camera 3;Creates a camera node at the current editor camera position and configures its shortcut
+Scene.Camera.Create.4;Create Level Camera 4;Creates a camera node at the current editor camera position and configures its shortcut
+Scene.Camera.Create.5;Create Level Camera 5;Creates a camera node at the current editor camera position and configures its shortcut
+Scene.Camera.Create.6;Create Level Camera 6;Creates a camera node at the current editor camera position and configures its shortcut
+Scene.Camera.Create.7;Create Level Camera 7;Creates a camera node at the current editor camera position and configures its shortcut
+Scene.Camera.Create.8;Create Level Camera 8;Creates a camera node at the current editor camera position and configures its shortcut
+Scene.Camera.Create.9;Create Level Camera 9;Creates a camera node at the current editor camera position and configures its shortcut
 ezCameraUsageHint::Thumbnail;Thumbnail
 EditorShortcut;Editor Shortcut;Press ALT+Number to jump to this camera.

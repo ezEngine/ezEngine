@@ -923,6 +923,58 @@ ezResult ezSceneDocument::JumpToLevelCamera(ezUInt8 uiSlot)
   return EZ_SUCCESS;
 }
 
+void ezSceneDocument::CreateLevelCamera(ezUInt8 uiSlot)
+{
+  EZ_ASSERT_DEBUG(uiSlot < 10, "Invalid slot");
+
+  auto* pView = ezQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
+
+  if (pView == nullptr)
+    return;
+
+  const auto* pRootObj = GetObjectManager()->GetRootObject();
+
+  const ezVec3 vPos = pView->m_pViewConfig->m_Camera.GetCenterPosition();
+  const ezVec3 vDir = pView->m_pViewConfig->m_Camera.GetCenterDirForwards().GetNormalized();
+  const ezVec3 vUp = pView->m_pViewConfig->m_Camera.GetCenterDirUp().GetNormalized();
+
+  auto* pAccessor = GetObjectAccessor();
+  pAccessor->StartTransaction("Create Level Camera");
+
+  ezUuid camObjGuid;
+  if (pAccessor->AddObject(pRootObj, "Children", -1, ezGetStaticRTTI<ezGameObject>(), camObjGuid).Failed())
+  {
+    pAccessor->CancelTransaction();
+    return;
+  }
+
+  ezMat3 mRot;
+  mRot.SetColumn(0, vDir);
+  mRot.SetColumn(1, vUp.Cross(vDir).GetNormalized()); // TODO: this seems to be the wrong way (should be dir x up)
+  mRot.SetColumn(2, vUp);
+  ezQuat qRot;
+  qRot.SetFromMat3(mRot);
+  qRot.Normalize();
+
+  SetGlobalTransform(pAccessor->GetObject(camObjGuid), ezTransform(vPos, qRot),
+                     TransformationChanges::Translation | TransformationChanges::Rotation);
+
+  ezUuid camCompGuid;
+  if (pAccessor->AddObject(pAccessor->GetObject(camObjGuid), "Components", -1, ezGetStaticRTTI<ezCameraComponent>(), camCompGuid).Failed())
+  {
+    pAccessor->CancelTransaction();
+    return;
+  }
+
+  if (pAccessor->SetValue(pAccessor->GetObject(camCompGuid), "EditorShortcut", uiSlot).Failed())
+  {
+    pAccessor->CancelTransaction();
+    return;
+  }
+
+  pAccessor->FinishTransaction();
+}
+
 void ezSceneDocument::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e)
 {
   if ((e.m_uiModifiedFlags & ezDocumentObjectMetaData::HiddenFlag) != 0)

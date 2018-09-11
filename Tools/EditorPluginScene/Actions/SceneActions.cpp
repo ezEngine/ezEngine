@@ -33,6 +33,7 @@ ezActionDescriptorHandle ezSceneActions::s_hFavouriteCamsMenu;
 ezActionDescriptorHandle ezSceneActions::s_hStoreEditorCamera[10];
 ezActionDescriptorHandle ezSceneActions::s_hRestoreEditorCamera[10];
 ezActionDescriptorHandle ezSceneActions::s_hJumpToCamera[10];
+ezActionDescriptorHandle ezSceneActions::s_hCreateLevelCamera[10];
 
 void ezSceneActions::RegisterActions()
 {
@@ -122,6 +123,27 @@ void ezSceneActions::RegisterActions()
                                               ezSceneAction::ActionType::JumpToCamera8);
     s_hJumpToCamera[9] = EZ_REGISTER_ACTION_1("Scene.Camera.JumpTo.9", ezActionScope::Document, "Scene - Cameras", "Alt+9", ezSceneAction,
                                               ezSceneAction::ActionType::JumpToCamera9);
+
+    s_hCreateLevelCamera[0] = EZ_REGISTER_ACTION_1("Scene.Camera.Create.0", ezActionScope::Document, "Scene - Cameras", "Ctrl+Alt+0",
+                                                   ezSceneAction, ezSceneAction::ActionType::CreateLevelCamera0);
+    s_hCreateLevelCamera[1] = EZ_REGISTER_ACTION_1("Scene.Camera.Create.1", ezActionScope::Document, "Scene - Cameras", "Ctrl+Alt+1",
+                                                   ezSceneAction, ezSceneAction::ActionType::CreateLevelCamera1);
+    s_hCreateLevelCamera[2] = EZ_REGISTER_ACTION_1("Scene.Camera.Create.2", ezActionScope::Document, "Scene - Cameras", "Ctrl+Alt+2",
+                                                   ezSceneAction, ezSceneAction::ActionType::CreateLevelCamera2);
+    s_hCreateLevelCamera[3] = EZ_REGISTER_ACTION_1("Scene.Camera.Create.3", ezActionScope::Document, "Scene - Cameras", "Ctrl+Alt+3",
+                                                   ezSceneAction, ezSceneAction::ActionType::CreateLevelCamera3);
+    s_hCreateLevelCamera[4] = EZ_REGISTER_ACTION_1("Scene.Camera.Create.4", ezActionScope::Document, "Scene - Cameras", "Ctrl+Alt+4",
+                                                   ezSceneAction, ezSceneAction::ActionType::CreateLevelCamera4);
+    s_hCreateLevelCamera[5] = EZ_REGISTER_ACTION_1("Scene.Camera.Create.5", ezActionScope::Document, "Scene - Cameras", "Ctrl+Alt+5",
+                                                   ezSceneAction, ezSceneAction::ActionType::CreateLevelCamera5);
+    s_hCreateLevelCamera[6] = EZ_REGISTER_ACTION_1("Scene.Camera.Create.6", ezActionScope::Document, "Scene - Cameras", "Ctrl+Alt+6",
+                                                   ezSceneAction, ezSceneAction::ActionType::CreateLevelCamera6);
+    s_hCreateLevelCamera[7] = EZ_REGISTER_ACTION_1("Scene.Camera.Create.7", ezActionScope::Document, "Scene - Cameras", "Ctrl+Alt+7",
+                                                   ezSceneAction, ezSceneAction::ActionType::CreateLevelCamera7);
+    s_hCreateLevelCamera[8] = EZ_REGISTER_ACTION_1("Scene.Camera.Create.8", ezActionScope::Document, "Scene - Cameras", "Ctrl+Alt+8",
+                                                   ezSceneAction, ezSceneAction::ActionType::CreateLevelCamera8);
+    s_hCreateLevelCamera[9] = EZ_REGISTER_ACTION_1("Scene.Camera.Create.9", ezActionScope::Document, "Scene - Cameras", "Ctrl+Alt+9",
+                                                   ezSceneAction, ezSceneAction::ActionType::CreateLevelCamera9);
   }
 }
 
@@ -143,6 +165,7 @@ void ezSceneActions::UnregisterActions()
     ezActionManager::UnregisterAction(s_hStoreEditorCamera[i]);
     ezActionManager::UnregisterAction(s_hRestoreEditorCamera[i]);
     ezActionManager::UnregisterAction(s_hJumpToCamera[i]);
+    ezActionManager::UnregisterAction(s_hCreateLevelCamera[i]);
   }
 }
 
@@ -167,6 +190,7 @@ void ezSceneActions::MapMenuActions()
       pMap->MapAction(s_hStoreEditorCamera[i], szFavCamsSubPath, 10.0f + i);
       pMap->MapAction(s_hRestoreEditorCamera[i], szFavCamsSubPath, 20.0f + i);
       pMap->MapAction(s_hJumpToCamera[i], szFavCamsSubPath, 30.0f + i);
+      pMap->MapAction(s_hCreateLevelCamera[i], szFavCamsSubPath, 40.0f + i);
     }
 
     pMap->MapAction(s_hSceneCategory, "Menu.Scene", 4.0f);
@@ -378,6 +402,23 @@ void ezSceneAction::Execute(const ezVariant& value)
       {
         m_pSceneDocument->ShowDocumentStatus(ezFmt("No Camera Component found with shortcut set to '{0}'", iCamIdx));
       }
+      return;
+    }
+
+    case ActionType::CreateLevelCamera0:
+    case ActionType::CreateLevelCamera1:
+    case ActionType::CreateLevelCamera2:
+    case ActionType::CreateLevelCamera3:
+    case ActionType::CreateLevelCamera4:
+    case ActionType::CreateLevelCamera5:
+    case ActionType::CreateLevelCamera6:
+    case ActionType::CreateLevelCamera7:
+    case ActionType::CreateLevelCamera8:
+    case ActionType::CreateLevelCamera9:
+    {
+      const ezInt32 iCamIdx = (int)m_Type - (int)ActionType::CreateLevelCamera0;
+
+      m_pSceneDocument->CreateLevelCamera(iCamIdx);
       return;
     }
   }
