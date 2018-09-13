@@ -75,8 +75,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezGameObjectSelectionActions::RegisterActions();
     ezQuadViewActions::RegisterActions();
     ezTransformGizmoActions::RegisterActions();
-    ezRotateGizmoAction::RegisterActions();
-    ezScaleGizmoAction::RegisterActions();
     ezTranslateGizmoAction::RegisterActions();
 
     ezActionMapManager::RegisterActionMap("SettingsTabMenuBar");
@@ -119,8 +117,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezGameObjectSelectionActions::UnregisterActions();
     ezQuadViewActions::UnregisterActions();
     ezTransformGizmoActions::UnregisterActions();
-    ezRotateGizmoAction::UnregisterActions();
-    ezScaleGizmoAction::UnregisterActions();
     ezTranslateGizmoAction::UnregisterActions();
 
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>());

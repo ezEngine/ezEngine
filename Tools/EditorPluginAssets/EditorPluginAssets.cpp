@@ -275,8 +275,6 @@ static void ConfigurePropertyAnimAsset()
     ezGameObjectDocumentActions::MapMenuActions("PropertyAnimAssetMenuBar", "Menu.View");
     ezGameObjectDocumentActions::MapMenuSimulationSpeed("PropertyAnimAssetMenuBar", "Menu.Scene");
     ezTransformGizmoActions::MapMenuActions("PropertyAnimAssetMenuBar", "Menu.Edit");
-    ezRotateGizmoAction::MapActions("PropertyAnimAssetMenuBar", "Menu.Edit/Gizmo.Menu");
-    ezScaleGizmoAction::MapActions("PropertyAnimAssetMenuBar", "Menu.Edit/Gizmo.Menu");
     ezTranslateGizmoAction::MapActions("PropertyAnimAssetMenuBar", "Menu.Edit/Gizmo.Menu");
   }
 
@@ -289,9 +287,6 @@ static void ConfigurePropertyAnimAsset()
     ezGameObjectContextActions::MapToolbarActions("PropertyAnimAssetToolBar", "");
     ezGameObjectDocumentActions::MapToolbarActions("PropertyAnimAssetToolBar", "");
     ezTransformGizmoActions::MapToolbarActions("PropertyAnimAssetToolBar", "");
-    ezRotateGizmoAction::MapActions("PropertyAnimAssetToolBar", "");
-    ezScaleGizmoAction::MapActions("PropertyAnimAssetToolBar", "");
-    ezTranslateGizmoAction::MapActions("PropertyAnimAssetToolBar", "");
   }
 
   // View Tool Bar

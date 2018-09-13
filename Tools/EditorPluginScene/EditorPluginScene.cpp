@@ -84,8 +84,6 @@ void OnLoadPlugin(bool bReloading)
   ezGameObjectSelectionActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
   ezSelectionActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
   ezEditActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit", true, true);
-  ezRotateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit/Gizmo.Menu");
-  ezScaleGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit/Gizmo.Menu");
   ezTranslateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit/Gizmo.Menu");
   ezGameObjectDocumentActions::MapMenuActions("EditorPluginScene_DocumentMenuBar", "Menu.View");
   ezGameObjectDocumentActions::MapMenuSimulationSpeed("EditorPluginScene_DocumentMenuBar", "Menu.Scene");
@@ -97,9 +95,6 @@ void OnLoadPlugin(bool bReloading)
   ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentToolBar", "");
   ezTransformGizmoActions::MapToolbarActions("EditorPluginScene_DocumentToolBar", "");
   ezSceneGizmoActions::MapToolbarActions("EditorPluginScene_DocumentToolBar", "");
-  ezRotateGizmoAction::MapActions("EditorPluginScene_DocumentToolBar", "");
-  ezScaleGizmoAction::MapActions("EditorPluginScene_DocumentToolBar", "");
-  ezTranslateGizmoAction::MapActions("EditorPluginScene_DocumentToolBar", "");
   ezGameObjectDocumentActions::MapToolbarActions("EditorPluginScene_DocumentToolBar", "");
   ezSceneActions::MapToolbarActions();
 

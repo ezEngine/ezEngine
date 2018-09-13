@@ -150,7 +150,7 @@ public:
   ///@}
   /// \name Settings
   ///@{
-
+public:
   bool GetAddAmbientLight() const { return m_bAddAmbientLight; }
   void SetAddAmbientLight(bool b);
 

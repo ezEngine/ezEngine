@@ -42,6 +42,7 @@
     <file>Icons/Grid16.png</file>
     <file>Icons/Selection16.png</file>
     <file>Icons/Attention16.png</file>
+    <file>Icons/SnapSettings16.png</file>
   </qresource>
   <qresource prefix="AssetIcons">
     <file>All.png</file>
@@ -51,5 +52,5 @@
     <file>ezRotateGizmoEditTool.png</file>
     <file>ezScaleGizmoEditTool.png</file>
     <file>ezTranslateGizmoEditTool.png</file>
-  </qresource>  
+  </qresource>
 </RCC>

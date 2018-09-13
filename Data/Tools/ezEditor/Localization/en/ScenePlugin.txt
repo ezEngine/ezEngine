@@ -40,6 +40,7 @@ Gizmo.Translate.Snap.0_25;0.25
 Gizmo.Translate.Snap.0_2;0.2
 Gizmo.Translate.Snap.0_125;0.125
 Gizmo.Translate.Snap.0_1;0.1
+Gizmo.SnapSettings;Snap Settings
 Scene.View.Toggle;Toggle Views
 Scene.View.Span;Spawn View
 Scene.Export;Export Scene...
