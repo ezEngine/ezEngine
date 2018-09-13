@@ -5,6 +5,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <PhysXPlugin/Components/PxCharacterProxyComponent.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
+#include <PhysXPlugin/Shapes/PxShapeComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
