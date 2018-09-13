@@ -54,6 +54,9 @@ public:
   ezBitflags<ezPxCharacterCollisionFlags> GetCollisionFlags() const;
   bool IsGrounded() const { return GetCollisionFlags().IsSet(ezPxCharacterCollisionFlags::Below); }
 
+  ezGameObjectHandle GetTouchedShapeObject() const;
+  ezGameObjectHandle GetTouchedActorObject() const;
+
   ezUInt32 GetShapeId() const { return m_uiShapeId; }
 
   // ************************************* PROPERTIES ***********************************

@@ -364,6 +364,42 @@ ezBitflags<ezPxCharacterCollisionFlags> ezPxCharacterProxyComponent::GetCollisio
   return ezPxCharacterCollisionFlags::None;
 }
 
+ezGameObjectHandle ezPxCharacterProxyComponent::GetTouchedShapeObject() const
+{
+  if (m_pController != nullptr)
+  {
+    PxControllerState state;
+    m_pController->getState(state);
 
+    if (state.touchedShape != nullptr)
+    {
+      if (ezComponent* pComponent = ezPxUserData::GetShapeComponent(state.touchedShape->userData))
+      {
+        return pComponent->GetOwner()->GetHandle();
+      }
+    }
+  }
+
+  return ezGameObjectHandle();
+}
+
+ezGameObjectHandle ezPxCharacterProxyComponent::GetTouchedActorObject() const
+{
+  if (m_pController != nullptr)
+  {
+    PxControllerState state;
+    m_pController->getState(state);
+
+    if (state.touchedActor != nullptr)
+    {
+      if (ezComponent* pComponent = ezPxUserData::GetComponent(state.touchedActor->userData))
+      {
+        return pComponent->GetOwner()->GetHandle();
+      }
+    }
+  }
+
+  return ezGameObjectHandle();
+}
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Components_Implementation_PxCharacterProxyComponent);

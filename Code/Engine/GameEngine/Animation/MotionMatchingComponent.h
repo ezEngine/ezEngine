@@ -3,16 +3,16 @@
 #include <GameEngine/Basics.h>
 #include <RendererCore/AnimationSystem/AnimationGraph/AnimationClipSampler.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
-#include <RendererCore/Meshes/RenderMeshComponent.h>
+#include <RendererCore/Meshes/MeshComponentBase.h>
 
 typedef ezTypedResourceHandle<class ezAnimationClipResource> ezAnimationClipResourceHandle;
 typedef ezTypedResourceHandle<class ezSkeletonResource> ezSkeletonResourceHandle;
 
 typedef ezComponentManagerSimple<class ezMotionMatchingComponent, ezComponentUpdateType::WhenSimulating> ezMotionMatchingComponentManager;
 
-class EZ_GAMEENGINE_DLL ezMotionMatchingComponent : public ezRenderMeshComponent
+class EZ_GAMEENGINE_DLL ezMotionMatchingComponent : public ezMeshComponentBase
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezMotionMatchingComponent, ezRenderMeshComponent, ezMotionMatchingComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezMotionMatchingComponent, ezMeshComponentBase, ezMotionMatchingComponentManager);
 
 public:
   ezMotionMatchingComponent();

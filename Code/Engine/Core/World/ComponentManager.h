@@ -145,14 +145,6 @@ private:
   static void SimpleUpdateName(ezStringBuilder& out_sName);
 };
 
-/// \brief A trivial component manager that does not run any kind of updates on components. For purely reactive components.
-template <typename ComponentType>
-class ezComponentManagerNoUpdate : public ezComponentManager<ComponentType, ezBlockStorageType::FreeList>
-{
-public:
-  ezComponentManagerNoUpdate(ezWorld* pWorld);
-};
-
 //////////////////////////////////////////////////////////////////////////
 
 #define EZ_ADD_COMPONENT_FUNCTIONALITY(componentType, baseType, managerType)                                                               \

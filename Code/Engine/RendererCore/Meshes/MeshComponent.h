@@ -1,13 +1,13 @@
 #pragma once
 
-#include <RendererCore/Meshes/RenderMeshComponent.h>
+#include <RendererCore/Meshes/MeshComponentBase.h>
 
 struct ezMsgExtractGeometry;
 typedef ezComponentManager<class ezMeshComponent, ezBlockStorageType::Compact> ezMeshComponentManager;
 
-class EZ_RENDERERCORE_DLL ezMeshComponent : public ezRenderMeshComponent
+class EZ_RENDERERCORE_DLL ezMeshComponent : public ezMeshComponentBase
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezMeshComponent, ezRenderMeshComponent, ezMeshComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezMeshComponent, ezMeshComponentBase, ezMeshComponentManager);
 
 public:
   ezMeshComponent();

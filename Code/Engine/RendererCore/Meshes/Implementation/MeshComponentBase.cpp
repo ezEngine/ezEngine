@@ -2,7 +2,7 @@
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <RendererCore/Meshes/RenderMeshComponent.h>
+#include <RendererCore/Meshes/MeshComponentBase.h>
 #include <RendererCore/Messages/SetColorMessage.h>
 #include <RendererFoundation/Device/Device.h>
 
@@ -70,7 +70,7 @@ void ezMsgSetMeshMaterial::Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVer
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderData, 1, ezRTTIDefaultAllocator<ezMeshRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRenderMeshComponent, 1)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezMeshComponentBase, 1)
 {
   EZ_BEGIN_ATTRIBUTES
   {
@@ -88,15 +88,15 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRenderMeshComponent, 1)
 EZ_END_ABSTRACT_COMPONENT_TYPE;
 // clang-format on
 
-ezRenderMeshComponent::ezRenderMeshComponent()
+ezMeshComponentBase::ezMeshComponentBase()
 {
   m_RenderDataCategory = ezInvalidRenderDataCategory;
   m_Color = ezColor::White;
 }
 
-ezRenderMeshComponent::~ezRenderMeshComponent() {}
+ezMeshComponentBase::~ezMeshComponentBase() {}
 
-void ezRenderMeshComponent::OnDeactivated()
+void ezMeshComponentBase::OnDeactivated()
 {
   if (!m_hSkinningTransformsBuffer.IsInvalidated())
   {
@@ -105,7 +105,7 @@ void ezRenderMeshComponent::OnDeactivated()
   }
 }
 
-void ezRenderMeshComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezMeshComponentBase::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
   ezStreamWriter& s = stream.GetStream();
@@ -127,7 +127,7 @@ void ezRenderMeshComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_Color;
 }
 
-void ezRenderMeshComponent::DeserializeComponent(ezWorldReader& stream)
+void ezMeshComponentBase::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
@@ -153,7 +153,7 @@ void ezRenderMeshComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_Color;
 }
 
-ezResult ezRenderMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
+ezResult ezMeshComponentBase::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
   if (m_hMesh.IsValid())
   {
@@ -165,7 +165,7 @@ ezResult ezRenderMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool
   return EZ_FAILURE;
 }
 
-void ezRenderMeshComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezMeshComponentBase::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   if (!m_hMesh.IsValid())
     return;
@@ -257,14 +257,14 @@ void ezRenderMeshComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) con
   }
 }
 
-void ezRenderMeshComponent::SetMesh(const ezMeshResourceHandle& hMesh)
+void ezMeshComponentBase::SetMesh(const ezMeshResourceHandle& hMesh)
 {
   m_hMesh = hMesh;
 
   TriggerLocalBoundsUpdate();
 }
 
-void ezRenderMeshComponent::SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial)
+void ezMeshComponentBase::SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial)
 {
   if (uiIndex >= m_Materials.GetCount())
     m_Materials.SetCount(uiIndex + 1);
@@ -272,7 +272,7 @@ void ezRenderMeshComponent::SetMaterial(ezUInt32 uiIndex, const ezMaterialResour
   m_Materials[uiIndex] = hMaterial;
 }
 
-ezMaterialResourceHandle ezRenderMeshComponent::GetMaterial(ezUInt32 uiIndex) const
+ezMaterialResourceHandle ezMeshComponentBase::GetMaterial(ezUInt32 uiIndex) const
 {
   if (uiIndex >= m_Materials.GetCount())
     return ezMaterialResourceHandle();
@@ -280,7 +280,7 @@ ezMaterialResourceHandle ezRenderMeshComponent::GetMaterial(ezUInt32 uiIndex) co
   return m_Materials[uiIndex];
 }
 
-void ezRenderMeshComponent::SetMeshFile(const char* szFile)
+void ezMeshComponentBase::SetMeshFile(const char* szFile)
 {
   ezMeshResourceHandle hMesh;
 
@@ -292,7 +292,7 @@ void ezRenderMeshComponent::SetMeshFile(const char* szFile)
   SetMesh(hMesh);
 }
 
-const char* ezRenderMeshComponent::GetMeshFile() const
+const char* ezMeshComponentBase::GetMeshFile() const
 {
   if (!m_hMesh.IsValid())
     return "";
@@ -300,38 +300,38 @@ const char* ezRenderMeshComponent::GetMeshFile() const
   return m_hMesh.GetResourceID();
 }
 
-void ezRenderMeshComponent::SetColor(const ezColor& color)
+void ezMeshComponentBase::SetColor(const ezColor& color)
 {
   m_Color = color;
 }
 
-const ezColor& ezRenderMeshComponent::GetColor() const
+const ezColor& ezMeshComponentBase::GetColor() const
 {
   return m_Color;
 }
 
-void ezRenderMeshComponent::OnSetMaterial(ezMsgSetMeshMaterial& msg)
+void ezMeshComponentBase::OnSetMaterial(ezMsgSetMeshMaterial& msg)
 {
   SetMaterial(msg.m_uiMaterialSlot, msg.m_hMaterial);
 }
 
-void ezRenderMeshComponent::OnSetColor(ezMsgSetColor& msg)
+void ezMeshComponentBase::OnSetColor(ezMsgSetColor& msg)
 {
   msg.ModifyColor(m_Color);
 }
 
-ezMeshRenderData* ezRenderMeshComponent::CreateRenderData(ezUInt32 uiBatchId) const
+ezMeshRenderData* ezMeshComponentBase::CreateRenderData(ezUInt32 uiBatchId) const
 {
   return ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
 }
 
-ezUInt32 ezRenderMeshComponent::Materials_GetCount() const
+ezUInt32 ezMeshComponentBase::Materials_GetCount() const
 {
   return m_Materials.GetCount();
 }
 
 
-const char* ezRenderMeshComponent::Materials_GetValue(ezUInt32 uiIndex) const
+const char* ezMeshComponentBase::Materials_GetValue(ezUInt32 uiIndex) const
 {
   auto hMat = GetMaterial(uiIndex);
 
@@ -342,7 +342,7 @@ const char* ezRenderMeshComponent::Materials_GetValue(ezUInt32 uiIndex) const
 }
 
 
-void ezRenderMeshComponent::Materials_SetValue(ezUInt32 uiIndex, const char* value)
+void ezMeshComponentBase::Materials_SetValue(ezUInt32 uiIndex, const char* value)
 {
   if (ezStringUtils::IsNullOrEmpty(value))
     SetMaterial(uiIndex, ezMaterialResourceHandle());
@@ -354,7 +354,7 @@ void ezRenderMeshComponent::Materials_SetValue(ezUInt32 uiIndex, const char* val
 }
 
 
-void ezRenderMeshComponent::Materials_Insert(ezUInt32 uiIndex, const char* value)
+void ezMeshComponentBase::Materials_Insert(ezUInt32 uiIndex, const char* value)
 {
   ezMaterialResourceHandle hMat;
 
@@ -365,7 +365,7 @@ void ezRenderMeshComponent::Materials_Insert(ezUInt32 uiIndex, const char* value
 }
 
 
-void ezRenderMeshComponent::Materials_Remove(ezUInt32 uiIndex)
+void ezMeshComponentBase::Materials_Remove(ezUInt32 uiIndex)
 {
   m_Materials.RemoveAt(uiIndex);
 }

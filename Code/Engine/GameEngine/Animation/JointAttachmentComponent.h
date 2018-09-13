@@ -4,7 +4,7 @@
 #include <GameEngine/Basics.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 
-typedef ezComponentManagerNoUpdate<class ezJointAttachmentComponent> ezJointAttachmentComponentManager;
+typedef ezComponentManager<class ezJointAttachmentComponent, ezBlockStorageType::FreeList> ezJointAttachmentComponentManager;
 
 class EZ_GAMEENGINE_DLL ezJointAttachmentComponent : public ezComponent
 {

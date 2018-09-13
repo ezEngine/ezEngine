@@ -4,8 +4,6 @@
 #include <Core/World/World.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Math/Mat3.h>
-#include <RendererCore/Meshes/CpuMeshResource.h>
-#include <RendererCore/Meshes/RenderMeshComponent.h>
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractGeometry);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractGeometry, 1, ezRTTIDefaultAllocator<ezMsgExtractGeometry>)

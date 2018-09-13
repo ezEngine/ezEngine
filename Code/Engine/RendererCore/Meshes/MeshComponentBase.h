@@ -41,13 +41,13 @@ struct EZ_RENDERERCORE_DLL ezMsgSetMeshMaterial : public ezMessage
   virtual void Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVersion) override;
 };
 
-class EZ_RENDERERCORE_DLL ezRenderMeshComponent : public ezRenderComponent
+class EZ_RENDERERCORE_DLL ezMeshComponentBase : public ezRenderComponent
 {
-  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezRenderMeshComponent, ezRenderComponent);
+  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezMeshComponentBase, ezRenderComponent);
 
 public:
-  ezRenderMeshComponent();
-  ~ezRenderMeshComponent();
+  ezMeshComponentBase();
+  ~ezMeshComponentBase();
 
   //////////////////////////////////////////////////////////////////////////
   // ezComponent Interface
