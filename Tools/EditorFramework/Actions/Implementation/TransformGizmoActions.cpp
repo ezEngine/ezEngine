@@ -103,7 +103,7 @@ void ezTransformGizmoActions::RegisterActions()
     ezTransformGizmoAction::ActionType::GizmoToggleWorldSpace);
   s_hMoveParentOnly = EZ_REGISTER_ACTION_1("Gizmo.MoveParentOnly", ezActionScope::Document, "Gizmo", "", ezTransformGizmoAction,
     ezTransformGizmoAction::ActionType::GizmoToggleMoveParentOnly);
-  s_SnapSettings = EZ_REGISTER_ACTION_1("Gizmo.SnapSettings", ezActionScope::Document, "Gizmo", "", ezTransformGizmoAction,
+  s_SnapSettings = EZ_REGISTER_ACTION_1("Gizmo.SnapSettings", ezActionScope::Document, "Gizmo", "End", ezTransformGizmoAction,
     ezTransformGizmoAction::ActionType::GizmoSnapSettings);
 }
 

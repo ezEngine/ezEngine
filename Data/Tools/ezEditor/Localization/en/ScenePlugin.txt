@@ -54,9 +54,9 @@ Scene.GameMode.Stop;Reset World
 Scene.GameMode.Simulate;Simulate World
 Scene.GameMode.Play;Play the Game
 Scene.Camera.Speed;Camera Speed;Camera Speed: CTRL+Mousewheel to change
-Scene.Camera.SnapCameraToObject;Align Camera with Object
-Scene.Camera.SnapObjectToCamera;Align Object with Camera
-Scene.Camera.MoveCameraHere;Move Camera Here
+Scene.Camera.SnapCameraToObject;Align Camera with Object;Moves the camera to be at the exact location of the selected object.
+Scene.Camera.SnapObjectToCamera;Align Object with Camera;Moves the object to be at the current location of the camera.
+Scene.Camera.MoveCameraHere;Move Camera Here;Moves the camera close to the point that the mouse points at.
 Selection.ShowInScenegraph;Show in Scenegraph
 Selection.FocusSingleView;Focus on Selection
 Selection.FocusAllViews;Focus All Views on Selection

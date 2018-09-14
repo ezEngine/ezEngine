@@ -11,20 +11,20 @@ Project.DataDirectories;D&ata Directories
 Project.InputConfig;&Input Configuration
 Project.WindowConfig;&Window Configuration
 Settings.Open;S&ettings
-Engine.ReloadResources;Reload Resources
-Engine.ReloadEngine;Reload Engine
-Editor.LaunchFileserve;Launch Fileserve...
+Engine.ReloadResources;Reload Resources;Reloads resources, such as textures, if they have changed on disk.
+Engine.ReloadEngine;Reload Engine;Shuts down the engine process and restarts it. Makes it possible to reload custom DLLs.
+Editor.LaunchFileserve;Launch Fileserve...;Launches the FileServe application.
 Document.Save;&Save
 Document.SaveAll;Save All
 Document.SaveAs;Save &As...
 Document.Close;Close
 Document.OpenContainingFolder;Open in Explorer
-Document.CopyAssetGuid;Copy Asset Guid
+Document.CopyAssetGuid;Copy Asset Guid;Stores the assets GUID in the clipboard.
 Document.MoveWindow;Move to Container Window
 Document.NewWindow;New Container Window
 Selection.Copy;Copy
 Selection.Paste;Paste
-Selection.PasteAsChild;Paste as Child
+Selection.PasteAsChild;Paste as Child;Pastes the copied objects as child nodes of the selected object.
 Selection.Delete;Delete
 Menu.Editor;&Editor
 Menu.File;&File
@@ -46,7 +46,7 @@ View.ActivateRemoteProcess;Activate Remote Process
 View.LinkDeviceCamera;Link Camera on Remote Process
 Asset.Transform;Transform Asset;Transform: Creates the runtime data for this asset
 Asset.TransformAll;Transform All Assets;Transform All: Runs asset transformation on all modified assets
-Asset.ResaveAll;Resave All Assets
+Asset.ResaveAll;Resave All Assets;Opens every document and saves it. Used to get all documents to the latest version.
 Asset.CheckFilesystem;Check Filesystem;Checks for new or deleted assets on disk
 Asset.WriteLookupTable;Write Lookup Table
 Panel.AssetBrowser;Asset Browser
@@ -82,12 +82,12 @@ ezBasisAxis::PositiveZ;Positive Z
 ezBasisAxis::NegativeX;Negative X
 ezBasisAxis::NegativeY;Negative Y
 ezBasisAxis::NegativeZ;Negative Z
-Editor.Plugins;Editor Pl&ugins
-Editor.Shortcuts;Shortcuts
-Editor.ezQtPreferencesDlg;Preferences...
-Editor.SaveProfiling;Save Editor Profiling Data
-Engine.Plugins;Engine Pl&ugins
-Engine.ezQtTagsDlg;Tags
+Editor.Plugins;Editor Pl&ugins;Opens the editor plugins dialog
+Editor.Shortcuts;Shortcuts;Opens the shortcut configuration dialog
+Editor.Preferences;Preferences...;Opens the preferences dialog
+Editor.SaveProfiling;Save Editor Profiling Data;Saves profiling information about editor performance to file. See log for details.
+Engine.Plugins;Engine Pl&ugins;Opens the engine plugins dialog
+Engine.Tags;Tags;Opens the tags configuration dialog
 ezCameraMode::PerspectiveFixedFovX;Perspective Fixed X
 ezCameraMode::PerspectiveFixedFovY;Perspective Fixed Y
 ezCameraMode::OrthoFixedWidth;Ortho Fixed Width

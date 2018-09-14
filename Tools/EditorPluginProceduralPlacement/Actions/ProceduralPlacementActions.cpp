@@ -12,9 +12,9 @@ ezActionDescriptorHandle ezProceduralPlacementActions::s_hDumpDisassembly;
 void ezProceduralPlacementActions::RegisterActions()
 {
   s_hCategoryProceduralPlacement = EZ_REGISTER_CATEGORY("ProceduralPlacement");
-  s_hDumpAST = EZ_REGISTER_ACTION_1("ProceduralPlacement.DumpAST", ezActionScope::Document, "ProceduralPlacement", "",
+  s_hDumpAST = EZ_REGISTER_ACTION_1("ProceduralPlacement.DumpAST", ezActionScope::Document, "Procedural Placement", "",
                                     ezProceduralPlacementAction, ezProceduralPlacementAction::ActionType::DumpAST);
-  s_hDumpDisassembly = EZ_REGISTER_ACTION_1("ProceduralPlacement.DumpDisassembly", ezActionScope::Document, "ProceduralPlacement", "",
+  s_hDumpDisassembly = EZ_REGISTER_ACTION_1("ProceduralPlacement.DumpDisassembly", ezActionScope::Document, "Procedural Placement", "",
                                             ezProceduralPlacementAction, ezProceduralPlacementAction::ActionType::DumpDisassembly);
 }
 
