@@ -34,13 +34,13 @@ void ezGameObjectDocumentActions::RegisterActions()
 {
   s_hGameObjectCategory = EZ_REGISTER_CATEGORY("GameObjectCategory");
   s_hRenderSelectionOverlay =
-      EZ_REGISTER_ACTION_1("Scene.Render.SelectionOverlay", ezActionScope::Document, "Scene", "End", ezGameObjectDocumentAction,
+      EZ_REGISTER_ACTION_1("Scene.Render.SelectionOverlay", ezActionScope::Document, "Scene", "S", ezGameObjectDocumentAction,
                            ezGameObjectDocumentAction::ActionType::RenderSelectionOverlay);
-  s_hRenderVisualizers = EZ_REGISTER_ACTION_1("Scene.Render.Visualizers", ezActionScope::Document, "Scene", "Insert",
+  s_hRenderVisualizers = EZ_REGISTER_ACTION_1("Scene.Render.Visualizers", ezActionScope::Document, "Scene", "V",
                                               ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::RenderVisualizers);
-  s_hRenderShapeIcons = EZ_REGISTER_ACTION_1("Scene.Render.ShapeIcons", ezActionScope::Document, "Scene", "Enter",
+  s_hRenderShapeIcons = EZ_REGISTER_ACTION_1("Scene.Render.ShapeIcons", ezActionScope::Document, "Scene", "I",
                                              ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::RenderShapeIcons);
-  s_hRenderGrid = EZ_REGISTER_ACTION_1("Scene.Render.Grid", ezActionScope::Document, "Scene", "Home", ezGameObjectDocumentAction,
+  s_hRenderGrid = EZ_REGISTER_ACTION_1("Scene.Render.Grid", ezActionScope::Document, "Scene", "G", ezGameObjectDocumentAction,
                                        ezGameObjectDocumentAction::ActionType::RenderGrid);
   s_hAddAmbientLight = EZ_REGISTER_ACTION_1("Scene.Render.AddAmbient", ezActionScope::Document, "Scene", "", ezGameObjectDocumentAction,
                                             ezGameObjectDocumentAction::ActionType::AddAmbientLight);

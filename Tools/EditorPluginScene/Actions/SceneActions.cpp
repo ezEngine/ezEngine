@@ -28,7 +28,7 @@ ezActionDescriptorHandle ezSceneActions::s_hGameModeSimulate;
 ezActionDescriptorHandle ezSceneActions::s_hGameModePlay;
 ezActionDescriptorHandle ezSceneActions::s_hGameModeStop;
 ezActionDescriptorHandle ezSceneActions::s_hUtilExportSceneToOBJ;
-ezActionDescriptorHandle ezSceneActions::s_hPullObjectEngineState;
+ezActionDescriptorHandle ezSceneActions::s_hKeepSimulationChanges;
 ezActionDescriptorHandle ezSceneActions::s_hFavouriteCamsMenu;
 ezActionDescriptorHandle ezSceneActions::s_hStoreEditorCamera[10];
 ezActionDescriptorHandle ezSceneActions::s_hRestoreEditorCamera[10];
@@ -54,8 +54,8 @@ void ezSceneActions::RegisterActions()
   s_hUtilExportSceneToOBJ = EZ_REGISTER_ACTION_1("Scene.ExportSceneToOBJ", ezActionScope::Document, "Scene", "", ezSceneAction,
                                                  ezSceneAction::ActionType::ExportSceneToOBJ);
 
-  s_hPullObjectEngineState = EZ_REGISTER_ACTION_1("Scene.PullObjectEngineState", ezActionScope::Document, "Scene", "Ctrl+K,Ctrl+P",
-                                                  ezSceneAction, ezSceneAction::ActionType::PullObjectEngineState);
+  s_hKeepSimulationChanges = EZ_REGISTER_ACTION_1("Scene.KeepSimulationChanges", ezActionScope::Document, "Scene", "K", ezSceneAction,
+                                                  ezSceneAction::ActionType::KeepSimulationChanges);
 
   // unfortunately the macros use lambdas thus using a loop to generate the strings does not work
   {
@@ -157,7 +157,7 @@ void ezSceneActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hGameModePlay);
   ezActionManager::UnregisterAction(s_hGameModeStop);
   ezActionManager::UnregisterAction(s_hUtilExportSceneToOBJ);
-  ezActionManager::UnregisterAction(s_hPullObjectEngineState);
+  ezActionManager::UnregisterAction(s_hKeepSimulationChanges);
   ezActionManager::UnregisterAction(s_hFavouriteCamsMenu);
 
   for (ezUInt32 i = 0; i < 10; ++i)
@@ -179,7 +179,7 @@ void ezSceneActions::MapMenuActions()
     const char* szUtilsSubPath = "Menu.Scene/Scene.Utils.Menu";
 
     pMap->MapAction(s_hSceneUtilsMenu, "Menu.Scene", 2.0f);
-    pMap->MapAction(s_hPullObjectEngineState, szUtilsSubPath, 1.0f);
+    pMap->MapAction(s_hKeepSimulationChanges, szUtilsSubPath, 1.0f);
     pMap->MapAction(s_hUtilExportSceneToOBJ, szUtilsSubPath, 2.0f);
 
     pMap->MapAction(s_hFavouriteCamsMenu, "Menu.Scene", 3.0f);
@@ -256,7 +256,7 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
       // SetIconPath(":/EditorPluginScene/Icons/SceneStop16.png"); // TODO: icon
       break;
 
-    case ActionType::PullObjectEngineState:
+    case ActionType::KeepSimulationChanges:
       SetIconPath(":/EditorPluginScene/Icons/PullObjectState16.png");
       break;
 
@@ -341,7 +341,7 @@ void ezSceneAction::Execute(const ezVariant& value)
       return;
     }
 
-    case ActionType::PullObjectEngineState:
+    case ActionType::KeepSimulationChanges:
     {
       ezPullObjectStateMsgToEngine msg;
       m_pSceneDocument->SendMessageToEngine(&msg);
@@ -447,7 +447,7 @@ void ezSceneAction::UpdateState()
     SetEnabled(m_pSceneDocument->GetGameMode() != GameMode::Off);
   }
 
-  if (m_Type == ActionType::PullObjectEngineState)
+  if (m_Type == ActionType::KeepSimulationChanges)
   {
     SetEnabled(m_pSceneDocument->GetGameMode() != GameMode::Off && !m_pSceneDocument->GetSelectionManager()->IsSelectionEmpty());
   }

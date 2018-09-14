@@ -17,7 +17,7 @@ ezActionDescriptorHandle ezAssetActions::s_hWriteLookupTable;
 void ezAssetActions::RegisterActions()
 {
   s_hAssetCategory = EZ_REGISTER_CATEGORY("AssetCategory");
-  s_hTransformAsset = EZ_REGISTER_ACTION_1("Asset.Transform", ezActionScope::Document, "Assets", "Ctrl+T", ezAssetAction,
+  s_hTransformAsset = EZ_REGISTER_ACTION_1("Asset.Transform", ezActionScope::Document, "Assets", "Ctrl+E", ezAssetAction,
                                            ezAssetAction::ButtonType::TransformAsset);
   s_hTransformAllAssets = EZ_REGISTER_ACTION_1("Asset.TransformAll", ezActionScope::Global, "Assets", "", ezAssetAction,
                                                ezAssetAction::ButtonType::TransformAllAssets);

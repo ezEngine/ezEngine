@@ -101,7 +101,7 @@ void ezTransformGizmoActions::RegisterActions()
     ezGetStaticRTTI<ezDragToPositionGizmoEditTool>());
   s_hWorldSpace = EZ_REGISTER_ACTION_1("Gizmo.TransformSpace", ezActionScope::Document, "Gizmo", "", ezTransformGizmoAction,
     ezTransformGizmoAction::ActionType::GizmoToggleWorldSpace);
-  s_hMoveParentOnly = EZ_REGISTER_ACTION_1("Gizmo.MoveParentOnly", ezActionScope::Document, "Gizmo", "P", ezTransformGizmoAction,
+  s_hMoveParentOnly = EZ_REGISTER_ACTION_1("Gizmo.MoveParentOnly", ezActionScope::Document, "Gizmo", "", ezTransformGizmoAction,
     ezTransformGizmoAction::ActionType::GizmoToggleMoveParentOnly);
   s_SnapSettings = EZ_REGISTER_ACTION_1("Gizmo.SnapSettings", ezActionScope::Document, "Gizmo", "", ezTransformGizmoAction,
     ezTransformGizmoAction::ActionType::GizmoSnapSettings);
@@ -261,10 +261,10 @@ ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnapObjectsToGrid;
 void ezTranslateGizmoAction::RegisterActions()
 {
   s_hSnappingValueMenu = EZ_REGISTER_CATEGORY("Gizmo.Translate.Snap.Menu");
-  s_hSnapPivotToGrid = EZ_REGISTER_ACTION_1("Gizmo.Translate.Snap.PivotToGrid", ezActionScope::Document, "Gizmo - Position Snap", "Ctrl+G",
+  s_hSnapPivotToGrid = EZ_REGISTER_ACTION_1("Gizmo.Translate.Snap.PivotToGrid", ezActionScope::Document, "Gizmo - Position Snap", "Ctrl+End",
     ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SnapSelectionPivotToGrid);
   s_hSnapObjectsToGrid =
-    EZ_REGISTER_ACTION_1("Gizmo.Translate.Snap.ObjectsToGrid", ezActionScope::Document, "Gizmo - Position Snap", "Shift+G",
+    EZ_REGISTER_ACTION_1("Gizmo.Translate.Snap.ObjectsToGrid", ezActionScope::Document, "Gizmo - Position Snap", "",
       ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SnapEachSelectedObjectToGrid);
 }
 

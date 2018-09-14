@@ -24,7 +24,7 @@ void ezParticleActions::RegisterActions()
                                         ezParticleAction::ActionType::PauseEffect);
   s_hRestartEffect = EZ_REGISTER_ACTION_1("PFX.Restart", ezActionScope::Document, "Particles", "F5", ezParticleAction,
                                           ezParticleAction::ActionType::RestartEffect);
-  s_hAutoRestart = EZ_REGISTER_ACTION_1("PFX.AutoRestart", ezActionScope::Document, "Particles", "Ctrl+L", ezParticleAction,
+  s_hAutoRestart = EZ_REGISTER_ACTION_1("PFX.AutoRestart", ezActionScope::Document, "Particles", "", ezParticleAction,
                                         ezParticleAction::ActionType::AutoRestart);
 
   s_hSimulationSpeedMenu = EZ_REGISTER_MENU_WITH_ICON("PFX.Speed.Menu", ":/EditorPluginParticle/Icons/Speed16.png");
@@ -48,7 +48,7 @@ void ezParticleActions::RegisterActions()
                                                ezParticleAction::ActionType::SimulationSpeed, 5.0f);
   s_hSimulationSpeed[9] = EZ_REGISTER_ACTION_2("PFX.Speed.10", ezActionScope::Document, "Particles", "Ctrl+0", ezParticleAction,
                                                ezParticleAction::ActionType::SimulationSpeed, 10.0f);
-  s_hRenderVisualizers = EZ_REGISTER_ACTION_1("PFX.Render.Visualizers", ezActionScope::Document, "Particles", "Insert", ezParticleAction,
+  s_hRenderVisualizers = EZ_REGISTER_ACTION_1("PFX.Render.Visualizers", ezActionScope::Document, "Particles", "V", ezParticleAction,
                                               ezParticleAction::ActionType::RenderVisualizers);
 }
 

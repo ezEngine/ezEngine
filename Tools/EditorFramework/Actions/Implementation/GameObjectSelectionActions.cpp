@@ -32,7 +32,7 @@ void ezGameObjectSelectionActions::RegisterActions()
   s_hFocusOnSelection = EZ_REGISTER_ACTION_1("Selection.FocusSingleView", ezActionScope::Document, "Scene - Selection", "F",
                                              ezGameObjectSelectionAction, ezGameObjectSelectionAction::ActionType::FocusOnSelection);
   s_hFocusOnSelectionAllViews =
-      EZ_REGISTER_ACTION_1("Selection.FocusAllViews", ezActionScope::Document, "Scene - Selection", "Ctrl+K,Ctrl+F",
+      EZ_REGISTER_ACTION_1("Selection.FocusAllViews", ezActionScope::Document, "Scene - Selection", "Shift+F",
                            ezGameObjectSelectionAction, ezGameObjectSelectionAction::ActionType::FocusOnSelectionAllViews);
   s_hSnapCameraToObject = EZ_REGISTER_ACTION_1("Scene.Camera.SnapCameraToObject", ezActionScope::Document, "Camera", "",
                                                ezGameObjectSelectionAction, ezGameObjectSelectionAction::ActionType::SnapCameraToObject);

@@ -64,7 +64,7 @@ void ezProjectActions::RegisterActions()
   s_hDocumentCategory = EZ_REGISTER_CATEGORY("DocumentCategory");
   s_hCreateDocument = EZ_REGISTER_ACTION_1("Document.Create", ezActionScope::Global, "Project", "Ctrl+N", ezProjectAction,
                                            ezProjectAction::ButtonType::CreateDocument);
-  s_hOpenDocument = EZ_REGISTER_ACTION_1("Document.Open", ezActionScope::Global, "Project", "Ctrl+O", ezProjectAction,
+  s_hOpenDocument = EZ_REGISTER_ACTION_1("Document.Open", ezActionScope::Global, "Project", "", ezProjectAction,
                                          ezProjectAction::ButtonType::OpenDocument);
   s_hRecentDocuments = EZ_REGISTER_DYNAMIC_MENU("Project.RecentDocuments.Menu", ezRecentDocumentsMenuAction, "");
 

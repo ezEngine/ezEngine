@@ -38,10 +38,10 @@ ezActionDescriptorHandle ezSelectionActions::s_hConvertToEditorPrefab;
 
 void ezSelectionActions::RegisterActions()
 {
-  s_hGroupSelectedItems = EZ_REGISTER_ACTION_1("Selection.GroupItems", ezActionScope::Document, "Scene - Selection", "G", ezSelectionAction,
+  s_hGroupSelectedItems = EZ_REGISTER_ACTION_1("Selection.GroupItems", ezActionScope::Document, "Scene - Selection", "Ctrl+G", ezSelectionAction,
                                                ezSelectionAction::ActionType::GroupSelectedItems);
   s_hCreateEmptyChildObject =
-      EZ_REGISTER_ACTION_1("Selection.CreateEmptyChildObject", ezActionScope::Document, "Scene - Selection", "Ctrl+Shift+N",
+      EZ_REGISTER_ACTION_1("Selection.CreateEmptyChildObject", ezActionScope::Document, "Scene - Selection", "",
                            ezSelectionAction, ezSelectionAction::ActionType::CreateEmptyChildObject);
   s_hCreateEmptyObjectAtPosition =
       EZ_REGISTER_ACTION_1("Selection.CreateEmptyObjectAtPosition", ezActionScope::Document, "Scene - Selection", "Ctrl+Shift+X",
@@ -58,13 +58,13 @@ void ezSelectionActions::RegisterActions()
                                              ezSelectionAction::ActionType::DetachFromParent);
 
   s_hPrefabMenu = EZ_REGISTER_MENU_WITH_ICON("Prefabs.Menu", ":/AssetIcons/Prefab.png");
-  s_hCreatePrefab = EZ_REGISTER_ACTION_1("Prefabs.Create", ezActionScope::Document, "Prefabs", "Ctrl+P,Ctrl+C", ezSelectionAction,
+  s_hCreatePrefab = EZ_REGISTER_ACTION_1("Prefabs.Create", ezActionScope::Document, "Prefabs", "", ezSelectionAction,
                                          ezSelectionAction::ActionType::CreatePrefab);
-  s_hRevertPrefab = EZ_REGISTER_ACTION_1("Prefabs.Revert", ezActionScope::Document, "Prefabs", "Ctrl+P,Ctrl+R", ezSelectionAction,
+  s_hRevertPrefab = EZ_REGISTER_ACTION_1("Prefabs.Revert", ezActionScope::Document, "Prefabs", "", ezSelectionAction,
                                          ezSelectionAction::ActionType::RevertPrefab);
-  s_hUnlinkFromPrefab = EZ_REGISTER_ACTION_1("Prefabs.Unlink", ezActionScope::Document, "Prefabs", "Ctrl+P,Ctrl+U", ezSelectionAction,
+  s_hUnlinkFromPrefab = EZ_REGISTER_ACTION_1("Prefabs.Unlink", ezActionScope::Document, "Prefabs", "", ezSelectionAction,
                                              ezSelectionAction::ActionType::UnlinkFromPrefab);
-  s_hOpenPrefabDocument = EZ_REGISTER_ACTION_1("Prefabs.OpenDocument", ezActionScope::Document, "Prefabs", "Ctrl+P,Ctrl+O",
+  s_hOpenPrefabDocument = EZ_REGISTER_ACTION_1("Prefabs.OpenDocument", ezActionScope::Document, "Prefabs", "",
                                                ezSelectionAction, ezSelectionAction::ActionType::OpenPrefabDocument);
   s_hConvertToEnginePrefab = EZ_REGISTER_ACTION_1("Prefabs.ConvertToEngine", ezActionScope::Document, "Prefabs", "", ezSelectionAction,
                                                   ezSelectionAction::ActionType::ConvertToEnginePrefab);
