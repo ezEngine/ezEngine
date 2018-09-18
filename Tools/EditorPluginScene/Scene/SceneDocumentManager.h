@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <Foundation/Types/Status.h>
@@ -17,7 +17,7 @@ public:
   virtual ezBitflags<ezAssetDocumentFlags> GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const override;
 
 private:
-  virtual ezStatus InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument) override;
+  virtual ezStatus InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument) override;
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
   virtual ezString GetResourceTypeExtension() const override;
@@ -27,6 +27,8 @@ private:
   virtual bool GeneratesPlatformSpecificAssets() const override { return false; }
 
 private:
+  void SetupDefaultScene(ezDocument* pDocument);
+
   ezDocumentTypeDescriptor m_SceneDesc;
   ezDocumentTypeDescriptor m_PrefabDesc;
 };

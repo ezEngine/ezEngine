@@ -44,7 +44,7 @@ void ezSoundEventAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
 }
 
 ezStatus ezSoundEventAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
-                                                                  ezDocument*& out_pDocument)
+                                                                  bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezSoundEventAssetDocument(szPath);
 

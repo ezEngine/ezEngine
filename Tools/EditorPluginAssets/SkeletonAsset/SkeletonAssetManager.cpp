@@ -53,7 +53,7 @@ void ezSkeletonAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMana
   }
 }
 
-ezStatus ezSkeletonAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
+ezStatus ezSkeletonAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument,
                                                                 ezDocument*& out_pDocument)
 {
   out_pDocument = new ezSkeletonAssetDocument(szPath);

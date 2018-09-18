@@ -7,6 +7,7 @@
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/GUI/ExposedParameters.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/Object/ObjectPropertyPath.h>
 #include <EditorFramework/Preferences/QuadViewPreferences.h>
 #include <EditorPluginScene/Dialogs/DeltaTransformDlg.moc.h>
@@ -354,8 +355,12 @@ ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPicked
 
   if (!bAttachToParent && bAtPickedPosition && ctxt.m_pLastPickingResult && !ctxt.m_pLastPickingResult->m_vPickedPosition.IsNaN())
   {
+    ezVec3 position = ctxt.m_pLastPickingResult->m_vPickedPosition;
+
+    ezSnapProvider::SnapTranslation(position);
+
     ezSetObjectPropertyCommand cmdSet;
-    cmdSet.m_NewValue = ctxt.m_pLastPickingResult->m_vPickedPosition;
+    cmdSet.m_NewValue = position;
     cmdSet.m_Object = NewNode;
     cmdSet.m_sProperty = "LocalPosition";
 

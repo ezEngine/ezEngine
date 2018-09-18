@@ -219,7 +219,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
 
       {
         EZ_PROFILE("InternalCreateDocument");
-        status = InternalCreateDocument(szDocumentTypeName, sPath, out_pDocument);
+        status = InternalCreateDocument(szDocumentTypeName, sPath, bCreate, out_pDocument);
         EZ_ASSERT_DEV(status.m_Result == EZ_FAILURE || out_pDocument != nullptr,
                       "Status was success, but the document manager returned a nullptr document.");
       }

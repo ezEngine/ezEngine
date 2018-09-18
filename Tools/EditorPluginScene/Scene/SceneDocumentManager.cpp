@@ -51,13 +51,19 @@ ezBitflags<ezAssetDocumentFlags> ezSceneDocumentManager::GetAssetDocumentTypeFla
   }
 }
 
-ezStatus ezSceneDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)
+ezStatus ezSceneDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument,
+                                                        ezDocument*& out_pDocument)
 {
   ezStatus status;
 
   if (ezStringUtils::IsEqual(szDocumentTypeName, "Scene"))
   {
     out_pDocument = new ezSceneDocument(szPath, false);
+
+    if (bCreateNewDocument)
+    {
+      SetupDefaultScene(out_pDocument);
+    }
   }
   else if (ezStringUtils::IsEqual(szDocumentTypeName, "Prefab"))
   {
@@ -92,4 +98,133 @@ void ezSceneDocumentManager::QuerySupportedAssetTypes(ezSet<ezString>& inout_Ass
 {
   inout_AssetTypeNames.Insert("Scene");
   inout_AssetTypeNames.Insert("Prefab");
+}
+
+void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
+{
+  auto history = pDocument->GetCommandHistory();
+  history->StartTransaction("Initial Scene Setup");
+
+  ezUuid skyObjectGuid;
+  skyObjectGuid.CreateNewUuid();
+  ezUuid lightObjectGuid;
+  lightObjectGuid.CreateNewUuid();
+  ezUuid meshObjectGuid;
+  meshObjectGuid.CreateNewUuid();
+
+  {
+    ezAddObjectCommand cmd;
+    cmd.m_Index = -1;
+    cmd.SetType("ezGameObject");
+    cmd.m_NewObjectGuid = meshObjectGuid;
+    cmd.m_sParentProperty = "Children";
+    EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+
+    {
+      ezSetObjectPropertyCommand propCmd;
+      propCmd.m_Object = cmd.m_NewObjectGuid;
+      propCmd.m_sProperty = "LocalPosition";
+      propCmd.m_NewValue = ezVec3(0, 0, -0.5f);
+      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+    }
+  }
+
+  {
+    ezAddObjectCommand cmd;
+    cmd.m_Index = -1;
+    cmd.SetType("ezGameObject");
+    cmd.m_NewObjectGuid = skyObjectGuid;
+    cmd.m_sParentProperty = "Children";
+    EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+
+    {
+      ezSetObjectPropertyCommand propCmd;
+      propCmd.m_Object = cmd.m_NewObjectGuid;
+      propCmd.m_sProperty = "LocalPosition";
+      propCmd.m_NewValue = ezVec3(0, 0, 1);
+      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+    }
+  }
+
+  {
+    ezAddObjectCommand cmd;
+    cmd.m_Index = -1;
+    cmd.SetType("ezGameObject");
+    cmd.m_NewObjectGuid = lightObjectGuid;
+    cmd.m_sParentProperty = "Children";
+    EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+
+    {
+      ezSetObjectPropertyCommand propCmd;
+      propCmd.m_Object = cmd.m_NewObjectGuid;
+      propCmd.m_sProperty = "LocalPosition";
+      propCmd.m_NewValue = ezVec3(0, 0, 2);
+      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+    }
+
+    {
+      ezQuat qRot;
+      qRot.SetFromEulerAngles(ezAngle::Degree(0), ezAngle::Degree(55), ezAngle::Degree(90));
+
+      ezSetObjectPropertyCommand propCmd;
+      propCmd.m_Object = cmd.m_NewObjectGuid;
+      propCmd.m_sProperty = "LocalRotation";
+      propCmd.m_NewValue = qRot;
+      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+    }
+  }
+
+  {
+    ezAddObjectCommand cmd;
+    cmd.m_Index = -1;
+    cmd.SetType("ezSkyBoxComponent");
+    cmd.m_Parent = skyObjectGuid;
+    cmd.m_sParentProperty = "Components";
+    EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+
+    {
+      ezSetObjectPropertyCommand propCmd;
+      propCmd.m_Object = cmd.m_NewObjectGuid;
+      propCmd.m_sProperty = "CubeMap";
+      propCmd.m_NewValue = "{ a7548097-903a-292a-e37c-080a6ef6158c }"; // TODO: add a proper neutral sky box in the Base data-dir
+      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+    }
+  }
+
+  {
+    ezAddObjectCommand cmd;
+    cmd.m_Index = -1;
+    cmd.SetType("ezAmbientLightComponent");
+    cmd.m_Parent = lightObjectGuid;
+    cmd.m_sParentProperty = "Components";
+    EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+  }
+
+  {
+    ezAddObjectCommand cmd;
+    cmd.m_Index = -1;
+    cmd.SetType("ezDirectionalLightComponent");
+    cmd.m_Parent = lightObjectGuid;
+    cmd.m_sParentProperty = "Components";
+    EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+  }
+
+  {
+    ezAddObjectCommand cmd;
+    cmd.m_Index = -1;
+    cmd.SetType("ezMeshComponent");
+    cmd.m_Parent = meshObjectGuid;
+    cmd.m_sParentProperty = "Components";
+    EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+
+    {
+      ezSetObjectPropertyCommand propCmd;
+      propCmd.m_Object = cmd.m_NewObjectGuid;
+      propCmd.m_sProperty = "Mesh";
+      propCmd.m_NewValue = "{ 87012036-2712-42af-80ba-c0fd29d5a480 }";
+      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+    }
+  }
+
+  history->FinishTransaction();
 }

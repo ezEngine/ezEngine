@@ -100,7 +100,7 @@ void ezMaterialAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMana
   }
 }
 
-ezStatus ezMaterialAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
+ezStatus ezMaterialAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument,
                                                                 ezDocument*& out_pDocument)
 {
   out_pDocument = new ezMaterialAssetDocument(szPath);

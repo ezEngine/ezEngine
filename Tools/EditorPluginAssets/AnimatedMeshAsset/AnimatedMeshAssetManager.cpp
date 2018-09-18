@@ -53,7 +53,7 @@ void ezAnimatedMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
 }
 
 ezStatus ezAnimatedMeshAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
-                                                                    ezDocument*& out_pDocument)
+                                                                    bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezAnimatedMeshAssetDocument(szPath);
 

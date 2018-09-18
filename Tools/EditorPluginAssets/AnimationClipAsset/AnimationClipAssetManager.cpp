@@ -54,7 +54,7 @@ void ezAnimationClipAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
 }
 
 ezStatus ezAnimationClipAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
-                                                                     ezDocument*& out_pDocument)
+                                                                     bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezAnimationClipAssetDocument(szPath);
 

@@ -53,7 +53,7 @@ void ezRenderPipelineAssetManager::OnDocumentManagerEvent(const ezDocumentManage
   }
 }
 
-ezStatus ezRenderPipelineAssetManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
+ezStatus ezRenderPipelineAssetManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument,
                                                               ezDocument*& out_pDocument)
 {
   out_pDocument = new ezRenderPipelineAssetDocument(szPath);
