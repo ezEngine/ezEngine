@@ -7,8 +7,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectContextPreferencesUser, 1, ezRTTIDef
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ContextDocument", m_ContextDocument),
-    EZ_MEMBER_PROPERTY("ContextObject", m_ContextObject),
+    EZ_MEMBER_PROPERTY("ContextDocument", m_ContextDocument)->AddAttributes(new ezHiddenAttribute),
+    EZ_MEMBER_PROPERTY("ContextObject", m_ContextObject)->AddAttributes(new ezHiddenAttribute),
   }
   EZ_END_PROPERTIES;
 }

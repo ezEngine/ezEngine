@@ -11,9 +11,10 @@ class EZ_EDITORFRAMEWORK_DLL ezEditorPreferencesUser : public ezPreferences
 public:
   ezEditorPreferencesUser();
 
-  float m_fPerspectiveFieldOfView;
-  float m_fGizmoScale;
-  bool m_bUsePrecompiledTools;
-  bool m_bLoadLastProjectAtStartup;
+  float m_fPerspectiveFieldOfView = 70.0f;
+  float m_fGizmoScale = 1.0f;
+  bool m_bUsePrecompiledTools = true;
+  bool m_bLoadLastProjectAtStartup = true;
+  bool m_bExpandSceneTreeOnSelection = true;
 };
 

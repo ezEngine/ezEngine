@@ -56,7 +56,7 @@ ezPreferences* ezPreferences::QueryPreferences(const ezRTTI* pRtti, const ezDocu
   }
   else
   {
-    EZ_ASSERT_DEV(pDocument == nullptr, "Preferences of this type can not be used with a document");
+    EZ_ASSERT_DEV(pDocument == nullptr, "Preferences of this type cannot be used with a document");
   }
 
   pPref->Load();

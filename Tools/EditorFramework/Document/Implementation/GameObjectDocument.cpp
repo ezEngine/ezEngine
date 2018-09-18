@@ -9,6 +9,7 @@
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectMetaData, 1, ezRTTINoAllocator)
@@ -735,6 +736,13 @@ void ezGameObjectDocument::ObjectEventHandler(const ezDocumentObjectEvent& e)
 void ezGameObjectDocument::SelectionManagerEventHandler(const ezSelectionManagerEvent& e)
 {
   ScheduleSendObjectSelection();
+
+  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+
+  if (pPreferences->m_bExpandSceneTreeOnSelection)
+  {
+    TriggerShowSelectionInScenegraph();
+  }
 }
 
 void ezGameObjectDocument::SendObjectSelection()
