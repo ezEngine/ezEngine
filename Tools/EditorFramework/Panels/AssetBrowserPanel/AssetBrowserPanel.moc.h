@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Foundation/Basics.h>
 #include <EditorFramework/Plugin.h>
+#include <Foundation/Basics.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 #include <Tools/EditorFramework/ui_AssetBrowserPanel.h>
 
@@ -21,13 +21,18 @@ public:
   ezQtAssetBrowserPanel();
   ~ezQtAssetBrowserPanel();
 
+  const ezUuid& GetLastSelectedAsset() const { return m_LastSelected; }
+
 private slots:
   void SlotAssetChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute);
+  void SlotAssetSelected(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute);
+  void SlotAssetCleared();
 
 private:
   void AssetCuratorEvents(const ezAssetCuratorEvent& e);
   void ProjectEvents(const ezToolsProjectEvent& e);
 
+  ezUuid m_LastSelected;
   QStatusBar* m_pStatusBar;
   ezQtCuratorControl* m_pCuratorControl;
 };

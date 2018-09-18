@@ -3,6 +3,7 @@
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorPluginScene/DragDropHandlers/MaterialDragDropHandler.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
+#include <GameEngine/Components/GreyBoxComponent.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
@@ -44,7 +45,7 @@ void ezMaterialDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
 
   const ezDocumentObject* pComponent = m_pDocument->GetObjectManager()->GetObject(pInfo->m_TargetComponent);
 
-  if (!pComponent || !pComponent->GetTypeAccessor().GetType()->IsDerivedFrom<ezMeshComponent>())
+  if (!pComponent)
     return;
 
   if (m_AppliedToComponent == pInfo->m_TargetComponent && m_uiAppliedToSlot == pInfo->m_iTargetObjectSubID)
@@ -53,15 +54,30 @@ void ezMaterialDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
   m_AppliedToComponent = pInfo->m_TargetComponent;
   m_uiAppliedToSlot = pInfo->m_iTargetObjectSubID;
 
-  ezResizeAndSetObjectPropertyCommand cmd;
-  cmd.m_Object = pInfo->m_TargetComponent;
-  cmd.m_Index = pInfo->m_iTargetObjectSubID;
-  cmd.m_sProperty = "Materials";
-  cmd.m_NewValue = GetAssetGuidString(pInfo);
+  if (pComponent->GetTypeAccessor().GetType()->IsDerivedFrom<ezMeshComponent>())
+  {
+    ezResizeAndSetObjectPropertyCommand cmd;
+    cmd.m_Object = pInfo->m_TargetComponent;
+    cmd.m_Index = pInfo->m_iTargetObjectSubID;
+    cmd.m_sProperty = "Materials";
+    cmd.m_NewValue = GetAssetGuidString(pInfo);
 
-  m_pDocument->GetCommandHistory()->StartTransaction("Assign Material");
-  m_pDocument->GetCommandHistory()->AddCommand(cmd);
-  m_pDocument->GetCommandHistory()->FinishTransaction();
+    m_pDocument->GetCommandHistory()->StartTransaction("Assign Material");
+    m_pDocument->GetCommandHistory()->AddCommand(cmd);
+    m_pDocument->GetCommandHistory()->FinishTransaction();
+  }
+
+  if (pComponent->GetTypeAccessor().GetType()->IsDerivedFrom<ezGreyBoxComponent>())
+  {
+    ezSetObjectPropertyCommand cmd;
+    cmd.m_Object = pInfo->m_TargetComponent;
+    cmd.m_sProperty = "Material";
+    cmd.m_NewValue = GetAssetGuidString(pInfo);
+
+    m_pDocument->GetCommandHistory()->StartTransaction("Assign Material");
+    m_pDocument->GetCommandHistory()->AddCommand(cmd);
+    m_pDocument->GetCommandHistory()->FinishTransaction();
+  }
 }
 
 void ezMaterialDragDropHandler::OnDragCancel()
@@ -75,7 +91,8 @@ void ezMaterialDragDropHandler::OnDrop(const ezDragDropInfo* pInfo)
   {
     const ezDocumentObject* pComponent = m_pDocument->GetObjectManager()->GetObject(pInfo->m_TargetComponent);
 
-    if (pComponent && pComponent->GetTypeAccessor().GetType()->IsDerivedFrom<ezMeshComponent>())
+    if (pComponent && (pComponent->GetTypeAccessor().GetType()->IsDerivedFrom<ezMeshComponent>() ||
+                       pComponent->GetTypeAccessor().GetType()->IsDerivedFrom<ezGreyBoxComponent>()))
     {
       m_pDocument->GetCommandHistory()->FinishTemporaryCommands();
       return;

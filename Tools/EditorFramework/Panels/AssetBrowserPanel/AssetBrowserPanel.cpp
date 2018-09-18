@@ -29,6 +29,10 @@ ezQtAssetBrowserPanel::ezQtAssetBrowserPanel()
 
   EZ_VERIFY(connect(AssetBrowserWidget, &ezQtAssetBrowserWidget::ItemChosen, this, &ezQtAssetBrowserPanel::SlotAssetChosen) != nullptr,
             "signal/slot connection failed");
+  EZ_VERIFY(connect(AssetBrowserWidget, &ezQtAssetBrowserWidget::ItemSelected, this, &ezQtAssetBrowserPanel::SlotAssetSelected) != nullptr,
+            "signal/slot connection failed");
+  EZ_VERIFY(connect(AssetBrowserWidget, &ezQtAssetBrowserWidget::ItemCleared, this, &ezQtAssetBrowserPanel::SlotAssetCleared) != nullptr,
+            "signal/slot connection failed");
 
   AssetBrowserWidget->RestoreState("AssetBrowserPanel2");
 }
@@ -41,4 +45,14 @@ ezQtAssetBrowserPanel::~ezQtAssetBrowserPanel()
 void ezQtAssetBrowserPanel::SlotAssetChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute)
 {
   ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sAssetPathAbsolute.toUtf8().data());
+}
+
+void ezQtAssetBrowserPanel::SlotAssetSelected(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute)
+{
+  m_LastSelected = guid;
+}
+
+void ezQtAssetBrowserPanel::SlotAssetCleared()
+{
+  m_LastSelected.SetInvalid();
 }

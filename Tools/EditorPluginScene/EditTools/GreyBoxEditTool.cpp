@@ -1,8 +1,10 @@
 #include <PCH.h>
 
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
+#include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
 #include <EditorFramework/Preferences/ScenePreferences.h>
 #include <EditorPluginScene/EditTools/GreyBoxEditTool.h>
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
@@ -139,6 +141,23 @@ void ezGreyBoxEditTool::GizmoEventHandler(const ezGizmoEvent& e)
     auto* pDoc = GetDocument();
     auto* pHistory = pDoc->GetCommandHistory();
 
+    ezUuid materialGuid;
+
+    // check if there is a material asset currently selected in the asset browser
+    // if so, assign that material to the greybox component
+    {
+      const ezUuid lastSelected = ezQtAssetBrowserPanel::GetSingleton()->GetLastSelectedAsset();
+
+      if (lastSelected.IsValid())
+      {
+        const auto pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(lastSelected);
+        if (pSubAsset && ezStringUtils::IsEqual(pSubAsset->m_pAssetInfo->m_Info->GetAssetTypeName(), "Material"))
+        {
+          materialGuid = lastSelected;
+        }
+      }
+    }
+
     pHistory->StartTransaction("Add Grey-Box");
 
     ezUuid objGuid, compGuid;
@@ -168,7 +187,15 @@ void ezGreyBoxEditTool::GizmoEventHandler(const ezGizmoEvent& e)
       cmdComp.m_Index = -1;
       pHistory->AddCommand(cmdComp);
     }
-
+    if (materialGuid.IsValid())
+    {
+      ezStringBuilder tmp;
+      ezSetObjectPropertyCommand cmdMat;
+      cmdMat.m_NewValue = ezConversionUtils::ToString(materialGuid, tmp).GetData();
+      cmdMat.m_Object = compGuid;
+      cmdMat.m_sProperty = "Material";
+      pHistory->AddCommand(cmdMat);
+    }
     {
       ezSetObjectPropertyCommand cmdSize;
       cmdSize.m_Object = compGuid;
