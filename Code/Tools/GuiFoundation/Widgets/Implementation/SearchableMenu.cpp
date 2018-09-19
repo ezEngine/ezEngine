@@ -143,7 +143,7 @@ bool ezQtSearchableMenu::eventFilter(QObject* pObject, QEvent* event)
   return false;
 }
 
-void ezQtSearchableMenu::AddItem(const char* szName, const QVariant& variant)
+void ezQtSearchableMenu::AddItem(const char* szName, const QVariant& variant, QIcon icon)
 {
   QStandardItem* pParent = m_pItemModel->invisibleRootItem();
 
@@ -161,6 +161,7 @@ void ezQtSearchableMenu::AddItem(const char* szName, const QVariant& variant)
   QStandardItem* pThisItem = new QStandardItem(szName);
   pThisItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
   pThisItem->setData(variant, Qt::UserRole + 1);
+  pThisItem->setIcon(icon);
 
   pParent->appendRow(pThisItem);
 }
@@ -222,4 +223,6 @@ void ezQtSearchableMenu::OnSearchChanged(const QString& text)
     SelectFirstLeaf(QModelIndex());
     m_pTreeView->expandAll();
   }
+
+  emit SearchTextChanged(text);
 }

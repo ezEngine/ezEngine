@@ -4,11 +4,14 @@
 #include <GuiFoundation/PropertyGrid/Implementation/AddSubElementButton.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <GuiFoundation/Widgets/SearchableMenu.moc.h>
 #include <QHBoxLayout>
 #include <QInputDialog>
 #include <QMenu>
 #include <QPushButton>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
+
+ezString ezQtAddSubElementButton::s_sLastMenuSearch;
 
 ezQtAddSubElementButton::ezQtAddSubElementButton()
     : ezQtPropertyWidget()
@@ -194,40 +197,81 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
     }
     supportedTypes.Sort(TypeComparer());
 
+    if (!m_bPreventDuplicates && supportedTypes.GetCount() > 10)
+    {
+      // only show a searchable menu when it makes some sense
+      // also deactivating entries to prevent duplicates is currently not supported by the searchable menu
+      m_pSearchableMenu = new ezQtSearchableMenu(m_pMenu);
+    }
+
     ezStringBuilder sIconName;
     ezStringBuilder sCategory = "";
 
     ezMap<ezString, QMenu*> existingMenus;
 
-    // first round: create all sub menus
-    for (const ezRTTI* pRtti : supportedTypes)
+    if (m_pSearchableMenu == nullptr)
     {
-      // Determine current menu
-      const ezCategoryAttribute* pCatA = pRtti->GetAttributeByType<ezCategoryAttribute>();
-
-      if (pCatA)
+      // first round: create all sub menus
+      for (const ezRTTI* pRtti : supportedTypes)
       {
-        CreateCategoryMenu(pCatA->GetCategory(), existingMenus);
+        // Determine current menu
+        const ezCategoryAttribute* pCatA = pRtti->GetAttributeByType<ezCategoryAttribute>();
+
+        if (pCatA)
+        {
+          CreateCategoryMenu(pCatA->GetCategory(), existingMenus);
+        }
       }
     }
 
     // second round: create the actions
     for (const ezRTTI* pRtti : supportedTypes)
     {
+      sIconName.Set(":/TypeIcons/", pRtti->GetTypeName());
+      const QIcon actionIcon = ezQtUiServices::GetCachedIconResource(sIconName.GetData());
+
       // Determine current menu
       const ezCategoryAttribute* pCatA = pRtti->GetAttributeByType<ezCategoryAttribute>();
 
-      QMenu* pCat = CreateCategoryMenu(pCatA ? pCatA->GetCategory() : nullptr, existingMenus);
+      if (m_pSearchableMenu != nullptr)
+      {
+        ezStringBuilder fullName;
+        fullName = pCatA ? pCatA->GetCategory() : "";
+        fullName.AppendPath(ezTranslate(pRtti->GetTypeName()));
 
-      // Add type action to current menu
-      QAction* pAction = new QAction(QString::fromUtf8(ezTranslate(pRtti->GetTypeName())), m_pMenu);
-      pAction->setProperty("type", qVariantFromValue((void*)pRtti));
-      EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnMenuAction())) != nullptr, "connection failed");
+        m_pSearchableMenu->AddItem(fullName, qVariantFromValue((void*)pRtti), actionIcon);
+      }
+      else
+      {
+        QMenu* pCat = CreateCategoryMenu(pCatA ? pCatA->GetCategory() : nullptr, existingMenus);
 
-      sIconName.Set(":/TypeIcons/", pRtti->GetTypeName());
-      pAction->setIcon(ezQtUiServices::GetCachedIconResource(sIconName.GetData()));
+        // Add type action to current menu
+        QAction* pAction = new QAction(QString::fromUtf8(ezTranslate(pRtti->GetTypeName())), m_pMenu);
+        pAction->setProperty("type", qVariantFromValue((void*)pRtti));
+        EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnMenuAction())) != nullptr, "connection failed");
 
-      pCat->addAction(pAction);
+        pAction->setIcon(actionIcon);
+
+        pCat->addAction(pAction);
+      }
+    }
+
+    if (m_pSearchableMenu != nullptr)
+    {
+      connect(m_pSearchableMenu, &ezQtSearchableMenu::MenuItemTriggered, m_pMenu, [this](const QString& sName, const QVariant& variant) {
+        const ezRTTI* pRtti = static_cast<const ezRTTI*>(variant.value<void*>());
+
+        OnAction(pRtti);
+        m_pMenu->close();
+      });
+
+      connect(m_pSearchableMenu, &ezQtSearchableMenu::SearchTextChanged, m_pMenu,
+              [this](const QString& text) { s_sLastMenuSearch = text.toUtf8().data(); });
+
+      m_pMenu->addAction(m_pSearchableMenu);
+
+      // important to do this last to make sure the search bar gets focus
+      m_pSearchableMenu->Finalize(s_sLastMenuSearch.GetData());
     }
   }
 
