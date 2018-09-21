@@ -227,7 +227,7 @@ void ezMemoryTracker::RemoveAllocation(ezAllocatorId allocatorId, const void* pt
   if (data.m_Allocations.Remove(ptr, &info))
   {
     data.m_Stats.m_uiNumDeallocations++;
-    data.m_Stats.m_uiAllocationSize -= (ezUInt64)info.m_uiSize;
+    data.m_Stats.m_uiAllocationSize -= info.m_uiSize;
 
     EZ_DELETE_ARRAY(s_pTrackerDataAllocator, info.GetStackTrace());
   }
@@ -325,7 +325,7 @@ void ezMemoryTracker::DumpMemoryLeaks()
     {
       LeakInfo leak;
       leak.m_AllocatorId = it.Id();
-      leak.m_uiSize = (size_t)it2.Value().m_uiSize;
+      leak.m_uiSize = it2.Value().m_uiSize;
       leak.m_pParentLeak = nullptr;
 
       leakTable.Insert(it2.Key(), leak);
