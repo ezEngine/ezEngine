@@ -68,6 +68,8 @@ void ezParticleEmitterFactory_Continuous::QueryMaxParticleCount(ezUInt32& out_ui
 {
   out_uiMaxParticlesAbs = 0;
   out_uiMaxParticlesPerSecond = m_uiSpawnCountPerSec + (m_uiSpawnCountPerSecRange * 3 / 4); // don't be too pessimistic
+
+  // TODO: consider to scale by m_sSpawnCountScaleParameter
 }
 
 enum class EmitterContinuousVersion

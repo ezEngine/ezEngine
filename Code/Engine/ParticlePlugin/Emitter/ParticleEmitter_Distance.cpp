@@ -50,6 +50,8 @@ void ezParticleEmitterFactory_Distance::QueryMaxParticleCount(ezUInt32& out_uiMa
 {
   out_uiMaxParticlesAbs = 0;
   out_uiMaxParticlesPerSecond = (m_uiSpawnCountMin + m_uiSpawnCountRange) * 10; // assume that this won't fire more than 10 times per second
+
+  // TODO: consider to scale by m_sSpawnCountScaleParameter
 }
 
 enum class EmitterDistanceVersion

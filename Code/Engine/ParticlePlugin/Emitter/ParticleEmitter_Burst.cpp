@@ -59,6 +59,8 @@ void ezParticleEmitterFactory_Burst::QueryMaxParticleCount(ezUInt32& out_uiMaxPa
 {
   out_uiMaxParticlesAbs = m_uiSpawnCountMin + m_uiSpawnCountRange;
   out_uiMaxParticlesPerSecond = 0;
+
+  // TODO: consider to scale by m_sSpawnCountScaleParameter
 }
 
 enum class EmitterBurstVersion
