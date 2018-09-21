@@ -54,7 +54,7 @@ namespace DynamicArrayTestDetail
 
     return a;
   }
-}
+} // namespace DynamicArrayTestDetail
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
 EZ_CHECK_AT_COMPILETIME(sizeof(ezDynamicArray<ezInt32>) == 24);
@@ -870,4 +870,35 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST_BOOL(a1.GetArrayPtr() == ezMakeArrayPtr(content2));
     EZ_TEST_BOOL(a2.GetArrayPtr() == ezMakeArrayPtr(content1));
   }
+
+#if EZ_ENABLED(EZ_PLATFORM_64BIT)
+
+  EZ_TEST_BLOCK(ezTestBlock::Disabled, "Large Allocation")
+  {
+    const ezUInt32 uiMaxNumElements = 0xFFFFFFFF - 16; // max supported elements due to alignment restrictions
+
+    // this will allocate about 16 GB memory, the pure allocation is really fast
+    ezDynamicArray<ezUInt32> byteArray;
+    byteArray.SetCountUninitialized(uiMaxNumElements);
+
+    const ezUInt32 uiCheckElements = byteArray.GetCount();
+    const ezUInt32 uiSkipElements = 1024;
+
+    // this will touch the memory and thus enforce that it is indeed made available by the OS
+    // this takes a while
+    for (ezUInt64 i = 0; i < uiCheckElements; i += uiSkipElements)
+    {
+      const ezUInt32 idx = i & 0xFFFFFFFF;
+      byteArray[idx] = idx;
+    }
+
+    // check that the assigned values are all correct
+    // again, this takes quite a while
+    for (ezUInt64 i = 0; i < uiCheckElements; i += uiSkipElements)
+    {
+      const ezUInt32 idx = i & 0xFFFFFFFF;
+      EZ_TEST_INT(byteArray[idx], idx);
+    }
+  }
+#endif
 }

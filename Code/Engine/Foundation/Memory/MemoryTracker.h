@@ -52,7 +52,7 @@ public:
     }
 
     void** m_pStackTrace;
-    ezUInt32 m_uiSize;
+    ezUInt64 m_uiSize;
     ezUInt16 m_uiAlignment;
     ezUInt16 m_uiStackTraceLength;
 

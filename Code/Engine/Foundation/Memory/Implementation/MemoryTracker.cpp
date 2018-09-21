@@ -198,9 +198,9 @@ void ezMemoryTracker::AddAllocation(ezAllocatorId allocatorId, const void* ptr, 
   data.m_Stats.m_uiAllocationSize += uiSize;
 
   AllocationInfo info;
-  EZ_ASSERT_DEV(uiSize < 0xFFFFFFFF, "Allocation size too big");
+  //EZ_ASSERT_DEV(uiSize < 0xFFFFFFFF, "Allocation size too big");
   EZ_ASSERT_DEV(uiAlign < 0xFFFF, "Alignment too big");
-  info.m_uiSize = (ezUInt32)uiSize;
+  info.m_uiSize = uiSize;
   info.m_uiAlignment = (ezUInt16)uiAlign;
 
   if (data.m_Flags.IsSet(ezMemoryTrackingFlags::EnableStackTrace))
@@ -246,7 +246,7 @@ void ezMemoryTracker::RemoveAllAllocations(ezAllocatorId allocatorId)
   {
     auto& info = it.Value();
     data.m_Stats.m_uiNumDeallocations++;
-    data.m_Stats.m_uiAllocationSize -= (ezUInt64)info.m_uiSize;
+    data.m_Stats.m_uiAllocationSize -= info.m_uiSize;
 
     EZ_DELETE_ARRAY(s_pTrackerDataAllocator, info.GetStackTrace());
   }
@@ -325,7 +325,7 @@ void ezMemoryTracker::DumpMemoryLeaks()
     {
       LeakInfo leak;
       leak.m_AllocatorId = it.Id();
-      leak.m_uiSize = it2.Value().m_uiSize;
+      leak.m_uiSize = (size_t)it2.Value().m_uiSize;
       leak.m_pParentLeak = nullptr;
 
       leakTable.Insert(it2.Key(), leak);
