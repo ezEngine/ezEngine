@@ -1,21 +1,22 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
-#include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
-#include <ToolsFoundation/Basics/RecentFilesList.h>
-#include <EditorFramework/IPC/EngineProcessConnection.h>
-#include <Foundation/Containers/Set.h>
-#include <Foundation/Strings/String.h>
-#include <Foundation/Communication/Event.h>
-#include <QApplication>
-#include <Foundation/Logging/HTMLWriter.h>
 #include <Core/Application/Config/FileSystemConfig.h>
 #include <Core/Application/Config/PluginConfig.h>
-#include <Foundation/Types/UniquePtr.h>
 #include <EditorFramework/EditorApp/Configuration/Plugins.h>
-#include <Foundation/Configuration/Singleton.h>
+#include <EditorFramework/EditorApp/WhatsNew.h>
+#include <EditorFramework/IPC/EngineProcessConnection.h>
+#include <EditorFramework/Plugin.h>
 #include <EditorFramework/TestFramework/EditorTests.h>
+#include <Foundation/Communication/Event.h>
+#include <Foundation/Configuration/Singleton.h>
+#include <Foundation/Containers/Set.h>
+#include <Foundation/Logging/HTMLWriter.h>
+#include <Foundation/Strings/String.h>
+#include <Foundation/Types/UniquePtr.h>
+#include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
+#include <QApplication>
+#include <ToolsFoundation/Basics/RecentFilesList.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 
 class QMainWindow;
 class QWidget;
@@ -29,8 +30,9 @@ struct EZ_EDITORFRAMEWORK_DLL ezEditorAppEvent
 {
   enum class Type
   {
-    BeforeApplyDataDirectories, ///< Sent after data directory config was loaded, but before it is applied. Allows to add custom dependencies at the right moment.
-    ReloadResources, ///< Sent when 'ReloadResources' has been triggered (and a message was sent to the engine)
+    BeforeApplyDataDirectories, ///< Sent after data directory config was loaded, but before it is applied. Allows to add custom
+                                ///< dependencies at the right moment.
+    ReloadResources,            ///< Sent when 'ReloadResources' has been triggered (and a message was sent to the engine)
   };
 
   Type m_Type;
@@ -52,18 +54,21 @@ public:
   // External Tools
   //
 
-  /// \brief Returns the folder in which the tools binaries can be found. If enabled in the preferences, it uses the pre-compiled tools, otherwise the currently compiled ones.
-  /// If bForceUseCustomTools is true, it always returns the folder in which custom compiled tools are stored (app binary dir)
+  /// \brief Returns the folder in which the tools binaries can be found. If enabled in the preferences, it uses the pre-compiled tools,
+  /// otherwise the currently compiled ones. If bForceUseCustomTools is true, it always returns the folder in which custom compiled tools
+  /// are stored (app binary dir)
   ezString GetExternalToolsFolder(bool bForceUseCustomTools = false);
 
-  /// \brief Searches for an external tool by calling GetExternalToolsFolder(). Falls back to the currently compiled tools, if a tool cannot be found in the precompiled folder.
+  /// \brief Searches for an external tool by calling GetExternalToolsFolder(). Falls back to the currently compiled tools, if a tool cannot
+  /// be found in the precompiled folder.
   ezString FindToolApplication(const char* szToolName);
 
   /// \brief Executes an external tool as found by FindToolApplication().
   ///
   /// The applications output is parsed and forwarded to the given log interface. A custom log level is applied first.
   /// If the tool cannot be found or it takes longer to execute than the allowed timeout, the function returns failure.
-  ezStatus ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout, ezLogInterface* pLogOutput = nullptr, ezLogMsgType::Enum LogLevel = ezLogMsgType::WarningMsg);
+  ezStatus ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout,
+                       ezLogInterface* pLogOutput = nullptr, ezLogMsgType::Enum LogLevel = ezLogMsgType::WarningMsg);
 
   /// \brief Creates the string with which to run Fileserve for the currently open project.
   ezString BuildFileserveCommandLine() const;
@@ -112,13 +117,15 @@ public:
   void LoadEditorPlugins();
   void UnloadEditorPlugins();
 
-  ezRecentFilesList& GetRecentProjectsList()   { return s_RecentProjects;  }
-  ezRecentFilesList& GetRecentDocumentsList()  { return s_RecentDocuments; }
+  ezRecentFilesList& GetRecentProjectsList() { return s_RecentProjects; }
+  ezRecentFilesList& GetRecentDocumentsList() { return s_RecentDocuments; }
 
   ezEditorEngineProcessConnection* GetEngineViewProcess() { return s_pEngineViewProcess; }
 
   void ShowSettingsDocument();
   void CloseSettingsDocument();
+
+  const ezWhatsNewText& GetWhatsNew() const { return m_WhatsNew; }
 
   void CloseProject();
   void OpenProject(const char* szProject);
@@ -135,8 +142,8 @@ public:
 
   void CreateOrOpenProject(bool bCreate, const char* szFile);
 
-  /// \brief Adds a data directory as a hard dependency to the project. Should be used by plugins to ensure their required data is available.
-  /// The path must be relative to the SdkRoot folder.
+  /// \brief Adds a data directory as a hard dependency to the project. Should be used by plugins to ensure their required data is
+  /// available. The path must be relative to the SdkRoot folder.
   void AddPluginDataDirDependency(const char* szSdkRootRelativePath, const char* szRootName = nullptr, bool bWriteable = false);
 
   const ezApplicationFileSystemConfig& GetFileSystemConfig() const { return m_FileSystemConfig; }
@@ -233,7 +240,7 @@ private:
   ezApplicationFileSystemConfig m_FileSystemConfig;
   ezApplicationPluginConfig m_EnginePluginConfig;
 
-  ezMap<ezString, ezSet<ezString> > m_AdditionalRuntimePluginDependencies;
+  ezMap<ezString, ezSet<ezString>> m_AdditionalRuntimePluginDependencies;
 
   // *** Recent Paths ***
   ezString m_sLastDocumentFolder;
@@ -244,4 +251,6 @@ private:
   ezQtProgressbar* m_pQtProgressbar;
 
   ezUniquePtr<ezEditorTests> m_TestFramework;
+
+  ezWhatsNewText m_WhatsNew;
 };

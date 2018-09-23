@@ -42,6 +42,12 @@ ezInt32 ezQtEditorApp::RunEditor()
   ezInt32 ret = s_pQtApplication->exec();
 
   ezToolsProject::CloseProject();
+
+  if (!m_bHeadless)
+  {
+    m_WhatsNew.StoreLastRead();
+  }
+
   return ret;
 }
 

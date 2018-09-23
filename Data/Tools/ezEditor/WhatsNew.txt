@@ -1,0 +1,41 @@
+<H2>September 2018</H2>
+
+<H4>Smaller Changes</H4>
+
+<ul>
+
+<li>The editor now shows a "What's New" text in the project tab.</li>
+<li>Menus in property grids are now searchable when they contain more than 10 items.</li>
+<li>New scene documents are now populated with a dummy scene.</li>
+<li>By default the scene tree is now expanded to the selected item on selection changes. This can be disabled in the editor preferences.</li>
+<li>The greyboxing tool now uses the currently selected material from the asset browser for new objects.</li>
+<li>Snap settings are now in a dialog, shortcut for the dialog is <b>End</b></li>
+
+</ul>
+
+<H4>Shortcut changes</H4>
+
+The default shortcuts have been cleaned up a bit. Important changes:
+
+<ul>
+
+<li>Toggle Grid: <b>G</b></li>
+<li>Toggle Shape Icons: <b>I</b></li>
+<li>Toggle Visualizers: <b>V</b></li>
+<li>Toggle Selection Highlights: <b>S</b></li>
+<li>Transform Asset: <b>CTRL+E</b></li>
+<li>Keep Simulation Changes: <b>K</b></li>
+<li>Group Selected Objects: <b>CTRL+G</b></li>
+<li>Snap to Grid: <b>CTRL+End</b></li>
+
+</ul>
+
+<H4>Editor Cameras</H4>
+
+It is now possible to save the current camera position in a scene to the user preferences using <b>CTRL+Number</b>. The editor camera position can be restored again using the shortcut <b>Number</b>.
+
+Additionally one can easily insert a camera object into the scene using <b>CTRL+ALT+Number</b> and move the editor camera to that position with <b>ALT+Number</b>. Since these cameras are stored within the scene, they can be used to share interesting camera positions with other users.
+
+<H4>Keep Simulation Changes</H4>
+
+Simulating the scene in the editor now allows to synchronize object positions back to the editor state. During simulation select objects and press <b>K</b> (or <i>Scene > Utilties > Keep Simulation Changes</i>). When simulation is stopped, the objects will move to the simulated position. Use <b>Undo</b> to discard all simulation changes again.

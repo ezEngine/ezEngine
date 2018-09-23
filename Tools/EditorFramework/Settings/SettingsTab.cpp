@@ -44,9 +44,6 @@ ezQtSettingsTab::ezQtSettingsTab()
   setupUi(centralWidget());
   QMetaObject::connectSlotsByName(this);
 
-  // EZ_VERIFY(connect(AssetBrowserWidget, SIGNAL(ItemChosen(QString, QString, QString)), this, SLOT(SlotAssetChosen(QString, QString,
-  // QString))) != nullptr, "signal/slot connection failed");
-
   ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
   ezActionContext context;
   context.m_sMapping = "SettingsTabMenuBar";
@@ -54,9 +51,11 @@ ezQtSettingsTab::ezQtSettingsTab()
   pMenuBar->SetActionContext(context);
 
   FinishWindowCreation();
+
+  WhatsNewText->setText(ezQtEditorApp::GetSingleton()->GetWhatsNew().GetText().GetData());
 }
 
-ezQtSettingsTab::~ezQtSettingsTab() {}
+ezQtSettingsTab::~ezQtSettingsTab() = default;
 
 bool ezQtSettingsTab::InternalCanCloseWindow()
 {
@@ -70,7 +69,3 @@ void ezQtSettingsTab::InternalCloseDocumentWindow()
   UnregisterSingleton();
 }
 
-void ezQtSettingsTab::SlotAssetChosen(QString sAssetGuid, QString sAssetPathRelative, QString sAssetPathAbsolute)
-{
-  ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sAssetPathAbsolute.toUtf8().data());
-}

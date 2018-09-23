@@ -231,29 +231,25 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
   {
     ezActionManager::LoadShortcutAssignment();
 
+    m_WhatsNew.Load(":app/WhatsNew.txt");
+
     LoadRecentFiles();
 
     CreatePanels();
+
+    ShowSettingsDocument();
   }
 
   LoadEditorPlugins();
 
   ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
-  if (!bNoRecent && pPreferences->m_bLoadLastProjectAtStartup)
+  if (!bNoRecent && pPreferences->m_bLoadLastProjectAtStartup && !m_WhatsNew.HasChanged())
   {
     // first open the project, so that the data directory list is read
     if (!s_RecentProjects.GetFileList().IsEmpty())
     {
       CreateOrOpenProject(false, s_RecentProjects.GetFileList()[0].m_File);
-    }
-  }
-
-  if (!bHeadless)
-  {
-    if (ezQtDocumentWindow::GetAllDocumentWindows().IsEmpty())
-    {
-      ShowSettingsDocument();
     }
   }
 }
