@@ -955,7 +955,7 @@ void ezSceneDocument::CreateLevelCamera(ezUInt8 uiSlot)
 
   ezMat3 mRot;
   mRot.SetColumn(0, vDir);
-  mRot.SetColumn(1, vUp.Cross(vDir).GetNormalized()); // TODO: this seems to be the wrong way (should be dir x up)
+  mRot.SetColumn(1, vUp.CrossRH(vDir).GetNormalized());
   mRot.SetColumn(2, vUp);
   ezQuat qRot;
   qRot.SetFromMat3(mRot);

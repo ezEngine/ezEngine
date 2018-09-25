@@ -344,9 +344,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 
     // Cross
     // Right-handed coordinate system check
-    EZ_TEST_BOOL(compArray[0].Cross(compArray[1]).IsEqual(compArray[2], ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
-    EZ_TEST_BOOL(compArray[1].Cross(compArray[2]).IsEqual(compArray[0], ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
-    EZ_TEST_BOOL(compArray[2].Cross(compArray[0]).IsEqual(compArray[1], ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+    EZ_TEST_BOOL(compArray[0].CrossRH(compArray[1]).IsEqual(compArray[2], ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+    EZ_TEST_BOOL(compArray[1].CrossRH(compArray[2]).IsEqual(compArray[0], ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+    EZ_TEST_BOOL(compArray[2].CrossRH(compArray[0]).IsEqual(compArray[1], ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
 
     // CompMin
     EZ_TEST_BOOL(vOp1.CompMin(vOp2).IsEqual(ezVec3T(-4.0f, -0.3f, -7.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));

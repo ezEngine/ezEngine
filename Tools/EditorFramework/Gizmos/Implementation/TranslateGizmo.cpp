@@ -247,8 +247,8 @@ ezResult ezTranslateGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPo
           .Failed())
     return EZ_FAILURE;
 
-  const ezVec3 vPlaneTangent = m_vMoveAxis.Cross(m_pCamera->GetDirForwards()).GetNormalized();
-  const ezVec3 vPlaneNormal = m_vMoveAxis.Cross(vPlaneTangent);
+  const ezVec3 vPlaneTangent = m_vMoveAxis.CrossRH(m_pCamera->GetDirForwards()).GetNormalized();
+  const ezVec3 vPlaneNormal = m_vMoveAxis.CrossRH(vPlaneTangent);
 
   ezPlane Plane;
   Plane.SetFromNormalAndPoint(vPlaneNormal, m_vStartPosition);

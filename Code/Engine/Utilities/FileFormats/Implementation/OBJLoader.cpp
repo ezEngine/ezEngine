@@ -260,7 +260,7 @@ void ezOBJLoader::ComputeTangentSpaceVectors()
     B.Normalize();
 
     face.m_vTangent = T;
-    face.m_vBiTangent = face.m_vNormal.Cross(face.m_vTangent).GetNormalized();
+    face.m_vBiTangent = face.m_vNormal.CrossRH(face.m_vTangent).GetNormalized();
   }
 }
 

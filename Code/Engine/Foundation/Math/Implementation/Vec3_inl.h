@@ -246,7 +246,7 @@ EZ_FORCE_INLINE void ezVec3Template<Type>::operator/=(Type f)
 template <typename Type>
 ezResult ezVec3Template<Type>::CalculateNormal(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3)
 {
-  *this = (v3 - v2).Cross(v1 - v2);
+  *this = (v3 - v2).CrossRH(v1 - v2);
   return NormalizeIfNotZero();
 }
 
@@ -255,8 +255,8 @@ void ezVec3Template<Type>::MakeOrthogonalTo(const ezVec3Template<Type>& vNormal)
 {
   EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "The vector to make this vector orthogonal to, must be normalized. It's length is {0}", ezArgF(vNormal.GetLength(), 3));
 
-  ezVec3Template<Type> vOrtho = vNormal.Cross(*this);
-  *this = vOrtho.Cross(vNormal);
+  ezVec3Template<Type> vOrtho = vNormal.CrossRH(*this);
+  *this = vOrtho.CrossRH(vNormal);
 }
 
 template <typename Type>
@@ -266,9 +266,9 @@ const ezVec3Template<Type> ezVec3Template<Type>::GetOrthogonalVector() const
 
   Type fDot = ezMath::Abs(this->Dot(ezVec3Template<Type>(0, 1, 0)));
   if (fDot < 0.999f)
-    return this->Cross(ezVec3Template<Type>(0, 1, 0));
+    return this->CrossRH(ezVec3Template<Type>(0, 1, 0));
 
-  return this->Cross(ezVec3Template<Type>(1, 0, 0));
+  return this->CrossRH(ezVec3Template<Type>(1, 0, 0));
 }
 
 template <typename Type>
@@ -289,7 +289,7 @@ EZ_FORCE_INLINE Type ezVec3Template<Type>::Dot(const ezVec3Template<Type>& rhs) 
 }
 
 template <typename Type>
-const ezVec3Template<Type> ezVec3Template<Type>::Cross(const ezVec3Template<Type>& rhs) const
+const ezVec3Template<Type> ezVec3Template<Type>::CrossRH(const ezVec3Template<Type>& rhs) const
 {
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);

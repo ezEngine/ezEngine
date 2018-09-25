@@ -521,7 +521,7 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::Dot<4>(const ezSimdVec4f& v) const
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Cross(const ezSimdVec4f& v) const
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CrossRH(const ezSimdVec4f& v) const
 {
   __m128 a = _mm_mul_ps(m_v, _mm_shuffle_ps(v.m_v, v.m_v, EZ_TO_SHUFFLE(ezSwizzle::YZXW)));
   __m128 b = _mm_mul_ps(v.m_v, _mm_shuffle_ps(m_v, m_v, EZ_TO_SHUFFLE(ezSwizzle::YZXW)));
@@ -533,7 +533,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Cross(const ezSimdVec4f& v) const
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetOrthogonalVector() const
 {
   // See http://blog.selfshadow.com/2011/10/17/perp-vectors/ - this is Stark's first variant, SIMDified.
-  return Cross(_mm_and_ps(m_v, _mm_cmpeq_ps(m_v, HorizontalMin<3>().m_v)));
+  return CrossRH(_mm_and_ps(m_v, _mm_cmpeq_ps(m_v, HorizontalMin<3>().m_v)));
 }
 
 // static

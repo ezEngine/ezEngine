@@ -383,7 +383,7 @@ namespace ezModelImporter
       const ezVec3 d01 = p1 - p0;
       const ezVec3 d02 = p2 - p0;
 
-      const ezVec3 triNormal = d01.Cross(d02);
+      const ezVec3 triNormal = d01.CrossRH(d02);
       normalStream.SetValue(v0, normalStream.GetValue(v0) +
                                     triNormal); // (possible optimization: have a special addValue to avoid unnecessary lookup)
       normalStream.SetValue(v1, normalStream.GetValue(v1) + triNormal);

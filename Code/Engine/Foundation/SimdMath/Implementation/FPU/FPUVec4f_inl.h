@@ -436,9 +436,9 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::Dot(const ezSimdVec4f& v) const
   return result;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Cross(const ezSimdVec4f& v) const
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CrossRH(const ezSimdVec4f& v) const
 {
-  return m_v.GetAsVec3().Cross(v.m_v.GetAsVec3()).GetAsVec4(0.0f);
+  return m_v.GetAsVec3().CrossRH(v.m_v.GetAsVec3()).GetAsVec4(0.0f);
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetOrthogonalVector() const

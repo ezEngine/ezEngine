@@ -149,7 +149,7 @@ public:
   Type Dot(const ezVec3Template& rhs) const; // [tested]
 
   /// \brief Returns the Cross-product of the two vectors (NOT commutative, order DOES matter)
-  const ezVec3Template Cross(const ezVec3Template& rhs) const; // [tested]
+  const ezVec3Template CrossRH(const ezVec3Template& rhs) const; // [tested]
 
   /// \brief Returns the component-wise minimum of *this and rhs
   const ezVec3Template CompMin(const ezVec3Template& rhs) const; // [tested]

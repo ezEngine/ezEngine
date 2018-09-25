@@ -312,8 +312,8 @@ ezResult ezNonUniformBoxGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScre
   if (ezMath::Abs(vDir.Dot(m_vMoveAxis)) > 0.999f)
     return EZ_FAILURE;
 
-  const ezVec3 vPlaneTangent = m_vMoveAxis.Cross(vDir).GetNormalized();
-  const ezVec3 vPlaneNormal = m_vMoveAxis.Cross(vPlaneTangent);
+  const ezVec3 vPlaneTangent = m_vMoveAxis.CrossRH(vDir).GetNormalized();
+  const ezVec3 vPlaneNormal = m_vMoveAxis.CrossRH(vPlaneTangent);
 
   ezPlane Plane;
   Plane.SetFromNormalAndPoint(vPlaneNormal, m_vStartPosition);

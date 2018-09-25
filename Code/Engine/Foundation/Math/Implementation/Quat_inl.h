@@ -90,8 +90,8 @@ EZ_FORCE_INLINE const ezQuatTemplate<Type> ezQuatTemplate<Type>::operator-() con
 template <typename Type>
 EZ_ALWAYS_INLINE const ezVec3Template<Type> operator*(const ezQuatTemplate<Type>& q, const ezVec3Template<Type>& v)
 {
-  ezVec3Template<Type> t = q.v.Cross(v) * (Type)2;
-  return v + q.w * t + q.v.Cross(t);
+  ezVec3Template<Type> t = q.v.CrossRH(v) * (Type)2;
+  return v + q.w * t + q.v.CrossRH(t);
 }
 
 template <typename Type>
@@ -100,7 +100,7 @@ EZ_ALWAYS_INLINE const ezQuatTemplate<Type> operator*(const ezQuatTemplate<Type>
   ezQuatTemplate<Type> q;
 
   q.w = q1.w * q2.w - q1.v.Dot(q2.v);
-  q.v = q1.w * q2.v + q2.w * q1.v + q1.v.Cross(q2.v);
+  q.v = q1.w * q2.v + q2.w * q1.v + q1.v.CrossRH(q2.v);
 
   return (q);
 }
@@ -293,14 +293,14 @@ void ezQuatTemplate<Type>::SetShortestRotation(const ezVec3Template<Type>& vDirF
   {
     // find an axis, that is not identical and not opposing, ezVec3Template::Cross-product to find perpendicular vector, rotate around that
     if (ezMath::Abs(v0.Dot(ezVec3Template<Type>(1, 0, 0))) < (Type)0.8)
-      SetFromAxisAndAngle(v0.Cross(ezVec3Template<Type>(1, 0, 0)).GetNormalized(), ezAngle::Radian(ezMath::BasicType<float>::Pi()));
+      SetFromAxisAndAngle(v0.CrossRH(ezVec3Template<Type>(1, 0, 0)).GetNormalized(), ezAngle::Radian(ezMath::BasicType<float>::Pi()));
     else
-      SetFromAxisAndAngle(v0.Cross(ezVec3Template<Type>(0, 1, 0)).GetNormalized(), ezAngle::Radian(ezMath::BasicType<float>::Pi()));
+      SetFromAxisAndAngle(v0.CrossRH(ezVec3Template<Type>(0, 1, 0)).GetNormalized(), ezAngle::Radian(ezMath::BasicType<float>::Pi()));
 
     return;
   }
 
-  const ezVec3Template<Type> c = v0.Cross(v1);
+  const ezVec3Template<Type> c = v0.CrossRH(v1);
   const Type d = v0.Dot(v1);
   const Type s = ezMath::Sqrt(((Type)1 + d) * (Type)2);
 

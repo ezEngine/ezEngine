@@ -69,7 +69,7 @@ ezResult ezPlaneTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* const 
 template <typename Type>
 ezResult ezPlaneTemplate<Type>::SetFromDirections(const ezVec3Template<Type>& vTangent1, const ezVec3Template<Type>& vTangent2, const ezVec3Template<Type>& vPointOnPlane)
 {
-  ezVec3Template<Type> vNormal = vTangent1.Cross(vTangent2);
+  ezVec3Template<Type> vNormal = vTangent1.CrossRH(vTangent2);
   ezResult res = vNormal.NormalizeIfNotZero();
 
   m_vNormal = vNormal;
@@ -449,14 +449,14 @@ ezResult ezPlaneTemplate<Type>::GetPlanesIntersectionPoint(const ezPlaneTemplate
   const ezVec3Template<Type> n2(p1.m_vNormal);
   const ezVec3Template<Type> n3(p2.m_vNormal);
 
-  const Type det = n1.Dot(n2.Cross(n3));
+  const Type det = n1.Dot(n2.CrossRH(n3));
 
   if (ezMath::IsZero<Type>(det, ezMath::BasicType<Type>::LargeEpsilon()))
     return EZ_FAILURE;
 
-  out_Result = (-p0.m_fNegDistance * n2.Cross(n3) +
-                -p1.m_fNegDistance * n3.Cross(n1) +
-                -p2.m_fNegDistance * n1.Cross(n2)) /
+  out_Result = (-p0.m_fNegDistance * n2.CrossRH(n3) +
+                -p1.m_fNegDistance * n3.CrossRH(n1) +
+                -p2.m_fNegDistance * n1.CrossRH(n2)) /
                det;
 
   return EZ_SUCCESS;

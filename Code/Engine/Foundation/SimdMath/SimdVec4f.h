@@ -150,7 +150,7 @@ public:
   ezSimdFloat Dot(const ezSimdVec4f& v) const; // [tested]
 
   ///\brief 3D cross product, w is ignored.
-  ezSimdVec4f Cross(const ezSimdVec4f& v) const; // [tested]
+  ezSimdVec4f CrossRH(const ezSimdVec4f& v) const; // [tested]
 
   ///\brief Generates an arbitrary vector such that Dot<3>(GetOrthogonalVector()) == 0
   ezSimdVec4f GetOrthogonalVector() const; // [tested]

@@ -97,7 +97,7 @@ void ezConvexHullGenerator::StoreTriangle(int i, int j, int k)
   ezVec3d tangent1 = m_Vertices[k] - m_Vertices[i];
   ezVec3d tangent2 = m_Vertices[j] - m_Vertices[i];
 
-  triangle.m_vNormal = tangent1.Cross(tangent2);
+  triangle.m_vNormal = tangent1.CrossRH(tangent2);
   triangle.m_bIsDegenerate = triangle.m_vNormal.IsZero(0.0000001);
 
   if (triangle.m_bIsDegenerate)
@@ -106,8 +106,8 @@ void ezConvexHullGenerator::StoreTriangle(int i, int j, int k)
     // use some made up normal to pretend it has some direction
 
     const ezVec3d orth = m_Vertices[i] - m_vInside;
-    tangent2 = tangent1.Cross(orth);
-    triangle.m_vNormal = tangent1.Cross(tangent2);
+    tangent2 = tangent1.CrossRH(orth);
+    triangle.m_vNormal = tangent1.CrossRH(tangent2);
 
     EZ_ASSERT_DEBUG(!triangle.m_vNormal.IsZero(0.0000001), "Normal is still invalid");
   }

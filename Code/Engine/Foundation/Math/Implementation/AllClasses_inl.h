@@ -219,10 +219,10 @@ void ezMat3Template<Type>::SetLookInDirectionMatrix(ezVec3Template<Type> vLookDi
     vUpDir = vLookDir.GetOrthogonalVector();
 
   // ensure vUpDir is orthogonal to the looking direction
-  const ezVec3Template<Type> vRightDir = vUpDir.Cross(vLookDir).GetNormalized();
+  const ezVec3Template<Type> vRightDir = vUpDir.CrossRH(vLookDir).GetNormalized();
 
   // orthogonalize vUpDir
-  vUpDir = vLookDir.Cross(vRightDir); // vLookDir and vRightDir are normalized and orthogonal, vUpDir will be normalized too
+  vUpDir = vLookDir.CrossRH(vRightDir); // vLookDir and vRightDir are normalized and orthogonal, vUpDir will be normalized too
 
   // the matrix needs to be transposed (i.e. inverted), so we set the ROWS instead of the columns
   SetRow(0, vRightDir);

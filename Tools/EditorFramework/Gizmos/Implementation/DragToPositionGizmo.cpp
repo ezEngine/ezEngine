@@ -148,9 +148,9 @@ ezEditorInput ezDragToPositionGizmo::DoMouseReleaseEvent(QMouseEvent* e)
 static const ezVec3 GetOrthogonalVector(const ezVec3& vDir)
 {
   if (ezMath::Abs(vDir.Dot(ezVec3(0, 0, 1))) < 0.999f)
-    return -vDir.Cross(ezVec3(0, 0, 1));
+    return -vDir.CrossRH(ezVec3(0, 0, 1));
 
-  return -vDir.Cross(ezVec3(1, 0, 0));
+  return -vDir.CrossRH(ezVec3(1, 0, 0));
 }
 
 ezEditorInput ezDragToPositionGizmo::DoMouseMoveEvent(QMouseEvent* e)
@@ -174,7 +174,7 @@ ezEditorInput ezDragToPositionGizmo::DoMouseMoveEvent(QMouseEvent* e)
     return ezEditorInput::WasExclusivelyHandled;
 
   const ezVec3 vTangent = GetOrthogonalVector(res.m_vPickedNormal).GetNormalized();
-  const ezVec3 vBiTangent = res.m_vPickedNormal.Cross(vTangent).GetNormalized();
+  const ezVec3 vBiTangent = res.m_vPickedNormal.CrossRH(vTangent).GetNormalized();
 
   ezVec3 vSnappedPosition = res.m_vPickedPosition;
 

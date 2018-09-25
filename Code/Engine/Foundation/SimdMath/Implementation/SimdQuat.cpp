@@ -23,7 +23,7 @@ void ezSimdQuat::SetShortestRotation(const ezSimdVec4f& vDirFrom, const ezSimdVe
     return;
   }
 
-  const ezSimdVec4f c = v0.Cross(v1);
+  const ezSimdVec4f c = v0.CrossRH(v1);
   const ezSimdFloat s = ((fDot + ezSimdFloat(1.0f)) * ezSimdFloat(2.0f)).GetSqrt();
 
   m_v = c / s;

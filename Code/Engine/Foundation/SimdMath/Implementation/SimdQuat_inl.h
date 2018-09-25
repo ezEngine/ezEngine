@@ -113,16 +113,16 @@ EZ_ALWAYS_INLINE ezSimdQuat ezSimdQuat::operator-() const
 
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdQuat::operator*(const ezSimdVec4f& v) const
 {
-  ezSimdVec4f t = m_v.Cross(v);
+  ezSimdVec4f t = m_v.CrossRH(v);
   t += t;
-  return v + t * m_v.w() + m_v.Cross(t);
+  return v + t * m_v.w() + m_v.CrossRH(t);
 }
 
 EZ_ALWAYS_INLINE ezSimdQuat ezSimdQuat::operator*(const ezSimdQuat& q2) const
 {
   ezSimdQuat q;
 
-  q.m_v = q2.m_v * m_v.w() + m_v * q2.m_v.w() + m_v.Cross(q2.m_v);
+  q.m_v = q2.m_v * m_v.w() + m_v * q2.m_v.w() + m_v.CrossRH(q2.m_v);
   q.m_v.SetW(m_v.w() * q2.m_v.w() - m_v.Dot<3>(q2.m_v));
 
   return q;

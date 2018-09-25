@@ -125,7 +125,7 @@ void ezParticleBehavior_Flies::Process(ezUInt64 uiNumElements)
     if (fDist > fMaxDistanceToEmitterSquared)
     {
       ezVec3 vPivot;
-      vPivot = vDir.Cross(vPartToEm);
+      vPivot = vDir.CrossRH(vPartToEm);
       vPivot.NormalizeIfNotZero();
 
       qRot.SetFromAxisAndAngle(vPivot, m_MaxSteeringAngle);

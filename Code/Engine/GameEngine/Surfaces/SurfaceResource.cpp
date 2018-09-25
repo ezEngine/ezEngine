@@ -226,7 +226,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
 
 
   // finally compute the bi-tangent
-  const ezVec3 vBiTangent = vDir.Cross(vTangent);
+  const ezVec3 vBiTangent = vDir.CrossRH(vTangent);
 
   ezMat3 mRot;
   mRot.SetColumn(0, vDir); // we always use X as the main axis, so align X with the direction

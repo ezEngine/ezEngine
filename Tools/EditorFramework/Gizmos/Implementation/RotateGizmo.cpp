@@ -129,7 +129,7 @@ ezEditorInput ezRotateGizmo::DoMousePressEvent(QMouseEvent* e)
     ezVec3 vDirWS = vPointOnGizmoWS - vGizmoPosWS;
     vDirWS.NormalizeIfNotZero(ezVec3(1, 0, 0));
 
-    ezVec3 vTangentWS = vAxisWS.Cross(vDirWS);
+    ezVec3 vTangentWS = vAxisWS.CrossRH(vDirWS);
     vTangentWS.Normalize();
 
     const ezVec3 vTangentEndWS = vPointOnGizmoWS + vTangentWS;

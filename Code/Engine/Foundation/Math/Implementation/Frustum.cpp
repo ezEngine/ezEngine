@@ -261,8 +261,8 @@ void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezVec3& vForwards, con
   m_vPosition = vPosition;
 
   const ezVec3 vForwardsNorm = vForwards.GetNormalized();
-  const ezVec3 vRightNorm = vForwards.Cross(vUp).GetNormalized();
-  const ezVec3 vUpNorm = vRightNorm.Cross(vForwards).GetNormalized();
+  const ezVec3 vRightNorm = vForwards.CrossRH(vUp).GetNormalized();
+  const ezVec3 vUpNorm = vRightNorm.CrossRH(vForwards).GetNormalized();
 
   m_uiUsedPlanes = 6;
 

@@ -849,7 +849,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeigh
 
     ezUInt32 quad[4];
 
-    const ezVec3 vNrm0 = -ezVec3(0, 0, 1).Cross(vDir0).GetNormalized();
+    const ezVec3 vNrm0 = -ezVec3(0, 0, 1).CrossRH(vDir0).GetNormalized();
     quad[0] = AddVertex(vTopCenter + vDir0 * fRadiusTop, vNrm0, ezVec2(0, 0), color, iCustomIndex, mTransform);
     quad[1] = AddVertex(vTopCenter, vNrm0, ezVec2(1, 0), color, iCustomIndex, mTransform);
     quad[2] = AddVertex(vBottomCenter, vNrm0, ezVec2(1, 1), color, iCustomIndex, mTransform);
@@ -858,7 +858,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeigh
 
     AddPolygon(quad, bFlipWinding);
 
-    const ezVec3 vNrm1 = ezVec3(0, 0, 1).Cross(vDir1).GetNormalized();
+    const ezVec3 vNrm1 = ezVec3(0, 0, 1).CrossRH(vDir1).GetNormalized();
     quad[0] = AddVertex(vTopCenter, vNrm1, ezVec2(0, 0), color, iCustomIndex, mTransform);
     quad[1] = AddVertex(vTopCenter + vDir1 * fRadiusTop, vNrm1, ezVec2(1, 0), color, iCustomIndex, mTransform);
     quad[2] = AddVertex(vBottomCenter + vDir1 * fRadiusBottom, vNrm1, ezVec2(1, 1), color, iCustomIndex, mTransform);
@@ -1680,7 +1680,7 @@ void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThic
 
     // Front
     {
-      const ezVec3 vNormal = (bFlipWinding ? -1.0f : 1.0f) * vCurDirOutwards.Cross(ezVec3(0, 0, 1));
+      const ezVec3 vNormal = (bFlipWinding ? -1.0f : 1.0f) * vCurDirOutwards.CrossRH(ezVec3(0, 0, 1));
       poly[0] = AddVertex(vCurBottomInner, vNormal, ezVec2(0, 0), color, iCustomIndex, mTransform);
       poly[1] = AddVertex(vCurBottomOuter, vNormal, ezVec2(1, 0), color, iCustomIndex, mTransform);
       poly[3] = AddVertex(vCurTopInner, vNormal, ezVec2(0, 1), color, iCustomIndex, mTransform);
@@ -1690,7 +1690,7 @@ void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThic
 
     // Back
     {
-      const ezVec3 vNormal = (bFlipWinding ? -1.0f : 1.0f) * -vNextDirOutwards.Cross(ezVec3(0, 0, 1));
+      const ezVec3 vNormal = (bFlipWinding ? -1.0f : 1.0f) * -vNextDirOutwards.CrossRH(ezVec3(0, 0, 1));
       poly[0] = AddVertex(vNextBottomInner, vNormal, ezVec2(0, 0), color, iCustomIndex, mTransform);
       poly[3] = AddVertex(vNextBottomOuter, vNormal, ezVec2(1, 0), color, iCustomIndex, mTransform);
       poly[1] = AddVertex(vNextTopInner, vNormal, ezVec2(0, 1), color, iCustomIndex, mTransform);

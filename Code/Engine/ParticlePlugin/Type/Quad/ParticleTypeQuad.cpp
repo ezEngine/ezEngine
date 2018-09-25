@@ -319,7 +319,7 @@ void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRend
   auto SetTangentDataEmitterDirOrtho = [&](ezUInt32 dstIdx, ezUInt32 srcIdx) {
 
     const ezVec3 vDirToParticle = (pPosition[srcIdx].GetAsVec3() - vEmitterPos);
-    ezVec3 vOrthoDir = vEmitterDir.Cross(vDirToParticle);
+    ezVec3 vOrthoDir = vEmitterDir.CrossRH(vDirToParticle);
     vOrthoDir.NormalizeIfNotZero(ezVec3(1, 0, 0));
 
     ezMat3 mRotation;
@@ -344,7 +344,7 @@ void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRend
 
     m_TangentParticleData[dstIdx].Position = pPosition[srcIdx].GetAsVec3();
     m_TangentParticleData[dstIdx].TangentX = vTangentX;
-    m_TangentParticleData[dstIdx].TangentZ = vTangentX.Cross(vNormal);
+    m_TangentParticleData[dstIdx].TangentZ = vTangentX.CrossRH(vNormal);
   };
 
   auto SetTangentDataAligned_Emitter = [&](ezUInt32 dstIdx, ezUInt32 srcIdx) {

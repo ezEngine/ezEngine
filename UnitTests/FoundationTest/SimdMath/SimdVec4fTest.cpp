@@ -609,9 +609,9 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       ezSimdVec4f a(1.0f, 2.0f, 3.0f, 0.0f);
       ezSimdVec4f b(2.0f, -4.0f, 6.0f, 8.0f);
 
-      ezVec3 res = ezVec3(a.x(), a.y(), a.z()).Cross(ezVec3(b.x(), b.y(), b.z()));
+      ezVec3 res = ezVec3(a.x(), a.y(), a.z()).CrossRH(ezVec3(b.x(), b.y(), b.z()));
 
-      ezSimdVec4f c = a.Cross(b);
+      ezSimdVec4f c = a.CrossRH(b);
       EZ_TEST_BOOL(c.x() == res.x);
       EZ_TEST_BOOL(c.y() == res.y);
       EZ_TEST_BOOL(c.z() == res.z);
@@ -621,9 +621,9 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       ezSimdVec4f a(1.0f, 2.0f, 3.0f, 0.0f);
       ezSimdVec4f b(2.0f, -4.0f, 6.0f, 0.0f);
 
-      ezVec3 res = ezVec3(a.x(), a.y(), a.z()).Cross(ezVec3(b.x(), b.y(), b.z()));
+      ezVec3 res = ezVec3(a.x(), a.y(), a.z()).CrossRH(ezVec3(b.x(), b.y(), b.z()));
 
-      ezSimdVec4f c = a.Cross(b);
+      ezSimdVec4f c = a.CrossRH(b);
       EZ_TEST_BOOL(c.x() == res.x);
       EZ_TEST_BOOL(c.y() == res.y);
       EZ_TEST_BOOL(c.z() == res.z);
