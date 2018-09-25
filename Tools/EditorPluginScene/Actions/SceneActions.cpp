@@ -29,6 +29,7 @@ ezActionDescriptorHandle ezSceneActions::s_hGameModePlay;
 ezActionDescriptorHandle ezSceneActions::s_hGameModeStop;
 ezActionDescriptorHandle ezSceneActions::s_hUtilExportSceneToOBJ;
 ezActionDescriptorHandle ezSceneActions::s_hKeepSimulationChanges;
+ezActionDescriptorHandle ezSceneActions::s_hCreateThumbnail;
 ezActionDescriptorHandle ezSceneActions::s_hFavouriteCamsMenu;
 ezActionDescriptorHandle ezSceneActions::s_hStoreEditorCamera[10];
 ezActionDescriptorHandle ezSceneActions::s_hRestoreEditorCamera[10];
@@ -57,6 +58,8 @@ void ezSceneActions::RegisterActions()
   s_hKeepSimulationChanges = EZ_REGISTER_ACTION_1("Scene.KeepSimulationChanges", ezActionScope::Document, "Scene", "K", ezSceneAction,
                                                   ezSceneAction::ActionType::KeepSimulationChanges);
 
+  s_hCreateThumbnail = EZ_REGISTER_ACTION_1("Scene.CreateThumbnail", ezActionScope::Document, "Scene", "", ezSceneAction,
+                                            ezSceneAction::ActionType::CreateThumbnail);
   // unfortunately the macros use lambdas thus using a loop to generate the strings does not work
   {
     s_hFavouriteCamsMenu = EZ_REGISTER_MENU_WITH_ICON("Scene.FavouriteCams.Menu", "");
@@ -158,6 +161,7 @@ void ezSceneActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hGameModeStop);
   ezActionManager::UnregisterAction(s_hUtilExportSceneToOBJ);
   ezActionManager::UnregisterAction(s_hKeepSimulationChanges);
+  ezActionManager::UnregisterAction(s_hCreateThumbnail);
   ezActionManager::UnregisterAction(s_hFavouriteCamsMenu);
 
   for (ezUInt32 i = 0; i < 10; ++i)
@@ -179,6 +183,7 @@ void ezSceneActions::MapMenuActions()
     const char* szUtilsSubPath = "Menu.Scene/Scene.Utils.Menu";
 
     pMap->MapAction(s_hSceneUtilsMenu, "Menu.Scene", 2.0f);
+    pMap->MapAction(s_hCreateThumbnail, szUtilsSubPath, 0.0f);
     pMap->MapAction(s_hKeepSimulationChanges, szUtilsSubPath, 1.0f);
     pMap->MapAction(s_hUtilExportSceneToOBJ, szUtilsSubPath, 2.0f);
 
@@ -260,6 +265,10 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
       SetIconPath(":/EditorPluginScene/Icons/PullObjectState16.png");
       break;
 
+    case ActionType::CreateThumbnail:
+      //SetIconPath(":/EditorPluginScene/Icons/PullObjectState16.png"); // TODO: icon
+      break;
+
     case ActionType::JumpToCamera0:
     case ActionType::JumpToCamera1:
     case ActionType::JumpToCamera2:
@@ -287,7 +296,7 @@ void ezSceneAction::Execute(const ezVariant& value)
   switch (m_Type)
   {
     case ActionType::ExportScene:
-      m_pSceneDocument->ExportScene();
+      m_pSceneDocument->ExportScene(false);
       return;
 
     case ActionType::RunScene:
@@ -347,6 +356,10 @@ void ezSceneAction::Execute(const ezVariant& value)
       m_pSceneDocument->SendMessageToEngine(&msg);
       return;
     }
+
+    case ActionType::CreateThumbnail:
+      m_pSceneDocument->ExportScene(true);
+      return;
 
     case ActionType::StoreEditorCamera0:
     case ActionType::StoreEditorCamera1:

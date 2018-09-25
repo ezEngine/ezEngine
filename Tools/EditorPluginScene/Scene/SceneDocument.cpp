@@ -1209,16 +1209,22 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
   pInfo->m_MetaInfo.PushBack(pExposedParams);
 }
 
-ezStatus ezSceneDocument::ExportScene()
+ezStatus ezSceneDocument::ExportScene(bool bCreateThumbnail)
 {
   auto saveres = SaveDocument();
 
   if (saveres.m_Result.Failed())
     return saveres;
 
-  auto res = TransformAsset(true);
-  // this would be needed to generate a scene thumbnail, however that has a larger overhead (1 sec or so)
-  // auto res = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), true);
+  ezStatus res;
+
+  if (bCreateThumbnail)
+  {
+    // this is needed to generate a scene thumbnail, however that has a larger overhead (1 sec or so)
+    res = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), true);
+  }
+  else
+    res = TransformAsset(true);
 
   if (res.m_Result.Failed())
     ezLog::Error(res.m_sMessage);

@@ -34,7 +34,7 @@ ezSceneDocumentManager::ezSceneDocumentManager()
   }
 
   // if scene thumbnails are desired, this needs to be removed
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("Scene", QPixmap(":/AssetIcons/Scene.png"));
+  // ezQtImageCache::GetSingleton()->RegisterTypeImage("Scene", QPixmap(":/AssetIcons/Scene.png"));
 }
 
 
@@ -48,7 +48,7 @@ ezBitflags<ezAssetDocumentFlags> ezSceneDocumentManager::GetAssetDocumentTypeFla
   else
   {
     // if scene thumbnails are desired, this needs to be added
-    return ezAssetDocumentFlags::OnlyTransformManually /*| ezAssetDocumentFlags::SupportsThumbnail*/;
+    return ezAssetDocumentFlags::OnlyTransformManually | ezAssetDocumentFlags::SupportsThumbnail;
   }
 }
 
@@ -112,6 +112,65 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
   lightObjectGuid.CreateNewUuid();
   ezUuid meshObjectGuid;
   meshObjectGuid.CreateNewUuid();
+
+  // Thumbnail Camera
+  {
+    ezUuid objectGuid;
+    objectGuid.CreateNewUuid();
+
+    ezAddObjectCommand cmd;
+    cmd.m_Index = -1;
+    cmd.SetType("ezGameObject");
+    cmd.m_NewObjectGuid = objectGuid;
+    cmd.m_sParentProperty = "Children";
+    EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+
+    // object name
+    {
+      ezSetObjectPropertyCommand propCmd;
+      propCmd.m_Object = cmd.m_NewObjectGuid;
+      propCmd.m_sProperty = "Name";
+      propCmd.m_NewValue = "Scene Thumbnail Camera";
+      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+    }
+
+    // camera position
+    {
+      ezSetObjectPropertyCommand propCmd;
+      propCmd.m_Object = cmd.m_NewObjectGuid;
+      propCmd.m_sProperty = "LocalPosition";
+      propCmd.m_NewValue = ezVec3(-3, 0, 2);
+      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+    }
+
+    // camera component
+    {
+      ezAddObjectCommand cmd;
+      cmd.m_Index = -1;
+      cmd.SetType("ezCameraComponent");
+      cmd.m_Parent = objectGuid;
+      cmd.m_sParentProperty = "Components";
+      EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+
+      // camera shortcut
+      {
+        ezSetObjectPropertyCommand propCmd;
+        propCmd.m_Object = cmd.m_NewObjectGuid;
+        propCmd.m_sProperty = "EditorShortcut";
+        propCmd.m_NewValue = 1;
+        EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+      }
+
+      // camera usage hint
+      {
+        ezSetObjectPropertyCommand propCmd;
+        propCmd.m_Object = cmd.m_NewObjectGuid;
+        propCmd.m_sProperty = "UsageHint";
+        propCmd.m_NewValue = (int)ezCameraUsageHint::Thumbnail;
+        EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+      }
+    }
+  }
 
   {
     ezAddObjectCommand cmd;

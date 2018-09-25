@@ -26,6 +26,7 @@ public:
   static ezActionDescriptorHandle s_hGameModeStop;
   static ezActionDescriptorHandle s_hUtilExportSceneToOBJ;
   static ezActionDescriptorHandle s_hKeepSimulationChanges;
+  static ezActionDescriptorHandle s_hCreateThumbnail;
   static ezActionDescriptorHandle s_hFavouriteCamsMenu;
   static ezActionDescriptorHandle s_hStoreEditorCamera[10];
   static ezActionDescriptorHandle s_hRestoreEditorCamera[10];
@@ -48,6 +49,7 @@ public:
     StopGameMode,
     ExportSceneToOBJ,
     KeepSimulationChanges,
+    CreateThumbnail,
 
     StoreEditorCamera0,
     StoreEditorCamera1,

@@ -4,6 +4,7 @@
 
 <ul>
 
+<li>A scene thumbnail can now be created through <i>Scene > Utilities > Create Scene Thumbnail</i>. The thumbnail position can be specified by placing a camera object with the 'Thumbnail' usage.</li>
 <li>The editor now shows a "What's New" text in the project tab.</li>
 <li>Menus in property grids are now searchable when they contain more than 10 items.</li>
 <li>New scene documents are now populated with a dummy scene.</li>

@@ -224,3 +224,4 @@ Scene.Camera.Create.8;Create Level Camera 8;Creates a camera node at the current
 Scene.Camera.Create.9;Create Level Camera 9;Creates a camera node at the current editor camera position and configures its shortcut
 ezCameraUsageHint::Thumbnail;Thumbnail
 EditorShortcut;Editor Shortcut;Press ALT+Number to jump to this camera.
+Scene.CreateThumbnail;Create Scene Thumbnail
