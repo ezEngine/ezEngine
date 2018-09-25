@@ -141,10 +141,16 @@ void ezQtDocumentWindow::TriggerRedraw(float fLastFrameTimeMS)
 
   float fDelay = 1000.0f / 25.0f;
 
-  if (m_iTargetFramerate > 0)
-    fDelay = (1000.0f / m_iTargetFramerate);
+  int iTargetFramerate = m_iTargetFramerate;
 
-  if (m_iTargetFramerate < 0)
+  // if the application does not have focus, drastically reduce the update rate to limit CPU draw etc.
+  if (QApplication::activeWindow() == nullptr)
+    iTargetFramerate = m_iTargetFramerate / 4;
+
+  if (iTargetFramerate > 0)
+    fDelay = (1000.0f / iTargetFramerate);
+
+  if (iTargetFramerate < 0)
     fDelay = 0.0f;
 
   // Subtract the time it took to render the last frame.
@@ -171,7 +177,7 @@ void ezQtDocumentWindow::SlotRedraw()
   m_bRedrawIsTriggered = false;
 
   // if our window is not visible, interrupt the redrawing, and do nothing
-  if (!m_bIsVisibleInContainer /*|| window()->isMinimized() || !window()->isVisible()*/)
+  if (!m_bIsVisibleInContainer)
     return;
 
   m_bIsDrawingATM = true;
