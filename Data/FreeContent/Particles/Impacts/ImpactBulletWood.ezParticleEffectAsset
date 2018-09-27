@@ -2,16 +2,6 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{12447028148311401044,3576103277887481856}}
-	s %t{"ezExposedParameters"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Parameters{}
-	}
-}
-o
-{
 	Uuid %id{u4{16172054985231832202,5382839285714293133}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
@@ -21,16 +11,26 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16172054985231832202,5382839285714293133}}
-		u4 %Hash{3555757137138918738}
+		u4 %Hash{1789777940252128362}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{12447028148311401044,3576103277887481856}}
+			Uuid{u4{3972749031450700410,15086216924884544056}}
 		}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 65ea6692-5e91-4991-a047-d181b0587a5c }"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{3972749031450700410,15086216924884544056}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters{}
 	}
 }
 }
@@ -90,7 +90,6 @@ o
 		}
 		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{8064809703030218046,6221378904723203720}}
-		u3 %MaxParticles{20}
 		s %Name{"Fragments"}
 		s %OnDeathEvent{""}
 		VarArray %Types

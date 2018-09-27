@@ -2,16 +2,6 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{10800531139131962483,3589086079630907327}}
-	s %t{"ezExposedParameters"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Parameters{}
-	}
-}
-o
-{
 	Uuid %id{u4{14525557976052393641,5395822087457718604}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
@@ -21,10 +11,10 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14525557976052393641,5395822087457718604}}
-		u4 %Hash{7338742665610380033}
+		u4 %Hash{9166026881799801040}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{10800531139131962483,3589086079630907327}}
+			Uuid{u4{12675088828524786237,7528991678657620864}}
 		}
 		VarArray %Outputs{}
 		VarArray %References
@@ -34,6 +24,16 @@ o
 			s{"{ d4e58c28-450f-449a-a920-7e0459066700 }"}
 			s{"{ ebc03b01-2f4d-43ea-a973-0ab6d5b30242 }"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{12675088828524786237,7528991678657620864}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters{}
 	}
 }
 }
@@ -158,7 +158,7 @@ o
 {
 	Uuid %id{u4{17102491732169717679,5565955172558622517}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -252,12 +252,12 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
+		s %ParentTypeName{"ezMeshComponentBase"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponent"}
 		u3 %TypeSize{128}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -293,6 +293,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezProjectileReaction"}
 		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7605758958972330253,6687734095884105025}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshComponentBase"}
+		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }

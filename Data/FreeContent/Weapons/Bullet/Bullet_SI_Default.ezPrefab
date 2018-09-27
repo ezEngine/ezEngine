@@ -2,16 +2,6 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{6511974099750792567,3410379703057090906}}
-	s %t{"ezExposedParameters"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Parameters{}
-	}
-}
-o
-{
 	Uuid %id{u4{10237000936671223725,5217115710883902183}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
@@ -21,16 +11,26 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10237000936671223725,5217115710883902183}}
-		u4 %Hash{7749539077417582228}
+		u4 %Hash{13395419126677153149}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{6511974099750792567,3410379703057090906}}
+			Uuid{u4{7763861726788188559,15116857701945373219}}
 		}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 659ea078-3c40-49c3-8c61-7caf0431f820 }"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{7763861726788188559,15116857701945373219}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters{}
 	}
 }
 }

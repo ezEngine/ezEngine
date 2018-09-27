@@ -2,16 +2,6 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{1524664689290664559,3121897389246202027}}
-	s %t{"ezExposedParameters"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Parameters{}
-	}
-}
-o
-{
 	Uuid %id{u4{5249691526211095717,4928633397073013304}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
@@ -24,7 +14,7 @@ o
 		u4 %Hash{2262018746855908025}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{1524664689290664559,3121897389246202027}}
+			Uuid{u4{463535241250983205,18026780175263851971}}
 		}
 		VarArray %Outputs{}
 		VarArray %References
@@ -32,6 +22,16 @@ o
 			s{"{ 32cb0079-08cc-4f6b-a94b-0832e602ee1a }"}
 			s{"{ f45eb3dd-ea46-41fe-b927-63c5122d0c34 }"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{463535241250983205,18026780175263851971}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters{}
 	}
 }
 }

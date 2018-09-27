@@ -14,7 +14,7 @@ o
 			s{"Models/Skeleton/skeleton_animated.FBX"}
 		}
 		Uuid %DocumentID{u4{2154475748728192926,5557426494199778410}}
-		u4 %Hash{3574817439050069279}
+		u4 %Hash{10342535712185257494}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -27,12 +27,16 @@ o
 {
 	Uuid %id{u4{15900381145594189467,4811689272470286806}}
 	s %t{"ezAnimationClipAssetProperties"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		s %File{"Models/Skeleton/skeleton_animated.FBX"}
 		u3 %FirstFrame{1103}
+		s %Joint1{""}
+		s %Joint2{""}
 		u3 %NumFrames{40}
+		s %RootMotionExtraction{"ezRootMotionExtractionMode::None"}
+		Vec3 %RootMotionVelocity{f{0,0,0}}
 	}
 }
 o
@@ -54,6 +58,24 @@ Types
 {
 o
 {
+	Uuid %id{u4{7915430430108824348,5217394436625098933}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezRootMotionExtractionMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{6089094783765586323,8705960867921430659}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -72,6 +94,24 @@ o
 }
 o
 {
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{919881006902949434,15110225034563490820}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -84,8 +124,8 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimationClipAssetProperties"}
-		u3 %TypeSize{80}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{224}
+		u3 %TypeVersion{2}
 	}
 }
 o

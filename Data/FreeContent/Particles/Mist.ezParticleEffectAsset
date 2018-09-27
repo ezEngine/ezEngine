@@ -2,42 +2,6 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{8425683851578185852,527614644695521224}}
-	s %t{"ezExposedParameter"}
-	u3 %v{1}
-	p
-	{
-		f %DefaultValue{0x0000803F}
-		s %Name{"SizeX"}
-	}
-}
-o
-{
-	Uuid %id{u4{5876997564359382518,1052284181032799716}}
-	s %t{"ezExposedParameter"}
-	u3 %v{1}
-	p
-	{
-		f %DefaultValue{0x0000803F}
-		s %Name{"SizeY"}
-	}
-}
-o
-{
-	Uuid %id{u4{17558714013187718990,3410446113601931898}}
-	s %t{"ezExposedParameters"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Parameters
-		{
-			Uuid{u4{8425683851578185852,527614644695521224}}
-			Uuid{u4{5876997564359382518,1052284181032799716}}
-		}
-	}
-}
-o
-{
 	Uuid %id{u4{2836996776398598532,5217182121428743175}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
@@ -47,10 +11,10 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2836996776398598532,5217182121428743175}}
-		u4 %Hash{6860988563127320890}
+		u4 %Hash{9679728338193996066}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{17558714013187718990,3410446113601931898}}
+			Uuid{u4{14292394193544948370,7912516580587112350}}
 		}
 		VarArray %Outputs{}
 		VarArray %References
@@ -59,6 +23,46 @@ o
 			s{"{ ca7b26fd-7c01-42be-adec-fd843d5bcc93 }"}
 			s{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{14292394193544948370,7912516580587112350}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters
+		{
+			Uuid{u4{11625156528582984062,14399257754214980161}}
+			Uuid{u4{10980265987336502419,10442354961803643397}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{10980265987336502419,10442354961803643397}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		f %DefaultValue{0x0000803F}
+		s %Name{"SizeY"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{11625156528582984062,14399257754214980161}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		f %DefaultValue{0x0000803F}
+		s %Name{"SizeX"}
+		s %Type{""}
 	}
 }
 }

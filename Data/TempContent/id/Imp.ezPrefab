@@ -2,16 +2,6 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{11709560901477995118,3229326666248849098}}
-	s %t{"ezExposedParameters"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Parameters{}
-	}
-}
-o
-{
 	Uuid %id{u4{15434587738398426276,5036062674075660375}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
@@ -21,10 +11,10 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15434587738398426276,5036062674075660375}}
-		u4 %Hash{3317741630460903376}
+		u4 %Hash{2596887006307768968}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{11709560901477995118,3229326666248849098}}
+			Uuid{u4{5019539316081022429,5702431393145435003}}
 		}
 		VarArray %Outputs{}
 		VarArray %References
@@ -32,6 +22,16 @@ o
 			s{"{ 059b15b6-e6df-4ffe-aebc-70ef9399c2f0 }"}
 			s{"{ 9d903a8c-556a-4564-a678-3ebd5f03720b }"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{5019539316081022429,5702431393145435003}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters{}
 	}
 }
 }
@@ -149,7 +149,7 @@ o
 {
 	Uuid %id{u4{7656484344192249988,4913215741720986151}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -226,11 +226,12 @@ o
 {
 	Uuid %id{u4{15178923803498664886,5535087153805424709}}
 	s %t{"ezPxDynamicActorComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		f %AngularDamping{0xCDCC4C3D}
+		b %ContinuousCollisionDetection{0}
 		f %Density{0x0000C842}
 		b %DisableGravity{0}
 		b %Kinematic{1}
@@ -627,12 +628,12 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
+		s %ParentTypeName{"ezMeshComponentBase"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponent"}
 		u3 %TypeSize{128}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -691,6 +692,24 @@ o
 }
 o
 {
+	Uuid %id{u4{7605758958972330253,6687734095884105025}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshComponentBase"}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13649880205026559927,7297274558339895637}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -740,7 +759,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezPxDynamicActorComponent"}
 		u3 %TypeSize{104}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o

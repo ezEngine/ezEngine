@@ -2,16 +2,6 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{7683028338815821443,3746000619417438954}}
-	s %t{"ezExposedParameters"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Parameters{}
-	}
-}
-o
-{
 	Uuid %id{u4{11408055175736252601,5552736627244250231}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
@@ -21,16 +11,26 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11408055175736252601,5552736627244250231}}
-		u4 %Hash{7922848868643574347}
+		u4 %Hash{16820941194513336213}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{7683028338815821443,3746000619417438954}}
+			Uuid{u4{14924821535308415132,15562658481313419335}}
 		}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{14924821535308415132,15562658481313419335}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters{}
 	}
 }
 }
@@ -98,7 +98,7 @@ o
 {
 	Uuid %id{u4{4101696290341330573,4684166704460826166}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -492,12 +492,30 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
+		s %ParentTypeName{"ezMeshComponentBase"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponent"}
 		u3 %TypeSize{128}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{7605758958972330253,6687734095884105025}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshComponentBase"}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{1}
 	}
 }
 o

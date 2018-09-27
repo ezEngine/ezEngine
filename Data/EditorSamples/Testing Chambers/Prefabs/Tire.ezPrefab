@@ -11,8 +11,11 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9357573900337802902,5184961634595845146}}
-		u4 %Hash{11245478338194316072}
-		VarArray %MetaInfo{}
+		u4 %Hash{6071438555597225356}
+		VarArray %MetaInfo
+		{
+			Uuid{u4{14757557089428866213,9575918625017581344}}
+		}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -22,6 +25,16 @@ o
 		}
 	}
 }
+o
+{
+	Uuid %id{u4{14757557089428866213,9575918625017581344}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters{}
+	}
+}
 }
 Objects
 {
@@ -29,11 +42,12 @@ o
 {
 	Uuid %id{u4{13762275335852286377,4886592643387251742}}
 	s %t{"ezPxDynamicActorComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		f %AngularDamping{0xCDCC4C3D}
+		b %ContinuousCollisionDetection{0}
 		f %Density{0x0000803F}
 		b %DisableGravity{0}
 		b %Kinematic{0}
@@ -54,6 +68,16 @@ o
 		s %CollisionMesh{"{ 629d50ce-7686-4a3f-8efc-18f3410c1e14 }"}
 		b %ReportContact{0}
 		s %Surface{"{ 9ab4d71a-48d7-421c-86b0-9955a5f61f0d }"}
+	}
+}
+o
+{
+	Uuid %id{u4{13001919102647760556,5001962663104755285}}
+	s %t{"ezSceneDocumentSettings"}
+	u3 %v{1}
+	p
+	{
+		VarArray %ExposedProperties{}
 	}
 }
 o
@@ -87,7 +111,7 @@ o
 {
 	Uuid %id{u4{16631597085437650560,5711724454665261335}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -99,7 +123,7 @@ o
 o
 {
 	Uuid %id{u4{18096612296587978288,6449934965513159559}}
-	s %t{"ezDocumentRoot"}
+	s %t{"ezSceneDocumentRoot"}
 	u3 %v{1}
 	s %n{"ObjectTree"}
 	p
@@ -108,6 +132,7 @@ o
 		{
 			Uuid{u4{7175774463680643234,5447164627398987341}}
 		}
+		Uuid %Settings{u4{13001919102647760556,5001962663104755285}}
 	}
 }
 }
@@ -133,6 +158,24 @@ o
 }
 o
 {
+	Uuid %id{u4{11638255232360359673,3108610646416571142}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezExposedSceneProperty"}
+		u3 %TypeSize{152}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{14633628111157529947,3328384510238863063}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -141,12 +184,12 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
+		s %ParentTypeName{"ezMeshComponentBase"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponent"}
 		u3 %TypeSize{128}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -182,6 +225,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezPxActorComponent"}
 		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7605758958972330253,6687734095884105025}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshComponentBase"}
+		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -223,6 +284,24 @@ o
 }
 o
 {
+	Uuid %id{u4{450943844669591006,7318511461061204347}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneDocumentSettings"}
+		u3 %TypeSize{32}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{9117014634596472380,7811057850526279831}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -236,7 +315,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezPxDynamicActorComponent"}
 		u3 %TypeSize{104}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -254,6 +333,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
 		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3251891958765718680,9159887340540620231}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezDocumentRoot"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneDocumentRoot"}
+		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
 	}
 }

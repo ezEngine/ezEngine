@@ -2,20 +2,6 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{396757893326333062,2940365237253216366}}
-	s %t{"ezExposedParameters"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Parameters
-		{
-			Uuid{u4{1395119140462565046,17274695699483008557}}
-			Uuid{u4{298815006149509330,9177708007594276858}}
-		}
-	}
-}
-o
-{
 	Uuid %id{u4{4121784730246764220,4747101245080027643}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
@@ -25,10 +11,10 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4121784730246764220,4747101245080027643}}
-		u4 %Hash{16823016843031428057}
+		u4 %Hash{691677556031395807}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{396757893326333062,2940365237253216366}}
+			Uuid{u4{2308028051231343519,15184132879719398359}}
 		}
 		VarArray %Outputs{}
 		VarArray %References
@@ -39,24 +25,42 @@ o
 }
 o
 {
-	Uuid %id{u4{298815006149509330,9177708007594276858}}
+	Uuid %id{u4{16107726488328678813,7779557405079041185}}
 	s %t{"ezExposedParameter"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
+		VarArray %Attributes{}
 		Color %DefaultValue{f{0,0,0,0x0000803F}}
 		s %Name{"Color"}
+		s %Type{""}
 	}
 }
 o
 {
-	Uuid %id{u4{1395119140462565046,17274695699483008557}}
-	s %t{"ezExposedParameter"}
-	u3 %v{1}
+	Uuid %id{u4{2308028051231343519,15184132879719398359}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
 	p
 	{
+		VarArray %Parameters
+		{
+			Uuid{u4{8363121022664159298,16891741109228124371}}
+			Uuid{u4{16107726488328678813,7779557405079041185}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{8363121022664159298,16891741109228124371}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
 		f %DefaultValue{0x0000803F}
 		s %Name{"NumMultiplier"}
+		s %Type{""}
 	}
 }
 }
@@ -116,6 +120,7 @@ o
 		b %OnSurface{0}
 		Vec3 %PositionOffset{f{0,0,0}}
 		f %Radius{0x0000803E}
+		s %ScaleRadiusParam{""}
 		b %SetVelocity{1}
 		Uuid %Speed{u4{8302928920414709889,8231848394345727591}}
 	}
@@ -142,7 +147,6 @@ o
 		}
 		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{14282317940266220103,9369003354075289352}}
-		u3 %MaxParticles{500}
 		s %Name{"Flies"}
 		s %OnDeathEvent{""}
 		VarArray %Types
@@ -545,7 +549,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_SpherePosition"}
-		u3 %TypeSize{40}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{1}
 	}
 }

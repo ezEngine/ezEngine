@@ -1426,7 +1426,7 @@ o
 			Uuid{u4{16631111678292622734,8500933737344926134}}
 		}
 		s %TypeName{"ezSceneContext"}
-		u3 %TypeSize{1408}
+		u3 %TypeSize{1456}
 		u3 %TypeVersion{1}
 	}
 }

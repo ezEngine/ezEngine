@@ -2,16 +2,6 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{8065579198952458846,3690921928126901059}}
-	s %t{"ezExposedParameters"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Parameters{}
-	}
-}
-o
-{
 	Uuid %id{u4{11790606035872890004,5497657935953712336}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
@@ -21,10 +11,10 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11790606035872890004,5497657935953712336}}
-		u4 %Hash{1071698062892412993}
+		u4 %Hash{700821177540202242}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{8065579198952458846,3690921928126901059}}
+			Uuid{u4{11438162292018822705,5912158053756662311}}
 		}
 		VarArray %Outputs{}
 		VarArray %References
@@ -32,6 +22,16 @@ o
 			s{"{ c7199d47-7252-4516-80ed-ff340bace24c }"}
 			s{"{ f78d56a7-c36c-4c44-bcc2-4cf619cecbe9 }"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{11438162292018822705,5912158053756662311}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters{}
 	}
 }
 }
@@ -51,7 +51,7 @@ o
 {
 	Uuid %id{u4{12038905387845898122,4755159759962670206}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -87,7 +87,7 @@ o
 {
 	Uuid %id{u4{7492073009230771333,4902373759819174983}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -210,12 +210,30 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
+		s %ParentTypeName{"ezMeshComponentBase"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponent"}
 		u3 %TypeSize{128}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{7605758958972330253,6687734095884105025}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshComponentBase"}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{1}
 	}
 }
 o

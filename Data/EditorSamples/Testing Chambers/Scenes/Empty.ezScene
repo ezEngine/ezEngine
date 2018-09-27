@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4396321071653127867,4620504611285026315}}
-		u4 %Hash{2694777074599372770}
+		u4 %Hash{7471982323537736639}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -69,12 +69,23 @@ o
 }
 o
 {
-	Uuid %id{u4{8462549190422626443,5043654531718165762}}
-	s %t{"ezPrefabReferenceComponent"}
+	Uuid %id{u4{18228766751399065485,5015493924073382615}}
+	s %t{"ezSceneDocumentSettings"}
 	u3 %v{1}
 	p
 	{
+		VarArray %ExposedProperties{}
+	}
+}
+o
+{
+	Uuid %id{u4{8462549190422626443,5043654531718165762}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{2}
+	p
+	{
 		b %Active{1}
+		VarDict %Parameters{}
 		s %Prefab{"{ 42e938fb-5523-4606-8e64-6fee83dd0c7b }"}
 	}
 }
@@ -88,6 +99,7 @@ o
 		b %Active{1}
 		f %Aperture{0x0000803F}
 		f %Dimensions{0x00002041}
+		i1 %EditorShortcut{-1}
 		VarArray %ExcludeTags{}
 		f %ExposureCompensation{0}
 		f %FOV{0x00007042}
@@ -108,7 +120,7 @@ o
 o
 {
 	Uuid %id{u4{18096612296587978288,6449934965513159559}}
-	s %t{"ezDocumentRoot"}
+	s %t{"ezSceneDocumentRoot"}
 	u3 %v{1}
 	s %n{"ObjectTree"}
 	p
@@ -118,6 +130,7 @@ o
 			Uuid{u4{2140299389888095136,4999963018785658321}}
 			Uuid{u4{14673334433160878527,4661564464210200287}}
 		}
+		Uuid %Settings{u4{18228766751399065485,5015493924073382615}}
 	}
 }
 }
@@ -138,6 +151,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezComponent"}
 		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11638255232360359673,3108610646416571142}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezExposedSceneProperty"}
+		u3 %TypeSize{152}
 		u3 %TypeVersion{1}
 	}
 }
@@ -173,8 +204,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezPrefabReferenceComponent"}
-		u3 %TypeSize{64}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -197,6 +228,24 @@ o
 }
 o
 {
+	Uuid %id{u4{450943844669591006,7318511461061204347}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneDocumentSettings"}
+		u3 %TypeSize{32}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{6089094783765586323,8705960867921430659}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -210,6 +259,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
 		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3251891958765718680,9159887340540620231}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezDocumentRoot"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneDocumentRoot"}
+		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
 	}
 }

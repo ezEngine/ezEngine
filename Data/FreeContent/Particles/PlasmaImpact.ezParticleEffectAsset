@@ -2,26 +2,15 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{878091228784184703,1728464477496371630}}
+	Uuid %id{u4{3672314998825517248,2854770134034756603}}
 	s %t{"ezExposedParameter"}
-	u3 %v{1}
-	p
-	{
-		Color %DefaultValue{f{0x76CFDF3B,0x6C7B333F,0xD99B533E,0x0000803F}}
-		s %Name{"Color"}
-	}
-}
-o
-{
-	Uuid %id{u4{4316270606494290047,3017982652440189618}}
-	s %t{"ezExposedParameters"}
 	u3 %v{2}
 	p
 	{
-		VarArray %Parameters
-		{
-			Uuid{u4{878091228784184703,1728464477496371630}}
-		}
+		VarArray %Attributes{}
+		Color %DefaultValue{f{0x76CFDF3B,0x6C7B333F,0xD99B533E,0x0000803F}}
+		s %Name{"Color"}
+		s %Type{""}
 	}
 }
 o
@@ -38,7 +27,7 @@ o
 		u4 %Hash{15407352267437249923}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{4316270606494290047,3017982652440189618}}
+			Uuid{u4{10002920575294395407,8209054380563027724}}
 		}
 		VarArray %Outputs{}
 		VarArray %References
@@ -46,6 +35,19 @@ o
 			s{"{ ab745bdf-bc09-9e34-77b5-734904059b96 }"}
 			s{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
 			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{10002920575294395407,8209054380563027724}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters
+		{
+			Uuid{u4{3672314998825517248,2854770134034756603}}
 		}
 	}
 }
