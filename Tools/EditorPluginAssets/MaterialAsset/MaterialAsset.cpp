@@ -1194,7 +1194,7 @@ void ezMaterialAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezSt
   out_MimeTypes.PushBack("application/ezEditor.NodeGraph");
 }
 
-bool ezMaterialAssetDocument::Copy(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const
+bool ezMaterialAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const
 {
   out_MimeType = "application/ezEditor.NodeGraph";
 

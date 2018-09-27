@@ -145,7 +145,7 @@ void ezEditAction::Execute(const ezVariant& value)
       ezStringBuilder sMimeType;
 
       ezAbstractObjectGraph graph;
-      if (!m_Context.m_pDocument->Copy(graph, sMimeType))
+      if (!m_Context.m_pDocument->CopySelectedObjects(graph, sMimeType))
         break;
 
       // Serialize to string

@@ -145,7 +145,7 @@ void ezQtDocumentWindow::TriggerRedraw(float fLastFrameTimeMS)
 
   // if the application does not have focus, drastically reduce the update rate to limit CPU draw etc.
   if (QApplication::activeWindow() == nullptr)
-    iTargetFramerate = m_iTargetFramerate / 4;
+    iTargetFramerate = ezMath::Min(10, m_iTargetFramerate / 4);
 
   if (iTargetFramerate > 0)
     fDelay = (1000.0f / iTargetFramerate);
@@ -340,7 +340,6 @@ ezStatus ezQtDocumentWindow::SaveDocument()
 
     ezStatus res = m_pDocument->SaveDocument();
 
-
     ezStringBuilder s, s2;
     s.Format("Failed to save document:\n'{0}'", m_pDocument->GetDocumentPath());
     s2.Format("Successfully saved document:\n'{0}'", m_pDocument->GetDocumentPath());
@@ -352,9 +351,10 @@ ezStatus ezQtDocumentWindow::SaveDocument()
       ShowTemporaryStatusBarMsg("Failed to save document");
       return res;
     }
+
+    ShowTemporaryStatusBarMsg("Document saved");
   }
 
-  ShowTemporaryStatusBarMsg("Document saved");
   return ezStatus(EZ_SUCCESS);
 }
 

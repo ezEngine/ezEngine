@@ -156,7 +156,7 @@ void ezSceneDocument::DuplicateSpecial()
   ezMap<ezUuid, ezUuid> parents;
 
   ezAbstractObjectGraph graph;
-  Copy(graph, &parents);
+  CopySelectedObjects(graph, &parents);
 
   ezStringBuilder temp, tmp1, tmp2;
   for (auto it = parents.GetIterator(); it.IsValid(); ++it)
@@ -394,7 +394,7 @@ void ezSceneDocument::DuplicateSelection()
   ezMap<ezUuid, ezUuid> parents;
 
   ezAbstractObjectGraph graph;
-  Copy(graph, &parents);
+  CopySelectedObjects(graph, &parents);
 
   ezStringBuilder temp, tmp1, tmp2;
   for (auto it = parents.GetIterator(); it.IsValid(); ++it)
@@ -596,13 +596,13 @@ void ezSceneDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>
   out_MimeTypes.PushBack("application/ezEditor.ezAbstractGraph");
 }
 
-bool ezSceneDocument::Copy(ezAbstractObjectGraph& graph, ezStringBuilder& out_MimeType) const
+bool ezSceneDocument::CopySelectedObjects(ezAbstractObjectGraph& graph, ezStringBuilder& out_MimeType) const
 {
   out_MimeType = "application/ezEditor.ezAbstractGraph";
-  return Copy(graph, nullptr);
+  return CopySelectedObjects(graph, nullptr);
 }
 
-bool ezSceneDocument::Copy(ezAbstractObjectGraph& graph, ezMap<ezUuid, ezUuid>* out_pParents) const
+bool ezSceneDocument::CopySelectedObjects(ezAbstractObjectGraph& graph, ezMap<ezUuid, ezUuid>* out_pParents) const
 {
   if (GetSelectionManager()->GetSelection().GetCount() == 0)
     return false;
@@ -716,7 +716,7 @@ bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractO
   return true;
 }
 
-bool ezSceneDocument::Duplicate(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bSetSelected)
+bool ezSceneDocument::DuplicateSelectedObjects(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bSetSelected)
 {
   if (!PasteAtOrignalPosition(info))
     return false;

@@ -418,7 +418,7 @@ void ezVisualScriptAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArray<
   out_MimeTypes.PushBack("application/ezEditor.VisualScriptGraph");
 }
 
-bool ezVisualScriptAssetDocument::Copy(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const
+bool ezVisualScriptAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const
 {
   out_MimeType = "application/ezEditor.VisualScriptGraph";
 

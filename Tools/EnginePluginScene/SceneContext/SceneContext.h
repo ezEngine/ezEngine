@@ -100,6 +100,8 @@ private:
   ezDynamicArray<ezExposedSceneProperty> m_ExposedSceneProperties;
 
   ezPushObjectStateMsgToEditor m_PushObjectStateMsg;
+
+  static ezInt32 s_iNumRunningPlayTheGames;
 };
 
 

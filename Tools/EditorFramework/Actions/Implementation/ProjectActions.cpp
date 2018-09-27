@@ -181,7 +181,7 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hEditorPlugins, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 1.0f);
   pMap->MapAction(s_hShortcutEditor, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 2.0f);
   pMap->MapAction(s_hPreferencesDlg, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 3.0f);
-  pMap->MapAction(s_hEditorTests, "Menu.Editor/SettingsCategory", 2.0f);
+  //pMap->MapAction(s_hEditorTests, "Menu.Editor/SettingsCategory", 2.0f);
 
   pMap->MapAction(s_hDataDirectories, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 1.0f);
   pMap->MapAction(s_hEnginePlugins, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 2.0f);

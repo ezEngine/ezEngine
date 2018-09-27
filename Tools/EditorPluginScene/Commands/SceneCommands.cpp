@@ -196,7 +196,7 @@ void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph,
     }
   }
 
-  if (pDocument->Duplicate(ToBePasted, graph, false))
+  if (pDocument->DuplicateSelectedObjects(ToBePasted, graph, false))
   {
     for (const auto& item : ToBePasted)
     {

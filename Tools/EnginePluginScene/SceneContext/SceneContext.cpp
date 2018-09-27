@@ -37,6 +37,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezScen
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+ezInt32 ezSceneContext::s_iNumRunningPlayTheGames = 0;
+
 void ezSceneContext::ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds)
 {
   pObj->UpdateGlobalTransformAndBounds();
@@ -455,7 +457,15 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
 
 void ezSceneContext::OnPlayTheGameModeStarted()
 {
+  if (s_iNumRunningPlayTheGames > 0)
+  {
+    ezLog::Warning("A Play-the-Game instance is already running, cannot launch a second in parallel.");
+    return;
+  }
+
   ezLog::Info("Starting Play-the-Game mode");
+
+  ++s_iNumRunningPlayTheGames;
 
   ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentGuid());
 
@@ -729,6 +739,8 @@ void ezSceneContext::UpdateDocumentContext()
   {
     ezGameApplication::GetGameApplicationInstance()->DeactivateGameStateForWorld(m_pWorld);
     ezGameApplication::GetGameApplicationInstance()->DestroyGameStateForWorld(m_pWorld);
+
+    --s_iNumRunningPlayTheGames;
 
     ezGameModeMsgToEditor msgToEd;
     msgToEd.m_DocumentGuid = GetDocumentGuid();

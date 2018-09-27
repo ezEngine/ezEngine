@@ -191,7 +191,7 @@ void ezRenderPipelineAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArra
   out_MimeTypes.PushBack("application/ezEditor.RenderPipelineGraph");
 }
 
-bool ezRenderPipelineAssetDocument::Copy(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const
+bool ezRenderPipelineAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const
 {
   out_MimeType = "application/ezEditor.RenderPipelineGraph";
 
