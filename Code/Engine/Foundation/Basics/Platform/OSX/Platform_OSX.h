@@ -1,7 +1,7 @@
 #pragma once
 
 #if EZ_DISABLED(EZ_PLATFORM_OSX)
-#error "This header should only be included on OSX"
+#  error "This header should only be included on OSX"
 #endif
 
 #include <cstdio>
@@ -20,9 +20,17 @@
 #define EZ_PLATFORM_LITTLE_ENDIAN EZ_ON
 
 #if __x86_64__
-#undef EZ_PLATFORM_64BIT
-#define EZ_PLATFORM_64BIT EZ_ON
+#  undef EZ_PLATFORM_64BIT
+#  define EZ_PLATFORM_64BIT EZ_ON
 #else
-#undef EZ_PLATFORM_32BIT
-#define EZ_PLATFORM_32BIT EZ_ON
+#  undef EZ_PLATFORM_32BIT
+#  define EZ_PLATFORM_32BIT EZ_ON
+#endif
+
+#if __arm__
+#  undef EZ_PLATFORM_ARCH_ARM
+#  define EZ_PLATFORM_ARCH_ARM EZ_ON
+#else
+#  undef EZ_PLATFORM_ARCH_X86
+#  define EZ_PLATFORM_ARCH_X86 EZ_ON
 #endif

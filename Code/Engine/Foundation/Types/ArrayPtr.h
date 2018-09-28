@@ -105,6 +105,18 @@ public:
     return m_ptr;
   }
 
+  /// \brief Returns the pointer behind the last element of the array
+  EZ_ALWAYS_INLINE T* GetEndPtr()
+  {
+    return m_ptr + m_uiCount;
+  }
+
+  /// \brief Returns the pointer behind the last element of the array
+  EZ_ALWAYS_INLINE const T* GetEndPtr() const
+  {
+    return m_ptr + m_uiCount;
+  }
+
   /// \brief Returns whether the array is empty.
   EZ_ALWAYS_INLINE bool IsEmpty() const // [tested]
   {

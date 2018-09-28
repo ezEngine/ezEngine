@@ -23,3 +23,7 @@
 /// Whether file accesses can be done through paths that do not match exact casing
 #undef EZ_SUPPORTS_CASE_INSENSITIVE_PATHS
 #define EZ_SUPPORTS_CASE_INSENSITIVE_PATHS EZ_OFF
+
+// SIMD support
+#undef EZ_SIMD_IMPLEMENTATION
+#define EZ_SIMD_IMPLEMENTATION EZ_SIMD_IMPLEMENTATION_FPU

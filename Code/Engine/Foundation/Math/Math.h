@@ -223,10 +223,10 @@ namespace ezMath
   constexpr bool IsPowerOf2(ezInt32 value); // [tested]
 
   /// \brief Returns the next power-of-two that is <= value
-  EZ_FOUNDATION_DLL ezInt32 PowerOfTwo_Floor(ezUInt32 value); // [tested]
+  EZ_FOUNDATION_DLL ezUInt32 PowerOfTwo_Floor(ezUInt32 value); // [tested]
 
   /// \brief Returns the next power-of-two that is >= value
-  EZ_FOUNDATION_DLL ezInt32 PowerOfTwo_Ceil(ezUInt32 value); // [tested]
+  EZ_FOUNDATION_DLL ezUInt32 PowerOfTwo_Ceil(ezUInt32 value); // [tested]
 
   /// \brief Checks, whether fValue is in the range [fDesired - fMaxImprecision; fDesired + fMaxImprecision].
   template <typename Type>

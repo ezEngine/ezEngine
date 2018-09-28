@@ -31,6 +31,10 @@
 #define EZ_PLATFORM_32BIT EZ_OFF
 #define EZ_PLATFORM_64BIT EZ_OFF
 
+// Different CPU architectures
+#define EZ_PLATFORM_ARCH_X86 EZ_OFF
+#define EZ_PLATFORM_ARCH_ARM EZ_OFF
+
 // Endianess
 #define EZ_PLATFORM_LITTLE_ENDIAN EZ_OFF
 #define EZ_PLATFORM_BIG_ENDIAN EZ_OFF
@@ -65,3 +69,9 @@
 
 // Math Debug Checks
 #define EZ_MATH_CHECK_FOR_NAN EZ_OFF
+
+// SIMD support
+#define EZ_SIMD_IMPLEMENTATION_FPU 1
+#define EZ_SIMD_IMPLEMENTATION_SSE 2
+
+#define EZ_SIMD_IMPLEMENTATION 0

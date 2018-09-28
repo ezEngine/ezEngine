@@ -82,7 +82,9 @@ public:
 };
 
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-#include <Foundation/SimdMath/Implementation/SSE/SSEVec4i_inl.h>
+#  include <Foundation/SimdMath/Implementation/SSE/SSEVec4i_inl.h>
+#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
+#  include <Foundation/SimdMath/Implementation/FPU/FPUVec4i_inl.h>
 #else
-#include <Foundation/SimdMath/Implementation/FPU/FPUVec4i_inl.h>
+#  error "Unknown SIMD implementation."
 #endif

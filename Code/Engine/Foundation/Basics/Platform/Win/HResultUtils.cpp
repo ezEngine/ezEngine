@@ -2,11 +2,11 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
-#include <Foundation/Basics/Platform/Win/HResultUtils.h>
-#include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Strings/StringConversion.h>
+#  include <Foundation/Basics/Platform/Win/HResultUtils.h>
+#  include <Foundation/Strings/StringBuilder.h>
+#  include <Foundation/Strings/StringConversion.h>
 
-#include <comdef.h>
+#  include <comdef.h>
 
 EZ_FOUNDATION_DLL ezString ezHRESULTtoString(HRESULT result)
 {

@@ -65,9 +65,17 @@
 #endif
 
 #if EZ_IS_NOT_EXCLUSIVE(EZ_PLATFORM_LITTLE_ENDIAN, EZ_PLATFORM_BIG_ENDIAN)
-#error "Endianess is not correctly defined!"
+#error "Endianess is not correctly defined."
 #endif
 
 #ifndef EZ_MATH_CHECK_FOR_NAN
 #error "EZ_MATH_CHECK_FOR_NAN is not defined."
+#endif
+
+#if EZ_IS_NOT_EXCLUSIVE(EZ_PLATFORM_ARCH_X86, EZ_PLATFORM_ARCH_ARM)
+#  error "Platform architecture is not correctly defined."
+#endif
+
+#if !defined(EZ_SIMD_IMPLEMENTATION) || (EZ_SIMD_IMPLEMENTATION == 0)
+#error "EZ_SIMD_IMPLEMENTATION is not correctly defined."
 #endif

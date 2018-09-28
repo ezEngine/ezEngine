@@ -27,12 +27,12 @@ bool ezMath::IsPowerOf(ezInt32 value, ezInt32 base)
   return (value == base);
 }
 
-ezInt32 ezMath::PowerOfTwo_Floor(ezUInt32 npot)
+ezUInt32 ezMath::PowerOfTwo_Floor(ezUInt32 npot)
 {
   if (IsPowerOf2(npot))
     return (npot);
 
-  for (ezInt32 i = 1; i <= (sizeof(npot) * 8); ++i)
+  for (ezUInt32 i = 1; i <= (sizeof(npot) * 8); ++i)
   {
     npot >>= 1;
 
@@ -43,12 +43,12 @@ ezInt32 ezMath::PowerOfTwo_Floor(ezUInt32 npot)
   return (1);
 }
 
-ezInt32 ezMath::PowerOfTwo_Ceil(ezUInt32 npot)
+ezUInt32 ezMath::PowerOfTwo_Ceil(ezUInt32 npot)
 {
   if (IsPowerOf2(npot))
     return (npot);
 
-  for (int i = 1; i <= (sizeof(npot) * 8); ++i)
+  for (ezUInt32 i = 1; i <= (sizeof(npot) * 8); ++i)
   {
     npot >>= 1;
 
@@ -56,7 +56,7 @@ ezInt32 ezMath::PowerOfTwo_Ceil(ezUInt32 npot)
       return (npot << (i + 1));
   }
 
-  return (1);
+  return (1U);
 }
 
 void ezAngle::NormalizeRange()

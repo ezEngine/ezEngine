@@ -12,17 +12,10 @@ struct ezMathAcc
   };
 };
 
-#define EZ_SIMD_IMPLEMENTATION_SSE 1
-#define EZ_SIMD_IMPLEMENTATION_FPU 2
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#define EZ_SIMD_IMPLEMENTATION EZ_SIMD_IMPLEMENTATION_SSE
-#else
-#define EZ_SIMD_IMPLEMENTATION EZ_SIMD_IMPLEMENTATION_FPU
-#endif
-
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-#include <Foundation/SimdMath/Implementation/SSE/SSEMath_inl.h>
+#  include <Foundation/SimdMath/Implementation/SSE/SSEMath_inl.h>
+#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
+#  include <Foundation/SimdMath/Implementation/FPU/FPUMath_inl.h>
 #else
-#include <Foundation/SimdMath/Implementation/FPU/FPUMath_inl.h>
+#  error "Unknown SIMD implementation."
 #endif
