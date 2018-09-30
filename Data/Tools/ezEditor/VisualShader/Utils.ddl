@@ -7,7 +7,7 @@ Node %SceneColor
   {
     unsigned_int8 %Color { 50, 50, 128 }
     string %Type { "float2" }
-    string %DefaultValue { "Input.Position.xy" }
+    string %DefaultValue { "G.Input.Position.xy" }
   }
 
   OutputPin %Color
@@ -27,7 +27,7 @@ Node %SceneDepth
   {
     unsigned_int8 %Color { 50, 50, 128 }
     string %Type { "float2" }
-    string %DefaultValue { "Input.Position.xy" }
+    string %DefaultValue { "G.Input.Position.xy" }
   }
 
   OutputPin %Depth
@@ -47,7 +47,7 @@ Node %ScenePosition
   {
     unsigned_int8 %Color { 50, 50, 128 }
     string %Type { "float2" }
-    string %DefaultValue { "Input.Position.xy" }
+    string %DefaultValue { "G.Input.Position.xy" }
   }
 
   OutputPin %Position
@@ -75,7 +75,7 @@ Node %DepthFade
   {
     string %Type { "float" }
     unsigned_int8 %Color { 200, 0, 0 }
-    string %Inline { "DepthFade(Input.Position.xyw, ToFloat1($in0))" }
+    string %Inline { "DepthFade(G.Input.Position.xyw, ToFloat1($in0))" }
   }
 }
 
@@ -86,9 +86,9 @@ Node %Fresnel
   
   string %CodePixelBody { "
 
-float VisualShaderFresnel(PS_IN Input, float3 normal, float f0, float exponent)
+float VisualShaderFresnel(float3 normal, float f0, float exponent)
 {
-  float3 normalizedViewVector = normalize(GetCameraPosition() - Input.WorldPosition);
+  float3 normalizedViewVector = normalize(GetCameraPosition() - G.Input.WorldPosition);
   float NdotV = saturate(dot(normalize(normal), normalizedViewVector));
   float f = pow(1 - NdotV, exponent);
   return f + (1 - f) * f0;
@@ -116,14 +116,14 @@ float VisualShaderFresnel(PS_IN Input, float3 normal, float f0, float exponent)
   {
     unsigned_int8 %Color { 50, 50, 128 }
     string %Type { "float3" }
-    string %DefaultValue { "GetNormal(Input)" }
+    string %DefaultValue { "GetNormal()" }
   }
 
   OutputPin %Fresnel
   {
     string %Type { "float" }
     unsigned_int8 %Color { 200, 0, 0 }
-    string %Inline { "VisualShaderFresnel(Input, ToFloat3($in2), ToFloat1($in1), ToFloat1($in0))" }
+    string %Inline { "VisualShaderFresnel(ToFloat3($in2), ToFloat1($in1), ToFloat1($in0))" }
   }
 }
 
@@ -134,9 +134,9 @@ Node %Refraction
   
   string %CodePixelBody { "
 
-float4 VisualShaderRefraction(PS_IN Input, float3 worldNormal, float IoR, float thickness, float3 tintColor, float newOpacity)
+float4 VisualShaderRefraction(float3 worldNormal, float IoR, float thickness, float3 tintColor, float newOpacity)
 {
-  return CalculateRefraction(Input.WorldPosition, worldNormal, IoR, thickness, tintColor, newOpacity);
+  return CalculateRefraction(G.Input.WorldPosition, worldNormal, IoR, thickness, tintColor, newOpacity);
 }
 
 " }
@@ -145,7 +145,7 @@ float4 VisualShaderRefraction(PS_IN Input, float3 worldNormal, float IoR, float 
   {
     unsigned_int8 %Color { 50, 50, 128 }
     string %Type { "float3" }
-    string %DefaultValue { "GetNormal(Input)" }
+    string %DefaultValue { "GetNormal()" }
   }
   
   InputPin %IoR
@@ -184,6 +184,6 @@ float4 VisualShaderRefraction(PS_IN Input, float3 worldNormal, float IoR, float 
   {
     string %Type { "float4" }
     unsigned_int8 %Color { 200, 0, 0 }
-    string %Inline { "VisualShaderRefraction(Input, ToFloat3($in0), ToFloat1($in1), ToFloat1($in2), ToFloat3($in3), ToFloat1($in4))" }
+    string %Inline { "VisualShaderRefraction(ToFloat3($in0), ToFloat1($in1), ToFloat1($in2), ToFloat3($in3), ToFloat1($in4))" }
   }
 }

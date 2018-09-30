@@ -133,9 +133,9 @@ struct PS_OUT
 Texture2D SpriteTexture;
 SamplerState SpriteTexture_AutoSampler;
 
-float GetOpacity(PS_IN Input)
+float GetOpacity()
 {
-  float opacity = SpriteTexture.Sample(SpriteTexture_AutoSampler, Input.TexCoords.xy).a * Input.Color.a;
+  float opacity = SpriteTexture.Sample(SpriteTexture_AutoSampler, G.Input.TexCoords.xy).a * G.Input.Color.a;
 
   #if BLEND_MODE == BLEND_MODE_MASKED
     return opacity - 0.5;
@@ -146,7 +146,9 @@ float GetOpacity(PS_IN Input)
 
 PS_OUT main(PS_IN Input)
 {
-  uint coverage = CalculateCoverage(Input);
+  G.Input = Input;
+
+  uint coverage = CalculateCoverage();
   if (coverage == 0)
   {
     discard;

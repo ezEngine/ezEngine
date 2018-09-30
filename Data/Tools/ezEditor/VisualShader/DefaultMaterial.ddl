@@ -55,14 +55,14 @@ VS_OUT main(VS_IN Input)
 }
 
 #if defined(USE_OBJECT_POSITION_OFFSET)
-float3 GetObjectPositionOffset(VS_IN Input, ezPerInstanceData data)
+float3 GetObjectPositionOffset(ezPerInstanceData data)
 {
   return ToFloat3($in9);
 }
 #endif
 
 #if defined(USE_WORLD_POSITION_OFFSET)
-float3 GetWorldPositionOffset(VS_IN Input, ezPerInstanceData data, float3 worldPosition)
+float3 GetWorldPositionOffset(ezPerInstanceData data, float3 worldPosition)
 {
   return ToFloat3($in10);
 }
@@ -120,32 +120,32 @@ float MaskThreshold @Default($prop0);
   string %CodePixelConstants { "" }
   string %CodePixelBody { "
 
-float3 GetBaseColor(PS_IN Input)
+float3 GetBaseColor()
 {
   return ToColor3($in0);
 }
 
-float3 GetNormal(PS_IN Input)
+float3 GetNormal()
 {
-  return TangentToWorldSpace(ToFloat3($in1), Input);
+  return TangentToWorldSpace(ToFloat3($in1));
 }
 
-float GetMetallic(PS_IN Input)
+float GetMetallic()
 {
   return saturate(ToFloat1($in2));
 }
 
-float GetReflectance(PS_IN Input)
+float GetReflectance()
 {
   return saturate(ToFloat1($in3));
 }
 
-float GetRoughness(PS_IN Input)
+float GetRoughness()
 {
   return saturate(ToFloat1($in4));
 }
 
-float GetOpacity(PS_IN Input)
+float GetOpacity()
 {
   #if BLEND_MODE == BLEND_MODE_MASKED
     return saturate(ToFloat1($in5)) - MaskThreshold;
@@ -154,18 +154,18 @@ float GetOpacity(PS_IN Input)
   #endif
 }
 
-float3 GetEmissiveColor(PS_IN Input)
+float3 GetEmissiveColor()
 {
   return ToColor3($in6);
 }
 
-float GetOcclusion(PS_IN Input)
+float GetOcclusion()
 {
   return saturate(ToFloat1($in7));
 }
 
 #if defined USE_MATERIAL_REFRACTION
-float4 GetRefractionColor(PS_IN Input)
+float4 GetRefractionColor()
 {
   return ToColor4($in8);
 }

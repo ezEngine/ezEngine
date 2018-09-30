@@ -89,12 +89,12 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
 #include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialPixelShader.h>
 
-float3 GetNormal(PS_IN Input)
+float3 GetNormal()
 {
-  return Input.Normal;
+  return G.Input.Normal;
 }
 
-float3 GetDiffuseColor(PS_IN Input)
+float3 GetDiffuseColor()
 {
   #if SRM_VISIBLE
     return float3(0.5, 0.5, 0.5);
@@ -103,17 +103,17 @@ float3 GetDiffuseColor(PS_IN Input)
   #endif
 }
 
-float3 GetSpecularColor(PS_IN Input)
+float3 GetSpecularColor()
 {
   return 0.0f;
 }
 
-float GetRoughness(PS_IN Input)
+float GetRoughness()
 {
   return 1.0f;
 }
 
-float GetOpacity(PS_IN Input)
+float GetOpacity()
 {
   return 1.0f;
 }

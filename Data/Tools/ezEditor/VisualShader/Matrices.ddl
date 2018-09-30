@@ -101,7 +101,7 @@ Node %TangentToWorldSpace
   {
     string %Type { "float3" }
     unsigned_int8 %Color { 128, 128, 255 }
-    string %Inline { "TangentToWorldSpace(ToFloat3($in0), Input)" }
+    string %Inline { "TangentToWorldSpace(ToFloat3($in0))" }
     string %Tooltip { "Transformed normal in world-space." }
   }
 }

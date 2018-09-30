@@ -115,39 +115,39 @@ SamplerState EmissiveTexture_AutoSampler;
 Texture2D OcclusionTexture;
 SamplerState OcclusionTexture_AutoSampler;
 
-float3 GetNormal(PS_IN Input)
+float3 GetNormal()
 {
   [branch]
   if (UseNormalAndRoughnessTexture)
   {
-    float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, Input.TexCoords.xy));
-    return TangentToWorldSpace(normalTS, Input);
+    float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, G.Input.TexCoords.xy));
+    return TangentToWorldSpace(normalTS);
   }
   else
   {
-    return Input.Normal;
+    return G.Input.Normal;
   }
 }
 
-float3 GetBaseColor(PS_IN Input)
+float3 GetBaseColor()
 {
-  float3 baseColor = BaseColor.rgb * GetInstanceData(Input).Color.rgb;
+  float3 baseColor = BaseColor.rgb * GetInstanceData().Color.rgb;
 
   [branch]
   if (UseBaseTexture)
   {
-    baseColor *= BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).rgb;
+    baseColor *= BaseTexture.Sample(BaseTexture_AutoSampler, G.Input.TexCoords.xy).rgb;
   }
 
   return baseColor;
 }
 
-float GetMetallic(PS_IN Input)
+float GetMetallic()
 {
   [branch]
   if (UseMetallicTexture)
   {
-    return MetallicTexture.Sample(MetallicTexture_AutoSampler, Input.TexCoords.xy).r;
+    return MetallicTexture.Sample(MetallicTexture_AutoSampler, G.Input.TexCoords.xy).r;
   }
   else
   {
@@ -155,17 +155,17 @@ float GetMetallic(PS_IN Input)
   }
 }
 
-float GetReflectance(PS_IN Input)
+float GetReflectance()
 {
   return 0.5f;
 }
 
-float GetRoughness(PS_IN Input)
+float GetRoughness()
 {
   [branch]
   if (UseNormalAndRoughnessTexture)
   {
-    return RoughnessTexture.Sample(RoughnessTexture_AutoSampler, Input.TexCoords.xy).r;
+    return RoughnessTexture.Sample(RoughnessTexture_AutoSampler, G.Input.TexCoords.xy).r;
   }
   else
   {
@@ -173,14 +173,14 @@ float GetRoughness(PS_IN Input)
   }
 }
 
-float GetOpacity(PS_IN Input)
+float GetOpacity()
 {
-  float opacity = BaseColor.a * GetInstanceData(Input).Color.a;
+  float opacity = BaseColor.a * GetInstanceData().Color.a;
 
   [branch]
   if (UseBaseTexture)
   {
-    opacity *= BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).a;
+    opacity *= BaseTexture.Sample(BaseTexture_AutoSampler, G.Input.TexCoords.xy).a;
   }
 
   #if BLEND_MODE == BLEND_MODE_MASKED
@@ -190,12 +190,12 @@ float GetOpacity(PS_IN Input)
   #endif
 }
 
-float3 GetEmissiveColor(PS_IN Input)
+float3 GetEmissiveColor()
 {
   [branch]
   if (UseEmissiveTexture)
   {
-    return EmissiveTexture.Sample(EmissiveTexture_AutoSampler, Input.TexCoords.xy).rgb * EmissiveColor.rgb;
+    return EmissiveTexture.Sample(EmissiveTexture_AutoSampler, G.Input.TexCoords.xy).rgb * EmissiveColor.rgb;
   }
   else
   {
@@ -203,12 +203,12 @@ float3 GetEmissiveColor(PS_IN Input)
   }
 }
 
-float GetOcclusion(PS_IN Input)
+float GetOcclusion()
 {
   [branch]
   if (UseOcclusionTexture)
   {
-    return OcclusionTexture.Sample(OcclusionTexture_AutoSampler, Input.TexCoords.xy).r;
+    return OcclusionTexture.Sample(OcclusionTexture_AutoSampler, G.Input.TexCoords.xy).r;
   }
   else
   {

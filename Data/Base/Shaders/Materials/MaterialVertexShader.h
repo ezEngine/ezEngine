@@ -6,12 +6,18 @@
 #include <Shaders/Common/ObjectConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
 
+struct VS_GLOBALS
+{
+  VS_IN Input;
+};
+static VS_GLOBALS G;
+
 #if defined(USE_OBJECT_POSITION_OFFSET)
-  float3 GetObjectPositionOffset(VS_IN Input, ezPerInstanceData data);
+  float3 GetObjectPositionOffset(ezPerInstanceData data);
 #endif
 
 #if defined(USE_WORLD_POSITION_OFFSET)
-  float3 GetWorldPositionOffset(VS_IN Input, ezPerInstanceData data, float3 worldPosition);
+  float3 GetWorldPositionOffset(ezPerInstanceData data, float3 worldPosition);
 #endif
 
 #if defined(USE_SKINNING)
@@ -44,14 +50,16 @@ VS_OUT FillVertexData(VS_IN Input)
   s_ActiveCameraEyeIndex = Input.InstanceID % 2;
 #endif
 
-  ezPerInstanceData data = GetInstanceData(Input);
+  G.Input = Input;
+
+  ezPerInstanceData data = GetInstanceData();
 
   float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
   float3x3 objectToWorldNormal = TransformToRotation(data.ObjectToWorldNormal);
 
   float3 objectPosition = Input.Position;
   #if defined(USE_OBJECT_POSITION_OFFSET)
-    objectPosition += GetObjectPositionOffset(Input, data);
+    objectPosition += GetObjectPositionOffset(data);
   #endif
 
   float4 objPos = float4(objectPosition, 1.0);
@@ -63,7 +71,7 @@ VS_OUT FillVertexData(VS_IN Input)
   VS_OUT Output;
   Output.WorldPosition = mul(objectToWorld, objPos).xyz;
   #if defined(USE_WORLD_POSITION_OFFSET)
-    Output.WorldPosition += GetWorldPositionOffset(Input, data, Output.WorldPosition);
+    Output.WorldPosition += GetWorldPositionOffset(data, Output.WorldPosition);
   #endif
 
   Output.Position = mul(GetWorldToScreenMatrix(), float4(Output.WorldPosition, 1.0));

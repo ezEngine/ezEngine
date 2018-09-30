@@ -36,9 +36,9 @@ CONSTANT_BUFFER(ezObjectConstants, 2)
   // Access to instance should usually go through this macro!
   // It's a macro so it can work with arbitrary input structs (for VS/GS/PS...)
   #if defined(CAMERA_MODE) && CAMERA_MODE == CAMERA_MODE_STEREO
-    #define GetInstanceData(Input) perInstanceData[Input.InstanceID/2 + InstanceDataOffset]
+    #define GetInstanceData() perInstanceData[G.Input.InstanceID/2 + InstanceDataOffset]
   #else
-    #define GetInstanceData(Input) perInstanceData[Input.InstanceID + InstanceDataOffset]
+    #define GetInstanceData() perInstanceData[G.Input.InstanceID + InstanceDataOffset]
   #endif
 
 #endif

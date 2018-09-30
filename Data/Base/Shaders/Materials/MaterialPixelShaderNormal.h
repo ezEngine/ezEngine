@@ -39,10 +39,15 @@ PS_OUT main(PS_IN Input)
   s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
 #endif
 
+  G.Input = Input;
+  #if defined(CUSTOM_GLOBALS)
+    FillCustomGlobals();
+  #endif
+
   PS_OUT Output;
 
   #if defined(USE_ALPHA_TEST)
-    uint coverage = CalculateCoverage(Input);
+    uint coverage = CalculateCoverage();
     if (coverage == 0)
     {
       discard;
@@ -53,10 +58,10 @@ PS_OUT main(PS_IN Input)
     #endif
   #endif
 
-  ezMaterialData matData = FillMaterialData(Input);
+  ezMaterialData matData = FillMaterialData();
 
   ezPerClusterData clusterData = GetClusterData(Input.Position.xyw);
-  uint gameObjectId = GetInstanceData(Input).GameObjectID;
+  uint gameObjectId = GetInstanceData().GameObjectID;
 
   #if defined(USE_DECALS)
     ApplyDecals(matData, clusterData, gameObjectId);

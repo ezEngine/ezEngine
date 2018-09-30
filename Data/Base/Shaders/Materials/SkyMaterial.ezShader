@@ -38,13 +38,14 @@ DepthWrite = false
 
 VS_OUT main(VS_IN Input)
 {
-  ezPerInstanceData data = GetInstanceData(Input);
-  float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
-
   VS_OUT Output = FillVertexData(Input);
+  
   float2 ScreenPos = sign(Input.Position.xy);
   float4 dir = mul(GetScreenToCameraMatrix(), float4(ScreenPos.xy,1.0,1.0));
   dir.w = 0.0;
+    
+  ezPerInstanceData data = GetInstanceData();
+  float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
 
   Output.Position = float4(ScreenPos.xy, 1.0, 1.0);
   Output.ViewDirection = mul(transpose(objectToWorld), mul(GetCameraToWorldMatrix(), dir)).xyz;
@@ -63,14 +64,14 @@ TextureCube CubeMap;
 SamplerState CubeMap_AutoSampler;
 
 
-float3 GetNormal(PS_IN Input)
+float3 GetNormal()
 {
   return float3(0.0f, 0.0f, 1.0f);
 }
 
-float3 GetDiffuseColor(PS_IN Input)
+float3 GetDiffuseColor()
 {
-  float3 color = CubeMap.Sample(CubeMap_AutoSampler, CubeMapDirection(Input.ViewDirection)).rgb;
+  float3 color = CubeMap.Sample(CubeMap_AutoSampler, CubeMapDirection(G.Input.ViewDirection)).rgb;
 
   color *= BaseColor.rgb;
   float weight = exp2(ExposureBias);
@@ -85,26 +86,26 @@ float3 GetDiffuseColor(PS_IN Input)
 
   if (UseFog)
   {
-    float3 worldPos = normalize(Input.ViewDirection) * VirtualDistance;
+    float3 worldPos = normalize(G.Input.ViewDirection) * VirtualDistance;
     color = ApplyFog(color, worldPos);
   }
 
   return color;
 }
 
-float3 GetSpecularColor(PS_IN Input)
+float3 GetSpecularColor()
 {
   return 0.0f;
 }
 
-float GetRoughness(PS_IN Input)
+float GetRoughness()
 {
   return 1.0f;
 }
 
-float GetOpacity(PS_IN Input)
+float GetOpacity()
 {
-  float opacity = CubeMap.Sample(CubeMap_AutoSampler, CubeMapDirection(Input.ViewDirection)).a * BaseColor.a;
+  float opacity = CubeMap.Sample(CubeMap_AutoSampler, CubeMapDirection(G.Input.ViewDirection)).a * BaseColor.a;
 
   #if BLEND_MODE == BLEND_MODE_MASKED
     return opacity - MaskThreshold;

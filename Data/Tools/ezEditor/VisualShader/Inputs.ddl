@@ -29,7 +29,7 @@ Node %UV
   {
     string %Type { "float2" }
     unsigned_int8 %Color { 50, 50, 128 }
-    string %Inline { "Input.TexCoords.xy" }
+    string %Inline { "G.Input.TexCoords.xy" }
     string %Tooltip { "The UV 0 texture coordinate." }
   }
 }
@@ -51,7 +51,7 @@ Node %UV2
   {
     string %Type { "float2" }
     unsigned_int8 %Color { 50, 50, 128 }
-    string %Inline { "Input.TexCoords.zw" }
+    string %Inline { "G.Input.TexCoords.zw" }
     string %Tooltip { "The UV 0 texture coordinate." }
   }
 }
@@ -73,7 +73,7 @@ Node %UV_Scroll
   {
     string %Type { "float2" }
     unsigned_int8 %Color { 50, 50, 128 }
-    string %Inline { "Input.TexCoords + frac(WorldTime * $in0)" }
+    string %Inline { "G.Input.TexCoords + frac(WorldTime * $in0)" }
     string %Tooltip { "The scrolled UV 0 texture coordinate." }
   }
 }
@@ -87,7 +87,7 @@ Node %VertexPosition
   {
     string %Type { "float3" }
     unsigned_int8 %Color { 38, 105, 0 }
-    string %Inline { "Input.Position" }
+    string %Inline { "G.Input.Position" }
     string %Tooltip { "The vertex position. For vertex shaders this is the local position, for pixel shaders it is the transformed position." }
   }
 }
@@ -101,7 +101,7 @@ Node %VertexWorldPosition
   {
     string %Type { "float3" }
     unsigned_int8 %Color { 38, 105, 0 }
-    string %Inline { "Input.WorldPosition" }
+    string %Inline { "G.Input.WorldPosition" }
     string %Tooltip { "The vertex world space position." }
   }
 }
@@ -115,7 +115,7 @@ Node %VertexNormal
   {
     string %Type { "float3" }
     unsigned_int8 %Color { 128, 128, 255 }
-    string %Inline { "Input.Normal" }
+    string %Inline { "G.Input.Normal" }
     string %Tooltip { "The vertex normal. For vertex shaders this is in local space, for pixel shaders it is in world space." }
   }
 }
@@ -129,7 +129,7 @@ Node %VertexTangent
   {
     string %Type { "float3" }
     unsigned_int8 %Color { 255, 128, 128 }
-    string %Inline { "Input.Tangent" }
+    string %Inline { "G.Input.Tangent" }
     string %Tooltip { "The vertex position. For vertex shaders this is the local position, for pixel shaders it is the transformed position." }
   }
 }
@@ -151,7 +151,7 @@ Node %VertexColor
   {
     string %Type { "float4" }
     unsigned_int8 %Color { 255, 128, 128 }
-    string %Inline { "Input.Color" }
+    string %Inline { "G.Input.Color" }
     string %Tooltip { "The vertex color" }
   }
 }
@@ -165,7 +165,7 @@ Node %InstanceData
   {
     string %Type { "float4" }
     unsigned_int8 %Color { 128, 0, 0 }
-    string %Inline { "GetInstanceData(Input).Color" }
+    string %Inline { "GetInstanceData().Color" }
     string %Tooltip { "Per instance color." }
   }
   

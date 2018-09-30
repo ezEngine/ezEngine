@@ -89,35 +89,35 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
 Texture2D BaseTexture;
 SamplerState BaseTexture_AutoSampler;
 
-float3 GetNormal(PS_IN Input)
+float3 GetNormal()
 {
   #if TOPOLOGY == TOPOLOGY_TRIANGLES
-    return Input.Normal;
+    return G.Input.Normal;
   #else
     return float3(0.0f, 0.0f, 1.0f);
   #endif
 }
 
-float3 GetDiffuseColor(PS_IN Input)
+float3 GetDiffuseColor()
 {
   #if TOPOLOGY == TOPOLOGY_TRIANGLES
-    return SampleTexture3Way(BaseTexture, BaseTexture_AutoSampler, Input.Normal, Input.WorldPosition, 1.0).rgb;
+    return SampleTexture3Way(BaseTexture, BaseTexture_AutoSampler, G.Input.Normal, G.Input.WorldPosition, 1.0).rgb;
   #else
     return float3(0.5, 0.5, 0.5);
   #endif
 }
 
-float3 GetSpecularColor(PS_IN Input)
+float3 GetSpecularColor()
 {
   return 0.04f;
 }
 
-float GetRoughness(PS_IN Input)
+float GetRoughness()
 {
   return 1.0f;
 }
 
-float GetOpacity(PS_IN Input)
+float GetOpacity()
 {
   return 1.0f;
 }
