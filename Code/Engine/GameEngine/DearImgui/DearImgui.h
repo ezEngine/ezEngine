@@ -10,6 +10,8 @@ typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHand
 
 struct ImGuiContext;
 
+typedef ezDelegate<void()> ezImguiConfigCallback;
+
 /// \brief Singleton class through which one can control the third-party library 'Dear Imgui'
 ///
 /// Instance has to be manually created and destroyed. Do this for example in ezGameState::OnActivation()
@@ -26,7 +28,7 @@ class EZ_GAMEENGINE_DLL ezImgui
   EZ_DECLARE_SINGLETON(ezImgui);
 
 public:
-  ezImgui();
+  ezImgui(ezImguiConfigCallback configCallback = ezImguiConfigCallback());
   ~ezImgui();
 
   /// \brief This has to be called every frame before any Imgui calls are made (otherwise it asserts).
@@ -49,7 +51,7 @@ public:
   const ezHybridArray<ezTexture2DResourceHandle, 4>& GetTextures() const { return m_hTextures; }
 
 private:
-  void Startup();
+  void Startup(ezImguiConfigCallback configCallback);
   void Shutdown();
 
   ImGuiContext* m_pContext = nullptr;

@@ -9,10 +9,10 @@
 
 EZ_IMPLEMENT_SINGLETON(ezImgui);
 
-ezImgui::ezImgui()
+ezImgui::ezImgui(ezImguiConfigCallback configCallback)
     : m_SingletonRegistrar(this)
 {
-  Startup();
+  Startup(configCallback);
 }
 
 ezImgui::~ezImgui()
@@ -20,7 +20,7 @@ ezImgui::~ezImgui()
   Shutdown();
 }
 
-void ezImgui::Startup()
+void ezImgui::Startup(ezImguiConfigCallback configCallback)
 {
   m_pContext = ImGui::CreateContext();
   ImGui::SetCurrentContext(m_pContext);
@@ -49,6 +49,11 @@ void ezImgui::Startup()
   cfg.KeyMap[ImGuiKey_X] = ImGuiKey_X;
   cfg.KeyMap[ImGuiKey_Y] = ImGuiKey_Y;
   cfg.KeyMap[ImGuiKey_Z] = ImGuiKey_Z;
+
+  if (configCallback.IsValid())
+  {
+    configCallback();
+  }
 
   {
     ImGuiIO& io = ImGui::GetIO();
