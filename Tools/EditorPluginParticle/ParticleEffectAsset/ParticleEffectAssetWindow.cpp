@@ -638,7 +638,7 @@ void ezQtParticleEffectAssetDocumentWindow::UpdatePreview()
   AssetHeader.SetFileHashAndVersion(uiHash, GetParticleDocument()->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter);
   // Write Asset Data
-  GetParticleDocument()->WriteParticleEffectAsset(memoryWriter, "PC");
+  GetParticleDocument()->WriteParticleEffectAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActivePlatform());
   msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize());
 
   GetEditorEngineConnection()->SendMessage(&msg);

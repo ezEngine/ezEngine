@@ -136,7 +136,7 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
   EZ_PROFILE("StartInitialize");
   m_bRunUpdateTask = true;
   m_FileSystemConfig = cfg;
-  m_sActivePlatform = "PC";
+  m_sActivePlatform = GetDevelopmentPlatform();
 
   {
     EZ_PROFILE("Watchers");
@@ -270,11 +270,19 @@ void ezAssetCurator::Deinitialize()
   }
 }
 
+const char* ezAssetCurator::GetDevelopmentPlatform() const
+{
+  return "PC";
+}
 
 void ezAssetCurator::SetActivePlatform(const char* szPlatform)
 {
   {
     EZ_LOCK(m_CuratorMutex);
+
+    if (m_sActivePlatform == szPlatform)
+      return;
+
     m_sActivePlatform = szPlatform;
   }
 
@@ -1245,6 +1253,10 @@ void ezAssetCurator::ProcessAllCoreAssets()
   if (ezQtUiServices::IsHeadless())
     return;
 
+  // The 'Core Assets' are always transformed for the PC platform,
+  // as they are needed to run the editor properly
+  const char* szTargetPlatform = GetDevelopmentPlatform();
+
   for (const auto& dd : m_FileSystemConfig.m_DataDirs)
   {
     ezStringBuilder sCoreCollectionPath;
@@ -1265,7 +1277,7 @@ void ezAssetCurator::ProcessAllCoreAssets()
         {
           if (ezAssetInfo* pInfo = GetAssetInfo(ref))
           {
-            resReferences = ProcessAsset(pInfo, "PC", false);
+            resReferences = ProcessAsset(pInfo, szTargetPlatform, false);
             if (resReferences.m_Result.Failed())
               break;
           }

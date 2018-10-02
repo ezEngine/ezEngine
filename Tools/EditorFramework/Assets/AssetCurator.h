@@ -51,7 +51,7 @@ public:
   }
 };
 
-struct ezAssetInfo
+struct EZ_EDITORFRAMEWORK_DLL ezAssetInfo
 {
   ezAssetInfo() = default;
   void Update(ezUniquePtr<ezAssetInfo>& rhs);
@@ -89,7 +89,7 @@ private:
 };
 
 /// \brief Information about an asset or sub-asset.
-struct ezSubAsset
+struct EZ_EDITORFRAMEWORK_DLL ezSubAsset
 {
   ezStringView GetName() const;
   void GetSubAssetIdentifier(ezStringBuilder& out_sPath) const;
@@ -103,7 +103,7 @@ struct ezSubAsset
 };
 
 /// \brief Information about a single file on disk. The file might be an asset or any other file (needed for dependencies).
-struct ezFileStatus
+struct EZ_EDITORFRAMEWORK_DLL ezFileStatus
 {
   enum class Status
   {
@@ -158,8 +158,17 @@ public:
   void WaitForInitialize();
   void Deinitialize();
 
+  /// \brief The main platform on which development happens. E.g. "PC".
+  const char* GetDevelopmentPlatform() const;
+
+  /// \brief The currently active target platform for asset processing.
   const char* GetActivePlatform() const { return m_sActivePlatform; }
+
+  /// \brief Switches the currently active asset target platform.
+  ///
+  /// Broadcasts ezAssetCuratorEvent::Type::ActivePlatformChanged on change.
   void SetActivePlatform(const char* szPlatform);
+
   void MainThreadTick();
 
   ///@}

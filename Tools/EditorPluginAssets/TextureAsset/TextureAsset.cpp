@@ -341,7 +341,7 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
   }
   else
   {
-    const bool bUpdateThumbnail = ezStringUtils::IsEqual(szPlatform, "PC");
+    const bool bUpdateThumbnail = ezStringUtils::IsEqual(szPlatform, ezAssetCurator::GetSingleton()->GetDevelopmentPlatform());
 
     ezStatus result = RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail);
 
