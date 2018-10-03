@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/GUI/RawDocumentTreeModel.moc.h>
@@ -13,8 +13,8 @@ class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectAdapter : public ezQtNameableAdapter
 public:
   ezQtGameObjectAdapter(ezGameObjectDocument* pDocument);
   ~ezQtGameObjectAdapter();
-  virtual QVariant data(const ezDocumentObject* pObject, int column, int role) const override;
-  virtual bool setData(const ezDocumentObject* pObject, int column, const QVariant& value, int role) const override;
+  virtual QVariant data(const ezDocumentObject* pObject, int row, int column, int role) const override;
+  virtual bool setData(const ezDocumentObject* pObject, int row, int column, const QVariant& value, int role) const override;
 
 private:
   void DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e);

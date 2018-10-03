@@ -288,7 +288,12 @@ const ezAssetPlatformConfig* ezAssetCurator::GetDevelopmentPlatform() const
 
 const ezAssetPlatformConfig* ezAssetCurator::GetActivePlatform() const
 {
-  return m_pActivePlatformConfig;
+  return m_AssetPlatformConfigs[m_uiActivePlatformConfig];
+}
+
+ezUInt32 ezAssetCurator::GetActivePlatformIndex() const
+{
+  return m_uiActivePlatformConfig;
 }
 
 void ezAssetCurator::SetActivePlatformByName(const char* szPlatform)
@@ -298,26 +303,21 @@ void ezAssetCurator::SetActivePlatformByName(const char* szPlatform)
 
     EZ_ASSERT_DEV(!m_AssetPlatformConfigs.IsEmpty(), "Need to have a valid asset platform config");
 
-    ezAssetPlatformConfig* pConfig = m_pActivePlatformConfig;
+    ezUInt32 uiConfig = m_uiActivePlatformConfig;
 
-    for (auto* pCfg : m_AssetPlatformConfigs)
+    for (ezUInt32 i = 0; i < m_AssetPlatformConfigs.GetCount(); ++i)
     {
-      if (pCfg->m_sName == szPlatform)
+      if (m_AssetPlatformConfigs[i]->m_sName == szPlatform)
       {
-        pConfig = pCfg;
+        uiConfig = i;
         break;
       }
     }
 
-    if (pConfig == nullptr)
-    {
-      pConfig = m_AssetPlatformConfigs[0];
-    }
-
-    if (pConfig == m_pActivePlatformConfig)
+    if (uiConfig == m_uiActivePlatformConfig)
       return;
 
-    m_pActivePlatformConfig = pConfig;
+    m_uiActivePlatformConfig = uiConfig;
   }
 
   ezAssetCuratorEvent e;

@@ -25,10 +25,12 @@ public:
   ezUuid NativeToObject(ezAssetPlatformConfig* pConfig);
   void ObjectToNative(ezUuid objectGuid, ezAssetPlatformConfig* pConfig);
 
+  ezUInt32 m_uiActiveConfig = 0;
 
 private slots:
   void on_ButtonOk_clicked();
   void on_ButtonCancel_clicked() { reject(); }
+  void OnItemDoubleClicked(QModelIndex idx);
 
 private:
   void AllAssetConfigsToObject();

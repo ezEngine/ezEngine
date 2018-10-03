@@ -40,12 +40,12 @@ const ezString& ezQtDocumentTreeModelAdapter::GetChildProperty() const
   return m_sChildProperty;
 }
 
-bool ezQtDocumentTreeModelAdapter::setData(const ezDocumentObject* pObject, int column, const QVariant& value, int role) const
+bool ezQtDocumentTreeModelAdapter::setData(const ezDocumentObject* pObject, int row, int column, const QVariant& value, int role) const
 {
   return false;
 }
 
-Qt::ItemFlags ezQtDocumentTreeModelAdapter::flags(const ezDocumentObject* pObject, int column) const
+Qt::ItemFlags ezQtDocumentTreeModelAdapter::flags(const ezDocumentObject* pObject, int row, int column) const
 {
   if (column == 0)
   {
@@ -61,7 +61,7 @@ ezQtDummyAdapter::ezQtDummyAdapter(const ezDocumentObjectManager* pTree, const e
 {
 }
 
-QVariant ezQtDummyAdapter::data(const ezDocumentObject* pObject, int column, int role) const
+QVariant ezQtDummyAdapter::data(const ezDocumentObject* pObject, int row, int column, int role) const
 {
   if (column == 0)
   {
@@ -88,15 +88,15 @@ ezQtNamedAdapter::ezQtNamedAdapter(const ezDocumentObjectManager* pTree, const e
                     pProp->GetSpecificType()->GetVariantType() == ezVariantType::String,
                 "THe name property must be a string member property.");
 
-  m_pTree->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtNameableAdapter::TreePropertyEventHandler, this));
+  m_pTree->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtNamedAdapter::TreePropertyEventHandler, this));
 }
 
 ezQtNamedAdapter::~ezQtNamedAdapter()
 {
-  m_pTree->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtNameableAdapter::TreePropertyEventHandler, this));
+  m_pTree->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtNamedAdapter::TreePropertyEventHandler, this));
 }
 
-QVariant ezQtNamedAdapter::data(const ezDocumentObject* pObject, int column, int role) const
+QVariant ezQtNamedAdapter::data(const ezDocumentObject* pObject, int row, int column, int role) const
 {
   if (column == 0)
   {
@@ -132,7 +132,7 @@ ezQtNameableAdapter::ezQtNameableAdapter(const ezDocumentObjectManager* pTree, c
 
 ezQtNameableAdapter::~ezQtNameableAdapter() {}
 
-bool ezQtNameableAdapter::setData(const ezDocumentObject* pObject, int column, const QVariant& value, int role) const
+bool ezQtNameableAdapter::setData(const ezDocumentObject* pObject, int row, int column, const QVariant& value, int role) const
 {
   if (column == 0 && role == Qt::EditRole)
   {
@@ -154,7 +154,7 @@ bool ezQtNameableAdapter::setData(const ezDocumentObject* pObject, int column, c
   return false;
 }
 
-Qt::ItemFlags ezQtNameableAdapter::flags(const ezDocumentObject* pObject, int column) const
+Qt::ItemFlags ezQtNameableAdapter::flags(const ezDocumentObject* pObject, int row, int column) const
 {
   if (column == 0)
   {
@@ -389,7 +389,7 @@ QVariant ezQtDocumentTreeModel::data(const QModelIndex& index, int role) const
     auto pType = pObject->GetTypeAccessor().GetType();
     if (auto pAdapter = GetAdapter(pType))
     {
-      return pAdapter->data(pObject, index.column(), role);
+      return pAdapter->data(pObject, index.row(), index.column(), role);
     }
   }
 
@@ -413,7 +413,7 @@ Qt::ItemFlags ezQtDocumentTreeModel::flags(const QModelIndex& index) const
   auto pType = pObject->GetTypeAccessor().GetType();
   if (auto pAdapter = GetAdapter(pType))
   {
-    return pAdapter->flags(pObject, index.column());
+    return pAdapter->flags(pObject, index.row(), index.column());
   }
 
   return Qt::ItemFlag::NoItemFlags;
@@ -596,7 +596,7 @@ bool ezQtDocumentTreeModel::setData(const QModelIndex& index, const QVariant& va
   auto pType = pObject->GetTypeAccessor().GetType();
   if (auto pAdapter = GetAdapter(pType))
   {
-    return pAdapter->setData(pObject, index.column(), value, role);
+    return pAdapter->setData(pObject, index.row(), index.column(), value, role);
   }
 
   return false;

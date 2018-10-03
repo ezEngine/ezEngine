@@ -36,6 +36,7 @@ ezQtSkeletonPanel::ezQtSkeletonPanel(QWidget* pParent, ezSkeletonAssetDocument* 
 
   m_pTreeWidget = new ezQtDocumentTreeView(this, pDocument, std::move(pModel));
   m_pTreeWidget->SetAllowDragDrop(true);
+  m_pTreeWidget->SetAllowDeleteObjects(false);
   m_pMainWidget->layout()->addWidget(m_pTreeWidget);
 
   setWidget(m_pMainWidget);

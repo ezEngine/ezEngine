@@ -26,7 +26,6 @@ void ezQtDocumentTreeView::Initialize(ezDocument* pDocument, std::unique_ptr<ezQ
   m_pFilterModel.reset(new ezQtTreeSearchFilterModel(this));
   m_pFilterModel->setSourceModel(m_pModel.get());
 
-  m_bBlockSelectionSignal = false;
   setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
   setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
   setModel(m_pFilterModel.get());
@@ -122,17 +121,24 @@ void ezQtDocumentTreeView::EnsureLastSelectedItemVisible()
     scrollTo(index, QAbstractItemView::EnsureVisible);
 }
 
-
 void ezQtDocumentTreeView::SetAllowDragDrop(bool bAllow)
 {
   m_pModel->SetAllowDragDrop(bAllow);
+}
+
+void ezQtDocumentTreeView::SetAllowDeleteObjects(bool bAllow)
+{
+  m_bAllowDeleteObjects = bAllow;
 }
 
 void ezQtDocumentTreeView::keyPressEvent(QKeyEvent* e)
 {
   if (e->key() == Qt::Key::Key_Delete)
   {
-    m_pDocument->DeleteSelectedObjects();
+    if (m_bAllowDeleteObjects)
+    {
+      m_pDocument->DeleteSelectedObjects();
+    }
   }
   else
   {

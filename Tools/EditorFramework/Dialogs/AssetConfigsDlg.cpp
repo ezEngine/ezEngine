@@ -34,7 +34,52 @@ public:
   virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezDocumentInfo); }
 };
 
+class ezQtAssetConfigAdapter : public ezQtNameableAdapter
+{
+public:
+  ezQtAssetConfigAdapter(const ezQtAssetConfigsDlg* pDialog, const ezDocumentObjectManager* pTree, const ezRTTI* pType)
+      : ezQtNameableAdapter(pTree, pType, "", "Name")
+  {
+    m_pDialog = pDialog;
+  }
 
+  virtual QVariant data(const ezDocumentObject* pObject, int row, int column, int role) const override
+  {
+    if (column == 0)
+    {
+      if (role == Qt::DecorationRole)
+      {
+        const ezInt32 iPlatform = pObject->GetTypeAccessor().GetValue("Platform").ConvertTo<ezInt32>();
+
+        switch (iPlatform)
+        {
+          case ezAssetTargetPlatform::PC:
+            return ezQtUiServices::GetSingleton()->GetCachedIconResource(":EditorFramework/Icons/PlatformWindows16.png");
+
+          case ezAssetTargetPlatform::Android:
+            return ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/PlatformAndroid16.png");
+        }
+      }
+
+      if (role == Qt::DisplayRole)
+      {
+        QString name = ezQtNameableAdapter::data(pObject, row, column, role).toString();
+
+        if (row == m_pDialog->m_uiActiveConfig)
+        {
+          name += " (active)";
+        }
+
+        return name;
+      }
+    }
+
+    return ezQtNameableAdapter::data(pObject, row, column, role);
+  }
+
+private:
+  const ezQtAssetConfigsDlg* m_pDialog = nullptr;
+};
 
 ezQtAssetConfigsDlg::ezQtAssetConfigsDlg(QWidget* parent)
     : QDialog(parent)
@@ -44,6 +89,10 @@ ezQtAssetConfigsDlg::ezQtAssetConfigsDlg(QWidget* parent)
   splitter->setStretchFactor(0, 0);
   splitter->setStretchFactor(1, 1);
 
+  AddButton->setEnabled(false);
+  DeleteButton->setEnabled(false);
+  RenameButton->setEnabled(false);
+
   m_pDocument = EZ_DEFAULT_NEW(ezAssetConfigsDocument, "<none>");
 
   // if this is set, all properties are applied immediately
@@ -51,11 +100,15 @@ ezQtAssetConfigsDlg::ezQtAssetConfigsDlg(QWidget* parent)
   // this));
   std::unique_ptr<ezQtDocumentTreeModel> pModel(new ezQtDocumentTreeModel(m_pDocument->GetObjectManager()));
   pModel->AddAdapter(new ezQtDummyAdapter(m_pDocument->GetObjectManager(), ezGetStaticRTTI<ezDocumentRoot>(), "Children"));
-  pModel->AddAdapter(new ezQtNamedAdapter(m_pDocument->GetObjectManager(), ezAssetPlatformConfig::GetStaticRTTI(), "", "Name"));
+  pModel->AddAdapter(new ezQtAssetConfigAdapter(this, m_pDocument->GetObjectManager(), ezAssetPlatformConfig::GetStaticRTTI()));
 
   Tree->Initialize(m_pDocument, std::move(pModel));
+  Tree->SetAllowDragDrop(false);
+  Tree->SetAllowDeleteObjects(false);
   Tree->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
   Tree->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
+
+  connect(Tree, &QTreeView::doubleClicked, this, &ezQtAssetConfigsDlg::OnItemDoubleClicked);
 
   AllAssetConfigsToObject();
 
@@ -136,8 +189,27 @@ void ezQtAssetConfigsDlg::on_ButtonOk_clicked()
   ezAssetCurator::GetSingleton()->SaveAssetConfigs();
 }
 
+void ezQtAssetConfigsDlg::OnItemDoubleClicked(QModelIndex idx)
+{
+  if (m_uiActiveConfig == idx.row())
+    return;
+
+  const QModelIndex oldIdx = Tree->model()->index(m_uiActiveConfig, 0);
+
+  m_uiActiveConfig = idx.row();
+
+  QVector<int> roles;
+  roles.push_back(Qt::DisplayRole);
+  Tree->model()->dataChanged(idx, idx, roles);
+  Tree->model()->dataChanged(oldIdx, oldIdx, roles);
+}
+
 void ezQtAssetConfigsDlg::AllAssetConfigsToObject()
 {
+  m_uiActiveConfig = ezAssetCurator::GetSingleton()->GetActivePlatformIndex();
+
+  m_ConfigBinding.Clear();
+
   for (auto* pCfg : ezAssetCurator::GetSingleton()->m_AssetPlatformConfigs)
   {
     m_ConfigBinding[NativeToObject(pCfg)] = pCfg;

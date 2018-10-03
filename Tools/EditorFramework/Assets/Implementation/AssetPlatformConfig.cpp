@@ -20,8 +20,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetPlatformConfig, 1, ezRTTIDefaultAllocator
 {
   EZ_BEGIN_PROPERTIES
   {
-    //EZ_ACCESSOR_PROPERTY_READ_ONLY("Name", GetName)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("Name", m_sName),
+    EZ_MEMBER_PROPERTY("Name", m_sName)->AddAttributes(new ezHiddenAttribute()),
     EZ_ENUM_MEMBER_PROPERTY("Platform", ezAssetTargetPlatform, m_TargetPlatform),
     EZ_ARRAY_MEMBER_PROPERTY("TypeConfigs", m_TypeConfigs)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezContainerAttribute(false, false, false)),
   }

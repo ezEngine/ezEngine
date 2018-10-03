@@ -18,9 +18,9 @@ public:
   virtual const ezRTTI* GetType() const;
   virtual const ezString& GetChildProperty() const;
 
-  virtual QVariant data(const ezDocumentObject* pObject, int column, int role = Qt::DisplayRole) const = 0;
-  virtual bool setData(const ezDocumentObject* pObject, int column, const QVariant& value, int role) const;
-  virtual Qt::ItemFlags flags(const ezDocumentObject* pObject, int column) const;
+  virtual QVariant data(const ezDocumentObject* pObject, int row, int column, int role = Qt::DisplayRole) const = 0;
+  virtual bool setData(const ezDocumentObject* pObject, int row, int column, const QVariant& value, int role) const;
+  virtual Qt::ItemFlags flags(const ezDocumentObject* pObject, int row, int column) const;
 
 signals:
   void dataChanged(const ezDocumentObject* pObject, QVector<int> roles);
@@ -42,7 +42,7 @@ class EZ_EDITORFRAMEWORK_DLL ezQtDummyAdapter : public ezQtDocumentTreeModelAdap
 public:
   ezQtDummyAdapter(const ezDocumentObjectManager* pTree, const ezRTTI* pType, const char* m_sChildProperty);
 
-  virtual QVariant data(const ezDocumentObject* pObject, int column, int role) const override;
+  virtual QVariant data(const ezDocumentObject* pObject, int row, int column, int role) const override;
 };
 
 /// \brief Convenience class that implements getting the name via a property on the object.
@@ -52,7 +52,7 @@ class EZ_EDITORFRAMEWORK_DLL ezQtNamedAdapter : public ezQtDocumentTreeModelAdap
 public:
   ezQtNamedAdapter(const ezDocumentObjectManager* pTree, const ezRTTI* pType, const char* m_sChildProperty, const char* szNameProperty);
   ~ezQtNamedAdapter();
-  virtual QVariant data(const ezDocumentObject* pObject, int column, int role) const override;
+  virtual QVariant data(const ezDocumentObject* pObject, int row, int column, int role) const override;
 
 protected:
   virtual void TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
@@ -68,8 +68,8 @@ class EZ_EDITORFRAMEWORK_DLL ezQtNameableAdapter : public ezQtNamedAdapter
 public:
   ezQtNameableAdapter(const ezDocumentObjectManager* pTree, const ezRTTI* pType, const char* m_sChildProperty, const char* szNameProperty);
   ~ezQtNameableAdapter();
-  virtual bool setData(const ezDocumentObject* pObject, int column, const QVariant& value, int role) const override;
-  virtual Qt::ItemFlags flags(const ezDocumentObject* pObject, int column) const;
+  virtual bool setData(const ezDocumentObject* pObject, int row, int column, const QVariant& value, int role) const override;
+  virtual Qt::ItemFlags flags(const ezDocumentObject* pObject, int row, int column) const override;
 };
 
 /// \brief Model that maps a document to a qt tree model.

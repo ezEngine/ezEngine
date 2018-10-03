@@ -26,7 +26,7 @@ ezQtGameObjectAdapter::~ezQtGameObjectAdapter()
       ezMakeDelegate(&ezQtGameObjectAdapter::DocumentObjectMetaDataEventHandler, this));
 }
 
-QVariant ezQtGameObjectAdapter::data(const ezDocumentObject* pObject, int column, int role) const
+QVariant ezQtGameObjectAdapter::data(const ezDocumentObject* pObject, int row, int column, int role) const
 {
   switch (role)
   {
@@ -134,10 +134,10 @@ QVariant ezQtGameObjectAdapter::data(const ezDocumentObject* pObject, int column
     break;
   }
 
-  return ezQtNameableAdapter::data(pObject, column, role);
+  return ezQtNameableAdapter::data(pObject, row, column, role);
 }
 
-bool ezQtGameObjectAdapter::setData(const ezDocumentObject* pObject, int column, const QVariant& value, int role) const
+bool ezQtGameObjectAdapter::setData(const ezDocumentObject* pObject, int row, int column, const QVariant& value, int role) const
 {
   if (role == Qt::EditRole)
   {
@@ -155,7 +155,7 @@ bool ezQtGameObjectAdapter::setData(const ezDocumentObject* pObject, int column,
 
     sNewValue.Trim("[]{}() \t\r"); // forbid these
 
-    return ezQtNameableAdapter::setData(pObject, column, QString::fromUtf8(sNewValue.GetData()), role);
+    return ezQtNameableAdapter::setData(pObject, row, column, QString::fromUtf8(sNewValue.GetData()), role);
   }
 
   return false;

@@ -168,6 +168,8 @@ public:
   /// \brief The currently active target platform for asset processing.
   const ezAssetPlatformConfig* GetActivePlatform() const;
 
+  ezUInt32 GetActivePlatformIndex() const;
+
   /// \brief Switches the currently active asset target platform.
   ///
   /// Broadcasts ezAssetCuratorEvent::Type::ActivePlatformChanged on change.
@@ -367,7 +369,7 @@ private:
 
 
   ezApplicationFileSystemConfig m_FileSystemConfig;
-  ezAssetPlatformConfig* m_pActivePlatformConfig = nullptr;
+  ezUInt32 m_uiActivePlatformConfig = 0;
   ezSet<ezString> m_ValidAssetExtensions;
   ezSet<ezString> m_AssetFolders;
 

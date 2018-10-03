@@ -23,6 +23,7 @@ public:
   void EnsureLastSelectedItemVisible();
 
   void SetAllowDragDrop(bool bAllow);
+  void SetAllowDeleteObjects(bool bAllow);
 
   ezQtTreeSearchFilterModel* GetProxyFilterModel() const { return m_pFilterModel.get(); }
 
@@ -38,7 +39,8 @@ private:
 private:
   std::unique_ptr<ezQtDocumentTreeModel> m_pModel;
   std::unique_ptr<ezQtTreeSearchFilterModel> m_pFilterModel;
-  ezDocument* m_pDocument;
-  bool m_bBlockSelectionSignal;
+  ezDocument* m_pDocument = nullptr;
+  bool m_bBlockSelectionSignal = false;
+  bool m_bAllowDeleteObjects = false;
 };
 
