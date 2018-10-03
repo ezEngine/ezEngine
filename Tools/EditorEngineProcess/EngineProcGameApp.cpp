@@ -15,7 +15,7 @@
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <InputXBox360/InputDeviceXBox.h>
+#  include <InputXBox360/InputDeviceXBox.h>
 ezInputDeviceXBox360 g_XboxInputDevice;
 #endif
 
@@ -147,10 +147,10 @@ bool ezEngineProcessGameApplication::ProcessIPCMessages(bool bPendingOpInProgres
 {
   if (!m_IPC.IsHostAlive()) // check whether the host crashed
   {
-  // The problem here is, that the editor process crashed (or was terminated through Visual Studio),
-  // but our process depends on it for cleanup!
-  // That means, this process created rendering resources through a device that is bound to a window handle, which belonged to the editor
-  // process. So now we can't clean up, and therefore we can only crash. Therefore we try to crash as silently as possible.
+    // The problem here is, that the editor process crashed (or was terminated through Visual Studio),
+    // but our process depends on it for cleanup!
+    // That means, this process created rendering resources through a device that is bound to a window handle, which belonged to the editor
+    // process. So now we can't clean up, and therefore we can only crash. Therefore we try to crash as silently as possible.
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     // Make sure that Windows doesn't show a default message box when we call abort
@@ -210,19 +210,16 @@ void ezEngineProcessGameApplication::SendReflectionInformation()
 
 void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommunicationChannel::Event& e)
 {
-  // Sync
-  if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezSyncWithProcessMsgToEngine>())
+  if (const auto* pMsg = ezDynamicCast<const ezSyncWithProcessMsgToEngine*>(e.m_pMessage))
   {
-    const ezSyncWithProcessMsgToEngine* pSync = static_cast<const ezSyncWithProcessMsgToEngine*>(e.m_pMessage);
-
     ezSyncWithProcessMsgToEditor msg;
-    msg.m_DocumentGuid = pSync->m_DocumentGuid;
-    msg.m_uiRedrawCount = pSync->m_uiRedrawCount;
+    msg.m_DocumentGuid = pMsg->m_DocumentGuid;
+    msg.m_uiRedrawCount = pMsg->m_uiRedrawCount;
     m_IPC.SendMessage(&msg);
     return;
   }
 
-  if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezShutdownProcessMsgToEngine>())
+  if (const auto* pMsg = ezDynamicCast<const ezShutdownProcessMsgToEngine*>(e.m_pMessage))
   {
     // in non-remote mode, the process needs to be properly killed, to prevent error messages
     // this is taken care of by the editor process
@@ -233,32 +230,34 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
   }
 
   // Project Messages:
-  if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezSetupProjectMsgToEngine>())
+  if (const auto* pMsg = ezDynamicCast<const ezSetupProjectMsgToEngine*>(e.m_pMessage))
   {
-    const ezSetupProjectMsgToEngine* pSetupMsg = static_cast<const ezSetupProjectMsgToEngine*>(e.m_pMessage);
-    ezSetupProjectMsgToEngine* pSetupMsgNonConst = const_cast<ezSetupProjectMsgToEngine*>(pSetupMsg);
-
     if (!m_sProjectDirectory.IsEmpty())
     {
       // ignore this message, if it is for the same project
-      if (m_sProjectDirectory == pSetupMsg->m_sProjectDir)
+      if (m_sProjectDirectory == pMsg->m_sProjectDir)
         return;
 
-      ezLog::Error("Engine Process must restart to switch to another project ('{0}' -> '{1}').", m_sProjectDirectory,
-                   pSetupMsg->m_sProjectDir);
+      ezLog::Error("Engine Process must restart to switch to another project ('{0}' -> '{1}').", m_sProjectDirectory, pMsg->m_sProjectDir);
       return;
     }
 
-    m_sProjectDirectory = pSetupMsg->m_sProjectDir;
-    m_CustomFileSystemConfig = pSetupMsgNonConst->m_FileSystemConfig;
-    m_CustomPluginConfig = pSetupMsgNonConst->m_PluginConfig;
+    m_sProjectDirectory = pMsg->m_sProjectDir;
+    m_CustomFileSystemConfig = pMsg->m_FileSystemConfig;
+    m_CustomPluginConfig = pMsg->m_PluginConfig;
 
-    if (!pSetupMsg->m_sFileserveAddress.IsEmpty())
+    if (!pMsg->m_sAssetPlatformConfig.IsEmpty())
+    {
+      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-platform");
+      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument(pMsg->m_sAssetPlatformConfig);
+    }
+
+    if (!pMsg->m_sFileserveAddress.IsEmpty())
     {
       // we have no link dependency on the fileserve plugin here, it might not be loaded (yet / at all)
       // but we can pass the address to the command line, then it will pick it up, if necessary
       ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-fs_server");
-      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument(pSetupMsg->m_sFileserveAddress);
+      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument(pMsg->m_sFileserveAddress);
     }
 
     // now that we know which project to initialize, do the delayed project setup
@@ -279,11 +278,20 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     SendProjectReadyMessage();
     return;
   }
-  else if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezSimpleConfigMsgToEngine>())
+  else if (const auto* pMsg = ezDynamicCast<const ezSimpleConfigMsgToEngine*>(e.m_pMessage))
   {
-    const ezSimpleConfigMsgToEngine* pMsg = static_cast<const ezSimpleConfigMsgToEngine*>(e.m_pMessage);
+    if (pMsg->m_sWhatToDo == "ChangeActivePlatform")
+    {
+      ezStringBuilder sRedirFile("AssetCache/", pMsg->m_sPayload, ".ezAidlt");
 
-    if (pMsg->m_sWhatToDo == "ReloadAssetLUT")
+      ezDataDirectory::FolderType::s_sRedirectionFile = sRedirFile;
+
+      ezFileSystem::ReloadAllExternalDataDirectoryConfigs();
+
+      ezResourceManager::ReloadAllResources(false);
+      ezRenderWorld::DeleteAllCachedRenderData();
+    }
+    else if (pMsg->m_sWhatToDo == "ReloadAssetLUT")
     {
       ezFileSystem::ReloadAllExternalDataDirectoryConfigs();
     }
@@ -295,10 +303,8 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     else
       ezLog::Warning("Unknown ezSimpleConfigMsgToEngine '{0}'", pMsg->m_sWhatToDo);
   }
-  else if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezChangeCVarMsgToEngine>())
+  else if (const auto* pMsg = ezDynamicCast<const ezChangeCVarMsgToEngine*>(e.m_pMessage))
   {
-    const ezChangeCVarMsgToEngine* pMsg = static_cast<const ezChangeCVarMsgToEngine*>(e.m_pMessage);
-
     if (ezCVar* pCVar = ezCVar::FindCVarByName(pMsg->m_sCVarName))
     {
       if (pCVar->GetType() == ezCVarType::Int && pMsg->m_NewValue.CanConvertTo<ezInt32>())
@@ -334,10 +340,8 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
 
   ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pDocMsg->m_DocumentGuid);
 
-  if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenMsgToEngine>()) // Document was opened or closed
+  if (const auto* pMsg = ezDynamicCast<const ezDocumentOpenMsgToEngine*>(e.m_pMessage)) // Document was opened or closed
   {
-    const ezDocumentOpenMsgToEngine* pMsg = static_cast<const ezDocumentOpenMsgToEngine*>(pDocMsg);
-
     if (pMsg->m_bDocumentOpen)
     {
       pDocumentContext = CreateDocumentContext(pMsg);
@@ -351,9 +355,9 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     return;
   }
 
-  if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentClearMsgToEngine>())
+  if (const auto* pMsg = ezDynamicCast<const ezDocumentClearMsgToEngine*>(e.m_pMessage))
   {
-    ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pDocMsg->m_DocumentGuid);
+    ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pMsg->m_DocumentGuid);
     pDocumentContext->ClearExistingObjects();
     return;
   }

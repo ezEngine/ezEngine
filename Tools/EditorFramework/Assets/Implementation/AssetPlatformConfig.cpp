@@ -118,10 +118,8 @@ const char* ezTextureAssetTypePlatformConfig::GetDisplayName() const
 //////////////////////////////////////////////////////////////////////////
 
 
-ezResult ezAssetCurator::SaveAssetConfigs()
+ezResult ezAssetCurator::SaveAssetPlatformConfigs()
 {
-  EZ_LOCK(m_CuratorMutex);
-
   ezDeferredFileWriter file;
   file.SetOutput(":project/Editor/AssetConfigs.ddl");
 
@@ -144,10 +142,8 @@ ezResult ezAssetCurator::SaveAssetConfigs()
   return file.Close();
 }
 
-ezResult ezAssetCurator::LoadAssetConfigs()
+ezResult ezAssetCurator::LoadAssetPlatformConfigs()
 {
-  EZ_LOCK(m_CuratorMutex);
-
   EZ_LOG_BLOCK("LoadAssetConfigs", ":project/Editor/AssetConfigs.ddl");
 
   ezFileReader file;
@@ -169,7 +165,7 @@ ezResult ezAssetCurator::LoadAssetConfigs()
   if (!pRootElement)
     return EZ_FAILURE;
 
-  ClearAssetConfigs();
+  ClearAssetPlatformConfigs();
 
   for (auto pChild = pRootElement->GetFirstChild(); pChild != nullptr; pChild = pChild->GetSibling())
   {
@@ -185,10 +181,8 @@ ezResult ezAssetCurator::LoadAssetConfigs()
   return EZ_SUCCESS;
 }
 
-void ezAssetCurator::ClearAssetConfigs()
+void ezAssetCurator::ClearAssetPlatformConfigs()
 {
-  EZ_LOCK(m_CuratorMutex);
-
   for (auto pCfg : m_AssetPlatformConfigs)
   {
     pCfg->GetDynamicRTTI()->GetAllocator()->Deallocate(pCfg);
@@ -197,11 +191,9 @@ void ezAssetCurator::ClearAssetConfigs()
   m_AssetPlatformConfigs.Clear();
 }
 
-void ezAssetCurator::SetupDefaultAssetConfigs()
+void ezAssetCurator::SetupDefaultAssetPlatformConfigs()
 {
-  EZ_LOCK(m_CuratorMutex);
-
-  ClearAssetConfigs();
+  ClearAssetPlatformConfigs();
 
   {
     ezAssetPlatformConfig* pCfg = EZ_DEFAULT_NEW(ezAssetPlatformConfig);

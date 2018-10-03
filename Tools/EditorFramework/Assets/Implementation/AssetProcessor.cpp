@@ -251,7 +251,7 @@ void ezProcessTask::ShutdownProcess()
 
 void ezProcessTask::EventHandlerIPC(const ezProcessCommunicationChannel::Event& e)
 {
-  if (const ezProcessAssetResponse* pMsg = ezDynamicCast<const ezProcessAssetResponse*>(e.m_pMessage))
+  if (const ezProcessAssetResponseMsg* pMsg = ezDynamicCast<const ezProcessAssetResponseMsg*>(e.m_pMessage))
   {
     m_bSuccess = pMsg->m_bSuccess;
     m_bWaiting = false;
@@ -392,9 +392,11 @@ void ezProcessTask::Execute()
   {
     ezLog::Info(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "Processing '{0}'", m_sAssetPath);
     // Send and wait
-    ezProcessAsset msg;
+    ezProcessAssetMsg msg;
     msg.m_AssetGuid = m_assetGuid;
     msg.m_sAssetPath = m_sAssetPath;
+    msg.m_sPlatform = ezAssetCurator::GetSingleton()->GetActivePlatformConfig()->GetConfigName();
+
     m_pIPC->SendMessage(&msg);
     m_bWaiting = true;
 

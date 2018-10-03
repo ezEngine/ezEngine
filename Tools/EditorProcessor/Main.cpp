@@ -42,21 +42,36 @@ public:
 
   void EventHandlerIPC(const ezProcessCommunicationChannel::Event& e)
   {
-    if (const ezProcessAsset* pMsg = ezDynamicCast<const ezProcessAsset*>(e.m_pMessage))
+    if (const ezProcessAssetMsg* pMsg = ezDynamicCast<const ezProcessAssetMsg*>(e.m_pMessage))
     {
-      ezProcessAssetResponse msg;
+      ezProcessAssetResponseMsg msg;
       {
         ezLogEntryDelegate logger([&msg](ezLogEntry& entry) -> void { msg.m_LogEntries.PushBack(std::move(entry)); },
                                   ezLogMsgType::WarningMsg);
         ezLogSystemScope logScope(&logger);
 
-        ezStatus res = ezAssetCurator::GetSingleton()->TransformAsset(pMsg->m_AssetGuid, false);
-        msg.m_bSuccess = res.m_Result.Succeeded();
+        const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetPlatformConfigByName(pMsg->m_sPlatform);
 
-        if (res.m_Result.Failed())
+        if (uiPlatform == ezInvalidIndex)
         {
-          // make sure the result message ends up in the log
-          ezLog::Error(res.m_sMessage);
+          ezLog::Error("Asset platform config '{0}' is unknown", pMsg->m_sPlatform);
+        }
+        else
+        {
+          // TODO: there is currently no 'nice' way to switch the active platform for the asset processors
+          // it is also not clear whether this is actually safe to execute here
+          ezAssetCurator::GetSingleton()->SetActivePlatformByIndex(uiPlatform);
+
+          const ezStatus res = ezAssetCurator::GetSingleton()->TransformAsset(
+              pMsg->m_AssetGuid, false, ezAssetCurator::GetSingleton()->GetAssetPlatformConfig(uiPlatform));
+
+          msg.m_bSuccess = res.m_Result.Succeeded();
+
+          if (res.m_Result.Failed())
+          {
+            // make sure the result message ends up in the log
+            ezLog::Error(res.m_sMessage);
+          }
         }
       }
       m_IPC.SendMessage(&msg);
@@ -85,15 +100,22 @@ public:
 
       ezQtEditorApp::GetSingleton()->connect(
           ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bTransform]() {
-
             if (!bTransform)
               return;
 
             bTransform = false;
 
-            const ezString sTransform = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-transform");
-            ezAssetCurator::GetSingleton()->SetActivePlatformByName(sTransform);
-            ezAssetCurator::GetSingleton()->TransformAllAssets();
+            const ezString sPlatform = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-transform");
+            const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetPlatformConfigByName(sPlatform);
+
+            if (uiPlatform == ezInvalidIndex)
+            {
+              ezLog::Error("Asset platform config '{0}' is unknown", sPlatform);
+            }
+            else
+            {
+              ezAssetCurator::GetSingleton()->TransformAllAssets(ezAssetCurator::GetSingleton()->GetAssetPlatformConfig(uiPlatform));
+            }
 
             QApplication::quit();
           });

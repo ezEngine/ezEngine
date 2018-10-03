@@ -14,20 +14,21 @@
 ///////////////////////////////////// Curator /////////////////////////////////////
 
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezProcessAsset : public ezProcessMessage
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezProcessAssetMsg : public ezProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcessAsset, ezProcessMessage);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcessAssetMsg, ezProcessMessage);
 public:
   ezUuid m_AssetGuid;
   ezString m_sAssetPath;
+  ezString m_sPlatform;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezProcessAssetResponse : public ezProcessMessage
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezProcessAssetResponseMsg : public ezProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcessAssetResponse, ezProcessMessage);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcessAssetResponseMsg, ezProcessMessage);
 public:
   mutable ezDynamicArray<ezLogEntry> m_LogEntries;
-  bool m_bSuccess;
+  bool m_bSuccess = false;
 };
 
 ///////////////////////////////////// ezEditorEngineMsg /////////////////////////////////////
@@ -62,6 +63,7 @@ public:
   ezApplicationFileSystemConfig m_FileSystemConfig;
   ezApplicationPluginConfig m_PluginConfig;
   ezString m_sFileserveAddress; ///< Optionally used for remote processes to tell them with which IP address to connect to the host
+  ezString m_sAssetPlatformConfig;
 };
 
 /// \brief Sent to remote processes to shut them down.
@@ -88,7 +90,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSimpleConfigMsgToEngine : public ezE
 
 public:
   ezString m_sWhatToDo;
-
+  ezString m_sPayload;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezChangeCVarMsgToEngine : public ezEditorEngineMsg

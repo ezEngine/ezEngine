@@ -29,7 +29,7 @@ public:
 
 private slots:
   void on_ButtonOk_clicked();
-  void on_ButtonCancel_clicked() { reject(); }
+  void on_ButtonCancel_clicked();
   void OnItemDoubleClicked(QModelIndex idx);
 
 private:

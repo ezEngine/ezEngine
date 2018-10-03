@@ -1,5 +1,6 @@
 #include <PCH.h>
 
+#include <Assets/AssetCurator.h>
 #include <EditorFramework/Actions/ProjectActions.h>
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Dialogs/AssetConfigsDlg.moc.h>
@@ -553,7 +554,10 @@ void ezProjectAction::Execute(const ezVariant& value)
     case ezProjectAction::ButtonType::AssetConfigs:
     {
       ezQtAssetConfigsDlg dlg(nullptr);
-      dlg.exec();
+      if (dlg.exec() == QDialog::Accepted)
+      {
+        ezAssetCurator::GetSingleton()->SetActivePlatformByIndex(dlg.m_uiActiveConfig);
+      }
     }
     break;
   }

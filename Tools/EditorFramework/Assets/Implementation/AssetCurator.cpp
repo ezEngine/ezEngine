@@ -135,16 +135,16 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
 {
   EZ_PROFILE("StartInitialize");
 
-  SetupDefaultAssetConfigs();
-  if (LoadAssetConfigs().Failed())
+  SetupDefaultAssetPlatformConfigs();
+  if (LoadAssetPlatformConfigs().Failed())
   {
-    SaveAssetConfigs();
+    SaveAssetPlatformConfigs();
   }
 
   m_bRunUpdateTask = true;
   m_FileSystemConfig = cfg;
 
-  SetActivePlatformByName("PC");
+  SetActivePlatformByIndex(0);
 
   {
     EZ_PROFILE("Watchers");
@@ -236,7 +236,7 @@ void ezAssetCurator::Deinitialize()
 {
   EZ_PROFILE("Deinitialize");
 
-  SaveAssetConfigs();
+  SaveAssetPlatformConfigs();
 
   ShutdownUpdateTask();
   ezAssetProcessor::GetSingleton()->ShutdownProcessTask();
@@ -278,7 +278,7 @@ void ezAssetCurator::Deinitialize()
     m_Events.Broadcast(e);
   }
 
-  ClearAssetConfigs();
+  ClearAssetPlatformConfigs();
 }
 
 const ezAssetPlatformConfig* ezAssetCurator::GetDevelopmentPlatform() const
@@ -286,44 +286,77 @@ const ezAssetPlatformConfig* ezAssetCurator::GetDevelopmentPlatform() const
   return m_AssetPlatformConfigs[0];
 }
 
-const ezAssetPlatformConfig* ezAssetCurator::GetActivePlatform() const
+const ezAssetPlatformConfig* ezAssetCurator::GetActivePlatformConfig() const
 {
   return m_AssetPlatformConfigs[m_uiActivePlatformConfig];
 }
 
-ezUInt32 ezAssetCurator::GetActivePlatformIndex() const
+ezUInt32 ezAssetCurator::GetActivePlatformConfigIndex() const
 {
   return m_uiActivePlatformConfig;
 }
 
-void ezAssetCurator::SetActivePlatformByName(const char* szPlatform)
+ezUInt32 ezAssetCurator::FindAssetPlatformConfigByName(const char* szPlatform)
 {
+  EZ_LOCK(m_CuratorMutex);
+
+  EZ_ASSERT_DEV(!m_AssetPlatformConfigs.IsEmpty(), "Need to have a valid asset platform config");
+
+  for (ezUInt32 i = 0; i < m_AssetPlatformConfigs.GetCount(); ++i)
   {
-    EZ_LOCK(m_CuratorMutex);
-
-    EZ_ASSERT_DEV(!m_AssetPlatformConfigs.IsEmpty(), "Need to have a valid asset platform config");
-
-    ezUInt32 uiConfig = m_uiActivePlatformConfig;
-
-    for (ezUInt32 i = 0; i < m_AssetPlatformConfigs.GetCount(); ++i)
+    if (m_AssetPlatformConfigs[i]->m_sName == szPlatform)
     {
-      if (m_AssetPlatformConfigs[i]->m_sName == szPlatform)
-      {
-        uiConfig = i;
-        break;
-      }
+      return i;
     }
-
-    if (uiConfig == m_uiActivePlatformConfig)
-      return;
-
-    m_uiActivePlatformConfig = uiConfig;
   }
+
+  return ezInvalidIndex;
+}
+
+ezUInt32 ezAssetCurator::GetNumAssetPlatformConfigs() const
+{
+  return m_AssetPlatformConfigs.GetCount();
+}
+
+const ezAssetPlatformConfig* ezAssetCurator::GetAssetPlatformConfig(ezUInt32 index) const
+{
+  if (index >= m_AssetPlatformConfigs.GetCount())
+    return m_AssetPlatformConfigs[0]; // fall back to default platform
+
+  return m_AssetPlatformConfigs[index];
+}
+
+ezAssetPlatformConfig* ezAssetCurator::GetAssetPlatformConfig(ezUInt32 index)
+{
+  if (index >= m_AssetPlatformConfigs.GetCount())
+    return m_AssetPlatformConfigs[0]; // fall back to default platform
+
+  return m_AssetPlatformConfigs[index];
+}
+
+void ezAssetCurator::SetActivePlatformByIndex(ezUInt32 index)
+{
+  if (index >= m_AssetPlatformConfigs.GetCount())
+    index = 0; // fall back to default platform
+
+  if (m_uiActivePlatformConfig == index)
+    return;
+
+  EZ_LOG_BLOCK("Switch Active Asset Platform", m_AssetPlatformConfigs[index]->GetConfigName());
+
+  m_uiActivePlatformConfig = index;
 
   ezAssetCuratorEvent e;
   e.m_Type = ezAssetCuratorEvent::Type::ActivePlatformChanged;
 
   m_Events.Broadcast(e);
+
+  CheckFileSystem();
+
+  ezSimpleConfigMsgToEngine msg;
+  msg.m_sWhatToDo = "ChangeActivePlatform";
+  msg.m_sPayload = GetActivePlatformConfig()->GetConfigName();
+  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
 void ezAssetCurator::MainThreadTick()
@@ -561,12 +594,16 @@ ezResult ezAssetCurator::WriteAssetTables(const ezAssetPlatformConfig* pPlatform
       res = EZ_FAILURE;
   }
 
-  ezSimpleConfigMsgToEngine msg;
-  msg.m_sWhatToDo = "ReloadAssetLUT";
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  if (pPlatformConfig == nullptr || pPlatformConfig == GetActivePlatformConfig())
+  {
+    ezSimpleConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "ReloadAssetLUT";
+    msg.m_sPayload = GetActivePlatformConfig()->GetConfigName();
+    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 
-  msg.m_sWhatToDo = "ReloadResources";
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+    msg.m_sWhatToDo = "ReloadResources";
+    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  }
 
   return res;
 }
@@ -1202,7 +1239,7 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const ezAs
 
   if (pPlatformConfig == nullptr)
   {
-    pPlatformConfig = GetActivePlatform();
+    pPlatformConfig = GetActivePlatformConfig();
   }
 
   ezStringBuilder sDataDir = szDataDirectory;

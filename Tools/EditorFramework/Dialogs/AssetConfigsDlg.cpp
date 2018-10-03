@@ -186,7 +186,13 @@ void ezQtAssetConfigsDlg::on_ButtonOk_clicked()
   ApplyAllChanges();
   accept();
 
-  ezAssetCurator::GetSingleton()->SaveAssetConfigs();
+  ezAssetCurator::GetSingleton()->SaveAssetPlatformConfigs();
+}
+
+void ezQtAssetConfigsDlg::on_ButtonCancel_clicked()
+{
+  m_uiActiveConfig = ezAssetCurator::GetSingleton()->GetActivePlatformConfigIndex();
+  reject();
 }
 
 void ezQtAssetConfigsDlg::OnItemDoubleClicked(QModelIndex idx)
@@ -206,12 +212,14 @@ void ezQtAssetConfigsDlg::OnItemDoubleClicked(QModelIndex idx)
 
 void ezQtAssetConfigsDlg::AllAssetConfigsToObject()
 {
-  m_uiActiveConfig = ezAssetCurator::GetSingleton()->GetActivePlatformIndex();
+  m_uiActiveConfig = ezAssetCurator::GetSingleton()->GetActivePlatformConfigIndex();
 
   m_ConfigBinding.Clear();
 
-  for (auto* pCfg : ezAssetCurator::GetSingleton()->m_AssetPlatformConfigs)
+  for (ezUInt32 i = 0; i < ezAssetCurator::GetSingleton()->GetNumAssetPlatformConfigs(); ++i)
   {
+    auto* pCfg = ezAssetCurator::GetSingleton()->GetAssetPlatformConfig(i);
+
     m_ConfigBinding[NativeToObject(pCfg)] = pCfg;
   }
 }

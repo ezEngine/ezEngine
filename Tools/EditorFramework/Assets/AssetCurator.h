@@ -163,28 +163,41 @@ public:
 
 public:
   /// \brief The main platform on which development happens. E.g. "PC".
+  ///
+  /// TODO: review this concept
   const ezAssetPlatformConfig* GetDevelopmentPlatform() const;
 
   /// \brief The currently active target platform for asset processing.
-  const ezAssetPlatformConfig* GetActivePlatform() const;
+  const ezAssetPlatformConfig* GetActivePlatformConfig() const;
 
-  ezUInt32 GetActivePlatformIndex() const;
+  /// \brief Returns the index of the currently active asset platform configuration
+  ezUInt32 GetActivePlatformConfigIndex() const;
+
+  /// \brief Returns ezInvalidIndex if no config with the given name exists. Name comparison is case sensitive.
+  ezUInt32 FindAssetPlatformConfigByName(const char* szPlatform);
+
+  ezUInt32 GetNumAssetPlatformConfigs() const;
+
+  /// \brief Always returns a valid config. E.g. even if ezInvalidIndex is passed in, it will fall back to the default config (at index 0).
+  const ezAssetPlatformConfig* GetAssetPlatformConfig(ezUInt32 index) const;
+
+  /// \brief Always returns a valid config. E.g. even if ezInvalidIndex is passed in, it will fall back to the default config (at index 0).
+  ezAssetPlatformConfig* GetAssetPlatformConfig(ezUInt32 index);
 
   /// \brief Switches the currently active asset target platform.
   ///
   /// Broadcasts ezAssetCuratorEvent::Type::ActivePlatformChanged on change.
-  void SetActivePlatformByName(const char* szPlatform);
+  void SetActivePlatformByIndex(ezUInt32 index);
 
   /// \brief Saves the current asset configurations. Returns failure if the output file could not be written to.
-  ezResult SaveAssetConfigs();
-
-  // TODO: make this private
-  ezHybridArray<ezAssetPlatformConfig*, 8> m_AssetPlatformConfigs;
+  ezResult SaveAssetPlatformConfigs();
 
 private:
-  void ClearAssetConfigs();
-  void SetupDefaultAssetConfigs();
-  ezResult LoadAssetConfigs();
+  void ClearAssetPlatformConfigs();
+  void SetupDefaultAssetPlatformConfigs();
+  ezResult LoadAssetPlatformConfigs();
+
+  ezHybridArray<ezAssetPlatformConfig*, 8> m_AssetPlatformConfigs;
 
   ///@}
   /// \name High Level Functions

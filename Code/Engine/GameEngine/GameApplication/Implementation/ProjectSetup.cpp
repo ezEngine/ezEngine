@@ -122,8 +122,10 @@ void ezGameApplication::DoSetupDataDirectories()
 
 void ezGameApplication::DoConfigureAssetManagement()
 {
+  const ezStringBuilder sPlatform("AssetCache/", ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-platform", 0, "PC"), ".ezAidlt");
+
   // which redirection table to search
-  ezDataDirectory::FolderType::s_sRedirectionFile = "AssetCache/PC.ezAidlt";
+  ezDataDirectory::FolderType::s_sRedirectionFile = sPlatform;
 
   // which platform assets to use
   ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/";

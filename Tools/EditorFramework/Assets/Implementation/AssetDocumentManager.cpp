@@ -144,7 +144,7 @@ const ezAssetPlatformConfig* ezAssetDocumentManager::DetermineFinalTargetPlatfor
 {
   if (pPlatformConfig == nullptr)
   {
-    return ezAssetCurator::GetSingleton()->GetActivePlatform();
+    return ezAssetCurator::GetSingleton()->GetActivePlatformConfig();
   }
 
   return pPlatformConfig;

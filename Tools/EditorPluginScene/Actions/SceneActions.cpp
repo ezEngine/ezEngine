@@ -1,5 +1,6 @@
 #include <PCH.h>
 
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
@@ -12,10 +13,11 @@
 #include <Foundation/Logging/Log.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
-#include <QFileDialog>
-#include <QProcess>
 #include <SharedPluginScene/Common/Messages.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
+
+#include <QFileDialog>
+#include <QProcess>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -266,7 +268,7 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
       break;
 
     case ActionType::CreateThumbnail:
-      //SetIconPath(":/EditorPluginScene/Icons/PullObjectState16.png"); // TODO: icon
+      // SetIconPath(":/EditorPluginScene/Icons/PullObjectState16.png"); // TODO: icon
       break;
 
     case ActionType::JumpToCamera0:
@@ -318,6 +320,9 @@ void ezSceneAction::Execute(const ezVariant& value)
         arguments << "-wnd";
         arguments << QString::fromUtf8(sWndCfgPath);
       }
+
+      arguments << "-platform";
+      arguments << ezAssetCurator::GetSingleton()->GetActivePlatformConfig()->GetConfigName();
 
       ezLog::Info("Running: Player.exe -scene \"{0}\"", sPath);
       m_pSceneDocument->ShowDocumentStatus(ezFmt("Running: Player.exe -scene \"{0}\"", sPath));

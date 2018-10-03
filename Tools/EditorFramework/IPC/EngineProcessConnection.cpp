@@ -1,5 +1,6 @@
 #include <PCH.h>
 
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Dialogs/RemoteConnectionDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
@@ -9,12 +10,13 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <GuiFoundation/UIServices/QtWaitForOperationDlg.moc.h>
-#include <QProcess>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
+
+#include <QProcess>
 
 EZ_IMPLEMENT_SINGLETON(ezEditorEngineProcessConnection);
 
@@ -203,6 +205,7 @@ bool ezEditorEngineProcessConnection::ConnectToRemoteProcess()
     msg.m_FileSystemConfig = m_FileSystemConfig;
     msg.m_PluginConfig = m_PluginConfig;
     msg.m_sFileserveAddress = dlg.GetResultingFsAddress().toUtf8().data();
+    msg.m_sAssetPlatformConfig = ezAssetCurator::GetSingleton()->GetActivePlatformConfig()->GetConfigName();
 
     m_pRemoteProcess->SendMessage(&msg);
   }
@@ -315,6 +318,8 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
     msg.m_sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
     msg.m_FileSystemConfig = m_FileSystemConfig;
     msg.m_PluginConfig = m_PluginConfig;
+    msg.m_sAssetPlatformConfig = ezAssetCurator::GetSingleton()->GetActivePlatformConfig()->GetConfigName();
+
     ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }
 
