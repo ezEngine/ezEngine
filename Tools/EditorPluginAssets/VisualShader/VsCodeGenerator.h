@@ -10,7 +10,7 @@ class ezVisualShaderCodeGenerator
 public:
   ezVisualShaderCodeGenerator();
 
-  ezStatus GenerateVisualShader(const ezDocumentNodeManager* pNodeMaanger, const char* szPlatform, ezStringBuilder& out_sCheckPerms);
+  ezStatus GenerateVisualShader(const ezDocumentNodeManager* pNodeMaanger, ezStringBuilder& out_sCheckPerms);
 
   const char* GetFinalShaderCode() const { return m_sFinalShaderCode; }
 

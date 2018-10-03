@@ -98,7 +98,7 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
   }
 }
 
-ezStatus ezParticleEffectAssetDocument::WriteParticleEffectAsset(ezStreamWriter& stream, const char* szPlatform) const
+ezStatus ezParticleEffectAssetDocument::WriteParticleEffectAsset(ezStreamWriter& stream, const ezAssetPlatformConfig* pPlatformConfig) const
 {
   const ezParticleEffectDescriptor* pProp = GetProperties();
 
@@ -215,10 +215,10 @@ void ezParticleEffectAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo*
   pInfo->m_MetaInfo.PushBack(pExposedParams);
 }
 
-ezStatus ezParticleEffectAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
+ezStatus ezParticleEffectAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig,
                                                                const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
-  return WriteParticleEffectAsset(stream, szPlatform);
+  return WriteParticleEffectAsset(stream, pPlatformConfig);
 }
 
 ezStatus ezParticleEffectAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)

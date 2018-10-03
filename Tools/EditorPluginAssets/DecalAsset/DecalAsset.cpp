@@ -105,10 +105,10 @@ const char* ezDecalAssetDocument::QueryAssetType() const
   return "Decal";
 }
 
-ezStatus ezDecalAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
+ezStatus ezDecalAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig,
                                                       const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
-  return static_cast<ezDecalAssetDocumentManager*>(GetAssetDocumentManager())->GenerateDecalTexture(szPlatform);
+  return static_cast<ezDecalAssetDocumentManager*>(GetAssetDocumentManager())->GenerateDecalTexture(pPlatformConfig);
 }
 
 ezStatus ezDecalAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)

@@ -31,7 +31,8 @@ ezTextureAssetDocument::ezTextureAssetDocument(const char* szDocumentPath)
   m_iTextureLod = -1;
 }
 
-ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail)
+ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail,
+                                            const ezTextureAssetTypePlatformConfig* pAssetConfig)
 {
   const ezTextureAssetProperties* pProp = GetProperties();
 
@@ -105,6 +106,8 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
   if (pProp->m_bFlipHorizontal)
     arguments << "-flip_horz";
+
+  arguments << "-maxResolution" << QString::number(pAssetConfig->m_uiMaxResolution);
 
   arguments << "-addressU" << QString::number(pProp->m_AddressModeU.GetValue());
   arguments << "-addressV" << QString::number(pProp->m_AddressModeV.GetValue());
@@ -243,10 +246,12 @@ void ezTextureAssetDocument::InitializeAfterLoading()
   }
 }
 
-ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform,
+ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig,
                                                         const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
-  EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
+  //EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
+
+  const auto* pAssetConfig = pPlatformConfig->GetTypeConfig<ezTextureAssetTypePlatformConfig>();
 
   const auto props = GetProperties();
 
@@ -341,9 +346,9 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
   }
   else
   {
-    const bool bUpdateThumbnail = ezStringUtils::IsEqual(szPlatform, ezAssetCurator::GetSingleton()->GetDevelopmentPlatform());
+    const bool bUpdateThumbnail = pPlatformConfig == ezAssetCurator::GetSingleton()->GetDevelopmentPlatform();
 
-    ezStatus result = RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail);
+    ezStatus result = RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail, pAssetConfig);
 
     ezFileStats stat;
     if (ezOSFile::GetFileStats(szTargetFile, stat).Succeeded() && stat.m_uiFileSize == 0)

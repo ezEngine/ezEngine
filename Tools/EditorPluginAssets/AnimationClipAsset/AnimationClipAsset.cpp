@@ -69,7 +69,7 @@ static ezStatus ImportAnimation(const char* filename, ezSharedPtr<ezModelImporte
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
+ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig,
                                                               const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   ezProgressRange range("Transforming Asset", 2, false);

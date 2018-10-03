@@ -4,6 +4,8 @@
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 
+class ezTextureAssetTypePlatformConfig;
+
 struct ezTextureChannelMode
 {
   typedef ezUInt8 StorageType;
@@ -40,10 +42,11 @@ public:
 
 protected:
   virtual void InitializeAfterLoading() override;
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override { return ezStatus(EZ_SUCCESS); }
-  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override { return ezStatus(EZ_SUCCESS); }
+  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
 
-  ezStatus RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail);
+  ezStatus RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail,
+                      const ezTextureAssetTypePlatformConfig* pAssetConfig);
 
 
 };

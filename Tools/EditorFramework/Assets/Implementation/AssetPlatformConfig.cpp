@@ -121,8 +121,10 @@ const char* ezTextureAssetTypePlatformConfig::GetDisplayName() const
 
 ezResult ezAssetCurator::SaveAssetConfigs()
 {
+  EZ_LOCK(m_CuratorMutex);
+
   ezDeferredFileWriter file;
-  file.SetOutput(":project/.editor/AssetConfigs.ddl");
+  file.SetOutput(":project/Editor/AssetConfigs.ddl");
 
   ezOpenDdlWriter ddl;
   ddl.SetOutputStream(&file);
@@ -145,10 +147,12 @@ ezResult ezAssetCurator::SaveAssetConfigs()
 
 ezResult ezAssetCurator::LoadAssetConfigs()
 {
-  EZ_LOG_BLOCK("LoadAssetConfigs", ":project/.editor/AssetConfigs.ddl");
+  EZ_LOCK(m_CuratorMutex);
+
+  EZ_LOG_BLOCK("LoadAssetConfigs", ":project/Editor/AssetConfigs.ddl");
 
   ezFileReader file;
-  if (file.Open(":project/.editor/AssetConfigs.ddl").Failed())
+  if (file.Open(":project/Editor/AssetConfigs.ddl").Failed())
   {
     ezLog::Warning("Asset configurations file does not exist.");
     return EZ_FAILURE;
@@ -184,6 +188,8 @@ ezResult ezAssetCurator::LoadAssetConfigs()
 
 void ezAssetCurator::ClearAssetConfigs()
 {
+  EZ_LOCK(m_CuratorMutex);
+
   for (auto pCfg : m_AssetPlatformConfigs)
   {
     pCfg->GetDynamicRTTI()->GetAllocator()->Deallocate(pCfg);
@@ -194,6 +200,8 @@ void ezAssetCurator::ClearAssetConfigs()
 
 void ezAssetCurator::SetupDefaultAssetConfigs()
 {
+  EZ_LOCK(m_CuratorMutex);
+
   ClearAssetConfigs();
 
   {

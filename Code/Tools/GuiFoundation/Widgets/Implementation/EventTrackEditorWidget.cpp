@@ -68,7 +68,7 @@ void ezQtEventTrackEditorWidget::on_AddEventButton_clicked()
 
   if (m_EventSet.IsModified())
   {
-    m_EventSet.WriteToDDL(":project/.editor/Events.ddl");
+    m_EventSet.WriteToDDL(":project/Editor/Events.ddl");
 
     FillEventComboBox(name.toUtf8().data());
   }

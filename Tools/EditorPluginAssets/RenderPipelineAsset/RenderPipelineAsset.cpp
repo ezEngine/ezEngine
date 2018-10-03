@@ -110,7 +110,7 @@ ezRenderPipelineAssetDocument::ezRenderPipelineAssetDocument(const char* szDocum
 {
 }
 
-ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
+ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig,
                                                                const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   const ezUInt8 uiVersion = 1;

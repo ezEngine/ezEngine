@@ -16,7 +16,6 @@
 /// \todo Reading (compressed) TGA very slow
 /// \todo Optimize image compositing
 
-
 /**** Usage ****
 
 -out "file" -> defines where to write the output to
@@ -26,6 +25,7 @@
 -mipmap -> enables mipmap generation
 -srgb -> the output format will be an SRGB format, otherwise linear, cannot be used for 1 and 2 channel formats
 -compress -> the output format will be a compressed format
+-maxResolution X -> Specifies the maximum texture resolution. Larger images are scaled down.
 -channels X -> the output format will have 1, 2, 3 or 4 channels, default is 4
 -r inX.r -> the output RED channel is taken from the RED channel of input file X.
 -g inX.b -> the output GREEN channel is taken from the BLUE channel of input file X.
@@ -113,7 +113,7 @@ ezApplication::ApplicationExecution ezTexConv::RunInternal()
 
     if (!m_sThumbnailFile.IsEmpty())
     {
-      if (ConvertInputsToRGBA().Failed())
+      if (ConvertInputsToRGBAf32().Failed())
         return ezApplication::Quit;
 
       const ezImage& img = m_InputImages[0];
@@ -134,7 +134,7 @@ ezApplication::ApplicationExecution ezTexConv::RunInternal()
   }
   else
   {
-    if (ConvertInputsToRGBA().Failed())
+    if (ConvertInputsToRGBAf32().Failed())
       return ezApplication::Quit;
 
     if (m_TextureType == TextureType::Cubemap)
@@ -152,6 +152,9 @@ ezApplication::ApplicationExecution ezTexConv::RunInternal()
       if (CreateTexture2D(pCombined, true).Failed())
         return ezApplication::Quit;
     }
+
+    if (ClampToMaxResolution().Failed())
+      return ezApplication::Quit;
 
     if (GenerateMipmaps().Failed())
       return ezApplication::Quit;

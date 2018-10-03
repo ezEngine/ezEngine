@@ -13,15 +13,6 @@ ezResult ezTexConv::LoadSingleInputFile(const char* szFile)
   return EZ_SUCCESS;
 }
 
-namespace
-{
-  bool isPowerOfTwo(ezUInt32 i)
-  {
-    // http://graphics.stanford.edu/~seander/bithacks.html#DetermineIfPowerOf2
-    return i && !(i & (i - 1));
-  }
-}
-
 ezResult ezTexConv::LoadInputs()
 {
   EZ_LOG_BLOCK("Load Inputs");
@@ -48,8 +39,7 @@ ezResult ezTexConv::LoadInputs()
   // Check for same resolutions.
   for (ezUInt32 i = 1; i < m_InputImages.GetCount(); ++i)
   {
-    if (m_InputImages[i].GetWidth() != m_InputImages[0].GetWidth() ||
-        m_InputImages[i].GetHeight() != m_InputImages[0].GetHeight())
+    if (m_InputImages[i].GetWidth() != m_InputImages[0].GetWidth() || m_InputImages[i].GetHeight() != m_InputImages[0].GetHeight())
     {
       SetReturnCode(TexConvReturnCodes::BAD_INPUT_RESOLUTIONS);
       ezLog::Error("Input image {0} has a different resolution than image 0. This is currently not supported.", i);
@@ -80,17 +70,96 @@ void ezTexConv::CheckCompression()
   }
 }
 
-ezResult ezTexConv::ConvertInputsToRGBA()
+ezResult ezTexConv::ConvertInputsToRGBAf32()
 {
   for (ezUInt32 i = 0; i < m_InputImages.GetCount(); ++i)
   {
     if (ezImageConversion::Convert(m_InputImages[i], m_InputImages[i], ezImageFormat::R32G32B32A32_FLOAT).Failed())
     {
       SetReturnCode(TexConvReturnCodes::FAILED_CONVERT_INPUT_TO_RGBA);
-      ezLog::Error("Failed to convert input {0} from format {1} to R32G32B32A32_FLOAT. Format is not supported.", i, ezImageFormat::GetName(m_InputImages[i].GetImageFormat()));
+      ezLog::Error("Failed to convert input {0} from format {1} to R32G32B32A32_FLOAT. Format is not supported.", i,
+                   ezImageFormat::GetName(m_InputImages[i].GetImageFormat()));
       return EZ_FAILURE;
     }
   }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezTexConv::ClampToMaxResolution()
+{
+  // scaling down cubemaps is currently not supported
+  if (m_TextureType != TextureType::Texture2D)
+    return EZ_SUCCESS;
+
+  // the the input image is already small enough, don't do anything
+  if (m_pCurrentImage->GetMetadata().width <= m_uiMaxResolution && m_pCurrentImage->GetMetadata().height <= m_uiMaxResolution &&
+      m_pCurrentImage->GetMetadata().depth <= m_uiMaxResolution)
+    return EZ_SUCCESS;
+
+  ezUInt32 iTargetMip = 0;
+
+  // if we have mipmaps, find the mip that is closest to the target resolution
+  for (ezUInt32 i = 0; i < m_pCurrentImage->GetMetadata().mipLevels; ++i)
+  {
+    iTargetMip = i;
+
+    if (m_pCurrentImage->GetImage(i, 0, 0)->width <= m_uiMaxResolution && m_pCurrentImage->GetImage(i, 0, 0)->height <= m_uiMaxResolution)
+      break;
+  }
+
+  const Image* pLowerResSrc = m_pCurrentImage->GetImage(iTargetMip, 0, 0);
+  ScratchImage temp;
+
+  // scale down, if the found mipmap is not small enough
+  if (pLowerResSrc->width > m_uiMaxResolution || pLowerResSrc->height > m_uiMaxResolution)
+  {
+    ezUInt32 w, h;
+
+    // keep aspect ratio
+    if (pLowerResSrc->width == pLowerResSrc->height)
+    {
+      w = m_uiMaxResolution;
+      h = m_uiMaxResolution;
+    }
+    else if (pLowerResSrc->width >= pLowerResSrc->height)
+    {
+      const float fAdjust = (float)m_uiMaxResolution / (float)pLowerResSrc->width;
+      w = m_uiMaxResolution;
+      h = (ezUInt32)(pLowerResSrc->height * fAdjust);
+    }
+    else
+    {
+      const float fAdjust = (float)m_uiMaxResolution / (float)pLowerResSrc->height;
+      w = (ezUInt32)(pLowerResSrc->width * fAdjust);
+      h = m_uiMaxResolution;
+    }
+
+    // pick the closest multiple of 4 for the image size
+    // this is important for some compression methods
+    // TODO: ezMath::Round<int> does not work
+    // w = ezMath::Round(w, 4U);
+    // h = ezMath::Round(h, 4U);
+
+    w = ezMath::Max(w, 4U);
+    h = ezMath::Max(h, 4U);
+
+    // TODO: snap resolution to power-of-two ?
+
+    const HRESULT res = Resize(*pLowerResSrc, w, h, TEX_FILTER_TRIANGLE | TEX_FILTER_SEPARATE_ALPHA, temp);
+    if (FAILED(res))
+    {
+      ezLog::Error("Failed to scale down image to maximum resolution ({0}x{1} -> {2}x{3})", pLowerResSrc->width, pLowerResSrc->height, w,
+                   h);
+      return EZ_FAILURE;
+    }
+
+    pLowerResSrc = temp.GetImage(0, 0, 0);
+  }
+
+  // copy the lower res image into the current image
+  m_pCurrentImage = make_shared<ScratchImage>();
+  m_pCurrentImage->InitializeFromImage(*pLowerResSrc);
 
   return EZ_SUCCESS;
 }
@@ -118,7 +187,8 @@ ezImage* ezTexConv::CreateCombined2DImage(const ChannelMapping* dataSources)
 
   static_assert(sizeof(ezColor) == sizeof(float) * 4, "The loop below assumes that ezColor is 4 floats in size");
 
-  // later block compression may pre-multiply rgb by alpha, if we have never set alpha to anything (3 channel case), that will result in black
+  // later block compression may pre-multiply rgb by alpha, if we have never set alpha to anything (3 channel case), that will result in
+  // black
   ezColor defaultResult(0.0f, 0.0f, 0.0f, 0.0f);
   if (m_uiOutputChannels < 4)
     defaultResult.a = 1.0f;

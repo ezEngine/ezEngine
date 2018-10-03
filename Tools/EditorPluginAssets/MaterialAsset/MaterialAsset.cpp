@@ -219,7 +219,7 @@ void ezMaterialAssetProperties::CreateProperties(const char* szShaderPath)
     // Force generate if custom shader is missing
     ezAssetFileHeader AssetHeader;
     AssetHeader.SetFileHashAndVersion(0, m_pDocument->GetAssetTypeVersion());
-    m_pDocument->RecreateVisualShaderFile("", AssetHeader);
+    m_pDocument->RecreateVisualShaderFile(AssetHeader);
     pType = ezShaderTypeRegistry::GetSingleton()->GetShaderType(szShaderPath);
   }
 
@@ -619,12 +619,13 @@ public:
   }
 };
 
-ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform,
-                                                         const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag,
+                                                         const ezAssetPlatformConfig* pPlatformConfig, const ezAssetFileHeader& AssetHeader,
+                                                         bool bTriggeredManually)
 {
   if (ezStringUtils::IsEqual(szOutputTag, ezMaterialAssetDocumentManager::s_szShaderOutputTag))
   {
-    ezStatus ret = RecreateVisualShaderFile(szPlatform, AssetHeader);
+    ezStatus ret = RecreateVisualShaderFile(AssetHeader);
 
     if (bTriggeredManually)
     {
@@ -698,7 +699,7 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFil
 
       if (e.m_Type == ezMaterialVisualShaderEvent::TransformFailed)
       {
-        TagVisualShaderFileInvalid(szPlatform, e.m_sTransformError);
+        TagVisualShaderFileInvalid(pPlatformConfig, e.m_sTransformError);
       }
 
       m_VisualShaderEvents.Broadcast(e);
@@ -708,16 +709,17 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFil
   }
   else
   {
-    return SUPER::InternalTransformAsset(szTargetFile, szOutputTag, szPlatform, AssetHeader, bTriggeredManually);
+    return SUPER::InternalTransformAsset(szTargetFile, szOutputTag, pPlatformConfig, AssetHeader, bTriggeredManually);
   }
 }
 
-ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
-                                                         const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
+                                                         const ezAssetPlatformConfig* pPlatformConfig, const ezAssetFileHeader& AssetHeader,
+                                                         bool bTriggeredManually)
 {
   EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szOutputTag), "Additional output '{0}' not implemented!", szOutputTag);
 
-  return WriteMaterialAsset(stream, szPlatform, true);
+  return WriteMaterialAsset(stream, pPlatformConfig, true);
 }
 
 ezStatus ezMaterialAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
@@ -790,7 +792,8 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
   }
 }
 
-ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, const char* szPlatform, bool bEmbedLowResData) const
+ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, const ezAssetPlatformConfig* pPlatformConfig,
+                                                     bool bEmbedLowResData) const
 {
   const ezMaterialAssetProperties* pProp = GetProperties();
 
@@ -949,7 +952,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, con
           if (!asset.isValid())
             continue;
 
-          sValue = asset->m_pAssetInfo->m_pManager->GetAbsoluteOutputFileName(asset->m_pAssetInfo->m_sAbsolutePath, "", szPlatform);
+          sValue = asset->m_pAssetInfo->m_pManager->GetAbsoluteOutputFileName(asset->m_pAssetInfo->m_sAbsolutePath, "", pPlatformConfig);
 
           sFilename = sValue.GetFileName();
           sFilename.Append("-lowres");
@@ -978,7 +981,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, con
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezMaterialAssetDocument::TagVisualShaderFileInvalid(const char* szPlatform, const char* szError)
+void ezMaterialAssetDocument::TagVisualShaderFileInvalid(const ezAssetPlatformConfig* pPlatformConfig, const char* szError)
 {
   if (GetProperties()->m_ShaderMode != ezMaterialShaderMode::Custom)
     return;
@@ -1009,7 +1012,7 @@ void ezMaterialAssetDocument::TagVisualShaderFileInvalid(const char* szPlatform,
   }
 }
 
-ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const char* szPlatform, const ezAssetFileHeader& AssetHeader)
+ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const ezAssetFileHeader& AssetHeader)
 {
   if (GetProperties()->m_ShaderMode != ezMaterialShaderMode::Custom)
   {
@@ -1021,8 +1024,7 @@ ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const char* szPlatfor
 
   ezVisualShaderCodeGenerator codeGen;
 
-  EZ_SUCCEED_OR_RETURN(
-      codeGen.GenerateVisualShader(static_cast<const ezDocumentNodeManager*>(GetObjectManager()), szPlatform, m_sCheckPermutations));
+  EZ_SUCCEED_OR_RETURN(codeGen.GenerateVisualShader(static_cast<const ezDocumentNodeManager*>(GetObjectManager()), m_sCheckPermutations));
 
   ezFileWriter file;
   if (file.Open(sAutoGenShader).Succeeded())
@@ -1275,9 +1277,9 @@ bool ezMaterialAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezA
   return true;
 }
 
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 

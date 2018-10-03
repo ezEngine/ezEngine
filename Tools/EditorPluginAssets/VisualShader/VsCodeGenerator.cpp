@@ -146,8 +146,7 @@ ezUInt16 ezVisualShaderCodeGenerator::DeterminePinId(const ezDocumentObject* pOw
   return 0xFFFF;
 }
 
-ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezDocumentNodeManager* pNodeManager, const char* szPlatform,
-                                                           ezStringBuilder& out_sCheckPerms)
+ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezDocumentNodeManager* pNodeManager, ezStringBuilder& out_sCheckPerms)
 {
   out_sCheckPerms.Clear();
 

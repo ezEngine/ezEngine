@@ -25,18 +25,18 @@ ezImageFormat::Enum ezTexConv::ChooseOutputFormat(bool bSRGB, bool bAlphaIsMask)
   EZ_ASSERT_DEBUG(!bSRGB || !m_bHDROutput, "Output can not be both HDR and SRGB");
   if (m_bCompress)
   {
-    if(m_bHDROutput)
+    if (m_bHDROutput)
     {
       switch (m_uiOutputChannels)
       {
-      case 1:
-      case 2:
-      case 3:
-        return ezImageFormat::BC6H_UF16;
-      case 4:
-        return ezImageFormat::R16G16B16A16_FLOAT;
-      default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        case 1:
+        case 2:
+        case 3:
+          return ezImageFormat::BC6H_UF16;
+        case 4:
+          return ezImageFormat::R16G16B16A16_FLOAT;
+        default:
+          EZ_ASSERT_NOT_IMPLEMENTED;
       }
     }
 
@@ -53,7 +53,8 @@ ezImageFormat::Enum ezTexConv::ChooseOutputFormat(bool bSRGB, bool bAlphaIsMask)
     {
       if (bAlphaIsMask)
       {
-        /// \todo BC1 seems to get its "1 Bit Alpha" going by premultiplying it into the color value. But might also be a bug in the DDS generator
+        /// \todo BC1 seems to get its "1 Bit Alpha" going by premultiplying it into the color value. But might also be a bug in the DDS
+        /// generator
 
         // BC1 supports 1 Bit alpha, so that is more efficient for textures that only use a simple mask for alpha
         if (m_bPremultiplyAlpha)
@@ -65,7 +66,6 @@ ezImageFormat::Enum ezTexConv::ChooseOutputFormat(bool bSRGB, bool bAlphaIsMask)
       {
         return bSRGB ? ezImageFormat::BC3_UNORM_SRGB : ezImageFormat::BC3_UNORM;
       }
-
     }
   }
   else
@@ -130,6 +130,11 @@ bool ezTexConv::CanPassThroughInput() const
   }
 
   const ezImage& img = m_InputImages[0];
+
+  // if the image has a larger resolution than allowed, do not pass it through
+  if (img.GetWidth() > m_uiMaxResolution || img.GetHeight() > m_uiMaxResolution || img.GetDepth() > m_uiMaxResolution)
+    return false;
+
   const bool bAlphaIsMask = (img.GetImageFormat() == ezImageFormat::BC1_UNORM) || (img.GetImageFormat() == ezImageFormat::BC1_UNORM_SRGB);
 
   const auto format = ChooseOutputFormat(false, bAlphaIsMask);

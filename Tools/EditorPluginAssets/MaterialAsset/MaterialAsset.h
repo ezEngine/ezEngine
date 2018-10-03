@@ -41,7 +41,10 @@ class ezMaterialAssetProperties : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezMaterialAssetProperties, ezReflectedClass);
 
 public:
-  ezMaterialAssetProperties() : m_pDocument(nullptr) {}
+  ezMaterialAssetProperties()
+      : m_pDocument(nullptr)
+  {
+  }
 
   void SetBaseMaterial(const char* szBaseMaterial);
   const char* GetBaseMaterial() const;
@@ -95,15 +98,15 @@ public:
 
   void SetBaseMaterial(const char* szBaseMaterial);
 
-  ezStatus WriteMaterialAsset(ezStreamWriter& stream, const char* szPlatform, bool bEmbedLowResData) const;
+  ezStatus WriteMaterialAsset(ezStreamWriter& stream, const ezAssetPlatformConfig* pPlatformConfig, bool bEmbedLowResData) const;
 
   /// \brief Will make sure that the visual shader is rebuilt.
   /// Typically called during asset transformation, but can be triggered manually to enforce getting visual shader node changes in.
-  ezStatus RecreateVisualShaderFile(const char* szPlatform, const ezAssetFileHeader& AssetHeader);
+  ezStatus RecreateVisualShaderFile(const ezAssetFileHeader& AssetHeader);
 
-  /// \brief If shader compilation failed this will modify the output shader file such that transforming it again, will trigger a full regeneration
-  /// Otherwise the AssetCurator would early out
-  void TagVisualShaderFileInvalid(const char* szPlatform, const char* szError);
+  /// \brief If shader compilation failed this will modify the output shader file such that transforming it again, will trigger a full
+  /// regeneration Otherwise the AssetCurator would early out
+  void TagVisualShaderFileInvalid(const ezAssetPlatformConfig* pPlatformConfig, const char* szError);
 
   /// \brief Deletes all Visual Shader nodes that are not connected to the output
   void RemoveDisconnectedNodes();
@@ -114,18 +117,22 @@ public:
 
   virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const override;
   virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const override;
-  virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType) override;
+  virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition,
+                     const char* szMimeType) override;
 
   ezEvent<const ezMaterialVisualShaderEvent&> m_VisualShaderEvents;
 
 protected:
   ezUuid GetSeedFromBaseMaterial(const ezAbstractObjectGraph* pBaseGraph);
   static ezUuid GetMaterialNodeGuid(const ezAbstractObjectGraph& graph);
-  virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab) override;
+  virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed,
+                                  const char* szBasePrefab) override;
   virtual void InitializeAfterLoading() override;
 
-  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig,
+                                          const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig,
+                                          const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
 
   virtual void InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const override;

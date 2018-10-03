@@ -44,7 +44,7 @@ ezBitflags<ezAssetDocumentFlags> ezDecalAssetDocumentManager::GetAssetDocumentTy
 }
 
 
-void ezDecalAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const char* szPlatform,
+void ezDecalAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const ezAssetPlatformConfig* pPlatformConfig,
                                                          ezMap<ezString, ezString>& inout_GuidToPath) const
 {
   ezStringBuilder projectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
@@ -58,7 +58,7 @@ void ezDecalAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirec
 }
 
 ezString ezDecalAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory,
-                                                         const char* szPlatform) const
+                                                         const ezAssetPlatformConfig* pPlatformConfig) const
 {
   // means NO table entry will be written, because for decals we don't need a redirection
   return ezString();
@@ -94,7 +94,7 @@ void ezDecalAssetDocumentManager::InternalGetSupportedDocumentTypes(
 }
 
 
-ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const char* szPlatform)
+ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezAssetPlatformConfig* pPlatformConfig)
 {
   const ezDynamicArray<ezDocument*>& docs = GetAllDocuments();
 
@@ -114,7 +114,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const char* szPlatfor
   }
 
   ezStringBuilder decalFile = ezToolsProject::GetSingleton()->GetProjectDirectory();
-  decalFile.AppendPath("AssetCache", GetDecalTexturePath(szPlatform));
+  decalFile.AppendPath("AssetCache", GetDecalTexturePath(pPlatformConfig));
 
   if (IsDecalTextureUpToDate(decalFile, uiSettingsHash))
     return ezStatus(EZ_SUCCESS);
@@ -197,7 +197,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const char* szPlatfor
   // Send information to TexConv to do all the work
   {
     ezStringBuilder texGroupFile = ezToolsProject::GetSingleton()->GetProjectDirectory();
-    texGroupFile.AppendPath("AssetCache", GetDecalTexturePath(szPlatform));
+    texGroupFile.AppendPath("AssetCache", GetDecalTexturePath(pPlatformConfig));
     texGroupFile.ChangeFileExtension("DecalTexGroup");
 
     if (texGroup.Save(texGroupFile).Failed())
@@ -234,11 +234,11 @@ bool ezDecalAssetDocumentManager::IsDecalTextureUpToDate(const char* szDecalFile
   return false;
 }
 
-ezString ezDecalAssetDocumentManager::GetDecalTexturePath(const char* szPlatform) const
+ezString ezDecalAssetDocumentManager::GetDecalTexturePath(const ezAssetPlatformConfig* pPlatformConfig0) const
 {
-  const ezString sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(szPlatform);
+  const ezAssetPlatformConfig* pPlatformConfig = ezAssetDocumentManager::DetermineFinalTargetPlatform(pPlatformConfig0);
   ezStringBuilder result = "Decals";
-  GenerateOutputFilename(result, sPlatform, "ezDecal", true);
+  GenerateOutputFilename(result, pPlatformConfig, "ezDecal", true);
 
   return result;
 }

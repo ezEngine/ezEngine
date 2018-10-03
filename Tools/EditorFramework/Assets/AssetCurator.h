@@ -163,15 +163,15 @@ public:
 
 public:
   /// \brief The main platform on which development happens. E.g. "PC".
-  const char* GetDevelopmentPlatform() const;
+  const ezAssetPlatformConfig* GetDevelopmentPlatform() const;
 
   /// \brief The currently active target platform for asset processing.
-  const char* GetActivePlatform() const { return m_sActivePlatform; }
+  const ezAssetPlatformConfig* GetActivePlatform() const;
 
   /// \brief Switches the currently active asset target platform.
   ///
   /// Broadcasts ezAssetCuratorEvent::Type::ActivePlatformChanged on change.
-  void SetActivePlatform(const char* szPlatform);
+  void SetActivePlatformByName(const char* szPlatform);
 
   /// \brief Saves the current asset configurations. Returns failure if the output file could not be written to.
   ezResult SaveAssetConfigs();
@@ -191,13 +191,13 @@ private:
 public:
 
   /// \brief Transforms all assets and writes the lookup tables. If the given platform is empty, the active platform is used.
-  void TransformAllAssets(const char* szPlatform = nullptr);
+  void TransformAllAssets(const ezAssetPlatformConfig* pPlatformConfig = nullptr);
   void ResaveAllAssets();
-  ezStatus TransformAsset(const ezUuid& assetGuid, bool bTriggeredManually, const char* szPlatform = nullptr);
+  ezStatus TransformAsset(const ezUuid& assetGuid, bool bTriggeredManually, const ezAssetPlatformConfig* pPlatformConfig = nullptr);
   ezStatus CreateThumbnail(const ezUuid& assetGuid);
 
   /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.
-  ezResult WriteAssetTables(const char* szPlatform = nullptr);
+  ezResult WriteAssetTables(const ezAssetPlatformConfig* pPlatformConfig = nullptr);
 
   ///@}
   /// \name Asset Access
@@ -224,7 +224,7 @@ public:
   /// \brief Computes the combined hash for the asset and its references. Returns 0 if anything went wrong.
   ezUInt64 GetAssetReferenceHash(ezUuid assetGuid);
 
-  ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform,
+  ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const ezAssetPlatformConfig* pPlatformConfig,
                                               const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash,
                                               ezUInt64& out_ThumbHash);
   /// \brief Returns the number of assets in the system and how many are in what transform state
@@ -266,7 +266,7 @@ private:
   /// \name Processing
   ///@{
 
-  ezStatus ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPlatform, bool bTriggeredManually);
+  ezStatus ProcessAsset(ezAssetInfo* pAssetInfo, const ezAssetPlatformConfig* pPlatformConfig, bool bTriggeredManually);
   ezStatus ResaveAsset(ezAssetInfo* pAssetInfo);
   /// \brief Returns the asset info for the asset with the given GUID or nullptr if no such asset exists.
   ezAssetInfo* GetAssetInfo(const ezUuid& assetGuid);
@@ -278,7 +278,7 @@ private:
   void HandleSingleFile(const ezString& sAbsolutePath);
   void HandleSingleFile(const ezString& sAbsolutePath, const ezSet<ezString>& validExtensions, const ezFileStats& FileStat);
   /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.
-  ezResult WriteAssetTable(const char* szDataDirectory, const char* szPlatform = nullptr);
+  ezResult WriteAssetTable(const char* szDataDirectory, const ezAssetPlatformConfig* pPlatformConfig = nullptr);
   /// \brief Some assets are vital for the engine to run. Each data directory can contain a [DataDirName].ezCollectionAsset
   ///   that has all its references transformed before any other documents are loaded.
   void ProcessAllCoreAssets();
@@ -367,7 +367,7 @@ private:
 
 
   ezApplicationFileSystemConfig m_FileSystemConfig;
-  ezString m_sActivePlatform;
+  ezAssetPlatformConfig* m_pActivePlatformConfig = nullptr;
   ezSet<ezString> m_ValidAssetExtensions;
   ezSet<ezString> m_AssetFolders;
 

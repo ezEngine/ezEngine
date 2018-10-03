@@ -1,16 +1,16 @@
-﻿#pragma once
+#pragma once
 
-#include <RendererCore/Declarations.h>
-#include <RendererCore/Shader/Implementation/Helper.h>
+#include <Foundation/CodeUtils/Preprocessor.h>
+#include <Foundation/Containers/Set.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/String.h>
-#include <Foundation/Containers/Set.h>
-#include <RendererFoundation/Descriptors/Descriptors.h>
-#include <Foundation/CodeUtils/Preprocessor.h>
-#include <RendererCore/ShaderCompiler/PermutationGenerator.h>
-#include <RendererCore/Shader/ShaderPermutationBinary.h>
 #include <Foundation/Types/Bitflags.h>
+#include <RendererCore/Declarations.h>
+#include <RendererCore/Shader/Implementation/Helper.h>
+#include <RendererCore/Shader/ShaderPermutationBinary.h>
+#include <RendererCore/ShaderCompiler/PermutationGenerator.h>
+#include <RendererFoundation/Descriptors/Descriptors.h>
 
 // \brief Flags that affect the compilation process of a shader
 struct ezShaderCompilerFlags
@@ -34,7 +34,6 @@ class EZ_RENDERERCORE_DLL ezShaderProgramCompiler : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezShaderProgramCompiler, ezReflectedClass);
 
 public:
-
   struct ezShaderProgramData
   {
     ezShaderProgramData()
@@ -60,25 +59,20 @@ public:
   virtual void GetSupportedPlatforms(ezHybridArray<ezString, 4>& Platforms) = 0;
 
   virtual ezResult Compile(ezShaderProgramData& inout_Data, ezLogInterface* pLog) = 0;
-
 };
 
 class EZ_RENDERERCORE_DLL ezShaderCompiler
 {
 public:
-
-  ezResult CompileShaderPermutationForPlatforms(const char* szFile, const ezArrayPtr<const ezPermutationVar>& permutationVars, ezLogInterface* pLog, const char* szPlatform = "ALL");
+  ezResult CompileShaderPermutationForPlatforms(const char* szFile, const ezArrayPtr<const ezPermutationVar>& permutationVars,
+                                                ezLogInterface* pLog, const char* szPlatform = "ALL");
 
 private:
-
   ezResult RunShaderCompiler(const char* szFile, const char* szPlatform, ezShaderProgramCompiler* pCompiler, ezLogInterface* pLog);
 
-  void WriteFailedShaderSource(ezShaderProgramCompiler::ezShaderProgramData &spd, ezLogInterface* pLog);
+  void WriteFailedShaderSource(ezShaderProgramCompiler::ezShaderProgramData& spd, ezLogInterface* pLog);
 
-  bool PassThroughUnknownCommandCB(const char* szCmd)
-  {
-    return ezStringUtils::IsEqual(szCmd, "version");
-  }
+  bool PassThroughUnknownCommandCB(const char* szCmd) { return ezStringUtils::IsEqual(szCmd, "version"); }
 
   struct ezShaderData
   {
@@ -98,5 +92,3 @@ private:
 
   ezSet<ezString> m_IncludeFiles;
 };
-
-

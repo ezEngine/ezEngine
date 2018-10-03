@@ -22,7 +22,7 @@ ezAnimatedMeshAssetDocument::ezAnimatedMeshAssetDocument(const char* szDocumentP
 {
 }
 
-ezStatus ezAnimatedMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
+ezStatus ezAnimatedMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig,
                                                              const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   ezProgressRange range("Transforming Asset", 2, false);

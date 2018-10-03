@@ -1,10 +1,10 @@
 #include "Main.h"
 
 #ifdef EZ_PLATFORM_WINDOWS
-#include <d3d11.h>
-#include <dxgi.h>
-#include <dxgiformat.h>
-#include <wrl\client.h>
+#  include <d3d11.h>
+#  include <dxgi.h>
+#  include <dxgiformat.h>
+#  include <wrl\client.h>
 #endif
 
 // Only use GPU compression on windows as d3d11 is not available on any other platform
@@ -18,7 +18,7 @@ namespace
 
     *pFactory = nullptr;
 
-    typedef HRESULT(WINAPI* pfn_CreateDXGIFactory1)(REFIID riid, _Out_ void **ppFactory);
+    typedef HRESULT(WINAPI * pfn_CreateDXGIFactory1)(REFIID riid, _Out_ void** ppFactory);
 
     static pfn_CreateDXGIFactory1 s_CreateDXGIFactory1 = nullptr;
 
@@ -28,7 +28,8 @@ namespace
       if (!hModDXGI)
         return false;
 
-      s_CreateDXGIFactory1 = reinterpret_cast<pfn_CreateDXGIFactory1>(reinterpret_cast<void*>(GetProcAddress(hModDXGI, "CreateDXGIFactory1")));
+      s_CreateDXGIFactory1 =
+          reinterpret_cast<pfn_CreateDXGIFactory1>(reinterpret_cast<void*>(GetProcAddress(hModDXGI, "CreateDXGIFactory1")));
       if (!s_CreateDXGIFactory1)
         return false;
     }
@@ -53,22 +54,22 @@ namespace
       if (!hModD3D11)
         return false;
 
-      s_DynamicD3D11CreateDevice = reinterpret_cast<PFN_D3D11_CREATE_DEVICE>(reinterpret_cast<void*>(GetProcAddress(hModD3D11, "D3D11CreateDevice")));
+      s_DynamicD3D11CreateDevice =
+          reinterpret_cast<PFN_D3D11_CREATE_DEVICE>(reinterpret_cast<void*>(GetProcAddress(hModD3D11, "D3D11CreateDevice")));
       if (!s_DynamicD3D11CreateDevice)
         return false;
     }
 
-    D3D_FEATURE_LEVEL featureLevels[] =
-    {
-      D3D_FEATURE_LEVEL_11_0,
-      D3D_FEATURE_LEVEL_10_1,
-      D3D_FEATURE_LEVEL_10_0,
+    D3D_FEATURE_LEVEL featureLevels[] = {
+        D3D_FEATURE_LEVEL_11_0,
+        D3D_FEATURE_LEVEL_10_1,
+        D3D_FEATURE_LEVEL_10_0,
     };
 
     UINT createDeviceFlags = 0;
-#ifdef _DEBUG
+#  ifdef _DEBUG
     createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif
+#  endif
 
     ComPtr<IDXGIAdapter> pAdapter;
     if (adapter >= 0)
@@ -85,10 +86,9 @@ namespace
     }
 
     D3D_FEATURE_LEVEL fl;
-    HRESULT hr = s_DynamicD3D11CreateDevice(pAdapter.Get(),
-      (pAdapter) ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE,
-                                            nullptr, createDeviceFlags, featureLevels, _countof(featureLevels),
-                                            D3D11_SDK_VERSION, pDevice, &fl, nullptr);
+    HRESULT hr =
+        s_DynamicD3D11CreateDevice(pAdapter.Get(), (pAdapter) ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE, nullptr,
+                                   createDeviceFlags, featureLevels, _countof(featureLevels), D3D11_SDK_VERSION, pDevice, &fl, nullptr);
     if (SUCCEEDED(hr))
     {
       if (fl < D3D_FEATURE_LEVEL_11_0)
@@ -134,11 +134,9 @@ namespace
     else
       return false;
   }
-}
+} // namespace
 #endif
-ezTexConv::ezTexConv()
-{
-}
+ezTexConv::ezTexConv() {}
 
 void ezTexConv::AfterCoreStartup()
 {
@@ -291,8 +289,7 @@ ezTexConv::ChannelMapping ezTexConv::ParseInputCfg(const char* cfg, ezInt8 iChan
       source.m_uiChannelMask |= Channel::Alpha;
 
     tmp.Shrink(1, 0);
-  }
-  while (bSingleChannel && !tmp.IsEmpty());
+  } while (bSingleChannel && !tmp.IsEmpty());
 
   return source;
 }
@@ -455,6 +452,11 @@ void ezTexConv::ParseCommandLine()
 
     m_uiAssetHash = (uiHashHigh << 32) | uiHashLow;
   }
+
+  // max texture size
+  {
+    m_uiMaxResolution = ezMath::Clamp<ezUInt16>(pCmd->GetIntOption("-maxResolution", m_uiMaxResolution), 4, m_uiMaxResolution);
+  }
 }
 
 ezResult ezTexConv::ValidateConfiguration()
@@ -503,17 +505,17 @@ void ezTexConv::PrintConfig()
 
   switch (m_TextureType)
   {
-  case TextureType::Texture2D:
-    ezLog::Info("Type: 2D Texture");
-    break;
-  case TextureType::Cubemap:
-    ezLog::Info("Type: Cubemap");
-    break;
-  case TextureType::DecalAtlas:
-    ezLog::Info("Type: Decal Atlas");
-    break;
-  default:
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    case TextureType::Texture2D:
+      ezLog::Info("Type: 2D Texture");
+      break;
+    case TextureType::Cubemap:
+      ezLog::Info("Type: Cubemap");
+      break;
+    case TextureType::DecalAtlas:
+      ezLog::Info("Type: Decal Atlas");
+      break;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
   ezLog::Info("Output: '{0}'", m_sOutputFile);
@@ -523,6 +525,7 @@ void ezTexConv::PrintConfig()
     ezLog::Info("Input {0}: '{1}'", i, m_InputFileNames[i]);
   }
 
+  ezLog::Info("Max Resolution: {0}", m_uiMaxResolution);
   ezLog::Info("Generate Mipmaps: {0}", m_bGeneratedMipmaps ? "yes" : "no");
   ezLog::Info("Use Compression: {0}", m_bCompress ? "yes" : "no");
   ezLog::Info("Output Channels: {0}", m_uiOutputChannels);
@@ -544,5 +547,4 @@ void ezTexConv::PrintConfig()
   }
 
   ezLog::Info("Low-res output: '{0}' - {1} mips", m_sOutputLowRes.IsEmpty() ? "<none>" : m_sOutputLowRes.GetData(), m_uiLowResMipmaps);
-
 }

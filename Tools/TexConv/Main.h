@@ -51,6 +51,7 @@ enum TexConvReturnCodes
   FAILED_PREMULTIPLY_ALPHA,
   FAILED_WRITE_LOWRES,
   FAILED_FLIP_OR_ROTATE,
+  FAILED_SCALE_IMAGE,
 };
 
 class ezTexConv : public ezApplication
@@ -111,6 +112,7 @@ public:
   ezUInt8 m_uiAddressV = 0;
   ezUInt8 m_uiAddressW = 0;
   ezUInt8 m_uiOutputChannels = 4;
+  ezUInt16 m_uiMaxResolution = 1024 * 32;
   ezHybridArray<ezImage*, 6> m_CleanupImages;
   ezUInt64 m_uiAssetHash = 0;
   ezUInt16 m_uiAssetVersion = 0;
@@ -144,7 +146,8 @@ public:
   ezResult LoadSingleInputFile(const char* szFile);
   ezResult LoadInputs();
   void CheckCompression();
-  ezResult ConvertInputsToRGBA();
+  ezResult ConvertInputsToRGBAf32();
+  ezResult ClampToMaxResolution();
 
   float GetChannelValue(const ChannelMapping& ds, const ezColor& rgba);
   bool IsImageAlphaBinaryMask(const ezImage& img);

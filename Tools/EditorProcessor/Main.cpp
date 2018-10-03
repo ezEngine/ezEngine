@@ -92,7 +92,8 @@ public:
             bTransform = false;
 
             const ezString sTransform = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-transform");
-            ezAssetCurator::GetSingleton()->TransformAllAssets(sTransform);
+            ezAssetCurator::GetSingleton()->SetActivePlatformByName(sTransform);
+            ezAssetCurator::GetSingleton()->TransformAllAssets();
 
             QApplication::quit();
           });

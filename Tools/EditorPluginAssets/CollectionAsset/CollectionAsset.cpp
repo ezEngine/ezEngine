@@ -40,7 +40,7 @@ ezCollectionAssetDocument::ezCollectionAssetDocument(const char* szDocumentPath)
 {
 }
 
-ezStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
+ezStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig,
                                                            const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   const ezCollectionAssetData* pProp = GetProperties();

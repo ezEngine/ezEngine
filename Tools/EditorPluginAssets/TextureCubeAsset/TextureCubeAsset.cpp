@@ -128,11 +128,11 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform,
+ezStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig,
                                                             const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
-  EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
-  const bool bUpdateThumbnail = ezStringUtils::IsEqual(szPlatform, ezAssetCurator::GetSingleton()->GetDevelopmentPlatform());
+  //EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
+  const bool bUpdateThumbnail = pPlatformConfig == ezAssetCurator::GetSingleton()->GetDevelopmentPlatform();
 
   ezStatus result = RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail);
 

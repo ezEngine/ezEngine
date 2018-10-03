@@ -41,17 +41,17 @@ ezMaterialAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDe
 
 
 ezString ezMaterialAssetDocumentManager::GetRelativeOutputFileName(const char* szDataDirectory, const char* szDocumentPath,
-                                                                   const char* szOutputTag, const char* szPlatform) const
+                                                                   const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig) const
 {
   if (ezStringUtils::IsEqual(szOutputTag, s_szShaderOutputTag))
   {
     ezStringBuilder sRelativePath(szDocumentPath);
     sRelativePath.MakeRelativeTo(szDataDirectory);
-    ezAssetDocumentManager::GenerateOutputFilename(sRelativePath, szPlatform, "autogen.ezShader", false);
+    ezAssetDocumentManager::GenerateOutputFilename(sRelativePath, pPlatformConfig, "autogen.ezShader", false);
     return sRelativePath;
   }
 
-  return SUPER::GetRelativeOutputFileName(szDataDirectory, szDocumentPath, szOutputTag, szPlatform);
+  return SUPER::GetRelativeOutputFileName(szDataDirectory, szDocumentPath, szOutputTag, pPlatformConfig);
 }
 
 

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorPluginFmod/Plugin.h>
 #include <QDialog>

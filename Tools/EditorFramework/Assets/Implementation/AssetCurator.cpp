@@ -136,11 +136,15 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
   EZ_PROFILE("StartInitialize");
 
   SetupDefaultAssetConfigs();
-  LoadAssetConfigs();
+  if (LoadAssetConfigs().Failed())
+  {
+    SaveAssetConfigs();
+  }
 
   m_bRunUpdateTask = true;
   m_FileSystemConfig = cfg;
-  m_sActivePlatform = GetDevelopmentPlatform();
+
+  SetActivePlatformByName("PC");
 
   {
     EZ_PROFILE("Watchers");
@@ -277,20 +281,43 @@ void ezAssetCurator::Deinitialize()
   ClearAssetConfigs();
 }
 
-const char* ezAssetCurator::GetDevelopmentPlatform() const
+const ezAssetPlatformConfig* ezAssetCurator::GetDevelopmentPlatform() const
 {
-  return "PC";
+  return m_AssetPlatformConfigs[0];
 }
 
-void ezAssetCurator::SetActivePlatform(const char* szPlatform)
+const ezAssetPlatformConfig* ezAssetCurator::GetActivePlatform() const
+{
+  return m_pActivePlatformConfig;
+}
+
+void ezAssetCurator::SetActivePlatformByName(const char* szPlatform)
 {
   {
     EZ_LOCK(m_CuratorMutex);
 
-    if (m_sActivePlatform == szPlatform)
+    EZ_ASSERT_DEV(!m_AssetPlatformConfigs.IsEmpty(), "Need to have a valid asset platform config");
+
+    ezAssetPlatformConfig* pConfig = m_pActivePlatformConfig;
+
+    for (auto* pCfg : m_AssetPlatformConfigs)
+    {
+      if (pCfg->m_sName == szPlatform)
+      {
+        pConfig = pCfg;
+        break;
+      }
+    }
+
+    if (pConfig == nullptr)
+    {
+      pConfig = m_AssetPlatformConfigs[0];
+    }
+
+    if (pConfig == m_pActivePlatformConfig)
       return;
 
-    m_sActivePlatform = szPlatform;
+    m_pActivePlatformConfig = pConfig;
   }
 
   ezAssetCuratorEvent e;
@@ -388,7 +415,7 @@ void ezAssetCurator::MainThreadTick()
 // ezAssetCurator High Level Functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezAssetCurator::TransformAllAssets(const char* szPlatform)
+void ezAssetCurator::TransformAllAssets(const ezAssetPlatformConfig* pPlatformConfig)
 {
   ezUInt32 uiNumStepsLeft = m_KnownAssets.GetCount();
   ezProgressRange range("Transforming Assets", 1 + uiNumStepsLeft, true);
@@ -412,7 +439,7 @@ void ezAssetCurator::TransformAllAssets(const char* szPlatform)
       --uiNumStepsLeft;
     }
 
-    auto res = ProcessAsset(pAssetInfo, szPlatform, false);
+    auto res = ProcessAsset(pAssetInfo, pPlatformConfig, false);
     if (res.m_Result.Failed())
     {
       ezLog::Error("{0} ({1})", res.m_sMessage, pAssetInfo->m_sDataDirRelativePath);
@@ -421,7 +448,7 @@ void ezAssetCurator::TransformAllAssets(const char* szPlatform)
 
   range.BeginNextStep("Writing Lookup Tables");
 
-  ezAssetCurator::GetSingleton()->WriteAssetTables(szPlatform);
+  ezAssetCurator::GetSingleton()->WriteAssetTables(pPlatformConfig);
 }
 
 void ezAssetCurator::ResaveAllAssets()
@@ -492,7 +519,7 @@ void ezAssetCurator::ResaveAllAssets()
   }
 }
 
-ezStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, bool bTriggeredManually, const char* szPlatform)
+ezStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, bool bTriggeredManually, const ezAssetPlatformConfig* pPlatformConfig)
 {
   EZ_LOCK(m_CuratorMutex);
 
@@ -501,7 +528,7 @@ ezStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, bool bTriggered
   if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
     return ezStatus("Transform failed, unknown asset.");
 
-  auto res = ProcessAsset(pInfo, szPlatform, bTriggeredManually);
+  auto res = ProcessAsset(pInfo, pPlatformConfig, bTriggeredManually);
   ezLog::Info("Transform asset time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
   return res;
 }
@@ -517,7 +544,7 @@ ezStatus ezAssetCurator::CreateThumbnail(const ezUuid& assetGuid)
   return ProcessAsset(pInfo, nullptr, false);
 }
 
-ezResult ezAssetCurator::WriteAssetTables(const char* szPlatform /* = nullptr*/)
+ezResult ezAssetCurator::WriteAssetTables(const ezAssetPlatformConfig* pPlatformConfig /* = nullptr*/)
 {
   EZ_LOG_BLOCK("ezAssetCurator::WriteAssetTables");
 
@@ -530,7 +557,7 @@ ezResult ezAssetCurator::WriteAssetTables(const char* szPlatform /* = nullptr*/)
     ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, s);
     s.Append("/");
 
-    if (WriteAssetTable(s, szPlatform).Failed())
+    if (WriteAssetTable(s, pPlatformConfig).Failed())
       res = EZ_FAILURE;
   }
 
@@ -661,7 +688,7 @@ ezUInt64 ezAssetCurator::GetAssetReferenceHash(ezUuid assetGuid)
   return GetAssetHash(assetGuid, true);
 }
 
-ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform,
+ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const ezAssetPlatformConfig* pPlatformConfig,
                                                             const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash,
                                                             ezUInt64& out_ThumbHash)
 {
@@ -898,14 +925,14 @@ void ezAssetCurator::CheckFileSystem()
 // ezAssetCurator Processing
 ////////////////////////////////////////////////////////////////////////
 
-ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPlatform, bool bTriggeredManually)
+ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezAssetPlatformConfig* pPlatformConfig, bool bTriggeredManually)
 {
 
   for (const auto& dep : pAssetInfo->m_Info->m_AssetTransformDependencies)
   {
     if (ezAssetInfo* pInfo = GetAssetInfo(dep))
     {
-      EZ_SUCCEED_OR_RETURN(ProcessAsset(pInfo, szPlatform, false));
+      EZ_SUCCEED_OR_RETURN(ProcessAsset(pInfo, pPlatformConfig, false));
     }
   }
 
@@ -914,7 +941,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
   {
     if (ezAssetInfo* pInfo = GetAssetInfo(ref))
     {
-      resReferences = ProcessAsset(pInfo, szPlatform, false);
+      resReferences = ProcessAsset(pInfo, pPlatformConfig, false);
       if (resReferences.m_Result.Failed())
         break;
     }
@@ -950,7 +977,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
 
   ezUInt64 uiHash = 0;
   ezUInt64 uiThumbHash = 0;
-  ezAssetInfo::TransformState state = IsAssetUpToDate(pAssetInfo->m_Info->m_DocumentID, szPlatform, pTypeDesc, uiHash, uiThumbHash);
+  ezAssetInfo::TransformState state = IsAssetUpToDate(pAssetInfo->m_Info->m_DocumentID, pPlatformConfig, pTypeDesc, uiHash, uiThumbHash);
 
   if (bTriggeredManually)
   {
@@ -981,7 +1008,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
   if (state == ezAssetInfo::TransformState::NeedsTransform ||
       (state == ezAssetInfo::TransformState::NeedsThumbnail && assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform)))
   {
-    ret = pAsset->TransformAsset(bTriggeredManually, szPlatform);
+    ret = pAsset->TransformAsset(bTriggeredManually, pPlatformConfig);
   }
 
   if (state == ezAssetInfo::TransformState::MissingReference)
@@ -1169,16 +1196,19 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath, const ezSet
   EnsureAssetInfoUpdated(sAbsolutePath);
 }
 
-ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char* szPlatform)
+ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const ezAssetPlatformConfig* pPlatformConfig0 /*= nullptr*/)
 {
-  ezString sPlatform = szPlatform;
-  if (sPlatform.IsEmpty())
-    sPlatform = m_sActivePlatform;
+  const ezAssetPlatformConfig* pPlatformConfig = pPlatformConfig0;
+
+  if (pPlatformConfig == nullptr)
+  {
+    pPlatformConfig = GetActivePlatform();
+  }
 
   ezStringBuilder sDataDir = szDataDirectory;
   sDataDir.MakeCleanPath();
 
-  ezStringBuilder sFinalPath(sDataDir, "/AssetCache/", sPlatform, ".ezAidlt");
+  ezStringBuilder sFinalPath(sDataDir, "/AssetCache/", pPlatformConfig->GetConfigName(), ".ezAidlt");
   sFinalPath.MakeCleanPath();
 
   ezStringBuilder sTemp, sTemp2;
@@ -1195,7 +1225,7 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
       ezAssetDocumentManager* pManager = static_cast<ezAssetDocumentManager*>(man);
 
       // allow to add fully custom entries
-      pManager->AddEntriesToAssetTable(sDataDir, szPlatform, GuidToPath);
+      pManager->AddEntriesToAssetTable(sDataDir, pPlatformConfig, GuidToPath);
     }
   }
 
@@ -1210,9 +1240,9 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
 
     ezAssetDocumentManager* pManager = it.Value()->m_pManager;
 
-    auto WriteEntry = [this, &sDataDir, &sPlatform, &GuidToPath, pManager, &sTemp, &sTemp2](const ezUuid& guid) {
+    auto WriteEntry = [this, &sDataDir, &pPlatformConfig, &GuidToPath, pManager, &sTemp, &sTemp2](const ezUuid& guid) {
       ezSubAsset* pSub = GetSubAssetInternal(guid);
-      ezString sEntry = pManager->GetAssetTableEntry(pSub, sDataDir, sPlatform);
+      ezString sEntry = pManager->GetAssetTableEntry(pSub, sDataDir, pPlatformConfig);
 
       // it is valid to write no asset table entry, if no redirection is required
       // this is used by decal assets for instance
@@ -1262,7 +1292,7 @@ void ezAssetCurator::ProcessAllCoreAssets()
 
   // The 'Core Assets' are always transformed for the PC platform,
   // as they are needed to run the editor properly
-  const char* szTargetPlatform = GetDevelopmentPlatform();
+  const ezAssetPlatformConfig* pPlatformConfig = GetDevelopmentPlatform();
 
   for (const auto& dd : m_FileSystemConfig.m_DataDirs)
   {
@@ -1284,7 +1314,7 @@ void ezAssetCurator::ProcessAllCoreAssets()
         {
           if (ezAssetInfo* pInfo = GetAssetInfo(ref))
           {
-            resReferences = ProcessAsset(pInfo, szTargetPlatform, false);
+            resReferences = ProcessAsset(pInfo, pPlatformConfig, false);
             if (resReferences.m_Result.Failed())
               break;
           }

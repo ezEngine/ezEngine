@@ -27,7 +27,7 @@ ezMeshAssetDocument::ezMeshAssetDocument(const char* szDocumentPath)
 {
 }
 
-ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
+ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig,
                                                      const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   ezProgressRange range("Transforming Asset", 2, false);

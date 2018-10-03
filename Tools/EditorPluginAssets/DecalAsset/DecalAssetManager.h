@@ -20,13 +20,13 @@ public:
 
   virtual ezBitflags<ezAssetDocumentFlags> GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const override;
 
-  virtual void AddEntriesToAssetTable(const char* szDataDirectory, const char* szPlatform,
+  virtual void AddEntriesToAssetTable(const char* szDataDirectory, const ezAssetPlatformConfig* pPlatformConfig,
                                       ezMap<ezString, ezString>& inout_GuidToPath) const override;
-  virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const char* szPlatform) const override;
+  virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezAssetPlatformConfig* pPlatformConfig) const override;
 
   /// \brief There is only a single decal texture per project. This function creates it, in case any decal asset was modified.
-  ezStatus GenerateDecalTexture(const char* szPlatform);
-  ezString GetDecalTexturePath(const char* szPlatform) const;
+  ezStatus GenerateDecalTexture(const ezAssetPlatformConfig* pPlatformConfig);
+  ezString GetDecalTexturePath(const ezAssetPlatformConfig* pPlatformConfig) const;
 
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);

@@ -333,7 +333,7 @@ void ezQtMaterialAssetDocumentWindow::OnVseConfigChanged(const char* filename, e
   // not what we want.
   ezAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(0, GetMaterialDocument()->GetAssetTypeVersion());
-  GetMaterialDocument()->RecreateVisualShaderFile("", AssetHeader);
+  GetMaterialDocument()->RecreateVisualShaderFile(AssetHeader);
 }
 
 void ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler(const ezMaterialVisualShaderEvent& e)

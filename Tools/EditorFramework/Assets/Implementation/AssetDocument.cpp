@@ -297,17 +297,19 @@ void ezAssetDocument::GetChildHash(const ezDocumentObject* pObject, ezUInt64& ui
   }
 }
 
-ezStatus ezAssetDocument::DoTransformAsset(const char* szPlatform /*= nullptr*/, bool bTriggeredManually)
+ezStatus ezAssetDocument::DoTransformAsset(const ezAssetPlatformConfig* pPlatformConfig0 /*= nullptr*/, bool bTriggeredManually)
 {
   const auto flags = GetAssetFlags();
 
   if (flags.IsAnySet(ezAssetDocumentFlags::DisableTransform))
     return ezStatus("Asset transform has been disabled on this asset");
 
+  const ezAssetPlatformConfig* pPlatformConfig = ezAssetDocumentManager::DetermineFinalTargetPlatform(pPlatformConfig0);
+
   ezUInt64 uiHash = 0;
   ezUInt64 uiThumbHash = 0;
   ezAssetInfo::TransformState state =
-      ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), szPlatform, GetDocumentTypeDescriptor(), uiHash, uiThumbHash);
+      ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), pPlatformConfig, GetDocumentTypeDescriptor(), uiHash, uiThumbHash);
   if (state == ezAssetInfo::TransformState::UpToDate && !bTriggeredManually)
     return ezStatus(EZ_SUCCESS, "Transformed asset is already up to date");
 
@@ -320,10 +322,9 @@ ezStatus ezAssetDocument::DoTransformAsset(const char* szPlatform /*= nullptr*/,
     AssetHeader.SetFileHashAndVersion(uiHash, GetAssetTypeVersion());
     const auto& outputs = GetAssetDocumentInfo()->m_Outputs;
 
-    auto GenerateOutput = [this, szPlatform, &AssetHeader, bTriggeredManually](const char* szOutputTag) -> ezStatus {
-      const ezString sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(szPlatform);
-      const ezString sTargetFile = GetAssetDocumentManager()->GetAbsoluteOutputFileName(GetDocumentPath(), szOutputTag, sPlatform);
-      auto ret = InternalTransformAsset(sTargetFile, szOutputTag, sPlatform, AssetHeader, bTriggeredManually);
+    auto GenerateOutput = [this, pPlatformConfig, &AssetHeader, bTriggeredManually](const char* szOutputTag) -> ezStatus {
+      const ezString sTargetFile = GetAssetDocumentManager()->GetAbsoluteOutputFileName(GetDocumentPath(), szOutputTag, pPlatformConfig);
+      auto ret = InternalTransformAsset(sTargetFile, szOutputTag, pPlatformConfig, AssetHeader, bTriggeredManually);
 
       // if writing failed, make sure the output file does not exist
       if (ret.m_Result.Failed())
@@ -351,7 +352,7 @@ ezStatus ezAssetDocument::DoTransformAsset(const char* szPlatform /*= nullptr*/,
   }
 }
 
-ezStatus ezAssetDocument::TransformAsset(bool bTriggeredManually, const char* szPlatform)
+ezStatus ezAssetDocument::TransformAsset(bool bTriggeredManually, const ezAssetPlatformConfig* pPlatformConfig)
 {
   EZ_PROFILE("TransformAsset");
   if (!bTriggeredManually)
@@ -370,7 +371,7 @@ ezStatus ezAssetDocument::TransformAsset(bool bTriggeredManually, const char* sz
     }
   }
 
-  const ezStatus res = DoTransformAsset(szPlatform, bTriggeredManually);
+  const ezStatus res = DoTransformAsset(pPlatformConfig, bTriggeredManually);
 
   // some assets modify the document during transformation
   // make sure the state is saved, at least when the user actively executed the action
@@ -404,7 +405,7 @@ ezStatus ezAssetDocument::CreateThumbnail()
   }
 }
 
-ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform,
+ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig,
                                                  const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   ezDeferredFileWriter file;
@@ -412,7 +413,7 @@ ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const
 
   AssetHeader.Write(file);
 
-  EZ_SUCCEED_OR_RETURN(InternalTransformAsset(file, szOutputTag, szPlatform, AssetHeader, bTriggeredManually));
+  EZ_SUCCEED_OR_RETURN(InternalTransformAsset(file, szOutputTag, pPlatformConfig, AssetHeader, bTriggeredManually));
 
   if (file.Close().Failed())
   {
