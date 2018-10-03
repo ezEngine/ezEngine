@@ -3,6 +3,7 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/Reflection/Reflection.h>
 
+class ezOpenDdlReaderElement;
 
 class EZ_FOUNDATION_DLL ezReflectionSerializer
 {
@@ -20,6 +21,9 @@ public:
   static void WriteObjectToDDL(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject, bool bCompactMmode = true,
                                ezOpenDdlWriter::TypeStringMode typeMode = ezOpenDdlWriter::TypeStringMode::Shortest); // [tested]
 
+  /// \brief Overload of WriteObjectToDDL that takes an existing DDL writer to output to.
+  static void WriteObjectToDDL(ezOpenDdlWriter& ddl, const ezRTTI* pRtti, const void* pObject); // [tested]
+
   /// \brief Same as WriteObjectToDDL but binary.
   static void WriteObjectToBinary(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject); // [tested]
 
@@ -30,6 +34,8 @@ public:
   ///
   /// All properties are set to the values as described in the DDL data, as long as the properties can be matched to the runtime type.
   static void* ReadObjectFromDDL(ezStreamReader& stream, const ezRTTI*& pRtti); // [tested]
+
+  static void* ReadObjectFromDDL(const ezOpenDdlReaderElement* pRootElement, const ezRTTI*& pRtti); // [tested]
 
   /// \brief Same as ReadObjectFromDDL but binary.
   static void* ReadObjectFromBinary(ezStreamReader& stream, const ezRTTI*& pRtti); // [tested]

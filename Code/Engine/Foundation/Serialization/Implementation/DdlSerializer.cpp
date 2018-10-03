@@ -54,7 +54,7 @@ namespace
     }
     return pBlock;
   }
-}
+} // namespace
 
 static void WriteGraph(ezOpenDdlWriter& writer, const ezAbstractObjectGraph* pGraph, const char* szName)
 {
@@ -111,13 +111,19 @@ void ezAbstractGraphDdlSerializer::Write(ezStreamWriter& stream, const ezAbstrac
   if (typeMode != ezOpenDdlWriter::TypeStringMode::Compliant)
     writer.SetIndentation(-1);
 
+  Write(writer, pGraph, pTypesGraph);
+}
+
+
+void ezAbstractGraphDdlSerializer::Write(ezOpenDdlWriter& writer, const ezAbstractObjectGraph* pGraph,
+                                         const ezAbstractObjectGraph* pTypesGraph /*= nullptr*/)
+{
   WriteGraph(writer, pGraph, "Objects");
   if (pTypesGraph)
   {
     WriteGraph(writer, pTypesGraph, "Types");
   }
 }
-
 
 static void ReadGraph(ezAbstractObjectGraph* pGraph, const ezOpenDdlReaderElement* pRoot)
 {
@@ -183,7 +189,14 @@ ezResult ezAbstractGraphDdlSerializer::Read(ezStreamReader& stream, ezAbstractOb
     return EZ_FAILURE;
   }
 
-  const ezOpenDdlReaderElement* pObjects = reader.GetRootElement()->FindChildOfType("Objects");
+  return Read(reader.GetRootElement(), pGraph, pTypesGraph, bApplyPatches);
+}
+
+
+ezResult ezAbstractGraphDdlSerializer::Read(const ezOpenDdlReaderElement* pRootElement, ezAbstractObjectGraph* pGraph,
+                                            ezAbstractObjectGraph* pTypesGraph /*= nullptr*/, bool bApplyPatches /*= true*/)
+{
+  const ezOpenDdlReaderElement* pObjects = pRootElement->FindChildOfType("Objects");
   if (pObjects != nullptr)
   {
     ReadGraph(pGraph, pObjects);
@@ -199,7 +212,7 @@ ezResult ezAbstractGraphDdlSerializer::Read(ezStreamReader& stream, ezAbstractOb
   {
     pTempTypesGraph = EZ_DEFAULT_NEW(ezAbstractObjectGraph);
   }
-  const ezOpenDdlReaderElement* pTypes = reader.GetRootElement()->FindChildOfType("Types");
+  const ezOpenDdlReaderElement* pTypes = pRootElement->FindChildOfType("Types");
   if (pTypes != nullptr)
   {
     ReadGraph(pTempTypesGraph, pTypes);

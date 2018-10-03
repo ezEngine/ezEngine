@@ -1,15 +1,16 @@
-Document.Create;&Create Document
-Document.Open;&Open Document
+Document.Create;&Create Document...
+Document.Open;&Open Document...
 Document.Undo;Undo
 Document.Redo;Redo
 Project.RecentDocuments.Menu;Recent &Documents
-Project.Create;Create Project
-Project.Open;Open Project
+Project.Create;Create Project...
+Project.Open;Open Project...
 Project.RecentProjects.Menu;Recent &Projects
 Project.Close;Close Project
-Project.DataDirectories;D&ata Directories
-Project.InputConfig;&Input Configuration
-Project.WindowConfig;&Window Configuration
+Project.DataDirectories;D&ata Directories...
+Project.InputConfig;&Input Configuration...
+Project.WindowConfig;&Window Configuration...
+Project.AssetConfigs;Asset Configurations...
 Settings.Open;S&ettings
 Engine.ReloadResources;Reload Resources;Reloads resources, such as textures, if they have changed on disk.
 Engine.ReloadEngine;Reload Engine;Shuts down the engine process and restarts it. Makes it possible to reload custom DLLs.
@@ -82,12 +83,12 @@ ezBasisAxis::PositiveZ;Positive Z
 ezBasisAxis::NegativeX;Negative X
 ezBasisAxis::NegativeY;Negative Y
 ezBasisAxis::NegativeZ;Negative Z
-Editor.Plugins;Editor Pl&ugins;Opens the editor plugins dialog
-Editor.Shortcuts;Shortcuts;Opens the shortcut configuration dialog
+Editor.Plugins;Editor Pl&ugins...;Opens the editor plugins dialog
+Editor.Shortcuts;Shortcuts...;Opens the shortcut configuration dialog
 Editor.Preferences;Preferences...;Opens the preferences dialog
 Editor.SaveProfiling;Save Editor Profiling Data;Saves profiling information about editor performance to file. See log for details.
-Engine.Plugins;Engine Pl&ugins;Opens the engine plugins dialog
-Engine.Tags;Tags;Opens the tags configuration dialog
+Engine.Plugins;Engine Pl&ugins...;Opens the engine plugins dialog
+Engine.Tags;Tags...;Opens the tags configuration dialog
 ezCameraMode::PerspectiveFixedFovX;Perspective Fixed X
 ezCameraMode::PerspectiveFixedFovY;Perspective Fixed Y
 ezCameraMode::OrthoFixedWidth;Ortho Fixed Width
@@ -106,8 +107,12 @@ Animation;Animation
 FX;FX
 Scripting;Scripting
 Project.ImportAsset;Import Assets...
-GameObjectContext.PickContextScene;Pick Context Scene
+GameObjectContext.PickContextScene;Pick Context Scene...
 GameObjectContext.PickContextObject;Use Object as Context
 GameObjectContext.ClearContextObject;Clear Context Object
 Effects;Effects
 Input;Input
+ezAssetTargetPlatform::PC;PC
+ezAssetTargetPlatform::Android;Android
+TypeConfigs;Asset Type Configurations
+ezTextureAssetTypePlatformConfig;Texture Assets

@@ -8,6 +8,8 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Types/UniquePtr.h>
 
+class ezOpenDdlReaderElement;
+
 struct EZ_FOUNDATION_DLL ezSerializedBlock
 {
   ezString m_Name;
@@ -20,6 +22,10 @@ public:
   static void Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph = nullptr,
                     bool bCompactMmode = true, ezOpenDdlWriter::TypeStringMode typeMode = ezOpenDdlWriter::TypeStringMode::Shortest);
   static ezResult Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph = nullptr,
+                       bool bApplyPatches = true);
+
+  static void Write(ezOpenDdlWriter& stream, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph = nullptr);
+  static ezResult Read(const ezOpenDdlReaderElement* pRootElement, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph = nullptr,
                        bool bApplyPatches = true);
 
   static void WriteDocument(ezStreamWriter& stream, const ezAbstractObjectGraph* pHeader, const ezAbstractObjectGraph* pGraph,

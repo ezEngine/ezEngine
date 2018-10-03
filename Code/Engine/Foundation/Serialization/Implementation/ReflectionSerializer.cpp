@@ -7,6 +7,7 @@
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Serialization/RttiConverter.h>
 #include <Foundation/Types/ScopeExit.h>
+#include <Foundation/IO/OpenDdlReader.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezReflectionSerializer public static functions
@@ -29,6 +30,21 @@ void ezReflectionSerializer::WriteObjectToDDL(ezStreamWriter& stream, const ezRT
   ezAbstractGraphDdlSerializer::Write(stream, &graph, nullptr, bCompactMmode, typeMode);
 }
 
+void ezReflectionSerializer::WriteObjectToDDL(ezOpenDdlWriter& ddl, const ezRTTI* pRtti, const void* pObject)
+{
+  ezAbstractObjectGraph graph;
+  ezRttiConverterContext context;
+  ezRttiConverterWriter conv(&graph, &context, false, true);
+
+  ezUuid guid;
+  guid.CreateNewUuid();
+
+  context.RegisterObject(guid, pRtti, const_cast<void*>(pObject));
+  conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
+
+  ezAbstractGraphDdlSerializer::Write(ddl, &graph, nullptr);
+}
+
 void ezReflectionSerializer::WriteObjectToBinary(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject)
 {
   ezAbstractObjectGraph graph;
@@ -46,10 +62,22 @@ void ezReflectionSerializer::WriteObjectToBinary(ezStreamWriter& stream, const e
 
 void* ezReflectionSerializer::ReadObjectFromDDL(ezStreamReader& stream, const ezRTTI*& pRtti)
 {
+  ezOpenDdlReader reader;
+  if (reader.ParseDocument(stream, 0, ezLog::GetThreadLocalLogSystem()).Failed())
+  {
+    ezLog::Error("Failed to parse DDL graph");
+    return nullptr;
+  }
+
+  return ReadObjectFromDDL(reader.GetRootElement(), pRtti);
+}
+
+void* ezReflectionSerializer::ReadObjectFromDDL(const ezOpenDdlReaderElement* pRootElement, const ezRTTI*& pRtti)
+{
   ezAbstractObjectGraph graph;
   ezRttiConverterContext context;
 
-  ezAbstractGraphDdlSerializer::Read(stream, &graph);
+  ezAbstractGraphDdlSerializer::Read(pRootElement, &graph);
 
   ezRttiConverterReader convRead(&graph, &context);
   auto* pRootNode = graph.GetNodeByName("root");

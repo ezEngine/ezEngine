@@ -1,30 +1,6 @@
-Fmod.Settings.Project;Fmod Project Settings
+Fmod.Settings.Project;Fmod Project Settings...
 Fmod.Mute;Mute Sounds
 Fmod.MasterVolume;Volume
-ezFmodReverbPresets::Off;Off
-ezFmodReverbPresets::Generic;Generic
-ezFmodReverbPresets::PaddedCell;Padded Cell
-ezFmodReverbPresets::Room;Room
-ezFmodReverbPresets::Bathroom;Bathroom
-ezFmodReverbPresets::Livingroom;Livingroom
-ezFmodReverbPresets::Stoneroom;Stoneroom
-ezFmodReverbPresets::Auditorium;Auditorium
-ezFmodReverbPresets::Concerthall;Concerthall
-ezFmodReverbPresets::Cave;Cave
-ezFmodReverbPresets::Arena;Arena
-ezFmodReverbPresets::Hangar;Hangar
-ezFmodReverbPresets::CarpettedHallway;Carpetted Hallway
-ezFmodReverbPresets::Hallway;Hallway
-ezFmodReverbPresets::StoneCorridor;Stone Corridor
-ezFmodReverbPresets::Alley;Alley
-ezFmodReverbPresets::Forest;Forest
-ezFmodReverbPresets::City;City
-ezFmodReverbPresets::Mountains;Mountains
-ezFmodReverbPresets::Quarry;Quarry
-ezFmodReverbPresets::Plain;Plain
-ezFmodReverbPresets::Parkinlot;Parkinlot
-ezFmodReverbPresets::Sewerpipe;Sewerpipe
-ezFmodReverbPresets::Underwater;Underwater
 Sound;Sound
 ezFmodEventComponent;Fmod Event
 ezFmodListenerComponent;Fmod Listener

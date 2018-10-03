@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Actions/ProjectActions.h>
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
+#include <EditorFramework/Dialogs/AssetConfigsDlg.moc.h>
 #include <EditorFramework/Dialogs/DataDirsDlg.moc.h>
 #include <EditorFramework/Dialogs/EditorPluginConfigDlg.moc.h>
 #include <EditorFramework/Dialogs/EnginePluginConfigDlg.moc.h>
@@ -49,6 +50,7 @@ ezActionDescriptorHandle ezProjectActions::s_hPreferencesDlg;
 ezActionDescriptorHandle ezProjectActions::s_hEditorTests;
 ezActionDescriptorHandle ezProjectActions::s_hTagsDlg;
 ezActionDescriptorHandle ezProjectActions::s_hImportAsset;
+ezActionDescriptorHandle ezProjectActions::s_hAssetConfigs;
 
 ezActionDescriptorHandle ezProjectActions::s_hToolsMenu;
 ezActionDescriptorHandle ezProjectActions::s_hToolsCategory;
@@ -89,8 +91,8 @@ void ezProjectActions::RegisterActions()
                                           ezProjectAction::ButtonType::EnginePlugins);
   s_hPreferencesDlg = EZ_REGISTER_ACTION_1("Editor.Preferences", ezActionScope::Global, "Editor", "", ezProjectAction,
                                            ezProjectAction::ButtonType::PreferencesDialog);
-  s_hTagsDlg = EZ_REGISTER_ACTION_1("Engine.Tags", ezActionScope::Global, "Editor", "", ezProjectAction,
-                                    ezProjectAction::ButtonType::TagsDialog);
+  s_hTagsDlg =
+      EZ_REGISTER_ACTION_1("Engine.Tags", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::TagsDialog);
   s_hEditorTests =
       EZ_REGISTER_ACTION_1("Editor.Tests", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::EditorTests);
 
@@ -102,6 +104,8 @@ void ezProjectActions::RegisterActions()
                                          ezProjectAction::ButtonType::WindowConfig);
   s_hImportAsset = EZ_REGISTER_ACTION_1("Project.ImportAsset", ezActionScope::Global, "Project", "Ctrl+I", ezProjectAction,
                                         ezProjectAction::ButtonType::ImportAsset);
+  s_hAssetConfigs = EZ_REGISTER_ACTION_1("Project.AssetConfigs", ezActionScope::Global, "Project", "", ezProjectAction,
+                                         ezProjectAction::ButtonType::AssetConfigs);
 
   s_hToolsMenu = EZ_REGISTER_MENU("Menu.Tools");
   s_hToolsCategory = EZ_REGISTER_CATEGORY("ToolsCategory");
@@ -146,6 +150,7 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hImportAsset);
   ezActionManager::UnregisterAction(s_hInputConfig);
   ezActionManager::UnregisterAction(s_hEditorTests);
+  ezActionManager::UnregisterAction(s_hAssetConfigs);
 }
 
 void ezProjectActions::MapActions(const char* szMapping)
@@ -181,13 +186,14 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hEditorPlugins, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 1.0f);
   pMap->MapAction(s_hShortcutEditor, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 2.0f);
   pMap->MapAction(s_hPreferencesDlg, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 3.0f);
-  //pMap->MapAction(s_hEditorTests, "Menu.Editor/SettingsCategory", 2.0f);
+  // pMap->MapAction(s_hEditorTests, "Menu.Editor/SettingsCategory", 2.0f);
 
   pMap->MapAction(s_hDataDirectories, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 1.0f);
   pMap->MapAction(s_hEnginePlugins, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 2.0f);
   pMap->MapAction(s_hInputConfig, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 3.0f);
   pMap->MapAction(s_hTagsDlg, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 4.0f);
   pMap->MapAction(s_hWindowConfig, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 5.0f);
+  pMap->MapAction(s_hAssetConfigs, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 6.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -359,12 +365,15 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
     case ezProjectAction::ButtonType::EditorTests:
       // SetIconPath(":/EditorFramework/Icons/StoredSettings16.png"); /// \todo Icon
       break;
+    case ezProjectAction::ButtonType::AssetConfigs:
+      SetIconPath(":/EditorFramework/Icons/AssetConfigs16.png");
+      break;
   }
 
   if (m_ButtonType == ButtonType::CloseProject || m_ButtonType == ButtonType::DataDirectories || m_ButtonType == ButtonType::WindowConfig ||
       m_ButtonType == ButtonType::ImportAsset || m_ButtonType == ButtonType::EnginePlugins || m_ButtonType == ButtonType::TagsDialog ||
       m_ButtonType == ButtonType::ReloadEngine || m_ButtonType == ButtonType::ReloadResources ||
-      m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::InputConfig)
+      m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::InputConfig || m_ButtonType == ButtonType::AssetConfigs)
   {
     SetEnabled(ezToolsProject::IsProjectOpen());
 
@@ -377,7 +386,7 @@ ezProjectAction::~ezProjectAction()
   if (m_ButtonType == ButtonType::CloseProject || m_ButtonType == ButtonType::DataDirectories || m_ButtonType == ButtonType::WindowConfig ||
       m_ButtonType == ButtonType::ImportAsset || m_ButtonType == ButtonType::EnginePlugins || m_ButtonType == ButtonType::TagsDialog ||
       m_ButtonType == ButtonType::ReloadEngine || m_ButtonType == ButtonType::ReloadResources ||
-      m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::InputConfig)
+      m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::InputConfig || m_ButtonType == ButtonType::AssetConfigs)
   {
     ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezProjectAction::ProjectEventHandler, this));
   }
@@ -525,8 +534,8 @@ void ezProjectAction::Execute(const ezVariant& value)
       {
         ezProfilingSystem::Capture(fileWriter);
         ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
-        ezQtUiServices::GetSingleton()->ShowAllDocumentsStatusBarMessage(ezFmt("Profiling capture saved to '{0}'.",
-                                                                         fileWriter.GetFilePathAbsolute().GetData()), ezTime::Seconds(5.0));
+        ezQtUiServices::GetSingleton()->ShowAllDocumentsStatusBarMessage(
+            ezFmt("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData()), ezTime::Seconds(5.0));
       }
       else
       {
@@ -538,6 +547,13 @@ void ezProjectAction::Execute(const ezVariant& value)
     case ezProjectAction::ButtonType::EditorTests:
     {
       ezQtEditorApp::GetSingleton()->ExecuteTests();
+    }
+    break;
+
+    case ezProjectAction::ButtonType::AssetConfigs:
+    {
+      ezQtAssetConfigsDlg dlg(nullptr);
+      dlg.exec();
     }
     break;
   }

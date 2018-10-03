@@ -179,7 +179,7 @@ ezSimpleWindComponent;Simple Wind
 ezAnimatedMeshComponent;Animated Mesh
 ezMotionMatchingComponent;Motion Matching
 Scene.Utils.Menu;Utilities
-Scene.ExportSceneToOBJ;Export Scene Geometry to OBJ
+Scene.ExportSceneToOBJ;Export Scene Geometry to OBJ...
 Scene.KeepSimulationChanges;Keep Simulation Changes;Only possible during simulation. Synchronizes the position of selected objects back to the editor.
 Scene.FavouriteCams.Menu;Favourite Cameras
 Scene.Camera.Store.0;Save Favourite Position 0;Saves the current position as a favourite user position

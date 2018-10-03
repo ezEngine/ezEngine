@@ -127,7 +127,7 @@ ezMeshPrimitive::HalfSphere;Half Sphere
 ezMeshPrimitive::GeodesicSphere;Geodesic Sphere
 ezMeshPrimitive::Capsule;Capsule
 ezMeshPrimitive::Torus;Torus
-VisScript.PickDebugTarget;Pick Debug Target
+VisScript.PickDebugTarget;Pick Debug Target...
 ezMaterialAnimComponent;Material Animation
 ezCollectionAssetEntry;Collection Asset Entry
 Entries;Entries

@@ -134,6 +134,10 @@ ezAssetCurator::~ezAssetCurator()
 void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
 {
   EZ_PROFILE("StartInitialize");
+
+  SetupDefaultAssetConfigs();
+  LoadAssetConfigs();
+
   m_bRunUpdateTask = true;
   m_FileSystemConfig = cfg;
   m_sActivePlatform = GetDevelopmentPlatform();
@@ -228,6 +232,8 @@ void ezAssetCurator::Deinitialize()
 {
   EZ_PROFILE("Deinitialize");
 
+  SaveAssetConfigs();
+
   ShutdownUpdateTask();
   ezAssetProcessor::GetSingleton()->ShutdownProcessTask();
   SaveCaches();
@@ -260,7 +266,6 @@ void ezAssetCurator::Deinitialize()
     }
   }
 
-
   // Broadcast reset.
   {
     ezAssetCuratorEvent e;
@@ -268,6 +273,8 @@ void ezAssetCurator::Deinitialize()
     e.m_Type = ezAssetCuratorEvent::Type::AssetListReset;
     m_Events.Broadcast(e);
   }
+
+  ClearAssetConfigs();
 }
 
 const char* ezAssetCurator::GetDevelopmentPlatform() const

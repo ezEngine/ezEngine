@@ -1,4 +1,4 @@
-PhysX.Settings.Project;PhysX Project Settings
+PhysX.Settings.Project;PhysX Project Settings...
 Physics;Physics
 Joints;Joints
 Shapes;Shapes

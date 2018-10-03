@@ -38,6 +38,7 @@ public:
   static ezActionDescriptorHandle s_hPreferencesDlg;
   static ezActionDescriptorHandle s_hTagsDlg;
   static ezActionDescriptorHandle s_hEditorTests;
+  static ezActionDescriptorHandle s_hAssetConfigs;
 
   static ezActionDescriptorHandle s_hToolsMenu;
   static ezActionDescriptorHandle s_hToolsCategory;
@@ -94,6 +95,7 @@ public:
     EnginePlugins,
     EditorTests,
     ImportAsset,
+    AssetConfigs,
   };
 
   ezProjectAction(const ezActionContext& context, const char* szName, ButtonType button);

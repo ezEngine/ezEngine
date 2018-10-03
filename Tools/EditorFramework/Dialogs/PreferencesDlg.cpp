@@ -50,7 +50,7 @@ ezQtPreferencesDlg::ezQtPreferencesDlg(QWidget* parent)
 
   m_pDocument = EZ_DEFAULT_NEW(ezPreferencesDocument, "<none>");
 
-  // if this is set, all properties are applied immediatly
+  // if this is set, all properties are applied immediately
   // m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPreferencesDlg::PropertyChangedEventHandler,
   // this));
   std::unique_ptr<ezQtDocumentTreeModel> pModel(new ezQtDocumentTreeModel(m_pDocument->GetObjectManager()));

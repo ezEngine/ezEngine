@@ -1,21 +1,22 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
-#include <EditorFramework/Assets/Declarations.h>
 #include <Core/Application/Config/FileSystemConfig.h>
 #include <EditorFramework/Assets/AssetDocumentInfo.h>
+#include <EditorFramework/Assets/AssetPlatformConfig.h>
+#include <EditorFramework/Assets/Declarations.h>
+#include <EditorFramework/Plugin.h>
+#include <Foundation/Algorithm/HashHelperString.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Containers/HashTable.h>
+#include <Foundation/Logging/LogEntry.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/AtomicInteger.h>
+#include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Threading/LockedObject.h>
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Timestamp.h>
-#include <Foundation/Logging/LogEntry.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
-#include <Foundation/Profiling/Profiling.h>
-#include <Foundation/Threading/DelegateTask.h>
-#include <Foundation/Algorithm/HashHelperString.h>
 #include <tuple>
 
 class ezUpdateTask;
@@ -27,11 +28,10 @@ struct ezFileStats;
 class ezAssetProcessorLog;
 
 #if 0 // Define to enable extensive curator profile scopes
-#define CURATOR_PROFILE(szName) \
-  EZ_PROFILE(szName)
+#  define CURATOR_PROFILE(szName) EZ_PROFILE(szName)
 
 #else
-  #define CURATOR_PROFILE(Name)
+#  define CURATOR_PROFILE(Name)
 
 #endif
 
@@ -45,10 +45,7 @@ public:
     ezMutex::Acquire();
   }
 
-  void Release()
-  {
-    ezMutex::Release();
-  }
+  void Release() { ezMutex::Release(); }
 };
 
 struct EZ_EDITORFRAMEWORK_DLL ezAssetInfo
@@ -158,6 +155,13 @@ public:
   void WaitForInitialize();
   void Deinitialize();
 
+  void MainThreadTick();
+
+  ///@}
+  /// \name Asset Platform Configurations
+  ///@{
+
+public:
   /// \brief The main platform on which development happens. E.g. "PC".
   const char* GetDevelopmentPlatform() const;
 
@@ -169,11 +173,22 @@ public:
   /// Broadcasts ezAssetCuratorEvent::Type::ActivePlatformChanged on change.
   void SetActivePlatform(const char* szPlatform);
 
-  void MainThreadTick();
+  /// \brief Saves the current asset configurations. Returns failure if the output file could not be written to.
+  ezResult SaveAssetConfigs();
+
+  // TODO: make this private
+  ezHybridArray<ezAssetPlatformConfig*, 8> m_AssetPlatformConfigs;
+
+private:
+  void ClearAssetConfigs();
+  void SetupDefaultAssetConfigs();
+  ezResult LoadAssetConfigs();
 
   ///@}
   /// \name High Level Functions
   ///@{
+
+public:
 
   /// \brief Transforms all assets and writes the lookup tables. If the given platform is empty, the active platform is used.
   void TransformAllAssets(const char* szPlatform = nullptr);
@@ -209,7 +224,9 @@ public:
   /// \brief Computes the combined hash for the asset and its references. Returns 0 if anything went wrong.
   ezUInt64 GetAssetReferenceHash(ezUuid assetGuid);
 
-  ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform, const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash);
+  ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform,
+                                              const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash,
+                                              ezUInt64& out_ThumbHash);
   /// \brief Returns the number of assets in the system and how many are in what transform state
   void GetAssetTransformStats(ezUInt32& out_uiNumAssets, ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT>& out_count);
 
@@ -243,13 +260,9 @@ public:
 
 
 public:
-
   ezEvent<const ezAssetCuratorEvent&> m_Events;
 
 private:
-
-
-
   /// \name Processing
   ///@{
 
@@ -292,8 +305,10 @@ private:
   ezResult EnsureAssetInfoUpdated(const char* szAbsFilePath);
   void TrackDependencies(ezAssetInfo* pAssetInfo);
   void UntrackDependencies(ezAssetInfo* pAssetInfo);
-  void UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezString>& files, ezMap<ezString, ezHybridArray<ezUuid, 1> >& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid> >& unresolved, bool bAdd);
-  void UpdateUnresolvedTrackedFiles(ezMap<ezString, ezHybridArray<ezUuid, 1> >& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid> >& unresolved);
+  void UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezString>& files, ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker,
+                          ezSet<std::tuple<ezUuid, ezUuid>>& unresolved, bool bAdd);
+  void UpdateUnresolvedTrackedFiles(ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker,
+                                    ezSet<std::tuple<ezUuid, ezUuid>>& unresolved);
   ezResult ReadAssetDocumentInfo(const char* szAbsFilePath, ezFileStatus& stat, ezUniquePtr<ezAssetInfo>& assetInfo);
   void UpdateSubAssets(ezAssetInfo& assetInfo);
   /// \brief Computes the hash of the given file. Optionally passes the data stream through into another stream writer.
@@ -323,7 +338,8 @@ private:
   friend class ezProcessTask;
   friend class ezAssetProcessor;
 
-  ezAtomicInteger32 m_bInitStarted = false; // Used to figure out whether the task system has already started the init task so we don't still its lock.
+  ezAtomicInteger32 m_bInitStarted =
+      false; // Used to figure out whether the task system has already started the init task so we don't still its lock.
   bool m_bRunUpdateTask;
   bool m_bNeedToReloadResources;
 
@@ -333,10 +349,11 @@ private:
   ezHashTable<ezString, ezFileStatus, ezHashHelperString_NoCase> m_ReferencedFiles;
 
   // Derived dependency lookup tables
-  ezMap<ezString, ezHybridArray<ezUuid, 1> > m_InverseDependency;
-  ezMap<ezString, ezHybridArray<ezUuid, 1> > m_InverseReferences;
-  ezSet<std::tuple<ezUuid, ezUuid> > m_UnresolvedDependencies; ///< If a dependency wasn't known yet when an asset info was loaded, it is put in here.
-  ezSet<std::tuple<ezUuid, ezUuid> > m_UnresolvedReferences;
+  ezMap<ezString, ezHybridArray<ezUuid, 1>> m_InverseDependency;
+  ezMap<ezString, ezHybridArray<ezUuid, 1>> m_InverseReferences;
+  ezSet<std::tuple<ezUuid, ezUuid>>
+      m_UnresolvedDependencies; ///< If a dependency wasn't known yet when an asset info was loaded, it is put in here.
+  ezSet<std::tuple<ezUuid, ezUuid>> m_UnresolvedReferences;
 
   // State caches
   ezSet<ezUuid> m_TransformState[ezAssetInfo::TransformState::COUNT];
@@ -345,8 +362,8 @@ private:
 
   // Serialized cache
   mutable ezCuratorMutex m_CachedAssetsMutex; ///< Only locks m_CachedAssets
-  ezMap<ezString, ezUniquePtr<ezAssetDocumentInfo> > m_CachedAssets;
-  ezMap<ezString, ezFileStatus > m_CachedFiles;
+  ezMap<ezString, ezUniquePtr<ezAssetDocumentInfo>> m_CachedAssets;
+  ezMap<ezString, ezFileStatus> m_CachedFiles;
 
 
   ezApplicationFileSystemConfig m_FileSystemConfig;

@@ -10,7 +10,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodProjectPreferences, 1, ezRTTIDefaultAlloca
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Mute", m_bMute),
-    EZ_MEMBER_PROPERTY("Volume", m_fMasterVolume),
+    EZ_MEMBER_PROPERTY("Volume", m_fMasterVolume)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
   }
   EZ_END_PROPERTIES;
 }
