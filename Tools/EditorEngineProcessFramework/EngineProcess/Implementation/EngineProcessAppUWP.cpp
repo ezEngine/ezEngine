@@ -30,6 +30,7 @@ ezViewHandle ezEditorEngineProcessAppUWP::CreateRemoteWindowAndView(ezCamera* pC
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   if (m_hRemoteView.IsInvalidated())
   {
+    // HololensRenderPipeline.ezRenderPipelineAsset
     auto hRenderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 2fe25ded-776c-7f9e-354f-e4c52a33d125 }");
 
     auto pHoloFramework = ezMixedRealityFramework::GetSingleton();

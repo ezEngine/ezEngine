@@ -149,8 +149,9 @@ namespace
       renderTargetSetup.SetDepthStencilTarget(ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(m_hShadowAtlasTexture));
       pView->SetRenderTargetSetup(renderTargetSetup);
 
-      pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>(
-          "{ 4f4d9f16-3d47-4c67-b821-a778f11dcaf5 }")); // ShadowMapRenderPipeline.ezRenderPipelineAsset
+      // ShadowMapRenderPipeline.ezRenderPipelineAsset
+      pView->SetRenderPipelineResource(
+          ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 4f4d9f16-3d47-4c67-b821-a778f11dcaf5 }"));
 
       // Set viewport size to something valid, this will be changed to the proper location in the atlas texture in OnBeginFrame before
       // rendering.
@@ -382,7 +383,7 @@ namespace
     float fNewFov = ezMath::ATan(fHalfHeight + fPenumbraSize).GetDegree() * 2.0f;
     return fNewFov;
   }
-}
+} // namespace
 
 // must not be in anonymous namespace
 template <>

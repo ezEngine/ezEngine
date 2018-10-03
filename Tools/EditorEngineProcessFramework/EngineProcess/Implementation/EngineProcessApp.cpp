@@ -71,6 +71,7 @@ ezRenderPipelineResourceHandle ezEditorEngineProcessApp::CreateDefaultMainRender
 
 ezRenderPipelineResourceHandle ezEditorEngineProcessApp::CreateDefaultDebugRenderPipeline()
 {
+  // DebugRenderPipeline.ezRenderPipelineAsset
   return ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }");
 }
 

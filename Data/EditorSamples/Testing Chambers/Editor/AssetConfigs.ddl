@@ -6,7 +6,17 @@ AssetConfigs
 		{
 			o
 			{
-				Uuid %id{uint64{12157718174399944855,5431803853952683895}}
+				Uuid %id{uint64{4474367200212941373,1380388402243924385}}
+				string %t{"ezTextureAssetTypePlatformConfig"}
+				uint32 %v{1}
+				p
+				{
+					uint16 %MaxResolution{1024}
+				}
+			}
+			o
+			{
+				Uuid %id{uint64{8085892115830203315,3737221074888337082}}
 				string %t{"ezAssetPlatformConfig"}
 				uint32 %v{1}
 				string %n{"root"}
@@ -16,18 +26,8 @@ AssetConfigs
 					string %Platform{"ezAssetTargetPlatform::PC"}
 					VarArray %TypeConfigs
 					{
-						Uuid{uint64{6581310130314437510,15319647666873697931}}
+						Uuid{uint64{4474367200212941373,1380388402243924385}}
 					}
-				}
-			}
-			o
-			{
-				Uuid %id{uint64{6581310130314437510,15319647666873697931}}
-				string %t{"ezTextureAssetTypePlatformConfig"}
-				uint32 %v{1}
-				p
-				{
-					uint16 %MaxResolution{1024}
 				}
 			}
 		}
@@ -38,7 +38,7 @@ AssetConfigs
 		{
 			o
 			{
-				Uuid %id{uint64{17806600159751213757,4907556547988560208}}
+				Uuid %id{uint64{12305719006274145892,347692143459556382}}
 				string %t{"ezAssetPlatformConfig"}
 				uint32 %v{1}
 				string %n{"root"}
@@ -48,13 +48,13 @@ AssetConfigs
 					string %Platform{"ezAssetTargetPlatform::PC"}
 					VarArray %TypeConfigs
 					{
-						Uuid{uint64{8635165583106314606,11603576189606357185}}
+						Uuid{uint64{15697183066669653192,10479972904091248807}}
 					}
 				}
 			}
 			o
 			{
-				Uuid %id{uint64{8635165583106314606,11603576189606357185}}
+				Uuid %id{uint64{15697183066669653192,10479972904091248807}}
 				string %t{"ezTextureAssetTypePlatformConfig"}
 				uint32 %v{1}
 				p
@@ -70,7 +70,7 @@ AssetConfigs
 		{
 			o
 			{
-				Uuid %id{uint64{17051294142081470596,5566730074197792481}}
+				Uuid %id{uint64{11592751623319371637,13121262766510098711}}
 				string %t{"ezAssetPlatformConfig"}
 				uint32 %v{1}
 				string %n{"root"}
@@ -80,18 +80,18 @@ AssetConfigs
 					string %Platform{"ezAssetTargetPlatform::Android"}
 					VarArray %TypeConfigs
 					{
-						Uuid{uint64{15649052774257250053,12371691208087853481}}
+						Uuid{uint64{3031709582232140993,17942870312578906426}}
 					}
 				}
 			}
 			o
 			{
-				Uuid %id{uint64{15649052774257250053,12371691208087853481}}
+				Uuid %id{uint64{3031709582232140993,17942870312578906426}}
 				string %t{"ezTextureAssetTypePlatformConfig"}
 				uint32 %v{1}
 				p
 				{
-					uint16 %MaxResolution{512}
+					uint16 %MaxResolution{32}
 				}
 			}
 		}

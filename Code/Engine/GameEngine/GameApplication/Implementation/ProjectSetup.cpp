@@ -321,6 +321,7 @@ void ezGameApplication::DoSetupGraphicsDevice()
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   ezShaderManager::Configure("DX11_SM50", true);
 #else
+  EZ_ASSERT_NOT_IMPLEMENTED;
   ezShaderManager::Configure("GL3", true);
 #endif
 

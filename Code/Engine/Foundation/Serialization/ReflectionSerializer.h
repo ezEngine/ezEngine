@@ -22,7 +22,7 @@ public:
                                ezOpenDdlWriter::TypeStringMode typeMode = ezOpenDdlWriter::TypeStringMode::Shortest); // [tested]
 
   /// \brief Overload of WriteObjectToDDL that takes an existing DDL writer to output to.
-  static void WriteObjectToDDL(ezOpenDdlWriter& ddl, const ezRTTI* pRtti, const void* pObject); // [tested]
+  static void WriteObjectToDDL(ezOpenDdlWriter& ddl, const ezRTTI* pRtti, const void* pObject, ezUuid guid = ezUuid()); // [tested]
 
   /// \brief Same as WriteObjectToDDL but binary.
   static void WriteObjectToBinary(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject); // [tested]

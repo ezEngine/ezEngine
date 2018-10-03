@@ -30,14 +30,14 @@ void ezReflectionSerializer::WriteObjectToDDL(ezStreamWriter& stream, const ezRT
   ezAbstractGraphDdlSerializer::Write(stream, &graph, nullptr, bCompactMmode, typeMode);
 }
 
-void ezReflectionSerializer::WriteObjectToDDL(ezOpenDdlWriter& ddl, const ezRTTI* pRtti, const void* pObject)
+void ezReflectionSerializer::WriteObjectToDDL(ezOpenDdlWriter& ddl, const ezRTTI* pRtti, const void* pObject, ezUuid guid /*= ezUuid()*/)
 {
   ezAbstractObjectGraph graph;
   ezRttiConverterContext context;
   ezRttiConverterWriter conv(&graph, &context, false, true);
 
-  ezUuid guid;
-  guid.CreateNewUuid();
+  if (!guid.IsValid())
+    guid.CreateNewUuid();
 
   context.RegisterObject(guid, pRtti, const_cast<void*>(pObject));
   conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
