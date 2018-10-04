@@ -34,13 +34,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 void ezEventTrackControlPointData::SetTickFromTime(double time, ezInt64 fps)
 {
   const ezUInt32 uiTicksPerStep = 4800 / fps;
-  m_iTick = (ezInt64)ezMath::Round(time * 4800.0, (double)uiTicksPerStep);
+  m_iTick = (ezInt64)ezMath::RoundToMultiple(time * 4800.0, (double)uiTicksPerStep);
 }
 
 ezInt64 ezEventTrackData::TickFromTime(double time) const
 {
   const ezUInt32 uiTicksPerStep = 4800 / m_uiFramesPerSecond;
-  return (ezInt64)ezMath::Round(time * 4800.0, (double)uiTicksPerStep);
+  return (ezInt64)ezMath::RoundToMultiple(time * 4800.0, (double)uiTicksPerStep);
 }
 
 void ezEventTrackData::ConvertToRuntimeData(ezEventTrack& out_Result) const

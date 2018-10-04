@@ -269,9 +269,9 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
 
 
     ezVec3& val = pRenderData->m_GlobalTransform.m_vPosition;
-    val.x = ezMath::Round(val.x, pRenderData->m_fDensity);
-    val.y = ezMath::Round(val.y, pRenderData->m_fDensity);
-    val.z = ezMath::Round(val.z, pRenderData->m_fDensity);
+    val.x = ezMath::RoundToMultiple(val.x, pRenderData->m_fDensity);
+    val.y = ezMath::RoundToMultiple(val.y, pRenderData->m_fDensity);
+    val.z = ezMath::RoundToMultiple(val.z, pRenderData->m_fDensity);
 
     pRenderData->m_iFirstLine1 = (ezInt32)ezMath::Trunc(fFirstDist1 / fDensity);
     pRenderData->m_iLastLine1 = (ezInt32)ezMath::Trunc(fLastDist1 / fDensity);

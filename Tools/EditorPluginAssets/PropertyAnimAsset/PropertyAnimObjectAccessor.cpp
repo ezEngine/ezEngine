@@ -127,7 +127,7 @@ ezStatus ezPropertyAnimObjectAccessor::SetValue(const ezDocumentObject* pObject,
       {
         // We assume the change is less than 180 degrees from the old value
         float fDiff = (newEuler[c] - oldEuler[c]).GetDegree();
-        float iRounds = ezMath::Round(fDiff, 360.0f);
+        float iRounds = ezMath::RoundToMultiple(fDiff, 360.0f);
         fDiff -= iRounds;
         newEuler[c] = oldEuler[c] + ezAngle::Degree(fDiff);
         if (oldEuler[c].IsEqualSimple(newEuler[c], ezAngle::Degree(0.01)))

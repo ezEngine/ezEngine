@@ -67,9 +67,9 @@ void ezSnapProvider::SnapTranslation(ezVec3& value)
   if (s_fTranslationSnapValue <= 0.0f)
     return;
 
-  value.x = ezMath::Round(value.x, s_fTranslationSnapValue);
-  value.y = ezMath::Round(value.y, s_fTranslationSnapValue);
-  value.z = ezMath::Round(value.z, s_fTranslationSnapValue);
+  value.x = ezMath::RoundToMultiple(value.x, s_fTranslationSnapValue);
+  value.y = ezMath::RoundToMultiple(value.y, s_fTranslationSnapValue);
+  value.z = ezMath::RoundToMultiple(value.z, s_fTranslationSnapValue);
 }
 
 void ezSnapProvider::SnapTranslationInLocalSpace(const ezQuat& rotation, ezVec3& translation)
@@ -80,9 +80,9 @@ void ezSnapProvider::SnapTranslationInLocalSpace(const ezQuat& rotation, ezVec3&
   const ezQuat mInvRot = -rotation;
 
   ezVec3 vLocalTranslation = mInvRot * translation;
-  vLocalTranslation.x = ezMath::Round(vLocalTranslation.x, s_fTranslationSnapValue);
-  vLocalTranslation.y = ezMath::Round(vLocalTranslation.y, s_fTranslationSnapValue);
-  vLocalTranslation.z = ezMath::Round(vLocalTranslation.z, s_fTranslationSnapValue);
+  vLocalTranslation.x = ezMath::RoundToMultiple(vLocalTranslation.x, s_fTranslationSnapValue);
+  vLocalTranslation.y = ezMath::RoundToMultiple(vLocalTranslation.y, s_fTranslationSnapValue);
+  vLocalTranslation.z = ezMath::RoundToMultiple(vLocalTranslation.z, s_fTranslationSnapValue);
 
   translation = rotation * vLocalTranslation;
 }
@@ -91,7 +91,7 @@ void ezSnapProvider::SnapRotation(ezAngle& rotation)
 {
   if (s_RotationSnapValue.GetRadian() != 0.0f)
   {
-    rotation = ezAngle::Radian(ezMath::Round(rotation.GetRadian(), s_RotationSnapValue.GetRadian()));
+    rotation = ezAngle::Radian(ezMath::RoundToMultiple(rotation.GetRadian(), s_RotationSnapValue.GetRadian()));
   }
 }
 
@@ -99,7 +99,7 @@ void ezSnapProvider::SnapScale(float& scale)
 {
   if (s_fScaleSnapValue > 0.0f)
   {
-    scale = ezMath::Round(scale, s_fScaleSnapValue);
+    scale = ezMath::RoundToMultiple(scale, s_fScaleSnapValue);
   }
 }
 

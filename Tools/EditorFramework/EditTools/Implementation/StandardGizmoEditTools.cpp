@@ -178,16 +178,16 @@ void ezTranslateGizmoEditTool::GetGridSettings(ezGridSettingsMsgToEngine& msg)
       switch (translateGizmo.GetLastPlaneInteraction())
       {
         case ezTranslateGizmo::PlaneInteraction::PlaneX:
-          msg.m_vGridCenter.y = ezMath::Round(msg.m_vGridCenter.y, ezSnapProvider::GetTranslationSnapValue() * 10);
-          msg.m_vGridCenter.z = ezMath::Round(msg.m_vGridCenter.z, ezSnapProvider::GetTranslationSnapValue() * 10);
+          msg.m_vGridCenter.y = ezMath::RoundToMultiple(msg.m_vGridCenter.y, ezSnapProvider::GetTranslationSnapValue() * 10);
+          msg.m_vGridCenter.z = ezMath::RoundToMultiple(msg.m_vGridCenter.z, ezSnapProvider::GetTranslationSnapValue() * 10);
           break;
         case ezTranslateGizmo::PlaneInteraction::PlaneY:
-          msg.m_vGridCenter.x = ezMath::Round(msg.m_vGridCenter.x, ezSnapProvider::GetTranslationSnapValue() * 10);
-          msg.m_vGridCenter.z = ezMath::Round(msg.m_vGridCenter.z, ezSnapProvider::GetTranslationSnapValue() * 10);
+          msg.m_vGridCenter.x = ezMath::RoundToMultiple(msg.m_vGridCenter.x, ezSnapProvider::GetTranslationSnapValue() * 10);
+          msg.m_vGridCenter.z = ezMath::RoundToMultiple(msg.m_vGridCenter.z, ezSnapProvider::GetTranslationSnapValue() * 10);
           break;
         case ezTranslateGizmo::PlaneInteraction::PlaneZ:
-          msg.m_vGridCenter.x = ezMath::Round(msg.m_vGridCenter.x, ezSnapProvider::GetTranslationSnapValue() * 10);
-          msg.m_vGridCenter.y = ezMath::Round(msg.m_vGridCenter.y, ezSnapProvider::GetTranslationSnapValue() * 10);
+          msg.m_vGridCenter.x = ezMath::RoundToMultiple(msg.m_vGridCenter.x, ezSnapProvider::GetTranslationSnapValue() * 10);
+          msg.m_vGridCenter.y = ezMath::RoundToMultiple(msg.m_vGridCenter.y, ezSnapProvider::GetTranslationSnapValue() * 10);
           break;
       }
     }

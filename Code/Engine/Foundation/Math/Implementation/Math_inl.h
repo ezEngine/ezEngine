@@ -4,35 +4,6 @@
 
 namespace ezMath
 {
-  inline ezUInt32 Log2i(ezUInt32 val)
-  {
-    ezInt32 ret = -1;
-    while (val != 0)
-    {
-      val >>= 1;
-      ret++;
-    }
-
-    return (ezUInt32)ret;
-  }
-
-  constexpr EZ_ALWAYS_INLINE int Pow2(int i)
-  {
-    return (1 << i);
-  }
-
-  inline int Pow(int base, int exp)
-  {
-    int res = 1;
-    while (exp > 0)
-    {
-      res *= base;
-      --exp;
-    }
-
-    return res;
-  }
-
   template <typename T>
   constexpr EZ_ALWAYS_INLINE T Square(T f)
   {
@@ -81,46 +52,10 @@ namespace ezMath
     return value < min_val ? min_val : (max_val < value ? max_val : value);
   }
 
-  inline ezInt32 Floor(ezInt32 i, ezUInt32 uiMultiple)
-  {
-    if (i < 0)
-    {
-      const ezInt32 iDivides = (i + 1) / (ezInt32)uiMultiple;
-
-      return ((iDivides - 1) * uiMultiple);
-    }
-
-    const ezInt32 iDivides = i / (ezInt32)uiMultiple;
-    return (iDivides * uiMultiple);
-  }
-
-  inline ezInt32 Ceil(ezInt32 i, ezUInt32 uiMultiple)
-  {
-    if (i < 0)
-    {
-      const ezInt32 iDivides = i / (ezInt32)uiMultiple;
-
-      return (iDivides * uiMultiple);
-    }
-
-    ezInt32 iDivides = (i - 1) / (ezInt32)uiMultiple;
-    return ((iDivides + 1) * uiMultiple);
-  }
-
   template <typename Type>
   constexpr Type Invert(Type f)
   {
     return ((Type)1) / f;
-  }
-
-  constexpr EZ_ALWAYS_INLINE bool IsOdd(ezInt32 i)
-  {
-    return ((i & 1) != 0);
-  }
-
-  constexpr EZ_ALWAYS_INLINE bool IsEven(ezInt32 i)
-  {
-    return ((i & 1) == 0);
   }
 
   EZ_ALWAYS_INLINE ezUInt32 FirstBitLow(ezUInt32 value)
@@ -176,10 +111,7 @@ namespace ezMath
     return (value >= edge ? T(1) : T(0));
   }
 
-  constexpr EZ_FORCE_INLINE bool IsPowerOf2(ezInt32 value)
-  {
-    return (value < 1) ? false : ((value & (value - 1)) == 0);
-  }
+  constexpr EZ_FORCE_INLINE bool IsPowerOf2(ezInt32 value) { return (value < 1) ? false : ((value & (value - 1)) == 0); }
 
   template <typename Type>
   constexpr bool IsEqual(Type lhs, Type rhs, Type fEpsilon)
@@ -211,18 +143,6 @@ namespace ezMath
   }
 
   template <typename Type>
-  EZ_ALWAYS_INLINE Type Round(Type f)
-  {
-    return Floor(f + (Type)0.5);
-  }
-
-  template <typename Type>
-  EZ_ALWAYS_INLINE Type Round(Type f, Type fRoundTo)
-  {
-    return Round(f / fRoundTo) * fRoundTo;
-  }
-
-  template <typename Type>
   EZ_ALWAYS_INLINE Type Fraction(Type f)
   {
     return (f - Trunc(f));
@@ -250,15 +170,9 @@ namespace ezMath
     return (x * x * ((Type)3 - ((Type)2 * x)));
   }
 
-  constexpr inline ezUInt8 ColorFloatToByte(float value)
-  {
-    return static_cast<ezUInt8>(ezMath::Min(255.0f, ((value * 255.0f) + 0.5f)));
-  }
+  constexpr inline ezUInt8 ColorFloatToByte(float value) { return static_cast<ezUInt8>(ezMath::Min(255.0f, ((value * 255.0f) + 0.5f))); }
 
-  constexpr inline float ColorByteToFloat(ezUInt8 value)
-  {
-    return value * (1.0f / 255.0f);
-  }
+  constexpr inline float ColorByteToFloat(ezUInt8 value) { return value * (1.0f / 255.0f); }
 
 
   template <typename T, typename T2>
@@ -273,7 +187,7 @@ namespace ezMath
 
     return f1 * startPoint + f2 * controlPoint1 + f3 * controlPoint2 + f4 * endPoint;
   }
-}
+} // namespace ezMath
 
 constexpr EZ_FORCE_INLINE ezAngle ezAngle::AngleBetween(ezAngle a, ezAngle b)
 {

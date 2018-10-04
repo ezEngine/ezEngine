@@ -71,19 +71,19 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 void ezColorControlPoint::SetTickFromTime(double time, ezInt64 fps)
 {
   const ezUInt32 uiTicksPerStep = 4800 / fps;
-  m_iTick = (ezInt64)ezMath::Round(time * 4800.0, (double)uiTicksPerStep);
+  m_iTick = (ezInt64)ezMath::RoundToMultiple(time * 4800.0, (double)uiTicksPerStep);
 }
 
 void ezAlphaControlPoint::SetTickFromTime(double time, ezInt64 fps)
 {
   const ezUInt32 uiTicksPerStep = 4800 / fps;
-  m_iTick = (ezInt64)ezMath::Round(time * 4800.0, (double)uiTicksPerStep);
+  m_iTick = (ezInt64)ezMath::RoundToMultiple(time * 4800.0, (double)uiTicksPerStep);
 }
 
 void ezIntensityControlPoint::SetTickFromTime(double time, ezInt64 fps)
 {
   const ezUInt32 uiTicksPerStep = 4800 / fps;
-  m_iTick = (ezInt64)ezMath::Round(time * 4800.0, (double)uiTicksPerStep);
+  m_iTick = (ezInt64)ezMath::RoundToMultiple(time * 4800.0, (double)uiTicksPerStep);
 }
 
 ezColorGradientAssetDocument::ezColorGradientAssetDocument(const char* szDocumentPath)
@@ -96,7 +96,7 @@ ezInt64 ezColorGradientAssetData::TickFromTime(double time)
   /// \todo Make this a property ?
   const ezUInt32 uiFramesPerSecond = 60;
   const ezUInt32 uiTicksPerStep = 4800 / uiFramesPerSecond;
-  return (ezInt64)ezMath::Round(time * 4800.0, (double)uiTicksPerStep);
+  return (ezInt64)ezMath::RoundToMultiple(time * 4800.0, (double)uiTicksPerStep);
 }
 
 void ezColorGradientAssetData::FillGradientData(ezColorGradient& out_Result) const
@@ -290,7 +290,7 @@ public:
     if (pPoint && pPoint->m_Value.IsA<float>())
     {
       const float fTime = pPoint->m_Value.Get<float>();
-      pNode->AddProperty("Tick", (ezInt64)ezMath::Round(fTime * 4800.0, 4800.0 / 60.0));
+      pNode->AddProperty("Tick", (ezInt64)ezMath::RoundToMultiple(fTime * 4800.0, 4800.0 / 60.0));
     }
   }
 };
@@ -313,7 +313,7 @@ public:
     if (pPoint && pPoint->m_Value.IsA<float>())
     {
       const float fTime = pPoint->m_Value.Get<float>();
-      pNode->AddProperty("Tick", (ezInt64)ezMath::Round(fTime * 4800.0, 4800.0 / 60.0));
+      pNode->AddProperty("Tick", (ezInt64)ezMath::RoundToMultiple(fTime * 4800.0, 4800.0 / 60.0));
     }
   }
 };
@@ -336,7 +336,7 @@ public:
     if (pPoint && pPoint->m_Value.IsA<float>())
     {
       const float fTime = pPoint->m_Value.Get<float>();
-      pNode->AddProperty("Tick", (ezInt64)ezMath::Round(fTime * 4800.0, 4800.0 / 60.0));
+      pNode->AddProperty("Tick", (ezInt64)ezMath::RoundToMultiple(fTime * 4800.0, 4800.0 / 60.0));
     }
   }
 };

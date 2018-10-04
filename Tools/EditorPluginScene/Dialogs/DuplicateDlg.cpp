@@ -30,9 +30,9 @@ ezQtDuplicateDlg::ezQtDuplicateDlg(QWidget* parent)
     toolButtonTransZ->setVisible(false);
   }
 
-  m_vBoundingBoxSize.x = ezMath::Round(m_vBoundingBoxSize.x, 0.01f);
-  m_vBoundingBoxSize.y = ezMath::Round(m_vBoundingBoxSize.y, 0.01f);
-  m_vBoundingBoxSize.z = ezMath::Round(m_vBoundingBoxSize.z, 0.01f);
+  m_vBoundingBoxSize.x = ezMath::RoundToMultiple(m_vBoundingBoxSize.x, 0.01f);
+  m_vBoundingBoxSize.y = ezMath::RoundToMultiple(m_vBoundingBoxSize.y, 0.01f);
+  m_vBoundingBoxSize.z = ezMath::RoundToMultiple(m_vBoundingBoxSize.z, 0.01f);
 
   CheckBoxGroupCopies->setChecked(s_bGroupCopies);
 
@@ -128,7 +128,7 @@ void ezQtDuplicateDlg::on_DefaultButtons_clicked(QAbstractButton* button)
 
 void ezQtDuplicateDlg::on_toolButtonTransX_clicked()
 {
-  const float f = ezMath::Round((float)SpinBoxTransX->value(), 0.01f);
+  const float f = ezMath::RoundToMultiple((float)SpinBoxTransX->value(), 0.01f);
 
   if (f == m_vBoundingBoxSize.x)
     SpinBoxTransX->setValue(-m_vBoundingBoxSize.x);
@@ -140,7 +140,7 @@ void ezQtDuplicateDlg::on_toolButtonTransX_clicked()
 
 void ezQtDuplicateDlg::on_toolButtonTransY_clicked()
 {
-  const float f = ezMath::Round((float)SpinBoxTransY->value(), 0.01f);
+  const float f = ezMath::RoundToMultiple((float)SpinBoxTransY->value(), 0.01f);
 
   if (f == m_vBoundingBoxSize.y)
     SpinBoxTransY->setValue(-m_vBoundingBoxSize.y);
@@ -152,7 +152,7 @@ void ezQtDuplicateDlg::on_toolButtonTransY_clicked()
 
 void ezQtDuplicateDlg::on_toolButtonTransZ_clicked()
 {
-  const float f = ezMath::Round((float)SpinBoxTransZ->value(), 0.01f);
+  const float f = ezMath::RoundToMultiple((float)SpinBoxTransZ->value(), 0.01f);
 
   if (f == m_vBoundingBoxSize.z)
     SpinBoxTransZ->setValue(-m_vBoundingBoxSize.z);

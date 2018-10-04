@@ -51,7 +51,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 void ezCurveControlPointData::SetTickFromTime(double time, ezInt64 fps)
 {
   const ezUInt32 uiTicksPerStep = 4800 / fps;
-  m_iTick = (ezInt64)ezMath::Round(time * 4800.0, (double)uiTicksPerStep);
+  m_iTick = (ezInt64)ezMath::RoundToMultiple(time * 4800.0, (double)uiTicksPerStep);
 }
 
 ezCurveGroupData::~ezCurveGroupData()
@@ -94,7 +94,7 @@ void ezCurveGroupData::Clear()
 ezInt64 ezCurveGroupData::TickFromTime(double time) const
 {
   const ezUInt32 uiTicksPerStep = 4800 / m_uiFramesPerSecond;
-  return (ezInt64)ezMath::Round(time * 4800.0, (double)uiTicksPerStep);
+  return (ezInt64)ezMath::RoundToMultiple(time * 4800.0, (double)uiTicksPerStep);
 }
 
 static void ConvertControlPoint(const ezCurveControlPointData& cp, ezCurve1D& out_Result)
@@ -192,7 +192,7 @@ public:
     if (pPoint && pPoint->m_Value.IsA<double>())
     {
       const double fTime = pPoint->m_Value.Get<double>();
-      pNode->AddProperty("Tick", (ezInt64)ezMath::Round(fTime * 4800.0, 4800.0 / 60.0));
+      pNode->AddProperty("Tick", (ezInt64)ezMath::RoundToMultiple(fTime * 4800.0, 4800.0 / 60.0));
     }
   }
 };

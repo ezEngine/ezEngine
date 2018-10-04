@@ -10,7 +10,6 @@ ezProjectionDepthRange::Enum ezProjectionDepthRange::Default = ezProjectionDepth
 ezProjectionDepthRange::Enum ezProjectionDepthRange::Default = ezProjectionDepthRange::MinusOneToOne; // Default everywhere else is OpenGL convention
 #endif
 
-
 bool ezMath::IsPowerOf(ezInt32 value, ezInt32 base)
 {
   if (value == 1)

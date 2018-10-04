@@ -231,7 +231,7 @@ void ezGreyBoxComponent::SetDetail(ezUInt32 uiDetail)
 
 void ezGreyBoxComponent::SetCurvature(ezAngle curvature)
 {
-  m_Curvature = ezAngle::Degree(ezMath::Round(curvature.GetDegree(), 5.0f));
+  m_Curvature = ezAngle::Degree(ezMath::RoundToMultiple(curvature.GetDegree(), 5.0f));
   InvalidateMesh();
 }
 

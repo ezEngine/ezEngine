@@ -154,7 +154,7 @@ EZ_FORCE_INLINE void ezComponentManager<T, StorageType>::RegisterUpdateFunction(
   // round up to multiple of data block capacity so tasks only have to deal with complete data blocks
   if (desc.m_uiGranularity != 0)
     desc.m_uiGranularity =
-        ezMath::Ceil((ezInt32)desc.m_uiGranularity, ezDataBlock<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE>::CAPACITY);
+        ezMath::RoundUp((ezInt32)desc.m_uiGranularity, ezDataBlock<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE>::CAPACITY);
 
   ezComponentManagerBase::RegisterUpdateFunction(desc);
 }

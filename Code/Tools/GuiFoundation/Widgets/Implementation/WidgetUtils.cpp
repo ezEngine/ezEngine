@@ -36,12 +36,12 @@ void ezWidgetUtils::AdjustGridDensity(double& fFinestDensity, double& fRoughDens
 
 void ezWidgetUtils::ComputeGridExtentsX(const QRectF& viewportSceneRect, double fGridStops, double& out_fMinX, double& out_fMaxX)
 {
-  out_fMinX = ezMath::Floor((double)viewportSceneRect.left(), fGridStops);
-  out_fMaxX = ezMath::Ceil((double)viewportSceneRect.right(), fGridStops);
+  out_fMinX = ezMath::RoundDown((double)viewportSceneRect.left(), fGridStops);
+  out_fMaxX = ezMath::RoundUp((double)viewportSceneRect.right(), fGridStops);
 }
 
 void ezWidgetUtils::ComputeGridExtentsY(const QRectF& viewportSceneRect, double fGridStops, double& out_fMinY, double& out_fMaxY)
 {
-  out_fMinY = ezMath::Floor((double)viewportSceneRect.top(), fGridStops);
-  out_fMaxY = ezMath::Ceil((double)viewportSceneRect.bottom(), fGridStops);
+  out_fMinY = ezMath::RoundDown((double)viewportSceneRect.top(), fGridStops);
+  out_fMaxY = ezMath::RoundUp((double)viewportSceneRect.bottom(), fGridStops);
 }

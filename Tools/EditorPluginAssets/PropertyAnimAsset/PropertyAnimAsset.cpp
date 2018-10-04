@@ -154,7 +154,7 @@ bool ezPropertyAnimAssetDocument::SetScrubberPosition(ezUInt64 uiTick)
   if (!m_bPlayAnimation)
   {
     const ezUInt32 uiTicksPerFrame = 4800 / GetProperties()->m_uiFramesPerSecond;
-    uiTick = (ezUInt64)ezMath::Round((double)uiTick, (double)uiTicksPerFrame);
+    uiTick = (ezUInt64)ezMath::RoundToMultiple((double)uiTick, (double)uiTicksPerFrame);
   }
   uiTick = ezMath::Clamp<ezUInt64>(uiTick, 0, GetAnimationDurationTicks());
 

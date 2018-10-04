@@ -112,6 +112,9 @@ namespace ezMath
   /// \brief Returns the square root of f
   float Sqrt(float f); // [tested]
 
+  /// \brief Returns the square root of f
+  double Sqrt(double f); // [tested]
+
   /// \brief Returns the n-th root of f.
   float Root(float f, float NthRoot); // [tested]
 
@@ -150,28 +153,36 @@ namespace ezMath
   float Ceil(float f); // [tested]
 
   /// \brief Returns a multiple of fMultiple that is smaller than f.
-  float Floor(float f, float fMultiple); // [tested]
+  float RoundDown(float f, float fMultiple); // [tested]
+
+  /// \brief Returns a multiple of fMultiple that is smaller than f.
+  double RoundDown(double f, double fMultiple); // [tested]
 
   /// \brief Returns a multiple of fMultiple that is larger than f.
-  float Ceil(float f, float fMultiple); // [tested]
+  float RoundUp(float f, float fMultiple); // [tested]
 
-  /// \brief Returns a multiple of uiMultiple that is smaller than i.
-  ezInt32 Floor(ezInt32 i, ezUInt32 uiMultiple); // [tested]
-
-  /// \brief Returns a multiple of uiMultiple that is larger than i.
-  ezInt32 Ceil(ezInt32 i, ezUInt32 uiMultiple); // [tested]
+  /// \brief Returns a multiple of fMultiple that is larger than f.
+  double RoundUp(double f, double fMultiple); // [tested]
 
   /// \brief Returns the integer-part of f (removes the fraction).
   template <typename Type>
   Type Trunc(Type f); // [tested]
 
-  /// \brief Rounds f to the next integer. If f is positive 0.5 is rounded UP (i.e. to 1), if f is negative, -0.5 is rounded DOWN (i.e. to -1).
-  template <typename Type>
-  Type Round(Type f); // [tested]
+  /// \brief Rounds f to the next integer.
+  ///
+  /// If f is positive 0.5 is rounded UP (i.e. to 1), if f is negative, -0.5 is rounded DOWN (i.e. to -1).
+  float Round(float f); // [tested]
 
-  /// \brief Rounds f to the closest multiple of fRoundTo.
-  template <typename Type>
-  Type Round(Type f, Type fRoundTo); // [tested]
+  /// \brief Rounds f to the next integer.
+  ///
+  /// If f is positive 0.5 is rounded UP (i.e. to 1), if f is negative, -0.5 is rounded DOWN (i.e. to -1).
+  double Round(double f); // [tested]
+
+  /// \brief Rounds f to the closest value of multiple.
+  float RoundToMultiple(float f, float multiple);
+
+  /// \brief Rounds f to the closest value of multiple.
+  double RoundToMultiple(double f, double multiple);
 
   /// \brief Returns the fraction-part of f.
   template <typename Type>
@@ -179,6 +190,9 @@ namespace ezMath
 
   /// \brief Returns "value mod div" for floats. This also works with negative numbers, both for value and for div.
   float Mod(float value, float div); // [tested]
+
+  /// \brief Returns "value mod div" for doubles. This also works with negative numbers, both for value and for div.
+  double Mod(double f, double div); // [tested]
 
   /// \brief Returns 1 / f
   template <typename Type>
@@ -250,7 +264,7 @@ namespace ezMath
   /// Can be used with T as float, vec2, vec3 or vec4
   template <typename T, typename T2>
   T EvaluateBezierCurve(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint);
-};
+} // namespace ezMath
 
 #include <Foundation/Math/Implementation/MathDouble_inl.h>
 #include <Foundation/Math/Implementation/MathFixedPoint_inl.h>

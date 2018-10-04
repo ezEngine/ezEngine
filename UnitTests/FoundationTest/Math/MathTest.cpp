@@ -41,7 +41,7 @@ namespace
 
     bool operator>(const UniqueInt& rh) { return this->i > rh.i; }
   };
-};
+}; // namespace
 
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Math);
@@ -248,12 +248,20 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_FLOAT(4.0f, ezMath::Square(-2.0f), 0.000001f);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Sqrt")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Sqrt (float)")
   {
     EZ_TEST_FLOAT(0.0f, ezMath::Sqrt(0.0f), 0.000001f);
     EZ_TEST_FLOAT(1.0f, ezMath::Sqrt(1.0f), 0.000001f);
     EZ_TEST_FLOAT(2.0f, ezMath::Sqrt(4.0f), 0.000001f);
     EZ_TEST_FLOAT(4.0f, ezMath::Sqrt(16.0f), 0.000001f);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Sqrt (double)")
+  {
+    EZ_TEST_DOUBLE(0.0, ezMath::Sqrt(0.0), 0.000001);
+    EZ_TEST_DOUBLE(1.0, ezMath::Sqrt(1.0), 0.000001);
+    EZ_TEST_DOUBLE(2.0, ezMath::Sqrt(4.0), 0.000001);
+    EZ_TEST_DOUBLE(4.0, ezMath::Sqrt(16.0), 0.000001);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Root")
@@ -331,36 +339,28 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_BOOL(-12 == ezMath::Ceil(-12.34f));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FloorM")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RoundDown (float)")
   {
-    EZ_TEST_FLOAT(10.0f, ezMath::Floor(12.34f, 5.0f), 0.0000001f);
-    EZ_TEST_FLOAT(-15.0f, ezMath::Floor(-12.34f, 5.0f), 0.0000001f);
+    EZ_TEST_FLOAT(10.0f, ezMath::RoundDown(12.34f, 5.0f), 0.0000001f);
+    EZ_TEST_FLOAT(-15.0f, ezMath::RoundDown(-12.34f, 5.0f), 0.0000001f);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CeilM")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RoundUp (float)")
   {
-    EZ_TEST_FLOAT(15.0f, ezMath::Ceil(12.34f, 5.0f), 0.0000001f);
-    EZ_TEST_FLOAT(-10.0f, ezMath::Ceil(-12.34f, 5.0f), 0.0000001f);
+    EZ_TEST_FLOAT(15.0f, ezMath::RoundUp(12.34f, 5.0f), 0.0000001f);
+    EZ_TEST_FLOAT(-10.0f, ezMath::RoundUp(-12.34f, 5.0f), 0.0000001f);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FloorIM")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RoundDown (double)")
   {
-    EZ_TEST_BOOL(10 == ezMath::Floor(11, 5));
-    EZ_TEST_BOOL(10 == ezMath::Floor(10, 5));
-    EZ_TEST_BOOL(5 == ezMath::Floor(9, 5));
-
-    EZ_TEST_BOOL(-10 == ezMath::Floor(-6, 5));
-    EZ_TEST_BOOL(-10 == ezMath::Floor(-10, 5));
+    EZ_TEST_DOUBLE(10.0, ezMath::RoundDown(12.34, 5.0), 0.0000001);
+    EZ_TEST_DOUBLE(-15.0, ezMath::RoundDown(-12.34, 5.0), 0.0000001);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CeilIM")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RoundUp (double)")
   {
-    EZ_TEST_BOOL(15 == ezMath::Ceil(11, 5));
-    EZ_TEST_BOOL(10 == ezMath::Ceil(10, 5));
-    EZ_TEST_BOOL(10 == ezMath::Ceil(9, 5));
-
-    EZ_TEST_BOOL(-5 == ezMath::Ceil(-6, 5));
-    EZ_TEST_BOOL(-10 == ezMath::Ceil(-10, 5));
+    EZ_TEST_DOUBLE(15.0, ezMath::RoundUp(12.34, 5.0), 0.0000001);
+    EZ_TEST_DOUBLE(-10.0, ezMath::RoundUp(-12.34, 5.0), 0.0000001);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Trunc")
@@ -378,10 +378,44 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_BOOL(ezMath::Round(-12.54f) == -13);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Round_Multiple")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RoundClosest (float)")
   {
-    EZ_TEST_FLOAT(ezMath::Round(12.34f, 7.0f), 14.0f, 0.00001f);
-    EZ_TEST_FLOAT(ezMath::Round(-12.34f, 7.0f), -14.0f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::RoundToMultiple(12.0f, 3.0f), 12.0f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::RoundToMultiple(-12.0f, 3.0f), -12.0f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::RoundToMultiple(12.34f, 7.0f), 14.0f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::RoundToMultiple(-12.34f, 7.0f), -14.0f, 0.00001f);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RoundClosest (double)")
+  {
+    EZ_TEST_DOUBLE(ezMath::RoundToMultiple(12.0, 3.0), 12.0, 0.00001);
+    EZ_TEST_DOUBLE(ezMath::RoundToMultiple(-12.0, 3.0), -12.0, 0.00001);
+    EZ_TEST_DOUBLE(ezMath::RoundToMultiple(12.34, 7.0), 14.0, 0.00001);
+    EZ_TEST_DOUBLE(ezMath::RoundToMultiple(-12.34, 7.0), -14.0, 0.00001);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RoundUp (int)")
+  {
+    EZ_TEST_INT(ezMath::RoundUp(12, 7), 14);
+    EZ_TEST_INT(ezMath::RoundUp(-12, 7), -7);
+    EZ_TEST_INT(ezMath::RoundUp(16, 4), 16);
+    EZ_TEST_INT(ezMath::RoundUp(-16, 4), -16);
+    EZ_TEST_INT(ezMath::RoundUp(17, 4), 20);
+    EZ_TEST_INT(ezMath::RoundUp(-17, 4), -16);
+    EZ_TEST_INT(ezMath::RoundUp(15, 4), 16);
+    EZ_TEST_INT(ezMath::RoundUp(-15, 4), -12);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RoundDown (int)")
+  {
+    EZ_TEST_INT(ezMath::RoundDown(12, 7), 7);
+    EZ_TEST_INT(ezMath::RoundDown(-12, 7), -14);
+    EZ_TEST_INT(ezMath::RoundDown(16, 4), 16);
+    EZ_TEST_INT(ezMath::RoundDown(-16, 4), -16);
+    EZ_TEST_INT(ezMath::RoundDown(17, 4), 16);
+    EZ_TEST_INT(ezMath::RoundDown(-17, 4), -20);
+    EZ_TEST_INT(ezMath::RoundDown(15, 4), 12);
+    EZ_TEST_INT(ezMath::RoundDown(-15, 4), -16);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Fraction")
@@ -390,13 +424,22 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_FLOAT(ezMath::Fraction(-12.34f), -0.34f, 0.00001f);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Mod")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Mod (float)")
   {
     EZ_TEST_FLOAT(2.34f, ezMath::Mod(12.34f, 2.5f), 0.000001f);
     EZ_TEST_FLOAT(-2.34f, ezMath::Mod(-12.34f, 2.5f), 0.000001f);
 
     EZ_TEST_FLOAT(2.34f, ezMath::Mod(12.34f, -2.5f), 0.000001f);
     EZ_TEST_FLOAT(-2.34f, ezMath::Mod(-12.34f, -2.5f), 0.000001f);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Mod (double)")
+  {
+    EZ_TEST_DOUBLE(2.34, ezMath::Mod(12.34, 2.5), 0.000001);
+    EZ_TEST_DOUBLE(-2.34, ezMath::Mod(-12.34, 2.5), 0.000001);
+
+    EZ_TEST_DOUBLE(2.34, ezMath::Mod(12.34, -2.5), 0.000001);
+    EZ_TEST_DOUBLE(-2.34, ezMath::Mod(-12.34, -2.5), 0.000001);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Invert")

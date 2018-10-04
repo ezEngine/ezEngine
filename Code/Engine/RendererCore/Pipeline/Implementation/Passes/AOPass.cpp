@@ -122,8 +122,8 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
   ezUInt32 uiHeight = pDepthInput->m_Desc.m_uiHeight;
 
   ezUInt32 uiNumMips = 3;
-  ezUInt32 uiHzbWidth = ezMath::Ceil(uiWidth, 1u << uiNumMips);
-  ezUInt32 uiHzbHeight = ezMath::Ceil(uiHeight, 1u << uiNumMips);
+  ezUInt32 uiHzbWidth = ezMath::RoundUp(uiWidth, 1u << uiNumMips);
+  ezUInt32 uiHzbHeight = ezMath::RoundUp(uiHeight, 1u << uiNumMips);
 
   float fHzbScaleX = (float)uiWidth / uiHzbWidth;
   float fHzbScaleY = (float)uiHeight / uiHzbHeight;

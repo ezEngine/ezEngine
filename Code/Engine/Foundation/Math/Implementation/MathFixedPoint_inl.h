@@ -2,6 +2,7 @@
 
 #include <Foundation/Math/FixedPoint.h>
 
+/*
 namespace ezMath
 {
 #define FIXEDPOINT_OVERLOADS(Bits)                                                                                                       \
@@ -175,3 +176,4 @@ namespace ezMath
     return (ezFixedPoint<DecimalBits>)fmod(f.ToDouble(), div);
   }
 }
+*/

@@ -327,7 +327,7 @@ void ezQtColorGradientWidget::PaintCoordinateStrip(QPainter& p, const QRect& are
 
   const double fStep = ComputeCoordinateDisplayStep();
 
-  const double fFirstStop = ezMath::Round(m_fDisplayExtentMinX, fStep);
+  const double fFirstStop = ezMath::RoundToMultiple(m_fDisplayExtentMinX, fStep);
 
   QString text;
   p.setPen(QColor(0, 85, 127));
@@ -361,7 +361,7 @@ void ezQtColorGradientWidget::PaintCoordinateLines(QPainter& p)
   p.setCompositionMode(QPainter::CompositionMode_Difference);
   p.setPen(endLines);
 
-  const double fFirstStop = ezMath::Round(m_fDisplayExtentMinX, fStep);
+  const double fFirstStop = ezMath::RoundToMultiple(m_fDisplayExtentMinX, fStep);
 
   const ezInt32 iLineHeight = area.height() / 8;
 
@@ -1071,15 +1071,15 @@ void ezQtColorGradientWidget::FrameExtents()
 
   if (m_fDisplayExtentMinX == m_fDisplayExtentMaxX)
   {
-    m_fDisplayExtentMinX = ezMath::Floor(m_fDisplayExtentMinX - 0.1, 1.0);
-    m_fDisplayExtentMaxX = ezMath::Ceil(m_fDisplayExtentMaxX + 0.1, 1.0);
+    m_fDisplayExtentMinX = ezMath::Floor(m_fDisplayExtentMinX - 0.1);
+    m_fDisplayExtentMaxX = ezMath::Ceil(m_fDisplayExtentMaxX + 0.1);
   }
 
   if (m_bEditMode)
   {
     // round up/down to next multiple of 1
-    m_fDisplayExtentMinX = ezMath::Floor(m_fDisplayExtentMinX, 1.0);
-    m_fDisplayExtentMaxX = ezMath::Ceil(m_fDisplayExtentMaxX, 1.0);
+    m_fDisplayExtentMinX = ezMath::Floor(m_fDisplayExtentMinX);
+    m_fDisplayExtentMaxX = ezMath::Ceil(m_fDisplayExtentMaxX);
 
     const double range = m_fDisplayExtentMaxX - m_fDisplayExtentMinX;
     const double border = range * 0.05;

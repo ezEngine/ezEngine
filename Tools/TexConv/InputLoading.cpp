@@ -137,9 +137,8 @@ ezResult ezTexConv::ClampToMaxResolution()
 
     // pick the closest multiple of 4 for the image size
     // this is important for some compression methods
-    // TODO: ezMath::Round<int> does not work
-    // w = ezMath::Round(w, 4U);
-    // h = ezMath::Round(h, 4U);
+    w = ezMath::RoundUp(w, 4U);
+    h = ezMath::RoundUp(h, 4U);
 
     w = ezMath::Max(w, 4U);
     h = ezMath::Max(h, 4U);
