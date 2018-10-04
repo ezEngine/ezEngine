@@ -510,7 +510,7 @@ void ezParticleSystemInstance::CreateStreamZeroInitializers()
     if (!info.m_bInUse)
     {
       m_StreamGroup.RemoveStreamByName(info.m_sName.GetData());
-      m_StreamInfo.RemoveAtSwap(i);
+      m_StreamInfo.RemoveAtAndSwap(i);
     }
     else
     {

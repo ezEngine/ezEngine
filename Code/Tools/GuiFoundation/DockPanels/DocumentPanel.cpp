@@ -17,7 +17,7 @@ ezQtDocumentPanel::ezQtDocumentPanel(QWidget* parent)
 
 ezQtDocumentPanel::~ezQtDocumentPanel()
 {
-  s_AllDocumentPanels.RemoveSwap(this);
+  s_AllDocumentPanels.RemoveAndSwap(this);
 }
 
 void ezQtDocumentPanel::closeEvent(QCloseEvent* e)

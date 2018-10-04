@@ -13,11 +13,11 @@ public:
   ~ezParticleEffectDescriptor();
 
   void AddParticleSystem(ezParticleSystemDescriptor* pSystem) { m_ParticleSystems.PushBack(pSystem); }
-  void RemoveParticleSystem(ezParticleSystemDescriptor* pSystem) { m_ParticleSystems.Remove(pSystem); }
+  void RemoveParticleSystem(ezParticleSystemDescriptor* pSystem) { m_ParticleSystems.RemoveAndCopy(pSystem); }
   const ezHybridArray<ezParticleSystemDescriptor*, 4>& GetParticleSystems() const { return m_ParticleSystems; }
 
   void AddEventReaction(ezParticleEventReactionFactory* pSystem) { m_EventReactions.PushBack(pSystem); }
-  void RemoveEventReaction(ezParticleEventReactionFactory* pSystem) { m_EventReactions.Remove(pSystem); }
+  void RemoveEventReaction(ezParticleEventReactionFactory* pSystem) { m_EventReactions.RemoveAndCopy(pSystem); }
   const ezHybridArray<ezParticleEventReactionFactory*, 4>& GetEventReactions() const { return m_EventReactions; }
 
 

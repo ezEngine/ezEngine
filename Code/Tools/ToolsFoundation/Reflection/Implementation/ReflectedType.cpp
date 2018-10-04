@@ -62,7 +62,7 @@ void ezAttributeHolder::Insert(ezUInt32 uiIndex, ezPropertyAttribute* value)
 
 void ezAttributeHolder::Remove(ezUInt32 uiIndex)
 {
-  m_Attributes.RemoveAt(uiIndex);
+  m_Attributes.RemoveAtAndCopy(uiIndex);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -106,7 +106,7 @@ public:
       {
         if (values[i].IsEqual("ezPropertyFlags::Constant"))
         {
-          values.RemoveAt(i);
+          values.RemoveAtAndCopy(i);
         }
         else if (values[i].IsEqual("ezPropertyFlags::EmbeddedClass"))
         {

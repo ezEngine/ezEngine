@@ -129,16 +129,16 @@ public:
   ezUInt32 LastIndexOf(const T& value, ezUInt32 uiStartIndex = ezInvalidIndex) const; // [tested]
 
   /// \brief Removes the element at the given index and fills the gap with the last element in the deque.
-  void RemoveAtSwap(ezUInt32 uiIndex); // [tested]
+  void RemoveAtAndSwap(ezUInt32 uiIndex); // [tested]
 
   /// \brief Removes the element at index and fills the gap by shifting all following elements
-  void RemoveAt(ezUInt32 uiIndex); // [tested]
+  void RemoveAtAndCopy(ezUInt32 uiIndex); // [tested]
 
   /// \brief Removes the first occurrence of value and fills the gap by shifting all following elements
-  bool Remove(const T& value); // [tested]
+  bool RemoveAndCopy(const T& value); // [tested]
 
   /// \brief Removes the first occurrence of value and fills the gap with the last element in the deque.
-  bool RemoveSwap(const T& value); // [tested]
+  bool RemoveAndSwap(const T& value); // [tested]
 
   /// \brief Inserts value at index by shifting all following elements. Valid insert positions are [0; GetCount].
   void Insert(const T& value, ezUInt32 uiIndex); // [tested]

@@ -101,7 +101,7 @@ void ezCameraComponentManager::AddRenderTargetCamera(ezCameraComponent* pCompone
 
 void ezCameraComponentManager::RemoveRenderTargetCamera(ezCameraComponent* pComponent)
 {
-  m_RenderTargetCameras.RemoveSwap(pComponent->GetHandle());
+  m_RenderTargetCameras.RemoveAndSwap(pComponent->GetHandle());
 }
 
 void ezCameraComponentManager::OnViewCreated(ezView* pView)

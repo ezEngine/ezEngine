@@ -202,7 +202,7 @@ void ezParticleEventReactionFactory_Effect::RemoveParameter(const char* szKey)
   {
     if (m_Parameters->m_FloatParams[i].m_sName == th)
     {
-      m_Parameters->m_FloatParams.RemoveAtSwap(i);
+      m_Parameters->m_FloatParams.RemoveAtAndSwap(i);
       return;
     }
   }
@@ -211,7 +211,7 @@ void ezParticleEventReactionFactory_Effect::RemoveParameter(const char* szKey)
   {
     if (m_Parameters->m_ColorParams[i].m_sName == th)
     {
-      m_Parameters->m_ColorParams.RemoveAtSwap(i);
+      m_Parameters->m_ColorParams.RemoveAtAndSwap(i);
       return;
     }
   }

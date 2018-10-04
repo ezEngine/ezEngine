@@ -179,7 +179,7 @@ void ezPxTriggerComponent::SetKinematic(bool b)
   }
   else
   {
-    GetWorld()->GetOrCreateComponentManager<ezPxTriggerComponentManager>()->m_KinematicActorComponents.RemoveSwap(this);
+    GetWorld()->GetOrCreateComponentManager<ezPxTriggerComponentManager>()->m_KinematicActorComponents.RemoveAndSwap(this);
   }
 }
 

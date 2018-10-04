@@ -367,6 +367,6 @@ void ezMeshComponentBase::Materials_Insert(ezUInt32 uiIndex, const char* value)
 
 void ezMeshComponentBase::Materials_Remove(ezUInt32 uiIndex)
 {
-  m_Materials.RemoveAt(uiIndex);
+  m_Materials.RemoveAtAndCopy(uiIndex);
 }
 

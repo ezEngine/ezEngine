@@ -391,7 +391,7 @@ bool ezReflectedTypeStorageAccessor::RemoveValue(const char* szProperty, ezVaria
           if (uiIndex < values.GetCount())
           {
             ezVariantArray changedValues = values;
-            changedValues.RemoveAt(uiIndex);
+            changedValues.RemoveAtAndCopy(uiIndex);
             m_Data[storageInfo->m_uiIndex] = changedValues;
             return true;
           }
@@ -444,7 +444,7 @@ bool ezReflectedTypeStorageAccessor::MoveValue(const char* szProperty, ezVariant
           {
             ezVariantArray changedValues = values;
             ezVariant value = changedValues[uiOldIndex];
-            changedValues.RemoveAt(uiOldIndex);
+            changedValues.RemoveAtAndCopy(uiOldIndex);
             if (uiNewIndex > uiOldIndex)
             {
               uiNewIndex -= 1;

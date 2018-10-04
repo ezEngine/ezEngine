@@ -73,7 +73,7 @@ void ezSettingsComponentManager<ComponentType>::DeleteComponentStorage(ezCompone
   {
     if (m_Components[i].Borrow() == pComponent)
     {
-      m_Components.RemoveAt(i);
+      m_Components.RemoveAtAndCopy(i);
       break;
     }
   }

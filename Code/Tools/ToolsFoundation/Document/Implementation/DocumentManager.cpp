@@ -68,7 +68,7 @@ void ezDocumentManager::UpdateBeforeUnloadingPlugins(const ezPlugin::PluginEvent
       s_KnownManagers.Remove(pRtti);
 
       pRtti->GetAllocator()->Deallocate(s_AllDocumentManagers[i]);
-      s_AllDocumentManagers.RemoveAtSwap(i);
+      s_AllDocumentManagers.RemoveAtAndSwap(i);
 
       bChanges = true;
     }
@@ -290,7 +290,7 @@ void ezDocumentManager::CloseDocument(ezDocument* pDocument)
 {
   EZ_ASSERT_DEV(pDocument != nullptr, "Invalid document pointer");
 
-  if (!m_AllDocuments.Remove(pDocument))
+  if (!m_AllDocuments.RemoveAndCopy(pDocument))
     return;
 
   Event e;

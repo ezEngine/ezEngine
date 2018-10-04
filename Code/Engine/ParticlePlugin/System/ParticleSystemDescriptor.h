@@ -25,15 +25,15 @@ public:
   const ezHybridArray<ezParticleEmitterFactory*, 1>& GetEmitterFactories() const { return m_EmitterFactories; }
 
   void AddInitializerFactory(ezParticleInitializerFactory* pFactory) { m_InitializerFactories.PushBack(pFactory); }
-  void RemoveInitializerFactory(ezParticleInitializerFactory* pFactory) { m_InitializerFactories.Remove(pFactory); }
+  void RemoveInitializerFactory(ezParticleInitializerFactory* pFactory) { m_InitializerFactories.RemoveAndCopy(pFactory); }
   const ezHybridArray<ezParticleInitializerFactory*, 4>& GetInitializerFactories() const { return m_InitializerFactories; }
 
   void AddBehaviorFactory(ezParticleBehaviorFactory* pFactory) { m_BehaviorFactories.PushBack(pFactory); }
-  void RemoveBehaviorFactory(ezParticleBehaviorFactory* pFactory) { m_BehaviorFactories.Remove(pFactory); }
+  void RemoveBehaviorFactory(ezParticleBehaviorFactory* pFactory) { m_BehaviorFactories.RemoveAndCopy(pFactory); }
   const ezHybridArray<ezParticleBehaviorFactory*, 4>& GetBehaviorFactories() const { return m_BehaviorFactories; }
 
   void AddTypeFactory(ezParticleTypeFactory* pFactory) { m_TypeFactories.PushBack(pFactory); }
-  void RemoveTypeFactory(ezParticleTypeFactory* pFactory) { m_TypeFactories.Remove(pFactory); }
+  void RemoveTypeFactory(ezParticleTypeFactory* pFactory) { m_TypeFactories.RemoveAndCopy(pFactory); }
   const ezHybridArray<ezParticleTypeFactory*, 2>& GetTypeFactories() const { return m_TypeFactories; }
 
   const ezHybridArray<ezParticleFinalizerFactory*, 2>& GetFinalizerFactories() const { return m_FinalizerFactories; }

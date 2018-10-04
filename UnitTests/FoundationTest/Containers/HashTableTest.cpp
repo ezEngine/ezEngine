@@ -434,7 +434,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
         const ezInt32 key = keys[i][uiIndex];
         t[i].Insert(key, HashTableTestDetail::st(key * 3456));
 
-        keys[i].RemoveAtSwap(uiIndex);
+        keys[i].RemoveAtAndSwap(uiIndex);
       }
     }
 

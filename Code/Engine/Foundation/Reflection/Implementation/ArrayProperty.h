@@ -192,7 +192,7 @@ public:
     EZ_ASSERT_DEBUG(uiIndex < GetCount(pInstance), "Remove: uiIndex ('{0}') is out of range ('{1}')", uiIndex, GetCount(pInstance));
     EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const array accessor function, thus it is read-only.",
                     ezAbstractProperty::GetPropertyName());
-    m_Getter(static_cast<Class*>(pInstance)).RemoveAt(uiIndex);
+    m_Getter(static_cast<Class*>(pInstance)).RemoveAtAndCopy(uiIndex);
   }
 
   virtual void Clear(void* pInstance) override

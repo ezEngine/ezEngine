@@ -941,7 +941,7 @@ void ezQtPropertyContainerWidget::RemoveElement(ezUInt32 index)
 
   m_pGroupLayout->removeWidget(elem.m_pSubGroup);
   delete elem.m_pSubGroup;
-  m_Elements.RemoveAt(index);
+  m_Elements.RemoveAtAndCopy(index);
 }
 
 void ezQtPropertyContainerWidget::UpdateElements()
@@ -988,7 +988,7 @@ ezUInt32 ezQtPropertyContainerWidget::GetRequiredElementCount() const
       {
         if (!keys.Contains(m_Keys[k]))
         {
-          m_Keys.RemoveAtSwap(k);
+          m_Keys.RemoveAtAndSwap(k);
         }
       }
     }

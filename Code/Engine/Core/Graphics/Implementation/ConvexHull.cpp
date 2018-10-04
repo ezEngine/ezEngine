@@ -383,7 +383,7 @@ void ezConvexHullGenerator::RemoveVisibleFaces(ezUInt32 vtxId)
     m_Edges[vtx0 * uiMaxVertices + vtx2].Remove(vtx1);
     m_Edges[vtx1 * uiMaxVertices + vtx2].Remove(vtx0);
 
-    m_Triangles.RemoveAtSwap(j);
+    m_Triangles.RemoveAtAndSwap(j);
 
     --j;
     --iNumTriangles;
@@ -533,7 +533,7 @@ bool ezConvexHullGenerator::PruneDegenerateTriangles(double fMaxAngle)
     {
       if (discardVtx.IsSet(n - 1))
       {
-        m_Vertices.RemoveAtSwap(n - 1);
+        m_Vertices.RemoveAtAndSwap(n - 1);
       }
     }
   }
@@ -617,7 +617,7 @@ bool ezConvexHullGenerator::PruneSmallTriangles(double fMaxEdgeLen)
     {
       if (discardVtx.IsSet(n - 1))
       {
-        m_Vertices.RemoveAtSwap(n - 1);
+        m_Vertices.RemoveAtAndSwap(n - 1);
       }
     }
   }

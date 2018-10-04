@@ -152,8 +152,8 @@ EZ_FORCE_INLINE void ezSpatialSystem_RegularGrid::Cell::RemoveData(ezSpatialData
     m_PointerToIndexTable[pLastData] = dataIndex;
   }
 
-  m_BoundingSpheres.RemoveAtSwap(dataIndex);
-  m_DataPointers.RemoveAtSwap(dataIndex);
+  m_BoundingSpheres.RemoveAtAndSwap(dataIndex);
+  m_DataPointers.RemoveAtAndSwap(dataIndex);
 
   EZ_ASSERT_DEBUG(pData->m_pUserData == this, "Implementation error");
   pData->m_pUserData = nullptr;

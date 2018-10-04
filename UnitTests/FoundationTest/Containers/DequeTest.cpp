@@ -491,14 +491,14 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
       EZ_TEST_INT(a1[i], 99 - i);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveAndCopy")
   {
     ezDeque<ezInt32> a1;
 
     for (ezInt32 i = 0; i < 100; ++i)
       a1.PushBack(i % 2);
 
-    while (a1.Remove(1))
+    while (a1.RemoveAndCopy(1))
     {
     }
 
@@ -508,18 +508,18 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
       EZ_TEST_INT(a1[i], 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveSwap")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveAndSwap")
   {
     ezDeque<ezInt32> a1;
 
     for (ezInt32 i = 0; i < 10; ++i)
       a1.Insert(i, i); // inserts at the end
 
-    a1.RemoveSwap(9);
-    a1.RemoveSwap(7);
-    a1.RemoveSwap(5);
-    a1.RemoveSwap(3);
-    a1.RemoveSwap(1);
+    a1.RemoveAndSwap(9);
+    a1.RemoveAndSwap(7);
+    a1.RemoveAndSwap(5);
+    a1.RemoveAndSwap(3);
+    a1.RemoveAndSwap(1);
 
     EZ_TEST_INT(a1.GetCount(), 5);
 
@@ -527,18 +527,18 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
       EZ_TEST_BOOL(ezMath::IsEven(a1[i]));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveAt")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveAtAndCopy")
   {
     ezDeque<ezInt32> a1;
 
     for (ezInt32 i = 0; i < 10; ++i)
       a1.Insert(i, i); // inserts at the end
 
-    a1.RemoveAt(9);
-    a1.RemoveAt(7);
-    a1.RemoveAt(5);
-    a1.RemoveAt(3);
-    a1.RemoveAt(1);
+    a1.RemoveAtAndCopy(9);
+    a1.RemoveAtAndCopy(7);
+    a1.RemoveAtAndCopy(5);
+    a1.RemoveAtAndCopy(3);
+    a1.RemoveAtAndCopy(1);
 
     EZ_TEST_INT(a1.GetCount(), 5);
 
@@ -546,18 +546,18 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
       EZ_TEST_INT(a1[i], i * 2);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveAtSwap")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveAtAndSwap")
   {
     ezDeque<ezInt32> a1;
 
     for (ezInt32 i = 0; i < 10; ++i)
       a1.Insert(i, i); // inserts at the end
 
-    a1.RemoveAtSwap(9);
-    a1.RemoveAtSwap(7);
-    a1.RemoveAtSwap(5);
-    a1.RemoveAtSwap(3);
-    a1.RemoveAtSwap(1);
+    a1.RemoveAtAndSwap(9);
+    a1.RemoveAtAndSwap(7);
+    a1.RemoveAtAndSwap(5);
+    a1.RemoveAtAndSwap(3);
+    a1.RemoveAtAndSwap(1);
 
     EZ_TEST_INT(a1.GetCount(), 5);
 
@@ -662,16 +662,16 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
 
       EZ_TEST_BOOL(DequeTestDetail::st::HasDone(8, 4)); // four temporaries
 
-      a1.Remove(DequeTestDetail::st(3));
+      a1.RemoveAndCopy(DequeTestDetail::st(3));
       EZ_TEST_BOOL(DequeTestDetail::st::HasDone(1, 2)); // one temporary, one destroyed
 
-      a1.Remove(DequeTestDetail::st(3));
+      a1.RemoveAndCopy(DequeTestDetail::st(3));
       EZ_TEST_BOOL(DequeTestDetail::st::HasDone(1, 1)); // one temporary, none destroyed
 
-      a1.RemoveAt(0);
+      a1.RemoveAtAndCopy(0);
       EZ_TEST_BOOL(DequeTestDetail::st::HasDone(0, 1)); // one destroyed
 
-      a1.RemoveAtSwap(0);
+      a1.RemoveAtAndSwap(0);
       EZ_TEST_BOOL(DequeTestDetail::st::HasDone(0, 1)); // one destroyed
     }
 

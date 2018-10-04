@@ -38,7 +38,7 @@ ezQtContainerWindow::ezQtContainerWindow(ezInt32 iUniqueIdentifier)
 
 ezQtContainerWindow::~ezQtContainerWindow()
 {
-  s_AllContainerWindows.RemoveSwap(this);
+  s_AllContainerWindows.RemoveAndSwap(this);
 
   ezQtDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::DocumentWindowEventHandler, this));
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::ProjectEventHandler, this));
@@ -317,7 +317,7 @@ void ezQtContainerWindow::RemoveDocumentWindowFromContainer(ezQtDocumentWindow* 
 
   pTabs->removeTab(iTabIndex);
 
-  m_DocumentWindows.RemoveAtSwap(iListIndex);
+  m_DocumentWindows.RemoveAtAndSwap(iListIndex);
 
   pDocWindow->m_pContainerWindow = nullptr;
 
@@ -335,7 +335,7 @@ void ezQtContainerWindow::RemoveApplicationPanelFromContainer(ezQtApplicationPan
   if (iListIndex == ezInvalidIndex)
     return;
 
-  m_ApplicationPanels.RemoveAtSwap(iListIndex);
+  m_ApplicationPanels.RemoveAtAndSwap(iListIndex);
 
   pPanel->m_pContainerWindow = nullptr;
 }

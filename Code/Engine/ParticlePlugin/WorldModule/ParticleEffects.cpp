@@ -168,7 +168,7 @@ void ezParticleWorldModule::DestroyFinishedEffects()
         m_ParticleEffectsFreeList.PushBack(pEffect);
       }
 
-      m_FinishingEffects.RemoveAtSwap(i);
+      m_FinishingEffects.RemoveAtAndSwap(i);
     }
     else
     {

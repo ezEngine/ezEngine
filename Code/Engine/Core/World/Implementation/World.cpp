@@ -674,7 +674,7 @@ void ezWorld::DeregisterUpdateFunction(const ezComponentManagerBase::UpdateFunct
   {
     if (updateFunctions[i].m_Function == desc.m_Function)
     {
-      updateFunctions.RemoveAt(i);
+      updateFunctions.RemoveAtAndCopy(i);
     }
   }
 }
@@ -692,7 +692,7 @@ void ezWorld::DeregisterUpdateFunctions(ezWorldModule* pModule)
     {
       if (updateFunctions[i].m_Function.GetClassInstance() == pModule)
       {
-        updateFunctions.RemoveAt(i);
+        updateFunctions.RemoveAtAndCopy(i);
       }
     }
   }
@@ -861,7 +861,7 @@ void ezWorld::ProcessUpdateFunctionsToRegister()
     {
       if (RegisterUpdateFunctionInternal(m_Data.m_UpdateFunctionsToRegister[i]).Succeeded())
       {
-        m_Data.m_UpdateFunctionsToRegister.RemoveAt(i);
+        m_Data.m_UpdateFunctionsToRegister.RemoveAtAndCopy(i);
       }
     }
 

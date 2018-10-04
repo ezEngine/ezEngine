@@ -54,7 +54,7 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreation
     if (!textures.IsEmpty())
     {
       ezGALTextureHandle hTexture = textures[0];
-      textures.RemoveAtSwap(0);
+      textures.RemoveAtAndSwap(0);
 
       EZ_ASSERT_DEV(m_pDevice->GetTexture(hTexture) != nullptr, "Invalid texture in resource pool");
 
@@ -149,7 +149,7 @@ ezGALBufferHandle ezGPUResourcePool::GetBuffer(const ezGALBufferCreationDescript
     if (!buffers.IsEmpty())
     {
       ezGALBufferHandle hBuffer = buffers[0];
-      buffers.RemoveAtSwap(0);
+      buffers.RemoveAtAndSwap(0);
 
       EZ_ASSERT_DEV(m_pDevice->GetBuffer(hBuffer) != nullptr, "Invalid buffer in resource pool");
 

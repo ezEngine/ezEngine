@@ -324,7 +324,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashSet)
         const ezInt32 key = keys[i][uiIndex];
         t[i].Insert(key);
 
-        keys[i].RemoveAtSwap(uiIndex);
+        keys[i].RemoveAtAndSwap(uiIndex);
       }
     }
 

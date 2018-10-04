@@ -172,5 +172,5 @@ void ezObjectTest::StandardTypeSetInsert(const ezString& value)
 
 void ezObjectTest::StandardTypeSetRemove(const ezString& value)
 {
-  m_StandardTypeSet.Remove(value);
+  m_StandardTypeSet.RemoveAndCopy(value);
 }

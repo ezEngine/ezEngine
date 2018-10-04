@@ -810,7 +810,7 @@ ID3D11Resource* ezGALDeviceDX11::FindTempBuffer(ezUInt32 uiSize)
     if (!resources.IsEmpty())
     {
       pResource = resources[0];
-      resources.RemoveAtSwap(0);
+      resources.RemoveAtAndSwap(0);
     }
   }
 
@@ -855,7 +855,7 @@ ID3D11Resource* ezGALDeviceDX11::FindTempTexture(ezUInt32 uiWidth, ezUInt32 uiHe
     if (!resources.IsEmpty())
     {
       pResource = resources[0];
-      resources.RemoveAtSwap(0);
+      resources.RemoveAtAndSwap(0);
     }
   }
 

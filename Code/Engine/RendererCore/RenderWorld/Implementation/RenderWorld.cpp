@@ -154,7 +154,7 @@ void ezRenderWorld::DeleteView(const ezViewHandle& hView)
     {
       if (s_PipelinesToRebuild[i].m_hView == hView)
       {
-        s_PipelinesToRebuild.RemoveAt(i);
+        s_PipelinesToRebuild.RemoveAtAndCopy(i);
       }
     }
   }
@@ -200,7 +200,7 @@ void ezRenderWorld::RemoveMainView(const ezViewHandle& hView)
   if (uiIndex != ezInvalidIndex)
   {
     EZ_ASSERT_DEV(!s_bInExtract, "Cannot remove main view during extraction");
-    s_MainViews.RemoveAt(uiIndex);
+    s_MainViews.RemoveAtAndCopy(uiIndex);
   }
 }
 
@@ -341,7 +341,7 @@ void ezRenderWorld::AddViewToRender(const ezViewHandle& hView)
     ezUInt32 uiIndex = s_ViewsToRender.IndexOf(pView);
     if (uiIndex != ezInvalidIndex)
     {
-      s_ViewsToRender.RemoveAt(uiIndex);
+      s_ViewsToRender.RemoveAtAndCopy(uiIndex);
       s_ViewsToRender.PushBack(pView);
       return;
     }

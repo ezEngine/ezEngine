@@ -616,7 +616,7 @@ ezUInt32 ezDequeBase<T, Construct>::LastIndexOf(const T& value, ezUInt32 uiStart
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::RemoveAtSwap(ezUInt32 uiIndex)
+void ezDequeBase<T, Construct>::RemoveAtAndSwap(ezUInt32 uiIndex)
 {
   EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
 
@@ -844,7 +844,7 @@ void ezDequeBase<T, Construct>::DeallocateAll()
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::RemoveAt(ezUInt32 uiIndex)
+void ezDequeBase<T, Construct>::RemoveAtAndCopy(ezUInt32 uiIndex)
 {
   EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
 
@@ -857,7 +857,7 @@ void ezDequeBase<T, Construct>::RemoveAt(ezUInt32 uiIndex)
 }
 
 template <typename T, bool Construct>
-bool ezDequeBase<T, Construct>::Remove(const T& value)
+bool ezDequeBase<T, Construct>::RemoveAndCopy(const T& value)
 {
   EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
 
@@ -866,12 +866,12 @@ bool ezDequeBase<T, Construct>::Remove(const T& value)
   if (uiIndex == ezInvalidIndex)
     return false;
 
-  RemoveAt(uiIndex);
+  RemoveAtAndCopy(uiIndex);
   return true;
 }
 
 template <typename T, bool Construct>
-bool ezDequeBase<T, Construct>::RemoveSwap(const T& value)
+bool ezDequeBase<T, Construct>::RemoveAndSwap(const T& value)
 {
   EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
 
@@ -880,7 +880,7 @@ bool ezDequeBase<T, Construct>::RemoveSwap(const T& value)
   if (uiIndex == ezInvalidIndex)
     return false;
 
-  RemoveAtSwap(uiIndex);
+  RemoveAtAndSwap(uiIndex);
   return true;
 }
 

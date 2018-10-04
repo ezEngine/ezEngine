@@ -143,7 +143,7 @@ void ezTestArrays::Insert(ezUInt32 uiIndex, double value)
 }
 void ezTestArrays::Remove(ezUInt32 uiIndex)
 {
-  m_Hybrid.RemoveAt(uiIndex);
+  m_Hybrid.RemoveAtAndCopy(uiIndex);
 }
 
 ezUInt32 ezTestArrays::GetCountChar() const
@@ -164,7 +164,7 @@ void ezTestArrays::InsertChar(ezUInt32 uiIndex, const char* value)
 }
 void ezTestArrays::RemoveChar(ezUInt32 uiIndex)
 {
-  m_HybridChar.RemoveAt(uiIndex);
+  m_HybridChar.RemoveAtAndCopy(uiIndex);
 }
 
 ezUInt32 ezTestArrays::GetCountDyn() const
@@ -185,7 +185,7 @@ void ezTestArrays::InsertDyn(ezUInt32 uiIndex, const ezTestStruct3& value)
 }
 void ezTestArrays::RemoveDyn(ezUInt32 uiIndex)
 {
-  m_Dynamic.RemoveAt(uiIndex);
+  m_Dynamic.RemoveAtAndCopy(uiIndex);
 }
 
 ezUInt32 ezTestArrays::GetCountDeq() const
@@ -206,7 +206,7 @@ void ezTestArrays::InsertDeq(ezUInt32 uiIndex, const ezTestArrays& value)
 }
 void ezTestArrays::RemoveDeq(ezUInt32 uiIndex)
 {
-  m_Deque.RemoveAt(uiIndex);
+  m_Deque.RemoveAtAndCopy(uiIndex);
 }
 
 // clang-format off
@@ -277,7 +277,7 @@ void ezTestSets::PseudoInsert(int value)
 
 void ezTestSets::PseudoRemove(int value)
 {
-  m_Deque.Remove(value);
+  m_Deque.RemoveAndCopy(value);
 }
 
 
@@ -294,7 +294,7 @@ void ezTestSets::PseudoInsert2(const ezString& value)
 
 void ezTestSets::PseudoRemove2(const ezString& value)
 {
-  m_Array.Remove(value);
+  m_Array.RemoveAndCopy(value);
 }
 
 void ezTestSets::PseudoInsert2b(const char* value)
@@ -305,7 +305,7 @@ void ezTestSets::PseudoInsert2b(const char* value)
 
 void ezTestSets::PseudoRemove2b(const char* value)
 {
-  m_Array.Remove(value);
+  m_Array.RemoveAndCopy(value);
 }
 
 // clang-format off
@@ -407,7 +407,7 @@ void ezTestMaps::Remove3(const char* szKey)
     const Tuple& t = m_Accessor3[i];
     if (t.m_Key == szKey)
     {
-      m_Accessor3.RemoveAtSwap(i);
+      m_Accessor3.RemoveAtAndSwap(i);
       break;
     }
   }

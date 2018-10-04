@@ -89,7 +89,7 @@ bool ezApplicationPluginConfig::RemovePlugin(const PluginConfig& cfg0)
 
       if (m_Plugins[i].m_sDependecyOf.IsEmpty())
       {
-        m_Plugins.RemoveAtSwap(i);
+        m_Plugins.RemoveAtAndSwap(i);
         return true;
       }
 

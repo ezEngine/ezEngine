@@ -188,7 +188,7 @@ void ezPxDynamicActorComponent::SetKinematic(bool b)
   }
   else
   {
-    GetWorld()->GetOrCreateComponentManager<ezPxDynamicActorComponentManager>()->m_KinematicActorComponents.RemoveSwap(this);
+    GetWorld()->GetOrCreateComponentManager<ezPxDynamicActorComponentManager>()->m_KinematicActorComponents.RemoveAndSwap(this);
   }
 
   if (m_pActor)
@@ -325,7 +325,7 @@ void ezPxDynamicActorComponent::Deinitialize()
 {
   if (m_bKinematic)
   {
-    GetWorld()->GetOrCreateComponentManager<ezPxDynamicActorComponentManager>()->m_KinematicActorComponents.RemoveSwap(this);
+    GetWorld()->GetOrCreateComponentManager<ezPxDynamicActorComponentManager>()->m_KinematicActorComponents.RemoveAndSwap(this);
   }
 
   if (m_pActor)

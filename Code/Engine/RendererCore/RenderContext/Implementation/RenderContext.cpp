@@ -124,7 +124,7 @@ ezRenderContext::~ezRenderContext()
   if (s_DefaultInstance == this)
     s_DefaultInstance = nullptr;
 
-  s_Instances.RemoveSwap(this);
+  s_Instances.RemoveAndSwap(this);
 }
 
 void ezRenderContext::SetGALContext(ezGALContext* pContext)
@@ -699,7 +699,7 @@ ezConstantBufferStorageHandle ezRenderContext::CreateConstantBufferStorage(ezUIn
     if (!storageForSize.IsEmpty())
     {
       pStorage = storageForSize[0];
-      storageForSize.RemoveAtSwap(0);
+      storageForSize.RemoveAtAndSwap(0);
     }
   }
 

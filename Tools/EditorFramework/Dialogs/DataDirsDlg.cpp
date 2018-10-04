@@ -135,7 +135,7 @@ void ezQtDataDirsDlg::on_ButtonAdd_clicked()
 
 void ezQtDataDirsDlg::on_ButtonRemove_clicked()
 {
-  m_Config.m_DataDirs.RemoveAt(m_iSelection);
+  m_Config.m_DataDirs.RemoveAtAndCopy(m_iSelection);
 
   FillList();
 }

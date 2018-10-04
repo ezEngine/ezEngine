@@ -551,7 +551,7 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
     if (newInstanceToCurrentInstance[i].m_sProperty == "Shader")
     {
       ezAbstractGraphDiffOperation op = newInstanceToCurrentInstance[i];
-      newInstanceToCurrentInstance.RemoveAt(i);
+      newInstanceToCurrentInstance.RemoveAtAndCopy(i);
       newInstanceToCurrentInstance.Insert(op, 0);
       break;
     }

@@ -40,7 +40,7 @@ bool ezSelectionManager::RecursiveRemoveFromSelection(const ezDocumentObject* pO
   if (it.IsValid())
   {
     m_SelectionSet.Remove(it);
-    m_SelectionList.Remove(pObject);
+    m_SelectionList.RemoveAndCopy(pObject);
     bRemoved = true;
   }
 
@@ -115,7 +115,7 @@ void ezSelectionManager::RemoveObject(const ezDocumentObject* pObject, bool bRec
       return;
 
     m_SelectionSet.Remove(it);
-    m_SelectionList.Remove(pObject);
+    m_SelectionList.RemoveAndCopy(pObject);
 
     ezSelectionManagerEvent e;
     e.m_pDocument = m_pDocument;

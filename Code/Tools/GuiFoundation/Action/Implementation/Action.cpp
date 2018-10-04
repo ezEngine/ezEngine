@@ -33,7 +33,7 @@ ezAction* ezActionDescriptor::CreateAction(const ezActionContext& context) const
 
 void ezActionDescriptor::DeleteAction(ezAction* pAction) const
 {
-  m_CreatedActions.RemoveSwap(pAction);
+  m_CreatedActions.RemoveAndSwap(pAction);
 
   if (m_DeleteAction == nullptr)
   {

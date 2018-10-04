@@ -33,7 +33,7 @@ void ezQtPin::AddConnection(ezQtConnection* pConnection)
 void ezQtPin::RemoveConnection(ezQtConnection* pConnection)
 {
   EZ_ASSERT_DEBUG(m_Connections.Contains(pConnection), "Connection not present!");
-  m_Connections.RemoveSwap(pConnection);
+  m_Connections.RemoveAndSwap(pConnection);
 
   if (m_Connections.IsEmpty())
     ConnectedStateChanged(false);

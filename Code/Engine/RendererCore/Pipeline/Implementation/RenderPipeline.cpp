@@ -72,7 +72,7 @@ void ezRenderPipeline::RemovePass(ezRenderPipelinePass* pPass)
       RemoveConnections(pPass);
       m_Connections.Remove(pPass);
       pPass->m_pPipeline = nullptr;
-      m_Passes.RemoveAt(i);
+      m_Passes.RemoveAtAndCopy(i);
       break;
     }
   }
@@ -228,7 +228,7 @@ bool ezRenderPipeline::Disconnect(ezRenderPipelinePass* pOutputNode, ezHashedStr
 
   // Remove at input
   ezRenderPipelinePassConnection* pConnection = itOut.Value().m_Outputs[pPinSource->m_uiOutputIndex];
-  pConnection->m_Inputs.Remove(pPinTarget);
+  pConnection->m_Inputs.RemoveAndCopy(pPinTarget);
   itIn.Value().m_Inputs[pPinTarget->m_uiInputIndex] = nullptr;
 
   if (pConnection->m_Inputs.IsEmpty())
@@ -373,7 +373,7 @@ bool ezRenderPipeline::SortPasses()
       if (AreInputDescriptionsAvailable(pCandidatePass, done) && ArePassThroughInputsDone(pCandidatePass, done))
       {
         usable.PushBack(pCandidatePass);
-        candidates.RemoveAt(i);
+        candidates.RemoveAtAndCopy(i);
       }
     }
   }
@@ -663,7 +663,7 @@ void ezRenderPipeline::SortExtractors()
     if (allDependenciesFound)
     {
       sortedExtractors.PushBack(std::move(extractor));
-      m_Extractors.RemoveAt(uiIndex);
+      m_Extractors.RemoveAtAndCopy(uiIndex);
     }
     else
     {
@@ -702,7 +702,7 @@ void ezRenderPipeline::RemoveExtractor(ezExtractor* pExtractor)
   {
     if (m_Extractors[i].Borrow() == pExtractor)
     {
-      m_Extractors.RemoveAt(i);
+      m_Extractors.RemoveAtAndCopy(i);
       break;
     }
   }

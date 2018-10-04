@@ -70,7 +70,7 @@ ezQtDocumentWindow::~ezQtDocumentWindow()
 {
   ezQtUiServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesEventHandler, this));
 
-  s_AllDocumentWindows.RemoveSwap(this);
+  s_AllDocumentWindows.RemoveAndSwap(this);
 
   if (m_pDocument)
   {

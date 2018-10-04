@@ -23,7 +23,7 @@ void ezObjectSelection::RemoveDeadObjects()
     ezGameObject* pObject;
     if (!m_pWorld->TryGetObject(m_Objects[i - 1], pObject))
     {
-      m_Objects.RemoveAt(i - 1); // keep the order
+      m_Objects.RemoveAtAndCopy(i - 1); // keep the order
     }
   }
 }
@@ -45,7 +45,7 @@ void ezObjectSelection::AddObject(ezGameObjectHandle hObject, bool bDontAddTwice
 
 bool ezObjectSelection::RemoveObject(ezGameObjectHandle hObject)
 {
-  return m_Objects.Remove(hObject);
+  return m_Objects.RemoveAndCopy(hObject);
 }
 
 void ezObjectSelection::ToggleSelection(ezGameObjectHandle hObject)
@@ -54,7 +54,7 @@ void ezObjectSelection::ToggleSelection(ezGameObjectHandle hObject)
   {
     if (m_Objects[i] == hObject)
     {
-      m_Objects.RemoveAt(i); // keep the order
+      m_Objects.RemoveAtAndCopy(i); // keep the order
       return;
     }
   }

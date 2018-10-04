@@ -190,7 +190,7 @@ void ezQtAssetBrowserModel::HandleAsset(const ezSubAsset* pInfo, AssetOp op)
     if (uiInsertIndex < m_AssetsToDisplay.GetCount() && !cmp.Less(*pLB, ae) && !cmp.Less(ae, *pLB))
     {
       beginRemoveRows(QModelIndex(), uiInsertIndex, uiInsertIndex);
-      m_AssetsToDisplay.RemoveAt(uiInsertIndex);
+      m_AssetsToDisplay.RemoveAtAndCopy(uiInsertIndex);
       m_DisplayedEntries.Remove(pInfo->m_Data.m_Guid);
       endRemoveRows();
     }
@@ -210,7 +210,7 @@ void ezQtAssetBrowserModel::HandleAsset(const ezSubAsset* pInfo, AssetOp op)
       {
         // Name has changed, remove old entry
         beginRemoveRows(QModelIndex(), oldIndex, oldIndex);
-        m_AssetsToDisplay.RemoveAt(oldIndex);
+        m_AssetsToDisplay.RemoveAtAndCopy(oldIndex);
         m_DisplayedEntries.Remove(pInfo->m_Data.m_Guid);
         endRemoveRows();
       }

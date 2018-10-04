@@ -101,7 +101,7 @@ void ezQtEditorApp::ReadEnginePluginConfig()
   {
     if (m_EnginePluginConfig.m_Plugins[i].m_sDependecyOf.IsEmpty())
     {
-      m_EnginePluginConfig.m_Plugins.RemoveAt(i);
+      m_EnginePluginConfig.m_Plugins.RemoveAtAndCopy(i);
       --count;
     }
     else

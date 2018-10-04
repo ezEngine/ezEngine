@@ -55,7 +55,7 @@ void ezSpatialSystem::DeleteSpatialData(const ezSpatialDataHandle& hData)
 
   if (pData->m_Flags.IsSet(ezSpatialData::Flags::AlwaysVisible))
   {
-    m_DataAlwaysVisible.RemoveSwap(pData);
+    m_DataAlwaysVisible.RemoveAndSwap(pData);
   }
   else
   {

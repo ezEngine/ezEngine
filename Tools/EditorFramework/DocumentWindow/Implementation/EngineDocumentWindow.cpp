@@ -140,7 +140,7 @@ void ezQtEngineDocumentWindow::AddViewWidget(ezQtEngineViewWidget* pView)
 
 void ezQtEngineDocumentWindow::RemoveViewWidget(ezQtEngineViewWidget* pView)
 {
-  m_ViewWidgets.RemoveSwap(pView);
+  m_ViewWidgets.RemoveAndSwap(pView);
   ezEngineWindowEvent e;
   e.m_Type = ezEngineWindowEvent::Type::ViewDestroyed;
   e.m_pView = pView;

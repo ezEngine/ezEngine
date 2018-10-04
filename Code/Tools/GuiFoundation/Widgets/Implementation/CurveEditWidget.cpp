@@ -52,7 +52,7 @@ void ezQtCurveEditWidget::SetCurves(ezCurveGroupData* pCurveEditData, double fMi
     if (m_SelectedCPs[i].m_uiCurve >= m_Curves.GetCount() ||
         m_SelectedCPs[i].m_uiPoint >= m_Curves[m_SelectedCPs[i].m_uiCurve].GetNumControlPoints())
     {
-      m_SelectedCPs.RemoveAt(i);
+      m_SelectedCPs.RemoveAtAndCopy(i);
     }
     else
     {
@@ -229,7 +229,7 @@ void ezQtCurveEditWidget::SetSelected(const ezSelectedCurveCP& cp, bool set)
     {
       if (m_SelectedCPs[i].m_uiCurve == cp.m_uiCurve && m_SelectedCPs[i].m_uiPoint == cp.m_uiPoint)
       {
-        m_SelectedCPs.RemoveAt(i);
+        m_SelectedCPs.RemoveAtAndCopy(i);
         break;
       }
     }
@@ -1348,7 +1348,7 @@ bool ezQtCurveEditWidget::CombineSelection(ezDynamicArray<ezSelectedCurveCP>& in
 
     if (!add)
     {
-      bChange |= inout_Selection.Remove(cp);
+      bChange |= inout_Selection.RemoveAndCopy(cp);
     }
     else if (!inout_Selection.Contains(cp))
     {

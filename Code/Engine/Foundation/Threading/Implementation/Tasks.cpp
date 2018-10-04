@@ -260,7 +260,7 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
     EZ_LOCK(s_TaskSystemMutex);
 
     // if the task is still in the queue of its group, it had not yet been scheduled
-    if (!pTask->m_bTaskIsScheduled && pTask->m_BelongsToGroup.m_pTaskGroup->m_Tasks.RemoveSwap(pTask))
+    if (!pTask->m_bTaskIsScheduled && pTask->m_BelongsToGroup.m_pTaskGroup->m_Tasks.RemoveAndSwap(pTask))
     {
       // we set the task to finished, even though it was not executed
       pTask->m_bIsFinished = true;

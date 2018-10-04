@@ -140,7 +140,7 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
 
       // move it to the front of the queue
       // if it is not in the queue anymore, it has already been started by some thread
-      if (m_RequireLoading.Remove(li))
+      if (m_RequireLoading.RemoveAndCopy(li))
       {
         // ezLog::Info("Moving Resource to front of preloading queue");
         m_RequireLoading.PushFront(li);
@@ -282,7 +282,7 @@ void ezResourceManager::UpdateLoadingDeadlines()
       ezResourceManager::BroadcastResourceEvent(e);
 
       // ezLog::Warning("Removing resource from preload queue due to time out");
-      m_RequireLoading.RemoveAtSwap(i);
+      m_RequireLoading.RemoveAtAndSwap(i);
       --uiCount;
     }
     else
@@ -1130,7 +1130,7 @@ void ezResourceManager::SetResourceLowResData(const ezTypelessResourceHandle& hR
     LoadingInfo li;
     li.m_pResource = pResource;
 
-    if (!m_RequireLoading.Remove(li))
+    if (!m_RequireLoading.RemoveAndCopy(li))
     {
       // if we cannot find it in the queue anymore, some thread already started loading it
       // in this case, do not try to modify it

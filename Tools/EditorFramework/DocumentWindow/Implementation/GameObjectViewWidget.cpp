@@ -79,7 +79,7 @@ void ezQtGameObjectViewWidget::HandleMarqueePickingResult(const ezViewMarqueePic
     if (pMsg->m_uiWhatToDo == 2) // remove from selection
     {
       // keep selection order
-      newSelection.Remove(pObject);
+      newSelection.RemoveAndCopy(pObject);
     }
     else // add/set selection
     {

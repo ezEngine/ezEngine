@@ -144,7 +144,7 @@ void ezGALDevice::ReviveDeadObject(ezUInt32 uiType, HandleType handle)
 
     if (deadObject.m_uiType == uiType && deadObject.m_uiHandle == uiHandle)
     {
-      m_DeadObjects.RemoveAt(i);
+      m_DeadObjects.RemoveAtAndCopy(i);
       return;
     }
   }

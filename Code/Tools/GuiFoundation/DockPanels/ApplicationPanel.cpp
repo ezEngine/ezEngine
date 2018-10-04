@@ -29,7 +29,7 @@ ezQtApplicationPanel::~ezQtApplicationPanel()
 {
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtApplicationPanel::ToolsProjectEventHandler, this));
 
-  s_AllApplicationPanels.RemoveSwap(this);
+  s_AllApplicationPanels.RemoveAndSwap(this);
 }
 
 void ezQtApplicationPanel::EnsureVisible()

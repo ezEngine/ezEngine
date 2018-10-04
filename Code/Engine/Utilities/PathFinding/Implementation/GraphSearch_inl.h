@@ -31,7 +31,7 @@ ezInt64 ezPathSearch<PathStateType>::FindBestNodeToExpand(PathStateType*& out_pP
   EZ_ASSERT_DEV(out_pPathState != nullptr, "Implementation Error");
 
   const ezInt64 iBestNodeIndex = m_StateQueue[iBestInQueue];
-  m_StateQueue.RemoveAtSwap(iBestInQueue);
+  m_StateQueue.RemoveAtAndSwap(iBestInQueue);
 
   return iBestNodeIndex;
 }

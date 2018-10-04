@@ -139,7 +139,7 @@ void ezTexture2DResource::AddRenderView(ezViewHandle hView)
 
 void ezTexture2DResource::RemoveRenderView(ezViewHandle hView)
 {
-  m_RenderViews.RemoveSwap(hView);
+  m_RenderViews.RemoveAndSwap(hView);
 }
 
 const ezDynamicArray<ezViewHandle>& ezTexture2DResource::GetAllRenderViews() const

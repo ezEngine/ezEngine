@@ -32,7 +32,7 @@ namespace
     auto globalEventHandler = s_GlobalEventHandlerPerWorld[uiWorldIndex];
     EZ_ASSERT_DEV(globalEventHandler != nullptr, "Implementation error.");
 
-    globalEventHandler->RemoveSwap(pComponent->GetHandle());
+    globalEventHandler->RemoveAndSwap(pComponent->GetHandle());
   }
 }
 

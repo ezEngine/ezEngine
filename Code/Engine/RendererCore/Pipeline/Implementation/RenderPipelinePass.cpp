@@ -81,7 +81,7 @@ void ezRenderPipelinePass::RemoveRenderer(ezRenderer* pRenderer)
   if (!m_Renderer.Contains(pRenderer))
     return;
 
-  m_Renderer.Remove(pRenderer);
+  m_Renderer.RemoveAndCopy(pRenderer);
 
   // Rebuild index table
   m_TypeToRendererIndex.Clear();

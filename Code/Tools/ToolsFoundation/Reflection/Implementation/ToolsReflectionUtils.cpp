@@ -452,7 +452,7 @@ bool ezToolsReflectionUtils::DependencySortTypeDescriptorArray(ezDynamicArray<ez
       {
         sorted.PushBack(desc);
         bDeadEnd = false;
-        descriptors.Remove(desc);
+        descriptors.RemoveAndCopy(desc);
         accu.Insert(desc->m_sTypeName);
         break;
       }

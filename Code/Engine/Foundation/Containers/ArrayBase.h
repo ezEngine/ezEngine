@@ -64,16 +64,16 @@ public:
   void Insert(T&& value, ezUInt32 uiIndex); // [tested]
 
   /// \brief Removes the first occurrence of value and fills the gap by shifting all following elements
-  bool Remove(const T& value); // [tested]
+  bool RemoveAndCopy(const T& value); // [tested]
 
   /// \brief Removes the first occurrence of value and fills the gap by swapping in the last element
-  bool RemoveSwap(const T& value); // [tested]
+  bool RemoveAndSwap(const T& value); // [tested]
 
   /// \brief Removes the element at index and fills the gap by shifting all following elements
-  void RemoveAt(ezUInt32 uiIndex); // [tested]
+  void RemoveAtAndCopy(ezUInt32 uiIndex); // [tested]
 
   /// \brief Removes the element at index and fills the gap by swapping in the last element
-  void RemoveAtSwap(ezUInt32 uiIndex); // [tested]
+  void RemoveAtAndSwap(ezUInt32 uiIndex); // [tested]
 
   /// \brief Searches for the first occurrence of the given value and returns its index or ezInvalidIndex if not found.
   ezUInt32 IndexOf(const T& value, ezUInt32 uiStartIndex = 0) const; // [tested]

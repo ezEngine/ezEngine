@@ -155,7 +155,7 @@ ezUInt32 ezFileSystem::RemoveDataDirectoryGroup(const char* szGroup)
       ++uiRemoved;
 
       s_Data->m_DataDirectories[i].m_pDataDirectory->RemoveDataDirectory();
-      s_Data->m_DataDirectories.RemoveAt(i);
+      s_Data->m_DataDirectories.RemoveAtAndCopy(i);
     }
     else
       ++i;

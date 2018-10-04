@@ -455,7 +455,7 @@ void ezParticleComponent::RemoveParameter(const char* szKey)
   {
     if (m_FloatParams[i].m_sName == th)
     {
-      m_FloatParams.RemoveAtSwap(i);
+      m_FloatParams.RemoveAtAndSwap(i);
       return;
     }
   }
@@ -464,7 +464,7 @@ void ezParticleComponent::RemoveParameter(const char* szKey)
   {
     if (m_ColorParams[i].m_sName == th)
     {
-      m_ColorParams.RemoveAtSwap(i);
+      m_ColorParams.RemoveAtAndSwap(i);
       return;
     }
   }

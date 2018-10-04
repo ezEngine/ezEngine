@@ -417,7 +417,7 @@ void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
       if (!GetWorld()->IsValidComponent(binding.m_hComponent))
       {
         // remove dead references
-        m_ComponentFloatBindings.RemoveAtSwap(i);
+        m_ComponentFloatBindings.RemoveAtAndSwap(i);
         continue;
       }
     }
@@ -437,7 +437,7 @@ void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
       if (!GetWorld()->IsValidComponent(binding.m_hComponent))
       {
         // remove dead references
-        m_ColorBindings.RemoveAtSwap(i);
+        m_ColorBindings.RemoveAtAndSwap(i);
         continue;
       }
     }
@@ -457,7 +457,7 @@ void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
       if (!GetWorld()->IsValidObject(binding.m_hObject))
       {
         // remove dead references
-        m_GoFloatBindings.RemoveAtSwap(i);
+        m_GoFloatBindings.RemoveAtAndSwap(i);
         continue;
       }
     }

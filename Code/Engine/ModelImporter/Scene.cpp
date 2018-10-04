@@ -167,7 +167,7 @@ namespace ezModelImporter
           {
             ObjectHandle childHandle = node->m_Children[childIdx];
             if (childHandle.GetType() == ObjectHandle::MESH)
-              node->m_Children.RemoveAt(childIdx);
+              node->m_Children.RemoveAtAndCopy(childIdx);
 
             treeStack.PushBack(GetObject<HierarchyObject>(childHandle));
             transformStack.PushBack(currentTransform);

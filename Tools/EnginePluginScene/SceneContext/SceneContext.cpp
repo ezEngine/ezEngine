@@ -896,7 +896,7 @@ void ezSceneContext::HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine
       {
         if (m_PushObjectStateMsg.m_ObjectStates[i].m_ObjectGuid == objectGuid)
         {
-          m_PushObjectStateMsg.m_ObjectStates.RemoveAt(i);
+          m_PushObjectStateMsg.m_ObjectStates.RemoveAtAndCopy(i);
           break;
         }
       }

@@ -48,7 +48,7 @@ public:
       return false;
 
     ezTreeNode<T>* pChild = m_Children[iIndex];
-    m_Children.RemoveAt(iIndex);
+    m_Children.RemoveAtAndCopy(iIndex);
     EZ_DEFAULT_DELETE(pChild);
     return true;
   }

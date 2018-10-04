@@ -176,31 +176,31 @@ void ezArrayBase<T, Derived>::Insert(T&& value, ezUInt32 uiIndex)
 }
 
 template <typename T, typename Derived>
-bool ezArrayBase<T, Derived>::Remove(const T& value)
+bool ezArrayBase<T, Derived>::RemoveAndCopy(const T& value)
 {
   ezUInt32 uiIndex = IndexOf(value);
 
   if (uiIndex == ezInvalidIndex)
     return false;
 
-  RemoveAt(uiIndex);
+  RemoveAtAndCopy(uiIndex);
   return true;
 }
 
 template <typename T, typename Derived>
-bool ezArrayBase<T, Derived>::RemoveSwap(const T& value)
+bool ezArrayBase<T, Derived>::RemoveAndSwap(const T& value)
 {
   ezUInt32 uiIndex = IndexOf(value);
 
   if (uiIndex == ezInvalidIndex)
     return false;
 
-  RemoveAtSwap(uiIndex);
+  RemoveAtAndSwap(uiIndex);
   return true;
 }
 
 template <typename T, typename Derived>
-void ezArrayBase<T, Derived>::RemoveAt(ezUInt32 uiIndex)
+void ezArrayBase<T, Derived>::RemoveAtAndCopy(ezUInt32 uiIndex)
 {
   EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to remove element at index {1}.", m_uiCount, uiIndex);
 
@@ -211,7 +211,7 @@ void ezArrayBase<T, Derived>::RemoveAt(ezUInt32 uiIndex)
 }
 
 template <typename T, typename Derived>
-void ezArrayBase<T, Derived>::RemoveAtSwap(ezUInt32 uiIndex)
+void ezArrayBase<T, Derived>::RemoveAtAndSwap(ezUInt32 uiIndex)
 {
   EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to remove element at index {1}.", m_uiCount, uiIndex);
 

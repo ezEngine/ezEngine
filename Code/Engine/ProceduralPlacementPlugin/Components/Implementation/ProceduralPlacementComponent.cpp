@@ -376,7 +376,7 @@ void ezProceduralPlacementComponentManager::RemoveComponent(ezProceduralPlacemen
       auto& bounds = pActiveResource->m_Bounds[i];
       if (bounds.m_hComponent == hComponent)
       {
-        pActiveResource->m_Bounds.RemoveAtSwap(i);
+        pActiveResource->m_Bounds.RemoveAtAndSwap(i);
         break;
       }
     }
@@ -463,7 +463,7 @@ void ezProceduralPlacementComponentManager::RemoveTilesForResource(ezUInt32 uiRe
   {
     if (m_NewTiles[uiNewTileIndex].m_uiResourceIdHash == uiResourceIdHash)
     {
-      m_NewTiles.RemoveAtSwap(uiNewTileIndex);
+      m_NewTiles.RemoveAtAndSwap(uiNewTileIndex);
       --uiNewTileIndex;
     }
   }

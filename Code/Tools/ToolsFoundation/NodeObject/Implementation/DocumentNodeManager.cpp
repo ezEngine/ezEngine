@@ -246,8 +246,8 @@ void ezDocumentNodeManager::Disconnect(const ezPin* pSource, const ezPin* pTarge
     m_NodeEvents.Broadcast(e);
   }
 
-  const_cast<ezPin*>(pSource)->m_Connections.Remove(pConnection);
-  const_cast<ezPin*>(pTarget)->m_Connections.Remove(pConnection);
+  const_cast<ezPin*>(pSource)->m_Connections.RemoveAndCopy(pConnection);
+  const_cast<ezPin*>(pTarget)->m_Connections.RemoveAndCopy(pConnection);
   m_PinsToConnection.Remove(it);
   InternalDestroyConnection(pConnection);
 }

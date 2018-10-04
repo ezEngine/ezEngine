@@ -81,7 +81,7 @@ void ezDocumentObject::RemoveSubObject(ezDocumentObject* pObject)
     EZ_ASSERT_DEV(bRes, "");
   }
 
-  m_Children.Remove(pObject);
+  m_Children.RemoveAndCopy(pObject);
   pObject->m_pParent = nullptr;
 }
 

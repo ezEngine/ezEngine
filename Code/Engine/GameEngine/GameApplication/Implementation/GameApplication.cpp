@@ -80,7 +80,7 @@ void ezGameApplication::RemoveWindow(ezWindowBase* pWindow)
     if (windowContext.m_pWindow == pWindow)
     {
       ezGALDevice::GetDefaultDevice()->DestroySwapChain(windowContext.m_hSwapChain);
-      m_Windows.RemoveAt(i);
+      m_Windows.RemoveAtAndCopy(i);
       break;
     }
   }

@@ -113,7 +113,7 @@ void ezMaterialResource::SetParameter(const ezHashedString& sName, const ezVaria
       return;
     }
 
-    m_Desc.m_Parameters.RemoveAtSwap(uiIndex);
+    m_Desc.m_Parameters.RemoveAtAndSwap(uiIndex);
   }
 
   m_iLastModified.Increment();
@@ -161,7 +161,7 @@ void ezMaterialResource::SetParameter(const char* szName, const ezVariant& value
       return;
     }
 
-    m_Desc.m_Parameters.RemoveAtSwap(uiIndex);
+    m_Desc.m_Parameters.RemoveAtAndSwap(uiIndex);
   }
 
   m_iLastModified.Increment();
@@ -211,7 +211,7 @@ void ezMaterialResource::SetTexture2DBinding(const ezHashedString& sName, const 
   {
     if (uiIndex != ezInvalidIndex)
     {
-      m_Desc.m_Texture2DBindings.RemoveAtSwap(uiIndex);
+      m_Desc.m_Texture2DBindings.RemoveAtAndSwap(uiIndex);
     }
   }
 
@@ -251,7 +251,7 @@ void ezMaterialResource::SetTexture2DBinding(const char* szName, const ezTexture
   {
     if (uiIndex != ezInvalidIndex)
     {
-      m_Desc.m_Texture2DBindings.RemoveAtSwap(uiIndex);
+      m_Desc.m_Texture2DBindings.RemoveAtAndSwap(uiIndex);
     }
   }
 
@@ -306,7 +306,7 @@ void ezMaterialResource::SetTextureCubeBinding(const ezHashedString& sName, cons
   {
     if (uiIndex != ezInvalidIndex)
     {
-      m_Desc.m_TextureCubeBindings.RemoveAtSwap(uiIndex);
+      m_Desc.m_TextureCubeBindings.RemoveAtAndSwap(uiIndex);
     }
   }
 
@@ -346,7 +346,7 @@ void ezMaterialResource::SetTextureCubeBinding(const char* szName, const ezTextu
   {
     if (uiIndex != ezInvalidIndex)
     {
-      m_Desc.m_TextureCubeBindings.RemoveAtSwap(uiIndex);
+      m_Desc.m_TextureCubeBindings.RemoveAtAndSwap(uiIndex);
     }
   }
 

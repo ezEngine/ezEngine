@@ -422,12 +422,12 @@ void ezAssetCurator::UntrackDependencies(ezAssetInfo* pAssetInfo)
 
   const ezString sTargetFile = pAssetInfo->m_pManager->GetAbsoluteOutputFileName(pAssetInfo->m_sAbsolutePath, "");
   auto it = m_InverseReferences.FindOrAdd(sTargetFile);
-  it.Value().Remove(pAssetInfo->m_Info->m_DocumentID);
+  it.Value().RemoveAndCopy(pAssetInfo->m_Info->m_DocumentID);
   for (auto outputIt = pAssetInfo->m_Info->m_Outputs.GetIterator(); outputIt.IsValid(); ++outputIt)
   {
     const ezString sTargetFile = pAssetInfo->m_pManager->GetAbsoluteOutputFileName(pAssetInfo->m_sAbsolutePath, outputIt.Key());
     it = m_InverseReferences.FindOrAdd(sTargetFile);
-    it.Value().Remove(pAssetInfo->m_Info->m_DocumentID);
+    it.Value().RemoveAndCopy(pAssetInfo->m_Info->m_DocumentID);
   }
 }
 
@@ -476,7 +476,7 @@ void ezAssetCurator::UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezS
     }
     else
     {
-      it.Value().Remove(assetGuid);
+      it.Value().RemoveAndCopy(assetGuid);
     }
   }
 }

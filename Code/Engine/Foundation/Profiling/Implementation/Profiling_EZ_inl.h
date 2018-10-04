@@ -96,7 +96,7 @@ void ezProfilingSystem::Reset()
         // Don't use swap as a thread ID could be re-used and so we might delete the
         // info for an actual thread in the next loop instead of the remnants of the thread
         // that existed before.
-        s_ThreadInfos.RemoveAt(k);
+        s_ThreadInfos.RemoveAtAndCopy(k);
         break;
       }
     }
@@ -107,7 +107,7 @@ void ezProfilingSystem::Reset()
       {
         EZ_DEFAULT_DELETE(pEventBuffer);
         // Forward order and no swap important, see comment above.
-        s_AllEventBuffers.RemoveAt(k);
+        s_AllEventBuffers.RemoveAtAndCopy(k);
       }
     }
   }

@@ -42,7 +42,7 @@ void ezQtEventTrackWidget::SetData(const ezEventTrackData* pData, double fMinCur
   //    if (m_SelectedCPs[i].m_uiCurve >= m_Curves.GetCount() ||
   //      m_SelectedCPs[i].m_uiPoint >= m_Curves[m_SelectedCPs[i].m_uiCurve].GetNumControlPoints())
   //    {
-  //      m_SelectedCPs.RemoveAt(i);
+  //      m_SelectedCPs.RemoveAtAndCopy(i);
   //    }
   //    else
   //    {
@@ -252,7 +252,7 @@ void ezQtEventTrackWidget::SetSelected(SelectedPoint cp, bool set)
 
   if (!set)
   {
-    m_SelectedPoints.Remove(cp);
+    m_SelectedPoints.RemoveAndCopy(cp);
   }
   else
   {
@@ -958,7 +958,7 @@ bool ezQtEventTrackWidget::CombineSelection(ezHybridArray<SelectedPoint, 32>& in
 
     if (!add)
     {
-      bChange |= inout_Selection.Remove(cp);
+      bChange |= inout_Selection.RemoveAndCopy(cp);
     }
     else if (!inout_Selection.Contains(cp))
     {

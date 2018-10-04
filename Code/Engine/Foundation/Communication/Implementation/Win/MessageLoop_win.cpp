@@ -89,7 +89,7 @@ bool ezMessageLoop_win::MatchCompletedIOItem(ezIpcChannel* pFilter, IOItem* pIte
     if (pFilter == NULL || m_CompletedIO[i].pChannel == pFilter)
     {
       *pItem = m_CompletedIO[i];
-      m_CompletedIO.RemoveAt(i);
+      m_CompletedIO.RemoveAtAndCopy(i);
       return true;
     }
   }

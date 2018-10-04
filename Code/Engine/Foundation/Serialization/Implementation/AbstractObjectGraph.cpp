@@ -164,7 +164,7 @@ void ezAbstractObjectNode::RemoveProperty(const char* szName)
   {
     if (ezStringUtils::IsEqual(m_Properties[i].m_szPropertyName, szName))
     {
-      m_Properties.RemoveAtSwap(i);
+      m_Properties.RemoveAtAndSwap(i);
       return;
     }
   }

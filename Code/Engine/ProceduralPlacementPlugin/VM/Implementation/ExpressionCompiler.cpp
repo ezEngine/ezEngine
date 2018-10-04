@@ -189,7 +189,7 @@ ezResult ezExpressionCompiler::AssignRegisters()
         ezUInt32 uiRegisterIndex = m_NodeToRegisterIndex[activeInterval.m_pNode];
         freeRegisters.PushBack(uiRegisterIndex);
 
-        activeIntervals.RemoveAt(uiActiveIndex);
+        activeIntervals.RemoveAtAndCopy(uiActiveIndex);
       }
     }
 

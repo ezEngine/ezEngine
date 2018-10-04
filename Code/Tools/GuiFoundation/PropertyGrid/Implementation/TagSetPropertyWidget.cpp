@@ -85,7 +85,7 @@ void ezQtPropertyEditorTagSetWidget::OnInit()
       {
         if (categories[i] == szCurrentCategory)
         {
-          categories.RemoveAt(i);
+          categories.RemoveAtAndCopy(i);
           break;
         }
       }

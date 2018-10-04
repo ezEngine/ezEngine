@@ -199,7 +199,7 @@ void ezLargeBlockAllocator<BlockSize>::Deallocate(void* ptr)
     // give memory back
     ezPageAllocator::DeallocatePage(superBlock.m_pBasePtr);
 
-    m_superBlocks.RemoveAtSwap(uiSuperBlockIndex);
+    m_superBlocks.RemoveAtAndSwap(uiSuperBlockIndex);
     const ezUInt32 uiLastSuperBlockIndex = m_superBlocks.GetCount();
 
     // patch free list
@@ -211,7 +211,7 @@ void ezLargeBlockAllocator<BlockSize>::Deallocate(void* ptr)
       if (uiSBIndex == uiSuperBlockIndex)
       {
         // points to the block we just removed
-        m_freeBlocks.RemoveAtSwap(i);
+        m_freeBlocks.RemoveAtAndSwap(i);
         --i;
       }
       else if (uiSBIndex == uiLastSuperBlockIndex)

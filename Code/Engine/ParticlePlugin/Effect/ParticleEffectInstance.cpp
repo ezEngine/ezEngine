@@ -559,7 +559,7 @@ void ezParticleEffectInstance::RemoveSharedInstance(const void* pSharedInstanceO
   {
     if (m_SharedInstances[i].m_pSharedInstanceOwner == pSharedInstanceOwner)
     {
-      m_SharedInstances.RemoveAtSwap(i);
+      m_SharedInstances.RemoveAtAndSwap(i);
       return;
     }
   }

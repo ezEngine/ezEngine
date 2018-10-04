@@ -136,7 +136,7 @@ void ezManipulatorManager::StructureEventHandler(const ezDocumentObjectStructure
       {
         if (sel.m_pObject == e.m_pObject)
         {
-          it.Value().m_Selection.Remove(sel);
+          it.Value().m_Selection.RemoveAndCopy(sel);
           InternalSetActiveManipulator(pDoc, it.Value().m_pAttribute, it.Value().m_Selection, false);
           return;
         }

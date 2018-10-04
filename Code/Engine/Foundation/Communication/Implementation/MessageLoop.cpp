@@ -180,10 +180,10 @@ void ezMessageLoop::RemoveChannel(ezIpcChannel* pChannel)
 {
   EZ_LOCK(m_TasksMutex);
 
-  m_AllAddedChannels.RemoveSwap(pChannel);
-  m_ConnectQueue.RemoveSwap(pChannel);
-  m_DisconnectQueue.RemoveSwap(pChannel);
-  m_SendQueue.RemoveSwap(pChannel);
+  m_AllAddedChannels.RemoveAndSwap(pChannel);
+  m_ConnectQueue.RemoveAndSwap(pChannel);
+  m_DisconnectQueue.RemoveAndSwap(pChannel);
+  m_SendQueue.RemoveAndSwap(pChannel);
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_MessageLoop);

@@ -22,7 +22,7 @@ void ezDynamicStringEnum::AddValidValue(const char* szNewName, bool bSortValues 
 
 void ezDynamicStringEnum::RemoveValue(const char* szValue)
 {
-  m_ValidValues.Remove(szValue);
+  m_ValidValues.RemoveAndCopy(szValue);
 }
 
 bool ezDynamicStringEnum::IsValueValid(const char* szValue) const

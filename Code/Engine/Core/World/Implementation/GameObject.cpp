@@ -628,7 +628,7 @@ void ezGameObject::RemoveComponent(ezComponent* pComponent)
 #endif
 
   pComponent->m_pOwner = nullptr;
-  m_Components.RemoveAtSwap(uiIndex);
+  m_Components.RemoveAtAndSwap(uiIndex);
 }
 
 void ezGameObject::FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr)

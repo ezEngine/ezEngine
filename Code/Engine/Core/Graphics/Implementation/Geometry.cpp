@@ -157,7 +157,7 @@ void ezGeometry::TriangulatePolygons(ezUInt32 uiMaxVerticesInPolygon /*= 3*/)
         tri.m_Vertices[2] = poly.m_Vertices[v];
       }
 
-      m_Polygons.RemoveAtSwap(p);
+      m_Polygons.RemoveAtAndSwap(p);
     }
   }
 }

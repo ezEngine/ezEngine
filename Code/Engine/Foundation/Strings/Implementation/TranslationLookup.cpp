@@ -15,7 +15,7 @@ ezTranslator::ezTranslator()
 
 ezTranslator::~ezTranslator()
 {
-  s_AllTranslators.RemoveSwap(this);
+  s_AllTranslators.RemoveAndSwap(this);
 }
 
 void ezTranslator::Reset() {}

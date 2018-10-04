@@ -326,7 +326,7 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
       {
         if (dds[i].m_sName == e.m_szName)
         {
-          dds.RemoveAt(i);
+          dds.RemoveAtAndCopy(i);
           break;
         }
       }

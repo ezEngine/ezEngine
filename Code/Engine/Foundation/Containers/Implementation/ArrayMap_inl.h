@@ -208,29 +208,29 @@ EZ_ALWAYS_INLINE const typename ezArrayMapBase<KEY, VALUE>::Pair& ezArrayMapBase
 }
 
 template <typename KEY, typename VALUE>
-void ezArrayMapBase<KEY, VALUE>::RemoveAt(ezUInt32 index, bool bKeepSorted)
+void ezArrayMapBase<KEY, VALUE>::RemoveAtAndCopy(ezUInt32 index, bool bKeepSorted)
 {
   if (bKeepSorted && m_bSorted)
   {
-    m_Data.RemoveAt(index);
+    m_Data.RemoveAtAndCopy(index);
   }
   else
   {
-    m_Data.RemoveAtSwap(index);
+    m_Data.RemoveAtAndSwap(index);
     m_bSorted = false;
   }
 }
 
 template <typename KEY, typename VALUE>
 template <typename CompatibleKeyType>
-bool ezArrayMapBase<KEY, VALUE>::Remove(const CompatibleKeyType& key, bool bKeepSorted)
+bool ezArrayMapBase<KEY, VALUE>::RemoveAndCopy(const CompatibleKeyType& key, bool bKeepSorted)
 {
   const ezUInt32 uiIndex = Find(key);
 
   if (uiIndex == ezInvalidIndex)
     return false;
 
-  RemoveAt(uiIndex, bKeepSorted);
+  RemoveAtAndCopy(uiIndex, bKeepSorted);
   return true;
 }
 

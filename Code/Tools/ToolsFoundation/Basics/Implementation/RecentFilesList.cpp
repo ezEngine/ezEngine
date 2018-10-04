@@ -18,7 +18,7 @@ void ezRecentFilesList::Insert(const char* szFile, ezInt32 iContainerWindow)
   {
     if (m_Files[i].m_File == s)
     {
-      m_Files.RemoveAt(i);
+      m_Files.RemoveAtAndCopy(i);
       break;
     }
   }

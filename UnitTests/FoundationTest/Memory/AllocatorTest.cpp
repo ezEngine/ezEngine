@@ -145,7 +145,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
 
         allocator.DeallocateBlock(block);
 
-        blocks.RemoveAtSwap(uiIndex);
+        blocks.RemoveAtAndSwap(uiIndex);
       }
     }
 

@@ -314,7 +314,7 @@ void ezVisualScriptComponent::RemoveParameter(const char* szKey)
   {
     if (m_NumberParams[i].m_sName == th)
     {
-      m_NumberParams.RemoveAtSwap(i);
+      m_NumberParams.RemoveAtAndSwap(i);
       return;
     }
   }
@@ -323,7 +323,7 @@ void ezVisualScriptComponent::RemoveParameter(const char* szKey)
   {
     if (m_BoolParams[i].m_sName == th)
     {
-      m_BoolParams.RemoveAtSwap(i);
+      m_BoolParams.RemoveAtAndSwap(i);
       return;
     }
   }

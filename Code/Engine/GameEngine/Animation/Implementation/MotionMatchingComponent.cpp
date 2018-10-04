@@ -359,7 +359,7 @@ void ezMotionMatchingComponent::Animations_Insert(ezUInt32 uiIndex, const char* 
 
 void ezMotionMatchingComponent::Animations_Remove(ezUInt32 uiIndex)
 {
-  m_Animations.RemoveAt(uiIndex);
+  m_Animations.RemoveAtAndCopy(uiIndex);
 }
 
 ezMotionMatchingComponent::TargetKeyframe ezMotionMatchingComponent::FindNextKeyframe(const TargetKeyframe& current,

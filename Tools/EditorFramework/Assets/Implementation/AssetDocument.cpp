@@ -711,7 +711,7 @@ void ezAssetDocument::RemoveSyncObject(ezEditorEngineSyncObject* pSync) const
 {
   m_DeletedObjects.PushBack(pSync->GetGuid());
   m_AllSyncObjects.Remove(pSync->GetGuid());
-  m_SyncObjects.RemoveSwap(pSync);
+  m_SyncObjects.RemoveAndSwap(pSync);
 }
 
 ezEditorEngineSyncObject* ezAssetDocument::FindSyncObject(const ezUuid& guid) const

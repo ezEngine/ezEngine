@@ -192,7 +192,7 @@ void ezPrefabReferenceComponent::SetParameter(const char* szKey, const ezVariant
 
 void ezPrefabReferenceComponent::RemoveParameter(const char* szKey)
 {
-  if (m_Parameters.Remove(ezTempHashedString(szKey)))
+  if (m_Parameters.RemoveAndCopy(ezTempHashedString(szKey)))
   {
     m_bRequiresInstantiation = true;
     GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);

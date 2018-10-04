@@ -350,7 +350,7 @@ void ezPropertyAnimAssetDocument::RemoveTrack(const ezUuid& track)
   for (const ezPropertyReference& key : keys)
   {
     PropertyValue& value = *m_PropertyTable.GetValue(key);
-    value.m_Tracks.RemoveSwap(track);
+    value.m_Tracks.RemoveAndSwap(track);
     ApplyAnimation(key, value);
     if (value.m_Tracks.IsEmpty())
       m_PropertyTable.Remove(key);

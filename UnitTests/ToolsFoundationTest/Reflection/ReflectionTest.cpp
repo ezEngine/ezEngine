@@ -380,7 +380,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedTypeReloading)
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "DeleteProperty")
     {
       // Lets now delete the original inner property IP1.
-      descInner.m_Properties.RemoveAt(0);
+      descInner.m_Properties.RemoveAtAndCopy(0);
       const ezRTTI* NewInnerHandle = ezPhantomRttiManager::RegisterType(descInner);
       EZ_TEST_BOOL(NewInnerHandle == pRttiInnerP);
 

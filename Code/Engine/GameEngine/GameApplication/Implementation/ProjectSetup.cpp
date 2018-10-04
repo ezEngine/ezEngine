@@ -113,7 +113,7 @@ void ezGameApplication::DoSetupDataDirectories()
     if (name.IsEqual_NoCase("base") || name.IsEqual_NoCase("project") || name.IsEqual_NoCase("bin") || name.IsEqual_NoCase("shadercache") ||
         name.IsEqual_NoCase(":") || name.IsEqual_NoCase("appdata"))
     {
-      appFileSystemConfig.m_DataDirs.RemoveAt(i - 1);
+      appFileSystemConfig.m_DataDirs.RemoveAtAndCopy(i - 1);
     }
   }
 

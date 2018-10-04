@@ -211,7 +211,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
         {
           ezUInt32 index = rand() % ids.GetCount();
           EZ_TEST_BOOL(table.Remove(ids[index]));
-          ids.RemoveAtSwap(index);
+          ids.RemoveAtAndSwap(index);
         }
       }
 

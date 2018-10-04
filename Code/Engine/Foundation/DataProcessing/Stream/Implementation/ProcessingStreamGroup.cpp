@@ -54,7 +54,7 @@ void ezProcessingStreamGroup::AddProcessor(ezProcessingStreamProcessor* pProcess
 
 void ezProcessingStreamGroup::RemoveProcessor(ezProcessingStreamProcessor* pProcessor)
 {
-  m_Processors.Remove(pProcessor);
+  m_Processors.RemoveAndCopy(pProcessor);
   pProcessor->GetDynamicRTTI()->GetAllocator()->Deallocate(pProcessor);
 }
 
@@ -95,7 +95,7 @@ void ezProcessingStreamGroup::RemoveStreamByName(const char* szName)
     if (m_DataStreams[i]->GetName() == Name)
     {
       EZ_DEFAULT_DELETE(m_DataStreams[i]);
-      m_DataStreams.RemoveAtSwap(i);
+      m_DataStreams.RemoveAtAndSwap(i);
 
       m_bStreamAssignmentDirty = true;
       break;
