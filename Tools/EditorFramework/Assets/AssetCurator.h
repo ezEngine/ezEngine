@@ -173,7 +173,7 @@ public:
   /// \brief Returns the index of the currently active asset platform configuration
   ezUInt32 GetActiveAssetProfileIndex() const;
 
-  /// \brief Returns ezInvalidIndex if no config with the given name exists. Name comparison is case sensitive.
+  /// \brief Returns ezInvalidIndex if no config with the given name exists. Name comparison is case insensitive.
   ezUInt32 FindAssetProfileByName(const char* szPlatform);
 
   ezUInt32 GetNumAssetProfiles() const;
@@ -183,6 +183,15 @@ public:
 
   /// \brief Always returns a valid config. E.g. even if ezInvalidIndex is passed in, it will fall back to the default config (at index 0).
   ezAssetProfile* GetAssetProfile(ezUInt32 index);
+
+  /// \brief Adds a new profile. The name should be set afterwards to a unique name.
+  ezAssetProfile* CreateAssetProfile();
+
+  /// \brief Deletes the given asset profile, if possible.
+  ///
+  /// The function fails when the given profile is the main profile (at index 0),
+  /// or it is the currently active profile.
+  ezResult DeleteAssetProfile(ezAssetProfile* pProfile);
 
   /// \brief Switches the currently active asset target platform.
   ///

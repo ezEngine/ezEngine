@@ -1,12 +1,14 @@
 #include <PCH.h>
 
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetProfile.h>
+#include <EditorFramework/IPC/EngineProcessConnection.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetTypeProfileConfig, 1, ezRTTINoAllocator)
@@ -27,7 +29,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetProfile, 1, ezRTTIDefaultAllocator<ezAsse
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
 // clang-format on
 
 ezAssetTypeProfileConfig::ezAssetTypeProfileConfig() = default;
@@ -118,6 +119,120 @@ const char* ezTextureAssetTypeProfileConfig::GetDisplayName() const
 //////////////////////////////////////////////////////////////////////////
 
 
+const ezAssetProfile* ezAssetCurator::GetDevelopmentAssetProfile() const
+{
+  return m_AssetProfiles[0];
+}
+
+const ezAssetProfile* ezAssetCurator::GetActiveAssetProfile() const
+{
+  return m_AssetProfiles[m_uiActiveAssetProfile];
+}
+
+ezUInt32 ezAssetCurator::GetActiveAssetProfileIndex() const
+{
+  return m_uiActiveAssetProfile;
+}
+
+ezUInt32 ezAssetCurator::FindAssetProfileByName(const char* szPlatform)
+{
+  EZ_LOCK(m_CuratorMutex);
+
+  EZ_ASSERT_DEV(!m_AssetProfiles.IsEmpty(), "Need to have a valid asset platform config");
+
+  for (ezUInt32 i = 0; i < m_AssetProfiles.GetCount(); ++i)
+  {
+    if (m_AssetProfiles[i]->m_sName.IsEqual_NoCase(szPlatform))
+    {
+      return i;
+    }
+  }
+
+  return ezInvalidIndex;
+}
+
+ezUInt32 ezAssetCurator::GetNumAssetProfiles() const
+{
+  return m_AssetProfiles.GetCount();
+}
+
+const ezAssetProfile* ezAssetCurator::GetAssetProfile(ezUInt32 index) const
+{
+  if (index >= m_AssetProfiles.GetCount())
+    return m_AssetProfiles[0]; // fall back to default platform
+
+  return m_AssetProfiles[index];
+}
+
+ezAssetProfile* ezAssetCurator::GetAssetProfile(ezUInt32 index)
+{
+  if (index >= m_AssetProfiles.GetCount())
+    return m_AssetProfiles[0]; // fall back to default platform
+
+  return m_AssetProfiles[index];
+}
+
+ezAssetProfile* ezAssetCurator::CreateAssetProfile()
+{
+  ezAssetProfile* pProfile = EZ_DEFAULT_NEW(ezAssetProfile);
+  m_AssetProfiles.PushBack(pProfile);
+
+  return pProfile;
+}
+
+ezResult ezAssetCurator::DeleteAssetProfile(ezAssetProfile* pProfile)
+{
+  if (m_AssetProfiles.GetCount() <= 1)
+    return EZ_FAILURE;
+
+  // do not allow to delete element 0 !
+
+  for (ezUInt32 i = 1; i < m_AssetProfiles.GetCount(); ++i)
+  {
+    if (m_AssetProfiles[i] == pProfile)
+    {
+      if (m_uiActiveAssetProfile == i)
+        return EZ_FAILURE;
+
+      if (i < m_uiActiveAssetProfile)
+        --m_uiActiveAssetProfile;
+
+      EZ_DEFAULT_DELETE(pProfile);
+      m_AssetProfiles.RemoveAtAndCopy(i);
+
+      return EZ_SUCCESS;
+    }
+  }
+
+  return EZ_FAILURE;
+}
+
+void ezAssetCurator::SetActiveAssetProfileByIndex(ezUInt32 index)
+{
+  if (index >= m_AssetProfiles.GetCount())
+    index = 0; // fall back to default platform
+
+  if (m_uiActiveAssetProfile == index)
+    return;
+
+  EZ_LOG_BLOCK("Switch Active Asset Platform", m_AssetProfiles[index]->GetConfigName());
+
+  m_uiActiveAssetProfile = index;
+
+  ezAssetCuratorEvent e;
+  e.m_Type = ezAssetCuratorEvent::Type::ActivePlatformChanged;
+
+  m_Events.Broadcast(e);
+
+  CheckFileSystem();
+
+  ezSimpleConfigMsgToEngine msg;
+  msg.m_sWhatToDo = "ChangeActivePlatform";
+  msg.m_sPayload = GetActiveAssetProfile()->GetConfigName();
+  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+}
+
+
 ezResult ezAssetCurator::SaveAssetProfiles()
 {
   ezDeferredFileWriter file;
@@ -151,21 +266,18 @@ ezResult ezAssetCurator::LoadAssetProfiles()
 
   ezFileReader file;
   if (file.Open(":project/Editor/AssetProfiles.ddl").Failed())
-  {
-    ezLog::Warning("Asset configurations file does not exist.");
     return EZ_FAILURE;
-  }
 
   ezOpenDdlReader ddl;
   if (ddl.ParseDocument(file).Failed())
-  {
-    ezLog::Error("Asset config file could not be parsed.");
     return EZ_FAILURE;
-  }
 
   const ezOpenDdlReaderElement* pRootElement = ddl.GetRootElement()->FindChildOfType("AssetProfiles");
 
   if (!pRootElement)
+    return EZ_FAILURE;
+
+  if (pRootElement->FindChildOfType("Config") == nullptr)
     return EZ_FAILURE;
 
   ClearAssetProfiles();
@@ -201,21 +313,6 @@ void ezAssetCurator::SetupDefaultAssetProfiles()
   {
     ezAssetProfile* pCfg = EZ_DEFAULT_NEW(ezAssetProfile);
     pCfg->m_sName = "PC";
-    m_AssetProfiles.PushBack(pCfg);
-  }
-
-  {
-    ezAssetProfile* pCfg = EZ_DEFAULT_NEW(ezAssetProfile);
-    pCfg->m_sName = "PC-low";
-    pCfg->GetTypeConfig<ezTextureAssetTypeProfileConfig>()->m_uiMaxResolution = 256;
-    m_AssetProfiles.PushBack(pCfg);
-  }
-
-  {
-    ezAssetProfile* pCfg = EZ_DEFAULT_NEW(ezAssetProfile);
-    pCfg->m_sName = "Android";
-    pCfg->m_TargetPlatform = ezAssetProfileTargetPlatform::Android;
-    pCfg->GetTypeConfig<ezTextureAssetTypeProfileConfig>()->m_uiMaxResolution = 512;
     m_AssetProfiles.PushBack(pCfg);
   }
 }

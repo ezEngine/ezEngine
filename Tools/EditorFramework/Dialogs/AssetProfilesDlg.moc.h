@@ -22,21 +22,37 @@ public:
   ezQtAssetProfilesDlg(QWidget* parent);
   ~ezQtAssetProfilesDlg();
 
-  ezUuid NativeToObject(ezAssetProfile* pConfig);
-  void ObjectToNative(ezUuid objectGuid, ezAssetProfile* pConfig);
-
   ezUInt32 m_uiActiveConfig = 0;
 
 private slots:
   void on_ButtonOk_clicked();
   void on_ButtonCancel_clicked();
   void OnItemDoubleClicked(QModelIndex idx);
+  void on_AddButton_clicked();
+  void on_DeleteButton_clicked();
+  void on_RenameButton_clicked();
 
 private:
+  struct Binding
+  {
+    enum class State
+    {
+      None,
+      Added,
+      Deleted
+    };
+
+    State m_State = State::None;
+    ezAssetProfile* m_pProfile = nullptr;
+  };
+
   void AllAssetProfilesToObject();
   void PropertyChangedEventHandler(const ezDocumentObjectPropertyEvent& e);
   void ApplyAllChanges();
+  ezUuid NativeToObject(ezAssetProfile* pProfile);
+  void ObjectToNative(ezUuid objectGuid, ezAssetProfile* pProfile);
+  void SelectionEventHandler(const ezSelectionManagerEvent& e);
 
   ezAssetProfilesDocument* m_pDocument;
-  ezMap<ezUuid, ezAssetProfile*> m_ConfigBinding;
+  ezMap<ezUuid, Binding> m_ProfileBindings;
 };

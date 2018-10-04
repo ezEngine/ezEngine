@@ -135,10 +135,15 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
 {
   EZ_PROFILE("StartInitialize");
 
-  SetupDefaultAssetProfiles();
-  if (LoadAssetProfiles().Failed())
   {
-    SaveAssetProfiles();
+    EZ_LOG_BLOCK("SetupAssetProfiles");
+
+    SetupDefaultAssetProfiles();
+    if (LoadAssetProfiles().Failed())
+    {
+      ezLog::Warning("Asset profiles file does not exist or contains invalid data. Setting up default profiles.");
+      SaveAssetProfiles();
+    }
   }
 
   m_bRunUpdateTask = true;
@@ -279,84 +284,6 @@ void ezAssetCurator::Deinitialize()
   }
 
   ClearAssetProfiles();
-}
-
-const ezAssetProfile* ezAssetCurator::GetDevelopmentAssetProfile() const
-{
-  return m_AssetProfiles[0];
-}
-
-const ezAssetProfile* ezAssetCurator::GetActiveAssetProfile() const
-{
-  return m_AssetProfiles[m_uiActiveAssetProfile];
-}
-
-ezUInt32 ezAssetCurator::GetActiveAssetProfileIndex() const
-{
-  return m_uiActiveAssetProfile;
-}
-
-ezUInt32 ezAssetCurator::FindAssetProfileByName(const char* szPlatform)
-{
-  EZ_LOCK(m_CuratorMutex);
-
-  EZ_ASSERT_DEV(!m_AssetProfiles.IsEmpty(), "Need to have a valid asset platform config");
-
-  for (ezUInt32 i = 0; i < m_AssetProfiles.GetCount(); ++i)
-  {
-    if (m_AssetProfiles[i]->m_sName == szPlatform)
-    {
-      return i;
-    }
-  }
-
-  return ezInvalidIndex;
-}
-
-ezUInt32 ezAssetCurator::GetNumAssetProfiles() const
-{
-  return m_AssetProfiles.GetCount();
-}
-
-const ezAssetProfile* ezAssetCurator::GetAssetProfile(ezUInt32 index) const
-{
-  if (index >= m_AssetProfiles.GetCount())
-    return m_AssetProfiles[0]; // fall back to default platform
-
-  return m_AssetProfiles[index];
-}
-
-ezAssetProfile* ezAssetCurator::GetAssetProfile(ezUInt32 index)
-{
-  if (index >= m_AssetProfiles.GetCount())
-    return m_AssetProfiles[0]; // fall back to default platform
-
-  return m_AssetProfiles[index];
-}
-
-void ezAssetCurator::SetActiveAssetProfileByIndex(ezUInt32 index)
-{
-  if (index >= m_AssetProfiles.GetCount())
-    index = 0; // fall back to default platform
-
-  if (m_uiActiveAssetProfile == index)
-    return;
-
-  EZ_LOG_BLOCK("Switch Active Asset Platform", m_AssetProfiles[index]->GetConfigName());
-
-  m_uiActiveAssetProfile = index;
-
-  ezAssetCuratorEvent e;
-  e.m_Type = ezAssetCuratorEvent::Type::ActivePlatformChanged;
-
-  m_Events.Broadcast(e);
-
-  CheckFileSystem();
-
-  ezSimpleConfigMsgToEngine msg;
-  msg.m_sWhatToDo = "ChangeActivePlatform";
-  msg.m_sPayload = GetActiveAssetProfile()->GetConfigName();
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
 void ezAssetCurator::MainThreadTick()
