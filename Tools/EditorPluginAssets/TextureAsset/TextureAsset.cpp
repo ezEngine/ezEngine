@@ -32,7 +32,7 @@ ezTextureAssetDocument::ezTextureAssetDocument(const char* szDocumentPath)
 }
 
 ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail,
-                                            const ezTextureAssetTypePlatformConfig* pAssetConfig)
+                                            const ezTextureAssetTypeProfileConfig* pAssetConfig)
 {
   const ezTextureAssetProperties* pProp = GetProperties();
 
@@ -246,12 +246,12 @@ void ezTextureAssetDocument::InitializeAfterLoading()
   }
 }
 
-ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig,
+ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezAssetProfile* pAssetProfile,
                                                         const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   //EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
 
-  const auto* pAssetConfig = pPlatformConfig->GetTypeConfig<ezTextureAssetTypePlatformConfig>();
+  const auto* pAssetConfig = pAssetProfile->GetTypeConfig<ezTextureAssetTypeProfileConfig>();
 
   const auto props = GetProperties();
 
@@ -346,7 +346,7 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
   }
   else
   {
-    const bool bUpdateThumbnail = pPlatformConfig == ezAssetCurator::GetSingleton()->GetDevelopmentPlatform();
+    const bool bUpdateThumbnail = pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile();
 
     ezStatus result = RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail, pAssetConfig);
 

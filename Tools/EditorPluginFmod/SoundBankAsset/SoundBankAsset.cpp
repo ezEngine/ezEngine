@@ -36,7 +36,7 @@ void ezSoundBankAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInf
   pInfo->m_AssetTransformDependencies.Insert(pProp->m_sSoundBank);
 }
 
-ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig,
+ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetProfile* pAssetProfile,
                                                           const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   const ezSoundBankAssetProperties* pProp = GetProperties();

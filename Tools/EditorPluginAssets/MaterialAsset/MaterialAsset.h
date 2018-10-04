@@ -98,7 +98,7 @@ public:
 
   void SetBaseMaterial(const char* szBaseMaterial);
 
-  ezStatus WriteMaterialAsset(ezStreamWriter& stream, const ezAssetPlatformConfig* pPlatformConfig, bool bEmbedLowResData) const;
+  ezStatus WriteMaterialAsset(ezStreamWriter& stream, const ezAssetProfile* pAssetProfile, bool bEmbedLowResData) const;
 
   /// \brief Will make sure that the visual shader is rebuilt.
   /// Typically called during asset transformation, but can be triggered manually to enforce getting visual shader node changes in.
@@ -106,7 +106,7 @@ public:
 
   /// \brief If shader compilation failed this will modify the output shader file such that transforming it again, will trigger a full
   /// regeneration Otherwise the AssetCurator would early out
-  void TagVisualShaderFileInvalid(const ezAssetPlatformConfig* pPlatformConfig, const char* szError);
+  void TagVisualShaderFileInvalid(const ezAssetProfile* pAssetProfile, const char* szError);
 
   /// \brief Deletes all Visual Shader nodes that are not connected to the output
   void RemoveDisconnectedNodes();
@@ -129,9 +129,9 @@ protected:
                                   const char* szBasePrefab) override;
   virtual void InitializeAfterLoading() override;
 
-  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig,
+  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezAssetProfile* pAssetProfile,
                                           const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig,
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetProfile* pAssetProfile,
                                           const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
 

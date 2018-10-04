@@ -27,6 +27,6 @@ private:
   void StoreCurrentPlatform();
 
   ezString m_sCurrentPlatform;
-  ezFmodPlatformConfigs m_ConfigsOld;
-  ezFmodPlatformConfigs m_Configs;
+  ezFmodAssetProfiles m_ConfigsOld;
+  ezFmodAssetProfiles m_Configs;
 };

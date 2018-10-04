@@ -1,8 +1,8 @@
 #include <PCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/Assets/AssetPlatformConfig.h>
-#include <EditorFramework/Dialogs/AssetConfigsDlg.moc.h>
+#include <EditorFramework/Assets/AssetProfile.h>
+#include <EditorFramework/Dialogs/AssetProfilesDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
@@ -11,24 +11,24 @@
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-class ezAssetConfigsObjectManager : public ezDocumentObjectManager
+class ezAssetProfilesObjectManager : public ezDocumentObjectManager
 {
 public:
   virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override
   {
-    Types.PushBack(ezGetStaticRTTI<ezAssetPlatformConfig>());
+    Types.PushBack(ezGetStaticRTTI<ezAssetProfile>());
   }
 };
 
-class ezAssetConfigsDocument : public ezDocument
+class ezAssetProfilesDocument : public ezDocument
 {
 public:
-  ezAssetConfigsDocument(const char* szDocumentPath)
-      : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezAssetConfigsObjectManager))
+  ezAssetProfilesDocument(const char* szDocumentPath)
+      : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezAssetProfilesObjectManager))
   {
   }
 
-  virtual const char* GetDocumentTypeDisplayString() const override { return "Asset Configurations"; }
+  virtual const char* GetDocumentTypeDisplayString() const override { return "Asset Profile"; }
 
 public:
   virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezDocumentInfo); }
@@ -37,7 +37,7 @@ public:
 class ezQtAssetConfigAdapter : public ezQtNameableAdapter
 {
 public:
-  ezQtAssetConfigAdapter(const ezQtAssetConfigsDlg* pDialog, const ezDocumentObjectManager* pTree, const ezRTTI* pType)
+  ezQtAssetConfigAdapter(const ezQtAssetProfilesDlg* pDialog, const ezDocumentObjectManager* pTree, const ezRTTI* pType)
       : ezQtNameableAdapter(pTree, pType, "", "Name")
   {
     m_pDialog = pDialog;
@@ -53,10 +53,10 @@ public:
 
         switch (iPlatform)
         {
-          case ezAssetTargetPlatform::PC:
+          case ezAssetProfileTargetPlatform::PC:
             return ezQtUiServices::GetSingleton()->GetCachedIconResource(":EditorFramework/Icons/PlatformWindows16.png");
 
-          case ezAssetTargetPlatform::Android:
+          case ezAssetProfileTargetPlatform::Android:
             return ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/PlatformAndroid16.png");
         }
       }
@@ -78,10 +78,10 @@ public:
   }
 
 private:
-  const ezQtAssetConfigsDlg* m_pDialog = nullptr;
+  const ezQtAssetProfilesDlg* m_pDialog = nullptr;
 };
 
-ezQtAssetConfigsDlg::ezQtAssetConfigsDlg(QWidget* parent)
+ezQtAssetProfilesDlg::ezQtAssetProfilesDlg(QWidget* parent)
     : QDialog(parent)
 {
   setupUi(this);
@@ -93,14 +93,14 @@ ezQtAssetConfigsDlg::ezQtAssetConfigsDlg(QWidget* parent)
   DeleteButton->setEnabled(false);
   RenameButton->setEnabled(false);
 
-  m_pDocument = EZ_DEFAULT_NEW(ezAssetConfigsDocument, "<none>");
+  m_pDocument = EZ_DEFAULT_NEW(ezAssetProfilesDocument, "<none>");
 
   // if this is set, all properties are applied immediately
-  // m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtAssetConfigsDlg::PropertyChangedEventHandler,
+  // m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtAssetProfilesDlg::PropertyChangedEventHandler,
   // this));
   std::unique_ptr<ezQtDocumentTreeModel> pModel(new ezQtDocumentTreeModel(m_pDocument->GetObjectManager()));
   pModel->AddAdapter(new ezQtDummyAdapter(m_pDocument->GetObjectManager(), ezGetStaticRTTI<ezDocumentRoot>(), "Children"));
-  pModel->AddAdapter(new ezQtAssetConfigAdapter(this, m_pDocument->GetObjectManager(), ezAssetPlatformConfig::GetStaticRTTI()));
+  pModel->AddAdapter(new ezQtAssetConfigAdapter(this, m_pDocument->GetObjectManager(), ezAssetProfile::GetStaticRTTI()));
 
   Tree->Initialize(m_pDocument, std::move(pModel));
   Tree->SetAllowDragDrop(false);
@@ -108,9 +108,9 @@ ezQtAssetConfigsDlg::ezQtAssetConfigsDlg(QWidget* parent)
   Tree->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
   Tree->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
 
-  connect(Tree, &QTreeView::doubleClicked, this, &ezQtAssetConfigsDlg::OnItemDoubleClicked);
+  connect(Tree, &QTreeView::doubleClicked, this, &ezQtAssetProfilesDlg::OnItemDoubleClicked);
 
-  AllAssetConfigsToObject();
+  AllAssetProfilesToObject();
 
   Properties->SetDocument(m_pDocument);
 
@@ -120,7 +120,7 @@ ezQtAssetConfigsDlg::ezQtAssetConfigsDlg(QWidget* parent)
   }
 }
 
-ezQtAssetConfigsDlg::~ezQtAssetConfigsDlg()
+ezQtAssetProfilesDlg::~ezQtAssetProfilesDlg()
 {
   delete Tree;
   Tree = nullptr;
@@ -131,7 +131,7 @@ ezQtAssetConfigsDlg::~ezQtAssetConfigsDlg()
   EZ_DEFAULT_DELETE(m_pDocument);
 }
 
-ezUuid ezQtAssetConfigsDlg::NativeToObject(ezAssetPlatformConfig* pConfig)
+ezUuid ezQtAssetProfilesDlg::NativeToObject(ezAssetProfile* pConfig)
 {
   const ezRTTI* pType = pConfig->GetDynamicRTTI();
   // Write properties to graph.
@@ -156,7 +156,7 @@ ezUuid ezQtAssetConfigsDlg::NativeToObject(ezAssetPlatformConfig* pConfig)
   return pObject->GetGuid();
 }
 
-void ezQtAssetConfigsDlg::ObjectToNative(ezUuid objectGuid, ezAssetPlatformConfig* pConfig)
+void ezQtAssetProfilesDlg::ObjectToNative(ezUuid objectGuid, ezAssetProfile* pConfig)
 {
   ezDocumentObject* pObject = m_pDocument->GetObjectManager()->GetObject(objectGuid);
   const ezRTTI* pType = pObject->GetTypeAccessor().GetType();
@@ -181,21 +181,21 @@ void ezQtAssetConfigsDlg::ObjectToNative(ezUuid objectGuid, ezAssetPlatformConfi
 }
 
 
-void ezQtAssetConfigsDlg::on_ButtonOk_clicked()
+void ezQtAssetProfilesDlg::on_ButtonOk_clicked()
 {
   ApplyAllChanges();
   accept();
 
-  ezAssetCurator::GetSingleton()->SaveAssetPlatformConfigs();
+  ezAssetCurator::GetSingleton()->SaveAssetProfiles();
 }
 
-void ezQtAssetConfigsDlg::on_ButtonCancel_clicked()
+void ezQtAssetProfilesDlg::on_ButtonCancel_clicked()
 {
-  m_uiActiveConfig = ezAssetCurator::GetSingleton()->GetActivePlatformConfigIndex();
+  m_uiActiveConfig = ezAssetCurator::GetSingleton()->GetActiveAssetProfileIndex();
   reject();
 }
 
-void ezQtAssetConfigsDlg::OnItemDoubleClicked(QModelIndex idx)
+void ezQtAssetProfilesDlg::OnItemDoubleClicked(QModelIndex idx)
 {
   if (m_uiActiveConfig == idx.row())
     return;
@@ -210,21 +210,21 @@ void ezQtAssetConfigsDlg::OnItemDoubleClicked(QModelIndex idx)
   Tree->model()->dataChanged(oldIdx, oldIdx, roles);
 }
 
-void ezQtAssetConfigsDlg::AllAssetConfigsToObject()
+void ezQtAssetProfilesDlg::AllAssetProfilesToObject()
 {
-  m_uiActiveConfig = ezAssetCurator::GetSingleton()->GetActivePlatformConfigIndex();
+  m_uiActiveConfig = ezAssetCurator::GetSingleton()->GetActiveAssetProfileIndex();
 
   m_ConfigBinding.Clear();
 
-  for (ezUInt32 i = 0; i < ezAssetCurator::GetSingleton()->GetNumAssetPlatformConfigs(); ++i)
+  for (ezUInt32 i = 0; i < ezAssetCurator::GetSingleton()->GetNumAssetProfiles(); ++i)
   {
-    auto* pCfg = ezAssetCurator::GetSingleton()->GetAssetPlatformConfig(i);
+    auto* pCfg = ezAssetCurator::GetSingleton()->GetAssetProfile(i);
 
     m_ConfigBinding[NativeToObject(pCfg)] = pCfg;
   }
 }
 
-void ezQtAssetConfigsDlg::PropertyChangedEventHandler(const ezDocumentObjectPropertyEvent& e)
+void ezQtAssetProfilesDlg::PropertyChangedEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
   const ezUuid guid = e.m_pObject->GetGuid();
   EZ_ASSERT_DEV(m_ConfigBinding.Contains(guid), "Object GUID is not in the known list!");
@@ -232,7 +232,7 @@ void ezQtAssetConfigsDlg::PropertyChangedEventHandler(const ezDocumentObjectProp
   ObjectToNative(guid, m_ConfigBinding[guid]);
 }
 
-void ezQtAssetConfigsDlg::ApplyAllChanges()
+void ezQtAssetProfilesDlg::ApplyAllChanges()
 {
   for (auto it = m_ConfigBinding.GetIterator(); it.IsValid(); ++it)
   {

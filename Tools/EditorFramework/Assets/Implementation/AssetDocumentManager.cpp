@@ -84,22 +84,22 @@ bool ezAssetDocumentManager::IsThumbnailUpToDate(const char* szDocumentPath, ezU
   return true;
 }
 
-void ezAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const ezAssetPlatformConfig* pPlatformConfig,
+void ezAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const ezAssetProfile* pAssetProfile,
                                                     ezMap<ezString, ezString>& inout_GuidToPath) const
 {
 }
 
-ezString ezAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezAssetPlatformConfig* pPlatformConfig) const
+ezString ezAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezAssetProfile* pAssetProfile) const
 {
-  return GetRelativeOutputFileName(szDataDirectory, pSubAsset->m_pAssetInfo->m_sAbsolutePath, "", pPlatformConfig);
+  return GetRelativeOutputFileName(szDataDirectory, pSubAsset->m_pAssetInfo->m_sAbsolutePath, "", pAssetProfile);
 }
 
 ezString ezAssetDocumentManager::GetAbsoluteOutputFileName(const char* szDocumentPath, const char* szOutputTag,
-                                                           const ezAssetPlatformConfig* pPlatformConfig) const
+                                                           const ezAssetProfile* pAssetProfile) const
 {
   ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(szDocumentPath);
 
-  ezString sRelativePath = GetRelativeOutputFileName(sProjectDir, szDocumentPath, szOutputTag, pPlatformConfig);
+  ezString sRelativePath = GetRelativeOutputFileName(sProjectDir, szDocumentPath, szOutputTag, pAssetProfile);
   ezStringBuilder sFinalPath(sProjectDir, "/AssetCache/", sRelativePath);
   sFinalPath.MakeCleanPath();
 
@@ -107,9 +107,9 @@ ezString ezAssetDocumentManager::GetAbsoluteOutputFileName(const char* szDocumen
 }
 
 ezString ezAssetDocumentManager::GetRelativeOutputFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag,
-                                                           const ezAssetPlatformConfig* pPlatformConfig) const
+                                                           const ezAssetProfile* pAssetProfile) const
 {
-  const ezAssetPlatformConfig* sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(pPlatformConfig);
+  const ezAssetProfile* sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(pAssetProfile);
   EZ_ASSERT_DEBUG(ezStringUtils::IsNullOrEmpty(szOutputTag),
                   "The output tag '%s' for '%s' is not supported, override GetRelativeOutputFileName", szOutputTag, szDocumentPath);
   ezStringBuilder sRelativePath(szDocumentPath);
@@ -140,14 +140,14 @@ bool ezAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath, const 
   return ezAssetDocumentManager::IsResourceUpToDate(sTargetFile, uiHash, uiTypeVersion);
 }
 
-const ezAssetPlatformConfig* ezAssetDocumentManager::DetermineFinalTargetPlatform(const ezAssetPlatformConfig* pPlatformConfig)
+const ezAssetProfile* ezAssetDocumentManager::DetermineFinalTargetPlatform(const ezAssetProfile* pAssetProfile)
 {
-  if (pPlatformConfig == nullptr)
+  if (pAssetProfile == nullptr)
   {
-    return ezAssetCurator::GetSingleton()->GetActivePlatformConfig();
+    return ezAssetCurator::GetSingleton()->GetActiveAssetProfile();
   }
 
-  return pPlatformConfig;
+  return pAssetProfile;
 }
 
 ezResult ezAssetDocumentManager::TryOpenAssetDocument(const char* szPathOrGuid)
@@ -194,14 +194,14 @@ bool ezAssetDocumentManager::IsResourceUpToDate(const char* szResourceFile, ezUI
   return AssetHeader.IsFileUpToDate(uiHash, uiTypeVersion);
 }
 
-void ezAssetDocumentManager::GenerateOutputFilename(ezStringBuilder& inout_sRelativeDocumentPath, const ezAssetPlatformConfig* pPlatformConfig,
+void ezAssetDocumentManager::GenerateOutputFilename(ezStringBuilder& inout_sRelativeDocumentPath, const ezAssetProfile* pAssetProfile,
                                                     const char* szExtension, bool bPlatformSpecific)
 {
   inout_sRelativeDocumentPath.ChangeFileExtension(szExtension);
   inout_sRelativeDocumentPath.MakeCleanPath();
 
   if (bPlatformSpecific)
-    inout_sRelativeDocumentPath.Prepend(pPlatformConfig->GetConfigName(), "/");
+    inout_sRelativeDocumentPath.Prepend(pAssetProfile->GetConfigName(), "/");
   else
     inout_sRelativeDocumentPath.Prepend("Common/");
 }

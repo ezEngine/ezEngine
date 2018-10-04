@@ -175,7 +175,7 @@ ezColor ezColorGradientAssetData::Evaluate(ezInt64 iTick) const
   return color;
 }
 
-ezStatus ezColorGradientAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig,
+ezStatus ezColorGradientAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetProfile* pAssetProfile,
                                                               const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   const ezColorGradientAssetData* pProp = GetProperties();

@@ -205,7 +205,7 @@ bool ezEditorEngineProcessConnection::ConnectToRemoteProcess()
     msg.m_FileSystemConfig = m_FileSystemConfig;
     msg.m_PluginConfig = m_PluginConfig;
     msg.m_sFileserveAddress = dlg.GetResultingFsAddress().toUtf8().data();
-    msg.m_sAssetPlatformConfig = ezAssetCurator::GetSingleton()->GetActivePlatformConfig()->GetConfigName();
+    msg.m_sAssetProfile = ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
 
     m_pRemoteProcess->SendMessage(&msg);
   }
@@ -318,7 +318,7 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
     msg.m_sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
     msg.m_FileSystemConfig = m_FileSystemConfig;
     msg.m_PluginConfig = m_PluginConfig;
-    msg.m_sAssetPlatformConfig = ezAssetCurator::GetSingleton()->GetActivePlatformConfig()->GetConfigName();
+    msg.m_sAssetProfile = ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
 
     ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }

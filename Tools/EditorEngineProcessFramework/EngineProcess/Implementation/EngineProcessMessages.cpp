@@ -73,7 +73,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetupProjectMsgToEngine, 1, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("FileSystemConfig", m_FileSystemConfig),
     EZ_MEMBER_PROPERTY("PluginConfig", m_PluginConfig),
     EZ_MEMBER_PROPERTY("FileserveAddress", m_sFileserveAddress),
-    EZ_MEMBER_PROPERTY("Platform", m_sAssetPlatformConfig),
+    EZ_MEMBER_PROPERTY("Platform", m_sAssetProfile),
   }
   EZ_END_PROPERTIES;
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ezQtAssetConfigsDlg</class>
- <widget class="QDialog" name="ezQtAssetConfigsDlg">
+ <class>ezQtAssetProfilesDlg</class>
+ <widget class="QDialog" name="ezQtAssetProfilesDlg">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,11 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Asset Configurations</string>
+   <string>Asset Profiles</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../QtResources/resources.qrc">
-    <normaloff>:/EditorFramework/Icons/AssetConfigs16.png</normaloff>:/EditorFramework/Icons/AssetConfigs16.png</iconset>
+    <normaloff>:/EditorFramework/Icons/AssetProfiles16.png</normaloff>:/EditorFramework/Icons/AssetProfiles16.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
@@ -23,7 +23,7 @@
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="ezQtDocumentTreeView" name="Tree"/>
@@ -80,7 +80,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <widget class="ezQtPropertyGridWidget" name="Properties" native="true"/>

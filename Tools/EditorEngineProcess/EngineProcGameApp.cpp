@@ -246,10 +246,10 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     m_CustomFileSystemConfig = pMsg->m_FileSystemConfig;
     m_CustomPluginConfig = pMsg->m_PluginConfig;
 
-    if (!pMsg->m_sAssetPlatformConfig.IsEmpty())
+    if (!pMsg->m_sAssetProfile.IsEmpty())
     {
       ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-platform");
-      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument(pMsg->m_sAssetPlatformConfig);
+      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument(pMsg->m_sAssetProfile);
     }
 
     if (!pMsg->m_sFileserveAddress.IsEmpty())

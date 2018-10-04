@@ -3,27 +3,27 @@
 #include <EditorFramework/Plugin.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
-#include <Tools/EditorFramework/ui_AssetConfigsDlg.h>
+#include <Tools/EditorFramework/ui_AssetProfilesDlg.h>
 
 #include <QDialog>
 
-class ezAssetConfigsDocument;
-class ezAssetPlatformConfig;
+class ezAssetProfilesDocument;
+class ezAssetProfile;
 class ezQtDocumentTreeView;
 class ezDocument;
 struct ezDocumentObjectPropertyEvent;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtAssetConfigsDlg : public QDialog, public Ui_ezQtAssetConfigsDlg
+class EZ_EDITORFRAMEWORK_DLL ezQtAssetProfilesDlg : public QDialog, public Ui_ezQtAssetProfilesDlg
 {
 public:
   Q_OBJECT
 
 public:
-  ezQtAssetConfigsDlg(QWidget* parent);
-  ~ezQtAssetConfigsDlg();
+  ezQtAssetProfilesDlg(QWidget* parent);
+  ~ezQtAssetProfilesDlg();
 
-  ezUuid NativeToObject(ezAssetPlatformConfig* pConfig);
-  void ObjectToNative(ezUuid objectGuid, ezAssetPlatformConfig* pConfig);
+  ezUuid NativeToObject(ezAssetProfile* pConfig);
+  void ObjectToNative(ezUuid objectGuid, ezAssetProfile* pConfig);
 
   ezUInt32 m_uiActiveConfig = 0;
 
@@ -33,10 +33,10 @@ private slots:
   void OnItemDoubleClicked(QModelIndex idx);
 
 private:
-  void AllAssetConfigsToObject();
+  void AllAssetProfilesToObject();
   void PropertyChangedEventHandler(const ezDocumentObjectPropertyEvent& e);
   void ApplyAllChanges();
 
-  ezAssetConfigsDocument* m_pDocument;
-  ezMap<ezUuid, ezAssetPlatformConfig*> m_ConfigBinding;
+  ezAssetProfilesDocument* m_pDocument;
+  ezMap<ezUuid, ezAssetProfile*> m_ConfigBinding;
 };

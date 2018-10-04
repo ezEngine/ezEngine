@@ -395,7 +395,7 @@ void ezProcessTask::Execute()
     ezProcessAssetMsg msg;
     msg.m_AssetGuid = m_assetGuid;
     msg.m_sAssetPath = m_sAssetPath;
-    msg.m_sPlatform = ezAssetCurator::GetSingleton()->GetActivePlatformConfig()->GetConfigName();
+    msg.m_sPlatform = ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
 
     m_pIPC->SendMessage(&msg);
     m_bWaiting = true;

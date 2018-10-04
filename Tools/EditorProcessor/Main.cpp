@@ -50,7 +50,7 @@ public:
                                   ezLogMsgType::WarningMsg);
         ezLogSystemScope logScope(&logger);
 
-        const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetPlatformConfigByName(pMsg->m_sPlatform);
+        const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(pMsg->m_sPlatform);
 
         if (uiPlatform == ezInvalidIndex)
         {
@@ -60,10 +60,10 @@ public:
         {
           // TODO: there is currently no 'nice' way to switch the active platform for the asset processors
           // it is also not clear whether this is actually safe to execute here
-          ezAssetCurator::GetSingleton()->SetActivePlatformByIndex(uiPlatform);
+          ezAssetCurator::GetSingleton()->SetActiveAssetProfileByIndex(uiPlatform);
 
           const ezStatus res = ezAssetCurator::GetSingleton()->TransformAsset(
-              pMsg->m_AssetGuid, false, ezAssetCurator::GetSingleton()->GetAssetPlatformConfig(uiPlatform));
+              pMsg->m_AssetGuid, false, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
 
           msg.m_bSuccess = res.m_Result.Succeeded();
 
@@ -106,7 +106,7 @@ public:
             bTransform = false;
 
             const ezString sPlatform = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-transform");
-            const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetPlatformConfigByName(sPlatform);
+            const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(sPlatform);
 
             if (uiPlatform == ezInvalidIndex)
             {
@@ -114,7 +114,7 @@ public:
             }
             else
             {
-              ezAssetCurator::GetSingleton()->TransformAllAssets(ezAssetCurator::GetSingleton()->GetAssetPlatformConfig(uiPlatform));
+              ezAssetCurator::GetSingleton()->TransformAllAssets(ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
             }
 
             QApplication::quit();

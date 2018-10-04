@@ -16,17 +16,17 @@ ezQtFmodProjectSettingsDlg::ezQtFmodProjectSettingsDlg(QWidget* parent)
 
   Load();
 
-  for (auto it = m_Configs.m_PlatformConfigs.GetIterator(); it.IsValid(); ++it)
+  for (auto it = m_Configs.m_AssetProfiles.GetIterator(); it.IsValid(); ++it)
   {
     ListPlatforms->addItem(it.Key().GetData());
   }
 
-  if (!m_Configs.m_PlatformConfigs.IsEmpty())
+  if (!m_Configs.m_AssetProfiles.IsEmpty())
   {
-    if (m_Configs.m_PlatformConfigs.Contains("Desktop"))
+    if (m_Configs.m_AssetProfiles.Contains("Desktop"))
       SetCurrentPlatform("Desktop");
     else
-      SetCurrentPlatform(m_Configs.m_PlatformConfigs.GetIterator().Key());
+      SetCurrentPlatform(m_Configs.m_AssetProfiles.GetIterator().Key());
   }
   else
   {
@@ -87,7 +87,7 @@ void ezQtFmodProjectSettingsDlg::SetCurrentPlatform(const char* szPlatform)
   if (m_sCurrentPlatform.IsEmpty())
     return;
 
-  const auto& cfg = m_Configs.m_PlatformConfigs[m_sCurrentPlatform];
+  const auto& cfg = m_Configs.m_AssetProfiles[m_sCurrentPlatform];
 
   EditMasterBank->setText(cfg.m_sMasterSoundBank.GetData());
   SpinChannels->setValue(cfg.m_uiVirtualChannels);
@@ -109,10 +109,10 @@ void ezQtFmodProjectSettingsDlg::SetCurrentPlatform(const char* szPlatform)
 
 void ezQtFmodProjectSettingsDlg::StoreCurrentPlatform()
 {
-  if (!m_Configs.m_PlatformConfigs.Contains(m_sCurrentPlatform))
+  if (!m_Configs.m_AssetProfiles.Contains(m_sCurrentPlatform))
     return;
 
-  auto& cfg = m_Configs.m_PlatformConfigs[m_sCurrentPlatform];
+  auto& cfg = m_Configs.m_AssetProfiles[m_sCurrentPlatform];
 
   cfg.m_sMasterSoundBank = EditMasterBank->text().toUtf8().data();
   cfg.m_uiVirtualChannels = SpinChannels->value();
@@ -141,7 +141,7 @@ void ezQtFmodProjectSettingsDlg::on_ButtonBox_clicked(QAbstractButton* pButton)
   {
     StoreCurrentPlatform();
 
-    if (m_ConfigsOld.m_PlatformConfigs != m_Configs.m_PlatformConfigs)
+    if (m_ConfigsOld.m_AssetProfiles != m_Configs.m_AssetProfiles)
     {
       if (ezQtUiServices::GetSingleton()->MessageBoxQuestion(
               "Save the changes to the Fmod configuration?\nYou need to reload the project for the changes to take effect.",
@@ -187,10 +187,10 @@ void ezQtFmodProjectSettingsDlg::on_ButtonAdd_clicked()
 
   const ezString sName = name.toUtf8().data();
 
-  if (!m_Configs.m_PlatformConfigs.Contains(sName))
+  if (!m_Configs.m_AssetProfiles.Contains(sName))
   {
     // add a new item with default values
-    m_Configs.m_PlatformConfigs[sName];
+    m_Configs.m_AssetProfiles[sName];
 
     ListPlatforms->addItem(sName.GetData());
   }
@@ -206,7 +206,7 @@ void ezQtFmodProjectSettingsDlg::on_ButtonRemove_clicked()
   int row = ListPlatforms->selectionModel()->selectedIndexes()[0].row();
   const ezString sPlatform = ListPlatforms->item(row)->text().toUtf8().data();
 
-  m_Configs.m_PlatformConfigs.Remove(sPlatform);
+  m_Configs.m_AssetProfiles.Remove(sPlatform);
   delete ListPlatforms->item(row);
 }
 

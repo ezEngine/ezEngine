@@ -117,7 +117,7 @@ void ezVisualScriptAssetDocument::HandleVsActivityMsg(const ezVisualScriptActivi
   m_ActivityEvents.Broadcast(ae);
 }
 
-ezStatus ezVisualScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig,
+ezStatus ezVisualScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetProfile* pAssetProfile,
                                                              const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   ezVisualScriptResourceDescriptor desc;

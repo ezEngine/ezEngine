@@ -63,7 +63,7 @@ public:
   ezApplicationFileSystemConfig m_FileSystemConfig;
   ezApplicationPluginConfig m_PluginConfig;
   ezString m_sFileserveAddress; ///< Optionally used for remote processes to tell them with which IP address to connect to the host
-  ezString m_sAssetPlatformConfig;
+  ezString m_sAssetProfile;
 };
 
 /// \brief Sent to remote processes to shut them down.

@@ -134,7 +134,7 @@ bool ezFmodConfiguration::operator==(const ezFmodConfiguration& rhs) const
   return true;
 }
 
-ezResult ezFmodPlatformConfigs::Save(const char* szFile) const
+ezResult ezFmodAssetProfiles::Save(const char* szFile) const
 {
   ezFileWriter file;
   EZ_SUCCEED_OR_RETURN(file.Open(szFile));
@@ -142,7 +142,7 @@ ezResult ezFmodPlatformConfigs::Save(const char* szFile) const
   ezOpenDdlWriter ddl;
   ddl.SetOutputStream(&file);
 
-  for (auto it = m_PlatformConfigs.GetIterator(); it.IsValid(); ++it)
+  for (auto it = m_AssetProfiles.GetIterator(); it.IsValid(); ++it)
   {
     if (!it.Key().IsEmpty())
     {
@@ -157,9 +157,9 @@ ezResult ezFmodPlatformConfigs::Save(const char* szFile) const
   return EZ_SUCCESS;
 }
 
-ezResult ezFmodPlatformConfigs::Load(const char* szFile)
+ezResult ezFmodAssetProfiles::Load(const char* szFile)
 {
-  m_PlatformConfigs.Clear();
+  m_AssetProfiles.Clear();
 
   ezFileReader file;
   EZ_SUCCEED_OR_RETURN(file.Open(szFile));
@@ -174,7 +174,7 @@ ezResult ezFmodPlatformConfigs::Load(const char* szFile)
   {
     if (pChild->IsCustomType("Platform") && pChild->HasName())
     {
-      auto& cfg = m_PlatformConfigs[pChild->GetName()];
+      auto& cfg = m_AssetProfiles[pChild->GetName()];
 
       cfg.Load(*pChild);
     }

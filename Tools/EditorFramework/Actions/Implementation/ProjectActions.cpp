@@ -3,7 +3,7 @@
 #include <Assets/AssetCurator.h>
 #include <EditorFramework/Actions/ProjectActions.h>
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
-#include <EditorFramework/Dialogs/AssetConfigsDlg.moc.h>
+#include <EditorFramework/Dialogs/AssetProfilesDlg.moc.h>
 #include <EditorFramework/Dialogs/DataDirsDlg.moc.h>
 #include <EditorFramework/Dialogs/EditorPluginConfigDlg.moc.h>
 #include <EditorFramework/Dialogs/EnginePluginConfigDlg.moc.h>
@@ -51,7 +51,7 @@ ezActionDescriptorHandle ezProjectActions::s_hPreferencesDlg;
 ezActionDescriptorHandle ezProjectActions::s_hEditorTests;
 ezActionDescriptorHandle ezProjectActions::s_hTagsDlg;
 ezActionDescriptorHandle ezProjectActions::s_hImportAsset;
-ezActionDescriptorHandle ezProjectActions::s_hAssetConfigs;
+ezActionDescriptorHandle ezProjectActions::s_hAssetProfiles;
 
 ezActionDescriptorHandle ezProjectActions::s_hToolsMenu;
 ezActionDescriptorHandle ezProjectActions::s_hToolsCategory;
@@ -105,8 +105,8 @@ void ezProjectActions::RegisterActions()
                                          ezProjectAction::ButtonType::WindowConfig);
   s_hImportAsset = EZ_REGISTER_ACTION_1("Project.ImportAsset", ezActionScope::Global, "Project", "Ctrl+I", ezProjectAction,
                                         ezProjectAction::ButtonType::ImportAsset);
-  s_hAssetConfigs = EZ_REGISTER_ACTION_1("Project.AssetConfigs", ezActionScope::Global, "Project", "", ezProjectAction,
-                                         ezProjectAction::ButtonType::AssetConfigs);
+  s_hAssetProfiles = EZ_REGISTER_ACTION_1("Project.AssetProfiles", ezActionScope::Global, "Project", "", ezProjectAction,
+                                         ezProjectAction::ButtonType::AssetProfiles);
 
   s_hToolsMenu = EZ_REGISTER_MENU("Menu.Tools");
   s_hToolsCategory = EZ_REGISTER_CATEGORY("ToolsCategory");
@@ -151,7 +151,7 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hImportAsset);
   ezActionManager::UnregisterAction(s_hInputConfig);
   ezActionManager::UnregisterAction(s_hEditorTests);
-  ezActionManager::UnregisterAction(s_hAssetConfigs);
+  ezActionManager::UnregisterAction(s_hAssetProfiles);
 }
 
 void ezProjectActions::MapActions(const char* szMapping)
@@ -194,7 +194,7 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hInputConfig, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 3.0f);
   pMap->MapAction(s_hTagsDlg, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 4.0f);
   pMap->MapAction(s_hWindowConfig, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 5.0f);
-  pMap->MapAction(s_hAssetConfigs, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 6.0f);
+  pMap->MapAction(s_hAssetProfiles, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 6.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -366,15 +366,15 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
     case ezProjectAction::ButtonType::EditorTests:
       // SetIconPath(":/EditorFramework/Icons/StoredSettings16.png"); /// \todo Icon
       break;
-    case ezProjectAction::ButtonType::AssetConfigs:
-      SetIconPath(":/EditorFramework/Icons/AssetConfigs16.png");
+    case ezProjectAction::ButtonType::AssetProfiles:
+      SetIconPath(":/EditorFramework/Icons/AssetProfiles16.png");
       break;
   }
 
   if (m_ButtonType == ButtonType::CloseProject || m_ButtonType == ButtonType::DataDirectories || m_ButtonType == ButtonType::WindowConfig ||
       m_ButtonType == ButtonType::ImportAsset || m_ButtonType == ButtonType::EnginePlugins || m_ButtonType == ButtonType::TagsDialog ||
       m_ButtonType == ButtonType::ReloadEngine || m_ButtonType == ButtonType::ReloadResources ||
-      m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::InputConfig || m_ButtonType == ButtonType::AssetConfigs)
+      m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::InputConfig || m_ButtonType == ButtonType::AssetProfiles)
   {
     SetEnabled(ezToolsProject::IsProjectOpen());
 
@@ -387,7 +387,7 @@ ezProjectAction::~ezProjectAction()
   if (m_ButtonType == ButtonType::CloseProject || m_ButtonType == ButtonType::DataDirectories || m_ButtonType == ButtonType::WindowConfig ||
       m_ButtonType == ButtonType::ImportAsset || m_ButtonType == ButtonType::EnginePlugins || m_ButtonType == ButtonType::TagsDialog ||
       m_ButtonType == ButtonType::ReloadEngine || m_ButtonType == ButtonType::ReloadResources ||
-      m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::InputConfig || m_ButtonType == ButtonType::AssetConfigs)
+      m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::InputConfig || m_ButtonType == ButtonType::AssetProfiles)
   {
     ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezProjectAction::ProjectEventHandler, this));
   }
@@ -551,12 +551,12 @@ void ezProjectAction::Execute(const ezVariant& value)
     }
     break;
 
-    case ezProjectAction::ButtonType::AssetConfigs:
+    case ezProjectAction::ButtonType::AssetProfiles:
     {
-      ezQtAssetConfigsDlg dlg(nullptr);
+      ezQtAssetProfilesDlg dlg(nullptr);
       if (dlg.exec() == QDialog::Accepted)
       {
-        ezAssetCurator::GetSingleton()->SetActivePlatformByIndex(dlg.m_uiActiveConfig);
+        ezAssetCurator::GetSingleton()->SetActiveAssetProfileByIndex(dlg.m_uiActiveConfig);
       }
     }
     break;

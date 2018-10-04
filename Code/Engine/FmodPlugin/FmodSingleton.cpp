@@ -36,25 +36,25 @@ void ezFmod::Startup()
 
   DetectPlatform();
 
-  if (m_pData->m_Configs.m_PlatformConfigs.IsEmpty())
+  if (m_pData->m_Configs.m_AssetProfiles.IsEmpty())
   {
     const char* szFile = ":project/FmodConfig.ddl";
     LoadConfiguration(szFile);
 
-    if (m_pData->m_Configs.m_PlatformConfigs.IsEmpty())
+    if (m_pData->m_Configs.m_AssetProfiles.IsEmpty())
     {
       ezLog::Warning("No valid fmod configuration file available in '{0}'. Fmod will be deactivated.", szFile);
       return;
     }
   }
 
-  if (!m_pData->m_Configs.m_PlatformConfigs.Find(m_pData->m_sPlatform).IsValid())
+  if (!m_pData->m_Configs.m_AssetProfiles.Find(m_pData->m_sPlatform).IsValid())
   {
     ezLog::Error("Fmod configuration for platform '{0}' not available. Fmod will be deactivated.", m_pData->m_sPlatform);
     return;
   }
 
-  const auto& config = m_pData->m_Configs.m_PlatformConfigs[m_pData->m_sPlatform];
+  const auto& config = m_pData->m_Configs.m_AssetProfiles[m_pData->m_sPlatform];
 
   FMOD_SPEAKERMODE fmodMode = FMOD_SPEAKERMODE_5POINT1;
   {

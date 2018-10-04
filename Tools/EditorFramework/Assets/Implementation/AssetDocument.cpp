@@ -297,19 +297,19 @@ void ezAssetDocument::GetChildHash(const ezDocumentObject* pObject, ezUInt64& ui
   }
 }
 
-ezStatus ezAssetDocument::DoTransformAsset(const ezAssetPlatformConfig* pPlatformConfig0 /*= nullptr*/, bool bTriggeredManually)
+ezStatus ezAssetDocument::DoTransformAsset(const ezAssetProfile* pAssetProfile0 /*= nullptr*/, bool bTriggeredManually)
 {
   const auto flags = GetAssetFlags();
 
   if (flags.IsAnySet(ezAssetDocumentFlags::DisableTransform))
     return ezStatus("Asset transform has been disabled on this asset");
 
-  const ezAssetPlatformConfig* pPlatformConfig = ezAssetDocumentManager::DetermineFinalTargetPlatform(pPlatformConfig0);
+  const ezAssetProfile* pAssetProfile = ezAssetDocumentManager::DetermineFinalTargetPlatform(pAssetProfile0);
 
   ezUInt64 uiHash = 0;
   ezUInt64 uiThumbHash = 0;
   ezAssetInfo::TransformState state =
-      ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), pPlatformConfig, GetDocumentTypeDescriptor(), uiHash, uiThumbHash);
+      ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), pAssetProfile, GetDocumentTypeDescriptor(), uiHash, uiThumbHash);
   if (state == ezAssetInfo::TransformState::UpToDate && !bTriggeredManually)
     return ezStatus(EZ_SUCCESS, "Transformed asset is already up to date");
 
@@ -322,9 +322,9 @@ ezStatus ezAssetDocument::DoTransformAsset(const ezAssetPlatformConfig* pPlatfor
     AssetHeader.SetFileHashAndVersion(uiHash, GetAssetTypeVersion());
     const auto& outputs = GetAssetDocumentInfo()->m_Outputs;
 
-    auto GenerateOutput = [this, pPlatformConfig, &AssetHeader, bTriggeredManually](const char* szOutputTag) -> ezStatus {
-      const ezString sTargetFile = GetAssetDocumentManager()->GetAbsoluteOutputFileName(GetDocumentPath(), szOutputTag, pPlatformConfig);
-      auto ret = InternalTransformAsset(sTargetFile, szOutputTag, pPlatformConfig, AssetHeader, bTriggeredManually);
+    auto GenerateOutput = [this, pAssetProfile, &AssetHeader, bTriggeredManually](const char* szOutputTag) -> ezStatus {
+      const ezString sTargetFile = GetAssetDocumentManager()->GetAbsoluteOutputFileName(GetDocumentPath(), szOutputTag, pAssetProfile);
+      auto ret = InternalTransformAsset(sTargetFile, szOutputTag, pAssetProfile, AssetHeader, bTriggeredManually);
 
       // if writing failed, make sure the output file does not exist
       if (ret.m_Result.Failed())
@@ -352,7 +352,7 @@ ezStatus ezAssetDocument::DoTransformAsset(const ezAssetPlatformConfig* pPlatfor
   }
 }
 
-ezStatus ezAssetDocument::TransformAsset(bool bTriggeredManually, const ezAssetPlatformConfig* pPlatformConfig)
+ezStatus ezAssetDocument::TransformAsset(bool bTriggeredManually, const ezAssetProfile* pAssetProfile)
 {
   EZ_PROFILE("TransformAsset");
   if (!bTriggeredManually)
@@ -371,7 +371,7 @@ ezStatus ezAssetDocument::TransformAsset(bool bTriggeredManually, const ezAssetP
     }
   }
 
-  const ezStatus res = DoTransformAsset(pPlatformConfig, bTriggeredManually);
+  const ezStatus res = DoTransformAsset(pAssetProfile, bTriggeredManually);
 
   // some assets modify the document during transformation
   // make sure the state is saved, at least when the user actively executed the action
@@ -405,7 +405,7 @@ ezStatus ezAssetDocument::CreateThumbnail()
   }
 }
 
-ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig,
+ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezAssetProfile* pAssetProfile,
                                                  const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   ezDeferredFileWriter file;
@@ -413,7 +413,7 @@ ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const
 
   AssetHeader.Write(file);
 
-  EZ_SUCCEED_OR_RETURN(InternalTransformAsset(file, szOutputTag, pPlatformConfig, AssetHeader, bTriggeredManually));
+  EZ_SUCCEED_OR_RETURN(InternalTransformAsset(file, szOutputTag, pAssetProfile, AssetHeader, bTriggeredManually));
 
   if (file.Close().Failed())
   {

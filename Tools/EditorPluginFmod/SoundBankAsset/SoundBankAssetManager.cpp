@@ -188,7 +188,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
 }
 
 ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory,
-                                                                      const ezAssetPlatformConfig* pPlatformConfig) const
+                                                                      const ezAssetProfile* pAssetProfile) const
 {
   // at the moment we don't reference the actual transformed asset file
   // instead we reference the source fmod sound bank file
@@ -197,7 +197,7 @@ ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSu
   /// \todo For final release we should reference the transformed file, as it's the one that gets packaged etc.
   /// Maybe we should add another platform target for that ?
 
-  if (pPlatformConfig == ezAssetCurator::GetSingleton()->GetDevelopmentPlatform())
+  if (pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile())
   {
     for (const ezString& dep : pSubAsset->m_pAssetInfo->m_Info->m_AssetTransformDependencies)
     {
@@ -211,22 +211,22 @@ ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSu
   }
   else
   {
-    SUPER::GetAssetTableEntry(pSubAsset, szDataDirectory, pPlatformConfig);
+    SUPER::GetAssetTableEntry(pSubAsset, szDataDirectory, pAssetProfile);
   }
 
   return ezString();
 }
 
 ezString ezSoundBankAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory,
-                                                             const ezAssetPlatformConfig* pPlatformConfig) const
+                                                             const ezAssetProfile* pAssetProfile) const
 {
   if (pSubAsset->m_bMainAsset)
   {
-    return GetSoundBankAssetTableEntry(pSubAsset, szDataDirectory, pPlatformConfig);
+    return GetSoundBankAssetTableEntry(pSubAsset, szDataDirectory, pAssetProfile);
   }
   else
   {
-    ezStringBuilder result = GetSoundBankAssetTableEntry(pSubAsset, szDataDirectory, pPlatformConfig);
+    ezStringBuilder result = GetSoundBankAssetTableEntry(pSubAsset, szDataDirectory, pAssetProfile);
 
     ezStringBuilder sGuid;
     ezConversionUtils::ToString(pSubAsset->m_Data.m_Guid, sGuid);

@@ -7,7 +7,7 @@
 #include <EditorFramework/Assets/AssetDocumentInfo.h>
 
 struct ezSubAsset;
-class ezAssetPlatformConfig;
+class ezAssetProfile;
 
 class EZ_EDITORFRAMEWORK_DLL ezAssetDocumentManager : public ezDocumentManager
 {
@@ -34,14 +34,14 @@ public:
   /// \name Output Functions
   ///@{
 
-  virtual void AddEntriesToAssetTable(const char* szDataDirectory, const ezAssetPlatformConfig* pPlatformConfig, ezMap<ezString, ezString>& inout_GuidToPath) const;
-  virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezAssetPlatformConfig* pPlatformConfig) const;
+  virtual void AddEntriesToAssetTable(const char* szDataDirectory, const ezAssetProfile* pAssetProfile, ezMap<ezString, ezString>& inout_GuidToPath) const;
+  virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezAssetProfile* pAssetProfile) const;
 
   /// \brief Calls GetRelativeOutputFileName and prepends [DataDir]/AssetCache/ .
-  ezString GetAbsoluteOutputFileName(const char* szDocumentPath, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig = nullptr) const;
+  ezString GetAbsoluteOutputFileName(const char* szDocumentPath, const char* szOutputTag, const ezAssetProfile* pAssetProfile = nullptr) const;
 
   /// \brief Relative to 'AssetCache' folder.
-  virtual ezString GetRelativeOutputFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig = nullptr) const;
+  virtual ezString GetRelativeOutputFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezAssetProfile* pAssetProfile = nullptr) const;
   virtual ezString GetResourceTypeExtension() const = 0;
   virtual bool GeneratesPlatformSpecificAssets() const = 0;
 
@@ -50,7 +50,7 @@ public:
 
   ///@}
 
-  static const ezAssetPlatformConfig* DetermineFinalTargetPlatform(const ezAssetPlatformConfig* pPlatformConfig);
+  static const ezAssetProfile* DetermineFinalTargetPlatform(const ezAssetProfile* pAssetProfile);
 
   /// \brief Called by the editor to try to open a document for the matching picking result
   virtual ezResult OpenPickedDocument(const ezDocumentObject* pPickedComponent, ezUInt32 uiPartIndex) { return EZ_FAILURE; }
@@ -59,5 +59,5 @@ public:
 
 protected:
   static bool IsResourceUpToDate(const char* szResourceFile, ezUInt64 uiHash, ezUInt16 uiTypeVersion);
-  static void GenerateOutputFilename(ezStringBuilder& inout_sRelativeDocumentPath, const ezAssetPlatformConfig* pPlatformConfig, const char* szExtension, bool bPlatformSpecific);
+  static void GenerateOutputFilename(ezStringBuilder& inout_sRelativeDocumentPath, const ezAssetProfile* pAssetProfile, const char* szExtension, bool bPlatformSpecific);
 };

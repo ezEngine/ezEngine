@@ -38,12 +38,12 @@ struct EZ_FMODPLUGIN_DLL ezFmodConfiguration
 };
 
 /// \brief All available fmod platform configurations 
-struct EZ_FMODPLUGIN_DLL ezFmodPlatformConfigs
+struct EZ_FMODPLUGIN_DLL ezFmodAssetProfiles
 {
   ezResult Save(const char* szFile) const;
   ezResult Load(const char* szFile);
 
-  ezMap<ezString, ezFmodConfiguration> m_PlatformConfigs;
+  ezMap<ezString, ezFmodConfiguration> m_AssetProfiles;
 };
 
 class EZ_FMODPLUGIN_DLL ezFmod : public ezSoundInterface
@@ -132,7 +132,7 @@ private:
   struct Data
   {
     ezMap<ezString, float> m_VcaVolumes;
-    ezFmodPlatformConfigs m_Configs;
+    ezFmodAssetProfiles m_Configs;
     ezString m_sPlatform;
     ezFmodSoundBankResourceHandle m_hMasterBank;
     ezHybridArray<ezDataBuffer*, 4> m_SbDeletionQueue;

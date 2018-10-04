@@ -1276,7 +1276,7 @@ void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
   }
 }
 
-ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig,
+ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezAssetProfile* pAssetProfile,
                                                  const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   const ezSceneDocumentSettings* pSettings = GetSettings();
@@ -1290,7 +1290,7 @@ ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const
 }
 
 
-ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetPlatformConfig* pPlatformConfig,
+ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetProfile* pAssetProfile,
                                                  const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;

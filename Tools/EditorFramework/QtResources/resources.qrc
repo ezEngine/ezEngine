@@ -1,11 +1,11 @@
-﻿<RCC>
+<RCC>
   <qresource prefix="EditorFramework">
     <file>Icons/Connection16.png</file>
     <file>Icons/Tag16.png</file>
     <file>Icons/Perspective.png</file>
     <file>Icons/RenderMode.png</file>
     <file>Icons/Asset16.png</file>
-	<file>Icons/AssetConfigs16.png</file>
+	<file>Icons/AssetProfiles16.png</file>
     <file>Icons/IconView16.png</file>
     <file>Icons/ListView16.png</file>
     <file>Icons/CheckFileSystem16.png</file>

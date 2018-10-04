@@ -2,7 +2,7 @@
 
 #include <Core/Application/Config/FileSystemConfig.h>
 #include <EditorFramework/Assets/AssetDocumentInfo.h>
-#include <EditorFramework/Assets/AssetPlatformConfig.h>
+#include <EditorFramework/Assets/AssetProfile.h>
 #include <EditorFramework/Assets/Declarations.h>
 #include <EditorFramework/Plugin.h>
 #include <Foundation/Algorithm/HashHelperString.h>
@@ -165,39 +165,39 @@ public:
   /// \brief The main platform on which development happens. E.g. "PC".
   ///
   /// TODO: review this concept
-  const ezAssetPlatformConfig* GetDevelopmentPlatform() const;
+  const ezAssetProfile* GetDevelopmentAssetProfile() const;
 
   /// \brief The currently active target platform for asset processing.
-  const ezAssetPlatformConfig* GetActivePlatformConfig() const;
+  const ezAssetProfile* GetActiveAssetProfile() const;
 
   /// \brief Returns the index of the currently active asset platform configuration
-  ezUInt32 GetActivePlatformConfigIndex() const;
+  ezUInt32 GetActiveAssetProfileIndex() const;
 
   /// \brief Returns ezInvalidIndex if no config with the given name exists. Name comparison is case sensitive.
-  ezUInt32 FindAssetPlatformConfigByName(const char* szPlatform);
+  ezUInt32 FindAssetProfileByName(const char* szPlatform);
 
-  ezUInt32 GetNumAssetPlatformConfigs() const;
-
-  /// \brief Always returns a valid config. E.g. even if ezInvalidIndex is passed in, it will fall back to the default config (at index 0).
-  const ezAssetPlatformConfig* GetAssetPlatformConfig(ezUInt32 index) const;
+  ezUInt32 GetNumAssetProfiles() const;
 
   /// \brief Always returns a valid config. E.g. even if ezInvalidIndex is passed in, it will fall back to the default config (at index 0).
-  ezAssetPlatformConfig* GetAssetPlatformConfig(ezUInt32 index);
+  const ezAssetProfile* GetAssetProfile(ezUInt32 index) const;
+
+  /// \brief Always returns a valid config. E.g. even if ezInvalidIndex is passed in, it will fall back to the default config (at index 0).
+  ezAssetProfile* GetAssetProfile(ezUInt32 index);
 
   /// \brief Switches the currently active asset target platform.
   ///
   /// Broadcasts ezAssetCuratorEvent::Type::ActivePlatformChanged on change.
-  void SetActivePlatformByIndex(ezUInt32 index);
+  void SetActiveAssetProfileByIndex(ezUInt32 index);
 
   /// \brief Saves the current asset configurations. Returns failure if the output file could not be written to.
-  ezResult SaveAssetPlatformConfigs();
+  ezResult SaveAssetProfiles();
 
 private:
-  void ClearAssetPlatformConfigs();
-  void SetupDefaultAssetPlatformConfigs();
-  ezResult LoadAssetPlatformConfigs();
+  void ClearAssetProfiles();
+  void SetupDefaultAssetProfiles();
+  ezResult LoadAssetProfiles();
 
-  ezHybridArray<ezAssetPlatformConfig*, 8> m_AssetPlatformConfigs;
+  ezHybridArray<ezAssetProfile*, 8> m_AssetProfiles;
 
   ///@}
   /// \name High Level Functions
@@ -206,13 +206,13 @@ private:
 public:
 
   /// \brief Transforms all assets and writes the lookup tables. If the given platform is empty, the active platform is used.
-  void TransformAllAssets(const ezAssetPlatformConfig* pPlatformConfig = nullptr);
+  void TransformAllAssets(const ezAssetProfile* pAssetProfile = nullptr);
   void ResaveAllAssets();
-  ezStatus TransformAsset(const ezUuid& assetGuid, bool bTriggeredManually, const ezAssetPlatformConfig* pPlatformConfig = nullptr);
+  ezStatus TransformAsset(const ezUuid& assetGuid, bool bTriggeredManually, const ezAssetProfile* pAssetProfile = nullptr);
   ezStatus CreateThumbnail(const ezUuid& assetGuid);
 
   /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.
-  ezResult WriteAssetTables(const ezAssetPlatformConfig* pPlatformConfig = nullptr);
+  ezResult WriteAssetTables(const ezAssetProfile* pAssetProfile = nullptr);
 
   ///@}
   /// \name Asset Access
@@ -239,7 +239,7 @@ public:
   /// \brief Computes the combined hash for the asset and its references. Returns 0 if anything went wrong.
   ezUInt64 GetAssetReferenceHash(ezUuid assetGuid);
 
-  ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const ezAssetPlatformConfig* pPlatformConfig,
+  ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const ezAssetProfile* pAssetProfile,
                                               const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash,
                                               ezUInt64& out_ThumbHash);
   /// \brief Returns the number of assets in the system and how many are in what transform state
@@ -281,7 +281,7 @@ private:
   /// \name Processing
   ///@{
 
-  ezStatus ProcessAsset(ezAssetInfo* pAssetInfo, const ezAssetPlatformConfig* pPlatformConfig, bool bTriggeredManually);
+  ezStatus ProcessAsset(ezAssetInfo* pAssetInfo, const ezAssetProfile* pAssetProfile, bool bTriggeredManually);
   ezStatus ResaveAsset(ezAssetInfo* pAssetInfo);
   /// \brief Returns the asset info for the asset with the given GUID or nullptr if no such asset exists.
   ezAssetInfo* GetAssetInfo(const ezUuid& assetGuid);
@@ -293,7 +293,7 @@ private:
   void HandleSingleFile(const ezString& sAbsolutePath);
   void HandleSingleFile(const ezString& sAbsolutePath, const ezSet<ezString>& validExtensions, const ezFileStats& FileStat);
   /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.
-  ezResult WriteAssetTable(const char* szDataDirectory, const ezAssetPlatformConfig* pPlatformConfig = nullptr);
+  ezResult WriteAssetTable(const char* szDataDirectory, const ezAssetProfile* pAssetProfile = nullptr);
   /// \brief Some assets are vital for the engine to run. Each data directory can contain a [DataDirName].ezCollectionAsset
   ///   that has all its references transformed before any other documents are loaded.
   void ProcessAllCoreAssets();
@@ -382,7 +382,7 @@ private:
 
 
   ezApplicationFileSystemConfig m_FileSystemConfig;
-  ezUInt32 m_uiActivePlatformConfig = 0;
+  ezUInt32 m_uiActiveAssetProfile = 0;
   ezSet<ezString> m_ValidAssetExtensions;
   ezSet<ezString> m_AssetFolders;
 

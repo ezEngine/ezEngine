@@ -322,7 +322,7 @@ void ezSceneAction::Execute(const ezVariant& value)
       }
 
       arguments << "-platform";
-      arguments << ezAssetCurator::GetSingleton()->GetActivePlatformConfig()->GetConfigName();
+      arguments << ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
 
       ezLog::Info("Running: Player.exe -scene \"{0}\"", sPath);
       m_pSceneDocument->ShowDocumentStatus(ezFmt("Running: Player.exe -scene \"{0}\"", sPath));
