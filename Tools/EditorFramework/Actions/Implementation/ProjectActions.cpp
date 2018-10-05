@@ -474,6 +474,9 @@ void ezProjectAction::Execute(const ezVariant& value)
       ezQtPreferencesDlg dlg(nullptr);
       if (dlg.exec() == QDialog::Accepted)
       {
+        // save modified preferences right away
+        ezQtEditorApp::GetSingleton()->SaveSettings();
+
         ezToolsProject::BroadcastConfigChanged();
       }
     }
