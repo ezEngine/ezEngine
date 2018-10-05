@@ -55,16 +55,44 @@ namespace
       pComponent->GetOwningManager()->DeleteComponent(pComponent->GetHandle());
     }
   }
+
+  template <typename T>
+  void HandleDeleteObjectMsgImpl(ezMsgDeleteGameObject& msg, ezEnum<T>& action)
+  {
+    if (action == T::DeleteComponent)
+    {
+      msg.m_bCancel = true;
+      action = T::DeleteGameObject;
+    }
+    else if (action == T::DeleteGameObject)
+    {
+      msg.m_bCancel = true;
+    }
+  }
 }
+
+//////////////////////////////////////////////////////////////////////////
 
 void ezOnComponentFinishedAction::HandleFinishedAction(ezComponent* pComponent, ezOnComponentFinishedAction::Enum action)
 {
   HandleFinishedActionImpl<ezOnComponentFinishedAction>(pComponent, action);
 }
 
+void ezOnComponentFinishedAction::HandleDeleteObjectMsg(ezMsgDeleteGameObject& msg, ezEnum<ezOnComponentFinishedAction>& action)
+{
+  HandleDeleteObjectMsgImpl(msg, action);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 void ezOnComponentFinishedAction2::HandleFinishedAction(ezComponent* pComponent, ezOnComponentFinishedAction2::Enum action)
 {
   HandleFinishedActionImpl<ezOnComponentFinishedAction2>(pComponent, action);
+}
+
+void ezOnComponentFinishedAction2::HandleDeleteObjectMsg(ezMsgDeleteGameObject& msg, ezEnum<ezOnComponentFinishedAction2>& action)
+{
+  HandleDeleteObjectMsgImpl(msg, action);
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_Declarations);

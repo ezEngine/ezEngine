@@ -3,8 +3,27 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Components/PrefabReferenceComponent.h>
 
+namespace
+{
+  static void SetUniqueIDRecursive(ezGameObject* pObject, ezUInt32 uiUniqueID, const ezTag& tag)
+  {
+    pObject->GetTags().Set(tag);
+
+    for (auto pComponent : pObject->GetComponents())
+    {
+      pComponent->SetUniqueID(uiUniqueID);
+    }
+
+
+    for (auto itChild = pObject->GetChildren(); itChild.IsValid(); itChild.Next())
+    {
+      SetUniqueIDRecursive(itChild, uiUniqueID, tag);
+    }
+  }
+}
+
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 2, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -22,21 +41,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezPrefabReferenceComponent::ezPrefabReferenceComponent()
+  : m_bInUpdateList(false)
 {
-  m_bRequiresInstantiation = true;
 }
 
 ezPrefabReferenceComponent::~ezPrefabReferenceComponent() {}
-
-void ezPrefabReferenceComponent::Deinitialize()
-{
-  for (auto it = GetOwner()->GetChildren(); it.IsValid(); ++it)
-  {
-    GetWorld()->DeleteObjectNow(it->GetHandle());
-  }
-
-  SUPER::Deinitialize();
-}
 
 void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -44,9 +53,6 @@ void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& stream) const
   auto& s = stream.GetStream();
 
   s << m_hPrefab;
-
-  const bool instantiate = GetUniqueID() != ezInvalidIndex;
-  s << instantiate;
 
   // Version 2
   const ezUInt32 numParams = m_Parameters.GetCount();
@@ -65,7 +71,12 @@ void ezPrefabReferenceComponent::DeserializeComponent(ezWorldReader& stream)
   auto& s = stream.GetStream();
 
   s >> m_hPrefab;
-  s >> m_bRequiresInstantiation;
+
+  if (uiVersion < 3)
+  {
+    bool bDummy;
+    s >> bDummy;
+  }
 
   if (uiVersion >= 2)
   {
@@ -84,11 +95,6 @@ void ezPrefabReferenceComponent::DeserializeComponent(ezWorldReader& stream)
 
       m_Parameters.Insert(key, value);
     }
-  }
-
-  if (m_bRequiresInstantiation)
-  {
-    GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);
   }
 }
 
@@ -115,12 +121,10 @@ const char* ezPrefabReferenceComponent::GetPrefabFile() const
 
 void ezPrefabReferenceComponent::SetPrefab(const ezPrefabResourceHandle& hPrefab)
 {
-  // both handles invalid -> no change
-  if (!m_hPrefab.IsValid() && !hPrefab.IsValid())
+  if (m_hPrefab == hPrefab)
     return;
 
   m_hPrefab = hPrefab;
-  m_bRequiresInstantiation = true;
 
   GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);
 }
@@ -128,22 +132,10 @@ void ezPrefabReferenceComponent::SetPrefab(const ezPrefabResourceHandle& hPrefab
 
 void ezPrefabReferenceComponent::InstantiatePrefab()
 {
-  if (!m_bRequiresInstantiation)
-    return;
-
-  m_bRequiresInstantiation = false;
-
   // first clear all previous children of this object
+  for (auto it = GetOwner()->GetChildren(); it.IsValid(); ++it)
   {
-    auto itChild = GetOwner()->GetChildren();
-    ezWorld* pWorld = GetWorld();
-
-    while (itChild.IsValid())
-    {
-      pWorld->DeleteObjectNow(itChild->GetHandle());
-
-      itChild.Next();
-    }
+    GetWorld()->DeleteObjectNow(it->GetHandle());
   }
 
   // now instantiate the prefab
@@ -155,18 +147,43 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
     id.SetIdentity();
 
     pResource->InstantiatePrefab(*GetWorld(), id, GetOwner()->GetHandle(), nullptr, &GetOwner()->GetTeamID(), &m_Parameters);
+
+    // if this ID is valid, this prefab is instantiated at editor runtime
+    // replicate the same ID across all instantiated sub components to get correct picking behavior
+    if (GetUniqueID() != ezInvalidIndex)
+    {
+      // while exporting a scene all game objects with this tag are ignored and not exported
+      // set this tag on all game objects that were created by instantiating this prefab
+      // instead it should be instantiated at runtime again
+      // only do this at editor time though, at regular runtime we do want to fully serialize the entire sub tree
+      const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance");
+
+      for (auto itChild = GetOwner()->GetChildren(); itChild.IsValid(); itChild.Next())
+      {
+        SetUniqueIDRecursive(itChild, GetUniqueID(), tag);
+      }
+    }
   }
 }
 
-void ezPrefabReferenceComponent::Initialize()
+void ezPrefabReferenceComponent::OnActivated()
 {
-  SUPER::Initialize();
+  SUPER::OnActivated();
 
   // instantiate the prefab right away, such that game play code can access it as soon as possible
   // additionally the manager may update the instance later on, to properly enable editor work flows
   InstantiatePrefab();
 }
 
+void ezPrefabReferenceComponent::OnDeactivated()
+{
+  SUPER::OnDeactivated();
+
+  for (auto it = GetOwner()->GetChildren(); it.IsValid(); ++it)
+  {
+    GetWorld()->DeleteObjectNow(it->GetHandle());
+  }
+}
 
 const ezRangeView<const char*, ezUInt32> ezPrefabReferenceComponent::GetParameters() const
 {
@@ -186,7 +203,6 @@ void ezPrefabReferenceComponent::SetParameter(const char* szKey, const ezVariant
 
   m_Parameters[hs] = value;
 
-  m_bRequiresInstantiation = true;
   GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);
 }
 
@@ -194,7 +210,6 @@ void ezPrefabReferenceComponent::RemoveParameter(const char* szKey)
 {
   if (m_Parameters.RemoveAndCopy(ezTempHashedString(szKey)))
   {
-    m_bRequiresInstantiation = true;
     GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);
   }
 }
@@ -241,67 +256,37 @@ void ezPrefabReferenceComponentManager::ResourceEventHandler(const ezResourceEve
     {
       if (it->m_hPrefab == hPrefab)
       {
-        it->m_bRequiresInstantiation = true;
         AddToUpdateList(it);
       }
     }
   }
 }
 
-static void SetUniqueIDRecursive(ezGameObject* pObject, ezUInt32 uiUniqueID, const ezTag& tag)
-{
-  pObject->GetTags().Set(tag);
-
-  for (auto pComponent : pObject->GetComponents())
-  {
-    pComponent->SetUniqueID(uiUniqueID);
-  }
-
-
-  for (auto itChild = pObject->GetChildren(); itChild.IsValid(); itChild.Next())
-  {
-    SetUniqueIDRecursive(itChild, uiUniqueID, tag);
-  }
-}
-
 void ezPrefabReferenceComponentManager::Update(const ezWorldModule::UpdateContext& context)
 {
-  for (auto hComp : m_PrefabComponentsToUpdate)
+  for (auto hComp : m_ComponentsToUpdate)
   {
-    ezPrefabReferenceComponent* pPrefab;
-    if (!TryGetComponent(hComp, pPrefab))
+    ezPrefabReferenceComponent* pComponent;
+    if (!TryGetComponent(hComp, pComponent))
       continue;
 
-    // not implemented in all necessary code paths atm
-    // if (!pPrefab->IsActive())
-    //  continue;
+    pComponent->m_bInUpdateList = false;
+    if (!pComponent->IsActive())
+      continue;
 
-    pPrefab->InstantiatePrefab();
-
-    // if this ID is valid, this prefab is instantiated at editor runtime
-    // replicate the same ID across all instantiated sub components to get correct picking behavior
-    if (pPrefab->GetUniqueID() != ezInvalidIndex)
-    {
-      // while exporting a scene all game objects with this tag are ignored and not exported
-      // set this tag on all game objects that were created by instantiating this prefab
-      // instead it should be instantiated at runtime again
-      // only do this at editor time though, at regular runtime we do want to fully serialize the entire sub tree
-      const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance");
-
-      ezGameObject* pOwner = pPrefab->GetOwner();
-      for (auto itChild = pOwner->GetChildren(); itChild.IsValid(); itChild.Next())
-      {
-        SetUniqueIDRecursive(itChild, pPrefab->GetUniqueID(), tag);
-      }
-    }
+    pComponent->InstantiatePrefab();
   }
 
-  m_PrefabComponentsToUpdate.Clear();
+  m_ComponentsToUpdate.Clear();
 }
 
 void ezPrefabReferenceComponentManager::AddToUpdateList(ezPrefabReferenceComponent* pComponent)
 {
-  m_PrefabComponentsToUpdate.PushBack(pComponent->GetHandle());
+  if (!pComponent->m_bInUpdateList)
+  {
+    m_ComponentsToUpdate.PushBack(pComponent->GetHandle());
+    pComponent->m_bInUpdateList = true;
+  }
 }
 
 

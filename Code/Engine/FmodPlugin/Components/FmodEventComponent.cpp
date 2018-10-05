@@ -375,15 +375,7 @@ void ezFmodEventComponent::SoundCue(ezMsgFmodAddSoundCue& msg)
 
 void ezFmodEventComponent::OnDeleteObject(ezMsgDeleteGameObject& msg)
 {
-  if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteComponent)
-  {
-    msg.m_bCancel = true;
-    m_OnFinishedAction = ezOnComponentFinishedAction::DeleteGameObject;
-  }
-  else if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteGameObject)
-  {
-    msg.m_bCancel = true;
-  }
+  ezOnComponentFinishedAction::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
 }
 
 ezInt32 ezFmodEventComponent::FindParameter(const char* szName) const

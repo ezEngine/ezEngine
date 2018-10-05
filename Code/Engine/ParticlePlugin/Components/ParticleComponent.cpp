@@ -265,15 +265,7 @@ void ezParticleComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 
 void ezParticleComponent::OnDeleteObject(ezMsgDeleteGameObject& msg)
 {
-  if (m_OnFinishedAction == ezOnComponentFinishedAction2::DeleteComponent)
-  {
-    msg.m_bCancel = true;
-    m_OnFinishedAction = ezOnComponentFinishedAction2::DeleteGameObject;
-  }
-  else if (m_OnFinishedAction == ezOnComponentFinishedAction2::DeleteGameObject)
-  {
-    msg.m_bCancel = true;
-  }
+  ezOnComponentFinishedAction2::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
 }
 
 void ezParticleComponent::Update()

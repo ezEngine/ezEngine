@@ -30,6 +30,8 @@ struct ezGameObjectDesc;
 class ezComponentManagerBase;
 class ezComponent;
 
+struct ezMsgDeleteGameObject;
+
 /// \brief Internal game object id used by ezGameObjectHandle.
 struct ezGameObjectId
 {
@@ -260,6 +262,7 @@ struct EZ_CORE_DLL ezOnComponentFinishedAction
 
   // helper function
   static void HandleFinishedAction(ezComponent* pComponent, ezOnComponentFinishedAction::Enum action);
+  static void HandleDeleteObjectMsg(ezMsgDeleteGameObject& msg, ezEnum<ezOnComponentFinishedAction>& action);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezOnComponentFinishedAction);
@@ -281,6 +284,7 @@ struct EZ_CORE_DLL ezOnComponentFinishedAction2
 
   // helper function
   static void HandleFinishedAction(ezComponent* pComponent, ezOnComponentFinishedAction2::Enum action);
+  static void HandleDeleteObjectMsg(ezMsgDeleteGameObject& msg, ezEnum<ezOnComponentFinishedAction2>& action);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezOnComponentFinishedAction2);

@@ -381,15 +381,7 @@ void ezDecalComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
 
 void ezDecalComponent::OnDeleteObject(ezMsgDeleteGameObject& msg)
 {
-  if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteComponent)
-  {
-    msg.m_bCancel = true;
-    m_OnFinishedAction = ezOnComponentFinishedAction::DeleteGameObject;
-  }
-  else if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteGameObject)
-  {
-    msg.m_bCancel = true;
-  }
+  ezOnComponentFinishedAction::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
 }
 
 void ezDecalComponent::OnApplyOnlyTo(ezMsgOnlyApplyToObject& msg)

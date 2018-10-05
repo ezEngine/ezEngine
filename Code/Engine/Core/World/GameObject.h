@@ -8,8 +8,6 @@
 #include <Core/World/ComponentManager.h>
 #include <Core/World/GameObjectDesc.h>
 
-struct ezMsgDeleteGameObject;
-
 /// \brief This class represents an object inside the world.
 ///
 /// Game objects only consists of hierarchical data like transformation and a list of components.

@@ -24,7 +24,7 @@ public:
 private:
   void ResourceEventHandler(const ezResourceEvent& e);
 
-  ezDeque<ezComponentHandle> m_PrefabComponentsToUpdate;
+  ezDeque<ezComponentHandle> m_ComponentsToUpdate;
 };
 
 class EZ_GAMEENGINE_DLL ezPrefabReferenceComponent : public ezComponent
@@ -49,8 +49,8 @@ public:
   void InstantiatePrefab();
 
 protected:
-  virtual void Initialize() override;
-  virtual void Deinitialize() override;
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters
@@ -66,7 +66,7 @@ private:
   void ResourceEventHandler(const ezResourceEvent& e);
 
   ezPrefabResourceHandle m_hPrefab;
-  bool m_bRequiresInstantiation;
   ezArrayMap<ezHashedString, ezVariant> m_Parameters;
+  bool m_bInUpdateList;
 };
 
