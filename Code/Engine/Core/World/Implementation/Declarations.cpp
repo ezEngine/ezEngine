@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <Core/World/Declarations.h>
+#include <Core/World/World.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezObjectMode, 1)
@@ -16,5 +16,55 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezOnComponentFinishedAction2, 1)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-EZ_STATICLINK_FILE(Core, Core_World_Implementation_Declarations);
+//////////////////////////////////////////////////////////////////////////
 
+namespace
+{
+  template <typename T>
+  void HandleFinishedActionImpl(ezComponent* pComponent, typename T::Enum action)
+  {
+    if (action == T::DeleteGameObject)
+    {
+      // Send a message to the owner object to check whether another component wants to delete this object later.
+      // Can't use ezGameObject::SendMessage because the object would immediately delete itself and furthermore the sender component needs to be filtered out here.
+      ezMsgDeleteGameObject msg;
+
+      auto& components = pComponent->GetOwner()->GetComponents();
+      for (auto& pComp : components)
+      {
+        if (pComp == pComponent)
+          continue;
+
+        pComp->SendMessage(msg);
+        if (msg.m_bCancel)
+        {
+          action = T::DeleteComponent;
+          break;
+        }
+      }
+
+      if (action == T::DeleteGameObject)
+      {
+        pComponent->GetWorld()->DeleteObjectDelayed(pComponent->GetOwner()->GetHandle());
+        return;
+      }
+    }
+
+    if (action == T::DeleteComponent)
+    {
+      pComponent->GetOwningManager()->DeleteComponent(pComponent->GetHandle());
+    }
+  }
+}
+
+void ezOnComponentFinishedAction::HandleFinishedAction(ezComponent* pComponent, ezOnComponentFinishedAction::Enum action)
+{
+  HandleFinishedActionImpl<ezOnComponentFinishedAction>(pComponent, action);
+}
+
+void ezOnComponentFinishedAction2::HandleFinishedAction(ezComponent* pComponent, ezOnComponentFinishedAction2::Enum action)
+{
+  HandleFinishedActionImpl<ezOnComponentFinishedAction2>(pComponent, action);
+}
+
+EZ_STATICLINK_FILE(Core, Core_World_Implementation_Declarations);

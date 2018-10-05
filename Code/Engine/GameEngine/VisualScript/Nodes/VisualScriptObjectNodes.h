@@ -36,3 +36,19 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_HasName : public ezVisualScriptNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_HasName, ezVisualScriptNode);
+public:
+  ezVisualScriptNode_HasName();
+
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
+
+private:
+  ezString m_sObjectName;
+  ezGameObjectHandle m_hObject;
+};
+
+//////////////////////////////////////////////////////////////////////////
+

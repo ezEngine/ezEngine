@@ -956,7 +956,7 @@ void ezMaterialResource::UpdateConstantBuffer(ezShaderPermutationResource* pShad
 
       for (auto& constant : pLayout->m_Constants)
       {
-        if (constant.m_uiOffset + ezShaderConstantBufferLayout::Constant::s_TypeSize[constant.m_Type] <= data.GetCount())
+        if (constant.m_uiOffset + ezShaderConstantBufferLayout::Constant::s_TypeSize[constant.m_Type.GetValue()] <= data.GetCount())
         {
           ezUInt8* pDest = &data[constant.m_uiOffset];
 

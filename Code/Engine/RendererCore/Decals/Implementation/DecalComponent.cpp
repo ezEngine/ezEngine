@@ -1,6 +1,7 @@
 #include <PCH.h>
 
 #include <Core/Graphics/Camera.h>
+#include <Core/Messages/DeleteObjectMessage.h>
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -62,6 +63,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 3, ezComponentMode::Static)
   {
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
+    EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnDeleteObject),
     EZ_MESSAGE_HANDLER(ezMsgOnlyApplyToObject, OnApplyOnlyTo),
     EZ_MESSAGE_HANDLER(ezMsgSetColor, OnSetColor),
   }
@@ -374,13 +376,19 @@ void ezDecalComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
   if (msg.m_uiUsageStringHash != ezTempHashedString::ComputeHash("Suicide"))
     return;
 
-  if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteGameObject)
+  ezOnComponentFinishedAction::HandleFinishedAction(this, m_OnFinishedAction);
+}
+
+void ezDecalComponent::OnDeleteObject(ezMsgDeleteGameObject& msg)
+{
+  if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteComponent)
   {
-    GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
+    msg.m_bCancel = true;
+    m_OnFinishedAction = ezOnComponentFinishedAction::DeleteGameObject;
   }
-  else if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteComponent)
+  else if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteGameObject)
   {
-    GetOwningManager()->DeleteComponent(GetHandle());
+    msg.m_bCancel = true;
   }
 }
 

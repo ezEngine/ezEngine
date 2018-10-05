@@ -63,6 +63,25 @@ public:
     m_value = value;
   }
 
+  /// \brief Comparison operators
+  EZ_ALWAYS_INLINE bool operator==(const SelfType& rhs) const { return m_value == rhs.m_value; }
+  EZ_ALWAYS_INLINE bool operator!=(const SelfType& rhs) const { return m_value != rhs.m_value; }
+  EZ_ALWAYS_INLINE bool operator>(const SelfType& rhs) const { return m_value > rhs.m_value; }
+  EZ_ALWAYS_INLINE bool operator<(const SelfType& rhs) const { return m_value < rhs.m_value; }
+  EZ_ALWAYS_INLINE bool operator>=(const SelfType& rhs) const { return m_value >= rhs.m_value; }
+  EZ_ALWAYS_INLINE bool operator<=(const SelfType& rhs) const { return m_value <= rhs.m_value; }
+
+  EZ_ALWAYS_INLINE bool operator==(typename Derived::Enum value) const { return m_value == value; }
+  EZ_ALWAYS_INLINE bool operator!=(typename Derived::Enum value) const { return m_value != value; }
+  EZ_ALWAYS_INLINE bool operator>(typename Derived::Enum value) const { return m_value > value; }
+  EZ_ALWAYS_INLINE bool operator<(typename Derived::Enum value) const { return m_value < value; }
+  EZ_ALWAYS_INLINE bool operator>=(typename Derived::Enum value) const { return m_value >= value; }
+  EZ_ALWAYS_INLINE bool operator<=(typename Derived::Enum value) const { return m_value <= value; }
+
+  /// brief Bitwise operators
+  EZ_ALWAYS_INLINE SelfType operator|(const SelfType& rhs) const { return static_cast<typename Derived::Enum>(m_value | rhs.m_value); } // [tested]
+  EZ_ALWAYS_INLINE SelfType operator&(const SelfType& rhs) const { return static_cast<typename Derived::Enum>(m_value & rhs.m_value); } // [tested]
+
   /// \brief Implicit conversion to enum type.
   EZ_ALWAYS_INLINE operator typename Derived::Enum() const // [tested]
   {

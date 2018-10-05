@@ -1,5 +1,6 @@
 #include <PCH.h>
 
+#include <Core/Messages/DeleteObjectMessage.h>
 #include <Core/ResourceManager/ResourceBase.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -86,6 +87,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 2, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgFmodRestartSound, RestartSound),
     EZ_MESSAGE_HANDLER(ezMsgFmodStopSound, StopSound),
     EZ_MESSAGE_HANDLER(ezMsgFmodAddSoundCue, SoundCue),
+    EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnDeleteObject),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_MESSAGESENDERS
@@ -371,6 +373,19 @@ void ezFmodEventComponent::SoundCue(ezMsgFmodAddSoundCue& msg)
   }
 }
 
+void ezFmodEventComponent::OnDeleteObject(ezMsgDeleteGameObject& msg)
+{
+  if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteComponent)
+  {
+    msg.m_bCancel = true;
+    m_OnFinishedAction = ezOnComponentFinishedAction::DeleteGameObject;
+  }
+  else if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteGameObject)
+  {
+    msg.m_bCancel = true;
+  }
+}
+
 ezInt32 ezFmodEventComponent::FindParameter(const char* szName) const
 {
   if (!m_hSoundEvent.IsValid())
@@ -429,14 +444,7 @@ void ezFmodEventComponent::Update()
       ezMsgFmodSoundFinished msg;
       m_SoundFinishedEventSender.SendMessage(msg, this, GetOwner());
 
-      if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteGameObject)
-      {
-        GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
-      }
-      else if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteComponent)
-      {
-        GetOwningManager()->DeleteComponent(GetHandle());
-      }
+      ezOnComponentFinishedAction::HandleFinishedAction(this, m_OnFinishedAction);
     }
   }
   else if (m_iTimelinePosition >= 0 && !m_bPaused)

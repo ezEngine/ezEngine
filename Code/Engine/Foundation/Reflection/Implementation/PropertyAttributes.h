@@ -553,7 +553,7 @@ public:
   const ezUntrackedString& GetColorProperty() const { return m_sProperty3; }
   const ezUntrackedString& GetOffsetProperty() const { return m_sProperty4; }
 
-  ezBasisAxis::Enum m_Axis;
+  ezEnum<ezBasisAxis> m_Axis;
   ezColor m_Color;
   ezVec3 m_vOffset;
 };
@@ -574,7 +574,7 @@ public:
   const ezUntrackedString& GetColorProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetLengthProperty() const { return m_sProperty2; }
 
-  ezBasisAxis::Enum m_Axis;
+  ezEnum<ezBasisAxis> m_Axis;
   ezColor m_Color;
   float m_fScale;
 };
@@ -601,7 +601,7 @@ public:
   const ezUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
   const ezUntrackedString& GetColorProperty() const { return m_sProperty3; }
 
-  ezBasisAxis::Enum m_Axis;
+  ezEnum<ezBasisAxis> m_Axis;
   ezColor m_Color;
   float m_fScale;
 };

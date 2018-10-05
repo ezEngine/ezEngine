@@ -156,9 +156,7 @@ void ezRotorComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_iDegreeToRotate;
   s >> m_fAcceleration;
   s >> m_fDeceleration;
-  ezBasisAxis::StorageType axis;
-  s >> axis;
-  m_Axis.SetValue(axis);
+  s >> m_Axis;
   s >> m_LastRotation;
 }
 

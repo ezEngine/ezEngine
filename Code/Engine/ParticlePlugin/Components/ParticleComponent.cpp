@@ -1,6 +1,7 @@
 #include <PCH.h>
 
 #include <Core/Messages/CommonMessages.h>
+#include <Core/Messages/DeleteObjectMessage.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/World/WorldModule.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -38,6 +39,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 3, ezComponentMode::Static)
   {
     EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnSetPlaying),
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnDeleteObject),
   }
   EZ_END_MESSAGEHANDLERS;
 
@@ -261,6 +263,19 @@ void ezParticleComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
   m_EffectController.SetIsInView();
 }
 
+void ezParticleComponent::OnDeleteObject(ezMsgDeleteGameObject& msg)
+{
+  if (m_OnFinishedAction == ezOnComponentFinishedAction2::DeleteComponent)
+  {
+    msg.m_bCancel = true;
+    m_OnFinishedAction = ezOnComponentFinishedAction2::DeleteGameObject;
+  }
+  else if (m_OnFinishedAction == ezOnComponentFinishedAction2::DeleteGameObject)
+  {
+    msg.m_bCancel = true;
+  }
+}
+
 void ezParticleComponent::Update()
 {
   if (!m_EffectController.IsAlive() && m_bSpawnAtStart)
@@ -331,14 +346,7 @@ void ezParticleComponent::Update()
   }
   else
   {
-    if (m_OnFinishedAction == ezOnComponentFinishedAction2::DeleteGameObject)
-    {
-      GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
-    }
-    else if (m_OnFinishedAction == ezOnComponentFinishedAction2::DeleteComponent)
-    {
-      GetOwningManager()->DeleteComponent(GetHandle());
-    }
+    ezOnComponentFinishedAction2::HandleFinishedAction(this, m_OnFinishedAction);
   }
 }
 

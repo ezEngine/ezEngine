@@ -9,7 +9,7 @@ class ezFmodEventComponentManager : public ezComponentManagerSimple<class ezFmod
 {
 public:
   ezFmodEventComponentManager(ezWorld* pWorld);
-  
+
   virtual void Initialize() override;
   virtual void Deinitialize() override;
 
@@ -27,7 +27,7 @@ struct EZ_FMODPLUGIN_DLL ezMsgFmodRestartSound : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgFmodRestartSound, ezMessage);
 
-  /// If true, a separate one-shot instance is started, which will play till completion. 
+  /// If true, a separate one-shot instance is started, which will play till completion.
   /// If false, the sound is played on the component itself, which allows to move it, restart, stop it, etc.
   bool m_bOneShotInstance = true;
 };
@@ -136,6 +136,8 @@ public:
   float GetParameter(ezInt32 iParamIndex) const;
 
 protected:
+
+  void OnDeleteObject(ezMsgDeleteGameObject& msg);
 
   void Update();
   void SetParameters3d(FMOD::Studio::EventInstance* pEventInstance);

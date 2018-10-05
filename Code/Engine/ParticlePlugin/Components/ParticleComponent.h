@@ -79,6 +79,8 @@ public:
 
 
 protected:
+  void OnDeleteObject(ezMsgDeleteGameObject& msg);
+
   virtual void OnDeactivated() override;
   void HandOffToFinisher();
 

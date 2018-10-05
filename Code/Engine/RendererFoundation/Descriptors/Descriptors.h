@@ -117,13 +117,13 @@ struct ezGALSamplerStateCreationDescription : public ezHashableStruct<ezGALSampl
 {
   ezGALSamplerStateCreationDescription();
 
-  ezGALTextureFilterMode::Enum m_MinFilter;
-  ezGALTextureFilterMode::Enum m_MagFilter;
-  ezGALTextureFilterMode::Enum m_MipFilter;
+  ezEnum<ezGALTextureFilterMode> m_MinFilter;
+  ezEnum<ezGALTextureFilterMode> m_MagFilter;
+  ezEnum<ezGALTextureFilterMode> m_MipFilter;
 
-  ezGALTextureAddressMode::Enum m_AddressU;
-  ezGALTextureAddressMode::Enum m_AddressV;
-  ezGALTextureAddressMode::Enum m_AddressW;
+  ezEnum<ezGALTextureAddressMode> m_AddressU;
+  ezEnum<ezGALTextureAddressMode> m_AddressV;
+  ezEnum<ezGALTextureAddressMode> m_AddressW;
 
   ezGALCompareFunc::Enum m_SampleCompareFunc;
 

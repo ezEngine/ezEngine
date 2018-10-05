@@ -668,7 +668,7 @@ void ezWorld::DeregisterUpdateFunction(const ezComponentManagerBase::UpdateFunct
 {
   CheckForWriteAccess();
 
-  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase];
+  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase.GetValue()];
 
   for (ezUInt32 i = updateFunctions.GetCount(); i-- > 0;)
   {
@@ -872,7 +872,7 @@ void ezWorld::ProcessUpdateFunctionsToRegister()
 
 ezResult ezWorld::RegisterUpdateFunctionInternal(const ezWorldModule::UpdateFunctionDesc& desc)
 {
-  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase];
+  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase.GetValue()];
   ezUInt32 uiInsertionIndex = 0;
 
   for (ezUInt32 i = 0; i < desc.m_DependsOn.GetCount(); ++i)

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{1092965785348279721,5019769357126639657}}
-		u4 %Hash{4662891471204066033}
+		u4 %Hash{1560764993271408886}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{11736738119894034647,13716551358573272559}}
@@ -89,7 +89,7 @@ o
 		f %AspectRatio{0x0000803F}
 		s %BlendMode{"ezSpriteBlendMode::Additive"}
 		Color %Color{f{0x00000041,0x00000041,0x00000041,0x0000803F}}
-		f %MaxScreenSize{0x00004843}
+		f %MaxScreenSize{0x00008044}
 		f %Size{0x0000803F}
 		s %Texture{"{ 66a97691-4402-c101-07cb-364520809cc7 }"}
 	}

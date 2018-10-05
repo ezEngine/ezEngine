@@ -113,7 +113,7 @@ void ezInputComponent::SerializeComponent(ezWorldWriter& stream) const
   auto& s = stream.GetStream();
 
   s << m_sInputSet;
-  s << m_Granularity.GetValue();
+  s << m_Granularity;
 }
 
 void ezInputComponent::DeserializeComponent(ezWorldReader& stream)
@@ -124,9 +124,7 @@ void ezInputComponent::DeserializeComponent(ezWorldReader& stream)
 
 
   s >> m_sInputSet;
-  ezInputMessageGranularity::StorageType gran;
-  s >> gran;
-  m_Granularity.SetValue(gran);
+  s >> m_Granularity;
 }
 
   //////////////////////////////////////////////////////////////////////////

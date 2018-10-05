@@ -148,9 +148,7 @@ void ezSliderComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fDistanceToTravel;
   s >> m_fAcceleration;
   s >> m_fDeceleration;
-  ezBasisAxis::StorageType axis;
-  s >> axis;
-  m_Axis.SetValue(axis);
+  s >> m_Axis;
   s >> m_fLastDistance;
 
   if (uiVersion >= 3)

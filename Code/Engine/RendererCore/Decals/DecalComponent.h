@@ -120,6 +120,7 @@ protected:
   // Internal
 
   void OnTriggered(ezMsgComponentInternalTrigger& msg);
+  void OnDeleteObject(ezMsgDeleteGameObject& msg);
   void OnApplyOnlyTo(ezMsgOnlyApplyToObject& msg);
   void OnSetColor(ezMsgSetColor& msg);
 

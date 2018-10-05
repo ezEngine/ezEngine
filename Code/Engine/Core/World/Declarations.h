@@ -257,6 +257,9 @@ struct EZ_CORE_DLL ezOnComponentFinishedAction
 
     Default = None
   };
+
+  // helper function
+  static void HandleFinishedAction(ezComponent* pComponent, ezOnComponentFinishedAction::Enum action);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezOnComponentFinishedAction);
@@ -275,6 +278,9 @@ struct EZ_CORE_DLL ezOnComponentFinishedAction2
 
     Default = None
   };
+
+  // helper function
+  static void HandleFinishedAction(ezComponent* pComponent, ezOnComponentFinishedAction2::Enum action);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezOnComponentFinishedAction2);

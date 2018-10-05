@@ -82,7 +82,7 @@ private:
   EZ_ALWAYS_INLINE void UpdateMessageAndCachedReceiver(ezEventMessage& msg, const ezComponent* pSenderComponent,
                                                        const ezGameObject* pSearchObject) const
   {
-    msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
+    msg.m_hSenderObject = pSenderComponent->GetOwner() != nullptr ? pSenderComponent->GetOwner()->GetHandle() : ezGameObjectHandle();
     msg.m_hSenderComponent = pSenderComponent->GetHandle();
 
     if (*reinterpret_cast<ezUInt64*>(&m_hCachedReceiver) == 0xFFFFFFFFFFFFFFFF)

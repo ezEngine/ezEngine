@@ -233,6 +233,8 @@ struct ezGALCullMode
 
 struct ezGALTextureFilterMode
 {
+  typedef ezUInt8 StorageType;
+
   enum Enum
   {
     Point = 0,

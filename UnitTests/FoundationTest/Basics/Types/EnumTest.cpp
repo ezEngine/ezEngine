@@ -105,7 +105,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Enum)
   {
     ezTestEnum2 e3(ezTestEnum2::Bit1);
     ezTestEnum2 e4(ezTestEnum2::Bit2);
-    ezUInt16 uiBits = (e3 | e4);
+    ezUInt16 uiBits = (e3 | e4).GetValue();
     EZ_TEST_BOOL(uiBits == (ezTestEnum2::Bit1 | ezTestEnum2::Bit2));
   }
 
@@ -114,14 +114,14 @@ EZ_CREATE_SIMPLE_TEST(Basics, Enum)
   {
     ezTestEnum2 e3(ezTestEnum2::Bit1);
     ezTestEnum2 e4(ezTestEnum2::Bit2);
-    ezUInt16 uiBits = (e3 | e4) & e4;
+    ezUInt16 uiBits = ((e3 | e4) & e4).GetValue();
     EZ_TEST_BOOL(uiBits == ezTestEnum2::Bit2);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Test conversion to int")
   {
     ezTestEnum e1;
-    int iTest = e1;
+    int iTest = e1.GetValue();
     EZ_TEST_BOOL(iTest == ezTestEnum::No);
   }
 }

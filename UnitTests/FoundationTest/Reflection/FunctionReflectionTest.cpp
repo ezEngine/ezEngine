@@ -47,9 +47,9 @@ struct FunctionTest
   ezEnum<ezExampleEnum> EnumFunction(ezEnum<ezExampleEnum> e, ezEnum<ezExampleEnum>& re, const ezEnum<ezExampleEnum>& cre,
                                      ezEnum<ezExampleEnum>* pe, const ezEnum<ezExampleEnum>* cpe)
   {
-    EZ_TEST_BOOL(m_values[0].Get<ezInt64>() == e);
-    EZ_TEST_BOOL(m_values[1].Get<ezInt64>() == re);
-    EZ_TEST_BOOL(m_values[2].Get<ezInt64>() == cre);
+    EZ_TEST_BOOL(m_values[0].Get<ezInt64>() == e.GetValue());
+    EZ_TEST_BOOL(m_values[1].Get<ezInt64>() == re.GetValue());
+    EZ_TEST_BOOL(m_values[2].Get<ezInt64>() == cre.GetValue());
     if (m_bPtrAreNull)
     {
       EZ_TEST_BOOL(!pe);
@@ -57,8 +57,8 @@ struct FunctionTest
     }
     else
     {
-      EZ_TEST_BOOL(m_values[3].Get<ezInt64>() == *pe);
-      EZ_TEST_BOOL(m_values[4].Get<ezInt64>() == *cpe);
+      EZ_TEST_BOOL(m_values[3].Get<ezInt64>() == pe->GetValue());
+      EZ_TEST_BOOL(m_values[4].Get<ezInt64>() == cpe->GetValue());
     }
     return ezExampleEnum::Value1;
   }

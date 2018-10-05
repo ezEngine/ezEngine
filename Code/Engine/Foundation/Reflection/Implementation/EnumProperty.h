@@ -82,8 +82,8 @@ public:
 
   virtual ezInt64 GetValue(const void* pInstance) const override // [tested]
   {
-    typename EnumType::Enum enumTemp = (static_cast<const Class*>(pInstance)->*m_Getter)();
-    return (ezInt64)enumTemp;
+    ezEnum<EnumType> enumTemp = (static_cast<const Class*>(pInstance)->*m_Getter)();
+    return enumTemp.GetValue();
   }
 
   virtual void SetValue(void* pInstance, ezInt64 value) override // [tested]
@@ -128,8 +128,8 @@ public:
 
   virtual ezInt64 GetValue(const void* pInstance) const override // [tested]
   {
-    typename EnumType::Enum enumTemp = m_Getter(static_cast<const Class*>(pInstance));
-    return (ezInt64)enumTemp;
+    ezEnum<EnumType> enumTemp = m_Getter(static_cast<const Class*>(pInstance));
+    return enumTemp.GetValue();
   }
 
   virtual void SetValue(void* pInstance, ezInt64 value) override // [tested]
