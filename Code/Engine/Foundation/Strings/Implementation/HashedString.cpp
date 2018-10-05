@@ -14,21 +14,20 @@ ezHashedString::HashedType ezHashedString::AddHashedString(const char* szString,
 {
   EZ_LOCK(g_HashedStringMutex);
 
-  ezString s(szString);
-
   // try to find the existing string
-  auto ret = g_HashedStrings.Find(s);
+  bool bExisted = false;
+  auto ret = g_HashedStrings.FindOrAdd(uiHash, &bExisted);
 
   // if it already exists, just increase the refcount
-  if (ret.IsValid())
+  if (bExisted)
+  {
     ret.Value().m_iRefCount.Increment();
+  }
   else
   {
-    ezHashedString::HashedData d;
+    ezHashedString::HashedData& d = ret.Value();
     d.m_iRefCount = 1;
-    d.m_uiHash = uiHash;
-
-    ret = g_HashedStrings.Insert(s, d); // otherwise insert it with a refcount of 1
+    d.m_sString = szString;
   }
 
   return ret;
@@ -82,6 +81,7 @@ ezHashedString::ezHashedString()
     InitHashedString();
 
   m_Data = g_hsEmpty;
+  m_Data.Value().m_iRefCount.Increment();
 }
 
 bool ezHashedString::IsEmpty() const
@@ -89,10 +89,17 @@ bool ezHashedString::IsEmpty() const
   return m_Data == g_hsEmpty;
 }
 
-
 void ezHashedString::Clear()
 {
-  m_Data = g_hsEmpty;
+  if (m_Data != g_hsEmpty)
+  {
+    HashedType tmp = m_Data;
+
+    m_Data = g_hsEmpty;
+    m_Data.Value().m_iRefCount.Increment();
+
+    tmp.Value().m_iRefCount.Decrement();
+  }
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_HashedString);

@@ -19,35 +19,39 @@ inline ezHashedString::~ezHashedString()
 
 inline void ezHashedString::operator=(const ezHashedString& rhs)
 {
-  // just decrease the refcount of the object that we are set to, it might reach refcount zero, but we don't care about that here
+  // first increase the other refcount, then decrease ours
+  HashedType tmp = rhs.m_Data;
+  tmp.Value().m_iRefCount.Increment();
+
   m_Data.Value().m_iRefCount.Decrement();
 
-  m_Data = rhs.m_Data;
-  m_Data.Value().m_iRefCount.Increment();
+  m_Data = tmp;
 }
 
 template <size_t N>
 EZ_FORCE_INLINE void ezHashedString::Assign(const char (&szString)[N])
 {
-  // just decrease the refcount of the object that we are set to, it might reach refcount zero, but we don't care about that here
-  m_Data.Value().m_iRefCount.Decrement();
+  HashedType tmp = m_Data;
 
   // this function will already increase the refcount as needed
   m_Data = AddHashedString(szString, ezHashing::MurmurHash32String(szString));
+
+  tmp.Value().m_iRefCount.Decrement();
 }
 
 EZ_FORCE_INLINE void ezHashedString::Assign(ezHashing::StringWrapper szString)
 {
-  // just decrease the refcount of the object that we are set to, it might reach refcount zero, but we don't care about that here
-  m_Data.Value().m_iRefCount.Decrement();
+  HashedType tmp = m_Data;
 
   // this function will already increase the refcount as needed
   m_Data = AddHashedString(szString.m_str, ezHashing::MurmurHash32String(szString));
+
+  tmp.Value().m_iRefCount.Decrement();
 }
 
 inline bool ezHashedString::operator==(const ezHashedString& rhs) const
 {
-  return &m_Data.Key() == &rhs.m_Data.Key();
+  return m_Data == rhs.m_Data;
 }
 
 inline bool ezHashedString::operator!=(const ezHashedString& rhs) const
@@ -57,7 +61,7 @@ inline bool ezHashedString::operator!=(const ezHashedString& rhs) const
 
 inline bool ezHashedString::operator==(const ezTempHashedString& rhs) const
 {
-  return m_Data.Value().m_uiHash == rhs.m_uiHash;
+  return m_Data.Key() == rhs.m_uiHash;
 }
 
 inline bool ezHashedString::operator!=(const ezTempHashedString& rhs) const
@@ -67,27 +71,27 @@ inline bool ezHashedString::operator!=(const ezTempHashedString& rhs) const
 
 inline bool ezHashedString::operator<(const ezHashedString& rhs) const
 {
-  return m_Data.Value().m_uiHash < rhs.m_Data.Value().m_uiHash;
+  return m_Data.Key() < rhs.m_Data.Key();
 }
 
 inline bool ezHashedString::operator<(const ezTempHashedString& rhs) const
 {
-  return m_Data.Value().m_uiHash < rhs.m_uiHash;
+  return m_Data.Key() < rhs.m_uiHash;
 }
 
 EZ_ALWAYS_INLINE const ezString& ezHashedString::GetString() const
 {
-  return m_Data.Key();
+  return m_Data.Value().m_sString;
 }
 
 EZ_ALWAYS_INLINE const char* ezHashedString::GetData() const
 {
-  return m_Data.Key().GetData();
+  return m_Data.Value().m_sString.GetData();
 }
 
 EZ_ALWAYS_INLINE ezUInt32 ezHashedString::GetHash() const
 {
-  return m_Data.Value().m_uiHash;
+  return m_Data.Key();
 }
 
 template <size_t N>

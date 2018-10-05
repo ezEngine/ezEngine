@@ -27,10 +27,11 @@ public:
   struct HashedData
   {
     ezAtomicInteger32 m_iRefCount;
-    ezUInt32 m_uiHash;
+    ezString m_sString;
   };
 
-  typedef ezMap<ezString, HashedData> StringStorage;
+  // Do NOT use a hash-table! The map does not relocate memory when it resizes, which is a vital aspect for the hashed strings to work.
+  typedef ezMap<ezUInt32, HashedData> StringStorage;
   typedef StringStorage::Iterator HashedType;
 
   /// \brief This will remove all hashed strings from the central storage, that are not referenced anymore.
