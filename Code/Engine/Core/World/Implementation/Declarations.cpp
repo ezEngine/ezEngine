@@ -1,6 +1,7 @@
 #include <PCH.h>
 
 #include <Core/World/World.h>
+#include <Core/Messages/DeleteObjectMessage.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezObjectMode, 1)

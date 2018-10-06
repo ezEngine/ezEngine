@@ -39,6 +39,10 @@ ezAssetProfile::ezAssetProfile()
   InitializeToDefault();
 }
 
+void func (int a = 1, int b = 2)
+{
+}
+
 ezAssetProfile::~ezAssetProfile()
 {
   Clear();
