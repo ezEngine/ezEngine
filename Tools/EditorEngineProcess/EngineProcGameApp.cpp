@@ -248,7 +248,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
 
     if (!pMsg->m_sAssetProfile.IsEmpty())
     {
-      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-platform");
+      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-profile");
       ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument(pMsg->m_sAssetProfile);
     }
 

@@ -196,7 +196,7 @@ public:
   /// \brief Switches the currently active asset target platform.
   ///
   /// Broadcasts ezAssetCuratorEvent::Type::ActivePlatformChanged on change.
-  void SetActiveAssetProfileByIndex(ezUInt32 index);
+  void SetActiveAssetProfileByIndex(ezUInt32 index, bool bForceReevaluation = false);
 
   /// \brief Saves the current asset configurations. Returns failure if the output file could not be written to.
   ezResult SaveAssetProfiles();

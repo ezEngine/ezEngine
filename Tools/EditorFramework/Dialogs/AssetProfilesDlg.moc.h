@@ -31,6 +31,7 @@ private slots:
   void on_AddButton_clicked();
   void on_DeleteButton_clicked();
   void on_RenameButton_clicked();
+  void on_SwitchToButton_clicked();
 
 private:
   struct Binding

@@ -559,7 +559,9 @@ void ezProjectAction::Execute(const ezVariant& value)
       ezQtAssetProfilesDlg dlg(nullptr);
       if (dlg.exec() == QDialog::Accepted)
       {
-        ezAssetCurator::GetSingleton()->SetActiveAssetProfileByIndex(dlg.m_uiActiveConfig);
+        // we need to force the asset status reevaluation because when the profile settings have changed,
+        // we need to figure out which assets are now out of date
+        ezAssetCurator::GetSingleton()->SetActiveAssetProfileByIndex(dlg.m_uiActiveConfig, true);
       }
     }
     break;

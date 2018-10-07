@@ -189,12 +189,12 @@ ezResult ezAssetCurator::DeleteAssetProfile(ezAssetProfile* pProfile)
   return EZ_FAILURE;
 }
 
-void ezAssetCurator::SetActiveAssetProfileByIndex(ezUInt32 index)
+void ezAssetCurator::SetActiveAssetProfileByIndex(ezUInt32 index, bool bForceReevaluation /*= false*/)
 {
   if (index >= m_AssetProfiles.GetCount())
     index = 0; // fall back to default platform
 
-  if (m_uiActiveAssetProfile == index)
+  if (!bForceReevaluation && m_uiActiveAssetProfile == index)
     return;
 
   EZ_LOG_BLOCK("Switch Active Asset Platform", m_AssetProfiles[index]->GetConfigName());

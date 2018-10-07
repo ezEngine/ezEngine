@@ -66,9 +66,13 @@ public:
       {
         QString name = ezQtNameableAdapter::data(pObject, row, column, role).toString();
 
-        if (row == m_pDialog->m_uiActiveConfig)
+        if (row == ezAssetCurator::GetSingleton()->GetActiveAssetProfileIndex())
         {
           name += " (active)";
+        }
+        else if (row == m_pDialog->m_uiActiveConfig)
+        {
+          name += " (switch to)";
         }
 
         return name;
@@ -113,9 +117,11 @@ ezQtAssetProfilesDlg::ezQtAssetProfilesDlg(QWidget* parent)
 
   Properties->SetDocument(m_pDocument);
 
-  if (!m_pDocument->GetObjectManager()->GetRootObject()->GetChildren().IsEmpty())
+  auto& rootChildArray = m_pDocument->GetObjectManager()->GetRootObject()->GetChildren();
+
+  if (!rootChildArray.IsEmpty())
   {
-    m_pDocument->GetSelectionManager()->SetSelection(m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
+    m_pDocument->GetSelectionManager()->SetSelection(rootChildArray[ezAssetCurator::GetSingleton()->GetActiveAssetProfileIndex()]);
   }
 }
 
@@ -326,6 +332,15 @@ void ezQtAssetProfilesDlg::on_RenameButton_clicked()
   m_pDocument->GetCommandHistory()->AddCommand(cmd);
 
   m_pDocument->GetCommandHistory()->FinishTransaction();
+}
+
+void ezQtAssetProfilesDlg::on_SwitchToButton_clicked()
+{
+  const auto& sel = Tree->selectionModel()->selectedRows();
+  if (sel.isEmpty())
+    return;
+
+  OnItemDoubleClicked(sel[0]);
 }
 
 void ezQtAssetProfilesDlg::AllAssetProfilesToObject()

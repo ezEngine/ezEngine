@@ -321,7 +321,7 @@ void ezSceneAction::Execute(const ezVariant& value)
         arguments << QString::fromUtf8(sWndCfgPath);
       }
 
-      arguments << "-platform";
+      arguments << "-profile";
       arguments << ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
 
       ezLog::Info("Running: Player.exe -scene \"{0}\"", sPath);
