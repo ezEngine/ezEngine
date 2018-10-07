@@ -205,6 +205,7 @@ private:
   void ClearAssetProfiles();
   void SetupDefaultAssetProfiles();
   ezResult LoadAssetProfiles();
+  void ComputeAllDocumentManagerAssetProfileHashes();
 
   ezHybridArray<ezAssetProfile*, 8> m_AssetProfiles;
 

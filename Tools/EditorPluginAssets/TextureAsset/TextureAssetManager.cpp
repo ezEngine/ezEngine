@@ -6,8 +6,27 @@
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetTypeProfileConfig, 1, ezRTTIDefaultAllocator<ezTextureAssetTypeProfileConfig>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("MaxResolution", m_uiMaxResolution)->AddAttributes(new ezDefaultValueAttribute(16 * 1024)),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezTextureAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+const char* ezTextureAssetTypeProfileConfig::GetDisplayName() const
+{
+  return "2D Textures";
+}
 
 ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
 {
@@ -43,6 +62,10 @@ ezTextureAssetDocumentManager::~ezTextureAssetDocumentManager()
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezTextureAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
+ezUInt64 ezTextureAssetDocumentManager::ComputeAssetProfileHashImpl(const ezAssetProfile* pAssetProfile) const
+{
+  return pAssetProfile->GetTypeConfig<ezTextureAssetTypeProfileConfig>()->m_uiMaxResolution;
+}
 
 ezBitflags<ezAssetDocumentFlags> ezTextureAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
 {

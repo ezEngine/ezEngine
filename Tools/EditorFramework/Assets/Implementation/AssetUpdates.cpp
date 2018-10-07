@@ -861,5 +861,6 @@ void ezUpdateTask::Execute()
 
   ezUInt64 uiAssetHash = 0;
   ezUInt64 uiThumbHash = 0;
-  ezAssetCurator::GetSingleton()->IsAssetUpToDate(assetGuid, nullptr, pTypeDescriptor, uiAssetHash, uiThumbHash);
+  ezAssetCurator::GetSingleton()->IsAssetUpToDate(assetGuid, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), pTypeDescriptor,
+                                                  uiAssetHash, uiThumbHash);
 }

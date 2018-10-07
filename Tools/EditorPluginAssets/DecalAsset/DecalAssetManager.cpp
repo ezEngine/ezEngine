@@ -93,6 +93,11 @@ void ezDecalAssetDocumentManager::InternalGetSupportedDocumentTypes(
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
 
+ezUInt64 ezDecalAssetDocumentManager::ComputeAssetProfileHashImpl(const ezAssetProfile* pAssetProfile) const
+{
+  // don't have any settings yet, but assets that generate profile specific output must not return 0 here
+  return 1;
+}
 
 ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezAssetProfile* pAssetProfile)
 {
@@ -236,7 +241,7 @@ bool ezDecalAssetDocumentManager::IsDecalTextureUpToDate(const char* szDecalFile
 
 ezString ezDecalAssetDocumentManager::GetDecalTexturePath(const ezAssetProfile* pAssetProfile0) const
 {
-  const ezAssetProfile* pAssetProfile = ezAssetDocumentManager::DetermineFinalTargetPlatform(pAssetProfile0);
+  const ezAssetProfile* pAssetProfile = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile0);
   ezStringBuilder result = "Decals";
   GenerateOutputFilename(result, pAssetProfile, "ezDecal", true);
 

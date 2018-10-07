@@ -24,7 +24,7 @@ private:
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override;
 
-  virtual bool GeneratesPlatformSpecificAssets() const override { return false; }
+  virtual bool GeneratesProfileSpecificAssets() const override { return false; }
 
 private:
   void SetupDefaultScene(ezDocument* pDocument);

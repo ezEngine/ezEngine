@@ -15,13 +15,11 @@ public:
 
   virtual ezString GetResourceTypeExtension() const override { return "ezFmodSoundBank"; }
 
-  virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
-  {
-    inout_AssetTypeNames.Insert("Sound Bank");
-  }
+  virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override { inout_AssetTypeNames.Insert("Sound Bank"); }
 
   virtual void FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezHybridArray<ezSubAssetData, 4>& out_SubAssets) const override;
-  virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezAssetProfile* pAssetProfile) const override;
+  virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory,
+                                      const ezAssetProfile* pAssetProfile) const override;
 
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
@@ -31,10 +29,11 @@ private:
                                           ezDocument*& out_pDocument) override;
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
-  virtual bool GeneratesPlatformSpecificAssets() const override { return true; }
+  virtual bool GeneratesProfileSpecificAssets() const override { return true; }
+
+  virtual ezUInt64 ComputeAssetProfileHashImpl(const ezAssetProfile* pAssetProfile) const override;
 
 private:
   ezDocumentTypeDescriptor m_AssetDesc;
   ezUniquePtr<ezSimpleFmod> m_Fmod;
 };
-

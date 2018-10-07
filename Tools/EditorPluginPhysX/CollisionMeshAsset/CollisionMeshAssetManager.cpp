@@ -68,3 +68,9 @@ ezCollisionMeshAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentT
   EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
   return ezAssetDocumentFlags::SupportsThumbnail;
 }
+
+ezUInt64 ezCollisionMeshAssetDocumentManager::ComputeAssetProfileHashImpl(const ezAssetProfile* pAssetProfile) const
+{
+  // don't have any settings yet, but assets that generate profile specific output must not return 0 here
+  return 1;
+}

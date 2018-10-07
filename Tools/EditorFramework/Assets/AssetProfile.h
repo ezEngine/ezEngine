@@ -17,16 +17,6 @@ public:
   virtual const char* GetDisplayName() const = 0;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezTextureAssetTypeProfileConfig : public ezAssetTypeProfileConfig
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezTextureAssetTypeProfileConfig, ezAssetTypeProfileConfig);
-
-public:
-  virtual const char* GetDisplayName() const override;
-
-  ezUInt16 m_uiMaxResolution = 1024 * 16;
-};
-
 struct ezAssetProfileTargetPlatform
 {
   enum Enum

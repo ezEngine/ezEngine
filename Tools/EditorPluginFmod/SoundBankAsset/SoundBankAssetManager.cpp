@@ -265,3 +265,9 @@ void ezSoundBankAssetDocumentManager::InternalGetSupportedDocumentTypes(
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
+
+ezUInt64 ezSoundBankAssetDocumentManager::ComputeAssetProfileHashImpl(const ezAssetProfile* pAssetProfile) const
+{
+  // don't have any settings yet, but assets that generate profile specific output must not return 0 here
+  return 1;
+}

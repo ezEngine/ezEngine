@@ -2,6 +2,7 @@
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/Assets/AssetProfile.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
@@ -37,10 +38,6 @@ ezAssetTypeProfileConfig::~ezAssetTypeProfileConfig() = default;
 ezAssetProfile::ezAssetProfile()
 {
   InitializeToDefault();
-}
-
-void func (int a = 1, int b = 2)
-{
 }
 
 ezAssetProfile::~ezAssetProfile()
@@ -99,25 +96,6 @@ ezAssetTypeProfileConfig* ezAssetProfile::GetTypeConfig(const ezRTTI* pRtti)
   }
 
   return nullptr;
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetTypeProfileConfig, 1, ezRTTIDefaultAllocator<ezTextureAssetTypeProfileConfig>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("MaxResolution", m_uiMaxResolution)->AddAttributes(new ezDefaultValueAttribute(16 * 1024)),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-const char* ezTextureAssetTypeProfileConfig::GetDisplayName() const
-{
-  return "2D Textures";
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -223,17 +201,20 @@ void ezAssetCurator::SetActiveAssetProfileByIndex(ezUInt32 index)
 
   m_uiActiveAssetProfile = index;
 
-  ezAssetCuratorEvent e;
-  e.m_Type = ezAssetCuratorEvent::Type::ActivePlatformChanged;
-
-  m_Events.Broadcast(e);
-
   CheckFileSystem();
 
-  ezSimpleConfigMsgToEngine msg;
-  msg.m_sWhatToDo = "ChangeActivePlatform";
-  msg.m_sPayload = GetActiveAssetProfile()->GetConfigName();
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  {
+    ezAssetCuratorEvent e;
+    e.m_Type = ezAssetCuratorEvent::Type::ActivePlatformChanged;
+    m_Events.Broadcast(e);
+  }
+
+  {
+    ezSimpleConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "ChangeActivePlatform";
+    msg.m_sPayload = GetActiveAssetProfile()->GetConfigName();
+    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  }
 }
 
 
@@ -318,5 +299,16 @@ void ezAssetCurator::SetupDefaultAssetProfiles()
     ezAssetProfile* pCfg = EZ_DEFAULT_NEW(ezAssetProfile);
     pCfg->m_sName = "PC";
     m_AssetProfiles.PushBack(pCfg);
+  }
+}
+
+void ezAssetCurator::ComputeAllDocumentManagerAssetProfileHashes()
+{
+  for (auto pMan : ezDocumentManager::GetAllDocumentManagers())
+  {
+    if (auto pAssMan = ezDynamicCast<ezAssetDocumentManager*>(pMan))
+    {
+      pAssMan->ComputeAssetProfileHash(GetActiveAssetProfile());
+    }
   }
 }

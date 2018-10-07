@@ -370,7 +370,6 @@ void ezAssetCurator::MainThreadTick()
   bReentry = false;
 }
 
-
 ////////////////////////////////////////////////////////////////////////
 // ezAssetCurator High Level Functions
 ////////////////////////////////////////////////////////////////////////
@@ -657,7 +656,12 @@ ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetG
                                                             ezUInt64& out_ThumbHash)
 {
   CURATOR_PROFILE("IsAssetUpToDate");
-  out_AssetHash = GetAssetDependencyHash(assetGuid);
+
+  ezAssetDocumentManager* pManager = static_cast<ezAssetDocumentManager*>(pTypeDescriptor->m_pManager);
+
+  const ezUInt64 uiProfileHash = pManager->GetAssetProfileHash();
+
+  out_AssetHash = GetAssetDependencyHash(assetGuid) + uiProfileHash;
   out_ThumbHash = GetAssetReferenceHash(assetGuid);
   if (out_AssetHash == 0)
   {
@@ -670,7 +674,6 @@ ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetG
     return ezAssetInfo::TransformState::MissingReference;
   }
 
-  ezAssetDocumentManager* pManager = static_cast<ezAssetDocumentManager*>(pTypeDescriptor->m_pManager);
   auto flags = pManager->GetAssetDocumentTypeFlags(pTypeDescriptor);
   ezString sAssetFile;
   ezSet<ezString> outputs;
@@ -841,6 +844,8 @@ void ezAssetCurator::CheckFileSystem()
 {
   EZ_PROFILE("CheckFileSystem");
   ezStopwatch sw;
+
+  ComputeAllDocumentManagerAssetProfileHashes();
 
   ezProgressRange* range = nullptr;
   if (ezThreadUtils::IsMainThread())

@@ -27,7 +27,7 @@ private:
                                           ezDocument*& out_pDocument) override;
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
-  virtual bool GeneratesPlatformSpecificAssets() const override { return false; }
+  virtual bool GeneratesProfileSpecificAssets() const override { return false; }
 
 private:
   ezDocumentTypeDescriptor m_AssetDesc;

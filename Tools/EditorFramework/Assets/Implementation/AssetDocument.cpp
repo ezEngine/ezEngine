@@ -304,7 +304,7 @@ ezStatus ezAssetDocument::DoTransformAsset(const ezAssetProfile* pAssetProfile0 
   if (flags.IsAnySet(ezAssetDocumentFlags::DisableTransform))
     return ezStatus("Asset transform has been disabled on this asset");
 
-  const ezAssetProfile* pAssetProfile = ezAssetDocumentManager::DetermineFinalTargetPlatform(pAssetProfile0);
+  const ezAssetProfile* pAssetProfile = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile0);
 
   ezUInt64 uiHash = 0;
   ezUInt64 uiThumbHash = 0;
@@ -387,7 +387,9 @@ ezStatus ezAssetDocument::CreateThumbnail()
 {
   ezUInt64 uiHash = 0;
   ezUInt64 uiThumbHash = 0;
-  if (ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), nullptr, GetDocumentTypeDescriptor(), uiHash, uiThumbHash) ==
+  if (ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), ezAssetCurator::GetSingleton()->GetActiveAssetProfile(),
+                                                      GetDocumentTypeDescriptor(), uiHash,
+                                                      uiThumbHash) ==
       ezAssetInfo::TransformState::UpToDate)
     return ezStatus(EZ_SUCCESS, "Transformed asset is already up to date");
 
