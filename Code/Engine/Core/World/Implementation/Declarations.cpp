@@ -30,8 +30,7 @@ namespace
       // Can't use ezGameObject::SendMessage because the object would immediately delete itself and furthermore the sender component needs to be filtered out here.
       ezMsgDeleteGameObject msg;
 
-      auto& components = pComponent->GetOwner()->GetComponents();
-      for (auto& pComp : components)
+      for (ezComponent* pComp : pComponent->GetOwner()->GetComponents())
       {
         if (pComp == pComponent)
           continue;
