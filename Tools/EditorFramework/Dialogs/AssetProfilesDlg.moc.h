@@ -47,6 +47,8 @@ private:
     ezAssetProfile* m_pProfile = nullptr;
   };
 
+  bool DetermineNewProfileName(QWidget* parent, ezString& result);
+  bool CheckProfileNameUniqueness(const char* szName);
   void AllAssetProfilesToObject();
   void PropertyChangedEventHandler(const ezDocumentObjectPropertyEvent& e);
   void ApplyAllChanges();

@@ -224,7 +224,7 @@ void ezQtAssetProfilesDlg::OnItemDoubleClicked(QModelIndex idx)
   Tree->model()->dataChanged(oldIdx, oldIdx, roles);
 }
 
-static bool CheckProfileNameUniqueness(const char* szName)
+bool ezQtAssetProfilesDlg::CheckProfileNameUniqueness(const char* szName)
 {
   if (ezStringUtils::IsNullOrEmpty(szName))
   {
@@ -238,18 +238,20 @@ static bool CheckProfileNameUniqueness(const char* szName)
     return false;
   }
 
-  // TODO: have to check dialog item list for uniqueness!
-
-  if (ezAssetCurator::GetSingleton()->FindAssetProfileByName(szName) != ezInvalidIndex)
+  const auto& objects = m_pDocument->GetObjectManager()->GetRootObject()->GetChildren();
+  for (const ezDocumentObject* pObject : objects)
   {
-    ezQtUiServices::GetSingleton()->MessageBoxInformation("A profile with this name already exists.");
-    return false;
+    if (pObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>().IsEqual_NoCase(szName))
+    {
+      ezQtUiServices::GetSingleton()->MessageBoxInformation("A profile with this name already exists.");
+      return false;
+    }
   }
 
   return true;
 }
 
-static bool DetermineNewProfileName(QWidget* parent, ezString& result)
+bool ezQtAssetProfilesDlg::DetermineNewProfileName(QWidget* parent, ezString& result)
 {
   while (true)
   {
@@ -271,8 +273,8 @@ void ezQtAssetProfilesDlg::on_AddButton_clicked()
     return;
 
   ezAssetProfile profile;
-  profile.InitializeToDefault();
   profile.m_sName = sProfileName;
+  profile.AddMissingConfigs();
 
   auto& binding = m_ProfileBindings[NativeToObject(&profile)];
   binding.m_pProfile = nullptr;

@@ -42,7 +42,7 @@ public:
 
   const char* GetConfigName() const { return m_sName; }
 
-  void InitializeToDefault();
+  void AddMissingConfigs();
   void Clear();
 
   template <typename TYPE>

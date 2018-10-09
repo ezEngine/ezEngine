@@ -467,3 +467,19 @@ bool ezToolsReflectionUtils::DependencySortTypeDescriptorArray(ezDynamicArray<ez
   descriptors = sorted;
   return true;
 }
+
+void ezToolsReflectionUtils::SetAllMemberPropertiesToDefault(const ezRTTI* pRtti, void* pObject)
+{
+  ezHybridArray<ezAbstractProperty*, 32> properties;
+  pRtti->GetAllProperties(properties);
+
+  for (ezAbstractProperty* pProp : properties)
+  {
+    if (pProp->GetCategory() == ezPropertyCategory::Member)
+    {
+      const ezVariant defValue = ezToolsReflectionUtils::GetDefaultValue(pProp);
+
+      ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pProp), pObject, defValue);
+    }
+  }
+}

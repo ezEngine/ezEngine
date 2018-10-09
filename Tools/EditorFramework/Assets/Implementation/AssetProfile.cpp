@@ -37,7 +37,7 @@ ezAssetTypeProfileConfig::~ezAssetTypeProfileConfig() = default;
 
 ezAssetProfile::ezAssetProfile()
 {
-  InitializeToDefault();
+  m_TargetPlatform = ezAssetProfileTargetPlatform::Default;
 }
 
 ezAssetProfile::~ezAssetProfile()
@@ -45,21 +45,38 @@ ezAssetProfile::~ezAssetProfile()
   Clear();
 }
 
-void ezAssetProfile::InitializeToDefault()
+void ezAssetProfile::AddMissingConfigs()
 {
-  Clear();
-
-  m_TargetPlatform = ezAssetProfileTargetPlatform::Default;
-
   for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
   {
+    // find all types derived from ezAssetTypeProfileConfig
     if (!pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract) && pRtti->IsDerivedFrom<ezAssetTypeProfileConfig>() &&
         pRtti->GetAllocator()->CanAllocate())
     {
-      m_TypeConfigs.PushBack(pRtti->GetAllocator()->Allocate<ezAssetTypeProfileConfig>());
+      bool bHasTypeAlready = false;
+
+      // check whether we already have an instance of this type
+      for (auto pType : m_TypeConfigs)
+      {
+        if (pType->GetDynamicRTTI() == pRtti)
+        {
+          bHasTypeAlready = true;
+          break;
+        }
+      }
+
+      if (!bHasTypeAlready)
+      {
+        // if not, allocate one
+        ezAssetTypeProfileConfig* pObject = pRtti->GetAllocator()->Allocate<ezAssetTypeProfileConfig>();
+        ezToolsReflectionUtils::SetAllMemberPropertiesToDefault(pRtti, pObject);
+
+        m_TypeConfigs.PushBack(pObject);
+      }
     }
   }
 
+  // sort all configs alphabetically
   m_TypeConfigs.Sort([](const ezAssetTypeProfileConfig* lhs, const ezAssetTypeProfileConfig* rhs) -> bool {
     return ezStringUtils::Compare(lhs->GetDisplayName(), rhs->GetDisplayName()) < 0;
   });
@@ -274,7 +291,11 @@ ezResult ezAssetCurator::LoadAssetProfiles()
       const ezRTTI* pRtti = nullptr;
       void* pConfigObj = ezReflectionSerializer::ReadObjectFromDDL(pChild, pRtti);
 
-      m_AssetProfiles.PushBack(static_cast<ezAssetProfile*>(pConfigObj));
+      auto pProfile = static_cast<ezAssetProfile*>(pConfigObj);
+
+      pProfile->AddMissingConfigs();
+
+      m_AssetProfiles.PushBack(pProfile);
     }
   }
 
@@ -298,6 +319,7 @@ void ezAssetCurator::SetupDefaultAssetProfiles()
   {
     ezAssetProfile* pCfg = EZ_DEFAULT_NEW(ezAssetProfile);
     pCfg->m_sName = "PC";
+    pCfg->AddMissingConfigs();
     m_AssetProfiles.PushBack(pCfg);
   }
 }
