@@ -19,11 +19,11 @@ public:
 
   virtual void FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezHybridArray<ezSubAssetData, 4>& out_SubAssets) const override;
   virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory,
-                                      const ezAssetProfile* pAssetProfile) const override;
+                                      const ezPlatformProfile* pAssetProfile) const override;
 
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
-  ezString GetSoundBankAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezAssetProfile* pAssetProfile) const;
+  ezString GetSoundBankAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const;
 
   virtual ezStatus InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument,
                                           ezDocument*& out_pDocument) override;
@@ -31,7 +31,7 @@ private:
 
   virtual bool GeneratesProfileSpecificAssets() const override { return true; }
 
-  virtual ezUInt64 ComputeAssetProfileHashImpl(const ezAssetProfile* pAssetProfile) const override;
+  virtual ezUInt64 ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const override;
 
 private:
   ezDocumentTypeDescriptor m_AssetDesc;

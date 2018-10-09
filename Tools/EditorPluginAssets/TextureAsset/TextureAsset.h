@@ -4,7 +4,7 @@
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 
-class ezTextureAssetTypeProfileConfig;
+class ezTextureAssetProfileConfig;
 
 struct ezTextureChannelMode
 {
@@ -42,11 +42,11 @@ public:
 
 protected:
   virtual void InitializeAfterLoading() override;
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override { return ezStatus(EZ_SUCCESS); }
-  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezAssetProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override { return ezStatus(EZ_SUCCESS); }
+  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
 
   ezStatus RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail,
-                      const ezTextureAssetTypeProfileConfig* pAssetConfig);
+                      const ezTextureAssetProfileConfig* pAssetConfig);
 
 
 };

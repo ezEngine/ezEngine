@@ -620,7 +620,7 @@ public:
 };
 
 ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag,
-                                                         const ezAssetProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
+                                                         const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
                                                          bool bTriggeredManually)
 {
   if (ezStringUtils::IsEqual(szOutputTag, ezMaterialAssetDocumentManager::s_szShaderOutputTag))
@@ -714,7 +714,7 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFil
 }
 
 ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
-                                                         const ezAssetProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
+                                                         const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
                                                          bool bTriggeredManually)
 {
   EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szOutputTag), "Additional output '{0}' not implemented!", szOutputTag);
@@ -792,7 +792,7 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
   }
 }
 
-ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, const ezAssetProfile* pAssetProfile,
+ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, const ezPlatformProfile* pAssetProfile,
                                                      bool bEmbedLowResData) const
 {
   const ezMaterialAssetProperties* pProp = GetProperties();
@@ -981,7 +981,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, con
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezMaterialAssetDocument::TagVisualShaderFileInvalid(const ezAssetProfile* pAssetProfile, const char* szError)
+void ezMaterialAssetDocument::TagVisualShaderFileInvalid(const ezPlatformProfile* pAssetProfile, const char* szError)
 {
   if (GetProperties()->m_ShaderMode != ezMaterialShaderMode::Custom)
     return;

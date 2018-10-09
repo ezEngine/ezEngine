@@ -41,7 +41,7 @@ ezMaterialAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDe
 
 
 ezString ezMaterialAssetDocumentManager::GetRelativeOutputFileName(const char* szDataDirectory, const char* szDocumentPath,
-                                                                   const char* szOutputTag, const ezAssetProfile* pAssetProfile) const
+                                                                   const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const
 {
   if (ezStringUtils::IsEqual(szOutputTag, s_szShaderOutputTag))
   {

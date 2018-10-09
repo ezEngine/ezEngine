@@ -1,7 +1,6 @@
 #include <PCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/Assets/AssetProfile.h>
 #include <EditorFramework/Dialogs/AssetProfilesDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
@@ -9,6 +8,7 @@
 #include <EditorFramework/Preferences/ProjectPreferences.h>
 #include <Foundation/Serialization/BinarySerializer.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
+#include <GameEngine/Configuration/PlatformProfile.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
@@ -17,7 +17,7 @@ class ezAssetProfilesObjectManager : public ezDocumentObjectManager
 public:
   virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override
   {
-    Types.PushBack(ezGetStaticRTTI<ezAssetProfile>());
+    Types.PushBack(ezGetStaticRTTI<ezPlatformProfile>());
   }
 };
 
@@ -54,10 +54,13 @@ public:
 
         switch (iPlatform)
         {
-          case ezAssetProfileTargetPlatform::PC:
+          case ezProfileTargetPlatform::PC:
             return ezQtUiServices::GetSingleton()->GetCachedIconResource(":EditorFramework/Icons/PlatformWindows16.png");
 
-          case ezAssetProfileTargetPlatform::Android:
+          case ezProfileTargetPlatform::UWP:
+            return ezQtUiServices::GetSingleton()->GetCachedIconResource(":EditorFramework/Icons/PlatformWindows16.png"); // TODO: icon
+
+          case ezProfileTargetPlatform::Android:
             return ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/PlatformAndroid16.png");
         }
       }
@@ -103,7 +106,7 @@ ezQtAssetProfilesDlg::ezQtAssetProfilesDlg(QWidget* parent)
 
   std::unique_ptr<ezQtDocumentTreeModel> pModel(new ezQtDocumentTreeModel(m_pDocument->GetObjectManager()));
   pModel->AddAdapter(new ezQtDummyAdapter(m_pDocument->GetObjectManager(), ezGetStaticRTTI<ezDocumentRoot>(), "Children"));
-  pModel->AddAdapter(new ezQtAssetConfigAdapter(this, m_pDocument->GetObjectManager(), ezAssetProfile::GetStaticRTTI()));
+  pModel->AddAdapter(new ezQtAssetConfigAdapter(this, m_pDocument->GetObjectManager(), ezPlatformProfile::GetStaticRTTI()));
 
   Tree->Initialize(m_pDocument, std::move(pModel));
   Tree->SetAllowDragDrop(false);
@@ -136,7 +139,7 @@ ezQtAssetProfilesDlg::~ezQtAssetProfilesDlg()
   EZ_DEFAULT_DELETE(m_pDocument);
 }
 
-ezUuid ezQtAssetProfilesDlg::NativeToObject(ezAssetProfile* pProfile)
+ezUuid ezQtAssetProfilesDlg::NativeToObject(ezPlatformProfile* pProfile)
 {
   const ezRTTI* pType = pProfile->GetDynamicRTTI();
   // Write properties to graph.
@@ -161,7 +164,7 @@ ezUuid ezQtAssetProfilesDlg::NativeToObject(ezAssetProfile* pProfile)
   return pObject->GetGuid();
 }
 
-void ezQtAssetProfilesDlg::ObjectToNative(ezUuid objectGuid, ezAssetProfile* pProfile)
+void ezQtAssetProfilesDlg::ObjectToNative(ezUuid objectGuid, ezPlatformProfile* pProfile)
 {
   ezDocumentObject* pObject = m_pDocument->GetObjectManager()->GetObject(objectGuid);
   const ezRTTI* pType = pObject->GetTypeAccessor().GetType();
@@ -198,6 +201,19 @@ void ezQtAssetProfilesDlg::SelectionEventHandler(const ezSelectionManagerEvent& 
 void ezQtAssetProfilesDlg::on_ButtonOk_clicked()
 {
   ApplyAllChanges();
+
+  // SaveAssetProfileRuntimeConfig
+  for (ezUInt32 i = 0; i < ezAssetCurator::GetSingleton()->GetNumAssetProfiles(); ++i)
+  {
+    ezStringBuilder sProfileRuntimeDataFile;
+
+    ezPlatformProfile* pProfile = ezAssetCurator::GetSingleton()->GetAssetProfile(i);
+
+    sProfileRuntimeDataFile.Set(":project/RuntimeConfigs/", pProfile->GetConfigName(), ".ezProfile");
+
+    pProfile->SaveForRuntime(sProfileRuntimeDataFile);
+  }
+
   accept();
 
   ezAssetCurator::GetSingleton()->SaveAssetProfiles();
@@ -266,15 +282,17 @@ bool ezQtAssetProfilesDlg::DetermineNewProfileName(QWidget* parent, ezString& re
   }
 }
 
+void AddMissingConfigs(ezPlatformProfile* pProfile);
+
 void ezQtAssetProfilesDlg::on_AddButton_clicked()
 {
   ezString sProfileName;
   if (!DetermineNewProfileName(this, sProfileName))
     return;
 
-  ezAssetProfile profile;
+  ezPlatformProfile profile;
   profile.m_sName = sProfileName;
-  profile.AddMissingConfigs();
+  AddMissingConfigs(&profile);
 
   auto& binding = m_ProfileBindings[NativeToObject(&profile)];
   binding.m_pProfile = nullptr;
@@ -373,7 +391,7 @@ void ezQtAssetProfilesDlg::ApplyAllChanges()
   {
     const auto& binding = it.Value();
 
-    ezAssetProfile* pProfile = binding.m_pProfile;
+    ezPlatformProfile* pProfile = binding.m_pProfile;
 
     if (binding.m_State == Binding::State::Deleted)
     {

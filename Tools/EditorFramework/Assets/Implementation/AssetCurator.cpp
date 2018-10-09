@@ -374,7 +374,7 @@ void ezAssetCurator::MainThreadTick()
 // ezAssetCurator High Level Functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezAssetCurator::TransformAllAssets(const ezAssetProfile* pAssetProfile)
+void ezAssetCurator::TransformAllAssets(const ezPlatformProfile* pAssetProfile)
 {
   ezUInt32 uiNumStepsLeft = m_KnownAssets.GetCount();
   ezProgressRange range("Transforming Assets", 1 + uiNumStepsLeft, true);
@@ -478,7 +478,7 @@ void ezAssetCurator::ResaveAllAssets()
   }
 }
 
-ezStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, bool bTriggeredManually, const ezAssetProfile* pAssetProfile)
+ezStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, bool bTriggeredManually, const ezPlatformProfile* pAssetProfile)
 {
   EZ_LOCK(m_CuratorMutex);
 
@@ -503,7 +503,7 @@ ezStatus ezAssetCurator::CreateThumbnail(const ezUuid& assetGuid)
   return ProcessAsset(pInfo, nullptr, false);
 }
 
-ezResult ezAssetCurator::WriteAssetTables(const ezAssetProfile* pAssetProfile /* = nullptr*/)
+ezResult ezAssetCurator::WriteAssetTables(const ezPlatformProfile* pAssetProfile /* = nullptr*/)
 {
   EZ_LOG_BLOCK("ezAssetCurator::WriteAssetTables");
 
@@ -651,7 +651,7 @@ ezUInt64 ezAssetCurator::GetAssetReferenceHash(ezUuid assetGuid)
   return GetAssetHash(assetGuid, true);
 }
 
-ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const ezAssetProfile* pAssetProfile,
+ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile* pAssetProfile,
                                                             const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash,
                                                             ezUInt64& out_ThumbHash)
 {
@@ -894,7 +894,7 @@ void ezAssetCurator::CheckFileSystem()
 // ezAssetCurator Processing
 ////////////////////////////////////////////////////////////////////////
 
-ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezAssetProfile* pAssetProfile, bool bTriggeredManually)
+ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformProfile* pAssetProfile, bool bTriggeredManually)
 {
 
   for (const auto& dep : pAssetInfo->m_Info->m_AssetTransformDependencies)
@@ -1165,9 +1165,9 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath, const ezSet
   EnsureAssetInfoUpdated(sAbsolutePath);
 }
 
-ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const ezAssetProfile* pAssetProfile0 /*= nullptr*/)
+ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile0 /*= nullptr*/)
 {
-  const ezAssetProfile* pAssetProfile = pAssetProfile0;
+  const ezPlatformProfile* pAssetProfile = pAssetProfile0;
 
   if (pAssetProfile == nullptr)
   {
@@ -1261,7 +1261,7 @@ void ezAssetCurator::ProcessAllCoreAssets()
 
   // The 'Core Assets' are always transformed for the PC platform,
   // as they are needed to run the editor properly
-  const ezAssetProfile* pAssetProfile = GetDevelopmentAssetProfile();
+  const ezPlatformProfile* pAssetProfile = GetDevelopmentAssetProfile();
 
   for (const auto& dd : m_FileSystemConfig.m_DataDirs)
   {

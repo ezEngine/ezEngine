@@ -3,7 +3,7 @@
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <Foundation/Types/Status.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
-#include <EditorFramework/Assets/AssetProfile.h>
+#include <GameEngine/Configuration/PlatformProfile.h>
 
 class ezSceneDocumentManager : public ezAssetDocumentManager
 {
@@ -34,19 +34,3 @@ private:
   ezDocumentTypeDescriptor m_PrefabDesc;
 };
 
-//////////////////////////////////////////////////////////////////////////
-
-class ezProjectPipelineProfileConfig : public ezAssetTypeProfileConfig
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezProjectPipelineProfileConfig, ezAssetTypeProfileConfig);
-
-public:
-  virtual const char* GetDisplayName() const override { return "Render Pipelines"; }
-
-  ezString m_sMainRenderPipeline;
-  ezString m_sEditorRenderPipeline;
-  ezString m_sDebugRenderPipeline;
-  ezString m_sShadowMapRenderPipeline;
-
-  ezMap<ezString, ezString> m_CameraPipelines;
-};

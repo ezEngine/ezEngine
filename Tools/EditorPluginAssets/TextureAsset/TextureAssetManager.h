@@ -1,16 +1,14 @@
 #pragma once
 
 #include <EditorFramework/Assets/AssetDocumentManager.h>
-#include <EditorFramework/Assets/AssetProfile.h>
+#include <GameEngine/Configuration/PlatformProfile.h>
 #include <Foundation/Types/Status.h>
 
-class ezTextureAssetTypeProfileConfig : public ezAssetTypeProfileConfig
+class ezTextureAssetProfileConfig : public ezProfileConfigData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTextureAssetTypeProfileConfig, ezAssetTypeProfileConfig);
+  EZ_ADD_DYNAMIC_REFLECTION(ezTextureAssetProfileConfig, ezProfileConfigData);
 
 public:
-  virtual const char* GetDisplayName() const override;
-
   ezUInt16 m_uiMaxResolution = 1024 * 16;
 };
 
@@ -37,7 +35,7 @@ public:
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
 
-  virtual ezUInt64 ComputeAssetProfileHashImpl(const ezAssetProfile* pAssetProfile) const override;
+  virtual ezUInt64 ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const override;
 
   virtual ezStatus InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument,
                                           ezDocument*& out_pDocument) override;

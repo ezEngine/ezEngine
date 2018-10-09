@@ -8,7 +8,7 @@
 #include <QDialog>
 
 class ezAssetProfilesDocument;
-class ezAssetProfile;
+class ezPlatformProfile;
 class ezQtDocumentTreeView;
 class ezDocument;
 struct ezDocumentObjectPropertyEvent;
@@ -44,7 +44,7 @@ private:
     };
 
     State m_State = State::None;
-    ezAssetProfile* m_pProfile = nullptr;
+    ezPlatformProfile* m_pProfile = nullptr;
   };
 
   bool DetermineNewProfileName(QWidget* parent, ezString& result);
@@ -52,8 +52,8 @@ private:
   void AllAssetProfilesToObject();
   void PropertyChangedEventHandler(const ezDocumentObjectPropertyEvent& e);
   void ApplyAllChanges();
-  ezUuid NativeToObject(ezAssetProfile* pProfile);
-  void ObjectToNative(ezUuid objectGuid, ezAssetProfile* pProfile);
+  ezUuid NativeToObject(ezPlatformProfile* pProfile);
+  void ObjectToNative(ezUuid objectGuid, ezPlatformProfile* pProfile);
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
 
   ezAssetProfilesDocument* m_pDocument;

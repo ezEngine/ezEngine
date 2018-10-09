@@ -3,127 +3,21 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
-#include <EditorFramework/Assets/AssetProfile.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetTypeProfileConfig, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezAssetProfileTargetPlatform, 1)
-  EZ_ENUM_CONSTANTS(ezAssetProfileTargetPlatform::PC, ezAssetProfileTargetPlatform::Android)
-EZ_END_STATIC_REFLECTED_ENUM;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetProfile, 1, ezRTTIDefaultAllocator<ezAssetProfile>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Name", m_sName)->AddAttributes(new ezHiddenAttribute()),
-    EZ_ENUM_MEMBER_PROPERTY("Platform", ezAssetProfileTargetPlatform, m_TargetPlatform),
-    EZ_ARRAY_MEMBER_PROPERTY("AssetTypeConfigs", m_TypeConfigs)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezContainerAttribute(false, false, false)),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-ezAssetTypeProfileConfig::ezAssetTypeProfileConfig() = default;
-ezAssetTypeProfileConfig::~ezAssetTypeProfileConfig() = default;
-
-ezAssetProfile::ezAssetProfile()
-{
-  m_TargetPlatform = ezAssetProfileTargetPlatform::Default;
-}
-
-ezAssetProfile::~ezAssetProfile()
-{
-  Clear();
-}
-
-void ezAssetProfile::AddMissingConfigs()
-{
-  for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-  {
-    // find all types derived from ezAssetTypeProfileConfig
-    if (!pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract) && pRtti->IsDerivedFrom<ezAssetTypeProfileConfig>() &&
-        pRtti->GetAllocator()->CanAllocate())
-    {
-      bool bHasTypeAlready = false;
-
-      // check whether we already have an instance of this type
-      for (auto pType : m_TypeConfigs)
-      {
-        if (pType->GetDynamicRTTI() == pRtti)
-        {
-          bHasTypeAlready = true;
-          break;
-        }
-      }
-
-      if (!bHasTypeAlready)
-      {
-        // if not, allocate one
-        ezAssetTypeProfileConfig* pObject = pRtti->GetAllocator()->Allocate<ezAssetTypeProfileConfig>();
-        ezToolsReflectionUtils::SetAllMemberPropertiesToDefault(pRtti, pObject);
-
-        m_TypeConfigs.PushBack(pObject);
-      }
-    }
-  }
-
-  // sort all configs alphabetically
-  m_TypeConfigs.Sort([](const ezAssetTypeProfileConfig* lhs, const ezAssetTypeProfileConfig* rhs) -> bool {
-    return ezStringUtils::Compare(lhs->GetDisplayName(), rhs->GetDisplayName()) < 0;
-  });
-}
-
-void ezAssetProfile::Clear()
-{
-  for (auto pType : m_TypeConfigs)
-  {
-    pType->GetDynamicRTTI()->GetAllocator()->Deallocate(pType);
-  }
-
-  m_TypeConfigs.Clear();
-}
+#include <GameEngine/Configuration/PlatformProfile.h>
 
 
-const ezAssetTypeProfileConfig* ezAssetProfile::GetTypeConfig(const ezRTTI* pRtti) const
-{
-  for (const auto* pConfig : m_TypeConfigs)
-  {
-    if (pConfig->GetDynamicRTTI() == pRtti)
-      return pConfig;
-  }
-
-  return nullptr;
-}
-
-ezAssetTypeProfileConfig* ezAssetProfile::GetTypeConfig(const ezRTTI* pRtti)
-{
-  for (auto* pConfig : m_TypeConfigs)
-  {
-    if (pConfig->GetDynamicRTTI() == pRtti)
-      return pConfig;
-  }
-
-  return nullptr;
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-
-const ezAssetProfile* ezAssetCurator::GetDevelopmentAssetProfile() const
+const ezPlatformProfile* ezAssetCurator::GetDevelopmentAssetProfile() const
 {
   return m_AssetProfiles[0];
 }
 
-const ezAssetProfile* ezAssetCurator::GetActiveAssetProfile() const
+const ezPlatformProfile* ezAssetCurator::GetActiveAssetProfile() const
 {
   return m_AssetProfiles[m_uiActiveAssetProfile];
 }
@@ -155,7 +49,7 @@ ezUInt32 ezAssetCurator::GetNumAssetProfiles() const
   return m_AssetProfiles.GetCount();
 }
 
-const ezAssetProfile* ezAssetCurator::GetAssetProfile(ezUInt32 index) const
+const ezPlatformProfile* ezAssetCurator::GetAssetProfile(ezUInt32 index) const
 {
   if (index >= m_AssetProfiles.GetCount())
     return m_AssetProfiles[0]; // fall back to default platform
@@ -163,7 +57,7 @@ const ezAssetProfile* ezAssetCurator::GetAssetProfile(ezUInt32 index) const
   return m_AssetProfiles[index];
 }
 
-ezAssetProfile* ezAssetCurator::GetAssetProfile(ezUInt32 index)
+ezPlatformProfile* ezAssetCurator::GetAssetProfile(ezUInt32 index)
 {
   if (index >= m_AssetProfiles.GetCount())
     return m_AssetProfiles[0]; // fall back to default platform
@@ -171,15 +65,15 @@ ezAssetProfile* ezAssetCurator::GetAssetProfile(ezUInt32 index)
   return m_AssetProfiles[index];
 }
 
-ezAssetProfile* ezAssetCurator::CreateAssetProfile()
+ezPlatformProfile* ezAssetCurator::CreateAssetProfile()
 {
-  ezAssetProfile* pProfile = EZ_DEFAULT_NEW(ezAssetProfile);
+  ezPlatformProfile* pProfile = EZ_DEFAULT_NEW(ezPlatformProfile);
   m_AssetProfiles.PushBack(pProfile);
 
   return pProfile;
 }
 
-ezResult ezAssetCurator::DeleteAssetProfile(ezAssetProfile* pProfile)
+ezResult ezAssetCurator::DeleteAssetProfile(ezPlatformProfile* pProfile)
 {
   if (m_AssetProfiles.GetCount() <= 1)
     return EZ_FAILURE;
@@ -262,9 +156,46 @@ ezResult ezAssetCurator::SaveAssetProfiles()
   return file.Close();
 }
 
+void AddMissingConfigs(ezPlatformProfile* pProfile)
+{
+  for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+  {
+    // find all types derived from ezProfileConfigData
+    if (!pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract) && pRtti->IsDerivedFrom<ezProfileConfigData>() &&
+        pRtti->GetAllocator()->CanAllocate())
+    {
+      bool bHasTypeAlready = false;
+
+      // check whether we already have an instance of this type
+      for (auto pType : pProfile->m_Configs)
+      {
+        if (pType->GetDynamicRTTI() == pRtti)
+        {
+          bHasTypeAlready = true;
+          break;
+        }
+      }
+
+      if (!bHasTypeAlready)
+      {
+        // if not, allocate one
+        ezProfileConfigData* pObject = pRtti->GetAllocator()->Allocate<ezProfileConfigData>();
+        ezToolsReflectionUtils::SetAllMemberPropertiesToDefault(pRtti, pObject);
+
+        pProfile->m_Configs.PushBack(pObject);
+      }
+    }
+  }
+
+  // sort all configs alphabetically
+  pProfile->m_Configs.Sort([](const ezProfileConfigData* lhs, const ezProfileConfigData* rhs) -> bool {
+    return ezStringUtils::Compare(lhs->GetDynamicRTTI()->GetTypeName(), rhs->GetDynamicRTTI()->GetTypeName()) < 0;
+  });
+}
+
 ezResult ezAssetCurator::LoadAssetProfiles()
 {
-  EZ_LOG_BLOCK("LoadAssetProfiles", ":project/Editor/AssetProfiles.ddl");
+  EZ_LOG_BLOCK("LoadAssetProfiles", ":project/Editor/PlatformProfiles.ddl");
 
   ezFileReader file;
   if (file.Open(":project/Editor/AssetProfiles.ddl").Failed())
@@ -291,9 +222,9 @@ ezResult ezAssetCurator::LoadAssetProfiles()
       const ezRTTI* pRtti = nullptr;
       void* pConfigObj = ezReflectionSerializer::ReadObjectFromDDL(pChild, pRtti);
 
-      auto pProfile = static_cast<ezAssetProfile*>(pConfigObj);
+      auto pProfile = static_cast<ezPlatformProfile*>(pConfigObj);
 
-      pProfile->AddMissingConfigs();
+      AddMissingConfigs(pProfile);
 
       m_AssetProfiles.PushBack(pProfile);
     }
@@ -317,9 +248,9 @@ void ezAssetCurator::SetupDefaultAssetProfiles()
   ClearAssetProfiles();
 
   {
-    ezAssetProfile* pCfg = EZ_DEFAULT_NEW(ezAssetProfile);
+    ezPlatformProfile* pCfg = EZ_DEFAULT_NEW(ezPlatformProfile);
     pCfg->m_sName = "PC";
-    pCfg->AddMissingConfigs();
+    AddMissingConfigs(pCfg);
     m_AssetProfiles.PushBack(pCfg);
   }
 }

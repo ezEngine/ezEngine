@@ -4,6 +4,7 @@
 #include <EditorPluginScene/Scene/SceneDocumentManager.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
+#include <Foundation/IO/ChunkStream.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentManager, 1, ezRTTIDefaultAllocator<ezSceneDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -289,25 +290,3 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
   history->FinishTransaction();
 }
 
-//////////////////////////////////////////////////////////////////////////
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectPipelineProfileConfig, 1, ezRTTIDefaultAllocator<ezProjectPipelineProfileConfig>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    // MainRenderPipeline.ezRenderPipelineAsset
-    EZ_MEMBER_PROPERTY("MainRenderPipeline", m_sMainRenderPipeline)->AddAttributes(new ezAssetBrowserAttribute("RenderPipeline"), new ezDefaultValueAttribute(ezStringView("{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }"))),
-    // EditorRenderPipeline.ezRenderPipelineAsset
-    EZ_MEMBER_PROPERTY("EditorRenderPipeline", m_sEditorRenderPipeline)->AddAttributes(new ezAssetBrowserAttribute("RenderPipeline"), new ezDefaultValueAttribute(ezStringView("{ da463c4d-c984-4910-b0b7-a0b3891d0448 }"))),
-    // DebugRenderPipeline.ezRenderPipelineAsset
-    EZ_MEMBER_PROPERTY("DebugRenderPipeline", m_sDebugRenderPipeline)->AddAttributes(new ezAssetBrowserAttribute("RenderPipeline"), new ezDefaultValueAttribute(ezStringView("{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }"))),
-    // ShadowMapRenderPipeline.ezRenderPipelineAsset
-    EZ_MEMBER_PROPERTY("ShadowMapRenderPipeline", m_sShadowMapRenderPipeline)->AddAttributes(new ezAssetBrowserAttribute("RenderPipeline"), new ezDefaultValueAttribute(ezStringView("{ 4f4d9f16-3d47-4c67-b821-a778f11dcaf5 }"))),
-
-    EZ_MAP_MEMBER_PROPERTY("CameraPipelines", m_CameraPipelines)->AddAttributes(new ezAssetBrowserAttribute("RenderPipeline")),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on

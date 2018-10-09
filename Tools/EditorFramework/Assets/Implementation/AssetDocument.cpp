@@ -297,14 +297,14 @@ void ezAssetDocument::GetChildHash(const ezDocumentObject* pObject, ezUInt64& ui
   }
 }
 
-ezStatus ezAssetDocument::DoTransformAsset(const ezAssetProfile* pAssetProfile0 /*= nullptr*/, bool bTriggeredManually)
+ezStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfile0 /*= nullptr*/, bool bTriggeredManually)
 {
   const auto flags = GetAssetFlags();
 
   if (flags.IsAnySet(ezAssetDocumentFlags::DisableTransform))
     return ezStatus("Asset transform has been disabled on this asset");
 
-  const ezAssetProfile* pAssetProfile = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile0);
+  const ezPlatformProfile* pAssetProfile = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile0);
 
   ezUInt64 uiHash = 0;
   ezUInt64 uiThumbHash = 0;
@@ -352,7 +352,7 @@ ezStatus ezAssetDocument::DoTransformAsset(const ezAssetProfile* pAssetProfile0 
   }
 }
 
-ezStatus ezAssetDocument::TransformAsset(bool bTriggeredManually, const ezAssetProfile* pAssetProfile)
+ezStatus ezAssetDocument::TransformAsset(bool bTriggeredManually, const ezPlatformProfile* pAssetProfile)
 {
   EZ_PROFILE("TransformAsset");
   if (!bTriggeredManually)
@@ -407,7 +407,7 @@ ezStatus ezAssetDocument::CreateThumbnail()
   }
 }
 
-ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezAssetProfile* pAssetProfile,
+ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
                                                  const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   ezDeferredFileWriter file;

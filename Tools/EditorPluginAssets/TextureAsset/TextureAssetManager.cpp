@@ -9,7 +9,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetTypeProfileConfig, 1, ezRTTIDefaultAllocator<ezTextureAssetTypeProfileConfig>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProfileConfig, 1, ezRTTIDefaultAllocator<ezTextureAssetProfileConfig>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -22,11 +22,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezTextureAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
-
-const char* ezTextureAssetTypeProfileConfig::GetDisplayName() const
-{
-  return "2D Textures";
-}
 
 ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
 {
@@ -62,9 +57,9 @@ ezTextureAssetDocumentManager::~ezTextureAssetDocumentManager()
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezTextureAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-ezUInt64 ezTextureAssetDocumentManager::ComputeAssetProfileHashImpl(const ezAssetProfile* pAssetProfile) const
+ezUInt64 ezTextureAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const
 {
-  return pAssetProfile->GetTypeConfig<ezTextureAssetTypeProfileConfig>()->m_uiMaxResolution;
+  return pAssetProfile->GetTypeConfig<ezTextureAssetProfileConfig>()->m_uiMaxResolution;
 }
 
 ezBitflags<ezAssetDocumentFlags> ezTextureAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const

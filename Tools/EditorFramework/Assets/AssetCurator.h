@@ -2,7 +2,7 @@
 
 #include <Core/Application/Config/FileSystemConfig.h>
 #include <EditorFramework/Assets/AssetDocumentInfo.h>
-#include <EditorFramework/Assets/AssetProfile.h>
+#include <GameEngine/Configuration/PlatformProfile.h>
 #include <EditorFramework/Assets/Declarations.h>
 #include <EditorFramework/Plugin.h>
 #include <Foundation/Algorithm/HashHelperString.h>
@@ -165,10 +165,10 @@ public:
   /// \brief The main platform on which development happens. E.g. "PC".
   ///
   /// TODO: review this concept
-  const ezAssetProfile* GetDevelopmentAssetProfile() const;
+  const ezPlatformProfile* GetDevelopmentAssetProfile() const;
 
   /// \brief The currently active target platform for asset processing.
-  const ezAssetProfile* GetActiveAssetProfile() const;
+  const ezPlatformProfile* GetActiveAssetProfile() const;
 
   /// \brief Returns the index of the currently active asset platform configuration
   ezUInt32 GetActiveAssetProfileIndex() const;
@@ -179,19 +179,19 @@ public:
   ezUInt32 GetNumAssetProfiles() const;
 
   /// \brief Always returns a valid config. E.g. even if ezInvalidIndex is passed in, it will fall back to the default config (at index 0).
-  const ezAssetProfile* GetAssetProfile(ezUInt32 index) const;
+  const ezPlatformProfile* GetAssetProfile(ezUInt32 index) const;
 
   /// \brief Always returns a valid config. E.g. even if ezInvalidIndex is passed in, it will fall back to the default config (at index 0).
-  ezAssetProfile* GetAssetProfile(ezUInt32 index);
+  ezPlatformProfile* GetAssetProfile(ezUInt32 index);
 
   /// \brief Adds a new profile. The name should be set afterwards to a unique name.
-  ezAssetProfile* CreateAssetProfile();
+  ezPlatformProfile* CreateAssetProfile();
 
   /// \brief Deletes the given asset profile, if possible.
   ///
   /// The function fails when the given profile is the main profile (at index 0),
   /// or it is the currently active profile.
-  ezResult DeleteAssetProfile(ezAssetProfile* pProfile);
+  ezResult DeleteAssetProfile(ezPlatformProfile* pProfile);
 
   /// \brief Switches the currently active asset target platform.
   ///
@@ -207,7 +207,7 @@ private:
   ezResult LoadAssetProfiles();
   void ComputeAllDocumentManagerAssetProfileHashes();
 
-  ezHybridArray<ezAssetProfile*, 8> m_AssetProfiles;
+  ezHybridArray<ezPlatformProfile*, 8> m_AssetProfiles;
 
   ///@}
   /// \name High Level Functions
@@ -216,13 +216,13 @@ private:
 public:
 
   /// \brief Transforms all assets and writes the lookup tables. If the given platform is empty, the active platform is used.
-  void TransformAllAssets(const ezAssetProfile* pAssetProfile = nullptr);
+  void TransformAllAssets(const ezPlatformProfile* pAssetProfile = nullptr);
   void ResaveAllAssets();
-  ezStatus TransformAsset(const ezUuid& assetGuid, bool bTriggeredManually, const ezAssetProfile* pAssetProfile = nullptr);
+  ezStatus TransformAsset(const ezUuid& assetGuid, bool bTriggeredManually, const ezPlatformProfile* pAssetProfile = nullptr);
   ezStatus CreateThumbnail(const ezUuid& assetGuid);
 
   /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.
-  ezResult WriteAssetTables(const ezAssetProfile* pAssetProfile = nullptr);
+  ezResult WriteAssetTables(const ezPlatformProfile* pAssetProfile = nullptr);
 
   ///@}
   /// \name Asset Access
@@ -249,7 +249,7 @@ public:
   /// \brief Computes the combined hash for the asset and its references. Returns 0 if anything went wrong.
   ezUInt64 GetAssetReferenceHash(ezUuid assetGuid);
 
-  ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const ezAssetProfile* pAssetProfile,
+  ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile* pAssetProfile,
                                               const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash,
                                               ezUInt64& out_ThumbHash);
   /// \brief Returns the number of assets in the system and how many are in what transform state
@@ -291,7 +291,7 @@ private:
   /// \name Processing
   ///@{
 
-  ezStatus ProcessAsset(ezAssetInfo* pAssetInfo, const ezAssetProfile* pAssetProfile, bool bTriggeredManually);
+  ezStatus ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformProfile* pAssetProfile, bool bTriggeredManually);
   ezStatus ResaveAsset(ezAssetInfo* pAssetInfo);
   /// \brief Returns the asset info for the asset with the given GUID or nullptr if no such asset exists.
   ezAssetInfo* GetAssetInfo(const ezUuid& assetGuid);
@@ -303,7 +303,7 @@ private:
   void HandleSingleFile(const ezString& sAbsolutePath);
   void HandleSingleFile(const ezString& sAbsolutePath, const ezSet<ezString>& validExtensions, const ezFileStats& FileStat);
   /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.
-  ezResult WriteAssetTable(const char* szDataDirectory, const ezAssetProfile* pAssetProfile = nullptr);
+  ezResult WriteAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile = nullptr);
   /// \brief Some assets are vital for the engine to run. Each data directory can contain a [DataDirName].ezCollectionAsset
   ///   that has all its references transformed before any other documents are loaded.
   void ProcessAllCoreAssets();

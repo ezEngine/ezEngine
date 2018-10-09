@@ -172,7 +172,7 @@ bool ezPropertyAnimAssetDocument::SetScrubberPosition(ezUInt64 uiTick)
   return true;
 }
 
-ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetProfile* pAssetProfile,
+ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
                                                              const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   const ezPropertyAnimationTrackGroup* pProp = GetProperties();

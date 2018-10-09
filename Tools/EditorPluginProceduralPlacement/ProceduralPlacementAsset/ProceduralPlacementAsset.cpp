@@ -67,7 +67,7 @@ void ezProceduralPlacementAssetDocument::UpdateAssetDocumentInfo(ezAssetDocument
   }
 }
 
-ezStatus ezProceduralPlacementAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetProfile* pAssetProfile,
+ezStatus ezProceduralPlacementAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
                                                                     const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());

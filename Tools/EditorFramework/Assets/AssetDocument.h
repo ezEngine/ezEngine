@@ -10,7 +10,7 @@
 class ezEditorEngineConnection;
 class ezEditorEngineSyncObject;
 class ezAssetDocumentManager;
-class ezAssetProfile;
+class ezPlatformProfile;
 class QImage;
 
 class EZ_EDITORFRAMEWORK_DLL ezAssetDocument : public ezDocument
@@ -43,7 +43,7 @@ public:
   ///
   /// If bTriggeredManually is true, it will try to transform the asset, ignoring whether the transform is disabled on an asset.
   /// Will also not try to save the document and if it encounters flags that prevent transformation, it will return an error and not silently ignore them.
-  ezStatus TransformAsset(bool bTriggeredManually, const ezAssetProfile* pAssetProfile = nullptr);
+  ezStatus TransformAsset(bool bTriggeredManually, const ezPlatformProfile* pAssetProfile = nullptr);
 
   /// \brief Updates the thumbnail of the asset.
   ///   Should never be called manually. Called only by the curator which takes care of dependencies first.
@@ -143,14 +143,14 @@ protected:
   /// \param szPlatform Platform for which is the output is to be created. Default is 'PC'.
   /// \param AssetHeader Header already written to the stream, provided for reference.
   /// \param bTriggeredManually is true when the user chose to transform a single specific asset.
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) = 0;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) = 0;
 
   /// \brief Only override this function, if the transformed file for the given szOutputTag must be written from another process.
   ///
   /// szTargetFile is where the transformed asset should be written to. The overriding function must ensure to first
   /// write \a AssetHeader to the file, to make it a valid asset file or provide a custom ezAssetDocumentManager::IsOutputUpToDate function.
   /// bTriggeredManually is true when the user chose to transform a single specific asset.
-  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezAssetProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually);
+  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually);
 
   ezStatus RemoteExport(const ezAssetFileHeader& header, const char* szOutputTarget) const;
 
@@ -190,7 +190,7 @@ protected:
 private:
   virtual ezDocumentInfo* CreateDocumentInfo() override;
 
-  ezStatus DoTransformAsset(const ezAssetProfile* pAssetProfile, bool bTriggeredManually);
+  ezStatus DoTransformAsset(const ezPlatformProfile* pAssetProfile, bool bTriggeredManually);
 
   EngineStatus m_EngineStatus;
   bool m_bUseIPCObjectMirror;

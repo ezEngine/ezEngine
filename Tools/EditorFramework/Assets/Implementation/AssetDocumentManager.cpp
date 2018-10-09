@@ -14,7 +14,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezAssetDocumentManager::ezAssetDocumentManager() = default;
 ezAssetDocumentManager::~ezAssetDocumentManager() = default;
 
-void ezAssetDocumentManager::ComputeAssetProfileHash(const ezAssetProfile* pAssetProfile)
+void ezAssetDocumentManager::ComputeAssetProfileHash(const ezPlatformProfile* pAssetProfile)
 {
   m_uiAssetProfileHash = ComputeAssetProfileHashImpl(DetermineFinalTargetProfile(pAssetProfile));
 
@@ -30,7 +30,7 @@ void ezAssetDocumentManager::ComputeAssetProfileHash(const ezAssetProfile* pAsse
   }
 }
 
-ezUInt64 ezAssetDocumentManager::ComputeAssetProfileHashImpl(const ezAssetProfile* pAssetProfile) const
+ezUInt64 ezAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const
 {
   return 0;
 }
@@ -108,19 +108,19 @@ bool ezAssetDocumentManager::IsThumbnailUpToDate(const char* szDocumentPath, ezU
   return true;
 }
 
-void ezAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const ezAssetProfile* pAssetProfile,
+void ezAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile,
                                                     ezMap<ezString, ezString>& inout_GuidToPath) const
 {
 }
 
 ezString ezAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory,
-                                                    const ezAssetProfile* pAssetProfile) const
+                                                    const ezPlatformProfile* pAssetProfile) const
 {
   return GetRelativeOutputFileName(szDataDirectory, pSubAsset->m_pAssetInfo->m_sAbsolutePath, "", pAssetProfile);
 }
 
 ezString ezAssetDocumentManager::GetAbsoluteOutputFileName(const char* szDocumentPath, const char* szOutputTag,
-                                                           const ezAssetProfile* pAssetProfile) const
+                                                           const ezPlatformProfile* pAssetProfile) const
 {
   ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(szDocumentPath);
 
@@ -132,9 +132,9 @@ ezString ezAssetDocumentManager::GetAbsoluteOutputFileName(const char* szDocumen
 }
 
 ezString ezAssetDocumentManager::GetRelativeOutputFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag,
-                                                           const ezAssetProfile* pAssetProfile) const
+                                                           const ezPlatformProfile* pAssetProfile) const
 {
-  const ezAssetProfile* sPlatform = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile);
+  const ezPlatformProfile* sPlatform = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile);
   EZ_ASSERT_DEBUG(ezStringUtils::IsNullOrEmpty(szOutputTag),
                   "The output tag '%s' for '%s' is not supported, override GetRelativeOutputFileName", szOutputTag, szDocumentPath);
   ezStringBuilder sRelativePath(szDocumentPath);
@@ -165,7 +165,7 @@ bool ezAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath, const 
   return ezAssetDocumentManager::IsResourceUpToDate(sTargetFile, uiHash, uiTypeVersion);
 }
 
-const ezAssetProfile* ezAssetDocumentManager::DetermineFinalTargetProfile(const ezAssetProfile* pAssetProfile)
+const ezPlatformProfile* ezAssetDocumentManager::DetermineFinalTargetProfile(const ezPlatformProfile* pAssetProfile)
 {
   if (pAssetProfile == nullptr)
   {
@@ -219,7 +219,7 @@ bool ezAssetDocumentManager::IsResourceUpToDate(const char* szResourceFile, ezUI
   return AssetHeader.IsFileUpToDate(uiHash, uiTypeVersion);
 }
 
-void ezAssetDocumentManager::GenerateOutputFilename(ezStringBuilder& inout_sRelativeDocumentPath, const ezAssetProfile* pAssetProfile,
+void ezAssetDocumentManager::GenerateOutputFilename(ezStringBuilder& inout_sRelativeDocumentPath, const ezPlatformProfile* pAssetProfile,
                                                     const char* szExtension, bool bPlatformSpecific)
 {
   inout_sRelativeDocumentPath.ChangeFileExtension(szExtension);

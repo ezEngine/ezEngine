@@ -3,7 +3,7 @@
 #include <EditorFramework/Plugin.h>
 #include <QDialog>
 #include <Tools/EditorFramework/ui_InputConfigDlg.h>
-#include <GameEngine/GameApplication/InputConfig.h>
+#include <GameEngine/Configuration/InputConfig.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
 

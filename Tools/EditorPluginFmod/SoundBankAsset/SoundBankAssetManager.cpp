@@ -188,7 +188,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
 }
 
 ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory,
-                                                                      const ezAssetProfile* pAssetProfile) const
+                                                                      const ezPlatformProfile* pAssetProfile) const
 {
   // at the moment we don't reference the actual transformed asset file
   // instead we reference the source fmod sound bank file
@@ -218,7 +218,7 @@ ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSu
 }
 
 ezString ezSoundBankAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory,
-                                                             const ezAssetProfile* pAssetProfile) const
+                                                             const ezPlatformProfile* pAssetProfile) const
 {
   if (pSubAsset->m_bMainAsset)
   {
@@ -266,7 +266,7 @@ void ezSoundBankAssetDocumentManager::InternalGetSupportedDocumentTypes(
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
 
-ezUInt64 ezSoundBankAssetDocumentManager::ComputeAssetProfileHashImpl(const ezAssetProfile* pAssetProfile) const
+ezUInt64 ezSoundBankAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const
 {
   // don't have any settings yet, but assets that generate profile specific output must not return 0 here
   return 1;

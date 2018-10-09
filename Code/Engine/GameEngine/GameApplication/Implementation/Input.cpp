@@ -9,7 +9,7 @@
 #include <Foundation/Time/Clock.h>
 #include <GameEngine/Console/Console.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/GameApplication/InputConfig.h>
+#include <GameEngine/Configuration/InputConfig.h>
 #include <System/Window/Window.h>
 
 extern ezCVarBool CVarShowFPS;

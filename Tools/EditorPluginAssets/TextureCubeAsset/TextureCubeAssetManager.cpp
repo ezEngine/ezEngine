@@ -65,7 +65,7 @@ void ezTextureCubeAssetDocumentManager::InternalGetSupportedDocumentTypes(
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
 
-ezUInt64 ezTextureCubeAssetDocumentManager::ComputeAssetProfileHashImpl(const ezAssetProfile* pAssetProfile) const
+ezUInt64 ezTextureCubeAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const
 {
   // don't have any settings yet, but assets that generate profile specific output must not return 0 here
   return 1;

@@ -26,7 +26,7 @@ public:
   virtual const char* QueryAssetType() const override { return "Animated Mesh"; }
 
 protected:
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetProfile* pAssetProfile,
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
                                           const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
 
   ezStatus CreateMeshFromFile(ezAnimatedMeshAssetProperties* pProp, ezMeshResourceDescriptor& desc);

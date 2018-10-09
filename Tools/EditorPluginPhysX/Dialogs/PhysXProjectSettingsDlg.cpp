@@ -72,7 +72,7 @@ void ezQtPhysxProjectSettingsDlg::SetupTable()
 
 ezResult ezQtPhysxProjectSettingsDlg::Save()
 {
-  const char* szFile = ":project/Physics/CollisionLayers.cfg";
+  const char* szFile = ":project/RuntimeConfigs/CollisionLayers.cfg";
   if (m_Config.Save(szFile).Failed())
   {
     ezStringBuilder sError;
@@ -90,7 +90,7 @@ ezResult ezQtPhysxProjectSettingsDlg::Save()
 
 ezResult ezQtPhysxProjectSettingsDlg::Load()
 {
-  auto res = m_Config.Load(":project/Physics/CollisionLayers.cfg");
+  auto res = m_Config.Load(":project/RuntimeConfigs/CollisionLayers.cfg");
 
   if (res.Failed())
   {

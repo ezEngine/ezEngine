@@ -85,7 +85,7 @@ void UpdateCollisionLayerDynamicEnumValues()
   cfe.Clear();
 
   ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
-  sPath.AppendPath("Physics/CollisionLayers.cfg");
+  sPath.AppendPath("RuntimeConfigs/CollisionLayers.cfg");
 
   ezCollisionFilterConfig cfg;
   if (cfg.Load(sPath).Failed())

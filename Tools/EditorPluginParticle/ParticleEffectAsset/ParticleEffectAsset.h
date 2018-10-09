@@ -32,7 +32,7 @@ public:
 
   virtual const char* QueryAssetType() const override { return "Particle Effect"; }
 
-  ezStatus WriteParticleEffectAsset(ezStreamWriter& stream, const ezAssetProfile* pAssetProfile) const;
+  ezStatus WriteParticleEffectAsset(ezStreamWriter& stream, const ezPlatformProfile* pAssetProfile) const;
 
   void TriggerRestartEffect();
 
@@ -55,7 +55,7 @@ public:
 
 protected:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezAssetProfile* pAssetProfile,
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
                                           const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
 

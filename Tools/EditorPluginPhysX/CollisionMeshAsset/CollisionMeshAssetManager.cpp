@@ -69,7 +69,7 @@ ezCollisionMeshAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentT
   return ezAssetDocumentFlags::SupportsThumbnail;
 }
 
-ezUInt64 ezCollisionMeshAssetDocumentManager::ComputeAssetProfileHashImpl(const ezAssetProfile* pAssetProfile) const
+ezUInt64 ezCollisionMeshAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const
 {
   // don't have any settings yet, but assets that generate profile specific output must not return 0 here
   return 1;

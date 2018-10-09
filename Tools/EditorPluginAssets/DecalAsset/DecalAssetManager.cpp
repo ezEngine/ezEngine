@@ -44,7 +44,7 @@ ezBitflags<ezAssetDocumentFlags> ezDecalAssetDocumentManager::GetAssetDocumentTy
 }
 
 
-void ezDecalAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const ezAssetProfile* pAssetProfile,
+void ezDecalAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile,
                                                          ezMap<ezString, ezString>& inout_GuidToPath) const
 {
   ezStringBuilder projectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
@@ -58,7 +58,7 @@ void ezDecalAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirec
 }
 
 ezString ezDecalAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory,
-                                                         const ezAssetProfile* pAssetProfile) const
+                                                         const ezPlatformProfile* pAssetProfile) const
 {
   // means NO table entry will be written, because for decals we don't need a redirection
   return ezString();
@@ -93,13 +93,13 @@ void ezDecalAssetDocumentManager::InternalGetSupportedDocumentTypes(
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
 
-ezUInt64 ezDecalAssetDocumentManager::ComputeAssetProfileHashImpl(const ezAssetProfile* pAssetProfile) const
+ezUInt64 ezDecalAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const
 {
   // don't have any settings yet, but assets that generate profile specific output must not return 0 here
   return 1;
 }
 
-ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezAssetProfile* pAssetProfile)
+ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfile* pAssetProfile)
 {
   const ezDynamicArray<ezDocument*>& docs = GetAllDocuments();
 
@@ -239,9 +239,9 @@ bool ezDecalAssetDocumentManager::IsDecalTextureUpToDate(const char* szDecalFile
   return false;
 }
 
-ezString ezDecalAssetDocumentManager::GetDecalTexturePath(const ezAssetProfile* pAssetProfile0) const
+ezString ezDecalAssetDocumentManager::GetDecalTexturePath(const ezPlatformProfile* pAssetProfile0) const
 {
-  const ezAssetProfile* pAssetProfile = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile0);
+  const ezPlatformProfile* pAssetProfile = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile0);
   ezStringBuilder result = "Decals";
   GenerateOutputFilename(result, pAssetProfile, "ezDecal", true);
 

@@ -20,13 +20,13 @@ public:
 
   virtual ezBitflags<ezAssetDocumentFlags> GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const override;
 
-  virtual void AddEntriesToAssetTable(const char* szDataDirectory, const ezAssetProfile* pAssetProfile,
+  virtual void AddEntriesToAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile,
                                       ezMap<ezString, ezString>& inout_GuidToPath) const override;
-  virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezAssetProfile* pAssetProfile) const override;
+  virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const override;
 
   /// \brief There is only a single decal texture per project. This function creates it, in case any decal asset was modified.
-  ezStatus GenerateDecalTexture(const ezAssetProfile* pAssetProfile);
-  ezString GetDecalTexturePath(const ezAssetProfile* pAssetProfile) const;
+  ezStatus GenerateDecalTexture(const ezPlatformProfile* pAssetProfile);
+  ezString GetDecalTexturePath(const ezPlatformProfile* pAssetProfile) const;
 
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
@@ -39,7 +39,7 @@ private:
 
   virtual bool GeneratesProfileSpecificAssets() const override { return true; }
 
-  virtual ezUInt64 ComputeAssetProfileHashImpl(const ezAssetProfile* pAssetProfile) const override;
+  virtual ezUInt64 ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const override;
 
 private:
   ezDocumentTypeDescriptor m_AssetDesc;

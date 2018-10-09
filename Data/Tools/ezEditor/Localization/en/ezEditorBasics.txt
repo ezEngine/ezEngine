@@ -112,7 +112,10 @@ GameObjectContext.PickContextObject;Use Object as Context
 GameObjectContext.ClearContextObject;Clear Context Object
 Effects;Effects
 Input;Input
-ezAssetProfileTargetPlatform::PC;PC
-ezAssetProfileTargetPlatform::Android;Android
-AssetTypeConfigs;Asset Type Configurations
-ezTextureAssetTypeProfileConfig;Texture Assets
+ezProfileTargetPlatform::PC;PC
+ezProfileTargetPlatform::UWP;UWP
+ezProfileTargetPlatform::Android;Android
+ezTextureAssetProfileConfig;Texture Assets
+ezRenderPipelineProfileConfig;Render Pipelines
+Configs;Configs
+CameraPipelines;Camera Pipelines

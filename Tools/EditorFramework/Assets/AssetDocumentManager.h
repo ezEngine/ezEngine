@@ -7,7 +7,7 @@
 #include <ToolsFoundation/Document/DocumentManager.h>
 
 struct ezSubAsset;
-class ezAssetProfile;
+class ezPlatformProfile;
 
 class EZ_EDITORFRAMEWORK_DLL ezAssetDocumentManager : public ezDocumentManager
 {
@@ -27,16 +27,16 @@ public:
   ///@{
 public:
   /// \brief Called by the ezAssetCurator when the active asset profile changes to re-compute m_uiAssetProfileHash.
-  void ComputeAssetProfileHash(const ezAssetProfile* pAssetProfile);
+  void ComputeAssetProfileHash(const ezPlatformProfile* pAssetProfile);
 
   /// \brief Returns the hash that was previously computed through ComputeAssetProfileHash().
   EZ_ALWAYS_INLINE ezUInt64 GetAssetProfileHash() const { return m_uiAssetProfileHash; }
 
   /// \brief Returns pAssetProfile, or if that is null, ezAssetCurator::GetSingleton()->GetActiveAssetProfile().
-  static const ezAssetProfile* DetermineFinalTargetProfile(const ezAssetProfile* pAssetProfile);
+  static const ezPlatformProfile* DetermineFinalTargetProfile(const ezPlatformProfile* pAssetProfile);
 
 private:
-  virtual ezUInt64 ComputeAssetProfileHashImpl(const ezAssetProfile* pAssetProfile) const;
+  virtual ezUInt64 ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const;
 
   // The hash that is combined with the asset document hash to determine whether the document output is up to date.
   // This hash needs to be computed in ComputeAssetProfileHash() and should reflect all important settings from the givne asset profile that
@@ -57,17 +57,17 @@ public:
   /// \name Output Functions
   ///@{
 
-  virtual void AddEntriesToAssetTable(const char* szDataDirectory, const ezAssetProfile* pAssetProfile,
+  virtual void AddEntriesToAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile,
                                       ezMap<ezString, ezString>& inout_GuidToPath) const;
-  virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezAssetProfile* pAssetProfile) const;
+  virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const;
 
   /// \brief Calls GetRelativeOutputFileName and prepends [DataDir]/AssetCache/ .
   ezString GetAbsoluteOutputFileName(const char* szDocumentPath, const char* szOutputTag,
-                                     const ezAssetProfile* pAssetProfile = nullptr) const;
+                                     const ezPlatformProfile* pAssetProfile = nullptr) const;
 
   /// \brief Relative to 'AssetCache' folder.
   virtual ezString GetRelativeOutputFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag,
-                                             const ezAssetProfile* pAssetProfile = nullptr) const;
+                                             const ezPlatformProfile* pAssetProfile = nullptr) const;
   virtual ezString GetResourceTypeExtension() const = 0;
   virtual bool GeneratesProfileSpecificAssets() const = 0;
 
@@ -84,6 +84,6 @@ public:
 
 protected:
   static bool IsResourceUpToDate(const char* szResourceFile, ezUInt64 uiHash, ezUInt16 uiTypeVersion);
-  static void GenerateOutputFilename(ezStringBuilder& inout_sRelativeDocumentPath, const ezAssetProfile* pAssetProfile,
+  static void GenerateOutputFilename(ezStringBuilder& inout_sRelativeDocumentPath, const ezPlatformProfile* pAssetProfile,
                                      const char* szExtension, bool bPlatformSpecific);
 };
