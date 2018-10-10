@@ -23,6 +23,8 @@ PS_OUT main(PS_IN Input)
   s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
 #endif
 
+  G.Input = Input;
+
   PS_OUT Output;
 
   #if BLEND_MODE == BLEND_MODE_MASKED
@@ -33,7 +35,8 @@ PS_OUT main(PS_IN Input)
     }
   #endif
 
-  ezMaterialData matData = FillMaterialData(Input);
+  ezMaterialData matData = FillMaterialData();
+
   Output.Color = float4(matData.diffuseColor, 1.0f);
 
   return Output;
@@ -57,7 +60,7 @@ PS_OUT main(PS_IN Input)
     opacity = GetOpacity(Input);
   #endif
 
-  ezMaterialData matData = FillMaterialData(Input);
+  ezMaterialData matData = FillMaterialData();
 
   #if defined(USE_DECALS)
     ApplyDecals(matData, clusterData);
