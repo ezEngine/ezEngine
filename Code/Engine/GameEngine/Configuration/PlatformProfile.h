@@ -86,9 +86,8 @@ public:
   virtual void LoadRuntimeData(ezChunkStreamReader& stream) override;
 
   ezString m_sMainRenderPipeline;
-  ezString m_sEditorRenderPipeline;
-  ezString m_sDebugRenderPipeline;
-  ezString m_sShadowMapRenderPipeline;
+  //ezString m_sEditorRenderPipeline;
+  //ezString m_sDebugRenderPipeline;
 
   ezMap<ezString, ezString> m_CameraPipelines;
 };

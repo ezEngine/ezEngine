@@ -251,6 +251,8 @@ protected:
   /// The default implementation uses ezApplicationPluginConfig to load all manual plugins.
   virtual void DoLoadPluginsFromConfig();
 
+  virtual void DoLoadPlatformProfile();
+
   /// \brief Called by DoProjectSetup() after DoLoadPluginsFromConfig().
   /// The default implementation sets up some common fallbacks.
   virtual void DoSetupDefaultResources();
@@ -326,6 +328,8 @@ protected:
   /// \brief Stores what is given to the constructor
   ezString m_sAppProjectPath;
 
+  ezPlatformProfile m_PlatformProfile;
+
 private:
   static ezGameApplication* s_pGameApplicationInstance;
 
@@ -367,8 +371,6 @@ private:
 
   // expose TakeScreenshot as a console function
   ezConsoleFunction<void()> m_ConFunc_TakeScreenshot;
-
-  ezPlatformProfile m_PlatformProfile;
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   ezUniquePtr<class ezMixedRealityFramework> m_pMixedRealityFramework;

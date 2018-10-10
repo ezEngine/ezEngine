@@ -288,6 +288,9 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
 
       ezFileSystem::ReloadAllExternalDataDirectoryConfigs();
 
+      m_PlatformProfile.m_sName = pMsg->m_sPayload;
+      DoLoadPlatformProfile();
+
       ezResourceManager::ReloadAllResources(false);
       ezRenderWorld::DeleteAllCachedRenderData();
     }

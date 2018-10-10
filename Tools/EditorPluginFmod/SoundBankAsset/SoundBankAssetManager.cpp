@@ -197,7 +197,7 @@ ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSu
   /// \todo For final release we should reference the transformed file, as it's the one that gets packaged etc.
   /// Maybe we should add another platform target for that ?
 
-  if (pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile())
+  //if (pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile())
   {
     for (const ezString& dep : pSubAsset->m_pAssetInfo->m_Info->m_AssetTransformDependencies)
     {
@@ -209,10 +209,10 @@ ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSu
       }
     }
   }
-  else
-  {
-    SUPER::GetAssetTableEntry(pSubAsset, szDataDirectory, pAssetProfile);
-  }
+  //else
+  //{
+  //  SUPER::GetAssetTableEntry(pSubAsset, szDataDirectory, pAssetProfile);
+  //}
 
   return ezString();
 }

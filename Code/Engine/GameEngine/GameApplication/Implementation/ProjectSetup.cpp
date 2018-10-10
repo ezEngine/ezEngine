@@ -60,6 +60,7 @@ void ezGameApplication::DoProjectSetup()
   DoLoadCustomPlugins();
   DoSetupDataDirectories();
   DoLoadPluginsFromConfig();
+  DoLoadPlatformProfile();
   DoConfigureInput(false);
   DoLoadTags();
 
@@ -348,14 +349,16 @@ void ezGameApplication::DoLoadCustomPlugins()
 #endif
 }
 
-
 void ezGameApplication::DoLoadPluginsFromConfig()
 {
   ezApplicationPluginConfig appPluginConfig;
   appPluginConfig.Load();
   appPluginConfig.SetOnlyLoadManualPlugins(true);
   appPluginConfig.Apply();
+}
 
+void ezGameApplication::DoLoadPlatformProfile()
+{
   // re-load this after we know all the custom config types
   const ezStringBuilder sRuntimeProfileFile(":project/RuntimeConfigs/", m_PlatformProfile.m_sName, ".ezProfile");
   m_PlatformProfile.AddMissingConfigs();
