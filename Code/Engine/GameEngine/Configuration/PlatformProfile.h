@@ -50,6 +50,7 @@ public:
   const char* GetConfigName() const { return m_sName; }
 
   void Clear();
+  void AddMissingConfigs();
 
   template <typename TYPE>
   const TYPE* GetTypeConfig() const

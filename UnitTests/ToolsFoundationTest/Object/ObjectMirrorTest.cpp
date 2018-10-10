@@ -186,7 +186,7 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
         pObjectAccessor->RemoveValue(pObject, pProp, i);
       }
 
-      ezVariant value1 = ezToolsReflectionUtils::GetDefaultValue(pProp);
+      ezVariant value1 = ezReflectionUtils::GetDefaultValue(pProp);
       ezVariant value2 = GetVariantFromType(pProp->GetSpecificType()->GetVariantType());
       EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value1, 0).m_Result.Succeeded());
       EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value2, 1).m_Result.Succeeded());
@@ -222,7 +222,7 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
         pObjectAccessor->RemoveValue(pObject, pProp, key);
       }
 
-      ezVariant value1 = ezToolsReflectionUtils::GetDefaultValue(pProp);
+      ezVariant value1 = ezReflectionUtils::GetDefaultValue(pProp);
       ezVariant value2 = GetVariantFromType(pProp->GetSpecificType()->GetVariantType());
       EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value1, "value1").m_Result.Succeeded());
       EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value2, "value2").m_Result.Succeeded());

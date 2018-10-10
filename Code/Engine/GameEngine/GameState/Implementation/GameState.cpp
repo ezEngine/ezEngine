@@ -12,8 +12,8 @@
 #include <System/Screen/Screen.h>
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-#include <MixedReality/MixedRealityFramework.h>
-#include <WindowsMixedReality/HolographicSpace.h>
+#  include <MixedReality/MixedRealityFramework.h>
+#  include <WindowsMixedReality/HolographicSpace.h>
 #endif
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameState, 1, ezRTTINoAllocator);
@@ -149,8 +149,9 @@ void ezGameState::ConfigureInputActions() {}
 
 void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer)
 {
-  // MainRenderPipeline.ezRenderPipelineAsset
-  SetupMainView(hBackBuffer, ezResourceManager::LoadResource<ezRenderPipelineResource>("{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }"));
+  const auto* pConfig = GetApplication()->GetPlatformProfile().GetTypeConfig<ezRenderPipelineProfileConfig>();
+
+  SetupMainView(hBackBuffer, ezResourceManager::LoadResource<ezRenderPipelineResource>(pConfig->m_sMainRenderPipeline));
 }
 
 void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer, ezTypedResourceHandle<ezRenderPipelineResource> hRenderPipeline)

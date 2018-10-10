@@ -174,7 +174,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::UpdateInstances
             var = var.ConvertTo(SpecVarType, &res);
             if (res == EZ_FAILURE)
             {
-              var = ezToolsReflectionUtils::GetDefaultValue(pProperty);
+              var = ezReflectionUtils::GetDefaultValue(pProperty);
             }
           }
         }
@@ -205,7 +205,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::UpdateInstances
             it.Value() = it.Value().ConvertTo(SpecVarType, &res);
             if (res == EZ_FAILURE)
             {
-              it.Value() = ezToolsReflectionUtils::GetDefaultValue(pProperty);
+              it.Value() = ezReflectionUtils::GetDefaultValue(pProperty);
             }
           }
         }

@@ -19,7 +19,7 @@ void VariantToPropertyTest(void* intStruct, const ezRTTI* pRttiInt, const char* 
     EZ_TEST_BOOL(oldValue.IsValid());
     EZ_TEST_BOOL(oldValue.GetType() == type);
 
-    ezVariant defaultValue = ezToolsReflectionUtils::GetDefaultVariantFromType(type);
+    ezVariant defaultValue = ezReflectionUtils::GetDefaultVariantFromType(type);
     ezReflectionUtils::SetMemberPropertyValue(pProp, intStruct, defaultValue);
 
     ezVariant newValue = ezReflectionUtils::GetMemberPropertyValue(pProp, intStruct);
@@ -136,7 +136,7 @@ void AccessorPropertyTest(ezIReflectedTypeAccessor& accessor, const char* szProp
   EZ_TEST_BOOL(oldValue.IsValid());
   EZ_TEST_BOOL(oldValue.GetType() == type);
 
-  ezVariant defaultValue = ezToolsReflectionUtils::GetDefaultVariantFromType(type);
+  ezVariant defaultValue = ezReflectionUtils::GetDefaultVariantFromType(type);
   bool bSetSuccess = accessor.SetValue(szProperty, defaultValue);
   EZ_TEST_BOOL(bSetSuccess);
 

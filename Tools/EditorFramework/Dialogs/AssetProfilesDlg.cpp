@@ -282,8 +282,6 @@ bool ezQtAssetProfilesDlg::DetermineNewProfileName(QWidget* parent, ezString& re
   }
 }
 
-void AddMissingConfigs(ezPlatformProfile* pProfile);
-
 void ezQtAssetProfilesDlg::on_AddButton_clicked()
 {
   ezString sProfileName;
@@ -292,7 +290,7 @@ void ezQtAssetProfilesDlg::on_AddButton_clicked()
 
   ezPlatformProfile profile;
   profile.m_sName = sProfileName;
-  AddMissingConfigs(&profile);
+  profile.AddMissingConfigs();
 
   auto& binding = m_ProfileBindings[NativeToObject(&profile)];
   binding.m_pProfile = nullptr;

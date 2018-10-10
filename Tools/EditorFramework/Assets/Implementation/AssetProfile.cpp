@@ -156,43 +156,6 @@ ezResult ezAssetCurator::SaveAssetProfiles()
   return file.Close();
 }
 
-void AddMissingConfigs(ezPlatformProfile* pProfile)
-{
-  for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-  {
-    // find all types derived from ezProfileConfigData
-    if (!pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract) && pRtti->IsDerivedFrom<ezProfileConfigData>() &&
-        pRtti->GetAllocator()->CanAllocate())
-    {
-      bool bHasTypeAlready = false;
-
-      // check whether we already have an instance of this type
-      for (auto pType : pProfile->m_Configs)
-      {
-        if (pType->GetDynamicRTTI() == pRtti)
-        {
-          bHasTypeAlready = true;
-          break;
-        }
-      }
-
-      if (!bHasTypeAlready)
-      {
-        // if not, allocate one
-        ezProfileConfigData* pObject = pRtti->GetAllocator()->Allocate<ezProfileConfigData>();
-        ezToolsReflectionUtils::SetAllMemberPropertiesToDefault(pRtti, pObject);
-
-        pProfile->m_Configs.PushBack(pObject);
-      }
-    }
-  }
-
-  // sort all configs alphabetically
-  pProfile->m_Configs.Sort([](const ezProfileConfigData* lhs, const ezProfileConfigData* rhs) -> bool {
-    return ezStringUtils::Compare(lhs->GetDynamicRTTI()->GetTypeName(), rhs->GetDynamicRTTI()->GetTypeName()) < 0;
-  });
-}
-
 ezResult ezAssetCurator::LoadAssetProfiles()
 {
   EZ_LOG_BLOCK("LoadAssetProfiles", ":project/Editor/PlatformProfiles.ddl");
@@ -224,7 +187,7 @@ ezResult ezAssetCurator::LoadAssetProfiles()
 
       auto pProfile = static_cast<ezPlatformProfile*>(pConfigObj);
 
-      AddMissingConfigs(pProfile);
+      pProfile->AddMissingConfigs();
 
       m_AssetProfiles.PushBack(pProfile);
     }
@@ -250,7 +213,7 @@ void ezAssetCurator::SetupDefaultAssetProfiles()
   {
     ezPlatformProfile* pCfg = EZ_DEFAULT_NEW(ezPlatformProfile);
     pCfg->m_sName = "PC";
-    AddMissingConfigs(pCfg);
+    pCfg->AddMissingConfigs();
     m_AssetProfiles.PushBack(pCfg);
   }
 }

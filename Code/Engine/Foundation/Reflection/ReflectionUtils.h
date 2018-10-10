@@ -103,4 +103,13 @@ public:
 
   /// \brief Deletes pObject using the allocator found in the owning property's type.
   static void DeleteObject(void* pObject, ezAbstractProperty* pOwnerProperty);
+
+  /// \brief Returns a global default initialization value for the given variant type.
+  static ezVariant GetDefaultVariantFromType(ezVariant::Type::Enum type); // [tested]
+
+  /// \brief Returns the default value for the specific type of the given property.
+  static ezVariant GetDefaultValue(const ezAbstractProperty* pProperty);
+
+  /// \brief Sets all member properties in \a pObject of type \a pRtti to the value returned by ezToolsReflectionUtils::GetDefaultValue()
+  static void SetAllMemberPropertiesToDefault(const ezRTTI* pRtti, void* pObject);
 };

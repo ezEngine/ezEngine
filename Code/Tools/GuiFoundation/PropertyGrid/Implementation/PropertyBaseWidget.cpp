@@ -1393,7 +1393,7 @@ void ezQtVariantPropertyWidget::ChangeVariantType(ezVariantType::Enum type)
     }
     else
     {
-      EZ_VERIFY(m_pObjectAccessor->SetValue(item.m_pObject, m_pProp, ezToolsReflectionUtils::GetDefaultVariantFromType(type), item.m_Index)
+      EZ_VERIFY(m_pObjectAccessor->SetValue(item.m_pObject, m_pProp, ezReflectionUtils::GetDefaultVariantFromType(type), item.m_Index)
                     .Succeeded(),
                 "");
     }

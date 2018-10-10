@@ -774,7 +774,7 @@ ezStatus ezResizeAndSetObjectPropertyCommand::DoInternal(bool bRedo)
       ins.m_Object = m_Object;
       ins.m_sProperty = m_sProperty;
       ins.m_Index = i;
-      ins.m_NewValue = ezToolsReflectionUtils::GetDefaultVariantFromType(m_NewValue.GetType());
+      ins.m_NewValue = ezReflectionUtils::GetDefaultVariantFromType(m_NewValue.GetType());
 
       AddSubCommand(ins);
     }

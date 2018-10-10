@@ -433,7 +433,7 @@ bool ezQtExposedParametersPropertyWidget::FixKeyTypes(bool bTestOnly)
               }
               else
               {
-                m_pObjectAccessor->SetValue(item.m_pObject, m_pProp, ezToolsReflectionUtils::GetDefaultVariantFromType(type), key)
+                m_pObjectAccessor->SetValue(item.m_pObject, m_pProp, ezReflectionUtils::GetDefaultVariantFromType(type), key)
                     .LogFailure();
               }
             }

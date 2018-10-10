@@ -46,6 +46,9 @@ typedef ezGALDeviceDX11 ezGALDeviceDefault;
 
 void ezGameApplication::DoProjectSetup()
 {
+  m_PlatformProfile.m_sName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-profile", 0, GetPreferredPlatformProfile());
+  m_PlatformProfile.AddMissingConfigs();
+
   DoSetupLogWriters();
 
   ezTelemetry::CreateServer();
@@ -122,10 +125,10 @@ void ezGameApplication::DoSetupDataDirectories()
 
 void ezGameApplication::DoConfigureAssetManagement()
 {
-  const ezStringBuilder sPlatform("AssetCache/", ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-profile", 0, "PC"), ".ezAidlt");
+  const ezStringBuilder sAssetRedirFile("AssetCache/", m_PlatformProfile.m_sName, ".ezAidlt");
 
   // which redirection table to search
-  ezDataDirectory::FolderType::s_sRedirectionFile = sPlatform;
+  ezDataDirectory::FolderType::s_sRedirectionFile = sAssetRedirFile;
 
   // which platform assets to use
   ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/";
@@ -352,6 +355,11 @@ void ezGameApplication::DoLoadPluginsFromConfig()
   appPluginConfig.Load();
   appPluginConfig.SetOnlyLoadManualPlugins(true);
   appPluginConfig.Apply();
+
+  // re-load this after we know all the custom config types
+  const ezStringBuilder sRuntimeProfileFile(":project/RuntimeConfigs/", m_PlatformProfile.m_sName, ".ezProfile");
+  m_PlatformProfile.AddMissingConfigs();
+  m_PlatformProfile.LoadForRuntime(sRuntimeProfileFile);
 }
 
 void ezGameApplication::DoLoadTags()

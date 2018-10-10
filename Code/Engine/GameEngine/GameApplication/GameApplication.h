@@ -5,6 +5,7 @@
 
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <GameEngine/Configuration/PlatformProfile.h>
 #include <GameEngine/Console/ConsoleFunction.h>
 
 #include <Core/Application/Application.h>
@@ -30,7 +31,7 @@ struct ezGameApplicationEvent
     AfterUpdatePlugins,
     BeforePresent,
     EndAppTick,
-    AfterWorldCreated, // m_pData -> ezWorld*
+    AfterWorldCreated,    // m_pData -> ezWorld*
     BeforeWorldDestroyed, // m_pData -> ezWorld*
   };
 
@@ -61,7 +62,6 @@ struct ezGameApplicationEvent
 class EZ_GAMEENGINE_DLL ezGameApplication : public ezApplication
 {
 public:
-
   /// szProjectPath may be nullptr, if FindProjectDirectory() is overridden.
   ezGameApplication(const char* szAppName, ezGameApplicationType type, const char* szProjectPath);
   ~ezGameApplication();
@@ -70,10 +70,7 @@ public:
   const ezString GetAppName() const { return m_sAppName; }
 
   /// \brief Returns the ezGameApplication singleton
-  static ezGameApplication* GetGameApplicationInstance()
-  {
-    return s_pGameApplicationInstance;
-  }
+  static ezGameApplication* GetGameApplicationInstance() { return s_pGameApplicationInstance; }
 
   /// \brief Overrides ezApplication::Run() and implements a typical game update.
   ///
@@ -105,8 +102,9 @@ public:
   /// \brief Returns the swapchain for the given window. The window must have been added via AddWindow()
   ezGALSwapChainHandle GetSwapChain(const ezWindowBase* pWindow) const;
 
-  /// \brief When the graphics device is created, by default the game application will pick a platform specific implementation. This function allows to override that by setting a custom function that creates a graphics device.
-  static void SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice* (const ezGALDeviceCreationDescription&)> creator);
+  /// \brief When the graphics device is created, by default the game application will pick a platform specific implementation. This
+  /// function allows to override that by setting a custom function that creates a graphics device.
+  static void SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> creator);
 
   /// \brief Sets the swapchain for a given window. The window must have been added via AddWindow()
   ///
@@ -192,9 +190,9 @@ public:
   /// Otherwise this function is automatically executed once every frame.
   bool ProcessWindowMessages();
 
+  const ezPlatformProfile& GetPlatformProfile() const { return m_PlatformProfile; }
 
 protected:
-
   /// \brief Can be overridden for the application to create a specific game state.
   virtual ezGameState* CreateCustomGameStateForWorld(ezWorld* pWorld) { return nullptr; }
 
@@ -219,6 +217,11 @@ protected:
   ///
   /// Project Initialization
   ///
+
+  /// \brief Returns the name of the platform profile that should be used by default.
+  ///
+  /// If the '-profile "XYZ"' command line argument is provided, it takes precedence over this.
+  virtual const char* GetPreferredPlatformProfile() const { return "PC"; }
 
   /// \brief This is the main setup function. It calls various other functions in a specific order to initialize the application.
   virtual void DoProjectSetup();
@@ -258,7 +261,8 @@ protected:
 
   /// \brief Called by DoProjectSetup() after DoSetupGraphicsDevice().
   /// The default implementation uses ezGameAppInputConfig to read the input configuration from a DDL file in the project folder.
-  /// Additionally it configures ESC, F5 and F8 to be 'GameApp::CloseApp', 'GameApp::ReloadResources' and 'GameApp::CaptureProfiling' respectively.
+  /// Additionally it configures ESC, F5 and F8 to be 'GameApp::CloseApp', 'GameApp::ReloadResources' and 'GameApp::CaptureProfiling'
+  /// respectively.
   virtual void DoConfigureInput(bool bReinitialize);
 
   /// \brief Called by DoProjectSetup() after DoConfigureInput().
@@ -352,7 +356,7 @@ private:
   ezDynamicArray<WindowContext> m_Windows;
   ezHybridArray<WorldData, 4> m_Worlds;
   ezHybridArray<GameStateData, 4> m_GameStates;
-  static ezDelegate<ezGALDevice* (const ezGALDeviceCreationDescription&)> s_DefaultDeviceCreator;
+  static ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> s_DefaultDeviceCreator;
 
   bool m_bWasQuitRequested = false;
   bool m_bShowConsole = false;
@@ -364,8 +368,9 @@ private:
   // expose TakeScreenshot as a console function
   ezConsoleFunction<void()> m_ConFunc_TakeScreenshot;
 
+  ezPlatformProfile m_PlatformProfile;
+
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   ezUniquePtr<class ezMixedRealityFramework> m_pMixedRealityFramework;
 #endif
 };
-

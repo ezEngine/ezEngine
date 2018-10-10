@@ -438,7 +438,7 @@ ezVariant ezDocument::GetDefaultValue(const ezDocumentObject* pObject, const cha
     }
   }
 
-  ezVariant defaultValue = ezToolsReflectionUtils::GetDefaultValue(pProp);
+  ezVariant defaultValue = ezReflectionUtils::GetDefaultValue(pProp);
   return defaultValue;
 }
 

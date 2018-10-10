@@ -11,11 +11,6 @@ class ezAbstractObjectGraph;
 class EZ_TOOLSFOUNDATION_DLL ezToolsReflectionUtils
 {
 public:
-  /// \brief Returns a global default initialization value for the given variant type.
-  static ezVariant GetDefaultVariantFromType(ezVariant::Type::Enum type); // [tested]
-
-  /// \brief Returns the default value for the specific type of the given property.
-  static ezVariant GetDefaultValue(const ezAbstractProperty* pProperty);
   /// \brief Returns the default value for the entire property as it is stored on the editor side.
   static ezVariant GetStorageDefault(const ezAbstractProperty* pProperty);
 
@@ -30,7 +25,4 @@ public:
   static void SerializeTypes(const ezSet<const ezRTTI*>& types, ezAbstractObjectGraph& typesGraph);
 
   static bool DependencySortTypeDescriptorArray(ezDynamicArray<ezReflectedTypeDescriptor*>& descriptors);
-
-  /// \brief Sets all member properties in \a pObject of type \a pRtti to the value returned by ezToolsReflectionUtils::GetDefaultValue()
-  static void SetAllMemberPropertiesToDefault(const ezRTTI* pRtti, void* pObject);
 };

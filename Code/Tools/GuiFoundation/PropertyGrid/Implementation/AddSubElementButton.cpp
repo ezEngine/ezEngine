@@ -402,7 +402,7 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
   {
     for (auto& item : m_Items)
     {
-      res = m_pObjectAccessor->InsertValue(item.m_pObject, m_pProp, ezToolsReflectionUtils::GetDefaultValue(GetProperty()), index);
+      res = m_pObjectAccessor->InsertValue(item.m_pObject, m_pProp, ezReflectionUtils::GetDefaultValue(GetProperty()), index);
       if (res.m_Result.Failed())
         break;
     }
