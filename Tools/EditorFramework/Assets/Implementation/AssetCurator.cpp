@@ -149,8 +149,6 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
   m_bRunUpdateTask = true;
   m_FileSystemConfig = cfg;
 
-  SetActiveAssetProfileByIndex(0);
-
   {
     EZ_PROFILE("Watchers");
     for (auto& dd : m_FileSystemConfig.m_DataDirs)
@@ -216,6 +214,12 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
   pInitTask->SetOnTaskFinished([](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
   m_bInitStarted = false;
   ezTaskSystem::StartSingleTask(pInitTask, ezTaskPriority::FileAccessHighPriority);
+
+  {
+    ezAssetCuratorEvent e;
+    e.m_Type = ezAssetCuratorEvent::Type::ActivePlatformChanged;
+    m_Events.Broadcast(e);
+  }
 }
 
 void ezAssetCurator::WaitForInitialize()

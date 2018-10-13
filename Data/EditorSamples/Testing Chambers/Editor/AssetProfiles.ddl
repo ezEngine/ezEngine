@@ -28,11 +28,11 @@ AssetProfiles
 				uint32 %v{1}
 				p
 				{
-					VarDict %CameraPipelines{}
-					string %DebugRenderPipeline{"{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }"}
-					string %EditorRenderPipeline{"{ da463c4d-c984-4910-b0b7-a0b3891d0448 }"}
+					VarDict %CameraPipelines
+					{
+						string %'Security Camera'{"{ c5f16f65-8940-4283-9f91-b316dfa39e81 }"}
+					}
 					string %MainRenderPipeline{"{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }"}
-					string %ShadowMapRenderPipeline{"{ 4f4d9f16-3d47-4c67-b821-a778f11dcaf5 }"}
 				}
 			}
 			o
@@ -58,11 +58,11 @@ AssetProfiles
 				uint32 %v{1}
 				p
 				{
-					VarDict %CameraPipelines{}
-					string %DebugRenderPipeline{"{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }"}
-					string %EditorRenderPipeline{"{ da463c4d-c984-4910-b0b7-a0b3891d0448 }"}
-					string %MainRenderPipeline{"{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }"}
-					string %ShadowMapRenderPipeline{"{ 4f4d9f16-3d47-4c67-b821-a778f11dcaf5 }"}
+					VarDict %CameraPipelines
+					{
+						string %'Security Camera'{"{ c5f16f65-8940-4283-9f91-b316dfa39e81 }"}
+					}
+					string %MainRenderPipeline{"{ 2fe25ded-776c-7f9e-354f-e4c52a33d125 }"}
 				}
 			}
 			o

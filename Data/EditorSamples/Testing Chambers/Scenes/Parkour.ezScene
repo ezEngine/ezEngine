@@ -15,7 +15,7 @@ o
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{3600301218546145557}
+		u4 %Hash{1070070837655231526}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -55,7 +55,6 @@ o
 			s{"{ b692dd6a-56a1-45cb-b22c-f3496380aeff }"}
 			s{"{ b727ba61-e20a-42d7-a170-860ede23e85d }"}
 			s{"{ ba6ddc9d-26e1-4fd7-bc43-672d5d3539f1 }"}
-			s{"{ c5f16f65-8940-4283-9f91-b316dfa39e81 }"}
 			s{"{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"}
 			s{"{ ceec7738-dd1f-407c-b04a-7061e94822e8 }"}
 			s{"{ d65cd59b-50e0-44f3-aefb-a88943b81900 }"}
@@ -2570,6 +2569,34 @@ o
 }
 o
 {
+	Uuid %id{u4{10094120498687320464,4897992364221053612}}
+	s %t{"ezCameraComponent"}
+	u3 %v{8}
+	p
+	{
+		b %Active{1}
+		f %Aperture{0x0000803F}
+		s %CameraRenderPipeline{""}
+		f %Dimensions{0x00002041}
+		i1 %EditorShortcut{-1}
+		VarArray %ExcludeTags{}
+		f %ExposureCompensation{0}
+		f %FOV{0x00007042}
+		f %FarPlane{0x00007A44}
+		f %ISO{0x0000C842}
+		VarArray %IncludeTags{}
+		s %Mode{"ezCameraMode::PerspectiveFixedFovY"}
+		f %NearPlane{0x0000803E}
+		s %RenderTarget{""}
+		Vec2 %RenderTargetOffset{f{0,0}}
+		Vec2 %RenderTargetSize{f{0x0000803F,0x0000803F}}
+		b %ShowStats{0}
+		f %ShutterTime{0x0000803F}
+		s %UsageHint{"ezCameraUsageHint::Thumbnail"}
+	}
+}
+o
+{
 	Uuid %id{u4{15750760655123705475,4905380829566005174}}
 	s %t{"ezPxShapeSphereComponent"}
 	u3 %v{1}
@@ -2968,6 +2995,32 @@ o
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{16443860958131709580,5037081577149900511}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{10094120498687320464,4897992364221053612}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x11C746C1,0xC92CA741,0x7D801B41}}
+		Quat %LocalRotation{f{0x501B4A3D,0x9667D23D,0x2B38DCBE,0xCD42653F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
 	}
 }
 o
@@ -3380,11 +3433,12 @@ o
 {
 	Uuid %id{u4{15936806453817812373,5202652778140485841}}
 	s %t{"ezCameraComponent"}
-	u3 %v{7}
+	u3 %v{8}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %CameraRenderPipeline{"Security Camera"}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{-1}
 		VarArray %ExcludeTags{}
@@ -3395,7 +3449,6 @@ o
 		VarArray %IncludeTags{}
 		s %Mode{"ezCameraMode::PerspectiveFixedFovY"}
 		f %NearPlane{0x0000803E}
-		s %RenderPipeline{"{ c5f16f65-8940-4283-9f91-b316dfa39e81 }"}
 		s %RenderTarget{"{ 045da91f-697c-4263-8910-5f752ec262b2 }"}
 		Vec2 %RenderTargetOffset{f{0,0}}
 		Vec2 %RenderTargetSize{f{0x0000803F,0x0000803F}}
@@ -5287,6 +5340,7 @@ o
 			Uuid{u4{15169171770471777931,5269891800892733001}}
 			Uuid{u4{15767496906941064895,4681543941965546034}}
 			Uuid{u4{18097998149559301686,10695318914685573647}}
+			Uuid{u4{16443860958131709580,5037081577149900511}}
 		}
 		Uuid %Settings{u4{15557571853882095506,5499502780363174236}}
 	}
@@ -13092,8 +13146,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeSize{520}
-		u3 %TypeVersion{7}
+		u3 %TypeSize{528}
+		u3 %TypeVersion{8}
 	}
 }
 o

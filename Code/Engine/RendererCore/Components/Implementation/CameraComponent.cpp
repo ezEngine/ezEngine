@@ -14,9 +14,13 @@
 ezCameraComponentManager::ezCameraComponentManager(ezWorld* pWorld)
     : ezComponentManager<ezCameraComponent, ezBlockStorageType::Compact>(pWorld)
 {
+  ezRenderWorld::s_CameraConfigsModifiedEvent.AddEventHandler(ezMakeDelegate(&ezCameraComponentManager::OnCameraConfigsChanged, this));
 }
 
-ezCameraComponentManager::~ezCameraComponentManager() = default;
+ezCameraComponentManager::~ezCameraComponentManager()
+{
+  ezRenderWorld::s_CameraConfigsModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezCameraComponentManager::OnCameraConfigsChanged, this));
+}
 
 void ezCameraComponentManager::Initialize()
 {
@@ -27,7 +31,6 @@ void ezCameraComponentManager::Initialize()
 
   ezRenderWorld::s_ViewCreatedEvent.AddEventHandler(ezMakeDelegate(&ezCameraComponentManager::OnViewCreated, this));
 }
-
 
 void ezCameraComponentManager::Deinitialize()
 {
@@ -44,9 +47,7 @@ void ezCameraComponentManager::Update(const ezWorldModule::UpdateContext& contex
       continue;
     }
 
-    ezCameraUsageHint::Enum usageHint = pCameraComponent->GetUsageHint();
-
-    if (ezView* pView = ezRenderWorld::GetViewByUsageHint(usageHint))
+    if (ezView* pView = ezRenderWorld::GetViewByUsageHint(pCameraComponent->GetUsageHint()))
     {
       pCameraComponent->ApplySettingsToView(pView);
     }
@@ -65,6 +66,20 @@ void ezCameraComponentManager::Update(const ezWorldModule::UpdateContext& contex
     }
 
     pCameraComponent->UpdateRenderTargetCamera();
+  }
+}
+
+void ezCameraComponentManager::ReinitializeAllRenderTargetCameras()
+{
+  EZ_LOCK(GetWorld()->GetWriteMarker());
+
+  for (auto it = GetComponents(); it.IsValid(); ++it)
+  {
+    if (it->IsActiveAndInitialized())
+    {
+      it->DeactivateRenderToTexture();
+      it->ActivateRenderToTexture();
+    }
   }
 }
 
@@ -113,10 +128,15 @@ void ezCameraComponentManager::OnViewCreated(ezView* pView)
   }
 }
 
+void ezCameraComponentManager::OnCameraConfigsChanged(void* dummy)
+{
+  ReinitializeAllRenderTargetCameras();
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 7, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 8, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -132,9 +152,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 7, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Dimensions", GetOrthoDimension, SetOrthoDimension)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.01f, 10000.0f)),
     EZ_SET_MEMBER_PROPERTY("IncludeTags", m_IncludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
     EZ_SET_MEMBER_PROPERTY("ExcludeTags", m_ExcludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
-    EZ_ACCESSOR_PROPERTY("RenderPipeline", GetRenderPipelineFile, SetRenderPipelineFile)->AddAttributes(new ezAssetBrowserAttribute("RenderPipeline")),
+    EZ_ACCESSOR_PROPERTY("CameraRenderPipeline", GetRenderPipelineEnum, SetRenderPipelineEnum)->AddAttributes(new ezDynamicStringEnumAttribute("CameraPipelines")),
     EZ_ACCESSOR_PROPERTY("Aperture", GetAperture, SetAperture)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(1.0f, 32.0f), new ezSuffixAttribute(" f-stop(s)")),
-    EZ_ACCESSOR_PROPERTY("ShutterTime", GetShutterTime, SetShutterTime)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(1.0f/100000.0f, 600.0f), new ezSuffixAttribute(" s")),
+    EZ_ACCESSOR_PROPERTY("ShutterTime", GetShutterTime, SetShutterTime)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(1.0f / 100000.0f, 600.0f), new ezSuffixAttribute(" s")),
     EZ_ACCESSOR_PROPERTY("ISO", GetISO, SetISO)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(50.0f, 64000.0f)),
     EZ_ACCESSOR_PROPERTY("ExposureCompensation", GetExposureCompensation, SetExposureCompensation)->AddAttributes(new ezClampValueAttribute(-32.0f, 32.0f)),
     EZ_MEMBER_PROPERTY("ShowStats", m_bShowStats),
@@ -142,7 +162,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 7, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY_READ_ONLY("Final Exposure", GetExposure),*/
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering"),
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::DarkSlateBlue),
@@ -183,8 +203,8 @@ void ezCameraComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fPerspectiveFieldOfView;
   s << m_fOrthoDimension;
 
-  // Version 2
-  s << m_hRenderPipeline;
+  // Version 2 till 7
+  // s << m_hRenderPipeline;
 
   // Version 3
   s << m_fAperture;
@@ -202,6 +222,9 @@ void ezCameraComponent::SerializeComponent(ezWorldWriter& stream) const
   // Version 7
   s << m_RenderTargetRectOffset;
   s << m_RenderTargetRectSize;
+
+  // Version 8
+  s << m_sRenderPipeline;
 }
 
 void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
@@ -225,8 +248,9 @@ void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fPerspectiveFieldOfView;
   s >> m_fOrthoDimension;
 
-  if (uiVersion >= 2)
+  if (uiVersion >= 2 && uiVersion <= 7)
   {
+    ezRenderPipelineResourceHandle m_hRenderPipeline;
     s >> m_hRenderPipeline;
   }
 
@@ -253,6 +277,11 @@ void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
   {
     s >> m_RenderTargetRectOffset;
     s >> m_RenderTargetRectSize;
+  }
+
+  if (uiVersion >= 8)
+  {
+    s >> m_sRenderPipeline;
   }
 
   MarkAsModified();
@@ -393,38 +422,25 @@ void ezCameraComponent::SetOrthoDimension(float val)
   MarkAsModified();
 }
 
-void ezCameraComponent::SetRenderPipeline(ezRenderPipelineResourceHandle hRenderPipeline)
+ezRenderPipelineResourceHandle ezCameraComponent::GetRenderPipeline() const
 {
-  if (hRenderPipeline == m_hRenderPipeline)
-    return;
+  return m_hCachedRenderPipeline;
+}
 
+const char* ezCameraComponent::GetRenderPipelineEnum() const
+{
+  return m_sRenderPipeline.GetData();
+}
+
+void ezCameraComponent::SetRenderPipelineEnum(const char* szFile)
+{
   DeactivateRenderToTexture();
 
-  m_hRenderPipeline = hRenderPipeline;
+  m_sRenderPipeline.Assign(szFile);
 
   ActivateRenderToTexture();
 
   MarkAsModified();
-}
-
-const char* ezCameraComponent::GetRenderPipelineFile() const
-{
-  if (!m_hRenderPipeline.IsValid())
-    return "";
-
-  return m_hRenderPipeline.GetResourceID();
-}
-
-void ezCameraComponent::SetRenderPipelineFile(const char* szFile)
-{
-  ezRenderPipelineResourceHandle hRenderPipeline;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hRenderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>(szFile);
-  }
-
-  SetRenderPipeline(hRenderPipeline);
 }
 
 void ezCameraComponent::SetAperture(float fAperture)
@@ -538,9 +554,9 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
     }
   }
 
-  if (m_hRenderPipeline.IsValid())
+  if (m_hCachedRenderPipeline.IsValid())
   {
-    pView->SetRenderPipelineResource(m_hRenderPipeline);
+    pView->SetRenderPipelineResource(m_hCachedRenderPipeline);
   }
 }
 
@@ -594,7 +610,7 @@ void ezCameraComponent::ActivateRenderToTexture()
   if (m_UsageHint != ezCameraUsageHint::RenderTarget)
     return;
 
-  if (m_bRenderTargetInitialized || !m_hRenderTarget.IsValid() || !m_hRenderPipeline.IsValid() || !IsActiveAndInitialized())
+  if (m_bRenderTargetInitialized || !m_hRenderTarget.IsValid() || m_sRenderPipeline.IsEmpty() || !IsActiveAndInitialized())
     return;
 
   ezResourceLock<ezTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::NoFallback);
@@ -603,6 +619,15 @@ void ezCameraComponent::ActivateRenderToTexture()
   {
     return;
   }
+
+  // query the render pipeline to use
+  if (const auto* pConfig = ezRenderWorld::FindCameraConfig(m_sRenderPipeline))
+  {
+    m_hCachedRenderPipeline = pConfig->m_hRenderPipeline;
+  }
+
+  if (!m_hCachedRenderPipeline.IsValid())
+    return;
 
   m_bRenderTargetInitialized = true;
 
@@ -614,7 +639,7 @@ void ezCameraComponent::ActivateRenderToTexture()
   ezView* pRenderTargetView = nullptr;
   m_hRenderTargetView = ezRenderWorld::CreateView(name, pRenderTargetView);
 
-  pRenderTargetView->SetRenderPipelineResource(m_hRenderPipeline);
+  pRenderTargetView->SetRenderPipelineResource(m_hCachedRenderPipeline);
 
   pRenderTargetView->SetWorld(GetWorld());
   pRenderTargetView->SetCamera(&m_RenderTargetCamera);
@@ -650,6 +675,7 @@ void ezCameraComponent::DeactivateRenderToTexture()
     return;
 
   m_bRenderTargetInitialized = false;
+  m_hCachedRenderPipeline.Invalidate();
 
   if (m_hRenderTarget.IsValid())
   {
@@ -682,9 +708,9 @@ void ezCameraComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>

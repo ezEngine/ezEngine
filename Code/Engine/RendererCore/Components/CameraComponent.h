@@ -19,6 +19,8 @@ public:
 
   void Update(const ezWorldModule::UpdateContext& context);
 
+  void ReinitializeAllRenderTargetCameras();
+
   const ezCameraComponent* GetCameraByUsageHint(ezCameraUsageHint::Enum usageHint) const;
   ezCameraComponent* GetCameraByUsageHint(ezCameraUsageHint::Enum usageHint);
 
@@ -29,6 +31,7 @@ private:
   void RemoveRenderTargetCamera(ezCameraComponent* pComponent);
 
   void OnViewCreated(ezView* pView);
+  void OnCameraConfigsChanged(void* dummy);
 
   ezDynamicArray<ezComponentHandle> m_modifiedCameras;
   ezDynamicArray<ezComponentHandle> m_RenderTargetCameras;
@@ -89,11 +92,10 @@ public:
   float GetOrthoDimension() const { return m_fOrthoDimension; }
   void SetOrthoDimension(float val);
 
-  ezRenderPipelineResourceHandle GetRenderPipeline() const { return m_hRenderPipeline; }
-  void SetRenderPipeline(ezRenderPipelineResourceHandle hRenderPipeline);
+  ezRenderPipelineResourceHandle GetRenderPipeline() const;
 
-  const char* GetRenderPipelineFile() const;
-  void SetRenderPipelineFile(const char* szFile);
+  const char* GetRenderPipelineEnum() const;
+  void SetRenderPipelineEnum(const char* szFile);
 
   float GetAperture() const { return m_fAperture; }
   void SetAperture(float fAperture);
@@ -125,7 +127,7 @@ private:
   float m_fFarPlane;
   float m_fPerspectiveFieldOfView;
   float m_fOrthoDimension;
-  ezRenderPipelineResourceHandle m_hRenderPipeline;
+  ezRenderPipelineResourceHandle m_hCachedRenderPipeline;
 
   float m_fAperture;
   float m_fShutterTime;
@@ -147,5 +149,6 @@ private:
   ezVec2 m_RenderTargetRectOffset = ezVec2(0.0f);
   ezVec2 m_RenderTargetRectSize = ezVec2(1.0f);
   ezCamera m_RenderTargetCamera;
+  ezHashedString m_sRenderPipeline;
 };
 
