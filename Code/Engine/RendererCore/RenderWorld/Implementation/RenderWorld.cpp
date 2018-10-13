@@ -16,6 +16,10 @@ ezEvent<ezView*> ezRenderWorld::s_ViewDeletedEvent;
 ezEvent<ezUInt64> ezRenderWorld::s_BeginFrameEvent;
 ezEvent<ezUInt64> ezRenderWorld::s_EndFrameEvent;
 
+ezEvent<void*> ezRenderWorld::s_CameraConfigsModifiedEvent;
+bool ezRenderWorld::s_bModifyingCameraConfigs = false;
+ezMap<ezString, ezRenderWorld::CameraConfig> ezRenderWorld::s_CameraConfigs;
+
 ezUInt64 ezRenderWorld::s_uiFrameCounter;
 
 namespace
@@ -56,7 +60,7 @@ namespace
   {
     MaxNumNewCacheEntries = 32
   };
-}
+} // namespace
 
 namespace ezInternal
 {
@@ -90,7 +94,7 @@ namespace ezInternal
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
   EZ_CHECK_AT_COMPILETIME(sizeof(RenderDataCacheEntry) == 16);
 #endif
-}
+} // namespace ezInternal
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RenderWorld)
@@ -646,6 +650,39 @@ void ezRenderWorld::OnEngineShutdown()
   s_Views.Clear();
 }
 
+void ezRenderWorld::BeginModifyCameraConfigs()
+{
+  EZ_ASSERT_DEBUG(!s_bModifyingCameraConfigs, "Recursive call not allowed.");
+  s_bModifyingCameraConfigs = true;
+}
 
+void ezRenderWorld::EndModifyCameraConfigs()
+{
+  EZ_ASSERT_DEBUG(s_bModifyingCameraConfigs, "You have to call ezRenderWorld::BeginModifyCameraConfigs first");
+  s_bModifyingCameraConfigs = false;
+  s_CameraConfigsModifiedEvent.Broadcast(nullptr);
+}
+
+void ezRenderWorld::ClearCameraConfigs()
+{
+  EZ_ASSERT_DEBUG(s_bModifyingCameraConfigs, "You have to call ezRenderWorld::BeginModifyCameraConfigs first");
+  s_CameraConfigs.Clear();
+}
+
+void ezRenderWorld::SetCameraConfig(const char* szName, const CameraConfig& config)
+{
+  EZ_ASSERT_DEBUG(s_bModifyingCameraConfigs, "You have to call ezRenderWorld::BeginModifyCameraConfigs first");
+  s_CameraConfigs[szName] = config;
+}
+
+const ezRenderWorld::CameraConfig* ezRenderWorld::FindCameraConfig(const char* szName)
+{
+  auto it = s_CameraConfigs.Find(szName);
+
+  if (!it.IsValid())
+    return nullptr;
+
+  return &it.Value();
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_RenderWorld_Implementation_RenderWorld);

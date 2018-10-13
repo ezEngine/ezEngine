@@ -211,23 +211,26 @@ void ezView::EnsureUpToDate()
 {
   EZ_ASSERT_DEBUG(m_hRenderPipeline.IsValid(), "Renderpipeline has not been set on this view");
 
-  ezResourceLock<ezRenderPipelineResource> pPipeline(m_hRenderPipeline, ezResourceAcquireMode::NoFallback);
-
-  ezUInt32 uiCounter = pPipeline->GetCurrentResourceChangeCounter();
-
-  if (m_uiRenderPipelineResourceDescriptionCounter != uiCounter)
+  if (m_hRenderPipeline.IsValid())
   {
-    m_uiRenderPipelineResourceDescriptionCounter = uiCounter;
+    ezResourceLock<ezRenderPipelineResource> pPipeline(m_hRenderPipeline, ezResourceAcquireMode::NoFallback);
 
-    m_pRenderPipeline = pPipeline->CreateRenderPipeline();
-    ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
+    ezUInt32 uiCounter = pPipeline->GetCurrentResourceChangeCounter();
 
-    ResetAllPropertyStates(m_PassProperties);
-    ResetAllPropertyStates(m_ExtractorProperties);
+    if (m_uiRenderPipelineResourceDescriptionCounter != uiCounter)
+    {
+      m_uiRenderPipelineResourceDescriptionCounter = uiCounter;
+
+      m_pRenderPipeline = pPipeline->CreateRenderPipeline();
+      ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
+
+      ResetAllPropertyStates(m_PassProperties);
+      ResetAllPropertyStates(m_ExtractorProperties);
+    }
+
+    ApplyRenderPassProperties();
+    ApplyExtractorProperties();
   }
-
-  ApplyRenderPassProperties();
-  ApplyExtractorProperties();
 }
 
 void ezView::SetProperty(ezMap<ezString, PropertyValue>& map, const char* szPassName, const char* szPropertyName, const ezVariant& value)

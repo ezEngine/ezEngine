@@ -5,6 +5,9 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <GameEngine/Configuration/PlatformProfile.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <Core/ResourceManager/ResourceManager.h>
+#include <RendererCore/Pipeline/RenderPipelineResource.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProfileTargetPlatform, 1)
@@ -198,6 +201,9 @@ void ezRenderPipelineProfileConfig::LoadRuntimeData(ezChunkStreamReader& stream)
 
   if (chunk.m_sChunkName == "ezRenderPipelineProfileConfig" && chunk.m_uiChunkVersion == 2)
   {
+    ezRenderWorld::BeginModifyCameraConfigs();
+    ezRenderWorld::ClearCameraConfigs();
+
     stream >> m_sMainRenderPipeline;
 
     m_CameraPipelines.Clear();
@@ -212,6 +218,13 @@ void ezRenderPipelineProfileConfig::LoadRuntimeData(ezChunkStreamReader& stream)
       stream >> sPipeAsset;
 
       m_CameraPipelines[sPipeName] = sPipeAsset;
+
+      ezRenderWorld::CameraConfig cfg;
+      cfg.m_hRenderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>(sPipeAsset);
+
+      ezRenderWorld::SetCameraConfig(sPipeName, cfg);
     }
+
+    ezRenderWorld::EndModifyCameraConfigs();
   }
 }

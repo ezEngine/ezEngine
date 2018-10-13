@@ -562,6 +562,9 @@ void ezProjectAction::Execute(const ezVariant& value)
         // we need to force the asset status reevaluation because when the profile settings have changed,
         // we need to figure out which assets are now out of date
         ezAssetCurator::GetSingleton()->SetActiveAssetProfileByIndex(dlg.m_uiActiveConfig, true);
+
+        // makes the scene re-select the current objects, which updates which enum values are shown in the property grid
+        ezToolsProject::BroadcastConfigChanged();
       }
     }
     break;

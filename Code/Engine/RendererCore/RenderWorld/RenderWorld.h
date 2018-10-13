@@ -1,6 +1,9 @@
 #pragma once
 
 #include <RendererCore/Pipeline/Declarations.h>
+#include <Core/ResourceManager/ResourceHandle.h>
+
+typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
 class EZ_RENDERERCORE_DLL ezRenderWorld
 {
@@ -17,7 +20,7 @@ public:
   static ezArrayPtr<ezViewHandle> GetMainViews();
 
   static void CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent,
-    ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries);
+                              ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries);
 
   static void DeleteAllCachedRenderData();
   static void DeleteCachedRenderData(const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent);
@@ -36,26 +39,39 @@ public:
   static ezEvent<ezView*> s_ViewCreatedEvent;
   static ezEvent<ezView*> s_ViewDeletedEvent;
   static ezEvent<ezUInt64> s_BeginFrameEvent; ///< Triggered at the end of BeginFrame.
-  static ezEvent<ezUInt64> s_EndFrameEvent; ///< Triggered at the beginning of EndFrame before the frame counter is incremented.
+  static ezEvent<ezUInt64> s_EndFrameEvent;   ///< Triggered at the beginning of EndFrame before the frame counter is incremented.
 
   static bool GetUseMultithreadedRendering();
 
-  EZ_ALWAYS_INLINE static ezUInt64 GetFrameCounter()
-  {
-    return s_uiFrameCounter;
-  }
+  EZ_ALWAYS_INLINE static ezUInt64 GetFrameCounter() { return s_uiFrameCounter; }
 
-  EZ_FORCE_INLINE static ezUInt32 GetDataIndexForExtraction()
-  {
-    return GetUseMultithreadedRendering() ? (s_uiFrameCounter & 1) : 0;
-  }
+  EZ_FORCE_INLINE static ezUInt32 GetDataIndexForExtraction() { return GetUseMultithreadedRendering() ? (s_uiFrameCounter & 1) : 0; }
 
-  EZ_FORCE_INLINE static ezUInt32 GetDataIndexForRendering()
-  {
-    return GetUseMultithreadedRendering() ? ((s_uiFrameCounter + 1) & 1) : 0;
-  }
+  EZ_FORCE_INLINE static ezUInt32 GetDataIndexForRendering() { return GetUseMultithreadedRendering() ? ((s_uiFrameCounter + 1) & 1) : 0; }
 
   static bool IsRenderingThread();
+
+  /// \name Render To Texture
+  /// @{
+public:
+  struct CameraConfig
+  {
+    ezRenderPipelineResourceHandle m_hRenderPipeline;
+  };
+
+  static void BeginModifyCameraConfigs();
+  static void EndModifyCameraConfigs();
+  static void ClearCameraConfigs();
+  static void SetCameraConfig(const char* szName, const CameraConfig& config);
+  static const CameraConfig* FindCameraConfig(const char* szName);
+
+  static ezEvent<void*> s_CameraConfigsModifiedEvent;
+
+private:
+  static bool s_bModifyingCameraConfigs;
+  static ezMap<ezString, CameraConfig> s_CameraConfigs;
+
+  /// @}
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RenderWorld);
@@ -71,4 +87,3 @@ private:
 
   static ezUInt64 s_uiFrameCounter;
 };
-

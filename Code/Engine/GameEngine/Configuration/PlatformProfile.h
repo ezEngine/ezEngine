@@ -77,7 +77,7 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezRenderPipelineProfileConfig : public ezProfileConfigData
+class EZ_GAMEENGINE_DLL ezRenderPipelineProfileConfig : public ezProfileConfigData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderPipelineProfileConfig, ezProfileConfigData);
 

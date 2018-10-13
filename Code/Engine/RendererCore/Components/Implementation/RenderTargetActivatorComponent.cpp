@@ -76,7 +76,6 @@ void ezRenderTargetActivatorComponent::OnExtractRenderData(ezMsgExtractRenderDat
 
   for (auto hView : pTexture->GetAllRenderViews())
   {
-    // ezLog::Debug("Adding camera view");
     ezRenderWorld::AddViewToRender(hView);
   }
 }

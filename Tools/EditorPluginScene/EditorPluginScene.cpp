@@ -8,6 +8,7 @@
 #include <EditorFramework/Actions/QuadViewActions.h>
 #include <EditorFramework/Actions/TransformGizmoActions.h>
 #include <EditorFramework/Actions/ViewActions.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Visualizers/VisualizerAdapterRegistry.h>
 #include <EditorPluginScene/Actions/GizmoActions.h>
@@ -22,6 +23,7 @@
 #include <GuiFoundation/Action/EditActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
+#include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
@@ -50,6 +52,29 @@ void ToolsProjectEventHandler(const ezEditorAppEvent& e)
   }
 }
 
+void AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
+{
+  if (e.m_Type == ezAssetCuratorEvent::Type::ActivePlatformChanged)
+  {
+    ezSet<ezString> allCamPipes;
+
+    auto& dynEnum = ezDynamicStringEnum::GetDynamicEnum("CameraPipelines");
+    dynEnum.Clear();
+
+    for (ezUInt32 profileIdx = 0; profileIdx < ezAssetCurator::GetSingleton()->GetNumAssetProfiles(); ++profileIdx)
+    {
+      const ezPlatformProfile* pProfile = ezAssetCurator::GetSingleton()->GetAssetProfile(profileIdx);
+
+      const ezRenderPipelineProfileConfig* pConfig = pProfile->GetTypeConfig<ezRenderPipelineProfileConfig>();
+
+      for (auto it = pConfig->m_CameraPipelines.GetIterator(); it.IsValid(); ++it)
+      {
+        dynEnum.AddValidValue(it.Key(), true);
+      }
+    }
+  }
+}
+
 void ezCameraComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
 void OnLoadPlugin(bool bReloading)
@@ -59,6 +84,8 @@ void OnLoadPlugin(bool bReloading)
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginScene", "ezEnginePluginScene");
 
   ezQtEditorApp::GetSingleton()->m_Events.AddEventHandler(ToolsProjectEventHandler);
+
+  ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(AssetCuratorEventHandler);
 
   // Add built in tags
   {
