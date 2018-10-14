@@ -252,6 +252,7 @@ set (EZ_BUILD_SAMPLES ON CACHE BOOL "Whether sample projects should be added to 
 set (EZ_BUILD_GAMES OFF CACHE BOOL "Whether game projects should be added to the solution")
 set (EZ_BUILD_UNITTESTS ON CACHE BOOL "Whether unit-test projects should be added to the solution")
 set (EZ_BUILD_PHYSX OFF CACHE BOOL "Whether support for nVidia PhysX should be added")
+set (EZ_BUILD_KRAUT ON CACHE BOOL "Whether support for Kraut should be added")
 set (EZ_BUILD_FMOD OFF CACHE BOOL "Whether support for FMod should be added")
 set (EZ_BUILD_OFFICIAL_FBX_SDK OFF CACHE BOOL "Whether to use the official Autodesk FBX SDK or not")
 set (EZ_ENABLE_FOLDER_UNITY_FILES ON CACHE BOOL "Whether unity cpp files should be created per folder")
