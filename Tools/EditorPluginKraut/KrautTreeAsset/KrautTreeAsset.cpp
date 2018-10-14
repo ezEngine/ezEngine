@@ -6,9 +6,10 @@
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAsset.h>
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetManager.h>
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetObjects.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/Math/Random.h>
 #include <Foundation/Utilities/Progress.h>
 #include <KrautPlugin/KrautTreeResource.h>
-#include <Foundation/Math/Random.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -32,31 +33,128 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
-  ezKrautTreeAssetProperties* pProp = GetProperties();
+  const ezKrautTreeAssetProperties* pProp = GetProperties();
 
-  ezRandom rnd;
-  rnd.InitializeFromCurrentTime();
-  
   ezKrautTreeResourceDescriptor desc;
 
-  ezGeometry geo;
-  geo.AddCylinder(rnd.DoubleMinMax(0.1f, 0.3f), rnd.DoubleMinMax(0.3f, 0.4f), rnd.DoubleMinMax(1.0f, 2.5f), true, false, rnd.IntMinMax(8, 32),
-                  ezColor::SaddleBrown);
+  ezFileReader krautFile;
+  if (krautFile.Open(pProp->m_sKrautFile).Failed())
+    return ezStatus(ezFmt("Could not open Kraut file '{0}'", pProp->m_sKrautFile));
 
-  geo.TriangulatePolygons();
-
-  desc.m_Positions.Reserve(geo.GetVertices().GetCount());
-  for (const auto& vtx : geo.GetVertices())
   {
-    desc.m_Positions.PushBack(vtx.m_vPosition);
-  }
+    char signature[8];
+    krautFile.ReadBytes(signature, 7);
+    signature[7] = '\0';
 
-  desc.m_TriangleIndices.Reserve(geo.GetPolygons().GetCount() * 3);
-  for (const auto& poly : geo.GetPolygons())
-  {
-    desc.m_TriangleIndices.PushBack(poly.m_Vertices[0]);
-    desc.m_TriangleIndices.PushBack(poly.m_Vertices[1]);
-    desc.m_TriangleIndices.PushBack(poly.m_Vertices[2]);
+    if (!ezStringUtils::IsEqual(signature, "{KRAUT}"))
+      return ezStatus("File is not a valid Kraut file");
+
+    ezUInt8 uiVersion = 0;
+    krautFile >> uiVersion;
+
+    if (uiVersion != 1)
+      return ezStatus(ezFmt("Unknown Kraut file format version {0}", uiVersion));
+
+    ezBoundingBox bbox;
+    krautFile >> bbox.m_vMin;
+    krautFile >> bbox.m_vMax;
+
+    ezUInt8 uiNumLODs = 0;
+    krautFile >> uiNumLODs;
+
+    ezUInt8 uiNumMaterialTypes = 0;
+    krautFile >> uiNumMaterialTypes;
+
+    for (ezUInt8 type = 0; type < uiNumMaterialTypes; ++type)
+    {
+      ezUInt8 uiNumMatsOfType = 0;
+      krautFile >> uiNumMatsOfType;
+
+      for (ezUInt8 matOfType = 0; matOfType < uiNumMatsOfType; ++matOfType)
+      {
+        ezString sDiffuseTexture;
+        krautFile >> sDiffuseTexture;
+
+        ezString sNormalMapTexture;
+        krautFile >> sNormalMapTexture;
+
+        ezColorGammaUB variationColor;
+        krautFile >> variationColor;
+      }
+    }
+
+    ezUInt8 uiNumMeshTypes = 0;
+    krautFile >> uiNumMeshTypes;
+
+    for (ezUInt8 lodLevel = 0; lodLevel < uiNumLODs; ++lodLevel)
+    {
+      float fLodDistance = 0;
+      krautFile >> fLodDistance;
+
+      ezUInt8 lodType = 0;
+      krautFile >> lodType; // 0 == full mesh, 1 == 4 quad impostor, 2 == 2 quad impostor, 3 == billboard impostor
+
+      ezUInt8 uiNumMatTypesUsed = 0;
+      krautFile >> uiNumMatTypesUsed;
+
+      for (ezUInt8 materialType = 0; materialType < uiNumMatTypesUsed; ++materialType)
+      {
+        ezUInt8 uiCurMatType = 0;
+        krautFile >> uiCurMatType;
+
+        ezUInt8 uiNumMeshes = 0;
+        krautFile >> uiNumMeshes;
+
+        const bool bUseMeshData = lodLevel == 0 && uiCurMatType == 0;
+
+        for (ezUInt8 uiMeshIdx = 0; uiMeshIdx < uiNumMeshes; ++uiMeshIdx)
+        {
+          const ezUInt32 uiIndexOffset = desc.m_TriangleIndices.GetCount();
+
+          ezUInt8 uiMaterialID = 0;
+          krautFile >> uiMaterialID;
+
+          ezUInt32 uiNumVertices = 0;
+          krautFile >> uiNumVertices;
+
+          ezUInt32 uiNumTriangles = 0;
+          krautFile >> uiNumTriangles;
+
+          for (ezUInt32 v = 0; v < uiNumVertices; ++v)
+          {
+            ezVec3 pos, texcoord, normal, tangent;
+            krautFile >> pos;
+            krautFile >> texcoord;
+            krautFile >> normal;
+            krautFile >> tangent;
+
+            ezColorGammaUB variationColor;
+            krautFile >> variationColor;
+
+            ezMath::Swap(pos.y, pos.z);
+            pos *= pProp->m_fUniformScaling;
+
+            if (bUseMeshData)
+            {
+              desc.m_Positions.PushBack(pos);
+            }
+          }
+
+          for (ezUInt32 t = 0; t < uiNumTriangles; ++t)
+          {
+            ezUInt32 idx[3];
+            krautFile.ReadBytes(idx, sizeof(ezUInt32) * 3);
+
+            if (bUseMeshData)
+            {
+              desc.m_TriangleIndices.PushBack(uiIndexOffset + idx[0]);
+              desc.m_TriangleIndices.PushBack(uiIndexOffset + idx[2]);
+              desc.m_TriangleIndices.PushBack(uiIndexOffset + idx[1]);
+            }
+          }
+        }
+      }
+    }
   }
 
   desc.Save(stream);

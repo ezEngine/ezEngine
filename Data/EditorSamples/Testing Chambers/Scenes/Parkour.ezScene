@@ -15,7 +15,7 @@ o
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{1070070837655231526}
+		u4 %Hash{8506540650025012024}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -38,6 +38,7 @@ o
 			s{"{ 4795f5c4-4a78-4c13-937e-cf3e6bdecb7c }"}
 			s{"{ 538ab906-480a-4f02-8447-7d004c2a721c }"}
 			s{"{ 5451b35f-d73c-402e-a540-c542d3e52be0 }"}
+			s{"{ 551dcb0f-88d2-461d-9b18-6f85887b43fa }"}
 			s{"{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }"}
 			s{"{ 61cf41fb-176e-41e1-bcd6-fcbe5f853339 }"}
 			s{"{ 6408e044-3a82-4db6-bfb8-27c7320daa53 }"}
@@ -2669,6 +2670,17 @@ o
 }
 o
 {
+	Uuid %id{u4{6705246334022912402,4979610814433209408}}
+	s %t{"ezKrautTreeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %KrautTree{"{ 551dcb0f-88d2-461d-9b18-6f85887b43fa }"}
+	}
+}
+o
+{
 	Uuid %id{u4{2240340873787033762,4985812520305059805}}
 	s %t{"ezAmbientLightComponent"}
 	u3 %v{2}
@@ -3182,6 +3194,32 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7466985019718475686,5120393828831917659}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{6705246334022912402,4979610814433209408}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000040C1,0x00007C41,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
 	}
 }
 o
@@ -5341,6 +5379,7 @@ o
 			Uuid{u4{15767496906941064895,4681543941965546034}}
 			Uuid{u4{18097998149559301686,10695318914685573647}}
 			Uuid{u4{16443860958131709580,5037081577149900511}}
+			Uuid{u4{7466985019718475686,5120393828831917659}}
 		}
 		Uuid %Settings{u4{15557571853882095506,5499502780363174236}}
 	}
@@ -13354,6 +13393,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezRenderComponent"}
 		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9882684502593738813,12242697362626301325}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautTreeComponent"}
+		u3 %TypeSize{64}
 		u3 %TypeVersion{1}
 	}
 }
