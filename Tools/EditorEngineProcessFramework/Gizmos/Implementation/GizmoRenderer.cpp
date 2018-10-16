@@ -51,18 +51,18 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
 
   const ezMeshResourceHandle& hMesh = pRenderData->m_hMesh;
   const ezMaterialResourceHandle& hMaterial = pRenderData->m_hMaterial;
-  ezUInt32 uiPartIndex = pRenderData->m_uiPartIndex;
+  ezUInt32 uiSubMeshIndex = pRenderData->m_uiSubMeshIndex;
 
   ezResourceLock<ezMeshResource> pMesh(hMesh);
 
   // This can happen when the resource has been reloaded and now has fewer submeshes.
   const auto& subMeshes = pMesh->GetSubMeshes();
-  if (subMeshes.GetCount() <= uiPartIndex)
+  if (subMeshes.GetCount() <= uiSubMeshIndex)
   {
     return;
   }
 
-  const ezMeshResourceDescriptor::SubMesh& meshPart = subMeshes[uiPartIndex];
+  const ezMeshResourceDescriptor::SubMesh& meshPart = subMeshes[uiSubMeshIndex];
 
   renderViewContext.m_pRenderContext->BindMeshBuffer(pMesh->GetMeshBuffer());
   renderViewContext.m_pRenderContext->BindMaterial(hMaterial);
@@ -86,7 +86,7 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
 
     EZ_ASSERT_DEV(pRenderData->m_hMesh == hMesh, "Invalid batching (mesh)");
     EZ_ASSERT_DEV(pRenderData->m_hMaterial == hMaterial, "Invalid batching (material)");
-    EZ_ASSERT_DEV(pRenderData->m_uiPartIndex == uiPartIndex, "Invalid batching (part)");
+    EZ_ASSERT_DEV(pRenderData->m_uiSubMeshIndex == uiSubMeshIndex, "Invalid batching (part)");
 
     ezColor color = pRenderData->m_GizmoColor;
     // Highest bit is used to indicate whether the object is dynamic, so exclude it in this check

@@ -32,7 +32,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
 
   const ezMeshResourceHandle& hMesh = pRenderData->m_hMesh;
   const ezMaterialResourceHandle& hMaterial = pRenderData->m_hMaterial;
-  const ezUInt32 uiPartIndex = pRenderData->m_uiPartIndex;
+  const ezUInt32 uiPartIndex = pRenderData->m_uiSubMeshIndex;
 
   ezResourceLock<ezMeshResource> pMesh(hMesh);
 

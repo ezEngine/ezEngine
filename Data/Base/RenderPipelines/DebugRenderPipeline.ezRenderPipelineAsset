@@ -170,7 +170,7 @@ o
 o
 {
 	Uuid %id{u4{13668863250032529538,4647244343652783321}}
-	s %t{"ezKrautBranchRenderer"}
+	s %t{"ezKrautRenderer"}
 	u3 %v{1}
 	p{}
 }
@@ -203,7 +203,7 @@ o
 o
 {
 	Uuid %id{u4{5645880759466283187,4712963028805022335}}
-	s %t{"ezKrautBranchRenderer"}
+	s %t{"ezKrautRenderer"}
 	u3 %v{1}
 	p{}
 }
@@ -217,7 +217,7 @@ o
 o
 {
 	Uuid %id{u4{12410267702066283675,4724537871078020982}}
-	s %t{"ezKrautBranchRenderer"}
+	s %t{"ezKrautRenderer"}
 	u3 %v{1}
 	p{}
 }
@@ -630,7 +630,7 @@ o
 o
 {
 	Uuid %id{u4{1577519954527644818,5596154365799182777}}
-	s %t{"ezKrautBranchRenderer"}
+	s %t{"ezKrautRenderer"}
 	u3 %v{1}
 	p{}
 }
@@ -703,7 +703,7 @@ o
 o
 {
 	Uuid %id{u4{5219441237605029822,5667520729059224836}}
-	s %t{"ezKrautBranchRenderer"}
+	s %t{"ezKrautRenderer"}
 	u3 %v{1}
 	p{}
 }
@@ -1071,7 +1071,7 @@ o
 		s %ParentTypeName{"ezRenderer"}
 		s %PluginName{"ezEditorPluginKraut"}
 		VarArray %Properties{}
-		s %TypeName{"ezKrautBranchRenderer"}
+		s %TypeName{"ezKrautRenderer"}
 		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}

@@ -20,7 +20,7 @@ public:
   ezArrayPtr<const ezUInt8>
       m_pNewSkinningMatricesData; // Optional - if set the buffer specified in m_hSkinningMatrices will be updated with this data
 
-  ezUInt32 m_uiPartIndex : 30;
+  ezUInt32 m_uiSubMeshIndex : 30;
   ezUInt32 m_uiFlipWinding : 1;
   ezUInt32 m_uiUniformScale : 1;
 

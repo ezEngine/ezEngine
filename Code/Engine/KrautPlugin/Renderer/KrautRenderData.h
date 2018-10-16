@@ -6,30 +6,14 @@
 
 typedef ezTypedResourceHandle<class ezMeshResource> ezMeshResourceHandle;
 
-class EZ_KRAUTPLUGIN_DLL ezKrautBranchRenderData : public ezRenderData
+class EZ_KRAUTPLUGIN_DLL ezKrautRenderData : public ezRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezKrautBranchRenderData, ezRenderData);
+  EZ_ADD_DYNAMIC_REFLECTION(ezKrautRenderData, ezRenderData);
 
 public:
   ezMeshResourceHandle m_hMesh;
-  ezUInt32 m_uiPartIndex;
+  ezUInt32 m_uiSubMeshIndex;
   ezUInt32 m_uiUniqueID;
   float m_fLodDistanceMinSQR;
   float m_fLodDistanceMaxSQR;
 };
-
-//class EZ_KRAUTPLUGIN_DLL ezKrautFrondsRenderData : public ezRenderData
-//{
-//  EZ_ADD_DYNAMIC_REFLECTION(ezKrautFrondsRenderData, ezRenderData);
-//
-//public:
-//
-//
-//};
-//
-//class EZ_KRAUTPLUGIN_DLL ezKrautLeavesRenderData : public ezRenderData
-//{
-//  EZ_ADD_DYNAMIC_REFLECTION(ezKrautLeavesRenderData, ezRenderData);
-//
-//public:
-//};

@@ -210,7 +210,7 @@ void ezMeshComponentBase::OnExtractRenderData(ezMsgExtractRenderData& msg) const
       pRenderData->m_hMaterial = hMaterial;
       pRenderData->m_Color = m_Color;
 
-      pRenderData->m_uiPartIndex = uiPartIndex;
+      pRenderData->m_uiSubMeshIndex = uiPartIndex;
       pRenderData->m_uiFlipWinding = uiFlipWinding;
       pRenderData->m_uiUniformScale = uiUniformScale;
 

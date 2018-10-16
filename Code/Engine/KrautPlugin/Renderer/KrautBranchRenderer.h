@@ -6,14 +6,14 @@
 struct ezPerInstanceData;
 
 /// \brief Implements rendering of static meshes
-class EZ_KRAUTPLUGIN_DLL ezKrautBranchRenderer : public ezRenderer
+class EZ_KRAUTPLUGIN_DLL ezKrautRenderer : public ezRenderer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezKrautBranchRenderer, ezRenderer);
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezKrautBranchRenderer);
+  EZ_ADD_DYNAMIC_REFLECTION(ezKrautRenderer, ezRenderer);
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezKrautRenderer);
 
 public:
-  ezKrautBranchRenderer();
-  ~ezKrautBranchRenderer();
+  ezKrautRenderer();
+  ~ezKrautRenderer();
 
   // ezRenderer implementation
   virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) override;

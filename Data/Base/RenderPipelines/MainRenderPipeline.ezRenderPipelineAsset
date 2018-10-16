@@ -224,7 +224,7 @@ o
 o
 {
 	Uuid %id{u4{6143779478819064249,4705507899664284791}}
-	s %t{"ezKrautBranchRenderer"}
+	s %t{"ezKrautRenderer"}
 	u3 %v{1}
 	p{}
 }
@@ -982,7 +982,7 @@ o
 		s %ParentTypeName{"ezRenderer"}
 		s %PluginName{"ezEditorPluginKraut"}
 		VarArray %Properties{}
-		s %TypeName{"ezKrautBranchRenderer"}
+		s %TypeName{"ezKrautRenderer"}
 		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}

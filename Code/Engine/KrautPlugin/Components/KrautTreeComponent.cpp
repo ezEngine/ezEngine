@@ -97,9 +97,9 @@ void ezKrautTreeComponent::SetKrautTree(const ezKrautTreeResourceHandle& hTree)
   }
 }
 
-ezKrautBranchRenderData* ezKrautTreeComponent::CreateBranchRenderData(ezUInt32 uiBatchId) const
+ezKrautRenderData* ezKrautTreeComponent::CreateBranchRenderData(ezUInt32 uiBatchId) const
 {
-  return ezCreateRenderDataForThisFrame<ezKrautBranchRenderData>(GetOwner(), uiBatchId);
+  return ezCreateRenderDataForThisFrame<ezKrautRenderData>(GetOwner(), uiBatchId);
 }
 
 void ezKrautTreeComponent::Initialize()
@@ -130,12 +130,12 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
     ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, uiPartIndex, 0};
     ezUInt32 uiBatchId = ezHashing::xxHash32(data, sizeof(data));
 
-    ezKrautBranchRenderData* pRenderData = CreateBranchRenderData(uiBatchId);
+    ezKrautRenderData* pRenderData = CreateBranchRenderData(uiBatchId);
     {
       pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
       pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
       pRenderData->m_hMesh = m_hMesh;
-      pRenderData->m_uiPartIndex = uiPartIndex;
+      pRenderData->m_uiSubMeshIndex = uiPartIndex;
       pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
 
       pRenderData->m_fLodDistanceMinSQR = ezMath::Square(0.0f);

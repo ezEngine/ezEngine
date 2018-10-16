@@ -265,7 +265,7 @@ void ezPxVisColMeshComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) c
       pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
       pRenderData->m_hMesh = m_hMesh;
       pRenderData->m_hMaterial = hMaterial;
-      pRenderData->m_uiPartIndex = uiPartIndex;
+      pRenderData->m_uiSubMeshIndex = uiPartIndex;
       pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
     }
 

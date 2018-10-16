@@ -231,7 +231,7 @@ void ezParticleTypeMesh::ExtractTypeRenderData(const ezView& view, ezExtractedRe
         pRenderData->m_hMaterial = m_hMaterial;
         pRenderData->m_Color = pColor[idx].ToLinearFloat() * tintColor;
 
-        pRenderData->m_uiPartIndex = 0;
+        pRenderData->m_uiSubMeshIndex = 0;
         pRenderData->m_uiFlipWinding = uiFlipWinding;
         pRenderData->m_uiUniformScale = 1;
 

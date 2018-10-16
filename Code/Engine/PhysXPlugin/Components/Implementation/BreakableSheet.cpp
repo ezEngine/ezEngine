@@ -298,7 +298,7 @@ void ezBreakableSheetComponent::OnExtractRenderData(ezMsgExtractRenderData& msg)
       }
     }
 
-    pRenderData->m_uiPartIndex = 0;
+    pRenderData->m_uiSubMeshIndex = 0;
     pRenderData->m_uiFlipWinding = uiFlipWinding;
     pRenderData->m_uiUniformScale = uiUniformScale;
 

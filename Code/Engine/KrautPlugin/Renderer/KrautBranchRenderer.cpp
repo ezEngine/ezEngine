@@ -13,35 +13,35 @@
 #include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautBranchRenderData, 1, ezRTTIDefaultAllocator<ezKrautBranchRenderData>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautRenderData, 1, ezRTTIDefaultAllocator<ezKrautRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautBranchRenderer, 1, ezRTTIDefaultAllocator<ezKrautBranchRenderer>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautRenderer, 1, ezRTTIDefaultAllocator<ezKrautRenderer>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezKrautBranchRenderer::ezKrautBranchRenderer() = default;
-ezKrautBranchRenderer::~ezKrautBranchRenderer() = default;
+ezKrautRenderer::ezKrautRenderer() = default;
+ezKrautRenderer::~ezKrautRenderer() = default;
 
-void ezKrautBranchRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)
+void ezKrautRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)
 {
-  types.PushBack(ezGetStaticRTTI<ezKrautBranchRenderData>());
+  types.PushBack(ezGetStaticRTTI<ezKrautRenderData>());
 }
 
-void ezKrautBranchRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass,
+void ezKrautRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass,
                                         const ezRenderDataBatch& batch)
 {
   ezRenderContext* pContext = renderViewContext.m_pRenderContext;
 
-  const ezKrautBranchRenderData* pRenderData = batch.GetFirstData<ezKrautBranchRenderData>();
+  const ezKrautRenderData* pRenderData = batch.GetFirstData<ezKrautRenderData>();
 
   ezResourceLock<ezMeshResource> pMesh(pRenderData->m_hMesh);
 
   // This can happen when the resource has been reloaded and now has fewer sub-meshes.
-  if (pMesh->GetSubMeshes().GetCount() <= pRenderData->m_uiPartIndex)
+  if (pMesh->GetSubMeshes().GetCount() <= pRenderData->m_uiSubMeshIndex)
     return;
 
-  const auto& subMesh = pMesh->GetSubMeshes()[pRenderData->m_uiPartIndex];
+  const auto& subMesh = pMesh->GetSubMeshes()[pRenderData->m_uiSubMeshIndex];
 
   ezInstanceData* pInstanceData = pPass->GetPipeline()->GetFrameDataProvider<ezInstanceDataProvider>()->GetData(renderViewContext);
   pInstanceData->BindResources(pContext);
@@ -77,7 +77,7 @@ void ezKrautBranchRenderer::RenderBatch(const ezRenderViewContext& renderViewCon
 
       if (pContext->DrawMeshBuffer(subMesh.m_uiPrimitiveCount, subMesh.m_uiFirstPrimitive, uiRenderedInstances).Failed())
       {
-        for (auto it = batch.GetIterator<ezKrautBranchRenderData>(uiStartIndex, instanceData.GetCount()); it.IsValid(); ++it)
+        for (auto it = batch.GetIterator<ezKrautRenderData>(uiStartIndex, instanceData.GetCount()); it.IsValid(); ++it)
         {
           pRenderData = it;
 
@@ -94,15 +94,15 @@ void ezKrautBranchRenderer::RenderBatch(const ezRenderViewContext& renderViewCon
   }
 }
 
-void ezKrautBranchRenderer::FillPerInstanceData(const ezVec3& vLodCamPos, ezArrayPtr<ezPerInstanceData> instanceData,
+void ezKrautRenderer::FillPerInstanceData(const ezVec3& vLodCamPos, ezArrayPtr<ezPerInstanceData> instanceData,
                                                 const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount)
 {
   ezUInt32 uiCount = ezMath::Min<ezUInt32>(instanceData.GetCount(), batch.GetCount() - uiStartIndex);
   ezUInt32 uiCurrentIndex = 0;
 
-  for (auto it = batch.GetIterator<ezKrautBranchRenderData>(uiStartIndex, uiCount); it.IsValid(); ++it)
+  for (auto it = batch.GetIterator<ezKrautRenderData>(uiStartIndex, uiCount); it.IsValid(); ++it)
   {
-    const ezKrautBranchRenderData* pRenderData = it;
+    const ezKrautRenderData* pRenderData = it;
 
     const float fDistanceSQR = (pRenderData->m_GlobalTransform.m_vPosition - vLodCamPos).GetLengthSquared();
 

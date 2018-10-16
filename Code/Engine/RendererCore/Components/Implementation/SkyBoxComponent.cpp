@@ -116,7 +116,7 @@ void ezSkyBoxComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
     pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
     pRenderData->m_hMesh = m_hMesh;
     pRenderData->m_hMaterial = hMaterial;
-    pRenderData->m_uiPartIndex = 0;
+    pRenderData->m_uiSubMeshIndex = 0;
     pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
   }
 
