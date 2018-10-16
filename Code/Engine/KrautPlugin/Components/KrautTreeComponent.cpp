@@ -3,8 +3,9 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <KrautPlugin/KrautTreeComponent.h>
-#include <KrautPlugin/KrautTreeResource.h>
+#include <KrautPlugin/Components/KrautTreeComponent.h>
+#include <KrautPlugin/Renderer/KrautRenderData.h>
+#include <KrautPlugin/Resources/KrautTreeResource.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
 
 // clang-format off
@@ -30,7 +31,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezKrautTreeComponent::ezKrautTreeComponent() = default;
-
 ezKrautTreeComponent::~ezKrautTreeComponent() = default;
 
 void ezKrautTreeComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -97,9 +97,9 @@ void ezKrautTreeComponent::SetKrautTree(const ezKrautTreeResourceHandle& hTree)
   }
 }
 
-ezMeshRenderData* ezKrautTreeComponent::CreateRenderData(ezUInt32 uiBatchId) const
+ezKrautBranchRenderData* ezKrautTreeComponent::CreateBranchRenderData(ezUInt32 uiBatchId) const
 {
-  return ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
+  return ezCreateRenderDataForThisFrame<ezKrautBranchRenderData>(GetOwner(), uiBatchId);
 }
 
 void ezKrautTreeComponent::Initialize()
@@ -122,29 +122,28 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
   for (ezUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
   {
     const ezUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
-    ezMaterialResourceHandle hMaterial;
 
-    hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
-
+    const ezMaterialResourceHandle& hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
     const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? hMaterial.GetResourceIDHash() : 0;
-    const ezUInt32 uiFlipWinding = GetOwner()->GetGlobalTransformSimd().ContainsNegativeScale() ? 1 : 0;
 
     // Generate batch id from mesh, material and part index.
-    ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, uiPartIndex, uiFlipWinding};
+    ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, uiPartIndex, 0};
     ezUInt32 uiBatchId = ezHashing::xxHash32(data, sizeof(data));
 
-    ezMeshRenderData* pRenderData = CreateRenderData(uiBatchId);
+    ezKrautBranchRenderData* pRenderData = CreateBranchRenderData(uiBatchId);
     {
       pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
       pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
       pRenderData->m_hMesh = m_hMesh;
-      pRenderData->m_hMaterial = hMaterial;
       pRenderData->m_uiPartIndex = uiPartIndex;
       pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
+
+      pRenderData->m_fLodDistanceMinSQR = ezMath::Square(0.0f);
+      pRenderData->m_fLodDistanceMaxSQR = ezMath::Square(15.0f);
     }
 
     // Sort by material and then by mesh
-    ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE) | uiFlipWinding;
+    ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE);
     msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, uiSortingKey);
   }
 }

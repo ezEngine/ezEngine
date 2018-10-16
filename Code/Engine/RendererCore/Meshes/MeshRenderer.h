@@ -21,7 +21,5 @@ public:
 
 protected:
   virtual void FillPerInstanceData(ezArrayPtr<ezPerInstanceData> instanceData, const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount);
-
-  ezInt32 m_iInstancingThreshold;
 };
 

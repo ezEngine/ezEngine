@@ -14,14 +14,8 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderer, 1, ezRTTIDefaultAllocator<ezMeshRenderer>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezMeshRenderer::ezMeshRenderer()
-{
-  m_iInstancingThreshold = 4;
-}
-
-ezMeshRenderer::~ezMeshRenderer()
-{
-}
+ezMeshRenderer::ezMeshRenderer() = default;
+ezMeshRenderer::~ezMeshRenderer() = default;
 
 void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)
 {

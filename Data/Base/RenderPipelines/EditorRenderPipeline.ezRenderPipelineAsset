@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5189305147899033520,5264929536831011917}}
-		u4 %Hash{6556535734650125473}
+		u4 %Hash{15881489602516256472}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -196,6 +196,7 @@ o
 		{
 			Uuid{u4{8572519140822481814,5115429687416637240}}
 			Uuid{u4{2525688839503522177,5256496497190223221}}
+			Uuid{u4{12304351749537969544,5730477297285395498}}
 		}
 		Uuid %SSAO{u4{10014464533277532545,18010022855292060175}}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
@@ -318,6 +319,7 @@ o
 		{
 			Uuid{u4{15908379640670307974,5435930448957772873}}
 			Uuid{u4{5195427630916243640,5262939826083674192}}
+			Uuid{u4{2787901402368090031,5086637284769981632}}
 		}
 	}
 }
@@ -362,6 +364,13 @@ o
 		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x3F5D83C3,0xFB7437C4}}
 	}
+}
+o
+{
+	Uuid %id{u4{2787901402368090031,5086637284769981632}}
+	s %t{"ezKrautBranchRenderer"}
+	u3 %v{1}
+	p{}
 }
 o
 {
@@ -508,6 +517,7 @@ o
 			Uuid{u4{5279631335643222928,4716192131349286461}}
 			Uuid{u4{14597986153625371787,4692219363761142632}}
 			Uuid{u4{11720134540286111636,4778990587135628085}}
+			Uuid{u4{9502974543971867299,5316043036017447015}}
 		}
 	}
 }
@@ -559,6 +569,13 @@ o
 }
 o
 {
+	Uuid %id{u4{9502974543971867299,5316043036017447015}}
+	s %t{"ezKrautBranchRenderer"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{16262109524692299682,5328279104252697333}}
 	s %t{"ezAOPass"}
 	u3 %v{1}
@@ -578,7 +595,7 @@ o
 		{
 			Uuid{u4{15124418793120724970,8640591548459448048}}
 		}
-		Vec2 %Node::Pos{f{0xC4B2A9C4,0xC263B6C2}}
+		Vec2 %Node::Pos{f{0xC4B2A9C4,0xA4BAB3C2}}
 		Uuid %Output{u4{11814339491125807832,1747476320831084194}}
 		f %PositionBias{0x0000A040}
 		f %Radius{0x0000803F}
@@ -731,6 +748,13 @@ o
 		Vec2 %Node::Pos{f{0xE599DA41,0x1B513EC4}}
 		Uuid %SceneContext{u4{0,0}}
 	}
+}
+o
+{
+	Uuid %id{u4{12304351749537969544,5730477297285395498}}
+	s %t{"ezKrautBranchRenderer"}
+	u3 %v{1}
+	p{}
 }
 o
 {
@@ -1227,6 +1251,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleTrailRenderer"}
 		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9544632378134097930,83111648224110162}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderer"}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautBranchRenderer"}
+		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1867,7 +1909,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshRenderer"}
-		u3 %TypeSize{16}
+		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

@@ -1,7 +1,7 @@
 #include <PCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
-#include <KrautPlugin/KrautTreeResource.h>
+#include <KrautPlugin/Resources/KrautTreeResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeResource, 1, ezRTTIDefaultAllocator<ezKrautTreeResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;

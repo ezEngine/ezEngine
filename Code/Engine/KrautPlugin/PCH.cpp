@@ -3,7 +3,7 @@
 #include <KrautPlugin/Basics.h>
 
 #include <Foundation/Configuration/Startup.h>
-#include <KrautPlugin/KrautTreeResource.h>
+#include <KrautPlugin/Resources/KrautTreeResource.h>
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Kraut, KrautPlugin)

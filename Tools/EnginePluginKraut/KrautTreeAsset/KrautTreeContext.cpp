@@ -14,7 +14,7 @@
 #include <GameEngine/Components/SpawnComponent.h>
 #include <GameEngine/Components/TimedDeathComponent.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <KrautPlugin/KrautTreeComponent.h>
+#include <KrautPlugin/Components/KrautTreeComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
@@ -23,7 +23,7 @@
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <SharedPluginAssets/Common/Messages.h>
-#include <KrautPlugin/KrautTreeResource.h>
+#include <KrautPlugin/Resources/KrautTreeResource.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeContext, 1, ezRTTIDefaultAllocator<ezKrautTreeContext>)

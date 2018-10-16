@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9340082855766888863,4792825339744186213}}
-		u4 %Hash{16483074566161621029}
+		u4 %Hash{10870730570251930119}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -99,6 +99,7 @@ o
 		VarArray %Renderers
 		{
 			Uuid{u4{10508079068929860993,4843520745865202116}}
+			Uuid{u4{9700296754448952471,4889481985074646688}}
 		}
 		Uuid %SSAO{u4{5468046685546711420,8801164129771791513}}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
@@ -135,6 +136,13 @@ o
 }
 o
 {
+	Uuid %id{u4{9700296754448952471,4889481985074646688}}
+	s %t{"ezKrautBranchRenderer"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{12011283833418556728,4973465496662681475}}
 	s %t{"ezInputNodePin"}
 	u3 %v{1}
@@ -155,7 +163,7 @@ o
 		{
 			Uuid{u4{15261312847763839036,652025498685030223}}
 		}
-		Vec2 %Node::Pos{f{0x1C897944,0x6999E343}}
+		Vec2 %Node::Pos{f{0xBB487944,0x6999E343}}
 		VarArray %Renderers
 		{
 			Uuid{u4{5970634322177748910,5276506206869534866}}
@@ -480,6 +488,24 @@ Types
 {
 o
 {
+	Uuid %id{u4{9544632378134097930,83111648224110162}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderer"}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautBranchRenderer"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{18227568620195845934,1489529459222995895}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -708,7 +734,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshRenderer"}
-		u3 %TypeSize{16}
+		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

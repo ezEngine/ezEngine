@@ -10,7 +10,7 @@
 #include <EnginePluginKraut/KrautTreeAsset/KrautTreeView.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <KrautPlugin/KrautTreeResource.h>
+#include <KrautPlugin/Resources/KrautTreeResource.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <RendererCore/Pipeline/View.h>

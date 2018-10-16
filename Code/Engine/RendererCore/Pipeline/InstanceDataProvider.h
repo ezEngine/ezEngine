@@ -6,7 +6,7 @@
 
 struct ezPerInstanceData;
 
-struct ezInstanceData
+struct EZ_RENDERERCORE_DLL ezInstanceData
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezInstanceData);
 public:

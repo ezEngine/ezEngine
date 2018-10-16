@@ -7,7 +7,7 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 
 struct ezResourceEvent;
-class ezMeshRenderData;
+class ezKrautBranchRenderData;
 typedef ezTypedResourceHandle<class ezKrautTreeResource> ezKrautTreeResourceHandle;
 
 class EZ_KRAUTPLUGIN_DLL ezKrautTreeComponentManager : public ezComponentManager<class ezKrautTreeComponent, ezBlockStorageType::Compact>
@@ -58,7 +58,7 @@ public:
   void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
 protected:
-  virtual ezMeshRenderData* CreateRenderData(ezUInt32 uiBatchId) const;
+  virtual ezKrautBranchRenderData* CreateBranchRenderData(ezUInt32 uiBatchId) const;
 
   //////////////////////////////////////////////////////////////////////////
   // ezKrautTreeComponent interface

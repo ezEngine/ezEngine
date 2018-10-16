@@ -9,7 +9,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Utilities/Progress.h>
-#include <KrautPlugin/KrautTreeResource.h>
+#include <KrautPlugin/Resources/KrautTreeResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;

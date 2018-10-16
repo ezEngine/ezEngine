@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15507879570940844990,5062162254587685694}}
-		u4 %Hash{4408209908169086671}
+		u4 %Hash{11570146239893880797}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -169,6 +169,13 @@ o
 }
 o
 {
+	Uuid %id{u4{13668863250032529538,4647244343652783321}}
+	s %t{"ezKrautBranchRenderer"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{16246312026800188290,4661069980728115750}}
 	s %t{"ezSimpleRenderPass"}
 	u3 %v{1}
@@ -195,8 +202,22 @@ o
 }
 o
 {
+	Uuid %id{u4{5645880759466283187,4712963028805022335}}
+	s %t{"ezKrautBranchRenderer"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{7170774793600279218,4713690028374175548}}
 	s %t{"ezMeshRenderer"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{12410267702066283675,4724537871078020982}}
+	s %t{"ezKrautBranchRenderer"}
 	u3 %v{1}
 	p{}
 }
@@ -296,6 +317,7 @@ o
 			Uuid{u4{16216036664456942481,5186229611820445519}}
 			Uuid{u4{3452188334156940963,5403412659744363881}}
 			Uuid{u4{17807073858304941756,5755851498833885382}}
+			Uuid{u4{12410267702066283675,4724537871078020982}}
 		}
 	}
 }
@@ -465,6 +487,7 @@ o
 		{
 			Uuid{u4{6223125522692041143,4967770884007834239}}
 			Uuid{u4{5647343825527575735,5308690427499687086}}
+			Uuid{u4{5645880759466283187,4712963028805022335}}
 		}
 		Uuid %SSAO{u4{1687059502135556263,9115484863453342950}}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
@@ -514,6 +537,7 @@ o
 		{
 			Uuid{u4{17523544335112774283,5106209637679814508}}
 			Uuid{u4{2470217689830137750,5421274222729592539}}
+			Uuid{u4{1577519954527644818,5596154365799182777}}
 		}
 	}
 }
@@ -605,6 +629,13 @@ o
 }
 o
 {
+	Uuid %id{u4{1577519954527644818,5596154365799182777}}
+	s %t{"ezKrautBranchRenderer"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{1112272307786828425,5643223304331810337}}
 	s %t{"ezAOPass"}
 	u3 %v{1}
@@ -664,8 +695,17 @@ o
 		VarArray %Renderers
 		{
 			Uuid{u4{18006142286075838397,5753952985944765643}}
+			Uuid{u4{13668863250032529538,4647244343652783321}}
+			Uuid{u4{5219441237605029822,5667520729059224836}}
 		}
 	}
+}
+o
+{
+	Uuid %id{u4{5219441237605029822,5667520729059224836}}
+	s %t{"ezKrautBranchRenderer"}
+	u3 %v{1}
+	p{}
 }
 o
 {
@@ -1018,6 +1058,24 @@ o
 }
 Types
 {
+o
+{
+	Uuid %id{u4{9544632378134097930,83111648224110162}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderer"}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautBranchRenderer"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
 o
 {
 	Uuid %id{u4{17427250445677561954,512496194011972452}}
@@ -1565,7 +1623,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshRenderer"}
-		u3 %TypeSize{16}
+		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

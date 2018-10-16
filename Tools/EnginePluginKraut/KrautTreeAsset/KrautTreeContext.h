@@ -2,7 +2,7 @@
 
 #include <EnginePluginKraut/Plugin.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
-#include <KrautPlugin/KrautTreeComponent.h>
+#include <KrautPlugin/Components/KrautTreeComponent.h>
 
 class ezObjectSelectionMsgToEngine;
 class ezRenderContext;
