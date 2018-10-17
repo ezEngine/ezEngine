@@ -145,7 +145,7 @@ ezResourceLoadDesc ezKrautTreeResource::CreateResource(const ezKrautTreeResource
 
 void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  ezUInt8 uiVersion = 3;
+  ezUInt8 uiVersion = 4;
 
   stream << uiVersion;
 
@@ -184,8 +184,19 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream) const
     {
       stream << sm.m_uiFirstTriangle;
       stream << sm.m_uiNumTriangles;
-      // stream << sm.m_hMaterial;
+      stream << sm.m_uiMaterialIndex;
     }
+  }
+
+  const ezUInt8 uiNumMats = m_Materials.GetCount();
+  stream << uiNumMats;
+
+  for (const auto& mat : m_Materials)
+  {
+    stream << mat.m_uiMaterialType;
+    stream << mat.m_sDiffuseTexture;
+    stream << mat.m_sNormalMapTexture;
+    stream << mat.m_VariationColor;
   }
 }
 
@@ -195,7 +206,7 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream)
 
   stream >> uiVersion;
 
-  if (uiVersion != 3)
+  if (uiVersion != 4)
     return EZ_FAILURE;
 
   stream >> m_Bounds;
@@ -240,8 +251,21 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream)
     {
       stream >> sm.m_uiFirstTriangle;
       stream >> sm.m_uiNumTriangles;
-      // stream >> sm.m_hMaterial;
+      stream >> sm.m_uiMaterialIndex;
     }
   }
+
+  ezUInt8 uiNumMats = 0;;
+  stream >> uiNumMats;
+  m_Materials.SetCount(uiNumMats);
+
+  for (auto& mat : m_Materials)
+  {
+    stream >> mat.m_uiMaterialType;
+    stream >> mat.m_sDiffuseTexture;
+    stream >> mat.m_sNormalMapTexture;
+    stream >> mat.m_VariationColor;
+  }
+
   return EZ_SUCCESS;
 }

@@ -3,6 +3,7 @@
 #include <Core/Graphics/Geometry.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorPluginAssets/Util/MeshImportUtils.h>
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAsset.h>
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetManager.h>
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetObjects.h>
@@ -40,6 +41,8 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
   ezFileReader krautFile;
   if (krautFile.Open(pProp->m_sKrautFile).Failed())
     return ezStatus(ezFmt("Could not open Kraut file '{0}'", pProp->m_sKrautFile));
+
+  const ezStringBuilder sImportSourceDirectory = ezPathUtils::GetFileDirectory(pProp->m_sKrautFile);
 
   {
     char signature[8];
@@ -83,14 +86,19 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
       for (ezUInt8 matOfType = 0; matOfType < uiNumMatsOfType; ++matOfType)
       {
+        auto& mat = desc.m_Materials.ExpandAndGetRef();
+        mat.m_uiMaterialType = type;
+
         ezString sDiffuseTexture;
         krautFile >> sDiffuseTexture;
 
         ezString sNormalMapTexture;
         krautFile >> sNormalMapTexture;
 
-        ezColorGammaUB variationColor;
-        krautFile >> variationColor;
+        krautFile >> mat.m_VariationColor;
+
+        mat.m_sDiffuseTexture = ImportTexture(sImportSourceDirectory, sDiffuseTexture);
+        mat.m_sNormalMapTexture = ImportTexture(sImportSourceDirectory, sNormalMapTexture);
       }
     }
 
@@ -180,6 +188,23 @@ ezStatus ezKrautTreeAssetDocument::InternalCreateThumbnail(const ezAssetFileHead
 {
   ezStatus status = ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
   return status;
+}
+
+ezString ezKrautTreeAssetDocument::ImportTexture(const char* szImportSourceFolder, const char* szFilename)
+{
+  ezStringBuilder importTargetDirectory = GetDocumentPath();
+
+  const bool bUseSubFolderForImportedMaterials = true;
+  if (bUseSubFolderForImportedMaterials)
+  {
+    importTargetDirectory.Append("_data");
+    importTargetDirectory.Append(ezPathUtils::OsSpecificPathSeparator);
+  }
+  else
+    importTargetDirectory = importTargetDirectory.GetFileDirectory();
+
+  return ezMeshImportUtils::ImportOrResolveTexture(szImportSourceFolder, importTargetDirectory, szFilename,
+                                                   ezModelImporter::SemanticHint::DIFFUSE);
 }
 
 //////////////////////////////////////////////////////////////////////////

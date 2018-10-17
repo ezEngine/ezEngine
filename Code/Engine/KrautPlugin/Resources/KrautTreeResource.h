@@ -38,7 +38,7 @@ struct EZ_KRAUTPLUGIN_DLL ezKrautTreeResourceDescriptor
   {
     ezUInt16 m_uiFirstTriangle = 0;
     ezUInt16 m_uiNumTriangles = 0;
-    //ezMaterialResourceHandle m_hMaterial;
+    ezUInt8 m_uiMaterialIndex = 0;
   };
 
   struct LodData
@@ -51,7 +51,16 @@ struct EZ_KRAUTPLUGIN_DLL ezKrautTreeResourceDescriptor
     ezDynamicArray<SubMeshData> m_SubMeshes;
   };
 
+  struct MaterialData
+  {
+    ezUInt8 m_uiMaterialType;
+    ezString m_sDiffuseTexture;
+    ezString m_sNormalMapTexture;
+    ezColorGammaUB m_VariationColor;
+  };
+
   ezStaticArray<LodData, 5> m_Lods;
+  ezHybridArray<MaterialData, 8> m_Materials;
 };
 
 class EZ_KRAUTPLUGIN_DLL ezKrautTreeResource : public ezResource<ezKrautTreeResource, ezKrautTreeResourceDescriptor>

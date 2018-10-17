@@ -17,6 +17,8 @@ protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
 
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
+
+  ezString ImportTexture(const char* szImportSourceFolder, const char* szFilename);
 };
 
 //////////////////////////////////////////////////////////////////////////

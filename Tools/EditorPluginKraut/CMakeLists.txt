@@ -31,6 +31,8 @@ SET (LINK_LIBRARIES
   Core
   KrautPlugin
   GameEngine
+  ModelImporter
+  EditorPluginAssets
 )
 
 SET (ADDITIONAL_DEPENDENCIES
