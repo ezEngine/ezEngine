@@ -34,3 +34,6 @@ add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/Games)
 
 message (STATUS "Adding SubDirectory 'UnitTests'")
 add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/UnitTests)
+
+# sets the Editor project as the default startup project in Visual Studio
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Editor)

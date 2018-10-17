@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <KrautPlugin/Renderer/KrautBranchRenderer.h>
+#include <KrautPlugin/Renderer/KrautRenderer.h>
 
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/MeshResource.h>

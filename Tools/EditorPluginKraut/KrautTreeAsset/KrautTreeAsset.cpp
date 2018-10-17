@@ -59,8 +59,16 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
     krautFile >> bbox.m_vMin;
     krautFile >> bbox.m_vMax;
 
+    desc.m_Bounds = bbox;
+
     ezUInt8 uiNumLODs = 0;
     krautFile >> uiNumLODs;
+
+    // m_Lods is a static array that cannot be resized
+    if (uiNumLODs >= desc.m_Lods.GetCapacity())
+      ezLog::Error("Tree mesh contains more LODs than is supported.");
+
+        uiNumLODs = ezMath::Min<ezUInt8>(uiNumLODs, desc.m_Lods.GetCapacity());
 
     ezUInt8 uiNumMaterialTypes = 0;
     krautFile >> uiNumMaterialTypes;
@@ -86,10 +94,15 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
     ezUInt8 uiNumMeshTypes = 0;
     krautFile >> uiNumMeshTypes;
 
+    float fPrevLodDistance = 0.0f;
+
     for (ezUInt8 lodLevel = 0; lodLevel < uiNumLODs; ++lodLevel)
     {
-      float fLodDistance = 0;
-      krautFile >> fLodDistance;
+      auto& lodData = desc.m_Lods.ExpandAndGetRef();
+
+      lodData.m_fMinLodDistance = fPrevLodDistance;
+      krautFile >> lodData.m_fMaxLodDistance;
+      fPrevLodDistance = lodData.m_fMaxLodDistance;
 
       ezUInt8 lodType = 0;
       krautFile >> lodType; // 0 == full mesh, 1 == 4 quad impostor, 2 == 2 quad impostor, 3 == billboard impostor
@@ -100,16 +113,16 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
       for (ezUInt8 materialType = 0; materialType < uiNumMatTypesUsed; ++materialType)
       {
         ezUInt8 uiCurMatType = 0;
-        krautFile >> uiCurMatType;
+        krautFile >> uiCurMatType; // 0 == branch, 1 == frond, 2 == leaf
 
         ezUInt8 uiNumMeshes = 0;
         krautFile >> uiNumMeshes;
 
-        const bool bUseMeshData = lodLevel == 0 && uiCurMatType == 0;
-
         for (ezUInt8 uiMeshIdx = 0; uiMeshIdx < uiNumMeshes; ++uiMeshIdx)
         {
-          const ezUInt32 uiIndexOffset = desc.m_TriangleIndices.GetCount();
+          // since we merge all vertices into one big array, the vertex indices for the triangles
+          // need to be re-based relative to the previous data
+          const ezUInt32 uiIndexOffset = lodData.m_Vertices.GetCount();
 
           ezUInt8 uiMaterialID = 0;
           krautFile >> uiMaterialID;
@@ -120,24 +133,23 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
           ezUInt32 uiNumTriangles = 0;
           krautFile >> uiNumTriangles;
 
+          auto& subMesh = lodData.m_SubMeshes.ExpandAndGetRef();
+          subMesh.m_uiFirstTriangle = lodData.m_Triangles.GetCount();
+          subMesh.m_uiNumTriangles = uiNumTriangles;
+          //subMesh.m_hMaterial = ...;
+
           for (ezUInt32 v = 0; v < uiNumVertices; ++v)
           {
-            ezVec3 pos, texcoord, normal, tangent;
-            krautFile >> pos;
-            krautFile >> texcoord;
-            krautFile >> normal;
-            krautFile >> tangent;
+            auto& vtx = lodData.m_Vertices.ExpandAndGetRef();
 
-            ezColorGammaUB variationColor;
-            krautFile >> variationColor;
+            krautFile >> vtx.m_vPosition;
+            krautFile >> vtx.m_vTexCoord;
+            krautFile >> vtx.m_vNormal;
+            krautFile >> vtx.m_vTangent;
+            krautFile >> vtx.m_VariationColor;
 
-            ezMath::Swap(pos.y, pos.z);
-            pos *= pProp->m_fUniformScaling;
-
-            if (bUseMeshData)
-            {
-              desc.m_Positions.PushBack(pos);
-            }
+            ezMath::Swap(vtx.m_vPosition.y, vtx.m_vPosition.z);
+            vtx.m_vPosition *= pProp->m_fUniformScaling;
           }
 
           for (ezUInt32 t = 0; t < uiNumTriangles; ++t)
@@ -145,12 +157,11 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
             ezUInt32 idx[3];
             krautFile.ReadBytes(idx, sizeof(ezUInt32) * 3);
 
-            if (bUseMeshData)
-            {
-              desc.m_TriangleIndices.PushBack(uiIndexOffset + idx[0]);
-              desc.m_TriangleIndices.PushBack(uiIndexOffset + idx[2]);
-              desc.m_TriangleIndices.PushBack(uiIndexOffset + idx[1]);
-            }
+            auto& tri = lodData.m_Triangles.ExpandAndGetRef();
+
+            tri.m_uiVertexIndex[0] = uiIndexOffset + idx[0];
+            tri.m_uiVertexIndex[1] = uiIndexOffset + idx[2];
+            tri.m_uiVertexIndex[2] = uiIndexOffset + idx[1];
           }
         }
       }
