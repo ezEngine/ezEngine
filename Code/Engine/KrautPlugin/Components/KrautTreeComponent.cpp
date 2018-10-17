@@ -57,10 +57,12 @@ void ezKrautTreeComponent::DeserializeComponent(ezWorldReader& stream)
 
 ezResult ezKrautTreeComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
-  if (m_hMesh.IsValid())
+  if (m_hKrautTree.IsValid())
   {
-    ezResourceLock<ezMeshResource> pMesh(m_hMesh);
-    bounds = pMesh->GetBounds();
+    ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::AllowFallback);
+    // TODO: handle fallback case properly
+
+    bounds = pTree->GetBounds();
     return EZ_SUCCESS;
   }
 
@@ -111,99 +113,53 @@ void ezKrautTreeComponent::Initialize()
 
 void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  if (!m_hMesh.IsValid())
-    return;
-
-  const ezUInt32 uiMeshIDHash = m_hMesh.GetResourceIDHash();
-
-  ezResourceLock<ezMeshResource> pMesh(m_hMesh);
-  ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
-
-  for (ezUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
-  {
-    const ezUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
-
-    const ezMaterialResourceHandle& hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
-    const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? hMaterial.GetResourceIDHash() : 0;
-
-    // Generate batch id from mesh, material and part index.
-    ezUInt32 data[] = { uiMeshIDHash, uiMaterialIDHash, uiPartIndex, 0 };
-    ezUInt32 uiBatchId = ezHashing::xxHash32(data, sizeof(data));
-
-    ezKrautRenderData* pRenderData = CreateBranchRenderData(uiBatchId);
-    {
-      pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-      pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
-      pRenderData->m_hMesh = m_hMesh;
-      pRenderData->m_uiSubMeshIndex = uiPartIndex;
-      pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
-
-      pRenderData->m_fLodDistanceMinSQR = ezMath::Square(0.0f);
-      pRenderData->m_fLodDistanceMaxSQR = ezMath::Square(15.0f);
-    }
-
-    // Sort by material and then by mesh
-    ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE);
-    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, uiSortingKey);
-  }
-}
-
-void ezKrautTreeComponent::CreateKrautRenderMesh()
-{
   if (!m_hKrautTree.IsValid())
     return;
 
-  ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::AllowFallback);
 
-  if (pTree->IsMissingResource())
-    return;
+  // TODO: handle fallback case properly
 
-  ezStringBuilder sTreeName = pTree->GetResourceID();
-  sTreeName.AppendFormat("_{0}_TreeMesh",
-    pTree->GetCurrentResourceChangeCounter()); // the change counter allows to react to resource updates
-
-  m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sTreeName);
-
-  if (m_hMesh.IsValid())
+  for (const auto& lodData : pTree->GetTreeLODs())
   {
-    TriggerLocalBoundsUpdate();
-    return;
-  }
+    if (!lodData.m_hMesh.IsValid())
+      continue;
 
-  ezMeshResourceDescriptor md;
-  auto& buffer = md.MeshBufferDesc();
+    const ezUInt32 uiMeshIDHash = lodData.m_hMesh.GetResourceIDHash();
 
-  const auto& desc = pTree->m_Descriptor;
-  if (!desc.m_Lods.IsEmpty())
-  {
-    const auto& meshData = desc.m_Lods[0];
+    ezResourceLock<ezMeshResource> pMesh(lodData.m_hMesh);
+    ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> subMeshes = pMesh->GetSubMeshes();
 
-    const ezUInt32 uiNumTriangles = meshData.m_Triangles.GetCount();
-
-    buffer.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-    buffer.AllocateStreams(meshData.m_Vertices.GetCount(), ezGALPrimitiveTopology::Triangles, uiNumTriangles);
-
-    for (ezUInt32 v = 0; v < meshData.m_Vertices.GetCount(); ++v)
+    for (ezUInt32 subMeshIdx = 0; subMeshIdx < subMeshes.GetCount(); ++subMeshIdx)
     {
-      buffer.SetVertexData<ezVec3>(0, v, meshData.m_Vertices[v].m_vPosition);
+      const auto& subMesh = subMeshes[subMeshIdx];
+
+      const ezUInt32 uiMaterialIndex = subMesh.m_uiMaterialIndex;
+
+      const ezMaterialResourceHandle& hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
+      const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? hMaterial.GetResourceIDHash() : 0;
+
+      // Generate batch id from mesh, material and part index.
+      ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, subMeshIdx, 0};
+      ezUInt32 uiBatchId = ezHashing::xxHash32(data, sizeof(data));
+
+      ezKrautRenderData* pRenderData = CreateBranchRenderData(uiBatchId);
+      {
+        pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
+        pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
+        pRenderData->m_hMesh = lodData.m_hMesh;
+        pRenderData->m_uiSubMeshIndex = subMeshIdx;
+        pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
+
+        pRenderData->m_fLodDistanceMinSQR = ezMath::Square(lodData.m_fMinLodDistance);
+        pRenderData->m_fLodDistanceMaxSQR = ezMath::Square(lodData.m_fMaxLodDistance);
+      }
+
+      // Sort by material and then by mesh
+      ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE);
+      msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, uiSortingKey);
     }
-
-    for (ezUInt32 p = 0; p < uiNumTriangles; ++p)
-    {
-      buffer.SetTriangleIndices(p, meshData.m_Triangles[p].m_uiVertexIndex[0], meshData.m_Triangles[p].m_uiVertexIndex[1], meshData.m_Triangles[p].m_uiVertexIndex[2]);
-    }
-
-    md.AddSubMesh(uiNumTriangles, 0, 0);
-
-    md.ComputeBounds();
-
-    md.SetMaterial(0, "Materials/Common/ColMesh.ezMaterial");
-
-    m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(sTreeName, md, "Kraut Tree Visualization");
   }
-
-
-  TriggerLocalBoundsUpdate();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -237,7 +193,7 @@ void ezKrautTreeComponentManager::Update(const ezWorldModule::UpdateContext& con
     if (!TryGetComponent(hComp, pComp))
       continue;
 
-    pComp->CreateKrautRenderMesh();
+    pComp->TriggerLocalBoundsUpdate();
   }
 
   m_RequireUpdate.Clear();
@@ -251,7 +207,7 @@ void ezKrautTreeComponentManager::EnqueueUpdate(ezComponentHandle hComponent)
 void ezKrautTreeComponentManager::ResourceEventHandler(const ezResourceEvent& e)
 {
   if ((e.m_EventType == ezResourceEventType::ResourceContentUnloading || e.m_EventType == ezResourceEventType::ResourceContentUpdated) &&
-    e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezKrautTreeResource>())
+      e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezKrautTreeResource>())
   {
     EZ_LOCK(m_Mutex);
 

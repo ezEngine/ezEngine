@@ -64,7 +64,6 @@ protected:
   // ezKrautTreeComponent interface
   
 protected:
-  void CreateKrautRenderMesh();
 
 
   // ************************************* PROPERTIES ***********************************
@@ -83,5 +82,4 @@ public:
 
 private:
   ezKrautTreeResourceHandle m_hKrautTree;
-  mutable ezMeshResourceHandle m_hMesh;
 };

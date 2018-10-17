@@ -122,7 +122,7 @@ void ezKrautTreeContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMs
   bounds.SetInvalid();
 
   {
-    EZ_LOCK(m_pWorld->GetReadMarker());
+    EZ_LOCK(m_pWorld->GetWriteMarker());
 
     m_pMainObject->UpdateLocalBounds();
     m_pMainObject->UpdateGlobalTransformAndBounds();

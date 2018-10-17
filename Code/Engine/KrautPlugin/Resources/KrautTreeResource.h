@@ -5,6 +5,7 @@
 #include <Foundation/Math/BoundingBoxSphere.h>
 #include <Foundation/Containers/StaticArray.h>
 
+typedef ezTypedResourceHandle<class ezMeshResource> ezMeshResourceHandle;
 typedef ezTypedResourceHandle<class ezKrautTreeResource> ezKrautTreeResourceHandle;
 typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
 
@@ -50,7 +51,6 @@ struct EZ_KRAUTPLUGIN_DLL ezKrautTreeResourceDescriptor
     ezDynamicArray<SubMeshData> m_SubMeshes;
   };
 
-
   ezStaticArray<LodData, 5> m_Lods;
 };
 
@@ -62,9 +62,16 @@ public:
   ezKrautTreeResource();
 
   /// \brief Returns the bounds of this tree.
-  const ezBoundingBoxSphere& GetBounds() const { return m_Descriptor.m_Bounds; }
+  const ezBoundingBoxSphere& GetBounds() const { return m_Bounds; }
 
-  ezKrautTreeResourceDescriptor m_Descriptor;
+  struct TreeLod
+  {
+    ezMeshResourceHandle m_hMesh;
+    float m_fMinLodDistance;
+    float m_fMaxLodDistance;
+  };
+
+  ezArrayPtr<const TreeLod> GetTreeLODs() const { return m_TreeLODs.GetArrayPtr(); }
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
@@ -72,5 +79,7 @@ private:
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
   virtual ezResourceLoadDesc CreateResource(const ezKrautTreeResourceDescriptor& descriptor) override;
 
+  ezStaticArray<TreeLod, 5> m_TreeLODs;
+  ezBoundingBoxSphere m_Bounds;
 };
 

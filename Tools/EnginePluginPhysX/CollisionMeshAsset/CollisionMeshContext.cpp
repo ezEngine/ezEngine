@@ -121,7 +121,7 @@ void ezCollisionMeshContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg*
   bounds.SetInvalid();
 
   {
-    EZ_LOCK(m_pWorld->GetReadMarker());
+    EZ_LOCK(m_pWorld->GetWriteMarker());
 
     m_pMeshObject->UpdateLocalBounds();
     m_pMeshObject->UpdateGlobalTransformAndBounds();

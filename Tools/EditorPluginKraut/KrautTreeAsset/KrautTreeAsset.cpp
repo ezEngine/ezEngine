@@ -59,16 +59,19 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
     krautFile >> bbox.m_vMin;
     krautFile >> bbox.m_vMax;
 
+    ezMath::Swap(bbox.m_vMin.y, bbox.m_vMin.z);
+    ezMath::Swap(bbox.m_vMax.y, bbox.m_vMax.z);
+
     desc.m_Bounds = bbox;
 
     ezUInt8 uiNumLODs = 0;
     krautFile >> uiNumLODs;
 
     // m_Lods is a static array that cannot be resized
-    if (uiNumLODs >= desc.m_Lods.GetCapacity())
+    if (uiNumLODs > desc.m_Lods.GetCapacity())
       ezLog::Error("Tree mesh contains more LODs than is supported.");
 
-        uiNumLODs = ezMath::Min<ezUInt8>(uiNumLODs, desc.m_Lods.GetCapacity());
+    uiNumLODs = ezMath::Min<ezUInt8>(uiNumLODs, desc.m_Lods.GetCapacity());
 
     ezUInt8 uiNumMaterialTypes = 0;
     krautFile >> uiNumMaterialTypes;
@@ -136,7 +139,7 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
           auto& subMesh = lodData.m_SubMeshes.ExpandAndGetRef();
           subMesh.m_uiFirstTriangle = lodData.m_Triangles.GetCount();
           subMesh.m_uiNumTriangles = uiNumTriangles;
-          //subMesh.m_hMaterial = ...;
+          // subMesh.m_hMaterial = ...;
 
           for (ezUInt32 v = 0; v < uiNumVertices; ++v)
           {
