@@ -1,0 +1,138 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+BLEND_MODE
+RENDER_PASS
+SHADING_MODE
+TWO_SIDED
+FLIP_WINDING = FALSE
+MSAA
+CAMERA_MODE
+SHADING_QUALITY
+FORWARD_PASS_WRITE_DEPTH = TRUE // if this were FALSE, the tree would disappear
+
+[RENDERSTATE]
+
+#include <Shaders/Materials/MaterialState.h>
+
+[VERTEXSHADER]
+
+#define USE_NORMAL
+#define USE_TANGENT
+#define USE_TEXCOORD0
+#define USE_TEXCOORD1
+
+#if RENDER_PASS == RENDER_PASS_EDITOR
+  #define USE_DEBUG_INTERPOLATOR
+#endif
+
+#include <Shaders/Materials/DefaultMaterialCB.h>
+#include <Shaders/Materials/MaterialVertexShader.h>
+
+VS_OUT main(VS_IN Input)
+{
+  return FillVertexData(Input);
+}
+
+[GEOMETRYSHADER]
+
+#define USE_NORMAL
+#define USE_TANGENT
+#define USE_TEXCOORD0
+#define USE_TEXCOORD1
+
+#include <Shaders/Materials/MaterialStereoGeometryShader.h>
+
+[PIXELSHADER]
+
+#define USE_NORMAL
+#define USE_TANGENT
+#define USE_TEXCOORD0
+#define USE_TEXCOORD1
+#define USE_SIMPLE_MATERIAL_MODEL
+// #define USE_MATERIAL_OCCLUSION
+#define USE_TWO_SIDED_LIGHTING
+#define USE_FOG
+
+#if RENDER_PASS == RENDER_PASS_EDITOR
+  #define USE_DEBUG_INTERPOLATOR
+#endif
+
+#include <Shaders/Materials/DefaultMaterialCB.h>
+#include <Shaders/Materials/MaterialPixelShader.h>
+
+Texture2D BaseTexture;
+SamplerState BaseTexture_AutoSampler;
+
+Texture2D NormalTexture;
+SamplerState NormalTexture_AutoSampler;
+
+//Texture2D RoughnessTexture;
+//SamplerState RoughnessTexture_AutoSampler;
+
+//Texture2D OcclusionTexture;
+//SamplerState OcclusionTexture_AutoSampler;
+
+float2 GetTexCoord()
+{
+  float2 tc = G.Input.TexCoords.xy * G.Input.TexCoords.w;
+  tc.y = 1.0 - tc.y;
+  return tc;
+}
+
+float3 GetBaseColor()
+{
+  float3 baseColor;// = BaseColor.rgb * GetInstanceData().Color.rgb;
+  baseColor = BaseTexture.Sample(BaseTexture_AutoSampler, GetTexCoord()).rgb;
+  return baseColor;    
+}
+
+float3 GetNormal()
+{
+    float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, GetTexCoord()));
+    return TangentToWorldSpace(normalTS);
+}
+
+float GetMetallic()
+{
+  return 0;
+}
+
+float GetReflectance()
+{
+  return 0.5f;
+}
+
+float GetRoughness()
+{
+  return 1.0f;
+}
+
+float GetOpacity()
+{
+  float opacity = 1.0;// BaseColor.a * GetInstanceData().Color.a;
+
+  opacity *= BaseTexture.Sample(BaseTexture_AutoSampler, GetTexCoord()).a;
+
+  #if BLEND_MODE == BLEND_MODE_MASKED
+     return opacity - 0.1;
+   #else
+    return opacity;
+  #endif
+}
+
+
+float GetOcclusion()
+{
+  // [branch]
+  // if (UseOcclusionTexture)
+  // {
+  //   return OcclusionTexture.Sample(OcclusionTexture_AutoSampler, G.Input.TexCoords.xy * G.Input.TexCoords.w).r;
+  // }
+  // else
+  {
+    return 0.0f;
+  }
+}

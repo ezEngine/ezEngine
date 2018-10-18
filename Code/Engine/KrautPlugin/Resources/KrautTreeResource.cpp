@@ -5,6 +5,7 @@
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeResource, 1, ezRTTIDefaultAllocator<ezKrautTreeResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -75,6 +76,54 @@ ezResourceLoadDesc ezKrautTreeResource::CreateResource(const ezKrautTreeResource
   m_TreeLODs.Clear();
   m_Bounds = desc.m_Bounds;
 
+  ezHybridArray<ezMaterialResourceHandle, 16> allMaterials;
+
+  ezStringBuilder sMatName;
+
+  for (const auto& mat : desc.m_Materials)
+  {
+    ezUInt32 uiTexHash = mat.m_uiMaterialType;
+    uiTexHash = ezHashing::xxHash32(&mat.m_VariationColor, sizeof(mat.m_VariationColor), uiTexHash);
+    uiTexHash = ezHashing::xxHash32(mat.m_sDiffuseTexture.GetData(), mat.m_sDiffuseTexture.GetElementCount(), uiTexHash);
+    uiTexHash = ezHashing::xxHash32(mat.m_sNormalMapTexture.GetData(), mat.m_sNormalMapTexture.GetElementCount(), uiTexHash);
+
+    sMatName.Format("KrautMaterial_{0}", uiTexHash);
+
+    auto hMaterial = ezResourceManager::GetExistingResource<ezMaterialResource>(sMatName);
+
+    if (!hMaterial.IsValid())
+    {
+      ezMaterialResourceDescriptor md;
+
+      switch (mat.m_uiMaterialType)
+      {
+        case 0:
+          md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Kraut/Branch.ezMaterial");
+          break;
+
+        case 1:
+          md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Kraut/Frond.ezMaterial");
+          break;
+
+        case 2:
+          md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Kraut/Leaf.ezMaterial");
+          break;
+      }
+
+      auto& m1 = md.m_Texture2DBindings.ExpandAndGetRef();
+      m1.m_Name.Assign("BaseTexture");
+      m1.m_Value = ezResourceManager::LoadResource<ezTexture2DResource>(mat.m_sDiffuseTexture);
+
+      auto& m2 = md.m_Texture2DBindings.ExpandAndGetRef();
+      m2.m_Name.Assign("NormalTexture");
+      m2.m_Value = ezResourceManager::LoadResource<ezTexture2DResource>(mat.m_sNormalMapTexture);
+
+      hMaterial = ezResourceManager::CreateResource<ezMaterialResource>(sMatName, md, mat.m_sDiffuseTexture);
+    }
+
+    allMaterials.PushBack(hMaterial);
+  }
+
   ezStringBuilder sResName, sResDesc;
 
   for (ezUInt32 lodIdx = 0; lodIdx < desc.m_Lods.GetCount(); ++lodIdx)
@@ -93,7 +142,8 @@ ezResourceLoadDesc ezKrautTreeResource::CreateResource(const ezKrautTreeResource
     const ezUInt32 uiSubMeshes = lodSrc.m_SubMeshes.GetCount();
 
     buffer.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-    buffer.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYZFloat);
+    buffer.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
+    buffer.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezGALResourceFormat::XYFloat);
     buffer.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
     buffer.AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
     buffer.AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized);
@@ -104,10 +154,11 @@ ezResourceLoadDesc ezKrautTreeResource::CreateResource(const ezKrautTreeResource
       const auto& vtx = lodSrc.m_Vertices[v];
 
       buffer.SetVertexData<ezVec3>(0, v, vtx.m_vPosition);
-      buffer.SetVertexData<ezVec3>(1, v, vtx.m_vTexCoord);
-      buffer.SetVertexData<ezVec3>(2, v, vtx.m_vNormal);
-      buffer.SetVertexData<ezVec3>(3, v, vtx.m_vTangent);
-      buffer.SetVertexData<ezColorGammaUB>(4, v, vtx.m_VariationColor);
+      buffer.SetVertexData<ezVec2>(1, v, ezVec2(vtx.m_vTexCoord.x, vtx.m_vTexCoord.y));
+      buffer.SetVertexData<ezVec2>(2, v, ezVec2(vtx.m_vTexCoord.z, 1.0f / vtx.m_vTexCoord.z));
+      buffer.SetVertexData<ezVec3>(3, v, vtx.m_vNormal);
+      buffer.SetVertexData<ezVec3>(4, v, vtx.m_vTangent);
+      buffer.SetVertexData<ezColorGammaUB>(5, v, vtx.m_VariationColor);
     }
 
     for (ezUInt32 t = 0; t < uiNumTriangles; ++t)
@@ -121,11 +172,15 @@ ezResourceLoadDesc ezKrautTreeResource::CreateResource(const ezKrautTreeResource
     {
       const auto& subMesh = lodSrc.m_SubMeshes[sm];
 
-      md.AddSubMesh(subMesh.m_uiNumTriangles, subMesh.m_uiFirstTriangle, 0);
+      md.AddSubMesh(subMesh.m_uiNumTriangles, subMesh.m_uiFirstTriangle, subMesh.m_uiMaterialIndex);
     }
 
     md.ComputeBounds();
-    md.SetMaterial(0, "Materials/Common/ColMesh.ezMaterial");
+
+    for (ezUInt32 mat = 0; mat < desc.m_Materials.GetCount(); ++mat)
+    {
+      md.SetMaterial(mat, allMaterials[mat].GetResourceID());
+    }
 
     sResName.Format("{0}_{1}_LOD{2}", GetResourceID(), GetCurrentResourceChangeCounter(), lodIdx);
     sResDesc.Format("{0}_{1}_LOD{2}", GetResourceDescription(), GetCurrentResourceChangeCounter(), lodIdx);
@@ -255,7 +310,8 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream)
     }
   }
 
-  ezUInt8 uiNumMats = 0;;
+  ezUInt8 uiNumMats = 0;
+  ;
   stream >> uiNumMats;
   m_Materials.SetCount(uiNumMats);
 

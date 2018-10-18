@@ -79,6 +79,10 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
     ezUInt8 uiNumMaterialTypes = 0;
     krautFile >> uiNumMaterialTypes;
 
+    // remaps from combination (materialType, indexInType) to single material index
+    ezHybridArray<ezHybridArray<ezUInt8, 8>, 4> MaterialToIndex;
+    MaterialToIndex.SetCount(uiNumMaterialTypes);
+
     for (ezUInt8 type = 0; type < uiNumMaterialTypes; ++type)
     {
       ezUInt8 uiNumMatsOfType = 0;
@@ -86,6 +90,8 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
       for (ezUInt8 matOfType = 0; matOfType < uiNumMatsOfType; ++matOfType)
       {
+        MaterialToIndex[type].PushBack(desc.m_Materials.GetCount());
+
         auto& mat = desc.m_Materials.ExpandAndGetRef();
         mat.m_uiMaterialType = type;
 
@@ -147,7 +153,7 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
           auto& subMesh = lodData.m_SubMeshes.ExpandAndGetRef();
           subMesh.m_uiFirstTriangle = lodData.m_Triangles.GetCount();
           subMesh.m_uiNumTriangles = uiNumTriangles;
-          // subMesh.m_hMaterial = ...;
+          subMesh.m_uiMaterialIndex = MaterialToIndex[uiCurMatType][uiMaterialID];
 
           for (ezUInt32 v = 0; v < uiNumVertices; ++v)
           {
@@ -161,6 +167,9 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
             ezMath::Swap(vtx.m_vPosition.y, vtx.m_vPosition.z);
             vtx.m_vPosition *= pProp->m_fUniformScaling;
+
+            ezMath::Swap(vtx.m_vNormal.y, vtx.m_vNormal.z);
+            ezMath::Swap(vtx.m_vTangent.y, vtx.m_vTangent.z);
           }
 
           for (ezUInt32 t = 0; t < uiNumTriangles; ++t)
