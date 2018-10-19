@@ -13,6 +13,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezKrautTreeResource::ezKrautTreeResource()
     : ezResource<ezKrautTreeResource, ezKrautTreeResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
+  m_Bounds.SetInvalid();
 }
 
 ezResourceLoadDesc ezKrautTreeResource::UnloadData(Unload WhatToUnload)

@@ -113,6 +113,9 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
     float fPrevLodDistance = 0.0f;
 
+    bool bUseImpostorTexture = false;
+    const ezUInt32 uiImpostorMaterialIndex = desc.m_Materials.GetCount();
+
     for (ezUInt8 lodLevel = 0; lodLevel < uiNumLODs; ++lodLevel)
     {
       auto& lodData = desc.m_Lods.ExpandAndGetRef();
@@ -153,7 +156,16 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
           auto& subMesh = lodData.m_SubMeshes.ExpandAndGetRef();
           subMesh.m_uiFirstTriangle = lodData.m_Triangles.GetCount();
           subMesh.m_uiNumTriangles = uiNumTriangles;
-          subMesh.m_uiMaterialIndex = MaterialToIndex[uiCurMatType][uiMaterialID];
+
+          if (lodType == 0)
+          {
+            subMesh.m_uiMaterialIndex = MaterialToIndex[uiCurMatType][uiMaterialID];
+          }
+          else
+          {
+            bUseImpostorTexture = true;
+            subMesh.m_uiMaterialIndex = uiImpostorMaterialIndex;
+          }
 
           for (ezUInt32 v = 0; v < uiNumVertices; ++v)
           {
@@ -186,6 +198,25 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
         }
       }
     }
+
+    if (bUseImpostorTexture)
+    {
+      auto& mat = desc.m_Materials.ExpandAndGetRef();
+      mat.m_uiMaterialType = 1; // 'frond'
+      mat.m_VariationColor = ezColor::White;
+
+      ezStringBuilder sDocPath = GetDocumentPath();
+      ezStringBuilder sFolder = sDocPath.GetFileDirectory();
+      ezStringBuilder sFile;
+
+      sFile = sDocPath.GetFileName();
+      sFile.Append("_D.tga");
+      mat.m_sDiffuseTexture = ImportTexture(sFolder, sFile);
+
+      sFile = sDocPath.GetFileName();
+      sFile.Append("_N.tga");
+      mat.m_sNormalMapTexture = ImportTexture(sFolder, sFile);
+    }
   }
 
   desc.Save(stream);
@@ -213,68 +244,51 @@ ezString ezKrautTreeAssetDocument::ImportTexture(const char* szImportSourceFolde
     importTargetDirectory = importTargetDirectory.GetFileDirectory();
 
   return ezMeshImportUtils::ImportOrResolveTexture(szImportSourceFolder, importTargetDirectory, szFilename,
-                                                   ezModelImporter::SemanticHint::DIFFUSE);
+                                                   ezModelImporter::SemanticHint::DIFFUSE_ALPHA);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-// EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezKrautTreeAssetDocumentGenerator>)
-// EZ_END_DYNAMIC_REFLECTED_TYPE;
-//
-// ezKrautTreeAssetDocumentGenerator::ezKrautTreeAssetDocumentGenerator()
-//{
-//  AddSupportedFileType("kraut");
-//}
-//
-// ezKrautTreeAssetDocumentGenerator::~ezKrautTreeAssetDocumentGenerator() = default;
-//
-// void ezKrautTreeAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath,
-//                                                           ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
-//{
-//  ezStringBuilder baseOutputFile = szParentDirRelativePath;
-//  baseOutputFile.ChangeFileExtension("ezKrautTreeAsset");
-//
-//  {
-//    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
-//    info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
-//    info.m_sName = "KrautTreeImport.TriangleMesh";
-//    info.m_sOutputFileParentRelative = baseOutputFile;
-//    info.m_sIcon = ":/AssetIcons/Collision_Mesh.png";
-//  }
-//
-//  {
-//    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
-//    info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-//    info.m_sName = "KrautTreeImport.ConvexMesh";
-//    info.m_sOutputFileParentRelative = baseOutputFile;
-//    info.m_sIcon = ":/AssetIcons/Collision_Mesh.png";
-//  }
-//}
-//
-// ezStatus ezKrautTreeAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info,
-//                                                         ezDocument*& out_pGeneratedDocument)
-//{
-//  auto pApp = ezQtEditorApp::GetSingleton();
-//
-//  out_pGeneratedDocument = pApp->CreateDocument(info.m_sOutputFileAbsolute, ezDocumentFlags::None);
-//  if (out_pGeneratedDocument == nullptr)
-//    return ezStatus("Could not create target document");
-//
-//  ezKrautTreeAssetDocument* pAssetDoc = ezDynamicCast<ezKrautTreeAssetDocument*>(out_pGeneratedDocument);
-//  if (pAssetDoc == nullptr)
-//    return ezStatus("Target document is not a valid ezKrautTreeAssetDocument");
-//
-//  auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
-//  accessor.SetValue("MeshFile", szDataDirRelativePath);
-//
-//  if (info.m_sName == "KrautTreeImport.ConvexMesh")
-//  {
-//    accessor.SetValue("MeshType", (int)ezKrautTreeType::ConvexHull);
-//  }
-//  else
-//  {
-//    accessor.SetValue("MeshType", (int)ezKrautTreeType::TriangleMesh);
-//  }
-//
-//  return ezStatus(EZ_SUCCESS);
-//}
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezKrautTreeAssetDocumentGenerator>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+ezKrautTreeAssetDocumentGenerator::ezKrautTreeAssetDocumentGenerator()
+{
+  AddSupportedFileType("kraut");
+}
+
+ezKrautTreeAssetDocumentGenerator::~ezKrautTreeAssetDocumentGenerator() = default;
+
+void ezKrautTreeAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath,
+                                                       ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+{
+  ezStringBuilder baseOutputFile = szParentDirRelativePath;
+  baseOutputFile.ChangeFileExtension("ezKrautTreeAsset");
+
+  {
+    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+    info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
+    info.m_sName = "KrautTreeImport.Tree";
+    info.m_sOutputFileParentRelative = baseOutputFile;
+    info.m_sIcon = ":/AssetIcons/Kraut_Tree.png";
+  }
+}
+
+ezStatus ezKrautTreeAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info,
+                                                     ezDocument*& out_pGeneratedDocument)
+{
+  auto pApp = ezQtEditorApp::GetSingleton();
+
+  out_pGeneratedDocument = pApp->CreateDocument(info.m_sOutputFileAbsolute, ezDocumentFlags::None);
+  if (out_pGeneratedDocument == nullptr)
+    return ezStatus("Could not create target document");
+
+  ezKrautTreeAssetDocument* pAssetDoc = ezDynamicCast<ezKrautTreeAssetDocument*>(out_pGeneratedDocument);
+  if (pAssetDoc == nullptr)
+    return ezStatus("Target document is not a valid ezKrautTreeAssetDocument");
+
+  auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
+  accessor.SetValue("KrautFile", szDataDirRelativePath);
+
+  return ezStatus(EZ_SUCCESS);
+}

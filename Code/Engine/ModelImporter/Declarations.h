@@ -27,6 +27,7 @@ namespace ezModelImporter
     {
       // Typical pbr shading model parameters.
       DIFFUSE,   ///< Also called "Color", "BaseColor"
+      DIFFUSE_ALPHA,
       ROUGHNESS, ///< The non-pbr related "SpecularPower" maps to this as well.
       METALLIC,  ///< The non-pbr related "SpecularColor" maps to this as well
 

@@ -9,9 +9,9 @@
 #include <Foundation/Utilities/Progress.h>
 #include <ModelImporter/Material.h>
 #include <ModelImporter/Mesh.h>
+#include <ModelImporter/ModelImporter.h>
 #include <ModelImporter/Scene.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
-#include <ModelImporter/ModelImporter.h>
 
 namespace ezMeshImportUtils
 {
@@ -40,7 +40,7 @@ namespace ezMeshImportUtils
     else
     {
       ezTextureAssetDocument* textureDocument =
-        ezDynamicCast<ezTextureAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateDocument(newAssetPathAbs, ezDocumentFlags::None));
+          ezDynamicCast<ezTextureAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateDocument(newAssetPathAbs, ezDocumentFlags::None));
       if (!textureDocument)
       {
         ezLog::Error("Failed to create new texture asset '{0}'", szTexturePath);
@@ -58,6 +58,8 @@ namespace ezMeshImportUtils
       ezAssetCurator::GetSingleton()->FindBestMatchForFile(relTexturePath, allowedExtensions);
       pAccessor->SetValue(pTextureAsset, "Input1", relTexturePath.GetData()).LogFailure();
 
+      ezEnum<ezTexture2DChannelMappingEnum> channelMapping;
+
       // Try to map usage.
       ezEnum<ezTexture2DUsageEnum> usage;
       switch (hint)
@@ -65,26 +67,42 @@ namespace ezMeshImportUtils
         case ezModelImporter::SemanticHint::DIFFUSE:
           usage = ezTexture2DUsageEnum::Diffuse;
           break;
+
+        case ezModelImporter::SemanticHint::DIFFUSE_ALPHA:
+          usage = ezTexture2DUsageEnum::Diffuse;
+          channelMapping = ezTexture2DChannelMappingEnum::RGBA1;
+          break;
+
         case ezModelImporter::SemanticHint::AMBIENT: // Making wild guesses here.
         case ezModelImporter::SemanticHint::EMISSIVE:
           usage = ezTexture2DUsageEnum::Other_sRGB;
           break;
+
         case ezModelImporter::SemanticHint::ROUGHNESS:
         case ezModelImporter::SemanticHint::METALLIC:
+          channelMapping = ezTexture2DChannelMappingEnum::R1;
+          usage = ezTexture2DUsageEnum::Other_Linear;
+          break;
+
         case ezModelImporter::SemanticHint::LIGHTMAP: // Lightmap linear? Modern ones likely.
           usage = ezTexture2DUsageEnum::Other_Linear;
           break;
+
         case ezModelImporter::SemanticHint::NORMAL:
           usage = ezTexture2DUsageEnum::NormalMap;
           break;
+
         case ezModelImporter::SemanticHint::DISPLACEMENT:
           usage = ezTexture2DUsageEnum::Height;
+          channelMapping = ezTexture2DChannelMappingEnum::R1;
           break;
+
         default:
           usage = ezTexture2DUsageEnum::Unknown;
       }
 
       pAccessor->SetValue(pTextureAsset, "Usage", usage.GetValue()).LogFailure();
+      pAccessor->SetValue(pTextureAsset, "ChannelMapping", channelMapping.GetValue()).LogFailure();
 
       // TODO: Set... something else?
 
@@ -226,8 +244,7 @@ namespace ezMeshImportUtils
     ezHashTable<const ezModelImporter::Material*, ezString> importMatToMaterialGuid;
     ezDynamicArray<ezTaskGroupID> pendingSaveTasks;
     pendingSaveTasks.Reserve(mesh.GetNumSubMeshes());
-    auto WaitForPendingTasks = [&pendingSaveTasks]()
-    {
+    auto WaitForPendingTasks = [&pendingSaveTasks]() {
       EZ_PROFILE("WaitForPendingTasks");
       for (ezTaskGroupID& id : pendingSaveTasks)
       {
@@ -282,7 +299,7 @@ namespace ezMeshImportUtils
         }
 
         ezMaterialAssetDocument* materialDocument = ezDynamicCast<ezMaterialAssetDocument*>(
-          ezQtEditorApp::GetSingleton()->CreateDocument(newResourcePathAbs, ezDocumentFlags::AsyncSave));
+            ezQtEditorApp::GetSingleton()->CreateDocument(newResourcePathAbs, ezDocumentFlags::AsyncSave));
         if (!materialDocument)
         {
           ezLog::Error("Failed to create new material '{0}'", material->m_Name);
@@ -293,10 +310,8 @@ namespace ezMeshImportUtils
         // ezAssetCurator::GetSingleton()->TransformAsset(materialDocument->GetGuid());
         inout_MaterialSlots[subMeshIdx].m_sResource = ezConversionUtils::ToString(materialDocument->GetGuid(), tmp);
 
-        ezTaskGroupID id = materialDocument->SaveDocumentAsync([](ezDocument* doc, ezStatus res)
-        {
-          doc->GetDocumentManager()->CloseDocument(doc);
-        });
+        ezTaskGroupID id =
+            materialDocument->SaveDocumentAsync([](ezDocument* doc, ezStatus res) { doc->GetDocumentManager()->CloseDocument(doc); });
         pendingSaveTasks.PushBack(id);
 
         // TODO: We have to flush because Materials create worlds in the engine process and there
@@ -815,4 +830,4 @@ namespace ezMeshImportUtils
 
     return ezStatus(EZ_SUCCESS);
   }
-}
+} // namespace ezMeshImportUtils

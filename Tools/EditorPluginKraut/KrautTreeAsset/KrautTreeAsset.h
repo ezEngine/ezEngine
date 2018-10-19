@@ -23,17 +23,17 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////
 
-//
-//class ezKrautTreeAssetDocumentGenerator : public ezAssetDocumentGenerator
-//{
-//  EZ_ADD_DYNAMIC_REFLECTION(ezKrautTreeAssetDocumentGenerator, ezAssetDocumentGenerator);
-//
-//public:
-//  ezKrautTreeAssetDocumentGenerator();
-//  ~ezKrautTreeAssetDocumentGenerator();
-//
-//  virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const override;
-//  virtual ezStatus Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
-//  virtual const char* GetDocumentExtension() const override { return "ezKrautTreeAsset"; }
-//  virtual const char* GetGeneratorGroup() const override { return "KrautTrees"; }
-//};
+
+class ezKrautTreeAssetDocumentGenerator : public ezAssetDocumentGenerator
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezKrautTreeAssetDocumentGenerator, ezAssetDocumentGenerator);
+
+public:
+  ezKrautTreeAssetDocumentGenerator();
+  ~ezKrautTreeAssetDocumentGenerator();
+
+  virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const override;
+  virtual ezStatus Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
+  virtual const char* GetDocumentExtension() const override { return "ezKrautTreeAsset"; }
+  virtual const char* GetGeneratorGroup() const override { return "KrautTrees"; }
+};
