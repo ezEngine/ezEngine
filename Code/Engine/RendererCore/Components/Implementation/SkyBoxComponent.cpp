@@ -122,7 +122,7 @@ void ezSkyBoxComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 
   // Sort by material and then by mesh
   ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFF);
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Sky, uiSortingKey);
+  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Sky, uiSortingKey, ezRenderData::Caching::Never);
 }
 
 void ezSkyBoxComponent::SerializeComponent(ezWorldWriter& stream) const

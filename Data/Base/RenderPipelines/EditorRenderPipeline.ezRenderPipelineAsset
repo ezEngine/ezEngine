@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5189305147899033520,5264929536831011917}}
-		u4 %Hash{15881489602516256472}
+		u4 %Hash{10865305017165568835}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -342,6 +342,7 @@ o
 		VarArray %Renderers
 		{
 			Uuid{u4{4877479317619342001,5684774710032916123}}
+			Uuid{u4{762987255992994204,5356474626572654044}}
 		}
 	}
 }
@@ -601,6 +602,13 @@ o
 		f %Radius{0x0000803F}
 		VarArray %Renderers{}
 	}
+}
+o
+{
+	Uuid %id{u4{762987255992994204,5356474626572654044}}
+	s %t{"ezKrautRenderer"}
+	u3 %v{1}
+	p{}
 }
 o
 {
@@ -1256,24 +1264,6 @@ o
 }
 o
 {
-	Uuid %id{u4{9544632378134097930,83111648224110162}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderer"}
-		s %PluginName{"ezEditorPluginKraut"}
-		VarArray %Properties{}
-		s %TypeName{"ezKrautRenderer"}
-		u3 %TypeSize{8}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{9329450366744582072,382658973548356230}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1315,6 +1305,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleRenderer"}
 		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7771125221385643040,1358210426580550520}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderer"}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautRenderer"}
+		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

@@ -359,7 +359,7 @@ void ezVisualizeSkeletonComponent::OnExtractRenderData(ezMsgExtractRenderData& m
 
     // Sort by material and then by mesh
     ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE) | uiFlipWinding;
-    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, uiSortingKey);
+    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, uiSortingKey, ezRenderData::Caching::Never);
   }
 }
 

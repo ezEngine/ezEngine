@@ -61,7 +61,7 @@ EZ_ALWAYS_INLINE const ezCamera* ezView::GetCullingCamera() const
 
 EZ_ALWAYS_INLINE ezEnum<ezCameraUsageHint> ezView::GetCameraUsageHint() const
 {
-  return m_CameraUsageHint;
+  return m_Data.m_CameraUsageHint;
 }
 
 EZ_ALWAYS_INLINE ezEnum<ezViewRenderMode> ezView::GetViewRenderMode() const

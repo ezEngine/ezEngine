@@ -1,6 +1,7 @@
 #pragma once
 
 #include <KrautPlugin/Basics.h>
+#include <KrautPlugin/Renderer/KrautRenderData.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Meshes/MeshResource.h>
@@ -62,10 +63,9 @@ protected:
 
   //////////////////////////////////////////////////////////////////////////
   // ezKrautTreeComponent interface
+public:
+
   
-protected:
-
-
   // ************************************* PROPERTIES ***********************************
 public:
 
@@ -81,5 +81,6 @@ public:
   EZ_ALWAYS_INLINE const ezKrautTreeResourceHandle& GetKrautTree() const { return m_hKrautTree; }
 
 private:
+  ezSharedPtr<ezKrautLodInfo> m_pLodInfo;
   ezKrautTreeResourceHandle m_hKrautTree;
 };

@@ -26,6 +26,7 @@ struct EZ_RENDERERCORE_DLL ezViewData
 
   ezRectFloat m_ViewPortRect;
   ezEnum<ezViewRenderMode> m_ViewRenderMode;
+  ezEnum<ezCameraUsageHint> m_CameraUsageHint;
 
   // Each matrix is there for both left and right camera lens.
   ezMat4 m_ViewMatrix[2];

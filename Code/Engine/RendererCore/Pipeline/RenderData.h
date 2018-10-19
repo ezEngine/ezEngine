@@ -97,7 +97,7 @@ struct EZ_RENDERERCORE_DLL ezMsgExtractRenderData : public ezMessage
   /// \brief Adds render data for the current view. This data can be cached depending on the specified caching behavior.
   /// Non-cached data is only valid for this frame. Cached data must be manually deleted using the ezRenderWorld::DeleteCachedRenderData function.
   void AddRenderData(ezRenderData* pRenderData, ezRenderData::Category category, ezUInt32 uiSortingKey,
-    ezRenderData::Caching::Enum cachingBehavior = ezRenderData::Caching::Never);
+    ezRenderData::Caching::Enum cachingBehavior);
 
 private:
   friend class ezExtractor;

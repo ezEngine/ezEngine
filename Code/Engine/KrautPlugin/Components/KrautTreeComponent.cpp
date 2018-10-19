@@ -30,7 +30,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezKrautTreeComponent, 1, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezKrautTreeComponent::ezKrautTreeComponent() = default;
+ezKrautTreeComponent::ezKrautTreeComponent()
+{
+  m_pLodInfo = EZ_DEFAULT_NEW(ezKrautLodInfo);
+}
+
 ezKrautTreeComponent::~ezKrautTreeComponent() = default;
 
 void ezKrautTreeComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -63,6 +67,23 @@ ezResult ezKrautTreeComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool&
     // TODO: handle fallback case properly
 
     bounds = pTree->GetBounds();
+
+    {
+      // this is a work around to make shadows and LODing work better
+      // shadows do not affect the maximum LOD of a tree that is being rendered,
+      // otherwise moving/rotating light-sources would case LOD popping artifacts
+      // and would generally result in more detailed tree rendering than typically necessary
+      // however, that means when one is facing away from a tree, but can see its shadow,
+      // the shadow may disappear entirely, because no view is setting a decent LOD level
+      //
+      // by artificially increasing its bbox the main camera will affect the LOD much longer,
+      // even when not looking at the tree, thus resulting in decent shadows
+
+      const float fScaleUp = 3.0f;
+      bounds.m_fSphereRadius *= fScaleUp;
+      bounds.m_vBoxHalfExtends *= fScaleUp;
+    }
+
     return EZ_SUCCESS;
   }
 
@@ -120,8 +141,10 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
 
   // TODO: handle fallback case properly
 
-  for (const auto& lodData : pTree->GetTreeLODs())
+  for (ezUInt8 uiCurLod = 0; uiCurLod < pTree->GetTreeLODs().GetCount(); ++uiCurLod)
   {
+    const auto& lodData = pTree->GetTreeLODs()[uiCurLod];
+
     if (!lodData.m_hMesh.IsValid())
       continue;
 
@@ -144,7 +167,11 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
       ezUInt32 uiBatchId = ezHashing::xxHash32(data, sizeof(data));
 
       ezKrautRenderData* pRenderData = CreateBranchRenderData(uiBatchId);
+
       {
+        pRenderData->m_pTreeLodInfo = m_pLodInfo;
+        pRenderData->m_uiThisLodIndex = uiCurLod;
+
         pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
         pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
         pRenderData->m_hMesh = lodData.m_hMesh;
@@ -157,7 +184,7 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
 
       // Sort by material and then by mesh
       ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE);
-      msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, uiSortingKey);
+      msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, uiSortingKey, ezRenderData::Caching::IfStatic);
     }
   }
 }

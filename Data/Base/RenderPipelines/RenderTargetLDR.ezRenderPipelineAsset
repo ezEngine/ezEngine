@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9340082855766888863,4792825339744186213}}
-		u4 %Hash{10870730570251930119}
+		u4 %Hash{12924447029032155536}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -124,6 +124,7 @@ o
 		VarArray %Renderers
 		{
 			Uuid{u4{13143457074123809189,5459087900043973784}}
+			Uuid{u4{5424698411817044389,5534999038548520905}}
 		}
 	}
 }
@@ -272,6 +273,13 @@ o
 {
 	Uuid %id{u4{13466193223350061225,5517917346024768411}}
 	s %t{"ezPassThroughNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{5424698411817044389,5534999038548520905}}
+	s %t{"ezKrautRenderer"}
 	u3 %v{1}
 	p{}
 }
@@ -488,7 +496,7 @@ Types
 {
 o
 {
-	Uuid %id{u4{9544632378134097930,83111648224110162}}
+	Uuid %id{u4{7771125221385643040,1358210426580550520}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p

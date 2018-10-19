@@ -85,7 +85,7 @@ ezRenderPipelineResourceHandle ezView::GetRenderPipelineResource() const
 
 void ezView::SetCameraUsageHint(ezEnum<ezCameraUsageHint> val)
 {
-  m_CameraUsageHint = val;
+  m_Data.m_CameraUsageHint = val;
 }
 
 void ezView::SetViewRenderMode(ezEnum<ezViewRenderMode> value)

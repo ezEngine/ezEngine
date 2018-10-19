@@ -1,5 +1,6 @@
 #include <PCH.h>
 
+#include <KrautPlugin/Components/KrautTreeComponent.h>
 #include <KrautPlugin/Renderer/KrautRenderer.h>
 
 #include <RendererCore/Debug/DebugRenderer.h>
@@ -9,6 +10,7 @@
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
 
@@ -28,8 +30,7 @@ void ezKrautRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8
   types.PushBack(ezGetStaticRTTI<ezKrautRenderData>());
 }
 
-void ezKrautRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass,
-                                        const ezRenderDataBatch& batch)
+void ezKrautRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch)
 {
   ezRenderContext* pContext = renderViewContext.m_pRenderContext;
 
@@ -56,6 +57,10 @@ void ezKrautRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
 
   const ezVec3 vLodCamPos = renderViewContext.m_pCamera->GetPosition();
 
+  const bool bUpdateMinLod = (renderViewContext.m_pViewData->m_CameraUsageHint == ezCameraUsageHint::MainView ||
+                              renderViewContext.m_pViewData->m_CameraUsageHint == ezCameraUsageHint::EditorView ||
+                              renderViewContext.m_pViewData->m_CameraUsageHint == ezCameraUsageHint::RenderTarget);
+
   for (ezUInt32 uiStartIndex = 0; uiStartIndex < batch.GetCount(); /**/)
   {
     const ezUInt32 uiRemainingInstances = batch.GetCount() - uiStartIndex;
@@ -64,7 +69,7 @@ void ezKrautRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
     ezArrayPtr<ezPerInstanceData> instanceData = pInstanceData->GetInstanceData(uiRemainingInstances, uiInstanceDataOffset);
 
     ezUInt32 uiFilteredCount = 0;
-    FillPerInstanceData(vLodCamPos, instanceData, batch, uiStartIndex, uiFilteredCount);
+    FillPerInstanceData(vLodCamPos, instanceData, batch, bUpdateMinLod, uiStartIndex, uiFilteredCount);
 
     if (uiFilteredCount > 0) // Instance data might be empty if all render data was filtered.
     {
@@ -95,8 +100,14 @@ void ezKrautRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
 }
 
 void ezKrautRenderer::FillPerInstanceData(const ezVec3& vLodCamPos, ezArrayPtr<ezPerInstanceData> instanceData,
-                                                const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount)
+                                          const ezRenderDataBatch& batch, bool bUpdateMinLod, ezUInt32 uiStartIndex,
+                                          ezUInt32& out_uiFilteredCount)
 {
+  const ezUInt64 uiFrameCount = ezRenderWorld::GetFrameCounter();
+  const ezUInt8 uiReadLod = uiFrameCount % 4;
+  const ezUInt8 uiWriteLod = (uiFrameCount + 1) % 4;
+  const ezUInt8 uiClearLod = (uiFrameCount + 2) % 4;
+
   ezUInt32 uiCount = ezMath::Min<ezUInt32>(instanceData.GetCount(), batch.GetCount() - uiStartIndex);
   ezUInt32 uiCurrentIndex = 0;
 
@@ -106,7 +117,18 @@ void ezKrautRenderer::FillPerInstanceData(const ezVec3& vLodCamPos, ezArrayPtr<e
 
     const float fDistanceSQR = (pRenderData->m_GlobalTransform.m_vPosition - vLodCamPos).GetLengthSquared();
 
-    if (fDistanceSQR < pRenderData->m_fLodDistanceMinSQR || fDistanceSQR > pRenderData->m_fLodDistanceMaxSQR)
+    pRenderData->m_pTreeLodInfo->m_uiMinLod[uiClearLod] = 5;
+
+    if (bUpdateMinLod)
+    {
+      if (fDistanceSQR >= pRenderData->m_fLodDistanceMinSQR && fDistanceSQR < pRenderData->m_fLodDistanceMaxSQR)
+      {
+        pRenderData->m_pTreeLodInfo->m_uiMinLod[uiWriteLod] =
+            ezMath::Min<ezUInt32>(pRenderData->m_pTreeLodInfo->m_uiMinLod[uiWriteLod], pRenderData->m_uiThisLodIndex);
+      }
+    }
+
+    if (pRenderData->m_pTreeLodInfo->m_uiMinLod[uiReadLod] != pRenderData->m_uiThisLodIndex)
       continue;
 
     const ezMat4 objectToWorld = pRenderData->m_GlobalTransform.GetAsMat4();

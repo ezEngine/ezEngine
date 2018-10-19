@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12099190295688988325,5711173786673602835}}
-		u4 %Hash{4409845266416352453}
+		u4 %Hash{4042406598540965703}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -266,7 +266,7 @@ o
 		{
 			Uuid{u4{11453152178619763955,2848560846842348971}}
 		}
-		Vec2 %Node::Pos{f{0xD3C40643,0xCA39C4C3}}
+		Vec2 %Node::Pos{f{0x56C60743,0xCA39C4C3}}
 		Uuid %Output{u4{10739766490606447756,5342130824349431209}}
 		VarArray %Renderers{}
 		f %Saturation{0x0000803F}
@@ -288,10 +288,11 @@ o
 			Uuid{u4{1882725276896333402,11962921664937049994}}
 			Uuid{u4{9400293960526415718,3626807622184776773}}
 		}
-		Vec2 %Node::Pos{f{0x6A90C8C4,0x135E47C3}}
+		Vec2 %Node::Pos{f{0x0950C8C4,0x135E47C3}}
 		VarArray %Renderers
 		{
 			Uuid{u4{12004523242303465860,5313940691838364731}}
+			Uuid{u4{1500707294119416993,5029506748985547854}}
 		}
 	}
 }
@@ -352,6 +353,13 @@ o
 }
 o
 {
+	Uuid %id{u4{1500707294119416993,5029506748985547854}}
+	s %t{"ezKrautRenderer"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{229765027644355237,5099929926165633682}}
 	s %t{"ezSpriteRenderer"}
 	u3 %v{1}
@@ -380,7 +388,7 @@ o
 		{
 			Uuid{u4{3163596115887693552,1854170765256263771}}
 		}
-		Vec2 %Node::Pos{f{0x84B7BA43,0xDACE56C3}}
+		Vec2 %Node::Pos{f{0xC236BA43,0x57CD55C3}}
 		VarArray %Renderers
 		{
 			Uuid{u4{12325205025592915074,5702981337413483727}}
@@ -494,7 +502,7 @@ o
 		{
 			Uuid{u4{2048854553253134529,4184774760099034950}}
 		}
-		Vec2 %Node::Pos{f{0xB94187C1,0x7FED8DC3}}
+		Vec2 %Node::Pos{f{0x426B7EC1,0x7FED8DC3}}
 		ColorGamma %OuterTintColor{u1{225,231,255,255}}
 		Uuid %Output{u4{3333273975139073834,5859689091380104216}}
 		f %Radius{0xCDCC4C3E}
@@ -971,24 +979,6 @@ o
 }
 o
 {
-	Uuid %id{u4{9544632378134097930,83111648224110162}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderer"}
-		s %PluginName{"ezEditorPluginKraut"}
-		VarArray %Properties{}
-		s %TypeName{"ezKrautRenderer"}
-		u3 %TypeSize{8}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{9329450366744582072,382658973548356230}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1038,6 +1028,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleRenderer"}
 		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7771125221385643040,1358210426580550520}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderer"}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautRenderer"}
+		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

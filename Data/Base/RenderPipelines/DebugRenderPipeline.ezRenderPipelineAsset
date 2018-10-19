@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15507879570940844990,5062162254587685694}}
-		u4 %Hash{11570146239893880797}
+		u4 %Hash{1490187629184159859}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -482,7 +482,7 @@ o
 			Uuid{u4{16164622460128969661,8702376805346856925}}
 			Uuid{u4{11776841765925632921,17880848782181007406}}
 		}
-		Vec2 %Node::Pos{f{0xA8FE85C4,0x320B16C4}}
+		Vec2 %Node::Pos{f{0xD81E86C4,0x320B16C4}}
 		VarArray %Renderers
 		{
 			Uuid{u4{6223125522692041143,4967770884007834239}}
@@ -696,16 +696,8 @@ o
 		{
 			Uuid{u4{18006142286075838397,5753952985944765643}}
 			Uuid{u4{13668863250032529538,4647244343652783321}}
-			Uuid{u4{5219441237605029822,5667520729059224836}}
 		}
 	}
-}
-o
-{
-	Uuid %id{u4{5219441237605029822,5667520729059224836}}
-	s %t{"ezKrautRenderer"}
-	u3 %v{1}
-	p{}
 }
 o
 {
@@ -1060,24 +1052,6 @@ Types
 {
 o
 {
-	Uuid %id{u4{9544632378134097930,83111648224110162}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderer"}
-		s %PluginName{"ezEditorPluginKraut"}
-		VarArray %Properties{}
-		s %TypeName{"ezKrautRenderer"}
-		u3 %TypeSize{8}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{17427250445677561954,512496194011972452}}
 	s %t{"ezClampValueAttribute"}
 	u3 %v{1}
@@ -1101,6 +1075,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezLSAOPass"}
 		u3 %TypeSize{272}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7771125221385643040,1358210426580550520}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderer"}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautRenderer"}
+		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

@@ -21,5 +21,5 @@ public:
 
 protected:
   virtual void FillPerInstanceData(const ezVec3& vLodCamPos, ezArrayPtr<ezPerInstanceData> instanceData,
-                                   const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount);
+    const ezRenderDataBatch& batch, bool bUpdateMinLod, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount);
 };

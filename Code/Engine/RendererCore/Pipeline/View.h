@@ -126,7 +126,6 @@ private:
   ezRenderPipelineResourceHandle m_hRenderPipeline;
   ezUInt32 m_uiRenderPipelineResourceDescriptionCounter;
   ezSharedPtr<ezRenderPipeline> m_pRenderPipeline;
-  ezEnum<ezCameraUsageHint> m_CameraUsageHint;
   ezCamera* m_pCamera;
   ezCamera* m_pCullingCamera;
 

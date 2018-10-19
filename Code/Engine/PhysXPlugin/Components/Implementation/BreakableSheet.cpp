@@ -326,7 +326,7 @@ void ezBreakableSheetComponent::OnExtractRenderData(ezMsgExtractRenderData& msg)
     }
   }
 
-  msg.AddRenderData(pRenderData, category, uiSortingKey);
+  msg.AddRenderData(pRenderData, category, uiSortingKey, ezRenderData::Caching::Never);
 }
 
 void ezBreakableSheetComponent::OnCollision(ezMsgCollision& msg)
