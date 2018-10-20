@@ -12,13 +12,18 @@ MSAA
 CAMERA_MODE
 SHADING_QUALITY
 FORWARD_PASS_WRITE_DEPTH
+KRAUT_ALIGN_MODE
 
 [RENDERSTATE]
 
 #include <Shaders/Materials/MaterialState.h>
 
+[MATERIALPARAMETER]
+
+
 [VERTEXSHADER]
 
+#define USE_COLOR
 #define USE_NORMAL
 #define USE_TANGENT
 #define USE_TEXCOORD0
@@ -33,11 +38,32 @@ FORWARD_PASS_WRITE_DEPTH
 
 VS_OUT main(VS_IN Input)
 {
-  return FillVertexData(Input);
+  VS_OUT result = FillVertexData(Input);
+
+  ezPerInstanceData data = GetInstanceData();
+  float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
+  float4 worldPosition = mul(objectToWorld, float4(Input.Position.xyz, 1));
+
+#if KRAUT_ALIGN_MODE == KRAUT_ALIGN_MODE_BILLBOARD
+  worldPosition.xyz += GetCameraDirRight() * result.TexCoords.z;
+  result.TexCoords.zw = 1.0;
+  result.Normal = -GetCameraDirForwards();
+  result.Normal.z = 0;
+  result.Normal = normalize(result.Normal);
+  result.Tangent = GetCameraDirRight();
+  result.BiTangent = float3(0, 0, 1);
+#endif
+
+  float4 cameraPosition = mul(GetWorldToCameraMatrix(), worldPosition);
+  float4 screenPosition = mul(GetCameraToScreenMatrix(), cameraPosition);
+  result.Position = screenPosition;
+
+  return result;
 }
 
 [GEOMETRYSHADER]
 
+#define USE_COLOR
 #define USE_NORMAL
 #define USE_TANGENT
 #define USE_TEXCOORD0
@@ -47,6 +73,7 @@ VS_OUT main(VS_IN Input)
 
 [PIXELSHADER]
 
+#define USE_COLOR
 #define USE_NORMAL
 #define USE_TANGENT
 #define USE_TEXCOORD0
@@ -77,16 +104,30 @@ SamplerState NormalTexture_AutoSampler;
 
 float2 GetTexCoord()
 {
-  float2 tc = G.Input.TexCoords.xy * G.Input.TexCoords.w;
+  float2 tc = G.Input.TexCoords.xy;
+  // unfortunately we have to DIVIDE in the pixel shader with the original value
+  // if we use the inverse of TexCoords.z and interpolate that in the vertex-shader
+  // the result has a slightly different value in the pixel shader, 
+  // resulting in drastically reduced quality
+  tc = tc / G.Input.TexCoords.z;
   tc.y = 1.0 - tc.y;
+  
   return tc;
 }
 
 float3 GetBaseColor()
 {
-  float3 baseColor;// = BaseColor.rgb * GetInstanceData().Color.rgb;
-  baseColor = BaseTexture.Sample(BaseTexture_AutoSampler, GetTexCoord()).rgb;
-  return baseColor;    
+  float3 variationColor = BaseColor.rgb;
+  float variationStrength = BaseColor.a;
+  float vertexStrength = G.Input.Color.a;
+
+  //float3 baseColor = BaseColor.rgb * GetInstanceData().Color.rgb;
+  float3 texColor = BaseTexture.Sample(BaseTexture_AutoSampler, GetTexCoord()).rgb;
+
+  float3 finalColor = lerp(texColor, variationColor, vertexStrength * variationStrength);
+  finalColor *= G.Input.Color.rgb;
+
+  return finalColor;
 }
 
 float3 GetNormal()
@@ -112,9 +153,7 @@ float GetRoughness()
 
 float GetOpacity()
 {
-  float opacity = 1.0;// BaseColor.a * GetInstanceData().Color.a;
-
-  opacity *= BaseTexture.Sample(BaseTexture_AutoSampler, GetTexCoord()).a;
+  float opacity = BaseTexture.Sample(BaseTexture_AutoSampler, GetTexCoord()).a;
 
   #if BLEND_MODE == BLEND_MODE_MASKED
      return opacity - 0.1;

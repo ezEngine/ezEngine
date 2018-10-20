@@ -3,6 +3,7 @@
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetObjects.h>
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
+#include <ModelImporter/Declarations.h>
 
 class ezKrautTreeAssetDocument : public ezSimpleAssetDocument<ezKrautTreeAssetProperties>
 {
@@ -18,7 +19,7 @@ protected:
 
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
 
-  ezString ImportTexture(const char* szImportSourceFolder, const char* szFilename);
+  ezString ImportTexture(const char* szImportSourceFolder, const char* szFilename, ezModelImporter::SemanticHint::Enum hint);
 };
 
 //////////////////////////////////////////////////////////////////////////

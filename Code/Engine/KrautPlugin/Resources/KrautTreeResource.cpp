@@ -109,6 +109,10 @@ ezResourceLoadDesc ezKrautTreeResource::CreateResource(const ezKrautTreeResource
         case 2:
           md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Kraut/Leaf.ezMaterial");
           break;
+
+        case 3:
+          md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Kraut/Billboard.ezMaterial");
+          break;
       }
 
       auto& m1 = md.m_Texture2DBindings.ExpandAndGetRef();
@@ -118,6 +122,10 @@ ezResourceLoadDesc ezKrautTreeResource::CreateResource(const ezKrautTreeResource
       auto& m2 = md.m_Texture2DBindings.ExpandAndGetRef();
       m2.m_Name.Assign("NormalTexture");
       m2.m_Value = ezResourceManager::LoadResource<ezTexture2DResource>(mat.m_sNormalMapTexture);
+
+      auto& p1 = md.m_Parameters.ExpandAndGetRef();
+      p1.m_Name.Assign("BaseColor");
+      p1.m_Value = mat.m_VariationColor;
 
       hMaterial = ezResourceManager::CreateResource<ezMaterialResource>(sMatName, md, mat.m_sDiffuseTexture);
     }

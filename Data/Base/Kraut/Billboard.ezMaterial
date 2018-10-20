@@ -3,19 +3,19 @@ string %Shader { "Kraut/Kraut.ezShader" }
 Permutation
 {
   string %Variable { "BLEND_MODE" }
-  string %Value { "BLEND_MODE_OPAQUE" }
+  string %Value { "BLEND_MODE_MASKED" }
 }
 
 Permutation
 {
   string %Variable { "TWO_SIDED" }
-  string %Value { "FALSE" }
+  string %Value { "TRUE" }
 }
 
 Permutation
 {
   string %Variable { "KRAUT_ALIGN_MODE" }
-  string %Value { "KRAUT_ALIGN_MODE_NONE" }
+  string %Value { "KRAUT_ALIGN_MODE_BILLBOARD" }
 }
 
 Texture2D
@@ -29,4 +29,3 @@ Texture2D
   string %Variable { "NormalTexture" }
   string %Value { "Black.color" }
 }
-

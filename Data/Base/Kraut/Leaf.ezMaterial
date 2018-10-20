@@ -12,6 +12,12 @@ Permutation
   string %Value { "TRUE" }
 }
 
+Permutation
+{
+  string %Variable { "KRAUT_ALIGN_MODE" }
+  string %Value { "KRAUT_ALIGN_MODE_LEAF" }
+}
+
 Texture2D
 {
   string %Variable { "BaseTexture" }

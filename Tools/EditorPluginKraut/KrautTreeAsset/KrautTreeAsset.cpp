@@ -103,8 +103,8 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
         krautFile >> mat.m_VariationColor;
 
-        mat.m_sDiffuseTexture = ImportTexture(sImportSourceDirectory, sDiffuseTexture);
-        mat.m_sNormalMapTexture = ImportTexture(sImportSourceDirectory, sNormalMapTexture);
+        mat.m_sDiffuseTexture = ImportTexture(sImportSourceDirectory, sDiffuseTexture, ezModelImporter::SemanticHint::DIFFUSE_ALPHA);
+        mat.m_sNormalMapTexture = ImportTexture(sImportSourceDirectory, sNormalMapTexture, ezModelImporter::SemanticHint::NORMAL);
       }
     }
 
@@ -113,8 +113,8 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
     float fPrevLodDistance = 0.0f;
 
-    bool bUseImpostorTexture = false;
-    const ezUInt32 uiImpostorMaterialIndex = desc.m_Materials.GetCount();
+    ezUInt32 uiStaticImpostorMaterialIndex = 0xFFFFFFFF;
+    ezUInt32 uiBillboardImpostorMaterialIndex = 0xFFFFFFFF;
 
     for (ezUInt8 lodLevel = 0; lodLevel < uiNumLODs; ++lodLevel)
     {
@@ -122,6 +122,12 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
       lodData.m_fMinLodDistance = fPrevLodDistance;
       krautFile >> lodData.m_fMaxLodDistance;
+
+      if (lodData.m_fMaxLodDistance <= fPrevLodDistance)
+      {
+        lodData.m_fMaxLodDistance = fPrevLodDistance * 2.0f;
+      }
+
       fPrevLodDistance = lodData.m_fMaxLodDistance;
 
       ezUInt8 lodType = 0;
@@ -161,10 +167,25 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
           {
             subMesh.m_uiMaterialIndex = MaterialToIndex[uiCurMatType][uiMaterialID];
           }
+          else if (lodType == 3)
+          {
+            if (uiBillboardImpostorMaterialIndex == 0xFFFFFFFF)
+            {
+              uiBillboardImpostorMaterialIndex = desc.m_Materials.GetCount();
+              desc.m_Materials.ExpandAndGetRef();
+            }
+
+            subMesh.m_uiMaterialIndex = uiBillboardImpostorMaterialIndex;
+          }
           else
           {
-            bUseImpostorTexture = true;
-            subMesh.m_uiMaterialIndex = uiImpostorMaterialIndex;
+            if (uiStaticImpostorMaterialIndex == 0xFFFFFFFF)
+            {
+              uiStaticImpostorMaterialIndex = desc.m_Materials.GetCount();
+              desc.m_Materials.ExpandAndGetRef();
+            }
+
+            subMesh.m_uiMaterialIndex = uiStaticImpostorMaterialIndex;
           }
 
           for (ezUInt32 v = 0; v < uiNumVertices; ++v)
@@ -199,10 +220,10 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
       }
     }
 
-    if (bUseImpostorTexture)
+    if (uiStaticImpostorMaterialIndex != 0xFFFFFFFF)
     {
-      auto& mat = desc.m_Materials.ExpandAndGetRef();
-      mat.m_uiMaterialType = 1; // 'frond'
+      auto& mat = desc.m_Materials[uiStaticImpostorMaterialIndex];
+      mat.m_uiMaterialType = 1; // 'Frond'
       mat.m_VariationColor = ezColor::White;
 
       ezStringBuilder sDocPath = GetDocumentPath();
@@ -211,11 +232,30 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
       sFile = sDocPath.GetFileName();
       sFile.Append("_D.tga");
-      mat.m_sDiffuseTexture = ImportTexture(sFolder, sFile);
+      mat.m_sDiffuseTexture = ImportTexture(sFolder, sFile, ezModelImporter::SemanticHint::DIFFUSE_ALPHA);
 
       sFile = sDocPath.GetFileName();
       sFile.Append("_N.tga");
-      mat.m_sNormalMapTexture = ImportTexture(sFolder, sFile);
+      mat.m_sNormalMapTexture = ImportTexture(sFolder, sFile, ezModelImporter::SemanticHint::NORMAL);
+    }
+
+    if (uiBillboardImpostorMaterialIndex != 0xFFFFFFFF)
+    {
+      auto& mat = desc.m_Materials[uiBillboardImpostorMaterialIndex];
+      mat.m_uiMaterialType = 3; // 'Billboard'
+      mat.m_VariationColor = ezColor::White;
+
+      ezStringBuilder sDocPath = GetDocumentPath();
+      ezStringBuilder sFolder = sDocPath.GetFileDirectory();
+      ezStringBuilder sFile;
+
+      sFile = sDocPath.GetFileName();
+      sFile.Append("_D.tga");
+      mat.m_sDiffuseTexture = ImportTexture(sFolder, sFile, ezModelImporter::SemanticHint::DIFFUSE_ALPHA);
+
+      sFile = sDocPath.GetFileName();
+      sFile.Append("_N.tga");
+      mat.m_sNormalMapTexture = ImportTexture(sFolder, sFile, ezModelImporter::SemanticHint::NORMAL);
     }
   }
 
@@ -230,7 +270,8 @@ ezStatus ezKrautTreeAssetDocument::InternalCreateThumbnail(const ezAssetFileHead
   return status;
 }
 
-ezString ezKrautTreeAssetDocument::ImportTexture(const char* szImportSourceFolder, const char* szFilename)
+ezString ezKrautTreeAssetDocument::ImportTexture(const char* szImportSourceFolder, const char* szFilename,
+                                                 ezModelImporter::SemanticHint::Enum hint)
 {
   ezStringBuilder importTargetDirectory = GetDocumentPath();
 
@@ -243,8 +284,7 @@ ezString ezKrautTreeAssetDocument::ImportTexture(const char* szImportSourceFolde
   else
     importTargetDirectory = importTargetDirectory.GetFileDirectory();
 
-  return ezMeshImportUtils::ImportOrResolveTexture(szImportSourceFolder, importTargetDirectory, szFilename,
-                                                   ezModelImporter::SemanticHint::DIFFUSE_ALPHA);
+  return ezMeshImportUtils::ImportOrResolveTexture(szImportSourceFolder, importTargetDirectory, szFilename, hint);
 }
 
 //////////////////////////////////////////////////////////////////////////
