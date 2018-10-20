@@ -239,6 +239,7 @@ void ezGameApplication::DoSetupDefaultResources()
     ezColorGradientResourceDescriptor cg;
     cg.m_Gradient.AddColorControlPoint(0, ezColor::RebeccaPurple);
     cg.m_Gradient.AddColorControlPoint(1, ezColor::LawnGreen);
+    cg.m_Gradient.SortControlPoints();
 
     ezColorGradientResourceHandle hResource =
         ezResourceManager::CreateResource<ezColorGradientResource>("MissingColorGradient", cg, "Missing Color Gradient Resource");
@@ -251,6 +252,7 @@ void ezGameApplication::DoSetupDefaultResources()
     auto& curve = cd.m_Curves.ExpandAndGetRef();
     curve.AddControlPoint(0);
     curve.AddControlPoint(1);
+    curve.CreateLinearApproximation();
 
     ezCurve1DResourceHandle hResource =
         ezResourceManager::CreateResource<ezCurve1DResource>("MissingCurve1D", cd, "Missing Curve1D Resource");

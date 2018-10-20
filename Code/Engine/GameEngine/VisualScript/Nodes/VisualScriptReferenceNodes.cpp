@@ -328,7 +328,7 @@ void ezVisualScriptNode_FindParent::Execute(ezVisualScriptInstance* pInstance, e
       // search for a parent with the given name
       while (pObject != nullptr)
       {
-        if (pObject->HasName(name))
+        if (m_sObjectName.IsEmpty() || pObject->HasName(name))
         {
           ezGameObjectHandle hResult = pObject->GetHandle();
           pInstance->SetOutputPinValue(this, 0, &hResult);
