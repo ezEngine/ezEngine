@@ -22,6 +22,7 @@ struct EZ_KRAUTPLUGIN_DLL ezKrautTreeResourceDescriptor
 
     ezVec3 m_vPosition;
     ezVec3 m_vTexCoord; // U,V and Q
+    float m_fAmbientOcclusion = 1.0f;
     ezVec3 m_vNormal;
     ezVec3 m_vTangent;
     ezColorGammaUB m_VariationColor;

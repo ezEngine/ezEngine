@@ -55,7 +55,7 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
     ezUInt8 uiVersion = 0;
     krautFile >> uiVersion;
 
-    if (uiVersion != 1)
+    if (uiVersion != 1 && uiVersion != 2)
       return ezStatus(ezFmt("Unknown Kraut file format version {0}", uiVersion));
 
     ezBoundingBox bbox;
@@ -196,7 +196,28 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
             krautFile >> vtx.m_vTexCoord;
             krautFile >> vtx.m_vNormal;
             krautFile >> vtx.m_vTangent;
-            krautFile >> vtx.m_VariationColor;
+
+            if (uiVersion == 1)
+            {
+              krautFile >> vtx.m_VariationColor;
+            }
+
+            if (uiVersion >= 2)
+            {
+              // TODO: figure out how the color variation works
+              ezUInt8 uiColorVariation;
+              krautFile >> uiColorVariation;
+              vtx.m_VariationColor = ezColorGammaUB(255, 255, 255, uiColorVariation);
+
+              krautFile >> vtx.m_fAmbientOcclusion;
+
+              for (ezUInt32 i = 0; i < 6; ++i)
+              {
+                // TODO: not mentioned in file format docs
+                float fOtherAO;
+                krautFile >> fOtherAO;
+              }
+            }
 
             ezMath::Swap(vtx.m_vPosition.y, vtx.m_vPosition.z);
             vtx.m_vPosition *= pProp->m_fUniformScaling;

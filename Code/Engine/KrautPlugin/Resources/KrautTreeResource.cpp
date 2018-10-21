@@ -164,7 +164,7 @@ ezResourceLoadDesc ezKrautTreeResource::CreateResource(const ezKrautTreeResource
 
       buffer.SetVertexData<ezVec3>(0, v, vtx.m_vPosition);
       buffer.SetVertexData<ezVec2>(1, v, ezVec2(vtx.m_vTexCoord.x, vtx.m_vTexCoord.y));
-      buffer.SetVertexData<ezVec2>(2, v, ezVec2(vtx.m_vTexCoord.z, 1.0f / vtx.m_vTexCoord.z));
+      buffer.SetVertexData<ezVec2>(2, v, ezVec2(vtx.m_vTexCoord.z, vtx.m_fAmbientOcclusion));
       buffer.SetVertexData<ezVec3>(3, v, vtx.m_vNormal);
       buffer.SetVertexData<ezVec3>(4, v, vtx.m_vTangent);
       buffer.SetVertexData<ezColorGammaUB>(5, v, vtx.m_VariationColor);
@@ -209,7 +209,7 @@ ezResourceLoadDesc ezKrautTreeResource::CreateResource(const ezKrautTreeResource
 
 void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  ezUInt8 uiVersion = 4;
+  ezUInt8 uiVersion = 5;
 
   stream << uiVersion;
 
@@ -235,6 +235,7 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream) const
       stream << vtx.m_vNormal;
       stream << vtx.m_vTangent;
       stream << vtx.m_VariationColor;
+      stream << vtx.m_fAmbientOcclusion;
     }
 
     for (const auto& tri : lod.m_Triangles)
@@ -270,7 +271,7 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream)
 
   stream >> uiVersion;
 
-  if (uiVersion != 4)
+  if (uiVersion != 5)
     return EZ_FAILURE;
 
   stream >> m_Bounds;
@@ -302,6 +303,7 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream)
       stream >> vtx.m_vNormal;
       stream >> vtx.m_vTangent;
       stream >> vtx.m_VariationColor;
+      stream >> vtx.m_fAmbientOcclusion;
     }
 
     for (auto& tri : lod.m_Triangles)

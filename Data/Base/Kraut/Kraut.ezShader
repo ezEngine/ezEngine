@@ -46,7 +46,22 @@ VS_OUT main(VS_IN Input)
 
 #if KRAUT_ALIGN_MODE == KRAUT_ALIGN_MODE_BILLBOARD
   worldPosition.xyz += GetCameraDirRight() * result.TexCoords.z;
-  result.TexCoords.zw = 1.0;
+  result.TexCoords.z = 1.0;
+  result.Normal = -GetCameraDirForwards();
+  result.Normal.z = 0;
+  result.Normal = normalize(result.Normal);
+  result.Tangent = GetCameraDirRight();
+  result.BiTangent = float3(0, 0, 1);
+#endif
+
+#if KRAUT_ALIGN_MODE == KRAUT_ALIGN_MODE_LEAF
+  float2 span = result.TexCoords.xy * 2.0 - 1.0;
+  float size = result.TexCoords.z;
+
+  worldPosition.xyz += span.x * GetCameraDirRight() * size;
+  worldPosition.xyz += span.y * GetCameraDirUp() * size;
+
+  result.TexCoords.z = 1.0;
   result.Normal = -GetCameraDirForwards();
   result.Normal.z = 0;
   result.Normal = normalize(result.Normal);
@@ -79,7 +94,7 @@ VS_OUT main(VS_IN Input)
 #define USE_TEXCOORD0
 #define USE_TEXCOORD1
 #define USE_SIMPLE_MATERIAL_MODEL
-// #define USE_MATERIAL_OCCLUSION
+#define USE_MATERIAL_OCCLUSION
 #define USE_TWO_SIDED_LIGHTING
 #define USE_FOG
 
@@ -165,13 +180,5 @@ float GetOpacity()
 
 float GetOcclusion()
 {
-  // [branch]
-  // if (UseOcclusionTexture)
-  // {
-  //   return OcclusionTexture.Sample(OcclusionTexture_AutoSampler, G.Input.TexCoords.xy * G.Input.TexCoords.w).r;
-  // }
-  // else
-  {
-    return 0.0f;
-  }
+  return G.Input.TexCoords.w;
 }
