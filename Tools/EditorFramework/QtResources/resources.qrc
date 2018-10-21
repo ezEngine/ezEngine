@@ -5,7 +5,7 @@
     <file>Icons/Perspective.png</file>
     <file>Icons/RenderMode.png</file>
     <file>Icons/Asset16.png</file>
-	<file>Icons/AssetProfiles16.png</file>
+    <file>Icons/AssetProfiles16.png</file>
     <file>Icons/IconView16.png</file>
     <file>Icons/ListView16.png</file>
     <file>Icons/CheckFileSystem16.png</file>
@@ -44,9 +44,10 @@
     <file>Icons/Selection16.png</file>
     <file>Icons/Attention16.png</file>
     <file>Icons/SnapSettings16.png</file>
-	<file>Icons/PlatformWindows16.png</file>
-	<file>Icons/PlatformAndroid16.png</file>
-	<file>Icons/PlatformApple16.png</file>
+    <file>Icons/PlatformWindows16.png</file>
+    <file>Icons/PlatformAndroid16.png</file>
+    <file>Icons/PlatformApple16.png</file>
+    <file>Icons/CreateEmpty16.png</file>
   </qresource>
   <qresource prefix="AssetIcons">
     <file>All.png</file>

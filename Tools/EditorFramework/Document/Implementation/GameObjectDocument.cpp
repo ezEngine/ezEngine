@@ -5,6 +5,7 @@
 #include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/EditTools/EditTool.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
@@ -574,6 +575,74 @@ void ezGameObjectDocument::MoveCameraHere()
   const ezVec3 vUp = pCamera->GetCenterDirUp();
 
   ctxt.m_pLastHoveredViewWidget->InterpolateCameraTo(vPos, vForward, pCamera->GetFovOrDim(), &vUp);
+}
+
+ezStatus ezGameObjectDocument::CreateGameObjectHere()
+{
+  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
+  const bool bCanCreate =
+      ctxt.m_pLastHoveredViewWidget != nullptr && ctxt.m_pLastPickingResult && !ctxt.m_pLastPickingResult->m_vPickedPosition.IsNaN();
+
+  if (!bCanCreate)
+    return ezStatus(EZ_FAILURE);
+
+  auto history = GetCommandHistory();
+
+  history->StartTransaction("Create Node");
+
+  ezAddObjectCommand cmdAdd;
+  cmdAdd.m_pType = ezGetStaticRTTI<ezGameObject>();
+  cmdAdd.m_sParentProperty = "Children";
+  cmdAdd.m_Index = -1;
+
+  ezUuid NewNode;
+
+  const auto& Sel = GetSelectionManager()->GetSelection();
+
+  if (true)
+  {
+    cmdAdd.m_NewObjectGuid.CreateNewUuid();
+    NewNode = cmdAdd.m_NewObjectGuid;
+
+    auto res = history->AddCommand(cmdAdd);
+    if (res.Failed())
+    {
+      history->CancelTransaction();
+      return res;
+    }
+  }
+
+  ezVec3 vCreatePos = ctxt.m_pLastPickingResult->m_vPickedPosition;
+  ezSnapProvider::SnapTranslation(vCreatePos);
+
+  ezSetObjectPropertyCommand cmdSet;
+  cmdSet.m_NewValue = vCreatePos;
+  cmdSet.m_Object = NewNode;
+  cmdSet.m_sProperty = "LocalPosition";
+
+  auto res = history->AddCommand(cmdSet);
+  if (res.Failed())
+  {
+    history->CancelTransaction();
+    return res;
+  }
+
+  // Add a dummy shape icon component, which enables picking
+  {
+    ezAddObjectCommand cmdAdd;
+    cmdAdd.m_pType = ezRTTI::FindTypeByName("ezShapeIconComponent");
+    cmdAdd.m_sParentProperty = "Components";
+    cmdAdd.m_Index = -1;
+    cmdAdd.m_Parent = NewNode;
+
+    auto res = history->AddCommand(cmdAdd);
+  }
+
+  history->FinishTransaction();
+
+  GetSelectionManager()->SetSelection(GetObjectManager()->GetObject(NewNode));
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 void ezGameObjectDocument::ScheduleSendObjectSelection()

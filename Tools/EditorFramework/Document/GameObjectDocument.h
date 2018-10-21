@@ -142,6 +142,9 @@ public:
   /// \brief Moves the camera to the current picking position
   void MoveCameraHere();
 
+  /// \brief Creates an empty game object at the current picking position
+  ezStatus CreateGameObjectHere();
+
   void ScheduleSendObjectSelection();
 
   /// \brief Sends the current object selection, but only if it was modified or specifically tagged for resending with ScheduleSendObjectSelection().

@@ -23,6 +23,7 @@ public:
   static ezActionDescriptorHandle s_hFocusOnSelectionAllViews;
   static ezActionDescriptorHandle s_hSnapCameraToObject;
   static ezActionDescriptorHandle s_hMoveCameraHere;
+  static ezActionDescriptorHandle s_hCreateEmptyGameObjectHere;
 };
 
 ///
@@ -39,6 +40,7 @@ public:
     FocusOnSelectionAllViews,
     SnapCameraToObject,
     MoveCameraHere,
+    CreateGameObjectHere,
   };
 
   ezGameObjectSelectionAction(const ezActionContext& context, const char* szName, ActionType type);
