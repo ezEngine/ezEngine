@@ -122,6 +122,8 @@ retry:
           D3D11_MESSAGE_ID hide[] = {
               // Hide messages about abandoned query results. This can easily happen when a GPUStopwatch is suddenly unused.
               D3D11_MESSAGE_ID_QUERY_BEGIN_ABANDONING_PREVIOUS_RESULTS, D3D11_MESSAGE_ID_QUERY_END_ABANDONING_PREVIOUS_RESULTS,
+              // Don't break on invalid input assembly. This can easily happen when using the wrong mesh-material combination.
+              D3D11_MESSAGE_ID_CREATEINPUTLAYOUT_MISSINGELEMENT,
               // Add more message IDs here as needed
           };
           D3D11_INFO_QUEUE_FILTER filter;

@@ -207,6 +207,27 @@ namespace
             attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, fValues[0]));
           }
         }
+        if (pType == ezGetStaticRTTI<ezVec2>())
+        {
+          if (uiNumFloats >= 2)
+          {
+            attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, ezVec2(fValues[0], fValues[1])));
+          }
+        }
+        if (pType == ezGetStaticRTTI<ezVec3>())
+        {
+          if (uiNumFloats >= 3)
+          {
+            attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, ezVec3(fValues[0], fValues[1], fValues[2])));
+          }
+        }
+        if (pType == ezGetStaticRTTI<ezVec4>())
+        {
+          if (uiNumFloats == 4)
+          {
+            attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, ezVec4(fValues[0], fValues[1], fValues[2], fValues[3])));
+          }
+        }
         else if (pType == ezGetStaticRTTI<ezColor>())
         {
           if (uiNumFloats >= 3)
