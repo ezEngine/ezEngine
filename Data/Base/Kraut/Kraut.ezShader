@@ -79,6 +79,13 @@ VS_OUT main(VS_IN Input)
   {
     worldPosition.xyz += GetCameraDirForwards() * size;
   }
+#else
+  [branch]
+  if (LeafShadowOffset > 0.0)
+  {
+    // hack to reduce self-shadowing from branches on leaves
+    worldPosition.xyz += GetCameraDirForwards() * 0.2;
+  }
 #endif
 
   float4 cameraPosition = mul(GetWorldToCameraMatrix(), worldPosition);

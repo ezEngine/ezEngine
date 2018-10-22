@@ -16,7 +16,7 @@
 namespace ezMeshImportUtils
 {
   ezString ImportOrResolveTexture(const char* szImportSourceFolder, const char* szImportTargetFolder, const char* szTexturePath,
-                                  ezModelImporter::SemanticHint::Enum hint)
+                                  ezModelImporter::SemanticHint::Enum hint, bool bTextureClamp)
   {
     ezStringBuilder relTexturePath = szImportSourceFolder;
     relTexturePath.AppendPath(szTexturePath);
@@ -104,6 +104,13 @@ namespace ezMeshImportUtils
       pAccessor->SetValue(pTextureAsset, "Usage", usage.GetValue()).LogFailure();
       pAccessor->SetValue(pTextureAsset, "ChannelMapping", channelMapping.GetValue()).LogFailure();
 
+      if (bTextureClamp)
+      {
+        pAccessor->SetValue(pTextureAsset, "AddressModeU", (int)ezTexture2DAddressMode::Clamp).LogFailure();
+        pAccessor->SetValue(pTextureAsset, "AddressModeV", (int)ezTexture2DAddressMode::Clamp).LogFailure();
+        pAccessor->SetValue(pTextureAsset, "AddressModeW", (int)ezTexture2DAddressMode::Clamp).LogFailure();
+      }
+
       // TODO: Set... something else?
 
       pAccessor->FinishTransaction();
@@ -153,7 +160,7 @@ namespace ezMeshImportUtils
       pAccessor
           ->SetValue(pMaterialProperties, "BaseTexture",
                      ezMeshImportUtils::ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, baseTexture->m_FileName,
-                                                               ezModelImporter::SemanticHint::DIFFUSE))
+                                                               ezModelImporter::SemanticHint::DIFFUSE, false))
           .LogFailure();
     }
     else
@@ -176,7 +183,7 @@ namespace ezMeshImportUtils
         pAccessor
             ->SetValue(pMaterialProperties, "NormalTexture",
                        ezMeshImportUtils::ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, normalTexture->m_FileName,
-                                                                 ezModelImporter::SemanticHint::NORMAL))
+                                                                 ezModelImporter::SemanticHint::NORMAL, false))
             .LogFailure();
       else
       {
@@ -189,7 +196,7 @@ namespace ezMeshImportUtils
         pAccessor
             ->SetValue(pMaterialProperties, "RoughnessTexture",
                        ezMeshImportUtils::ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, roughnessTexture->m_FileName,
-                                                                 ezModelImporter::SemanticHint::ROUGHNESS))
+                                                                 ezModelImporter::SemanticHint::ROUGHNESS, false))
             .LogFailure();
       else
         pAccessor->SetValue(pMaterialProperties, "RoughnessTexture", "White.color").LogFailure();
@@ -212,7 +219,7 @@ namespace ezMeshImportUtils
       pAccessor
           ->SetValue(pMaterialProperties, "MetallicTexture",
                      ezMeshImportUtils::ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, metalTexture->m_FileName,
-                                                               ezModelImporter::SemanticHint::METALLIC))
+                                                               ezModelImporter::SemanticHint::METALLIC, false))
           .LogFailure();
     }
     else

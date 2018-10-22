@@ -12,7 +12,8 @@ class ezProgressRange;
 namespace ezMeshImportUtils
 {
   EZ_EDITORPLUGINASSETS_DLL ezString ImportOrResolveTexture(const char* szImportSourceFolder, const char* szImportTargetFolder,
-                                                            const char* szTexturePath, ezModelImporter::SemanticHint::Enum hint);
+                                                            const char* szTexturePath, ezModelImporter::SemanticHint::Enum hint,
+                                                            bool bTextureClamp);
 
   EZ_EDITORPLUGINASSETS_DLL void ImportMaterial(ezMaterialAssetDocument* materialDocument, const ezModelImporter::Material* material,
                                                 const char* szImportSourceFolder, const char* szImportTargetFolder);

@@ -106,8 +106,10 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
         krautFile >> mat.m_VariationColor;
 
-        mat.m_sDiffuseTexture = ImportTexture(sImportSourceDirectory, sDiffuseTexture, ezModelImporter::SemanticHint::DIFFUSE_ALPHA);
-        mat.m_sNormalMapTexture = ImportTexture(sImportSourceDirectory, sNormalMapTexture, ezModelImporter::SemanticHint::NORMAL);
+        mat.m_sDiffuseTexture =
+            ImportTexture(sImportSourceDirectory, sDiffuseTexture, ezModelImporter::SemanticHint::DIFFUSE_ALPHA, type != 0);
+        mat.m_sNormalMapTexture =
+            ImportTexture(sImportSourceDirectory, sNormalMapTexture, ezModelImporter::SemanticHint::NORMAL, type != 0);
       }
     }
 
@@ -267,11 +269,11 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
       sFile = sDocPath.GetFileName();
       sFile.Append("_D.tga");
-      mat.m_sDiffuseTexture = ImportTexture(sFolder, sFile, ezModelImporter::SemanticHint::DIFFUSE_ALPHA);
+      mat.m_sDiffuseTexture = ImportTexture(sFolder, sFile, ezModelImporter::SemanticHint::DIFFUSE_ALPHA, true);
 
       sFile = sDocPath.GetFileName();
       sFile.Append("_N.tga");
-      mat.m_sNormalMapTexture = ImportTexture(sFolder, sFile, ezModelImporter::SemanticHint::NORMAL);
+      mat.m_sNormalMapTexture = ImportTexture(sFolder, sFile, ezModelImporter::SemanticHint::NORMAL, true);
     }
 
     if (uiBillboardImpostorMaterialIndex != 0xFFFFFFFF)
@@ -286,11 +288,11 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
       sFile = sDocPath.GetFileName();
       sFile.Append("_D.tga");
-      mat.m_sDiffuseTexture = ImportTexture(sFolder, sFile, ezModelImporter::SemanticHint::DIFFUSE_ALPHA);
+      mat.m_sDiffuseTexture = ImportTexture(sFolder, sFile, ezModelImporter::SemanticHint::DIFFUSE_ALPHA, true);
 
       sFile = sDocPath.GetFileName();
       sFile.Append("_N.tga");
-      mat.m_sNormalMapTexture = ImportTexture(sFolder, sFile, ezModelImporter::SemanticHint::NORMAL);
+      mat.m_sNormalMapTexture = ImportTexture(sFolder, sFile, ezModelImporter::SemanticHint::NORMAL, true);
     }
 
     desc.m_vLeafCenter = leafBBox.GetCenter();
@@ -308,7 +310,7 @@ ezStatus ezKrautTreeAssetDocument::InternalCreateThumbnail(const ezAssetFileHead
 }
 
 ezString ezKrautTreeAssetDocument::ImportTexture(const char* szImportSourceFolder, const char* szFilename,
-                                                 ezModelImporter::SemanticHint::Enum hint)
+                                                 ezModelImporter::SemanticHint::Enum hint, bool bTextureClamp)
 {
   ezStringBuilder importTargetDirectory = GetDocumentPath();
 
@@ -321,7 +323,7 @@ ezString ezKrautTreeAssetDocument::ImportTexture(const char* szImportSourceFolde
   else
     importTargetDirectory = importTargetDirectory.GetFileDirectory();
 
-  return ezMeshImportUtils::ImportOrResolveTexture(szImportSourceFolder, importTargetDirectory, szFilename, hint);
+  return ezMeshImportUtils::ImportOrResolveTexture(szImportSourceFolder, importTargetDirectory, szFilename, hint, bTextureClamp);
 }
 
 //////////////////////////////////////////////////////////////////////////
