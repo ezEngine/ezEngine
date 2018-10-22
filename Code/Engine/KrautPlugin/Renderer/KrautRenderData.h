@@ -31,6 +31,7 @@ public:
   ezUInt32 m_uiUniqueID;
   float m_fLodDistanceMinSQR;
   float m_fLodDistanceMaxSQR;
+  ezVec3 m_vLeafCenter;
 
   ezUInt8 m_uiThisLodIndex = 0;
 

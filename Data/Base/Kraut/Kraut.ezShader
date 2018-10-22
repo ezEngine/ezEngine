@@ -28,6 +28,7 @@ KRAUT_ALIGN_MODE
 #define USE_TANGENT
 #define USE_TEXCOORD0
 #define USE_TEXCOORD1
+#define CUSTOM_INTERPOLATOR float3 LeafNormal : TEXCOORD2;
 
 #if RENDER_PASS == RENDER_PASS_EDITOR
   #define USE_DEBUG_INTERPOLATOR
@@ -35,6 +36,7 @@ KRAUT_ALIGN_MODE
 
 #include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialVertexShader.h>
+#include "TreeShaderData.h"
 
 VS_OUT main(VS_IN Input)
 {
@@ -43,6 +45,8 @@ VS_OUT main(VS_IN Input)
   ezPerInstanceData data = GetInstanceData();
   float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
   float4 worldPosition = mul(objectToWorld, float4(Input.Position.xyz, 1));
+
+  result.LeafNormal = float3(0, 0, 0);
 
 #if KRAUT_ALIGN_MODE == KRAUT_ALIGN_MODE_BILLBOARD
   worldPosition.xyz += GetCameraDirRight() * result.TexCoords.z;
@@ -55,6 +59,8 @@ VS_OUT main(VS_IN Input)
 #endif
 
 #if KRAUT_ALIGN_MODE == KRAUT_ALIGN_MODE_LEAF
+  result.LeafNormal = worldPosition.xyz - mul(objectToWorld, float4(LeafCenter, 1));
+
   float2 span = result.TexCoords.xy * 2.0 - 1.0;
   float size = result.TexCoords.z;
 
@@ -67,6 +73,12 @@ VS_OUT main(VS_IN Input)
   result.Normal = normalize(result.Normal);
   result.Tangent = GetCameraDirRight();
   result.BiTangent = float3(0, 0, 1);
+
+  [branch]
+  if (LeafShadowOffset > 0.0)
+  {
+    worldPosition.xyz += GetCameraDirForwards() * size;
+  }
 #endif
 
   float4 cameraPosition = mul(GetWorldToCameraMatrix(), worldPosition);
@@ -83,6 +95,7 @@ VS_OUT main(VS_IN Input)
 #define USE_TANGENT
 #define USE_TEXCOORD0
 #define USE_TEXCOORD1
+#define CUSTOM_INTERPOLATOR float3 LeafNormal : TEXCOORD2;
 
 #include <Shaders/Materials/MaterialStereoGeometryShader.h>
 
@@ -97,6 +110,7 @@ VS_OUT main(VS_IN Input)
 #define USE_MATERIAL_OCCLUSION
 #define USE_TWO_SIDED_LIGHTING
 #define USE_FOG
+#define CUSTOM_INTERPOLATOR float3 LeafNormal : TEXCOORD2;
 
 #if RENDER_PASS == RENDER_PASS_EDITOR
   #define USE_DEBUG_INTERPOLATOR
@@ -147,8 +161,14 @@ float3 GetBaseColor()
 
 float3 GetNormal()
 {
-    float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, GetTexCoord()));
-    return TangentToWorldSpace(normalTS);
+  float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, GetTexCoord()));
+  float3 wsNormal = TangentToWorldSpace(normalTS);
+
+  #if KRAUT_ALIGN_MODE == KRAUT_ALIGN_MODE_LEAF
+    wsNormal += normalize(G.Input.LeafNormal);
+  #endif
+
+  return normalize(wsNormal);
 }
 
 float GetMetallic()

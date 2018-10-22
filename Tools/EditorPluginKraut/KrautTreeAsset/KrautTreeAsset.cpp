@@ -83,6 +83,9 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
     ezHybridArray<ezHybridArray<ezUInt8, 8>, 4> MaterialToIndex;
     MaterialToIndex.SetCount(uiNumMaterialTypes);
 
+    ezBoundingBox leafBBox;
+    leafBBox.SetInvalid();
+
     for (ezUInt8 type = 0; type < uiNumMaterialTypes; ++type)
     {
       ezUInt8 uiNumMatsOfType = 0;
@@ -163,9 +166,13 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
           subMesh.m_uiFirstTriangle = lodData.m_Triangles.GetCount();
           subMesh.m_uiNumTriangles = uiNumTriangles;
 
+          bool bAddToLeafBBox = false;
+
           if (lodType == 0)
           {
             subMesh.m_uiMaterialIndex = MaterialToIndex[uiCurMatType][uiMaterialID];
+
+            bAddToLeafBBox = desc.m_Materials[subMesh.m_uiMaterialIndex].m_uiMaterialType == 2;
           }
           else if (lodType == 3)
           {
@@ -173,6 +180,7 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
             {
               uiBillboardImpostorMaterialIndex = desc.m_Materials.GetCount();
               desc.m_Materials.ExpandAndGetRef();
+              desc.m_Materials[uiBillboardImpostorMaterialIndex].m_uiMaterialType = 3; // 'billboard'
             }
 
             subMesh.m_uiMaterialIndex = uiBillboardImpostorMaterialIndex;
@@ -183,6 +191,7 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
             {
               uiStaticImpostorMaterialIndex = desc.m_Materials.GetCount();
               desc.m_Materials.ExpandAndGetRef();
+              desc.m_Materials[uiStaticImpostorMaterialIndex].m_uiMaterialType = 1; // 'frond'
             }
 
             subMesh.m_uiMaterialIndex = uiStaticImpostorMaterialIndex;
@@ -193,9 +202,21 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
             auto& vtx = lodData.m_Vertices.ExpandAndGetRef();
 
             krautFile >> vtx.m_vPosition;
+            ezMath::Swap(vtx.m_vPosition.y, vtx.m_vPosition.z);
+            vtx.m_vPosition *= pProp->m_fUniformScaling;
+
             krautFile >> vtx.m_vTexCoord;
+
             krautFile >> vtx.m_vNormal;
+            ezMath::Swap(vtx.m_vNormal.y, vtx.m_vNormal.z);
+
             krautFile >> vtx.m_vTangent;
+            ezMath::Swap(vtx.m_vTangent.y, vtx.m_vTangent.z);
+
+            if (bAddToLeafBBox)
+            {
+              leafBBox.ExpandToInclude(vtx.m_vPosition);
+            }
 
             if (uiVersion == 1)
             {
@@ -204,7 +225,6 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
             if (uiVersion >= 2)
             {
-              // TODO: figure out how the color variation works
               ezUInt8 uiColorVariation;
               krautFile >> uiColorVariation;
               vtx.m_VariationColor = ezColorGammaUB(255, 255, 255, uiColorVariation);
@@ -218,12 +238,6 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
                 krautFile >> fOtherAO;
               }
             }
-
-            ezMath::Swap(vtx.m_vPosition.y, vtx.m_vPosition.z);
-            vtx.m_vPosition *= pProp->m_fUniformScaling;
-
-            ezMath::Swap(vtx.m_vNormal.y, vtx.m_vNormal.z);
-            ezMath::Swap(vtx.m_vTangent.y, vtx.m_vTangent.z);
           }
 
           for (ezUInt32 t = 0; t < uiNumTriangles; ++t)
@@ -278,6 +292,8 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
       sFile.Append("_N.tga");
       mat.m_sNormalMapTexture = ImportTexture(sFolder, sFile, ezModelImporter::SemanticHint::NORMAL);
     }
+
+    desc.m_vLeafCenter = leafBBox.GetCenter();
   }
 
   desc.Save(stream);

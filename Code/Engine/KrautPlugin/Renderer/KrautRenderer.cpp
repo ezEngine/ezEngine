@@ -32,7 +32,7 @@ void ezKrautRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8
 
 void ezKrautRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch)
 {
-  ezRenderContext* pContext = renderViewContext.m_pRenderContext;
+  ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
 
   const ezKrautRenderData* pRenderData = batch.GetFirstData<ezKrautRenderData>();
 
@@ -42,18 +42,23 @@ void ezKrautRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
   if (pMesh->GetSubMeshes().GetCount() <= pRenderData->m_uiSubMeshIndex)
     return;
 
+  TempTreeCB treeConstants(pRenderContext);
+
   const auto& subMesh = pMesh->GetSubMeshes()[pRenderData->m_uiSubMeshIndex];
 
   ezInstanceData* pInstanceData = pPass->GetPipeline()->GetFrameDataProvider<ezInstanceDataProvider>()->GetData(renderViewContext);
-  pInstanceData->BindResources(pContext);
+  pInstanceData->BindResources(pRenderContext);
 
   // inverted trees are not allowed
-  pContext->SetShaderPermutationVariable("FLIP_WINDING", "FALSE");
+  pRenderContext->SetShaderPermutationVariable("FLIP_WINDING", "FALSE");
   // no skinning atm
-  pContext->SetShaderPermutationVariable("VERTEX_SKINNING", "FALSE");
+  pRenderContext->SetShaderPermutationVariable("VERTEX_SKINNING", "FALSE");
 
-  pContext->BindMaterial(pMesh->GetMaterials()[subMesh.m_uiMaterialIndex]);
-  pContext->BindMeshBuffer(pMesh->GetMeshBuffer());
+  pRenderContext->BindMaterial(pMesh->GetMaterials()[subMesh.m_uiMaterialIndex]);
+  pRenderContext->BindMeshBuffer(pMesh->GetMeshBuffer());
+
+  treeConstants.SetTreeData(pRenderData->m_vLeafCenter,
+                            renderViewContext.m_pViewData->m_CameraUsageHint == ezCameraUsageHint::Shadow ? 1.0f : 0.0f);
 
   const ezVec3 vLodCamPos = renderViewContext.m_pCamera->GetPosition();
 
@@ -73,14 +78,14 @@ void ezKrautRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
 
     if (uiFilteredCount > 0) // Instance data might be empty if all render data was filtered.
     {
-      pInstanceData->UpdateInstanceData(pContext, uiFilteredCount);
+      pInstanceData->UpdateInstanceData(pRenderContext, uiFilteredCount);
 
       ezUInt32 uiRenderedInstances = uiFilteredCount;
 
       if (renderViewContext.m_pCamera->IsStereoscopic())
         uiRenderedInstances *= 2;
 
-      if (pContext->DrawMeshBuffer(subMesh.m_uiPrimitiveCount, subMesh.m_uiFirstPrimitive, uiRenderedInstances).Failed())
+      if (pRenderContext->DrawMeshBuffer(subMesh.m_uiPrimitiveCount, subMesh.m_uiFirstPrimitive, uiRenderedInstances).Failed())
       {
         for (auto it = batch.GetIterator<ezKrautRenderData>(uiStartIndex, instanceData.GetCount()); it.IsValid(); ++it)
         {
@@ -145,4 +150,24 @@ void ezKrautRenderer::FillPerInstanceData(const ezVec3& vLodCamPos, ezArrayPtr<e
   }
 
   out_uiFilteredCount = uiCurrentIndex;
+}
+
+ezKrautRenderer::TempTreeCB::TempTreeCB(ezRenderContext* pRenderContext)
+{
+  // TODO This pattern looks like it is inefficient. Should it use the GPU pool instead somehow?
+  m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage(m_pConstants);
+
+  pRenderContext->BindConstantBuffer("ezKrautTreeConstants", m_hConstantBuffer);
+}
+
+ezKrautRenderer::TempTreeCB::~TempTreeCB()
+{
+  ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
+}
+
+void ezKrautRenderer::TempTreeCB::SetTreeData(const ezVec3& vTreeCenter, float fLeafShadowOffset)
+{
+  ezKrautTreeConstants& cb = m_pConstants->GetDataForWriting();
+  cb.LeafCenter = vTreeCenter;
+  cb.LeafShadowOffset = fLeafShadowOffset;
 }

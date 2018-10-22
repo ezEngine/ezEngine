@@ -2,6 +2,9 @@
 
 #include <KrautPlugin/Renderer/KrautRenderData.h>
 #include <RendererCore/Pipeline/Declarations.h>
+#include <RendererCore/Shader/ConstantBufferStorage.h>
+
+#include <RendererCore/../../../Data/Base/Kraut/TreeShaderData.h>
 
 struct ezPerInstanceData;
 
@@ -22,4 +25,15 @@ public:
 protected:
   virtual void FillPerInstanceData(const ezVec3& vLodCamPos, ezArrayPtr<ezPerInstanceData> instanceData,
     const ezRenderDataBatch& batch, bool bUpdateMinLod, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount);
+
+  struct TempTreeCB
+  {
+    TempTreeCB(ezRenderContext* pRenderContext);
+    ~TempTreeCB();
+
+    void SetTreeData(const ezVec3& vTreeCenter, float fLeafShadowOffset);
+
+    ezConstantBufferStorage<ezKrautTreeConstants>* m_pConstants;
+    ezConstantBufferStorageHandle m_hConstantBuffer;
+  };
 };

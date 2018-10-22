@@ -60,6 +60,7 @@ struct EZ_KRAUTPLUGIN_DLL ezKrautTreeResourceDescriptor
     ezColorGammaUB m_VariationColor;
   };
 
+  ezVec3 m_vLeafCenter;
   ezStaticArray<LodData, 5> m_Lods;
   ezHybridArray<MaterialData, 8> m_Materials;
 };
@@ -73,6 +74,8 @@ public:
 
   /// \brief Returns the bounds of this tree.
   const ezBoundingBoxSphere& GetBounds() const { return m_Bounds; }
+
+  const ezVec3& GetLeafCenter() const { return m_vLeafCenter; }
 
   struct TreeLod
   {
@@ -89,6 +92,7 @@ private:
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
   virtual ezResourceLoadDesc CreateResource(const ezKrautTreeResourceDescriptor& descriptor) override;
 
+  ezVec3 m_vLeafCenter;
   ezStaticArray<TreeLod, 5> m_TreeLODs;
   ezBoundingBoxSphere m_Bounds;
 };

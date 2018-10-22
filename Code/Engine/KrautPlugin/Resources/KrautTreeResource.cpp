@@ -76,6 +76,7 @@ ezResourceLoadDesc ezKrautTreeResource::CreateResource(const ezKrautTreeResource
 {
   m_TreeLODs.Clear();
   m_Bounds = desc.m_Bounds;
+  m_vLeafCenter = desc.m_vLeafCenter;
 
   ezHybridArray<ezMaterialResourceHandle, 16> allMaterials;
 
@@ -209,7 +210,7 @@ ezResourceLoadDesc ezKrautTreeResource::CreateResource(const ezKrautTreeResource
 
 void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  ezUInt8 uiVersion = 5;
+  ezUInt8 uiVersion = 6;
 
   stream << uiVersion;
 
@@ -263,6 +264,8 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream) const
     stream << mat.m_sNormalMapTexture;
     stream << mat.m_VariationColor;
   }
+
+  stream << m_vLeafCenter;
 }
 
 ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream)
@@ -271,7 +274,7 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream)
 
   stream >> uiVersion;
 
-  if (uiVersion != 5)
+  if (uiVersion != 6)
     return EZ_FAILURE;
 
   stream >> m_Bounds;
@@ -333,6 +336,8 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream)
     stream >> mat.m_sNormalMapTexture;
     stream >> mat.m_VariationColor;
   }
+
+  stream >> m_vLeafCenter;
 
   return EZ_SUCCESS;
 }

@@ -169,6 +169,7 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
       ezKrautRenderData* pRenderData = CreateBranchRenderData(uiBatchId);
 
       {
+        pRenderData->m_vLeafCenter = pTree->GetLeafCenter();
         pRenderData->m_pTreeLodInfo = m_pLodInfo;
         pRenderData->m_uiThisLodIndex = uiCurLod;
 
