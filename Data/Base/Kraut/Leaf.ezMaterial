@@ -12,10 +12,10 @@ Permutation
   string %Value { "FALSE" }
 }
 
-Permutation
+Constant
 {
-  string %Variable { "KRAUT_ALIGN_MODE" }
-  string %Value { "KRAUT_ALIGN_MODE_LEAF" }
+  string %Variable { "KrautTreeMode" }
+  u3 %Value { 2 }
 }
 
 Texture2D

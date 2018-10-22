@@ -12,16 +12,19 @@ MSAA
 CAMERA_MODE
 SHADING_QUALITY
 FORWARD_PASS_WRITE_DEPTH
-KRAUT_ALIGN_MODE
+
+[MATERIALPARAMETER]
+
+int KrautTreeMode; // 0 == regular mesh, 1 == frond, 2 == leaf, 3 == static impostor, 4 == dynamic impostor
+
 
 [RENDERSTATE]
 
 #include <Shaders/Materials/MaterialState.h>
 
-[MATERIALPARAMETER]
-
-
 [VERTEXSHADER]
+
+#define VSE_CONSTANTS INT1(KrautTreeMode);
 
 #define USE_COLOR
 #define USE_NORMAL
@@ -48,45 +51,44 @@ VS_OUT main(VS_IN Input)
 
   result.LeafNormal = float3(0, 0, 0);
 
-#if KRAUT_ALIGN_MODE == KRAUT_ALIGN_MODE_BILLBOARD
-  worldPosition.xyz += GetCameraDirRight() * result.TexCoords.z;
-  result.TexCoords.z = 1.0;
-  result.Normal = -GetCameraDirForwards();
-  result.Normal.z = 0;
-  result.Normal = normalize(result.Normal);
-  result.Tangent = GetCameraDirRight();
-  result.BiTangent = float3(0, 0, 1);
-#endif
-
-#if KRAUT_ALIGN_MODE == KRAUT_ALIGN_MODE_LEAF
-  result.LeafNormal = worldPosition.xyz - mul(objectToWorld, float4(LeafCenter, 1));
-
-  float2 span = result.TexCoords.xy * 2.0 - 1.0;
-  float size = result.TexCoords.z;
-
-  worldPosition.xyz += span.x * GetCameraDirRight() * size;
-  worldPosition.xyz += span.y * GetCameraDirUp() * size;
-
-  result.TexCoords.z = 1.0;
-  result.Normal = -GetCameraDirForwards();
-  result.Normal.z = 0;
-  result.Normal = normalize(result.Normal);
-  result.Tangent = GetCameraDirRight();
-  result.BiTangent = float3(0, 0, 1);
+  [branch]
+  if (KrautTreeMode == 5) // Billboard Impostor
+  {
+    worldPosition.xyz += GetCameraDirRight() * result.TexCoords.z;
+    result.TexCoords.z = 1.0;
+    result.Normal = -GetCameraDirForwards();
+    result.Normal.z = 0;
+    result.Normal = normalize(result.Normal);
+    result.Tangent = GetCameraDirRight();
+    result.BiTangent = float3(0, 0, 1);
+  }
 
   [branch]
-  if (LeafShadowOffset > 0.0)
+  if (KrautTreeMode == 2) // Leaf
   {
-    worldPosition.xyz += GetCameraDirForwards() * size;
+    result.LeafNormal = worldPosition.xyz - mul(objectToWorld, float4(LeafCenter, 1));
+
+    float2 span = result.TexCoords.xy * 2.0 - 1.0;
+    float size = result.TexCoords.z;
+
+    worldPosition.xyz += span.x * GetCameraDirRight() * size;
+    worldPosition.xyz += span.y * GetCameraDirUp() * size;
+
+    result.TexCoords.z = 1.0;
+    result.Normal = -GetCameraDirForwards();
+    result.Normal.z = 0;
+    result.Normal = normalize(result.Normal);
+    result.Tangent = GetCameraDirRight();
+    result.BiTangent = float3(0, 0, 1);
+
+    [branch]
+    if (LeafShadowOffset > 0.0)
+    {
+      worldPosition.xyz += GetCameraDirForwards() * size;
+    }
   }
-#else
-  [branch]
-  if (LeafShadowOffset > 0.0)
-  {
-    // hack to reduce self-shadowing from branches on leaves
-    worldPosition.xyz += GetCameraDirForwards() * 0.2;
-  }
-#endif
+
+  result.WorldPosition = worldPosition;
 
   float4 cameraPosition = mul(GetWorldToCameraMatrix(), worldPosition);
   float4 screenPosition = mul(GetCameraToScreenMatrix(), cameraPosition);
@@ -96,6 +98,8 @@ VS_OUT main(VS_IN Input)
 }
 
 [GEOMETRYSHADER]
+
+#define VSE_CONSTANTS INT1(KrautTreeMode);
 
 #define USE_COLOR
 #define USE_NORMAL
@@ -107,6 +111,8 @@ VS_OUT main(VS_IN Input)
 #include <Shaders/Materials/MaterialStereoGeometryShader.h>
 
 [PIXELSHADER]
+
+#define VSE_CONSTANTS INT1(KrautTreeMode);
 
 #define USE_COLOR
 #define USE_NORMAL
@@ -135,19 +141,16 @@ SamplerState NormalTexture_AutoSampler;
 //Texture2D RoughnessTexture;
 //SamplerState RoughnessTexture_AutoSampler;
 
-//Texture2D OcclusionTexture;
-//SamplerState OcclusionTexture_AutoSampler;
-
 float2 GetTexCoord()
 {
   float2 tc = G.Input.TexCoords.xy;
   // unfortunately we have to DIVIDE in the pixel shader with the original value
   // if we use the inverse of TexCoords.z and interpolate that in the vertex-shader
-  // the result has a slightly different value in the pixel shader, 
+  // the result has a slightly different value in the pixel shader,
   // resulting in drastically reduced quality
   tc = tc / G.Input.TexCoords.z;
   tc.y = 1.0 - tc.y;
-  
+
   return tc;
 }
 
@@ -171,9 +174,11 @@ float3 GetNormal()
   float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, GetTexCoord()));
   float3 wsNormal = TangentToWorldSpace(normalTS);
 
-  #if KRAUT_ALIGN_MODE == KRAUT_ALIGN_MODE_LEAF
+  [branch]
+  if (KrautTreeMode == 2) // Leaf
+  {
     wsNormal += normalize(G.Input.LeafNormal);
-  #endif
+  }
 
   return normalize(wsNormal);
 }
