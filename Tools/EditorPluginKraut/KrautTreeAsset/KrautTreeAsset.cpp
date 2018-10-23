@@ -78,9 +78,9 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
   ezMath::Swap(bbox.m_vMin.y, bbox.m_vMin.z);
   ezMath::Swap(bbox.m_vMax.y, bbox.m_vMax.z);
 
-  desc.m_Bounds = bbox;
-  desc.m_Bounds.m_fSphereRadius *= pProp->m_fUniformScaling;
-  desc.m_Bounds.m_vBoxHalfExtends *= pProp->m_fUniformScaling;
+  desc.m_Details.m_Bounds = bbox;
+  desc.m_Details.m_Bounds.m_fSphereRadius *= pProp->m_fUniformScaling;
+  desc.m_Details.m_Bounds.m_vBoxHalfExtends *= pProp->m_fUniformScaling;
 
   ezUInt8 uiNumLODs = 0;
   krautFile >> uiNumLODs;
@@ -352,8 +352,8 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
     mat.m_sNormalMapTexture = ImportTexture(sFolder, sFile, ezModelImporter::SemanticHint::NORMAL, true);
   }
 
-  desc.m_vLeafCenter = leafBBox.GetCenter();
-
+  desc.m_Details.m_vLeafCenter = leafBBox.GetCenter();
+  desc.m_Details.m_fNavMeshFootprint = pProp->m_fNavMeshFootprint;
 
   desc.Save(stream);
 

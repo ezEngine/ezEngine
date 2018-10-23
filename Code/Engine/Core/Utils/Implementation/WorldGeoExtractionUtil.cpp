@@ -129,7 +129,7 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
         line.Format("\nf {0} {1} {2}\n", idxOff + 0, idxOff + 5, idxOff + 1);
         file.WriteBytes(line.GetData(), line.GetElementCount());
 
-        line.Format("f {0} {1} {2}\n", idxOff + 1, idxOff + 4, idxOff + 5);
+        line.Format("f {0} {1} {2}\n", idxOff + 0, idxOff + 4, idxOff + 5);
         file.WriteBytes(line.GetData(), line.GetElementCount());
 
         line.Format("f {0} {1} {2}\n", idxOff + 2, idxOff + 1, idxOff + 3);

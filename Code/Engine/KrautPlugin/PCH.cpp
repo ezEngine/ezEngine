@@ -18,7 +18,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Kraut, KrautPlugin)
     ezResourceManager::RegisterResourceForAssetType("Kraut Tree", ezGetStaticRTTI<ezKrautTreeResource>());
 
     ezKrautTreeResourceDescriptor desc;
-    desc.m_Bounds.SetInvalid();
+    desc.m_Details.m_Bounds.SetInvalid();
     ezKrautTreeResourceHandle hResource = ezResourceManager::CreateResource<ezKrautTreeResource>("Missing Kraut Tree", desc, "Empty Kraut tree");
     ezKrautTreeResource::SetTypeMissingResource(hResource);
   }

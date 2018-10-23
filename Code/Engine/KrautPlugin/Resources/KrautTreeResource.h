@@ -9,12 +9,17 @@ typedef ezTypedResourceHandle<class ezMeshResource> ezMeshResourceHandle;
 typedef ezTypedResourceHandle<class ezKrautTreeResource> ezKrautTreeResourceHandle;
 typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
 
+struct EZ_KRAUTPLUGIN_DLL ezKrautTreeResourceDetails
+{
+  ezBoundingBoxSphere m_Bounds;
+  ezVec3 m_vLeafCenter;
+  float m_fNavMeshFootprint;
+};
+
 struct EZ_KRAUTPLUGIN_DLL ezKrautTreeResourceDescriptor
 {
   void Save(ezStreamWriter& stream) const;
   ezResult Load(ezStreamReader& stream);
-
-  ezBoundingBoxSphere m_Bounds;
 
   struct VertexData
   {
@@ -61,7 +66,8 @@ struct EZ_KRAUTPLUGIN_DLL ezKrautTreeResourceDescriptor
     ezColorGammaUB m_VariationColor = ezColor::White;
   };
 
-  ezVec3 m_vLeafCenter;
+  ezKrautTreeResourceDetails m_Details;
+
   ezStaticArray<LodData, 5> m_Lods;
   ezHybridArray<MaterialData, 8> m_Materials;
 };
@@ -73,10 +79,7 @@ class EZ_KRAUTPLUGIN_DLL ezKrautTreeResource : public ezResource<ezKrautTreeReso
 public:
   ezKrautTreeResource();
 
-  /// \brief Returns the bounds of this tree.
-  const ezBoundingBoxSphere& GetBounds() const { return m_Bounds; }
-
-  const ezVec3& GetLeafCenter() const { return m_vLeafCenter; }
+  const ezKrautTreeResourceDetails& GetDetails() const { return m_Details; }
 
   struct TreeLod
   {
@@ -94,8 +97,7 @@ private:
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
   virtual ezResourceLoadDesc CreateResource(const ezKrautTreeResourceDescriptor& descriptor) override;
 
-  ezVec3 m_vLeafCenter;
+  ezKrautTreeResourceDetails m_Details;
   ezStaticArray<TreeLod, 5> m_TreeLODs;
-  ezBoundingBoxSphere m_Bounds;
 };
 

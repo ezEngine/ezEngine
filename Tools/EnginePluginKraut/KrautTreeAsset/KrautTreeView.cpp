@@ -65,9 +65,9 @@ void ezKrautTreeViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   {
     ezResourceLock<ezKrautTreeResource> pResource(hResource, ezResourceAcquireMode::AllowFallback);
 
-    if (pResource->GetBounds().IsValid())
+    if (pResource->GetDetails().m_Bounds.IsValid())
     {
-      bbox = pResource->GetBounds().GetBox();
+      bbox = pResource->GetDetails().m_Bounds.GetBox();
 
       ezStringBuilder sText;
       sText.PrependFormat("Bounding Box: width={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2),

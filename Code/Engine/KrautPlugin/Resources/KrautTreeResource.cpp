@@ -13,7 +13,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezKrautTreeResource::ezKrautTreeResource()
     : ezResource<ezKrautTreeResource, ezKrautTreeResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
-  m_Bounds.SetInvalid();
+  m_Details.m_Bounds.SetInvalid();
 }
 
 ezResourceLoadDesc ezKrautTreeResource::UnloadData(Unload WhatToUnload)
@@ -75,8 +75,7 @@ void ezKrautTreeResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 ezResourceLoadDesc ezKrautTreeResource::CreateResource(const ezKrautTreeResourceDescriptor& desc)
 {
   m_TreeLODs.Clear();
-  m_Bounds = desc.m_Bounds;
-  m_vLeafCenter = desc.m_vLeafCenter;
+  m_Details = desc.m_Details;
 
   ezHybridArray<ezMaterialResourceHandle, 16> allMaterials;
 
@@ -215,11 +214,9 @@ ezResourceLoadDesc ezKrautTreeResource::CreateResource(const ezKrautTreeResource
 
 void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  ezUInt8 uiVersion = 8;
+  ezUInt8 uiVersion = 9;
 
   stream << uiVersion;
-
-  stream << m_Bounds;
 
   const ezUInt8 uiNumLods = m_Lods.GetCount();
   stream << uiNumLods;
@@ -271,7 +268,9 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream) const
     stream << mat.m_VariationColor;
   }
 
-  stream << m_vLeafCenter;
+  stream << m_Details.m_Bounds;
+  stream << m_Details.m_vLeafCenter;
+  stream << m_Details.m_fNavMeshFootprint;
 }
 
 ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream)
@@ -280,10 +279,8 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream)
 
   stream >> uiVersion;
 
-  if (uiVersion != 8)
+  if (uiVersion != 9)
     return EZ_FAILURE;
-
-  stream >> m_Bounds;
 
   ezUInt8 uiNumLods = 0;
   stream >> uiNumLods;
@@ -348,7 +345,9 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream)
     stream >> mat.m_VariationColor;
   }
 
-  stream >> m_vLeafCenter;
+  stream >> m_Details.m_Bounds;
+  stream >> m_Details.m_vLeafCenter;
+  stream >> m_Details.m_fNavMeshFootprint;
 
   return EZ_SUCCESS;
 }

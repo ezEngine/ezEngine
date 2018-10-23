@@ -1,6 +1,8 @@
 #include <PCH.h>
 
+#include <Core/Graphics/Geometry.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <KrautPlugin/Components/KrautTreeComponent.h>
@@ -19,6 +21,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezKrautTreeComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnExtractGeometry),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
@@ -66,7 +69,7 @@ ezResult ezKrautTreeComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool&
     ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::AllowFallback);
     // TODO: handle fallback case properly
 
-    bounds = pTree->GetBounds();
+    bounds = pTree->GetDetails().m_Bounds;
 
     {
       // this is a work around to make shadows and LODing work better
@@ -178,7 +181,7 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
         pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
         pRenderData->m_bCastShadows = (lodData.m_LodType == ezKrautLodType::Mesh);
 
-        pRenderData->m_vLeafCenter = pTree->GetLeafCenter();
+        pRenderData->m_vLeafCenter = pTree->GetDetails().m_vLeafCenter;
         pRenderData->m_fLodDistanceMinSQR = ezMath::Square(lodData.m_fMinLodDistance);
         pRenderData->m_fLodDistanceMaxSQR = ezMath::Square(lodData.m_fMaxLodDistance);
       }
@@ -187,6 +190,52 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
       ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE);
       msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, uiSortingKey, ezRenderData::Caching::IfStatic);
     }
+  }
+}
+
+void ezKrautTreeComponent::OnExtractGeometry(ezMsgExtractGeometry& msg) const
+{
+  if (GetOwner()->IsDynamic())
+    return;
+
+  if (!m_hKrautTree.IsValid())
+    return;
+
+  ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::NoFallback);
+
+  if (pTree.GetAcquireResult() != ezResourceAcquireResult::Final)
+    return;
+
+  if (pTree->GetDetails().m_fNavMeshFootprint <= 0.0f)
+    return;
+
+  const ezVec3 vScale = ezSimdConversion::ToVec3(GetOwner()->GetGlobalTransformSimd().m_Scale.Abs());
+
+  ezMat4 transform = GetOwner()->GetGlobalTransform().GetAsMat4();
+  transform.SetTranslationVector(transform.GetTranslationVector() + ezVec3(0, 0, 1));
+
+  ezGeometry geo;
+  geo.AddCylinder(pTree->GetDetails().m_fNavMeshFootprint, pTree->GetDetails().m_fNavMeshFootprint, 2.0f, false, false, 8, ezColor::White,
+                  transform);
+
+  auto& vertices = msg.m_pWorldGeometry->m_Vertices;
+  auto& triangles = msg.m_pWorldGeometry->m_Triangles;
+
+  const ezUInt32 uiFirstVertex = vertices.GetCount();
+
+  geo.TriangulatePolygons();
+
+  for (const auto& vtx : geo.GetVertices())
+  {
+    vertices.ExpandAndGetRef().m_vPosition = vtx.m_vPosition;
+  }
+
+  for (const auto& tri : geo.GetPolygons())
+  {
+    auto& t = triangles.ExpandAndGetRef();
+    t.m_uiVertexIndices[0] = uiFirstVertex + tri.m_Vertices[0];
+    t.m_uiVertexIndices[1] = uiFirstVertex + tri.m_Vertices[1];
+    t.m_uiVertexIndices[2] = uiFirstVertex + tri.m_Vertices[2];
   }
 }
 

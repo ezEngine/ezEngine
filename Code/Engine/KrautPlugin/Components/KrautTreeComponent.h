@@ -7,6 +7,7 @@
 #include <RendererCore/Meshes/MeshResource.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
+struct ezMsgExtractGeometry;
 struct ezResourceEvent;
 class ezKrautRenderData;
 typedef ezTypedResourceHandle<class ezKrautTreeResource> ezKrautTreeResourceHandle;
@@ -67,6 +68,7 @@ public:
 
   static const int s_iLocalBoundsScale = 3;
 
+  void OnExtractGeometry(ezMsgExtractGeometry& msg) const;
   
   // ************************************* PROPERTIES ***********************************
 public:
