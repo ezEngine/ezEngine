@@ -1,6 +1,6 @@
 #pragma once
 
-#include <KrautPlugin/Basics.h>
+#include <KrautPlugin/KrautDeclarations.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Math/BoundingBoxSphere.h>
 #include <Foundation/Containers/StaticArray.h>
@@ -44,8 +44,9 @@ struct EZ_KRAUTPLUGIN_DLL ezKrautTreeResourceDescriptor
 
   struct LodData
   {
-    float m_fMinLodDistance;
-    float m_fMaxLodDistance;
+    float m_fMinLodDistance = 0;
+    float m_fMaxLodDistance = 0;
+    ezKrautLodType m_LodType = ezKrautLodType::None;
 
     ezDynamicArray<VertexData> m_Vertices;
     ezDynamicArray<TriangleData> m_Triangles;
@@ -54,10 +55,10 @@ struct EZ_KRAUTPLUGIN_DLL ezKrautTreeResourceDescriptor
 
   struct MaterialData
   {
-    ezUInt8 m_uiMaterialType;
+    ezKrautMaterialType m_MaterialType;
     ezString m_sDiffuseTexture;
     ezString m_sNormalMapTexture;
-    ezColorGammaUB m_VariationColor;
+    ezColorGammaUB m_VariationColor = ezColor::White;
   };
 
   ezVec3 m_vLeafCenter;
@@ -80,8 +81,9 @@ public:
   struct TreeLod
   {
     ezMeshResourceHandle m_hMesh;
-    float m_fMinLodDistance;
-    float m_fMaxLodDistance;
+    float m_fMinLodDistance = 0;
+    float m_fMaxLodDistance = 0;
+    ezKrautLodType m_LodType = ezKrautLodType::None;
   };
 
   ezArrayPtr<const TreeLod> GetTreeLODs() const { return m_TreeLODs.GetArrayPtr(); }

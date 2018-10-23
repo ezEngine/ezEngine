@@ -1,6 +1,6 @@
 #pragma once
 
-#include <KrautPlugin/Basics.h>
+#include <KrautPlugin/KrautDeclarations.h>
 #include <KrautPlugin/Renderer/KrautRenderData.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>

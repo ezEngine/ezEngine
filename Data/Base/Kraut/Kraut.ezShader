@@ -15,7 +15,7 @@ FORWARD_PASS_WRITE_DEPTH
 
 [MATERIALPARAMETER]
 
-int KrautTreeMode; // 0 == regular mesh, 1 == frond, 2 == leaf, 3 == static impostor, 4 == dynamic impostor
+int KrautTreeMode; // 0 == regular mesh, 1 == frond, 2 == leaf, 3 == static impostor, 4 == billboard impostor
 
 
 [RENDERSTATE]
@@ -52,7 +52,7 @@ VS_OUT main(VS_IN Input)
   result.LeafNormal = float3(0, 0, 0);
 
   [branch]
-  if (KrautTreeMode == 5) // Billboard Impostor
+  if (KrautTreeMode == 4) // Billboard Impostor
   {
     worldPosition.xyz += GetCameraDirRight() * result.TexCoords.z;
     result.TexCoords.z = 1.0;
@@ -172,6 +172,10 @@ float3 GetBaseColor()
 float3 GetNormal()
 {
   float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, GetTexCoord()));
+
+  // TODO: validate / preprocess: since we flip sampling the textures, the normal is also pointing in the other direction
+  normalTS.y = -normalTS.y;
+
   float3 wsNormal = TangentToWorldSpace(normalTS);
 
   [branch]

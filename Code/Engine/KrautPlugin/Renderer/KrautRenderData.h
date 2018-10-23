@@ -1,6 +1,6 @@
 #pragma once
 
-#include <KrautPlugin/Basics.h>
+#include <KrautPlugin/KrautDeclarations.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Types/RefCounted.h>
@@ -27,13 +27,15 @@ class EZ_KRAUTPLUGIN_DLL ezKrautRenderData : public ezRenderData
 
 public:
   ezMeshResourceHandle m_hMesh;
-  ezUInt32 m_uiSubMeshIndex;
-  ezUInt32 m_uiUniqueID;
+  ezUInt32 m_uiUniqueID = 0;
   float m_fLodDistanceMinSQR;
   float m_fLodDistanceMaxSQR;
   ezVec3 m_vLeafCenter;
 
+  ezUInt8 m_uiSubMeshIndex = 0;
   ezUInt8 m_uiThisLodIndex = 0;
+  bool m_bCastShadows = false;
+
 
   ezSharedPtr<ezKrautLodInfo> m_pTreeLodInfo;
 };

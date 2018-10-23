@@ -84,7 +84,7 @@ ezResourceLoadDesc ezKrautTreeResource::CreateResource(const ezKrautTreeResource
 
   for (const auto& mat : desc.m_Materials)
   {
-    ezUInt32 uiTexHash = mat.m_uiMaterialType;
+    ezUInt32 uiTexHash = static_cast<ezUInt32>(mat.m_MaterialType);
     uiTexHash = ezHashing::xxHash32(&mat.m_VariationColor, sizeof(mat.m_VariationColor), uiTexHash);
     uiTexHash = ezHashing::xxHash32(mat.m_sDiffuseTexture.GetData(), mat.m_sDiffuseTexture.GetElementCount(), uiTexHash);
     uiTexHash = ezHashing::xxHash32(mat.m_sNormalMapTexture.GetData(), mat.m_sNormalMapTexture.GetElementCount(), uiTexHash);
@@ -97,22 +97,26 @@ ezResourceLoadDesc ezKrautTreeResource::CreateResource(const ezKrautTreeResource
     {
       ezMaterialResourceDescriptor md;
 
-      switch (mat.m_uiMaterialType)
+      switch (mat.m_MaterialType)
       {
-        case 0:
+        case ezKrautMaterialType::Branch:
           md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Kraut/Branch.ezMaterial");
           break;
 
-        case 1:
+        case ezKrautMaterialType::Frond:
           md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Kraut/Frond.ezMaterial");
           break;
 
-        case 2:
+        case ezKrautMaterialType::Leaf:
           md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Kraut/Leaf.ezMaterial");
           break;
 
-        case 3:
-          md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Kraut/Billboard.ezMaterial");
+        case ezKrautMaterialType::StaticImpostor:
+          md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Kraut/StaticImpostor.ezMaterial");
+          break;
+
+        case ezKrautMaterialType::BillboardImpostor:
+          md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Kraut/BillboardImpostor.ezMaterial");
           break;
       }
 
@@ -141,6 +145,7 @@ ezResourceLoadDesc ezKrautTreeResource::CreateResource(const ezKrautTreeResource
     const auto& lodSrc = desc.m_Lods[lodIdx];
     auto& lodDst = m_TreeLODs.ExpandAndGetRef();
 
+    lodDst.m_LodType = lodSrc.m_LodType;
     lodDst.m_fMinLodDistance = lodSrc.m_fMinLodDistance;
     lodDst.m_fMaxLodDistance = lodSrc.m_fMaxLodDistance;
 
@@ -210,7 +215,7 @@ ezResourceLoadDesc ezKrautTreeResource::CreateResource(const ezKrautTreeResource
 
 void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  ezUInt8 uiVersion = 6;
+  ezUInt8 uiVersion = 8;
 
   stream << uiVersion;
 
@@ -223,6 +228,7 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream) const
   {
     const auto& lod = m_Lods[lodIdx];
 
+    stream << static_cast<ezUInt8>(lod.m_LodType);
     stream << lod.m_fMinLodDistance;
     stream << lod.m_fMaxLodDistance;
     stream << lod.m_Vertices.GetCount();
@@ -259,7 +265,7 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream) const
 
   for (const auto& mat : m_Materials)
   {
-    stream << mat.m_uiMaterialType;
+    stream << static_cast<ezUInt8>(mat.m_MaterialType);
     stream << mat.m_sDiffuseTexture;
     stream << mat.m_sNormalMapTexture;
     stream << mat.m_VariationColor;
@@ -274,7 +280,7 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream)
 
   stream >> uiVersion;
 
-  if (uiVersion != 6)
+  if (uiVersion != 8)
     return EZ_FAILURE;
 
   stream >> m_Bounds;
@@ -286,6 +292,9 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream)
   {
     auto& lod = m_Lods.ExpandAndGetRef();
 
+    ezUInt8 lodType;
+    stream >> lodType;
+    lod.m_LodType = static_cast<ezKrautLodType>(lodType);
     stream >> lod.m_fMinLodDistance;
     stream >> lod.m_fMaxLodDistance;
 
@@ -331,7 +340,9 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream)
 
   for (auto& mat : m_Materials)
   {
-    stream >> mat.m_uiMaterialType;
+    ezUInt8 matType = 0;
+    stream >> matType;
+    mat.m_MaterialType = static_cast<ezKrautMaterialType>(matType);
     stream >> mat.m_sDiffuseTexture;
     stream >> mat.m_sNormalMapTexture;
     stream >> mat.m_VariationColor;

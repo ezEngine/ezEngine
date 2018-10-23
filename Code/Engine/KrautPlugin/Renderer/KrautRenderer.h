@@ -24,7 +24,7 @@ public:
 
 protected:
   virtual void FillPerInstanceData(const ezVec3& vLodCamPos, ezArrayPtr<ezPerInstanceData> instanceData,
-    const ezRenderDataBatch& batch, bool bUpdateMinLod, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount);
+    const ezRenderDataBatch& batch, bool bUpdateMinLod, bool bIsShadowView, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount);
 
   struct TempTreeCB
   {

@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <KrautPlugin/Basics.h>
+#include <KrautPlugin/KrautDeclarations.h>
 
 #include <Foundation/Configuration/Startup.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>

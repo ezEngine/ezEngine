@@ -9,7 +9,9 @@ class ezKrautTreeAssetProperties : public ezReflectedClass
 
 public:
   ezKrautTreeAssetProperties();
+  ~ezKrautTreeAssetProperties();
 
   ezString m_sKrautFile;
-  float m_fUniformScaling;
+  float m_fUniformScaling = 1.0f;
+  float m_fLodDistanceScale = 1.0f;
 };

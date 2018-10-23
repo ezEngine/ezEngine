@@ -15,7 +15,7 @@ Permutation
 Constant
 {
   string %Variable { "KrautTreeMode" }
-  u3 %Value { 5 }
+  u3 %Value { 4 }
 }
 
 Texture2D

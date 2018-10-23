@@ -62,6 +62,7 @@ void ezKrautRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
 
   const ezVec3 vLodCamPos = renderViewContext.m_pCamera->GetPosition();
 
+  const bool bIsShadowView = renderViewContext.m_pViewData->m_CameraUsageHint == ezCameraUsageHint::Shadow;
   const bool bUpdateMinLod = (renderViewContext.m_pViewData->m_CameraUsageHint == ezCameraUsageHint::MainView ||
                               renderViewContext.m_pViewData->m_CameraUsageHint == ezCameraUsageHint::EditorView ||
                               renderViewContext.m_pViewData->m_CameraUsageHint == ezCameraUsageHint::RenderTarget);
@@ -74,7 +75,7 @@ void ezKrautRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
     ezArrayPtr<ezPerInstanceData> instanceData = pInstanceData->GetInstanceData(uiRemainingInstances, uiInstanceDataOffset);
 
     ezUInt32 uiFilteredCount = 0;
-    FillPerInstanceData(vLodCamPos, instanceData, batch, bUpdateMinLod, uiStartIndex, uiFilteredCount);
+    FillPerInstanceData(vLodCamPos, instanceData, batch, bUpdateMinLod, bIsShadowView, uiStartIndex, uiFilteredCount);
 
     if (uiFilteredCount > 0) // Instance data might be empty if all render data was filtered.
     {
@@ -105,7 +106,7 @@ void ezKrautRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
 }
 
 void ezKrautRenderer::FillPerInstanceData(const ezVec3& vLodCamPos, ezArrayPtr<ezPerInstanceData> instanceData,
-                                          const ezRenderDataBatch& batch, bool bUpdateMinLod, ezUInt32 uiStartIndex,
+                                          const ezRenderDataBatch& batch, bool bUpdateMinLod, bool bIsShadowView, ezUInt32 uiStartIndex,
                                           ezUInt32& out_uiFilteredCount)
 {
   const ezUInt64 uiFrameCount = ezRenderWorld::GetFrameCounter();
@@ -123,6 +124,9 @@ void ezKrautRenderer::FillPerInstanceData(const ezVec3& vLodCamPos, ezArrayPtr<e
     const float fDistanceSQR = (pRenderData->m_GlobalTransform.m_vPosition - vLodCamPos).GetLengthSquared();
 
     pRenderData->m_pTreeLodInfo->m_uiMinLod[uiClearLod] = 5;
+
+    if (bIsShadowView && !pRenderData->m_bCastShadows)
+      continue;
 
     if (bUpdateMinLod)
     {

@@ -169,7 +169,6 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
       ezKrautRenderData* pRenderData = CreateBranchRenderData(uiBatchId);
 
       {
-        pRenderData->m_vLeafCenter = pTree->GetLeafCenter();
         pRenderData->m_pTreeLodInfo = m_pLodInfo;
         pRenderData->m_uiThisLodIndex = uiCurLod;
 
@@ -178,7 +177,9 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
         pRenderData->m_hMesh = lodData.m_hMesh;
         pRenderData->m_uiSubMeshIndex = subMeshIdx;
         pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
+        pRenderData->m_bCastShadows = (lodData.m_LodType == ezKrautLodType::Mesh);
 
+        pRenderData->m_vLeafCenter = pTree->GetLeafCenter();
         pRenderData->m_fLodDistanceMinSQR = ezMath::Square(lodData.m_fMinLodDistance);
         pRenderData->m_fLodDistanceMaxSQR = ezMath::Square(lodData.m_fMaxLodDistance);
       }
