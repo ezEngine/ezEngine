@@ -63,7 +63,9 @@ void ezKrautRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
   const ezVec3 vLodCamPos = renderViewContext.m_pCamera->GetPosition();
 
   const bool bIsShadowView = renderViewContext.m_pViewData->m_CameraUsageHint == ezCameraUsageHint::Shadow;
-  const bool bUpdateMinLod = (renderViewContext.m_pViewData->m_CameraUsageHint == ezCameraUsageHint::MainView ||
+  const bool bUpdateMinLod = (renderViewContext.m_pViewData->m_CameraUsageHint == ezCameraUsageHint::Culling ||
+                              renderViewContext.m_pViewData->m_CameraUsageHint == ezCameraUsageHint::Thumbnail ||
+                              renderViewContext.m_pViewData->m_CameraUsageHint == ezCameraUsageHint::MainView ||
                               renderViewContext.m_pViewData->m_CameraUsageHint == ezCameraUsageHint::EditorView ||
                               renderViewContext.m_pViewData->m_CameraUsageHint == ezCameraUsageHint::RenderTarget);
 

@@ -79,9 +79,8 @@ ezResult ezKrautTreeComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool&
       // by artificially increasing its bbox the main camera will affect the LOD much longer,
       // even when not looking at the tree, thus resulting in decent shadows
 
-      const float fScaleUp = 3.0f;
-      bounds.m_fSphereRadius *= fScaleUp;
-      bounds.m_vBoxHalfExtends *= fScaleUp;
+      bounds.m_fSphereRadius *= s_iLocalBoundsScale;
+      bounds.m_vBoxHalfExtends *= s_iLocalBoundsScale;
     }
 
     return EZ_SUCCESS;

@@ -108,6 +108,10 @@ bool ezKrautTreeContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* 
 {
   ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
 
+  // undo the artificial bounds scale to get a tight bbox for better thumbnails
+  bounds.m_fSphereRadius /= ezKrautTreeComponent::s_iLocalBoundsScale;
+  bounds.m_vBoxHalfExtends /= ezKrautTreeComponent::s_iLocalBoundsScale;
+
   ezKrautTreeViewContext* pMeshViewContext = static_cast<ezKrautTreeViewContext*>(pThumbnailViewContext);
   return pMeshViewContext->UpdateThumbnailCamera(bounds);
 }

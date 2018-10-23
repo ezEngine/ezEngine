@@ -79,6 +79,8 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
   ezMath::Swap(bbox.m_vMax.y, bbox.m_vMax.z);
 
   desc.m_Bounds = bbox;
+  desc.m_Bounds.m_fSphereRadius *= pProp->m_fUniformScaling;
+  desc.m_Bounds.m_vBoxHalfExtends *= pProp->m_fUniformScaling;
 
   ezUInt8 uiNumLODs = 0;
   krautFile >> uiNumLODs;
@@ -209,14 +211,14 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
         subMesh.m_uiFirstTriangle = lodData.m_Triangles.GetCount();
         subMesh.m_uiNumTriangles = uiNumTriangles;
 
-        bool bAddToLeafBBox = false;
+        bool bIsLeafVertex = false;
 
         switch (importLodType)
         {
           case ezKrautImportLodType::Mesh:
           {
             subMesh.m_uiMaterialIndex = MaterialToIndex[uiCurMatType][uiMaterialID];
-            bAddToLeafBBox = (desc.m_Materials[subMesh.m_uiMaterialIndex].m_MaterialType == ezKrautMaterialType::Leaf);
+            bIsLeafVertex = (desc.m_Materials[subMesh.m_uiMaterialIndex].m_MaterialType == ezKrautMaterialType::Leaf);
             break;
           }
 
@@ -268,9 +270,15 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
           krautFile >> vtx.m_vTangent;
           ezMath::Swap(vtx.m_vTangent.y, vtx.m_vTangent.z);
 
-          if (bAddToLeafBBox)
+          if (bIsLeafVertex)
           {
             leafBBox.ExpandToInclude(vtx.m_vPosition);
+            vtx.m_vTexCoord.z *= pProp->m_fUniformScaling;
+          }
+
+          if (lodData.m_LodType == ezKrautLodType::BillboardImpostor)
+          {
+            vtx.m_vTexCoord.z *= pProp->m_fUniformScaling;
           }
 
           if (uiVersion == 1)

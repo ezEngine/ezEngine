@@ -65,6 +65,8 @@ protected:
   // ezKrautTreeComponent interface
 public:
 
+  static const int s_iLocalBoundsScale = 3;
+
   
   // ************************************* PROPERTIES ***********************************
 public:

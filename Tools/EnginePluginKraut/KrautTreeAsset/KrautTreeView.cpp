@@ -47,6 +47,7 @@ ezViewHandle ezKrautTreeViewContext::CreateView()
   ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
   pView->SetWorld(pDocumentContext->GetWorld());
   pView->SetCamera(&m_Camera);
+  pView->SetCameraUsageHint(ezCameraUsageHint::Thumbnail);
   return pView->GetHandle();
 }
 
