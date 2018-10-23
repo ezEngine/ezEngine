@@ -61,6 +61,49 @@ VS_OUT main(VS_IN Input)
     result.Normal = normalize(result.Normal);
     result.Tangent = GetCameraDirRight();
     result.BiTangent = float3(0, 0, 1);
+
+    float3 camDir = mul(-GetCameraDirForwards(), objectToWorld);
+    float3 mainDirs[8] = 
+    {
+      float3(0, +1, 0),
+      float3(0.7071, 0.7071, 0),
+      float3(+1, 0, 0),
+      float3(0.7071, -0.7071, 0),
+      float3(0, -1, 0),
+      float3(-0.7071, -0.7071, 0),
+      float3(-1, 0, 0),
+      float3(-0.7071, +0.7071, 0)
+    };
+
+    int impostorFace = 0;
+    float bestDist = dot(mainDirs[0], camDir);
+
+    for (int i = 1; i < 8; ++i)
+    {
+      float dist = dot(mainDirs[i], camDir);
+
+      if (dist > bestDist)
+      {
+        impostorFace = i;
+        bestDist = dist;
+      }
+    }
+
+    // flip the texture along X if necessary    
+    [flatten]
+    if (impostorFace >= 4)
+    {
+      // for billboards this is eiter 0 or 0.25
+      float xcoord = result.TexCoords.x;
+
+      result.TexCoords.x -= xcoord * 2.0;
+      // also flip the tangent to fix the lighting
+      result.Tangent = -result.Tangent;
+    }
+
+    float impostorXoffset[8] = { 0.0, 0.25, 0.5, 0.75, 0.25, 0.5, 0.75, 1.0 };
+    result.TexCoords.x += impostorXoffset[impostorFace];
+
   }
 
   [branch]

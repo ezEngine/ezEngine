@@ -9,7 +9,7 @@ Permutation
 Permutation
 {
   string %Variable { "TWO_SIDED" }
-  string %Value { "FALSE" }
+  string %Value { "TRUE" }
 }
 
 Constant
