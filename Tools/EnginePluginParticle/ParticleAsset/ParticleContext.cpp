@@ -172,7 +172,7 @@ void ezParticleContext::OnInitialize()
       ezMeshResourceDescriptor md;
       md.UseExistingMeshBuffer(hMeshBuffer);
       md.AddSubMesh(pMeshBuffer->GetPrimitiveCount(), 0, 0);
-      md.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }");
+      md.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"); // Pattern.ezMaterialAsset
       md.ComputeBounds();
 
       hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, md, pMeshBuffer->GetResourceDescription());

@@ -11,14 +11,14 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7419338812928223922,5404291869271497083}}
-		u4 %Hash{10348622253726663321}
+		u4 %Hash{11630726054339473855}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
+			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
 			s{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
 			s{"{ 26878cd6-aabc-46ac-b43e-41412828ce0e }"}
-			s{"{ a7548097-903a-292a-e37c-080a6ef6158c }"}
 			s{"{ d2a92ebd-fd90-4214-9455-ca14b38571f5 }"}
 		}
 	}
@@ -712,8 +712,8 @@ o
 	p
 	{
 		b %Active{1}
-		s %CubeMap{"{ a7548097-903a-292a-e37c-080a6ef6158c }"}
-		f %ExposureBias{0}
+		s %CubeMap{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+		f %ExposureBias{0x0000803F}
 		b %InverseTonemap{0}
 		b %UseFog{1}
 		f %VirtualDistance{0x00007A44}

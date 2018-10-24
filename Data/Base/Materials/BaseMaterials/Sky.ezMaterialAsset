@@ -14,12 +14,12 @@ o
 			s{"Shaders/Materials/SkyMaterial.ezShader"}
 		}
 		Uuid %DocumentID{u4{10074911756598670976,5336416775761779484}}
-		u4 %Hash{17438482202972798696}
+		u4 %Hash{2588975048893494686}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ da307f05-9ef4-4a09-81d4-b86f5be99412 }"}
+			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
 		}
 	}
 }
@@ -35,7 +35,7 @@ o
 	{
 		s %BLEND_MODE{"BLEND_MODE::BLEND_MODE_OPAQUE"}
 		Color %BaseColor{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		s %CubeMap{"{ da307f05-9ef4-4a09-81d4-b86f5be99412 }"}
+		s %CubeMap{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
 		f %ExposureBias{0x0000803F}
 		b %InverseTonemap{1}
 		f %MaskThreshold{0x0000803E}

@@ -36,7 +36,6 @@ bool ezKrautTreeViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bo
   return !FocusCameraOnObject(m_Camera, bounds, 45.0f, -ezVec3(5, -2, 3));
 }
 
-
 ezViewHandle ezKrautTreeViewContext::CreateView()
 {
   ezView* pView = nullptr;

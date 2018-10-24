@@ -68,6 +68,7 @@ protected:
   // ezKrautTreeComponent interface
 public:
 
+  // see ezKrautTreeComponent::GetLocalBounds for details
   static const int s_iLocalBoundsScale = 3;
 
   void OnExtractGeometry(ezMsgExtractGeometry& msg) const;

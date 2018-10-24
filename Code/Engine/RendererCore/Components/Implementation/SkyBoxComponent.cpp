@@ -80,7 +80,7 @@ void ezSkyBoxComponent::Initialize()
   if (!m_hCubeMapMaterial.IsValid())
   {
     ezMaterialResourceDescriptor desc;
-    desc.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ b4b75b1c-c2c8-4a0e-8076-780bdd46d18b }"); // SkyMaterial
+    desc.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ b4b75b1c-c2c8-4a0e-8076-780bdd46d18b }"); // Sky.ezMaterialAsset
 
     m_hCubeMapMaterial = ezResourceManager::CreateResource<ezMaterialResource>(cubeMapMaterialName, desc, cubeMapMaterialName);
   }

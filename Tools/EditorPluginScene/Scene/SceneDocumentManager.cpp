@@ -247,7 +247,15 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
       ezSetObjectPropertyCommand propCmd;
       propCmd.m_Object = cmd.m_NewObjectGuid;
       propCmd.m_sProperty = "CubeMap";
-      propCmd.m_NewValue = "{ a7548097-903a-292a-e37c-080a6ef6158c }"; // TODO: add a proper neutral sky box in the Base data-dir
+      propCmd.m_NewValue = "{ 0b202e08-a64f-465d-b38e-15b81d161822 }";
+      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+    }
+
+    {
+      ezSetObjectPropertyCommand propCmd;
+      propCmd.m_Object = cmd.m_NewObjectGuid;
+      propCmd.m_sProperty = "ExposureBias";
+      propCmd.m_NewValue = 1.0f;
       EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
     }
   }
