@@ -766,7 +766,9 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
     }
     m_TransformState[state].Insert(assetGuid);
 
-    if (pAssetInfo->m_TransformState != state)
+    const bool bStateChanged = pAssetInfo->m_TransformState != state;
+
+    if (bStateChanged)
     {
       pAssetInfo->m_TransformState = state;
       m_SubAssetChanged.Insert(assetGuid);
@@ -805,10 +807,14 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
       break;
       case ezAssetInfo::TransformState::UpToDate:
       {
-        ezString sThumbPath =
-            static_cast<ezAssetDocumentManager*>(pAssetInfo->m_pManager)->GenerateResourceThumbnailPath(pAssetInfo->m_sAbsolutePath);
         UpdateSubAssets(*pAssetInfo);
-        ezQtImageCache::GetSingleton()->InvalidateCache(sThumbPath);
+
+        if (bStateChanged)
+        {
+          ezString sThumbPath =
+              static_cast<ezAssetDocumentManager*>(pAssetInfo->m_pManager)->GenerateResourceThumbnailPath(pAssetInfo->m_sAbsolutePath);
+          ezQtImageCache::GetSingleton()->InvalidateCache(sThumbPath);
+        }
       }
       break;
       default:

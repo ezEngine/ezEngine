@@ -385,8 +385,8 @@ ezResult ezFileSystemIterator::Next()
 
 ezResult ezFileSystemIterator::SkipFolder()
 {
-  EZ_ASSERT_DEV(m_bRecursive, "SkipFolder has no meaning when the iterator is not set to be recursive.");
-  EZ_ASSERT_DEV(m_CurFile.m_bIsDirectory, "SkipFolder can only be called when the current object is a folder.");
+  EZ_ASSERT_DEBUG(m_bRecursive, "SkipFolder has no meaning when the iterator is not set to be recursive.");
+  EZ_ASSERT_DEBUG(m_CurFile.m_bIsDirectory, "SkipFolder can only be called when the current object is a folder.");
 
   m_bRecursive = false;
 
