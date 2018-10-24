@@ -5,6 +5,7 @@
 #include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <KrautPlugin/Components/KrautTreeComponent.h>
 #include <KrautPlugin/Renderer/KrautRenderData.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>
@@ -22,6 +23,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezKrautTreeComponent, 1, ezComponentMode::Static)
   {
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnExtractGeometry),
+    EZ_MESSAGE_HANDLER(ezMsgBuildStaticMesh, OnBuildStaticMesh),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
@@ -193,37 +195,63 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
   }
 }
 
-void ezKrautTreeComponent::OnExtractGeometry(ezMsgExtractGeometry& msg) const
+ezResult ezKrautTreeComponent::CreateGeometry(ezGeometry& geo, ezWorldGeoExtractionUtil::ExtractionMode mode) const
 {
   if (GetOwner()->IsDynamic())
-    return;
+    return EZ_FAILURE;
 
   if (!m_hKrautTree.IsValid())
-    return;
+    return EZ_FAILURE;
 
   ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::NoFallback);
 
   if (pTree.GetAcquireResult() != ezResourceAcquireResult::Final)
-    return;
+    return EZ_FAILURE;
 
-  if (pTree->GetDetails().m_fNavMeshFootprint <= 0.0f)
-    return;
+  const auto& details = pTree->GetDetails();
 
-  const ezVec3 vScale = ezSimdConversion::ToVec3(GetOwner()->GetGlobalTransformSimd().m_Scale.Abs());
+  if (mode == ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh)
+  {
+    // TODO: support to load the actual tree mesh and return it
+  }
 
+  const float fHeightScale = GetOwner()->GetGlobalScalingSimd().z();
+  const float fMaxScale = GetOwner()->GetGlobalScalingSimd().HorizontalMax<3>();
+  const float fRadius = details.m_fStaticColliderRadius * fMaxScale;
+
+  if (fRadius <= 0.0f)
+    return EZ_FAILURE;
+
+  const float fTreeHeight = (details.m_Bounds.m_vCenter.z + details.m_Bounds.m_vBoxHalfExtends.z) * 0.9f;
+
+  if (fHeightScale * fTreeHeight <= 0.0f)
+    return EZ_FAILURE;
+
+  // for the position offset we need to adjust for the tree scale (cylinder has its origin at its center)
   ezMat4 transform = GetOwner()->GetGlobalTransform().GetAsMat4();
-  transform.SetTranslationVector(transform.GetTranslationVector() + ezVec3(0, 0, 1));
+  transform.SetTranslationVector(transform.GetTranslationVector() + ezVec3(0, 0, fHeightScale * fTreeHeight * 0.5f));
 
+  // using a cone or even a cylinder with a thinner top results in the character controller getting stuck while sliding along the geometry
+  // TODO: instead of triangle geometry it would maybe be better to use actual physics capsules
+
+  // due to 'transform' this will already include the tree scale
+  geo.AddCylinderOnePiece(fRadius, fRadius, fTreeHeight, 8, ezColor::White, transform);
+
+  geo.TriangulatePolygons();
+
+  return EZ_SUCCESS;
+}
+
+void ezKrautTreeComponent::OnExtractGeometry(ezMsgExtractGeometry& msg) const
+{
   ezGeometry geo;
-  geo.AddCylinder(pTree->GetDetails().m_fNavMeshFootprint, pTree->GetDetails().m_fNavMeshFootprint, 2.0f, false, false, 8, ezColor::White,
-                  transform);
+  if (CreateGeometry(geo, msg.m_Mode).Failed())
+    return;
 
   auto& vertices = msg.m_pWorldGeometry->m_Vertices;
   auto& triangles = msg.m_pWorldGeometry->m_Triangles;
 
   const ezUInt32 uiFirstVertex = vertices.GetCount();
-
-  geo.TriangulatePolygons();
 
   for (const auto& vtx : geo.GetVertices())
   {
@@ -233,6 +261,45 @@ void ezKrautTreeComponent::OnExtractGeometry(ezMsgExtractGeometry& msg) const
   for (const auto& tri : geo.GetPolygons())
   {
     auto& t = triangles.ExpandAndGetRef();
+    t.m_uiVertexIndices[0] = uiFirstVertex + tri.m_Vertices[0];
+    t.m_uiVertexIndices[1] = uiFirstVertex + tri.m_Vertices[1];
+    t.m_uiVertexIndices[2] = uiFirstVertex + tri.m_Vertices[2];
+  }
+}
+
+void ezKrautTreeComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
+{
+  ezGeometry geo;
+  if (CreateGeometry(geo, ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh).Failed())
+    return;
+
+  auto& desc = *msg.m_pStaticMeshDescription;
+  auto& subMesh = msg.m_pStaticMeshDescription->m_SubMeshes.ExpandAndGetRef();
+
+  {
+    ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::NoFallback);
+    const auto& details = pTree->GetDetails();
+
+    if (!details.m_sSurfaceResource.IsEmpty())
+    {
+      subMesh.m_uiSurfaceIndex = desc.m_Surfaces.GetCount();
+      desc.m_Surfaces.PushBack(details.m_sSurfaceResource);
+    }
+  }
+
+  subMesh.m_uiFirstTriangle = desc.m_Triangles.GetCount();
+  subMesh.m_uiNumTriangles = geo.GetPolygons().GetCount();
+
+  const ezUInt32 uiFirstVertex = desc.m_Vertices.GetCount();
+
+  for (const auto& vtx : geo.GetVertices())
+  {
+    desc.m_Vertices.ExpandAndGetRef() = vtx.m_vPosition;
+  }
+
+  for (const auto& tri : geo.GetPolygons())
+  {
+    auto& t = desc.m_Triangles.ExpandAndGetRef();
     t.m_uiVertexIndices[0] = uiFirstVertex + tri.m_Vertices[0];
     t.m_uiVertexIndices[1] = uiFirstVertex + tri.m_Vertices[1];
     t.m_uiVertexIndices[2] = uiFirstVertex + tri.m_Vertices[2];

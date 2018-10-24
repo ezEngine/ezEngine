@@ -6,8 +6,10 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Core/Utils/WorldGeoExtractionUtil.h>
 
 struct ezMsgExtractGeometry;
+struct ezMsgBuildStaticMesh;
 struct ezResourceEvent;
 class ezKrautRenderData;
 typedef ezTypedResourceHandle<class ezKrautTreeResource> ezKrautTreeResourceHandle;
@@ -69,6 +71,7 @@ public:
   static const int s_iLocalBoundsScale = 3;
 
   void OnExtractGeometry(ezMsgExtractGeometry& msg) const;
+  void OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const;
   
   // ************************************* PROPERTIES ***********************************
 public:
@@ -85,6 +88,8 @@ public:
   EZ_ALWAYS_INLINE const ezKrautTreeResourceHandle& GetKrautTree() const { return m_hKrautTree; }
 
 private:
+  ezResult CreateGeometry(ezGeometry& geo, ezWorldGeoExtractionUtil::ExtractionMode mode) const;
+
   ezSharedPtr<ezKrautLodInfo> m_pLodInfo;
   ezKrautTreeResourceHandle m_hKrautTree;
 };

@@ -14,5 +14,6 @@ public:
   ezString m_sKrautFile;
   float m_fUniformScaling = 1.0f;
   float m_fLodDistanceScale = 1.0f;
-  float m_fNavMeshFootprint = 0.4f;
+  float m_fStaticColliderRadius = 0.4f;
+  ezString m_sSurface;
 };

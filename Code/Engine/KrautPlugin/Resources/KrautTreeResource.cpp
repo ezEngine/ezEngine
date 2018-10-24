@@ -6,6 +6,7 @@
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 #include <RendererCore/Textures/Texture2DResource.h>
+#include <GameEngine/Surfaces/SurfaceResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeResource, 1, ezRTTIDefaultAllocator<ezKrautTreeResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -214,7 +215,7 @@ ezResourceLoadDesc ezKrautTreeResource::CreateResource(const ezKrautTreeResource
 
 void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  ezUInt8 uiVersion = 9;
+  ezUInt8 uiVersion = 11;
 
   stream << uiVersion;
 
@@ -270,7 +271,8 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream) const
 
   stream << m_Details.m_Bounds;
   stream << m_Details.m_vLeafCenter;
-  stream << m_Details.m_fNavMeshFootprint;
+  stream << m_Details.m_fStaticColliderRadius;
+  stream << m_Details.m_sSurfaceResource;
 }
 
 ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream)
@@ -279,7 +281,7 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream)
 
   stream >> uiVersion;
 
-  if (uiVersion != 9)
+  if (uiVersion != 11)
     return EZ_FAILURE;
 
   ezUInt8 uiNumLods = 0;
@@ -347,7 +349,8 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream)
 
   stream >> m_Details.m_Bounds;
   stream >> m_Details.m_vLeafCenter;
-  stream >> m_Details.m_fNavMeshFootprint;
+  stream >> m_Details.m_fStaticColliderRadius;
+  stream >> m_Details.m_sSurfaceResource;
 
   return EZ_SUCCESS;
 }

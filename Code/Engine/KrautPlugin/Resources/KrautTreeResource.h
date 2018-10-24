@@ -8,12 +8,14 @@
 typedef ezTypedResourceHandle<class ezMeshResource> ezMeshResourceHandle;
 typedef ezTypedResourceHandle<class ezKrautTreeResource> ezKrautTreeResourceHandle;
 typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
+typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 
 struct EZ_KRAUTPLUGIN_DLL ezKrautTreeResourceDetails
 {
   ezBoundingBoxSphere m_Bounds;
   ezVec3 m_vLeafCenter;
-  float m_fNavMeshFootprint;
+  float m_fStaticColliderRadius;
+  ezString m_sSurfaceResource;
 };
 
 struct EZ_KRAUTPLUGIN_DLL ezKrautTreeResourceDescriptor
@@ -67,7 +69,6 @@ struct EZ_KRAUTPLUGIN_DLL ezKrautTreeResourceDescriptor
   };
 
   ezKrautTreeResourceDetails m_Details;
-
   ezStaticArray<LodData, 5> m_Lods;
   ezHybridArray<MaterialData, 8> m_Materials;
 };

@@ -779,7 +779,7 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
     {
       case ezAssetInfo::TransformState::TransformError:
       {
-        // Tansform errors are unexpected and invalidate any previously computed
+        // Transform errors are unexpected and invalidate any previously computed
         // state of assets depending on this one.
         auto it = m_InverseDependency.Find(pAssetInfo->m_sAbsolutePath);
         if (it.IsValid())
@@ -798,13 +798,16 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
             InvalidateAssetTransformState(guid);
           }
         }
+
+        break;
       }
-      break;
+
       case ezAssetInfo::TransformState::Unknown:
       {
         InvalidateAssetTransformState(assetGuid);
+        break;
       }
-      break;
+
       case ezAssetInfo::TransformState::UpToDate:
       {
         UpdateSubAssets(*pAssetInfo);
@@ -815,8 +818,9 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
               static_cast<ezAssetDocumentManager*>(pAssetInfo->m_pManager)->GenerateResourceThumbnailPath(pAssetInfo->m_sAbsolutePath);
           ezQtImageCache::GetSingleton()->InvalidateCache(sThumbPath);
         }
+        break;
       }
-      break;
+
       default:
         break;
     }

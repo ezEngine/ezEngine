@@ -352,8 +352,9 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
     mat.m_sNormalMapTexture = ImportTexture(sFolder, sFile, ezModelImporter::SemanticHint::NORMAL, true);
   }
 
+  desc.m_Details.m_sSurfaceResource = pProp->m_sSurface;
   desc.m_Details.m_vLeafCenter = leafBBox.GetCenter();
-  desc.m_Details.m_fNavMeshFootprint = pProp->m_fNavMeshFootprint;
+  desc.m_Details.m_fStaticColliderRadius = pProp->m_fStaticColliderRadius;
 
   desc.Save(stream);
 

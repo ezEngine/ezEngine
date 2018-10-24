@@ -27,7 +27,7 @@ void ezSceneExportModifier_StaticMeshConversion::ModifyWorld(ezWorld& world, con
 
   for (auto it = world.GetObjects(); it.IsValid(); ++it)
   {
-    if (!it->GetTags().IsSet(tagColMesh))
+    if (!it->IsStatic() || !it->GetTags().IsSet(tagColMesh))
       continue;
 
     it->SendMessage(msg);

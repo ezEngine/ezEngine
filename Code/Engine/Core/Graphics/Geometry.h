@@ -164,7 +164,7 @@ public:
   void AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, float fHeight, ezUInt16 uiSegments, const ezColor& color,
                            const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
-  /// \brief Adds a cylinder. The origin is at the center of the bottom.
+  /// \brief Adds a cone. The origin is at the center of the bottom.
   ///
   /// uiSegments is the detail around the up axis, must be at least 3.
   void AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSegments, const ezColor& color,
