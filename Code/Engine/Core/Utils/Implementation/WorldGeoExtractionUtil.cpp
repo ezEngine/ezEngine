@@ -4,6 +4,7 @@
 #include <Core/World/World.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Math/Mat3.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractGeometry);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractGeometry, 1, ezRTTIDefaultAllocator<ezMsgExtractGeometry>)
@@ -89,11 +90,13 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
   line.Format("\n\n# {0} triangles\n\n", geo.m_Triangles.GetCount());
   file.WriteBytes(line.GetData(), line.GetElementCount());
 
+  const bool bFlipTriangles = ezGraphicsUtils::IsTriangleFlipRequired(mTransform);
+  const char* szFaceFormat = bFlipTriangles ? "f {2} {1} {0}\n" : "f {0} {1} {2}\n";
 
   for (ezUInt32 i = 0; i < geo.m_Triangles.GetCount(); ++i)
   {
-    line.Format("f {0} {1} {2}\n", geo.m_Triangles[i].m_uiVertexIndices[0] + 1, geo.m_Triangles[i].m_uiVertexIndices[1] + 1,
-                geo.m_Triangles[i].m_uiVertexIndices[2] + 1);
+    const ezUInt32* indices = geo.m_Triangles[i].m_uiVertexIndices;
+    line.Format(szFaceFormat, indices[0] + 1, indices[1] + 1, indices[2] + 1);
 
     file.WriteBytes(line.GetData(), line.GetElementCount());
   }

@@ -3,6 +3,24 @@
 #include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Meshes/MeshComponent.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
+
+namespace
+{
+  template <typename T, bool flip>
+  void FillIndices(const void* pIndices, ezUInt32 uiTriangleCount, ezUInt32 uiVertexIdxOffset, ezWorldGeoExtractionUtil::Geometry& geo)
+  {
+    const T* pTypedIndices = static_cast<const T*>(pIndices);
+
+    for (ezUInt32 p = 0; p < uiTriangleCount; ++p)
+    {
+      auto& tri = geo.m_Triangles.ExpandAndGetRef();
+      tri.m_uiVertexIndices[0] = uiVertexIdxOffset + pTypedIndices[p * 3 + (flip ? 2 : 0)];
+      tri.m_uiVertexIndices[1] = uiVertexIdxOffset + pTypedIndices[p * 3 + 1];
+      tri.m_uiVertexIndices[2] = uiVertexIdxOffset + pTypedIndices[p * 3 + (flip ? 0 : 2)];
+    }
+  }
+}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -114,28 +132,27 @@ void ezMeshComponent::OnExtractGeometry(ezMsgExtractGeometry& msg)
     // vert.m_TexCoord.SetZero();
   }
 
-  if (mb.Uses32BitIndices())
+  const bool bFlipTriangles = ezGraphicsUtils::IsTriangleFlipRequired(transform.GetAsMat4().GetRotationalPart());
+  if (bFlipTriangles)
   {
-    const ezUInt32* pIndices = reinterpret_cast<const ezUInt32*>(mb.GetIndexBufferData().GetData());
-
-    for (ezUInt32 p = 0; p < mb.GetPrimitiveCount(); ++p)
+    if (mb.Uses32BitIndices())
     {
-      auto& tri = geo.m_Triangles.ExpandAndGetRef();
-      tri.m_uiVertexIndices[0] = uiVertexIdxOffset + pIndices[p * 3 + 0];
-      tri.m_uiVertexIndices[1] = uiVertexIdxOffset + pIndices[p * 3 + 1];
-      tri.m_uiVertexIndices[2] = uiVertexIdxOffset + pIndices[p * 3 + 2];
+      FillIndices<ezUInt32, true>(mb.GetIndexBufferData().GetData(), mb.GetPrimitiveCount(), uiVertexIdxOffset, geo);
+    }
+    else
+    {
+      FillIndices<ezUInt16, true>(mb.GetIndexBufferData().GetData(), mb.GetPrimitiveCount(), uiVertexIdxOffset, geo);
     }
   }
   else
   {
-    const ezUInt16* pIndices = reinterpret_cast<const ezUInt16*>(mb.GetIndexBufferData().GetData());
-
-    for (ezUInt32 p = 0; p < mb.GetPrimitiveCount(); ++p)
+    if (mb.Uses32BitIndices())
     {
-      auto& tri = geo.m_Triangles.ExpandAndGetRef();
-      tri.m_uiVertexIndices[0] = uiVertexIdxOffset + pIndices[p * 3 + 0];
-      tri.m_uiVertexIndices[1] = uiVertexIdxOffset + pIndices[p * 3 + 1];
-      tri.m_uiVertexIndices[2] = uiVertexIdxOffset + pIndices[p * 3 + 2];
+      FillIndices<ezUInt32, false>(mb.GetIndexBufferData().GetData(), mb.GetPrimitiveCount(), uiVertexIdxOffset, geo);
+    }
+    else
+    {
+      FillIndices<ezUInt16, false>(mb.GetIndexBufferData().GetData(), mb.GetPrimitiveCount(), uiVertexIdxOffset, geo);
     }
   }
 }
