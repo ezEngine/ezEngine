@@ -220,7 +220,7 @@ void ezKrautTreeContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMs
     if (b.IsValid())
     {
       b.m_fSphereRadius /= ezKrautTreeComponent::s_iLocalBoundsScale;
-      b.m_vBoxHalfExtends /= ezKrautTreeComponent::s_iLocalBoundsScale;
+      b.m_vBoxHalfExtends /= (float)ezKrautTreeComponent::s_iLocalBoundsScale;
 
       bounds.ExpandToInclude(b);
     }

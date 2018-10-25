@@ -85,7 +85,7 @@ ezResult ezKrautTreeComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool&
       // even when not looking at the tree, thus resulting in decent shadows
 
       bounds.m_fSphereRadius *= s_iLocalBoundsScale;
-      bounds.m_vBoxHalfExtends *= s_iLocalBoundsScale;
+      bounds.m_vBoxHalfExtends *= (float)s_iLocalBoundsScale;
     }
 
     return EZ_SUCCESS;

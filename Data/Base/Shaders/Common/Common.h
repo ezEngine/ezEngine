@@ -111,3 +111,10 @@ float4 Square(float4 x)
 {
   return x * x;
 }
+
+float AdjustContrast(float value, float contrast)
+{
+  float a = -contrast;
+  float b = contrast + 1;
+  return saturate(lerp(a, b, value));
+}
