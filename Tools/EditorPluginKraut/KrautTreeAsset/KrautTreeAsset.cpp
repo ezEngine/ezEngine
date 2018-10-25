@@ -12,7 +12,7 @@
 #include <Foundation/Utilities/Progress.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocument, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocument, 2, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezKrautTreeAssetDocument::ezKrautTreeAssetDocument(const char* szDocumentPath)
@@ -48,7 +48,7 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
-  const ezKrautTreeAssetProperties* pProp = GetProperties();
+  ezKrautTreeAssetProperties* pProp = GetProperties();
 
   ezKrautTreeResourceDescriptor desc;
 
@@ -326,7 +326,10 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
     ezStringBuilder sFile;
 
     sFile = sDocPath.GetFileName();
-    sFile.Append("_D.tga");
+
+    if (uiVersion == 1)
+      sFile.Append("_D.tga");
+
     mat.m_sDiffuseTexture = ImportTexture(sFolder, sFile, ezModelImporter::SemanticHint::DIFFUSE_ALPHA, true);
 
     sFile = sDocPath.GetFileName();
@@ -343,7 +346,10 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
     ezStringBuilder sFile;
 
     sFile = sDocPath.GetFileName();
-    sFile.Append("_D.tga");
+
+    if (uiVersion == 1)
+      sFile.Append("_D.tga");
+
     mat.m_sDiffuseTexture = ImportTexture(sFolder, sFile, ezModelImporter::SemanticHint::DIFFUSE_ALPHA, true);
 
     sFile = sDocPath.GetFileName();
@@ -357,7 +363,39 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
   desc.Save(stream);
 
+  SyncBackAssetProperties(pProp, desc);
+
   return ezStatus(EZ_SUCCESS);
+}
+
+
+void ezKrautTreeAssetDocument::SyncBackAssetProperties(ezKrautTreeAssetProperties*& pProp, ezKrautTreeResourceDescriptor& desc)
+{
+  bool bModified = pProp->m_Materials.GetCount() != desc.m_Materials.GetCount();
+
+  pProp->m_Materials.SetCount(desc.m_Materials.GetCount());
+
+  for (ezUInt32 m = 0; m < pProp->m_Materials.GetCount(); ++m)
+  {
+    if (pProp->m_Materials[m].m_sDiffuseTexture != desc.m_Materials[m].m_sDiffuseTexture ||
+        pProp->m_Materials[m].m_sNormalMapTexture != desc.m_Materials[m].m_sNormalMapTexture)
+    {
+      bModified = true;
+
+      pProp->m_Materials[m].m_sDiffuseTexture = desc.m_Materials[m].m_sDiffuseTexture;
+      pProp->m_Materials[m].m_sNormalMapTexture = desc.m_Materials[m].m_sNormalMapTexture;
+    }
+  }
+
+  if (bModified)
+  {
+    GetObjectAccessor()->StartTransaction("Update Kraut Material Info");
+    ApplyNativePropertyChangesToObjectManager();
+    GetObjectAccessor()->FinishTransaction();
+
+    // Need to reacquire pProp pointer since it might be reallocated.
+    pProp = GetProperties();
+  }
 }
 
 ezStatus ezKrautTreeAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)

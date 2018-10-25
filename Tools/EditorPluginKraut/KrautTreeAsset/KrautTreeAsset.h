@@ -5,6 +5,8 @@
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetObjects.h>
 #include <ModelImporter/Declarations.h>
 
+struct ezKrautTreeResourceDescriptor;
+
 class ezKrautTreeAssetDocument : public ezSimpleAssetDocument<ezKrautTreeAssetProperties>
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezKrautTreeAssetDocument, ezSimpleAssetDocument<ezKrautTreeAssetProperties>);
@@ -17,6 +19,8 @@ public:
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
                                           const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+
+  void SyncBackAssetProperties(ezKrautTreeAssetProperties*& pProp, ezKrautTreeResourceDescriptor& desc);
 
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
 
