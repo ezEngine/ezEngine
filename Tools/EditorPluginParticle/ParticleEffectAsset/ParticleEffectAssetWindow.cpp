@@ -288,6 +288,7 @@ void ezQtParticleEffectAssetDocumentWindow::SelectSystem(ezDocumentObject* pObje
 
     ezDeque<const ezDocumentObject*> sel;
     sel.PushBack(pObject);
+    GetDocument()->GetSelectionManager()->SetSelection(pObject);
     m_pPropertyGridSystems->SetSelection(sel, nullptr, "Name;Emitters;Initializers;Behaviors;Types");
 
     m_pPropertyGridEmitter->SetSelection(sel, "Emitters");
