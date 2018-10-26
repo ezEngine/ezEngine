@@ -152,17 +152,23 @@ public:
   void AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(),
                          ezInt32 iCustomIndex = 0);
 
-  /// \brief Adds a cylinder. The origin is at the center.
+  /// \brief Adds a cylinder.
+  ///
+  /// If fPositiveLength == fNegativeLength, the origin is at the center.
+  /// If fNegativeLength is zero, the origin is at the bottom and so on.
   ///
   /// uiSegments is the detail around the up axis, must be at least 3.
   /// The top or bottom caps can be removed using \a bCapTop and \a bCapBottom.
   /// When \a fraction is set to any value below 360 degree, a pie / pacman shaped cylinder is created.
-  void AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeight, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments,
-                   const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0,
+  void AddCylinder(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, bool bCapTop, bool bCapBottom,
+                   ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0,
                    ezAngle fraction = ezAngle::Degree(360.0f));
 
-  void AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, float fHeight, ezUInt16 uiSegments, const ezColor& color,
-                           const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+  /// \brief Same as AddCylinder(), but always adds caps and does not generate separate vertices for the caps.
+  ///
+  /// This is a more compact representation, but does not allow as good texturing.
+  void AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, ezUInt16 uiSegments,
+                           const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
   /// \brief Adds a cone. The origin is at the center of the bottom.
   ///

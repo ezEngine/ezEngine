@@ -18,9 +18,6 @@ namespace ezMeshImportUtils
   ezString ImportOrResolveTexture(const char* szImportSourceFolder, const char* szImportTargetFolder, const char* szTexturePath,
                                   ezModelImporter::SemanticHint::Enum hint, bool bTextureClamp)
   {
-    ezStringBuilder relTexturePath = szImportSourceFolder;
-    relTexturePath.AppendPath(szTexturePath);
-
     ezStringBuilder textureNameTemp = ezStringBuilder(szTexturePath).GetFileName();
     ezStringBuilder textureName;
     ezPathUtils::MakeValidFilename(textureNameTemp, '_', textureName);
@@ -33,7 +30,8 @@ namespace ezMeshImportUtils
     auto textureAssetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(newAssetPathAbs);
     if (textureAssetInfo)
     {
-      return ezConversionUtils::ToString(textureAssetInfo->m_Data.m_Guid, relTexturePath); // just reusing this variable
+      ezStringBuilder guidString;
+      return ezConversionUtils::ToString(textureAssetInfo->m_Data.m_Guid, guidString);
     }
 
     // Import otherwise.
@@ -55,6 +53,9 @@ namespace ezMeshImportUtils
       ezString allowedExtensions[] = {"dds", "png", "tga", "jpg"};
 
       // Set filename.
+      ezStringBuilder relTexturePath = szImportSourceFolder;
+      relTexturePath.AppendPath(szTexturePath);
+
       ezAssetCurator::GetSingleton()->FindBestMatchForFile(relTexturePath, allowedExtensions);
       pAccessor->SetValue(pTextureAsset, "Input1", relTexturePath.GetData()).LogFailure();
 

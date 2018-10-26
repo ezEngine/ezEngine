@@ -49,8 +49,9 @@ const char* ezCollisionMeshAssetDocument::QueryAssetType() const
 //////////////////////////////////////////////////////////////////////////
 
 
-ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                              const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
+                                                              const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
+                                                              bool bTriggeredManually)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
@@ -82,8 +83,8 @@ ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
 
       if (pProp->m_MeshType == ezCollisionMeshType::Cylinder)
       {
-        geom.AddCylinderOnePiece(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight, ezMath::Clamp<ezUInt16>(pProp->m_uiDetail, 3, 32),
-                                 ezColor::White, mTrans);
+        geom.AddCylinderOnePiece(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight * 0.5f, pProp->m_fHeight * 0.5f,
+                                 ezMath::Clamp<ezUInt16>(pProp->m_uiDetail, 3, 32), ezColor::White, mTrans);
       }
 
       EZ_SUCCEED_OR_RETURN(CreateMeshFromGeom(geom, xMesh));

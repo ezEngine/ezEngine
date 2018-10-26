@@ -794,8 +794,9 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
   TransformVertices(mTransform, uiFirstVertex);
 }
 
-void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeight, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments,
-                             const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex, ezAngle fraction)
+void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, bool bCapTop,
+                             bool bCapBottom, ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex,
+                             ezAngle fraction)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Cannot create a cylinder with only {0} segments", uiSegments);
   EZ_ASSERT_DEV(fraction.GetDegree() >= 0.0f, "A cylinder cannot be built with more less than 0 degree");
@@ -805,8 +806,8 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeigh
   const bool bIsFraction = fraction.GetDegree() < 360.0f;
   const ezAngle fDegStep = ezAngle::Degree(fraction.GetDegree() / uiSegments);
 
-  const ezVec3 vTopCenter(0, 0, fHeight * 0.5f);
-  const ezVec3 vBottomCenter(0, 0, -fHeight * 0.5f);
+  const ezVec3 vTopCenter(0, 0, fPositiveLength);
+  const ezVec3 vBottomCenter(0, 0, -fNegativeLength);
 
   // cylinder wall
   {
@@ -917,16 +918,17 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeigh
   }
 }
 
-void ezGeometry::AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, float fHeight, ezUInt16 uiSegments, const ezColor& color,
-                                     const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
+void ezGeometry::AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength,
+                                     ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/,
+                                     ezInt32 iCustomIndex /*= 0*/)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Cannot create a cylinder with only {0} segments", uiSegments);
 
   bool bFlipWinding = mTransform.GetRotationalPart().GetDeterminant() < 0;
   const ezAngle fDegStep = ezAngle::Degree(360.0f / uiSegments);
 
-  const ezVec3 vTopCenter(0, 0, fHeight * 0.5f);
-  const ezVec3 vBottomCenter(0, 0, -fHeight * 0.5f);
+  const ezVec3 vTopCenter(0, 0, fPositiveLength);
+  const ezVec3 vBottomCenter(0, 0, -fNegativeLength);
 
   // cylinder wall
   {

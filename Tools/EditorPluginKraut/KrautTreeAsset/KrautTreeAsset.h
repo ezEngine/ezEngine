@@ -24,8 +24,7 @@ protected:
 
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
 
-  ezString ImportTexture(const char* szImportSourceFolder, const char* szFilename, ezModelImporter::SemanticHint::Enum hint,
-                         bool bTextureClamp);
+  ezString ImportTexture(const char* szFilename, ezModelImporter::SemanticHint::Enum hint, bool bTextureClamp);
 };
 
 //////////////////////////////////////////////////////////////////////////

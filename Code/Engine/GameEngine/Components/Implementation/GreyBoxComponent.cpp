@@ -345,7 +345,7 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
 
     case ezGreyBoxShape::Column:
       t.SetScalingFactors(size);
-      geom.AddCylinder(0.5f, 0.5f, 1.0f, true, true, m_uiDetail, ezColor::White, t);
+      geom.AddCylinder(0.5f, 0.5f, 0.5f, 0.5f, true, true, m_uiDetail, ezColor::White, t);
       break;
 
     case ezGreyBoxShape::StairsX:

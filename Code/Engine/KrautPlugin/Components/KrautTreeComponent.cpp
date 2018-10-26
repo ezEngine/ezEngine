@@ -228,14 +228,13 @@ ezResult ezKrautTreeComponent::CreateGeometry(ezGeometry& geo, ezWorldGeoExtract
     return EZ_FAILURE;
 
   // for the position offset we need to adjust for the tree scale (cylinder has its origin at its center)
-  ezMat4 transform = GetOwner()->GetGlobalTransform().GetAsMat4();
-  transform.SetTranslationVector(transform.GetTranslationVector() + ezVec3(0, 0, fHeightScale * fTreeHeight * 0.5f));
+  const ezMat4 transform = GetOwner()->GetGlobalTransform().GetAsMat4();
 
   // using a cone or even a cylinder with a thinner top results in the character controller getting stuck while sliding along the geometry
   // TODO: instead of triangle geometry it would maybe be better to use actual physics capsules
 
   // due to 'transform' this will already include the tree scale
-  geo.AddCylinderOnePiece(fRadius, fRadius, fTreeHeight, 8, ezColor::White, transform);
+  geo.AddCylinderOnePiece(fRadius, fRadius, fTreeHeight, 0.0f, 8, ezColor::White, transform);
 
   geo.TriangulatePolygons();
 

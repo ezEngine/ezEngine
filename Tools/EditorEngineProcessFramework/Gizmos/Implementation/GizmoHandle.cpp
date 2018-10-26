@@ -98,7 +98,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferArrow()
   m.SetRotationMatrixY(ezAngle::Degree(90));
 
   ezGeometry geom;
-  geom.AddCylinder(fThickness, fThickness, fLength, false, true, 16, ezColor::Red, m);
+  geom.AddCylinder(fThickness, fThickness, fLength * 0.5f, fLength * 0.5f, false, true, 16, ezColor::Red, m);
 
   m.SetTranslationVector(ezVec3(fLength * 0.5f, 0, 0));
   geom.AddCone(fThickness * 3.0f, fThickness * 6.0f, true, 16, ezColor::Red, m);
@@ -122,7 +122,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferPiston()
   m.SetRotationMatrixY(ezAngle::Degree(90));
 
   ezGeometry geom;
-  geom.AddCylinder(fThickness, fThickness, fLength, false, true, 16, ezColor::Red, m);
+  geom.AddCylinder(fThickness, fThickness, fLength * 0.5f, fLength * 0.5f, false, true, 16, ezColor::Red, m);
 
   m.SetTranslationVector(ezVec3(fLength * 0.5f, 0, 0));
   geom.AddBox(ezVec3(fThickness * 5.0f), ezColor::Red, m);
@@ -147,7 +147,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferHalfPiston()
   m.SetTranslationVector(ezVec3(fLength * 0.5f, 0, 0));
 
   ezGeometry geom;
-  geom.AddCylinder(fThickness, fThickness, fLength, false, true, 16, ezColor::Red, m);
+  geom.AddCylinder(fThickness, fThickness, fLength * 0.5f, fLength * 0.5f, false, true, 16, ezColor::Red, m);
 
   m.SetTranslationVector(ezVec3(fLength, 0, 0));
   geom.AddBox(ezVec3(fThickness * 5.0f), ezColor::Red, m);
@@ -287,7 +287,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferCylinderZ()
     return hMesh;
 
   ezGeometry geom;
-  geom.AddCylinder(1.0f, 1.0f, 1.0f, false, false, 16, ezColor::White);
+  geom.AddCylinder(1.0f, 1.0f, 0.5f, 0.5f, false, false, 16, ezColor::White);
 
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_CylinderZ", ezGALPrimitiveTopology::Triangles);
 }

@@ -134,7 +134,7 @@ void ezKrautTreeContext::OnInitialize()
         t.SetTranslationMatrix(ezVec3(0, 0, -0.05f));
 
         ezGeometry geom;
-        geom.AddCylinder(8.0f, 7.9f, 0.1f, true, true, 32, ezColor::White, t);
+        geom.AddCylinder(8.0f, 7.9f, 0.05f, 0.05f, true, true, 32, ezColor::White, t);
         geom.TriangulatePolygons();
         geom.ComputeTangents();
 

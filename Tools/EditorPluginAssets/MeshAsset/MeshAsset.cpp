@@ -3,11 +3,11 @@
 #include <Core/Graphics/Geometry.h>
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
 #include <EditorPluginAssets/Util/MeshImportUtils.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Utilities/Progress.h>
 #include <ModelImporter/Mesh.h>
 #include <ModelImporter/ModelImporter.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
-#include <Foundation/Profiling/Profiling.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 6, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -27,8 +27,9 @@ ezMeshAssetDocument::ezMeshAssetDocument(const char* szDocumentPath)
 {
 }
 
-ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                     const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
+                                                     const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
+                                                     bool bTriggeredManually)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
@@ -77,7 +78,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::Cylinder)
   {
-    geom.AddCylinder(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight, pProp->m_bCap, pProp->m_bCap2,
+    geom.AddCylinder(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight * 0.5f, pProp->m_fHeight * 0.5f, pProp->m_bCap, pProp->m_bCap2,
                      ezMath::Max<ezUInt16>(3, pProp->m_uiDetail), ezColor::White, mTrans, 0,
                      ezAngle::Degree(ezMath::Clamp(pProp->m_fAngle, 0.0f, 360.0f)));
   }

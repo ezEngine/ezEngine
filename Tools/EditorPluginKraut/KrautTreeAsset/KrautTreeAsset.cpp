@@ -56,8 +56,6 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
   if (krautFile.Open(pProp->m_sKrautFile).Failed())
     return ezStatus(ezFmt("Could not open Kraut file '{0}'", pProp->m_sKrautFile));
 
-  const ezStringBuilder sImportSourceDirectory = ezPathUtils::GetFileDirectory(pProp->m_sKrautFile);
-
   char signature[8];
   krautFile.ReadBytes(signature, 7);
   signature[7] = '\0';
@@ -127,10 +125,8 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
       krautFile >> mat.m_VariationColor;
 
-      mat.m_sDiffuseTexture =
-          ImportTexture(sImportSourceDirectory, sDiffuseTexture, ezModelImporter::SemanticHint::DIFFUSE_ALPHA, bClampTextureLookup);
-      mat.m_sNormalMapTexture =
-          ImportTexture(sImportSourceDirectory, sNormalMapTexture, ezModelImporter::SemanticHint::NORMAL, bClampTextureLookup);
+      mat.m_sDiffuseTexture = ImportTexture(sDiffuseTexture, ezModelImporter::SemanticHint::DIFFUSE_ALPHA, bClampTextureLookup);
+      mat.m_sNormalMapTexture = ImportTexture(sNormalMapTexture, ezModelImporter::SemanticHint::NORMAL, bClampTextureLookup);
     }
   }
 
@@ -321,40 +317,40 @@ ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream
   {
     auto& mat = desc.m_Materials[uiStaticImpostorMaterialIndex];
 
-    ezStringBuilder sDocPath = GetDocumentPath();
-    ezStringBuilder sFolder = sDocPath.GetFileDirectory();
     ezStringBuilder sFile;
-
-    sFile = sDocPath.GetFileName();
+    sFile = pProp->m_sKrautFile;
+    sFile.RemoveFileExtension();
 
     if (uiVersion == 1)
       sFile.Append("_D.tga");
 
-    mat.m_sDiffuseTexture = ImportTexture(sFolder, sFile, ezModelImporter::SemanticHint::DIFFUSE_ALPHA, true);
+    mat.m_sDiffuseTexture = ImportTexture(sFile, ezModelImporter::SemanticHint::DIFFUSE_ALPHA, true);
 
-    sFile = sDocPath.GetFileName();
+    sFile = pProp->m_sKrautFile;
+    sFile.RemoveFileExtension();
+
     sFile.Append("_N.tga");
-    mat.m_sNormalMapTexture = ImportTexture(sFolder, sFile, ezModelImporter::SemanticHint::NORMAL, true);
+    mat.m_sNormalMapTexture = ImportTexture(sFile, ezModelImporter::SemanticHint::NORMAL, true);
   }
 
   if (uiBillboardImpostorMaterialIndex != 0xFFFFFFFF)
   {
     auto& mat = desc.m_Materials[uiBillboardImpostorMaterialIndex];
 
-    ezStringBuilder sDocPath = GetDocumentPath();
-    ezStringBuilder sFolder = sDocPath.GetFileDirectory();
     ezStringBuilder sFile;
-
-    sFile = sDocPath.GetFileName();
+    sFile = pProp->m_sKrautFile;
+    sFile.RemoveFileExtension();
 
     if (uiVersion == 1)
       sFile.Append("_D.tga");
 
-    mat.m_sDiffuseTexture = ImportTexture(sFolder, sFile, ezModelImporter::SemanticHint::DIFFUSE_ALPHA, true);
+    mat.m_sDiffuseTexture = ImportTexture(sFile, ezModelImporter::SemanticHint::DIFFUSE_ALPHA, true);
 
-    sFile = sDocPath.GetFileName();
+    sFile = pProp->m_sKrautFile;
+    sFile.RemoveFileExtension();
+
     sFile.Append("_N.tga");
-    mat.m_sNormalMapTexture = ImportTexture(sFolder, sFile, ezModelImporter::SemanticHint::NORMAL, true);
+    mat.m_sNormalMapTexture = ImportTexture(sFile, ezModelImporter::SemanticHint::NORMAL, true);
   }
 
   desc.m_Details.m_sSurfaceResource = pProp->m_sSurface;
@@ -404,21 +400,23 @@ ezStatus ezKrautTreeAssetDocument::InternalCreateThumbnail(const ezAssetFileHead
   return status;
 }
 
-ezString ezKrautTreeAssetDocument::ImportTexture(const char* szImportSourceFolder, const char* szFilename,
-                                                 ezModelImporter::SemanticHint::Enum hint, bool bTextureClamp)
+ezString ezKrautTreeAssetDocument::ImportTexture(const char* szFilename, ezModelImporter::SemanticHint::Enum hint, bool bTextureClamp)
 {
-  ezStringBuilder importTargetDirectory = GetDocumentPath();
+  ezStringBuilder sRelativePathToTexture = szFilename;
+  sRelativePathToTexture.MakeCleanPath();
 
-  const bool bUseSubFolderForImportedMaterials = true;
-  if (bUseSubFolderForImportedMaterials)
+  ezStringBuilder sAbsPathToSourceTexture = sRelativePathToTexture;
+
+  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsPathToSourceTexture))
   {
-    importTargetDirectory.Append("_data");
-    importTargetDirectory.Append(ezPathUtils::OsSpecificPathSeparator);
+    ezLog::Error("Could not find texture '{0}'", szFilename);
+    return ezString();
   }
-  else
-    importTargetDirectory = importTargetDirectory.GetFileDirectory();
 
-  return ezMeshImportUtils::ImportOrResolveTexture(szImportSourceFolder, importTargetDirectory, szFilename, hint, bTextureClamp);
+  ezStringBuilder sPathPrefix = sAbsPathToSourceTexture;
+  sPathPrefix.PathParentDirectory();
+
+  return ezMeshImportUtils::ImportOrResolveTexture("", sPathPrefix, sRelativePathToTexture, hint, bTextureClamp);
 }
 
 //////////////////////////////////////////////////////////////////////////
