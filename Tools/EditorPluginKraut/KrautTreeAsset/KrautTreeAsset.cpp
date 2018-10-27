@@ -405,8 +405,14 @@ ezString ezKrautTreeAssetDocument::ImportTexture(const char* szFilename, ezModel
   ezStringBuilder sRelativePathToTexture = szFilename;
   sRelativePathToTexture.MakeCleanPath();
 
-  ezStringBuilder sAbsPathToSourceTexture = sRelativePathToTexture;
+  ezString allowedExtensions[] = {"dds", "png", "tga", "jpg"};
+  if (ezAssetCurator::GetSingleton()->FindBestMatchForFile(sRelativePathToTexture, allowedExtensions).Failed())
+  {
+    ezLog::Error("Could not find texture '{0}'", szFilename);
+    return ezString();
+  }
 
+  ezStringBuilder sAbsPathToSourceTexture = sRelativePathToTexture;
   if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsPathToSourceTexture))
   {
     ezLog::Error("Could not find texture '{0}'", szFilename);
