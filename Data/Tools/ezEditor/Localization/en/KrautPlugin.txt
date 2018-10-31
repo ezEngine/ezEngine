@@ -1,1 +1,2 @@
 ezKrautTreeComponent;Kraut Tree
+ezKrautAssetMaterial;Material
