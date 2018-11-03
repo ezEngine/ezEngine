@@ -4,22 +4,8 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <Foundation/Serialization/RttiConverter.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Reflection/PropertyPath.h>
 
-
-
-struct EZ_TOOLSFOUNDATION_DLL ezObjectChangeStep
-{
-  ezObjectChangeStep() {}
-  ezObjectChangeStep(const char* sProperty, const ezVariant& index)
-    : m_sProperty(sProperty), m_Index(index)
-  {
-  }
-
-  ezString m_sProperty;
-  ezVariant m_Index;
-  ezVariant m_Value;
-};
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezObjectChangeStep);
 
 /// \brief An object change starts at the heap object m_Root (because we can only safely store pointers to those).
 ///  From this object we follow m_Steps (member arrays, structs) to execute m_Change at the end target.
@@ -36,10 +22,9 @@ public:
   void GetGraph(ezAbstractObjectGraph& graph) const;
   void SetGraph(ezAbstractObjectGraph& graph);
 
-  ezDiffOperation m_Change; //< Change at the target.
-
   ezUuid m_Root; //< The object that is the parent of the op, namely the parent heap object we can store a pointer to.
-  ezHybridArray<ezObjectChangeStep, 2> m_Steps; //< Path from root to target of change.
+  ezHybridArray<ezPropertyPathStep, 2> m_Steps; //< Path from root to target of change.
+  ezDiffOperation m_Change; //< Change at the target.
   ezDataBuffer m_GraphData; //< In case of ObjectAdded, this holds the binary serialized object graph.
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezObjectChange);
@@ -77,11 +62,10 @@ protected:
   bool IsDiscardedByFilter(const ezDocumentObject* pObject, const char* szProperty) const;
   static void CreatePath(ezObjectChange& out_change, const ezDocumentObject* pRoot, const char* szProperty);
   static ezUuid FindRootOpObject(const ezDocumentObject* pObject, ezHybridArray<const ezDocumentObject*, 8>& path);
-  static void FlattenSteps(const ezArrayPtr<const ezDocumentObject* const> path, ezHybridArray<ezObjectChangeStep, 2>& out_steps);
+  static void FlattenSteps(const ezArrayPtr<const ezDocumentObject* const> path, ezHybridArray<ezPropertyPathStep, 2>& out_steps);
 
   virtual void ApplyOp(ezObjectChange& change);
   void ApplyOp(ezRttiConverterObject object, const ezObjectChange& change);
-  void RetrieveObject(ezRttiConverterObject object, const ezObjectChange& change, const ezArrayPtr<const ezObjectChangeStep> path);
 
 protected:
   ezRttiConverterContext* m_pContext;

@@ -47,7 +47,7 @@ public:
   /// \brief The return value is used to display a label, if HasLabel() returns true.
   virtual const char* GetLabel() const { return m_pProp->GetPropertyName(); }
 
-  virtual void ExtendContextMenu(QMenu& menu) {}
+  virtual void ExtendContextMenu(QMenu& menu);
 
   /// \brief Whether the variable that the widget represents is currently set to the default value or has been modified.
   void SetIsDefault(bool isDefault) { m_bIsDefault = isDefault; }

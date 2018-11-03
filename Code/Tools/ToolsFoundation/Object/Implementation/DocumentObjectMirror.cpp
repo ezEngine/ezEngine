@@ -7,18 +7,6 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezObjectChangeStep, ezNoBase, 1, ezRTTIDefaultAllocator<ezObjectChangeStep>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Property", m_sProperty),
-    EZ_MEMBER_PROPERTY("Index", m_Index),
-    EZ_MEMBER_PROPERTY("Value", m_Value),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_STATIC_REFLECTED_TYPE;
-
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezObjectChange, ezNoBase, 1, ezRTTIDefaultAllocator<ezObjectChange>)
 {
   EZ_BEGIN_PROPERTIES
@@ -424,7 +412,7 @@ ezUuid ezDocumentObjectMirror::FindRootOpObject(const ezDocumentObject* pParent,
 }
 
 void ezDocumentObjectMirror::FlattenSteps(const ezArrayPtr<const ezDocumentObject* const> path,
-                                          ezHybridArray<ezObjectChangeStep, 2>& out_steps)
+                                          ezHybridArray<ezPropertyPathStep, 2>& out_steps)
 {
   ezUInt32 uiCount = path.GetCount();
   EZ_ASSERT_DEV(uiCount > 0, "Path must not be empty!");
@@ -437,7 +425,7 @@ void ezDocumentObjectMirror::FlattenSteps(const ezArrayPtr<const ezDocumentObjec
   for (ezInt32 i = (ezInt32)uiCount - 2; i >= 0; --i)
   {
     const ezDocumentObject* pObject = path[i];
-    out_steps.PushBack(ezObjectChangeStep(pObject->GetParentProperty(), pObject->GetPropertyIndex()));
+    out_steps.PushBack(ezPropertyPathStep({pObject->GetParentProperty(), pObject->GetPropertyIndex()}));
   }
 }
 
@@ -449,9 +437,19 @@ void ezDocumentObjectMirror::ApplyOp(ezObjectChange& change)
     object = m_pContext->GetObjectByGUID(change.m_Root);
     if (!object.m_pObject)
       return;
-    // EZ_ASSERT_DEV(object.m_pObject != nullptr, "Root objext does not exist in mirrored native object!");
+    // EZ_ASSERT_DEV(object.m_pObject != nullptr, "Root object does not exist in mirrored native object!");
   }
-  RetrieveObject(object, change, change.m_Steps);
+
+  ezPropertyPath propPath;
+  if (propPath.InitializeFromPath(*object.m_pType, change.m_Steps).Failed())
+  {
+    ezLog::Error("Failed to init property path on object of type '{0}'.", object.m_pType->GetTypeName());
+    return;
+  }
+  propPath.WriteToLeafObject(object.m_pObject, *object.m_pType, [this, &change](void* pLeaf, const ezRTTI& pType)
+  {
+    ApplyOp(ezRttiConverterObject(&pType, pLeaf), change);
+  });
 }
 
 void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjectChange& change)
@@ -662,112 +660,5 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
       }
     }
     break;
-  }
-}
-
-void ezDocumentObjectMirror::RetrieveObject(ezRttiConverterObject object, const ezObjectChange& change,
-                                            const ezArrayPtr<const ezObjectChangeStep> path)
-{
-  const ezUInt32 uiCount = path.GetCount();
-
-  // Destination reached? (end recursion)
-  if (uiCount == 0)
-  {
-    ApplyOp(object, change);
-    return;
-  }
-  else // Recurse
-  {
-    const ezRTTI* pCurrentType = object.m_pType;
-    auto pProp = pCurrentType->FindPropertyByName(path[0].m_sProperty);
-    const ezRTTI* pPropType = pProp->GetSpecificType();
-
-    EZ_ASSERT_DEV(pProp->GetFlags().IsAnySet(ezPropertyFlags::Class) && !pProp->GetFlags().IsSet(ezPropertyFlags::Pointer),
-                  "Anything else wouldn't need to be traversed as a path but could be accessed directly or is already the end of a path.");
-
-    switch (pProp->GetCategory())
-    {
-      case ezPropertyCategory::Member:
-      {
-        ezAbstractMemberProperty* pSpecific = static_cast<ezAbstractMemberProperty*>(pProp);
-        if (pPropType->GetProperties().GetCount() > 0)
-        {
-          ezRttiConverterObject subObject;
-          subObject.m_pObject = pSpecific->GetPropertyPointer(object.m_pObject);
-          subObject.m_pType = pPropType;
-          // Do we have direct access to the property?
-          if (subObject.m_pObject != nullptr)
-          {
-            RetrieveObject(subObject, change, path.GetSubArray(1));
-          }
-          // If the property is behind an accessor, we need to retrieve it first.
-          else if (pPropType->GetAllocator()->CanAllocate())
-          {
-            subObject.m_pObject = pPropType->GetAllocator()->Allocate<void>();
-            pSpecific->GetValuePtr(object.m_pObject, subObject.m_pObject);
-
-            RetrieveObject(subObject, change, path.GetSubArray(1));
-
-            pSpecific->SetValuePtr(object.m_pObject, subObject.m_pObject);
-            pPropType->GetAllocator()->Deallocate(subObject.m_pObject);
-          }
-          else
-          {
-            EZ_REPORT_FAILURE("Non-allocatable property should not be part of an object chain!");
-          }
-        }
-      }
-      break;
-      case ezPropertyCategory::Array:
-      {
-        ezAbstractArrayProperty* pSpecific = static_cast<ezAbstractArrayProperty*>(pProp);
-
-        if (pPropType->GetAllocator()->CanAllocate())
-        {
-          ezRttiConverterObject subObject;
-          subObject.m_pObject = pPropType->GetAllocator()->Allocate<void>();
-          subObject.m_pType = pPropType;
-          pSpecific->GetValue(object.m_pObject, path[0].m_Index.ConvertTo<ezUInt32>(), subObject.m_pObject);
-
-          RetrieveObject(subObject, change, path.GetSubArray(1));
-
-          pSpecific->SetValue(object.m_pObject, path[0].m_Index.ConvertTo<ezUInt32>(), subObject.m_pObject);
-          pPropType->GetAllocator()->Deallocate(subObject.m_pObject);
-        }
-        else
-        {
-          EZ_REPORT_FAILURE("Non-allocatable property should not be part of an object chain!");
-        }
-      }
-      break;
-      case ezPropertyCategory::Map:
-      {
-        ezAbstractMapProperty* pSpecific = static_cast<ezAbstractMapProperty*>(pProp);
-
-        if (pPropType->GetAllocator()->CanAllocate())
-        {
-          ezRttiConverterObject subObject;
-          subObject.m_pObject = pPropType->GetAllocator()->Allocate<void>();
-          subObject.m_pType = pPropType;
-          pSpecific->GetValue(object.m_pObject, path[0].m_Index.Get<ezString>(), subObject.m_pObject);
-
-          RetrieveObject(subObject, change, path.GetSubArray(1));
-
-          pSpecific->Insert(object.m_pObject, path[0].m_Index.Get<ezString>(), subObject.m_pObject);
-          pPropType->GetAllocator()->Deallocate(subObject.m_pObject);
-        }
-        else
-        {
-          EZ_REPORT_FAILURE("Non-allocatable property should not be part of an object chain!");
-        }
-      }
-      break;
-      case ezPropertyCategory::Set:
-      default:
-      {
-        EZ_REPORT_FAILURE("Property of type Set should not be part of an object chain!");
-      }
-      break;
-    }
   }
 }

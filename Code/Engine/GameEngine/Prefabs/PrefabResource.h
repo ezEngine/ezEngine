@@ -9,7 +9,6 @@ typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
 
 struct EZ_GAMEENGINE_DLL ezPrefabResourceDescriptor
 {
-
 };
 
 struct EZ_GAMEENGINE_DLL ezExposedPrefabParameterDesc
@@ -18,7 +17,7 @@ struct EZ_GAMEENGINE_DLL ezExposedPrefabParameterDesc
   ezUInt32 m_uiWorldReaderChildObject : 1; // 0 -> use root object array, 1 -> use child object array
   ezUInt32 m_uiWorldReaderObjectIndex : 31;
   ezUInt32 m_uiComponentTypeHash = 0; // ezRTTI type name hash to identify which component is meant, 0 -> affects game object
-  ezHashedString m_sProperty; // which property to override
+  ezHashedString m_sProperty;         // which property to override
 
   void Save(ezStreamWriter& stream) const;
   void Load(ezStreamReader& stream);
@@ -32,12 +31,15 @@ public:
   ezPrefabResource();
 
   /// \brief Creates an instance of this prefab in the given world.
-  void InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID, const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues);
+  void InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent,
+                         ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID,
+                         const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues);
 
-  void ApplyExposedParameterValues(const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues, const ezHybridArray<ezGameObject *, 8>& createdChildObjects, const ezHybridArray<ezGameObject *, 8>& createdRootObjects) const;
+  void ApplyExposedParameterValues(const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues,
+                                   const ezHybridArray<ezGameObject*, 8>& createdChildObjects,
+                                   const ezHybridArray<ezGameObject*, 8>& createdRootObjects) const;
 
 private:
-
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
@@ -49,5 +51,3 @@ private:
   ezWorldReader m_WorldReader;
   ezDynamicArray<ezExposedPrefabParameterDesc> m_PrefabParamDescs;
 };
-
-

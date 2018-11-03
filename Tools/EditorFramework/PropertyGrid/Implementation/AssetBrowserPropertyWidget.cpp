@@ -200,8 +200,11 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
 
 void ezQtAssetPropertyWidget::ExtendContextMenu(QMenu& menu)
 {
+  ezQtStandardPropertyWidget::ExtendContextMenu(menu);
+
   if (!menu.isEmpty())
     menu.addSeparator();
+
   const bool bAsset = m_AssetGuid.IsValid();
   menu.setDefaultAction(menu.addAction(QIcon(), QLatin1String("Select Asset"), this, SLOT(on_BrowseFile_clicked())));
   menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open Asset"), this,

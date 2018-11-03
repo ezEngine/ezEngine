@@ -3,6 +3,7 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
+#include <Foundation/Reflection/PropertyPath.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPrefabResource, 1, ezRTTIDefaultAllocator<ezPrefabResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -63,13 +64,9 @@ void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedStri
 
       if (ppd.m_uiComponentTypeHash == 0)
       {
-        ezAbstractProperty* pAbstract = pGameObjectRtti->FindPropertyByName(ppd.m_sProperty);
-
-        if (pAbstract && pAbstract->GetCategory() == ezPropertyCategory::Member)
-        {
-          ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pAbstract), pTarget,
-                                                    pExposedParamValues->GetValue(i));
-        }
+        ezPropertyPath propPath;
+        propPath.InitializeFromPath(*ezGetStaticRTTI<ezGameObject>(), ppd.m_sProperty);
+        propPath.SetValue(pTarget, pExposedParamValues->GetValue(i));
       }
       else
       {
@@ -80,13 +77,9 @@ void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedStri
           // TODO: use component index instead ?
           if (pRtti->GetTypeNameHash() == ppd.m_uiComponentTypeHash)
           {
-            ezAbstractProperty* pAbstract = pRtti->FindPropertyByName(ppd.m_sProperty);
-
-            if (pAbstract && pAbstract->GetCategory() == ezPropertyCategory::Member)
-            {
-              ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pAbstract), pComp,
-                                                        pExposedParamValues->GetValue(i));
-            }
+            ezPropertyPath propPath;
+            propPath.InitializeFromPath(*pRtti, ppd.m_sProperty);
+            propPath.SetValue(pComp, pExposedParamValues->GetValue(i));
           }
         }
       }

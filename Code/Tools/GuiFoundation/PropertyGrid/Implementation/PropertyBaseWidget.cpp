@@ -52,6 +52,42 @@ void ezQtPropertyWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8
   m_Items = items;
 }
 
+void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
+{
+  // revert
+  {
+    QAction* pRevert = m.addAction("Revert to Default");
+    pRevert->setEnabled(!m_bIsDefault);
+    connect(pRevert, &QAction::triggered, this, [this]() {
+      m_pObjectAccessor->StartTransaction("Revert to Default");
+      for (const ezPropertySelection& sel : m_Items)
+      {
+        ezVariant defaultValue = m_pGrid->GetDocument()->GetDefaultValue(sel.m_pObject, m_pProp->GetPropertyName());
+        m_pObjectAccessor->SetValue(sel.m_pObject, m_pProp, defaultValue, sel.m_Index);
+      }
+      m_pObjectAccessor->FinishTransaction();
+    });
+  }
+
+  // copy internal name
+  {
+    auto lambda = [this]() {
+      QClipboard* clipboard = QApplication::clipboard();
+      QMimeData* mimeData = new QMimeData();
+      mimeData->setText(m_pProp->GetPropertyName());
+      clipboard->setMimeData(mimeData);
+    };
+
+    QAction* pAction = m.addAction("Copy Internal Property Name:");
+    connect(pAction, &QAction::triggered, this, lambda);
+
+    QAction* pAction2 = m.addAction(m_pProp->GetPropertyName());
+    connect(pAction2, &QAction::triggered, this, lambda);
+  }
+
+  
+}
+
 const ezRTTI* ezQtPropertyWidget::GetCommonBaseType(const ezHybridArray<ezPropertySelection, 8>& items)
 {
   const ezRTTI* pSubtype = nullptr;
@@ -136,37 +172,6 @@ void ezQtPropertyWidget::PrepareToDie()
 void ezQtPropertyWidget::OnCustomContextMenu(const QPoint& pt)
 {
   QMenu m;
-
-  // revert
-  {
-    QAction* pRevert = m.addAction("Revert to Default");
-    pRevert->setEnabled(!m_bIsDefault);
-    connect(pRevert, &QAction::triggered, this, [this]() {
-      m_pObjectAccessor->StartTransaction("Revert to Default");
-      for (const ezPropertySelection& sel : m_Items)
-      {
-        ezVariant defaultValue = m_pGrid->GetDocument()->GetDefaultValue(sel.m_pObject, m_pProp->GetPropertyName());
-        m_pObjectAccessor->SetValue(sel.m_pObject, m_pProp, defaultValue, sel.m_Index);
-      }
-      m_pObjectAccessor->FinishTransaction();
-    });
-  }
-
-  // copy internal name
-  {
-    auto lambda = [this]() {
-      QClipboard* clipboard = QApplication::clipboard();
-      QMimeData* mimeData = new QMimeData();
-      mimeData->setText(m_pProp->GetPropertyName());
-      clipboard->setMimeData(mimeData);
-    };
-
-    QAction* pAction = m.addAction("Copy Internal Property Name:");
-    connect(pAction, &QAction::triggered, this, lambda);
-
-    QAction* pAction2 = m.addAction(m_pProp->GetPropertyName());
-    connect(pAction2, &QAction::triggered, this, lambda);
-  }
 
   ExtendContextMenu(m);
   m_pGrid->ExtendContextMenu(m, m_Items, m_pProp);
@@ -860,10 +865,14 @@ void ezQtPropertyContainerWidget::OnCustomElementContextMenu(const QPoint& pt)
   ezQtGroupBoxBase* pGroup = qobject_cast<ezQtGroupBoxBase*>(sender());
   Element* pElement =
       std::find_if(begin(m_Elements), end(m_Elements), [pGroup](const Element& elem) -> bool { return elem.m_pSubGroup == pGroup; });
+
   if (pElement)
   {
     QMenu m;
     pElement->m_pWidget->ExtendContextMenu(m);
+
+    m_pGrid->ExtendContextMenu(m, pElement->m_pWidget->GetSelection(), pElement->m_pWidget->GetProperty());
+
     if (!m.isEmpty())
     {
       m.exec(pGroup->mapToGlobal(pt));
@@ -1327,6 +1336,8 @@ void ezQtVariantPropertyWidget::SetSelection(const ezHybridArray<ezPropertySelec
 
 void ezQtVariantPropertyWidget::ExtendContextMenu(QMenu& menu)
 {
+  ezQtStandardPropertyWidget::ExtendContextMenu(menu);
+
   QMenu* ctm = menu.addMenu(QStringLiteral("Change Type"));
   for (int i = ezVariantType::FirstStandardType + 1; i < ezVariantType::LastStandardType; ++i)
   {

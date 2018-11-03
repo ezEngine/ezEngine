@@ -11,10 +11,10 @@ o
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"Vegetation/Trees/Tree1 Autumn_N.dds"}
+			s{"Vegetation/Trees/Tree1 Autumn_N.tga"}
 		}
 		Uuid %DocumentID{u4{8268943646687096960,5104761107591651105}}
-		u4 %Hash{12130697814691618112}
+		u4 %Hash{7897346681669003991}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -38,7 +38,7 @@ o
 		b %Compression{1}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
-		s %Input1{"Vegetation/Trees/Tree1 Autumn_N.dds"}
+		s %Input1{"Vegetation/Trees/Tree1 Autumn_N.tga"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
