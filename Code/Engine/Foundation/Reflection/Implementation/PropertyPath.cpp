@@ -20,8 +20,16 @@ EZ_END_STATIC_REFLECTED_TYPE;
 ezPropertyPath::ezPropertyPath() = default;
 ezPropertyPath::~ezPropertyPath() = default;
 
+
+bool ezPropertyPath::IsValid() const
+{
+  return m_bIsValid;
+}
+
 ezResult ezPropertyPath::InitializeFromPath(const ezRTTI& rootObjectRtti, const char* szPath)
 {
+  m_bIsValid = false;
+
   const ezStringBuilder sPathParts = szPath;
   ezStringBuilder sIndex;
   ezStringBuilder sFieldName;
@@ -29,6 +37,9 @@ ezResult ezPropertyPath::InitializeFromPath(const ezRTTI& rootObjectRtti, const 
   ezHybridArray<ezStringView, 4> parts;
   sPathParts.Split(false, parts, "/");
 
+  // an empty path is valid as well
+
+  m_PathSteps.Clear();
   m_PathSteps.Reserve(parts.GetCount());
 
   const ezRTTI* pCurRtti = &rootObjectRtti;
@@ -72,11 +83,17 @@ ezResult ezPropertyPath::InitializeFromPath(const ezRTTI& rootObjectRtti, const 
     pCurRtti = pAbsProp->GetSpecificType();
   }
 
+  m_bIsValid = true;
   return EZ_SUCCESS;
 }
 
 ezResult ezPropertyPath::InitializeFromPath(const ezRTTI& rootObjectRtti, const ezArrayPtr<const ezPropertyPathStep> path)
 {
+  m_bIsValid = false;
+
+  m_PathSteps.Clear();
+  m_PathSteps.Reserve(path.GetCount());
+
   const ezRTTI* pCurRtti = &rootObjectRtti;
   for (const ezPropertyPathStep& pathStep : path)
   {
@@ -91,6 +108,7 @@ ezResult ezPropertyPath::InitializeFromPath(const ezRTTI& rootObjectRtti, const 
     pCurRtti = pAbsProp->GetSpecificType();
   }
 
+  m_bIsValid = true;
   return EZ_SUCCESS;
 }
 

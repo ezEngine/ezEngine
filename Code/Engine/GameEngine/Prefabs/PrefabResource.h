@@ -1,9 +1,10 @@
 #pragma once
 
-#include <GameEngine/Basics.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/Containers/ArrayMap.h>
+#include <Foundation/Reflection/PropertyPath.h>
+#include <GameEngine/Basics.h>
 
 typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
 
@@ -16,8 +17,9 @@ struct EZ_GAMEENGINE_DLL ezExposedPrefabParameterDesc
   ezHashedString m_sExposeName;
   ezUInt32 m_uiWorldReaderChildObject : 1; // 0 -> use root object array, 1 -> use child object array
   ezUInt32 m_uiWorldReaderObjectIndex : 31;
-  ezUInt32 m_uiComponentTypeHash = 0; // ezRTTI type name hash to identify which component is meant, 0 -> affects game object
-  ezHashedString m_sProperty;         // which property to override
+  ezUInt32 m_uiComponentTypeHash = 0;  // ezRTTI type name hash to identify which component is meant, 0 -> affects game object
+  ezHashedString m_sProperty;          // which property to override
+  ezPropertyPath m_CachedPropertyPath; // cached ezPropertyPath to apply a value to the specified property
 
   void Save(ezStreamWriter& stream) const;
   void Load(ezStreamReader& stream);

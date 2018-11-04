@@ -37,7 +37,7 @@ protected slots:
 protected:
   virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
-  virtual void ExtendContextMenu(QMenu& menu) override;
+  void FillAssetMenu(QMenu& menu);
 
 protected:
   void UpdateThumbnail(const ezUuid& guid, const char* szThumbnailPath);

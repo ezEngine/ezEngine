@@ -26,6 +26,9 @@ public:
   ezPropertyPath();
   ~ezPropertyPath();
 
+  /// \brief Returns true if InitializeFromPath() has been successfully called and it is therefore possible to use the other functions.
+  bool IsValid() const;
+
   ///\brief Resolves a path in the syntax 'propertyName[index]/propertyName[index]/...' into steps.
   /// The '[index]' part is only added for properties that require indices (arrays and maps).
   ezResult InitializeFromPath(const ezRTTI& rootObjectRtti, const char* szPath);
@@ -72,5 +75,6 @@ private:
   static void ResolvePath(void* pCurrentObject, const ezRTTI* pType, const ezArrayPtr<const ResolvedStep> path, bool bWriteToObject,
                           const ezDelegate<void(void* pLeaf, const ezRTTI& pType)>& func);
 
+  bool m_bIsValid = false;
   ezHybridArray<ResolvedStep, 2> m_PathSteps;
 };

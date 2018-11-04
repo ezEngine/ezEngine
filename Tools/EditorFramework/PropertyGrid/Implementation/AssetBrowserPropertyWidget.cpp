@@ -198,10 +198,8 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
   }
 }
 
-void ezQtAssetPropertyWidget::ExtendContextMenu(QMenu& menu)
+void ezQtAssetPropertyWidget::FillAssetMenu(QMenu& menu)
 {
-  ezQtStandardPropertyWidget::ExtendContextMenu(menu);
-
   if (!menu.isEmpty())
     menu.addSeparator();
 
@@ -263,7 +261,7 @@ void ezQtAssetPropertyWidget::ThumbnailInvalidated(QString sPath, ezUInt32 uiIma
 void ezQtAssetPropertyWidget::on_customContextMenuRequested(const QPoint& pt)
 {
   QMenu m;
-  ExtendContextMenu(m);
+  FillAssetMenu(m);
 
   m.exec(m_pButton->mapToGlobal(pt));
 }

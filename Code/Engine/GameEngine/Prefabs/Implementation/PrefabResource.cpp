@@ -1,9 +1,9 @@
 #include <PCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Reflection/PropertyPath.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
-#include <Foundation/Reflection/PropertyPath.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPrefabResource, 1, ezRTTIDefaultAllocator<ezPrefabResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -50,9 +50,7 @@ void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedStri
     const ezHashedString& name = pExposedParamValues->GetKey(i);
     const ezUInt32 uiNameHash = name.GetHash();
 
-    ezUInt32 uiCurParam = FindFirstParamWithName(uiNameHash);
-
-    while (uiCurParam < uiNumParamDescs)
+    for (ezUInt32 uiCurParam = FindFirstParamWithName(uiNameHash); uiCurParam < uiNumParamDescs; ++uiCurParam)
     {
       const auto& ppd = m_PrefabParamDescs[uiCurParam];
 
@@ -62,32 +60,30 @@ void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedStri
       ezGameObject* pTarget = ppd.m_uiWorldReaderChildObject ? createdChildObjects[ppd.m_uiWorldReaderObjectIndex]
                                                              : createdRootObjects[ppd.m_uiWorldReaderObjectIndex];
 
-      if (ppd.m_uiComponentTypeHash == 0)
+      if (ppd.m_CachedPropertyPath.IsValid())
       {
-        ezPropertyPath propPath;
-        propPath.InitializeFromPath(*ezGetStaticRTTI<ezGameObject>(), ppd.m_sProperty);
-        propPath.SetValue(pTarget, pExposedParamValues->GetValue(i));
-      }
-      else
-      {
-        for (ezComponent* pComp : pTarget->GetComponents())
+        if (ppd.m_uiComponentTypeHash == 0)
         {
-          const ezRTTI* pRtti = pComp->GetDynamicRTTI();
-
-          // TODO: use component index instead ?
-          if (pRtti->GetTypeNameHash() == ppd.m_uiComponentTypeHash)
+          ppd.m_CachedPropertyPath.SetValue(pTarget, pExposedParamValues->GetValue(i));
+        }
+        else
+        {
+          for (ezComponent* pComp : pTarget->GetComponents())
           {
-            ezPropertyPath propPath;
-            propPath.InitializeFromPath(*pRtti, ppd.m_sProperty);
-            propPath.SetValue(pComp, pExposedParamValues->GetValue(i));
+            const ezRTTI* pRtti = pComp->GetDynamicRTTI();
+
+            // TODO: use component index instead
+            // atm if the same component type is attached multiple times, they will all get the value applied
+            if (pRtti->GetTypeNameHash() == ppd.m_uiComponentTypeHash)
+            {
+              ppd.m_CachedPropertyPath.SetValue(pComp, pExposedParamValues->GetValue(i));
+            }
           }
         }
       }
 
       // Allow to bind multiple properties to the same exposed parameter name
       // Therefore, do not break here, but continue iterating
-
-      ++uiCurParam;
     }
   }
 }
@@ -154,7 +150,27 @@ ezResourceLoadDesc ezPrefabResource::UpdateContent(ezStreamReader* Stream)
 
     for (ezUInt32 i = 0; i < uiExposedParams; ++i)
     {
-      m_PrefabParamDescs[i].Load(s);
+      auto& ppd = m_PrefabParamDescs[i];
+
+      ppd.Load(s);
+
+      // initialize the cached property path here once
+      // so we can only apply it later as often as needed
+      {
+        if (ppd.m_uiComponentTypeHash == 0)
+          ppd.m_CachedPropertyPath.InitializeFromPath(*ezGetStaticRTTI<ezGameObject>(), ppd.m_sProperty);
+        else
+        {
+          for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+          {
+            if (pRtti->GetTypeNameHash() == ppd.m_uiComponentTypeHash)
+            {
+              ppd.m_CachedPropertyPath.InitializeFromPath(*pRtti, ppd.m_sProperty);
+              break;
+            }
+          }
+        }
+      }
     }
 
     // sort exposed parameter descriptions by name hash for quicker access
