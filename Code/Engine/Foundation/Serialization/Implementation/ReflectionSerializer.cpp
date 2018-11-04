@@ -362,7 +362,7 @@ namespace
               }
               else
               {
-                ezLog::Error("The property '{}' can not be cloned as the type '{}' cannot be allocated.", pProp->GetPropertyName(),
+                ezLog::Error("The property '{0}' can not be cloned as the type '{1}' cannot be allocated.", pProp->GetPropertyName(),
                              pPropType->GetTypeName());
               }
             }

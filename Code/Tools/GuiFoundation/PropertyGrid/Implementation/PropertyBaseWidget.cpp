@@ -63,7 +63,15 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
       for (const ezPropertySelection& sel : m_Items)
       {
         ezVariant defaultValue = m_pGrid->GetDocument()->GetDefaultValue(sel.m_pObject, m_pProp->GetPropertyName());
-        m_pObjectAccessor->SetValue(sel.m_pObject, m_pProp, defaultValue, sel.m_Index);
+        // If the default value of a map entry is invalid, we assume the key should not exist and remove it.
+        if (m_pProp->GetCategory() == ezPropertyCategory::Map && !defaultValue.IsValid())
+        {
+          m_pObjectAccessor->RemoveValue(sel.m_pObject, m_pProp, sel.m_Index);
+        }
+        else
+        {
+          m_pObjectAccessor->SetValue(sel.m_pObject, m_pProp, defaultValue, sel.m_Index);
+        }
       }
       m_pObjectAccessor->FinishTransaction();
     });

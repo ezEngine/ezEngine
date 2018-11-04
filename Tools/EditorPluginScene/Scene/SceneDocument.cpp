@@ -10,11 +10,13 @@
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/Object/ObjectPropertyPath.h>
 #include <EditorFramework/Preferences/QuadViewPreferences.h>
+#include <EditorFramework/PropertyGrid/ExposedParametersPropertyWidget.moc.h>
 #include <EditorPluginScene/Dialogs/DeltaTransformDlg.moc.h>
 #include <EditorPluginScene/Dialogs/DuplicateDlg.moc.h>
 #include <EditorPluginScene/Objects/SceneObjectManager.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
@@ -716,7 +718,8 @@ bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractO
   return true;
 }
 
-bool ezSceneDocument::DuplicateSelectedObjects(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bSetSelected)
+bool ezSceneDocument::DuplicateSelectedObjects(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph,
+                                               bool bSetSelected)
 {
   if (!PasteAtOrignalPosition(info))
     return false;
@@ -1165,14 +1168,14 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
     auto pSettings = GetSettings();
     for (auto prop : pSettings->m_ExposedProperties)
     {
-      auto pObject = GetObjectManager()->GetObject(prop.m_Object);
-      if (!pObject)
+      auto pRootObject = GetObjectManager()->GetObject(prop.m_Object);
+      if (!pRootObject)
       {
         ezLog::Warning("The exposed scene property '{0}' does not point to a valid object and is skipped.", prop.m_sName);
         continue;
       }
 
-      ezObjectPropertyPathContext context = {pObject, GetObjectAccessor(), "Children"};
+      ezObjectPropertyPathContext context = {pRootObject, GetObjectAccessor(), "Children"};
 
       ezPropertyReference key;
       auto res = ezObjectPropertyPath::ResolvePropertyPath(context, prop.m_sPropertyPath, key);
@@ -1182,7 +1185,21 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
         continue;
       }
       ezVariant value;
-      res = context.m_pAccessor->GetValue(GetObjectManager()->GetObject(key.m_Object), key.m_pProperty, value, key.m_Index);
+
+      auto pLeafObject = GetObjectManager()->GetObject(key.m_Object);
+      if (const ezExposedParametersAttribute* pAttrib = key.m_pProperty->GetAttributeByType<ezExposedParametersAttribute>())
+      {
+        const ezAbstractProperty* pParameterSourceProp = pLeafObject->GetType()->FindPropertyByName(pAttrib->GetParametersSource());
+        EZ_ASSERT_DEBUG(pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'",
+                      pAttrib->GetParametersSource(), pLeafObject->GetType()->GetTypeName());
+
+        ezExposedParameterCommandAccessor proxy(context.m_pAccessor, key.m_pProperty, pParameterSourceProp);
+        res = proxy.GetValue(pLeafObject, key.m_pProperty, value, key.m_Index);
+      }
+      else
+      {
+        res = context.m_pAccessor->GetValue(pLeafObject, key.m_pProperty, value, key.m_Index);
+      }
       EZ_ASSERT_DEBUG(res.Succeeded(), "ResolvePropertyPath succeeded so GetValue should too");
 
       // do not show the same parameter twice, even if they have different types, as the UI doesn't handle that case properly

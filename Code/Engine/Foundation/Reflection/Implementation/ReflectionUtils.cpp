@@ -319,7 +319,7 @@ namespace
   {
     EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 iComponent, double fValue)
     {
-      EZ_ASSERT_DEBUG(false, "ezReflectionUtils::SetComponent was called with a non-vector variant '{}'", pVector->GetType());
+      EZ_ASSERT_DEBUG(false, "ezReflectionUtils::SetComponent was called with a non-vector variant '{0}'", pVector->GetType());
     }
   };
 
@@ -406,7 +406,7 @@ namespace
   {
     EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 iComponent, double& fValue)
     {
-      EZ_ASSERT_DEBUG(false, "ezReflectionUtils::SetComponent was called with a non-vector variant '{}'", pVector->GetType());
+      EZ_ASSERT_DEBUG(false, "ezReflectionUtils::SetComponent was called with a non-vector variant '{0}'", pVector->GetType());
     }
   };
 
@@ -1458,7 +1458,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
             }
             else
             {
-              ezLog::Error("The property '{}' can not be compared as the type '{}' cannot be allocated.", pProp->GetPropertyName(),
+              ezLog::Error("The property '{0}' can not be compared as the type '{1}' cannot be allocated.", pProp->GetPropertyName(),
                            pPropType->GetTypeName());
             }
           }

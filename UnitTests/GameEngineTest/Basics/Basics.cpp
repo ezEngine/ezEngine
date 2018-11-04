@@ -119,7 +119,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestTransformAssetsExec(ezIn
     if (WaitForSingleObject(processInfo.hProcess, 1000 * 60 * 4) == WAIT_TIMEOUT) //4min timeout
     {
       TerminateProcess(processInfo.hProcess, 0);
-      ezLog::Error("Process timeout: '{}'", sBinPath);
+      ezLog::Error("Process timeout: '{0}'", sBinPath);
     }
 
     CloseHandle(processInfo.hProcess);

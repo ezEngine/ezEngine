@@ -2,6 +2,7 @@
 
 #include <Core/World/GameObject.h>
 #include <EditorFramework/Object/ObjectPropertyPath.h>
+#include <EditorFramework/PropertyGrid/ExposedParametersPropertyWidget.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectVisitor.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
@@ -212,7 +213,20 @@ ezStatus ezObjectPropertyPath::ResolvePropertyPath(const ezObjectPropertyPathCon
     }
 
     ezVariant value;
-    ezStatus res = context.m_pAccessor->GetValue(pObject, pProperty, value, index);
+    ezStatus res;
+    if (const ezExposedParametersAttribute* pAttrib = pProperty->GetAttributeByType<ezExposedParametersAttribute>())
+    {
+      const ezAbstractProperty* pParameterSourceProp = pObject->GetType()->FindPropertyByName(pAttrib->GetParametersSource());
+      EZ_ASSERT_DEV(pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'", pAttrib->GetParametersSource(),
+                    pObject->GetType()->GetTypeName());
+      ezExposedParameterCommandAccessor proxy(context.m_pAccessor, pProperty, pParameterSourceProp);
+      res = proxy.GetValue(pObject, pProperty, value, index);
+    }
+    else
+    {
+      res = context.m_pAccessor->GetValue(pObject, pProperty, value, index);
+    }
+
     if (res.Failed())
       return res;
 

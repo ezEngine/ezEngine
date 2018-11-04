@@ -1,8 +1,8 @@
 #pragma once
 
+#include <EditorFramework/GUI/ExposedParameters.h>
 #include <EditorFramework/Plugin.h>
 #include <GuiFoundation/PropertyGrid/PropertyBaseWidget.moc.h>
-#include <GUI/ExposedParameters.h>
 #include <ToolsFoundation/Object/ObjectProxyAccessor.h>
 
 class QToolButton;
@@ -11,14 +11,19 @@ class QAction;
 class EZ_EDITORFRAMEWORK_DLL ezExposedParameterCommandAccessor : public ezObjectProxyAccessor
 {
 public:
-  ezExposedParameterCommandAccessor(ezObjectAccessorBase* pSource, const ezAbstractProperty* pParameterProp, const ezAbstractProperty* m_pParameterSourceProp);
+  ezExposedParameterCommandAccessor(ezObjectAccessorBase* pSource, const ezAbstractProperty* pParameterProp,
+                                    const ezAbstractProperty* m_pParameterSourceProp);
 
-  virtual ezStatus GetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value, ezVariant index = ezVariant()) override;
-  virtual ezStatus SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index = ezVariant()) override;
+  virtual ezStatus GetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value,
+                            ezVariant index = ezVariant()) override;
+  virtual ezStatus SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue,
+                            ezVariant index = ezVariant()) override;
   virtual ezStatus RemoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant()) override;
   virtual ezStatus GetCount(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezInt32& out_iCount) override;
-  virtual ezStatus GetKeys(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezHybridArray<ezVariant, 16>& out_keys) override;
-  virtual ezStatus GetValues(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezHybridArray<ezVariant, 16>& out_values) override;
+  virtual ezStatus GetKeys(const ezDocumentObject* pObject, const ezAbstractProperty* pProp,
+                           ezHybridArray<ezVariant, 16>& out_keys) override;
+  virtual ezStatus GetValues(const ezDocumentObject* pObject, const ezAbstractProperty* pProp,
+                             ezHybridArray<ezVariant, 16>& out_values) override;
 
 public:
   const ezExposedParameters* GetExposedParams(const ezDocumentObject* pObject);
@@ -35,6 +40,7 @@ public:
 class EZ_EDITORFRAMEWORK_DLL ezQtExposedParameterPropertyWidget : public ezQtVariantPropertyWidget
 {
   Q_OBJECT;
+
 protected:
   virtual void InternalSetValue(const ezVariant& value);
 };
@@ -51,6 +57,7 @@ public:
 protected:
   virtual void OnInit() override;
   virtual ezQtPropertyWidget* CreateWidget(ezUInt32 index) override;
+  virtual void UpdateElement(ezUInt32 index) override;
 
 private:
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);

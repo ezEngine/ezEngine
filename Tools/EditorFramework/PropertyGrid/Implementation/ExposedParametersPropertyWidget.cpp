@@ -1,12 +1,12 @@
 #include <PCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/GUI/ExposedParametersTypeRegistry.h>
 #include <EditorFramework/PropertyGrid/ExposedParametersPropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/GroupBoxBase.moc.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
-#include <EditorFramework/GUI/ExposedParametersTypeRegistry.h>
 
 ezExposedParameterCommandAccessor::ezExposedParameterCommandAccessor(ezObjectAccessorBase* pSource,
                                                                      const ezAbstractProperty* pParameterProp,
@@ -274,7 +274,7 @@ void ezQtExposedParametersPropertyWidget::OnInit()
                 "ezQtExposedParametersPropertyWidget was created for a property that does not have the ezExposedParametersAttribute.");
   m_sExposedParamProperty = pAttrib->GetParametersSource();
   const ezAbstractProperty* pParameterSourceProp = m_pType->FindPropertyByName(m_sExposedParamProperty);
-  EZ_ASSERT_DEV(pParameterSourceProp, "The exposed parameter source '{}' does not exist on type '{}'", m_sExposedParamProperty,
+  EZ_ASSERT_DEV(pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'", m_sExposedParamProperty,
                 m_pType->GetTypeName());
   m_pSourceObjectAccessor = m_pObjectAccessor;
   m_Proxy = EZ_DEFAULT_NEW(ezExposedParameterCommandAccessor, m_pSourceObjectAccessor, m_pProp, pParameterSourceProp);
@@ -312,6 +312,29 @@ void ezQtExposedParametersPropertyWidget::OnInit()
 ezQtPropertyWidget* ezQtExposedParametersPropertyWidget::CreateWidget(ezUInt32 index)
 {
   return new ezQtExposedParameterPropertyWidget();
+}
+
+
+void ezQtExposedParametersPropertyWidget::UpdateElement(ezUInt32 index)
+{
+  ezQtPropertyStandardTypeContainerWidget::UpdateElement(index);
+  Element& elem = m_Elements[index];
+  const auto& selection = elem.m_pWidget->GetSelection();
+  bool isDefault = true;
+  for (const auto& item : selection)
+  {
+    ezVariant value;
+    ezStatus res = m_pSourceObjectAccessor->GetValue(item.m_pObject, m_pProp, value, item.m_Index);
+    if (res.Succeeded())
+    {
+      // In case we successfully read the value from the source accessor (not the proxy that pretends all exposed params exist)
+      // we now the value is overwritten as in the default case the map index would not exist.
+      isDefault = false;
+      break;
+    }
+  }
+  elem.m_pWidget->SetIsDefault(isDefault);
+  elem.m_pSubGroup->SetBoldTitle(!isDefault);
 }
 
 void ezQtExposedParametersPropertyWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
@@ -433,8 +456,7 @@ bool ezQtExposedParametersPropertyWidget::FixKeyTypes(bool bTestOnly)
               }
               else
               {
-                m_pObjectAccessor->SetValue(item.m_pObject, m_pProp, ezReflectionUtils::GetDefaultVariantFromType(type), key)
-                    .LogFailure();
+                m_pObjectAccessor->SetValue(item.m_pObject, m_pProp, ezReflectionUtils::GetDefaultVariantFromType(type), key).LogFailure();
               }
             }
             else
