@@ -68,8 +68,13 @@ endif()
 
 if (EZ_BUILD_GAMES)
 	SET (ADDITIONAL_DEPENDENCIES ${ADDITIONAL_DEPENDENCIES}
-    RtsGamePlugin
     SampleGamePlugin
+    )
+endif()
+
+if (EZ_BUILD_SAMPLES)
+	SET (ADDITIONAL_DEPENDENCIES ${ADDITIONAL_DEPENDENCIES}
+    RtsGamePlugin
     )
 endif()
 

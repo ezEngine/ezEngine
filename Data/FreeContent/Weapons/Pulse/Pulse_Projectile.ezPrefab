@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4907047210820730285,4894575462063164740}}
-		u4 %Hash{2959317018115404071}
+		u4 %Hash{13488319909748713385}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{10136530541856550431,13504341241069582050}}
@@ -20,8 +20,8 @@ o
 		VarArray %References
 		{
 			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
-			s{"{ 0e3a619d-fef8-b4ce-3988-eff149839b27 }"}
 			s{"{ a23314a9-b6dd-4d21-adce-ff4ed20974c6 }"}
+			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
 			s{"{ e658e83a-dc29-4db3-bcec-be6764431578 }"}
 		}
 	}
@@ -87,7 +87,7 @@ o
 		Color %Color{f{0x84F79F41,0xAFF1903F,0x6761B341,0x0000803F}}
 		f %MaxScreenSize{0x00008044}
 		f %Size{0x0000003F}
-		s %Texture{"{ 0e3a619d-fef8-b4ce-3988-eff149839b27 }"}
+		s %Texture{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
 	}
 }
 o
