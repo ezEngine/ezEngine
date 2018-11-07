@@ -185,6 +185,34 @@ void ezPrefabReferenceComponent::OnDeactivated()
   }
 }
 
+void ezPrefabReferenceComponent::Deinitialize()
+{
+  if (!IsActiveAndSimulating() && IsActive())
+  {
+    // when the component has been activated and now deleted, without ever starting simulation,
+    // remove the children (through Deactivate)
+    // this is for the editor use case, where the component is always active, but simulation never starts
+    // without this, removing the component would not remove the children
+
+    OnDeactivated();
+  }
+  else
+  {
+    // do nothing, ie do not call OnDeactivated()
+    // we do want to keep the created child objects around when this component gets destroyed during simulation
+    // that's because the component actually deletes itself when simulation starts
+  }
+}
+
+void ezPrefabReferenceComponent::OnSimulationStarted()
+{
+  SUPER::OnSimulationStarted();
+
+  // remove the prefab reference component, to prevent issues after another serialization/deserialization
+  // and also to save some memory
+  DeleteComponent();
+}
+
 const ezRangeView<const char*, ezUInt32> ezPrefabReferenceComponent::GetParameters() const
 {
   return ezRangeView<const char*, ezUInt32>(
