@@ -135,12 +135,11 @@ void ezVisualScriptNode_FindChildObject::Execute(ezVisualScriptInstance* pInstan
       return;
     }
 
-    const ezTempHashedString name(m_sChildObjectName.GetData());
-    ezGameObject* pChild = pParent->FindChildByName(name, true);
+    ezGameObject* pChild = pParent->SearchForChildByNameSequence(m_sChildObjectName.GetData());
 
     if (pChild == nullptr)
     {
-      ezLog::Warning("Script: Child-Object with Name '{0}' does not exist.", m_sChildObjectName);
+      ezLog::Warning("Script: Child-Object with Name '{0}' does not exist at node '{1}'.", m_sChildObjectName, pParent->GetName());
       return;
     }
 
@@ -215,7 +214,7 @@ void ezVisualScriptNode_FindComponent::Execute(ezVisualScriptInstance* pInstance
     ezComponent* pComponent = nullptr;
     if (!pParent->TryGetComponentOfBaseType(pRtti, pComponent))
     {
-      ezLog::Warning("Script: Component of type '{0}' does not exist at this node.", m_sType);
+      ezLog::Warning("Script: Component of type '{0}' does not exist at node '{1}'.", m_sType, pParent->GetName());
       return;
     }
 

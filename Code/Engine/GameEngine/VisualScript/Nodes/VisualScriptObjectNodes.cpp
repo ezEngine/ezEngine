@@ -117,7 +117,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_HasName, 1, ezRTTIDefaultAllo
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Objects"),
-    new ezTitleAttribute("FilterByName '{ObjectName}'")
+    new ezTitleAttribute("HasName '{ObjectName}'")
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_PROPERTIES
