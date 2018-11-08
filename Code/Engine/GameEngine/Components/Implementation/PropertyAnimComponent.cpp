@@ -414,12 +414,15 @@ void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
     // if we have a component handle, use it to check that the component is still alive
     if (!binding.m_hComponent.IsInvalidated())
     {
-      if (!GetWorld()->IsValidComponent(binding.m_hComponent))
+      ezComponent* pComponent;
+      if (!GetWorld()->TryGetComponent(binding.m_hComponent, pComponent))
       {
         // remove dead references
         m_ComponentFloatBindings.RemoveAtAndSwap(i);
         continue;
       }
+
+      binding.m_pObject = static_cast<void*>(pComponent);
     }
 
     ApplyFloatAnimation(m_ComponentFloatBindings[i], fLookupPos);
@@ -434,12 +437,16 @@ void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
     // if we have a component handle, use it to check that the component is still alive
     if (!binding.m_hComponent.IsInvalidated())
     {
-      if (!GetWorld()->IsValidComponent(binding.m_hComponent))
+      ezComponent* pComponent;
+      if (!GetWorld()->TryGetComponent(binding.m_hComponent, pComponent))
+
       {
         // remove dead references
         m_ColorBindings.RemoveAtAndSwap(i);
         continue;
       }
+
+      binding.m_pObject = static_cast<void*>(pComponent);
     }
 
     ApplyColorAnimation(m_ColorBindings[i], fLookupPos);
@@ -454,12 +461,15 @@ void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
     // if we have a game object handle, use it to check that the component is still alive
     if (!binding.m_hObject.IsInvalidated())
     {
-      if (!GetWorld()->IsValidObject(binding.m_hObject))
+      ezGameObject* pObject;
+      if (!GetWorld()->TryGetObject(binding.m_hObject, pObject))
       {
         // remove dead references
         m_GoFloatBindings.RemoveAtAndSwap(i);
         continue;
       }
+
+      binding.m_pObject = static_cast<void*>(pObject);
     }
 
     ApplyFloatAnimation(m_GoFloatBindings[i], fLookupPos);

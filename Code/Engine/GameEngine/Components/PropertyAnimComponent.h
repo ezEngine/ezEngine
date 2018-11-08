@@ -87,7 +87,7 @@ protected:
   struct Binding
   {
     ezAbstractMemberProperty* m_pMemberProperty = nullptr;
-    void* m_pObject = nullptr;
+    mutable void* m_pObject = nullptr; // needs to be updated in case components / objects get relocated in memory
   };
 
   struct FloatBinding : public Binding
