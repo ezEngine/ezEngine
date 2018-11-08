@@ -88,11 +88,11 @@ PxShape* ezPxShapeConvexComponent::CreateShape(PxRigidActor* pActor, PxTransform
   else
   {
     ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh);
-    const auto& surfs = pMesh->GetSurfaces();
+    const auto& surfaces = pMesh->GetSurfaces();
 
-    if (!surfs.IsEmpty())
+    if (!surfaces.IsEmpty() && surfaces[0].IsValid())
     {
-      ezResourceLock<ezSurfaceResource> pSurface(surfs[0]);
+      ezResourceLock<ezSurfaceResource> pSurface(surfaces[0]);
       pMaterial = static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterial);
     }
   }
