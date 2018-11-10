@@ -57,6 +57,8 @@ protected:
   virtual void Deinitialize() override;
   virtual void OnSimulationStarted() override;
 
+  void ClearPreviousInstances();
+
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters
 public:

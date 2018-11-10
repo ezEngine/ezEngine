@@ -130,11 +130,7 @@ void ezPrefabReferenceComponent::SetPrefab(const ezPrefabResourceHandle& hPrefab
 
 void ezPrefabReferenceComponent::InstantiatePrefab()
 {
-  // first clear all previous children of this object
-  for (auto it = GetOwner()->GetChildren(); it.IsValid(); ++it)
-  {
-    GetWorld()->DeleteObjectNow(it->GetHandle());
-  }
+  ClearPreviousInstances();
 
   // now instantiate the prefab
   if (m_hPrefab.IsValid())
@@ -144,22 +140,28 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
     ezTransform id;
     id.SetIdentity();
 
-    pResource->InstantiatePrefab(*GetWorld(), id, GetOwner()->GetHandle(), nullptr, &GetOwner()->GetTeamID(), &m_Parameters);
-
     // if this ID is valid, this prefab is instantiated at editor runtime
     // replicate the same ID across all instantiated sub components to get correct picking behavior
     if (GetUniqueID() != ezInvalidIndex)
     {
+      ezHybridArray<ezGameObject*, 8> createdRootObjects;
+
+      pResource->InstantiatePrefab(*GetWorld(), id, GetOwner()->GetHandle(), &createdRootObjects, &GetOwner()->GetTeamID(), &m_Parameters);
+
       // while exporting a scene all game objects with this tag are ignored and not exported
       // set this tag on all game objects that were created by instantiating this prefab
       // instead it should be instantiated at runtime again
       // only do this at editor time though, at regular runtime we do want to fully serialize the entire sub tree
       const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance");
 
-      for (auto itChild = GetOwner()->GetChildren(); itChild.IsValid(); itChild.Next())
+      for (ezGameObject* pChild : createdRootObjects)
       {
-        SetUniqueIDRecursive(itChild, GetUniqueID(), tag);
+        SetUniqueIDRecursive(pChild, GetUniqueID(), tag);
       }
+    }
+    else
+    {
+      pResource->InstantiatePrefab(*GetWorld(), id, GetOwner()->GetHandle(), nullptr, &GetOwner()->GetTeamID(), &m_Parameters);
     }
   }
 }
@@ -175,11 +177,24 @@ void ezPrefabReferenceComponent::OnActivated()
 
 void ezPrefabReferenceComponent::OnDeactivated()
 {
-  SUPER::OnDeactivated();
+  ClearPreviousInstances();
 
-  for (auto it = GetOwner()->GetChildren(); it.IsValid(); ++it)
+  SUPER::OnDeactivated();
+}
+
+void ezPrefabReferenceComponent::ClearPreviousInstances()
+{
+  if (GetUniqueID() != ezInvalidIndex)
   {
-    GetWorld()->DeleteObjectNow(it->GetHandle());
+    const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance");
+
+    for (auto it = GetOwner()->GetChildren(); it.IsValid(); ++it)
+    {
+      if (it->GetTags().IsSet(tag))
+      {
+        GetWorld()->DeleteObjectNow(it->GetHandle());
+      }
+    }
   }
 }
 

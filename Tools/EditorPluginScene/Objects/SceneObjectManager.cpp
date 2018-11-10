@@ -62,24 +62,25 @@ ezStatus ezSceneObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocum
     {
       // only prevent adding game objects (as children) to objects that already have a prefab component
       // do allow to attach components to objects with prefab components
-      if (pRtti->IsDerivedFrom<ezGameObject>())
-      {
-        if (pParent->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
-        {
-          auto children = pParent->GetChildren();
-          for (auto pChild : children)
-          {
-            if (pChild->GetType()->IsDerivedFrom<ezPrefabReferenceComponent>())
-              return ezStatus("Cannot add objects to a prefab node.");
-          }
-        }
-      }
+      //if (pRtti->IsDerivedFrom<ezGameObject>())
+      //{
+      //  if (pParent->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+      //  {
+      //    auto children = pParent->GetChildren();
+      //    for (auto pChild : children)
+      //    {
+      //      if (pChild->GetType()->IsDerivedFrom<ezPrefabReferenceComponent>())
+      //        return ezStatus("Cannot add objects to a prefab node.");
+      //    }
+      //  }
+      //}
 
-      if (pRtti->IsDerivedFrom<ezPrefabReferenceComponent>())
-      {
-        if (!pParent->GetChildren().IsEmpty())
-          return ezStatus("Prefab components can only be added to empty nodes.");
-      }
+      // in case prefab component should be the only component on a node
+      //if (pRtti->IsDerivedFrom<ezPrefabReferenceComponent>())
+      //{
+      //  if (!pParent->GetChildren().IsEmpty())
+      //    return ezStatus("Prefab components can only be added to empty nodes.");
+      //}
     }
   }
   return ezStatus(EZ_SUCCESS);
@@ -88,18 +89,19 @@ ezStatus ezSceneObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocum
 ezStatus ezSceneObjectManager::InternalCanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent,
                                                const char* szParentProperty, const ezVariant& index) const
 {
-  if (pNewParent != nullptr)
-  {
-    if (pNewParent->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
-    {
-      auto children = pNewParent->GetChildren();
-      for (auto pChild : children)
-      {
-        if (pChild->GetType()->IsDerivedFrom<ezPrefabReferenceComponent>())
-          return ezStatus("Cannot move objects into a prefab node.");
-      }
-    }
-  }
+  // code to disallow attaching nodes to a prefab node
+  //if (pNewParent != nullptr)
+  //{
+  //  if (pNewParent->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+  //  {
+  //    auto children = pNewParent->GetChildren();
+  //    for (auto pChild : children)
+  //    {
+  //      if (pChild->GetType()->IsDerivedFrom<ezPrefabReferenceComponent>())
+  //        return ezStatus("Cannot move objects into a prefab node.");
+  //    }
+  //  }
+  //}
 
   return ezStatus(EZ_SUCCESS);
 }
