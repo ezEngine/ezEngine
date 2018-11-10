@@ -214,4 +214,18 @@ bool ezComponent::OnUnhandledMessage(ezMessage& msg) const
   return false;
 }
 
+void ezComponent::SetUserFlag(ezUInt8 flagIndex, bool set)
+{
+  EZ_ASSERT_DEBUG(flagIndex < 8, "Flag index {0} is out of the valid range [0 - 7]", flagIndex);
+
+  m_ComponentFlags.AddOrRemove(static_cast<ezObjectFlags::Enum>(ezObjectFlags::UserFlag0 << flagIndex), set);
+}
+
+bool ezComponent::GetUserFlag(ezUInt8 flagIndex) const
+{
+  EZ_ASSERT_DEBUG(flagIndex < 8, "Flag index {0} is out of the valid range [0 - 7]", flagIndex);
+
+  return m_ComponentFlags.IsSet(static_cast<ezObjectFlags::Enum>(ezObjectFlags::UserFlag0 << flagIndex));
+}
+
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_Component);

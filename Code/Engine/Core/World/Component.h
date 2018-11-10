@@ -102,6 +102,15 @@ public:
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
   void PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const;
 
+  /// \brief Stores a custom flag. Index must be between 0 and 7.
+///
+/// This is for component specific usage to have some bool values without additional memory consumption.
+/// Be careful to check which flags may already be in use by base classes.
+  void SetUserFlag(ezUInt8 flagIndex, bool set);
+
+  /// \brief Retrieves a custom flag. Index must be between 0 and 7.
+  bool GetUserFlag(ezUInt8 flagIndex) const;
+
 protected:
   friend class ezWorld;
   friend class ezGameObject;

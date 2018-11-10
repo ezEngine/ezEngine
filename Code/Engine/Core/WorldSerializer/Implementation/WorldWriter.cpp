@@ -72,7 +72,7 @@ void ezWorldWriter::WriteToStream()
 {
   auto& stream = *m_pStream;
 
-  const ezUInt8 uiVersion = 6;
+  const ezUInt8 uiVersion = 7;
   stream << uiVersion;
 
   IncludeAllComponentBaseTypes();
@@ -291,6 +291,17 @@ void ezWorldWriter::WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<con
       WriteComponentHandle(pComp->GetHandle());
 
       s << pComp->IsActive();
+
+      // version 7
+      {
+        ezUInt8 userFlags = 0;
+        for (ezUInt32 i = 0; i < 8; ++i)
+        {
+          userFlags |= pComp->GetUserFlag(i) ? EZ_BIT(i) : 0;
+        }
+
+        s << userFlags;
+      }
 
       pComp->SerializeComponent(*this);
     }

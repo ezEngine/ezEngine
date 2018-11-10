@@ -19,7 +19,7 @@ void ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
   m_uiVersion = 0;
   stream >> m_uiVersion;
 
-  EZ_ASSERT_DEV(m_uiVersion <= 6, "Invalid version {0}", m_uiVersion);
+  EZ_ASSERT_DEV(m_uiVersion <= 7, "Invalid version {0}", m_uiVersion);
 
   if (m_uiVersion >= 3)
   {
@@ -325,6 +325,12 @@ void ezWorldReader::ReadComponentsOfType(ezUInt32 uiComponentTypeIdx)
         *m_pStream >> bDynamic;
       }
 
+      ezUInt8 userFlags = 0;
+      if (m_uiVersion >= 7)
+      {
+        *m_pStream >> userFlags;
+      }
+
       ezGameObject* pParentObject = nullptr;
       m_pWorld->TryGetObject(hOwner, pParentObject);
 
@@ -333,6 +339,11 @@ void ezWorldReader::ReadComponentsOfType(ezUInt32 uiComponentTypeIdx)
       m_IndexToComponentHandle[uiComponentIdx] = hComponent;
 
       pComponent->SetActive(bActive);
+
+      for (ezUInt32 i = 0; i < 8; ++i)
+      {
+        pComponent->SetUserFlag(i, (userFlags & EZ_BIT(i)) != 0);
+      }
 
       pComponent->DeserializeComponent(*this);
     }
