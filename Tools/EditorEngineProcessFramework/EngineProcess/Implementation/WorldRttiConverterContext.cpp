@@ -197,7 +197,11 @@ ezRttiConverterObject ezWorldRttiConverterContext::GetObjectByGUID(const ezUuid&
     ezGameObject* pGameObject = nullptr;
     if (!m_pWorld->TryGetObject(hObject, pGameObject))
     {
-      EZ_REPORT_FAILURE("Can't resolve game object GUID!");
+      object.m_pObject = nullptr;
+      object.m_pType = nullptr;
+      // this can happen when one manipulates a running scene, and an object just deleted itself
+      //EZ_REPORT_FAILURE("Can't resolve game object GUID!");
+      return object;
     }
 
     // Update new ptr of game object
@@ -214,6 +218,8 @@ ezRttiConverterObject ezWorldRttiConverterContext::GetObjectByGUID(const ezUuid&
     ezComponent* pComponent = nullptr;
     if (!m_pWorld->TryGetComponent(hComponent, pComponent))
     {
+      object.m_pObject = nullptr;
+      object.m_pType = nullptr;
       // this can happen when one manipulates a running scene, and an object just deleted itself
       // EZ_REPORT_FAILURE("Can't resolve component GUID!");
       return object;

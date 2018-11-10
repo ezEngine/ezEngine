@@ -167,6 +167,10 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
     m_Mirror.ApplyOp(const_cast<ezObjectChange&>(pMsg2->m_change));
 
     ezRttiConverterObject target = m_Context.GetObjectByGUID(pMsg2->m_change.m_Root);
+
+    if (target.m_pType == nullptr || target.m_pObject == nullptr)
+      return;
+
     if (target.m_pType == ezGetStaticRTTI<ezGameObject>())
     {
       ezGameObject* pObject = static_cast<ezGameObject*>(target.m_pObject);

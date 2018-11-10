@@ -13,6 +13,7 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
+#include <GameEngine/Components/PrefabReferenceComponent.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <InputXBox360/InputDeviceXBox.h>
@@ -27,6 +28,8 @@ ezEngineProcessGameApplication::ezEngineProcessGameApplication()
     : ezGameApplication("ezEditorEngineProcess", ezGameApplicationType::EmbeddedInTool, nullptr)
 #endif
 {
+  // in the editor setting, do not delete prefab components after instantiation, otherwise runtime picking would break
+  ezPrefabReferenceComponent::s_bDeleteComponentsAfterInstantiation = false;
 }
 
 void ezEngineProcessGameApplication::BeforeCoreStartup()

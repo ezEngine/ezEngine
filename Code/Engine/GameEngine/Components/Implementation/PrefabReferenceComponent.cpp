@@ -20,7 +20,7 @@ namespace
       SetUniqueIDRecursive(itChild, uiUniqueID, tag);
     }
   }
-}
+} // namespace
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 3, ezComponentMode::Static)
@@ -40,12 +40,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 3, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezPrefabReferenceComponent::ezPrefabReferenceComponent()
-  : m_bInUpdateList(false)
-{
-}
+bool ezPrefabReferenceComponent::s_bDeleteComponentsAfterInstantiation = true;
 
-ezPrefabReferenceComponent::~ezPrefabReferenceComponent() {}
+ezPrefabReferenceComponent::ezPrefabReferenceComponent() = default;
+ezPrefabReferenceComponent::~ezPrefabReferenceComponent() = default;
 
 void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -208,9 +206,12 @@ void ezPrefabReferenceComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  // remove the prefab reference component, to prevent issues after another serialization/deserialization
-  // and also to save some memory
-  DeleteComponent();
+  if (s_bDeleteComponentsAfterInstantiation)
+  {
+    // remove the prefab reference component, to prevent issues after another serialization/deserialization
+    // and also to save some memory
+    DeleteComponent();
+  }
 }
 
 const ezRangeView<const char*, ezUInt32> ezPrefabReferenceComponent::GetParameters() const

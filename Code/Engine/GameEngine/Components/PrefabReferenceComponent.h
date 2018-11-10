@@ -35,6 +35,8 @@ public:
   ezPrefabReferenceComponent();
   ~ezPrefabReferenceComponent();
 
+  static bool s_bDeleteComponentsAfterInstantiation /*= true*/;
+
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
@@ -70,6 +72,6 @@ private:
 
   ezPrefabResourceHandle m_hPrefab;
   ezArrayMap<ezHashedString, ezVariant> m_Parameters;
-  bool m_bInUpdateList;
+  bool m_bInUpdateList = false;
 };
 
