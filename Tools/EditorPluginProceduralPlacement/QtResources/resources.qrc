@@ -6,8 +6,6 @@
     <file>ezProceduralPlacementComponent.png</file>
   </qresource>
   <qresource prefix="Icons">
-    <!--<file>SoundOn16.png</file>
-    <file>SoundOff16.png</file>-->
   </qresource>
 </RCC>
 

@@ -452,6 +452,31 @@ ezConeAngleManipulatorAttribute::ezConeAngleManipulatorAttribute(const char* szA
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezTransformManipulatorAttribute>)
+{
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*),
+  }
+  EZ_END_FUNCTIONS;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezTransformManipulatorAttribute::ezTransformManipulatorAttribute()
+    : ezManipulatorAttribute(nullptr)
+{
+}
+
+ezTransformManipulatorAttribute::ezTransformManipulatorAttribute(const char* szTranslateProperty, const char* szRotateProperty,
+                                                                 const char* szScaleProperty)
+    : ezManipulatorAttribute(szTranslateProperty, szRotateProperty, szScaleProperty)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualizerAttribute, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES

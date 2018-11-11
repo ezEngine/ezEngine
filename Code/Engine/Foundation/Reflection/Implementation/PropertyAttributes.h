@@ -461,6 +461,21 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
+class EZ_FOUNDATION_DLL ezTransformManipulatorAttribute : public ezManipulatorAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezTransformManipulatorAttribute, ezManipulatorAttribute);
+
+public:
+  ezTransformManipulatorAttribute();
+  ezTransformManipulatorAttribute(const char* szTranslateProperty, const char* szRotateProperty, const char* szScaleProperty);
+
+  const ezUntrackedString& GetTranslateProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetRotateProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetScaleProperty() const { return m_sProperty3; }
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 class EZ_FOUNDATION_DLL ezVisualizerAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualizerAttribute, ezPropertyAttribute);

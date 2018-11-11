@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ToolsFoundation/Basics.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
@@ -24,18 +24,33 @@ protected:
   virtual void OnVisibleChanged(bool bVisible) override;
   virtual void OnTransformationChanged(const ezTransform& transform) override;
 
-private:
-  ezVec3 m_vScalingResult;
-  ezVec3 m_vScaleMouseMove;
-
+protected:
   ezEngineGizmoHandle m_AxisX;
   ezEngineGizmoHandle m_AxisY;
   ezEngineGizmoHandle m_AxisZ;
   ezEngineGizmoHandle m_AxisXYZ;
+
+private:
+  ezVec3 m_vScalingResult;
+  ezVec3 m_vScaleMouseMove;
 
   ezVec2I32 m_LastMousePos;
 
   ezTime m_LastInteraction;
   ezVec3 m_vMoveAxis;
   ezMat4 m_InvViewProj;
+};
+
+/// \brief Scale gizmo version that only uses boxes that can be composited with
+/// rotate and translate gizmos without major overlap.
+/// Used by the ezTransformManipulatorAdapter.
+class EZ_EDITORFRAMEWORK_DLL ezManipulatorScaleGizmo : public ezScaleGizmo
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezManipulatorScaleGizmo, ezScaleGizmo);
+
+public:
+  ezManipulatorScaleGizmo();
+
+protected:
+  virtual void OnTransformationChanged(const ezTransform& transform) override;
 };

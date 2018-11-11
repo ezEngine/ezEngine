@@ -200,3 +200,39 @@ ezEditorInput ezScaleGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   return ezEditorInput::WasExclusivelyHandled;
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezManipulatorScaleGizmo, 1, ezRTTINoAllocator);
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+ezManipulatorScaleGizmo::ezManipulatorScaleGizmo()
+{
+  // Overwrite axis to be boxes.
+  m_AxisX.Configure(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(128, 0, 0));
+  m_AxisY.Configure(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(0, 128, 0));
+  m_AxisZ.Configure(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(0, 0, 128));
+}
+
+void ezManipulatorScaleGizmo::OnTransformationChanged(const ezTransform& transform)
+{
+  const float fOffset = 0.8f;
+  ezTransform t;
+  t.SetIdentity();
+  t.m_vPosition = ezVec3(fOffset, 0, 0);
+  t.m_vScale = ezVec3(0.2f);
+
+  m_AxisX.SetTransformation(transform * t);
+
+  t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+  t.m_vPosition = ezVec3(0, fOffset, 0);
+  m_AxisY.SetTransformation(transform * t);
+
+  t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+  t.m_vPosition = ezVec3(0, 0, fOffset);
+  m_AxisZ.SetTransformation(transform * t);
+
+  t.SetIdentity();
+  t.m_vScale = ezVec3(0.3f);
+  m_AxisXYZ.SetTransformation(transform * t);
+}
