@@ -27,6 +27,8 @@ public:
 
     const char* szString = m_szString;
 
+    int iLastParam = -1;
+
     SBClear(sb);
     while (*szString != '\0')
     {
@@ -46,10 +48,22 @@ public:
       }
       else if (*szString == '{' && *(szString + 1) >= '0' && *(szString + 1) <= '9' && *(szString + 2) == '}')
       {
-        const int iParam = *(szString + 1) - '0';
-        SBAppendView(sb, param[iParam]);
+        iLastParam = *(szString + 1) - '0';
+        SBAppendView(sb, param[iLastParam]);
 
         szString += 3;
+      }
+      else if (*szString == '{' && *(szString + 1) == '}')
+      {
+        ++iLastParam;
+        EZ_ASSERT_DEV(iLastParam < 10, "Too many placeholders in format string");
+
+        if (iLastParam < 10)
+        {
+          SBAppendView(sb, param[iLastParam]);
+        }
+
+        szString += 2;
       }
       else
       {

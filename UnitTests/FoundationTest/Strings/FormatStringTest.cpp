@@ -91,7 +91,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
     TestFormat(ezFmt("{3}, {1}, {0}, {2}", ezArgF(23.12345f, 1), ezArgI(42), 17, 12.34f), "12.34, 42, 23.1, 17");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Disabled, "Compare")
+  EZ_TEST_BLOCK(ezTestBlock::Disabled, "Compare Performance")
   {
     CompareSnprintf(perfLog, ezFmt("Hello {0}, i = {1}, f = {2}", "World", 42, ezArgF(3.141f, 2)), "Hello %s, i = %i, f = %.2f", "World",
                     42, 3.141f);
@@ -114,11 +114,26 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
                     "%.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f", 0.1, 1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1);
     CompareSnprintf(perfLog, ezFmt("{0}", ezArgC('z')), "%c", 'z');
 
+    CompareSnprintf(perfLog, ezFmt("{}, {}, {}, {}, {}, {}, {}, {}, {}, {}", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+                    "%i, %i, %i, %i, %i, %i, %i, %i, %i, %i", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+
     // FILE* file = fopen("D:\\snprintf_perf.txt", "wb");
     // if (file)
     //{
     //  fwrite(perfLog.GetData(), 1, perfLog.GetElementCount(), file);
     //  fclose(file);
     //}
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Auto Increment")
+  {
+    TestFormat(ezFmt("{}, {}, {}, {}", ezInt8(-1), ezInt16(-2), ezInt32(-3), ezInt64(-4)), "-1, -2, -3, -4");
+    TestFormat(ezFmt("{}, {}, {}, {}", ezUInt8(1), ezUInt16(2), ezUInt32(3), ezUInt64(4)), "1, 2, 3, 4");
+
+    TestFormat(ezFmt("{0}, {}, {}, {}", ezUInt8(1), ezUInt16(2), ezUInt32(3), ezUInt64(4)), "1, 2, 3, 4");
+
+    TestFormat(ezFmt("{1}, {}, {}, {}", ezUInt8(1), ezUInt16(2), ezUInt32(3), ezUInt64(4), ezUInt64(5)), "2, 3, 4, 5");
+
+    TestFormat(ezFmt("{2}, {}, {1}, {}", ezUInt8(1), ezUInt16(2), ezUInt32(3), ezUInt64(4), ezUInt64(5)), "3, 4, 2, 3");
   }
 }
