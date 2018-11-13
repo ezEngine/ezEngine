@@ -69,7 +69,7 @@ ezQtCollisionMeshAssetDocumentWindow::ezQtCollisionMeshAssetDocumentWindow(ezAss
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
 
-  m_pAssetDoc = static_cast<ezCollisionMeshAssetDocument*>(pDocument);
+  m_pAssetDoc = pDocument;
 
   FinishWindowCreation();
 

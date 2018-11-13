@@ -34,4 +34,5 @@ private:
 
 private:
   ezDocumentTypeDescriptor m_AssetDesc;
+  ezDocumentTypeDescriptor m_ConvexAssetDesc;
 };

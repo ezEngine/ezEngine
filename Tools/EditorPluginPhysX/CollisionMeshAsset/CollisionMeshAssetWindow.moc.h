@@ -26,5 +26,5 @@ private:
 
   ezEngineViewConfig m_ViewConfig;
   ezQtOrbitCamViewWidget* m_pViewWidget;
-  ezCollisionMeshAssetDocument* m_pAssetDoc;
+  ezAssetDocument* m_pAssetDoc;
 };

@@ -20,12 +20,14 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCollisionMeshType, 2)
   EZ_ENUM_CONSTANT(ezCollisionMeshType::ConvexHull),
   EZ_ENUM_CONSTANT(ezCollisionMeshType::TriangleMesh),
   EZ_ENUM_CONSTANT(ezCollisionMeshType::Cylinder),
-  //EZ_ENUM_CONSTANT(ezCollisionMeshType::Tetraeder),
-  //EZ_ENUM_CONSTANT(ezCollisionMeshType::Oktaeder),
-  //EZ_ENUM_CONSTANT(ezCollisionMeshType::Pyramid),
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetProperties, 1, ezRTTIDefaultAllocator<ezCollisionMeshAssetProperties>)
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezConvexCollisionMeshType, 1)
+  EZ_ENUM_CONSTANT(ezConvexCollisionMeshType::ConvexHull),
+  EZ_ENUM_CONSTANT(ezConvexCollisionMeshType::Cylinder),
+EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetProperties, 2, ezRTTIDefaultAllocator<ezCollisionMeshAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -34,7 +36,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetProperties, 1, ezRTTIDefault
     EZ_ENUM_MEMBER_PROPERTY("UpDir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
     EZ_MEMBER_PROPERTY("UniformScaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("NonUniformScaling", m_vNonUniformScaling)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f))),
-    EZ_ENUM_MEMBER_PROPERTY("MeshType", ezCollisionMeshType, m_MeshType),
+    EZ_MEMBER_PROPERTY("IsConvexMesh", m_bIsConvexMesh)->AddAttributes(new ezHiddenAttribute()),
+    EZ_ENUM_MEMBER_PROPERTY("ConvexMeshType", ezConvexCollisionMeshType, m_ConvexMeshType),
     EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("Radius2", m_fRadius2)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
@@ -68,7 +71,8 @@ void ezCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMet
   if (e.m_pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezCollisionMeshAssetProperties>())
     return;
 
-  ezInt64 meshType = e.m_pObject->GetTypeAccessor().GetValue("MeshType").ConvertTo<ezInt64>();
+  const bool isConvex = e.m_pObject->GetTypeAccessor().GetValue("IsConvexMesh").ConvertTo<bool>();
+  const ezInt64 meshType = e.m_pObject->GetTypeAccessor().GetValue("ConvexMeshType").ConvertTo<ezInt64>();
 
   auto& props = *e.m_pPropertyStates;
 
@@ -78,25 +82,77 @@ void ezCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMet
   props["Detail"].m_Visibility = ezPropertyUiState::Invisible;
   props["MeshFile"].m_Visibility = ezPropertyUiState::Invisible;
   props["SubmeshName"].m_Visibility = ezPropertyUiState::Invisible;
+  props["ConvexMeshType"].m_Visibility = ezPropertyUiState::Invisible;
 
-  switch (meshType)
+  if (!isConvex)
   {
-    case ezCollisionMeshType::ConvexHull:
-    case ezCollisionMeshType::TriangleMesh:
-      props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
-      props["SubmeshName"].m_Visibility = ezPropertyUiState::Default;
-      break;
+    props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
+    props["SubmeshName"].m_Visibility = ezPropertyUiState::Default;
+  }
+  else
+  {
+    props["ConvexMeshType"].m_Visibility = ezPropertyUiState::Default;
 
-    case ezCollisionMeshType::Cylinder:
-      props["Radius"].m_Visibility = ezPropertyUiState::Default;
-      props["Radius2"].m_Visibility = ezPropertyUiState::Default;
-      props["Height"].m_Visibility = ezPropertyUiState::Default;
-      props["Detail"].m_Visibility = ezPropertyUiState::Default;
-      break;
+    switch (meshType)
+    {
+      case ezConvexCollisionMeshType::ConvexHull:
+        props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
+        props["SubmeshName"].m_Visibility = ezPropertyUiState::Default;
+        break;
 
-      // case ezCollisionMeshType::Oktaeder:
-      // case ezCollisionMeshType::Pyramid:
-      // case ezCollisionMeshType::Tetraeder:
-      //  break;
+      case ezConvexCollisionMeshType::Cylinder:
+        props["Radius"].m_Visibility = ezPropertyUiState::Default;
+        props["Radius2"].m_Visibility = ezPropertyUiState::Default;
+        props["Height"].m_Visibility = ezPropertyUiState::Default;
+        props["Detail"].m_Visibility = ezPropertyUiState::Default;
+        break;
+    }
   }
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezCollisionMeshAssetPropertiesPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezCollisionMeshAssetPropertiesPatch_1_2()
+      : ezGraphPatch("ezCollisionMeshAssetProperties", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    auto* pMeshType = pNode->FindProperty("MeshType");
+
+    if (pMeshType && pMeshType->m_Value.IsA<ezString>())
+    {
+      if (pMeshType->m_Value.Get<ezString>() == "ezCollisionMeshType::TriangleMesh")
+      {
+          pNode->AddProperty("IsConvexMesh", false);
+          pNode->AddProperty("ConvexMeshType", (ezInt32)ezConvexCollisionMeshType::ConvexHull);
+      }
+      else if (pMeshType->m_Value.Get<ezString>() == "ezCollisionMeshType::ConvexHull")
+      {
+          pNode->AddProperty("IsConvexMesh", true);
+          pNode->AddProperty("ConvexMeshType", (ezInt32)ezConvexCollisionMeshType::ConvexHull);
+      }
+      else if (pMeshType->m_Value.Get<ezString>() == "ezCollisionMeshType::Cylinder")
+      {
+          pNode->AddProperty("IsConvexMesh", true);
+          pNode->AddProperty("ConvexMeshType", (ezInt32)ezConvexCollisionMeshType::Cylinder);
+      }
+      else
+      {
+        EZ_REPORT_FAILURE("Unknown collision mesh type '{0}'", pMeshType->m_Value.Get<ezString>());
+      }
+    }
+  }
+};
+
+ezCollisionMeshAssetPropertiesPatch_1_2 g_ezCollisionMeshAssetPropertiesPatch_1_2;

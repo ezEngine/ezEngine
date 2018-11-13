@@ -17,9 +17,6 @@ ezPxShapeConvexComponent;Convex Mesh Shape
 ezPxSettingsComponent;PhysX Settings
 ezPhysXComponent;PhysX Component
 ezPxActorComponent;PhysX Actor
-ezCollisionMeshType::ConvexHull;Convex Hull
-ezCollisionMeshType::TriangleMesh;Triangle Mesh
-ezCollisionMeshType::Cylinder;Cylinder
 ezPxSteppingMode::Variable;Variable
 ezPxSteppingMode::Fixed;Fixed
 ezPxSteppingMode::SemiFixed;SemiFixed
@@ -32,3 +29,5 @@ ezBreakableSheetComponent;Breakable Sheet
 ezPxAxis::X;X
 ezPxAxis::Y;Y
 ezPxAxis::Z;Z
+ezConvexCollisionMeshType::ConvexHull;Convex Hull
+ezConvexCollisionMeshType::Cylinder;Cylinder

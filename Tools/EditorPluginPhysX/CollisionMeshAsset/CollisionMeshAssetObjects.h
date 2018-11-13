@@ -20,15 +20,27 @@ struct ezCollisionMeshType
     ConvexHull,
     TriangleMesh,
     Cylinder,
-    //Pyramid,
-    //Tetraeder, // 3 sided pyramid
-    //Oktaeder, // Double 4 sided pyramid
 
     Default = TriangleMesh
   };
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezCollisionMeshType);
+
+struct ezConvexCollisionMeshType
+{
+  typedef ezInt8 StorageType;
+
+  enum Enum
+  {
+    ConvexHull,
+    Cylinder,
+
+    Default = ConvexHull
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezConvexCollisionMeshType);
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezSurfaceResourceSlot);
 
@@ -49,7 +61,8 @@ public:
   ezEnum<ezBasisAxis> m_ForwardDir;
   ezEnum<ezBasisAxis> m_RightDir;
   ezEnum<ezBasisAxis> m_UpDir;
-  ezEnum<ezCollisionMeshType> m_MeshType;
+  bool m_bIsConvexMesh = false;
+  ezEnum<ezConvexCollisionMeshType> m_ConvexMeshType;
 
   // Cylinder
   float m_fRadius;
