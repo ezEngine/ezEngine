@@ -100,7 +100,7 @@ public:
   GameMode::Enum GetGameMode() const { return m_GameMode; }
 
   void StartSimulateWorld();
-  void TriggerGameModePlay();
+  void TriggerGameModePlay(bool bUsePickedPositionAsStart);
 
   /// Stops the world simulation, if it is running. Returns true, when the simulation needed to be stopped.
   bool StopGameMode();

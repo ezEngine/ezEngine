@@ -455,7 +455,7 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
   }
 }
 
-void ezSceneContext::OnPlayTheGameModeStarted()
+void ezSceneContext::OnPlayTheGameModeStarted(const ezTransform* pStartPosition)
 {
   if (s_iNumRunningPlayTheGames > 0)
   {
@@ -477,7 +477,7 @@ void ezSceneContext::OnPlayTheGameModeStarted()
   ezGameApplication::GetGameApplicationInstance()->ReinitializeInputConfig();
 
   ezGameApplication::GetGameApplicationInstance()->CreateGameStateForWorld(m_pWorld);
-  ezGameApplication::GetGameApplicationInstance()->ActivateGameStateForWorld(m_pWorld);
+  ezGameApplication::GetGameApplicationInstance()->ActivateGameStateForWorld(m_pWorld, pStartPosition);
 
   ezGameModeMsgToEditor msgRet;
   msgRet.m_DocumentGuid = GetDocumentGuid();
@@ -574,7 +574,19 @@ void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
       return;
     }
 
-    OnPlayTheGameModeStarted();
+    if (pMsg->m_bUseStartPosition)
+    {
+      ezQuat qRot;
+      qRot.SetShortestRotation(ezVec3(1, 0, 0), pMsg->m_vStartDirection);
+
+      ezTransform tStart(pMsg->m_vStartPosition, qRot);
+
+      OnPlayTheGameModeStarted(&tStart);
+    }
+    else
+    {
+      OnPlayTheGameModeStarted(nullptr);
+    }
   }
   else
   {

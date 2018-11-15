@@ -81,7 +81,7 @@ private:
   void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
   void OnSimulationEnabled();
   void OnSimulationDisabled();
-  void OnPlayTheGameModeStarted();
+  void OnPlayTheGameModeStarted(const ezTransform* pStartPosition);
 
   void OnVisualScriptActivity(const ezVisualScriptComponentActivityEvent& e);
   void OnResourceManagerEvent(const ezResourceManagerEvent& e);

@@ -1,3 +1,23 @@
+<H2>November 2018</H2>
+
+<ul>
+<li>You can now point at a position and execute 'Play From Here' to launch Play-the-Game mode and move the player object to the picked position. Has to be supported by the active game state.</li>
+<li>It is now possible to expose array properties, e.g. from prefabs.</li>
+<li>Exposing properties from nested prefabs works as well now.</li>
+<li>It is now allowed to attach nodes to objects that already have a prefab component attached.</li>
+</ul>
+
+<H2>October 2018</H2>
+
+<ul>
+
+<li>Under <i>Editor > Project Settings > Asset Profiles</i> one can now add and configure different profiles for how assets are processed. The active profile can be changed dynamically and all assets will be reloaded. When running the ezPlayer, it will use the currently active asset profile from the editor.</li>
+<li>The asset profile can also specify which render pipeline to use at runtime.</li>
+<li>Camera components do not specify the render pipeline directly anymore, but instead use a 'Camera Config' which is specified through the asset profile.</li>
+<li>New context menu action to create an empty node at the picked position.</li>
+<li>Added support for trees created with <A HREF="http://www.artifactgames.de/Kraut/index.htm">Kraut</A></li>
+</ul>
+
 <H2>September 2018</H2>
 
 <H4>Smaller Changes</H4>

@@ -113,7 +113,7 @@ public:
 
   /// \brief Activates only the game state that is linked to the given ezWorld.
   /// Not needed in a typical application. Used by the editor for selective game state handling in play-the-game mode.
-  void ActivateGameStateForWorld(ezWorld* pWorld);
+  void ActivateGameStateForWorld(ezWorld* pWorld, const ezTransform* pStartPosition);
 
   /// \brief Deactivates only the game state that is linked to the given ezWorld.
   /// Not needed in a typical application. Used by the editor for selective game state handling in play-the-game mode.
@@ -123,7 +123,7 @@ public:
   void DestroyAllGameStates();
 
   /// \brief Activates all known game states. Automatically called by ezGameApplication::AfterCoreStartup()
-  void ActivateAllGameStates();
+  void ActivateAllGameStates(const ezTransform* pStartPosition);
 
   /// \brief Deactivates all known game states. Automatically called by ezGameApplication::BeforeCoreShutdown()
   void DeactivateAllGameStates();

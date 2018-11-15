@@ -512,7 +512,7 @@ void ezSceneDocument::StartSimulateWorld()
 }
 
 
-void ezSceneDocument::TriggerGameModePlay()
+void ezSceneDocument::TriggerGameModePlay(bool bUsePickedPositionAsStart)
 {
   if (m_GameMode != GameMode::Off)
   {
@@ -533,6 +533,25 @@ void ezSceneDocument::TriggerGameModePlay()
   {
     ezGameModeMsgToEngine msg;
     msg.m_bEnablePTG = true;
+    msg.m_bUseStartPosition = false;
+
+    if (bUsePickedPositionAsStart)
+    {
+      const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
+
+      if (ctxt.m_pLastHoveredViewWidget != nullptr && ctxt.m_pLastHoveredViewWidget->GetDocumentWindow()->GetDocument() == this)
+      {
+        msg.m_bUseStartPosition = true;
+        msg.m_vStartPosition = ctxt.m_pLastPickingResult->m_vPickedPosition;
+
+        ezVec3 vPickDir = ctxt.m_pLastPickingResult->m_vPickedPosition - ctxt.m_pLastPickingResult->m_vPickingRayStart;
+        vPickDir.z = 0;
+        vPickDir.NormalizeIfNotZero(ezVec3(1, 0, 0));
+
+        msg.m_vStartDirection = vPickDir;
+      }
+    }
+
     GetEditorEngineConnection()->SendMessage(&msg);
   }
 
@@ -1191,7 +1210,7 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
       {
         const ezAbstractProperty* pParameterSourceProp = pLeafObject->GetType()->FindPropertyByName(pAttrib->GetParametersSource());
         EZ_ASSERT_DEBUG(pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'",
-                      pAttrib->GetParametersSource(), pLeafObject->GetType()->GetTypeName());
+                        pAttrib->GetParametersSource(), pLeafObject->GetType()->GetTypeName());
 
         ezExposedParameterCommandAccessor proxy(context.m_pAccessor, key.m_pProperty, pParameterSourceProp);
         res = proxy.GetValue(pLeafObject, key.m_pProperty, value, key.m_Index);

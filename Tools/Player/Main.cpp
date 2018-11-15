@@ -50,7 +50,7 @@ void ezPlayerApplication::AfterCoreStartup()
 
   CreateGameStateForWorld(m_pWorld);
 
-  ActivateAllGameStates();
+  ActivateAllGameStates(nullptr);
 }
 
 void ezPlayerApplication::BeforeCoreShutdown()

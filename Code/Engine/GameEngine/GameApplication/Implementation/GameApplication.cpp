@@ -244,7 +244,7 @@ void ezGameApplication::DestroyAllGameStates()
 }
 
 
-void ezGameApplication::ActivateGameStateForWorld(ezWorld* pWorld)
+void ezGameApplication::ActivateGameStateForWorld(ezWorld* pWorld, const ezTransform* pStartPosition)
 {
   for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
   {
@@ -253,7 +253,7 @@ void ezGameApplication::ActivateGameStateForWorld(ezWorld* pWorld)
       if (!m_GameStates[i].m_bStateActive)
       {
         m_GameStates[i].m_bStateActive = true;
-        m_GameStates[i].m_pState->OnActivation(pWorld);
+        m_GameStates[i].m_pState->OnActivation(pWorld, pStartPosition);
       }
     }
   }
@@ -275,7 +275,7 @@ void ezGameApplication::DeactivateGameStateForWorld(ezWorld* pWorld)
   }
 }
 
-void ezGameApplication::ActivateAllGameStates()
+void ezGameApplication::ActivateAllGameStates(const ezTransform* pStartPosition)
 {
   // There is always at least one gamestate, but if it is null, then our application might not use them at all.
   if (m_GameStates.IsEmpty() || m_GameStates[0].m_pState == nullptr)
@@ -286,7 +286,7 @@ void ezGameApplication::ActivateAllGameStates()
     if (!m_GameStates[i].m_bStateActive)
     {
       m_GameStates[i].m_bStateActive = true;
-      m_GameStates[i].m_pState->OnActivation(m_GameStates[i].m_pLinkedToWorld);
+      m_GameStates[i].m_pState->OnActivation(m_GameStates[i].m_pLinkedToWorld, pStartPosition);
     }
   }
 }
@@ -415,7 +415,7 @@ void ezGameApplication::AfterCoreStartup()
 #endif
   )
   {
-    ActivateAllGameStates();
+    ActivateAllGameStates(nullptr);
   }
   else
   {

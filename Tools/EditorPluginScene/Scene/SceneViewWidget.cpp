@@ -20,6 +20,7 @@
 #include <QVBoxLayout>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <EditorPluginScene/Actions/SceneActions.h>
 
 
 
@@ -56,6 +57,7 @@ void ezQtSceneViewWidget::OnOpenContextMenu(QPoint globalPos)
     ezGameObjectSelectionActions::MapViewContextMenuActions("SceneViewContextMenu", "");
     ezSelectionActions::MapViewContextMenuActions("SceneViewContextMenu", "");
     ezEditActions::MapViewContextMenuActions("SceneViewContextMenu", "");
+    ezSceneActions::MapViewContextMenuActions("SceneViewContextMenu", "");
   }
 
   {

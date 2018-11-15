@@ -21,6 +21,41 @@ ezGameState::Priority ezFallbackGameState::DeterminePriority(ezGameApplicationTy
   return ezGameState::Priority::Fallback;
 }
 
+
+void ezFallbackGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
+{
+  SUPER::OnActivation(pWorld, pStartPosition);
+
+  if (pWorld && pStartPosition)
+  {
+
+    EZ_LOCK(pWorld->GetWriteMarker());
+
+    ezTransform tPos = *pStartPosition;
+    tPos.m_vScale.Set(1.0f);
+    tPos.m_vPosition.z += 1.0f; // position usually is on the floor, make sure player is not stuck in it
+
+    auto* pMan = pWorld->GetComponentManager<ezCameraComponentManager>();
+
+    if (ezCameraComponent* pCam = pMan->GetCameraByUsageHint(ezCameraUsageHint::MainView))
+    {
+      ezGameObject* pObj = pCam->GetOwner();
+      while (pObj->GetParent())
+      {
+        pObj = pObj->GetParent();
+      }
+
+      pObj->SetGlobalTransform(tPos);
+    }
+    else
+    {
+      m_iActiveCameraComponentIndex = -1; // set free camera
+      m_MainCamera.LookAt(pStartPosition->m_vPosition, pStartPosition->m_vPosition + pStartPosition->m_qRotation * ezVec3(1, 0, 0),
+                          pStartPosition->m_qRotation * ezVec3(0, 0, 1));
+    }
+  }
+}
+
 static ezHybridArray<ezGameAppInputConfig, 16> g_AllInput;
 
 static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr,
@@ -111,11 +146,15 @@ const ezCameraComponent* ezFallbackGameState::FindActiveCameraComponent()
     itComp.Next();
   }
 
-  // take first camera that is not of usage type 'None'
+  Cameras[ezCameraUsageHint::None].Clear();
+  Cameras[ezCameraUsageHint::RenderTarget].Clear();
+  Cameras[ezCameraUsageHint::Culling].Clear();
+  Cameras[ezCameraUsageHint::Shadow].Clear();
+
   if (m_iActiveCameraComponentIndex == -3)
   {
-    // skip cameras of usage 'None' for now
-    m_iActiveCameraComponentIndex = Cameras[0].GetCount(); // this skips all cameras of type 'None'
+    // take first camera of a good usage type
+    m_iActiveCameraComponentIndex = 0;
   }
 
   // take last camera (wrap around)

@@ -32,11 +32,11 @@ ezGameState::Priority RtsGameState::DeterminePriority(ezGameApplicationType AppT
   return RtsGameState::Priority::Default;
 }
 
-void RtsGameState::OnActivation(ezWorld* pWorld)
+void RtsGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
 {
   EZ_LOG_BLOCK("GameState::Activate");
 
-  SUPER::OnActivation(pWorld);
+  SUPER::OnActivation(pWorld, pStartPosition);
 
   m_SelectedUnits.SetWorld(m_pMainWorld);
 

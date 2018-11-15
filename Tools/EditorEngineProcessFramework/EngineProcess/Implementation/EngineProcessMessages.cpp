@@ -419,6 +419,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameModeMsgToEngine, 1, ezRTTIDefaultAllocator
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Run", m_bEnablePTG),
+    EZ_MEMBER_PROPERTY("UsePos", m_bUseStartPosition),
+    EZ_MEMBER_PROPERTY("Pos", m_vStartPosition),
+    EZ_MEMBER_PROPERTY("Dir", m_vStartDirection),
   }
   EZ_END_PROPERTIES;
 }

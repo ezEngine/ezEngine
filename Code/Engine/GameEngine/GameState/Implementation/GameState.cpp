@@ -25,7 +25,7 @@ ezGameState::ezGameState() {}
 
 ezGameState::~ezGameState() {}
 
-void ezGameState::OnActivation(ezWorld* pWorld)
+void ezGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
 {
   m_pMainWorld = pWorld;
   bool bCreateNewWindow = true;

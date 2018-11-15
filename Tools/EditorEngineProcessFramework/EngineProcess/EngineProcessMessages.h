@@ -437,7 +437,10 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGameModeMsgToEngine : public ezEdito
   EZ_ADD_DYNAMIC_REFLECTION( ezGameModeMsgToEngine, ezEditorEngineDocumentMsg);
 
 public:
-  bool m_bEnablePTG;
+  bool m_bEnablePTG = false;
+  bool m_bUseStartPosition = false;
+  ezVec3 m_vStartPosition;
+  ezVec3 m_vStartDirection;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGameModeMsgToEditor : public ezEditorEngineDocumentMsg

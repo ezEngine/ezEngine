@@ -16,6 +16,7 @@ public:
 
   static void MapMenuActions();
   static void MapToolbarActions();
+  static void MapViewContextMenuActions(const char* szMapping, const char* szPath);
 
   static ezActionDescriptorHandle s_hSceneCategory;
   static ezActionDescriptorHandle s_hSceneUtilsMenu;
@@ -23,6 +24,7 @@ public:
   static ezActionDescriptorHandle s_hRunScene;
   static ezActionDescriptorHandle s_hGameModeSimulate;
   static ezActionDescriptorHandle s_hGameModePlay;
+  static ezActionDescriptorHandle s_hGameModePlayFromHere;
   static ezActionDescriptorHandle s_hGameModeStop;
   static ezActionDescriptorHandle s_hUtilExportSceneToOBJ;
   static ezActionDescriptorHandle s_hKeepSimulationChanges;
@@ -46,6 +48,7 @@ public:
     RunScene,
     StartGameModeSimulate,
     StartGameModePlay,
+    StartGameModePlayFromHere,
     StopGameMode,
     ExportSceneToOBJ,
     KeepSimulationChanges,

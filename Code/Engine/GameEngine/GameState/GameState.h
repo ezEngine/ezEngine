@@ -52,7 +52,11 @@ public:
   /// In a stand-alone application pWorld will always be nullptr and the game state is expected
   /// to create worlds itself.
   /// When run inside the editor, pWorld will already exist and the game state is expected to work on it.
-  virtual void OnActivation(ezWorld* pWorld);
+  ///
+  /// \param pStartPosition
+  /// An optional transform for the 'player object' to start at.
+  /// Usually nullptr, but may be set by the editor to relocate or create the player object at the given destination.
+  virtual void OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition);
 
   /// \brief Called when the game state is being shut down.
   virtual void OnDeactivation();

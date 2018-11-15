@@ -28,6 +28,7 @@ ezActionDescriptorHandle ezSceneActions::s_hExportScene;
 ezActionDescriptorHandle ezSceneActions::s_hRunScene;
 ezActionDescriptorHandle ezSceneActions::s_hGameModeSimulate;
 ezActionDescriptorHandle ezSceneActions::s_hGameModePlay;
+ezActionDescriptorHandle ezSceneActions::s_hGameModePlayFromHere;
 ezActionDescriptorHandle ezSceneActions::s_hGameModeStop;
 ezActionDescriptorHandle ezSceneActions::s_hUtilExportSceneToOBJ;
 ezActionDescriptorHandle ezSceneActions::s_hKeepSimulationChanges;
@@ -51,6 +52,10 @@ void ezSceneActions::RegisterActions()
                                              ezSceneAction::ActionType::StartGameModeSimulate);
   s_hGameModePlay = EZ_REGISTER_ACTION_1("Scene.GameMode.Play", ezActionScope::Document, "Scene", "Ctrl+F5", ezSceneAction,
                                          ezSceneAction::ActionType::StartGameModePlay);
+
+  s_hGameModePlayFromHere = EZ_REGISTER_ACTION_1("Scene.GameMode.PlayFromHere", ezActionScope::Document, "Scene", "Ctrl+Shift+F5",
+                                                 ezSceneAction, ezSceneAction::ActionType::StartGameModePlayFromHere);
+
   s_hGameModeStop = EZ_REGISTER_ACTION_1("Scene.GameMode.Stop", ezActionScope::Document, "Scene", "Shift+F5", ezSceneAction,
                                          ezSceneAction::ActionType::StopGameMode);
 
@@ -160,6 +165,7 @@ void ezSceneActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hRunScene);
   ezActionManager::UnregisterAction(s_hGameModeSimulate);
   ezActionManager::UnregisterAction(s_hGameModePlay);
+  ezActionManager::UnregisterAction(s_hGameModePlayFromHere);
   ezActionManager::UnregisterAction(s_hGameModeStop);
   ezActionManager::UnregisterAction(s_hUtilExportSceneToOBJ);
   ezActionManager::UnregisterAction(s_hKeepSimulationChanges);
@@ -206,6 +212,7 @@ void ezSceneActions::MapMenuActions()
     pMap->MapAction(s_hGameModeStop, szSubPath, 4.0f);
     pMap->MapAction(s_hGameModeSimulate, szSubPath, 5.0f);
     pMap->MapAction(s_hGameModePlay, szSubPath, 6.0f);
+    pMap->MapAction(s_hGameModePlayFromHere, szSubPath, 7.0f);
   }
 }
 
@@ -224,6 +231,17 @@ void ezSceneActions::MapToolbarActions()
     pMap->MapAction(s_hGameModeSimulate, szSubPath, 2.0f);
     pMap->MapAction(s_hGameModePlay, szSubPath, 3.0f);
   }
+}
+
+void ezSceneActions::MapViewContextMenuActions(const char* szMapping, const char* szPath)
+{
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+
+  ezStringBuilder sSubPath(szPath, "/SceneCategory");
+
+  pMap->MapAction(s_hGameModePlayFromHere, szPath, 1.0f);
+
 }
 
 ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName, ezSceneAction::ActionType type)
@@ -253,6 +271,10 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
 
     case ActionType::StartGameModePlay:
       SetIconPath(":/EditorPluginScene/Icons/ScenePlayTheGame16.png");
+      break;
+
+    case ActionType::StartGameModePlayFromHere:
+      SetIconPath(":/EditorPluginScene/Icons/ScenePlayTheGame16.png");  // TODO: icon
       break;
 
     case ActionType::StopGameMode:
@@ -333,7 +355,11 @@ void ezSceneAction::Execute(const ezVariant& value)
       return;
 
     case ActionType::StartGameModePlay:
-      m_pSceneDocument->TriggerGameModePlay();
+      m_pSceneDocument->TriggerGameModePlay(false);
+      return;
+
+    case ActionType::StartGameModePlayFromHere:
+      m_pSceneDocument->TriggerGameModePlay(true);
       return;
 
     case ActionType::StartGameModeSimulate:
