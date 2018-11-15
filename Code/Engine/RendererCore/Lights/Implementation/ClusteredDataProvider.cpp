@@ -85,7 +85,7 @@ void ezClusteredDataGPU::BindResources(ezRenderContext* pRenderContext)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  auto hShadowDataBufferView = pDevice->GetDefaultResourceView(ezShadowPool::UpdateShadowDataBuffer(pRenderContext->GetGALContext()));
+  auto hShadowDataBufferView = pDevice->GetDefaultResourceView(ezShadowPool::GetShadowDataBuffer());
   auto hShadowAtlasTextureView = pDevice->GetDefaultResourceView(ezShadowPool::GetShadowAtlasTexture());
 
   pRenderContext->BindBuffer("perLightDataBuffer", pDevice->GetDefaultResourceView(m_hLightDataBuffer));
@@ -138,8 +138,6 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
     }
 
     pGALContext->UpdateBuffer(m_Data.m_hClusterDataBuffer, 0, pData->m_ClusterData.ToByteArray());
-
-    ezShadowPool::UpdateShadowDataBuffer(pGALContext);
 
     // Update Constants
     const ezRectFloat& viewport = renderViewContext.m_pViewData->m_ViewPortRect;

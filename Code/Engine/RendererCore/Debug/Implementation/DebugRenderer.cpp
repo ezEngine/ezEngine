@@ -89,7 +89,6 @@ namespace
   };
 
   static ezHashTable<ezDebugRendererContext, DoubleBufferedPerContextData> s_PerContextData;
-
   static ezMutex s_Mutex;
 
   PerContextData& GetDataForExtraction(const ezDebugRendererContext& context)
@@ -113,7 +112,8 @@ namespace
 
   void ClearRenderData(ezUInt64)
   {
-    // No lock needed since clear is executed during ezRenderLoop::EndFrame which is always single-threaded.
+    EZ_LOCK(s_Mutex);
+
     for (auto it = s_PerContextData.GetIterator(); it.IsValid(); ++it)
     {
       PerContextData* pData = it.Value().m_pData[ezRenderWorld::GetDataIndexForRendering()];
@@ -966,12 +966,12 @@ void ezDebugRenderer::OnEngineStartup()
   s_hDebugTexturedPrimitiveShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugTexturedPrimitive.ezShader");
   s_hDebugTextShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugText.ezShader");
 
-  ezRenderWorld::s_EndFrameEvent.AddEventHandler(&ClearRenderData);
+  ezRenderWorld::s_EndRenderEvent.AddEventHandler(&ClearRenderData);
 }
 
 void ezDebugRenderer::OnEngineShutdown()
 {
-  ezRenderWorld::s_EndFrameEvent.RemoveEventHandler(&ClearRenderData);
+  ezRenderWorld::s_EndRenderEvent.RemoveEventHandler(&ClearRenderData);
 
   for (ezUInt32 i = 0; i < BufferType::Count; ++i)
   {

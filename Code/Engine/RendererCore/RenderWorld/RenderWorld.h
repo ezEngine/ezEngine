@@ -38,8 +38,12 @@ public:
 
   static ezEvent<ezView*> s_ViewCreatedEvent;
   static ezEvent<ezView*> s_ViewDeletedEvent;
-  static ezEvent<ezUInt64> s_BeginFrameEvent; ///< Triggered at the end of BeginFrame.
-  static ezEvent<ezUInt64> s_EndFrameEvent;   ///< Triggered at the beginning of EndFrame before the frame counter is incremented.
+  
+  static ezEvent<ezUInt64> s_BeginExtractionEvent;
+  static ezEvent<ezUInt64> s_EndExtractionEvent;
+
+  static ezEvent<ezUInt64> s_BeginRenderEvent;
+  static ezEvent<ezUInt64> s_EndRenderEvent;
 
   static bool GetUseMultithreadedRendering();
 

@@ -285,7 +285,10 @@ ezRenderPipeline::PipelineState ezRenderPipeline::Rebuild(const ezView& view)
   else
   {
     // make sure the renderdata stores the updated view data
-    UpdateViewData(view);
+    auto& data = m_Data[ezRenderWorld::GetDataIndexForRendering()];
+
+    data.SetCamera(*view.GetCamera());
+    data.SetViewData(view.GetData());
   }
 
   m_PipelineState = bRes ? PipelineState::Initialized : PipelineState::RebuildError;
@@ -681,10 +684,12 @@ void ezRenderPipeline::SortExtractors()
 
 void ezRenderPipeline::UpdateViewData(const ezView& view)
 {
-  // Only update if we're not extracting or rendering
-  if (m_CurrentExtractThread == (ezThreadID)0 && m_CurrentRenderThread == (ezThreadID)0)
+  if (!view.IsValid())
+    return;
+
+  if (m_CurrentExtractThread == (ezThreadID)0)
   {
-    auto& data = m_Data[ezRenderWorld::GetDataIndexForRendering()];
+    auto& data = m_Data[ezRenderWorld::GetDataIndexForExtraction()];
 
     data.SetCamera(*view.GetCamera());
     data.SetViewData(view.GetData());

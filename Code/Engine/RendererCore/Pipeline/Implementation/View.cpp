@@ -74,8 +74,14 @@ void ezView::SetRenderPipelineResource(ezRenderPipelineResourceHandle hPipeline)
   {
     return;
   }
+
   m_uiRenderPipelineResourceDescriptionCounter = 0;
   m_hRenderPipeline = hPipeline;
+
+  if (m_pRenderPipeline == nullptr)
+  {
+    EnsureUpToDate();
+  }
 }
 
 ezRenderPipelineResourceHandle ezView::GetRenderPipelineResource() const

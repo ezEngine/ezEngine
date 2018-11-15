@@ -110,14 +110,14 @@ ezRenderContext::ezRenderContext()
 
   m_hGlobalConstantBufferStorage = CreateConstantBufferStorage<ezGlobalConstants>();
 
-  ezRenderWorld::s_EndFrameEvent.AddEventHandler(ezMakeDelegate(&ezRenderContext::OnEndFrame, this));
+  ezRenderWorld::s_EndRenderEvent.AddEventHandler(ezMakeDelegate(&ezRenderContext::OnEndRender, this));
 
   ResetContextState();
 }
 
 ezRenderContext::~ezRenderContext()
 {
-  ezRenderWorld::s_EndFrameEvent.RemoveEventHandler(ezMakeDelegate(&ezRenderContext::OnEndFrame, this));
+  ezRenderWorld::s_EndRenderEvent.RemoveEventHandler(ezMakeDelegate(&ezRenderContext::OnEndRender, this));
 
   DeleteConstantBufferStorage(m_hGlobalConstantBufferStorage);
 
@@ -821,7 +821,7 @@ void ezRenderContext::OnEngineShutdown()
   }
 }
 
-void ezRenderContext::OnEndFrame(ezUInt64)
+void ezRenderContext::OnEndRender(ezUInt64)
 {
   ResetContextState();
 }

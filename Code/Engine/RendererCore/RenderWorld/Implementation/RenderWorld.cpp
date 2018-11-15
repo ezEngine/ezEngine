@@ -13,8 +13,10 @@ ezCVarBool CVarCacheRenderData("r_CacheRenderData", true, ezCVarFlags::Default, 
 
 ezEvent<ezView*> ezRenderWorld::s_ViewCreatedEvent;
 ezEvent<ezView*> ezRenderWorld::s_ViewDeletedEvent;
-ezEvent<ezUInt64> ezRenderWorld::s_BeginFrameEvent;
-ezEvent<ezUInt64> ezRenderWorld::s_EndFrameEvent;
+ezEvent<ezUInt64> ezRenderWorld::s_BeginExtractionEvent;
+ezEvent<ezUInt64> ezRenderWorld::s_EndExtractionEvent;
+ezEvent<ezUInt64> ezRenderWorld::s_BeginRenderEvent;
+ezEvent<ezUInt64> ezRenderWorld::s_EndRenderEvent;
 
 ezEvent<void*> ezRenderWorld::s_CameraConfigsModifiedEvent;
 bool ezRenderWorld::s_bModifyingCameraConfigs = false;
@@ -374,6 +376,8 @@ void ezRenderWorld::ExtractMainViews()
 
   s_bInExtract = true;
 
+  s_BeginExtractionEvent.Broadcast(s_uiFrameCounter);  
+
   if (CVarMultithreadedRendering)
   {
     s_ExtractTasks.Clear();
@@ -430,8 +434,6 @@ void ezRenderWorld::ExtractMainViews()
     }
   }
 
-  s_bInExtract = false;
-
   // filter out duplicates and reverse order so that dependent views are rendered first
   {
     auto& filteredRenderPipelines = s_FilteredRenderPipelines[GetDataIndexForExtraction()];
@@ -448,10 +450,16 @@ void ezRenderWorld::ExtractMainViews()
 
     s_ViewsToRender.Clear();
   }
+
+  s_EndExtractionEvent.Broadcast(s_uiFrameCounter);
+
+  s_bInExtract = false;
 }
 
 void ezRenderWorld::Render(ezRenderContext* pRenderContext)
 {
+  s_BeginRenderEvent.Broadcast(s_uiFrameCounter);
+
   auto& filteredRenderPipelines = s_FilteredRenderPipelines[GetDataIndexForRendering()];
 
   for (auto& pRenderPipeline : filteredRenderPipelines)
@@ -466,6 +474,8 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
   }
 
   filteredRenderPipelines.Clear();
+
+  s_EndRenderEvent.Broadcast(s_uiFrameCounter);
 }
 
 void ezRenderWorld::BeginFrame()
@@ -473,8 +483,6 @@ void ezRenderWorld::BeginFrame()
   EZ_PROFILE("BeginFrame");
 
   s_RenderingThreadID = ezThreadUtils::GetCurrentThreadID();
-
-  s_BeginFrameEvent.Broadcast(s_uiFrameCounter);
 
   for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
   {
@@ -497,8 +505,6 @@ void ezRenderWorld::BeginFrame()
 void ezRenderWorld::EndFrame()
 {
   EZ_PROFILE("EndFrame");
-
-  s_EndFrameEvent.Broadcast(s_uiFrameCounter);
 
   ++s_uiFrameCounter;
 

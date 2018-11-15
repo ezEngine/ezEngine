@@ -18,7 +18,7 @@ public:
   static ezUInt32 AddSpotLight(const ezSpotLightComponent* pSpotLight, float fScreenSpaceSize);
 
   static ezGALTextureHandle GetShadowAtlasTexture();
-  static ezGALBufferHandle UpdateShadowDataBuffer(ezGALContext* pGALContext);
+  static ezGALBufferHandle GetShadowDataBuffer();
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, ShadowPool);
@@ -26,6 +26,7 @@ private:
   static void OnEngineStartup();
   static void OnEngineShutdown();
 
-  static void OnBeginFrame(ezUInt64 uiFrameNumber);
+  static void OnEndExtraction(ezUInt64);
+  static void OnBeginRender(ezUInt64);
 };
 

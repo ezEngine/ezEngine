@@ -81,7 +81,10 @@ namespace
 
   struct PoolData
   {
-    PoolData() { Clear(); }
+    PoolData()
+    {
+      Clear();
+    }
 
     ~PoolData()
     {
@@ -139,6 +142,7 @@ namespace
     ezViewHandle CreateShadowView()
     {
       CreateShadowAtlasTexture();
+      CreateShadowDataBuffer();
 
       ezView* pView = nullptr;
       ezViewHandle hView = ezRenderWorld::CreateView("Unknown", pView);
@@ -153,7 +157,7 @@ namespace
       pView->SetRenderPipelineResource(
           ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 4f4d9f16-3d47-4c67-b821-a778f11dcaf5 }"));
 
-      // Set viewport size to something valid, this will be changed to the proper location in the atlas texture in OnBeginFrame before
+      // Set viewport size to something valid, this will be changed to the proper location in the atlas texture in OnEndExtraction before
       // rendering.
       pView->SetViewport(ezRectFloat(0.0f, 0.0f, 1024.0f, 1024.0f));
 
@@ -183,7 +187,7 @@ namespace
     }
 
     bool GetDataForExtraction(const ezLightComponent* pLight, const ezView* pReferenceView, float fShadowMapScale,
-                              ezUInt32 uiPackedDataSize, ShadowData*& out_pData)
+                              ezUInt32 uiPackedDataSizeInBytes, ShadowData*& out_pData)
     {
       EZ_LOCK(m_ShadowDataMutex);
 
@@ -202,69 +206,46 @@ namespace
         m_ShadowData.SetCount(m_uiUsedShadowData + 1);
       }
 
-      auto& packedShadowData = m_PackedShadowData[ezRenderWorld::GetDataIndexForExtraction()];
-      ezUInt32 uiPackedDataOffset = packedShadowData.GetCount();
-      packedShadowData.SetCountUninitialized(uiPackedDataOffset + uiPackedDataSize / sizeof(ezVec4));
-
       out_pData = &m_ShadowData[m_uiUsedShadowData];
       out_pData->m_fShadowMapScale = fShadowMapScale;
       out_pData->m_fPenumbraSize = pLight->GetPenumbraSize();
       out_pData->m_fSlopeBias = pLight->GetSlopeBias() * 100.0f;       // map from user friendly range to real range
       out_pData->m_fConstantBias = pLight->GetConstantBias() / 100.0f; // map from user friendly range to real range
       out_pData->m_fFadeOutStart = 1.0f;
-      out_pData->m_uiPackedDataOffset = uiPackedDataOffset;
+      out_pData->m_uiPackedDataOffset = m_uiUsedPackedShadowData;
 
       m_LightToShadowDataTable.Insert(key, m_uiUsedShadowData);
 
       ++m_uiUsedShadowData;
+      m_uiUsedPackedShadowData += uiPackedDataSizeInBytes / sizeof(ezVec4);
 
       return false;
-    }
-
-    ezGALBufferHandle UpdateShadowDataBuffer(ezGALContext* pGALContext)
-    {
-      if (!m_bShadowDataBufferUpdated)
-      {
-        auto& packedShadowData = m_PackedShadowData[ezRenderWorld::GetDataIndexForRendering()];
-        if (!packedShadowData.IsEmpty())
-        {
-          CreateShadowDataBuffer();
-
-          pGALContext->UpdateBuffer(m_hShadowDataBuffer, 0, packedShadowData.GetByteArrayPtr());
-        }
-
-        packedShadowData.Clear();
-        m_bShadowDataBufferUpdated = true;
-      }
-
-      return m_hShadowDataBuffer;
     }
 
     void Clear()
     {
       m_uiUsedViews = 0;
       m_uiUsedShadowData = 0;
-      m_bShadowDataBufferUpdated = false;
-
+      
       m_LightToShadowDataTable.Clear();
 
-      m_PackedShadowData[ezRenderWorld::GetDataIndexForExtraction()].Clear();
+      m_uiUsedPackedShadowData = 0;
     }
 
     ezMutex m_ShadowViewsMutex;
     ezDeque<ShadowView> m_ShadowViews;
-    ezUInt32 m_uiUsedViews;
+    ezUInt32 m_uiUsedViews = 0;
 
     ezMutex m_ShadowDataMutex;
     ezDeque<ShadowData> m_ShadowData;
-    ezUInt32 m_uiUsedShadowData;
+    ezUInt32 m_uiUsedShadowData = 0;
     ezHashTable<LightAndRefView, ezUInt32> m_LightToShadowDataTable;
 
     ezDynamicArray<ezVec4, ezAlignedAllocatorWrapper> m_PackedShadowData[2];
+    ezUInt32 m_uiUsedPackedShadowData = 0; // in 16 bytes steps (sizeof(ezVec4))
 
     ezGALTextureHandle m_hShadowAtlasTexture;
     ezGALBufferHandle m_hShadowDataBuffer;
-    bool m_bShadowDataBufferUpdated;
   };
 
   static PoolData* s_pPool;
@@ -643,9 +624,9 @@ ezGALTextureHandle ezShadowPool::GetShadowAtlasTexture()
 }
 
 // static
-ezGALBufferHandle ezShadowPool::UpdateShadowDataBuffer(ezGALContext* pGALContext)
+ezGALBufferHandle ezShadowPool::GetShadowDataBuffer()
 {
-  return s_pPool->UpdateShadowDataBuffer(pGALContext);
+  return s_pPool->m_hShadowDataBuffer;
 }
 
 // static
@@ -653,30 +634,30 @@ void ezShadowPool::OnEngineStartup()
 {
   s_pPool = EZ_DEFAULT_NEW(PoolData);
 
-  ezRenderWorld::s_BeginFrameEvent.AddEventHandler(OnBeginFrame);
+  ezRenderWorld::s_EndExtractionEvent.AddEventHandler(OnEndExtraction);
+  ezRenderWorld::s_BeginRenderEvent.AddEventHandler(OnBeginRender);
 }
 
 // static
 void ezShadowPool::OnEngineShutdown()
 {
-  ezRenderWorld::s_BeginFrameEvent.RemoveEventHandler(OnBeginFrame);
+  ezRenderWorld::s_EndExtractionEvent.RemoveEventHandler(OnEndExtraction);
+  ezRenderWorld::s_BeginRenderEvent.RemoveEventHandler(OnBeginRender);
 
   EZ_DEFAULT_DELETE(s_pPool);
 }
 
 // static
-void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
+void ezShadowPool::OnEndExtraction(ezUInt64 uiFrameCounter)
 {
   EZ_PROFILE("Shadow Pool Update");
 
+  ezUInt32 uiDataIndex = ezRenderWorld::GetDataIndexForExtraction();
+  auto& packedShadowData = s_pPool->m_PackedShadowData[uiDataIndex];
+  packedShadowData.SetCountUninitialized(s_pPool->m_uiUsedPackedShadowData);
+
   if (s_pPool->m_uiUsedShadowData == 0)
     return;
-
-  auto& packedShadowData = s_pPool->m_PackedShadowData[ezRenderWorld::GetDataIndexForRendering()];
-  if (packedShadowData.IsEmpty())
-  {
-    return;
-  }
 
   // Sort by shadow map scale
   s_SortedShadowData.Clear();
@@ -943,12 +924,17 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
 #endif
 
   s_pPool->Clear();
+}
 
-  // clear atlas texture
+// static
+void ezShadowPool::OnBeginRender(ezUInt64 uiFrameCounter)
+{
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezGALContext* pGALContext = pDevice->GetPrimaryContext();
+
   if (!s_pPool->m_hShadowAtlasTexture.IsInvalidated())
   {
-    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-    ezGALContext* pGALContext = pDevice->GetPrimaryContext();
+    EZ_PROFILE("Shadow Atlas Texture Clear");
 
     ezGALRenderTagetSetup renderTargetSetup;
     renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(s_pPool->m_hShadowAtlasTexture));
@@ -956,8 +942,18 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
     pGALContext->SetRenderTargetSetup(renderTargetSetup);
     pGALContext->Clear(ezColor::White);
   }
+
+  if (!s_pPool->m_hShadowDataBuffer.IsInvalidated())
+  {
+    ezUInt32 uiDataIndex = ezRenderWorld::GetDataIndexForRendering();
+    auto& packedShadowData = s_pPool->m_PackedShadowData[uiDataIndex];
+    if (!packedShadowData.IsEmpty())
+    {
+      EZ_PROFILE("Shadow Data Buffer Update");
+
+      pGALContext->UpdateBuffer(s_pPool->m_hShadowDataBuffer, 0, packedShadowData.GetByteArrayPtr());
+    }
+  }
 }
-
-
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ShadowPool);

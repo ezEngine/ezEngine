@@ -17,10 +17,12 @@ namespace
   {
     if (ezStringUtils::IsEqual(szCategory, "Input"))
       return ezColorGammaUB(38, 105, 0);
+    else if (ezStringUtils::IsEqual(szCategory, "Output"))
+      return ezColorGammaUB(0, 101, 105);
     else if (ezStringUtils::IsEqual(szCategory, "Math"))
       return ezColorGammaUB(0, 53, 91);
 
-    return ezColor::Pink;
+    return ezColor::DarkOliveGreen;
   }
 }
 
@@ -85,6 +87,10 @@ void ezQtProceduralPlacementNode::UpdateTitle()
       {
         ezReflectionUtils::EnumerationToString(prop->GetSpecificType(), val.ConvertTo<ezInt64>(), sVal);
         sVal = ezTranslate(sVal);
+      }
+      else if (prop->GetSpecificType() == ezGetStaticRTTI<bool>())
+      {
+        sVal = val.Get<bool>() ? "[x]" : "[ ]";
       }
       else if (val.CanConvertTo<ezString>())
       {

@@ -629,6 +629,12 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
         m_GameStates[i].m_pState->BeforeWorldUpdate();
       }
     }
+
+    {
+      ezGameApplicationEvent e;
+      e.m_Type = ezGameApplicationEvent::Type::BeforeWorldUpdates;
+      m_Events.Broadcast(e);
+    }
   }
 
   static ezHybridArray<ezWorld*, 16> worldsToUpdate;
@@ -672,12 +678,6 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
 
   {
     EZ_PROFILE("GameApplication.AfterWorldUpdate");
-
-    {
-      ezGameApplicationEvent e;
-      e.m_Type = ezGameApplicationEvent::Type::BeforeWorldUpdates;
-      m_Events.Broadcast(e);
-    }
 
     for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
     {

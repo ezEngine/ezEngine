@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
@@ -170,7 +170,7 @@ private:
 
   static void OnEngineShutdown();
 
-  void OnEndFrame(ezUInt64);
+  void OnEndRender(ezUInt64);
 
 private:
 

@@ -56,6 +56,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementLayerOutput, 1, ezRTTIDefau
     EZ_MEMBER_PROPERTY("ObjectIndex", m_ObjectIndexPin)->AddAttributes(new ezColorAttribute(ezColor::LightSkyBlue))
   }
   EZ_END_PROPERTIES;
+
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTitleAttribute("{Active} Layer: {Name}"),
+    new ezCategoryAttribute("Output"),
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
