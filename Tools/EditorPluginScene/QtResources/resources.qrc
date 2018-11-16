@@ -48,5 +48,6 @@
     <file>ezDebugTextComponent.png</file>
 	<file>ezVisualizeSkeletonComponent.png</file>
 	<file>ezSimpleWindComponent.png</file>
+	<file>ezPlayerStartPointComponent.png</file>
   </qresource>  
 </RCC>

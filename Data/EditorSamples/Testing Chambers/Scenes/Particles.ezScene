@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10397632043479265953,5177341319926404083}}
-		u4 %Hash{13592360812270070356}
+		u4 %Hash{17097175752395190914}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -117,7 +117,7 @@ o
 {
 	Uuid %id{u4{12875498754989563827,1329889047072970074}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -221,7 +221,7 @@ o
 {
 	Uuid %id{u4{12675290491725757012,1736595749171823582}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -233,7 +233,7 @@ o
 {
 	Uuid %id{u4{2084093117545270926,1790586141937990579}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -248,7 +248,7 @@ o
 {
 	Uuid %id{u4{16439715021770366315,1791350050835436176}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -377,7 +377,7 @@ o
 {
 	Uuid %id{u4{11546930392721375599,1908194664417861485}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -389,7 +389,7 @@ o
 {
 	Uuid %id{u4{4159974391740257858,1910515018328364505}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -484,7 +484,7 @@ o
 {
 	Uuid %id{u4{13773916077544944262,2114859884375972981}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -499,7 +499,7 @@ o
 {
 	Uuid %id{u4{6386960076563826521,2117180238286476001}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1113,7 +1113,7 @@ o
 {
 	Uuid %id{u4{5351589248795887873,4648887214781819677}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1187,7 +1187,7 @@ o
 {
 	Uuid %id{u4{2512693808014093231,4680845408062607724}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1373,18 +1373,6 @@ o
 }
 o
 {
-	Uuid %id{u4{16531809700852591265,4787348202058068684}}
-	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		VarDict %Parameters{}
-		s %Prefab{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
-	}
-}
-o
-{
 	Uuid %id{u4{17270856695844087959,4787686825542949116}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -1428,6 +1416,17 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4846661665434067641,4868684072221497670}}
+	s %t{"ezPlayerStartPointComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %PlayerPrefab{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
 	}
 }
 o
@@ -1502,7 +1501,7 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
-			Uuid{u4{16531809700852591265,4787348202058068684}}
+			Uuid{u4{4846661665434067641,4868684072221497670}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x000038C0,0x000021C2,0xC0B440BF}}
@@ -1795,7 +1794,7 @@ o
 {
 	Uuid %id{u4{13737450419561807000,5123438462334162608}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1861,7 +1860,7 @@ o
 {
 	Uuid %id{u4{12049466160263710391,5147191508196511199}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1966,7 +1965,7 @@ o
 {
 	Uuid %id{u4{7343750881105534622,5248227714855315255}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2295,7 +2294,7 @@ o
 {
 	Uuid %id{u4{14729553452419622821,5420889389530422785}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2860,7 +2859,7 @@ o
 {
 	Uuid %id{u4{14715563696146219552,6472501521574073524}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2893,7 +2892,7 @@ o
 {
 	Uuid %id{u4{2585936303407985953,6563051033418967037}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2976,7 +2975,7 @@ o
 {
 	Uuid %id{u4{4812921988231554616,6769716253377078533}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2991,7 +2990,7 @@ o
 {
 	Uuid %id{u4{7384176974413429098,6904852344848626582}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3006,7 +3005,7 @@ o
 {
 	Uuid %id{u4{10256715432213204994,6943348758927609026}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3088,7 +3087,7 @@ o
 {
 	Uuid %id{u4{10241274739673244668,7023748128283987542}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3152,7 +3151,7 @@ o
 {
 	Uuid %id{u4{12633546949506438933,7107590599413702350}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3216,7 +3215,7 @@ o
 {
 	Uuid %id{u4{12468260424496813331,7230413348242099038}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3709,7 +3708,7 @@ o
 {
 	Uuid %id{u4{15510707253215868756,9549251335466395100}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3724,7 +3723,7 @@ o
 {
 	Uuid %id{u4{13668472666003668566,9657631574238967513}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3888,7 +3887,7 @@ o
 {
 	Uuid %id{u4{12416901540298183747,9978444725334116013}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4352,7 +4351,7 @@ o
 {
 	Uuid %id{u4{11496557095179542057,10673747667794509825}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4728,7 +4727,7 @@ o
 {
 	Uuid %id{u4{7193959936765371316,11645759888363986406}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4761,7 +4760,7 @@ o
 {
 	Uuid %id{u4{4426001244564641678,11705663507920070487}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4791,7 +4790,7 @@ o
 {
 	Uuid %id{u4{14545581615242705030,11846306328511133387}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4855,7 +4854,7 @@ o
 {
 	Uuid %id{u4{6652986929388210341,11912328727878181983}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4896,7 +4895,7 @@ o
 {
 	Uuid %id{u4{15541358596541402840,12138014331194623545}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4961,7 +4960,7 @@ o
 {
 	Uuid %id{u4{2342080643791081426,12282148208033238867}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4999,7 +4998,7 @@ o
 {
 	Uuid %id{u4{17768344281364971503,12344679551152735041}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5066,7 +5065,7 @@ o
 {
 	Uuid %id{u4{16086162930215333143,12411033163851504123}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5335,7 +5334,7 @@ o
 {
 	Uuid %id{u4{5221144801634290882,14782413321812392063}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5365,7 +5364,7 @@ o
 {
 	Uuid %id{u4{6036510598676625410,14949927362321985569}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5403,7 +5402,7 @@ o
 {
 	Uuid %id{u4{7448130486457859545,14989078541770503559}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5418,7 +5417,7 @@ o
 {
 	Uuid %id{u4{3389748770593401857,15121776751781416138}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5433,7 +5432,7 @@ o
 {
 	Uuid %id{u4{14449536843321835732,15124097105691919158}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5646,7 +5645,7 @@ o
 {
 	Uuid %id{u4{7875697701098725566,15500627045660626781}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6041,7 +6040,7 @@ o
 {
 	Uuid %id{u4{952112827145437386,15732797135168964985}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6335,7 +6334,7 @@ o
 {
 	Uuid %id{u4{15351141558893345058,16878921874709983369}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6399,7 +6398,7 @@ o
 {
 	Uuid %id{u4{17578127243716913721,17085587094668094865}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6440,7 +6439,7 @@ o
 {
 	Uuid %id{u4{5796600478633755269,17644195150197501086}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6478,7 +6477,7 @@ o
 {
 	Uuid %id{u4{8023586163457323932,17850860370155612582}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6493,7 +6492,7 @@ o
 {
 	Uuid %id{u4{16327586610737928046,17941396975217668819}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6656,6 +6655,24 @@ o
 }
 o
 {
+	Uuid %id{u4{13894603276136100658,3300807776711650119}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPlayerStartPointComponent"}
+		u3 %TypeSize{56}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{14633628111157529947,3328384510238863063}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -6687,7 +6704,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezPrefabReferenceComponent"}
 		u3 %TypeSize{96}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o

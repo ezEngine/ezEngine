@@ -125,6 +125,15 @@ protected:
   /// \brief Creates a default render view. Unless overridden, Activate() will do this for the main window.
   virtual void SetupMainView(ezGALRenderTargetViewHandle hBackBuffer);
 
+  /// \brief Overrideable function that may create a player object.
+  ///
+  /// By default called by OnActivation().
+  /// The default implementation will search the world for ezPlayerStartComponent's and instantiate the given player prefab at one of those locations.
+  /// If pStartPosition is not nullptr, it will be used as the spawn position for the player prefab, otherwise the location of the ezPlayerStartComponent will be used.
+  ///
+  /// Returns EZ_SUCCESS if a prefab was spawned, EZ_FAILURE if nothing was done.
+  virtual ezResult SpawnPlayer(const ezTransform* pStartPosition);
+
   /// \brief Creates a default main view with the given render pipeline.
   void SetupMainView(ezGALRenderTargetViewHandle hBackBuffer, ezTypedResourceHandle<ezRenderPipelineResource> hRenderPipeline);
 

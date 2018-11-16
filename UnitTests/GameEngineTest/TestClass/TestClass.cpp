@@ -128,7 +128,7 @@ void ezGameEngineTestApplication::AfterCoreStartup()
 
   CreateGameStateForWorld(m_pWorld);
 
-  ActivateAllGameStates();
+  ActivateAllGameStates(nullptr);
 }
 
 void ezGameEngineTestApplication::BeforeCoreShutdown()

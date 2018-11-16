@@ -26,14 +26,12 @@ public:
   /// \brief Returns Priority::None if pWorld == nullptr, Priority::Fallback otherwise.
   virtual ezGameState::Priority DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const override;
 
-  virtual void OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition) override;
-
 protected:
   virtual void ConfigureInputActions() override;
+  virtual ezResult SpawnPlayer(const ezTransform* pStartPosition) override;
 
   virtual const ezCameraComponent* FindActiveCameraComponent();
 
   ezInt32 m_iActiveCameraComponentIndex;
-
 };
 

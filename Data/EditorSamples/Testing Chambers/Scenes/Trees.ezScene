@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7419338812928223922,5404291869271497083}}
-		u4 %Hash{4694604059839544858}
+		u4 %Hash{2719145693925624005}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -813,18 +813,6 @@ o
 }
 o
 {
-	Uuid %id{u4{13636595215240729745,5109731124497178369}}
-	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
-	p
-	{
-		b %Active{1}
-		VarDict %Parameters{}
-		s %Prefab{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
-	}
-}
-o
-{
 	Uuid %id{u4{10435617399859205029,5163465097586654475}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -868,6 +856,17 @@ o
 		f %PenumbraSize{0xCDCCCC3D}
 		f %SlopeBias{0x0000803E}
 		f %SplitModeWeight{0x3333333F}
+	}
+}
+o
+{
+	Uuid %id{u4{263918528880857251,5236822820604140837}}
+	s %t{"ezPlayerStartPointComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %PlayerPrefab{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
 	}
 }
 o
@@ -916,7 +915,7 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
-			Uuid{u4{13636595215240729745,5109731124497178369}}
+			Uuid{u4{263918528880857251,5236822820604140837}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x000029C2,0x0000F8C1,0x00006040}}
@@ -24199,7 +24198,7 @@ o
 }
 o
 {
-	Uuid %id{u4{1168477127324465164,3417260966341483024}}
+	Uuid %id{u4{13894603276136100658,3300807776711650119}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -24210,9 +24209,9 @@ o
 		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
-		s %TypeName{"ezPrefabReferenceComponent"}
-		u3 %TypeSize{96}
-		u3 %TypeVersion{3}
+		s %TypeName{"ezPlayerStartPointComponent"}
+		u3 %TypeSize{56}
+		u3 %TypeVersion{1}
 	}
 }
 o

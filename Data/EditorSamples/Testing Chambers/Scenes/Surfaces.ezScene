@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{332678910050156717,5413383538482065259}}
-		u4 %Hash{10987711251102084044}
+		u4 %Hash{8109770175044112424}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -350,7 +350,7 @@ o
 {
 	Uuid %id{u4{3751426476113194385,2432951712690458385}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -818,21 +818,9 @@ o
 }
 o
 {
-	Uuid %id{u4{8273245704862496661,4688750323532136210}}
-	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		VarDict %Parameters{}
-		s %Prefab{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
-	}
-}
-o
-{
 	Uuid %id{u4{9355820306162425498,4796738548255351904}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1031,7 +1019,7 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
-			Uuid{u4{8273245704862496661,4688750323532136210}}
+			Uuid{u4{13622080547911683237,5415924640939677355}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x61843041,0x85769240,0x30FF1D3E}}
@@ -1072,6 +1060,17 @@ o
 		{
 			s{"CastShadow"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{13622080547911683237,5415924640939677355}}
+	s %t{"ezPlayerStartPointComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %PlayerPrefab{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
 	}
 }
 o
@@ -1622,7 +1621,7 @@ o
 {
 	Uuid %id{u4{16288356975773362240,7987992385743478950}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2089,7 +2088,7 @@ o
 {
 	Uuid %id{u4{4997752350839508046,10269206363784804435}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2582,7 +2581,7 @@ o
 {
 	Uuid %id{u4{3912941664195667392,13629206649589354079}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2825,7 +2824,7 @@ o
 {
 	Uuid %id{u4{4775060064952395507,15047312481239316813}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3087,7 +3086,7 @@ o
 {
 	Uuid %id{u4{6964458000622135044,15921508929796860175}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3591,6 +3590,24 @@ o
 }
 o
 {
+	Uuid %id{u4{13894603276136100658,3300807776711650119}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPlayerStartPointComponent"}
+		u3 %TypeSize{56}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{14633628111157529947,3328384510238863063}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -3622,7 +3639,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezPrefabReferenceComponent"}
 		u3 %TypeSize{96}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o

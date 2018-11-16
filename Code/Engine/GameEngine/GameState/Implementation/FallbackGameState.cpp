@@ -3,6 +3,7 @@
 #include <Core/Input/InputManager.h>
 #include <GameEngine/Configuration/InputConfig.h>
 #include <GameEngine/GameState/FallbackGameState.h>
+#include <GameEngine/Components/PlayerStartPointComponent.h>
 #include <RendererCore/Components/CameraComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFallbackGameState, 1, ezRTTIDefaultAllocator<ezFallbackGameState>);
@@ -21,39 +22,19 @@ ezGameState::Priority ezFallbackGameState::DeterminePriority(ezGameApplicationTy
   return ezGameState::Priority::Fallback;
 }
 
-
-void ezFallbackGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
+ezResult ezFallbackGameState::SpawnPlayer(const ezTransform* pStartPosition)
 {
-  SUPER::OnActivation(pWorld, pStartPosition);
+  if (SUPER::SpawnPlayer(pStartPosition).Succeeded())
+    return EZ_SUCCESS;
 
-  if (pWorld && pStartPosition)
+  if (m_pMainWorld && pStartPosition)
   {
-
-    EZ_LOCK(pWorld->GetWriteMarker());
-
-    ezTransform tPos = *pStartPosition;
-    tPos.m_vScale.Set(1.0f);
-    tPos.m_vPosition.z += 1.0f; // position usually is on the floor, make sure player is not stuck in it
-
-    auto* pMan = pWorld->GetComponentManager<ezCameraComponentManager>();
-
-    if (ezCameraComponent* pCam = pMan->GetCameraByUsageHint(ezCameraUsageHint::MainView))
-    {
-      ezGameObject* pObj = pCam->GetOwner();
-      while (pObj->GetParent())
-      {
-        pObj = pObj->GetParent();
-      }
-
-      pObj->SetGlobalTransform(tPos);
-    }
-    else
-    {
       m_iActiveCameraComponentIndex = -1; // set free camera
       m_MainCamera.LookAt(pStartPosition->m_vPosition, pStartPosition->m_vPosition + pStartPosition->m_qRotation * ezVec3(1, 0, 0),
                           pStartPosition->m_qRotation * ezVec3(0, 0, 1));
-    }
   }
+
+  return EZ_FAILURE;
 }
 
 static ezHybridArray<ezGameAppInputConfig, 16> g_AllInput;

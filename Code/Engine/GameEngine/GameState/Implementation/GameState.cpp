@@ -3,8 +3,10 @@
 
 #include <Core/World/World.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <GameEngine/Components/PlayerStartPointComponent.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/GameStateWindow.h>
+#include <GameEngine/Prefabs/PrefabResource.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -70,8 +72,9 @@ void ezGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPositio
     ConfigureInputDevices();
   }
 
-
   ConfigureInputActions();
+
+  SpawnPlayer(pStartPosition);
 }
 
 void ezGameState::OnDeactivation()
@@ -179,6 +182,45 @@ void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer, ezTyped
   pView->m_ExcludeTags.Set(tagEditor);
 
   ezRenderWorld::AddMainView(m_hMainView);
+}
+
+ezResult ezGameState::SpawnPlayer(const ezTransform* pStartPosition)
+{
+  if (m_pMainWorld == nullptr)
+    return EZ_FAILURE;
+
+  EZ_LOCK(m_pMainWorld->GetWriteMarker());
+
+  ezPlayerStartPointComponentManager* pMan = m_pMainWorld->GetComponentManager<ezPlayerStartPointComponentManager>();
+  if (pMan == nullptr)
+    return EZ_FAILURE;
+
+  for (auto it = pMan->GetComponents(); it.IsValid(); ++it)
+  {
+    if (it->GetPlayerPrefab().IsValid())
+    {
+      ezResourceLock<ezPrefabResource> pPrefab(it->GetPlayerPrefab(), ezResourceAcquireMode::NoFallback);
+
+      if (pPrefab.GetAcquireResult() == ezResourceAcquireResult::Final)
+      {
+        const ezUInt16 uiTeamID = it->GetOwner()->GetTeamID();
+        ezTransform startPos = it->GetOwner()->GetGlobalTransform();
+
+        if (pStartPosition)
+        {
+          startPos = *pStartPosition;
+          startPos.m_vScale.Set(1.0f);
+          startPos.m_vPosition.z += 1.0f; // do not spawn player prefabs on the ground, they may not have their origin there
+        }
+
+        pPrefab->InstantiatePrefab(*m_pMainWorld, startPos, ezGameObjectHandle(), nullptr, &uiTeamID, nullptr);
+
+        return EZ_SUCCESS;
+      }
+    }
+  }
+
+  return EZ_FAILURE;
 }
 
 void ezGameState::ChangeMainWorld(ezWorld* pNewMainWorld)

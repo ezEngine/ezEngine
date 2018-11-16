@@ -15,7 +15,7 @@ o
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{5960441149679082017}
+		u4 %Hash{1552975285243501074}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -3156,11 +3156,11 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
-			Uuid{u4{14349304941387086008,5635398198088866461}}
+			Uuid{u4{6711183369295680401,5300256110419820858}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x0000C03F,0x0000A040,0x0000803F}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Quat %LocalRotation{f{0,0,0x0000003F,0xD7B35D3F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -3761,6 +3761,17 @@ o
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{6711183369295680401,5300256110419820858}}
+	s %t{"ezPlayerStartPointComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %PlayerPrefab{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
 	}
 }
 o
@@ -4589,18 +4600,6 @@ o
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
-	}
-}
-o
-{
-	Uuid %id{u4{14349304941387086008,5635398198088866461}}
-	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
-	p
-	{
-		b %Active{1}
-		VarDict %Parameters{}
-		s %Prefab{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
 	}
 }
 o
@@ -12763,6 +12762,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezCameraMode"}
 		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13894603276136100658,3300807776711650119}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPlayerStartPointComponent"}
+		u3 %TypeSize{56}
 		u3 %TypeVersion{1}
 	}
 }

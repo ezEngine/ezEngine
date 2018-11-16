@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8509371654781092019,5438081593505794318}}
-		u4 %Hash{8878731257367289712}
+		u4 %Hash{17301443538756324618}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -1551,7 +1551,7 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
-			Uuid{u4{14890432075232341936,5472034414152821945}}
+			Uuid{u4{15501236782923456946,5616474073668194135}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0xF4FFFF3E,0x0000803E,0x0000A03F}}
@@ -2103,18 +2103,6 @@ o
 }
 o
 {
-	Uuid %id{u4{14890432075232341936,5472034414152821945}}
-	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
-	p
-	{
-		b %Active{1}
-		VarDict %Parameters{}
-		s %Prefab{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
-	}
-}
-o
-{
 	Uuid %id{u4{3758721730297285530,5490558284664247580}}
 	s %t{"ezPxShapeBoxComponent"}
 	u3 %v{1}
@@ -2430,6 +2418,17 @@ o
 		f %Pitch{0x0000803F}
 		s %SoundEvent{"{ 8d3701d6-83c9-4039-b341-88d33fbaa0d3 }"}
 		f %Volume{0xCDCCCC3E}
+	}
+}
+o
+{
+	Uuid %id{u4{15501236782923456946,5616474073668194135}}
+	s %t{"ezPlayerStartPointComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %PlayerPrefab{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
 	}
 }
 o
@@ -6344,6 +6343,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezExposedSceneProperty"}
 		u3 %TypeSize{152}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13894603276136100658,3300807776711650119}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPlayerStartPointComponent"}
+		u3 %TypeSize{56}
 		u3 %TypeVersion{1}
 	}
 }

@@ -227,3 +227,4 @@ EditorShortcut;Editor Shortcut;Press ALT+Number to jump to this camera.
 Scene.CreateThumbnail;Create Scene Thumbnail
 Scene.GameMode.PlayFromHere;Play From Here
 Scene.GameObject.CreateEmptyHere;Create Empty Object Here
+ezPlayerStartPointComponent;Player Start Point

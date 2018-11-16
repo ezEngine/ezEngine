@@ -14,7 +14,7 @@ o
 			s{"{ 3a6a429e-a1b3-44cb-804c-eea15431d041 }"}
 		}
 		Uuid %DocumentID{u4{9682502431587507847,5134723567953877979}}
-		u4 %Hash{11695130600608703544}
+		u4 %Hash{15175407296822353117}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -3691,7 +3691,7 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
-			Uuid{u4{14481914525516285878,5631224954245000730}}
+			Uuid{u4{3276826196421864633,4954674245957792915}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x0000A0C0,0x00008040,0x0000803F}}
@@ -4085,6 +4085,17 @@ o
 		{
 			s{"CastShadow"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{3276826196421864633,4954674245957792915}}
+	s %t{"ezPlayerStartPointComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %PlayerPrefab{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
 	}
 }
 o
@@ -4939,18 +4950,6 @@ o
 		ColorGamma %BottomColor{u1{89,89,108,255}}
 		f %Intensity{0x0000803F}
 		ColorGamma %TopColor{u1{124,124,149,255}}
-	}
-}
-o
-{
-	Uuid %id{u4{14481914525516285878,5631224954245000730}}
-	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
-	p
-	{
-		b %Active{1}
-		VarDict %Parameters{}
-		s %Prefab{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
 	}
 }
 o
@@ -17013,6 +17012,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezCameraMode"}
 		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13894603276136100658,3300807776711650119}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPlayerStartPointComponent"}
+		u3 %TypeSize{56}
 		u3 %TypeVersion{1}
 	}
 }
