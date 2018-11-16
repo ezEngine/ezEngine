@@ -24,7 +24,7 @@ protected:
   virtual void ConfigureMainCamera() override;
 
 private:
-  virtual void OnActivation(ezWorld* pWorld) override;
+  virtual void OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition) override;
   virtual void OnDeactivation() override;
   virtual void BeforeWorldUpdate() override;
 

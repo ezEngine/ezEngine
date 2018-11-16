@@ -303,8 +303,15 @@ public:
   {
     for (ezUInt32 i = 0; i < count; ++i)
     {
-      const PxActor* pTriggerActor = pairs[i].triggerActor;
-      const PxActor* pOtherActor = pairs[i].otherActor;
+      auto& pair = pairs[i];
+
+      if (pair.flags & (PxTriggerPairFlag::eREMOVED_SHAPE_TRIGGER | PxTriggerPairFlag::eREMOVED_SHAPE_OTHER))
+      {
+        continue;
+      }
+
+      const PxActor* pTriggerActor = pair.triggerActor;
+      const PxActor* pOtherActor = pair.otherActor;
 
       const ezPxTriggerComponent* pTriggerComponent = ezPxUserData::GetTriggerComponent(pTriggerActor->userData);
       const ezComponent* pOtherComponent = ezPxUserData::GetComponent(pOtherActor->userData);
@@ -312,7 +319,7 @@ public:
       if (pTriggerComponent != nullptr && pOtherComponent != nullptr)
       {
         ezTriggerState::Enum triggerState =
-            pairs[i].status == PxPairFlag::eNOTIFY_TOUCH_FOUND ? ezTriggerState::Activated : ezTriggerState::Deactivated;
+            pair.status == PxPairFlag::eNOTIFY_TOUCH_FOUND ? ezTriggerState::Activated : ezTriggerState::Deactivated;
         pTriggerComponent->PostTriggerMessage(pOtherComponent, triggerState);
       }
     }

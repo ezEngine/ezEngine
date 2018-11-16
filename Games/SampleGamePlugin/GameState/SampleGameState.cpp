@@ -11,11 +11,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 SampleGameState::SampleGameState() {}
 
-void SampleGameState::OnActivation(ezWorld* pWorld)
+void SampleGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
 {
   EZ_LOG_BLOCK("GameState::Activate");
 
-  SUPER::OnActivation(pWorld);
+  SUPER::OnActivation(pWorld, pStartPosition);
 
   if (ezImgui::GetSingleton() == nullptr)
   {
