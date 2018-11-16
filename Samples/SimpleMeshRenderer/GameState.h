@@ -14,7 +14,7 @@ public:
   virtual void ProcessInput() override;
 
 private:
-  virtual void OnActivation(ezWorld* pWorld) override;
+  virtual void OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition) override;
   virtual void OnDeactivation() override;
 
   virtual ezGameState::Priority DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const override;

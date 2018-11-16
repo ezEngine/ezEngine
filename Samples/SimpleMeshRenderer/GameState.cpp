@@ -69,11 +69,11 @@ void SimpleMeshRendererGameState::ProcessInput()
   SUPER::ProcessInput();
 }
 
-void SimpleMeshRendererGameState::OnActivation(ezWorld* pWorld)
+void SimpleMeshRendererGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
 {
   EZ_LOG_BLOCK("SimpleMeshRendererGameState::Activate");
 
-  SUPER::OnActivation(pWorld);
+  SUPER::OnActivation(pWorld, pStartPosition);
 
   CreateGameLevel();
 }

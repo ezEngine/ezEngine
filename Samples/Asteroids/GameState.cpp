@@ -40,11 +40,11 @@ AsteroidGameState::AsteroidGameState()
   m_pLevel = nullptr;
 }
 
-void AsteroidGameState::OnActivation(ezWorld* pWorld)
+void AsteroidGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
 {
   EZ_LOG_BLOCK("AsteroidGameState::Activate");
 
-  ezGameState::OnActivation(pWorld);
+  ezGameState::OnActivation(pWorld, pStartPosition);
 
   CreateGameLevel();
 }
