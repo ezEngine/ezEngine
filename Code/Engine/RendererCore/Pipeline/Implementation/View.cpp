@@ -215,8 +215,6 @@ void ezView::UpdateCachedMatrices() const
 
 void ezView::EnsureUpToDate()
 {
-  EZ_ASSERT_DEBUG(m_hRenderPipeline.IsValid(), "Renderpipeline has not been set on this view");
-
   if (m_hRenderPipeline.IsValid())
   {
     ezResourceLock<ezRenderPipelineResource> pPipeline(m_hRenderPipeline, ezResourceAcquireMode::NoFallback);

@@ -85,6 +85,7 @@ private:
   static void UpdateRenderDataCache();
 
   static void AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline, const ezViewHandle& hView);
+  static void RebuildPipelines();
 
   static void OnEngineStartup();
   static void OnEngineShutdown();

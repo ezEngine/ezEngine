@@ -460,6 +460,11 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
 {
   s_BeginRenderEvent.Broadcast(s_uiFrameCounter);
 
+  if (!CVarMultithreadedRendering)
+  {
+    RebuildPipelines();
+  }
+
   auto& filteredRenderPipelines = s_FilteredRenderPipelines[GetDataIndexForRendering()];
 
   for (auto& pRenderPipeline : filteredRenderPipelines)
@@ -490,16 +495,7 @@ void ezRenderWorld::BeginFrame()
     pView->EnsureUpToDate();
   }
 
-  for (auto& pipelineToRebuild : s_PipelinesToRebuild)
-  {
-    ezView* pView = nullptr;
-    if (s_Views.TryGetValue(pipelineToRebuild.m_hView, pView))
-    {
-      pipelineToRebuild.m_pPipeline->Rebuild(*pView);
-    }
-  }
-
-  s_PipelinesToRebuild.Clear();
+  RebuildPipelines();
 }
 
 void ezRenderWorld::EndFrame()
@@ -611,6 +607,7 @@ void ezRenderWorld::UpdateRenderDataCache()
   }
 }
 
+// static
 void ezRenderWorld::AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline, const ezViewHandle& hView)
 {
   EZ_LOCK(s_PipelinesToRebuildMutex);
@@ -627,6 +624,21 @@ void ezRenderWorld::AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline
   auto& pipelineToRebuild = s_PipelinesToRebuild.ExpandAndGetRef();
   pipelineToRebuild.m_pPipeline = pRenderPipeline;
   pipelineToRebuild.m_hView = hView;
+}
+
+// static
+void ezRenderWorld::RebuildPipelines()
+{
+  for (auto& pipelineToRebuild : s_PipelinesToRebuild)
+  {
+    ezView* pView = nullptr;
+    if (s_Views.TryGetValue(pipelineToRebuild.m_hView, pView))
+    {
+      pipelineToRebuild.m_pPipeline->Rebuild(*pView);
+    }
+  }
+
+  s_PipelinesToRebuild.Clear();
 }
 
 void ezRenderWorld::OnEngineStartup()
