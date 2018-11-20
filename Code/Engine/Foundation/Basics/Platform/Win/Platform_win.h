@@ -50,6 +50,7 @@ enum ezWinRTSDKVersion
   EZ_WINDOWS_VERSION_10_RS2, // The "Creator's Update" ('Redstone 2')
   EZ_WINDOWS_VERSION_10_RS3, // The "Fall Creator's Update" ('Redstone 3')
   EZ_WINDOWS_VERSION_10_RS4, // The "April 2018 Update" ('Redstone 4')
+  EZ_WINDOWS_VERSION_10_RS5, // The "October 2018 Update" ('Redstone 5')
 
   // Assume newer version
   EZ_WINDOWS_VERSION_UNKNOWN = 127,
@@ -60,11 +61,13 @@ enum ezWinRTSDKVersion
 // new WDK_NTDDI_VERSION variable which gives you the SDK version. Before that, NTDDI_VERSION gave you only the minimum supported windows
 // version for your current build. So in this case we just take a guess by checking which NTDDI variables are there.
 #if defined(WDK_NTDDI_VERSION) // 'RS2' and newer
-#  if defined(NTDDI_WIN10_RS2) && WDK_NTDDI_VERSION == NTDDI_WIN10_RS2
+#  if WDK_NTDDI_VERSION == NTDDI_WIN10_RS2
 #    define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_RS2
-#  elif defined(NTDDI_WIN10_RS3) && WDK_NTDDI_VERSION == NTDDI_WIN10_RS3
+#  elif WDK_NTDDI_VERSION == NTDDI_WIN10_RS3
 #    define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_RS3
-#  elif defined(NTDDI_WIN10_RS4) && WDK_NTDDI_VERSION == NTDDI_WIN10_RS4
+#  elif WDK_NTDDI_VERSION == NTDDI_WIN10_RS4
+#    define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_RS4
+#  elif WDK_NTDDI_VERSION == NTDDI_WIN10_RS5
 #    define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_RS4
 #  else
 #    define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_UNKNOWN
