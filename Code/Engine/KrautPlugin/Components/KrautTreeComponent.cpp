@@ -157,6 +157,25 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
     ezResourceLock<ezMeshResource> pMesh(lodData.m_hMesh);
     ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> subMeshes = pMesh->GetSubMeshes();
 
+    const ezGameObject* pOwner = GetOwner();
+
+    float fGlobalUniformScale = pOwner->GetLocalUniformScaling();
+
+    // compute global uniform scale
+    {
+      const ezGameObject* pParent = pOwner->GetParent();
+      while (pParent)
+      {
+        fGlobalUniformScale *= pParent->GetLocalUniformScaling();
+        pParent = pParent->GetParent();
+      }
+    }
+
+    const ezTransform tOwner = pOwner->GetGlobalTransform();
+    const ezBoundingBoxSphere bounds = pOwner->GetGlobalBounds();
+    const float fMinDistSQR = ezMath::Square(fGlobalUniformScale * lodData.m_fMinLodDistance);
+    const float fMaxDistSQR = ezMath::Square(fGlobalUniformScale * lodData.m_fMaxLodDistance);
+
     for (ezUInt32 subMeshIdx = 0; subMeshIdx < subMeshes.GetCount(); ++subMeshIdx)
     {
       const auto& subMesh = subMeshes[subMeshIdx];
@@ -167,8 +186,8 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
       const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? hMaterial.GetResourceIDHash() : 0;
 
       // Generate batch id from mesh, material and part index.
-      ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, subMeshIdx, 0};
-      ezUInt32 uiBatchId = ezHashing::xxHash32(data, sizeof(data));
+      const ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, subMeshIdx, 0};
+      const ezUInt32 uiBatchId = ezHashing::xxHash32(data, sizeof(data));
 
       ezKrautRenderData* pRenderData = CreateBranchRenderData(uiBatchId);
 
@@ -176,20 +195,21 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
         pRenderData->m_pTreeLodInfo = m_pLodInfo;
         pRenderData->m_uiThisLodIndex = uiCurLod;
 
-        pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-        pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
+        pRenderData->m_GlobalTransform = tOwner;
+        pRenderData->m_fGlobalUniformScale = fGlobalUniformScale;
+        pRenderData->m_GlobalBounds = bounds;
         pRenderData->m_hMesh = lodData.m_hMesh;
         pRenderData->m_uiSubMeshIndex = subMeshIdx;
         pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
         pRenderData->m_bCastShadows = (lodData.m_LodType == ezKrautLodType::Mesh);
 
         pRenderData->m_vLeafCenter = pTree->GetDetails().m_vLeafCenter;
-        pRenderData->m_fLodDistanceMinSQR = ezMath::Square(lodData.m_fMinLodDistance);
-        pRenderData->m_fLodDistanceMaxSQR = ezMath::Square(lodData.m_fMaxLodDistance);
+        pRenderData->m_fLodDistanceMinSQR = fMinDistSQR;
+        pRenderData->m_fLodDistanceMaxSQR = fMaxDistSQR;
       }
 
       // Sort by material and then by mesh
-      ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE);
+      const ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE);
       msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, uiSortingKey, ezRenderData::Caching::IfStatic);
     }
   }

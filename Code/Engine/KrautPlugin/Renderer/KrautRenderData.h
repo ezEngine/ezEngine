@@ -28,6 +28,7 @@ class EZ_KRAUTPLUGIN_DLL ezKrautRenderData : public ezRenderData
 public:
   ezMeshResourceHandle m_hMesh;
   ezUInt32 m_uiUniqueID = 0;
+  float m_fGlobalUniformScale;
   float m_fLodDistanceMinSQR;
   float m_fLodDistanceMaxSQR;
   ezVec3 m_vLeafCenter;
