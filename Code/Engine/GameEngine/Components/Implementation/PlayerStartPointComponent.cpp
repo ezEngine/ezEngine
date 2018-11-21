@@ -8,7 +8,6 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-
 EZ_BEGIN_COMPONENT_TYPE(ezPlayerStartPointComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
