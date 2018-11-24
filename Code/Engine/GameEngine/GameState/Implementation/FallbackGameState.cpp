@@ -131,6 +131,7 @@ const ezCameraComponent* ezFallbackGameState::FindActiveCameraComponent()
   Cameras[ezCameraUsageHint::RenderTarget].Clear();
   Cameras[ezCameraUsageHint::Culling].Clear();
   Cameras[ezCameraUsageHint::Shadow].Clear();
+  Cameras[ezCameraUsageHint::Thumbnail].Clear();
 
   if (m_iActiveCameraComponentIndex == -3)
   {
