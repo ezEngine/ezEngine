@@ -26,11 +26,9 @@ struct EZ_ALIGN_16(ezSpatialData)
   };
 
   ezGameObject* m_pObject = nullptr;
-  void* m_pUserData = nullptr;
   ezBitflags<Flags> m_Flags;
 
-  ///\todo might want to store local bounding box for precise culling
-  ezUInt32 m_uiReserved[3];
-
   ezSimdBBoxSphere m_Bounds;
+
+  ezUInt32 m_uiUserData[4] = {};
 };

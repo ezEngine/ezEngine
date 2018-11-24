@@ -64,7 +64,7 @@ namespace ezInternal
     // insert dummy entry to save some checks
     m_Objects.Insert(nullptr);
 
-    EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 256);
+    EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 224);
     // EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject) == 128); /// \todo get game object size back to 128
     EZ_CHECK_AT_COMPILETIME(sizeof(QueuedMsgMetaData) == 16);
 
@@ -281,11 +281,13 @@ namespace ezInternal
     Hierarchy& hierarchy = m_Hierarchies[HierarchyType::Dynamic];
     if (!hierarchy.m_Data.IsEmpty())
     {
-      TraverseHierarchyLevel<RootLevel>(*hierarchy.m_Data[0], &fInvDt);
+      auto dataPtr = hierarchy.m_Data.GetData();
+
+      TraverseHierarchyLevel<RootLevel>(*dataPtr[0], &fInvDt);
 
       for (ezUInt32 i = 1; i < hierarchy.m_Data.GetCount(); ++i)
       {
-        TraverseHierarchyLevel<WithParent>(*hierarchy.m_Data[i], &fInvDt);
+        TraverseHierarchyLevel<WithParent>(*dataPtr[i], &fInvDt);
       }
     }
   }

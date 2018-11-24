@@ -45,7 +45,7 @@ namespace
   }
   EZ_END_COMPONENT_TYPE;
   // clang-format on
-}
+} // namespace
 
 EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 {
@@ -199,4 +199,19 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
     }
   }
+
+  ezDynamicArray<ezGameObjectHandle> allObjects;
+  allObjects.Reserve(world.GetObjectCount());
+
+  for (auto it = world.GetObjects(); it.IsValid(); ++it)
+  {
+    allObjects.PushBack(it->GetHandle());
+  }
+
+  for (ezUInt32 i = allObjects.GetCount(); i-- > 0;)
+  {
+    world.DeleteObjectNow(allObjects[i]);
+  }
+
+  world.Update();
 }

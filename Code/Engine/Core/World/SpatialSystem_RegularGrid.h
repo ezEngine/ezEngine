@@ -36,24 +36,11 @@ private:
   ezSimdVec4f m_fOverlapSize;
   ezSimdFloat m_fInvCellSize;
 
-  struct Cell
-  {
-    Cell(ezAllocatorBase* pAllocator, ezAllocatorBase* pAlignedAllocator);
+  struct SpatialUserData;
+  struct Cell;
+  struct CellKeyHashHelper;  
 
-    void AddData(ezSpatialData* pData);
-    void RemoveData(ezSpatialData* pData);
-    void UpdateData(ezSpatialData* pData);
-
-    ezBoundingBox GetBoundingBox() const;
-
-    ezSimdBBoxSphere m_Bounds;
-
-    ezDynamicArray<ezSimdBSphere> m_BoundingSpheres;
-    ezDynamicArray<ezSpatialData*> m_DataPointers;
-    ezHashTable<ezSpatialData*, ezUInt32> m_PointerToIndexTable;
-  };
-
-  ezHashTable<ezUInt64, Cell*, ezHashHelper<ezUInt64>, ezLocalAllocatorWrapper> m_Cells;
+  ezHashTable<ezUInt64, Cell*, CellKeyHashHelper, ezLocalAllocatorWrapper> m_Cells;
 
   Cell* m_pOverflowCell;
 

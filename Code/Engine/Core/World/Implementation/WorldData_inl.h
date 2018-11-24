@@ -12,9 +12,8 @@ namespace ezInternal
   EZ_FORCE_INLINE ezVisitorExecution::Enum WorldData::TraverseHierarchyLevel(Hierarchy::DataBlockArray& blocks,
                                                                              void* pUserData /* = nullptr*/)
   {
-    for (ezUInt32 uiBlockIndex = 0; uiBlockIndex < blocks.GetCount(); ++uiBlockIndex)
+    for (WorldData::Hierarchy::DataBlock& block : blocks)
     {
-      WorldData::Hierarchy::DataBlock& block = blocks[uiBlockIndex];
       ezGameObject::TransformationData* pCurrentData = block.m_pData;
       ezGameObject::TransformationData* pEndData = block.m_pData + block.m_uiCount;
 
@@ -35,8 +34,8 @@ namespace ezInternal
   EZ_FORCE_INLINE void WorldData::UpdateGlobalTransform(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds)
   {
     pData->UpdateGlobalTransform();
-    pData->UpdateGlobalBounds();
     pData->UpdateVelocity(fInvDeltaSeconds);
+    pData->UpdateGlobalBounds();
   }
 
   // static
@@ -44,8 +43,8 @@ namespace ezInternal
                                                                   const ezSimdFloat& fInvDeltaSeconds)
   {
     pData->UpdateGlobalTransformWithParent();
-    pData->UpdateGlobalBounds();
     pData->UpdateVelocity(fInvDeltaSeconds);
+    pData->UpdateGlobalBounds();
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -389,7 +389,7 @@ private:
 
     ezSpatialDataHandle m_hSpatialData;
 
-    ezUInt32 m_uiPadding2[11];
+    ezUInt32 m_uiPadding2[3];
 
     void UpdateLocalTransform();
 

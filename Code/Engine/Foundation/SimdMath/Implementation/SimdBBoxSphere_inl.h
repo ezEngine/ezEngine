@@ -36,7 +36,7 @@ EZ_ALWAYS_INLINE void ezSimdBBoxSphere::SetInvalid()
   m_BoxHalfExtents.Set(-ezMath::BasicType<float>::MaxValue());
 }
 
-inline bool ezSimdBBoxSphere::IsValid() const
+EZ_ALWAYS_INLINE bool ezSimdBBoxSphere::IsValid() const
 {
   return m_CenterAndRadius.IsValid<4>() && m_CenterAndRadius.w() >= ezSimdFloat::Zero() && m_BoxHalfExtents.IsValid<3>() &&
          (m_BoxHalfExtents >= ezSimdVec4f::ZeroVector()).AllSet<3>();

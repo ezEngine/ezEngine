@@ -119,62 +119,100 @@ namespace
 
     return result;
   }
-}
+} // namespace
 
 //////////////////////////////////////////////////////////////////////////
 
-ezSpatialSystem_RegularGrid::Cell::Cell(ezAllocatorBase* pAllocator, ezAllocatorBase* pAlignedAllocator)
-    : m_BoundingSpheres(pAlignedAllocator)
-    , m_DataPointers(pAllocator)
-    , m_PointerToIndexTable(pAllocator)
+struct ezSpatialSystem_RegularGrid::SpatialUserData
 {
-}
+  Cell* m_pCell = nullptr;
+  ezUInt32 m_uiDataIndex = 0;
+  ezUInt32 m_uiReserved = 0;
+};
 
-EZ_FORCE_INLINE void ezSpatialSystem_RegularGrid::Cell::AddData(ezSpatialData* pData)
+//////////////////////////////////////////////////////////////////////////
+
+struct ezSpatialSystem_RegularGrid::Cell
 {
-  ezUInt32 dataIndex = m_BoundingSpheres.GetCount();
-  m_BoundingSpheres.PushBack(pData->m_Bounds.GetSphere());
-  m_DataPointers.PushBack(pData);
-  EZ_VERIFY(!m_PointerToIndexTable.Insert(pData, dataIndex), "Implementation error");
-
-  EZ_ASSERT_DEBUG(pData->m_pUserData == nullptr, "Data can't be in multiple cells");
-  pData->m_pUserData = this;
-}
-
-EZ_FORCE_INLINE void ezSpatialSystem_RegularGrid::Cell::RemoveData(ezSpatialData* pData)
-{
-  ezUInt32 dataIndex = 0;
-  EZ_VERIFY(m_PointerToIndexTable.Remove(pData, &dataIndex), "Implementation error");
-
-  if (dataIndex != m_DataPointers.GetCount() - 1)
+  Cell(ezAllocatorBase* pAllocator, ezAllocatorBase* pAlignedAllocator)
+      : m_BoundingSpheres(pAlignedAllocator)
+      , m_DataPointers(pAllocator)
   {
-    ezSpatialData* pLastData = m_DataPointers.PeekBack();
-    m_PointerToIndexTable[pLastData] = dataIndex;
   }
 
-  m_BoundingSpheres.RemoveAtAndSwap(dataIndex);
-  m_DataPointers.RemoveAtAndSwap(dataIndex);
+  EZ_FORCE_INLINE void AddData(ezSpatialData* pData)
+  {
+    ezUInt32 dataIndex = m_BoundingSpheres.GetCount();
+    m_BoundingSpheres.PushBack(pData->m_Bounds.GetSphere());
+    m_DataPointers.PushBack(pData);
 
-  EZ_ASSERT_DEBUG(pData->m_pUserData == this, "Implementation error");
-  pData->m_pUserData = nullptr;
-}
+    auto pUserData = reinterpret_cast<SpatialUserData*>(&pData->m_uiUserData[0]);
 
-EZ_FORCE_INLINE void ezSpatialSystem_RegularGrid::Cell::UpdateData(ezSpatialData* pData)
-{
-  ezUInt32 dataIndex = 0;
-  EZ_VERIFY(m_PointerToIndexTable.TryGetValue(pData, dataIndex), "Implementation error");
+    EZ_ASSERT_DEBUG(pUserData->m_pCell == nullptr, "Data can't be in multiple cells");
+    pUserData->m_pCell = this;
+    pUserData->m_uiDataIndex = dataIndex;
+  }
 
-  m_BoundingSpheres[dataIndex] = pData->m_Bounds.GetSphere();
-}
+  EZ_FORCE_INLINE void RemoveData(ezSpatialData* pData)
+  {
+    auto pUserData = reinterpret_cast<SpatialUserData*>(&pData->m_uiUserData[0]);
+    ezUInt32 dataIndex = pUserData->m_uiDataIndex;
 
-ezBoundingBox ezSpatialSystem_RegularGrid::Cell::GetBoundingBox() const
-{
-  return ezSimdConversion::ToBBoxSphere(m_Bounds).GetBox();
-}
+    if (dataIndex != m_DataPointers.GetCount() - 1)
+    {
+      ezSpatialData* pLastData = m_DataPointers.PeekBack();
+      auto pLastUserData = reinterpret_cast<SpatialUserData*>(&pLastData->m_uiUserData[0]);
+      pLastUserData->m_uiDataIndex = dataIndex;
+    }
+
+    m_BoundingSpheres.RemoveAtAndSwap(dataIndex);
+    m_DataPointers.RemoveAtAndSwap(dataIndex);
+
+    EZ_ASSERT_DEBUG(pUserData->m_pCell == this, "Implementation error");
+    pUserData->m_pCell = nullptr;
+    pUserData->m_uiDataIndex = ezInvalidIndex;
+  }
+
+  EZ_FORCE_INLINE void UpdateData(ezSpatialData* pData)
+  {
+    auto pUserData = reinterpret_cast<SpatialUserData*>(&pData->m_uiUserData[0]);
+    ezUInt32 dataIndex = pUserData->m_uiDataIndex;
+
+    m_BoundingSpheres[dataIndex] = pData->m_Bounds.GetSphere();
+  }
+
+  EZ_ALWAYS_INLINE ezBoundingBox GetBoundingBox() const
+  {
+    return ezSimdConversion::ToBBoxSphere(m_Bounds).GetBox();
+  }
+
+  ezSimdBBoxSphere m_Bounds;
+
+  ezDynamicArray<ezSimdBSphere> m_BoundingSpheres;
+  ezDynamicArray<ezSpatialData*> m_DataPointers;
+};
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpatialSystem_RegularGrid, 1, ezRTTINoAllocator);
+struct ezSpatialSystem_RegularGrid::CellKeyHashHelper
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezUInt64 value)
+  {
+    /*char bytes[4];
+    *reinterpret_cast<ezUInt64*>(&bytes[0]) = value;
+    return ezHashing::MurmurHash32String(bytes);*/
+    return ezUInt32(value * 2654435761U);
+  }
+
+  EZ_ALWAYS_INLINE static bool Equal(ezUInt64 a, ezUInt64 b)
+  {
+    return a == b;
+  }
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpatialSystem_RegularGrid, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSpatialSystem_RegularGrid::ezSpatialSystem_RegularGrid(ezUInt32 uiCellSize /* = 128 */)
@@ -227,9 +265,10 @@ ezResult ezSpatialSystem_RegularGrid::GetCellBoxForSpatialData(const ezSpatialDa
 
 #else
 
-  if (Cell* pCell = static_cast<Cell*>(pData->m_pUserData))
+  auto pUserData = reinterpret_cast<SpatialUserData*>(&pData->m_uiUserData[0]);
+  if (pUserData->m_pCell != nullptr)
   {
-    out_BoundingBox = pCell->GetBoundingBox();
+    out_BoundingBox = pUserData->m_pCell->GetBoundingBox();
     return EZ_SUCCESS;
   }
 
@@ -460,35 +499,42 @@ void ezSpatialSystem_RegularGrid::SpatialDataAdded(ezSpatialData* pData)
 
 void ezSpatialSystem_RegularGrid::SpatialDataRemoved(ezSpatialData* pData)
 {
-  Cell* pCell = static_cast<Cell*>(pData->m_pUserData);
-  pCell->RemoveData(pData);
+  auto pUserData = reinterpret_cast<SpatialUserData*>(&pData->m_uiUserData[0]);
+  pUserData->m_pCell->RemoveData(pData);
 }
 
 void ezSpatialSystem_RegularGrid::SpatialDataChanged(ezSpatialData* pData, const ezSimdBBoxSphere& oldBounds)
 {
-  Cell* pOldCell = static_cast<Cell*>(pData->m_pUserData);
-  Cell* pNewCell = GetOrCreateCell(pData->m_Bounds);
+  auto pUserData = reinterpret_cast<SpatialUserData*>(&pData->m_uiUserData[0]);
 
-  if (pOldCell == pNewCell)
+  Cell* pOldCell = pUserData->m_pCell;
+  if (pOldCell->m_Bounds.GetBox().Contains(pData->m_Bounds.GetBox()))
   {
     pOldCell->UpdateData(pData);
   }
   else
   {
-    pOldCell->RemoveData(pData);
-    pNewCell->AddData(pData);
+    Cell* pNewCell = GetOrCreateCell(pData->m_Bounds);
+    if (pOldCell == pNewCell)
+    {
+      pOldCell->UpdateData(pData);
+    }
+    else
+    {
+      pOldCell->RemoveData(pData);
+      pNewCell->AddData(pData);
+    }
   }
 }
 
 void ezSpatialSystem_RegularGrid::FixSpatialDataPointer(ezSpatialData* pOldPtr, ezSpatialData* pNewPtr)
 {
-  Cell* pCell = static_cast<Cell*>(pNewPtr->m_pUserData);
+  auto pUserData = reinterpret_cast<SpatialUserData*>(&pNewPtr->m_uiUserData[0]);
+  Cell* pCell = pUserData->m_pCell;
 
-  ezUInt32 dataIndex = 0;
-  EZ_VERIFY(pCell->m_PointerToIndexTable.Remove(pOldPtr, &dataIndex), "Implementation error");
+  ezUInt32 dataIndex = pUserData->m_uiDataIndex;
 
   pCell->m_DataPointers[dataIndex] = pNewPtr;
-  pCell->m_PointerToIndexTable.Insert(pNewPtr, dataIndex);
 }
 
 template <typename Functor>
