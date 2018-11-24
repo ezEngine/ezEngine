@@ -3,8 +3,9 @@
 #include <Core/Messages/DeleteObjectMessage.h>
 #include <Core/World/World.h>
 #include <Core/World/WorldModule.h>
-#include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Memory/FrameAllocator.h>
+#include <Foundation/Utilities/Stats.h>
 
 ezStaticArray<ezWorld*, 64> ezWorld::s_Worlds;
 
@@ -261,6 +262,15 @@ void ezWorld::Update()
   CheckForWriteAccess();
 
   EZ_LOG_BLOCK(m_Data.m_sName.GetData());
+
+  {
+    ezStringBuilder sStatName;
+    sStatName.Format("World Update/{0}/Game Object Count", m_Data.m_sName.GetData());
+
+    ezStringBuilder sStatValue;
+    sStatValue.Format("{0}", GetObjectCount());
+    ezStats::SetStat(sStatName.GetData(), sStatValue.GetData());
+  }
 
   m_Data.m_Clock.SetPaused(!m_Data.m_bSimulateWorld);
   m_Data.m_Clock.Update();
