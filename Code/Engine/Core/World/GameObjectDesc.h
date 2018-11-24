@@ -13,19 +13,14 @@ struct EZ_CORE_DLL ezGameObjectDesc
 
   ezGameObjectDesc()
   {
-    m_bActive = true;
-    m_bDynamic = false;
-    m_uiTeamID = 0;
-
     m_LocalPosition.SetZero();
     m_LocalRotation.SetIdentity();
     m_LocalScaling.Set(1.0f);
-    m_LocalUniformScaling = 1.0f;
   }
 
-  bool m_bActive;
-  bool m_bDynamic;
-  ezUInt16 m_uiTeamID;
+  bool m_bActive = true;
+  bool m_bDynamic = false;
+  ezUInt16 m_uiTeamID = 0;
 
   ezHashedString m_sName;
 
@@ -34,6 +29,6 @@ struct EZ_CORE_DLL ezGameObjectDesc
   ezVec3 m_LocalPosition;
   ezQuat m_LocalRotation;
   ezVec3 m_LocalScaling;
-  float m_LocalUniformScaling;
+  float m_LocalUniformScaling = 1.0f;
   ezTagSet m_Tags;
 };

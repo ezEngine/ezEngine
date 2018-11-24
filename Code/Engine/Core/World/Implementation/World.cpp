@@ -265,11 +265,11 @@ void ezWorld::Update()
 
   {
     ezStringBuilder sStatName;
-    sStatName.Format("World Update/{0}/Game Object Count", m_Data.m_sName.GetData());
+    sStatName.Format("World Update/{0}/Game Object Count", m_Data.m_sName);
 
     ezStringBuilder sStatValue;
     sStatValue.Format("{0}", GetObjectCount());
-    ezStats::SetStat(sStatName.GetData(), sStatValue.GetData());
+    ezStats::SetStat(sStatName, sStatValue);
   }
 
   m_Data.m_Clock.SetPaused(!m_Data.m_bSimulateWorld);
