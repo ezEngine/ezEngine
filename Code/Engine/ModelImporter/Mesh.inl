@@ -60,7 +60,7 @@ namespace ezModelImporter
       {
         for (int stream = 0; stream < NumStreams; ++stream)
         {
-          dataIndices[stream] = dataStreams[stream] ? dataStreams[stream]->GetDataIndex(triangles[t].m_Vertices[v]) : 0;
+          dataIndices[stream] = dataStreams[stream] ? dataStreams[stream]->GetDataIndex(triangles[t].m_Vertices[v]) : VertexDataIndex(0);
         }
 
         ezUInt32 gpuVertexIndex = nextVertexIndex;

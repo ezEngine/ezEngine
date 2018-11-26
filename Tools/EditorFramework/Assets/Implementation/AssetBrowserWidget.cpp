@@ -749,7 +749,7 @@ void ezQtAssetBrowserWidget::OnNewAsset()
   ezString sExtension = pSender->property("Extension").toString().toUtf8().data();
   bool useSelection = pSender->property("UseSelection").toBool();
 
-  QString sStartDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  QString sStartDir = ezToolsProject::GetSingleton()->GetProjectDirectory().GetData();
 
   // find path
   {

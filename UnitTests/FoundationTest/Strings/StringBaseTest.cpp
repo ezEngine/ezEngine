@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 
 // NOTE: always save as Unicode UTF-8 with signature
 
@@ -503,7 +503,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ComputeCharacterPosition")
   {
-    wchar_t* sz = L"mompfhüßß ßßß öäü abcdef abc def abc def";
+    const wchar_t* sz = L"mompfhüßß ßßß öäü abcdef abc def abc def";
     ezStringBuilder s(sz);
 
     EZ_TEST_STRING(s.ComputeCharacterPosition(14), ezStringUtf8(L"öäü abcdef abc def abc def").GetData());

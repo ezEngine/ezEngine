@@ -120,17 +120,17 @@ public:
 
   const PropertyType* GetProperties() const
   {
-    return static_cast<const PropertyType*>(m_ObjectMirror.GetNativeObjectPointer(GetObjectManager()->GetRootObject()->GetChildren()[0]));
+    return static_cast<const PropertyType*>(m_ObjectMirror.GetNativeObjectPointer(this->GetObjectManager()->GetRootObject()->GetChildren()[0]));
   }
 
   PropertyType* GetProperties()
   {
-    return static_cast<PropertyType*>(m_ObjectMirror.GetNativeObjectPointer(GetObjectManager()->GetRootObject()->GetChildren()[0]));
+    return static_cast<PropertyType*>(m_ObjectMirror.GetNativeObjectPointer(this->GetObjectManager()->GetRootObject()->GetChildren()[0]));
   }
 
   ezDocumentObject* GetPropertyObject()
   {
-    return GetObjectManager()->GetRootObject()->GetChildren()[0];
+    return this->GetObjectManager()->GetRootObject()->GetChildren()[0];
   }
 
 protected:
@@ -138,7 +138,7 @@ protected:
   {
     EnsureSettingsObjectExist();
 
-    m_ObjectMirror.InitSender(GetObjectManager());
+    m_ObjectMirror.InitSender(this->GetObjectManager());
     m_ObjectMirror.InitReceiver(&m_Context);
     m_ObjectMirror.SendDocument();
 
@@ -147,7 +147,7 @@ protected:
 
   virtual ezStatus InternalLoadDocument() override
   {
-    GetObjectManager()->DestroyAllObjects();
+    this->GetObjectManager()->DestroyAllObjects();
 
     ezStatus ret = BaseClass::InternalLoadDocument();
 
@@ -164,7 +164,7 @@ protected:
     ezAbstractObjectGraph origGraph;
     ezAbstractObjectNode* pOrigRootNode = nullptr;
     {
-      ezDocumentObjectConverterWriter writer(&origGraph, GetObjectManager());
+      ezDocumentObjectConverterWriter writer(&origGraph, this->GetObjectManager());
       pOrigRootNode = writer.AddObjectToGraph(GetPropertyObject());
     }
 
@@ -196,9 +196,9 @@ protected:
     // As we messed up the native side the object mirror is no longer synced and needs to be destroyed.
     m_ObjectMirror.Clear();
     // Apply diff while object mirror is down.
-    GetObjectAccessor()->StartTransaction("Apply Native Property Changes to Object");
-    ezDocumentObjectConverterReader::ApplyDiffToObject(GetObjectAccessor(), GetPropertyObject(), diffResult);
-    GetObjectAccessor()->FinishTransaction();
+    this->GetObjectAccessor()->StartTransaction("Apply Native Property Changes to Object");
+    ezDocumentObjectConverterReader::ApplyDiffToObject(this->GetObjectAccessor(), GetPropertyObject(), diffResult);
+    this->GetObjectAccessor()->FinishTransaction();
     // Re-apply document
     m_ObjectMirror.SendDocument();
   }
@@ -206,11 +206,11 @@ protected:
 private:
   void EnsureSettingsObjectExist()
   {
-    auto pRoot = GetObjectManager()->GetRootObject();
+    auto pRoot = this->GetObjectManager()->GetRootObject();
     if (pRoot->GetChildren().IsEmpty())
     {
-      ezDocumentObject* pObject = GetObjectManager()->CreateObject(ezGetStaticRTTI<PropertyType>());
-      GetObjectManager()->AddObject(pObject, pRoot, "Children", 0);
+      ezDocumentObject* pObject = this->GetObjectManager()->CreateObject(ezGetStaticRTTI<PropertyType>());
+      this->GetObjectManager()->AddObject(pObject, pRoot, "Children", 0);
     }
   }
 

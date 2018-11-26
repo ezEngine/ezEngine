@@ -255,6 +255,7 @@ set (EZ_BUILD_PHYSX OFF CACHE BOOL "Whether support for nVidia PhysX should be a
 set (EZ_BUILD_KRAUT ON CACHE BOOL "Whether support for Kraut should be added")
 set (EZ_BUILD_FMOD OFF CACHE BOOL "Whether support for FMod should be added")
 set (EZ_BUILD_OFFICIAL_FBX_SDK OFF CACHE BOOL "Whether to use the official Autodesk FBX SDK or not")
+# set (EZ_BUILD_EMBREE OFF CACHE BOOL "Whether support for Embree should be added")
 set (EZ_ENABLE_FOLDER_UNITY_FILES ON CACHE BOOL "Whether unity cpp files should be created per folder")
 set (EZ_ENABLE_PVS_STUDIO_HEADER_IN_UNITY_FILES ON CACHE BOOL "Adds the necessary comment to the generated unity files for PVS checking")
 set (EZ_ENABLE_ENET_SUPPORT ON CACHE BOOL "Whether to add support for Enet. This is needed for Telemetry.")
@@ -323,6 +324,8 @@ if (BUILDSYSTEM_COMPILER_MSVC)
   #set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /fp:except")
   # enable default exception handling
   set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /EHsc")
+  # disable permissive mode
+  set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /permissive-")
 
   # enable standard conform casting behavior - casting results always in rvalue
   set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /Zc:rvalueCast")

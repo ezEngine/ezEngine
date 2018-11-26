@@ -42,7 +42,7 @@ public:
       : ezTypedConstantProperty<Type>(szPropertyName)
       , m_Value(value)
   {
-    EZ_ASSERT_DEBUG(m_Flags.IsSet(ezPropertyFlags::StandardType),
+    EZ_ASSERT_DEBUG(this->m_Flags.IsSet(ezPropertyFlags::StandardType),
                     "Only constants that can be put in an ezVariant are currently supported!");
   }
 

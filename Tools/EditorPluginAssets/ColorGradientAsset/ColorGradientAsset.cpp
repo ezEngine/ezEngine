@@ -218,7 +218,7 @@ ezStatus ezColorGradientAssetDocument::InternalCreateThumbnail(const ezAssetFile
 
     ezUInt8 alpha;
     gradient.EvaluateAlpha(pos, alpha);
-    const ezColorGammaUB alphaColor = ezColorLinearUB(alpha, alpha, alpha, 255);
+    const ezColorLinearUB alphaColor = ezColorLinearUB(alpha, alpha, alpha, 255);
 
     const float fAlphaFactor = ezMath::ColorByteToFloat(alpha);
     ezColor colorWithAlpha = color;
