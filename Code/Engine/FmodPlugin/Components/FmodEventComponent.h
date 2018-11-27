@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <FmodPlugin/Components/FmodComponent.h>
 #include <Core/ResourceManager/Resource.h>
@@ -87,6 +87,9 @@ public:
   const ezFmodSoundEventResourceHandle& GetSoundEvent() const { return m_hSoundEvent; }
 
   ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction;
+
+  void SetShowDebugInfo(bool bShow);
+  bool GetShowDebugInfo() const;
 
 protected:
   bool m_bPaused;

@@ -10,6 +10,10 @@
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Pipeline/View.h>
+
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
@@ -79,6 +83,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 2, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Pitch", GetPitch, SetPitch)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
     EZ_ACCESSOR_PROPERTY("SoundEvent", GetSoundEventFile, SetSoundEventFile)->AddAttributes(new ezAssetBrowserAttribute("Sound Event")),
     EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
+    EZ_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
     //EZ_FUNCTION_PROPERTY("Preview", StartOneShot), // This doesn't seem to be working anymore, and I cannot find code for exposing it in the UI either
   }
   EZ_END_PROPERTIES;
@@ -98,6 +103,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 2, ezComponentMode::Static)
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
+
+enum
+{
+  ShowDebugInfoFlag = 0
+};
 
 ezFmodEventComponent::ezFmodEventComponent()
 {
@@ -238,6 +248,16 @@ void ezFmodEventComponent::SetSoundEvent(const ezFmodSoundEventResourceHandle& h
   }
 
   m_hSoundEvent = hSoundEvent;
+}
+
+void ezFmodEventComponent::SetShowDebugInfo(bool bShow)
+{
+  SetUserFlag(ShowDebugInfoFlag, bShow);
+}
+
+bool ezFmodEventComponent::GetShowDebugInfo() const
+{
+  return GetUserFlag(ShowDebugInfoFlag);
 }
 
 void ezFmodEventComponent::OnDeactivated()
@@ -416,6 +436,8 @@ float ezFmodEventComponent::GetParameter(ezInt32 iParamIndex) const
 
 void ezFmodEventComponent::Update()
 {
+  FMOD_STUDIO_PLAYBACK_STATE state = FMOD_STUDIO_PLAYBACK_FORCEINT;
+
   if (m_pEventInstance)
   {
     if (!m_pEventInstance->isValid())
@@ -426,7 +448,6 @@ void ezFmodEventComponent::Update()
 
     SetParameters3d(m_pEventInstance);
 
-    FMOD_STUDIO_PLAYBACK_STATE state;
     EZ_FMOD_ASSERT(m_pEventInstance->getPlaybackState(&state));
 
     if (state == FMOD_STUDIO_PLAYBACK_STOPPED)
@@ -455,6 +476,58 @@ void ezFmodEventComponent::Update()
       m_pEventInstance->setTimelinePosition(iTimelinePos);
     }
   }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (GetShowDebugInfo())
+  {
+    if (m_pEventInstance)
+    {
+      FMOD::Studio::EventDescription* pDesc = nullptr;
+      m_pEventInstance->getDescription(&pDesc);
+
+      bool is3D = false;
+      pDesc->is3D(&is3D);
+      if (is3D)
+      {
+        float minDistance = 0.0f;
+        float maxDistance = 0.0f;
+        pDesc->getMinimumDistance(&minDistance);
+        pDesc->getMaximumDistance(&maxDistance);
+
+        ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere(GetOwner()->GetGlobalPosition(), minDistance), ezColor::Blue);
+        ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere(GetOwner()->GetGlobalPosition(), maxDistance), ezColor::Cyan);
+      }
+
+      if (auto pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView))
+      {
+        ezVec3 worldPos = GetOwner()->GetGlobalPosition();
+
+        ezVec3 screenPos;
+        if (pView->ComputeScreenSpacePos(worldPos, screenPos).Succeeded())
+        {
+          char path[128];
+          pDesc->getPath(path, EZ_ARRAY_SIZE(path), nullptr);
+
+          const char* szStates[] = {
+              "PLAYING", "SUSTAINING", "STOPPED", "STARTING", "STOPPING"
+          };
+
+          const char* szCurrentState = "Invalid";
+          if (state != FMOD_STUDIO_PLAYBACK_FORCEINT)
+          {
+            szCurrentState = szStates[state];
+          }
+
+          ezStringBuilder sb;
+          sb.Format("{}\\n{}", path, szCurrentState);
+
+          ezDebugRenderer::DrawText(pView->GetHandle(), sb, ezVec2I32((int)screenPos.x, (int)screenPos.y), ezColor::Cyan, 16,
+            ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Bottom);
+        }
+      }
+    }
+  }
+#endif
 }
 
 void ezFmodEventComponent::SetParameters3d(FMOD::Studio::EventInstance* pEventInstance)

@@ -25,6 +25,7 @@ SET (LINK_LIBRARIES
   Foundation
   Core
   GameEngine
+  RendererCore
 )
 
 AddFmod()

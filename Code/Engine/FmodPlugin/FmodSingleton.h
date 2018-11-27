@@ -135,6 +135,7 @@ private:
     ezFmodAssetProfiles m_Configs;
     ezString m_sPlatform;
     ezFmodSoundBankResourceHandle m_hMasterBank;
+    ezFmodSoundBankResourceHandle m_hMasterBankStrings;
     ezHybridArray<ezDataBuffer*, 4> m_SbDeletionQueue;
   };
 

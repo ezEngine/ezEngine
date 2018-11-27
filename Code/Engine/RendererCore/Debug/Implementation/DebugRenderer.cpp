@@ -598,29 +598,74 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
   data.m_texTriangle2DVertices[hTexture].PushBackRange(ezMakeArrayPtr(vertices));
 }
 
-void ezDebugRenderer::DrawText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec2I32& topLeftCornerInPixel,
-                               const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/)
+void ezDebugRenderer::DrawText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec2I32& positionInPixel,
+                               const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/,
+                               HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/,
+                               VerticalAlignment::Enum verticalAlignment /*= VerticalAlignment::Top*/)
 {
   if (text.IsEmpty())
     return;
 
-  EZ_LOCK(s_Mutex);
+  ezHybridArray<ezStringView, 8> lines;
+  ezUInt32 maxLineLength = 0;
 
-  auto& data = GetDataForExtraction(context);
-
-  float fSizeInPixel = (float)uiSizeInPixel;
-  ezVec2 currentPos((float)topLeftCornerInPixel.x, (float)topLeftCornerInPixel.y);
-
-  for (ezUInt32 uiCharacter : text)
+  if (text.FindSubString("\\n"))
   {
-    auto& glyphData = data.m_glyphs.ExpandAndGetRef();
-    glyphData.m_topLeftCorner = currentPos;
-    glyphData.m_color = color;
-    glyphData.m_glyphIndex = uiCharacter < 128 ? uiCharacter : 0;
-    glyphData.m_sizeInPixel = (ezUInt16)uiSizeInPixel;
+    ezStringBuilder sb = text;
+    sb.Split(false, lines, "\\n");
 
-    // Glyphs only use 8x10 pixels in their 16x16 pixel block, thus we don't advance by full size here.
-    currentPos.x += ezMath::Ceil(fSizeInPixel * (8.0f / 16.0f));
+    for (auto& line : lines)
+    {
+      maxLineLength = ezMath::Max(maxLineLength, line.GetElementCount());
+    }
+  }
+  else
+  {
+    lines.PushBack(text);
+    maxLineLength = text.GetElementCount();
+  }
+
+  const float fSizeInPixel = (float)uiSizeInPixel;
+  // Glyphs only use 8x10 pixels in their 16x16 pixel block, thus we don't advance by full size here.
+  const float fGlyphWidth = ezMath::Ceil(fSizeInPixel * (8.0f / 16.0f));
+  const float fLineHeight = ezMath::Ceil(fSizeInPixel * (20.0f / 16.0f));
+
+  float screenPosX = (float)positionInPixel.x;
+  if (horizontalAlignment == HorizontalAlignment::Right)
+    screenPosX -= maxLineLength * fGlyphWidth;
+
+  float screenPosY = (float)positionInPixel.y;
+  if (verticalAlignment == VerticalAlignment::Center)
+    screenPosY -= ezMath::Ceil(lines.GetCount() * fLineHeight * 0.5f);
+  else if (verticalAlignment == VerticalAlignment::Bottom)
+    screenPosY -= lines.GetCount() * fLineHeight;
+
+  {
+    EZ_LOCK(s_Mutex);
+
+    auto& data = GetDataForExtraction(context);
+
+    ezVec2 currentPos(screenPosX, screenPosY);
+
+    for (ezStringView line : lines)
+    {
+      currentPos.x = screenPosX;
+      if (horizontalAlignment == HorizontalAlignment::Center)
+        currentPos.x -= ezMath::Ceil(line.GetElementCount() * fGlyphWidth * 0.5f);
+
+      for (ezUInt32 uiCharacter : line)
+      {
+        auto& glyphData = data.m_glyphs.ExpandAndGetRef();
+        glyphData.m_topLeftCorner = currentPos;
+        glyphData.m_color = color;
+        glyphData.m_glyphIndex = uiCharacter < 128 ? uiCharacter : 0;
+        glyphData.m_sizeInPixel = (ezUInt16)uiSizeInPixel;
+
+        currentPos.x += fGlyphWidth;
+      }
+
+      currentPos.y += fLineHeight;
+    }
   }
 }
 

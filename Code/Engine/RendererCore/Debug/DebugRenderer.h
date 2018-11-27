@@ -1,19 +1,18 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
-#include <RendererCore/Declarations.h>
-#include <RendererCore/Debug/DebugRendererContext.h>
-#include <Foundation/Math/Transform.h>
 #include <Foundation/Math/Color.h>
+#include <Foundation/Math/Transform.h>
+#include <RendererCore/Basics.h>
+#include <RendererCore/Debug/DebugRendererContext.h>
+#include <RendererCore/Declarations.h>
 
 struct ezRenderViewContext;
 
-template<typename Type>
+template <typename Type>
 class ezRectTemplate;
 typedef ezRectTemplate<float> ezRectFloat;
 
 class ezFrustum;
-
 
 class EZ_RENDERERCORE_DLL ezDebugRenderer
 {
@@ -41,19 +40,43 @@ public:
     ezVec3 m_p2;
   };
 
+  struct HorizontalAlignment
+  {
+    enum Enum
+    {
+      Left,
+      Center,
+      Right
+    };
+  };
+
+  struct VerticalAlignment
+  {
+    enum Enum
+    {
+      Top,
+      Center,
+      Bottom
+    };
+  };
+
 
   static void DrawLines(const ezDebugRendererContext& context, ezArrayPtr<Line> lines, const ezColor& color);
 
-  static void DrawLineBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::IdentityTransform());
+  static void DrawLineBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color,
+                          const ezTransform& transform = ezTransform::IdentityTransform());
 
-  static void DrawLineBoxCorners(const ezDebugRendererContext& context, const ezBoundingBox& box, float fCornerFraction, const ezColor& color, const ezTransform& transform = ezTransform::IdentityTransform());
+  static void DrawLineBoxCorners(const ezDebugRendererContext& context, const ezBoundingBox& box, float fCornerFraction,
+                                 const ezColor& color, const ezTransform& transform = ezTransform::IdentityTransform());
 
-  static void DrawLineSphere(const ezDebugRendererContext& context, const ezBoundingSphere& sphere, const ezColor& color, const ezTransform& transform = ezTransform::IdentityTransform());
-
-  static void DrawLineCapsuleZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color,
+  static void DrawLineSphere(const ezDebugRendererContext& context, const ezBoundingSphere& sphere, const ezColor& color,
                              const ezTransform& transform = ezTransform::IdentityTransform());
 
-  static void DrawLineFrustum(const ezDebugRendererContext& context, const ezFrustum& frustum, const ezColor& color, bool bDrawPlaneNormals = false);
+  static void DrawLineCapsuleZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color,
+                               const ezTransform& transform = ezTransform::IdentityTransform());
+
+  static void DrawLineFrustum(const ezDebugRendererContext& context, const ezFrustum& frustum, const ezColor& color,
+                              bool bDrawPlaneNormals = false);
 
   static void DrawSolidBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color,
                            const ezTransform& transform = ezTransform::IdentityTransform());
@@ -62,9 +85,13 @@ public:
 
   static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color);
 
-  static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture);
+  static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color,
+                              const ezTexture2DResourceHandle& hTexture);
 
-  static void DrawText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec2I32& topLeftCornerInPixel, const ezColor& color, ezUInt32 uiSizeInPixel = 16);
+  static void DrawText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec2I32& positionInPixel,
+                       const ezColor& color, ezUInt32 uiSizeInPixel = 16,
+                       HorizontalAlignment::Enum horizontalAlignment = HorizontalAlignment::Left,
+                       VerticalAlignment::Enum verticalAlignment = VerticalAlignment::Top);
 
 private:
   friend class ezSimpleRenderPass;
@@ -79,4 +106,3 @@ private:
 };
 
 #include <RendererCore/Debug/Implementation/DebugRenderer_inl.h>
-

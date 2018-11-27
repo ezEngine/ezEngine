@@ -18,7 +18,7 @@ namespace ezInternal
 
   enum
   {
-    DEFAULT_BLOCK_SIZE = 4096
+    DEFAULT_BLOCK_SIZE = 1024 * 4
   };
 
   typedef ezLargeBlockAllocator<DEFAULT_BLOCK_SIZE> WorldLargeBlockAllocator;
@@ -185,14 +185,14 @@ struct ezObjectFlags
     SimulationStarting = EZ_BIT(6), ///< Used to prevent recursion during OnSimulationStarted()
     UnhandledMessageHandler = EZ_BIT(7), ///< For components, when a message is not handled, a virtual function is called
 
-    UserFlag0 = EZ_BIT(8),
-    UserFlag1 = EZ_BIT(9),
-    UserFlag2 = EZ_BIT(10),
-    UserFlag3 = EZ_BIT(11),
-    UserFlag4 = EZ_BIT(12),
-    UserFlag5 = EZ_BIT(13),
-    UserFlag6 = EZ_BIT(14),
-    UserFlag7 = EZ_BIT(15),
+    UserFlag0 = EZ_BIT(24),
+    UserFlag1 = EZ_BIT(25),
+    UserFlag2 = EZ_BIT(26),
+    UserFlag3 = EZ_BIT(27),
+    UserFlag4 = EZ_BIT(28),
+    UserFlag5 = EZ_BIT(29),
+    UserFlag6 = EZ_BIT(30),
+    UserFlag7 = EZ_BIT(31),
 
     Default = None
   };
@@ -207,6 +207,8 @@ struct ezObjectFlags
     StorageType SimulationStarted : 1;
     StorageType SimulationStarting : 1;
     StorageType UnhandledMessageHandler : 1;
+
+    StorageType Padding : 16;
 
     StorageType UserFlag0 : 1;
     StorageType UserFlag1 : 1;

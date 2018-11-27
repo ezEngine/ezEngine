@@ -143,6 +143,7 @@ void ezFmod::Shutdown()
 
     m_bInitialized = false;
     m_pData->m_hMasterBank.Invalidate();
+    m_pData->m_hMasterBankStrings.Invalidate();
 
     // now also delete the master bank
     ezResourceManager::FreeUnusedResources(true);
@@ -371,10 +372,26 @@ ezResult ezFmod::LoadMasterSoundBank(const char* szMasterBankResourceID)
 
   m_pData->m_hMasterBank = ezResourceManager::LoadResource<ezFmodSoundBankResource>(szMasterBankResourceID);
 
-  ezResourceLock<ezFmodSoundBankResource> pResource(m_pData->m_hMasterBank, ezResourceAcquireMode::NoFallback);
+  {
+    ezResourceLock<ezFmodSoundBankResource> pResource(m_pData->m_hMasterBank, ezResourceAcquireMode::NoFallback);
 
-  if (pResource->IsMissingResource())
-    return EZ_FAILURE;
+    if (pResource->IsMissingResource())
+      return EZ_FAILURE;
+  }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezStringBuilder sStringsBankPath = szMasterBankResourceID;
+  sStringsBankPath.ChangeFileExtension("strings.bank");
+
+  m_pData->m_hMasterBankStrings = ezResourceManager::LoadResource<ezFmodSoundBankResource>(sStringsBankPath);
+
+  {
+    ezResourceLock<ezFmodSoundBankResource> pResource(m_pData->m_hMasterBankStrings, ezResourceAcquireMode::NoFallback);
+
+    if (pResource->IsMissingResource())
+      return EZ_FAILURE;
+  }
+#endif
 
   return EZ_SUCCESS;
 }

@@ -89,24 +89,8 @@ void ezDebugTextComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
       ezStringBuilder sb;
       sb.Format(m_sText, m_fValue0, m_fValue1, m_fValue2, m_fValue3);
 
-      ezHybridArray<ezStringView, 8> lines;
-      sb.Split(false, lines, "\\n");
-
-      int maxLineLength = 0;
-      for (auto& line : lines)
-      {
-        maxLineLength = ezMath::Max<int>(maxLineLength, line.GetElementCount());
-      }
-
-      int screenPosX = (int)screenPos.x - maxLineLength * 4; // one character is 8 pixels wide and we want to center the text
-      int screenPosY = (int)screenPos.y - lines.GetCount() * 20;
-
-      for (auto& line : lines)
-      {
-        ezDebugRenderer::DrawText(msg.m_pView->GetHandle(), line, ezVec2I32(screenPosX, screenPosY), m_Color);
-
-        screenPosY += 20;
-      }
+      ezDebugRenderer::DrawText(msg.m_pView->GetHandle(), sb, ezVec2I32((int)screenPos.x, (int)screenPos.y), m_Color, 16,
+        ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Bottom);
     }
   }
 }
