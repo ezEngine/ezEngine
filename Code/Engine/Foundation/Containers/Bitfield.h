@@ -16,7 +16,7 @@ public:
   ezBitfield();
 
   /// \brief Returns the number of bits that this bitfield stores.
-  EZ_ALWAYS_INLINE ezUInt32 GetCount(); // [tested]
+  EZ_ALWAYS_INLINE ezUInt32 GetCount() const; // [tested]
 
   /// \brief Resizes the Bitfield to hold the given number of bits. This version does NOT initialize new bits!
   void SetCount(ezUInt32 uiBitCount); // [tested]

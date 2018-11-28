@@ -29,7 +29,7 @@ public:
   ///
   /// The running total can be frozen by calling Pause(), which allows to read the result back at a later point in time.
   /// It can be reset to zero using StopAndReset().
-  ezTime GetRunningTotal(); // [tested]
+  ezTime GetRunningTotal() const; // [tested]
 
   /// \brief This function returns the time that has passed since the last call to Checkpoint() or since the construction of the object.
   ///
@@ -42,7 +42,7 @@ public:
 
 private:
   bool m_bRunning;
-  ezTime m_LastUpdate;
+  mutable ezTime m_LastUpdate;
   ezTime m_LastCheckpoint;
-  ezTime m_TotalDuration;
+  mutable ezTime m_TotalDuration;
 };

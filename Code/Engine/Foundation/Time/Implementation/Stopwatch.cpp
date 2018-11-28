@@ -35,7 +35,7 @@ void ezStopwatch::Pause()
   m_TotalDuration += ezTime::Now() - m_LastUpdate;
 }
 
-ezTime ezStopwatch::GetRunningTotal()
+ezTime ezStopwatch::GetRunningTotal() const
 {
   if (m_bRunning)
   {

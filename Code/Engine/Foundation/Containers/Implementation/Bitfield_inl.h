@@ -18,7 +18,7 @@ ezBitfield<Container>::ezBitfield() : m_uiCount(0)
 }
 
 template <class Container>
-ezUInt32 ezBitfield<Container>::GetCount()
+ezUInt32 ezBitfield<Container>::GetCount() const
 {
   return m_uiCount;
 }
