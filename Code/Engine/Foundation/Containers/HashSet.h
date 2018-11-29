@@ -82,7 +82,8 @@ public:
   /// \brief Compares this table to another table.
   bool operator!=(const ezHashSetBase<KeyType, Hasher>& rhs) const; // [tested]
 
-  /// \brief Expands the hashset by over-allocating the internal storage so that the load factor is lower or equal to 60% when inserting the given number of entries.
+  /// \brief Expands the hashset by over-allocating the internal storage so that the load factor is lower or equal to 60% when inserting the
+  /// given number of entries.
   void Reserve(ezUInt32 uiCapacity); // [tested]
 
   /// \brief Tries to compact the hashset to avoid wasting memory.
@@ -113,7 +114,8 @@ public:
   /// \brief Returns a constant Iterator to the very first element.
   ConstIterator GetIterator() const; // [tested]
 
-  /// \brief Returns a constant Iterator to the first element that is not part of the hashset. Needed to implement range based for loop support.
+  /// \brief Returns a constant Iterator to the first element that is not part of the hashset. Needed to implement range based for loop
+  /// support.
   ConstIterator GetEndIterator() const;
 
   /// \brief Returns the allocator that is used by this instance.
@@ -121,6 +123,9 @@ public:
 
   /// \brief Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const; // [tested]
+
+  /// \brief Swaps this map with the other one.
+  void Swap(ezHashSetBase<KeyType, Hasher>& other); // [tested]
 
 private:
   KeyType* m_pEntries;
@@ -179,15 +184,27 @@ public:
 };
 
 template <typename KeyType, typename Hasher>
-typename ezHashSetBase<KeyType, Hasher>::ConstIterator begin(const ezHashSetBase<KeyType, Hasher>& set) { return set.GetIterator(); }
+typename ezHashSetBase<KeyType, Hasher>::ConstIterator begin(const ezHashSetBase<KeyType, Hasher>& set)
+{
+  return set.GetIterator();
+}
 
 template <typename KeyType, typename Hasher>
-typename ezHashSetBase<KeyType, Hasher>::ConstIterator cbegin(const ezHashSetBase<KeyType, Hasher>& set) { return set.GetIterator(); }
+typename ezHashSetBase<KeyType, Hasher>::ConstIterator cbegin(const ezHashSetBase<KeyType, Hasher>& set)
+{
+  return set.GetIterator();
+}
 
 template <typename KeyType, typename Hasher>
-typename ezHashSetBase<KeyType, Hasher>::ConstIterator end(const ezHashSetBase<KeyType, Hasher>& set) { return set.GetEndIterator(); }
+typename ezHashSetBase<KeyType, Hasher>::ConstIterator end(const ezHashSetBase<KeyType, Hasher>& set)
+{
+  return set.GetEndIterator();
+}
 
 template <typename KeyType, typename Hasher>
-typename ezHashSetBase<KeyType, Hasher>::ConstIterator cend(const ezHashSetBase<KeyType, Hasher>& set) { return set.GetEndIterator(); }
+typename ezHashSetBase<KeyType, Hasher>::ConstIterator cend(const ezHashSetBase<KeyType, Hasher>& set)
+{
+  return set.GetEndIterator();
+}
 
 #include <Foundation/Containers/Implementation/HashSet_inl.h>

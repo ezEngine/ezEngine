@@ -177,6 +177,10 @@ public:
   /// \brief Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const; // [tested]
 
+  /// \brief Swaps this map with the other one.
+  void Swap(ezHashTableBase<KeyType, ValueType, Hasher>& other); // [tested]
+
+
 private:
   struct Entry
   {

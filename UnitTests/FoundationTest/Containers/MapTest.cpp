@@ -517,4 +517,34 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
     EZ_TEST_BOOL(stringTable.Remove(sBuilder));
     EZ_TEST_BOOL(stringTable.Remove(sString));
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swap")
+  {
+    ezStringBuilder tmp;
+    ezMap<ezString, ezInt32> map1;
+    ezMap<ezString, ezInt32> map2;
+
+    for (ezUInt32 i = 0; i < 1000; ++i)
+    {
+      tmp.Format("stuff{}bla", i);
+      map1[tmp] = i;
+
+      tmp.Format("{0}{0}{0}", i);
+      map2[tmp] = i;
+    }
+
+    map1.Swap(map2);
+
+    for (ezUInt32 i = 0; i < 1000; ++i)
+    {
+      tmp.Format("stuff{}bla", i);
+      EZ_TEST_BOOL(map2.Contains(tmp));
+      EZ_TEST_INT(map2[tmp], i);
+
+      tmp.Format("{0}{0}{0}", i);
+      EZ_TEST_BOOL(map1.Contains(tmp));
+      EZ_TEST_INT(map1[tmp], i);
+    }
+  }
+
 }

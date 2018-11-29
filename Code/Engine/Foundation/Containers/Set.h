@@ -164,6 +164,9 @@ public:
   /// \brief Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const { return m_Elements.GetHeapMemoryUsage(); } // [tested]
 
+  /// \brief Swaps this map with the other one.
+  void Swap(ezSetBase<KeyType, Comparer>& other); // [tested]
+
 private:
   template <typename CompatibleKeyType>
   Node* Internal_Find(const CompatibleKeyType& key) const;
@@ -198,6 +201,9 @@ private:
 
   /// \brief Returns the right-most node of the tree(largest key).
   Node* GetRightMost() const;
+
+  /// \brief Needed during Swap() to fix up the NilNode pointers from one container to the other
+  void SwapNilNode(Node*& pCurNode, NilNode* pOld, NilNode* pNew);
 
   /// \brief Root node of the tree.
   Node* m_pRoot;

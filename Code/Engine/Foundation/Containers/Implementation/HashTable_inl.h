@@ -704,3 +704,13 @@ void ezHashTable<K, V, H, A>::operator=(ezHashTableBase<K, V, H>&& rhs)
 {
   ezHashTableBase<K, V, H>::operator=(std::move(rhs));
 }
+
+template <typename KeyType, typename ValueType, typename Hasher>
+void ezHashTableBase<KeyType, ValueType, Hasher>::Swap(ezHashTableBase<KeyType, ValueType, Hasher>& other)
+{
+  ezMath::Swap(this->m_pEntries, other.m_pEntries);
+  ezMath::Swap(this->m_pEntryFlags, other.m_pEntryFlags);
+  ezMath::Swap(this->m_uiCount, other.m_uiCount);
+  ezMath::Swap(this->m_uiCapacity, other.m_uiCapacity);
+  ezMath::Swap(this->m_pAllocator, other.m_pAllocator);
+}

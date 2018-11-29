@@ -761,3 +761,31 @@ void ezSet<KeyType, Comparer, AllocatorWrapper>::operator=(const ezSetBase<KeyTy
 {
   ezSetBase<KeyType, Comparer>::operator=(rhs);
 }
+
+template <typename KeyType, typename Comparer>
+void ezSetBase<KeyType, Comparer>::Swap(ezSetBase<KeyType, Comparer>& other)
+{
+  SwapNilNode(this->m_pRoot, &this->m_NilNode, &other.m_NilNode);
+  SwapNilNode(other.m_pRoot, &other.m_NilNode, &this->m_NilNode);
+
+  ezMath::Swap(this->m_pRoot, other.m_pRoot);
+  ezMath::Swap(this->m_uiCount, other.m_uiCount);
+  ezMath::Swap(this->m_pFreeElementStack, other.m_pFreeElementStack);
+  ezMath::Swap(this->m_Comparer, other.m_Comparer);
+
+  // the set allocator is stored in this array
+  m_Elements.Swap(other.m_Elements);
+}
+
+template <typename KeyType, typename Comparer>
+void ezSetBase<KeyType, Comparer>::SwapNilNode(Node*& pCurNode, NilNode* pOld, NilNode* pNew)
+{
+  if (pCurNode == pOld)
+  {
+    pCurNode = reinterpret_cast<Node*>(pNew);
+    return;
+  }
+
+  SwapNilNode(pCurNode->m_pLink[0], pOld, pNew);
+  SwapNilNode(pCurNode->m_pLink[1], pOld, pNew);
+}

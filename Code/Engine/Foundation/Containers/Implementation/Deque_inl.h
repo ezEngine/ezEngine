@@ -269,7 +269,7 @@ void ezDequeBase<T, Construct>::Compact()
 template <typename T, bool Construct>
 void ezDequeBase<T, Construct>::Swap(ezDequeBase<T, Construct>& other)
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
+  ezMath::Swap(this->m_pAllocator, other.m_pAllocator);
   ezMath::Swap(this->m_pChunks, other.m_pChunks);
   ezMath::Swap(this->m_uiChunks, other.m_uiChunks);
   ezMath::Swap(this->m_uiFirstElement, other.m_uiFirstElement);

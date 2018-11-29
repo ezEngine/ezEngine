@@ -117,13 +117,6 @@ void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Prev()
 // ***** ezMapBase *****
 
 template <typename KeyType, typename ValueType, typename Comparer>
-EZ_ALWAYS_INLINE ezMapBase<KeyType, ValueType, Comparer>::NilNode::NilNode() : m_pParent(nullptr), m_uiLevel(0)
-{
-  m_pLink[0] = nullptr;
-  m_pLink[1] = nullptr;
-}
-
-template <typename KeyType, typename ValueType, typename Comparer>
 void ezMapBase<KeyType, ValueType, Comparer>::Constructor()
 {
   m_uiCount = 0;
@@ -816,4 +809,33 @@ template <typename KeyType, typename ValueType, typename Comparer, typename Allo
 void ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::operator=(const ezMapBase<KeyType, ValueType, Comparer>& rhs)
 {
   ezMapBase<KeyType, ValueType, Comparer>::operator=(rhs);
+}
+
+template <typename KeyType, typename ValueType, typename Comparer>
+void ezMapBase<KeyType, ValueType, Comparer>::Swap(ezMapBase<KeyType, ValueType, Comparer>& other)
+{
+  SwapNilNode(this->m_pRoot, &this->m_NilNode, &other.m_NilNode);
+  SwapNilNode(other.m_pRoot, &other.m_NilNode, &this->m_NilNode);
+
+  ezMath::Swap(this->m_pRoot, other.m_pRoot);
+  ezMath::Swap(this->m_uiCount, other.m_uiCount);
+  ezMath::Swap(this->m_pFreeElementStack, other.m_pFreeElementStack);
+  ezMath::Swap(this->m_Comparer, other.m_Comparer);
+
+  // the set allocator is stored in this array
+  m_Elements.Swap(other.m_Elements);
+
+}
+
+template <typename KeyType, typename ValueType, typename Comparer>
+void ezMapBase<KeyType, ValueType, Comparer>::SwapNilNode(Node*& pCurNode, NilNode* pOld, NilNode* pNew)
+{
+  if (pCurNode == pOld)
+  {
+    pCurNode = reinterpret_cast<Node*>(pNew);
+    return;
+  }
+
+  SwapNilNode(pCurNode->m_pLink[0], pOld, pNew);
+  SwapNilNode(pCurNode->m_pLink[1], pOld, pNew);
 }

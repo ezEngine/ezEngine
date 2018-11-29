@@ -520,4 +520,31 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
 
     EZ_TEST_BOOL(m == m2);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swap")
+  {
+    ezStringBuilder tmp;
+    ezSet<ezString> set1;
+    ezSet<ezString> set2;
+
+    for (ezUInt32 i = 0; i < 1000; ++i)
+    {
+      tmp.Format("stuff{}bla", i);
+      set1.Insert(tmp);
+
+      tmp.Format("{0}{0}{0}", i);
+      set2.Insert(tmp);
+    }
+
+    set1.Swap(set2);
+
+    for (ezUInt32 i = 0; i < 1000; ++i)
+    {
+      tmp.Format("stuff{}bla", i);
+      EZ_TEST_BOOL(set2.Contains(tmp));
+
+      tmp.Format("{0}{0}{0}", i);
+      EZ_TEST_BOOL(set1.Contains(tmp));
+    }
+  }
 }
