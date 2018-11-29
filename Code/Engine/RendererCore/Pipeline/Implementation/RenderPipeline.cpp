@@ -285,10 +285,7 @@ ezRenderPipeline::PipelineState ezRenderPipeline::Rebuild(const ezView& view)
   else
   {
     // make sure the renderdata stores the updated view data
-    auto& data = m_Data[ezRenderWorld::GetDataIndexForRendering()];
-
-    data.SetCamera(*view.GetCamera());
-    data.SetViewData(view.GetData());
+    UpdateViewData(view, ezRenderWorld::GetDataIndexForRendering());
   }
 
   m_PipelineState = bRes ? PipelineState::Initialized : PipelineState::RebuildError;
@@ -682,18 +679,19 @@ void ezRenderPipeline::SortExtractors()
   m_Extractors.Swap(sortedExtractors);
 }
 
-void ezRenderPipeline::UpdateViewData(const ezView& view)
+void ezRenderPipeline::UpdateViewData(const ezView& view, ezUInt32 uiDataIndex)
 {
   if (!view.IsValid())
     return;
 
-  if (m_CurrentExtractThread == (ezThreadID)0)
-  {
-    auto& data = m_Data[ezRenderWorld::GetDataIndexForExtraction()];
+  if (uiDataIndex == ezRenderWorld::GetDataIndexForExtraction() && m_CurrentExtractThread != (ezThreadID)0)
+    return;
 
-    data.SetCamera(*view.GetCamera());
-    data.SetViewData(view.GetData());
-  }
+  EZ_ASSERT_DEV(uiDataIndex <= 1, "Data index must be 0 or 1");  
+  auto& data = m_Data[uiDataIndex];
+
+  data.SetCamera(*view.GetCamera());
+  data.SetViewData(view.GetData());  
 }
 
 void ezRenderPipeline::AddExtractor(ezUniquePtr<ezExtractor>&& pExtractor)

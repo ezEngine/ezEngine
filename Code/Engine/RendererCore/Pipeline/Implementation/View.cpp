@@ -103,10 +103,7 @@ void ezView::SetViewport(const ezRectFloat& viewport)
 {
   m_Data.m_ViewPortRect = viewport;
 
-  if (m_pRenderPipeline != nullptr)
-  {
-    m_pRenderPipeline->UpdateViewData(*this);
-  }
+  UpdateViewData(ezRenderWorld::GetDataIndexForExtraction());
 }
 
 void ezView::ExtractData()
@@ -165,6 +162,14 @@ bool ezView::IsRenderPassReadBackPropertyExisting(const char* szPassName, const 
 
   auto it = m_PassReadBackProperties.Find(sKey);
   return it.IsValid();
+}
+
+void ezView::UpdateViewData(ezUInt32 uiDataIndex)
+{
+  if (m_pRenderPipeline != nullptr)
+  {
+    m_pRenderPipeline->UpdateViewData(*this, uiDataIndex);
+  }
 }
 
 void ezView::UpdateCachedMatrices() const

@@ -108,6 +108,12 @@ public:
   ezVariant GetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName);
   bool IsRenderPassReadBackPropertyExisting(const char* szPassName, const char* szPropertyName) const;
 
+  /// \brief Pushes the view and camera data into the extracted data of the pipeline.
+  ///
+  /// Use ezRenderWorld::GetDataIndexForExtraction() to update the data from the extraction thread. Can't be used if this view is currently extracted.
+  /// Use ezRenderWorld::GetDataIndexForRendering() to update the data from the render thread.
+  void UpdateViewData(ezUInt32 uiDataIndex);
+
   ezTagSet m_IncludeTags;
   ezTagSet m_ExcludeTags;
 

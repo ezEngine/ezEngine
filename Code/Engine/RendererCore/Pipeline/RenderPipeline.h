@@ -71,7 +71,7 @@ private:
   bool CreateRenderTargetUsage(const ezView& view);
   bool InitRenderPipelinePasses();
   void SortExtractors();
-  void UpdateViewData(const ezView& view);
+  void UpdateViewData(const ezView& view, ezUInt32 uiDataIndex);
 
   void RemoveConnections(ezRenderPipelinePass* pPass);
   void ClearRenderPassGraphTextures();
