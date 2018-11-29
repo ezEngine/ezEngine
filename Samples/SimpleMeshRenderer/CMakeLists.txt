@@ -1,4 +1,4 @@
-﻿#cmake
+#cmake
 
 #
 # Copy this file into the folder of an engine library to add it to the solution.
@@ -30,6 +30,10 @@ SET (LINK_LIBRARIES
   InspectorPlugin
 )
 
+if (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP AND EZ_BUILD_OPENVR)
+  add_definitions (-DFORCE_LOAD_OPEN_VR_PLUGIN)
+  LIST(APPEND LINK_LIBRARIES OpenVRPlugin)
+endif()
 if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP AND EZ_ENABLE_MIXEDREALITY_SUPPORT)
   LIST(APPEND LINK_LIBRARIES WindowsMixedReality)
 endif()

@@ -155,7 +155,7 @@ void SimpleMeshRendererGameState::CreateGameLevel()
   //  m_pMainWorld->CreateObject(obj, pObj);
 
   //  pMeshCompMan->CreateComponent(pObj, pMesh);
-  //  pMesh->SetMesh(hMeshBarrel); 
+  //  pMesh->SetMesh(hMeshBarrel);
   //}
 
   // Tree Mesh
@@ -164,7 +164,7 @@ void SimpleMeshRendererGameState::CreateGameLevel()
   //  obj.m_LocalScaling.Set(0.5f);
   //  obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(75));
   //  obj.m_LocalPosition.x = 5;
-  //  m_pMainWorld->CreateObject(obj, pObj); 
+  //  m_pMainWorld->CreateObject(obj, pObj);
 
   //  pMeshCompMan->CreateComponent(pObj, pMesh);
   //  pMesh->SetMesh(hMeshTree);
@@ -215,12 +215,30 @@ void SimpleMeshRendererGameState::MoveObjectToPosition(const ezVec3& pos)
 #endif
 }
 
+/// \brief This is only here to load the OpenVR plugin.
+/// TODO: Is there a better way?
+class ezSimpleMeshRendererApplication : public ezGameApplication
+{
+public:
+  ezSimpleMeshRendererApplication(const char* szAppName, ezGameApplicationType type, const char* szProjectPath)
+      : ezGameApplication(szAppName, type, szProjectPath)
+  {
+  }
+
+#ifdef FORCE_LOAD_OPEN_VR_PLUGIN
+  virtual void DoLoadCustomPlugins() override
+  {
+    ezGameApplication::DoLoadCustomPlugins();
+    ezPlugin::LoadPlugin("ezOpenVRPlugin");
+  }
+#endif
+};
 
 // This application supports being compiled for both modes
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-EZ_APPLICATION_ENTRY_POINT(ezGameApplication, "SimpleMeshRenderer", ezGameApplicationType::StandAloneMixedReality, "Data/Samples/SimpleMeshRenderer");
+EZ_APPLICATION_ENTRY_POINT(ezSimpleMeshRendererApplication, "SimpleMeshRenderer", ezGameApplicationType::StandAloneMixedReality,
+                           "Data/Samples/SimpleMeshRenderer");
 #else
-EZ_APPLICATION_ENTRY_POINT(ezGameApplication, "SimpleMeshRenderer", ezGameApplicationType::StandAlone, "Data/Samples/SimpleMeshRenderer");
+EZ_APPLICATION_ENTRY_POINT(ezSimpleMeshRendererApplication, "SimpleMeshRenderer", ezGameApplicationType::StandAlone,
+                           "Data/Samples/SimpleMeshRenderer");
 #endif
-
-

@@ -3,6 +3,8 @@
 
 #include <Core/World/World.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/Configuration/Singleton.h>
+#include <GameEngine/Interfaces/VRInterface.h>
 #include <GameEngine/Components/PlayerStartPointComponent.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/GameStateWindow.h>
@@ -31,7 +33,12 @@ void ezGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPositio
 {
   m_pMainWorld = pWorld;
   bool bCreateNewWindow = true;
-
+  m_bVirtualRealityMode = ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-vr", false);
+  if (m_bVirtualRealityMode && !ezSingletonRegistry::GetSingletonInstance<ezVRInterface>("ezVRInterface"))
+  {
+    m_bVirtualRealityMode = false;
+    ezLog::Error("-vr argument ignored, no ezVRInterface present.");
+  }
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   if ((GetApplication()->GetAppType() == ezGameApplicationType::StandAloneMixedReality ||
        GetApplication()->GetAppType() == ezGameApplicationType::EmbeddedInToolMixedReality) &&
@@ -62,6 +69,16 @@ void ezGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPositio
     }
     else
 #endif
+        if (m_bVirtualRealityMode)
+    {
+      // TODO: Don't hardcode the HololensRenderPipeline.ezRendePipelineAsset
+      auto hRenderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 2fe25ded-776c-7f9e-354f-e4c52a33d125 }");
+      ezVRInterface* pVRInterface = ezSingletonRegistry::GetSingletonInstance<ezVRInterface>("ezVRInterface");
+      pVRInterface->Initialize();
+      m_hMainView = pVRInterface->CreateVRView(hRenderPipeline, &m_MainCamera);
+      ChangeMainWorld(pWorld);
+    }
+    else
     {
       const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_hMainSwapChain);
       SetupMainView(ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(pSwapChain->GetBackBufferTexture()));
@@ -79,8 +96,16 @@ void ezGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPositio
 
 void ezGameState::OnDeactivation()
 {
-  ezRenderWorld::DeleteView(m_hMainView);
-
+  if (m_bVirtualRealityMode)
+  {
+    ezVRInterface* pVRInterface = ezSingletonRegistry::GetSingletonInstance<ezVRInterface>("ezVRInterface");
+    pVRInterface->DestroyVRView();
+    pVRInterface->Deinitialize();
+  }
+  else
+  {
+    ezRenderWorld::DeleteView(m_hMainView);
+  }
   DestroyMainWindow();
 }
 

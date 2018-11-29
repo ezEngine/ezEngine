@@ -1,0 +1,55 @@
+#cmake
+
+macro(AddOpenVR)
+
+	# Ignore call if OpenVR is disabled!
+	if (EZ_BUILD_OPENVR)
+		set (EZ_OPENVR_DIR "" CACHE PATH "Directory of the OpenVR SDK")
+		
+		include_directories ("${EZ_OPENVR_DIR}/headers")
+
+		set (EZ_OPENVR_PLATFORM "")
+
+		if (${BUILDSYSTEM_PLATFORM_WINDOWS})
+			set (EZ_OPENVR_PLATFORM "win")
+		elseif (${BUILDSYSTEM_PLATFORM_OSX})
+			set (EZ_OPENVR_PLATFORM "osx")
+		elseif (${BUILDSYSTEM_PLATFORM_LINUX})
+			set (EZ_OPENVR_PLATFORM "linux")
+		endif()
+
+		if (${BUILDSYSTEM_PLATFORM_64BIT})
+			set (EZ_OPENVR_PLATFORM "${EZ_OPENVR_PLATFORM}64")
+		else()
+			set (EZ_OPENVR_PLATFORM "${EZ_OPENVR_PLATFORM}32")
+		endif()
+		  
+		link_directories ("${EZ_OPENVR_DIR}/lib/${EZ_OPENVR_PLATFORM}")
+
+		SET (LINK_LIBRARIES ${LINK_LIBRARIES} openvr_api)
+
+		# Make part of the AppX bundle for uwp build
+		if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
+			SET (OPENVR_DLLS
+				${EZ_OPENVR_DIR}/bin/${EZ_OPENVR_PLATFORM}/openvr_api.dll
+			)
+
+			set_property(SOURCE ${OPENVR_DLLS} PROPERTY VS_DEPLOYMENT_CONTENT 1)
+			set_property(SOURCE ${OPENVR_DLLS} PROPERTY VS_DEPLOYMENT_LOCATION "")
+			source_group("OpenVR Dlls" FILES ${OPENVR_DLLS})
+
+			set(CONTENT_FILES ${CONTENT_FILES} ${OPENVR_DLLS})
+		endif()
+	endif()
+
+endmacro()
+
+# TODO: Currently windows only.
+MACRO(CopyOpenVRDlls)
+	if (EZ_BUILD_OPENVR)
+		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			"${EZ_OPENVR_DIR}/bin/${EZ_OPENVR_PLATFORM}/openvr_api.dll"
+			$<TARGET_FILE_DIR:${PROJECT_NAME}>)
+	endif()
+ENDMACRO()

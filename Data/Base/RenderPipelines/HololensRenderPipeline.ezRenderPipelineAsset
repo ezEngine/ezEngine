@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2725015508337577781,9195918795680669165}}
-		u4 %Hash{16568803746129530687}
+		u4 %Hash{6186419077200732658}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -88,6 +88,18 @@ o
 }
 o
 {
+	Uuid %id{u4{4261499106640345793,4341579768377919816}}
+	s %t{"ConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"DepthStencil"}
+		Uuid %Target{u4{13322696006305406385,5091989779618512607}}
+		s %TargetPin{"DepthStencil"}
+	}
+}
+o
+{
 	Uuid %id{u4{6992213900229058551,4414397420737327975}}
 	s %t{"ezPassThroughNodePin"}
 	u3 %v{1}
@@ -159,6 +171,7 @@ o
 		VarArray %Node::Connections
 		{
 			Uuid{u4{12321167046213589368,13757540492610412291}}
+			Uuid{u4{4944270853096801429,7507451448114355947}}
 		}
 		Vec2 %Node::Pos{f{0x25666FC4,0xBDE1ADC3}}
 		VarArray %Renderers
@@ -331,6 +344,18 @@ o
 }
 o
 {
+	Uuid %id{u4{4944270853096801429,7507451448114355947}}
+	s %t{"ConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"DepthStencil"}
+		Uuid %Target{u4{6729344220346715180,10497512716873575548}}
+		s %TargetPin{"DepthStencil"}
+	}
+}
+o
+{
 	Uuid %id{u4{3979026559259545303,7578757460984205823}}
 	s %t{"ConnectionInternal"}
 	u3 %v{1}
@@ -377,6 +402,7 @@ o
 		VarArray %Node::Connections
 		{
 			Uuid{u4{12239357584562417555,11394570248101169272}}
+			Uuid{u4{4261499106640345793,4341579768377919816}}
 		}
 		Vec2 %Node::Pos{f{0xE9F01DC4,0x6C7CA5C3}}
 		VarArray %Renderers{}
@@ -722,7 +748,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshRenderer"}
-		u3 %TypeSize{16}
+		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

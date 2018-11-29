@@ -30,6 +30,7 @@ struct ezGameApplicationEvent
     BeforeUpdatePlugins,
     AfterUpdatePlugins,
     BeforePresent,
+    AfterPresent,
     EndAppTick,
     AfterWorldCreated,    // m_pData -> ezWorld*
     BeforeWorldDestroyed, // m_pData -> ezWorld*

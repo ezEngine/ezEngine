@@ -4,8 +4,14 @@
   #error "MaterialPixelShaderSimplified supports only the forward render pass"
 #endif
 
-#if MSAA
-  #error "MaterialPixelShaderSimplified does not support MSAA"
+#if BLEND_MODE == BLEND_MODE_MASKED && RENDER_PASS != RENDER_PASS_WIREFRAME
+
+  #if defined(MSAA)
+    #if MSAA == TRUE
+      #define USE_ALPHA_TEST_SUPER_SAMPLING
+    #endif
+  #endif
+
 #endif
 
 //include <Shaders/Common/Lighting.h>
@@ -15,6 +21,10 @@
 struct PS_OUT
 {
   float4 Color : SV_Target;
+  
+  #if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
+    uint Coverage : SV_Coverage;
+  #endif
 };
 
 PS_OUT main(PS_IN Input)
@@ -28,11 +38,14 @@ PS_OUT main(PS_IN Input)
   PS_OUT Output;
 
   #if BLEND_MODE == BLEND_MODE_MASKED
-    uint coverage = CalculateCoverage(Input);
+    uint coverage = CalculateCoverage();
     if (coverage == 0)
     {
       discard;
     }
+    #if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
+      Output.Coverage = coverage;
+    #endif
   #endif
 
   ezMaterialData matData = FillMaterialData();

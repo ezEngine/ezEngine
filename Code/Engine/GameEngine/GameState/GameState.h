@@ -156,5 +156,6 @@ private:
   friend class ezGameApplication;
   ezGameApplication* m_pApplication = nullptr;
   bool m_bMixedRealityMode = false;
+  bool m_bVirtualRealityMode = false;
 };
 

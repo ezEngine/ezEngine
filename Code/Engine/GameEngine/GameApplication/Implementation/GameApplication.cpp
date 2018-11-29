@@ -608,6 +608,11 @@ void ezGameApplication::UpdateWorldsAndRender()
       }
     }
 
+    {
+      ezGameApplicationEvent e;
+      e.m_Type = ezGameApplicationEvent::Type::AfterPresent;
+      m_Events.Broadcast(e);
+    }
     pDevice->EndFrame();
   }
 
