@@ -6,7 +6,7 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Debug/SimpleASCIIFont.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererCore/Pipeline/Declarations.h>
+#include <RendererCore/Pipeline/ViewData.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Shader/ShaderResource.h>
@@ -64,6 +64,19 @@ namespace
 
   EZ_CHECK_AT_COMPILETIME(sizeof(GlyphData) == 16);
 
+  struct TextLineData2D
+  {
+    ezString m_text;
+    ezVec2 m_topLeftCorner;
+    ezColorLinearUB m_color;
+    ezUInt32 m_uiSizeInPixel;
+  };
+
+  struct TextLineData3D : public TextLineData2D
+  {
+    ezVec3 m_position;
+  };
+
   struct PerContextData
   {
     ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_lineVertices;
@@ -71,8 +84,10 @@ namespace
     ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_triangle2DVertices;
     ezDynamicArray<BoxData, ezAlignedAllocatorWrapper> m_lineBoxes;
     ezDynamicArray<BoxData, ezAlignedAllocatorWrapper> m_solidBoxes;
-    ezDynamicArray<GlyphData, ezAlignedAllocatorWrapper> m_glyphs;
     ezMap<ezTexture2DResourceHandle, ezDynamicArray<TexVertex, ezAlignedAllocatorWrapper>> m_texTriangle2DVertices;
+
+    ezDynamicArray<TextLineData2D> m_textLines2D;
+    ezDynamicArray<TextLineData3D> m_textLines3D;
   };
 
   struct DoubleBufferedPerContextData
@@ -91,7 +106,7 @@ namespace
   static ezHashTable<ezDebugRendererContext, DoubleBufferedPerContextData> s_PerContextData;
   static ezMutex s_Mutex;
 
-  PerContextData& GetDataForExtraction(const ezDebugRendererContext& context)
+  static PerContextData& GetDataForExtraction(const ezDebugRendererContext& context)
   {
     DoubleBufferedPerContextData& doubleBufferedData = s_PerContextData[context];
 
@@ -110,7 +125,7 @@ namespace
     return *pData;
   }
 
-  void ClearRenderData(ezUInt64)
+  static void ClearRenderData(ezUInt64)
   {
     EZ_LOCK(s_Mutex);
 
@@ -125,7 +140,8 @@ namespace
         pData->m_triangleVertices.Clear();
         pData->m_triangle2DVertices.Clear();
         pData->m_texTriangle2DVertices.Clear();
-        pData->m_glyphs.Clear();
+        pData->m_textLines2D.Clear();
+        pData->m_textLines3D.Clear();
       }
     }
   }
@@ -208,6 +224,84 @@ namespace
       pDevice->DestroyBuffer(s_hDataBuffer[bufferType]);
 
       s_hDataBuffer[bufferType].Invalidate();
+    }
+  }
+
+  template <typename AddFunc>
+  static void AddTextLines(const ezDebugRendererContext& context, ezStringView text, const ezVec2I32& positionInPixel, float fSizeInPixel,
+                           ezDebugRenderer::HorizontalAlignment::Enum horizontalAlignment,
+                           ezDebugRenderer::VerticalAlignment::Enum verticalAlignment, AddFunc func)
+  {
+    if (text.IsEmpty())
+      return;
+
+    ezHybridArray<ezStringView, 8> lines;
+    ezUInt32 maxLineLength = 0;
+
+    if (text.FindSubString("\\n"))
+    {
+      ezStringBuilder sb = text;
+      sb.Split(false, lines, "\\n");
+
+      for (auto& line : lines)
+      {
+        maxLineLength = ezMath::Max(maxLineLength, line.GetElementCount());
+      }
+    }
+    else
+    {
+      lines.PushBack(text);
+      maxLineLength = text.GetElementCount();
+    }
+
+    // Glyphs only use 8x10 pixels in their 16x16 pixel block, thus we don't advance by full size here.
+    const float fGlyphWidth = ezMath::Ceil(fSizeInPixel * (8.0f / 16.0f));
+    const float fLineHeight = ezMath::Ceil(fSizeInPixel * (20.0f / 16.0f));
+
+    float screenPosX = (float)positionInPixel.x;
+    if (horizontalAlignment == ezDebugRenderer::HorizontalAlignment::Right)
+      screenPosX -= maxLineLength * fGlyphWidth;
+
+    float screenPosY = (float)positionInPixel.y;
+    if (verticalAlignment == ezDebugRenderer::VerticalAlignment::Center)
+      screenPosY -= ezMath::Ceil(lines.GetCount() * fLineHeight * 0.5f);
+    else if (verticalAlignment == ezDebugRenderer::VerticalAlignment::Bottom)
+      screenPosY -= lines.GetCount() * fLineHeight;
+
+    {
+      EZ_LOCK(s_Mutex);
+
+      auto& data = GetDataForExtraction(context);
+
+      ezVec2 currentPos(screenPosX, screenPosY);
+
+      for (ezStringView line : lines)
+      {
+        currentPos.x = screenPosX;
+        if (horizontalAlignment == ezDebugRenderer::HorizontalAlignment::Center)
+          currentPos.x -= ezMath::Ceil(line.GetElementCount() * fGlyphWidth * 0.5f);
+
+        func(data, line, currentPos);
+
+        currentPos.y += fLineHeight;
+      }
+    }
+  }
+
+  static void AppendGlyphs(ezDynamicArray<GlyphData, ezAlignedAllocatorWrapper>& glyphs, const TextLineData2D& textLine)
+  {
+    ezVec2 currentPos = textLine.m_topLeftCorner;
+    const float fGlyphWidth = ezMath::Ceil(textLine.m_uiSizeInPixel * (8.0f / 16.0f));
+
+    for (ezUInt32 uiCharacter : textLine.m_text)
+    {
+      auto& glyphData = glyphs.ExpandAndGetRef();
+      glyphData.m_topLeftCorner = currentPos;
+      glyphData.m_color = textLine.m_color;
+      glyphData.m_glyphIndex = uiCharacter < 128 ? uiCharacter : 0;
+      glyphData.m_sizeInPixel = (ezUInt16)textLine.m_uiSizeInPixel;
+
+      currentPos.x += fGlyphWidth;
     }
   }
 } // namespace
@@ -598,75 +692,38 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
   data.m_texTriangle2DVertices[hTexture].PushBackRange(ezMakeArrayPtr(vertices));
 }
 
-void ezDebugRenderer::DrawText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec2I32& positionInPixel,
+void ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec2I32& positionInPixel,
                                const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/,
                                HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/,
                                VerticalAlignment::Enum verticalAlignment /*= VerticalAlignment::Top*/)
 {
-  if (text.IsEmpty())
-    return;
-
-  ezHybridArray<ezStringView, 8> lines;
-  ezUInt32 maxLineLength = 0;
-
-  if (text.FindSubString("\\n"))
-  {
-    ezStringBuilder sb = text;
-    sb.Split(false, lines, "\\n");
-
-    for (auto& line : lines)
+  AddTextLines(context, text, positionInPixel, (float)uiSizeInPixel, horizontalAlignment, verticalAlignment,
+    [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner)
     {
-      maxLineLength = ezMath::Max(maxLineLength, line.GetElementCount());
-    }
-  }
-  else
-  {
-    lines.PushBack(text);
-    maxLineLength = text.GetElementCount();
-  }
+      auto& textLine = data.m_textLines2D.ExpandAndGetRef();
+      textLine.m_text = line;
+      textLine.m_topLeftCorner = topLeftCorner;
+      textLine.m_color = color;
+      textLine.m_uiSizeInPixel = uiSizeInPixel;
+    });
+}
 
-  const float fSizeInPixel = (float)uiSizeInPixel;
-  // Glyphs only use 8x10 pixels in their 16x16 pixel block, thus we don't advance by full size here.
-  const float fGlyphWidth = ezMath::Ceil(fSizeInPixel * (8.0f / 16.0f));
-  const float fLineHeight = ezMath::Ceil(fSizeInPixel * (20.0f / 16.0f));
 
-  float screenPosX = (float)positionInPixel.x;
-  if (horizontalAlignment == HorizontalAlignment::Right)
-    screenPosX -= maxLineLength * fGlyphWidth;
-
-  float screenPosY = (float)positionInPixel.y;
-  if (verticalAlignment == VerticalAlignment::Center)
-    screenPosY -= ezMath::Ceil(lines.GetCount() * fLineHeight * 0.5f);
-  else if (verticalAlignment == VerticalAlignment::Bottom)
-    screenPosY -= lines.GetCount() * fLineHeight;
-
-  {
-    EZ_LOCK(s_Mutex);
-
-    auto& data = GetDataForExtraction(context);
-
-    ezVec2 currentPos(screenPosX, screenPosY);
-
-    for (ezStringView line : lines)
+void ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec3& globalPosition,
+                                 const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/,
+                                 HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/,
+                                 VerticalAlignment::Enum verticalAlignment /*= VerticalAlignment::Top*/)
+{
+  AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment,
+    [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner)
     {
-      currentPos.x = screenPosX;
-      if (horizontalAlignment == HorizontalAlignment::Center)
-        currentPos.x -= ezMath::Ceil(line.GetElementCount() * fGlyphWidth * 0.5f);
-
-      for (ezUInt32 uiCharacter : line)
-      {
-        auto& glyphData = data.m_glyphs.ExpandAndGetRef();
-        glyphData.m_topLeftCorner = currentPos;
-        glyphData.m_color = color;
-        glyphData.m_glyphIndex = uiCharacter < 128 ? uiCharacter : 0;
-        glyphData.m_sizeInPixel = (ezUInt16)uiSizeInPixel;
-
-        currentPos.x += fGlyphWidth;
-      }
-
-      currentPos.y += fLineHeight;
-    }
-  }
+      auto& textLine = data.m_textLines3D.ExpandAndGetRef();
+      textLine.m_text = line;
+      textLine.m_topLeftCorner = topLeftCorner;
+      textLine.m_color = color;
+      textLine.m_uiSizeInPixel = uiSizeInPixel;
+      textLine.m_position = globalPosition;
+    });
 }
 
 // static
@@ -878,7 +935,26 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
 
   // Text
   {
-    ezUInt32 uiNumGlyphs = pData->m_glyphs.GetCount();
+    static ezDynamicArray<GlyphData, ezAlignedAllocatorWrapper> glyphs;
+    glyphs.Clear();
+
+    for (auto& textLine : pData->m_textLines3D)
+    {
+      ezVec3 screenPos;
+      if (renderViewContext.m_pViewData->ComputeScreenSpacePos(textLine.m_position, screenPos).Succeeded())
+      {
+        textLine.m_topLeftCorner += screenPos.GetAsVec2();
+        AppendGlyphs(glyphs, textLine);
+      }
+    }
+
+    for (auto& textLine : pData->m_textLines2D)
+    {
+      AppendGlyphs(glyphs, textLine);
+    }
+
+
+    ezUInt32 uiNumGlyphs = glyphs.GetCount();
     if (uiNumGlyphs != 0)
     {
       CreateDataBuffer(BufferType::Glyphs, sizeof(GlyphData));
@@ -887,7 +963,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
       renderViewContext.m_pRenderContext->BindBuffer("glyphData", pDevice->GetDefaultResourceView(s_hDataBuffer[BufferType::Glyphs]));
       renderViewContext.m_pRenderContext->BindTexture2D("FontTexture", s_hDebugFontTexture);
 
-      const GlyphData* pGlyphData = pData->m_glyphs.GetData();
+      const GlyphData* pGlyphData = glyphs.GetData();
       while (uiNumGlyphs > 0)
       {
         const ezUInt32 uiNumGlyphsInBatch = ezMath::Min<ezUInt32>(uiNumGlyphs, GLYPHS_PER_BATCH);

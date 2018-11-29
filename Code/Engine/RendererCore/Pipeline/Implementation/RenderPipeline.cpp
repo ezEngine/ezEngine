@@ -957,22 +957,22 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
   {
     ezStringBuilder sb;
 
-    ezDebugRenderer::DrawText(hView, "Visibility Culling Stats", ezVec2I32(10, 200), ezColor::LimeGreen);
+    ezDebugRenderer::Draw2DText(hView, "Visibility Culling Stats", ezVec2I32(10, 200), ezColor::LimeGreen);
 
     sb.Format("Total Num Objects: {0}", stats.m_uiTotalNumObjects);
-    ezDebugRenderer::DrawText(hView, sb, ezVec2I32(10, 220), ezColor::LimeGreen);
+    ezDebugRenderer::Draw2DText(hView, sb, ezVec2I32(10, 220), ezColor::LimeGreen);
 
     sb.Format("Num Objects Tested: {0}", stats.m_uiNumObjectsTested);
-    ezDebugRenderer::DrawText(hView, sb, ezVec2I32(10, 240), ezColor::LimeGreen);
+    ezDebugRenderer::Draw2DText(hView, sb, ezVec2I32(10, 240), ezColor::LimeGreen);
 
     sb.Format("Num Objects Passed: {0}", stats.m_uiNumObjectsPassed);
-    ezDebugRenderer::DrawText(hView, sb, ezVec2I32(10, 260), ezColor::LimeGreen);
+    ezDebugRenderer::Draw2DText(hView, sb, ezVec2I32(10, 260), ezColor::LimeGreen);
 
     // Exponential moving average for better readability.
     m_fAverageCullingTime = ezMath::Lerp(m_fAverageCullingTime, stats.m_fTimeTaken, 0.05f);
 
     sb.Format("Time Taken: {0}ms", m_fAverageCullingTime * 1000.0f);
-    ezDebugRenderer::DrawText(hView, sb, ezVec2I32(10, 280), ezColor::LimeGreen);
+    ezDebugRenderer::Draw2DText(hView, sb, ezVec2I32(10, 280), ezColor::LimeGreen);
   }
 #else
   view.GetWorld()->GetSpatialSystem().FindVisibleObjects(frustum, m_visibleObjects, nullptr);

@@ -180,17 +180,22 @@ ezView* ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::Enum usageHint, ezC
 {
   EZ_LOCK(s_ViewsMutex);
 
+  ezView* pAlternativeView = nullptr;
+
   for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
   {
     ezView* pView = it.Value();
-    if (pView->GetCameraUsageHint() == usageHint ||
-      (alternativeUsageHint != ezCameraUsageHint::None && pView->GetCameraUsageHint() == alternativeUsageHint))
+    if (pView->GetCameraUsageHint() == usageHint)
     {
       return pView;
     }
+    else if (alternativeUsageHint != ezCameraUsageHint::None && pView->GetCameraUsageHint() == alternativeUsageHint)
+    {
+      pAlternativeView = pView;
+    }
   }
 
-  return nullptr;
+  return pAlternativeView;
 }
 
 void ezRenderWorld::AddMainView(const ezViewHandle& hView)

@@ -531,7 +531,7 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
       ezStringBuilder sb;
       sb.Format("Camera '{0}': EV100: {1}, Exposure: {2}", ezStringUtils::IsNullOrEmpty(szName) ? pView->GetName() : szName, GetEV100(),
                 GetExposure());
-      ezDebugRenderer::DrawText(GetWorld(), sb, ezVec2I32(20, 20), ezColor::LimeGreen);
+      ezDebugRenderer::Draw2DText(GetWorld(), sb, ezVec2I32(20, 20), ezColor::LimeGreen);
     }
 
     // draw frustum

@@ -688,8 +688,8 @@ void ezShadowPool::OnEndExtraction(ezUInt64 uiFrameCounter)
 
   if (CVarShadowPoolStats)
   {
-    ezDebugRenderer::DrawText(debugContext, "Shadow Pool Stats", ezVec2I32(10, 200), ezColor::LightSteelBlue);
-    ezDebugRenderer::DrawText(debugContext, "Details (Name: Size - Atlas Offset)", ezVec2I32(10, 250), ezColor::LightSteelBlue);
+    ezDebugRenderer::Draw2DText(debugContext, "Shadow Pool Stats", ezVec2I32(10, 200), ezColor::LightSteelBlue);
+    ezDebugRenderer::Draw2DText(debugContext, "Details (Name: Size - Atlas Offset)", ezVec2I32(10, 250), ezColor::LightSteelBlue);
   }
 
   ezInt32 iCurrentStatsOffset = 270;
@@ -738,7 +738,7 @@ void ezShadowPool::OnEndExtraction(ezUInt64 uiFrameCounter)
         ezStringBuilder sb;
         sb.Format("{0}: {1} - {2}x{3}", pShadowView->GetName(), atlasRect.width, atlasRect.x, atlasRect.y);
 
-        ezDebugRenderer::DrawText(debugContext, sb, ezVec2I32(10, iCurrentStatsOffset), ezColor::LightSteelBlue);
+        ezDebugRenderer::Draw2DText(debugContext, sb, ezVec2I32(10, iCurrentStatsOffset), ezColor::LightSteelBlue);
         iCurrentStatsOffset += 20;
 
         uiUsedAtlasSize += atlasRect.width * atlasRect.height;
@@ -919,7 +919,7 @@ void ezShadowPool::OnEndExtraction(ezUInt64 uiFrameCounter)
     ezStringBuilder sb;
     sb.Format("Atlas Utilization: {0}%%", ezArgF(100.0 * (double)uiUsedAtlasSize / uiTotalAtlasSize, 2));
 
-    ezDebugRenderer::DrawText(debugContext, sb, ezVec2I32(10, 220), ezColor::LightSteelBlue);
+    ezDebugRenderer::Draw2DText(debugContext, sb, ezVec2I32(10, 220), ezColor::LightSteelBlue);
   }
 #endif
 

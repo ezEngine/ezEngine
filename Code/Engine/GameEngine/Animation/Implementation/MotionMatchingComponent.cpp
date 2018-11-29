@@ -196,7 +196,7 @@ void ezMotionMatchingComponent::Update()
 
     ezStringBuilder tmp;
     tmp.Format("Gamepad: {0} / {1}", ezArgF(vTargetDir.x, 1), ezArgF(vTargetDir.y, 1));
-    ezDebugRenderer::DrawText(GetWorld(), tmp, ezVec2I32(10, 10), ezColor::White);
+    ezDebugRenderer::Draw2DText(GetWorld(), tmp, ezVec2I32(10, 10), ezColor::White);
 
     m_fKeyframeLerp += fKeyframeFraction;
     while (m_fKeyframeLerp > 1.0f)

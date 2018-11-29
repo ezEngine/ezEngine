@@ -329,8 +329,8 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
 
   // Text
   {
-    ezDebugRenderer::DrawText(m_pWorld, "Not 'a test\"", ezVec2I32(30, 10), ezColor::AntiqueWhite, 24);
-    ezDebugRenderer::DrawText(m_pWorld, "!@#$%^&*()_[]{}|", ezVec2I32(20, 200), ezColor::AntiqueWhite, 24);
+    ezDebugRenderer::Draw2DText(m_pWorld, "Not 'a test\"", ezVec2I32(30, 10), ezColor::AntiqueWhite, 24);
+    ezDebugRenderer::Draw2DText(m_pWorld, "!@#$%^&*()_[]{}|", ezVec2I32(20, 200), ezColor::AntiqueWhite, 24);
   }
 
   // Frustum

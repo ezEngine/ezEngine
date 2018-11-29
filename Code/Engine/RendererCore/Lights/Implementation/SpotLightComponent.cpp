@@ -153,7 +153,7 @@ void ezSpotLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
 
     ezStringBuilder sb;
     sb.Format("{0}", fScreenSpaceSize);
-    ezDebugRenderer::DrawText(msg.m_pView->GetHandle(), sb, ezVec2I32((int)textPos.x, (int)textPos.y), ezColor::Olive);
+    ezDebugRenderer::Draw2DText(msg.m_pView->GetHandle(), sb, ezVec2I32((int)textPos.x, (int)textPos.y), ezColor::Olive);
     ezDebugRenderer::DrawLineSphere(msg.m_pView->GetHandle(), bs, ezColor::Olive);
   }
 #endif

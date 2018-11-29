@@ -498,33 +498,22 @@ void ezFmodEventComponent::Update()
         ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere(GetOwner()->GetGlobalPosition(), maxDistance), ezColor::Cyan);
       }
 
-      if (auto pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView))
+      char path[128];
+      pDesc->getPath(path, EZ_ARRAY_SIZE(path), nullptr);
+
+      const char* szStates[] = {"PLAYING", "SUSTAINING", "STOPPED", "STARTING", "STOPPING"};
+
+      const char* szCurrentState = "Invalid";
+      if (state != FMOD_STUDIO_PLAYBACK_FORCEINT)
       {
-        ezVec3 worldPos = GetOwner()->GetGlobalPosition();
-
-        ezVec3 screenPos;
-        if (pView->ComputeScreenSpacePos(worldPos, screenPos).Succeeded())
-        {
-          char path[128];
-          pDesc->getPath(path, EZ_ARRAY_SIZE(path), nullptr);
-
-          const char* szStates[] = {
-              "PLAYING", "SUSTAINING", "STOPPED", "STARTING", "STOPPING"
-          };
-
-          const char* szCurrentState = "Invalid";
-          if (state != FMOD_STUDIO_PLAYBACK_FORCEINT)
-          {
-            szCurrentState = szStates[state];
-          }
-
-          ezStringBuilder sb;
-          sb.Format("{}\\n{}", path, szCurrentState);
-
-          ezDebugRenderer::DrawText(pView->GetHandle(), sb, ezVec2I32((int)screenPos.x, (int)screenPos.y), ezColor::Cyan, 16,
-            ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Bottom);
-        }
+        szCurrentState = szStates[state];
       }
+
+      ezStringBuilder sb;
+      sb.Format("{}\\n{}", path, szCurrentState);
+
+      ezDebugRenderer::Draw3DText(GetWorld(), sb, GetOwner()->GetGlobalPosition(), ezColor::Cyan, 16,
+                                  ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Bottom);
     }
   }
 #endif

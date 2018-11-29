@@ -111,7 +111,7 @@ void ezForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& render
   ezViewRenderMode::GetDebugText(renderViewContext.m_pViewData->m_ViewRenderMode, sDebugText);
   if (!sDebugText.IsEmpty())
   {
-    ezDebugRenderer::DrawText(*renderViewContext.m_pViewDebugContext, sDebugText, ezVec2I32(10, 10), ezColor::White);
+    ezDebugRenderer::Draw2DText(*renderViewContext.m_pViewDebugContext, sDebugText, ezVec2I32(10, 10), ezColor::White);
   }
 
   // Set permutation for shading quality

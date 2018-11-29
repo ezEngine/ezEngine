@@ -778,7 +778,7 @@ void ezGameApplication::RenderFps()
 
       ezInt32 viewHeight = (ezInt32)(pView->GetViewport().height);
 
-      ezDebugRenderer::DrawText(pView->GetHandle(), sFps, ezVec2I32(10, viewHeight - 10 - 16), ezColor::White);
+      ezDebugRenderer::Draw2DText(pView->GetHandle(), sFps, ezVec2I32(10, viewHeight - 10 - 16), ezColor::White);
     }
   }
 }
@@ -829,12 +829,12 @@ void ezGameApplication::RenderConsole()
     for (ezUInt32 i = uiSkippedLines; i < uiNumConsoleLines; ++i)
     {
       auto& consoleString = consoleStrings[uiFirstLine - i];
-      ezDebugRenderer::DrawText(hView, consoleString.m_sText, ezVec2I32(iTextLeft, iFirstLinePos + i * iTextHeight),
+      ezDebugRenderer::Draw2DText(hView, consoleString.m_sText, ezVec2I32(iTextLeft, iFirstLinePos + i * iTextHeight),
                                 consoleString.m_TextColor);
     }
 
     ezStringView sInputLine(m_pConsole->GetInputLine());
-    ezDebugRenderer::DrawText(hView, sInputLine, ezVec2I32(iTextLeft, (ezInt32)(fConsoleTextAreaHeight + fBorderWidth)), ezColor::White);
+    ezDebugRenderer::Draw2DText(hView, sInputLine, ezVec2I32(iTextLeft, (ezInt32)(fConsoleTextAreaHeight + fBorderWidth)), ezColor::White);
 
     if (ezMath::Fraction(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds()) > 0.5)
     {
