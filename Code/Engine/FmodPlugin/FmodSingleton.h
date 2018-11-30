@@ -110,6 +110,7 @@ public:
 
   virtual void SetListenerOverrideMode(bool enabled) override;
   virtual void SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& vForward, const ezVec3& vUp, const ezVec3& vVelocity) override;
+  ezVec3 GetListenerPosition() { return m_ListenerPosition; }
 
 private:
   friend class ezFmodSoundBankResource;
@@ -124,6 +125,7 @@ private:
 
   bool m_bInitialized = false;
   bool m_bListenerOverrideMode = false;
+  ezVec3 m_ListenerPosition;
   ezUInt8 m_uiNumBlendedVolumes = 4;
 
   FMOD::Studio::System* m_pStudioSystem;

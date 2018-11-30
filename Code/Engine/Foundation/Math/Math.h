@@ -210,6 +210,9 @@ namespace ezMath
   /// \brief Returns the index of the most significant bit set
   ezUInt32 FirstBitHigh(ezUInt32 value);
 
+  /// \brief Returns the number of bits set
+  ezUInt32 CountBits(ezUInt32 value);
+
   /// \brief Swaps the values in the two variables f1 and f2
   template <typename T>
   void Swap(T& f1, T& f2); // [tested]

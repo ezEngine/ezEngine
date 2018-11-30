@@ -9,6 +9,7 @@
 #include <FmodPlugin/FmodSingleton.h>
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -74,7 +75,176 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 2, ezComponentMode::Static)
+static ezVec3 s_InSpherePositions[32];
+static bool s_bInSpherePositionsInitialized = false;
+
+struct ezFmodEventComponentManager::OcclusionState
+{
+  ezFmodEventComponent* m_pComponent = nullptr;
+  ezUInt32 m_uiRaycastHits = 0;
+  ezInt16 m_iOcclusionParameterIndex = -1;
+  ezUInt16 m_uiNextRayIndex = 0;
+  float m_fRadius = 0.0f;
+  float m_fLastOcclusionValue = 0.5f;
+
+  float GetOcclusionValue() const { return m_fLastOcclusionValue; }
+};
+
+ezFmodEventComponentManager::ezFmodEventComponentManager(ezWorld* pWorld)
+  : ezComponentManager(pWorld)
+{
+  if (!s_bInSpherePositionsInitialized)
+  {
+    s_bInSpherePositionsInitialized = true;
+
+    ezRandom rng;
+    rng.Initialize(3);
+
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_InSpherePositions); ++i)
+    {
+      ezVec3& pos = s_InSpherePositions[i];
+      float fRadius;
+      do 
+      {
+        pos.x = (float)rng.DoubleMinMax(-1.0f, 1.0f);
+        pos.y = (float)rng.DoubleMinMax(-1.0f, 1.0f);
+        pos.z = (float)rng.DoubleMinMax(-1.0f, 1.0f);
+        fRadius = pos.GetLengthSquared();
+      } while (fRadius > 1.0f);
+    }
+  }
+}
+
+void ezFmodEventComponentManager::Initialize()
+{
+  {
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezFmodEventComponentManager::UpdateOcclusion, this);
+    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::Async;
+    desc.m_bOnlyUpdateWhenSimulating = true;
+
+    this->RegisterUpdateFunction(desc);
+  }
+
+  {
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezFmodEventComponentManager::UpdateEvents, this);
+    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostTransform;
+    desc.m_bOnlyUpdateWhenSimulating = true;
+
+    this->RegisterUpdateFunction(desc);
+  }
+
+  ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezFmodEventComponentManager::ResourceEventHandler, this));
+}
+
+void ezFmodEventComponentManager::Deinitialize()
+{
+  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezFmodEventComponentManager::ResourceEventHandler, this));
+}
+
+ezUInt32 ezFmodEventComponentManager::AddOcclusionState(ezFmodEventComponent* pComponent, ezInt32 iOcclusionParamterIndex, float fRadius)
+{
+  auto& occlusionState = m_OcclusionStates.ExpandAndGetRef();
+  occlusionState.m_pComponent = pComponent;
+  occlusionState.m_iOcclusionParameterIndex = iOcclusionParamterIndex;
+  occlusionState.m_fRadius = fRadius;
+
+  if (const auto pPhysicsWorldModule = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>())
+  {
+    ezVec3 listenerPos = ezFmod::GetSingleton()->GetListenerPosition();
+    ShootOcclusionRays(occlusionState, listenerPos, 8, pPhysicsWorldModule, 0.1f);
+  }
+
+  return m_OcclusionStates.GetCount() - 1;
+}
+
+void ezFmodEventComponentManager::RemoveOcclusionState(ezUInt32 uiIndex)
+{
+  if (uiIndex >= m_OcclusionStates.GetCount())
+    return;
+
+  m_OcclusionStates.RemoveAtAndSwap(uiIndex);
+
+  if (uiIndex != m_OcclusionStates.GetCount())
+  {
+    m_OcclusionStates[uiIndex].m_pComponent->m_uiOcclusionStateIndex = uiIndex;
+  }
+}
+
+void ezFmodEventComponentManager::ShootOcclusionRays(OcclusionState& state, ezVec3 listenerPos, ezUInt32 uiNumRays, const ezPhysicsWorldModuleInterface* pPhysicsWorldModule, float deltaTime)
+{
+  ezVec3 centerPos = state.m_pComponent->GetOwner()->GetGlobalPosition();
+  ezPhysicsHitResult hitResult;
+
+  for (ezUInt32 i = 0; i < uiNumRays; ++i)
+  {
+    ezUInt32 uiRayIndex = state.m_uiNextRayIndex;
+    ezVec3 targetPos = centerPos + s_InSpherePositions[uiRayIndex] * state.m_fRadius;
+    ezVec3 dir = targetPos - listenerPos;
+    float fDistance = dir.GetLengthAndNormalize();
+
+    bool bHit = pPhysicsWorldModule->CastRay(listenerPos, dir, fDistance, 0, hitResult);
+    if (bHit)
+    {
+      state.m_uiRaycastHits |= (1 << uiRayIndex);
+    }
+    else
+    {
+      state.m_uiRaycastHits &= ~(1 << uiRayIndex);
+    }
+
+    state.m_uiNextRayIndex = (state.m_uiNextRayIndex + 1) % 32;
+  }
+
+  state.m_fLastOcclusionValue = ezMath::CountBits(~state.m_uiRaycastHits) / 32.0f;
+}
+
+void ezFmodEventComponentManager::UpdateOcclusion(const ezWorldModule::UpdateContext& context)
+{
+  const ezWorld* pWorld = GetWorld();
+  if (const auto pPhysicsWorldModule = pWorld->GetModule<ezPhysicsWorldModuleInterface>())
+  {
+    ezVec3 listenerPos = ezFmod::GetSingleton()->GetListenerPosition();
+    float deltaTime = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
+
+    for (auto& occlusionState : m_OcclusionStates)
+    {
+      ShootOcclusionRays(occlusionState, listenerPos, 1, pPhysicsWorldModule, deltaTime);
+    }
+  }
+}
+
+void ezFmodEventComponentManager::UpdateEvents(const ezWorldModule::UpdateContext& context)
+{
+  for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+  {
+    ComponentType* pComponent = it;
+    if (pComponent->IsActiveAndInitialized())
+    {
+      pComponent->Update();
+    }
+  }
+}
+
+void ezFmodEventComponentManager::ResourceEventHandler(const ezResourceEvent& e)
+{
+  if (e.m_EventType == ezResourceEventType::ResourceContentUnloading &&
+    e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezFmodSoundEventResource>())
+  {
+    ezFmodSoundEventResourceHandle hResource((ezFmodSoundEventResource*)(e.m_pResource));
+
+    for (auto it = GetComponents(); it.IsValid(); it.Next())
+    {
+      if (it->m_hSoundEvent == hResource)
+      {
+        it->InvalidateResource(true);
+      }
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -82,6 +252,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 2, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Volume", GetVolume, SetVolume)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ACCESSOR_PROPERTY("Pitch", GetPitch, SetPitch)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
     EZ_ACCESSOR_PROPERTY("SoundEvent", GetSoundEventFile, SetSoundEventFile)->AddAttributes(new ezAssetBrowserAttribute("Sound Event")),
+    EZ_ACCESSOR_PROPERTY("UseOcclusion", GetUseOcclusion, SetUseOcclusion),
     EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
     EZ_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
     //EZ_FUNCTION_PROPERTY("Preview", StartOneShot), // This doesn't seem to be working anymore, and I cannot find code for exposing it in the UI either
@@ -114,6 +285,7 @@ ezFmodEventComponent::ezFmodEventComponent()
   m_pEventDesc = nullptr;
   m_pEventInstance = nullptr;
   m_bPaused = false;
+  m_bUseOcclusion = false;
   m_fPitch = 1.0f;
   m_fVolume = 1.0f;
 }
@@ -127,6 +299,7 @@ void ezFmodEventComponent::SerializeComponent(ezWorldWriter& stream) const
   auto& s = stream.GetStream();
 
   s << m_bPaused;
+  s << m_bUseOcclusion;
   s << m_fPitch;
   s << m_fVolume;
 
@@ -159,6 +332,12 @@ void ezFmodEventComponent::DeserializeComponent(ezWorldReader& stream)
   auto& s = stream.GetStream();
 
   s >> m_bPaused;
+
+  if (uiVersion >= 3)
+  {
+    s >> m_bUseOcclusion;
+  }
+
   s >> m_fPitch;
   s >> m_fVolume;
   s >> m_hSoundEvent;
@@ -184,6 +363,20 @@ void ezFmodEventComponent::SetPaused(bool b)
   else if (!m_bPaused)
   {
     Restart();
+  }
+}
+
+void ezFmodEventComponent::SetUseOcclusion(bool b)
+{
+  if (b == GetUseOcclusion())
+    return;
+
+  m_bUseOcclusion = b;
+
+  if (!b)
+  {
+    static_cast<ezFmodEventComponentManager*>(GetOwningManager())->RemoveOcclusionState(m_uiOcclusionStateIndex);
+    m_uiOcclusionStateIndex = ezInvalidIndex;
   }
 }
 
@@ -260,8 +453,22 @@ bool ezFmodEventComponent::GetShowDebugInfo() const
   return GetUserFlag(ShowDebugInfoFlag);
 }
 
+void ezFmodEventComponent::OnSimulationStarted()
+{
+  if (!m_bPaused)
+  {
+    Restart();
+  }
+}
+
 void ezFmodEventComponent::OnDeactivated()
 {
+  if (GetUseOcclusion())
+  {
+    static_cast<ezFmodEventComponentManager*>(GetOwningManager())->RemoveOcclusionState(m_uiOcclusionStateIndex);
+    m_uiOcclusionStateIndex = ezInvalidIndex;
+  }
+
   if (m_pEventInstance != nullptr)
   {
     // we could expose this decision as a property 'AlwaysFinish' or so
@@ -279,14 +486,6 @@ void ezFmodEventComponent::OnDeactivated()
     EZ_FMOD_ASSERT(m_pEventInstance->release());
     m_pEventInstance = nullptr;
     m_iTimelinePosition = -1;
-  }
-}
-
-void ezFmodEventComponent::OnSimulationStarted()
-{
-  if (!m_bPaused)
-  {
-    Restart();
   }
 }
 
@@ -315,10 +514,9 @@ void ezFmodEventComponent::Restart()
 
   m_bPaused = false;
 
-  SetParameters3d(m_pEventInstance);
+  SetParameters();
 
   EZ_FMOD_ASSERT(m_pEventInstance->setPaused(false));
-  EZ_FMOD_ASSERT(m_pEventInstance->setVolume(m_fVolume));
 
   EZ_FMOD_ASSERT(m_pEventInstance->start());
 }
@@ -361,9 +559,7 @@ void ezFmodEventComponent::StartOneShot()
     return;
   }
 
-  SetParameters3d(pEventInstance);
-
-  EZ_FMOD_ASSERT(pEventInstance->setVolume(m_fVolume));
+  SetParameters();
 
   EZ_FMOD_ASSERT(pEventInstance->start());
   EZ_FMOD_ASSERT(pEventInstance->release());
@@ -446,7 +642,7 @@ void ezFmodEventComponent::Update()
       return;
     }
 
-    SetParameters3d(m_pEventInstance);
+    SetParameters();
 
     EZ_FMOD_ASSERT(m_pEventInstance->getPlaybackState(&state));
 
@@ -512,6 +708,12 @@ void ezFmodEventComponent::Update()
       ezStringBuilder sb;
       sb.Format("{}\\n{}", path, szCurrentState);
 
+      if (GetUseOcclusion())
+      {
+        float fOcclusionValue = static_cast<ezFmodEventComponentManager*>(GetOwningManager())->GetOcclusionState(m_uiOcclusionStateIndex).GetOcclusionValue();
+        sb.AppendFormat("\\nOcclusion: {}", fOcclusionValue);
+      }
+
       ezDebugRenderer::Draw3DText(GetWorld(), sb, GetOwner()->GetGlobalPosition(), ezColor::Cyan, 16,
                                   ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Bottom);
     }
@@ -519,7 +721,7 @@ void ezFmodEventComponent::Update()
 #endif
 }
 
-void ezFmodEventComponent::SetParameters3d(FMOD::Studio::EventInstance* pEventInstance)
+void ezFmodEventComponent::SetParameters()
 {
   const auto pos = GetOwner()->GetGlobalPosition();
   const auto vel = GetOwner()->GetVelocity();
@@ -541,8 +743,43 @@ void ezFmodEventComponent::SetParameters3d(FMOD::Studio::EventInstance* pEventIn
   attr.velocity.z = vel.z;
 
   // have to update pitch every time, in case the clock speed changes
-  EZ_FMOD_ASSERT(pEventInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
-  EZ_FMOD_ASSERT(pEventInstance->set3DAttributes(&attr));
+  EZ_FMOD_ASSERT(m_pEventInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
+  EZ_FMOD_ASSERT(m_pEventInstance->setVolume(m_fVolume));
+  EZ_FMOD_ASSERT(m_pEventInstance->set3DAttributes(&attr));
+
+  if (GetUseOcclusion())
+  {
+    if (m_uiOcclusionStateIndex == ezInvalidIndex)
+    {
+      ezInt32 iOcclusionParameterIndex = FindParameter("Occlusion");
+      if (iOcclusionParameterIndex < 0)
+      {
+        ezLog::Warning("'Occlusion' Fmod Event Parameter could not be found.");
+        m_bUseOcclusion = false;
+        return;
+      }
+
+      float fRadius = 1.0f;
+      {
+        FMOD::Studio::EventDescription* pDesc = nullptr;
+        m_pEventInstance->getDescription(&pDesc);
+
+        bool is3D = false;
+        pDesc->is3D(&is3D);
+        if (is3D)
+        {
+          pDesc->getMinimumDistance(&fRadius);
+        }
+      }
+
+      m_uiOcclusionStateIndex = static_cast<ezFmodEventComponentManager*>(GetOwningManager())->AddOcclusionState(this, iOcclusionParameterIndex, fRadius);
+    }
+
+    auto& occlusionState = static_cast<ezFmodEventComponentManager*>(GetOwningManager())->GetOcclusionState(m_uiOcclusionStateIndex);
+
+    float fOcclusionValue = occlusionState.GetOcclusionValue();
+    SetParameter(occlusionState.m_iOcclusionParameterIndex, fOcclusionValue);
+  }
 }
 
 void ezFmodEventComponent::InvalidateResource(bool bTryToRestore)
@@ -569,44 +806,6 @@ void ezFmodEventComponent::InvalidateResource(bool bTryToRestore)
     m_pEventInstance = nullptr;
 
     // ezLog::Debug("Fmod instance pointer has been invalidated.");
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-ezFmodEventComponentManager::ezFmodEventComponentManager(ezWorld* pWorld)
-    : ezComponentManagerSimple(pWorld)
-{
-}
-
-void ezFmodEventComponentManager::Initialize()
-{
-  ezComponentManagerSimple<class ezFmodEventComponent, ezComponentUpdateType::WhenSimulating>::Initialize();
-
-  ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezFmodEventComponentManager::ResourceEventHandler, this));
-}
-
-void ezFmodEventComponentManager::Deinitialize()
-{
-  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezFmodEventComponentManager::ResourceEventHandler, this));
-
-  ezComponentManagerSimple<class ezFmodEventComponent, ezComponentUpdateType::WhenSimulating>::Deinitialize();
-}
-
-void ezFmodEventComponentManager::ResourceEventHandler(const ezResourceEvent& e)
-{
-  if (e.m_EventType == ezResourceEventType::ResourceContentUnloading &&
-      e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezFmodSoundEventResource>())
-  {
-    ezFmodSoundEventResourceHandle hResource((ezFmodSoundEventResource*)(e.m_pResource));
-
-    for (auto it = GetComponents(); it.IsValid(); it.Next())
-    {
-      if (it->m_hSoundEvent == hResource)
-      {
-        it->InvalidateResource(true);
-      }
-    }
   }
 }
 

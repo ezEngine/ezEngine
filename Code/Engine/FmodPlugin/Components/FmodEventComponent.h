@@ -5,7 +5,9 @@
 #include <Core/Messages/EventMessage.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 
-class ezFmodEventComponentManager : public ezComponentManagerSimple<class ezFmodEventComponent, ezComponentUpdateType::WhenSimulating>
+class ezPhysicsWorldModuleInterface;
+
+class ezFmodEventComponentManager : public ezComponentManager<class ezFmodEventComponent, ezBlockStorageType::FreeList>
 {
 public:
   ezFmodEventComponentManager(ezWorld* pWorld);
@@ -14,6 +16,19 @@ public:
   virtual void Deinitialize() override;
 
 private:
+  friend class ezFmodEventComponent;
+
+  struct OcclusionState;
+  ezDynamicArray<OcclusionState> m_OcclusionStates;
+
+  ezUInt32 AddOcclusionState(ezFmodEventComponent* pComponent, ezInt32 iOcclusionParamterIndex, float fRadius);
+  void RemoveOcclusionState(ezUInt32 uiIndex);
+  OcclusionState& GetOcclusionState(ezUInt32 uiIndex) { return m_OcclusionStates[uiIndex]; }
+
+  void ShootOcclusionRays(OcclusionState& state, ezVec3 listenerPos, ezUInt32 uiNumRays, const ezPhysicsWorldModuleInterface* pPhysicsWorldModule, float deltaTime);
+  void UpdateOcclusion(const ezWorldModule::UpdateContext& context);
+  void UpdateEvents(const ezWorldModule::UpdateContext& context);
+
   void ResourceEventHandler(const ezResourceEvent& e);
 };
 
@@ -74,6 +89,9 @@ public:
   void SetPaused(bool b);
   bool GetPaused() const { return m_bPaused; }
 
+  void SetUseOcclusion(bool b);
+  bool GetUseOcclusion() const { return m_bUseOcclusion; }
+
   void SetPitch(float f);
   float GetPitch() const { return m_fPitch; }
 
@@ -93,9 +111,11 @@ public:
 
 protected:
   bool m_bPaused;
+  bool m_bUseOcclusion;
   float m_fPitch;
   float m_fVolume;
   ezInt32 m_iTimelinePosition = -1; // used to restore a sound after reloading the resource
+  ezUInt32 m_uiOcclusionStateIndex = ezInvalidIndex;
   ezFmodSoundEventResourceHandle m_hSoundEvent;
 
 
@@ -143,7 +163,7 @@ protected:
   void OnDeleteObject(ezMsgDeleteGameObject& msg);
 
   void Update();
-  void SetParameters3d(FMOD::Studio::EventInstance* pEventInstance);
+  void SetParameters();
 
   /// Called when the event resource has been unloaded (for a reload)
   void InvalidateResource(bool bTryToRestore);

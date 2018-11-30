@@ -22,6 +22,7 @@ ezFmod::ezFmod()
     : m_SingletonRegistrar(this)
 {
   m_bInitialized = false;
+  m_ListenerPosition.SetZero();
 
   m_pStudioSystem = nullptr;
   m_pLowLevelSystem = nullptr;
@@ -315,6 +316,11 @@ void ezFmod::SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& 
 
   if (iIndex < 0 || iIndex >= FMOD_MAX_LISTENERS)
     return;
+
+  if (iIndex == 0)
+  {
+    m_ListenerPosition = vPosition;
+  }
 
   FMOD_3D_ATTRIBUTES attr;
   attr.position.x = vPosition.x;
