@@ -941,9 +941,11 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
     for (auto& textLine : pData->m_textLines3D)
     {
       ezVec3 screenPos;
-      if (renderViewContext.m_pViewData->ComputeScreenSpacePos(textLine.m_position, screenPos).Succeeded())
+      if (renderViewContext.m_pViewData->ComputeScreenSpacePos(textLine.m_position, screenPos).Succeeded() && screenPos.z > 0.0f)
       {
-        textLine.m_topLeftCorner += screenPos.GetAsVec2();
+        textLine.m_topLeftCorner.x += ezMath::Round(screenPos.x);
+        textLine.m_topLeftCorner.y += ezMath::Round(screenPos.y);
+
         AppendGlyphs(glyphs, textLine);
       }
     }

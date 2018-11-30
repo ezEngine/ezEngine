@@ -14,7 +14,9 @@ ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& ModelViewProj
   if (vClipSpace.w == 0.0f)
     return EZ_FAILURE;
 
-  const ezVec3 vProjected = vClipSpace.GetAsVec3() / vClipSpace.w;
+  ezVec3 vProjected = vClipSpace.GetAsVec3() / vClipSpace.w;
+  if (vClipSpace.w < 0.0f)
+    vProjected.z = -vProjected.z;
 
   out_vScreenPos.x = uiViewportX + uiViewportWidth * ((vProjected.x * 0.5f) + 0.5f);
   out_vScreenPos.y = uiViewportY + uiViewportHeight * ((vProjected.y * 0.5f) + 0.5f);
