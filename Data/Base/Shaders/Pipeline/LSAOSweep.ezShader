@@ -5,6 +5,7 @@ ALL
 
 [COMPUTESHADER]
 
+#include <Shaders/Common/Common.h>
 #include <Shaders/Common/GlobalConstants.h>
 #include "LSAOConstants.h"
 #include "Utils.h"
