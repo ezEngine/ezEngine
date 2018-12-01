@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8509371654781092019,5438081593505794318}}
-		u4 %Hash{7882592236644713978}
+		u4 %Hash{3493469355102402900}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -1876,10 +1876,12 @@ o
 {
 	Uuid %id{u4{9603619182402089865,5357426198302868474}}
 	s %t{"ezFmodEventComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		u1 %OcclusionCollisionLayer{0}
+		f %OcclusionThreshold{0x0000003F}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
 		b %Paused{1}
 		f %Pitch{0x0000803F}
@@ -1994,16 +1996,18 @@ o
 {
 	Uuid %id{u4{2499537290625529790,5428843908989866887}}
 	s %t{"ezFmodEventComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		u1 %OcclusionCollisionLayer{8}
+		f %OcclusionThreshold{0x0000003F}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
 		b %Paused{0}
 		f %Pitch{0x0000803F}
 		b %ShowDebugInfo{0}
 		s %SoundEvent{"{ 5451b35f-d73c-402e-a540-c542d3e52be0 }"}
-		b %UseOcclusion{0}
+		b %UseOcclusion{1}
 		f %Volume{0x0000803F}
 	}
 }
@@ -2058,10 +2062,12 @@ o
 {
 	Uuid %id{u4{11987197061995225260,5434464895916212499}}
 	s %t{"ezFmodEventComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		u1 %OcclusionCollisionLayer{0}
+		f %OcclusionThreshold{0x0000003F}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
 		b %Paused{0}
 		f %Pitch{0x0000803F}
@@ -2268,10 +2274,12 @@ o
 {
 	Uuid %id{u4{8882512856338779067,5546468125008916111}}
 	s %t{"ezFmodEventComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		u1 %OcclusionCollisionLayer{8}
+		f %OcclusionThreshold{0x0000003F}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
 		b %Paused{0}
 		f %Pitch{0x00004040}
@@ -2417,10 +2425,12 @@ o
 {
 	Uuid %id{u4{9127930429198198975,5594761778180222935}}
 	s %t{"ezFmodEventComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		u1 %OcclusionCollisionLayer{0}
+		f %OcclusionThreshold{0x0000003F}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
 		b %Paused{0}
 		f %Pitch{0x0000803F}
@@ -4571,10 +4581,12 @@ o
 {
 	Uuid %id{u4{2987068247300088611,11050637694468107078}}
 	s %t{"ezFmodEventComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		u1 %OcclusionCollisionLayer{0}
+		f %OcclusionThreshold{0x0000003F}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
 		b %Paused{1}
 		f %Pitch{0x0000803F}
@@ -4760,10 +4772,12 @@ o
 {
 	Uuid %id{u4{5490800490515967062,11216670020745066777}}
 	s %t{"ezFmodEventComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		u1 %OcclusionCollisionLayer{0}
+		f %OcclusionThreshold{0x0000003F}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
 		b %Paused{0}
 		f %Pitch{0x0000003F}
@@ -6339,7 +6353,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezFmodEventComponent"}
 		u3 %TypeSize{104}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o

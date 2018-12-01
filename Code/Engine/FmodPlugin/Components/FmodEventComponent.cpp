@@ -4,16 +4,18 @@
 #include <Core/ResourceManager/ResourceBase.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/Configuration/CVar.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <GameEngine/VisualScript/VisualScriptInstance.h>
+
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
+
 #include <FmodPlugin/Components/FmodEventComponent.h>
 #include <FmodPlugin/FmodIncludes.h>
 #include <FmodPlugin/FmodSingleton.h>
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
-#include <GameEngine/VisualScript/VisualScriptInstance.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
-
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Pipeline/View.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -72,8 +74,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgFmodAddSoundCue, 1, ezRTTIDefaultAllocator<
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 //////////////////////////////////////////////////////////////////////////
+
+ezCVarInt CVarFmodOcclusionRays("fmod_OcclusionRays", 2, ezCVarFlags::Default, "Number of occlusion rays per component per frame");
 
 static ezVec3 s_InSpherePositions[32];
 static bool s_bInSpherePositionsInitialized = false;
@@ -83,11 +88,15 @@ struct ezFmodEventComponentManager::OcclusionState
   ezFmodEventComponent* m_pComponent = nullptr;
   ezUInt32 m_uiRaycastHits = 0;
   ezInt16 m_iOcclusionParameterIndex = -1;
-  ezUInt16 m_uiNextRayIndex = 0;
+  ezUInt8 m_uiNextRayIndex = 0;
+  ezUInt8 m_uiNumUsedRays = 0;
   float m_fRadius = 0.0f;
-  float m_fLastOcclusionValue = 0.5f;
+  float m_fLastOcclusionValue = -1.0f;
 
-  float GetOcclusionValue() const { return m_fLastOcclusionValue; }
+  float GetOcclusionValue(float fThreshold) const
+  {
+    return ezMath::Clamp((m_fLastOcclusionValue - fThreshold) / ezMath::Max(1.0f - fThreshold, 0.0001f), 0.0f, 1.0f);
+  }
 };
 
 ezFmodEventComponentManager::ezFmodEventComponentManager(ezWorld* pWorld)
@@ -99,18 +108,19 @@ ezFmodEventComponentManager::ezFmodEventComponentManager(ezWorld* pWorld)
 
     ezRandom rng;
     rng.Initialize(3);
+    ezRandomGauss rngGauss;
+    rngGauss.Initialize(27, 0xFFFF);
 
     for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_InSpherePositions); ++i)
     {
       ezVec3& pos = s_InSpherePositions[i];
-      float fRadius;
-      do 
-      {
-        pos.x = (float)rng.DoubleMinMax(-1.0f, 1.0f);
-        pos.y = (float)rng.DoubleMinMax(-1.0f, 1.0f);
-        pos.z = (float)rng.DoubleMinMax(-1.0f, 1.0f);
-        fRadius = pos.GetLengthSquared();
-      } while (fRadius > 1.0f);
+      pos.x = (float)rngGauss.SignedValue();
+      pos.y = (float)rngGauss.SignedValue();
+      pos.z = (float)rngGauss.SignedValue();
+      
+      float fRadius = ezMath::Pow((float)rng.DoubleZeroToOneExclusive(), 1.0f / 3.0f);
+      fRadius = fRadius * 0.5f + 0.5f;
+      pos.SetLength(fRadius);
     }
   }
 }
@@ -151,7 +161,7 @@ ezUInt32 ezFmodEventComponentManager::AddOcclusionState(ezFmodEventComponent* pC
   if (const auto pPhysicsWorldModule = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>())
   {
     ezVec3 listenerPos = ezFmod::GetSingleton()->GetListenerPosition();
-    ShootOcclusionRays(occlusionState, listenerPos, 8, pPhysicsWorldModule, 0.1f);
+    ShootOcclusionRays(occlusionState, listenerPos, 8, pPhysicsWorldModule, 1000.0f);
   }
 
   return m_OcclusionStates.GetCount() - 1;
@@ -170,9 +180,11 @@ void ezFmodEventComponentManager::RemoveOcclusionState(ezUInt32 uiIndex)
   }
 }
 
-void ezFmodEventComponentManager::ShootOcclusionRays(OcclusionState& state, ezVec3 listenerPos, ezUInt32 uiNumRays, const ezPhysicsWorldModuleInterface* pPhysicsWorldModule, float deltaTime)
+void ezFmodEventComponentManager::ShootOcclusionRays(OcclusionState& state, ezVec3 listenerPos, ezUInt32 uiNumRays,
+                                                     const ezPhysicsWorldModuleInterface* pPhysicsWorldModule, float deltaTime)
 {
   ezVec3 centerPos = state.m_pComponent->GetOwner()->GetGlobalPosition();
+  ezUInt8 uiCollisionLayer = state.m_pComponent->m_uiOcclusionCollisionLayer;
   ezPhysicsHitResult hitResult;
 
   for (ezUInt32 i = 0; i < uiNumRays; ++i)
@@ -182,7 +194,7 @@ void ezFmodEventComponentManager::ShootOcclusionRays(OcclusionState& state, ezVe
     ezVec3 dir = targetPos - listenerPos;
     float fDistance = dir.GetLengthAndNormalize();
 
-    bool bHit = pPhysicsWorldModule->CastRay(listenerPos, dir, fDistance, 0, hitResult);
+    bool bHit = pPhysicsWorldModule->CastRay(listenerPos, dir, fDistance, uiCollisionLayer, hitResult);
     if (bHit)
     {
       state.m_uiRaycastHits |= (1 << uiRayIndex);
@@ -193,9 +205,13 @@ void ezFmodEventComponentManager::ShootOcclusionRays(OcclusionState& state, ezVe
     }
 
     state.m_uiNextRayIndex = (state.m_uiNextRayIndex + 1) % 32;
+    state.m_uiNumUsedRays = ezMath::Min(state.m_uiNumUsedRays + 1, 32);
   }
 
-  state.m_fLastOcclusionValue = ezMath::CountBits(~state.m_uiRaycastHits) / 32.0f;
+  float fNewOcclusionValue = (float)ezMath::CountBits(state.m_uiRaycastHits) / state.m_uiNumUsedRays;
+  float fNormalizedDistance = ezMath::Min((centerPos - listenerPos).GetLength() / state.m_fRadius, 1.0f);
+  fNewOcclusionValue = ezMath::Max(fNewOcclusionValue - 1.0f + fNormalizedDistance, 0.0f);
+  state.m_fLastOcclusionValue = ezMath::Lerp(state.m_fLastOcclusionValue, fNewOcclusionValue, ezMath::Min(deltaTime * 8.0f, 1.0f));
 }
 
 void ezFmodEventComponentManager::UpdateOcclusion(const ezWorldModule::UpdateContext& context)
@@ -206,9 +222,11 @@ void ezFmodEventComponentManager::UpdateOcclusion(const ezWorldModule::UpdateCon
     ezVec3 listenerPos = ezFmod::GetSingleton()->GetListenerPosition();
     float deltaTime = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
 
+    ezUInt32 uiNumRays = ezMath::Max<int>(CVarFmodOcclusionRays, 1);
+
     for (auto& occlusionState : m_OcclusionStates)
     {
-      ShootOcclusionRays(occlusionState, listenerPos, 1, pPhysicsWorldModule, deltaTime);
+      ShootOcclusionRays(occlusionState, listenerPos, uiNumRays, pPhysicsWorldModule, deltaTime);
     }
   }
 }
@@ -244,7 +262,8 @@ void ezFmodEventComponentManager::ResourceEventHandler(const ezResourceEvent& e)
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 3, ezComponentMode::Static)
+// clang-format off
+EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -253,6 +272,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 3, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Pitch", GetPitch, SetPitch)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
     EZ_ACCESSOR_PROPERTY("SoundEvent", GetSoundEventFile, SetSoundEventFile)->AddAttributes(new ezAssetBrowserAttribute("Sound Event")),
     EZ_ACCESSOR_PROPERTY("UseOcclusion", GetUseOcclusion, SetUseOcclusion),
+    EZ_ACCESSOR_PROPERTY("OcclusionThreshold", GetOcclusionThreshold, SetOcclusionThreshold)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_ACCESSOR_PROPERTY("OcclusionCollisionLayer", GetOcclusionCollisionLayer, SetOcclusionCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
     EZ_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
     //EZ_FUNCTION_PROPERTY("Preview", StartOneShot), // This doesn't seem to be working anymore, and I cannot find code for exposing it in the UI either
@@ -286,6 +307,8 @@ ezFmodEventComponent::ezFmodEventComponent()
   m_pEventInstance = nullptr;
   m_bPaused = false;
   m_bUseOcclusion = false;
+  m_uiOcclusionThreshold = 128;
+  m_uiOcclusionCollisionLayer = 0;
   m_fPitch = 1.0f;
   m_fVolume = 1.0f;
 }
@@ -300,6 +323,8 @@ void ezFmodEventComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_bPaused;
   s << m_bUseOcclusion;
+  s << m_uiOcclusionThreshold;
+  s << m_uiOcclusionCollisionLayer;
   s << m_fPitch;
   s << m_fVolume;
 
@@ -336,6 +361,12 @@ void ezFmodEventComponent::DeserializeComponent(ezWorldReader& stream)
   if (uiVersion >= 3)
   {
     s >> m_bUseOcclusion;
+  }
+
+  if (uiVersion >= 4)
+  {
+    s >> m_uiOcclusionThreshold;
+    s >> m_uiOcclusionCollisionLayer;
   }
 
   s >> m_fPitch;
@@ -378,6 +409,21 @@ void ezFmodEventComponent::SetUseOcclusion(bool b)
     static_cast<ezFmodEventComponentManager*>(GetOwningManager())->RemoveOcclusionState(m_uiOcclusionStateIndex);
     m_uiOcclusionStateIndex = ezInvalidIndex;
   }
+}
+
+void ezFmodEventComponent::SetOcclusionCollisionLayer(ezUInt8 uiCollisionLayer)
+{
+  m_uiOcclusionCollisionLayer = uiCollisionLayer;
+}
+
+void ezFmodEventComponent::SetOcclusionThreshold(float fThreshold)
+{
+  m_uiOcclusionThreshold = ezMath::ColorFloatToByte(fThreshold);
+}
+
+float ezFmodEventComponent::GetOcclusionThreshold() const
+{
+  return ezMath::ColorByteToFloat(m_uiOcclusionThreshold);
 }
 
 void ezFmodEventComponent::SetPitch(float f)
@@ -514,7 +560,7 @@ void ezFmodEventComponent::Restart()
 
   m_bPaused = false;
 
-  SetParameters();
+  UpdateParameters();
 
   EZ_FMOD_ASSERT(m_pEventInstance->setPaused(false));
 
@@ -559,7 +605,7 @@ void ezFmodEventComponent::StartOneShot()
     return;
   }
 
-  SetParameters();
+  UpdateParameters();
 
   EZ_FMOD_ASSERT(pEventInstance->start());
   EZ_FMOD_ASSERT(pEventInstance->release());
@@ -642,7 +688,11 @@ void ezFmodEventComponent::Update()
       return;
     }
 
-    SetParameters();
+    UpdateParameters();
+    if (GetUseOcclusion())
+    {
+      UpdateOcclusion();
+    }
 
     EZ_FMOD_ASSERT(m_pEventInstance->getPlaybackState(&state));
 
@@ -710,8 +760,16 @@ void ezFmodEventComponent::Update()
 
       if (GetUseOcclusion())
       {
-        float fOcclusionValue = static_cast<ezFmodEventComponentManager*>(GetOwningManager())->GetOcclusionState(m_uiOcclusionStateIndex).GetOcclusionValue();
-        sb.AppendFormat("\\nOcclusion: {}", fOcclusionValue);
+        auto& occlusionState = static_cast<ezFmodEventComponentManager*>(GetOwningManager())->GetOcclusionState(m_uiOcclusionStateIndex);
+        sb.AppendFormat("\\nOcclusion: {}", occlusionState.GetOcclusionValue(GetOcclusionThreshold()));
+
+        ezVec3 centerPos = GetOwner()->GetGlobalPosition();        
+        for (ezUInt32 uiRayIndex = 0; uiRayIndex < EZ_ARRAY_SIZE(s_InSpherePositions); ++uiRayIndex)
+        {
+          ezVec3 targetPos = centerPos + s_InSpherePositions[uiRayIndex] * occlusionState.m_fRadius;
+          ezColor color = (occlusionState.m_uiRaycastHits & (1 << uiRayIndex)) ? ezColor::Red : ezColor::Green;
+          ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere(targetPos, 0.02f), color);
+        }
       }
 
       ezDebugRenderer::Draw3DText(GetWorld(), sb, GetOwner()->GetGlobalPosition(), ezColor::Cyan, 16,
@@ -721,7 +779,7 @@ void ezFmodEventComponent::Update()
 #endif
 }
 
-void ezFmodEventComponent::SetParameters()
+void ezFmodEventComponent::UpdateParameters()
 {
   const auto pos = GetOwner()->GetGlobalPosition();
   const auto vel = GetOwner()->GetVelocity();
@@ -746,40 +804,39 @@ void ezFmodEventComponent::SetParameters()
   EZ_FMOD_ASSERT(m_pEventInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
   EZ_FMOD_ASSERT(m_pEventInstance->setVolume(m_fVolume));
   EZ_FMOD_ASSERT(m_pEventInstance->set3DAttributes(&attr));
+}
 
-  if (GetUseOcclusion())
+void ezFmodEventComponent::UpdateOcclusion()
+{
+  if (m_uiOcclusionStateIndex == ezInvalidIndex)
   {
-    if (m_uiOcclusionStateIndex == ezInvalidIndex)
+    ezInt32 iOcclusionParameterIndex = FindParameter("Occlusion");
+    if (iOcclusionParameterIndex < 0)
     {
-      ezInt32 iOcclusionParameterIndex = FindParameter("Occlusion");
-      if (iOcclusionParameterIndex < 0)
-      {
-        ezLog::Warning("'Occlusion' Fmod Event Parameter could not be found.");
-        m_bUseOcclusion = false;
-        return;
-      }
-
-      float fRadius = 1.0f;
-      {
-        FMOD::Studio::EventDescription* pDesc = nullptr;
-        m_pEventInstance->getDescription(&pDesc);
-
-        bool is3D = false;
-        pDesc->is3D(&is3D);
-        if (is3D)
-        {
-          pDesc->getMinimumDistance(&fRadius);
-        }
-      }
-
-      m_uiOcclusionStateIndex = static_cast<ezFmodEventComponentManager*>(GetOwningManager())->AddOcclusionState(this, iOcclusionParameterIndex, fRadius);
+      ezLog::Warning("'Occlusion' Fmod Event Parameter could not be found.");
+      m_bUseOcclusion = false;
+      return;
     }
 
-    auto& occlusionState = static_cast<ezFmodEventComponentManager*>(GetOwningManager())->GetOcclusionState(m_uiOcclusionStateIndex);
+    float fRadius = 1.0f;
+    {
+      FMOD::Studio::EventDescription* pDesc = nullptr;
+      m_pEventInstance->getDescription(&pDesc);
 
-    float fOcclusionValue = occlusionState.GetOcclusionValue();
-    SetParameter(occlusionState.m_iOcclusionParameterIndex, fOcclusionValue);
+      bool is3D = false;
+      pDesc->is3D(&is3D);
+      if (is3D)
+      {
+        pDesc->getMinimumDistance(&fRadius);
+      }
+    }
+
+    m_uiOcclusionStateIndex =
+        static_cast<ezFmodEventComponentManager*>(GetOwningManager())->AddOcclusionState(this, iOcclusionParameterIndex, fRadius);
   }
+
+  auto& occlusionState = static_cast<ezFmodEventComponentManager*>(GetOwningManager())->GetOcclusionState(m_uiOcclusionStateIndex);
+  SetParameter(occlusionState.m_iOcclusionParameterIndex, occlusionState.GetOcclusionValue(GetOcclusionThreshold()));
 }
 
 void ezFmodEventComponent::InvalidateResource(bool bTryToRestore)

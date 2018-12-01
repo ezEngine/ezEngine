@@ -23,9 +23,10 @@ private:
 
   ezUInt32 AddOcclusionState(ezFmodEventComponent* pComponent, ezInt32 iOcclusionParamterIndex, float fRadius);
   void RemoveOcclusionState(ezUInt32 uiIndex);
-  OcclusionState& GetOcclusionState(ezUInt32 uiIndex) { return m_OcclusionStates[uiIndex]; }
+  const OcclusionState& GetOcclusionState(ezUInt32 uiIndex) const { return m_OcclusionStates[uiIndex]; }
 
-  void ShootOcclusionRays(OcclusionState& state, ezVec3 listenerPos, ezUInt32 uiNumRays, const ezPhysicsWorldModuleInterface* pPhysicsWorldModule, float deltaTime);
+  void ShootOcclusionRays(OcclusionState& state, ezVec3 listenerPos, ezUInt32 uiNumRays,
+                          const ezPhysicsWorldModuleInterface* pPhysicsWorldModule, float deltaTime);
   void UpdateOcclusion(const ezWorldModule::UpdateContext& context);
   void UpdateEvents(const ezWorldModule::UpdateContext& context);
 
@@ -92,6 +93,12 @@ public:
   void SetUseOcclusion(bool b);
   bool GetUseOcclusion() const { return m_bUseOcclusion; }
 
+  void SetOcclusionCollisionLayer(ezUInt8 uiCollisionLayer);
+  ezUInt8 GetOcclusionCollisionLayer() const { return m_uiOcclusionCollisionLayer; }
+
+  void SetOcclusionThreshold(float fThreshold);
+  float GetOcclusionThreshold() const;
+
   void SetPitch(float f);
   float GetPitch() const { return m_fPitch; }
 
@@ -112,6 +119,8 @@ public:
 protected:
   bool m_bPaused;
   bool m_bUseOcclusion;
+  ezUInt8 m_uiOcclusionThreshold;
+  ezUInt8 m_uiOcclusionCollisionLayer;
   float m_fPitch;
   float m_fVolume;
   ezInt32 m_iTimelinePosition = -1; // used to restore a sound after reloading the resource
@@ -163,7 +172,8 @@ protected:
   void OnDeleteObject(ezMsgDeleteGameObject& msg);
 
   void Update();
-  void SetParameters();
+  void UpdateParameters();
+  void UpdateOcclusion();
 
   /// Called when the event resource has been unloaded (for a reload)
   void InvalidateResource(bool bTryToRestore);

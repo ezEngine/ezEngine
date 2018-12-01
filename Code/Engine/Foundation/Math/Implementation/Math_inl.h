@@ -80,7 +80,7 @@ namespace ezMath
 #endif
   }
 
-  EZ_ALWAYS_INLINE ezUInt32 ezMath::CountBits(ezUInt32 value)
+  EZ_ALWAYS_INLINE ezUInt32 CountBits(ezUInt32 value)
   {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     return __popcnt(value);
