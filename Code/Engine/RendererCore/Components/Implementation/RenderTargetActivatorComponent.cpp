@@ -54,7 +54,7 @@ ezResult ezRenderTargetActivatorComponent::GetLocalBounds(ezBoundingBoxSphere& b
 {
   if (m_hTexture.IsValid())
   {
-    bounds.ExpandToInclude(ezBoundingBoxSphere(ezVec3::ZeroVector(), ezVec3(0.05f), 0.1f));
+    bounds = ezBoundingSphere(ezVec3::ZeroVector(), 0.1f);
     return EZ_SUCCESS;
   }
 
