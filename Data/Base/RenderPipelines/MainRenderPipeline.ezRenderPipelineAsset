@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12099190295688988325,5711173786673602835}}
-		u4 %Hash{4042406598540965703}
+		u4 %Hash{3465775897311974603}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -393,6 +393,7 @@ o
 		{
 			Uuid{u4{12325205025592915074,5702981337413483727}}
 			Uuid{u4{875541364554114992,5510539528898110569}}
+			Uuid{u4{15982167463645788816,5364652003687494352}}
 		}
 	}
 }
@@ -442,6 +443,13 @@ o
 {
 	Uuid %id{u4{4470234026784584383,5348546232402685197}}
 	s %t{"ezParticleTrailRenderer"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{15982167463645788816,5364652003687494352}}
+	s %t{"ezMeshRenderer"}
 	u3 %v{1}
 	p{}
 }

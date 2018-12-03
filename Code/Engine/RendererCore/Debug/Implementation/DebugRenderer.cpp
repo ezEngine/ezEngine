@@ -88,6 +88,7 @@ namespace
 
     ezDynamicArray<TextLineData2D> m_textLines2D;
     ezDynamicArray<TextLineData3D> m_textLines3D;
+    ezDynamicArray<GlyphData, ezAlignedAllocatorWrapper> m_glyphs;
   };
 
   struct DoubleBufferedPerContextData
@@ -162,18 +163,18 @@ namespace
     };
   };
 
-  ezGALBufferHandle s_hDataBuffer[BufferType::Count];
+  static ezGALBufferHandle s_hDataBuffer[BufferType::Count];
 
-  ezMeshBufferResourceHandle s_hLineBoxMeshBuffer;
-  ezMeshBufferResourceHandle s_hSolidBoxMeshBuffer;
-  ezVertexDeclarationInfo s_VertexDeclarationInfo;
-  ezVertexDeclarationInfo s_TexVertexDeclarationInfo;
-  ezTexture2DResourceHandle s_hDebugFontTexture;
+  static ezMeshBufferResourceHandle s_hLineBoxMeshBuffer;
+  static ezMeshBufferResourceHandle s_hSolidBoxMeshBuffer;
+  static ezVertexDeclarationInfo s_VertexDeclarationInfo;
+  static ezVertexDeclarationInfo s_TexVertexDeclarationInfo;
+  static ezTexture2DResourceHandle s_hDebugFontTexture;
 
-  ezShaderResourceHandle s_hDebugGeometryShader;
-  ezShaderResourceHandle s_hDebugPrimitiveShader;
-  ezShaderResourceHandle s_hDebugTexturedPrimitiveShader;
-  ezShaderResourceHandle s_hDebugTextShader;
+  static ezShaderResourceHandle s_hDebugGeometryShader;
+  static ezShaderResourceHandle s_hDebugPrimitiveShader;
+  static ezShaderResourceHandle s_hDebugTexturedPrimitiveShader;
+  static ezShaderResourceHandle s_hDebugTextShader;
 
   enum
   {
@@ -935,8 +936,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
 
   // Text
   {
-    static ezDynamicArray<GlyphData, ezAlignedAllocatorWrapper> glyphs;
-    glyphs.Clear();
+    pData->m_glyphs.Clear();
 
     for (auto& textLine : pData->m_textLines3D)
     {
@@ -946,17 +946,17 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         textLine.m_topLeftCorner.x += ezMath::Round(screenPos.x);
         textLine.m_topLeftCorner.y += ezMath::Round(screenPos.y);
 
-        AppendGlyphs(glyphs, textLine);
+        AppendGlyphs(pData->m_glyphs, textLine);
       }
     }
 
     for (auto& textLine : pData->m_textLines2D)
     {
-      AppendGlyphs(glyphs, textLine);
+      AppendGlyphs(pData->m_glyphs, textLine);
     }
 
 
-    ezUInt32 uiNumGlyphs = glyphs.GetCount();
+    ezUInt32 uiNumGlyphs = pData->m_glyphs.GetCount();
     if (uiNumGlyphs != 0)
     {
       CreateDataBuffer(BufferType::Glyphs, sizeof(GlyphData));
@@ -965,7 +965,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
       renderViewContext.m_pRenderContext->BindBuffer("glyphData", pDevice->GetDefaultResourceView(s_hDataBuffer[BufferType::Glyphs]));
       renderViewContext.m_pRenderContext->BindTexture2D("FontTexture", s_hDebugFontTexture);
 
-      const GlyphData* pGlyphData = glyphs.GetData();
+      const GlyphData* pGlyphData = pData->m_glyphs.GetData();
       while (uiNumGlyphs > 0)
       {
         const ezUInt32 uiNumGlyphsInBatch = ezMath::Min<ezUInt32>(uiNumGlyphs, GLYPHS_PER_BATCH);

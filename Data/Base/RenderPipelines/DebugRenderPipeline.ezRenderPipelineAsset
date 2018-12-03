@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15507879570940844990,5062162254587685694}}
-		u4 %Hash{1490187629184159859}
+		u4 %Hash{4682493550542787901}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -197,6 +197,7 @@ o
 			Uuid{u4{17343996003870655158,5036982800315441577}}
 			Uuid{u4{14149434563972271744,5545017134245986668}}
 			Uuid{u4{3053081630053638570,5585388156799865958}}
+			Uuid{u4{16760925001838862981,5364759186819329575}}
 		}
 	}
 }
@@ -514,6 +515,13 @@ o
 		Vec2 %Node::Pos{f{0x8B82B7C2,0x10216AC4}}
 		Uuid %SceneContext{u4{0,0}}
 	}
+}
+o
+{
+	Uuid %id{u4{16760925001838862981,5364759186819329575}}
+	s %t{"ezMeshRenderer"}
+	u3 %v{1}
+	p{}
 }
 o
 {
