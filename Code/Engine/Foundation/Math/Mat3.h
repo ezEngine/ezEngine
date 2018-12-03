@@ -21,8 +21,8 @@ public:
   /// \brief The matrix as a 9-element Type array (column-major)
   Type m_fElementsCM[9];
 
-  Type& Element(ezInt32 column, ezInt32 row) { return m_fElementsCM[column * 3 + row]; }
-  Type Element(ezInt32 column, ezInt32 row) const { return m_fElementsCM[column * 3 + row]; }
+  EZ_ALWAYS_INLINE Type& Element(ezInt32 column, ezInt32 row) { return m_fElementsCM[column * 3 + row]; }
+  EZ_ALWAYS_INLINE Type Element(ezInt32 column, ezInt32 row) const { return m_fElementsCM[column * 3 + row]; }
 
   // *** Constructors ***
 public:

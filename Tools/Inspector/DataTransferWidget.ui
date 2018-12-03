@@ -153,8 +153,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>556</width>
-                <height>587</height>
+                <width>564</width>
+                <height>605</height>
                </rect>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -165,6 +165,12 @@
                  </property>
                  <property name="text">
                   <string/>
+                 </property>
+                 <property name="textFormat">
+                  <enum>Qt::PlainText</enum>
+                 </property>
+                 <property name="openExternalLinks">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>

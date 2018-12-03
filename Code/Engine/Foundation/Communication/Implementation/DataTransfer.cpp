@@ -149,8 +149,10 @@ void ezDataTransfer::TelemetryMessage(void* pPassThrough)
   {
     if (Msg.GetMessageID() == 'REQ')
     {
-      ezString sName;
+      ezStringBuilder sName;
       Msg.GetReader() >> sName;
+
+      ezLog::Dev("Requested data transfer '{0}'", sName);
 
       for (auto it = s_AllTransfers.GetIterator(); it.IsValid(); ++it)
       {

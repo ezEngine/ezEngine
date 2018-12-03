@@ -51,6 +51,9 @@ void ezQtDataWidget::ProcessTelemetry(void* pUnuseed)
       ezString sName;
       msg.GetReader() >> sName;
 
+      // this will create the item, do not remove!
+      TransferData& td = s_pWidget->m_Transfers[sName];
+
       s_pWidget->ComboTransfers->addItem(sName.GetData());
     }
 
@@ -112,12 +115,15 @@ void ezQtDataWidget::on_ButtonRefresh_clicked()
   if (ComboTransfers->currentIndex() < 0)
     return;
 
-  const ezString sName = ComboTransfers->currentText().toUtf8().data();
+  const ezStringBuilder sName = ComboTransfers->currentText().toUtf8().data();
 
   auto it = m_Transfers.Find(sName);
 
   if (!it.IsValid())
     return;
+
+  LabelImage->setPixmap(QPixmap());
+  LabelImage->setText("Waiting for data transfer...");
 
   ezTelemetryMessage msg;
   msg.SetMessageID('DTRA', 'REQ');
@@ -132,7 +138,7 @@ void ezQtDataWidget::on_ComboTransfers_currentIndexChanged(int index)
   if (index < 0)
     return;
 
-  ezString sName = ComboTransfers->currentText().toUtf8().data();
+  ezStringBuilder sName = ComboTransfers->currentText().toUtf8().data();
 
   auto itTransfer = m_Transfers.Find(sName);
 
@@ -209,20 +215,22 @@ void ezQtDataWidget::on_ComboItems_currentIndexChanged(int index)
 
     LabelImage->setPixmap(QPixmap::fromImage(i));
   }
-  else if (sMime == "text/xml")
+  else if (sMime == "text/xml" || sMime == "application/json" || sMime == "text/plain")
   {
+    const ezUInt32 uiMaxBytes = ezMath::Min<ezUInt32>(1024 * 16, Reader.GetByteCount());
+
     ezHybridArray<ezUInt8, 1024> Temp;
-    Temp.SetCountUninitialized(Reader.GetByteCount() + 1);
+    Temp.SetCountUninitialized(uiMaxBytes + 1);
 
-    Reader.ReadBytes(&Temp[0], Reader.GetByteCount());
-    Temp[Reader.GetByteCount()] = '\0';
+    Reader.ReadBytes(Temp.GetData(), uiMaxBytes);
+    Temp[uiMaxBytes] = '\0';
 
-    LabelImage->setText((const char*)&Temp[0]);
+    LabelImage->setText((const char*)Temp.GetData());
   }
   else
   {
     ezStringBuilder sText;
-    sText.Format("Unknown Mime-Type '{0}'", sMime);
+    sText.Format("Cannot display data of Mime-Type '{0}'", sMime);
 
     LabelImage->setText(sText.GetData());
   }
