@@ -94,7 +94,7 @@ public:
   /// \brief Converts the incoming type to ezBitflags<T>
   EZ_ALWAYS_INLINE ezBitflags(Enum flag1) // [tested]
   {
-    m_Value = flag1;
+    m_Value = (StorageType)flag1;
   }
 
   /// \brief Comparison operator.

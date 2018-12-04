@@ -485,7 +485,7 @@ ezUInt32 ezStringUtils::CopyN(char* szDest, ezUInt32 uiDstSize, const char* szSo
       szLastCharacterPos = szDest;
 
       // if we successfully copied enough characters, the only thing left is to terminate the string
-      if (iCharsCopied == uiCharsToCopy)
+      if (iCharsCopied == (int)uiCharsToCopy)
         break;
     }
 

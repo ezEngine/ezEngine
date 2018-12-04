@@ -1,9 +1,10 @@
 #include <PCH.h>
 
 #include <Foundation/IO/CompressedStream.h>
-#include <ThirdParty/zlib/zlib.h>
 
 #ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
+#include <ThirdParty/zlib/zlib.h>
 
 static voidpf zLibAlloc OF((voidpf opaque, uInt items, uInt size))
 {

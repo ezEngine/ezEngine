@@ -60,7 +60,7 @@ public:
   /// \brief Assignment operator.
   EZ_ALWAYS_INLINE void operator=(const typename Derived::Enum value) // [tested]
   {
-    m_value = value;
+    m_value = (StorageType)value;
   }
 
   /// \brief Comparison operators

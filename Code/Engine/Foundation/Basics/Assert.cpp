@@ -51,7 +51,7 @@ bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const cha
 
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  MessageBox(nullptr, szTemp, "Assertion", MB_ICONERROR);
+  MessageBoxA(nullptr, szTemp, "Assertion", MB_ICONERROR);
 #endif
 
 #endif

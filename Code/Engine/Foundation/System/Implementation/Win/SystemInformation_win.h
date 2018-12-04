@@ -96,7 +96,7 @@ void ezSystemInformation::Initialize()
 
 #else
   DWORD bufCharCount = sizeof(s_SystemInformation.m_sHostName);
-  GetComputerName(s_SystemInformation.m_sHostName, &bufCharCount);
+  GetComputerNameA(s_SystemInformation.m_sHostName, &bufCharCount);
 #endif
 
   s_SystemInformation.m_bIsInitialized = true;
