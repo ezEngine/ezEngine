@@ -29,10 +29,11 @@ namespace
     Event m_Event;
     ezUInt32 m_uiRecursionCount;
   };
-}
+} // namespace
 
 EZ_CREATE_SIMPLE_TEST(Communication, Event)
 {
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Basics")
   {
     typedef ezEvent<ezInt32*> TestEvent;
     TestEvent e;
@@ -46,6 +47,7 @@ EZ_CREATE_SIMPLE_TEST(Communication, Event)
     ezInt32 iResult = 0;
 
     e.AddEventHandler(TestEvent::Handler(&Test::DoStuff, &test1));
+    EZ_TEST_BOOL(e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test1)));
 
     iResult = 0;
     e.Broadcast(&iResult);
@@ -53,6 +55,7 @@ EZ_CREATE_SIMPLE_TEST(Communication, Event)
     EZ_TEST_INT(iResult, 3);
 
     e.AddEventHandler(TestEvent::Handler(&Test::DoStuff, &test2));
+    EZ_TEST_BOOL(e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test2)));
 
     iResult = 0;
     e.Broadcast(&iResult);
@@ -60,6 +63,7 @@ EZ_CREATE_SIMPLE_TEST(Communication, Event)
     EZ_TEST_INT(iResult, 8);
 
     e.RemoveEventHandler(TestEvent::Handler(&Test::DoStuff, &test1));
+    EZ_TEST_BOOL(!e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test1)));
 
     iResult = 0;
     e.Broadcast(&iResult);
@@ -67,11 +71,60 @@ EZ_CREATE_SIMPLE_TEST(Communication, Event)
     EZ_TEST_INT(iResult, 5);
 
     e.RemoveEventHandler(TestEvent::Handler(&Test::DoStuff, &test2));
+    EZ_TEST_BOOL(!e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test2)));
 
     iResult = 0;
     e.Broadcast(&iResult);
 
     EZ_TEST_INT(iResult, 0);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Unsubscribing via ID")
+  {
+    typedef ezEvent<ezInt32*> TestEvent;
+    TestEvent e;
+
+    Test test1;
+    Test test2;
+
+    auto subId1 = e.AddEventHandler(TestEvent::Handler(&Test::DoStuff, &test1));
+    EZ_TEST_BOOL(e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test1)));
+
+    auto subId2 = e.AddEventHandler(TestEvent::Handler(&Test::DoStuff, &test2));
+    EZ_TEST_BOOL(e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test2)));
+
+    e.RemoveEventHandler(subId1);
+    EZ_TEST_BOOL(!e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test1)));
+
+    e.RemoveEventHandler(subId2);
+    EZ_TEST_BOOL(!e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test2)));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Unsubscribing via Unsubscriber")
+  {
+    typedef ezEvent<ezInt32*> TestEvent;
+    TestEvent e;
+
+    Test test1;
+    Test test2;
+
+    {
+      TestEvent::Unsubscriber unsub1;
+
+      {
+        TestEvent::Unsubscriber unsub2;
+
+        e.AddEventHandler(TestEvent::Handler(&Test::DoStuff, &test1), unsub1);
+        EZ_TEST_BOOL(e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test1)));
+
+        e.AddEventHandler(TestEvent::Handler(&Test::DoStuff, &test2), unsub2);
+        EZ_TEST_BOOL(e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test2)));
+      }
+
+      EZ_TEST_BOOL(!e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test2)));
+    }
+
+    EZ_TEST_BOOL(!e.HasEventHandler(TestEvent::Handler(&Test::DoStuff, &test1)));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Recursion")
