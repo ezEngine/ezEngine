@@ -214,7 +214,7 @@ void ezTaskSystem::WaitForGroup(ezTaskGroupID Group)
   // This function is less goal oriented, it does not try to pick out tasks that belong to the given group (at the moment)
   // It simply helps running tasks, until the given Group has been finished as well
 
-  EZ_PROFILE("WaitForGroup");
+  EZ_PROFILE_SCOPE("WaitForGroup");
 
   const bool bIsMainThread = ezThreadUtils::IsMainThread();
 
@@ -249,7 +249,7 @@ ezResult ezTaskSystem::CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum On
   if (ezTaskSystem::IsTaskGroupFinished(Group))
     return EZ_SUCCESS;
 
-  EZ_PROFILE("CancelGroup");
+  EZ_PROFILE_SCOPE("CancelGroup");
 
   EZ_LOCK(s_TaskSystemMutex);
 

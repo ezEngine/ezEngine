@@ -159,7 +159,7 @@ protected:
   // not incremental changes to the existing data.
   void ApplyNativePropertyChangesToObjectManager(bool bForceIndexBasedRemapping = false)
   {
-    EZ_PROFILE("ApplyNativePropertyChangesToObjectManager");
+    EZ_PROFILE_SCOPE("ApplyNativePropertyChangesToObjectManager");
     // Create object manager graph
     ezAbstractObjectGraph origGraph;
     ezAbstractObjectNode* pOrigRootNode = nullptr;

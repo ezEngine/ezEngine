@@ -105,7 +105,7 @@ void ezParticleBehavior_Velocity::CreateRequiredStreams()
 
 void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
 {
-  EZ_PROFILE("PFX: Velocity");
+  EZ_PROFILE_SCOPE("PFX: Velocity");
 
   const float tDiff = (float)m_TimeDiff.GetSeconds();
   const ezVec3 vDown = m_pPhysicsModule != nullptr ? m_pPhysicsModule->GetGravity().GetNormalized() : ezVec3(0.0f, 0.0f, -1.0f);

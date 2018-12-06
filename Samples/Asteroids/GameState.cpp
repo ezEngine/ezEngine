@@ -5,7 +5,7 @@
 #include <Foundation/Time/Clock.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
-#include <InputXBox360/InputDeviceXBox.h>
+#include <System/XBoxController/InputDeviceXBox.h>
 
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <System/Window/Window.h>

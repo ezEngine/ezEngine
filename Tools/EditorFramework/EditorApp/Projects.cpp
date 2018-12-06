@@ -38,7 +38,7 @@ void ezQtEditorApp::SlotQueuedOpenProject(QString sProject)
 
 void ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 {
-  EZ_PROFILE("CreateOrOpenProject");
+  EZ_PROFILE_SCOPE("CreateOrOpenProject");
 
   if (ezToolsProject::IsProjectOpen() && ezToolsProject::GetSingleton()->GetProjectFile() == szFile)
   {
@@ -92,7 +92,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
     case ezToolsProjectEvent::Type::ProjectOpened:
     {
-      EZ_PROFILE("ProjectOpened");
+      EZ_PROFILE_SCOPE("ProjectOpened");
       LoadProjectPreferences();
       SetupDataDirectories();
       ReadEnginePluginConfig();
@@ -106,7 +106,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
       ezAssetCurator::GetSingleton()->StartInitialize(m_FileSystemConfig);
       if (ezEditorEngineProcessConnection::GetSingleton()->RestartProcess().Failed())
       {
-        EZ_PROFILE("ErrorLog");
+        EZ_PROFILE_SCOPE("ErrorLog");
         ezLog::Error("Failed to start the engine process. Project loading incomplete.");
       }
       ezAssetCurator::GetSingleton()->WaitForInitialize();

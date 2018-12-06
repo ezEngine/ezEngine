@@ -33,7 +33,7 @@ ezTestAppRun ezSimpleTestGroup::RunSubTest(ezInt32 iIdentifier)
   // until the block name is properly set, use the test name instead
   ezTestFramework::s_szTestBlockName = m_SimpleTests[iIdentifier].m_szName;
 
-  EZ_PROFILE(m_SimpleTests[iIdentifier].m_szName);
+  EZ_PROFILE_SCOPE(m_SimpleTests[iIdentifier].m_szName);
   m_SimpleTests[iIdentifier].m_Func();
   return ezTestAppRun::Quit;
 }

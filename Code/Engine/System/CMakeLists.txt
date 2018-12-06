@@ -41,6 +41,14 @@ if (BUILDSYSTEM_COMPILER_MSVC_120)
 
 endif()
 
+if (BUILDSYSTEM_PLATFORM_WINDOWS_7)
+  SET (LINK_LIBRARIES ${LINK_LIBRARIES} XINPUT9_1_0)
+elseif (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
+  SET (LINK_LIBRARIES ${LINK_LIBRARIES} Xinputuap)
+else()
+  SET (LINK_LIBRARIES ${LINK_LIBRARIES} XINPUT9_1_0)
+endif()
+
 # Someone else finish the MacOS and Linux setup...
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)

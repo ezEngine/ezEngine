@@ -124,7 +124,7 @@ void ezParticleInitializer_BoxPosition::CreateRequiredStreams()
 
 void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
-  EZ_PROFILE("PFX: Box Position");
+  EZ_PROFILE_SCOPE("PFX: Box Position");
 
   ezSimdVec4f* pPosition = m_pStreamPosition->GetWritableData<ezSimdVec4f>();
 

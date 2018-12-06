@@ -120,7 +120,7 @@ void ezParticleBehavior_ColorGradient::InitializeElements(ezUInt64 uiStartIndex,
   if (!m_hGradient.IsValid())
     return;
 
-  EZ_PROFILE("PFX: Color Gradient Init");
+  EZ_PROFILE_SCOPE("PFX: Color Gradient Init");
 
   // query the init color from the gradient
   if (m_InitColor == ezColor::RebeccaPurple)
@@ -167,7 +167,7 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
   if (!m_hGradient.IsValid())
     return;
 
-  EZ_PROFILE("PFX: Color Gradient");
+  EZ_PROFILE_SCOPE("PFX: Color Gradient");
 
   ezResourceLock<ezColorGradientResource> pGradient(m_hGradient, ezResourceAcquireMode::NoFallback);
 

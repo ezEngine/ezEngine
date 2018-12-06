@@ -39,7 +39,7 @@ namespace
 
   struct EventBuffer
   {
-    ezStaticRingBuffer<Event, 1024 * 512 / sizeof(Event)> m_Data;
+    ezStaticRingBuffer<Event, 8 * 1024 * 1024 / sizeof(Event)> m_Data;
     ezUInt64 m_uiThreadId = 0;
   };
 
@@ -80,7 +80,7 @@ namespace
 
     return pEventBuffer->m_Data.PeekBack();
   }
-}
+} // namespace
 
 void ezProfilingSystem::Reset()
 {
@@ -126,6 +126,63 @@ ezProfilingScope::~ezProfilingScope()
 {
   Event& e = AllocateEvent(m_szName, m_uiNameLength, Event::End);
   e.m_szFunctionName = nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+thread_local ezProfilingListScope* ezProfilingListScope::s_pCurrentList = nullptr;
+
+ezProfilingListScope::ezProfilingListScope(const char* szListName, const char* szFirstSectionName, const char* szFunctionName)
+    : m_szListName(szListName)
+    , m_uiListNameLength((ezUInt32)::strlen(szListName))
+    , m_szCurSectionName(szFirstSectionName)
+    , m_uiCurSectionNameLength((ezUInt32)::strlen(szFirstSectionName))
+{
+  m_pPreviousList = s_pCurrentList;
+  s_pCurrentList = this;
+
+  {
+    Event& e = AllocateEvent(m_szListName, m_uiListNameLength, Event::Begin);
+    e.m_szFunctionName = szFunctionName;
+  }
+
+  {
+    Event& e = AllocateEvent(m_szCurSectionName, m_uiCurSectionNameLength, Event::Begin);
+    e.m_szFunctionName = nullptr;
+  }
+}
+
+ezProfilingListScope::~ezProfilingListScope()
+{
+  {
+    Event& e = AllocateEvent(m_szCurSectionName, m_uiCurSectionNameLength, Event::End);
+    e.m_szFunctionName = nullptr;
+  }
+
+  {
+    Event& e = AllocateEvent(m_szListName, m_uiListNameLength, Event::End);
+    e.m_szFunctionName = nullptr;
+  }
+
+  s_pCurrentList = m_pPreviousList;
+}
+
+void ezProfilingListScope::StartNextSection(const char* szNextSectionName)
+{
+  ezProfilingListScope* pCurScope = s_pCurrentList;
+
+  {
+    Event& e = AllocateEvent(pCurScope->m_szCurSectionName, pCurScope->m_uiCurSectionNameLength, Event::End);
+    e.m_szFunctionName = nullptr;
+  }
+
+  pCurScope->m_szCurSectionName = szNextSectionName;
+  pCurScope->m_uiCurSectionNameLength = (ezUInt32)::strlen(szNextSectionName);
+
+  {
+    Event& e = AllocateEvent(pCurScope->m_szCurSectionName, pCurScope->m_uiCurSectionNameLength, Event::Begin);
+    e.m_szFunctionName = nullptr;
+  }
 }
 
 // static

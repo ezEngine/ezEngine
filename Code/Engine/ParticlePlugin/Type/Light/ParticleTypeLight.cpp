@@ -125,7 +125,7 @@ void ezParticleTypeLight::CreateRequiredStreams()
 void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData,
                                                 const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
-  EZ_PROFILE("PFX: Light");
+  EZ_PROFILE_SCOPE("PFX: Light");
 
   const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
   const ezFloat16* pSize = m_pStreamSize->GetData<ezFloat16>();

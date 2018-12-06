@@ -381,7 +381,7 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
 
 bool ezParticleEffectInstance::Update(const ezTime& tDiff)
 {
-  EZ_PROFILE("PFX: Effect Update");
+  EZ_PROFILE_SCOPE("PFX: Effect Update");
 
   ezTime tMinStep = ezTime::Seconds(0);
 
@@ -635,7 +635,7 @@ void ezParticleEffectInstance::ProcessEventQueues()
   if (m_EventQueue.IsEmpty())
     return;
 
-  EZ_PROFILE("PFX: Effect Event Queue");
+  EZ_PROFILE_SCOPE("PFX: Effect Event Queue");
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
     if (m_ParticleSystems[i])

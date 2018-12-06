@@ -23,7 +23,7 @@ ezPxDynamicActorComponentManager::~ezPxDynamicActorComponentManager() {}
 
 void ezPxDynamicActorComponentManager::UpdateKinematicActors()
 {
-  EZ_PROFILE("KinematicActors");
+  EZ_PROFILE_SCOPE("KinematicActors");
 
   for (auto pKinematicActorComponent : m_KinematicActorComponents)
   {
@@ -44,7 +44,7 @@ void ezPxDynamicActorComponentManager::UpdateKinematicActors()
 
 void ezPxDynamicActorComponentManager::UpdateDynamicActors(ezArrayPtr<PxActor*> activeActors)
 {
-  EZ_PROFILE("DynamicActors");
+  EZ_PROFILE_SCOPE("DynamicActors");
 
   for (const PxActor* activeActor : activeActors)
   {

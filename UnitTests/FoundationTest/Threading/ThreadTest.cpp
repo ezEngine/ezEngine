@@ -19,7 +19,7 @@ namespace
 
     virtual ezUInt32 Run()
     {
-      EZ_PROFILE("Test Thread::Run");
+      EZ_PROFILE_SCOPE("Test Thread::Run");
 
       for (ezUInt32 i = 0; i < g_uiIncrementSteps; i++)
       {

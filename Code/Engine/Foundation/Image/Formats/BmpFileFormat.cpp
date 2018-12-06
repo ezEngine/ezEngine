@@ -20,34 +20,34 @@ enum ezBmpCompression
 #pragma pack(push, 1)
 struct ezBmpFileHeader
 {
-  ezUInt16 m_type;
-  ezUInt32 m_size;
-  ezUInt16 m_reserved1;
-  ezUInt16 m_reserved2;
-  ezUInt32 m_offBits;
+  ezUInt16 m_type = 0;
+  ezUInt32 m_size = 0;
+  ezUInt16 m_reserved1 = 0;
+  ezUInt16 m_reserved2 = 0;
+  ezUInt32 m_offBits = 0;
 };
 #pragma pack(pop)
 
 struct ezBmpFileInfoHeader
 {
-  ezUInt32 m_size;
-  ezUInt32 m_width;
-  ezUInt32 m_height;
-  ezUInt16 m_planes;
-  ezUInt16 m_bitCount;
-  ezBmpCompression m_compression;
-  ezUInt32 m_sizeImage;
-  ezUInt32 m_xPelsPerMeter;
-  ezUInt32 m_yPelsPerMeter;
-  ezUInt32 m_clrUsed;
-  ezUInt32 m_clrImportant;
+  ezUInt32 m_size = 0;
+  ezUInt32 m_width = 0;
+  ezUInt32 m_height = 0;
+  ezUInt16 m_planes = 0;
+  ezUInt16 m_bitCount = 0;
+  ezBmpCompression m_compression = ezBmpCompression::RGB;
+  ezUInt32 m_sizeImage = 0;
+  ezUInt32 m_xPelsPerMeter = 0;
+  ezUInt32 m_yPelsPerMeter = 0;
+  ezUInt32 m_clrUsed = 0;
+  ezUInt32 m_clrImportant = 0;
 };
 
 struct ezCIEXYZ
 {
-  int ciexyzX;
-  int ciexyzY;
-  int ciexyzZ;
+  int ciexyzX = 0;
+  int ciexyzY = 0;
+  int ciexyzZ = 0;
 };
 
 struct ezCIEXYZTRIPLE
@@ -59,15 +59,15 @@ struct ezCIEXYZTRIPLE
 
 struct ezBmpFileInfoHeaderV4
 {
-  ezUInt32 m_redMask;
-  ezUInt32 m_greenMask;
-  ezUInt32 m_blueMask;
-  ezUInt32 m_alphaMask;
-  ezUInt32 m_csType;
+  ezUInt32 m_redMask = 0;
+  ezUInt32 m_greenMask = 0;
+  ezUInt32 m_blueMask = 0;
+  ezUInt32 m_alphaMask = 0;
+  ezUInt32 m_csType = 0;
   ezCIEXYZTRIPLE m_endpoints;
-  ezUInt32 m_gammaRed;
-  ezUInt32 m_gammaGreen;
-  ezUInt32 m_gammaBlue;
+  ezUInt32 m_gammaRed = 0;
+  ezUInt32 m_gammaGreen = 0;
+  ezUInt32 m_gammaBlue = 0;
 };
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezCIEXYZTRIPLE) == 3 * 3 * 4);

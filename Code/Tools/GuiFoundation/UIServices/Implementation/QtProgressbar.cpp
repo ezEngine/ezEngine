@@ -5,7 +5,8 @@
 #include <QApplication>
 #include <QProgressDialog>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+
+#if EZ_ENABLED(USE_WIN_EXTRAS)
 #include <QtWinExtras/QWinTaskbarButton>
 #include <QtWinExtras/QWinTaskbarProgress>
 #endif
@@ -16,7 +17,7 @@ ezQtProgressbar::ezQtProgressbar()
   m_pProgress = nullptr;
   m_pDialog = nullptr;
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(USE_WIN_EXTRAS)
   m_pWinTaskBarProgress = nullptr;
   m_pWinTaskBarButton = nullptr;
 #endif
@@ -69,7 +70,7 @@ void ezQtProgressbar::ProgressbarEventHandler(const ezProgressEvent& e)
       const ezUInt32 uiProMille = ezMath::Clamp<ezUInt32>((ezUInt32)(e.m_pProgressbar->GetCompletion() * 1000.0), 0, 1000);
       m_pDialog->setValue(uiProMille);
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(USE_WIN_EXTRAS)
       if (m_pWinTaskBarProgress)
         m_pWinTaskBarProgress->setValue(uiProMille);
 #endif
@@ -104,7 +105,7 @@ void ezQtProgressbar::EnsureCreated()
 
   if (QApplication::activeWindow())
   {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(USE_WIN_EXTRAS)
     m_pWinTaskBarButton = new QWinTaskbarButton(QApplication::activeWindow());
     m_pWinTaskBarButton->setWindow(QApplication::activeWindow()->windowHandle());
 
@@ -127,7 +128,7 @@ void ezQtProgressbar::EnsureDestroyed()
     m_pDialog = nullptr;
   }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(USE_WIN_EXTRAS)
   if (m_pWinTaskBarProgress)
   {
     m_pWinTaskBarProgress->hide();

@@ -45,7 +45,7 @@ void ezQtEditorApp::SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg
 
 void ezQtEditorApp::SetupDataDirectories()
 {
-  EZ_PROFILE("SetupDataDirectories");
+  EZ_PROFILE_SCOPE("SetupDataDirectories");
   ezFileSystem::DetectSdkRootDirectory();
 
   ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();

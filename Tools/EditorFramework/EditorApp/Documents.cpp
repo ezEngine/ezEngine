@@ -12,7 +12,7 @@ void ezQtEditorApp::OpenDocumentQueued(const char* szDocument, const ezDocumentO
 
 ezDocument* ezQtEditorApp::OpenDocument(const char* szDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
 {
-  EZ_PROFILE("OpenDocument");
+  EZ_PROFILE_SCOPE("OpenDocument");
 
   if (m_bHeadless)
     flags.Remove(ezDocumentFlags::RequestWindow);
@@ -73,7 +73,7 @@ pDocument->GetUnknownObjectTypeInstances());
 
 ezDocument* ezQtEditorApp::CreateDocument(const char* szDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
 {
-  EZ_PROFILE("CreateDocument");
+  EZ_PROFILE_SCOPE("CreateDocument");
 
   if (m_bHeadless)
     flags.Remove(ezDocumentFlags::RequestWindow);

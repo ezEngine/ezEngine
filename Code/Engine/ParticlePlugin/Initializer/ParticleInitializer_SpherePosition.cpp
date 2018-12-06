@@ -152,7 +152,7 @@ void ezParticleInitializer_SpherePosition::CreateRequiredStreams()
 
 void ezParticleInitializer_SpherePosition::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
-  EZ_PROFILE("PFX: Sphere Position");
+  EZ_PROFILE_SCOPE("PFX: Sphere Position");
 
   const ezVec3 startVel = GetOwnerSystem()->GetParticleStartVelocity();
 

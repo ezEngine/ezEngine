@@ -80,7 +80,7 @@ void ezParticleInitializer_VelocityCone::CreateRequiredStreams()
 
 void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
-  EZ_PROFILE("PFX: Velocity Cone");
+  EZ_PROFILE_SCOPE("PFX: Velocity Cone");
 
   const ezVec3 startVel = GetOwnerSystem()->GetParticleStartVelocity();
 

@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 #include <Core/Input/InputManager.h>
 #include <Foundation/Basics.h>
 #include <Foundation/Communication/GlobalEvent.h>

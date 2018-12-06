@@ -162,7 +162,7 @@ void ezDocument::EnsureVisible()
 
 ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
 {
-  EZ_PROFILE("InternalSaveDocument");
+  EZ_PROFILE_SCOPE("InternalSaveDocument");
   ezTaskGroupID saveID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::LongRunningHighPriority);
   auto saveTask = EZ_DEFAULT_NEW(ezSaveDocumentTask);
   {
@@ -217,7 +217,7 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
 
 ezStatus ezDocument::InternalLoadDocument()
 {
-  EZ_PROFILE("InternalLoadDocument");
+  EZ_PROFILE_SCOPE("InternalLoadDocument");
   // this would currently crash in Qt, due to the processEvents in the QtProgressBar
   // ezProgressRange range("Loading Document", 5, false);
 
@@ -229,7 +229,7 @@ ezStatus ezDocument::InternalLoadDocument()
   ezMemoryStreamReader memreader(&storage);
 
   {
-    EZ_PROFILE("Read File");
+    EZ_PROFILE_SCOPE("Read File");
     ezFileReader file;
     if (file.Open(m_sDocumentPath) == EZ_FAILURE)
     {
@@ -241,7 +241,7 @@ ezStatus ezDocument::InternalLoadDocument()
 
     // range.BeginNextStep("Parsing Graph");
     {
-      EZ_PROFILE("parse DDL graph");
+      EZ_PROFILE_SCOPE("parse DDL graph");
       ezStopwatch sw;
       if (ezAbstractGraphDdlSerializer::ReadDocument(memreader, header, objects, types, true).Failed())
         return ezStatus("Failed to parse DDL graph");
@@ -252,7 +252,7 @@ ezStatus ezDocument::InternalLoadDocument()
   }
 
   {
-    EZ_PROFILE("Deserializing Types");
+    EZ_PROFILE_SCOPE("Deserializing Types");
     // range.BeginNextStep("Deserializing Types");
 
     // Deserialize and register serialized phantom types.
@@ -292,7 +292,7 @@ ezStatus ezDocument::InternalLoadDocument()
   }
 
   {
-    EZ_PROFILE("Restoring Header");
+    EZ_PROFILE_SCOPE("Restoring Header");
     ezRttiConverterContext context;
     ezRttiConverterReader rttiConverter(header.Borrow(), &context);
     auto* pHeaderNode = header->GetNodeByName("Header");
@@ -300,7 +300,7 @@ ezStatus ezDocument::InternalLoadDocument()
   }
 
   {
-    EZ_PROFILE("Restoring Objects");
+    EZ_PROFILE_SCOPE("Restoring Objects");
     ezDocumentObjectConverterReader objectConverter(objects.Borrow(), GetObjectManager(),
                                                     ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
     // range.BeginNextStep("Restoring Objects");
@@ -311,7 +311,7 @@ ezStatus ezDocument::InternalLoadDocument()
   }
 
   {
-    EZ_PROFILE("Restoring Meta-Data");
+    EZ_PROFILE_SCOPE("Restoring Meta-Data");
     // range.BeginNextStep("Restoring Meta-Data");
     RestoreMetaDataAfterLoading(*objects.Borrow(), false);
   }

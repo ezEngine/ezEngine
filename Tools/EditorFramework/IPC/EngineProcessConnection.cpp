@@ -39,7 +39,7 @@ ezEditorEngineProcessConnection::~ezEditorEngineProcessConnection()
 
 void ezEditorEngineProcessConnection::SendDocumentOpenMessage(const ezDocument* pDocument, bool bOpen)
 {
-  EZ_PROFILE("SendDocumentOpenMessage");
+  EZ_PROFILE_SCOPE("SendDocumentOpenMessage");
 
   if (!pDocument)
     return;
@@ -97,7 +97,7 @@ void ezEditorEngineProcessConnection::DestroyEngineConnection(ezAssetDocument* p
 
 void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMessageType)
 {
-  EZ_PROFILE("Initialize");
+  EZ_PROFILE_SCOPE("Initialize");
   if (m_IPC.IsClientAlive())
     return;
 
@@ -256,7 +256,7 @@ void ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
 ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout,
                                                          ezProcessCommunicationChannel::WaitForMessageCallback* pCallback)
 {
-  EZ_PROFILE(pMessageType->GetTypeName());
+  EZ_PROFILE_SCOPE(pMessageType->GetTypeName());
   return m_IPC.WaitForMessage(pMessageType, tTimeout, pCallback);
 }
 
@@ -298,7 +298,7 @@ ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& assetGuid,
 
 ezResult ezEditorEngineProcessConnection::RestartProcess()
 {
-  EZ_PROFILE("RestartProcess");
+  EZ_PROFILE_SCOPE("RestartProcess");
   EZ_LOG_BLOCK("Restarting Engine Process");
 
   ShutdownProcess();

@@ -90,7 +90,7 @@ void ezParticleInitializer_RandomColor::CreateRequiredStreams()
 
 void ezParticleInitializer_RandomColor::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
-  EZ_PROFILE("PFX: Random Color");
+  EZ_PROFILE_SCOPE("PFX: Random Color");
 
   ezColorLinear16f* pColor = m_pStreamColor->GetWritableData<ezColorLinear16f>();
 

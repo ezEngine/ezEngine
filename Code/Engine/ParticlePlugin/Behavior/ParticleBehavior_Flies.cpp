@@ -94,7 +94,7 @@ void ezParticleBehavior_Flies::CreateRequiredStreams()
 
 void ezParticleBehavior_Flies::Process(ezUInt64 uiNumElements)
 {
-  EZ_PROFILE("PFX: Flies");
+  EZ_PROFILE_SCOPE("PFX: Flies");
 
   const ezTime tCur = GetOwnerEffect()->GetWorld()->GetClock().GetAccumulatedTime();
   const bool bChangeDirection = tCur >= m_TimeToChangeDir;

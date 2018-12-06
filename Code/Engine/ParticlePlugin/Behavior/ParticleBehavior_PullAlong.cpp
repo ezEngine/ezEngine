@@ -74,7 +74,7 @@ void ezParticleBehavior_PullAlong::CreateRequiredStreams()
 
 void ezParticleBehavior_PullAlong::Process(ezUInt64 uiNumElements)
 {
-  EZ_PROFILE("PFX: PullAlong");
+  EZ_PROFILE_SCOPE("PFX: PullAlong");
 
   if (m_vApplyPull.IsZero())
     return;

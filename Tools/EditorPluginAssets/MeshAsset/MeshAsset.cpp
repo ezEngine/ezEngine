@@ -150,7 +150,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
 
 ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor& desc)
 {
-  EZ_PROFILE("CreateMeshFromFile");
+  EZ_PROFILE_SCOPE("CreateMeshFromFile");
   ezProgressRange range("Mesh Import", 6, false);
 
   range.SetStepWeighting(0, 0.7f);

@@ -28,7 +28,7 @@ struct ezFileStats;
 class ezAssetProcessorLog;
 
 #if 0 // Define to enable extensive curator profile scopes
-#  define CURATOR_PROFILE(szName) EZ_PROFILE(szName)
+#  define CURATOR_PROFILE(szName) EZ_PROFILE_SCOPE(szName)
 
 #else
 #  define CURATOR_PROFILE(Name)

@@ -76,7 +76,7 @@ void ezGraphPatchContext::ChangeBaseClass(ezArrayPtr<ezVersionKey> baseClasses)
 
 ezGraphPatchContext::ezGraphPatchContext(ezGraphVersioning* pParent, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph)
 {
-  EZ_PROFILE("ezGraphPatchContext");
+  EZ_PROFILE_SCOPE("ezGraphPatchContext");
   m_pParent = pParent;
   m_pGraph = pGraph;
   if (pTypesGraph)
@@ -219,7 +219,7 @@ ezGraphVersioning::~ezGraphVersioning()
 
 void ezGraphVersioning::PatchGraph(ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph)
 {
-  EZ_PROFILE("PatchGraph");
+  EZ_PROFILE_SCOPE("PatchGraph");
 
   ezGraphPatchContext context(this, pGraph, pTypesGraph);
   for (const ezGraphPatch* pPatch : m_GraphPatches)

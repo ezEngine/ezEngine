@@ -113,7 +113,7 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
 
   // Find new active tiles
   {
-    EZ_PROFILE("Find new tiles");
+    EZ_PROFILE_SCOPE("Find new tiles");
 
     ezHybridArray<ezSimdTransform, 8, ezAlignedAllocatorWrapper> localBoundingBoxes;
 
@@ -210,7 +210,7 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
 
     // Sort new tiles
     {
-      EZ_PROFILE("Sort new tiles");
+      EZ_PROFILE_SCOPE("Sort new tiles");
 
       for (auto& newTile : m_NewTiles)
       {
@@ -235,7 +235,7 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
 
   // Allocate new tiles and placement tasks
   {
-    EZ_PROFILE("Allocate new tiles");
+    EZ_PROFILE_SCOPE("Allocate new tiles");
 
     while (!m_NewTiles.IsEmpty() && GetNumAllocatedPlacementTasks() < (ezUInt32)CVarMaxProcessingTiles)
     {
@@ -255,7 +255,7 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
   {
     if (const ezPhysicsWorldModuleInterface* pPhysicsModule = pWorld->GetModule<ezPhysicsWorldModuleInterface>())
     {
-      EZ_PROFILE("Update processing tiles");
+      EZ_PROFILE_SCOPE("Update processing tiles");
 
       for (ezUInt32 i = 0; i < m_PlacementTaskInfos.GetCount(); ++i)
       {
@@ -297,7 +297,7 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
 
 void ezProceduralPlacementComponentManager::PlaceObjects(const ezWorldModule::UpdateContext& context)
 {
-  EZ_PROFILE("Place objects");
+  EZ_PROFILE_SCOPE("Place objects");
 
   for (ezUInt32 i = 0; i < m_PlacementTaskInfos.GetCount(); ++i)
   {

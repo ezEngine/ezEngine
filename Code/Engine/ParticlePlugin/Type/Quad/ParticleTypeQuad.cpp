@@ -191,7 +191,7 @@ struct sodComparer
 void ezParticleTypeQuad::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData,
                                                const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
-  EZ_PROFILE("PFX: Quad");
+  EZ_PROFILE_SCOPE("PFX: Quad");
 
   const ezUInt32 numParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
   if (!m_hTexture.IsValid() || numParticles == 0)
@@ -490,7 +490,7 @@ void ezParticleTypeQuad::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNu
 
     if (m_Orientation == ezQuadParticleOrientation::Fixed_RandomDir)
     {
-      EZ_PROFILE("PFX: Init Quad Axis Random");
+      EZ_PROFILE_SCOPE("PFX: Init Quad Axis Random");
 
       for (ezUInt32 i = 0; i < uiNumElements; ++i)
       {
@@ -501,7 +501,7 @@ void ezParticleTypeQuad::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNu
     }
     else if (m_Orientation == ezQuadParticleOrientation::Fixed_EmitterDir || m_Orientation == ezQuadParticleOrientation::Fixed_WorldUp)
     {
-      EZ_PROFILE("PFX: Init Quad Axis");
+      EZ_PROFILE_SCOPE("PFX: Init Quad Axis");
 
       ezVec3 vNormal;
 

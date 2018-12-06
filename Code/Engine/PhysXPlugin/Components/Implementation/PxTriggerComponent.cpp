@@ -20,7 +20,7 @@ ezPxTriggerComponentManager::~ezPxTriggerComponentManager() {}
 
 void ezPxTriggerComponentManager::UpdateKinematicActors()
 {
-  EZ_PROFILE("KinematicActors");
+  EZ_PROFILE_SCOPE("KinematicActors");
 
   for (auto pKinematicActorComponent : m_KinematicActorComponents)
   {

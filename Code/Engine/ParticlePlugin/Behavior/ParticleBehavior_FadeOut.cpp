@@ -72,7 +72,7 @@ void ezParticleBehavior_FadeOut::Process(ezUInt64 uiNumElements)
     return;
   }
 
-  EZ_PROFILE("PFX: Fade Out");
+  EZ_PROFILE_SCOPE("PFX: Fade Out");
 
   ezProcessingStreamIterator<ezFloat16Vec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
   ezProcessingStreamIterator<ezColorLinear16f> itColor(m_pStreamColor, uiNumElements, 0);

@@ -63,7 +63,7 @@ ezTaskGroupID ezTaskSystem::StartSingleTask(ezTask* pTask, ezTaskPriority::Enum 
 
 void ezTaskSystem::FinishMainThreadTasks()
 {
-  EZ_PROFILE("ThisFrameMainThreadTasks");
+  EZ_PROFILE_SCOPE("ThisFrameMainThreadTasks");
 
   bool bGotStuffToDo = true;
 
@@ -130,7 +130,7 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoo
   if (uiSomeFrameTasks == 0)
     return;
 
-  EZ_PROFILE("SomeFrameMainThreadTasks");
+  EZ_PROFILE_SCOPE("SomeFrameMainThreadTasks");
 
   // 'SomeFrameMainThread' tasks are usually used to upload resources that have been loaded in the background
   // they do not need to be executed right away, but the earlier, the better

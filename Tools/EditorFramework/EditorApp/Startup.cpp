@@ -133,7 +133,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 void ezQtEditorApp::StartupEditor(bool bHeadless)
 {
-  EZ_PROFILE("StartupEditor");
+  EZ_PROFILE_SCOPE("StartupEditor");
   m_bHeadless = bHeadless;
   if (!bHeadless)
   {
@@ -170,7 +170,7 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
 
   if (!bHeadless)
   {
-    EZ_PROFILE("ezQtContainerWindow");
+    EZ_PROFILE_SCOPE("ezQtContainerWindow");
     SetStyleSheet();
 
     ezQtContainerWindow* pContainer = new ezQtContainerWindow(0);
@@ -188,7 +188,7 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
   ezStartup::StartupCore();
 
   {
-    EZ_PROFILE("Filesystem");
+    EZ_PROFILE_SCOPE("Filesystem");
     const ezString sAppDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
     const ezString sUserData = ezApplicationServices::GetSingleton()->GetApplicationUserDataFolder();
 
@@ -205,7 +205,7 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
   }
 
   {
-    EZ_PROFILE("Logging");
+    EZ_PROFILE_SCOPE("Logging");
     ezString sApplicationID = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-appid", 0, "ezEditor");
     ezStringBuilder sLogFile;
     sLogFile.Format(":appdata/Log_{0}.htm", sApplicationID);
@@ -328,7 +328,7 @@ void ezQtEditorApp::ShutdownEditor()
 
 void ezQtEditorApp::CreatePanels()
 {
-  EZ_PROFILE("CreatePanels");
+  EZ_PROFILE_SCOPE("CreatePanels");
   new ezQtLogPanel();
   new ezQtCVarPanel();
   new ezQtAssetBrowserPanel();

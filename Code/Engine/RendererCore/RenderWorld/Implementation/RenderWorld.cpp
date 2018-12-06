@@ -408,7 +408,7 @@ void ezRenderWorld::ExtractMainViews()
     ezTaskSystem::StartTaskGroup(extractTaskID);
 
     {
-      EZ_PROFILE("Wait for Extraction");
+      EZ_PROFILE_SCOPE("Wait for Extraction");
 
       while (true)
       {
@@ -491,7 +491,7 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
 
 void ezRenderWorld::BeginFrame()
 {
-  EZ_PROFILE("BeginFrame");
+  EZ_PROFILE_SCOPE("BeginFrame");
 
   s_RenderingThreadID = ezThreadUtils::GetCurrentThreadID();
 
@@ -506,7 +506,7 @@ void ezRenderWorld::BeginFrame()
 
 void ezRenderWorld::EndFrame()
 {
-  EZ_PROFILE("EndFrame");
+  EZ_PROFILE_SCOPE("EndFrame");
 
   ++s_uiFrameCounter;
 

@@ -86,7 +86,7 @@ void ezParticleInitializer_RandomRotationSpeed::CreateRequiredStreams()
 
 void ezParticleInitializer_RandomRotationSpeed::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
-  EZ_PROFILE("PFX: Random Rotation");
+  EZ_PROFILE_SCOPE("PFX: Random Rotation");
 
   ezFloat16* pSpeed = m_pStreamRotationSpeed->GetWritableData<ezFloat16>();
 

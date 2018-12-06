@@ -2,7 +2,7 @@
 #include "ShipComponent.h"
 #include "ProjectileComponent.h"
 #include "CollidableComponent.h"
-#include <InputXBox360/InputDeviceXBox.h>
+#include <System/XBoxController/InputDeviceXBox.h>
 #include <Foundation/Utilities/Stats.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <Foundation/Configuration/CVar.h>

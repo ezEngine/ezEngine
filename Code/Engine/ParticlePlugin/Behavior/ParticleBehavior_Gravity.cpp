@@ -74,7 +74,7 @@ void ezParticleBehavior_Gravity::CreateRequiredStreams()
 
 void ezParticleBehavior_Gravity::Process(ezUInt64 uiNumElements)
 {
-  EZ_PROFILE("PFX: Gravity");
+  EZ_PROFILE_SCOPE("PFX: Gravity");
 
   const ezVec3 vGravity = m_pPhysicsModule != nullptr ? m_pPhysicsModule->GetGravity() : ezVec3(0.0f, 0.0f, -10.0f);
 

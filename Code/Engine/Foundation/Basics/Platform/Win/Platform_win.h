@@ -183,6 +183,42 @@ EZ_ANALYSIS_IGNORE_WARNING_END
 // behavior change: an object of POD type constructed with an initializer of the form () will be default-initialized
 #  pragma warning(disable : 4345)
 
+// nonstandard extension used: nameless struct/union
+#  pragma warning(disable : 4201)
+
+// structure was padded due to alignment specifier
+#  pragma warning(disable : 4324)
+
+// unreferenced formal parameter
+#  pragma warning(disable : 4100)
+
+// local variable is initialized but not referenced
+#  pragma warning(disable : 4189)
+
+// conditional expression is constant
+#  pragma warning(disable : 4127)
+
+// conversion from 'int 32' to 'int 16', possible loss of data
+#  pragma warning(disable : 4244)
+
+// signed/unsigned mismatch
+#  pragma warning(disable : 4245)
+
+// signed/unsigned mismatch
+#  pragma warning(disable : 4389)
+
+// declaration of 'X' hides previous local declaration
+#  pragma warning(disable : 4456)
+
+// cast truncates constant value
+#  pragma warning(disable : 4310)
+
+// unreachable code
+#  pragma warning(disable : 4702)
+
+
+
+
 // EZ_VA_NUM_ARGS() is a very nifty macro to retrieve the number of arguments handed to a variable-argument macro
 // unfortunately, VS 2010 still has this compiler bug which treats a __VA_ARGS__ argument as being one single parameter:
 // https://connect.microsoft.com/VisualStudio/feedback/details/521844/variadic-macro-treating-va-args-as-a-single-parameter-for-other-macros#details

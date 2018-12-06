@@ -277,7 +277,7 @@ void ezWorld::Update()
 
   // initialize phase
   {
-    EZ_PROFILE("Initialize Phase");
+    EZ_PROFILE_SCOPE("Initialize Phase");
     ProcessComponentsToInitialize();
     ProcessUpdateFunctionsToRegister();
 
@@ -286,7 +286,7 @@ void ezWorld::Update()
 
   // pre-async phase
   {
-    EZ_PROFILE("Pre-Async Phase");
+    EZ_PROFILE_SCOPE("Pre-Async Phase");
     ProcessQueuedMessages(ezObjectMsgQueueType::NextFrame);
     UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::PreAsync]);
   }
@@ -296,7 +296,7 @@ void ezWorld::Update()
     // remove write marker but keep the read marker. Thus no one can mark the world for writing now. Only reading is allowed in async phase.
     m_Data.m_WriteThreadID = (ezThreadID)0;
 
-    EZ_PROFILE("Async Phase");
+    EZ_PROFILE_SCOPE("Async Phase");
     UpdateAsynchronous();
 
     // restore write marker
@@ -305,14 +305,14 @@ void ezWorld::Update()
 
   // post-async phase
   {
-    EZ_PROFILE("Post-Async Phase");
+    EZ_PROFILE_SCOPE("Post-Async Phase");
     ProcessQueuedMessages(ezObjectMsgQueueType::PostAsync);
     UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::PostAsync]);
   }
 
   // delete dead objects and update the object hierarchy
   {
-    EZ_PROFILE("Delete Dead Objects");
+    EZ_PROFILE_SCOPE("Delete Dead Objects");
     DeleteDeadObjects();
     DeleteDeadComponents();
   }
@@ -326,20 +326,20 @@ void ezWorld::Update()
     if (fDelta > 0.0f)
       fInvDelta = 1.0f / fDelta;
 
-    EZ_PROFILE("Update Transforms");
+    EZ_PROFILE_SCOPE("Update Transforms");
     m_Data.UpdateGlobalTransforms(fInvDelta);
   }
 
   // post-transform phase
   {
-    EZ_PROFILE("Post-Transform Phase");
+    EZ_PROFILE_SCOPE("Post-Transform Phase");
     ProcessQueuedMessages(ezObjectMsgQueueType::PostTransform);
     UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::PostTransform]);
   }
 
   // Process again so new component can receive render messages, otherwise we introduce a frame delay.
   {
-    EZ_PROFILE("Initialize Phase 2");
+    EZ_PROFILE_SCOPE("Initialize Phase 2");
     ProcessComponentsToInitialize();
 
     ProcessQueuedMessages(ezObjectMsgQueueType::AfterInitialized);
@@ -732,7 +732,7 @@ void ezWorld::UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::Register
       continue;
 
     {
-      EZ_PROFILE(updateFunction.m_sFunctionName);
+      EZ_PROFILE_SCOPE(updateFunction.m_sFunctionName);
       updateFunction.m_Function(context);
     }
   }
@@ -790,7 +790,7 @@ void ezWorld::ProcessComponentsToInitialize()
 {
   CheckForWriteAccess();
 
-  EZ_PROFILE("Initialize Components");
+  EZ_PROFILE_SCOPE("Initialize Components");
 
   // Can't use foreach here because the array might be resized during iteration.
   for (ezUInt32 i = 0; i < m_Data.m_ComponentsToInitialize.GetCount(); ++i)
@@ -861,7 +861,7 @@ void ezWorld::ProcessUpdateFunctionsToRegister()
   if (m_Data.m_UpdateFunctionsToRegister.IsEmpty())
     return;
 
-  EZ_PROFILE("Register update functions");
+  EZ_PROFILE_SCOPE("Register update functions");
 
   while (!m_Data.m_UpdateFunctionsToRegister.IsEmpty())
   {

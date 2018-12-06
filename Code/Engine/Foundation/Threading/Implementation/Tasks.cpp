@@ -39,7 +39,7 @@ void ezTask::Run()
   }
 
   {
-    EZ_PROFILE(m_sTaskName.GetData());
+    EZ_PROFILE_SCOPE(m_sTaskName.GetData());
 
     Execute();
   }
@@ -180,7 +180,7 @@ void ezTaskSystem::WaitForTask(ezTask* pTask)
   if (pTask->IsTaskFinished())
     return;
 
-  EZ_PROFILE("WaitForTask");
+  EZ_PROFILE_SCOPE("WaitForTask");
 
   const bool bIsMainThread = ezThreadUtils::IsMainThread();
   const bool bIsLoadingThread = IsLoadingThread();
@@ -248,7 +248,7 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
   if (pTask->IsTaskFinished())
     return EZ_SUCCESS;
 
-  EZ_PROFILE("CancelTask");
+  EZ_PROFILE_SCOPE("CancelTask");
 
   EZ_ASSERT_DEV(pTask->m_BelongsToGroup.m_pTaskGroup->m_uiGroupCounter == pTask->m_BelongsToGroup.m_uiGroupCounter,
                 "The task to be removed is in an invalid group.");

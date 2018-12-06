@@ -9,7 +9,6 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Logging/Log.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/IO/OpenDdlReader.h>

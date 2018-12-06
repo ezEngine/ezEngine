@@ -20,6 +20,11 @@ public:
   /// string builder data for convenience.
   virtual const char* GetText(ezStringBuilder& sb) const override
   {
+    if (ezStringUtils::IsNullOrEmpty(m_szString))
+    {
+      return "";
+    }
+
     ezStringView param[10];
 
     char tmp[10][64];

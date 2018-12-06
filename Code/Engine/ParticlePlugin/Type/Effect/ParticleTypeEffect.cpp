@@ -116,7 +116,7 @@ void ezParticleTypeEffect::OnReset()
 
 void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
 {
-  EZ_PROFILE("PFX: Effect");
+  EZ_PROFILE_SCOPE("PFX: Effect");
 
   if (!m_hEffect.IsValid())
     return;

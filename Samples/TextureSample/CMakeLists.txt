@@ -20,7 +20,6 @@ SET (LINK_LIBRARIES
   System
   RendererFoundation
   RendererDX11
-  InputXBox360
   RendererCore
 )
 

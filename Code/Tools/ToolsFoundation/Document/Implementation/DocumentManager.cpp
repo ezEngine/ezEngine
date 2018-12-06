@@ -166,7 +166,7 @@ void ezDocumentManager::EnsureWindowRequested(ezDocument* pDocument, const ezDoc
   if (pDocument->m_bWindowRequested)
     return;
 
-  EZ_PROFILE("EnsureWindowRequested");
+  EZ_PROFILE_SCOPE("EnsureWindowRequested");
   pDocument->m_bWindowRequested = true;
 
   Event e;
@@ -218,7 +218,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
       EZ_ASSERT_DEV(DocumentTypes[i]->m_bCanCreate, "This document manager cannot create the document type '{0}'", szDocumentTypeName);
 
       {
-        EZ_PROFILE("InternalCreateDocument");
+        EZ_PROFILE_SCOPE("InternalCreateDocument");
         status = InternalCreateDocument(szDocumentTypeName, sPath, bCreate, out_pDocument);
         EZ_ASSERT_DEV(status.m_Result == EZ_FAILURE || out_pDocument != nullptr,
                       "Status was success, but the document manager returned a nullptr document.");
@@ -233,14 +233,14 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
         m_AllDocuments.PushBack(out_pDocument);
 
         {
-          EZ_PROFILE("InitializeBeforeLoading");
+          EZ_PROFILE_SCOPE("InitializeBeforeLoading");
           out_pDocument->InitializeBeforeLoading();
         }
         if (!bCreate)
           status = out_pDocument->LoadDocument();
 
         {
-          EZ_PROFILE("InitializeAfterLoading");
+          EZ_PROFILE_SCOPE("InitializeAfterLoading");
           out_pDocument->InitializeAfterLoading();
         }
         if (bCreate)

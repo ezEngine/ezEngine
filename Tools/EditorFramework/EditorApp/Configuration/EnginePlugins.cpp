@@ -69,7 +69,7 @@ void ezQtEditorApp::StoreEnginePluginsToBeLoaded()
 
 void ezQtEditorApp::ReadEnginePluginConfig()
 {
-  EZ_PROFILE("ReadEnginePluginConfig");
+  EZ_PROFILE_SCOPE("ReadEnginePluginConfig");
   m_EnginePluginConfig.Load();
 
   // remove all plugin dependencies that are stored in file

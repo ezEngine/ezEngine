@@ -153,7 +153,7 @@ void ezParticleInitializer_CylinderPosition::CreateRequiredStreams()
 
 void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
-  EZ_PROFILE("PFX: Cylinder Position");
+  EZ_PROFILE_SCOPE("PFX: Cylinder Position");
 
   const ezVec3 startVel = GetOwnerSystem()->GetParticleStartVelocity();
 

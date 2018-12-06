@@ -122,7 +122,7 @@ void ezParticleBehavior_Raycast::CreateRequiredStreams()
 
 void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
 {
-  EZ_PROFILE("PFX: Raycast");
+  EZ_PROFILE_SCOPE("PFX: Raycast");
 
   const float tDiff = (float)m_TimeDiff.GetSeconds();
 

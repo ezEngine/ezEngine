@@ -183,7 +183,7 @@ ezParticleEmitterState ezParticleEmitter_Continuous::IsFinished()
 
 ezUInt32 ezParticleEmitter_Continuous::ComputeSpawnCount(const ezTime& tDiff)
 {
-  EZ_PROFILE("PFX: Continuous - Spawn Count ");
+  EZ_PROFILE_SCOPE("PFX: Continuous - Spawn Count ");
 
   // delay before the emitter becomes active
   if (!m_StartDelay.IsZeroOrLess())

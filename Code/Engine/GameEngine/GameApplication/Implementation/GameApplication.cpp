@@ -565,7 +565,7 @@ void ezGameApplication::UpdateWorldsAndRender()
 
     if (ezRenderWorld::GetUseMultithreadedRendering())
     {
-      EZ_PROFILE("Wait for UpdateWorldsAndExtractViews");
+      EZ_PROFILE_SCOPE("Wait for UpdateWorldsAndExtractViews");
       ezTaskSystem::WaitForGroup(updateTaskID);
     }
 
@@ -580,7 +580,7 @@ void ezGameApplication::UpdateWorldsAndRender()
     }
 
     {
-      EZ_PROFILE("GameApplication.Present");
+      EZ_PROFILE_SCOPE("GameApplication.Present");
       for (auto& windowContext : m_Windows)
       {
         // Ignore windows without swapchain
@@ -624,7 +624,7 @@ void ezGameApplication::UpdateWorldsAndRender()
 void ezGameApplication::UpdateWorldsAndExtractViews()
 {
   {
-    EZ_PROFILE("GameApplication.BeforeWorldUpdate");
+    EZ_PROFILE_SCOPE("GameApplication.BeforeWorldUpdate");
 
     for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
     {
@@ -682,7 +682,7 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
   }
 
   {
-    EZ_PROFILE("GameApplication.AfterWorldUpdate");
+    EZ_PROFILE_SCOPE("GameApplication.AfterWorldUpdate");
 
     for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
     {

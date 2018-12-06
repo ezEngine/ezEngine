@@ -50,7 +50,7 @@ void ezParticleFinalizer_Volume::Process(ezUInt64 uiNumElements)
   if (!GetOwnerEffect()->NeedsBoundingVolumeUpdate())
     return;
 
-  EZ_PROFILE("PFX: Volume");
+  EZ_PROFILE_SCOPE("PFX: Volume");
 
   const ezSimdVec4f* pPosition = m_pStreamPosition->GetData<ezSimdVec4f>();
 

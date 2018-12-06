@@ -24,7 +24,7 @@ void ezExtractedRenderData::AddFrameData(const ezRenderData* pFrameData)
 
 void ezExtractedRenderData::SortAndBatch()
 {
-  EZ_PROFILE("SortAndBatch");
+  EZ_PROFILE_SCOPE("SortAndBatch");
 
   struct RenderDataComparer
   {

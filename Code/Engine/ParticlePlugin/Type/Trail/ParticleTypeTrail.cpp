@@ -179,7 +179,7 @@ void ezParticleTypeTrail::CreateRequiredStreams()
 void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData,
                                                 const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
-  EZ_PROFILE("PFX: Trail");
+  EZ_PROFILE_SCOPE("PFX: Trail");
 
   if (!m_hTexture.IsValid())
     return;

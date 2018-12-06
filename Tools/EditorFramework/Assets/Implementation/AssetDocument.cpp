@@ -354,7 +354,7 @@ ezStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfil
 
 ezStatus ezAssetDocument::TransformAsset(bool bTriggeredManually, const ezPlatformProfile* pAssetProfile)
 {
-  EZ_PROFILE("TransformAsset");
+  EZ_PROFILE_SCOPE("TransformAsset");
   if (!bTriggeredManually)
   {
     if (IsModified())

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GuiFoundation/Basics.h>
 #include <Foundation/Strings/String.h>
@@ -7,6 +7,13 @@
 
 class QWinTaskbarProgress;
 class QWinTaskbarButton;
+
+#undef USE_WIN_EXTRAS
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  define USE_WIN_EXTRAS EZ_ON
+#else
+#  define USE_WIN_EXTRAS EZ_OFF
+#endif
 
 class EZ_GUIFOUNDATION_DLL ezQtWaitForOperationDlg : public QDialog, public Ui_QtWaitForOperationDlg
 {
@@ -24,7 +31,7 @@ private slots:
 
 private:
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(USE_WIN_EXTRAS)
   QWinTaskbarButton* m_pWinTaskBarButton;
   QWinTaskbarProgress* m_pWinTaskBarProgress;
 #endif

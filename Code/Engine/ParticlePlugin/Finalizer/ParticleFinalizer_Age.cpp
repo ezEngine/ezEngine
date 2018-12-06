@@ -71,7 +71,7 @@ void ezParticleFinalizer_Age::CreateRequiredStreams()
 
 void ezParticleFinalizer_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
-  EZ_PROFILE("PFX: Age Init");
+  EZ_PROFILE_SCOPE("PFX: Age Init");
 
   ezFloat16Vec2* pLifeTime = m_pStreamLifeTime->GetWritableData<ezFloat16Vec2>();
   const float fLifeScale = ezMath::Clamp(GetOwnerEffect()->GetFloatParameter(m_sLifeScaleParameter, 1.0f), 0.0f, 2.0f);
@@ -105,7 +105,7 @@ void ezParticleFinalizer_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64
 
 void ezParticleFinalizer_Age::Process(ezUInt64 uiNumElements)
 {
-  EZ_PROFILE("PFX: Age");
+  EZ_PROFILE_SCOPE("PFX: Age");
 
   ezFloat16Vec2* pLifeTime = m_pStreamLifeTime->GetWritableData<ezFloat16Vec2>();
 

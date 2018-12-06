@@ -242,7 +242,7 @@ namespace ezMeshImportUtils
                            ezHybridArray<ezMaterialResourceSlot, 8>& inout_MaterialSlots, const char* szImportSourceFolder,
                            const char* szImportTargetFolder)
   {
-    EZ_PROFILE("ImportMeshMaterials");
+    EZ_PROFILE_SCOPE("ImportMeshMaterials");
     ezStringBuilder materialName, tmp;
     ezStringBuilder materialNameTemp;
     ezStringBuilder newResourcePathAbs;
@@ -253,7 +253,7 @@ namespace ezMeshImportUtils
     ezDynamicArray<ezTaskGroupID> pendingSaveTasks;
     pendingSaveTasks.Reserve(mesh.GetNumSubMeshes());
     auto WaitForPendingTasks = [&pendingSaveTasks]() {
-      EZ_PROFILE("WaitForPendingTasks");
+      EZ_PROFILE_SCOPE("WaitForPendingTasks");
       for (ezTaskGroupID& id : pendingSaveTasks)
       {
         ezTaskSystem::WaitForGroup(id);
@@ -415,7 +415,7 @@ namespace ezMeshImportUtils
                            bool bImportMaterials, bool bUseSubFolderForImportedMaterials, const char* szMeshFile,
                            ezHybridArray<ezMaterialResourceSlot, 8>& inout_MaterialSlots)
   {
-    EZ_PROFILE("UpdateMaterialSlots");
+    EZ_PROFILE_SCOPE("UpdateMaterialSlots");
     inout_MaterialSlots.SetCount(mesh.GetNumSubMeshes());
     for (ezUInt32 subMeshIdx = 0; subMeshIdx < mesh.GetNumSubMeshes(); ++subMeshIdx)
     {

@@ -87,7 +87,7 @@ void ezParticleEmitter_OnEvent::CreateRequiredStreams()
 
 void ezParticleEmitter_OnEvent::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
-  EZ_PROFILE("PFX: Event Emitter");
+  EZ_PROFILE_SCOPE("PFX: Event Emitter");
 
   EZ_ASSERT_DEV(uiNumElements == m_Events.GetCount(), "Invalid spawn count");
 

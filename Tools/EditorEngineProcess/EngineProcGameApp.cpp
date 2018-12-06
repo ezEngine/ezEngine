@@ -9,14 +9,14 @@
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <GameEngine/Components/PrefabReferenceComponent.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
-#include <GameEngine/Components/PrefabReferenceComponent.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <InputXBox360/InputDeviceXBox.h>
+#  include <System/XBoxController/InputDeviceXBox.h>
 ezInputDeviceXBox360 g_XboxInputDevice;
 #endif
 

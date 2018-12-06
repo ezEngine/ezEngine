@@ -886,7 +886,7 @@ void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& con
 void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& context)
 {
   {
-    EZ_PROFILE("Wait for Simulate Task");
+    EZ_PROFILE_SCOPE("Wait for Simulate Task");
     ezTaskSystem::WaitForGroup(m_SimulateTaskGroupId);
   }
 
@@ -961,7 +961,7 @@ void ezPhysXWorldModule::SimulateStep(float fDeltaTime)
   {
     EZ_PX_WRITE_LOCK(*m_pPxScene);
 
-    EZ_PROFILE("Simulate");
+    EZ_PROFILE_SCOPE("Simulate");
     m_pPxScene->simulate(fDeltaTime, nullptr, m_ScratchMemory.GetData(), m_ScratchMemory.GetCount());
   }
 
@@ -978,7 +978,7 @@ void ezPhysXWorldModule::SimulateStep(float fDeltaTime)
     // Unfortunately we are now wasting resources in our custom spin-lock :(
 
     ///\todo execute tasks instead of waiting
-    EZ_PROFILE("FetchResult");
+    EZ_PROFILE_SCOPE("FetchResult");
     while (!m_pPxScene->checkResults(false))
     {
       ++numCheck;

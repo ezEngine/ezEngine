@@ -354,7 +354,7 @@ void ezParticleSystemInstance::Destruct()
 
 ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff)
 {
-  EZ_PROFILE("PFX: System Update");
+  EZ_PROFILE_SCOPE("PFX: System Update");
 
   ezUInt32 uiSpawnedParticles = 0;
 
@@ -372,7 +372,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
 
         if (uiSpawn > 0)
         {
-          EZ_PROFILE("PFX: System Emit");
+          EZ_PROFILE_SCOPE("PFX: System Emit");
           m_StreamGroup.InitializeElements(uiSpawn);
           uiSpawnedParticles += uiSpawn;
         }
@@ -394,7 +394,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
 
         if (uiSpawn > 0)
         {
-          EZ_PROFILE("PFX: System Emit (React)");
+          EZ_PROFILE_SCOPE("PFX: System Emit (React)");
           m_StreamGroup.InitializeElements(uiSpawn);
           uiSpawnedParticles += uiSpawn;
         }
@@ -403,7 +403,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
   }
 
   {
-    EZ_PROFILE("PFX: System Step Behaviors");
+    EZ_PROFILE_SCOPE("PFX: System Step Behaviors");
     for (auto pBehavior : m_Behaviors)
     {
       pBehavior->StepParticleSystem(tDiff, uiSpawnedParticles);
@@ -411,7 +411,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
   }
 
   {
-    EZ_PROFILE("PFX: System Step Finalizers");
+    EZ_PROFILE_SCOPE("PFX: System Step Finalizers");
     for (auto pFinalizer : m_Finalizers)
     {
       pFinalizer->StepParticleSystem(tDiff, uiSpawnedParticles);
@@ -419,7 +419,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
   }
 
   {
-    EZ_PROFILE("PFX: System Step Types");
+    EZ_PROFILE_SCOPE("PFX: System Step Types");
     for (auto pType : m_Types)
     {
       pType->StepParticleSystem(tDiff, uiSpawnedParticles);
@@ -427,7 +427,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
   }
 
   {
-    EZ_PROFILE("PFX: System Process");
+    EZ_PROFILE_SCOPE("PFX: System Process");
     m_StreamGroup.Process();
   }
 

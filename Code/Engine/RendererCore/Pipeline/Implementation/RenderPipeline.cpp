@@ -904,7 +904,7 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   {
     if (pExtractor->m_bActive)
     {
-      EZ_PROFILE(pExtractor->m_sName.GetData());
+      EZ_PROFILE_SCOPE(pExtractor->m_sName.GetData());
 
       pExtractor->Extract(view, m_visibleObjects, data);
     }
@@ -916,7 +916,7 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   {
     if (pExtractor->m_bActive)
     {
-      EZ_PROFILE(pExtractor->m_sName.GetData());
+      EZ_PROFILE_SCOPE(pExtractor->m_sName.GetData());
 
       pExtractor->PostSortAndBatch(view, m_visibleObjects, data);
     }
@@ -927,7 +927,7 @@ void ezRenderPipeline::ExtractData(const ezView& view)
 
 void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 {
-  EZ_PROFILE("Visibility Culling");
+  EZ_PROFILE_SCOPE("Visibility Culling");
 
   m_visibleObjects.Clear();
 

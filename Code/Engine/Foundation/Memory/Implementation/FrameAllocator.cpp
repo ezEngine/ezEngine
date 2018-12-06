@@ -52,7 +52,7 @@ ezDoubleBufferedStackAllocator* ezFrameAllocator::s_pAllocator;
 // static
 void ezFrameAllocator::Swap()
 {
-  EZ_PROFILE("FrameAllocator.Swap");
+  EZ_PROFILE_SCOPE("FrameAllocator.Swap");
 
   s_pAllocator->Swap();
 }

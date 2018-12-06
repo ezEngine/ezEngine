@@ -3,7 +3,7 @@
 #include <GuiFoundation/UIServices/QtWaitForOperationDlg.moc.h>
 #include <QTimer>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(USE_WIN_EXTRAS)
 #include <QtWinExtras/QWinTaskbarButton>
 #include <QtWinExtras/QWinTaskbarProgress>
 #endif
@@ -13,7 +13,7 @@ ezQtWaitForOperationDlg::ezQtWaitForOperationDlg(QWidget* parent)
 {
   setupUi(this);
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(USE_WIN_EXTRAS)
   m_pWinTaskBarButton = new QWinTaskbarButton(QApplication::activeWindow());
   m_pWinTaskBarButton->setWindow(QApplication::activeWindow()->windowHandle());
 
@@ -31,7 +31,7 @@ ezQtWaitForOperationDlg::ezQtWaitForOperationDlg(QWidget* parent)
 
 ezQtWaitForOperationDlg::~ezQtWaitForOperationDlg()
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(USE_WIN_EXTRAS)
   if (m_pWinTaskBarProgress)
   {
     m_pWinTaskBarProgress->hide();
@@ -59,7 +59,7 @@ void ezQtWaitForOperationDlg::onIdle()
   }
   else
   {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(USE_WIN_EXTRAS)
     m_pWinTaskBarProgress->setMinimum(0);
     m_pWinTaskBarProgress->setMaximum(100);
     m_pWinTaskBarProgress->setValue(99);

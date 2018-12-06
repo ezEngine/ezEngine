@@ -99,7 +99,7 @@ void ezQtEditorApp::ReadEditorPluginsToBeLoaded()
 
 void ezQtEditorApp::LoadEditorPlugins()
 {
-  EZ_PROFILE("LoadEditorPlugins");
+  EZ_PROFILE_SCOPE("LoadEditorPlugins");
   DetectAvailableEditorPlugins();
   ReadEditorPluginsToBeLoaded();
 

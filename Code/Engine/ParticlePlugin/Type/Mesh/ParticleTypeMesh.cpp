@@ -196,7 +196,7 @@ void ezParticleTypeMesh::ExtractTypeRenderData(const ezView& view, ezExtractedRe
   if (numParticles == 0)
     return;
 
-  EZ_PROFILE("PFX: Mesh");
+  EZ_PROFILE_SCOPE("PFX: Mesh");
 
   const ezTime tCur = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
   const ezColor tintColor = GetOwnerEffect()->GetColorParameter(m_sTintColorParameter, ezColor::White);

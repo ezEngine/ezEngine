@@ -44,7 +44,7 @@ void ezParticleFinalizer_LastPosition::CreateRequiredStreams()
 
 void ezParticleFinalizer_LastPosition::Process(ezUInt64 uiNumElements)
 {
-  EZ_PROFILE("PFX: LastPosition");
+  EZ_PROFILE_SCOPE("PFX: LastPosition");
 
   ezProcessingStreamIterator<ezVec4> itPosition(m_pStreamPosition, uiNumElements, 0);
   ezProcessingStreamIterator<ezVec3> itLastPosition(m_pStreamLastPosition, uiNumElements, 0);

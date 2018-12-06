@@ -94,7 +94,7 @@ void ezTelemetry::AcceptMessagesForSystem(ezUInt32 uiSystemID, bool bAccept, Pro
 
 void ezTelemetry::PerFrameUpdate()
 {
-  EZ_PROFILE("Telemetry.PerFrameUpdate");
+  EZ_PROFILE_SCOPE("Telemetry.PerFrameUpdate");
   EZ_LOCK(GetTelemetryMutex());
 
   // Call each callback to process the incoming messages

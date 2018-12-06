@@ -74,7 +74,7 @@ void ezParticleTypePoint::CreateRequiredStreams()
 
 void ezParticleTypePoint::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
-  EZ_PROFILE("PFX: Point");
+  EZ_PROFILE_SCOPE("PFX: Point");
 
   const ezUInt32 numParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
 

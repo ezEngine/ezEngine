@@ -133,7 +133,7 @@ ezAssetCurator::~ezAssetCurator()
 
 void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
 {
-  EZ_PROFILE("StartInitialize");
+  EZ_PROFILE_SCOPE("StartInitialize");
 
   {
     EZ_LOG_BLOCK("SetupAssetProfiles");
@@ -150,7 +150,7 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
   m_FileSystemConfig = cfg;
 
   {
-    EZ_PROFILE("Watchers");
+    EZ_PROFILE_SCOPE("Watchers");
     for (auto& dd : m_FileSystemConfig.m_DataDirs)
     {
       ezStringBuilder sTemp;
@@ -224,7 +224,7 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
 
 void ezAssetCurator::WaitForInitialize()
 {
-  EZ_PROFILE("WaitForInitialize");
+  EZ_PROFILE_SCOPE("WaitForInitialize");
   while (m_bInitStarted == false)
   {
     ezThreadUtils::YieldTimeSlice();
@@ -243,7 +243,7 @@ void ezAssetCurator::WaitForInitialize()
 
 void ezAssetCurator::Deinitialize()
 {
-  EZ_PROFILE("Deinitialize");
+  EZ_PROFILE_SCOPE("Deinitialize");
 
   SaveAssetProfiles();
 
@@ -846,7 +846,7 @@ void ezAssetCurator::UpdateAssetLastAccessTime(const ezUuid& assetGuid)
 
 void ezAssetCurator::CheckFileSystem()
 {
-  EZ_PROFILE("CheckFileSystem");
+  EZ_PROFILE_SCOPE("CheckFileSystem");
   ezStopwatch sw;
 
   ComputeAllDocumentManagerAssetProfileHashes();
@@ -1259,7 +1259,7 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const ezPl
 
 void ezAssetCurator::ProcessAllCoreAssets()
 {
-  EZ_PROFILE("ProcessAllCoreAssets");
+  EZ_PROFILE_SCOPE("ProcessAllCoreAssets");
   if (ezQtUiServices::IsHeadless())
     return;
 
@@ -1481,7 +1481,7 @@ void ezAssetCurator::IterateDataDirectory(const char* szDataDir, const ezSet<ezS
 
 void ezAssetCurator::LoadCaches()
 {
-  EZ_PROFILE("LoadCaches");
+  EZ_PROFILE_SCOPE("LoadCaches");
   EZ_LOCK(m_CuratorMutex);
 
   ezStopwatch sw;
@@ -1527,7 +1527,7 @@ void ezAssetCurator::LoadCaches()
 
       const ezRTTI* pFileStatusType = ezGetStaticRTTI<ezFileStatus>();
       {
-        EZ_PROFILE("Assets");
+        EZ_PROFILE_SCOPE("Assets");
         for (ezUInt32 i = 0; i < uiAssetCount; i++)
         {
           ezString sPath;
@@ -1545,7 +1545,7 @@ void ezAssetCurator::LoadCaches()
         }
       }
       {
-        EZ_PROFILE("Files");
+        EZ_PROFILE_SCOPE("Files");
         for (ezUInt32 i = 0; i < uiFileCount; i++)
         {
           ezString sPath;
@@ -1562,7 +1562,7 @@ void ezAssetCurator::LoadCaches()
 
 void ezAssetCurator::SaveCaches()
 {
-  EZ_PROFILE("SaveCaches");
+  EZ_PROFILE_SCOPE("SaveCaches");
   m_CachedAssets.Clear();
   m_CachedFiles.Clear();
 
@@ -1587,7 +1587,7 @@ void ezAssetCurator::SaveCaches()
     ezUInt32 uiFileCount = 0;
 
     {
-      EZ_PROFILE("Count");
+      EZ_PROFILE_SCOPE("Count");
       for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
       {
         if (it.Value()->m_ExistanceState == ezAssetExistanceState::FileUnchanged && it.Value()->m_sAbsolutePath.StartsWith(sDataDir))
@@ -1612,7 +1612,7 @@ void ezAssetCurator::SaveCaches()
     writer << uiFileCount;
 
     {
-      EZ_PROFILE("Assets");
+      EZ_PROFILE_SCOPE("Assets");
       for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
       {
         const ezAssetInfo* pAsset = it.Value();
@@ -1627,7 +1627,7 @@ void ezAssetCurator::SaveCaches()
       }
     }
     {
-      EZ_PROFILE("Files");
+      EZ_PROFILE_SCOPE("Files");
       for (auto it = m_ReferencedFiles.GetIterator(); it.IsValid(); ++it)
       {
         const ezFileStatus& stat = it.Value();

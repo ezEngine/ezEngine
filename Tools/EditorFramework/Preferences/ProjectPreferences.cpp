@@ -24,6 +24,6 @@ ezProjectPreferencesUser::ezProjectPreferencesUser()
 
 void ezQtEditorApp::LoadProjectPreferences()
 {
-  EZ_PROFILE("LoadProjectPreferences");
+  EZ_PROFILE_SCOPE("LoadProjectPreferences");
   ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
 }

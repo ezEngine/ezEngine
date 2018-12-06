@@ -38,7 +38,7 @@ void ezParticleFinalizer_ApplyVelocity::CreateRequiredStreams()
 
 void ezParticleFinalizer_ApplyVelocity::Process(ezUInt64 uiNumElements)
 {
-  EZ_PROFILE("PFX: ApplyVelocity");
+  EZ_PROFILE_SCOPE("PFX: ApplyVelocity");
 
   const float tDiff = (float)m_TimeDiff.GetSeconds();
 

@@ -51,7 +51,6 @@ SET (ADDITIONAL_DEPENDENCIES
   InspectorPlugin
   ShaderCompiler
   RecastPlugin
-  InputXBox360
 )
 
 if (EZ_BUILD_FMOD)

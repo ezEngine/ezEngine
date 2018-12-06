@@ -19,7 +19,6 @@ SET (LINK_LIBRARIES
   Foundation
   Core
   System
-  InputXBox360
   ThirdParty
   RendererFoundation
   RendererCore

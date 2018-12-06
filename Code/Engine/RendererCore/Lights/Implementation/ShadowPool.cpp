@@ -650,7 +650,7 @@ void ezShadowPool::OnEngineShutdown()
 // static
 void ezShadowPool::OnEndExtraction(ezUInt64 uiFrameCounter)
 {
-  EZ_PROFILE("Shadow Pool Update");
+  EZ_PROFILE_SCOPE("Shadow Pool Update");
 
   ezUInt32 uiDataIndex = ezRenderWorld::GetDataIndexForExtraction();
   auto& packedShadowData = s_pPool->m_PackedShadowData[uiDataIndex];
@@ -934,7 +934,7 @@ void ezShadowPool::OnBeginRender(ezUInt64 uiFrameCounter)
 
   if (!s_pPool->m_hShadowAtlasTexture.IsInvalidated())
   {
-    EZ_PROFILE("Shadow Atlas Texture Clear");
+    EZ_PROFILE_SCOPE("Shadow Atlas Texture Clear");
 
     ezGALRenderTagetSetup renderTargetSetup;
     renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(s_pPool->m_hShadowAtlasTexture));
@@ -949,7 +949,7 @@ void ezShadowPool::OnBeginRender(ezUInt64 uiFrameCounter)
     auto& packedShadowData = s_pPool->m_PackedShadowData[uiDataIndex];
     if (!packedShadowData.IsEmpty())
     {
-      EZ_PROFILE("Shadow Data Buffer Update");
+      EZ_PROFILE_SCOPE("Shadow Data Buffer Update");
 
       pGALContext->UpdateBuffer(s_pPool->m_hShadowDataBuffer, 0, packedShadowData.GetByteArrayPtr());
     }

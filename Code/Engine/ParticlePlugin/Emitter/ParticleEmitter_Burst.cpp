@@ -127,7 +127,7 @@ ezParticleEmitterState ezParticleEmitter_Burst::IsFinished()
 
 ezUInt32 ezParticleEmitter_Burst::ComputeSpawnCount(const ezTime& tDiff)
 {
-  EZ_PROFILE("PFX: Burst - Spawn Count ");
+  EZ_PROFILE_SCOPE("PFX: Burst - Spawn Count ");
 
   // delay before the emitter becomes active
   if (!m_StartDelay.IsZeroOrLess())

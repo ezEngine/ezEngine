@@ -54,14 +54,14 @@ ezStatus ezGameObjectContextDocument::SetContext(ezUuid documentGuid, ezUuid obj
   ezDocumentObjectConverterReader objectConverter(&graph, GetObjectManager(),
                                                   ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
   {
-    EZ_PROFILE("Restoring Objects");
+    EZ_PROFILE_SCOPE("Restoring Objects");
     auto* pRootNode = graph.GetNodeByName("ObjectTree");
     EZ_ASSERT_DEV(pRootNode->FindProperty("TempObjects") == nullptr, "TempObjects should not be serialized.");
     pRootNode->RenameProperty("Children", "TempObjects");
     objectConverter.ApplyPropertiesToObject(pRootNode, GetObjectManager()->GetRootObject());
   }
   {
-    EZ_PROFILE("Restoring Meta-Data");
+    EZ_PROFILE_SCOPE("Restoring Meta-Data");
     RestoreMetaDataAfterLoading(graph, false);
   }
   {
