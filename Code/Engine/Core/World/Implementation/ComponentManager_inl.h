@@ -161,14 +161,14 @@ EZ_FORCE_INLINE void ezComponentManager<T, StorageType>::RegisterUpdateFunction(
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename ComponentType, ezComponentUpdateType::Enum UpdateType>
-ezComponentManagerSimple<ComponentType, UpdateType>::ezComponentManagerSimple(ezWorld* pWorld)
-    : ezComponentManager<ComponentType, ezBlockStorageType::FreeList>(pWorld)
+template <typename ComponentType, ezComponentUpdateType::Enum UpdateType, ezBlockStorageType::Enum StorageType>
+ezComponentManagerSimple<ComponentType, UpdateType, StorageType>::ezComponentManagerSimple(ezWorld* pWorld)
+    : ezComponentManager<ComponentType, StorageType>(pWorld)
 {
 }
 
-template <typename ComponentType, ezComponentUpdateType::Enum UpdateType>
-void ezComponentManagerSimple<ComponentType, UpdateType>::Initialize()
+template <typename ComponentType, ezComponentUpdateType::Enum UpdateType, ezBlockStorageType::Enum StorageType>
+void ezComponentManagerSimple<ComponentType, UpdateType, StorageType>::Initialize()
 {
   typedef ezComponentManagerSimple<ComponentType, UpdateType> OwnType;
 
@@ -181,8 +181,8 @@ void ezComponentManagerSimple<ComponentType, UpdateType>::Initialize()
   this->RegisterUpdateFunction(desc);
 }
 
-template <typename ComponentType, ezComponentUpdateType::Enum UpdateType>
-void ezComponentManagerSimple<ComponentType, UpdateType>::SimpleUpdate(const ezWorldModule::UpdateContext& context)
+template <typename ComponentType, ezComponentUpdateType::Enum UpdateType, ezBlockStorageType::Enum StorageType>
+void ezComponentManagerSimple<ComponentType, UpdateType, StorageType>::SimpleUpdate(const ezWorldModule::UpdateContext& context)
 {
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
@@ -195,8 +195,8 @@ void ezComponentManagerSimple<ComponentType, UpdateType>::SimpleUpdate(const ezW
 }
 
 // static
-template <typename ComponentType, ezComponentUpdateType::Enum UpdateType>
-void ezComponentManagerSimple<ComponentType, UpdateType>::SimpleUpdateName(ezStringBuilder& out_sName)
+template <typename ComponentType, ezComponentUpdateType::Enum UpdateType, ezBlockStorageType::Enum StorageType>
+void ezComponentManagerSimple<ComponentType, UpdateType, StorageType>::SimpleUpdateName(ezStringBuilder& out_sName)
 {
   ezStringView sName(EZ_SOURCE_FUNCTION);
   const char* szEnd = sName.FindSubString(",");
