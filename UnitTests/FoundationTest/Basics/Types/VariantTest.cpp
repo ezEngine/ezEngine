@@ -3,6 +3,10 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/Variant.h>
 
+// this file takes ages to compile in a Release build
+// since we don't care for runtime performance, just disable all optimizations
+#pragma optimize("g", off)
+
 class Blubb : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(Blubb, ezReflectedClass);
