@@ -122,6 +122,7 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
     m_pPropertyGridSystems = new ezQtPropertyGridWidget(pSystemsPanel, pDocument);
     pMainWidget->layout()->addWidget(m_pPropertyGridSystems);
 
+    if (!pRootObject->GetChildren().IsEmpty())
     {
       ezDeque<const ezDocumentObject*> sel;
       sel.PushBack(pRootObject->GetChildren()[0]);

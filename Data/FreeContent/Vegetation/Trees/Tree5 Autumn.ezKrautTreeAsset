@@ -14,7 +14,7 @@ o
 			s{"Vegetation/Trees/Tree5 Autumn.kraut"}
 		}
 		Uuid %DocumentID{u4{16846456159653526701,5701691552207060837}}
-		u4 %Hash{16725165125482558922}
+		u4 %Hash{7051966095875079663}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -51,7 +51,7 @@ o
 	p
 	{
 		s %KrautFile{"Vegetation/Trees/Tree5 Autumn.kraut"}
-		f %LodDistanceScale{0x00004040}
+		f %LodDistanceScale{0x0000A040}
 		VarArray %Materials
 		{
 			Uuid{u4{11099528313841958814,4689613766799134424}}
@@ -128,7 +128,7 @@ o
 		s %PluginName{"ezEditorPluginKraut"}
 		VarArray %Properties{}
 		s %TypeName{"ezKrautAssetMaterial"}
-		u3 %TypeSize{128}
+		u3 %TypeSize{144}
 		u3 %TypeVersion{1}
 	}
 }
@@ -146,7 +146,7 @@ o
 		s %PluginName{"ezEditorPluginKraut"}
 		VarArray %Properties{}
 		s %TypeName{"ezKrautTreeAssetProperties"}
-		u3 %TypeSize{1200}
+		u3 %TypeSize{1352}
 		u3 %TypeVersion{1}
 	}
 }
@@ -164,7 +164,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }

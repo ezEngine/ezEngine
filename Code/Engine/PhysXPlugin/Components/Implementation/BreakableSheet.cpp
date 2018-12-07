@@ -172,6 +172,8 @@ void ezBreakableSheetComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_uiCollisionLayerUnbroken;
   s >> m_uiCollisionLayerBrokenPieces;
   s >> m_bIncludeInNavmesh;
+
+  m_vExtents = ezVec3(m_fWidth, m_fThickness, m_fHeight);
 }
 
 ezResult ezBreakableSheetComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)

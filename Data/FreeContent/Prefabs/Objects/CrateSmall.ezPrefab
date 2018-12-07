@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3782692474610746752,5004393823294350615}}
-		u4 %Hash{3475724490630737899}
+		u4 %Hash{6103765045952393644}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{3592619646931794341,350630574116146220}}
@@ -31,6 +31,7 @@ o
 		{
 			s{"{ 03bb62c3-6b77-4641-99d0-ad6e3d3c2121 }"}
 			s{"{ 317e4b00-3e99-4f42-a175-2f7cdfc3fd7f }"}
+			s{"{ 58d44330-37a1-4c9d-9fa2-0540a1d8ee90 }"}
 		}
 	}
 }
@@ -119,7 +120,7 @@ o
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
 		b %ReportContact{0}
-		s %Surface{""}
+		s %Surface{"{ 58d44330-37a1-4c9d-9fa2-0540a1d8ee90 }"}
 	}
 }
 o
@@ -172,7 +173,7 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezExposedSceneProperty"}
-		u3 %TypeSize{152}
+		u3 %TypeSize{168}
 		u3 %TypeVersion{1}
 	}
 }
@@ -190,7 +191,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponent"}
-		u3 %TypeSize{128}
+		u3 %TypeSize{136}
 		u3 %TypeVersion{3}
 	}
 }
@@ -244,7 +245,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponentBase"}
-		u3 %TypeSize{128}
+		u3 %TypeSize{136}
 		u3 %TypeVersion{1}
 	}
 }
@@ -262,7 +263,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{168}
+		u3 %TypeSize{184}
 		u3 %TypeVersion{1}
 	}
 }
@@ -280,7 +281,7 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettings"}
-		u3 %TypeSize{32}
+		u3 %TypeSize{40}
 		u3 %TypeVersion{1}
 	}
 }
@@ -316,7 +317,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -334,7 +335,7 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentRoot"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{96}
 		u3 %TypeVersion{1}
 	}
 }
