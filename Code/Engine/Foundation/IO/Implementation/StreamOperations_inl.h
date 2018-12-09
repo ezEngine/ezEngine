@@ -173,6 +173,8 @@ inline ezStreamReader& operator>>(ezStreamReader& Stream, ezHybridString<Size, A
 
   if (uiLength > 0)
   {
+    /// \todo This could be more efficient by reading directly into the string array
+
     ezHybridArray<ezUInt8, 256> sTemp;
     sTemp.SetCountUninitialized(uiLength + 1);
 

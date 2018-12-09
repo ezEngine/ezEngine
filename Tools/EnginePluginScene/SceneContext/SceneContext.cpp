@@ -732,7 +732,7 @@ void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferred
 void ezSceneContext::OnThumbnailViewContextCreated()
 {
   // make sure there is ambient light in the thumbnails
-  // should check whether this is a prefab
+  // TODO: should check whether this is a prefab (info currently not available in ezSceneContext)
   RemoveAmbientLight();
   AddAmbientLight(false);
 }
@@ -835,7 +835,8 @@ void ezSceneContext::RemoveAmbientLight()
 
   for (ezUInt32 i = 0; i < 3; ++i)
   {
-    GetWorld()->DeleteObjectDelayed(m_hAmbientLight[i]);
+    // make sure to remove the object RIGHT NOW, otherwise it may still exist during scene export (without the "Editor" tag)
+    GetWorld()->DeleteObjectNow(m_hAmbientLight[i]);
     m_hAmbientLight[i].Invalidate();
   }
 }

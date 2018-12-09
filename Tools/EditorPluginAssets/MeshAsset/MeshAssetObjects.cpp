@@ -124,7 +124,14 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
       break;
 
     case ezMeshPrimitive::Box:
+      break;
+
     case ezMeshPrimitive::Rect:
+      props["Detail"].m_Visibility = ezPropertyUiState::Default;
+      props["Detail2"].m_Visibility = ezPropertyUiState::Default;
+
+      props["Detail"].m_sNewLabelText = "Prim.Rect.Detail1";
+      props["Detail2"].m_sNewLabelText = "Prim.Rect.Detail2";
       break;
 
     case ezMeshPrimitive::Capsule:

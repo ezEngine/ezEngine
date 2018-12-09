@@ -27,11 +27,15 @@ ezStreamWriter& operator<<(ezStreamWriter& Stream, const char* szValue)
 
 ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezStringBuilder& sValue)
 {
+  /// \todo This could be more efficient by using the existing length information
+
   return Stream << sValue.GetData();
 }
 
 ezStreamReader& operator>>(ezStreamReader& Stream, ezStringBuilder& sValue)
 {
+  /// \todo This could be more efficient by reading directly into the string array
+
   ezUInt32 uiLength = 0;
 
   Stream >> uiLength;

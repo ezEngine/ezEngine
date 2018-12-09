@@ -409,6 +409,52 @@ void ezGeometry::AddRectXY(const ezVec2& size, const ezColor& color, const ezMat
   AddPolygon(idx, bFlipWinding);
 }
 
+
+void ezGeometry::AddTesselatedRectXY(const ezVec2& size, const ezColor& color, ezUInt32 uiTesselationX, ezUInt32 uiTesselationY,
+                                     const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
+{
+  EZ_ASSERT_DEV(uiTesselationX >= 1, "TesselationX must be larger than zero.");
+  EZ_ASSERT_DEV(uiTesselationY >= 1, "TesselationY must be larger than zero.");
+
+  const ezVec2 halfSize = size * 0.5f;
+  bool bFlipWinding = mTransform.GetRotationalPart().GetDeterminant() < 0;
+
+  const ezVec2 sizeFraction = size.CompDiv(ezVec2(uiTesselationX, uiTesselationY));
+
+  for (ezUInt32 vy = 0; vy < uiTesselationY + 1; ++vy)
+  {
+    for (ezUInt32 vx = 0; vx < uiTesselationX + 1; ++vx)
+    {
+      const ezVec2 tc((float)vx / (float)uiTesselationX, (float)vy / (float)uiTesselationY);
+
+      AddVertex(ezVec3(-halfSize.x + vx * sizeFraction.x, -halfSize.y + vy * sizeFraction.y, 0), ezVec3(0, 0, 1), tc, color, iCustomIndex,
+                mTransform);
+    }
+  }
+
+  ezUInt32 idx[4];
+
+  ezUInt32 uiFirstIndex = 0;
+
+  for (ezUInt32 vy = 0; vy < uiTesselationY; ++vy)
+  {
+    for (ezUInt32 vx = 0; vx < uiTesselationX; ++vx)
+    {
+
+      idx[0] = uiFirstIndex;
+      idx[1] = uiFirstIndex + 1;
+      idx[2] = uiFirstIndex + uiTesselationX + 2;
+      idx[3] = uiFirstIndex + uiTesselationX + 1;
+
+      AddPolygon(idx, bFlipWinding);
+
+      ++uiFirstIndex;
+    }
+
+    ++uiFirstIndex;
+  }
+}
+
 void ezGeometry::AddBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
   const ezVec3 halfSize = size * 0.5f;

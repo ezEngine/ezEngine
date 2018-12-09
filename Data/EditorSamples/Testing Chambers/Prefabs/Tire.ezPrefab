@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9357573900337802902,5184961634595845146}}
-		u4 %Hash{6071438555597225356}
+		u4 %Hash{5105240135353503283}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14757557089428866213,9575918625017581344}}
@@ -47,7 +47,7 @@ o
 	{
 		b %Active{1}
 		f %AngularDamping{0xCDCC4C3D}
-		b %ContinuousCollisionDetection{0}
+		b %ContinuousCollisionDetection{1}
 		f %Density{0x0000803F}
 		b %DisableGravity{0}
 		b %Kinematic{0}

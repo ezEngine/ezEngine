@@ -15,6 +15,8 @@ Prim.Cylinder.Radius2;Radius Bottom
 Prim.Cylinder.Angle;Angle;How much of the cylinder to use. 360 is the full cylinder, 180 is only half of it.
 Prim.Cylinder.Cap1;Cap Top;Whether to cap the top
 Prim.Cylinder.Cap2;Cap Bottom;Whether to cap the bottom
+Prim.Rect.Detail1;Tesselation X;Number subdivisions along the X axis
+Prim.Rect.Detail2;Tesselation Z;Number subdivisions along the Z axis
 ezTexture2DChannelMappingEnum::R1;Red - Single Input
 ezTexture2DChannelMappingEnum::RG1;Red Green - Single Input
 ezTexture2DChannelMappingEnum::R1_G2;RG - Input1.r, Input2.r

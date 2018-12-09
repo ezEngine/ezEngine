@@ -117,6 +117,9 @@ public:
   /// It is centered at the origin, extending half size.x and half size.y into direction +X, -X, +Y and -Y.
   void AddRectXY(const ezVec2& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
+  /// \brief Same as AddRectXY but additionally tessellates the plane. Tessellation factors must be larger than zero.
+  void AddTesselatedRectXY(const ezVec2& size, const ezColor& color, ezUInt32 uiTesselationX, ezUInt32 uiTesselationY, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+
   /// \brief Adds an untextured box (8 vertices).
   void AddBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 

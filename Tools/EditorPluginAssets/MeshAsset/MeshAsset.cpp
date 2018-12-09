@@ -97,7 +97,14 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::Rect)
   {
-    geom.AddRectXY(ezVec2(1.0f), ezColor::White, mTrans);
+    ezMat4 mTrans2  = mTrans;
+
+    mTrans2.Element(2, 0) = -mTrans.Element(2, 0);
+    mTrans2.Element(2, 1) = -mTrans.Element(2, 1);
+    mTrans2.Element(2, 2) = -mTrans.Element(2, 2);
+
+    geom.AddTesselatedRectXY(ezVec2(1.0f), ezColor::White, ezMath::Max<ezUInt16>(1, pProp->m_uiDetail), ezMath::Max<ezUInt16>(1, pProp->m_uiDetail2), mTrans2);
+    //geom.AddRectXY(ezVec2(1.0f), ezColor::White, mTrans);
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::Sphere)
   {

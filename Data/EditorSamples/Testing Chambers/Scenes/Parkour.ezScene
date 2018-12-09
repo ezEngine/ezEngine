@@ -15,7 +15,7 @@ o
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{7555035107658101129}
+		u4 %Hash{6029508054830022129}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -42,8 +42,8 @@ o
 			s{"{ 3cd008a7-effe-428c-a7da-3306d854565d }"}
 			s{"{ 3dcd468c-57a7-4cde-9f7f-63b549fffcee }"}
 			s{"{ 3ebe2790-7cc4-40c8-bde6-e760b96b2636 }"}
+			s{"{ 41c1a785-75f1-4d4b-a7ee-98d984bc0a78 }"}
 			s{"{ 4795f5c4-4a78-4c13-937e-cf3e6bdecb7c }"}
-			s{"{ 522c7e02-3e76-4d5d-ba3e-1936544bbdff }"}
 			s{"{ 538ab906-480a-4f02-8447-7d004c2a721c }"}
 			s{"{ 5451b35f-d73c-402e-a540-c542d3e52be0 }"}
 			s{"{ 6050f082-3194-428a-8aa7-e64d21cf0a67 }"}
@@ -7291,7 +7291,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
-			s{"{ 522c7e02-3e76-4d5d-ba3e-1936544bbdff }"}
+			s{"{ 1748bef5-67eb-473a-92d7-e1b59a185ba1 }"}
 		}
 		s %Mesh{"{ aee863f9-4f47-4636-af05-96a987ae5a5c }"}
 	}
@@ -7684,6 +7684,32 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ ac0755c6-f78d-40ec-bfaa-55f2be674f87 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{16685825669802282943,5139391632392708006}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{15410838821896967598,5436685685600953227}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x6C3125BE,0x269975C2,0xC4C710C0}}
+		Quat %LocalRotation{f{0,0xF20435BF,0xF3043533,0xF304353F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x33870242}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
 	}
 }
 o
@@ -8354,29 +8380,6 @@ o
 }
 o
 {
-	Uuid %id{u4{6872928696651322242,5224894379562107928}}
-	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		Angle %Curvature{f{0}}
-		u3 %Detail{16}
-		s %Material{"{ 1748bef5-67eb-473a-92d7-e1b59a185ba1 }"}
-		s %Shape{"ezGreyBoxShape::Box"}
-		f %SizeNegX{0x00009840}
-		f %SizeNegY{0x0000B641}
-		f %SizeNegZ{0}
-		f %SizePosX{0x00001441}
-		f %SizePosY{0x0000D840}
-		f %SizePosZ{0x0000803F}
-		b %SlopedBottom{0}
-		b %SlopedTop{0}
-		f %Thickness{0x0000003F}
-	}
-}
-o
-{
 	Uuid %id{u4{9412322381884714662,5224904141478411000}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -8974,31 +8977,6 @@ o
 }
 o
 {
-	Uuid %id{u4{4406442948044736183,5334964775714434169}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{6872928696651322242,5224894379562107928}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x000040C0,0x000057C2,0x000040C0}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"Water"}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-		}
-	}
-}
-o
-{
 	Uuid %id{u4{10964492767017936025,5335939128846701531}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -9462,6 +9440,19 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{15410838821896967598,5436685685600953227}}
+	s %t{"ezMeshComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		VarArray %Materials{}
+		s %Mesh{"{ 41c1a785-75f1-4d4b-a7ee-98d984bc0a78 }"}
 	}
 }
 o
@@ -12131,7 +12122,6 @@ o
 			Uuid{u4{5080497748346375198,10818610892303428833}}
 			Uuid{u4{11777592991093390977,5131879182941683648}}
 			Uuid{u4{9090748377089499192,10175821872331432966}}
-			Uuid{u4{4406442948044736183,5334964775714434169}}
 			Uuid{u4{10449142825206375074,4766445650027938495}}
 			Uuid{u4{13405605848868821406,4809802949718629694}}
 			Uuid{u4{1720132578012368514,4869533718562537772}}
@@ -12309,6 +12299,7 @@ o
 			Uuid{u4{17463324858477949372,15617371519871427382}}
 			Uuid{u4{9874729302151885463,5156628002150290057}}
 			Uuid{u4{3905093693998065537,4941829486285055034}}
+			Uuid{u4{16685825669802282943,5139391632392708006}}
 		}
 		Uuid %Settings{u4{15557571853882095506,5499502780363174236}}
 	}
