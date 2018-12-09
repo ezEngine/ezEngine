@@ -70,7 +70,10 @@ protected:
   void Initialize();
   void DeInitialize();
 
+  /// \brief Will be called for test failures to record the location of the failure and forward the error to OutputImpl.
   virtual void ErrorImpl(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg);
+  /// \brief Receives ezLog messages (via LogWriter) as well as test-framework internal logging. Any ezTestOutput::Error will
+  /// cause the test to fail.
   virtual void OutputImpl(ezTestOutput::Enum Type, const char* szMsg);
   virtual void TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, double fDuration);
   void FlushAsserts();

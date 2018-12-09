@@ -695,6 +695,10 @@ static bool g_bBlockOutput = false;
 
 void ezTestFramework::OutputImpl(ezTestOutput::Enum Type, const char* szMsg)
 {
+  if (Type == ezTestOutput::Error)
+  {
+    m_iErrorCount++;
+  }
   // pass the output to all the registered output handlers, which will then write it to the console, file, etc.
   for (ezUInt32 i = 0; i < m_OutputHandlers.size(); ++i)
   {
@@ -713,7 +717,7 @@ void ezTestFramework::ErrorImpl(const char* szError, const char* szFile, ezInt32
                      szMsg);
 
   g_bBlockOutput = true;
-  ezTestFramework::Output(ezTestOutput::Error, szError);
+  ezTestFramework::Output(ezTestOutput::Error, szError); // This will also increase the global error count.
   ezTestFramework::Output(ezTestOutput::BeginBlock, "");
   {
     if ((ezTestFramework::s_szTestBlockName != nullptr) && (ezTestFramework::s_szTestBlockName[0] != '\0'))
@@ -728,8 +732,6 @@ void ezTestFramework::ErrorImpl(const char* szError, const char* szFile, ezInt32
   }
   ezTestFramework::Output(ezTestOutput::EndBlock, "");
   g_bBlockOutput = false;
-
-  m_iErrorCount++;
 }
 
 void ezTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, double fDuration)
