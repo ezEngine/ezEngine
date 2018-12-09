@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4907047210820730285,4894575462063164740}}
-		u4 %Hash{13488319909748713385}
+		u4 %Hash{12041754334285051168}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{10136530541856550431,13504341241069582050}}
@@ -126,14 +126,18 @@ o
 {
 	Uuid %id{u4{2592296611093444090,17861282767751492198}}
 	s %t{"ezFmodEventComponent"}
-	u3 %v{2}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		u1 %OcclusionCollisionLayer{0}
+		f %OcclusionThreshold{0x0000003F}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
 		b %Paused{0}
 		f %Pitch{0x0000803F}
+		b %ShowDebugInfo{0}
 		s %SoundEvent{"{ a23314a9-b6dd-4d21-adce-ff4ed20974c6 }"}
+		b %UseOcclusion{0}
 		f %Volume{0x0000803F}
 	}
 }
@@ -152,9 +156,9 @@ o
 		{
 			Uuid{u4{2859870038709046770,18066025895901625926}}
 		}
-		Time %MaxLifetime{d{0x666666666666F63F}}
+		Time %MaxLifetime{d{0x0000000000000840}}
 		s %OnTimeoutSpawn{"{ e658e83a-dc29-4db3-bcec-be6764431578 }"}
-		f %Speed{0x0000A041}
+		f %Speed{0x0000F041}
 	}
 }
 o
@@ -164,8 +168,8 @@ o
 	u3 %v{3}
 	p
 	{
-		f %Damage{0x0000A040}
-		f %Impulse{0x0000A041}
+		f %Damage{0x0000A041}
+		f %Impulse{0x00002042}
 		s %Interaction{"PulseImpact"}
 		s %Reaction{"ezProjectileReaction::Absorb"}
 		s %Surface{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
@@ -206,8 +210,8 @@ o
 		s %PluginName{"ezEditorPluginFmod"}
 		VarArray %Properties{}
 		s %TypeName{"ezFmodEventComponent"}
-		u3 %TypeSize{96}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{104}
+		u3 %TypeVersion{4}
 	}
 }
 o

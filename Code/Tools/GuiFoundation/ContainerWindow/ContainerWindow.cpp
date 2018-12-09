@@ -288,9 +288,7 @@ void ezQtContainerWindow::SlotUpdateWindowDecoration(void* pDocWindow)
 
 void ezQtContainerWindow::UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow)
 {
-  const ezInt32 iListIndex = m_DocumentWindows.IndexOf(pDocWindow);
-
-  if (iListIndex == ezInvalidIndex)
+  if (m_DocumentWindows.IndexOf(pDocWindow) == ezInvalidIndex)
     return;
 
   QTabWidget* pTabs = GetTabWidget();
@@ -305,9 +303,9 @@ void ezQtContainerWindow::UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow)
 
 void ezQtContainerWindow::RemoveDocumentWindowFromContainer(ezQtDocumentWindow* pDocWindow)
 {
-  const ezInt32 iListIndex = m_DocumentWindows.IndexOf(pDocWindow);
+  const auto uiListIndex = m_DocumentWindows.IndexOf(pDocWindow);
 
-  if (iListIndex == ezInvalidIndex)
+  if (uiListIndex == ezInvalidIndex)
     return;
 
   QTabWidget* pTabs = GetTabWidget();
@@ -317,7 +315,7 @@ void ezQtContainerWindow::RemoveDocumentWindowFromContainer(ezQtDocumentWindow* 
 
   pTabs->removeTab(iTabIndex);
 
-  m_DocumentWindows.RemoveAtAndSwap(iListIndex);
+  m_DocumentWindows.RemoveAtAndSwap(uiListIndex);
 
   pDocWindow->m_pContainerWindow = nullptr;
 
@@ -330,12 +328,12 @@ void ezQtContainerWindow::RemoveDocumentWindowFromContainer(ezQtDocumentWindow* 
 
 void ezQtContainerWindow::RemoveApplicationPanelFromContainer(ezQtApplicationPanel* pPanel)
 {
-  const ezInt32 iListIndex = m_ApplicationPanels.IndexOf(pPanel);
+  const auto uiListIndex = m_ApplicationPanels.IndexOf(pPanel);
 
-  if (iListIndex == ezInvalidIndex)
+  if (uiListIndex == ezInvalidIndex)
     return;
 
-  m_ApplicationPanels.RemoveAtAndSwap(iListIndex);
+  m_ApplicationPanels.RemoveAtAndSwap(uiListIndex);
 
   pPanel->m_pContainerWindow = nullptr;
 }

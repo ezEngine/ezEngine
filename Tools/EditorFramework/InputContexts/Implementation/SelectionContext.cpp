@@ -285,8 +285,7 @@ static const bool IsInSelection(const ezDeque<const ezDocumentObject*>& selectio
   if (pObject == pRootObject)
     return false;
 
-  ezUInt32 index = selection.IndexOf(pObject);
-  if (index != ezInvalidIndex)
+  if (selection.IndexOf(pObject) != ezInvalidIndex)
   {
     out_ParentInSelection = pObject;
     return true;
