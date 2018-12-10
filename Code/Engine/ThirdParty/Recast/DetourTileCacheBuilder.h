@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -129,6 +129,9 @@ RECAST_API dtStatus dtMarkCylinderArea(dtTileCacheLayer& layer, const float* ori
 
 RECAST_API dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float cs, const float ch,
 					   const float* bmin, const float* bmax, const unsigned char areaId);
+
+RECAST_API dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float cs, const float ch,
+					   const float* center, const float* halfExtents, const float* rotAux, const unsigned char areaId);
 
 RECAST_API dtStatus dtBuildTileCacheRegions(dtTileCacheAlloc* alloc,
 								 dtTileCacheLayer& layer,
