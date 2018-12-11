@@ -16,12 +16,9 @@ ezApplication::~ezApplication() {}
 
 void ezApplication::BeforeCoreStartup()
 {
-  if (ezStringUtils::IsNullOrEmpty(ezFileSystem::GetSdkRootDirectory()))
+  if (ezFileSystem::DetectSdkRootDirectory().Failed())
   {
-    if (ezFileSystem::DetectSdkRootDirectory().Failed())
-    {
-      ezLog::Error("Unable to find the SDK root directory. Mounting data directories may fail.");
-    }
+    ezLog::Error("Unable to find the SDK root directory. Mounting data directories may fail.");
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)

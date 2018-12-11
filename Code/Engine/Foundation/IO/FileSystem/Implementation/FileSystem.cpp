@@ -641,6 +641,9 @@ void ezFileSystem::Shutdown()
 
 ezResult ezFileSystem::DetectSdkRootDirectory(const char* szExpectedSubFolder /*= "Data/Base"*/)
 {
+  if (!s_sSdkRootDir.IsEmpty())
+    return EZ_SUCCESS;
+
   ezStringBuilder sdkRoot;
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)

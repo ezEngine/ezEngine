@@ -124,6 +124,9 @@ public:
   /// The sub-folder is usually where the engine loads the most basic data from, so it should exist.
   ///
   /// Upon success SetSdkRootDirectory() is called with the resulting path.
+  ///
+  /// \note If the Sdk root directory has been set before, this function does nothing!
+  /// It will not override a previously set value. If that is desired, call SetSdkRootDirectory("") first.
   static ezResult DetectSdkRootDirectory(const char* szExpectedSubFolder = "Data/Base");
 
   /// \brief the special directory ">Sdk" is the root folder of the SDK data, it is often used as the main reference
@@ -132,6 +135,10 @@ public:
   /// \sa DetectSdkRootDirectory()
   static void SetSdkRootDirectory(const char* szSdkDir);
 
+  /// \brief Returns the previously set Sdk root directory.
+  ///
+  /// \note Asserts that the path is not empty!
+  ///
   /// \sa SetSdkRootDirectory
   /// \sa DetectSdkRootDirectory
   static const char* GetSdkRootDirectory();
