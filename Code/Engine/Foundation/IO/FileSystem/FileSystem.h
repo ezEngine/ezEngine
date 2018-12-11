@@ -117,17 +117,37 @@ public:
   /// \name Special Directories
   ///@{
 
-  static ezResult DetectSdkRootDirectory();
+  /// \brief Searches for a directory to use as the "Sdk" special directory
+  ///
+  /// It does so by starting at the directory where the application binary is located and then going up until it finds
+  /// a folder that contains the given sub-folder.
+  /// The sub-folder is usually where the engine loads the most basic data from, so it should exist.
+  ///
+  /// Upon success SetSdkRootDirectory() is called with the resulting path.
+  static ezResult DetectSdkRootDirectory(const char* szExpectedSubFolder = "Data/Base");
 
+  /// \brief the special directory ">Sdk" is the root folder of the SDK data, it is often used as the main reference
+  /// from where other data directories are found. For higher level code (e.g. ezApplication) it is often vital that this is set early at starutp.
+  ///
+  /// \sa DetectSdkRootDirectory()
   static void SetSdkRootDirectory(const char* szSdkDir);
+
+  /// \sa SetSdkRootDirectory
+  /// \sa DetectSdkRootDirectory
   static const char* GetSdkRootDirectory();
 
+  /// \brief Special directories are used when mounting data directories as basic references.
+  ///
+  /// They are indicated with a ">", ie. ">sdk/Test", but using them is only allowed in few places, e.g. in AddDataDirectory().
+  /// Special directories are needed to be able to set up other paths relative to them and to be able to use different
+  /// ones on different PCs. For instance when using file-serve functionality, the special directories may be different
+  /// on the host and client machines, but the paths used to mount data directories can stay the same because of this.
   static void SetSpecialDirectory(const char* szName, const char* szReplacement);
 
   /// \brief Returns the absolute path to directory.
   ///
-  /// If \a szDirectory starts with ':sdk/" the path will be relative to the Sdk root directory.
-  /// If \a szDirectory starts with ':project/' the path will be relative to the project directory.
+  /// If \a szDirectory starts with '>sdk/" the path will be relative to the Sdk root directory.
+  /// If \a szDirectory starts with '>project/' the path will be relative to the project directory.
   static ezResult ResolveSpecialDirectory(const char* szDirectory, ezStringBuilder& out_Path);
 
   ///@}

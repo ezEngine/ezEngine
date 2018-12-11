@@ -161,9 +161,9 @@ void ezMessageLoop::AddChannel(ezIpcChannel* pChannel)
     m_AllAddedChannels.PushBack(pChannel);
 
     m_bCallTickFunction = false;
-    for (auto pChannel : m_AllAddedChannels)
+    for (auto pThisChannel : m_AllAddedChannels)
     {
-      if (pChannel->RequiresRegularTick())
+      if (pThisChannel->RequiresRegularTick())
       {
         m_bCallTickFunction = true;
         break;

@@ -7,11 +7,11 @@
 #include <Foundation/Logging/Log.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <Foundation/Configuration/Implementation/Win/Plugin_Win.h>
+#  include <Foundation/Configuration/Implementation/Win/Plugin_Win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-#include <Foundation/Configuration/Implementation/Posix/Plugin_Posix.h>
+#  include <Foundation/Configuration/Implementation/Posix/Plugin_Posix.h>
 #else
-#error "Plugins not implemented on this Platform."
+#  error "Plugins not implemented on this Platform."
 #endif
 
 ezResult UnloadPluginModule(ezPluginModule& Module, const char* szPluginFile);
@@ -44,7 +44,9 @@ ezUInt32 ezPlugin::m_uiMaxParallelInstances = 32;
 ezEvent<const ezPlugin::PluginEvent&> ezPlugin::s_PluginEvents;
 
 
-ezPlugin::ezPlugin(bool bIsReloadable, OnPluginLoadedFunction OnLoadPlugin, OnPluginUnloadedFunction OnUnloadPlugin, const char* szPluginDependency1, const char* szPluginDependency2, const char* szPluginDependency3, const char* szPluginDependency4, const char* szPluginDependency5)
+ezPlugin::ezPlugin(bool bIsReloadable, OnPluginLoadedFunction OnLoadPlugin, OnPluginUnloadedFunction OnUnloadPlugin,
+                   const char* szPluginDependency1, const char* szPluginDependency2, const char* szPluginDependency3,
+                   const char* szPluginDependency4, const char* szPluginDependency5)
 {
   m_bInitialized = false;
   m_OnLoadPlugin = OnLoadPlugin;
@@ -232,7 +234,9 @@ ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, bool bLoadCopy, 
         goto success;
     }
 
-    ezLog::Error("Could not copy the plugin file '{0}' to '{1}' (and all previous file numbers). Plugin MaxParallelInstances is set to {2}.", sOldPlugin, sNewPlugin, ezPlugin::m_uiMaxParallelInstances);
+    ezLog::Error(
+        "Could not copy the plugin file '{0}' to '{1}' (and all previous file numbers). Plugin MaxParallelInstances is set to {2}.",
+        sOldPlugin, sNewPlugin, ezPlugin::m_uiMaxParallelInstances);
 
     g_LoadedPlugins.Remove(sNewPlugin);
     return EZ_FAILURE;
@@ -317,7 +321,8 @@ success:
     }
 
     /// \todo this doesn't work if one dynamic (e.g. editor) plugin has a link dependency on another dynamic (runtime) plugin
-    //EZ_ASSERT_RELEASE(iNewPlugins == 1, "A plugin must contain exactly one instance of an ezPlugin. While loading plugin '{0}' {1} ezPlugin instances were found.", szPluginFile, iNewPlugins);
+    // EZ_ASSERT_RELEASE(iNewPlugins == 1, "A plugin must contain exactly one instance of an ezPlugin. While loading plugin '{0}' {1}
+    // ezPlugin instances were found.", szPluginFile, iNewPlugins);
   }
 
   ezLog::Success("Plugin '{0}' is loaded.", szPluginFile);
@@ -339,9 +344,15 @@ ezResult ezPlugin::LoadPlugin(const char* szPluginFile, bool bLoadCopy /*= false
   }
 
   ezLog::Debug("Plugin to load: \"{0}\"", szPluginFile);
-  g_LoadedPlugins[szPluginFile].m_iReferenceCount = 1;
 
-  return LoadPluginInternal(szPluginFile, bLoadCopy, false);
+  ezResult res = LoadPluginInternal(szPluginFile, bLoadCopy, false);
+
+  if (res.Succeeded())
+  {
+    g_LoadedPlugins[szPluginFile].m_iReferenceCount = 1;
+  }
+
+  return res;
 }
 
 ezResult ezPlugin::UnloadPlugin(const char* szPluginFile, ezInt32* out_pCurRefCount /*= nullptr*/)
@@ -490,7 +501,8 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
             ezFileStats stat;
             if (ezOSFile::GetFileStats(sOldPlugin.GetData(), stat) == EZ_SUCCESS)
             {
-              if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile].m_LastModificationTime.Compare(stat.m_LastModificationTime, ezTimestamp::CompareMode::FileTimeEqual))
+              if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile].m_LastModificationTime.Compare(stat.m_LastModificationTime,
+                                                                                             ezTimestamp::CompareMode::FileTimeEqual))
               {
                 ezLog::Debug("Plugin '{0}' is not modified.", pPlugin->GetPluginName());
                 bModified = false;
@@ -508,7 +520,8 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
           ezStringBuilder sBackup = sNewPlugin;
           sBackup.Append(".backup");
 
-          EZ_VERIFY(ezOSFile::CopyFile(sNewPlugin.GetData(), sBackup.GetData()) == EZ_SUCCESS, "Could not create backup of plugin '{0}'", pPlugin->GetPluginName());
+          EZ_VERIFY(ezOSFile::CopyFile(sNewPlugin.GetData(), sBackup.GetData()) == EZ_SUCCESS, "Could not create backup of plugin '{0}'",
+                    pPlugin->GetPluginName());
 
           PluginsToReload.PushBack(pPlugin->m_sLoadedFromFile);
         }
@@ -530,7 +543,8 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
     {
       ezUInt32 iIndex = i - 1;
 
-      EZ_VERIFY(UnloadPluginInternal(PluginsToReload[iIndex].GetData(), true) == EZ_SUCCESS, "Could not unload plugin '{0}'.", PluginsToReload[iIndex]);
+      EZ_VERIFY(UnloadPluginInternal(PluginsToReload[iIndex].GetData(), true) == EZ_SUCCESS, "Could not unload plugin '{0}'.",
+                PluginsToReload[iIndex]);
     }
   }
 
@@ -557,7 +571,8 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
         {
           // if we cannot reload a plugin (not even its backup), all we can do is crash with an error message
           // everything else would most probably result in crashes in very strange ways
-          EZ_VERIFY(LoadPluginInternal(PluginsToReload[i].GetData(), false, true) == EZ_SUCCESS, "Could not reload backup of plugin '{0}'", PluginsToReload[i]);
+          EZ_VERIFY(LoadPluginInternal(PluginsToReload[i].GetData(), false, true) == EZ_SUCCESS, "Could not reload backup of plugin '{0}'",
+                    PluginsToReload[i]);
         }
       }
 

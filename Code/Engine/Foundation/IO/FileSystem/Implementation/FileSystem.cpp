@@ -639,7 +639,7 @@ void ezFileSystem::Shutdown()
   EZ_DEFAULT_DELETE(s_Data);
 }
 
-ezResult ezFileSystem::DetectSdkRootDirectory()
+ezResult ezFileSystem::DetectSdkRootDirectory(const char* szExpectedSubFolder /*= "Data/Base"*/)
 {
   ezStringBuilder sdkRoot;
 
@@ -647,7 +647,7 @@ ezResult ezFileSystem::DetectSdkRootDirectory()
   // Probably this is what needs to be done on all mobile platforms as well
   sdkRoot = ezOSFile::GetApplicationDirectory();
 #else
-  if (ezFileSystem::FindFolderWithSubPath(ezOSFile::GetApplicationDirectory(), "Data/Base", sdkRoot).Failed())
+  if (ezFileSystem::FindFolderWithSubPath(ezOSFile::GetApplicationDirectory(), szExpectedSubFolder, sdkRoot).Failed())
   {
     ezLog::Error("Could not find SDK root. Application dir is '{0}'. Searched for parent with 'Data\\Base' sub-folder.",
                  ezOSFile::GetApplicationDirectory());
