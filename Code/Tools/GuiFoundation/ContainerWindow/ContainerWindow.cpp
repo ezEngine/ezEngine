@@ -25,7 +25,7 @@ ezQtContainerWindow::ezQtContainerWindow(ezInt32 iUniqueIdentifier)
 
   setObjectName(GetUniqueName().GetData());
   setWindowIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/ezEditor16.png")));
-
+  setDockOptions(dockOptions() | QMainWindow::DockOption::GroupedDragging);
 
   ezQtDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezQtContainerWindow::DocumentWindowEventHandler, this));
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezQtContainerWindow::ProjectEventHandler, this));

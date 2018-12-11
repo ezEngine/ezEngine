@@ -329,8 +329,16 @@ void ezQtEditorApp::ShutdownEditor()
 void ezQtEditorApp::CreatePanels()
 {
   EZ_PROFILE_SCOPE("CreatePanels");
-  new ezQtLogPanel();
-  new ezQtCVarPanel();
-  new ezQtAssetBrowserPanel();
-  new ezQtAssetCuratorPanel();
+  ezQtApplicationPanel* pAssetBrowserPanel = new ezQtAssetBrowserPanel();
+  ezQtApplicationPanel* pLogPanel = new ezQtLogPanel();
+  ezQtApplicationPanel* pCVarPanel = new ezQtCVarPanel();
+  ezQtApplicationPanel* pAssetCuratorPanel = new ezQtAssetCuratorPanel();
+
+  QMainWindow* pMainWnd = ezQtContainerWindow::GetAllContainerWindows()[0];
+
+  pMainWnd->tabifyDockWidget(pAssetBrowserPanel, pLogPanel);
+  pMainWnd->tabifyDockWidget(pAssetBrowserPanel, pAssetCuratorPanel);
+  pMainWnd->tabifyDockWidget(pAssetBrowserPanel, pCVarPanel);
+
+  pAssetBrowserPanel->raise();
 }
