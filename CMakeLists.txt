@@ -20,9 +20,6 @@ set (Qt5WinExtras_DIR "" CACHE PATH "" FORCE)
 message (STATUS "Adding SubDirectory 'Code'")
 add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/Code)
 
-message (STATUS "Adding SubDirectory 'Projects'")
-add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/Projects)
-
 message (STATUS "Adding SubDirectory 'Tools'")
 add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/Tools)
 
