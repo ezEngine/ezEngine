@@ -152,7 +152,7 @@ if (BUILDSYSTEM_MSVC)
   # Visual Studio Compiler
   message (STATUS "Compiler is MSVC (BUILDSYSTEM_COMPILER_MSVC)")
   message (STATUS "MSVC_VERSION is ${MSVC_VERSION}")
-  
+
   set (BUILDSYSTEM_COMPILER_MSVC ON)
 
   if(MSVC_VERSION GREATER_EQUAL 1910)
@@ -680,7 +680,6 @@ ENDMACRO()
 
 include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Engine")  # this way it will also work for applications
 include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Tools")
-include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../Projects")
 include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../Tools")
 include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../Games")
 include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../Samples")
