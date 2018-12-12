@@ -11,6 +11,7 @@
 #include <Foundation/Types/UniquePtr.h>
 
 class ezWindow;
+class ezWindowOutputTargetBase;
 class ezView;
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
@@ -123,7 +124,7 @@ protected:
   virtual void ConfigureInputActions();
 
   /// \brief Creates a default render view. Unless overridden, Activate() will do this for the main window.
-  virtual void SetupMainView(ezGALRenderTargetViewHandle hBackBuffer);
+  virtual void SetupMainView(ezWindowOutputTargetBase* pOutputTarget);
 
   /// \brief Overrideable function that may create a player object.
   ///
@@ -135,7 +136,7 @@ protected:
   virtual ezResult SpawnPlayer(const ezTransform* pStartPosition);
 
   /// \brief Creates a default main view with the given render pipeline.
-  void SetupMainView(ezGALRenderTargetViewHandle hBackBuffer, ezTypedResourceHandle<ezRenderPipelineResource> hRenderPipeline);
+  void SetupMainView(ezWindowOutputTargetBase* pOutputTarget, ezTypedResourceHandle<ezRenderPipelineResource> hRenderPipeline);
 
   /// \brief Sets m_pMainWorld and updates m_pMainView to use that new world for rendering
   void ChangeMainWorld(ezWorld* pNewMainWorld);
@@ -144,7 +145,7 @@ protected:
   virtual void ConfigureMainCamera();
 
   ezWindow* m_pMainWindow = nullptr;
-  ezGALSwapChainHandle m_hMainSwapChain;
+  ezWindowOutputTargetBase* m_pMainOutputTarget = nullptr;
   ezViewHandle m_hMainView;
 
   ezWorld* m_pMainWorld = nullptr;

@@ -3,9 +3,11 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 EZ_IMPLEMENT_SINGLETON(ezEditorEngineProcessApp);
@@ -85,9 +87,9 @@ ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCame
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-    m_hRemoteWindowSwapChain =
-        static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->AddWindow(m_pRemoteWindow.Borrow());
-    const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(m_hRemoteWindowSwapChain);
+    ezWindowOutputTargetGAL* pOutputTarget =
+        static_cast<ezWindowOutputTargetGAL*>(ezGameApplication::GetGameApplicationInstance()->AddWindow(m_pRemoteWindow.Borrow()));
+    const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(pOutputTarget->m_hSwapChain);
     EZ_ASSERT_DEV(pPrimarySwapChain != nullptr, "Failed to init swapchain");
 
     auto hSwapChainRTV = pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());

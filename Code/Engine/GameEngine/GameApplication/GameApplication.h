@@ -7,10 +7,9 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/Configuration/PlatformProfile.h>
 #include <GameEngine/Console/ConsoleFunction.h>
+#include <GameEngine/GameApplication/WindowOutputTargetBase.h>
 
 #include <Core/Application/Application.h>
-
-#include <RendererFoundation/Device/SwapChain.h>
 
 class ezDefaultTimeStepSmoothing;
 class ezConsole;
@@ -84,33 +83,33 @@ public:
 
   /// \brief Adds a top level window to the application.
   ///
-  /// An ezGALSwapChain is created for that window. Run() will call ezWindowBase::ProcessWindowMessages()
+  /// An output target is created for that window. Run() will call ezWindowBase::ProcessWindowMessages()
   /// on all windows that have been added.
   /// Most applications should add exactly one such window to the game application.
   /// Only few applications will add zero or multiple windows.
-  ezGALSwapChainHandle AddWindow(ezWindowBase* pWindow);
+  ezWindowOutputTargetBase* AddWindow(ezWindowBase* pWindow);
 
-  /// \brief Adds a top level window to the application with a custom swap chain.
-  void AddWindow(ezWindowBase* pWindow, ezGALSwapChainHandle hSwapChain);
+  /// \brief Adds a top level window to the application with a custom output target.
+  void AddWindow(ezWindowBase* pWindow, ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget);
 
-  /// \brief Removes a previously added window. Destroys its swapchain. Should be called at application shutdown.
+  /// \brief Removes a previously added window. Destroys its output target. Should be called at application shutdown.
   void RemoveWindow(ezWindowBase* pWindow);
 
   /// \brief Can be called by code that creates windows (e.g. a gamestate) to adjust or override settings, such as the window title.
   virtual void AdjustWindowCreation(ezWindowCreationDesc& desc) {}
 
-
-  /// \brief Returns the swapchain for the given window. The window must have been added via AddWindow()
-  ezGALSwapChainHandle GetSwapChain(const ezWindowBase* pWindow) const;
+  /// \brief Returns the ezWindowOutputTargetBase object that is associated with the given window. The window must have been added via
+  /// AddWindow()
+  ezWindowOutputTargetBase* GetWindowOutput(const ezWindowBase* pWindow) const;
 
   /// \brief When the graphics device is created, by default the game application will pick a platform specific implementation. This
   /// function allows to override that by setting a custom function that creates a graphics device.
   static void SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> creator);
 
-  /// \brief Sets the swapchain for a given window. The window must have been added via AddWindow()
+  /// \brief Sets the ezWindowOutputTargetBase for a given window. The window must have been added via AddWindow()
   ///
-  /// The previous swapchain (if any) will be destroyed.
-  void SetSwapChain(const ezWindowBase* pWindow, ezGALSwapChainHandle hSwapChain);
+  /// The previous ezWindowOutputTargetBase object (if any) will be destroyed.
+  void SetWindowOutput(const ezWindowBase* pWindow, ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget);
 
   /// \brief Activates only the game state that is linked to the given ezWorld.
   /// Not needed in a typical application. Used by the editor for selective game state handling in play-the-game mode.
@@ -212,7 +211,8 @@ protected:
   /// Destroys all game states and shuts down everything that was created in AfterCoreStartup()
   virtual void BeforeCoreShutdown() override;
 
-
+  virtual ezUniquePtr<ezWindowOutputTargetBase> CreateWindowOutputTarget(ezWindowBase* pWindow);
+  virtual void DestroyWindowOutputTarget(ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget);
 
 protected:
   ///
@@ -301,9 +301,6 @@ protected:
   /// Utilities
   ///
 
-  /// Called directly before 'Present' is called, when TakeScreenshot() was called previously
-  virtual void DoTakeScreenshot(const ezGALSwapChainHandle& swapchain, ezImage& out_Image);
-
   /// Called with the result from DoTakeScreenshot(), should write the image to disk
   virtual void DoSaveScreenshot(ezImage& image);
 
@@ -345,8 +342,8 @@ private:
   struct WindowContext
   {
     ezWindowBase* m_pWindow;
-    ezGALSwapChainHandle m_hSwapChain;
-    bool m_bFirstFrame;
+    ezUniquePtr<ezWindowOutputTargetBase> m_pOutputTarget;
+    bool m_bFirstFrame = true;
   };
 
   struct WorldData

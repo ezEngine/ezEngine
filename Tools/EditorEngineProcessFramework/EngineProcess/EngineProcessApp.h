@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorEngineProcessFramework/Plugin.h>
 #include <Foundation/Configuration/Singleton.h>
@@ -46,5 +46,4 @@ protected:
 
   ezUniquePtr<ezRemoteProcessWindow> m_pRemoteWindow;
   ezViewHandle m_hRemoteView;
-  ezGALSwapChainHandle m_hRemoteWindowSwapChain;
 };

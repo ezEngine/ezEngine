@@ -2,17 +2,19 @@
 #include <PCH.h>
 
 #include <Core/World/World.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Configuration/Singleton.h>
-#include <GameEngine/Interfaces/VRInterface.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <GameApplication/WindowOutputTarget.h>
 #include <GameEngine/Components/PlayerStartPointComponent.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/GameStateWindow.h>
+#include <GameEngine/Interfaces/VRInterface.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/SwapChain.h>
 #include <System/Screen/Screen.h>
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
@@ -80,8 +82,7 @@ void ezGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPositio
     }
     else
     {
-      const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_hMainSwapChain);
-      SetupMainView(ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(pSwapChain->GetBackBufferTexture()));
+      SetupMainView(m_pMainOutputTarget);
     }
 
     ConfigureMainCamera();
@@ -154,7 +155,7 @@ void ezGameState::CreateMainWindow()
   GetApplication()->AdjustWindowCreation(wndDesc);
 
   m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow, wndDesc, [this]() { RequestQuit(); });
-  m_hMainSwapChain = GetApplication()->AddWindow(m_pMainWindow);
+  m_pMainOutputTarget = GetApplication()->AddWindow(m_pMainWindow);
 }
 
 void ezGameState::DestroyMainWindow()
@@ -164,7 +165,7 @@ void ezGameState::DestroyMainWindow()
     GetApplication()->RemoveWindow(m_pMainWindow);
     EZ_DEFAULT_DELETE(m_pMainWindow);
 
-    m_hMainSwapChain.Invalidate();
+    m_pMainOutputTarget = nullptr;
   }
 }
 
@@ -175,16 +176,21 @@ void ezGameState::ConfigureInputDevices()
 
 void ezGameState::ConfigureInputActions() {}
 
-void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer)
+void ezGameState::SetupMainView(ezWindowOutputTargetBase* pOutputTarget)
 {
   const auto* pConfig = GetApplication()->GetPlatformProfile().GetTypeConfig<ezRenderPipelineProfileConfig>();
 
-  SetupMainView(hBackBuffer, ezResourceManager::LoadResource<ezRenderPipelineResource>(pConfig->m_sMainRenderPipeline));
+  SetupMainView(pOutputTarget, ezResourceManager::LoadResource<ezRenderPipelineResource>(pConfig->m_sMainRenderPipeline));
 }
 
-void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer, ezTypedResourceHandle<ezRenderPipelineResource> hRenderPipeline)
+void ezGameState::SetupMainView(ezWindowOutputTargetBase* pOutputTarget, ezTypedResourceHandle<ezRenderPipelineResource> hRenderPipeline)
 {
   EZ_LOG_BLOCK("SetupMainView");
+
+  ezWindowOutputTargetGAL* pOutputGAL = static_cast<ezWindowOutputTargetGAL*>(pOutputTarget);
+
+  const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(pOutputGAL->m_hSwapChain);
+  auto hBackBuffer = ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(pSwapChain->GetBackBufferTexture());
 
   ezView* pView = nullptr;
   m_hMainView = ezRenderWorld::CreateView("MainView", pView);

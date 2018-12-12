@@ -45,10 +45,10 @@ public:
   /// \brief Same as calling 'Reset()'
   EZ_ALWAYS_INLINE void operator=(std::nullptr_t) { Reset(); }
 
-  /// \brief Releases the managed object. The unique ptr will be empty afterwards.
+  /// \brief Releases the managed object without destroying it. The unique ptr will be empty afterwards.
   T* Release();
 
-  /// \brief Releases the managed object. The unique ptr will be empty afterwards.
+  /// \brief Releases the managed object without destroying it. The unique ptr will be empty afterwards. Also returns the allocator that should be used to destroy the object.
   T* Release(ezAllocatorBase*& out_pAllocator);
 
   /// \brief Borrows the managed object. The unique ptr stays unmodified.

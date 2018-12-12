@@ -12,6 +12,7 @@
 #include <Foundation/Time/DefaultTimeStepSmoothing.h>
 #include <GameEngine/Console/Console.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -20,7 +21,7 @@
 #include <RendererFoundation/Resources/Texture.h>
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-#include <GameEngine/MixedReality/MixedRealityFramework.h>
+#  include <GameEngine/MixedReality/MixedRealityFramework.h>
 #endif
 
 ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
@@ -48,7 +49,7 @@ ezGameApplication::~ezGameApplication()
   s_pGameApplicationInstance = nullptr;
 }
 
-ezGALSwapChainHandle ezGameApplication::AddWindow(ezWindowBase* pWindow)
+ezUniquePtr<ezWindowOutputTargetBase> ezGameApplication::CreateWindowOutputTarget(ezWindowBase* pWindow)
 {
   ezGALSwapChainCreationDescription desc;
   desc.m_pWindow = pWindow;
@@ -56,19 +57,46 @@ ezGALSwapChainHandle ezGameApplication::AddWindow(ezWindowBase* pWindow)
   desc.m_bAllowScreenshots = true;
   auto hSwapChain = ezGALDevice::GetDefaultDevice()->CreateSwapChain(desc);
 
-  AddWindow(pWindow, hSwapChain);
+  ezUniquePtr<ezWindowOutputTargetGAL> pOutputTarget = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
+  pOutputTarget->m_hSwapChain = hSwapChain;
 
-  return hSwapChain;
+  return pOutputTarget;
 }
 
-void ezGameApplication::AddWindow(ezWindowBase* pWindow, ezGALSwapChainHandle hSwapChain)
+void ezGameApplication::DestroyWindowOutputTarget(ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget)
+{
+  if (pOutputTarget != nullptr)
+  {
+    ezWindowOutputTargetGAL* pOutputGAL = static_cast<ezWindowOutputTargetGAL*>(pOutputTarget.Borrow());
+
+    // do not try to destroy the primary swapchain, that is handled by the device
+    if (ezGALDevice::GetDefaultDevice()->GetPrimarySwapChain() != pOutputGAL->m_hSwapChain)
+    {
+      ezGALDevice::GetDefaultDevice()->DestroySwapChain(pOutputGAL->m_hSwapChain);
+    }
+
+    pOutputTarget = nullptr;
+  }
+}
+
+ezWindowOutputTargetBase* ezGameApplication::AddWindow(ezWindowBase* pWindow)
+{
+  ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget = CreateWindowOutputTarget(pWindow);
+  ezWindowOutputTargetBase* pOutputPtr = pOutputTarget.Borrow();
+
+  AddWindow(pWindow, std::move(pOutputTarget));
+
+  return pOutputPtr;
+}
+
+void ezGameApplication::AddWindow(ezWindowBase* pWindow, ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget)
 {
   // make sure not to add the same window twice
   RemoveWindow(pWindow);
 
   WindowContext& windowContext = m_Windows.ExpandAndGetRef();
   windowContext.m_pWindow = pWindow;
-  windowContext.m_hSwapChain = hSwapChain;
+  windowContext.m_pOutputTarget = std::move(pOutputTarget);
   windowContext.m_bFirstFrame = true;
 }
 
@@ -79,24 +107,24 @@ void ezGameApplication::RemoveWindow(ezWindowBase* pWindow)
     WindowContext& windowContext = m_Windows[i];
     if (windowContext.m_pWindow == pWindow)
     {
-      ezGALDevice::GetDefaultDevice()->DestroySwapChain(windowContext.m_hSwapChain);
+      DestroyWindowOutputTarget(std::move(windowContext.m_pOutputTarget));
       m_Windows.RemoveAtAndCopy(i);
       break;
     }
   }
 }
 
-ezGALSwapChainHandle ezGameApplication::GetSwapChain(const ezWindowBase* pWindow) const
+ezWindowOutputTargetBase* ezGameApplication::GetWindowOutput(const ezWindowBase* pWindow) const
 {
   for (auto& windowContext : m_Windows)
   {
     if (windowContext.m_pWindow == pWindow)
     {
-      return windowContext.m_hSwapChain;
+      return windowContext.m_pOutputTarget.Borrow();
     }
   }
 
-  return ezGALSwapChainHandle();
+  return nullptr;
 }
 
 // static
@@ -105,20 +133,23 @@ void ezGameApplication::SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice*(
   s_DefaultDeviceCreator = creator;
 }
 
-void ezGameApplication::SetSwapChain(const ezWindowBase* pWindow, ezGALSwapChainHandle hSwapChain)
+void ezGameApplication::SetWindowOutput(const ezWindowBase* pWindow, ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget)
 {
   for (auto& windowContext : m_Windows)
   {
     if (windowContext.m_pWindow == pWindow)
     {
-      if (!windowContext.m_hSwapChain.IsInvalidated())
-        ezGALDevice::GetDefaultDevice()->DestroySwapChain(windowContext.m_hSwapChain);
-      windowContext.m_hSwapChain = hSwapChain;
+      if (windowContext.m_pOutputTarget != nullptr)
+      {
+        DestroyWindowOutputTarget(std::move(windowContext.m_pOutputTarget));
+      }
+
+      windowContext.m_pOutputTarget = std::move(pOutputTarget);
       return;
     }
   }
 
-  EZ_REPORT_FAILURE("Given window is not part of the application!");
+  EZ_REPORT_FAILURE("The given window is not part of the application!");
 }
 
 void ezGameApplication::CreateGameStateForWorld(ezWorld* pWorld)
@@ -583,8 +614,8 @@ void ezGameApplication::UpdateWorldsAndRender()
       EZ_PROFILE_SCOPE("GameApplication.Present");
       for (auto& windowContext : m_Windows)
       {
-        // Ignore windows without swapchain
-        if (windowContext.m_hSwapChain.IsInvalidated())
+        // Ignore windows without an output target
+        if (windowContext.m_pOutputTarget == nullptr)
           continue;
 
         if (ezRenderWorld::GetFrameCounter() < 10)
@@ -598,12 +629,16 @@ void ezGameApplication::UpdateWorldsAndRender()
         {
           if (m_bTakeScreenshot)
           {
+            m_bTakeScreenshot = false;
+
             ezImage img;
-            DoTakeScreenshot(windowContext.m_hSwapChain, img);
-            DoSaveScreenshot(img);
+            if (windowContext.m_pOutputTarget->CaptureImage(img).Succeeded())
+            {
+              DoSaveScreenshot(img);
+            }
           }
 
-          pDevice->Present(windowContext.m_hSwapChain, CVarEnableVSync);
+          windowContext.m_pOutputTarget->Present(CVarEnableVSync);
         }
       }
     }
@@ -830,7 +865,7 @@ void ezGameApplication::RenderConsole()
     {
       auto& consoleString = consoleStrings[uiFirstLine - i];
       ezDebugRenderer::Draw2DText(hView, consoleString.m_sText, ezVec2I32(iTextLeft, iFirstLinePos + i * iTextHeight),
-                                consoleString.m_TextColor);
+                                  consoleString.m_TextColor);
     }
 
     ezStringView sInputLine(m_pConsole->GetInputLine());
@@ -851,40 +886,6 @@ void ezGameApplication::RenderConsole()
 void ezGameApplication::TakeScreenshot()
 {
   m_bTakeScreenshot = true;
-}
-
-void ezGameApplication::DoTakeScreenshot(const ezGALSwapChainHandle& swapchain, ezImage& out_Image)
-{
-  m_bTakeScreenshot = false;
-
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALTextureHandle hBackbuffer = pDevice->GetBackBufferTextureFromSwapChain(swapchain);
-
-  ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(hBackbuffer);
-
-  const ezGALTexture* pBackbuffer = ezGALDevice::GetDefaultDevice()->GetTexture(hBackbuffer);
-  const ezUInt32 uiWidth = pBackbuffer->GetDescription().m_uiWidth;
-  const ezUInt32 uiHeight = pBackbuffer->GetDescription().m_uiHeight;
-
-  ezDynamicArray<ezUInt8> backbufferData;
-  backbufferData.SetCountUninitialized(uiWidth * uiHeight * 4);
-
-  ezGALSystemMemoryDescription MemDesc;
-  MemDesc.m_uiRowPitch = 4 * uiWidth;
-  MemDesc.m_uiSlicePitch = 4 * uiWidth * uiHeight;
-
-  /// \todo Make this more efficient
-  MemDesc.m_pData = backbufferData.GetData();
-  ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescsDepth(&MemDesc, 1);
-  ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(hBackbuffer, &SysMemDescsDepth);
-
-  out_Image.SetWidth(uiWidth);
-  out_Image.SetHeight(uiHeight);
-  out_Image.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
-  out_Image.AllocateImageData();
-  ezUInt8* pData = out_Image.GetDataPointer<ezUInt8>();
-
-  ezMemoryUtils::Copy(pData, backbufferData.GetData(), backbufferData.GetCount());
 }
 
 void ezGameApplication::DoSaveScreenshot(ezImage& image)
