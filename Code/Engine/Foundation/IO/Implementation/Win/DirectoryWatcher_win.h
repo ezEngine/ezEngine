@@ -126,7 +126,7 @@ void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, 
         dir.SetCountUninitialized(bytesNeeded + 1);
         WideCharToMultiByte(CP_UTF8, 0, directory.GetPtr(), directory.GetCount(), dir.GetData(), dir.GetCount(), nullptr, nullptr);
         dir[bytesNeeded] = '\0';
-        ezDirectoryWatcherAction action;
+        ezDirectoryWatcherAction action = ezDirectoryWatcherAction::None;
         switch (info->Action)
         {
           case FILE_ACTION_ADDED:

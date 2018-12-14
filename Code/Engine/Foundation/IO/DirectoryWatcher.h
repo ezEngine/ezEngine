@@ -10,6 +10,7 @@ struct ezDirectoryWatcherImpl;
 /// \brief Which action has been performed on a file.
 enum class ezDirectoryWatcherAction
 {
+  None,
   Added,
   Removed,
   Modified,

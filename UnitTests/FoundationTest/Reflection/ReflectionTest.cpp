@@ -170,12 +170,19 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Types From Plugin")
   {
-    EZ_TEST_BOOL(ezPlugin::LoadPlugin("ezFoundationTest_Plugin1") == EZ_SUCCESS);
+    ezResult loadPlugin = ezPlugin::LoadPlugin(ezFoundationTest_Plugin1);
+    EZ_TEST_BOOL(loadPlugin == EZ_SUCCESS);
+
+    if (loadPlugin.Failed())
+      return;
 
     ezRTTI* pStruct2 = ezRTTI::FindTypeByName("ezTestStruct2");
     EZ_TEST_BOOL(pStruct2 != nullptr);
-    EZ_TEST_STRING(pStruct2->GetTypeName(), "ezTestStruct2");
 
+    if (pStruct2)
+    {
+      EZ_TEST_STRING(pStruct2->GetTypeName(), "ezTestStruct2");
+    }
 
     bool bFoundStruct2 = false;
 
@@ -187,7 +194,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
       {
         bFoundStruct2 = true;
 
-        EZ_TEST_STRING(pRtti->GetPluginName(), "ezFoundationTest_Plugin1");
+        EZ_TEST_STRING(pRtti->GetPluginName(), ezFoundationTest_Plugin1);
 
         void* pInstance = pRtti->GetAllocator()->Allocate<void>();
         EZ_TEST_BOOL(pInstance != nullptr);
@@ -219,7 +226,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
 
     EZ_TEST_BOOL(bFoundStruct2);
 
-    EZ_TEST_BOOL(ezPlugin::UnloadPlugin("ezFoundationTest_Plugin1") == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezPlugin::UnloadPlugin(ezFoundationTest_Plugin1) == EZ_SUCCESS);
   }
 #endif
 }

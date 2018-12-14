@@ -206,6 +206,9 @@ ezResult ezWindow::Destroy()
   if (!m_bInitialized)
     return EZ_SUCCESS;
 
+  if (GetInputDevice() && GetInputDevice()->GetClipMouseCursor())
+    GetInputDevice()->SetClipMouseCursor(false);
+
   EZ_LOG_BLOCK("ezWindow::Destroy");
 
   ezResult Res = EZ_SUCCESS;

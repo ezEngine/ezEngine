@@ -91,10 +91,10 @@ const ezTokenizer* ezTokenizedFileCache::Tokenize(const ezString& sFileName, ezA
             {
               if (Tokens[uiNext].m_iType == ezTokenType::String1)
               {
-                ezStringBuilder sFileName = Tokens[uiNext].m_DataView;
-                sFileName.Shrink(1, 1); // remove surrounding "
+                ezStringBuilder sFileName2 = Tokens[uiNext].m_DataView;
+                sFileName2.Shrink(1, 1); // remove surrounding "
 
-                sFile.Assign(sFileName.GetData());
+                sFile.Assign(sFileName2.GetData());
               }
             }
           }

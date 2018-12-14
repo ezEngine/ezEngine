@@ -2,6 +2,9 @@
 
 #include <Foundation/Types/Id.h>
 
+#define EZ_MSVC_WARNING_NUMBER 4463
+#include <Foundation/Basics/Compiler/DisableWarning.h>
+
 struct TestId
 {
   typedef ezUInt32 StorageType;

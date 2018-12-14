@@ -43,7 +43,9 @@ void ezTestBaseClass::AddSubTest(const char* szName, ezInt32 iIdentifier)
 
 ezResult ezTestBaseClass::DoTestInitialization()
 {
+#if EZ_ENABLED(EZ_TESTFRAMEWORK_SUPPORT_EXCEPTIONS)
   try
+#endif
   {
     if (InitializeTest() == EZ_FAILURE)
     {
@@ -51,31 +53,40 @@ ezResult ezTestBaseClass::DoTestInitialization()
       return EZ_FAILURE;
     }
   }
+#if EZ_ENABLED(EZ_TESTFRAMEWORK_SUPPORT_EXCEPTIONS)
   catch (...)
   {
     ezTestFramework::Output(ezTestOutput::Error, "Exception during test initialization.");
     return EZ_FAILURE;
   }
+#endif
 
   return EZ_SUCCESS;
 }
 
 void ezTestBaseClass::DoTestDeInitialization()
 {
+#if EZ_ENABLED(EZ_TESTFRAMEWORK_SUPPORT_EXCEPTIONS)
   try
+#endif
+
   {
     if (DeInitializeTest() == EZ_FAILURE)
       ezTestFramework::Output(ezTestOutput::Error, "Test DeInitialization failed.");
   }
+#if EZ_ENABLED(EZ_TESTFRAMEWORK_SUPPORT_EXCEPTIONS)
   catch (...)
   {
     ezTestFramework::Output(ezTestOutput::Error, "Exception during test de-initialization.");
   }
+#endif
 }
 
 ezResult ezTestBaseClass::DoSubTestInitialization(ezInt32 iIdentifier)
 {
+#if EZ_ENABLED(EZ_TESTFRAMEWORK_SUPPORT_EXCEPTIONS)
   try
+#endif
   {
     if (InitializeSubTest(iIdentifier) == EZ_FAILURE)
     {
@@ -83,26 +94,32 @@ ezResult ezTestBaseClass::DoSubTestInitialization(ezInt32 iIdentifier)
       return EZ_FAILURE;
     }
   }
+#if EZ_ENABLED(EZ_TESTFRAMEWORK_SUPPORT_EXCEPTIONS)
   catch (...)
   {
     ezTestFramework::Output(ezTestOutput::Error, "Exception during sub-test initialization.");
     return EZ_FAILURE;
   }
+#endif
 
   return EZ_SUCCESS;
 }
 
 void ezTestBaseClass::DoSubTestDeInitialization(ezInt32 iIdentifier)
 {
+#if EZ_ENABLED(EZ_TESTFRAMEWORK_SUPPORT_EXCEPTIONS)
   try
+#endif
   {
     if (DeInitializeSubTest(iIdentifier) == EZ_FAILURE)
       ezTestFramework::Output(ezTestOutput::Error, "Sub-Test De-Initialization failed.");
   }
+#if EZ_ENABLED(EZ_TESTFRAMEWORK_SUPPORT_EXCEPTIONS)
   catch (...)
   {
     ezTestFramework::Output(ezTestOutput::Error, "Exception during sub-test de-initialization.");
   }
+#endif
 }
 
 ezTestAppRun ezTestBaseClass::DoSubTestRun(ezInt32 iIdentifier, double& fDuration)
@@ -111,7 +128,9 @@ ezTestAppRun ezTestBaseClass::DoSubTestRun(ezInt32 iIdentifier, double& fDuratio
 
   ezTestAppRun ret = ezTestAppRun::Quit;
 
+#if EZ_ENABLED(EZ_TESTFRAMEWORK_SUPPORT_EXCEPTIONS)
   try
+#endif
   {
     ezTime StartTime = ezTime::Now();
 
@@ -119,6 +138,7 @@ ezTestAppRun ezTestBaseClass::DoSubTestRun(ezInt32 iIdentifier, double& fDuratio
 
     fDuration = (ezTime::Now() - StartTime).GetMilliseconds();
   }
+#if EZ_ENABLED(EZ_TESTFRAMEWORK_SUPPORT_EXCEPTIONS)
   catch (...)
   {
     ezInt32 iEntry = -1;
@@ -137,6 +157,7 @@ ezTestAppRun ezTestBaseClass::DoSubTestRun(ezInt32 iIdentifier, double& fDuratio
     else
       ezTestFramework::Output(ezTestOutput::Error, "Exception during unknown sub-test.");
   }
+#endif
 
   return ret;
 }

@@ -29,3 +29,6 @@ typedef ezBoundingBoxTemplate<ezMathTestType> ezBoundingBoxT; ///< This is only 
 typedef ezBoundingBoxSphereTemplate<ezMathTestType> ezBoundingBoxSphereT; ///< This is only for testing purposes
 typedef ezBoundingSphereTemplate<ezMathTestType> ezBoundingSphereT; ///< This is only for testing purposes
 typedef ezTransformTemplate<ezMathTestType> ezTransformT;
+
+#define ezFoundationTest_Plugin1 "ezFoundationTest_Plugin1"
+#define ezFoundationTest_Plugin2 "ezFoundationTest_Plugin2"

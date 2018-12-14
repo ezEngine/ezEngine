@@ -345,7 +345,7 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
 
             if (iExecuted == iEnabled)
             {
-              return (iExecuted == iSucceeded) ? QString("Test Passed") : QString("Test Failed");
+              return (TestResult.m_bSuccess && iExecuted == iSucceeded) ? QString("Test Passed") : QString("Test Failed");
             }
             else
             {

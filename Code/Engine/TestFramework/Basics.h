@@ -18,3 +18,5 @@ enum class ezTestAppRun
   Continue,
   Quit
 };
+
+#define EZ_TESTFRAMEWORK_SUPPORT_EXCEPTIONS EZ_ON
