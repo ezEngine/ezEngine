@@ -181,6 +181,7 @@ private:
 
 public:
   ezLineCountApp()
+    : ezApplication("LineCountApp")
   {
     m_szSearchDir = "";
   }

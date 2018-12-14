@@ -44,7 +44,7 @@ public:
 };
 
 ezShaderExplorerApp::ezShaderExplorerApp()
-  : ezApplication()
+  : ezApplication("Shader Explorer")
   , m_pWindow(nullptr)
   , m_pDevice(nullptr)
 {

@@ -136,7 +136,10 @@ namespace
   }
 } // namespace
 #endif
-ezTexConv::ezTexConv() {}
+ezTexConv::ezTexConv()
+    : ezApplication("TexConv")
+{
+}
 
 void ezTexConv::AfterCoreStartup()
 {

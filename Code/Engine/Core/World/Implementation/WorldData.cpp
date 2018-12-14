@@ -3,6 +3,8 @@
 #include <Core/World/SpatialSystem_RegularGrid.h>
 #include <Core/World/World.h>
 
+#include <Foundation/Time/DefaultTimeStepSmoothing.h>
+
 namespace ezInternal
 {
   class DefaultCoordinateSystemProvider : public ezCoordinateSystemProvider
@@ -80,6 +82,13 @@ namespace ezInternal
     {
       m_pCoordinateSystemProvider = EZ_NEW(&m_Allocator, DefaultCoordinateSystemProvider);
     }
+
+    if (m_pTimeStepSmoothing == nullptr)
+    {
+      m_pTimeStepSmoothing = EZ_NEW(&m_Allocator, ezDefaultTimeStepSmoothing);
+    }
+
+    m_Clock.SetTimeStepSmoothing(m_pTimeStepSmoothing.Borrow());
   }
 
   WorldData::~WorldData()
@@ -291,7 +300,7 @@ namespace ezInternal
       }
     }
   }
-}
+} // namespace ezInternal
 
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_WorldData);

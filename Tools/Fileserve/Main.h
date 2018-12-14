@@ -17,6 +17,9 @@
 class ezFileserverApp : public ezApplication
 {
 public:
+  ezFileserverApp() : ezApplication("Fileserve")
+  {
+  }
 
   virtual void BeforeCoreStartup() override;
   virtual void AfterCoreStartup() override;

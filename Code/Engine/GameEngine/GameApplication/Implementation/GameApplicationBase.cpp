@@ -1,0 +1,159 @@
+#include <PCH.h>
+
+#include <Foundation/Image/Image.h>
+#include <Foundation/Threading/TaskSystem.h>
+#include <Foundation/Time/Timestamp.h>
+#include <GameApplication/GameApplicationBase.h>
+#include <System/Window/Window.h>
+
+ezGameApplicationBase* ezGameApplicationBase::s_pGameApplicationBaseInstance = nullptr;
+
+ezGameApplicationBase::ezGameApplicationBase(const char* szAppName)
+    : ezApplication(szAppName)
+    , m_ConFunc_TakeScreenshot("TakeScreenshot", "()", ezMakeDelegate(&ezGameApplicationBase::TakeScreenshot, this))
+{
+}
+
+void ezGameApplicationBase::RequestQuit()
+{
+  m_bWasQuitRequested = true;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+ezWindowOutputTargetBase* ezGameApplicationBase::AddWindow(ezWindowBase* pWindow)
+{
+  ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget = CreateWindowOutputTarget(pWindow);
+  ezWindowOutputTargetBase* pOutputPtr = pOutputTarget.Borrow();
+
+  AddWindow(pWindow, std::move(pOutputTarget));
+
+  return pOutputPtr;
+}
+
+void ezGameApplicationBase::AddWindow(ezWindowBase* pWindow, ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget)
+{
+  // make sure not to add the same window twice
+  RemoveWindow(pWindow);
+
+  WindowContext& windowContext = m_Windows.ExpandAndGetRef();
+  windowContext.m_pWindow = pWindow;
+  windowContext.m_pOutputTarget = std::move(pOutputTarget);
+  windowContext.m_bFirstFrame = true;
+}
+
+void ezGameApplicationBase::RemoveWindow(ezWindowBase* pWindow)
+{
+  for (ezUInt32 i = 0; i < m_Windows.GetCount(); ++i)
+  {
+    WindowContext& windowContext = m_Windows[i];
+    if (windowContext.m_pWindow == pWindow)
+    {
+      DestroyWindowOutputTarget(std::move(windowContext.m_pOutputTarget));
+      m_Windows.RemoveAtAndCopy(i);
+      break;
+    }
+  }
+}
+
+bool ezGameApplicationBase::ProcessWindowMessages()
+{
+  for (ezUInt32 i = 0; i < m_Windows.GetCount(); ++i)
+  {
+    m_Windows[i].m_pWindow->ProcessWindowMessages();
+  }
+
+  return !m_Windows.IsEmpty();
+}
+
+ezWindowOutputTargetBase* ezGameApplicationBase::GetWindowOutputTarget(const ezWindowBase* pWindow) const
+{
+  for (auto& windowContext : m_Windows)
+  {
+    if (windowContext.m_pWindow == pWindow)
+    {
+      return windowContext.m_pOutputTarget.Borrow();
+    }
+  }
+
+  return nullptr;
+}
+
+void ezGameApplicationBase::SetWindowOutputTarget(const ezWindowBase* pWindow, ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget)
+{
+  for (auto& windowContext : m_Windows)
+  {
+    if (windowContext.m_pWindow == pWindow)
+    {
+      if (windowContext.m_pOutputTarget != nullptr)
+      {
+        DestroyWindowOutputTarget(std::move(windowContext.m_pOutputTarget));
+      }
+
+      windowContext.m_pOutputTarget = std::move(pOutputTarget);
+      return;
+    }
+  }
+
+  EZ_REPORT_FAILURE("The given window is not part of the application!");
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void ezGameApplicationBase::TakeScreenshot()
+{
+  m_bTakeScreenshot = true;
+}
+
+void ezGameApplicationBase::StoreScreenshot(const ezImage& image)
+{
+  class WriteFileTask : public ezTask
+  {
+  public:
+    ezImage m_Image;
+
+  private:
+    virtual void Execute() override
+    {
+      const ezDateTime dt = ezTimestamp::CurrentTimestamp();
+
+      ezStringBuilder sPath;
+      sPath.Format(":appdata/Screenshots/{6} {0}-{1}-{2} {3}-{4}-{5}-{7}.tga", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true),
+                   ezArgU(dt.GetDay(), 2, true), ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true),
+                   ezArgU(dt.GetSecond(), 2, true), ezApplication::GetApplicationInstance()->GetApplicationName(),
+                   ezArgU(dt.GetMicroseconds() / 1000, 3, true));
+
+      /// \todo Get rid of Alpha channel before saving
+
+      if (m_Image.SaveTo(sPath).Succeeded())
+      {
+        ezLog::Info("Screenshot saved to '{0}'.", sPath);
+      }
+    }
+  };
+
+  WriteFileTask* pWriteTask = EZ_DEFAULT_NEW(WriteFileTask);
+  pWriteTask->m_Image = image;
+  pWriteTask->SetOnTaskFinished([](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
+
+  // we move the file writing off to another thread to save some time
+  // if we moved it to the 'FileAccess' thread, writing a screenshot would block resource loading, which can reduce game performance
+  // 'LongRunning' will give it even less priority and let the task system do them in parallel to other things
+  ezTaskSystem::StartSingleTask(pWriteTask, ezTaskPriority::LongRunning);
+}
+
+void ezGameApplicationBase::ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOutputTarget)
+{
+  if (m_bTakeScreenshot)
+  {
+    m_bTakeScreenshot = false;
+
+    ezImage img;
+    if (pOutputTarget->CaptureImage(img).Succeeded())
+    {
+      StoreScreenshot(img);
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////

@@ -31,7 +31,7 @@
 #include <VisualScript/VisualScriptResource.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <RendererDX11/Device/DeviceDX11.h>
+#  include <RendererDX11/Device/DeviceDX11.h>
 typedef ezGALDeviceDX11 ezGALDeviceDefault;
 #else
 /// \todo We might need a dummy graphics device type
@@ -40,7 +40,7 @@ typedef ezGALDeviceDX11 ezGALDeviceDefault;
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
+#  include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
 #endif
 
 
@@ -84,7 +84,7 @@ void ezGameApplication::DoConfigureFileSystem()
 
 void ezGameApplication::DoSetupDataDirectories()
 {
-  const ezStringBuilder sUserData(">user/", m_sAppName);
+  const ezStringBuilder sUserData(">user/", GetApplicationName());
 
   ezFileSystem::CreateDirectoryStructure(sUserData);
 
@@ -304,9 +304,9 @@ void ezGameApplication::DoSetupGraphicsDevice()
   ezGALDeviceCreationDescription DeviceInit;
   DeviceInit.m_bCreatePrimarySwapChain = false;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   DeviceInit.m_bDebugDevice = true;
-#endif
+#  endif
 
   {
     ezGALDevice* pDevice = nullptr;
@@ -324,12 +324,12 @@ void ezGameApplication::DoSetupGraphicsDevice()
   ezGPUResourcePool* pResourcePool = EZ_DEFAULT_NEW(ezGPUResourcePool);
   ezGPUResourcePool::SetDefaultInstance(pResourcePool);
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   ezShaderManager::Configure("DX11_SM50", true);
-#else
+#  else
   EZ_ASSERT_NOT_IMPLEMENTED;
   ezShaderManager::Configure("GL3", true);
-#endif
+#  endif
 
 #endif
 }
@@ -339,14 +339,14 @@ void ezGameApplication::DoLoadCustomPlugins()
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezPlugin::LoadPlugin("ezInspectorPlugin");
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   ezPlugin::LoadPlugin("ezShaderCompilerHLSL");
-#endif
+#  endif
 
   // on sandboxed platforms, we can only load data through fileserve, so enforce use of this plugin
-#if EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
+#  if EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
   ezPlugin::LoadPlugin("ezFileservePlugin"); // don't care if it fails to load
-#endif
+#  endif
 
 #endif
 }

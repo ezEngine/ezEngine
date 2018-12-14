@@ -29,7 +29,7 @@ protected:
   virtual void BeforeCoreStartup() override;
   virtual void AfterCoreStartup() override;
   virtual void BeforeCoreShutdown() override;
-  virtual void DoSaveScreenshot(ezImage& image) override;
+  virtual void StoreScreenshot(const ezImage& image) override;
   virtual void DoSetupDataDirectories() override;
   virtual ezGameState* CreateCustomGameStateForWorld(ezWorld* pWorld) override;
 

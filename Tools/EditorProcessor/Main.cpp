@@ -14,6 +14,7 @@ class ezEditorApplication : public ezApplication
 {
 public:
   ezEditorApplication()
+    : ezApplication("ezEditorProcessor")
   {
     EnableMemoryLeakReporting(true);
     m_pEditorEngineProcessAppDummy = EZ_DEFAULT_NEW(ezEditorEngineProcessApp);

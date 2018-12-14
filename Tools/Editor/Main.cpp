@@ -11,6 +11,7 @@ class ezEditorApplication : public ezApplication
 {
 public:
   ezEditorApplication()
+    : ezApplication("ezEditor")
   {
     EnableMemoryLeakReporting(true);
 

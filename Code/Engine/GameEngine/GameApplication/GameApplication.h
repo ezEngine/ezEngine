@@ -7,9 +7,8 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/Configuration/PlatformProfile.h>
 #include <GameEngine/Console/ConsoleFunction.h>
-#include <GameEngine/GameApplication/WindowOutputTargetBase.h>
 
-#include <Core/Application/Application.h>
+#include <GameEngine/GameApplication/GameApplicationBase.h>
 
 class ezDefaultTimeStepSmoothing;
 class ezConsole;
@@ -59,15 +58,12 @@ struct ezGameApplicationEvent
 /// ezGameApplication will create exactly one ezGameState by looping over all available ezGameState types
 /// (through reflection) and picking the one whose DeterminePriority function returns the highest priority.
 /// That game state will live throughout the entire application life-time and will be stepped every frame.
-class EZ_GAMEENGINE_DLL ezGameApplication : public ezApplication
+class EZ_GAMEENGINE_DLL ezGameApplication : public ezGameApplicationBase
 {
 public:
   /// szProjectPath may be nullptr, if FindProjectDirectory() is overridden.
   ezGameApplication(const char* szAppName, ezGameApplicationType type, const char* szProjectPath);
   ~ezGameApplication();
-
-  /// \brief Returns the app name that was given to the constructor.
-  const ezString GetAppName() const { return m_sAppName; }
 
   /// \brief Returns the ezGameApplication singleton
   static ezGameApplication* GetGameApplicationInstance() { return s_pGameApplicationInstance; }
@@ -81,36 +77,11 @@ public:
   ///   Calls UpdateWorldsAndRender() \n
   virtual ezApplication::ApplicationExecution Run() override;
 
-  /// \brief Adds a top level window to the application.
-  ///
-  /// An output target is created for that window. Run() will call ezWindowBase::ProcessWindowMessages()
-  /// on all windows that have been added.
-  /// Most applications should add exactly one such window to the game application.
-  /// Only few applications will add zero or multiple windows.
-  ezWindowOutputTargetBase* AddWindow(ezWindowBase* pWindow);
-
-  /// \brief Adds a top level window to the application with a custom output target.
-  void AddWindow(ezWindowBase* pWindow, ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget);
-
-  /// \brief Removes a previously added window. Destroys its output target. Should be called at application shutdown.
-  void RemoveWindow(ezWindowBase* pWindow);
-
-  /// \brief Can be called by code that creates windows (e.g. a gamestate) to adjust or override settings, such as the window title.
-  virtual void AdjustWindowCreation(ezWindowCreationDesc& desc) {}
-
-  /// \brief Returns the ezWindowOutputTargetBase object that is associated with the given window. The window must have been added via
-  /// AddWindow()
-  ezWindowOutputTargetBase* GetWindowOutput(const ezWindowBase* pWindow) const;
 
   /// \brief When the graphics device is created, by default the game application will pick a platform specific implementation. This
   /// function allows to override that by setting a custom function that creates a graphics device.
   static void SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> creator);
-
-  /// \brief Sets the ezWindowOutputTargetBase for a given window. The window must have been added via AddWindow()
-  ///
-  /// The previous ezWindowOutputTargetBase object (if any) will be destroyed.
-  void SetWindowOutput(const ezWindowBase* pWindow, ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget);
-
+  
   /// \brief Activates only the game state that is linked to the given ezWorld.
   /// Not needed in a typical application. Used by the editor for selective game state handling in play-the-game mode.
   void ActivateGameStateForWorld(ezWorld* pWorld, const ezTransform* pStartPosition);
@@ -128,13 +99,7 @@ public:
   /// \brief Deactivates all known game states. Automatically called by ezGameApplication::BeforeCoreShutdown()
   void DeactivateAllGameStates();
 
-  /// \brief Calling this function requests that the application quits after the current invocation of Run() finishes.
-  ///
-  /// Can be overridden to prevent quitting under certain conditions.
-  virtual void RequestQuit();
 
-  /// \brief Returns whether RequestQuit() was called.
-  EZ_ALWAYS_INLINE bool WasQuitRequested() const { return m_bWasQuitRequested; }
 
   /// \brief Checks all parent directories of the scene file and tries to find a file called
   /// 'ezProject' (no extension) which marks the project directory.
@@ -181,16 +146,12 @@ public:
 
   ezEvent<const ezGameApplicationEvent&> m_Events;
 
-  /// \brief At the end of the frame, a screenshot will be taken and stored in ":appdata/AppName/Screenshots"
-  void TakeScreenshot();
-
-  /// \brief Calls ProcessWindowMessages on all windows. Returns true, any windows are available, at all.
-  ///
-  /// \note This should actually never be executed manually. It is only public for very specific edge cases.
-  /// Otherwise this function is automatically executed once every frame.
-  bool ProcessWindowMessages();
 
   const ezPlatformProfile& GetPlatformProfile() const { return m_PlatformProfile; }
+
+protected:
+  virtual ezUniquePtr<ezWindowOutputTargetBase> CreateWindowOutputTarget(ezWindowBase* pWindow) override;
+  virtual void DestroyWindowOutputTarget(ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget) override;
 
 protected:
   /// \brief Can be overridden for the application to create a specific game state.
@@ -198,6 +159,10 @@ protected:
 
   /// \brief Calls Update on all worlds and renders all views through ezRenderLoop::Render()
   void UpdateWorldsAndRender();
+
+  virtual void UpdateWorldsAndRender_Begin();
+  virtual void UpdateWorldsAndRender_Middle();
+  virtual void UpdateWorldsAndRender_End();
 
   virtual void BeforeCoreStartup() override;
 
@@ -211,8 +176,6 @@ protected:
   /// Destroys all game states and shuts down everything that was created in AfterCoreStartup()
   virtual void BeforeCoreShutdown() override;
 
-  virtual ezUniquePtr<ezWindowOutputTargetBase> CreateWindowOutputTarget(ezWindowBase* pWindow);
-  virtual void DestroyWindowOutputTarget(ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget);
 
 protected:
   ///
@@ -297,16 +260,6 @@ protected:
   /// \brief Does all input handling on input manager and game states.
   void UpdateInput();
 
-  ///
-  /// Utilities
-  ///
-
-  /// Called with the result from DoTakeScreenshot(), should write the image to disk
-  virtual void DoSaveScreenshot(ezImage& image);
-
-  ///
-  /// Data
-  ///
 
   struct GameStateData
   {
@@ -328,7 +281,7 @@ protected:
 
   ezPlatformProfile m_PlatformProfile;
 
-private:
+protected:
   static ezGameApplication* s_pGameApplicationInstance;
 
   void RenderFps();
@@ -339,36 +292,25 @@ private:
   void UpdateWorldsAndExtractViews();
   ezDelegateTask<void> m_UpdateTask;
 
-  struct WindowContext
-  {
-    ezWindowBase* m_pWindow;
-    ezUniquePtr<ezWindowOutputTargetBase> m_pOutputTarget;
-    bool m_bFirstFrame = true;
-  };
 
   struct WorldData
   {
     EZ_DECLARE_POD_TYPE();
 
-    ezDefaultTimeStepSmoothing* m_pTimeStepSmoothing;
     ezWorld* m_pWorld;
   };
 
-  ezString m_sAppName;
-  ezDynamicArray<WindowContext> m_Windows;
+  
   ezHybridArray<WorldData, 4> m_Worlds;
   ezHybridArray<GameStateData, 4> m_GameStates;
   static ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> s_DefaultDeviceCreator;
-
-  bool m_bWasQuitRequested = false;
+  
   bool m_bShowConsole = false;
-  bool m_bTakeScreenshot = false;
+  
   ezGameApplicationType m_AppType;
 
   ezUniquePtr<ezConsole> m_pConsole;
 
-  // expose TakeScreenshot as a console function
-  ezConsoleFunction<void()> m_ConFunc_TakeScreenshot;
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   ezUniquePtr<class ezMixedRealityFramework> m_pMixedRealityFramework;

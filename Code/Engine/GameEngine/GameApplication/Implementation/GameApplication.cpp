@@ -1,9 +1,11 @@
 #include <PCH.h>
 
+#include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/World.h>
 #include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Image/Formats/TgaFileFormat.h>
 #include <Foundation/Image/Image.h>
@@ -26,15 +28,15 @@
 
 ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
 ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> ezGameApplication::s_DefaultDeviceCreator;
+
 ezCVarBool CVarEnableVSync("g_VSync", false, ezCVarFlags::Save, "Enables V-Sync");
 ezCVarBool CVarShowFPS("g_ShowFPS", false, ezCVarFlags::Save, "Show frames per second counter");
 
 ezGameApplication::ezGameApplication(const char* szAppName, ezGameApplicationType type, const char* szProjectPath /*= nullptr*/)
-    : m_sAppProjectPath(szProjectPath)
+    : ezGameApplicationBase(szAppName)
+    , m_sAppProjectPath(szProjectPath)
     , m_UpdateTask("GameApplication.Update", ezMakeDelegate(&ezGameApplication::UpdateWorldsAndExtractViews, this))
-    , m_ConFunc_TakeScreenshot("Screenshot", "()", ezMakeDelegate(&ezGameApplication::TakeScreenshot, this))
 {
-  m_sAppName = szAppName;
   s_pGameApplicationInstance = this;
   m_bWasQuitRequested = false;
   m_AppType = type;
@@ -79,53 +81,6 @@ void ezGameApplication::DestroyWindowOutputTarget(ezUniquePtr<ezWindowOutputTarg
   }
 }
 
-ezWindowOutputTargetBase* ezGameApplication::AddWindow(ezWindowBase* pWindow)
-{
-  ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget = CreateWindowOutputTarget(pWindow);
-  ezWindowOutputTargetBase* pOutputPtr = pOutputTarget.Borrow();
-
-  AddWindow(pWindow, std::move(pOutputTarget));
-
-  return pOutputPtr;
-}
-
-void ezGameApplication::AddWindow(ezWindowBase* pWindow, ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget)
-{
-  // make sure not to add the same window twice
-  RemoveWindow(pWindow);
-
-  WindowContext& windowContext = m_Windows.ExpandAndGetRef();
-  windowContext.m_pWindow = pWindow;
-  windowContext.m_pOutputTarget = std::move(pOutputTarget);
-  windowContext.m_bFirstFrame = true;
-}
-
-void ezGameApplication::RemoveWindow(ezWindowBase* pWindow)
-{
-  for (ezUInt32 i = 0; i < m_Windows.GetCount(); ++i)
-  {
-    WindowContext& windowContext = m_Windows[i];
-    if (windowContext.m_pWindow == pWindow)
-    {
-      DestroyWindowOutputTarget(std::move(windowContext.m_pOutputTarget));
-      m_Windows.RemoveAtAndCopy(i);
-      break;
-    }
-  }
-}
-
-ezWindowOutputTargetBase* ezGameApplication::GetWindowOutput(const ezWindowBase* pWindow) const
-{
-  for (auto& windowContext : m_Windows)
-  {
-    if (windowContext.m_pWindow == pWindow)
-    {
-      return windowContext.m_pOutputTarget.Borrow();
-    }
-  }
-
-  return nullptr;
-}
 
 // static
 void ezGameApplication::SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> creator)
@@ -133,24 +88,6 @@ void ezGameApplication::SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice*(
   s_DefaultDeviceCreator = creator;
 }
 
-void ezGameApplication::SetWindowOutput(const ezWindowBase* pWindow, ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget)
-{
-  for (auto& windowContext : m_Windows)
-  {
-    if (windowContext.m_pWindow == pWindow)
-    {
-      if (windowContext.m_pOutputTarget != nullptr)
-      {
-        DestroyWindowOutputTarget(std::move(windowContext.m_pOutputTarget));
-      }
-
-      windowContext.m_pOutputTarget = std::move(pOutputTarget);
-      return;
-    }
-  }
-
-  EZ_REPORT_FAILURE("The given window is not part of the application!");
-}
 
 void ezGameApplication::CreateGameStateForWorld(ezWorld* pWorld)
 {
@@ -322,7 +259,6 @@ void ezGameApplication::ActivateAllGameStates(const ezTransform* pStartPosition)
   }
 }
 
-
 void ezGameApplication::DeactivateAllGameStates()
 {
   // There is always at least one gamestate, but if it is null, then our application might not use them at all.
@@ -338,12 +274,6 @@ void ezGameApplication::DeactivateAllGameStates()
     }
   }
 }
-
-void ezGameApplication::RequestQuit()
-{
-  m_bWasQuitRequested = true;
-}
-
 
 ezString ezGameApplication::FindProjectDirectoryForScene(const char* szScene) const
 {
@@ -369,9 +299,7 @@ ezString ezGameApplication::FindProjectDirectoryForScene(const char* szScene) co
 ezWorld* ezGameApplication::CreateWorld(ezWorldDesc& desc)
 {
   auto& wd = m_Worlds.ExpandAndGetRef();
-  wd.m_pTimeStepSmoothing = EZ_DEFAULT_NEW(ezDefaultTimeStepSmoothing);
   wd.m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
-  wd.m_pWorld->GetClock().SetTimeStepSmoothing(wd.m_pTimeStepSmoothing);
 
   ezGameApplicationEvent e;
   e.m_Type = ezGameApplicationEvent::Type::AfterWorldCreated;
@@ -405,11 +333,7 @@ void ezGameApplication::DestroyWorld(ezWorld* pWorld)
   e.m_pData = wd->m_pWorld;
   m_Events.Broadcast(e);
 
-
-  wd->m_pWorld->GetClock().SetTimeStepSmoothing(nullptr);
   wd->m_pWorld = nullptr;
-  EZ_DEFAULT_DELETE(wd->m_pTimeStepSmoothing);
-  wd->m_pTimeStepSmoothing = nullptr;
 
   EZ_DEFAULT_DELETE(pWorld);
 }
@@ -456,6 +380,11 @@ void ezGameApplication::AfterCoreStartup()
 
 void ezGameApplication::BeforeCoreShutdown()
 {
+  for (auto& w : m_Worlds)
+  {
+    DestroyWorld(w.m_pWorld);
+  }
+
   // make sure that no textures are continue to be streamed in while the engine shuts down
   ezResourceManager::EngineAboutToShutdown();
 
@@ -526,6 +455,17 @@ ezString ezGameApplication::FindProjectDirectory() const
   if (ezPathUtils::IsAbsolutePath(m_sAppProjectPath))
     return m_sAppProjectPath;
 
+  // first check if the path is relative to the Sdk special directory
+  {
+    ezStringBuilder relToSdk(">sdk/", m_sAppProjectPath);
+    ezStringBuilder absToSdk;
+    if (ezFileSystem::ResolveSpecialDirectory(relToSdk, absToSdk).Succeeded())
+    {
+      if (ezOSFile::ExistsDirectory(absToSdk))
+        return absToSdk;
+    }
+  }
+
   return SearchProjectDirectory(ezOSFile::GetApplicationDirectory(), m_sAppProjectPath);
 }
 
@@ -566,7 +506,7 @@ ezApplication::ApplicationExecution ezGameApplication::Run()
   return m_bWasQuitRequested ? ezApplication::Quit : ezApplication::Continue;
 }
 
-void ezGameApplication::UpdateWorldsAndRender()
+void ezGameApplication::UpdateWorldsAndRender_Begin()
 {
   ezRenderWorld::BeginFrame();
 
@@ -587,71 +527,76 @@ void ezGameApplication::UpdateWorldsAndRender()
     UpdateWorldsAndExtractViews();
   }
 
+  RenderFps();
+  RenderConsole();
+
+  ezRenderWorld::Render(ezRenderContext::GetDefaultInstance());
+
+  if (ezRenderWorld::GetUseMultithreadedRendering())
   {
+    EZ_PROFILE_SCOPE("Wait for UpdateWorldsAndExtractViews");
+    ezTaskSystem::WaitForGroup(updateTaskID);
+  }
+}
 
-    RenderFps();
-    RenderConsole();
+void ezGameApplication::UpdateWorldsAndRender_Middle() {}
 
-    ezRenderWorld::Render(ezRenderContext::GetDefaultInstance());
+void ezGameApplication::UpdateWorldsAndRender_End()
+{
+  ezGALDevice::GetDefaultDevice()->EndFrame();
+  ezRenderWorld::EndFrame();
+}
 
-    if (ezRenderWorld::GetUseMultithreadedRendering())
+void ezGameApplication::UpdateWorldsAndRender()
+{
+  UpdateWorldsAndRender_Begin();
+
+  UpdateWorldsAndRender_Middle();
+
+  {
+    ezGameApplicationEvent e;
+    e.m_Type = ezGameApplicationEvent::Type::BeforePresent;
+    m_Events.Broadcast(e);
+  }
+
+  {
+    EZ_PROFILE_SCOPE("GameApplication.Present");
+    for (auto& windowContext : m_Windows)
     {
-      EZ_PROFILE_SCOPE("Wait for UpdateWorldsAndExtractViews");
-      ezTaskSystem::WaitForGroup(updateTaskID);
-    }
+      // Ignore windows without an output target
+      if (windowContext.m_pOutputTarget == nullptr)
+        continue;
 
+      if (ezRenderWorld::GetFrameCounter() < 10)
+        ezLog::Debug("Finishing Frame: {0}", ezRenderWorld::GetFrameCounter());
+
+      if (ezRenderWorld::GetUseMultithreadedRendering() && windowContext.m_bFirstFrame)
+      {
+        windowContext.m_bFirstFrame = false;
+      }
+      else
+      {
+        /// \todo This only works for the first window
+        ExecuteTakeScreenshot(windowContext.m_pOutputTarget.Borrow());
+
+        windowContext.m_pOutputTarget->Present(CVarEnableVSync);
+      }
+    }
+  }
+
+  {
+    ezGameApplicationEvent e;
+    e.m_Type = ezGameApplicationEvent::Type::AfterPresent;
+    m_Events.Broadcast(e);
+  }
+
+  UpdateWorldsAndRender_End();
+
+  {
     ezTelemetry::PerFrameUpdate();
     ezResourceManager::PerFrameUpdate();
     ezTaskSystem::FinishFrameTasks();
-
-    {
-      ezGameApplicationEvent e;
-      e.m_Type = ezGameApplicationEvent::Type::BeforePresent;
-      m_Events.Broadcast(e);
-    }
-
-    {
-      EZ_PROFILE_SCOPE("GameApplication.Present");
-      for (auto& windowContext : m_Windows)
-      {
-        // Ignore windows without an output target
-        if (windowContext.m_pOutputTarget == nullptr)
-          continue;
-
-        if (ezRenderWorld::GetFrameCounter() < 10)
-          ezLog::Debug("Finishing Frame: {0}", ezRenderWorld::GetFrameCounter());
-
-        if (ezRenderWorld::GetUseMultithreadedRendering() && windowContext.m_bFirstFrame)
-        {
-          windowContext.m_bFirstFrame = false;
-        }
-        else
-        {
-          if (m_bTakeScreenshot)
-          {
-            m_bTakeScreenshot = false;
-
-            ezImage img;
-            if (windowContext.m_pOutputTarget->CaptureImage(img).Succeeded())
-            {
-              DoSaveScreenshot(img);
-            }
-          }
-
-          windowContext.m_pOutputTarget->Present(CVarEnableVSync);
-        }
-      }
-    }
-
-    {
-      ezGameApplicationEvent e;
-      e.m_Type = ezGameApplicationEvent::Type::AfterPresent;
-      m_Events.Broadcast(e);
-    }
-    pDevice->EndFrame();
   }
-
-  ezRenderWorld::EndFrame();
 
   ezFrameAllocator::Swap();
 }
@@ -752,6 +697,8 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
 
   ezRenderWorld::ExtractMainViews();
 }
+
+
 
 void ezGameApplication::DoUnloadPlugins()
 {
@@ -883,47 +830,6 @@ void ezGameApplication::RenderConsole()
   }
 }
 
-void ezGameApplication::TakeScreenshot()
-{
-  m_bTakeScreenshot = true;
-}
-
-void ezGameApplication::DoSaveScreenshot(ezImage& image)
-{
-  class WriteFileTask : public ezTask
-  {
-  public:
-    ezImage m_Image;
-
-  private:
-    virtual void Execute() override
-    {
-      const ezDateTime dt = ezTimestamp::CurrentTimestamp();
-
-      ezStringBuilder sPath;
-      sPath.Format(":appdata/Screenshots/{6} {0}-{1}-{2} {3}-{4}-{5}-{7}.tga", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true),
-                   ezArgU(dt.GetDay(), 2, true), ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true),
-                   ezArgU(dt.GetSecond(), 2, true), ezGameApplication::GetGameApplicationInstance()->GetAppName(),
-                   ezArgU(dt.GetMicroseconds() / 1000, 3, true));
-
-      /// \todo Get rid of Alpha channel before saving
-
-      if (m_Image.SaveTo(sPath).Succeeded())
-      {
-        ezLog::Info("Screenshot saved to '{0}'.", sPath);
-      }
-    }
-  };
-
-  WriteFileTask* pWriteTask = EZ_DEFAULT_NEW(WriteFileTask);
-  pWriteTask->m_Image = image;
-  pWriteTask->SetOnTaskFinished([](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
-
-  // we move the file writing off to another thread to save some time
-  // if we moved it to the 'FileAccess' thread, writing a screenshot would block resource loading, which can reduce game performance
-  // 'LongRunning' will give it even less priority and let the task system do them in parallel to other things
-  ezTaskSystem::StartSingleTask(pWriteTask, ezTaskPriority::LongRunning);
-}
 
 
 bool ezGameApplication::HasAnyActiveGameState() const

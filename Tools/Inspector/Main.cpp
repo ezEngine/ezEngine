@@ -22,6 +22,11 @@
 class ezInspectorApp : public ezApplication
 {
 public:
+  ezInspectorApp()
+    : ezApplication("ezInspector")
+  {
+  }
+
   void SetStyleSheet()
   {
     QApplication::setStyle(QStyleFactory::create("fusion"));

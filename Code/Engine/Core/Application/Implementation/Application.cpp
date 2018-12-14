@@ -4,15 +4,21 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Reflection/Reflection.h>
 
-ezApplication::ezApplication()
+ezApplication::ezApplication(const char* szAppName)
     : m_iReturnCode(0)
     , m_uiArgumentCount(0)
     , m_ppArguments(nullptr)
     , m_bReportMemoryLeaks(true)
+    , m_sAppName(szAppName)
 {
 }
 
-ezApplication::~ezApplication() {}
+ezApplication::~ezApplication() = default;
+
+void ezApplication::SetApplicationName(const char* szAppName)
+{
+  m_sAppName = szAppName;
+}
 
 void ezApplication::BeforeCoreStartup()
 {

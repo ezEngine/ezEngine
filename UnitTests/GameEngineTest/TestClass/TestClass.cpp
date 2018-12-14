@@ -138,7 +138,7 @@ void ezGameEngineTestApplication::BeforeCoreShutdown()
   ezGameApplication::BeforeCoreShutdown();
 }
 
-void ezGameEngineTestApplication::DoSaveScreenshot(ezImage& image)
+void ezGameEngineTestApplication::StoreScreenshot(const ezImage& image)
 {
   // store this for image comparison purposes
   m_LastScreenshot = image;

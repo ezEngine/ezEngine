@@ -61,6 +61,8 @@ EZ_CORE_DLL void ezRun_Shutdown(ezApplication* pApplicationInstance);
 /// \endcode
 class EZ_CORE_DLL ezApplication
 {
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezApplication);
+
 public:
   /// \brief Defines the possible return values for the ezApplication::Run() function.
   enum ApplicationExecution
@@ -70,10 +72,16 @@ public:
   };
 
   /// \brief Constructor.
-  ezApplication();
+  ezApplication(const char* szAppName);
 
   /// \brief Virtual destructor.
   virtual ~ezApplication();
+
+  /// \brief Changes the application name
+  void SetApplicationName(const char* szAppName);
+
+  /// \brief Returns the application name
+  const ezString& GetApplicationName() const { return m_sAppName; }
 
   /// \brief This function is called before any kind of engine initialization is done.
   ///
@@ -162,6 +170,8 @@ private:
   const char** m_ppArguments;
 
   bool m_bReportMemoryLeaks;
+
+  ezString m_sAppName;
 
   static ezApplication* s_pApplicationInstance;
 

@@ -76,6 +76,7 @@ private:
 
 public:
   ezStaticLinkerApp()
+    : ezApplication("StaticLinkerApp")
   {
     m_bHadErrors = false;
     m_bHadSeriousWarnings = false;

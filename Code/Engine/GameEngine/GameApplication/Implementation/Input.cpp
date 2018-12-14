@@ -7,9 +7,9 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Clock.h>
+#include <GameEngine/Configuration/InputConfig.h>
 #include <GameEngine/Console/Console.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/Configuration/InputConfig.h>
 #include <System/Window/Window.h>
 
 extern ezCVarBool CVarShowFPS;
@@ -23,7 +23,7 @@ namespace
   const char* g_szReloadResourcesAction = "ReloadResources";
   const char* g_szCaptureProfilingAction = "CaptureProfiling";
   const char* g_szTakeScreenshot = "TakeScreenshot";
-}
+} // namespace
 
 void ezGameApplication::DoConfigureInput(bool bReinitialize)
 {
@@ -115,18 +115,6 @@ void ezGameApplication::ProcessApplicationInput()
     RequestQuit();
   }
 }
-
-
-bool ezGameApplication::ProcessWindowMessages()
-{
-  for (ezUInt32 i = 0; i < m_Windows.GetCount(); ++i)
-  {
-    m_Windows[i].m_pWindow->ProcessWindowMessages();
-  }
-
-  return !m_Windows.IsEmpty();
-}
-
 
 void ezGameApplication::UpdateInput()
 {

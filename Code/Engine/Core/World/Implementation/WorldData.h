@@ -121,6 +121,7 @@ namespace ezInternal
 
     ezUniquePtr<ezSpatialSystem> m_pSpatialSystem;
     ezUniquePtr<ezCoordinateSystemProvider> m_pCoordinateSystemProvider;
+    ezUniquePtr<ezTimeStepSmoothing> m_pTimeStepSmoothing;
 
     ezClock m_Clock;
     ezRandom m_Random;

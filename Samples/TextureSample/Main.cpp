@@ -80,6 +80,7 @@ class TextureSample : public ezApplication
 public:
 
   TextureSample()
+    : ezApplication("Texture Sample")
   {
     m_vCameraPosition.SetZero();
   }
