@@ -19,6 +19,7 @@
 #endif
 
 #include "GameState.h"
+#include <GameEngine/VirtualReality/Components/DeviceTrackingComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(SimpleMeshRendererGameState, 1, ezRTTIDefaultAllocator<SimpleMeshRendererGameState>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -102,6 +103,7 @@ void SimpleMeshRendererGameState::CreateGameLevel()
 
   ezMeshComponentManager* pMeshCompMan = m_pMainWorld->GetOrCreateComponentManager<ezMeshComponentManager>();
   ezRotorComponentManager* pRotorCompMan = m_pMainWorld->GetOrCreateComponentManager<ezRotorComponentManager>();
+  ezDeviceTrackingComponentManager* pTrackingMan = m_pMainWorld->GetOrCreateComponentManager<ezDeviceTrackingComponentManager>();
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   ezSpatialAnchorComponentManager* pAnchorMan = m_pMainWorld->GetOrCreateComponentManager<ezSpatialAnchorComponentManager>();
@@ -148,6 +150,34 @@ void SimpleMeshRendererGameState::CreateGameLevel()
 #endif
   }
 
+  if (m_bVirtualRealityMode)
+  {
+    {
+      obj.m_bDynamic = true;
+      obj.m_sName.Assign("Left");
+      obj.m_LocalScaling.Set(0.1f);
+      obj.m_LocalPosition = ezVec3::ZeroVector();
+      m_pMainWorld->CreateObject(obj, pObj);
+
+      ezDeviceTrackingComponent* pTracking;
+
+      pMeshCompMan->CreateComponent(pObj, pMesh);
+      pMesh->SetMesh(hMeshBarrel);
+      pTrackingMan->CreateComponent(pObj, pTracking);
+      pTracking->SetDeviceType(ezVRDeviceType::LeftController);
+    }
+    {
+      obj.m_sName.Assign("Right");
+      m_pMainWorld->CreateObject(obj, pObj);
+
+      ezDeviceTrackingComponent* pTracking;
+
+      pMeshCompMan->CreateComponent(pObj, pMesh);
+      pMesh->SetMesh(hMeshBarrel);
+      pTrackingMan->CreateComponent(pObj, pTracking);
+      pTracking->SetDeviceType(ezVRDeviceType::RightController);
+    }
+  }
   //{
   //  obj.m_sName.Assign("Barrel without Anchor");
   //  obj.m_LocalScaling.Set(1.0f);

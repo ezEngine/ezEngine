@@ -8,11 +8,18 @@
 #include <OpenVRPlugin/OpenVRSingleton.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererDX11/Resources/TextureDX11.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Profiling/Profiling.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
+
+#include <../../../Data/Base/Shaders/Pipeline/VRCompanionViewConstants.h>
+#include <Core/World/World.h>
+#include <GameEngine/VirtualReality/Components/StageSpaceComponent.h>
+#include <RendererCore/Shader/ShaderResource.h>
 
 EZ_IMPLEMENT_SINGLETON(ezOpenVR);
 
@@ -23,7 +30,6 @@ ezOpenVR::ezOpenVR()
 {
   m_bInitialized = false;
   m_DeviceState[0].m_mPose.SetIdentity();
-  m_AdditionalCameraTransform.SetIdentity();
 }
 
 bool ezOpenVR::IsHmdPresent() const
@@ -54,12 +60,13 @@ bool ezOpenVR::Initialize()
   }
 
   m_bInitialized = true;
-  ezGameApplication::GetGameApplicationInstance()->m_Events.AddEventHandler(
-      ezMakeDelegate(&ezOpenVR::GameApplicationEventHandler, ezOpenVR::GetSingleton()));
-
+  ezGameApplication::GetGameApplicationInstance()->m_Events.AddEventHandler(ezMakeDelegate(&ezOpenVR::GameApplicationEventHandler, this));
+  ezRenderWorld::s_BeginRenderEvent.AddEventHandler(ezMakeDelegate(&ezOpenVR::OnBeginRender, this));
+  ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(ezMakeDelegate(&ezOpenVR::GALDeviceEventHandler, this));
   ReadHMDInfo();
 
-  for (ezUInt8 uiDeviceID = 0; uiDeviceID < vr::k_unMaxTrackedDeviceCount; ++uiDeviceID)
+  SetStageSpace(ezVRStageSpace::Standing);
+  for (ezVRDeviceID uiDeviceID = 0; uiDeviceID < vr::k_unMaxTrackedDeviceCount; ++uiDeviceID)
   {
     if (m_pHMD->IsTrackedDeviceConnected(uiDeviceID))
     {
@@ -79,8 +86,10 @@ void ezOpenVR::Deinitialize()
   {
     ezGameApplication::GetGameApplicationInstance()->m_Events.RemoveEventHandler(
         ezMakeDelegate(&ezOpenVR::GameApplicationEventHandler, ezOpenVR::GetSingleton()));
+    ezRenderWorld::s_BeginRenderEvent.RemoveEventHandler(ezMakeDelegate(&ezOpenVR::OnBeginRender, this));
+    ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezOpenVR::GALDeviceEventHandler, this));
 
-    for (ezUInt8 uiDeviceID = 0; uiDeviceID < vr::k_unMaxTrackedDeviceCount; ++uiDeviceID)
+    for (ezVRDeviceID uiDeviceID = 0; uiDeviceID < vr::k_unMaxTrackedDeviceCount; ++uiDeviceID)
     {
       if (m_DeviceState[uiDeviceID].m_bDeviceIsConnected)
       {
@@ -88,6 +97,7 @@ void ezOpenVR::Deinitialize()
       }
     }
 
+    SetCompanionViewRenderTarget(ezGALTextureHandle());
     DestroyVRView();
 
     vr::VR_Shutdown();
@@ -108,10 +118,10 @@ const ezHMDInfo& ezOpenVR::GetHmdInfo() const
   return m_Info;
 }
 
-void ezOpenVR::GetDeviceList(ezHybridArray<ezUInt8, 64>& out_Devices) const
+void ezOpenVR::GetDeviceList(ezHybridArray<ezVRDeviceID, 64>& out_Devices) const
 {
   EZ_ASSERT_DEV(m_bInitialized, "Need to call 'Initialize' first.");
-  for (ezUInt8 i = 0; i < vr::k_unMaxTrackedDeviceCount; i++)
+  for (ezVRDeviceID i = 0; i < vr::k_unMaxTrackedDeviceCount; i++)
   {
     if (m_DeviceState[i].m_bDeviceIsConnected)
     {
@@ -120,7 +130,33 @@ void ezOpenVR::GetDeviceList(ezHybridArray<ezUInt8, 64>& out_Devices) const
   }
 }
 
-const ezVRDeviceState& ezOpenVR::GetDeviceState(ezUInt8 uiDeviceID) const
+ezVRDeviceID ezOpenVR::GetDeviceIDByType(ezVRDeviceType::Enum type) const
+{
+  ezVRDeviceID deviceID = -1;
+  switch (type)
+  {
+    case ezVRDeviceType::HMD:
+      deviceID = 0;
+      break;
+    case ezVRDeviceType::LeftController:
+      deviceID = m_iLeftControllerDeviceID;
+      break;
+    case ezVRDeviceType::RightController:
+      deviceID = m_iRightControllerDeviceID;
+      break;
+    default:
+      deviceID = type - ezVRDeviceType::DeviceID0;
+      break;
+  }
+
+  if (deviceID != -1 && !m_DeviceState[deviceID].m_bDeviceIsConnected)
+  {
+    deviceID = -1;
+  }
+  return deviceID;
+}
+
+const ezVRDeviceState& ezOpenVR::GetDeviceState(ezVRDeviceID uiDeviceID) const
 {
   EZ_ASSERT_DEV(m_bInitialized, "Need to call 'Initialize' first.");
   EZ_ASSERT_DEV(uiDeviceID < vr::k_unMaxTrackedDeviceCount, "Invalid device ID.");
@@ -134,7 +170,7 @@ ezEvent<const ezVRDeviceEvent&>& ezOpenVR::DeviceEvents()
 }
 
 ezViewHandle ezOpenVR::CreateVRView(const ezRenderPipelineResourceHandle& hRenderPipeline, ezCamera* pCamera,
-                                             ezGALMSAASampleCount::Enum msaaCount)
+                                    ezGALMSAASampleCount::Enum msaaCount)
 {
   SetHMDCamera(pCamera);
 
@@ -167,7 +203,7 @@ ezViewHandle ezOpenVR::CreateVRView(const ezRenderPipelineResourceHandle& hRende
 
   pMainView->SetRenderTargetSetup(m_RenderTargetSetup);
   pMainView->SetRenderPipelineResource(hRenderPipeline);
-  pMainView->SetCamera(pCamera);
+  pMainView->SetCamera(&m_VRCamera);
   pMainView->SetRenderPassProperty("ColorSource", "MSAA_Mode", (ezInt32)msaaCount);
   pMainView->SetRenderPassProperty("DepthStencil", "MSAA_Mode", (ezInt32)msaaCount);
 
@@ -187,6 +223,7 @@ bool ezOpenVR::DestroyVRView()
   if (m_hView.IsInvalidated())
     return false;
 
+  m_pWorld = nullptr;
   SetHMDCamera(nullptr);
 
   vr::VRCompositor()->ClearLastSubmittedFrame();
@@ -204,6 +241,39 @@ bool ezOpenVR::DestroyVRView()
   return true;
 }
 
+bool ezOpenVR::SupportsCompanionView()
+{
+  return true;
+}
+
+bool ezOpenVR::SetCompanionViewRenderTarget(ezGALTextureHandle hRenderTarget)
+{
+  if (!m_hCompanionRenderTarget.IsInvalidated() && !hRenderTarget.IsInvalidated())
+  {
+    // Maintain already created resources (just switch target).
+  }
+  else if (!m_hCompanionRenderTarget.IsInvalidated() && hRenderTarget.IsInvalidated())
+  {
+    // Delete companion resources.
+    ezRenderContext::DeleteConstantBufferStorage(m_hCompanionConstantBuffer);
+    m_hCompanionConstantBuffer.Invalidate();
+  }
+  else if (m_hCompanionRenderTarget.IsInvalidated() && !hRenderTarget.IsInvalidated())
+  {
+    // Create companion resources.
+    m_hCompanionShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/VRCompanionView.ezShader");
+    EZ_ASSERT_DEV(m_hCompanionShader.IsValid(), "Could not load VR companion view shader!");
+    m_hCompanionConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezVRCompanionViewConstants>();
+    m_hCompanionRenderTarget = hRenderTarget;
+  }
+  return true;
+}
+
+ezGALTextureHandle ezOpenVR::GetCompanionViewRenderTarget() const
+{
+  return m_hCompanionRenderTarget;
+}
+
 void ezOpenVR::GameApplicationEventHandler(const ezGameApplicationEvent& e)
 {
   EZ_ASSERT_DEV(m_bInitialized, "Need to call 'Initialize' first.");
@@ -217,12 +287,12 @@ void ezOpenVR::GameApplicationEventHandler(const ezGameApplicationEvent& e)
       {
         case vr::VREvent_TrackedDeviceActivated:
         {
-          OnDeviceActivated((ezUInt8)event.trackedDeviceIndex);
+          OnDeviceActivated((ezVRDeviceID)event.trackedDeviceIndex);
         }
         break;
         case vr::VREvent_TrackedDeviceDeactivated:
         {
-          OnDeviceDeactivated((ezUInt8)event.trackedDeviceIndex);
+          OnDeviceDeactivated((ezVRDeviceID)event.trackedDeviceIndex);
         }
         break;
       }
@@ -310,15 +380,71 @@ void ezOpenVR::GameApplicationEventHandler(const ezGameApplicationEvent& e)
       ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(hRight);
     }
   }
+  else if (e.m_Type == ezGameApplicationEvent::Type::BeginAppTick)
+  {
+  }
   else if (e.m_Type == ezGameApplicationEvent::Type::AfterPresent)
+  {
+    // This tells the compositor we submitted the frames are done rendering to them this frame.
+    vr::VRCompositor()->PostPresentHandoff();
+
+    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+    ezGALContext* pGALContext = pDevice->GetPrimaryContext();
+    ezRenderContext* m_pRenderContext = ezRenderContext::GetDefaultInstance();
+
+    if (const ezGALTexture* tex = pDevice->GetTexture(m_hCompanionRenderTarget))
+    {
+      // We are rendering the companion window at the very start of the frame, using the content
+      // of the last frame. That way we do not add additional delay before submitting the frames.
+      EZ_PROFILE_AND_MARKER(pGALContext, "VR CompanionView");
+
+      m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+      m_pRenderContext->BindConstantBuffer("ezVRCompanionViewConstants", m_hCompanionConstantBuffer);
+      m_pRenderContext->BindShader(m_hCompanionShader);
+
+      auto hRenderTargetView = ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(m_hCompanionRenderTarget);
+      ezVec2 targetSize = ezVec2((float)tex->GetDescription().m_uiWidth, (float)tex->GetDescription().m_uiHeight);
+
+      ezGALRenderTagetSetup renderTargetSetup;
+      renderTargetSetup.SetRenderTarget(0, hRenderTargetView);
+      pGALContext->SetRenderTargetSetup(renderTargetSetup);
+      pGALContext->SetViewport(ezRectFloat(targetSize.x, targetSize.y));
+
+      auto* constants = ezRenderContext::GetConstantBufferData<ezVRCompanionViewConstants>(m_hCompanionConstantBuffer);
+      constants->TargetSize = targetSize;
+
+      ezGALResourceViewHandle hInputView = pDevice->GetDefaultResourceView(m_hColorRT);
+      m_pRenderContext->BindTexture2D("VRTexture", hInputView);
+      m_pRenderContext->DrawMeshBuffer();
+    }
+  }
+}
+
+void ezOpenVR::GALDeviceEventHandler(const ezGALDeviceEvent& e)
+{
+  if (e.m_Type == ezGALDeviceEvent::Type::BeforeBeginFrame)
   {
     // Will call 'WaitGetPoses' which will block the thread. Alternatively we can
     // call 'PostPresentHandoff' but then we need to do more work ourselves.
     // According to the docu at 'PostPresentHandoff' both calls should happen
     // after present, the docu for 'WaitGetPoses' contradicts this :-/
     // This needs to happen on the render thread as OpenVR will use DX calls.
-    ezOpenVR::GetSingleton()->UpdatePoses();
+    UpdatePoses();
+
+    // This will update the extracted view from last frame with the new data we got
+    // this frame just before starting to render.
+    ezView* pView = nullptr;
+    if (ezRenderWorld::TryGetView(m_hView, pView))
+    {
+      pView->UpdateViewData(ezRenderWorld::GetDataIndexForRendering());
+    }
   }
+}
+
+void ezOpenVR::OnBeginRender(ezUInt64)
+{
+  // TODO: Ideally we would like to call UpdatePoses() here and block and in BeforeBeginFrame
+  // we would predict the pose in two frames.
 }
 
 void ezOpenVR::ReadHMDInfo()
@@ -333,7 +459,7 @@ void ezOpenVR::ReadHMDInfo()
 }
 
 
-void ezOpenVR::OnDeviceActivated(ezUInt8 uiDeviceID)
+void ezOpenVR::OnDeviceActivated(ezVRDeviceID uiDeviceID)
 {
   m_DeviceState[uiDeviceID].m_bDeviceIsConnected = true;
   switch (m_pHMD->GetTrackedDeviceClass(uiDeviceID))
@@ -343,6 +469,7 @@ void ezOpenVR::OnDeviceActivated(ezUInt8 uiDeviceID)
       break;
     case vr::TrackedDeviceClass_Controller:
       m_DeviceState[uiDeviceID].m_Type = ezVRDeviceState::Type::Controller;
+
       break;
     case vr::TrackedDeviceClass_GenericTracker:
       m_DeviceState[uiDeviceID].m_Type = ezVRDeviceState::Type::Tracker;
@@ -355,6 +482,8 @@ void ezOpenVR::OnDeviceActivated(ezUInt8 uiDeviceID)
       break;
   }
 
+  UpdateHands();
+
   {
     ezVRDeviceEvent e;
     e.m_Type = ezVRDeviceEvent::Type::DeviceAdded;
@@ -364,11 +493,11 @@ void ezOpenVR::OnDeviceActivated(ezUInt8 uiDeviceID)
 }
 
 
-void ezOpenVR::OnDeviceDeactivated(ezUInt8 uiDeviceID)
+void ezOpenVR::OnDeviceDeactivated(ezVRDeviceID uiDeviceID)
 {
   m_DeviceState[uiDeviceID].m_bDeviceIsConnected = false;
   m_DeviceState[uiDeviceID].m_bPoseIsValid = false;
-
+  UpdateHands();
   {
     ezVRDeviceEvent e;
     e.m_Type = ezVRDeviceEvent::Type::DeviceRemoved;
@@ -383,9 +512,10 @@ void ezOpenVR::UpdatePoses()
 
   ezStopwatch sw;
 
+  UpdateHands();
   vr::TrackedDevicePose_t TrackedDevicePose[vr::k_unMaxTrackedDeviceCount];
   vr::EVRCompositorError err = vr::VRCompositor()->WaitGetPoses(TrackedDevicePose, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
-  for (ezUInt8 uiDeviceID = 0; uiDeviceID < vr::k_unMaxTrackedDeviceCount; ++uiDeviceID)
+  for (ezVRDeviceID uiDeviceID = 0; uiDeviceID < vr::k_unMaxTrackedDeviceCount; ++uiDeviceID)
   {
     m_DeviceState[uiDeviceID].m_bPoseIsValid = TrackedDevicePose[uiDeviceID].bPoseIsValid;
     if (TrackedDevicePose[uiDeviceID].bPoseIsValid)
@@ -393,29 +523,75 @@ void ezOpenVR::UpdatePoses()
       m_DeviceState[uiDeviceID].m_vVelocity = ConvertSteamVRVector(TrackedDevicePose[uiDeviceID].vVelocity);
       m_DeviceState[uiDeviceID].m_vAngularVelocity = ConvertSteamVRVector(TrackedDevicePose[uiDeviceID].vAngularVelocity);
       m_DeviceState[uiDeviceID].m_mPose = ConvertSteamVRMatrix(TrackedDevicePose[uiDeviceID].mDeviceToAbsoluteTracking);
-      m_DeviceState[uiDeviceID].m_mPose.Invert();
+      m_DeviceState[uiDeviceID].m_vPosition = m_DeviceState[uiDeviceID].m_mPose.GetTranslationVector();
+      m_DeviceState[uiDeviceID].m_qRotation.SetFromMat3(m_DeviceState[uiDeviceID].m_mPose.GetRotationalPart());
     }
   }
 
   if (m_pCameraToSynchronize)
   {
+    UpdateCamera();
+
     ezMat4 viewMatrix;
     viewMatrix.SetLookAtMatrix(ezVec3::ZeroVector(), ezVec3(0, -1, 0), ezVec3(0, 0, 1));
 
-    const ezMat4 mAdd = m_AdditionalCameraTransform.GetAsMat4();
-    const ezMat4 mShiftedPos = m_DeviceState[0].m_mPose * mAdd;
+    ezTransform add;
+    add.SetIdentity();
+    ezView* pView = nullptr;
+    if (ezRenderWorld::TryGetView(m_hView, pView))
+    {
+      if (const ezWorld* pWorld = pView->GetWorld())
+      {
+        EZ_LOCK(pWorld->GetReadMarker());
+        if (const ezStageSpaceComponentManager* pStageMan = pWorld->GetComponentManager<ezStageSpaceComponentManager>())
+        {
+          if (const ezStageSpaceComponent* pStage = pStageMan->GetSingletonComponent())
+          {
+            auto stageSpace = pStage->GetStageSpace();
+            if (m_StageSpace != stageSpace)
+              SetStageSpace(pStage->GetStageSpace());
+            add = pStage->GetOwner()->GetGlobalTransform();
+          }
+        }
+      }
+    }
+
+    const ezMat4 mAdd = add.GetAsMat4();
+    ezMat4 mShiftedPos = m_DeviceState[0].m_mPose * mAdd;
+    mShiftedPos.Invert();
+
     const ezMat4 mViewTransformLeft = viewMatrix * m_Info.m_mat4eyePosLeft * mShiftedPos;
     const ezMat4 mViewTransformRight = viewMatrix * m_Info.m_mat4eyePosRight * mShiftedPos;
 
-    m_pCameraToSynchronize->SetViewMatrix(mViewTransformLeft, ezCameraEye::Left);
-    m_pCameraToSynchronize->SetViewMatrix(mViewTransformRight, ezCameraEye::Right);
+    m_VRCamera.SetViewMatrix(mViewTransformLeft, ezCameraEye::Left);
+    m_VRCamera.SetViewMatrix(mViewTransformRight, ezCameraEye::Right);
 
     // put the camera orientation into the sound listener and enable the listener override mode
     if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>("ezSoundInterface"))
     {
-      pSoundInterface->SetListener(-1, m_pCameraToSynchronize->GetCenterPosition(), m_pCameraToSynchronize->GetCenterDirForwards(),
-                                   m_pCameraToSynchronize->GetCenterDirUp(), ezVec3::ZeroVector());
+      pSoundInterface->SetListener(-1, m_VRCamera.GetCenterPosition(), m_VRCamera.GetCenterDirForwards(), m_VRCamera.GetCenterDirUp(),
+                                   ezVec3::ZeroVector());
     }
+  }
+}
+
+void ezOpenVR::UpdateHands()
+{
+  m_iLeftControllerDeviceID = m_pHMD->GetTrackedDeviceIndexForControllerRole(vr::TrackedControllerRole_LeftHand);
+  m_iRightControllerDeviceID = m_pHMD->GetTrackedDeviceIndexForControllerRole(vr::TrackedControllerRole_RightHand);
+}
+
+void ezOpenVR::SetStageSpace(ezVRStageSpace::Enum space)
+{
+  m_StageSpace = space;
+  switch (space)
+  {
+    case ezVRStageSpace::Seated:
+      vr::VRCompositor()->SetTrackingSpace(vr::TrackingUniverseOrigin::TrackingUniverseSeated);
+      break;
+    case ezVRStageSpace::Standing:
+      vr::VRCompositor()->SetTrackingSpace(vr::TrackingUniverseOrigin::TrackingUniverseStanding);
+      break;
   }
 }
 
@@ -429,18 +605,29 @@ void ezOpenVR::SetHMDCamera(ezCamera* pCamera)
   m_pCameraToSynchronize = pCamera;
   if (m_pCameraToSynchronize)
   {
-    pCamera->SetCameraMode(ezCameraMode::Stereo, 90.0f, pCamera->GetNearPlane(), pCamera->GetFarPlane());
-    const float fAspectRatio = (float)m_Info.m_vEyeRenderTargetSize.x / (float)m_Info.m_vEyeRenderTargetSize.y;
-    ezMat4 projLeft =
-        GetHMDProjectionEye(vr::Hmd_Eye::Eye_Left, m_pCameraToSynchronize->GetNearPlane(), m_pCameraToSynchronize->GetFarPlane());
-    ezMat4 projRight =
-        GetHMDProjectionEye(vr::Hmd_Eye::Eye_Right, m_pCameraToSynchronize->GetNearPlane(), m_pCameraToSynchronize->GetFarPlane());
-    m_pCameraToSynchronize->SetStereoProjection(projLeft, projRight, fAspectRatio);
+    m_uiSettingsModificationCounter = m_pCameraToSynchronize->GetSettingsModificationCounter() + 1;
+    m_VRCamera = *m_pCameraToSynchronize;
+    m_VRCamera.SetCameraMode(ezCameraMode::Stereo, 90.0f, m_pCameraToSynchronize->GetNearPlane(), m_pCameraToSynchronize->GetFarPlane());
+    UpdateCamera();
   }
 
   if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>("ezSoundInterface"))
   {
     pSoundInterface->SetListenerOverrideMode(m_pCameraToSynchronize != nullptr);
+  }
+}
+
+
+void ezOpenVR::UpdateCamera()
+{
+  if (m_uiSettingsModificationCounter != m_pCameraToSynchronize->GetSettingsModificationCounter())
+  {
+    const float fAspectRatio = (float)m_Info.m_vEyeRenderTargetSize.x / (float)m_Info.m_vEyeRenderTargetSize.y;
+    ezMat4 projLeft =
+        GetHMDProjectionEye(vr::Hmd_Eye::Eye_Left, m_pCameraToSynchronize->GetNearPlane(), m_pCameraToSynchronize->GetFarPlane());
+    ezMat4 projRight =
+        GetHMDProjectionEye(vr::Hmd_Eye::Eye_Right, m_pCameraToSynchronize->GetNearPlane(), m_pCameraToSynchronize->GetFarPlane());
+    m_VRCamera.SetStereoProjection(projLeft, projRight, fAspectRatio);
   }
 }
 

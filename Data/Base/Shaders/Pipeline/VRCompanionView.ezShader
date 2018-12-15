@@ -1,0 +1,37 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthWrite = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[PIXELSHADER]
+
+struct PS_IN
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+};
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Pipeline/Utils.h>
+#include "VRCompanionViewConstants.h"
+
+Texture2DArray VRTexture;
+
+float4 main(PS_IN Input) : SV_Target
+{
+  // Show array slice 0 on the left side and array slice 1 on the right side.
+  float2 pos = Input.Position.xy / TargetSize.xy * float2(2, 1);
+  return VRTexture.Sample(LinearSampler, float3(pos, /*array index*/ pos.x > 1));
+}

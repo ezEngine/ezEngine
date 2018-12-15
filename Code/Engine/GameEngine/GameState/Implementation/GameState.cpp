@@ -79,6 +79,14 @@ void ezGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPositio
       pVRInterface->Initialize();
       m_hMainView = pVRInterface->CreateVRView(hRenderPipeline, &m_MainCamera);
       ChangeMainWorld(pWorld);
+
+      if (pVRInterface->SupportsCompanionView())
+      {
+        ezWindowOutputTargetGAL* pOutputGAL = static_cast<ezWindowOutputTargetGAL*>(m_pMainOutputTarget);
+
+        const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(pOutputGAL->m_hSwapChain);
+        pVRInterface->SetCompanionViewRenderTarget(pSwapChain->GetBackBufferTexture());
+      }
     }
     else
     {
@@ -151,7 +159,12 @@ void ezGameState::CreateMainWindow()
   ezWindowCreationDesc wndDesc;
   wndDesc.LoadFromDDL(sWndCfg);
   // wndDesc.SaveToDDL(":project/Window.ddl");
-
+  if (m_bVirtualRealityMode)
+  {
+    wndDesc.m_bClipMouseCursor = false;
+    wndDesc.m_bShowMouseCursor = true;
+    wndDesc.m_WindowMode = ezWindowMode::WindowResizable;
+  }
   GetApplication()->AdjustWindowCreation(wndDesc);
 
   m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow, wndDesc, [this]() { RequestQuit(); });

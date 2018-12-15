@@ -599,7 +599,7 @@ ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescript
     {
       ezGALResourceViewCreationDescription viewDesc;
       viewDesc.m_hTexture = hTexture;
-
+      viewDesc.m_uiArraySize = desc.m_uiArraySize;
       pTexture->m_hDefaultResourceView = CreateResourceView(viewDesc);
     }
 

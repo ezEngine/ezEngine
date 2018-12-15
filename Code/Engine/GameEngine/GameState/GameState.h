@@ -152,11 +152,11 @@ protected:
 
   ezCamera m_MainCamera;
   bool m_bStateWantsToQuit = false;
+  bool m_bMixedRealityMode = false;
+  bool m_bVirtualRealityMode = false;
 
 private:
   friend class ezGameApplication;
   ezGameApplication* m_pApplication = nullptr;
-  bool m_bMixedRealityMode = false;
-  bool m_bVirtualRealityMode = false;
 };
 
