@@ -167,7 +167,12 @@ EZ_ANALYSIS_IGNORE_WARNING_END
       __debugbreak();                                                                                                                      \
     }
 
-#  define EZ_SOURCE_FUNCTION __FUNCTION__
+#  if EZ_ENABLED(EZ_COMPILER_MSVC_CLANG)
+#    define EZ_SOURCE_FUNCTION __PRETTY_FUNCTION__
+#  else
+#    define EZ_SOURCE_FUNCTION __FUNCTION__
+#  endif
+
 #  define EZ_SOURCE_LINE __LINE__
 #  define EZ_SOURCE_FILE __FILE__
 
@@ -215,7 +220,6 @@ EZ_ANALYSIS_IGNORE_WARNING_END
 
 // unreachable code
 #  pragma warning(disable : 4702)
-
 
 
 

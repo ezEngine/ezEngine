@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorEngineProcessFramework/Plugin.h>
 #include <EditorEngineProcessFramework/IPC/IPCObjectMirrorEngine.h>
@@ -10,7 +10,7 @@
 ///
 /// Atm it does not remove owner ptr when a parent is deleted, so it will accumulate zombie entries.
 /// As requests to dead objects shouldn't generally happen this is for the time being not a problem.
-class ezWorldRttiConverterContext : public ezRttiConverterContext
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezWorldRttiConverterContext : public ezRttiConverterContext
 {
 public:
   ezWorldRttiConverterContext() : m_pWorld(nullptr), m_uiNextComponentPickingID(1), m_uiHighlightID(1) {}

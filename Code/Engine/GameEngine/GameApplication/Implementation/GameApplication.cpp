@@ -62,7 +62,7 @@ ezUniquePtr<ezWindowOutputTargetBase> ezGameApplication::CreateWindowOutputTarge
   ezUniquePtr<ezWindowOutputTargetGAL> pOutputTarget = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
   pOutputTarget->m_hSwapChain = hSwapChain;
 
-  return pOutputTarget;
+  return std::move(pOutputTarget);
 }
 
 void ezGameApplication::DestroyWindowOutputTarget(ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget)
