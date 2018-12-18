@@ -23,14 +23,20 @@ add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/Code)
 message (STATUS "Adding SubDirectory 'Tools'")
 add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/Tools)
 
-message (STATUS "Adding SubDirectory 'Samples'")
-add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/Samples)
+if (EZ_BUILD_SAMPLES)
+  message (STATUS "Adding SubDirectory 'Samples'")
+  add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/Samples)
+endif()
 
-message (STATUS "Adding SubDirectory 'Games'")
-add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/Games)
+if (EZ_BUILD_GAMES)
+  message (STATUS "Adding SubDirectory 'Games'")
+  add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/Games)
+endif()
 
-message (STATUS "Adding SubDirectory 'UnitTests'")
-add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/UnitTests)
+if (EZ_BUILD_UNITTESTS)
+  message (STATUS "Adding SubDirectory 'UnitTests'")
+  add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/UnitTests)
+endif()
 
 # sets the Editor project as the default startup project in Visual Studio
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Editor)
