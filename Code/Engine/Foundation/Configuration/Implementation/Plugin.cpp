@@ -349,7 +349,10 @@ ezResult ezPlugin::LoadPlugin(const char* szPluginFile, bool bLoadCopy /*= false
 
   if (res.Succeeded())
   {
-    g_LoadedPlugins[szPluginFile].m_iReferenceCount = 1;
+    if (g_LoadedPlugins[szPluginFile].m_iReferenceCount != 0)
+      ezLog::Warning("Plugin '{0}' seems to have a circular dependency on itself.", szPluginFile);
+
+    g_LoadedPlugins[szPluginFile].m_iReferenceCount++;
   }
 
   return res;
@@ -368,6 +371,7 @@ ezResult ezPlugin::UnloadPlugin(const char* szPluginFile, ezInt32* out_pCurRefCo
     return EZ_SUCCESS;
   }
 
+  EZ_ASSERT_DEBUG(g_LoadedPlugins[szPluginFile].m_iReferenceCount > 0, "Incorrect reference count");
   g_LoadedPlugins[szPluginFile].m_iReferenceCount--;
 
   if (out_pCurRefCount)

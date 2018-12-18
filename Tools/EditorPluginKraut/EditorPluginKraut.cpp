@@ -48,6 +48,6 @@ void OnUnloadPlugin(bool bReloading)
 {
 }
 
-ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin, "ezEditorPluginScene", "ezPhysXPlugin");
+ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin, "ezEditorPluginScene");
 
 EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_EDITORPLUGINKRAUT_DLL, ezEditorPluginKraut);
