@@ -14,7 +14,8 @@ Project.AssetProfiles;Asset Profiles...
 Settings.Open;S&ettings
 Engine.ReloadResources;Reload Resources;Reloads resources, such as textures, if they have changed on disk.
 Engine.ReloadEngine;Reload Engine;Shuts down the engine process and restarts it. Makes it possible to reload custom DLLs.
-Editor.LaunchFileserve;Launch Fileserve...;Launches the FileServe application.
+Editor.LaunchFileserve;Launch Fileserve...;Launches the ezFileServe application.
+Editor.LaunchInspector;Launch Inspector...;Launches the ezInspector application.
 Document.Save;&Save
 Document.SaveAll;Save All
 Document.SaveAs;Save &As...

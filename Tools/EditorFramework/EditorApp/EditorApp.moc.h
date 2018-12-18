@@ -76,6 +76,9 @@ public:
   /// \brief Launches Fileserve with the settings for the current project.
   void RunFileserve();
 
+  /// \brief Launches ezInspector.
+  void RunInspector();
+
   //
   //
   //

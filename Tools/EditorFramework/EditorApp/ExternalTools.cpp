@@ -165,3 +165,11 @@ void ezQtEditorApp::RunFileserve()
 
   QProcess::startDetached(sToolPath.GetData(), args);
 }
+
+void ezQtEditorApp::RunInspector()
+{
+  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Inspector.exe");
+  QStringList args;
+
+  QProcess::startDetached(sToolPath.GetData(), args);
+}

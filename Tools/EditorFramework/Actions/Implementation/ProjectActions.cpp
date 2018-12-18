@@ -58,6 +58,7 @@ ezActionDescriptorHandle ezProjectActions::s_hToolsCategory;
 ezActionDescriptorHandle ezProjectActions::s_hReloadResources;
 ezActionDescriptorHandle ezProjectActions::s_hReloadEngine;
 ezActionDescriptorHandle ezProjectActions::s_hLaunchFileserve;
+ezActionDescriptorHandle ezProjectActions::s_hLaunchInspector;
 ezActionDescriptorHandle ezProjectActions::s_hSaveProfiling;
 
 void ezProjectActions::RegisterActions()
@@ -106,7 +107,7 @@ void ezProjectActions::RegisterActions()
   s_hImportAsset = EZ_REGISTER_ACTION_1("Project.ImportAsset", ezActionScope::Global, "Project", "Ctrl+I", ezProjectAction,
                                         ezProjectAction::ButtonType::ImportAsset);
   s_hAssetProfiles = EZ_REGISTER_ACTION_1("Project.AssetProfiles", ezActionScope::Global, "Project", "", ezProjectAction,
-                                         ezProjectAction::ButtonType::AssetProfiles);
+                                          ezProjectAction::ButtonType::AssetProfiles);
 
   s_hToolsMenu = EZ_REGISTER_MENU("Menu.Tools");
   s_hToolsCategory = EZ_REGISTER_CATEGORY("ToolsCategory");
@@ -116,6 +117,8 @@ void ezProjectActions::RegisterActions()
                                          ezProjectAction::ButtonType::ReloadEngine);
   s_hLaunchFileserve = EZ_REGISTER_ACTION_1("Editor.LaunchFileserve", ezActionScope::Global, "Engine", "", ezProjectAction,
                                             ezProjectAction::ButtonType::LaunchFileserve);
+  s_hLaunchInspector = EZ_REGISTER_ACTION_1("Editor.LaunchInspector", ezActionScope::Global, "Engine", "", ezProjectAction,
+                                            ezProjectAction::ButtonType::LaunchInspector);
   s_hSaveProfiling = EZ_REGISTER_ACTION_1("Editor.SaveProfiling", ezActionScope::Global, "Engine", "Alt+S", ezProjectAction,
                                           ezProjectAction::ButtonType::SaveProfiling);
 }
@@ -140,6 +143,7 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hReloadResources);
   ezActionManager::UnregisterAction(s_hReloadEngine);
   ezActionManager::UnregisterAction(s_hLaunchFileserve);
+  ezActionManager::UnregisterAction(s_hLaunchInspector);
   ezActionManager::UnregisterAction(s_hSaveProfiling);
   ezActionManager::UnregisterAction(s_hShortcutEditor);
   ezActionManager::UnregisterAction(s_hEditorPlugins);
@@ -182,6 +186,7 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hReloadResources, "Menu.Tools/ToolsCategory", 1.0f);
   pMap->MapAction(s_hReloadEngine, "Menu.Tools/ToolsCategory", 2.0f);
   pMap->MapAction(s_hLaunchFileserve, "Menu.Tools/ToolsCategory", 3.0f);
+  pMap->MapAction(s_hLaunchInspector, "Menu.Tools/ToolsCategory", 3.5f);
   pMap->MapAction(s_hSaveProfiling, "Menu.Tools/ToolsCategory", 4.0f);
 
   pMap->MapAction(s_hEditorPlugins, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 1.0f);
@@ -201,7 +206,8 @@ void ezProjectActions::MapActions(const char* szMapping)
 // ezRecentDocumentsMenuAction
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecentDocumentsMenuAction, 0, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecentDocumentsMenuAction, 0, ezRTTINoAllocator)
+  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
@@ -263,7 +269,8 @@ void ezRecentDocumentsMenuAction::Execute(const ezVariant& value)
 // ezRecentDocumentsMenuAction
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecentProjectsMenuAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecentProjectsMenuAction, 1, ezRTTINoAllocator)
+  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
@@ -302,7 +309,8 @@ void ezRecentProjectsMenuAction::Execute(const ezVariant& value)
 // ezProjectAction
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectAction, 1, ezRTTINoAllocator)
+  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szName, ButtonType button)
@@ -332,6 +340,9 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
       break;
     case ezProjectAction::ButtonType::LaunchFileserve:
       SetIconPath(":/EditorFramework/Icons/Fileserve16.png");
+      break;
+    case ezProjectAction::ButtonType::LaunchInspector:
+      SetIconPath(":/EditorFramework/Icons/Inspector16.png");
       break;
     case ezProjectAction::ButtonType::ReloadEngine:
       SetIconPath(":/GuiFoundation/Icons/ReloadEngine16.png");
@@ -374,7 +385,8 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
   if (m_ButtonType == ButtonType::CloseProject || m_ButtonType == ButtonType::DataDirectories || m_ButtonType == ButtonType::WindowConfig ||
       m_ButtonType == ButtonType::ImportAsset || m_ButtonType == ButtonType::EnginePlugins || m_ButtonType == ButtonType::TagsDialog ||
       m_ButtonType == ButtonType::ReloadEngine || m_ButtonType == ButtonType::ReloadResources ||
-      m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::InputConfig || m_ButtonType == ButtonType::AssetProfiles)
+      m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::LaunchInspector ||
+      m_ButtonType == ButtonType::InputConfig || m_ButtonType == ButtonType::AssetProfiles)
   {
     SetEnabled(ezToolsProject::IsProjectOpen());
 
@@ -387,7 +399,8 @@ ezProjectAction::~ezProjectAction()
   if (m_ButtonType == ButtonType::CloseProject || m_ButtonType == ButtonType::DataDirectories || m_ButtonType == ButtonType::WindowConfig ||
       m_ButtonType == ButtonType::ImportAsset || m_ButtonType == ButtonType::EnginePlugins || m_ButtonType == ButtonType::TagsDialog ||
       m_ButtonType == ButtonType::ReloadEngine || m_ButtonType == ButtonType::ReloadResources ||
-      m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::InputConfig || m_ButtonType == ButtonType::AssetProfiles)
+      m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::LaunchInspector ||
+      m_ButtonType == ButtonType::InputConfig || m_ButtonType == ButtonType::AssetProfiles)
   {
     ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezProjectAction::ProjectEventHandler, this));
   }
@@ -522,6 +535,12 @@ void ezProjectAction::Execute(const ezVariant& value)
     {
       ezQtLaunchFileserveDlg dlg(nullptr);
       dlg.exec();
+    }
+    break;
+
+    case ezProjectAction::ButtonType::LaunchInspector:
+    {
+        ezQtEditorApp::GetSingleton()->RunInspector();
     }
     break;
 
