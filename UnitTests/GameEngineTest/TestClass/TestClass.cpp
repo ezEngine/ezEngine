@@ -126,9 +126,7 @@ void ezGameEngineTestApplication::AfterCoreStartup()
   m_pWorld = CreateWorld(desc);
   m_pWorld->GetClock().SetFixedTimeStep(ezTime::Seconds(1.0 / 30.0));
 
-  CreateGameStateForWorld(m_pWorld);
-
-  ActivateAllGameStates(nullptr);
+  ActivateGameState(m_pWorld);
 }
 
 void ezGameEngineTestApplication::BeforeCoreShutdown()
@@ -161,7 +159,7 @@ void ezGameEngineTestApplication::DoSetupDataDirectories()
   }
 }
 
-ezGameState* ezGameEngineTestApplication::CreateCustomGameStateForWorld(ezWorld* pWorld)
+ezUniquePtr<ezGameState> ezGameEngineTestApplication::CreateGameState(ezWorld* pWorld)
 {
   return EZ_DEFAULT_NEW(ezGameEngineTestGameState);
 }
@@ -176,10 +174,10 @@ void ezGameEngineTestGameState::ProcessInput()
   // Do nothing, user input should be ignored
 
   // trigger taking a screenshot every frame, for image comparison purposes
-  GetApplication()->TakeScreenshot();
+  ezGameApplicationBase::GetGameApplicationBaseInstance()->TakeScreenshot();
 }
 
-ezGameState::Priority ezGameEngineTestGameState::DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const
+ezGameState::Priority ezGameEngineTestGameState::DeterminePriority(ezWorld* pWorld) const
 {
   return ezGameState::Priority::Default;
 }

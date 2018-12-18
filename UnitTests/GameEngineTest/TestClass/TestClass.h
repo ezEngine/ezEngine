@@ -11,7 +11,7 @@ class ezGameEngineTestGameState : public ezFallbackGameState
 
 public:
   virtual void ProcessInput() override;
-  virtual ezGameState::Priority DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const override;
+  virtual ezGameState::Priority DeterminePriority(ezWorld* pWorld) const override;
   virtual void ConfigureInputActions() override;
 };
 
@@ -31,7 +31,7 @@ protected:
   virtual void BeforeCoreShutdown() override;
   virtual void StoreScreenshot(const ezImage& image) override;
   virtual void DoSetupDataDirectories() override;
-  virtual ezGameState* CreateCustomGameStateForWorld(ezWorld* pWorld) override;
+  virtual ezUniquePtr<ezGameState> CreateGameState(ezWorld* pWorld) override;
 
   ezString m_sProjectDirName;
   ezWorld* m_pWorld = nullptr;

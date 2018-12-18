@@ -130,12 +130,9 @@ void ezGameApplication::UpdateInput()
       return;
   }
 
-  for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
+  if (m_pGameState)
   {
-    if (m_GameStates[i].m_pState)
-    {
-      m_GameStates[i].m_pState->ProcessInput();
-    }
+    m_pGameState->ProcessInput();
   }
 }
 

@@ -466,12 +466,9 @@ void ezEngineProcessGameApplication::ProcessApplicationInput()
   // override the escape action to not shut down the app, but instead close the play-the-game window
   if (ezInputManager::GetInputActionState("GameApp", "CloseApp") != ezKeyState::Up)
   {
-    for (const auto& state : GetAllGameStates())
+    if (m_pGameState)
     {
-      if (state.m_pState)
-      {
-        state.m_pState->RequestQuit();
-      }
+      m_pGameState->RequestQuit();
     }
   }
   else

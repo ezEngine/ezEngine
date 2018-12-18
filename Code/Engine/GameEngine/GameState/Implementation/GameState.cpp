@@ -165,17 +165,18 @@ void ezGameState::CreateMainWindow()
     wndDesc.m_bShowMouseCursor = true;
     wndDesc.m_WindowMode = ezWindowMode::WindowResizable;
   }
-  GetApplication()->AdjustWindowCreation(wndDesc);
+
+  ezGameApplicationBase::GetGameApplicationBaseInstance()->AdjustWindowCreation(wndDesc);
 
   m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow, wndDesc, [this]() { RequestQuit(); });
-  m_pMainOutputTarget = GetApplication()->AddWindow(m_pMainWindow);
+  m_pMainOutputTarget = ezGameApplicationBase::GetGameApplicationBaseInstance()->AddWindow(m_pMainWindow);
 }
 
 void ezGameState::DestroyMainWindow()
 {
   if (m_pMainWindow)
   {
-    GetApplication()->RemoveWindow(m_pMainWindow);
+    ezGameApplicationBase::GetGameApplicationBaseInstance()->RemoveWindow(m_pMainWindow);
     EZ_DEFAULT_DELETE(m_pMainWindow);
 
     m_pMainOutputTarget = nullptr;
@@ -191,7 +192,7 @@ void ezGameState::ConfigureInputActions() {}
 
 void ezGameState::SetupMainView(ezWindowOutputTargetBase* pOutputTarget)
 {
-  const auto* pConfig = GetApplication()->GetPlatformProfile().GetTypeConfig<ezRenderPipelineProfileConfig>();
+  const auto* pConfig = ezGameApplication::GetGameApplicationInstance()->GetPlatformProfile().GetTypeConfig<ezRenderPipelineProfileConfig>();
 
   SetupMainView(pOutputTarget, ezResourceManager::LoadResource<ezRenderPipelineResource>(pConfig->m_sMainRenderPipeline));
 }

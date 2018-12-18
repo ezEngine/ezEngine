@@ -24,7 +24,7 @@ private:
   void CreateGameLevel();
   void DestroyLevel();
 
-  virtual ezGameState::Priority DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const override;
+  virtual ezGameState::Priority DeterminePriority(ezWorld* pWorld) const override;
 
   Level* m_pLevel;
 };

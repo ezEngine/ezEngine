@@ -30,7 +30,7 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // Initialization & Setup
 public:
-  virtual ezGameState::Priority DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const override;
+  virtual ezGameState::Priority DeterminePriority(ezWorld* pWorld) const override;
 
 private:
   virtual void OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition) override;

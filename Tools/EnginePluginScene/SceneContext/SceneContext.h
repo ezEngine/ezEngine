@@ -101,7 +101,6 @@ private:
 
   ezPushObjectStateMsgToEditor m_PushObjectStateMsg;
 
-  static ezInt32 s_iNumRunningPlayTheGames;
 };
 
 

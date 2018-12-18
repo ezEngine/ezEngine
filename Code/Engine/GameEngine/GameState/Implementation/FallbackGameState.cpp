@@ -14,7 +14,7 @@ ezFallbackGameState::ezFallbackGameState()
   m_iActiveCameraComponentIndex = -3;
 }
 
-ezGameState::Priority ezFallbackGameState::DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const
+ezGameState::Priority ezFallbackGameState::DeterminePriority(ezWorld* pWorld) const
 {
   if (pWorld == nullptr)
     return ezGameState::Priority::None;

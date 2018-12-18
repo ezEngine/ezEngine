@@ -24,7 +24,7 @@ public:
   virtual void AfterWorldUpdate() override;
 
   /// \brief Returns Priority::None if pWorld == nullptr, Priority::Fallback otherwise.
-  virtual ezGameState::Priority DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const override;
+  virtual ezGameState::Priority DeterminePriority(ezWorld* pWorld) const override;
 
 protected:
   virtual void ConfigureInputActions() override;

@@ -82,24 +82,6 @@ public:
   /// function allows to override that by setting a custom function that creates a graphics device.
   static void SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> creator);
   
-  /// \brief Activates only the game state that is linked to the given ezWorld.
-  /// Not needed in a typical application. Used by the editor for selective game state handling in play-the-game mode.
-  void ActivateGameStateForWorld(ezWorld* pWorld, const ezTransform* pStartPosition);
-
-  /// \brief Deactivates only the game state that is linked to the given ezWorld.
-  /// Not needed in a typical application. Used by the editor for selective game state handling in play-the-game mode.
-  void DeactivateGameStateForWorld(ezWorld* pWorld);
-
-  /// \brief Shuts down all known game states. Automatically called by ezGameApplication::BeforeCoreShutdown()
-  void DestroyAllGameStates();
-
-  /// \brief Activates all known game states. Automatically called by ezGameApplication::AfterCoreStartup()
-  void ActivateAllGameStates(const ezTransform* pStartPosition);
-
-  /// \brief Deactivates all known game states. Automatically called by ezGameApplication::BeforeCoreShutdown()
-  void DeactivateAllGameStates();
-
-
 
   /// \brief Checks all parent directories of the scene file and tries to find a file called
   /// 'ezProject' (no extension) which marks the project directory.
@@ -132,14 +114,6 @@ public:
   /// \brief Cleanes up all data related to a world that was created through CreateWorld().
   void DestroyWorld(ezWorld* pWorld);
 
-  /// \brief Creates a new ezGameState for the given world. Automatically called by ezGameApplication::AfterCoreStartup().
-  void CreateGameStateForWorld(ezWorld* pWorld);
-
-  /// \brief Destroys the game state for the given world. Typically not necessary to call this directly.
-  void DestroyGameStateForWorld(ezWorld* pWorld);
-
-  /// \brief Returns the ezGameState associated with the given world.
-  ezGameState* GetGameStateForWorld(ezWorld* pWorld) const;
 
   /// \brief Used at runtime (by the editor) to reload input maps. Forwards to DoConfigureInput()
   void ReinitializeInputConfig();
@@ -154,8 +128,6 @@ protected:
   virtual void DestroyWindowOutputTarget(ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget) override;
 
 protected:
-  /// \brief Can be overridden for the application to create a specific game state.
-  virtual ezGameState* CreateCustomGameStateForWorld(ezWorld* pWorld) { return nullptr; }
 
   /// \brief Calls Update on all worlds and renders all views through ezRenderLoop::Render()
   void UpdateWorldsAndRender();
@@ -260,22 +232,6 @@ protected:
   /// \brief Does all input handling on input manager and game states.
   void UpdateInput();
 
-
-  struct GameStateData
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    ezGameState* m_pState = nullptr;
-    ezWorld* m_pLinkedToWorld = nullptr;
-    bool m_bStateActive = false;
-  };
-
-  /// \brief Only few applications can have more than one game state (e.g. the editor).
-  const ezHybridArray<GameStateData, 4>& GetAllGameStates() const { return m_GameStates; }
-
-  /// \brief Checks whether any GameState exists.
-  bool HasAnyActiveGameState() const;
-
   /// \brief Stores what is given to the constructor
   ezString m_sAppProjectPath;
 
@@ -302,7 +258,6 @@ protected:
 
   
   ezHybridArray<WorldData, 4> m_Worlds;
-  ezHybridArray<GameStateData, 4> m_GameStates;
   static ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> s_DefaultDeviceCreator;
   
   bool m_bShowConsole = false;

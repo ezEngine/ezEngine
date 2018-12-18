@@ -12,11 +12,13 @@
 
 class ezWindowBase;
 struct ezWindowCreationDesc;
+class ezWorld;
 
 class EZ_GAMEENGINE_DLL ezGameApplicationBase : public ezApplication
 {
 public:
   ezGameApplicationBase(const char* szAppName);
+  ~ezGameApplicationBase();
 
   /// \name Basics
   ///@{
@@ -110,5 +112,25 @@ protected:
   /// expose TakeScreenshot() as a console function
   ezConsoleFunction<void()> m_ConFunc_TakeScreenshot;
 
+  ///@}
+  /// \name GameState
+  ///@{
+public:
+  ezResult ActivateGameState(ezWorld* pWorld = nullptr, const ezTransform* pStartPosition = nullptr);
+
+  void DeactivateGameState();
+
+  ezGameState* GetActiveGameState() const { return m_pGameState.Borrow(); }
+
+  ezGameState* GetActiveGameStateLinkedToWorld(ezWorld* pWorld) const;
+
+protected:
+  /// \brief Creates a game state for the application to use.
+  ///
+  /// \a pWorld is typically nullptr in a stand-alone app, but may be existing already when called from the editor.
+  virtual ezUniquePtr<ezGameState> CreateGameState(ezWorld* pWorld);
+
+  ezUniquePtr<ezGameState> m_pGameState;
+  ezWorld* m_pWorldLinkedWithGameState = nullptr;
   ///@}
 };

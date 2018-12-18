@@ -27,7 +27,7 @@ float RtsGameState::SetCameraZoom(float zoom)
   return m_fCameraZoom;
 }
 
-ezGameState::Priority RtsGameState::DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const
+ezGameState::Priority RtsGameState::DeterminePriority(ezWorld* pWorld) const
 {
   return RtsGameState::Priority::Default;
 }

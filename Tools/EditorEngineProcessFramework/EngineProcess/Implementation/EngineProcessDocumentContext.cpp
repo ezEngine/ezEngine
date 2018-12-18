@@ -411,7 +411,7 @@ void ezEngineProcessDocumentContext::OnDeinitialize() {}
 
 bool ezEngineProcessDocumentContext::PendingOperationInProgress() const
 {
-  auto pState = ezGameApplication::GetGameApplicationInstance()->GetGameStateForWorld(GetWorld());
+  auto pState = ezGameApplication::GetGameApplicationInstance()->GetActiveGameStateLinkedToWorld(GetWorld());
   return m_pThumbnailViewContext != nullptr || pState != nullptr;
 }
 
@@ -429,7 +429,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
 
   {
     // If we have a running game state we always want to render it (e.g. play the game).
-    auto pState = ezGameApplication::GetGameApplicationInstance()->GetGameStateForWorld(GetWorld());
+    auto pState = ezGameApplication::GetGameApplicationInstance()->GetActiveGameStateLinkedToWorld(GetWorld());
     if (pState != nullptr)
     {
       pState->AddAllMainViews();

@@ -37,8 +37,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezScen
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezInt32 ezSceneContext::s_iNumRunningPlayTheGames = 0;
-
 void ezSceneContext::ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds)
 {
   pObj->UpdateGlobalTransformAndBounds();
@@ -390,7 +388,7 @@ void ezSceneContext::OnSimulationDisabled()
 
 ezGameState* ezSceneContext::GetGameState() const
 {
-  return ezGameApplication::GetGameApplicationInstance()->GetGameStateForWorld(m_pWorld);
+  return ezGameApplication::GetGameApplicationInstance()->GetActiveGameStateLinkedToWorld(m_pWorld);
 }
 
 void ezSceneContext::OnInitialize()
@@ -457,15 +455,13 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
 
 void ezSceneContext::OnPlayTheGameModeStarted(const ezTransform* pStartPosition)
 {
-  if (s_iNumRunningPlayTheGames > 0)
+  if (ezGameApplication::GetGameApplicationInstance()->GetActiveGameState() != nullptr)
   {
     ezLog::Warning("A Play-the-Game instance is already running, cannot launch a second in parallel.");
     return;
   }
 
   ezLog::Info("Starting Play-the-Game mode");
-
-  ++s_iNumRunningPlayTheGames;
 
   ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentGuid());
 
@@ -476,8 +472,7 @@ void ezSceneContext::OnPlayTheGameModeStarted(const ezTransform* pStartPosition)
 
   ezGameApplication::GetGameApplicationInstance()->ReinitializeInputConfig();
 
-  ezGameApplication::GetGameApplicationInstance()->CreateGameStateForWorld(m_pWorld);
-  ezGameApplication::GetGameApplicationInstance()->ActivateGameStateForWorld(m_pWorld, pStartPosition);
+  ezGameApplication::GetGameApplicationInstance()->ActivateGameState(m_pWorld, pStartPosition);
 
   ezGameModeMsgToEditor msgRet;
   msgRet.m_DocumentGuid = GetDocumentGuid();
@@ -749,10 +744,7 @@ void ezSceneContext::UpdateDocumentContext()
   ezGameState* pState = GetGameState();
   if (pState && pState->WasQuitRequested())
   {
-    ezGameApplication::GetGameApplicationInstance()->DeactivateGameStateForWorld(m_pWorld);
-    ezGameApplication::GetGameApplicationInstance()->DestroyGameStateForWorld(m_pWorld);
-
-    --s_iNumRunningPlayTheGames;
+    ezGameApplication::GetGameApplicationInstance()->DeactivateGameState();
 
     ezGameModeMsgToEditor msgToEd;
     msgToEd.m_DocumentGuid = GetDocumentGuid();

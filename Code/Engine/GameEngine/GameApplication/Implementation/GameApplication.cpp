@@ -46,7 +46,7 @@ ezGameApplication::ezGameApplication(const char* szAppName, ezGameApplicationTyp
 
 ezGameApplication::~ezGameApplication()
 {
-  DestroyAllGameStates();
+  DeactivateGameState();
 
   s_pGameApplicationInstance = nullptr;
 }
@@ -88,101 +88,6 @@ void ezGameApplication::SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice*(
   s_DefaultDeviceCreator = creator;
 }
 
-
-void ezGameApplication::CreateGameStateForWorld(ezWorld* pWorld)
-{
-  EZ_LOG_BLOCK("Create Game State");
-
-  ezGameState* pCurState = CreateCustomGameStateForWorld(pWorld);
-
-  if (pCurState == nullptr)
-  {
-    float fBestPriority = -1.0f;
-
-    for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-    {
-      if (!pRtti->IsDerivedFrom<ezGameState>())
-        continue;
-
-      if (!pRtti->GetAllocator()->CanAllocate())
-        continue;
-
-      ezGameState* pState = pRtti->GetAllocator()->Allocate<ezGameState>();
-
-      EZ_ASSERT_DEV(pState != nullptr, "Failed to allocate ezGameState object");
-
-      pState->m_pApplication = this;
-
-      float fPriority = (float)pState->DeterminePriority(m_AppType, pWorld);
-
-      if (fPriority < 0.0f)
-      {
-        pState->GetDynamicRTTI()->GetAllocator()->Deallocate(pState);
-        continue;
-      }
-
-      if (fPriority > fBestPriority)
-      {
-        fBestPriority = fPriority;
-
-        if (pCurState)
-        {
-          pCurState->GetDynamicRTTI()->GetAllocator()->Deallocate(pCurState);
-        }
-
-        pCurState = pState;
-      }
-    }
-  }
-
-  if (pCurState)
-  {
-    pCurState->m_pApplication = this;
-
-    GameStateData& gsd = m_GameStates.ExpandAndGetRef();
-    gsd.m_pState = pCurState;
-    gsd.m_pLinkedToWorld = pWorld;
-  }
-}
-
-
-void ezGameApplication::DestroyGameState(ezUInt32 id)
-{
-  if (m_GameStates[id].m_pState != nullptr)
-  {
-    m_GameStates[id].m_pState->GetDynamicRTTI()->GetAllocator()->Deallocate(m_GameStates[id].m_pState);
-    m_GameStates[id].m_pState = nullptr;
-    m_GameStates[id].m_pLinkedToWorld = nullptr;
-  }
-}
-
-
-void ezGameApplication::DestroyGameStateForWorld(ezWorld* pWorld)
-{
-  for (ezUInt32 id = 0; id < m_GameStates.GetCount(); ++id)
-  {
-    if (m_GameStates[id].m_pLinkedToWorld == pWorld)
-    {
-      DestroyGameState(id);
-    }
-  }
-}
-
-
-ezGameState* ezGameApplication::GetGameStateForWorld(ezWorld* pWorld) const
-{
-  for (ezUInt32 id = 0; id < m_GameStates.GetCount(); ++id)
-  {
-    if (m_GameStates[id].m_pLinkedToWorld == pWorld)
-    {
-      return m_GameStates[id].m_pState;
-    }
-  }
-
-  return nullptr;
-}
-
-
 void ezGameApplication::ReinitializeInputConfig()
 {
   DoConfigureInput(true);
@@ -201,78 +106,6 @@ void ezGameApplication::BeforeCoreStartup()
     m_pMixedRealityFramework = EZ_DEFAULT_NEW(ezMixedRealityFramework, nullptr);
   }
 #endif
-}
-
-void ezGameApplication::DestroyAllGameStates()
-{
-  for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
-  {
-    DestroyGameState(i);
-  }
-}
-
-
-void ezGameApplication::ActivateGameStateForWorld(ezWorld* pWorld, const ezTransform* pStartPosition)
-{
-  for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
-  {
-    if (m_GameStates[i].m_pLinkedToWorld == pWorld)
-    {
-      if (!m_GameStates[i].m_bStateActive)
-      {
-        m_GameStates[i].m_bStateActive = true;
-        m_GameStates[i].m_pState->OnActivation(pWorld, pStartPosition);
-      }
-    }
-  }
-}
-
-
-void ezGameApplication::DeactivateGameStateForWorld(ezWorld* pWorld)
-{
-  for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
-  {
-    if (m_GameStates[i].m_pLinkedToWorld == pWorld)
-    {
-      if (m_GameStates[i].m_bStateActive)
-      {
-        m_GameStates[i].m_bStateActive = false;
-        m_GameStates[i].m_pState->OnDeactivation();
-      }
-    }
-  }
-}
-
-void ezGameApplication::ActivateAllGameStates(const ezTransform* pStartPosition)
-{
-  // There is always at least one gamestate, but if it is null, then our application might not use them at all.
-  if (m_GameStates.IsEmpty() || m_GameStates[0].m_pState == nullptr)
-    return;
-
-  for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
-  {
-    if (!m_GameStates[i].m_bStateActive)
-    {
-      m_GameStates[i].m_bStateActive = true;
-      m_GameStates[i].m_pState->OnActivation(m_GameStates[i].m_pLinkedToWorld, pStartPosition);
-    }
-  }
-}
-
-void ezGameApplication::DeactivateAllGameStates()
-{
-  // There is always at least one gamestate, but if it is null, then our application might not use them at all.
-  if (m_GameStates.IsEmpty() || m_GameStates[0].m_pState == nullptr)
-    return;
-
-  for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
-  {
-    if (m_GameStates[i].m_bStateActive)
-    {
-      m_GameStates[i].m_bStateActive = false;
-      m_GameStates[i].m_pState->OnDeactivation();
-    }
-  }
 }
 
 ezString ezGameApplication::FindProjectDirectoryForScene(const char* szScene) const
@@ -349,7 +182,7 @@ void ezGameApplication::AfterCoreStartup()
 #endif
   )
   {
-    CreateGameStateForWorld(nullptr);
+    // CreateGameStateForWorld(nullptr);
   }
   else
   {
@@ -370,7 +203,7 @@ void ezGameApplication::AfterCoreStartup()
 #endif
   )
   {
-    ActivateAllGameStates(nullptr);
+    ActivateGameState();
   }
   else
   {
@@ -388,7 +221,7 @@ void ezGameApplication::BeforeCoreShutdown()
   // make sure that no textures are continue to be streamed in while the engine shuts down
   ezResourceManager::EngineAboutToShutdown();
 
-  DeactivateAllGameStates();
+  DeactivateGameState();
 
   ezResourceManager::ClearAllResourceFallbacks();
 
@@ -404,8 +237,6 @@ void ezGameApplication::BeforeCoreShutdown()
 #endif
 
   DoShutdownGraphicsDevice();
-
-  DestroyAllGameStates();
 
   ezResourceManager::FreeUnusedResources(true);
 
@@ -606,13 +437,9 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
   {
     EZ_PROFILE_SCOPE("GameApplication.BeforeWorldUpdate");
 
-    for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
+    if (m_pGameState)
     {
-      /// \todo Pause state ?
-      if (m_GameStates[i].m_pState)
-      {
-        m_GameStates[i].m_pState->BeforeWorldUpdate();
-      }
+      m_pGameState->BeforeWorldUpdate();
     }
 
     {
@@ -664,13 +491,9 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
   {
     EZ_PROFILE_SCOPE("GameApplication.AfterWorldUpdate");
 
-    for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
+    if (m_pGameState)
     {
-      /// \todo Pause state ?
-      if (m_GameStates[i].m_pState)
-      {
-        m_GameStates[i].m_pState->AfterWorldUpdate();
-      }
+      m_pGameState->AfterWorldUpdate();
     }
 
     {
@@ -830,17 +653,5 @@ void ezGameApplication::RenderConsole()
   }
 }
 
-
-
-bool ezGameApplication::HasAnyActiveGameState() const
-{
-  for (const auto gs : GetAllGameStates())
-  {
-    if (gs.m_pState != nullptr)
-      return true;
-  }
-
-  return false;
-}
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_GameApplication);

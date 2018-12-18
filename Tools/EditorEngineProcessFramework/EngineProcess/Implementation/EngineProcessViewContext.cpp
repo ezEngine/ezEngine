@@ -124,7 +124,7 @@ void ezEngineProcessViewContext::SetupRenderTarget(ezGALRenderTagetSetup& render
 
 void ezEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
 {
-  auto pState = ezGameApplication::GetGameApplicationInstance()->GetGameStateForWorld(GetDocumentContext()->GetWorld());
+  auto pState = ezGameApplication::GetGameApplicationInstance()->GetActiveGameStateLinkedToWorld(GetDocumentContext()->GetWorld());
 
   if (pState != nullptr)
   {

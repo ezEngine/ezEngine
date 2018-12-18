@@ -12,6 +12,12 @@ ezGameApplicationBase::ezGameApplicationBase(const char* szAppName)
     : ezApplication(szAppName)
     , m_ConFunc_TakeScreenshot("TakeScreenshot", "()", ezMakeDelegate(&ezGameApplicationBase::TakeScreenshot, this))
 {
+  s_pGameApplicationBaseInstance = this;
+}
+
+ezGameApplicationBase::~ezGameApplicationBase()
+{
+  s_pGameApplicationBaseInstance = nullptr;
 }
 
 void ezGameApplicationBase::RequestQuit()
@@ -156,4 +162,66 @@ void ezGameApplicationBase::ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOut
   }
 }
 
+
 //////////////////////////////////////////////////////////////////////////
+
+ezResult ezGameApplicationBase::ActivateGameState(ezWorld* pWorld /*= nullptr*/, const ezTransform* pStartPosition /*= nullptr*/)
+{
+  EZ_ASSERT_DEBUG(m_pGameState == nullptr, "ActivateGameState cannot be called when another GameState is already active");
+
+  m_pGameState = CreateGameState(pWorld);
+
+  if (m_pGameState == nullptr)
+    return EZ_FAILURE;
+
+  m_pWorldLinkedWithGameState = pWorld;
+  m_pGameState->OnActivation(pWorld, pStartPosition);
+  return EZ_SUCCESS;
+}
+
+void ezGameApplicationBase::DeactivateGameState()
+{
+  if (m_pGameState == nullptr)
+    return;
+
+  m_pGameState->OnDeactivation();
+  m_pGameState = nullptr;
+}
+
+ezGameState* ezGameApplicationBase::GetActiveGameStateLinkedToWorld(ezWorld* pWorld) const
+{
+  if (m_pWorldLinkedWithGameState == pWorld)
+    return m_pGameState.Borrow();
+
+  return nullptr;
+}
+
+ezUniquePtr<ezGameState> ezGameApplicationBase::CreateGameState(ezWorld* pWorld)
+{
+  EZ_LOG_BLOCK("Create Game State");
+
+  ezUniquePtr<ezGameState> pCurState;
+
+  {
+    ezInt32 iBestPriority = -1;
+
+    for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+    {
+      if (!pRtti->IsDerivedFrom<ezGameState>() || !pRtti->GetAllocator()->CanAllocate())
+        continue;
+
+      ezUniquePtr<ezGameState> pState = pRtti->GetAllocator()->Allocate<ezGameState>();
+
+      const ezInt32 iPriority = (ezInt32)pState->DeterminePriority(pWorld);
+
+      if (iPriority > iBestPriority)
+      {
+        iBestPriority = iPriority;
+
+        pCurState = std::move(pState);
+      }
+    }
+  }
+
+  return pCurState;
+}

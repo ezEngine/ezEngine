@@ -3,12 +3,12 @@
 #include <GameEngine/Basics.h>
 #include <GameEngine/Declarations.h>
 
-#include <Foundation/Reflection/Reflection.h>
-#include <RendererFoundation/Basics.h>
-#include <RendererCore/Pipeline/Declarations.h>
 #include <Core/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <RendererCore/Pipeline/Declarations.h>
+#include <RendererFoundation/Basics.h>
 
 class ezWindow;
 class ezWindowOutputTargetBase;
@@ -63,22 +63,19 @@ public:
   virtual void OnDeactivation();
 
   /// \brief Called once per game update. Should handle input updates here.
-  virtual void ProcessInput() { }
+  virtual void ProcessInput() {}
 
   /// \brief Called once each frame before the worlds are updated.
-  virtual void BeforeWorldUpdate() { }
+  virtual void BeforeWorldUpdate() {}
 
   /// \brief Called once each frame after the worlds have been updated.
-  virtual void AfterWorldUpdate() { }
-
-  /// \brief Returns the ezGameApplication through which this state was created.
-  EZ_ALWAYS_INLINE ezGameApplication* GetApplication() const { return m_pApplication; }
+  virtual void AfterWorldUpdate() {}
 
   enum class Priority
   {
-    None = -1, ///< This game state cannot be used for this app type or world
-    Fallback = 0, ///< This game state could be used, but it is only a fallback solution
-    Default = 5, ///< This game state is suitable for the given app type and world
+    None = -1,     ///< This game state cannot be used for this app type or world
+    Fallback = 0,  ///< This game state could be used, but it is only a fallback solution
+    Default = 5,   ///< This game state is suitable for the given app type and world
     Override = 10, ///< This game state should be preferred over all others
   };
 
@@ -87,7 +84,7 @@ public:
   /// The application type is passed along, such that game states that cannot run inside the editor can bail out (or vice versa).
   /// If the application already has a world that should be shown, the game state can inspect it.
   /// If the game state is expected to create a new world, pWorld will be nullptr.
-  virtual ezGameState::Priority DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const = 0;
+  virtual ezGameState::Priority DeterminePriority(ezWorld* pWorld) const = 0;
 
   /// \brief Has to call ezRenderLoop::AddMainView for all views that need to be rendered
   virtual void AddAllMainViews();
@@ -129,8 +126,9 @@ protected:
   /// \brief Overrideable function that may create a player object.
   ///
   /// By default called by OnActivation().
-  /// The default implementation will search the world for ezPlayerStartComponent's and instantiate the given player prefab at one of those locations.
-  /// If pStartPosition is not nullptr, it will be used as the spawn position for the player prefab, otherwise the location of the ezPlayerStartComponent will be used.
+  /// The default implementation will search the world for ezPlayerStartComponent's and instantiate the given player prefab at one of those
+  /// locations. If pStartPosition is not nullptr, it will be used as the spawn position for the player prefab, otherwise the location of
+  /// the ezPlayerStartComponent will be used.
   ///
   /// Returns EZ_SUCCESS if a prefab was spawned, EZ_FAILURE if nothing was done.
   virtual ezResult SpawnPlayer(const ezTransform* pStartPosition);
@@ -155,8 +153,4 @@ protected:
   bool m_bMixedRealityMode = false;
   bool m_bVirtualRealityMode = false;
 
-private:
-  friend class ezGameApplication;
-  ezGameApplication* m_pApplication = nullptr;
 };
-

@@ -49,14 +49,12 @@ void ezPlayerApplication::AfterCoreStartup()
 
   SetupLevel();
 
-  CreateGameStateForWorld(m_pWorld);
-
-  ActivateAllGameStates(nullptr);
+  ActivateGameState(m_pWorld);
 }
 
 void ezPlayerApplication::BeforeCoreShutdown()
 {
-  DeactivateAllGameStates();
+  DeactivateGameState();
 
   GetGameApplicationInstance()->DestroyWorld(m_pWorld);
 

@@ -88,7 +88,7 @@ void SimpleMeshRendererGameState::OnDeactivation()
   SUPER::OnDeactivation();
 }
 
-ezGameState::Priority SimpleMeshRendererGameState::DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const
+ezGameState::Priority SimpleMeshRendererGameState::DeterminePriority(ezWorld* pWorld) const
 {
   return ezGameState::Priority::Default;
 }
@@ -96,7 +96,7 @@ ezGameState::Priority SimpleMeshRendererGameState::DeterminePriority(ezGameAppli
 void SimpleMeshRendererGameState::CreateGameLevel()
 {
   ezWorldDesc desc("Level");
-  m_pMainWorld = GetApplication()->CreateWorld(desc);
+  m_pMainWorld = ezGameApplication::GetGameApplicationInstance()->CreateWorld(desc);
   EZ_LOCK(m_pMainWorld->GetWriteMarker());
 
   const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
@@ -221,7 +221,7 @@ void SimpleMeshRendererGameState::CreateGameLevel()
 
 void SimpleMeshRendererGameState::DestroyGameLevel()
 {
-  GetApplication()->DestroyWorld(m_pMainWorld);
+  ezGameApplication::GetGameApplicationInstance()->DestroyWorld(m_pMainWorld);
 }
 
 
