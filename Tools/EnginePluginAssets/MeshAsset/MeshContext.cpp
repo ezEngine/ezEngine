@@ -53,7 +53,7 @@ void ezMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
 void ezMeshContext::OnInitialize()
 {
-  auto pWorld = m_pWorld;
+  auto pWorld = m_pWorld.Borrow();
   EZ_LOCK(pWorld->GetWriteMarker());
 
   ezGameObjectDesc obj;
@@ -104,7 +104,7 @@ void ezMeshContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 
 bool ezMeshContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
-  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
+  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld.Borrow());
 
   ezMeshViewContext* pMeshViewContext = static_cast<ezMeshViewContext*>(pThumbnailViewContext);
   return pMeshViewContext->UpdateThumbnailCamera(bounds);

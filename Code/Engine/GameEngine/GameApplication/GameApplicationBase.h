@@ -116,18 +116,35 @@ protected:
   /// \name GameState
   ///@{
 public:
+
+  /// \brief Creates and activates the game state for this application.
+  ///
+  /// If the application already has a world (such as the editor), it can pass this to the newly created game state.
+  /// Otherwise the game state should create its own world.
+  ///
+  /// In the editor case, there are cases where a 'player start position' is specified, which can be used
+  /// by the game state to place the player.
   ezResult ActivateGameState(ezWorld* pWorld = nullptr, const ezTransform* pStartPosition = nullptr);
 
+  /// \brief Deactivates and destroys the active game state.
   void DeactivateGameState();
 
+  /// \brief Returns the currently active game state. Could be nullptr.
   ezGameState* GetActiveGameState() const { return m_pGameState.Borrow(); }
 
+  /// \brief Returns the currently active game state IF it was created for the given world.
+  ///
+  /// This is mostly for editor use cases, where some documents want to handle the game state, but only
+  /// it it was set up for a particular document.
   ezGameState* GetActiveGameStateLinkedToWorld(ezWorld* pWorld) const;
 
 protected:
   /// \brief Creates a game state for the application to use.
   ///
   /// \a pWorld is typically nullptr in a stand-alone app, but may be existing already when called from the editor.
+  ///
+  /// The default implementation will query all available game states for the best match.
+  /// By overriding this, one can also just create a specific game state directly.
   virtual ezUniquePtr<ezGameState> CreateGameState(ezWorld* pWorld);
 
   ezUniquePtr<ezGameState> m_pGameState;

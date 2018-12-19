@@ -22,9 +22,9 @@ Level::Level()
   m_pWorld = nullptr;
 }
 
-void Level::SetupLevel(ezWorld* pWorld)
+void Level::SetupLevel(ezUniquePtr<ezWorld> pWorld)
 {
-  m_pWorld = pWorld;
+  m_pWorld = std::move(pWorld);
   EZ_LOCK(m_pWorld->GetWriteMarker());
 
   // Load the collection that holds all assets and allows us to access them with nice names

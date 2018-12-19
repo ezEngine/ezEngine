@@ -54,7 +54,7 @@ void ezCollisionMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
 
 void ezCollisionMeshContext::OnInitialize()
 {
-  auto pWorld = m_pWorld;
+  auto pWorld = m_pWorld.Borrow();
   EZ_LOCK(pWorld->GetWriteMarker());
 
   ezGameObjectDesc obj;
@@ -105,7 +105,7 @@ void ezCollisionMeshContext::DestroyViewContext(ezEngineProcessViewContext* pCon
 
 bool ezCollisionMeshContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
-  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
+  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld.Borrow());
 
   ezCollisionMeshViewContext* pMeshViewContext = static_cast<ezCollisionMeshViewContext*>(pThumbnailViewContext);
   return pMeshViewContext->UpdateThumbnailCamera(bounds);

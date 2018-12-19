@@ -127,9 +127,9 @@ void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, ezEn
   ezWorldDesc desc(ezConversionUtils::ToString(m_DocumentGuid, tmp));
   desc.m_bReportErrorWhenStaticObjectMoves = false;
 
-  m_pWorld = ezGameApplication::GetGameApplicationInstance()->CreateWorld(desc);
+  m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
 
-  m_Context.m_pWorld = m_pWorld;
+  m_Context.m_pWorld = m_pWorld.Borrow();
   m_Mirror.InitReceiver(&m_Context);
 
   OnInitialize();
@@ -146,7 +146,6 @@ void ezEngineProcessDocumentContext::Deinitialize()
 
   CleanUpContextSyncObjects();
 
-  ezGameApplication::GetGameApplicationInstance()->DestroyWorld(m_pWorld);
   m_pWorld = nullptr;
 }
 
@@ -667,13 +666,13 @@ void ezEngineProcessDocumentContext::UpdateSyncObjects()
 
       EZ_LOCK(m_pWorld->GetWriteMarker());
 
-      if (pSyncObject->SetupForEngine(m_pWorld, m_Context.m_uiNextComponentPickingID))
+      if (pSyncObject->SetupForEngine(m_pWorld.Borrow(), m_Context.m_uiNextComponentPickingID))
       {
         m_Context.m_OtherPickingMap.RegisterObject(pSyncObject->GetGuid(), m_Context.m_uiNextComponentPickingID);
         ++m_Context.m_uiNextComponentPickingID;
       }
 
-      pSyncObject->UpdateForEngine(m_pWorld);
+      pSyncObject->UpdateForEngine(m_pWorld.Borrow());
     }
   }
 }

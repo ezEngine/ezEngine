@@ -123,15 +123,15 @@ void ezGameEngineTestApplication::AfterCoreStartup()
   ezStartup::StartupEngine();
 
   ezWorldDesc desc("GameEngineTestWorld");
-  m_pWorld = CreateWorld(desc);
+  m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
   m_pWorld->GetClock().SetFixedTimeStep(ezTime::Seconds(1.0 / 30.0));
 
-  ActivateGameState(m_pWorld);
+  ActivateGameState(m_pWorld.Borrow());
 }
 
 void ezGameEngineTestApplication::BeforeCoreShutdown()
 {
-  GetGameApplicationInstance()->DestroyWorld(m_pWorld);
+  m_pWorld = nullptr;
 
   ezGameApplication::BeforeCoreShutdown();
 }

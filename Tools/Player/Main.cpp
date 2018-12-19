@@ -49,14 +49,14 @@ void ezPlayerApplication::AfterCoreStartup()
 
   SetupLevel();
 
-  ActivateGameState(m_pWorld);
+  ActivateGameState(m_pWorld.Borrow());
 }
 
 void ezPlayerApplication::BeforeCoreShutdown()
 {
   DeactivateGameState();
 
-  GetGameApplicationInstance()->DestroyWorld(m_pWorld);
+  m_pWorld = nullptr;
 
   ezGameApplication::BeforeCoreShutdown();
 }
@@ -69,7 +69,7 @@ void ezPlayerApplication::SetupLevel()
   ezString sSceneFile = sScenePath.GetFileName();
 
   ezWorldDesc desc(sSceneFile);
-  m_pWorld = CreateWorld(desc);
+  m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
 
   EZ_LOCK(m_pWorld->GetWriteMarker());
 

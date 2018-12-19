@@ -129,48 +129,6 @@ ezString ezGameApplication::FindProjectDirectoryForScene(const char* szScene) co
   return "";
 }
 
-ezWorld* ezGameApplication::CreateWorld(ezWorldDesc& desc)
-{
-  auto& wd = m_Worlds.ExpandAndGetRef();
-  wd.m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
-
-  ezGameApplicationEvent e;
-  e.m_Type = ezGameApplicationEvent::Type::AfterWorldCreated;
-  e.m_pData = wd.m_pWorld;
-  m_Events.Broadcast(e);
-
-  return wd.m_pWorld;
-}
-
-void ezGameApplication::DestroyWorld(ezWorld* pWorld)
-{
-  if (pWorld == nullptr)
-    return;
-
-  WorldData* wd = nullptr;
-
-  for (ezUInt32 i = 0; i < m_Worlds.GetCount(); ++i)
-  {
-    if (m_Worlds[i].m_pWorld == pWorld)
-    {
-      wd = &m_Worlds[i];
-      break;
-    }
-  }
-
-  if (wd == nullptr)
-    return;
-
-  ezGameApplicationEvent e;
-  e.m_Type = ezGameApplicationEvent::Type::BeforeWorldDestroyed;
-  e.m_pData = wd->m_pWorld;
-  m_Events.Broadcast(e);
-
-  wd->m_pWorld = nullptr;
-
-  EZ_DEFAULT_DELETE(pWorld);
-}
-
 void ezGameApplication::AfterCoreStartup()
 {
   DoProjectSetup();
@@ -213,11 +171,6 @@ void ezGameApplication::AfterCoreStartup()
 
 void ezGameApplication::BeforeCoreShutdown()
 {
-  for (auto& w : m_Worlds)
-  {
-    DestroyWorld(w.m_pWorld);
-  }
-
   // make sure that no textures are continue to be streamed in while the engine shuts down
   ezResourceManager::EngineAboutToShutdown();
 

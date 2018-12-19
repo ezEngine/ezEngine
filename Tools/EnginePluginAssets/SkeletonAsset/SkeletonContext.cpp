@@ -50,7 +50,7 @@ void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
 void ezSkeletonContext::OnInitialize()
 {
-  auto pWorld = m_pWorld;
+  auto pWorld = m_pWorld.Borrow();
   EZ_LOCK(pWorld->GetWriteMarker());
 
   ezGameObjectDesc obj;
@@ -101,7 +101,7 @@ void ezSkeletonContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 
 bool ezSkeletonContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
-  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
+  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld.Borrow());
 
   ezSkeletonViewContext* pMeshViewContext = static_cast<ezSkeletonViewContext*>(pThumbnailViewContext);
   return pMeshViewContext->UpdateThumbnailCamera(bounds);

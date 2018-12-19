@@ -34,7 +34,7 @@ protected:
   virtual ezUniquePtr<ezGameState> CreateGameState(ezWorld* pWorld) override;
 
   ezString m_sProjectDirName;
-  ezWorld* m_pWorld = nullptr;
+  ezUniquePtr<ezWorld> m_pWorld;
   ezImage m_LastScreenshot;
 };
 

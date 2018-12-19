@@ -56,7 +56,7 @@ void ezKrautTreeContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
 void ezKrautTreeContext::OnInitialize()
 {
-  auto pWorld = m_pWorld;
+  auto pWorld = m_pWorld.Borrow();
   EZ_LOCK(pWorld->GetWriteMarker());
 
 

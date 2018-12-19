@@ -388,7 +388,7 @@ void ezSceneContext::OnSimulationDisabled()
 
 ezGameState* ezSceneContext::GetGameState() const
 {
-  return ezGameApplication::GetGameApplicationInstance()->GetActiveGameStateLinkedToWorld(m_pWorld);
+  return ezGameApplication::GetGameApplicationInstance()->GetActiveGameStateLinkedToWorld(m_pWorld.Borrow());
 }
 
 void ezSceneContext::OnInitialize()
@@ -425,7 +425,7 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
   ezStringBuilder sSel = pMsg->m_sSelection;
   ezStringBuilder sGuid;
 
-  auto pWorld = m_pWorld;
+  auto pWorld = m_pWorld.Borrow();
   EZ_LOCK(pWorld->GetReadMarker());
 
   while (!sSel.IsEmpty())
@@ -472,7 +472,7 @@ void ezSceneContext::OnPlayTheGameModeStarted(const ezTransform* pStartPosition)
 
   ezGameApplication::GetGameApplicationInstance()->ReinitializeInputConfig();
 
-  ezGameApplication::GetGameApplicationInstance()->ActivateGameState(m_pWorld, pStartPosition);
+  ezGameApplication::GetGameApplicationInstance()->ActivateGameState(m_pWorld.Borrow(), pStartPosition);
 
   ezGameModeMsgToEditor msgRet;
   msgRet.m_DocumentGuid = GetDocumentGuid();
@@ -756,7 +756,7 @@ void ezSceneContext::UpdateDocumentContext()
 
 bool ezSceneContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
-  const ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
+  const ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld.Borrow());
 
   ezSceneViewContext* pMaterialViewContext = static_cast<ezSceneViewContext*>(pThumbnailViewContext);
   const bool result = pMaterialViewContext->UpdateThumbnailCamera(bounds);

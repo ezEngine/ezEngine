@@ -90,7 +90,7 @@ void ezParticleContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
 void ezParticleContext::OnInitialize()
 {
-  auto pWorld = m_pWorld;
+  auto pWorld = m_pWorld.Borrow();
   EZ_LOCK(pWorld->GetWriteMarker());
 
   ezParticleComponentManager* pCompMan = pWorld->GetOrCreateComponentManager<ezParticleComponentManager>();

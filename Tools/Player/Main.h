@@ -18,7 +18,7 @@ private:
   virtual void BeforeCoreShutdown() override;
 
   ezString m_sSceneFile;
-  ezWorld* m_pWorld;
+  ezUniquePtr<ezWorld> m_pWorld;
 };
 
 

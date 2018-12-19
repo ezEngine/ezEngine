@@ -52,7 +52,7 @@ public:
   ezIPCObjectMirrorEngine m_Mirror;
   ezWorldRttiConverterContext m_Context; //TODO: Move actual context into the EngineProcessDocumentContext
 
-  ezWorld* GetWorld() const { return m_pWorld; }
+  ezWorld* GetWorld() const { return m_pWorld.Borrow(); }
 
 protected:
   virtual void OnInitialize();
@@ -98,7 +98,7 @@ protected:
   /// \brief Called before a thumbnail context is destroyed. Used for cleanup of what was done in OnThumbnailViewContextCreated()
   virtual void OnDestroyThumbnailViewContext();
 
-  ezWorld* m_pWorld;
+  ezUniquePtr<ezWorld> m_pWorld;
 
   /// \brief Sets or removes the given tag on the object and optionally all children
   void SetTagOnObject(const ezUuid& object, const char* szTag, bool bSet, bool recursive);

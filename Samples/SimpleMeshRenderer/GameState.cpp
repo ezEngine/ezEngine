@@ -96,7 +96,7 @@ ezGameState::Priority SimpleMeshRendererGameState::DeterminePriority(ezWorld* pW
 void SimpleMeshRendererGameState::CreateGameLevel()
 {
   ezWorldDesc desc("Level");
-  m_pMainWorld = ezGameApplication::GetGameApplicationInstance()->CreateWorld(desc);
+  m_pMainWorld = EZ_DEFAULT_NEW(ezWorld, desc);
   EZ_LOCK(m_pMainWorld->GetWriteMarker());
 
   const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
@@ -221,9 +221,8 @@ void SimpleMeshRendererGameState::CreateGameLevel()
 
 void SimpleMeshRendererGameState::DestroyGameLevel()
 {
-  ezGameApplication::GetGameApplicationInstance()->DestroyWorld(m_pMainWorld);
+  m_pMainWorld = nullptr;
 }
-
 
 void SimpleMeshRendererGameState::MoveObjectToPosition(const ezVec3& pos)
 {

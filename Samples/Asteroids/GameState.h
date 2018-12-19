@@ -26,5 +26,5 @@ private:
 
   virtual ezGameState::Priority DeterminePriority(ezWorld* pWorld) const override;
 
-  Level* m_pLevel;
+  ezUniquePtr<Level> m_pLevel;
 };

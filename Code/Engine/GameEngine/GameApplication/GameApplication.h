@@ -106,15 +106,6 @@ public:
   /// \brief Returns what was passed to the constructor.
   ezGameApplicationType GetAppType() const { return m_AppType; }
 
-  /// \brief Creates a new world with the given description.
-  ///
-  /// The world is added to the array of known worlds and as such is stepped during Run().
-  ezWorld* CreateWorld(ezWorldDesc& desc);
-
-  /// \brief Cleanes up all data related to a world that was created through CreateWorld().
-  void DestroyWorld(ezWorld* pWorld);
-
-
   /// \brief Used at runtime (by the editor) to reload input maps. Forwards to DoConfigureInput()
   void ReinitializeInputConfig();
 
@@ -243,21 +234,9 @@ protected:
   void RenderFps();
   void RenderConsole();
 
-  void DestroyGameState(ezUInt32 idx);
-
   void UpdateWorldsAndExtractViews();
   ezDelegateTask<void> m_UpdateTask;
 
-
-  struct WorldData
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    ezWorld* m_pWorld;
-  };
-
-  
-  ezHybridArray<WorldData, 4> m_Worlds;
   static ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> s_DefaultDeviceCreator;
   
   bool m_bShowConsole = false;

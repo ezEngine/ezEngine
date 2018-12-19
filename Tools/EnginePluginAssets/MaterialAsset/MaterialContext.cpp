@@ -108,7 +108,7 @@ void ezMaterialContext::OnInitialize()
     }
   }
 
-  auto pWorld = m_pWorld;
+  auto pWorld = m_pWorld.Borrow();
   EZ_LOCK(pWorld->GetWriteMarker());
 
   ezGameObjectDesc obj;

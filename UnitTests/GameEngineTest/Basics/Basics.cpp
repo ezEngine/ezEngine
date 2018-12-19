@@ -292,7 +292,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
     ezTransform t;
     t.SetIdentity();
     t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(25));
-    ezDebugRenderer::DrawLineBox(m_pWorld, bbox, ezColor::HotPink, t);
+    ezDebugRenderer::DrawLineBox(m_pWorld.Borrow(), bbox, ezColor::HotPink, t);
   }
 
   // line box
@@ -304,19 +304,19 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
     t.SetIdentity();
     t.m_vPosition.Set(0, 5, -2);
     t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(25));
-    ezDebugRenderer::DrawLineBoxCorners(m_pWorld, bbox, 0.5f, ezColor::DeepPink, t);
+    ezDebugRenderer::DrawLineBoxCorners(m_pWorld.Borrow(), bbox, 0.5f, ezColor::DeepPink, t);
   }
 
   // 2D Rect
   {
-    ezDebugRenderer::Draw2DRectangle(m_pWorld, ezRectFloat(10, 50, 35, 15), 0.1f, ezColor::LawnGreen);
+    ezDebugRenderer::Draw2DRectangle(m_pWorld.Borrow(), ezRectFloat(10, 50, 35, 15), 0.1f, ezColor::LawnGreen);
   }
 
   // Sphere
   {
     ezBoundingSphere sphere;
     sphere.SetElements(ezVec3(8, -5, -4), 2);
-    ezDebugRenderer::DrawLineSphere(m_pWorld, sphere, ezColor::Tomato);
+    ezDebugRenderer::DrawLineSphere(m_pWorld.Borrow(), sphere, ezColor::Tomato);
   }
 
   // Solid box
@@ -324,20 +324,20 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
     ezBoundingBox bbox;
     bbox.SetCenterAndHalfExtents(ezVec3(10, -5, 1), ezVec3(1, 2, 3));
 
-    ezDebugRenderer::DrawSolidBox(m_pWorld, bbox, ezColor::BurlyWood);
+    ezDebugRenderer::DrawSolidBox(m_pWorld.Borrow(), bbox, ezColor::BurlyWood);
   }
 
   // Text
   {
-    ezDebugRenderer::Draw2DText(m_pWorld, "Not 'a test\"", ezVec2I32(30, 10), ezColor::AntiqueWhite, 24);
-    ezDebugRenderer::Draw2DText(m_pWorld, "!@#$%^&*()_[]{}|", ezVec2I32(20, 200), ezColor::AntiqueWhite, 24);
+    ezDebugRenderer::Draw2DText(m_pWorld.Borrow(), "Not 'a test\"", ezVec2I32(30, 10), ezColor::AntiqueWhite, 24);
+    ezDebugRenderer::Draw2DText(m_pWorld.Borrow(), "!@#$%^&*()_[]{}|", ezVec2I32(20, 200), ezColor::AntiqueWhite, 24);
   }
 
   // Frustum
   {
     ezFrustum f;
     f.SetFrustum(ezVec3(5, 7, 3), ezVec3(0, -1, 0), ezVec3(0, 0, 1), ezAngle::Degree(30), ezAngle::Degree(20), 5.0f);
-    ezDebugRenderer::DrawLineFrustum(m_pWorld, f, ezColor::Cornsilk);
+    ezDebugRenderer::DrawLineFrustum(m_pWorld.Borrow(), f, ezColor::Cornsilk);
   }
 
   // Lines
@@ -345,7 +345,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
     ezHybridArray<ezDebugRenderer::Line, 4> lines;
     lines.PushBack(ezDebugRenderer::Line(ezVec3(3, -4, -4), ezVec3(4, -2, -3)));
     lines.PushBack(ezDebugRenderer::Line(ezVec3(4, -2, -3), ezVec3(2, 2, -2)));
-    ezDebugRenderer::DrawLines(m_pWorld, lines, ezColor::SkyBlue);
+    ezDebugRenderer::DrawLines(m_pWorld.Borrow(), lines, ezColor::SkyBlue);
   }
 
   // Triangles
@@ -353,7 +353,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
     ezHybridArray<ezDebugRenderer::Triangle, 4> tris;
     tris.PushBack(ezDebugRenderer::Triangle(ezVec3(7, 0, 0), ezVec3(7, 2, 0), ezVec3(7, 2, 1)));
     tris.PushBack(ezDebugRenderer::Triangle(ezVec3(7, 3, 0), ezVec3(7, 1, 0), ezVec3(7, 3, 1)));
-    ezDebugRenderer::DrawSolidTriangles(m_pWorld, tris, ezColor::Gainsboro);
+    ezDebugRenderer::DrawSolidTriangles(m_pWorld.Borrow(), tris, ezColor::Gainsboro);
   }
 
   if (Run() == ezApplication::Quit)

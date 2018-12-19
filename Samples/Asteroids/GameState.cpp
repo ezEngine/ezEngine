@@ -104,15 +104,14 @@ void AsteroidGameState::CreateGameLevel()
   m_pLevel = EZ_DEFAULT_NEW(Level);
 
   ezWorldDesc desc("Asteroids - World");
-  m_pLevel->SetupLevel(ezGameApplication::GetGameApplicationInstance()->CreateWorld(desc));
+  m_pLevel->SetupLevel(EZ_DEFAULT_NEW(ezWorld, desc));
 
   ChangeMainWorld(m_pLevel->GetWorld());
 }
 
 void AsteroidGameState::DestroyLevel()
 {
-  ezGameApplication::GetGameApplicationInstance()->DestroyWorld(m_pLevel->GetWorld());
-  EZ_DEFAULT_DELETE(m_pLevel);
+  m_pLevel = nullptr;
 }
 
 

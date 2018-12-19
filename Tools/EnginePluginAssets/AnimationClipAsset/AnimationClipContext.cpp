@@ -49,7 +49,7 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
 
 void ezAnimationClipContext::OnInitialize()
 {
-  auto pWorld = m_pWorld;
+  auto pWorld = m_pWorld.Borrow();
   EZ_LOCK(pWorld->GetWriteMarker());
 
   ezGameObjectDesc obj;
@@ -100,7 +100,7 @@ void ezAnimationClipContext::DestroyViewContext(ezEngineProcessViewContext* pCon
 
 bool ezAnimationClipContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
-  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
+  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld.Borrow());
 
   ezAnimationClipViewContext* pMeshViewContext = static_cast<ezAnimationClipViewContext*>(pThumbnailViewContext);
   return pMeshViewContext->UpdateThumbnailCamera(bounds);
