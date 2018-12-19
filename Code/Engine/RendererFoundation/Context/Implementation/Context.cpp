@@ -561,8 +561,6 @@ void ezGALContext::BeginQuery(ezGALQueryHandle hQuery)
   AssertRenderingThread();
 
   auto query = m_pDevice->GetQuery(hQuery);
-  EZ_ASSERT_DEV(query->GetDescription().m_type != ezGALQueryType::Timestamp,
-                "You can only call 'EndQuery' on queries of type ezGALQueryType::Timestamp.");
   EZ_ASSERT_DEV(!query->m_bStarted, "Can't stat ezGALQuery because it is already running.");
 
   BeginQueryPlatform(query);
@@ -573,8 +571,7 @@ void ezGALContext::EndQuery(ezGALQueryHandle hQuery)
   AssertRenderingThread();
 
   auto query = m_pDevice->GetQuery(hQuery);
-  EZ_ASSERT_DEV(query->m_bStarted || query->GetDescription().m_type == ezGALQueryType::Timestamp,
-                "Can't end ezGALQuery, query hasn't started yet.");
+  EZ_ASSERT_DEV(query->m_bStarted, "Can't end ezGALQuery, query hasn't started yet.");
 
   EndQueryPlatform(query);
 }
@@ -587,6 +584,15 @@ ezResult ezGALContext::GetQueryResult(ezGALQueryHandle hQuery, ezUInt64& uiQuery
   EZ_ASSERT_DEV(!query->m_bStarted, "Can't retrieve data from ezGALQuery while query is still running.");
 
   return GetQueryResultPlatform(query, uiQueryResult);
+}
+
+ezGALTimestampHandle ezGALContext::InsertTimestamp()
+{
+  ezGALTimestampHandle hTimestamp = m_pDevice->GetTimestamp();
+
+  InsertTimestampPlatform(hTimestamp);
+
+  return hTimestamp;
 }
 
 void ezGALContext::CopyBuffer(ezGALBufferHandle hDest, ezGALBufferHandle hSource)

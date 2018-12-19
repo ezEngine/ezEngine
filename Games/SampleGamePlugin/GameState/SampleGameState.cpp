@@ -72,7 +72,7 @@ void SampleGameState::BeforeWorldUpdate()
   }
 }
 
-ezGameState::Priority SampleGameState::DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const
+ezGameState::Priority SampleGameState::DeterminePriority(ezWorld* pWorld) const
 {
   return ezGameState::Priority::Default;
 }

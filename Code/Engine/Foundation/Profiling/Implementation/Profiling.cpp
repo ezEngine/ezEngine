@@ -66,6 +66,14 @@ void ezProfilingSystem::Capture(ezStreamWriter& outputStream) {}
 
 void ezProfilingSystem::RemoveThread() {}
 
+void ezProfilingSystem::InitializeGPUData() {}
+
+static ezProfilingSystem::GPUData s_Dummy;
+ezProfilingSystem::GPUData& ezProfilingSystem::AllocateGPUData()
+{
+  return s_Dummy;
+}
+
 #endif
 
 

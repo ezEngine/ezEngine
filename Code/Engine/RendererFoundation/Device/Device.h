@@ -4,12 +4,12 @@
 #include <RendererFoundation/Basics.h>
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Containers/HashTable.h>
+#include <Foundation/Strings/HashedString.h>
 #include <Foundation/Memory/CommonAllocators.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Device/DeviceCapabilities.h>
 
 class ezColor;
-class ezGPUStopwatch;
 
 /// \brief The ezRenderDevice class is the primary interface for interactions with rendering APIs
 /// It contains a set of (non-virtual) functions to set state, create resources etc. which rely on
@@ -112,10 +112,9 @@ public:
 
   void DestroyVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration);
 
+  // Timestamp functions
 
-  /// Gets or creates a GPU stopwatch whose livetime is managed by this context.
-  ezGPUStopwatch& GetOrCreateGPUStopwatch(const char* name);
-
+  ezResult GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& result);
 
   /// \todo Map functions to save on memcpys
 
@@ -134,11 +133,7 @@ public:
 
   void SetPrimarySwapChain(ezGALSwapChainHandle hSwapChain);
 
-  /// Returns timestamp frequency in ticks per second.
-  ///
-  /// Returns 0 if acquiring the frequency failed (which can happen at any point).
-  /// Note that the frequency may change over time.
-  ezUInt64 GetTimestampTicksPerSecond();
+  ezGALTimestampHandle GetTimestamp();
 
   ezGALSwapChainHandle GetPrimarySwapChain() const;
 
@@ -365,6 +360,11 @@ protected:
 
   virtual void DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration) = 0;
 
+  // Timestamp functions
+
+  virtual ezGALTimestampHandle GetTimestampPlatform() = 0;
+
+  virtual ezResult GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& result) = 0;
 
   // Swap chain functions
 
@@ -380,13 +380,10 @@ protected:
 
   virtual void FillCapabilitiesPlatform() = 0;
 
-  virtual ezUInt64 GetTimestampTicksPerSecondPlatform() = 0;
-
   /// \endcond
 
 private:
   bool m_bFrameBeginCalled;
-  ezHashTable<ezString, ezGPUStopwatch*> m_namedStopwatches;
 
 };
 

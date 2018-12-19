@@ -104,6 +104,9 @@ public:
   /// \return Success if retrieving the query succeeded.
   ezResult GetQueryResult(ezGALQueryHandle hQuery, ezUInt64& uiQueryResult);
 
+  // Timestamp functions
+
+  ezGALTimestampHandle InsertTimestamp();
 
   // Resource functions
 
@@ -228,6 +231,10 @@ protected:
   virtual void EndQueryPlatform(const ezGALQuery* pQuery) = 0;
 
   virtual ezResult GetQueryResultPlatform(const ezGALQuery* pQuery, ezUInt64& uiQueryResult) = 0;
+
+  // Timestamp functions
+
+  virtual void InsertTimestampPlatform(ezGALTimestampHandle hTimestamp) = 0;
 
   // Resource update functions
 

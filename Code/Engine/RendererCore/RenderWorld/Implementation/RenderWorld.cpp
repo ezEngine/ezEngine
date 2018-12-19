@@ -3,7 +3,8 @@
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Memory/CommonAllocators.h>
-#include <Foundation/Profiling/Profiling.h>
+#include <RendererFoundation/Profiling/Profiling.h>
+#include <RendererFoundation/Device/Device.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -306,6 +307,12 @@ void ezRenderWorld::DeleteCachedRenderData(const ezGameObjectHandle& hOwnerObjec
   }
 }
 
+void ezRenderWorld::DeleteCachedRenderData(ezView& view)
+{
+  view.m_pRenderDataCache->m_EntriesPerObject.Clear();
+  view.m_pRenderDataCache->m_NewEntriesCount = 0;
+}
+
 void ezRenderWorld::DeleteCachedRenderDataRecursive(const ezGameObject* pOwnerObject)
 {
   auto components = pOwnerObject->GetComponents();
@@ -382,7 +389,7 @@ void ezRenderWorld::ExtractMainViews()
 
   s_bInExtract = true;
 
-  s_BeginExtractionEvent.Broadcast(s_uiFrameCounter);  
+  s_BeginExtractionEvent.Broadcast(s_uiFrameCounter);
 
   if (CVarMultithreadedRendering)
   {
@@ -464,6 +471,12 @@ void ezRenderWorld::ExtractMainViews()
 
 void ezRenderWorld::Render(ezRenderContext* pRenderContext)
 {
+  ezUInt64 uiRenderFrame = GetUseMultithreadedRendering() ? s_uiFrameCounter - 1 : s_uiFrameCounter;
+
+  ezStringBuilder sb;
+  sb.Format("FRAME {}", uiRenderFrame);
+  EZ_PROFILE_AND_MARKER(ezGALDevice::GetDefaultDevice()->GetPrimaryContext(), sb.GetData());
+
   s_BeginRenderEvent.Broadcast(s_uiFrameCounter);
 
   if (!CVarMultithreadedRendering)

@@ -35,11 +35,11 @@ public:
 
 public:
 
-  EZ_ALWAYS_INLINE ID3D11Device* GetDXDevice() const;
+  ID3D11Device* GetDXDevice() const;
 
-  EZ_ALWAYS_INLINE IDXGIFactory1* GetDXGIFactory() const;
+  IDXGIFactory1* GetDXGIFactory() const;
 
-  EZ_ALWAYS_INLINE const ezGALFormatLookupTableDX11& GetFormatLookupTable() const;
+  const ezGALFormatLookupTableDX11& GetFormatLookupTable() const;
 
   // These functions need to be implemented by a render API abstraction
 protected:
@@ -120,7 +120,11 @@ protected:
 
   virtual void DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration) override;
 
+  // Timestamp functions
 
+  virtual ezGALTimestampHandle GetTimestampPlatform() override;
+
+  virtual ezResult GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& result) override;
 
   // Swap chain functions
 
@@ -135,8 +139,6 @@ protected:
   virtual void SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain) override;
 
   virtual void FillCapabilitiesPlatform() override;
-
-  virtual ezUInt64 GetTimestampTicksPerSecondPlatform() override;
 
   /// \endcond
 
@@ -159,6 +161,8 @@ private:
   ID3D11Resource* FindTempTexture(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format);
   void FreeTempResources(ezUInt64 uiFrame);
 
+  ID3D11Query* GetTimestamp(ezGALTimestampHandle hTimestamp);
+
   void FillFormatLookupTable();
 
   ID3D11Device* m_pDevice;
@@ -175,20 +179,19 @@ private:
 
   D3D_FEATURE_LEVEL m_FeatureLevel;
 
-  struct EndFrameFence
+  struct PerFrameData
   {
-    EndFrameFence() : m_pFence(nullptr), m_uiFrame(0xFFFFFFFFFFu)
-    {}
-
-    ezGALFence* m_pFence;
-    ezUInt64 m_uiFrame;
+    ezGALFence* m_pFence = nullptr;
+    ID3D11Query* m_pDisjointTimerQuery = nullptr;
+    double m_fInvTicksPerSecond = -1.0;
+    ezUInt64 m_uiFrame = -1;
   };
 
-  EndFrameFence m_EndFrameFences[4];
-  ezUInt8 m_uiCurrentEndFrameFence;
-  ezUInt8 m_uiNextEndFrameFence;
+  PerFrameData m_PerFrameData[4];
+  ezUInt8 m_uiCurrentPerFrameData = 0;
+  ezUInt8 m_uiNextPerFrameData = 0;
 
-  ezUInt64 m_uiFrameCounter;
+  ezUInt64 m_uiFrameCounter = 0;
 
   struct UsedTempResource
   {
@@ -202,13 +205,12 @@ private:
   ezMap<ezUInt32, ezDynamicArray<ID3D11Resource*>, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_FreeTempResources[TempResourceType::ENUM_COUNT];
   ezDeque<UsedTempResource, ezLocalAllocatorWrapper> m_UsedTempResources[TempResourceType::ENUM_COUNT];
 
-  // Utils for getting timer frequency.
-  static const ezUInt32 m_uiNumDisjointTimerQueries = 3;
-  ezUInt32 m_uiRunDisjointTimerQuery;
-  ID3D11Query* m_pDisjointTimerQueries[m_uiNumDisjointTimerQueries];
-  ezUInt64 m_uiLastTimerTicksPerSecond;
-  ezUInt32 m_uiNextDisjointTimerQueryToRun;
-  bool m_bStartedDisjointQuery;
+  ezDynamicArray<ID3D11Query*, ezLocalAllocatorWrapper> m_Timestamps;
+  ezUInt32 m_uiCurrentTimestamp = 0;
+  ezUInt32 m_uiNextTimestamp = 0;
+
+  ezTime m_SyncTimeDiff;
+  bool m_bSyncTimeNeeded = true;
 };
 
 #include <RendererDX11/Device/Implementation/DeviceDX11_inl.h>

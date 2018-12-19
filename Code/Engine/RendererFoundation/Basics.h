@@ -432,7 +432,6 @@ class ezGALFenceHandle
   friend class ezGALContext;
 };
 
-
 class ezGALQueryHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezGALQueryHandle, ezGAL::ez20_12Id);
@@ -441,4 +440,13 @@ class ezGALQueryHandle
   friend struct ezGALContextState;
   friend class ezGALContext;
 };
+
+struct ezGALTimestampHandle
+{
+  EZ_DECLARE_POD_TYPE();
+
+  ezUInt64 m_uiIndex;
+  ezUInt64 m_uiFrameCounter;
+};
+
 

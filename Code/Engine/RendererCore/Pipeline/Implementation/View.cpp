@@ -58,6 +58,16 @@ void ezView::SetName(const char* szName)
   m_ExtractTask.SetTaskName(sb);
 }
 
+void ezView::SetWorld(ezWorld* pWorld)
+{
+  if (m_pWorld != pWorld)
+  {
+    ezRenderWorld::DeleteCachedRenderData(*this);
+  }
+
+  m_pWorld = pWorld;
+}
+
 void ezView::SetRenderTargetSetup(ezGALRenderTagetSetup& renderTargetSetup)
 {
   m_RenderTargetSetup = renderTargetSetup;

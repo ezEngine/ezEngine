@@ -333,9 +333,6 @@ struct ezGALQueryType
     NumSamplesPassed,
     /// Boolean version of NumSamplesPassed.
     AnySamplesPassed,
-    /// Returns a GPU timestamp. Frequency must be queries from the context and may change over time.
-    /// You can only call EndQuery on Timestamp-queries.
-    Timestamp,
 
     // Note:
     // GALFence provides an implementation of "event queries".

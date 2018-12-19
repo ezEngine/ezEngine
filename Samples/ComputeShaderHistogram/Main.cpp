@@ -7,7 +7,6 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererFoundation/Device/SwapChain.h>
-#include <RendererFoundation/Profiling/GPUStopwatch.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <System/Window/Window.h>
 
@@ -89,8 +88,6 @@ ezApplication::ApplicationExecution ezComputeShaderHistogramApp::Run()
 
     // Compute histogram.
     {
-      ezGPUStopwatch::Scope timer(*m_pHistogramGPUStopwatch, GALContext);
-
       // Reset first.
       GALContext.ClearUnorderedAccessView(m_hHistogramUAV, ezVec4U32(0, 0, 0, 0));
 
@@ -122,10 +119,6 @@ ezApplication::ApplicationExecution ezComputeShaderHistogramApp::Run()
     device->EndFrame();
     ezRenderContext::GetDefaultInstance()->ResetContextState();
   }
-
-  ezStringBuilder tmp;
-  ezStats::SetStat("Histogram Computation Time (ms)",
-                   ezConversionUtils::ToString(m_pHistogramGPUStopwatch->GetLastResult().GetMilliseconds(), tmp));
 
   // needs to be called once per frame
   ezResourceManager::PerFrameUpdate();
@@ -216,9 +209,6 @@ void ezComputeShaderHistogramApp::AfterCoreStartup()
 
   // Geometry.
   CreateHistogramQuad();
-
-
-  m_pHistogramGPUStopwatch = EZ_DEFAULT_NEW(ezGPUStopwatch, *device);
 }
 
 void ezComputeShaderHistogramApp::BeforeCoreShutdown()
@@ -240,8 +230,6 @@ void ezComputeShaderHistogramApp::BeforeCoreShutdown()
   m_hHistogramSRV.Invalidate();
   device->DestroyTexture(m_hHistogramTexture);
   m_hHistogramTexture.Invalidate();
-
-  m_pHistogramGPUStopwatch.Reset();
 
   ezGameApplication::BeforeCoreShutdown();
 }

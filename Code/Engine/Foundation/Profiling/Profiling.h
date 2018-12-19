@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Types/Id.h>
+#include <Foundation/Time/Time.h>
 
 class ezStreamWriter;
 class ezThread;
@@ -68,6 +68,23 @@ private:
   /// \brief Removes the current thread from the profiling system.
   ///  Needs to be called before the thread exits to be able to release profiling memory of dead threads on Reset.
   static void RemoveThread();
+
+public:
+
+  /// \brief Helper struct to hold GPU profiling data.
+  struct GPUData
+  {
+    ezTime m_BeginTime;
+    ezTime m_EndTime;
+    char m_szName[48];
+  };
+
+  /// \brief Initialized internal data structures for GPU profiling data. Needs to be called before adding any data.
+  static void InitializeGPUData();
+
+  /// \brief Allocates GPU profiling data in the internal event ringbuffer.
+  static GPUData& AllocateGPUData();
+
 };
 
 #if EZ_ENABLED(EZ_USE_PROFILING) || defined(EZ_DOCS)

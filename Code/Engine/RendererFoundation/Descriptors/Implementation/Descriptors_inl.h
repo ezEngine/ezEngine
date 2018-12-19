@@ -232,7 +232,7 @@ inline ezGALUnorderedAccessViewCreationDescription::ezGALUnorderedAccessViewCrea
 }
 
 inline ezGALQueryCreationDescription::ezGALQueryCreationDescription() :
-  m_type(ezGALQueryType::Timestamp),
+  m_type(ezGALQueryType::NumSamplesPassed),
   m_bDrawIfUnknown(true)
 {
 }

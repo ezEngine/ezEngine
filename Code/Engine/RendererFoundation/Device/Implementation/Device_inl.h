@@ -9,6 +9,16 @@ EZ_ALWAYS_INLINE const ezGALDeviceCreationDescription* ezGALDevice::GetDescripti
   return &m_Description;
 }
 
+EZ_ALWAYS_INLINE ezResult ezGALDevice::GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& result)
+{
+  return GetTimestampResultPlatform(hTimestamp, result);
+}
+
+EZ_ALWAYS_INLINE ezGALTimestampHandle ezGALDevice::GetTimestamp()
+{
+  return GetTimestampPlatform();
+}
+
 EZ_ALWAYS_INLINE ezGALSwapChainHandle ezGALDevice::GetPrimarySwapChain() const
 {
   return m_hPrimarySwapChain;

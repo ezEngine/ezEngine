@@ -145,6 +145,9 @@ protected:
 
   virtual ezResult GetQueryResultPlatform(const ezGALQuery* pQuery, ezUInt64& uiQueryResult) override;
 
+  // Timestamp functions
+
+  virtual void InsertTimestampPlatform(ezGALTimestampHandle hTimestamp) override;
 
   // Resource update functions
 

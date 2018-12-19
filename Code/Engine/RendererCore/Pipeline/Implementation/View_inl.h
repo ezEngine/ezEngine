@@ -9,11 +9,6 @@ EZ_ALWAYS_INLINE const char* ezView::GetName() const
   return m_sName.GetString();
 }
 
-EZ_ALWAYS_INLINE void ezView::SetWorld(ezWorld* pWorld)
-{
-  m_pWorld = pWorld;
-}
-
 EZ_ALWAYS_INLINE ezWorld* ezView::GetWorld()
 {
   return m_pWorld;

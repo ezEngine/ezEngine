@@ -1,10 +1,10 @@
 #include <PCH.h>
 
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
-#include <RendererFoundation/Profiling/GPUStopwatch.h>
 #include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/ResourceView.h>
@@ -142,6 +142,8 @@ ezResult ezGALDevice::Init()
     SetPrimarySwapChain(hSwapChain);
   }
 
+  ezProfilingSystem::InitializeGPUData();
+
   {
     ezGALDeviceEvent e;
     e.m_pDevice = this;
@@ -165,10 +167,6 @@ ezResult ezGALDevice::Shutdown()
     m_Events.Broadcast(e);
   }
 
-  for (auto it = m_namedStopwatches.GetIterator(); it.IsValid(); ++it)
-    EZ_DEFAULT_DELETE(it.Value());
-  m_namedStopwatches.Clear();
-
   // If we created a primary swap chain, release it
   if (!m_hPrimarySwapChain.IsInvalidated())
   {
@@ -182,8 +180,6 @@ ezResult ezGALDevice::Shutdown()
 
   return ShutdownPlatform();
 }
-
-/// \todo State / resource creation needs to check if multithreaded resource creation is allowed and if not if it is in the render thread
 
 ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreationDescription& desc)
 {
@@ -1045,18 +1041,6 @@ void ezGALDevice::DestroyVertexDeclaration(ezGALVertexDeclarationHandle hVertexD
   }
 }
 
-ezGPUStopwatch& ezGALDevice::GetOrCreateGPUStopwatch(const char* szName)
-{
-  ezGPUStopwatch* stopwatch = nullptr;
-  if (!m_namedStopwatches.TryGetValue(szName, stopwatch))
-  {
-    stopwatch = EZ_DEFAULT_NEW(ezGPUStopwatch, *this);
-    m_namedStopwatches.Insert(szName, stopwatch);
-  }
-
-  return *stopwatch;
-}
-
 // Swap chain functions
 
 void ezGALDevice::Present(ezGALSwapChainHandle hSwapChain, bool bVSync)
@@ -1157,13 +1141,6 @@ void ezGALDevice::SetPrimarySwapChain(ezGALSwapChainHandle hSwapChain)
   {
     ezLog::Error("Invalid swap chain handle given to SetPrimarySwapChain!");
   }
-}
-
-ezUInt64 ezGALDevice::GetTimestampTicksPerSecond()
-{
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  return GetTimestampTicksPerSecondPlatform();
 }
 
 const ezGALDeviceCapabilities& ezGALDevice::GetCapabilities() const

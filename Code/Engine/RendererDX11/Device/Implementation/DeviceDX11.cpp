@@ -28,26 +28,13 @@ ezGALDeviceDX11::ezGALDeviceDX11(const ezGALDeviceCreationDescription& Descripti
     , m_pDXGIAdapter(nullptr)
     , m_pDXGIDevice(nullptr)
     , m_FeatureLevel(D3D_FEATURE_LEVEL_9_1)
-    , m_uiCurrentEndFrameFence(0)
-    , m_uiNextEndFrameFence(0)
     , m_uiFrameCounter(0)
-    , m_uiRunDisjointTimerQuery(0)
-    , m_uiLastTimerTicksPerSecond(0)
-    , m_uiNextDisjointTimerQueryToRun(0)
-    , m_bStartedDisjointQuery(false)
 {
-  m_uiRunDisjointTimerQuery = 0;
-  for (ezUInt32 i = 0; i < m_uiNumDisjointTimerQueries; ++i)
-    m_pDisjointTimerQueries[i] = nullptr;
-  m_uiNextDisjointTimerQueryToRun = 0;
 }
 
 ezGALDeviceDX11::~ezGALDeviceDX11()
 {
-  for (ezUInt32 i = 0; i < m_uiNumDisjointTimerQueries; ++i)
-    EZ_GAL_DX11_RELEASE(m_pDisjointTimerQueries[i]);
 }
-
 
 // Init & shutdown functions
 
@@ -170,13 +157,38 @@ retry:
 
   ezProjectionDepthRange::Default = ezProjectionDepthRange::ZeroToOne;
 
+  // Per frame data & timer data
+  D3D11_QUERY_DESC disjointQueryDesc;
+  disjointQueryDesc.Query = D3D11_QUERY_TIMESTAMP_DISJOINT;
+  disjointQueryDesc.MiscFlags = 0;
 
-  // End frame fences
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_EndFrameFences); ++i)
+  D3D11_QUERY_DESC timerQueryDesc;
+  timerQueryDesc.Query = D3D11_QUERY_TIMESTAMP;
+  timerQueryDesc.MiscFlags = 0;
+
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
   {
-    m_EndFrameFences[i].m_pFence = CreateFencePlatform();
-    m_EndFrameFences[i].m_uiFrame = -1;
+    auto& perFrameData = m_PerFrameData[i];
+    perFrameData.m_pFence = CreateFencePlatform();
+
+    if (FAILED(m_pDevice->CreateQuery(&disjointQueryDesc, &perFrameData.m_pDisjointTimerQuery)))
+    {
+      ezLog::Error("Creation of native DirectX query for disjoint query has failed!");
+      return EZ_FAILURE;
+    }
   }
+
+  m_Timestamps.SetCountUninitialized(1024);
+  for (ezUInt32 i = 0; i < m_Timestamps.GetCount(); ++i)
+  {
+    if (FAILED(m_pDevice->CreateQuery(&timerQueryDesc, &m_Timestamps[i])))
+    {
+      ezLog::Error("Creation of native DirectX query for timestamp has failed!");
+      return EZ_FAILURE;
+    }
+  }
+
+  m_SyncTimeDiff.SetZero();
 
   return EZ_SUCCESS;
 }
@@ -207,10 +219,14 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
     m_UsedTempResources[type].Clear();
   }
 
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_EndFrameFences); ++i)
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
   {
-    DestroyFencePlatform(m_EndFrameFences[i].m_pFence);
-    m_EndFrameFences[i].m_pFence = nullptr;
+    auto& perFrameData = m_PerFrameData[i];
+
+    DestroyFencePlatform(perFrameData.m_pFence);
+    perFrameData.m_pFence = nullptr;
+
+    EZ_GAL_DX11_RELEASE(perFrameData.m_pDisjointTimerQuery);
   }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
@@ -543,7 +559,52 @@ void ezGALDeviceDX11::DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* p
   EZ_DELETE(&m_Allocator, pVertexDeclarationDX11);
 }
 
+ezGALTimestampHandle ezGALDeviceDX11::GetTimestampPlatform()
+{
+  ezUInt32 uiIndex = m_uiNextTimestamp;
+  m_uiNextTimestamp = (m_uiNextTimestamp + 1) % m_Timestamps.GetCount();
+  return { uiIndex, m_uiFrameCounter };
+}
 
+ezResult ezGALDeviceDX11::GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& result)
+{
+  // Check whether frequency and sync timer are already available for the frame of the timestamp
+  ezUInt64 uiFrameCounter = hTimestamp.m_uiFrameCounter;
+
+  PerFrameData* pPerFrameData = nullptr;
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
+  {
+    if (m_PerFrameData[i].m_uiFrame == uiFrameCounter && m_PerFrameData[i].m_fInvTicksPerSecond >= 0.0)
+    {
+      pPerFrameData = &m_PerFrameData[i];
+      break;
+    }
+  }
+
+  if (pPerFrameData == nullptr)
+  {
+    return EZ_FAILURE;
+  }
+
+  ezGALContextDX11* pContext = GetPrimaryContext<ezGALContextDX11>();
+  ID3D11Query* pQuery = GetTimestamp(hTimestamp);
+
+  ezUInt64 uiTimestamp;
+  if (FAILED(pContext->GetDXContext()->GetData(pQuery, &uiTimestamp, sizeof(uiTimestamp), D3D11_ASYNC_GETDATA_DONOTFLUSH)))
+  {
+    return EZ_FAILURE;
+  }
+
+  if (pPerFrameData->m_fInvTicksPerSecond == 0.0)
+  {
+    result.SetZero();
+  }
+  else
+  {
+    result = ezTime::Seconds(double(uiTimestamp) * pPerFrameData->m_fInvTicksPerSecond) + m_SyncTimeDiff;
+  }
+  return EZ_SUCCESS;
+}
 
 // Swap chain functions
 
@@ -592,88 +653,76 @@ void ezGALDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain, bool bVSync)
 
 void ezGALDeviceDX11::BeginFramePlatform()
 {
-  if (m_uiRunDisjointTimerQuery > 0)
-  {
-    // Create disjoint queries if we don't have them yet.
-    if (!m_pDisjointTimerQueries[0])
-    {
-      D3D11_QUERY_DESC queryDesc;
-      queryDesc.Query = D3D11_QUERY_TIMESTAMP_DISJOINT;
-      queryDesc.MiscFlags = 0;
-      for (int i = 0; i < m_uiNumDisjointTimerQueries; ++i)
-      {
-        if (FAILED(m_pDevice->CreateQuery(&queryDesc, &m_pDisjointTimerQueries[i])))
-        {
-          ezLog::Error("Creation of native DirectX query for disjoint query has failed!");
-          m_uiRunDisjointTimerQuery = 0;
-          return;
-        }
-      }
-    }
+  auto& perFrameData = m_PerFrameData[m_uiNextPerFrameData];
 
-    // Start query.
-    EZ_ASSERT_DEV(!m_bStartedDisjointQuery, "Disjoint query for frequency already stated!");
-    GetPrimaryContext<ezGALContextDX11>()->GetDXContext()->Begin(m_pDisjointTimerQueries[m_uiNextDisjointTimerQueryToRun]);
-    m_bStartedDisjointQuery = true;
-  }
+  ezGALContextDX11* pContext = GetPrimaryContext<ezGALContextDX11>();
+  pContext->GetDXContext()->Begin(perFrameData.m_pDisjointTimerQuery);
+
+  perFrameData.m_fInvTicksPerSecond = -1.0f;
 }
 
 void ezGALDeviceDX11::EndFramePlatform()
 {
   ezGALContextDX11* pContext = GetPrimaryContext<ezGALContextDX11>();
 
-  if (m_bStartedDisjointQuery)
+  // check if fence is reached and update per frame data
   {
-    // End current disjoint query ..
-    pContext->GetDXContext()->End(m_pDisjointTimerQueries[m_uiNextDisjointTimerQueryToRun]);
-    m_uiNextDisjointTimerQueryToRun = (m_uiNextDisjointTimerQueryToRun + 1) % m_uiNumDisjointTimerQueries;
-
-    // .. and retrieve data from oldest.
-    D3D11_QUERY_DATA_TIMESTAMP_DISJOINT data;
-    if (SUCCEEDED(pContext->GetDXContext()->GetData(m_pDisjointTimerQueries[m_uiNextDisjointTimerQueryToRun], &data, sizeof(data),
-                                                    D3D11_ASYNC_GETDATA_DONOTFLUSH)))
+    auto& perFrameData = m_PerFrameData[m_uiCurrentPerFrameData];
+    if (perFrameData.m_uiFrame != ((ezUInt64)-1))
     {
-      if (!data.Disjoint)
-        m_uiLastTimerTicksPerSecond = data.Frequency;
-    }
-
-    m_bStartedDisjointQuery = false;
-    EZ_ASSERT_DEV(m_uiRunDisjointTimerQuery > 0, "Disjoint query started but no disjoint queries scheduled.");
-    --m_uiRunDisjointTimerQuery;
-  }
-
-
-  // check if fence is reached
-  {
-    auto& endFrameFence = m_EndFrameFences[m_uiCurrentEndFrameFence];
-    if (endFrameFence.m_uiFrame != ((ezUInt64)-1))
-    {
-      bool bFenceReached = pContext->IsFenceReachedPlatform(endFrameFence.m_pFence);
-      if (!bFenceReached && m_uiNextEndFrameFence == m_uiCurrentEndFrameFence)
+      bool bFenceReached = pContext->IsFenceReachedPlatform(perFrameData.m_pFence);
+      if (!bFenceReached && m_uiNextPerFrameData == m_uiCurrentPerFrameData)
       {
-        pContext->WaitForFencePlatform(endFrameFence.m_pFence);
+        pContext->WaitForFencePlatform(perFrameData.m_pFence);
         bFenceReached = true;
       }
 
       if (bFenceReached)
       {
-        FreeTempResources(endFrameFence.m_uiFrame);
+        FreeTempResources(perFrameData.m_uiFrame);
 
-        m_uiCurrentEndFrameFence = (m_uiCurrentEndFrameFence + 1) % EZ_ARRAY_SIZE(m_EndFrameFences);
+        D3D11_QUERY_DATA_TIMESTAMP_DISJOINT data;
+        if (FAILED(pContext->GetDXContext()->GetData(perFrameData.m_pDisjointTimerQuery, &data, sizeof(data), D3D11_ASYNC_GETDATA_DONOTFLUSH)) || data.Disjoint)
+        {
+          perFrameData.m_fInvTicksPerSecond = 0.0f;
+        }
+        else
+        {
+          perFrameData.m_fInvTicksPerSecond = 1.0 / (double)data.Frequency;
+
+          if (m_bSyncTimeNeeded)
+          {
+            ezGALTimestampHandle hTimestamp = pContext->InsertTimestamp();
+            ID3D11Query* pQuery = GetTimestamp(hTimestamp);
+
+            ezUInt64 uiTimestamp;
+            while (pContext->GetDXContext()->GetData(pQuery, &uiTimestamp, sizeof(uiTimestamp), 0) != S_OK)
+            {
+              ezThreadUtils::YieldTimeSlice();
+            }
+
+            m_SyncTimeDiff = ezTime::Now() - ezTime::Seconds(double(uiTimestamp) * perFrameData.m_fInvTicksPerSecond);
+            m_bSyncTimeNeeded = false;
+          }
+        }
+
+        m_uiCurrentPerFrameData = (m_uiCurrentPerFrameData + 1) % EZ_ARRAY_SIZE(m_PerFrameData);
       }
     }
   }
 
-  // insert fence
   {
-    auto& endFrameFence = m_EndFrameFences[m_uiNextEndFrameFence];
+    auto& perFrameData = m_PerFrameData[m_uiNextPerFrameData];
+    perFrameData.m_uiFrame = m_uiFrameCounter;
 
-    pContext->InsertFencePlatform(endFrameFence.m_pFence);
-    endFrameFence.m_uiFrame = m_uiFrameCounter;
+    // end disjoint query
+    pContext->GetDXContext()->End(perFrameData.m_pDisjointTimerQuery);
 
-    m_uiNextEndFrameFence = (m_uiNextEndFrameFence + 1) % EZ_ARRAY_SIZE(m_EndFrameFences);
+    // insert fence
+    pContext->InsertFencePlatform(perFrameData.m_pFence);
+
+    m_uiNextPerFrameData = (m_uiNextPerFrameData + 1) % EZ_ARRAY_SIZE(m_PerFrameData);
   }
-
 
   ++m_uiFrameCounter;
 }
@@ -771,23 +820,6 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
       EZ_ASSERT_NOT_IMPLEMENTED;
       break;
   }
-}
-
-ezUInt64 ezGALDeviceDX11::GetTimestampTicksPerSecondPlatform()
-{
-  // Frequency in DX11 is odd in comparision to DX12 and Vulkan.
-  // We need a D3D11_QUERY_TIMESTAMP_DISJOINT and according to the documentation we should have only one of those around, spanning the
-  // entire frame. See https://msdn.microsoft.com/en-us/library/windows/desktop/ff476191(v=vs.85).aspx "This type of query should only be
-  // invoked once per frame or less." Also, as with all queries we need to have it around several times, otherwise we won't get any values
-  // back. This brings us into the uncomfortable situation to use frequencies from older frames while we don't know which timestamps the
-  // user plans to use these frequencies with! For the moment we just ignore this fact and hope that the frequency will be reasonable
-  // stable.
-
-  // Run disjoint timer queries if the user keeps calling this function. We count this value down each frame the user isn't calling this
-  // function to disable the timers again. (API doesn't specify how costly they are, so we better avoid all this.)
-  m_uiRunDisjointTimerQuery = 4;
-
-  return m_uiLastTimerTicksPerSecond;
 }
 
 ID3D11Resource* ezGALDeviceDX11::FindTempBuffer(ezUInt32 uiSize)

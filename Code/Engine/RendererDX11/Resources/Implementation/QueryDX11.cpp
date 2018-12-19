@@ -41,9 +41,6 @@ ezResult ezGALQueryDX11::InitPlatform(ezGALDevice* pDevice)
     case ezGALQueryType::AnySamplesPassed:
       desc.Query = D3D11_QUERY_OCCLUSION_PREDICATE;
       break;
-    case ezGALQueryType::Timestamp:
-      desc.Query = D3D11_QUERY_TIMESTAMP;
-      break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
   }

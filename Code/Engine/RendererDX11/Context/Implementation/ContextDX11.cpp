@@ -640,6 +640,13 @@ ezResult ezGALContextDX11::GetQueryResultPlatform(const ezGALQuery* pQuery, ezUI
              : EZ_SUCCESS;
 }
 
+void ezGALContextDX11::InsertTimestampPlatform(ezGALTimestampHandle hTimestamp)
+{
+  ID3D11Query* pDXQuery = static_cast<ezGALDeviceDX11*>(GetDevice())->GetTimestamp(hTimestamp);
+
+  m_pDXContext->End(pDXQuery);
+}
+
 // Resource update functions
 
 void ezGALContextDX11::CopyBufferPlatform(const ezGALBuffer* pDestination, const ezGALBuffer* pSource)
