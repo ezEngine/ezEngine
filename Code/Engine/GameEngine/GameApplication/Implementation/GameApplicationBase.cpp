@@ -1,6 +1,8 @@
 #include <PCH.h>
 
 #include <Foundation/Image/Image.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Timestamp.h>
 #include <GameApplication/GameApplicationBase.h>
@@ -106,6 +108,35 @@ void ezGameApplicationBase::SetWindowOutputTarget(const ezWindowBase* pWindow, e
 
 //////////////////////////////////////////////////////////////////////////
 
+void AppendCurrentTimestamp(ezStringBuilder& out_String)
+{
+  const ezDateTime dt = ezTimestamp::CurrentTimestamp();
+
+  out_String.AppendFormat("{0}-{1}-{2} {3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true),
+    ezArgU(dt.GetDay(), 2, true), ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true),
+    ezArgU(dt.GetSecond(), 2, true), ezArgU(dt.GetMicroseconds() / 1000, 3, true));
+}
+
+void ezGameApplicationBase::TakeProfilingCapture()
+{
+  ezStringBuilder sPath = ":appdata/profiling ";
+  AppendCurrentTimestamp(sPath);
+  sPath.Append(".json");
+
+  ezFileWriter fileWriter;
+  if (fileWriter.Open(sPath) == EZ_SUCCESS)
+  {
+    ezProfilingSystem::Capture(fileWriter);
+    ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
+  }
+  else
+  {
+    ezLog::Error("Could not write profiling capture to '{0}'.", sPath);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 void ezGameApplicationBase::TakeScreenshot()
 {
   m_bTakeScreenshot = true;
@@ -121,13 +152,10 @@ void ezGameApplicationBase::StoreScreenshot(const ezImage& image)
   private:
     virtual void Execute() override
     {
-      const ezDateTime dt = ezTimestamp::CurrentTimestamp();
-
       ezStringBuilder sPath;
-      sPath.Format(":appdata/Screenshots/{6} {0}-{1}-{2} {3}-{4}-{5}-{7}.tga", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true),
-                   ezArgU(dt.GetDay(), 2, true), ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true),
-                   ezArgU(dt.GetSecond(), 2, true), ezApplication::GetApplicationInstance()->GetApplicationName(),
-                   ezArgU(dt.GetMicroseconds() / 1000, 3, true));
+      sPath.Format(":appdata/Screenshots/{0} ", ezApplication::GetApplicationInstance()->GetApplicationName());
+      AppendCurrentTimestamp(sPath);
+      sPath.Append(".tga");
 
       /// \todo Get rid of Alpha channel before saving
 

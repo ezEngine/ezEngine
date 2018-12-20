@@ -92,6 +92,7 @@ namespace
 void ezProfilingSystem::Capture(ezStreamWriter& outputStream)
 {
   ezStandardJSONWriter writer;
+  writer.SetWhitespaceMode(ezJSONWriter::WhitespaceMode::None);
   writer.SetOutputStream(&outputStream);
 
   writer.BeginObject();

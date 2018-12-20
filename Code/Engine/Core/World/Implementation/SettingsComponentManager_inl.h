@@ -17,13 +17,23 @@ ezSettingsComponentManager<ComponentType>::~ezSettingsComponentManager()
 template <typename ComponentType>
 EZ_ALWAYS_INLINE ComponentType* ezSettingsComponentManager<ComponentType>::GetSingletonComponent()
 {
-  return m_Components[0].Borrow();
+  if (!m_Components.IsEmpty())
+  {
+    return m_Components[0].Borrow();
+  }
+
+  return nullptr;
 }
 
 template <typename ComponentType>
 EZ_ALWAYS_INLINE const ComponentType* ezSettingsComponentManager<ComponentType>::GetSingletonComponent() const
 {
-  return m_Components[0].Borrow();
+  if (!m_Components.IsEmpty())
+  {
+    return m_Components[0].Borrow();
+  }
+
+  return nullptr;
 }
 
 // static

@@ -91,6 +91,10 @@ protected:
 
   ezDynamicArray<WindowContext> m_Windows;
 
+public:
+  /// \brief Does a profiling capture and writes it to disk at ':appdata'
+  void TakeProfilingCapture();
+
   ///@}
   /// \name Screenshots
   ///@{

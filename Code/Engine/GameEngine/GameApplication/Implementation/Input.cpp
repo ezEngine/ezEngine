@@ -4,8 +4,6 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Clock.h>
 #include <GameEngine/Configuration/InputConfig.h>
 #include <GameEngine/Console/Console.h>
@@ -93,18 +91,7 @@ void ezGameApplication::ProcessApplicationInput()
 
   if (ezInputManager::GetInputActionState(g_szInputSet, g_szCaptureProfilingAction) == ezKeyState::Pressed)
   {
-    const char* szOutput = ":appdata/profiling.json";
-
-    ezFileWriter fileWriter;
-    if (fileWriter.Open(szOutput) == EZ_SUCCESS)
-    {
-      ezProfilingSystem::Capture(fileWriter);
-      ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
-    }
-    else
-    {
-      ezLog::Error("Could not write profiling capture to '{0}'.", szOutput);
-    }
+    TakeProfilingCapture();
   }
 
   if (m_bShowConsole && m_pConsole)
