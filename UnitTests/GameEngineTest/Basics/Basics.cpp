@@ -111,6 +111,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestTransformAssetsExec(ezIn
   sBinPath.AppendFormat("/EditorProcessor.exe -project \"{0}\" -transform PC", sBaseDataPath);
   sBinPath.MakeCleanPath();
 
+  ezLog::Info("Launching: '{0}'", sBinPath);
 
   STARTUPINFOW info = {sizeof(info)};
   PROCESS_INFORMATION processInfo;

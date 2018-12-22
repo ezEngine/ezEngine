@@ -250,7 +250,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
             pRefrencedObject = CreateObjectFromNode(pNode);
             if (pRefrencedObject == nullptr)
             {
-              ezLog::Error("Failed to insert set element in to property '{0}', type could not be created!", pProp->GetPropertyName());
+              ezLog::Error("Failed to insert set element into property '{0}', type could not be created!", pProp->GetPropertyName());
               continue;
             }
           }
@@ -337,7 +337,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
               pRefrencedObject = CreateObjectFromNode(pNode);
               if (pRefrencedObject == nullptr)
               {
-                ezLog::Error("Failed to insert set element in to property '{0}', type could not be created!", pProp->GetPropertyName());
+                ezLog::Error("Failed to insert set element into property '{0}', type could not be created!", pProp->GetPropertyName());
                 continue;
               }
             }
