@@ -29,7 +29,7 @@ ezRenderPipeline::ezRenderPipeline()
   m_uiLastRenderFrame = -1;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  m_fAverageCullingTime = 0.1f;
+  m_AverageCullingTime = ezTime::Seconds(0.1f);
 #endif
 }
 
@@ -967,9 +967,9 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
     ezDebugRenderer::Draw2DText(hView, sb, ezVec2I32(10, 260), ezColor::LimeGreen);
 
     // Exponential moving average for better readability.
-    m_fAverageCullingTime = ezMath::Lerp(m_fAverageCullingTime, stats.m_fTimeTaken, 0.05f);
+    m_AverageCullingTime = ezMath::Lerp(m_AverageCullingTime, stats.m_TimeTaken, 0.05f);
 
-    sb.Format("Time Taken: {0}ms", m_fAverageCullingTime * 1000.0f);
+    sb.Format("Time Taken: {0}ms", m_AverageCullingTime.GetMilliseconds());
     ezDebugRenderer::Draw2DText(hView, sb, ezVec2I32(10, 280), ezColor::LimeGreen);
   }
 #else

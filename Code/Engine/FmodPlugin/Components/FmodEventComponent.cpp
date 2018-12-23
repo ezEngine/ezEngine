@@ -161,7 +161,7 @@ ezUInt32 ezFmodEventComponentManager::AddOcclusionState(ezFmodEventComponent* pC
   if (const auto pPhysicsWorldModule = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>())
   {
     ezVec3 listenerPos = ezFmod::GetSingleton()->GetListenerPosition();
-    ShootOcclusionRays(occlusionState, listenerPos, 8, pPhysicsWorldModule, 1000.0f);
+    ShootOcclusionRays(occlusionState, listenerPos, 8, pPhysicsWorldModule, ezTime::Seconds(1000.0));
   }
 
   return m_OcclusionStates.GetCount() - 1;
@@ -181,7 +181,7 @@ void ezFmodEventComponentManager::RemoveOcclusionState(ezUInt32 uiIndex)
 }
 
 void ezFmodEventComponentManager::ShootOcclusionRays(OcclusionState& state, ezVec3 listenerPos, ezUInt32 uiNumRays,
-                                                     const ezPhysicsWorldModuleInterface* pPhysicsWorldModule, float deltaTime)
+                                                     const ezPhysicsWorldModuleInterface* pPhysicsWorldModule, ezTime deltaTime)
 {
   ezVec3 centerPos = state.m_pComponent->GetOwner()->GetGlobalPosition();
   ezUInt8 uiCollisionLayer = state.m_pComponent->m_uiOcclusionCollisionLayer;
@@ -211,7 +211,7 @@ void ezFmodEventComponentManager::ShootOcclusionRays(OcclusionState& state, ezVe
   float fNewOcclusionValue = (float)ezMath::CountBits(state.m_uiRaycastHits) / state.m_uiNumUsedRays;
   float fNormalizedDistance = ezMath::Min((centerPos - listenerPos).GetLength() / state.m_fRadius, 1.0f);
   fNewOcclusionValue = ezMath::Max(fNewOcclusionValue - 1.0f + fNormalizedDistance, 0.0f);
-  state.m_fLastOcclusionValue = ezMath::Lerp(state.m_fLastOcclusionValue, fNewOcclusionValue, ezMath::Min(deltaTime * 8.0f, 1.0f));
+  state.m_fLastOcclusionValue = ezMath::Lerp(state.m_fLastOcclusionValue, fNewOcclusionValue, ezMath::Min(deltaTime.GetSeconds() * 8.0, 1.0));
 }
 
 void ezFmodEventComponentManager::UpdateOcclusion(const ezWorldModule::UpdateContext& context)
@@ -220,7 +220,7 @@ void ezFmodEventComponentManager::UpdateOcclusion(const ezWorldModule::UpdateCon
   if (const auto pPhysicsWorldModule = pWorld->GetModule<ezPhysicsWorldModuleInterface>())
   {
     ezVec3 listenerPos = ezFmod::GetSingleton()->GetListenerPosition();
-    float deltaTime = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
+    ezTime deltaTime = GetWorld()->GetClock().GetTimeDiff();
 
     ezUInt32 uiNumRays = ezMath::Max<int>(CVarFmodOcclusionRays, 1);
 

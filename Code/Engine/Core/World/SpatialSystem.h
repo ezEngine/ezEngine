@@ -36,14 +36,13 @@ public:
     ezUInt32 m_uiTotalNumObjects;  ///< The total number of spatial objects in this system.
     ezUInt32 m_uiNumObjectsTested; ///< Number of objects tested for the query condition.
     ezUInt32 m_uiNumObjectsPassed; ///< Number of objects that passed the query condition.
-    float m_fTimeTaken;            ///< Time taken to execute the query in seconds.
+    ezTime m_TimeTaken;            ///< Time taken to execute the query
 
     EZ_ALWAYS_INLINE QueryStats()
     {
       m_uiTotalNumObjects = 0;
       m_uiNumObjectsTested = 0;
       m_uiNumObjectsPassed = 0;
-      m_fTimeTaken = 0.0f;
     }
   };
 

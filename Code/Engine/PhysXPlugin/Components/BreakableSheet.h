@@ -125,7 +125,7 @@ protected:
   ezDynamicArray<ezBoundingBox> m_PieceBoundingBoxes;
   ezBoundingSphere m_BrokenPiecesBoundingSphere;
   ezUInt32 m_uiNumActiveBrokenPieceActors = 0;
-  float m_fTimeUntilDisappear = 0.0f;
+  ezTime m_TimeUntilDisappear;
 
   ezVec3 m_vExtents;
 

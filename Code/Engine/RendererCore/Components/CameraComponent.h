@@ -100,8 +100,8 @@ public:
   float GetAperture() const { return m_fAperture; }
   void SetAperture(float fAperture);
 
-  float GetShutterTime() const { return m_fShutterTime; }
-  void SetShutterTime(float fShutterTime);
+  ezTime GetShutterTime() const { return m_ShutterTime; }
+  void SetShutterTime(ezTime ShutterTime);
 
   float GetISO() const { return m_fISO; }
   void SetISO(float fISO);
@@ -130,7 +130,7 @@ private:
   ezRenderPipelineResourceHandle m_hCachedRenderPipeline;
 
   float m_fAperture;
-  float m_fShutterTime;
+  ezTime m_ShutterTime;
   float m_fISO;
   float m_fExposureCompensation;
 

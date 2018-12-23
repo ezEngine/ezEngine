@@ -95,7 +95,7 @@ private: // Member data
   ezDynamicArray<const ezGameObject*> m_visibleObjects;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  float m_fAverageCullingTime;
+  ezTime m_AverageCullingTime;
 #endif
 
   ezHashedString m_sName;

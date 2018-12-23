@@ -910,7 +910,7 @@ void ezPhysXWorldModule::Simulate()
 
   if (m_Settings.m_SteppingMode == ezPxSteppingMode::Variable)
   {
-    SimulateStep((float)tDiff.GetSeconds());
+    SimulateStep(tDiff);
   }
   else if (m_Settings.m_SteppingMode == ezPxSteppingMode::Fixed)
   {
@@ -921,7 +921,7 @@ void ezPhysXWorldModule::Simulate()
 
     while (m_AccumulatedTimeSinceUpdate >= tFixedStep && uiNumSubSteps < m_Settings.m_uiMaxSubSteps)
     {
-      SimulateStep((float)tFixedStep.GetSeconds());
+      SimulateStep(tFixedStep);
 
       m_AccumulatedTimeSinceUpdate -= tFixedStep;
       ++uiNumSubSteps;
@@ -942,7 +942,7 @@ void ezPhysXWorldModule::Simulate()
     {
       ezTime tDeltaTime = ezMath::Min(tFixedStep, m_AccumulatedTimeSinceUpdate);
 
-      SimulateStep((float)tDeltaTime.GetSeconds());
+      SimulateStep(tDeltaTime);
 
       m_AccumulatedTimeSinceUpdate -= tDeltaTime;
     }
@@ -956,13 +956,13 @@ void ezPhysXWorldModule::Simulate()
   // m_pCharacterManager->computeInteractions((float)tDiff.GetSeconds());
 }
 
-void ezPhysXWorldModule::SimulateStep(float fDeltaTime)
+void ezPhysXWorldModule::SimulateStep(ezTime deltaTime)
 {
   {
     EZ_PX_WRITE_LOCK(*m_pPxScene);
 
     EZ_PROFILE_SCOPE("Simulate");
-    m_pPxScene->simulate(fDeltaTime, nullptr, m_ScratchMemory.GetData(), m_ScratchMemory.GetCount());
+    m_pPxScene->simulate(deltaTime.GetSeconds(), nullptr, m_ScratchMemory.GetData(), m_ScratchMemory.GetCount());
   }
 
   {

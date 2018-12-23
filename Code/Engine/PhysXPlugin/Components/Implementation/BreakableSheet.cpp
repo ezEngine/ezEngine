@@ -15,8 +15,8 @@
 #include <RendererFoundation/Device/Device.h>
 
 #define JC_VORONOI_IMPLEMENTATION
-#include <ThirdParty/jc_voronoi/jc_voronoi.h>
 #include <Core/Utils/WorldGeoExtractionUtil.h>
+#include <ThirdParty/jc_voronoi/jc_voronoi.h>
 
 EZ_DEFINE_AS_POD_TYPE(jcv_point);
 
@@ -47,7 +47,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBreakableSheetComponent, 1, ezComponentMode::Dynamic)
     EZ_ACCESSOR_PROPERTY("Thickness", GetThickness, SetThickness)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.001f, ezVariant()), new ezSuffixAttribute(" m")),
     EZ_ACCESSOR_PROPERTY("Density", GetDensity, SetDensity)->AddAttributes(new ezDefaultValueAttribute(1500.0f), new ezClampValueAttribute(1.0f, ezVariant()), new ezSuffixAttribute(" kg/m^3")),
     EZ_ACCESSOR_PROPERTY("NumPieces", GetNumPieces, SetNumPieces)->AddAttributes(new ezDefaultValueAttribute(32), new ezClampValueAttribute(5, 1024)),
-    EZ_ACCESSOR_PROPERTY("DisappearTimeout", GetDisappearTimeout, SetDisappearTimeout)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezMinValueTextAttribute("Never"), new ezSuffixAttribute(" s")),
+    EZ_ACCESSOR_PROPERTY("DisappearTimeout", GetDisappearTimeout, SetDisappearTimeout)->AddAttributes(new ezClampValueAttribute(ezTime::Zero(), ezVariant()), new ezMinValueTextAttribute("Never"), new ezSuffixAttribute(" s")),
     EZ_ACCESSOR_PROPERTY("BreakImpulseStrength", GetBreakImpulseStrength, SetBreakImpulseStrength)->AddAttributes(new ezDefaultValueAttribute(25.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("FixedBorder", GetFixedBorder, SetFixedBorder),
     EZ_ACCESSOR_PROPERTY("FixedRandomSeed", GetFixedRandomSeed, SetFixedRandomSeed),
@@ -102,11 +102,11 @@ void ezBreakableSheetComponent::Update()
     }
 
     // If this breakable sheet has a disappear timeout set we decrement the time since it was broken
-    if (m_fDisappearTimeout.AsFloat() > 0.0f && m_fTimeUntilDisappear > 0.0f)
+    if (m_fDisappearTimeout.AsFloat() > 0.0f && m_TimeUntilDisappear > ezTime::Zero())
     {
-      m_fTimeUntilDisappear -= GetWorld()->GetClock().GetTimeDiff().AsFloat();
+      m_TimeUntilDisappear -= GetWorld()->GetClock().GetTimeDiff();
 
-      if (m_fTimeUntilDisappear <= 0.0f)
+      if (m_TimeUntilDisappear <= ezTime::Zero())
       {
         DestroyPiecesPhysicsObjects();
 
@@ -566,7 +566,7 @@ void ezBreakableSheetComponent::Break(const ezMsgCollision* pMessage /*= nullptr
 
   m_bBroken = true;
 
-  m_fTimeUntilDisappear = m_fDisappearTimeout.AsFloat();
+  m_TimeUntilDisappear = m_fDisappearTimeout;
 
   DestroyUnbrokenPhysicsObject();
   CreatePiecesPhysicsObjects(pMessage ? pMessage->m_vImpulse : ezVec3::ZeroVector(),

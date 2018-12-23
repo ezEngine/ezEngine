@@ -136,7 +136,7 @@ void ezCameraComponentManager::OnCameraConfigsChanged(void* dummy)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 8, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 9, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -154,7 +154,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 8, ezComponentMode::Static)
     EZ_SET_MEMBER_PROPERTY("ExcludeTags", m_ExcludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
     EZ_ACCESSOR_PROPERTY("CameraRenderPipeline", GetRenderPipelineEnum, SetRenderPipelineEnum)->AddAttributes(new ezDynamicStringEnumAttribute("CameraPipelines")),
     EZ_ACCESSOR_PROPERTY("Aperture", GetAperture, SetAperture)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(1.0f, 32.0f), new ezSuffixAttribute(" f-stop(s)")),
-    EZ_ACCESSOR_PROPERTY("ShutterTime", GetShutterTime, SetShutterTime)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(1.0f / 100000.0f, 600.0f), new ezSuffixAttribute(" s")),
+    EZ_ACCESSOR_PROPERTY("ShutterTime", GetShutterTime, SetShutterTime)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(1.0)), new ezClampValueAttribute(ezTime::Seconds(1.0f / 100000.0f), ezTime::Seconds(600.0f))),
     EZ_ACCESSOR_PROPERTY("ISO", GetISO, SetISO)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(50.0f, 64000.0f)),
     EZ_ACCESSOR_PROPERTY("ExposureCompensation", GetExposureCompensation, SetExposureCompensation)->AddAttributes(new ezClampValueAttribute(-32.0f, 32.0f)),
     EZ_MEMBER_PROPERTY("ShowStats", m_bShowStats),
@@ -181,7 +181,7 @@ ezCameraComponent::ezCameraComponent()
   m_fOrthoDimension = 10.0f;
 
   m_fAperture = 1.0f;
-  m_fShutterTime = 1.0f;
+  m_ShutterTime = ezTime::Seconds(1.0f);
   m_fISO = 100.0f;
   m_fExposureCompensation = 0.0f;
 
@@ -208,7 +208,7 @@ void ezCameraComponent::SerializeComponent(ezWorldWriter& stream) const
 
   // Version 3
   s << m_fAperture;
-  s << m_fShutterTime;
+  s << static_cast<float>(m_ShutterTime.GetSeconds());
   s << m_fISO;
   s << m_fExposureCompensation;
 
@@ -257,7 +257,9 @@ void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
   if (uiVersion >= 3)
   {
     s >> m_fAperture;
-    s >> m_fShutterTime;
+    float shutterTime;
+    s >> shutterTime;
+    m_ShutterTime = ezTime::Seconds(shutterTime);
     s >> m_fISO;
     s >> m_fExposureCompensation;
   }
@@ -452,11 +454,11 @@ void ezCameraComponent::SetAperture(float fAperture)
   MarkAsModified();
 }
 
-void ezCameraComponent::SetShutterTime(float fShutterTime)
+void ezCameraComponent::SetShutterTime(ezTime ShutterTime)
 {
-  if (m_fShutterTime == fShutterTime)
+  if (m_ShutterTime == ShutterTime)
     return;
-  m_fShutterTime = fShutterTime;
+  m_ShutterTime = ShutterTime;
 
   MarkAsModified();
 }
@@ -489,7 +491,7 @@ float ezCameraComponent::GetEV100() const
   // EV_100 + log2 (S /100) = log2 (N^2 / t)
   // EV_100 = log2 (N^2 / t) - log2 (S /100)
   // EV_100 = log2 (N^2 / t . 100 / S)
-  return ezMath::Log2((m_fAperture * m_fAperture) / m_fShutterTime * 100.0f / m_fISO) - m_fExposureCompensation;
+  return ezMath::Log2((m_fAperture * m_fAperture) / m_ShutterTime.GetSeconds() * 100.0f / m_fISO) - m_fExposureCompensation;
 }
 
 float ezCameraComponent::GetExposure() const
@@ -738,6 +740,31 @@ public:
 
 ezCameraComponentPatch_4_5 g_ezCameraComponentPatch_4_5;
 
+//////////////////////////////////////////////////////////////////////////
+
+class ezCameraComponentPatch_8_9 : public ezGraphPatch
+{
+public:
+  ezCameraComponentPatch_8_9()
+      : ezGraphPatch("ezCameraComponent", 9)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    // convert the "ShutterTime" property from float to ezTime
+    if (auto pProp = pNode->FindProperty("ShutterTime"))
+    {
+      if (pProp->m_Value.IsA<float>())
+      {
+        const float shutterTime = pProp->m_Value.Get<float>();
+        pProp->m_Value = ezTime::Seconds(shutterTime);
+      }
+    }
+  }
+};
+
+ezCameraComponentPatch_8_9 g_ezCameraComponentPatch_8_9;
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_CameraComponent);

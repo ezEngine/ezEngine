@@ -122,7 +122,7 @@ void ezQtDocumentWindow::SetTargetFramerate(ezInt16 iTargetFPS)
     SlotRedraw();
 }
 
-void ezQtDocumentWindow::TriggerRedraw(float fLastFrameTimeMS)
+void ezQtDocumentWindow::TriggerRedraw(ezTime LastFrameTime)
 {
   if (m_bRedrawIsTriggered)
     return;
@@ -139,7 +139,7 @@ void ezQtDocumentWindow::TriggerRedraw(float fLastFrameTimeMS)
   m_bRedrawIsTriggered = true;
   m_bTriggerRedrawQueued = false;
 
-  float fDelay = 1000.0f / 25.0f;
+  ezTime delay = ezTime::Milliseconds(1000.0f / 25.0f);
 
   int iTargetFramerate = m_iTargetFramerate;
 
@@ -148,18 +148,18 @@ void ezQtDocumentWindow::TriggerRedraw(float fLastFrameTimeMS)
     iTargetFramerate = ezMath::Min(10, m_iTargetFramerate / 4);
 
   if (iTargetFramerate > 0)
-    fDelay = (1000.0f / iTargetFramerate);
+    delay = ezTime::Milliseconds(1000.0f / iTargetFramerate);
 
   if (iTargetFramerate < 0)
-    fDelay = 0.0f;
+    delay.SetZero();
 
   // Subtract the time it took to render the last frame.
-  fDelay -= fLastFrameTimeMS;
-  fDelay = ezMath::Max(fDelay, 0.0f);
+  delay -= LastFrameTime;
+  delay = ezMath::Max(delay, ezTime::Zero());
 
   // ezLog::Info("FT: {0}, delay: {1}", ezArgF(fLastFrameTimeMS, 3), ezArgF(fDelay, 3));
 
-  QTimer::singleShot((ezInt32)ezMath::Floor(fDelay), this, SLOT(SlotRedraw()));
+  QTimer::singleShot((ezInt32)ezMath::Floor(delay.GetMilliseconds()), this, SLOT(SlotRedraw()));
 }
 
 void ezQtDocumentWindow::SlotRedraw()
@@ -187,8 +187,8 @@ void ezQtDocumentWindow::SlotRedraw()
   // immediately trigger the next redraw, if a constant framerate is desired
   if (m_iTargetFramerate != 0 || m_bTriggerRedrawQueued)
   {
-    ezTime endTime = ezTime::Now();
-    TriggerRedraw((endTime - startTime).GetMilliseconds());
+    const ezTime endTime = ezTime::Now();
+    TriggerRedraw(endTime - startTime);
   }
 }
 

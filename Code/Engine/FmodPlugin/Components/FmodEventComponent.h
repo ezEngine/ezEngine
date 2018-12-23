@@ -26,7 +26,7 @@ private:
   const OcclusionState& GetOcclusionState(ezUInt32 uiIndex) const { return m_OcclusionStates[uiIndex]; }
 
   void ShootOcclusionRays(OcclusionState& state, ezVec3 listenerPos, ezUInt32 uiNumRays,
-                          const ezPhysicsWorldModuleInterface* pPhysicsWorldModule, float deltaTime);
+                          const ezPhysicsWorldModuleInterface* pPhysicsWorldModule, ezTime deltaTime);
   void UpdateOcclusion(const ezWorldModule::UpdateContext& context);
   void UpdateEvents(const ezWorldModule::UpdateContext& context);
 

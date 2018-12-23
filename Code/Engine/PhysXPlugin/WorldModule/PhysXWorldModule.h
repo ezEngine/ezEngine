@@ -74,7 +74,7 @@ private:
   void FetchResults(const ezWorldModule::UpdateContext& context);
 
   void Simulate();
-  void SimulateStep(float fDeltaTime);
+  void SimulateStep(ezTime deltaTime);
 
   physx::PxScene* m_pPxScene;
   physx::PxControllerManager* m_pCharacterManager;
