@@ -48,10 +48,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurveGroupData, 2, ezRTTIDefaultAllocator<ezCu
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezCurveControlPointData::SetTickFromTime(double time, ezInt64 fps)
+void ezCurveControlPointData::SetTickFromTime(ezTime time, ezInt64 fps)
 {
   const ezUInt32 uiTicksPerStep = 4800 / fps;
-  m_iTick = (ezInt64)ezMath::RoundToMultiple(time * 4800.0, (double)uiTicksPerStep);
+  m_iTick = (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
 }
 
 ezCurveGroupData::~ezCurveGroupData()
@@ -91,15 +91,15 @@ void ezCurveGroupData::Clear()
   m_Curves.Clear();
 }
 
-ezInt64 ezCurveGroupData::TickFromTime(double time) const
+ezInt64 ezCurveGroupData::TickFromTime(ezTime time) const
 {
   const ezUInt32 uiTicksPerStep = 4800 / m_uiFramesPerSecond;
-  return (ezInt64)ezMath::RoundToMultiple(time * 4800.0, (double)uiTicksPerStep);
+  return (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
 }
 
 static void ConvertControlPoint(const ezCurveControlPointData& cp, ezCurve1D& out_Result)
 {
-  auto& ccp = out_Result.AddControlPoint(cp.GetTickAsTime());
+  auto& ccp = out_Result.AddControlPoint(cp.GetTickAsTime().GetSeconds());
   ccp.m_Position.y = cp.m_fValue;
   ccp.m_LeftTangent = cp.m_LeftTangent;
   ccp.m_RightTangent = cp.m_RightTangent;

@@ -9,8 +9,8 @@ class ezColorControlPoint : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezColorControlPoint, ezReflectedClass);
 public:
 
-  double GetTickAsTime() const { return m_iTick / 4800.0; }
-  void SetTickFromTime(double time, ezInt64 fps);
+  ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
+  void SetTickFromTime(ezTime time, ezInt64 fps);
 
   //double m_fPositionX;
   ezInt64 m_iTick; // 4800 ticks per second
@@ -24,8 +24,8 @@ class ezAlphaControlPoint : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezAlphaControlPoint, ezReflectedClass);
 public:
 
-  double GetTickAsTime() const { return m_iTick / 4800.0; }
-  void SetTickFromTime(double time, ezInt64 fps);
+  ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
+  void SetTickFromTime(ezTime time, ezInt64 fps);
 
   //double m_fPositionX;
   ezInt64 m_iTick; // 4800 ticks per second
@@ -37,8 +37,8 @@ class ezIntensityControlPoint : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezIntensityControlPoint, ezReflectedClass);
 public:
 
-  double GetTickAsTime() const { return m_iTick / 4800.0; }
-  void SetTickFromTime(double time, ezInt64 fps);
+  ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
+  void SetTickFromTime(ezTime time, ezInt64 fps);
 
   //double m_fPositionX;
   ezInt64 m_iTick; // 4800 ticks per second
@@ -54,7 +54,7 @@ public:
   ezDynamicArray<ezAlphaControlPoint> m_AlphaCPs;
   ezDynamicArray<ezIntensityControlPoint> m_IntensityCPs;
 
-  static ezInt64 TickFromTime(double time);
+  static ezInt64 TickFromTime(ezTime time);
 
   /// \brief Fills out the ezColorGradient structure with an exact copy of the data in the asset.
   /// Does NOT yet sort the control points, so before evaluating the color gradient, that must be called manually.

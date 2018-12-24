@@ -117,10 +117,10 @@ protected:
   void CreateFloatPropertyBinding(const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pRtti, void* pObject, const ezComponentHandle& hComponent);
   void CreateColorPropertyBinding(const ezColorPropertyAnimEntry* pAnim, const ezRTTI* pRtti, void* pObject, const ezComponentHandle& hComponent);
   void ApplyAnimations(const ezTime& tDiff);
-  void ApplyFloatAnimation(const FloatBinding& binding, double lookupTime);
-  void ApplySingleFloatAnimation(const FloatBinding& binding, double lookupTime);
-  void ApplyColorAnimation(const ColorBinding& binding, double lookupTime);
-  double ComputeAnimationLookup(ezTime tDiff);
+  void ApplyFloatAnimation(const FloatBinding& binding, ezTime lookupTime);
+  void ApplySingleFloatAnimation(const FloatBinding& binding, ezTime lookupTime);
+  void ApplyColorAnimation(const ColorBinding& binding, ezTime lookupTime);
+  ezTime ComputeAnimationLookup(ezTime tDiff);
   void EvaluateEventTrack(ezTime startTime, ezTime endTime);
   void StartPlayback();
 

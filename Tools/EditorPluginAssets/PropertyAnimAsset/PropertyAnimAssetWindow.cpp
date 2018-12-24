@@ -957,7 +957,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpAdded(double posX, co
     return;
 
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
-  ezInt64 tickX = ezColorGradientAssetData::TickFromTime(posX);
+  ezInt64 tickX = ezColorGradientAssetData::TickFromTime(ezTime::Seconds(posX));
   pDoc->InsertGradientColorCpAt(trackGuid.Get<ezUuid>(), tickX, color);
 }
 
@@ -970,7 +970,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpAdded(double posX, ez
     return;
 
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
-  ezInt64 tickX = ezColorGradientAssetData::TickFromTime(posX);
+  ezInt64 tickX = ezColorGradientAssetData::TickFromTime(ezTime::Seconds(posX));
   pDoc->InsertGradientAlphaCpAt(trackGuid.Get<ezUuid>(), tickX, alpha);
 }
 
@@ -983,7 +983,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpAdded(double posX
     return;
 
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
-  ezInt64 tickX = ezColorGradientAssetData::TickFromTime(posX);
+  ezInt64 tickX = ezColorGradientAssetData::TickFromTime(ezTime::Seconds(posX));
   pDoc->InsertGradientIntensityCpAt(trackGuid.Get<ezUuid>(), tickX, intensity);
 }
 
@@ -1008,7 +1008,7 @@ void ezQtPropertyAnimAssetDocumentWindow::MoveGradientCP(ezInt32 idx, double new
   cmdSet.m_Object = objGuid.Get<ezUuid>();
 
   cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = pDoc->GetProperties()->m_Tracks[m_iMapGradientToTrack]->m_ColorGradient.TickFromTime(newPosX);
+  cmdSet.m_NewValue = pDoc->GetProperties()->m_Tracks[m_iMapGradientToTrack]->m_ColorGradient.TickFromTime(ezTime::Seconds(newPosX));
   history->AddCommand(cmdSet);
 
   history->FinishTransaction();

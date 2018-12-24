@@ -26,7 +26,7 @@ ProjectileComponent::ProjectileComponent()
 
 void ProjectileComponent::Update()
 {
-  if (m_TimeToLive.IsZeroOrLess())
+  if (m_TimeToLive.IsZeroOrNegative())
   {
     GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
     return;
@@ -35,7 +35,7 @@ void ProjectileComponent::Update()
   const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
   m_TimeToLive -= tDiff;
 
-  if (m_TimeToLive.IsZeroOrLess())
+  if (m_TimeToLive.IsZeroOrNegative())
     return;
 
   if (m_fSpeed <= 0.0f)

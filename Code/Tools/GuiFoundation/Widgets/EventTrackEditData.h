@@ -12,8 +12,8 @@ class EZ_GUIFOUNDATION_DLL ezEventTrackControlPointData : public ezReflectedClas
   EZ_ADD_DYNAMIC_REFLECTION(ezEventTrackControlPointData, ezReflectedClass);
 public:
 
-  double GetTickAsTime() const { return m_iTick / 4800.0; }
-  void SetTickFromTime(double time, ezInt64 fps);
+  ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
+  void SetTickFromTime(ezTime time, ezInt64 fps);
   const char* GetEventName() const { return m_sEvent.GetData(); }
   void SetEventName(const char* sz) { m_sEvent.Assign(sz); }
 
@@ -26,7 +26,7 @@ class EZ_GUIFOUNDATION_DLL ezEventTrackData : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezEventTrackData, ezReflectedClass);
 public:
 
-  ezInt64 TickFromTime(double time) const;
+  ezInt64 TickFromTime(ezTime time) const;
   void ConvertToRuntimeData(ezEventTrack& out_Result) const;
 
   ezUInt16 m_uiFramesPerSecond = 60;

@@ -187,7 +187,7 @@ void ezSpatialSystem::FindVisibleObjects(const ezFrustum& frustum, ezDynamicArra
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   if (pStats != nullptr)
   {
-    pStats->m_fTimeTaken = (float)timer.GetRunningTotal().GetSeconds();
+    pStats->m_TimeTaken = timer.GetRunningTotal();
   }
 #endif
 }

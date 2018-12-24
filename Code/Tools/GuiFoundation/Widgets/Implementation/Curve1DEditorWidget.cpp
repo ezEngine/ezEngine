@@ -152,7 +152,7 @@ void ezQtCurve1DEditorWidget::NormalizeCurveX(ezUInt32 uiActiveCurve)
     pos.x -= minX;
     pos.x *= rangeNorm;
 
-    emit CpMovedEvent(uiActiveCurve, i, m_Curves.TickFromTime(pos.x), pos.y);
+    emit CpMovedEvent(uiActiveCurve, i, m_Curves.TickFromTime(ezTime::Seconds(pos.x)), pos.y);
 
     ezVec2 lt = cp.m_LeftTangent;
     lt.x *= rangeNorm;
@@ -203,7 +203,7 @@ void ezQtCurve1DEditorWidget::NormalizeCurveY(ezUInt32 uiActiveCurve)
     pos.y -= minY;
     pos.y *= rangeNorm;
 
-    emit CpMovedEvent(uiActiveCurve, i, m_Curves.TickFromTime(pos.x), pos.y);
+    emit CpMovedEvent(uiActiveCurve, i, m_Curves.TickFromTime(ezTime::Seconds(pos.x)), pos.y);
 
     ezVec2 lt = cp.m_LeftTangent;
     lt.y *= rangeNorm;
@@ -279,11 +279,11 @@ void ezQtCurve1DEditorWidget::onMoveControlPoints(double x, double y)
   for (const auto& cpSel : selection)
   {
     const auto& cp = m_CurvesBackup.m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint];
-    ezVec2d newPos = ezVec2d(cp.GetTickAsTime(), cp.m_fValue) + m_ControlPointMove;
+    ezVec2d newPos = ezVec2d(cp.GetTickAsTime().GetSeconds(), cp.m_fValue) + m_ControlPointMove;
     newPos.x = ezMath::Max(newPos.x, 0.0);
     newPos.y = ezMath::Clamp(newPos.y, -100000.0, +100000.0);
 
-    emit CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, m_Curves.TickFromTime(newPos.x), newPos.y);
+    emit CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, m_Curves.TickFromTime(ezTime::Seconds(newPos.x)), newPos.y);
   }
 
   emit EndCpChangesEvent();
@@ -304,11 +304,11 @@ void ezQtCurve1DEditorWidget::onScaleControlPoints(QPointF refPt, double scaleX,
   for (const auto& cpSel : selection)
   {
     const auto& cp = m_CurvesBackup.m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint];
-    ezVec2d newPos = ref + (ezVec2d(cp.GetTickAsTime(), cp.m_fValue) - ref).CompMul(scale);
+    ezVec2d newPos = ref + (ezVec2d(cp.GetTickAsTime().GetSeconds(), cp.m_fValue) - ref).CompMul(scale);
     newPos.x = ezMath::Max(newPos.x, 0.0);
     newPos.y = ezMath::Clamp(newPos.y, -100000.0, +100000.0);
 
-    emit CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, m_Curves.TickFromTime(newPos.x), newPos.y);
+    emit CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, m_Curves.TickFromTime(ezTime::Seconds(newPos.x)), newPos.y);
   }
 
   emit EndCpChangesEvent();
@@ -484,7 +484,7 @@ void ezQtCurve1DEditorWidget::InsertCpAt(double posX, double value, ezVec2d epsi
     curveIdx = 0;
   }
 
-  emit InsertCpEvent(curveIdx, m_Curves.TickFromTime(posX), value);
+  emit InsertCpEvent(curveIdx, m_Curves.TickFromTime(ezTime::Seconds(posX)), value);
 }
 
 
@@ -592,7 +592,7 @@ void ezQtCurve1DEditorWidget::UpdateSpinBoxes()
   }
 
   const auto& pt0 = m_Curves.m_Curves[selection[0].m_uiCurve]->m_ControlPoints[selection[0].m_uiPoint];
-  const double fPos = pt0.GetTickAsTime();
+  const double fPos = pt0.GetTickAsTime().GetSeconds();
   const double fVal = pt0.m_fValue;
 
   LinePosition->setEnabled(true);
@@ -603,7 +603,7 @@ void ezQtCurve1DEditorWidget::UpdateSpinBoxes()
   {
     const auto& pt = m_Curves.m_Curves[selection[i].m_uiCurve]->m_ControlPoints[selection[i].m_uiPoint];
 
-    if (pt.GetTickAsTime() != fPos)
+    if (pt.GetTickAsTime().GetSeconds() != fPos)
     {
       bMultipleTicks = true;
       break;
@@ -649,7 +649,7 @@ void ezQtCurve1DEditorWidget::on_LinePosition_editingFinished()
   {
     const auto& cp = m_Curves.m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint];
 
-    ezInt32 iTick = m_Curves.TickFromTime(value);
+    ezInt32 iTick = m_Curves.TickFromTime(ezTime::Seconds(value));
     if (cp.m_iTick != iTick)
       emit CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, iTick, cp.m_fValue);
   }

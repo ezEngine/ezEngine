@@ -127,7 +127,7 @@ void ezQtCurveEditWidget::FrameCurve()
     fHeight = 0.1f;
 
     const auto& point = m_pCurveEditData->m_Curves[m_SelectedCPs[0].m_uiCurve]->m_ControlPoints[m_SelectedCPs[0].m_uiPoint];
-    fOffsetX = point.GetTickAsTime() - 0.05;
+    fOffsetX = point.GetTickAsTime().GetSeconds() - 0.05;
     fOffsetY = point.m_fValue - 0.05;
   }
 
@@ -1246,7 +1246,7 @@ ezQtCurveEditWidget::ClickTarget ezQtCurveEditWidget::DetectClickTarget(const QP
     const auto& cpSel = m_SelectedCPs[i];
     const auto& cp = m_pCurveEditData->m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint];
 
-    const ezVec2d point(cp.GetTickAsTime(), cp.m_fValue);
+    const ezVec2d point(cp.GetTickAsTime().GetSeconds(), cp.m_fValue);
 
     const ezVec2d ptPos = ToVec(MapFromScene(point));
     ezVec2d ptLeft;

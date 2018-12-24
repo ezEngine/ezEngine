@@ -36,7 +36,7 @@ void ezSimpleWindComponent::Update()
     return;
 
   const ezTime tCur = GetWorld()->GetClock().GetAccumulatedTime();
-  float fLerp = (tCur - m_LastChange).AsFloat() / (m_NextChange - m_LastChange).AsFloat();
+  const float fLerp = static_cast<float>((tCur - m_LastChange).GetSeconds() / (m_NextChange - m_LastChange).GetSeconds());
 
   ezVec3 vCurWind;
 

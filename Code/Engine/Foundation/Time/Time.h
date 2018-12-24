@@ -48,15 +48,24 @@ public:
   /// \brief Returns true if the stored time is exactly zero. That typically means the value was not changed from the default.
   EZ_ALWAYS_INLINE constexpr bool IsZero() const { return m_fTime == 0.0; }
 
+  /// \brief Checks for a negative time value.
+  EZ_ALWAYS_INLINE constexpr bool IsNegative() const { return m_fTime < 0.0; }
+
+  /// \brief Checks for a positive time value. This does not include zero.
+  EZ_ALWAYS_INLINE constexpr bool IsPositive() const { return m_fTime > 0.0; }
+
   /// \brief Returns true if the stored time is zero or negative.
-  EZ_ALWAYS_INLINE constexpr bool IsZeroOrLess() const { return m_fTime <= 0.0; }
+  EZ_ALWAYS_INLINE constexpr bool IsZeroOrNegative() const { return m_fTime <= 0.0; }
+
+  /// \brief Returns true if the stored time is zero or positive.
+  EZ_ALWAYS_INLINE constexpr bool IsZeroOrPositive() const { return m_fTime >= 0.0; }
 
   /// \brief Returns the time as a float value (in seconds).
   ///
   /// Useful for simulation time steps etc.
   /// Please note that it is not recommended to use the float value for long running
   /// time calculations since the precision can deteriorate quickly. (Only use for delta times is recommended)
-  constexpr float AsFloat() const;
+  constexpr float AsFloatInSeconds() const;
 
   /// \brief Returns the nanoseconds value
   constexpr double GetNanoseconds() const;

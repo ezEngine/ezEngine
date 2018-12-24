@@ -68,22 +68,22 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientAssetDocument, 1, ezRTTINoAllocat
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezColorControlPoint::SetTickFromTime(double time, ezInt64 fps)
+void ezColorControlPoint::SetTickFromTime(ezTime time, ezInt64 fps)
 {
   const ezUInt32 uiTicksPerStep = 4800 / fps;
-  m_iTick = (ezInt64)ezMath::RoundToMultiple(time * 4800.0, (double)uiTicksPerStep);
+  m_iTick = (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
 }
 
-void ezAlphaControlPoint::SetTickFromTime(double time, ezInt64 fps)
+void ezAlphaControlPoint::SetTickFromTime(ezTime time, ezInt64 fps)
 {
   const ezUInt32 uiTicksPerStep = 4800 / fps;
-  m_iTick = (ezInt64)ezMath::RoundToMultiple(time * 4800.0, (double)uiTicksPerStep);
+  m_iTick = (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
 }
 
-void ezIntensityControlPoint::SetTickFromTime(double time, ezInt64 fps)
+void ezIntensityControlPoint::SetTickFromTime(ezTime time, ezInt64 fps)
 {
   const ezUInt32 uiTicksPerStep = 4800 / fps;
-  m_iTick = (ezInt64)ezMath::RoundToMultiple(time * 4800.0, (double)uiTicksPerStep);
+  m_iTick = (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
 }
 
 ezColorGradientAssetDocument::ezColorGradientAssetDocument(const char* szDocumentPath)
@@ -91,29 +91,29 @@ ezColorGradientAssetDocument::ezColorGradientAssetDocument(const char* szDocumen
 {
 }
 
-ezInt64 ezColorGradientAssetData::TickFromTime(double time)
+ezInt64 ezColorGradientAssetData::TickFromTime(ezTime time)
 {
   /// \todo Make this a property ?
   const ezUInt32 uiFramesPerSecond = 60;
   const ezUInt32 uiTicksPerStep = 4800 / uiFramesPerSecond;
-  return (ezInt64)ezMath::RoundToMultiple(time * 4800.0, (double)uiTicksPerStep);
+  return (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
 }
 
 void ezColorGradientAssetData::FillGradientData(ezColorGradient& out_Result) const
 {
   for (const auto& cp : m_ColorCPs)
   {
-    out_Result.AddColorControlPoint(cp.GetTickAsTime(), ezColorGammaUB(cp.m_Red, cp.m_Green, cp.m_Blue));
+    out_Result.AddColorControlPoint(cp.GetTickAsTime().GetSeconds(), ezColorGammaUB(cp.m_Red, cp.m_Green, cp.m_Blue));
   }
 
   for (const auto& cp : m_AlphaCPs)
   {
-    out_Result.AddAlphaControlPoint(cp.GetTickAsTime(), cp.m_Alpha);
+    out_Result.AddAlphaControlPoint(cp.GetTickAsTime().GetSeconds(), cp.m_Alpha);
   }
 
   for (const auto& cp : m_IntensityCPs)
   {
-    out_Result.AddIntensityControlPoint(cp.GetTickAsTime(), cp.m_fIntensity);
+    out_Result.AddIntensityControlPoint(cp.GetTickAsTime().GetSeconds(), cp.m_fIntensity);
   }
 }
 
@@ -128,13 +128,13 @@ ezColor ezColorGradientAssetData::Evaluate(ezInt64 iTick) const
     FindNearestControlPoints(m_ColorCPs.GetArrayPtr(), iTick, llhs, lhs, rhs, rrhs);
 
     if (llhs)
-      temp.AddColorControlPoint(llhs->GetTickAsTime(), ezColorGammaUB(llhs->m_Red, llhs->m_Green, llhs->m_Blue));
+      temp.AddColorControlPoint(llhs->GetTickAsTime().GetSeconds(), ezColorGammaUB(llhs->m_Red, llhs->m_Green, llhs->m_Blue));
     if (lhs)
-      temp.AddColorControlPoint(lhs->GetTickAsTime(), ezColorGammaUB(lhs->m_Red, lhs->m_Green, lhs->m_Blue));
+      temp.AddColorControlPoint(lhs->GetTickAsTime().GetSeconds(), ezColorGammaUB(lhs->m_Red, lhs->m_Green, lhs->m_Blue));
     if (rhs)
-      temp.AddColorControlPoint(rhs->GetTickAsTime(), ezColorGammaUB(rhs->m_Red, rhs->m_Green, rhs->m_Blue));
+      temp.AddColorControlPoint(rhs->GetTickAsTime().GetSeconds(), ezColorGammaUB(rhs->m_Red, rhs->m_Green, rhs->m_Blue));
     if (rrhs)
-      temp.AddColorControlPoint(rrhs->GetTickAsTime(), ezColorGammaUB(rrhs->m_Red, rrhs->m_Green, rrhs->m_Blue));
+      temp.AddColorControlPoint(rrhs->GetTickAsTime().GetSeconds(), ezColorGammaUB(rrhs->m_Red, rrhs->m_Green, rrhs->m_Blue));
   }
   {
     const ezAlphaControlPoint* llhs = nullptr;
@@ -144,13 +144,13 @@ ezColor ezColorGradientAssetData::Evaluate(ezInt64 iTick) const
     FindNearestControlPoints(m_AlphaCPs.GetArrayPtr(), iTick, llhs, lhs, rhs, rrhs);
 
     if (llhs)
-      temp.AddAlphaControlPoint(llhs->GetTickAsTime(), llhs->m_Alpha);
+      temp.AddAlphaControlPoint(llhs->GetTickAsTime().GetSeconds(), llhs->m_Alpha);
     if (lhs)
-      temp.AddAlphaControlPoint(lhs->GetTickAsTime(), lhs->m_Alpha);
+      temp.AddAlphaControlPoint(lhs->GetTickAsTime().GetSeconds(), lhs->m_Alpha);
     if (rhs)
-      temp.AddAlphaControlPoint(rhs->GetTickAsTime(), rhs->m_Alpha);
+      temp.AddAlphaControlPoint(rhs->GetTickAsTime().GetSeconds(), rhs->m_Alpha);
     if (rrhs)
-      temp.AddAlphaControlPoint(rrhs->GetTickAsTime(), rrhs->m_Alpha);
+      temp.AddAlphaControlPoint(rrhs->GetTickAsTime().GetSeconds(), rrhs->m_Alpha);
   }
   {
     const ezIntensityControlPoint* llhs = nullptr;
@@ -160,13 +160,13 @@ ezColor ezColorGradientAssetData::Evaluate(ezInt64 iTick) const
     FindNearestControlPoints(m_IntensityCPs.GetArrayPtr(), iTick, llhs, lhs, rhs, rrhs);
 
     if (llhs)
-      temp.AddIntensityControlPoint(llhs->GetTickAsTime(), llhs->m_fIntensity);
+      temp.AddIntensityControlPoint(llhs->GetTickAsTime().GetSeconds(), llhs->m_fIntensity);
     if (lhs)
-      temp.AddIntensityControlPoint(lhs->GetTickAsTime(), lhs->m_fIntensity);
+      temp.AddIntensityControlPoint(lhs->GetTickAsTime().GetSeconds(), lhs->m_fIntensity);
     if (rhs)
-      temp.AddIntensityControlPoint(rhs->GetTickAsTime(), rhs->m_fIntensity);
+      temp.AddIntensityControlPoint(rhs->GetTickAsTime().GetSeconds(), rhs->m_fIntensity);
     if (rrhs)
-      temp.AddIntensityControlPoint(rrhs->GetTickAsTime(), rrhs->m_fIntensity);
+      temp.AddIntensityControlPoint(rrhs->GetTickAsTime().GetSeconds(), rrhs->m_fIntensity);
   }
   ezColor color;
   //#TODO: This is rather slow as we eval lots of points but only need one

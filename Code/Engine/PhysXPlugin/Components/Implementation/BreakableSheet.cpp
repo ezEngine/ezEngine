@@ -102,11 +102,11 @@ void ezBreakableSheetComponent::Update()
     }
 
     // If this breakable sheet has a disappear timeout set we decrement the time since it was broken
-    if (m_fDisappearTimeout.AsFloat() > 0.0f && m_TimeUntilDisappear > ezTime::Zero())
+    if (m_fDisappearTimeout.IsPositive() && m_TimeUntilDisappear.IsPositive())
     {
       m_TimeUntilDisappear -= GetWorld()->GetClock().GetTimeDiff();
 
-      if (m_TimeUntilDisappear <= ezTime::Zero())
+      if (m_TimeUntilDisappear.IsZeroOrNegative())
       {
         DestroyPiecesPhysicsObjects();
 
@@ -453,7 +453,7 @@ float ezBreakableSheetComponent::GetBreakImpulseStrength() const
 
 void ezBreakableSheetComponent::SetDisappearTimeout(ezTime fDisappearTimeout)
 {
-  if (fDisappearTimeout.AsFloat() < 0.0f)
+  if (fDisappearTimeout.IsNegative())
     return;
 
   m_fDisappearTimeout = fDisappearTimeout;

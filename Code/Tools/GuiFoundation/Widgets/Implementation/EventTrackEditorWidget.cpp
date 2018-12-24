@@ -118,10 +118,10 @@ void ezQtEventTrackEditorWidget::onMoveControlPoints(double x)
   {
     auto& cp = m_DataCopy.m_ControlPoints[cpSel];
 
-    double newPos = cp.GetTickAsTime() + m_ControlPointMove;
+    double newPos = cp.GetTickAsTime().GetSeconds() + m_ControlPointMove;
     newPos = ezMath::Max(newPos, 0.0);
 
-    emit CpMovedEvent(cpSel, m_pData->TickFromTime(newPos));
+    emit CpMovedEvent(cpSel, m_pData->TickFromTime(ezTime::Seconds(newPos)));
   }
 
   emit EndCpChangesEvent();
@@ -197,7 +197,7 @@ void ezQtEventTrackEditorWidget::InsertCpAt(double posX, double epsilon)
   int curveIdx = 0, cpIdx = 0;
   posX = ezMath::Max(posX, 0.0);
 
-  emit InsertCpEvent(m_pData->TickFromTime(posX), ComboType->currentText().toUtf8().data());
+  emit InsertCpEvent(m_pData->TickFromTime(ezTime::Seconds(posX)), ComboType->currentText().toUtf8().data());
 }
 
 void ezQtEventTrackEditorWidget::onSelectionChanged()
@@ -220,7 +220,7 @@ void ezQtEventTrackEditorWidget::UpdateSpinBoxes()
     return;
   }
 
-  const double fPos = m_pData->m_ControlPoints[selection[0]].GetTickAsTime();
+  const double fPos = m_pData->m_ControlPoints[selection[0]].GetTickAsTime().GetSeconds();
 
   LinePosition->setEnabled(true);
 
@@ -230,7 +230,7 @@ void ezQtEventTrackEditorWidget::UpdateSpinBoxes()
   for (ezUInt32 i = 1; i < selection.GetCount(); ++i)
   {
     const ezString& sName = m_pData->m_ControlPoints[selection[i]].m_sEvent.GetString();
-    const double fPos2 = m_pData->m_ControlPoints[selection[i]].GetTickAsTime();
+    const double fPos2 = m_pData->m_ControlPoints[selection[i]].GetTickAsTime().GetSeconds();
 
     if (!labelText.FindSubString(sName))
     {
@@ -291,7 +291,7 @@ void ezQtEventTrackEditorWidget::on_LinePosition_editingFinished()
 
   emit BeginCpChangesEvent("Set Event Time");
 
-  ezInt64 tick = m_pData->TickFromTime(value);
+  ezInt64 tick = m_pData->TickFromTime(ezTime::Seconds(value));
 
   for (const auto& cpSel : selection)
   {

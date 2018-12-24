@@ -66,8 +66,8 @@ class EZ_GUIFOUNDATION_DLL ezCurveControlPointData : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezCurveControlPointData, ezReflectedClass);
 public:
 
-  double GetTickAsTime() const { return m_iTick / 4800.0; }
-  void SetTickFromTime(double time, ezInt64 fps);
+  ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
+  void SetTickFromTime(ezTime time, ezInt64 fps);
 
   ezInt64 m_iTick; // 4800 ticks per second
   double m_fValue;
@@ -109,7 +109,7 @@ public:
   ezDynamicArray<ezSingleCurveData*> m_Curves;
   ezUInt16 m_uiFramesPerSecond = 60;
 
-  ezInt64 TickFromTime(double time) const;
+  ezInt64 TickFromTime(ezTime time) const;
 
   void ConvertToRuntimeData(ezUInt32 uiCurveIdx, ezCurve1D& out_Result) const;
 };

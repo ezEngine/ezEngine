@@ -130,7 +130,7 @@ ezUInt32 ezParticleEmitter_Burst::ComputeSpawnCount(const ezTime& tDiff)
   EZ_PROFILE_SCOPE("PFX: Burst - Spawn Count ");
 
   // delay before the emitter becomes active
-  if (!m_StartDelay.IsZeroOrLess())
+  if (m_StartDelay.IsPositive())
   {
     m_StartDelay -= tDiff;
     return 0;

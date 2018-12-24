@@ -396,7 +396,7 @@ void ezPropertyAnimComponent::CreateColorPropertyBinding(const ezColorPropertyAn
   ColorBinding& binding = m_ColorBindings.ExpandAndGetRef();
   binding.m_hComponent = hComponent;
   binding.m_pObject = pObject;
-  binding.m_pAnimation = pAnim; // we can store a direct pointer here, because our sharedptr keeps the descriptor alive
+  binding.m_pAnimation = pAnim; // we can store a direct pointer here, because our SharedPtr keeps the descriptor alive
   binding.m_pMemberProperty = pMember;
 }
 
@@ -405,7 +405,7 @@ void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
   if (m_fSpeed == 0.0f || m_AnimDesc == nullptr)
     return;
 
-  const double fLookupPos = ComputeAnimationLookup(tDiff);
+  const ezTime fLookupPos = ComputeAnimationLookup(tDiff);
 
   for (ezUInt32 i = 0; i < m_ComponentFloatBindings.GetCount();)
   {
@@ -478,12 +478,12 @@ void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
   }
 }
 
-double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
+ezTime ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
 {
   const ezTime duration = m_AnimationRangeHigh - m_AnimationRangeLow;
 
   if (duration.IsZero())
-    return m_AnimationRangeLow.GetSeconds();
+    return m_AnimationRangeLow;
 
   tDiff = m_fSpeed * tDiff;
 
@@ -577,7 +577,7 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
     }
   }
 
-  return m_AnimationTime.GetSeconds();
+  return m_AnimationTime;
 }
 
 void ezPropertyAnimComponent::EvaluateEventTrack(ezTime startTime, ezTime endTime)
@@ -620,7 +620,7 @@ void ezPropertyAnimComponent::StartPlayback()
     m_AnimationTime = m_AnimationRangeHigh;
   }
 
-  if (!m_RandomOffset.IsZero() && !m_AnimDesc->m_AnimationDuration.IsZeroOrLess())
+  if (!m_RandomOffset.IsZero() && m_AnimDesc->m_AnimationDuration.IsPositive())
   {
     // should the random offset also be scaled by the speed factor? I guess not
     m_AnimationTime +=
@@ -628,7 +628,7 @@ void ezPropertyAnimComponent::StartPlayback()
 
     const ezTime duration = m_AnimationRangeHigh - m_AnimationRangeLow;
 
-    if (duration.IsZeroOrLess())
+    if (duration.IsZeroOrNegative())
     {
       m_AnimationTime = m_AnimationRangeLow;
     }
@@ -649,7 +649,7 @@ void ezPropertyAnimComponent::StartPlayback()
   }
 }
 
-void ezPropertyAnimComponent::ApplySingleFloatAnimation(const FloatBinding& binding, double lookupTime)
+void ezPropertyAnimComponent::ApplySingleFloatAnimation(const FloatBinding& binding, ezTime lookupTime)
 {
   const ezRTTI* pRtti = binding.m_pMemberProperty->GetSpecificType();
 
@@ -660,7 +660,7 @@ void ezPropertyAnimComponent::ApplySingleFloatAnimation(const FloatBinding& bind
     if (curve.IsEmpty())
       return;
 
-    fFinalValue = curve.Evaluate(lookupTime);
+    fFinalValue = curve.Evaluate(lookupTime.GetSeconds());
   }
 
   if (pRtti == ezGetStaticRTTI<bool>())
@@ -693,7 +693,7 @@ void ezPropertyAnimComponent::ApplySingleFloatAnimation(const FloatBinding& bind
   }
 }
 
-void ezPropertyAnimComponent::ApplyFloatAnimation(const FloatBinding& binding, double lookupTime)
+void ezPropertyAnimComponent::ApplyFloatAnimation(const FloatBinding& binding, ezTime lookupTime)
 {
   if (binding.m_pAnimation[0] != nullptr && binding.m_pAnimation[0]->m_Target == ezPropertyAnimTarget::Number)
   {
@@ -753,7 +753,7 @@ void ezPropertyAnimComponent::ApplyFloatAnimation(const FloatBinding& binding, d
 
       if (!curve.IsEmpty())
       {
-        fCurValue[i] = (float)curve.Evaluate(lookupTime);
+        fCurValue[i] = (float)curve.Evaluate(lookupTime.GetSeconds());
       }
     }
   }
@@ -787,7 +787,7 @@ void ezPropertyAnimComponent::ApplyFloatAnimation(const FloatBinding& binding, d
   }
 }
 
-void ezPropertyAnimComponent::ApplyColorAnimation(const ColorBinding& binding, double lookupTime)
+void ezPropertyAnimComponent::ApplyColorAnimation(const ColorBinding& binding, ezTime lookupTime)
 {
   const ezRTTI* pRtti = binding.m_pMemberProperty->GetSpecificType();
 
@@ -795,7 +795,7 @@ void ezPropertyAnimComponent::ApplyColorAnimation(const ColorBinding& binding, d
   {
     ezColorGammaUB gamma;
     float intensity;
-    binding.m_pAnimation->m_Gradient.Evaluate((float)lookupTime, gamma, intensity);
+    binding.m_pAnimation->m_Gradient.Evaluate(lookupTime.AsFloatInSeconds(), gamma, intensity);
     binding.m_pMemberProperty->SetValuePtr(binding.m_pObject, &gamma);
     return;
   }
@@ -804,7 +804,7 @@ void ezPropertyAnimComponent::ApplyColorAnimation(const ColorBinding& binding, d
   {
     ezColorGammaUB gamma;
     float intensity;
-    binding.m_pAnimation->m_Gradient.Evaluate((float)lookupTime, gamma, intensity);
+    binding.m_pAnimation->m_Gradient.Evaluate(lookupTime.AsFloatInSeconds(), gamma, intensity);
 
     ezColor finalColor = gamma;
     finalColor.ScaleRGB(intensity);

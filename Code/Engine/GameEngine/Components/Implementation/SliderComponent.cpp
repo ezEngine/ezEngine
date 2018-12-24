@@ -117,7 +117,7 @@ void ezSliderComponent::Update()
 
 void ezSliderComponent::OnSimulationStarted()
 {
-  if (!m_RandomStart.IsZeroOrLess())
+  if (m_RandomStart.IsPositive())
   {
     m_AnimationTime = ezTime::Seconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, m_RandomStart.GetSeconds()));
   }

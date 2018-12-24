@@ -77,7 +77,7 @@ void ezQtEventTrackWidget::RecreateSortedData()
     auto& npt = m_Categories[uiCategory].m_SortedPoints.ExpandAndGetRef();
 
     npt.m_uiOrgIndex = idx;
-    npt.m_fPosX = pt.GetTickAsTime();
+    npt.m_fPosX = pt.GetTickAsTime().GetSeconds();
   }
 
   // actually this is not needed (or used)
