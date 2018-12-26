@@ -920,23 +920,48 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPosit
 
     if (bIsFraction)
     {
-      VertsBottom.PushBack(AddVertex(vBottomCenter, ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform));
-    }
+      const ezUInt32 uiCenterVtx = AddVertex(vBottomCenter, ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
 
-    for (ezInt32 i = uiSegments - 1; i >= 0; --i)
+      for (ezInt32 i = uiSegments; i >= 0; --i)
+      {
+        const ezAngle deg = (float)i * fDegStep;
+
+        const float fX = ezMath::Cos(deg);
+        const float fY = ezMath::Sin(deg);
+
+        const ezVec3 vDir(fX, fY, 0);
+
+        AddVertex(vBottomCenter + vDir * fRadiusBottom, ezVec3(0, 0, -1), ezVec2(fY, fX), color, iCustomIndex, mTransform);
+      }
+
+      VertsBottom.SetCountUninitialized(3);
+      VertsBottom[0] = uiCenterVtx;
+
+      for (ezUInt32 i = 0; i < uiSegments; ++i)
+      {
+        VertsBottom[1] = uiCenterVtx + i + 1;
+        VertsBottom[2] = uiCenterVtx + i + 2;
+
+        AddPolygon(VertsBottom, bFlipWinding);
+      }
+    }
+    else
     {
-      const ezAngle deg = (float)i * fDegStep;
+      for (ezInt32 i = uiSegments - 1; i >= 0; --i)
+      {
+        const ezAngle deg = (float)i * fDegStep;
 
-      const float fX = ezMath::Cos(deg);
-      const float fY = ezMath::Sin(deg);
+        const float fX = ezMath::Cos(deg);
+        const float fY = ezMath::Sin(deg);
 
-      const ezVec3 vDir(fX, fY, 0);
+        const ezVec3 vDir(fX, fY, 0);
 
-      VertsBottom.PushBack(
-          AddVertex(vBottomCenter + vDir * fRadiusBottom, ezVec3(0, 0, -1), ezVec2(fY, fX), color, iCustomIndex, mTransform));
+        VertsBottom.PushBack(
+            AddVertex(vBottomCenter + vDir * fRadiusBottom, ezVec3(0, 0, -1), ezVec2(fY, fX), color, iCustomIndex, mTransform));
+      }
+
+      AddPolygon(VertsBottom, bFlipWinding);
     }
-
-    AddPolygon(VertsBottom, bFlipWinding);
   }
 
   if (bCapTop)
@@ -945,22 +970,47 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPosit
 
     if (bIsFraction)
     {
-      VertsTop.PushBack(AddVertex(vTopCenter, ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform));
-    }
+      const ezUInt32 uiCenterVtx = AddVertex(vTopCenter, ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
 
-    for (ezInt32 i = 0; i < uiSegments; ++i)
+      for (ezInt32 i = 0; i <= uiSegments; ++i)
+      {
+        const ezAngle deg = (float)i * fDegStep;
+
+        const float fX = ezMath::Cos(deg);
+        const float fY = ezMath::Sin(deg);
+
+        const ezVec3 vDir(fX, fY, 0);
+
+        AddVertex(vTopCenter + vDir * fRadiusTop, ezVec3(0, 0, 1), ezVec2(fY, -fX), color, iCustomIndex, mTransform);
+      }
+
+      VertsTop.SetCountUninitialized(3);
+      VertsTop[0] = uiCenterVtx;
+
+      for (ezUInt32 i = 0; i < uiSegments; ++i)
+      {
+        VertsTop[1] = uiCenterVtx + i + 1;
+        VertsTop[2] = uiCenterVtx + i + 2;
+
+        AddPolygon(VertsTop, bFlipWinding);
+      }
+    }
+    else
     {
-      const ezAngle deg = (float)i * fDegStep;
+      for (ezInt32 i = 0; i < uiSegments; ++i)
+      {
+        const ezAngle deg = (float)i * fDegStep;
 
-      const float fX = ezMath::Cos(deg);
-      const float fY = ezMath::Sin(deg);
+        const float fX = ezMath::Cos(deg);
+        const float fY = ezMath::Sin(deg);
 
-      const ezVec3 vDir(fX, fY, 0);
+        const ezVec3 vDir(fX, fY, 0);
 
-      VertsTop.PushBack(AddVertex(vTopCenter + vDir * fRadiusTop, ezVec3(0, 0, 1), ezVec2(fY, -fX), color, iCustomIndex, mTransform));
+        VertsTop.PushBack(AddVertex(vTopCenter + vDir * fRadiusTop, ezVec3(0, 0, 1), ezVec2(fY, -fX), color, iCustomIndex, mTransform));
+      }
+
+      AddPolygon(VertsTop, bFlipWinding);
     }
-
-    AddPolygon(VertsTop, bFlipWinding);
   }
 }
 
