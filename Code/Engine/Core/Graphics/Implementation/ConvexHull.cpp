@@ -489,7 +489,7 @@ bool ezConvexHullGenerator::PruneFlatVertices(double fNormalThreshold)
 }
 
 
-bool ezConvexHullGenerator::PruneDegenerateTriangles(double fMaxAngle)
+bool ezConvexHullGenerator::PruneDegenerateTriangles(double fMaxCosAngle)
 {
   bool bChanged = false;
 
@@ -508,19 +508,19 @@ bool ezConvexHullGenerator::PruneDegenerateTriangles(double fMaxAngle)
     const ezVec3d e1 = (v2 - v1).GetNormalized();
     const ezVec3d e2 = (v0 - v2).GetNormalized();
 
-    if (e0.Dot(e1) > fMaxAngle)
+    if (e0.Dot(e1) > fMaxCosAngle)
     {
       discardVtx.SetBit(idx1);
       bChanged = true;
     }
 
-    if (e1.Dot(e2) > fMaxAngle)
+    if (e1.Dot(e2) > fMaxCosAngle)
     {
       discardVtx.SetBit(idx2);
       bChanged = true;
     }
 
-    if (e2.Dot(e0) > fMaxAngle)
+    if (e2.Dot(e0) > fMaxCosAngle)
     {
       discardVtx.SetBit(idx0);
       bChanged = true;

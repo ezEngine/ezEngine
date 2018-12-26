@@ -18,7 +18,7 @@ public:
   /// \brief Sets the Quaternion to the identity.
   void SetIdentity(); // [tested]
 
-  /// \brief Creates a quaternion from a rotation-axis and an angle.
+  /// \brief Creates a quaternion from a rotation-axis and an angle (angle is given in Radians or as an ezAngle)
   void SetFromAxisAndAngle(const ezSimdVec4f& vRotationAxis, const ezSimdFloat& angle); // [tested]
 
   /// \brief Creates a quaternion, that rotates through the shortest arc from "vDirFrom" to "vDirTo".
@@ -31,7 +31,7 @@ public:
   /// \brief Normalizes the quaternion to unit length. ALL rotation-quaternions should be normalized at all times (automatically).
   void Normalize(); // [tested]
 
-  /// \brief Returns the rotation-axis and angle, that this quaternion rotates around.
+  /// \brief Returns the rotation-axis and angle (in Radians), that this quaternion rotates around.
   ezResult GetRotationAxisAndAngle(ezSimdVec4f& vAxis, ezSimdFloat& angle) const; // [tested]
 
   /// \brief Returns the Quaternion as a matrix.

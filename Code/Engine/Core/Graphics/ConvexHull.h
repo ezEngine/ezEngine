@@ -58,7 +58,7 @@ private:
   void RemoveVisibleFaces(ezUInt32 vtxId);
   void PatchHole(ezUInt32 vtxId);
   bool PruneFlatVertices(double fNormalThreshold);
-  bool PruneDegenerateTriangles(double fMaxAngle);
+  bool PruneDegenerateTriangles(double fMaxCosAngle);
   bool PruneSmallTriangles(double fMaxEdgeLen);
   ezResult ProcessVertices(const ezArrayPtr<const ezVec3> vertices);
 

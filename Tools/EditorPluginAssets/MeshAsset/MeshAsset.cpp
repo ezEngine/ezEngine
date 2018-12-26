@@ -80,7 +80,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
   {
     geom.AddCylinder(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight * 0.5f, pProp->m_fHeight * 0.5f, pProp->m_bCap, pProp->m_bCap2,
                      ezMath::Max<ezUInt16>(3, pProp->m_uiDetail), ezColor::White, mTrans, 0,
-                     ezAngle::Degree(ezMath::Clamp(pProp->m_fAngle, 0.0f, 360.0f)));
+                     ezMath::Clamp(pProp->m_Angle, ezAngle::Degree(0.0f), ezAngle::Degree(360.0f)));
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::GeodesicSphere)
   {

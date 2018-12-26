@@ -46,7 +46,7 @@ public:
   float m_fRadius;
   float m_fRadius2;
   float m_fHeight;
-  float m_fAngle;
+  ezAngle m_Angle;
   ezUInt16 m_uiDetail;
   ezUInt16 m_uiDetail2;
   bool m_bCap;

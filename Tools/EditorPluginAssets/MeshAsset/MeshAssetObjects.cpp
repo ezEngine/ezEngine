@@ -6,7 +6,7 @@
 #include <Foundation/Serialization/GraphPatch.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 2, ezRTTIDefaultAllocator<ezMeshAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 3, ezRTTIDefaultAllocator<ezMeshAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -27,7 +27,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 2, ezRTTIDefaultAllocator
     EZ_MEMBER_PROPERTY("Detail2", m_uiDetail2)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 128)),
     EZ_MEMBER_PROPERTY("Cap", m_bCap)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Cap2", m_bCap2)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("Angle", m_fAngle)->AddAttributes(new ezDefaultValueAttribute(360.0f), new ezClampValueAttribute(0.0f, 360.0f)),
+    EZ_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(360.0f)), new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(360.0f))),
     EZ_MEMBER_PROPERTY("ImportMaterials", m_bImportMaterials)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("UseSubfolderForMaterialImport", m_bUseSubFolderForImportedMaterials)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ARRAY_MEMBER_PROPERTY("Materials", m_Slots)->AddAttributes(new ezContainerAttribute(false, true, true)),
@@ -92,7 +92,7 @@ ezMeshAssetProperties::ezMeshAssetProperties()
   m_uiDetail2 = 1;
   m_bCap = true;
   m_bCap2 = true;
-  m_fAngle = 360.0f;
+  m_Angle = ezAngle::Degree(360.0f);
   m_bImportMaterials = true;
 }
 
@@ -216,4 +216,29 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
   }
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+class ezMeshAssetPropertiesPatch_2_3 : public ezGraphPatch
+{
+public:
+  ezMeshAssetPropertiesPatch_2_3()
+      : ezGraphPatch("ezMeshAssetProperties", 3)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    // convert the "Angle" property from float to ezAngle
+    if (auto pProp = pNode->FindProperty("Angle"))
+    {
+      if (pProp->m_Value.IsA<float>())
+      {
+        const float valFloat = pProp->m_Value.Get<float>();
+        pProp->m_Value = ezAngle::Degree(valFloat);
+      }
+    }
+  }
+};
+
+ezMeshAssetPropertiesPatch_2_3 g_ezMeshAssetPropertiesPatch_2_3;
 
