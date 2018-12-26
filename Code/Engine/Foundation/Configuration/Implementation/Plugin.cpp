@@ -1,7 +1,6 @@
 #include <PCH.h>
 
 #include <Foundation/Configuration/Plugin.h>
-#include <Foundation/Configuration/ReloadableVariable.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
@@ -115,8 +114,6 @@ void ezPlugin::BeginPluginChanges()
     e.m_pPluginObject = nullptr;
     e.m_szPluginFile = nullptr;
     s_PluginEvents.Broadcast(e);
-
-    ezReloadableVariableBase::StoreVariables();
   }
 
   ++s_iPluginChangeRecursionCounter;
