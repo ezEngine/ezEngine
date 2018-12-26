@@ -262,6 +262,7 @@ set (EZ_ENABLE_PVS_STUDIO_HEADER_IN_UNITY_FILES ON CACHE BOOL "Adds the necessar
 set (EZ_ENABLE_ENET_SUPPORT ON CACHE BOOL "Whether to add support for Enet. This is needed for Telemetry.")
 set (EZ_ENABLE_LUA_SUPPORT ON CACHE BOOL "Whether to add support for Lua.")
 set (EZ_ENABLE_ZLIB_SUPPORT ON CACHE BOOL "Whether to add support for zlib.")
+set (EZ_ENABLE_ZSTD_SUPPORT ON CACHE BOOL "Whether to add support for zstd.")
 set (EZ_ENABLE_MIXEDREALITY_SUPPORT OFF CACHE BOOL "Whether to add support for Windows Mixed Reality.")
 
 set (EZ_OUTPUT_DIRECTORY_LIB "${CMAKE_SOURCE_DIR}/Output/Lib" CACHE PATH "Where to store the compiled .lib files.")
@@ -434,6 +435,13 @@ endif()
 
 if (EZ_ENABLE_ZLIB_SUPPORT)
   add_definitions (-DBUILDSYSTEM_ENABLE_ZLIB_SUPPORT)
+endif()
+
+#########################################################################################
+## zstd support
+
+if (EZ_ENABLE_ZSTD_SUPPORT)
+  add_definitions (-DBUILDSYSTEM_ENABLE_ZSTD_SUPPORT)
 endif()
 
 #########################################################################################
