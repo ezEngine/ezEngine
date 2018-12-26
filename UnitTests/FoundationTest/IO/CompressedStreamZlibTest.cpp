@@ -1,20 +1,20 @@
 #include <PCH.h>
 
-#include <Foundation/IO/CompressedStream.h>
+#include <Foundation/IO/CompressedStreamZlib.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/Stream.h>
 
 #ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
 
-EZ_CREATE_SIMPLE_TEST(IO, CompressedStream)
+EZ_CREATE_SIMPLE_TEST(IO, CompressedStreamZlib)
 {
   ezMemoryStreamStorage StreamStorage;
 
   ezMemoryStreamWriter MemoryWriter(&StreamStorage);
   ezMemoryStreamReader MemoryReader(&StreamStorage);
 
-  ezCompressedStreamReader CompressedReader(MemoryReader);
-  ezCompressedStreamWriter CompressedWriter(MemoryWriter, ezCompressedStreamWriter::Fastest);
+  ezCompressedStreamReaderZlib CompressedReader(MemoryReader);
+  ezCompressedStreamWriterZlib CompressedWriter(MemoryWriter, ezCompressedStreamWriterZlib::Fastest);
 
   const ezUInt32 uiItems = 1024 * 1024 * 5;     // if you change this, you might need to adjust the expected compression ratio
   const float fExpectedCompressionRatio = 2.5f; // this is a guess that is based on the current input data and size

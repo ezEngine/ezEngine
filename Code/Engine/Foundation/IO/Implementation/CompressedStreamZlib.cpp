@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <Foundation/IO/CompressedStream.h>
+#include <Foundation/IO/CompressedStreamZlib.h>
 
 #ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
 
@@ -19,20 +19,20 @@ static void zLibFree OF((voidpf opaque, voidpf address))
 
 EZ_DEFINE_AS_POD_TYPE(z_stream_s);
 
-ezCompressedStreamReader::ezCompressedStreamReader(ezStreamReader& InputStream) : m_InputStream(InputStream)
+ezCompressedStreamReaderZlib::ezCompressedStreamReaderZlib(ezStreamReader& InputStream) : m_InputStream(InputStream)
 {
   m_bReachedEnd = false;
   m_pZLibStream = nullptr;
 }
 
-ezCompressedStreamReader::~ezCompressedStreamReader()
+ezCompressedStreamReaderZlib::~ezCompressedStreamReaderZlib()
 {
   EZ_VERIFY(inflateEnd(m_pZLibStream) == Z_OK, "Deinitializing the zlib stream failed: '{0}'", m_pZLibStream->msg);
 
   EZ_DEFAULT_DELETE(m_pZLibStream);
 }
 
-ezUInt64 ezCompressedStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
+ezUInt64 ezCompressedStreamReaderZlib::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
 {
   if (uiBytesToRead == 0 || m_bReachedEnd)
     return 0;
@@ -126,7 +126,7 @@ ezUInt64 ezCompressedStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytes
 }
 
 
-ezCompressedStreamWriter::ezCompressedStreamWriter(ezStreamWriter& OutputStream, Compression Ratio) : m_OutputStream(OutputStream)
+ezCompressedStreamWriterZlib::ezCompressedStreamWriterZlib(ezStreamWriter& OutputStream, Compression Ratio) : m_OutputStream(OutputStream)
 {
   m_uiUncompressedSize = 0;
   m_uiCompressedSize = 0;
@@ -146,12 +146,12 @@ ezCompressedStreamWriter::ezCompressedStreamWriter(ezStreamWriter& OutputStream,
   EZ_VERIFY(deflateInit(m_pZLibStream, Ratio) == Z_OK, "Initializing the zlib stream for compression failed: '{0}'", m_pZLibStream->msg);
 }
 
-ezCompressedStreamWriter::~ezCompressedStreamWriter()
+ezCompressedStreamWriterZlib::~ezCompressedStreamWriterZlib()
 {
   CloseStream();
 }
 
-ezResult ezCompressedStreamWriter::CloseStream()
+ezResult ezCompressedStreamWriterZlib::CloseStream()
 {
   if (m_pZLibStream == nullptr)
     return EZ_SUCCESS;
@@ -184,7 +184,7 @@ ezResult ezCompressedStreamWriter::CloseStream()
   return EZ_SUCCESS;
 }
 
-ezResult ezCompressedStreamWriter::Flush()
+ezResult ezCompressedStreamWriterZlib::Flush()
 {
   if (m_pZLibStream == nullptr)
     return EZ_SUCCESS;
@@ -209,7 +209,7 @@ ezResult ezCompressedStreamWriter::Flush()
   return EZ_SUCCESS;
 }
 
-ezResult ezCompressedStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
+ezResult ezCompressedStreamWriterZlib::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
 {
   EZ_ASSERT_DEV(m_pZLibStream != nullptr, "The stream is already closed, you cannot write more data to it.");
 

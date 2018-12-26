@@ -9,18 +9,18 @@
 
 struct z_stream_s;
 
-/// \brief A stream reader that will decompress data that was stored using the ezCompressedStreamWriter.
+/// \brief A stream reader that will decompress data that was stored using the ezCompressedStreamWriterZlib.
 ///
 /// The reader takes another reader as its data source (e.g. a file or a memory stream). The compressed reader
 /// uses a cache of 256 Bytes internally to prevent excessive reads from its source and to improve decompression speed.
-/// Note that currently neither ezCompressedStreamReader nor ezCompressedStreamWriter are able to handle streams that are larger than 4 GB.
-class EZ_FOUNDATION_DLL ezCompressedStreamReader : public ezStreamReader
+/// Note that currently neither ezCompressedStreamReaderZlib nor ezCompressedStreamWriterZlib are able to handle streams that are larger than 4 GB.
+class EZ_FOUNDATION_DLL ezCompressedStreamReaderZlib : public ezStreamReader
 {
 public:
   /// \brief Takes an input stream as the source from which to read the compressed data.
-  ezCompressedStreamReader(ezStreamReader& InputStream); // [tested]
+  ezCompressedStreamReaderZlib(ezStreamReader& InputStream); // [tested]
 
-  ~ezCompressedStreamReader(); // [tested]
+  ~ezCompressedStreamReaderZlib(); // [tested]
 
   /// \brief Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
   ///
@@ -43,8 +43,8 @@ private:
 /// ratio and it should only be used to reduce output lag. However, there is absolutely no guarantee that all the data that was put into the
 /// stream will be readable from the output stream, after calling Flush(). In fact, it is quite likely that a large amount of data has still
 /// not been written to it, because it is still inside the compressor.
-/// Note that currently neither ezCompressedStreamReader nor ezCompressedStreamWriter are able to handle streams that are larger than 4 GB.
-class EZ_FOUNDATION_DLL ezCompressedStreamWriter : public ezStreamWriter
+/// Note that currently neither ezCompressedStreamReaderZlib nor ezCompressedStreamWriterZlib are able to handle streams that are larger than 4 GB.
+class EZ_FOUNDATION_DLL ezCompressedStreamWriterZlib : public ezStreamWriter
 {
 public:
   /// \brief Specifies the compression level of the stream.
@@ -60,10 +60,10 @@ public:
   };
 
   /// \brief The constructor takes another stream writer to pass the output into, and a compression level.
-  ezCompressedStreamWriter(ezStreamWriter& OutputStream, Compression Ratio); // [tested]
+  ezCompressedStreamWriterZlib(ezStreamWriter& OutputStream, Compression Ratio); // [tested]
 
   /// \brief Calls CloseStream() internally.
-  ~ezCompressedStreamWriter(); // [tested]
+  ~ezCompressedStreamWriterZlib(); // [tested]
 
   /// \brief Compresses \a uiBytesToWrite from \a pWriteBuffer.
   ///
