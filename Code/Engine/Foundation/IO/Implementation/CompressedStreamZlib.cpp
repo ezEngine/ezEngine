@@ -4,7 +4,7 @@
 
 #ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
 
-#include <ThirdParty/zlib/zlib.h>
+#  include <ThirdParty/zlib/zlib.h>
 
 static voidpf zLibAlloc OF((voidpf opaque, uInt items, uInt size))
 {
@@ -19,10 +19,9 @@ static void zLibFree OF((voidpf opaque, voidpf address))
 
 EZ_DEFINE_AS_POD_TYPE(z_stream_s);
 
-ezCompressedStreamReaderZlib::ezCompressedStreamReaderZlib(ezStreamReader& InputStream) : m_InputStream(InputStream)
+ezCompressedStreamReaderZlib::ezCompressedStreamReaderZlib(ezStreamReader& InputStream)
+    : m_InputStream(InputStream)
 {
-  m_bReachedEnd = false;
-  m_pZLibStream = nullptr;
 }
 
 ezCompressedStreamReaderZlib::~ezCompressedStreamReaderZlib()
@@ -84,14 +83,16 @@ ezUInt64 ezCompressedStreamReaderZlib::ReadBytes(void* pReadBuffer, ezUInt64 uiB
     if (m_pZLibStream->avail_in == 0)
     {
       ezUInt8 uiCompressedSize = 0;
-      EZ_VERIFY(m_InputStream.ReadBytes(&uiCompressedSize, sizeof(ezUInt8)) == sizeof(ezUInt8), "Reading the compressed chunk size from the input stream failed.");
+      EZ_VERIFY(m_InputStream.ReadBytes(&uiCompressedSize, sizeof(ezUInt8)) == sizeof(ezUInt8),
+                "Reading the compressed chunk size from the input stream failed.");
 
       m_pZLibStream->avail_in = uiCompressedSize;
       m_pZLibStream->next_in = &m_CompressedCache[0];
 
       if (uiCompressedSize > 0)
       {
-        EZ_VERIFY(m_InputStream.ReadBytes(&m_CompressedCache[0], sizeof(ezUInt8) * uiCompressedSize) == sizeof(ezUInt8) * uiCompressedSize, "Reading the compressed chunk of size {0} from the input stream failed.", uiCompressedSize);
+        EZ_VERIFY(m_InputStream.ReadBytes(&m_CompressedCache[0], sizeof(ezUInt8) * uiCompressedSize) == sizeof(ezUInt8) * uiCompressedSize,
+                  "Reading the compressed chunk of size {0} from the input stream failed.", uiCompressedSize);
       }
     }
 
@@ -114,10 +115,12 @@ ezUInt64 ezCompressedStreamReaderZlib::ReadBytes(void* pReadBuffer, ezUInt64 uiB
       // do this now, so that data that comes after the compressed stream can be read properly
 
       ezUInt8 uiTerminator = 0;
-      EZ_VERIFY(m_InputStream.ReadBytes(&uiTerminator, sizeof(ezUInt8)) == sizeof(ezUInt8), "Reading the compressed stream terminator failed.");
+      EZ_VERIFY(m_InputStream.ReadBytes(&uiTerminator, sizeof(ezUInt8)) == sizeof(ezUInt8),
+                "Reading the compressed stream terminator failed.");
 
       EZ_ASSERT_DEV(uiTerminator == 0, "Unexpected Stream Terminator: {0}", uiTerminator);
-      EZ_ASSERT_DEV(m_pZLibStream->avail_in == 0, "The input buffer should be depleted, but {0} bytes are still there.", m_pZLibStream->avail_in);
+      EZ_ASSERT_DEV(m_pZLibStream->avail_in == 0, "The input buffer should be depleted, but {0} bytes are still there.",
+                    m_pZLibStream->avail_in);
       return m_pZLibStream->total_out;
     }
   }
@@ -126,11 +129,9 @@ ezUInt64 ezCompressedStreamReaderZlib::ReadBytes(void* pReadBuffer, ezUInt64 uiB
 }
 
 
-ezCompressedStreamWriterZlib::ezCompressedStreamWriterZlib(ezStreamWriter& OutputStream, Compression Ratio) : m_OutputStream(OutputStream)
+ezCompressedStreamWriterZlib::ezCompressedStreamWriterZlib(ezStreamWriter& OutputStream, Compression Ratio)
+    : m_OutputStream(OutputStream)
 {
-  m_uiUncompressedSize = 0;
-  m_uiCompressedSize = 0;
-
   m_pZLibStream = EZ_DEFAULT_NEW(z_stream_s);
   EZ_ANALYSIS_ASSUME(m_pZLibStream != nullptr);
 
