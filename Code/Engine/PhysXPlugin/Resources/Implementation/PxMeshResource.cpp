@@ -1,12 +1,17 @@
 #include <PCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
-#include <Foundation/IO/ChunkStream.h>
 #include <Core/Utils/WorldGeoExtractionUtil.h>
+#include <Foundation/IO/ChunkStream.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPxMeshResource, 1, ezRTTIDefaultAllocator<ezPxMeshResource>);
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+#  include <Foundation/IO/CompressedStreamZstd.h>
+#endif
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPxMeshResource, 1, ezRTTIDefaultAllocator<ezPxMeshResource>)
+  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezPxMeshResource::ezPxMeshResource()
@@ -89,9 +94,45 @@ ezResourceLoadDesc ezPxMeshResource::UpdateContent(ezStreamReader* Stream)
   ezAssetFileHeader AssetHash;
   AssetHash.Read(*Stream);
 
-  // load and create the PhysX mesh
+  ezUInt8 uiVersion = 1;
+  ezUInt8 uiCompressionMode = 0;
+
+  if (AssetHash.GetFileVersion() >= 6) // asset document version, in version 6 the 'resource file format version' was added
   {
-    ezChunkStreamReader chunk(*Stream);
+    *Stream >> uiVersion;
+    *Stream >> uiCompressionMode;
+  }
+
+  ezStreamReader* pCompressor = Stream;
+
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+  ezCompressedStreamReaderZstd decompressorZstd(Stream);
+#endif
+
+  switch (uiCompressionMode)
+  {
+    case 0:
+      break;
+
+    case 1:
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+      pCompressor = &decompressorZstd;
+      break;
+#else
+      ezLog::Error("Collision mesh is compressed with zstandard, but support for this compressor is not compiled in.");
+      res.m_State = ezResourceState::LoadedResourceMissing;
+      return res;
+#endif
+
+    default:
+      ezLog::Error("Collision mesh is compressed with an unknown algorithm.");
+      res.m_State = ezResourceState::LoadedResourceMissing;
+      return res;
+  }
+
+    // load and create the PhysX mesh
+  {
+    ezChunkStreamReader chunk(*pCompressor);
     chunk.SetEndChunkFileMode(ezChunkStreamReader::EndChunkFileMode::JustClose);
 
     chunk.BeginStream();
