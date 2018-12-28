@@ -6,6 +6,10 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+#  include <Foundation/IO/CompressedStreamZstd.h>
+#endif
+
 ezMeshResourceDescriptor::ezMeshResourceDescriptor()
 {
   m_Bounds.SetInvalid();
@@ -102,10 +106,22 @@ ezResult ezMeshResourceDescriptor::Save(const char* szFile)
 
 void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
 {
-  ezUInt8 uiVersion = 5;
+  ezUInt8 uiVersion = 6;
   stream << uiVersion;
 
+  ezUInt8 uiCompressionMode = 0;
+
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+  uiCompressionMode = 1;
+  ezCompressedStreamWriterZstd compressor(&stream, ezCompressedStreamWriterZstd::Compression::Average);
+  ezChunkStreamWriter chunk(compressor);
+
+#else
   ezChunkStreamWriter chunk(stream);
+#endif
+
+  stream << uiCompressionMode;
+
   chunk.BeginStream(1);
 
   {
@@ -218,6 +234,14 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
   }
 
   chunk.EndStream();
+
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+  compressor.CloseStream();
+
+  ezLog::Dev("Compressed mesh data from {0} KB to {1} KB ({2}%%)", ezArgF((float)compressor.GetUncompressedSize() / 1024.0f, 1),
+             ezArgF((float)compressor.GetCompressedSize() / 1024.0f, 1),
+             ezArgF(100.0f * compressor.GetCompressedSize() / compressor.GetUncompressedSize(), 1));
+#endif
 }
 
 ezResult ezMeshResourceDescriptor::Load(const char* szFile)
@@ -247,10 +271,41 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
   if (uiVersion == 4)
     return EZ_FAILURE;
 
-  if (uiVersion != 3 && uiVersion != 5)
+  if (uiVersion != 3 && uiVersion != 5 && uiVersion != 6)
     return EZ_FAILURE;
 
-  ezChunkStreamReader chunk(stream);
+  ezUInt8 uiCompressionMode = 0;
+  if (uiVersion >= 6)
+  {
+    stream >> uiCompressionMode;
+  }
+
+  ezStreamReader* pCompressor = &stream;
+
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+  ezCompressedStreamReaderZstd decompressorZstd(&stream);
+#endif
+
+  switch (uiCompressionMode)
+  {
+    case 0:
+      break;
+
+    case 1:
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+      pCompressor = &decompressorZstd;
+      break;
+#else
+      ezLog::Error("Mesh is compressed with zstandard, but support for this compressor is not compiled in.");
+      return EZ_FAILURE;
+#endif
+
+    default:
+      ezLog::Error("Mesh is compressed with an unknown algorithm.");
+      return EZ_FAILURE;
+  }
+
+  ezChunkStreamReader chunk(*pCompressor);
   chunk.BeginStream();
 
   ezUInt32 count;
