@@ -13,14 +13,11 @@ struct z_stream_s;
 ///
 /// The reader takes another reader as its data source (e.g. a file or a memory stream). The compressed reader
 /// uses a cache of 256 Bytes internally to prevent excessive reads from its source and to improve decompression speed.
-///
-/// \note Currently neither ezCompressedStreamReaderZlib nor ezCompressedStreamWriterZlib are able to handle streams that are larger than 4
-/// GB.
 class EZ_FOUNDATION_DLL ezCompressedStreamReaderZlib : public ezStreamReader
 {
 public:
   /// \brief Takes an input stream as the source from which to read the compressed data.
-  ezCompressedStreamReaderZlib(ezStreamReader& InputStream); // [tested]
+  ezCompressedStreamReaderZlib(ezStreamReader* pInputStream); // [tested]
 
   ~ezCompressedStreamReaderZlib(); // [tested]
 
@@ -32,8 +29,8 @@ public:
 
 private:
   bool m_bReachedEnd = false;
-  ezUInt8 m_CompressedCache[256];
-  ezStreamReader& m_InputStream;
+  ezDynamicArray<ezUInt8> m_CompressedCache;
+  ezStreamReader* m_pInputStream;
   z_stream_s* m_pZLibStream = nullptr;
 };
 
@@ -45,9 +42,6 @@ private:
 /// compression ratio and it should only be used to reduce output lag. However, there is absolutely no guarantee that all the data that was
 /// put into the stream will be readable from the output stream, after calling Flush(). In fact, it is quite likely that a large amount of
 /// data has still not been written to it, because it is still inside the compressor.
-///
-/// \note Currently neither ezCompressedStreamReaderZlib nor ezCompressedStreamWriterZlib are able to handle streams that are larger than 4
-/// GB.
 class EZ_FOUNDATION_DLL ezCompressedStreamWriterZlib : public ezStreamWriter
 {
 public:
@@ -65,7 +59,7 @@ public:
   };
 
   /// \brief The constructor takes another stream writer to pass the output into, and a compression level.
-  ezCompressedStreamWriterZlib(ezStreamWriter& OutputStream, Compression Ratio = Compression::Default); // [tested]
+  ezCompressedStreamWriterZlib(ezStreamWriter* pOutputStream, Compression Ratio = Compression::Default); // [tested]
 
   /// \brief Calls CloseStream() internally.
   ~ezCompressedStreamWriterZlib(); // [tested]
@@ -84,7 +78,7 @@ public:
   ezResult CloseStream(); // [tested]
 
   /// \brief Returns the size of the data in its uncompressed state.
-  ezUInt32 GetUncompressedSize() const { return m_uiUncompressedSize; } // [tested]
+  ezUInt64 GetUncompressedSize() const { return m_uiUncompressedSize; } // [tested]
 
   /// \brief Returns the current compressed size of the data.
   ///
@@ -92,7 +86,7 @@ public:
   /// might still be cached and not yet accounted for.
   /// Note that GetCompressedSize() returns the compressed size of the data, not the size of the data that was written to the output stream,
   /// which will be larger (1 additional byte per 255 compressed bytes, plus one zero terminator byte).
-  ezUInt32 GetCompressedSize() const { return m_uiCompressedSize; } // [tested]
+  ezUInt64 GetCompressedSize() const { return m_uiCompressedSize; } // [tested]
 
   /// \brief Writes the currently available compressed data to the stream.
   ///
@@ -101,13 +95,13 @@ public:
   virtual ezResult Flush() override;
 
 private:
-  ezUInt32 m_uiUncompressedSize = 0;
-  ezUInt32 m_uiCompressedSize = 0;
+  ezUInt64 m_uiUncompressedSize = 0;
+  ezUInt64 m_uiCompressedSize = 0;
 
-  ezStreamWriter& m_OutputStream;
+  ezStreamWriter* m_pOutputStream = nullptr;
   z_stream_s* m_pZLibStream = nullptr;
 
-  ezUInt8 m_CompressedCache[256];
+  ezDynamicArray<ezUInt8> m_CompressedCache;
 };
 
 #endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT

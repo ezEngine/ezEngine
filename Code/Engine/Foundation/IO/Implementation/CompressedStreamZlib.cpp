@@ -19,9 +19,10 @@ static void zLibFree OF((voidpf opaque, voidpf address))
 
 EZ_DEFINE_AS_POD_TYPE(z_stream_s);
 
-ezCompressedStreamReaderZlib::ezCompressedStreamReaderZlib(ezStreamReader& InputStream)
-    : m_InputStream(InputStream)
+ezCompressedStreamReaderZlib::ezCompressedStreamReaderZlib(ezStreamReader* pInputStream)
+    : m_pInputStream(pInputStream)
 {
+  m_CompressedCache.SetCountUninitialized(1024 * 4);
 }
 
 ezCompressedStreamReaderZlib::~ezCompressedStreamReaderZlib()
@@ -82,16 +83,17 @@ ezUInt64 ezCompressedStreamReaderZlib::ReadBytes(void* pReadBuffer, ezUInt64 uiB
     // if our input buffer is empty, we need to read more into our cache
     if (m_pZLibStream->avail_in == 0)
     {
-      ezUInt8 uiCompressedSize = 0;
-      EZ_VERIFY(m_InputStream.ReadBytes(&uiCompressedSize, sizeof(ezUInt8)) == sizeof(ezUInt8),
+      ezUInt16 uiCompressedSize = 0;
+      EZ_VERIFY(m_pInputStream->ReadBytes(&uiCompressedSize, sizeof(ezUInt16)) == sizeof(ezUInt16),
                 "Reading the compressed chunk size from the input stream failed.");
 
       m_pZLibStream->avail_in = uiCompressedSize;
-      m_pZLibStream->next_in = &m_CompressedCache[0];
+      m_pZLibStream->next_in = m_CompressedCache.GetData();
 
       if (uiCompressedSize > 0)
       {
-        EZ_VERIFY(m_InputStream.ReadBytes(&m_CompressedCache[0], sizeof(ezUInt8) * uiCompressedSize) == sizeof(ezUInt8) * uiCompressedSize,
+        EZ_VERIFY(m_pInputStream->ReadBytes(m_CompressedCache.GetData(), sizeof(ezUInt8) * uiCompressedSize) ==
+                      sizeof(ezUInt8) * uiCompressedSize,
                   "Reading the compressed chunk of size {0} from the input stream failed.", uiCompressedSize);
       }
     }
@@ -114,8 +116,8 @@ ezUInt64 ezCompressedStreamReaderZlib::ReadBytes(void* pReadBuffer, ezUInt64 uiB
       // if we have reached the end, we have not yet read the zero-terminator
       // do this now, so that data that comes after the compressed stream can be read properly
 
-      ezUInt8 uiTerminator = 0;
-      EZ_VERIFY(m_InputStream.ReadBytes(&uiTerminator, sizeof(ezUInt8)) == sizeof(ezUInt8),
+      ezUInt16 uiTerminator = 0;
+      EZ_VERIFY(m_pInputStream->ReadBytes(&uiTerminator, sizeof(ezUInt16)) == sizeof(ezUInt16),
                 "Reading the compressed stream terminator failed.");
 
       EZ_ASSERT_DEV(uiTerminator == 0, "Unexpected Stream Terminator: {0}", uiTerminator);
@@ -129,9 +131,11 @@ ezUInt64 ezCompressedStreamReaderZlib::ReadBytes(void* pReadBuffer, ezUInt64 uiB
 }
 
 
-ezCompressedStreamWriterZlib::ezCompressedStreamWriterZlib(ezStreamWriter& OutputStream, Compression Ratio)
-    : m_OutputStream(OutputStream)
+ezCompressedStreamWriterZlib::ezCompressedStreamWriterZlib(ezStreamWriter* pOutputStream, Compression Ratio)
+    : m_pOutputStream(pOutputStream)
 {
+  m_CompressedCache.SetCountUninitialized(1024 * 4);
+
   m_pZLibStream = EZ_DEFAULT_NEW(z_stream_s);
   EZ_ANALYSIS_ASSUME(m_pZLibStream != nullptr);
 
@@ -140,8 +144,8 @@ ezCompressedStreamWriterZlib::ezCompressedStreamWriterZlib(ezStreamWriter& Outpu
   m_pZLibStream->opaque = nullptr;
   m_pZLibStream->zalloc = zLibAlloc;
   m_pZLibStream->zfree = zLibFree;
-  m_pZLibStream->next_out = m_CompressedCache;
-  m_pZLibStream->avail_out = 255;
+  m_pZLibStream->next_out = m_CompressedCache.GetData();
+  m_pZLibStream->avail_out = m_CompressedCache.GetCount();
   m_pZLibStream->total_out = 0;
 
   EZ_VERIFY(deflateInit(m_pZLibStream, Ratio) == Z_OK, "Initializing the zlib stream for compression failed: '{0}'", m_pZLibStream->msg);
@@ -175,8 +179,8 @@ ezResult ezCompressedStreamWriterZlib::CloseStream()
     return EZ_FAILURE;
 
   // write a zero-terminator
-  const ezUInt8 uiTerminator = 0;
-  if (m_OutputStream.WriteBytes(&uiTerminator, sizeof(ezUInt8)) == EZ_FAILURE)
+  const ezUInt16 uiTerminator = 0;
+  if (m_pOutputStream->WriteBytes(&uiTerminator, sizeof(ezUInt16)) == EZ_FAILURE)
     return EZ_FAILURE;
 
   EZ_VERIFY(deflateEnd(m_pZLibStream) == Z_OK, "Deinitializing the zlib compression stream failed: '{0}'", m_pZLibStream->msg);
@@ -190,22 +194,22 @@ ezResult ezCompressedStreamWriterZlib::Flush()
   if (m_pZLibStream == nullptr)
     return EZ_SUCCESS;
 
-  const ezUInt8 uiUsedCache = static_cast<ezUInt8>(m_pZLibStream->total_out);
+  const ezUInt16 uiUsedCache = static_cast<ezUInt16>(m_pZLibStream->total_out);
 
   if (uiUsedCache == 0)
     return EZ_SUCCESS;
 
-  if (m_OutputStream.WriteBytes(&uiUsedCache, sizeof(ezUInt8)) == EZ_FAILURE)
+  if (m_pOutputStream->WriteBytes(&uiUsedCache, sizeof(ezUInt16)) == EZ_FAILURE)
     return EZ_FAILURE;
 
-  if (m_OutputStream.WriteBytes(&m_CompressedCache[0], sizeof(ezUInt8) * uiUsedCache) == EZ_FAILURE)
+  if (m_pOutputStream->WriteBytes(m_CompressedCache.GetData(), sizeof(ezUInt8) * uiUsedCache) == EZ_FAILURE)
     return EZ_FAILURE;
 
   m_uiCompressedSize += uiUsedCache;
 
   m_pZLibStream->total_out = 0;
-  m_pZLibStream->next_out = &m_CompressedCache[0];
-  m_pZLibStream->avail_out = 255;
+  m_pZLibStream->next_out = m_CompressedCache.GetData();
+  m_pZLibStream->avail_out = m_CompressedCache.GetCount();
 
   return EZ_SUCCESS;
 }
@@ -214,7 +218,7 @@ ezResult ezCompressedStreamWriterZlib::WriteBytes(const void* pWriteBuffer, ezUI
 {
   EZ_ASSERT_DEV(m_pZLibStream != nullptr, "The stream is already closed, you cannot write more data to it.");
 
-  m_uiUncompressedSize += static_cast<ezUInt32>(uiBytesToWrite);
+  m_uiUncompressedSize += uiBytesToWrite;
 
   m_pZLibStream->next_in = static_cast<Bytef*>(const_cast<void*>(pWriteBuffer)); // C libraries suck at type safety
   m_pZLibStream->avail_in = static_cast<ezUInt32>(uiBytesToWrite);

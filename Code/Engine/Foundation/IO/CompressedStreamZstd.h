@@ -17,7 +17,7 @@ class EZ_FOUNDATION_DLL ezCompressedStreamReaderZstd : public ezStreamReader
 {
 public:
   /// \brief Takes an input stream as the source from which to read the compressed data.
-  ezCompressedStreamReaderZstd(ezStreamReader& InputStream); // [tested]
+  ezCompressedStreamReaderZstd(ezStreamReader* pInputStream); // [tested]
 
   ~ezCompressedStreamReaderZstd(); // [tested]
 
@@ -31,8 +31,8 @@ private:
   ezResult RefillReadCache();
 
   bool m_bReachedEnd = false;
-  ezUInt8 m_CompressedCache[256];
-  ezStreamReader& m_InputStream;
+  ezDynamicArray<ezUInt8> m_CompressedCache;
+  ezStreamReader* m_pInputStream = nullptr;
   ZSTD_DStream* m_pZstdDStream = nullptr;
   ZSTD_outBuffer m_OutBuffer;
   ZSTD_inBuffer m_InBuffer;
@@ -62,7 +62,7 @@ public:
   };
 
   /// \brief The constructor takes another stream writer to pass the output into, and a compression level.
-  ezCompressedStreamWriterZstd(ezStreamWriter& OutputStream, Compression Ratio = Compression::Default); // [tested]
+  ezCompressedStreamWriterZstd(ezStreamWriter* pOutputStream, Compression Ratio = Compression::Default); // [tested]
 
   /// \brief Calls CloseStream() internally.
   ~ezCompressedStreamWriterZstd(); // [tested]
@@ -81,7 +81,7 @@ public:
   ezResult CloseStream(); // [tested]
 
   /// \brief Returns the size of the data in its uncompressed state.
-  ezUInt32 GetUncompressedSize() const { return m_uiUncompressedSize; } // [tested]
+  ezUInt64 GetUncompressedSize() const { return m_uiUncompressedSize; } // [tested]
 
   /// \brief Returns the current compressed size of the data.
   ///
@@ -89,7 +89,7 @@ public:
   /// might still be cached and not yet accounted for.
   /// Note that GetCompressedSize() returns the compressed size of the data, not the size of the data that was written to the output stream,
   /// which will be larger (1 additional byte per 255 compressed bytes, plus one zero terminator byte).
-  ezUInt32 GetCompressedSize() const { return m_uiCompressedSize; } // [tested]
+  ezUInt64 GetCompressedSize() const { return m_uiCompressedSize; } // [tested]
 
   /// \brief Writes the currently available compressed data to the stream.
   ///
@@ -98,15 +98,15 @@ public:
   virtual ezResult Flush() override;
 
 private:
-  ezUInt32 m_uiUncompressedSize;
-  ezUInt32 m_uiCompressedSize;
+  ezUInt64 m_uiUncompressedSize;
+  ezUInt64 m_uiCompressedSize;
 
-  ezStreamWriter& m_OutputStream;
+  ezStreamWriter* m_pOutputStream = nullptr;
   ZSTD_CStream* m_pZstdCStream = nullptr;
   ZSTD_outBuffer m_OutBuffer;
   ZSTD_inBuffer m_InBuffer;
 
-  ezUInt8 m_CompressedCache[256];
+  ezDynamicArray<ezUInt8> m_CompressedCache;
 };
 
 #endif // BUILDSYSTEM_ENABLE_ZSTD_SUPPORT

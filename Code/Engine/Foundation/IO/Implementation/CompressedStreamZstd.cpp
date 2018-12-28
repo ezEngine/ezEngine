@@ -6,12 +6,14 @@
 
 #  include <ThirdParty/zstd/zstd.h>
 
-ezCompressedStreamReaderZstd::ezCompressedStreamReaderZstd(ezStreamReader& InputStream)
-    : m_InputStream(InputStream)
+ezCompressedStreamReaderZstd::ezCompressedStreamReaderZstd(ezStreamReader* pInputStream)
+    : m_pInputStream(pInputStream)
 {
+  m_CompressedCache.SetCountUninitialized(1024 * 4);
+
   m_InBuffer.pos = 0;
   m_InBuffer.size = 0;
-  m_InBuffer.src = m_CompressedCache;
+  m_InBuffer.src = m_CompressedCache.GetData();
 }
 
 ezCompressedStreamReaderZstd::~ezCompressedStreamReaderZstd()
@@ -87,8 +89,8 @@ ezResult ezCompressedStreamReaderZstd::RefillReadCache()
   // if our input buffer is empty, we need to read more into our cache
   if (m_InBuffer.pos == m_InBuffer.size)
   {
-    ezUInt8 uiCompressedSize = 0;
-    EZ_VERIFY(m_InputStream.ReadBytes(&uiCompressedSize, sizeof(ezUInt8)) == sizeof(ezUInt8),
+    ezUInt16 uiCompressedSize = 0;
+    EZ_VERIFY(m_pInputStream->ReadBytes(&uiCompressedSize, sizeof(ezUInt16)) == sizeof(ezUInt16),
               "Reading the compressed chunk size from the input stream failed.");
 
     m_InBuffer.pos = 0;
@@ -96,7 +98,8 @@ ezResult ezCompressedStreamReaderZstd::RefillReadCache()
 
     if (uiCompressedSize > 0)
     {
-      EZ_VERIFY(m_InputStream.ReadBytes(&m_CompressedCache[0], sizeof(ezUInt8) * uiCompressedSize) == sizeof(ezUInt8) * uiCompressedSize,
+      EZ_VERIFY(m_pInputStream->ReadBytes(m_CompressedCache.GetData(), sizeof(ezUInt8) * uiCompressedSize) ==
+                    sizeof(ezUInt8) * uiCompressedSize,
                 "Reading the compressed chunk of size {0} from the input stream failed.", uiCompressedSize);
     }
   }
@@ -118,17 +121,18 @@ ezResult ezCompressedStreamReaderZstd::RefillReadCache()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezCompressedStreamWriterZstd::ezCompressedStreamWriterZstd(ezStreamWriter& OutputStream, Compression Ratio)
-    : m_OutputStream(OutputStream)
+ezCompressedStreamWriterZstd::ezCompressedStreamWriterZstd(ezStreamWriter* pOutputStream, Compression Ratio)
+    : m_pOutputStream(pOutputStream)
 {
   m_uiUncompressedSize = 0;
   m_uiCompressedSize = 0;
+  m_CompressedCache.SetCountUninitialized(1024 * 4);
 
   m_pZstdCStream = ZSTD_createCStream();
 
-  m_OutBuffer.dst = m_CompressedCache;
+  m_OutBuffer.dst = m_CompressedCache.GetData();
   m_OutBuffer.pos = 0;
-  m_OutBuffer.size = 255; // cannot use more than 255, because we use one byte to store the size of the next compressed chunk
+  m_OutBuffer.size = m_CompressedCache.GetCount();
 
   ZSTD_initCStream(m_pZstdCStream, (int)Ratio);
 }
@@ -161,8 +165,8 @@ ezResult ezCompressedStreamWriterZstd::CloseStream()
     return EZ_FAILURE;
 
   // write a zero-terminator
-  const ezUInt8 uiTerminator = 0;
-  if (m_OutputStream.WriteBytes(&uiTerminator, sizeof(ezUInt8)) == EZ_FAILURE)
+  const ezUInt16 uiTerminator = 0;
+  if (m_pOutputStream->WriteBytes(&uiTerminator, sizeof(ezUInt16)) == EZ_FAILURE)
     return EZ_FAILURE;
 
   ZSTD_freeCStream(m_pZstdCStream);
@@ -176,22 +180,22 @@ ezResult ezCompressedStreamWriterZstd::Flush()
   if (m_pZstdCStream == nullptr)
     return EZ_SUCCESS;
 
-  const ezUInt8 uiUsedCache = static_cast<ezUInt8>(m_OutBuffer.pos);
+  const ezUInt16 uiUsedCache = static_cast<ezUInt16>(m_OutBuffer.pos);
 
   if (uiUsedCache == 0)
     return EZ_SUCCESS;
 
-  if (m_OutputStream.WriteBytes(&uiUsedCache, sizeof(ezUInt8)) == EZ_FAILURE)
+  if (m_pOutputStream->WriteBytes(&uiUsedCache, sizeof(ezUInt16)) == EZ_FAILURE)
     return EZ_FAILURE;
 
-  if (m_OutputStream.WriteBytes(&m_CompressedCache[0], sizeof(ezUInt8) * uiUsedCache) == EZ_FAILURE)
+  if (m_pOutputStream->WriteBytes(m_CompressedCache.GetData(), sizeof(ezUInt8) * uiUsedCache) == EZ_FAILURE)
     return EZ_FAILURE;
 
   m_uiCompressedSize += uiUsedCache;
 
   m_OutBuffer.pos = 0;
-  m_OutBuffer.dst = m_CompressedCache;
-  m_OutBuffer.size = 255;
+  m_OutBuffer.dst = m_CompressedCache.GetData();
+  m_OutBuffer.size = m_CompressedCache.GetCount();
 
   return EZ_SUCCESS;
 }
