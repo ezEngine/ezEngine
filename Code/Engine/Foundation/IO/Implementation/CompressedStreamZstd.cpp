@@ -6,34 +6,43 @@
 
 #  include <ThirdParty/zstd/zstd.h>
 
+ezCompressedStreamReaderZstd::ezCompressedStreamReaderZstd() = default;
+
 ezCompressedStreamReaderZstd::ezCompressedStreamReaderZstd(ezStreamReader* pInputStream)
-    : m_pInputStream(pInputStream)
 {
-  m_InBuffer.pos = 0;
-  m_InBuffer.size = 0;
+  SetInputStream(pInputStream);
 }
 
 ezCompressedStreamReaderZstd::~ezCompressedStreamReaderZstd()
 {
   if (m_pZstdDStream != nullptr)
   {
-    ZSTD_freeDStream(m_pZstdDStream);
+    ZSTD_freeDStream(reinterpret_cast<ZSTD_DStream*>(m_pZstdDStream));
     m_pZstdDStream = nullptr;
   }
 }
 
-ezUInt64 ezCompressedStreamReaderZstd::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
+void ezCompressedStreamReaderZstd::SetInputStream(ezStreamReader* pInputStream)
 {
-  if (uiBytesToRead == 0 || m_bReachedEnd)
-    return 0;
+  m_InBuffer.pos = 0;
+  m_InBuffer.size = 0;
+  m_bReachedEnd = false;
+  m_pInputStream = pInputStream;
 
-  // if we have not read from the stream before, initialize everything
   if (m_pZstdDStream == nullptr)
   {
     m_pZstdDStream = ZSTD_createDStream();
-
-    ZSTD_initDStream(m_pZstdDStream);
   }
+
+  ZSTD_initDStream(reinterpret_cast<ZSTD_DStream*>(m_pZstdDStream));
+}
+
+ezUInt64 ezCompressedStreamReaderZstd::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
+{
+  EZ_ASSERT_DEV(m_pInputStream != nullptr, "No input stream has been specified");
+
+  if (uiBytesToRead == 0 || m_bReachedEnd)
+    return 0;
 
   // Implement the 'skip n bytes' feature with a temp cache
   if (pReadBuffer == nullptr)
@@ -67,7 +76,8 @@ ezUInt64 ezCompressedStreamReaderZstd::ReadBytes(void* pReadBuffer, ezUInt64 uiB
     if (RefillReadCache().Failed())
       return outBuffer.pos;
 
-    const size_t res = ZSTD_decompressStream(m_pZstdDStream, &outBuffer, &m_InBuffer);
+    const size_t res =
+        ZSTD_decompressStream(reinterpret_cast<ZSTD_DStream*>(m_pZstdDStream), &outBuffer, reinterpret_cast<ZSTD_inBuffer*>(&m_InBuffer));
     EZ_ASSERT_DEV(!ZSTD_isError(res), "Decompressing the stream failed: '{0}'", ZSTD_getErrorName(res));
   }
 
@@ -139,7 +149,7 @@ ezCompressedStreamWriterZstd::~ezCompressedStreamWriterZstd()
 
   if (m_pZstdCStream)
   {
-    ZSTD_freeCStream(m_pZstdCStream);
+    ZSTD_freeCStream(reinterpret_cast<ZSTD_CStream*>(m_pZstdCStream));
     m_pZstdCStream = nullptr;
   }
 }
@@ -165,7 +175,7 @@ void ezCompressedStreamWriterZstd::SetOutputStream(ezStreamWriter* pOutputStream
       m_pZstdCStream = ZSTD_createCStream();
     }
 
-    ZSTD_initCStream(m_pZstdCStream, (int)Ratio);
+    ZSTD_initCStream(reinterpret_cast<ZSTD_CStream*>(m_pZstdCStream), (int)Ratio);
 
     m_CompressedCache.SetCountUninitialized(ezMath::Max(1U, uiCompressionCacheSizeKB) * 1024);
 
@@ -183,7 +193,7 @@ ezResult ezCompressedStreamWriterZstd::FinishCompressedStream()
   if (Flush().Failed())
     return EZ_FAILURE;
 
-  const size_t res = ZSTD_endStream(m_pZstdCStream, &m_OutBuffer);
+  const size_t res = ZSTD_endStream(reinterpret_cast<ZSTD_CStream*>(m_pZstdCStream), reinterpret_cast<ZSTD_outBuffer*>(&m_OutBuffer));
   EZ_VERIFY(!ZSTD_isError(res), "Deinitializing the zstd compression stream failed: '{0}'", ZSTD_getErrorName(res));
 
   // one more flush to write out the last chunk
@@ -205,7 +215,7 @@ ezResult ezCompressedStreamWriterZstd::Flush()
   if (m_pOutputStream == nullptr)
     return EZ_SUCCESS;
 
-  while (ZSTD_flushStream(m_pZstdCStream, &m_OutBuffer) > 0)
+  while (ZSTD_flushStream(reinterpret_cast<ZSTD_CStream*>(m_pZstdCStream), reinterpret_cast<ZSTD_outBuffer*>(&m_OutBuffer)) > 0)
   {
     if (FlushWriteCache() == EZ_FAILURE)
       return EZ_FAILURE;
@@ -260,7 +270,8 @@ ezResult ezCompressedStreamWriterZstd::WriteBytes(const void* pWriteBuffer, ezUI
         return EZ_FAILURE;
     }
 
-    const size_t res = ZSTD_compressStream(m_pZstdCStream, &m_OutBuffer, &inBuffer);
+    const size_t res =
+        ZSTD_compressStream(reinterpret_cast<ZSTD_CStream*>(m_pZstdCStream), reinterpret_cast<ZSTD_outBuffer*>(&m_OutBuffer), &inBuffer);
 
     EZ_VERIFY(!ZSTD_isError(res), "Compressing the zstd stream failed: '{0}'", ZSTD_getErrorName(res));
   }

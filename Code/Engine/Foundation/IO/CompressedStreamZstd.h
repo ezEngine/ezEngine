@@ -7,19 +7,23 @@
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
 
-#  include <ThirdParty/zstd/zstd.h>
-
 /// \brief A stream reader that will decompress data that was stored using the ezCompressedStreamWriterZstd.
 ///
-/// The reader takes another reader as its data source (e.g. a file or a memory stream). The compressed reader
-/// uses a cache of 256 Bytes internally to prevent excessive reads from its source and to improve decompression speed.
+/// The reader takes another reader as its source for the compressed data (e.g. a file or a memory stream).
 class EZ_FOUNDATION_DLL ezCompressedStreamReaderZstd : public ezStreamReader
 {
 public:
+  ezCompressedStreamReaderZstd(); // [tested]
+
   /// \brief Takes an input stream as the source from which to read the compressed data.
   ezCompressedStreamReaderZstd(ezStreamReader* pInputStream); // [tested]
 
   ~ezCompressedStreamReaderZstd(); // [tested]
+
+  /// \brief Configures the reader to decompress the data from the given input stream.
+  ///
+  /// Calling this a second time on the same instance is valid and allows to reuse the decoder, which is more efficient than creating a new one.
+  void SetInputStream(ezStreamReader* pInputStream); // [tested]
 
   /// \brief Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
   ///
@@ -30,11 +34,19 @@ public:
 private:
   ezResult RefillReadCache();
 
+  // local declaration to reduce #include dependencies
+  struct InBufferImpl
+  {
+    const void* src;
+    size_t size;
+    size_t pos;
+  };
+
   bool m_bReachedEnd = false;
   ezDynamicArray<ezUInt8> m_CompressedCache;
   ezStreamReader* m_pInputStream = nullptr;
-  ZSTD_DStream* m_pZstdDStream = nullptr;
-  ZSTD_inBuffer m_InBuffer;
+  /*ZSTD_DStream*/void* m_pZstdDStream = nullptr;
+  /*ZSTD_inBuffer*/InBufferImpl m_InBuffer;
 };
 
 /// \brief A stream writer that will compress all incoming data and then passes it on into another stream.
@@ -73,7 +85,13 @@ public:
   /// Also configures how strong the compression should be and how much data (in KB) should be cached internally before passing it
   /// to the compressor. Adjusting this cache size is only of interest, if the compressed output needs to be consumed as quickly as possible
   /// (ie sent over a network) even before the full data is compressed. Otherwise 4 KB is a good default.
-  void SetOutputStream(ezStreamWriter* pOutputStream, Compression Ratio = Compression::Default, ezUInt32 uiCompressionCacheSizeKB = 4);
+  ///
+  /// This has to be called before writing any bytes to the stream. It may be called by the constructor.
+  /// If this is called a second time, on the same writer, the writer finishes up all work on the previous stream and can then be reused on another
+  /// stream. This can prevent internal allocations, if one wants to use compression on multiple streams consecutively.
+  /// It also allows to create a compressor stream early, but decide at a later pointer whether or with which stream to use it, and it will
+  /// only allocate internal structures once that final decision is made.
+  void SetOutputStream(ezStreamWriter* pOutputStream, Compression Ratio = Compression::Default, ezUInt32 uiCompressionCacheSizeKB = 4); // [tested]
 
   /// \brief Compresses \a uiBytesToWrite from \a pWriteBuffer.
   ///
@@ -106,7 +124,7 @@ public:
   /// After a Flush() one may continue writing data to the compressed stream.
   ///
   /// \note Flushing the stream reduces compression effectiveness. Only in rare circumstances should it be necessary to call this manually.
-  virtual ezResult Flush() override;
+  virtual ezResult Flush() override; // [tested]
 
 private:
   ezResult FlushWriteCache();
@@ -114,9 +132,17 @@ private:
   ezUInt64 m_uiUncompressedSize = 0;
   ezUInt64 m_uiCompressedSize = 0;
 
+  // local declaration to reduce #include dependencies
+  struct OutBufferImpl
+  {
+    void* dst;
+    size_t size;
+    size_t pos;
+  };
+
   ezStreamWriter* m_pOutputStream = nullptr;
-  ZSTD_CStream* m_pZstdCStream = nullptr;
-  ZSTD_outBuffer m_OutBuffer;
+  /*ZSTD_CStream*/void* m_pZstdCStream = nullptr;
+  /*ZSTD_outBuffer*/OutBufferImpl m_OutBuffer;
 
   ezDynamicArray<ezUInt8> m_CompressedCache;
 };

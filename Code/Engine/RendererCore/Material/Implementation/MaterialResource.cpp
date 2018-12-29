@@ -463,7 +463,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
     ezStreamReader* pCompressor = Stream;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-    ezCompressedStreamReaderZstd decompressorZstd(Stream);
+    ezCompressedStreamReaderZstd decompressorZstd;
 #endif
 
     switch (uiCompressionMode)
@@ -473,6 +473,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
       case 1:
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+        decompressorZstd.SetInputStream(Stream);
         pCompressor = &decompressorZstd;
         break;
 #else

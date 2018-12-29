@@ -41,7 +41,7 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStreamZstd)
   ezMemoryStreamWriter MemoryWriter(&StreamStorage);
   ezMemoryStreamReader MemoryReader(&StreamStorage);
 
-  ezCompressedStreamReaderZstd CompressedReader(&MemoryReader);
+  ezCompressedStreamReaderZstd CompressedReader;
   ezCompressedStreamWriterZstd CompressedWriter;
 
   const float fExpectedCompressionRatio = 900.0f; // this is a guess that is based on the current input data and size
@@ -85,6 +85,8 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStreamZstd)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Uncompress Data")
   {
+    CompressedReader.SetInputStream(&MemoryReader);
+
     bool bSkip = false;
     ezUInt32 uiStartPos = 0;
 

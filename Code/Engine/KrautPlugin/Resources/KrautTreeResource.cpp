@@ -315,7 +315,7 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream0)
   ezStreamReader* pCompressor = &stream0;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-  ezCompressedStreamReaderZstd decompressorZstd(&stream0);
+  ezCompressedStreamReaderZstd decompressorZstd;
 #endif
 
   switch (uiCompressionMode)
@@ -325,6 +325,7 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream0)
 
     case 1:
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+      decompressorZstd.SetInputStream(&stream0);
       pCompressor = &decompressorZstd;
       break;
 #else

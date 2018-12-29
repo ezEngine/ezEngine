@@ -282,7 +282,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
   ezStreamReader* pCompressor = &stream;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-  ezCompressedStreamReaderZstd decompressorZstd(&stream);
+  ezCompressedStreamReaderZstd decompressorZstd;
 #endif
 
   switch (uiCompressionMode)
@@ -292,6 +292,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
 
     case 1:
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+      decompressorZstd.SetInputStream(&stream);
       pCompressor = &decompressorZstd;
       break;
 #else
