@@ -12,7 +12,7 @@
 #include <Foundation/Utilities/Progress.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocument, 2, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocument, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezKrautTreeAssetDocument::ezKrautTreeAssetDocument(const char* szDocumentPath)

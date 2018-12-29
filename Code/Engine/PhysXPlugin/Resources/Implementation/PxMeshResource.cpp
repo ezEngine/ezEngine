@@ -130,7 +130,7 @@ ezResourceLoadDesc ezPxMeshResource::UpdateContent(ezStreamReader* Stream)
       return res;
   }
 
-    // load and create the PhysX mesh
+  // load and create the PhysX mesh
   {
     ezChunkStreamReader chunk(*pCompressor);
     chunk.SetEndChunkFileMode(ezChunkStreamReader::EndChunkFileMode::JustClose);

@@ -1,15 +1,21 @@
 #include <PCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+#include <GameEngine/Surfaces/SurfaceResource.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 #include <RendererCore/Textures/Texture2DResource.h>
-#include <GameEngine/Surfaces/SurfaceResource.h>
 
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+#  include <Foundation/IO/CompressedStreamZstd.h>
+#endif
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeResource, 1, ezRTTIDefaultAllocator<ezKrautTreeResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezKrautTreeResource::ezKrautTreeResource()
     : ezResource<ezKrautTreeResource, ezKrautTreeResourceDescriptor>(DoUpdate::OnAnyThread, 1)
@@ -213,11 +219,22 @@ ezResourceLoadDesc ezKrautTreeResource::CreateResource(const ezKrautTreeResource
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream) const
+void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream0) const
 {
-  ezUInt8 uiVersion = 11;
+  ezUInt8 uiVersion = 12;
 
-  stream << uiVersion;
+  stream0 << uiVersion;
+
+  ezUInt8 uiCompressionMode = 0;
+
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+  uiCompressionMode = 1;
+  ezCompressedStreamWriterZstd stream(&stream0, ezCompressedStreamWriterZstd::Compression::Average);
+#else
+  ezStreamWriter& stream = stream0;
+#endif
+
+  stream0 << uiCompressionMode;
 
   const ezUInt8 uiNumLods = m_Lods.GetCount();
   stream << uiNumLods;
@@ -273,16 +290,54 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream) const
   stream << m_Details.m_vLeafCenter;
   stream << m_Details.m_fStaticColliderRadius;
   stream << m_Details.m_sSurfaceResource;
+
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+  stream.CloseStream();
+
+  ezLog::Dev("Compressed Kraut tree data from {0} KB to {1} KB ({2}%%)", ezArgF((float)stream.GetUncompressedSize() / 1024.0f, 1),
+             ezArgF((float)stream.GetCompressedSize() / 1024.0f, 1),
+             ezArgF(100.0f * stream.GetCompressedSize() / stream.GetUncompressedSize(), 1));
+#endif
 }
 
-ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream)
+ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& stream0)
 {
   ezUInt8 uiVersion = 0;
 
-  stream >> uiVersion;
+  stream0 >> uiVersion;
 
-  if (uiVersion != 11)
+  if (uiVersion != 12)
     return EZ_FAILURE;
+
+  ezUInt8 uiCompressionMode = 0;
+  stream0 >> uiCompressionMode;
+
+  ezStreamReader* pCompressor = &stream0;
+
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+  ezCompressedStreamReaderZstd decompressorZstd(&stream0);
+#endif
+
+  switch (uiCompressionMode)
+  {
+    case 0:
+      break;
+
+    case 1:
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+      pCompressor = &decompressorZstd;
+      break;
+#else
+      ezLog::Error("Kraut tree is compressed with zstandard, but support for this compressor is not compiled in.");
+      return EZ_FAILURE;
+#endif
+
+    default:
+      ezLog::Error("Kraut tree is compressed with an unknown algorithm.");
+      return EZ_FAILURE;
+  }
+
+  ezStreamReader& stream = *pCompressor;
 
   ezUInt8 uiNumLods = 0;
   stream >> uiNumLods;
