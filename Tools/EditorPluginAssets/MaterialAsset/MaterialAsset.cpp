@@ -994,7 +994,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream0, co
     }
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-    stream.CloseStream();
+    stream.FinishCompressedStream();
 
     ezLog::Dev("Compressed material data from {0} KB to {1} KB ({2}%%)", ezArgF((float)stream.GetUncompressedSize() / 1024.0f, 1),
                ezArgF((float)stream.GetCompressedSize() / 1024.0f, 1),

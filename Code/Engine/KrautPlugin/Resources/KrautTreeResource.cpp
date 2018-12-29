@@ -292,7 +292,7 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream0) const
   stream << m_Details.m_sSurfaceResource;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-  stream.CloseStream();
+  stream.FinishCompressedStream();
 
   ezLog::Dev("Compressed Kraut tree data from {0} KB to {1} KB ({2}%%)", ezArgF((float)stream.GetUncompressedSize() / 1024.0f, 1),
              ezArgF((float)stream.GetCompressedSize() / 1024.0f, 1),

@@ -34,7 +34,6 @@ private:
   ezDynamicArray<ezUInt8> m_CompressedCache;
   ezStreamReader* m_pInputStream = nullptr;
   ZSTD_DStream* m_pZstdDStream = nullptr;
-  ZSTD_outBuffer m_OutBuffer;
   ZSTD_inBuffer m_InBuffer;
 };
 
@@ -61,11 +60,20 @@ public:
                       ///< considerably longer.
   };
 
+  ezCompressedStreamWriterZstd();
+
   /// \brief The constructor takes another stream writer to pass the output into, and a compression level.
   ezCompressedStreamWriterZstd(ezStreamWriter* pOutputStream, Compression Ratio = Compression::Default); // [tested]
 
-  /// \brief Calls CloseStream() internally.
+  /// \brief Calls FinishCompressedStream() internally.
   ~ezCompressedStreamWriterZstd(); // [tested]
+
+  /// \brief Configures to which other ezStreamWriter the compressed data should be passed along.
+  ///
+  /// Also configures how strong the compression should be and how much data (in KB) should be cached internally before passing it
+  /// to the compressor. Adjusting this cache size is only of interest, if the compressed output needs to be consumed as quickly as possible
+  /// (ie sent over a network) even before the full data is compressed. Otherwise 4 KB is a good default.
+  void SetOutputStream(ezStreamWriter* pOutputStream, Compression Ratio = Compression::Default, ezUInt32 uiCompressionCacheSizeKB = 4);
 
   /// \brief Compresses \a uiBytesToWrite from \a pWriteBuffer.
   ///
@@ -77,34 +85,38 @@ public:
   /// After calling this function, no more data can be written to the stream. GetCompressedSize() will return the final compressed size
   /// of the data.
   /// Note that this function is not the same as Flush(), since Flush() assumes that more data can be written to the stream afterwards,
-  /// which is not the case for CloseStream().
-  ezResult CloseStream(); // [tested]
+  /// which is not the case for FinishCompressedStream().
+  ezResult FinishCompressedStream(); // [tested]
 
   /// \brief Returns the size of the data in its uncompressed state.
   ezUInt64 GetUncompressedSize() const { return m_uiUncompressedSize; } // [tested]
 
   /// \brief Returns the current compressed size of the data.
   ///
-  /// This value is only accurate after CloseStream() has been called. Before that it is only a rough value, because a lot of data
+  /// This value is only accurate after FinishCompressedStream() has been called. Before that it is only a rough value, because a lot of data
   /// might still be cached and not yet accounted for.
   /// Note that GetCompressedSize() returns the compressed size of the data, not the size of the data that was written to the output stream,
   /// which will be larger (1 additional byte per 255 compressed bytes, plus one zero terminator byte).
   ezUInt64 GetCompressedSize() const { return m_uiCompressedSize; } // [tested]
 
-  /// \brief Writes the currently available compressed data to the stream.
+  /// \brief Flushes the internal compressor caches and writes the compressed data to the stream.
   ///
-  /// This does NOT guarantee that you can read all the uncompressed data from the output stream afterwards, because a lot of data
-  /// will still be inside the compressor and thus not yet written to the stream.
+  /// All data that was written to the compressed stream should now also be readable from the output.
+  /// However, the stream is not considered 'finished' after a Flush(), since the compressor may write additional data to indicate the end.
+  /// After a Flush() one may continue writing data to the compressed stream.
+  ///
+  /// \note Flushing the stream reduces compression effectiveness. Only in rare circumstances should it be necessary to call this manually.
   virtual ezResult Flush() override;
 
 private:
-  ezUInt64 m_uiUncompressedSize;
-  ezUInt64 m_uiCompressedSize;
+  ezResult FlushWriteCache();
+
+  ezUInt64 m_uiUncompressedSize = 0;
+  ezUInt64 m_uiCompressedSize = 0;
 
   ezStreamWriter* m_pOutputStream = nullptr;
   ZSTD_CStream* m_pZstdCStream = nullptr;
   ZSTD_outBuffer m_OutBuffer;
-  ZSTD_inBuffer m_InBuffer;
 
   ezDynamicArray<ezUInt8> m_CompressedCache;
 };

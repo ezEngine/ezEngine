@@ -26,7 +26,7 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStreamZstd)
       if (uiWrite == 0)
         break;
 
-      for (ezUInt32 i = 0; i <uiWrite; ++i)
+      for (ezUInt32 i = 0; i < uiWrite; ++i)
       {
         TestData[uiStartPos + i] = i;
       }
@@ -42,32 +42,45 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStreamZstd)
   ezMemoryStreamReader MemoryReader(&StreamStorage);
 
   ezCompressedStreamReaderZstd CompressedReader(&MemoryReader);
-  ezCompressedStreamWriterZstd CompressedWriter(&MemoryWriter);
+  ezCompressedStreamWriterZstd CompressedWriter;
 
-  const float fExpectedCompressionRatio = 1000.0f; // this is a guess that is based on the current input data and size
+  const float fExpectedCompressionRatio = 900.0f; // this is a guess that is based on the current input data and size
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compress Data")
   {
+    CompressedWriter.SetOutputStream(&MemoryWriter);
+
+    bool bFlush = true;
+
     ezUInt32 uiWrite = 1;
-    for (ezUInt32 i = 0; i < TestData.GetCount(); )
+    for (ezUInt32 i = 0; i < TestData.GetCount();)
     {
       uiWrite = ezMath::Min<ezUInt32>(uiWrite, TestData.GetCount() - i);
 
       EZ_TEST_BOOL(CompressedWriter.WriteBytes(&TestData[i], sizeof(ezUInt32) * uiWrite) == EZ_SUCCESS);
+
+      if (bFlush)
+      {
+        // this actually hurts compression rates
+        EZ_TEST_BOOL(CompressedWriter.Flush() == EZ_SUCCESS);
+      }
+
+      bFlush = !bFlush;
 
       i += uiWrite;
       uiWrite += 17; // try different sizes to write
     }
 
     // flush all data
-    CompressedWriter.CloseStream();
+    CompressedWriter.FinishCompressedStream();
 
     const ezUInt32 uiCompressed = CompressedWriter.GetCompressedSize();
     const ezUInt32 uiUncompressed = CompressedWriter.GetUncompressedSize();
 
     EZ_TEST_INT(uiUncompressed, TestData.GetCount() * sizeof(ezUInt32));
 
-    EZ_TEST_BOOL((float)uiCompressed <= (float)uiUncompressed / fExpectedCompressionRatio);
+    const float fRatio = (float)uiUncompressed / (float)uiCompressed;
+    EZ_TEST_BOOL(fRatio >= fExpectedCompressionRatio);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Uncompress Data")

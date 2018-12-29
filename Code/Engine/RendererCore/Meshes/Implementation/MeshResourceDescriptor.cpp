@@ -235,7 +235,7 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
   chunk.EndStream();
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-  compressor.CloseStream();
+  compressor.FinishCompressedStream();
 
   ezLog::Dev("Compressed mesh data from {0} KB to {1} KB ({2}%%)", ezArgF((float)compressor.GetUncompressedSize() / 1024.0f, 1),
              ezArgF((float)compressor.GetCompressedSize() / 1024.0f, 1),
