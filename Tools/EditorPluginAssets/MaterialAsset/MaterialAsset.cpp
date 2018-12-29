@@ -16,6 +16,10 @@
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+#  include <Foundation/IO/CompressedStreamZstd.h>
+#endif
+
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMaterialShaderMode, 1)
 EZ_ENUM_CONSTANTS(ezMaterialShaderMode::BaseMaterial, ezMaterialShaderMode::File, ezMaterialShaderMode::Custom)
@@ -36,7 +40,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 4, ezRTTIDefaultAlloc
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocument, 4, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocument, 5, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -792,7 +796,7 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
   }
 }
 
-ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, const ezPlatformProfile* pAssetProfile,
+ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream0, const ezPlatformProfile* pAssetProfile,
                                                      bool bEmbedLowResData) const
 {
   const ezMaterialAssetProperties* pProp = GetProperties();
@@ -801,9 +805,21 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, con
 
   // now generate the .ezMaterialBin file
   {
-    const ezUInt8 uiVersion = 5;
+    const ezUInt8 uiVersion = 6;
 
-    stream << uiVersion;
+    stream0 << uiVersion;
+
+    ezUInt8 uiCompressionMode = 0;
+
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+    uiCompressionMode = 1;
+    ezCompressedStreamWriterZstd stream(&stream0, ezCompressedStreamWriterZstd::Compression::Average);
+#else
+    ezStreamWriter& stream = stream0;
+#endif
+
+    stream0 << uiCompressionMode;
+
     stream << pProp->m_sBaseMaterial;
     stream << pProp->m_sSurface;
     stream << pProp->ResolveRelativeShaderPath();
@@ -976,6 +992,14 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, con
       // marker: end of embedded data
       stream << "";
     }
+
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+    stream.CloseStream();
+
+    ezLog::Dev("Compressed material data from {0} KB to {1} KB ({2}%%)", ezArgF((float)stream.GetUncompressedSize() / 1024.0f, 1),
+               ezArgF((float)stream.GetCompressedSize() / 1024.0f, 1),
+               ezArgF(100.0f * stream.GetCompressedSize() / stream.GetUncompressedSize(), 1));
+#endif
   }
 
   return ezStatus(EZ_SUCCESS);

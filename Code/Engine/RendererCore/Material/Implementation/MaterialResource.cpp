@@ -12,6 +12,10 @@
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererCore/Textures/TextureLoader.h>
 
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+#  include <Foundation/IO/CompressedStreamZstd.h>
+#endif
+
 void ezMaterialResourceDescriptor::Clear()
 {
   m_hBaseMaterial.Invalidate();
@@ -448,11 +452,46 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
     ezUInt8 uiVersion = 0;
     (*Stream) >> uiVersion;
-    EZ_ASSERT_DEV(uiVersion <= 5, "Unknown ezMaterialBin version {0}", uiVersion);
+    EZ_ASSERT_DEV(uiVersion <= 6, "Unknown ezMaterialBin version {0}", uiVersion);
+
+    ezUInt8 uiCompressionMode = 0;
+    if (uiVersion >= 6)
+    {
+      *Stream >> uiCompressionMode;
+    }
+
+    ezStreamReader* pCompressor = Stream;
+
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+    ezCompressedStreamReaderZstd decompressorZstd(Stream);
+#endif
+
+    switch (uiCompressionMode)
+    {
+      case 0:
+        break;
+
+      case 1:
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+        pCompressor = &decompressorZstd;
+        break;
+#else
+        ezLog::Error("Material resource is compressed with zstandard, but support for this compressor is not compiled in.");
+        res.m_State = ezResourceState::LoadedResourceMissing;
+        return res;
+#endif
+
+      default:
+        ezLog::Error("Material resource is compressed with an unknown algorithm.");
+        res.m_State = ezResourceState::LoadedResourceMissing;
+        return res;
+    }
+
+    ezStreamReader& stream = *pCompressor;
 
     // Base material
     {
-      (*Stream) >> sTemp;
+      stream >> sTemp;
 
       if (!sTemp.IsEmpty())
         m_Desc.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>(sTemp);
@@ -460,7 +499,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
     if (uiVersion >= 4)
     {
-      (*Stream) >> sTemp;
+      stream >> sTemp;
 
       if (!sTemp.IsEmpty())
       {
@@ -470,7 +509,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
     // Shader
     {
-      (*Stream) >> sTemp;
+      stream >> sTemp;
 
       if (!sTemp.IsEmpty())
         m_Desc.m_hShader = ezResourceManager::LoadResource<ezShaderResource>(sTemp);
@@ -479,14 +518,14 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
     // Permutation Variables
     {
       ezUInt16 uiPermVars;
-      (*Stream) >> uiPermVars;
+      stream >> uiPermVars;
 
       m_Desc.m_PermutationVars.Reserve(uiPermVars);
 
       for (ezUInt16 i = 0; i < uiPermVars; ++i)
       {
-        (*Stream) >> sTemp;
-        (*Stream) >> sTemp2;
+        stream >> sTemp;
+        stream >> sTemp2;
 
         if (!sTemp.IsEmpty() && !sTemp2.IsEmpty())
         {
@@ -542,14 +581,14 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
     // 2D Textures
     {
       ezUInt16 uiTextures = 0;
-      (*Stream) >> uiTextures;
+      stream >> uiTextures;
 
       m_Desc.m_Texture2DBindings.Reserve(uiTextures);
 
       for (ezUInt16 i = 0; i < uiTextures; ++i)
       {
-        (*Stream) >> sTemp;
-        (*Stream) >> sTemp2;
+        stream >> sTemp;
+        stream >> sTemp2;
 
         if (sTemp.IsEmpty() || sTemp2.IsEmpty())
           continue;
@@ -568,14 +607,14 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
     if (uiVersion >= 3)
     {
       ezUInt16 uiTextures = 0;
-      (*Stream) >> uiTextures;
+      stream >> uiTextures;
 
       m_Desc.m_TextureCubeBindings.Reserve(uiTextures);
 
       for (ezUInt16 i = 0; i < uiTextures; ++i)
       {
-        (*Stream) >> sTemp;
-        (*Stream) >> sTemp2;
+        stream >> sTemp;
+        stream >> sTemp2;
 
         if (sTemp.IsEmpty() || sTemp2.IsEmpty())
           continue;
@@ -594,7 +633,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
       ezUInt16 uiConstants = 0;
 
-      (*Stream) >> uiConstants;
+      stream >> uiConstants;
 
       m_Desc.m_Parameters.Reserve(uiConstants);
 
@@ -602,8 +641,8 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
       for (ezUInt16 i = 0; i < uiConstants; ++i)
       {
-        (*Stream) >> sTemp;
-        (*Stream) >> vTemp;
+        stream >> sTemp;
+        stream >> vTemp;
 
         if (sTemp.IsEmpty() || !vTemp.IsValid())
           continue;
