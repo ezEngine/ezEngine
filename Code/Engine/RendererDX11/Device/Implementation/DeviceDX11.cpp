@@ -653,19 +653,9 @@ void ezGALDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain, bool bVSync)
 
 void ezGALDeviceDX11::BeginFramePlatform()
 {
-  auto& perFrameData = m_PerFrameData[m_uiNextPerFrameData];
-
-  ezGALContextDX11* pContext = GetPrimaryContext<ezGALContextDX11>();
-  pContext->GetDXContext()->Begin(perFrameData.m_pDisjointTimerQuery);
-
-  perFrameData.m_fInvTicksPerSecond = -1.0f;
-}
-
-void ezGALDeviceDX11::EndFramePlatform()
-{
   ezGALContextDX11* pContext = GetPrimaryContext<ezGALContextDX11>();
 
-  // check if fence is reached and update per frame data
+  // check if fence is reached and wait if the disjoint timer is about to be re-used
   {
     auto& perFrameData = m_PerFrameData[m_uiCurrentPerFrameData];
     if (perFrameData.m_uiFrame != ((ezUInt64)-1))
@@ -674,10 +664,34 @@ void ezGALDeviceDX11::EndFramePlatform()
       if (!bFenceReached && m_uiNextPerFrameData == m_uiCurrentPerFrameData)
       {
         pContext->WaitForFencePlatform(perFrameData.m_pFence);
-        bFenceReached = true;
       }
+    }
+  }
 
-      if (bFenceReached)
+  {
+    auto& perFrameData = m_PerFrameData[m_uiNextPerFrameData];
+    pContext->GetDXContext()->Begin(perFrameData.m_pDisjointTimerQuery);
+
+    perFrameData.m_fInvTicksPerSecond = -1.0f;
+  }
+}
+
+void ezGALDeviceDX11::EndFramePlatform()
+{
+  ezGALContextDX11* pContext = GetPrimaryContext<ezGALContextDX11>();
+
+  // end disjoint query
+  {
+    auto& perFrameData = m_PerFrameData[m_uiNextPerFrameData];
+    pContext->GetDXContext()->End(perFrameData.m_pDisjointTimerQuery);
+  }
+
+  // check if fence is reached and update per frame data
+  {
+    auto& perFrameData = m_PerFrameData[m_uiCurrentPerFrameData];
+    if (perFrameData.m_uiFrame != ((ezUInt64)-1))
+    {
+      if (pContext->IsFenceReachedPlatform(perFrameData.m_pFence))
       {
         FreeTempResources(perFrameData.m_uiFrame);
 
@@ -714,9 +728,6 @@ void ezGALDeviceDX11::EndFramePlatform()
   {
     auto& perFrameData = m_PerFrameData[m_uiNextPerFrameData];
     perFrameData.m_uiFrame = m_uiFrameCounter;
-
-    // end disjoint query
-    pContext->GetDXContext()->End(perFrameData.m_pDisjointTimerQuery);
 
     // insert fence
     pContext->InsertFencePlatform(perFrameData.m_pFence);
