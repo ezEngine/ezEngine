@@ -59,7 +59,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
 
 	VS_OUT RetVal;
 	RetVal.Position = float4(screenPosition, 0.0, 1.0);
-	RetVal.TexCoords = (float2(texCoordX, texCoordY) + vertexPosition) * invAtlasSize;
+	RetVal.TexCoord0 = (float2(texCoordX, texCoordY) + vertexPosition) * invAtlasSize;
 	RetVal.Color = RGBA8ToFloat4(data.color);
 
 	return RetVal;
@@ -77,5 +77,5 @@ SamplerState FontTexture_AutoSampler;
 
 float4 main(PS_IN Input) : SV_Target
 {
-	return FontTexture.Sample(FontTexture_AutoSampler, Input.TexCoords.xy) * Input.Color;
+	return FontTexture.Sample(FontTexture_AutoSampler, Input.TexCoord0.xy) * Input.Color;
 }

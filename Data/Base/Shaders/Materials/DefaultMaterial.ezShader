@@ -120,7 +120,7 @@ float3 GetNormal()
   [branch]
   if (UseNormalAndRoughnessTexture)
   {
-    float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, G.Input.TexCoords.xy));
+    float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, G.Input.TexCoord0.xy));
     return TangentToWorldSpace(normalTS);
   }
   else
@@ -136,7 +136,7 @@ float3 GetBaseColor()
   [branch]
   if (UseBaseTexture)
   {
-    baseColor *= BaseTexture.Sample(BaseTexture_AutoSampler, G.Input.TexCoords.xy).rgb;
+    baseColor *= BaseTexture.Sample(BaseTexture_AutoSampler, G.Input.TexCoord0.xy).rgb;
   }
 
   return baseColor;
@@ -147,7 +147,7 @@ float GetMetallic()
   [branch]
   if (UseMetallicTexture)
   {
-    return MetallicTexture.Sample(MetallicTexture_AutoSampler, G.Input.TexCoords.xy).r;
+    return MetallicTexture.Sample(MetallicTexture_AutoSampler, G.Input.TexCoord0.xy).r;
   }
   else
   {
@@ -165,7 +165,7 @@ float GetRoughness()
   [branch]
   if (UseNormalAndRoughnessTexture)
   {
-    return RoughnessTexture.Sample(RoughnessTexture_AutoSampler, G.Input.TexCoords.xy).r;
+    return RoughnessTexture.Sample(RoughnessTexture_AutoSampler, G.Input.TexCoord0.xy).r;
   }
   else
   {
@@ -180,7 +180,7 @@ float GetOpacity()
   [branch]
   if (UseBaseTexture)
   {
-    opacity *= BaseTexture.Sample(BaseTexture_AutoSampler, G.Input.TexCoords.xy).a;
+    opacity *= BaseTexture.Sample(BaseTexture_AutoSampler, G.Input.TexCoord0.xy).a;
   }
 
   #if BLEND_MODE == BLEND_MODE_MASKED
@@ -195,7 +195,7 @@ float3 GetEmissiveColor()
   [branch]
   if (UseEmissiveTexture)
   {
-    return EmissiveTexture.Sample(EmissiveTexture_AutoSampler, G.Input.TexCoords.xy).rgb * EmissiveColor.rgb;
+    return EmissiveTexture.Sample(EmissiveTexture_AutoSampler, G.Input.TexCoord0.xy).rgb * EmissiveColor.rgb;
   }
   else
   {
@@ -208,7 +208,7 @@ float GetOcclusion()
   [branch]
   if (UseOcclusionTexture)
   {
-    return OcclusionTexture.Sample(OcclusionTexture_AutoSampler, G.Input.TexCoords.xy).r;
+    return OcclusionTexture.Sample(OcclusionTexture_AutoSampler, G.Input.TexCoord0.xy).r;
   }
   else
   {

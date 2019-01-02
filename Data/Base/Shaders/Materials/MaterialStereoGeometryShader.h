@@ -32,12 +32,12 @@ struct GS_OUT
 	#endif
 
 	#if defined(USE_TEXCOORD0)
-		#if defined(USE_TEXCOORD1)
-			float4 TexCoords : TEXCOORD0;
-		#else
-			float2 TexCoords : TEXCOORD0;
-		#endif
-	#endif
+    float2 TexCoord0 : TEXCOORD0;
+
+    #if defined(USE_TEXCOORD1)
+      float2 TexCoord1 : TEXCOORD1;
+    #endif
+  #endif
 
 	#if defined(USE_COLOR)
 		float4 Color : COLOR;
@@ -71,7 +71,11 @@ void main(triangle VS_OUT input[3], inout TriangleStream<GS_OUT> outStream)
         #endif
 
         #if defined(USE_TEXCOORD0)
-          output.TexCoords = input[i].TexCoords;
+          output.TexCoord0 = input[i].TexCoord0;
+        #endif
+        
+        #if defined(USE_TEXCOORD1)
+          output.TexCoord1 = input[i].TexCoord1;
         #endif
 
         #if defined(USE_COLOR)

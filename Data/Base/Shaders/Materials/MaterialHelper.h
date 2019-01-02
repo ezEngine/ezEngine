@@ -50,17 +50,17 @@ uint CalculateCoverage()
   #if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
     uint coverage = 0;
 
-    float2 texCoords = G.Input.TexCoords.xy;
+    float2 texCoords = G.Input.TexCoord0;
     
     for (uint i = 0; i < NumMsaaSamples; ++i)
     {
-      G.Input.TexCoords.xy = EvaluateAttributeAtSample(texCoords, i);
+      G.Input.TexCoord0 = EvaluateAttributeAtSample(texCoords, i);
 
       float opacity = GetOpacity();
       coverage |= (opacity > 0.0) ? (1 << i) : 0;
     }
     
-    G.Input.TexCoords.xy = texCoords;
+    G.Input.TexCoord0 = texCoords;
 
     return coverage;
   #else

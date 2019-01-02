@@ -54,8 +54,8 @@ VS_OUT main(VS_IN Input)
   [branch]
   if (KrautTreeMode == 4) // Billboard Impostor
   {
-    worldPosition.xyz += GetCameraDirRight() * result.TexCoords.z * data.GlobalUniformScale;
-    result.TexCoords.z = 1.0;
+    worldPosition.xyz += GetCameraDirRight() * result.TexCoord1.x * data.GlobalUniformScale;
+    result.TexCoord1.x = 1.0;
     result.Normal = -GetCameraDirForwards();
     result.Normal.z = 0;
     result.Normal = normalize(result.Normal);
@@ -94,15 +94,15 @@ VS_OUT main(VS_IN Input)
     if (impostorFace >= 4)
     {
       // for billboards this is eiter 0 or 0.25
-      float xcoord = result.TexCoords.x;
+      float xcoord = result.TexCoord0.x;
 
-      result.TexCoords.x -= xcoord * 2.0;
+      result.TexCoord0.x -= xcoord * 2.0;
       // also flip the tangent to fix the lighting
       result.Tangent = -result.Tangent;
     }
 
     float impostorXoffset[8] = { 0.0, 0.25, 0.5, 0.75, 0.25, 0.5, 0.75, 1.0 };
-    result.TexCoords.x += impostorXoffset[impostorFace];
+    result.TexCoord0.x += impostorXoffset[impostorFace];
 
   }
 
@@ -111,13 +111,13 @@ VS_OUT main(VS_IN Input)
   {
     result.LeafNormal = worldPosition.xyz - mul(objectToWorld, float4(LeafCenter, 1));
 
-    float2 span = result.TexCoords.xy * 2.0 - 1.0;
-    float size = result.TexCoords.z * data.GlobalUniformScale;
+    float2 span = result.TexCoord0.xy * 2.0 - 1.0;
+    float size = result.TexCoord1.x * data.GlobalUniformScale;
 
     worldPosition.xyz += span.x * GetCameraDirRight() * size;
     worldPosition.xyz += span.y * GetCameraDirUp() * size;
 
-    result.TexCoords.z = 1.0;
+    result.TexCoord1.x = 1.0;
     result.Normal = -GetCameraDirForwards();
     result.Normal.z = 0;
     result.Normal = normalize(result.Normal);
@@ -186,12 +186,12 @@ SamplerState NormalTexture_AutoSampler;
 
 float2 GetTexCoord()
 {
-  float2 tc = G.Input.TexCoords.xy;
+  float2 tc = G.Input.TexCoord0.xy;
   // unfortunately we have to DIVIDE in the pixel shader with the original value
   // if we use the inverse of TexCoords.z and interpolate that in the vertex-shader
   // the result has a slightly different value in the pixel shader,
   // resulting in drastically reduced quality
-  tc = tc / G.Input.TexCoords.z;
+  tc = tc / G.Input.TexCoord1.x;
   tc.y = 1.0 - tc.y;
 
   return tc;
@@ -259,5 +259,5 @@ float GetOpacity()
 
 float GetOcclusion()
 {
-  return G.Input.TexCoords.w;
+  return G.Input.TexCoord1.y;
 }

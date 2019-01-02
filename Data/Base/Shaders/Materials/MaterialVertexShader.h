@@ -102,10 +102,9 @@ VS_OUT FillVertexData(VS_IN Input)
   #endif
 
   #if defined(USE_TEXCOORD0)
+    Output.TexCoord0 = Input.TexCoord0;
     #if defined(USE_TEXCOORD1)
-      Output.TexCoords = float4(Input.TexCoord0, Input.TexCoord1);
-    #else
-      Output.TexCoords = Input.TexCoord0;
+      Output.TexCoord1 = Input.TexCoord1;
     #endif
   #endif
 

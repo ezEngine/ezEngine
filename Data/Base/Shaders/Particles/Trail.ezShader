@@ -56,7 +56,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
   if (trailPointIndex + 1 >= trailParticle.NumPoints)
   {
     ret.Position = float4(0, 0, 0, 0);
-    ret.TexCoords = float2(0, 0);
+    ret.TexCoord0 = float2(0, 0);
     ret.Color = float4(0, 1, 1, 0);
     ret.FogAmount = 1.0;
   }
@@ -93,17 +93,17 @@ VS_OUT main(uint VertexID : SV_VertexID)
     float4 position = mul(ObjectToWorldMatrix, float4(position0, 1)) + offsetUp;
 
     ret.Position = mul(GetWorldToScreenMatrix(), position);
-    ret.TexCoords.x = textureAtlasRect.x + uvCoord;
-    ret.TexCoords.y = textureAtlasRect.y + textureAtlasRect.w * QuadTexCoords[vertexSubIndex].y;
+    ret.TexCoord0.x = textureAtlasRect.x + uvCoord;
+    ret.TexCoord0.y = textureAtlasRect.y + textureAtlasRect.w * QuadTexCoords[vertexSubIndex].y;
 
     // do NOT adjust the UV of the very first vertex, that is the one moves all the time and is always at UV.x == 0
     // however, DO adjust the coordinate of the LAST vertex, since that is not moving and needs to "fade away" (out of the UV space, ie > 1)
-    if (ret.TexCoords.x > textureAtlasRect.x)
-      ret.TexCoords.x -= uvSubtract;
+    if (ret.TexCoord0.x > textureAtlasRect.x)
+      ret.TexCoord0.x -= uvSubtract;
 
     // manually clamp the texCoords
     // this could be set as a sampler state, but it would not work with sub-ranges (once we support texture atlases)
-    ret.TexCoords.x = min(textureAtlasRect.x + textureAtlasRect.z, ret.TexCoords.x);
+    ret.TexCoord0.x = min(textureAtlasRect.x + textureAtlasRect.z, ret.TexCoord0.x);
 
     ret.FogAmount = GetFogAmount(position);
   }
@@ -122,7 +122,7 @@ SamplerState ParticleTexture_AutoSampler;
 
 float4 main(PS_IN Input) : SV_Target
 {
-  float4 texCol = ParticleTexture.Sample(ParticleTexture_AutoSampler, Input.TexCoords.xy);
+  float4 texCol = ParticleTexture.Sample(ParticleTexture_AutoSampler, Input.TexCoord0.xy);
 
   float proximityFadeOut = CalcProximityFadeOut(Input.Position);
 

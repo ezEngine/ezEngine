@@ -71,7 +71,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
 #endif
 
   float fVariation = (baseParticle.Variation & 255) / 255.0;
-  ret.TexCoords = ComputeAtlasTexCoordRandomAnimated(QuadTexCoords[vertexIndex], TextureAtlasVariationFramesX, TextureAtlasVariationFramesY, fVariation, TextureAtlasFlipbookFramesX, TextureAtlasFlipbookFramesY, 1.0f - particleLife);
+  ret.TexCoord0 = ComputeAtlasTexCoordRandomAnimated(QuadTexCoords[vertexIndex], TextureAtlasVariationFramesX, TextureAtlasVariationFramesY, fVariation, TextureAtlasFlipbookFramesX, TextureAtlasFlipbookFramesY, 1.0f - particleLife);
 
   ret.FogAmount = GetFogAmount(mul(GetScreenToWorldMatrix(), ret.Position).xyz);
   return ret;
@@ -96,7 +96,7 @@ SamplerState ParticleTexture_AutoSampler;
 
 float4 main(PS_IN Input) : SV_Target
 {
-  float4 texCol = ParticleTexture.Sample(ParticleTexture_AutoSampler, Input.TexCoords.xy);
+  float4 texCol = ParticleTexture.Sample(ParticleTexture_AutoSampler, Input.TexCoord0.xy);
 
   float proximityFadeOut = CalcProximityFadeOut(Input.Position);
 
@@ -106,7 +106,7 @@ float4 main(PS_IN Input) : SV_Target
   #if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_DISTORTION
     clip(opacity - 0.01);
 
-    float4 texDistort = ParticleDistortionTexture.Sample(ParticleDistortionTexture_AutoSampler, Input.TexCoords.xy);
+    float4 texDistort = ParticleDistortionTexture.Sample(ParticleDistortionTexture_AutoSampler, Input.TexCoord0.xy);
     float3 sceneColor = SampleSceneColor(Input.Position.xy + (texDistort - 0.5) * float2(DistortionStrength, DistortionStrength));
 
     return float4(sceneColor.rgb * Input.Color.rgb, opacity);

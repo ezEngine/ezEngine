@@ -20,7 +20,7 @@ SamplerState BaseTexture_AutoSampler;
   {
     unsigned_int8 %Color { 50, 50, 128 }
     string %Type { "float2" }
-    string %DefaultValue { "G.Input.TexCoords" }
+    string %DefaultValue { "G.Input.TexCoord0" }
     string %Tooltip { "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates." }
   }
 
@@ -90,7 +90,7 @@ SamplerState $prop0_AutoSampler;
   {
     string %Type { "float2" }
     unsigned_int8 %Color { 50, 50, 128 }
-    string %DefaultValue { "G.Input.TexCoords" }
+    string %DefaultValue { "G.Input.TexCoord0" }
     string %Tooltip { "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates." }
   }
 
@@ -125,7 +125,7 @@ SamplerState EmissiveTexture_AutoSampler;
   {
     string %Type { "float2" }
     unsigned_int8 %Color { 50, 50, 128 }
-    string %DefaultValue { "G.Input.TexCoords" }
+    string %DefaultValue { "G.Input.TexCoord0" }
     string %Tooltip { "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates." }
   }
 
@@ -180,7 +180,7 @@ SamplerState MetallicTexture_AutoSampler;
   {
     string %Type { "float2" }
     unsigned_int8 %Color { 50, 50, 128 }
-    string %DefaultValue { "G.Input.TexCoords" }
+    string %DefaultValue { "G.Input.TexCoord0" }
     string %Tooltip { "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates." }
   }
 
@@ -215,7 +215,7 @@ SamplerState RoughnessTexture_AutoSampler;
   {
     string %Type { "float2" }
     unsigned_int8 %Color { 50, 50, 128 }
-    string %DefaultValue { "G.Input.TexCoords" }
+    string %DefaultValue { "G.Input.TexCoord0" }
     string %Tooltip { "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates." }
   }
 
@@ -260,7 +260,7 @@ SamplerState $prop0_AutoSampler;
   {
     string %Type { "float2" }
     unsigned_int8 %Color { 50, 50, 128 }
-    string %DefaultValue { "G.Input.TexCoords" }
+    string %DefaultValue { "G.Input.TexCoord0" }
     string %Tooltip { "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates." }
   }
 

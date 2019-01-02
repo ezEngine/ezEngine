@@ -27,7 +27,7 @@ VS_OUT main(VS_IN Input)
   float2 screenPosition = (Input.Position.xy * ViewportSize.zw) * float2(2.0, -2.0) + float2(-1.0, 1.0);
   RetVal.Position = float4(screenPosition, Input.Position.z, 1.0f);
 
-  RetVal.TexCoords = Input.TexCoord0;
+  RetVal.TexCoord0 = Input.TexCoord0;
   RetVal.Color = Input.Color;
 
   return RetVal;
@@ -46,5 +46,5 @@ SamplerState BaseTexture_AutoSampler;
 
 float4 main(PS_IN Input) : SV_Target
 {
-  return BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).a * Input.Color;
+  return BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoord0.xy) * Input.Color;
 }

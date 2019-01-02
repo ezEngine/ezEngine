@@ -47,9 +47,9 @@ SamplerState BaseTexture_AutoSampler;
 float4 SampleTexture(PS_IN Input)
 {
   if (LodLevel < 0)
-    return BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy);
+    return BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoord0.xy);
 
-  return BaseTexture.SampleLevel(BaseTexture_AutoSampler, Input.TexCoords.xy, LodLevel);
+  return BaseTexture.SampleLevel(BaseTexture_AutoSampler, Input.TexCoord0.xy, LodLevel);
 }
 
 float4 main(PS_IN Input) : SV_Target

@@ -63,10 +63,10 @@ struct VS_OUT
   #endif
 
   #if defined(USE_TEXCOORD0)
+    float2 TexCoord0 : TEXCOORD0;
+
     #if defined(USE_TEXCOORD1)
-      float4 TexCoords : TEXCOORD0;
-    #else
-      float2 TexCoords : TEXCOORD0;
+      float2 TexCoord1 : TEXCOORD1;
     #endif
   #endif
 

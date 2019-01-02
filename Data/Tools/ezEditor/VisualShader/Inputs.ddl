@@ -29,7 +29,7 @@ Node %UV
   {
     string %Type { "float2" }
     unsigned_int8 %Color { 50, 50, 128 }
-    string %Inline { "G.Input.TexCoords.xy" }
+    string %Inline { "G.Input.TexCoord0" }
     string %Tooltip { "The UV 0 texture coordinate." }
   }
 }
@@ -51,7 +51,7 @@ Node %UV2
   {
     string %Type { "float2" }
     unsigned_int8 %Color { 50, 50, 128 }
-    string %Inline { "G.Input.TexCoords.zw" }
+    string %Inline { "G.Input.TexCoord1" }
     string %Tooltip { "The UV 0 texture coordinate." }
   }
 }
@@ -73,7 +73,7 @@ Node %UV_Scroll
   {
     string %Type { "float2" }
     unsigned_int8 %Color { 50, 50, 128 }
-    string %Inline { "G.Input.TexCoords + frac(WorldTime * $in0)" }
+    string %Inline { "G.Input.TexCoord0 + frac(WorldTime * $in0)" }
     string %Tooltip { "The scrolled UV 0 texture coordinate." }
   }
 }

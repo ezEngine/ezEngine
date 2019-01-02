@@ -138,7 +138,7 @@ PS_OUT main(PS_IN Input)
     else if (RenderPass == EDITOR_RENDER_PASS_TEXCOORDS_UV0)
     {
       #if defined(USE_TEXCOORD0)
-        Output.Color = float4(SrgbToLinear(float3(frac(Input.TexCoords.xy), 0)), 1);
+        Output.Color = float4(SrgbToLinear(float3(frac(Input.TexCoord0.xy), 0)), 1);
       #else
         Output.Color = float4(0, 0, 0, 1);
       #endif
