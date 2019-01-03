@@ -20,13 +20,8 @@
 ezInputDeviceXBox360 g_XboxInputDevice;
 #endif
 
-#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
-    : ezGameApplication("ezEditorEngineProcess", ezGameApplicationType::EmbeddedInToolMixedReality, nullptr)
-#else
-ezEngineProcessGameApplication::ezEngineProcessGameApplication()
-    : ezGameApplication("ezEditorEngineProcess", ezGameApplicationType::EmbeddedInTool, nullptr)
-#endif
+    : ezGameApplication("ezEditorEngineProcess", nullptr)
 {
   // in the editor setting, do not delete prefab components after instantiation, otherwise runtime picking would break
   ezPrefabReferenceComponent::s_bDeleteComponentsAfterInstantiation = false;

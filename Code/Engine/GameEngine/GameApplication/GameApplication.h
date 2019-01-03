@@ -62,7 +62,7 @@ class EZ_GAMEENGINE_DLL ezGameApplication : public ezGameApplicationBase
 {
 public:
   /// szProjectPath may be nullptr, if FindProjectDirectory() is overridden.
-  ezGameApplication(const char* szAppName, ezGameApplicationType type, const char* szProjectPath);
+  ezGameApplication(const char* szAppName, const char* szProjectPath);
   ~ezGameApplication();
 
   /// \brief Returns the ezGameApplication singleton
@@ -102,9 +102,6 @@ public:
   ///
   /// Override this, if your application uses a different folder structure or way to specify the project directory.
   virtual ezString FindProjectDirectory() const;
-
-  /// \brief Returns what was passed to the constructor.
-  ezGameApplicationType GetAppType() const { return m_AppType; }
 
   /// \brief Used at runtime (by the editor) to reload input maps. Forwards to DoConfigureInput()
   void ReinitializeInputConfig();
@@ -241,8 +238,6 @@ protected:
   
   bool m_bShowConsole = false;
   
-  ezGameApplicationType m_AppType;
-
   ezUniquePtr<ezConsole> m_pConsole;
 
 

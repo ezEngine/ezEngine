@@ -1,10 +1,10 @@
-﻿#pragma once
+#pragma once
 
-#include <GameEngine/GameApplication/GameApplication.h>
 #include <Core/Application/Config/FileSystemConfig.h>
 #include <Core/Application/Config/PluginConfig.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <GameEngine/GameApplication/GameApplication.h>
 
 class ezEditorEngineProcessApp;
 class ezDocumentOpenMsgToEngine;
@@ -23,7 +23,7 @@ public:
 
   virtual ezApplication::ApplicationExecution Run() override;
 
-  void LogWriter(const ezLoggingEventData & e);
+  void LogWriter(const ezLoggingEventData& e);
 
 protected:
   virtual void DoSetupLogWriters() override;
@@ -31,6 +31,9 @@ protected:
   virtual void DoSetupDataDirectories() override;
   virtual void ProcessApplicationInput() override;
   virtual ezUniquePtr<ezEditorEngineProcessApp> CreateEngineProcessApp();
+
+
+  virtual bool GetActivateGameStateAtStartup() const override { return false; }
 
 private:
   void ConnectToHost();
@@ -58,4 +61,3 @@ private:
   ezEngineProcessCommunicationChannel m_IPC;
   ezUniquePtr<ezEditorEngineProcessApp> m_pApp;
 };
-

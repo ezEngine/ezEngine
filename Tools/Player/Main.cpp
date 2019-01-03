@@ -19,7 +19,7 @@ ezInputDeviceXBox360 g_XboxInputDevice;
 #endif
 
 ezPlayerApplication::ezPlayerApplication()
-    : ezGameApplication("ezPlayer", ezGameApplicationType::StandAlone, nullptr)
+    : ezGameApplication("ezPlayer", nullptr)
 {
   m_pWorld = nullptr;
 }

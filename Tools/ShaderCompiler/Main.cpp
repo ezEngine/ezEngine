@@ -1,4 +1,4 @@
-﻿#include "Main.h"
+#include "Main.h"
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -7,7 +7,7 @@
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 
 ezShaderCompilerApplication::ezShaderCompilerApplication()
-  : ezGameApplication("ezShaderCompiler", ezGameApplicationType::StandAlone, nullptr)
+  : ezGameApplication("ezShaderCompiler", nullptr)
 {
 }
 

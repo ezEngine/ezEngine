@@ -32,14 +32,13 @@ ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> ezGameApplicatio
 ezCVarBool CVarEnableVSync("g_VSync", false, ezCVarFlags::Save, "Enables V-Sync");
 ezCVarBool CVarShowFPS("g_ShowFPS", false, ezCVarFlags::Save, "Show frames per second counter");
 
-ezGameApplication::ezGameApplication(const char* szAppName, ezGameApplicationType type, const char* szProjectPath /*= nullptr*/)
+ezGameApplication::ezGameApplication(const char* szAppName, const char* szProjectPath /*= nullptr*/)
     : ezGameApplicationBase(szAppName)
     , m_sAppProjectPath(szProjectPath)
     , m_UpdateTask("GameApplication.Update", ezMakeDelegate(&ezGameApplication::UpdateWorldsAndExtractViews, this))
 {
   s_pGameApplicationInstance = this;
   m_bWasQuitRequested = false;
-  m_AppType = type;
 
   m_pConsole = EZ_DEFAULT_NEW(ezConsole);
 }
@@ -133,39 +132,16 @@ void ezGameApplication::AfterCoreStartup()
 {
   DoProjectSetup();
 
-  // Create gamestate.
-  if (m_AppType == ezGameApplicationType::StandAlone
-#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-      || m_AppType == ezGameApplicationType::StandAloneMixedReality
-#endif
-  )
-  {
-    // CreateGameStateForWorld(nullptr);
-  }
-  else
-  {
-    // Special case: Must be handled by custom implementations of ezGameApplication
-  }
-
   // Gamestate determines which graphics device is used, so delay this until we have gamestates.
   DoSetupGraphicsDevice();
   DoSetupDefaultResources();
 
   ezStartup::StartupEngine();
 
-
   // Activate gamestate
-  if (m_AppType == ezGameApplicationType::StandAlone
-#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-      || m_AppType == ezGameApplicationType::StandAloneMixedReality
-#endif
-  )
+  if (GetActivateGameStateAtStartup())
   {
     ActivateGameState();
-  }
-  else
-  {
-    // Special case: Must be handled by custom implementations of ezGameApplication
   }
 }
 

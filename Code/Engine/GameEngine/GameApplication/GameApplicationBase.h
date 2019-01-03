@@ -151,6 +151,12 @@ protected:
   /// By overriding this, one can also just create a specific game state directly.
   virtual ezUniquePtr<ezGameState> CreateGameState(ezWorld* pWorld);
 
+  /// \brief Allows to override whether a game state is created and activated at application startup.
+  ///
+  /// The default is 'true', but applications that run inside the editor override this to return 'false',
+  /// as they only want the game state to become active during simulation, not during editing.
+  virtual bool GetActivateGameStateAtStartup() const { return true; }
+
   ezUniquePtr<ezGameState> m_pGameState;
   ezWorld* m_pWorldLinkedWithGameState = nullptr;
   ///@}

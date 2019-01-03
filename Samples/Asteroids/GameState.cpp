@@ -10,7 +10,7 @@
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <System/Window/Window.h>
 
-EZ_APPLICATION_ENTRY_POINT(ezGameApplication, "Asteroids", ezGameApplicationType::StandAlone, "Data/Samples/Asteroids");
+EZ_APPLICATION_ENTRY_POINT(ezGameApplication, "Asteroids", "Data/Samples/Asteroids");
 
 const char* szPlayerActions[MaxPlayerActions] = { "Forwards", "Backwards", "Left", "Right", "RotLeft", "RotRight", "Shoot" };
 const char* szControlerKeys[MaxPlayerActions] = { "leftstick_posy", "leftstick_negy", "leftstick_negx", "leftstick_posx", "rightstick_negx", "rightstick_posx", "right_trigger" };

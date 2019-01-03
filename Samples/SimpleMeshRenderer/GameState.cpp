@@ -249,8 +249,8 @@ void SimpleMeshRendererGameState::MoveObjectToPosition(const ezVec3& pos)
 class ezSimpleMeshRendererApplication : public ezGameApplication
 {
 public:
-  ezSimpleMeshRendererApplication(const char* szAppName, ezGameApplicationType type, const char* szProjectPath)
-      : ezGameApplication(szAppName, type, szProjectPath)
+  ezSimpleMeshRendererApplication(const char* szAppName, const char* szProjectPath)
+      : ezGameApplication(szAppName, szProjectPath)
   {
   }
 
@@ -265,9 +265,7 @@ public:
 
 // This application supports being compiled for both modes
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-EZ_APPLICATION_ENTRY_POINT(ezSimpleMeshRendererApplication, "SimpleMeshRenderer", ezGameApplicationType::StandAloneMixedReality,
-                           "Data/Samples/SimpleMeshRenderer");
+EZ_APPLICATION_ENTRY_POINT(ezSimpleMeshRendererApplication, "SimpleMeshRenderer", "Data/Samples/SimpleMeshRenderer");
 #else
-EZ_APPLICATION_ENTRY_POINT(ezSimpleMeshRendererApplication, "SimpleMeshRenderer", ezGameApplicationType::StandAlone,
-                           "Data/Samples/SimpleMeshRenderer");
+EZ_APPLICATION_ENTRY_POINT(ezSimpleMeshRendererApplication, "SimpleMeshRenderer", "Data/Samples/SimpleMeshRenderer");
 #endif

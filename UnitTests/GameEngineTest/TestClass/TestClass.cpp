@@ -9,7 +9,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 
 ezGameEngineTest::ezGameEngineTest() = default;
- ezGameEngineTest::~ezGameEngineTest() = default;
+ezGameEngineTest::~ezGameEngineTest() = default;
 
 ezResult ezGameEngineTest::GetImage(ezImage& img)
 {
@@ -57,7 +57,7 @@ ezResult ezGameEngineTest::DeInitializeTest()
 
 
 ezGameEngineTestApplication::ezGameEngineTestApplication(const char* szProjectDirName)
-    : ezGameApplication("ezGameEngineTest", ezGameApplicationType::StandAlone, nullptr)
+    : ezGameApplication("ezGameEngineTest", nullptr)
 {
   m_pWorld = nullptr;
   m_sProjectDirName = szProjectDirName;
