@@ -17,12 +17,13 @@ extern "C" {
 /* ======   Dependency   ======*/
 #include <stddef.h>   /* size_t */
 
-#ifdef BUILDSYSTEM_BUILDING_THIRDPARTY_LIB
-#define ZSTD_DLL_EXPORT 1
-#else
-#define ZSTD_DLL_IMPORT 1
-#endif
-
+#  ifdef BUILDSYSTEM_COMPILE_ENGINE_AS_DLL
+#    ifdef BUILDSYSTEM_BUILDING_THIRDPARTY_LIB
+#      define ZSTD_DLL_EXPORT 1
+#    else
+#      define ZSTD_DLL_IMPORT 1
+#    endif
+#  endif
 
 /* =====   ZSTDLIB_API : control library symbols visibility   ===== */
 #ifndef ZSTDLIB_VISIBILITY
