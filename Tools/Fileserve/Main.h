@@ -21,9 +21,9 @@ public:
   {
   }
 
-  virtual void BeforeCoreStartup() override;
-  virtual void AfterCoreStartup() override;
-  virtual void BeforeCoreShutdown() override;
+  virtual void BeforeCoreSystemsStartup() override;
+  virtual void AfterCoreSystemsStartup() override;
+  virtual void BeforeCoreSystemsShutdown() override;
 
   virtual ezApplication::ApplicationExecution Run() override;
   void FileserverEventHandlerConsole(const ezFileserverEvent& e);

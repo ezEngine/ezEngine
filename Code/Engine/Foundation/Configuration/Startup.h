@@ -4,15 +4,15 @@
 #include <Foundation/Configuration/SubSystem.h>
 #include <Foundation/Containers/Deque.h>
 
-#define EZ_GLOBALEVENT_STARTUP_CORE_BEGIN "ezStartup_StartupCore_Begin"
-#define EZ_GLOBALEVENT_STARTUP_CORE_END "ezStartup_StartupCore_End"
-#define EZ_GLOBALEVENT_SHUTDOWN_CORE_BEGIN "ezStartup_ShutdownCore_Begin"
-#define EZ_GLOBALEVENT_SHUTDOWN_CORE_END "ezStartup_ShutdownCore_End"
+#define EZ_GLOBALEVENT_STARTUP_CORESYSTEMS_BEGIN "ezStartup_StartupCoreSystems_Begin"
+#define EZ_GLOBALEVENT_STARTUP_CORESYSTEMS_END "ezStartup_StartupCoreSystems_End"
+#define EZ_GLOBALEVENT_SHUTDOWN_CORESYSTEMS_BEGIN "ezStartup_ShutdownCoreSystems_Begin"
+#define EZ_GLOBALEVENT_SHUTDOWN_CORESYSTEMS_END "ezStartup_ShutdownCoreSystems_End"
 
-#define EZ_GLOBALEVENT_STARTUP_ENGINE_BEGIN "ezStartup_StartupEngine_Begin"
-#define EZ_GLOBALEVENT_STARTUP_ENGINE_END "ezStartup_StartupEngine_End"
-#define EZ_GLOBALEVENT_SHUTDOWN_ENGINE_BEGIN "ezStartup_ShutdownEngine_Begin"
-#define EZ_GLOBALEVENT_SHUTDOWN_ENGINE_END "ezStartup_ShutdownEngine_End"
+#define EZ_GLOBALEVENT_STARTUP_HIGHLEVELSYSTEMS_BEGIN "ezStartup_StartupHighLevelSystems_Begin"
+#define EZ_GLOBALEVENT_STARTUP_HIGHLEVELSYSTEMS_END "ezStartup_StartupHighLevelSystems_End"
+#define EZ_GLOBALEVENT_SHUTDOWN_HIGHLEVELSYSTEMS_BEGIN "ezStartup_ShutdownHighLevelSystems_Begin"
+#define EZ_GLOBALEVENT_SHUTDOWN_HIGHLEVELSYSTEMS_END "ezStartup_ShutdownHighLevelSystems_End"
 
 #define EZ_GLOBALEVENT_UNLOAD_PLUGIN_BEGIN "ezStartup_UnloadPlugin_Begin"
 #define EZ_GLOBALEVENT_UNLOAD_PLUGIN_END "ezStartup_UnloadPlugin_End"
@@ -24,11 +24,11 @@
 /// them in the proper order.
 /// The startup and shutdown sequence consists of two steps. First the 'core' functionality is initialized. This is usually
 /// all the functionality that does not depend on a working rendering context.
-/// After all systems have had their 'core' functionality initialized, the 'engine' functionality can be initialized.
+/// After all systems have had their 'core' functionality initialized, the 'high level' functionality can be initialized.
 /// In between these steps the rendering context should be created.
 /// Tools that might not create a window or do not want to actually load GPU resources, might get away with only doing
 /// the 'core' initialization. Thus a subsystem should do all the initialization that is independent from a window or rendering
-/// context in 'core' startup, and it should be able to work (with some features disabled), even when 'engine' startup is not done.
+/// context in 'core' startup, and it should be able to work (with some features disabled), even when 'high level' startup is not done.
 ///
 /// A subsystem startup configuration for a static subsystem needs to be put in some cpp file of the subsystem and looks like this:
 ///
@@ -40,22 +40,22 @@
 ///     "SomeGroup"
 ///   END_SUBSYSTEM_DEPENDENCIES
 ///
-///   ON_CORE_STARTUP
+///   ON_CORESYSTEMS_STARTUP
 ///   {
 ///     ezExampleSubSystem::BasicStartup();
 ///   }
 ///
-///   ON_CORE_SHUTDOWN
+///   ON_CORESYSTEMS_SHUTDOWN
 ///   {
 ///     ezExampleSubSystem::BasicShutdown();
 ///   }
 ///
-///   ON_ENGINE_STARTUP
+///   ON_HIGHLEVELSYSTEMS_STARTUP
 ///   {
 ///     ezExampleSubSystem::EngineStartup();
 ///   }
 ///
-///   ON_ENGINE_SHUTDOWN
+///   ON_HIGHLEVELSYSTEMS_SHUTDOWN
 ///   {
 ///     ezExampleSubSystem::EngineShutdown();
 ///   }
@@ -63,7 +63,7 @@
 /// EZ_END_SUBSYSTEM_DECLARATION;
 ///
 /// This will automatically register the subsystem, once the code is being loaded (can be dynamically loaded from a DLL).
-/// The next time any of the ezStartup functions are called (StartupCore, StartupEngine) the subsystem will be initialized.
+/// The next time any of the ezStartup functions are called (StartupCoreSystems, StartupHighLevelSystems) the subsystem will be initialized.
 ///
 /// If however your subsystem is implemented as a normal class, you need to derive from the base class 'ezSubSystem' and
 /// override the virtual functions. Then when you have an instance of that class and call ezStartup::StartupCore etc., that
@@ -100,40 +100,40 @@ public:
   /// Run this, if you only require very low level systems to be initialized. Otherwise prefer StartupCore.
   /// There is NO ShutdownBase, everything that gets initialized during the 'Base Startup' should not need any deinitialization.
   /// This function is automatically called by StartupCore, if it hasn't been called before already.
-  static void StartupBase() { Startup(ezStartupStage::Base); }
+  static void StartupBaseSystems() { Startup(ezStartupStage::BaseSystems); }
 
   /// \brief Runs the 'core' startup sequence of all subsystems in the proper order.
   ///
   /// Run this BEFORE any window and graphics context have been created.
-  /// Broadcasts the global event EZ_GLOBALEVENT_STARTUP_CORE_BEGIN and EZ_GLOBALEVENT_STARTUP_CORE_END
-  static void StartupCore() { Startup(ezStartupStage::Core); }
+  /// Broadcasts the global event EZ_GLOBALEVENT_STARTUP_CORESYSTEMS_BEGIN and EZ_GLOBALEVENT_STARTUP_CORESYSTEMS_END
+  static void StartupCoreSystems() { Startup(ezStartupStage::CoreSystems); }
 
   /// \brief Runs the 'core' shutdown sequence of all subsystems in the proper order (reversed startup order).
   ///
   /// Call this AFTER window and graphics context have been destroyed already, shortly before application exit.
-  /// Makes sure that the 'engine' shutdown has been run first.
-  /// Broadcasts the global event EZ_GLOBALEVENT_SHUTDOWN_CORE_BEGIN and EZ_GLOBALEVENT_SHUTDOWN_CORE_END
-  static void ShutdownCore() { Shutdown(ezStartupStage::Core); }
+  /// Makes sure that the 'high level' shutdown has been run first.
+  /// Broadcasts the global event EZ_GLOBALEVENT_SHUTDOWN_CORESYSTEMS_BEGIN and EZ_GLOBALEVENT_SHUTDOWN_CORESYSTEMS_END
+  static void ShutdownCoreSystems() { Shutdown(ezStartupStage::CoreSystems); }
 
-  /// \brief Runs the 'engine' startup sequence of all subsystems in the proper order.
+  /// \brief Runs the 'high level' startup sequence of all subsystems in the proper order.
   ///
   /// Run this AFTER a window and graphics context have been created, such that anything that depends on that
   /// can now do its initialization.
   /// Makes sure that the 'core' initialization has been run first.
-  /// Broadcasts the global event EZ_GLOBALEVENT_STARTUP_ENGINE_BEGIN and EZ_GLOBALEVENT_STARTUP_ENGINE_END
-  static void StartupEngine() { Startup(ezStartupStage::Engine); }
+  /// Broadcasts the global event EZ_GLOBALEVENT_STARTUP_HIGHLEVELSYSTEMS_BEGIN and EZ_GLOBALEVENT_STARTUP_HIGHLEVELSYSTEMS_END
+  static void StartupHighLevelSystems() { Startup(ezStartupStage::HighLevelSystems); }
 
-  /// \brief Runs the 'core' shutdown sequence of all subsystems in the proper order (reversed startup order).
+  /// \brief Runs the 'high level' shutdown sequence of all subsystems in the proper order (reversed startup order).
   ///
   /// Run this BEFORE the window and graphics context have been destroyed, such that code that requires those
   /// can do its deinitialization first.
-  /// Broadcasts the global event EZ_GLOBALEVENT_SHUTDOWN_ENGINE_BEGIN and EZ_GLOBALEVENT_SHUTDOWN_ENGINE_END
-  static void ShutdownEngine() { Shutdown(ezStartupStage::Engine); }
+  /// Broadcasts the global event EZ_GLOBALEVENT_SHUTDOWN_HIGHLEVELSYSTEMS_BEGIN and EZ_GLOBALEVENT_SHUTDOWN_HIGHLEVELSYSTEMS_END
+  static void ShutdownHighLevelSystems() { Shutdown(ezStartupStage::HighLevelSystems); }
 
   /// \brief Output info about all known subsystems via the logging system (can change when DLLs are loaded dynamically).
   static void PrintAllSubsystems();
 
-  /// \brief Calls StartupBase, StartupCore or StartupEngine again, depending on what was done last.
+  /// \brief Calls StartupBaseSystems(), StartupCoreSystems() or StartupHighLevelSystems() again, depending on what was done last.
   ///
   /// This can be used to first unload plugins and reload them, and then reinit the engine to the state that it was in again.
   static void ReinitToCurrentState();

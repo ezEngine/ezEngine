@@ -30,22 +30,22 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, AssetCurator)
   "DocumentManager"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     EZ_DEFAULT_NEW(ezAssetCurator);
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezAssetCurator* pDummy = ezAssetCurator::GetSingleton();
     EZ_DEFAULT_DELETE(pDummy);
   }
 
-  ON_ENGINE_STARTUP
+  ON_HIGHLEVELSYSTEMS_STARTUP
   {
   }
 
-  ON_ENGINE_SHUTDOWN
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
   }
 

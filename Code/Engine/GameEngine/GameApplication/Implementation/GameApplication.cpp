@@ -93,11 +93,11 @@ void ezGameApplication::ReinitializeInputConfig()
 }
 
 
-void ezGameApplication::BeforeCoreStartup()
+void ezGameApplication::BeforeCoreSystemsStartup()
 {
   ezStartup::AddApplicationTag("runtime");
 
-  ezApplication::BeforeCoreStartup();
+  ezApplication::BeforeCoreSystemsStartup();
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   if (m_AppType == ezGameApplicationType::StandAloneMixedReality || m_AppType == ezGameApplicationType::EmbeddedInToolMixedReality)
@@ -128,7 +128,7 @@ ezString ezGameApplication::FindProjectDirectoryForScene(const char* szScene) co
   return "";
 }
 
-void ezGameApplication::AfterCoreStartup()
+void ezGameApplication::AfterCoreSystemsStartup()
 {
   DoProjectSetup();
 
@@ -136,7 +136,7 @@ void ezGameApplication::AfterCoreStartup()
   DoSetupGraphicsDevice();
   DoSetupDefaultResources();
 
-  ezStartup::StartupEngine();
+  ezStartup::StartupHighLevelSystems();
 
   // Activate gamestate
   if (GetActivateGameStateAtStartup())
@@ -145,7 +145,7 @@ void ezGameApplication::AfterCoreStartup()
   }
 }
 
-void ezGameApplication::BeforeCoreShutdown()
+void ezGameApplication::BeforeCoreSystemsShutdown()
 {
   // make sure that no textures are continue to be streamed in while the engine shuts down
   ezResourceManager::EngineAboutToShutdown();
@@ -156,7 +156,7 @@ void ezGameApplication::BeforeCoreShutdown()
 
   ezResourceManager::FreeUnusedResources(true);
 
-  ezStartup::ShutdownEngine();
+  ezStartup::ShutdownHighLevelSystems();
 
   ezFrameAllocator::Reset();
   ezResourceManager::FreeUnusedResources(true);

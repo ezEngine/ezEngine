@@ -38,12 +38,12 @@ EZ_CORE_DLL void ezRun_Shutdown(ezApplication* pApplicationInstance);
 ///   {
 ///   public:
 ///
-///     virtual void AfterCoreStartup() override
+///     virtual void AfterCoreSystemsStartup() override
 ///     {
 ///       // Setup Filesystem, Logging, etc.
 ///     }
 ///
-///     virtual void BeforeCoreShutdown() override
+///     virtual void BeforeCoreSystemsShutdown() override
 ///     {
 ///       // Close log file, etc.
 ///     }
@@ -86,28 +86,28 @@ public:
   /// \brief This function is called before any kind of engine initialization is done.
   ///
   /// Override this function to be able to configure subsystems, before they are initialized.
-  /// After this function returns, ezStartup::StartupCore() is automatically called.
+  /// After this function returns, ezStartup::StartupCoreSystems() is automatically called.
   /// If you need to set up custom allocators, this is the place to do this.
-  virtual void BeforeCoreStartup();
+  virtual void BeforeCoreSystemsStartup();
 
   /// \brief This function is called after basic engine initialization has been done.
   ///
-  /// ezApplication will automatically call ezStartup::StartupCore() to initialize the application.
+  /// ezApplication will automatically call ezStartup::StartupCoreSystems() to initialize the application.
   /// This function can be overridden to do additional application specific initialization.
   /// To startup entire subsystems, you should however use the features provided by ezStartup and ezSubSystem.
-  virtual void AfterCoreStartup() {}
+  virtual void AfterCoreSystemsStartup() {}
 
   /// \brief This function is called after the application main loop has run for the last time, before engine deinitialization.
   ///
   /// Override this function to do application specific deinitialization that still requires a running engine.
   /// After this function returns ezStartup::ShutdownBase() is called and thus everything, including allocators, is shut down.
   /// To shut down entire subsystems, you should however use the features provided by ezStartup and ezSubSystem.
-  virtual void BeforeCoreShutdown() {}
+  virtual void BeforeCoreSystemsShutdown() {}
 
   /// \brief This function is called after ezStartup::ShutdownBase() has been called.
   ///
   /// It is unlikely that there is any kind of deinitialization left, that can still be run at this point.
-  virtual void AfterCoreShutdown() {}
+  virtual void AfterCoreSystemsShutdown() {}
 
   /// \brief This function is called when an application is moved to the background.
   ///

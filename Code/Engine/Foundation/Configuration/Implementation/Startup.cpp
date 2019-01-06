@@ -216,18 +216,18 @@ void ezStartup::ComputeOrder(ezDeque<ezSubSystem*>& Order)
 
 void ezStartup::Startup(ezStartupStage::Enum stage)
 {
-  if (stage == ezStartupStage::Base)
+  if (stage == ezStartupStage::BaseSystems)
   {
     ezFoundation::Initialize();
   }
 
   const char* szStartup[] = {"Startup Base", "Startup Core", "Startup Engine"};
 
-  if (stage == ezStartupStage::Core)
+  if (stage == ezStartupStage::CoreSystems)
   {
-    Startup(ezStartupStage::Base);
+    Startup(ezStartupStage::BaseSystems);
 
-    ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_STARTUP_CORE_BEGIN);
+    ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_STARTUP_CORESYSTEMS_BEGIN);
 
     if (s_bPrintAllSubSystems)
     {
@@ -236,11 +236,11 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
     }
   }
 
-  if (stage == ezStartupStage::Engine)
+  if (stage == ezStartupStage::HighLevelSystems)
   {
-    Startup(ezStartupStage::Core);
+    Startup(ezStartupStage::CoreSystems);
 
-    ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_STARTUP_ENGINE_BEGIN);
+    ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_STARTUP_HIGHLEVELSYSTEMS_BEGIN);
   }
 
   EZ_LOG_BLOCK(szStartup[stage]);
@@ -256,17 +256,17 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
 
       switch (stage)
       {
-        case ezStartupStage::Base:
+        case ezStartupStage::BaseSystems:
           ezLog::Dev("Executing 'Base' startup for sub-system '{1}::{0}'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
-          Order[i]->OnBaseStartup();
+          Order[i]->OnBaseSystemsStartup();
           break;
-        case ezStartupStage::Core:
+        case ezStartupStage::CoreSystems:
           ezLog::Dev("Executing 'Core' startup for sub-system '{1}::{0}'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
-          Order[i]->OnCoreStartup();
+          Order[i]->OnCoreSystemsStartup();
           break;
-        case ezStartupStage::Engine:
+        case ezStartupStage::HighLevelSystems:
           ezLog::Dev("Executing 'Engine' startup for sub-system '{1}::{0}'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
-          Order[i]->OnEngineStartup();
+          Order[i]->OnHighLevelSystemsStartup();
           break;
 
         default:
@@ -321,13 +321,13 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
 
   switch (stage)
   {
-    case ezStartupStage::Base:
+    case ezStartupStage::BaseSystems:
       break;
-    case ezStartupStage::Core:
-      ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_STARTUP_CORE_END);
+    case ezStartupStage::CoreSystems:
+      ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_STARTUP_CORESYSTEMS_END);
       break;
-    case ezStartupStage::Engine:
-      ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_STARTUP_ENGINE_END);
+    case ezStartupStage::HighLevelSystems:
+      ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_STARTUP_HIGHLEVELSYSTEMS_END);
       break;
 
     default:
@@ -350,22 +350,22 @@ void ezStartup::Shutdown(ezStartupStage::Enum stage)
   {
     const char* szStartup[] = {"Shutdown Base", "Shutdown Core", "Shutdown Engine"};
 
-    if (stage == ezStartupStage::Base)
+    if (stage == ezStartupStage::BaseSystems)
     {
-      Shutdown(ezStartupStage::Core);
+      Shutdown(ezStartupStage::CoreSystems);
     }
 
-    if (stage == ezStartupStage::Core)
+    if (stage == ezStartupStage::CoreSystems)
     {
-      Shutdown(ezStartupStage::Engine);
+      Shutdown(ezStartupStage::HighLevelSystems);
       s_bPrintAllSubSystems = true;
 
-      ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_SHUTDOWN_CORE_BEGIN);
+      ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_SHUTDOWN_CORESYSTEMS_BEGIN);
     }
 
-    if (stage == ezStartupStage::Engine)
+    if (stage == ezStartupStage::HighLevelSystems)
     {
-      ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_SHUTDOWN_ENGINE_BEGIN);
+      ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_SHUTDOWN_HIGHLEVELSYSTEMS_BEGIN);
     }
 
     EZ_LOG_BLOCK(szStartup[stage]);
@@ -379,14 +379,14 @@ void ezStartup::Shutdown(ezStartupStage::Enum stage)
       {
         switch (stage)
         {
-          case ezStartupStage::Core:
+          case ezStartupStage::CoreSystems:
             ezLog::Dev("Executing 'Core' shutdown of sub-system '{0}::{1}'", Order[i]->GetGroupName(), Order[i]->GetSubSystemName());
-            Order[i]->OnCoreShutdown();
+            Order[i]->OnCoreSystemsShutdown();
             break;
 
-          case ezStartupStage::Engine:
+          case ezStartupStage::HighLevelSystems:
             ezLog::Dev("Executing 'Engine' shutdown of sub-system '{0}::{1}'", Order[i]->GetGroupName(), Order[i]->GetSubSystemName());
-            Order[i]->OnEngineShutdown();
+            Order[i]->OnHighLevelSystemsShutdown();
             break;
 
           default:
@@ -400,12 +400,12 @@ void ezStartup::Shutdown(ezStartupStage::Enum stage)
 
   switch (stage)
   {
-    case ezStartupStage::Core:
-      ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_SHUTDOWN_CORE_END);
+    case ezStartupStage::CoreSystems:
+      ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_SHUTDOWN_CORESYSTEMS_END);
       break;
 
-    case ezStartupStage::Engine:
-      ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_SHUTDOWN_ENGINE_END);
+    case ezStartupStage::HighLevelSystems:
+      ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_SHUTDOWN_HIGHLEVELSYSTEMS_END);
       break;
 
     default:
@@ -460,21 +460,21 @@ void ezStartup::UnloadPluginSubSystems(const char* szPluginName)
 
   for (ezInt32 i = (ezInt32)Order.GetCount() - 1; i >= 0; --i)
   {
-    if (Order[i]->m_bStartupDone[ezStartupStage::Engine] && HasDependencyOnPlugin(Order[i], szPluginName))
+    if (Order[i]->m_bStartupDone[ezStartupStage::HighLevelSystems] && HasDependencyOnPlugin(Order[i], szPluginName))
     {
       ezLog::Info("Engine shutdown of SubSystem '{0}::{1}', because it depends on Plugin '{2}'.", Order[i]->GetGroupName(), Order[i]->GetSubSystemName(), szPluginName);
-      Order[i]->OnEngineShutdown();
-      Order[i]->m_bStartupDone[ezStartupStage::Engine] = false;
+      Order[i]->OnHighLevelSystemsShutdown();
+      Order[i]->m_bStartupDone[ezStartupStage::HighLevelSystems] = false;
     }
   }
 
   for (ezInt32 i = (ezInt32)Order.GetCount() - 1; i >= 0; --i)
   {
-    if (Order[i]->m_bStartupDone[ezStartupStage::Core] && HasDependencyOnPlugin(Order[i], szPluginName))
+    if (Order[i]->m_bStartupDone[ezStartupStage::CoreSystems] && HasDependencyOnPlugin(Order[i], szPluginName))
     {
       ezLog::Info("Core shutdown of SubSystem '{0}::{1}', because it depends on Plugin '{2}'.", Order[i]->GetGroupName(), Order[i]->GetSubSystemName(), szPluginName);
-      Order[i]->OnCoreShutdown();
-      Order[i]->m_bStartupDone[ezStartupStage::Core] = false;
+      Order[i]->OnCoreSystemsShutdown();
+      Order[i]->m_bStartupDone[ezStartupStage::CoreSystems] = false;
     }
   }
 

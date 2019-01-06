@@ -22,9 +22,9 @@ public:
 
   virtual ApplicationExecution Run() override;
 
-  virtual void AfterCoreStartup() override;
+  virtual void AfterCoreSystemsStartup() override;
 
-  virtual void BeforeCoreShutdown() override;
+  virtual void BeforeCoreSystemsShutdown() override;
 
 private:
 

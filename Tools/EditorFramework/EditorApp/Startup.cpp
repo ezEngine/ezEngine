@@ -66,7 +66,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     "ManipulatorAdapterRegistry"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     ezProjectActions::RegisterActions();
     ezAssetActions::RegisterActions();
@@ -109,7 +109,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezProjectActions::UnregisterActions();
     ezAssetActions::UnregisterActions();
@@ -185,7 +185,7 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
   ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::EngineProcessMsgHandler, this));
   ezQtDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentWindowEventHandler, this));
 
-  ezStartup::StartupCore();
+  ezStartup::StartupCoreSystems();
 
   {
     EZ_PROFILE_SCOPE("Filesystem");

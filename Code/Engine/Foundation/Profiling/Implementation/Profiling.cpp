@@ -29,12 +29,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ProfilingSystem)
 
   // no dependencies
 
-  ON_BASE_STARTUP
+  ON_BASESYSTEMS_STARTUP
   {
     ezProfilingSystem::Initialize();
     s_ProfileCaptureDataTransfer.EnableDataTransfer("Profiling Capture");
   }
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     s_ProfileCaptureDataTransfer.DisableDataTransfer();
     ezProfilingSystem::Reset();

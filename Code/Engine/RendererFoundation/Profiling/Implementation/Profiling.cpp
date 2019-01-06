@@ -81,12 +81,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererFoundation, GPUProfilingSystem)
     "Core"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_ENGINE_STARTUP
+  ON_HIGHLEVELSYSTEMS_STARTUP
   {
     GPUProfilingSystem::OnEngineStartup();
   }
 
-  ON_ENGINE_SHUTDOWN
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
     GPUProfilingSystem::OnEngineShutdown();
   }

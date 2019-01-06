@@ -21,12 +21,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ActionManager)
   "ToolsFoundation"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     ezActionManager::Startup();
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezActionManager::Shutdown();
   }

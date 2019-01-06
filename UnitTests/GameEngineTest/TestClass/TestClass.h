@@ -26,9 +26,9 @@ public:
   ezResult LoadScene(const char* szSceneFile);
 
 protected:
-  virtual void BeforeCoreStartup() override;
-  virtual void AfterCoreStartup() override;
-  virtual void BeforeCoreShutdown() override;
+  virtual void BeforeCoreSystemsStartup() override;
+  virtual void AfterCoreSystemsStartup() override;
+  virtual void BeforeCoreSystemsShutdown() override;
   virtual void StoreScreenshot(const ezImage& image) override;
   virtual void DoSetupDataDirectories() override;
   virtual ezUniquePtr<ezGameState> CreateGameState(ezWorld* pWorld) override;

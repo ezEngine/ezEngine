@@ -8,12 +8,12 @@ EZ_IMPLEMENT_SINGLETON(ezVisualizerManager);
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, VisualizerManager)
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     EZ_DEFAULT_NEW(ezVisualizerManager);
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     if (ezVisualizerManager::GetSingleton())
     {

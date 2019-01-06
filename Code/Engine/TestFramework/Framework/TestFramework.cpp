@@ -86,7 +86,7 @@ void ezTestFramework::Initialize()
   // ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 
   ezStartup::AddApplicationTag("testframework");
-  ezStartup::StartupCore();
+  ezStartup::StartupCoreSystems();
 
   // if tests need to write data back through Fileserve (e.g. image comparison results), they can do that through a data dir mounted with
   // this path

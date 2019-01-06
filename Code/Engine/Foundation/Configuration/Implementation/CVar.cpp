@@ -20,12 +20,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, CVars)
     "FileSystem"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     ezPlugin::s_PluginEvents.AddEventHandler(ezCVar::PluginEventHandler);
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     // save the CVars every time the core is shut down
     // at this point the filesystem might already be uninitialized by the user (data dirs)
@@ -36,7 +36,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, CVars)
     ezPlugin::s_PluginEvents.RemoveEventHandler(ezCVar::PluginEventHandler);
   }
 
-  ON_ENGINE_SHUTDOWN
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
     // save the CVars every time the engine is shut down
     // at this point the filesystem should usually still be configured properly

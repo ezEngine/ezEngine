@@ -12,7 +12,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Particle, ParticlePlugin)
     "Core"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     ezResourceManager::RegisterResourceForAssetType("Particle Effect", ezGetStaticRTTI<ezParticleEffectResource>());
 
@@ -21,16 +21,16 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Particle, ParticlePlugin)
     ezParticleEffectResource::SetTypeMissingResource(hEffect);
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezParticleEffectResource::CleanupDynamicPluginReferences();
   }
 
-  ON_ENGINE_STARTUP
+  ON_HIGHLEVELSYSTEMS_STARTUP
   {
   }
 
-  ON_ENGINE_SHUTDOWN
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
   }
 

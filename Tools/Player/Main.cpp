@@ -24,11 +24,11 @@ ezPlayerApplication::ezPlayerApplication()
   m_pWorld = nullptr;
 }
 
-void ezPlayerApplication::BeforeCoreStartup()
+void ezPlayerApplication::BeforeCoreSystemsStartup()
 {
   ezStartup::AddApplicationTag("player");
 
-  ezGameApplication::BeforeCoreStartup();
+  ezGameApplication::BeforeCoreSystemsStartup();
 
   m_sSceneFile = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene", 0, "");
   EZ_ASSERT_ALWAYS(!m_sSceneFile.IsEmpty(),
@@ -39,26 +39,26 @@ void ezPlayerApplication::BeforeCoreStartup()
 }
 
 
-void ezPlayerApplication::AfterCoreStartup()
+void ezPlayerApplication::AfterCoreSystemsStartup()
 {
   DoProjectSetup();
   DoSetupGraphicsDevice();
   DoSetupDefaultResources();
 
-  ezStartup::StartupEngine();
+  ezStartup::StartupHighLevelSystems();
 
   SetupLevel();
 
   ActivateGameState(m_pWorld.Borrow());
 }
 
-void ezPlayerApplication::BeforeCoreShutdown()
+void ezPlayerApplication::BeforeCoreSystemsShutdown()
 {
   DeactivateGameState();
 
   m_pWorld = nullptr;
 
-  ezGameApplication::BeforeCoreShutdown();
+  ezGameApplication::BeforeCoreSystemsShutdown();
 }
 
 void ezPlayerApplication::SetupLevel()

@@ -124,17 +124,17 @@ protected:
   virtual void UpdateWorldsAndRender_Middle();
   virtual void UpdateWorldsAndRender_End();
 
-  virtual void BeforeCoreStartup() override;
+  virtual void BeforeCoreSystemsStartup() override;
 
   /// \brief Implements all the application startup
   ///
   /// Calls DoProjectSetup() to configure everything about the project.
-  /// Calls ezStartup::StartupEngine()
+  /// Calls ezStartup::StartupHighLevelSystems()
   /// For stand-alone applications CreateGameStateForWorld() is called with a nullptr world.
-  virtual void AfterCoreStartup() override;
+  virtual void AfterCoreSystemsStartup() override;
 
-  /// Destroys all game states and shuts down everything that was created in AfterCoreStartup()
-  virtual void BeforeCoreShutdown() override;
+  /// Destroys all game states and shuts down everything that was created in AfterCoreSystemsStartup()
+  virtual void BeforeCoreSystemsShutdown() override;
 
 
 protected:

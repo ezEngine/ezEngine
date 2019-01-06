@@ -9,7 +9,7 @@
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 
-void ezFileserverApp::AfterCoreStartup()
+void ezFileserverApp::AfterCoreSystemsStartup()
 {
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
@@ -38,7 +38,7 @@ void ezFileserverApp::AfterCoreStartup()
   }
 }
 
-void ezFileserverApp::BeforeCoreShutdown()
+void ezFileserverApp::BeforeCoreSystemsShutdown()
 {
   ezFileserver::GetSingleton()->StopServer();
 

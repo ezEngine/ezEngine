@@ -11,14 +11,14 @@ void ezRun_Startup(ezApplication* pApplicationInstance)
   // Set application instance pointer to the supplied instance
   ezApplication::s_pApplicationInstance = pApplicationInstance;
 
-  pApplicationInstance->BeforeCoreStartup();
+  pApplicationInstance->BeforeCoreSystemsStartup();
 
   // this will startup all base and core systems
   // 'EngineStartup' must not be done before a window is available (if at all)
   // so we don't do that here
-  ezStartup::StartupCore();
+  ezStartup::StartupCoreSystems();
 
-  pApplicationInstance->AfterCoreStartup();
+  pApplicationInstance->AfterCoreSystemsStartup();
 }
 
 void ezRun_MainLoop(ezApplication* pApplicationInstance)
@@ -30,11 +30,11 @@ void ezRun_MainLoop(ezApplication* pApplicationInstance)
 
 void ezRun_Shutdown(ezApplication* pApplicationInstance)
 {
-  pApplicationInstance->BeforeCoreShutdown();
+  pApplicationInstance->BeforeCoreSystemsShutdown();
 
-  ezStartup::ShutdownCore();
+  ezStartup::ShutdownCoreSystems();
 
-  pApplicationInstance->AfterCoreShutdown();
+  pApplicationInstance->AfterCoreSystemsShutdown();
 
   // Flush standard output to make log available.
   fflush(stdout);

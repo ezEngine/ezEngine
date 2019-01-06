@@ -107,12 +107,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RenderWorld)
     "Core"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_ENGINE_STARTUP
+  ON_HIGHLEVELSYSTEMS_STARTUP
   {
     ezRenderWorld::OnEngineStartup();
   }
 
-  ON_ENGINE_SHUTDOWN
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
     ezRenderWorld::OnEngineShutdown();
   }

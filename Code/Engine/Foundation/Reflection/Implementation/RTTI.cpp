@@ -19,13 +19,13 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Reflection)
   //  "FileSystem"
   //END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     ezPlugin::s_PluginEvents.AddEventHandler(ezRTTI::PluginEventHandler);
     ezRTTI::AssignPlugin("Static");
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezPlugin::s_PluginEvents.RemoveEventHandler(ezRTTI::PluginEventHandler);
   }

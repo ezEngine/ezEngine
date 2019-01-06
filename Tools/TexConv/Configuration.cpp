@@ -141,7 +141,7 @@ ezTexConv::ezTexConv()
 {
 }
 
-void ezTexConv::AfterCoreStartup()
+void ezTexConv::AfterCoreSystemsStartup()
 {
   CoInitialize(nullptr);
 
@@ -166,7 +166,7 @@ void ezTexConv::AfterCoreStartup()
   ParseCommandLine();
 }
 
-void ezTexConv::BeforeCoreShutdown()
+void ezTexConv::BeforeCoreSystemsShutdown()
 {
   if (m_pD3dDevice)
   {

@@ -18,8 +18,8 @@ public:
 
   virtual ezApplication::ApplicationExecution Run() override;
 
-  virtual void AfterCoreStartup() override;
-  virtual void BeforeCoreShutdown() override;
+  virtual void AfterCoreSystemsStartup() override;
+  virtual void BeforeCoreSystemsShutdown() override;
 
 private:
 

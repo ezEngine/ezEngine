@@ -57,21 +57,21 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ResourceManager)
   "Foundation"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     ezResourceManager::OnCoreStartup();
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezResourceManager::OnCoreShutdown();
   }
 
-  ON_ENGINE_STARTUP
+  ON_HIGHLEVELSYSTEMS_STARTUP
   {
   }
 
-  ON_ENGINE_SHUTDOWN
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
     ezResourceManager::OnEngineShutdown();
   }

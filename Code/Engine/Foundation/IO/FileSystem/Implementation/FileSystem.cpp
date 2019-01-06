@@ -8,12 +8,12 @@
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, FileSystem)
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     ezFileSystem::Startup();
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezFileSystem::Shutdown();
   }

@@ -17,22 +17,22 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, ezPrefabCache)
     "Foundation"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     EZ_DEFAULT_NEW(ezPrefabCache);
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezPrefabCache* pDummy = ezPrefabCache::GetSingleton();
     EZ_DEFAULT_DELETE(pDummy);
   }
 
-  ON_ENGINE_STARTUP
+  ON_HIGHLEVELSYSTEMS_STARTUP
   {
   }
 
-  ON_ENGINE_SHUTDOWN
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
   }
 

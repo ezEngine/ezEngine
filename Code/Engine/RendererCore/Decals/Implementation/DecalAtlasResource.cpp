@@ -20,7 +20,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalAtlasResource)
   "TextureResource"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     ezDecalAtlasResourceDescriptor desc;
     ezDecalAtlasResourceHandle hFallback = ezResourceManager::CreateResource<ezDecalAtlasResource>("Fallback Decal Atlas", desc, "Empty Decal Atlas for loading and missing decals");
@@ -29,17 +29,17 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalAtlasResource)
     ezDecalAtlasResource::SetTypeMissingResource(hFallback);
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezDecalAtlasResource::SetTypeFallbackResource(ezDecalAtlasResourceHandle());
     ezDecalAtlasResource::SetTypeMissingResource(ezDecalAtlasResourceHandle());
   }
 
-  ON_ENGINE_STARTUP
+  ON_HIGHLEVELSYSTEMS_STARTUP
   {
   }
 
-  ON_ENGINE_SHUTDOWN
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
   }
 

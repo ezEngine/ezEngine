@@ -22,12 +22,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, TaskSystem)
     "Time"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     ezTaskSystem::Startup();
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezTaskSystem::Shutdown();
   }

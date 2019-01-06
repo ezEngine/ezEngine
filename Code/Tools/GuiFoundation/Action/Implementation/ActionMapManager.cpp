@@ -13,12 +13,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ActionMapManager)
     "ActionManager"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     ezActionMapManager::Startup();
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezActionMapManager::Shutdown();
   }

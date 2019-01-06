@@ -13,12 +13,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, VisualizerAdapterRegistry)
     "VisualizerManager"
   END_SUBSYSTEM_DEPENDENCIES
  
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     EZ_DEFAULT_NEW(ezVisualizerAdapterRegistry);
   }
  
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     auto ptr = ezVisualizerAdapterRegistry::GetSingleton();
     EZ_DEFAULT_DELETE(ptr);

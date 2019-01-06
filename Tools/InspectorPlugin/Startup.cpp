@@ -10,22 +10,22 @@ namespace StartupDetail
   static ezInt32 s_iSendSubSystemTelemetry = 0;
 }
 
-EZ_ON_GLOBAL_EVENT(ezStartup_StartupCore_End)
+EZ_ON_GLOBAL_EVENT(ezStartup_StartupCoreSystems_End)
 {
   StartupDetail::SendSubsystemTelemetry();
 }
 
-EZ_ON_GLOBAL_EVENT(ezStartup_StartupEngine_End)
+EZ_ON_GLOBAL_EVENT(ezStartup_StartupHighLevelSystems_End)
 {
   StartupDetail::SendSubsystemTelemetry();
 }
 
-EZ_ON_GLOBAL_EVENT(ezStartup_ShutdownCore_End)
+EZ_ON_GLOBAL_EVENT(ezStartup_ShutdownCoreSystems_End)
 {
   StartupDetail::SendSubsystemTelemetry();
 }
 
-EZ_ON_GLOBAL_EVENT(ezStartup_ShutdownEngine_End)
+EZ_ON_GLOBAL_EVENT(ezStartup_ShutdownHighLevelSystems_End)
 {
   StartupDetail::SendSubsystemTelemetry();
 }

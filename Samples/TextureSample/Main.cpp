@@ -85,7 +85,7 @@ public:
     m_vCameraPosition.SetZero();
   }
 
-  void AfterCoreStartup() override
+  void AfterCoreSystemsStartup() override
   {
     ezStringBuilder sProjectDir = ">sdk/Data/Samples/TextureSample";
     ezStringBuilder sProjectDirResolved;
@@ -179,7 +179,7 @@ public:
     }
 
     // now that we have a window and device, tell the engine to initialize the rendering infrastructure
-    ezStartup::StartupEngine();
+    ezStartup::StartupHighLevelSystems();
 
 
     // Get the primary swapchain (this one will always be created by device init except if the user instructs no swap chain creation explicitly)
@@ -385,7 +385,7 @@ public:
     return ezApplication::Continue;
   }
 
-  void BeforeCoreShutdown() override
+  void BeforeCoreSystemsShutdown() override
   {
     // make sure that no textures are continue to be streamed in while the engine shuts down
     ezResourceManager::EngineAboutToShutdown();
@@ -401,7 +401,7 @@ public:
 
     // tell the engine that we are about to destroy window and graphics device,
     // and that it therefore needs to cleanup anything that depends on that
-    ezStartup::ShutdownEngine();
+    ezStartup::ShutdownHighLevelSystems();
 
     m_pDevice->DestroyRasterizerState(m_hRasterizerState);
     m_pDevice->DestroyDepthStencilState(m_hDepthStencilState);

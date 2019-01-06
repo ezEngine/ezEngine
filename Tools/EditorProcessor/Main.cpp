@@ -22,7 +22,7 @@ public:
     m_pEditorApp = new ezQtEditorApp;
   }
 
-  virtual void BeforeCoreStartup() override
+  virtual void BeforeCoreSystemsStartup() override
   {
     ezStartup::AddApplicationTag("tool");
     ezStartup::AddApplicationTag("editor");
@@ -31,7 +31,7 @@ public:
     ezQtEditorApp::GetSingleton()->InitQt(GetArgumentCount(), (char**)GetArgumentsArray());
   }
 
-  virtual void AfterCoreShutdown() override
+  virtual void AfterCoreSystemsShutdown() override
   {
     m_pEditorEngineProcessAppDummy = nullptr;
 

@@ -27,7 +27,7 @@ ezEngineProcessGameApplication::ezEngineProcessGameApplication()
   ezPrefabReferenceComponent::s_bDeleteComponentsAfterInstantiation = false;
 }
 
-void ezEngineProcessGameApplication::BeforeCoreStartup()
+void ezEngineProcessGameApplication::BeforeCoreSystemsStartup()
 {
   m_pApp = CreateEngineProcessApp();
 
@@ -49,13 +49,13 @@ void ezEngineProcessGameApplication::BeforeCoreStartup()
 
   ezStartup::AddApplicationTag("editorengineprocess");
 
-  ezGameApplication::BeforeCoreStartup();
+  ezGameApplication::BeforeCoreSystemsStartup();
 }
 
-void ezEngineProcessGameApplication::AfterCoreStartup()
+void ezEngineProcessGameApplication::AfterCoreSystemsStartup()
 {
   // skip project creation at this point
-  // ezGameApplication::AfterCoreStartup();
+  // ezGameApplication::AfterCoreSystemsStartup();
 
   WaitForDebugger();
 
@@ -100,19 +100,19 @@ void ezEngineProcessGameApplication::WaitForDebugger()
   }
 }
 
-void ezEngineProcessGameApplication::BeforeCoreShutdown()
+void ezEngineProcessGameApplication::BeforeCoreSystemsShutdown()
 {
   m_pApp = nullptr;
 
   ezRTTI::s_TypeUpdatedEvent.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerTypeUpdated, this));
   m_IPC.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerIPC, this));
 
-  ezGameApplication::BeforeCoreShutdown();
+  ezGameApplication::BeforeCoreSystemsShutdown();
 }
 
-void ezEngineProcessGameApplication::AfterCoreShutdown()
+void ezEngineProcessGameApplication::AfterCoreSystemsShutdown()
 {
-  ezGameApplication::AfterCoreShutdown();
+  ezGameApplication::AfterCoreSystemsShutdown();
 }
 
 ezApplication::ApplicationExecution ezEngineProcessGameApplication::Run()
@@ -263,7 +263,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
       DoProjectSetup();
       DoSetupGraphicsDevice();
       DoSetupDefaultResources();
-      ezStartup::StartupEngine();
+      ezStartup::StartupHighLevelSystems();
 
       ezRenderContext::GetDefaultInstance()->SetAllowAsyncShaderLoading(true);
     }

@@ -12,12 +12,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ManipulatorManager)
     "ReflectedTypeManager"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     EZ_DEFAULT_NEW(ezManipulatorManager);
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     if (ezManipulatorManager::GetSingleton())
     {

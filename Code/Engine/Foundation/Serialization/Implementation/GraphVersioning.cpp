@@ -190,12 +190,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, GraphVersioning)
   "Reflection"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     EZ_DEFAULT_NEW(ezGraphVersioning);
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezGraphVersioning* pDummy = ezGraphVersioning::GetSingleton();
     EZ_DEFAULT_DELETE(pDummy);

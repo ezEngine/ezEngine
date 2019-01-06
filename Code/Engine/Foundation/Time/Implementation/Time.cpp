@@ -8,7 +8,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Time)
 
   // no dependencies
 
-  ON_BASE_STARTUP
+  ON_BASESYSTEMS_STARTUP
   {
     ezTime::Initialize();
   }

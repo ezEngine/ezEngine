@@ -112,8 +112,8 @@ void ::ezTestFrameworkResult::Reset()
 
 bool ezTestFrameworkResult::WriteJsonToFile(const char* szFileName) const
 {
-  ezStartup::StartupCore();
-  EZ_SCOPE_EXIT(ezStartup::ShutdownCore());
+  ezStartup::StartupCoreSystems();
+  EZ_SCOPE_EXIT(ezStartup::ShutdownCoreSystems());
 
 
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);

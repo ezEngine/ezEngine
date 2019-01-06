@@ -11,7 +11,7 @@ ezShaderCompilerApplication::ezShaderCompilerApplication()
 {
 }
 
-void ezShaderCompilerApplication::BeforeCoreStartup()
+void ezShaderCompilerApplication::BeforeCoreSystemsStartup()
 {
   ezStartup::AddApplicationTag("tool");
   ezStartup::AddApplicationTag("shadercompiler");
@@ -19,7 +19,7 @@ void ezShaderCompilerApplication::BeforeCoreStartup()
   // only print important messages
   ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::InfoMsg);
 
-  ezGameApplication::BeforeCoreStartup();
+  ezGameApplication::BeforeCoreSystemsStartup();
 
   auto cmd = ezCommandLineUtils::GetGlobalInstance();
 
@@ -60,17 +60,17 @@ void ezShaderCompilerApplication::BeforeCoreStartup()
 }
 
 
-void ezShaderCompilerApplication::AfterCoreStartup()
+void ezShaderCompilerApplication::AfterCoreSystemsStartup()
 {
   DoProjectSetup();
   DoSetupGraphicsDevice();
 
-  ezStartup::StartupEngine();
+  ezStartup::StartupHighLevelSystems();
 }
 
-void ezShaderCompilerApplication::BeforeCoreShutdown()
+void ezShaderCompilerApplication::BeforeCoreSystemsShutdown()
 {
-  ezGameApplication::BeforeCoreShutdown();
+  ezGameApplication::BeforeCoreSystemsShutdown();
 }
 
 void ezShaderCompilerApplication::DoLoadCustomPlugins()

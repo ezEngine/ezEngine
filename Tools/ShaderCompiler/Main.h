@@ -15,9 +15,9 @@ private:
   ezResult CompileShader(const char* szShaderFile);
   ezResult ExtractPermutationVarValues(const char* szShaderFile);
 
-  virtual void BeforeCoreStartup() override;
-  virtual void AfterCoreStartup() override;
-  virtual void BeforeCoreShutdown() override;
+  virtual void BeforeCoreSystemsStartup() override;
+  virtual void AfterCoreSystemsStartup() override;
+  virtual void BeforeCoreSystemsShutdown() override;
   virtual void DoLoadCustomPlugins() override;
   virtual void DoLoadPluginsFromConfig() override {}
   virtual void DoSetupDefaultResources() override {}

@@ -25,12 +25,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, StackTracer)
   "Time"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     ezPlugin::s_PluginEvents.AddEventHandler(ezStackTracer::OnPluginEvent);
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezPlugin::s_PluginEvents.RemoveEventHandler(ezStackTracer::OnPluginEvent);
   }

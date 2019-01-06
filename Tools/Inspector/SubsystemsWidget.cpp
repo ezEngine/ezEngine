@@ -71,11 +71,11 @@ void ezQtSubsystemsWidget::UpdateSubSystems()
       sTemp.Format("  {0}  ", ssd.m_sPlugin);
       TableSubsystems->setCellWidget(iRow, 2, new QLabel(sTemp.GetData()));
 
-      if (ssd.m_bStartupDone[ezStartupStage::Engine])
+      if (ssd.m_bStartupDone[ezStartupStage::HighLevelSystems])
         TableSubsystems->setCellWidget(iRow, 3, new QLabel("<p><span style=\"font-weight:600; color:#00aa00;\">  Engine  </span></p>"));
-      else if (ssd.m_bStartupDone[ezStartupStage::Core])
+      else if (ssd.m_bStartupDone[ezStartupStage::CoreSystems])
         TableSubsystems->setCellWidget(iRow, 3, new QLabel("<p><span style=\"font-weight:600; color:#5555ff;\">  Core  </span></p>"));
-      else if (ssd.m_bStartupDone[ezStartupStage::Base])
+      else if (ssd.m_bStartupDone[ezStartupStage::BaseSystems])
         TableSubsystems->setCellWidget(iRow, 3, new QLabel("<p><span style=\"font-weight:600; color:#cece00;\">  Base  </span></p>"));
       else
         TableSubsystems->setCellWidget(iRow, 3,

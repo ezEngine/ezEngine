@@ -331,7 +331,7 @@ ezResult ezTexConv::SaveLowResImage(const ezImage& img)
   return file.Close();
 }
 
-void ezTexConv::BeforeCoreStartup()
+void ezTexConv::BeforeCoreSystemsStartup()
 {
   ezStartup::AddApplicationTag("tool");
   ezStartup::AddApplicationTag("texconv");

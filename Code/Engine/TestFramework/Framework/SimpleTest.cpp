@@ -41,14 +41,14 @@ ezTestAppRun ezSimpleTestGroup::RunSubTest(ezInt32 iIdentifier)
 ezResult ezSimpleTestGroup::InitializeSubTest(ezInt32 iIdentifier)
 {
   // initialize everything up to 'core'
-  ezStartup::StartupCore();
+  ezStartup::StartupCoreSystems();
   return EZ_SUCCESS;
 }
 
 ezResult ezSimpleTestGroup::DeInitializeSubTest(ezInt32 iIdentifier)
 {
   // shut down completely
-  ezStartup::ShutdownCore();
+  ezStartup::ShutdownCoreSystems();
   ezMemoryTracker::DumpMemoryLeaks();
   return EZ_SUCCESS;
 }

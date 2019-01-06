@@ -158,7 +158,7 @@ ezApplication::ApplicationExecution ezShaderExplorerApp::Run()
     return ezApplication::Continue;
 }
 
-void ezShaderExplorerApp::AfterCoreStartup()
+void ezShaderExplorerApp::AfterCoreSystemsStartup()
 {
   m_camera = EZ_DEFAULT_NEW(ezCamera);
   m_camera->LookAt(ezVec3(3, 3, 1.5), ezVec3(0, 0, 0), ezVec3(0, 1, 0));
@@ -276,7 +276,7 @@ void ezShaderExplorerApp::AfterCoreStartup()
   }
 
   // now that we have a window and device, tell the engine to initialize the rendering infrastructure
-  ezStartup::StartupEngine();
+  ezStartup::StartupHighLevelSystems();
 
   // Get the primary swapchain (this one will always be created by device init except if the user instructs no swap chain creation explicitly)
   {
@@ -306,7 +306,7 @@ void ezShaderExplorerApp::AfterCoreStartup()
   }
 }
 
-void ezShaderExplorerApp::BeforeCoreShutdown()
+void ezShaderExplorerApp::BeforeCoreSystemsShutdown()
 {
   m_directoryWatcher->CloseDirectory();
 
@@ -318,7 +318,7 @@ void ezShaderExplorerApp::BeforeCoreShutdown()
 
   // tell the engine that we are about to destroy window and graphics device,
   // and that it therefore needs to cleanup anything that depends on that
-  ezStartup::ShutdownEngine();
+  ezStartup::ShutdownHighLevelSystems();
 
   // now we can destroy the graphics device
   m_pDevice->Shutdown();

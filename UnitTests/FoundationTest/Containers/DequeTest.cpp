@@ -120,9 +120,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
     EZ_TEST_BOOL(d1.GetHeapMemoryUsage() == 0);
   }
 
-  ezStartup::ShutdownCore();
+  ezStartup::ShutdownCoreSystems();
 
-  ezStartup::StartupCore();
+  ezStartup::StartupCoreSystems();
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "POD Types")
   {
@@ -237,9 +237,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
     }
   }
 
-  ezStartup::ShutdownCore();
+  ezStartup::ShutdownCoreSystems();
 
-  ezStartup::StartupCore();
+  ezStartup::StartupCoreSystems();
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Non-POD Types")
   {

@@ -13,7 +13,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Clock)
     "Time"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_BASE_STARTUP
+  ON_BASESYSTEMS_STARTUP
   {
     ezClock::s_pGlobalClock = new ezClock("Global");
   }

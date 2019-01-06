@@ -61,7 +61,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, InspectorPluginMain)
     "Foundation"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     AddTelemetryAssertHandler();
     AddLogWriter();
@@ -81,7 +81,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, InspectorPluginMain)
     SetAppStats();
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     RemoveResourceManagerEventHandler();
     RemoveFileSystemEventHandler();

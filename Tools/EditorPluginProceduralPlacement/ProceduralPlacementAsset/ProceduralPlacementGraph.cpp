@@ -16,7 +16,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ProceduralPlacement)
   "PluginAssets", "ReflectedTypeManager"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     ezProceduralPlacementNodeRegistry* pRegistry = EZ_DEFAULT_NEW(ezProceduralPlacementNodeRegistry);
 
@@ -27,17 +27,17 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ProceduralPlacement)
     ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtProceduralPlacementNode(); });
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezProceduralPlacementNodeRegistry* pDummy = ezProceduralPlacementNodeRegistry::GetSingleton();
     EZ_DEFAULT_DELETE(pDummy);
   }
 
-  ON_ENGINE_STARTUP
+  ON_HIGHLEVELSYSTEMS_STARTUP
   {
   }
 
-  ON_ENGINE_SHUTDOWN
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
   }
 

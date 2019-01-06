@@ -102,9 +102,9 @@ ezResult ezGameEngineTestApplication::LoadScene(const char* szSceneFile)
   }
 }
 
-void ezGameEngineTestApplication::BeforeCoreStartup()
+void ezGameEngineTestApplication::BeforeCoreSystemsStartup()
 {
-  ezGameApplication::BeforeCoreStartup();
+  ezGameApplication::BeforeCoreSystemsStartup();
 
   ezStringBuilder sProjectPath(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath(), "/", m_sProjectDirName);
 
@@ -114,13 +114,13 @@ void ezGameEngineTestApplication::BeforeCoreStartup()
 }
 
 
-void ezGameEngineTestApplication::AfterCoreStartup()
+void ezGameEngineTestApplication::AfterCoreSystemsStartup()
 {
   DoProjectSetup();
   DoSetupGraphicsDevice();
   DoSetupDefaultResources();
 
-  ezStartup::StartupEngine();
+  ezStartup::StartupHighLevelSystems();
 
   ezWorldDesc desc("GameEngineTestWorld");
   m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
@@ -129,11 +129,11 @@ void ezGameEngineTestApplication::AfterCoreStartup()
   ActivateGameState(m_pWorld.Borrow());
 }
 
-void ezGameEngineTestApplication::BeforeCoreShutdown()
+void ezGameEngineTestApplication::BeforeCoreSystemsShutdown()
 {
   m_pWorld = nullptr;
 
-  ezGameApplication::BeforeCoreShutdown();
+  ezGameApplication::BeforeCoreSystemsShutdown();
 }
 
 void ezGameEngineTestApplication::StoreScreenshot(const ezImage& image)

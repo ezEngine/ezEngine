@@ -7,12 +7,12 @@ EZ_IMPLEMENT_SINGLETON(ezPropertyMetaState);
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyMetaState)
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     EZ_DEFAULT_NEW(ezPropertyMetaState);
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     if (ezPropertyMetaState::GetSingleton())
     {

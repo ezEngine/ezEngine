@@ -14,7 +14,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Editor, PluginAssets)
     "Foundation"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     EZ_DEFAULT_NEW(ezModelImporter::Importer);
     ezModelImporter::Importer::GetSingleton()->AddImporterImplementation(EZ_DEFAULT_NEW(ezModelImporter::AssimpImporter));
@@ -23,17 +23,17 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Editor, PluginAssets)
     ezModelImporter::Importer::GetSingleton()->AddImporterImplementation(EZ_DEFAULT_NEW(ezModelImporter::FBXSDKImporter));
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     auto ptr = ezModelImporter::Importer::GetSingleton();
     EZ_DEFAULT_DELETE(ptr);
   }
 
-  ON_ENGINE_STARTUP
+  ON_HIGHLEVELSYSTEMS_STARTUP
   {
   }
 
-  ON_ENGINE_SHUTDOWN
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
   }
 

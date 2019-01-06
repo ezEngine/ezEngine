@@ -16,12 +16,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, DocumentManager)
   "Foundation"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     ezPlugin::s_PluginEvents.AddEventHandler(ezDocumentManager::OnPluginEvent);
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezPlugin::s_PluginEvents.RemoveEventHandler(ezDocumentManager::OnPluginEvent);
   }

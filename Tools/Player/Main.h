@@ -9,13 +9,13 @@ public:
 
 
 private:
-  virtual void BeforeCoreStartup() override;
+  virtual void BeforeCoreSystemsStartup() override;
 
-  virtual void AfterCoreStartup() override;
+  virtual void AfterCoreSystemsStartup() override;
 
   void SetupLevel();
 
-  virtual void BeforeCoreShutdown() override;
+  virtual void BeforeCoreSystemsShutdown() override;
 
   ezString m_sSceneFile;
   ezUniquePtr<ezWorld> m_pWorld;

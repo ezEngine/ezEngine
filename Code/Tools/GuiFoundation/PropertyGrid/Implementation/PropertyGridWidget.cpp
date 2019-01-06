@@ -114,7 +114,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyGrid)
   "ToolsFoundation", "PropertyMetaState"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezQtPropertyGridWidget::PropertyMetaStateEventHandler);
 
@@ -149,7 +149,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyGrid)
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVarianceTypeBase>(), VarianceTypeCreator);
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezQtPropertyGridWidget::PropertyMetaStateEventHandler);
   }

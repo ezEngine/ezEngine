@@ -130,9 +130,9 @@ ezApplication::ApplicationExecution ezComputeShaderHistogramApp::Run()
   return WasQuitRequested() ? ezApplication::ApplicationExecution::Quit : ezApplication::ApplicationExecution::Continue;
 }
 
-void ezComputeShaderHistogramApp::AfterCoreStartup()
+void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
 {
-  ezGameApplication::AfterCoreStartup();
+  ezGameApplication::AfterCoreSystemsStartup();
 
   m_directoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
   EZ_VERIFY(m_directoryWatcher
@@ -210,7 +210,7 @@ void ezComputeShaderHistogramApp::AfterCoreStartup()
   CreateHistogramQuad();
 }
 
-void ezComputeShaderHistogramApp::BeforeCoreShutdown()
+void ezComputeShaderHistogramApp::BeforeCoreSystemsShutdown()
 {
   auto device = ezGALDevice::GetDefaultDevice();
 
@@ -230,7 +230,7 @@ void ezComputeShaderHistogramApp::BeforeCoreShutdown()
   device->DestroyTexture(m_hHistogramTexture);
   m_hHistogramTexture.Invalidate();
 
-  ezGameApplication::BeforeCoreShutdown();
+  ezGameApplication::BeforeCoreSystemsShutdown();
 }
 
 void ezComputeShaderHistogramApp::CreateHistogramQuad()

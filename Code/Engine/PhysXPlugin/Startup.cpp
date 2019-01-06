@@ -12,7 +12,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXPlugin)
     "Core"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     ezPhysX::GetSingleton()->Startup();
 
@@ -24,7 +24,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXPlugin)
     ezPxMeshResource::SetTypeMissingResource(hResource);
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezPxMeshResource::SetTypeMissingResource(ezPxMeshResourceHandle());
     ezPhysX::GetSingleton()->Shutdown();
@@ -32,11 +32,11 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXPlugin)
     ezPxMeshResource::CleanupDynamicPluginReferences();
   }
 
-  ON_ENGINE_STARTUP
+  ON_HIGHLEVELSYSTEMS_STARTUP
   {
   }
 
-  ON_ENGINE_SHUTDOWN
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
   }
 

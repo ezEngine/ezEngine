@@ -219,7 +219,7 @@ void ezTestSetup::DeInitTestFramework()
 {
   ezTestFramework* pTestFramework = ezTestFramework::GetInstance();
 
-  ezStartup::ShutdownCore();
+  ezStartup::ShutdownCoreSystems();
 
   // In the UWP case we never initialized this thread for ez, so we can't do log output now.
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)

@@ -13,12 +13,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ManipulatorAdapterRegistry)
     "ManipulatorManager"
   END_SUBSYSTEM_DEPENDENCIES
  
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     EZ_DEFAULT_NEW(ezManipulatorAdapterRegistry);
   }
  
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     auto ptr = ezManipulatorAdapterRegistry::GetSingleton();
     EZ_DEFAULT_DELETE(ptr);

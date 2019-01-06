@@ -11,22 +11,22 @@
 ///    "SomeOtherSubSystem2"
 ///  END_SUBSYSTEM_DEPENDENCIES
 ///
-///  ON_CORE_STARTUP
+///  ON_CORESYSTEMS_STARTUP
 ///  {
 ///    ezExampleSubSystem::BasicStartup();
 ///  }
 ///
-///  ON_CORE_SHUTDOWN
+///  ON_CORESYSTEMS_SHUTDOWN
 ///  {
 ///    ezExampleSubSystem::BasicShutdown();
 ///  }
 ///
-///  ON_ENGINE_STARTUP
+///  ON_HIGHLEVELSYSTEMS_STARTUP
 ///  {
 ///    ezExampleSubSystem::EngineStartup();
 ///  }
 ///
-///  ON_ENGINE_SHUTDOWN
+///  ON_HIGHLEVELSYSTEMS_SHUTDOWN
 ///  {
 ///    ezExampleSubSystem::EngineShutdown();
 ///  }
@@ -54,37 +54,37 @@
 /// \brief Defines what code is to be executed upon base startup.
 ///
 /// Put this inside the subsystem declaration block.
-#define ON_BASE_STARTUP \
+#define ON_BASESYSTEMS_STARTUP \
 private:                \
-  virtual void OnBaseStartup()
+  virtual void OnBaseSystemsStartup() override
 
 /// \brief Defines what code is to be executed upon core startup.
 ///
 /// Put this inside the subsystem declaration block.
-#define ON_CORE_STARTUP \
+#define ON_CORESYSTEMS_STARTUP \
 private:                \
-  virtual void OnCoreStartup()
+  virtual void OnCoreSystemsStartup() override
 
 /// \brief Defines what code is to be executed upon core shutdown.
 ///
 /// Put this inside the subsystem declaration block.
-#define ON_CORE_SHUTDOWN \
+#define ON_CORESYSTEMS_SHUTDOWN \
 private:                 \
-  virtual void OnCoreShutdown()
+  virtual void OnCoreSystemsShutdown() override
 
 /// \brief Defines what code is to be executed upon engine startup.
 ///
 /// Put this inside the subsystem declaration block.
-#define ON_ENGINE_STARTUP \
+#define ON_HIGHLEVELSYSTEMS_STARTUP \
 private:                  \
-  virtual void OnEngineStartup()
+  virtual void OnHighLevelSystemsStartup() override
 
 /// \brief Defines what code is to be executed upon engine shutdown.
 ///
 /// Put this inside the subsystem declaration block.
-#define ON_ENGINE_SHUTDOWN \
+#define ON_HIGHLEVELSYSTEMS_SHUTDOWN \
 private:                   \
-  virtual void OnEngineShutdown()
+  virtual void OnHighLevelSystemsShutdown() override
 
 /// \brief Begins the list of subsystems, on which the currently declared system depends on.
 ///

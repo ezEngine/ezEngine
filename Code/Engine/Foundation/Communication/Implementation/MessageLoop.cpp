@@ -21,7 +21,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, MessageLoop)
     "ThreadUtils"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
       EZ_DEFAULT_NEW(ezMessageLoop_win);
@@ -30,7 +30,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, MessageLoop)
     #endif
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezMessageLoop* pDummy = ezMessageLoop::GetSingleton();
     EZ_DEFAULT_DELETE(pDummy);

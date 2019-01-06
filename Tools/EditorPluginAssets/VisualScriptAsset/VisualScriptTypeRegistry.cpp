@@ -23,7 +23,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, VisualScript)
   "PluginAssets", "ReflectedTypeManager"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     EZ_DEFAULT_NEW(ezVisualScriptTypeRegistry);
 
@@ -35,17 +35,17 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, VisualScript)
     ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualScriptNode(); });
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezVisualScriptTypeRegistry* pDummy = ezVisualScriptTypeRegistry::GetSingleton();
     EZ_DEFAULT_DELETE(pDummy);
   }
 
-  ON_ENGINE_STARTUP
+  ON_HIGHLEVELSYSTEMS_STARTUP
   {
   }
 
-  ON_ENGINE_SHUTDOWN
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
   }
 

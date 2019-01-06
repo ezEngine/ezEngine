@@ -9,7 +9,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ThreadUtils)
 
   // no dependencies
 
-  ON_BASE_STARTUP
+  ON_BASESYSTEMS_STARTUP
   {
     ezThreadUtils::Initialize();
   }

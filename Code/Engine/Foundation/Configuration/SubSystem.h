@@ -9,9 +9,9 @@ struct ezStartupStage
   enum Enum
   {
     None = -1,
-    Base,   ///< In this stage the absolute base functionality is started. This should only be used by the Foundation library.
-    Core,   ///< In this stage the core functionality is being started / shut down
-    Engine, ///< In this stage the higher level functionality, which depends on a rendering context, is being started / shut down
+    BaseSystems,      ///< In this stage the absolute base functionality is started. This should only be used by the Foundation library.
+    CoreSystems,      ///< In this stage the core functionality is being started / shut down
+    HighLevelSystems, ///< In this stage the higher level functionality, which depends on a rendering context, is being started / shut down
 
     ENUM_COUNT
   };
@@ -41,7 +41,7 @@ public:
 
   virtual ~ezSubSystem()
   {
-    for (ezInt32 i = ezStartupStage::Core; i < ezStartupStage::ENUM_COUNT; ++i)
+    for (ezInt32 i = ezStartupStage::CoreSystems; i < ezStartupStage::ENUM_COUNT; ++i)
     {
       // Can't call GetSubSystemName and GetGroupName, because they are pure virtual and the destructor is called
       // after the derived destructor has already run, thus those virtual functions are potentially not available anymore.
@@ -56,7 +56,8 @@ public:
   /// \brief Returns the name of the group to which this subsystem belongs. Must be overridden.
   virtual const char* GetGroupName() const = 0;
 
-  /// \brief Returns a series of strings with the names of the subsystem, which this subsystem depends on. nullptr indicates the last entry. Must be overridden.
+  /// \brief Returns a series of strings with the names of the subsystem, which this subsystem depends on. nullptr indicates the last entry.
+  /// Must be overridden.
   virtual const char* GetDependency(ezInt32 iDep) { return nullptr; }
 
   /// \brief Returns the plugin name to which this subsystem belongs.
@@ -70,19 +71,19 @@ private:
   friend class ezStartup;
 
   /// \brief This will be called to initialize the subsystems base components. Can be overridden to handle this event.
-  virtual void OnBaseStartup() {}
+  virtual void OnBaseSystemsStartup() {}
 
   /// \brief This will be called to initialize the subsystems core components. Can be overridden to handle this event.
-  virtual void OnCoreStartup() {}
+  virtual void OnCoreSystemsStartup() {}
 
   /// \brief This will be called to shut down the subsystems core components. Can be overridden to handle this event.
-  virtual void OnCoreShutdown() {}
+  virtual void OnCoreSystemsShutdown() {}
 
   /// \brief This will be called to initialize the subsystems engine / rendering components. Can be overridden to handle this event.
-  virtual void OnEngineStartup() {}
+  virtual void OnHighLevelSystemsStartup() {}
 
   /// \brief This will be called to shut down the subsystems engine / rendering components. Can be overridden to handle this event.
-  virtual void OnEngineShutdown() {}
+  virtual void OnHighLevelSystemsShutdown() {}
 
   /// Set by ezStartup to store to which plugin this subsystem belongs.
   const char* m_szPluginName;

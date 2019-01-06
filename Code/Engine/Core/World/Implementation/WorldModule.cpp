@@ -60,13 +60,13 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, WorldModuleFactory)
     "Reflection"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     ezPlugin::s_PluginEvents.AddEventHandler(ezWorldModuleFactory::PluginEventHandler);
     ezWorldModuleFactory::GetInstance()->FillBaseTypeIds();
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezPlugin::s_PluginEvents.RemoveEventHandler(ezWorldModuleFactory::PluginEventHandler);
   }

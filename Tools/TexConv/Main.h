@@ -131,9 +131,9 @@ public:
 
   ezTexConv();
 
-  virtual void BeforeCoreStartup() override;
-  virtual void AfterCoreStartup() override;
-  virtual void BeforeCoreShutdown() override;
+  virtual void BeforeCoreSystemsStartup() override;
+  virtual void AfterCoreSystemsStartup() override;
+  virtual void BeforeCoreSystemsShutdown() override;
   virtual const char* TranslateReturnCode() const override;
 
   ChannelMapping ParseInputCfg(const char* cfg, ezInt8 iChannelIndex, bool bSingleChannel);

@@ -59,7 +59,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtProxies)
   "ActionManager"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezMenuAction>(), QtMenuProxyCreator);
     ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezCategoryAction>(), QtCategoryProxyCreator);
@@ -70,7 +70,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtProxies)
     ezQtProxy::s_pSignalProxy = new QObject;
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezQtProxy::s_GlobalActions.Clear();
     ezQtProxy::s_DocumentActions.Clear();

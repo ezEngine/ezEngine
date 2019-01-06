@@ -42,7 +42,7 @@ Also make sure that exactly one file in each library contains the text 'EZ_STATI
 
 The parameters and function body will be automatically generated and later updated, you do not need to provide more.
 
-See the Return Codes at the end of the BeforeCoreShutdown function.
+See the Return Codes at the end of the BeforeCoreSystemsShutdown function.
 */
 
 class ezStaticLinkerApp : public ezApplication
@@ -107,7 +107,7 @@ public:
     }
   }
 
-  virtual void AfterCoreStartup() override
+  virtual void AfterCoreSystemsStartup() override
   {
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
@@ -136,7 +136,7 @@ public:
     // ':abs/C:/some/file.txt"
   }
 
-  virtual void BeforeCoreShutdown() override
+  virtual void BeforeCoreSystemsShutdown() override
   {
     if ((m_bHadSeriousWarnings || m_bHadErrors) && m_bModifiedFiles)
       ezLog::SeriousWarning("There were issues while writing out the updated files. The source will be in an inconsistent state, please revert the changes.");

@@ -24,23 +24,23 @@ BEGIN_SUBSYSTEM_DEPENDENCIES
 "Core"
 END_SUBSYSTEM_DEPENDENCIES
 
-ON_CORE_STARTUP
+ON_CORESYSTEMS_STARTUP
 {
   ezResourceManager::SetResourceTypeLoader<ezTexture2DResource>(&s_TextureResourceLoader);
   ezResourceManager::SetResourceTypeLoader<ezTextureCubeResource>(&s_TextureResourceLoader);
 }
 
-ON_CORE_SHUTDOWN
+ON_CORESYSTEMS_SHUTDOWN
 {
   ezResourceManager::SetResourceTypeLoader<ezTexture2DResource>(nullptr);
   ezResourceManager::SetResourceTypeLoader<ezTextureCubeResource>(nullptr);
 }
 
-ON_ENGINE_STARTUP
+ON_HIGHLEVELSYSTEMS_STARTUP
 {
 }
 
-ON_ENGINE_SHUTDOWN
+ON_HIGHLEVELSYSTEMS_SHUTDOWN
 {
 }
 

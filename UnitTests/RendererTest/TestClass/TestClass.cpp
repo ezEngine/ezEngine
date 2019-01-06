@@ -28,14 +28,14 @@ ezGraphicsTest::ezGraphicsTest()
 ezResult ezGraphicsTest::InitializeSubTest(ezInt32 iIdentifier)
 {
   // initialize everything up to 'core'
-  ezStartup::StartupCore();
+  ezStartup::StartupCoreSystems();
   return EZ_SUCCESS;
 }
 
 ezResult ezGraphicsTest::DeInitializeSubTest(ezInt32 iIdentifier)
 {
   // shut down completely
-  ezStartup::ShutdownCore();
+  ezStartup::ShutdownCoreSystems();
   ezMemoryTracker::DumpMemoryLeaks();
   return EZ_SUCCESS;
 }
@@ -117,7 +117,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
     m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
   }
 
-  ezStartup::StartupEngine();
+  ezStartup::StartupHighLevelSystems();
 
   return EZ_SUCCESS;
 }
@@ -132,7 +132,7 @@ void ezGraphicsTest::ShutdownRenderer()
   ezRenderContext::DeleteConstantBufferStorage(m_hObjectTransformCB);
   m_hObjectTransformCB.Invalidate();
 
-  ezStartup::ShutdownEngine();
+  ezStartup::ShutdownHighLevelSystems();
 
   ezResourceManager::FreeUnusedResources(true);
 

@@ -14,7 +14,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalResource)
   "TextureResource"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     ezResourceManager::SetResourceTypeLoader<ezDecalResource>(&s_DecalResourceLoader);
 
@@ -25,7 +25,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalResource)
     ezDecalResource::SetTypeMissingResource(hFallback);
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezResourceManager::SetResourceTypeLoader<ezDecalResource>(nullptr);
 
@@ -33,11 +33,11 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalResource)
     ezDecalResource::SetTypeMissingResource(ezDecalResourceHandle());
   }
 
-  ON_ENGINE_STARTUP
+  ON_HIGHLEVELSYSTEMS_STARTUP
   {
   }
 
-  ON_ENGINE_SHUTDOWN
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
   }
 

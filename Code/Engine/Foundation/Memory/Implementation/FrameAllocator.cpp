@@ -34,12 +34,12 @@ void ezDoubleBufferedStackAllocator::Reset()
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, FrameAllocator)
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     ezFrameAllocator::Startup();
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezFrameAllocator::Shutdown();
   }
