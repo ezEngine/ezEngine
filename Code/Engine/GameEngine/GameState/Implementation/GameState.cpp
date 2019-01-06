@@ -6,6 +6,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <GameApplication/WindowOutputTarget.h>
 #include <GameEngine/Components/PlayerStartPointComponent.h>
+#include <GameEngine/Configuration/RendererProfileConfigs.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/GameStateWindow.h>
 #include <GameEngine/Interfaces/VRInterface.h>

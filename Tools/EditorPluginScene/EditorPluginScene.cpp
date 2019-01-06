@@ -17,6 +17,7 @@
 #include <EditorPluginScene/Visualizers/PointLightVisualizerAdapter.h>
 #include <EditorPluginScene/Visualizers/SpotLightVisualizerAdapter.h>
 #include <Foundation/Strings/TranslationLookup.h>
+#include <GameEngine/Configuration/RendererProfileConfigs.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/Action/DocumentActions.h>
