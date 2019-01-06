@@ -15,22 +15,22 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(SampleGame, ScriptRegistry)
     "Foundation"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
     EZ_DEFAULT_NEW(ezScriptRegistry);
   }
 
-  ON_CORE_SHUTDOWN
+  ON_CORESYSTEMS_SHUTDOWN
   {
     ezScriptRegistry* pDummy = ezScriptRegistry::GetSingleton();
     EZ_DEFAULT_DELETE(pDummy);
   }
 
-  ON_ENGINE_STARTUP
+  ON_HIGHLEVELSYSTEMS_STARTUP
   {
   }
 
-  ON_ENGINE_SHUTDOWN
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
   }
 

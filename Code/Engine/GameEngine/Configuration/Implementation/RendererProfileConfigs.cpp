@@ -2,6 +2,7 @@
 
 #include <GameEngine/Configuration/RendererProfileConfigs.h>
 
+#include <Foundation/IO/ChunkStream.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
