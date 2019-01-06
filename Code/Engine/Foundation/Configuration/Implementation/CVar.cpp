@@ -5,6 +5,8 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Utilities/CommandLineUtils.h>
+#include <Utilities/ConversionUtils.h>
 
 // clang-format off
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezCVar);
@@ -306,16 +308,19 @@ static ezResult ParseLine(const ezStringBuilder& sLine, ezStringBuilder& VarName
 
 void ezCVar::LoadCVars(bool bOnlyNewOnes, bool bSetAsCurrentValue)
 {
-  if (s_StorageFolder.IsEmpty())
-    return;
-
   // first gather all the cvars by plugin
   ezMap<ezString, ezHybridArray<ezCVar*, 128>> PluginCVars;
+  ezHybridArray<ezCVar*, 128> CmdLineCVars;
 
   {
     ezCVar* pCVar = ezCVar::GetFirstInstance();
     while (pCVar)
     {
+      if (!bOnlyNewOnes || pCVar->m_bHasNeverBeenLoaded)
+      {
+        CmdLineCVars.PushBack(pCVar);
+      }
+
       // only load cvars that should be saved
       if (pCVar->GetFlags().IsAnySet(ezCVarFlags::Save))
       {
@@ -335,88 +340,155 @@ void ezCVar::LoadCVars(bool bOnlyNewOnes, bool bSetAsCurrentValue)
     }
   }
 
-  ezMap<ezString, ezHybridArray<ezCVar*, 128>>::Iterator it = PluginCVars.GetIterator();
-
   ezStringBuilder sTemp;
 
-  // now save all cvars in their plugin specific file
-  while (it.IsValid())
+  // now load all cvars from their plugin specific file
+  if (!s_StorageFolder.IsEmpty())
   {
-    // create the plugin specific file
-    sTemp.Format("{0}/CVars_{1}.cfg", s_StorageFolder, it.Key());
+    ezMap<ezString, ezHybridArray<ezCVar*, 128>>::Iterator it = PluginCVars.GetIterator();
 
-    ezFileReader File;
-    if (File.Open(sTemp.GetData()) == EZ_SUCCESS)
+    while (it.IsValid())
     {
-      ezStringBuilder sLine, sVarName, sVarValue;
-      while (ReadLine(File, sLine) == EZ_SUCCESS)
+      // create the plugin specific file
+      sTemp.Format("{0}/CVars_{1}.cfg", s_StorageFolder, it.Key());
+
+      ezFileReader File;
+      if (File.Open(sTemp.GetData()) == EZ_SUCCESS)
       {
-        if (ParseLine(sLine, sVarName, sVarValue) == EZ_FAILURE)
-          continue;
-
-        // now find a variable with the same name
-        for (ezUInt32 var = 0; var < it.Value().GetCount(); ++var)
+        ezStringBuilder sLine, sVarName, sVarValue;
+        while (ReadLine(File, sLine) == EZ_SUCCESS)
         {
-          ezCVar* pCVar = it.Value()[var];
-
-          if (!sVarName.IsEqual(pCVar->GetName()))
+          if (ParseLine(sLine, sVarName, sVarValue) == EZ_FAILURE)
             continue;
 
-          // found the cvar, now convert the text into the proper value *sigh*
-
-          switch (pCVar->GetType())
+          // now find a variable with the same name
+          for (ezUInt32 var = 0; var < it.Value().GetCount(); ++var)
           {
-            case ezCVarType::Int:
-            {
-              // we probably need a class with conversion functions (atoi is ugly)
-              ezInt32 Value = atoi(sVarValue.GetData());
-              ;
+            ezCVar* pCVar = it.Value()[var];
 
-              ezCVarInt* pTyped = (ezCVarInt*)pCVar;
-              pTyped->m_Values[ezCVarValue::Stored] = Value;
-              *pTyped = Value;
-            }
-            break;
-            case ezCVarType::Bool:
-            {
-              bool Value = sVarValue.IsEqual_NoCase("true");
+            if (!sVarName.IsEqual(pCVar->GetName()))
+              continue;
 
-              ezCVarBool* pTyped = (ezCVarBool*)pCVar;
-              pTyped->m_Values[ezCVarValue::Stored] = Value;
-              *pTyped = Value;
-            }
-            break;
-            case ezCVarType::Float:
-            {
-              float Value = (float)atof(sVarValue.GetData());
+            // found the cvar, now convert the text into the proper value *sigh*
 
-              ezCVarFloat* pTyped = (ezCVarFloat*)pCVar;
-              pTyped->m_Values[ezCVarValue::Stored] = Value;
-              *pTyped = Value;
-            }
-            break;
-            case ezCVarType::String:
+            switch (pCVar->GetType())
             {
-              const char* Value = sVarValue.GetData();
-
-              ezCVarString* pTyped = (ezCVarString*)pCVar;
-              pTyped->m_Values[ezCVarValue::Stored] = Value;
-              *pTyped = Value;
-            }
-            break;
-            default:
-              EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
+              case ezCVarType::Int:
+              {
+                ezInt32 Value = 0;
+                if (ezConversionUtils::StringToInt(sVarValue, Value).Succeeded())
+                {
+                  ezCVarInt* pTyped = (ezCVarInt*)pCVar;
+                  pTyped->m_Values[ezCVarValue::Stored] = Value;
+                  *pTyped = Value;
+                }
+              }
               break;
-          }
+              case ezCVarType::Bool:
+              {
+                bool Value = sVarValue.IsEqual_NoCase("true");
 
-          if (bSetAsCurrentValue)
-            pCVar->SetToRestartValue();
+                ezCVarBool* pTyped = (ezCVarBool*)pCVar;
+                pTyped->m_Values[ezCVarValue::Stored] = Value;
+                *pTyped = Value;
+              }
+              break;
+              case ezCVarType::Float:
+              {
+                double Value = 0.0;
+                if (ezConversionUtils::StringToFloat(sVarValue, Value).Succeeded())
+                {
+                  ezCVarFloat* pTyped = (ezCVarFloat*)pCVar;
+                  pTyped->m_Values[ezCVarValue::Stored] = static_cast<float>(Value);
+                  *pTyped = Value;
+                }
+              }
+              break;
+              case ezCVarType::String:
+              {
+                const char* Value = sVarValue.GetData();
+
+                ezCVarString* pTyped = (ezCVarString*)pCVar;
+                pTyped->m_Values[ezCVarValue::Stored] = Value;
+                *pTyped = Value;
+              }
+              break;
+              default:
+                EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
+                break;
+            }
+
+            if (bSetAsCurrentValue)
+              pCVar->SetToRestartValue();
+          }
         }
       }
-    }
 
-    // continue with the next plugin
-    ++it;
+      // continue with the next plugin
+      ++it;
+    }
+  }
+
+  // now override values from the command line
+  {
+    for (ezUInt32 var = 0; var < CmdLineCVars.GetCount(); ++var)
+    {
+      ezCVar* pCVar = CmdLineCVars[var];
+
+      sTemp.Set("-", pCVar->GetName());
+
+      if (ezCommandLineUtils::GetGlobalInstance()->GetOptionIndex(sTemp) != -1)
+      {
+        switch (pCVar->GetType())
+        {
+          case ezCVarType::Int:
+          {
+            ezCVarInt* pTyped = (ezCVarInt*)pCVar;
+            ezInt32 Value = pTyped->m_Values[ezCVarValue::Stored];
+            Value = ezCommandLineUtils::GetGlobalInstance()->GetIntOption(sTemp, Value);
+
+            pTyped->m_Values[ezCVarValue::Stored] = Value;
+            *pTyped = Value;
+          }
+          break;
+          case ezCVarType::Bool:
+          {
+            ezCVarBool* pTyped = (ezCVarBool*)pCVar;
+            bool Value = pTyped->m_Values[ezCVarValue::Stored];
+            Value = ezCommandLineUtils::GetGlobalInstance()->GetBoolOption(sTemp, Value);
+
+            pTyped->m_Values[ezCVarValue::Stored] = Value;
+            *pTyped = Value;
+          }
+          break;
+          case ezCVarType::Float:
+          {
+            ezCVarFloat* pTyped = (ezCVarFloat*)pCVar;
+            double Value = pTyped->m_Values[ezCVarValue::Stored];
+            Value = ezCommandLineUtils::GetGlobalInstance()->GetFloatOption(sTemp, Value);
+
+            pTyped->m_Values[ezCVarValue::Stored] = static_cast<float>(Value);
+            *pTyped = Value;
+          }
+          break;
+          case ezCVarType::String:
+          {
+            ezCVarString* pTyped = (ezCVarString*)pCVar;
+            ezString Value = ezCommandLineUtils::GetGlobalInstance()->GetStringOption(sTemp, 0, pTyped->m_Values[ezCVarValue::Stored]);
+
+            pTyped->m_Values[ezCVarValue::Stored] = Value;
+            *pTyped = Value;
+          }
+          break;
+          default:
+            EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
+            break;
+        }
+
+        if (bSetAsCurrentValue)
+          pCVar->SetToRestartValue();
+      }
+    }
   }
 }
 

@@ -100,7 +100,7 @@ public:
   ///
   /// This function has no effect, if the storage folder has not been set via 'SetStorageFolder' yet
   /// or it has been set to be empty.
-  /// If \a bOnlyNewOnes is set, only CVars that have been never been loaded from file before are loaded.
+  /// If \a bOnlyNewOnes is set, only CVars that have never been loaded from file before are loaded.
   /// All other CVars will stay unchanged.
   /// If \a bSetAsCurrentValue is true, variables that are flagged as 'RequiresRestart', will be set
   /// to the restart value immediately ('SetToRestartValue' is called on them).
