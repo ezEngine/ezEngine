@@ -2,6 +2,7 @@
 
 #include <GameEngine/Basics.h>
 
+#include <GameEngine/Configuration/PlatformProfile.h>
 #include <GameEngine/Console/ConsoleFunction.h>
 #include <GameEngine/GameApplication/WindowOutputTargetBase.h>
 #include <GameEngine/GameState/GameState.h>
@@ -120,7 +121,6 @@ protected:
   /// \name GameState
   ///@{
 public:
-
   /// \brief Creates and activates the game state for this application.
   ///
   /// If the application already has a world (such as the editor), it can pass this to the newly created game state.
@@ -159,5 +159,22 @@ protected:
 
   ezUniquePtr<ezGameState> m_pGameState;
   ezWorld* m_pWorldLinkedWithGameState = nullptr;
+
+  ///@}
+  /// \name Platform Profile
+  ///@{
+public:
+
+  /// \brief Returns the ezPlatformProfile that has been loaded for this application
+  const ezPlatformProfile& GetPlatformProfile() const { return m_PlatformProfile; }
+
+
+protected:
+
+  /// \brief Returns the name of the platform profile that should be used if there is nothing else that specifies which profile to use.
+  virtual const char* GetPreferredPlatformProfile() const { return "PC"; }
+
+  ezPlatformProfile m_PlatformProfile;
+
   ///@}
 };

@@ -32,7 +32,7 @@ HRESULT ezUwpTestApplication::Initialize(ICoreApplicationView* applicationView)
 
 
 
-  ezStartup::StartupBase();
+  ezStartup::StartupBaseSystems();
 
   return S_OK;
 }

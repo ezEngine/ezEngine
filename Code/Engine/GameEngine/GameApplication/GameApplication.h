@@ -5,7 +5,6 @@
 
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <GameEngine/Configuration/PlatformProfile.h>
 #include <GameEngine/Console/ConsoleFunction.h>
 
 #include <GameEngine/GameApplication/GameApplicationBase.h>
@@ -108,9 +107,6 @@ public:
 
   ezEvent<const ezGameApplicationEvent&> m_Events;
 
-
-  const ezPlatformProfile& GetPlatformProfile() const { return m_PlatformProfile; }
-
 protected:
   virtual ezUniquePtr<ezWindowOutputTargetBase> CreateWindowOutputTarget(ezWindowBase* pWindow) override;
   virtual void DestroyWindowOutputTarget(ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget) override;
@@ -141,11 +137,6 @@ protected:
   ///
   /// Project Initialization
   ///
-
-  /// \brief Returns the name of the platform profile that should be used by default.
-  ///
-  /// If the '-profile "XYZ"' command line argument is provided, it takes precedence over this.
-  virtual const char* GetPreferredPlatformProfile() const { return "PC"; }
 
   /// \brief This is the main setup function. It calls various other functions in a specific order to initialize the application.
   virtual void DoProjectSetup();
@@ -223,7 +214,7 @@ protected:
   /// \brief Stores what is given to the constructor
   ezString m_sAppProjectPath;
 
-  ezPlatformProfile m_PlatformProfile;
+  
 
 protected:
   static ezGameApplication* s_pGameApplicationInstance;
