@@ -3,6 +3,10 @@
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  include <shellapi.h>
+#endif
+
 static ezCommandLineUtils g_pCmdLineInstance;
 
 ezCommandLineUtils* ezCommandLineUtils::GetGlobalInstance()
@@ -84,13 +88,13 @@ void ezCommandLineUtils::SetCommandLine()
   LocalFree(argvw);
 }
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  // Not implemented on Windows UWP.
+// Not implemented on Windows UWP.
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
-  // Not implemented on OSX.
+// Not implemented on OSX.
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-  // Not implemented on Linux.
+// Not implemented on Linux.
 #else
-#error "ezCommandLineUtils::SetCommandLine(): Abstraction missing."
+#  error "ezCommandLineUtils::SetCommandLine(): Abstraction missing."
 #endif
 
 ezUInt32 ezCommandLineUtils::GetParameterCount() const

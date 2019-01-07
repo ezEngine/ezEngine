@@ -6,6 +6,10 @@
 #include <iostream>
 #include <sstream>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  include <shellapi.h>
+#endif
+
 struct ezOutputToHTML
 {
   static std::ofstream htmlFile;

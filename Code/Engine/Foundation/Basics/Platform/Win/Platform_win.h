@@ -16,15 +16,7 @@
 #  define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include <winsock2.h>
-
-#include <Rpc.h>
-#include <Shellapi.h>
-#include <Windows.h>
-
-#include <crtdbg.h>
-
-#include <malloc.h>
+#include <winapifamily.h>
 
 #undef EZ_PLATFORM_WINDOWS_UWP
 #undef EZ_PLATFORM_WINDOWS_DESKTOP
@@ -38,75 +30,27 @@
 #  define EZ_PLATFORM_WINDOWS_DESKTOP EZ_ON
 #endif
 
-// Windows SDK version. Applies both to classic WinAPI and newer WinRT interfaces.
-enum ezWinRTSDKVersion
-{
-  EZ_WINDOWS_VERSION_7,
-  EZ_WINDOWS_VERSION_8,
-  EZ_WINDOWS_VERSION_8_1,
-  EZ_WINDOWS_VERSION_10_TH1, // First Windows 10 Release ('Threshold 1')
-  EZ_WINDOWS_VERSION_10_TH2, // The "November Upgrade" ('Threshold 2')
-  EZ_WINDOWS_VERSION_10_RS1, // The "Anniversary Update" ('Redstone 1')
-  EZ_WINDOWS_VERSION_10_RS2, // The "Creator's Update" ('Redstone 2')
-  EZ_WINDOWS_VERSION_10_RS3, // The "Fall Creator's Update" ('Redstone 3')
-  EZ_WINDOWS_VERSION_10_RS4, // The "April 2018 Update" ('Redstone 4')
-  EZ_WINDOWS_VERSION_10_RS5, // The "October 2018 Update" ('Redstone 5')
+// this is important for code that wants to include winsock2.h later on
+#define _WINSOCKAPI_   /* Prevent inclusion of winsock.h in windows.h */
 
-  // Assume newer version
-  EZ_WINDOWS_VERSION_UNKNOWN = 127,
-};
+// already includes Windows.h, but defines important other things first
+//#include <winsock2.h>
 
-// According to Raymond Chen, the NTDDI_VERSION macro was introduced in Windows Vista and is the new standard to determined the supported
-// windows version. https://blogs.msdn.microsoft.com/oldnewthing/20070411-00/?p=27283 However, starting in RS2 NTDDI_VERSION is set to the
-// new WDK_NTDDI_VERSION variable which gives you the SDK version. Before that, NTDDI_VERSION gave you only the minimum supported windows
-// version for your current build. So in this case we just take a guess by checking which NTDDI variables are there.
-#if defined(WDK_NTDDI_VERSION) // 'RS2' and newer
-#  if WDK_NTDDI_VERSION == NTDDI_WIN10_RS2
-#    define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_RS2
-#  elif WDK_NTDDI_VERSION == NTDDI_WIN10_RS3
-#    define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_RS3
-#  elif WDK_NTDDI_VERSION == NTDDI_WIN10_RS4
-#    define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_RS4
-#  elif WDK_NTDDI_VERSION == NTDDI_WIN10_RS5
-#    define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_RS4
-#  else
-#    define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_UNKNOWN
-#    error Unknown Windows SDK Version
-#  endif
-#else // version is lower than 'RS2'
-#  if defined(NTDDI_WIN10_RS1)
-#    define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_RS1
-#  elif defined(NTDDI_WIN10_TH2)
-#    define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_TH2
-#  elif defined(NTDDI_WIN10_TH1)
-#    define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_TH1
-#  elif defined(NTDDI_WINBLUE)
-#    define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_8_1
-#  elif defined(NTDDI_WIN8)
-#    define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_8
-#  elif defined(NTDDI_WIN7)
-#    define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_7
-#  else
-#    define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_UNKNOWN
-#    error Unknown Windows SDK Version
-#  endif
-#endif
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
 
+#include <malloc.h>
 
 // unset windows macros
 #undef min
 #undef max
 #undef GetObject
-#undef GetCommandLine
 #undef ERROR
-#undef CreateWindow
 #undef DeleteFile
-#undef CreateDirectory
 #undef CopyFile
 #undef DispatchMessage
 #undef PostMessage
 #undef SendMessage
-#undef DrawText
 
 #if defined(_MSC_VER)
 
@@ -126,23 +70,7 @@ enum ezWinRTSDKVersion
 #    define EZ_COMPILE_FOR_DEBUG EZ_ON
 #  endif
 
-#  define EZ_ANALYSIS_ASSUME(code_to_be_true) __analysis_assume(code_to_be_true)
-#  define EZ_ANALYSIS_IGNORE_WARNING_ONCE(x) __pragma(warning(suppress : x))
-#  define EZ_ANALYSIS_IGNORE_WARNING_START(x) __pragma(warning(push)) __pragma(warning(disable : x))
-#  define EZ_ANALYSIS_IGNORE_WARNING_END __pragma(warning(pop))
-#  define EZ_ANALYSIS_IGNORE_ALL_START                                                                                                     \
-    __pragma(warning(push)) __pragma(warning(disable : 4251 6001 6011 6031 6211 6246 6326 6385 6386 6387 6540))
-#  define EZ_ANALYSIS_IGNORE_ALL_END __pragma(warning(pop))
-
-// On MSVC 2008 in 64 Bit "intin.h" generates a lot of warnings
-#  define EZ_MSVC_WARNING_NUMBER 4985
-#  include <Foundation/Basics/Compiler/DisableWarning.h>
-
-EZ_ANALYSIS_IGNORE_WARNING_START(6540)
 #  include <intrin.h>
-EZ_ANALYSIS_IGNORE_WARNING_END
-
-#  include <Foundation/Basics/Compiler/RestoreWarning.h>
 
 // Functions marked as EZ_ALWAYS_INLINE will be inlined even in Debug builds, which means you will step over them in a debugger
 #  define EZ_ALWAYS_INLINE __forceinline

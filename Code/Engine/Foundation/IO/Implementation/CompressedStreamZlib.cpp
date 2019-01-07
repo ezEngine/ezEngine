@@ -41,7 +41,6 @@ ezUInt64 ezCompressedStreamReaderZlib::ReadBytes(void* pReadBuffer, ezUInt64 uiB
   if (m_pZLibStream == nullptr)
   {
     m_pZLibStream = EZ_DEFAULT_NEW(z_stream_s);
-    EZ_ANALYSIS_ASSUME(m_pZLibStream != nullptr);
     ezMemoryUtils::ZeroFill(m_pZLibStream);
 
     m_pZLibStream->opaque = nullptr;
@@ -137,7 +136,6 @@ ezCompressedStreamWriterZlib::ezCompressedStreamWriterZlib(ezStreamWriter* pOutp
   m_CompressedCache.SetCountUninitialized(1024 * 4);
 
   m_pZLibStream = EZ_DEFAULT_NEW(z_stream_s);
-  EZ_ANALYSIS_ASSUME(m_pZLibStream != nullptr);
 
   ezMemoryUtils::ZeroFill(m_pZLibStream);
 

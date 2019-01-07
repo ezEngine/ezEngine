@@ -12,30 +12,6 @@
 #error "EZ_ALWAYS_INLINE is not defined."
 #endif
 
-#ifndef EZ_ANALYSIS_ASSUME
-#error "EZ_ANALYSIS_ASSUME is not defined."
-#endif
-
-#ifndef EZ_ANALYSIS_IGNORE_WARNING_ONCE
-#error "EZ_ANALYSIS_IGNORE_WARNING_ONCE is not defined."
-#endif
-
-#ifndef EZ_ANALYSIS_IGNORE_WARNING_START
-#error "EZ_ANALYSIS_IGNORE_WARNING_START is not defined."
-#endif
-
-#ifndef EZ_ANALYSIS_IGNORE_WARNING_END
-#error "EZ_ANALYSIS_IGNORE_WARNING_END is not defined."
-#endif
-
-#ifndef EZ_ANALYSIS_IGNORE_ALL_START
-#error "EZ_ANALYSIS_IGNORE_ALL_START is not defined."
-#endif
-
-#ifndef EZ_ANALYSIS_IGNORE_ALL_END
-#error "EZ_ANALYSIS_IGNORE_ALL_END is not defined."
-#endif
-
 #ifndef EZ_ALIGN
 #error "EZ_ALIGN is not defined."
 #endif

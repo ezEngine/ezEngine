@@ -1,4 +1,5 @@
 #include <rpc.h>
+#include <combaseapi.h>
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt64) * 2 == sizeof(UUID));
 

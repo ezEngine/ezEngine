@@ -60,7 +60,6 @@ inline const char* ezFmt(const char* szFormat)
 #define EZ_ASSERT_ALWAYS(bCondition, szErrorMsg, ...)                                                                       \
   do                                                                                                                        \
   {                                                                                                                         \
-    EZ_ANALYSIS_ASSUME(bCondition);                                                                                         \
     if (!!(bCondition) == false)                                                                                            \
     {                                                                                                                       \
       if (ezFailedCheck(EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, #bCondition, ezFmt(szErrorMsg, ##__VA_ARGS__))) \
@@ -86,7 +85,7 @@ inline const char* ezFmt(const char* szFormat)
 /// Allows to write a message using printf style.
 /// Compiled out in non-debug builds.
 /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
-#define EZ_ASSERT_DEBUG(bCondition, szErrorMsg, ...) EZ_ANALYSIS_ASSUME(bCondition)
+#define EZ_ASSERT_DEBUG(bCondition, szErrorMsg, ...)
 #endif
 
 
@@ -114,7 +113,7 @@ inline const char* ezFmt(const char* szFormat)
 /// Allows to write a message using printf style.
 /// Compiled out in non-development builds.
 /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
-#define EZ_ASSERT_DEV(bCondition, szErrorMsg, ...) EZ_ANALYSIS_ASSUME(bCondition)
+#define EZ_ASSERT_DEV(bCondition, szErrorMsg, ...)
 
 /// \brief Macro to raise an error, if a condition is not met.
 ///
@@ -135,7 +134,7 @@ inline const char* ezFmt(const char* szFormat)
 /// These asserts can be disabled (and then their condition will not be evaluated),
 /// but this needs to be specifically done by the user by defining EZ_DISABLE_RELEASE_ASSERTS.
 /// That should only be done, if you are intending to ship a product, and want get rid of all unnecessary overhead.
-#define EZ_ASSERT_RELEASE(bCondition, szErrorMsg, ...) EZ_ANALYSIS_ASSUME(bCondition)
+#define EZ_ASSERT_RELEASE(bCondition, szErrorMsg, ...)
 
 #else
 

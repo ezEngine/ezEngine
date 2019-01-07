@@ -236,7 +236,6 @@ void ezTestSetup::DeInitTestFramework()
       std::cout << "Press the any key to continue...\n";
       fflush(stdin);
       int iRet = _getch();
-      EZ_ANALYSIS_ASSUME(iRet < 256);
     }
   }
 #endif
