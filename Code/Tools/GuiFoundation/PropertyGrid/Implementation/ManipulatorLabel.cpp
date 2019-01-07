@@ -75,7 +75,7 @@ void ezQtManipulatorLabel::SetIsDefault(bool bIsDefault)
 
 void ezQtManipulatorLabel::contextMenuEvent(QContextMenuEvent* ev)
 {
-  emit customContextMenuRequested(ev->globalPos());
+  Q_EMIT customContextMenuRequested(ev->globalPos());
 }
 
 void ezQtManipulatorLabel::mousePressEvent(QMouseEvent* ev)

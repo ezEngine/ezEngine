@@ -60,7 +60,7 @@ public:
   ezVariant GetCommonValue(const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProperty);
   void PrepareToDie();
 
-public slots:
+public Q_SLOTS:
   void OnCustomContextMenu(const QPoint& pt);
 
 protected:
@@ -192,7 +192,7 @@ public:
   virtual bool HasLabel() const override { return false; }
 
 
-public slots:
+public Q_SLOTS:
   void OnDeleteButtonClicked();
 
 protected:
@@ -222,7 +222,7 @@ public:
   virtual bool HasLabel() const override { return false; }
 
 
-public slots:
+public Q_SLOTS:
   void OnElementButtonClicked();
   void OnDragStarted(QMimeData& mimeData);
   void OnCustomElementContextMenu(const QPoint& pt);

@@ -25,7 +25,7 @@ public:
   virtual const char* GetWindowLayoutGroupName() const;
   ezParticleEffectAssetDocument* GetParticleDocument();
 
-private slots:
+private Q_SLOTS:
   void onSystemSelected(int index);
   void onAddSystem(bool);
   void onRemoveSystem(bool);

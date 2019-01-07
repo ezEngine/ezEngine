@@ -17,7 +17,7 @@ public:
 
   static ezQtFileWidget* s_pWidget;
 
-private slots:
+private Q_SLOTS:
 
   virtual void on_SpinLimitToRecent_valueChanged(int val);
   virtual void on_SpinMinDuration_valueChanged(double val);

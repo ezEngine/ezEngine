@@ -124,12 +124,12 @@ void ezQtTestModel::TestDataChanged(ezInt32 iTestIndex, ezInt32 iSubTestIndex)
 {
   QModelIndex TestModelIndex = index(iTestIndex, 0);
   // Invalidate whole test row
-  emit dataChanged(TestModelIndex, index(iTestIndex, columnCount() - 1));
+  Q_EMIT dataChanged(TestModelIndex, index(iTestIndex, columnCount() - 1));
 
   // Invalidate all sub-tests
   const ezQtTestModelEntry* pEntry = (ezQtTestModelEntry*)TestModelIndex.internalPointer();
   ezInt32 iChildren = (ezInt32)pEntry->GetNumSubEntries();
-  emit dataChanged(index(0, 0, TestModelIndex), index(iChildren - 1, columnCount() - 1, TestModelIndex));
+  Q_EMIT dataChanged(index(0, 0, TestModelIndex), index(iChildren - 1, columnCount() - 1, TestModelIndex));
 }
 
 

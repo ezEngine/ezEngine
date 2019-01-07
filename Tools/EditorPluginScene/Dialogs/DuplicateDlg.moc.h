@@ -2,6 +2,7 @@
 
 #include <EditorPluginScene/Plugin.h>
 #include <Tools/EditorPluginScene/ui_DuplicateDlg.h>
+
 #include <QDialog>
 
 class ezQtDuplicateDlg : public QDialog, public Ui_DuplicateDlg
@@ -9,7 +10,7 @@ class ezQtDuplicateDlg : public QDialog, public Ui_DuplicateDlg
   Q_OBJECT
 
 public:
-  ezQtDuplicateDlg(QWidget *parent = nullptr);
+  ezQtDuplicateDlg(QWidget* parent = nullptr);
 
   static ezUInt32 s_uiNumberOfCopies;
   static bool s_bGroupCopies;
@@ -22,8 +23,8 @@ public:
   static float s_fRevolveRadius;
   static int s_iRevolveAxis;
 
-  public slots:
-  virtual void on_DefaultButtons_clicked(QAbstractButton * button);
+public Q_SLOTS:
+  virtual void on_DefaultButtons_clicked(QAbstractButton* button);
 
   virtual void on_toolButtonTransX_clicked();
   virtual void on_toolButtonTransY_clicked();
@@ -35,7 +36,5 @@ public:
   virtual void on_RevolveZ_clicked();
 
 private:
-
   ezVec3 m_vBoundingBoxSize;
 };
-

@@ -47,7 +47,7 @@ void ezQtImageCache::InvalidateCache(const char* szAbsolutePath)
   ezUInt32 id = e.Value().m_uiImageID;
   m_ImageCache.Remove(e);
 
-  emit g_ImageCacheSingleton.ImageInvalidated(sPath, id);
+  Q_EMIT g_ImageCacheSingleton.ImageInvalidated(sPath, id);
 }
 
 const QPixmap* ezQtImageCache::QueryPixmap(const char* szAbsolutePath, QModelIndex index, QVariant UserData1, QVariant UserData2,
@@ -206,7 +206,7 @@ const QPixmap* ezQtImageCache::QueryTypeImage(const char* szType) const
 
 void ezQtImageCache::EmitLoadedSignal(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2)
 {
-  emit ImageLoaded(sPath, index, UserData1, UserData2);
+  Q_EMIT ImageLoaded(sPath, index, UserData1, UserData2);
 }
 
 void ezQtImageCache::LoadingTask(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2)

@@ -15,7 +15,7 @@ public:
 public:
   ezQtTagsDlg(QWidget* parent);
 
-private slots:
+private Q_SLOTS:
   void on_ButtonNewCategory_clicked();
   void on_ButtonNewTag_clicked();
   void on_ButtonRemove_clicked();

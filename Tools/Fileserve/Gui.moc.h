@@ -15,7 +15,7 @@ class ezQtFileserveMainWnd : public QMainWindow
 public:
   ezQtFileserveMainWnd(ezApplication* pApp, QWidget* parent = nullptr);
 
-private slots:
+private Q_SLOTS:
   void UpdateNetworkSlot();
   void OnServerStarted(const QString& ip, ezUInt16 uiPort);
   void OnServerStopped();

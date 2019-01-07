@@ -232,7 +232,7 @@ void ezQtDoubleSpinBox::mouseReleaseEvent(QMouseEvent* event)
       if (m_bModified)
       {
         m_bModified = false;
-        emit editingFinished();
+        Q_EMIT editingFinished();
       }
       else
       {

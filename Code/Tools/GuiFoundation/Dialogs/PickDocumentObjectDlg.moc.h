@@ -23,7 +23,7 @@ public:
   /// Stores the result that the user picked
   const ezDocumentObject* m_pPickedObject = nullptr;
 
-private slots:
+private Q_SLOTS:
   void on_ObjectTree_itemDoubleClicked(QTreeWidgetItem* pItem, int column);
 
 private:

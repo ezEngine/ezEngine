@@ -51,7 +51,7 @@ void ezQtCollapsibleGroupBox::SetCollapseState(bool bCollapsed)
     pCur = pCur->parentWidget();
   }
 
-  emit CollapseStateChanged(bCollapsed);
+  Q_EMIT CollapseStateChanged(bCollapsed);
 }
 
 bool ezQtCollapsibleGroupBox::GetCollapseState() const

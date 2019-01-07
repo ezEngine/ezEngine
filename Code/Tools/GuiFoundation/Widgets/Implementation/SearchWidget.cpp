@@ -55,7 +55,7 @@ void ezQtSearchWidget::onLineEditTextChanged(const QString& text)
 {
   m_pClearButton->setEnabled(!text.isEmpty());
 
-  emit textChanged(text);
+  Q_EMIT textChanged(text);
 }
 
 void ezQtSearchWidget::onClearButtonClicked(bool checked)
@@ -80,13 +80,13 @@ bool ezQtSearchWidget::eventFilter(QObject* obj, QEvent* e)
 
       if (pEvent->key() == Qt::Key_Return || pEvent->key() == Qt::Key_Enter)
       {
-        emit enterPressed();
+        Q_EMIT enterPressed();
         return true;
       }
 
       if (pEvent->key() == Qt::Key_Up || pEvent->key() == Qt::Key_Down || pEvent->key() == Qt::Key_Tab || pEvent->key() == Qt::Key_Backtab)
       {
-        emit specialKeyPressed((Qt::Key)pEvent->key());
+        Q_EMIT specialKeyPressed((Qt::Key)pEvent->key());
         return true;
       }
     }

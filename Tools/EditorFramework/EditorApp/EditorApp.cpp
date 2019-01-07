@@ -59,7 +59,7 @@ void ezQtEditorApp::SlotTimedUpdate()
   ezAssetCurator::GetSingleton()->MainThreadTick();
   ezTaskSystem::FinishFrameTasks();
 
-  emit IdleEvent();
+  Q_EMIT IdleEvent();
 
   m_pTimer->start(1);
 }

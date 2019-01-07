@@ -193,7 +193,7 @@ void ezQtSearchableMenu::OnItemActivated(const QModelIndex& index)
   if (!variant.isValid())
     return;
 
-  emit MenuItemTriggered(sName, variant);
+  Q_EMIT MenuItemTriggered(sName, variant);
 }
 
 void ezQtSearchableMenu::OnEnterPressed()
@@ -224,5 +224,5 @@ void ezQtSearchableMenu::OnSearchChanged(const QString& text)
     m_pTreeView->expandAll();
   }
 
-  emit SearchTextChanged(text);
+  Q_EMIT SearchTextChanged(text);
 }

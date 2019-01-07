@@ -13,7 +13,7 @@ public:
 public:
   ezQtFmodProjectSettingsDlg(QWidget* parent);
 
-private slots:
+private Q_SLOTS:
   void on_ButtonBox_clicked(QAbstractButton* pButton);
   void on_ListPlatforms_itemSelectionChanged();
   void on_ButtonAdd_clicked();

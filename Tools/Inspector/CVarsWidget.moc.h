@@ -18,7 +18,7 @@ public:
 
   static ezQtCVarsWidget* s_pWidget;
 
-private slots:
+private Q_SLOTS:
   void BoolChanged(const char* szCVar, bool newValue);
   void FloatChanged(const char* szCVar, float newValue);
   void IntChanged(const char* szCVar, int newValue);

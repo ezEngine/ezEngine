@@ -1344,7 +1344,7 @@ void ezQtPropertyAnimAssetTreeView::keyPressEvent(QKeyEvent* e)
 {
   if (e->key() == Qt::Key::Key_Delete)
   {
-    emit DeleteSelectedItemsEvent();
+    Q_EMIT DeleteSelectedItemsEvent();
   }
   else
   {
@@ -1362,9 +1362,9 @@ void ezQtPropertyAnimAssetTreeView::contextMenuEvent(QContextMenuEvent* event)
 
   pRemoveAction->setShortcut(Qt::Key_Delete);
 
-  connect(pFrameAction, &QAction::triggered, this, [this](bool) { emit FrameSelectedItemsEvent(); });
-  connect(pRemoveAction, &QAction::triggered, this, [this](bool) { emit DeleteSelectedItemsEvent(); });
-  connect(pBindingAction, &QAction::triggered, this, [this](bool) { emit RebindSelectedItemsEvent(); });
+  connect(pFrameAction, &QAction::triggered, this, [this](bool) { Q_EMIT FrameSelectedItemsEvent(); });
+  connect(pRemoveAction, &QAction::triggered, this, [this](bool) { Q_EMIT DeleteSelectedItemsEvent(); });
+  connect(pBindingAction, &QAction::triggered, this, [this](bool) { Q_EMIT RebindSelectedItemsEvent(); });
 
   m.exec(QCursor::pos());
 }

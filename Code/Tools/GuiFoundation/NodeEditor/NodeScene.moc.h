@@ -63,7 +63,7 @@ protected:
   virtual void DisconnectPinsAction(ezQtConnection* pConnection);
   virtual void DisconnectPinsAction(ezQtPin* pPin);
 
-private slots:
+private Q_SLOTS:
   void OnMenuAction();
   void CreateNode(const ezRTTI* pRtti);
   void OnMenuItemTriggered(const QString& sName, const QVariant& variant);

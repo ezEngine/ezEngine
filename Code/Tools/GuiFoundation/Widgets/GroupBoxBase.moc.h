@@ -33,7 +33,7 @@ public:
   virtual QWidget* GetContent() = 0;
   virtual QWidget* GetHeader() = 0;
 
-signals:
+Q_SIGNALS:
   void CollapseStateChanged(bool bCollapsed);
   void DragStarted(QMimeData& mimeData);
 

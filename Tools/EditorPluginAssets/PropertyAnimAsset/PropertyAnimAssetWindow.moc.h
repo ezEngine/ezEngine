@@ -31,7 +31,7 @@ public:
   ezQtPropertyAnimAssetTreeView(QWidget* parent);
   void initialize();
 
-signals:
+Q_SIGNALS:
   void DeleteSelectedItemsEvent();
   void FrameSelectedItemsEvent();
   void RebindSelectedItemsEvent();
@@ -60,7 +60,7 @@ public:
 
   virtual const char* GetWindowLayoutGroupName() const { return "PropertyAnimAsset"; }
 
-public slots:
+public Q_SLOTS:
   void ToggleViews(QWidget* pView);
 
 public:
@@ -75,7 +75,7 @@ protected:
   virtual void InternalRedraw() override;
   void PropertyAnimAssetEventHandler(const ezPropertyAnimAssetDocumentEvent& e);
 
-private slots:
+private Q_SLOTS:
   void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
   void onScrubberPosChanged(ezUInt64 uiTick);
   void onDeleteSelectedItems();

@@ -174,7 +174,7 @@ public:
 
   void ExecuteTests();
 
-signals:
+Q_SIGNALS:
   void IdleEvent();
 
 private:
@@ -183,7 +183,7 @@ private:
   void GuiCreateOrOpenDocument(bool bCreate);
   void GuiCreateOrOpenProject(bool bCreate);
 
-private slots:
+private Q_SLOTS:
   void SlotTimedUpdate();
   void SlotQueuedCloseProject();
   void SlotQueuedOpenProject(QString sProject);

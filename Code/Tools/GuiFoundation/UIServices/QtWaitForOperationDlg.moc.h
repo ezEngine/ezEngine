@@ -25,7 +25,7 @@ public:
 
   ezDelegate<bool()> m_OnIdle;
 
-private slots:
+private Q_SLOTS:
   void on_ButtonCancel_clicked();
   void onIdle();
 

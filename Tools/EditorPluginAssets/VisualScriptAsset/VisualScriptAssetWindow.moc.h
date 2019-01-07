@@ -25,7 +25,7 @@ public:
 
   void PickDebugTarget();
 
-private slots:
+private Q_SLOTS:
 
 private:
   void SelectionEventHandler(const ezSelectionManagerEvent& e);

@@ -30,7 +30,7 @@ void ezQtTestFramework::OutputImpl(ezTestOutput::Enum Type, const char* szMsg)
 void ezQtTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, double fDuration)
 {
   ezTestFramework::TestResultImpl(iSubTestIndex, bSuccess, fDuration);
-  emit TestResultReceived(m_iCurrentTestIndex, iSubTestIndex);
+  Q_EMIT TestResultReceived(m_iCurrentTestIndex, iSubTestIndex);
 }
 
 #endif

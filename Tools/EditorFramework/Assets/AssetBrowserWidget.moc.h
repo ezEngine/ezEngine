@@ -28,12 +28,12 @@ public:
   ezQtAssetBrowserFilter* GetAssetBrowserFilter() { return m_pFilter; }
   const ezQtAssetBrowserFilter* GetAssetBrowserFilter() const { return m_pFilter; }
 
-signals:
+Q_SIGNALS:
   void ItemChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute);
   void ItemSelected(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute);
   void ItemCleared();
 
-private slots:
+private Q_SLOTS:
   void OnTextFilterChanged();
   void OnTypeFilterChanged();
   void OnPathFilterChanged();

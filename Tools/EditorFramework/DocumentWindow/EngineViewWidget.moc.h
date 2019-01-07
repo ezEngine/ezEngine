@@ -120,7 +120,7 @@ protected:
   virtual void OnOpenContextMenu(QPoint globalPos) {}
   virtual void HandleMarqueePickingResult(const ezViewMarqueePickingResultMsgToEditor* pMsg) {}
 
-private slots:
+private Q_SLOTS:
   void SlotRestartEngineProcess();
 
 protected:

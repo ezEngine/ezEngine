@@ -19,7 +19,7 @@ public:
   static int s_iExtractionMode;
   static ezMat3 GetCoordinateSystemTransform();
 
-private slots:
+private Q_SLOTS:
   void on_ButtonBox_clicked(QAbstractButton* button);
   void on_BrowseButton_clicked();
 

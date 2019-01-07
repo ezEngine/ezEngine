@@ -14,7 +14,7 @@ public:
 public:
   ezQtWindowCfgDlg(QWidget* parent);
 
-private slots:
+private Q_SLOTS:
   void on_m_ButtonBox_clicked(QAbstractButton * button);
   void on_m_ComboWnd_currentIndexChanged(int index);
   void on_m_CheckOverrideDefault_stateChanged(int state);

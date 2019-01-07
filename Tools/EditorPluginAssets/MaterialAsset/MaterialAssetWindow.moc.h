@@ -30,7 +30,7 @@ public:
 protected:
   virtual void InternalRedraw() override;
 
-private slots:
+private Q_SLOTS:
   void OnOpenShaderClicked(bool);
 
 private:

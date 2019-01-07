@@ -20,7 +20,7 @@ public:
   void SetIconScale(ezInt32 iIconSizePercentage);
   ezInt32 GetIconScale() const;
 
-signals:
+Q_SIGNALS:
   void ViewZoomed(ezInt32 iIconSizePercentage);
 
 protected:

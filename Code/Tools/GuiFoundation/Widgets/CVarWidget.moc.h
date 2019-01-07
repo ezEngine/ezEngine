@@ -41,13 +41,13 @@ public:
   /// \brief Updates the existing UI. This is sufficient if values changed only.
   void UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars);
 
-signals:
+Q_SIGNALS:
   void onBoolChanged(const char* szCVar, bool newValue);
   void onFloatChanged(const char* szCVar, float newValue);
   void onIntChanged(const char* szCVar, int newValue);
   void onStringChanged(const char* szCVar, const char* newValue);
 
-private slots:
+private Q_SLOTS:
   void BoolChanged(int index);
   void FloatChanged();
   void IntChanged();

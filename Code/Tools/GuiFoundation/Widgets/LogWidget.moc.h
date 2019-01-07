@@ -25,7 +25,7 @@ public:
 
   virtual bool eventFilter(QObject* pObject, QEvent* pEvent) override;
 
-private slots:
+private Q_SLOTS:
   void on_ButtonClearLog_clicked();
   void on_Search_textChanged(const QString& text);
   void on_ComboFilter_currentIndexChanged(int index);

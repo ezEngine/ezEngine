@@ -22,7 +22,7 @@ public:
   virtual bool setData(const ezDocumentObject* pObject, int row, int column, const QVariant& value, int role) const;
   virtual Qt::ItemFlags flags(const ezDocumentObject* pObject, int row, int column) const;
 
-signals:
+Q_SIGNALS:
   void dataChanged(const ezDocumentObject* pObject, QVector<int> roles);
 
 protected:

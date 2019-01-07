@@ -19,7 +19,7 @@ public:
   virtual const char* GetGroupName() const { return "SoundEventAsset"; }
   virtual const char* GetWindowLayoutGroupName() const { return "SoundEventAsset"; }
 
-  private slots:
+  private Q_SLOTS:
 
 
 private:

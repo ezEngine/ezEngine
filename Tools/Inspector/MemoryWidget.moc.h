@@ -23,7 +23,7 @@ public:
 
   static ezQtMemoryWidget* s_pWidget;
 
-private slots:
+private Q_SLOTS:
 
   void on_ListAllocators_itemChanged(QTreeWidgetItem* item);
   void on_ComboTimeframe_currentIndexChanged(int index);

@@ -18,7 +18,7 @@ public:
 
   static ezQtResourceWidget* s_pWidget;
 
-private slots:
+private Q_SLOTS:
 
   virtual void on_LineFilterByName_textChanged();
   virtual void on_ComboResourceTypes_currentIndexChanged(int state);

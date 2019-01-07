@@ -20,7 +20,7 @@ public:
   virtual const char* GetGroupName() const { return "SoundBankAsset"; }
   virtual const char* GetWindowLayoutGroupName() const override { return "SoundBankAsset"; }
 
-  private slots:
+  private Q_SLOTS:
 
 
 private:

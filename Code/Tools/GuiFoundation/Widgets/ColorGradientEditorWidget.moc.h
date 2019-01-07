@@ -25,7 +25,7 @@ public:
 
   void FrameGradient();
 
-signals:
+Q_SIGNALS:
   void ColorCpAdded(double posX, const ezColorGammaUB& color);
   void ColorCpMoved(ezInt32 index, float newPosX);
   void ColorCpDeleted(ezInt32 index);
@@ -46,7 +46,7 @@ signals:
   void BeginOperation();
   void EndOperation(bool commit);
 
-private slots:
+private Q_SLOTS:
   void on_ButtonFrame_clicked();
   void on_GradientWidget_selectionChanged(ezInt32 colorCP, ezInt32 alphaCP, ezInt32 intensityCP);
   void on_SpinPosition_valueChanged(double value);

@@ -16,7 +16,7 @@ public:
 
   ezString m_sFileserveCmdLine;
 
-private slots:
+private Q_SLOTS:
   void on_ButtonLaunch_clicked();
 
 private:

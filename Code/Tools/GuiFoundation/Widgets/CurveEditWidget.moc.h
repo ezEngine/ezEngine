@@ -42,7 +42,7 @@ public:
 
   bool GetSelectedTangent(ezInt32& out_iCurve, ezInt32& out_iPoint, bool& out_bLeftTangent) const;
 
-signals:
+Q_SIGNALS:
   void DoubleClickEvent(const QPointF& scenePos, const QPointF& epsilon);
   void DeleteControlPointsEvent();
   void MoveControlPointsEvent(double moveX, double moveY);

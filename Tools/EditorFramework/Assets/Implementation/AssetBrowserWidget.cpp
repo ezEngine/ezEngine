@@ -237,14 +237,14 @@ void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedA
 
 void ezQtAssetBrowserWidget::on_ListAssets_clicked(const QModelIndex& index)
 {
-  emit ItemSelected(m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>(),
+  Q_EMIT ItemSelected(m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>(),
                     m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(),
                     m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
 }
 
 void ezQtAssetBrowserWidget::on_ListAssets_activated(const QModelIndex& index)
 {
-  emit ItemSelected(m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>(),
+  Q_EMIT ItemSelected(m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>(),
                     m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(),
                     m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
 }
@@ -258,7 +258,7 @@ void ezQtAssetBrowserWidget::on_ListAssets_doubleClicked(const QModelIndex& inde
     ezAssetCurator::GetSingleton()->UpdateAssetLastAccessTime(guid);
   }
 
-  emit ItemChosen(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(),
+  Q_EMIT ItemChosen(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(),
                   m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
 }
 
@@ -633,7 +633,7 @@ void ezQtAssetBrowserWidget::OnListOpenAssetDocument()
       ezAssetCurator::GetSingleton()->UpdateAssetLastAccessTime(guid);
     }
 
-    emit ItemChosen(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(),
+    Q_EMIT ItemChosen(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(),
                     m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
   }
 }
@@ -705,14 +705,14 @@ void ezQtAssetBrowserWidget::OnAssetSelectionChanged(const QItemSelection& selec
 {
   if (!ListAssets->selectionModel()->hasSelection())
   {
-    emit ItemCleared();
+    Q_EMIT ItemCleared();
   }
   else if (ListAssets->selectionModel()->selectedIndexes().size() == 1)
   {
     QModelIndex index = ListAssets->selectionModel()->selectedIndexes()[0];
 
     ezUuid guid = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>();
-    emit ItemSelected(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(),
+    Q_EMIT ItemSelected(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(),
                       m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
   }
 }
@@ -721,14 +721,14 @@ void ezQtAssetBrowserWidget::OnAssetSelectionCurrentChanged(const QModelIndex& c
 {
   if (!ListAssets->selectionModel()->hasSelection())
   {
-    emit ItemCleared();
+    Q_EMIT ItemCleared();
   }
   else if (ListAssets->selectionModel()->selectedIndexes().size() == 1)
   {
     QModelIndex index = ListAssets->selectionModel()->selectedIndexes()[0];
 
     ezUuid guid = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>();
-    emit ItemSelected(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(),
+    Q_EMIT ItemSelected(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(),
                       m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
   }
 }
@@ -736,7 +736,7 @@ void ezQtAssetBrowserWidget::OnAssetSelectionCurrentChanged(const QModelIndex& c
 
 void ezQtAssetBrowserWidget::OnModelReset()
 {
-  emit ItemCleared();
+  Q_EMIT ItemCleared();
 }
 
 

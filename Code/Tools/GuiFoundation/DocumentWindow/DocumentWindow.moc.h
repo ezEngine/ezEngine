@@ -85,7 +85,7 @@ public:
 protected:
   void FinishWindowCreation();
 
-private slots:
+private Q_SLOTS:
   void SlotRestoreLayout();
   void SlotRedraw();
   void SlotQueuedDelete();

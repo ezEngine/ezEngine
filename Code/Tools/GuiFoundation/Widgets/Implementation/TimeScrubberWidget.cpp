@@ -191,7 +191,7 @@ void ezQtTimeScrubberWidget::SetScrubberPosFromPixelCoord(ezInt32 posX)
 
   if (uiTickPos != m_uiScrubberTickPos)
   {
-    emit ScrubberPosChangedEvent(uiTickPos);
+    Q_EMIT ScrubberPosChangedEvent(uiTickPos);
   }
 }
 
@@ -229,18 +229,18 @@ ezQtTimeScrubberToolbar::ezQtTimeScrubberToolbar(QWidget* parent)
 
   // Pass event through
   connect(m_pScrubber, &ezQtTimeScrubberWidget::ScrubberPosChangedEvent, this,
-          [this](ezUInt64 uiNewScrubberTickPos) { emit ScrubberPosChangedEvent(uiNewScrubberTickPos); });
+          [this](ezUInt64 uiNewScrubberTickPos) { Q_EMIT ScrubberPosChangedEvent(uiNewScrubberTickPos); });
 
-  connect(m_pPlayButton, &QPushButton::clicked, this, [this](bool) { emit PlayPauseEvent(); });
-  connect(m_pRepeatButton, &QPushButton::clicked, this, [this](bool) { emit RepeatEvent(); });
+  connect(m_pPlayButton, &QPushButton::clicked, this, [this](bool) { Q_EMIT PlayPauseEvent(); });
+  connect(m_pRepeatButton, &QPushButton::clicked, this, [this](bool) { Q_EMIT RepeatEvent(); });
   connect(m_pDuration, &QLineEdit::textChanged, this, [this](const QString& text) {
     bool ok = false;
     double val = text.toDouble(&ok);
 
     if (ok)
-      emit DurationChangedEvent(val);
+      Q_EMIT DurationChangedEvent(val);
   });
-  connect(m_pAdjustDurationButton, &QPushButton::clicked, this, [this](bool) { emit AdjustDurationEvent(); });
+  connect(m_pAdjustDurationButton, &QPushButton::clicked, this, [this](bool) { Q_EMIT AdjustDurationEvent(); });
 }
 
 void ezQtTimeScrubberToolbar::SetDuration(ezUInt64 uiNumTicks, ezUInt32 uiFramesPerSecond)

@@ -84,17 +84,17 @@ void ezQtEventTrackEditorWidget::onDeleteControlPoints()
 
   EventTrackEdit->ClearSelection();
 
-  emit BeginCpChangesEvent("Delete Events");
+  Q_EMIT BeginCpChangesEvent("Delete Events");
 
   selection.Sort([](ezUInt32 lhs, ezUInt32 rhs) -> bool { return lhs > rhs; });
 
   // delete sorted from back to front to prevent point indices becoming invalidated
   for (ezUInt32 pt : selection)
   {
-    emit CpDeletedEvent(pt);
+    Q_EMIT CpDeletedEvent(pt);
   }
 
-  emit EndCpChangesEvent();
+  Q_EMIT EndCpChangesEvent();
 }
 
 void ezQtEventTrackEditorWidget::onDoubleClick(double scenePosX, double epsilon)
@@ -112,7 +112,7 @@ void ezQtEventTrackEditorWidget::onMoveControlPoints(double x)
   if (selection.IsEmpty())
     return;
 
-  emit BeginCpChangesEvent("Move Events");
+  Q_EMIT BeginCpChangesEvent("Move Events");
 
   for (const auto& cpSel : selection)
   {
@@ -121,10 +121,10 @@ void ezQtEventTrackEditorWidget::onMoveControlPoints(double x)
     double newPos = cp.GetTickAsTime().GetSeconds() + m_ControlPointMove;
     newPos = ezMath::Max(newPos, 0.0);
 
-    emit CpMovedEvent(cpSel, m_pData->TickFromTime(ezTime::Seconds(newPos)));
+    Q_EMIT CpMovedEvent(cpSel, m_pData->TickFromTime(ezTime::Seconds(newPos)));
   }
 
-  emit EndCpChangesEvent();
+  Q_EMIT EndCpChangesEvent();
 }
 
 // void ezQtEventTrackEditorWidget::onScaleControlPoints(QPointF refPt, double scaleX, double scaleY)
@@ -137,7 +137,7 @@ void ezQtEventTrackEditorWidget::onMoveControlPoints(double x)
 //  const ezVec2d ref(refPt.x(), refPt.y());
 //  const ezVec2d scale(scaleX, scaleY);
 //
-//  emit BeginCpChangesEvent("Scale Points");
+//  Q_EMIT BeginCpChangesEvent("Scale Points");
 //
 //  for (const auto& cpSel : selection)
 //  {
@@ -146,10 +146,10 @@ void ezQtEventTrackEditorWidget::onMoveControlPoints(double x)
 //    newPos.x = ezMath::Max(newPos.x, 0.0);
 //    newPos.y = ezMath::Clamp(newPos.y, -100000.0, +100000.0);
 //
-//    emit CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, m_Curves.TickFromTime(newPos.x), newPos.y);
+//    Q_EMIT CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, m_Curves.TickFromTime(newPos.x), newPos.y);
 //  }
 //
-//  emit EndCpChangesEvent();
+//  Q_EMIT EndCpChangesEvent();
 //}
 
 void ezQtEventTrackEditorWidget::onBeginOperation(QString name)
@@ -157,12 +157,12 @@ void ezQtEventTrackEditorWidget::onBeginOperation(QString name)
   m_ControlPointMove = 0;
   m_DataCopy = *m_pData;
 
-  emit BeginOperationEvent(name);
+  Q_EMIT BeginOperationEvent(name);
 }
 
 void ezQtEventTrackEditorWidget::onEndOperation(bool commit)
 {
-  emit EndOperationEvent(commit);
+  Q_EMIT EndOperationEvent(commit);
 }
 
 void ezQtEventTrackEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
@@ -197,7 +197,7 @@ void ezQtEventTrackEditorWidget::InsertCpAt(double posX, double epsilon)
   int curveIdx = 0, cpIdx = 0;
   posX = ezMath::Max(posX, 0.0);
 
-  emit InsertCpEvent(m_pData->TickFromTime(ezTime::Seconds(posX)), ComboType->currentText().toUtf8().data());
+  Q_EMIT InsertCpEvent(m_pData->TickFromTime(ezTime::Seconds(posX)), ComboType->currentText().toUtf8().data());
 }
 
 void ezQtEventTrackEditorWidget::onSelectionChanged()
@@ -289,15 +289,15 @@ void ezQtEventTrackEditorWidget::on_LinePosition_editingFinished()
   if (selection.IsEmpty())
     return;
 
-  emit BeginCpChangesEvent("Set Event Time");
+  Q_EMIT BeginCpChangesEvent("Set Event Time");
 
   ezInt64 tick = m_pData->TickFromTime(ezTime::Seconds(value));
 
   for (const auto& cpSel : selection)
   {
     if (m_pData->m_ControlPoints[cpSel].m_iTick != tick)
-      emit CpMovedEvent(cpSel, tick);
+      Q_EMIT CpMovedEvent(cpSel, tick);
   }
 
-  emit EndCpChangesEvent();
+  Q_EMIT EndCpChangesEvent();
 }

@@ -35,7 +35,7 @@ protected:
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
   virtual void mouseMoveEvent(QMouseEvent* event) override;
 
-private slots:
+private Q_SLOTS:
   void onCustomContextMenuRequested();
 
 private:

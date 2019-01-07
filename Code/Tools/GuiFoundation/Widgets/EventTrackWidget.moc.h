@@ -40,7 +40,7 @@ public:
   void ClearSelection();
   void GetSelection(ezHybridArray<ezUInt32, 32>& out_Selection) const;
 
-signals:
+Q_SIGNALS:
   void DoubleClickEvent(double scenePosX, double epsilon);
   void DeleteControlPointsEvent();
   void MoveControlPointsEvent(double moveX);

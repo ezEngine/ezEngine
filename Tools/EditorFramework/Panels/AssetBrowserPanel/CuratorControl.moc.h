@@ -20,7 +20,7 @@ public:
 protected:
   virtual void paintEvent(QPaintEvent* e) override;
 
-private slots:
+private Q_SLOTS:
   void SlotUpdateTransformStats();
   void UpdateBackgroundProcessState();
   void BackgroundProcessClicked(bool checked);

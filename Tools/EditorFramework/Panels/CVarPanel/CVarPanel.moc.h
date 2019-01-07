@@ -23,7 +23,7 @@ public:
 protected:
   virtual void ToolsProjectEventHandler(const ezToolsProjectEvent& e) override;
 
-private slots:
+private Q_SLOTS:
   void UpdateUI();
   void BoolChanged(const char* szCVar, bool newValue);
   void FloatChanged(const char* szCVar, float newValue);

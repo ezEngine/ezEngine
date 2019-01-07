@@ -11,7 +11,7 @@ class EZ_EDITORFRAMEWORK_DLL ezQtFilePropertyWidget : public ezQtStandardPropert
 public:
   ezQtFilePropertyWidget();
 
-private slots:
+private Q_SLOTS:
   void on_BrowseFile_clicked();
 
 protected slots:

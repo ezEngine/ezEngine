@@ -17,7 +17,7 @@ public:
 
   static ezQtInputWidget* s_pWidget;
 
-private slots:
+private Q_SLOTS:
   virtual void on_ButtonClearSlots_clicked();
   virtual void on_ButtonClearActions_clicked();
 

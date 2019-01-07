@@ -532,7 +532,7 @@ void ezQtSliderWidgetAction::setValue(int value)
 
 void ezQtSliderWidgetAction::OnValueChanged(int value)
 {
-  emit valueChanged(value);
+  Q_EMIT valueChanged(value);
 }
 
 QWidget* ezQtSliderWidgetAction::createWidget(QWidget* parent)

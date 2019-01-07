@@ -23,7 +23,7 @@ public:
 
   const ezUuid& GetLastSelectedAsset() const { return m_LastSelected; }
 
-private slots:
+private Q_SLOTS:
   void SlotAssetChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute);
   void SlotAssetSelected(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute);
   void SlotAssetCleared();

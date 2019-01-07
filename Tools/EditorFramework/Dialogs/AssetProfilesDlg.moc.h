@@ -24,7 +24,7 @@ public:
 
   ezUInt32 m_uiActiveConfig = 0;
 
-private slots:
+private Q_SLOTS:
   void on_ButtonOk_clicked();
   void on_ButtonCancel_clicked();
   void OnItemDoubleClicked(QModelIndex idx);

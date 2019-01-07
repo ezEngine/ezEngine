@@ -121,7 +121,7 @@ void ezQtColorGradientWidget::SelectCP(ezInt32 colorCP, ezInt32 alphaCP, ezInt32
   if (m_bTempMode)
   {
     m_bTempMode = false;
-    emit endOperation(true);
+    Q_EMIT endOperation(true);
   }
 
   bool changed = false;
@@ -146,7 +146,7 @@ void ezQtColorGradientWidget::SelectCP(ezInt32 colorCP, ezInt32 alphaCP, ezInt32
 
   if (changed)
   {
-    emit selectionChanged(m_iSelectedColorCP, m_iSelectedAlphaCP, m_iSelectedIntensityCP);
+    Q_EMIT selectionChanged(m_iSelectedColorCP, m_iSelectedAlphaCP, m_iSelectedIntensityCP);
   }
 }
 
@@ -525,7 +525,7 @@ void ezQtColorGradientWidget::mousePressEvent(QMouseEvent* event)
 
     if (event->button() == Qt::MouseButton::LeftButton)
     {
-      emit GradientClicked();
+      Q_EMIT GradientClicked();
     }
   }
   else
@@ -564,7 +564,7 @@ void ezQtColorGradientWidget::mouseReleaseEvent(QMouseEvent* event)
     if (m_bTempMode)
     {
       m_bTempMode = false;
-      emit endOperation(true);
+      Q_EMIT endOperation(true);
     }
   }
 
@@ -595,15 +595,15 @@ void ezQtColorGradientWidget::mouseDoubleClickEvent(QMouseEvent* event)
 
           if (area == Area::ColorCPs)
           {
-            emit addColorCp(posX, rgba);
+            Q_EMIT addColorCp(posX, rgba);
           }
           else if (area == Area::AlphaCPs)
           {
-            emit addAlphaCp(posX, rgba.a);
+            Q_EMIT addAlphaCp(posX, rgba.a);
           }
           else if (area == Area::IntensityCPs)
           {
-            emit addIntensityCp(posX, intensity);
+            Q_EMIT addIntensityCp(posX, intensity);
           }
 
           setCursor(Qt::SizeHorCursor);
@@ -614,10 +614,10 @@ void ezQtColorGradientWidget::mouseDoubleClickEvent(QMouseEvent* event)
           {
             m_bDraggingCP = false;
             m_bTempMode = false;
-            emit endOperation(true);
+            Q_EMIT endOperation(true);
           }
 
-          emit triggerPickColor();
+          Q_EMIT triggerPickColor();
         }
       }
     }
@@ -638,7 +638,7 @@ void ezQtColorGradientWidget::mouseMoveEvent(QMouseEvent* event)
       if (m_bTempMode)
       {
         m_bTempMode = false;
-        emit endOperation(true);
+        Q_EMIT endOperation(true);
       }
     }
 
@@ -647,22 +647,22 @@ void ezQtColorGradientWidget::mouseMoveEvent(QMouseEvent* event)
       if (!m_bTempMode)
       {
         m_bTempMode = true;
-        emit beginOperation();
+        Q_EMIT beginOperation();
       }
 
       const double newPosX = WindowToGradientCoord(event->pos().x());
 
       if (m_iSelectedColorCP != -1)
       {
-        emit moveColorCpToPos(m_iSelectedColorCP, newPosX);
+        Q_EMIT moveColorCpToPos(m_iSelectedColorCP, newPosX);
       }
       else if (m_iSelectedAlphaCP != -1)
       {
-        emit moveAlphaCpToPos(m_iSelectedAlphaCP, newPosX);
+        Q_EMIT moveAlphaCpToPos(m_iSelectedAlphaCP, newPosX);
       }
       else if (m_iSelectedIntensityCP != -1)
       {
-        emit moveIntensityCpToPos(m_iSelectedIntensityCP, newPosX);
+        Q_EMIT moveIntensityCpToPos(m_iSelectedIntensityCP, newPosX);
       }
     }
     else
@@ -764,17 +764,17 @@ void ezQtColorGradientWidget::keyPressEvent(QKeyEvent* event)
   {
     if (m_iSelectedColorCP != -1)
     {
-      emit deleteColorCp(m_iSelectedColorCP);
+      Q_EMIT deleteColorCp(m_iSelectedColorCP);
       ClearSelectedCP();
     }
     else if (m_iSelectedAlphaCP != -1)
     {
-      emit deleteAlphaCp(m_iSelectedAlphaCP);
+      Q_EMIT deleteAlphaCp(m_iSelectedAlphaCP);
       ClearSelectedCP();
     }
     else if (m_iSelectedIntensityCP != -1)
     {
-      emit deleteIntensityCp(m_iSelectedIntensityCP);
+      Q_EMIT deleteIntensityCp(m_iSelectedIntensityCP);
       ClearSelectedCP();
     }
   }

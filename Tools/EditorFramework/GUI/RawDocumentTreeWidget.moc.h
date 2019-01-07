@@ -30,7 +30,7 @@ public:
 protected:
   virtual void keyPressEvent(QKeyEvent* e) override;
 
-private slots:
+private Q_SLOTS:
   void on_selectionChanged_triggered(const QItemSelection& selected, const QItemSelection& deselected);
 
 private:

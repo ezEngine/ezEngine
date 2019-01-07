@@ -25,7 +25,7 @@ private:
   ezQtTestGUI(ezQtTestGUI&);
   void operator=(ezQtTestGUI&);
 
-private slots:
+private Q_SLOTS:
   void on_actionAssertOnTestFail_triggered(bool bChecked);
   void on_actionOpenHTMLOutput_triggered(bool bChecked);
   void on_actionKeepConsoleOpen_triggered(bool bChecked);

@@ -31,7 +31,7 @@ public: //QAbstractItemModel interface
   virtual int rowCount(const QModelIndex& parent = QModelIndex()) const override;
   virtual int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
-private slots:
+private Q_SLOTS:
   /// \brief Adds queued messages from a different thread to the model.
   void ProcessNewMessages();
 

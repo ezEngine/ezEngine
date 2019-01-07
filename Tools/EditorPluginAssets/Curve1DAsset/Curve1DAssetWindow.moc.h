@@ -16,7 +16,7 @@ public:
 
   virtual const char* GetWindowLayoutGroupName() const { return "Curve1DAsset"; }
 
-private slots:
+private Q_SLOTS:
   void onInsertCpAt(ezUInt32 uiCurveIdx, ezInt64 tickX, double newPosY);
   void onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY);
   void onCurveCpDeleted(ezUInt32 curveIdx, ezUInt32 cpIdx);

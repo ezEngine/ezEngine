@@ -16,7 +16,7 @@ public:
   const char* GetSelectedAssetPathAbsolute() const { return m_sSelectedAssetPathAbsolute; }
   const ezUuid GetSelectedAssetGuid() const { return m_SelectedAssetGuid; }
 
-private slots:
+private Q_SLOTS:
   void on_ButtonFileDialog_clicked();
   void on_AssetBrowserWidget_ItemChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute);
   void on_AssetBrowserWidget_ItemSelected(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute);

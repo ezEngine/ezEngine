@@ -13,7 +13,7 @@ public:
 public:
   ezQtDataDirsDlg(QWidget* parent);
 
-private slots:
+private Q_SLOTS:
   void on_ButtonOK_clicked();
   void on_ButtonCancel_clicked();
   void on_ButtonUp_clicked();

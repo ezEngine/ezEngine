@@ -22,7 +22,7 @@ public:
   void ObjectToNative(ezUuid objectGuid, const ezDocument* pPrefDocument);
 
 
-private slots:
+private Q_SLOTS:
   void on_ButtonOk_clicked();
   void on_ButtonCancel_clicked() { reject(); }
 

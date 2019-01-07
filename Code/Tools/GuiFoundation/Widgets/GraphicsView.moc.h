@@ -27,7 +27,7 @@ public:
 
   void SetZoomLimits(float minZoom, float maxZoom);
 
-signals:
+Q_SIGNALS:
   void BeginDrag();
   void EndDrag();
   void DeleteCPs();

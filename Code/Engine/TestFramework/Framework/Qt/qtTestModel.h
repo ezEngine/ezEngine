@@ -95,7 +95,7 @@ public: // QAbstractItemModel interface
   virtual int columnCount(const QModelIndex& parent = QModelIndex()) const override;
   virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
 
-public slots:
+public Q_SLOTS:
   void UpdateModel();
 
 private:

@@ -34,14 +34,14 @@ public:
   /// \brief Sets up the internal data model and ensures the menu's search bar gets input focus. Do this after adding the item to the parent menu.
   void Finalize(const QString& sSearchText);
 
-signals:
+Q_SIGNALS:
   /// \brief Signaled when an item is double clicked or otherwise selected for activation.
   void MenuItemTriggered(const QString& sName, const QVariant& variant);
 
   /// \brief Triggered whenever the search text is modified.
   void SearchTextChanged(const QString& text);
 
-private slots:
+private Q_SLOTS:
   void OnItemActivated(const QModelIndex& index);
   void OnEnterPressed();
   void OnSpecialKeyPressed(Qt::Key key);

@@ -17,7 +17,7 @@ public:
 
   virtual const char* GetWindowLayoutGroupName() const { return "RenderPipelineAsset"; }
 
-private slots:
+private Q_SLOTS:
   
 private:
   ezQtRenderPipelineAssetScene* m_pScene;

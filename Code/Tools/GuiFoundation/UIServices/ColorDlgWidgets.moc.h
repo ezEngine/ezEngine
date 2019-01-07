@@ -19,7 +19,7 @@ public:
   float GetValue() const { return m_fValue; }
   void SetValue(float val);
 
-signals:
+Q_SIGNALS:
   void valueChanged(double x, double y);
 
 protected:
@@ -44,7 +44,7 @@ public:
   float GetHue() const { return m_fHue; }
   void SetHue(float hue);
 
-signals:
+Q_SIGNALS:
   void valueChanged(double x);
 
 protected:

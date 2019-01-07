@@ -18,7 +18,7 @@ public:
 
   static ezQtDataWidget* s_pWidget;
 
-private slots:
+private Q_SLOTS:
   virtual void on_ButtonRefresh_clicked();
   virtual void on_ComboTransfers_currentIndexChanged(int index);
   virtual void on_ComboItems_currentIndexChanged(int index);

@@ -13,7 +13,7 @@ public:
   ezQtAssetImportDlg(QWidget* parent, ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports);
   ~ezQtAssetImportDlg();
 
-private slots:
+private Q_SLOTS:
   void SelectedOptionChanged(int index);
   void on_ButtonImport_clicked();
   void TableCellChanged(int row, int column);

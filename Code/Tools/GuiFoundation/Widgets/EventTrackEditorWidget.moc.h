@@ -19,7 +19,7 @@ public:
 
   void FrameCurve();
 
-signals:
+Q_SIGNALS:
   void CpMovedEvent(ezUInt32 cpIdx, ezInt64 iTickX);
   void CpDeletedEvent(ezUInt32 cpIdx);
   void InsertCpEvent(ezInt64 tickX, const char* value);
@@ -30,7 +30,7 @@ signals:
   void BeginOperationEvent(QString name);
   void EndOperationEvent(bool commit);
 
-private slots:
+private Q_SLOTS:
   void on_LinePosition_editingFinished();
   void on_AddEventButton_clicked();
   void onDeleteControlPoints();

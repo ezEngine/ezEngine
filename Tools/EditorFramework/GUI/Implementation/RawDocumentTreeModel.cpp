@@ -120,7 +120,7 @@ void ezQtNamedAdapter::TreePropertyEventHandler(const ezDocumentObjectPropertyEv
     QVector<int> v;
     v.push_back(Qt::DisplayRole);
     v.push_back(Qt::EditRole);
-    emit dataChanged(e.m_pObject, v);
+    Q_EMIT dataChanged(e.m_pObject, v);
   }
 }
 

@@ -23,11 +23,11 @@ public:
 
   static QPoint GetLastDialogPosition() { return s_LastDialogPosition; }
 
-signals:
+Q_SIGNALS:
   void CurrentColorChanged(const ezColor& color);
   void ColorSelected(const ezColor& color);
 
-private slots:
+private Q_SLOTS:
   void ChangedRGB();
   void ChangedAlpha();
   void ChangedExposure();

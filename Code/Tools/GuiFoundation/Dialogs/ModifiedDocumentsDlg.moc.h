@@ -14,7 +14,7 @@ public:
   ezQtModifiedDocumentsDlg(QWidget* parent, const ezHybridArray<ezDocument*, 32>& ModifiedDocs);
 
 
-private slots:
+private Q_SLOTS:
   void on_ButtonSaveSelected_clicked();
   void on_ButtonDontSave_clicked();
   void SlotSaveDocument();

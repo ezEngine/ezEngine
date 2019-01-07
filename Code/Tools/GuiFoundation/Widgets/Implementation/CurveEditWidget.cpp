@@ -188,7 +188,7 @@ void ezQtCurveEditWidget::ClearSelection()
     update();
   }
 
-  emit SelectionChangedEvent();
+  Q_EMIT SelectionChangedEvent();
 }
 
 bool ezQtCurveEditWidget::IsSelected(const ezSelectedCurveCP& cp) const
@@ -209,7 +209,7 @@ void ezQtCurveEditWidget::SetSelection(const ezSelectedCurveCP& cp)
 
   ComputeSelectionRect();
 
-  emit SelectionChangedEvent();
+  Q_EMIT SelectionChangedEvent();
 }
 
 void ezQtCurveEditWidget::ToggleSelected(const ezSelectedCurveCP& cp)
@@ -218,7 +218,7 @@ void ezQtCurveEditWidget::ToggleSelected(const ezSelectedCurveCP& cp)
 
   ComputeSelectionRect();
 
-  emit SelectionChangedEvent();
+  Q_EMIT SelectionChangedEvent();
 }
 
 void ezQtCurveEditWidget::SetSelected(const ezSelectedCurveCP& cp, bool set)
@@ -243,7 +243,7 @@ void ezQtCurveEditWidget::SetSelected(const ezSelectedCurveCP& cp, bool set)
   }
 
   ComputeSelectionRect();
-  emit SelectionChangedEvent();
+  Q_EMIT SelectionChangedEvent();
 }
 
 bool ezQtCurveEditWidget::GetSelectedTangent(ezInt32& out_iCurve, ezInt32& out_iPoint, bool& out_bLeftTangent) const
@@ -407,22 +407,22 @@ void ezQtCurveEditWidget::mousePressEvent(QMouseEvent* e)
 
       if (m_State == EditState::DraggingCurve)
       {
-        emit BeginOperationEvent("Drag Curve");
+        Q_EMIT BeginOperationEvent("Drag Curve");
         m_bBegunChanges = true;
       }
       else if (m_State == EditState::DraggingPoints)
       {
-        emit BeginOperationEvent("Drag Points");
+        Q_EMIT BeginOperationEvent("Drag Points");
         m_bBegunChanges = true;
       }
       else if (m_State == EditState::ScaleLeftRight)
       {
-        emit BeginOperationEvent("Scale Points Left / Right");
+        Q_EMIT BeginOperationEvent("Scale Points Left / Right");
         m_bBegunChanges = true;
       }
       else if (m_State == EditState::ScaleUpDown)
       {
-        emit BeginOperationEvent("Scale Points Up / Down");
+        Q_EMIT BeginOperationEvent("Scale Points Up / Down");
         m_bBegunChanges = true;
       }
 
@@ -431,7 +431,7 @@ void ezQtCurveEditWidget::mousePressEvent(QMouseEvent* e)
     else if (clickedOn == ClickTarget::TangentHandle)
     {
       m_State = EditState::DraggingTangents;
-      emit BeginOperationEvent("Drag Tangents");
+      Q_EMIT BeginOperationEvent("Drag Tangents");
       EZ_ASSERT_DEBUG(!m_bBegunChanges, "Invalid State");
       m_bBegunChanges = true;
     }
@@ -477,7 +477,7 @@ void ezQtCurveEditWidget::mouseReleaseEvent(QMouseEvent* e)
     if (m_bBegunChanges)
     {
       m_bBegunChanges = false;
-      emit EndOperationEvent(true);
+      Q_EMIT EndOperationEvent(true);
     }
 
     update();
@@ -510,7 +510,7 @@ void ezQtCurveEditWidget::mouseReleaseEvent(QMouseEvent* e)
       ComputeSelectionRect();
       update();
 
-      emit SelectionChangedEvent();
+      Q_EMIT SelectionChangedEvent();
     }
   }
 
@@ -525,7 +525,7 @@ void ezQtCurveEditWidget::mouseReleaseEvent(QMouseEvent* e)
     if (m_bBegunChanges)
     {
       m_bBegunChanges = false;
-      emit EndOperationEvent(true);
+      Q_EMIT EndOperationEvent(true);
     }
 
     update();
@@ -641,7 +641,7 @@ void ezQtCurveEditWidget::mouseMoveEvent(QMouseEvent* e)
   if (m_State == EditState::DraggingCurve)
   {
     cursor = Qt::SizeVerCursor;
-    emit MoveCurveEvent(m_iDraggedCurve, moveY);
+    Q_EMIT MoveCurveEvent(m_iDraggedCurve, moveY);
   }
 
   setCursor(cursor);
@@ -667,10 +667,10 @@ void ezQtCurveEditWidget::mouseDoubleClickEvent(QMouseEvent* e)
       if (m_bBegunChanges)
       {
         m_bBegunChanges = false;
-        emit EndOperationEvent(true);
+        Q_EMIT EndOperationEvent(true);
       }
 
-      emit DoubleClickEvent(scenePos, epsilon);
+      Q_EMIT DoubleClickEvent(scenePos, epsilon);
     }
   }
 }
@@ -736,7 +736,7 @@ void ezQtCurveEditWidget::keyPressEvent(QKeyEvent* e)
 
     if (e->key() == Qt::Key_Delete)
     {
-      emit DeleteControlPointsEvent();
+      Q_EMIT DeleteControlPointsEvent();
     }
   }
 }

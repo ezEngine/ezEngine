@@ -57,7 +57,7 @@ public:
   /// \brief Returns a pixmap or nullptr that was registered with RegisterTypeImage()
   const QPixmap* QueryTypeImage(const char* szType) const;
 
-signals:
+Q_SIGNALS:
   void ImageLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2);
   void ImageInvalidated(QString sPath, unsigned int uiImageID);
 

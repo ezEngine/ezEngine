@@ -30,10 +30,10 @@ public:
   ezQtAssetCuratorPanel();
   ~ezQtAssetCuratorPanel();
 
-public slots:
+public Q_SLOTS:
   void OnAssetSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
-private slots:
+private Q_SLOTS:
   void on_ListAssets_doubleClicked(const QModelIndex& index);
 
 private:

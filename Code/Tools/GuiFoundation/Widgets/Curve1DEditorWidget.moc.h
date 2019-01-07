@@ -23,7 +23,7 @@ public:
   void NormalizeCurveX(ezUInt32 uiActiveCurve);
   void NormalizeCurveY(ezUInt32 uiActiveCurve);
 
-signals:
+Q_SIGNALS:
   void CpMovedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY);
   void CpDeletedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx);
   void TangentMovedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent);
@@ -37,7 +37,7 @@ signals:
   void BeginOperationEvent(QString name);
   void EndOperationEvent(bool commit);
 
-private slots:
+private Q_SLOTS:
   void on_LinePosition_editingFinished();
   void on_LineValue_editingFinished();
   void onDeleteControlPoints();

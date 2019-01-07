@@ -39,7 +39,7 @@ public:
   virtual const char* GetWindowLayoutGroupName() const { return "Scene"; }
   ezSceneDocument* GetSceneDocument() const;
 
-public slots:
+public Q_SLOTS:
   void ToggleViews(QWidget* pView);
 
 public:

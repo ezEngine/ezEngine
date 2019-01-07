@@ -10,7 +10,7 @@ class ezQtSceneImportDlg : public QDialog, public Ui_SceneImportDlg
 public:
   ezQtSceneImportDlg(QWidget *parent = nullptr);
 
-public slots:
+public Q_SLOTS:
   virtual void on_accepted();
   virtual void on_InputBrowse_clicked();
   virtual void on_OutputBrowse_clicked();

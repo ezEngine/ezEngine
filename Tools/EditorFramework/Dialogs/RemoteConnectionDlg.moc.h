@@ -30,7 +30,7 @@ public:
   QString GetResultingAddress() const;
   QString GetResultingFsAddress() const;
 
-private slots:
+private Q_SLOTS:
   void on_ButtonConnect_clicked();
   void on_ButtonLaunchFS_clicked();
   void onRecentIPselected();

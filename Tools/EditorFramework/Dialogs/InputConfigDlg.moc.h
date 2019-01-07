@@ -17,7 +17,7 @@ public:
 public:
   ezQtInputConfigDlg(QWidget* parent);
 
-private slots:
+private Q_SLOTS:
   void on_ButtonNewInputSet_clicked();
   void on_ButtonNewAction_clicked();
   void on_ButtonRemove_clicked();

@@ -22,7 +22,7 @@ public:
 protected:
   virtual void DoPrepareToDie() override {}
 
-private slots:
+private Q_SLOTS:
   void on_Menu_aboutToShow();
   void onCheckBoxClicked(bool bChecked);
 

@@ -42,7 +42,7 @@ public:
   void UpdateView();
 
   void Clear();
-  private slots:
+  private Q_SLOTS:
   void UpdateViewSlot();
 
 private:

@@ -52,7 +52,7 @@ public:
 
   const ezDeque<ezQtPropertyAnimModelTreeEntry>& GetAllEntries() const { return m_AllEntries[m_iInUse]; }
 
-private slots:
+private Q_SLOTS:
   void onBuildMappingTriggered();
 
 public: //QAbstractItemModel interface

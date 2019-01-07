@@ -201,7 +201,7 @@ void ezQtAssetBrowserModel::HandleAsset(const ezSubAsset* pInfo, AssetOp op)
     if (uiInsertIndex < m_AssetsToDisplay.GetCount() && !cmp.Less(*pLB, ae) && !cmp.Less(ae, *pLB))
     {
       QModelIndex idx = index(uiInsertIndex, 0);
-      emit dataChanged(idx, idx);
+      Q_EMIT dataChanged(idx, idx);
     }
     else
     {
@@ -234,7 +234,7 @@ void ezQtAssetBrowserModel::ThumbnailLoaded(QString sPath, QModelIndex index, QV
     if (m_AssetsToDisplay[i].m_Guid == guid)
     {
       QModelIndex idx = createIndex(i, 0);
-      emit dataChanged(idx, idx);
+      Q_EMIT dataChanged(idx, idx);
       return;
     }
   }
@@ -247,7 +247,7 @@ void ezQtAssetBrowserModel::ThumbnailInvalidated(QString sPath, ezUInt32 uiImage
     if (m_AssetsToDisplay[i].m_uiThumbnailID == uiImageID)
     {
       QModelIndex idx = createIndex(i, 0);
-      emit dataChanged(idx, idx);
+      Q_EMIT dataChanged(idx, idx);
       return;
     }
   }

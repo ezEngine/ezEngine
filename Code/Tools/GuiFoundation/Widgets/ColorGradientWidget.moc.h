@@ -29,7 +29,7 @@ public:
   void ClearSelectedCP();
   void SelectCP(ezInt32 colorCP, ezInt32 alphaCP, ezInt32 intensityCP);
 
-signals:
+Q_SIGNALS:
   void GradientClicked();
   void addColorCp(double posX, const ezColorGammaUB& color);
   void addAlphaCp(double posX, ezUInt8 value);

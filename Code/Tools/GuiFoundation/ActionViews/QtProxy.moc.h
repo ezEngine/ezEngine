@@ -92,7 +92,7 @@ public:
 
   virtual QAction* GetQAction() override;
 
-private slots:
+private Q_SLOTS:
   void OnTriggered();
 
 private:
@@ -110,7 +110,7 @@ class EZ_GUIFOUNDATION_DLL ezQtDynamicMenuProxy : public ezQtMenuProxy
 public:
   virtual void SetAction(ezAction* pAction) override;
 
-private slots:
+private Q_SLOTS:
   void SlotMenuAboutToShow();
   void SlotMenuEntryTriggered();
 
@@ -130,7 +130,7 @@ public:
   virtual void SetAction(ezAction* pAction) override;
   virtual QAction* GetQAction();
 
-private slots:
+private Q_SLOTS:
   void OnTriggered();
 
 private:
@@ -163,10 +163,10 @@ public:
   void setMaximum(int value);
   void setValue(int value);
 
-signals:
+Q_SIGNALS:
   void valueChanged(int value);
 
-private slots:
+private Q_SLOTS:
   void OnValueChanged(int value);
 
 protected:
@@ -191,7 +191,7 @@ public:
 
   virtual QAction* GetQAction() override;
 
-private slots:
+private Q_SLOTS:
   void OnValueChanged(int value);
 
 private:

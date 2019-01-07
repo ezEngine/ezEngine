@@ -21,7 +21,7 @@ public:
   void SetDuration(ezUInt64 uiNumTicks, ezUInt32 uiFramesPerSecond);
   void SetScrubberPosition(ezUInt64 uiTick);
 
-signals:
+Q_SIGNALS:
   void ScrubberPosChangedEvent(ezUInt64 uiNewScrubberTickPos);
 
 private:
@@ -49,7 +49,7 @@ public:
   void SetScrubberPosition(ezUInt64 uiTick);
   void SetButtonState(bool playing, bool repeatEnabled);
 
-signals:
+Q_SIGNALS:
   void ScrubberPosChangedEvent(ezUInt64 uiNewScrubberTickPos);
   void PlayPauseEvent();
   void RepeatEvent();

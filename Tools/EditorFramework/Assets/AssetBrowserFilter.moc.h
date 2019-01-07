@@ -31,7 +31,7 @@ public:
   void SetTypeFilter(const char* szTypes);
   const char* GetTypeFilter() const { return m_sTypeFilter; }
 
-signals:
+Q_SIGNALS:
   void TextFilterChanged();
   void TypeFilterChanged();
   void PathFilterChanged();

@@ -185,7 +185,7 @@ void ezQtEventTrackWidget::ClearSelection()
     update();
   }
 
-  emit SelectionChangedEvent();
+  Q_EMIT SelectionChangedEvent();
 }
 
 
@@ -214,7 +214,7 @@ void ezQtEventTrackWidget::SetSelection(SelectedPoint cp)
 
   ComputeSelectionRect();
 
-  emit SelectionChangedEvent();
+  Q_EMIT SelectionChangedEvent();
 }
 
 void ezQtEventTrackWidget::SetSelection(const ezHybridArray<SelectedPoint, 32>& selection)
@@ -231,7 +231,7 @@ void ezQtEventTrackWidget::SetSelection(const ezHybridArray<SelectedPoint, 32>& 
     m_Categories[cpSel.m_uiCategory].m_SortedPoints[cpSel.m_uiSortedIdx].m_bSelected = true;
   }
 
-  emit SelectionChangedEvent();
+  Q_EMIT SelectionChangedEvent();
 }
 
 void ezQtEventTrackWidget::ToggleSelected(SelectedPoint cp)
@@ -240,7 +240,7 @@ void ezQtEventTrackWidget::ToggleSelected(SelectedPoint cp)
 
   ComputeSelectionRect();
 
-  emit SelectionChangedEvent();
+  Q_EMIT SelectionChangedEvent();
 }
 
 void ezQtEventTrackWidget::SetSelected(SelectedPoint cp, bool set)
@@ -260,7 +260,7 @@ void ezQtEventTrackWidget::SetSelected(SelectedPoint cp, bool set)
   }
 
   ComputeSelectionRect();
-  emit SelectionChangedEvent();
+  Q_EMIT SelectionChangedEvent();
 }
 
 QRectF ezQtEventTrackWidget::ComputeViewportSceneRect() const
@@ -400,12 +400,12 @@ void ezQtEventTrackWidget::mousePressEvent(QMouseEvent* e)
 
       if (m_State == EditState::DraggingPoints)
       {
-        emit BeginOperationEvent("Drag Points");
+        Q_EMIT BeginOperationEvent("Drag Points");
         m_bBegunChanges = true;
       }
       else if (m_State == EditState::ScaleLeftRight)
       {
-        emit BeginOperationEvent("Scale Points Left / Right");
+        Q_EMIT BeginOperationEvent("Scale Points Left / Right");
         m_bBegunChanges = true;
       }
 
@@ -449,7 +449,7 @@ void ezQtEventTrackWidget::mouseReleaseEvent(QMouseEvent* e)
     if (m_bBegunChanges)
     {
       m_bBegunChanges = false;
-      emit EndOperationEvent(true);
+      Q_EMIT EndOperationEvent(true);
     }
 
     update();
@@ -485,7 +485,7 @@ void ezQtEventTrackWidget::mouseReleaseEvent(QMouseEvent* e)
 
       update();
 
-      emit SelectionChangedEvent();
+      Q_EMIT SelectionChangedEvent();
     }
   }
 
@@ -498,7 +498,7 @@ void ezQtEventTrackWidget::mouseReleaseEvent(QMouseEvent* e)
     if (m_bBegunChanges)
     {
       m_bBegunChanges = false;
-      emit EndOperationEvent(true);
+      Q_EMIT EndOperationEvent(true);
     }
 
     update();
@@ -587,10 +587,10 @@ void ezQtEventTrackWidget::mouseDoubleClickEvent(QMouseEvent* e)
       if (m_bBegunChanges)
       {
         m_bBegunChanges = false;
-        emit EndOperationEvent(true);
+        Q_EMIT EndOperationEvent(true);
       }
 
-      emit DoubleClickEvent(scenePos.x(), epsilon.x());
+      Q_EMIT DoubleClickEvent(scenePos.x(), epsilon.x());
     }
   }
 }
@@ -654,7 +654,7 @@ void ezQtEventTrackWidget::keyPressEvent(QKeyEvent* e)
 
     if (e->key() == Qt::Key_Delete)
     {
-      emit DeleteControlPointsEvent();
+      Q_EMIT DeleteControlPointsEvent();
 
       ClearSelection();
     }

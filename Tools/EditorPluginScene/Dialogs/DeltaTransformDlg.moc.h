@@ -40,7 +40,7 @@ public:
     LocalEach,
   };
 
-private slots:
+private Q_SLOTS:
   void on_ButtonApply_clicked();
   void on_ButtonUndo_clicked();
   void on_ComboMode_currentIndexChanged(int index);

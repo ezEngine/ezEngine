@@ -159,14 +159,14 @@ void ezQtColorDialog::ChangedRGB()
 {
   ExtractColorRGB();
   ApplyColor();
-  emit CurrentColorChanged(m_CurrentColor);
+  Q_EMIT CurrentColorChanged(m_CurrentColor);
 }
 
 void ezQtColorDialog::ChangedHSV()
 {
   ExtractColorHSV();
   ApplyColor();
-  emit CurrentColorChanged(m_CurrentColor);
+  Q_EMIT CurrentColorChanged(m_CurrentColor);
 }
 
 void ezQtColorDialog::ChangedAlpha()
@@ -175,7 +175,7 @@ void ezQtColorDialog::ChangedAlpha()
   m_CurrentColor.a = ezMath::ColorByteToFloat(m_Alpha);
 
   ApplyColor();
-  emit CurrentColorChanged(m_CurrentColor);
+  Q_EMIT CurrentColorChanged(m_CurrentColor);
 }
 
 void ezQtColorDialog::ChangedExposure()
@@ -184,7 +184,7 @@ void ezQtColorDialog::ChangedExposure()
 
   RecomputeHDR();
   ApplyColor();
-  emit CurrentColorChanged(m_CurrentColor);
+  Q_EMIT CurrentColorChanged(m_CurrentColor);
 }
 
 void ezQtColorDialog::ChangedArea(double x, double y)
@@ -197,7 +197,7 @@ void ezQtColorDialog::ChangedArea(double x, double y)
   RecomputeHDR();
 
   ApplyColor();
-  emit CurrentColorChanged(m_CurrentColor);
+  Q_EMIT CurrentColorChanged(m_CurrentColor);
 }
 
 void ezQtColorDialog::ChangedRange(double x)
@@ -209,7 +209,7 @@ void ezQtColorDialog::ChangedRange(double x)
   RecomputeHDR();
 
   ApplyColor();
-  emit CurrentColorChanged(m_CurrentColor);
+  Q_EMIT CurrentColorChanged(m_CurrentColor);
 }
 
 void ezQtColorDialog::ChangedHEX()
@@ -234,7 +234,7 @@ void ezQtColorDialog::ChangedHEX()
 
   if (valid)
   {
-    emit CurrentColorChanged(m_CurrentColor);
+    Q_EMIT CurrentColorChanged(m_CurrentColor);
   }
 }
 

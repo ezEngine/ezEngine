@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <Foundation/Containers/DynamicArray.h>
@@ -18,7 +18,7 @@ public:
   virtual bool IsAssetFiltered(const ezSubAsset* pInfo) const = 0;
   virtual bool Less(const ezSubAsset* pInfoA, const ezSubAsset* pInfoB) const = 0;
 
-signals:
+Q_SIGNALS:
   void FilterChanged();
 };
 
@@ -45,7 +45,7 @@ public:
   void SetIconMode(bool bIconMode) { m_bIconMode = bIconMode; }
   bool GetIconMode() { return m_bIconMode; }
 
-private slots:
+private Q_SLOTS:
   void ThumbnailLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2);
   void ThumbnailInvalidated(QString sPath, ezUInt32 uiImageID);
 

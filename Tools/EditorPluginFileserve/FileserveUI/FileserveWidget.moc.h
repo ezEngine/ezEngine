@@ -25,11 +25,11 @@ public:
 
   ~ezQtFileserveWidget();
 
-signals:
+Q_SIGNALS:
   void ServerStarted(const QString& ip, ezUInt16 uiPort);
   void ServerStopped();
 
-public slots:
+public Q_SLOTS:
   void on_StartServerButton_clicked();
   void on_ClearActivityButton_clicked();
   void on_ClearAllFilesButton_clicked();

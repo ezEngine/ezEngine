@@ -21,7 +21,7 @@ public:
 
   void UpdateTable();
 
-private slots:
+private Q_SLOTS:
   void SlotSelectionChanged();
   void on_KeyEditor_editingFinished();
 

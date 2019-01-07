@@ -13,7 +13,7 @@ public:
 public:
   ezQtPhysxProjectSettingsDlg(QWidget* parent);
 
-private slots:
+private Q_SLOTS:
   void onCheckBoxClicked(bool checked);
   void on_DefaultButtons_clicked(QAbstractButton* pButton);
   void on_ButtonAddLayer_clicked();

@@ -193,7 +193,7 @@ void ezQtCVarWidget::BoolChanged(int index)
 
   const bool newValue = (pValue->currentIndex() == 0);
 
-  emit onBoolChanged(cvar.toUtf8().data(), newValue);
+  Q_EMIT onBoolChanged(cvar.toUtf8().data(), newValue);
 }
 
 void ezQtCVarWidget::FloatChanged()
@@ -203,7 +203,7 @@ void ezQtCVarWidget::FloatChanged()
 
   const float newValue = (float)pValue->value();
 
-  emit onFloatChanged(cvar.toUtf8().data(), newValue);
+  Q_EMIT onFloatChanged(cvar.toUtf8().data(), newValue);
 }
 
 void ezQtCVarWidget::IntChanged()
@@ -213,7 +213,7 @@ void ezQtCVarWidget::IntChanged()
 
   const int newValue = (int)pValue->value();
 
-  emit onIntChanged(cvar.toUtf8().data(), newValue);
+  Q_EMIT onIntChanged(cvar.toUtf8().data(), newValue);
 }
 
 void ezQtCVarWidget::StringChanged()
@@ -223,5 +223,5 @@ void ezQtCVarWidget::StringChanged()
 
   const QString newValue = pValue->text();
 
-  emit onStringChanged(cvar.toUtf8().data(), newValue.toUtf8().data());
+  Q_EMIT onStringChanged(cvar.toUtf8().data(), newValue.toUtf8().data());
 }

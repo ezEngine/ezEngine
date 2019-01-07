@@ -766,7 +766,7 @@ void ezQtColorButtonWidget::SetColor(const ezVariant& color)
 
 void ezQtColorButtonWidget::mouseReleaseEvent(QMouseEvent* event)
 {
-  emit clicked();
+  Q_EMIT clicked();
 }
 
 ezQtPropertyEditorColorWidget::ezQtPropertyEditorColorWidget()

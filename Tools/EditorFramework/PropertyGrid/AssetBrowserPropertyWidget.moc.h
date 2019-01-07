@@ -18,7 +18,7 @@ public:
 
   bool IsValidAssetType(const char* szAssetReference) const;
 
-private slots:
+private Q_SLOTS:
   void on_BrowseFile_clicked();
 
 protected slots:

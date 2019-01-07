@@ -18,7 +18,7 @@ private:
   ezQtTestFramework(ezQtTestFramework&);
   void operator=(ezQtTestFramework&);
 
-signals:
+Q_SIGNALS:
   void TestResultReceived(qint32 iTestIndex, qint32 iSubTestIndex);
 
 protected:

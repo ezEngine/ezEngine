@@ -59,7 +59,7 @@ private:
   void ScheduleRestoreWindowLayout();
   ezInt32 m_iWindowLayoutRestoreScheduled;
 
-private slots:
+private Q_SLOTS:
   void SlotDocumentTabCloseRequested(int index);
   void SlotRestoreLayout();
   void SlotTabsContextMenuRequested(const QPoint& pos);

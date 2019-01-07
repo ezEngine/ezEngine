@@ -21,7 +21,7 @@ public:
   ezQtLogMessageDock(QObject* pParent, const ezTestFrameworkResult* pResult);
   virtual ~ezQtLogMessageDock();
 
-public slots:
+public Q_SLOTS:
   void resetModel();
   void currentTestResultChanged(const ezTestResultData* pTestResult);
   void currentTestSelectionChanged(const ezTestResultData* pTestResult);
@@ -42,7 +42,7 @@ public:
   QModelIndex GetFirstIndexOfTestSelection();
   QModelIndex GetLastIndexOfTestSelection();
 
-public slots:
+public Q_SLOTS:
   void currentTestResultChanged(const ezTestResultData* pTestResult);
   void currentTestSelectionChanged(const ezTestResultData* pTestResult);
 

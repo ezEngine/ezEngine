@@ -27,7 +27,7 @@ void ezQtAssetBrowserFilter::SetShowItemsInSubFolders(bool bShow)
 
   m_bShowItemsInSubFolders = bShow;
 
-  emit FilterChanged();
+  Q_EMIT FilterChanged();
 }
 
 void ezQtAssetBrowserFilter::SetShowItemsInHiddenFolders(bool bShow)
@@ -37,7 +37,7 @@ void ezQtAssetBrowserFilter::SetShowItemsInHiddenFolders(bool bShow)
 
   m_bShowItemsInHiddenFolders = bShow;
 
-  emit FilterChanged();
+  Q_EMIT FilterChanged();
 }
 
 void ezQtAssetBrowserFilter::SetSortByRecentUse(bool bSort)
@@ -47,8 +47,8 @@ void ezQtAssetBrowserFilter::SetSortByRecentUse(bool bSort)
 
   m_bSortByRecentUse = bSort;
 
-  emit FilterChanged();
-  emit SortByRecentUseChanged();
+  Q_EMIT FilterChanged();
+  Q_EMIT SortByRecentUseChanged();
 }
 
 
@@ -62,8 +62,8 @@ void ezQtAssetBrowserFilter::SetTextFilter(const char* szText)
 
   m_sTextFilter = sCleanText;
 
-  emit FilterChanged();
-  emit TextFilterChanged();
+  Q_EMIT FilterChanged();
+  Q_EMIT TextFilterChanged();
 }
 
 void ezQtAssetBrowserFilter::SetPathFilter(const char* szPath)
@@ -76,8 +76,8 @@ void ezQtAssetBrowserFilter::SetPathFilter(const char* szPath)
 
   m_sPathFilter = sCleanText;
 
-  emit FilterChanged();
-  emit PathFilterChanged();
+  Q_EMIT FilterChanged();
+  Q_EMIT PathFilterChanged();
 }
 
 void ezQtAssetBrowserFilter::SetTypeFilter(const char* szTypes)
@@ -87,8 +87,8 @@ void ezQtAssetBrowserFilter::SetTypeFilter(const char* szTypes)
 
   m_sTypeFilter = szTypes;
 
-  emit FilterChanged();
-  emit TypeFilterChanged();
+  Q_EMIT FilterChanged();
+  Q_EMIT TypeFilterChanged();
 }
 
 bool ezQtAssetBrowserFilter::IsAssetFiltered(const ezSubAsset* pInfo) const

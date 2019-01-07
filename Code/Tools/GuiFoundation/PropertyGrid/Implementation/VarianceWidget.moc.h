@@ -16,7 +16,7 @@ public:
 
   virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
 
-private slots:
+private Q_SLOTS:
   void onBeginTemporary();
   void onEndTemporary();
   void SlotValueChanged();

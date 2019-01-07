@@ -18,7 +18,7 @@ public:
 protected:
   virtual void DoPrepareToDie() override {}
 
-private slots:
+private Q_SLOTS:
   void onMenuAboutToShow();
   void on_Button_clicked();
   void OnMenuAction();

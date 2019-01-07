@@ -20,22 +20,22 @@ ezQtColorGradientEditorWidget::ezQtColorGradientEditorWidget(QWidget* pParent)
   on_GradientWidget_selectionChanged(-1, -1, -1);
 
   connect(GradientWidget, &ezQtColorGradientWidget::addColorCp, this,
-          [this](double x, const ezColorGammaUB& color) { emit ColorCpAdded(x, color); });
-  connect(GradientWidget, &ezQtColorGradientWidget::moveColorCpToPos, this, [this](ezInt32 idx, double x) { emit ColorCpMoved(idx, x); });
-  connect(GradientWidget, &ezQtColorGradientWidget::deleteColorCp, this, [this](ezInt32 idx) { emit ColorCpDeleted(idx); });
+          [this](double x, const ezColorGammaUB& color) { Q_EMIT ColorCpAdded(x, color); });
+  connect(GradientWidget, &ezQtColorGradientWidget::moveColorCpToPos, this, [this](ezInt32 idx, double x) { Q_EMIT ColorCpMoved(idx, x); });
+  connect(GradientWidget, &ezQtColorGradientWidget::deleteColorCp, this, [this](ezInt32 idx) { Q_EMIT ColorCpDeleted(idx); });
 
-  connect(GradientWidget, &ezQtColorGradientWidget::addAlphaCp, this, [this](double x, ezUInt8 alpha) { emit AlphaCpAdded(x, alpha); });
-  connect(GradientWidget, &ezQtColorGradientWidget::moveAlphaCpToPos, this, [this](ezInt32 idx, double x) { emit AlphaCpMoved(idx, x); });
-  connect(GradientWidget, &ezQtColorGradientWidget::deleteAlphaCp, this, [this](ezInt32 idx) { emit AlphaCpDeleted(idx); });
+  connect(GradientWidget, &ezQtColorGradientWidget::addAlphaCp, this, [this](double x, ezUInt8 alpha) { Q_EMIT AlphaCpAdded(x, alpha); });
+  connect(GradientWidget, &ezQtColorGradientWidget::moveAlphaCpToPos, this, [this](ezInt32 idx, double x) { Q_EMIT AlphaCpMoved(idx, x); });
+  connect(GradientWidget, &ezQtColorGradientWidget::deleteAlphaCp, this, [this](ezInt32 idx) { Q_EMIT AlphaCpDeleted(idx); });
 
   connect(GradientWidget, &ezQtColorGradientWidget::addIntensityCp, this,
-          [this](double x, float intensity) { emit IntensityCpAdded(x, intensity); });
+          [this](double x, float intensity) { Q_EMIT IntensityCpAdded(x, intensity); });
   connect(GradientWidget, &ezQtColorGradientWidget::moveIntensityCpToPos, this,
-          [this](ezInt32 idx, double x) { emit IntensityCpMoved(idx, x); });
-  connect(GradientWidget, &ezQtColorGradientWidget::deleteIntensityCp, this, [this](ezInt32 idx) { emit IntensityCpDeleted(idx); });
+          [this](ezInt32 idx, double x) { Q_EMIT IntensityCpMoved(idx, x); });
+  connect(GradientWidget, &ezQtColorGradientWidget::deleteIntensityCp, this, [this](ezInt32 idx) { Q_EMIT IntensityCpDeleted(idx); });
 
-  connect(GradientWidget, &ezQtColorGradientWidget::beginOperation, this, [this]() { emit BeginOperation(); });
-  connect(GradientWidget, &ezQtColorGradientWidget::endOperation, this, [this](bool commit) { emit EndOperation(commit); });
+  connect(GradientWidget, &ezQtColorGradientWidget::beginOperation, this, [this]() { Q_EMIT BeginOperation(); });
+  connect(GradientWidget, &ezQtColorGradientWidget::endOperation, this, [this](bool commit) { Q_EMIT EndOperation(commit); });
 
   connect(GradientWidget, &ezQtColorGradientWidget::triggerPickColor, this, [this]() { on_ButtonColor_clicked(); });
 }
@@ -122,15 +122,15 @@ void ezQtColorGradientEditorWidget::on_SpinPosition_valueChanged(double value)
 {
   if (m_iSelectedColorCP != -1)
   {
-    emit ColorCpMoved(m_iSelectedColorCP, value);
+    Q_EMIT ColorCpMoved(m_iSelectedColorCP, value);
   }
   else if (m_iSelectedAlphaCP != -1)
   {
-    emit AlphaCpMoved(m_iSelectedAlphaCP, value);
+    Q_EMIT AlphaCpMoved(m_iSelectedAlphaCP, value);
   }
   else if (m_iSelectedIntensityCP != -1)
   {
-    emit IntensityCpMoved(m_iSelectedIntensityCP, value);
+    Q_EMIT IntensityCpMoved(m_iSelectedIntensityCP, value);
   }
 }
 
@@ -139,7 +139,7 @@ void ezQtColorGradientEditorWidget::on_SpinAlpha_valueChanged(int value)
 {
   if (m_iSelectedAlphaCP != -1)
   {
-    emit AlphaCpChanged(m_iSelectedAlphaCP, value);
+    Q_EMIT AlphaCpChanged(m_iSelectedAlphaCP, value);
   }
 }
 
@@ -147,27 +147,27 @@ void ezQtColorGradientEditorWidget::on_SliderAlpha_valueChanged(int value)
 {
   if (m_iSelectedAlphaCP != -1)
   {
-    emit AlphaCpChanged(m_iSelectedAlphaCP, value);
+    Q_EMIT AlphaCpChanged(m_iSelectedAlphaCP, value);
   }
 }
 
 
 void ezQtColorGradientEditorWidget::on_SliderAlpha_sliderPressed()
 {
-  emit BeginOperation();
+  Q_EMIT BeginOperation();
 }
 
 
 void ezQtColorGradientEditorWidget::on_SliderAlpha_sliderReleased()
 {
-  emit EndOperation(true);
+  Q_EMIT EndOperation(true);
 }
 
 void ezQtColorGradientEditorWidget::on_SpinIntensity_valueChanged(double value)
 {
   if (m_iSelectedIntensityCP != -1)
   {
-    emit IntensityCpChanged(m_iSelectedIntensityCP, value);
+    Q_EMIT IntensityCpChanged(m_iSelectedIntensityCP, value);
   }
 }
 
@@ -181,7 +181,7 @@ void ezQtColorGradientEditorWidget::on_ButtonColor_clicked()
     m_PickColorStart = ezColorGammaUB(cp.m_GammaRed, cp.m_GammaGreen, cp.m_GammaBlue);
     m_PickColorCurrent = m_PickColorStart;
 
-    emit BeginOperation();
+    Q_EMIT BeginOperation();
 
     ezQtUiServices::GetSingleton()->ShowColorDialog(m_PickColorStart, false, false, this, SLOT(onCurrentColorChanged(const ezColor&)),
                                                     SLOT(onColorAccepted()), SLOT(onColorReset()));
@@ -194,7 +194,7 @@ void ezQtColorGradientEditorWidget::onCurrentColorChanged(const ezColor& col)
   {
     m_PickColorCurrent = col;
 
-    emit ColorCpChanged(m_iSelectedColorCP, m_PickColorCurrent);
+    Q_EMIT ColorCpChanged(m_iSelectedColorCP, m_PickColorCurrent);
   }
 }
 
@@ -202,9 +202,9 @@ void ezQtColorGradientEditorWidget::onColorAccepted()
 {
   if (m_iSelectedColorCP != -1)
   {
-    emit ColorCpChanged(m_iSelectedColorCP, m_PickColorCurrent);
+    Q_EMIT ColorCpChanged(m_iSelectedColorCP, m_PickColorCurrent);
 
-    emit EndOperation(true);
+    Q_EMIT EndOperation(true);
   }
 }
 
@@ -212,16 +212,16 @@ void ezQtColorGradientEditorWidget::onColorReset()
 {
   if (m_iSelectedColorCP != -1)
   {
-    emit ColorCpChanged(m_iSelectedColorCP, m_PickColorStart);
+    Q_EMIT ColorCpChanged(m_iSelectedColorCP, m_PickColorStart);
 
-    emit EndOperation(false);
+    Q_EMIT EndOperation(false);
   }
 }
 
 
 void ezQtColorGradientEditorWidget::on_ButtonNormalize_clicked()
 {
-  emit NormalizeRange();
+  Q_EMIT NormalizeRange();
 }
 
 void ezQtColorGradientEditorWidget::UpdateCpUi()

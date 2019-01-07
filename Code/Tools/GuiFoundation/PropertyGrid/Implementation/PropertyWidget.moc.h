@@ -34,7 +34,7 @@ public:
 
   virtual void mousePressEvent(QMouseEvent * ev) override;
 
-private slots:
+private Q_SLOTS:
   void on_StateChanged_triggered(int state);
 
 protected:
@@ -57,7 +57,7 @@ class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorDoubleSpinboxWidget : public ezQtSt
 public:
   ezQtPropertyEditorDoubleSpinboxWidget(ezInt8 iNumComponents);
 
-private slots:
+private Q_SLOTS:
   void on_EditingFinished_triggered();
   void SlotValueChanged();
 
@@ -80,7 +80,7 @@ class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorTimeWidget : public ezQtStandardPro
 public:
   ezQtPropertyEditorTimeWidget();
 
-  private slots:
+  private Q_SLOTS:
   void on_EditingFinished_triggered();
   void SlotValueChanged();
 
@@ -102,7 +102,7 @@ class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorAngleWidget : public ezQtStandardPr
 public:
   ezQtPropertyEditorAngleWidget();
 
-private slots:
+private Q_SLOTS:
   void on_EditingFinished_triggered();
   void SlotValueChanged();
 
@@ -124,7 +124,7 @@ class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorIntSpinboxWidget : public ezQtStand
 public:
   ezQtPropertyEditorIntSpinboxWidget(ezInt32 iMinValue, ezInt32 iMaxValue);
 
-private slots:
+private Q_SLOTS:
   void SlotValueChanged();
   void on_EditingFinished_triggered();
 
@@ -146,7 +146,7 @@ class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorQuaternionWidget : public ezQtStand
 public:
   ezQtPropertyEditorQuaternionWidget();
 
-private slots:
+private Q_SLOTS:
   void on_EditingFinished_triggered();
   void SlotValueChanged();
 
@@ -194,7 +194,7 @@ public:
   explicit ezQtColorButtonWidget(QWidget* parent);
   void SetColor(const ezVariant& color);
 
-signals:
+Q_SIGNALS:
   void clicked();
 
 protected:
@@ -209,7 +209,7 @@ class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorColorWidget : public ezQtStandardPr
 public:
   ezQtPropertyEditorColorWidget();
 
-private slots:
+private Q_SLOTS:
   void on_Button_triggered();
   void on_CurrentColor_changed(const ezColor& color);
   void on_Color_reset();
@@ -236,7 +236,7 @@ class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorEnumWidget : public ezQtStandardPro
 public:
   ezQtPropertyEditorEnumWidget();
 
-private slots:
+private Q_SLOTS:
   void on_CurrentEnum_changed(int iEnum);
 
 protected:
@@ -260,7 +260,7 @@ public:
   ezQtPropertyEditorBitflagsWidget();
   virtual ~ezQtPropertyEditorBitflagsWidget();
 
-private slots:
+private Q_SLOTS:
   void on_Menu_aboutToShow();
   void on_Menu_aboutToHide();
 

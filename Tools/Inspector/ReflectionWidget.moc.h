@@ -17,7 +17,7 @@ public:
 
   static ezQtReflectionWidget* s_pWidget;
 
-private slots:
+private Q_SLOTS:
 
 public:
   static void ProcessTelemetry(void* pUnuseed);

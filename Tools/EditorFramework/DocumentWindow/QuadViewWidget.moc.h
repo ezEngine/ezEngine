@@ -23,7 +23,7 @@ public:
     ViewFactory viewFactory, const char* szViewToolBarMapping);
   ~ezQtQuadViewWidget();
 
-public slots:
+public Q_SLOTS:
   void ToggleViews(QWidget* pView);
 
 protected:

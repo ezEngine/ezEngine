@@ -16,7 +16,7 @@ public:
 
   virtual const char* GetWindowLayoutGroupName() const { return "ColorGradientAsset"; }
 
-private slots:
+private Q_SLOTS:
   void onGradientColorCpAdded(double posX, const ezColorGammaUB& color);
   void onGradientAlphaCpAdded(double posX, ezUInt8 alpha);
   void onGradientIntensityCpAdded(double posX, float intensity);

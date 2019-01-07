@@ -11,7 +11,7 @@ class ezQtSnapSettingsDlg : public QDialog, public Ui_SnapSettingsDlg
 public:
   ezQtSnapSettingsDlg(QWidget* parent);
 
-private slots:
+private Q_SLOTS:
   void on_ButtonBox_clicked(QAbstractButton* button);
 
 private:

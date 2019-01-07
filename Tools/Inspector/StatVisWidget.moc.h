@@ -28,7 +28,7 @@ public:
   void Save();
   void Load();
 
-private slots:
+private Q_SLOTS:
 
   void on_ComboTimeframe_currentIndexChanged(int index);
   void on_LineName_textChanged(const QString& text);

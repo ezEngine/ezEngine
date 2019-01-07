@@ -23,7 +23,7 @@ public:
   void SetDebugObject(const ezUuid& objectGuid);
   ezUuid GetDebugObject() const { return m_DebugObject; }
 
-private slots:
+private Q_SLOTS:
   void OnUpdateDisplay();
 
 private:

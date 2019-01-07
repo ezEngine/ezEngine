@@ -249,7 +249,7 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
       ezStringBuilder sDisplayString;
       FindOwnIP(sDisplayString);
 
-      emit ServerStarted(sDisplayString.GetData(), ezFileserver::GetSingleton()->GetPort());
+      Q_EMIT ServerStarted(sDisplayString.GetData(), ezFileserver::GetSingleton()->GetPort());
     }
     break;
 
@@ -260,7 +260,7 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
       ReloadResourcesButton->setEnabled(false);
       StartServerButton->setText("Start Server");
 
-      emit ServerStopped();
+      Q_EMIT ServerStopped();
     }
     break;
 

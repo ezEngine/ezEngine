@@ -31,7 +31,7 @@ public:
   void SetImageSize(float fScale = 1.0f);
   void ScaleImage(float fFactor);
 
-private slots:
+private Q_SLOTS:
 
   void on_ButtonZoomIn_clicked();
   void on_ButtonZoomOut_clicked();

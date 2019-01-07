@@ -58,7 +58,7 @@ void ezQtGraphicsView::mousePressEvent(QMouseEvent* e)
   if (!m_bDragging)
   {
     m_bDragging = true;
-    emit BeginDrag();
+    Q_EMIT BeginDrag();
   }
 
   QGraphicsView::mousePressEvent(e);
@@ -88,7 +88,7 @@ void ezQtGraphicsView::mouseReleaseEvent(QMouseEvent* e)
   if (m_bDragging)
   {
     m_bDragging = false;
-    emit EndDrag();
+    Q_EMIT EndDrag();
   }
 }
 
@@ -120,7 +120,7 @@ void ezQtGraphicsView::keyPressEvent(QKeyEvent* e)
 {
   if (e->key() == Qt::Key_Delete)
   {
-    emit DeleteCPs();
+    Q_EMIT DeleteCPs();
 
     e->accept();
     return;

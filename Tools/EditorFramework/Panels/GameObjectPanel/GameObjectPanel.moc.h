@@ -15,7 +15,7 @@ public:
   ezQtGameObjectPanel(QWidget* pParent, ezGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel);
   ~ezQtGameObjectPanel();
 
-private slots:
+private Q_SLOTS:
   void OnItemDoubleClicked(const QModelIndex&);
   void OnRequestContextMenu(QPoint pos);
   void OnFilterTextChanged(const QString& text);

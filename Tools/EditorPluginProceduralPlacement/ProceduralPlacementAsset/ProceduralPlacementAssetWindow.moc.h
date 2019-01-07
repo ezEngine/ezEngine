@@ -18,7 +18,7 @@ public:
   virtual const char* GetGroupName() const { return "ProceduralPlacementAsset"; }
   virtual const char* GetWindowLayoutGroupName() const override { return "ProceduralPlacementAsset"; }
 
-  private slots:
+  private Q_SLOTS:
 
 
 private:

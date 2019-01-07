@@ -33,12 +33,12 @@ public:
 
   virtual void closeEvent(QCloseEvent* event);
 
-public slots:
+public Q_SLOTS:
   void DockWidgetVisibilityChanged(bool bVisible);
   void ShowStatIn();
   void UpdateNetworkTimeOut();
 
-private slots:
+private Q_SLOTS:
   void on_ActionShowWindowLog_triggered();
   void on_ActionShowWindowMemory_triggered();
   void on_ActionShowWindowTime_triggered();

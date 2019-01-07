@@ -25,7 +25,7 @@ public:
   /// \brief Passed through to the QLineEdit
   void setPlaceholderText(const QString& text);
 
-signals:
+Q_SIGNALS:
   /// \brief Passed through from the QLineEdit
   void textChanged(const QString& text);
 
@@ -36,7 +36,7 @@ signals:
   /// Currently exposed: Qt::Key_Up, Qt::Key_Down, Qt::Key_Tab, Qt::Key_Backtab (that's SHIFT+Tab)
   void specialKeyPressed(Qt::Key key);
 
-private slots:
+private Q_SLOTS:
   void onLineEditTextChanged(const QString& text);
   void onClearButtonClicked(bool checked = false);
 
