@@ -3,6 +3,7 @@
 #ifdef EZ_USE_QT
 
 #include <QtWidgets>
+#include <Foundation/Strings/PathUtils.h>
 #include <TestFramework/Framework/Qt/qtLogMessageDock.h>
 #include <TestFramework/Framework/Qt/qtTestDelegate.h>
 #include <TestFramework/Framework/Qt/qtTestGUI.h>
@@ -105,7 +106,7 @@ ezQtTestGUI::~ezQtTestGUI()
 
 void ezQtTestGUI::closeEvent(QCloseEvent* e)
 {
-  m_pTestFramework->SaveTestOrder();
+  m_pTestFramework->AutoSaveTestOrder();
   SaveGUILayout();
 }
 
@@ -148,9 +149,21 @@ void ezQtTestGUI::on_actionShowMessageBox_triggered(bool bChecked)
   m_pTestFramework->SetSettings(settings);
 }
 
+
+void ezQtTestGUI::on_actionSaveTestSettingsAs_triggered()
+{
+  ezStringView defaultDir = ezPathUtils::GetFileDirectory(m_pTestFramework->GetAbsTestSettingsFilePath());
+  QString dir = defaultDir.IsValid() ? defaultDir.GetData() : QString();
+  QString sSavePath = QFileDialog::getSaveFileName(this, QLatin1String("Save Test Settings As"), dir);
+  if (!sSavePath.isEmpty())
+  {
+    m_pTestFramework->SaveTestOrder(sSavePath.toUtf8().data());
+  }
+}
+
 void ezQtTestGUI::on_actionRunTests_triggered()
 {
-  m_pTestFramework->SaveTestOrder();
+  m_pTestFramework->AutoSaveTestOrder();
   m_pModel->InvalidateAll();
   m_bExpandedCurrentTest = false;
   m_bAbort = false;

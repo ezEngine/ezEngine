@@ -20,10 +20,12 @@ public:
   const char* GetTestName() const;
   const char* GetAbsOutputPath() const;
   const char* GetRelTestDataPath() const;
+  const char* GetAbsTestSettingsFilePath() const;
   void RegisterOutputHandler(OutputHandler Handler);
   void GatherAllTests();
   void LoadTestOrder();
-  void SaveTestOrder();
+  void AutoSaveTestOrder();
+  void SaveTestOrder(const char* const filePath);
   void SetAllTestsEnabledStatus(bool bEnable);
   void SetAllFailedTestsEnabledStatus();
 
@@ -100,9 +102,10 @@ private:
   static ezTestFramework* s_pInstance;
 
 private:
-  std::string m_sTestName;         ///< The name of the tests being done
-  std::string m_sAbsTestOutputDir; ///< Absolute path to the output folder where results and temp data is stored
-  std::string m_sRelTestDataDir;   ///< Relative path from the SDK to where the unit test data is located
+  std::string m_sTestName;                ///< The name of the tests being done
+  std::string m_sAbsTestOutputDir;        ///< Absolute path to the output folder where results and temp data is stored
+  std::string m_sRelTestDataDir;          ///< Relative path from the SDK to where the unit test data is located
+  std::string m_sAbsTestSettingsFilePath; ///< Absolute path to the test settings file
   ezInt32 m_iErrorCount;
   ezInt32 m_iTestsFailed;
   ezInt32 m_iTestsPassed;

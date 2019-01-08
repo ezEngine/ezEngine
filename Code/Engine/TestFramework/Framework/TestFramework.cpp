@@ -101,7 +101,7 @@ void ezTestFramework::Initialize()
   LoadTestOrder();
 
   // save the current order back to the same file
-  SaveTestOrder();
+  AutoSaveTestOrder();
 
   m_bIsInitialized = true;
 
@@ -127,6 +127,12 @@ const char* ezTestFramework::GetAbsOutputPath() const
 const char* ezTestFramework::GetRelTestDataPath() const
 {
   return m_sRelTestDataDir.c_str();
+}
+
+
+const char* ezTestFramework::GetAbsTestSettingsFilePath() const
+{
+  return m_sAbsTestSettingsFilePath.c_str();
 }
 
 void ezTestFramework::RegisterOutputHandler(OutputHandler Handler)
@@ -207,11 +213,12 @@ void ezTestFramework::GatherAllTests()
 
 void ezTestFramework::GetTestSettingsFromCommandLine(int argc, const char** argv)
 {
+  // use a local instance of ezCommandLineUtils as global instance is not guaranteed to have been set up
+  // for all call sites of this method.
   ezCommandLineUtils cmd;
   cmd.SetCommandLine(argc, argv);
 
   m_Settings.m_bRunTests = cmd.GetBoolOption("-run", false);
-  m_Settings.m_bNoSaving = cmd.GetBoolOption("-nosave", false);
   m_Settings.m_bCloseOnSuccess = cmd.GetBoolOption("-close", false);
   m_Settings.m_bNoGUI = cmd.GetBoolOption("-nogui", false);
 
@@ -222,16 +229,29 @@ void ezTestFramework::GetTestSettingsFromCommandLine(int argc, const char** argv
   m_Settings.m_iRevision = cmd.GetIntOption("-rev", -1);
   m_Settings.m_bEnableAllTests = cmd.GetBoolOption("-all", false);
   m_Settings.m_uiFullPasses = cmd.GetIntOption("-passes", 1, false);
+
   if (cmd.GetStringOptionArguments("-json") == 1)
     m_Settings.m_sJsonOutput = cmd.GetStringOption("-json", 0, "");
+
+  if (cmd.GetStringOptionArguments("-settings") == 1)
+  {
+    m_sAbsTestSettingsFilePath = cmd.GetStringOption("-settings", 0, "");
+    // If a custom settings file was provided, default to -nosave as to not overwrite that file with additional
+    // parameters from command line. Use "-nosave false" to explicitely enable auto save in this case.
+    m_Settings.m_bNoAutomaticSaving = cmd.GetBoolOption("-nosave", true);
+  }
+  else
+  {
+    m_sAbsTestSettingsFilePath = m_sAbsTestOutputDir + std::string("/TestSettings.txt");
+    m_Settings.m_bNoAutomaticSaving = cmd.GetBoolOption("-nosave", false);
+  }
 
   m_uiPassesLeft = m_Settings.m_uiFullPasses;
 }
 
 void ezTestFramework::LoadTestOrder()
 {
-  std::string sTestSettingsFile = m_sAbsTestOutputDir + std::string("/TestSettings.txt");
-  ::LoadTestOrder(sTestSettingsFile.c_str(), m_TestEntries, m_Settings);
+  ::LoadTestOrder(m_sAbsTestSettingsFilePath.c_str(), m_TestEntries, m_Settings);
   if (m_Settings.m_bEnableAllTests)
     SetAllTestsEnabledStatus(true);
 }
@@ -244,13 +264,18 @@ void ezTestFramework::CreateOutputFolder()
                     m_sAbsTestOutputDir.c_str());
 }
 
-void ezTestFramework::SaveTestOrder()
+void ezTestFramework::AutoSaveTestOrder()
 {
-  if (m_Settings.m_bNoSaving)
+  if (m_Settings.m_bNoAutomaticSaving)
     return;
 
-  std::string sTestSettingsFile = m_sAbsTestOutputDir + std::string("/TestSettings.txt");
-  ::SaveTestOrder(sTestSettingsFile.c_str(), m_TestEntries, m_Settings);
+  SaveTestOrder(m_sAbsTestSettingsFilePath.c_str());
+}
+
+
+void ezTestFramework::SaveTestOrder(const char* const filePath)
+{
+  ::SaveTestOrder(filePath, m_TestEntries, m_Settings);
 }
 
 void ezTestFramework::SetAllTestsEnabledStatus(bool bEnable)

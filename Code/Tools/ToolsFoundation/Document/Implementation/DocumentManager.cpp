@@ -78,9 +78,9 @@ void ezDocumentManager::UpdateBeforeUnloadingPlugins(const ezPlugin::PluginEvent
 
   if (bChanges)
   {
-    Event e;
-    e.m_Type = Event::Type::DocumentTypesRemoved;
-    s_Events.Broadcast(e);
+    Event e2;
+    e2.m_Type = Event::Type::DocumentTypesRemoved;
+    s_Events.Broadcast(e2);
   }
 }
 

@@ -170,7 +170,7 @@ class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorLineEditWidget : public ezQtStandar
 public:
   ezQtPropertyEditorLineEditWidget();
 
-protected slots:
+protected Q_SLOTS:
   void on_TextChanged_triggered(const QString& value);
   void on_TextFinished_triggered();
 

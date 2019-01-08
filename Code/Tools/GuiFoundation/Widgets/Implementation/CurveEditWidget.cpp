@@ -41,9 +41,9 @@ void ezQtCurveEditWidget::SetCurves(ezCurveGroupData* pCurveEditData, double fMi
 
   for (ezUInt32 i = 0; i < pCurveEditData->m_Curves.GetCount(); ++i)
   {
-    auto& data = m_Curves.ExpandAndGetRef();
+    auto& curve = m_Curves.ExpandAndGetRef();
 
-    pCurveEditData->ConvertToRuntimeData(i, data);
+    pCurveEditData->ConvertToRuntimeData(i, curve);
   }
 
   // make sure the selection does not contain points that got deleted

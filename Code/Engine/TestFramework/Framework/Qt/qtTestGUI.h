@@ -30,6 +30,7 @@ private Q_SLOTS:
   void on_actionOpenHTMLOutput_triggered(bool bChecked);
   void on_actionKeepConsoleOpen_triggered(bool bChecked);
   void on_actionShowMessageBox_triggered(bool bChecked);
+  void on_actionSaveTestSettingsAs_triggered();
   void on_actionRunTests_triggered();
   void on_actionAbort_triggered();
   void on_actionQuit_triggered();

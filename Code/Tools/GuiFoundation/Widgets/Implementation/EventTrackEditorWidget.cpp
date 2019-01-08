@@ -33,13 +33,13 @@ ezQtEventTrackEditorWidget::ezQtEventTrackEditorWidget(QWidget* pParent)
 
 ezQtEventTrackEditorWidget::~ezQtEventTrackEditorWidget() = default;
 
-void ezQtEventTrackEditorWidget::SetData(const ezEventTrackData& data, double fMinCurveLength)
+void ezQtEventTrackEditorWidget::SetData(const ezEventTrackData& trackData, double fMinCurveLength)
 {
   ezQtScopedUpdatesDisabled ud(this);
   ezQtScopedBlockSignals bs(this);
 
-  m_pData = &data;
-  EventTrackEdit->SetData(&data, fMinCurveLength);
+  m_pData = &trackData;
+  EventTrackEdit->SetData(&trackData, fMinCurveLength);
 
   UpdateSpinBoxes();
 }

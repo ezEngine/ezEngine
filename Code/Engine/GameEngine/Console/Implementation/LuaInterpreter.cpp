@@ -71,7 +71,7 @@ static int LUAFUNC_ConsoleFunc(lua_State* state)
   if (!m_Params.IsEmpty())
     pFunc->Call(ezArrayPtr<ezVariant>(&m_Params[0], m_Params.GetCount()));
   else
-    pFunc->Call(ezArrayPtr<ezVariant>(nullptr, 0));
+    pFunc->Call(ezArrayPtr<ezVariant>());
 
   return s.ReturnToScript();
 }
