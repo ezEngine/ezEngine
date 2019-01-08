@@ -10,6 +10,11 @@ namespace
   {
     ezUInt64 m_uiThreadId;
     ezString m_sName;
+
+    bool operator==(const ThreadInfo& rhs) const
+    {
+      return m_uiThreadId == rhs.m_uiThreadId && m_sName == rhs.m_sName;
+    }
   };
 
   static ezHybridArray<ThreadInfo, 16> s_ThreadInfos;
@@ -232,13 +237,20 @@ void ezProfilingSystem::RemoveThread()
 // static
 void ezProfilingSystem::InitializeGPUData()
 {
-  s_GPUData = EZ_DEFAULT_NEW(GPUDataRingBuffer);
+  if (s_GPUData == nullptr)
+  {
+    s_GPUData = EZ_DEFAULT_NEW(GPUDataRingBuffer);
+  }
 
-  EZ_LOCK(s_ThreadInfosMutex);
-
-  ThreadInfo& info = s_ThreadInfos.ExpandAndGetRef();
+  ThreadInfo info;
   info.m_uiThreadId = 0;
   info.m_sName = "GPU";
+
+  EZ_LOCK(s_ThreadInfosMutex);
+  if (!s_ThreadInfos.Contains(info))
+  {
+    s_ThreadInfos.PushBack(info);
+  }
 }
 
 ezProfilingSystem::GPUData& ezProfilingSystem::AllocateGPUData()

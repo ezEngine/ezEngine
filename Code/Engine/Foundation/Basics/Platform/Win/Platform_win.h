@@ -36,7 +36,9 @@
 // already includes Windows.h, but defines important other things first
 //#include <winsock2.h>
 
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 #include <Windows.h>
 
 #include <malloc.h>
@@ -51,6 +53,7 @@
 #undef DispatchMessage
 #undef PostMessage
 #undef SendMessage
+#undef OPAQUE
 
 #if defined(_MSC_VER)
 

@@ -18,6 +18,10 @@ void ezThreadUtils::YieldTimeSlice()
   ::Sleep(0);
 }
 
+void ezThreadUtils::YieldHardwareThread()
+{
+  YieldProcessor();
+}
 
 void ezThreadUtils::Sleep(const ezTime& duration)
 {

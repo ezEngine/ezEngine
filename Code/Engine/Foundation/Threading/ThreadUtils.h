@@ -12,6 +12,9 @@ public:
   /// \brief Suspends execution of the current thread.
   static void YieldTimeSlice();
 
+  /// \brief Give resources to other hardware threads on the same processor. Does nothing if the processor has no hardware threads.
+  static void YieldHardwareThread();
+
   /// \brief Suspends the execution of the current thread for the given amount of time. (Precision may vary according to OS)
   static void Sleep(const ezTime& duration); // [tested]
 

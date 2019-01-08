@@ -32,8 +32,54 @@ private:
     typedef const ezUInt8 type;
   };
 
+  /// \brief Helper to allow simple pointer arithmetic in case the ArrayPtr's type is
+  ///    is void or const void.
+  template <typename U>
+  struct VoidPtrHelper
+  {
+  public:
+    EZ_DECLARE_POD_TYPE();
+
+    VoidPtrHelper() {}
+    VoidPtrHelper(U* p) : m_ptr(p) {}
+    operator U*() const { return m_ptr; }
+    template<typename V, typename = std::enable_if_t<sizeof(V) == 1 && !std::is_const_v<U>>>
+    explicit operator V*() const { return static_cast<V*>(m_ptr); }
+    template <typename V, typename = std::enable_if_t<sizeof(V) == 1>>
+    explicit operator const V*() const { return static_cast<const V*>(m_ptr); }
+    U* operator+(ptrdiff_t off) const { return (U*)((ptrdiff_t(m_ptr) + off)); }
+    U* operator-(ptrdiff_t off) const { return (U*)((ptrdiff_t(m_ptr) - off)); }
+    ptrdiff_t operator-(const void* other) const { return ptrdiff_t(m_ptr) - ptrdiff_t(other); }
+
+  private:
+    U* m_ptr;
+  };
+
+  template <typename U>
+  struct VoidTypeHelper
+  {
+    typedef U valueType;
+    typedef U* pointerType;
+  };
+
+  template<>
+  struct VoidTypeHelper<void>
+  {
+    typedef ezUInt8 valueType;
+    typedef VoidPtrHelper<void> pointerType;
+  };
+
+  template <>
+  struct VoidTypeHelper<const void>
+  {
+    typedef const ezUInt8 valueType;
+    typedef VoidPtrHelper<const void> pointerType;
+  };
+
 public:
   typedef typename ByteTypeHelper<T>::type ByteType;
+  typedef typename VoidTypeHelper<T>::valueType ValueType;
+  typedef typename VoidTypeHelper<T>::pointerType PointerType;
 
   /// \brief Initializes the ezArrayPtr to be empty.
   EZ_ALWAYS_INLINE ezArrayPtr()
@@ -43,7 +89,10 @@ public:
   }
 
   /// \brief Initializes the ezArrayPtr with the given pointer and number of elements. No memory is allocated or copied.
-  inline ezArrayPtr(T* ptr, ezUInt32 uiCount)
+  /// \note For ArrayPtr<void> and ArrayPtr<const void>, this constructor is only available if ptr is of
+  ///    type void*, const void*, or any T* with sizeof(T) == 1
+  template<typename U, typename = std::enable_if_t<!std::is_same_v<std::remove_cv_t<T>, void> || sizeof(typename VoidTypeHelper<U>::valueType) == 1>>
+  inline ezArrayPtr(U* ptr, ezUInt32 uiCount)
       : m_ptr(ptr)
       , m_uiCount(uiCount) // [tested]
   {
@@ -57,7 +106,7 @@ public:
 
   /// \brief Initializes the ezArrayPtr to encapsulate the given array.
   template <size_t N>
-  EZ_ALWAYS_INLINE ezArrayPtr(T (&staticArray)[N])
+  EZ_ALWAYS_INLINE ezArrayPtr(ValueType (&staticArray)[N])
       : m_ptr(staticArray)
       , m_uiCount(static_cast<ezUInt32>(N)) // [tested]
   {
@@ -71,7 +120,7 @@ public:
   }
 
   /// \brief Convert to const version.
-  operator ezArrayPtr<const T>() const { return ezArrayPtr<const T>(GetPtr(), GetCount()); } // [tested]
+  operator ezArrayPtr<const T>() const { return ezArrayPtr<const T>(static_cast<const T*>(GetPtr()), GetCount()); } // [tested]
 
   /// \brief Copies the pointer and size of /a other. Does not allocate any data.
   EZ_ALWAYS_INLINE void operator=(const ezArrayPtr<T>& other) // [tested]
@@ -94,25 +143,25 @@ public:
   }
 
   /// \brief Returns the pointer to the array.
-  EZ_ALWAYS_INLINE const T* GetPtr() const // [tested]
+  EZ_ALWAYS_INLINE const PointerType GetPtr() const // [tested]
   {
     return m_ptr;
   }
 
   /// \brief Returns the pointer to the array.
-  EZ_ALWAYS_INLINE T* GetPtr() // [tested]
+  EZ_ALWAYS_INLINE PointerType GetPtr() // [tested]
   {
     return m_ptr;
   }
 
   /// \brief Returns the pointer behind the last element of the array
-  EZ_ALWAYS_INLINE T* GetEndPtr()
+  EZ_ALWAYS_INLINE PointerType GetEndPtr()
   {
     return m_ptr + m_uiCount;
   }
 
   /// \brief Returns the pointer behind the last element of the array
-  EZ_ALWAYS_INLINE const T* GetEndPtr() const
+  EZ_ALWAYS_INLINE const PointerType GetEndPtr() const
   {
     return m_ptr + m_uiCount;
   }
@@ -174,17 +223,17 @@ public:
   }
 
   /// \brief Index access.
-  EZ_FORCE_INLINE const T& operator[](ezUInt32 uiIndex) const // [tested]
+  EZ_FORCE_INLINE const ValueType& operator[](ezUInt32 uiIndex) const // [tested]
   {
     EZ_ASSERT_DEV(uiIndex < GetCount(), "Cannot access element {0}, the array only holds {1} elements.", uiIndex, GetCount());
-    return GetPtr()[uiIndex];
+    return *static_cast<const ValueType*>(GetPtr() + uiIndex);
   }
 
   /// \brief Index access.
-  EZ_FORCE_INLINE T& operator[](ezUInt32 uiIndex) // [tested]
+  EZ_FORCE_INLINE ValueType& operator[](ezUInt32 uiIndex) // [tested]
   {
     EZ_ASSERT_DEV(uiIndex < GetCount(), "Cannot access element {0}, the array only holds {1} elements.", uiIndex, GetCount());
-    return GetPtr()[uiIndex];
+    return *static_cast<ValueType*>(GetPtr() + uiIndex);
   }
 
   /// \brief Compares the two arrays for equality.
@@ -196,7 +245,7 @@ public:
     if (GetPtr() == other.GetPtr())
       return true;
 
-    return ezMemoryUtils::IsEqual(GetPtr(), other.GetPtr(), GetCount());
+    return ezMemoryUtils::IsEqual(static_cast<const ValueType*>(GetPtr()), static_cast<const ValueType*>(other.GetPtr()), GetCount());
   }
 
   /// \brief Compares the two arrays for inequality.
@@ -211,7 +260,7 @@ public:
     EZ_ASSERT_DEV(GetCount() == other.GetCount(), "Count for copy does not match. Target has {0} elements, source {1} elements", GetCount(),
                   other.GetCount());
 
-    ezMemoryUtils::Copy(GetPtr(), other.GetPtr(), GetCount());
+    ezMemoryUtils::Copy(static_cast<ValueType*>(GetPtr()), static_cast<const ValueType*>(other.GetPtr()), GetCount());
   }
 
   /// \brief Resets the ezArray to be empty.
@@ -227,7 +276,7 @@ public:
   typedef reverse_pointer_iterator<T> reverse_iterator;
 
 private:
-  T* m_ptr;
+  PointerType m_ptr;
   ezUInt32 m_uiCount;
 };
 
@@ -245,73 +294,73 @@ EZ_ALWAYS_INLINE ezArrayPtr<T> ezMakeArrayPtr(T (&staticArray)[N])
   return ezArrayPtr<T>(staticArray);
 }
 
-template <typename T>
+template <typename T, typename = std::enable_if_t<!std::is_same_v<std::remove_cv_t<T>, void> >>
 typename ezArrayPtr<T>::iterator begin(ezArrayPtr<T>& container)
 {
   return container.GetPtr();
 }
 
-template <typename T>
+template <typename T, typename = std::enable_if_t<!std::is_same_v<std::remove_cv_t<T>, void>>>
 typename ezArrayPtr<T>::const_iterator begin(const ezArrayPtr<T>& container)
 {
   return container.GetPtr();
 }
 
-template <typename T>
+template <typename T, typename = std::enable_if_t<!std::is_same_v<std::remove_cv_t<T>, void>>>
 typename ezArrayPtr<T>::const_iterator cbegin(const ezArrayPtr<T>& container)
 {
   return container.GetPtr();
 }
 
-template <typename T>
+template <typename T, typename = std::enable_if_t<!std::is_same_v<std::remove_cv_t<T>, void>>>
 typename ezArrayPtr<T>::reverse_iterator rbegin(ezArrayPtr<T>& container)
 {
   return typename ezArrayPtr<T>::reverse_iterator(container.GetPtr() + container.GetCount() - 1);
 }
 
-template <typename T>
+template <typename T, typename = std::enable_if_t<!std::is_same_v<std::remove_cv_t<T>, void>>>
 typename ezArrayPtr<T>::const_reverse_iterator rbegin(const ezArrayPtr<T>& container)
 {
   return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() + container.GetCount() - 1);
 }
 
-template <typename T>
+template <typename T, typename = std::enable_if_t<!std::is_same_v<std::remove_cv_t<T>, void>>>
 typename ezArrayPtr<T>::const_reverse_iterator crbegin(const ezArrayPtr<T>& container)
 {
   return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() + container.GetCount() - 1);
 }
 
-template <typename T>
+template <typename T, typename = std::enable_if_t<!std::is_same_v<std::remove_cv_t<T>, void>>>
 typename ezArrayPtr<T>::iterator end(ezArrayPtr<T>& container)
 {
   return container.GetPtr() + container.GetCount();
 }
 
-template <typename T>
+template <typename T, typename = std::enable_if_t<!std::is_same_v<std::remove_cv_t<T>, void>>>
 typename ezArrayPtr<T>::const_iterator end(const ezArrayPtr<T>& container)
 {
   return container.GetPtr() + container.GetCount();
 }
 
-template <typename T>
+template <typename T, typename = std::enable_if_t<!std::is_same_v<std::remove_cv_t<T>, void>>>
 typename ezArrayPtr<T>::const_iterator cend(const ezArrayPtr<T>& container)
 {
   return container.GetPtr() + container.GetCount();
 }
 
-template <typename T>
+template <typename T, typename = std::enable_if_t<!std::is_same_v<std::remove_cv_t<T>, void>>>
 typename ezArrayPtr<T>::reverse_iterator rend(ezArrayPtr<T>& container)
 {
   return typename ezArrayPtr<T>::reverse_iterator(container.GetPtr() - 1);
 }
 
-template <typename T>
+template <typename T, typename = std::enable_if_t<!std::is_same_v<std::remove_cv_t<T>, void>>>
 typename ezArrayPtr<T>::const_reverse_iterator rend(const ezArrayPtr<T>& container)
 {
   return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() - 1);
 }
 
-template <typename T>
+template <typename T, typename = std::enable_if_t<!std::is_same_v<std::remove_cv_t<T>, void>>>
 typename ezArrayPtr<T>::const_reverse_iterator crend(const ezArrayPtr<T>& container)
 {
   return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() - 1);

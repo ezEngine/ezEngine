@@ -21,6 +21,11 @@ void ezThreadUtils::YieldTimeSlice()
   sched_yield();
 }
 
+void ezThreadUtils::YieldHardwareThread()
+{
+  // No equivalent to mm_pause on linux 
+}
+
 void ezThreadUtils::Sleep(const ezTime& duration)
 {
   timespec SleepTime;
