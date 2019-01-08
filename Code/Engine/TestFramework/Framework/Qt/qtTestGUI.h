@@ -2,9 +2,22 @@
 
 #ifdef EZ_USE_QT
 
-#include <Code/Engine/TestFramework/ui_qtTestGUI.h>
-#include <QMainWindow>
-#include <TestFramework/Basics.h>
+#  include <Code/Engine/TestFramework/ui_qtTestGUI.h>
+#  include <QMainWindow>
+
+#  include <TestFramework/Basics.h>
+
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#    define USE_WIN_EXTRAS EZ_ON
+#  else
+#    define USE_WIN_EXTRAS EZ_OFF
+#  endif
+
+#  if EZ_ENABLED(USE_WIN_EXTRAS)
+#    include <QtWinExtras/QWinTaskbarButton>
+#    include <QtWinExtras/QWinTaskbarProgress>
+#  endif
+
 
 class ezQtTestFramework;
 class ezQtTestModel;
@@ -67,14 +80,19 @@ protected:
   virtual void closeEvent(QCloseEvent* e) override;
 
 private:
-  ezQtTestFramework* m_pTestFramework;
-  ezQtTestModel* m_pModel;
-  ezQtTestDelegate* m_pDelegate;
-  ezQtLogMessageDock* m_pMessageLogDock;
-  QLabel* m_pStatusTextWorkState;
-  QLabel* m_pStatusText;
-  ezInt32 m_bExpandedCurrentTest;
-  bool m_bAbort;
+  ezQtTestFramework* m_pTestFramework = nullptr;
+  ezQtTestModel* m_pModel = nullptr;
+  ezQtTestDelegate* m_pDelegate = nullptr;
+  ezQtLogMessageDock* m_pMessageLogDock = nullptr;
+  QLabel* m_pStatusTextWorkState = nullptr;
+  QLabel* m_pStatusText = nullptr;
+  bool m_bExpandedCurrentTest = false;
+  bool m_bAbort = false;
+
+#  if EZ_ENABLED(USE_WIN_EXTRAS)
+  QWinTaskbarButton* m_pWinTaskBarButton = nullptr;
+  QWinTaskbarProgress* m_pWinTaskBarProgress = nullptr;
+#  endif
 };
 
 #endif

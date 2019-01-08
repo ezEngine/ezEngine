@@ -1,9 +1,9 @@
 #pragma once
 
-#include <GuiFoundation/Basics.h>
-#include <Foundation/Time/Time.h>
-#include <Foundation/Strings/String.h>
 #include <Foundation/Communication/Event.h>
+#include <Foundation/Strings/String.h>
+#include <Foundation/Time/Time.h>
+#include <GuiFoundation/Basics.h>
 
 class QProgressDialog;
 class QWinTaskbarProgress;
@@ -37,15 +37,11 @@ private:
   void EnsureCreated();
   void EnsureDestroyed();
 
-  QProgressDialog* m_pDialog;
-  ezProgress* m_pProgress;
+  QProgressDialog* m_pDialog = nullptr;
+  ezProgress* m_pProgress = nullptr;
 
 #if EZ_ENABLED(USE_WIN_EXTRAS)
-  QWinTaskbarButton* m_pWinTaskBarButton;
-  QWinTaskbarProgress* m_pWinTaskBarProgress;
+  QWinTaskbarButton* m_pWinTaskBarButton = nullptr;
+  QWinTaskbarProgress* m_pWinTaskBarProgress = nullptr;
 #endif
-
 };
-
-
-

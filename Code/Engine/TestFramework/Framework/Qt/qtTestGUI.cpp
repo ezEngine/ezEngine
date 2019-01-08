@@ -2,12 +2,14 @@
 
 #ifdef EZ_USE_QT
 
-#include <QtWidgets>
-#include <Foundation/Strings/PathUtils.h>
-#include <TestFramework/Framework/Qt/qtLogMessageDock.h>
-#include <TestFramework/Framework/Qt/qtTestDelegate.h>
-#include <TestFramework/Framework/Qt/qtTestGUI.h>
-#include <TestFramework/Framework/Qt/qtTestModel.h>
+#  include <QtWidgets>
+
+#  include <Foundation/Strings/PathUtils.h>
+
+#  include <TestFramework/Framework/Qt/qtLogMessageDock.h>
+#  include <TestFramework/Framework/Qt/qtTestDelegate.h>
+#  include <TestFramework/Framework/Qt/qtTestGUI.h>
+#  include <TestFramework/Framework/Qt/qtTestModel.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezQtTestGUI public functions
@@ -16,9 +18,6 @@
 ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
     : QMainWindow()
     , m_pTestFramework(&testFramework)
-    , m_pModel(nullptr)
-    , m_bExpandedCurrentTest(false)
-    , m_bAbort(false)
 {
   this->setupUi(this);
   this->setWindowTitle(testFramework.GetTestName());
@@ -78,10 +77,10 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
   this->actionShowMessageBox->setChecked(settings.m_bShowMessageBox);
 
   // Hide the Windows console
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   if (!settings.m_bKeepConsoleOpen)
     ShowWindow(GetConsoleWindow(), SW_HIDE);
-#endif
+#  endif
 
   connect(m_pTestFramework, SIGNAL(TestResultReceived(qint32, qint32)), this, SLOT(onTestFrameworkTestResultReceived(qint32, qint32)));
 
@@ -96,6 +95,20 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
 
 ezQtTestGUI::~ezQtTestGUI()
 {
+#  if EZ_ENABLED(USE_WIN_EXTRAS)
+  if (m_pWinTaskBarProgress)
+  {
+    m_pWinTaskBarProgress->hide();
+    m_pWinTaskBarProgress = nullptr;
+  }
+
+  if (m_pWinTaskBarButton)
+  {
+    delete m_pWinTaskBarButton;
+    m_pWinTaskBarButton = nullptr;
+  }
+#  endif
+
   testTreeView->setModel(nullptr);
   testTreeView->setItemDelegate(nullptr);
   delete m_pModel;
@@ -134,12 +147,12 @@ void ezQtTestGUI::on_actionKeepConsoleOpen_triggered(bool bChecked)
   settings.m_bKeepConsoleOpen = bChecked;
   m_pTestFramework->SetSettings(settings);
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   if (!settings.m_bKeepConsoleOpen)
     ShowWindow(GetConsoleWindow(), SW_HIDE);
   else
     ShowWindow(GetConsoleWindow(), SW_SHOW);
-#endif
+#  endif
 }
 
 void ezQtTestGUI::on_actionShowMessageBox_triggered(bool bChecked)
@@ -196,6 +209,13 @@ void ezQtTestGUI::on_actionRunTests_triggered()
       QMessageBox::information(this, "Tests Aborted", "The tests were aborted by the user.", QMessageBox::Ok, QMessageBox::Ok);
 
     m_bAbort = false;
+
+#  if EZ_ENABLED(USE_WIN_EXTRAS)
+    if (m_pWinTaskBarProgress)
+    {
+      m_pWinTaskBarProgress->pause();
+    }
+#  endif
   }
   else
   {
@@ -205,6 +225,13 @@ void ezQtTestGUI::on_actionRunTests_triggered()
 
       if (m_pTestFramework->GetSettings().m_bShowMessageBox)
         QMessageBox::critical(this, "Tests Failed", "Some tests have failed.", QMessageBox::Ok, QMessageBox::Ok);
+
+#  if EZ_ENABLED(USE_WIN_EXTRAS)
+      if (m_pWinTaskBarProgress)
+      {
+        m_pWinTaskBarProgress->stop();
+      }
+#  endif
     }
     else
     {
@@ -215,6 +242,13 @@ void ezQtTestGUI::on_actionRunTests_triggered()
 
       if (m_pTestFramework->GetSettings().m_bCloseOnSuccess)
         QTimer::singleShot(100, this, SLOT(on_actionQuit_triggered()));
+
+#  if EZ_ENABLED(USE_WIN_EXTRAS)
+      if (m_pWinTaskBarProgress)
+      {
+        m_pWinTaskBarProgress->reset();
+      }
+#  endif
     }
   }
 }
@@ -310,7 +344,7 @@ void ezQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iS
   }
 
   // Update status bar
-  const ezUInt32 uiTestCount = m_pTestFramework->GetTestCount();
+  const ezUInt32 uiTestCount = m_pTestFramework->GetTestEnabledCount();
   const ezUInt32 uiFailed = m_pTestFramework->GetTestsFailedCount();
   const ezUInt32 uiPassed = m_pTestFramework->GetTestsPassedCount();
   const ezUInt32 uiErrors = m_pTestFramework->GetTotalErrorCount();
@@ -333,6 +367,33 @@ void ezQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iS
 
   m_pStatusText->setText(sStatusText);
   m_pMessageLogDock->currentTestResultChanged(&m_pTestFramework->GetTestResult().GetTestResultData(iTestIndex, iSubTestIndex));
+
+#  if EZ_ENABLED(USE_WIN_EXTRAS)
+  if (m_pWinTaskBarButton == nullptr)
+  {
+    m_pWinTaskBarButton = new QWinTaskbarButton(QApplication::activeWindow());
+    m_pWinTaskBarButton->setWindow(QApplication::activeWindow()->windowHandle());
+
+    m_pWinTaskBarProgress = m_pWinTaskBarButton->progress();
+    m_pWinTaskBarProgress->setMinimum(0);
+    m_pWinTaskBarProgress->setMaximum(1000);
+    m_pWinTaskBarProgress->setValue(0);
+    m_pWinTaskBarProgress->reset();
+    m_pWinTaskBarProgress->show();
+    m_pWinTaskBarProgress->setVisible(true);
+  }
+
+  if (m_pWinTaskBarProgress)
+  {
+    if (uiErrors == 0)
+      m_pWinTaskBarProgress->resume();
+    else
+      m_pWinTaskBarProgress->stop();
+
+    const ezUInt32 uiProMille = static_cast<ezUInt32>(fProgress * 10.0f);
+    m_pWinTaskBarProgress->setValue(uiProMille);
+  }
+#  endif
 
   QApplication::processEvents();
 }

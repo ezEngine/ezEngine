@@ -5,23 +5,12 @@
 #include <QApplication>
 #include <QProgressDialog>
 
-
 #if EZ_ENABLED(USE_WIN_EXTRAS)
-#include <QtWinExtras/QWinTaskbarButton>
-#include <QtWinExtras/QWinTaskbarProgress>
+#  include <QtWinExtras/QWinTaskbarButton>
+#  include <QtWinExtras/QWinTaskbarProgress>
 #endif
 
-
-ezQtProgressbar::ezQtProgressbar()
-{
-  m_pProgress = nullptr;
-  m_pDialog = nullptr;
-
-#if EZ_ENABLED(USE_WIN_EXTRAS)
-  m_pWinTaskBarProgress = nullptr;
-  m_pWinTaskBarButton = nullptr;
-#endif
-}
+ezQtProgressbar::ezQtProgressbar() = default;
 
 ezQtProgressbar::~ezQtProgressbar()
 {

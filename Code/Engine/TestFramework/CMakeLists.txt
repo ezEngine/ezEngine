@@ -36,7 +36,12 @@ if(EZ_TESTFRAMEWORK_USE_FILESERVE)
 endif()
 
 # Enables the use of Qt in this library and sets up the required modules.
-QT_MODULES(Core Gui Widgets)
+if (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
+  QT_MODULES(Core Gui Widgets WinExtras)
+else()
+  QT_MODULES(Core Gui Widgets)
+endif()
+
 SET (EZ_COPY_QT_DLLS ON)
 
 # Set all headers, that shall be MOC'ed that do not end with moc.h and thus will be MOC'ed automatically.
