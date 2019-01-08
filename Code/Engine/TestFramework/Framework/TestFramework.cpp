@@ -813,6 +813,7 @@ bool ezTestFramework::CompareImages(ezUInt32 uiMaxError, char* szErrorMsg)
 
   ezStringBuilder sImgName, sImgPathReference, sImgPathResult;
   sImgName.Format("{0}_{1}_{2}", szTestName, szSubTestName, ezArgI(m_iImageCounter, 3, true));
+  sImgName.ReplaceAll(" ", "_");
   ++m_iImageCounter;
 
   ezImage img, imgRGB, imgSmall;
