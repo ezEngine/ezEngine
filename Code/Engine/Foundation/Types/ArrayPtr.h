@@ -7,19 +7,8 @@
 // This #include is quite vital, do not remove it!
 #include <Foundation/Strings/FormatString.h>
 
-/// \brief This class encapsulates an array and it's size. It is recommended to use this class instead of plain C arrays.
-///
-/// No data is deallocated at destruction, the ezArrayPtr only allows for easier access.
-template <typename T>
-class ezArrayPtr
+namespace ezArrayPtrDetail
 {
-public:
-  EZ_DECLARE_POD_TYPE();
-
-  typedef T ElementType;
-  typedef typename ezTypeTraits<T>::NonConstType MutableElementType;
-
-private:
   template <typename U>
   struct ByteTypeHelper
   {
@@ -46,7 +35,7 @@ private:
     {
     }
     operator U*() const { return m_ptr; }
-    template <typename V, typename = std::enable_if_t<sizeof(V) == 1 && !std::is_const<T>::value>>
+    template <typename V, typename = std::enable_if_t<sizeof(V) == 1 && !std::is_const<U>::value>>
     explicit operator V*() const
     {
       return static_cast<V*>(m_ptr);
@@ -84,11 +73,24 @@ private:
     typedef const ezUInt8 valueType;
     typedef VoidPtrHelper<const void> pointerType;
   };
+} // namespace ezArrayPtrDetail
+
+/// \brief This class encapsulates an array and it's size. It is recommended to use this class instead of plain C arrays.
+///
+/// No data is deallocated at destruction, the ezArrayPtr only allows for easier access.
+template <typename T>
+class ezArrayPtr
+{
+public:
+  EZ_DECLARE_POD_TYPE();
+
+  typedef T ElementType;
+  typedef typename ezTypeTraits<T>::NonConstType MutableElementType;
 
 public:
-  typedef typename ByteTypeHelper<T>::type ByteType;
-  typedef typename VoidTypeHelper<T>::valueType ValueType;
-  typedef typename VoidTypeHelper<T>::pointerType PointerType;
+  typedef typename ezArrayPtrDetail::ByteTypeHelper<T>::type ByteType;
+  typedef typename ezArrayPtrDetail::VoidTypeHelper<T>::valueType ValueType;
+  typedef typename ezArrayPtrDetail::VoidTypeHelper<T>::pointerType PointerType;
 
   /// \brief Initializes the ezArrayPtr to be empty.
   EZ_ALWAYS_INLINE ezArrayPtr() // [tested]
@@ -101,7 +103,7 @@ public:
   /// \note For ArrayPtr<void> and ArrayPtr<const void>, this constructor is only available if ptr is of
   ///    type void*, const void*, or any T* with sizeof(T) == 1
   template <typename U, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value ||
-                                                    sizeof(typename VoidTypeHelper<U>::valueType) == 1>>
+                                                    sizeof(typename ezArrayPtrDetail::VoidTypeHelper<U>::valueType) == 1>>
   inline ezArrayPtr(U* ptr, ezUInt32 uiCount) // [tested]
       : m_ptr(ptr)
       , m_uiCount(uiCount)
