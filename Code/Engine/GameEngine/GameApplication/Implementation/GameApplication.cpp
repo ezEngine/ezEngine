@@ -107,27 +107,6 @@ void ezGameApplication::BeforeCoreSystemsStartup()
 #endif
 }
 
-ezString ezGameApplication::FindProjectDirectoryForScene(const char* szScene) const
-{
-  ezStringBuilder sPath = szScene;
-  sPath.PathParentDirectory();
-
-  ezStringBuilder sTemp;
-
-  while (!sPath.IsEmpty())
-  {
-    sTemp = sPath;
-    sTemp.AppendPath("ezProject");
-
-    if (ezOSFile::ExistsFile(sTemp))
-      return sPath;
-
-    sPath.PathParentDirectory();
-  }
-
-  return "";
-}
-
 void ezGameApplication::AfterCoreSystemsStartup()
 {
   DoProjectSetup();
@@ -176,36 +155,6 @@ void ezGameApplication::BeforeCoreSystemsShutdown()
   DoShutdownLogWriters();
 }
 
-
-ezString ezGameApplication::SearchProjectDirectory(const char* szStartDirectory, const char* szRelPathToProjectFile) const
-{
-  ezStringBuilder sStartDir = szStartDirectory;
-  ezStringBuilder sPath;
-
-  while (true)
-  {
-    sPath = sStartDir;
-    sPath.AppendPath(szRelPathToProjectFile);
-    sPath.MakeCleanPath();
-
-    if (!sPath.EndsWith_NoCase("/ezProject"))
-      sPath.AppendPath("ezProject");
-
-    if (ezOSFile::ExistsFile(sPath))
-    {
-      sPath.PathParentDirectory();
-      return sPath;
-    }
-
-    if (sStartDir.IsEmpty())
-      break;
-
-    sStartDir.PathParentDirectory();
-  }
-
-  return ezString();
-}
-
 ezString ezGameApplication::FindProjectDirectory() const
 {
   EZ_ASSERT_RELEASE(!m_sAppProjectPath.IsEmpty(), "Either the project must have a built in project directory passed to the "
@@ -226,7 +175,13 @@ ezString ezGameApplication::FindProjectDirectory() const
     }
   }
 
-  return SearchProjectDirectory(ezOSFile::GetApplicationDirectory(), m_sAppProjectPath);
+  ezStringBuilder result;
+  if (ezFileSystem::FindFolderWithSubPath(ezOSFile::GetApplicationDirectory(), m_sAppProjectPath, result).Failed())
+  {
+    ezLog::Error("Could not find the project directory.");
+  }
+
+  return result;
 }
 
 ezApplication::ApplicationExecution ezGameApplication::Run()

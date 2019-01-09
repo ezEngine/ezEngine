@@ -80,17 +80,6 @@ public:
   /// \brief When the graphics device is created, by default the game application will pick a platform specific implementation. This
   /// function allows to override that by setting a custom function that creates a graphics device.
   static void SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> creator);
-  
-
-  /// \brief Checks all parent directories of the scene file and tries to find a file called
-  /// 'ezProject' (no extension) which marks the project directory.
-  /// Returns an empty string, if no such directory could be found.
-  ezString FindProjectDirectoryForScene(const char* szScene) const;
-
-  /// \brief Tries to find the project directory by concatenating the start directory and the relative path
-  /// to the project file. As long as the file is not found, the next parent of the start directory is tried.
-  /// Returns an empty string, if no such directory could be found.
-  ezString SearchProjectDirectory(const char* szStartDirectory, const char* szRelPathToProjectFile) const;
 
   /// \todo Fix this comment
   /// \brief virtual function that is called by DoProjectSetup(). The result is passed to ezFileSystem::SetProjectDirectory
@@ -100,7 +89,7 @@ public:
   /// to search for a project somewhere relative to where the application is installed.
   ///
   /// Override this, if your application uses a different folder structure or way to specify the project directory.
-  virtual ezString FindProjectDirectory() const;
+  virtual ezString FindProjectDirectory() const override;
 
   /// \brief Used at runtime (by the editor) to reload input maps. Forwards to DoConfigureInput()
   void ReinitializeInputConfig();

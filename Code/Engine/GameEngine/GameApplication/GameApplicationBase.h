@@ -177,4 +177,13 @@ protected:
   ezPlatformProfile m_PlatformProfile;
 
   ///@}
+  /// \name Project Setup
+  ///@{
+public:
+
+protected:
+
+  virtual ezString FindProjectDirectory() const = 0;
+
+  ///@}
 };
