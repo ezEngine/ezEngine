@@ -213,7 +213,7 @@ namespace ezModelImporter
           case ParamType::SPECTRUM:
           {
             ezString actualString(params);
-            entries.PushBack(actualString);
+            entries.PushBack(ezVariant(actualString));
             stopParsing = true;
             break;
           }

@@ -394,7 +394,7 @@ void ezRttiConverterReader::CallOnObjectCreated(const ezAbstractObjectNode* pNod
     if (ezStringUtils::IsEqual(pFunc->GetPropertyName(), "OnObjectCreated"))
     {
       ezHybridArray<ezVariant, 1> params;
-      params.PushBack(pNode);
+      params.PushBack(ezVariant(pNode));
       ezVariant ret;
       pFunc->Execute(pObject, params, ret);
     }

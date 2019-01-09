@@ -21,6 +21,177 @@ EZ_ALWAYS_INLINE ezVariant::ezVariant(const T& value)
   Init(value);
 }
 
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const bool& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezInt8& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezUInt8& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezInt16& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezUInt16& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezInt32& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezUInt32& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezInt64& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezUInt64& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const float& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const double& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezColor& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec2& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec3& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec4& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec2I32& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec3I32& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec4I32& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec2U32& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec3U32& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec4U32& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezQuat& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezMat3& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezMat4& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const char* value)
+{
+  Init(value);
+}
+
+template <size_t N>
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const char (&value)[N])
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezStringView& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezTransform& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezTime& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezUuid& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezAngle& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezColorGammaUB& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVariantArray& value)
+{
+  Init(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVariantDictionary& value)
+{
+  Init(value);
+}
+
 EZ_ALWAYS_INLINE ezVariant::~ezVariant()
 {
   Release();
@@ -157,9 +328,9 @@ T ezVariant::ConvertTo(ezResult* out_pConversionStatus /* = nullptr*/) const
 
 // for some reason MSVC does not accept the template keyword here
 #if EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
-#define CALL_FUNCTOR(functor, type) functor.operator()<type>()
+#  define CALL_FUNCTOR(functor, type) functor.operator()<type>()
 #else
-#define CALL_FUNCTOR(functor, type) functor.template operator()<type>()
+#  define CALL_FUNCTOR(functor, type) functor.template operator()<type>()
 #endif
 
 template <typename Functor>

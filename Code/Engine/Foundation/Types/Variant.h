@@ -4,9 +4,18 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Threading/AtomicInteger.h>
+#include <Foundation/Types/Types.h>
 #include <Foundation/Utilities/ConversionUtils.h>
+#include <Foundation/Math/Declarations.h>
 
 class ezReflectedClass;
+class ezVariant;
+struct ezTime;
+class ezUuid;
+struct ezStringView;
+
+typedef ezDynamicArray<ezVariant> ezVariantArray;
+typedef ezHashTable<ezString, ezVariant> ezVariantDictionary;
 
 /// \brief ezVariant is a class that can store different types of variables, which is useful in situations where it is not clear up front,
 /// which type of data will be passed around.
@@ -111,7 +120,45 @@ public:
   ///
   /// If the type to be stored in the variant is not supported, a compile time error will occur.
   template <typename T>
-  ezVariant(const T& value); // [tested]
+  explicit ezVariant(const T& value); // [tested]
+
+  ezVariant(const bool& value);
+  ezVariant(const ezInt8& value);
+  ezVariant(const ezUInt8& value);
+  ezVariant(const ezInt16& value);
+  ezVariant(const ezUInt16& value);
+  ezVariant(const ezInt32& value);
+  ezVariant(const ezUInt32& value);
+  ezVariant(const ezInt64& value);
+  ezVariant(const ezUInt64& value);
+  ezVariant(const float& value);
+  ezVariant(const double& value);
+  ezVariant(const ezColor& value);
+  ezVariant(const ezVec2& value);
+  ezVariant(const ezVec3& value);
+  ezVariant(const ezVec4& value);
+  ezVariant(const ezVec2I32& value);
+  ezVariant(const ezVec3I32& value);
+  ezVariant(const ezVec4I32& value);
+  ezVariant(const ezVec2U32& value);
+  ezVariant(const ezVec3U32& value);
+  ezVariant(const ezVec4U32& value);
+  ezVariant(const ezQuat& value);
+  ezVariant(const ezMat3& value);
+  ezVariant(const ezMat4& value);
+  ezVariant(const ezTransform& value);
+  ezVariant(const char* value);
+  template <size_t N>
+  ezVariant(const char(&value)[N]);
+  ezVariant(const ezStringView& value);
+  ezVariant(const ezTime& value);
+  ezVariant(const ezUuid& value);
+  ezVariant(const ezAngle& value);
+  ezVariant(const ezColorGammaUB& value);
+
+
+  ezVariant(const ezVariantArray& value);
+  ezVariant(const ezVariantDictionary& value);
 
   /// \brief If necessary, this will deallocate any heap memory that is not in use any more.
   ~ezVariant();
@@ -293,8 +340,6 @@ private:
   T ConvertNumber() const;
 };
 
-typedef ezDynamicArray<ezVariant> ezVariantArray;
-typedef ezHashTable<ezString, ezVariant> ezVariantDictionary;
 typedef ezVariant::Type ezVariantType;
 typedef ezDynamicArray<ezUInt8> ezDataBuffer;
 

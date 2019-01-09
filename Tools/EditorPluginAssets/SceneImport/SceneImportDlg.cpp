@@ -73,7 +73,7 @@ namespace
       }
 
       // Set Name.
-      sceneAccessor.SetValue(currentGameObject, "Name", object->m_Name);
+      sceneAccessor.SetValue(currentGameObject, "Name", ezVariant(object->m_Name));
 
       // Setup rest...
       switch (object->m_Type)
@@ -103,7 +103,7 @@ namespace
             sceneAccessor.AddObject(currentGameObject, "Components", -1, ezRTTI::FindTypeByName("ezMeshComponent"), newMeshComponentId)
                 .LogFailure();
             const ezDocumentObject* newMeshComponent = objectManager.GetObject(newMeshComponentId);
-            sceneAccessor.SetValue(newMeshComponent, "Mesh", *meshId);
+            sceneAccessor.SetValue(newMeshComponent, "Mesh", ezVariant(*meshId));
           }
           else
           {
@@ -186,7 +186,7 @@ void ezQtSceneImportDlg::on_accepted()
 
       ezDocumentObject* pMeshAsset = meshDocument->GetPropertyObject();
       pAccessor->SetValue(pMeshAsset, "MeshFile", inputFilename.GetData()).LogFailure();
-      pAccessor->SetValue(pMeshAsset, "SubmeshName", meshIt.Value()->m_Name).LogFailure();
+      pAccessor->SetValue(pMeshAsset, "SubmeshName", ezVariant(meshIt.Value()->m_Name)).LogFailure();
       pAccessor->SetValue(pMeshAsset, "UseSubfolderForMaterialImport", false).LogFailure();
 
       pAccessor->FinishTransaction();

@@ -278,7 +278,7 @@ bool ezReflectedTypeStorageAccessor::GetKeys(const char* szProperty, ezHybridArr
         out_keys.Reserve(values.GetCount());
         for (auto it = values.GetIterator(); it.IsValid(); ++it)
         {
-          out_keys.PushBack(it.Key());
+          out_keys.PushBack(ezVariant(it.Key()));
         }
         return true;
       }
@@ -517,7 +517,7 @@ ezVariant ezReflectedTypeStorageAccessor::GetPropertyChildIndex(const char* szPr
           for (auto it = values.GetIterator(); it.IsValid(); ++it)
           {
             if (it.Value() == value)
-              return it.Key();
+              return ezVariant(it.Key());
           }
         }
       }

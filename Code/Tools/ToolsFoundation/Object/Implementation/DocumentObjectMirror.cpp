@@ -516,7 +516,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
       {
         EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::Pointer), "Set object must always be pointers!");
         auto pSpecificProp = static_cast<ezAbstractSetProperty*>(pProp);
-        ezReflectionUtils::InsertSetPropertyValue(pSpecificProp, object.m_pObject, pValue);
+        ezReflectionUtils::InsertSetPropertyValue(pSpecificProp, object.m_pObject, ezVariant(pValue));
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Map)
       {
@@ -568,7 +568,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
         EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::Pointer), "Set object must always be pointers!");
         auto pSpecificProp = static_cast<ezAbstractSetProperty*>(pProp);
         auto valueObject = m_pContext->GetObjectByGUID(change.m_Change.m_Value.Get<ezUuid>());
-        ezReflectionUtils::RemoveSetPropertyValue(pSpecificProp, object.m_pObject, valueObject.m_pObject);
+        ezReflectionUtils::RemoveSetPropertyValue(pSpecificProp, object.m_pObject, ezVariant(valueObject.m_pObject));
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Map)
       {

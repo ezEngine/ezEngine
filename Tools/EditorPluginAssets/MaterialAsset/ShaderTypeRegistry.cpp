@@ -246,7 +246,7 @@ namespace
         }
         else if (pType == ezGetStaticRTTI<ezString>())
         {
-          attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, attributeDef.m_sValue));
+          attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, ezVariant(attributeDef.m_sValue)));
         }
       }
       else if (attributeDef.m_sName.IsEqual("Clamp"))

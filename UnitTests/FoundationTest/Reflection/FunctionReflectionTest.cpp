@@ -248,8 +248,8 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
     EZ_TEST_BOOL(funccall.GetFunctionType() == ezFunctionType::Member);
 
     FunctionTest test;
-    test.m_values.PushBack(ezString("String0"));
-    test.m_values.PushBack(ezString("String1"));
+    test.m_values.PushBack(ezVariant(ezString("String0")));
+    test.m_values.PushBack(ezVariant(ezString("String1")));
     test.m_values.PushBack(ezStringView("String2"));
 
     ezVariant ret;
@@ -360,14 +360,14 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
     ezTestStruct3 ps;
     ps.m_fFloat1 = 18;
 
-    test.m_values.PushBack(&value);
-    test.m_values.PushBack(&value);
-    test.m_values.PushBack(&rs);
-    test.m_values.PushBack(&value);
-    test.m_values.PushBack(&ps);
-    test.m_values.PushBack(&value);
+    test.m_values.PushBack(ezVariant(&value));
+    test.m_values.PushBack(ezVariant(&value));
+    test.m_values.PushBack(ezVariant(&rs));
+    test.m_values.PushBack(ezVariant(&value));
+    test.m_values.PushBack(ezVariant(&ps));
+    test.m_values.PushBack(ezVariant(&value));
 
-    ezVariant ret = &retS;
+    ezVariant ret(&retS);
     funccall.Execute(&test, test.m_values, ret);
     EZ_TEST_INT(retS.m_fFloat1, 42);
     EZ_TEST_FLOAT(retS.m_UInt8, 42, 0);
@@ -408,18 +408,18 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
     ezTestClass1 ps;
     ps.m_Color = ezColor::DarkBlue;
 
-    test.m_values.PushBack(&value);
-    test.m_values.PushBack(&value);
-    test.m_values.PushBack(&rs);
-    test.m_values.PushBack(&value);
-    test.m_values.PushBack(&ps);
-    test.m_values.PushBack(&value);
+    test.m_values.PushBack(ezVariant(&value));
+    test.m_values.PushBack(ezVariant(&value));
+    test.m_values.PushBack(ezVariant(&rs));
+    test.m_values.PushBack(ezVariant(&value));
+    test.m_values.PushBack(ezVariant(&ps));
+    test.m_values.PushBack(ezVariant(&value));
 
     rs.m_Color.SetRGB(1, 2, 3);
     rs.m_MyVector.Set(1, 2, 3);
 
 
-    ezVariant ret = &retS;
+    ezVariant ret(&retS);
     funccall.Execute(&test, test.m_values, ret);
     EZ_TEST_BOOL(retS.m_Color == ezColor(42, 42, 42));
     EZ_TEST_BOOL(retS.m_MyVector == ezVec3(42, 42, 42));
@@ -571,7 +571,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
     s.m_fFloat1 = 1.0f;
     s.m_UInt8 = 255;
     values.PushBack(ezColor::CornflowerBlue);
-    values.PushBack(&s);
+    values.PushBack(ezVariant(&s));
     ezVariant ret;
     funccall.Execute(nullptr, values, ret);
     EZ_TEST_BOOL(ret.GetType() == ezVariantType::ReflectedPointer);

@@ -69,7 +69,7 @@ public:
     out_keys.Clear();
     for (const auto& value : m_ConstGetter(static_cast<const Class*>(pInstance)))
     {
-      out_keys.PushBack(value);
+      out_keys.PushBack(ezVariant(value));
     }
   }
 

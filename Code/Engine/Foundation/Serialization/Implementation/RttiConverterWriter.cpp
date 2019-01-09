@@ -360,7 +360,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
           ezUuid guid;
           if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
           {
-            guid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, keys[i], pRefrencedObject);
+            guid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, ezVariant(keys[i]), pRefrencedObject);
             guid = m_pContext->EnqueObject(guid, pPropType, pRefrencedObject);
           }
           else
@@ -390,7 +390,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
             EZ_SCOPE_EXIT(pPropType->GetAllocator()->Deallocate(pSubObject););
             EZ_VERIFY(pSpecific->GetValue(pObject, keys[i], pSubObject), "Key should be valid.");
 
-            const ezUuid SubObjectGuid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, keys[i], pSubObject);
+            const ezUuid SubObjectGuid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, ezVariant(keys[i]), pSubObject);
             AddSubObjectToGraph(pPropType, pSubObject, SubObjectGuid, nullptr);
             ValuesCopied.Insert(keys[i], SubObjectGuid);
           }

@@ -833,7 +833,7 @@ ezStatus ezSceneDocument::AddExposedParameter(const char* szName, const ezDocume
   const ezDocumentObject* pParam = GetObjectManager()->GetObject(id);
   GetObjectAccessor()->SetValue(pParam, "Name", szName).LogFailure();
   GetObjectAccessor()->SetValue(pParam, "Object", key.m_Object).LogFailure();
-  GetObjectAccessor()->SetValue(pParam, "PropertyPath", key.m_sPropertyPath).LogFailure();
+  GetObjectAccessor()->SetValue(pParam, "PropertyPath", ezVariant(key.m_sPropertyPath)).LogFailure();
   return ezStatus(EZ_SUCCESS);
 }
 

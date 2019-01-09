@@ -369,10 +369,11 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
         }
         for (auto it = values.GetIterator(); it.IsValid(); ++it)
         {
-          if (keys.Contains(it.Key()))
-            pObjectAccessor->SetValue(pObject, pProp, it.Value(), it.Key());
+          ezVariant variantKey(it.Key());
+          if (keys.Contains(variantKey))
+            pObjectAccessor->SetValue(pObject, pProp, it.Value(), variantKey);
           else
-            pObjectAccessor->InsertValue(pObject, pProp, it.Value(), it.Key());
+            pObjectAccessor->InsertValue(pObject, pProp, it.Value(), variantKey);
         }
       }
       else // Class
@@ -390,13 +391,14 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
         for (auto it = values.GetIterator(); it.IsValid(); ++it)
         {
           const ezVariant& value = it.Value();
+          ezVariant variantKey(it.Key());
           if (ezAbstractGraphDiffOperation* pCreate = NeedsToBeCreated(value.Get<ezUuid>()))
           {
-            pObjectAccessor->AddObject(pObject, pProp, it.Key(), ezRTTI::FindTypeByName(pCreate->m_sProperty), pCreate->m_Node);
+            pObjectAccessor->AddObject(pObject, pProp, variantKey, ezRTTI::FindTypeByName(pCreate->m_sProperty), pCreate->m_Node);
           }
           else
           {
-            pObjectAccessor->MoveObject(pObjectAccessor->GetObject(value.Get<ezUuid>()), pObject, pProp, it.Key());
+            pObjectAccessor->MoveObject(pObjectAccessor->GetObject(value.Get<ezUuid>()), pObject, pProp, variantKey);
           }
         }
       }
@@ -533,7 +535,7 @@ void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, e
         }
         for (auto it = values.GetIterator(); it.IsValid(); ++it)
         {
-          pObject->GetTypeAccessor().InsertValue(pProp->GetPropertyName(), it.Key(), it.Value());
+          pObject->GetTypeAccessor().InsertValue(pProp->GetPropertyName(), ezVariant(it.Key()), it.Value());
         }
       }
       else
@@ -543,6 +545,8 @@ void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, e
           const ezVariant& value = it.Value();
           const ezUuid guid = value.Get<ezUuid>();
 
+          const ezVariant variantKey(it.Key());
+
           if (guid.IsValid())
           {
             auto* pSubNode = m_pGraph->GetNode(guid);
@@ -550,7 +554,7 @@ void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, e
             if (ezDocumentObject* pSubObject = CreateObjectFromNode(pSubNode))
             {
               ApplyPropertiesToObject(pSubNode, pSubObject);
-              AddObject(pSubObject, pObject, pProp->GetPropertyName(), it.Key());
+              AddObject(pSubObject, pObject, pProp->GetPropertyName(), variantKey);
             }
           }
         }

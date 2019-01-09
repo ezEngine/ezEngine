@@ -88,7 +88,7 @@ ezStatus ezExposedParameterCommandAccessor::GetKeys(const ezDocumentObject* pObj
     {
       for (const auto& pParam : pParams->m_Parameters)
       {
-        out_keys.PushBack(pParam->m_sName);
+        out_keys.PushBack(ezVariant(pParam->m_sName));
       }
 
       ezHybridArray<ezVariant, 16> realKeys;
