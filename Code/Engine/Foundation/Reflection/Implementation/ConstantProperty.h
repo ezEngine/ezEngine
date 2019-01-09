@@ -55,7 +55,7 @@ public:
     return m_Value;
   }
 
-  virtual ezVariant GetConstant() const override { return m_Value; }
+  virtual ezVariant GetConstant() const override { return ezVariant(m_Value); }
 
 private:
   Type m_Value;
