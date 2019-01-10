@@ -171,9 +171,11 @@ private:
 ///
 /// By deriving from this class you can implement your own algorithms for time step smoothing.
 /// Then just set an instance of that class on one of the clocks and it will be applied to the time step.
-class ezTimeStepSmoothing
+class EZ_FOUNDATION_DLL ezTimeStepSmoothing
 {
 public:
+  virtual ~ezTimeStepSmoothing() {}
+
   /// \brief The function to override to implement time step smoothing.
   ///
   /// \param RawTimeStep

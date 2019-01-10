@@ -116,10 +116,10 @@ protected:
 protected:
 
   virtual void Init_ConfigureAssetManagement() override;
-  virtual void Init_LoadRequiredPlugins();
-  virtual void Init_SetupDefaultResources();
+  virtual void Init_LoadRequiredPlugins() override;
+  virtual void Init_SetupDefaultResources() override;
   virtual void Init_SetupGraphicsDevice() override;
-  virtual void Deinit_ShutdownGraphicsDevice();
+  virtual void Deinit_ShutdownGraphicsDevice() override;
 
 
   ///

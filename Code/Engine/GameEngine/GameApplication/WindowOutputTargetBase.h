@@ -12,9 +12,10 @@ class ezImage;
 ///
 /// This interface provides the high level functionality that is needed by ezGameApplication to work with
 /// the render output.
-class ezWindowOutputTargetBase
+class EZ_GAMEENGINE_DLL ezWindowOutputTargetBase
 {
 public:
+  virtual ~ezWindowOutputTargetBase() {}
   virtual void Present(bool bEnableVSync) = 0;
   virtual ezResult CaptureImage(ezImage& out_Image) = 0;
 };

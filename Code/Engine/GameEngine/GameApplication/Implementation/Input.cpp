@@ -14,19 +14,19 @@ extern ezCVarBool CVarShowFPS;
 
 namespace
 {
-  const char* g_szInputSet = "GameApp";
-  const char* g_szCloseAppAction = "CloseApp";
-  const char* g_szShowConsole = "ShowConsole";
-  const char* g_szShowFpsAction = "ShowFps";
-  const char* g_szReloadResourcesAction = "ReloadResources";
-  const char* g_szCaptureProfilingAction = "CaptureProfiling";
-  const char* g_szTakeScreenshot = "TakeScreenshot";
+  const char* s_szInputSet = "GameApp";
+  const char* s_szCloseAppAction = "CloseApp";
+  const char* s_szShowConsole = "ShowConsole";
+  const char* s_szShowFpsAction = "ShowFps";
+  const char* s_szReloadResourcesAction = "ReloadResources";
+  const char* s_szCaptureProfilingAction = "CaptureProfiling";
+  const char* s_szTakeScreenshot = "TakeScreenshot";
 } // namespace
 
 void ezGameApplication::ProcessApplicationInput()
 {
   // the show console command must be in the "Console" input set, because we are using that for exclusive input when the console is open
-  if (ezInputManager::GetInputActionState("Console", g_szShowConsole) == ezKeyState::Pressed)
+  if (ezInputManager::GetInputActionState("Console", s_szShowConsole) == ezKeyState::Pressed)
   {
     m_bShowConsole = !m_bShowConsole;
 
@@ -36,22 +36,22 @@ void ezGameApplication::ProcessApplicationInput()
       ezInputManager::SetExclusiveInputSet("");
   }
 
-  if (ezInputManager::GetInputActionState(g_szInputSet, g_szShowFpsAction) == ezKeyState::Pressed)
+  if (ezInputManager::GetInputActionState(s_szInputSet, s_szShowFpsAction) == ezKeyState::Pressed)
   {
     CVarShowFPS = !CVarShowFPS;
   }
 
-  if (ezInputManager::GetInputActionState(g_szInputSet, g_szReloadResourcesAction) == ezKeyState::Pressed)
+  if (ezInputManager::GetInputActionState(s_szInputSet, s_szReloadResourcesAction) == ezKeyState::Pressed)
   {
     ezResourceManager::ReloadAllResources(false);
   }
 
-  if (ezInputManager::GetInputActionState(g_szInputSet, g_szTakeScreenshot) == ezKeyState::Pressed)
+  if (ezInputManager::GetInputActionState(s_szInputSet, s_szTakeScreenshot) == ezKeyState::Pressed)
   {
     TakeScreenshot();
   }
 
-  if (ezInputManager::GetInputActionState(g_szInputSet, g_szCaptureProfilingAction) == ezKeyState::Pressed)
+  if (ezInputManager::GetInputActionState(s_szInputSet, s_szCaptureProfilingAction) == ezKeyState::Pressed)
   {
     TakeProfilingCapture();
   }
@@ -59,7 +59,7 @@ void ezGameApplication::ProcessApplicationInput()
   if (m_bShowConsole && m_pConsole)
     return;
 
-  if (ezInputManager::GetInputActionState(g_szInputSet, g_szCloseAppAction) == ezKeyState::Pressed)
+  if (ezInputManager::GetInputActionState(s_szInputSet, s_szCloseAppAction) == ezKeyState::Pressed)
   {
     RequestQuit();
   }

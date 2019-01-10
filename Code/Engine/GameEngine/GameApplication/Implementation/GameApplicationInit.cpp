@@ -22,8 +22,6 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <RendererDX11/Device/DeviceDX11.h>
 typedef ezGALDeviceDX11 ezGALDeviceDefault;
-#else
-#  error No Render API available for this platform.
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
@@ -256,6 +254,7 @@ void ezGameApplication::Init_LoadRequiredPlugins()
 
 void ezGameApplication::Deinit_ShutdownGraphicsDevice()
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   if (!ezGALDevice::HasDefaultDevice())
     return;
 
@@ -274,6 +273,7 @@ void ezGameApplication::Deinit_ShutdownGraphicsDevice()
   pDevice->Shutdown();
   EZ_DEFAULT_DELETE(pDevice);
   ezGALDevice::SetDefaultDevice(nullptr);
+#endif
 }
 
 
