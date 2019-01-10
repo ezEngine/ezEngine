@@ -46,9 +46,7 @@ void ezPlayerApplication::BeforeCoreSystemsStartup()
 
 void ezPlayerApplication::AfterCoreSystemsStartup()
 {
-  DoProjectSetup();
-  DoSetupGraphicsDevice();
-  DoSetupDefaultResources();
+  ExecuteInitFunctions();
 
   ezStartup::StartupHighLevelSystems();
 
@@ -57,13 +55,11 @@ void ezPlayerApplication::AfterCoreSystemsStartup()
   ActivateGameState(m_pWorld.Borrow());
 }
 
-void ezPlayerApplication::BeforeCoreSystemsShutdown()
+void ezPlayerApplication::BeforeHighLevelSystemsShutdown()
 {
-  DeactivateGameState();
-
   m_pWorld = nullptr;
 
-  ezGameApplication::BeforeCoreSystemsShutdown();
+  SUPER::BeforeHighLevelSystemsShutdown();
 }
 
 void ezPlayerApplication::SetupLevel()

@@ -210,7 +210,7 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
   CreateHistogramQuad();
 }
 
-void ezComputeShaderHistogramApp::BeforeCoreSystemsShutdown()
+void ezComputeShaderHistogramApp::BeforeHighLevelSystemsShutdown()
 {
   auto device = ezGALDevice::GetDefaultDevice();
 
@@ -230,7 +230,7 @@ void ezComputeShaderHistogramApp::BeforeCoreSystemsShutdown()
   device->DestroyTexture(m_hHistogramTexture);
   m_hHistogramTexture.Invalidate();
 
-  ezGameApplication::BeforeCoreSystemsShutdown();
+  SUPER::BeforeHighLevelSystemsShutdown();
 }
 
 void ezComputeShaderHistogramApp::CreateHistogramQuad()

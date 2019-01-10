@@ -60,6 +60,8 @@ struct ezGameApplicationEvent
 class EZ_GAMEENGINE_DLL ezGameApplication : public ezGameApplicationBase
 {
 public:
+  typedef ezGameApplicationBase SUPER;
+
   /// szProjectPath may be nullptr, if FindProjectDirectory() is overridden.
   ezGameApplication(const char* szAppName, const char* szProjectPath);
   ~ezGameApplication();
@@ -91,7 +93,7 @@ public:
   /// Override this, if your application uses a different folder structure or way to specify the project directory.
   virtual ezString FindProjectDirectory() const override;
 
-  /// \brief Used at runtime (by the editor) to reload input maps. Forwards to DoConfigureInput()
+  /// \brief Used at runtime (by the editor) to reload input maps. Forwards to Init_ConfigureInput()
   void ReinitializeInputConfig();
 
   ezEvent<const ezGameApplicationEvent&> m_Events;
@@ -111,82 +113,14 @@ protected:
 
   virtual void BeforeCoreSystemsStartup() override;
 
-  /// \brief Implements all the application startup
-  ///
-  /// Calls DoProjectSetup() to configure everything about the project.
-  /// Calls ezStartup::StartupHighLevelSystems()
-  /// For stand-alone applications CreateGameStateForWorld() is called with a nullptr world.
-  virtual void AfterCoreSystemsStartup() override;
-
-  /// Destroys all game states and shuts down everything that was created in AfterCoreSystemsStartup()
-  virtual void BeforeCoreSystemsShutdown() override;
-
-
 protected:
-  ///
-  /// Project Initialization
-  ///
 
-  /// \brief This is the main setup function. It calls various other functions in a specific order to initialize the application.
-  virtual void DoProjectSetup();
+  virtual void Init_ConfigureAssetManagement() override;
+  virtual void Init_LoadRequiredPlugins();
+  virtual void Init_SetupDefaultResources();
+  virtual void Init_SetupGraphicsDevice() override;
+  virtual void Deinit_ShutdownGraphicsDevice();
 
-  /// \brief Called by DoProjectSetup() very early to configure where all log output shall go.
-  virtual void DoSetupLogWriters();
-
-  /// \brief Called by DoProjectSetup() early on to configure the ezFileSystem.
-  ///
-  /// It's main responsibility is to call ezFileSystem::RegisterDataDirectoryFactory for all data
-  /// directory types that the application should use. For configuring custom data directories,
-  /// prefer to use DoSetupDataDirectories()
-  virtual void DoConfigureFileSystem();
-
-  /// \brief Called by DoProjectSetup() after DoConfigureFileSystem(). Sets up everything needed to use assets.
-  virtual void DoConfigureAssetManagement();
-
-  /// \brief Called by DoProjectSetup() after DoConfigureAssetManagement(). Adds additional data directories.
-  /// The default implementation reads the data directory configuration from a DDL file in the project folder.
-  virtual void DoSetupDataDirectories();
-
-  /// \brief Called by DoProjectSetup() after DoSetupDataDirectories(). Loads plugins that the application should always load.
-  /// The default implementation loads 'ezInspectorPlugin' in development builds
-  virtual void DoLoadCustomPlugins();
-
-  /// \brief Called by DoProjectSetup() after DoLoadCustomPlugins().
-  /// The default implementation uses ezApplicationPluginConfig to load all manual plugins.
-  virtual void DoLoadPluginsFromConfig();
-
-  virtual void DoLoadPlatformProfile();
-
-  /// \brief Called by DoProjectSetup() after DoLoadPluginsFromConfig().
-  /// The default implementation sets up some common fallbacks.
-  virtual void DoSetupDefaultResources();
-
-  /// \brief Called by DoProjectSetup() after DoSetupDefaultResources().
-  /// Creates a GAL device for rendering.
-  virtual void DoSetupGraphicsDevice();
-
-  /// \brief Called by DoProjectSetup() after DoSetupGraphicsDevice().
-  /// The default implementation uses ezGameAppInputConfig to read the input configuration from a DDL file in the project folder.
-  /// Additionally it configures ESC, F5 and F8 to be 'GameApp::CloseApp', 'GameApp::ReloadResources' and 'GameApp::CaptureProfiling'
-  /// respectively.
-  virtual void DoConfigureInput(bool bReinitialize);
-
-  /// \brief Called by DoProjectSetup() after DoConfigureInput().
-  /// The default implementation loads the "Tags.ezManifest" file from the project directory.
-  virtual void DoLoadTags();
-
-  ///
-  /// Project Shutdown
-  ///
-
-  /// \brief Calls ezPlugin::UnloadPlugin on all loaded plugins.
-  virtual void DoUnloadPlugins();
-
-  /// \brief Cleans up the GAL device.
-  virtual void DoShutdownGraphicsDevice();
-
-  /// Called at the very end to shut down all log writers that may need de-initialization.
-  virtual void DoShutdownLogWriters();
 
   ///
   /// Application Update

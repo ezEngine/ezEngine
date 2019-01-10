@@ -306,7 +306,7 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
   }
 }
 
-void ezShaderExplorerApp::BeforeCoreSystemsShutdown()
+void ezShaderExplorerApp::BeforeHighLevelSystemsShutdown()
 {
   m_directoryWatcher->CloseDirectory();
 

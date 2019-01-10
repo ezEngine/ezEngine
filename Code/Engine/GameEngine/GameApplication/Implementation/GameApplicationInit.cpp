@@ -1,15 +1,6 @@
 #include <PCH.h>
 
-#include <Core/Application/Config/FileSystemConfig.h>
-#include <Core/Application/Config/PluginConfig.h>
-#include <Foundation/Communication/Telemetry.h>
-#include <Foundation/Configuration/CVar.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/OSFile.h>
-#include <Foundation/IO/OpenDdlReader.h>
-#include <Foundation/Logging/ConsoleWriter.h>
-#include <Foundation/Logging/VisualStudioWriter.h>
 #include <GameEngine/Collection/CollectionResource.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
 #include <GameEngine/Curves/Curve1DResource.h>
@@ -17,8 +8,8 @@
 #include <GameEngine/Prefabs/PrefabResource.h>
 #include <GameEngine/Resources/PropertyAnimResource.h>
 #include <GameEngine/Surfaces/SurfaceResource.h>
+#include <GameEngine/VisualScript/VisualScriptResource.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
-#include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
@@ -27,104 +18,19 @@
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
-#include <RendererFoundation/Device/Device.h>
-#include <VisualScript/VisualScriptResource.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <RendererDX11/Device/DeviceDX11.h>
 typedef ezGALDeviceDX11 ezGALDeviceDefault;
 #else
-/// \todo We might need a dummy graphics device type
-//#include <RendererGL/Device/DeviceGL.h>
-// typedef ezGALDeviceGL ezGALDeviceDefault;
+#  error No Render API available for this platform.
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 #  include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
 #endif
 
-
-void ezGameApplication::DoProjectSetup()
-{
-  m_PlatformProfile.m_sName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-profile", 0, GetPreferredPlatformProfile());
-  m_PlatformProfile.AddMissingConfigs();
-
-  DoSetupLogWriters();
-
-  ezTelemetry::CreateServer();
-
-  ezFileSystem::SetSpecialDirectory("project", FindProjectDirectory());
-
-  DoConfigureFileSystem();
-  DoConfigureAssetManagement();
-  DoLoadCustomPlugins();
-  DoSetupDataDirectories();
-  DoLoadPluginsFromConfig();
-  DoLoadPlatformProfile();
-  DoConfigureInput(false);
-  DoLoadTags();
-
-  ezCVar::SetStorageFolder(":appdata/CVars");
-  ezCVar::LoadCVars();
-
-  ezTaskSystem::SetTargetFrameTime(1000.0 / 20.0);
-}
-
-void ezGameApplication::DoSetupLogWriters()
-{
-  ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-  ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
-}
-
-void ezGameApplication::DoConfigureFileSystem()
-{
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-}
-
-
-void ezGameApplication::DoSetupDataDirectories()
-{
-  const ezStringBuilder sUserData(">user/", GetApplicationName());
-
-  ezFileSystem::CreateDirectoryStructure(sUserData);
-
-  // TODO: Application directory is not writable in UWP (and probably other platforms). We need a more elegant solution than this.
-  ezString writableBinRoot = ">appdir/";
-  ezString shaderCacheRoot = ">appdir/";
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  writableBinRoot = sUserData;
-  shaderCacheRoot = sUserData;
-#endif
-
-  ezFileSystem::AddDataDirectory("", "GameApplication", ":", ezFileSystem::ReadOnly);                   // for absolute paths
-  ezFileSystem::AddDataDirectory(writableBinRoot, "GameApplication", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
-  ezFileSystem::AddDataDirectory(shaderCacheRoot, "GameApplication", "shadercache", ezFileSystem::AllowWrites); // for shader files
-  ezFileSystem::AddDataDirectory(sUserData, "GameApplication", "appdata", ezFileSystem::AllowWrites);           // for writing app user data
-
-  // setup the main data directories ":base/" and ":project/"
-  {
-    ezFileSystem::AddDataDirectory(">sdk/Data/Base", "GameApplication", "base", ezFileSystem::DataDirUsage::ReadOnly);
-    ezFileSystem::AddDataDirectory(">project/", "GameApplication", "project", ezFileSystem::DataDirUsage::ReadOnly);
-  }
-
-  ezApplicationFileSystemConfig appFileSystemConfig;
-  appFileSystemConfig.Load();
-
-  // get rid of duplicates that we already hardcoded above
-  for (ezUInt32 i = appFileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
-  {
-    const ezString name = appFileSystemConfig.m_DataDirs[i - 1].m_sRootName;
-    if (name.IsEqual_NoCase("base") || name.IsEqual_NoCase("project") || name.IsEqual_NoCase("bin") || name.IsEqual_NoCase("shadercache") ||
-        name.IsEqual_NoCase(":") || name.IsEqual_NoCase("appdata"))
-    {
-      appFileSystemConfig.m_DataDirs.RemoveAtAndCopy(i - 1);
-    }
-  }
-
-  appFileSystemConfig.Apply();
-}
-
-void ezGameApplication::DoConfigureAssetManagement()
+void ezGameApplication::Init_ConfigureAssetManagement()
 {
   const ezStringBuilder sAssetRedirFile("AssetCache/", m_PlatformProfile.m_sName, ".ezAidlt");
 
@@ -135,20 +41,17 @@ void ezGameApplication::DoConfigureAssetManagement()
   ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/";
 
   ezResourceManager::RegisterResourceForAssetType("Collection", ezGetStaticRTTI<ezCollectionResource>());
-  // collision mesh resources registered by PhysX plugin
   ezResourceManager::RegisterResourceForAssetType("Material", ezGetStaticRTTI<ezMaterialResource>());
   ezResourceManager::RegisterResourceForAssetType("Mesh", ezGetStaticRTTI<ezMeshResource>());
   ezResourceManager::RegisterResourceForAssetType("Prefab", ezGetStaticRTTI<ezPrefabResource>());
   ezResourceManager::RegisterResourceForAssetType("RenderPipeline", ezGetStaticRTTI<ezRenderPipelineResource>());
-  // sound bank resource registered by Fmod plugin
   ezResourceManager::RegisterResourceForAssetType("Surface", ezGetStaticRTTI<ezSurfaceResource>());
   ezResourceManager::RegisterResourceForAssetType("Texture 2D", ezGetStaticRTTI<ezTexture2DResource>());
   ezResourceManager::RegisterResourceForAssetType("Render Target", ezGetStaticRTTI<ezTexture2DResource>());
-  // ezResourceManager::RegisterResourceForAssetType("Texture 3D", ezGetStaticRTTI<ezTexture3DResource>());
   ezResourceManager::RegisterResourceForAssetType("Texture Cube", ezGetStaticRTTI<ezTextureCubeResource>());
 }
 
-void ezGameApplication::DoSetupDefaultResources()
+void ezGameApplication::Init_SetupDefaultResources()
 {
   // Shaders
   {
@@ -298,7 +201,7 @@ void ezGameApplication::DoSetupDefaultResources()
 }
 
 
-void ezGameApplication::DoSetupGraphicsDevice()
+void ezGameApplication::Init_SetupGraphicsDevice()
 {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   ezGALDeviceCreationDescription DeviceInit;
@@ -334,7 +237,7 @@ void ezGameApplication::DoSetupGraphicsDevice()
 #endif
 }
 
-void ezGameApplication::DoLoadCustomPlugins()
+void ezGameApplication::Init_LoadRequiredPlugins()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezPlugin::LoadPlugin("ezInspectorPlugin");
@@ -351,63 +254,7 @@ void ezGameApplication::DoLoadCustomPlugins()
 #endif
 }
 
-void ezGameApplication::DoLoadPluginsFromConfig()
-{
-  ezApplicationPluginConfig appPluginConfig;
-  appPluginConfig.Load();
-  appPluginConfig.SetOnlyLoadManualPlugins(true);
-  appPluginConfig.Apply();
-}
-
-void ezGameApplication::DoLoadPlatformProfile()
-{
-  // re-load this after we know all the custom config types
-  const ezStringBuilder sRuntimeProfileFile(":project/RuntimeConfigs/", m_PlatformProfile.m_sName, ".ezProfile");
-  m_PlatformProfile.AddMissingConfigs();
-  m_PlatformProfile.LoadForRuntime(sRuntimeProfileFile);
-}
-
-void ezGameApplication::DoLoadTags()
-{
-  EZ_LOG_BLOCK("Reading Tags", "Tags.ddl");
-
-  ezFileReader file;
-  if (file.Open(":project/Tags.ddl").Failed())
-  {
-    ezLog::Dev("'Tags.ddl' does not exist");
-    return;
-  }
-
-  ezStringBuilder tmp;
-
-  ezOpenDdlReader reader;
-  if (reader.ParseDocument(file).Failed())
-  {
-    ezLog::Error("Failed to parse DDL data in tags file");
-    return;
-  }
-
-  const ezOpenDdlReaderElement* pRoot = reader.GetRootElement();
-
-  for (const ezOpenDdlReaderElement* pTags = pRoot->GetFirstChild(); pTags != nullptr; pTags = pTags->GetSibling())
-  {
-    if (!pTags->IsCustomType("Tag"))
-      continue;
-
-    const ezOpenDdlReaderElement* pName = pTags->FindChildOfType(ezOpenDdlPrimitiveType::String, "Name");
-
-    if (!pName)
-    {
-      ezLog::Error("Incomplete tag declaration!");
-      continue;
-    }
-
-    tmp = pName->GetPrimitivesString()[0];
-    ezTagRegistry::GetGlobalRegistry().RegisterTag(tmp);
-  }
-}
-
-void ezGameApplication::DoShutdownGraphicsDevice()
+void ezGameApplication::Deinit_ShutdownGraphicsDevice()
 {
   if (!ezGALDevice::HasDefaultDevice())
     return;
@@ -428,9 +275,6 @@ void ezGameApplication::DoShutdownGraphicsDevice()
   EZ_DEFAULT_DELETE(pDevice);
   ezGALDevice::SetDefaultDevice(nullptr);
 }
-
-void ezGameApplication::DoShutdownLogWriters() {}
-
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_ProjectSetup);

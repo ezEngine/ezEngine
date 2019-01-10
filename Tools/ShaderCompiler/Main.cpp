@@ -62,18 +62,12 @@ void ezShaderCompilerApplication::BeforeCoreSystemsStartup()
 
 void ezShaderCompilerApplication::AfterCoreSystemsStartup()
 {
-  DoProjectSetup();
-  DoSetupGraphicsDevice();
+  ExecuteInitFunctions();
 
   ezStartup::StartupHighLevelSystems();
 }
 
-void ezShaderCompilerApplication::BeforeCoreSystemsShutdown()
-{
-  ezGameApplication::BeforeCoreSystemsShutdown();
-}
-
-void ezShaderCompilerApplication::DoLoadCustomPlugins()
+void ezShaderCompilerApplication::Init_LoadRequiredPlugins()
 {
   EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
 }

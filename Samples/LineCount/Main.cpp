@@ -180,6 +180,8 @@ private:
   const char* m_szSearchDir;
 
 public:
+  typedef ezApplication SUPER;
+
   ezLineCountApp()
     : ezApplication("LineCountApp")
   {

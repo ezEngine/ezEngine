@@ -98,7 +98,7 @@ public:
   /// \brief Runs the 'base' startup sequence of all subsystems in the proper order.
   ///
   /// Run this, if you only require very low level systems to be initialized. Otherwise prefer StartupCore.
-  /// There is NO ShutdownBase, everything that gets initialized during the 'Base Startup' should not need any deinitialization.
+  /// There is NO ShutdownBaseSystems, everything that gets initialized during the 'Base Startup' should not need any deinitialization.
   /// This function is automatically called by StartupCore, if it hasn't been called before already.
   static void StartupBaseSystems() { Startup(ezStartupStage::BaseSystems); }
 

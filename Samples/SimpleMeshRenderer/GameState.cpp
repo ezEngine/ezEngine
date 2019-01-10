@@ -249,15 +249,17 @@ void SimpleMeshRendererGameState::MoveObjectToPosition(const ezVec3& pos)
 class ezSimpleMeshRendererApplication : public ezGameApplication
 {
 public:
+  typedef ezGameApplication SUPER;
+
   ezSimpleMeshRendererApplication(const char* szAppName, const char* szProjectPath)
       : ezGameApplication(szAppName, szProjectPath)
   {
   }
 
 #ifdef FORCE_LOAD_OPEN_VR_PLUGIN
-  virtual void DoLoadCustomPlugins() override
+  virtual void Init_LoadRequiredPlugins() override
   {
-    ezGameApplication::DoLoadCustomPlugins();
+    ezGameApplication::Init_LoadRequiredPlugins();
     ezPlugin::LoadPlugin("ezOpenVRPlugin");
   }
 #endif

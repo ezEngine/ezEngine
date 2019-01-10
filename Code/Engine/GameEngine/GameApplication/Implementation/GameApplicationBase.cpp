@@ -1,7 +1,11 @@
 #include <PCH.h>
 
-#include <Foundation/Image/Image.h>
+#include <Core/ResourceManager/ResourceManager.h>
+#include <Foundation/Communication/Telemetry.h>
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Image/Image.h>
+#include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Timestamp.h>
@@ -112,9 +116,9 @@ void AppendCurrentTimestamp(ezStringBuilder& out_String)
 {
   const ezDateTime dt = ezTimestamp::CurrentTimestamp();
 
-  out_String.AppendFormat("{0}-{1}-{2} {3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true),
-    ezArgU(dt.GetDay(), 2, true), ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true),
-    ezArgU(dt.GetSecond(), 2, true), ezArgU(dt.GetMicroseconds() / 1000, 3, true));
+  out_String.AppendFormat("{0}-{1}-{2} {3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true),
+                          ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true),
+                          ezArgU(dt.GetMicroseconds() / 1000, 3, true));
 }
 
 void ezGameApplicationBase::TakeProfilingCapture()
@@ -253,3 +257,63 @@ ezUniquePtr<ezGameState> ezGameApplicationBase::CreateGameState(ezWorld* pWorld)
 
   return pCurState;
 }
+
+void ezGameApplicationBase::ActivateGameStateAtStartup()
+{
+  ActivateGameState();
+}
+
+void ezGameApplicationBase::BeforeCoreSystemsStartup()
+{
+  ezStartup::AddApplicationTag("runtime");
+
+  SUPER::BeforeCoreSystemsStartup();
+}
+
+void ezGameApplicationBase::AfterCoreSystemsStartup()
+{
+  SUPER::AfterCoreSystemsStartup();
+
+  ExecuteInitFunctions();
+
+  ezStartup::StartupHighLevelSystems();
+
+  ActivateGameStateAtStartup();
+}
+
+void ezGameApplicationBase::BeforeHighLevelSystemsShutdown()
+{
+  DeactivateGameState();
+
+  {
+    // make sure that no resources continue to be streamed in, while the engine shuts down
+    ezResourceManager::EngineAboutToShutdown();
+    ezResourceManager::ClearAllResourceFallbacks();
+    ezResourceManager::FreeUnusedResources(true);
+  }
+}
+
+void ezGameApplicationBase::BeforeCoreSystemsShutdown()
+{
+  {
+    ezFrameAllocator::Reset();
+    ezResourceManager::FreeUnusedResources(true);
+  }
+
+  {
+    Deinit_ShutdownGraphicsDevice();
+    ezResourceManager::FreeUnusedResources(true);
+  }
+
+  Deinit_UnloadPlugins();
+
+  // shut down telemetry if it was set up
+  {
+    ezTelemetry::CloseConnection();
+  }
+
+  Deinit_ShutdownLogging();
+
+  SUPER::BeforeCoreSystemsShutdown();
+}
+

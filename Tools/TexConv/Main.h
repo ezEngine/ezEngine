@@ -57,6 +57,7 @@ enum TexConvReturnCodes
 class ezTexConv : public ezApplication
 {
 public:
+  typedef ezApplication SUPER;
 
   enum Channel
   {

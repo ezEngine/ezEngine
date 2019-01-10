@@ -130,7 +130,7 @@ public:
   static ezResult DetectSdkRootDirectory(const char* szExpectedSubFolder = "Data/Base");
 
   /// \brief the special directory ">Sdk" is the root folder of the SDK data, it is often used as the main reference
-  /// from where other data directories are found. For higher level code (e.g. ezApplication) it is often vital that this is set early at starutp.
+  /// from where other data directories are found. For higher level code (e.g. ezApplication) it is often vital that this is set early at startup.
   ///
   /// \sa DetectSdkRootDirectory()
   static void SetSdkRootDirectory(const char* szSdkDir);
@@ -151,10 +151,18 @@ public:
   /// on the host and client machines, but the paths used to mount data directories can stay the same because of this.
   static void SetSpecialDirectory(const char* szName, const char* szReplacement);
 
-  /// \brief Returns the absolute path to directory.
+  /// \brief Returns the absolute path to \a szDirectory.
   ///
-  /// If \a szDirectory starts with '>sdk/" the path will be relative to the Sdk root directory.
-  /// If \a szDirectory starts with '>project/' the path will be relative to the project directory.
+  /// If the path starts with a known special directory marker (">marker/") it is replaced accordingly.
+  /// See SetSpecialDirectory() for setting custom special directories.
+  ///
+  /// Built-in special directories (always available) are:
+  ///
+  /// ">sdk/" - Resolves to what GetSdkRootDirectory() returns.
+  /// ">user/" - Resolves to what ezOSFile::GetUserDataFolder() returns.
+  /// ">appdir/" - Resolves to what ezOSFile::GetApplicationDirectory() returns.
+  ///
+  /// Returns EZ_FAILURE if \a szDirectory starts with an unknown special directory.
   static ezResult ResolveSpecialDirectory(const char* szDirectory, ezStringBuilder& out_Path);
 
   ///@}

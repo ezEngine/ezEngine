@@ -14,7 +14,7 @@ void ezRun_Startup(ezApplication* pApplicationInstance)
   pApplicationInstance->BeforeCoreSystemsStartup();
 
   // this will startup all base and core systems
-  // 'EngineStartup' must not be done before a window is available (if at all)
+  // 'StartupHighLevelSystems' must not be done before a window is available (if at all)
   // so we don't do that here
   ezStartup::StartupCoreSystems();
 
@@ -30,11 +30,20 @@ void ezRun_MainLoop(ezApplication* pApplicationInstance)
 
 void ezRun_Shutdown(ezApplication* pApplicationInstance)
 {
-  pApplicationInstance->BeforeCoreSystemsShutdown();
+  // high level systems shutdown
+  // may do nothing, if the high level systems were never initialized
+  {
+    pApplicationInstance->BeforeHighLevelSystemsShutdown();
+    ezStartup::ShutdownHighLevelSystems();
+    pApplicationInstance->AfterHighLevelSystemsShutdown();
+  }
 
-  ezStartup::ShutdownCoreSystems();
-
-  pApplicationInstance->AfterCoreSystemsShutdown();
+  // core systems shutdown
+  {
+    pApplicationInstance->BeforeCoreSystemsShutdown();
+    ezStartup::ShutdownCoreSystems();
+    pApplicationInstance->AfterCoreSystemsShutdown();
+  }
 
   // Flush standard output to make log available.
   fflush(stdout);

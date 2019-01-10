@@ -5,6 +5,8 @@
 class ezPlayerApplication : public ezGameApplication
 {
 public:
+  typedef ezGameApplication SUPER;
+
   ezPlayerApplication();
 
 
@@ -15,7 +17,7 @@ private:
 
   void SetupLevel();
 
-  virtual void BeforeCoreSystemsShutdown() override;
+  virtual void BeforeHighLevelSystemsShutdown() override;
 
   ezString m_sSceneFile;
   ezUniquePtr<ezWorld> m_pWorld;

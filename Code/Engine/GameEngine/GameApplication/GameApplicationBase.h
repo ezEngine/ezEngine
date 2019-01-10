@@ -18,6 +18,8 @@ class ezWorld;
 class EZ_GAMEENGINE_DLL ezGameApplicationBase : public ezApplication
 {
 public:
+  typedef ezApplication SUPER;
+
   ezGameApplicationBase(const char* szAppName);
   ~ezGameApplicationBase();
 
@@ -25,6 +27,7 @@ public:
   ///@{
 
 public:
+
   /// \brief Returns the ezGameApplicationBase singleton
   static ezGameApplicationBase* GetGameApplicationBaseInstance() { return s_pGameApplicationBaseInstance; }
 
@@ -153,9 +156,9 @@ protected:
 
   /// \brief Allows to override whether a game state is created and activated at application startup.
   ///
-  /// The default is 'true', but applications that run inside the editor override this to return 'false',
+  /// The default implementation just calls ActivateGameState(), but applications that run inside the editor override this to do nothing,
   /// as they only want the game state to become active during simulation, not during editing.
-  virtual bool GetActivateGameStateAtStartup() const { return true; }
+  virtual void ActivateGameStateAtStartup();
 
   ezUniquePtr<ezGameState> m_pGameState;
   ezWorld* m_pWorldLinkedWithGameState = nullptr;
@@ -171,19 +174,46 @@ public:
 
 protected:
 
-  /// \brief Returns the name of the platform profile that should be used if there is nothing else that specifies which profile to use.
-  virtual const char* GetPreferredPlatformProfile() const { return "PC"; }
-
   ezPlatformProfile m_PlatformProfile;
 
   ///@}
-  /// \name Project Setup
+  /// \name Application Startup
   ///@{
-public:
-
 protected:
+  virtual void BeforeCoreSystemsStartup() override;
+  virtual void AfterCoreSystemsStartup() override;
 
   virtual ezString FindProjectDirectory() const = 0;
+  virtual ezString GetBaseDataDirectoryPath() const;
+
+  virtual void ExecuteInitFunctions();
+
+  virtual void Init_PlatformProfile_SetPreferred();
+  virtual void Init_ConfigureLogging();
+  virtual void Init_ConfigureTelemetry();
+  virtual void Init_FileSystem_SetSpecialDirs();
+  virtual void Init_FileSystem_SetDataDirFactories();
+  virtual void Init_LoadRequiredPlugins();
+  virtual void Init_ConfigureAssetManagement();
+  virtual void Init_FileSystem_ConfigureDataDirs();
+  virtual void Init_LoadProjectPlugins();
+  virtual void Init_PlatformProfile_LoadForRuntime();
+  virtual void Init_ConfigureInput();
+  virtual void Init_ConfigureTags();
+  virtual void Init_ConfigureCVars();
+  virtual void Init_SetupGraphicsDevice() = 0;
+  virtual void Init_SetupDefaultResources();
+
+  ///@}
+  /// \name Application Shutdown
+  ///@{
+protected:
+  virtual void BeforeHighLevelSystemsShutdown() override;
+  virtual void BeforeCoreSystemsShutdown() override;
+
+  virtual void Deinit_ShutdownGraphicsDevice() = 0;
+  virtual void Deinit_UnloadPlugins();
+  virtual void Deinit_ShutdownLogging();
 
   ///@}
 };

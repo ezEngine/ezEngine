@@ -18,6 +18,8 @@ public:
 class ezGameEngineTestApplication : public ezGameApplication
 {
 public:
+  typedef ezGameApplication SUPER;
+
   ezGameEngineTestApplication(const char* szProjectDirName);
 
   virtual ezString FindProjectDirectory() const final override;
@@ -28,9 +30,9 @@ public:
 protected:
   virtual void BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
-  virtual void BeforeCoreSystemsShutdown() override;
+  virtual void BeforeHighLevelSystemsShutdown() override;
   virtual void StoreScreenshot(const ezImage& image) override;
-  virtual void DoSetupDataDirectories() override;
+  virtual void Init_FileSystem_ConfigureDataDirs() override;
   virtual ezUniquePtr<ezGameState> CreateGameState(ezWorld* pWorld) override;
 
   ezString m_sProjectDirName;

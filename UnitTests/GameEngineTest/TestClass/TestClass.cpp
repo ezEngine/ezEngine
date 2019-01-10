@@ -116,9 +116,7 @@ void ezGameEngineTestApplication::BeforeCoreSystemsStartup()
 
 void ezGameEngineTestApplication::AfterCoreSystemsStartup()
 {
-  DoProjectSetup();
-  DoSetupGraphicsDevice();
-  DoSetupDefaultResources();
+  ExecuteInitFunctions();
 
   ezStartup::StartupHighLevelSystems();
 
@@ -129,11 +127,11 @@ void ezGameEngineTestApplication::AfterCoreSystemsStartup()
   ActivateGameState(m_pWorld.Borrow());
 }
 
-void ezGameEngineTestApplication::BeforeCoreSystemsShutdown()
+void ezGameEngineTestApplication::BeforeHighLevelSystemsShutdown()
 {
   m_pWorld = nullptr;
 
-  ezGameApplication::BeforeCoreSystemsShutdown();
+  SUPER::BeforeHighLevelSystemsShutdown();
 }
 
 void ezGameEngineTestApplication::StoreScreenshot(const ezImage& image)
@@ -143,9 +141,9 @@ void ezGameEngineTestApplication::StoreScreenshot(const ezImage& image)
 }
 
 
-void ezGameEngineTestApplication::DoSetupDataDirectories()
+void ezGameEngineTestApplication::Init_FileSystem_ConfigureDataDirs()
 {
-  ezGameApplication::DoSetupDataDirectories();
+  ezGameApplication::Init_FileSystem_ConfigureDataDirs();
 
   // additional data directories for the tests to work
   {

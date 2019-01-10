@@ -79,6 +79,8 @@ class TextureSample : public ezApplication
 
 public:
 
+  typedef ezApplication SUPER;
+
   TextureSample()
     : ezApplication("Texture Sample")
   {

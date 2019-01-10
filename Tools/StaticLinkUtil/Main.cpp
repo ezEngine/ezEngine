@@ -75,6 +75,8 @@ private:
 
 
 public:
+  typedef ezApplication SUPER;
+
   ezStaticLinkerApp()
     : ezApplication("StaticLinkerApp")
   {

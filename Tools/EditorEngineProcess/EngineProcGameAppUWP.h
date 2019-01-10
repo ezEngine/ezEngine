@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorEngineProcess/EngineProcGameApp.h>
 
@@ -14,7 +14,7 @@ public:
 
 protected:
   virtual void ProcessApplicationInput() override;
-  virtual void DoConfigureInput(bool bReinitialize) override;
+  virtual void Init_ConfigureInput() override;
   virtual ezUniquePtr<ezEditorEngineProcessApp> CreateEngineProcessApp() override;
 
 private:

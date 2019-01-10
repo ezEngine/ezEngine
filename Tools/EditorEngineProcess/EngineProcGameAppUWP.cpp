@@ -16,9 +16,9 @@ ezUniquePtr<ezEditorEngineProcessApp> ezEngineProcessGameApplicationUWP::CreateE
   return ptr;
 }
 
-void ezEngineProcessGameApplicationUWP::DoConfigureInput(bool bReinitialize)
+void ezEngineProcessGameApplicationUWP::Init_ConfigureInput()
 {
-  ezEngineProcessGameApplication::DoConfigureInput(bReinitialize);
+  ezEngineProcessGameApplication::Init_ConfigureInput();
 
   // Set Anchor
   {

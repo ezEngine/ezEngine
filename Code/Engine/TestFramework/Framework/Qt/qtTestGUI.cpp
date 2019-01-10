@@ -372,7 +372,7 @@ void ezQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iS
   if (m_pWinTaskBarButton == nullptr)
   {
     m_pWinTaskBarButton = new QWinTaskbarButton(QApplication::activeWindow());
-    m_pWinTaskBarButton->setWindow(QApplication::activeWindow()->windowHandle());
+    m_pWinTaskBarButton->setWindow(QApplication::topLevelWindows()[0]);
 
     m_pWinTaskBarProgress = m_pWinTaskBarButton->progress();
     m_pWinTaskBarProgress->setMinimum(0);

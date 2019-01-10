@@ -50,6 +50,8 @@ void ezFileserverApp::BeforeCoreSystemsShutdown()
 
   ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+
+  SUPER::BeforeCoreSystemsShutdown();
 }
 
 ezApplication::ApplicationExecution ezFileserverApp::Run()

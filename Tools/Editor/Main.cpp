@@ -10,6 +10,8 @@
 class ezEditorApplication : public ezApplication
 {
 public:
+  typedef ezApplication SUPER;
+
   ezEditorApplication()
     : ezApplication("ezEditor")
   {

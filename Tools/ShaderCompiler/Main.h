@@ -6,6 +6,8 @@
 class ezShaderCompilerApplication : public ezGameApplication
 {
 public:
+  typedef ezGameApplication SUPER;
+
   ezShaderCompilerApplication();
 
   virtual ezApplication::ApplicationExecution Run() override;
@@ -17,12 +19,11 @@ private:
 
   virtual void BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
-  virtual void BeforeCoreSystemsShutdown() override;
-  virtual void DoLoadCustomPlugins() override;
-  virtual void DoLoadPluginsFromConfig() override {}
-  virtual void DoSetupDefaultResources() override {}
-  virtual void DoConfigureInput(bool bReinitialize) override {}
-  virtual void DoLoadTags() override {}
+  virtual void Init_LoadRequiredPlugins() override;
+  virtual void Init_LoadProjectPlugins() override {}
+  virtual void Init_SetupDefaultResources() override {}
+  virtual void Init_ConfigureInput() override {}
+  virtual void Init_ConfigureTags() override {}
   virtual void ProcessApplicationInput() override {}
 
   ezPermutationGenerator m_PermutationGenerator;

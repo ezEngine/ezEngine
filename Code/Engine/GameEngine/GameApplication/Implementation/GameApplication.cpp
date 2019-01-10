@@ -45,8 +45,6 @@ ezGameApplication::ezGameApplication(const char* szAppName, const char* szProjec
 
 ezGameApplication::~ezGameApplication()
 {
-  DeactivateGameState();
-
   s_pGameApplicationInstance = nullptr;
 }
 
@@ -80,7 +78,6 @@ void ezGameApplication::DestroyWindowOutputTarget(ezUniquePtr<ezWindowOutputTarg
   }
 }
 
-
 // static
 void ezGameApplication::SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> creator)
 {
@@ -89,15 +86,12 @@ void ezGameApplication::SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice*(
 
 void ezGameApplication::ReinitializeInputConfig()
 {
-  DoConfigureInput(true);
+  Init_ConfigureInput();
 }
-
 
 void ezGameApplication::BeforeCoreSystemsStartup()
 {
-  ezStartup::AddApplicationTag("runtime");
-
-  ezApplication::BeforeCoreSystemsStartup();
+  SUPER::BeforeCoreSystemsStartup();
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   if (m_AppType == ezGameApplicationType::StandAloneMixedReality || m_AppType == ezGameApplicationType::EmbeddedInToolMixedReality)
@@ -105,54 +99,6 @@ void ezGameApplication::BeforeCoreSystemsStartup()
     m_pMixedRealityFramework = EZ_DEFAULT_NEW(ezMixedRealityFramework, nullptr);
   }
 #endif
-}
-
-void ezGameApplication::AfterCoreSystemsStartup()
-{
-  DoProjectSetup();
-
-  // Gamestate determines which graphics device is used, so delay this until we have gamestates.
-  DoSetupGraphicsDevice();
-  DoSetupDefaultResources();
-
-  ezStartup::StartupHighLevelSystems();
-
-  // Activate gamestate
-  if (GetActivateGameStateAtStartup())
-  {
-    ActivateGameState();
-  }
-}
-
-void ezGameApplication::BeforeCoreSystemsShutdown()
-{
-  // make sure that no textures are continue to be streamed in while the engine shuts down
-  ezResourceManager::EngineAboutToShutdown();
-
-  DeactivateGameState();
-
-  ezResourceManager::ClearAllResourceFallbacks();
-
-  ezResourceManager::FreeUnusedResources(true);
-
-  ezStartup::ShutdownHighLevelSystems();
-
-  ezFrameAllocator::Reset();
-  ezResourceManager::FreeUnusedResources(true);
-
-#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-  m_pMixedRealityFramework = nullptr;
-#endif
-
-  DoShutdownGraphicsDevice();
-
-  ezResourceManager::FreeUnusedResources(true);
-
-  DoUnloadPlugins();
-
-  ezTelemetry::CloseConnection();
-
-  DoShutdownLogWriters();
 }
 
 ezString ezGameApplication::FindProjectDirectory() const
@@ -407,39 +353,6 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
   }
 
   ezRenderWorld::ExtractMainViews();
-}
-
-
-
-void ezGameApplication::DoUnloadPlugins()
-{
-  ezSet<ezString> ToUnload;
-
-  // if a plugin is linked statically (which happens mostly in an editor context)
-  // then it cannot be unloaded and the ezPlugin instance won't ever go away
-  // however, ezPlugin::UnloadPlugin will always return that it is already unloaded, so we can just skip it there
-  // all other plugins must be unloaded as often as their refcount, though
-  ezStringBuilder s;
-  ezPlugin* pPlugin = ezPlugin::GetFirstInstance();
-  while (pPlugin != nullptr)
-  {
-    s = ezPlugin::GetFirstInstance()->GetPluginName();
-    ToUnload.Insert(s);
-
-    pPlugin = pPlugin->GetNextInstance();
-  }
-
-  ezString temp;
-  while (!ToUnload.IsEmpty())
-  {
-    auto it = ToUnload.GetIterator();
-
-    ezInt32 iRefCount = 0;
-    EZ_VERIFY(ezPlugin::UnloadPlugin(it.Key(), &iRefCount).Succeeded(), "Failed to unload plugin '{0}'", s);
-
-    if (iRefCount == 0)
-      ToUnload.Remove(it);
-  }
 }
 
 void ezGameApplication::RenderFps()

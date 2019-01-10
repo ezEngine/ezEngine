@@ -22,6 +22,8 @@
 class ezInspectorApp : public ezApplication
 {
 public:
+  typedef ezApplication SUPER;
+
   ezInspectorApp()
     : ezApplication("ezInspector")
   {

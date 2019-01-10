@@ -13,13 +13,15 @@ class ezDirectoryWatcher;
 class ezComputeShaderHistogramApp : public ezGameApplication
 {
 public:
+  typedef ezGameApplication SUPER;
+
   ezComputeShaderHistogramApp();
   ~ezComputeShaderHistogramApp();
 
   virtual ezApplication::ApplicationExecution Run() override;
 
   virtual void AfterCoreSystemsStartup() override;
-  virtual void BeforeCoreSystemsShutdown() override;
+  virtual void BeforeHighLevelSystemsShutdown() override;
 
 private:
 

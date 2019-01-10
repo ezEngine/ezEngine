@@ -107,12 +107,7 @@ void ezEngineProcessGameApplication::BeforeCoreSystemsShutdown()
   ezRTTI::s_TypeUpdatedEvent.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerTypeUpdated, this));
   m_IPC.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerIPC, this));
 
-  ezGameApplication::BeforeCoreSystemsShutdown();
-}
-
-void ezEngineProcessGameApplication::AfterCoreSystemsShutdown()
-{
-  ezGameApplication::AfterCoreSystemsShutdown();
+  SUPER::BeforeCoreSystemsShutdown();
 }
 
 ezApplication::ApplicationExecution ezEngineProcessGameApplication::Run()
@@ -260,9 +255,8 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
 
     // now that we know which project to initialize, do the delayed project setup
     {
-      DoProjectSetup();
-      DoSetupGraphicsDevice();
-      DoSetupDefaultResources();
+      ExecuteInitFunctions();
+
       ezStartup::StartupHighLevelSystems();
 
       ezRenderContext::GetDefaultInstance()->SetAllowAsyncShaderLoading(true);
@@ -287,7 +281,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
       ezFileSystem::ReloadAllExternalDataDirectoryConfigs();
 
       m_PlatformProfile.m_sName = pMsg->m_sPayload;
-      DoLoadPlatformProfile();
+      Init_PlatformProfile_LoadForRuntime();
 
       ezResourceManager::ReloadAllResources(false);
       ezRenderWorld::DeleteAllCachedRenderData();
@@ -424,20 +418,18 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
   return pDocumentContext;
 }
 
-void ezEngineProcessGameApplication::DoLoadPluginsFromConfig()
+void ezEngineProcessGameApplication::Init_LoadProjectPlugins()
 {
   m_CustomPluginConfig.SetOnlyLoadManualPlugins(false); // we also want to load editor plugin dependencies
   m_CustomPluginConfig.Apply();
 }
-
 
 ezString ezEngineProcessGameApplication::FindProjectDirectory() const
 {
   return m_sProjectDirectory;
 }
 
-
-void ezEngineProcessGameApplication::DoSetupDataDirectories()
+void ezEngineProcessGameApplication::Init_FileSystem_ConfigureDataDirs()
 {
   ezStringBuilder sAppDir = ">sdk/Data/Tools/EditorEngineProcess";
   ezStringBuilder sUserData = ">user/ezEngine Project/EditorEngineProcess";
@@ -477,9 +469,9 @@ ezUniquePtr<ezEditorEngineProcessApp> ezEngineProcessGameApplication::CreateEngi
   return EZ_DEFAULT_NEW(ezEditorEngineProcessApp);
 }
 
-void ezEngineProcessGameApplication::DoSetupLogWriters()
+void ezEngineProcessGameApplication::Init_ConfigureLogging()
 {
-  ezGameApplication::DoSetupLogWriters();
+  SUPER::Init_ConfigureLogging();
 
   ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezEngineProcessGameApplication::LogWriter, this));
 
@@ -488,15 +480,15 @@ void ezEngineProcessGameApplication::DoSetupLogWriters()
   ezPlugin::s_PluginEvents.AddEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVarPlugin, this));
 }
 
-void ezEngineProcessGameApplication::DoShutdownLogWriters()
+void ezEngineProcessGameApplication::Deinit_ShutdownLogging()
 {
-  ezGameApplication::DoShutdownLogWriters();
-
   ezGlobalLog::RemoveLogWriter(ezMakeDelegate(&ezEngineProcessGameApplication::LogWriter, this));
 
   // used for sending CVar changes over to the editor
   ezCVar::s_AllCVarEvents.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVar, this));
   ezPlugin::s_PluginEvents.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVarPlugin, this));
+
+  SUPER::Deinit_ShutdownLogging();
 }
 
 void ezEngineProcessGameApplication::EventHandlerCVar(const ezCVar::CVarEvent& e)

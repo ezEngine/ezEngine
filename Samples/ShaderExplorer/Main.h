@@ -17,6 +17,8 @@ class ezDirectoryWatcher;
 class ezShaderExplorerApp : public ezApplication
 {
 public:
+  typedef ezApplication SUPER;
+
   ezShaderExplorerApp();
   ~ezShaderExplorerApp();
 
@@ -24,7 +26,7 @@ public:
 
   virtual void AfterCoreSystemsStartup() override;
 
-  virtual void BeforeCoreSystemsShutdown() override;
+  virtual void BeforeHighLevelSystemsShutdown() override;
 
 private:
 

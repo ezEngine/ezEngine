@@ -99,12 +99,24 @@ public:
 
   /// \brief This function is called after the application main loop has run for the last time, before engine deinitialization.
   ///
+  /// After this function call, ezApplication executes ezStartup::ShutdownHighLevelSystems().
+  /// 
+  /// \note ezApplication does NOT call ezStartup::StartupHighLevelSystems() as it may be a window-less application.
+  /// This is left to ezGameApplicationBase to do. However, it does make sure to shut down the high-level systems,
+  /// in case they were started.
+  virtual void BeforeHighLevelSystemsShutdown() {}
+
+  /// \brief Called after ezStartup::ShutdownHighLevelSystems() has been executed.
+  virtual void AfterHighLevelSystemsShutdown() {}
+
+  /// \brief This function is called after the application main loop has run for the last time, before engine deinitialization.
+  ///
   /// Override this function to do application specific deinitialization that still requires a running engine.
-  /// After this function returns ezStartup::ShutdownBase() is called and thus everything, including allocators, is shut down.
-  /// To shut down entire subsystems, you should however use the features provided by ezStartup and ezSubSystem.
+  /// After this function returns ezStartup::ShutdownCoreSystems() is called and thus everything, including allocators, is shut down.
+  /// To shut down entire subsystems, you should, however, use the features provided by ezStartup and ezSubSystem.
   virtual void BeforeCoreSystemsShutdown() {}
 
-  /// \brief This function is called after ezStartup::ShutdownBase() has been called.
+  /// \brief This function is called after ezStartup::ShutdownCoreSystems() has been called.
   ///
   /// It is unlikely that there is any kind of deinitialization left, that can still be run at this point.
   virtual void AfterCoreSystemsShutdown() {}

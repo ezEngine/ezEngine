@@ -13,27 +13,27 @@ class ezEngineProcessDocumentContext;
 class ezEngineProcessGameApplication : public ezGameApplication
 {
 public:
+  typedef ezGameApplication SUPER;
+
   ezEngineProcessGameApplication();
 
   virtual void BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
 
   virtual void BeforeCoreSystemsShutdown() override;
-  virtual void AfterCoreSystemsShutdown() override;
 
   virtual ezApplication::ApplicationExecution Run() override;
 
   void LogWriter(const ezLoggingEventData& e);
 
 protected:
-  virtual void DoSetupLogWriters() override;
-  virtual void DoShutdownLogWriters() override;
-  virtual void DoSetupDataDirectories() override;
+  virtual void Init_ConfigureLogging() override;
+  virtual void Deinit_ShutdownLogging() override;
+  virtual void Init_FileSystem_ConfigureDataDirs() override;
   virtual void ProcessApplicationInput() override;
   virtual ezUniquePtr<ezEditorEngineProcessApp> CreateEngineProcessApp();
 
-
-  virtual bool GetActivateGameStateAtStartup() const override { return false; }
+  virtual void ActivateGameStateAtStartup() override { /* do nothing */ }
 
 private:
   void ConnectToHost();
@@ -51,7 +51,7 @@ private:
 
   ezEngineProcessDocumentContext* CreateDocumentContext(const ezDocumentOpenMsgToEngine* pMsg);
 
-  virtual void DoLoadPluginsFromConfig() override;
+  virtual void Init_LoadProjectPlugins() override;
 
   virtual ezString FindProjectDirectory() const override;
 
