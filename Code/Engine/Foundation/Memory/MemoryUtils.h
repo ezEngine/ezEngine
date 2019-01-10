@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <stdint.h> // for uintptr_t
 
 /// \brief This class provides functions to work on raw memory.
 ///
