@@ -171,7 +171,7 @@ template <typename ArrayType, typename ValueType>
 ezResult ezStreamWriter::WriteArray(const ezArrayBase<ValueType, ArrayType>& Array)
 {
   const ezUInt32 uiCount = Array.GetCount();
-  *this << uiCount;
+  WriteDWordValue(&uiCount);
 
   for(ezUInt32 i = 0; i < uiCount; ++i)
   {
@@ -212,7 +212,7 @@ template <typename ArrayType, typename ValueType>
 ezResult ezStreamReader::ReadArray(ezArrayBase<ValueType, ArrayType>& Array)
 {
   ezUInt32 uiCount = 0;
-  *this >> uiCount;
+  ReadDWordValue(&uiCount);
 
   Array.Clear();
 
