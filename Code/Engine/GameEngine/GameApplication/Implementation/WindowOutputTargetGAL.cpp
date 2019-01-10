@@ -34,11 +34,12 @@ ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_Image)
   ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescsDepth(&MemDesc, 1);
   ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(hBackbuffer, &SysMemDescsDepth);
 
-  out_Image.SetWidth(uiWidth);
-  out_Image.SetHeight(uiHeight);
-  out_Image.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
-  out_Image.AllocateImageData();
-  ezUInt8* pData = out_Image.GetDataPointer<ezUInt8>();
+  ezImageHeader header;
+  header.SetWidth(uiWidth);
+  header.SetHeight(uiHeight);
+  header.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
+  out_Image.Reset(header);
+  ezUInt8* pData = out_Image.GetPixelPointer<ezUInt8>();
 
   ezMemoryUtils::Copy(pData, backbufferData.GetData(), backbufferData.GetCount());
 

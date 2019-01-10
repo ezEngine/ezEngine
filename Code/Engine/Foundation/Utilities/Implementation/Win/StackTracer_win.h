@@ -60,7 +60,7 @@ namespace
 
     StackTracerImplementation()
     {
-      ezMemoryUtils::ZeroFill(this);
+      ezMemoryUtils::ZeroFill(this, 1);
 
       kernel32Dll = LoadLibraryW(L"kernel32.dll");
       EZ_ASSERT_DEV(kernel32Dll != nullptr, "StackTracer could not load kernel32.dll");
@@ -157,7 +157,7 @@ void ezStackTracer::OnPluginEvent(const ezPlugin::PluginEvent& e)
     }
 
     IMAGEHLP_MODULEW64 moduleInfo;
-    ezMemoryUtils::ZeroFill(&moduleInfo);
+    ezMemoryUtils::ZeroFill(&moduleInfo, 1);
     moduleInfo.SizeOfStruct = sizeof(IMAGEHLP_MODULEW64);
 
     if (!(*s_pImplementation->getModuleInfo)(currentProcess, moduleAddress, &moduleInfo))
@@ -248,7 +248,7 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
       DWORD64 pSymbolAddress = reinterpret_cast<UINT_PTR>(trace[i]);
 
       _SYMBOL_INFOW& symbolInfo = *(_SYMBOL_INFOW*)buffer;
-      ezMemoryUtils::ZeroFill(&symbolInfo);
+      ezMemoryUtils::ZeroFill(&symbolInfo, 1);
       symbolInfo.SizeOfStruct = sizeof(_SYMBOL_INFOW);
       symbolInfo.MaxNameLen = (EZ_ARRAY_SIZE(buffer) - symbolInfo.SizeOfStruct) / sizeof(WCHAR);
 

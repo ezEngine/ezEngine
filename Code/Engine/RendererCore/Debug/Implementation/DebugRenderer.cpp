@@ -1071,7 +1071,7 @@ void ezDebugRenderer::OnEngineStartup()
     ezGraphicsUtils::CreateSimpleASCIIFontTexture(debugFontImage);
 
     ezGALSystemMemoryDescription memoryDesc;
-    memoryDesc.m_pData = debugFontImage.GetDataPointer<ezUInt8>();
+    memoryDesc.m_pData = debugFontImage.GetPixelPointer<ezUInt8>();
     memoryDesc.m_uiRowPitch = debugFontImage.GetRowPitch();
     memoryDesc.m_uiSlicePitch = debugFontImage.GetDepthPitch();
 

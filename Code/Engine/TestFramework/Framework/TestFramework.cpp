@@ -5,9 +5,9 @@
 #include <TestFramework/Utilities/TestOrder.h>
 
 #ifdef EZ_TESTFRAMEWORK_USE_FILESERVE
-#include <FileservePlugin/Client/FileserveClient.h>
-#include <FileservePlugin/Client/FileserveDataDir.h>
-#include <FileservePlugin/Plugin.h>
+#  include <FileservePlugin/Client/FileserveClient.h>
+#  include <FileservePlugin/Client/FileserveDataDir.h>
+#  include <FileservePlugin/Plugin.h>
 #endif
 
 ezTestFramework* ezTestFramework::s_pInstance = nullptr;
@@ -816,7 +816,7 @@ bool ezTestFramework::CompareImages(ezUInt32 uiMaxError, char* szErrorMsg)
   sImgName.ReplaceAll(" ", "_");
   ++m_iImageCounter;
 
-  ezImage img, imgRGB, imgSmall;
+  ezImage img, imgRGB;
   if (GetTest(GetCurrentTestIndex())->m_pTest->GetImage(img).Failed())
   {
     safeprintf(szErrorMsg, 512, "Image '%s' could not be captured", sImgName.GetData());
@@ -829,15 +829,13 @@ bool ezTestFramework::CompareImages(ezUInt32 uiMaxError, char* szErrorMsg)
     return false;
   }
 
-  ezImageUtils::ScaleDownHalf(imgRGB, imgSmall);
-
-  sImgPathReference.Format("Images_Reference/{0}.tga", sImgName);
-  sImgPathResult.Format(":imgout/Images_Result/{0}.tga", sImgName);
+  sImgPathReference.Format("Images_Reference/{0}.png", sImgName);
+  sImgPathResult.Format(":imgout/Images_Result/{0}.png", sImgName);
 
   ezImage imgExp, imgExpRGB;
   if (imgExp.LoadFrom(sImgPathReference).Failed())
   {
-    imgSmall.SaveTo(sImgPathResult);
+    imgRGB.SaveTo(sImgPathResult);
 
     safeprintf(szErrorMsg, 512, "Comparison Image '%s' could not be read", sImgPathReference.GetData());
     return false;
@@ -845,27 +843,29 @@ bool ezTestFramework::CompareImages(ezUInt32 uiMaxError, char* szErrorMsg)
 
   if (ezImageConversion::Convert(imgExp, imgExpRGB, ezImageFormat::B8G8R8_UNORM).Failed())
   {
-    imgSmall.SaveTo(sImgPathResult);
+    imgRGB.SaveTo(sImgPathResult);
 
     safeprintf(szErrorMsg, 512, "Comparison Image '%s' could not be converted to BGR8", sImgPathReference.GetData());
     return false;
   }
 
-  if (imgSmall.GetWidth() != imgExpRGB.GetWidth() || imgSmall.GetHeight() != imgExpRGB.GetHeight())
+  if (imgRGB.GetWidth() != imgExpRGB.GetWidth() || imgRGB.GetHeight() != imgExpRGB.GetHeight())
   {
-    ezImage imgSameSize;
-    ezImageUtils::ScaleDownArbitrary(imgSmall, imgExpRGB.GetWidth(), imgExpRGB.GetHeight(), imgSameSize);
-    imgSmall = imgSameSize;
+    imgRGB.SaveTo(sImgPathResult);
+
+    safeprintf(szErrorMsg, 512, "Comparison Image '%s' size (%ix%i) does not match captured image size (%ix%i)",
+               sImgPathReference.GetData(), imgRGB.GetWidth(), imgRGB.GetHeight(), imgExpRGB.GetWidth(), imgExpRGB.GetHeight());
+    return false;
   }
 
   ezImage imgDiff;
-  ezImageUtils::ComputeImageDifferenceABS(imgExpRGB, imgSmall, imgDiff);
+  ezImageUtils::ComputeImageDifferenceABS(imgExpRGB, imgRGB, imgDiff);
 
   const ezUInt32 uiMeanError = ezImageUtils::ComputeMeanSquareError(imgDiff, 32);
 
   if (uiMeanError > uiMaxError)
   {
-    imgSmall.SaveTo(sImgPathResult);
+    imgRGB.SaveTo(sImgPathResult);
 
     ezStringBuilder sImgDiffName;
     sImgDiffName.Format(":imgout/Images_Diff/{0}.tga", sImgName);

@@ -117,7 +117,7 @@ ezApplication::ApplicationExecution ezShaderExplorerApp::Run()
       ezGALContext* pContext = m_pDevice->GetPrimaryContext();
 
       auto& gc = ezRenderContext::GetDefaultInstance()->WriteGlobalConstants();
-      ezMemoryUtils::ZeroFill(&gc);
+      ezMemoryUtils::ZeroFill(&gc, 1);
 
       gc.WorldToCameraMatrix[0] = m_camera->GetViewMatrix(ezCameraEye::Left);
       gc.WorldToCameraMatrix[1] = m_camera->GetViewMatrix(ezCameraEye::Right);

@@ -59,7 +59,7 @@ public:
   /// \brief Returns true if the ring-buffer currently contains no elements.
   bool IsEmpty() const; // [tested]
 
-  /// \brief Returns true, if there the ring-buffer can store at least uiElements additional elements.
+  /// \brief Returns true, if the ring-buffer can store at least uiElements additional elements.
   bool CanAppend(ezUInt32 uiElements = 1); // [tested]
 
   /// \brief Destructs all elements in the ring-buffer.

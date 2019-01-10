@@ -175,14 +175,15 @@ ezImage* ezTexConv::CreateCombined2DImage(const ChannelMapping* dataSources)
   const ezUInt32 uiWidth = m_InputImages[0].GetWidth();
   const ezUInt32 uiHeight = m_InputImages[0].GetHeight();
 
-  pImg->SetWidth(uiWidth);
-  pImg->SetHeight(uiHeight);
-  pImg->SetDepth(1);
-  pImg->SetNumArrayIndices(1);
-  pImg->SetNumFaces(1);
-  pImg->SetNumMipLevels(1);
-  pImg->SetImageFormat(ezImageFormat::R32G32B32A32_FLOAT);
-  pImg->AllocateImageData();
+  ezImageHeader imgHeader;
+  imgHeader.SetWidth(uiWidth);
+  imgHeader.SetHeight(uiHeight);
+  imgHeader.SetDepth(1);
+  imgHeader.SetNumArrayIndices(1);
+  imgHeader.SetNumFaces(1);
+  imgHeader.SetNumMipLevels(1);
+  imgHeader.SetImageFormat(ezImageFormat::R32G32B32A32_FLOAT);
+  pImg->Reset(imgHeader);
 
   static_assert(sizeof(ezColor) == sizeof(float) * 4, "The loop below assumes that ezColor is 4 floats in size");
 

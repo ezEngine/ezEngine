@@ -6,6 +6,77 @@
 
 #include <Foundation/Image/Implementation/ImageHeader.h>
 
+/// \brief A class referencing image data and holding metadata about the image.
+class EZ_FOUNDATION_DLL ezImageView : protected ezImageHeader
+{
+public:
+  /// \brief Constructs an empty image view.
+  ezImageView();
+
+  /// \brief Constructs an image view with the given header and image data.
+  ezImageView(const ezImageHeader& header, ezArrayPtr<const void> imageData);
+
+  /// \brief Constructs an empty image view.
+  void Reset();
+
+  /// \brief Constructs an image view with the given header and image data.
+  void Reset(const ezImageHeader& header, ezArrayPtr<const void> imageData);
+
+  /// \brief Convenience function to save the image to the given file.
+  ezResult SaveTo(const char* szFileName, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem()) const;
+
+  /// \brief Returns the header this image was constructed from.
+  const ezImageHeader& GetHeader() const;
+
+  /// \brief Returns a view to the entire data contained in this image.
+  template <typename T>
+  ezArrayPtr<const T> GetArrayPtr() const;
+
+  /// \brief Returns a view to the given sub-image.
+  ezImageView GetSubImageView(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0) const;
+
+  /// \brief Returns a view to z slice of the image.
+  ezImageView GetSliceView(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 z = 0) const;
+
+  /// \brief Returns a view to a row of pixels resp. blocks.
+  ezImageView GetRowView(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 y = 0, ezUInt32 z = 0) const;
+
+  /// \brief Returns a pointer to a given pixel or block contained in a sub-image.
+  template <typename T>
+  const T* GetPixelPointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 x = 0, ezUInt32 y = 0,
+                           ezUInt32 z = 0) const;
+
+public:
+  using ezImageHeader::GetDepth;
+  using ezImageHeader::GetHeight;
+  using ezImageHeader::GetWidth;
+
+  using ezImageHeader::GetNumArrayIndices;
+  using ezImageHeader::GetNumFaces;
+  using ezImageHeader::GetNumMipLevels;
+
+  using ezImageHeader::GetImageFormat;
+
+  using ezImageHeader::GetNumBlocksX;
+  using ezImageHeader::GetNumBlocksY;
+  using ezImageHeader::GetNumBlocksZ;
+
+  using ezImageHeader::GetDepthPitch;
+  using ezImageHeader::GetRowPitch;
+
+protected:
+  ezUInt32 ComputeLayout();
+
+  void ValidateSubImageIndices(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const;
+  template <typename T>
+  void ValidateDataTypeAccessor() const;
+
+  const ezUInt32& GetSubImageOffset(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const;
+
+  ezHybridArray<ezUInt32, 16> m_subImageOffsets;
+  ezArrayPtr<ezUInt8> m_dataPtr;
+};
+
 /// \brief A class containing image data and associated meta data.
 ///
 /// This class is a lightweight container for image data and the description required for interpreting the data,
@@ -14,113 +85,85 @@
 ///
 /// The sub-images are stored in a predefined order compatible with the layout of DDS files, that is, it first stores
 /// the mip chain for each image, then all faces in a case of a cubemap, then the individual images of an image array.
-class EZ_FOUNDATION_DLL ezImage : public ezImageHeader
+class EZ_FOUNDATION_DLL ezImage : public ezImageView
 {
 public:
   /// \brief Constructs an empty image.
-  inline ezImage();
+  explicit ezImage();
+
+  /// \brief Constructs an image with the given header; allocating internal storage for it.
+  explicit ezImage(const ezImageHeader& header);
+
+  /// \brief Constructs an image with the given header backed by user-supplied external storage.
+  explicit ezImage(const ezImageHeader& header, ezArrayPtr<void> externalData);
+
+  /// \brief Move constructor
+  ezImage(ezImage&& other);
+
+  /// \brief Constructor from image view (copies the image data to internal storage)
+  explicit ezImage(const ezImageView& other);
+
+  /// \brief Move assignment operator. If the image is attached to an external storage, the attachment is discarded.
+  ezImage& operator=(ezImage&& other);
+
+  /// \brief Assignment operator (copies the image data to internal storage).  If the image is already attached to an external storage, the storage muest match the data size of the view.
+  ezImage& operator=(const ezImageView& other);
+
+  /// \brief Constructs an empty image. If the image is attached to an external storage, the attachment is discarded.
+  void Reset();
+
+  /// \brief Constructs an image with the given header; allocating internal storage for it if needed. If the image is already attached to an external storage, the storage muest match the data size of the header.
+  void Reset(const ezImageHeader& header);
+
+  /// \brief Constructs an image with the given header and attaches to the user-supplied external storage. The user is responsible to keep the external storage alive.
+  /// Methods which attempts to Reset this image will assert unless the external data size matches the attempted allocation size; that is, the user is also
+  /// reponsible to allocate the exact correct amount of memory.
+  void Reset(const ezImageHeader& header, ezArrayPtr<void> externalData);
+
+  /// \brief Move constructor.  If the image is attached to an external storage, the attachment is discarded.
+  void Reset(ezImage&& other);
+
+  /// \brief Constructor from image view (copies the image data to internal storage).  If the image is already attached to an external storage, the storage must match the data size of the view.
+  void Reset(const ezImageView& other);
 
   /// \brief Convenience function to load the image from the given file.
   ezResult LoadFrom(const char* szFileName, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem());
 
-  /// \brief Convenience function to save the image to the given file.
-  ezResult SaveTo(const char* szFileName, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem());
+  /// \brief Convenience function to convert the image to the given format.
+  ezResult Convert(ezImageFormat::Enum targetFormat);
 
-  /// \brief Returns the number of blocks contained in a given mip level in the horizontal direction.
-  ///
-  /// This method is only valid to call for block-compressed formats.
-  inline ezUInt32 GetNumBlocksX(ezUInt32 uiMipLevel = 0) const;
-
-  /// \brief Returns the number of blocks contained in a given mip level in the vertical direction.
-  ///
-  /// This method is only valid to call for block-compressed formats.
-  inline ezUInt32 GetNumBlocksY(ezUInt32 uiMipLevel = 0) const;
-
-
-  /// \brief Returns the size of the allocated image data.
-  ///
-  /// In addition to the returned size, 16 additional bytes will be allocated, which can be exploited
-  /// to simplify copying or modification at aligned boundaries.
-  inline ezUInt32 GetDataSize() const;
-
-  /// \brief Returns a pointer to the beginning of the data contained in this image.
+  /// \brief Returns a view to the entire data contained in this image.
   template <typename T>
-  T* GetDataPointer();
+  ezArrayPtr<T> GetArrayPtr();
 
-  /// \brief Returns a pointer to the beginning of the data contained in this image.
+  using ezImageView::GetArrayPtr;
+
+  /// \brief Returns a view to the given sub-image.
+  ezImage GetSubImageView(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0);
+
+  using ezImageView::GetSubImageView;
+
+  /// \brief Returns a view to z slice of the image.
+  ezImage GetSliceView(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 z = 0);
+
+  using ezImageView::GetSliceView;
+
+  /// \brief Returns a view to a row of pixels resp. blocks.
+  ezImage GetRowView(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 y = 0, ezUInt32 z = 0);
+
+  using ezImageView::GetRowView;
+
+  /// \brief Returns a pointer to a given pixel or block contained in a sub-image.
   template <typename T>
-  const T* GetDataPointer() const;
+  T* GetPixelPointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 x = 0, ezUInt32 y = 0,
+                     ezUInt32 z = 0);
 
-  /// \brief Returns a pointer to the beginning of a given sub-image.
-  template <typename T>
-  const T* GetSubImagePointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0) const;
-
-  /// \brief Returns a pointer to the beginning of a given sub-image.
-  template <typename T>
-  T* GetSubImagePointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0);
-
-  /// \brief Returns a pointer to a given pixel contained in a sub-image.
-  ///
-  /// This method is only valid to use when the image format is a linear pixel format.
-  template <typename T>
-  const T* GetPixelPointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 x = 0, ezUInt32 y = 0, ezUInt32 z = 0) const;
-
-  /// \brief Returns a pointer to a given pixel contained in a sub-image.
-  ///
-  /// This method is only valid to use when the image format is a linear pixel format.
-  template <typename T>
-  T* GetPixelPointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 x = 0, ezUInt32 y = 0, ezUInt32 z = 0);
-
-  /// \brief Returns a pointer to a given block contained in a sub-image.
-  ///
-  /// This method is only valid to use when the image format is a block compressed format.
-  template <typename T>
-  const T* GetBlockPointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 uiBlockX = 0, ezUInt32 uiBlockY = 0, ezUInt32 z = 0) const;
-
-  /// \brief Returns a pointer to a given block contained in a sub-image.
-  ///
-  /// This method is only valid to use when the image format is a block compressed format.
-  template <typename T>
-  T* GetBlockPointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 uiBlockX = 0, ezUInt32 uiBlockY = 0, ezUInt32 z = 0);
-
-  /// \brief Allocates the storage space required for the configured number of sub-images.
-  ///
-  /// When creating an image, call this method after setting the dimensions and number of mip levels, faces and array indices.
-  /// Changing the image dimensions or number of sub-images will not automatically reallocate the data.
-  void AllocateImageData();
-
-  /// \brief Returns the offset in bytes between two subsequent rows of the given mip level.
-  ///
-  /// This method is only valid to use when the image format is a linear pixel format.
-  inline ezUInt32 GetRowPitch(ezUInt32 uiMipLevel = 0) const;
-
-  /// \brief Returns the offset in bytes between two subsequent depth slices of the given mip level.
-  inline ezUInt32 GetDepthPitch(ezUInt32 uiMipLevel = 0) const;
-
-  /// \brief Returns the position in bytes in the data array of the given sub-image.
-  inline ezUInt32 GetDataOffSet(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0) const;
-
-  /// \brief Swaps the contents of this image with another one
-  void Swap(ezImage& other);
+  using ezImageView::GetPixelPointer;
 
 private:
-  struct SubImage
-  {
-    EZ_DECLARE_POD_TYPE();
+  bool UsesExternalStorage() const;
 
-    int m_uiRowPitch;
-    int m_uiDepthPitch;
-    int m_uiDataOffset;
-  };
-
-  inline void ValidateSubImageIndices(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const;
-
-  inline SubImage& GetSubImage(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex);
-
-  inline const SubImage& GetSubImage(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const;
-
-  ezHybridArray<SubImage, 16> m_subImages;
-  ezDynamicArray<ezUInt8> m_data;
+  ezDynamicArray<ezUInt8> m_internalStorage;
 };
 
 #include <Foundation/Image/Implementation/Image_inl.h>

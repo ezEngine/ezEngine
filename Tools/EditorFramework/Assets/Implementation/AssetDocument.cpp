@@ -650,13 +650,14 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ezAssetFileHeader& header)
       return ezStatus(ezFmt("Thumbnail generation for {0} failed, thumbnail data is empty.", QueryAssetType()));
     }
 
-    ezImage image;
-    image.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
-    image.SetWidth(msg.m_uiWidth);
-    image.SetHeight(msg.m_uiHeight);
-    image.AllocateImageData();
-    EZ_ASSERT_DEV(data.GetCount() == image.GetDataSize(), "Thumbnail ezImage has different size than data buffer!");
-    ezMemoryUtils::Copy(image.GetDataPointer<ezUInt8>(), data.GetData(), msg.m_uiWidth * msg.m_uiHeight * 4);
+    ezImageHeader imgHeader;
+    imgHeader.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
+    imgHeader.SetWidth(msg.m_uiWidth);
+    imgHeader.SetHeight(msg.m_uiHeight);
+
+    ezImage image(imgHeader);
+    EZ_ASSERT_DEV(data.GetCount() == imgHeader.ComputeDataSize(), "Thumbnail ezImage has different size than data buffer!");
+    ezMemoryUtils::Copy(image.GetPixelPointer<ezUInt8>(), data.GetData(), msg.m_uiWidth * msg.m_uiHeight * 4);
     SaveThumbnail(image, header);
 
     ezLog::Success("{0} thumbnail for \"{1}\" has been exported.", QueryAssetType(), GetDocumentPath());

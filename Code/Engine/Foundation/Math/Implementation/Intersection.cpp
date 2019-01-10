@@ -8,7 +8,7 @@ bool ezIntersectionUtils::RayPolygonIntersection(const ezVec3& vRayStartPos, con
   EZ_ASSERT_DEBUG(uiNumVertices >= 3, "A polygon must have at least three vertices.");
   EZ_ASSERT_DEBUG(uiVertexStride >= sizeof(ezVec3), "The vertex stride is invalid.");
 
-  ezPlane p(*pPolygonVertices, *ezMemoryUtils::AddByteOffsetConst<ezVec3>(pPolygonVertices, uiVertexStride), *ezMemoryUtils::AddByteOffsetConst<ezVec3>(pPolygonVertices, uiVertexStride * 2));
+  ezPlane p(*pPolygonVertices, *ezMemoryUtils::AddByteOffset(pPolygonVertices, uiVertexStride), *ezMemoryUtils::AddByteOffset(pPolygonVertices, uiVertexStride * 2));
 
   EZ_ASSERT_DEBUG(p.IsValid(), "The given polygon's plane is invalid (computed from the first three vertices only).");
 
@@ -21,12 +21,12 @@ bool ezIntersectionUtils::RayPolygonIntersection(const ezVec3& vRayStartPos, con
     *out_vIntersectionPoint = vIntersection;
 
   // start with the last point as the 'wrap around' position
-  ezVec3 vPrevPoint = *ezMemoryUtils::AddByteOffsetConst<ezVec3>(pPolygonVertices, uiVertexStride * (uiNumVertices - 1));
+  ezVec3 vPrevPoint = *ezMemoryUtils::AddByteOffset(pPolygonVertices, uiVertexStride * (uiNumVertices - 1));
 
   // for each polygon edge
   for (ezUInt32 i = 0; i < uiNumVertices; ++i)
   {
-    const ezVec3 vThisPoint = *ezMemoryUtils::AddByteOffsetConst<ezVec3>(pPolygonVertices, uiVertexStride * i);
+    const ezVec3 vThisPoint = *ezMemoryUtils::AddByteOffset(pPolygonVertices, uiVertexStride * i);
 
     const ezPlane EdgePlane(vThisPoint, vPrevPoint, vPrevPoint + p.m_vNormal);
 

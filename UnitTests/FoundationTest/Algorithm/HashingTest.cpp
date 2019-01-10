@@ -125,7 +125,7 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, HashableStruct)
   EZ_TEST_INT(AutomaticInst.m_uiTestMember3, 0);
 
   SimpleStruct NonAutomaticInst;
-  ezMemoryUtils::ZeroFill(&NonAutomaticInst);
+  ezMemoryUtils::ZeroFill(&NonAutomaticInst, 1);
 
   EZ_CHECK_AT_COMPILETIME(sizeof(AutomaticInst) == sizeof(NonAutomaticInst));
 

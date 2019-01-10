@@ -25,7 +25,7 @@ struct TgaHeader
 EZ_CHECK_AT_COMPILETIME(sizeof(TgaHeader) == 18);
 
 
-static inline ezColorLinearUB GetPixelColor(const ezImage& image, ezUInt32 x, ezUInt32 y, const ezUInt32 uiHeight)
+static inline ezColorLinearUB GetPixelColor(const ezImageView& image, ezUInt32 x, ezUInt32 y, const ezUInt32 uiHeight)
 {
   ezColorLinearUB c(255, 255, 255, 255);
 
@@ -57,7 +57,7 @@ static inline ezColorLinearUB GetPixelColor(const ezImage& image, ezUInt32 x, ez
 }
 
 
-ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& image, ezLogInterface* pLog) const
+ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog) const
 {
   // Technically almost arbitrary formats are supported, but we only use the common ones.
   ezImageFormat::Enum compatibleFormats[] =
@@ -303,22 +303,24 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   }
 
   // Set image data
+  ezImageHeader imageHeader;
+
   if (uiBytesPerPixel == 1)
-    image.SetImageFormat(ezImageFormat::R8_UNORM);
+    imageHeader.SetImageFormat(ezImageFormat::R8_UNORM);
   else if (uiBytesPerPixel == 3)
-    image.SetImageFormat(ezImageFormat::B8G8R8_UNORM);
+    imageHeader.SetImageFormat(ezImageFormat::B8G8R8_UNORM);
   else
-    image.SetImageFormat(ezImageFormat::B8G8R8A8_UNORM);
+    imageHeader.SetImageFormat(ezImageFormat::B8G8R8A8_UNORM);
 
-  image.SetNumMipLevels(1);
-  image.SetNumArrayIndices(1);
-  image.SetNumFaces(1);
+  imageHeader.SetNumMipLevels(1);
+  imageHeader.SetNumArrayIndices(1);
+  imageHeader.SetNumFaces(1);
 
-  image.SetWidth(Header.m_iImageWidth);
-  image.SetHeight(Header.m_iImageHeight);
-  image.SetDepth(1);
+  imageHeader.SetWidth(Header.m_iImageWidth);
+  imageHeader.SetHeight(Header.m_iImageHeight);
+  imageHeader.SetDepth(1);
 
-  image.AllocateImageData();
+  image.Reset(imageHeader);
 
   if (Header.m_ImageType == 3)
   {

@@ -25,7 +25,7 @@ namespace JSONReaderTestDetail
       if (uiBytesToRead > 0)
       {
         ezMemoryUtils::Copy((ezUInt8*)pReadBuffer, (ezUInt8*)m_pData, (size_t)uiBytesToRead);
-        m_pData = ezMemoryUtils::AddByteOffsetConst(m_pData, (ptrdiff_t)uiBytesToRead);
+        m_pData = ezMemoryUtils::AddByteOffset(m_pData, (ptrdiff_t)uiBytesToRead);
       }
 
       return uiBytesToRead;

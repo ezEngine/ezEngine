@@ -114,7 +114,7 @@ retry:
               // Add more message IDs here as needed
           };
           D3D11_INFO_QUEUE_FILTER filter;
-          ezMemoryUtils::ZeroFill(&filter);
+          ezMemoryUtils::ZeroFill(&filter, 1);
           filter.DenyList.NumIDs = _countof(hide);
           filter.DenyList.pIDList = hide;
           pInfoQueue->AddStorageFilterEntries(&filter);

@@ -9,7 +9,7 @@ namespace
     ezUInt32 srcRowPitch = srcImg.GetRowPitch();
     EZ_ASSERT_DEV(faceRowPitch > 0 && srcRowPitch > 0, "Can not deal with compressed images. Image should already be decompressed at this point");
 
-    ezUInt8* dstFace = dstImg.GetSubImagePointer<ezUInt8>(0, faceIndex);
+    ezUInt8* dstFace = dstImg.GetPixelPointer<ezUInt8>(0, faceIndex);
     const ezUInt8* srcPtr = srcImg.GetPixelPointer<ezUInt8>(0, 0, 0, offsetX, offsetY);
     const ezUInt32 faceSize = dstImg.GetWidth();
     for (ezUInt32 y = 0; y < faceSize; y++)
@@ -60,15 +60,16 @@ ezResult ezTexConv::CreateTextureCubeFromSingleFile()
 
       ezImage tmpImg;
 
-      tmpImg.SetWidth(faceSize);
-      tmpImg.SetHeight(faceSize);
-      tmpImg.SetImageFormat(img.GetImageFormat());
-      tmpImg.SetDepth(1);
-      tmpImg.SetNumFaces(6);
-      tmpImg.SetNumMipLevels(1);
-      tmpImg.SetNumArrayIndices(1);
+      ezImageHeader imgHeader;
+      imgHeader.SetWidth(faceSize);
+      imgHeader.SetHeight(faceSize);
+      imgHeader.SetImageFormat(img.GetImageFormat());
+      imgHeader.SetDepth(1);
+      imgHeader.SetNumFaces(6);
+      imgHeader.SetNumMipLevels(1);
+      imgHeader.SetNumArrayIndices(1);
 
-      tmpImg.AllocateImageData();
+      tmpImg.Reset(imgHeader);
 
       // face order in dds files is: positive x, negative x, positive y, negative y, positive z, negative z
 
@@ -91,7 +92,7 @@ ezResult ezTexConv::CreateTextureCubeFromSingleFile()
       CopyFace(tmpImg, img, faceSize, faceSize * 3, 5);
       ezImageUtils::RotateSubImage180(tmpImg, 0, 5);
 
-      img.Swap(tmpImg);
+      img = std::move(tmpImg);
     }
     else if (img.GetWidth() % 4 == 0 && img.GetHeight() % 3 == 0 && img.GetWidth() / 4 == img.GetHeight() / 3)
     {
@@ -107,15 +108,16 @@ ezResult ezTexConv::CreateTextureCubeFromSingleFile()
 
       ezImage tmpImg;
 
-      tmpImg.SetWidth(faceSize);
-      tmpImg.SetHeight(faceSize);
-      tmpImg.SetImageFormat(img.GetImageFormat());
-      tmpImg.SetDepth(1);
-      tmpImg.SetNumFaces(6);
-      tmpImg.SetNumMipLevels(1);
-      tmpImg.SetNumArrayIndices(1);
+      ezImageHeader imgHeader;
+      imgHeader.SetWidth(faceSize);
+      imgHeader.SetHeight(faceSize);
+      imgHeader.SetImageFormat(img.GetImageFormat());
+      imgHeader.SetDepth(1);
+      imgHeader.SetNumFaces(6);
+      imgHeader.SetNumMipLevels(1);
+      imgHeader.SetNumArrayIndices(1);
 
-      tmpImg.AllocateImageData();
+      tmpImg.Reset(imgHeader);
 
       // face order in dds files is: positive x, negative x, positive y, negative y, positive z, negative z
 
@@ -137,7 +139,7 @@ ezResult ezTexConv::CreateTextureCubeFromSingleFile()
       // Negative Z face
       CopyFace(tmpImg, img, faceSize * 3, faceSize, 5);
 
-      img.Swap(tmpImg);
+      img = std::move(tmpImg);
     }
     else
     {
@@ -152,15 +154,16 @@ ezResult ezTexConv::CreateTextureCubeFromSingleFile()
 
       ezImage tmpImg;
 
-      tmpImg.SetWidth(faceSize);
-      tmpImg.SetHeight(faceSize);
-      tmpImg.SetImageFormat(img.GetImageFormat());
-      tmpImg.SetDepth(1);
-      tmpImg.SetNumFaces(6);
-      tmpImg.SetNumMipLevels(1);
-      tmpImg.SetNumArrayIndices(1);
+      ezImageHeader imgHeader;
+      imgHeader.SetWidth(faceSize);
+      imgHeader.SetHeight(faceSize);
+      imgHeader.SetImageFormat(img.GetImageFormat());
+      imgHeader.SetDepth(1);
+      imgHeader.SetNumFaces(6);
+      imgHeader.SetNumMipLevels(1);
+      imgHeader.SetNumArrayIndices(1);
 
-      tmpImg.AllocateImageData();
+      tmpImg.Reset(imgHeader);
 
       // Corners of the UV space for the respective faces in model space
       ezVec3 faceCorners[] =
@@ -197,11 +200,11 @@ ezResult ezTexConv::CreateTextureCubeFromSingleFile()
       const ezUInt32 srcRowPitch = img.GetRowPitch() / sizeof(ezColor);
       EZ_ASSERT_DEV(tmpImg.GetRowPitch() % sizeof(ezColor) == 0, "Row pitch should be a multiple of sizeof(ezColor)");
       const ezUInt32 faceRowPitch = tmpImg.GetRowPitch() / sizeof(ezColor);
-      const ezColor* srcData = img.GetSubImagePointer<ezColor>();
+      const ezColor* srcData = img.GetPixelPointer<ezColor>();
       const float InvPi = 1.0f / ezMath::BasicType<float>::Pi();
       for (ezUInt32 faceIndex = 0; faceIndex < 6; faceIndex++)
       {
-        ezColor* faceData = tmpImg.GetSubImagePointer<ezColor>(0, faceIndex);
+        ezColor* faceData = tmpImg.GetPixelPointer<ezColor>(0, faceIndex);
         for (ezUInt32 y = 0; y < faceSize; y++)
         {
           float dstV = (float)y * fPixel + fHalfPixel;
@@ -245,7 +248,7 @@ ezResult ezTexConv::CreateTextureCubeFromSingleFile()
         }
       }
 
-      img.Swap(tmpImg);
+      img = std::move(tmpImg);
     }
   }
 

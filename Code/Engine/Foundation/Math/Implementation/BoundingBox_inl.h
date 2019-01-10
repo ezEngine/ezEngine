@@ -115,7 +115,7 @@ void ezBoundingBoxTemplate<Type>::ExpandToInclude(const ezVec3Template<Type>* pP
   {
     ExpandToInclude(*pCur);
 
-    pCur = ezMemoryUtils::AddByteOffsetConst(pCur, uiStride);
+    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
   }
 }
 
@@ -172,7 +172,7 @@ bool ezBoundingBoxTemplate<Type>::Contains(const ezVec3Template<Type>* pPoints, 
     if (!Contains(*pCur))
       return false;
 
-    pCur = ezMemoryUtils::AddByteOffsetConst(pCur, uiStride);
+    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
   }
 
   return true;
@@ -214,7 +214,7 @@ bool ezBoundingBoxTemplate<Type>::Overlaps(const ezVec3Template<Type>* pPoints, 
     if (Contains(*pCur))
       return true;
 
-    pCur = ezMemoryUtils::AddByteOffsetConst(pCur, uiStride);
+    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
   }
 
   return false;

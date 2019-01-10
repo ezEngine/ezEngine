@@ -1,13 +1,14 @@
 #include <PCH.h>
 
+#include <Foundation/Math/Mat3.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Math/Vec3.h>
-#include <Foundation/Math/Mat3.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 ezProjectionDepthRange::Enum ezProjectionDepthRange::Default = ezProjectionDepthRange::ZeroToOne; // Default on Windows is D3D convention
 #else
-ezProjectionDepthRange::Enum ezProjectionDepthRange::Default = ezProjectionDepthRange::MinusOneToOne; // Default everywhere else is OpenGL convention
+ezProjectionDepthRange::Enum ezProjectionDepthRange::Default =
+    ezProjectionDepthRange::MinusOneToOne; // Default everywhere else is OpenGL convention
 #endif
 
 bool ezMath::IsPowerOf(ezInt32 value, ezInt32 base)
@@ -56,6 +57,33 @@ ezUInt32 ezMath::PowerOfTwo_Ceil(ezUInt32 npot)
   }
 
   return (1U);
+}
+
+
+ezUInt32 ezMath::GreatestCommonDivisor(ezUInt32 a, ezUInt32 b)
+{
+  // https://lemire.me/blog/2013/12/26/fastest-way-to-compute-the-greatest-common-divisor/
+  if (a == 0)
+  {
+    return a;
+  }
+  if (b == 0)
+  {
+    return b;
+  }
+
+  ezUInt32 shift = FirstBitLow(a | b);
+  a >>= FirstBitLow(a);
+  do
+  {
+    b >>= FirstBitLow(b);
+    if (a > b)
+    {
+      Swap(a, b);
+    }
+    b = b - a;
+  } while (b != 0);
+  return a << shift;
 }
 
 void ezAngle::NormalizeRange()

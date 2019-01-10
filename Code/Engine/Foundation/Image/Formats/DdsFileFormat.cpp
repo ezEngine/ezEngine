@@ -160,8 +160,9 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
   bool bPitch = (fileHeader.m_uiFlags & ezDdsdFlags::PITCH) != 0;
 
-  image.SetWidth(fileHeader.m_uiWidth);
-  image.SetHeight(fileHeader.m_uiHeight);
+  ezImageHeader imageHeader;
+  imageHeader.SetWidth(fileHeader.m_uiWidth);
+  imageHeader.SetHeight(fileHeader.m_uiHeight);
 
   if (fileHeader.m_ddspf.m_uiSize != 32)
   {
@@ -241,7 +242,7 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     return EZ_FAILURE;
   }
 
-  image.SetImageFormat(format);
+  imageHeader.SetImageFormat(format);
 
   const bool bHasMipMaps = (fileHeader.m_uiCaps & ezDdsCaps::MIPMAP) != 0;
   const bool bCubeMap = (fileHeader.m_uiCaps2 & ezDdsCaps2::CUBEMAP) != 0;
@@ -250,7 +251,7 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
   if (bHasMipMaps)
   {
-    image.SetNumMipLevels(fileHeader.m_uiMipMapCount);
+    imageHeader.SetNumMipLevels(fileHeader.m_uiMipMapCount);
   }
 
   // Cubemap and volume texture are mutually exclusive
@@ -262,14 +263,14 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
   if (bCubeMap)
   {
-    image.SetNumFaces(6);
+    imageHeader.SetNumFaces(6);
   }
   else if (bVolume)
   {
-    image.SetDepth(fileHeader.m_uiDepth);
+    imageHeader.SetDepth(fileHeader.m_uiDepth);
   }
 
-  image.AllocateImageData();
+  image.Reset(imageHeader);
 
   // If pitch is specified, it must match the computed value
   if (bPitch && image.GetRowPitch(0) != fileHeader.m_uiPitchOrLinearSize)
@@ -278,9 +279,9 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     return EZ_FAILURE;
   }
 
-  ezUInt32 uiDataSize = image.GetDataSize();
+  ezUInt32 uiDataSize = image.GetArrayPtr<void>().GetCount();
 
-  if (stream.ReadBytes(image.GetDataPointer<void>(), uiDataSize) != uiDataSize)
+  if (stream.ReadBytes(image.GetArrayPtr<void>().GetPtr(), uiDataSize) != uiDataSize)
   {
     ezLog::Error(pLog, "Failed to read image data.");
     return EZ_FAILURE;
@@ -289,7 +290,7 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   return EZ_SUCCESS;
 }
 
-ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& image, ezLogInterface* pLog) const
+ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog) const
 {
   const ezImageFormat::Enum format = image.GetImageFormat();
   const ezUInt32 uiBpp = ezImageFormat::GetBitsPerPixel(format);
@@ -312,8 +313,8 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
   ezDdsHeader fileHeader;
   ezDdsHeaderDxt10 headerDxt10;
 
-  ezMemoryUtils::ZeroFill(&fileHeader);
-  ezMemoryUtils::ZeroFill(&headerDxt10);
+  ezMemoryUtils::ZeroFill(&fileHeader, 1);
+  ezMemoryUtils::ZeroFill(&headerDxt10, 1);
 
   fileHeader.m_uiMagic = ezDdsMagic;
   fileHeader.m_uiSize = 124;
@@ -492,7 +493,7 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
     }
   }
 
-  if (stream.WriteBytes(image.GetDataPointer<void>(), image.GetDataSize()) != EZ_SUCCESS)
+  if (stream.WriteBytes(image.GetArrayPtr<void>().GetPtr(), image.GetArrayPtr<void>().GetCount()) != EZ_SUCCESS)
   {
     ezLog::Error(pLog, "Failed to write image data.");
     return EZ_FAILURE;

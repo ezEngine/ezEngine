@@ -160,9 +160,15 @@ EZ_ALWAYS_INLINE bool ezMemoryUtils::IsEqual(const T* a, const T* b, size_t uiCo
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::ZeroFill(T* pDestination, size_t uiCount /*= 1*/)
+EZ_ALWAYS_INLINE void ezMemoryUtils::ZeroFill(T* pDestination, size_t uiCount)
 {
   memset(pDestination, 0, uiCount * sizeof(T));
+}
+
+template <typename T, size_t N>
+EZ_ALWAYS_INLINE void ezMemoryUtils::ZeroFill(T (&destination)[N])
+{
+  return ZeroFill(destination, N);
 }
 
 template <typename T>
@@ -174,13 +180,7 @@ EZ_ALWAYS_INLINE ezInt32 ezMemoryUtils::ByteCompare(const T* a, const T* b, size
 template <typename T>
 EZ_ALWAYS_INLINE T* ezMemoryUtils::AddByteOffset(T* ptr, ptrdiff_t iOffset)
 {
-  return reinterpret_cast<T*>(reinterpret_cast<ezUInt8*>(ptr) + iOffset);
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE const T* ezMemoryUtils::AddByteOffsetConst(const T* ptr, ptrdiff_t iOffset)
-{
-  return reinterpret_cast<const T*>(reinterpret_cast<const ezUInt8*>(ptr) + iOffset);
+  return reinterpret_cast<T*>(reinterpret_cast<uintptr_t>(ptr) + iOffset);
 }
 
 template <typename T>

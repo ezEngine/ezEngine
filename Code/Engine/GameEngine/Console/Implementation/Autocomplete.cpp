@@ -8,11 +8,12 @@ void ezConsole::AutoCompleteInputLine()
 
   auto it = rbegin(m_sInputLine);
 
-  while (it.IsValid() && !ezStringUtils::IsIdentifierDelimiter_C_Code(*it))
+  // dots are allowed in cvar names
+  while (it.IsValid() && (it.GetCharacter() == '.' || !ezStringUtils::IsIdentifierDelimiter_C_Code(*it)))
     ++it;
 
   const char* szLastWordDelimiter = nullptr;
-  if (it.IsValid() && ezStringUtils::IsIdentifierDelimiter_C_Code(*it))
+  if (it.IsValid() && ezStringUtils::IsIdentifierDelimiter_C_Code(*it) && it.GetCharacter() != '.')
     szLastWordDelimiter = it.GetData();
 
   if (szLastWordDelimiter != nullptr)

@@ -68,7 +68,7 @@ inline void ezSimdBBox::ExpandToInclude(const ezSimdVec4f* pPoints, ezUInt32 uiN
   {
     ExpandToInclude(*pCur);
 
-    pCur = ezMemoryUtils::AddByteOffsetConst(pCur, uiStride);
+    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
   }
 }
 

@@ -99,7 +99,7 @@ void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& td, c
       {
         ezGALSystemMemoryDescription& id = initData.ExpandAndGetRef();
 
-        id.m_pData = const_cast<ezUInt8*>(pImage->GetDataPointer<ezUInt8>() + pImage->GetDataOffSet(mip, face, array_index));
+        id.m_pData = const_cast<ezUInt8*>(pImage->GetPixelPointer<ezUInt8>(mip, face, array_index));
 
         if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
         {

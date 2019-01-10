@@ -105,7 +105,7 @@ struct ezBmpBgrxQuad
   ezUInt8 m_reserved;
 };
 
-ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& image, ezLogInterface* pLog) const
+ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog) const
 {
   // Technically almost arbitrary formats are supported, but we only use the common ones.
   ezImageFormat::Enum compatibleFormats[] =
@@ -265,7 +265,14 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
   // Write rows in reverse order
   for (ezInt32 iRow = uiHeight - 1; iRow >= 0; iRow--)
   {
-    if (stream.WriteBytes(image.GetPixelPointer<void>(0, 0, 0, 0, iRow, 0), uiPaddedRowPitch) != EZ_SUCCESS)
+    if (stream.WriteBytes(image.GetPixelPointer<void>(0, 0, 0, 0, iRow, 0), uiRowPitch) != EZ_SUCCESS)
+    {
+      ezLog::Error(pLog, "Failed to write data.");
+      return EZ_FAILURE;
+    }
+
+    ezUInt8 zeroes[4] = {0, 0, 0, 0};
+    if (stream.WriteBytes(zeroes, uiPaddedRowPitch - uiRowPitch) != EZ_SUCCESS)
     {
       ezLog::Error(pLog, "Failed to write data.");
       return EZ_FAILURE;
@@ -478,16 +485,17 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   }
 
   // Set image data
-  image.SetImageFormat(format);
-  image.SetNumMipLevels(1);
-  image.SetNumArrayIndices(1);
-  image.SetNumFaces(1);
+  ezImageHeader header;
+  header.SetImageFormat(format);
+  header.SetNumMipLevels(1);
+  header.SetNumArrayIndices(1);
+  header.SetNumFaces(1);
 
-  image.SetWidth(uiWidth);
-  image.SetHeight(uiHeight);
-  image.SetDepth(1);
+  header.SetWidth(uiWidth);
+  header.SetHeight(uiHeight);
+  header.SetDepth(1);
 
-  image.AllocateImageData();
+  image.Reset(header);
 
   ezUInt32 uiRowPitch = image.GetRowPitch(0);
 

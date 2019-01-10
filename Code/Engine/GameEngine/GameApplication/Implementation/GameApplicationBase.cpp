@@ -171,7 +171,7 @@ void ezGameApplicationBase::StoreScreenshot(const ezImage& image)
   };
 
   WriteFileTask* pWriteTask = EZ_DEFAULT_NEW(WriteFileTask);
-  pWriteTask->m_Image = image;
+  pWriteTask->m_Image = static_cast<const ezImageView&>(image);
   pWriteTask->SetOnTaskFinished([](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
 
   // we move the file writing off to another thread to save some time

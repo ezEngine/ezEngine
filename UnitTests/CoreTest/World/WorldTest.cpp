@@ -21,7 +21,7 @@ namespace
   TestWorldObjects CreateTestWorld(ezWorld& world, bool bDynamic)
   {
     TestWorldObjects testWorldObjects;
-    ezMemoryUtils::ZeroFill(&testWorldObjects);
+    ezMemoryUtils::ZeroFill(&testWorldObjects, 1);
 
     ezQuat q;
     q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::Degree(90.0f));

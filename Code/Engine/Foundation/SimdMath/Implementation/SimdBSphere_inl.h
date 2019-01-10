@@ -45,7 +45,7 @@ inline void ezSimdBSphere::SetFromPoints(const ezSimdVec4f* pPoints, ezUInt32 ui
   for (ezUInt32 i = 0; i < uiNumPoints; ++i)
   {
     vCenter += *pCur;
-    pCur = ezMemoryUtils::AddByteOffsetConst(pCur, uiStride);
+    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
   }
 
   m_CenterAndRadius = vCenter / ezSimdFloat(uiNumPoints);
@@ -58,7 +58,7 @@ inline void ezSimdBSphere::SetFromPoints(const ezSimdVec4f* pPoints, ezUInt32 ui
     const ezSimdFloat fDistSQR = (*pCur - m_CenterAndRadius).GetLengthSquared<3>();
     fMaxDistSquare = fMaxDistSquare.Max(fDistSQR);
 
-    pCur = ezMemoryUtils::AddByteOffsetConst(pCur, uiStride);
+    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
   }
 
   m_CenterAndRadius.SetW(fMaxDistSquare.GetSqrt());
@@ -85,7 +85,7 @@ inline void ezSimdBSphere::ExpandToInclude(const ezSimdVec4f* pPoints, ezUInt32 
     const ezSimdFloat fDistSQR = (*pCur - m_CenterAndRadius).GetLengthSquared<3>();
     fMaxDistSquare = fMaxDistSquare.Max(fDistSQR);
 
-    pCur = ezMemoryUtils::AddByteOffsetConst(pCur, uiStride);
+    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
   }
 
   m_CenterAndRadius.SetW(fMaxDistSquare.GetSqrt().Max(GetRadius()));

@@ -132,7 +132,7 @@ namespace
 
   EZ_ALWAYS_INLINE void FillLightData(ezPerLightData& perLightData, const ezLightRenderData* pLightRenderData, ezUInt32 uiType)
   {
-    ezMemoryUtils::ZeroFill(&perLightData);
+    ezMemoryUtils::ZeroFill(&perLightData, 1);
 
     ezColorLinearUB lightColor = pLightRenderData->m_LightColor;
     lightColor.a = uiType;

@@ -410,7 +410,7 @@ Type ezPlaneTemplate<Type>::GetMinimumDistanceTo(const ezVec3Template<Type>* pPo
   {
     fMinDist = ezMath::Min(m_vNormal.Dot(*pCurPoint), fMinDist);
 
-    pCurPoint = ezMemoryUtils::AddByteOffsetConst(pCurPoint, uiStride);
+    pCurPoint = ezMemoryUtils::AddByteOffset(pCurPoint, uiStride);
   }
 
   return fMinDist + m_fNegDistance;
@@ -435,7 +435,7 @@ void ezPlaneTemplate<Type>::GetMinMaxDistanceTo(Type& out_fMin, Type& out_fMax, 
     out_fMin = ezMath::Min(f, out_fMin);
     out_fMax = ezMath::Max(f, out_fMax);
 
-    pCurPoint = ezMemoryUtils::AddByteOffsetConst(pCurPoint, uiStride);
+    pCurPoint = ezMemoryUtils::AddByteOffset(pCurPoint, uiStride);
   }
 
   out_fMin += m_fNegDistance;

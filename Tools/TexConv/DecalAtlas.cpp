@@ -177,10 +177,11 @@ ezResult ezTexConv::ToFloatImage(const ezImage& src, ezImage& dst)
 
 ezResult ezTexConv::CreateDecalAtlasTexture(const ezDynamicArray<DecalDesc>& decals, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer)
 {
-  atlas.SetWidth(uiResX);
-  atlas.SetHeight(uiResY);
-  atlas.SetImageFormat(ezImageFormat::R32G32B32A32_FLOAT);
-  atlas.AllocateImageData();
+  ezImageHeader imgHeader;
+  imgHeader.SetWidth(uiResX);
+  imgHeader.SetHeight(uiResY);
+  imgHeader.SetImageFormat(ezImageFormat::R32G32B32A32_FLOAT);
+  atlas.Reset(imgHeader);
 
   const ezColor fill(0, 0, 0, 0);
 
@@ -234,7 +235,7 @@ ezResult ezTexConv::CreateDecalAtlasTexture(const ezDynamicArray<DecalDesc>& dec
 }
 
 
-void ezTexConv::WriteDecalAtlasInfo(ezDynamicArray<DecalDesc> decals)
+void ezTexConv::WriteDecalAtlasInfo(const ezDynamicArray<DecalDesc>& decals)
 {
   m_FileOut << decals.GetCount();
 

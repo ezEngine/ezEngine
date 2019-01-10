@@ -49,7 +49,7 @@ ezApplication::ApplicationExecution ezComputeShaderHistogramApp::Run()
     // Constant buffer update
     {
       auto& globalConstants = renderContext.WriteGlobalConstants();
-      ezMemoryUtils::ZeroFill(&globalConstants);
+      ezMemoryUtils::ZeroFill(&globalConstants, 1);
 
       globalConstants.ViewportSize =
           ezVec4((float)g_uiWindowWidth, (float)g_uiWindowHeight, 1.0f / (float)g_uiWindowWidth, 1.0f / (float)g_uiWindowHeight);

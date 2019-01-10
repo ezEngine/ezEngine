@@ -76,21 +76,55 @@ static int LUAFUNC_ConsoleFunc(lua_State* state)
   return s.ReturnToScript();
 }
 
+static void SanitizeCVarNames(ezStringBuilder& sCommand)
+{
+  ezStringBuilder sanitizedCVarName;
+
+  for (const ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
+  {
+    sanitizedCVarName = pCVar->GetName();
+    sanitizedCVarName.ReplaceAll(".", "_");
+
+    sCommand.ReplaceAll(pCVar->GetName(), sanitizedCVarName);
+  }
+}
+
+static void UnSanitizeCVarName(ezStringBuilder& cvarName)
+{
+  ezStringBuilder sanitizedCVarName;
+
+  for (const ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
+  {
+    sanitizedCVarName = pCVar->GetName();
+    sanitizedCVarName.ReplaceAll(".", "_");
+
+    if (cvarName == sanitizedCVarName)
+    {
+      cvarName = pCVar->GetName();
+      return;
+    }
+  }
+}
+
 ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
 {
-  ezStringBuilder sCommand = szCommand;
+  ezStringBuilder sRealCommand = szCommand;
 
-  if (sCommand.IsEmpty())
+  if (sRealCommand.IsEmpty())
   {
     pConsole->AddConsoleString("");
     return EZ_SUCCESS;
   }
 
-  sCommand.Trim(" \t\n\r");
+  sRealCommand.Trim(" \t\n\r");
+  ezStringBuilder sSanitizedCommand = sRealCommand;
+  SanitizeCVarNames(sSanitizedCommand);
 
-  ezStringView sCommandIt = sCommand;
+  ezStringView sCommandIt = sSanitizedCommand;
 
-  const ezString sVarName = GetNextWord(sCommandIt);
+  const ezString sSanitizedVarName = GetNextWord(sCommandIt);
+  ezStringBuilder sRealVarName = sSanitizedVarName;
+  UnSanitizeCVarName(sRealVarName);
 
   while (ezStringUtils::IsWhiteSpace(sCommandIt.GetCharacter()))
   {
@@ -124,11 +158,11 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
   }
 
   sTemp = "> ";
-  sTemp.Append(sCommand.GetData());
+  sTemp.Append(sRealCommand.GetData());
   pConsole->AddConsoleString(sTemp.GetData(), ezColor(255.0f / 255.0f, 128.0f / 255.0f, 0.0f / 255.0f));
 
 
-  ezCVar* pCVAR = ezCVar::FindCVarByName(sVarName.GetData());
+  ezCVar* pCVAR = ezCVar::FindCVarByName(sRealVarName.GetData());
   if (pCVAR != nullptr)
   {
     if ((bSetValue) && (sValue == "") && (pCVAR->GetType() == ezCVarType::Bool))
@@ -137,12 +171,12 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
 
       bValueEmpty = false;
 
-      sCommand.AppendFormat(" not {0}", sVarName);
+      sSanitizedCommand.AppendFormat(" not {0}", sSanitizedVarName);
     }
 
     if (bSetValue && !bValueEmpty)
     {
-      if (Script.ExecuteString(sCommand.GetData(), "console", ezLog::GetThreadLocalLogSystem()).Failed())
+      if (Script.ExecuteString(sSanitizedCommand, "console", ezLog::GetThreadLocalLogSystem()).Failed())
       {
         pConsole->AddConsoleString("  Error Executing Command.", ezColor(1, 0, 0));
         return EZ_FAILURE;
@@ -154,13 +188,13 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
           pConsole->AddConsoleString("  This change takes only effect after a restart.", ezColor(1, 200.0f / 255.0f, 0));
         }
 
-        sTemp.Format("  {0} = {1}", sVarName, pConsole->GetFullInfoAsString(pCVAR));
+        sTemp.Format("  {0} = {1}", sRealVarName, pConsole->GetFullInfoAsString(pCVAR));
         pConsole->AddConsoleString(sTemp.GetData(), ezColor(50.0f / 255.0f, 1, 50.0f / 255.0f));
       }
     }
     else
     {
-      sTemp.Format("{0} = {1}", sVarName, pConsole->GetFullInfoAsString(pCVAR));
+      sTemp.Format("{0} = {1}", sRealVarName, pConsole->GetFullInfoAsString(pCVAR));
       pConsole->AddConsoleString(sTemp.GetData());
 
       if (!ezStringUtils::IsNullOrEmpty(pCVAR->GetDescription()))
@@ -176,7 +210,7 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
   }
   else
   {
-    if (Script.ExecuteString(sCommand.GetData(), "console", ezLog::GetThreadLocalLogSystem()).Failed())
+    if (Script.ExecuteString(sSanitizedCommand, "console", ezLog::GetThreadLocalLogSystem()).Failed())
     {
       pConsole->AddConsoleString("  Error Executing Command.", ezColor(1, 0, 0));
       return EZ_FAILURE;
@@ -190,7 +224,10 @@ static int LUAFUNC_ReadCVAR(lua_State* state)
 {
   ezLuaWrapper s(state);
 
-  ezCVar* pCVar = ezCVar::FindCVarByName(s.GetStringParameter(0));
+  ezStringBuilder cvarName = s.GetStringParameter(0);
+  UnSanitizeCVarName(cvarName);
+
+  ezCVar* pCVar = ezCVar::FindCVarByName(cvarName);
 
   if (pCVar == nullptr)
   {
@@ -236,7 +273,10 @@ static int LUAFUNC_WriteCVAR(lua_State* state)
 {
   ezLuaWrapper s(state);
 
-  ezCVar* pCVar = ezCVar::FindCVarByName(s.GetStringParameter(0));
+  ezStringBuilder cvarName = s.GetStringParameter(0);
+  UnSanitizeCVarName(cvarName);
+
+  ezCVar* pCVar = ezCVar::FindCVarByName(cvarName);
 
   if (pCVar == nullptr)
   {

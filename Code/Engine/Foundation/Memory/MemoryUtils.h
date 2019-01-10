@@ -117,7 +117,11 @@ public:
 
   /// \brief Zeros out buffer of a raw memory.
   template <typename T>
-  static void ZeroFill(T* pDestination, size_t uiCount = 1); // [tested]
+  static void ZeroFill(T* pDestination, size_t uiCount); // [tested]
+
+  /// \brief Zeros out buffer of a raw memory.
+  template <typename T, size_t N>
+  static void ZeroFill(T (&destination)[N]); // [tested]
 
   /// \brief Compares two buffers of raw memory byte wise.
   template <typename T>
@@ -129,13 +133,6 @@ public:
   /// details of pointer arithmetic.
   template <typename T>
   static T* AddByteOffset(T* ptr, ptrdiff_t iOffset); // [tested]
-
-  /// \brief Returns the address stored in \a ptr plus the given byte offset \a iOffset, cast to type \a const \a T.
-  ///
-  /// This is useful when working with raw memory, to safely modify a pointer without having to take care of the
-  /// details of pointer arithmetic. Also it allows you to modify the pointer without having to do a const_cast.
-  template <typename T>
-  static const T* AddByteOffsetConst(const T* ptr, ptrdiff_t iOffset); // [tested]
 
   /// \brief Aligns the pointer \a ptr by moving its address backwards to the previous multiple of \a uiAlignment.
   template <typename T>

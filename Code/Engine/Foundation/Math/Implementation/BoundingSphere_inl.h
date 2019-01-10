@@ -223,7 +223,7 @@ bool ezBoundingSphereTemplate<Type>::Contains(const ezVec3Template<Type>* pPoint
     if ((*pCur - m_vCenter).GetLengthSquared() > fRadiusSQR)
       return false;
 
-    pCur = ezMemoryUtils::AddByteOffsetConst(pCur, uiStride);
+    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
   }
 
   return true;
@@ -245,7 +245,7 @@ bool ezBoundingSphereTemplate<Type>::Overlaps(const ezVec3Template<Type>* pPoint
     if ((*pCur - m_vCenter).GetLengthSquared() <= fRadiusSQR)
       return true;
 
-    pCur = ezMemoryUtils::AddByteOffsetConst(pCur, uiStride);
+    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
   }
 
   return false;
@@ -265,7 +265,7 @@ void ezBoundingSphereTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* p
   for (ezUInt32 i = 0; i < uiNumPoints; ++i)
   {
     vCenter += *pCur;
-    pCur = ezMemoryUtils::AddByteOffsetConst(pCur, uiStride);
+    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
   }
 
   vCenter /= (Type)uiNumPoints;
@@ -278,7 +278,7 @@ void ezBoundingSphereTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* p
     const Type fDistSQR = (*pCur - vCenter).GetLengthSquared();
     fMaxDistSQR = ezMath::Max(fMaxDistSQR, fDistSQR);
 
-    pCur = ezMemoryUtils::AddByteOffsetConst(pCur, uiStride);
+    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
   }
 
   m_vCenter = vCenter;
@@ -302,7 +302,7 @@ void ezBoundingSphereTemplate<Type>::ExpandToInclude(const ezVec3Template<Type>*
     const Type fDistSQR = (*pCur - m_vCenter).GetLengthSquared();
     fMaxDistSQR = ezMath::Max(fMaxDistSQR, fDistSQR);
 
-    pCur = ezMemoryUtils::AddByteOffsetConst(pCur, uiStride);
+    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
   }
 
   if (ezMath::Square(m_fRadius) < fMaxDistSQR)
@@ -326,7 +326,7 @@ Type ezBoundingSphereTemplate<Type>::GetDistanceTo(const ezVec3Template<Type>* p
 
     fMinDistSQR = ezMath::Min(fMinDistSQR, fDistSQR);
 
-    pCur = ezMemoryUtils::AddByteOffsetConst(pCur, uiStride);
+    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
   }
 
   return ezMath::Sqrt(fMinDistSQR);

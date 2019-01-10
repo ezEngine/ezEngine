@@ -474,15 +474,15 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
           MemDesc.m_uiSlicePitch = 4 * m_uiThumbnailWidth * m_uiThumbnailHeight;
         }
 
-        ezImage image;
-        image.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
-        image.SetWidth(m_uiThumbnailWidth);
-        image.SetHeight(m_uiThumbnailHeight);
-        image.AllocateImageData();
-        EZ_ASSERT_DEV(m_uiThumbnailWidth * m_uiThumbnailHeight * 4 == image.GetDataSize(),
+        ezImageHeader header;
+        header.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
+        header.SetWidth(m_uiThumbnailWidth);
+        header.SetHeight(m_uiThumbnailHeight);
+        ezImage image(header);
+        EZ_ASSERT_DEV(m_uiThumbnailWidth * m_uiThumbnailHeight * 4 == header.ComputeDataSize(),
                       "Thumbnail ezImage has different size than data buffer!");
 
-        MemDesc.m_pData = image.GetDataPointer<ezUInt8>();
+        MemDesc.m_pData = image.GetPixelPointer<ezUInt8>();
         ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
         ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(m_hThumbnailColorRT, &SysMemDescs);
 
@@ -491,14 +491,14 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
         ezImage* pImageSwap = &imageSwap;
         for (ezUInt32 uiSuperscaleFactor = ThumbnailSuperscaleFactor; uiSuperscaleFactor > 1; uiSuperscaleFactor /= 2)
         {
-          ezImageUtils::ScaleDownHalf(*pImage, *pImageSwap);
+          ezImageUtils::Scale(*pImage, *pImageSwap, pImage->GetWidth() / 2, pImage->GetHeight() / 2);
           ezMath::Swap(pImage, pImageSwap);
         }
 
 
         ret.m_ThumbnailData.SetCountUninitialized((m_uiThumbnailWidth / ThumbnailSuperscaleFactor) *
                                                   (m_uiThumbnailHeight / ThumbnailSuperscaleFactor) * 4);
-        ezMemoryUtils::Copy(ret.m_ThumbnailData.GetData(), pImage->GetDataPointer<ezUInt8>(), ret.m_ThumbnailData.GetCount());
+        ezMemoryUtils::Copy(ret.m_ThumbnailData.GetData(), pImage->GetPixelPointer<ezUInt8>(), ret.m_ThumbnailData.GetCount());
       }
 
       DestroyThumbnailViewContext();

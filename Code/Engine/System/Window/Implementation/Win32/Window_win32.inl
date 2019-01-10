@@ -58,8 +58,7 @@ ezResult ezWindow::Initialize()
   EZ_ASSERT_RELEASE(m_CreationDescription.m_Resolution.HasNonZeroArea(), "The client area size can't be zero sized!");
 
   // Initialize window class
-  WNDCLASSEXW windowClass;
-  ezMemoryUtils::ZeroFill(&windowClass);
+  WNDCLASSEXW windowClass = {};
   windowClass.cbSize = sizeof(WNDCLASSEXW);
   windowClass.style = CS_HREDRAW | CS_VREDRAW;
   windowClass.hInstance = GetModuleHandleW(nullptr);
@@ -86,9 +85,7 @@ ezResult ezWindow::Initialize()
     ezLog::Dev("Changing display resolution for fullscreen mode to {0}*{1}", m_CreationDescription.m_Resolution.width,
                m_CreationDescription.m_Resolution.height);
 
-    DEVMODEW dmScreenSettings;
-
-    ezMemoryUtils::ZeroFill(&dmScreenSettings);
+    DEVMODEW dmScreenSettings = {};
     dmScreenSettings.dmSize = sizeof(DEVMODEW);
     dmScreenSettings.dmPelsWidth = m_CreationDescription.m_Resolution.width;
     dmScreenSettings.dmPelsHeight = m_CreationDescription.m_Resolution.height;

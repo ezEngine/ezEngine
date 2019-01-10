@@ -52,6 +52,12 @@ namespace ezMath
     return value < min_val ? min_val : (max_val < value ? max_val : value);
   }
 
+  template <typename T>
+  constexpr EZ_ALWAYS_INLINE T Saturate(T value)
+  {
+    return Clamp(value, T(0), T(1));
+  }
+
   template <typename Type>
   constexpr Type Invert(Type f)
   {
@@ -180,10 +186,84 @@ namespace ezMath
     return (x * x * ((Type)3 - ((Type)2 * x)));
   }
 
-  constexpr inline ezUInt8 ColorFloatToByte(float value) { return static_cast<ezUInt8>(ezMath::Min(255.0f, ((value * 255.0f) + 0.5f))); }
+  inline ezUInt8 ColorFloatToByte(float value)
+  {
+    // Implemented according to
+    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    if (IsNaN(value))
+    {
+      return 0;
+    }
+    else
+    {
+      return static_cast<ezUInt8>(Saturate(value) * 255.0f + 0.5f);
+    }
+  }
 
-  constexpr inline float ColorByteToFloat(ezUInt8 value) { return value * (1.0f / 255.0f); }
+  inline ezUInt16 ColorFloatToShort(float value)
+  {
+    // Implemented according to
+    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    if (IsNaN(value))
+    {
+      return 0;
+    }
+    else
+    {
+      return static_cast<ezUInt16>(Saturate(value) * 65535.0f + 0.5f);
+    }
+  }
 
+  inline ezInt8 ColorFloatToSignedByte(float value)
+  {
+    // Implemented according to
+    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    if (IsNaN(value))
+    {
+      return 0;
+    }
+    else
+    {
+      value = Clamp(value, -1.0f, 1.0f) * 127.0f;
+      if (value >= 0.0f)
+      {
+        value += 0.5f;
+      }
+      else
+      {
+        value -= 0.5f;
+      }
+      return static_cast<ezInt8>(value);
+    }
+  }
+
+  constexpr inline float ColorByteToFloat(ezUInt8 value)
+  {
+    // Implemented according to
+    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    return value * (1.0f / 255.0f);
+  }
+
+  constexpr inline float ColorShortToFloat(ezUInt16 value)
+  {
+    // Implemented according to
+    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    return value * (1.0f / 65535.0f);
+  }
+
+  constexpr inline float ColorSignedByteToFloat(ezInt8 value)
+  {
+    // Implemented according to
+    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    if (value == -128)
+    {
+      return -1.0f;
+    }
+    else
+    {
+      return value * (1.0f / 127.0f);
+    }
+  }
 
   template <typename T, typename T2>
   T EvaluateBezierCurve(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint)

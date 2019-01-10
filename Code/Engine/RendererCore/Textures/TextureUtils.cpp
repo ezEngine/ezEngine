@@ -141,9 +141,6 @@ ezGALResourceFormat::Enum ezTextureUtils::ImageFormatToGalFormat(ezImageFormat::
     case ezImageFormat::R8_UNORM:
       return ezGALResourceFormat::RUByteNormalized;
 
-    case ezImageFormat::A8_UNORM:
-      return ezGALResourceFormat::AUByteNormalized;
-
     case ezImageFormat::R8G8_UNORM:
       return ezGALResourceFormat::RGUByteNormalized;
 

@@ -57,7 +57,7 @@ EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
   {
     ezImage ImageA, ImageAc;
     ImageA.LoadFrom("ImageUtils/ImageA_RGB.tga");
-    ezImageUtils::ScaleDownHalf(ImageA, ImageAc);
+    ezImageUtils::Scale(ImageA, ImageAc, ImageA.GetWidth() / 2, ImageA.GetHeight() / 2);
 
     ImageAc.SaveTo(":output/ImageUtils/ScaledHalf_RGB.tga");
 
@@ -68,7 +68,7 @@ EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
   {
     ezImage ImageA, ImageAc;
     ImageA.LoadFrom("ImageUtils/ImageA_RGBA.tga");
-    ezImageUtils::ScaleDownHalf(ImageA, ImageAc);
+    ezImageUtils::Scale(ImageA, ImageAc, ImageA.GetWidth() / 2, ImageA.GetHeight() / 2);
 
     ImageAc.SaveTo(":output/ImageUtils/ScaledHalf_RGBA.tga");
 
@@ -105,8 +105,8 @@ EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
     ImageB.LoadFrom("ImageUtils/ImageB_RGB.tga");
 
     ezImage ImageAc, ImageBc;
-    ezImageUtils::ScaleDownHalf(ImageA, ImageAc);
-    ezImageUtils::ScaleDownHalf(ImageB, ImageBc);
+    ezImageUtils::Scale(ImageA, ImageAc, ImageA.GetWidth() / 2, ImageA.GetHeight() / 2);
+    ezImageUtils::Scale(ImageB, ImageBc, ImageB.GetWidth() / 2, ImageB.GetHeight() / 2);
 
     ezImageUtils::ComputeImageDifferenceABS(ImageAc, ImageBc, ImageDiff);
 
@@ -115,7 +115,7 @@ EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
     EZ_TEST_FILES("ImageUtils/ExpectedMeanSquareDiff_RGB.tga", "ImageUtils/MeanSquareDiff_RGB.tga", "");
 
     ezUInt32 uiError = ezImageUtils::ComputeMeanSquareError(ImageDiff, 4);
-    EZ_TEST_INT(uiError, 2004);
+    EZ_TEST_INT(uiError, 1408);
   }
 
   ezFileSystem::RemoveDataDirectoryGroup("ImageTest");

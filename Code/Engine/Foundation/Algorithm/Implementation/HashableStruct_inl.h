@@ -4,7 +4,7 @@
 template <typename T>
 ezHashableStruct<T>::ezHashableStruct()
 {
-  ezMemoryUtils::ZeroFill<T>(static_cast<T*>(this));
+  ezMemoryUtils::ZeroFill<T>(static_cast<T*>(this), 1);
 }
 
 template <typename T>

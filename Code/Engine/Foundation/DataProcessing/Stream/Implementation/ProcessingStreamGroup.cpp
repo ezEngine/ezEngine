@@ -221,7 +221,7 @@ void ezProcessingStreamGroup::RunPendingDeletions()
     {
       const ezUInt64 uiStreamElementStride = pStream->GetElementStride();
       const ezUInt64 uiStreamElementSize = pStream->GetElementSize();
-      const void* pSourceData = ezMemoryUtils::AddByteOffsetConst(pStream->GetData(), static_cast<ptrdiff_t>(uiLastActiveElementIndex * uiStreamElementStride));
+      const void* pSourceData = ezMemoryUtils::AddByteOffset(pStream->GetData(), static_cast<ptrdiff_t>(uiLastActiveElementIndex * uiStreamElementStride));
       void* pTargetData = ezMemoryUtils::AddByteOffset(pStream->GetWritableData(), static_cast<ptrdiff_t>(uiElementToRemove * uiStreamElementStride));
 
       ezMemoryUtils::Copy<ezUInt8>(static_cast<ezUInt8*>(pTargetData), static_cast<const ezUInt8*>(pSourceData), static_cast<size_t>(uiStreamElementSize));

@@ -174,13 +174,14 @@ ezResult ezGraphicsTest::GetImage(ezImage& img)
   ezGALTextureHandle hBBTexture = m_pDevice->GetSwapChain(m_pDevice->GetPrimarySwapChain())->GetBackBufferTexture();
   pContext->ReadbackTexture(hBBTexture);
 
-  img.SetWidth(m_pWindow->GetClientAreaSize().width);
-  img.SetHeight(m_pWindow->GetClientAreaSize().height);
-  img.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
-  img.AllocateImageData();
+  ezImageHeader header;
+  header.SetWidth(m_pWindow->GetClientAreaSize().width);
+  header.SetHeight(m_pWindow->GetClientAreaSize().height);
+  header.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
+  img.Reset(header);
 
   ezGALSystemMemoryDescription MemDesc;
-  MemDesc.m_pData = img.GetDataPointer<ezUInt8>();
+  MemDesc.m_pData = img.GetPixelPointer<ezUInt8>();
   MemDesc.m_uiRowPitch = 4 * m_pWindow->GetClientAreaSize().width;
   MemDesc.m_uiSlicePitch = 4 * m_pWindow->GetClientAreaSize().width * m_pWindow->GetClientAreaSize().height;
 

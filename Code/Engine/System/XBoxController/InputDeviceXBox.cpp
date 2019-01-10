@@ -136,7 +136,7 @@ void ezInputDeviceXBox360::UpdateInputSlotValues()
 
         // this makes sure to reset all values below
         if (!bIsAvailable[iPhysical])
-          ezMemoryUtils::ZeroFill(&State[iPhysical]);
+          ezMemoryUtils::ZeroFill(&State[iPhysical], 1);
       }
     }
     else

@@ -125,7 +125,7 @@ void ezMeshComponent::OnExtractGeometry(ezMsgExtractGeometry& msg)
   for (ezUInt32 i = 0; i < mb.GetVertexCount(); ++i)
   {
     const ezVec3 pos(pPositions[0], pPositions[1], pPositions[2]);
-    pPositions = ezMemoryUtils::AddByteOffsetConst(pPositions, uiElementStride);
+    pPositions = ezMemoryUtils::AddByteOffset(pPositions, uiElementStride);
 
     auto& vert = geo.m_Vertices.ExpandAndGetRef();
     vert.m_vPosition = transform * pos;

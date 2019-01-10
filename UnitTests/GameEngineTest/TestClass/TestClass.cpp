@@ -13,7 +13,7 @@ ezGameEngineTest::~ezGameEngineTest() = default;
 
 ezResult ezGameEngineTest::GetImage(ezImage& img)
 {
-  img = m_pApplication->GetLastScreenshot();
+  img = static_cast<const ezImageView&>(m_pApplication->GetLastScreenshot());
 
   return EZ_SUCCESS;
 }
@@ -137,7 +137,7 @@ void ezGameEngineTestApplication::BeforeHighLevelSystemsShutdown()
 void ezGameEngineTestApplication::StoreScreenshot(const ezImage& image)
 {
   // store this for image comparison purposes
-  m_LastScreenshot = image;
+  m_LastScreenshot = static_cast<const ezImageView&>(image);
 }
 
 

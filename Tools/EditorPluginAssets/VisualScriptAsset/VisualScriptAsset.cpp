@@ -98,9 +98,9 @@ void ezVisualScriptAssetDocument::HandleVsActivityMsg(const ezVisualScriptActivi
   const ezUInt8* pData = db.GetData();
 
   ezUInt32* pNumExecCon = (ezUInt32*)pData;
-  ezUInt32* pNumDataCon = (ezUInt32*)ezMemoryUtils::AddByteOffsetConst(pData, 4);
+  ezUInt32* pNumDataCon = (ezUInt32*)ezMemoryUtils::AddByteOffset(pData, 4);
 
-  ezUInt32* pExecCon = (ezUInt32*)ezMemoryUtils::AddByteOffsetConst(pData, 8);
+  ezUInt32* pExecCon = (ezUInt32*)ezMemoryUtils::AddByteOffset(pData, 8);
   ezUInt32* pDataCon = pExecCon + (*pNumExecCon);
 
   ezVisualScriptInstanceActivity act;

@@ -217,7 +217,7 @@ void ezRecastNavMeshBuilder::ComputeBoundingBox()
 
 void ezRecastNavMeshBuilder::FillOutConfig(rcConfig& cfg, const ezRecastConfig& config)
 {
-  ezMemoryUtils::ZeroFill(&cfg);
+  ezMemoryUtils::ZeroFill(&cfg, 1);
   cfg.bmin[0] = m_BoundingBox.m_vMin.x;
   cfg.bmin[1] = m_BoundingBox.m_vMin.y;
   cfg.bmin[2] = m_BoundingBox.m_vMin.z;
@@ -386,7 +386,7 @@ ezResult ezRecastNavMeshBuilder::BuildRecastNavMesh(const ezRecastConfig& config
 ezResult ezRecastNavMeshBuilder::CreateDetourNavMesh(const ezRecastConfig& config)
 {
   dtNavMeshCreateParams params;
-  ezMemoryUtils::ZeroFill(&params);
+  ezMemoryUtils::ZeroFill(&params, 1);
 
   params.verts = m_polyMesh->verts;
   params.vertCount = m_polyMesh->nverts;

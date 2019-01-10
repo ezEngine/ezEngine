@@ -652,7 +652,7 @@ void ezBreakableSheetComponent::CreateMeshes()
       boundingBox.max = {halfSize.x, halfSize.z};
 
       jcv_diagram diagram;
-      ezMemoryUtils::ZeroFill(&diagram);
+      ezMemoryUtils::ZeroFill(&diagram, 1);
       jcv_diagram_generate(diagramPoints.GetCount(), diagramPoints.GetData(), &boundingBox, &diagram);
 
       if (diagram.numsites == 0)

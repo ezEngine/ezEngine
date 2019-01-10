@@ -74,7 +74,7 @@ namespace ezMemoryPolicies
 
     inline ezUInt32 GetMetadata(const void* pAlignedMemory)
     {
-      return *static_cast<const ezUInt32*>(ezMemoryUtils::AddByteOffsetConst(pAlignedMemory, -MetadataSize));
+      return *static_cast<const ezUInt32*>(ezMemoryUtils::AddByteOffset(pAlignedMemory, -MetadataSize));
     }
 
     // Store offset between pMemory and pAlignedMemory in the lower 24 bit of meta-data.

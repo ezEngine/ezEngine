@@ -34,6 +34,8 @@ void ezTestBaseClass::ClearSubTests()
 
 void ezTestBaseClass::AddSubTest(const char* szName, ezInt32 iIdentifier)
 {
+  EZ_ASSERT_DEV(szName != nullptr, "Sub test name must not be nullptr");
+
   TestEntry e;
   e.m_szName = szName;
   e.m_iIdentifier = iIdentifier;

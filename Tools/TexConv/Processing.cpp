@@ -191,7 +191,7 @@ ezResult ezTexConv::CreateTexture2D(ezImage* pImage, bool bCheckAlphaIsMask)
   srcImg.rowPitch = pImage->GetRowPitch();
   srcImg.slicePitch = pImage->GetDepthPitch();
   srcImg.format = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(pImage->GetImageFormat());
-  srcImg.pixels = pImage->GetDataPointer<ezUInt8>();
+  srcImg.pixels = pImage->GetPixelPointer<ezUInt8>();
 
   m_pCurrentImage = make_shared<ScratchImage>();
   m_pCurrentImage->InitializeFromImage(srcImg);

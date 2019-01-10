@@ -267,6 +267,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(uiRawData[3], 4);
     EZ_TEST_INT(uiRawData[4], 5);
 
+    // T*, size_t N overload
     ezMemoryUtils::ZeroFill(uiRawData + 1, 3);
 
     EZ_TEST_INT(uiRawData[0], 1);
@@ -274,6 +275,15 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(uiRawData[2], 0);
     EZ_TEST_INT(uiRawData[3], 0);
     EZ_TEST_INT(uiRawData[4], 5);
+
+    // T[N] overload
+    ezMemoryUtils::ZeroFill(uiRawData);
+
+    EZ_TEST_INT(uiRawData[0], 0);
+    EZ_TEST_INT(uiRawData[1], 0);
+    EZ_TEST_INT(uiRawData[2], 0);
+    EZ_TEST_INT(uiRawData[3], 0);
+    EZ_TEST_INT(uiRawData[4], 0);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ByteCompare")
@@ -300,7 +310,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_BOOL(pData1 == reinterpret_cast<ezInt32*>(13));
 
     const ezInt32* pData2 = nullptr;
-    const ezInt32* pData3 = ezMemoryUtils::AddByteOffsetConst(pData2, 17);
+    const ezInt32* pData3 = ezMemoryUtils::AddByteOffset(pData2, 17);
     EZ_TEST_BOOL(pData3 == reinterpret_cast<ezInt32*>(17));
   }
 

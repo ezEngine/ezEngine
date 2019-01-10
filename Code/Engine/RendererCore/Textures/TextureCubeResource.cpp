@@ -140,7 +140,7 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
       {
         ezGALSystemMemoryDescription& id = InitData.ExpandAndGetRef();
 
-        id.m_pData = pImage->GetDataPointer<ezUInt8>() + pImage->GetDataOffSet(mip, face, array_index);
+        id.m_pData = pImage->GetPixelPointer<ezUInt8>(mip, face, array_index);
 
         if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
         {

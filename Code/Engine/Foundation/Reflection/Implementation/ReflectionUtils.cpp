@@ -922,7 +922,8 @@ ezAbstractMemberProperty* ezReflectionUtils::GetMemberProperty(const ezRTTI* pRt
   if (pRtti == nullptr)
     return nullptr;
 
-  const ezArrayPtr<ezAbstractProperty*>& props = pRtti->GetProperties();
+  ezHybridArray<ezAbstractProperty*, 32> props;
+  pRtti->GetAllProperties(props);
   if (uiPropertyIndex < props.GetCount())
   {
     ezAbstractProperty* pProp = props[uiPropertyIndex];

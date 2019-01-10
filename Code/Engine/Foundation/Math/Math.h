@@ -146,6 +146,10 @@ namespace ezMath
   template <typename T>
   constexpr T Clamp(T value, T min_val, T max_val); // [tested]
 
+  /// \brief Clamps "value" to the range [0; 1]. Returns "value", if it is inside the range already
+  template <typename T>
+  constexpr T Saturate(T value); // [tested]
+
   /// \brief Returns the next smaller integer, closest to f. Also the SMALLER value, if f is negative.
   float Floor(float f); // [tested]
 
@@ -245,6 +249,9 @@ namespace ezMath
   /// \brief Returns the next power-of-two that is >= value
   EZ_FOUNDATION_DLL ezUInt32 PowerOfTwo_Ceil(ezUInt32 value); // [tested]
 
+  /// \brief Returns the greatest common divisor.
+  EZ_FOUNDATION_DLL ezUInt32 GreatestCommonDivisor(ezUInt32 a, ezUInt32 b); // [tested]
+
   /// \brief Checks, whether fValue is in the range [fDesired - fMaxImprecision; fDesired + fMaxImprecision].
   template <typename Type>
   constexpr bool IsEqual(Type lhs, Type rhs, Type fEpsilon);
@@ -258,10 +265,22 @@ namespace ezMath
   bool IsZero(Type f, Type fEpsilon); // [tested]
 
   /// \brief Converts a color value from float [0;1] range to unsigned byte [0;255] range, with proper rounding
-  constexpr ezUInt8 ColorFloatToByte(float value);
+  ezUInt8 ColorFloatToByte(float value); // [tested]
+
+  /// \brief Converts a color value from float [0;1] range to unsigned short [0;65535] range, with proper rounding
+  ezUInt16 ColorFloatToShort(float value); // [tested]
+
+  /// \brief Converts a color value from float [-1;1] range to signed byte [-127;127] range, with proper rounding
+  ezInt8 ColorFloatToSignedByte(float value); // [tested]
 
   /// \brief Converts a color value from unsigned byte [0;255] range to float [0;1] range, with proper rounding
-  constexpr float ColorByteToFloat(ezUInt8 value);
+  constexpr float ColorByteToFloat(ezUInt8 value); // [tested]
+
+  /// \brief Converts a color value from unsigned short [0;65535] range to float [0;1] range, with proper rounding
+  constexpr float ColorShortToFloat(ezUInt16 value); // [tested]
+
+  /// \brief Converts a color value from signed byte [-128;127] range to float [-1;1] range, with proper rounding
+  constexpr float ColorSignedByteToFloat(ezInt8 value); // [tested]
 
   /// \brief Evaluates the cubic spline defined by four control points at time \a t and returns the interpolated result.
   /// Can be used with T as float, vec2, vec3 or vec4

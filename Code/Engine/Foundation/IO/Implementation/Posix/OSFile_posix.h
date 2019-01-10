@@ -60,7 +60,7 @@ ezResult ezOSFile::InternalWrite(const void* pBuffer, ezUInt64 uiBytes)
       return EZ_FAILURE;
 
     uiBytes -= uiBatchBytes;
-    pBuffer = ezMemoryUtils::AddByteOffsetConst(pBuffer, uiBatchBytes);
+    pBuffer = ezMemoryUtils::AddByteOffset(pBuffer, uiBatchBytes);
   }
 
   if (uiBytes > 0)

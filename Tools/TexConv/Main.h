@@ -183,6 +183,6 @@ public:
   ezResult TrySortDecalsIntoAtlas(ezDynamicArray<DecalDesc> &decals, ezUInt32 uiWidth, ezUInt32 uiHeight, ezInt32 layer);
   ezResult ToFloatImage(const ezImage& src, ezImage& dst);
   ezResult CreateDecalLayerTexture(ezDynamicArray<DecalDesc>& decals, ezInt32 layer, ezStreamWriter& stream);
-  void WriteDecalAtlasInfo(ezDynamicArray<DecalDesc> decals);
+  void WriteDecalAtlasInfo(const ezDynamicArray<DecalDesc>& decals);
 
 };

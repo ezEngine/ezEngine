@@ -339,7 +339,7 @@ void ezMemoryTracker::DumpMemoryLeaks()
     const LeakInfo& leak = it.Value();
 
     const void* curPtr = ptr;
-    const void* endPtr = ezMemoryUtils::AddByteOffsetConst(ptr, leak.m_uiSize);
+    const void* endPtr = ezMemoryUtils::AddByteOffset(ptr, leak.m_uiSize);
 
     while (curPtr < endPtr)
     {
@@ -351,7 +351,7 @@ void ezMemoryTracker::DumpMemoryLeaks()
         dependentLeak->m_pParentLeak = ptr;
       }
 
-      curPtr = ezMemoryUtils::AddByteOffsetConst(curPtr, sizeof(void*));
+      curPtr = ezMemoryUtils::AddByteOffset(curPtr, sizeof(void*));
     }
   }
 
