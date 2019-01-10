@@ -1,7 +1,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STBI_WRITE_NO_STDIO
+
+#ifdef _MSC_VER
 #define STBI_MSC_SECURE_CRT
+#endif
 
 //#define STBI_ASSERT(x) EZ_ASSERT(x, "stbi_image assertion.")
 

@@ -255,14 +255,7 @@ namespace ezMath
   {
     // Implemented according to
     // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
-    if (value == -128)
-    {
-      return -1.0f;
-    }
-    else
-    {
-      return value * (1.0f / 127.0f);
-    }
+    return (value == -128) ? -1.0f : value * (1.0f / 127.0f);
   }
 
   template <typename T, typename T2>

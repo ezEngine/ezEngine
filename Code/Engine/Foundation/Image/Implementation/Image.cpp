@@ -97,6 +97,7 @@ ezImageView ezImageView::GetRowView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace
 
 ezUInt32 ezImageView::ComputeLayout()
 {
+  m_subImageOffsets.Clear();
   m_subImageOffsets.Reserve(m_uiNumMipLevels * m_uiNumFaces * m_uiNumArrayIndices);
 
   ezUInt32 uiDataSize = 0;
