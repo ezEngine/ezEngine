@@ -139,3 +139,92 @@ ezResult ezStreamWriter::WriteQWordValue(const T* pQWordValue)
 }
 
 #endif
+
+namespace ezStreamWriterUtil
+{
+  template <class T>
+  auto SerializeImpl(ezStreamWriter& Stream, const T& Obj) -> decltype(Stream << Obj, void())
+  {
+    Stream << Obj;
+  }
+
+  template <class T>
+  auto SerializeImpl(ezStreamWriter& Stream, const T& Obj) -> decltype(Obj.Serialize(Stream), void())
+  {
+    Obj.Serialize(Stream);
+  }
+
+  template <class T>
+  auto SerializeImpl(ezStreamWriter& Stream, const T& Obj) -> decltype(Obj.serialize(Stream), void())
+  {
+    Obj.serialize(Stream);
+  }
+
+  template <class T>
+  auto Serialize(ezStreamWriter& Stream, const T& Obj) -> decltype(SerializeImpl(Stream, Obj), void())
+  {
+    SerializeImpl(Stream, Obj);
+  }
+}// namespace ezStreamWriterUtil
+
+template <typename ArrayType, typename ValueType>
+ezResult ezStreamWriter::WriteArray(const ezArrayBase<ValueType, ArrayType>& Array)
+{
+  const ezUInt32 uiCount = Array.GetCount();
+  *this << uiCount;
+
+  for(ezUInt32 i = 0; i < uiCount; ++i)
+  {
+    ezStreamWriterUtil::Serialize<ValueType>(*this, Array[i]);
+  }
+
+  return EZ_SUCCESS;
+}
+
+namespace ezStreamReaderUtil
+{
+  template <class T>
+  auto DeserializeImpl(ezStreamReader& Stream, T& Obj) -> decltype(Stream >> Obj, void())
+  {
+    Stream >> Obj;
+  }
+
+  template <class T>
+  auto DeserializeImpl(ezStreamReader& Stream, T& Obj) -> decltype(Obj.Deserialize(Stream), void())
+  {
+    Obj.Deserialize(Stream);
+  }
+
+  template <class T>
+  auto DeserializeImpl(ezStreamReader& Stream, T& Obj) -> decltype(Obj.deserialize(Stream), void())
+  {
+    Obj.deserialize(Stream);
+  }
+
+  template <class T>
+  auto Deserialize(ezStreamReader& Stream, T& Obj) -> decltype(DeserializeImpl(Stream, Obj), void())
+  {
+    DeserializeImpl(Stream, Obj);
+  }
+} // namespace ezStreamReaderUtil
+
+template <typename ArrayType, typename ValueType>
+ezResult ezStreamReader::ReadArray(ezArrayBase<ValueType, ArrayType>& Array)
+{
+  ezUInt32 uiCount = 0;
+  *this >> uiCount;
+
+  Array.Clear();
+
+  if(uiCount > 0)
+  {
+    static_cast<ArrayType&>(Array).Reserve(uiCount);
+
+    for (ezUInt32 i = 0; i < uiCount; ++i)
+    {
+      ezStreamReaderUtil::Deserialize<ValueType>(*this, Array.ExpandAndGetRef());
+    }
+  }
+
+  return EZ_SUCCESS;
+}

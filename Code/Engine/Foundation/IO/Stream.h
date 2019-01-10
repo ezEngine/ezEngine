@@ -4,6 +4,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Memory/EndianHelper.h>
+#include <Foundation/Containers/ArrayBase.h>
 
 /// \brief Interface for binary in (read) streams.
 class EZ_FOUNDATION_DLL ezStreamReader
@@ -11,16 +12,13 @@ class EZ_FOUNDATION_DLL ezStreamReader
 
 public:
   /// \brief Constructor
-  ezStreamReader()
-  {
-  }
+  ezStreamReader() {}
 
   /// \brief Virtual destructor to ensure correct cleanup
-  virtual ~ezStreamReader()
-  {
-  }
+  virtual ~ezStreamReader() {}
 
-  /// \brief Reads a raw number of bytes into the read buffer, this is the only method which has to be implemented to fully implement the interface.
+  /// \brief Reads a raw number of bytes into the read buffer, this is the only method which has to be implemented to fully implement the
+  /// interface.
   virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) = 0; // [tested]
 
   /// \brief Helper method to read a word value correctly (copes with potentially different endianess)
@@ -34,6 +32,10 @@ public:
   /// \brief Helper method to read a qword value correctly (copes with potentially different endianess)
   template <typename T>
   ezResult ReadQWordValue(T* pQWordValue); // [tested]
+
+  /// \brief Reads an array of elements from the stream
+  template <typename ArrayType, typename ValueType>
+  ezResult ReadArray(ezArrayBase<ValueType, ArrayType>& Array); // [tested]
 
   /// \brief Helper method to skip a number of bytes (implementations of the stream reader may implement this more efficiently for example)
   virtual ezUInt64 SkipBytes(ezUInt64 uiBytesToSkip)
@@ -65,19 +67,17 @@ class EZ_FOUNDATION_DLL ezStreamWriter
 
 public:
   /// \brief Constructor
-  ezStreamWriter()
-  {
-  }
+  ezStreamWriter() {}
 
   /// \brief Virtual destructor to ensure correct cleanup
-  virtual ~ezStreamWriter()
-  {
-  }
+  virtual ~ezStreamWriter() {}
 
-  /// \brief Writes a raw number of bytes from the buffer, this is the only method which has to be implemented to fully implement the interface.
+  /// \brief Writes a raw number of bytes from the buffer, this is the only method which has to be implemented to fully implement the
+  /// interface.
   virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) = 0; // [tested]
 
-  /// \brief Flushes the stream, may be implemented (not necessary to implement the interface correctly) so that user code can ensure that content is written
+  /// \brief Flushes the stream, may be implemented (not necessary to implement the interface correctly) so that user code can ensure that
+  /// content is written
   virtual ezResult Flush() // [tested]
   {
     return EZ_SUCCESS;
@@ -94,6 +94,10 @@ public:
   /// \brief Helper method to write a qword value correctly (copes with potentially different endianess)
   template <typename T>
   ezResult WriteQWordValue(const T* pQWordValue); // [tested]
+
+  /// \brief Writes an array of elements to the stream
+  template <typename ArrayType, typename ValueType>
+  ezResult WriteArray(const ezArrayBase<ValueType, ArrayType>& Array); // [tested]
 };
 
 // Contains the helper methods of both interfaces

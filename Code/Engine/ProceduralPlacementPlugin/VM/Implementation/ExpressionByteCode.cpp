@@ -178,8 +178,8 @@ void ezExpressionByteCode::Save(ezStreamWriter& stream) const
 
     chunk << m_uiNumInstructions;
     chunk << m_uiNumTempRegisters;
-    chunk << m_Inputs;
-    chunk << m_Outputs;
+    chunk.WriteArray(m_Inputs);
+    chunk.WriteArray(m_Outputs);
 
     chunk.EndChunk();
   }
@@ -211,8 +211,8 @@ ezResult ezExpressionByteCode::Load(ezStreamReader& stream)
       {
         chunk >> m_uiNumInstructions;
         chunk >> m_uiNumTempRegisters;
-        chunk >> m_Inputs;
-        chunk >> m_Outputs;
+        EZ_SUCCEED_OR_RETURN(chunk.ReadArray(m_Inputs));
+        EZ_SUCCEED_OR_RETURN(chunk.ReadArray(m_Outputs));
       }
       else
       {

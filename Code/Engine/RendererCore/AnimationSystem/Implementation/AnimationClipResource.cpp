@@ -151,7 +151,7 @@ void ezAnimationClipResourceDescriptor::Save(ezStreamWriter& stream) const
   stream << m_uiNumFrames;
   stream << m_uiFramesPerSecond;
 
-  stream << m_JointTransforms;
+  stream.WriteArray(m_JointTransforms);
 
   // version 2
   {
@@ -175,7 +175,7 @@ void ezAnimationClipResourceDescriptor::Load(ezStreamReader& stream)
   stream >> m_uiNumFrames;
   stream >> m_uiFramesPerSecond;
 
-  stream >> m_JointTransforms;
+  stream.ReadArray(m_JointTransforms);
 
   m_Duration = ezTime::Seconds((double)(m_uiNumFrames-1) / (double)m_uiFramesPerSecond);
 

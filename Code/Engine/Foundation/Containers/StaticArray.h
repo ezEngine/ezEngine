@@ -40,6 +40,9 @@ public:
   /// \brief Copies the data from some other contiguous array into this one.
   void operator=(const ezArrayPtr<const T>& rhs); // [tested]
 
+  /// \brief For the static array Reserve is a no-op. However the function checks if the requested capacity is below or equal to the static capacity.
+  void Reserve(ezUInt32 uiCapacity);
+
 protected:
   T* GetElementsPtr();
   const T* GetElementsPtr() const;
@@ -56,7 +59,6 @@ private:
   };
 
   friend class ezArrayBase<T, ezStaticArray<T, Capacity>>;
-  void Reserve(ezUInt32 uiCapacity);
 };
 
 // TODO EZ_CHECK_AT_COMPILETIME_MSG with a ',' in the expression does not work

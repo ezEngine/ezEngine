@@ -37,7 +37,7 @@ void ezMotionMatchingComponent::SerializeComponent(ezWorldWriter& stream) const
   SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
 
-  s << m_Animations;
+  s.WriteArray(m_Animations);
 }
 
 void ezMotionMatchingComponent::DeserializeComponent(ezWorldReader& stream)
@@ -48,7 +48,7 @@ void ezMotionMatchingComponent::DeserializeComponent(ezWorldReader& stream)
 
   if (uiVersion >= 2)
   {
-    s >> m_Animations;
+    s.ReadArray(m_Animations);
   }
 }
 
