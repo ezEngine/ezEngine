@@ -6,6 +6,34 @@
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Containers/HybridArray.h>
 
+namespace
+{
+  struct SerializableStructWithMethods
+  {
+
+    EZ_DECLARE_POD_TYPE();
+
+    ezResult Serialize(ezStreamWriter& Stream) const
+    {
+      Stream << m_uiMember1;
+      Stream << m_uiMember2;
+
+      return EZ_SUCCESS;
+    }
+
+    ezResult Deserialize(ezStreamReader& Stream)
+    {
+      Stream >> m_uiMember1;
+      Stream >> m_uiMember2;
+
+      return EZ_SUCCESS;
+    }
+
+    ezInt32 m_uiMember1 = 0x42;
+    ezInt32 m_uiMember2 = 0x23;
+  };
+}
+
 EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Binary Stream Basic Operations (built-in types)")
@@ -120,31 +148,6 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 
     // Create writer
     ezMemoryStreamWriter StreamWriter(&StreamStorage);
-
-    struct SerializableStructWithMethods
-    {
-
-      EZ_DECLARE_POD_TYPE();
-
-      ezResult Serialize(ezStreamWriter& Stream) const
-      {
-        Stream << m_uiMember1;
-        Stream << m_uiMember2;
-
-        return EZ_SUCCESS;
-      }
-
-      ezResult Deserialize(ezStreamReader& Stream)
-      {
-        Stream >> m_uiMember1;
-        Stream >> m_uiMember2;
-
-        return EZ_SUCCESS;
-      }
-
-      ezInt32 m_uiMember1 = 0x42;
-      ezInt32 m_uiMember2 = 0x23;
-    };
 
     // Write out a couple of the structs
     {

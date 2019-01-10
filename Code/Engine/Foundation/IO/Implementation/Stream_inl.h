@@ -143,27 +143,27 @@ ezResult ezStreamWriter::WriteQWordValue(const T* pQWordValue)
 namespace ezStreamWriterUtil
 {
   template <class T>
-  auto SerializeImpl(ezStreamWriter& Stream, const T& Obj) -> decltype(Stream << Obj, void())
+  auto SerializeImpl(ezStreamWriter& Stream, const T& Obj, int) -> decltype(Stream << Obj, void())
   {
     Stream << Obj;
   }
 
   template <class T>
-  auto SerializeImpl(ezStreamWriter& Stream, const T& Obj) -> decltype(Obj.Serialize(Stream), void())
+  auto SerializeImpl(ezStreamWriter& Stream, const T& Obj, long) -> decltype(Obj.Serialize(Stream), void())
   {
     Obj.Serialize(Stream);
   }
 
   template <class T>
-  auto SerializeImpl(ezStreamWriter& Stream, const T& Obj) -> decltype(Obj.serialize(Stream), void())
+  auto SerializeImpl(ezStreamWriter& Stream, const T& Obj, float) -> decltype(Obj.serialize(Stream), void())
   {
     Obj.serialize(Stream);
   }
 
   template <class T>
-  auto Serialize(ezStreamWriter& Stream, const T& Obj) -> decltype(SerializeImpl(Stream, Obj), void())
+  auto Serialize(ezStreamWriter& Stream, const T& Obj) -> decltype(SerializeImpl(Stream, Obj, 0), void())
   {
-    SerializeImpl(Stream, Obj);
+    SerializeImpl(Stream, Obj, 0);
   }
 }// namespace ezStreamWriterUtil
 
@@ -184,27 +184,27 @@ ezResult ezStreamWriter::WriteArray(const ezArrayBase<ValueType, ArrayType>& Arr
 namespace ezStreamReaderUtil
 {
   template <class T>
-  auto DeserializeImpl(ezStreamReader& Stream, T& Obj) -> decltype(Stream >> Obj, void())
+  auto DeserializeImpl(ezStreamReader& Stream, T& Obj, int) -> decltype(Stream >> Obj, void())
   {
     Stream >> Obj;
   }
 
   template <class T>
-  auto DeserializeImpl(ezStreamReader& Stream, T& Obj) -> decltype(Obj.Deserialize(Stream), void())
+  auto DeserializeImpl(ezStreamReader& Stream, T& Obj, long) -> decltype(Obj.Deserialize(Stream), void())
   {
     Obj.Deserialize(Stream);
   }
 
   template <class T>
-  auto DeserializeImpl(ezStreamReader& Stream, T& Obj) -> decltype(Obj.deserialize(Stream), void())
+  auto DeserializeImpl(ezStreamReader& Stream, T& Obj, float) -> decltype(Obj.deserialize(Stream), void())
   {
     Obj.deserialize(Stream);
   }
 
   template <class T>
-  auto Deserialize(ezStreamReader& Stream, T& Obj) -> decltype(DeserializeImpl(Stream, Obj), void())
+  auto Deserialize(ezStreamReader& Stream, T& Obj) -> decltype(DeserializeImpl(Stream, Obj, 0), void())
   {
-    DeserializeImpl(Stream, Obj);
+    DeserializeImpl(Stream, Obj, 0);
   }
 } // namespace ezStreamReaderUtil
 
