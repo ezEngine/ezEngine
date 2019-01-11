@@ -10,6 +10,7 @@
 #  define EZ_SUPPORTS_BC4_COMPRESSOR
 
 #  include <emmintrin.h>
+#  include <tmmintrin.h>
 #endif
 
 void ezDecompressBlockBC1(const ezUInt8* pSource, ezColorBaseUB* pTarget, bool bForceFourColorMode)
