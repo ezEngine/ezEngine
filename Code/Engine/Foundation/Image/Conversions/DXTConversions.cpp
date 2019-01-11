@@ -6,6 +6,8 @@
 #include <Foundation/Math/Color16f.h>
 #include <Foundation/Strings/StringBuilder.h>
 
+#include <emmintrin.h>
+
 void ezDecompressBlockBC1(const ezUInt8* pSource, ezColorBaseUB* pTarget, bool bForceFourColorMode)
 {
   ezUInt16 uiColor0 = pSource[0] | (pSource[1] << 8);

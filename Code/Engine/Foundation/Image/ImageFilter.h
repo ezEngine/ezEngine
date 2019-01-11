@@ -8,7 +8,7 @@ class EZ_FOUNDATION_DLL ezImageFilter
 {
 public:
     /// \brief Samples the filter function at a single point. Note that the distribution isn't necessarily normalized.
-    virtual ezSimdFloat SamplePoint(ezSimdFloat x) const = 0;
+    virtual ezSimdFloat SamplePoint(const ezSimdFloat& x) const = 0;
 
     /// \brief Returns the width of the filter; outside of the interval [-width, width], the filter function is always zero.
     ezSimdFloat GetWidth() const;
@@ -26,7 +26,7 @@ class EZ_FOUNDATION_DLL ezImageFilterBox : public ezImageFilter
 public:
     ezImageFilterBox(float width = 0.5f);
 
-    virtual ezSimdFloat SamplePoint(ezSimdFloat x) const override;
+    virtual ezSimdFloat SamplePoint(const ezSimdFloat& x) const override;
 };
 
 /// \brief Triangle filter
@@ -35,7 +35,7 @@ class EZ_FOUNDATION_DLL ezImageFilterTriangle : public ezImageFilter
 public:
     ezImageFilterTriangle(float width = 1.0f);
 
-    virtual ezSimdFloat SamplePoint(ezSimdFloat x) const override;
+    virtual ezSimdFloat SamplePoint(const ezSimdFloat& x) const override;
 };
 
 /// \brief Kaiser-windowed sinc filter
@@ -46,7 +46,7 @@ public:
     /// Note that the beta parameter (equaling alpha * pi in the mathematical definition of the Kaiser window) is often incorrectly alpha by other filtering tools.
     ezImageFilterSincWitezaiserWindow(float windowWidth = 3.0f, float beta = 4.0f);
 
-    virtual ezSimdFloat SamplePoint(ezSimdFloat x) const override;
+    virtual ezSimdFloat SamplePoint(const ezSimdFloat& x) const override;
 
 private:
     ezSimdFloat m_beta;

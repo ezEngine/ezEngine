@@ -17,7 +17,7 @@ ezImageFilterBox::ezImageFilterBox(float width)
 {
 }
 
-ezSimdFloat ezImageFilterBox::SamplePoint(ezSimdFloat x) const
+ezSimdFloat ezImageFilterBox::SamplePoint(const ezSimdFloat& x) const
 {
   ezSimdFloat absX = x.Abs();
 
@@ -36,7 +36,7 @@ ezImageFilterTriangle::ezImageFilterTriangle(float width)
 {
 }
 
-ezSimdFloat ezImageFilterTriangle::SamplePoint(ezSimdFloat x) const
+ezSimdFloat ezImageFilterTriangle::SamplePoint(const ezSimdFloat& x) const
 {
   ezSimdFloat absX = x.Abs();
 
@@ -52,7 +52,7 @@ ezSimdFloat ezImageFilterTriangle::SamplePoint(ezSimdFloat x) const
   }
 }
 
-static ezSimdFloat sinc(ezSimdFloat x)
+static ezSimdFloat sinc(const ezSimdFloat& x)
 {
   ezSimdFloat absX = x.Abs();
 
@@ -68,7 +68,7 @@ static ezSimdFloat sinc(ezSimdFloat x)
   }
 }
 
-static ezSimdFloat modifiedBessel0(ezSimdFloat x)
+static ezSimdFloat modifiedBessel0(const ezSimdFloat& x)
 {
   // Implementation as I0(x) = sum((1/4 * x * x) ^ k / (k!)^2, k, 0, inf), see
   // http://mathworld.wolfram.com/ModifiedBesselFunctionoftheFirstKind.html
@@ -95,7 +95,7 @@ ezImageFilterSincWitezaiserWindow::ezImageFilterSincWitezaiserWindow(float width
 {
 }
 
-ezSimdFloat ezImageFilterSincWitezaiserWindow::SamplePoint(ezSimdFloat x) const
+ezSimdFloat ezImageFilterSincWitezaiserWindow::SamplePoint(const ezSimdFloat& x) const
 {
   ezSimdFloat scaledX = x / GetWidth();
 

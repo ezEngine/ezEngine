@@ -2,13 +2,13 @@
 
 template<typename T> struct ezImageSizeofHelper
 {
-  static constexpr auto Size = sizeof T;
+  static constexpr size_t Size = sizeof (T);
 };
 
 template <>
 struct ezImageSizeofHelper<void>
 {
-  static constexpr auto Size = 1;
+  static constexpr size_t Size = 1;
 };
 
 template <typename T>
