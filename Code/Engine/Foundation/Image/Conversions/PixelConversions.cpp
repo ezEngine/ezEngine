@@ -4,7 +4,13 @@
 #include <Foundation/Image/ImageConversion.h>
 #include <Foundation/Math/Float16.h>
 
-#include <emmintrin.h>
+#if EZ_SSE_LEVEL >= EZ_SSE_20
+#  include <emmintrin.h>
+#endif
+
+#if EZ_SSE_LEVEL >= EZ_SSE_30
+#  include <tmmintrin.h>
+#endif
 
 namespace
 {
@@ -28,7 +34,7 @@ namespace
     } p;
     ezUInt32 v;
   };
-}
+} // namespace
 
 ezColorBaseUB ezDecompressA4B4G4R4(ezUInt16 uiColor)
 {
@@ -200,17 +206,17 @@ class ezImageConversionStep_Decompress16bpp : ezImageConversionStepLinear
   }
 };
 
-template <ezUInt16 (*compressFunc)(ezColorBaseUB), ezImageFormat::Enum targetFormat>
+template <ezUInt16 (*compressFunc)(ezColorBaseUB), ezImageFormat::Enum templateTargetFormat>
 class ezImageConversionStep_Compress16bpp : ezImageConversionStepLinear
 {
   virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
   {
-    ezImageFormat::Enum targetFormatSrgb = ezImageFormat::AsSrgb(targetFormat);
-    EZ_ASSERT_DEV(targetFormatSrgb != targetFormat, "Format '%s' should have a corresponding sRGB format",
-                  ezImageFormat::GetName(targetFormat));
+    ezImageFormat::Enum targetFormatSrgb = ezImageFormat::AsSrgb(templateTargetFormat);
+    EZ_ASSERT_DEV(targetFormatSrgb != templateTargetFormat, "Format '%s' should have a corresponding sRGB format",
+                  ezImageFormat::GetName(templateTargetFormat));
 
     static ezImageConversionEntry supportedConversions[] = {
-        ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, targetFormat, ezImageConversionFlags::Default),
+        ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, templateTargetFormat, ezImageConversionFlags::Default),
         ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM_SRGB, targetFormatSrgb, ezImageConversionFlags::Default),
     };
 
@@ -1300,7 +1306,8 @@ class ezImageConversion_R11G11B10_to_HALF : public ezImageConversionStepLinear
 public:
   virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
   {
-    static ezImageConversionEntry supportedConversions[] = {ezImageConversionEntry(ezImageFormat::R11G11B10_FLOAT, ezImageFormat::R16G16B16A16_FLOAT, ezImageConversionFlags::Default)};
+    static ezImageConversionEntry supportedConversions[] = {
+        ezImageConversionEntry(ezImageFormat::R11G11B10_FLOAT, ezImageFormat::R16G16B16A16_FLOAT, ezImageConversionFlags::Default)};
     return supportedConversions;
   }
 

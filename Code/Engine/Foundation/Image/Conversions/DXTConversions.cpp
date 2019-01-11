@@ -979,7 +979,7 @@ namespace
       // Mode 7: Color+Alpha, 2 Subsets, RGBAP 55551 (unique P-bit), 2-bit indices, 64 partitions
       {1, 6, 4, 0, 0, 2, 0, ezColorBaseUB(5, 5, 5, 5), ezColorBaseUB(6, 6, 6, 6)}};
 
-  ezUInt8 getBit(const ezUInt8* bits, _Inout_ ezUInt32& startBit)
+  ezUInt8 getBit(const ezUInt8* bits, ezUInt32& startBit)
   {
     EZ_ASSERT_DEV(startBit < 128, "");
 
@@ -989,7 +989,7 @@ namespace
     return ret;
   }
 
-  ezUInt8 getBits(const ezUInt8* bits, _Inout_ ezUInt32& startBit, ezUInt32 numBits)
+  ezUInt8 getBits(const ezUInt8* bits, ezUInt32& startBit, ezUInt32 numBits)
   {
     if (numBits == 0)
       return 0;
@@ -1027,7 +1027,7 @@ namespace
     return false;
   }
 
-  void interpolateRGB(const ezColorBaseUB& c0, const ezColorBaseUB& c1, ezUInt32 wc, ezUInt32 wcprec, _Out_ ezColorBaseUB& out)
+  void interpolateRGB(const ezColorBaseUB& c0, const ezColorBaseUB& c1, ezUInt32 wc, ezUInt32 wcprec, ezColorBaseUB& out)
   {
     const int* weights = nullptr;
     switch (wcprec)
@@ -1063,7 +1063,7 @@ namespace
                 s_bc67WeightShift);
   }
 
-  static void interpolateA(const ezColorBaseUB& c0, const ezColorBaseUB& c1, ezUInt32 wa, ezUInt32 waprec, _Out_ ezColorBaseUB& out)
+  static void interpolateA(const ezColorBaseUB& c0, const ezColorBaseUB& c1, ezUInt32 wa, ezUInt32 waprec, ezColorBaseUB& out)
   {
     const int* weights = nullptr;
     switch (waprec)
@@ -1094,7 +1094,7 @@ namespace
   }
 
   static void interpolate(const ezColorBaseUB& c0, const ezColorBaseUB& c1, ezUInt32 wc, ezUInt32 wa, ezUInt32 wcprec, ezUInt32 waprec,
-                          _Out_ ezColorBaseUB& out)
+                          ezColorBaseUB& out)
   {
     interpolateRGB(c0, c1, wc, wcprec, out);
     interpolateA(c0, c1, wa, waprec, out);
@@ -1193,7 +1193,7 @@ namespace
     BC6IntColor B;
   };
 
-  inline void bc6TransformInverse(_Inout_updates_all_(s_bc6MaxRegions) BC6IntEndPntPair endPts[], const ezColorBaseUB& prec, bool isSigned)
+  inline void bc6TransformInverse(BC6IntEndPntPair endPts[], const ezColorBaseUB& prec, bool isSigned)
   {
     BC6IntColor wrapMask((1 << prec.r) - 1, (1 << prec.g) - 1, (1 << prec.b) - 1);
     endPts[0].B += endPts[0].A;
