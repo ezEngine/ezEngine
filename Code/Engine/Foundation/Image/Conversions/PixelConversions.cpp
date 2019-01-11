@@ -430,7 +430,6 @@ public:
     void* targetPointer = target.GetPtr();
 
 #if EZ_SSE_LEVEL >= EZ_SSE_20
-    if (IsAligned(sourcePointer) && IsAligned(targetPointer))
     {
       const ezUInt32 elementsPerBatch = 16;
 
@@ -441,10 +440,10 @@ public:
 
       while (numElements >= elementsPerBatch)
       {
-        __m128 float0 = _mm_load_ps(static_cast<const float*>(sourcePointer) + 0);
-        __m128 float1 = _mm_load_ps(static_cast<const float*>(sourcePointer) + 4);
-        __m128 float2 = _mm_load_ps(static_cast<const float*>(sourcePointer) + 8);
-        __m128 float3 = _mm_load_ps(static_cast<const float*>(sourcePointer) + 12);
+        __m128 float0 = _mm_loadu_ps(static_cast<const float*>(sourcePointer) + 0);
+        __m128 float1 = _mm_loadu_ps(static_cast<const float*>(sourcePointer) + 4);
+        __m128 float2 = _mm_loadu_ps(static_cast<const float*>(sourcePointer) + 8);
+        __m128 float3 = _mm_loadu_ps(static_cast<const float*>(sourcePointer) + 12);
 
         // Clamp NaN to zero
         float0 = _mm_and_ps(_mm_cmpord_ps(float0, zero), float0);
@@ -477,7 +476,7 @@ public:
         __m128i short0 = _mm_packs_epi32(int0, int1);
         __m128i short1 = _mm_packs_epi32(int2, int3);
 
-        _mm_store_si128(reinterpret_cast<__m128i*>(targetPointer), _mm_packus_epi16(short0, short1));
+        _mm_storeu_si128(reinterpret_cast<__m128i*>(targetPointer), _mm_packus_epi16(short0, short1));
 
         sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride * elementsPerBatch);
         targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride * elementsPerBatch);
@@ -866,6 +865,36 @@ public:
 
     const ezUInt32 numChannels = sourceStride / sizeof(ezUInt8);
 
+#if EZ_ENABLED(EZ_PLATFORM_LITTLE_ENDIAN)
+    if (numChannels == 3)
+    {
+      // Fast path for RGB -> RGBA
+      const ezUInt32 elementsPerBatch = 4;
+
+      while (numElements >= elementsPerBatch)
+      {
+        ezUInt32 source0 = reinterpret_cast<const ezUInt32*>(sourcePointer)[0];
+        ezUInt32 source1 = reinterpret_cast<const ezUInt32*>(sourcePointer)[1];
+        ezUInt32 source2 = reinterpret_cast<const ezUInt32*>(sourcePointer)[2];
+
+        ezUInt32 target0 = source0 | 0xFF000000;
+        ezUInt32 target1 = (source0 >> 24) | (source1 << 8) | 0xFF000000;
+        ezUInt32 target2 = (source1 >> 16) | (source2 << 16) | 0xFF000000;
+        ezUInt32 target3 = (source2 >> 8) | 0xFF000000;
+
+        reinterpret_cast<ezUInt32*>(targetPointer)[0] = target0;
+        reinterpret_cast<ezUInt32*>(targetPointer)[1] = target1;
+        reinterpret_cast<ezUInt32*>(targetPointer)[2] = target2;
+        reinterpret_cast<ezUInt32*>(targetPointer)[3] = target3;
+
+        sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride * elementsPerBatch);
+        targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride * elementsPerBatch);
+        numElements -= elementsPerBatch;
+      }
+    }
+#endif
+
+
     while (numElements)
     {
       // Copy existing channels
@@ -1005,6 +1034,24 @@ public:
 
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
+
+    if (ezImageFormat::GetBitsPerPixel(sourceFormat) == 32 && ezImageFormat::GetBitsPerPixel(targetFormat) == 24)
+    {
+      // Fast path for RGBA -> RGB
+      while (numElements)
+      {
+        const ezUInt8* src = static_cast<const ezUInt8*>(sourcePointer);
+        ezUInt8* dst = static_cast<ezUInt8*>(targetPointer);
+
+        dst[0] = src[0];
+        dst[1] = src[1];
+        dst[2] = src[2];
+
+        sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+        targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+        numElements--;
+      }
+    }
 
     while (numElements)
     {

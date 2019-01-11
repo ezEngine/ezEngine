@@ -60,7 +60,7 @@ namespace ezArrayPtrDetail
     typedef U* pointerType;
   };
 
-  template <>
+  template<>
   struct VoidTypeHelper<void>
   {
     typedef ezUInt8 valueType;
@@ -274,6 +274,12 @@ public:
   {
     m_ptr = nullptr;
     m_uiCount = 0;
+  }
+
+  EZ_ALWAYS_INLINE void Swap(ezArrayPtr<T>& other)
+  {
+    ezMath::Swap(m_ptr, other.m_ptr);
+    ezMath::Swap(m_uiCount, other.m_uiCount);
   }
 
   typedef const T* const_iterator;

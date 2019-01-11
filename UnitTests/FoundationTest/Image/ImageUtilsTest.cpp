@@ -115,7 +115,7 @@ EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
     EZ_TEST_FILES("ImageUtils/ExpectedMeanSquareDiff_RGB.tga", "ImageUtils/MeanSquareDiff_RGB.tga", "");
 
     ezUInt32 uiError = ezImageUtils::ComputeMeanSquareError(ImageDiff, 4);
-    EZ_TEST_INT(uiError, 1408);
+    EZ_TEST_INT(uiError, 1433);
   }
 
   ezFileSystem::RemoveDataDirectoryGroup("ImageTest");

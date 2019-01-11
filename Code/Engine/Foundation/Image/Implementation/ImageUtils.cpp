@@ -98,46 +98,62 @@ ezUInt32 ezImageUtils::ComputeMeanSquareError(const ezImageView& DifferenceImage
 {
   EZ_ASSERT_DEV(uiBlockSize > 1, "Blocksize must be at least 2");
 
-  const ezUInt32 uiWidth = ezMath::Min(DifferenceImage.GetWidth(), offsetx + uiBlockSize) - offsetx;
-  const ezUInt32 uiHeight = ezMath::Min(DifferenceImage.GetHeight(), offsety + uiBlockSize) - offsety;
+  ezUInt32 uiWidth = ezMath::Min(DifferenceImage.GetWidth(), offsetx + uiBlockSize) - offsetx;
+  ezUInt32 uiHeight = ezMath::Min(DifferenceImage.GetHeight(), offsety + uiBlockSize) - offsety;
 
   if (uiWidth == 0 || uiHeight == 0)
     return 0;
 
-  const ezUInt32 uiSize2D = uiWidth * uiHeight;
+  switch (DifferenceImage.GetImageFormat())
+  {
+      // Supported formats
+    case ezImageFormat::R8G8B8A8_UNORM:
+    case ezImageFormat::R8G8B8A8_UNORM_SRGB:
+    case ezImageFormat::R8G8B8A8_UINT:
+    case ezImageFormat::R8G8B8A8_SNORM:
+    case ezImageFormat::R8G8B8A8_SINT:
+    case ezImageFormat::B8G8R8A8_UNORM:
+    case ezImageFormat::B8G8R8A8_UNORM_SRGB:
+    case ezImageFormat::B8G8R8_UNORM:
+      break;
+
+    default:
+      EZ_REPORT_FAILURE("The ezImageFormat {0} is not implemented", (ezUInt32)DifferenceImage.GetImageFormat());
+      return 0;
+  }
+
 
   ezUInt32 error = 0;
 
+  ezUInt32 uiRowPitch = DifferenceImage.GetRowPitch();
+  ezUInt32 uiDepthPitch = DifferenceImage.GetDepthPitch();
+  ezUInt32 uiNumComponents = ezImageFormat::GetNumChannels(DifferenceImage.GetImageFormat());
+
+  // Treat image as single-component format and scale the width instead
+  uiWidth *= uiNumComponents;
+
+  const ezUInt32 uiSize2D = uiWidth * uiHeight;
+  const ezUInt8* pSlicePointer = DifferenceImage.GetPixelPointer<ezUInt8>(0, 0, 0, offsetx, offsety);
+
   for (ezUInt32 d = 0; d < DifferenceImage.GetDepth(); ++d)
   {
+    const ezUInt8* pRowPointer = pSlicePointer;
+
     for (ezUInt32 y = 0; y < uiHeight; ++y)
     {
+      const ezUInt8* pPixelPointer = pRowPointer;
       for (ezUInt32 x = 0; x < uiWidth; ++x)
       {
-        switch (DifferenceImage.GetImageFormat())
-        {
-          case ezImageFormat::R8G8B8A8_UNORM:
-          case ezImageFormat::R8G8B8A8_UNORM_SRGB:
-          case ezImageFormat::R8G8B8A8_UINT:
-          case ezImageFormat::R8G8B8A8_SNORM:
-          case ezImageFormat::R8G8B8A8_SINT:
-          case ezImageFormat::B8G8R8A8_UNORM:
-          case ezImageFormat::B8G8R8X8_UNORM:
-          case ezImageFormat::B8G8R8A8_UNORM_SRGB:
-          case ezImageFormat::B8G8R8X8_UNORM_SRGB:
-            error += GetError<ezUInt8>(DifferenceImage, offsetx + x, offsety + y, d, 4, 1);
-            break;
+        ezUInt32 uiDiff = *pPixelPointer;
+        error += uiDiff * uiDiff;
 
-          case ezImageFormat::B8G8R8_UNORM:
-            error += GetError<ezUInt8>(DifferenceImage, offsetx + x, offsety + y, d, 3, 1);
-            break;
-
-          default:
-            EZ_REPORT_FAILURE("The ezImageFormat {0} is not implemented", (ezUInt32)DifferenceImage.GetImageFormat());
-            return 0;
-        }
+        pPixelPointer++;
       }
+
+      pRowPointer += uiRowPitch;
     }
+
+    pSlicePointer += uiDepthPitch;
   }
 
   error /= uiSize2D;
@@ -383,10 +399,8 @@ inline static void FilterLine(ezUInt32 numSourceElements, const ezSimdVec4f* __r
   }
 }
 
-static void DownScaleFastLine(ezUInt32 pixelStride, const ezUInt8* src,
-                              ezUInt8* dest, ezUInt32 lengthIn,
-                              ezUInt32 strideIn, ezUInt32 lengthOut,
-                              ezUInt32 strideOut)
+static void DownScaleFastLine(ezUInt32 pixelStride, const ezUInt8* src, ezUInt8* dest, ezUInt32 lengthIn, ezUInt32 strideIn,
+                              ezUInt32 lengthOut, ezUInt32 strideOut)
 {
   const ezUInt32 downScaleFactor = lengthIn / lengthOut;
 
@@ -551,9 +565,8 @@ static void NormalizeCoverage(ezArrayPtr<ezColor> colors, float alphaThreshold, 
 }
 
 
-ezResult ezImageUtils::Scale(const ezImageView& source, ezImage& target, ezUInt32 width, ezUInt32 height,
-                             const ezImageFilter* filter, ezImageAddressMode::Enum addressModeU,
-                             ezImageAddressMode::Enum addressModeV, const ezColor& borderColor)
+ezResult ezImageUtils::Scale(const ezImageView& source, ezImage& target, ezUInt32 width, ezUInt32 height, const ezImageFilter* filter,
+                             ezImageAddressMode::Enum addressModeU, ezImageAddressMode::Enum addressModeV, const ezColor& borderColor)
 {
   return Scale3D(source, target, width, height, 1, filter, addressModeU, addressModeV, ezImageAddressMode::CLAMP, borderColor);
 }
@@ -854,8 +867,7 @@ void ezImageUtils::GenerateMipMaps(const ezImageView& source, ezImage& target, c
 
         if (mipMapOptions.m_preserveCoverage)
         {
-          NormalizeCoverage(nextMipMap.GetArrayPtr<ezColor>(),
-                            mipMapOptions.m_alphaThreshold, targetCoverage);
+          NormalizeCoverage(nextMipMap.GetArrayPtr<ezColor>(), mipMapOptions.m_alphaThreshold, targetCoverage);
         }
 
         if (mipMapOptions.m_renormalizeNormals)
@@ -871,8 +883,7 @@ void ezImageUtils::GenerateMipMaps(const ezImageView& source, ezImage& target, c
 
 void ezImageUtils::ReconstructNormalZ(ezImage& image)
 {
-  EZ_ASSERT_DEV(image.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT,
-                "This algorithm currently expects a RGBA 32 Float as input");
+  EZ_ASSERT_DEV(image.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT, "This algorithm currently expects a RGBA 32 Float as input");
 
   ezSimdVec4f* cur = image.GetArrayPtr<ezSimdVec4f>().GetPtr();
   ezSimdVec4f* const end = image.GetArrayPtr<ezSimdVec4f>().GetEndPtr();
@@ -901,8 +912,7 @@ void ezImageUtils::ReconstructNormalZ(ezImage& image)
 
 void ezImageUtils::RenormalizeNormalMap(ezImage& image)
 {
-  EZ_ASSERT_DEV(image.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT,
-                "This algorithm currently expects a RGBA 32 Float as input");
+  EZ_ASSERT_DEV(image.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT, "This algorithm currently expects a RGBA 32 Float as input");
 
   ezSimdVec4f* start = image.GetArrayPtr<ezSimdVec4f>().GetPtr();
   ezSimdVec4f* const end = image.GetArrayPtr<ezSimdVec4f>().GetEndPtr();
@@ -988,8 +998,7 @@ static inline void ConvertCubemapLayout(const ezImageView& src, ezImage& dst)
   EZ_ASSERT_DEV(src.GetWidth() > 0 && src.GetHeight() > 0, "The source image is expected to be of non-zero dimensions.");
   EZ_ASSERT_DEV(src.GetArrayPtr<void*>() != dst.GetArrayPtr<void*>(),
                 "The destination image cannot share its data pointer with the source image.");
-  EZ_ASSERT_DEV(src.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT,
-                "The source image is expected to be 4 x 32-bit float RGBA.");
+  EZ_ASSERT_DEV(src.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT, "The source image is expected to be 4 x 32-bit float RGBA.");
 
   // Create the destination image.
   dst.Reset(src.GetHeader());
@@ -1028,8 +1037,7 @@ static inline void ConvertCubemapLayout(const ezImageView& src, ezImage& dst)
 
       default:
         // Rotate side faces 90 degrees clockwise.
-        memcpy(dst.GetPixelPointer<float>(0, faceMap[f], 0, 0, 0), src.GetPixelPointer<float>(0, f, 0, 0, 0),
-                           faceSizeQWords);
+        memcpy(dst.GetPixelPointer<float>(0, faceMap[f], 0, 0, 0), src.GetPixelPointer<float>(0, f, 0, 0, 0), faceSizeQWords);
     }
   }
 }
@@ -1155,8 +1163,7 @@ void ezImageUtils::ConvertToCubemap(const ezImageView& src, ezImage& dst)
   EZ_ASSERT_DEV(src.GetWidth() > 0 && src.GetHeight() > 0, "The source image is expected to be of non-zero dimensions.");
   EZ_ASSERT_DEV(src.GetArrayPtr<void*>() != dst.GetArrayPtr<void*>(),
                 "The destination image cannot share its data pointer with the source image.");
-  EZ_ASSERT_DEV(src.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT,
-                "The source image is expected to be 4 x 32-bit float RGBA.");
+  EZ_ASSERT_DEV(src.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT, "The source image is expected to be 4 x 32-bit float RGBA.");
 
   const ezUInt32 srcWidth = src.GetWidth();
   const ezUInt32 srcHeight = src.GetHeight();

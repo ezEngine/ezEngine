@@ -387,7 +387,7 @@ static void SetupImageFormatTable()
   SetupSrgbPair(ezImageFormat::ASTC_12x12_UNORM, ezImageFormat::ASTC_12x12_UNORM_SRGB);
 }
 
-static const ezImageFormatMetaData& GetImageFormatMetaData(ezImageFormat::Enum format)
+static const EZ_ALWAYS_INLINE ezImageFormatMetaData& GetImageFormatMetaData(ezImageFormat::Enum format)
 {
   if (s_formatMetaData.IsEmpty())
   {
