@@ -385,6 +385,7 @@ elseif (BUILDSYSTEM_COMPILER_CLANG)
   endif ()
   # Enable c++11 features
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -stdlib=libc++")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.1")
 
 elseif (BUILDSYSTEM_COMPILER_GCC)
   # dynamic linking will fail without fPIC (plugins)
@@ -393,6 +394,7 @@ elseif (BUILDSYSTEM_COMPILER_GCC)
   # gdwarf-3 will use the old debug info which is compatible with older gdb versions.
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wno-enum-compare -std=c++14 -mssse3 -mfpmath=sse -gdwarf-3")
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -gdwarf-3")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.1")
 
 else ()
   message (FATAL_ERROR "Not settings are defined for the selected compiler. Please extend CMAKE_GeneralConfig.txt.")
