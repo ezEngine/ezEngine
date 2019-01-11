@@ -68,7 +68,6 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_StandardJSONWriter);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_StreamOperations);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_StreamOperationsOther);
-  EZ_STATICLINK_REFERENCE(Foundation_Image_Conversions_BC6Conversions);
   EZ_STATICLINK_REFERENCE(Foundation_Image_Conversions_DXTConversions);
   EZ_STATICLINK_REFERENCE(Foundation_Image_Conversions_PixelConversions);
   EZ_STATICLINK_REFERENCE(Foundation_Image_Conversions_SwizzleConversions);
