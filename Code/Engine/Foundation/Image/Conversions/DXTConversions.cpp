@@ -6,7 +6,11 @@
 #include <Foundation/Math/Color16f.h>
 #include <Foundation/Strings/StringBuilder.h>
 
-#include <emmintrin.h>
+#if EZ_SSE_LEVEL >= EZ_SSE_41
+#  define EZ_SUPPORTS_BC4_COMPRESSOR
+
+#  include <emmintrin.h>
+#endif
 
 void ezDecompressBlockBC1(const ezUInt8* pSource, ezColorBaseUB* pTarget, bool bForceFourColorMode)
 {
@@ -108,6 +112,7 @@ void ezUnpackPaletteBC4(ezUInt32 a0, ezUInt32 a1, ezUInt32* alphas)
 
 namespace
 {
+#if defined(EZ_SUPPORTS_BC4_COMPRESSOR)
   ezUInt32 findBestPaletteIndexBC4(ezInt32 sourceValue, __m128i p0, __m128i p1)
   {
     __m128i source = _mm_set1_epi32(sourceValue);
@@ -140,9 +145,8 @@ namespace
     }
 
     int mask = _mm_movemask_ps(_mm_castsi128_ps(_mm_cmpeq_epi32(min, minH)));
-    DWORD index;
-    _BitScanForward(&index, mask);
-    return index + offset;
+
+    return ezMath::FirstBitLow(mask) + offset;
   }
 
   void packBlockBC4(const ezUInt8* sourceData, ezUInt32 a0, ezUInt32 a1, ezUInt8* targetData)
@@ -380,6 +384,7 @@ namespace
       }
     }
   }
+#endif
 
 
   // The following BC6 + BC7 decompression implementations were adapted from
@@ -1048,7 +1053,7 @@ namespace
 
         break;
       default:
-        EZ_ASSERT_DEV(0x47237ea0, false);
+        EZ_ASSERT_NOT_IMPLEMENTED;
         out.r = out.g = out.b = 0;
         return;
     }
@@ -1084,7 +1089,7 @@ namespace
 
         break;
       default:
-        EZ_ASSERT_DEV(0x3d815bee, false);
+        EZ_ASSERT_NOT_IMPLEMENTED;
         out.a = 0;
         return;
     }
@@ -1972,7 +1977,7 @@ public:
   }
 };
 
-
+#if defined(EZ_SUPPORTS_BC4_COMPRESSOR)
 class ezImageConversion_CompressBC4 : public ezImageConversionStepCompressBlocks
 {
   virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
@@ -2104,6 +2109,11 @@ class ezImageConversion_CompressBC5 : public ezImageConversionStepCompressBlocks
   }
 };
 
+static ezImageConversion_CompressBC4 s_conversion_compressBC4;
+static ezImageConversion_CompressBC5 s_conversion_compressBC5;
+
+#endif
+
 static ezImageConversion_BC1_RGBA s_conversion_BC1_RGBA;
 static ezImageConversion_BC2_RGBA s_conversion_BC2_RGBA;
 static ezImageConversion_BC3_RGBA s_conversion_BC3_RGBA;
@@ -2111,8 +2121,5 @@ static ezImageConversion_BC4_R s_conversion_BC4_R;
 static ezImageConversion_BC5_RG s_conversion_BC5_RG;
 static ezImageConversion_BC6_RGB s_conversion_BC6_RGB;
 static ezImageConversion_BC7_RGBA s_conversion_BC7_RGBA;
-
-static ezImageConversion_CompressBC4 s_conversion_compressBC4;
-static ezImageConversion_CompressBC5 s_conversion_compressBC5;
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Image_Conversions_DXTConversions);

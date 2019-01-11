@@ -167,17 +167,17 @@ ezUInt16 ezCompressA1B5G5R5(ezColorBaseUB color)
   return (r << 11) | (g << 6) | (b << 1) | a;
 }
 
-template <ezColorBaseUB (*decompressFunc)(ezUInt16), ezImageFormat::Enum sourceFormat>
+template <ezColorBaseUB (*decompressFunc)(ezUInt16), ezImageFormat::Enum templateSourceFormat>
 class ezImageConversionStep_Decompress16bpp : ezImageConversionStepLinear
 {
   virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
   {
-    ezImageFormat::Enum sourceFormatSrgb = ezImageFormat::AsSrgb(sourceFormat);
-    EZ_ASSERT_DEV(sourceFormatSrgb != sourceFormat, "Format '%s' should have a corresponding sRGB format",
-                  ezImageFormat::GetName(sourceFormat));
+    ezImageFormat::Enum sourceFormatSrgb = ezImageFormat::AsSrgb(templateSourceFormat);
+    EZ_ASSERT_DEV(sourceFormatSrgb != templateSourceFormat, "Format '%s' should have a corresponding sRGB format",
+                  ezImageFormat::GetName(templateSourceFormat));
 
     static ezImageConversionEntry supportedConversions[] = {
-        ezImageConversionEntry(sourceFormat, ezImageFormat::R8G8B8A8_UNORM, ezImageConversionFlags::Default),
+        ezImageConversionEntry(templateSourceFormat, ezImageFormat::R8G8B8A8_UNORM, ezImageConversionFlags::Default),
         ezImageConversionEntry(sourceFormatSrgb, ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageConversionFlags::Default),
     };
 
