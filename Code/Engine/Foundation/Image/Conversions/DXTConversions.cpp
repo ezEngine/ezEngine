@@ -10,6 +10,7 @@
 #  define EZ_SUPPORTS_BC4_COMPRESSOR
 
 #  include <emmintrin.h>
+#  include <smmintrin.h>
 #  include <tmmintrin.h>
 #endif
 
