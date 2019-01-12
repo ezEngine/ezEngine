@@ -104,31 +104,34 @@ namespace BuildMachine
       // Since newer versions can use old compilers & SDKs this should be perfectly fine.
       // https://social.msdn.microsoft.com/Forums/vstudio/en-US/568e32af-d724-4ac6-8e8f-72181c4320b3/set-default-version-of-visual-studio?forum=vssetup
       string devEnvPath;
-      try
-      {
-        using (RegistryKey key = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\App Paths\devenv.exe"))
-        {
-          if (key != null)
-          {
-            devEnvPath = key.GetValue("") as string;
-            if (devEnvPath == null)
-            {
-              result.Error("Failed to read Visual Studio location from registry key: No string value in key found.");
-              return result;
-            }
-          }
-          else
-          {
-            result.Error("Failed to read Visual Studio location from registry key: Registry key not found.");
-            return result;
-          }
-        }
-      }
-      catch (Exception e)
-      {
-        result.Error("Failed to read Visual Studio location from registry key: {0}", e);
-        return result;
-      }
+      //try
+      //{
+      //  using (RegistryKey key = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\App Paths\devenv.exe"))
+      //  {
+      //    if (key != null)
+      //    {
+      //      devEnvPath = key.GetValue("") as string;
+      //      if (devEnvPath == null)
+      //      {
+      //        result.Error("Failed to read Visual Studio location from registry key: No string value in key found.");
+      //        return result;
+      //      }
+      //    }
+      //    else
+      //    {
+      //      result.Error("Failed to read Visual Studio location from registry key: Registry key not found.");
+      //      return result;
+      //    }
+      //  }
+      //}
+      //catch (Exception e)
+      //{
+      //  result.Error("Failed to read Visual Studio location from registry key: {0}", e);
+      //  return result;
+      //}
+
+      // Just hard-code the string as any other solution will break with the next VS version anyway.
+      devEnvPath = @"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\devenv.exe";
 
       // Use ".com" version which writes into stdout
       devEnvPath = devEnvPath.Replace("devenv.exe", "devenv.com");
@@ -248,7 +251,7 @@ namespace BuildMachine
         string absBinDir = Path.Combine(settings.AbsBinPath, settings.Configuration);
         string absTestDataPath = Path.Combine(settings.AbsCodePath, relativeTestDataPath);
         // 60s timeout for connect, 2s timeout for closing after connection loss.
-        string args = string.Format("-specialdirs project \"{0}\" eztest \"{1}\" -fs_start -fs_wait_timeout 60 -fs_close_timeout 4", absTestDataPath, settings.AbsOutputFolder);
+        string args = string.Format("-specialdirs project \"{0}\" eztest \"{1}\" -fs_start -fs_wait_timeout 120 -fs_close_timeout 4", absTestDataPath, settings.AbsOutputFolder);
         return ezProcessHelper.RunExternalExe(absFilerserveFilename, args, absBinDir, res);
       };
 

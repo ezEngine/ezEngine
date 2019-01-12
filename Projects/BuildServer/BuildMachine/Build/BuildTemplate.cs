@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -34,6 +34,10 @@ namespace BuildMachine
           else if (settings.Configuration.Contains("2015"))
           {
             return new ezBuildWinVS(settings, VSVersion.VS2015, bIs64Bit);
+          }
+          else if (settings.Configuration.Contains("2017"))
+          {
+            return new ezBuildWinVS(settings, VSVersion.VS2017, bIs64Bit);
           }
         }
         else if (settings.Configuration.StartsWith("Osx"))
@@ -71,6 +75,10 @@ namespace BuildMachine
           else if (settings.Configuration.Contains("2015"))
           {
             return new ezBuildWinD(settings, VSVersion.VS2015, bIs64Bit);
+          }
+          else if (settings.Configuration.Contains("2017"))
+          {
+            return new ezBuildWinD(settings, VSVersion.VS2017, bIs64Bit);
           }
         }
       }
