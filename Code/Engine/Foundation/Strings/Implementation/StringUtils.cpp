@@ -1,6 +1,7 @@
 #include <PCH.h>
 
 #include <Foundation/Strings/StringView.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 #include <Foundation/Logging/Log.h>
