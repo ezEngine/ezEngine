@@ -262,6 +262,11 @@ public:
   static const char* FindWholeWord_NoCase(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER IsDelimiterCB,
                                           const char* pStringEnd = ezMaxStringEnd); // [tested]
 
+  /// \brief Checks if the given szString ends with an unsigned integer (e.g. "MyString123").
+  /// If pStringLengthBeforeUInt is non-null the string length up to the first digit is stored. Returns EZ_SUCCESS if
+  /// there is a value at the end of string, EZ_FAILURE otherwise.
+  static ezResult FindUIntAtTheEnd(const char* szString, ezUInt32& out_uiValue, ezUInt32* pStringLengthBeforeUInt = nullptr); // [tested]
+
   /// \brief [internal] Prefer to use snprintf.
   static void OutputFormattedInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezInt64 value, ezUInt8 uiWidth,
                                  bool bPadZeros, ezUInt8 uiBase);

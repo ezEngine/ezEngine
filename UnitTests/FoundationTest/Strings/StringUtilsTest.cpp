@@ -744,6 +744,43 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
                  nullptr);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindUIntAtTheEnd")
+  {
+    ezUInt32 uiTestValue = 0;
+    ezUInt32 uiCharactersFromStart = 0;
+
+    EZ_TEST_BOOL(ezStringUtils::FindUIntAtTheEnd(nullptr, uiTestValue, &uiCharactersFromStart).Failed());
+
+    ezStringUtf8 noNumberAtTheEnd(L"ThisStringContainsNoNumberAtTheEnd");
+    EZ_TEST_BOOL(ezStringUtils::FindUIntAtTheEnd(noNumberAtTheEnd.GetData(), uiTestValue, &uiCharactersFromStart).Failed());
+
+    ezStringUtf8 noNumberAtTheEnd2(L"ThisStringContainsNoNumberAtTheEndBut42InBetween");
+    EZ_TEST_BOOL(ezStringUtils::FindUIntAtTheEnd(noNumberAtTheEnd.GetData(), uiTestValue, &uiCharactersFromStart).Failed());
+
+    ezStringUtf8 aNumberAtTheEnd(L"ThisStringContainsANumberAtTheEnd1");
+    EZ_TEST_BOOL(ezStringUtils::FindUIntAtTheEnd(aNumberAtTheEnd.GetData(), uiTestValue, &uiCharactersFromStart).Succeeded());
+    EZ_TEST_INT(uiTestValue, 1);
+    EZ_TEST_INT(uiCharactersFromStart, aNumberAtTheEnd.GetElementCount() - 1);
+
+    ezStringUtf8 aZeroLeadingNumberAtTheEnd(L"ThisStringContainsANumberAtTheEnd011129");
+    EZ_TEST_BOOL(ezStringUtils::FindUIntAtTheEnd(aZeroLeadingNumberAtTheEnd.GetData(), uiTestValue, &uiCharactersFromStart).Succeeded());
+    EZ_TEST_INT(uiTestValue, 11129);
+    EZ_TEST_INT(uiCharactersFromStart, aZeroLeadingNumberAtTheEnd.GetElementCount() - 6);
+
+    EZ_TEST_BOOL(ezStringUtils::FindUIntAtTheEnd(aNumberAtTheEnd.GetData(), uiTestValue, nullptr).Succeeded());
+    EZ_TEST_INT(uiTestValue, 1);
+
+    ezStringUtf8 twoNumbersInOneString(L"FirstANumber23AndThen42");
+    EZ_TEST_BOOL(ezStringUtils::FindUIntAtTheEnd(twoNumbersInOneString.GetData(), uiTestValue, &uiCharactersFromStart).Succeeded());
+    EZ_TEST_INT(uiTestValue, 42);
+
+    ezStringUtf8 onlyANumber(L"55566553");
+    EZ_TEST_BOOL(ezStringUtils::FindUIntAtTheEnd(onlyANumber.GetData(), uiTestValue, &uiCharactersFromStart).Succeeded());
+    EZ_TEST_INT(uiTestValue, 55566553);
+    EZ_TEST_INT(uiCharactersFromStart, 0);
+  }
+
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SkipCharacters")
   {
     ezStringUtf8 s(L"mompf   hüßß ßßß öäü abcdef abc def");

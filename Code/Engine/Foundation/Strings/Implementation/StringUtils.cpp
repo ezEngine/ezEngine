@@ -748,6 +748,56 @@ const char* ezStringUtils::FindWholeWord_NoCase(const char* szString, const char
   return nullptr;
 }
 
+ezResult ezStringUtils::FindUIntAtTheEnd(const char* szString, ezUInt32& out_uiValue, ezUInt32* pStringLengthBeforeUInt /*= nullptr*/)
+{
+  if (ezStringUtils::IsNullOrEmpty(szString))
+    return EZ_FAILURE;
+
+  const char* szWork = szString;
+  const char* szNumberStart = nullptr;
+
+  while (*szWork != '\0')
+  {
+    char cChar = *szWork;
+
+    if(cChar >= '0' && cChar <= '9')
+    {
+      if(szNumberStart == nullptr)
+      {
+        szNumberStart = szWork;
+      }
+    }
+    else
+    {
+      szNumberStart = nullptr;
+    }
+
+    szWork++;
+  }
+
+  if(szNumberStart != nullptr)
+  {
+    ezInt64 iResult = 0;
+    if(ezConversionUtils::StringToInt64(szNumberStart, iResult).Failed() || iResult < 0 || iResult > 0xFFFFFFFFu)
+    {
+      return EZ_FAILURE;
+    }
+
+    out_uiValue = static_cast<ezUInt32>(iResult);
+
+    if(pStringLengthBeforeUInt != nullptr)
+    {
+      *pStringLengthBeforeUInt = static_cast<ezUInt32>(szNumberStart - szString);
+    }
+
+    return EZ_SUCCESS;
+  }
+  else
+  {
+    return EZ_FAILURE;
+  }
+}
+
 const char* ezStringUtils::SkipCharacters(const char* szString, EZ_CHARACTER_FILTER SkipCharacterCB, bool bAlwaysSkipFirst)
 {
   EZ_ASSERT_DEBUG(szString != nullptr, "Invalid string");
