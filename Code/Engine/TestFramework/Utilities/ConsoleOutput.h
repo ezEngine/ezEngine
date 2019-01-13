@@ -40,6 +40,9 @@ inline void OutputToConsole(ezTestOutput::Enum Type, const char* szMsg)
     case ezTestOutput::Message:
       SetConsoleColorInl(0x0E);
       break;
+    case ezTestOutput::Warning:
+      SetConsoleColorInl(0x0C);
+      break;
     case ezTestOutput::Error:
       SetConsoleColorInl(0x0C);
       bAnyError = true;

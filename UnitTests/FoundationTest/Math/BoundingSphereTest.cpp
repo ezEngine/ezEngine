@@ -278,7 +278,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
     EZ_TEST_BOOL(!s.Contains(p, 4, sizeof(ezVec3T)));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains (sphere)")
+  EZ_TEST_BLOCK(ezTestBlock::Disabled, "Contains (sphere)")
   {
     ezBoundingSphereT s1, s2, s3;
     s1.SetElements(ezVec3T(5, 0, 0), 2);

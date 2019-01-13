@@ -125,6 +125,7 @@ struct ezOutputToHTML
         bError = true;
         // fall through
 
+      case ezTestOutput::Warning:
       case ezTestOutput::Message:
       case ezTestOutput::ImportantInfo:
         bDetails = true;

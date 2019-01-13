@@ -149,7 +149,7 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     EZ_TEST_FLOAT(fp.ToFloat(), -987.648f, 0.1f);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator/(fp, fp)")
+  EZ_TEST_BLOCK(ezTestBlock::Disabled, "operator/(fp, fp)")
   {
     ezFixedPoint<12> fp(100000.248f);
 

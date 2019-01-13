@@ -7,8 +7,8 @@
 // ezTestOutput public functions
 ////////////////////////////////////////////////////////////////////////
 
-const char* const ezTestOutput::s_Names[] = {"StartOutput", "BeginBlock", "EndBlock", "ImportantInfo", "Details",
-                                             "Success",     "Message",    "Error",    "Duration",      "FinalResult"};
+const char* const ezTestOutput::s_Names[] = {"StartOutput", "BeginBlock", "EndBlock", "ImportantInfo", "Details",    "Success",
+                                             "Message",     "Warning",    "Error",    "Duration",      "FinalResult"};
 
 const char* ezTestOutput::ToString(Enum type)
 {

@@ -2,9 +2,9 @@
 
 #ifdef EZ_USE_QT
 
-#include <QStringBuilder>
-#include <TestFramework/Framework/Qt/qtLogMessageDock.h>
-#include <TestFramework/Framework/TestFramework.h>
+#  include <QStringBuilder>
+#  include <TestFramework/Framework/Qt/qtLogMessageDock.h>
+#  include <TestFramework/Framework/TestFramework.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezQtLogMessageDock public functions
@@ -154,6 +154,8 @@ QVariant ezQtLogMessageModel::data(const QModelIndex& index, int role) const
           return QColor(Qt::red);
         case ezTestOutput::Success:
           return QColor(Qt::green);
+        case ezTestOutput::Warning:
+          return QColor(qRgb(255, 100, 0));
         case ezTestOutput::StartOutput:
         case ezTestOutput::EndBlock:
         case ezTestOutput::ImportantInfo:
@@ -177,25 +179,7 @@ QVariant ezQtLogMessageModel::data(const QModelIndex& index, int role) const
       }
       return palette.base().color();
     }
-    // case Qt::DecorationRole:
-    //  {
-    //    switch (Message.m_Type)
-    //    {
-    //    case ezTestOutput::StartOutput:
-    //    case ezTestOutput::BeginBlock:
-    //    case ezTestOutput::EndBlock:
-    //    case ezTestOutput::ImportantInfo:
-    //    case ezTestOutput::Details:
-    //    case ezTestOutput::Success:
-    //    case ezTestOutput::Message:
-    //      return QApplication::style()->standardIcon(QStyle::SP_MessageBoxInformation);
-    //    case ezTestOutput::Error:
-    //      return QApplication::style()->standardIcon(QStyle::SP_MessageBoxCritical);
-    //    case ezTestOutput::Duration:
-    //    case ezTestOutput::FinalResult:
-    //      return QApplication::style()->standardIcon(QStyle::SP_MessageBoxInformation);
-    //    }
-    //  }
+
     default:
       return QVariant();
   }

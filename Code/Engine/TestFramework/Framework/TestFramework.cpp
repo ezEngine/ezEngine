@@ -416,7 +416,7 @@ static void LogWriter(const ezLoggingEventData& e)
       ezTestFramework::Output(ezTestOutput::Error, "ezLog Serious Warning: %s", e.m_szText);
       break;
     case ezLogMsgType::WarningMsg:
-      ezTestFramework::Output(ezTestOutput::ImportantInfo, "ezLog Warning: %s", e.m_szText);
+      ezTestFramework::Output(ezTestOutput::Warning, "ezLog Warning: %s", e.m_szText);
       break;
     case ezLogMsgType::InfoMsg:
     case ezLogMsgType::DevMsg:
@@ -488,8 +488,6 @@ void ezTestFramework::ExecuteNextTest()
 
       if (!subTest.m_bEnableTest)
       {
-        /// \todo Don't we want to output this ?
-        // ezTestFramework::Output(ezTestOutput::Message, "Skipping deactivated Sub-Test: '%s'", subTest.m_szSubTestName);
         ++m_iExecutingSubTest;
         return;
       }

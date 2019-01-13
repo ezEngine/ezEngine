@@ -19,6 +19,7 @@ struct ezTestOutput
     Details,
     Success,
     Message,
+    Warning,
     Error,
     Duration,
     FinalResult,

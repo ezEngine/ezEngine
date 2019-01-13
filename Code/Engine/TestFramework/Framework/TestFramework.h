@@ -194,7 +194,7 @@ struct ezTestBlock
   if (enable == ezTestBlock::Disabled)                                                                                                     \
   {                                                                                                                                        \
     ezTestFramework::s_szTestBlockName = "";                                                                                               \
-    ezTestFramework::Output(ezTestOutput::Message, "Skipped Test Block '%s'", name);                                                       \
+    ezTestFramework::Output(ezTestOutput::Warning, "Skipped Test Block '%s'", name);                                                       \
   }                                                                                                                                        \
   else
 

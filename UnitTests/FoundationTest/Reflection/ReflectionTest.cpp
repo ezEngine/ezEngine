@@ -869,7 +869,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Sets)
   const ezRTTI* pRtti = ezGetStaticRTTI<ezTestSets>();
   EZ_TEST_BOOL(pRtti != nullptr);
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezSet")
+  EZ_TEST_BLOCK(ezTestBlock::Disabled, "ezSet")
   {
     ezInt8 iValue1 = -5;
     ezInt8 iValue2 = 127;
