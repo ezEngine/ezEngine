@@ -45,8 +45,7 @@ void ezPreprocessor::SetCustomFileCache(ezTokenizedFileCache* pFileCache)
 
 ezToken* ezPreprocessor::AddCustomToken(const ezToken* pPrevious, const ezStringView& sNewText)
 {
-  m_CustomTokens.SetCount(m_CustomTokens.GetCount() + 1);
-  CustomToken* pToken = &m_CustomTokens.PeekBack();
+  CustomToken* pToken = &m_CustomTokens.ExpandAndGetRef();
 
   pToken->m_sIdentifierString = sNewText;
   pToken->m_Token = *pPrevious;

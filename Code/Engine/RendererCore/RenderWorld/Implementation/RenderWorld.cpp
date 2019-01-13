@@ -3,11 +3,11 @@
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Memory/CommonAllocators.h>
-#include <RendererFoundation/Profiling/Profiling.h>
-#include <RendererFoundation/Device/Device.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Profiling/Profiling.h>
 
 ezCVarBool CVarMultithreadedRendering("r_Multithreading", true, ezCVarFlags::Default, "Enables multi-threaded update and rendering");
 ezCVarBool CVarCacheRenderData("r_CacheRenderData", true, ezCVarFlags::Default, "Enables render data caching of static objects");
@@ -177,7 +177,8 @@ bool ezRenderWorld::TryGetView(const ezViewHandle& hView, ezView*& out_pView)
   return s_Views.TryGetValue(hView, out_pView);
 }
 
-ezView* ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::Enum usageHint, ezCameraUsageHint::Enum alternativeUsageHint /*= ezCameraUsageHint::None*/)
+ezView* ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::Enum usageHint,
+                                          ezCameraUsageHint::Enum alternativeUsageHint /*= ezCameraUsageHint::None*/)
 {
   EZ_LOCK(s_ViewsMutex);
 
@@ -607,11 +608,8 @@ void ezRenderWorld::UpdateRenderDataCache()
       }
 
       // add entry for this view
-      ezUInt32 uiCacheIndex = newEntries.m_hOwnerObject.GetInternalID().m_InstanceIndex;
-      if (uiCacheIndex >= entriesPerObject.GetCount())
-      {
-        entriesPerObject.SetCount(uiCacheIndex + 1);
-      }
+      const ezUInt32 uiCacheIndex = newEntries.m_hOwnerObject.GetInternalID().m_InstanceIndex;
+      entriesPerObject.EnsureCount(uiCacheIndex + 1);
 
       auto& cacheEntries = entriesPerObject[uiCacheIndex];
 

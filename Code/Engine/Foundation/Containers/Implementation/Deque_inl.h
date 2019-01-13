@@ -390,6 +390,15 @@ void ezDequeBase<T, Construct>::SetCount(ezUInt32 uiCount)
 }
 
 template <typename T, bool Construct>
+void ezDequeBase<T, Construct>::EnsureCount(ezUInt32 uiCount)
+{
+  if (uiCount > m_uiCount)
+  {
+    SetCount(uiCount);
+  }
+}
+
+template <typename T, bool Construct>
 inline ezUInt32 ezDequeBase<T, Construct>::GetContiguousRange(ezUInt32 uiIndex) const
 {
   EZ_ASSERT_DEV(uiIndex < m_uiCount, "The deque has {0} elements. Cannot access element {1}.", m_uiCount, uiIndex);

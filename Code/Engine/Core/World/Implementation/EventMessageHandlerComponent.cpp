@@ -9,11 +9,8 @@ namespace
 
   static void RegisterGlobalEventHandler(ezComponent* pComponent)
   {
-    ezUInt32 uiWorldIndex = pComponent->GetWorld()->GetIndex();
-    if (uiWorldIndex >= s_GlobalEventHandlerPerWorld.GetCount())
-    {
-      s_GlobalEventHandlerPerWorld.SetCount(uiWorldIndex + 1);
-    }
+    const ezUInt32 uiWorldIndex = pComponent->GetWorld()->GetIndex();
+    s_GlobalEventHandlerPerWorld.EnsureCount(uiWorldIndex + 1);
 
     auto globalEventHandler = s_GlobalEventHandlerPerWorld[uiWorldIndex];
     if (globalEventHandler == nullptr)
@@ -34,7 +31,7 @@ namespace
 
     globalEventHandler->RemoveAndSwap(pComponent->GetHandle());
   }
-}
+} // namespace
 
 //////////////////////////////////////////////////////////////////////////
 

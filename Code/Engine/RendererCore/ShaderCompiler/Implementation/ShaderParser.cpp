@@ -86,7 +86,7 @@ namespace
       def.m_Attributes.PushBack(attributeDef);
     }
   }
-}
+} // namespace
 
 // static
 void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& stream, ezHybridArray<ParameterDefinition, 16>& out_Parameter)
@@ -330,10 +330,7 @@ void ezShaderParser::ParsePermutationVarConfig(const char* szPermVarName, ezStri
         ezLog::Error("Enum value does not start with the expected enum name as prefix: '{0}'", sEnumPrefix);
       }
 
-      if (out_EnumValues.GetCount() <= uiCurrentValue)
-      {
-        out_EnumValues.SetCount(uiCurrentValue + 1);
-      }
+      out_EnumValues.EnsureCount(uiCurrentValue + 1);
 
       if (ezStringUtils::IsNullOrEmpty(out_EnumValues[uiCurrentValue].GetData()))
       {

@@ -65,7 +65,7 @@ namespace
 }
 
 // Enable when needed
-#define EZ_PERFORMANCE_TESTS_STATE ezTestBlock::Disabled
+#define EZ_PERFORMANCE_TESTS_STATE ezTestBlock::DisabledNoWarning
 
 EZ_CREATE_SIMPLE_TEST(Performance, Container)
 {
@@ -316,7 +316,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Container)
                 ezArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Disabled, "ezMap<void*, ezUInt32>")
+  EZ_TEST_BLOCK(ezTestBlock::DisabledNoWarning, "ezMap<void*, ezUInt32>")
   {
     ezUInt32 sum = 0;
 
@@ -365,7 +365,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Container)
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Disabled, "ezHashTable<void*, ezUInt32>")
+  EZ_TEST_BLOCK(ezTestBlock::DisabledNoWarning, "ezHashTable<void*, ezUInt32>")
   {
     ezUInt32 sum = 0;
 

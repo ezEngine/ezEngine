@@ -134,16 +134,17 @@ protected:
 };
 
 #ifdef EZ_NV_OPTIMUS
-#undef EZ_NV_OPTIMUS
+#  undef EZ_NV_OPTIMUS
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#define EZ_NV_OPTIMUS                                                                                                                      \
-  extern "C" {                                                                                                                             \
-  _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;                                                                             \
-  }
+#  define EZ_NV_OPTIMUS                                                                                                                    \
+    extern "C"                                                                                                                             \
+    {                                                                                                                                      \
+      _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;                                                                         \
+    }
 #else
-#define EZ_NV_OPTIMUS
+#  define EZ_NV_OPTIMUS
 #endif
 
 /// \brief Macro to define the application entry point for all test applications
@@ -177,8 +178,9 @@ struct ezTestBlock
   /// \brief Enum for usage in EZ_TEST_BLOCK to enable or disable the block.
   enum Enum
   {
-    Disabled, ///< The test block will be skipped. The test framework will print a warning message, that some block is deactivated.
-    Enabled   ///< The test block is enabled.
+    Enabled,           ///< The test block is enabled.
+    Disabled,          ///< The test block will be skipped. The test framework will print a warning message, that some block is deactivated.
+    DisabledNoWarning, ///< The test block will be skipped, but no warning printed. Used to deactivate 'on demand/optional' tests.
   };
 };
 
@@ -196,7 +198,12 @@ struct ezTestBlock
     ezTestFramework::s_szTestBlockName = "";                                                                                               \
     ezTestFramework::Output(ezTestOutput::Warning, "Skipped Test Block '%s'", name);                                                       \
   }                                                                                                                                        \
+  else if (enable == ezTestBlock::DisabledNoWarning)                                                                                       \
+  {                                                                                                                                        \
+    ezTestFramework::s_szTestBlockName = "";                                                                                               \
+  }                                                                                                                                        \
   else
+
 
 /// \brief Will trigger a debug break, if the test framework is configured to do so on test failure
 #define EZ_TEST_DEBUG_BREAK                                                                                                                \

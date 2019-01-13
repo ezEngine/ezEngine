@@ -27,7 +27,8 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessDocumentContext, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessDocumentContext, 1, ezRTTINoAllocator)
+  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezHashTable<ezUuid, ezEngineProcessDocumentContext*> ezEngineProcessDocumentContext::s_DocumentContexts;
@@ -240,10 +241,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
     const ezEditorEngineViewMsg* pViewMsg = static_cast<const ezEditorEngineViewMsg*>(pMsg);
     EZ_ASSERT_DEV(pViewMsg->m_uiViewID < 0xFFFFFFFF, "Invalid view ID in '{0}'", pMsg->GetDynamicRTTI()->GetTypeName());
 
-    if (pViewMsg->m_uiViewID >= m_ViewContexts.GetCount())
-    {
-      m_ViewContexts.SetCount(pViewMsg->m_uiViewID + 1);
-    }
+    m_ViewContexts.EnsureCount(pViewMsg->m_uiViewID + 1);
 
     if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewDestroyedMsgToEngine>())
     {

@@ -45,6 +45,9 @@ public:
   /// \brief Resizes the array to have exactly uiCount elements. Extra elements might be uninitialized.
   void SetCountUninitialized(ezUInt32 uiCount); // [tested]
 
+  /// \brief Ensures the container has at least \a uiCount elements. Ie. calls SetCount() if the container has fewer elements, does nothing otherwise.
+  void EnsureCount(ezUInt32 uiCount); // [tested]
+
   /// \brief Returns the number of active elements in the array.
   ezUInt32 GetCount() const; // [tested]
 

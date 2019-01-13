@@ -91,7 +91,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
     TestFormat(ezFmt("{3}, {1}, {0}, {2}", ezArgF(23.12345f, 1), ezArgI(42), 17, 12.34f), "12.34, 42, 23.1, 17");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Disabled, "Compare Performance")
+  EZ_TEST_BLOCK(ezTestBlock::DisabledNoWarning, "Compare Performance")
   {
     CompareSnprintf(perfLog, ezFmt("Hello {0}, i = {1}, f = {2}", "World", 42, ezArgF(3.141f, 2)), "Hello %s, i = %i, f = %.2f", "World",
                     42, 3.141f);

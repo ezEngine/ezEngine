@@ -69,7 +69,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, Plugin)
   }
 
 
-  EZ_TEST_BLOCK(ezTestBlock::Disabled, "ReloadPlugin")
+  EZ_TEST_BLOCK(ezTestBlock::DisabledNoWarning, "ReloadPlugin")
   {
     EZ_TEST_BOOL(ezPlugin::LoadPlugin(ezFoundationTest_Plugin2) == EZ_SUCCESS);
 

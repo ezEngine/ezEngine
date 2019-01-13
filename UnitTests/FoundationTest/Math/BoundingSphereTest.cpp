@@ -278,6 +278,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
     EZ_TEST_BOOL(!s.Contains(p, 4, sizeof(ezVec3T)));
   }
 
+  // Disabled because MSVC 2017 has code generation issues in Release builds
   EZ_TEST_BLOCK(ezTestBlock::Disabled, "Contains (sphere)")
   {
     ezBoundingSphereT s1, s2, s3;

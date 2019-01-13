@@ -44,7 +44,8 @@ public:
   /// \brief Destructs all elements and sets the count to zero. Does not deallocate any data.
   void Clear(); // [tested]
 
-  /// \brief Rearranges the internal data structures such that the amount of reserved elements can be appended with as few allocations, as possible.
+  /// \brief Rearranges the internal data structures such that the amount of reserved elements can be appended with as few allocations, as
+  /// possible.
   ///
   /// This does not reserve the actual amount of chunks, that would be needed, but only grows the index array
   /// (for redirections) as much as needed.
@@ -65,8 +66,13 @@ public:
   /// \brief swaps the contents of this deque with another one
   void Swap(ezDequeBase<T, Construct>& other); // [tested]
 
-  /// \brief Sets the number of active elements in the deque. All new elements are default constructed. If the deque is shrunk, elements at the end of the deque are destructed.
+  /// \brief Sets the number of active elements in the deque. All new elements are default constructed. If the deque is shrunk, elements at
+  /// the end of the deque are destructed.
   void SetCount(ezUInt32 uiCount); // [tested]
+
+  /// \brief Ensures the container has at least \a uiCount elements. Ie. calls SetCount() if the container has fewer elements, does nothing
+  /// otherwise.
+  void EnsureCount(ezUInt32 uiCount); // [tested]
 
   /// \brief Accesses the n-th element in the deque.
   T& operator[](ezUInt32 uiIndex); // [tested]
@@ -188,13 +194,15 @@ private:
   /// \brief Computes which chunk contains the element at index 0
   ezUInt32 GetFirstUsedChunk() const;
 
-  /// \brief Computes which chunk would contain the last element if the deque had 'uiAtSize' elements (m_uiCount), returns the chunk of element 0, if the deque is currently empty.
+  /// \brief Computes which chunk would contain the last element if the deque had 'uiAtSize' elements (m_uiCount), returns the chunk of
+  /// element 0, if the deque is currently empty.
   ezUInt32 GetLastUsedChunk(ezUInt32 uiAtSize) const;
 
   /// \brief Returns which chunk contains the currently last element.
   ezUInt32 GetLastUsedChunk() const;
 
-  /// \brief Computes how many chunks would be required if the deque had a size of 'uiAtSize' (the value of m_uiFirstElement) affects the result.
+  /// \brief Computes how many chunks would be required if the deque had a size of 'uiAtSize' (the value of m_uiFirstElement) affects the
+  /// result.
   ezUInt32 GetRequiredChunks(ezUInt32 uiAtSize) const;
 
   /// \brief Goes through all the unused chunks and deallocates chunks until no more than 'uiMaxChunks' are still allocated (in total).
@@ -213,7 +221,8 @@ private:
   /// Size reductions are mostly triggered by PopBack and PopFront (but also by SetCount).
   /// The worst case scenario should be this:
   /// * SetCount(very large amount) -> allocates lots of chunks
-  /// * PopBack / PopFront until the deque is empty -> every once in a while a reduction is triggered, this will deallocate a few chunks every time
+  /// * PopBack / PopFront until the deque is empty -> every once in a while a reduction is triggered, this will deallocate a few chunks
+  /// every time
   /// * PushBack / PopBack for a long time -> Size does not change, but the many PopBack calls will trigger reductions
   ///    -> The number of allocated chunks will shrink over time until no more than the required number of chunks (+2) remains
   /// * SetCount(very large amount) -> lots of chunks need to be allocated again
@@ -225,20 +234,23 @@ private:
   /// \brief Searches through the unused chunks for an allocated chunk and returns it. Allocates a new chunk if necessary.
   T* GetUnusedChunk();
 
-  /// \brief Returns a reference to the element at the given index. Makes sure the chunk that should contain that element is allocated. Used before elements are constructed.
+  /// \brief Returns a reference to the element at the given index. Makes sure the chunk that should contain that element is allocated. Used
+  /// before elements are constructed.
   T& ElementAt(ezUInt32 uiIndex);
 
   /// \brief Deallocates all data, resets the deque to the state after construction.
   void DeallocateAll();
 
   ezAllocatorBase* m_pAllocator;
-  T** m_pChunks;                ///< The chunk index array for redirecting accesses. Not all chunks must be allocated.
-  ezUInt32 m_uiChunks;          ///< The size of the m_pChunks array. Determines how many elements could theoretically be stored in the deque.
-  ezUInt32 m_uiFirstElement;    ///< Which element (across all chunks) is considered to be the first.
-  ezUInt32 m_uiCount;           ///< How many elements are actually active at the moment.
+  T** m_pChunks;             ///< The chunk index array for redirecting accesses. Not all chunks must be allocated.
+  ezUInt32 m_uiChunks;       ///< The size of the m_pChunks array. Determines how many elements could theoretically be stored in the deque.
+  ezUInt32 m_uiFirstElement; ///< Which element (across all chunks) is considered to be the first.
+  ezUInt32 m_uiCount;        ///< How many elements are actually active at the moment.
   ezUInt32 m_uiAllocatedChunks; ///< How many entries in the m_pChunks array are allocated at the moment.
-  ezInt32 m_iReduceSizeTimer;   ///< Every time this counter reaches zero, a 'garbage collection' step is performed, which might deallocate chunks.
-  ezUInt32 m_uiMaxCount;        ///< How many elements were maximally active since the last 'garbage collection' to prevent deallocating too much memory.
+  ezInt32 m_iReduceSizeTimer;   ///< Every time this counter reaches zero, a 'garbage collection' step is performed, which might deallocate
+                                ///< chunks.
+  ezUInt32 m_uiMaxCount; ///< How many elements were maximally active since the last 'garbage collection' to prevent deallocating too much
+                         ///< memory.
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   ezUInt32 m_uiChunkSize; // needed for debugger visualization
@@ -267,39 +279,75 @@ public:
 };
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::iterator begin(ezDequeBase<T, Construct>& container) { return typename ezDequeBase<T, Construct>::iterator(container, (size_t)0); }
+typename ezDequeBase<T, Construct>::iterator begin(ezDequeBase<T, Construct>& container)
+{
+  return typename ezDequeBase<T, Construct>::iterator(container, (size_t)0);
+}
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::const_iterator begin(const ezDequeBase<T, Construct>& container) { return typename ezDequeBase<T, Construct>::const_iterator(container, (size_t)0); }
+typename ezDequeBase<T, Construct>::const_iterator begin(const ezDequeBase<T, Construct>& container)
+{
+  return typename ezDequeBase<T, Construct>::const_iterator(container, (size_t)0);
+}
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::const_iterator cbegin(const ezDequeBase<T, Construct>& container) { return typename ezDequeBase<T, Construct>::const_iterator(container, (size_t)0); }
+typename ezDequeBase<T, Construct>::const_iterator cbegin(const ezDequeBase<T, Construct>& container)
+{
+  return typename ezDequeBase<T, Construct>::const_iterator(container, (size_t)0);
+}
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::reverse_iterator rbegin(ezDequeBase<T, Construct>& container) { return typename ezDequeBase<T, Construct>::reverse_iterator(container, (size_t)0); }
+typename ezDequeBase<T, Construct>::reverse_iterator rbegin(ezDequeBase<T, Construct>& container)
+{
+  return typename ezDequeBase<T, Construct>::reverse_iterator(container, (size_t)0);
+}
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::const_reverse_iterator rbegin(const ezDequeBase<T, Construct>& container) { return typename ezDequeBase<T, Construct>::const_reverse_iterator(container, (size_t)0); }
+typename ezDequeBase<T, Construct>::const_reverse_iterator rbegin(const ezDequeBase<T, Construct>& container)
+{
+  return typename ezDequeBase<T, Construct>::const_reverse_iterator(container, (size_t)0);
+}
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::const_reverse_iterator crbegin(const ezDequeBase<T, Construct>& container) { return typename ezDequeBase<T, Construct>::const_reverse_iterator(container, (size_t)0); }
+typename ezDequeBase<T, Construct>::const_reverse_iterator crbegin(const ezDequeBase<T, Construct>& container)
+{
+  return typename ezDequeBase<T, Construct>::const_reverse_iterator(container, (size_t)0);
+}
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::iterator end(ezDequeBase<T, Construct>& container) { return typename ezDequeBase<T, Construct>::iterator(container, (size_t)container.GetCount()); }
+typename ezDequeBase<T, Construct>::iterator end(ezDequeBase<T, Construct>& container)
+{
+  return typename ezDequeBase<T, Construct>::iterator(container, (size_t)container.GetCount());
+}
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::const_iterator end(const ezDequeBase<T, Construct>& container) { return typename ezDequeBase<T, Construct>::const_iterator(container, (size_t)container.GetCount()); }
+typename ezDequeBase<T, Construct>::const_iterator end(const ezDequeBase<T, Construct>& container)
+{
+  return typename ezDequeBase<T, Construct>::const_iterator(container, (size_t)container.GetCount());
+}
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::const_iterator cend(const ezDequeBase<T, Construct>& container) { return typename ezDequeBase<T, Construct>::const_iterator(container, (size_t)container.GetCount()); }
+typename ezDequeBase<T, Construct>::const_iterator cend(const ezDequeBase<T, Construct>& container)
+{
+  return typename ezDequeBase<T, Construct>::const_iterator(container, (size_t)container.GetCount());
+}
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::reverse_iterator rend(ezDequeBase<T, Construct>& container) { return typename ezDequeBase<T, Construct>::reverse_iterator(container, (size_t)container.GetCount()); }
+typename ezDequeBase<T, Construct>::reverse_iterator rend(ezDequeBase<T, Construct>& container)
+{
+  return typename ezDequeBase<T, Construct>::reverse_iterator(container, (size_t)container.GetCount());
+}
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::const_reverse_iterator rend(const ezDequeBase<T, Construct>& container) { return typename ezDequeBase<T, Construct>::const_reverse_iterator(container, (size_t)container.GetCount()); }
+typename ezDequeBase<T, Construct>::const_reverse_iterator rend(const ezDequeBase<T, Construct>& container)
+{
+  return typename ezDequeBase<T, Construct>::const_reverse_iterator(container, (size_t)container.GetCount());
+}
 
 template <typename T, bool Construct>
-typename ezDequeBase<T, Construct>::const_reverse_iterator crend(const ezDequeBase<T, Construct>& container) { return typename ezDequeBase<T, Construct>::const_reverse_iterator(container, (size_t)container.GetCount()); }
+typename ezDequeBase<T, Construct>::const_reverse_iterator crend(const ezDequeBase<T, Construct>& container)
+{
+  return typename ezDequeBase<T, Construct>::const_reverse_iterator(container, (size_t)container.GetCount());
+}
 
 #include <Foundation/Containers/Implementation/Deque_inl.h>

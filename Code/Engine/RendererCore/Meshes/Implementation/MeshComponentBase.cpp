@@ -266,8 +266,7 @@ void ezMeshComponentBase::SetMesh(const ezMeshResourceHandle& hMesh)
 
 void ezMeshComponentBase::SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial)
 {
-  if (uiIndex >= m_Materials.GetCount())
-    m_Materials.SetCount(uiIndex + 1);
+  m_Materials.EnsureCount(uiIndex + 1);
 
   m_Materials[uiIndex] = hMaterial;
 }
@@ -369,4 +368,3 @@ void ezMeshComponentBase::Materials_Remove(ezUInt32 uiIndex)
 {
   m_Materials.RemoveAtAndCopy(uiIndex);
 }
-

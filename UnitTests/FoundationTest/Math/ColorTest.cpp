@@ -102,7 +102,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
                                     ezColor(0.0f, 0.0f, 0.0f, 1.0f)};
 
 
-      EZ_TEST_BLOCK(true, "IsNaN")
+      EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNaN")
       {
         for (int i = 0; i < 4; ++i)
         {
@@ -111,7 +111,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
         }
       }
 
-      EZ_TEST_BLOCK(true, "IsValid")
+      EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsValid")
       {
         for (int i = 0; i < 4; ++i)
         {

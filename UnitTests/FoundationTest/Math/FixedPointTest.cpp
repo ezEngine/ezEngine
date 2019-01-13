@@ -149,6 +149,7 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     EZ_TEST_FLOAT(fp.ToFloat(), -987.648f, 0.1f);
   }
 
+  // Disabled because MSVC 2017 has code generation issues in Release builds
   EZ_TEST_BLOCK(ezTestBlock::Disabled, "operator/(fp, fp)")
   {
     ezFixedPoint<12> fp(100000.248f);
@@ -244,7 +245,8 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     EZ_TEST_FLOAT(fp.ToFloat(), -1001.0f, 0.01f);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Multiplication Rounding")
+  // Disabled because MSVC 2017 has code generation issues in Release builds
+  EZ_TEST_BLOCK(ezTestBlock::Disabled, "Multiplication Rounding")
   {
     ezFixedPoint<2> fp; // 2 Bits -> 4 fractional values
 

@@ -22,7 +22,7 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Sorting)
     a1.PushBack(rand() % 100000);
   }
 
-  EZ_TEST_BLOCK(true, "QuickSort")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "QuickSort")
   {
     ezDynamicArray<ezInt32> a2 = a1;
 
@@ -42,7 +42,7 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Sorting)
     }
   }
 
-  EZ_TEST_BLOCK(true, "QuickSort - Lambda")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "QuickSort - Lambda")
   {
     ezDynamicArray<ezInt32> a2 = a1;
     ezSorting::QuickSort(a2, [](const auto& a, const auto& b) { return a > b; });

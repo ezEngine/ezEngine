@@ -869,6 +869,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Sets)
   const ezRTTI* pRtti = ezGetStaticRTTI<ezTestSets>();
   EZ_TEST_BOOL(pRtti != nullptr);
 
+  // Disabled because MSVC 2017 has code generation issues in Release builds
   EZ_TEST_BLOCK(ezTestBlock::Disabled, "ezSet")
   {
     ezInt8 iValue1 = -5;

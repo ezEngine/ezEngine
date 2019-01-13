@@ -38,7 +38,7 @@ ON_HIGHLEVELSYSTEMS_SHUTDOWN
 }
 
 EZ_END_SUBSYSTEM_DECLARATION;
-// clang-format on
+  // clang-format on
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool CVarShadowPoolStats("r_ShadowPoolStats", false, ezCVarFlags::Default, "Display same stats of the shadow pool");
@@ -81,10 +81,7 @@ namespace
 
   struct PoolData
   {
-    PoolData()
-    {
-      Clear();
-    }
+    PoolData() { Clear(); }
 
     ~PoolData()
     {
@@ -201,10 +198,7 @@ namespace
         return true;
       }
 
-      if (m_uiUsedShadowData == m_ShadowData.GetCount())
-      {
-        m_ShadowData.SetCount(m_uiUsedShadowData + 1);
-      }
+      m_ShadowData.EnsureCount(m_uiUsedShadowData + 1);
 
       out_pData = &m_ShadowData[m_uiUsedShadowData];
       out_pData->m_fShadowMapScale = fShadowMapScale;
@@ -226,7 +220,7 @@ namespace
     {
       m_uiUsedViews = 0;
       m_uiUsedShadowData = 0;
-      
+
       m_LightToShadowDataTable.Clear();
 
       m_uiUsedPackedShadowData = 0;

@@ -7,10 +7,7 @@ ezExtractedRenderData::ezExtractedRenderData() {}
 
 void ezExtractedRenderData::AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category, ezUInt32 uiRenderDataSortingKey)
 {
-  if (category.m_uiValue >= m_DataPerCategory.GetCount())
-  {
-    m_DataPerCategory.SetCount(category.m_uiValue + 1);
-  }
+  m_DataPerCategory.EnsureCount(category.m_uiValue + 1);
 
   auto& sortableRenderData = m_DataPerCategory[category.m_uiValue].m_SortableRenderData.ExpandAndGetRef();
   sortableRenderData.m_pRenderData = pRenderData;

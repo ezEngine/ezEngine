@@ -83,8 +83,7 @@ void ezMeshResourceDescriptor::AddSubMesh(ezUInt32 uiPrimitiveCount, ezUInt32 ui
 
 void ezMeshResourceDescriptor::SetMaterial(ezUInt32 uiMaterialIndex, const char* szPathToMaterial)
 {
-  if (uiMaterialIndex >= m_Materials.GetCount())
-    m_Materials.SetCount(uiMaterialIndex + 1);
+  m_Materials.EnsureCount(uiMaterialIndex + 1);
 
   m_Materials[uiMaterialIndex].m_sPath = szPathToMaterial;
 }

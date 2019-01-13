@@ -450,6 +450,25 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
     EZ_TEST_BOOL(a1.IsEmpty());
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "EnsureCount")
+  {
+    ezDeque<ezInt32> a1;
+
+    EZ_TEST_INT(a1.GetCount(), 0);
+
+    a1.EnsureCount(0);
+    EZ_TEST_INT(a1.GetCount(), 0);
+
+    a1.EnsureCount(1);
+    EZ_TEST_INT(a1.GetCount(), 1);
+
+    a1.EnsureCount(2);
+    EZ_TEST_INT(a1.GetCount(), 2);
+
+    a1.EnsureCount(1);
+    EZ_TEST_INT(a1.GetCount(), 2);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
   {
     ezDeque<ezInt32> a1;

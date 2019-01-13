@@ -116,10 +116,7 @@ ezUInt16 ezWorldModuleFactory::RegisterWorldModule(const ezRTTI* pRtti, CreatorF
   uiTypeId = s_uiNextTypeId++;
   m_TypeToId.Insert(pRtti, uiTypeId);
 
-  if (uiTypeId >= m_CreatorFuncs.GetCount())
-  {
-    m_CreatorFuncs.SetCount(uiTypeId + 1);
-  }
+  m_CreatorFuncs.EnsureCount(uiTypeId + 1);
 
   m_CreatorFuncs[uiTypeId] = creatorFunc;
 
@@ -151,7 +148,7 @@ namespace
   };
 
   static ezDynamicArray<NewEntry, ezStaticAllocatorWrapper> newEntries;
-}
+} // namespace
 
 void ezWorldModuleFactory::FillBaseTypeIds()
 {

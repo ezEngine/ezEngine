@@ -143,10 +143,7 @@ ManagerType* ezWorld::GetOrCreateComponentManager()
   CheckForWriteAccess();
 
   const ezUInt16 uiTypeId = ManagerType::TypeId();
-  if (uiTypeId >= m_Data.m_Modules.GetCount())
-  {
-    m_Data.m_Modules.SetCount(uiTypeId + 1);
-  }
+  m_Data.m_Modules.EnsureCount(uiTypeId + 1);
 
   ManagerType* pModule = static_cast<ManagerType*>(m_Data.m_Modules[uiTypeId]);
   if (pModule == nullptr)

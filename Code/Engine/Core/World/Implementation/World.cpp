@@ -3,8 +3,8 @@
 #include <Core/Messages/DeleteObjectMessage.h>
 #include <Core/World/World.h>
 #include <Core/World/WorldModule.h>
-#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Memory/FrameAllocator.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Utilities/Stats.h>
 
 ezStaticArray<ezWorld*, 64> ezWorld::s_Worlds;
@@ -361,10 +361,7 @@ ezWorldModule* ezWorld::GetOrCreateModule(const ezRTTI* pRtti)
     return nullptr;
   }
 
-  if (uiTypeId >= m_Data.m_Modules.GetCount())
-  {
-    m_Data.m_Modules.SetCount(uiTypeId + 1);
-  }
+  m_Data.m_Modules.EnsureCount(uiTypeId + 1);
 
   ezWorldModule* pModule = m_Data.m_Modules[uiTypeId];
   if (pModule == nullptr)

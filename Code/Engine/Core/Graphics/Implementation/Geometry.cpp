@@ -109,9 +109,8 @@ void ezGeometry::AddPolygon(const ezArrayPtr<ezUInt32>& Vertices, bool bFlipWind
                   m_Vertices.GetCount());
   }
 
-  m_Polygons.SetCount(m_Polygons.GetCount() + 1); // could use 'ExpandOne' here
+  m_Polygons.ExpandAndGetRef().m_Vertices = Vertices;
 
-  m_Polygons.PeekBack().m_Vertices = Vertices;
   if (bFlipWinding)
   {
     m_Polygons.PeekBack().FlipWinding();

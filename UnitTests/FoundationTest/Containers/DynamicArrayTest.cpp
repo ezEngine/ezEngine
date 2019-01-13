@@ -245,6 +245,25 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST_INT(a1[31], 45);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "EnsureCount")
+  {
+    ezDynamicArray<ezInt32> a1;
+
+    EZ_TEST_INT(a1.GetCount(), 0);
+
+    a1.EnsureCount(0);
+    EZ_TEST_INT(a1.GetCount(), 0);
+
+    a1.EnsureCount(1);
+    EZ_TEST_INT(a1.GetCount(), 1);
+
+    a1.EnsureCount(2);
+    EZ_TEST_INT(a1.GetCount(), 2);
+
+    a1.EnsureCount(1);
+    EZ_TEST_INT(a1.GetCount(), 2);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
   {
     ezDynamicArray<ezInt32> a1;
@@ -873,7 +892,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
 
-  EZ_TEST_BLOCK(ezTestBlock::Disabled, "Large Allocation")
+  // disabled, because this is a very slow test
+  EZ_TEST_BLOCK(ezTestBlock::DisabledNoWarning, "Large Allocation")
   {
     const ezUInt32 uiMaxNumElements = 0xFFFFFFFF - 16; // max supported elements due to alignment restrictions
 
