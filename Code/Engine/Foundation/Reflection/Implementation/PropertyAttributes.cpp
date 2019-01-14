@@ -216,7 +216,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetBrowserAttribute, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("Filter", m_sTypeFilter),
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_FUNCTIONS
+  EZ_BEGIN_FUNCTIONS
   {
     EZ_CONSTRUCTOR_PROPERTY(const char*),
   }
@@ -231,7 +231,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicEnumAttribute, 1, ezRTTIDefaultAllocato
    EZ_MEMBER_PROPERTY("DynamicEnum", m_sDynamicEnumName),
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_FUNCTIONS
+  EZ_BEGIN_FUNCTIONS
   {
    EZ_CONSTRUCTOR_PROPERTY(const char*),
   }
@@ -246,7 +246,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicStringEnumAttribute, 1, ezRTTIDefaultAl
     EZ_MEMBER_PROPERTY("DynamicEnum", m_sDynamicEnumName),
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_FUNCTIONS
+  EZ_BEGIN_FUNCTIONS
   {
     EZ_CONSTRUCTOR_PROPERTY(const char*),
   }
@@ -667,6 +667,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDirectionVisualizerAttribute, 1, ezRTTIDefault
   {
     EZ_ENUM_MEMBER_PROPERTY("axis", ezBasisAxis, m_Axis),
     EZ_MEMBER_PROPERTY("color", m_Color),
+    EZ_MEMBER_PROPERTY("scale", m_fScale)
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
