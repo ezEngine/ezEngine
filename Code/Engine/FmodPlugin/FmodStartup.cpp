@@ -50,14 +50,14 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Fmod, FmodPlugin)
       ezFmodSoundBankResource::SetTypeMissingResource(hResource);
     }
 
-    ezGameApplication::GetGameApplicationInstance()->m_Events.AddEventHandler(&ezFmod::GameApplicationEventHandler);
+    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(&ezFmod::GameApplicationEventHandler);
 
     ezFmod::GetSingleton()->Startup();
   }
 
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
-    ezGameApplication::GetGameApplicationInstance()->m_Events.RemoveEventHandler(&ezFmod::GameApplicationEventHandler);
+    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(&ezFmod::GameApplicationEventHandler);
 
     ezFmod::GetSingleton()->Shutdown();
     ezResourceManager::SetResourceTypeLoader<ezFmodSoundBankResource>(nullptr);

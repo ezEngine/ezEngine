@@ -7,7 +7,7 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Types/UniquePtr.h>
 
-struct ezGameApplicationEvent;
+struct ezGameApplicationExecutionEvent;
 class ezOpenDdlWriter;
 class ezOpenDdlReaderElement;
 typedef ezDynamicArray<ezUInt8> ezDataBuffer;
@@ -67,7 +67,7 @@ public:
   /// Calling this before startup allows to override which configuration is used.
   virtual void SetOverridePlatform(const char* szPlatform) override;
 
-  /// \brief Automatically called by the plugin every time ezGameApplicationEvent::BeforeUpdatePlugins is fired.
+  /// \brief Automatically called by the plugin every time ezGameApplicationExecutionEvent::BeforeUpdatePlugins is fired.
   virtual void UpdateSound() override;
 
   /// \brief Adjusts the master volume. This affects all sounds, with no exception. Value must be between 0.0f and 1.0f.
@@ -94,7 +94,7 @@ public:
   virtual void SetNumListeners(ezUInt8 uiNumListeners) override;
   virtual ezUInt8 GetNumListeners() override;
 
-  static void GameApplicationEventHandler(const ezGameApplicationEvent& e);
+  static void GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e);
 
   /// \brief Configures how many reverb ('EAX') volumes are being blended/mixed for a sound.
   ///

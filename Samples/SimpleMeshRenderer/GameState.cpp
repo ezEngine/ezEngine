@@ -259,7 +259,7 @@ public:
 #ifdef FORCE_LOAD_OPEN_VR_PLUGIN
   virtual void Init_LoadRequiredPlugins() override
   {
-    ezGameApplication::Init_LoadRequiredPlugins();
+    SUPER::Init_LoadRequiredPlugins();
     ezPlugin::LoadPlugin("ezOpenVRPlugin");
   }
 #endif

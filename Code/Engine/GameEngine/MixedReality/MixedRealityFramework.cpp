@@ -69,7 +69,7 @@ void ezMixedRealityFramework::Startup(ezCamera* pCameraForSynchronization)
 
 void ezMixedRealityFramework::Shutdown()
 {
-  ezGameApplication::GetGameApplicationInstance()->m_Events.RemoveEventHandler(
+  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(
       ezMakeDelegate(&ezMixedRealityFramework::GameApplicationEventHandler, this));
 
   m_pSpatialMappingManager = nullptr;
@@ -77,9 +77,9 @@ void ezMixedRealityFramework::Shutdown()
   m_pCameraToSynchronize = nullptr;
 }
 
-void ezMixedRealityFramework::GameApplicationEventHandler(const ezGameApplicationEvent& e)
+void ezMixedRealityFramework::GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e)
 {
-  if (e.m_Type == ezGameApplicationEvent::Type::AfterWorldUpdates)
+  if (e.m_Type == ezGameApplicationExecutionEvent::Type::AfterWorldUpdates)
   {
     if (m_pCameraToSynchronize)
     {
@@ -101,7 +101,7 @@ void ezMixedRealityFramework::GameApplicationEventHandler(const ezGameApplicatio
     }
   }
 
-  if (e.m_Type == ezGameApplicationEvent::Type::BeginAppTick)
+  if (e.m_Type == ezGameApplicationExecutionEvent::Type::BeginAppTick)
   {
     ezWindowsHolographicSpace::GetSingleton()->ProcessAddedRemovedCameras();
   }
@@ -111,7 +111,7 @@ void ezMixedRealityFramework::OnDeviceCreated(bool bHolographicDevice)
 {
   if (bHolographicDevice)
   {
-    ezGameApplication::GetGameApplicationInstance()->m_Events.AddEventHandler(
+    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(
         ezMakeDelegate(&ezMixedRealityFramework::GameApplicationEventHandler, this));
 
     m_pSpatialMappingManager = EZ_DEFAULT_NEW(ezSurfaceReconstructionMeshManager);
@@ -156,7 +156,7 @@ ezViewHandle ezMixedRealityFramework::CreateHolographicView(ezWindowBase* pWindo
 
   while (pHoloSpace->GetCameras().IsEmpty())
   {
-    if (!ezGameApplication::GetGameApplicationInstance()->ProcessWindowMessages())
+    if (!ezGameApplicationBase::GetGameApplicationBaseInstance()->ProcessWindowMessages())
     {
       EZ_REPORT_FAILURE("No window has been added to ezGameApplication, thus no Holo CameraAdded events can arrive!");
       return ezViewHandle();
@@ -189,7 +189,7 @@ ezViewHandle ezMixedRealityFramework::CreateHolographicView(ezWindowBase* pWindo
 
   ezRenderWorld::AddMainView(hMainView);
 
-  ezGameApplication::GetGameApplicationInstance()->AddWindow(pWindow, hRemoteWindowSwapChain);
+  ezGameApplicationBase::GetGameApplicationBaseInstance()->AddWindow(pWindow, hRemoteWindowSwapChain);
 
   return hMainView;
 }

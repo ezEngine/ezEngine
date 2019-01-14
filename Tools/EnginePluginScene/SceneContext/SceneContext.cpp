@@ -388,7 +388,7 @@ void ezSceneContext::OnSimulationDisabled()
 
 ezGameState* ezSceneContext::GetGameState() const
 {
-  return ezGameApplication::GetGameApplicationInstance()->GetActiveGameStateLinkedToWorld(m_pWorld.Borrow());
+  return ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameStateLinkedToWorld(m_pWorld.Borrow());
 }
 
 void ezSceneContext::OnInitialize()
@@ -455,7 +455,7 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
 
 void ezSceneContext::OnPlayTheGameModeStarted(const ezTransform* pStartPosition)
 {
-  if (ezGameApplication::GetGameApplicationInstance()->GetActiveGameState() != nullptr)
+  if (ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState() != nullptr)
   {
     ezLog::Warning("A Play-the-Game instance is already running, cannot launch a second in parallel.");
     return;
@@ -472,7 +472,7 @@ void ezSceneContext::OnPlayTheGameModeStarted(const ezTransform* pStartPosition)
 
   ezGameApplication::GetGameApplicationInstance()->ReinitializeInputConfig();
 
-  ezGameApplication::GetGameApplicationInstance()->ActivateGameState(m_pWorld.Borrow(), pStartPosition);
+  ezGameApplicationBase::GetGameApplicationBaseInstance()->ActivateGameState(m_pWorld.Borrow(), pStartPosition);
 
   ezGameModeMsgToEditor msgRet;
   msgRet.m_DocumentGuid = GetDocumentGuid();
@@ -744,7 +744,7 @@ void ezSceneContext::UpdateDocumentContext()
   ezGameState* pState = GetGameState();
   if (pState && pState->WasQuitRequested())
   {
-    ezGameApplication::GetGameApplicationInstance()->DeactivateGameState();
+    ezGameApplicationBase::GetGameApplicationBaseInstance()->DeactivateGameState();
 
     ezGameModeMsgToEditor msgToEd;
     msgToEd.m_DocumentGuid = GetDocumentGuid();

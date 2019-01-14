@@ -19,7 +19,7 @@ void ezShaderCompilerApplication::BeforeCoreSystemsStartup()
   // only print important messages
   ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::InfoMsg);
 
-  ezGameApplication::BeforeCoreSystemsStartup();
+  SUPER::BeforeCoreSystemsStartup();
 
   auto cmd = ezCommandLineUtils::GetGlobalInstance();
 

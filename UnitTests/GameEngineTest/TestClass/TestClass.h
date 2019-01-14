@@ -31,7 +31,7 @@ protected:
   virtual void BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
   virtual void BeforeHighLevelSystemsShutdown() override;
-  virtual void StoreScreenshot(const ezImage& image) override;
+  virtual void StoreScreenshot(const ezImage& image, const char* szContext) override;
   virtual void Init_FileSystem_ConfigureDataDirs() override;
   virtual ezUniquePtr<ezGameState> CreateGameState(ezWorld* pWorld) override;
 

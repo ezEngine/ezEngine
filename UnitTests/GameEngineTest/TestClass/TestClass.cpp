@@ -13,7 +13,7 @@ ezGameEngineTest::~ezGameEngineTest() = default;
 
 ezResult ezGameEngineTest::GetImage(ezImage& img)
 {
-  img = static_cast<const ezImageView&>(m_pApplication->GetLastScreenshot());
+  img.Reset(m_pApplication->GetLastScreenshot());
 
   return EZ_SUCCESS;
 }
@@ -104,7 +104,7 @@ ezResult ezGameEngineTestApplication::LoadScene(const char* szSceneFile)
 
 void ezGameEngineTestApplication::BeforeCoreSystemsStartup()
 {
-  ezGameApplication::BeforeCoreSystemsStartup();
+  SUPER::BeforeCoreSystemsStartup();
 
   ezStringBuilder sProjectPath(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath(), "/", m_sProjectDirName);
 
@@ -134,16 +134,16 @@ void ezGameEngineTestApplication::BeforeHighLevelSystemsShutdown()
   SUPER::BeforeHighLevelSystemsShutdown();
 }
 
-void ezGameEngineTestApplication::StoreScreenshot(const ezImage& image)
+void ezGameEngineTestApplication::StoreScreenshot(const ezImage& image, const char* szContext)
 {
   // store this for image comparison purposes
-  m_LastScreenshot = static_cast<const ezImageView&>(image);
+  m_LastScreenshot.Reset(image);
 }
 
 
 void ezGameEngineTestApplication::Init_FileSystem_ConfigureDataDirs()
 {
-  ezGameApplication::Init_FileSystem_ConfigureDataDirs();
+  SUPER::Init_FileSystem_ConfigureDataDirs();
 
   // additional data directories for the tests to work
   {

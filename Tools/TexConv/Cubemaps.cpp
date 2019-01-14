@@ -92,7 +92,7 @@ ezResult ezTexConv::CreateTextureCubeFromSingleFile()
       CopyFace(tmpImg, img, faceSize, faceSize * 3, 5);
       ezImageUtils::RotateSubImage180(tmpImg, 0, 5);
 
-      img = std::move(tmpImg);
+      img.Reset(std::move(tmpImg));
     }
     else if (img.GetWidth() % 4 == 0 && img.GetHeight() % 3 == 0 && img.GetWidth() / 4 == img.GetHeight() / 3)
     {
@@ -139,7 +139,7 @@ ezResult ezTexConv::CreateTextureCubeFromSingleFile()
       // Negative Z face
       CopyFace(tmpImg, img, faceSize * 3, faceSize, 5);
 
-      img = std::move(tmpImg);
+      img.Reset(std::move(tmpImg));
     }
     else
     {
@@ -248,7 +248,7 @@ ezResult ezTexConv::CreateTextureCubeFromSingleFile()
         }
       }
 
-      img = std::move(tmpImg);
+      img.Reset(std::move(tmpImg));
     }
   }
 

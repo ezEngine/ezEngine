@@ -162,18 +162,6 @@ ezImage::ezImage(const ezImageView& other)
   Reset(other);
 }
 
-ezImage& ezImage::operator=(ezImage&& other)
-{
-  Reset(std::move(other));
-  return *this;
-}
-
-ezImage& ezImage::operator=(const ezImageView& other)
-{
-  Reset(other);
-  return *this;
-}
-
 void ezImage::Reset()
 {
   m_internalStorage.Clear();

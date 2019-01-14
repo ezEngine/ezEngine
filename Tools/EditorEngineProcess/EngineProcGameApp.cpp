@@ -49,13 +49,13 @@ void ezEngineProcessGameApplication::BeforeCoreSystemsStartup()
 
   ezStartup::AddApplicationTag("editorengineprocess");
 
-  ezGameApplication::BeforeCoreSystemsStartup();
+  SUPER::BeforeCoreSystemsStartup();
 }
 
 void ezEngineProcessGameApplication::AfterCoreSystemsStartup()
 {
   // skip project creation at this point
-  // ezGameApplication::AfterCoreSystemsStartup();
+  // SUPER::AfterCoreSystemsStartup();
 
   WaitForDebugger();
 
@@ -120,7 +120,7 @@ ezApplication::ApplicationExecution ezEngineProcessGameApplication::Run()
     ezEngineProcessDocumentContext::UpdateDocumentContexts();
   }
 
-  return ezGameApplication::Run();
+  return SUPER::Run();
 }
 
 void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData& e)

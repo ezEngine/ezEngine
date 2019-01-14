@@ -15,7 +15,8 @@ static ezUInt32 g_uiWindowHeight = 1080;
 static ezUInt32 g_uiComputeThreadGroupSize = 32;
 
 ezComputeShaderHistogramApp::ezComputeShaderHistogramApp()
-    : ezGameApplication("ComputeShaderHistogram", "../../..\\Data\\Samples\\ComputeShaderHistogram") //"ezEngine Project/ComputeShaderHistogram")
+    : ezGameApplication("ComputeShaderHistogram",
+                        "../../..\\Data\\Samples\\ComputeShaderHistogram") //"ezEngine Project/ComputeShaderHistogram")
     , m_pWindow(nullptr)
 {
 }
@@ -132,7 +133,7 @@ ezApplication::ApplicationExecution ezComputeShaderHistogramApp::Run()
 
 void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
 {
-  ezGameApplication::AfterCoreSystemsStartup();
+  SUPER::AfterCoreSystemsStartup();
 
   m_directoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
   EZ_VERIFY(m_directoryWatcher

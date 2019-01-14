@@ -55,7 +55,7 @@ void ezImageUtils::ComputeImageDifferenceABS(const ezImageView& ImageA, const ez
   differenceHeader.SetHeight(ImageA.GetHeight());
   differenceHeader.SetDepth(ImageA.GetDepth());
   differenceHeader.SetImageFormat(ImageA.GetImageFormat());
-  out_Difference = ezImage(differenceHeader);
+  out_Difference.Reset(differenceHeader);
 
   const ezUInt32 uiSize2D = ImageA.GetHeight() * ImageA.GetWidth();
 
@@ -198,7 +198,7 @@ void ezImageUtils::CropImage(const ezImageView& input, const ezVec2I32& offset, 
   outputHeader.SetWidth(uiNewWidth);
   outputHeader.SetHeight(uiNewHeight);
   outputHeader.SetImageFormat(input.GetImageFormat());
-  output = ezImage(outputHeader);
+  output.Reset(outputHeader);
 
   for (ezUInt32 y = 0; y < uiNewHeight; ++y)
   {
@@ -596,7 +596,7 @@ ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUIn
 
   if (originalWidth == width && originalHeight == height && originalDepth == depth)
   {
-    target = source;
+    target.Reset(source);
     return EZ_SUCCESS;
   }
 

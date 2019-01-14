@@ -195,7 +195,7 @@ void ezGameState::ConfigureInputActions() {}
 void ezGameState::SetupMainView(ezWindowOutputTargetBase* pOutputTarget)
 {
   const auto* pConfig =
-      ezGameApplication::GetGameApplicationInstance()->GetPlatformProfile().GetTypeConfig<ezRenderPipelineProfileConfig>();
+      ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<ezRenderPipelineProfileConfig>();
 
   SetupMainView(pOutputTarget, ezResourceManager::LoadResource<ezRenderPipelineResource>(pConfig->m_sMainRenderPipeline));
 }

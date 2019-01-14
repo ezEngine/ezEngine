@@ -8,12 +8,14 @@ class ezEditorEngineProcessAppUWP;
 
 class ezEngineProcessGameApplicationUWP : public ezEngineProcessGameApplication
 {
+  typedef ezEngineProcessGameApplication SUPER;
+
 public:
   ezEngineProcessGameApplicationUWP();
   ~ezEngineProcessGameApplicationUWP();
 
 protected:
-  virtual void ProcessApplicationInput() override;
+  virtual bool Run_ProcessApplicationInput() override;
   virtual void Init_ConfigureInput() override;
   virtual ezUniquePtr<ezEditorEngineProcessApp> CreateEngineProcessApp() override;
 

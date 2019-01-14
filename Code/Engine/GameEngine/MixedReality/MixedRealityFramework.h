@@ -10,7 +10,7 @@
 
 class ezCamera;
 class ezWindowsHolographicSpace;
-struct ezGameApplicationEvent;
+struct ezGameApplicationExecutionEvent;
 class ezSurfaceReconstructionMeshManager;
 class ezViewHandle;
 class ezWindowBase;
@@ -53,7 +53,7 @@ public:
 private:
   void Startup(ezCamera* pCameraForSynchronization);
   void Shutdown();
-  void GameApplicationEventHandler(const ezGameApplicationEvent& e);
+  void GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e);
   void OnDeviceCreated(bool bHolographicDevice);
 
   // the camera object that will get the head tracking data applied every frame

@@ -138,44 +138,7 @@ bool ezGameApplication::IsGameUpdateEnabled() const
   return ezRenderWorld::GetMainViews().GetCount() > 0;
 }
 
-ezApplication::ApplicationExecution ezGameApplication::Run()
-{
-  if (!m_bWasQuitRequested)
-  {
-    ProcessWindowMessages();
-
-    // for plugins that need to hook into this without a link dependency on this lib
-    EZ_BROADCAST_EVENT(GameApp_BeginAppTick);
-
-    {
-      ezGameApplicationEvent e;
-      e.m_Type = ezGameApplicationEvent::Type::BeginAppTick;
-      m_Events.Broadcast(e);
-    }
-
-    if (IsGameUpdateEnabled())
-    {
-      ezClock::GetGlobalClock()->Update();
-
-      Run_InputUpdate();
-
-      UpdateWorldsAndRender();
-    }
-
-    // for plugins that need to hook into this without a link dependency on this lib
-    EZ_BROADCAST_EVENT(GameApp_EndAppTick);
-
-    {
-      ezGameApplicationEvent e;
-      e.m_Type = ezGameApplicationEvent::Type::EndAppTick;
-      m_Events.Broadcast(e);
-    }
-  }
-
-  return m_bWasQuitRequested ? ezApplication::Quit : ezApplication::Continue;
-}
-
-void ezGameApplication::UpdateWorldsAndRender_Begin()
+void ezGameApplication::Run_WorldUpdateAndRender()
 {
   ezRenderWorld::BeginFrame();
 
@@ -206,32 +169,19 @@ void ezGameApplication::UpdateWorldsAndRender_Begin()
     EZ_PROFILE_SCOPE("Wait for UpdateWorldsAndExtractViews");
     ezTaskSystem::WaitForGroup(updateTaskID);
   }
-}
-
-void ezGameApplication::UpdateWorldsAndRender_Middle() {}
-
-void ezGameApplication::UpdateWorldsAndRender_End()
-{
-  ezGALDevice::GetDefaultDevice()->EndFrame();
-  ezRenderWorld::EndFrame();
-}
-
-void ezGameApplication::UpdateWorldsAndRender()
-{
-  UpdateWorldsAndRender_Begin();
-
-  UpdateWorldsAndRender_Middle();
 
   {
-    ezGameApplicationEvent e;
-    e.m_Type = ezGameApplicationEvent::Type::BeforePresent;
-    m_Events.Broadcast(e);
+    ezGameApplicationExecutionEvent e;
+    e.m_Type = ezGameApplicationExecutionEvent::Type::BeforePresent;
+    m_ExecutionEvents.Broadcast(e);
   }
 
   {
     EZ_PROFILE_SCOPE("GameApplication.Present");
-    for (auto& windowContext : m_Windows)
+    for (ezUInt32 uiWnd = 0; uiWnd < m_Windows.GetCount(); ++uiWnd)
     {
+      auto& windowContext = m_Windows[uiWnd];
+
       // Ignore windows without an output target
       if (windowContext.m_pOutputTarget == nullptr)
         continue;
@@ -245,8 +195,14 @@ void ezGameApplication::UpdateWorldsAndRender()
       }
       else
       {
-        /// \todo This only works for the first window
-        ExecuteTakeScreenshot(windowContext.m_pOutputTarget.Borrow());
+        // if we have multiple windows, append an identifier to each screenshot
+        ezStringBuilder ctxt;
+        if (uiWnd > 0)
+        {
+          ctxt.Format(" - wnd {0}", uiWnd);
+        }
+
+        ExecuteTakeScreenshot(windowContext.m_pOutputTarget.Borrow(), ctxt);
 
         windowContext.m_pOutputTarget->Present(CVarEnableVSync);
       }
@@ -254,20 +210,13 @@ void ezGameApplication::UpdateWorldsAndRender()
   }
 
   {
-    ezGameApplicationEvent e;
-    e.m_Type = ezGameApplicationEvent::Type::AfterPresent;
-    m_Events.Broadcast(e);
+    ezGameApplicationExecutionEvent e;
+    e.m_Type = ezGameApplicationExecutionEvent::Type::AfterPresent;
+    m_ExecutionEvents.Broadcast(e);
   }
 
-  UpdateWorldsAndRender_End();
-
-  {
-    ezTelemetry::PerFrameUpdate();
-    ezResourceManager::PerFrameUpdate();
-    ezTaskSystem::FinishFrameTasks();
-  }
-
-  ezFrameAllocator::Swap();
+  ezGALDevice::GetDefaultDevice()->EndFrame();
+  ezRenderWorld::EndFrame();
 }
 
 void ezGameApplication::UpdateWorldsAndExtractViews()
@@ -285,9 +234,9 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
     }
 
     {
-      ezGameApplicationEvent e;
-      e.m_Type = ezGameApplicationEvent::Type::BeforeWorldUpdates;
-      m_Events.Broadcast(e);
+      ezGameApplicationExecutionEvent e;
+      e.m_Type = ezGameApplicationExecutionEvent::Type::BeforeWorldUpdates;
+      m_ExecutionEvents.Broadcast(e);
     }
   }
 
@@ -339,26 +288,14 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
     }
 
     {
-      ezGameApplicationEvent e;
-      e.m_Type = ezGameApplicationEvent::Type::AfterWorldUpdates;
-      m_Events.Broadcast(e);
+      ezGameApplicationExecutionEvent e;
+      e.m_Type = ezGameApplicationExecutionEvent::Type::AfterWorldUpdates;
+      m_ExecutionEvents.Broadcast(e);
     }
   }
 
-  {
-    ezGameApplicationEvent e;
-    e.m_Type = ezGameApplicationEvent::Type::BeforeUpdatePlugins;
-    m_Events.Broadcast(e);
-  }
-
-  // for plugins that need to hook into this without a link dependency on this lib
-  EZ_BROADCAST_EVENT(GameApp_UpdatePlugins);
-
-  {
-    ezGameApplicationEvent e;
-    e.m_Type = ezGameApplicationEvent::Type::AfterUpdatePlugins;
-    m_Events.Broadcast(e);
-  }
+  // do this now, in parallel to the view extraction
+  Run_UpdatePlugins();
 
   ezRenderWorld::ExtractMainViews();
 }
@@ -560,3 +497,5 @@ bool ezGameApplication::Run_ProcessApplicationInput()
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_GameApplication);
+
+

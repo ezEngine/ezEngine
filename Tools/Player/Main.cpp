@@ -28,7 +28,7 @@ void ezPlayerApplication::BeforeCoreSystemsStartup()
 {
   ezStartup::AddApplicationTag("player");
 
-  ezGameApplication::BeforeCoreSystemsStartup();
+  SUPER::BeforeCoreSystemsStartup();
 
   m_sSceneFile = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene", 0, "");
   EZ_ASSERT_ALWAYS(!m_sSceneFile.IsEmpty(),

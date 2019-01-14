@@ -87,6 +87,12 @@ protected:
 /// the mip chain for each image, then all faces in a case of a cubemap, then the individual images of an image array.
 class EZ_FOUNDATION_DLL ezImage : public ezImageView
 {
+  /// Use Reset() instead
+  void operator=(const ezImage& rhs) = delete;
+
+  /// Use Reset() instead
+  void operator=(const ezImageView& rhs) = delete;
+
 public:
   /// \brief Constructs an empty image.
   explicit ezImage();
@@ -103,12 +109,6 @@ public:
   /// \brief Constructor from image view (copies the image data to internal storage)
   explicit ezImage(const ezImageView& other);
 
-  /// \brief Move assignment operator. If the image is attached to an external storage, the attachment is discarded.
-  ezImage& operator=(ezImage&& other);
-
-  /// \brief Assignment operator (copies the image data to internal storage).  If the image is already attached to an external storage, the storage muest match the data size of the view.
-  ezImage& operator=(const ezImageView& other);
-
   /// \brief Constructs an empty image. If the image is attached to an external storage, the attachment is discarded.
   void Reset();
 
@@ -117,7 +117,7 @@ public:
 
   /// \brief Constructs an image with the given header and attaches to the user-supplied external storage. The user is responsible to keep the external storage alive.
   /// Methods which attempts to Reset this image will assert unless the external data size matches the attempted allocation size; that is, the user is also
-  /// reponsible to allocate the exact correct amount of memory.
+  /// responsible to allocate the exact correct amount of memory.
   void Reset(const ezImageHeader& header, ezArrayPtr<void> externalData);
 
   /// \brief Move constructor.  If the image is attached to an external storage, the attachment is discarded.

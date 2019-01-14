@@ -11,25 +11,7 @@
 
 class ezConsole;
 
-/// Allows custom code to inject logic at specific update points.
-/// The events are listed in the order in which they typically happen.
-struct ezGameApplicationEvent
-{
-  enum class Type
-  {
-    BeginAppTick,
-    BeforeWorldUpdates,
-    AfterWorldUpdates,
-    BeforeUpdatePlugins,
-    AfterUpdatePlugins,
-    BeforePresent,
-    AfterPresent,
-    EndAppTick,
-  };
-
-  Type m_Type;
-  void* m_pData = nullptr;
-};
+// TODO: update comments below
 
 /// \brief The base class for all typical game applications made with ezEngine
 ///
@@ -63,16 +45,6 @@ public:
   /// \brief Returns the ezGameApplication singleton
   static ezGameApplication* GetGameApplicationInstance() { return s_pGameApplicationInstance; }
 
-  /// \brief Overrides ezApplication::Run() and implements a typical game update.
-  ///
-  /// Calls ezWindowBase::ProcessWindowMessages() on all windows that have been added through AddWindow()
-  /// As long as there are any main views added to ezRenderLoop it \n
-  ///   Updates the global ezClock. \n
-  ///   Calls UpdateInput() \n
-  ///   Calls UpdateWorldsAndRender() \n
-  virtual ezApplication::ApplicationExecution Run() override;
-
-
   /// \brief When the graphics device is created, by default the game application will pick a platform specific implementation. This
   /// function allows to override that by setting a custom function that creates a graphics device.
   static void SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> creator);
@@ -90,24 +62,11 @@ public:
   /// \brief Used at runtime (by the editor) to reload input maps. Forwards to Init_ConfigureInput()
   void ReinitializeInputConfig();
 
-  ezEvent<const ezGameApplicationEvent&> m_Events;
-
 protected:
   virtual ezUniquePtr<ezWindowOutputTargetBase> CreateWindowOutputTarget(ezWindowBase* pWindow) override;
   virtual void DestroyWindowOutputTarget(ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget) override;
 
-protected:
-
-  /// \brief Calls Update on all worlds and renders all views through ezRenderLoop::Render()
-  void UpdateWorldsAndRender();
-
-  virtual void UpdateWorldsAndRender_Begin();
-  virtual void UpdateWorldsAndRender_Middle();
-  virtual void UpdateWorldsAndRender_End();
-
   virtual void BeforeCoreSystemsStartup() override;
-
-protected:
 
   virtual void Init_ConfigureInput() override;
   virtual void Init_ConfigureAssetManagement() override;
@@ -119,6 +78,7 @@ protected:
   virtual bool IsGameUpdateEnabled() const;
 
   virtual bool Run_ProcessApplicationInput();
+  virtual void Run_WorldUpdateAndRender() override;
 
   /// \brief Stores what is given to the constructor
   ezString m_sAppProjectPath;
@@ -133,10 +93,9 @@ protected:
   ezDelegateTask<void> m_UpdateTask;
 
   static ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> s_DefaultDeviceCreator;
-  
+
   bool m_bShowConsole = false;
   ezUniquePtr<ezConsole> m_pConsole;
-
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   ezUniquePtr<class ezMixedRealityFramework> m_pMixedRealityFramework;

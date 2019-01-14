@@ -286,9 +286,9 @@ void ezFmod::UpdateSoundGroupVolumes()
   }
 }
 
-void ezFmod::GameApplicationEventHandler(const ezGameApplicationEvent& e)
+void ezFmod::GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e)
 {
-  if (e.m_Type == ezGameApplicationEvent::Type::BeforeUpdatePlugins)
+  if (e.m_Type == ezGameApplicationExecutionEvent::Type::BeforeUpdatePlugins)
   {
     ezFmod::GetSingleton()->UpdateSound();
   }

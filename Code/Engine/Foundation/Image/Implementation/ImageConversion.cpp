@@ -354,8 +354,9 @@ ezResult ezImageConversion::Convert(const ezImageView& source, ezImage& target, 
   if (sourceFormat == targetFormat)
   {
     if (&source != &target)
-    { // copy if not already the same
-      target = source;
+    {
+      // copy if not already the same
+      target.Reset(source);
     }
     return EZ_SUCCESS;
   }
@@ -489,7 +490,7 @@ ezResult ezImageConversion::ConvertSingleStep(const ezImageConversionStep* pStep
 {
   if (!pStep)
   {
-    target = source;
+    target.Reset(source);
     return EZ_SUCCESS;
   }
 

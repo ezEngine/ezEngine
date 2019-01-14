@@ -88,7 +88,7 @@ ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCame
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
     ezWindowOutputTargetGAL* pOutputTarget =
-        static_cast<ezWindowOutputTargetGAL*>(ezGameApplication::GetGameApplicationInstance()->AddWindow(m_pRemoteWindow.Borrow()));
+        static_cast<ezWindowOutputTargetGAL*>(ezGameApplicationBase::GetGameApplicationBaseInstance()->AddWindow(m_pRemoteWindow.Borrow()));
     const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(pOutputTarget->m_hSwapChain);
     EZ_ASSERT_DEV(pPrimarySwapChain != nullptr, "Failed to init swapchain");
 

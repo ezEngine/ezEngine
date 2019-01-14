@@ -90,7 +90,7 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
   ezLog::Debug("Creating Swapchain with size {0} * {1}", uiWidth, uiHeight);
 
   ezWindowOutputTargetGAL* pOutputTarget =
-      static_cast<ezWindowOutputTargetGAL*>(ezGameApplication::GetGameApplicationInstance()->AddWindow(&m_Window));
+      static_cast<ezWindowOutputTargetGAL*>(ezGameApplicationBase::GetGameApplicationBaseInstance()->AddWindow(&m_Window));
   const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(pOutputTarget->m_hSwapChain);
   EZ_ASSERT_DEV(pPrimarySwapChain != nullptr, "Failed to init swapchain");
 
@@ -124,7 +124,7 @@ void ezEngineProcessViewContext::SetupRenderTarget(ezGALRenderTagetSetup& render
 
 void ezEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
 {
-  auto pState = ezGameApplication::GetGameApplicationInstance()->GetActiveGameStateLinkedToWorld(GetDocumentContext()->GetWorld());
+  auto pState = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameStateLinkedToWorld(GetDocumentContext()->GetWorld());
 
   if (pState != nullptr)
   {

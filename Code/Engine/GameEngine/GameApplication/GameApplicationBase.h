@@ -2,18 +2,37 @@
 
 #include <GameEngine/Basics.h>
 
+#include <Core/Application/Application.h>
+#include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/Configuration/PlatformProfile.h>
 #include <GameEngine/Console/ConsoleFunction.h>
 #include <GameEngine/GameApplication/WindowOutputTargetBase.h>
 #include <GameEngine/GameState/GameState.h>
 
-#include <Core/Application/Application.h>
-
-#include <Foundation/Types/UniquePtr.h>
-
 class ezWindowBase;
 struct ezWindowCreationDesc;
 class ezWorld;
+
+/// Allows custom code to inject logic at specific update points.
+/// The events are listed in the order in which they typically happen.
+struct ezGameApplicationExecutionEvent
+{
+  enum class Type
+  {
+    BeginAppTick,
+    BeforeWorldUpdates,
+    AfterWorldUpdates,
+    BeforeUpdatePlugins,
+    AfterUpdatePlugins,
+    BeforePresent,
+    AfterPresent,
+    EndAppTick,
+  };
+
+  Type m_Type;
+};
+
+// TODO: document this and update ezGameApplication comments
 
 class EZ_GAMEENGINE_DLL ezGameApplicationBase : public ezApplication
 {
@@ -110,9 +129,9 @@ public:
 
 protected:
   /// \brief Called with the result from taking a screenshot. The default implementation writes the image to disk at ':appdata/Screenshots'
-  virtual void StoreScreenshot(const ezImage& image);
+  virtual void StoreScreenshot(const ezImage& image, const char* szContext = nullptr);
 
-  void ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOutputTarget);
+  void ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOutputTarget, const char* szContext = nullptr);
 
   bool m_bTakeScreenshot = false;
 
@@ -216,15 +235,19 @@ protected:
   /// \name Application Execution
   ///@{
 
-  //virtual ezApplication::ApplicationExecution Run() override;
-  virtual bool IsGameUpdateEnabled() const { return true; }
+public:
+  virtual ezApplication::ApplicationExecution Run() override;
 
-  ///@}
-  /// \name Input Handling
-  ///@{
+  ezEvent<const ezGameApplicationExecutionEvent&> m_ExecutionEvents;
+
+protected:
+  virtual bool IsGameUpdateEnabled() const { return true; }
 
   virtual void Run_InputUpdate();
   virtual bool Run_ProcessApplicationInput();
+  virtual void Run_WorldUpdateAndRender() = 0;
+  virtual void Run_UpdatePlugins();
+  virtual void Run_FinishFrame();
 
   ///@}
 };

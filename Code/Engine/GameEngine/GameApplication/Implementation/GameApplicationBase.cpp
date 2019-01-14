@@ -149,33 +149,35 @@ void ezGameApplicationBase::TakeScreenshot()
   m_bTakeScreenshot = true;
 }
 
-void ezGameApplicationBase::StoreScreenshot(const ezImage& image)
+void ezGameApplicationBase::StoreScreenshot(const ezImage& image, const char* szContext /*= nullptr*/)
 {
   class WriteFileTask : public ezTask
   {
   public:
     ezImage m_Image;
+    ezStringBuilder m_sPath;
 
   private:
     virtual void Execute() override
     {
-      ezStringBuilder sPath;
-      sPath.Format(":appdata/Screenshots/{0} ", ezApplication::GetApplicationInstance()->GetApplicationName());
-      AppendCurrentTimestamp(sPath);
-      sPath.Append(".tga");
+      // get rid of Alpha channel before saving
+      m_Image.Convert(ezImageFormat::R8G8B8_UNORM_SRGB);
 
-      /// \todo Get rid of Alpha channel before saving
-
-      if (m_Image.SaveTo(sPath).Succeeded())
+      if (m_Image.SaveTo(m_sPath).Succeeded())
       {
-        ezLog::Info("Screenshot saved to '{0}'.", sPath);
+        ezLog::Info("Screenshot saved to '{0}'.", m_sPath);
       }
     }
   };
 
   WriteFileTask* pWriteTask = EZ_DEFAULT_NEW(WriteFileTask);
-  pWriteTask->m_Image = static_cast<const ezImageView&>(image);
+  pWriteTask->m_Image.Reset(image);
   pWriteTask->SetOnTaskFinished([](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
+
+  pWriteTask->m_sPath.Format(":appdata/Screenshots/{0} ", ezApplication::GetApplicationInstance()->GetApplicationName());
+  AppendCurrentTimestamp(pWriteTask->m_sPath);
+  pWriteTask->m_sPath.Append(szContext);
+  pWriteTask->m_sPath.Append(".png");
 
   // we move the file writing off to another thread to save some time
   // if we moved it to the 'FileAccess' thread, writing a screenshot would block resource loading, which can reduce game performance
@@ -183,16 +185,14 @@ void ezGameApplicationBase::StoreScreenshot(const ezImage& image)
   ezTaskSystem::StartSingleTask(pWriteTask, ezTaskPriority::LongRunning);
 }
 
-void ezGameApplicationBase::ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOutputTarget)
+void ezGameApplicationBase::ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOutputTarget, const char* szContext /* = nullptr*/)
 {
   if (m_bTakeScreenshot)
   {
-    m_bTakeScreenshot = false;
-
     ezImage img;
     if (pOutputTarget->CaptureImage(img).Succeeded())
     {
-      StoreScreenshot(img);
+      StoreScreenshot(img, szContext);
     }
   }
 }
@@ -320,30 +320,59 @@ void ezGameApplicationBase::BeforeCoreSystemsShutdown()
   SUPER::BeforeCoreSystemsShutdown();
 }
 
-//ezApplication::ApplicationExecution ezGameApplicationBase::Run()
-//{
-//  if (m_bWasQuitRequested)
-//    return ezApplication::Quit;
-//
-//  ProcessWindowMessages();
-//
-//  if (!IsGameUpdateEnabled())
-//    return ezApplication::Continue;
-//
-//  {
-//    // for plugins that need to hook into this without a link dependency on this lib
-//    EZ_BROADCAST_EVENT(GameApp_BeginAppTick);
-//
-//    // ezGameApplicationEvent e;
-//    // e.m_Type = ezGameApplicationEvent::Type::BeginAppTick;
-//    // m_Events.Broadcast(e);
-//  }
-//
-//  ezClock::GetGlobalClock()->Update();
-//
-//
-//  return ezApplication::Continue;
-//}
+static bool s_bUpdatePluginsExecuted = false;
+
+EZ_ON_GLOBAL_EVENT(GameApp_UpdatePlugins)
+{
+  s_bUpdatePluginsExecuted = true;
+}
+
+ezApplication::ApplicationExecution ezGameApplicationBase::Run()
+{
+  if (m_bWasQuitRequested)
+    return ezApplication::Quit;
+
+  s_bUpdatePluginsExecuted = false;
+
+  ProcessWindowMessages();
+
+  ezClock::GetGlobalClock()->Update();
+
+  if (!IsGameUpdateEnabled())
+    return ezApplication::Continue;
+
+  {
+    // for plugins that need to hook into this without a link dependency on this lib
+    EZ_BROADCAST_EVENT(GameApp_BeginAppTick);
+
+    ezGameApplicationExecutionEvent e;
+    e.m_Type = ezGameApplicationExecutionEvent::Type::BeginAppTick;
+    m_ExecutionEvents.Broadcast(e);
+  }
+
+  Run_InputUpdate();
+
+  Run_WorldUpdateAndRender();
+
+  if (!s_bUpdatePluginsExecuted)
+  {
+    Run_UpdatePlugins();
+    EZ_ASSERT_DEV(s_bUpdatePluginsExecuted, "ezGameApplicationBase::Run_UpdatePlugins has been overridden, but it does not broadcast the global event 'GameApp_UpdatePlugins' anymore."); 
+  }
+
+  {
+    // for plugins that need to hook into this without a link dependency on this lib
+    EZ_BROADCAST_EVENT(GameApp_EndAppTick);
+
+    ezGameApplicationExecutionEvent e;
+    e.m_Type = ezGameApplicationExecutionEvent::Type::EndAppTick;
+    m_ExecutionEvents.Broadcast(e);
+  }
+
+  Run_FinishFrame();
+
+  return ezApplication::Continue;
+}
 
 void ezGameApplicationBase::Run_InputUpdate()
 {
@@ -361,4 +390,33 @@ void ezGameApplicationBase::Run_InputUpdate()
 bool ezGameApplicationBase::Run_ProcessApplicationInput()
 {
   return true;
+}
+
+void ezGameApplicationBase::Run_UpdatePlugins()
+{
+  {
+    ezGameApplicationExecutionEvent e;
+    e.m_Type = ezGameApplicationExecutionEvent::Type::BeforeUpdatePlugins;
+    m_ExecutionEvents.Broadcast(e);
+  }
+
+  // for plugins that need to hook into this without a link dependency on this lib
+  EZ_BROADCAST_EVENT(GameApp_UpdatePlugins);
+
+  {
+    ezGameApplicationExecutionEvent e;
+    e.m_Type = ezGameApplicationExecutionEvent::Type::AfterUpdatePlugins;
+    m_ExecutionEvents.Broadcast(e);
+  }
+}
+
+void ezGameApplicationBase::Run_FinishFrame()
+{
+  ezTelemetry::PerFrameUpdate();
+  ezResourceManager::PerFrameUpdate();
+  ezTaskSystem::FinishFrameTasks();
+  ezFrameAllocator::Swap();
+
+  // reset this state
+  m_bTakeScreenshot = false;
 }

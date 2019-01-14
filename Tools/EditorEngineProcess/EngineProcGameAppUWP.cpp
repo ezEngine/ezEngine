@@ -29,7 +29,7 @@ void ezEngineProcessGameApplicationUWP::Init_ConfigureInput()
   }
 }
 
-void ezEngineProcessGameApplicationUWP::ProcessApplicationInput()
+bool ezEngineProcessGameApplicationUWP::Run_ProcessApplicationInput()
 {
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   m_pEngineProcessApp->LoadAnchor();
@@ -64,7 +64,7 @@ void ezEngineProcessGameApplicationUWP::ProcessApplicationInput()
   }
 #endif
 
-  ezEngineProcessGameApplication::ProcessApplicationInput();
+  return SUPER::Run_ProcessApplicationInput();
 }
 
 #endif
