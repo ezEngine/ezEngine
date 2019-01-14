@@ -115,9 +115,10 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestTransformAssetsExec(ezIn
 
   STARTUPINFOW info = {sizeof(info)};
   PROCESS_INFORMATION processInfo;
-  if (CreateProcessW(nullptr, (wchar_t*)(ezStringWChar(sBinPath).GetData()), nullptr, nullptr, FALSE, 0, nullptr, nullptr, &info, &processInfo))
+  if (CreateProcessW(nullptr, (wchar_t*)(ezStringWChar(sBinPath).GetData()), nullptr, nullptr, FALSE, 0, nullptr, nullptr, &info,
+                     &processInfo))
   {
-    if (WaitForSingleObject(processInfo.hProcess, 1000 * 60 * 4) == WAIT_TIMEOUT) //4min timeout
+    if (WaitForSingleObject(processInfo.hProcess, 1000 * 60 * 4) == WAIT_TIMEOUT) // 4min timeout
     {
       TerminateProcess(processInfo.hProcess, 0);
       ezLog::Error("Process timeout: '{0}'", sBinPath);
@@ -167,7 +168,7 @@ void ezGameEngineTestApplication_Basics::SubTestManyMeshesSetup()
 ezTestAppRun ezGameEngineTestApplication_Basics::SubTestManyMeshesExec(ezInt32 iCurFrame)
 {
   {
-    auto pCamera = GetActiveGameState()->GetMainCamera();
+    auto pCamera = ezDynamicCast<ezGameState*>(GetActiveGameState())->GetMainCamera();
     pCamera->SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 100.0f, 1.0f, 1000.0f);
     ezVec3 pos;
     pos.SetZero();
@@ -246,7 +247,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestSkyboxExec(ezInt32 iCurF
 {
   ezResourceManager::FinishLoadingOfResources();
 
-  auto pCamera = GetActiveGameState()->GetMainCamera();
+  auto pCamera = ezDynamicCast<ezGameState*>(GetActiveGameState())->GetMainCamera();
   pCamera->SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 120.0f, 1.0f, 100.0f);
   ezVec3 pos = ezVec3(iCurFrame * 5.0f, 0, 0);
   pCamera->LookAt(pos, pos + ezVec3(1, 0, 0), ezVec3(0, 0, 1));
@@ -278,7 +279,7 @@ void ezGameEngineTestApplication_Basics::SubTestDebugRenderingSetup()
 ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt32 iCurFrame)
 {
   {
-    auto pCamera = GetActiveGameState()->GetMainCamera();
+    auto pCamera = ezDynamicCast<ezGameState*>(GetActiveGameState())->GetMainCamera();
     pCamera->SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 100.0f, 0.1f, 1000.0f);
     ezVec3 pos;
     pos.SetZero();

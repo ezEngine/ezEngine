@@ -223,7 +223,7 @@ void ezGameApplicationBase::DeactivateGameState()
   m_pGameState = nullptr;
 }
 
-ezGameState* ezGameApplicationBase::GetActiveGameStateLinkedToWorld(ezWorld* pWorld) const
+ezGameStateBase* ezGameApplicationBase::GetActiveGameStateLinkedToWorld(ezWorld* pWorld) const
 {
   if (m_pWorldLinkedWithGameState == pWorld)
     return m_pGameState.Borrow();
@@ -231,21 +231,21 @@ ezGameState* ezGameApplicationBase::GetActiveGameStateLinkedToWorld(ezWorld* pWo
   return nullptr;
 }
 
-ezUniquePtr<ezGameState> ezGameApplicationBase::CreateGameState(ezWorld* pWorld)
+ezUniquePtr<ezGameStateBase> ezGameApplicationBase::CreateGameState(ezWorld* pWorld)
 {
   EZ_LOG_BLOCK("Create Game State");
 
-  ezUniquePtr<ezGameState> pCurState;
+  ezUniquePtr<ezGameStateBase> pCurState;
 
   {
     ezInt32 iBestPriority = -1;
 
     for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
     {
-      if (!pRtti->IsDerivedFrom<ezGameState>() || !pRtti->GetAllocator()->CanAllocate())
+      if (!pRtti->IsDerivedFrom<ezGameStateBase>() || !pRtti->GetAllocator()->CanAllocate())
         continue;
 
-      ezUniquePtr<ezGameState> pState = pRtti->GetAllocator()->Allocate<ezGameState>();
+      ezUniquePtr<ezGameStateBase> pState = pRtti->GetAllocator()->Allocate<ezGameStateBase>();
 
       const ezInt32 iPriority = (ezInt32)pState->DeterminePriority(pWorld);
 
@@ -357,7 +357,8 @@ ezApplication::ApplicationExecution ezGameApplicationBase::Run()
   if (!s_bUpdatePluginsExecuted)
   {
     Run_UpdatePlugins();
-    EZ_ASSERT_DEV(s_bUpdatePluginsExecuted, "ezGameApplicationBase::Run_UpdatePlugins has been overridden, but it does not broadcast the global event 'GameApp_UpdatePlugins' anymore."); 
+    EZ_ASSERT_DEV(s_bUpdatePluginsExecuted, "ezGameApplicationBase::Run_UpdatePlugins has been overridden, but it does not broadcast the "
+                                            "global event 'GameApp_UpdatePlugins' anymore.");
   }
 
   {
@@ -390,6 +391,39 @@ void ezGameApplicationBase::Run_InputUpdate()
 bool ezGameApplicationBase::Run_ProcessApplicationInput()
 {
   return true;
+}
+
+
+void ezGameApplicationBase::Run_BeforeWorldUpdate()
+{
+  EZ_PROFILE_SCOPE("GameApplication.BeforeWorldUpdate");
+
+  if (m_pGameState)
+  {
+    m_pGameState->BeforeWorldUpdate();
+  }
+
+  {
+    ezGameApplicationExecutionEvent e;
+    e.m_Type = ezGameApplicationExecutionEvent::Type::BeforeWorldUpdates;
+    m_ExecutionEvents.Broadcast(e);
+  }
+}
+
+void ezGameApplicationBase::Run_AfterWorldUpdate()
+{
+  EZ_PROFILE_SCOPE("GameApplication.AfterWorldUpdate");
+
+  if (m_pGameState)
+  {
+    m_pGameState->AfterWorldUpdate();
+  }
+
+  {
+    ezGameApplicationExecutionEvent e;
+    e.m_Type = ezGameApplicationExecutionEvent::Type::AfterWorldUpdates;
+    m_ExecutionEvents.Broadcast(e);
+  }
 }
 
 void ezGameApplicationBase::Run_UpdatePlugins()

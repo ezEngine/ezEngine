@@ -225,20 +225,7 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
   sb.Format("FRAME {}", ezRenderWorld::GetFrameCounter());
   EZ_PROFILE_SCOPE(sb.GetData());
 
-  {
-    EZ_PROFILE_SCOPE("GameApplication.BeforeWorldUpdate");
-
-    if (m_pGameState)
-    {
-      m_pGameState->BeforeWorldUpdate();
-    }
-
-    {
-      ezGameApplicationExecutionEvent e;
-      e.m_Type = ezGameApplicationExecutionEvent::Type::BeforeWorldUpdates;
-      m_ExecutionEvents.Broadcast(e);
-    }
-  }
+  Run_BeforeWorldUpdate();
 
   static ezHybridArray<ezWorld*, 16> worldsToUpdate;
   worldsToUpdate.Clear();
@@ -279,20 +266,7 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
     }
   }
 
-  {
-    EZ_PROFILE_SCOPE("GameApplication.AfterWorldUpdate");
-
-    if (m_pGameState)
-    {
-      m_pGameState->AfterWorldUpdate();
-    }
-
-    {
-      ezGameApplicationExecutionEvent e;
-      e.m_Type = ezGameApplicationExecutionEvent::Type::AfterWorldUpdates;
-      m_ExecutionEvents.Broadcast(e);
-    }
-  }
+  Run_AfterWorldUpdate();
 
   // do this now, in parallel to the view extraction
   Run_UpdatePlugins();
@@ -497,5 +471,3 @@ bool ezGameApplication::Run_ProcessApplicationInput()
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_GameApplication);
-
-

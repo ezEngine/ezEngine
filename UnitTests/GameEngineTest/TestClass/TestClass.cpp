@@ -157,7 +157,7 @@ void ezGameEngineTestApplication::Init_FileSystem_ConfigureDataDirs()
   }
 }
 
-ezUniquePtr<ezGameState> ezGameEngineTestApplication::CreateGameState(ezWorld* pWorld)
+ezUniquePtr<ezGameStateBase> ezGameEngineTestApplication::CreateGameState(ezWorld* pWorld)
 {
   return EZ_DEFAULT_NEW(ezGameEngineTestGameState);
 }
@@ -175,9 +175,9 @@ void ezGameEngineTestGameState::ProcessInput()
   ezGameApplicationBase::GetGameApplicationBaseInstance()->TakeScreenshot();
 }
 
-ezGameState::Priority ezGameEngineTestGameState::DeterminePriority(ezWorld* pWorld) const
+ezGameStatePriority ezGameEngineTestGameState::DeterminePriority(ezWorld* pWorld) const
 {
-  return ezGameState::Priority::Default;
+  return ezGameStatePriority::Default;
 }
 
 void ezGameEngineTestGameState::ConfigureInputActions()

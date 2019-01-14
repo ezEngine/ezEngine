@@ -1,12 +1,11 @@
 #pragma once
 
-#include <EnginePluginKraut/Plugin.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <EnginePluginKraut/Plugin.h>
 #include <KrautPlugin/Components/KrautTreeComponent.h>
 
 class ezObjectSelectionMsgToEngine;
 class ezRenderContext;
-class ezGameState;
 
 class EZ_ENGINEPLUGINKRAUT_DLL ezKrautTreeContext : public ezEngineProcessDocumentContext
 {
@@ -31,5 +30,3 @@ private:
   ezGameObject* m_pMainObject;
   ezKrautTreeResourceHandle m_hMainResource;
 };
-
-

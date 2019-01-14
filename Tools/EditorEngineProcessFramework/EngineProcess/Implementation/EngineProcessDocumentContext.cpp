@@ -429,7 +429,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
     auto pState = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameStateLinkedToWorld(GetWorld());
     if (pState != nullptr)
     {
-      pState->AddAllMainViews();
+      pState->ScheduleRendering();
     }
   }
 

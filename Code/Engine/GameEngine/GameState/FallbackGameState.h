@@ -1,7 +1,7 @@
 #pragma once
 
-#include <GameEngine/GameState/GameState.h>
 #include <Core/Graphics/Camera.h>
+#include <GameEngine/GameState/GameState.h>
 
 class ezCameraComponent;
 
@@ -24,7 +24,7 @@ public:
   virtual void AfterWorldUpdate() override;
 
   /// \brief Returns Priority::None if pWorld == nullptr, Priority::Fallback otherwise.
-  virtual ezGameState::Priority DeterminePriority(ezWorld* pWorld) const override;
+  virtual ezGameStatePriority DeterminePriority(ezWorld* pWorld) const override;
 
 protected:
   virtual void ConfigureInputActions() override;
@@ -34,4 +34,3 @@ protected:
 
   ezInt32 m_iActiveCameraComponentIndex;
 };
-

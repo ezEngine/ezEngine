@@ -155,13 +155,13 @@ public:
   void DeactivateGameState();
 
   /// \brief Returns the currently active game state. Could be nullptr.
-  ezGameState* GetActiveGameState() const { return m_pGameState.Borrow(); }
+  ezGameStateBase* GetActiveGameState() const { return m_pGameState.Borrow(); }
 
   /// \brief Returns the currently active game state IF it was created for the given world.
   ///
   /// This is mostly for editor use cases, where some documents want to handle the game state, but only
   /// it it was set up for a particular document.
-  ezGameState* GetActiveGameStateLinkedToWorld(ezWorld* pWorld) const;
+  ezGameStateBase* GetActiveGameStateLinkedToWorld(ezWorld* pWorld) const;
 
 protected:
   /// \brief Creates a game state for the application to use.
@@ -170,7 +170,7 @@ protected:
   ///
   /// The default implementation will query all available game states for the best match.
   /// By overriding this, one can also just create a specific game state directly.
-  virtual ezUniquePtr<ezGameState> CreateGameState(ezWorld* pWorld);
+  virtual ezUniquePtr<ezGameStateBase> CreateGameState(ezWorld* pWorld);
 
   /// \brief Allows to override whether a game state is created and activated at application startup.
   ///
@@ -178,7 +178,7 @@ protected:
   /// as they only want the game state to become active during simulation, not during editing.
   virtual void ActivateGameStateAtStartup();
 
-  ezUniquePtr<ezGameState> m_pGameState;
+  ezUniquePtr<ezGameStateBase> m_pGameState;
   ezWorld* m_pWorldLinkedWithGameState = nullptr;
 
   ///@}
@@ -246,6 +246,8 @@ protected:
   virtual void Run_InputUpdate();
   virtual bool Run_ProcessApplicationInput();
   virtual void Run_WorldUpdateAndRender() = 0;
+  virtual void Run_BeforeWorldUpdate();
+  virtual void Run_AfterWorldUpdate();
   virtual void Run_UpdatePlugins();
   virtual void Run_FinishFrame();
 

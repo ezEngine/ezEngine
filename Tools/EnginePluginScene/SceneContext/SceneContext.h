@@ -1,13 +1,13 @@
 #pragma once
 
-#include <EnginePluginScene/Plugin.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <EnginePluginScene/Plugin.h>
 #include <RendererCore/Pipeline/Declarations.h>
 #include <SharedPluginScene/Common/Messages.h>
 
 class ezObjectSelectionMsgToEngine;
 class ezRenderContext;
-class ezGameState;
+class ezGameStateBase;
 class ezGameModeMsgToEngine;
 class ezWorldSettingsMsgToEngine;
 class ezObjectsForDebugVisMsgToEngine;
@@ -40,7 +40,7 @@ public:
   bool IsGridInGlobalSpace() const { return m_fGridDensity >= 0.0f; }
   ezTransform GetGridTransform() const { return m_GridTransform; }
 
-  ezGameState* GetGameState() const;
+  ezGameStateBase* GetGameState() const;
   bool IsPlayTheGameActive() const { return GetGameState() != nullptr; }
 
 protected:
@@ -100,7 +100,4 @@ private:
   ezDynamicArray<ezExposedSceneProperty> m_ExposedSceneProperties;
 
   ezPushObjectStateMsgToEditor m_PushObjectStateMsg;
-
 };
-
-

@@ -1,7 +1,6 @@
 #pragma once
 
-#include <GameEngine/Basics.h>
-#include <GameEngine/Declarations.h>
+#include <GameEngine/GameState/GameStateBase.h>
 
 #include <Core/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceHandle.h>
@@ -35,9 +34,9 @@ typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineRe
 /// it is the best fit for that level.
 ///
 /// \note Do not forget to reflect your derived class, otherwise ezGameApplication may not find it.
-class EZ_GAMEENGINE_DLL ezGameState : public ezReflectedClass
+class EZ_GAMEENGINE_DLL ezGameState : public ezGameStateBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGameState, ezReflectedClass)
+  EZ_ADD_DYNAMIC_REFLECTION(ezGameState, ezGameStateBase)
 
 protected:
   /// \brief This class cannot be instantiated directly.
@@ -57,45 +56,13 @@ public:
   /// \param pStartPosition
   /// An optional transform for the 'player object' to start at.
   /// Usually nullptr, but may be set by the editor to relocate or create the player object at the given destination.
-  virtual void OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition);
+  virtual void OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition) override;
 
   /// \brief Called when the game state is being shut down.
-  virtual void OnDeactivation();
-
-  /// \brief Called once per game update. Should handle input updates here.
-  virtual void ProcessInput() {}
-
-  /// \brief Called once each frame before the worlds are updated.
-  virtual void BeforeWorldUpdate() {}
-
-  /// \brief Called once each frame after the worlds have been updated.
-  virtual void AfterWorldUpdate() {}
-
-  enum class Priority
-  {
-    None = -1,     ///< This game state cannot be used for this app type or world
-    Fallback = 0,  ///< This game state could be used, but it is only a fallback solution
-    Default = 5,   ///< This game state is suitable for the given app type and world
-    Override = 10, ///< This game state should be preferred over all others
-  };
-
-  /// \brief Called by ezGameApplication to determine which game state is best suited to handle a situation.
-  ///
-  /// The application type is passed along, such that game states that cannot run inside the editor can bail out (or vice versa).
-  /// If the application already has a world that should be shown, the game state can inspect it.
-  /// If the game state is expected to create a new world, pWorld will be nullptr.
-  virtual ezGameState::Priority DeterminePriority(ezWorld* pWorld) const = 0;
+  virtual void OnDeactivation() override;
 
   /// \brief Has to call ezRenderLoop::AddMainView for all views that need to be rendered
-  virtual void AddAllMainViews();
-
-  /// \brief Call this to signal that a game state requested the application to quit.
-  ///
-  /// ezGameApplication will shut down when this happens. ezEditor will stop play-the-game mode when it is running.
-  virtual void RequestQuit() { m_bStateWantsToQuit = true; }
-
-  /// \brief Returns whether the game state wants to quit the application.
-  bool WasQuitRequested() const { return m_bStateWantsToQuit; }
+  virtual void ScheduleRendering() override;
 
   /// \brief Gives access to the game state's main camera object.
   ezCamera* GetMainCamera() { return &m_MainCamera; }

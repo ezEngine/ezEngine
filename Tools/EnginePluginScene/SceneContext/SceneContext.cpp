@@ -278,7 +278,7 @@ void ezSceneContext::HandleGlobalSettingsMsg(const ezGlobalSettingsMsgToEngine* 
 void ezSceneContext::HandleSimulationSettingsMsg(const ezSimulationSettingsMsgToEngine* pMsg)
 {
   const bool bSimulate = pMsg->m_bSimulateWorld;
-  ezGameState* pState = GetGameState();
+  ezGameStateBase* pState = GetGameState();
   m_pWorld->GetClock().SetSpeed(pMsg->m_fSimulationSpeed);
 
   if (pState == nullptr && bSimulate != m_pWorld->GetWorldSimulationEnabled())
@@ -386,7 +386,7 @@ void ezSceneContext::OnSimulationDisabled()
   }
 }
 
-ezGameState* ezSceneContext::GetGameState() const
+ezGameStateBase* ezSceneContext::GetGameState() const
 {
   return ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameStateLinkedToWorld(m_pWorld.Borrow());
 }
@@ -559,7 +559,7 @@ void ezSceneContext::HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgTo
 
 void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
 {
-  ezGameState* pState = GetGameState();
+  ezGameStateBase* pState = GetGameState();
 
   if (pMsg->m_bEnablePTG)
   {
@@ -741,7 +741,7 @@ void ezSceneContext::OnDestroyThumbnailViewContext()
 void ezSceneContext::UpdateDocumentContext()
 {
   SUPER::UpdateDocumentContext();
-  ezGameState* pState = GetGameState();
+  ezGameStateBase* pState = GetGameState();
   if (pState && pState->WasQuitRequested())
   {
     ezGameApplicationBase::GetGameApplicationBaseInstance()->DeactivateGameState();

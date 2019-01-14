@@ -128,7 +128,7 @@ void ezEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
 
   if (pState != nullptr)
   {
-    pState->AddAllMainViews();
+    pState->ScheduleRendering();
   }
   // setting to only update one view ?
   // else

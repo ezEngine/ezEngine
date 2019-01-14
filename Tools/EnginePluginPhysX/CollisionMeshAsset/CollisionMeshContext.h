@@ -1,12 +1,11 @@
-﻿#pragma once
+#pragma once
 
-#include <EnginePluginPhysX/Plugin.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <EnginePluginPhysX/Plugin.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>
 
 class ezObjectSelectionMsgToEngine;
 class ezRenderContext;
-class ezGameState;
 
 class EZ_ENGINEPLUGINPHYSX_DLL ezCollisionMeshContext : public ezEngineProcessDocumentContext
 {
@@ -32,5 +31,3 @@ private:
   ezGameObject* m_pMeshObject;
   ezPxMeshResourceHandle m_hMesh;
 };
-
-

@@ -29,9 +29,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameState_Implementation_GameState);
 
-ezGameState::ezGameState() {}
-
-ezGameState::~ezGameState() {}
+ezGameState::ezGameState() = default;
+ezGameState::~ezGameState() = default;
 
 void ezGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
 {
@@ -120,7 +119,7 @@ void ezGameState::OnDeactivation()
   DestroyMainWindow();
 }
 
-void ezGameState::AddAllMainViews()
+void ezGameState::ScheduleRendering()
 {
   ezRenderWorld::AddMainView(m_hMainView);
 }

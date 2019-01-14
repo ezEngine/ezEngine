@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EnginePluginAssets/Plugin.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
@@ -9,7 +9,6 @@
 
 class ezObjectSelectionMsgToEngine;
 class ezRenderContext;
-class ezGameState;
 
 class EZ_ENGINEPLUGINASSETS_DLL ezMaterialContext : public ezEngineProcessDocumentContext
 {

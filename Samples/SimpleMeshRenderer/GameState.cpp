@@ -88,9 +88,13 @@ void SimpleMeshRendererGameState::OnDeactivation()
   SUPER::OnDeactivation();
 }
 
-ezGameState::Priority SimpleMeshRendererGameState::DeterminePriority(ezWorld* pWorld) const
+
+
+ezGameStatePriority SimpleMeshRendererGameState::DeterminePriority(ezWorld* pWorld) const
 {
-  return ezGameState::Priority::Default;
+  return 
+
+ezGameStatePriority::Default;
 }
 
 void SimpleMeshRendererGameState::CreateGameLevel()

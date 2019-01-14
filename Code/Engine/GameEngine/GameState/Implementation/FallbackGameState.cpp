@@ -14,12 +14,18 @@ ezFallbackGameState::ezFallbackGameState()
   m_iActiveCameraComponentIndex = -3;
 }
 
-ezGameState::Priority ezFallbackGameState::DeterminePriority(ezWorld* pWorld) const
+
+
+ezGameStatePriority ezFallbackGameState::DeterminePriority(ezWorld* pWorld) const
 {
   if (pWorld == nullptr)
-    return ezGameState::Priority::None;
+    return 
 
-  return ezGameState::Priority::Fallback;
+ezGameStatePriority::None;
+
+  return 
+
+ezGameStatePriority::Fallback;
 }
 
 ezResult ezFallbackGameState::SpawnPlayer(const ezTransform* pStartPosition)
