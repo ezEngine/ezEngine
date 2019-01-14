@@ -1,6 +1,8 @@
 #include <PCH.h>
 
+#include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -8,6 +10,7 @@
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/TaskSystem.h>
+#include <Foundation/Time/Clock.h>
 #include <Foundation/Time/Timestamp.h>
 #include <GameApplication/GameApplicationBase.h>
 #include <System/Window/Window.h>
@@ -317,3 +320,45 @@ void ezGameApplicationBase::BeforeCoreSystemsShutdown()
   SUPER::BeforeCoreSystemsShutdown();
 }
 
+//ezApplication::ApplicationExecution ezGameApplicationBase::Run()
+//{
+//  if (m_bWasQuitRequested)
+//    return ezApplication::Quit;
+//
+//  ProcessWindowMessages();
+//
+//  if (!IsGameUpdateEnabled())
+//    return ezApplication::Continue;
+//
+//  {
+//    // for plugins that need to hook into this without a link dependency on this lib
+//    EZ_BROADCAST_EVENT(GameApp_BeginAppTick);
+//
+//    // ezGameApplicationEvent e;
+//    // e.m_Type = ezGameApplicationEvent::Type::BeginAppTick;
+//    // m_Events.Broadcast(e);
+//  }
+//
+//  ezClock::GetGlobalClock()->Update();
+//
+//
+//  return ezApplication::Continue;
+//}
+
+void ezGameApplicationBase::Run_InputUpdate()
+{
+  ezInputManager::Update(ezClock::GetGlobalClock()->GetTimeDiff());
+
+  if (!Run_ProcessApplicationInput())
+    return;
+
+  if (m_pGameState)
+  {
+    m_pGameState->ProcessInput();
+  }
+}
+
+bool ezGameApplicationBase::Run_ProcessApplicationInput()
+{
+  return true;
+}

@@ -448,7 +448,7 @@ void ezEngineProcessGameApplication::Init_FileSystem_ConfigureDataDirs()
 }
 
 
-void ezEngineProcessGameApplication::ProcessApplicationInput()
+bool ezEngineProcessGameApplication::Run_ProcessApplicationInput()
 {
   // override the escape action to not shut down the app, but instead close the play-the-game window
   if (ezInputManager::GetInputActionState("GameApp", "CloseApp") != ezKeyState::Up)
@@ -460,8 +460,10 @@ void ezEngineProcessGameApplication::ProcessApplicationInput()
   }
   else
   {
-    ezGameApplication::ProcessApplicationInput();
+    return SUPER::Run_ProcessApplicationInput();
   }
+
+  return true;
 }
 
 ezUniquePtr<ezEditorEngineProcessApp> ezEngineProcessGameApplication::CreateEngineProcessApp()

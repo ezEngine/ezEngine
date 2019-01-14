@@ -27,7 +27,6 @@ public:
   ///@{
 
 public:
-
   /// \brief Returns the ezGameApplicationBase singleton
   static ezGameApplicationBase* GetGameApplicationBaseInstance() { return s_pGameApplicationBaseInstance; }
 
@@ -167,13 +166,11 @@ protected:
   /// \name Platform Profile
   ///@{
 public:
-
   /// \brief Returns the ezPlatformProfile that has been loaded for this application
   const ezPlatformProfile& GetPlatformProfile() const { return m_PlatformProfile; }
 
 
 protected:
-
   ezPlatformProfile m_PlatformProfile;
 
   ///@}
@@ -214,6 +211,20 @@ protected:
   virtual void Deinit_ShutdownGraphicsDevice() = 0;
   virtual void Deinit_UnloadPlugins();
   virtual void Deinit_ShutdownLogging();
+
+  ///@}
+  /// \name Application Execution
+  ///@{
+
+  //virtual ezApplication::ApplicationExecution Run() override;
+  virtual bool IsGameUpdateEnabled() const { return true; }
+
+  ///@}
+  /// \name Input Handling
+  ///@{
+
+  virtual void Run_InputUpdate();
+  virtual bool Run_ProcessApplicationInput();
 
   ///@}
 };

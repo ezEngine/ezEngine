@@ -26,7 +26,7 @@ ezApplication::ApplicationExecution ezComputeShaderHistogramApp::Run()
 {
   ProcessWindowMessages();
   ezClock::GetGlobalClock()->Update();
-  UpdateInput();
+  Run_InputUpdate();
 
   m_stuffChanged = false;
   m_directoryWatcher->EnumerateChanges(ezMakeDelegate(&ezComputeShaderHistogramApp::OnFileChanged, this));

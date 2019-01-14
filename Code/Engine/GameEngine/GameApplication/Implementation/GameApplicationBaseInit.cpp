@@ -4,7 +4,6 @@
 
 #include <Core/Application/Config/FileSystemConfig.h>
 #include <Core/Application/Config/PluginConfig.h>
-#include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/CVar.h>
@@ -14,7 +13,6 @@
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Types/TagRegistry.h>
-#include <GameEngine/Configuration/InputConfig.h>
 
 ezString ezGameApplicationBase::GetBaseDataDirectoryPath() const
 {
@@ -146,53 +144,7 @@ void ezGameApplicationBase::Init_PlatformProfile_LoadForRuntime()
   m_PlatformProfile.LoadForRuntime(sRuntimeProfileFile);
 }
 
-namespace
-{
-  const char* g_szInputSet = "GameApp";
-  const char* g_szCloseAppAction = "CloseApp";
-  const char* g_szShowConsole = "ShowConsole";
-  const char* g_szShowFpsAction = "ShowFps";
-  const char* g_szReloadResourcesAction = "ReloadResources";
-  const char* g_szCaptureProfilingAction = "CaptureProfiling";
-  const char* g_szTakeScreenshot = "TakeScreenshot";
-} // namespace
-
-void ezGameApplicationBase::Init_ConfigureInput()
-{
-  ezInputActionConfig config;
-
-  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyEscape;
-  ezInputManager::SetInputActionConfig(g_szInputSet, g_szCloseAppAction, config, true);
-
-  // the tilde has problematic behavior on keyboards where it is a hat (^)
-  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF1;
-  ezInputManager::SetInputActionConfig("Console", g_szShowConsole, config, true);
-
-  // in the editor we cannot use F5, because that is already 'run application'
-  // so we use F4 there, and it should be consistent here
-  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF4;
-  ezInputManager::SetInputActionConfig(g_szInputSet, g_szReloadResourcesAction, config, true);
-
-  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF5;
-  ezInputManager::SetInputActionConfig(g_szInputSet, g_szShowFpsAction, config, true);
-
-  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF8;
-  ezInputManager::SetInputActionConfig(g_szInputSet, g_szCaptureProfilingAction, config, true);
-
-  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF12;
-  ezInputManager::SetInputActionConfig(g_szInputSet, g_szTakeScreenshot, config, true);
-
-  {
-    ezFileReader file;
-    if (file.Open(":project/InputConfig.ddl").Succeeded())
-    {
-      ezHybridArray<ezGameAppInputConfig, 32> InputActions;
-
-      ezGameAppInputConfig::ReadFromDDL(file, InputActions);
-      ezGameAppInputConfig::ApplyAll(InputActions);
-    }
-  }
-}
+void ezGameApplicationBase::Init_ConfigureInput() {}
 
 void ezGameApplicationBase::Init_ConfigureTags()
 {

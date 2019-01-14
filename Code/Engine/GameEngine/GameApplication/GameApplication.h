@@ -9,11 +9,7 @@
 
 #include <GameEngine/GameApplication/GameApplicationBase.h>
 
-class ezDefaultTimeStepSmoothing;
 class ezConsole;
-struct ezWorldDesc;
-class ezImage;
-struct ezWindowCreationDesc;
 
 /// Allows custom code to inject logic at specific update points.
 /// The events are listed in the order in which they typically happen.
@@ -29,8 +25,6 @@ struct ezGameApplicationEvent
     BeforePresent,
     AfterPresent,
     EndAppTick,
-    AfterWorldCreated,    // m_pData -> ezWorld*
-    BeforeWorldDestroyed, // m_pData -> ezWorld*
   };
 
   Type m_Type;
@@ -115,29 +109,19 @@ protected:
 
 protected:
 
+  virtual void Init_ConfigureInput() override;
   virtual void Init_ConfigureAssetManagement() override;
   virtual void Init_LoadRequiredPlugins() override;
   virtual void Init_SetupDefaultResources() override;
   virtual void Init_SetupGraphicsDevice() override;
   virtual void Deinit_ShutdownGraphicsDevice() override;
 
+  virtual bool IsGameUpdateEnabled() const;
 
-  ///
-  /// Application Update
-  ///
-
-  /// \brief Override to implement proper input handling.
-  ///
-  /// The default implementation handles ESC (close app), F5 (reload resources) and F8 (capture profiling info).
-  virtual void ProcessApplicationInput();
-
-  /// \brief Does all input handling on input manager and game states.
-  void UpdateInput();
+  virtual bool Run_ProcessApplicationInput();
 
   /// \brief Stores what is given to the constructor
   ezString m_sAppProjectPath;
-
-  
 
 protected:
   static ezGameApplication* s_pGameApplicationInstance;
@@ -151,7 +135,6 @@ protected:
   static ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> s_DefaultDeviceCreator;
   
   bool m_bShowConsole = false;
-  
   ezUniquePtr<ezConsole> m_pConsole;
 
 

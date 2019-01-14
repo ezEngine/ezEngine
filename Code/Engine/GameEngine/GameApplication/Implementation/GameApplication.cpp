@@ -1,10 +1,12 @@
 #include <PCH.h>
 
+#include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/World.h>
 #include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Image/Formats/TgaFileFormat.h>
@@ -12,6 +14,7 @@
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/DefaultTimeStepSmoothing.h>
+#include <GameEngine/Configuration/InputConfig.h>
 #include <GameEngine/Console/Console.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
@@ -130,6 +133,11 @@ ezString ezGameApplication::FindProjectDirectory() const
   return result;
 }
 
+bool ezGameApplication::IsGameUpdateEnabled() const
+{
+  return ezRenderWorld::GetMainViews().GetCount() > 0;
+}
+
 ezApplication::ApplicationExecution ezGameApplication::Run()
 {
   if (!m_bWasQuitRequested)
@@ -145,11 +153,11 @@ ezApplication::ApplicationExecution ezGameApplication::Run()
       m_Events.Broadcast(e);
     }
 
-    if (ezRenderWorld::GetMainViews().GetCount() > 0)
+    if (IsGameUpdateEnabled())
     {
       ezClock::GetGlobalClock()->Update();
 
-      UpdateInput();
+      Run_InputUpdate();
 
       UpdateWorldsAndRender();
     }
@@ -454,5 +462,101 @@ void ezGameApplication::RenderConsole()
   }
 }
 
+namespace
+{
+  const char* s_szInputSet = "GameApp";
+  const char* s_szCloseAppAction = "CloseApp";
+  const char* s_szShowConsole = "ShowConsole";
+  const char* s_szShowFpsAction = "ShowFps";
+  const char* s_szReloadResourcesAction = "ReloadResources";
+  const char* s_szCaptureProfilingAction = "CaptureProfiling";
+  const char* s_szTakeScreenshot = "TakeScreenshot";
+} // namespace
+
+void ezGameApplication::Init_ConfigureInput()
+{
+  ezInputActionConfig config;
+
+  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyEscape;
+  ezInputManager::SetInputActionConfig(s_szInputSet, s_szCloseAppAction, config, true);
+
+  // the tilde has problematic behavior on keyboards where it is a hat (^)
+  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF1;
+  ezInputManager::SetInputActionConfig("Console", s_szShowConsole, config, true);
+
+  // in the editor we cannot use F5, because that is already 'run application'
+  // so we use F4 there, and it should be consistent here
+  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF4;
+  ezInputManager::SetInputActionConfig(s_szInputSet, s_szReloadResourcesAction, config, true);
+
+  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF5;
+  ezInputManager::SetInputActionConfig(s_szInputSet, s_szShowFpsAction, config, true);
+
+  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF8;
+  ezInputManager::SetInputActionConfig(s_szInputSet, s_szCaptureProfilingAction, config, true);
+
+  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF12;
+  ezInputManager::SetInputActionConfig(s_szInputSet, s_szTakeScreenshot, config, true);
+
+  {
+    ezFileReader file;
+    if (file.Open(":project/InputConfig.ddl").Succeeded())
+    {
+      ezHybridArray<ezGameAppInputConfig, 32> InputActions;
+
+      ezGameAppInputConfig::ReadFromDDL(file, InputActions);
+      ezGameAppInputConfig::ApplyAll(InputActions);
+    }
+  }
+}
+
+bool ezGameApplication::Run_ProcessApplicationInput()
+{
+  // the show console command must be in the "Console" input set, because we are using that for exclusive input when the console is open
+  if (ezInputManager::GetInputActionState("Console", s_szShowConsole) == ezKeyState::Pressed)
+  {
+    m_bShowConsole = !m_bShowConsole;
+
+    if (m_bShowConsole)
+      ezInputManager::SetExclusiveInputSet("Console");
+    else
+      ezInputManager::SetExclusiveInputSet("");
+  }
+
+  if (ezInputManager::GetInputActionState(s_szInputSet, s_szShowFpsAction) == ezKeyState::Pressed)
+  {
+    CVarShowFPS = !CVarShowFPS;
+  }
+
+  if (ezInputManager::GetInputActionState(s_szInputSet, s_szReloadResourcesAction) == ezKeyState::Pressed)
+  {
+    ezResourceManager::ReloadAllResources(false);
+  }
+
+  if (ezInputManager::GetInputActionState(s_szInputSet, s_szTakeScreenshot) == ezKeyState::Pressed)
+  {
+    TakeScreenshot();
+  }
+
+  if (ezInputManager::GetInputActionState(s_szInputSet, s_szCaptureProfilingAction) == ezKeyState::Pressed)
+  {
+    TakeProfilingCapture();
+  }
+
+  if (m_pConsole)
+  {
+    m_pConsole->DoDefaultInputHandling(m_bShowConsole);
+
+    if (m_bShowConsole)
+      return false;
+  }
+
+  if (ezInputManager::GetInputActionState(s_szInputSet, s_szCloseAppAction) == ezKeyState::Pressed)
+  {
+    RequestQuit();
+  }
+
+  return true;
+}
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_GameApplication);
