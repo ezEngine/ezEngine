@@ -68,7 +68,7 @@ ezTestAppRun ezRendererTestBasics::SubtestClearScreen()
       break;
   }
 
-  EZ_TEST_IMAGE(1);
+  EZ_TEST_IMAGE(m_iFrame, 1);
 
   EndFrame();
 

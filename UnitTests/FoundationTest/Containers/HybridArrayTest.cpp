@@ -53,6 +53,26 @@ namespace HybridArrayTestDetail
 
     return a;
   }
+
+  struct ExternalCounter
+  {
+    EZ_DECLARE_MEM_RELOCATABLE_TYPE();
+
+    ExternalCounter() = default;
+
+    ExternalCounter(int& counter)
+        : m_counter{&counter}
+    {
+    }
+
+    ~ExternalCounter()
+    {
+      if (m_counter)
+        (*m_counter)++;
+    }
+
+    int* m_counter{};
+  };
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
@@ -63,6 +83,8 @@ EZ_CHECK_AT_COMPILETIME(sizeof(ezHybridArray<ezInt32, 1>) == 20);
 
 EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 {
+  ezConstructionCounter::Reset();
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
     ezHybridArray<ezInt32, 16> a1;
@@ -849,5 +871,37 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
       EZ_TEST_BOOL(a1.GetArrayPtr() == ezMakeArrayPtr(content2));
       EZ_TEST_BOOL(a2.IsEmpty());
     }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move")
+  {
+    int counter = 0;
+    {
+      ezHybridArray<HybridArrayTestDetail::ExternalCounter, 2> a, b;
+      EZ_TEST_BOOL(counter == 0);
+
+      a.PushBack(HybridArrayTestDetail::ExternalCounter(counter));
+      EZ_TEST_BOOL(counter == 1);
+
+      b = std::move(a);
+      EZ_TEST_BOOL(counter == 1);
+    }
+    EZ_TEST_BOOL(counter == 2);
+
+    counter = 0;
+    {
+      ezHybridArray<HybridArrayTestDetail::ExternalCounter, 2> a, b;
+      EZ_TEST_BOOL(counter == 0);
+
+      a.PushBack(HybridArrayTestDetail::ExternalCounter(counter));
+      a.PushBack(HybridArrayTestDetail::ExternalCounter(counter));
+      a.PushBack(HybridArrayTestDetail::ExternalCounter(counter));
+      a.PushBack(HybridArrayTestDetail::ExternalCounter(counter));
+      EZ_TEST_BOOL(counter == 4);
+
+      b = std::move(a);
+      EZ_TEST_BOOL(counter == 4);
+    }
+    EZ_TEST_BOOL(counter == 8);
   }
 }

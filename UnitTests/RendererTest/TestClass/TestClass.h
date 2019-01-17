@@ -26,7 +26,7 @@ public:
 
 protected:
   virtual void SetupSubTests() override { }
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier) override { return ezTestAppRun::Quit; }
+  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override { return ezTestAppRun::Quit; }
 
   virtual ezResult InitializeTest() override { return EZ_SUCCESS; }
   virtual ezResult DeInitializeTest() override { return EZ_SUCCESS; }

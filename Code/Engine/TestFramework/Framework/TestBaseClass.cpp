@@ -124,7 +124,7 @@ void ezTestBaseClass::DoSubTestDeInitialization(ezInt32 iIdentifier)
 #endif
 }
 
-ezTestAppRun ezTestBaseClass::DoSubTestRun(ezInt32 iIdentifier, double& fDuration)
+ezTestAppRun ezTestBaseClass::DoSubTestRun(ezInt32 iIdentifier, double& fDuration, ezUInt32 uiInvocationCount)
 {
   fDuration = 0.0;
 
@@ -136,7 +136,7 @@ ezTestAppRun ezTestBaseClass::DoSubTestRun(ezInt32 iIdentifier, double& fDuratio
   {
     ezTime StartTime = ezTime::Now();
 
-    ret = RunSubTest(iIdentifier);
+    ret = RunSubTest(iIdentifier, uiInvocationCount);
 
     fDuration = (ezTime::Now() - StartTime).GetMilliseconds();
   }

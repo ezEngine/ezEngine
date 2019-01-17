@@ -4,6 +4,7 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Communication/Telemetry.h>
+#include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Image/Image.h>
@@ -12,7 +13,8 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Clock.h>
 #include <Foundation/Time/Timestamp.h>
-#include <GameApplication/GameApplicationBase.h>
+#include <GameEngine/GameApplication/GameApplicationBase.h>
+#include <GameEngine/Interfaces/FrameCaptureInterface.h>
 #include <System/Window/Window.h>
 
 ezGameApplicationBase* ezGameApplicationBase::s_pGameApplicationBaseInstance = nullptr;
@@ -20,6 +22,7 @@ ezGameApplicationBase* ezGameApplicationBase::s_pGameApplicationBaseInstance = n
 ezGameApplicationBase::ezGameApplicationBase(const char* szAppName)
     : ezApplication(szAppName)
     , m_ConFunc_TakeScreenshot("TakeScreenshot", "()", ezMakeDelegate(&ezGameApplicationBase::TakeScreenshot, this))
+    , m_ConFunc_CaptureFrame("CaptureFrame", "()", ezMakeDelegate(&ezGameApplicationBase::CaptureFrame, this))
 {
   s_pGameApplicationBaseInstance = this;
 }
@@ -197,6 +200,80 @@ void ezGameApplicationBase::ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOut
   }
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+void ezGameApplicationBase::CaptureFrame()
+{
+  m_bCaptureFrame = true;
+}
+
+void ezGameApplicationBase::SetContinuousFrameCapture(bool enable)
+{
+  m_bContinuousFrameCapture = enable;
+}
+
+bool ezGameApplicationBase::GetContinousFrameCapture() const
+{
+  return m_bContinuousFrameCapture;
+}
+
+
+ezResult ezGameApplicationBase::GetAbsFrameCaptureOutputPath(ezStringBuilder& sOutputPath)
+{
+  ezStringBuilder sPath = ":appdata/FrameCaptures/Capture_";
+  AppendCurrentTimestamp(sPath);
+  return ezFileSystem::ResolvePath(sPath, &sOutputPath, nullptr);
+}
+
+void ezGameApplicationBase::ExecuteFrameCapture()
+{
+  ezFrameCaptureInterface* pCaptureInterface =
+      ezSingletonRegistry::GetSingletonInstance<ezFrameCaptureInterface>("ezFrameCaptureInterface");
+  if (!pCaptureInterface)
+  {
+    return;
+  }
+
+  ezWindowHandle targetWindowHandle = m_Windows.IsEmpty() ? nullptr : m_Windows[0].m_pWindow->GetNativeWindowHandle();
+
+  // If we still have a running capture (i.e., if no one else has taken the capture so far), finish it
+  if (pCaptureInterface->IsFrameCapturing())
+  {
+    if (m_bCaptureFrame)
+    {
+      ezStringBuilder sOutputPath;
+      if (GetAbsFrameCaptureOutputPath(sOutputPath).Succeeded())
+      {
+        pCaptureInterface->SetAbsCaptureFilePathTemplate(sOutputPath);
+      }
+
+      pCaptureInterface->EndFrameCaptureAndWriteOutput(targetWindowHandle);
+
+      ezStringBuilder stringBuilder;
+      if (pCaptureInterface->GetLastAbsCaptureFileName(stringBuilder).Succeeded())
+      {
+        ezLog::Info("Frame capture complete - output file '{}'", stringBuilder);
+      }
+      else
+      {
+        ezLog::Warning("Frame capture failed!");
+      }
+      m_bCaptureFrame = false;
+    }
+    else
+    {
+      pCaptureInterface->EndFrameCaptureAndDiscardResult(targetWindowHandle);
+    }
+  }
+
+  // Start capturing the next frame if
+  // (a) we want to capture the very next frame, or
+  // (b) we capture every frame and later decide if we want to persist or discard it.
+  if (m_bCaptureFrame || m_bContinuousFrameCapture)
+  {
+    pCaptureInterface->StartFrameCapture(targetWindowHandle);
+  }
+}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -357,6 +434,7 @@ ezApplication::ApplicationExecution ezGameApplicationBase::Run()
   if (!s_bUpdatePluginsExecuted)
   {
     Run_UpdatePlugins();
+
     EZ_ASSERT_DEV(s_bUpdatePluginsExecuted, "ezGameApplicationBase::Run_UpdatePlugins has been overridden, but it does not broadcast the "
                                             "global event 'GameApp_UpdatePlugins' anymore.");
   }
@@ -392,7 +470,6 @@ bool ezGameApplicationBase::Run_ProcessApplicationInput()
 {
   return true;
 }
-
 
 void ezGameApplicationBase::Run_BeforeWorldUpdate()
 {

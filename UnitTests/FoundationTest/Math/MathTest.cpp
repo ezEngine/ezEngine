@@ -117,7 +117,7 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
       EZ_TEST_FLOAT(fTan - fTanPrev, 0.0f, 0.001f);
       EZ_TEST_FLOAT(fTan - fTanNext, 0.0f, 0.001f);
-      EZ_TEST_FLOAT(fTan - (fSin / fCos), 0.0f, 0.0001f);
+      EZ_TEST_FLOAT(fTan - (fSin / fCos), 0.0f, 0.0005f);
       angle += ezAngle::Degree(1.234f);
     }
   }

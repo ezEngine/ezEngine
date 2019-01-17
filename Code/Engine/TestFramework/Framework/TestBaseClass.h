@@ -22,13 +22,14 @@ public:
   /// Override this function to add additional information to the test configuration
   virtual void UpdateConfiguration(ezTestConfiguration& config) const /*override*/;
 
+  /// \brief Implement this to add support for image comparisons. See EZ_TEST_IMAGE_MSG.
   virtual ezResult GetImage(ezImage& img) { return EZ_FAILURE; }
 
 private:
   /// Called at startup to setup all tests. Should use 'AddSubTest' to register all the sub-tests to the test framework.
   virtual void SetupSubTests() /*override*/ = 0;
   /// Called to run the test that was registered with the given identifier.
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier) /*override*/ = 0;
+  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) /*override*/ = 0;
 
   // *** Override these functions to implement optional (de-)initialization ***
 
@@ -66,7 +67,7 @@ private:
   void DoTestDeInitialization();
   ezResult DoSubTestInitialization(ezInt32 iIdentifier);
   void DoSubTestDeInitialization(ezInt32 iIdentifier);
-  ezTestAppRun DoSubTestRun(ezInt32 iIdentifier, double& fDuration);
+  ezTestAppRun DoSubTestRun(ezInt32 iIdentifier, double& fDuration, ezUInt32 uiInvocationCount);
 
 
   std::deque<TestEntry> m_Entries;

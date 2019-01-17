@@ -168,16 +168,16 @@ void ezQtStatVisWidget::Save()
   if (!f.open(QIODevice::WriteOnly))
     return;
 
-  QDataStream data(&f);
+  QDataStream stream(&f);
 
   const ezUInt32 uiNumFavourites = m_Stats.GetCount();
-  data << uiNumFavourites;
+  stream << uiNumFavourites;
 
   for (auto it = m_Stats.GetIterator(); it.IsValid(); ++it)
   {
     const QString s = it.Key().GetData();
-    data << s;
-    data << (it.Value().m_pListItem->checkState() == Qt::Checked);
+    stream << s;
+    stream << (it.Value().m_pListItem->checkState() == Qt::Checked);
   }
 
   f.close();
@@ -200,18 +200,18 @@ void ezQtStatVisWidget::Load()
 
   m_Stats.Clear();
 
-  QDataStream data(&f);
+  QDataStream stream(&f);
 
   ezUInt32 uiNumFavourites = 0;
-  data >> uiNumFavourites;
+  stream >> uiNumFavourites;
 
   for (ezUInt32 i = 0; i < uiNumFavourites; ++i)
   {
     QString s;
-    data >> s;
+    stream >> s;
 
     bool bChecked = true;
-    data >> bChecked;
+    stream >> bChecked;
 
     ezString ezs = s.toUtf8().data();
 

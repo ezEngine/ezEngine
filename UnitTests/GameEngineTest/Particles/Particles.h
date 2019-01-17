@@ -27,7 +27,7 @@ private:
 
   virtual void SetupSubTests() override;
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier) override;
+  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
 
   ezInt32 m_iFrame;
   ezGameEngineTestApplication_Particles* m_pOwnApplication;

@@ -110,6 +110,14 @@ struct ezConstructionCounter
     return (s_iConstructions == s_iDestructions);
   }
 
+  static void Reset()
+  {
+    s_iConstructions = 0;
+    s_iConstructionsLast = 0;
+    s_iDestructions = 0;
+    s_iDestructionsLast = 0;
+  }
+
   static ezInt32 s_iConstructions;
   static ezInt32 s_iConstructionsLast;
   static ezInt32 s_iDestructions;

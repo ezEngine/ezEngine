@@ -6,6 +6,8 @@
 #include <Foundation/Memory/EndianHelper.h>
 #include <Foundation/Containers/ArrayBase.h>
 
+typedef ezUInt16 ezTypeVersion;
+
 /// \brief Interface for binary in (read) streams.
 class EZ_FOUNDATION_DLL ezStreamReader
 {
@@ -59,6 +61,8 @@ public:
 
     return uiBytesSkipped;
   }
+
+  EZ_ALWAYS_INLINE ezTypeVersion ReadVersion(ezTypeVersion uiExpectedMaxVersion);
 };
 
 /// \brief Interface for binary out (write) streams.
@@ -95,6 +99,9 @@ public:
   template <typename T>
   ezResult WriteQWordValue(const T* pQWordValue); // [tested]
 
+  /// \brief Writes a type version to the stream
+  EZ_ALWAYS_INLINE void WriteVersion(ezTypeVersion uiVersion);
+  
   /// \brief Writes an array of elements to the stream
   template <typename ArrayType, typename ValueType>
   ezResult WriteArray(const ezArrayBase<ValueType, ArrayType>& Array); // [tested]

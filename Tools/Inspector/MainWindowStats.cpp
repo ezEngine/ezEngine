@@ -18,15 +18,15 @@ void ezQtMainWindow::SaveFavourites()
   if (!f.open(QIODevice::WriteOnly))
     return;
 
-  QDataStream data(&f);
+  QDataStream stream(&f);
 
   const ezUInt32 uiNumFavourites = m_Favourites.GetCount();
-  data << uiNumFavourites;
+  stream << uiNumFavourites;
 
   for (ezSet<ezString>::Iterator it = m_Favourites.GetIterator(); it.IsValid(); ++it)
   {
     const QString s = it.Key().GetData();
-    data << s;
+    stream << s;
   }
 
   f.close();
@@ -45,15 +45,15 @@ void ezQtMainWindow::LoadFavourites()
 
   m_Favourites.Clear();
 
-  QDataStream data(&f);
+  QDataStream stream(&f);
 
   ezUInt32 uiNumFavourites = 0;
-  data >> uiNumFavourites;
+  stream >> uiNumFavourites;
 
   for (ezUInt32 i = 0; i < uiNumFavourites; ++i)
   {
     QString s;
-    data >> s;
+    stream >> s;
 
     ezString ezs = s.toUtf8().data();
 

@@ -9,9 +9,11 @@
 ///   The following concepts are realized:
 ///   Copy: Copying a object from a to b means that two equivalent objects will exists in both a and b.
 ///   Move: Moving an object from a to b means that the object will exist in b afterwards but a will be empty afterwards, but not
-///   destructed. This strictly requires an available move constructor (compile error otherwise). Relocate: Relocating an object from a to b
+///   destructed. This strictly requires an available move constructor (compile error otherwise).
+///   Relocate: Relocating an object from a to b
 ///   means that the object will exist in b afterwards but will no longer exist in a, which means a will be moved if available or copied,
-///   but destructed afterwards in any case. Construct: Constructing assumes that the destination does not contain a valid object.
+///   but destructed afterwards in any case.
+///   Construct: Constructing assumes that the destination does not contain a valid object.
 ///   Overlapped: The source and destination range may overlap for the operation to be performed.
 ///   The above mentioned concepts can be combined, e.g. RelocateConstruct for relocating to an uninitialized buffer.
 class ezMemoryUtils

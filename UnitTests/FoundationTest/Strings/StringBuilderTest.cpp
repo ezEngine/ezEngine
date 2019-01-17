@@ -387,7 +387,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
     ezUInt64 iNumAllocs = allocator.GetStats().m_uiNumAllocations;
     s.Append("blablablablablablablablablablablablablablablablablablablablablablablablablablablablablabla");
-    EZ_TEST_BOOL(iNumAllocs == allocator.GetStats().m_uiNumAllocations)
+    EZ_TEST_BOOL(iNumAllocs == allocator.GetStats().m_uiNumAllocations);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Convert to StringView")

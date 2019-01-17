@@ -35,7 +35,7 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
   return EZ_FAILURE;
 }
 
-ezTestAppRun ezGameEngineTestParticles::RunSubTest(ezInt32 iIdentifier)
+ezTestAppRun ezGameEngineTestParticles::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
   ++m_iFrame;
 
@@ -68,12 +68,14 @@ ezTestAppRun ezGameEngineTestApplication_Particles::SubTestBillboardsExec(ezInt3
   switch (iCurFrame)
   {
     case 15:
+      EZ_TEST_IMAGE(0, 50);
+      break;
     case 30:
-      EZ_TEST_IMAGE(50);
+      EZ_TEST_IMAGE(1, 50);
       break;
 
     case 60:
-      EZ_TEST_IMAGE(50);
+      EZ_TEST_IMAGE(2, 50);
       return ezTestAppRun::Quit;
   }
 

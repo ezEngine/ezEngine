@@ -21,7 +21,7 @@ public:
 
 private:
   virtual void SetupSubTests() override;
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier) override;
+  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
 

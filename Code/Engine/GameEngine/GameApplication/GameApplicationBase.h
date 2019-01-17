@@ -7,7 +7,7 @@
 #include <GameEngine/Configuration/PlatformProfile.h>
 #include <GameEngine/Console/ConsoleFunction.h>
 #include <GameEngine/GameApplication/WindowOutputTargetBase.h>
-#include <GameEngine/GameState/GameState.h>
+#include <GameEngine/GameState/GameStateBase.h>
 
 class ezWindowBase;
 struct ezWindowCreationDesc;
@@ -137,6 +137,38 @@ protected:
 
   /// expose TakeScreenshot() as a console function
   ezConsoleFunction<void()> m_ConFunc_TakeScreenshot;
+
+  ///@}
+  /// \name Frame Captures
+  ///@{
+
+public:
+  /// \brief Schedules a frame capture if the corresponding plugin is loaded.
+  ///
+  /// If continuous capture mode is enabled the currently running frame capture is persisted (and not discarded).
+  /// Otherwise, the next frame will be captured and persisted.
+  void CaptureFrame();
+
+  /// \brief Controls if frame captures are taken continuously (without being persisted) or only on-demand.
+  ///
+  /// If continuous frame capture is enabled, calling CaptureFrame() will persist the result of the frame capture that is
+  /// currently in progress. If continuous frame capture is disabled, CaptureFrame() will capture and persist the next frame.
+  /// Note that continuous capture mode comes with a performance cost, but allows the user to decide on-the-fly if the current
+  /// frame capture is to be persisted, e.g., when a unit test image comparison fails.
+  void SetContinuousFrameCapture(bool enable);
+  bool GetContinousFrameCapture() const;
+
+  /// \brief Get the absolute base output path for frame captures.
+  virtual ezResult GetAbsFrameCaptureOutputPath(ezStringBuilder& sOutputPath);
+
+protected:
+  void ExecuteFrameCapture();
+
+  bool m_bContinuousFrameCapture = false;
+  bool m_bCaptureFrame = false;
+
+  /// expose CaptureFrame() as a console function
+  ezConsoleFunction<void()> m_ConFunc_CaptureFrame;
 
   ///@}
   /// \name GameState

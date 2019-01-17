@@ -112,7 +112,7 @@ void TestIteratorEnd(const STRING& value, const IT& it)
 
   // Misc
   itEnd = it;
-  EZ_TEST_BOOL(it - 2 == --(--itEnd))
+  EZ_TEST_BOOL(it - 2 == --(--itEnd));
   itEnd += 1;
   EZ_TEST_BOOL(itEnd == it - 1);
   itEnd += 0;

@@ -83,7 +83,7 @@ private:
     ptr = nullptr;                                                                                                                         \
   }
 
-/// \brief extends a given raw buffer to the new size, taking care of calling constructors / asignment operators.
+/// \brief extends a given raw buffer to the new size, taking care of calling constructors / assignment operators.
 #define EZ_EXTEND_RAW_BUFFER(allocator, ptr, oldSize, newSize) ezInternal::ExtendRawBuffer(ptr, allocator, oldSize, newSize)
 
 

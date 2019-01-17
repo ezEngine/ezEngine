@@ -185,7 +185,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     for (ezList<ezInt32>::Iterator it = l.GetIterator(); it != l.GetEndIterator(); ++it)
     {
       if (i > 1000)
-        EZ_TEST_INT(*it, 0)
+        EZ_TEST_INT(*it, 0);
       else
         EZ_TEST_INT(*it, i);
 

@@ -93,7 +93,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
 
   RenderObjects(ezShaderBindFlags::Default);
 
-  EZ_TEST_IMAGE(100);
+  EZ_TEST_IMAGE(m_iFrame, 100);
 
   EndFrame();
 
@@ -122,7 +122,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures3D()
 
   RenderObjects(ezShaderBindFlags::Default);
 
-  EZ_TEST_IMAGE(100);
+  EZ_TEST_IMAGE(m_iFrame, 100);
 
   EndFrame();
 
@@ -206,7 +206,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTexturesCube()
 
   RenderObjects(ezShaderBindFlags::Default);
 
-  EZ_TEST_IMAGE(100);
+  EZ_TEST_IMAGE(m_iFrame, 100);
 
   EndFrame();
 

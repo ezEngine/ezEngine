@@ -140,6 +140,22 @@ ezResult ezStreamWriter::WriteQWordValue(const T* pQWordValue)
 
 #endif
 
+ezTypeVersion ezStreamReader::ReadVersion(ezTypeVersion uiExpectedMaxVersion)
+{
+  ezTypeVersion v;
+  ReadWordValue(&v);
+
+  EZ_ASSERT_ALWAYS(v <= uiExpectedMaxVersion, "Read version ({0}) is larger than expected max version ({1}).", v, uiExpectedMaxVersion);
+
+  return v;
+}
+
+void ezStreamWriter::WriteVersion(ezTypeVersion uiVersion)
+{
+  WriteWordValue(&uiVersion);
+}
+
+
 namespace ezStreamWriterUtil
 {
   template <class T>

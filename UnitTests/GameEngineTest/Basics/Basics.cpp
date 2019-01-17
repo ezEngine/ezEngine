@@ -65,7 +65,7 @@ ezResult ezGameEngineTestBasics::InitializeSubTest(ezInt32 iIdentifier)
   return EZ_FAILURE;
 }
 
-ezTestAppRun ezGameEngineTestBasics::RunSubTest(ezInt32 iIdentifier)
+ezTestAppRun ezGameEngineTestBasics::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
   ++m_iFrame;
 
@@ -182,7 +182,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestManyMeshesExec(ezInt32 i
 
   if (iCurFrame > 3)
   {
-    EZ_TEST_IMAGE(150);
+    EZ_TEST_IMAGE(0, 150);
 
     return ezTestAppRun::Quit;
   }
@@ -259,7 +259,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestSkyboxExec(ezInt32 iCurF
   if (iCurFrame < 5)
     return ezTestAppRun::Continue;
 
-  EZ_TEST_IMAGE(150);
+  EZ_TEST_IMAGE(iCurFrame - 5, 150);
 
   if (iCurFrame < 8)
     return ezTestAppRun::Continue;
@@ -365,7 +365,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
   if (iCurFrame < 1)
     return ezTestAppRun::Continue;
 
-  EZ_TEST_IMAGE(150);
+  EZ_TEST_IMAGE(0, 150);
 
   return ezTestAppRun::Quit;
 }
@@ -385,11 +385,11 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestLoadSceneExec(ezInt32 iC
   switch (iCurFrame)
   {
     case 1:
-      EZ_TEST_IMAGE(150);
+      EZ_TEST_IMAGE(0, 150);
       break;
 
     case 2:
-      EZ_TEST_IMAGE(150);
+      EZ_TEST_IMAGE(1, 150);
       return ezTestAppRun::Quit;
   }
 

@@ -28,7 +28,7 @@ void ezSimpleTestGroup::SetupSubTests()
   }
 }
 
-ezTestAppRun ezSimpleTestGroup::RunSubTest(ezInt32 iIdentifier)
+ezTestAppRun ezSimpleTestGroup::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
   // until the block name is properly set, use the test name instead
   ezTestFramework::s_szTestBlockName = m_SimpleTests[iIdentifier].m_szName;

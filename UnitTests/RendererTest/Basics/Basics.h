@@ -46,7 +46,7 @@ private:
   void RenderObjects(ezBitflags<ezShaderBindFlags> ShaderBindFlags);
   void RenderLineObjects(ezBitflags<ezShaderBindFlags> ShaderBindFlags);
 
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier) override
+  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override
   {
     ++m_iFrame;
 

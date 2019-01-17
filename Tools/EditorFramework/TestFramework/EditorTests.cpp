@@ -53,7 +53,7 @@ ezResult ezEditorTest::GetImage(ezImage& img)
 static ezBasicEditorTests g_BasicEditorTest;
 
 
-ezTestAppRun ezBasicEditorTests::RunSubTest(ezInt32 iIdentifier)
+ezTestAppRun ezBasicEditorTests::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
   if (iIdentifier == SubTests::MyFirstTest)
     return SubtestMyFirstTest();

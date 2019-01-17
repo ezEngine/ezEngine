@@ -149,19 +149,19 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
 
     c.Update();
     const ezTime t0 = c.GetTimeDiff();
-    EZ_TEST_DOUBLE(t0.GetSeconds(), 0.1, 0.00001)
+    EZ_TEST_DOUBLE(t0.GetSeconds(), 0.1, 0.00001);
 
     c.SetSpeed(0.1);
 
     c.Update();
     const ezTime t1 = c.GetTimeDiff();
-    EZ_TEST_DOUBLE(t1.GetSeconds(), 0.001, 0.00001)
+    EZ_TEST_DOUBLE(t1.GetSeconds(), 0.001, 0.00001);
 
     c.Reset(false);
 
     c.Update();
     const ezTime t2 = c.GetTimeDiff();
-    EZ_TEST_DOUBLE(t2.GetSeconds(), 0.01, 0.00001)
+    EZ_TEST_DOUBLE(t2.GetSeconds(), 0.01, 0.00001);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetMinimumTimeStep / GetMinimumTimeStep")
