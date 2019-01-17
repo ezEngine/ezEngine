@@ -19,10 +19,10 @@ ezRenderDoc::ezRenderDoc()
     return;
   }
 
-  HMODULE dllHandle = GetModuleHandleA("renderdoc.dll");
+  HMODULE dllHandle = GetModuleHandleW(L"renderdoc.dll");
   if (!dllHandle)
   {
-    dllHandle = LoadLibraryA("renderdoc.dll");
+    dllHandle = LoadLibraryW(L"renderdoc.dll");
     m_HandleToFree = dllHandle;
   }
 
