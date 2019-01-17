@@ -203,6 +203,7 @@ void ezGameApplication::Run_WorldUpdateAndRender()
         }
 
         ExecuteTakeScreenshot(windowContext.m_pOutputTarget.Borrow(), ctxt);
+        ExecuteFrameCapture(windowContext.m_pWindow->GetNativeWindowHandle(), ctxt);
 
         windowContext.m_pOutputTarget->Present(CVarEnableVSync);
       }
@@ -381,6 +382,7 @@ namespace
   const char* s_szShowFpsAction = "ShowFps";
   const char* s_szReloadResourcesAction = "ReloadResources";
   const char* s_szCaptureProfilingAction = "CaptureProfiling";
+  const char* s_szCaptureFrame = "CaptureFrame";
   const char* s_szTakeScreenshot = "TakeScreenshot";
 } // namespace
 
@@ -405,6 +407,9 @@ void ezGameApplication::Init_ConfigureInput()
 
   config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF8;
   ezInputManager::SetInputActionConfig(s_szInputSet, s_szCaptureProfilingAction, config, true);
+
+  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF11;
+  ezInputManager::SetInputActionConfig(s_szInputSet, s_szCaptureFrame, config, true);
 
   config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF12;
   ezInputManager::SetInputActionConfig(s_szInputSet, s_szTakeScreenshot, config, true);
@@ -452,6 +457,11 @@ bool ezGameApplication::Run_ProcessApplicationInput()
   if (ezInputManager::GetInputActionState(s_szInputSet, s_szCaptureProfilingAction) == ezKeyState::Pressed)
   {
     TakeProfilingCapture();
+  }
+
+  if (ezInputManager::GetInputActionState(s_szInputSet, s_szCaptureFrame) == ezKeyState::Pressed)
+  {
+    CaptureFrame();
   }
 
   if (m_pConsole)

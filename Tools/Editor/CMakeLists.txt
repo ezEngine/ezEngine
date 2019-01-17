@@ -51,6 +51,7 @@ SET (ADDITIONAL_DEPENDENCIES
   InspectorPlugin
   ShaderCompiler
   RecastPlugin
+  RenderDocPlugin
 )
 
 if (EZ_BUILD_FMOD)

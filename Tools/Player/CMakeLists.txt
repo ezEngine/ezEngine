@@ -29,6 +29,7 @@ SET (LINK_LIBRARIES
 SET (ADDITIONAL_DEPENDENCIES
   ShaderCompilerHLSL
   InspectorPlugin
+  RenderDocPlugin
 )
 
 AddPhysX(FALSE)

@@ -122,7 +122,7 @@ void AppendCurrentTimestamp(ezStringBuilder& out_String)
 {
   const ezDateTime dt = ezTimestamp::CurrentTimestamp();
 
-  out_String.AppendFormat("{0}-{1}-{2} {3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true),
+  out_String.AppendFormat("{0}-{1}-{2}_{3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true),
                           ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true),
                           ezArgU(dt.GetMicroseconds() / 1000, 3, true));
 }
@@ -168,7 +168,7 @@ void ezGameApplicationBase::StoreScreenshot(const ezImage& image, const char* sz
 
       if (m_Image.SaveTo(m_sPath).Succeeded())
       {
-        ezLog::Info("Screenshot saved to '{0}'.", m_sPath);
+        ezLog::Info("Screenshot: '{0}'", m_sPath);
       }
     }
   };
@@ -225,7 +225,7 @@ ezResult ezGameApplicationBase::GetAbsFrameCaptureOutputPath(ezStringBuilder& sO
   return ezFileSystem::ResolvePath(sPath, &sOutputPath, nullptr);
 }
 
-void ezGameApplicationBase::ExecuteFrameCapture()
+void ezGameApplicationBase::ExecuteFrameCapture(ezWindowHandle targetWindowHandle, const char* szContext /*= nullptr*/)
 {
   ezFrameCaptureInterface* pCaptureInterface =
       ezSingletonRegistry::GetSingletonInstance<ezFrameCaptureInterface>("ezFrameCaptureInterface");
@@ -233,8 +233,6 @@ void ezGameApplicationBase::ExecuteFrameCapture()
   {
     return;
   }
-
-  ezWindowHandle targetWindowHandle = m_Windows.IsEmpty() ? nullptr : m_Windows[0].m_pWindow->GetNativeWindowHandle();
 
   // If we still have a running capture (i.e., if no one else has taken the capture so far), finish it
   if (pCaptureInterface->IsFrameCapturing())
@@ -244,6 +242,7 @@ void ezGameApplicationBase::ExecuteFrameCapture()
       ezStringBuilder sOutputPath;
       if (GetAbsFrameCaptureOutputPath(sOutputPath).Succeeded())
       {
+        sOutputPath.Append(szContext);
         pCaptureInterface->SetAbsCaptureFilePathTemplate(sOutputPath);
       }
 
@@ -252,7 +251,7 @@ void ezGameApplicationBase::ExecuteFrameCapture()
       ezStringBuilder stringBuilder;
       if (pCaptureInterface->GetLastAbsCaptureFileName(stringBuilder).Succeeded())
       {
-        ezLog::Info("Frame capture complete - output file '{}'", stringBuilder);
+        ezLog::Info("Frame captured: '{}'", stringBuilder);
       }
       else
       {

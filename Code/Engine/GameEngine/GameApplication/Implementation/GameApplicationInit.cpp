@@ -242,6 +242,7 @@ void ezGameApplication::Init_LoadRequiredPlugins()
 
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   ezPlugin::LoadPlugin("ezShaderCompilerHLSL");
+  ezPlugin::LoadPlugin("ezRenderDocPlugin");
 #  endif
 
   // on sandboxed platforms, we can only load data through fileserve, so enforce use of this plugin

@@ -1,12 +1,9 @@
 #include <PCH.h>
 
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 #include <RenderDocPlugin/RenderDocSingleton.h>
-
-#include <Common/NewBase/Visualize/hkRendererCVars.h>
-
 #include <ThirdParty/RenderDoc/renderdoc_app.h>
-
 
 EZ_IMPLEMENT_SINGLETON(ezRenderDoc);
 
@@ -16,9 +13,9 @@ static ezRenderDoc g_RenderDocSingleton;
 ezRenderDoc::ezRenderDoc()
     : m_SingletonRegistrar(this)
 {
-  if (!cvar_RendererRenderDocFrameCaptures)
+  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-NoCaptures"))
   {
-    ezLog::Warning("RenderDoc plugin initialization suppressed via cvar - frame captures are not supported!");
+    ezLog::Warning("RenderDoc plugin initialization suppressed via command line");
     return;
   }
 
@@ -31,7 +28,7 @@ ezRenderDoc::ezRenderDoc()
 
   if (!dllHandle)
   {
-    ezLog::Warning("Unable to access RenderDoc dll - frame captures are not supported!");
+    ezLog::Warning("Unable to find RenderDoc dll - frame captures are not supported!");
     return;
   }
 
@@ -44,7 +41,11 @@ ezRenderDoc::ezRenderDoc()
 
   if (m_pRenderDocAPI)
   {
-    ezLog::Info("RenderDoc dll found - frame capture supported");
+    ezLog::Success("RenderDoc dll found - frame captures supported");
+
+    m_pRenderDocAPI->SetCaptureKeys(nullptr, 0);
+    m_pRenderDocAPI->SetFocusToggleKeys(nullptr, 0);
+    m_pRenderDocAPI->MaskOverlayBits(0, 0);
   }
   else
   {

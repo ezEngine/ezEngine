@@ -8,6 +8,7 @@
 #include <GameEngine/Console/ConsoleFunction.h>
 #include <GameEngine/GameApplication/WindowOutputTargetBase.h>
 #include <GameEngine/GameState/GameStateBase.h>
+#include <System/Window/Window.h>
 
 class ezWindowBase;
 struct ezWindowCreationDesc;
@@ -162,7 +163,7 @@ public:
   virtual ezResult GetAbsFrameCaptureOutputPath(ezStringBuilder& sOutputPath);
 
 protected:
-  void ExecuteFrameCapture();
+  void ExecuteFrameCapture(ezWindowHandle targetWindowHandle, const char* szContext = nullptr);
 
   bool m_bContinuousFrameCapture = false;
   bool m_bCaptureFrame = false;
