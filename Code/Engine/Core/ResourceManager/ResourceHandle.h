@@ -123,7 +123,7 @@ public:
   ezTypedResourceHandle(const ezTypedResourceHandle<DerivedType>& rhs)
       : m_Typeless(rhs.m_Typeless)
   {
-    static_assert(std::is_base_of_v<ResourceType, DerivedType>, "Only derived types can be assigned to handles of this type");
+    static_assert(std::is_base_of<ResourceType, DerivedType>::value, "Only derived types can be assigned to handles of this type");
   }
 
   /// \brief Releases the current reference and increases the refcount of the given resource.
