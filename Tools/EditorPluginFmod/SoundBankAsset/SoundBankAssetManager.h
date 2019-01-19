@@ -13,7 +13,7 @@ public:
   ezSoundBankAssetDocumentManager();
   ~ezSoundBankAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension() const override { return "ezFmodSoundBank"; }
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezFmodSoundBank"; }
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override { inout_AssetTypeNames.Insert("Sound Bank"); }
 

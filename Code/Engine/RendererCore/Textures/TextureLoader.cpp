@@ -76,7 +76,7 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
     header.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM_SRGB);
     header.SetNumMipLevels(1);
     header.SetNumFaces(1);
-    pData->m_Image.Reset(header);
+    pData->m_Image.ResetAndAlloc(header);
     ezUInt8* pPixels = pData->m_Image.GetPixelPointer<ezUInt8>();
 
     for (ezUInt32 px = 0; px < 4 * 4 * 4; px += 4)
@@ -106,11 +106,12 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
     }
 #endif
 
-    /// In case this is not a proper asset (ezTex format), this is a hack to get the SRGB information for the texture
+    /// In case this is not a proper asset (ezTextureXX format), this is a hack to get the SRGB information for the texture
     const ezStringBuilder sName = ezPathUtils::GetFileName(sAbsolutePath);
     pData->m_bSRGB = (sName.EndsWith_NoCase("_D") || sName.EndsWith_NoCase("_SRGB") || sName.EndsWith_NoCase("_diff"));
 
-    if (sAbsolutePath.HasExtension("ezTex"))
+    if (sAbsolutePath.HasExtension("ezTexture2D") || sAbsolutePath.HasExtension("ezTextureCube") ||
+        sAbsolutePath.HasExtension("ezRenderTarget"))
     {
       if (LoadTexFile(File, *pData).Failed())
         return res;
@@ -189,7 +190,7 @@ ezResult ezTextureResourceLoader::LoadTexFile(ezStreamReader& stream, LoadedData
   ezAssetFileHeader AssetHash;
   AssetHash.Read(stream);
 
-  // read the ezTex file format
+  // read the ezTextureXX file format
   ezUInt8 uiTexFileFormatVersion = 0;
   stream >> uiTexFileFormatVersion;
 

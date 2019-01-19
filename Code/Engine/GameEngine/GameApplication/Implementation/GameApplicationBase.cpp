@@ -152,7 +152,7 @@ void ezGameApplicationBase::TakeScreenshot()
   m_bTakeScreenshot = true;
 }
 
-void ezGameApplicationBase::StoreScreenshot(const ezImage& image, const char* szContext /*= nullptr*/)
+void ezGameApplicationBase::StoreScreenshot(ezImage&& image, const char* szContext /*= nullptr*/)
 {
   class WriteFileTask : public ezTask
   {
@@ -174,7 +174,7 @@ void ezGameApplicationBase::StoreScreenshot(const ezImage& image, const char* sz
   };
 
   WriteFileTask* pWriteTask = EZ_DEFAULT_NEW(WriteFileTask);
-  pWriteTask->m_Image.Reset(image);
+  pWriteTask->m_Image.ResetAndMove(std::move(image));
   pWriteTask->SetOnTaskFinished([](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
 
   pWriteTask->m_sPath.Format(":appdata/Screenshots/{0} ", ezApplication::GetApplicationInstance()->GetApplicationName());
@@ -195,7 +195,7 @@ void ezGameApplicationBase::ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOut
     ezImage img;
     if (pOutputTarget->CaptureImage(img).Succeeded())
     {
-      StoreScreenshot(img, szContext);
+      StoreScreenshot(std::move(img), szContext);
     }
   }
 }

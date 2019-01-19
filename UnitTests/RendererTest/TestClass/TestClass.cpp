@@ -178,7 +178,7 @@ ezResult ezGraphicsTest::GetImage(ezImage& img)
   header.SetWidth(m_pWindow->GetClientAreaSize().width);
   header.SetHeight(m_pWindow->GetClientAreaSize().height);
   header.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
-  img.Reset(header);
+  img.ResetAndAlloc(header);
 
   ezGALSystemMemoryDescription MemDesc;
   MemDesc.m_pData = img.GetPixelPointer<ezUInt8>();

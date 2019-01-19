@@ -91,7 +91,7 @@ void ezSceneDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<co
   inout_DocumentTypes.PushBack(&m_PrefabDesc);
 }
 
-ezString ezSceneDocumentManager::GetResourceTypeExtension() const
+ezString ezSceneDocumentManager::GetResourceTypeExtension(const char* szDocumentPath) const
 {
   return "ezObjectGraph";
 }

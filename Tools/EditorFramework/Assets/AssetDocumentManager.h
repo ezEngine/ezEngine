@@ -68,7 +68,7 @@ public:
   /// \brief Relative to 'AssetCache' folder.
   virtual ezString GetRelativeOutputFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag,
                                              const ezPlatformProfile* pAssetProfile = nullptr) const;
-  virtual ezString GetResourceTypeExtension() const = 0;
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const = 0;
   virtual bool GeneratesProfileSpecificAssets() const = 0;
 
   bool IsOutputUpToDate(const char* szDocumentPath, const ezSet<ezString>& outputs, ezUInt64 uiHash, ezUInt16 uiTypeVersion);

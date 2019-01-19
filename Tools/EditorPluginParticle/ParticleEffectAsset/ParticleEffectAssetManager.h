@@ -11,7 +11,7 @@ public:
   ezParticleEffectAssetDocumentManager();
   ~ezParticleEffectAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension() const override { return "ezParticleEffect"; }
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezParticleEffect"; }
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
   {

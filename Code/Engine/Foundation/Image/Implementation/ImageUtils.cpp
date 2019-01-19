@@ -55,7 +55,7 @@ void ezImageUtils::ComputeImageDifferenceABS(const ezImageView& ImageA, const ez
   differenceHeader.SetHeight(ImageA.GetHeight());
   differenceHeader.SetDepth(ImageA.GetDepth());
   differenceHeader.SetImageFormat(ImageA.GetImageFormat());
-  out_Difference.Reset(differenceHeader);
+  out_Difference.ResetAndAlloc(differenceHeader);
 
   const ezUInt32 uiSize2D = ImageA.GetHeight() * ImageA.GetWidth();
 
@@ -198,7 +198,7 @@ void ezImageUtils::CropImage(const ezImageView& input, const ezVec2I32& offset, 
   outputHeader.SetWidth(uiNewWidth);
   outputHeader.SetHeight(uiNewHeight);
   outputHeader.SetImageFormat(input.GetImageFormat());
-  output.Reset(outputHeader);
+  output.ResetAndAlloc(outputHeader);
 
   for (ezUInt32 y = 0; y < uiNewHeight; ++y)
   {
@@ -306,34 +306,57 @@ void ezImageUtils::Copy(ezImage& dst, ezUInt32 uiPosX, ezUInt32 uiPosY, const ez
   }
 }
 
-ezResult ezImageUtils::ExtractLowerMipChain(const ezImageView& src, ezImage& dst, ezUInt8 uiNumMips)
+ezResult ezImageUtils::ExtractLowerMipChain(const ezImageView& srcImg, ezImage& dstImg, ezUInt32 uiNumMips)
 {
-  // if (src.GetDepth() != 1 || src.GetNumFaces() != 1 || src.GetNumArrayIndices() != 1)
-  return EZ_FAILURE;
-  /*
-  uiNumMips = ezMath::Min<ezUInt8>(uiNumMips, src.GetNumMipLevels());
-  const ezUInt8 uiMaxMip = src.GetNumMipLevels() - uiNumMips;
+  const ezImageHeader& srcImgHeader = srcImg.GetHeader();
 
-  ezImageHeader dstHeader;
-  dstHeader.SetImageFormat(src.GetImageFormat());
-  dstHeader.SetWidth(src.GetWidth(uiMaxMip));
-  dstHeader.SetHeight(src.GetHeight(uiMaxMip));
-  dstHeader.SetDepth(1);
-  dstHeader.SetNumArrayIndices(1);
-  dstHeader.SetNumFaces(1);
-  dstHeader.SetNumMipLevels(uiNumMips);
-  dst.Reset(dstHeader);
+  // 3D textures are not supported
+  if (srcImgHeader.GetDepth() != 1)
+    return EZ_FAILURE;
 
-  const ezUInt8* pStart = src.GetDataPointer<ezUInt8>();
+  // cubemap textures are not supported
+  if (srcImgHeader.GetNumFaces() != 1)
+    return EZ_FAILURE;
 
-  const ezUInt32 uiStartOffset = src.GetDataOffSet(uiMaxMip);
-  const ezUInt32 uiEndOffset = src.GetDataSize();
+  // only power-of-two resolutions are supported atm
+  if (!ezMath::IsPowerOf2(srcImgHeader.GetWidth()) || !ezMath::IsPowerOf2(srcImgHeader.GetHeight()))
+    return EZ_FAILURE;
 
-  ezUInt8* pTarget = dst.GetDataPointer<ezUInt8>();
+  uiNumMips = ezMath::Min(uiNumMips, srcImgHeader.GetNumMipLevels());
 
-  ezMemoryUtils::Copy<ezUInt8>(pTarget, pStart + uiStartOffset, (size_t)(uiEndOffset - uiStartOffset));
+  ezUInt32 startMipLevel = srcImgHeader.GetNumMipLevels() - uiNumMips;
 
-  return EZ_SUCCESS;*/
+  // block compressed image formats require resolutions that are divisible by 4
+  // therefore, adjust startMipLevel accordingly
+  while (srcImgHeader.GetWidth(startMipLevel) % 4 != 0 || srcImgHeader.GetHeight(startMipLevel) % 4 != 0)
+  {
+    if (uiNumMips >= srcImgHeader.GetNumMipLevels())
+      return EZ_FAILURE;
+
+    if (startMipLevel == 0)
+      return EZ_FAILURE;
+
+    ++uiNumMips;
+    --startMipLevel;
+  }
+
+  ezImageHeader dstImgHeader = srcImgHeader;
+  dstImgHeader.SetWidth(srcImgHeader.GetWidth(startMipLevel));
+  dstImgHeader.SetHeight(srcImgHeader.GetHeight(startMipLevel));
+  dstImgHeader.SetNumMipLevels(uiNumMips);
+
+  const void* pDataBegin = srcImg.GetPixelPointer<void>(startMipLevel);
+  const void* pDataEnd = srcImg.GetArrayPtr<void>().GetEndPtr();
+  const ptrdiff_t dataSize = reinterpret_cast<ptrdiff_t>(pDataEnd) - reinterpret_cast<ptrdiff_t>(pDataBegin);
+
+  const ezArrayPtr<const void> lowResData(pDataBegin, static_cast<ezUInt32>(dataSize));
+
+  ezImageView dataview;
+  dataview.ResetAndViewExternalStorage(dstImgHeader, lowResData);
+
+  dstImg.ResetAndCopy(dataview);
+
+  return EZ_SUCCESS;
 }
 
 static ezSimdVec4f LoadSample(const ezSimdVec4f* source, ezUInt32 numSourceElements, ezUInt32 stride, ezInt32 index,
@@ -446,7 +469,7 @@ static void DownScaleFast(const ezImageView& image, ezImage& out_Result, ezUInt3
   intermediateHeader.SetImageFormat(format);
 
   ezImage intermediate;
-  intermediate.Reset(intermediateHeader);
+  intermediate.ResetAndAlloc(intermediateHeader);
 
   for (ezUInt32 arrayIndex = 0; arrayIndex < numArrayElements; arrayIndex++)
   {
@@ -470,7 +493,7 @@ static void DownScaleFast(const ezImageView& image, ezImage& out_Result, ezUInt3
   outHeader.SetNumArrayIndices(numFaces);
   outHeader.SetImageFormat(format);
 
-  out_Result.Reset(outHeader);
+  out_Result.ResetAndAlloc(outHeader);
 
   for (ezUInt32 arrayIndex = 0; arrayIndex < numArrayElements; arrayIndex++)
   {
@@ -582,7 +605,7 @@ ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUIn
   {
     ezImageHeader header;
     header.SetImageFormat(source.GetImageFormat());
-    target.Reset(header);
+    target.ResetAndAlloc(header);
     return EZ_SUCCESS;
   }
 
@@ -596,7 +619,7 @@ ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUIn
 
   if (originalWidth == width && originalHeight == height && originalDepth == depth)
   {
-    target.Reset(source);
+    target.ResetAndCopy(source);
     return EZ_SUCCESS;
   }
 
@@ -687,7 +710,7 @@ ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUIn
 
     ezImageHeader stepHeader = stepSource->GetHeader();
     stepHeader.SetWidth(width);
-    stepTarget->Reset(stepHeader);
+    stepTarget->ResetAndAlloc(stepHeader);
 
     for (ezUInt32 arrayIndex = 0; arrayIndex < numArrayElements; ++arrayIndex)
     {
@@ -731,7 +754,7 @@ ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUIn
 
     ezImageHeader stepHeader = stepSource->GetHeader();
     stepHeader.SetHeight(height);
-    stepTarget->Reset(stepHeader);
+    stepTarget->ResetAndAlloc(stepHeader);
 
     for (ezUInt32 arrayIndex = 0; arrayIndex < numArrayElements; ++arrayIndex)
     {
@@ -775,7 +798,7 @@ ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUIn
 
     ezImageHeader stepHeader = stepSource->GetHeader();
     stepHeader.SetDepth(depth);
-    stepTarget->Reset(stepHeader);
+    stepTarget->ResetAndAlloc(stepHeader);
 
     for (ezUInt32 arrayIndex = 0; arrayIndex < numArrayElements; ++arrayIndex)
     {
@@ -825,7 +848,7 @@ void ezImageUtils::GenerateMipMaps(const ezImageView& source, ezImage& target, c
   }
   header.SetNumMipLevels(numMipMaps);
 
-  target.Reset(header);
+  target.ResetAndAlloc(header);
 
   for (ezUInt32 arrayIndex = 0; arrayIndex < source.GetNumArrayIndices(); arrayIndex++)
   {
@@ -856,10 +879,12 @@ void ezImageUtils::GenerateMipMaps(const ezImageView& source, ezImage& target, c
         nextMipMapHeader.SetDepth(ezMath::Max(1u, nextMipMapHeader.GetDepth() / 2));
 
         auto sourceData = target.GetSubImageView(mipMapLevel, face, arrayIndex).GetArrayPtr<void>();
-        ezImage currentMipMap(currentMipMapHeader, sourceData);
+        ezImage currentMipMap;
+        currentMipMap.ResetAndUseExternalStorage(currentMipMapHeader, sourceData);
 
         auto dstData = target.GetSubImageView(mipMapLevel + 1, face, arrayIndex).GetArrayPtr<void>();
-        ezImage nextMipMap(nextMipMapHeader, dstData);
+        ezImage nextMipMap;
+        nextMipMap.ResetAndUseExternalStorage(nextMipMapHeader, dstData);
 
         ezImageUtils::Scale3D(currentMipMap, nextMipMap, nextMipMapHeader.GetWidth(), nextMipMapHeader.GetHeight(),
                               nextMipMapHeader.GetDepth(), mipMapOptions.m_filter, mipMapOptions.m_addressModeU,
@@ -1001,7 +1026,7 @@ static inline void ConvertCubemapLayout(const ezImageView& src, ezImage& dst)
   EZ_ASSERT_DEV(src.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT, "The source image is expected to be 4 x 32-bit float RGBA.");
 
   // Create the destination image.
-  dst.Reset(src.GetHeader());
+  dst.ResetAndAlloc(src.GetHeader());
   // Compute the size of a face of the cube map in QWORDs.
   const ezUInt32 size = src.GetWidth();
   const ezUInt32 faceSizeQWords = size * size * 16;
@@ -1060,7 +1085,7 @@ static void ConvertSphericalToCubemap(const ezImageView& src, ezImage& dst, ezUI
   dstDesc.SetNumFaces(6);
   // Create a temporary image with the Direct3D layout.
   ezImage img;
-  img.Reset(dstDesc);
+  img.ResetAndAlloc(dstDesc);
   // Write (gather) the cube map image data.
   for (ezUInt32 f = 0; f < 6; ++f)
   {
@@ -1322,7 +1347,7 @@ void ezImageUtils::ConvertToCubemap(const ezImageView& src, ezImage& dst)
     dstDesc.SetWidth(dstDim);
     dstDesc.SetHeight(dstDim);
     dstDesc.SetNumFaces(kFaceCount);
-    dst.Reset(dstDesc);
+    dst.ResetAndAlloc(dstDesc);
   }
 
   for (int face = 0; face < kFaceCount; ++face)

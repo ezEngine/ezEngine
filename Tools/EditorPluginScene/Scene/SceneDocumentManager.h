@@ -21,7 +21,7 @@ private:
   virtual ezStatus InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument) override;
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
-  virtual ezString GetResourceTypeExtension() const override;
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override;
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override;
 

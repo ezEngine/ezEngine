@@ -11,7 +11,7 @@ public:
   ezTextureCubeAssetDocumentManager();
   ~ezTextureCubeAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension() const override { return "ezTex"; }
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezTextureCube"; }
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
   {

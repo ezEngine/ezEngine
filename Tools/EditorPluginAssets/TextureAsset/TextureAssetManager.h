@@ -21,14 +21,13 @@ public:
   ~ezTextureAssetDocumentManager();
 
 
-  virtual ezString GetResourceTypeExtension() const override { return "ezTex"; }
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override;
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
   {
     inout_AssetTypeNames.Insert("Texture 2D");
     inout_AssetTypeNames.Insert("Render Target");
   }
-
 
   virtual ezBitflags<ezAssetDocumentFlags> GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const override;
 

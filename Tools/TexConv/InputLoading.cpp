@@ -183,7 +183,7 @@ ezImage* ezTexConv::CreateCombined2DImage(const ChannelMapping* dataSources)
   imgHeader.SetNumFaces(1);
   imgHeader.SetNumMipLevels(1);
   imgHeader.SetImageFormat(ezImageFormat::R32G32B32A32_FLOAT);
-  pImg->Reset(imgHeader);
+  pImg->ResetAndAlloc(imgHeader);
 
   static_assert(sizeof(ezColor) == sizeof(float) * 4, "The loop below assumes that ezColor is 4 floats in size");
 

@@ -11,7 +11,7 @@ public:
   ezProceduralPlacementAssetDocumentManager();
   ~ezProceduralPlacementAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension() const override { return "ezProceduralPlacement"; }
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezProceduralPlacement"; }
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
   {

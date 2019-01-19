@@ -32,7 +32,7 @@ public:
   /// \brief Copies the lower uiNumMips data of a 2D image into another one.
   ///
   /// Does not support 3D, cubemap or array textures.
-  static ezResult ExtractLowerMipChain(const ezImageView& src, ezImage& dst, ezUInt8 uiNumMips);
+  static ezResult ExtractLowerMipChain(const ezImageView& src, ezImage& dst, ezUInt32 uiNumMips);
 
     /// Mip map generation options
   struct MipMapOptions

@@ -70,7 +70,7 @@ private:
 #define EZ_DELETE_ARRAY(allocator, arrayPtr)                                                                                               \
   {                                                                                                                                        \
     ezInternal::DeleteArray(allocator, arrayPtr);                                                                                          \
-    arrayPtr.Reset();                                                                                                                      \
+    arrayPtr.Clear();                                                                                                                      \
   }
 
 /// \brief creates a raw buffer of type using the given allocator with count elements, but does NOT call the default constructor

@@ -13,7 +13,7 @@ ezGameEngineTest::~ezGameEngineTest() = default;
 
 ezResult ezGameEngineTest::GetImage(ezImage& img)
 {
-  img.Reset(m_pApplication->GetLastScreenshot());
+  img.ResetAndCopy(m_pApplication->GetLastScreenshot());
 
   return EZ_SUCCESS;
 }
@@ -134,10 +134,10 @@ void ezGameEngineTestApplication::BeforeHighLevelSystemsShutdown()
   SUPER::BeforeHighLevelSystemsShutdown();
 }
 
-void ezGameEngineTestApplication::StoreScreenshot(const ezImage& image, const char* szContext)
+void ezGameEngineTestApplication::StoreScreenshot(ezImage&& image, const char* szContext)
 {
   // store this for image comparison purposes
-  m_LastScreenshot.Reset(image);
+  m_LastScreenshot.ResetAndMove(std::move(image));
 }
 
 

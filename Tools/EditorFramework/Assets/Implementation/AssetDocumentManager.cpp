@@ -139,7 +139,7 @@ ezString ezAssetDocumentManager::GetRelativeOutputFileName(const char* szDataDir
                   "The output tag '%s' for '%s' is not supported, override GetRelativeOutputFileName", szOutputTag, szDocumentPath);
   ezStringBuilder sRelativePath(szDocumentPath);
   sRelativePath.MakeRelativeTo(szDataDirectory);
-  GenerateOutputFilename(sRelativePath, sPlatform, GetResourceTypeExtension(), GeneratesProfileSpecificAssets());
+  GenerateOutputFilename(sRelativePath, sPlatform, GetResourceTypeExtension(szDocumentPath), GeneratesProfileSpecificAssets());
 
   return sRelativePath;
 }

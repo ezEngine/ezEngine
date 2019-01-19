@@ -11,7 +11,7 @@ public:
   ezRenderPipelineAssetManager();
   ~ezRenderPipelineAssetManager();
 
-  virtual ezString GetResourceTypeExtension() const override { return "ezRenderPipelineBin"; }
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezRenderPipelineBin"; }
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
   {

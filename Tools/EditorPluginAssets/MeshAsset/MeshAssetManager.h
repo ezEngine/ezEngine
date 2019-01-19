@@ -11,7 +11,7 @@ public:
   ezMeshAssetDocumentManager();
   ~ezMeshAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension() const override { return "ezMesh"; }
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezMesh"; }
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
   {

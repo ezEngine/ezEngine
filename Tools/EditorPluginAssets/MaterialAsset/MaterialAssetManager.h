@@ -11,7 +11,7 @@ public:
   ezMaterialAssetDocumentManager();
   ~ezMaterialAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension() const override { return "ezMaterialBin"; }
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezMaterialBin"; }
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
   {

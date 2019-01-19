@@ -655,7 +655,8 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ezAssetFileHeader& header)
     imgHeader.SetWidth(msg.m_uiWidth);
     imgHeader.SetHeight(msg.m_uiHeight);
 
-    ezImage image(imgHeader);
+    ezImage image;
+    image.ResetAndAlloc(imgHeader);
     EZ_ASSERT_DEV(data.GetCount() == imgHeader.ComputeDataSize(), "Thumbnail ezImage has different size than data buffer!");
     ezMemoryUtils::Copy(image.GetPixelPointer<ezUInt8>(), data.GetData(), msg.m_uiWidth * msg.m_uiHeight * 4);
     SaveThumbnail(image, header);

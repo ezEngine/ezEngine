@@ -11,7 +11,7 @@ public:
   ezSoundEventAssetDocumentManager();
   ~ezSoundEventAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension() const override { return "ezFmodSoundEvent"; }
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezFmodSoundEvent"; }
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
   {

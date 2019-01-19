@@ -320,7 +320,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   imageHeader.SetHeight(Header.m_iImageHeight);
   imageHeader.SetDepth(1);
 
-  image.Reset(imageHeader);
+  image.ResetAndAlloc(imageHeader);
 
   if (Header.m_ImageType == 3)
   {

@@ -11,7 +11,7 @@ public:
   ezPropertyAnimAssetDocumentManager();
   ~ezPropertyAnimAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension() const override { return "ezPropertyAnim"; }
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezPropertyAnim"; }
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
   {

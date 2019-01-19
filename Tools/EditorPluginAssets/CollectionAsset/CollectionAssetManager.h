@@ -11,7 +11,7 @@ public:
   ezCollectionAssetDocumentManager();
   ~ezCollectionAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension() const override { return "ezCollection"; }
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezCollection"; }
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
   {

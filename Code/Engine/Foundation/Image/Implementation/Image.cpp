@@ -8,22 +8,22 @@
 
 ezImageView::ezImageView()
 {
-  Reset();
+  Clear();
 }
 
 ezImageView::ezImageView(const ezImageHeader& header, ezArrayPtr<const void> imageData)
 {
-  Reset(header, imageData);
+  ResetAndViewExternalStorage(header, imageData);
 }
 
-void ezImageView::Reset()
+void ezImageView::Clear()
 {
-  ezImageHeader::Reset();
+  ezImageHeader::Clear();
   m_subImageOffsets.Clear();
-  m_dataPtr.Reset();
+  m_dataPtr.Clear();
 }
 
-void ezImageView::Reset(const ezImageHeader& header, ezArrayPtr<const void> imageData)
+void ezImageView::ResetAndViewExternalStorage(const ezImageHeader& header, ezArrayPtr<const void> imageData)
 {
   static_cast<ezImageHeader&>(*this) = header;
 
@@ -139,56 +139,64 @@ const ezUInt32& ezImageView::GetSubImageOffset(ezUInt32 uiMipLevel, ezUInt32 uiF
 
 ezImage::ezImage()
 {
-  Reset();
+  Clear();
 }
 
 ezImage::ezImage(const ezImageHeader& header)
 {
-  Reset(header);
+  ResetAndAlloc(header);
 }
 
 ezImage::ezImage(const ezImageHeader& header, ezArrayPtr<void> externalData)
 {
-  Reset(header, externalData);
+  ResetAndUseExternalStorage(header, externalData);
 }
 
 ezImage::ezImage(ezImage&& other)
 {
-  Reset(std::move(other));
+  ResetAndMove(std::move(other));
 }
 
 ezImage::ezImage(const ezImageView& other)
 {
-  Reset(other);
+  ResetAndCopy(other);
 }
 
-void ezImage::Reset()
+void ezImage::Clear()
 {
   m_internalStorage.Clear();
 
-  ezImageView::Reset();
+  ezImageView::Clear();
 }
 
-void ezImage::Reset(const ezImageHeader& header)
+void ezImage::ResetAndAlloc(const ezImageHeader& header)
 {
-  if (!UsesExternalStorage())
+  const ezUInt32 requiredSize = header.ComputeDataSize();
+
+  // it is debatable whether this function should reuse external storage, at all
+  // however, it is especially dangerous to rely on the external storage being big enough, since many functions just take an ezImage as a
+  // destination parameter and expect it to behave correctly when any of the Reset functions is called on it; it is not intuitive, that
+  // Reset may fail due to how the image was previously reset
+
+  // therefore, if external storage is insufficient, fall back to internal storage
+
+  if (!UsesExternalStorage() || m_dataPtr.GetCount() < requiredSize)
   {
-    ezUInt32 dataSize = header.ComputeDataSize();
-    m_internalStorage.SetCountUninitialized(dataSize);
+    m_internalStorage.SetCountUninitialized(requiredSize);
     m_dataPtr = m_internalStorage.GetArrayPtr();
   }
 
-  ezImageView::Reset(header, ezArrayPtr<const void>(m_dataPtr.GetPtr(), m_dataPtr.GetCount()));
+  ezImageView::ResetAndViewExternalStorage(header, ezArrayPtr<const void>(m_dataPtr.GetPtr(), m_dataPtr.GetCount()));
 }
 
-void ezImage::Reset(const ezImageHeader& header, ezArrayPtr<void> externalData)
+void ezImage::ResetAndUseExternalStorage(const ezImageHeader& header, ezArrayPtr<void> externalData)
 {
   m_internalStorage.Clear();
 
-  ezImageView::Reset(header, externalData);
+  ezImageView::ResetAndViewExternalStorage(header, externalData);
 }
 
-void ezImage::Reset(ezImage&& other)
+void ezImage::ResetAndMove(ezImage&& other)
 {
   static_cast<ezImageHeader&>(*this) = other.GetHeader();
 
@@ -197,20 +205,20 @@ void ezImage::Reset(ezImage&& other)
     m_internalStorage.Clear();
     m_subImageOffsets = std::move(other.m_subImageOffsets);
     m_dataPtr = other.m_dataPtr;
-    other.ezImageView::Reset();
+    other.Clear();
   }
   else
   {
     m_internalStorage = std::move(other.m_internalStorage);
     m_subImageOffsets = std::move(other.m_subImageOffsets);
     m_dataPtr = m_internalStorage.GetArrayPtr();
-    other.ezImageView::Reset();
+    other.Clear();
   }
 }
 
-void ezImage::Reset(const ezImageView& other)
+void ezImage::ResetAndCopy(const ezImageView& other)
 {
-  Reset(other.GetHeader());
+  ResetAndAlloc(other.GetHeader());
 
   memcpy(GetArrayPtr<void>().GetPtr(), other.GetArrayPtr<void>().GetPtr(), GetArrayPtr<void>().GetCount());
 }

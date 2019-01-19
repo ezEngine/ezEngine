@@ -11,7 +11,7 @@ public:
   ezDecalAssetDocumentManager();
   ~ezDecalAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension() const override { return "ezDecalStub"; }
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezDecalStub"; }
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
   {

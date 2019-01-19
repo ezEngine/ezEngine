@@ -119,7 +119,7 @@ namespace ezMemoryPolicies
       if (!m_buckets.IsEmpty())
         m_currentBucket = m_buckets[0].memory;
       else
-        m_currentBucket.Reset();
+        m_currentBucket.Clear();
 
       m_pNextAllocation = m_currentBucket.GetPtr();
     }

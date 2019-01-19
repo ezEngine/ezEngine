@@ -109,7 +109,7 @@ ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& stream, ezImage& image
   imageHeader.SetHeight(height);
   imageHeader.SetDepth(1);
 
-  image.Reset(imageHeader);
+  image.ResetAndAlloc(imageHeader);
 
   // Set pixels. Different strategies depending on component count.
   if (isHDR)

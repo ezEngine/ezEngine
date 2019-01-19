@@ -476,7 +476,8 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
         header.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
         header.SetWidth(m_uiThumbnailWidth);
         header.SetHeight(m_uiThumbnailHeight);
-        ezImage image(header);
+        ezImage image;
+        image.ResetAndAlloc(header);
         EZ_ASSERT_DEV(m_uiThumbnailWidth * m_uiThumbnailHeight * 4 == header.ComputeDataSize(),
                       "Thumbnail ezImage has different size than data buffer!");
 

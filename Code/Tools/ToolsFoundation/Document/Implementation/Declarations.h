@@ -31,19 +31,12 @@ EZ_DECLARE_FLAGS_OPERATORS(ezDocumentFlags);
 
 struct EZ_TOOLSFOUNDATION_DLL ezDocumentTypeDescriptor
 {
-  ezDocumentTypeDescriptor()
-  {
-    m_pDocumentType = nullptr;
-    m_bCanCreate = false;
-    m_pManager = nullptr;
-  }
-
   ezString m_sFileExtension;
   ezString m_sDocumentTypeName;
-  bool m_bCanCreate;
+  bool m_bCanCreate = false;
   ezString m_sIcon;
-  const ezRTTI* m_pDocumentType;
-  ezDocumentManager* m_pManager;
+  const ezRTTI* m_pDocumentType = nullptr;
+  ezDocumentManager* m_pManager = nullptr;
 };
 
 

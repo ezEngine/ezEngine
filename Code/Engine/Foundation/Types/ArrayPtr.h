@@ -269,13 +269,6 @@ public:
     ezMemoryUtils::Copy(static_cast<ValueType*>(GetPtr()), static_cast<const ValueType*>(other.GetPtr()), GetCount());
   }
 
-  /// \brief Resets the ezArray to be empty.
-  EZ_ALWAYS_INLINE void Reset() // [tested]
-  {
-    m_ptr = nullptr;
-    m_uiCount = 0;
-  }
-
   EZ_ALWAYS_INLINE void Swap(ezArrayPtr<T>& other)
   {
     ezMath::Swap(m_ptr, other.m_ptr);

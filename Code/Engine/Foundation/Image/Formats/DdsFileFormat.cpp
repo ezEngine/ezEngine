@@ -270,7 +270,7 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     imageHeader.SetDepth(fileHeader.m_uiDepth);
   }
 
-  image.Reset(imageHeader);
+  image.ResetAndAlloc(imageHeader);
 
   // If pitch is specified, it must match the computed value
   if (bPitch && image.GetRowPitch(0) != fileHeader.m_uiPitchOrLinearSize)

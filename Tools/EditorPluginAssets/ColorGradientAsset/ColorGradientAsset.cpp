@@ -197,7 +197,8 @@ ezStatus ezColorGradientAssetDocument::InternalCreateThumbnail(const ezAssetFile
   imgHeader.SetWidth(256);
   imgHeader.SetHeight(256);
   imgHeader.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
-  ezImage img(imgHeader);
+  ezImage img;
+  img.ResetAndAlloc(imgHeader);
 
   ezColorGradient gradient;
   pProp->FillGradientData(gradient);

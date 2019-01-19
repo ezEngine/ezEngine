@@ -64,7 +64,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
     EZ_TEST_BOOL(ap2.GetCount() == 3);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Reset")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
   {
     ezInt32 pIntData[] = {1, 2, 3, 4, 5};
 
@@ -72,7 +72,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
     EZ_TEST_BOOL(ap.GetPtr() == pIntData);
     EZ_TEST_BOOL(ap.GetCount() == 3);
 
-    ap.Reset();
+    ap.Clear();
 
     EZ_TEST_BOOL(ap.GetPtr() == nullptr);
     EZ_TEST_BOOL(ap.GetCount() == 0);
@@ -196,7 +196,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
     EZ_TEST_BOOL(ap2.GetCount() == 3);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Reset  (const)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear (const)")
   {
     const ezInt32 pIntData[] = {1, 2, 3, 4, 5};
 
@@ -204,7 +204,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
     EZ_TEST_BOOL(ap.GetPtr() == pIntData);
     EZ_TEST_BOOL(ap.GetCount() == 3);
 
-    ap.Reset();
+    ap.Clear();
 
     EZ_TEST_BOOL(ap.GetPtr() == nullptr);
     EZ_TEST_BOOL(ap.GetCount() == 0);
@@ -396,7 +396,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtrVoid)
     EZ_TEST_BOOL(ap2.GetCount() == 3);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Reset")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
   {
     ezUInt8 pByteData[] = {1, 2, 3, 4, 5};
     void* pVoidData = pByteData;
@@ -405,7 +405,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtrVoid)
     EZ_TEST_BOOL(ap.GetPtr() == pByteData);
     EZ_TEST_BOOL(ap.GetCount() == 3);
 
-    ap.Reset();
+    ap.Clear();
 
     EZ_TEST_BOOL(ap.GetPtr() == nullptr);
     EZ_TEST_BOOL(ap.GetCount() == 0);
@@ -551,7 +551,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtrVoid)
     EZ_TEST_BOOL(ap2.GetCount() == 3);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Reset  (const)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear (const)")
   {
     const ezUInt8 pByteData[] = {1, 2, 3, 4, 5};
     const void* pVoidData = pByteData;
@@ -560,7 +560,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtrVoid)
     EZ_TEST_BOOL(ap.GetPtr() == pByteData);
     EZ_TEST_BOOL(ap.GetCount() == 3);
 
-    ap.Reset();
+    ap.Clear();
 
     EZ_TEST_BOOL(ap.GetPtr() == nullptr);
     EZ_TEST_BOOL(ap.GetCount() == 0);

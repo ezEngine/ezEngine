@@ -17,10 +17,10 @@ public:
   ezImageView(const ezImageHeader& header, ezArrayPtr<const void> imageData);
 
   /// \brief Constructs an empty image view.
-  void Reset();
+  void Clear();
 
   /// \brief Constructs an image view with the given header and image data.
-  void Reset(const ezImageHeader& header, ezArrayPtr<const void> imageData);
+  void ResetAndViewExternalStorage(const ezImageHeader& header, ezArrayPtr<const void> imageData);
 
   /// \brief Convenience function to save the image to the given file.
   ezResult SaveTo(const char* szFileName, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem()) const;
@@ -93,38 +93,46 @@ class EZ_FOUNDATION_DLL ezImage : public ezImageView
   /// Use Reset() instead
   void operator=(const ezImageView& rhs) = delete;
 
-public:
-  /// \brief Constructs an empty image.
-  explicit ezImage();
-
   /// \brief Constructs an image with the given header; allocating internal storage for it.
   explicit ezImage(const ezImageHeader& header);
 
   /// \brief Constructs an image with the given header backed by user-supplied external storage.
   explicit ezImage(const ezImageHeader& header, ezArrayPtr<void> externalData);
+  
+  /// \brief Constructor from image view (copies the image data to internal storage)
+  explicit ezImage(const ezImageView& other);
+
+public:
+  /// \brief Constructs an empty image.
+  ezImage();
 
   /// \brief Move constructor
   ezImage(ezImage&& other);
 
-  /// \brief Constructor from image view (copies the image data to internal storage)
-  explicit ezImage(const ezImageView& other);
-
   /// \brief Constructs an empty image. If the image is attached to an external storage, the attachment is discarded.
-  void Reset();
+  void Clear();
 
-  /// \brief Constructs an image with the given header; allocating internal storage for it if needed. If the image is already attached to an external storage, the storage muest match the data size of the header.
-  void Reset(const ezImageHeader& header);
+  /// \brief Constructs an image with the given header and ensures sufficient storage is allocated.
+  ///
+  /// \note If this ezImage was previously attached to external storage, this will reuse that storage.
+  /// However, if the external storage is not sufficiently large, ResetAndAlloc() will detach from it and allocate internal storage.
+  void ResetAndAlloc(const ezImageHeader& header);
 
-  /// \brief Constructs an image with the given header and attaches to the user-supplied external storage. The user is responsible to keep the external storage alive.
-  /// Methods which attempts to Reset this image will assert unless the external data size matches the attempted allocation size; that is, the user is also
-  /// responsible to allocate the exact correct amount of memory.
-  void Reset(const ezImageHeader& header, ezArrayPtr<void> externalData);
+  /// \brief Constructs an image with the given header and attaches to the user-supplied external storage.
+  ///
+  /// The user is responsible to keep the external storage alive as long as this ezImage is alive.
+  void ResetAndUseExternalStorage(const ezImageHeader& header, ezArrayPtr<void> externalData);
 
-  /// \brief Move constructor.  If the image is attached to an external storage, the attachment is discarded.
-  void Reset(ezImage&& other);
+  /// \brief Moves the given data into this object.
+  ///
+  /// If \a other is attached to an external storage, this object will also be attached to it,
+  /// so life-time requirements for the external storage are now bound to this instance.
+  void ResetAndMove(ezImage&& other);
 
-  /// \brief Constructor from image view (copies the image data to internal storage).  If the image is already attached to an external storage, the storage must match the data size of the view.
-  void Reset(const ezImageView& other);
+  /// \brief Constructs from an image view. Copies the image data to internal storage.
+  ///
+  /// If the image is currently attached to external storage, the attachment is discarded.
+  void ResetAndCopy(const ezImageView& other);
 
   /// \brief Convenience function to load the image from the given file.
   ezResult LoadFrom(const char* szFileName, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem());

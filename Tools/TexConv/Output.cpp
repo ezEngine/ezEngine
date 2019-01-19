@@ -2,7 +2,8 @@
 
 void ezTexConv::WriteTexHeader(ezStreamWriter& stream)
 {
-  if (ezPathUtils::HasExtension(m_sOutputFile, "ezTex"))
+  if (ezPathUtils::HasExtension(m_sOutputFile, "ezTexture2D") || ezPathUtils::HasExtension(m_sOutputFile, "ezTextureCube") ||
+      ezPathUtils::HasExtension(m_sOutputFile, "ezRenderTarget"))
   {
     ezAssetFileHeader header;
     header.SetFileHashAndVersion(m_uiAssetHash, m_uiAssetVersion);

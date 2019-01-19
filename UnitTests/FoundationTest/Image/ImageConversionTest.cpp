@@ -21,7 +21,7 @@ public:
 
   virtual ezResult GetImage(ezImage& img) override
   {
-    img.Reset(std::move(m_image));
+    img.ResetAndMove(std::move(m_image));
     return EZ_SUCCESS;
   }
 

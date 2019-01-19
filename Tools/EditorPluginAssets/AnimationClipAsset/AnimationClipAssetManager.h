@@ -11,7 +11,7 @@ public:
   ezAnimationClipAssetDocumentManager();
   ~ezAnimationClipAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension() const override { return "ezAnimationClip"; }
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezAnimationClip"; }
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
   {

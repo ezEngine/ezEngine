@@ -18,7 +18,7 @@ ezConstantBufferStorageBase::~ezConstantBufferStorageBase()
   ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hGALConstantBuffer);
 
   ezFoundation::GetAlignedAllocator()->Deallocate(m_Data.GetPtr());
-  m_Data.Reset();
+  m_Data.Clear();
 }
 
 ezArrayPtr<ezUInt8> ezConstantBufferStorageBase::GetRawDataForWriting()

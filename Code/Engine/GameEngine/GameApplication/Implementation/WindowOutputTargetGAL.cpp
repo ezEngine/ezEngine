@@ -38,7 +38,7 @@ ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_Image)
   header.SetWidth(uiWidth);
   header.SetHeight(uiHeight);
   header.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
-  out_Image.Reset(header);
+  out_Image.ResetAndAlloc(header);
   ezUInt8* pData = out_Image.GetPixelPointer<ezUInt8>();
 
   ezMemoryUtils::Copy(pData, backbufferData.GetData(), backbufferData.GetCount());

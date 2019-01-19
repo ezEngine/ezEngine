@@ -11,7 +11,7 @@ public:
   ezVisualScriptAssetManager();
   ~ezVisualScriptAssetManager();
 
-  virtual ezString GetResourceTypeExtension() const override { return "ezVisualScriptBin"; }
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezVisualScriptBin"; }
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
   {

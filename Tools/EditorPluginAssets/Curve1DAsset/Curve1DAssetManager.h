@@ -11,7 +11,7 @@ public:
   ezCurve1DAssetDocumentManager();
   ~ezCurve1DAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension() const override { return "ezCurve1D"; }
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezCurve1D"; }
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
   {

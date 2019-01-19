@@ -181,7 +181,7 @@ ezResult ezTexConv::CreateDecalAtlasTexture(const ezDynamicArray<DecalDesc>& dec
   imgHeader.SetWidth(uiResX);
   imgHeader.SetHeight(uiResY);
   imgHeader.SetImageFormat(ezImageFormat::R32G32B32A32_FLOAT);
-  atlas.Reset(imgHeader);
+  atlas.ResetAndAlloc(imgHeader);
 
   const ezColor fill(0, 0, 0, 0);
 

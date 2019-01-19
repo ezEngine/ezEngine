@@ -130,7 +130,7 @@ public:
 
 protected:
   /// \brief Called with the result from taking a screenshot. The default implementation writes the image to disk at ':appdata/Screenshots'
-  virtual void StoreScreenshot(const ezImage& image, const char* szContext = nullptr);
+  virtual void StoreScreenshot(ezImage&& image, const char* szContext = nullptr);
 
   void ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOutputTarget, const char* szContext = nullptr);
 

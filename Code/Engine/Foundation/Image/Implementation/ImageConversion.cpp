@@ -356,7 +356,7 @@ ezResult ezImageConversion::Convert(const ezImageView& source, ezImage& target, 
     if (&source != &target)
     {
       // copy if not already the same
-      target.Reset(source);
+      target.ResetAndCopy(source);
     }
     return EZ_SUCCESS;
   }
@@ -490,7 +490,7 @@ ezResult ezImageConversion::ConvertSingleStep(const ezImageConversionStep* pStep
 {
   if (!pStep)
   {
-    target.Reset(source);
+    target.ResetAndCopy(source);
     return EZ_SUCCESS;
   }
 
@@ -498,7 +498,7 @@ ezResult ezImageConversion::ConvertSingleStep(const ezImageConversionStep* pStep
 
   ezImageHeader header = source.GetHeader();
   header.SetImageFormat(targetFormat);
-  target.Reset(header);
+  target.ResetAndAlloc(header);
 
   if (!ezImageFormat::IsCompressed(sourceFormat))
   {
@@ -616,7 +616,8 @@ ezResult ezImageConversion::ConvertSingleStepCompress(const ezImageView& source,
         paddedSliceHeader.SetHeight(targetHeight);
         paddedSliceHeader.SetImageFormat(sourceFormat);
 
-        ezImage paddedSlice(paddedSliceHeader);
+        ezImage paddedSlice;
+        paddedSlice.ResetAndAlloc(paddedSliceHeader);
 
         for (ezUInt32 slice = 0; slice < source.GetDepth(mipLevel); slice++)
         {

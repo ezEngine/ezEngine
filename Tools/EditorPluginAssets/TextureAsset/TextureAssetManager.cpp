@@ -57,6 +57,16 @@ ezTextureAssetDocumentManager::~ezTextureAssetDocumentManager()
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezTextureAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
+ezString ezTextureAssetDocumentManager::GetResourceTypeExtension(const char* szDocumentPath) const
+{
+  const ezStringView extension = ezPathUtils::GetFileExtension(szDocumentPath);
+
+  if (extension == "ezRenderTargetAsset")
+    return "ezRenderTarget";
+
+  return "ezTexture2D";
+}
+
 ezUInt64 ezTextureAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const
 {
   return pAssetProfile->GetTypeConfig<ezTextureAssetProfileConfig>()->m_uiMaxResolution;

@@ -69,7 +69,7 @@ ezResult ezTexConv::CreateTextureCubeFromSingleFile()
       imgHeader.SetNumMipLevels(1);
       imgHeader.SetNumArrayIndices(1);
 
-      tmpImg.Reset(imgHeader);
+      tmpImg.ResetAndAlloc(imgHeader);
 
       // face order in dds files is: positive x, negative x, positive y, negative y, positive z, negative z
 
@@ -92,7 +92,7 @@ ezResult ezTexConv::CreateTextureCubeFromSingleFile()
       CopyFace(tmpImg, img, faceSize, faceSize * 3, 5);
       ezImageUtils::RotateSubImage180(tmpImg, 0, 5);
 
-      img.Reset(std::move(tmpImg));
+      img.ResetAndMove(std::move(tmpImg));
     }
     else if (img.GetWidth() % 4 == 0 && img.GetHeight() % 3 == 0 && img.GetWidth() / 4 == img.GetHeight() / 3)
     {
@@ -117,7 +117,7 @@ ezResult ezTexConv::CreateTextureCubeFromSingleFile()
       imgHeader.SetNumMipLevels(1);
       imgHeader.SetNumArrayIndices(1);
 
-      tmpImg.Reset(imgHeader);
+      tmpImg.ResetAndAlloc(imgHeader);
 
       // face order in dds files is: positive x, negative x, positive y, negative y, positive z, negative z
 
@@ -139,7 +139,7 @@ ezResult ezTexConv::CreateTextureCubeFromSingleFile()
       // Negative Z face
       CopyFace(tmpImg, img, faceSize * 3, faceSize, 5);
 
-      img.Reset(std::move(tmpImg));
+      img.ResetAndMove(std::move(tmpImg));
     }
     else
     {
@@ -163,7 +163,7 @@ ezResult ezTexConv::CreateTextureCubeFromSingleFile()
       imgHeader.SetNumMipLevels(1);
       imgHeader.SetNumArrayIndices(1);
 
-      tmpImg.Reset(imgHeader);
+      tmpImg.ResetAndAlloc(imgHeader);
 
       // Corners of the UV space for the respective faces in model space
       ezVec3 faceCorners[] =
@@ -248,7 +248,7 @@ ezResult ezTexConv::CreateTextureCubeFromSingleFile()
         }
       }
 
-      img.Reset(std::move(tmpImg));
+      img.ResetAndMove(std::move(tmpImg));
     }
   }
 

@@ -495,7 +495,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   header.SetHeight(uiHeight);
   header.SetDepth(1);
 
-  image.Reset(header);
+  image.ResetAndAlloc(header);
 
   ezUInt32 uiRowPitch = image.GetRowPitch(0);
 

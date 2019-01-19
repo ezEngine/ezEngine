@@ -11,7 +11,7 @@ public:
   ezAnimatedMeshAssetDocumentManager();
   ~ezAnimatedMeshAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension() const override { return "ezAnimatedMesh"; }
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezAnimatedMesh"; }
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
   {

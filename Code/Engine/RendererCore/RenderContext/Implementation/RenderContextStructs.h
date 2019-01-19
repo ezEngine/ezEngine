@@ -109,7 +109,7 @@ struct EZ_RENDERERCORE_DLL ezTextureFilterSetting
 
   enum Enum
   {
-    // Attention: When these are changed, make sure TexConv still writes the correct default value into ezTex files
+    // Attention: When these are changed, make sure TexConv still writes the correct default value into ezTextureXX files
 
     FixedNearest,
     FixedBilinear,

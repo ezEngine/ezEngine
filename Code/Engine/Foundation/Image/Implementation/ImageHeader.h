@@ -15,10 +15,10 @@ class EZ_FOUNDATION_DLL ezImageHeader
 {
 public:
   /// \brief Constructs an image using an unknown format and zero size.
-  ezImageHeader() { Reset(); }
+  ezImageHeader() { Clear(); }
 
   /// \brief Constructs an image using an unknown format and zero size.
-  void Reset()
+  void Clear()
   {
     m_uiNumMipLevels = 1;
     m_uiNumFaces = 1;

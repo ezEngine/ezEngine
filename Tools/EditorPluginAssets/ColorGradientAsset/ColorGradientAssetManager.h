@@ -11,7 +11,7 @@ public:
   ezColorGradientAssetDocumentManager();
   ~ezColorGradientAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension() const override { return "ezColorGradient"; }
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezColorGradient"; }
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
   {
