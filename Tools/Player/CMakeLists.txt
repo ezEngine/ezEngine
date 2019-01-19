@@ -29,8 +29,14 @@ SET (LINK_LIBRARIES
 SET (ADDITIONAL_DEPENDENCIES
   ShaderCompilerHLSL
   InspectorPlugin
-  RenderDocPlugin
 )
+
+if (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
+  SET (ADDITIONAL_DEPENDENCIES
+    ${ADDITIONAL_DEPENDENCIES}
+    RenderDocPlugin
+  )
+endif()
 
 AddPhysX(FALSE)
 AddFmod()
