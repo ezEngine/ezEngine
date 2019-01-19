@@ -370,7 +370,7 @@ ezMaterialAssetDocument::~ezMaterialAssetDocument()
 
 void ezMaterialAssetDocument::InitializeAfterLoading()
 {
-  ezSimpleAssetDocument<ezMaterialAssetProperties>::InitializeAfterLoading();
+  SUPER::InitializeAfterLoading();
 
   {
     ezCommandHistory* pHistory = GetCommandHistory();

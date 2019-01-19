@@ -36,13 +36,13 @@ public:
 
 public:
 
-  void SetTexture(const ezTexture2DResourceHandle& hResource);
-  ezTexture2DResourceHandle GetTexture() const { return m_hTexture; }
+  void SetRenderTarget(const ezRenderToTexture2DResourceHandle& hResource);
+  ezRenderToTexture2DResourceHandle GetRenderTarget() const { return m_hRenderTarget; }
 
-  void SetTextureFile(const char* szFile);
-  const char* GetTextureFile() const;
+  void SetRenderTargetFile(const char* szFile);
+  const char* GetRenderTargetFile() const;
 
 private:
-  ezTexture2DResourceHandle m_hTexture;
+  ezRenderToTexture2DResourceHandle m_hRenderTarget;
 };
 

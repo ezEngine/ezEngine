@@ -27,7 +27,7 @@ ezTestDocument::~ezTestDocument()
 
 void ezTestDocument::InitializeAfterLoading()
 {
-  ezDocument::InitializeAfterLoading();
+  SUPER::InitializeAfterLoading();
 
   if (m_bUseIPCObjectMirror)
   {

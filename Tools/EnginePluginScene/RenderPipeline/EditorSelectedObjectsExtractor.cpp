@@ -95,17 +95,19 @@ void ezEditorSelectedObjectsExtractor::CreateRenderTargetTexture(const ezView& v
   if (m_hRenderTarget.IsValid())
     return;
 
-  m_hRenderTarget = ezResourceManager::GetExistingResource<ezTexture2DResource>("EditorCameraRT");
+  m_hRenderTarget = ezResourceManager::GetExistingResource<ezRenderToTexture2DResource>("EditorCameraRT");
 
   if (!m_hRenderTarget.IsValid())
   {
     const float fAspect = 9.0f / 16.0f;
     const ezUInt32 uiWidth = 256;
 
-    ezTexture2DResourceDescriptor d;
-    d.m_DescGAL.SetAsRenderTarget(uiWidth, (ezUInt32)(uiWidth * fAspect), ezGALResourceFormat::RGBAUByteNormalizedsRGB);
+    ezRenderToTexture2DResourceDescriptor d;
+    d.m_Format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+    d.m_uiWidth = uiWidth;
+    d.m_uiHeight = (ezUInt32)(uiWidth * fAspect);
 
-    m_hRenderTarget = ezResourceManager::CreateResource<ezTexture2DResource>("EditorCameraRT", d);
+    m_hRenderTarget = ezResourceManager::CreateResource<ezRenderToTexture2DResource>("EditorCameraRT", d);
   }
 
   CreateRenderTargetView(view);
@@ -115,7 +117,7 @@ void ezEditorSelectedObjectsExtractor::CreateRenderTargetView(const ezView& view
 {
   EZ_ASSERT_DEV(m_hRenderTargetView.IsInvalidated(), "Render target view is already created");
 
-  ezResourceLock<ezTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezRenderToTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::NoFallback);
 
   ezStringBuilder name("EditorCameraRT");
 

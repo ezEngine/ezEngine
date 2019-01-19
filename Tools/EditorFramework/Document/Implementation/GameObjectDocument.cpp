@@ -468,7 +468,7 @@ void ezGameObjectDocument::DeallocateEditTools()
 
 void ezGameObjectDocument::InitializeAfterLoading()
 {
-  ezAssetDocument::InitializeAfterLoading();
+  SUPER::InitializeAfterLoading();
   GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::SelectionManagerEventHandler, this));
   GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectPropertyEventHandler, this));
   GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectStructureEventHandler, this));

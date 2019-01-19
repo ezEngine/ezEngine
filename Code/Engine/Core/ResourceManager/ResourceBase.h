@@ -231,6 +231,7 @@ private:
   /// But in the default case, the resource defines which loader is used.
   virtual ezResourceTypeLoader* GetDefaultResourceTypeLoader() const;
 
+protected: // TODO (resources): hide these from derived types if possible
   volatile ezResourceState m_LoadingState;
 
   ezUInt8 m_uiQualityLevelsDiscardable;
@@ -265,7 +266,6 @@ private:
 
   virtual void ReportResourceIsMissing();
 
-  ezBitflags<ezResourceFlags> m_Flags;
 
   ezUInt32 m_uiUniqueIDHash;
   ezUInt32 m_uiResourceChangeCounter;
@@ -275,9 +275,12 @@ private:
   ezString m_UniqueID;
   ezString m_sResourceDescription;
 
-  MemoryUsage m_MemoryUsage;
 
   ezTime m_LastAcquire;
   ezTime m_DueDate;
   ezTimestamp m_LoadedFileModificationTime;
+
+protected: // TODO (resources): hide these from derived types if possible
+  MemoryUsage m_MemoryUsage;
+  ezBitflags<ezResourceFlags> m_Flags;
 };

@@ -42,15 +42,17 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::GetExistingResource(const
 
   EZ_LOCK(s_ResourceMutex);
 
+  // TODO (resources): also check derived types
+
   if (s_LoadedResources[ezGetStaticRTTI<ResourceType>()].m_Resources.TryGetValue(sResourceHash, pResource))
     return ezTypedResourceHandle<ResourceType>((ResourceType*)pResource);
 
   return ezTypedResourceHandle<ResourceType>();
 }
 
-template <typename ResourceType>
+template <typename ResourceType, typename DescriptorType>
 ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(const char* szResourceID,
-                                                                      const typename ResourceType::DescriptorType& descriptor,
+                                                                      const DescriptorType& descriptor,
                                                                       const char* szResourceDescription)
 {
   EZ_LOG_BLOCK("ezResourceManager::CreateResource", szResourceID);
@@ -66,9 +68,8 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(const char
   EZ_ASSERT_DEV(pResource->GetLoadingState() == ezResourceState::Unloaded,
                 "CreateResource was called on a resource that is already created");
 
-  // If this does not compile, you have forgotten to make ezResourceManager a friend of your resource class.
-  // which probably means that you did not derive from ezResource, which you should do!
-  static_cast<ezResource<ResourceType, typename ResourceType::DescriptorType>*>(pResource)->CallCreateResource(descriptor);
+  // If this does not compile, you probably passed in the wrong descriptor type for the given resource type
+  pResource->CallCreateResource(descriptor);
 
   EZ_ASSERT_DEV(pResource->GetLoadingState() != ezResourceState::Unloaded, "CreateResource did not set the loading state properly.");
 
@@ -90,7 +91,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
 
   EZ_ASSERT_DEV(pResource->m_iLockCount < 20,
                 "You probably forgot somewhere to call 'EndAcquireResource' in sync with 'BeginAcquireResource'.");
-  EZ_ASSERT_DEBUG(pResource->GetDynamicRTTI() == ezGetStaticRTTI<ResourceType>(),
+  EZ_ASSERT_DEBUG(pResource->GetDynamicRTTI()->IsDerivedFrom<ResourceType>(),
                   "The requested resource does not have the same type ('{0}') as the resource handle ('{1}').",
                   pResource->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<ResourceType>()->GetTypeName());
 

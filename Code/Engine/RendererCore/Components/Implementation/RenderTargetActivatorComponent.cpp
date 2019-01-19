@@ -12,7 +12,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRenderTargetActivatorComponent, 1, ezComponentMode::St
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Texture", GetTextureFile, SetTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Render Target")),
+    EZ_ACCESSOR_PROPERTY("RenderTarget", GetRenderTargetFile, SetRenderTargetFile)->AddAttributes(new ezAssetBrowserAttribute("Render Target")),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -37,7 +37,7 @@ void ezRenderTargetActivatorComponent::SerializeComponent(ezWorldWriter& stream)
   SUPER::SerializeComponent(stream);
   ezStreamWriter& s = stream.GetStream();
 
-  s << m_hTexture;
+  s << m_hRenderTarget;
 }
 
 void ezRenderTargetActivatorComponent::DeserializeComponent(ezWorldReader& stream)
@@ -47,12 +47,12 @@ void ezRenderTargetActivatorComponent::DeserializeComponent(ezWorldReader& strea
 
   ezStreamReader& s = stream.GetStream();
 
-  s >> m_hTexture;
+  s >> m_hRenderTarget;
 }
 
 ezResult ezRenderTargetActivatorComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
-  if (m_hTexture.IsValid())
+  if (m_hRenderTarget.IsValid())
   {
     bounds = ezBoundingSphere(ezVec3::ZeroVector(), 0.1f);
     return EZ_SUCCESS;
@@ -69,42 +69,42 @@ void ezRenderTargetActivatorComponent::OnExtractRenderData(ezMsgExtractRenderDat
       msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView)
     return;
 
-  if (!m_hTexture.IsValid())
+  if (!m_hRenderTarget.IsValid())
     return;
 
-  ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezRenderToTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::NoFallback);
 
-  for (auto hView : pTexture->GetAllRenderViews())
+  for (auto hView : pRenderTarget->GetAllRenderViews())
   {
     ezRenderWorld::AddViewToRender(hView);
   }
 }
 
-void ezRenderTargetActivatorComponent::SetTexture(const ezTexture2DResourceHandle& hResource)
+void ezRenderTargetActivatorComponent::SetRenderTarget(const ezRenderToTexture2DResourceHandle& hResource)
 {
-  m_hTexture = hResource;
+  m_hRenderTarget = hResource;
 
   TriggerLocalBoundsUpdate();
 }
 
-void ezRenderTargetActivatorComponent::SetTextureFile(const char* szFile)
+void ezRenderTargetActivatorComponent::SetRenderTargetFile(const char* szFile)
 {
-  ezTexture2DResourceHandle hResource;
+  ezRenderToTexture2DResourceHandle hResource;
 
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
-    hResource = ezResourceManager::LoadResource<ezTexture2DResource>(szFile);
+    hResource = ezResourceManager::LoadResource<ezRenderToTexture2DResource>(szFile);
   }
 
-  SetTexture(hResource);
+  SetRenderTarget(hResource);
 }
 
-const char* ezRenderTargetActivatorComponent::GetTextureFile() const
+const char* ezRenderTargetActivatorComponent::GetRenderTargetFile() const
 {
-  if (!m_hTexture.IsValid())
+  if (!m_hRenderTarget.IsValid())
     return "";
 
-  return m_hTexture.GetResourceID();
+  return m_hRenderTarget.GetResourceID();
 }
 
 

@@ -122,7 +122,7 @@ private:
 
   ezEnum<ezCameraUsageHint> m_UsageHint;
   ezEnum<ezCameraMode> m_Mode;
-  ezTexture2DResourceHandle m_hRenderTarget;
+  ezRenderToTexture2DResourceHandle m_hRenderTarget;
   float m_fNearPlane;
   float m_fFarPlane;
   float m_fPerspectiveFieldOfView;

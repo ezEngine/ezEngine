@@ -2,21 +2,25 @@
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/Image/Formats/DdsFileFormat.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/Resources/Texture.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTexture2DResource, 1, ezRTTIDefaultAllocator<ezTexture2DResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezCVarInt CVarRenderTargetResolution1("r_RenderTargetResolution1", 256, ezCVarFlags::Default, "Configurable render target resolution");
 ezCVarInt CVarRenderTargetResolution2("r_RenderTargetResolution2", 512, ezCVarFlags::Default, "Configurable render target resolution");
 
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezTexture2DResource);
+
 ezTexture2DResource::ezTexture2DResource()
-    : ezResource<ezTexture2DResource, ezTexture2DResourceDescriptor>(DoUpdate::OnAnyThread,
-                                                                     ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
+    : ezResourceBase(DoUpdate::OnAnyThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
 {
   m_uiLoadedTextures = 0;
   m_uiMemoryGPU[0] = 0;
@@ -61,7 +65,6 @@ ezResourceLoadDesc ezTexture2DResource::UnloadData(Unload WhatToUnload)
   res.m_uiQualityLevelsDiscardable = m_uiLoadedTextures;
   res.m_uiQualityLevelsLoadable = 2 - m_uiLoadedTextures;
   res.m_State = m_uiLoadedTextures == 0 ? ezResourceState::Unloaded : ezResourceState::Loaded;
-
   return res;
 }
 
@@ -125,37 +128,6 @@ void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& td, c
 }
 
 
-ezGALRenderTargetViewHandle ezTexture2DResource::GetRenderTargetView() const
-{
-  // TODO: validate
-
-  return ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(m_hGALTexture[0]);
-}
-
-void ezTexture2DResource::AddRenderView(ezViewHandle hView)
-{
-  m_RenderViews.PushBack(hView);
-}
-
-void ezTexture2DResource::RemoveRenderView(ezViewHandle hView)
-{
-  m_RenderViews.RemoveAndSwap(hView);
-}
-
-const ezDynamicArray<ezViewHandle>& ezTexture2DResource::GetAllRenderViews() const
-{
-  return m_RenderViews;
-}
-
-static int GetNextBestResolution(float res)
-{
-  res = ezMath::Clamp(res, 8.0f, 4096.0f);
-
-  int mulEight = (int)ezMath::Floor((res + 7.9f) / 8.0f);
-
-  return mulEight * 8;
-}
-
 ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
 {
   if (Stream == nullptr)
@@ -203,47 +175,8 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
   }
 
   const bool bIsRenderTarget = iRenderTargetResX != 0;
+  EZ_ASSERT_DEV(!bIsRenderTarget, "Render targets are not supported by regular 2D texture resources");
 
-  if (bIsRenderTarget)
-  {
-    EZ_ASSERT_DEV(m_uiLoadedTextures == 0, "not implemented");
-
-    if (iRenderTargetResX == -1)
-    {
-      if (iRenderTargetResY == 1)
-      {
-        iRenderTargetResX = GetNextBestResolution(CVarRenderTargetResolution1 * fResolutionScale);
-        iRenderTargetResY = iRenderTargetResX;
-      }
-      else if (iRenderTargetResY == 2)
-      {
-        iRenderTargetResX = GetNextBestResolution(CVarRenderTargetResolution2 * fResolutionScale);
-        iRenderTargetResY = iRenderTargetResX;
-      }
-      else
-      {
-        EZ_REPORT_FAILURE("Invalid render target configuration: {0} x {1}", iRenderTargetResX, iRenderTargetResY);
-      }
-    }
-
-    td.m_DescGAL.SetAsRenderTarget(iRenderTargetResX, iRenderTargetResY, static_cast<ezGALResourceFormat::Enum>(galFormat));
-
-    ezTextureUtils::ConfigureSampler(textureFilter, td.m_SamplerDesc);
-
-    m_uiLoadedTextures = 0;
-
-    CreateResource(td);
-
-    {
-      ezResourceLoadDesc res;
-      res.m_uiQualityLevelsDiscardable = 1;
-      res.m_uiQualityLevelsLoadable = 0;
-      res.m_State = ezResourceState::Loaded;
-
-      return res;
-    }
-  }
-  else
   {
 
     const ezUInt32 uiNumMipmapsLowRes =
@@ -319,7 +252,7 @@ void ezTexture2DResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = m_uiMemoryGPU[0] + m_uiMemoryGPU[1];
 }
 
-ezResourceLoadDesc ezTexture2DResource::CreateResource(const ezTexture2DResourceDescriptor& descriptor)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezTexture2DResource, ezTexture2DResourceDescriptor)
 {
   ezResourceLoadDesc ret;
   ret.m_uiQualityLevelsDiscardable = descriptor.m_uiQualityLevelsDiscardable;
@@ -349,6 +282,224 @@ ezResourceLoadDesc ezTexture2DResource::CreateResource(const ezTexture2DResource
   ++m_uiLoadedTextures;
 
   return ret;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+// TODO (resources): move into separate file
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderToTexture2DResource, 1, ezRTTIDefaultAllocator<ezRenderToTexture2DResource>);
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, Texture2D)
+
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "ResourceManager" 
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_CORESYSTEMS_STARTUP 
+  {
+    ezResourceManager::RegisterDerivedResourceType(ezGetStaticRTTI<ezTexture2DResource>(), ezGetStaticRTTI<ezRenderToTexture2DResource>(), [](const char* szResourceID) -> bool  {
+        return ezPathUtils::HasExtension(szResourceID, "ezRenderTarget");
+      });
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
+
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezRenderToTexture2DResource);
+
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezRenderToTexture2DResource, ezRenderToTexture2DResourceDescriptor)
+{
+  ezResourceLoadDesc ret;
+  ret.m_uiQualityLevelsDiscardable = 0;
+  ret.m_uiQualityLevelsLoadable = 0;
+  ret.m_State = ezResourceState::Loaded;
+
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  m_Type = ezGALTextureType::Texture2D;
+  m_Format = descriptor.m_Format;
+  m_uiWidth = descriptor.m_uiWidth;
+  m_uiHeight = descriptor.m_uiHeight;
+
+  ezGALTextureCreationDescription descGAL;
+  descGAL.SetAsRenderTarget(m_uiWidth, m_uiHeight, m_Format, descriptor.m_SampleCount);
+
+  m_hGALTexture[m_uiLoadedTextures] = pDevice->CreateTexture(descGAL, descriptor.m_InitialContent);
+  EZ_ASSERT_DEV(!m_hGALTexture[m_uiLoadedTextures].IsInvalidated(), "Texture data could not be uploaded to the GPU");
+
+  pDevice->GetTexture(m_hGALTexture[m_uiLoadedTextures])->SetDebugName(GetResourceDescription());
+
+  if (!m_hSamplerState.IsInvalidated())
+  {
+    pDevice->DestroySamplerState(m_hSamplerState);
+  }
+
+  m_hSamplerState = pDevice->CreateSamplerState(descriptor.m_SamplerDesc);
+  EZ_ASSERT_DEV(!m_hSamplerState.IsInvalidated(), "Sampler state error");
+
+  ++m_uiLoadedTextures;
+
+  return ret;
+}
+
+ezResourceLoadDesc ezRenderToTexture2DResource::UnloadData(Unload WhatToUnload)
+{
+  for (ezInt32 r = 0; r < 2; ++r)
+  {
+    if (!m_hGALTexture[r].IsInvalidated())
+    {
+      ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hGALTexture[r]);
+      m_hGALTexture[r].Invalidate();
+    }
+
+    m_uiMemoryGPU[r] = 0;
+  }
+
+  m_uiLoadedTextures = 0;
+
+  if (!m_hSamplerState.IsInvalidated())
+  {
+    ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSamplerState);
+    m_hSamplerState.Invalidate();
+  }
+
+  ezResourceLoadDesc res;
+  res.m_uiQualityLevelsDiscardable = m_uiLoadedTextures;
+  res.m_uiQualityLevelsLoadable = 2 - m_uiLoadedTextures;
+  res.m_State = ezResourceState::Unloaded;
+  return res;
+}
+
+ezGALRenderTargetViewHandle ezRenderToTexture2DResource::GetRenderTargetView() const
+{
+  return ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(m_hGALTexture[0]);
+}
+
+void ezRenderToTexture2DResource::AddRenderView(ezViewHandle hView)
+{
+  m_RenderViews.PushBack(hView);
+}
+
+void ezRenderToTexture2DResource::RemoveRenderView(ezViewHandle hView)
+{
+  m_RenderViews.RemoveAndSwap(hView);
+}
+
+const ezDynamicArray<ezViewHandle>& ezRenderToTexture2DResource::GetAllRenderViews() const
+{
+  return m_RenderViews;
+}
+
+static int GetNextBestResolution(float res)
+{
+  res = ezMath::Clamp(res, 8.0f, 4096.0f);
+
+  int mulEight = (int)ezMath::Floor((res + 7.9f) / 8.0f);
+
+  return mulEight * 8;
+}
+
+ezResourceLoadDesc ezRenderToTexture2DResource::UpdateContent(ezStreamReader* Stream)
+{
+  if (Stream == nullptr)
+  {
+    ezResourceLoadDesc res;
+    res.m_uiQualityLevelsDiscardable = 0;
+    res.m_uiQualityLevelsLoadable = 0;
+    res.m_State = ezResourceState::LoadedResourceMissing;
+
+    return res;
+  }
+
+  ezRenderToTexture2DResourceDescriptor td;
+  ezEnum<ezTextureFilterSetting> textureFilter;
+  ezImage* pImage = nullptr;
+  bool bIsFallback = false;
+  bool bSRGB = false;
+  ezInt16 iRenderTargetResX = 0, iRenderTargetResY = 0;
+  float fResolutionScale = 1.0f;
+  int galFormat = 0;
+
+  // load image data
+  {
+    Stream->ReadBytes(&pImage, sizeof(ezImage*));
+    *Stream >> bIsFallback;
+    *Stream >> bSRGB;
+
+    ezEnum<ezGALTextureAddressMode> addressModeU;
+    ezEnum<ezGALTextureAddressMode> addressModeV;
+    ezEnum<ezGALTextureAddressMode> addressModeW;
+
+    *Stream >> addressModeU;
+    *Stream >> addressModeV;
+    *Stream >> addressModeW;
+    *Stream >> textureFilter;
+
+    td.m_SamplerDesc.m_AddressU = addressModeU;
+    td.m_SamplerDesc.m_AddressV = addressModeV;
+    td.m_SamplerDesc.m_AddressW = addressModeW;
+
+    *Stream >> iRenderTargetResX;
+    *Stream >> iRenderTargetResY;
+    *Stream >> fResolutionScale;
+    *Stream >> galFormat;
+  }
+
+  const bool bIsRenderTarget = iRenderTargetResX != 0;
+
+  EZ_ASSERT_DEV(bIsRenderTarget, "Trying to create a RenderToTexture resource from data that is not set up as a render-target");
+
+  {
+    EZ_ASSERT_DEV(m_uiLoadedTextures == 0, "not implemented");
+
+    if (iRenderTargetResX == -1)
+    {
+      if (iRenderTargetResY == 1)
+      {
+        iRenderTargetResX = GetNextBestResolution(CVarRenderTargetResolution1 * fResolutionScale);
+        iRenderTargetResY = iRenderTargetResX;
+      }
+      else if (iRenderTargetResY == 2)
+      {
+        iRenderTargetResX = GetNextBestResolution(CVarRenderTargetResolution2 * fResolutionScale);
+        iRenderTargetResY = iRenderTargetResX;
+      }
+      else
+      {
+        EZ_REPORT_FAILURE("Invalid render target configuration: {0} x {1}", iRenderTargetResX, iRenderTargetResY);
+      }
+    }
+
+    td.m_Format = static_cast<ezGALResourceFormat::Enum>(galFormat);
+    td.m_uiWidth = iRenderTargetResX;
+    td.m_uiHeight = iRenderTargetResY;
+
+    ezTextureUtils::ConfigureSampler(textureFilter, td.m_SamplerDesc);
+
+    m_uiLoadedTextures = 0;
+
+    CreateResource(td);
+  }
+
+  ezResourceLoadDesc res;
+  res.m_uiQualityLevelsDiscardable = 0;
+  res.m_uiQualityLevelsLoadable = 0;
+  res.m_State = ezResourceState::Loaded;
+  return res;
+}
+
+void ezRenderToTexture2DResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+{
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezRenderToTexture2DResource);
+  out_NewMemoryUsage.m_uiMemoryGPU = m_uiMemoryGPU[0] + m_uiMemoryGPU[1];
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_Texture2DResource);

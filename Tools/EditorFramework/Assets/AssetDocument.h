@@ -121,7 +121,7 @@ protected:
   /// \brief Implements auto transform on save
   virtual void InternalAfterSaveDocument() override;
 
-  virtual void InitializeAfterLoading() override;
+  virtual void InitializeAfterLoadingAndSaving() override;
 
   ///@}
   /// \name Asset Functions

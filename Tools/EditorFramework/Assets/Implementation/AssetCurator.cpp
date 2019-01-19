@@ -511,6 +511,8 @@ ezResult ezAssetCurator::WriteAssetTables(const ezPlatformProfile* pAssetProfile
 {
   EZ_LOG_BLOCK("ezAssetCurator::WriteAssetTables");
 
+  // TODO: figure out a way to early out this function, if nothing can have changed
+
   ezResult res = EZ_SUCCESS;
 
   ezStringBuilder s;

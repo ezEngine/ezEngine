@@ -19,30 +19,32 @@ ezCVarFloat CVarTextureLoadingDelay("r_TextureLoadDelay", 0.0f, ezCVarFlags::Sav
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, TextureResource)
 
-BEGIN_SUBSYSTEM_DEPENDENCIES
-"Foundation",
-"Core"
-END_SUBSYSTEM_DEPENDENCIES
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "Foundation",
+    "Core"
+  END_SUBSYSTEM_DEPENDENCIES
 
-ON_CORESYSTEMS_STARTUP
-{
-  ezResourceManager::SetResourceTypeLoader<ezTexture2DResource>(&s_TextureResourceLoader);
-  ezResourceManager::SetResourceTypeLoader<ezTextureCubeResource>(&s_TextureResourceLoader);
-}
+  ON_CORESYSTEMS_STARTUP
+  {
+    ezResourceManager::SetResourceTypeLoader<ezTexture2DResource>(&s_TextureResourceLoader);
+    ezResourceManager::SetResourceTypeLoader<ezTextureCubeResource>(&s_TextureResourceLoader);
+    ezResourceManager::SetResourceTypeLoader<ezRenderToTexture2DResource>(&s_TextureResourceLoader);
+  }
 
-ON_CORESYSTEMS_SHUTDOWN
-{
-  ezResourceManager::SetResourceTypeLoader<ezTexture2DResource>(nullptr);
-  ezResourceManager::SetResourceTypeLoader<ezTextureCubeResource>(nullptr);
-}
+  ON_CORESYSTEMS_SHUTDOWN
+  {
+    ezResourceManager::SetResourceTypeLoader<ezTexture2DResource>(nullptr);
+    ezResourceManager::SetResourceTypeLoader<ezTextureCubeResource>(nullptr);
+    ezResourceManager::SetResourceTypeLoader<ezRenderToTexture2DResource>(nullptr);
+  }
 
-ON_HIGHLEVELSYSTEMS_STARTUP
-{
-}
+  ON_HIGHLEVELSYSTEMS_STARTUP
+  {
+  }
 
-ON_HIGHLEVELSYSTEMS_SHUTDOWN
-{
-}
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
+  {
+  }
 
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on

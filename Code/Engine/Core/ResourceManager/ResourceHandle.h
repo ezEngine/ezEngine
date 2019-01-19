@@ -119,6 +119,13 @@ public:
   {
   }
 
+  template <typename DerivedType>
+  ezTypedResourceHandle(const ezTypedResourceHandle<DerivedType>& rhs)
+      : m_Typeless(rhs.m_Typeless)
+  {
+    static_assert(std::is_base_of_v<ResourceType, DerivedType>, "Only derived types can be assigned to handles of this type");
+  }
+
   /// \brief Releases the current reference and increases the refcount of the given resource.
   void operator=(const ezTypedResourceHandle<ResourceType>& rhs) { m_Typeless = rhs.m_Typeless; }
 
@@ -162,6 +169,9 @@ public:
   EZ_ALWAYS_INLINE const ezString& GetResourceID() const { return m_Typeless.GetResourceID(); }
 
 private:
+  template <typename T>
+  friend class ezTypedResourceHandle;
+
   ezTypelessResourceHandle m_Typeless;
 
 private:

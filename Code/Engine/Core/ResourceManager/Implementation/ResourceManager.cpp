@@ -3,6 +3,7 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 
 /// \todo Do not unload resources while they are acquired
 /// \todo Resource Type Memory Thresholds
@@ -49,6 +50,7 @@ ezMap<ezString, const ezRTTI*> ezResourceManager::s_AssetToResourceType;
 ezMap<ezResourceBase*, ezUniquePtr<ezResourceTypeLoader>> ezResourceManager::s_CustomLoaders;
 ezAtomicInteger32 ezResourceManager::s_ResourcesLoadedRecently;
 ezAtomicInteger32 ezResourceManager::s_ResourcesInLoadingLimbo;
+ezMap<const ezRTTI*, ezHybridArray<ezResourceManager::DerivedTypeInfo, 4>> ezResourceManager::s_DerivedTypeInfos;
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ResourceManager)
@@ -972,9 +974,30 @@ ezResourceBase* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* 
   if (ezStringUtils::IsNullOrEmpty(szResourceID))
     return nullptr;
 
+  EZ_LOCK(s_ResourceMutex);
+
+  {
+    // TODO (resources): also check derived-derived types somehow
+
+    auto it = s_DerivedTypeInfos.Find(pRtti);
+    if (it.IsValid())
+    {
+      ezStringBuilder sRedirectedPath;
+      ezFileSystem::ResolveAssetRedirection(szResourceID, sRedirectedPath);
+      for (const auto& info : it.Value())
+      {
+        if (info.m_Decider(sRedirectedPath))
+        {
+          pRtti = info.m_pDerivedType;
+          break;
+        }
+      }
+    }
+  }
+
   EZ_ASSERT_DEBUG(pRtti != nullptr, "There is no RTTI information available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
-  EZ_ASSERT_DEBUG(pRtti->GetAllocator() != nullptr, "There is no RTTI allocator available for the given resource type '{0}'",
-                  EZ_STRINGIZE(ResourceType));
+  EZ_ASSERT_DEBUG(pRtti->GetAllocator() != nullptr && pRtti->GetAllocator()->CanAllocate(),
+                  "There is no RTTI allocator available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
 
   ezResourceBase* pResource = nullptr;
   ezTempHashedString sHashedResourceID(szResourceID);
@@ -999,6 +1022,18 @@ ezResourceBase* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* 
   lr.m_Resources.Insert(sHashedResourceID, pNewResource);
 
   return pNewResource;
+}
+
+void ezResourceManager::RegisterDerivedResourceType(const ezRTTI* pBaseType, const ezRTTI* pDerivedTypeToUse,
+                                                    ezDelegate<bool(const char*)> Decider)
+{
+  // TODO (resources): overrides also have to work for derived-derived types somehow
+  // TODO (resources): allow to unregister overrides (or do automatically ?)
+  // TODO (resources): do we need the base-type at all?
+
+  auto& info = s_DerivedTypeInfos[pBaseType].ExpandAndGetRef();
+  info.m_pDerivedType = pDerivedTypeToUse;
+  info.m_Decider = Decider;
 }
 
 ezTypelessResourceHandle ezResourceManager::LoadResourceByType(const ezRTTI* pResourceType, const char* szResourceID)

@@ -232,17 +232,16 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
         out_pDocument->m_pDocumentManager = this;
         m_AllDocuments.PushBack(out_pDocument);
 
-        {
-          EZ_PROFILE_SCOPE("InitializeBeforeLoading");
-          out_pDocument->InitializeBeforeLoading();
-        }
         if (!bCreate)
+        {
           status = out_pDocument->LoadDocument();
+        }
 
         {
           EZ_PROFILE_SCOPE("InitializeAfterLoading");
           out_pDocument->InitializeAfterLoading();
         }
+
         if (bCreate)
         {
           out_pDocument->SetModified(true);
@@ -256,6 +255,12 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
             status = out_pDocument->SaveDocument();
           }
         }
+
+        {
+          EZ_PROFILE_SCOPE("InitializeAfterLoadingAndSaving");
+          out_pDocument->InitializeAfterLoadingAndSaving();
+        }
+
         Event e;
         e.m_pDocument = out_pDocument;
         e.m_Type = Event::Type::DocumentOpened;

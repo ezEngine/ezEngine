@@ -109,7 +109,7 @@ void ezAssetDocument::InternalAfterSaveDocument()
   }
 }
 
-void ezAssetDocument::InitializeAfterLoading()
+void ezAssetDocument::InitializeAfterLoadingAndSaving()
 {
   if (m_bUseEngineConnection)
   {

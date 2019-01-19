@@ -9,6 +9,7 @@ class ezShaderStageBinary;
 struct ezVertexDeclarationInfo;
 
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
+typedef ezTypedResourceHandle<class ezRenderToTexture2DResource> ezRenderToTexture2DResourceHandle;
 typedef ezTypedResourceHandle<class ezTextureCubeResource> ezTextureCubeResourceHandle;
 typedef ezTypedResourceHandle<class ezMeshBufferResource> ezMeshBufferResourceHandle;
 typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;

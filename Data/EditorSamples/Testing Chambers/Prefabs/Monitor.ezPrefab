@@ -47,7 +47,7 @@ o
 	p
 	{
 		b %Active{1}
-		s %Texture{"{ 045da91f-697c-4263-8910-5f752ec262b2 }"}
+		s %RenderTarget{"{ 045da91f-697c-4263-8910-5f752ec262b2 }"}
 	}
 }
 o

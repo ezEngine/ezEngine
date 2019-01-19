@@ -95,9 +95,8 @@ public:
   /// \param descriptor A type specific descriptor that holds all the information to create the resource.
   /// \param szResourceDescription An optional description that might help during debugging. Often a human readable name or path is stored
   /// here, to make it easier to identify this resource.
-  template <typename ResourceType>
-  static ezTypedResourceHandle<ResourceType> CreateResource(const char* szResourceID,
-                                                            const typename ResourceType::DescriptorType& descriptor,
+  template <typename ResourceType, typename DescriptorType>
+  static ezTypedResourceHandle<ResourceType> CreateResource(const char* szResourceID, const DescriptorType& descriptor,
                                                             const char* szResourceDescription = nullptr);
 
   /// \brief Returns a handle to the resource with the given ID. If the resource does not exist, the handle is invalid.
@@ -178,9 +177,9 @@ public:
   /// \brief Sets up a new or existing category of resources.
   ///
   /// Each resource can be assigned to one category. All resources with the same category share the same total memory limits.
-  //static void ConfigureResourceCategory(const char* szCategoryName, ezUInt64 uiMemoryLimitCPU, ezUInt64 uiMemoryLimitGPU);
+  // static void ConfigureResourceCategory(const char* szCategoryName, ezUInt64 uiMemoryLimitCPU, ezUInt64 uiMemoryLimitGPU);
 
-  //static const ezResourceCategory& GetResourceCategory(const char* szCategoryName);
+  // static const ezResourceCategory& GetResourceCategory(const char* szCategoryName);
 
   /// \brief Registers a 'named' resource. When a resource is looked up using \a szLookupName, the lookup will be redirected to \a
   /// szRedirectionResource.
@@ -219,6 +218,16 @@ public:
 
   static void SetResourceLowResData(const ezTypelessResourceHandle& hResource, ezStreamReader* pStream);
 
+  // TODO (resources): clean this up
+  static void RegisterDerivedResourceType(const ezRTTI* pBaseType, const ezRTTI* pDerivedTypeToUse, ezDelegate<bool(const char*)> Decider);
+
+  struct DerivedTypeInfo
+  {
+    const ezRTTI* m_pDerivedType = nullptr;
+    ezDelegate<bool(const char*)> m_Decider;
+  };
+  static ezMap<const ezRTTI*, ezHybridArray<DerivedTypeInfo, 4>> s_DerivedTypeInfos;
+
 private:
   friend class ezResourceBase;
   friend class ezResourceManagerWorkerDiskRead;
@@ -228,7 +237,11 @@ private:
   template <typename A, typename B>
   friend class ezResource;
 
+public:
+  // TODO (resources): hide
   static void BroadcastResourceEvent(const ezResourceEvent& e);
+
+private:
   static void PluginEventHandler(const ezPlugin::PluginEvent& e);
 
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, ResourceManager);
@@ -302,7 +315,7 @@ private:
   static ezTime m_LastDeadLineUpdate;
   static ezTime m_LastFrameUpdate;
   static bool m_bBroadcastExistsEvent;
-  //static ezHashTable<ezUInt32, ezResourceCategory> m_ResourceCategories;
+  // static ezHashTable<ezUInt32, ezResourceCategory> m_ResourceCategories;
   static ezMutex s_ResourceMutex;
   static ezHashTable<ezTempHashedString, ezHashedString> s_NamedResources;
   static ezMap<ezString, const ezRTTI*> s_AssetToResourceType;

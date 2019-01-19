@@ -64,7 +64,7 @@ void ezSceneDocument::InitializeAfterLoading()
     return GetObjectManager()->IsUnderRootProperty("Children", pObject, szProperty);
   });
 
-  ezGameObjectDocument::InitializeAfterLoading();
+  SUPER::InitializeAfterLoading();
   EnsureSettingsObjectExist();
 
   m_DocumentObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezSceneDocument::DocumentObjectMetaDataEventHandler, this));
