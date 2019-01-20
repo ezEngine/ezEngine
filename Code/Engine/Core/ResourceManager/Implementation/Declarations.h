@@ -8,9 +8,6 @@
 class ezResourceManager;
 
 // resource base classes
-class ezResourceBase;
-
-template <typename SELF, typename SELF_DESCRIPTOR>
 class ezResource;
 
 // resource handle type
@@ -19,12 +16,12 @@ class ezTypedResourceHandle;
 
 // clang-format off
 
-/// \brief The flags of an ezResourceBase instance.
+/// \brief The flags of an ezResource instance.
 struct EZ_CORE_DLL ezResourceFlags
 {
   typedef ezUInt16 StorageType;
 
-  /// \brief The flags of an ezResourceBase instance.
+  /// \brief The flags of an ezResource instance.
   enum Enum
   {
     UpdateOnMainThread    = EZ_BIT(0),  ///< After loading the resource data on a thread, it must be uploaded on the main thread. Use this for resources which require a context that is only available on the main thread.

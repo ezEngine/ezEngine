@@ -1,9 +1,9 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Math/Rect.h>
+#include <RendererCore/Basics.h>
 
 typedef ezTypedResourceHandle<class ezDecalAtlasResource> ezDecalAtlasResourceHandle;
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
@@ -14,9 +14,11 @@ struct ezDecalAtlasResourceDescriptor
 {
 };
 
-class EZ_RENDERERCORE_DLL ezDecalAtlasResource : public ezResource<ezDecalAtlasResource, ezDecalAtlasResourceDescriptor>
+class EZ_RENDERERCORE_DLL ezDecalAtlasResource : public ezResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDecalAtlasResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezDecalAtlasResource, ezResource);
+  EZ_RESOURCE_DECLARE_COMMON_CODE(ezDecalAtlasResource);
+  EZ_RESOURCE_DECLARE_CREATEABLE(ezDecalAtlasResource, ezDecalAtlasResourceDescriptor);
 
 public:
   ezDecalAtlasResource();
@@ -45,7 +47,6 @@ private:
   void ReadDecalInfo(ezStreamReader* Stream);
 
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(ezDecalAtlasResourceDescriptor&& descriptor) override;
 
   void CreateLayerTexture(const ezImage& img, bool bSRGB, ezTexture2DResourceHandle& out_hTexture);
 
@@ -56,4 +57,3 @@ private:
   ezVec2U32 m_BaseColorSize;
   ezVec2U32 m_NormalSize;
 };
-

@@ -15,7 +15,7 @@ struct FileResourceLoadData
   ezMemoryStreamReader m_Reader;
 };
 
-ezResourceLoadData ezResourceLoaderFromFile::OpenDataStream(const ezResourceBase* pResource)
+ezResourceLoadData ezResourceLoaderFromFile::OpenDataStream(const ezResource* pResource)
 {
   ezResourceLoadData res;
 
@@ -59,14 +59,14 @@ ezResourceLoadData ezResourceLoaderFromFile::OpenDataStream(const ezResourceBase
   return res;
 }
 
-void ezResourceLoaderFromFile::CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData)
+void ezResourceLoaderFromFile::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData)
 {
   FileResourceLoadData* pData = static_cast<FileResourceLoadData*>(LoaderData.m_pCustomLoaderData);
 
   EZ_DEFAULT_DELETE(pData);
 }
 
-bool ezResourceLoaderFromFile::IsResourceOutdated(const ezResourceBase* pResource) const
+bool ezResourceLoaderFromFile::IsResourceOutdated(const ezResource* pResource) const
 {
   // if we cannot find the target file, there is no point in trying to reload it -> claim it's up to date
   ezStringBuilder sAbs;
@@ -94,7 +94,7 @@ bool ezResourceLoaderFromFile::IsResourceOutdated(const ezResourceBase* pResourc
 
 //////////////////////////////////////////////////////////////////////////
 
-ezResourceLoadData ezResourceLoaderFromMemory::OpenDataStream(const ezResourceBase* pResource)
+ezResourceLoadData ezResourceLoaderFromMemory::OpenDataStream(const ezResource* pResource)
 {
   m_Reader.SetStorage(&m_CustomData);
   m_Reader.SetReadPosition(0);
@@ -109,12 +109,12 @@ ezResourceLoadData ezResourceLoaderFromMemory::OpenDataStream(const ezResourceBa
   return res;
 }
 
-void ezResourceLoaderFromMemory::CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData)
+void ezResourceLoaderFromMemory::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData)
 {
   m_Reader.SetStorage(nullptr);
 }
 
-bool ezResourceLoaderFromMemory::IsResourceOutdated(const ezResourceBase* pResource) const
+bool ezResourceLoaderFromMemory::IsResourceOutdated(const ezResource* pResource) const
 {
   if (pResource->GetLoadedFileModificationTime().IsValid() && m_ModificationTimestamp.IsValid())
   {

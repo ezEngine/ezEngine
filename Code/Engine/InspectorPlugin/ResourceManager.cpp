@@ -7,7 +7,7 @@
 namespace ResourceManagerDetail
 {
 
-  static void SendFullResourceInfo(const ezResourceBase* pRes)
+  static void SendFullResourceInfo(const ezResource* pRes)
   {
     ezTelemetryMessage Msg;
 
@@ -30,7 +30,7 @@ namespace ResourceManagerDetail
     ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
   }
 
-  static void SendSmallResourceInfo(const ezResourceBase* pRes)
+  static void SendSmallResourceInfo(const ezResource* pRes)
   {
     ezTelemetryMessage Msg;
 
@@ -50,7 +50,7 @@ namespace ResourceManagerDetail
     ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
   }
 
-  static void SendDeleteResourceInfo(const ezResourceBase* pRes)
+  static void SendDeleteResourceInfo(const ezResource* pRes)
   {
     ezTelemetryMessage Msg;
 

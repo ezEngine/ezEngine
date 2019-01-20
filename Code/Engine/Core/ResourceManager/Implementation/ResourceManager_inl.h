@@ -36,7 +36,7 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* 
 template <typename ResourceType>
 ezTypedResourceHandle<ResourceType> ezResourceManager::GetExistingResource(const char* szResourceID)
 {
-  ezResourceBase* pResource = nullptr;
+  ezResource* pResource = nullptr;
 
   const ezTempHashedString sResourceHash(szResourceID);
 

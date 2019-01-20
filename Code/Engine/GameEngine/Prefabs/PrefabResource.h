@@ -25,9 +25,11 @@ struct EZ_GAMEENGINE_DLL ezExposedPrefabParameterDesc
   void Load(ezStreamReader& stream);
 };
 
-class EZ_GAMEENGINE_DLL ezPrefabResource : public ezResource<ezPrefabResource, ezPrefabResourceDescriptor>
+class EZ_GAMEENGINE_DLL ezPrefabResource : public ezResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPrefabResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezPrefabResource, ezResource);
+  EZ_RESOURCE_DECLARE_COMMON_CODE(ezPrefabResource);
+  EZ_RESOURCE_DECLARE_CREATEABLE(ezPrefabResource, ezPrefabResourceDescriptor);
 
 public:
   ezPrefabResource();
@@ -45,7 +47,6 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(ezPrefabResourceDescriptor&& descriptor) override;
 
 private:
   ezUInt32 FindFirstParamWithName(ezUInt32 uiNameHash) const;

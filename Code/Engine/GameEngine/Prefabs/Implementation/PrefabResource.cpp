@@ -5,11 +5,15 @@
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPrefabResource, 1, ezRTTIDefaultAllocator<ezPrefabResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezPrefabResource);
+// clang-format on
+
 ezPrefabResource::ezPrefabResource()
-    : ezResource<ezPrefabResource, ezPrefabResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -95,7 +99,7 @@ ezResourceLoadDesc ezPrefabResource::UnloadData(Unload WhatToUnload)
   res.m_uiQualityLevelsLoadable = 0;
   res.m_State = ezResourceState::Unloaded;
 
-  if (WhatToUnload == ezResourceBase::Unload::AllQualityLevels)
+  if (WhatToUnload == ezResource::Unload::AllQualityLevels)
   {
     m_WorldReader.ClearAndCompact();
   }
@@ -189,7 +193,7 @@ void ezPrefabResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryCPU = (ezUInt32)(m_WorldReader.GetHeapMemoryUsage() + sizeof(this));
 }
 
-ezResourceLoadDesc ezPrefabResource::CreateResource(ezPrefabResourceDescriptor&& descriptor)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezPrefabResource, ezPrefabResourceDescriptor)
 {
   ezResourceLoadDesc desc;
   desc.m_State = ezResourceState::Loaded;

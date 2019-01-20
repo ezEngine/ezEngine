@@ -46,12 +46,15 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalResource, 1, ezRTTIDefaultAllocator<ezDecalResource>)
-  ;
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalResource, 1, ezRTTIDefaultAllocator<ezDecalResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezDecalResource);
+// clang-format on
+
 ezDecalResource::ezDecalResource()
-    : ezResource<ezDecalResource, ezDecalResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -81,7 +84,7 @@ void ezDecalResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezDecalResource::CreateResource(ezDecalResourceDescriptor&& descriptor)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDecalResource, ezDecalResourceDescriptor)
 {
   ezResourceLoadDesc ret;
   ret.m_uiQualityLevelsDiscardable = 0;
@@ -93,7 +96,7 @@ ezResourceLoadDesc ezDecalResource::CreateResource(ezDecalResourceDescriptor&& d
 
 //////////////////////////////////////////////////////////////////////////
 
-ezResourceLoadData ezDecalResourceLoader::OpenDataStream(const ezResourceBase* pResource)
+ezResourceLoadData ezDecalResourceLoader::OpenDataStream(const ezResource* pResource)
 {
   // nothing to load, decals are solely identified by their id (name)
   // the rest of the information is in the decal atlas resource
@@ -102,12 +105,12 @@ ezResourceLoadData ezDecalResourceLoader::OpenDataStream(const ezResourceBase* p
   return res;
 }
 
-void ezDecalResourceLoader::CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData)
+void ezDecalResourceLoader::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData)
 {
   // nothing to do
 }
 
-bool ezDecalResourceLoader::IsResourceOutdated(const ezResourceBase* pResource) const
+bool ezDecalResourceLoader::IsResourceOutdated(const ezResource* pResource) const
 {
   // decals are never outdated
   return false;

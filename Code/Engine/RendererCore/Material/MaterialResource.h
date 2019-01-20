@@ -1,11 +1,11 @@
 #pragma once
 
+#include <Core/ResourceManager/Resource.h>
+#include <Foundation/Containers/HashTable.h>
+#include <Foundation/Strings/HashedString.h>
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
-#include <Foundation/Containers/HashTable.h>
-#include <Core/ResourceManager/Resource.h>
-#include <Foundation/Strings/HashedString.h>
 
 typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
@@ -18,10 +18,7 @@ struct ezMaterialResourceDescriptor
     ezHashedString m_Name;
     ezVariant m_Value;
 
-    EZ_FORCE_INLINE bool operator==(const Parameter& other) const
-    {
-      return m_Name == other.m_Name && m_Value == other.m_Value;
-    }
+    EZ_FORCE_INLINE bool operator==(const Parameter& other) const { return m_Name == other.m_Name && m_Value == other.m_Value; }
   };
 
   struct Texture2DBinding
@@ -29,10 +26,7 @@ struct ezMaterialResourceDescriptor
     ezHashedString m_Name;
     ezTexture2DResourceHandle m_Value;
 
-    EZ_FORCE_INLINE bool operator==(const Texture2DBinding& other) const
-    {
-      return m_Name == other.m_Name && m_Value == other.m_Value;
-    }
+    EZ_FORCE_INLINE bool operator==(const Texture2DBinding& other) const { return m_Name == other.m_Name && m_Value == other.m_Value; }
   };
 
   struct TextureCubeBinding
@@ -40,19 +34,13 @@ struct ezMaterialResourceDescriptor
     ezHashedString m_Name;
     ezTextureCubeResourceHandle m_Value;
 
-    EZ_FORCE_INLINE bool operator==(const TextureCubeBinding& other) const
-    {
-      return m_Name == other.m_Name && m_Value == other.m_Value;
-    }
+    EZ_FORCE_INLINE bool operator==(const TextureCubeBinding& other) const { return m_Name == other.m_Name && m_Value == other.m_Value; }
   };
 
   void Clear();
 
   bool operator==(const ezMaterialResourceDescriptor& other) const;
-  EZ_FORCE_INLINE bool operator!=(const ezMaterialResourceDescriptor& other) const
-  {
-    return !(*this == other);
-  }
+  EZ_FORCE_INLINE bool operator!=(const ezMaterialResourceDescriptor& other) const { return !(*this == other); }
 
   ezMaterialResourceHandle m_hBaseMaterial;
   // ezSurfaceResource is not linked into this project
@@ -65,9 +53,11 @@ struct ezMaterialResourceDescriptor
   ezDynamicArray<TextureCubeBinding> m_TextureCubeBindings;
 };
 
-class EZ_RENDERERCORE_DLL ezMaterialResource : public ezResource<ezMaterialResource, ezMaterialResourceDescriptor>
+class EZ_RENDERERCORE_DLL ezMaterialResource : public ezResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMaterialResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezMaterialResource, ezResource);
+  EZ_RESOURCE_DECLARE_COMMON_CODE(ezMaterialResource);
+  EZ_RESOURCE_DECLARE_CREATEABLE(ezMaterialResource, ezMaterialResourceDescriptor);
 
 public:
   ezMaterialResource();
@@ -96,7 +86,6 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(ezMaterialResourceDescriptor&& descriptor) override;
 
 private:
   ezMaterialResourceDescriptor m_OriginalDesc; // stores the state at loading, such that SetParameter etc. calls can be reset later
@@ -130,4 +119,3 @@ private:
   ezHashTable<ezHashedString, ezTexture2DResourceHandle> m_CachedTexture2DBindings;
   ezHashTable<ezHashedString, ezTextureCubeResourceHandle> m_CachedTextureCubeBindings;
 };
-

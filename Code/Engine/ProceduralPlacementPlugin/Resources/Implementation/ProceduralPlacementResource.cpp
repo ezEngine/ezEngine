@@ -11,11 +11,15 @@ namespace ezPPInternal
   extern Pattern* GetPattern(ezTempHashedString sName);
 }
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementResource, 1, ezRTTIDefaultAllocator<ezProceduralPlacementResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezProceduralPlacementResource);
+// clang-format on
+
 ezProceduralPlacementResource::ezProceduralPlacementResource()
-    : ezResource<ezProceduralPlacementResource, ezProceduralPlacementResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -170,7 +174,7 @@ void ezProceduralPlacementResource::UpdateMemoryUsage(MemoryUsage& out_NewMemory
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezProceduralPlacementResource::CreateResource(ezProceduralPlacementResourceDescriptor&& descriptor)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezProceduralPlacementResource, ezProceduralPlacementResourceDescriptor)
 {
   // EZ_REPORT_FAILURE("This resource type does not support creating data.");
 

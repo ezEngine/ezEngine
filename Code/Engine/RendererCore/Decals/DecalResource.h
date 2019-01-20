@@ -10,9 +10,11 @@ struct ezDecalResourceDescriptor
 {
 };
 
-class EZ_RENDERERCORE_DLL ezDecalResource : public ezResource<ezDecalResource, ezDecalResourceDescriptor>
+class EZ_RENDERERCORE_DLL ezDecalResource : public ezResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDecalResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezDecalResource, ezResource);
+  EZ_RESOURCE_DECLARE_COMMON_CODE(ezDecalResource);
+  EZ_RESOURCE_DECLARE_CREATEABLE(ezDecalResource, ezDecalResourceDescriptor);
 
 public:
   ezDecalResource();
@@ -21,8 +23,6 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(ezDecalResourceDescriptor&& descriptor) override;
-
 };
 
 class EZ_RENDERERCORE_DLL ezDecalResourceLoader : public ezResourceTypeLoader
@@ -37,8 +37,8 @@ public:
     ezMemoryStreamReader m_Reader;
   };
 
-  virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) override;
-  virtual void CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData) override;
-  virtual bool IsResourceOutdated(const ezResourceBase* pResource) const override;
+  virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override;
+  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData) override;
+  virtual bool IsResourceOutdated(const ezResource* pResource) const override;
 };
 

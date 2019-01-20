@@ -15,9 +15,11 @@ struct EZ_GAMEENGINE_DLL ezColorGradientResourceDescriptor
 typedef ezTypedResourceHandle<class ezColorGradientResource> ezColorGradientResourceHandle;
 
 /// \brief A resource that stores a single color gradient. The data is stored in the descriptor.
-class EZ_GAMEENGINE_DLL ezColorGradientResource : public ezResource<ezColorGradientResource, ezColorGradientResourceDescriptor>
+class EZ_GAMEENGINE_DLL ezColorGradientResource : public ezResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezColorGradientResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezColorGradientResource, ezResource);
+  EZ_RESOURCE_DECLARE_COMMON_CODE(ezColorGradientResource);
+  EZ_RESOURCE_DECLARE_CREATEABLE(ezColorGradientResource, ezColorGradientResourceDescriptor);
 
 public:
   ezColorGradientResource();
@@ -33,7 +35,6 @@ public:
   }
 
 private:
-  virtual ezResourceLoadDesc CreateResource(ezColorGradientResourceDescriptor&& descriptor) override;
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;

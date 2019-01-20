@@ -50,7 +50,7 @@ private:
     ezResourcePriority m_Priority;
     ezBitflags<ezResourceFlags> m_Flags;
     ezResourceLoadDesc m_LoadingState;
-    ezResourceBase::MemoryUsage m_Memory;
+    ezResource::MemoryUsage m_Memory;
     ezString m_sResourceDescription;
   };
 

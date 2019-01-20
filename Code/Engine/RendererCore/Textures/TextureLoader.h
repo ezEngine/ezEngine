@@ -31,9 +31,9 @@ public:
     ezEnum<ezTextureFilterSetting> m_textureFilter = ezTextureFilterSetting::Default;
   };
 
-  virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) override;
-  virtual void CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData) override;
-  virtual bool IsResourceOutdated(const ezResourceBase* pResource) const override;
+  virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override;
+  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData) override;
+  virtual bool IsResourceOutdated(const ezResource* pResource) const override;
 
   static ezResult LoadTexFile(ezStreamReader& stream, LoadedData& data);
   static void WriteTextureLoadStream(ezStreamWriter& stream, const LoadedData& data);

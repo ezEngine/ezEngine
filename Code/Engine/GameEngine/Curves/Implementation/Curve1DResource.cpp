@@ -6,13 +6,14 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DResource, 1, ezRTTIDefaultAllocator<ezCurve1DResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezCurve1DResource);
 
 ezCurve1DResource::ezCurve1DResource()
-    : ezResource<ezCurve1DResource, ezCurve1DResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
-ezResourceLoadDesc ezCurve1DResource::CreateResource(ezCurve1DResourceDescriptor&& descriptor)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezCurve1DResource, ezCurve1DResourceDescriptor)
 {
   m_Descriptor = descriptor;
 

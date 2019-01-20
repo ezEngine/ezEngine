@@ -3,17 +3,21 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonResource, 1, ezRTTIDefaultAllocator<ezSkeletonResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezSkeletonResource);
+// clang-format off
+
 ezSkeletonResource::ezSkeletonResource()
-    : ezResource<ezSkeletonResource, ezSkeletonResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
 ezSkeletonResource::~ezSkeletonResource() = default;
 
-ezResourceLoadDesc ezSkeletonResource::CreateResource(ezSkeletonResourceDescriptor&& descriptor)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezSkeletonResource, ezSkeletonResourceDescriptor)
 {
   m_Descriptor = descriptor;
 

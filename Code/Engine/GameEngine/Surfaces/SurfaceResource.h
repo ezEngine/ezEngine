@@ -9,9 +9,11 @@
 class ezWorld;
 class ezUuid;
 
-class EZ_GAMEENGINE_DLL ezSurfaceResource : public ezResource<ezSurfaceResource, ezSurfaceResourceDescriptor>
+class EZ_GAMEENGINE_DLL ezSurfaceResource : public ezResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSurfaceResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSurfaceResource, ezResource);
+  EZ_RESOURCE_DECLARE_COMMON_CODE(ezSurfaceResource);
+  EZ_RESOURCE_DECLARE_CREATEABLE(ezSurfaceResource, ezSurfaceResourceDescriptor);
 
 public:
   ezSurfaceResource();
@@ -44,7 +46,6 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(ezSurfaceResourceDescriptor&& descriptor) override;
 
 private:
   ezSurfaceResourceDescriptor m_Descriptor;

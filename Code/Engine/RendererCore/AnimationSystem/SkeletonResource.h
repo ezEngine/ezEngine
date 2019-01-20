@@ -24,9 +24,11 @@ struct EZ_RENDERERCORE_DLL ezSkeletonResourceDescriptor
 
 typedef ezTypedResourceHandle<class ezSkeletonResource> ezSkeletonResourceHandle;
 
-class EZ_RENDERERCORE_DLL ezSkeletonResource : public ezResource<ezSkeletonResource, ezSkeletonResourceDescriptor>
+class EZ_RENDERERCORE_DLL ezSkeletonResource : public ezResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSkeletonResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSkeletonResource, ezResource);
+  EZ_RESOURCE_DECLARE_COMMON_CODE(ezSkeletonResource);
+  EZ_RESOURCE_DECLARE_CREATEABLE(ezSkeletonResource, ezSkeletonResourceDescriptor);
 
 public:
   ezSkeletonResource();
@@ -35,7 +37,6 @@ public:
   const ezSkeletonResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
 
 private:
-  virtual ezResourceLoadDesc CreateResource(ezSkeletonResourceDescriptor&& descriptor) override;
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;

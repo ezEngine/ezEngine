@@ -1,8 +1,8 @@
 #pragma once
 
-#include <PhysXPlugin/Basics.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Math/BoundingBoxSphere.h>
+#include <PhysXPlugin/Basics.h>
 
 typedef ezTypedResourceHandle<class ezPxMeshResource> ezPxMeshResourceHandle;
 typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
@@ -14,9 +14,11 @@ struct EZ_PHYSXPLUGIN_DLL ezPxMeshResourceDescriptor
   // empty, these types of resources must be loaded from file
 };
 
-class EZ_PHYSXPLUGIN_DLL ezPxMeshResource : public ezResource<ezPxMeshResource, ezPxMeshResourceDescriptor>
+class EZ_PHYSXPLUGIN_DLL ezPxMeshResource : public ezResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPxMeshResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezPxMeshResource, ezResource);
+  EZ_RESOURCE_DECLARE_COMMON_CODE(ezPxMeshResource);
+  EZ_RESOURCE_DECLARE_CREATEABLE(ezPxMeshResource, ezPxMeshResourceDescriptor);
 
 public:
   ezPxMeshResource();
@@ -44,7 +46,6 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(ezPxMeshResourceDescriptor&& descriptor) override;
 
 private:
   ezDynamicArray<ezSurfaceResourceHandle> m_Surfaces;
@@ -52,4 +53,3 @@ private:
   physx::PxConvexMesh* m_pPxConvexMesh = nullptr;
   ezBoundingBoxSphere m_Bounds;
 };
-

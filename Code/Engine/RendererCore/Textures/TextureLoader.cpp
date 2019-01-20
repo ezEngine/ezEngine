@@ -49,7 +49,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, TextureResource)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase* pResource)
+ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResource* pResource)
 {
   LoadedData* pData = EZ_DEFAULT_NEW(LoadedData);
 
@@ -152,14 +152,14 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
   return res;
 }
 
-void ezTextureResourceLoader::CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData)
+void ezTextureResourceLoader::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData)
 {
   LoadedData* pData = (LoadedData*)LoaderData.m_pCustomLoaderData;
 
   EZ_DEFAULT_DELETE(pData);
 }
 
-bool ezTextureResourceLoader::IsResourceOutdated(const ezResourceBase* pResource) const
+bool ezTextureResourceLoader::IsResourceOutdated(const ezResource* pResource) const
 {
   // solid color textures are never outdated
   if (ezPathUtils::HasExtension(pResource->GetResourceID(), "color"))

@@ -11,9 +11,11 @@ struct EZ_FMODPLUGIN_DLL ezFmodSoundEventResourceDescriptor
   // empty, these types of resources must be loaded from file
 };
 
-class EZ_FMODPLUGIN_DLL ezFmodSoundEventResource : public ezResource<ezFmodSoundEventResource, ezFmodSoundEventResourceDescriptor>
+class EZ_FMODPLUGIN_DLL ezFmodSoundEventResource : public ezResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezFmodSoundEventResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezFmodSoundEventResource, ezResource);
+  EZ_RESOURCE_DECLARE_COMMON_CODE(ezFmodSoundEventResource);
+  EZ_RESOURCE_DECLARE_CREATEABLE(ezFmodSoundEventResource, ezFmodSoundEventResourceDescriptor);
 
 public:
   ezFmodSoundEventResource();
@@ -29,7 +31,6 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(ezFmodSoundEventResourceDescriptor&& descriptor) override;
 
 private:
   ezFmodSoundBankResourceHandle m_hSoundBank;
@@ -50,9 +51,9 @@ public:
     FMOD::Studio::EventDescription* m_pEventDescription;
   };
 
-  virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) override;
-  virtual void CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData) override;
-  virtual bool IsResourceOutdated(const ezResourceBase* pResource) const override;
+  virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override;
+  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData) override;
+  virtual bool IsResourceOutdated(const ezResource* pResource) const override;
 };
 
 

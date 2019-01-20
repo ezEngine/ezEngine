@@ -7,8 +7,10 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodSoundBankResource, 1, ezRTTIDefaultAllocator<ezFmodSoundBankResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezFmodSoundBankResource);
+
 ezFmodSoundBankResource::ezFmodSoundBankResource()
-    : ezResource<ezFmodSoundBankResource, ezFmodSoundBankResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource(DoUpdate::OnAnyThread, 1)
 {
   ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezFmodSoundBankResource);
 }
@@ -79,7 +81,7 @@ void ezFmodSoundBankResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezFmodSoundBankResource::CreateResource(ezFmodSoundBankResourceDescriptor&& descriptor)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezFmodSoundBankResource, ezFmodSoundBankResourceDescriptor)
 {
   // have to create one 'missing' resource
   // EZ_REPORT_FAILURE("This resource type does not support creating data.");

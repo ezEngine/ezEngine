@@ -5,9 +5,11 @@
 
 typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
 
-class EZ_RENDERERCORE_DLL ezMeshResource : public ezResource<ezMeshResource, ezMeshResourceDescriptor>
+class EZ_RENDERERCORE_DLL ezMeshResource : public ezResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMeshResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezMeshResource, ezResource);
+  EZ_RESOURCE_DECLARE_COMMON_CODE(ezMeshResource);
+  EZ_RESOURCE_DECLARE_CREATEABLE(ezMeshResource, ezMeshResourceDescriptor);
 
 public:
   ezMeshResource();
@@ -31,7 +33,6 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(ezMeshResourceDescriptor&& descriptor) override;
 
   ezDynamicArray<ezMeshResourceDescriptor::SubMesh> m_SubMeshes;
   ezMeshBufferResourceHandle m_hMeshBuffer;

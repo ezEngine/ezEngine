@@ -8,13 +8,17 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Shader/Shader.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderPermutationResource, 1, ezRTTIDefaultAllocator<ezShaderPermutationResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezShaderPermutationResource);
+// clang-format on
 
 static ezShaderPermutationResourceLoader g_PermutationResourceLoader;
 
 ezShaderPermutationResource::ezShaderPermutationResource()
-    : ezResource<ezShaderPermutationResource, ezShaderPermutationResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource(DoUpdate::OnAnyThread, 1)
 {
   m_bShaderPermutationValid = false;
 
@@ -154,7 +158,7 @@ void ezShaderPermutationResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUs
   out_NewMemoryUsage.m_uiMemoryGPU = ModifyMemoryUsage().m_uiMemoryGPU;
 }
 
-ezResourceLoadDesc ezShaderPermutationResource::CreateResource(ezShaderPermutationResourceDescriptor&& descriptor)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezShaderPermutationResource, ezShaderPermutationResourceDescriptor)
 {
   ezResourceLoadDesc ret;
   ret.m_State = ezResourceState::Loaded;
@@ -180,7 +184,7 @@ struct ShaderPermutationResourceLoadData
   ezMemoryStreamReader m_Reader;
 };
 
-ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pResource, ezShaderPermutationBinary& BinaryInfo, bool bForce)
+ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResource* pResource, ezShaderPermutationBinary& BinaryInfo, bool bForce)
 {
   if (ezShaderManager::IsRuntimeCompilationEnabled())
   {
@@ -223,7 +227,7 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
   return EZ_SUCCESS;
 }
 
-bool ezShaderPermutationResourceLoader::IsResourceOutdated(const ezResourceBase* pResource) const
+bool ezShaderPermutationResourceLoader::IsResourceOutdated(const ezResource* pResource) const
 {
   // don't try to reload a file that cannot be found
   ezStringBuilder sAbs;
@@ -250,7 +254,7 @@ bool ezShaderPermutationResourceLoader::IsResourceOutdated(const ezResourceBase*
   return dep.HasAnyFileChanged();
 }
 
-ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezResourceBase* pResource)
+ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezResource* pResource)
 {
   ezResourceLoadData res;
 
@@ -352,7 +356,7 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
   return res;
 }
 
-void ezShaderPermutationResourceLoader::CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData)
+void ezShaderPermutationResourceLoader::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData)
 {
   ShaderPermutationResourceLoadData* pData = static_cast<ShaderPermutationResourceLoadData*>(LoaderData.m_pCustomLoaderData);
 

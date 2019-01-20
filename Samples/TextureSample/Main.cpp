@@ -60,7 +60,7 @@ static ezUInt32 g_uiWindowHeight = 720;
 class CustomTextureResourceLoader : public ezTextureResourceLoader
 {
 public:
-  virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) override;
+  virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override;
 };
 
 const ezInt32 g_iMaxHalfExtent = 20;
@@ -483,7 +483,7 @@ private:
   ezVec2 m_vCameraPosition;
 };
 
-ezResourceLoadData CustomTextureResourceLoader::OpenDataStream(const ezResourceBase* pResource)
+ezResourceLoadData CustomTextureResourceLoader::OpenDataStream(const ezResource* pResource)
 {
   ezString sFileToLoad = pResource->GetResourceID();
 

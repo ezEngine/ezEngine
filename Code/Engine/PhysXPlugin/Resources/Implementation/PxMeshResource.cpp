@@ -10,12 +10,15 @@
 #  include <Foundation/IO/CompressedStreamZstd.h>
 #endif
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPxMeshResource, 1, ezRTTIDefaultAllocator<ezPxMeshResource>)
-  ;
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPxMeshResource, 1, ezRTTIDefaultAllocator<ezPxMeshResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezPxMeshResource);
+// clang-format on
+
 ezPxMeshResource::ezPxMeshResource()
-    : ezResource<ezPxMeshResource, ezPxMeshResourceDescriptor>(DoUpdate::OnMainThread, 1)
+    : ezResource(DoUpdate::OnMainThread, 1)
 {
   m_pPxTriangleMesh = nullptr;
   m_pPxConvexMesh = nullptr;
@@ -200,10 +203,8 @@ void ezPxMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezPxMeshResource::CreateResource(ezPxMeshResourceDescriptor&& descriptor)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezPxMeshResource, ezPxMeshResourceDescriptor)
 {
-  // EZ_REPORT_FAILURE("This resource type does not support creating data.");
-
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;

@@ -1,13 +1,13 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Image/Image.h>
+#include <RendererCore/Basics.h>
+#include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
 #include <RendererFoundation/Basics.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
-#include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
 
 typedef ezTypedResourceHandle<class ezTextureCubeResource> ezTextureCubeResourceHandle;
 
@@ -30,13 +30,16 @@ struct ezTextureCubeResourceDescriptor
   /// How many additional quality levels can be loaded (typically from file).
   ezUInt8 m_uiQualityLevelsLoadable;
 
-  /// One memory desc per (array * faces * mipmap) (in that order) (array is outer loop, mipmap is inner loop). Can be empty to not initialize data.
+  /// One memory desc per (array * faces * mipmap) (in that order) (array is outer loop, mipmap is inner loop). Can be empty to not
+  /// initialize data.
   ezArrayPtr<ezGALSystemMemoryDescription> m_InitialContent;
 };
 
-class EZ_RENDERERCORE_DLL ezTextureCubeResource : public ezResource<ezTextureCubeResource, ezTextureCubeResourceDescriptor>
+class EZ_RENDERERCORE_DLL ezTextureCubeResource : public ezResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTextureCubeResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezTextureCubeResource, ezResource);
+  EZ_RESOURCE_DECLARE_COMMON_CODE(ezTextureCubeResource);
+  EZ_RESOURCE_DECLARE_CREATEABLE(ezTextureCubeResource, ezTextureCubeResourceDescriptor);
 
 public:
   ezTextureCubeResource();
@@ -48,7 +51,6 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(ezTextureCubeResourceDescriptor&& descriptor) override;
 
 private:
   friend class ezRenderContext;
@@ -66,4 +68,3 @@ private:
 
   ezGALSamplerStateHandle m_hSamplerState;
 };
-

@@ -3,11 +3,15 @@
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderResource, 1, ezRTTIDefaultAllocator<ezShaderResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezShaderResource);
+// clang-format on
+
 ezShaderResource::ezShaderResource()
-    : ezResource<ezShaderResource, ezShaderResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource(DoUpdate::OnAnyThread, 1)
 {
   m_bShaderResourceIsValid = false;
 }
@@ -60,9 +64,7 @@ void ezShaderResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-
-
-ezResourceLoadDesc ezShaderResource::CreateResource(ezShaderResourceDescriptor&& descriptor)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezShaderResource, ezShaderResourceDescriptor)
 {
   ezResourceLoadDesc ret;
   ret.m_State = ezResourceState::Loaded;

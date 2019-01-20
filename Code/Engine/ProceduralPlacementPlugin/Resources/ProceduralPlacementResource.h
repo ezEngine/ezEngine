@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ProceduralPlacementPlugin/Basics.h>
 #include <Core/ResourceManager/Resource.h>
+#include <ProceduralPlacementPlugin/Basics.h>
 
 typedef ezTypedResourceHandle<class ezProceduralPlacementResource> ezProceduralPlacementResourceHandle;
 
@@ -10,9 +10,11 @@ struct EZ_PROCEDURALPLACEMENTPLUGIN_DLL ezProceduralPlacementResourceDescriptor
   // empty, these types of resources must be loaded from file
 };
 
-class EZ_PROCEDURALPLACEMENTPLUGIN_DLL ezProceduralPlacementResource : public ezResource<ezProceduralPlacementResource, ezProceduralPlacementResourceDescriptor>
+class EZ_PROCEDURALPLACEMENTPLUGIN_DLL ezProceduralPlacementResource : public ezResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProceduralPlacementResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProceduralPlacementResource, ezResource);
+  EZ_RESOURCE_DECLARE_COMMON_CODE(ezProceduralPlacementResource);
+  EZ_RESOURCE_DECLARE_CREATEABLE(ezProceduralPlacementResource, ezProceduralPlacementResourceDescriptor);
 
 public:
   ezProceduralPlacementResource();
@@ -24,11 +26,8 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(ezProceduralPlacementResourceDescriptor&& descriptor) override;
 
 private:
-
   ezDynamicArray<ezExpressionByteCode> m_ByteCode;
   ezDynamicArray<ezSharedPtr<const ezPPInternal::Layer>> m_Layers;
 };
-

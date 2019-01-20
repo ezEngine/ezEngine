@@ -15,10 +15,12 @@
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeResource, 1, ezRTTIDefaultAllocator<ezKrautTreeResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezKrautTreeResource);
 // clang-format on
 
 ezKrautTreeResource::ezKrautTreeResource()
-    : ezResource<ezKrautTreeResource, ezKrautTreeResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource(DoUpdate::OnAnyThread, 1)
 {
   m_Details.m_Bounds.SetInvalid();
 }
@@ -79,16 +81,16 @@ void ezKrautTreeResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezKrautTreeResource::CreateResource(ezKrautTreeResourceDescriptor&& desc)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescriptor)
 {
   m_TreeLODs.Clear();
-  m_Details = desc.m_Details;
+  m_Details = descriptor.m_Details;
 
   ezHybridArray<ezMaterialResourceHandle, 16> allMaterials;
 
   ezStringBuilder sMatName;
 
-  for (const auto& mat : desc.m_Materials)
+  for (const auto& mat : descriptor.m_Materials)
   {
     ezUInt32 uiTexHash = static_cast<ezUInt32>(mat.m_MaterialType);
     uiTexHash = ezHashing::xxHash32(&mat.m_VariationColor, sizeof(mat.m_VariationColor), uiTexHash);
@@ -146,9 +148,9 @@ ezResourceLoadDesc ezKrautTreeResource::CreateResource(ezKrautTreeResourceDescri
 
   ezStringBuilder sResName, sResDesc;
 
-  for (ezUInt32 lodIdx = 0; lodIdx < desc.m_Lods.GetCount(); ++lodIdx)
+  for (ezUInt32 lodIdx = 0; lodIdx < descriptor.m_Lods.GetCount(); ++lodIdx)
   {
-    const auto& lodSrc = desc.m_Lods[lodIdx];
+    const auto& lodSrc = descriptor.m_Lods[lodIdx];
     auto& lodDst = m_TreeLODs.ExpandAndGetRef();
 
     lodDst.m_LodType = lodSrc.m_LodType;
@@ -198,7 +200,7 @@ ezResourceLoadDesc ezKrautTreeResource::CreateResource(ezKrautTreeResourceDescri
 
     md.ComputeBounds();
 
-    for (ezUInt32 mat = 0; mat < desc.m_Materials.GetCount(); ++mat)
+    for (ezUInt32 mat = 0; mat < descriptor.m_Materials.GetCount(); ++mat)
     {
       md.SetMaterial(mat, allMaterials[mat].GetResourceID());
     }

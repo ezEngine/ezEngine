@@ -13,11 +13,15 @@ void ezRenderPipelineResourceDescriptor::CreateFromRenderPipeline(const ezRender
   ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(pPipeline, *this);
 }
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineResource, 1, ezRTTIDefaultAllocator<ezRenderPipelineResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezRenderPipelineResource);
+// clang-format on
+
 ezRenderPipelineResource::ezRenderPipelineResource()
-    : ezResource<ezRenderPipelineResource, ezRenderPipelineResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -133,7 +137,7 @@ void ezRenderPipelineResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezRenderPipelineResource::CreateResource(ezRenderPipelineResourceDescriptor&& descriptor)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezRenderPipelineResource, ezRenderPipelineResourceDescriptor)
 {
   m_Desc = descriptor;
 

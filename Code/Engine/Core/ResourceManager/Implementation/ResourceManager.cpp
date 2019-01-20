@@ -47,7 +47,7 @@ ezEvent<const ezResourceManagerEvent&> ezResourceManager::s_ManagerEvents;
 ezMutex ezResourceManager::s_ResourceMutex;
 ezHashTable<ezTempHashedString, ezHashedString> ezResourceManager::s_NamedResources;
 ezMap<ezString, const ezRTTI*> ezResourceManager::s_AssetToResourceType;
-ezMap<ezResourceBase*, ezUniquePtr<ezResourceTypeLoader>> ezResourceManager::s_CustomLoaders;
+ezMap<ezResource*, ezUniquePtr<ezResourceTypeLoader>> ezResourceManager::s_CustomLoaders;
 ezAtomicInteger32 ezResourceManager::s_ResourcesLoadedRecently;
 ezAtomicInteger32 ezResourceManager::s_ResourcesInLoadingLimbo;
 ezMap<const ezRTTI*, ezHybridArray<ezResourceManager::DerivedTypeInfo, 4>> ezResourceManager::s_DerivedTypeInfos;
@@ -143,7 +143,7 @@ const ezRTTI* ezResourceManager::FindResourceForAssetType(const char* szAssetTyp
   return s_AssetToResourceType.GetValueOrDefault(s, nullptr);
 }
 
-void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool bHighestPriority)
+void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHighestPriority)
 {
   if (m_bStop)
     return;
@@ -207,7 +207,7 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
   RunWorkerTask(pResource);
 }
 
-void ezResourceManager::RunWorkerTask(ezResourceBase* pResource)
+void ezResourceManager::RunWorkerTask(ezResource* pResource)
 {
   if (m_bStop)
     return;
@@ -339,7 +339,7 @@ void ezResourceManagerWorkerMainThread::Execute()
 
   // Update Memory Usage
   {
-    ezResourceBase::MemoryUsage MemUsage;
+    ezResource::MemoryUsage MemUsage;
     MemUsage.m_uiMemoryCPU = 0xFFFFFFFF;
     MemUsage.m_uiMemoryGPU = 0xFFFFFFFF;
     m_pResourceToLoad->UpdateMemoryUsage(MemUsage);
@@ -380,7 +380,7 @@ void ezResourceManagerWorkerDiskRead::Execute()
 
 void ezResourceManagerWorkerDiskRead::DoWork(bool bCalledExternally)
 {
-  ezResourceBase* pResourceToLoad = nullptr;
+  ezResource* pResourceToLoad = nullptr;
   ezResourceTypeLoader* pLoader = nullptr;
   ezUniquePtr<ezResourceTypeLoader> pCustomLoader;
 
@@ -475,7 +475,7 @@ void ezResourceManagerWorkerDiskRead::DoWork(bool bCalledExternally)
 
     // Update Memory Usage
     {
-      ezResourceBase::MemoryUsage MemUsage;
+      ezResource::MemoryUsage MemUsage;
       MemUsage.m_uiMemoryCPU = 0xFFFFFFFF;
       MemUsage.m_uiMemoryGPU = 0xFFFFFFFF;
       pResourceToLoad->UpdateMemoryUsage(MemUsage);
@@ -540,7 +540,7 @@ ezUInt32 ezResourceManager::FreeUnusedResources(bool bFreeAllUnused)
 
       for (auto it = lr.m_Resources.GetIterator(); it.IsValid(); /* empty */)
       {
-        ezResourceBase* pReference = it.Value();
+        ezResource* pReference = it.Value();
 
         if (pReference->m_iReferenceCount > 0)
         {
@@ -555,7 +555,7 @@ ezUInt32 ezResourceManager::FreeUnusedResources(bool bFreeAllUnused)
 
         bUnloadedAny = true;
         ++uiUnloaded;
-        pReference->CallUnloadData(ezResourceBase::Unload::AllQualityLevels);
+        pReference->CallUnloadData(ezResource::Unload::AllQualityLevels);
 
         EZ_ASSERT_DEBUG(pReference->GetLoadingState() <= ezResourceState::UnloadedMetaInfoAvailable,
                         "Resource '{0}' should be in an unloaded state now.", pReference->GetResourceID());
@@ -582,7 +582,7 @@ ezUInt32 ezResourceManager::FreeUnusedResources(bool bFreeAllUnused)
   return uiUnloaded;
 }
 
-void ezResourceManager::PreloadResource(ezResourceBase* pResource, ezTime tShouldBeAvailableIn)
+void ezResourceManager::PreloadResource(ezResource* pResource, ezTime tShouldBeAvailableIn)
 {
   const ezTime tNow = m_LastFrameUpdate;
 
@@ -599,7 +599,7 @@ void ezResourceManager::PreloadResource(const ezTypelessResourceHandle& hResourc
 
   EZ_ASSERT_DEV(hResource.IsValid(), "Cannot acquire a resource through an invalid handle!");
 
-  ezResourceBase* pResource = hResource.m_pResource;
+  ezResource* pResource = hResource.m_pResource;
   EZ_ASSERT_DEV(pResource->m_iLockCount < 20,
                 "You probably forgot somewhere to call 'EndAcquireResource' in sync with 'BeginAcquireResource'.");
 
@@ -610,7 +610,7 @@ void ezResourceManager::PreloadResource(const ezTypelessResourceHandle& hResourc
   }
 }
 
-bool ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
+bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
 {
   EZ_LOCK(s_ResourceMutex);
 
@@ -674,7 +674,7 @@ bool ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
   }
 
   // make sure existing data is purged
-  pResource->CallUnloadData(ezResourceBase::Unload::AllQualityLevels);
+  pResource->CallUnloadData(ezResource::Unload::AllQualityLevels);
 
   EZ_ASSERT_DEV(pResource->GetLoadingState() <= ezResourceState::UnloadedMetaInfoAvailable,
                 "Resource '{0}' should be in an unloaded state now.", pResource->GetResourceID());
@@ -768,7 +768,7 @@ void ezResourceManager::ResetAllResources()
   {
     for (auto it = itType.Value().m_Resources.GetIterator(); it.IsValid(); ++it)
     {
-      ezResourceBase* pResource = it.Value();
+      ezResource* pResource = it.Value();
       pResource->ResetResource();
     }
   }
@@ -854,7 +854,7 @@ void ezResourceManager::CleanUpResources()
 
   for (auto it = m_LoadedResources.GetIterator(); it.IsValid();)
   {
-    ezResourceBase* pReference = it.Value();
+    ezResource* pReference = it.Value();
 
     if (pReference->m_iReferenceCount == 0)
     {
@@ -989,7 +989,7 @@ void ezResourceManager::OnCoreShutdown()
 
       for (auto it = lr.m_Resources.GetIterator(); it.IsValid(); ++it)
       {
-        ezResourceBase* pReference = it.Value();
+        ezResource* pReference = it.Value();
 
         ezLog::Info("RC = {0}, ID = '{1}'", pReference->GetReferenceCount(), pReference->GetResourceID());
       }
@@ -999,7 +999,7 @@ void ezResourceManager::OnCoreShutdown()
   ezPlugin::s_PluginEvents.RemoveEventHandler(PluginEventHandler);
 }
 
-ezResourceBase* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* szResourceID, bool bIsReloadable)
+ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* szResourceID, bool bIsReloadable)
 {
   if (ezStringUtils::IsNullOrEmpty(szResourceID))
     return nullptr;
@@ -1013,7 +1013,7 @@ ezResourceBase* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* 
   EZ_ASSERT_DEBUG(pRtti->GetAllocator() != nullptr && pRtti->GetAllocator()->CanAllocate(),
                   "There is no RTTI allocator available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
 
-  ezResourceBase* pResource = nullptr;
+  ezResource* pResource = nullptr;
   ezTempHashedString sHashedResourceID(szResourceID);
 
   EZ_LOCK(s_ResourceMutex);
@@ -1030,7 +1030,7 @@ ezResourceBase* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* 
   if (lr.m_Resources.TryGetValue(sHashedResourceID, pResource))
     return pResource;
 
-  ezResourceBase* pNewResource = pRtti->GetAllocator()->Allocate<ezResourceBase>();
+  ezResource* pNewResource = pRtti->GetAllocator()->Allocate<ezResource>();
   pNewResource->SetUniqueID(szResourceID, bIsReloadable);
 
   lr.m_Resources.Insert(sHashedResourceID, pNewResource);
@@ -1042,7 +1042,7 @@ void ezResourceManager::RegisterResourceOverrideType(const ezRTTI* pDerivedTypeT
                                                      ezDelegate<bool(const ezStringBuilder&)> OverrideDecider)
 {
   const ezRTTI* pParentType = pDerivedTypeToUse->GetParentType();
-  while (pParentType != nullptr && pParentType != ezGetStaticRTTI<ezResourceBase>())
+  while (pParentType != nullptr && pParentType != ezGetStaticRTTI<ezResource>())
   {
     auto& info = s_DerivedTypeInfos[pParentType].ExpandAndGetRef();
     info.m_pDerivedType = pDerivedTypeToUse;
@@ -1055,7 +1055,7 @@ void ezResourceManager::RegisterResourceOverrideType(const ezRTTI* pDerivedTypeT
 void ezResourceManager::UnregisterResourceOverrideType(const ezRTTI* pDerivedTypeToUse)
 {
   const ezRTTI* pParentType = pDerivedTypeToUse->GetParentType();
-  while (pParentType != nullptr && pParentType != ezGetStaticRTTI<ezResourceBase>())
+  while (pParentType != nullptr && pParentType != ezGetStaticRTTI<ezResource>())
   {
     auto it = s_DerivedTypeInfos.Find(pParentType);
     pParentType = pParentType->GetParentType();
@@ -1168,7 +1168,7 @@ bool ezResourceManager::FinishLoadingOfResources()
   }
 }
 
-void ezResourceManager::EnsureResourceLoadingState(ezResourceBase* pResource, const ezResourceState RequestedState)
+void ezResourceManager::EnsureResourceLoadingState(ezResource* pResource, const ezResourceState RequestedState)
 {
   // help loading until the requested resource is available
   while ((ezInt32)pResource->GetLoadingState() < (ezInt32)RequestedState &&
@@ -1205,7 +1205,7 @@ bool ezResourceManager::HelpResourceLoading()
 
 void ezResourceManager::SetResourceLowResData(const ezTypelessResourceHandle& hResource, ezStreamReader* pStream)
 {
-  ezResourceBase* pResource = hResource.m_pResource;
+  ezResource* pResource = hResource.m_pResource;
 
   if (pResource->GetBaseResourceFlags().IsSet(ezResourceFlags::HasLowResData))
     return;
@@ -1239,7 +1239,7 @@ void ezResourceManager::SetResourceLowResData(const ezTypelessResourceHandle& hR
 
   // Update Memory Usage
   {
-    ezResourceBase::MemoryUsage MemUsage;
+    ezResource::MemoryUsage MemUsage;
     MemUsage.m_uiMemoryCPU = 0xFFFFFFFF;
     MemUsage.m_uiMemoryGPU = 0xFFFFFFFF;
     pResource->UpdateMemoryUsage(MemUsage);

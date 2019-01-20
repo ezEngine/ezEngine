@@ -20,7 +20,7 @@ ezCVarInt CVarRenderTargetResolution2("r_RenderTargetResolution2", 512, ezCVarFl
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezTexture2DResource);
 
 ezTexture2DResource::ezTexture2DResource()
-    : ezResourceBase(DoUpdate::OnAnyThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
+    : ezResource(DoUpdate::OnAnyThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
 {
   m_uiLoadedTextures = 0;
   m_uiMemoryGPU[0] = 0;

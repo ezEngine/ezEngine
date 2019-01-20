@@ -20,9 +20,11 @@ struct EZ_GAMEENGINE_DLL ezCollectionResourceDescriptor
 
 typedef ezTypedResourceHandle<class ezCollectionResource> ezCollectionResourceHandle;
 
-class EZ_GAMEENGINE_DLL ezCollectionResource : public ezResource<ezCollectionResource, ezCollectionResourceDescriptor>
+class EZ_GAMEENGINE_DLL ezCollectionResource : public ezResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCollectionResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezCollectionResource, ezResource);
+  EZ_RESOURCE_DECLARE_COMMON_CODE(ezCollectionResource);
+  EZ_RESOURCE_DECLARE_CREATEABLE(ezCollectionResource, ezCollectionResourceDescriptor);
 
 public:
   ezCollectionResource();
@@ -47,7 +49,6 @@ public:
 
 
 private:
-  virtual ezResourceLoadDesc CreateResource(ezCollectionResourceDescriptor&& descriptor) override;
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;

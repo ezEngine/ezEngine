@@ -36,12 +36,16 @@ bool ezMaterialResourceDescriptor::operator==(const ezMaterialResourceDescriptor
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialResource, 1, ezRTTIDefaultAllocator<ezMaterialResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezMaterialResource);
+// clang-format on
+
 /// \todo Should be done on any thread, but currently crashes when deleting custom loaders in the resource manager
 ezMaterialResource::ezMaterialResource()
-    : ezResource<ezMaterialResource, ezMaterialResourceDescriptor>(DoUpdate::OnMainThread, 1)
+    : ezResource(DoUpdate::OnMainThread, 1)
 {
   m_iLastUpdated = 0;
   m_iLastConstantsUpdated = 0;
@@ -818,7 +822,7 @@ void ezMaterialResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezMaterialResource::CreateResource(ezMaterialResourceDescriptor&& descriptor)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMaterialResource, ezMaterialResourceDescriptor)
 {
   m_Desc = descriptor;
   m_OriginalDesc = descriptor;

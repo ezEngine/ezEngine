@@ -4,16 +4,20 @@
 #include <Foundation/IO/ChunkStream.h>
 #include <RecastPlugin/Resources/RecastNavMeshResource.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecastNavMeshResource, 1, ezRTTIDefaultAllocator<ezRecastNavMeshResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezRecastNavMeshResource);
+// clang-format on
+
 ezRecastNavMeshResource::ezRecastNavMeshResource()
-    : ezResource<ezRecastNavMeshResource, ezRecastNavMeshResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource(DoUpdate::OnAnyThread, 1)
 {
   ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezRecastNavMeshResource);
 }
 
-ezRecastNavMeshResource::~ezRecastNavMeshResource() {}
+ezRecastNavMeshResource::~ezRecastNavMeshResource() = default;
 
 ezResourceLoadDesc ezRecastNavMeshResource::UnloadData(Unload WhatToUnload)
 {
@@ -60,7 +64,7 @@ void ezRecastNavMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezRecastNavMeshResource::CreateResource(ezRecastNavMeshResourceDescriptor&& descriptor)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezRecastNavMeshResource, ezRecastNavMeshResourceDescriptor)
 {
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

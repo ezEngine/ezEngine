@@ -5,13 +5,17 @@
 #include <GameEngine/Surfaces/SurfaceResource.h>
 #include <RendererCore/Messages/ApplyOnlyToMessage.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResource, 1, ezRTTIDefaultAllocator<ezSurfaceResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezSurfaceResource);
+// clang-format on
 
 ezEvent<const ezSurfaceResource::Event&, ezMutex> ezSurfaceResource::s_Events;
 
 ezSurfaceResource::ezSurfaceResource()
-    : ezResource<ezSurfaceResource, ezSurfaceResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource(DoUpdate::OnAnyThread, 1)
 {
   m_pPhysicsMaterial = nullptr;
 }
@@ -96,7 +100,7 @@ void ezSurfaceResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezSurfaceResource::CreateResource(ezSurfaceResourceDescriptor&& descriptor)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezSurfaceResource, ezSurfaceResourceDescriptor)
 {
   m_Descriptor = descriptor;
 

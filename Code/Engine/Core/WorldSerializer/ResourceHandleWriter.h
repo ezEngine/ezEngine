@@ -5,7 +5,7 @@
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/HashTable.h>
 
-class ezResourceBase;
+class ezResource;
 class ezStreamWriter;
 
 /// \brief Used to write resource references to files. Duplicate references and storage requirements are optimized.
@@ -46,11 +46,11 @@ public:
   }
 
 private:
-  static void WriteHandle(ezStreamWriter* pStream, const ezResourceBase* pResource);
-  void WriteResourceReference(ezStreamWriter* pStream, const ezResourceBase* pResource);
+  static void WriteHandle(ezStreamWriter* pStream, const ezResource* pResource);
+  void WriteResourceReference(ezStreamWriter* pStream, const ezResource* pResource);
 
-  ezHashTable<const ezResourceBase*, ezUInt32> m_StoredHandles;
-  ezDeque<const ezResourceBase*> m_ResourcesToStore;
+  ezHashTable<const ezResource*, ezUInt32> m_StoredHandles;
+  ezDeque<const ezResource*> m_ResourcesToStore;
 
   enum class State
   {

@@ -73,9 +73,11 @@ struct EZ_KRAUTPLUGIN_DLL ezKrautTreeResourceDescriptor
   ezHybridArray<MaterialData, 8> m_Materials;
 };
 
-class EZ_KRAUTPLUGIN_DLL ezKrautTreeResource : public ezResource<ezKrautTreeResource, ezKrautTreeResourceDescriptor>
+class EZ_KRAUTPLUGIN_DLL ezKrautTreeResource : public ezResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezKrautTreeResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezKrautTreeResource, ezResource);
+  EZ_RESOURCE_DECLARE_COMMON_CODE(ezKrautTreeResource);
+EZ_RESOURCE_DECLARE_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescriptor);
 
 public:
   ezKrautTreeResource();
@@ -96,7 +98,6 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(ezKrautTreeResourceDescriptor&& descriptor) override;
 
   ezKrautTreeResourceDetails m_Details;
   ezStaticArray<TreeLod, 5> m_TreeLODs;

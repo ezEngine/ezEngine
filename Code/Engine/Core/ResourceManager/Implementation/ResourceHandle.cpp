@@ -2,7 +2,7 @@
 
 #include <Core/ResourceManager/ResourceBase.h>
 
-ezTypelessResourceHandle::ezTypelessResourceHandle(ezResourceBase* pResource)
+ezTypelessResourceHandle::ezTypelessResourceHandle(ezResource* pResource)
 {
   m_pResource = pResource;
 
@@ -37,7 +37,7 @@ void ezTypelessResourceHandle::operator=(const ezTypelessResourceHandle& rhs)
   m_pResource = rhs.m_pResource;
 
   if (m_pResource)
-    IncreaseResourceRefCount(reinterpret_cast<ezResourceBase*>(m_pResource));
+    IncreaseResourceRefCount(reinterpret_cast<ezResource*>(m_pResource));
 }
 
 void ezTypelessResourceHandle::operator=(ezTypelessResourceHandle&& rhs)

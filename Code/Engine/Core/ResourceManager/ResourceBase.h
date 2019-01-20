@@ -27,7 +27,7 @@ enum class ezResourceEventType
 struct ezResourceEvent
 {
   ezResourceEventType m_EventType;
-  const ezResourceBase* m_pResource;
+  const ezResource* m_pResource;
 };
 
 struct ezResourceCategory
@@ -42,10 +42,10 @@ struct ezResourceCategory
 
 /// \brief The case class for all resources.
 ///
-/// \note Never derive directly from ezResourceBase, but derive from ezResource instead.
-class EZ_CORE_DLL ezResourceBase : public ezReflectedClass
+/// \note Never derive directly from ezResource, but derive from ezResource instead.
+class EZ_CORE_DLL ezResource : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezResourceBase, ezReflectedClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezResource, ezReflectedClass);
 
 protected:
   enum class DoUpdate
@@ -61,10 +61,10 @@ protected:
   };
 
   /// \brief Default constructor.
-  ezResourceBase(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable);
+  ezResource(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable);
 
   /// \brief virtual destructor.
-  virtual ~ezResourceBase() {}
+  virtual ~ezResource() {}
 
 public:
   struct MemoryUsage
@@ -248,11 +248,8 @@ private:
   template <typename ResourceType>
   friend class ezTypedResourceHandle;
 
-  template <typename SELF, typename SELF_DESCRIPTOR>
-  friend class ezResource;
-
-  friend EZ_CORE_DLL void IncreaseResourceRefCount(ezResourceBase* pResource);
-  friend EZ_CORE_DLL void DecreaseResourceRefCount(ezResourceBase* pResource);
+  friend EZ_CORE_DLL void IncreaseResourceRefCount(ezResource* pResource);
+  friend EZ_CORE_DLL void DecreaseResourceRefCount(ezResource* pResource);
 
   /// \brief This function must be overridden by all resource types.
   ///

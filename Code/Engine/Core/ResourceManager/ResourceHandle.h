@@ -3,11 +3,11 @@
 #include <Core/Basics.h>
 #include <Foundation/Strings/String.h>
 
-class ezResourceBase;
+class ezResource;
 
 // These out-of-line helper functions allow to forward declare resource handles without knowledge about the resource class.
-EZ_CORE_DLL void IncreaseResourceRefCount(ezResourceBase* pResource);
-EZ_CORE_DLL void DecreaseResourceRefCount(ezResourceBase* pResource);
+EZ_CORE_DLL void IncreaseResourceRefCount(ezResource* pResource);
+EZ_CORE_DLL void DecreaseResourceRefCount(ezResource* pResource);
 
 /// \brief The typeless implementation of resource handles. A typed interface is provided by ezTypedResourceHandle.
 class EZ_CORE_DLL ezTypelessResourceHandle
@@ -16,7 +16,7 @@ public:
   EZ_ALWAYS_INLINE ezTypelessResourceHandle() { m_pResource = nullptr; }
 
   /// \brief [internal] Increases the refcount of the given resource.
-  ezTypelessResourceHandle(ezResourceBase* pResource);
+  ezTypelessResourceHandle(ezResource* pResource);
 
   /// \brief Increases the refcount of the given resource
   ezTypelessResourceHandle(const ezTypelessResourceHandle& rhs)
@@ -67,13 +67,13 @@ public:
   EZ_ALWAYS_INLINE bool operator<(const ezTypelessResourceHandle& rhs) const { return m_pResource < rhs.m_pResource; }
 
   /// \brief Checks whether the handle points to the given resource.
-  EZ_ALWAYS_INLINE bool operator==(const ezResourceBase* rhs) const { return m_pResource == rhs; }
+  EZ_ALWAYS_INLINE bool operator==(const ezResource* rhs) const { return m_pResource == rhs; }
 
   /// \brief Checks whether the handle points to the given resource.
-  EZ_ALWAYS_INLINE bool operator!=(const ezResourceBase* rhs) const { return m_pResource != rhs; }
+  EZ_ALWAYS_INLINE bool operator!=(const ezResource* rhs) const { return m_pResource != rhs; }
 
 protected:
-  ezResourceBase* m_pResource;
+  ezResource* m_pResource;
 
 private:
   // you must go through the resource manager to get access to the resource pointer
@@ -142,10 +142,10 @@ public:
   EZ_ALWAYS_INLINE bool operator<(const ezTypedResourceHandle<ResourceType>& rhs) const { return m_Typeless < rhs.m_Typeless; }
 
   /// \brief Checks whether the handle points to the given resource.
-  EZ_ALWAYS_INLINE bool operator==(const ezResourceBase* rhs) const { return m_Typeless == rhs; }
+  EZ_ALWAYS_INLINE bool operator==(const ezResource* rhs) const { return m_Typeless == rhs; }
 
   /// \brief Checks whether the handle points to the given resource.
-  EZ_ALWAYS_INLINE bool operator!=(const ezResourceBase* rhs) const { return m_Typeless != rhs; }
+  EZ_ALWAYS_INLINE bool operator!=(const ezResource* rhs) const { return m_Typeless != rhs; }
 
 
   /// \brief Returns the corresponding typeless resource handle.

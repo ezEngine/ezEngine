@@ -15,7 +15,7 @@ ezResourceHandleWriteContext::~ezResourceHandleWriteContext()
   EZ_ASSERT_DEV(m_State == State::NotStarted || m_State == State::Finished, "ezResourceHandleWriteContext was not used correctly");
 }
 
-void ezResourceHandleWriteContext::WriteHandle(ezStreamWriter* pStream, const ezResourceBase* pResource)
+void ezResourceHandleWriteContext::WriteHandle(ezStreamWriter* pStream, const ezResource* pResource)
 {
   ezResourceHandleWriteContext* pContext = s_pActiveWriteContext;
   EZ_ASSERT_DEBUG(pContext != nullptr, "No ezResourceHandleWriteContext is active on this thread");
@@ -23,7 +23,7 @@ void ezResourceHandleWriteContext::WriteHandle(ezStreamWriter* pStream, const ez
   pContext->WriteResourceReference(pStream, pResource);
 }
 
-void ezResourceHandleWriteContext::WriteResourceReference(ezStreamWriter* pStream, const ezResourceBase* pResource)
+void ezResourceHandleWriteContext::WriteResourceReference(ezStreamWriter* pStream, const ezResource* pResource)
 {
   EZ_ASSERT_DEV(m_State == State::Writing, "Resource handles can only be written between calls to "
                                            "ezResourceHandleWriteContext::BeginWritingToStream() and EndWritingToStream()");

@@ -9,9 +9,6 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Types/UniquePtr.h>
 
-template <typename SELF, typename SELF_DESCRIPTOR>
-class ezResource;
-
 enum class ezResourceManagerEventType
 {
   ManagerShuttingDown,
@@ -43,7 +40,7 @@ class EZ_CORE_DLL ezResourceManagerWorkerMainThread : public ezTask
 {
 public:
   ezResourceLoadData m_LoaderData;
-  ezResourceBase* m_pResourceToLoad;
+  ezResource* m_pResourceToLoad;
   ezResourceTypeLoader* m_pLoader;
   // this is only used to clean up a custom loader at the right time, if one is used
   // m_pLoader is always set, no need to go through m_pCustomLoader
@@ -159,7 +156,7 @@ public:
   /// are updated, even if there is no indication that they have changed.
   static ezUInt32 ReloadAllResources(bool bForce);
 
-  /// \brief Calls ezResourceBase::ResetResource() on all resources.
+  /// \brief Calls ezResource::ResetResource() on all resources.
   ///
   /// This is mostly for usage in tools to reset resource whose state can be modified at runtime, to reset them to their original state.
   static void ResetAllResources();
@@ -305,13 +302,10 @@ private:
 
 
 private:
-  friend class ezResourceBase;
+  friend class ezResource;
   friend class ezResourceManagerWorkerDiskRead;
   friend class ezResourceManagerWorkerMainThread;
   friend class ezResourceHandleReadContext;
-
-  template <typename A, typename B>
-  friend class ezResource;
 
 public:
   // TODO (resources): hide
@@ -325,23 +319,23 @@ private:
   static void OnCoreShutdown();
   static void OnCoreStartup();
 
-  static void EnsureResourceLoadingState(ezResourceBase* pResource, const ezResourceState RequestedState);
+  static void EnsureResourceLoadingState(ezResource* pResource, const ezResourceState RequestedState);
 
 
   static bool HelpResourceLoading();
 
-  static bool ReloadResource(ezResourceBase* pResource, bool bForce);
+  static bool ReloadResource(ezResource* pResource, bool bForce);
 
-  static void PreloadResource(ezResourceBase* pResource, ezTime tShouldBeAvailableIn);
+  static void PreloadResource(ezResource* pResource, ezTime tShouldBeAvailableIn);
 
   template <typename ResourceType>
   static ResourceType* GetResource(const char* szResourceID, bool bIsReloadable);
 
-  static ezResourceBase* GetResource(const ezRTTI* pRtti, const char* szResourceID, bool bIsReloadable);
+  static ezResource* GetResource(const ezRTTI* pRtti, const char* szResourceID, bool bIsReloadable);
 
-  static void InternalPreloadResource(ezResourceBase* pResource, bool bHighestPriority);
+  static void InternalPreloadResource(ezResource* pResource, bool bHighestPriority);
 
-  static void RunWorkerTask(ezResourceBase* pResource);
+  static void RunWorkerTask(ezResource* pResource);
 
   static void UpdateLoadingDeadlines();
 
@@ -349,7 +343,7 @@ private:
 
   struct LoadedResources
   {
-    ezHashTable<ezTempHashedString, ezResourceBase*> m_Resources;
+    ezHashTable<ezTempHashedString, ezResource*> m_Resources;
   };
 
   static ezHashTable<const ezRTTI*, LoadedResources> s_LoadedResources;
@@ -362,7 +356,7 @@ private:
   struct LoadingInfo
   {
     ezTime m_DueDate;
-    ezResourceBase* m_pResource;
+    ezResource* m_pResource;
 
     EZ_ALWAYS_INLINE bool operator==(const LoadingInfo& rhs) const { return m_pResource == rhs.m_pResource; }
 
@@ -395,7 +389,7 @@ private:
   static ezMutex s_ResourceMutex;
   static ezHashTable<ezTempHashedString, ezHashedString> s_NamedResources;
   static ezMap<ezString, const ezRTTI*> s_AssetToResourceType;
-  static ezMap<ezResourceBase*, ezUniquePtr<ezResourceTypeLoader>> s_CustomLoaders;
+  static ezMap<ezResource*, ezUniquePtr<ezResourceTypeLoader>> s_CustomLoaders;
   static ezAtomicInteger32 s_ResourcesLoadedRecently;
   static ezAtomicInteger32 s_ResourcesInLoadingLimbo; // not in the loading queue anymore but not yet finished loading either (typically now
                                                       // a task in the task system)

@@ -7,12 +7,15 @@
 #include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/Resources/Texture.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeResource, 1, ezRTTIDefaultAllocator<ezTextureCubeResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezTextureCubeResource);
+// clang-format on
+
 ezTextureCubeResource::ezTextureCubeResource()
-    : ezResource<ezTextureCubeResource, ezTextureCubeResourceDescriptor>(DoUpdate::OnAnyThread,
-                                                                         ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
+    : ezResource(DoUpdate::OnAnyThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
 {
   m_uiLoadedTextures = 0;
   m_uiMemoryGPU[0] = 0;
@@ -195,7 +198,7 @@ void ezTextureCubeResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = m_uiMemoryGPU[0] + m_uiMemoryGPU[1];
 }
 
-ezResourceLoadDesc ezTextureCubeResource::CreateResource(ezTextureCubeResourceDescriptor&& descriptor)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezTextureCubeResource, ezTextureCubeResourceDescriptor)
 {
   ezResourceLoadDesc ret;
   ret.m_uiQualityLevelsDiscardable = descriptor.m_uiQualityLevelsDiscardable;

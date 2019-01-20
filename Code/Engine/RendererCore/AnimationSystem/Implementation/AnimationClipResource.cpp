@@ -5,16 +5,19 @@
 #include <RendererCore/AnimationSystem/Skeleton.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipResource, 1, ezRTTIDefaultAllocator<ezAnimationClipResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezAnimationClipResource);
+// clang-format on
 
 ezAnimationClipResource::ezAnimationClipResource()
-    : ezResource<ezAnimationClipResource, ezAnimationClipResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
-ezResourceLoadDesc ezAnimationClipResource::CreateResource(ezAnimationClipResourceDescriptor&& descriptor)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezAnimationClipResource, ezAnimationClipResourceDescriptor)
 {
   m_Descriptor = descriptor;
 

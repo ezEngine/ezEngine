@@ -1,11 +1,11 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
-#include <RendererCore/Shader/ShaderPermutationBinary.h>
-#include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Time/Timestamp.h>
+#include <RendererCore/Basics.h>
+#include <RendererCore/Shader/ShaderPermutationBinary.h>
+#include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 
 typedef ezTypedResourceHandle<class ezShaderPermutationResource> ezShaderPermutationResourceHandle;
 typedef ezTypedResourceHandle<class ezShaderStateResource> ezShaderStateResourceHandle;
@@ -14,9 +14,11 @@ struct ezShaderPermutationResourceDescriptor
 {
 };
 
-class EZ_RENDERERCORE_DLL ezShaderPermutationResource : public ezResource<ezShaderPermutationResource, ezShaderPermutationResourceDescriptor>
+class EZ_RENDERERCORE_DLL ezShaderPermutationResource : public ezResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezShaderPermutationResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezShaderPermutationResource, ezResource);
+  EZ_RESOURCE_DECLARE_COMMON_CODE(ezShaderPermutationResource);
+  EZ_RESOURCE_DECLARE_CREATEABLE(ezShaderPermutationResource, ezShaderPermutationResourceDescriptor);
 
 public:
   ezShaderPermutationResource();
@@ -36,11 +38,9 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(ezShaderPermutationResourceDescriptor&& descriptor) override;
   virtual ezResourceTypeLoader* GetDefaultResourceTypeLoader() const override;
 
 private:
-
   friend class ezShaderManager;
 
   ezShaderStageBinary* m_pShaderStageBinaries[ezGALShaderStage::ENUM_COUNT];
@@ -59,15 +59,11 @@ private:
 class ezShaderPermutationResourceLoader : public ezResourceTypeLoader
 {
 public:
+  virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override;
+  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData) override;
 
-  virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) override;
-  virtual void CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData) override;
-
-  virtual bool IsResourceOutdated(const ezResourceBase* pResource) const override;
+  virtual bool IsResourceOutdated(const ezResource* pResource) const override;
 
 private:
-
-  ezResult RunCompiler(const ezResourceBase* pResource, ezShaderPermutationBinary& BinaryInfo, bool bForce);
-
+  ezResult RunCompiler(const ezResource* pResource, ezShaderPermutationBinary& BinaryInfo, bool bForce);
 };
-

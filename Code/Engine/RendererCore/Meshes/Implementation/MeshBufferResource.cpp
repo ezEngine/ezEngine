@@ -5,8 +5,12 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshBufferResource, 1, ezRTTIDefaultAllocator<ezMeshBufferResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezMeshBufferResource);
+// clang-format on
 
 ezMeshBufferResourceDescriptor::ezMeshBufferResourceDescriptor()
 {
@@ -15,7 +19,7 @@ ezMeshBufferResourceDescriptor::ezMeshBufferResourceDescriptor()
   m_uiVertexCount = 0;
 }
 
-ezMeshBufferResourceDescriptor::~ezMeshBufferResourceDescriptor() {}
+ezMeshBufferResourceDescriptor::~ezMeshBufferResourceDescriptor() = default;
 
 void ezMeshBufferResourceDescriptor::Clear()
 {
@@ -397,7 +401,7 @@ ezBoundingBoxSphere ezMeshBufferResourceDescriptor::ComputeBounds() const
 }
 
 ezMeshBufferResource::ezMeshBufferResource()
-    : ezResource<ezMeshBufferResource, ezMeshBufferResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -449,7 +453,7 @@ void ezMeshBufferResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = ModifyMemoryUsage().m_uiMemoryGPU;
 }
 
-ezResourceLoadDesc ezMeshBufferResource::CreateResource(ezMeshBufferResourceDescriptor&& descriptor)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMeshBufferResource, ezMeshBufferResourceDescriptor)
 {
   EZ_ASSERT_DEBUG(m_hVertexBuffer.IsInvalidated(), "Implementation error");
   EZ_ASSERT_DEBUG(m_hIndexBuffer.IsInvalidated(), "Implementation error");

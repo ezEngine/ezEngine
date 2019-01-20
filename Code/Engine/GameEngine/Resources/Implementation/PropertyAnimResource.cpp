@@ -19,14 +19,16 @@ EZ_END_STATIC_REFLECTED_ENUM;
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezPropertyAnimMode, 1)
 EZ_ENUM_CONSTANTS(ezPropertyAnimMode::Once, ezPropertyAnimMode::Loop, ezPropertyAnimMode::BackAndForth)
 EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezPropertyAnimResource);
 // clang-format on
 
 ezPropertyAnimResource::ezPropertyAnimResource()
-    : ezResource<ezPropertyAnimResource, ezPropertyAnimResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
-ezResourceLoadDesc ezPropertyAnimResource::CreateResource(ezPropertyAnimResourceDescriptor&& descriptor)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezPropertyAnimResource, ezPropertyAnimResourceDescriptor)
 {
   m_pDescriptor = EZ_DEFAULT_NEW(ezPropertyAnimResourceDescriptor);
   *m_pDescriptor = descriptor;

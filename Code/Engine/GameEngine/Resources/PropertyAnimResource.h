@@ -86,9 +86,12 @@ struct EZ_GAMEENGINE_DLL ezPropertyAnimResourceDescriptor : public ezRefCounted
 
 typedef ezTypedResourceHandle<class ezPropertyAnimResource> ezPropertyAnimResourceHandle;
 
-class EZ_GAMEENGINE_DLL ezPropertyAnimResource : public ezResource<ezPropertyAnimResource, ezPropertyAnimResourceDescriptor>
+class EZ_GAMEENGINE_DLL ezPropertyAnimResource : public ezResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAnimResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAnimResource, ezResource);
+
+  EZ_RESOURCE_DECLARE_COMMON_CODE(ezPropertyAnimResource);
+  EZ_RESOURCE_DECLARE_CREATEABLE(ezPropertyAnimResource, ezPropertyAnimResourceDescriptor);
 
 public:
   ezPropertyAnimResource();
@@ -96,7 +99,6 @@ public:
   ezSharedPtr<ezPropertyAnimResourceDescriptor> GetDescriptor() const { return m_pDescriptor; }
 
 private:
-  virtual ezResourceLoadDesc CreateResource(ezPropertyAnimResourceDescriptor&& descriptor) override;
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;

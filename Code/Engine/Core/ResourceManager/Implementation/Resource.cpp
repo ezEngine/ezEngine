@@ -3,21 +3,21 @@
 #include <Core/ResourceManager/Resource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResourceBase, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResource, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-EZ_CORE_DLL void IncreaseResourceRefCount(ezResourceBase* pResource)
+EZ_CORE_DLL void IncreaseResourceRefCount(ezResource* pResource)
 {
   pResource->m_iReferenceCount.Increment();
 }
 
-EZ_CORE_DLL void DecreaseResourceRefCount(ezResourceBase* pResource)
+EZ_CORE_DLL void DecreaseResourceRefCount(ezResource* pResource)
 {
   pResource->m_iReferenceCount.Decrement();
 }
 
-ezResourceBase::ezResourceBase(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable)
+ezResource::ezResource(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable)
 {
   m_Flags.AddOrRemove(ezResourceFlags::UpdateOnMainThread, ResourceUpdateThread == DoUpdate::OnMainThread);
 
@@ -31,12 +31,12 @@ ezResourceBase::ezResourceBase(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityL
   m_DueDate = ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 1000.0);
 }
 
-void ezResourceBase::SetResourceDescription(const char* szDescription)
+void ezResource::SetResourceDescription(const char* szDescription)
 {
   m_sResourceDescription = szDescription;
 }
 
-void ezResourceBase::SetDueDate(ezTime date /* = ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 1000.0) */)
+void ezResource::SetDueDate(ezTime date /* = ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 1000.0) */)
 {
   if (m_DueDate != date)
   {
@@ -49,7 +49,7 @@ void ezResourceBase::SetDueDate(ezTime date /* = ezTime::Seconds(60.0 * 60.0 * 2
   }
 }
 
-void ezResourceBase::SetPriority(ezResourcePriority priority)
+void ezResource::SetPriority(ezResourcePriority priority)
 {
   m_Priority = priority;
 
@@ -59,7 +59,7 @@ void ezResourceBase::SetPriority(ezResourcePriority priority)
   ezResourceManager::BroadcastResourceEvent(e);
 }
 
-void ezResourceBase::SetUniqueID(const char* szUniqueID, bool bIsReloadable)
+void ezResource::SetUniqueID(const char* szUniqueID, bool bIsReloadable)
 {
   m_UniqueID = szUniqueID;
   m_uiUniqueIDHash = ezHashing::xxHash32(szUniqueID, ezStringUtils::GetStringElementCount(szUniqueID));
@@ -71,7 +71,7 @@ void ezResourceBase::SetUniqueID(const char* szUniqueID, bool bIsReloadable)
   ezResourceManager::BroadcastResourceEvent(e);
 }
 
-void ezResourceBase::CallUnloadData(Unload WhatToUnload)
+void ezResource::CallUnloadData(Unload WhatToUnload)
 {
   EZ_LOG_BLOCK("ezResource::UnloadData", GetResourceID().GetData());
 
@@ -91,7 +91,7 @@ void ezResourceBase::CallUnloadData(Unload WhatToUnload)
   m_uiQualityLevelsLoadable = ld.m_uiQualityLevelsLoadable;
 }
 
-void ezResourceBase::CallUpdateContent(ezStreamReader* Stream)
+void ezResource::CallUpdateContent(ezStreamReader* Stream)
 {
   EZ_LOG_BLOCK("ezResource::UpdateContent", GetResourceID().GetData());
 
@@ -121,7 +121,7 @@ void ezResourceBase::CallUpdateContent(ezStreamReader* Stream)
                GetLoadingDeadline(ezTime::Now()).GetSeconds());
 }
 
-ezTime ezResourceBase::GetLoadingDeadline(ezTime tNow) const
+ezTime ezResource::GetLoadingDeadline(ezTime tNow) const
 {
   ezTime DueDate = tNow;
 
@@ -151,12 +151,12 @@ ezTime ezResourceBase::GetLoadingDeadline(ezTime tNow) const
   return ezMath::Min(DueDate, m_DueDate);
 }
 
-ezResourceTypeLoader* ezResourceBase::GetDefaultResourceTypeLoader() const
+ezResourceTypeLoader* ezResource::GetDefaultResourceTypeLoader() const
 {
   return ezResourceManager::GetDefaultResourceLoader();
 }
 
-void ezResourceBase::ReportResourceIsMissing()
+void ezResource::ReportResourceIsMissing()
 {
   ezLog::Error("Missing Resource of Type '{2}': '{0}' ('{1}')", GetResourceID(), m_sResourceDescription, GetDynamicRTTI()->GetTypeName());
 }

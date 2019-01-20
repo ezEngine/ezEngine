@@ -55,9 +55,11 @@ private:
 
 typedef ezTypedResourceHandle<class ezAnimationClipResource> ezAnimationClipResourceHandle;
 
-class EZ_RENDERERCORE_DLL ezAnimationClipResource : public ezResource<ezAnimationClipResource, ezAnimationClipResourceDescriptor>
+class EZ_RENDERERCORE_DLL ezAnimationClipResource : public ezResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationClipResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationClipResource, ezResource);
+  EZ_RESOURCE_DECLARE_COMMON_CODE(ezAnimationClipResource);
+  EZ_RESOURCE_DECLARE_CREATEABLE(ezAnimationClipResource, ezAnimationClipResourceDescriptor);
 
 public:
   ezAnimationClipResource();
@@ -65,7 +67,6 @@ public:
   const ezAnimationClipResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
 
 private:
-  virtual ezResourceLoadDesc CreateResource(ezAnimationClipResourceDescriptor&& descriptor) override;
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;

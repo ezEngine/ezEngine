@@ -5,7 +5,7 @@
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/DynamicArray.h>
 
-class ezResourceBase;
+class ezResource;
 class ezStreamReader;
 
 /// \brief Used in conjunction with ezResoruceHandleWriteContext to restore serialized resource handles

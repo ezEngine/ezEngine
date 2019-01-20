@@ -6,9 +6,10 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionResource, 1, ezRTTIDefaultAllocator<ezCollectionResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezCollectionResource);
 
 ezCollectionResource::ezCollectionResource()
-    : ezResource<ezCollectionResource, ezCollectionResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource(DoUpdate::OnAnyThread, 1)
 {
   m_bRegistered = false;
 }
@@ -35,7 +36,7 @@ void ezCollectionResource::PreloadResources(ezTime tShouldBeAvailableIn)
   }
 }
 
-ezResourceLoadDesc ezCollectionResource::CreateResource(ezCollectionResourceDescriptor&& descriptor)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezCollectionResource, ezCollectionResourceDescriptor)
 {
   m_Collection = descriptor;
 

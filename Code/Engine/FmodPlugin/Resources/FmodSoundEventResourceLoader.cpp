@@ -6,7 +6,7 @@
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 
-ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResourceBase* pResource)
+ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResource* pResource)
 {
   EZ_LOG_BLOCK("ezFmodSoundEventResourceLoader::OpenDataStream", pResource->GetResourceID().GetData());
 
@@ -82,14 +82,14 @@ ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResour
   return res;
 }
 
-void ezFmodSoundEventResourceLoader::CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData)
+void ezFmodSoundEventResourceLoader::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData)
 {
   LoadedData* pData = (LoadedData*)LoaderData.m_pCustomLoaderData;
 
   EZ_DEFAULT_DELETE(pData);
 }
 
-bool ezFmodSoundEventResourceLoader::IsResourceOutdated(const ezResourceBase* pResource) const
+bool ezFmodSoundEventResourceLoader::IsResourceOutdated(const ezResource* pResource) const
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 

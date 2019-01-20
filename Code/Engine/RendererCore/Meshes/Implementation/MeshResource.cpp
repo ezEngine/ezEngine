@@ -4,13 +4,17 @@
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshResource, 1, ezRTTIDefaultAllocator<ezMeshResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezMeshResource);
+// clang-format on
 
 ezUInt32 ezMeshResource::s_MeshBufferNameSuffix = 0;
 
 ezMeshResource::ezMeshResource()
-    : ezResource<ezMeshResource, ezMeshResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource(DoUpdate::OnAnyThread, 1)
 {
   m_Bounds.SetInvalid();
 }
@@ -75,10 +79,10 @@ void ezMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezMeshResource::CreateResource(ezMeshResourceDescriptor&& desc)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMeshResource, ezMeshResourceDescriptor)
 {
   // if there is an existing mesh buffer to use, take that
-  m_hMeshBuffer = desc.GetExistingMeshBuffer();
+  m_hMeshBuffer = descriptor.GetExistingMeshBuffer();
 
   // otherwise create a new mesh buffer from the descriptor
   if (!m_hMeshBuffer.IsValid())
@@ -88,18 +92,18 @@ ezResourceLoadDesc ezMeshResource::CreateResource(ezMeshResourceDescriptor&& des
     sMbName.Format("{0}  [MeshBuffer {1}]", GetResourceID(), ezArgU(s_MeshBufferNameSuffix, 4, true, 16, true));
 
     // note: this gets move'd, might be invalid afterwards
-    ezMeshBufferResourceDescriptor& mb = desc.MeshBufferDesc();
+    ezMeshBufferResourceDescriptor& mb = descriptor.MeshBufferDesc();
 
     m_hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(sMbName, std::move(mb), GetResourceDescription());
   }
 
-  m_SubMeshes = desc.GetSubMeshes();
+  m_SubMeshes = descriptor.GetSubMeshes();
 
   m_Materials.Clear();
-  m_Materials.Reserve(desc.GetMaterials().GetCount());
+  m_Materials.Reserve(descriptor.GetMaterials().GetCount());
 
   // copy all the material assignments and load the materials
-  for (const auto& mat : desc.GetMaterials())
+  for (const auto& mat : descriptor.GetMaterials())
   {
     ezMaterialResourceHandle hMat;
 
@@ -109,11 +113,11 @@ ezResourceLoadDesc ezMeshResource::CreateResource(ezMeshResourceDescriptor&& des
     m_Materials.PushBack(hMat); // may be an invalid handle
   }
 
-  m_Bounds = desc.GetBounds();
+  m_Bounds = descriptor.GetBounds();
   EZ_ASSERT_DEV(m_Bounds.IsValid(), "The mesh bounds are invalid. Make sure to call ezMeshResourceDescriptor::ComputeBounds()");
 
   // copy the skeleton handle over, will be an invalid handle for static meshes
-  m_hSkeleton = desc.GetSkeleton();
+  m_hSkeleton = descriptor.GetSkeleton();
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

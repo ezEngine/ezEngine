@@ -30,9 +30,9 @@ struct EZ_RENDERERCORE_DLL ezTexture2DResourceDescriptor
   ezArrayPtr<ezGALSystemMemoryDescription> m_InitialContent;
 };
 
-class EZ_RENDERERCORE_DLL ezTexture2DResource : public ezResourceBase
+class EZ_RENDERERCORE_DLL ezTexture2DResource : public ezResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTexture2DResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezTexture2DResource, ezResource);
 
   EZ_RESOURCE_DECLARE_COMMON_CODE(ezTexture2DResource);
   EZ_RESOURCE_DECLARE_CREATEABLE(ezTexture2DResource, ezTexture2DResourceDescriptor);

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <GameEngine/Basics.h>
 #include <Core/ResourceManager/Resource.h>
-#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Containers/ArrayMap.h>
+#include <Foundation/Reflection/Reflection.h>
+#include <GameEngine/Basics.h>
 
 typedef ezTypedResourceHandle<class ezVisualScriptResource> ezVisualScriptResourceHandle;
 
@@ -22,7 +22,7 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptResourceDescriptor
       m_isMsgHandler = 0;
     }
 
-    ezString m_sTypeName; ///< This is what gets written to the file if m_pType is null.
+    ezString m_sTypeName;            ///< This is what gets written to the file if m_pType is null.
     const ezRTTI* m_pType = nullptr; ///< Cached resolved type pointer after loading
 
     ezUInt16 m_uiFirstProperty = 0;
@@ -80,9 +80,11 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptResourceDescriptor
   ezDynamicArray<LocalParameterNumber> m_NumberParameters;
 };
 
-class EZ_GAMEENGINE_DLL ezVisualScriptResource : public ezResource<ezVisualScriptResource, ezVisualScriptResourceDescriptor>
+class EZ_GAMEENGINE_DLL ezVisualScriptResource : public ezResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptResource, ezResource);
+  EZ_RESOURCE_DECLARE_COMMON_CODE(ezVisualScriptResource);
+  EZ_RESOURCE_DECLARE_CREATEABLE(ezVisualScriptResource, ezVisualScriptResourceDescriptor);
 
 public:
   ezVisualScriptResource();
@@ -94,9 +96,7 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(ezVisualScriptResourceDescriptor&& descriptor) override;
 
 private:
   ezVisualScriptResourceDescriptor m_Descriptor;
 };
-

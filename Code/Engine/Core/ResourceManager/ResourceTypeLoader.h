@@ -38,30 +38,30 @@ public:
   /// resource can read all necessary information from the stream.
   ///
   /// \sa ezResourceLoadData
-  virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) = 0;
+  virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) = 0;
 
   /// \brief This function is called when the resource has been updated with the data from the resource loader and the loader can deallocate
   /// any temporary memory.
-  virtual void CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData) = 0;
+  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData) = 0;
 
   /// \brief If this function returns true, a resource is unloaded and loaded again to update its content.
   ///
-  /// Call ezResourceBase::GetLoadedFileModificationTime() to query the file modification time that was returned
+  /// Call ezResource::GetLoadedFileModificationTime() to query the file modification time that was returned
   /// through ezResourceLoadData::m_LoadedFileModificationDate.
-  virtual bool IsResourceOutdated(const ezResourceBase* pResource) const { return false; }
+  virtual bool IsResourceOutdated(const ezResource* pResource) const { return false; }
 };
 
 /// \brief A default implementation of ezResourceTypeLoader for standard file loading.
 ///
-/// The loader will interpret the ezResourceBase 'resource ID' as a path, read that full file into a memory stream.
+/// The loader will interpret the ezResource 'resource ID' as a path, read that full file into a memory stream.
 /// The file modification data is stored as well.
 /// Resources that use this loader can update their data as if they were reading the file directly.
 class EZ_CORE_DLL ezResourceLoaderFromFile : public ezResourceTypeLoader
 {
 public:
-  virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) override;
-  virtual void CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData) override;
-  virtual bool IsResourceOutdated(const ezResourceBase* pResource) const override;
+  virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override;
+  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData) override;
+  virtual bool IsResourceOutdated(const ezResource* pResource) const override;
 };
 
 
@@ -78,9 +78,9 @@ public:
 class EZ_CORE_DLL ezResourceLoaderFromMemory : public ezResourceTypeLoader
 {
 public:
-  virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) override;
-  virtual void CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData) override;
-  virtual bool IsResourceOutdated(const ezResourceBase* pResource) const override;
+  virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override;
+  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData) override;
+  virtual bool IsResourceOutdated(const ezResource* pResource) const override;
 
   ezString m_sResourceDescription;
   ezTimestamp m_ModificationTimestamp;

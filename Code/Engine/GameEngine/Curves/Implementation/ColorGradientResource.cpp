@@ -6,13 +6,14 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientResource, 1, ezRTTIDefaultAllocator<ezColorGradientResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezColorGradientResource);
 
 ezColorGradientResource::ezColorGradientResource()
-    : ezResource<ezColorGradientResource, ezColorGradientResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
-ezResourceLoadDesc ezColorGradientResource::CreateResource(ezColorGradientResourceDescriptor&& descriptor)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezColorGradientResource, ezColorGradientResourceDescriptor)
 {
   m_Descriptor = descriptor;
 

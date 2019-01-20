@@ -49,14 +49,17 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAtlasResource, 1, ezRTTIDefaultAllocator<ezDecalAtlasResource>)
-  ;
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAtlasResource, 1, ezRTTIDefaultAllocator<ezDecalAtlasResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezDecalAtlasResource);
+// clang-format on
 
 ezUInt32 ezDecalAtlasResource::s_uiDecalAtlasResources = 0;
 
 ezDecalAtlasResource::ezDecalAtlasResource()
-    : ezResource<ezDecalAtlasResource, ezDecalAtlasResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource(DoUpdate::OnAnyThread, 1)
     , m_BaseColorSize(ezVec2U32::ZeroVector())
     , m_NormalSize(ezVec2U32::ZeroVector())
 {
@@ -144,7 +147,7 @@ void ezDecalAtlasResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezDecalAtlasResource::CreateResource(ezDecalAtlasResourceDescriptor&& descriptor)
+EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDecalAtlasResource, ezDecalAtlasResourceDescriptor)
 {
   ezResourceLoadDesc ret;
   ret.m_uiQualityLevelsDiscardable = 0;

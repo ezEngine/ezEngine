@@ -16,9 +16,11 @@ struct EZ_GAMEENGINE_DLL ezCurve1DResourceDescriptor
 typedef ezTypedResourceHandle<class ezCurve1DResource> ezCurve1DResourceHandle;
 
 /// \brief A resource that stores 1D curves. The curves are stored in the descriptor.
-class EZ_GAMEENGINE_DLL ezCurve1DResource : public ezResource<ezCurve1DResource, ezCurve1DResourceDescriptor>
+class EZ_GAMEENGINE_DLL ezCurve1DResource : public ezResource
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCurve1DResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezCurve1DResource, ezResource);
+  EZ_RESOURCE_DECLARE_COMMON_CODE(ezCurve1DResource);
+  EZ_RESOURCE_DECLARE_CREATEABLE(ezCurve1DResource, ezCurve1DResourceDescriptor);
 
 public:
   ezCurve1DResource();
@@ -27,7 +29,6 @@ public:
   const ezCurve1DResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
 
 private:
-  virtual ezResourceLoadDesc CreateResource(ezCurve1DResourceDescriptor&& descriptor) override;
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;

@@ -8,7 +8,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
 
-ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourceBase* pResource)
+ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResource* pResource)
 {
   EZ_LOG_BLOCK("ezFmodSoundBankResourceLoader::OpenDataStream", pResource->GetResourceID().GetData());
 
@@ -99,14 +99,14 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
   return res;
 }
 
-void ezFmodSoundBankResourceLoader::CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData)
+void ezFmodSoundBankResourceLoader::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData)
 {
   LoadedData* pData = (LoadedData*)LoaderData.m_pCustomLoaderData;
 
   EZ_DEFAULT_DELETE(pData);
 }
 
-bool ezFmodSoundBankResourceLoader::IsResourceOutdated(const ezResourceBase* pResource) const
+bool ezFmodSoundBankResourceLoader::IsResourceOutdated(const ezResource* pResource) const
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 
