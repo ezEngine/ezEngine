@@ -449,7 +449,7 @@ void ezMeshBufferResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = ModifyMemoryUsage().m_uiMemoryGPU;
 }
 
-ezResourceLoadDesc ezMeshBufferResource::CreateResource(const ezMeshBufferResourceDescriptor& descriptor)
+ezResourceLoadDesc ezMeshBufferResource::CreateResource(ezMeshBufferResourceDescriptor&& descriptor)
 {
   EZ_ASSERT_DEBUG(m_hVertexBuffer.IsInvalidated(), "Implementation error");
   EZ_ASSERT_DEBUG(m_hIndexBuffer.IsInvalidated(), "Implementation error");

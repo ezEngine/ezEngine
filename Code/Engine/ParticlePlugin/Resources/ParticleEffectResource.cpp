@@ -57,7 +57,7 @@ void ezParticleEffectResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezParticleEffectResource::CreateResource(const ezParticleEffectResourceDescriptor& descriptor)
+ezResourceLoadDesc ezParticleEffectResource::CreateResource(ezParticleEffectResourceDescriptor&& descriptor)
 {
   m_Desc = descriptor;
 

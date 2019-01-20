@@ -69,7 +69,7 @@ void ezCpuMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezCpuMeshResource::CreateResource(const ezMeshResourceDescriptor& desc)
+ezResourceLoadDesc ezCpuMeshResource::CreateResource(ezMeshResourceDescriptor&& desc)
 {
   m_Descriptor = desc;
 

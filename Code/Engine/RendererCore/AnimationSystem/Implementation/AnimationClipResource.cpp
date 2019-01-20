@@ -14,7 +14,7 @@ ezAnimationClipResource::ezAnimationClipResource()
 {
 }
 
-ezResourceLoadDesc ezAnimationClipResource::CreateResource(const ezAnimationClipResourceDescriptor& descriptor)
+ezResourceLoadDesc ezAnimationClipResource::CreateResource(ezAnimationClipResourceDescriptor&& descriptor)
 {
   m_Descriptor = descriptor;
 

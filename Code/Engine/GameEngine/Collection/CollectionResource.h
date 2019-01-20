@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/ResourceManager/Resource.h>
@@ -47,7 +47,7 @@ public:
 
 
 private:
-  virtual ezResourceLoadDesc CreateResource(const ezCollectionResourceDescriptor& descriptor) override;
+  virtual ezResourceLoadDesc CreateResource(ezCollectionResourceDescriptor&& descriptor) override;
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;

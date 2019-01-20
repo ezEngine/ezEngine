@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Basics.h>
 #include <Core/ResourceManager/Resource.h>
@@ -48,7 +48,7 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(const ezTextureCubeResourceDescriptor& descriptor) override;
+  virtual ezResourceLoadDesc CreateResource(ezTextureCubeResourceDescriptor&& descriptor) override;
 
 private:
   friend class ezRenderContext;

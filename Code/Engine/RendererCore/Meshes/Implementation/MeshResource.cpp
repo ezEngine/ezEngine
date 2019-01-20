@@ -65,7 +65,7 @@ ezResourceLoadDesc ezMeshResource::UpdateContent(ezStreamReader* Stream)
     return res;
   }
 
-  return CreateResource(desc);
+  return CreateResource(std::move(desc));
 }
 
 void ezMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
@@ -75,7 +75,7 @@ void ezMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezMeshResource::CreateResource(const ezMeshResourceDescriptor& desc)
+ezResourceLoadDesc ezMeshResource::CreateResource(ezMeshResourceDescriptor&& desc)
 {
   // if there is an existing mesh buffer to use, take that
   m_hMeshBuffer = desc.GetExistingMeshBuffer();
@@ -87,7 +87,10 @@ ezResourceLoadDesc ezMeshResource::CreateResource(const ezMeshResourceDescriptor
     ezStringBuilder sMbName;
     sMbName.Format("{0}  [MeshBuffer {1}]", GetResourceID(), ezArgU(s_MeshBufferNameSuffix, 4, true, 16, true));
 
-    m_hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(sMbName, desc.MeshBufferDesc(), GetResourceDescription());
+    // note: this gets move'd, might be invalid afterwards
+    ezMeshBufferResourceDescriptor& mb = desc.MeshBufferDesc();
+
+    m_hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(sMbName, std::move(mb), GetResourceDescription());
   }
 
   m_SubMeshes = desc.GetSubMeshes();

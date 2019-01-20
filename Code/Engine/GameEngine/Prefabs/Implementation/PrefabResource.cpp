@@ -189,7 +189,7 @@ void ezPrefabResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryCPU = (ezUInt32)(m_WorldReader.GetHeapMemoryUsage() + sizeof(this));
 }
 
-ezResourceLoadDesc ezPrefabResource::CreateResource(const ezPrefabResourceDescriptor& descriptor)
+ezResourceLoadDesc ezPrefabResource::CreateResource(ezPrefabResourceDescriptor&& descriptor)
 {
   ezResourceLoadDesc desc;
   desc.m_State = ezResourceState::Loaded;

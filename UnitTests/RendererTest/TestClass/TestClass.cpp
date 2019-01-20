@@ -226,7 +226,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateMesh(const ezGeometry& geom, co
   desc.AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized);
   desc.AllocateStreamsFromGeometry(geom, Topology);
 
-  hMesh = ezResourceManager::CreateResource<ezMeshBufferResource>(szResourceName, desc, szResourceName);
+  hMesh = ezResourceManager::CreateResource<ezMeshBufferResource>(szResourceName, std::move(desc), szResourceName);
 
   return hMesh;
 }

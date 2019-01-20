@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <FmodPlugin/Basics.h>
 #include <Core/ResourceManager/Resource.h>
@@ -29,7 +29,7 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(const ezFmodSoundEventResourceDescriptor& descriptor) override;
+  virtual ezResourceLoadDesc CreateResource(ezFmodSoundEventResourceDescriptor&& descriptor) override;
 
 private:
   ezFmodSoundBankResourceHandle m_hSoundBank;

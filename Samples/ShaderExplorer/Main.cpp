@@ -362,7 +362,7 @@ void ezShaderExplorerApp::CreateScreenQuad()
     m_hQuadMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}");
 
     if (!m_hQuadMeshBuffer.IsValid())
-      m_hQuadMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}", desc);
+      m_hQuadMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}", std::move(desc));
 }
 
 void ezShaderExplorerApp::OnFileChanged(const char* filename, ezDirectoryWatcherAction action)

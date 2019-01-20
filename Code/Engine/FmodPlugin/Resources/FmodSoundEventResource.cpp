@@ -88,7 +88,7 @@ void ezFmodSoundEventResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezFmodSoundEventResource::CreateResource(const ezFmodSoundEventResourceDescriptor& descriptor)
+ezResourceLoadDesc ezFmodSoundEventResource::CreateResource(ezFmodSoundEventResourceDescriptor&& descriptor)
 {
   // one missing resource is created this way
   // EZ_REPORT_FAILURE("This resource type does not support creating data.");

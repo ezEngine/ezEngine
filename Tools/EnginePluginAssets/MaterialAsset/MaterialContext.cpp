@@ -93,7 +93,7 @@ void ezMaterialContext::OnInitialize()
       desc.AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized);
       desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
-      hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szMeshBufferName, desc, szMeshBufferName);
+      hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
     }
     {
       ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer);
@@ -104,7 +104,7 @@ void ezMaterialContext::OnInitialize()
       md.SetMaterial(0, "");
       md.ComputeBounds();
 
-      hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, md, pMeshBuffer->GetResourceDescription());
+      hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
     }
   }
 

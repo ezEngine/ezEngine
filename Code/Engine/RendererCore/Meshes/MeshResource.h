@@ -31,7 +31,7 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(const ezMeshResourceDescriptor& descriptor) override;
+  virtual ezResourceLoadDesc CreateResource(ezMeshResourceDescriptor&& descriptor) override;
 
   ezDynamicArray<ezMeshResourceDescriptor::SubMesh> m_SubMeshes;
   ezMeshBufferResourceHandle m_hMeshBuffer;

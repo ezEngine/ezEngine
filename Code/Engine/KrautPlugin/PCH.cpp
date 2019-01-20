@@ -19,7 +19,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Kraut, KrautPlugin)
 
     ezKrautTreeResourceDescriptor desc;
     desc.m_Details.m_Bounds.SetInvalid();
-    ezKrautTreeResourceHandle hResource = ezResourceManager::CreateResource<ezKrautTreeResource>("Missing Kraut Tree", desc, "Empty Kraut tree");
+    ezKrautTreeResourceHandle hResource = ezResourceManager::CreateResource<ezKrautTreeResource>("Missing Kraut Tree", std::move(desc), "Empty Kraut tree");
     ezKrautTreeResource::SetTypeMissingResource(hResource);
   }
 

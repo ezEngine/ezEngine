@@ -73,7 +73,7 @@ ezResourceLoadDesc ezSurfaceResource::UpdateContent(ezStreamReader* Stream)
     context.EndReadingFromStream(Stream);
     context.EndRestoringHandles();
 
-    CreateResource(dummy);
+    CreateResource(std::move(dummy));
   }
 
   // configure the lookup table
@@ -96,7 +96,7 @@ void ezSurfaceResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezSurfaceResource::CreateResource(const ezSurfaceResourceDescriptor& descriptor)
+ezResourceLoadDesc ezSurfaceResource::CreateResource(ezSurfaceResourceDescriptor&& descriptor)
 {
   m_Descriptor = descriptor;
 

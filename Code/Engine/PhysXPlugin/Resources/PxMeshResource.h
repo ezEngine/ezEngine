@@ -44,7 +44,7 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(const ezPxMeshResourceDescriptor& descriptor) override;
+  virtual ezResourceLoadDesc CreateResource(ezPxMeshResourceDescriptor&& descriptor) override;
 
 private:
   ezDynamicArray<ezSurfaceResourceHandle> m_Surfaces;

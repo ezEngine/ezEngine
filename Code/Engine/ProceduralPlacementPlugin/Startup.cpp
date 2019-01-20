@@ -18,7 +18,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(ProceduralPlacement, ProceduralPlacementPlugin)
     ezResourceManager::RegisterResourceForAssetType("Procedural Placement", ezGetStaticRTTI<ezProceduralPlacementResource>());
 
     ezProceduralPlacementResourceDescriptor desc;
-    ezProceduralPlacementResourceHandle hResource = ezResourceManager::CreateResource<ezProceduralPlacementResource>("ProceduralPlacementMissing", desc, "Fallback for missing Procedural Placement Resource");
+    ezProceduralPlacementResourceHandle hResource = ezResourceManager::CreateResource<ezProceduralPlacementResource>("ProceduralPlacementMissing", std::move(desc), "Fallback for missing Procedural Placement Resource");
     ezProceduralPlacementResource::SetTypeMissingResource(hResource);
 
     //ezExpressionVM::Test();

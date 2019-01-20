@@ -60,7 +60,7 @@ void ezRecastNavMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezRecastNavMeshResource::CreateResource(const ezRecastNavMeshResourceDescriptor& descriptor)
+ezResourceLoadDesc ezRecastNavMeshResource::CreateResource(ezRecastNavMeshResourceDescriptor&& descriptor)
 {
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

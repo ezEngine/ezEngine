@@ -96,7 +96,7 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(const ezMaterialResourceDescriptor& descriptor) override;
+  virtual ezResourceLoadDesc CreateResource(ezMaterialResourceDescriptor&& descriptor) override;
 
 private:
   ezMaterialResourceDescriptor m_OriginalDesc; // stores the state at loading, such that SetParameter etc. calls can be reset later

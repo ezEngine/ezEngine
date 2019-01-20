@@ -993,7 +993,7 @@ void ezDebugRenderer::OnEngineStartup()
     desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Lines);
 
     s_hLineBoxMeshBuffer =
-        ezResourceManager::CreateResource<ezMeshBufferResource>("DebugLineBox", desc, "Mesh for Rendering Debug Line Boxes");
+        ezResourceManager::CreateResource<ezMeshBufferResource>("DebugLineBox", std::move(desc), "Mesh for Rendering Debug Line Boxes");
   }
 
   {
@@ -1005,7 +1005,7 @@ void ezDebugRenderer::OnEngineStartup()
     desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
     s_hSolidBoxMeshBuffer =
-        ezResourceManager::CreateResource<ezMeshBufferResource>("DebugSolidBox", desc, "Mesh for Rendering Debug Solid Boxes");
+        ezResourceManager::CreateResource<ezMeshBufferResource>("DebugSolidBox", std::move(desc), "Mesh for Rendering Debug Solid Boxes");
   }
 
   {
@@ -1081,7 +1081,7 @@ void ezDebugRenderer::OnEngineStartup()
     desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
     desc.m_InitialContent = ezMakeArrayPtr(&memoryDesc, 1);
 
-    s_hDebugFontTexture = ezResourceManager::CreateResource<ezTexture2DResource>("DebugFontTexture", desc);
+    s_hDebugFontTexture = ezResourceManager::CreateResource<ezTexture2DResource>("DebugFontTexture", std::move(desc));
   }
 
   s_hDebugGeometryShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugGeometry.ezShader");

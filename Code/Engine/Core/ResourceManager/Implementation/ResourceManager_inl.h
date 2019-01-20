@@ -51,8 +51,7 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::GetExistingResource(const
 }
 
 template <typename ResourceType, typename DescriptorType>
-ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(const char* szResourceID,
-                                                                      const DescriptorType& descriptor,
+ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(const char* szResourceID, DescriptorType&& descriptor,
                                                                       const char* szResourceDescription)
 {
   EZ_LOG_BLOCK("ezResourceManager::CreateResource", szResourceID);
@@ -68,8 +67,9 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(const char
   EZ_ASSERT_DEV(pResource->GetLoadingState() == ezResourceState::Unloaded,
                 "CreateResource was called on a resource that is already created");
 
-  // If this does not compile, you probably passed in the wrong descriptor type for the given resource type
-  pResource->CallCreateResource(descriptor);
+  // If this does not compile, you either passed in the wrong descriptor type for the given resource type
+  // or you forgot to std::move the descriptor when calling CreateResource
+  pResource->CallCreateResource(std::move(descriptor));
 
   EZ_ASSERT_DEV(pResource->GetLoadingState() != ezResourceState::Unloaded, "CreateResource did not set the loading state properly.");
 

@@ -172,7 +172,7 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
   ezTextureUtils::ConfigureSampler(textureFilter, td.m_SamplerDesc);
 
   // ignore its return value here, we build our own
-  CreateResource(td);
+  CreateResource(std::move(td));
 
   {
     ezResourceLoadDesc res;
@@ -195,7 +195,7 @@ void ezTextureCubeResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = m_uiMemoryGPU[0] + m_uiMemoryGPU[1];
 }
 
-ezResourceLoadDesc ezTextureCubeResource::CreateResource(const ezTextureCubeResourceDescriptor& descriptor)
+ezResourceLoadDesc ezTextureCubeResource::CreateResource(ezTextureCubeResourceDescriptor&& descriptor)
 {
   ezResourceLoadDesc ret;
   ret.m_uiQualityLevelsDiscardable = descriptor.m_uiQualityLevelsDiscardable;

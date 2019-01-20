@@ -73,7 +73,7 @@ void ezVisualScriptResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezVisualScriptResource::CreateResource(const ezVisualScriptResourceDescriptor& descriptor)
+ezResourceLoadDesc ezVisualScriptResource::CreateResource(ezVisualScriptResourceDescriptor&& descriptor)
 {
   m_Descriptor = descriptor;
 

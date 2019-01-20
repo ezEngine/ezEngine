@@ -12,7 +12,7 @@ ezColorGradientResource::ezColorGradientResource()
 {
 }
 
-ezResourceLoadDesc ezColorGradientResource::CreateResource(const ezColorGradientResourceDescriptor& descriptor)
+ezResourceLoadDesc ezColorGradientResource::CreateResource(ezColorGradientResourceDescriptor&& descriptor)
 {
   m_Descriptor = descriptor;
 

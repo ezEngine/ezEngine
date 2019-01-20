@@ -94,7 +94,7 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(const ezVisualScriptResourceDescriptor& descriptor) override;
+  virtual ezResourceLoadDesc CreateResource(ezVisualScriptResourceDescriptor&& descriptor) override;
 
 private:
   ezVisualScriptResourceDescriptor m_Descriptor;

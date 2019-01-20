@@ -182,7 +182,7 @@ end:
 }
 
 void ezSrmRenderComponent::CreateSurfaceRepresentation(const ezUuid& guid, SrmRenderObject& surface, const ezTransform& transform,
-                                                       const ezMeshBufferResourceDescriptor& mb)
+                                                       ezMeshBufferResourceDescriptor&& mb)
 {
   EZ_LOCK(GetWorld()->GetWriteMarker());
 
@@ -197,7 +197,7 @@ void ezSrmRenderComponent::CreateSurfaceRepresentation(const ezUuid& guid, SrmRe
 
   ezStringBuilder sName;
   sName.Format("SRMB_{0}_{1}", sGuid, surface.m_iLastUpdate);
-  ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(sName, mb);
+  ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(sName, std::move(mb));
 
   ezMeshResourceDescriptor meshDesc;
   meshDesc.UseExistingMeshBuffer(hMeshBuffer);
@@ -206,7 +206,7 @@ void ezSrmRenderComponent::CreateSurfaceRepresentation(const ezUuid& guid, SrmRe
   meshDesc.ComputeBounds();
 
   sName.Format("SRM_{0}_{1}", sGuid, surface.m_iLastUpdate);
-  ezMeshResourceHandle hMeshResource = ezResourceManager::CreateResource<ezMeshResource>(sName, meshDesc);
+  ezMeshResourceHandle hMeshResource = ezResourceManager::CreateResource<ezMeshResource>(sName, std::move(meshDesc));
 
   ezGameObjectDesc obj;
   obj.m_hParent = GetOwner()->GetHandle();

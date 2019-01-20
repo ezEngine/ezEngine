@@ -170,7 +170,7 @@ void ezProceduralPlacementResource::UpdateMemoryUsage(MemoryUsage& out_NewMemory
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezProceduralPlacementResource::CreateResource(const ezProceduralPlacementResourceDescriptor& descriptor)
+ezResourceLoadDesc ezProceduralPlacementResource::CreateResource(ezProceduralPlacementResourceDescriptor&& descriptor)
 {
   // EZ_REPORT_FAILURE("This resource type does not support creating data.");
 

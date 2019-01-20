@@ -96,7 +96,7 @@ public:
   ezSharedPtr<ezPropertyAnimResourceDescriptor> GetDescriptor() const { return m_pDescriptor; }
 
 private:
-  virtual ezResourceLoadDesc CreateResource(const ezPropertyAnimResourceDescriptor& descriptor) override;
+  virtual ezResourceLoadDesc CreateResource(ezPropertyAnimResourceDescriptor&& descriptor) override;
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;

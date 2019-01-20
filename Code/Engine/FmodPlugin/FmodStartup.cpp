@@ -40,13 +40,13 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Fmod, FmodPlugin)
 
     {
       ezFmodSoundEventResourceDescriptor desc;
-      ezFmodSoundEventResourceHandle hResource = ezResourceManager::CreateResource<ezFmodSoundEventResource>("FmodEventMissing", desc, "Fallback for missing sound event");
+      ezFmodSoundEventResourceHandle hResource = ezResourceManager::CreateResource<ezFmodSoundEventResource>("FmodEventMissing", std::move(desc), "Fallback for missing sound event");
       ezFmodSoundEventResource::SetTypeMissingResource(hResource);
     }
 
     {
       ezFmodSoundBankResourceDescriptor desc;
-      ezFmodSoundBankResourceHandle hResource = ezResourceManager::CreateResource<ezFmodSoundBankResource>("FmodBankMissing", desc, "Fallback for missing sound bank");
+      ezFmodSoundBankResourceHandle hResource = ezResourceManager::CreateResource<ezFmodSoundBankResource>("FmodBankMissing", std::move(desc), "Fallback for missing sound bank");
       ezFmodSoundBankResource::SetTypeMissingResource(hResource);
     }
 

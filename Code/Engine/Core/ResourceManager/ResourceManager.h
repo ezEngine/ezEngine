@@ -96,7 +96,7 @@ public:
   /// \param szResourceDescription An optional description that might help during debugging. Often a human readable name or path is stored
   /// here, to make it easier to identify this resource.
   template <typename ResourceType, typename DescriptorType>
-  static ezTypedResourceHandle<ResourceType> CreateResource(const char* szResourceID, const DescriptorType& descriptor,
+  static ezTypedResourceHandle<ResourceType> CreateResource(const char* szResourceID, DescriptorType&& descriptor,
                                                             const char* szResourceDescription = nullptr);
 
   /// \brief Returns a handle to the resource with the given ID. If the resource does not exist, the handle is invalid.

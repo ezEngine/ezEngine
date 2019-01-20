@@ -69,7 +69,7 @@ ezResourceLoadDesc ezKrautTreeResource::UpdateContent(ezStreamReader* Stream)
     return res;
   }
 
-  return CreateResource(desc);
+  return CreateResource(std::move(desc));
 }
 
 void ezKrautTreeResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
@@ -79,7 +79,7 @@ void ezKrautTreeResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezKrautTreeResource::CreateResource(const ezKrautTreeResourceDescriptor& desc)
+ezResourceLoadDesc ezKrautTreeResource::CreateResource(ezKrautTreeResourceDescriptor&& desc)
 {
   m_TreeLODs.Clear();
   m_Details = desc.m_Details;

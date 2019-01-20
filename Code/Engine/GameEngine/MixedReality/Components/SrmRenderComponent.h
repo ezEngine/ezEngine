@@ -1,9 +1,9 @@
 #pragma once
 
-#include <GameEngine/Basics.h>
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/SettingsComponent.h>
 #include <Core/World/SettingsComponentManager.h>
-#include <Core/ResourceManager/ResourceHandle.h>
+#include <GameEngine/Basics.h>
 
 struct ezSrmManagerEvent;
 struct ezMeshBufferResourceDescriptor;
@@ -33,9 +33,8 @@ protected:
 
   //
   // ezSrmRenderComponent Interface
-  // 
+  //
 public:
-
   void SetMaterialFile(const char* szFile);
   const char* GetMaterialFile() const;
 
@@ -54,9 +53,9 @@ protected:
   void SurfaceReconstructionManagerEventHandler(const ezSrmManagerEvent& e);
   void RemoveSrmRenderObject(const ezUuid& guid);
   void UpdateSurfaceRepresentation(const ezUuid& guid);
-  void CreateSurfaceRepresentation(const ezUuid& guid, SrmRenderObject& surface, const ezTransform& transform, const ezMeshBufferResourceDescriptor& mb);
+  void CreateSurfaceRepresentation(const ezUuid& guid, SrmRenderObject& surface, const ezTransform& transform,
+                                   ezMeshBufferResourceDescriptor&& mb);
 
   ezMaterialResourceHandle m_hMaterial;
   ezMap<ezUuid, SrmRenderObject> m_SrmRenderObjects;
 };
-

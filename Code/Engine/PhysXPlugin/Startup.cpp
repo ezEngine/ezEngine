@@ -20,7 +20,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXPlugin)
     ezResourceManager::RegisterResourceForAssetType("Collision Mesh (Convex)", ezGetStaticRTTI<ezPxMeshResource>());
 
     ezPxMeshResourceDescriptor desc;
-    ezPxMeshResourceHandle hResource = ezResourceManager::CreateResource<ezPxMeshResource>("Missing PhysX Mesh", desc, "Empty collision mesh");
+    ezPxMeshResourceHandle hResource = ezResourceManager::CreateResource<ezPxMeshResource>("Missing PhysX Mesh", std::move(desc), "Empty collision mesh");
     ezPxMeshResource::SetTypeMissingResource(hResource);
   }
 

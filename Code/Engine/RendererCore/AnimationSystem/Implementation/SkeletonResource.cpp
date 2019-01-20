@@ -13,7 +13,7 @@ ezSkeletonResource::ezSkeletonResource()
 
 ezSkeletonResource::~ezSkeletonResource() = default;
 
-ezResourceLoadDesc ezSkeletonResource::CreateResource(const ezSkeletonResourceDescriptor& descriptor)
+ezResourceLoadDesc ezSkeletonResource::CreateResource(ezSkeletonResourceDescriptor&& descriptor)
 {
   m_Descriptor = descriptor;
 

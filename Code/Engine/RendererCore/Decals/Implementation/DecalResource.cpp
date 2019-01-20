@@ -19,7 +19,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalResource)
     ezResourceManager::SetResourceTypeLoader<ezDecalResource>(&s_DecalResourceLoader);
 
     ezDecalResourceDescriptor desc;
-    ezDecalResourceHandle hFallback = ezResourceManager::CreateResource<ezDecalResource>("Fallback Decal", desc, "Empty Decal for loading and missing decals");
+    ezDecalResourceHandle hFallback = ezResourceManager::CreateResource<ezDecalResource>("Fallback Decal", std::move(desc), "Empty Decal for loading and missing decals");
 
     ezDecalResource::SetTypeFallbackResource(hFallback);
     ezDecalResource::SetTypeMissingResource(hFallback);
@@ -80,7 +80,7 @@ void ezDecalResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezDecalResource::CreateResource(const ezDecalResourceDescriptor& descriptor)
+ezResourceLoadDesc ezDecalResource::CreateResource(ezDecalResourceDescriptor&& descriptor)
 {
   ezResourceLoadDesc ret;
   ret.m_uiQualityLevelsDiscardable = 0;

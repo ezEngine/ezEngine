@@ -122,7 +122,7 @@ void ezTextureContext::OnInitialize()
       desc.AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
       desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
-      hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szMeshBufferName, desc, szMeshBufferName);
+      hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
     }
     {
       ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer);
@@ -133,7 +133,7 @@ void ezTextureContext::OnInitialize()
       md.SetMaterial(0, "");
       md.ComputeBounds();
 
-      hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, md, pMeshBuffer->GetResourceDescription());
+      hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
     }
   }
 
@@ -151,7 +151,7 @@ void ezTextureContext::OnInitialize()
     param.m_Name.Assign("IsLinear");
     param.m_Value = !ezGALResourceFormat::IsSrgb(m_TextureFormat);
 
-    m_hMaterial = ezResourceManager::CreateResource<ezMaterialResource>(sMaterialResource, md);
+    m_hMaterial = ezResourceManager::CreateResource<ezMaterialResource>(sMaterialResource, std::move(md));
   }
 
   // Preview Object

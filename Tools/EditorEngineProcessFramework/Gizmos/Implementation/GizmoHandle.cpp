@@ -79,7 +79,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferResource(const ezGeometry& geo
   desc.AllocateStreamsFromGeometry(geom, topology);
   desc.ComputeBounds();
 
-  return ezResourceManager::CreateResource<ezMeshBufferResource>(szResourceName, desc, szDescription);
+  return ezResourceManager::CreateResource<ezMeshBufferResource>(szResourceName, std::move(desc), szDescription);
 }
 
 static ezMeshBufferResourceHandle CreateMeshBufferArrow()
@@ -459,7 +459,7 @@ static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, e
   md.SetMaterial(0, szMaterial);
   md.ComputeBounds();
 
-  return ezResourceManager::CreateResource<ezMeshResource>(sIdentifier, md, pMeshBuffer->GetResourceDescription());
+  return ezResourceManager::CreateResource<ezMeshResource>(sIdentifier, std::move(md), pMeshBuffer->GetResourceDescription());
 }
 
 ezEngineGizmoHandle::ezEngineGizmoHandle()

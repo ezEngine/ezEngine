@@ -65,7 +65,7 @@ ezRenderPipelineResourceHandle ezRenderPipelineResource::CreateMissingPipeline()
   ezRenderPipelineResourceDescriptor desc;
   ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(pRenderPipeline.Borrow(), desc);
 
-  return ezResourceManager::CreateResource<ezRenderPipelineResource>("MissingRenderPipeline", desc, "MissingRenderPipeline");
+  return ezResourceManager::CreateResource<ezRenderPipelineResource>("MissingRenderPipeline", std::move(desc), "MissingRenderPipeline");
 }
 
 ezResourceLoadDesc ezRenderPipelineResource::UnloadData(Unload WhatToUnload)
@@ -133,7 +133,7 @@ void ezRenderPipelineResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezRenderPipelineResource::CreateResource(const ezRenderPipelineResourceDescriptor& descriptor)
+ezResourceLoadDesc ezRenderPipelineResource::CreateResource(ezRenderPipelineResourceDescriptor&& descriptor)
 {
   m_Desc = descriptor;
 

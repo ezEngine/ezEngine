@@ -12,7 +12,7 @@ ezCurve1DResource::ezCurve1DResource()
 {
 }
 
-ezResourceLoadDesc ezCurve1DResource::CreateResource(const ezCurve1DResourceDescriptor& descriptor)
+ezResourceLoadDesc ezCurve1DResource::CreateResource(ezCurve1DResourceDescriptor&& descriptor)
 {
   m_Descriptor = descriptor;
 

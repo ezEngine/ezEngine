@@ -45,7 +45,7 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(const ezPrefabResourceDescriptor& descriptor) override;
+  virtual ezResourceLoadDesc CreateResource(ezPrefabResourceDescriptor&& descriptor) override;
 
 private:
   ezUInt32 FindFirstParamWithName(ezUInt32 uiNameHash) const;

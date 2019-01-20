@@ -147,7 +147,7 @@ void ezKrautTreeContext::OnInitialize()
         desc.AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized);
         desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
-        hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szMeshBufferName, desc, szMeshBufferName);
+        hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
       }
       {
         ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer);
@@ -158,7 +158,7 @@ void ezKrautTreeContext::OnInitialize()
         md.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"); // Pattern.ezMaterialAsset
         md.ComputeBounds();
 
-        hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, md, pMeshBuffer->GetResourceDescription());
+        hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
       }
     }
 

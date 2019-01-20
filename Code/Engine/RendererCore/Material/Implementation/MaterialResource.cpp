@@ -818,7 +818,7 @@ void ezMaterialResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezMaterialResource::CreateResource(const ezMaterialResourceDescriptor& descriptor)
+ezResourceLoadDesc ezMaterialResource::CreateResource(ezMaterialResourceDescriptor&& descriptor)
 {
   m_Desc = descriptor;
   m_OriginalDesc = descriptor;

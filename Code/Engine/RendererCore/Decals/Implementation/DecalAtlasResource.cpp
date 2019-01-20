@@ -23,7 +23,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalAtlasResource)
   ON_CORESYSTEMS_STARTUP
   {
     ezDecalAtlasResourceDescriptor desc;
-    ezDecalAtlasResourceHandle hFallback = ezResourceManager::CreateResource<ezDecalAtlasResource>("Fallback Decal Atlas", desc, "Empty Decal Atlas for loading and missing decals");
+    ezDecalAtlasResourceHandle hFallback = ezResourceManager::CreateResource<ezDecalAtlasResource>("Fallback Decal Atlas", std::move(desc), "Empty Decal Atlas for loading and missing decals");
 
     ezDecalAtlasResource::SetTypeFallbackResource(hFallback);
     ezDecalAtlasResource::SetTypeMissingResource(hFallback);
@@ -143,7 +143,7 @@ void ezDecalAtlasResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezDecalAtlasResource::CreateResource(const ezDecalAtlasResourceDescriptor& descriptor)
+ezResourceLoadDesc ezDecalAtlasResource::CreateResource(ezDecalAtlasResourceDescriptor&& descriptor)
 {
   ezResourceLoadDesc ret;
   ret.m_uiQualityLevelsDiscardable = 0;
@@ -171,7 +171,7 @@ void ezDecalAtlasResource::CreateLayerTexture(const ezImage& img, bool bSRGB, ez
   sTexId.Format("{0}_Tex{1}", GetResourceID(), s_uiDecalAtlasResources);
   ++s_uiDecalAtlasResources;
 
-  out_hTexture = ezResourceManager::CreateResource<ezTexture2DResource>(sTexId, td);
+  out_hTexture = ezResourceManager::CreateResource<ezTexture2DResource>(sTexId, std::move(td));
 }
 
 void ezDecalAtlasResource::ReadDecalInfo(ezStreamReader* Stream)

@@ -107,7 +107,7 @@ void ezEditorSelectedObjectsExtractor::CreateRenderTargetTexture(const ezView& v
     d.m_uiWidth = uiWidth;
     d.m_uiHeight = (ezUInt32)(uiWidth * fAspect);
 
-    m_hRenderTarget = ezResourceManager::CreateResource<ezRenderToTexture2DResource>("EditorCameraRT", d);
+    m_hRenderTarget = ezResourceManager::CreateResource<ezRenderToTexture2DResource>("EditorCameraRT", std::move(d));
   }
 
   CreateRenderTargetView(view);

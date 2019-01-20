@@ -58,7 +58,7 @@ void ezSkyBoxComponent::Initialize()
     desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
     desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
-    hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szBufferResourceName, desc, szBufferResourceName);
+    hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szBufferResourceName, std::move(desc), szBufferResourceName);
   }
 
   const char* szMeshResourceName = "SkyBoxMesh";
@@ -70,7 +70,7 @@ void ezSkyBoxComponent::Initialize()
     desc.AddSubMesh(2, 0, 0);
     desc.ComputeBounds();
 
-    m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshResourceName, desc, szMeshResourceName);
+    m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshResourceName, std::move(desc), szMeshResourceName);
   }
 
   ezStringBuilder cubeMapMaterialName = "SkyBoxMaterial_CubeMap";
@@ -82,7 +82,7 @@ void ezSkyBoxComponent::Initialize()
     ezMaterialResourceDescriptor desc;
     desc.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ b4b75b1c-c2c8-4a0e-8076-780bdd46d18b }"); // Sky.ezMaterialAsset
 
-    m_hCubeMapMaterial = ezResourceManager::CreateResource<ezMaterialResource>(cubeMapMaterialName, desc, cubeMapMaterialName);
+    m_hCubeMapMaterial = ezResourceManager::CreateResource<ezMaterialResource>(cubeMapMaterialName, std::move(desc), cubeMapMaterialName);
   }
 
   UpdateMaterials();

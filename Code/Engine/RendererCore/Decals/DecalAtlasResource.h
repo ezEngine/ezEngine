@@ -45,7 +45,7 @@ private:
   void ReadDecalInfo(ezStreamReader* Stream);
 
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(const ezDecalAtlasResourceDescriptor& descriptor) override;
+  virtual ezResourceLoadDesc CreateResource(ezDecalAtlasResourceDescriptor&& descriptor) override;
 
   void CreateLayerTexture(const ezImage& img, bool bSRGB, ezTexture2DResourceHandle& out_hTexture);
 

@@ -125,16 +125,16 @@ private:                                                                        
 
 #define EZ_RESOURCE_DECLARE_CREATEABLE(SELF, SELF_DESCRIPTOR)                                                                              \
 protected:                                                                                                                                 \
-  ezResourceLoadDesc CreateResource(const SELF_DESCRIPTOR& descriptor);                                                                    \
+  ezResourceLoadDesc CreateResource(SELF_DESCRIPTOR&& descriptor);                                                                         \
                                                                                                                                            \
 private:                                                                                                                                   \
-  void CallCreateResource(const SELF_DESCRIPTOR& descriptor);
+  void CallCreateResource(SELF_DESCRIPTOR&& descriptor);
 
 
 #define EZ_RESOURCE_IMPLEMENT_CREATEABLE(SELF, SELF_DESCRIPTOR)                                                                            \
-  void SELF::CallCreateResource(const SELF_DESCRIPTOR& descriptor)                                                                         \
+  void SELF::CallCreateResource(SELF_DESCRIPTOR&& descriptor)                                                                              \
   {                                                                                                                                        \
-    ezResourceLoadDesc ld = CreateResource(descriptor);                                                                                    \
+    ezResourceLoadDesc ld = CreateResource(std::move(descriptor));                                                                         \
                                                                                                                                            \
     EZ_ASSERT_DEV(ld.m_State != ezResourceState::Invalid, "CreateResource() did not return a valid resource load state");                  \
     EZ_ASSERT_DEV(ld.m_uiQualityLevelsDiscardable != 0xFF, "CreateResource() did not fill out m_uiQualityLevelsDiscardable correctly");    \
@@ -167,7 +167,7 @@ private:                                                                        
     ezLog::Debug("Created {0} - '{1}' ", GetDynamicRTTI()->GetTypeName(), GetResourceDescription());                                       \
   }                                                                                                                                        \
                                                                                                                                            \
-  ezResourceLoadDesc SELF::CreateResource(const SELF_DESCRIPTOR& descriptor)
+  ezResourceLoadDesc SELF::CreateResource(SELF_DESCRIPTOR&& descriptor)
 
 
 #define EZ_RESOURCE_IMPLEMENT_COMMON_CODE(SELF)                                                                                            \
@@ -197,9 +197,9 @@ protected:
   }
 
 private:
-  void CallCreateResource(const SELF_DESCRIPTOR& descriptor)
+  void CallCreateResource(SELF_DESCRIPTOR&& descriptor)
   {
-    ezResourceLoadDesc ld = CreateResource(descriptor);
+    ezResourceLoadDesc ld = CreateResource(std::move(descriptor));
 
     EZ_ASSERT_DEV(ld.m_State != ezResourceState::Invalid, "CreateResource() did not return a valid resource load state");
     EZ_ASSERT_DEV(ld.m_uiQualityLevelsDiscardable != 0xFF, "CreateResource() did not fill out m_uiQualityLevelsDiscardable correctly");
@@ -244,7 +244,7 @@ private:
   /// Note that created resources should always set its loading state to 'Loaded' and its current and max quality to 1, otherwise
   /// the resource manager might try to load even more into the resource afterwards.
   /// However, since this might be a valid use case for some resource types, it is not enforced by the resource manager.
-  virtual ezResourceLoadDesc CreateResource(const SELF_DESCRIPTOR& descriptor)
+  virtual ezResourceLoadDesc CreateResource(SELF_DESCRIPTOR&& descriptor)
   {
     EZ_REPORT_FAILURE("The resource type '{0}' does not support resource creation", GetDynamicRTTI()->GetTypeName());
 

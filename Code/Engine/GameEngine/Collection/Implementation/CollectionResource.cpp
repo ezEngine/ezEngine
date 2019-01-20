@@ -35,7 +35,7 @@ void ezCollectionResource::PreloadResources(ezTime tShouldBeAvailableIn)
   }
 }
 
-ezResourceLoadDesc ezCollectionResource::CreateResource(const ezCollectionResourceDescriptor& descriptor)
+ezResourceLoadDesc ezCollectionResource::CreateResource(ezCollectionResourceDescriptor&& descriptor)
 {
   m_Collection = descriptor;
 

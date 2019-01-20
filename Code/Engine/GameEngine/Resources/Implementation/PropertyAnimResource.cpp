@@ -26,7 +26,7 @@ ezPropertyAnimResource::ezPropertyAnimResource()
 {
 }
 
-ezResourceLoadDesc ezPropertyAnimResource::CreateResource(const ezPropertyAnimResourceDescriptor& descriptor)
+ezResourceLoadDesc ezPropertyAnimResource::CreateResource(ezPropertyAnimResourceDescriptor&& descriptor)
 {
   m_pDescriptor = EZ_DEFAULT_NEW(ezPropertyAnimResourceDescriptor);
   *m_pDescriptor = descriptor;

@@ -232,7 +232,7 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
       ezTextureUtils::ConfigureSampler(textureFilter, td.m_SamplerDesc);
 
       // ignore its return value here, we build our own
-      CreateResource(td);
+      CreateResource(std::move(td));
     }
 
     {
@@ -486,7 +486,7 @@ ezResourceLoadDesc ezRenderToTexture2DResource::UpdateContent(ezStreamReader* St
 
     m_uiLoadedTextures = 0;
 
-    CreateResource(td);
+    CreateResource(std::move(td));
   }
 
   ezResourceLoadDesc res;

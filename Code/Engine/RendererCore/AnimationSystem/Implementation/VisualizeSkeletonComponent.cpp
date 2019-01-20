@@ -241,7 +241,7 @@ void ezVisualizeSkeletonComponent::CreateRenderMesh()
   md.SetMaterial(0, "Materials/Common/SkeletonVisualization.ezMaterial");
   md.SetMaterial(1, "Materials/Common/HitBoxVisualization.ezMaterial");
 
-  m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(sVisMeshName, md, "Skeleton Visualization");
+  m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(sVisMeshName, std::move(md), "Skeleton Visualization");
 
   TriggerLocalBoundsUpdate();
 }

@@ -154,7 +154,7 @@ void ezShaderPermutationResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUs
   out_NewMemoryUsage.m_uiMemoryGPU = ModifyMemoryUsage().m_uiMemoryGPU;
 }
 
-ezResourceLoadDesc ezShaderPermutationResource::CreateResource(const ezShaderPermutationResourceDescriptor& descriptor)
+ezResourceLoadDesc ezShaderPermutationResource::CreateResource(ezShaderPermutationResourceDescriptor&& descriptor)
 {
   ezResourceLoadDesc ret;
   ret.m_State = ezResourceState::Loaded;

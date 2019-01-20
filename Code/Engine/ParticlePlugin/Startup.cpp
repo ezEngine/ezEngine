@@ -17,7 +17,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Particle, ParticlePlugin)
     ezResourceManager::RegisterResourceForAssetType("Particle Effect", ezGetStaticRTTI<ezParticleEffectResource>());
 
     ezParticleEffectResourceDescriptor desc;
-    ezParticleEffectResourceHandle hEffect = ezResourceManager::CreateResource<ezParticleEffectResource>("ParticleEffectMissing", desc, "Fallback for missing Particle Effects");
+    ezParticleEffectResourceHandle hEffect = ezResourceManager::CreateResource<ezParticleEffectResource>("ParticleEffectMissing", std::move(desc), "Fallback for missing Particle Effects");
     ezParticleEffectResource::SetTypeMissingResource(hEffect);
   }
 

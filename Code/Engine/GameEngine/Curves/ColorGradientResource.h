@@ -33,7 +33,7 @@ public:
   }
 
 private:
-  virtual ezResourceLoadDesc CreateResource(const ezColorGradientResourceDescriptor& descriptor) override;
+  virtual ezResourceLoadDesc CreateResource(ezColorGradientResourceDescriptor&& descriptor) override;
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;

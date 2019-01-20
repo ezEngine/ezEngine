@@ -35,7 +35,7 @@ public:
   const ezSkeletonResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
 
 private:
-  virtual ezResourceLoadDesc CreateResource(const ezSkeletonResourceDescriptor& descriptor) override;
+  virtual ezResourceLoadDesc CreateResource(ezSkeletonResourceDescriptor&& descriptor) override;
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;

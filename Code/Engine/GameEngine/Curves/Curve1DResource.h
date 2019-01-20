@@ -27,7 +27,7 @@ public:
   const ezCurve1DResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
 
 private:
-  virtual ezResourceLoadDesc CreateResource(const ezCurve1DResourceDescriptor& descriptor) override;
+  virtual ezResourceLoadDesc CreateResource(ezCurve1DResourceDescriptor&& descriptor) override;
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;

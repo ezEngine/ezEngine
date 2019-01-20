@@ -480,7 +480,7 @@ void ezGreyBoxComponent::GenerateRenderMesh() const
 
   desc.ComputeBounds();
 
-  m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(sResourceName, desc, sResourceName);
+  m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(sResourceName, std::move(desc), sResourceName);
 }
 
 

@@ -62,7 +62,7 @@ void ezShaderResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 
 
 
-ezResourceLoadDesc ezShaderResource::CreateResource(const ezShaderResourceDescriptor& descriptor)
+ezResourceLoadDesc ezShaderResource::CreateResource(ezShaderResourceDescriptor&& descriptor)
 {
   ezResourceLoadDesc ret;
   ret.m_State = ezResourceState::Loaded;
