@@ -179,7 +179,7 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
 
   ezResourceLock<ezPropertyAnimResource> pAnimation(m_hPropertyAnim, ezResourceAcquireMode::NoFallback);
 
-  if (!pAnimation || pAnimation->IsMissingResource())
+  if (!pAnimation || pAnimation.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
     return;
 
   m_AnimDesc = pAnimation->GetDescriptor();

@@ -25,14 +25,14 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalAtlasResource)
     ezDecalAtlasResourceDescriptor desc;
     ezDecalAtlasResourceHandle hFallback = ezResourceManager::CreateResource<ezDecalAtlasResource>("Fallback Decal Atlas", std::move(desc), "Empty Decal Atlas for loading and missing decals");
 
-    ezDecalAtlasResource::SetTypeFallbackResource(hFallback);
-    ezDecalAtlasResource::SetTypeMissingResource(hFallback);
+    ezResourceManager::SetResourceTypeLoadingFallback<ezDecalAtlasResource>(hFallback);
+    ezResourceManager::SetResourceTypeMissingFallback<ezDecalAtlasResource>(hFallback);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezDecalAtlasResource::SetTypeFallbackResource(ezDecalAtlasResourceHandle());
-    ezDecalAtlasResource::SetTypeMissingResource(ezDecalAtlasResourceHandle());
+    ezResourceManager::SetResourceTypeLoadingFallback<ezDecalAtlasResource>(ezDecalAtlasResourceHandle());
+  ezResourceManager::SetResourceTypeMissingFallback<ezDecalAtlasResource>(ezDecalAtlasResourceHandle());
   }
 
   ON_HIGHLEVELSYSTEMS_STARTUP
@@ -49,7 +49,8 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAtlasResource, 1, ezRTTIDefaultAllocator<ezDecalAtlasResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAtlasResource, 1, ezRTTIDefaultAllocator<ezDecalAtlasResource>)
+  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezUInt32 ezDecalAtlasResource::s_uiDecalAtlasResources = 0;

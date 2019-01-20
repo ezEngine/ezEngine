@@ -381,7 +381,7 @@ ezResult ezFmod::LoadMasterSoundBank(const char* szMasterBankResourceID)
   {
     ezResourceLock<ezFmodSoundBankResource> pResource(m_pData->m_hMasterBank, ezResourceAcquireMode::NoFallback);
 
-    if (pResource->IsMissingResource())
+    if (pResource.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
       return EZ_FAILURE;
   }
 
@@ -394,7 +394,7 @@ ezResult ezFmod::LoadMasterSoundBank(const char* szMasterBankResourceID)
   {
     ezResourceLock<ezFmodSoundBankResource> pResource(m_pData->m_hMasterBankStrings, ezResourceAcquireMode::NoFallback);
 
-    if (pResource->IsMissingResource())
+    if (pResource.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
       return EZ_FAILURE;
   }
 #endif

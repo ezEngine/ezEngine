@@ -122,7 +122,7 @@ void ezPxVisColMeshComponent::CreateCollisionRenderMesh()
 
   ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::NoFallback);
 
-  if (pMesh->IsMissingResource())
+  if (pMesh.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
     return;
 
   ezStringBuilder sColMeshName = pMesh->GetResourceID();

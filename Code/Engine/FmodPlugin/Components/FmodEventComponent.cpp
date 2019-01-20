@@ -547,7 +547,7 @@ void ezFmodEventComponent::Restart()
   {
     ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::NoFallback);
 
-    if (pEvent->IsMissingResource())
+    if (pEvent.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
       return;
 
     m_pEventInstance = pEvent->CreateInstance();
@@ -574,7 +574,7 @@ void ezFmodEventComponent::StartOneShot()
 
   ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::NoFallback);
 
-  if (pEvent->IsMissingResource())
+  if (pEvent.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
   {
     ezLog::Debug("Cannot start one-shot sound event, resource is missing.");
     return;

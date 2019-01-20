@@ -192,10 +192,6 @@ public:
   /// \brief Allows to manually increase the resource change counter to signal that dependent code might need to update.
   EZ_ALWAYS_INLINE void IncResourceChangeCounter() { ++m_uiResourceChangeCounter; }
 
-  /// \brief This is true for resources that are used as a 'missing resource' fallback. Through this function one can detect whether
-  /// acquiring a resource returned the missing resource fallback.
-  EZ_ALWAYS_INLINE bool IsMissingResource() const { return m_Flags.IsSet(ezResourceFlags::IsMissingFallback); }
-
   /// \brief If the resource has modifications from the original state, it should reset itself to that state now (or force a reload on
   /// itself).
   virtual void ResetResource() {}

@@ -119,7 +119,7 @@ void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
 
   ezResourceLock<ezCurve1DResource> pCurve(m_hCurve, ezResourceAcquireMode::NoFallback);
 
-  if (pCurve->IsMissingResource())
+  if (pCurve.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
     return;
 
   if (pCurve->GetDescriptor().m_Curves.IsEmpty())

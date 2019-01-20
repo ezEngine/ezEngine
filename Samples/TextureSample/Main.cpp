@@ -1,21 +1,21 @@
+#include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/Containers/Map.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Strings/PathUtils.h>
-#include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Containers/Map.h>
-#include <Foundation/Strings/String.h>
-#include <Foundation/Logging/Log.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Logging/ConsoleWriter.h>
-#include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Logging/HTMLWriter.h>
-#include <Foundation/Time/Clock.h>
-#include <Foundation/Communication/Telemetry.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Logging/VisualStudioWriter.h>
+#include <Foundation/Strings/PathUtils.h>
+#include <Foundation/Strings/String.h>
+#include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Threading/TaskSystem.h>
+#include <Foundation/Time/Clock.h>
 
-#include <Core/Basics.h>
 #include <Core/Application/Application.h>
+#include <Core/Basics.h>
 #include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
@@ -26,16 +26,16 @@
 
 #include <RendererDX11/Device/DeviceDX11.h>
 
-#include <RendererFoundation/Device/SwapChain.h>
-#include <RendererFoundation/Context/Context.h>
-#include <RendererCore/ShaderCompiler/ShaderManager.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/ShaderCompiler/ShaderCompiler.h>
-#include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/Shader/ShaderResource.h>
+#include <RendererCore/ShaderCompiler/ShaderCompiler.h>
+#include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureLoader.h>
+#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/Device/SwapChain.h>
 
 // Constant buffer definition is shared between shader code and C++
 #include <RendererCore/../../../Data/Samples/TextureSample/Shaders/SampleConstantBuffer.h>
@@ -43,17 +43,13 @@
 class TextureSampleWindow : public ezWindow
 {
 public:
-
   TextureSampleWindow()
-    : ezWindow()
+      : ezWindow()
   {
     m_bCloseRequested = false;
   }
 
-  virtual void OnClickClose() override
-  {
-    m_bCloseRequested = true;
-  }
+  virtual void OnClickClose() override { m_bCloseRequested = true; }
 
   bool m_bCloseRequested;
 };
@@ -78,11 +74,10 @@ class TextureSample : public ezApplication
   ezConstantBufferStorage<ezTextureSampleConstants>* m_pSampleConstantBuffer;
 
 public:
-
   typedef ezApplication SUPER;
 
   TextureSample()
-    : ezApplication("Texture Sample")
+      : ezApplication("Texture Sample")
   {
     m_vCameraPosition.SetZero();
   }
@@ -106,9 +101,10 @@ public:
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
     ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites);
-    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
+    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites);              // writing to the binary directory
     ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites); // for shader files
-    ezFileSystem::AddDataDirectory(">user/ezEngine Project/TextureSample", "AppData", "appdata", ezFileSystem::AllowWrites); // app user data
+    ezFileSystem::AddDataDirectory(">user/ezEngine Project/TextureSample", "AppData", "appdata",
+                                   ezFileSystem::AllowWrites); // app user data
 
     ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base");
     ezFileSystem::AddDataDirectory(">sdk/Data/FreeContent", "Shared", "shared");
@@ -184,7 +180,8 @@ public:
     ezStartup::StartupHighLevelSystems();
 
 
-    // Get the primary swapchain (this one will always be created by device init except if the user instructs no swap chain creation explicitly)
+    // Get the primary swapchain (this one will always be created by device init except if the user instructs no swap chain creation
+    // explicitly)
     {
       ezGALSwapChainHandle hPrimarySwapChain = m_pDevice->GetPrimarySwapChain();
       const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(hPrimarySwapChain);
@@ -234,8 +231,8 @@ public:
       ezTexture2DResourceHandle hFallback = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/Reference_D.dds");
       ezTexture2DResourceHandle hMissing = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/MissingTexture_D.dds");
 
-      ezTexture2DResource::SetTypeFallbackResource(hFallback);
-      ezTexture2DResource::SetTypeMissingResource(hMissing);
+      ezResourceManager::SetResourceTypeLoadingFallback<ezTexture2DResource>(hFallback);
+      ezResourceManager::SetResourceTypeMissingFallback<ezTexture2DResource>(hMissing);
 
       // redirect all texture load operations through our custom loader, so that we can duplicate the single source texture
       // that we have as often as we like (to waste memory)
@@ -257,8 +254,7 @@ public:
       {
         for (ezInt32 x = -g_iMaxHalfExtent; x < g_iMaxHalfExtent; ++x)
         {
-          sResourceName.Printf("Loaded_%+03i_%+03i_D",
-                               x, y);
+          sResourceName.Printf("Loaded_%+03i_%+03i_D", x, y);
 
           ezTexture2DResourceHandle hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sResourceName);
 
@@ -311,11 +307,10 @@ public:
 
 
       ezGALRenderTagetSetup RTS;
-      RTS.SetRenderTarget(0, m_hBBRTV)
-         .SetDepthStencilTarget(m_hBBDSV);
+      RTS.SetRenderTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
 
       pContext->SetRenderTargetSetup(RTS);
-      pContext->SetViewport(ezRectFloat(0.0f, 0.0f, (float) g_uiWindowWidth, (float) g_uiWindowHeight), 0.0f, 1.0f);
+      pContext->SetViewport(ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight), 0.0f, 1.0f);
       pContext->Clear(ezColor::Black);
 
       pContext->SetRasterizerState(m_hRasterizerState);
@@ -323,7 +318,9 @@ public:
 
       ezMat4 Proj;
       Proj.SetIdentity();
-      Proj.SetOrthographicProjectionMatrix(m_vCameraPosition.x + -(float) g_uiWindowWidth * 0.5f, m_vCameraPosition.x + (float) g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float) g_uiWindowHeight * 0.5f, m_vCameraPosition.y + (float) g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
+      Proj.SetOrthographicProjectionMatrix(
+          m_vCameraPosition.x + -(float)g_uiWindowWidth * 0.5f, m_vCameraPosition.x + (float)g_uiWindowWidth * 0.5f,
+          m_vCameraPosition.y + -(float)g_uiWindowHeight * 0.5f, m_vCameraPosition.y + (float)g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
 
       ezRenderContext::GetDefaultInstance()->BindConstantBuffer("ezTextureSampleConstants", m_hSampleConstants);
       ezRenderContext::GetDefaultInstance()->BindMaterial(m_hMaterial);
@@ -331,10 +328,10 @@ public:
       ezMat4 mTransform;
       mTransform.SetIdentity();
 
-      ezInt32 iLeftBound = (ezInt32) ezMath::Floor((m_vCameraPosition.x - g_uiWindowWidth  * 0.5f) / 100.0f);
-      ezInt32 iLowerBound = (ezInt32) ezMath::Floor((m_vCameraPosition.y - g_uiWindowHeight * 0.5f) / 100.0f);
-      ezInt32 iRightBound = (ezInt32) ezMath::Ceil((m_vCameraPosition.x + g_uiWindowWidth  * 0.5f) / 100.0f) + 1;
-      ezInt32 iUpperBound = (ezInt32) ezMath::Ceil((m_vCameraPosition.y + g_uiWindowHeight * 0.5f) / 100.0f) + 1;
+      ezInt32 iLeftBound = (ezInt32)ezMath::Floor((m_vCameraPosition.x - g_uiWindowWidth * 0.5f) / 100.0f);
+      ezInt32 iLowerBound = (ezInt32)ezMath::Floor((m_vCameraPosition.y - g_uiWindowHeight * 0.5f) / 100.0f);
+      ezInt32 iRightBound = (ezInt32)ezMath::Ceil((m_vCameraPosition.x + g_uiWindowWidth * 0.5f) / 100.0f) + 1;
+      ezInt32 iUpperBound = (ezInt32)ezMath::Ceil((m_vCameraPosition.y + g_uiWindowHeight * 0.5f) / 100.0f) + 1;
 
       iLeftBound = ezMath::Max(iLeftBound, -g_iMaxHalfExtent);
       iRightBound = ezMath::Min(iRightBound, g_iMaxHalfExtent);
@@ -347,7 +344,7 @@ public:
       {
         for (ezInt32 x = iLeftBound; x < iRightBound; ++x)
         {
-          mTransform.SetTranslationVector(ezVec3((float) x * 100.0f, (float) y * 100.0f, 0));
+          mTransform.SetTranslationVector(ezVec3((float)x * 100.0f, (float)y * 100.0f, 0));
 
           // Update the constant buffer
           {
@@ -356,10 +353,10 @@ public:
             cb.ViewProjectionMatrix = Proj;
           }
 
-          sResourceName.Printf("Loaded_%+03i_%+03i_D",
-                               x, y);
+          sResourceName.Printf("Loaded_%+03i_%+03i_D", x, y);
 
-          ezTexture2DResourceHandle hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sResourceName, ezResourcePriority::Highest, ezTexture2DResourceHandle());
+          ezTexture2DResourceHandle hTexture =
+              ezResourceManager::LoadResource<ezTexture2DResource>(sResourceName, ezResourcePriority::Highest, ezTexture2DResourceHandle());
 
           // force immediate loading
           if (g_bForceImmediateLoading)
@@ -455,7 +452,8 @@ public:
     {
       for (ezUInt32 v = 0; v < geom.GetPolygons()[p].m_Vertices.GetCount() - 2; ++v)
       {
-        desc.SetTriangleIndices(t, geom.GetPolygons()[p].m_Vertices[0], geom.GetPolygons()[p].m_Vertices[v + 1], geom.GetPolygons()[p].m_Vertices[v + 2]);
+        desc.SetTriangleIndices(t, geom.GetPolygons()[p].m_Vertices[0], geom.GetPolygons()[p].m_Vertices[v + 1],
+                                geom.GetPolygons()[p].m_Vertices[v + 2]);
 
         ++t;
       }
@@ -464,11 +462,11 @@ public:
     m_hQuadMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}");
 
     if (!m_hQuadMeshBuffer.IsValid())
-      m_hQuadMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}", std::move(desc));
+      m_hQuadMeshBuffer =
+          ezResourceManager::CreateResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}", std::move(desc));
   }
 
 private:
-
   TextureSampleWindow* m_pWindow;
   ezGALDevice* m_pDevice;
 
@@ -545,5 +543,3 @@ ezResourceLoadData CustomTextureResourceLoader::OpenDataStream(const ezResourceB
 }
 
 EZ_CONSOLEAPP_ENTRY_POINT(TextureSample);
-
-

@@ -111,12 +111,12 @@ void ezMaterialAnimComponent::Update()
 
   ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial);
 
-  if (pMaterial->IsMissingResource())
+  if (pMaterial.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
     return;
 
   ezResourceLock<ezPropertyAnimResource> pAnim(m_hPropertyAnim);
 
-  if (pAnim->IsMissingResource())
+  if (pAnim.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
     return;
 
   /// \todo IsFallbackResource ...

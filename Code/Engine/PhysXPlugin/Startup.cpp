@@ -21,12 +21,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXPlugin)
 
     ezPxMeshResourceDescriptor desc;
     ezPxMeshResourceHandle hResource = ezResourceManager::CreateResource<ezPxMeshResource>("Missing PhysX Mesh", std::move(desc), "Empty collision mesh");
-    ezPxMeshResource::SetTypeMissingResource(hResource);
+    ezResourceManager::SetResourceTypeMissingFallback<ezPxMeshResource>(hResource);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezPxMeshResource::SetTypeMissingResource(ezPxMeshResourceHandle());
+    ezResourceManager::SetResourceTypeMissingFallback<ezPxMeshResource>(ezPxMeshResourceHandle());
     ezPhysX::GetSingleton()->Shutdown();
 
     ezPxMeshResource::CleanupDynamicPluginReferences();

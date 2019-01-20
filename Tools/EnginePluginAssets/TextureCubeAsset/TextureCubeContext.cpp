@@ -75,7 +75,7 @@ void ezTextureCubeContext::OnInitialize()
     m_TextureFormat = pTexture->GetFormat();
     m_uiTextureWidthAndHeight = pTexture->GetWidthAndHeight();
 
-    if (!pTexture->IsMissingResource())
+    if (pTexture.GetAcquireResult() != ezResourceAcquireResult::MissingFallback)
     {
       m_bAddedEventHandler = true;
       pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureCubeContext::OnResourceEvent, this));
@@ -195,7 +195,7 @@ void ezTextureCubeContext::UpdatePreview()
   {
     ezResourceLock<ezTextureCubeResource> pTexture(m_hTexture, ezResourceAcquireMode::NoFallback);
 
-    if (!pTexture->IsMissingResource())
+    if (pTexture.GetAcquireResult() != ezResourceAcquireResult::MissingFallback)
     {
       m_bAddedEventHandler = true;
       pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureCubeContext::OnResourceEvent, this));

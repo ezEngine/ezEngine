@@ -21,16 +21,16 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalResource)
     ezDecalResourceDescriptor desc;
     ezDecalResourceHandle hFallback = ezResourceManager::CreateResource<ezDecalResource>("Fallback Decal", std::move(desc), "Empty Decal for loading and missing decals");
 
-    ezDecalResource::SetTypeFallbackResource(hFallback);
-    ezDecalResource::SetTypeMissingResource(hFallback);
+    ezResourceManager::SetResourceTypeLoadingFallback<ezDecalResource>(hFallback);
+    ezResourceManager::SetResourceTypeMissingFallback<ezDecalResource>(hFallback);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
     ezResourceManager::SetResourceTypeLoader<ezDecalResource>(nullptr);
 
-    ezDecalResource::SetTypeFallbackResource(ezDecalResourceHandle());
-    ezDecalResource::SetTypeMissingResource(ezDecalResourceHandle());
+    ezResourceManager::SetResourceTypeLoadingFallback<ezDecalResource>(ezDecalResourceHandle());
+    ezResourceManager::SetResourceTypeMissingFallback<ezDecalResource>(ezDecalResourceHandle());
   }
 
   ON_HIGHLEVELSYSTEMS_STARTUP
@@ -46,7 +46,8 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalResource, 1, ezRTTIDefaultAllocator<ezDecalResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalResource, 1, ezRTTIDefaultAllocator<ezDecalResource>)
+  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDecalResource::ezDecalResource()

@@ -19,7 +19,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(ProceduralPlacement, ProceduralPlacementPlugin)
 
     ezProceduralPlacementResourceDescriptor desc;
     ezProceduralPlacementResourceHandle hResource = ezResourceManager::CreateResource<ezProceduralPlacementResource>("ProceduralPlacementMissing", std::move(desc), "Fallback for missing Procedural Placement Resource");
-    ezProceduralPlacementResource::SetTypeMissingResource(hResource);
+    ezResourceManager::SetResourceTypeMissingFallback<ezProceduralPlacementResource>(hResource);
 
     //ezExpressionVM::Test();
   }

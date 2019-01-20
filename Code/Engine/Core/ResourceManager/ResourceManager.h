@@ -16,7 +16,6 @@ enum class ezResourceManagerEventType
 {
   ManagerShuttingDown,
   ResourceCategoryChanged,
-  ClearResourceFallbacks, ///< Sent during system shutdown to cleanup all missing or loading resource fallbacks
   ReloadAllResources,     ///< Set by ReloadAllResources() if any resource got unloaded (not yet reloaded)
 };
 
@@ -209,10 +208,6 @@ public:
   /// and only make a screenshot once no resources where waited for anymore.
   static bool FinishLoadingOfResources();
 
-  /// \brief This will clear ALL resources that were registered as 'missing' or 'loading' fallback resources. This is called early during
-  /// system shutdown to clean up resources.
-  static void ClearAllResourceFallbacks();
-
   /// \brief Makes sure that no further resource loading will take place.
   static void EngineAboutToShutdown();
 
@@ -254,6 +249,59 @@ private:
   static ezMap<const ezRTTI*, ezHybridArray<DerivedTypeInfo, 4>> s_DerivedTypeInfos;
 
   ///@}
+  /// \name Resource Fallbacks
+  ///@{
+public:
+  template <typename RESOURCE_TYPE>
+  static void SetResourceTypeLoadingFallback(const ezTypedResourceHandle<RESOURCE_TYPE>& hResource)
+  {
+    RESOURCE_TYPE::SetResourceTypeLoadingFallback(hResource);
+  }
+
+  template <typename RESOURCE_TYPE>
+  static const ezTypedResourceHandle<RESOURCE_TYPE>& GetResourceTypeLoadingFallback()
+  {
+    return RESOURCE_TYPE::GetResourceTypeLoadingFallback();
+  }
+
+  template <typename RESOURCE_TYPE>
+  static void SetResourceTypeMissingFallback(const ezTypedResourceHandle<RESOURCE_TYPE>& hResource)
+  {
+    RESOURCE_TYPE::SetResourceTypeMissingFallback(hResource);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    if (hResource.IsValid())
+    {
+      // TODO (resources): ezResourceLock is unknown here (declared below)
+      // ezResourceLock<RESOURCE_TYPE> lock(hResource, ezResourceAcquireMode::NoFallback);
+      /* if this fails, the 'missing resource' is missing itself*/
+    }
+#endif
+  }
+
+  template <typename RESOURCE_TYPE>
+  static const ezTypedResourceHandle<RESOURCE_TYPE>& GetResourceTypeMissingFallback()
+  {
+    return RESOURCE_TYPE::GetResourceTypeMissingFallback();
+  }
+
+  using ResourceCleanupCB = ezDelegate<void()>;
+
+  static void AddResourceCleanupCallback(ResourceCleanupCB cb);
+
+  static void ClearResourceCleanupCallback(ResourceCleanupCB cb);
+
+  /// \brief This will clear ALL resources that were registered as 'missing' or 'loading' fallback resources. This is called early during
+  /// system shutdown to clean up resources.
+  static void ExecuteAllResourceCleanupCallbacks();
+
+private:
+
+
+  static ezDynamicArray<ResourceCleanupCB> s_ResourceCleanupCallbacks;
+
+  ///@}
+
 
 
 private:

@@ -367,7 +367,7 @@ void ezGameApplicationBase::BeforeHighLevelSystemsShutdown()
   {
     // make sure that no resources continue to be streamed in, while the engine shuts down
     ezResourceManager::EngineAboutToShutdown();
-    ezResourceManager::ClearAllResourceFallbacks();
+    ezResourceManager::ExecuteAllResourceCleanupCallbacks();
     ezResourceManager::FreeUnusedResources(true);
   }
 }

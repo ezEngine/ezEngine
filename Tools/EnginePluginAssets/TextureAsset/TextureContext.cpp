@@ -96,7 +96,7 @@ void ezTextureContext::OnInitialize()
     m_uiTextureWidth = pTexture->GetWidth();
     m_uiTextureHeight = pTexture->GetHeight();
 
-    if (!pTexture->IsMissingResource())
+    if (pTexture.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
     {
       m_bAddedEventHandler = true;
       pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureContext::OnResourceEvent, this));
@@ -217,7 +217,7 @@ void ezTextureContext::UpdatePreview()
   {
     ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::NoFallback);
 
-    if (!pTexture->IsMissingResource())
+    if (pTexture.GetAcquireResult() != ezResourceAcquireResult::MissingFallback)
     {
       m_bAddedEventHandler = true;
       pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureContext::OnResourceEvent, this));

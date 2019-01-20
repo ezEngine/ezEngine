@@ -503,7 +503,7 @@ void ezProceduralPlacementComponentManager::OnResourceEvent(const ezResourceEven
 
   if (auto pResource = ezDynamicCast<const ezProceduralPlacementResource*>(resourceEvent.m_pResource))
   {
-    ezProceduralPlacementResourceHandle hResource = pResource->GetHandle();
+    ezProceduralPlacementResourceHandle hResource = pResource->GetResourceHandle();
 
     if (!m_ResourcesToUpdate.Contains(hResource))
     {

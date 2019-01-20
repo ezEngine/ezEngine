@@ -52,6 +52,8 @@ ezAtomicInteger32 ezResourceManager::s_ResourcesLoadedRecently;
 ezAtomicInteger32 ezResourceManager::s_ResourcesInLoadingLimbo;
 ezMap<const ezRTTI*, ezHybridArray<ezResourceManager::DerivedTypeInfo, 4>> ezResourceManager::s_DerivedTypeInfos;
 
+ezDynamicArray<ezResourceManager::ResourceCleanupCB> ezResourceManager::s_ResourceCleanupCallbacks;
+
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ResourceManager)
 
@@ -85,6 +87,32 @@ EZ_END_SUBSYSTEM_DECLARATION;
 ezResourceTypeLoader* ezResourceManager::GetResourceTypeLoader(const ezRTTI* pRTTI)
 {
   return m_ResourceTypeLoader[pRTTI->GetTypeName()];
+}
+
+void ezResourceManager::AddResourceCleanupCallback(ResourceCleanupCB cb)
+{
+  if (!s_ResourceCleanupCallbacks.Contains(cb))
+  {
+    s_ResourceCleanupCallbacks.PushBack(cb);
+  }
+}
+
+void ezResourceManager::ClearResourceCleanupCallback(ResourceCleanupCB cb)
+{
+  s_ResourceCleanupCallbacks.RemoveAndSwap(cb);
+}
+
+void ezResourceManager::ExecuteAllResourceCleanupCallbacks()
+{
+  ezDynamicArray<ResourceCleanupCB> callbacks = s_ResourceCleanupCallbacks;
+  s_ResourceCleanupCallbacks.Clear();
+
+  for (auto& cb : callbacks)
+  {
+    cb();
+  }
+
+  EZ_ASSERT_DEV(s_ResourceCleanupCallbacks.IsEmpty(), "During resource cleanup, new resource cleanup callbacks were registered.");
 }
 
 void ezResourceManager::BroadcastResourceEvent(const ezResourceEvent& e)
@@ -934,6 +962,8 @@ void ezResourceManager::OnEngineShutdown()
   // to fix this, call CleanupDynamicPluginReferences() on that resource type during engine shutdown
   s_ManagerEvents.Broadcast(e);
 
+  ExecuteAllResourceCleanupCallbacks();
+
   EngineAboutToShutdown();
 
   // unload all resources until there are no more that can be unloaded
@@ -1028,9 +1058,10 @@ void ezResourceManager::UnregisterResourceOverrideType(const ezRTTI* pDerivedTyp
   while (pParentType != nullptr && pParentType != ezGetStaticRTTI<ezResourceBase>())
   {
     auto it = s_DerivedTypeInfos.Find(pParentType);
+    pParentType = pParentType->GetParentType();
 
     if (!it.IsValid())
-      continue;
+      break;
 
     auto& infos = it.Value();
 
@@ -1135,13 +1166,6 @@ bool ezResourceManager::FinishLoadingOfResources()
 
     HelpResourceLoading();
   }
-}
-
-void ezResourceManager::ClearAllResourceFallbacks()
-{
-  ezResourceManagerEvent e;
-  e.m_EventType = ezResourceManagerEventType::ClearResourceFallbacks;
-  s_ManagerEvents.Broadcast(e);
 }
 
 void ezResourceManager::EnsureResourceLoadingState(ezResourceBase* pResource, const ezResourceState RequestedState)

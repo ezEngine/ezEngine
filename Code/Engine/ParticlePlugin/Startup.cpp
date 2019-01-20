@@ -18,7 +18,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Particle, ParticlePlugin)
 
     ezParticleEffectResourceDescriptor desc;
     ezParticleEffectResourceHandle hEffect = ezResourceManager::CreateResource<ezParticleEffectResource>("ParticleEffectMissing", std::move(desc), "Fallback for missing Particle Effects");
-    ezParticleEffectResource::SetTypeMissingResource(hEffect);
+    ezResourceManager::SetResourceTypeMissingFallback<ezParticleEffectResource>(hEffect);
   }
 
   ON_CORESYSTEMS_SHUTDOWN

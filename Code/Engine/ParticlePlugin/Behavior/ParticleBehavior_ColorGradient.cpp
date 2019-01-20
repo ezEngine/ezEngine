@@ -129,7 +129,7 @@ void ezParticleBehavior_ColorGradient::InitializeElements(ezUInt64 uiStartIndex,
 
     ezResourceLock<ezColorGradientResource> pGradient(m_hGradient, ezResourceAcquireMode::NoFallback);
 
-    if (!pGradient->IsMissingResource())
+    if (pGradient.GetAcquireResult() != ezResourceAcquireResult::MissingFallback)
     {
       const ezColorGradient& gradient = pGradient->GetDescriptor().m_Gradient;
 
@@ -171,7 +171,7 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
 
   ezResourceLock<ezColorGradientResource> pGradient(m_hGradient, ezResourceAcquireMode::NoFallback);
 
-  if (pGradient->IsMissingResource())
+  if (pGradient.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
     return;
 
   const ezColorGradient& gradient = pGradient->GetDescriptor().m_Gradient;

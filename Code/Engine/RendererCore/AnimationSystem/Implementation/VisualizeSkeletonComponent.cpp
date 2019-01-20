@@ -47,7 +47,7 @@ void ezVisualizeSkeletonComponent::Render()
 
   ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::NoFallback);
 
-  if (pSkeleton->IsMissingResource())
+  if (pSkeleton.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
     return;
 
   const ezSkeletonResourceDescriptor& desc = pSkeleton->GetDescriptor();
@@ -194,7 +194,7 @@ void ezVisualizeSkeletonComponent::CreateRenderMesh()
 
   ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::NoFallback);
 
-  if (pSkeleton->IsMissingResource())
+  if (pSkeleton.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
     return;
 
   ezStringBuilder sVisMeshName = pSkeleton->GetResourceID();

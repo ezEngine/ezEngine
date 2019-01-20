@@ -125,7 +125,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
       InternalPreloadResource(pResource, true);
 
       if (mode == ezResourceAcquireMode::AllowFallback &&
-          (pResource->m_hFallback.IsValid() || hFallbackResource.IsValid() || ResourceType::GetTypeFallbackResource().IsValid()))
+          (pResource->m_hFallback.IsValid() || hFallbackResource.IsValid() || GetResourceTypeLoadingFallback<ResourceType>().IsValid()))
       {
         // return the fallback resource for now, if there is one
         if (out_AcquireResult)
@@ -141,7 +141,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
         else if (hFallbackResource.IsValid())
           return (ResourceType*)BeginAcquireResource(hFallbackResource, ezResourceAcquireMode::NoFallback);
         else
-          return (ResourceType*)BeginAcquireResource(ResourceType::GetTypeFallbackResource(), ezResourceAcquireMode::NoFallback);
+          return (ResourceType*)BeginAcquireResource(GetResourceTypeLoadingFallback<ResourceType>(), ezResourceAcquireMode::NoFallback);
       }
 
       const ezResourceState RequestedState =
@@ -162,8 +162,9 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
     // When you get a crash with a stack overflow in this code path, then the resource to be used as the
     // 'missing resource' replacement might be missing itself.
 
-    if (/*mode == ezResourceAcquireMode::AllowFallback && (hFallbackResource.IsValid() || */ ResourceType::GetTypeMissingResource()
-            .IsValid()) //)
+    if (/*mode == ezResourceAcquireMode::AllowFallback && (hFallbackResource.IsValid() || */ ezResourceManager::
+            GetResourceTypeMissingFallback<ResourceType>()
+                .IsValid()) //)
     {
       if (out_AcquireResult)
         *out_AcquireResult = ezResourceAcquireResult::MissingFallback;
@@ -174,7 +175,8 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
       // if (hFallbackResource.IsValid())
       //  return (ResourceType*) BeginAcquireResource(hFallbackResource, ezResourceAcquireMode::NoFallback);
       // else
-      return (ResourceType*)BeginAcquireResource(ResourceType::GetTypeMissingResource(), ezResourceAcquireMode::NoFallback);
+      return (ResourceType*)BeginAcquireResource(ezResourceManager::GetResourceTypeMissingFallback<ResourceType>(),
+                                                 ezResourceAcquireMode::NoFallback);
     }
 
     if (mode != ezResourceAcquireMode::NoFallbackAllowMissing)
