@@ -305,9 +305,14 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, Texture2D)
 
   ON_CORESYSTEMS_STARTUP 
   {
-    ezResourceManager::RegisterDerivedResourceType(ezGetStaticRTTI<ezTexture2DResource>(), ezGetStaticRTTI<ezRenderToTexture2DResource>(), [](const char* szResourceID) -> bool  {
-        return ezPathUtils::HasExtension(szResourceID, "ezRenderTarget");
+    ezResourceManager::RegisterResourceOverrideType(ezGetStaticRTTI<ezRenderToTexture2DResource>(), [](const ezStringBuilder& sResourceID) -> bool  {
+        return sResourceID.HasExtension(".ezRenderTarget");
       });
+  }
+
+  ON_CORESYSTEMS_SHUTDOWN
+  {
+    ezResourceManager::UnregisterResourceOverrideType(ezGetStaticRTTI<ezRenderToTexture2DResource>());
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;

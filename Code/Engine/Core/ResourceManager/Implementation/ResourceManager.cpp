@@ -976,24 +976,8 @@ ezResourceBase* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* 
 
   EZ_LOCK(s_ResourceMutex);
 
-  {
-    // TODO (resources): also check derived-derived types somehow
-
-    auto it = s_DerivedTypeInfos.Find(pRtti);
-    if (it.IsValid())
-    {
-      ezStringBuilder sRedirectedPath;
-      ezFileSystem::ResolveAssetRedirection(szResourceID, sRedirectedPath);
-      for (const auto& info : it.Value())
-      {
-        if (info.m_Decider(sRedirectedPath))
-        {
-          pRtti = info.m_pDerivedType;
-          break;
-        }
-      }
-    }
-  }
+  // redirect requested type to override type, if available
+  pRtti = FindResourceTypeOverride(pRtti, szResourceID);
 
   EZ_ASSERT_DEBUG(pRtti != nullptr, "There is no RTTI information available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
   EZ_ASSERT_DEBUG(pRtti->GetAllocator() != nullptr && pRtti->GetAllocator()->CanAllocate(),
@@ -1024,16 +1008,66 @@ ezResourceBase* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* 
   return pNewResource;
 }
 
-void ezResourceManager::RegisterDerivedResourceType(const ezRTTI* pBaseType, const ezRTTI* pDerivedTypeToUse,
-                                                    ezDelegate<bool(const char*)> Decider)
+void ezResourceManager::RegisterResourceOverrideType(const ezRTTI* pDerivedTypeToUse,
+                                                     ezDelegate<bool(const ezStringBuilder&)> OverrideDecider)
 {
-  // TODO (resources): overrides also have to work for derived-derived types somehow
-  // TODO (resources): allow to unregister overrides (or do automatically ?)
-  // TODO (resources): do we need the base-type at all?
+  const ezRTTI* pParentType = pDerivedTypeToUse->GetParentType();
+  while (pParentType != nullptr && pParentType != ezGetStaticRTTI<ezResourceBase>())
+  {
+    auto& info = s_DerivedTypeInfos[pParentType].ExpandAndGetRef();
+    info.m_pDerivedType = pDerivedTypeToUse;
+    info.m_Decider = OverrideDecider;
 
-  auto& info = s_DerivedTypeInfos[pBaseType].ExpandAndGetRef();
-  info.m_pDerivedType = pDerivedTypeToUse;
-  info.m_Decider = Decider;
+    pParentType = pParentType->GetParentType();
+  }
+}
+
+void ezResourceManager::UnregisterResourceOverrideType(const ezRTTI* pDerivedTypeToUse)
+{
+  const ezRTTI* pParentType = pDerivedTypeToUse->GetParentType();
+  while (pParentType != nullptr && pParentType != ezGetStaticRTTI<ezResourceBase>())
+  {
+    auto it = s_DerivedTypeInfos.Find(pParentType);
+
+    if (!it.IsValid())
+      continue;
+
+    auto& infos = it.Value();
+
+    for (ezUInt32 i = infos.GetCount(); i > 0; --i)
+    {
+      if (infos[i - 1].m_pDerivedType == pDerivedTypeToUse)
+        infos.RemoveAtAndSwap(i - 1);
+    }
+  }
+}
+
+const ezRTTI* ezResourceManager::FindResourceTypeOverride(const ezRTTI* pRtti, const char* szResourceID)
+{
+  auto it = s_DerivedTypeInfos.Find(pRtti);
+
+  if (!it.IsValid())
+    return pRtti;
+
+  ezStringBuilder sRedirectedPath;
+  ezFileSystem::ResolveAssetRedirection(szResourceID, sRedirectedPath);
+
+  while (it.IsValid())
+  {
+    for (const auto& info : it.Value())
+    {
+      if (info.m_Decider(sRedirectedPath))
+      {
+        pRtti = info.m_pDerivedType;
+        it = s_DerivedTypeInfos.Find(pRtti);
+        continue;
+      }
+    }
+
+    break;
+  }
+
+  return pRtti;
 }
 
 ezTypelessResourceHandle ezResourceManager::LoadResourceByType(const ezRTTI* pResourceType, const char* szResourceID)

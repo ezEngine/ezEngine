@@ -42,9 +42,9 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::GetExistingResource(const
 
   EZ_LOCK(s_ResourceMutex);
 
-  // TODO (resources): also check derived types
+  const ezRTTI* pRtti = FindResourceTypeOverride(ezGetStaticRTTI<ResourceType>(), szResourceID);
 
-  if (s_LoadedResources[ezGetStaticRTTI<ResourceType>()].m_Resources.TryGetValue(sResourceHash, pResource))
+  if (s_LoadedResources[pRtti].m_Resources.TryGetValue(sResourceHash, pResource))
     return ezTypedResourceHandle<ResourceType>((ResourceType*)pResource);
 
   return ezTypedResourceHandle<ResourceType>();

@@ -218,15 +218,43 @@ public:
 
   static void SetResourceLowResData(const ezTypelessResourceHandle& hResource, ezStreamReader* pStream);
 
-  // TODO (resources): clean this up
-  static void RegisterDerivedResourceType(const ezRTTI* pBaseType, const ezRTTI* pDerivedTypeToUse, ezDelegate<bool(const char*)> Decider);
+  /// \name Resource Type Overrides
+  ///@{
 
+public:
+  /// \brief Registers a resource type to be used instead of any of it's base classes, when loading specific data
+  ///
+  /// When resource B is derived from A it can be registered to be instantiated when loading data, even if the code specifies to use a
+  /// resource of type A.
+  /// Whenever LoadResource<A>() is executed, the registered callback \a OverrideDecider is run to figure out whether B should be
+  /// instantiated instead. If OverrideDecider returns true, B is used.
+  ///
+  /// OverrideDecider is given the resource ID after it has been resolved by the ezFileSystem. So it has to be able to make its decision
+  /// from the file path, name or extension.
+  /// The override is registered for all base classes of \a pDerivedTypeToUse, in case the derivation hierarchy is longer.
+  ///
+  /// Without calling this at startup, a derived resource type has to be manually requested in code.
+  static void RegisterResourceOverrideType(const ezRTTI* pDerivedTypeToUse, ezDelegate<bool(const ezStringBuilder&)> OverrideDecider);
+
+  /// \brief Unregisters \a pDerivedTypeToUse as an override resource
+  ///
+  /// \sa RegisterResourceOverrideType()
+  static void UnregisterResourceOverrideType(const ezRTTI* pDerivedTypeToUse);
+
+private:
   struct DerivedTypeInfo
   {
     const ezRTTI* m_pDerivedType = nullptr;
-    ezDelegate<bool(const char*)> m_Decider;
+    ezDelegate<bool(const ezStringBuilder&)> m_Decider;
   };
+
+  /// \brief Checks whether there is a type override for pRtti given szResourceID and returns that
+  static const ezRTTI* FindResourceTypeOverride(const ezRTTI* pRtti, const char* szResourceID);
+
   static ezMap<const ezRTTI*, ezHybridArray<DerivedTypeInfo, 4>> s_DerivedTypeInfos;
+
+  ///@}
+
 
 private:
   friend class ezResourceBase;
