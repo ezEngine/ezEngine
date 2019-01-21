@@ -82,6 +82,17 @@ void ezGameApplication::Init_SetupDefaultResources()
     ezResourceManager::SetResourceTypeMissingFallback<ezTexture2DResource>(hMissingTexture);
   }
 
+  // Render to 2D Textures
+  {
+    ezRenderToTexture2DResourceDescriptor desc;
+    desc.m_uiWidth = 128;
+    desc.m_uiHeight = 128;
+
+    ezRenderToTexture2DResourceHandle hMissingTexture = ezResourceManager::CreateResource<ezRenderToTexture2DResource>("R22DT_Missing", desc);
+
+    ezResourceManager::SetResourceTypeMissingFallback<ezRenderToTexture2DResource>(hMissingTexture);
+  }
+
   // Cube Textures
   {
     /// \todo Loading Cubemap Texture
