@@ -69,7 +69,7 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(const char
 
   // If this does not compile, you either passed in the wrong descriptor type for the given resource type
   // or you forgot to std::move the descriptor when calling CreateResource
-  pResource->CallCreateResource(std::move(descriptor));
+  pResource->CallCreateResource(std::forward<DescriptorType>(descriptor));
 
   EZ_ASSERT_DEV(pResource->GetLoadingState() != ezResourceState::Unloaded, "CreateResource did not set the loading state properly.");
 

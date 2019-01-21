@@ -140,7 +140,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescrip
       p1.m_Name.Assign("BaseColor");
       p1.m_Value = mat.m_VariationColor;
 
-      hMaterial = ezResourceManager::CreateResource<ezMaterialResource>(sMatName, md, mat.m_sDiffuseTexture);
+      hMaterial = ezResourceManager::CreateResource<ezMaterialResource>(sMatName, std::move(md), mat.m_sDiffuseTexture);
     }
 
     allMaterials.PushBack(hMaterial);
@@ -208,7 +208,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescrip
     sResName.Format("{0}_{1}_LOD{2}", GetResourceID(), GetCurrentResourceChangeCounter(), lodIdx);
     sResDesc.Format("{0}_{1}_LOD{2}", GetResourceDescription(), GetCurrentResourceChangeCounter(), lodIdx);
 
-    lodDst.m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(sResName, md, sResDesc);
+    lodDst.m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(sResName, std::move(md), sResDesc);
   }
 
   ezResourceLoadDesc res;

@@ -88,7 +88,7 @@ void ezGameApplication::Init_SetupDefaultResources()
     desc.m_uiWidth = 128;
     desc.m_uiHeight = 128;
 
-    ezRenderToTexture2DResourceHandle hMissingTexture = ezResourceManager::CreateResource<ezRenderToTexture2DResource>("R22DT_Missing", desc);
+    ezRenderToTexture2DResourceHandle hMissingTexture = ezResourceManager::CreateResource<ezRenderToTexture2DResource>("R22DT_Missing", std::move(desc));
 
     ezResourceManager::SetResourceTypeMissingFallback<ezRenderToTexture2DResource>(hMissingTexture);
   }
