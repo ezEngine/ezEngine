@@ -33,7 +33,7 @@ void ezSkeletonBuilder::BuildSkeleton(ezSkeleton& skeleton) const
   const ezUInt32 numJoints = m_Joints.GetCount();
 
   // Copy joints to skeleton
-  skeleton.m_Joints.SetCountUninitialized(numJoints);
+  skeleton.m_Joints.SetCount(numJoints);
 
   for (ezUInt32 i = 0; i < numJoints; ++i)
   {

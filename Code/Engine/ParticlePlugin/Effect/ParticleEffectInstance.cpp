@@ -294,9 +294,12 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
 
   struct MulCount
   {
+    EZ_DECLARE_POD_TYPE();
+
     float m_fMultiplier = 1.0f;
     ezUInt32 m_uiCount = 0;
   };
+
   ezHybridArray<MulCount, 8> systemMaxParticles;
   {
     systemMaxParticles.SetCountUninitialized(systems.GetCount());

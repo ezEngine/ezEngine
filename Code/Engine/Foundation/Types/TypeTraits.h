@@ -125,7 +125,7 @@ struct ezIsPointer<T*>
 
 /// \brief Embed this into a class to mark it as a POD type.
 /// POD types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
-#define EZ_DECLARE_POD_TYPE() ezCompileTimeTrueType operator%(const ezTypeIsPod&) const
+#define EZ_DECLARE_POD_TYPE() ezCompileTimeTrueType operator%(const ezTypeIsPod&) const;
 
 /// \brief Embed this into a class to mark it as memory relocatable.
 /// Memory relocatable types will get special treatment from allocators and container classes, such that they are faster to construct and

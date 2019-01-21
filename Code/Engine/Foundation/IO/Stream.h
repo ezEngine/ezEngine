@@ -39,6 +39,10 @@ public:
   template <typename ArrayType, typename ValueType>
   ezResult ReadArray(ezArrayBase<ValueType, ArrayType>& Array); // [tested]
 
+    /// \brief Writes a C style fixed array
+  template <typename ValueType, ezUInt32 uiSize>
+  ezResult ReadArray(ValueType (&Array)[uiSize]);
+
   /// \brief Helper method to skip a number of bytes (implementations of the stream reader may implement this more efficiently for example)
   virtual ezUInt64 SkipBytes(ezUInt64 uiBytesToSkip)
   {
@@ -105,6 +109,9 @@ public:
   /// \brief Writes an array of elements to the stream
   template <typename ArrayType, typename ValueType>
   ezResult WriteArray(const ezArrayBase<ValueType, ArrayType>& Array); // [tested]
+
+  /// \brief Writes a C style fixed array
+  template <typename ValueType, ezUInt32 uiSize> ezResult WriteArray(const ValueType (&Array)[uiSize]);
 };
 
 // Contains the helper methods of both interfaces

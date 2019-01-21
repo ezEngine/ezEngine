@@ -140,7 +140,7 @@ static void SetupImageFormatTable()
   if (!s_formatMetaData.IsEmpty())
     return;
 
-  s_formatMetaData.SetCountUninitialized(ezImageFormat::NUM_FORMATS);
+  s_formatMetaData.SetCount(ezImageFormat::NUM_FORMATS);
 
   s_formatMetaData[ezImageFormat::UNKNOWN].m_szName = "UNKNOWN";
 

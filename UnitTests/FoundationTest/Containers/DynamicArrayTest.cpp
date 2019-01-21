@@ -44,13 +44,14 @@ namespace DynamicArrayTestDetail
     static ezAllocatorBase* GetAllocator() { return g_pTestAllocator; }
   };
 
-  static ezDynamicArray<st, ezTestAllocatorWrapper> CreateArray(ezUInt32 uiSize, ezUInt32 uiOffset)
+  template <typename T = st, typename AllocatorWrapper = ezTestAllocatorWrapper>
+  static ezDynamicArray<T, AllocatorWrapper> CreateArray(ezUInt32 uiSize, ezUInt32 uiOffset)
   {
-    ezDynamicArray<st, ezTestAllocatorWrapper> a;
+    ezDynamicArray<T, AllocatorWrapper> a;
     a.SetCount(uiSize);
 
     for (ezUInt32 i = 0; i < uiSize; ++i)
-      a[i] = uiOffset + i;
+      a[i] = T(uiOffset + i);
 
     return a;
   }
@@ -128,6 +129,37 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     }
 
     EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasAllDestructed());
+
+    {
+      // move assignment with different allocators
+      ezConstructionCounterRelocatable::Reset();
+      ezProxyAllocator proxyAllocator("test allocator", ezFoundation::GetDefaultAllocator());
+      {
+        ezDynamicArray<ezConstructionCounterRelocatable> a1(&proxyAllocator);
+
+        a1 = DynamicArrayTestDetail::CreateArray<ezConstructionCounterRelocatable, ezDefaultAllocatorWrapper>(8, 70);
+        EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasDone(8, 0));
+        EZ_TEST_BOOL(a1.GetAllocator() == &proxyAllocator); // allocator must not change
+
+        EZ_TEST_INT(a1.GetCount(), 8);
+        for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
+          EZ_TEST_INT(a1[i].m_iData, 70 + i);
+
+        a1 = DynamicArrayTestDetail::CreateArray<ezConstructionCounterRelocatable, ezDefaultAllocatorWrapper>(32, 100);
+        EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasDone(32, 8));
+        EZ_TEST_BOOL(a1.GetAllocator() == &proxyAllocator); // allocator must not change
+
+        EZ_TEST_INT(a1.GetCount(), 32);
+        for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
+          EZ_TEST_INT(a1[i].m_iData, 100 + i);
+      }
+
+      EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasAllDestructed());
+      ezConstructionCounterRelocatable::Reset();
+
+      auto allocatorStats = proxyAllocator.GetStats();
+      EZ_TEST_BOOL(allocatorStats.m_uiNumAllocations == allocatorStats.m_uiNumDeallocations); // check for memory leak?
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Convert to ArrayPtr")
@@ -243,6 +275,62 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST_INT(a1.GetCount(), 32);
     a1[31] = 45;
     EZ_TEST_INT(a1[31], 45);
+
+    // Test SetCount with fill value
+    {
+      ezDynamicArray<ezInt32> a2;
+      a2.PushBack(5);
+      a2.PushBack(3);
+      a2.SetCount(10, 42);
+
+      if (EZ_TEST_INT(a2.GetCount(), 10).Succeeded())
+      {
+        EZ_TEST_INT(a2[0], 5);
+        EZ_TEST_INT(a2[1], 3);
+        EZ_TEST_INT(a2[4], 42);
+        EZ_TEST_INT(a2[9], 42);
+      }
+
+      a2.Clear();
+      a2.PushBack(1);
+      a2.PushBack(2);
+      a2.PushBack(3);
+
+      a2.SetCount(2, 10);
+      if (EZ_TEST_INT(a2.GetCount(), 2).Succeeded())
+      {
+        EZ_TEST_INT(a2[0], 1);
+        EZ_TEST_INT(a2[1], 2);
+      }
+    }
+  }
+
+  // Test SetCount with fill value
+  {
+    ezDynamicArray<ezInt32> a2;
+    a2.PushBack(5);
+    a2.PushBack(3);
+    a2.SetCount(10, 42);
+
+    if (EZ_TEST_INT(a2.GetCount(), 10).Succeeded())
+    {
+      EZ_TEST_INT(a2[0], 5);
+      EZ_TEST_INT(a2[1], 3);
+      EZ_TEST_INT(a2[4], 42);
+      EZ_TEST_INT(a2[9], 42);
+    }
+
+    a2.Clear();
+    a2.PushBack(1);
+    a2.PushBack(2);
+    a2.PushBack(3);
+
+    a2.SetCount(2, 10);
+    if (EZ_TEST_INT(a2.GetCount(), 2).Succeeded())
+    {
+      EZ_TEST_INT(a2[0], 1);
+      EZ_TEST_INT(a2[1], 2);
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "EnsureCount")

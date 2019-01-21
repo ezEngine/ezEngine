@@ -29,6 +29,8 @@ struct ezPhysicsOverlapResult
 {
   struct Hit
   {
+    EZ_DECLARE_POD_TYPE();
+
     ezGameObjectHandle m_hShapeObject; ///< The game object to which the hit physics shape is attached.
     ezGameObjectHandle m_hActorObject; ///< The game object to which the parent actor of the hit physics shape is attached.
     ezUInt32 m_uiShapeId;              ///< The shape id of the hit physics shape

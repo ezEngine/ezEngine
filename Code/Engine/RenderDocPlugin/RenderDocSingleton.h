@@ -13,7 +13,7 @@ struct RENDERDOC_API_1_4_0;
 /// When the plugin gets loaded, an ezRenderDoc instance is created and initialized.
 /// It tries to find a RenderDoc DLL dynamically, so for initialization to succeed,
 /// the DLL has to be available in some search directory (e.g. binary folder or PATH).
-/// If an outdated RenderDoc DLL is found, initialization will and the plugin will be deactivated.
+/// If an outdated RenderDoc DLL is found, initialization will fail and the plugin will be deactivated.
 ///
 /// For interface documentation see \ref ezFrameCaptureInterface
 class EZ_RENDERDOCPLUGIN_DLL ezRenderDoc : public ezFrameCaptureInterface

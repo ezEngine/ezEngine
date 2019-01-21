@@ -81,6 +81,7 @@ EZ_FORCE_INLINE void ezHybridArrayBase<T, Size>::operator=(ezHybridArrayBase<T, 
     ezMemoryUtils::RelocateConstruct(this->GetElementsPtr(), rhs.GetElementsPtr(), rhs.m_uiCount);
 
     this->m_uiCount = rhs.m_uiCount;
+    rhs.m_uiCount = 0;
   }
   else
   {
@@ -94,11 +95,11 @@ EZ_FORCE_INLINE void ezHybridArrayBase<T, Size>::operator=(ezHybridArrayBase<T, 
     this->m_pElements = rhs.m_pElements;
     this->m_uiCapacity = rhs.m_uiCapacity;
     this->m_uiCount = rhs.m_uiCount;
-  }
 
-  rhs.m_uiCount = 0;
-  rhs.m_pElements = nullptr;
-  rhs.m_uiCapacity = Size;
+    rhs.m_uiCount = 0;
+    rhs.m_pElements = nullptr;
+    rhs.m_uiCapacity = Size;
+  }
 }
 
 template <typename T, ezUInt32 Size>

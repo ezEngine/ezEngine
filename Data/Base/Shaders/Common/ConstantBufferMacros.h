@@ -54,6 +54,8 @@ float3x3 TransformToRotation(Transform t)
 #define UNPACKHALF2(Name1, Name2, CombinedName) float Name1 = f16tof32(CombinedName); float Name2 = f16tof32(CombinedName >> 16)
 #define UNPACKCOLOR4H(Name) RGBA16FToFloat4(EZ_CONCAT(Name,RG), EZ_CONCAT(Name,GB))
 
+#define EZ_DECLARE_POD_TYPE()
+
 #else
 
 // C++

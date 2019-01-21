@@ -5,6 +5,8 @@
 
 struct EZ_ALIGN_16(ezPerInstanceData)
 {
+  EZ_DECLARE_POD_TYPE()
+
   TRANSFORM(ObjectToWorld);
   TRANSFORM(ObjectToWorldNormal);
   INT1(GameObjectID);

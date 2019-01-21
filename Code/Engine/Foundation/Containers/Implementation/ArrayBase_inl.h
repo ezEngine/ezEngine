@@ -112,6 +112,25 @@ void ezArrayBase<T, Derived>::SetCount(ezUInt32 uiCount)
 }
 
 template <typename T, typename Derived>
+void ezArrayBase<T, Derived>::SetCount(ezUInt32 uiCount, const T& FillValue)
+{
+  const ezUInt32 uiOldCount = m_uiCount;
+  const ezUInt32 uiNewCount = uiCount;
+
+  if (uiNewCount > uiOldCount)
+  {
+    static_cast<Derived*>(this)->Reserve(uiNewCount);
+    ezMemoryUtils::CopyConstruct(static_cast<Derived*>(this)->GetElementsPtr() + uiOldCount, FillValue, uiNewCount - uiOldCount);
+  }
+  else if (uiNewCount < uiOldCount)
+  {
+    ezMemoryUtils::Destruct(static_cast<Derived*>(this)->GetElementsPtr() + uiNewCount, uiOldCount - uiNewCount);
+  }
+
+  m_uiCount = uiCount;
+}
+
+template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::EnsureCount(ezUInt32 uiCount)
 {
   if (uiCount > m_uiCount)
@@ -121,8 +140,11 @@ void ezArrayBase<T, Derived>::EnsureCount(ezUInt32 uiCount)
 }
 
 template <typename T, typename Derived>
-void ezArrayBase<T, Derived>::SetCountUninitialized(ezUInt32 uiCount)
+template <typename> // second template needed so that the compiler does only instantiate it when called. Otherwise the static_assert would
+                    // trigger early.
+                    void ezArrayBase<T, Derived>::SetCountUninitialized(ezUInt32 uiCount)
 {
+  static_assert(ezIsPodType<T>::value == ezTypeIsPod::value, "SetCountUninitialized is only supported for POD types.");
   const ezUInt32 uiOldCount = m_uiCount;
   const ezUInt32 uiNewCount = uiCount;
 

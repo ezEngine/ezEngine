@@ -29,8 +29,10 @@
 template <typename Type>
 class ezTransformTemplate
 {
-  // *** Data ***
 public:
+  EZ_DECLARE_POD_TYPE();
+
+  // *** Data ***
   ezVec3Template<Type> m_vPosition;
   ezQuat m_qRotation;
   ezVec3Template<Type> m_vScale;

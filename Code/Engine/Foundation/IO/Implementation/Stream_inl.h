@@ -197,6 +197,20 @@ ezResult ezStreamWriter::WriteArray(const ezArrayBase<ValueType, ArrayType>& Arr
   return EZ_SUCCESS;
 }
 
+template <typename ValueType, ezUInt32 uiSize>
+ezResult ezStreamWriter::WriteArray(const ValueType(&Array)[uiSize])
+{
+  const ezUInt32 uiWriteSize = uiSize;
+  WriteDWordValue(&uiWriteSize);
+
+  for (ezUInt32 i = 0; i < uiSize; ++i)
+  {
+    ezStreamWriterUtil::Serialize<ValueType>(*this, Array[i]);
+  }
+
+  return EZ_SUCCESS;
+}
+
 namespace ezStreamReaderUtil
 {
   template <class T>
@@ -240,6 +254,23 @@ ezResult ezStreamReader::ReadArray(ezArrayBase<ValueType, ArrayType>& Array)
     {
       ezStreamReaderUtil::Deserialize<ValueType>(*this, Array.ExpandAndGetRef());
     }
+  }
+
+  return EZ_SUCCESS;
+}
+
+template <typename ValueType, ezUInt32 uiSize>
+ezResult ezStreamReader::ReadArray(ValueType(&Array)[uiSize])
+{
+  ezUInt32 uiCount = 0;
+  ReadDWordValue(&uiCount);
+
+  if (uiCount != uiSize)
+    return EZ_FAILURE;
+
+  for (ezUInt32 i = 0; i < uiSize; ++i)
+  {
+    ezStreamReaderUtil::Deserialize<ValueType>(*this, Array[i]);
   }
 
   return EZ_SUCCESS;

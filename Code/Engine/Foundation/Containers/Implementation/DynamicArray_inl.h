@@ -70,13 +70,12 @@ inline void ezDynamicArrayBase<T>::operator=(ezDynamicArrayBase<T>&& rhs)
   else
   {
     // Ensure we have enough data.
-    this->SetCountUninitialized(rhs.m_uiCount);
+    this->Reserve(rhs.m_uiCount);
     this->m_uiCount = rhs.m_uiCount;
 
     ezMemoryUtils::RelocateConstruct(this->m_pElements, rhs.m_pElements, rhs.m_uiCount);
 
-    // Strictly speaking, clearing the other array is optional, but it makes it a bit more consistent to do so.
-    rhs.Clear();
+    rhs.m_uiCount = 0;
   }
 }
 

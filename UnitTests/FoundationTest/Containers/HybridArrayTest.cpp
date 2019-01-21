@@ -1,6 +1,7 @@
 #include <PCH.h>
 
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Strings/String.h>
 
 namespace HybridArrayTestDetail
@@ -43,13 +44,14 @@ namespace HybridArrayTestDetail
     bool operator==(const Dummy& dummy) const { return a == dummy.a; }
   };
 
-  static ezHybridArray<ezConstructionCounter, 16> CreateArray(ezUInt32 uiSize, ezUInt32 uiOffset)
+  template <typename T>
+  static ezHybridArray<T, 16> CreateArray(ezUInt32 uiSize, ezUInt32 uiOffset)
   {
-    ezHybridArray<ezConstructionCounter, 16> a;
-    a.SetCountUninitialized(uiSize);
+    ezHybridArray<T, 16> a;
+    a.SetCount(uiSize);
 
     for (ezUInt32 i = 0; i < uiSize; ++i)
-      a[i] = uiOffset + i;
+      a[i] = T(uiOffset + i);
 
     return a;
   }
@@ -136,15 +138,15 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
 
     {
-      // move constructor
-      ezHybridArray<ezConstructionCounter, 16> a1(HybridArrayTestDetail::CreateArray(100, 20));
+      // move constructor external storage
+      ezHybridArray<ezConstructionCounter, 16> a1(HybridArrayTestDetail::CreateArray<ezConstructionCounter>(100, 20));
 
       EZ_TEST_INT(a1.GetCount(), 100);
       for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
         EZ_TEST_INT(a1[i].m_iData, 20 + i);
 
-      // move operator
-      a1 = HybridArrayTestDetail::CreateArray(200, 50);
+      // move operator external storage
+      a1 = HybridArrayTestDetail::CreateArray<ezConstructionCounter>(200, 50);
 
       EZ_TEST_INT(a1.GetCount(), 200);
       for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
@@ -152,17 +154,18 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     }
 
     EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
+    ezConstructionCounter::Reset();
 
     {
-      // move constructor
-      ezHybridArray<ezConstructionCounter, 16> a2(HybridArrayTestDetail::CreateArray(10, 30));
+      // move constructor internal storage
+      ezHybridArray<ezConstructionCounter, 16> a2(HybridArrayTestDetail::CreateArray<ezConstructionCounter>(10, 30));
 
       EZ_TEST_INT(a2.GetCount(), 10);
       for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
         EZ_TEST_INT(a2[i].m_iData, 30 + i);
 
-      // move operator
-      a2 = HybridArrayTestDetail::CreateArray(8, 70);
+      // move operator internal storage
+      a2 = HybridArrayTestDetail::CreateArray<ezConstructionCounter>(8, 70);
 
       EZ_TEST_INT(a2.GetCount(), 8);
       for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
@@ -170,6 +173,81 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     }
 
     EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
+    ezConstructionCounter::Reset();
+
+    ezConstructionCounterRelocatable::Reset();
+    {
+      // move constructor external storage relocatable
+      ezHybridArray<ezConstructionCounterRelocatable, 16> a1(HybridArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(100, 20));
+
+      EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasDone(100, 0));
+
+      EZ_TEST_INT(a1.GetCount(), 100);
+      for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
+        EZ_TEST_INT(a1[i].m_iData, 20 + i);
+
+      // move operator external storage
+      a1 = HybridArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(200, 50);
+      EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasDone(200, 100));
+
+      EZ_TEST_INT(a1.GetCount(), 200);
+      for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
+        EZ_TEST_INT(a1[i].m_iData, 50 + i);
+    }
+
+    EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasAllDestructed());
+    ezConstructionCounterRelocatable::Reset();
+
+    {
+      // move constructor internal storage relocatable
+      ezHybridArray<ezConstructionCounterRelocatable, 16> a2(HybridArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(10, 30));
+      EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasDone(10, 0));
+
+      EZ_TEST_INT(a2.GetCount(), 10);
+      for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
+        EZ_TEST_INT(a2[i].m_iData, 30 + i);
+
+      // move operator internal storage
+      a2 = HybridArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(8, 70);
+      EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasDone(8, 10));
+
+      EZ_TEST_INT(a2.GetCount(), 8);
+      for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
+        EZ_TEST_INT(a2[i].m_iData, 70 + i);
+    }
+
+    EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasAllDestructed());
+    ezConstructionCounterRelocatable::Reset();
+
+    {
+      // move constructor with different allocators
+      ezProxyAllocator proxyAllocator("test allocator", ezFoundation::GetDefaultAllocator());
+      {
+        ezHybridArray<ezConstructionCounterRelocatable, 16> a1(&proxyAllocator);
+
+        a1 = HybridArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(8, 70);
+        EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasDone(8, 0));
+        EZ_TEST_BOOL(a1.GetAllocator() == &proxyAllocator); // allocator must not change
+
+        EZ_TEST_INT(a1.GetCount(), 8);
+        for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
+          EZ_TEST_INT(a1[i].m_iData, 70 + i);
+
+        a1 = HybridArrayTestDetail::CreateArray<ezConstructionCounterRelocatable>(32, 100);
+        EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasDone(32, 8));
+        EZ_TEST_BOOL(a1.GetAllocator() == &proxyAllocator); // allocator must not change
+
+        EZ_TEST_INT(a1.GetCount(), 32);
+        for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
+          EZ_TEST_INT(a1[i].m_iData, 100 + i);
+      }
+
+      EZ_TEST_BOOL(ezConstructionCounterRelocatable::HasAllDestructed());
+      ezConstructionCounterRelocatable::Reset();
+
+      auto allocatorStats = proxyAllocator.GetStats();
+      EZ_TEST_BOOL(allocatorStats.m_uiNumAllocations == allocatorStats.m_uiNumDeallocations); // check for memory leak?
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Convert to ArrayPtr")
@@ -283,6 +361,62 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     EZ_TEST_INT(a1.GetCount(), 32);
     a1[31] = 45;
     EZ_TEST_INT(a1[31], 45);
+
+    // Test SetCount with fill value
+    {
+      ezHybridArray<ezInt32, 2> a2;
+      a2.PushBack(5);
+      a2.PushBack(3);
+      a2.SetCount(10, 42);
+
+      if (EZ_TEST_INT(a2.GetCount(), 10).Succeeded())
+      {
+        EZ_TEST_INT(a2[0], 5);
+        EZ_TEST_INT(a2[1], 3);
+        EZ_TEST_INT(a2[4], 42);
+        EZ_TEST_INT(a2[9], 42);
+      }
+
+      a2.Clear();
+      a2.PushBack(1);
+      a2.PushBack(2);
+      a2.PushBack(3);
+
+      a2.SetCount(2, 10);
+      if (EZ_TEST_INT(a2.GetCount(), 2).Succeeded())
+      {
+        EZ_TEST_INT(a2[0], 1);
+        EZ_TEST_INT(a2[1], 2);
+      }
+    }
+  }
+
+  // Test SetCount with fill value
+  {
+    ezHybridArray<ezInt32, 2> a2;
+    a2.PushBack(5);
+    a2.PushBack(3);
+    a2.SetCount(10, 42);
+
+    if (EZ_TEST_INT(a2.GetCount(), 10).Succeeded())
+    {
+      EZ_TEST_INT(a2[0], 5);
+      EZ_TEST_INT(a2[1], 3);
+      EZ_TEST_INT(a2[4], 42);
+      EZ_TEST_INT(a2[9], 42);
+    }
+
+    a2.Clear();
+    a2.PushBack(1);
+    a2.PushBack(2);
+    a2.PushBack(3);
+
+    a2.SetCount(2, 10);
+    if (EZ_TEST_INT(a2.GetCount(), 2).Succeeded())
+    {
+      EZ_TEST_INT(a2[0], 1);
+      EZ_TEST_INT(a2[1], 2);
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")

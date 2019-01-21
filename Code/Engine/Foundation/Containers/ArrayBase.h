@@ -42,7 +42,11 @@ public:
   /// \brief Resizes the array to have exactly uiCount elements. Default constructs extra elements if the array is grown.
   void SetCount(ezUInt32 uiCount); // [tested]
 
+  /// \brief Resizes the array to have exactly uiCount elements. Constructs all new elements by copying the FillValue.
+  void SetCount(ezUInt32 uiCount, const T& FillValue); // [tested]
+
   /// \brief Resizes the array to have exactly uiCount elements. Extra elements might be uninitialized.
+  template <typename = void>
   void SetCountUninitialized(ezUInt32 uiCount); // [tested]
 
   /// \brief Ensures the container has at least \a uiCount elements. Ie. calls SetCount() if the container has fewer elements, does nothing otherwise.
