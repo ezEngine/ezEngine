@@ -197,7 +197,7 @@ void ezTextureContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 
 void ezTextureContext::OnResourceEvent(const ezResourceEvent& e)
 {
-  if (e.m_EventType == ezResourceEventType::ResourceContentUpdated)
+  if (e.m_Type == ezResourceEvent::Type::ResourceContentUpdated)
   {
     const ezTexture2DResource* pTexture = static_cast<const ezTexture2DResource*>(e.m_pResource);
 

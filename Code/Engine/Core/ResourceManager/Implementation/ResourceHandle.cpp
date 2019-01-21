@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <Core/ResourceManager/ResourceBase.h>
+#include <Core/ResourceManager/Resource.h>
 
 ezTypelessResourceHandle::ezTypelessResourceHandle(ezResource* pResource)
 {

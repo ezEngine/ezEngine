@@ -83,17 +83,17 @@ namespace ResourceManagerDetail
     if (!ezTelemetry::IsConnectedToClient())
       return;
 
-    if (e.m_EventType == ezResourceEventType::ResourceCreated || e.m_EventType == ezResourceEventType::ResourceExists ||
-        e.m_EventType == ezResourceEventType::ResourceContentUpdated)
+    if (e.m_Type == ezResourceEvent::Type::ResourceCreated || e.m_Type == ezResourceEvent::Type::ResourceExists ||
+        e.m_Type == ezResourceEvent::Type::ResourceContentUpdated)
     {
       SendFullResourceInfo(e.m_pResource);
       return;
     }
 
-    if (e.m_EventType == ezResourceEventType::ResourceDueDateChanged) // ignore this
+    if (e.m_Type == ezResourceEvent::Type::ResourceDueDateChanged) // ignore this
       return;
 
-    if (e.m_EventType == ezResourceEventType::ResourceDeleted)
+    if (e.m_Type == ezResourceEvent::Type::ResourceDeleted)
     {
       SendDeleteResourceInfo(e.m_pResource);
       return;

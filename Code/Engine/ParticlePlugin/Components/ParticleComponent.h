@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/ResourceManager/ResourceBase.h>
+#include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/World.h>
 #include <Foundation/Types/RangeView.h>

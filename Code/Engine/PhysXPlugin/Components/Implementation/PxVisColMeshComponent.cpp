@@ -319,7 +319,7 @@ void ezPxVisColMeshComponentManager::EnqueueUpdate(ezComponentHandle hComponent)
 
 void ezPxVisColMeshComponentManager::ResourceEventHandler(const ezResourceEvent& e)
 {
-  if ((e.m_EventType == ezResourceEventType::ResourceContentUnloading || e.m_EventType == ezResourceEventType::ResourceContentUpdated) &&
+  if ((e.m_Type == ezResourceEvent::Type::ResourceContentUnloading || e.m_Type == ezResourceEvent::Type::ResourceContentUpdated) &&
       e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezPxMeshResource>())
   {
     EZ_LOCK(m_Mutex);

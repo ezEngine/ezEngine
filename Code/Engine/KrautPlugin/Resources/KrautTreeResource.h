@@ -1,9 +1,9 @@
 #pragma once
 
-#include <KrautPlugin/KrautDeclarations.h>
 #include <Core/ResourceManager/Resource.h>
-#include <Foundation/Math/BoundingBoxSphere.h>
 #include <Foundation/Containers/StaticArray.h>
+#include <Foundation/Math/BoundingBoxSphere.h>
+#include <KrautPlugin/KrautDeclarations.h>
 
 typedef ezTypedResourceHandle<class ezMeshResource> ezMeshResourceHandle;
 typedef ezTypedResourceHandle<class ezKrautTreeResource> ezKrautTreeResourceHandle;
@@ -77,7 +77,7 @@ class EZ_KRAUTPLUGIN_DLL ezKrautTreeResource : public ezResource
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezKrautTreeResource, ezResource);
   EZ_RESOURCE_DECLARE_COMMON_CODE(ezKrautTreeResource);
-EZ_RESOURCE_DECLARE_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescriptor);
+  EZ_RESOURCE_DECLARE_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescriptor);
 
 public:
   ezKrautTreeResource();
@@ -102,4 +102,3 @@ private:
   ezKrautTreeResourceDetails m_Details;
   ezStaticArray<TreeLod, 5> m_TreeLODs;
 };
-

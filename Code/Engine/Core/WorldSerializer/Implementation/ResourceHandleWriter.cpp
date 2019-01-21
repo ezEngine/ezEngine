@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <Core/ResourceManager/ResourceBase.h>
+#include <Core/ResourceManager/Resource.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 
 static thread_local ezResourceHandleWriteContext* s_pActiveWriteContext = nullptr;

@@ -292,7 +292,7 @@ void ezPrefabReferenceComponentManager::Initialize()
 
 void ezPrefabReferenceComponentManager::ResourceEventHandler(const ezResourceEvent& e)
 {
-  if (e.m_EventType == ezResourceEventType::ResourceContentUnloading && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezPrefabResource>())
+  if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezPrefabResource>())
   {
     ezPrefabResourceHandle hPrefab((ezPrefabResource*)(e.m_pResource));
 

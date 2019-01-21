@@ -498,7 +498,7 @@ void ezProceduralPlacementComponentManager::RemoveTilesForResource(ezUInt32 uiRe
 
 void ezProceduralPlacementComponentManager::OnResourceEvent(const ezResourceEvent& resourceEvent)
 {
-  if (resourceEvent.m_EventType != ezResourceEventType::ResourceContentUnloading)
+  if (resourceEvent.m_Type != ezResourceEvent::Type::ResourceContentUnloading)
     return;
 
   if (auto pResource = ezDynamicCast<const ezProceduralPlacementResource*>(resourceEvent.m_pResource))

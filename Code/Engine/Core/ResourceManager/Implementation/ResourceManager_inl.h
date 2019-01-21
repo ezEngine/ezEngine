@@ -25,7 +25,7 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* 
 
   if (hFallbackResource.IsValid())
   {
-    pResource->SetFallbackResource(hFallbackResource);
+    pResource->SetLoadingFallbackResource(hFallbackResource);
   }
 
   ezResourceManager::EndAcquireResource(pResource);
@@ -54,6 +54,8 @@ template <typename ResourceType, typename DescriptorType>
 ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(const char* szResourceID, DescriptorType&& descriptor,
                                                                       const char* szResourceDescription)
 {
+  static_assert(std::is_rvalue_reference<DescriptorType&&>::value, "Please std::move the descriptor into this function");
+  
   EZ_LOG_BLOCK("ezResourceManager::CreateResource", szResourceID);
 
   EZ_LOCK(s_ResourceMutex);
@@ -69,7 +71,11 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(const char
 
   // If this does not compile, you either passed in the wrong descriptor type for the given resource type
   // or you forgot to std::move the descriptor when calling CreateResource
-  pResource->CallCreateResource(std::forward<DescriptorType>(descriptor));
+  {
+    auto localDescriptor = std::move(descriptor);
+    ezResourceLoadDesc ld = pResource->CreateResource(std::move(localDescriptor));
+    pResource->VerifyAfterCreateResource(ld);
+  }
 
   EZ_ASSERT_DEV(pResource->GetLoadingState() != ezResourceState::Unloaded, "CreateResource did not set the loading state properly.");
 
@@ -125,7 +131,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
       InternalPreloadResource(pResource, true);
 
       if (mode == ezResourceAcquireMode::AllowFallback &&
-          (pResource->m_hFallback.IsValid() || hFallbackResource.IsValid() || GetResourceTypeLoadingFallback<ResourceType>().IsValid()))
+          (pResource->m_hLoadingFallback.IsValid() || hFallbackResource.IsValid() || GetResourceTypeLoadingFallback<ResourceType>().IsValid()))
       {
         // return the fallback resource for now, if there is one
         if (out_AcquireResult)
@@ -136,8 +142,8 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
         //  2) If not available, use the fallback that is given to BeginAcquireResource, as that is at least specific to the situation
         //  3) If nothing else is available, take the fallback for the whole resource type
 
-        if (pResource->m_hFallback.IsValid())
-          return (ResourceType*)BeginAcquireResource(pResource->m_hFallback, ezResourceAcquireMode::NoFallback);
+        if (pResource->m_hLoadingFallback.IsValid())
+          return (ResourceType*)BeginAcquireResource(pResource->m_hLoadingFallback, ezResourceAcquireMode::NoFallback);
         else if (hFallbackResource.IsValid())
           return (ResourceType*)BeginAcquireResource(hFallbackResource, ezResourceAcquireMode::NoFallback);
         else

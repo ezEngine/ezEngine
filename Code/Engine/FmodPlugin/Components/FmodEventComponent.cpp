@@ -1,7 +1,7 @@
 #include <PCH.h>
 
 #include <Core/Messages/DeleteObjectMessage.h>
-#include <Core/ResourceManager/ResourceBase.h>
+#include <Core/ResourceManager/Resource.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Configuration/CVar.h>
@@ -245,7 +245,7 @@ void ezFmodEventComponentManager::UpdateEvents(const ezWorldModule::UpdateContex
 
 void ezFmodEventComponentManager::ResourceEventHandler(const ezResourceEvent& e)
 {
-  if (e.m_EventType == ezResourceEventType::ResourceContentUnloading &&
+  if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading &&
     e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezFmodSoundEventResource>())
   {
     ezFmodSoundEventResourceHandle hResource((ezFmodSoundEventResource*)(e.m_pResource));

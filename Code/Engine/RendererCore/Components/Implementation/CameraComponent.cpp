@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <Core/ResourceManager/ResourceBase.h>
+#include <Core/ResourceManager/Resource.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Components/CameraComponent.h>
@@ -564,19 +564,19 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
 
 void ezCameraComponent::ResourceChangeEventHandler(const ezResourceEvent& e)
 {
-  switch (e.m_EventType)
+  switch (e.m_Type)
   {
-    case ezResourceEventType::ResourceExists:
-    case ezResourceEventType::ResourceCreated:
-    case ezResourceEventType::ResourceInPreloadQueue:
-    case ezResourceEventType::ResourceOutOfPreloadQueue:
-    case ezResourceEventType::ResourcePriorityChanged:
-    case ezResourceEventType::ResourceDueDateChanged:
+    case ezResourceEvent::Type::ResourceExists:
+    case ezResourceEvent::Type::ResourceCreated:
+    case ezResourceEvent::Type::ResourceInPreloadQueue:
+    case ezResourceEvent::Type::ResourceOutOfPreloadQueue:
+    case ezResourceEvent::Type::ResourcePriorityChanged:
+    case ezResourceEvent::Type::ResourceDueDateChanged:
       return;
 
-    case ezResourceEventType::ResourceDeleted:
-    case ezResourceEventType::ResourceContentUnloading:
-    case ezResourceEventType::ResourceContentUpdated:
+    case ezResourceEvent::Type::ResourceDeleted:
+    case ezResourceEvent::Type::ResourceContentUnloading:
+    case ezResourceEvent::Type::ResourceContentUpdated:
       // triggers a recreation of the view
       ezRenderWorld::DeleteView(m_hRenderTargetView);
       m_hRenderTargetView.Invalidate();

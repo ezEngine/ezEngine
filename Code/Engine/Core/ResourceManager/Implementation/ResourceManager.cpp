@@ -200,7 +200,7 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
 
   ezResourceEvent e;
   e.m_pResource = pResource;
-  e.m_EventType = ezResourceEventType::ResourceInPreloadQueue;
+  e.m_Type = ezResourceEvent::Type::ResourceInPreloadQueue;
   ezResourceManager::BroadcastResourceEvent(e);
 
   // the mutex will be released by RunWorkerTask
@@ -308,7 +308,7 @@ void ezResourceManager::UpdateLoadingDeadlines()
 
       ezResourceEvent e;
       e.m_pResource = m_RequireLoading[i].m_pResource;
-      e.m_EventType = ezResourceEventType::ResourceOutOfPreloadQueue;
+      e.m_Type = ezResourceEvent::Type::ResourceOutOfPreloadQueue;
       ezResourceManager::BroadcastResourceEvent(e);
 
       // ezLog::Warning("Removing resource from preload queue due to time out");
@@ -365,7 +365,7 @@ void ezResourceManagerWorkerMainThread::Execute()
 
     ezResourceEvent e;
     e.m_pResource = m_pResourceToLoad;
-    e.m_EventType = ezResourceEventType::ResourceOutOfPreloadQueue;
+    e.m_Type = ezResourceEvent::Type::ResourceOutOfPreloadQueue;
     ezResourceManager::BroadcastResourceEvent(e);
   }
 
@@ -507,7 +507,7 @@ void ezResourceManagerWorkerDiskRead::DoWork(bool bCalledExternally)
 
       ezResourceEvent e;
       e.m_pResource = pResourceToLoad;
-      e.m_EventType = ezResourceEventType::ResourceOutOfPreloadQueue;
+      e.m_Type = ezResourceEvent::Type::ResourceOutOfPreloadQueue;
       ezResourceManager::BroadcastResourceEvent(e);
     }
 
@@ -564,7 +564,7 @@ ezUInt32 ezResourceManager::FreeUnusedResources(bool bFreeAllUnused)
         {
           ezResourceEvent e;
           e.m_pResource = pReference;
-          e.m_EventType = ezResourceEventType::ResourceDeleted;
+          e.m_Type = ezResourceEvent::Type::ResourceDeleted;
           ezResourceManager::BroadcastResourceEvent(e);
         }
 
@@ -789,7 +789,7 @@ void ezResourceManager::PerFrameUpdate()
       for (auto it = itType.Value().m_Resources.GetIterator(); it.IsValid(); ++it)
       {
         ezResourceEvent e;
-        e.m_EventType = ezResourceEventType::ResourceExists;
+        e.m_Type = ezResourceEvent::Type::ResourceExists;
         e.m_pResource = it.Value();
 
         ezResourceManager::BroadcastResourceEvent(e);

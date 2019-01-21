@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/Basics.h>
-#include <Core/ResourceManager/ResourceBase.h>
+#include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Configuration/Plugin.h>
@@ -161,21 +161,12 @@ public:
   /// This is mostly for usage in tools to reset resource whose state can be modified at runtime, to reset them to their original state.
   static void ResetAllResources();
 
-  // static void CleanUpResources();
-
   /// \brief Must be called once per frame for some bookkeeping
   static void PerFrameUpdate();
 
   /// \brief Goes through all existing resources and broadcasts the 'Exists' event.
   /// Used to announce all currently existing resources to interested event listeners.
   static void BroadcastExistsEvent();
-
-  /// \brief Sets up a new or existing category of resources.
-  ///
-  /// Each resource can be assigned to one category. All resources with the same category share the same total memory limits.
-  // static void ConfigureResourceCategory(const char* szCategoryName, ezUInt64 uiMemoryLimitCPU, ezUInt64 uiMemoryLimitGPU);
-
-  // static const ezResourceCategory& GetResourceCategory(const char* szCategoryName);
 
   /// \brief Registers a 'named' resource. When a resource is looked up using \a szLookupName, the lookup will be redirected to \a
   /// szRedirectionResource.
@@ -249,6 +240,7 @@ private:
   /// \name Resource Fallbacks
   ///@{
 public:
+
   template <typename RESOURCE_TYPE>
   static void SetResourceTypeLoadingFallback(const ezTypedResourceHandle<RESOURCE_TYPE>& hResource)
   {
@@ -256,7 +248,7 @@ public:
   }
 
   template <typename RESOURCE_TYPE>
-  static const ezTypedResourceHandle<RESOURCE_TYPE>& GetResourceTypeLoadingFallback()
+  static inline const ezTypedResourceHandle<RESOURCE_TYPE>& GetResourceTypeLoadingFallback()
   {
     return RESOURCE_TYPE::GetResourceTypeLoadingFallback();
   }
@@ -265,19 +257,10 @@ public:
   static void SetResourceTypeMissingFallback(const ezTypedResourceHandle<RESOURCE_TYPE>& hResource)
   {
     RESOURCE_TYPE::SetResourceTypeMissingFallback(hResource);
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    if (hResource.IsValid())
-    {
-      // TODO (resources): ezResourceLock is unknown here (declared below)
-      // ezResourceLock<RESOURCE_TYPE> lock(hResource, ezResourceAcquireMode::NoFallback);
-      /* if this fails, the 'missing resource' is missing itself*/
-    }
-#endif
   }
 
   template <typename RESOURCE_TYPE>
-  static const ezTypedResourceHandle<RESOURCE_TYPE>& GetResourceTypeMissingFallback()
+  static inline const ezTypedResourceHandle<RESOURCE_TYPE>& GetResourceTypeMissingFallback()
   {
     return RESOURCE_TYPE::GetResourceTypeMissingFallback();
   }
@@ -385,7 +368,6 @@ private:
   static ezTime m_LastDeadLineUpdate;
   static ezTime m_LastFrameUpdate;
   static bool m_bBroadcastExistsEvent;
-  // static ezHashTable<ezUInt32, ezResourceCategory> m_ResourceCategories;
   static ezMutex s_ResourceMutex;
   static ezHashTable<ezTempHashedString, ezHashedString> s_NamedResources;
   static ezMap<ezString, const ezRTTI*> s_AssetToResourceType;

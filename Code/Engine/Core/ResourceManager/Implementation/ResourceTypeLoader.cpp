@@ -1,6 +1,7 @@
 #include <PCH.h>
 
 #include <Core/ResourceManager/Resource.h>
+#include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
 

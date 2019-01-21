@@ -5,7 +5,7 @@
 #include <Core/World/World.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <Core/ResourceManager/ResourceManager.h>
-#include <Core/ResourceManager/ResourceBase.h>
+#include <Core/ResourceManager/Resource.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Foundation/Threading/TaskSystem.h>
@@ -124,7 +124,7 @@ void ezParticleWorldModule::ExtractEffectRenderData(const ezParticleEffectInstan
 
 void ezParticleWorldModule::ResourceEventHandler(const ezResourceEvent& e)
 {
-  if (e.m_EventType == ezResourceEventType::ResourceContentUnloading && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezParticleEffectResource>())
+  if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezParticleEffectResource>())
   {
     EZ_LOCK(m_Mutex);
 

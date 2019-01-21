@@ -856,7 +856,7 @@ void ezMaterialResource::OnBaseMaterialModified(const ezMaterialResource* pModif
 
 void ezMaterialResource::OnResourceEvent(const ezResourceEvent& resourceEvent)
 {
-  if (resourceEvent.m_EventType != ezResourceEventType::ResourceContentUpdated)
+  if (resourceEvent.m_Type != ezResourceEvent::Type::ResourceContentUpdated)
     return;
 
   if (m_hCachedShader == resourceEvent.m_pResource)
