@@ -16,16 +16,16 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* 
 
 template <typename ResourceType>
 ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* szResourceID, ezResourcePriority Priority,
-                                                                    ezTypedResourceHandle<ResourceType> hFallbackResource)
+                                                                    ezTypedResourceHandle<ResourceType> hLoadingFallback)
 {
   ezTypedResourceHandle<ResourceType> hResource(GetResource<ResourceType>(szResourceID, true));
 
   ResourceType* pResource = ezResourceManager::BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly,
                                                                     ezTypedResourceHandle<ResourceType>(), Priority);
 
-  if (hFallbackResource.IsValid())
+  if (hLoadingFallback.IsValid())
   {
-    pResource->SetLoadingFallbackResource(hFallbackResource);
+    pResource->SetLoadingFallbackResource(hLoadingFallback);
   }
 
   ezResourceManager::EndAcquireResource(pResource);
@@ -55,7 +55,7 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(const char
                                                                       const char* szResourceDescription)
 {
   static_assert(std::is_rvalue_reference<DescriptorType&&>::value, "Please std::move the descriptor into this function");
-  
+
   EZ_LOG_BLOCK("ezResourceManager::CreateResource", szResourceID);
 
   EZ_LOCK(s_ResourceMutex);
@@ -105,7 +105,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
       (mode == ezResourceAcquireMode::MetaInfo && pResource->GetLoadingState() >= ezResourceState::UnloadedMetaInfoAvailable))
   {
     if (Priority != ezResourcePriority::Unchanged)
-      pResource->m_Priority = Priority;
+      pResource->SetPriority(Priority);
 
     if (out_AcquireResult)
       *out_AcquireResult = ezResourceAcquireResult::Final;
@@ -116,7 +116,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
 
   // only set the last accessed time stamp, if it is actually needed, pointer-only access might not mean that the resource is used
   // productively
-  pResource->m_LastAcquire = m_LastFrameUpdate;
+  pResource->m_LastAcquire = s_LastFrameUpdate;
 
   if (pResource->GetLoadingState() != ezResourceState::LoadedResourceMissing)
   {
@@ -130,8 +130,8 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
       // even after recalculating priorities, it will end up as top priority
       InternalPreloadResource(pResource, true);
 
-      if (mode == ezResourceAcquireMode::AllowFallback &&
-          (pResource->m_hLoadingFallback.IsValid() || hFallbackResource.IsValid() || GetResourceTypeLoadingFallback<ResourceType>().IsValid()))
+      if (mode == ezResourceAcquireMode::AllowFallback && (pResource->m_hLoadingFallback.IsValid() || hFallbackResource.IsValid() ||
+                                                           GetResourceTypeLoadingFallback<ResourceType>().IsValid()))
       {
         // return the fallback resource for now, if there is one
         if (out_AcquireResult)
@@ -248,12 +248,20 @@ void ezResourceManager::SetResourceTypeLoader(ezResourceTypeLoader* creator)
 {
   EZ_LOCK(s_ResourceMutex);
 
-  m_ResourceTypeLoader[ezGetStaticRTTI<ResourceType>()->GetTypeName()] = creator;
+  s_ResourceTypeLoader[ezGetStaticRTTI<ResourceType>()->GetTypeName()] = creator;
 }
 
 inline void ezResourceManager::SetDefaultResourceLoader(ezResourceTypeLoader* pDefaultLoader)
 {
   EZ_LOCK(s_ResourceMutex);
 
-  m_pDefaultResourceLoader = pDefaultLoader;
+  s_pDefaultResourceLoader = pDefaultLoader;
+}
+
+template <typename ResourceType>
+ezTypedResourceHandle<ResourceType> ezResourceManager::GetResourceHandleForExport(const char* szResourceID)
+{
+  EZ_ASSERT_DEV(s_bExportMode, "Export mode needs to be enabled");
+
+  return LoadResource<ResourceType>(szResourceID);
 }

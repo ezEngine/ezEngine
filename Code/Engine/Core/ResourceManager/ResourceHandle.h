@@ -13,13 +13,13 @@ EZ_CORE_DLL void DecreaseResourceRefCount(ezResource* pResource);
 class EZ_CORE_DLL ezTypelessResourceHandle
 {
 public:
-  EZ_ALWAYS_INLINE ezTypelessResourceHandle() { m_pResource = nullptr; }
+  EZ_ALWAYS_INLINE ezTypelessResourceHandle() = default;
 
   /// \brief [internal] Increases the refcount of the given resource.
   ezTypelessResourceHandle(ezResource* pResource);
 
   /// \brief Increases the refcount of the given resource
-  ezTypelessResourceHandle(const ezTypelessResourceHandle& rhs)
+  EZ_ALWAYS_INLINE ezTypelessResourceHandle(const ezTypelessResourceHandle& rhs)
   {
     m_pResource = rhs.m_pResource;
 
@@ -28,7 +28,7 @@ public:
   }
 
   /// \brief Move constructor, no refcount change is necessary.
-  ezTypelessResourceHandle(ezTypelessResourceHandle&& rhs)
+  EZ_ALWAYS_INLINE ezTypelessResourceHandle(ezTypelessResourceHandle&& rhs)
   {
     m_pResource = rhs.m_pResource;
     rhs.m_pResource = nullptr;
@@ -73,7 +73,7 @@ public:
   EZ_ALWAYS_INLINE bool operator!=(const ezResource* rhs) const { return m_pResource != rhs; }
 
 protected:
-  ezResource* m_pResource;
+  ezResource* m_pResource = nullptr;
 
 private:
   // you must go through the resource manager to get access to the resource pointer
@@ -172,11 +172,10 @@ private:
   template <typename T>
   friend class ezTypedResourceHandle;
 
-  ezTypelessResourceHandle m_Typeless;
-
-private:
   // you must go through the resource manager to get access to the resource pointer
   friend class ezResourceManager;
   friend class ezResourceHandleWriteContext;
   friend class ezResourceHandleReadContext;
+
+  ezTypelessResourceHandle m_Typeless;
 };

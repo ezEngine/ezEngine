@@ -5,38 +5,6 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Time/Timestamp.h>
 
-class ezResourceTypeLoader;
-class ezStreamReader;
-
-/// \brief These events may be sent by a specific ezResource or by the ezResourceManager
-struct ezResourceEvent
-{
-  enum class Type
-  {
-    ResourceExists,
-    ResourceCreated,
-    ResourceDeleted,
-    ResourceContentUpdated,
-    ResourceContentUnloading, ///< Resource is about to be unloaded, but still valid at this point
-    ResourceInPreloadQueue,
-    ResourceOutOfPreloadQueue,
-    ResourcePriorityChanged,
-    ResourceDueDateChanged,
-  };
-
-  Type m_Type;
-  const ezResource* m_pResource;
-};
-
-struct ezResourceCategory
-{
-  ezString m_sName;
-  ezUInt64 m_uiMemoryLimitCPU;
-  ezUInt64 m_uiMemoryLimitGPU;
-  ezAtomicInteger64 m_uiMemoryUsageCPU;
-  ezAtomicInteger64 m_uiMemoryUsageGPU;
-};
-
 /// \brief The base class for all resources.
 class EZ_CORE_DLL ezResource : public ezReflectedClass
 {
@@ -223,10 +191,10 @@ private:
   virtual ezResourceTypeLoader* GetDefaultResourceTypeLoader() const;
 
 private:
-  volatile ezResourceState m_LoadingState;
+  volatile ezResourceState m_LoadingState = ezResourceState::Unloaded;
 
-  ezUInt8 m_uiQualityLevelsDiscardable;
-  ezUInt8 m_uiQualityLevelsLoadable;
+  ezUInt8 m_uiQualityLevelsDiscardable = 0;
+  ezUInt8 m_uiQualityLevelsLoadable = 0;
 
 
 protected:
@@ -260,11 +228,11 @@ private:
   /// \brief Called by ezResourceMananger::CreateResource
   void VerifyAfterCreateResource(const ezResourceLoadDesc& ld);
 
-  ezUInt32 m_uiUniqueIDHash;
-  ezUInt32 m_uiResourceChangeCounter;
-  ezResourcePriority m_Priority;
-  ezAtomicInteger32 m_iReferenceCount;
-  ezAtomicInteger32 m_iLockCount;
+  ezUInt32 m_uiUniqueIDHash = 0;
+  ezUInt32 m_uiResourceChangeCounter = 0;
+  ezResourcePriority m_Priority = ezResourcePriority::Normal;
+  ezAtomicInteger32 m_iReferenceCount = 0;
+  ezAtomicInteger32 m_iLockCount = 0;
   ezString m_UniqueID;
   ezString m_sResourceDescription;
   MemoryUsage m_MemoryUsage;

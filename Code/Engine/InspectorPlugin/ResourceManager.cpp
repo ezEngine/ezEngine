@@ -13,9 +13,7 @@ namespace ResourceManagerDetail
 
     Msg.SetMessageID('RESM', ' SET');
 
-    const ezTempHashedString sNameHash(pRes->GetResourceID().GetData());
-
-    Msg.GetWriter() << sNameHash.GetHash();
+    Msg.GetWriter() << pRes->GetResourceIDHash();
     Msg.GetWriter() << pRes->GetResourceID();
     Msg.GetWriter() << pRes->GetDynamicRTTI()->GetTypeName();
     Msg.GetWriter() << static_cast<ezUInt8>(pRes->GetPriority());
@@ -36,9 +34,7 @@ namespace ResourceManagerDetail
 
     Msg.SetMessageID('RESM', 'UPDT');
 
-    const ezTempHashedString sNameHash(pRes->GetResourceID().GetData());
-
-    Msg.GetWriter() << sNameHash.GetHash();
+    Msg.GetWriter() << pRes->GetResourceIDHash();
     Msg.GetWriter() << static_cast<ezUInt8>(pRes->GetPriority());
     Msg.GetWriter() << static_cast<ezUInt8>(pRes->GetBaseResourceFlags().GetValue());
     Msg.GetWriter() << static_cast<ezUInt8>(pRes->GetLoadingState());
@@ -56,9 +52,7 @@ namespace ResourceManagerDetail
 
     Msg.SetMessageID('RESM', ' DEL');
 
-    const ezTempHashedString sNameHash(pRes->GetResourceID().GetData());
-
-    Msg.GetWriter() << sNameHash.GetHash();
+    Msg.GetWriter() << pRes->GetResourceIDHash();
 
     ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
   }
@@ -83,25 +77,28 @@ namespace ResourceManagerDetail
     if (!ezTelemetry::IsConnectedToClient())
       return;
 
-    if (e.m_Type == ezResourceEvent::Type::ResourceCreated || e.m_Type == ezResourceEvent::Type::ResourceExists ||
-        e.m_Type == ezResourceEvent::Type::ResourceContentUpdated)
+    switch (e.m_Type)
     {
-      SendFullResourceInfo(e.m_pResource);
-      return;
+      case ezResourceEvent::Type::ResourceCreated:
+      case ezResourceEvent::Type::ResourceExists:
+        SendFullResourceInfo(e.m_pResource);
+        return;
+
+      case ezResourceEvent::Type::ResourceDeleted:
+        SendDeleteResourceInfo(e.m_pResource);
+        return;
+
+      case ezResourceEvent::Type::ResourceContentUpdated:
+      case ezResourceEvent::Type::ResourceContentUnloading:
+      case ezResourceEvent::Type::ResourcePriorityChanged:
+        SendSmallResourceInfo(e.m_pResource);
+        return;
+
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
     }
-
-    if (e.m_Type == ezResourceEvent::Type::ResourceDueDateChanged) // ignore this
-      return;
-
-    if (e.m_Type == ezResourceEvent::Type::ResourceDeleted)
-    {
-      SendDeleteResourceInfo(e.m_pResource);
-      return;
-    }
-
-    SendSmallResourceInfo(e.m_pResource);
   }
-}
+} // namespace ResourceManagerDetail
 
 void AddResourceManagerEventHandler()
 {

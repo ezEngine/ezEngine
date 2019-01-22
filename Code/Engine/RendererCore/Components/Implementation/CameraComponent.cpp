@@ -568,10 +568,7 @@ void ezCameraComponent::ResourceChangeEventHandler(const ezResourceEvent& e)
   {
     case ezResourceEvent::Type::ResourceExists:
     case ezResourceEvent::Type::ResourceCreated:
-    case ezResourceEvent::Type::ResourceInPreloadQueue:
-    case ezResourceEvent::Type::ResourceOutOfPreloadQueue:
     case ezResourceEvent::Type::ResourcePriorityChanged:
-    case ezResourceEvent::Type::ResourceDueDateChanged:
       return;
 
     case ezResourceEvent::Type::ResourceDeleted:

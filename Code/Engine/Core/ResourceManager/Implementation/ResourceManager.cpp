@@ -28,20 +28,20 @@
 //   Requires No File Access -> on non-File Thread
 
 ezHashTable<const ezRTTI*, ezResourceManager::LoadedResources> ezResourceManager::s_LoadedResources;
-ezMap<ezString, ezResourceTypeLoader*> ezResourceManager::m_ResourceTypeLoader;
-ezResourceLoaderFromFile ezResourceManager::m_FileResourceLoader;
-ezResourceTypeLoader* ezResourceManager::m_pDefaultResourceLoader = &m_FileResourceLoader;
-ezDeque<ezResourceManager::LoadingInfo> ezResourceManager::m_RequireLoading;
-bool ezResourceManager::m_bTaskRunning = false;
-bool ezResourceManager::m_bStop = false;
-ezResourceManagerWorkerDiskRead ezResourceManager::m_WorkerTasksDiskRead[MaxDiskReadTasks];
-ezResourceManagerWorkerMainThread ezResourceManager::m_WorkerTasksMainThread[MaxMainThreadTasks];
-ezUInt8 ezResourceManager::m_iCurrentWorkerMainThread = 0;
-ezUInt8 ezResourceManager::m_iCurrentWorkerDiskRead = 0;
-ezTime ezResourceManager::m_LastDeadLineUpdate;
-ezTime ezResourceManager::m_LastFrameUpdate;
-bool ezResourceManager::m_bBroadcastExistsEvent = false;
-// ezHashTable<ezUInt32, ezResourceCategory> ezResourceManager::m_ResourceCategories;
+ezMap<ezString, ezResourceTypeLoader*> ezResourceManager::s_ResourceTypeLoader;
+ezResourceLoaderFromFile ezResourceManager::s_FileResourceLoader;
+ezResourceTypeLoader* ezResourceManager::s_pDefaultResourceLoader = &s_FileResourceLoader;
+ezDeque<ezResourceManager::LoadingInfo> ezResourceManager::s_RequireLoading;
+bool ezResourceManager::s_bTaskRunning = false;
+bool ezResourceManager::s_bShutdown = false;
+bool ezResourceManager::s_bExportMode = false;
+ezResourceManagerWorkerDiskRead ezResourceManager::s_WorkerTasksDiskRead[MaxDiskReadTasks];
+ezResourceManagerWorkerMainThread ezResourceManager::s_WorkerTasksMainThread[MaxMainThreadTasks];
+ezUInt8 ezResourceManager::s_iCurrentWorkerMainThread = 0;
+ezUInt8 ezResourceManager::s_iCurrentWorkerDiskRead = 0;
+ezTime ezResourceManager::s_LastDeadlineUpdate;
+ezTime ezResourceManager::s_LastFrameUpdate;
+bool ezResourceManager::s_bBroadcastExistsEvent = false;
 ezEvent<const ezResourceEvent&> ezResourceManager::s_ResourceEvents;
 ezEvent<const ezResourceManagerEvent&> ezResourceManager::s_ManagerEvents;
 ezMutex ezResourceManager::s_ResourceMutex;
@@ -86,7 +86,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 ezResourceTypeLoader* ezResourceManager::GetResourceTypeLoader(const ezRTTI* pRTTI)
 {
-  return m_ResourceTypeLoader[pRTTI->GetTypeName()];
+  return s_ResourceTypeLoader[pRTTI->GetTypeName()];
 }
 
 void ezResourceManager::AddResourceCleanupCallback(ResourceCleanupCB cb)
@@ -145,7 +145,7 @@ const ezRTTI* ezResourceManager::FindResourceForAssetType(const char* szAssetTyp
 
 void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHighestPriority)
 {
-  if (m_bStop)
+  if (s_bShutdown)
     return;
 
   EZ_LOCK(s_ResourceMutex);
@@ -159,6 +159,8 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
     return;
   }
 
+  EZ_ASSERT_DEV(!s_bExportMode, "Resources should not be loaded in export mode");
+
   // if we are already preloading this resource, but now it has highest priority
   // and it is still in the task queue (so not yet started)
   if (pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading))
@@ -170,17 +172,14 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
 
       // move it to the front of the queue
       // if it is not in the queue anymore, it has already been started by some thread
-      if (m_RequireLoading.RemoveAndCopy(li))
+      if (s_RequireLoading.RemoveAndCopy(li))
       {
-        // ezLog::Info("Moving Resource to front of preloading queue");
-        m_RequireLoading.PushFront(li);
+        s_RequireLoading.PushFront(li);
       }
     }
 
     return;
   }
-
-  // ezLog::Info("Resource not yet preloading, adding to queue");
 
   EZ_ASSERT_DEV(!pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading), "");
   pResource->m_Flags.Add(ezResourceFlags::IsPreloading);
@@ -191,17 +190,9 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
   // li.m_DueDate = pResource->GetLoadingDeadline();
 
   if (bHighestPriority)
-    m_RequireLoading.PushFront(li);
+    s_RequireLoading.PushFront(li);
   else
-    m_RequireLoading.PushBack(li);
-
-  // ezLog::Debug("Adding resource '{0}' -> '{1}'to preload queue: {2} items", pResource->GetDynamicRTTI()->GetTypeName(),
-  // pResource->GetResourceID(), m_RequireLoading.GetCount());
-
-  ezResourceEvent e;
-  e.m_pResource = pResource;
-  e.m_Type = ezResourceEvent::Type::ResourceInPreloadQueue;
-  ezResourceManager::BroadcastResourceEvent(e);
+    s_RequireLoading.PushBack(li);
 
   // the mutex will be released by RunWorkerTask
   RunWorkerTask(pResource);
@@ -209,7 +200,7 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
 
 void ezResourceManager::RunWorkerTask(ezResource* pResource)
 {
-  if (m_bStop)
+  if (s_bShutdown)
     return;
 
   bool bDoItYourself = false;
@@ -228,13 +219,13 @@ void ezResourceManager::RunWorkerTask(ezResource* pResource)
       for (ezUInt32 i = 0; i < MaxDiskReadTasks; ++i)
       {
         s.Format("Disk Resource Loader {0}", i);
-        m_WorkerTasksDiskRead[i].SetTaskName(s.GetData());
+        s_WorkerTasksDiskRead[i].SetTaskName(s.GetData());
       }
 
       for (ezUInt32 i = 0; i < MaxMainThreadTasks; ++i)
       {
         s.Format("Main Thread Resource Loader {0}", i);
-        m_WorkerTasksMainThread[i].SetTaskName(s.GetData());
+        s_WorkerTasksMainThread[i].SetTaskName(s.GetData());
       }
     }
 
@@ -242,11 +233,11 @@ void ezResourceManager::RunWorkerTask(ezResource* pResource)
     {
       bDoItYourself = true;
     }
-    else if (!m_bTaskRunning && !ezResourceManager::m_RequireLoading.IsEmpty())
+    else if (!s_bTaskRunning && !ezResourceManager::s_RequireLoading.IsEmpty())
     {
-      m_bTaskRunning = true;
-      m_iCurrentWorkerDiskRead = (m_iCurrentWorkerDiskRead + 1) % MaxDiskReadTasks;
-      ezTaskSystem::StartSingleTask(&m_WorkerTasksDiskRead[m_iCurrentWorkerDiskRead], ezTaskPriority::FileAccess);
+      s_bTaskRunning = true;
+      s_iCurrentWorkerDiskRead = (s_iCurrentWorkerDiskRead + 1) % MaxDiskReadTasks;
+      ezTaskSystem::StartSingleTask(&s_WorkerTasksDiskRead[s_iCurrentWorkerDiskRead], ezTaskPriority::FileAccess);
     }
   }
 
@@ -281,12 +272,12 @@ void ezResourceManager::UpdateLoadingDeadlines()
 
   const ezTime tNow = ezTime::Now();
 
-  if (tNow - m_LastDeadLineUpdate < ezTime::Milliseconds(100))
+  if (tNow - s_LastDeadlineUpdate < ezTime::Milliseconds(100))
     return;
 
-  m_LastDeadLineUpdate = tNow;
+  s_LastDeadlineUpdate = tNow;
 
-  if (m_RequireLoading.IsEmpty())
+  if (s_RequireLoading.IsEmpty())
     return;
 
   ezLog::Debug("Updating Loading Deadlines");
@@ -296,30 +287,25 @@ void ezResourceManager::UpdateLoadingDeadlines()
 
   const ezTime tKickOut = tNow + ezTime::Seconds(30.0);
 
-  ezUInt32 uiCount = m_RequireLoading.GetCount();
+  ezUInt32 uiCount = s_RequireLoading.GetCount();
   for (ezUInt32 i = 0; i < uiCount;)
   {
-    m_RequireLoading[i].m_DueDate = m_RequireLoading[i].m_pResource->GetLoadingDeadline(tNow);
+    s_RequireLoading[i].m_DueDate = s_RequireLoading[i].m_pResource->GetLoadingDeadline(tNow);
 
-    if (m_RequireLoading[i].m_DueDate > tKickOut)
+    if (s_RequireLoading[i].m_DueDate > tKickOut)
     {
-      EZ_ASSERT_DEV(m_RequireLoading[i].m_pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading) == true, "");
-      m_RequireLoading[i].m_pResource->m_Flags.Remove(ezResourceFlags::IsPreloading);
-
-      ezResourceEvent e;
-      e.m_pResource = m_RequireLoading[i].m_pResource;
-      e.m_Type = ezResourceEvent::Type::ResourceOutOfPreloadQueue;
-      ezResourceManager::BroadcastResourceEvent(e);
+      EZ_ASSERT_DEV(s_RequireLoading[i].m_pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading) == true, "");
+      s_RequireLoading[i].m_pResource->m_Flags.Remove(ezResourceFlags::IsPreloading);
 
       // ezLog::Warning("Removing resource from preload queue due to time out");
-      m_RequireLoading.RemoveAtAndSwap(i);
+      s_RequireLoading.RemoveAtAndSwap(i);
       --uiCount;
     }
     else
       ++i;
   }
 
-  m_RequireLoading.Sort();
+  s_RequireLoading.Sort();
 }
 
 void ezResourceManagerWorkerMainThread::Execute()
@@ -359,14 +345,8 @@ void ezResourceManagerWorkerMainThread::Execute()
     EZ_ASSERT_DEV(m_pResourceToLoad->m_Flags.IsSet(ezResourceFlags::IsPreloading) == true, "");
     m_pResourceToLoad->m_Flags.Remove(ezResourceFlags::IsPreloading);
 
-    // ezLog::Dev("Finished loading resource on main thread");
     EZ_ASSERT_DEV(ezResourceManager::s_ResourcesInLoadingLimbo > 0, "ezResourceManager::s_ResourcesInLoadingLimbo is incorrect");
     ezResourceManager::s_ResourcesInLoadingLimbo.Decrement();
-
-    ezResourceEvent e;
-    e.m_pResource = m_pResourceToLoad;
-    e.m_Type = ezResourceEvent::Type::ResourceOutOfPreloadQueue;
-    ezResourceManager::BroadcastResourceEvent(e);
   }
 
   m_pLoader = nullptr;
@@ -389,18 +369,18 @@ void ezResourceManagerWorkerDiskRead::DoWork(bool bCalledExternally)
 
     ezResourceManager::UpdateLoadingDeadlines();
 
-    if (ezResourceManager::m_RequireLoading.IsEmpty())
+    if (ezResourceManager::s_RequireLoading.IsEmpty())
     {
-      ezResourceManager::m_bTaskRunning = false;
+      ezResourceManager::s_bTaskRunning = false;
       return;
     }
 
     // set this before we remove the resource from the queue
     ezResourceManager::s_ResourcesInLoadingLimbo.Increment();
 
-    auto it = ezResourceManager::m_RequireLoading.PeekFront();
+    auto it = ezResourceManager::s_RequireLoading.PeekFront();
     pResourceToLoad = it.m_pResource;
-    ezResourceManager::m_RequireLoading.PopFront();
+    ezResourceManager::s_RequireLoading.PopFront();
 
     // ezLog::Warning("Task taking item out of preload queue: {0} items remain", ezResourceManager::m_RequireLoading.GetCount());
 
@@ -438,9 +418,9 @@ void ezResourceManagerWorkerDiskRead::DoWork(bool bCalledExternally)
     {
       EZ_LOCK(ezResourceManager::s_ResourceMutex);
 
-      pWorkerMainThread = &ezResourceManager::m_WorkerTasksMainThread[ezResourceManager::m_iCurrentWorkerMainThread];
-      ezResourceManager::m_iCurrentWorkerMainThread =
-          (ezResourceManager::m_iCurrentWorkerMainThread + 1) % ezResourceManager::MaxMainThreadTasks;
+      pWorkerMainThread = &ezResourceManager::s_WorkerTasksMainThread[ezResourceManager::s_iCurrentWorkerMainThread];
+      ezResourceManager::s_iCurrentWorkerMainThread =
+          (ezResourceManager::s_iCurrentWorkerMainThread + 1) % ezResourceManager::MaxMainThreadTasks;
     }
 
     /// \todo This part is still not thread safe
@@ -504,16 +484,11 @@ void ezResourceManagerWorkerDiskRead::DoWork(bool bCalledExternally)
 
       EZ_ASSERT_DEV(pResourceToLoad->m_Flags.IsSet(ezResourceFlags::IsPreloading) == true, "");
       pResourceToLoad->m_Flags.Remove(ezResourceFlags::IsPreloading);
-
-      ezResourceEvent e;
-      e.m_pResource = pResourceToLoad;
-      e.m_Type = ezResourceEvent::Type::ResourceOutOfPreloadQueue;
-      ezResourceManager::BroadcastResourceEvent(e);
     }
 
     if (!bCalledExternally)
     {
-      ezResourceManager::m_bTaskRunning = false;
+      ezResourceManager::s_bTaskRunning = false;
       ezResourceManager::RunWorkerTask(nullptr);
     }
 
@@ -584,7 +559,7 @@ ezUInt32 ezResourceManager::FreeUnusedResources(bool bFreeAllUnused)
 
 void ezResourceManager::PreloadResource(ezResource* pResource, ezTime tShouldBeAvailableIn)
 {
-  const ezTime tNow = m_LastFrameUpdate;
+  const ezTime tNow = s_LastFrameUpdate;
 
   pResource->SetDueDate(ezMath::Min(tNow + tShouldBeAvailableIn, pResource->m_DueDate));
   InternalPreloadResource(pResource,
@@ -644,7 +619,7 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
     LoadingInfo li;
     li.m_pResource = pResource;
 
-    if (m_RequireLoading.IndexOf(li) == ezInvalidIndex)
+    if (s_RequireLoading.IndexOf(li) == ezInvalidIndex)
     {
       // the resource is marked as 'preloading' but it is not in the queue anymore
       // that means some task is already working on loading it
@@ -681,7 +656,7 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
 
   if (bAllowPreloading)
   {
-    const ezTime tNow = m_LastFrameUpdate;
+    const ezTime tNow = s_LastFrameUpdate;
 
     // resources that have been in use recently will be put into the preload queue immediately
     // everything else will be loaded on demand
@@ -750,7 +725,7 @@ ezUInt32 ezResourceManager::ReloadAllResources(bool bForce)
   if (count > 0)
   {
     ezResourceManagerEvent e;
-    e.m_EventType = ezResourceManagerEventType::ReloadAllResources;
+    e.m_Type = ezResourceManagerEvent::Type::ReloadAllResources;
 
     s_ManagerEvents.Broadcast(e);
   }
@@ -776,13 +751,13 @@ void ezResourceManager::ResetAllResources()
 
 void ezResourceManager::PerFrameUpdate()
 {
-  m_LastFrameUpdate = ezTime::Now();
+  s_LastFrameUpdate = ezTime::Now();
 
-  if (m_bBroadcastExistsEvent)
+  if (s_bBroadcastExistsEvent)
   {
     EZ_LOCK(s_ResourceMutex);
 
-    m_bBroadcastExistsEvent = false;
+    s_bBroadcastExistsEvent = false;
 
     for (auto itType = s_LoadedResources.GetIterator(); itType.IsValid(); ++itType)
     {
@@ -800,37 +775,8 @@ void ezResourceManager::PerFrameUpdate()
 
 void ezResourceManager::BroadcastExistsEvent()
 {
-  m_bBroadcastExistsEvent = true;
+  s_bBroadcastExistsEvent = true;
 }
-
-// void ezResourceManager::ConfigureResourceCategory(const char* szCategoryName, ezUInt64 uiMemoryLimitCPU, ezUInt64 uiMemoryLimitGPU)
-//{
-//  EZ_LOCK(s_ResourceMutex);
-//
-//  ezTempHashedString sHash(szCategoryName);
-//
-//  auto& cat = m_ResourceCategories[sHash.GetHash()];
-//
-//  cat.m_sName = szCategoryName;
-//  cat.m_uiMemoryLimitCPU = uiMemoryLimitCPU;
-//  cat.m_uiMemoryLimitGPU = uiMemoryLimitGPU;
-//
-//  ezResourceManagerEvent e;
-//  e.m_EventType = ezResourceManagerEventType::ResourceCategoryChanged;
-//  e.m_pCategory = &cat;
-//
-//  s_ManagerEvents.Broadcast(e);
-//}
-//
-// const ezResourceCategory& ezResourceManager::GetResourceCategory(const char* szCategoryName)
-//{
-//  ezTempHashedString sHash(szCategoryName);
-//
-//  ezResourceCategory* pCat = nullptr;
-//  EZ_VERIFY(m_ResourceCategories.TryGetValue(sHash.GetHash(), pCat), "Resource Category '{0}' does not exist", szCategoryName);
-//
-//  return *pCat;
-//}
 
 /* Not yet good enough for prime time
 void ezResourceManager::CleanUpResources()
@@ -926,8 +872,8 @@ void ezResourceManager::PluginEventHandler(const ezPlugin::PluginEvent& e)
 void ezResourceManager::OnCoreStartup()
 {
   EZ_LOCK(s_ResourceMutex);
-  m_bTaskRunning = false;
-  m_bStop = false;
+  s_bTaskRunning = false;
+  s_bShutdown = false;
 
   ezPlugin::s_PluginEvents.AddEventHandler(PluginEventHandler);
 }
@@ -936,30 +882,31 @@ void ezResourceManager::EngineAboutToShutdown()
 {
   {
     EZ_LOCK(s_ResourceMutex);
-    m_RequireLoading.Clear();
-    m_bTaskRunning = true;
-    m_bStop = true;
+    s_RequireLoading.Clear();
+    s_bTaskRunning = true;
+    s_bShutdown = true;
   }
 
   for (int i = 0; i < ezResourceManager::MaxDiskReadTasks; ++i)
   {
-    ezTaskSystem::CancelTask(&m_WorkerTasksDiskRead[i]);
+    ezTaskSystem::CancelTask(&s_WorkerTasksDiskRead[i]);
   }
 
   for (int i = 0; i < ezResourceManager::MaxMainThreadTasks; ++i)
   {
-    ezTaskSystem::CancelTask(&m_WorkerTasksMainThread[i]);
+    ezTaskSystem::CancelTask(&s_WorkerTasksMainThread[i]);
   }
 }
 
 void ezResourceManager::OnEngineShutdown()
 {
   ezResourceManagerEvent e;
-  e.m_EventType = ezResourceManagerEventType::ManagerShuttingDown;
+  e.m_Type = ezResourceManagerEvent::Type::ManagerShuttingDown;
 
-  // in case of a crash inside the event broadcast, you might have a resource type added through a dynamic plugin
-  // that has already been unloaded, but the event handler is still referenced
-  // to fix this, call CleanupDynamicPluginReferences() on that resource type during engine shutdown
+  // in case of a crash inside the event broadcast or ExecuteAllResourceCleanupCallbacks():
+  // you might have a resource type added through a dynamic plugin that has already been unloaded,
+  // but the event handler is still referenced
+  // to fix this, call ezResource::CleanupDynamicPluginReferences() on that resource type during engine shutdown (see ezStartup)
   s_ManagerEvents.Broadcast(e);
 
   ExecuteAllResourceCleanupCallbacks();
@@ -1015,8 +962,6 @@ ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* szRe
 
   ezResource* pResource = nullptr;
   ezTempHashedString sHashedResourceID(szResourceID);
-
-  EZ_LOCK(s_ResourceMutex);
 
   ezHashedString* redirection;
   if (s_NamedResources.TryGetValue(sHashedResourceID, redirection))
@@ -1148,7 +1093,7 @@ bool ezResourceManager::FinishLoadingOfResources()
     {
       EZ_LOCK(s_ResourceMutex);
 
-      uiRemaining = m_RequireLoading.GetCount();
+      uiRemaining = s_RequireLoading.GetCount();
     }
 
     // if (uiRemaining == 0 && s_ResourcesInLoadingLimbo != 0)
@@ -1180,9 +1125,9 @@ void ezResourceManager::EnsureResourceLoadingState(ezResource* pResource, const 
 
 bool ezResourceManager::HelpResourceLoading()
 {
-  if (!m_WorkerTasksDiskRead[m_iCurrentWorkerDiskRead].IsTaskFinished())
+  if (!s_WorkerTasksDiskRead[s_iCurrentWorkerDiskRead].IsTaskFinished())
   {
-    ezTaskSystem::WaitForTask(&m_WorkerTasksDiskRead[m_iCurrentWorkerDiskRead]);
+    ezTaskSystem::WaitForTask(&s_WorkerTasksDiskRead[s_iCurrentWorkerDiskRead]);
     return true;
   }
   else
@@ -1190,11 +1135,11 @@ bool ezResourceManager::HelpResourceLoading()
     for (ezInt32 i = 0; i < MaxMainThreadTasks; ++i)
     {
       // get the 'oldest' main thread task in the queue and try to finish that first
-      const ezInt32 iWorkerMainThread = (ezResourceManager::m_iCurrentWorkerMainThread + i) % MaxMainThreadTasks;
+      const ezInt32 iWorkerMainThread = (ezResourceManager::s_iCurrentWorkerMainThread + i) % MaxMainThreadTasks;
 
-      if (!m_WorkerTasksMainThread[iWorkerMainThread].IsTaskFinished())
+      if (!s_WorkerTasksMainThread[iWorkerMainThread].IsTaskFinished())
       {
-        ezTaskSystem::WaitForTask(&m_WorkerTasksMainThread[iWorkerMainThread]);
+        ezTaskSystem::WaitForTask(&s_WorkerTasksMainThread[iWorkerMainThread]);
         return true; // we waited for one of them, that's enough for this round
       }
     }
@@ -1223,7 +1168,7 @@ void ezResourceManager::SetResourceLowResData(const ezTypelessResourceHandle& hR
     LoadingInfo li;
     li.m_pResource = pResource;
 
-    if (!m_RequireLoading.RemoveAndCopy(li))
+    if (!s_RequireLoading.RemoveAndCopy(li))
     {
       // if we cannot find it in the queue anymore, some thread already started loading it
       // in this case, do not try to modify it
@@ -1251,6 +1196,11 @@ void ezResourceManager::SetResourceLowResData(const ezTypelessResourceHandle& hR
 
     pResource->m_MemoryUsage = MemUsage;
   }
+}
+
+void ezResourceManager::EnableExportMode()
+{
+  s_bExportMode = true;
 }
 
 EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_ResourceManager);

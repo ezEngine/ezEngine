@@ -24,13 +24,7 @@ ezResource::ezResource(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityLevelsLoa
 {
   m_Flags.AddOrRemove(ezResourceFlags::UpdateOnMainThread, ResourceUpdateThread == DoUpdate::OnMainThread);
 
-  m_uiUniqueIDHash = 0;
-  m_iReferenceCount = 0;
-  m_uiResourceChangeCounter = 0;
-  m_LoadingState = ezResourceState::Unloaded;
   m_uiQualityLevelsLoadable = uiQualityLevelsLoadable;
-  m_uiQualityLevelsDiscardable = 0;
-  m_Priority = ezResourcePriority::Normal;
   m_DueDate = ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 1000.0);
 }
 
@@ -44,22 +38,20 @@ void ezResource::SetDueDate(ezTime date /* = ezTime::Seconds(60.0 * 60.0 * 24.0 
   if (m_DueDate != date)
   {
     m_DueDate = date;
-
-    ezResourceEvent e;
-    e.m_pResource = this;
-    e.m_Type = ezResourceEvent::Type::ResourceDueDateChanged;
-    ezResourceManager::BroadcastResourceEvent(e);
   }
 }
 
 void ezResource::SetPriority(ezResourcePriority priority)
 {
-  m_Priority = priority;
+  if (m_Priority != priority)
+  {
+    m_Priority = priority;
 
-  ezResourceEvent e;
-  e.m_pResource = this;
-  e.m_Type = ezResourceEvent::Type::ResourcePriorityChanged;
-  ezResourceManager::BroadcastResourceEvent(e);
+    ezResourceEvent e;
+    e.m_pResource = this;
+    e.m_Type = ezResourceEvent::Type::ResourcePriorityChanged;
+    ezResourceManager::BroadcastResourceEvent(e);
+  }
 }
 
 void ezResource::SetUniqueID(const char* szUniqueID, bool bIsReloadable)

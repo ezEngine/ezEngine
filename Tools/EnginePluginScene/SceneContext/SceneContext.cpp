@@ -527,7 +527,7 @@ void ezSceneContext::OnVisualScriptActivity(const ezVisualScriptComponentActivit
 
 void ezSceneContext::OnResourceManagerEvent(const ezResourceManagerEvent& e)
 {
-  if (e.m_EventType == ezResourceManagerEventType::ReloadAllResources)
+  if (e.m_Type == ezResourceManagerEvent::Type::ReloadAllResources)
   {
     // when resources get reloaded, make sure to update all object bounds
     // this is to prevent culling errors after meshes got transformed etc.
