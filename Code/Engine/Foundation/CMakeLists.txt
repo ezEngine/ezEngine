@@ -15,8 +15,8 @@
 SET (LINK_LIBRARIES
   ThirdParty
  )
- 
-SET(NATVIS_FILE "${CMAKE_SOURCE_DIR}/Code/Utilities/Visual Studio Visualizer/ezEngine.natvis")
+
+SET(NATVIS_FILE "${CMAKE_SOURCE_DIR}/Utilities/Visual Studio Visualizer/ezEngine.natvis")
 
 if (MSVC)
   SET (LINK_LIBRARIES
@@ -35,7 +35,7 @@ endif()
 if (CURRENT_OSX_VERSION)
   FIND_LIBRARY(CORESERVICES_LIBRARY CoreServices )
   FIND_LIBRARY(COREFOUNDATION_LIBRARY CoreFoundation )
-  
+
   MARK_AS_ADVANCED (CORESERVICES_LIBRARY
                     COREFOUNDATION_LIBRARY)
 
