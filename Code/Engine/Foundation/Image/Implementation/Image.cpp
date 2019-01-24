@@ -162,6 +162,11 @@ ezImage::ezImage(const ezImageView& other)
   ResetAndCopy(other);
 }
 
+void ezImage::operator=(ezImage&& rhs)
+{
+  ResetAndMove(std::move(rhs));
+}
+
 void ezImage::Clear()
 {
   m_internalStorage.Clear();

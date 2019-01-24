@@ -3,18 +3,31 @@
 #include <TexConvLib/Basics.h>
 #include <TexConvLib/Configuration/TexConvEnums.h>
 
+#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Image/Image.h>
 #include <Foundation/Strings/String.h>
-#include <Foundation/Image/ImageFormat.h>
+#include <Foundation/Types/UniquePtr.h>
+
+struct ezTexConvChannelMapping
+{
+  ezInt8 m_iInputImageIndex = -1;
+  ezTexConvChannelValue::Enum m_ChannelValue;
+};
 
 struct EZ_TEXCONV_DLL ezTexConvDesc
 {
-  // input:
-
-  // n inputs (files / black / white / color)
-  // per face RGBA channel mapping: input n, RGBA selector
-
   ezHybridArray<ezString, 4> m_InputFiles;
+  ezDynamicArray<ezImage*> m_InputImages; // TODO: why does this not work with ezImages in the array??
+
+  /// For 2D textures only: Describes from which input file to read which channel and then write it to the R, G, B, or A channel of the
+  /// output file The four elements of the array represent the four channels of the output image
+  ezTexConvChannelMapping m_Texture2DChannelMapping[4] = {
+      ezTexConvChannelMapping{-1, ezTexConvChannelValue::Red},
+      ezTexConvChannelMapping{-1, ezTexConvChannelValue::Green},
+      ezTexConvChannelMapping{-1, ezTexConvChannelValue::Blue},
+      ezTexConvChannelMapping{-1, ezTexConvChannelValue::Alpha},
+  };
 
   // output file / type
   ezString m_sOutputFile;
@@ -54,4 +67,3 @@ struct EZ_TEXCONV_DLL ezTexConvDesc
   ezUInt64 m_uiAssetHash = 0;
   ezUInt16 m_uiAssetVersion = 0;
 };
-

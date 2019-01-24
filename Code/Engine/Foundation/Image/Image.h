@@ -103,11 +103,15 @@ class EZ_FOUNDATION_DLL ezImage : public ezImageView
   explicit ezImage(const ezImageView& other);
 
 public:
+  EZ_DECLARE_MEM_RELOCATABLE_TYPE();
+
   /// \brief Constructs an empty image.
   ezImage();
 
   /// \brief Move constructor
   ezImage(ezImage&& other);
+
+  void operator=(ezImage&& rhs);
 
   /// \brief Constructs an empty image. If the image is attached to an external storage, the attachment is discarded.
   void Clear();

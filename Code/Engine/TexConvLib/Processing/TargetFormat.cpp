@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <TexConvLib/Configuration/TexConvState.h>
+#include <TexConvLib/Processing/Processor.h>
 
 #include <Foundation/Image/Image.h>
 #include <Foundation/Image/ImageConversion.h>
@@ -132,7 +132,7 @@ static ezTexConvTargetFormat::Enum DetectTargetFormatFromImage(const ezImage& im
   }
 }
 
-void ezTexConvState::AdjustTargetFormat()
+ezResult ezTexConvProcessor::AdjustTargetFormat()
 {
   if (m_Descriptor.m_TargetFormat == ezTexConvTargetFormat::Auto)
   {
@@ -141,12 +141,15 @@ void ezTexConvState::AdjustTargetFormat()
 
   if (m_Descriptor.m_TargetFormat == ezTexConvTargetFormat::Auto)
   {
-    // TODO: do not load the image just for this (load inputs once)
-    ezImage img;
-    if (img.LoadFrom(m_Descriptor.m_InputFiles[0]).Failed())
-      return;
-
-    m_Descriptor.m_TargetFormat = DetectTargetFormatFromImage(img);
+    m_Descriptor.m_TargetFormat = DetectTargetFormatFromImage(*m_Descriptor.m_InputImages[0]);
   }
+
+  if (m_Descriptor.m_TargetFormat == ezTexConvTargetFormat::Auto)
+  {
+    ezLog::Error("Failed to deduce target format.");
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
 }
 

@@ -1,8 +1,8 @@
 #include <PCH.h>
 
-#include <TexConvLib/Configuration/TexConvState.h>
+#include <TexConvLib/Processing/Processor.h>
 
-ezImageFormat::Enum DetermineOutputFormatDefault(ezTexConvTargetFormat::Enum targetFormat, ezTexConvCompressionMode::Enum compressionMode)
+ezImageFormat::Enum DetermineOutputFormatPC(ezTexConvTargetFormat::Enum targetFormat, ezTexConvCompressionMode::Enum compressionMode)
 {
   if (targetFormat == ezTexConvTargetFormat::NormalMap || targetFormat == ezTexConvTargetFormat::NormalMap_Inverted)
   {
@@ -160,7 +160,27 @@ ezImageFormat::Enum DetermineOutputFormatDefault(ezTexConvTargetFormat::Enum tar
   return ezImageFormat::UNKNOWN;
 }
 
-void ezTexConvState::ChooseOutputFormat()
+ezResult ezTexConvProcessor::ChooseOutputFormat()
 {
-  m_OutputImageFormat = DetermineOutputFormatDefault(m_Descriptor.m_TargetFormat, m_Descriptor.m_CompressionMode);
+  switch (m_Descriptor.m_TargetPlatform)
+  {
+      // case  ezTexConvTargetPlatform::Android:
+      //  m_OutputImageFormat = DetermineOutputFormatAndroid(m_Descriptor.m_TargetFormat, m_Descriptor.m_CompressionMode);
+      //  break;
+
+    case ezTexConvTargetPlatform::PC:
+      m_OutputImageFormat = DetermineOutputFormatPC(m_Descriptor.m_TargetFormat, m_Descriptor.m_CompressionMode);
+      break;
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  if (m_OutputImageFormat == ezImageFormat::UNKNOWN)
+  {
+    ezLog::Error("Failed to decide for an output image format.");
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
 }

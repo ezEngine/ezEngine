@@ -154,3 +154,18 @@ struct ezTexConvTargetPlatform
 
   using StorageType = ezUInt8;
 };
+
+/// \brief Defines which channel of another texture to read to get a value
+struct ezTexConvChannelValue
+{
+  enum Enum
+  {
+    Red,   ///< read the RED channel
+    Green, ///< read the GREEN channel
+    Blue,  ///< read the BLUE channel
+    Alpha, ///< read the ALPHA channel
+
+    Black, ///< don't read any channel, just take the constant value 0
+    White, ///< don't read any channel, just take the constant value 0xFF / 1.0f
+  };
+};
