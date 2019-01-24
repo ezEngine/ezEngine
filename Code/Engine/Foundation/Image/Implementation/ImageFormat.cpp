@@ -522,6 +522,11 @@ bool ezImageFormat::IsCompressed(Enum format)
   return GetImageFormatMetaData(format).m_formatType == ezImageFormatType::BLOCK_COMPRESSED;
 }
 
+bool ezImageFormat::IsSrgb(Enum format)
+{
+  return GetImageFormatMetaData(format).m_asLinear != format;
+}
+
 ezImageFormat::Enum ezImageFormat::AsSrgb(Enum format)
 {
   return GetImageFormatMetaData(format).m_asSrgb;

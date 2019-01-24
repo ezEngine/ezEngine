@@ -206,8 +206,12 @@ struct EZ_FOUNDATION_DLL ezImageFormat
     X1B5G5R5_UNORM,
     X1B5G5R5_UNORM_SRGB,
 
-    NUM_FORMATS
+    NUM_FORMATS,
+
+    Default = UNKNOWN
   };
+
+  using StorageType = ezUInt16;
 
   /// \brief Returns the name of the given format.
   ///
@@ -224,7 +228,7 @@ struct EZ_FOUNDATION_DLL ezImageFormat
   /// \brief Returns the block size in bits. For uncompressed formats, a block is considered a single pixel.
   static ezUInt32 GetBitsPerBlock(Enum format);
 
-   /// \brief Number of channels (r, g, b, a, depth, stencil) supported by this format.
+  /// \brief Number of channels (r, g, b, a, depth, stencil) supported by this format.
   static ezUInt32 GetNumChannels(Enum format);
 
   /// \brief Bitmask of each channel of the format. This is not defined for some formats, and may return 0.
@@ -259,6 +263,9 @@ struct EZ_FOUNDATION_DLL ezImageFormat
 
   /// \brief Returns true if the format is compressed.
   static bool IsCompressed(Enum format);
+
+  /// \brief Returns whether the given format is an sRGB format.
+  static bool IsSrgb(Enum format);
 
   /// \brief Returns the corresponding sRGB format if one exists; otherwise returns the unmodified format.
   static Enum AsSrgb(Enum format);

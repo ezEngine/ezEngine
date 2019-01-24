@@ -33,7 +33,7 @@ public:
   void SetImageFormat(const ezImageFormat::Enum& format) { m_format = format; }
 
   /// \brief Returns the image format.
-  const ezImageFormat::Enum& GetImageFormat() const { return m_format; }
+  ezImageFormat::Enum GetImageFormat() const { return m_format; }
 
   /// \brief Sets the image width.
   void SetWidth(ezUInt32 uiWidth) { m_uiWidth = uiWidth; }
