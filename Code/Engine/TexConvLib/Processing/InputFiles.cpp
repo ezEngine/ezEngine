@@ -17,16 +17,71 @@ ezResult ezTexConvProcessor::LoadInputImages()
   }
 
   if (!m_Descriptor.m_InputImages.IsEmpty())
-    return EZ_SUCCESS;
-
-  m_Descriptor.m_InputImages.Reserve(m_Descriptor.m_InputFiles.GetCount());
-
-  for (const auto& file : m_Descriptor.m_InputFiles)
   {
-    auto& img = m_Descriptor.m_InputImages.ExpandAndGetRef();
-    if (img.LoadFrom(file).Failed())
+    // make sure the two arrays have the same size
+    m_Descriptor.m_InputFiles.SetCount(m_Descriptor.m_InputImages.GetCount());
+
+    ezStringBuilder tmp;
+    for (ezUInt32 i = 0; i < m_Descriptor.m_InputFiles.GetCount(); ++i)
     {
-      ezLog::Error("Could not load input file '{0}'.", file);
+      tmp.Format("InputImage{}", ezArgI(i, 2, true));
+      m_Descriptor.m_InputFiles[i] = tmp;
+    }
+  }
+  else
+  {
+    m_Descriptor.m_InputImages.Reserve(m_Descriptor.m_InputFiles.GetCount());
+
+    for (const auto& file : m_Descriptor.m_InputFiles)
+    {
+      auto& img = m_Descriptor.m_InputImages.ExpandAndGetRef();
+      if (img.LoadFrom(file).Failed())
+      {
+        ezLog::Error("Could not load input file '{0}'.", file);
+        return EZ_FAILURE;
+      }
+    }
+  }
+
+  for (ezUInt32 i = 0; i < m_Descriptor.m_InputFiles.GetCount(); ++i)
+  {
+    const auto& img = m_Descriptor.m_InputImages[i];
+
+    if (img.GetImageFormat() == ezImageFormat::UNKNOWN)
+    {
+      ezLog::Error("Unknown image format for '{}'", m_Descriptor.m_InputFiles[i]);
+      return EZ_FAILURE;
+    }
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezTexConvProcessor::ConvertInputImagesToFloat32()
+{
+  for (ezUInt32 idx = 0; idx < m_Descriptor.m_InputImages.GetCount(); ++idx)
+  {
+    auto& img = m_Descriptor.m_InputImages[idx];
+
+    if (img.Convert(ezImageFormat::R32G32B32A32_FLOAT).Failed())
+    {
+      ezLog::Error("Could not convert '{}' to RGBA 32-Bit Float format.", m_Descriptor.m_InputFiles[idx]);
+      return EZ_FAILURE;
+    }
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezTexConvProcessor::ResizeInputImagesToSameDimensions()
+{
+  for (ezUInt32 idx = 0; idx < m_Descriptor.m_InputImages.GetCount(); ++idx)
+  {
+    auto& img = m_Descriptor.m_InputImages[idx];
+
+    if (ezImageUtils::Scale(img, img, m_uiTargetResolutionX, m_uiTargetResolutionY, nullptr, ezImageAddressMode::CLAMP, ezImageAddressMode::CLAMP).Failed())
+    {
+      ezLog::Error("Could not resize '{}' to {}x{}", m_Descriptor.m_InputFiles[idx], m_uiTargetResolutionX, m_uiTargetResolutionY);
       return EZ_FAILURE;
     }
   }

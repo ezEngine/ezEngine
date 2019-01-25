@@ -39,12 +39,12 @@ public:
 };
 
 /// \brief Kaiser-windowed sinc filter
-class EZ_FOUNDATION_DLL ezImageFilterSincWitezaiserWindow : public ezImageFilter
+class EZ_FOUNDATION_DLL ezImageFilterSincWithKaiserWindow : public ezImageFilter
 {
 public:
     /// \brief Construct a sinc filter with a Kaiser window of the given window width and beta parameter.
     /// Note that the beta parameter (equaling alpha * pi in the mathematical definition of the Kaiser window) is often incorrectly alpha by other filtering tools.
-    ezImageFilterSincWitezaiserWindow(float windowWidth = 3.0f, float beta = 4.0f);
+    ezImageFilterSincWithKaiserWindow(float windowWidth = 3.0f, float beta = 4.0f);
 
     virtual ezSimdFloat SamplePoint(const ezSimdFloat& x) const override;
 
@@ -53,11 +53,11 @@ private:
     ezSimdFloat m_invBesselBeta;
 };
 
-/// \brief Precomputes the required filter weights for rescaling a sequence of image samples.
+/// \brief Pre-computes the required filter weights for rescaling a sequence of image samples.
 class EZ_FOUNDATION_DLL ezImageFilterWeights
 {
 public:
-    /// \brief Precompute the weights for the given filter for scaling between the given number of samples.
+    /// \brief Pre-compute the weights for the given filter for scaling between the given number of samples.
     ezImageFilterWeights(const ezImageFilter& filter, ezUInt32 srcSamples, ezUInt32 dstSamples);
 
     /// \brief Returns the number of weights.

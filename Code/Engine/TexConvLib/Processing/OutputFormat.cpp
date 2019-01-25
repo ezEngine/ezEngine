@@ -20,8 +20,9 @@ ezImageFormat::Enum DetermineOutputFormatPC(ezTexConvTargetFormat::Enum targetFo
     // if (compressionMode == ezTexConvCompressionMode::OptimizeForSize && alphaFormat != AlphaFormat::FULL)
     //  return ezImageFormat::BC1_UNORM_SRGB;
 
-    if (compressionMode <= ezTexConvCompressionMode::OptimizeForQuality)
-      return ezImageFormat::BC7_UNORM_SRGB;
+    // TODO: encoder not yet supported
+    //if (compressionMode <= ezTexConvCompressionMode::OptimizeForQuality)
+      //return ezImageFormat::BC7_UNORM_SRGB;
 
     return ezImageFormat::R8G8B8A8_UNORM_SRGB;
   }
@@ -162,6 +163,8 @@ ezImageFormat::Enum DetermineOutputFormatPC(ezTexConvTargetFormat::Enum targetFo
 
 ezResult ezTexConvProcessor::ChooseOutputFormat()
 {
+  EZ_ASSERT_DEV(m_OutputImageFormat == ezImageFormat::UNKNOWN, "Output format already set");
+
   switch (m_Descriptor.m_TargetPlatform)
   {
       // case  ezTexConvTargetPlatform::Android:

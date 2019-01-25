@@ -155,3 +155,35 @@ ezResult ezTexConvProcessor::AdjustTargetFormat()
 
   return EZ_SUCCESS;
 }
+
+ezResult ezTexConvProcessor::DetermineTargetResolution()
+{
+  EZ_ASSERT_DEV(m_uiTargetResolutionX == 0 && m_uiTargetResolutionY == 0, "Target resolution already determined");
+
+  const ezUInt32 uiOrgResX = m_Descriptor.m_InputImages[0].GetWidth();
+  const ezUInt32 uiOrgResY = m_Descriptor.m_InputImages[0].GetHeight();
+
+  m_uiTargetResolutionX = uiOrgResX;
+  m_uiTargetResolutionY = uiOrgResY;
+
+  m_uiTargetResolutionX /= (1 << m_Descriptor.m_uiDownscaleSteps);
+  m_uiTargetResolutionY /= (1 << m_Descriptor.m_uiDownscaleSteps);
+
+  m_uiTargetResolutionX = ezMath::Clamp(m_uiTargetResolutionX, m_Descriptor.m_uiMinResolution, m_Descriptor.m_uiMaxResolution);
+  m_uiTargetResolutionY = ezMath::Clamp(m_uiTargetResolutionY, m_Descriptor.m_uiMinResolution, m_Descriptor.m_uiMaxResolution);
+
+  EZ_ASSERT_DEV(m_OutputImageFormat != ezImageFormat::UNKNOWN, "Output format must have been determined before this function");
+  if (ezImageFormat::IsCompressed(m_OutputImageFormat))
+  {
+    if (m_uiTargetResolutionX % 4 != 0 || m_uiTargetResolutionY % 4 != 0)
+    {
+      ezLog::Error("Chosen output image format is compressed, but target resolution is not divisible by 4. {}x{} -> downscale {} / "
+                   "clamp({}, {}) -> {}x{}",
+                   uiOrgResX, uiOrgResY, m_Descriptor.m_uiDownscaleSteps, m_Descriptor.m_uiMinResolution, m_Descriptor.m_uiMaxResolution,
+                   m_uiTargetResolutionX, m_uiTargetResolutionY);
+      return EZ_FAILURE;
+    }
+  }
+
+  return EZ_SUCCESS;
+}

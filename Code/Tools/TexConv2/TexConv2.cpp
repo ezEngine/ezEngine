@@ -27,13 +27,18 @@ void ezTexConv2::AfterCoreSystemsStartup()
 ezApplication::ApplicationExecution ezTexConv2::Run()
 {
   ezTexConvProcessor processor;
-  processor.m_Descriptor.m_InputFiles.PushBack("D:/TexConv2/Test1.tga");
+  processor.m_Descriptor.m_InputFiles.PushBack("D:/TexConv2/GridGrey.tga");
+  processor.m_Descriptor.m_InputFiles.PushBack("D:/TexConv2/fountain_main_Height.tga");
+
+  processor.m_Descriptor.m_Texture2DChannelMapping[3].m_iInputImageIndex = 1;
+  processor.m_Descriptor.m_Texture2DChannelMapping[3].m_ChannelValue = ezTexConvChannelValue::Red;
+
   processor.m_Descriptor.m_TargetFormat = ezTexConvTargetFormat::Color;
 
   if (processor.Process().Failed())
     return ezApplication::ApplicationExecution::Quit;
 
-  processor.m_Output.SaveTo("D:/TexConv2/Test1 - out.png");
+  processor.m_OutputImage.SaveTo("D:/TexConv2/Test1 - out.dds");
 
 
   return ezApplication::ApplicationExecution::Quit;

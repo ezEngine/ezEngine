@@ -88,14 +88,14 @@ static ezSimdFloat modifiedBessel0(const ezSimdFloat& x)
   return sum;
 }
 
-ezImageFilterSincWitezaiserWindow::ezImageFilterSincWitezaiserWindow(float width, float beta)
+ezImageFilterSincWithKaiserWindow::ezImageFilterSincWithKaiserWindow(float width, float beta)
     : ezImageFilter(width)
     , m_beta(beta)
     , m_invBesselBeta(1.0f / modifiedBessel0(m_beta))
 {
 }
 
-ezSimdFloat ezImageFilterSincWitezaiserWindow::SamplePoint(const ezSimdFloat& x) const
+ezSimdFloat ezImageFilterSincWithKaiserWindow::SamplePoint(const ezSimdFloat& x) const
 {
   ezSimdFloat scaledX = x / GetWidth();
 
