@@ -2,7 +2,11 @@
 
 #include <TexConvLib/Processing/Processor.h>
 
- ezTexConvProcessor::ezTexConvProcessor() = default;
+ ezTexConvProcessor::ezTexConvProcessor()
+ {
+   m_pCurrentScratchImage = &m_ScratchImage1;
+   m_pOtherScratchImage = &m_ScratchImage2;
+ }
 
 ezResult ezTexConvProcessor::Process()
 {
@@ -20,6 +24,8 @@ ezResult ezTexConvProcessor::Process()
 
   EZ_SUCCEED_OR_RETURN(Assemble2DTexture());
 
+  EZ_SUCCEED_OR_RETURN(GenerateMipmaps());
+
   EZ_SUCCEED_OR_RETURN(GenerateOutput());
 
   return EZ_SUCCESS;
@@ -27,7 +33,10 @@ ezResult ezTexConvProcessor::Process()
 
 ezResult ezTexConvProcessor::GenerateOutput()
 {
-  m_OutputImage = std::move(m_ScratchImage);
+  m_OutputImage = std::move(*m_pCurrentScratchImage);
+
+  m_pCurrentScratchImage = nullptr;
+  m_pOtherScratchImage = nullptr;
 
   if (m_OutputImage.Convert(m_OutputImageFormat).Failed())
   {

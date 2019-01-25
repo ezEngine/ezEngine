@@ -20,7 +20,12 @@ public:
 private:
   ezEnum<ezImageFormat> m_OutputImageFormat;
 
-  ezImage m_ScratchImage;
+  ezImage* m_pCurrentScratchImage = nullptr;
+  ezImage* m_pOtherScratchImage = nullptr;
+
+  ezImage m_ScratchImage1;
+  ezImage m_ScratchImage2;
+
   ezUInt32 m_uiTargetResolutionX = 0;
   ezUInt32 m_uiTargetResolutionY = 0;
 
@@ -31,6 +36,7 @@ private:
   ezResult ConvertInputImagesToFloat32();
   ezResult ResizeInputImagesToSameDimensions();
   ezResult Assemble2DTexture();
+  ezResult GenerateMipmaps();
   ezResult GenerateOutput();
 
 

@@ -4,7 +4,7 @@
 
 ezResult ezTexConvProcessor::Assemble2DTexture()
 {
-  m_ScratchImage.ResetAndAlloc(m_Descriptor.m_InputImages[0].GetHeader());
+  m_pCurrentScratchImage->ResetAndAlloc(m_Descriptor.m_InputImages[0].GetHeader());
 
   ezHybridArray<const ezColor*, 16> pSource;
   for (ezUInt32 i = 0; i < m_Descriptor.m_InputImages.GetCount(); ++i)
@@ -12,7 +12,7 @@ ezResult ezTexConvProcessor::Assemble2DTexture()
     pSource.ExpandAndGetRef() = m_Descriptor.m_InputImages[i].GetPixelPointer<ezColor>();
   }
 
-  ezColor* pPixelOut = m_ScratchImage.GetPixelPointer<ezColor>();
+  ezColor* pPixelOut = m_pCurrentScratchImage->GetPixelPointer<ezColor>();
 
   for (ezUInt32 y = 0; y < m_uiTargetResolutionY; ++y)
   {
@@ -57,6 +57,84 @@ ezResult ezTexConvProcessor::Assemble2DTexture()
         pThisPixelOut->GetData()[channel] = fValue;
       }
     }
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezTexConvProcessor::GenerateMipmaps()
+{
+  ezImageUtils::MipMapOptions opt;
+
+  ezImageFilterBox filterLinear;
+  ezImageFilterSincWithKaiserWindow filterKaiser;
+
+  switch (m_Descriptor.m_MipmapMode)
+  {
+    case ezTexConvMipmapMode::None:
+      return EZ_SUCCESS;
+
+    case ezTexConvMipmapMode::Linear:
+      opt.m_filter = &filterLinear;
+      break;
+
+    case ezTexConvMipmapMode::Kaiser:
+      opt.m_filter = &filterKaiser;
+      break;
+  }
+
+  switch (m_Descriptor.m_WrapModes[0])
+  {
+    case ezTexConvWrapMode::Repeat:
+      opt.m_addressModeU = ezImageAddressMode::WRAP;
+      break;
+    case ezTexConvWrapMode::Clamp:
+      opt.m_addressModeU = ezImageAddressMode::CLAMP;
+      break;
+    case ezTexConvWrapMode::Mirror:
+      opt.m_addressModeU = ezImageAddressMode::MIRROR;
+      break;
+  }
+
+  switch (m_Descriptor.m_WrapModes[1])
+  {
+    case ezTexConvWrapMode::Repeat:
+      opt.m_addressModeV = ezImageAddressMode::WRAP;
+      break;
+    case ezTexConvWrapMode::Clamp:
+      opt.m_addressModeV = ezImageAddressMode::CLAMP;
+      break;
+    case ezTexConvWrapMode::Mirror:
+      opt.m_addressModeV = ezImageAddressMode::MIRROR;
+      break;
+  }
+
+  switch (m_Descriptor.m_WrapModes[2])
+  {
+    case ezTexConvWrapMode::Repeat:
+      opt.m_addressModeW = ezImageAddressMode::WRAP;
+      break;
+    case ezTexConvWrapMode::Clamp:
+      opt.m_addressModeW = ezImageAddressMode::CLAMP;
+      break;
+    case ezTexConvWrapMode::Mirror:
+      opt.m_addressModeW = ezImageAddressMode::MIRROR;
+      break;
+  }
+
+  opt.m_preserveCoverage = m_Descriptor.m_bPreserveMipmapCoverage;
+  opt.m_alphaThreshold = m_Descriptor.m_fMipmapAlphaThreshold;
+
+  opt.m_renormalizeNormals = m_Descriptor.m_TargetFormat == ezTexConvTargetFormat::NormalMap ||
+                             m_Descriptor.m_TargetFormat == ezTexConvTargetFormat::NormalMap_Inverted;
+
+  ezImageUtils::GenerateMipMaps(*m_pCurrentScratchImage, *m_pOtherScratchImage, opt);
+  ezMath::Swap(m_pCurrentScratchImage, m_pOtherScratchImage);
+
+  if (m_pCurrentScratchImage->GetNumMipLevels() <= 1)
+  {
+    ezLog::Error("Mipmap generation failed.");
+    return EZ_FAILURE;
   }
 
   return EZ_SUCCESS;
