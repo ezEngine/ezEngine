@@ -136,12 +136,15 @@ ezResult ezTexConvProcessor::AdjustTargetFormat()
 {
   if (m_Descriptor.m_TargetFormat == ezTexConvTargetFormat::Auto)
   {
-    m_Descriptor.m_TargetFormat = DetectTargetFormatFromFilename(m_Descriptor.m_sOutputFile);
+    if (!m_Descriptor.m_InputFiles.IsEmpty())
+    {
+      m_Descriptor.m_TargetFormat = DetectTargetFormatFromFilename(m_Descriptor.m_InputFiles[0]);
+    }
   }
 
   if (m_Descriptor.m_TargetFormat == ezTexConvTargetFormat::Auto)
   {
-    m_Descriptor.m_TargetFormat = DetectTargetFormatFromImage(*m_Descriptor.m_InputImages[0]);
+    m_Descriptor.m_TargetFormat = DetectTargetFormatFromImage(m_Descriptor.m_InputImages[0]);
   }
 
   if (m_Descriptor.m_TargetFormat == ezTexConvTargetFormat::Auto)
@@ -152,4 +155,3 @@ ezResult ezTexConvProcessor::AdjustTargetFormat()
 
   return EZ_SUCCESS;
 }
-

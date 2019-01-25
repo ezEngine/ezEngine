@@ -15,32 +15,33 @@ struct ezTexConvChannelMapping
   ezTexConvChannelValue::Enum m_ChannelValue;
 };
 
-struct EZ_TEXCONV_DLL ezTexConvDesc
+class EZ_TEXCONV_DLL ezTexConvDesc
 {
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezTexConvDesc);
+public:
+  ezTexConvDesc() = default;
+
   ezHybridArray<ezString, 4> m_InputFiles;
-  ezDynamicArray<ezImage*> m_InputImages; // TODO: why does this not work with ezImages in the array??
+  ezDynamicArray<ezImage> m_InputImages;
 
   /// For 2D textures only: Describes from which input file to read which channel and then write it to the R, G, B, or A channel of the
   /// output file The four elements of the array represent the four channels of the output image
   ezTexConvChannelMapping m_Texture2DChannelMapping[4] = {
-      ezTexConvChannelMapping{-1, ezTexConvChannelValue::Red},
-      ezTexConvChannelMapping{-1, ezTexConvChannelValue::Green},
-      ezTexConvChannelMapping{-1, ezTexConvChannelValue::Blue},
-      ezTexConvChannelMapping{-1, ezTexConvChannelValue::Alpha},
+      ezTexConvChannelMapping{0, ezTexConvChannelValue::Red},
+      ezTexConvChannelMapping{0, ezTexConvChannelValue::Green},
+      ezTexConvChannelMapping{0, ezTexConvChannelValue::Blue},
+      ezTexConvChannelMapping{0, ezTexConvChannelValue::Alpha},
   };
 
-  // output file / type
-  ezString m_sOutputFile;
+  // output type / platform
   ezEnum<ezTexConvOutputType> m_OutputType;
   ezEnum<ezTexConvTargetPlatform> m_TargetPlatform;
 
   // low resolution output
-  ezString m_sLowResOutputFile;
-  ezUInt32 m_uiLowResOutputResolution = 128;
+  ezUInt32 m_uiLowResOutputResolution = 0;
 
   // thumbnail output
-  ezString m_sThumbnailOutputFile;
-  ezUInt32 m_uiThumbnailResolution = 256;
+  ezUInt32 m_uiThumbnailOutputResolution = 0;
 
   // Format / Compression
   ezEnum<ezTexConvTargetFormat> m_TargetFormat;

@@ -40,10 +40,16 @@ ezResult ezImageView::SaveTo(const char* szFileName, ezLogInterface* pLog) const
 {
   EZ_LOG_BLOCK(pLog, "Writing Image", szFileName);
 
+  if (m_format == ezImageFormat::UNKNOWN)
+  {
+    ezLog::Error(pLog, "Cannot write image '{0}' - image data is invalid or empty", szFileName);
+    return EZ_FAILURE;
+  }
+
   ezFileWriter writer;
   if (writer.Open(szFileName) == EZ_FAILURE)
   {
-    ezLog::Warning(pLog, "Failed to open image file '{0}'", szFileName);
+    ezLog::Error(pLog, "Failed to open image file '{0}'", szFileName);
     return EZ_FAILURE;
   }
 
@@ -55,7 +61,7 @@ ezResult ezImageView::SaveTo(const char* szFileName, ezLogInterface* pLog) const
     {
       if (pFormat->WriteImage(writer, *this, pLog) != EZ_SUCCESS)
       {
-        ezLog::Warning(pLog, "Failed to write image file '{0}'", szFileName);
+        ezLog::Error(pLog, "Failed to write image file '{0}'", szFileName);
         return EZ_FAILURE;
       }
 
@@ -63,8 +69,7 @@ ezResult ezImageView::SaveTo(const char* szFileName, ezLogInterface* pLog) const
     }
   }
 
-  ezLog::Warning(pLog, "No known image file format for extension '{0}'", it);
-
+  ezLog::Error(pLog, "No known image file format for extension '{0}'", it);
   return EZ_FAILURE;
 }
 

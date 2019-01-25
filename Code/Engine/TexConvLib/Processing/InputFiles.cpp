@@ -23,9 +23,8 @@ ezResult ezTexConvProcessor::LoadInputImages()
 
   for (const auto& file : m_Descriptor.m_InputFiles)
   {
-    m_Descriptor.m_InputImages.PushBack(EZ_DEFAULT_NEW(ezImage));
-    auto& img = m_Descriptor.m_InputImages.PeekBack();
-    if (img->LoadFrom(file).Failed())
+    auto& img = m_Descriptor.m_InputImages.ExpandAndGetRef();
+    if (img.LoadFrom(file).Failed())
     {
       ezLog::Error("Could not load input file '{0}'.", file);
       return EZ_FAILURE;
