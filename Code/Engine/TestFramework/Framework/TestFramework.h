@@ -104,7 +104,7 @@ public:
   static bool GetAssertOnTestFail();
 
   static void Output(ezTestOutput::Enum Type, const char* szMsg, ...);
-  static void Output(ezTestOutput::Enum Type, const char* szMsg, va_list args);
+  static void OutputArgs(ezTestOutput::Enum Type, const char* szMsg, va_list args);
   static void Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
   static void Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, va_list args);
   static void TestResult(ezInt32 iSubTestIndex, bool bSuccess, double fDuration);

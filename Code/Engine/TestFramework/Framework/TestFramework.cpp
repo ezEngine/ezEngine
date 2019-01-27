@@ -924,12 +924,12 @@ void ezTestFramework::Output(ezTestOutput::Enum Type, const char* szMsg, ...)
   va_list args;
   va_start(args, szMsg);
 
-  Output(Type, szMsg, args);
+  OutputArgs(Type, szMsg, args);
 
   va_end(args);
 }
 
-void ezTestFramework::Output(ezTestOutput::Enum Type, const char* szMsg, va_list args)
+void ezTestFramework::OutputArgs(ezTestOutput::Enum Type, const char* szMsg, va_list args)
 {
   // format the output text
   char szBuffer[1024 * 10];
