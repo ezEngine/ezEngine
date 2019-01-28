@@ -23,7 +23,12 @@ private:
 /// \brief Implements the necessary functions to access a serialization context through GetContext.
 #define EZ_IMPLEMENT_SERIALIZATION_CONTEXT(type)                                                                                           \
   thread_local type* EZ_CONCAT(s_pActiveContext, type);                                                                                    \
-  type* ezSerializationContext<type>::GetContext() { return EZ_CONCAT(s_pActiveContext, type); }                                           \
+  template <>                                                                                                                              \
+  type* ezSerializationContext<type>::GetContext()                                                                                         \
+  {                                                                                                                                        \
+    return EZ_CONCAT(s_pActiveContext, type);                                                                                              \
+  }                                                                                                                                        \
+  template <>                                                                                                                              \
   void ezSerializationContext<type>::SetContext(ezSerializationContext* pContext)                                                          \
   {                                                                                                                                        \
     EZ_ASSERT_DEV(pContext == nullptr || EZ_CONCAT(s_pActiveContext, type) == nullptr, "Only one context can be active at a time.");       \
