@@ -35,7 +35,7 @@ struct ezTexConvCompressionMode
   using StorageType = ezUInt8;
 };
 
-struct ezTexConvTargetFormat
+struct ezTexConvUsage
 {
   enum Enum
   {

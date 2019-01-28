@@ -153,8 +153,8 @@ ezResult ezTexConvProcessor::GenerateMipmaps()
   opt.m_preserveCoverage = m_Descriptor.m_bPreserveMipmapCoverage;
   opt.m_alphaThreshold = m_Descriptor.m_fMipmapAlphaThreshold;
 
-  opt.m_renormalizeNormals = m_Descriptor.m_TargetFormat == ezTexConvTargetFormat::NormalMap ||
-                             m_Descriptor.m_TargetFormat == ezTexConvTargetFormat::NormalMap_Inverted;
+  opt.m_renormalizeNormals = m_Descriptor.m_Usage == ezTexConvUsage::NormalMap ||
+                             m_Descriptor.m_Usage == ezTexConvUsage::NormalMap_Inverted;
 
   ezImageUtils::GenerateMipMaps(*m_pCurrentScratchImage, *m_pOtherScratchImage, opt);
   ezMath::Swap(m_pCurrentScratchImage, m_pOtherScratchImage);

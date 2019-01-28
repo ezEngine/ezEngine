@@ -8,20 +8,20 @@
 struct NameToFormat
 {
   const char* name;
-  const ezTexConvTargetFormat::Enum format;
+  const ezTexConvUsage::Enum format;
 };
 
 // TODO (texconv): review this list
-static NameToFormat nameToFormatMap[] = {{"nrm", ezTexConvTargetFormat::NormalMap},    {"norm", ezTexConvTargetFormat::NormalMap},
-                                         {"_nb", ezTexConvTargetFormat::NormalMap},    {"ibl", ezTexConvTargetFormat::Color_Hdr},
-                                         {"diff", ezTexConvTargetFormat::Color},       {"albedo", ezTexConvTargetFormat::Color},
-                                         {"emissive", ezTexConvTargetFormat::Color},   {"emit", ezTexConvTargetFormat::Color},
-                                         {"rough", ezTexConvTargetFormat::Grayscale},  {"metallic", ezTexConvTargetFormat::Grayscale},
-                                         {"_metal", ezTexConvTargetFormat::Grayscale}, {"_ao", ezTexConvTargetFormat::Grayscale},
-                                         {"height", ezTexConvTargetFormat::Grayscale}};
+static NameToFormat nameToFormatMap[] = {{"nrm", ezTexConvUsage::NormalMap},    {"norm", ezTexConvUsage::NormalMap},
+                                         {"_nb", ezTexConvUsage::NormalMap},    {"ibl", ezTexConvUsage::Color_Hdr},
+                                         {"diff", ezTexConvUsage::Color},       {"albedo", ezTexConvUsage::Color},
+                                         {"emissive", ezTexConvUsage::Color},   {"emit", ezTexConvUsage::Color},
+                                         {"rough", ezTexConvUsage::Grayscale},  {"metallic", ezTexConvUsage::Grayscale},
+                                         {"_metal", ezTexConvUsage::Grayscale}, {"_ao", ezTexConvUsage::Grayscale},
+                                         {"height", ezTexConvUsage::Grayscale}};
 
 
-static ezTexConvTargetFormat::Enum DetectTargetFormatFromFilename(const char* szFile)
+static ezTexConvUsage::Enum DetectTargetFormatFromFilename(const char* szFile)
 {
   ezStringBuilder name = ezPathUtils::GetFileName(szFile);
   name.ToLower();
@@ -34,10 +34,10 @@ static ezTexConvTargetFormat::Enum DetectTargetFormatFromFilename(const char* sz
     }
   }
 
-  return ezTexConvTargetFormat::Auto;
+  return ezTexConvUsage::Auto;
 }
 
-static ezTexConvTargetFormat::Enum DetectTargetFormatFromImage(const ezImage& image)
+static ezTexConvUsage::Enum DetectTargetFormatFromImage(const ezImage& image)
 {
   const ezImageHeader& header = image.GetHeader();
   const ezImageFormat::Enum format = header.GetImageFormat();
@@ -45,41 +45,41 @@ static ezTexConvTargetFormat::Enum DetectTargetFormatFromImage(const ezImage& im
   if (header.GetDepth() > 1)
   {
     // unsupported
-    return ezTexConvTargetFormat::Auto;
+    return ezTexConvUsage::Auto;
   }
 
   if (ezImageFormat::IsSrgb(format))
   {
     // already sRGB so must be color
-    return ezTexConvTargetFormat::Color;
+    return ezTexConvUsage::Color;
   }
 
   if (format == ezImageFormat::BC5_UNORM)
   {
-    return ezTexConvTargetFormat::NormalMap;
+    return ezTexConvUsage::NormalMap;
   }
 
   if (ezImageFormat::GetNumChannels(format) == 1)
   {
     if (ezImageFormat::GetBitsPerChannel(format, ezImageFormatChannel::R) > 8)
     {
-      return ezTexConvTargetFormat::Grayscale_Hdr;
+      return ezTexConvUsage::Grayscale_Hdr;
     }
 
-    return ezTexConvTargetFormat::Grayscale;
+    return ezTexConvUsage::Grayscale;
   }
 
   if (ezImageFormat::GetBitsPerChannel(format, ezImageFormatChannel::R) >= 16 || format == ezImageFormat::BC6H_SF16 ||
       format == ezImageFormat::BC6H_UF16)
   {
-    return ezTexConvTargetFormat::Color_Hdr;
+    return ezTexConvUsage::Color_Hdr;
   }
 
   ezImage converted;
   if (ezImageConversion::Convert(image, converted, ezImageFormat::R8G8B8A8_UNORM).Failed())
   {
     // cannot convert to RGBA -> maybe some weird lookup table format
-    return ezTexConvTargetFormat::Auto;
+    return ezTexConvUsage::Auto;
   }
 
   // analyze the image content
@@ -118,36 +118,36 @@ static ezTexConvTargetFormat::Enum DetectTargetFormatFromImage(const ezImage& im
     if (sb < 230 || sr < 128 - 60 || sr > 128 + 60 || sg < 128 - 60 || sg > 128 + 60)
     {
       // if the average color is not a proper hue of blue, it cannot be a normal map
-      return ezTexConvTargetFormat::Color;
+      return ezTexConvUsage::Color;
     }
 
     if (uiExtremeNormals > uiNumPixels / 100)
     {
       // more than 1 percent of normals pointing backwards ? => probably not a normalmap
-      return ezTexConvTargetFormat::Color;
+      return ezTexConvUsage::Color;
     }
 
     // it might just be a normal map, it does have the proper hue of blue
-    return ezTexConvTargetFormat::NormalMap;
+    return ezTexConvUsage::NormalMap;
   }
 }
 
 ezResult ezTexConvProcessor::AdjustTargetFormat()
 {
-  if (m_Descriptor.m_TargetFormat == ezTexConvTargetFormat::Auto)
+  if (m_Descriptor.m_Usage == ezTexConvUsage::Auto)
   {
     if (!m_Descriptor.m_InputFiles.IsEmpty())
     {
-      m_Descriptor.m_TargetFormat = DetectTargetFormatFromFilename(m_Descriptor.m_InputFiles[0]);
+      m_Descriptor.m_Usage = DetectTargetFormatFromFilename(m_Descriptor.m_InputFiles[0]);
     }
   }
 
-  if (m_Descriptor.m_TargetFormat == ezTexConvTargetFormat::Auto)
+  if (m_Descriptor.m_Usage == ezTexConvUsage::Auto)
   {
-    m_Descriptor.m_TargetFormat = DetectTargetFormatFromImage(m_Descriptor.m_InputImages[0]);
+    m_Descriptor.m_Usage = DetectTargetFormatFromImage(m_Descriptor.m_InputImages[0]);
   }
 
-  if (m_Descriptor.m_TargetFormat == ezTexConvTargetFormat::Auto)
+  if (m_Descriptor.m_Usage == ezTexConvUsage::Auto)
   {
     ezLog::Error("Failed to deduce target format.");
     return EZ_FAILURE;

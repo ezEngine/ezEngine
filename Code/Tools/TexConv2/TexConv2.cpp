@@ -11,7 +11,6 @@
 - from single 2d texture
 
 - flip horizontal for 2D
-- remapping config
 - decal atlas support
 - target platform switch
 - low res output
@@ -25,7 +24,6 @@
 - ez texture output format
 - volume textures
 - normal map from heightmap ?
-- target format / usage
 - mipmap mode
 - min / max resolution
 - downscale steps
@@ -33,12 +31,48 @@
 - mipmap alpha threshold
 - asset hash
 
+- docs for params / help
+
 */
 
 
 ezTexConv2::ezTexConv2()
     : ezApplication("TexConv2")
 {
+  {
+    m_AllowedUsages.PushBack({"Auto", ezTexConvUsage::Auto}); // default value
+    m_AllowedUsages.PushBack({"Color", ezTexConvUsage::Color});
+    m_AllowedUsages.PushBack({"Color_Hdr", ezTexConvUsage::Color_Hdr});
+    m_AllowedUsages.PushBack({"Grayscale", ezTexConvUsage::Grayscale});
+    m_AllowedUsages.PushBack({"Grayscale_Hdr", ezTexConvUsage::Grayscale_Hdr});
+    m_AllowedUsages.PushBack({"NormalMap", ezTexConvUsage::NormalMap});
+    m_AllowedUsages.PushBack({"NormalMap_Inverted", ezTexConvUsage::NormalMap_Inverted});
+    m_AllowedUsages.PushBack({"Compressed_1_Channel", ezTexConvUsage::Compressed_1_Channel});
+    m_AllowedUsages.PushBack({"Compressed_2_Channel", ezTexConvUsage::Compressed_2_Channel});
+    m_AllowedUsages.PushBack({"Compressed_4_Channel", ezTexConvUsage::Compressed_4_Channel});
+    m_AllowedUsages.PushBack({"Compressed_4_Channel_sRGB", ezTexConvUsage::Compressed_4_Channel_sRGB});
+    m_AllowedUsages.PushBack({"Compressed_Hdr_3_Channel", ezTexConvUsage::Compressed_Hdr_3_Channel});
+    m_AllowedUsages.PushBack({"Uncompressed_8_Bit_UNorm_1_Channel", ezTexConvUsage::Uncompressed_8_Bit_UNorm_1_Channel});
+    m_AllowedUsages.PushBack({"Uncompressed_8_Bit_UNorm_2_Channel", ezTexConvUsage::Uncompressed_8_Bit_UNorm_2_Channel});
+    m_AllowedUsages.PushBack({"Uncompressed_8_Bit_UNorm_4_Channel", ezTexConvUsage::Uncompressed_8_Bit_UNorm_4_Channel});
+    m_AllowedUsages.PushBack({"Uncompressed_8_Bit_UNorm_4_Channel_SRGB", ezTexConvUsage::Uncompressed_8_Bit_UNorm_4_Channel_SRGB});
+    m_AllowedUsages.PushBack({"Uncompressed_16_Bit_UNorm_1_Channel", ezTexConvUsage::Uncompressed_16_Bit_UNorm_1_Channel});
+    m_AllowedUsages.PushBack({"Uncompressed_16_Bit_UNorm_2_Channel", ezTexConvUsage::Uncompressed_16_Bit_UNorm_2_Channel});
+    m_AllowedUsages.PushBack({"Uncompressed_16_Bit_UNorm_4_Channel", ezTexConvUsage::Uncompressed_16_Bit_UNorm_4_Channel});
+    m_AllowedUsages.PushBack({"Uncompressed_16_Bit_Float_1_Channel", ezTexConvUsage::Uncompressed_16_Bit_Float_1_Channel});
+    m_AllowedUsages.PushBack({"Uncompressed_16_Bit_Float_2_Channel", ezTexConvUsage::Uncompressed_16_Bit_Float_2_Channel});
+    m_AllowedUsages.PushBack({"Uncompressed_16_Bit_Float_4_Channel", ezTexConvUsage::Uncompressed_16_Bit_Float_4_Channel});
+    m_AllowedUsages.PushBack({"Uncompressed_32_Bit_Float_1_Channel", ezTexConvUsage::Uncompressed_32_Bit_Float_1_Channel});
+    m_AllowedUsages.PushBack({"Uncompressed_32_Bit_Float_2_Channel", ezTexConvUsage::Uncompressed_32_Bit_Float_2_Channel});
+    m_AllowedUsages.PushBack({"Uncompressed_32_Bit_Float_3_Channel", ezTexConvUsage::Uncompressed_32_Bit_Float_3_Channel});
+    m_AllowedUsages.PushBack({"Uncompressed_32_Bit_Float_4_Channel", ezTexConvUsage::Uncompressed_32_Bit_Float_4_Channel});
+  }
+
+  {
+    m_AllowedMimapModes.PushBack({"Linear", ezTexConvMipmapMode::Linear}); // default value
+    m_AllowedMimapModes.PushBack({"Kaiser", ezTexConvMipmapMode::Kaiser});
+    m_AllowedMimapModes.PushBack({"None", ezTexConvMipmapMode::None});
+  }
 }
 
 void ezTexConv2::BeforeCoreSystemsStartup()
@@ -74,6 +108,8 @@ ezResult ezTexConv2::ParseCommandLine()
   }
 
   EZ_SUCCEED_OR_RETURN(ParseOutputFiles());
+  EZ_SUCCEED_OR_RETURN(ParseUsage());
+  EZ_SUCCEED_OR_RETURN(ParseMipmapMode());
   EZ_SUCCEED_OR_RETURN(ParseInputFiles());
   EZ_SUCCEED_OR_RETURN(ParseChannelMappings());
 
@@ -205,13 +241,62 @@ ezResult ezTexConv2::ParseOutputFiles()
   return EZ_SUCCESS;
 }
 
+ezResult ezTexConv2::ParseStringOption(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed, ezInt32& iResult) const
+{
+  const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
+  const ezStringBuilder sValue = pCmd->GetStringOption(szOption, 0);
+
+  if (sValue.IsEmpty())
+  {
+    iResult = allowed[0].m_iEnumValue;
+    return EZ_SUCCESS;
+  }
+
+  for (ezUInt32 i = 0; i < allowed.GetCount(); ++i)
+  {
+    if (sValue.IsEqual_NoCase(allowed[i].m_szKey))
+    {
+      iResult = allowed[i].m_iEnumValue;
+
+      ezLog::Info("Selected {}: '{}' ({})", szOption, allowed[i].m_szKey, allowed[i].m_iEnumValue);
+      return EZ_SUCCESS;
+    }
+  }
+
+  ezLog::Error("Unknown {}: '{}'.", szOption, sValue);
+
+  ezLog::Info("Available {} options are:", szOption);
+
+  for (ezUInt32 i = 0; i < allowed.GetCount(); ++i)
+  {
+    ezLog::Info("  {}", allowed[i].m_szKey);
+  }
+
+  return EZ_FAILURE;
+}
+
+ezResult ezTexConv2::ParseUsage()
+{
+  ezInt32 value = -1;
+  EZ_SUCCEED_OR_RETURN(ParseStringOption("-usage", m_AllowedUsages, value));
+
+  m_Processor.m_Descriptor.m_Usage = static_cast<ezTexConvUsage::Enum>(value);
+  return EZ_SUCCESS;
+}
+
+ezResult ezTexConv2::ParseMipmapMode()
+{
+  ezInt32 value = -1;
+  EZ_SUCCEED_OR_RETURN(ParseStringOption("-mipmaps", m_AllowedMimapModes, value));
+
+  m_Processor.m_Descriptor.m_MipmapMode = static_cast<ezTexConvMipmapMode::Enum>(value);
+  return EZ_SUCCESS;
+}
 
 ezApplication::ApplicationExecution ezTexConv2::Run()
 {
   if (ParseCommandLine().Failed())
     return ezApplication::ApplicationExecution::Quit;
-
-  m_Processor.m_Descriptor.m_TargetFormat = ezTexConvTargetFormat::Color;
 
   if (m_Processor.Process().Failed())
     return ezApplication::ApplicationExecution::Quit;

@@ -49,7 +49,7 @@ public:
   ezUInt32 m_uiThumbnailOutputResolution = 0;
 
   // Format / Compression
-  ezEnum<ezTexConvTargetFormat> m_TargetFormat;
+  ezEnum<ezTexConvUsage> m_Usage;
   ezEnum<ezTexConvCompressionMode> m_CompressionMode;
 
   // resolution clamp and downscale
