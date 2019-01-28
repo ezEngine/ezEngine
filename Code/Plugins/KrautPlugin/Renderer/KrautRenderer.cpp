@@ -36,7 +36,7 @@ void ezKrautRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
 
   const ezKrautRenderData* pRenderData = batch.GetFirstData<ezKrautRenderData>();
 
-  ezResourceLock<ezMeshResource> pMesh(pRenderData->m_hMesh);
+  ezResourceLock<ezMeshResource> pMesh(pRenderData->m_hMesh, ezResourceAcquireMode::AllowFallback);
 
   // This can happen when the resource has been reloaded and now has fewer sub-meshes.
   if (pMesh->GetSubMeshes().GetCount() <= pRenderData->m_uiSubMeshIndex)

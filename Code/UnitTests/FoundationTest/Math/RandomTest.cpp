@@ -1,10 +1,10 @@
 #include <PCH.h>
 
+#include <Foundation/Containers/StaticArray.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Math/Random.h>
-
 
 // only works when also linking against CoreUtils
 //#define USE_EZIMAGE
@@ -71,6 +71,42 @@ EZ_CREATE_SIMPLE_TEST(Math, Random)
       const ezInt32 val = r.IntMinMax(-i, i);
       EZ_TEST_BOOL(val >= -i);
       EZ_TEST_BOOL(val <= i);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Bool")
+  {
+    ezRandom r;
+    r.Initialize(0x11AABBCCDDEEFFULL);
+
+    ezUInt32 falseCount = 0;
+    ezUInt32 trueCount = 0;
+    ezDynamicArray<bool> values;
+    values.SetCount(1000);
+
+    for (int i = 0; i < 1000; ++i)
+    {
+      values[i] = r.Bool();
+      if (values[i])
+      {
+        ++trueCount;
+      }
+      else
+      {
+        ++falseCount;
+      }
+    }
+
+    // This could be more elaborate, one could also test the variance
+    // and assert that approximately an uniform distribution is yielded
+    EZ_TEST_BOOL(trueCount > 0 && falseCount > 0);
+
+    ezRandom r2;
+    r2.Initialize(0x11AABBCCDDEEFFULL);
+
+    for (int i = 0; i < 1000; ++i)
+    {
+      EZ_TEST_BOOL(values[i] == r2.Bool());
     }
   }
 
@@ -141,6 +177,78 @@ EZ_CREATE_SIMPLE_TEST(Math, Random)
     for (ezInt32 i = 2; i < 10000; ++i)
     {
       const double val = r.DoubleMinMax(-i, i);
+      EZ_TEST_BOOL(val >= -i);
+      EZ_TEST_BOOL(val <= i);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FloatZeroToOneExclusive")
+  {
+    ezRandom r;
+    r.Initialize(0xDDEEFF0011AABBCCULL);
+
+    for (ezInt32 i = 2; i < 10000; ++i)
+    {
+      const float val = r.FloatZeroToOneExclusive();
+      EZ_TEST_BOOL(val >= 0.f);
+      EZ_TEST_BOOL(val < 1.f);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FloatZeroToOneInclusive")
+  {
+    ezRandom r;
+    r.Initialize(0xEEFF0011AABBCCDDULL);
+
+    for (ezInt32 i = 2; i < 10000; ++i)
+    {
+      const float val = r.FloatZeroToOneInclusive();
+      EZ_TEST_BOOL(val >= 0.f);
+      EZ_TEST_BOOL(val <= 1.f);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FloatInRange")
+  {
+    ezRandom r;
+    r.Initialize(0xFF0011AABBCCDDEEULL);
+
+    EZ_TEST_FLOAT(r.FloatInRange(5, 0), 5, 0.f);
+    EZ_TEST_FLOAT(r.FloatInRange(-5, 0), -5, 0.f);
+
+    for (ezInt32 i = 2; i < 10000; ++i)
+    {
+      const float val = r.FloatInRange(i, i);
+      EZ_TEST_BOOL(val >= i);
+      EZ_TEST_BOOL(val < i + i);
+    }
+
+    for (ezInt32 i = 2; i < 10000; ++i)
+    {
+      const float val = r.FloatInRange(-i, 2 * i);
+      EZ_TEST_BOOL(val >= -i);
+      EZ_TEST_BOOL(val < -i + 2 * i);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FloatMinMax")
+  {
+    ezRandom r;
+    r.Initialize(0x0011AABBCCDDEEFFULL);
+
+    EZ_TEST_FLOAT(r.FloatMinMax(5, 5), 5, 0.f);
+    EZ_TEST_FLOAT(r.FloatMinMax(-5, -5), -5, 0.f);
+
+    for (ezInt32 i = 2; i < 10000; ++i)
+    {
+      const float val = r.FloatMinMax(i, 2 * i);
+      EZ_TEST_BOOL(val >= i);
+      EZ_TEST_BOOL(val <= i + i);
+    }
+
+    for (ezInt32 i = 2; i < 10000; ++i)
+    {
+      const float val = r.FloatMinMax(-i, i);
       EZ_TEST_BOOL(val >= -i);
       EZ_TEST_BOOL(val <= i);
     }

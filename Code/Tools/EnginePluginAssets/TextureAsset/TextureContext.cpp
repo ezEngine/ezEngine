@@ -60,7 +60,7 @@ void ezTextureContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
     if (pMsg2->m_sWhatToDo == "ChannelMode" && m_hMaterial.IsValid())
     {
-      ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial);
+      ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowFallback);
       pMaterial->SetParameter("ShowChannelMode", pMsg2->m_iValue);
       pMaterial->SetParameter("LodLevel", pMsg2->m_fValue);
     }
@@ -125,7 +125,7 @@ void ezTextureContext::OnInitialize()
       hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
     }
     {
-      ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer);
+      ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowFallback);
 
       ezMeshResourceDescriptor md;
       md.UseExistingMeshBuffer(hMeshBuffer);

@@ -65,12 +65,12 @@ namespace HybridArrayTestDetail
     ExternalCounter(int& counter)
         : m_counter{&counter}
     {
+
     }
 
     ~ExternalCounter()
     {
-      if (m_counter)
-        (*m_counter)++;
+      if(m_counter) (*m_counter)++;
     }
 
     int* m_counter{};

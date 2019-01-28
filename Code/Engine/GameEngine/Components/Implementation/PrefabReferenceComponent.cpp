@@ -135,7 +135,7 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
   // now instantiate the prefab
   if (m_hPrefab.IsValid())
   {
-    ezResourceLock<ezPrefabResource> pResource(m_hPrefab);
+    ezResourceLock<ezPrefabResource> pResource(m_hPrefab, ezResourceAcquireMode::AllowFallback);
 
     ezTransform id;
     id.SetIdentity();

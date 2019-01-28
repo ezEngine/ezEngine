@@ -342,7 +342,7 @@ void ezRenderContext::BindShader(const ezShaderResourceHandle& hShader, ezBitfla
 
 void ezRenderContext::BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer)
 {
-  ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer);
+  ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowFallback);
   BindMeshBuffer(pMeshBuffer->GetVertexBuffer(), pMeshBuffer->GetIndexBuffer(), &(pMeshBuffer->GetVertexDeclaration()),
                  pMeshBuffer->GetTopology(), pMeshBuffer->GetPrimitiveCount());
 }

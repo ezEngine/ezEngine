@@ -26,7 +26,9 @@ class EZ_FOUNDATION_DLL ezHashedString
 public:
   struct HashedData
   {
+#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
     ezAtomicInteger32 m_iRefCount;
+#endif
     ezString m_sString;
   };
 
@@ -34,6 +36,7 @@ public:
   typedef ezMap<ezUInt32, HashedData> StringStorage;
   typedef StringStorage::Iterator HashedType;
 
+#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   /// \brief This will remove all hashed strings from the central storage, that are not referenced anymore.
   ///
   /// All hashed string values are stored in a central location and ezHashedString just references them. Those strings are then
@@ -44,6 +47,7 @@ public:
   ///
   /// Returns the number of unused strings that were removed.
   static ezUInt32 ClearUnusedStrings();
+#endif
 
   EZ_DECLARE_MEM_RELOCATABLE_TYPE();
 
@@ -53,11 +57,17 @@ public:
   /// \brief Copies the given ezHashedString.
   ezHashedString(const ezHashedString& rhs); // [tested]
 
+  /// \brief Moves the given ezHashedString.
+  ezHashedString(ezHashedString&& rhs); // [tested]
+
   /// \brief Releases the reference to the internal data. Does NOT deallocate any data, even if this held the last reference to some string.
   ~ezHashedString();
 
   /// \brief Copies the given ezHashedString.
   void operator=(const ezHashedString& rhs); // [tested]
+
+  /// \brief Moves the given ezHashedString.
+  void operator=(ezHashedString&& rhs); // [tested]
 
   /// \brief Assigning a new string from a string constant is a slow operation, but the hash computation can happen at compile time.
   ///

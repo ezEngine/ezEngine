@@ -66,6 +66,9 @@
 // Other Features
 #define EZ_USE_PROFILING EZ_OFF
 
+// Hashed String
+/// \brief Ref counting on hashed strings adds the possibility to cleanup unused strings. Since ref counting has a performance overhead it is disabled by default. 
+#define EZ_HASHED_STRING_REF_COUNTING EZ_OFF
 
 // Math Debug Checks
 #define EZ_MATH_CHECK_FOR_NAN EZ_OFF

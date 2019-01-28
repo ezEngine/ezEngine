@@ -136,7 +136,7 @@ PxMaterial* ezPxShapeComponent::GetPxMaterial()
 {
   if (m_hSurface.IsValid())
   {
-    ezResourceLock<ezSurfaceResource> pSurface(m_hSurface);
+    ezResourceLock<ezSurfaceResource> pSurface(m_hSurface, ezResourceAcquireMode::AllowFallback);
 
     if (pSurface->m_pPhysicsMaterial != nullptr)
     {

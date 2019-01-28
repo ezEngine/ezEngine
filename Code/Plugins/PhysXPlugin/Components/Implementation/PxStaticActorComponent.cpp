@@ -120,7 +120,7 @@ void ezPxStaticActorComponent::OnSimulationStarted()
   {
     m_uiShapeId = pModule->CreateShapeId();
 
-    ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh);
+    ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::AllowFallback);
 
     ezHybridArray<PxMaterial*, 32> pxMaterials;
 
@@ -132,7 +132,7 @@ void ezPxStaticActorComponent::OnSimulationStarted()
       {
         if (surfaces[i].IsValid())
         {
-          ezResourceLock<ezSurfaceResource> pSurface(surfaces[i]);
+          ezResourceLock<ezSurfaceResource> pSurface(surfaces[i], ezResourceAcquireMode::AllowFallback);
           if (pSurface)
           {
             pxMaterials[i] = static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterial);

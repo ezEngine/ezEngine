@@ -102,7 +102,7 @@ void ezMotionMatchingComponent::OnSimulationStarted()
   for (ezUInt32 anim = 0; anim < m_Animations.GetCount(); ++anim)
   {
     ezResourceLock<ezAnimationClipResource> pClip(m_Animations[anim], ezResourceAcquireMode::NoFallback);
-    ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton);
+    ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::AllowFallback);
 
     PrecomputeMotion(m_MotionData, "Bip01_L_Foot", "Bip01_R_Foot", pClip->GetDescriptor(), anim, pSkeleton->GetDescriptor().m_Skeleton);
   }
@@ -183,7 +183,7 @@ void ezMotionMatchingComponent::Update()
   if (!m_hSkeleton.IsValid() || m_Animations.IsEmpty())
     return;
 
-  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton);
+  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::AllowFallback);
   const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
 
   // ezTransform rootMotion;

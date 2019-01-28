@@ -6,26 +6,53 @@ inline ezHashedString::ezHashedString(const ezHashedString& rhs)
 {
   m_Data = rhs.m_Data;
 
+#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   // the string has a refcount of at least one (rhs holds a reference), thus it will definitely not get deleted on some other thread
   // therefore we can simply increase the refcount without locking
   m_Data.Value().m_iRefCount.Increment();
+#endif
+}
+
+EZ_FORCE_INLINE ezHashedString::ezHashedString(ezHashedString&& rhs)
+{
+  m_Data = rhs.m_Data;
+  rhs.m_Data = HashedType(); // This leaves the string in an invalid state, all operations will fail except the destructor
 }
 
 inline ezHashedString::~ezHashedString()
 {
-  // just decrease the refcount of the object that we are set to, it might reach refcount zero, but we don't care about that here
-  m_Data.Value().m_iRefCount.Decrement();
+#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
+  // Explicit check if data is still valid. It can be invalid if this string has been moved.
+  if (m_Data.IsValid())
+  {
+    // just decrease the refcount of the object that we are set to, it might reach refcount zero, but we don't care about that here
+    m_Data.Value().m_iRefCount.Decrement();
+  }
+#endif
 }
 
 inline void ezHashedString::operator=(const ezHashedString& rhs)
 {
   // first increase the other refcount, then decrease ours
   HashedType tmp = rhs.m_Data;
+
+#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   tmp.Value().m_iRefCount.Increment();
 
   m_Data.Value().m_iRefCount.Decrement();
+#endif
 
   m_Data = tmp;
+}
+
+EZ_FORCE_INLINE void ezHashedString::operator=(ezHashedString&& rhs)
+{
+#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
+  m_Data.Value().m_iRefCount.Decrement();
+#endif
+
+  m_Data = rhs.m_Data;
+  rhs.m_Data = HashedType();
 }
 
 template <size_t N>
@@ -36,7 +63,9 @@ EZ_FORCE_INLINE void ezHashedString::Assign(const char (&szString)[N])
   // this function will already increase the refcount as needed
   m_Data = AddHashedString(szString, ezHashing::MurmurHash32String(szString));
 
+#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   tmp.Value().m_iRefCount.Decrement();
+#endif
 }
 
 EZ_FORCE_INLINE void ezHashedString::Assign(ezHashing::StringWrapper szString)
@@ -46,7 +75,9 @@ EZ_FORCE_INLINE void ezHashedString::Assign(ezHashing::StringWrapper szString)
   // this function will already increase the refcount as needed
   m_Data = AddHashedString(szString.m_str, ezHashing::MurmurHash32String(szString));
 
+#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   tmp.Value().m_iRefCount.Decrement();
+#endif
 }
 
 inline bool ezHashedString::operator==(const ezHashedString& rhs) const

@@ -154,7 +154,7 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
 
     const ezUInt32 uiMeshIDHash = lodData.m_hMesh.GetResourceIDHash();
 
-    ezResourceLock<ezMeshResource> pMesh(lodData.m_hMesh);
+    ezResourceLock<ezMeshResource> pMesh(lodData.m_hMesh, ezResourceAcquireMode::AllowFallback);
     ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> subMeshes = pMesh->GetSubMeshes();
 
     const ezGameObject* pOwner = GetOwner();

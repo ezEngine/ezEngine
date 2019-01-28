@@ -41,6 +41,9 @@ public:
   /// \brief Returns an int32 value in range [iMinValue ; iMaxValue]
   ezInt32 IntMinMax(ezInt32 iMinValue, ezInt32 iMaxValue); // [tested]
 
+  /// \brief Returns a boolean either being true or false
+  EZ_ALWAYS_INLINE bool Bool() { return static_cast<bool>(UInt() & 1); }  // [tested]
+
   /// \brief Returns a value in range [0.0 ; 1.0), ie. including zero, but excluding one
   EZ_ALWAYS_INLINE double DoubleZeroToOneExclusive() { return (double)UInt() / (double)(0xFFFFFFFFUL); } // [tested]
 
@@ -56,8 +59,26 @@ public:
   /// \brief Returns a double value around fValue with a given variance (0 - 1 range)
   double DoubleVariance(double fValue, double fVariance);
 
-    /// \brief Returns a double value between [-fAbsMaxValue; +fAbsMaxValue] with a Gaussian distribution.
+  /// \brief Returns a double value between [-fAbsMaxValue; +fAbsMaxValue] with a Gaussian distribution.
   double DoubleVarianceAroundZero(double fAbsMaxValue);
+
+  /// \brief Returns a value in range [0.0 ; 1.0), ie. including zero, but excluding one
+  EZ_ALWAYS_INLINE float FloatZeroToOneExclusive() { return static_cast<float>(DoubleZeroToOneExclusive()); }  // [tested]
+
+  /// \brief Returns a value in range [0.0 ; 1.0], ie. including zero and one
+  EZ_ALWAYS_INLINE float FloatZeroToOneInclusive() { return static_cast<float>(DoubleZeroToOneInclusive()); }  // [tested]
+
+  /// \brief Returns a float value in range [fMinValue ; fMinValue + fRange)
+  EZ_ALWAYS_INLINE float FloatInRange(float fMinValue, float fRange) { return static_cast<float>(DoubleInRange(fMinValue, fRange)); }  // [tested]
+
+  /// \brief Returns a float value in range [fMinValue ; fMaxValue]
+  EZ_ALWAYS_INLINE float FloatMinMax(float fMinValue, float fMaxValue) { return static_cast<float>(DoubleMinMax(fMinValue, fMaxValue)); }  // [tested]
+
+  /// \brief Returns a float value around fValue with a given variance (0 - 1 range)
+  EZ_ALWAYS_INLINE float FloatVariance(float fValue, float fVariance) { return static_cast<float>(DoubleVariance(fValue, fVariance)); }
+
+  /// \brief Returns a float value between [-fAbsMaxValue; +fAbsMaxValue] with a Gaussian distribution.
+  EZ_ALWAYS_INLINE float FloatVarianceAroundZero(float fAbsMaxValue) { return static_cast<float>(DoubleVarianceAroundZero(fAbsMaxValue)); }
 
 private:
   ezUInt32 m_uiIndex;

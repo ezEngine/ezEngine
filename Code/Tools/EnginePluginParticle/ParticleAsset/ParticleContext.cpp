@@ -167,7 +167,7 @@ void ezParticleContext::OnInitialize()
       hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
     }
     {
-      ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer);
+      ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowFallback);
 
       ezMeshResourceDescriptor md;
       md.UseExistingMeshBuffer(hMeshBuffer);

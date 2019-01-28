@@ -56,10 +56,16 @@ public:
   /// typeless handle due to the missing template argument.
   static ezTypelessResourceHandle LoadResourceByType(const ezRTTI* pResourceType, const char* szResourceID);
 
+  /// \brief Generates a unique resource ID with the given prefix.
+  ///
+  /// Provide a prefix that is preferably not used anywhere else (i.e., closely related to your code).
+  /// If the prefix is not also used to manually generate resource IDs, this function is guaranteed to return a unique resource ID.
+  static ezString GenerateUniqueResourceID(const char* szResourceIDPrefix);
+
   /// \brief Creates a resource from a descriptor.
   ///
   /// \param szResourceID The unique ID by which the resource is identified. E.g. in GetExistingResource()
-  /// \param descriptor A type specific descriptor that holds all the information to create the resource. Needs to be std::move'd in.
+  /// \param descriptor A type specific descriptor that holds all the information to create the resource.
   /// \param szResourceDescription An optional description that might help during debugging. Often a human readable name or path is stored
   /// here, to make it easier to identify this resource.
   template <typename ResourceType, typename DescriptorType>
@@ -401,8 +407,8 @@ private:
   static bool s_bShutdown;
   static ezResourceManagerWorkerDiskRead s_WorkerTasksDiskRead[MaxDiskReadTasks];
   static ezResourceManagerWorkerMainThread s_WorkerTasksMainThread[MaxMainThreadTasks];
-  static ezUInt8 s_iCurrentWorkerMainThread;
-  static ezUInt8 s_iCurrentWorkerDiskRead;
+  static ezUInt8 s_uiCurrentWorkerMainThread;
+  static ezUInt8 s_uiCurrentWorkerDiskRead;
   static ezTime s_LastDeadlineUpdate;
   static ezTime s_LastFrameUpdate;
   static ezAtomicInteger32 s_ResourcesLoadedRecently;
@@ -432,6 +438,7 @@ private:
   static ezMap<const ezRTTI*, ezHybridArray<DerivedTypeInfo, 4>> s_DerivedTypeInfos;
 
   // Named resources
+
 private:
   static ezHashTable<ezTempHashedString, ezHashedString> s_NamedResources;
 
@@ -442,6 +449,8 @@ private:
   // Export mode
 private:
   static bool s_bExportMode;
+
+  static ezUInt32 s_uiNextResourceID;
 };
 
 #include <Core/ResourceManager/Implementation/ResourceLock.h>

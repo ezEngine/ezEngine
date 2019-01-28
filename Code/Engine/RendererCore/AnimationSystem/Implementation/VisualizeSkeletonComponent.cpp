@@ -133,7 +133,7 @@ ezResult ezVisualizeSkeletonComponent::GetLocalBounds(ezBoundingBoxSphere& bound
 
   if (m_hMesh.IsValid())
   {
-    ezResourceLock<ezMeshResource> pMesh(m_hMesh);
+    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowFallback);
     bounds = pMesh->GetBounds();
     return EZ_SUCCESS;
   }
@@ -330,7 +330,7 @@ void ezVisualizeSkeletonComponent::OnExtractRenderData(ezMsgExtractRenderData& m
 
   const ezUInt32 uiMeshIDHash = m_hMesh.GetResourceIDHash();
 
-  ezResourceLock<ezMeshResource> pMesh(m_hMesh);
+  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowFallback);
   ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
 
   for (ezUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)

@@ -165,7 +165,7 @@ void ezAnimatedMeshComponent::Update()
   if (!m_AnimationClipSampler.GetAnimationClip().IsValid() || !m_hSkeleton.IsValid())
     return;
 
-  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton);
+  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::AllowFallback);
   const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
 
   ezTransform rootMotion;

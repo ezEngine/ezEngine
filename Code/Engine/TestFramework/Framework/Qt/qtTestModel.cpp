@@ -2,9 +2,9 @@
 
 #ifdef EZ_USE_QT
 
-#include <QApplication>
-#include <QPalette>
-#include <TestFramework/Framework/Qt/qtTestModel.h>
+#  include <QApplication>
+#  include <QPalette>
+#  include <TestFramework/Framework/Qt/qtTestModel.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezQtTestModelEntry public functions
@@ -194,19 +194,25 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
         {
           if (bIsSubTest)
           {
-            return QString("Test Enabled");
+            return QString("Enabled");
           }
           else
           {
             // Count sub-test status
             const ezUInt32 iSubTests = m_pResult->GetSubTestCount(pEntry->GetTestIndex());
             const ezUInt32 iEnabled = m_pTestFramework->GetSubTestEnabledCount(pEntry->GetTestIndex());
+
+            if (iEnabled == iSubTests)
+            {
+              return QString("All Enabled");
+            }
+
             return QString("%1 / %2 Enabled").arg(iEnabled).arg(iSubTests);
           }
         }
         else
         {
-          return QString("Test Disabled");
+          return QString("Disabled");
         }
       }
       case Qt::TextAlignmentRole:
@@ -328,11 +334,11 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
           {
             if (TestResult.m_bExecuted)
             {
-              return (TestResult.m_bSuccess) ? QString("Test Passed") : QString("Test Failed");
+              return (TestResult.m_bSuccess) ? QString("Passed") : QString("Failed");
             }
             else
             {
-              return QString("Test Pending");
+              return QString("Pending");
             }
           }
           else
@@ -345,7 +351,7 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
 
             if (iExecuted == iEnabled)
             {
-              return (TestResult.m_bSuccess && iExecuted == iSucceeded) ? QString("Test Passed") : QString("Test Failed");
+              return (TestResult.m_bSuccess && iExecuted == iSucceeded) ? QString("Passed") : QString("Failed");
             }
             else
             {
@@ -355,7 +361,7 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
         }
         else
         {
-          return QString("Test Disabled");
+          return QString("Disabled");
         }
       }
       case Qt::BackgroundColorRole:
@@ -411,7 +417,7 @@ QVariant ezQtTestModel::headerData(int section, Qt::Orientation orientation, int
       case Columns::Errors:
         return QString("Errors / Output");
       case Columns::Asserts:
-        return QString("Asserts");
+        return QString("Checks");
       case Columns::Progress:
         return QString("Progress");
     }
@@ -479,6 +485,29 @@ bool ezQtTestModel::setData(const QModelIndex& index, const QVariant& value, int
   {
     m_pTestFramework->SetTestEnabled(pEntry->GetTestIndex(), value.toBool());
     TestDataChanged(pEntry->GetIndexInParent(), -1);
+
+    // if a test gets enabled in the UI, and all sub-tests are currently disabled,
+    // enable all sub-tests as well
+    // if some set of sub-tests is already enabled and some are disabled,
+    // do not mess with the user's choice of enabled tests
+    bool bEnableSubTests = value.toBool();
+    for (ezUInt32 subIdx = 0; subIdx < pEntry->GetNumSubEntries(); ++subIdx)
+    {
+      if (m_pTestFramework->IsSubTestEnabled(pEntry->GetTestIndex(), subIdx))
+      {
+        bEnableSubTests = false;
+        break;
+      }
+    }
+
+    if (bEnableSubTests)
+    {
+      for (ezUInt32 subIdx = 0; subIdx < pEntry->GetNumSubEntries(); ++subIdx)
+      {
+        m_pTestFramework->SetSubTestEnabled(pEntry->GetTestIndex(), subIdx, true);
+        TestDataChanged(pEntry->GetIndexInParent(), subIdx);
+      }
+    }
   }
   else
   {

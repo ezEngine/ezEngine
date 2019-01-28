@@ -5,6 +5,8 @@
 #include <Foundation/Math/Math.h>
 #include <Foundation/Memory/EndianHelper.h>
 #include <Foundation/Containers/ArrayBase.h>
+#include <Foundation/Containers/Set.h>
+#include <Foundation/Containers/Map.h>
 
 typedef ezUInt16 ezTypeVersion;
 
@@ -42,6 +44,14 @@ public:
     /// \brief Writes a C style fixed array
   template <typename ValueType, ezUInt32 uiSize>
   ezResult ReadArray(ValueType (&Array)[uiSize]);
+
+  /// \brief Reads a set
+  template <typename KeyType, typename Comparer>
+  ezResult ReadSet(ezSetBase<KeyType, Comparer>& Set); // [tested]
+
+  /// \brief Reads a map
+  template <typename KeyType, typename ValueType, typename Comparer>
+  ezResult ReadMap(ezMapBase<KeyType, ValueType, Comparer>& Map); // [tested]
 
   /// \brief Helper method to skip a number of bytes (implementations of the stream reader may implement this more efficiently for example)
   virtual ezUInt64 SkipBytes(ezUInt64 uiBytesToSkip)
@@ -111,7 +121,16 @@ public:
   ezResult WriteArray(const ezArrayBase<ValueType, ArrayType>& Array); // [tested]
 
   /// \brief Writes a C style fixed array
-  template <typename ValueType, ezUInt32 uiSize> ezResult WriteArray(const ValueType (&Array)[uiSize]);
+  template <typename ValueType, ezUInt32 uiSize>
+  ezResult WriteArray(const ValueType (&Array)[uiSize]);
+
+  /// \brief Writes a set
+  template <typename KeyType, typename Comparer>
+  ezResult WriteSet(const ezSetBase<KeyType, Comparer>& Set); // [tested]
+
+  /// \brief Writes a map
+  template <typename KeyType, typename ValueType, typename Comparer>
+  ezResult WriteMap(const ezMapBase<KeyType, ValueType, Comparer>& Map); // [tested]
 };
 
 // Contains the helper methods of both interfaces

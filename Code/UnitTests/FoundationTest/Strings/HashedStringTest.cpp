@@ -96,6 +96,14 @@ EZ_CREATE_SIMPLE_TEST(Strings, HashedString)
     EZ_TEST_BOOL(s1 == s2);
     EZ_TEST_BOOL(s1 == s3);
 
+    ezHashedString s4(std::move(s2));
+    ezHashedString s5;
+    s5 = std::move(s3);
+
+    EZ_TEST_BOOL(s1 == s4);
+    EZ_TEST_BOOL(s1 == s5);
+    EZ_TEST_BOOL(s1 != s2);
+    EZ_TEST_BOOL(s1 != s3);
 
     ezTempHashedString t1("blaa");
 
@@ -151,6 +159,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, HashedString)
     EZ_TEST_STRING(s3.GetString().GetData(), "tut");
   }
 
+#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ClearUnusedStrings")
   {
     ezHashedString::ClearUnusedStrings();
@@ -165,4 +174,5 @@ EZ_CREATE_SIMPLE_TEST(Strings, HashedString)
     EZ_TEST_INT(ezHashedString::ClearUnusedStrings(), 3);
     EZ_TEST_INT(ezHashedString::ClearUnusedStrings(), 0);
   }
+#endif
 }

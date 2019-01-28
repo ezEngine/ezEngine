@@ -60,10 +60,10 @@ public:
   {
     EZ_DECLARE_POD_TYPE();
 
-    /// \brief Creates a new itarator from another.
+    /// \brief Creates a new iterator from another.
     EZ_ALWAYS_INLINE Iterator(const Iterator& rhs); // [tested]
 
-    /// \brief Assigns one itarator no another.
+    /// \brief Assigns one iterator no another.
     EZ_ALWAYS_INLINE void operator=(const Iterator& rhs); // [tested]
 
     // this is required to pull in the const version of this function

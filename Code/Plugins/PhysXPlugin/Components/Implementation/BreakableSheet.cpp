@@ -187,7 +187,7 @@ ezResult ezBreakableSheetComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, 
   {
     if (m_hUnbrokenMesh.IsValid())
     {
-      ezResourceLock<ezMeshResource> pMesh(m_hUnbrokenMesh);
+      ezResourceLock<ezMeshResource> pMesh(m_hUnbrokenMesh, ezResourceAcquireMode::AllowFallback);
       bounds = pMesh->GetBounds();
       return EZ_SUCCESS;
     }

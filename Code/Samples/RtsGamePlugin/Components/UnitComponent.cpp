@@ -129,7 +129,7 @@ void RtsUnitComponent::OnUnitDestroyed()
 {
   if (m_hOnDestroyedPrefab.IsValid())
   {
-    ezResourceLock<ezPrefabResource> pPrefab(m_hOnDestroyedPrefab);
+    ezResourceLock<ezPrefabResource> pPrefab(m_hOnDestroyedPrefab, ezResourceAcquireMode::AllowFallback);
 
     pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr);
   }

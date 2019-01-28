@@ -21,12 +21,16 @@ ezHashedString::HashedType ezHashedString::AddHashedString(const char* szString,
   // if it already exists, just increase the refcount
   if (bExisted)
   {
+#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
     ret.Value().m_iRefCount.Increment();
+#endif
   }
   else
   {
     ezHashedString::HashedData& d = ret.Value();
+#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
     d.m_iRefCount = 1;
+#endif
     d.m_sString = szString;
   }
 
@@ -47,10 +51,13 @@ void ezHashedString::InitHashedString()
 
   g_hsEmpty = AddHashedString("", ezHashing::MurmurHash32String(""));
 
+#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   // this one should never get deleted, so make sure its refcount is 2
   g_hsEmpty.Value().m_iRefCount.Increment();
+#endif
 }
 
+#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
 ezUInt32 ezHashedString::ClearUnusedStrings()
 {
   EZ_LOCK(g_HashedStringMutex);
@@ -70,6 +77,7 @@ ezUInt32 ezHashedString::ClearUnusedStrings()
 
   return uiDeleted;
 }
+#endif
 
 ezHashedString::ezHashedString()
 {
@@ -81,7 +89,9 @@ ezHashedString::ezHashedString()
     InitHashedString();
 
   m_Data = g_hsEmpty;
+#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   m_Data.Value().m_iRefCount.Increment();
+#endif
 }
 
 bool ezHashedString::IsEmpty() const
@@ -91,6 +101,7 @@ bool ezHashedString::IsEmpty() const
 
 void ezHashedString::Clear()
 {
+#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   if (m_Data != g_hsEmpty)
   {
     HashedType tmp = m_Data;
@@ -100,6 +111,9 @@ void ezHashedString::Clear()
 
     tmp.Value().m_iRefCount.Decrement();
   }
+#else
+  m_Data = g_hsEmpty;
+#endif  
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_HashedString);

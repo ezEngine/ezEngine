@@ -35,10 +35,11 @@ ezDeque<ezResourceManager::LoadingInfo> ezResourceManager::s_RequireLoading;
 bool ezResourceManager::s_bTaskRunning = false;
 bool ezResourceManager::s_bShutdown = false;
 bool ezResourceManager::s_bExportMode = false;
+ezUInt32 ezResourceManager::s_uiNextResourceID = 0;
 ezResourceManagerWorkerDiskRead ezResourceManager::s_WorkerTasksDiskRead[MaxDiskReadTasks];
 ezResourceManagerWorkerMainThread ezResourceManager::s_WorkerTasksMainThread[MaxMainThreadTasks];
-ezUInt8 ezResourceManager::s_iCurrentWorkerMainThread = 0;
-ezUInt8 ezResourceManager::s_iCurrentWorkerDiskRead = 0;
+ezUInt8 ezResourceManager::s_uiCurrentWorkerMainThread = 0;
+ezUInt8 ezResourceManager::s_uiCurrentWorkerDiskRead = 0;
 ezTime ezResourceManager::s_LastDeadlineUpdate;
 ezTime ezResourceManager::s_LastFrameUpdate;
 bool ezResourceManager::s_bBroadcastExistsEvent = false;
@@ -236,8 +237,8 @@ void ezResourceManager::RunWorkerTask(ezResource* pResource)
     else if (!s_bTaskRunning && !ezResourceManager::s_RequireLoading.IsEmpty())
     {
       s_bTaskRunning = true;
-      s_iCurrentWorkerDiskRead = (s_iCurrentWorkerDiskRead + 1) % MaxDiskReadTasks;
-      ezTaskSystem::StartSingleTask(&s_WorkerTasksDiskRead[s_iCurrentWorkerDiskRead], ezTaskPriority::FileAccess);
+      s_uiCurrentWorkerDiskRead = (s_uiCurrentWorkerDiskRead + 1) % MaxDiskReadTasks;
+      ezTaskSystem::StartSingleTask(&s_WorkerTasksDiskRead[s_uiCurrentWorkerDiskRead], ezTaskPriority::FileAccess);
     }
   }
 
@@ -418,9 +419,9 @@ void ezResourceManagerWorkerDiskRead::DoWork(bool bCalledExternally)
     {
       EZ_LOCK(ezResourceManager::s_ResourceMutex);
 
-      pWorkerMainThread = &ezResourceManager::s_WorkerTasksMainThread[ezResourceManager::s_iCurrentWorkerMainThread];
-      ezResourceManager::s_iCurrentWorkerMainThread =
-          (ezResourceManager::s_iCurrentWorkerMainThread + 1) % ezResourceManager::MaxMainThreadTasks;
+      pWorkerMainThread = &ezResourceManager::s_WorkerTasksMainThread[ezResourceManager::s_uiCurrentWorkerMainThread];
+      ezResourceManager::s_uiCurrentWorkerMainThread =
+          (ezResourceManager::s_uiCurrentWorkerMainThread + 1) % ezResourceManager::MaxMainThreadTasks;
     }
 
     /// \todo This part is still not thread safe
@@ -1051,6 +1052,14 @@ ezTypelessResourceHandle ezResourceManager::LoadResourceByType(const ezRTTI* pRe
   return ezTypelessResourceHandle(GetResource(pResourceType, szResourceID, true));
 }
 
+
+ezString ezResourceManager::GenerateUniqueResourceID(const char* prefix)
+{
+  ezStringBuilder resourceID;
+  resourceID.Format("{}-{}", prefix, s_uiNextResourceID++);
+  return resourceID;
+}
+
 void ezResourceManager::RegisterNamedResource(const char* szLookupName, const char* szRedirectionResource)
 {
   EZ_LOCK(s_ResourceMutex);
@@ -1125,9 +1134,9 @@ void ezResourceManager::EnsureResourceLoadingState(ezResource* pResource, const 
 
 bool ezResourceManager::HelpResourceLoading()
 {
-  if (!s_WorkerTasksDiskRead[s_iCurrentWorkerDiskRead].IsTaskFinished())
+  if (!s_WorkerTasksDiskRead[s_uiCurrentWorkerDiskRead].IsTaskFinished())
   {
-    ezTaskSystem::WaitForTask(&s_WorkerTasksDiskRead[s_iCurrentWorkerDiskRead]);
+    ezTaskSystem::WaitForTask(&s_WorkerTasksDiskRead[s_uiCurrentWorkerDiskRead]);
     return true;
   }
   else
@@ -1135,7 +1144,7 @@ bool ezResourceManager::HelpResourceLoading()
     for (ezInt32 i = 0; i < MaxMainThreadTasks; ++i)
     {
       // get the 'oldest' main thread task in the queue and try to finish that first
-      const ezInt32 iWorkerMainThread = (ezResourceManager::s_iCurrentWorkerMainThread + i) % MaxMainThreadTasks;
+      const ezInt32 iWorkerMainThread = (ezResourceManager::s_uiCurrentWorkerMainThread + i) % MaxMainThreadTasks;
 
       if (!s_WorkerTasksMainThread[iWorkerMainThread].IsTaskFinished())
       {

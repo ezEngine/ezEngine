@@ -352,7 +352,7 @@ void ezProjectileComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
 
   if (m_hTimeoutPrefab.IsValid())
   {
-    ezResourceLock<ezPrefabResource> pPrefab(m_hTimeoutPrefab);
+    ezResourceLock<ezPrefabResource> pPrefab(m_hTimeoutPrefab, ezResourceAcquireMode::AllowFallback);
 
     pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(),
                                nullptr);

@@ -53,7 +53,7 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
   const ezMaterialResourceHandle& hMaterial = pRenderData->m_hMaterial;
   ezUInt32 uiSubMeshIndex = pRenderData->m_uiSubMeshIndex;
 
-  ezResourceLock<ezMeshResource> pMesh(hMesh);
+  ezResourceLock<ezMeshResource> pMesh(hMesh, ezResourceAcquireMode::AllowFallback);
 
   // This can happen when the resource has been reloaded and now has fewer submeshes.
   const auto& subMeshes = pMesh->GetSubMeshes();

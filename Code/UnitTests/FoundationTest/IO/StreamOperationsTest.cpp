@@ -178,4 +178,66 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
       EZ_TEST_INT(ReadArray[1].m_uiMember2, 0x23);
     }
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezSet Stream Operators")
+  {
+    ezMemoryStreamStorage StreamStorage(4096);
+
+    // Create writer
+    ezMemoryStreamWriter StreamWriter(&StreamStorage);
+
+    ezSet<ezString> TestSet;
+    TestSet.Insert("Hello");
+    TestSet.Insert("World");
+    TestSet.Insert("!");
+
+    StreamWriter.WriteSet(TestSet);
+
+    ezSet<ezString> TestSetReadBack;
+
+    TestSetReadBack.Insert("Shouldn't be there after deserialization.");
+
+    ezMemoryStreamReader StreamReader(&StreamStorage);
+
+    StreamReader.ReadSet(TestSetReadBack);
+
+    EZ_TEST_INT(TestSetReadBack.GetCount(), 3);
+
+    EZ_TEST_BOOL(TestSetReadBack.Contains("Hello"));
+    EZ_TEST_BOOL(TestSetReadBack.Contains("!"));
+    EZ_TEST_BOOL(TestSetReadBack.Contains("World"));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezMap Stream Operators")
+  {
+    ezMemoryStreamStorage StreamStorage(4096);
+
+    // Create writer
+    ezMemoryStreamWriter StreamWriter(&StreamStorage);
+
+    ezMap<ezUInt64, ezString> TestMap;
+    TestMap.Insert(42, "Hello");
+    TestMap.Insert(23, "World");
+    TestMap.Insert(5, "!");
+
+    StreamWriter.WriteMap(TestMap);
+
+    ezMap<ezUInt64, ezString> TestMapReadBack;
+
+    TestMapReadBack.Insert(1, "Shouldn't be there after deserialization.");
+
+    ezMemoryStreamReader StreamReader(&StreamStorage);
+
+    StreamReader.ReadMap(TestMapReadBack);
+
+    EZ_TEST_INT(TestMapReadBack.GetCount(), 3);
+
+    EZ_TEST_BOOL(TestMapReadBack.Contains(42));
+    EZ_TEST_BOOL(TestMapReadBack.Contains(5));
+    EZ_TEST_BOOL(TestMapReadBack.Contains(23));
+
+    EZ_TEST_BOOL(TestMapReadBack.GetValue(42)->IsEqual("Hello"));
+    EZ_TEST_BOOL(TestMapReadBack.GetValue(5)->IsEqual("!"));
+    EZ_TEST_BOOL(TestMapReadBack.GetValue(23)->IsEqual("World"));
+  }
 }

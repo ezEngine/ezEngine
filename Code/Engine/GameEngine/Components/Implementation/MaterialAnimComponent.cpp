@@ -109,12 +109,12 @@ void ezMaterialAnimComponent::Update()
 
   m_CurAnimTime += tDiff;
 
-  ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial);
+  ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowFallback);
 
   if (pMaterial.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
     return;
 
-  ezResourceLock<ezPropertyAnimResource> pAnim(m_hPropertyAnim);
+  ezResourceLock<ezPropertyAnimResource> pAnim(m_hPropertyAnim, ezResourceAcquireMode::AllowFallback);
 
   if (pAnim.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
     return;
