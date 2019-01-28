@@ -15,6 +15,18 @@ struct ezTexConvChannelMapping
   ezTexConvChannelValue::Enum m_ChannelValue;
 };
 
+  /// Describes from which input file to read which channel and then write it to the R, G, B, or A channel of the
+  /// output file. The four elements of the array represent the four channels of the output image.
+struct ezTexConvSliceChannelMapping
+{
+  ezTexConvChannelMapping m_Channel[4] = {
+      ezTexConvChannelMapping{-1, ezTexConvChannelValue::Red},
+      ezTexConvChannelMapping{-1, ezTexConvChannelValue::Green},
+      ezTexConvChannelMapping{-1, ezTexConvChannelValue::Blue},
+      ezTexConvChannelMapping{-1, ezTexConvChannelValue::Alpha},
+  };
+};
+
 class EZ_TEXCONV_DLL ezTexConvDesc
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezTexConvDesc);
@@ -24,14 +36,7 @@ public:
   ezHybridArray<ezString, 4> m_InputFiles;
   ezDynamicArray<ezImage> m_InputImages;
 
-  /// For 2D textures only: Describes from which input file to read which channel and then write it to the R, G, B, or A channel of the
-  /// output file The four elements of the array represent the four channels of the output image
-  ezTexConvChannelMapping m_Texture2DChannelMapping[4] = {
-      ezTexConvChannelMapping{0, ezTexConvChannelValue::Red},
-      ezTexConvChannelMapping{0, ezTexConvChannelValue::Green},
-      ezTexConvChannelMapping{0, ezTexConvChannelValue::Blue},
-      ezTexConvChannelMapping{0, ezTexConvChannelValue::Alpha},
-  };
+  ezHybridArray<ezTexConvSliceChannelMapping, 6> m_ChannelMappings;
 
   // output type / platform
   ezEnum<ezTexConvOutputType> m_OutputType;

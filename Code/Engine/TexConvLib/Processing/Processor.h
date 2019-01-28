@@ -36,6 +36,7 @@ private:
   ezResult ConvertInputImagesToFloat32();
   ezResult ResizeInputImagesToSameDimensions();
   ezResult Assemble2DTexture();
+  ezResult Assemble2DSlice(const ezTexConvSliceChannelMapping& mapping, ezColor* pPixelOut);
   ezResult GenerateMipmaps();
   ezResult GenerateOutput();
 
