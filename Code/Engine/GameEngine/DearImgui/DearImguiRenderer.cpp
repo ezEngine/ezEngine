@@ -27,10 +27,26 @@ ezImguiExtractor::ezImguiExtractor(const char* szName)
 void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
                                ezExtractedRenderData& extractedRenderData)
 {
-  // ignore ImGui as long as it hasn't been used
-  if (ImGui::GetCurrentContext() == nullptr || !ImGui::GetCurrentContext()->Initialized)
+  if (ezImgui::GetSingleton() == nullptr)
+  {
     return;
+  }
 
+  ezImgui::Context context;
+  if (!ezImgui::GetSingleton()->m_ViewToContextTable.TryGetValue(view.GetHandle(), context))
+  {
+    // No context for this view
+    return;
+  }
+
+  ezUInt64 uiCurrentFrameCounter = ezRenderWorld::GetFrameCounter();
+  if (context.m_uiFrameCounter != uiCurrentFrameCounter)
+  {
+    // Nothing was rendered with ImGui this frame
+    return;
+  }
+
+  ImGui::SetCurrentContext(context.m_pImGuiContext);
   ImGui::Render();
 
   ImDrawData* pDrawData = ImGui::GetDrawData();
@@ -125,7 +141,7 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, ezRe
   ezGALContext* pGALContext = pRenderContext->GetGALContext();
 
   pRenderContext->BindShader(m_hShader);
-  const auto& textures = ezImgui::GetSingleton()->GetTextures();
+  const auto& textures = ezImgui::GetSingleton()->m_hTextures;
   const ezUInt32 numTextures = textures.GetCount();
 
   for (auto it = batch.GetIterator<ezImguiRenderData>(); it.IsValid(); ++it)

@@ -116,6 +116,8 @@ ezColor RtsGameMode::GetTeamColor(ezInt32 iTeam)
 
 void RtsGameMode::DisplaySelectModeUI()
 {
+  ezImgui::GetSingleton()->SetCurrentContextForView(m_hMainView);
+
   ImGui::SetNextWindowPos(ImVec2(10, 10));
   ImGui::SetNextWindowSize(ImVec2(120, 100));
   ImGui::Begin("Game Mode", nullptr,

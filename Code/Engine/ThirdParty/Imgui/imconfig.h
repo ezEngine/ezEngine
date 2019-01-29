@@ -29,6 +29,9 @@
 #define IMGUI_DISABLE_WIN32_DEFAULT_IME_FUNCTIONS
 #endif
 
+extern thread_local struct ImGuiContext* g_ThreadLocalContext;
+#define GImGui g_ThreadLocalContext
+
 #endif
 // End ezEngine edit
 //////////////////////////////////////////////////////////////////////////

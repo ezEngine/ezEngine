@@ -2,6 +2,7 @@ BasedOnStyle: LLVM
 UseTab: Never
 IndentWidth: 2
 BreakBeforeBraces: Allman
+AlignAfterOpenBracket: DontAlign
 AllowShortIfStatementsOnASingleLine: false
 ColumnLimit: 140
 TabWidth: 2

@@ -97,17 +97,6 @@ void RtsGameState::BeforeWorldUpdate()
 
   m_SelectedUnits.RemoveDeadObjects();
 
-  // prepare the UI for the next frame
-  if (ezImgui::GetSingleton() != nullptr)
-  {
-    ezView* pView = nullptr;
-    if (ezRenderWorld::TryGetView(m_hMainView, pView))
-    {
-      const ezRectFloat viewport = pView->GetViewport();
-      ezImgui::GetSingleton()->BeginNewFrame(ezSizeU32((ezUInt32)viewport.width, (ezUInt32)viewport.height));
-    }
-  }
-
   if (m_pActiveGameMode)
   {
     m_pActiveGameMode->BeforeWorldUpdate();

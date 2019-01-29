@@ -1,18 +1,22 @@
 #include <PCH.h>
 
+#include <GameEngine/DearImgui/DearImgui.h>
+
 #include <Core/Input/InputManager.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Time/Clock.h>
 #include <GameApplication/GameApplication.h>
-#include <GameEngine/DearImgui/DearImgui.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
 EZ_IMPLEMENT_SINGLETON(ezImgui);
 
-ezImgui::ezImgui(ezImguiConfigCallback configCallback)
+ezImgui::ezImgui(ezImguiConfigFontCallback configFontCallback, ezImguiConfigStyleCallback configStyleCallback)
     : m_SingletonRegistrar(this)
+    , m_ConfigStyleCallback(configStyleCallback)
 {
-  Startup(configCallback);
+  Startup(configFontCallback);
 }
 
 ezImgui::~ezImgui()
@@ -20,10 +24,84 @@ ezImgui::~ezImgui()
   Shutdown();
 }
 
-void ezImgui::Startup(ezImguiConfigCallback configCallback)
+void ezImgui::SetCurrentContextForView(const ezViewHandle& hView)
 {
-  m_pContext = ImGui::CreateContext();
-  ImGui::SetCurrentContext(m_pContext);
+  Context& context = m_ViewToContextTable[hView];
+  if (context.m_pImGuiContext == nullptr)
+  {
+    context.m_pImGuiContext = CreateContext();
+  }
+
+  ImGui::SetCurrentContext(context.m_pImGuiContext);
+
+  ezUInt64 uiCurrentFrameCounter = ezRenderWorld::GetFrameCounter();
+  if (context.m_uiFrameCounter != uiCurrentFrameCounter)
+  {
+    BeginFrame(hView);
+    context.m_uiFrameCounter = uiCurrentFrameCounter;
+  }
+}
+
+void ezImgui::Startup(ezImguiConfigFontCallback configFontCallback)
+{
+  m_pSharedFontAtlas = EZ_DEFAULT_NEW(ImFontAtlas);
+
+  if (configFontCallback.IsValid())
+  {
+    configFontCallback(*m_pSharedFontAtlas);
+  }
+
+  unsigned char* pixels;
+  int width, height;
+  m_pSharedFontAtlas->GetTexDataAsRGBA32(&pixels, &width, &height); // Load as RGBA 32-bits (75% of the memory is wasted, but default font
+                                                                    // is so small) because it is more likely to be compatible with user's
+                                                                    // existing shaders. If your ImTextureId represent a higher-level
+                                                                    // concept than just a GL texture id, consider calling
+                                                                    // GetTexDataAsAlpha8() instead to save on GPU memory.
+
+  ezTexture2DResourceHandle hFont = ezResourceManager::GetExistingResource<ezTexture2DResource>("ImguiFont");
+
+  if (!hFont.IsValid())
+  {
+    ezGALSystemMemoryDescription memoryDesc;
+    memoryDesc.m_pData = pixels;
+    memoryDesc.m_uiRowPitch = width * 4;
+    memoryDesc.m_uiSlicePitch = width * height * 4;
+
+    ezTexture2DResourceDescriptor desc;
+    desc.m_DescGAL.m_uiWidth = width;
+    desc.m_DescGAL.m_uiHeight = height;
+    desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+    desc.m_InitialContent = ezMakeArrayPtr(&memoryDesc, 1);
+
+    hFont = ezResourceManager::CreateResource<ezTexture2DResource>("ImguiFont", std::move(desc));
+  }
+
+  m_hTextures.PushBack(hFont);
+
+  const size_t id = (size_t)m_hTextures.GetCount() - 1;
+  m_pSharedFontAtlas->TexID = reinterpret_cast<void*>(id);
+}
+
+void ezImgui::Shutdown()
+{
+  m_hTextures.Clear();
+
+  m_pSharedFontAtlas = nullptr;
+
+  for (auto it = m_ViewToContextTable.GetIterator(); it.IsValid(); ++it)
+  {
+    Context& context = it.Value();
+    ImGui::DestroyContext(context.m_pImGuiContext);
+    context.m_pImGuiContext = nullptr;
+  }
+  m_ViewToContextTable.Clear();
+}
+
+ImGuiContext* ezImgui::CreateContext()
+{
+  ImGuiContext* context = ImGui::CreateContext(m_pSharedFontAtlas.Borrow());
+  ImGui::SetCurrentContext(context);
 
   ImGuiIO& cfg = ImGui::GetIO();
 
@@ -50,65 +128,29 @@ void ezImgui::Startup(ezImguiConfigCallback configCallback)
   cfg.KeyMap[ImGuiKey_Y] = ImGuiKey_Y;
   cfg.KeyMap[ImGuiKey_Z] = ImGuiKey_Z;
 
-  if (configCallback.IsValid())
+  if (m_ConfigStyleCallback.IsValid())
   {
-    configCallback();
+    m_ConfigStyleCallback(ImGui::GetStyle());
   }
 
-  {
-    ImGuiIO& io = ImGui::GetIO();
-    unsigned char* pixels;
-    int width, height;
-    io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height); // Load as RGBA 32-bits (75% of the memory is wasted, but default font is so
-                                                            // small) because it is more likely to be compatible with user's existing
-                                                            // shaders. If your ImTextureId represent a higher-level concept than just a GL
-                                                            // texture id, consider calling GetTexDataAsAlpha8() instead to save on GPU
-                                                            // memory.
-
-    ezTexture2DResourceHandle hFont = ezResourceManager::GetExistingResource<ezTexture2DResource>("ImguiFont");
-
-    if (!hFont.IsValid())
-    {
-      ezGALSystemMemoryDescription memoryDesc;
-      memoryDesc.m_pData = pixels;
-      memoryDesc.m_uiRowPitch = width * 4;
-      memoryDesc.m_uiSlicePitch = width * height * 4;
-
-      ezTexture2DResourceDescriptor desc;
-      desc.m_DescGAL.m_uiWidth = width;
-      desc.m_DescGAL.m_uiHeight = height;
-      desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-      desc.m_InitialContent = ezMakeArrayPtr(&memoryDesc, 1);
-
-      hFont = ezResourceManager::CreateResource<ezTexture2DResource>("ImguiFont", std::move(desc));
-    }
-
-    m_hTextures.PushBack(hFont);
-
-    const size_t id = (size_t)m_hTextures.GetCount() - 1;
-    io.Fonts->TexID = reinterpret_cast<void*>(id);
-  }
+  return context;
 }
 
-void ezImgui::Shutdown()
+void ezImgui::BeginFrame(const ezViewHandle& hView)
 {
-  m_hTextures.Clear();
-
-  if (m_pContext)
+  ezView* pView = nullptr;
+  if (!ezRenderWorld::TryGetView(hView, pView))
   {
-    ImGui::DestroyContext(m_pContext);
-    m_pContext = nullptr;
+    return;
   }
-}
 
-void ezImgui::BeginNewFrame(ezSizeU32 windowResolution)
-{
-  m_CurrentWindowResolution = windowResolution;
+  auto viewport = pView->GetViewport();
+  m_CurrentWindowResolution = ezSizeU32(viewport.width, viewport.height);
 
   ImGuiIO& cfg = ImGui::GetIO();
 
-  cfg.DisplaySize.x = (float)windowResolution.width;
-  cfg.DisplaySize.y = (float)windowResolution.height;
+  cfg.DisplaySize.x = viewport.width;
+  cfg.DisplaySize.y = viewport.height;
   cfg.DeltaTime = (float)ezClock::GetGlobalClock()->GetTimeDiff().GetSeconds();
 
   if (m_bPassInputToImgui)

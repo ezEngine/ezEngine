@@ -47,7 +47,7 @@ void SampleGameState::BeforeWorldUpdate()
     static float color[3];
     static float slider = 0.5f;
 
-    ezImgui::GetSingleton()->BeginNewFrame(m_pMainWindow->GetClientAreaSize());
+    ezImgui::GetSingleton()->SetCurrentContextForView(m_hMainView);
     ezImgui::GetSingleton()->SetPassInputToImgui(
         false); // reset this state, to deactivate input processing as long as SampleGameState::ProcessInput() isn't called again
 
