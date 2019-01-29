@@ -8,9 +8,9 @@ struct ezTexConvOutputType
   {
     Texture2D,
     TextureCube,
-    // RenderTarget
-    // Texture3D,
-    // DecalAtlas,
+    RenderTarget,
+    Texture3D,
+    DecalAtlas,
 
     Default = Texture2D
   };

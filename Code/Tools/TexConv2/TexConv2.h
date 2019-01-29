@@ -5,6 +5,8 @@
 class ezTexConv2 : public ezApplication
 {
 public:
+  typedef ezApplication SUPER;
+
   struct KeyEnumValuePair
   {
     KeyEnumValuePair(const char* key, ezInt32 val)
@@ -17,23 +19,9 @@ public:
     ezInt32 m_iEnumValue = -1;
   };
 
-  enum class OutputFileType
-  {
-    UNKNOWN,
-    DDS,
-    TGA,
-    PNG,
-    EZ2D,
-    EZ3D,
-    EZCUBE,
-    EZDECAL,
-    EZRENDERTARGET,
-  };
-
-  typedef ezApplication SUPER;
-
   ezTexConv2();
 
+public:
   virtual ApplicationExecution Run() override;
   virtual void BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
@@ -53,10 +41,15 @@ public:
   ezResult ParseCompressionMode();
   ezResult ParseWrapModes();
   ezResult ParseFilterModes();
+  ezResult ParseResolutionModifiers();
 
+  ezResult ParseUIntOption(const char* szOption, ezInt32 iMinValue, ezInt32 iMaxValue, ezUInt32& uiResult) const;
+  ezResult ParseFloatOption(const char* szOption, float fMinValue, float fMaxValue, float& fResult) const;
+  ezResult ParseBoolOption(const char* szOption, bool& bResult) const;
   ezResult ParseStringOption(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed, ezInt32& iResult) const;
   void PrintOptionValues(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed) const;
 
+private:
   ezString m_sOutputFile;
   ezString m_sOutputThumbnailFile;
   ezString m_sOutputLowResFile;

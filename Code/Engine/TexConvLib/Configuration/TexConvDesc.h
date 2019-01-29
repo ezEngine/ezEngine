@@ -40,18 +40,18 @@ public:
   ezHybridArray<ezTexConvSliceChannelMapping, 6> m_ChannelMappings;
 
   // output type / platform
-  ezEnum<ezTexConvOutputType> m_OutputType;
-  ezEnum<ezTexConvTargetPlatform> m_TargetPlatform;
+  ezEnum<ezTexConvOutputType> m_OutputType; // TODO: implement cubemaps, 3D, render targets, decal atlas
+  ezEnum<ezTexConvTargetPlatform> m_TargetPlatform; // TODO: implement android
 
   // low resolution output
-  ezUInt32 m_uiLowResOutputResolution = 0;
+  ezUInt32 m_uiLowResOutputResolution = 0; // TODO: implement low res output
 
   // thumbnail output
-  ezUInt32 m_uiThumbnailOutputResolution = 0;
+  ezUInt32 m_uiThumbnailOutputResolution = 0; // TODO: implement thumbnail output
 
   // Format / Compression
   ezEnum<ezTexConvUsage> m_Usage;
-  ezEnum<ezTexConvCompressionMode> m_CompressionMode;
+  ezEnum<ezTexConvCompressionMode> m_CompressionMode; // TODO: implement all compression encodings
 
   // resolution clamp and downscale
   ezUInt32 m_uiMinResolution = 16;
@@ -60,17 +60,17 @@ public:
 
   // Mipmaps / filtering
   ezEnum<ezTexConvMipmapMode> m_MipmapMode;
-  ezEnum<ezTexConvFilterMode> m_FilterMode; // only used when writing to ez specific formats
-  ezEnum<ezTexConvWrapMode> m_WrapModes[3]; // U, V, W
+  ezEnum<ezTexConvFilterMode> m_FilterMode; // only used when writing to ez specific formats // TODO: implement ez formats
+  ezEnum<ezTexConvWrapMode> m_WrapModes[3]; // U, V, W // TODO: implement ez formats
   bool m_bPreserveMipmapCoverage = false;
   float m_fMipmapAlphaThreshold = 0.5f;
 
   // Misc options
-  bool m_bFlipHorizontal = false;
-  bool m_bPremultiplyAlpha = false;
-  float m_fHdrExposureBias = 1.0f;
+  bool m_bFlipHorizontal = false; // TODO: implement 2d flip
+  bool m_bPremultiplyAlpha = false; // TODO: implement premultiply alpha
+  float m_fHdrExposureBias = 1.0f; // TODO: implement HDR exposure
 
   // ez specific
-  ezUInt64 m_uiAssetHash = 0;
+  ezUInt64 m_uiAssetHash = 0; // TODO: implement ez formats
   ezUInt16 m_uiAssetVersion = 0;
 };
