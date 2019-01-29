@@ -8,7 +8,7 @@ ezResult ezTexConv::PassImageThrough()
   ezImage* pImg = &m_InputImages[0];
 
   ezDdsFileFormat writer;
-  if (writer.WriteImage(m_FileOut, *pImg, ezLog::GetThreadLocalLogSystem()).Failed())
+  if (writer.WriteImage(m_FileOut, *pImg, ezLog::GetThreadLocalLogSystem(), "dds").Failed())
   {
     SetReturnCode(TexConvReturnCodes::FAILED_PASS_THROUGH);
     return EZ_FAILURE;
@@ -163,7 +163,7 @@ ezResult ezTexConv::SaveResultToDDS(ezStreamWriter& stream)
     ezImage img;
 
     ezDdsFileFormat dds;
-    if (dds.ReadImage(rawData, img, ezLog::GetThreadLocalLogSystem()).Failed() || SaveLowResImage(img).Failed())
+    if (dds.ReadImage(rawData, img, ezLog::GetThreadLocalLogSystem(), "dds").Failed() || SaveLowResImage(img).Failed())
     {
       SetReturnCode(TexConvReturnCodes::FAILED_SAVE_AS_DDS);
       ezLog::Error("Failed to write low-res image to file '{0}'", m_sOutputLowRes);

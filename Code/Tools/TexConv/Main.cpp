@@ -321,7 +321,7 @@ ezResult ezTexConv::SaveLowResImage(const ezImage& img)
   ezDdsFileFormat dds;
 
   if (ezImageUtils::ExtractLowerMipChain(img, imgLow, m_uiLowResMipmaps).Failed() ||
-    dds.WriteImage(file, imgLow, ezLog::GetThreadLocalLogSystem()).Failed())
+    dds.WriteImage(file, imgLow, ezLog::GetThreadLocalLogSystem(), "dds").Failed())
   {
     SetReturnCode(TexConvReturnCodes::FAILED_WRITE_LOWRES);
     ezLog::Error("Failed to write the low resolution version");

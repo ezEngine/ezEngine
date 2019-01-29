@@ -14,10 +14,10 @@ class EZ_FOUNDATION_DLL ezImageFileFormat : public ezEnumerable<ezImageFileForma
 {
 public:
   /// \brief Reads the data from the given stream and creates the image from it. Errors are written to the given ezLogInterface.
-  virtual ezResult ReadImage(ezStreamReader& stream, ezImage& image, ezLogInterface* pLog) const = 0;
+  virtual ezResult ReadImage(ezStreamReader& stream, ezImage& image, ezLogInterface* pLog, const char* szFileExtension) const = 0;
 
   /// \brief Writes the data to the given stream in this format. Errors are written to the given ezLogInterface.
-  virtual ezResult WriteImage(ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog) const = 0;
+  virtual ezResult WriteImage(ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog, const char* szFileExtension) const = 0;
 
   /// \brief Should return true, if files with the given extension can be read.
   virtual bool CanReadFileType(const char* szExtension) const = 0;

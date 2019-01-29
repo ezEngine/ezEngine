@@ -1180,7 +1180,7 @@ void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& Img, bool bSetEmptyT
   reader.m_pData = g_FontFileTGA;
 
   ezTgaFileFormat tga;
-  tga.ReadImage(reader, Img, ezLog::GetThreadLocalLogSystem());
+  tga.ReadImage(reader, Img, ezLog::GetThreadLocalLogSystem(), "tga");
 
   ezImageConversion::Convert(Img, Img, ezImageFormat::R8G8B8A8_UNORM);
 

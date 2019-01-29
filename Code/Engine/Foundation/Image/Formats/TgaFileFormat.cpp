@@ -57,7 +57,7 @@ static inline ezColorLinearUB GetPixelColor(const ezImageView& image, ezUInt32 x
 }
 
 
-ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog) const
+ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog, const char* szFileExtension) const
 {
   // Technically almost arbitrary formats are supported, but we only use the common ones.
   ezImageFormat::Enum compatibleFormats[] =
@@ -88,7 +88,7 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
       return EZ_FAILURE;
     }
 
-    return WriteImage(stream, convertedImage, pLog);
+    return WriteImage(stream, convertedImage, pLog, szFileExtension);
   }
 
   const bool bCompress = true;
@@ -277,7 +277,7 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
 }
 
 
-ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLogInterface* pLog) const
+ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLogInterface* pLog, const char* szFileExtension) const
 {
   TgaHeader Header;
   stream >> Header.m_iImageIDLength;

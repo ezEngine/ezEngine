@@ -116,13 +116,13 @@ ezResourceLoadDesc ezDecalAtlasResource::UpdateContent(ezStreamReader* Stream)
     ezDdsFileFormat dds;
     ezImage baseColor, normal;
 
-    if (dds.ReadImage(*Stream, baseColor, ezLog::GetThreadLocalLogSystem()).Failed())
+    if (dds.ReadImage(*Stream, baseColor, ezLog::GetThreadLocalLogSystem(), "dds").Failed())
     {
       ezLog::Error("Failed to load baseColor image for decal atlas");
       return res;
     }
 
-    if (dds.ReadImage(*Stream, normal, ezLog::GetThreadLocalLogSystem()).Failed())
+    if (dds.ReadImage(*Stream, normal, ezLog::GetThreadLocalLogSystem(), "dds").Failed())
     {
       ezLog::Error("Failed to load normal image for decal atlas");
       return res;

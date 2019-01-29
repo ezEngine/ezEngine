@@ -105,7 +105,7 @@ struct ezBmpBgrxQuad
   ezUInt8 m_reserved;
 };
 
-ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog) const
+ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog, const char* szFileExtension) const
 {
   // Technically almost arbitrary formats are supported, but we only use the common ones.
   ezImageFormat::Enum compatibleFormats[] =
@@ -137,7 +137,7 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
       return EZ_FAILURE;
     }
 
-    return WriteImage(stream, convertedImage, pLog);
+    return WriteImage(stream, convertedImage, pLog, szFileExtension);
   }
 
   ezUInt32 uiRowPitch = image.GetRowPitch(0);
@@ -294,7 +294,7 @@ namespace
   }
 }
 
-ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLogInterface* pLog) const
+ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLogInterface* pLog, const char* szFileExtension) const
 {
   ezBmpFileHeader fileHeader;
   if (stream.ReadBytes(&fileHeader, sizeof(ezBmpFileHeader)) != sizeof(ezBmpFileHeader))

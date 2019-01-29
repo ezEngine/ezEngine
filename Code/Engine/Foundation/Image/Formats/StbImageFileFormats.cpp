@@ -51,7 +51,7 @@ namespace
 
 } // namespace
 
-ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& stream, ezImage& image, ezLogInterface* pLog) const
+ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& stream, ezImage& image, ezLogInterface* pLog, const char* szFileExtension) const
 {
   // stbi_io_callbacks callbacks;
   // callbacks.read = &read;
@@ -128,7 +128,7 @@ ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& stream, ezImage& image
   return EZ_SUCCESS;
 }
 
-ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog) const
+ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog, const char* szFileExtension) const
 {
   ezImageFormat::Enum compatibleFormats[] = {ezImageFormat::R8_UNORM, ezImageFormat::R8G8B8_UNORM, ezImageFormat::R8G8B8A8_UNORM};
 
@@ -154,7 +154,7 @@ ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& stream, const ezImage
       return EZ_FAILURE;
     }
 
-    return WriteImage(stream, convertedImage, pLog);
+    return WriteImage(stream, convertedImage, pLog, szFileExtension);
   }
 
 

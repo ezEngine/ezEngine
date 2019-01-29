@@ -241,7 +241,7 @@ ezResult ezTextureResourceLoader::LoadTexFile(ezStreamReader& stream, LoadedData
   if (data.m_iRenderTargetResolutionX == 0)
   {
     ezDdsFileFormat fmt;
-    return fmt.ReadImage(stream, data.m_Image, ezLog::GetThreadLocalLogSystem());
+    return fmt.ReadImage(stream, data.m_Image, ezLog::GetThreadLocalLogSystem(), "dds");
   }
   else
   {
