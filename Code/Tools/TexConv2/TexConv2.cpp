@@ -10,9 +10,6 @@
 - from multiple 2d textures
 - from single 2d texture
 
-- bool: flip horizontal for 2D
-- bool: premultiply alpha
-- float: hdr exposure bias
 - low res output
 - thumbnail output
 - BC7 compression support
@@ -26,7 +23,6 @@
 - normal map from heightmap ?
 
 - docs for params / help
-
 */
 
 
@@ -233,6 +229,7 @@ ezResult ezTexConv2::DetectOutputFormat()
   return EZ_FAILURE;
 }
 
+
 ezApplication::ApplicationExecution ezTexConv2::Run()
 {
   if (ParseCommandLine().Failed())
@@ -250,7 +247,6 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
   {
     ezLog::Success("Wrote output '{}'", m_sOutputFile);
   }
-
 
   return ezApplication::ApplicationExecution::Quit;
 }

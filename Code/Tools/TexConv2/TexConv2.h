@@ -42,12 +42,14 @@ public:
   ezResult ParseWrapModes();
   ezResult ParseFilterModes();
   ezResult ParseResolutionModifiers();
+  ezResult ParseMiscOptions();
 
   ezResult ParseUIntOption(const char* szOption, ezInt32 iMinValue, ezInt32 iMaxValue, ezUInt32& uiResult) const;
   ezResult ParseFloatOption(const char* szOption, float fMinValue, float fMaxValue, float& fResult) const;
   ezResult ParseBoolOption(const char* szOption, bool& bResult) const;
   ezResult ParseStringOption(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed, ezInt32& iResult) const;
   void PrintOptionValues(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed) const;
+  bool ParseFile(const char* szOption, ezString& result) const;
 
 private:
   ezString m_sOutputFile;

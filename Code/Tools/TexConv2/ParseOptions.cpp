@@ -15,6 +15,7 @@ ezResult ezTexConv2::ParseCommandLine()
   EZ_SUCCEED_OR_RETURN(ParseWrapModes());
   EZ_SUCCEED_OR_RETURN(ParseFilterModes());
   EZ_SUCCEED_OR_RETURN(ParseResolutionModifiers());
+  EZ_SUCCEED_OR_RETURN(ParseMiscOptions());
   EZ_SUCCEED_OR_RETURN(ParseInputFiles());
   EZ_SUCCEED_OR_RETURN(ParseChannelMappings());
 
@@ -140,39 +141,16 @@ ezResult ezTexConv2::ParseOutputFiles()
 {
   const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
 
-  m_sOutputFile = pCmd->GetStringOption("-out");
-  ezLog::Info("Output file: '{}'", m_sOutputFile);
+  ParseFile("-out", m_sOutputFile);
 
-  m_sOutputThumbnailFile = pCmd->GetStringOption("-thumbnailOut");
-  if (!m_sOutputThumbnailFile.IsEmpty())
+  if (ParseFile("-thumbnailOut", m_sOutputThumbnailFile))
   {
-    ezLog::Info("Thumbnail output file: '{}'", m_sOutputThumbnailFile);
-
-    auto& resolution = m_Processor.m_Descriptor.m_uiThumbnailOutputResolution;
-    resolution = pCmd->GetIntOption("-thumbnailRes", 256);
-    ezLog::Info("Thumbnail resolution: '{}'", resolution);
-
-    if (resolution < 32 || resolution > 1024 || !ezMath::IsPowerOf2(resolution))
-    {
-      ezLog::Error("Thumbnail output dimension must be between 32 and 1024 and a power-of-two.");
-      return EZ_FAILURE;
-    }
+    EZ_SUCCEED_OR_RETURN(ParseUIntOption("-thumbnailRes", 32, 1024, m_Processor.m_Descriptor.m_uiThumbnailOutputResolution));
   }
 
-  m_sOutputLowResFile = pCmd->GetStringOption("-lowOut");
-  if (!m_sOutputLowResFile.IsEmpty())
+  if (ParseFile("-lowOut", m_sOutputLowResFile))
   {
-    ezLog::Info("LowRes output file: '{}'", m_sOutputThumbnailFile);
-
-    auto& resolution = m_Processor.m_Descriptor.m_uiLowResOutputResolution;
-    resolution = pCmd->GetIntOption("-lowRes", 32);
-    ezLog::Info("LowRes resolution: '{}'", resolution);
-
-    if (resolution < 4 || resolution > 256 || !ezMath::IsPowerOf2(resolution))
-    {
-      ezLog::Error("LowRes output dimension must be between 4 and 256 and a power-of-two.");
-      return EZ_FAILURE;
-    }
+    EZ_SUCCEED_OR_RETURN(ParseUIntOption("-lowRes", 4, 256, m_Processor.m_Descriptor.m_uiLowResOutputResolution));
   }
 
   return EZ_SUCCESS;
@@ -284,6 +262,28 @@ ezResult ezTexConv2::ParseResolutionModifiers()
   EZ_SUCCEED_OR_RETURN(ParseUIntOption("-minRes", 4, 8 * 1024, m_Processor.m_Descriptor.m_uiMinResolution));
   EZ_SUCCEED_OR_RETURN(ParseUIntOption("-maxRes", 4, 8 * 1024, m_Processor.m_Descriptor.m_uiMaxResolution));
   EZ_SUCCEED_OR_RETURN(ParseUIntOption("-downscale", 0, 10, m_Processor.m_Descriptor.m_uiDownscaleSteps));
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezTexConv2::ParseMiscOptions()
+{
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Texture2D)
+  {
+    EZ_SUCCEED_OR_RETURN(ParseBoolOption("-flipHorz", m_Processor.m_Descriptor.m_bFlipHorizontal));
+    EZ_SUCCEED_OR_RETURN(ParseBoolOption("-premultAlpha", m_Processor.m_Descriptor.m_bPremultiplyAlpha));
+  }
+
+  if (m_Processor.m_Descriptor.m_Usage == ezTexConvUsage::Color_Hdr ||
+    m_Processor.m_Descriptor.m_Usage == ezTexConvUsage::Grayscale_Hdr ||
+    m_Processor.m_Descriptor.m_Usage == ezTexConvUsage::Compressed_Hdr_3_Channel ||
+    (m_Processor.m_Descriptor.m_Usage >= ezTexConvUsage::Uncompressed_16_Bit_UNorm_1_Channel &&
+    m_Processor.m_Descriptor.m_Usage <= ezTexConvUsage::Uncompressed_32_Bit_Float_4_Channel))
+  {
+    // HDR format
+
+    EZ_SUCCEED_OR_RETURN(ParseFloatOption("-hdrExposure", 0.01f, 100.0f, m_Processor.m_Descriptor.m_fHdrExposureBias));
+  }
 
   return EZ_SUCCESS;
 }

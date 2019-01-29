@@ -22,12 +22,7 @@ ezResult ezTexConv2::ParseBoolOption(const char* szOption, bool& bResult) const
 ezResult ezTexConv2::ParseUIntOption(const char* szOption, ezInt32 iMinValue, ezInt32 iMaxValue, ezUInt32& uiResult) const
 {
   const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
-
-  if (pCmd->GetOptionIndex(szOption) == -1)
-  {
-    ezLog::Info("Using default '{}': '{}'.", szOption, uiResult);
-    return EZ_SUCCESS;
-  }
+  const ezUInt32 uiDefault = uiResult;
 
   const ezInt32 val = pCmd->GetIntOption(szOption, uiResult);
 
@@ -38,6 +33,13 @@ ezResult ezTexConv2::ParseUIntOption(const char* szOption, ezInt32 iMinValue, ez
   }
 
   uiResult = static_cast<ezUInt32>(val);
+
+  if (uiResult == uiDefault)
+  {
+    ezLog::Info("Using default '{}': '{}'.", szOption, uiResult);
+    return EZ_SUCCESS;
+  }
+
   ezLog::Info("Selected '{}': '{}'.", szOption, uiResult);
 
   return EZ_SUCCESS;
@@ -46,12 +48,7 @@ ezResult ezTexConv2::ParseUIntOption(const char* szOption, ezInt32 iMinValue, ez
 ezResult ezTexConv2::ParseFloatOption(const char* szOption, float fMinValue, float fMaxValue, float& fResult) const
 {
   const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
-
-  if (pCmd->GetOptionIndex(szOption) == -1)
-  {
-    ezLog::Info("Using default '{}': '{}'.", szOption, fResult);
-    return EZ_SUCCESS;
-  }
+  float fDefault = fResult;
 
   const float val = pCmd->GetFloatOption(szOption, fResult);
 
@@ -62,6 +59,13 @@ ezResult ezTexConv2::ParseFloatOption(const char* szOption, float fMinValue, flo
   }
 
   fResult = val;
+
+  if (fResult == fDefault)
+  {
+    ezLog::Info("Using default '{}': '{}'.", szOption, fResult);
+    return EZ_SUCCESS;
+  }
+
   ezLog::Info("Selected '{}': '{}'.", szOption, fResult);
 
   return EZ_SUCCESS;
@@ -105,5 +109,22 @@ void ezTexConv2::PrintOptionValues(const char* szOption, const ezDynamicArray<Ke
   for (ezUInt32 i = 0; i < allowed.GetCount(); ++i)
   {
     ezLog::Info("  {}", allowed[i].m_szKey);
+  }
+}
+
+bool ezTexConv2::ParseFile(const char* szOption, ezString& result) const
+{
+  const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
+  result = pCmd->GetStringOption(szOption);
+
+  if (!result.IsEmpty())
+  {
+    ezLog::Info("'{}' file: '{}'", szOption, result);
+    return true;
+  }
+  else
+  {
+    ezLog::Info("No '{}' file specified.", szOption);
+    return false;
   }
 }
