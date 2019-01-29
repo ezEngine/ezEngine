@@ -9,7 +9,7 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 
-struct ezGameApplicationEvent;
+struct ezGameApplicationExecutionEvent;
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
 
 class EZ_OPENVRPLUGIN_DLL ezOpenVR : public ezVRInterface
@@ -40,7 +40,7 @@ public:
   virtual ezGALTextureHandle GetCompanionViewRenderTarget() const override;
 
 private:
-  void GameApplicationEventHandler(const ezGameApplicationEvent& e);
+  void GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e);
   void GALDeviceEventHandler(const ezGALDeviceEvent& e);
   void OnBeginRender(ezUInt64);
 

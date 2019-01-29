@@ -60,7 +60,8 @@ bool ezOpenVR::Initialize()
   }
 
   m_bInitialized = true;
-  ezGameApplication::GetGameApplicationInstance()->m_Events.AddEventHandler(ezMakeDelegate(&ezOpenVR::GameApplicationEventHandler, this));
+  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(
+      ezMakeDelegate(&ezOpenVR::GameApplicationEventHandler, this));
   ezRenderWorld::s_BeginRenderEvent.AddEventHandler(ezMakeDelegate(&ezOpenVR::OnBeginRender, this));
   ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(ezMakeDelegate(&ezOpenVR::GALDeviceEventHandler, this));
   ReadHMDInfo();
@@ -84,8 +85,8 @@ void ezOpenVR::Deinitialize()
 {
   if (m_bInitialized)
   {
-    ezGameApplication::GetGameApplicationInstance()->m_Events.RemoveEventHandler(
-        ezMakeDelegate(&ezOpenVR::GameApplicationEventHandler, ezOpenVR::GetSingleton()));
+    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(
+        ezMakeDelegate(&ezOpenVR::GameApplicationEventHandler, this));
     ezRenderWorld::s_BeginRenderEvent.RemoveEventHandler(ezMakeDelegate(&ezOpenVR::OnBeginRender, this));
     ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezOpenVR::GALDeviceEventHandler, this));
 
@@ -169,8 +170,8 @@ ezEvent<const ezVRDeviceEvent&>& ezOpenVR::DeviceEvents()
   return m_DeviceEvents;
 }
 
-ezViewHandle ezOpenVR::CreateVRView(const ezRenderPipelineResourceHandle& hRenderPipeline, ezCamera* pCamera,
-                                    ezGALMSAASampleCount::Enum msaaCount)
+ezViewHandle ezOpenVR::CreateVRView(
+    const ezRenderPipelineResourceHandle& hRenderPipeline, ezCamera* pCamera, ezGALMSAASampleCount::Enum msaaCount)
 {
   SetHMDCamera(pCamera);
 
@@ -182,8 +183,8 @@ ezViewHandle ezOpenVR::CreateVRView(const ezRenderPipelineResourceHandle& hRende
 
   {
     ezGALTextureCreationDescription tcd;
-    tcd.SetAsRenderTarget(m_Info.m_vEyeRenderTargetSize.x, m_Info.m_vEyeRenderTargetSize.y, ezGALResourceFormat::RGBAUByteNormalizedsRGB,
-                          msaaCount);
+    tcd.SetAsRenderTarget(
+        m_Info.m_vEyeRenderTargetSize.x, m_Info.m_vEyeRenderTargetSize.y, ezGALResourceFormat::RGBAUByteNormalizedsRGB, msaaCount);
     tcd.m_uiArraySize = 2;
     m_hColorRT = pDevice->CreateTexture(tcd);
 
@@ -274,11 +275,11 @@ ezGALTextureHandle ezOpenVR::GetCompanionViewRenderTarget() const
   return m_hCompanionRenderTarget;
 }
 
-void ezOpenVR::GameApplicationEventHandler(const ezGameApplicationEvent& e)
+void ezOpenVR::GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e)
 {
   EZ_ASSERT_DEV(m_bInitialized, "Need to call 'Initialize' first.");
 
-  if (e.m_Type == ezGameApplicationEvent::Type::BeforeUpdatePlugins)
+  if (e.m_Type == ezGameApplicationExecutionEvent::Type::BeforeUpdatePlugins)
   {
     vr::VREvent_t event;
     while (m_pHMD->PollNextEvent(&event, sizeof(event)))
@@ -298,7 +299,7 @@ void ezOpenVR::GameApplicationEventHandler(const ezGameApplicationEvent& e)
       }
     }
   }
-  else if (e.m_Type == ezGameApplicationEvent::Type::BeforePresent)
+  else if (e.m_Type == ezGameApplicationExecutionEvent::Type::BeforePresent)
   {
     if (m_hView.IsInvalidated())
       return;
@@ -324,8 +325,7 @@ void ezOpenVR::GameApplicationEventHandler(const ezGameApplicationEvent& e)
       destSubRes.m_uiArraySlice = 0;
       destSubRes.m_uiMipLevel = 0;
 
-      pGALContext->CopyTextureRegion(
-          hRight, destSubRes, ezVec3U32(0, 0, 0), m_hColorRT, sourceSubRes,
+      pGALContext->CopyTextureRegion(hRight, destSubRes, ezVec3U32(0, 0, 0), m_hColorRT, sourceSubRes,
           ezBoundingBoxu32(ezVec3U32(0, 0, 0), ezVec3U32(m_Info.m_vEyeRenderTargetSize.x, m_Info.m_vEyeRenderTargetSize.y, 1)));
     }
     else
@@ -380,10 +380,10 @@ void ezOpenVR::GameApplicationEventHandler(const ezGameApplicationEvent& e)
       ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(hRight);
     }
   }
-  else if (e.m_Type == ezGameApplicationEvent::Type::BeginAppTick)
+  else if (e.m_Type == ezGameApplicationExecutionEvent::Type::BeginAppTick)
   {
   }
-  else if (e.m_Type == ezGameApplicationEvent::Type::AfterPresent)
+  else if (e.m_Type == ezGameApplicationExecutionEvent::Type::AfterPresent)
   {
     // This tells the compositor we submitted the frames are done rendering to them this frame.
     vr::VRCompositor()->PostPresentHandoff();
@@ -569,8 +569,8 @@ void ezOpenVR::UpdatePoses()
     // put the camera orientation into the sound listener and enable the listener override mode
     if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>("ezSoundInterface"))
     {
-      pSoundInterface->SetListener(-1, m_VRCamera.GetCenterPosition(), m_VRCamera.GetCenterDirForwards(), m_VRCamera.GetCenterDirUp(),
-                                   ezVec3::ZeroVector());
+      pSoundInterface->SetListener(
+          -1, m_VRCamera.GetCenterPosition(), m_VRCamera.GetCenterDirForwards(), m_VRCamera.GetCenterDirUp(), ezVec3::ZeroVector());
     }
   }
 }
@@ -652,8 +652,8 @@ ezMat4 ezOpenVR::GetHMDEyePose(vr::Hmd_Eye nEye) const
   return matrixObj;
 }
 
-ezString ezOpenVR::GetTrackedDeviceString(vr::TrackedDeviceIndex_t unDevice, vr::TrackedDeviceProperty prop,
-                                          vr::TrackedPropertyError* peError) const
+ezString ezOpenVR::GetTrackedDeviceString(
+    vr::TrackedDeviceIndex_t unDevice, vr::TrackedDeviceProperty prop, vr::TrackedPropertyError* peError) const
 {
   EZ_ASSERT_DEV(m_pHMD, "Need to call 'Initialize' first.");
 

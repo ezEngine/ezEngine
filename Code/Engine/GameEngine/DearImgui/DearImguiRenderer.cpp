@@ -7,6 +7,8 @@
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererFoundation/Device/Device.h>
 #include <ThirdParty/Imgui/imgui_internal.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImguiRenderData, 1, ezRTTINoAllocator)
