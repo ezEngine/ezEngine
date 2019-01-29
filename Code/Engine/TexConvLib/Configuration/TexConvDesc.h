@@ -15,8 +15,8 @@ struct ezTexConvChannelMapping
   ezTexConvChannelValue::Enum m_ChannelValue;
 };
 
-  /// Describes from which input file to read which channel and then write it to the R, G, B, or A channel of the
-  /// output file. The four elements of the array represent the four channels of the output image.
+/// Describes from which input file to read which channel and then write it to the R, G, B, or A channel of the
+/// output file. The four elements of the array represent the four channels of the output image.
 struct ezTexConvSliceChannelMapping
 {
   ezTexConvChannelMapping m_Channel[4] = {
@@ -30,6 +30,7 @@ struct ezTexConvSliceChannelMapping
 class EZ_TEXCONV_DLL ezTexConvDesc
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezTexConvDesc);
+
 public:
   ezTexConvDesc() = default;
 
@@ -59,7 +60,7 @@ public:
 
   // Mipmaps / filtering
   ezEnum<ezTexConvMipmapMode> m_MipmapMode;
-  ezEnum<ezTexConvFilterMode> m_FilterMode;
+  ezEnum<ezTexConvFilterMode> m_FilterMode; // only used when writing to ez specific formats
   ezEnum<ezTexConvWrapMode> m_WrapModes[3]; // U, V, W
   bool m_bPreserveMipmapCoverage = false;
   float m_fMipmapAlphaThreshold = 0.5f;

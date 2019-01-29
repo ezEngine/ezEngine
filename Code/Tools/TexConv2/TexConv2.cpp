@@ -11,25 +11,23 @@
 - from single 2d texture
 
 - flip horizontal for 2D
-- decal atlas support
-- target platform switch
-- low res output
-- thumbnail output
-- compression mode
-- BC7 compression support
-- texture filtering
-- texture wrap modes
 - premultiply alpha
 - hdr exposure bias
-- ez texture output format
-- volume textures
-- normal map from heightmap ?
-- mipmap mode
 - min / max resolution
 - downscale steps
 - preserve mipmap coverage
 - mipmap alpha threshold
+- low res output
+- thumbnail output
+- BC7 compression support
+
+- ez texture output formats
+- decal atlas support
 - asset hash
+- render target
+
+- volume textures
+- normal map from heightmap ?
 
 - docs for params / help
 
@@ -39,8 +37,15 @@
 ezTexConv2::ezTexConv2()
     : ezApplication("TexConv2")
 {
+  // texture types
   {
-    m_AllowedUsages.PushBack({"Auto", ezTexConvUsage::Auto}); // default value
+    m_AllowedOutputTypes.PushBack({"2D", ezTexConvOutputType::Texture2D});
+    m_AllowedOutputTypes.PushBack({"cubemap", ezTexConvOutputType::TextureCube});
+  }
+
+  // texture usages
+  {
+    m_AllowedUsages.PushBack({"Auto", ezTexConvUsage::Auto});
     m_AllowedUsages.PushBack({"Color", ezTexConvUsage::Color});
     m_AllowedUsages.PushBack({"Color_Hdr", ezTexConvUsage::Color_Hdr});
     m_AllowedUsages.PushBack({"Grayscale", ezTexConvUsage::Grayscale});
@@ -68,10 +73,48 @@ ezTexConv2::ezTexConv2()
     m_AllowedUsages.PushBack({"Uncompressed_32_Bit_Float_4_Channel", ezTexConvUsage::Uncompressed_32_Bit_Float_4_Channel});
   }
 
+  // mipmap modes
   {
-    m_AllowedMimapModes.PushBack({"Linear", ezTexConvMipmapMode::Linear}); // default value
+    m_AllowedMimapModes.PushBack({"Linear", ezTexConvMipmapMode::Linear});
     m_AllowedMimapModes.PushBack({"Kaiser", ezTexConvMipmapMode::Kaiser});
     m_AllowedMimapModes.PushBack({"None", ezTexConvMipmapMode::None});
+  }
+
+  // platforms
+  {
+    m_AllowedPlatforms.PushBack({"PC", ezTexConvTargetPlatform::PC});
+    m_AllowedPlatforms.PushBack({"Android", ezTexConvTargetPlatform::Android});
+  }
+
+  // compression modes
+  {
+    m_AllowedCompressionModes.PushBack({"Quality", ezTexConvCompressionMode::OptimizeForQuality});
+    m_AllowedCompressionModes.PushBack({"Size", ezTexConvCompressionMode::OptimizeForSize});
+    m_AllowedCompressionModes.PushBack({"None", ezTexConvCompressionMode::Uncompressed});
+  }
+
+  // wrap modes
+  {
+    m_AllowedWrapModes.PushBack({"Repeat", ezTexConvWrapMode::Repeat});
+    m_AllowedWrapModes.PushBack({"Clamp", ezTexConvWrapMode::Clamp});
+    m_AllowedWrapModes.PushBack({"Mirror", ezTexConvWrapMode::Mirror});
+  }
+
+  // filter modes
+  {
+    m_AllowedFilterModes.PushBack({"Default", ezTexConvFilterMode::DefaultQuality});
+    m_AllowedFilterModes.PushBack({"Lowest", ezTexConvFilterMode::LowestQuality});
+    m_AllowedFilterModes.PushBack({"Low", ezTexConvFilterMode::LowQuality});
+    m_AllowedFilterModes.PushBack({"High", ezTexConvFilterMode::HighQuality});
+    m_AllowedFilterModes.PushBack({"Highest", ezTexConvFilterMode::HighestQuality});
+
+    m_AllowedFilterModes.PushBack({"Nearest", ezTexConvFilterMode::FixedNearest});
+    m_AllowedFilterModes.PushBack({"Bilinear", ezTexConvFilterMode::FixedBilinear});
+    m_AllowedFilterModes.PushBack({"Trilinear", ezTexConvFilterMode::FixedTrilinear});
+    m_AllowedFilterModes.PushBack({"Aniso2x", ezTexConvFilterMode::FixedAnisotropic2x});
+    m_AllowedFilterModes.PushBack({"Aniso4x", ezTexConvFilterMode::FixedAnisotropic4x});
+    m_AllowedFilterModes.PushBack({"Aniso8x", ezTexConvFilterMode::FixedAnisotropic8x});
+    m_AllowedFilterModes.PushBack({"Aniso16x", ezTexConvFilterMode::FixedAnisotropic16x});
   }
 }
 
@@ -92,28 +135,156 @@ void ezTexConv2::AfterCoreSystemsStartup()
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 }
 
+void ezTexConv2::BeforeCoreSystemsShutdown()
+{
+  ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
+  ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+
+  SUPER::BeforeCoreSystemsShutdown();
+}
+
 ezResult ezTexConv2::ParseCommandLine()
 {
-  const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
-
-  if (pCmd->GetOptionIndex("-cubemap") >= 0)
-  {
-    m_Processor.m_Descriptor.m_OutputType = ezTexConvOutputType::TextureCube;
-    ezLog::Info("Output type: Cubemap");
-  }
-  else
-  {
-    m_Processor.m_Descriptor.m_OutputType = ezTexConvOutputType::Texture2D;
-    ezLog::Info("Output type: 2D Texture");
-  }
-
   EZ_SUCCEED_OR_RETURN(ParseOutputFiles());
+  EZ_SUCCEED_OR_RETURN(DetectOutputFormat());
+
+  EZ_SUCCEED_OR_RETURN(ParseTargetPlatform());
+  EZ_SUCCEED_OR_RETURN(ParseOutputType());
+  EZ_SUCCEED_OR_RETURN(ParseCompressionMode());
   EZ_SUCCEED_OR_RETURN(ParseUsage());
   EZ_SUCCEED_OR_RETURN(ParseMipmapMode());
+  EZ_SUCCEED_OR_RETURN(ParseWrapModes());
+  EZ_SUCCEED_OR_RETURN(ParseFilterModes());
   EZ_SUCCEED_OR_RETURN(ParseInputFiles());
   EZ_SUCCEED_OR_RETURN(ParseChannelMappings());
 
   return EZ_SUCCESS;
+}
+
+ezResult ezTexConv2::ParseOutputType()
+{
+  ezInt32 value = -1;
+  EZ_SUCCEED_OR_RETURN(ParseStringOption("-type", m_AllowedOutputTypes, value));
+
+  m_Processor.m_Descriptor.m_OutputType = static_cast<ezTexConvOutputType::Enum>(value);
+
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Texture2D)
+  {
+    if (!m_bOutputSupports2D)
+    {
+      ezLog::Error("2D textures are not supported by the chosen output file format.");
+      return EZ_FAILURE;
+    }
+  }
+  else if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::TextureCube)
+  {
+    if (!m_bOutputSupportsCube)
+    {
+      ezLog::Error("Cubemap textures are not supported by the chosen output file format.");
+      return EZ_FAILURE;
+    }
+  }
+  else
+  {
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezTexConv2::DetectOutputFormat()
+{
+  ezStringBuilder sExt = ezPathUtils::GetFileExtension(m_sOutputFile);
+  sExt.ToUpper();
+
+  if (sExt == "DDS")
+  {
+    m_bOutputSupports2D = true;
+    m_bOutputSupports3D = true;
+    m_bOutputSupportsCube = true;
+    m_bOutputSupportsRenderTarget = false;
+    m_bOutputSupportsDecal = false;
+    m_bOutputSupportsMipmaps = true;
+    m_bOutputSupportsFiltering = false;
+    m_bOutputSupportsCompression = true;
+    return EZ_SUCCESS;
+  }
+  if (sExt == "TGA")
+  {
+    m_bOutputSupports2D = true;
+    m_bOutputSupports3D = false;
+    m_bOutputSupportsCube = false;
+    m_bOutputSupportsRenderTarget = false;
+    m_bOutputSupportsDecal = false;
+    m_bOutputSupportsMipmaps = false;
+    m_bOutputSupportsFiltering = false;
+    m_bOutputSupportsCompression = false;
+    return EZ_SUCCESS;
+  }
+  if (sExt == "EZTEXTURE2D")
+  {
+    m_bOutputSupports2D = true;
+    m_bOutputSupports3D = false;
+    m_bOutputSupportsCube = false;
+    m_bOutputSupportsRenderTarget = false;
+    m_bOutputSupportsDecal = false;
+    m_bOutputSupportsMipmaps = true;
+    m_bOutputSupportsFiltering = true;
+    m_bOutputSupportsCompression = true;
+    return EZ_SUCCESS;
+  }
+  if (sExt == "EZTEXTURE3D")
+  {
+    m_bOutputSupports2D = false;
+    m_bOutputSupports3D = true;
+    m_bOutputSupportsCube = false;
+    m_bOutputSupportsRenderTarget = false;
+    m_bOutputSupportsDecal = false;
+    m_bOutputSupportsMipmaps = false;
+    m_bOutputSupportsFiltering = true;
+    m_bOutputSupportsCompression = true;
+    return EZ_SUCCESS;
+  }
+  if (sExt == "EZTEXTURECUBE")
+  {
+    m_bOutputSupports2D = false;
+    m_bOutputSupports3D = false;
+    m_bOutputSupportsCube = true;
+    m_bOutputSupportsRenderTarget = false;
+    m_bOutputSupportsDecal = false;
+    m_bOutputSupportsMipmaps = true;
+    m_bOutputSupportsFiltering = true;
+    m_bOutputSupportsCompression = true;
+    return EZ_SUCCESS;
+  }
+  if (sExt == "EZRENDERTARGET")
+  {
+    m_bOutputSupports2D = false;
+    m_bOutputSupports3D = false;
+    m_bOutputSupportsCube = false;
+    m_bOutputSupportsRenderTarget = true;
+    m_bOutputSupportsDecal = false;
+    m_bOutputSupportsMipmaps = false;
+    m_bOutputSupportsFiltering = true;
+    m_bOutputSupportsCompression = false;
+    return EZ_SUCCESS;
+  }
+  if (sExt == "EZDECALATLAS")
+  {
+    m_bOutputSupports2D = false;
+    m_bOutputSupports3D = false;
+    m_bOutputSupportsCube = false;
+    m_bOutputSupportsRenderTarget = false;
+    m_bOutputSupportsDecal = true;
+    m_bOutputSupportsMipmaps = false;
+    m_bOutputSupportsFiltering = true;
+    m_bOutputSupportsCompression = true;
+    return EZ_SUCCESS;
+  }
+
+  ezLog::Error("Output file uses unsupported file format '{}'", sExt);
+  return EZ_FAILURE;
 }
 
 ezResult ezTexConv2::ParseInputFiles()
@@ -249,6 +420,8 @@ ezResult ezTexConv2::ParseStringOption(const char* szOption, const ezDynamicArra
   if (sValue.IsEmpty())
   {
     iResult = allowed[0].m_iEnumValue;
+
+    ezLog::Info("Using default '{}': '{}'", szOption, allowed[0].m_szKey);
     return EZ_SUCCESS;
   }
 
@@ -258,21 +431,26 @@ ezResult ezTexConv2::ParseStringOption(const char* szOption, const ezDynamicArra
     {
       iResult = allowed[i].m_iEnumValue;
 
-      ezLog::Info("Selected {}: '{}' ({})", szOption, allowed[i].m_szKey, allowed[i].m_iEnumValue);
+      ezLog::Info("Selected '{}': '{}'", szOption, allowed[i].m_szKey);
       return EZ_SUCCESS;
     }
   }
 
-  ezLog::Error("Unknown {}: '{}'.", szOption, sValue);
+  ezLog::Error("Unknown value for option '{}': '{}'.", szOption, sValue);
 
-  ezLog::Info("Available {} options are:", szOption);
+  PrintOptionValues(szOption, allowed);
+
+  return EZ_FAILURE;
+}
+
+void ezTexConv2::PrintOptionValues(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed) const
+{
+  ezLog::Info("Valid values for option '{}' are:", szOption);
 
   for (ezUInt32 i = 0; i < allowed.GetCount(); ++i)
   {
     ezLog::Info("  {}", allowed[i].m_szKey);
   }
-
-  return EZ_FAILURE;
 }
 
 ezResult ezTexConv2::ParseUsage()
@@ -286,10 +464,82 @@ ezResult ezTexConv2::ParseUsage()
 
 ezResult ezTexConv2::ParseMipmapMode()
 {
+  // if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Texture3D)
+  //  return EZ_SUCCESS;
+
+  if (!m_bOutputSupportsMipmaps)
+  {
+    m_Processor.m_Descriptor.m_MipmapMode = ezTexConvMipmapMode::None;
+    return EZ_SUCCESS;
+  }
+
   ezInt32 value = -1;
   EZ_SUCCEED_OR_RETURN(ParseStringOption("-mipmaps", m_AllowedMimapModes, value));
 
   m_Processor.m_Descriptor.m_MipmapMode = static_cast<ezTexConvMipmapMode::Enum>(value);
+  return EZ_SUCCESS;
+}
+
+ezResult ezTexConv2::ParseTargetPlatform()
+{
+  ezInt32 value = -1;
+  EZ_SUCCEED_OR_RETURN(ParseStringOption("-platform", m_AllowedPlatforms, value));
+
+  m_Processor.m_Descriptor.m_TargetPlatform = static_cast<ezTexConvTargetPlatform::Enum>(value);
+  return EZ_SUCCESS;
+}
+
+ezResult ezTexConv2::ParseCompressionMode()
+{
+  if (!m_bOutputSupportsCompression)
+  {
+    m_Processor.m_Descriptor.m_CompressionMode = ezTexConvCompressionMode::Uncompressed;
+    return EZ_SUCCESS;
+  }
+
+  ezInt32 value = -1;
+  EZ_SUCCEED_OR_RETURN(ParseStringOption("-compression", m_AllowedCompressionModes, value));
+
+  m_Processor.m_Descriptor.m_CompressionMode = static_cast<ezTexConvCompressionMode::Enum>(value);
+  return EZ_SUCCESS;
+}
+
+ezResult ezTexConv2::ParseWrapModes()
+{
+  // cubemaps do not require any wrap mode settings
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::TextureCube)
+    return EZ_SUCCESS;
+
+  {
+    ezInt32 value = -1;
+    EZ_SUCCEED_OR_RETURN(ParseStringOption("-wrapU", m_AllowedWrapModes, value));
+    m_Processor.m_Descriptor.m_WrapModes[0] = static_cast<ezTexConvWrapMode::Enum>(value);
+  }
+  {
+    ezInt32 value = -1;
+    EZ_SUCCEED_OR_RETURN(ParseStringOption("-wrapV", m_AllowedWrapModes, value));
+    m_Processor.m_Descriptor.m_WrapModes[1] = static_cast<ezTexConvWrapMode::Enum>(value);
+  }
+
+  // if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Texture3D)
+  //{
+  //  ezInt32 value = -1;
+  //  EZ_SUCCEED_OR_RETURN(ParseStringOption("-wrapW", m_AllowedWrapModes, value));
+  //  m_Processor.m_Descriptor.m_WrapModes[2] = static_cast<ezTexConvWrapMode::Enum>(value);
+  //}
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezTexConv2::ParseFilterModes()
+{
+  if (!m_bOutputSupportsFiltering)
+    return EZ_SUCCESS;
+
+  ezInt32 value = -1;
+  EZ_SUCCEED_OR_RETURN(ParseStringOption("-filter", m_AllowedFilterModes, value));
+
+  m_Processor.m_Descriptor.m_FilterMode = static_cast<ezTexConvFilterMode::Enum>(value);
   return EZ_SUCCESS;
 }
 
@@ -301,7 +551,15 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
   if (m_Processor.Process().Failed())
     return ezApplication::ApplicationExecution::Quit;
 
-  m_Processor.m_OutputImage.SaveTo(m_sOutputFile);
+  if (m_Processor.m_OutputImage.SaveTo(m_sOutputFile).Failed())
+  {
+    ezLog::Error("Failed to write result to output file '{}'", m_sOutputFile);
+    return ezApplication::ApplicationExecution::Quit;
+  }
+  else
+  {
+    ezLog::Success("Wrote output '{}'", m_sOutputFile);
+  }
 
 
   return ezApplication::ApplicationExecution::Quit;
