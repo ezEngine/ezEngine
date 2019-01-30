@@ -50,6 +50,9 @@ public:
   /// This is the case when the mouse hovers over any window or a text field has keyboard focus.
   bool WantsInput() const { return m_bImguiWantsInput; }
 
+  /// \brief Returns the shared font atlas
+  ImFontAtlas& GetFontAtlas() { return *m_pSharedFontAtlas; }
+
 private:
   friend class ezImguiExtractor;
   friend class ezImguiRenderer;
