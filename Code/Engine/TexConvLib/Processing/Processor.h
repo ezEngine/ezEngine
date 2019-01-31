@@ -31,6 +31,7 @@ private:
 
   ezResult LoadInputImages();
   ezResult AdjustTargetFormat();
+  ezResult ForceSRGBFormats();
   ezResult ChooseOutputFormat();
   ezResult DetermineTargetResolution();
   ezResult ConvertInputImagesToFloat32();

@@ -14,6 +14,8 @@ ezResult ezTexConvProcessor::Process()
 
   EZ_SUCCEED_OR_RETURN(AdjustTargetFormat());
 
+  EZ_SUCCEED_OR_RETURN(ForceSRGBFormats());
+
   EZ_SUCCEED_OR_RETURN(ChooseOutputFormat());
 
   EZ_SUCCEED_OR_RETURN(DetermineTargetResolution());

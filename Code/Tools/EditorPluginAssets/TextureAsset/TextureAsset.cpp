@@ -35,12 +35,12 @@ static const char* ToWrapMode(ezTexture2DAddressMode::Enum mode)
 {
   switch (mode)
   {
-  case ezTexture2DAddressMode::Wrap:
-    return "Repeat";
-  case ezTexture2DAddressMode::Mirror:
-    return "Mirror";
-  case ezTexture2DAddressMode::Clamp:
-    return "Clamp";
+    case ezTexture2DAddressMode::Wrap:
+      return "Repeat";
+    case ezTexture2DAddressMode::Mirror:
+      return "Mirror";
+    case ezTexture2DAddressMode::Clamp:
+      return "Clamp";
   }
 
   return "";
@@ -50,30 +50,30 @@ static const char* ToFilterMode(ezTextureFilterSetting::Enum mode)
 {
   switch (mode)
   {
-  case ezTextureFilterSetting::FixedNearest:
-    return "Nearest";
-  case ezTextureFilterSetting::FixedBilinear:
-    return "Bilinear";
-  case ezTextureFilterSetting::FixedTrilinear:
-    return "Trilinear";
-  case ezTextureFilterSetting::FixedAnisotropic2x:
-    return "Aniso2x";
-  case ezTextureFilterSetting::FixedAnisotropic4x:
-    return "Aniso4x";
-  case ezTextureFilterSetting::FixedAnisotropic8x:
-    return "Aniso8x";
-  case ezTextureFilterSetting::FixedAnisotropic16x:
-    return "Aniso16x";
-  case ezTextureFilterSetting::LowestQuality:
-    return "Lowest";
-  case ezTextureFilterSetting::LowQuality:
-    return "Low";
-  case ezTextureFilterSetting::DefaultQuality:
-    return "Default";
-  case ezTextureFilterSetting::HighQuality:
-    return "High";
-  case ezTextureFilterSetting::HighestQuality:
-    return "Highest";
+    case ezTextureFilterSetting::FixedNearest:
+      return "Nearest";
+    case ezTextureFilterSetting::FixedBilinear:
+      return "Bilinear";
+    case ezTextureFilterSetting::FixedTrilinear:
+      return "Trilinear";
+    case ezTextureFilterSetting::FixedAnisotropic2x:
+      return "Aniso2x";
+    case ezTextureFilterSetting::FixedAnisotropic4x:
+      return "Aniso4x";
+    case ezTextureFilterSetting::FixedAnisotropic8x:
+      return "Aniso8x";
+    case ezTextureFilterSetting::FixedAnisotropic16x:
+      return "Aniso16x";
+    case ezTextureFilterSetting::LowestQuality:
+      return "Lowest";
+    case ezTextureFilterSetting::LowQuality:
+      return "Low";
+    case ezTextureFilterSetting::DefaultQuality:
+      return "Default";
+    case ezTextureFilterSetting::HighQuality:
+      return "High";
+    case ezTextureFilterSetting::HighestQuality:
+      return "Highest";
   }
 
   return "";
@@ -201,7 +201,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(
         switch (pProp->GetNumChannels())
         {
           case 1:
-            arguments << (pProp->m_bCompression ? "Compressed_1_Channel" : "Uncompressed_8_Bit_UNorm_1_Channel");
+            arguments << "grayscale";
             break;
           case 2:
             arguments << (pProp->m_bCompression ? "Compressed_2_Channel" : "Uncompressed_8_Bit_UNorm_2_Channel");

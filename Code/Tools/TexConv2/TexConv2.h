@@ -56,6 +56,7 @@ public:
 
   bool IsTexFormat() const;
   ezResult WriteTexFile(ezStreamWriter& stream, const ezImage& image);
+  ezResult WriteOutputFile(const char* szFile, const ezImage& image);
 
 private:
   ezString m_sOutputFile;

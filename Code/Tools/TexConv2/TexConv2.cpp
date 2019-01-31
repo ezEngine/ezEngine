@@ -2,9 +2,9 @@
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/Image/Formats/DdsFileFormat.h>
 #include <TexConv2/TexConv2.h>
 #include <TexConvLib/ezTexFormat/ezTexFormat.h>
-#include <Foundation/Image/Formats/DdsFileFormat.h>
 
 /* TODO LIST:
 
@@ -262,6 +262,23 @@ ezResult ezTexConv2::WriteTexFile(ezStreamWriter& stream, const ezImage& image)
   return EZ_SUCCESS;
 }
 
+ezResult ezTexConv2::WriteOutputFile(const char* szFile, const ezImage& image)
+{
+  if (IsTexFormat())
+  {
+    ezDeferredFileWriter file;
+    file.SetOutput(szFile);
+
+    WriteTexFile(file, image);
+
+    return file.Close();
+  }
+  else
+  {
+    return image.SaveTo(szFile);
+  }
+}
+
 ezApplication::ApplicationExecution ezTexConv2::Run()
 {
   if (ParseCommandLine().Failed())
@@ -272,26 +289,10 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
 
   if (!m_sOutputFile.IsEmpty())
   {
-    if (IsTexFormat())
+    if (WriteOutputFile(m_sOutputFile, m_Processor.m_OutputImage).Failed())
     {
-      ezDeferredFileWriter file;
-      file.SetOutput(m_sOutputFile);
-
-      WriteTexFile(file, m_Processor.m_OutputImage);
-
-      if (file.Close().Failed())
-      {
-        ezLog::Error("Failed to write main result to '{}'", m_sOutputFile);
-        return ezApplication::ApplicationExecution::Quit;
-      }
-    }
-    else
-    {
-      if (m_Processor.m_OutputImage.SaveTo(m_sOutputFile).Failed())
-      {
-        ezLog::Error("Failed to write main result to '{}'", m_sOutputFile);
-        return ezApplication::ApplicationExecution::Quit;
-      }
+      ezLog::Error("Failed to write main result to '{}'", m_sOutputFile);
+      return ezApplication::ApplicationExecution::Quit;
     }
 
     ezLog::Success("Wrote main result to '{}'", m_sOutputFile);
@@ -310,7 +311,7 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
 
   if (!m_sOutputLowResFile.IsEmpty() && m_Processor.m_LowResOutputImage.GetNumMipLevels() > 0)
   {
-    if (m_Processor.m_LowResOutputImage.SaveTo(m_sOutputLowResFile).Failed())
+    if (WriteOutputFile(m_sOutputLowResFile, m_Processor.m_LowResOutputImage).Failed())
     {
       ezLog::Error("Failed to write low-res result to '{}'", m_sOutputLowResFile);
       return ezApplication::ApplicationExecution::Quit;

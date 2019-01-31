@@ -142,7 +142,6 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
   }
 
   ezTexture2DResourceDescriptor td;
-  ezEnum<ezTextureFilterSetting> textureFilter;
   ezImage* pImage = nullptr;
   bool bIsFallback = false;
   ezTexFormat texFormat;
@@ -152,6 +151,10 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
     Stream->ReadBytes(&pImage, sizeof(ezImage*));
     *Stream >> bIsFallback;
     texFormat.ReadHeader(*Stream);
+
+    td.m_SamplerDesc.m_AddressU = static_cast<ezGALTextureAddressMode::Enum>(texFormat.m_WrapModeU.GetValue());
+    td.m_SamplerDesc.m_AddressV = static_cast<ezGALTextureAddressMode::Enum>(texFormat.m_WrapModeV.GetValue());
+    td.m_SamplerDesc.m_AddressW = static_cast<ezGALTextureAddressMode::Enum>(texFormat.m_WrapModeW.GetValue());
   }
 
   const bool bIsRenderTarget = texFormat.m_iRenderTargetResolutionX != 0;
@@ -209,7 +212,7 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
       ezHybridArray<ezGALSystemMemoryDescription, 32> initData;
       FillOutDescriptor(td, pImage, texFormat.m_bSRGB, uiUploadNumMipLevels, m_uiMemoryGPU[m_uiLoadedTextures], initData);
 
-      ezTextureUtils::ConfigureSampler(textureFilter, td.m_SamplerDesc);
+      ezTextureUtils::ConfigureSampler(static_cast<ezTextureFilterSetting::Enum>(texFormat.m_TextureFilter.GetValue()), td.m_SamplerDesc);
 
       // ignore its return value here, we build our own
       CreateResource(std::move(td));
@@ -405,7 +408,6 @@ ezResourceLoadDesc ezRenderToTexture2DResource::UpdateContent(ezStreamReader* St
   }
 
   ezRenderToTexture2DResourceDescriptor td;
-  ezEnum<ezTextureFilterSetting> textureFilter;
   ezImage* pImage = nullptr;
   bool bIsFallback = false;
   ezTexFormat texFormat;
@@ -415,6 +417,10 @@ ezResourceLoadDesc ezRenderToTexture2DResource::UpdateContent(ezStreamReader* St
     Stream->ReadBytes(&pImage, sizeof(ezImage*));
     *Stream >> bIsFallback;
     texFormat.ReadHeader(*Stream);
+
+    td.m_SamplerDesc.m_AddressU = static_cast<ezGALTextureAddressMode::Enum>(texFormat.m_WrapModeU.GetValue());
+    td.m_SamplerDesc.m_AddressV = static_cast<ezGALTextureAddressMode::Enum>(texFormat.m_WrapModeV.GetValue());
+    td.m_SamplerDesc.m_AddressW = static_cast<ezGALTextureAddressMode::Enum>(texFormat.m_WrapModeW.GetValue());
   }
 
   const bool bIsRenderTarget = texFormat.m_iRenderTargetResolutionX != 0;
@@ -446,7 +452,7 @@ ezResourceLoadDesc ezRenderToTexture2DResource::UpdateContent(ezStreamReader* St
     td.m_uiWidth = texFormat.m_iRenderTargetResolutionX;
     td.m_uiHeight = texFormat.m_iRenderTargetResolutionY;
 
-    ezTextureUtils::ConfigureSampler(textureFilter, td.m_SamplerDesc);
+    ezTextureUtils::ConfigureSampler(static_cast<ezTextureFilterSetting::Enum>(texFormat.m_TextureFilter.GetValue()), td.m_SamplerDesc);
 
     m_uiLoadedTextures = 0;
 

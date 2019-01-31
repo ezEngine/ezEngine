@@ -88,3 +88,27 @@ ezResult ezTexConvProcessor::ResizeInputImagesToSameDimensions()
 
   return EZ_SUCCESS;
 }
+
+ezResult ezTexConvProcessor::ForceSRGBFormats()
+{
+  // if the output is going to be sRGB, assume the incoming RGB data is also already in sRGB
+  if (m_Descriptor.m_Usage == ezTexConvUsage::Color || m_Descriptor.m_Usage == ezTexConvUsage::Compressed_4_Channel_sRGB ||
+      m_Descriptor.m_Usage == ezTexConvUsage::Uncompressed_8_Bit_UNorm_4_Channel_SRGB)
+  {
+    for (const auto& mapping : m_Descriptor.m_ChannelMappings)
+    {
+      // do not enforce sRGB conversion for textures that are mapped to the alpha channel
+      for (ezUInt32 i = 0; i < 3; ++i)
+      {
+        const ezInt32 iTex = mapping.m_Channel[i].m_iInputImageIndex;
+        if (iTex != -1)
+        {
+          auto& img = m_Descriptor.m_InputImages[iTex];
+          img.ForceSRGBFormat();
+        }
+      }
+    }
+  }
+
+  return EZ_SUCCESS;
+}

@@ -100,6 +100,11 @@ ezImageView ezImageView::GetRowView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace
   return ezImageView(header, ezArrayPtr<const void>(dataSlice.GetPtr(), dataSlice.GetCount()));
 }
 
+void ezImageView::ForceSRGBFormat()
+{
+  SetImageFormat(ezImageFormat::AsSrgb(GetImageFormat()));
+}
+
 ezUInt32 ezImageView::ComputeLayout()
 {
   m_subImageOffsets.Clear();

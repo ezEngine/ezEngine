@@ -46,6 +46,8 @@ public:
   const T* GetPixelPointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 x = 0, ezUInt32 y = 0,
                            ezUInt32 z = 0) const;
 
+  void ForceSRGBFormat();
+
 public:
   using ezImageHeader::GetDepth;
   using ezImageHeader::GetHeight;
