@@ -150,7 +150,7 @@ ezResult ezTexConv2::ParseOutputFiles()
 
   if (ParseFile("-lowOut", m_sOutputLowResFile))
   {
-    EZ_SUCCEED_OR_RETURN(ParseUIntOption("-lowRes", 4, 256, m_Processor.m_Descriptor.m_uiLowResOutputResolution));
+    EZ_SUCCEED_OR_RETURN(ParseUIntOption("-lowMips", 0, 8, m_Processor.m_Descriptor.m_uiLowResMipmaps));
   }
 
   return EZ_SUCCESS;

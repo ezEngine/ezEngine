@@ -30,6 +30,8 @@ ezResult ezTexConvProcessor::Process()
 
   EZ_SUCCEED_OR_RETURN(GenerateThumbnailOutput());
 
+  EZ_SUCCEED_OR_RETURN(GenerateLowResOutput());
+
   return EZ_SUCCESS;
 }
 
@@ -102,6 +104,40 @@ ezResult ezTexConvProcessor::GenerateThumbnailOutput()
   }
 
   m_ThumbnailOutputImage.ResetAndMove(std::move(*m_pCurrentScratchImage));
+  if (m_ThumbnailOutputImage.Convert(ezImageFormat::R8G8B8A8_UNORM_SRGB).Failed())
+  {
+    ezLog::Error("Failed to convert thumbnail image to RGBA8.");
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezTexConvProcessor::GenerateLowResOutput()
+{
+  if (m_Descriptor.m_uiLowResMipmaps == 0)
+    return EZ_SUCCESS;
+
+  if (m_Descriptor.m_MipmapMode == ezTexConvMipmapMode::None)
+  {
+    ezLog::Error("LowRes data cannot be generated for images without mipmaps.");
+    return EZ_FAILURE;
+  }
+
+  if (m_OutputImage.GetNumMipLevels() <= m_Descriptor.m_uiLowResMipmaps)
+  {
+    // probably just a low-resolution input image, do not generate output, but also do not fail
+    ezLog::Warning("LowRes image not generated, original resolution is already below threshold.");
+    return EZ_SUCCESS;
+  }
+
+  if (ezImageUtils::ExtractLowerMipChain(m_OutputImage, *m_pCurrentScratchImage, m_Descriptor.m_uiLowResMipmaps).Failed())
+  {
+    ezLog::Error("Failed to extract low-res mipmap chain from output image.");
+    return EZ_FAILURE;
+  }
+
+  m_LowResOutputImage.ResetAndMove(std::move(*m_pCurrentScratchImage));
 
   return EZ_SUCCESS;
 }

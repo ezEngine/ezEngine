@@ -10,8 +10,6 @@
 - from multiple 2d textures
 - from single 2d texture
 
-- low res output
-- thumbnail output
 - BC7 compression support
 
 - ez texture output formats
@@ -261,6 +259,19 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
     else
     {
       ezLog::Success("Wrote thumbnail to '{}'", m_sOutputThumbnailFile);
+    }
+  }
+
+  if (!m_sOutputLowResFile.IsEmpty() && m_Processor.m_LowResOutputImage.GetNumMipLevels() > 0)
+  {
+    if (m_Processor.m_LowResOutputImage.SaveTo(m_sOutputLowResFile).Failed())
+    {
+      ezLog::Error("Failed to write low-res result to '{}'", m_sOutputLowResFile);
+      return ezApplication::ApplicationExecution::Quit;
+    }
+    else
+    {
+      ezLog::Success("Wrote low-res result to '{}'", m_sOutputLowResFile);
     }
   }
 

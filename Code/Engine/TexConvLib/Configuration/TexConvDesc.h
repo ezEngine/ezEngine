@@ -44,10 +44,10 @@ public:
   ezEnum<ezTexConvTargetPlatform> m_TargetPlatform; // TODO: implement android
 
   // low resolution output
-  ezUInt32 m_uiLowResOutputResolution = 0; // TODO: implement low res output
+  ezUInt32 m_uiLowResMipmaps = 0;
 
   // thumbnail output
-  ezUInt32 m_uiThumbnailOutputResolution = 0; // TODO: implement thumbnail output
+  ezUInt32 m_uiThumbnailOutputResolution = 0;
 
   // Format / Compression
   ezEnum<ezTexConvUsage> m_Usage;

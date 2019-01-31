@@ -41,6 +41,7 @@ private:
   ezResult GenerateOutput();
 
   ezResult GenerateThumbnailOutput();
+  ezResult GenerateLowResOutput();
 
 
 };
