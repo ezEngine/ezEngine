@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5189305147899033520,5264929536831011917}}
-		u4 %Hash{288965423123360669}
+		u4 %Hash{14144423706311258486}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -145,6 +145,13 @@ o
 {
 	Uuid %id{u4{3259784978119279725,4438148732971347066}}
 	s %t{"ezPassThroughNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{8981284243951513277,4618163308052366697}}
+	s %t{"ezImguiRenderer"}
 	u3 %v{1}
 	p{}
 }
@@ -434,6 +441,7 @@ o
 			Uuid{u4{16883636273468668820,5091626474797130685}}
 			Uuid{u4{17992563033076071050,5694931789517870114}}
 			Uuid{u4{13656997494956283578,5241303231772026673}}
+			Uuid{u4{8981284243951513277,4618163308052366697}}
 		}
 	}
 }
@@ -651,6 +659,19 @@ o
 }
 o
 {
+	Uuid %id{u4{16796484208027935124,5613862828050311909}}
+	s %t{"ezImguiExtractor"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %Name{""}
+		VarArray %Node::Connections{}
+		Vec2 %Node::Pos{f{0xE56F5AC3,0xD21C29C4}}
+	}
+}
+o
+{
 	Uuid %id{u4{16469536899644782007,5647150639815068078}}
 	s %t{"ezMsaaResolvePass"}
 	u3 %v{1}
@@ -853,6 +874,7 @@ o
 			Uuid{u4{16262109524692299682,5328279104252697333}}
 			Uuid{u4{579003740518963390,5540263777698901314}}
 			Uuid{u4{8995459236970174898,4802786286143765285}}
+			Uuid{u4{16796484208027935124,5613862828050311909}}
 		}
 	}
 }
@@ -1300,6 +1322,24 @@ o
 }
 o
 {
+	Uuid %id{u4{15461763795293589328,999806511704760163}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezExtractor"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezImguiExtractor"}
+		u3 %TypeSize{88}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13941098543196520852,1250400790572347159}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1484,7 +1524,7 @@ o
 			Uuid{u4{16631111678292622734,8500933737344926134}}
 		}
 		s %TypeName{"ezSceneContext"}
-		u3 %TypeSize{1456}
+		u3 %TypeSize{1464}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2027,6 +2067,24 @@ o
 }
 o
 {
+	Uuid %id{u4{359339664452762011,12723987507076081465}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderer"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezImguiRenderer"}
+		u3 %TypeSize{152}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{16507467430481473401,12730269875186786671}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -2322,7 +2380,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEngineProcessDocumentContext"}
-		u3 %TypeSize{1112}
+		u3 %TypeSize{1120}
 		u3 %TypeVersion{1}
 	}
 }

@@ -35,10 +35,16 @@ void ezImgui::SetCurrentContextForView(const ezViewHandle& hView)
   ImGui::SetCurrentContext(context.m_pImGuiContext);
 
   ezUInt64 uiCurrentFrameCounter = ezRenderWorld::GetFrameCounter();
-  if (context.m_uiFrameCounter != uiCurrentFrameCounter)
+  if (context.m_uiFrameBeginCounter != uiCurrentFrameCounter)
   {
+    // Last frame was not rendered. This can happen if a render pipeline with dear imgui renderer is used.
+    if (context.m_uiFrameRenderCounter != context.m_uiFrameBeginCounter)
+    {
+      ImGui::EndFrame();
+    }
+
     BeginFrame(hView);
-    context.m_uiFrameCounter = uiCurrentFrameCounter;
+    context.m_uiFrameBeginCounter = uiCurrentFrameCounter;
   }
 }
 

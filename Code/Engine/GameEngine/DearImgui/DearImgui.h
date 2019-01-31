@@ -75,7 +75,8 @@ private:
   struct Context
   {
     ImGuiContext* m_pImGuiContext = nullptr;
-    ezUInt64 m_uiFrameCounter = -1;
+    ezUInt64 m_uiFrameBeginCounter = -1;
+    ezUInt64 m_uiFrameRenderCounter = -1;
   };
 
   ezHashTable<ezViewHandle, Context> m_ViewToContextTable;

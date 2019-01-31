@@ -42,7 +42,7 @@ void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ez
   }
 
   ezUInt64 uiCurrentFrameCounter = ezRenderWorld::GetFrameCounter();
-  if (context.m_uiFrameCounter != uiCurrentFrameCounter)
+  if (context.m_uiFrameBeginCounter != uiCurrentFrameCounter)
   {
     // Nothing was rendered with ImGui this frame
     return;
@@ -50,6 +50,8 @@ void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ez
 
   ImGui::SetCurrentContext(context.m_pImGuiContext);
   ImGui::Render();
+
+  context.m_uiFrameRenderCounter = uiCurrentFrameCounter;
 
   ImDrawData* pDrawData = ImGui::GetDrawData();
 
