@@ -1,6 +1,10 @@
 #include <PCH.h>
 
+#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <TexConv2/TexConv2.h>
+#include <TexConvLib/ezTexFormat/ezTexFormat.h>
+#include <Foundation/Image/Formats/DdsFileFormat.h>
 
 /* TODO LIST:
 
@@ -12,13 +16,10 @@
 
 - BC7 compression support
 
-- ez texture output formats
 - decal atlas support
-- uint32: asset hash
 - render target
 
 - volume textures
-- normal map from heightmap ?
 
 - docs for params / help
 */
@@ -228,6 +229,39 @@ ezResult ezTexConv2::DetectOutputFormat()
 }
 
 
+bool ezTexConv2::IsTexFormat() const
+{
+  const ezStringView ext = ezPathUtils::GetFileExtension(m_sOutputFile);
+
+  return ext.StartsWith_NoCase("ez");
+}
+
+ezResult ezTexConv2::WriteTexFile(ezStreamWriter& stream, const ezImage& image)
+{
+  ezAssetFileHeader asset;
+  asset.SetFileHashAndVersion(m_uiEzFormatAssetHash, m_uiEzFormatAssetVersion);
+
+  asset.Write(stream);
+
+  ezTexFormat texFormat;
+  texFormat.m_bSRGB = ezImageFormat::IsSrgb(image.GetImageFormat());
+  texFormat.m_WrapModeU = m_Processor.m_Descriptor.m_WrapModes[0];
+  texFormat.m_WrapModeV = m_Processor.m_Descriptor.m_WrapModes[1];
+  texFormat.m_WrapModeW = m_Processor.m_Descriptor.m_WrapModes[2];
+  texFormat.m_TextureFilter = m_Processor.m_Descriptor.m_FilterMode;
+
+  texFormat.WriteTextureHeader(stream);
+
+  ezDdsFileFormat ddsWriter;
+  if (ddsWriter.WriteImage(stream, image, ezLog::GetThreadLocalLogSystem(), "dds").Failed())
+  {
+    ezLog::Error("Failed to write DDS image chunk to ezTex file.");
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
+}
+
 ezApplication::ApplicationExecution ezTexConv2::Run()
 {
   if (ParseCommandLine().Failed())
@@ -238,15 +272,29 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
 
   if (!m_sOutputFile.IsEmpty())
   {
-    if (m_Processor.m_OutputImage.SaveTo(m_sOutputFile).Failed())
+    if (IsTexFormat())
     {
-      ezLog::Error("Failed to write main result to '{}'", m_sOutputFile);
-      return ezApplication::ApplicationExecution::Quit;
+      ezDeferredFileWriter file;
+      file.SetOutput(m_sOutputFile);
+
+      WriteTexFile(file, m_Processor.m_OutputImage);
+
+      if (file.Close().Failed())
+      {
+        ezLog::Error("Failed to write main result to '{}'", m_sOutputFile);
+        return ezApplication::ApplicationExecution::Quit;
+      }
     }
     else
     {
-      ezLog::Success("Wrote main result to '{}'", m_sOutputFile);
+      if (m_Processor.m_OutputImage.SaveTo(m_sOutputFile).Failed())
+      {
+        ezLog::Error("Failed to write main result to '{}'", m_sOutputFile);
+        return ezApplication::ApplicationExecution::Quit;
+      }
     }
+
+    ezLog::Success("Wrote main result to '{}'", m_sOutputFile);
   }
 
   if (!m_sOutputThumbnailFile.IsEmpty())
@@ -256,10 +304,8 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
       ezLog::Error("Failed to write thumbnail result to '{}'", m_sOutputThumbnailFile);
       return ezApplication::ApplicationExecution::Quit;
     }
-    else
-    {
-      ezLog::Success("Wrote thumbnail to '{}'", m_sOutputThumbnailFile);
-    }
+
+    ezLog::Success("Wrote thumbnail to '{}'", m_sOutputThumbnailFile);
   }
 
   if (!m_sOutputLowResFile.IsEmpty() && m_Processor.m_LowResOutputImage.GetNumMipLevels() > 0)
@@ -269,10 +315,8 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
       ezLog::Error("Failed to write low-res result to '{}'", m_sOutputLowResFile);
       return ezApplication::ApplicationExecution::Quit;
     }
-    else
-    {
-      ezLog::Success("Wrote low-res result to '{}'", m_sOutputLowResFile);
-    }
+
+    ezLog::Success("Wrote low-res result to '{}'", m_sOutputLowResFile);
   }
 
   return ezApplication::ApplicationExecution::Quit;

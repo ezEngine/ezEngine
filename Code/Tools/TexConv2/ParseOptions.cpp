@@ -7,6 +7,7 @@ ezResult ezTexConv2::ParseCommandLine()
   EZ_SUCCEED_OR_RETURN(ParseOutputFiles());
   EZ_SUCCEED_OR_RETURN(DetectOutputFormat());
 
+  EZ_SUCCEED_OR_RETURN(ParseAssetHeader());
   EZ_SUCCEED_OR_RETURN(ParseTargetPlatform());
   EZ_SUCCEED_OR_RETURN(ParseOutputType());
   EZ_SUCCEED_OR_RETURN(ParseCompressionMode());
@@ -223,19 +224,19 @@ ezResult ezTexConv2::ParseWrapModes()
 
   {
     ezInt32 value = -1;
-    EZ_SUCCEED_OR_RETURN(ParseStringOption("-wrapU", m_AllowedWrapModes, value));
+    EZ_SUCCEED_OR_RETURN(ParseStringOption("-addressU", m_AllowedWrapModes, value));
     m_Processor.m_Descriptor.m_WrapModes[0] = static_cast<ezTexConvWrapMode::Enum>(value);
   }
   {
     ezInt32 value = -1;
-    EZ_SUCCEED_OR_RETURN(ParseStringOption("-wrapV", m_AllowedWrapModes, value));
+    EZ_SUCCEED_OR_RETURN(ParseStringOption("-addressV", m_AllowedWrapModes, value));
     m_Processor.m_Descriptor.m_WrapModes[1] = static_cast<ezTexConvWrapMode::Enum>(value);
   }
 
   if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Texture3D)
   {
     ezInt32 value = -1;
-    EZ_SUCCEED_OR_RETURN(ParseStringOption("-wrapW", m_AllowedWrapModes, value));
+    EZ_SUCCEED_OR_RETURN(ParseStringOption("-addressW", m_AllowedWrapModes, value));
     m_Processor.m_Descriptor.m_WrapModes[2] = static_cast<ezTexConvWrapMode::Enum>(value);
   }
 
@@ -260,7 +261,7 @@ ezResult ezTexConv2::ParseResolutionModifiers()
     return EZ_SUCCESS;
 
   EZ_SUCCEED_OR_RETURN(ParseUIntOption("-minRes", 4, 8 * 1024, m_Processor.m_Descriptor.m_uiMinResolution));
-  EZ_SUCCEED_OR_RETURN(ParseUIntOption("-maxRes", 4, 8 * 1024, m_Processor.m_Descriptor.m_uiMaxResolution));
+  EZ_SUCCEED_OR_RETURN(ParseUIntOption("-maxRes", 4, 16 * 1024, m_Processor.m_Descriptor.m_uiMaxResolution));
   EZ_SUCCEED_OR_RETURN(ParseUIntOption("-downscale", 0, 10, m_Processor.m_Descriptor.m_uiDownscaleSteps));
 
   return EZ_SUCCESS;
@@ -274,15 +275,39 @@ ezResult ezTexConv2::ParseMiscOptions()
     EZ_SUCCEED_OR_RETURN(ParseBoolOption("-premultAlpha", m_Processor.m_Descriptor.m_bPremultiplyAlpha));
   }
 
-  if (m_Processor.m_Descriptor.m_Usage == ezTexConvUsage::Color_Hdr ||
-    m_Processor.m_Descriptor.m_Usage == ezTexConvUsage::Grayscale_Hdr ||
-    m_Processor.m_Descriptor.m_Usage == ezTexConvUsage::Compressed_Hdr_3_Channel ||
-    (m_Processor.m_Descriptor.m_Usage >= ezTexConvUsage::Uncompressed_16_Bit_UNorm_1_Channel &&
-    m_Processor.m_Descriptor.m_Usage <= ezTexConvUsage::Uncompressed_32_Bit_Float_4_Channel))
+  if (m_Processor.m_Descriptor.m_Usage == ezTexConvUsage::Color_Hdr || m_Processor.m_Descriptor.m_Usage == ezTexConvUsage::Grayscale_Hdr ||
+      m_Processor.m_Descriptor.m_Usage == ezTexConvUsage::Compressed_Hdr_3_Channel ||
+      (m_Processor.m_Descriptor.m_Usage >= ezTexConvUsage::Uncompressed_16_Bit_UNorm_1_Channel &&
+        m_Processor.m_Descriptor.m_Usage <= ezTexConvUsage::Uncompressed_32_Bit_Float_4_Channel))
   {
     // HDR format
 
     EZ_SUCCEED_OR_RETURN(ParseFloatOption("-hdrExposure", 0.01f, 100.0f, m_Processor.m_Descriptor.m_fHdrExposureBias));
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezTexConv2::ParseAssetHeader()
+{
+  const ezStringView ext = ezPathUtils::GetFileExtension(m_sOutputFile);
+
+  if (!ext.StartsWith_NoCase("ez"))
+    return EZ_SUCCESS;
+
+  const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
+
+  EZ_SUCCEED_OR_RETURN(ParseUIntOption("-assetVersion", 1, 255, m_uiEzFormatAssetVersion));
+
+  const ezUInt64 uiHashLow = ezConversionUtils::ConvertHexStringToUInt32(pCmd->GetStringOption("-assetHashLow"));
+  const ezUInt64 uiHashHigh = ezConversionUtils::ConvertHexStringToUInt32(pCmd->GetStringOption("-assetHashHigh"));
+
+  m_uiEzFormatAssetHash = (uiHashHigh << 32) | uiHashLow;
+
+  if (m_uiEzFormatAssetHash == 0)
+  {
+    ezLog::Error("'-assetHashLow 0xHEX32' and '-assetHashHigh 0xHEX32' have not been specified.");
+    return EZ_FAILURE;
   }
 
   return EZ_SUCCESS;

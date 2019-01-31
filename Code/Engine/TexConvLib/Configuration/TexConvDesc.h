@@ -60,8 +60,8 @@ public:
 
   // Mipmaps / filtering
   ezEnum<ezTexConvMipmapMode> m_MipmapMode;
-  ezEnum<ezTexConvFilterMode> m_FilterMode; // only used when writing to ez specific formats // TODO: implement ez formats
-  ezEnum<ezTexConvWrapMode> m_WrapModes[3]; // U, V, W // TODO: implement ez formats
+  ezEnum<ezTexConvFilterMode> m_FilterMode; // only used when writing to ez specific formats
+  ezEnum<ezTexConvWrapMode> m_WrapModes[3]; // U, V, W
   bool m_bPreserveMipmapCoverage = false;
   float m_fMipmapAlphaThreshold = 0.5f;
 
@@ -71,6 +71,6 @@ public:
   float m_fHdrExposureBias = 1.0f; // TODO: implement HDR exposure
 
   // ez specific
-  ezUInt64 m_uiAssetHash = 0; // TODO: implement ez formats
+  ezUInt64 m_uiAssetHash = 0;
   ezUInt16 m_uiAssetVersion = 0;
 };

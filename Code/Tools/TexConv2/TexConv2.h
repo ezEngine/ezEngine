@@ -2,6 +2,8 @@
 
 #include <Core/Application/Application.h>
 
+class ezStreamWriter;
+
 class ezTexConv2 : public ezApplication
 {
 public:
@@ -43,6 +45,7 @@ public:
   ezResult ParseFilterModes();
   ezResult ParseResolutionModifiers();
   ezResult ParseMiscOptions();
+  ezResult ParseAssetHeader();
 
   ezResult ParseUIntOption(const char* szOption, ezInt32 iMinValue, ezInt32 iMaxValue, ezUInt32& uiResult) const;
   ezResult ParseFloatOption(const char* szOption, float fMinValue, float fMaxValue, float& fResult) const;
@@ -50,6 +53,9 @@ public:
   ezResult ParseStringOption(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed, ezInt32& iResult) const;
   void PrintOptionValues(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed) const;
   bool ParseFile(const char* szOption, ezString& result) const;
+
+  bool IsTexFormat() const;
+  ezResult WriteTexFile(ezStreamWriter& stream, const ezImage& image);
 
 private:
   ezString m_sOutputFile;
@@ -74,4 +80,7 @@ private:
   ezDynamicArray<KeyEnumValuePair> m_AllowedCompressionModes;
   ezDynamicArray<KeyEnumValuePair> m_AllowedWrapModes;
   ezDynamicArray<KeyEnumValuePair> m_AllowedFilterModes;
+
+  ezUInt32 m_uiEzFormatAssetVersion = 0;
+  ezUInt64 m_uiEzFormatAssetHash = 0;
 };

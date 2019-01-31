@@ -26,15 +26,64 @@ EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 ezTextureAssetDocument::ezTextureAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezTextureAssetProperties>(szDocumentPath, true)
+  : ezSimpleAssetDocument<ezTextureAssetProperties>(szDocumentPath, true)
 {
   m_iTextureLod = -1;
 }
 
-ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail,
-                                            const ezTextureAssetProfileConfig* pAssetConfig)
+static const char* ToWrapMode(ezTexture2DAddressMode::Enum mode)
+{
+  switch (mode)
+  {
+  case ezTexture2DAddressMode::Wrap:
+    return "Repeat";
+  case ezTexture2DAddressMode::Mirror:
+    return "Mirror";
+  case ezTexture2DAddressMode::Clamp:
+    return "Clamp";
+  }
+
+  return "";
+}
+
+static const char* ToFilterMode(ezTextureFilterSetting::Enum mode)
+{
+  switch (mode)
+  {
+  case ezTextureFilterSetting::FixedNearest:
+    return "Nearest";
+  case ezTextureFilterSetting::FixedBilinear:
+    return "Bilinear";
+  case ezTextureFilterSetting::FixedTrilinear:
+    return "Trilinear";
+  case ezTextureFilterSetting::FixedAnisotropic2x:
+    return "Aniso2x";
+  case ezTextureFilterSetting::FixedAnisotropic4x:
+    return "Aniso4x";
+  case ezTextureFilterSetting::FixedAnisotropic8x:
+    return "Aniso8x";
+  case ezTextureFilterSetting::FixedAnisotropic16x:
+    return "Aniso16x";
+  case ezTextureFilterSetting::LowestQuality:
+    return "Lowest";
+  case ezTextureFilterSetting::LowQuality:
+    return "Low";
+  case ezTextureFilterSetting::DefaultQuality:
+    return "Default";
+  case ezTextureFilterSetting::HighQuality:
+    return "High";
+  case ezTextureFilterSetting::HighestQuality:
+    return "Highest";
+  }
+
+  return "";
+}
+
+ezStatus ezTextureAssetDocument::RunTexConv(
+  const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail, const ezTextureAssetProfileConfig* pAssetConfig)
 {
   const ezTextureAssetProperties* pProp = GetProperties();
+  const bool bUseTexConv2 = false;
 
   QStringList arguments;
   ezStringBuilder temp;
@@ -71,7 +120,17 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
     const ezStringBuilder sDir = sThumbnail.GetFileDirectory();
     ezOSFile::CreateDirectoryStructure(sDir);
 
-    arguments << "-thumbnail";
+    if (bUseTexConv2)
+    {
+      arguments << "-thumbnailRes";
+      arguments << "256";
+      arguments << "-thumbnailOut";
+    }
+    else
+    {
+      arguments << "-thumbnail";
+    }
+
     arguments << QString::fromUtf8(sThumbnail.GetData());
   }
 
@@ -82,24 +141,101 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
     name.Append("-lowres");
     lowResPath.ChangeFileName(name);
 
-    arguments << "-outLowRes";
+    if (bUseTexConv2)
+    {
+      arguments << "-lowMips";
+      arguments << "6";
+      arguments << "-lowOut";
+    }
+    else
+    {
+      arguments << "-outLowRes";
+    }
+
     arguments << QString::fromUtf8(lowResPath.GetData());
   }
 
-  arguments << "-channels";
-  arguments << ezConversionUtils::ToString(pProp->GetNumChannels(), temp).GetData();
+  if (bUseTexConv2)
+  {
+    if (pProp->m_bMipmaps)
+    {
+      arguments << "-mipmaps";
+      arguments << "Linear";
+    }
+    else
+    {
+      arguments << "-mipmaps";
+      arguments << "None";
+    }
 
-  if (pProp->m_bMipmaps)
-    arguments << "-mipmaps";
+    if (pProp->m_bCompression)
+    {
+      arguments << "-compression";
+      arguments << "Quality";
+    }
+    else
+    {
+      arguments << "-compression";
+      arguments << "None";
+    }
 
-  if (pProp->m_bCompression)
-    arguments << "-compress";
+    arguments << "-usage";
+    switch (pProp->m_TextureUsage)
+    {
+      case ezTexture2DUsageEnum::HDR:
+        arguments << "color_hdr";
+        break;
 
-  if (pProp->IsSRGB())
-    arguments << "-srgb";
+      case ezTexture2DUsageEnum::Diffuse:
+      case ezTexture2DUsageEnum::EmissiveColor:
+      case ezTexture2DUsageEnum::Other_sRGB:
+        arguments << "color";
+        break;
 
-  if (pProp->IsHDR())
-    arguments << "-hdr";
+      case ezTexture2DUsageEnum::EmissiveMask:
+      case ezTexture2DUsageEnum::Height:
+      case ezTexture2DUsageEnum::LookupTable:
+      case ezTexture2DUsageEnum::Mask:
+      case ezTexture2DUsageEnum::Other_Linear:
+      {
+        switch (pProp->GetNumChannels())
+        {
+          case 1:
+            arguments << (pProp->m_bCompression ? "Compressed_1_Channel" : "Uncompressed_8_Bit_UNorm_1_Channel");
+            break;
+          case 2:
+            arguments << (pProp->m_bCompression ? "Compressed_2_Channel" : "Uncompressed_8_Bit_UNorm_2_Channel");
+            break;
+          case 3:
+          case 4:
+            arguments << (pProp->m_bCompression ? "Compressed_4_Channel" : "Uncompressed_8_Bit_UNorm_4_Channel");
+            break;
+        }
+      }
+      break;
+
+      case ezTexture2DUsageEnum::NormalMap:
+        arguments << "normalmap";
+        break;
+    }
+  }
+  else
+  {
+    arguments << "-channels";
+    arguments << ezConversionUtils::ToString(pProp->GetNumChannels(), temp).GetData();
+
+    if (pProp->m_bMipmaps)
+      arguments << "-mipmaps";
+
+    if (pProp->m_bCompression)
+      arguments << "-compress";
+
+    if (pProp->IsSRGB())
+      arguments << "-srgb";
+
+    if (pProp->IsHDR())
+      arguments << "-hdr";
+  }
 
   if (pProp->m_bPremultipliedAlpha)
     arguments << "-premulalpha";
@@ -107,12 +243,30 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   if (pProp->m_bFlipHorizontal)
     arguments << "-flip_horz";
 
-  arguments << "-maxResolution" << QString::number(pAssetConfig->m_uiMaxResolution);
 
-  arguments << "-addressU" << QString::number(pProp->m_AddressModeU.GetValue());
-  arguments << "-addressV" << QString::number(pProp->m_AddressModeV.GetValue());
-  arguments << "-addressW" << QString::number(pProp->m_AddressModeW.GetValue());
-  arguments << "-filter" << QString::number(pProp->m_TextureFilter.GetValue());
+  if (bUseTexConv2)
+  {
+    arguments << "-maxRes" << QString::number(pAssetConfig->m_uiMaxResolution);
+  }
+  else
+  {
+    arguments << "-maxResolution" << QString::number(pAssetConfig->m_uiMaxResolution);
+  }
+
+  if (bUseTexConv2)
+  {
+    arguments << "-addressU" << ToWrapMode(pProp->m_AddressModeU);
+    arguments << "-addressV" << ToWrapMode(pProp->m_AddressModeV);
+    arguments << "-addressW" << ToWrapMode(pProp->m_AddressModeW);
+    arguments << "-filter" << ToFilterMode(pProp->m_TextureFilter);
+  }
+  else
+  {
+    arguments << "-addressU" << QString::number(pProp->m_AddressModeU.GetValue());
+    arguments << "-addressV" << QString::number(pProp->m_AddressModeV.GetValue());
+    arguments << "-addressW" << QString::number(pProp->m_AddressModeW.GetValue());
+    arguments << "-filter" << QString::number(pProp->m_TextureFilter.GetValue());
+  }
 
   const ezInt32 iNumInputFiles = pProp->GetNumInputFiles();
   for (ezInt32 i = 0; i < iNumInputFiles; ++i)
@@ -212,9 +366,16 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   for (ezInt32 i = 0; i < arguments.size(); ++i)
     cmd.Append(" ", arguments[i].toUtf8().data());
 
-  ezLog::Debug("TexConv.exe{0}", cmd);
-
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
+  if (bUseTexConv2)
+  {
+    ezLog::Debug("TexConv2.exe{0}", cmd);
+    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv2.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
+  }
+  else
+  {
+    ezLog::Debug("TexConv.exe{0}", cmd);
+    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
+  }
 
   if (bUpdateThumbnail)
   {
@@ -246,10 +407,10 @@ void ezTextureAssetDocument::InitializeAfterLoading()
   }
 }
 
-ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                        const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag,
+  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
-  //EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
+  // EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
 
   const auto* pAssetConfig = pAssetProfile->GetTypeConfig<ezTextureAssetProfileConfig>();
 
@@ -403,8 +564,8 @@ ezTextureAssetDocumentGenerator::ezTextureAssetDocumentGenerator()
 
 ezTextureAssetDocumentGenerator::~ezTextureAssetDocumentGenerator() = default;
 
-void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath,
-                                                     ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezTextureAssetDocumentGenerator::GetImportModes(
+  const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
 
@@ -577,8 +738,8 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
   }
 }
 
-ezStatus ezTextureAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info,
-                                                   ezDocument*& out_pGeneratedDocument)
+ezStatus ezTextureAssetDocumentGenerator::Generate(
+  const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 

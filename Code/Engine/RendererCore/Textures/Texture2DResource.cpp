@@ -8,6 +8,7 @@
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/Resources/Texture.h>
+#include <TexConvLib/ezTexFormat/ezTexFormat.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTexture2DResource, 1, ezRTTIDefaultAllocator<ezTexture2DResource>);
@@ -20,7 +21,7 @@ ezCVarInt CVarRenderTargetResolution2("r_RenderTargetResolution2", 512, ezCVarFl
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezTexture2DResource);
 
 ezTexture2DResource::ezTexture2DResource()
-    : ezResource(DoUpdate::OnAnyThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
+  : ezResource(DoUpdate::OnAnyThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
 {
   m_uiLoadedTextures = 0;
   m_uiMemoryGPU[0] = 0;
@@ -69,7 +70,7 @@ ezResourceLoadDesc ezTexture2DResource::UnloadData(Unload WhatToUnload)
 }
 
 void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& td, const ezImage* pImage, bool bSRGB, ezUInt32 uiNumMipLevels,
-                                            ezUInt32& out_MemoryUsed, ezHybridArray<ezGALSystemMemoryDescription, 32>& initData)
+  ezUInt32& out_MemoryUsed, ezHybridArray<ezGALSystemMemoryDescription, 32>& initData)
 {
   const ezUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
 
@@ -144,43 +145,22 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
   ezEnum<ezTextureFilterSetting> textureFilter;
   ezImage* pImage = nullptr;
   bool bIsFallback = false;
-  bool bSRGB = false;
-  ezInt16 iRenderTargetResX = 0, iRenderTargetResY = 0;
-  float fResolutionScale = 1.0f;
-  int galFormat = 0;
+  ezTexFormat texFormat;
 
   // load image data
   {
     Stream->ReadBytes(&pImage, sizeof(ezImage*));
     *Stream >> bIsFallback;
-    *Stream >> bSRGB;
-
-    ezEnum<ezGALTextureAddressMode> addressModeU;
-    ezEnum<ezGALTextureAddressMode> addressModeV;
-    ezEnum<ezGALTextureAddressMode> addressModeW;
-
-    *Stream >> addressModeU;
-    *Stream >> addressModeV;
-    *Stream >> addressModeW;
-    *Stream >> textureFilter;
-
-    td.m_SamplerDesc.m_AddressU = addressModeU;
-    td.m_SamplerDesc.m_AddressV = addressModeV;
-    td.m_SamplerDesc.m_AddressW = addressModeW;
-
-    *Stream >> iRenderTargetResX;
-    *Stream >> iRenderTargetResY;
-    *Stream >> fResolutionScale;
-    *Stream >> galFormat;
+    texFormat.ReadHeader(*Stream);
   }
 
-  const bool bIsRenderTarget = iRenderTargetResX != 0;
+  const bool bIsRenderTarget = texFormat.m_iRenderTargetResolutionX != 0;
   EZ_ASSERT_DEV(!bIsRenderTarget, "Render targets are not supported by regular 2D texture resources");
 
   {
 
     const ezUInt32 uiNumMipmapsLowRes =
-        ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : ezMath::Min(pImage->GetNumMipLevels(), 6U);
+      ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : ezMath::Min(pImage->GetNumMipLevels(), 6U);
     ezUInt32 uiUploadNumMipLevels = 0;
     bool bCouldLoadMore = false;
 
@@ -227,7 +207,7 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
       EZ_ASSERT_DEBUG(m_uiLoadedTextures < 2, "Invalid texture upload");
 
       ezHybridArray<ezGALSystemMemoryDescription, 32> initData;
-      FillOutDescriptor(td, pImage, bSRGB, uiUploadNumMipLevels, m_uiMemoryGPU[m_uiLoadedTextures], initData);
+      FillOutDescriptor(td, pImage, texFormat.m_bSRGB, uiUploadNumMipLevels, m_uiMemoryGPU[m_uiLoadedTextures], initData);
 
       ezTextureUtils::ConfigureSampler(textureFilter, td.m_SamplerDesc);
 
@@ -428,64 +408,43 @@ ezResourceLoadDesc ezRenderToTexture2DResource::UpdateContent(ezStreamReader* St
   ezEnum<ezTextureFilterSetting> textureFilter;
   ezImage* pImage = nullptr;
   bool bIsFallback = false;
-  bool bSRGB = false;
-  ezInt16 iRenderTargetResX = 0, iRenderTargetResY = 0;
-  float fResolutionScale = 1.0f;
-  int galFormat = 0;
+  ezTexFormat texFormat;
 
   // load image data
   {
     Stream->ReadBytes(&pImage, sizeof(ezImage*));
     *Stream >> bIsFallback;
-    *Stream >> bSRGB;
-
-    ezEnum<ezGALTextureAddressMode> addressModeU;
-    ezEnum<ezGALTextureAddressMode> addressModeV;
-    ezEnum<ezGALTextureAddressMode> addressModeW;
-
-    *Stream >> addressModeU;
-    *Stream >> addressModeV;
-    *Stream >> addressModeW;
-    *Stream >> textureFilter;
-
-    td.m_SamplerDesc.m_AddressU = addressModeU;
-    td.m_SamplerDesc.m_AddressV = addressModeV;
-    td.m_SamplerDesc.m_AddressW = addressModeW;
-
-    *Stream >> iRenderTargetResX;
-    *Stream >> iRenderTargetResY;
-    *Stream >> fResolutionScale;
-    *Stream >> galFormat;
+    texFormat.ReadHeader(*Stream);
   }
 
-  const bool bIsRenderTarget = iRenderTargetResX != 0;
+  const bool bIsRenderTarget = texFormat.m_iRenderTargetResolutionX != 0;
 
   EZ_ASSERT_DEV(bIsRenderTarget, "Trying to create a RenderToTexture resource from data that is not set up as a render-target");
 
   {
     EZ_ASSERT_DEV(m_uiLoadedTextures == 0, "not implemented");
 
-    if (iRenderTargetResX == -1)
+    if (texFormat.m_iRenderTargetResolutionX == -1)
     {
-      if (iRenderTargetResY == 1)
+      if (texFormat.m_iRenderTargetResolutionY == 1)
       {
-        iRenderTargetResX = GetNextBestResolution(CVarRenderTargetResolution1 * fResolutionScale);
-        iRenderTargetResY = iRenderTargetResX;
+        texFormat.m_iRenderTargetResolutionX = GetNextBestResolution(CVarRenderTargetResolution1 * texFormat.m_fResolutionScale);
+        texFormat.m_iRenderTargetResolutionY = texFormat.m_iRenderTargetResolutionX;
       }
-      else if (iRenderTargetResY == 2)
+      else if (texFormat.m_iRenderTargetResolutionY == 2)
       {
-        iRenderTargetResX = GetNextBestResolution(CVarRenderTargetResolution2 * fResolutionScale);
-        iRenderTargetResY = iRenderTargetResX;
+        texFormat.m_iRenderTargetResolutionX = GetNextBestResolution(CVarRenderTargetResolution2 * texFormat.m_fResolutionScale);
+        texFormat.m_iRenderTargetResolutionY = texFormat.m_iRenderTargetResolutionX;
       }
       else
       {
-        EZ_REPORT_FAILURE("Invalid render target configuration: {0} x {1}", iRenderTargetResX, iRenderTargetResY);
+        EZ_REPORT_FAILURE("Invalid render target configuration: {0} x {1}", texFormat.m_iRenderTargetResolutionX, texFormat.m_iRenderTargetResolutionY);
       }
     }
 
-    td.m_Format = static_cast<ezGALResourceFormat::Enum>(galFormat);
-    td.m_uiWidth = iRenderTargetResX;
-    td.m_uiHeight = iRenderTargetResY;
+    td.m_Format = static_cast<ezGALResourceFormat::Enum>(texFormat.m_GalRenderTargetFormat);
+    td.m_uiWidth = texFormat.m_iRenderTargetResolutionX;
+    td.m_uiHeight = texFormat.m_iRenderTargetResolutionY;
 
     ezTextureUtils::ConfigureSampler(textureFilter, td.m_SamplerDesc);
 

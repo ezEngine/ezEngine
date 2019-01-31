@@ -11,6 +11,7 @@
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererCore/Textures/TextureLoader.h>
 #include <RendererCore/Textures/TextureUtils.h>
+#include <TexConvLib/ezTexFormat/ezTexFormat.h>
 
 static ezTextureResourceLoader s_TextureResourceLoader;
 
@@ -69,7 +70,7 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResource* pRe
       ezLog::Error("'{0}' is not a valid color name. Using 'RebeccaPurple' as fallback.", sName);
     }
 
-    pData->m_bSRGB = true;
+    pData->m_TexFormat.m_bSRGB = true;
 
     ezImageHeader header;
     header.SetWidth(4);
@@ -110,7 +111,7 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResource* pRe
 
     /// In case this is not a proper asset (ezTextureXX format), this is a hack to get the SRGB information for the texture
     const ezStringBuilder sName = ezPathUtils::GetFileName(sAbsolutePath);
-    pData->m_bSRGB = (sName.EndsWith_NoCase("_D") || sName.EndsWith_NoCase("_SRGB") || sName.EndsWith_NoCase("_diff"));
+    pData->m_TexFormat.m_bSRGB = (sName.EndsWith_NoCase("_D") || sName.EndsWith_NoCase("_SRGB") || sName.EndsWith_NoCase("_diff"));
 
     if (sAbsolutePath.HasExtension("ezTexture2D") || sAbsolutePath.HasExtension("ezTextureCube") ||
         sAbsolutePath.HasExtension("ezRenderTarget"))
@@ -192,53 +193,9 @@ ezResult ezTextureResourceLoader::LoadTexFile(ezStreamReader& stream, LoadedData
   ezAssetFileHeader AssetHash;
   AssetHash.Read(stream);
 
-  // read the ezTextureXX file format
-  ezUInt8 uiTexFileFormatVersion = 0;
-  stream >> uiTexFileFormatVersion;
+  data.m_TexFormat.ReadHeader(stream);
 
-  if (uiTexFileFormatVersion < 2)
-  {
-    // There is no version 0 or 1, some idiot forgot to add a version number to the format.
-    // However, the first byte in those versions is a bool, so either 0 or 1 and therefore we can detect
-    // old versions by making the minimum file format version 2. I'm so clever! And handsome.
-
-    data.m_bSRGB = (uiTexFileFormatVersion == 1);
-    uiTexFileFormatVersion = 1;
-  }
-  else
-  {
-    stream >> data.m_bSRGB;
-  }
-
-  stream >> data.m_addressModeU;
-  stream >> data.m_addressModeV;
-  stream >> data.m_addressModeW;
-
-  if (uiTexFileFormatVersion >= 2)
-  {
-    ezUInt8 uiFilter = 0;
-    stream >> uiFilter;
-    data.m_textureFilter = (ezTextureFilterSetting::Enum)uiFilter;
-  }
-
-  if (uiTexFileFormatVersion >= 3)
-  {
-    stream >> data.m_iRenderTargetResolutionX;
-    stream >> data.m_iRenderTargetResolutionY;
-  }
-
-  if (uiTexFileFormatVersion >= 4)
-  {
-    stream >> data.m_fResolutionScale;
-  }
-
-  data.m_GalRenderTargetFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
-  if (uiTexFileFormatVersion >= 5)
-  {
-    stream >> data.m_GalRenderTargetFormat;
-  }
-
-  if (data.m_iRenderTargetResolutionX == 0)
+  if (data.m_TexFormat.m_iRenderTargetResolutionX == 0)
   {
     ezDdsFileFormat fmt;
     return fmt.ReadImage(stream, data.m_Image, ezLog::GetThreadLocalLogSystem(), "dds");
@@ -255,15 +212,7 @@ void ezTextureResourceLoader::WriteTextureLoadStream(ezStreamWriter& w, const Lo
   w.WriteBytes(&pImage, sizeof(ezImage*));
 
   w << data.m_bIsFallback;
-  w << data.m_bSRGB;
-  w << data.m_addressModeU;
-  w << data.m_addressModeV;
-  w << data.m_addressModeW;
-  w << data.m_textureFilter;
-  w << data.m_iRenderTargetResolutionX;
-  w << data.m_iRenderTargetResolutionY;
-  w << data.m_fResolutionScale;
-  w << data.m_GalRenderTargetFormat;
+  data.m_TexFormat.WriteRenderTargetHeader(w);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_TextureLoader);

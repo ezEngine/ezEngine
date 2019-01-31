@@ -6,6 +6,7 @@
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/Resources/Texture.h>
+#include <TexConvLib/ezTexFormat/ezTexFormat.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeResource, 1, ezRTTIDefaultAllocator<ezTextureCubeResource>);
@@ -80,17 +81,8 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
   bool bIsFallback = false;
   *Stream >> bIsFallback;
 
-  bool bSRGB = false;
-  *Stream >> bSRGB;
-
-  ezEnum<ezGALTextureAddressMode> addressModeU;
-  ezEnum<ezGALTextureAddressMode> addressModeV;
-  ezEnum<ezGALTextureAddressMode> addressModeW;
-  ezEnum<ezTextureFilterSetting> textureFilter;
-  *Stream >> addressModeU;
-  *Stream >> addressModeV;
-  *Stream >> addressModeW;
-  *Stream >> textureFilter;
+  ezTexFormat texFormat;
+  texFormat.ReadHeader(*Stream);
 
   const ezUInt32 uiNumMipmapsLowRes = ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : 6;
 
@@ -111,7 +103,7 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
     return res;
   }
 
-  m_Format = ezTextureUtils::ImageFormatToGalFormat(pImage->GetImageFormat(), bSRGB);
+  m_Format = ezTextureUtils::ImageFormatToGalFormat(pImage->GetImageFormat(), texFormat.m_bSRGB);
   m_uiWidthAndHeight = pImage->GetWidth(uiHighestMipLevel);
 
   ezGALTextureCreationDescription texDesc;
@@ -167,12 +159,12 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
 
   ezTextureCubeResourceDescriptor td;
   td.m_DescGAL = texDesc;
-  td.m_SamplerDesc.m_AddressU = addressModeU;
-  td.m_SamplerDesc.m_AddressV = addressModeV;
-  td.m_SamplerDesc.m_AddressW = addressModeW;
+  td.m_SamplerDesc.m_AddressU = static_cast<ezGALTextureAddressMode::Enum>(texFormat.m_WrapModeU.GetValue());
+  td.m_SamplerDesc.m_AddressV = static_cast<ezGALTextureAddressMode::Enum>(texFormat.m_WrapModeV.GetValue());
+  td.m_SamplerDesc.m_AddressW = static_cast<ezGALTextureAddressMode::Enum>(texFormat.m_WrapModeW.GetValue());
   td.m_InitialContent = InitDataPtr;
 
-  ezTextureUtils::ConfigureSampler(textureFilter, td.m_SamplerDesc);
+  ezTextureUtils::ConfigureSampler(static_cast<ezTextureFilterSetting::Enum>(texFormat.m_TextureFilter.GetValue()), td.m_SamplerDesc);
 
   // ignore its return value here, we build our own
   CreateResource(std::move(td));

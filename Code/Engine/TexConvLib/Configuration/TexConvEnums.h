@@ -107,9 +107,9 @@ struct ezTexConvWrapMode
 {
   enum Enum
   {
-    Repeat,
-    Mirror,
-    Clamp,
+    Repeat = 0,
+    Mirror = 1,
+    Clamp = 2,
 
     Default = Repeat
   };

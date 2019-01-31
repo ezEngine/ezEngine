@@ -6,6 +6,7 @@
 #include <Foundation/Image/Image.h>
 #include <RendererFoundation/Basics.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
+#include <TexConvLib/ezTexFormat/ezTexFormat.h>
 
 class EZ_RENDERERCORE_DLL ezTextureResourceLoader : public ezResourceTypeLoader
 {
@@ -20,15 +21,7 @@ public:
     ezImage m_Image;
 
     bool m_bIsFallback = false;
-    bool m_bSRGB = false;
-    ezInt16 m_iRenderTargetResolutionX = 0;
-    ezInt16 m_iRenderTargetResolutionY = 0;
-    float m_fResolutionScale = 1.0f;
-    int m_GalRenderTargetFormat = 0;
-    ezEnum<ezGALTextureAddressMode> m_addressModeU = ezGALTextureAddressMode::Wrap;
-    ezEnum<ezGALTextureAddressMode> m_addressModeV = ezGALTextureAddressMode::Wrap;
-    ezEnum<ezGALTextureAddressMode> m_addressModeW = ezGALTextureAddressMode::Wrap;
-    ezEnum<ezTextureFilterSetting> m_textureFilter = ezTextureFilterSetting::Default;
+    ezTexFormat m_TexFormat;
   };
 
   virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override;

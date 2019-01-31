@@ -1,4 +1,5 @@
 #include "Main.h"
+#include <TexConvLib/ezTexFormat/ezTexFormat.h>
 
 void ezTexConv::WriteTexHeader(ezStreamWriter& stream)
 {
@@ -10,14 +11,14 @@ void ezTexConv::WriteTexHeader(ezStreamWriter& stream)
 
     header.Write(stream);
 
-    const ezUInt8 uiTexFileFormatVersion = 2;
+    ezTexFormat texFormat;
+    texFormat.m_bSRGB = m_bSRGBOutput;
+    texFormat.m_WrapModeU = static_cast<ezTexConvWrapMode::Enum>(m_uiAddressU);
+    texFormat.m_WrapModeV = static_cast<ezTexConvWrapMode::Enum>(m_uiAddressV);
+    texFormat.m_WrapModeW = static_cast<ezTexConvWrapMode::Enum>(m_uiAddressW);
+    texFormat.m_TextureFilter = static_cast<ezTexConvFilterMode::Enum>(m_uiFilterSetting);
 
-    stream << uiTexFileFormatVersion;
-    stream << m_bSRGBOutput;
-    stream << m_uiAddressU;
-    stream << m_uiAddressV;
-    stream << m_uiAddressW;
-    stream << m_uiFilterSetting;
+    texFormat.WriteTextureHeader(stream);
   }
 }
 
