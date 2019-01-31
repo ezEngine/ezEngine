@@ -1,6 +1,129 @@
 What's New {#WhatsNew}
 ==========
 
+Milestone 9
+-----------
+
+[//]: # (SVN Revision up to 4037)
+
+Editor:
+  * Added a tool for resizing boxes
+  * Added debug render mode for decal count  
+  * Components can now be attached to objects with prefab components.
+  * Child nodes may now be attached to objects with prefab components.
+  * Added a new debug render mode to visualize static vs dynamic objects.
+  * Added event tracks for property animations.
+  * Allow async shader loading in Editor, if shader is not loaded yet the draw call fails and magenta box is rendered instead.
+  * The editor now renders an overlay with a selected camera component viewport.
+  * Revamped the particle editor UI.
+  * Editor translation strings are now reloaded when the user manually triggers ReloadResources.
+  * Added support for asset meta data in asset document headers.
+  * Added support for exposed parameters (scripts, prefabs, particle effects).
+  * Added a command line mode to the EditorProcessor to open a project and transform all assets, then close.
+  * Improved the "Delta Transform" dialog and added lots of options.
+  * Added a utility to export the scene geometry (no materials) to an OBJ file.
+  * Added a "Pull State from Engine" action to get the position and rotation of selected objects from the simulation back to the editor.
+  * Added that the user can store the current camera position to a user preference slot 0 to 9 by pressing Ctrl+Number.
+  * It is now possible to move the editor camera to the position of an ezCameraComponent by pressing ALT+Number, with 'Number' specified on the camera component.
+  * One can now easily place a new camera object at the current editor camera position using Ctrl+Alt+Number.
+  * Moved all the snap settings into a dialog, uncluttering the toolbar a bit.
+  * Added a preference to toggle automatically expanding the scene tree on selection.
+  * When creating a new scene document it is now populated by default with an ambient light source, a mesh and a skybox.
+  * Added a "What's New" page to the editor tab.
+  * The editor now reduces the document redraw framerate, when it does not have focus.
+  * Added asset platform configurations that allow to configure how assets should be transformed for a specific platform.
+  * Added context menu action to spawn a game object at the picked position.
+  * Added a transform manipulator / attribute.
+  * It is now possible to point at a position in the editor and execute "Play From Here" (CTRL+SHIFT+F5 or from context menu).
+  * Mesh assets can now generate tessellated rectangles.
+ 
+Engine Runtime:
+  * Added a TeamID to GameObjects, which propagates automatically to spawned objects.
+  * Low resolution texture data can now be provided by materials for faster streaming results.
+  * ezMessages can now be binary serialized for use cases such as networking.
+  * ezWorldModules can now be queried by base/interface type.
+  * Surface interaction prefabs are attached if they are triggered on a dynamic object.
+  * PropertyAnimation components can now play only a sub-set of a property animation, and at different speeds.
+  * Slider and Rotor components now support random start offsets.
+  * Collision mesh component does not need to get a mesh specified anymore, can use the mesh from a sibling static actor component.
+  * Resource Manager now returns whether the acquired resource is the final one or a fallback.
+  * Added a simple wind world module.
+  * Added 6Dof Joint component
+  * Added CCD flag for dynamic ridig bodies.
+  * Added a CPU mesh resource type for loading (and keeping around) mesh data for cpu access.
+  * Components that want to delete its owner object after some time now send a message around first whether there are other components that want to do the same. The component that lives the longest actually deletes the object then.
+  * Added a HasName script node that checks whether an object has a given name. E.g. can be used for filtering on trigger volumes.
+  * Components now allow to store 8 user flags.
+  * Added a "Player Start Component", which indicates where the player should be spawned and which prefab to use.
+  * Add a stat variable which contains for each world the number of game objects.
+  * Added some optional debug info to fmod events, which can be toggled via the ShowDebugInfo property. (development build only)
+  * Added support for OpenVR through an OpenVR plugin.
+  * Added VR companion view (render eyes into some texture).
+  * Added ezStageSpaceComponent that can be used to move the VR stage in world space.
+  * Added ezDeviceTrackingComponent that tracks a VR device.
+  * Added raycast based sound occlusion.
+  * Added AlwaysVisibleComponent which forces an Object to be always visible. This can be useful for objects that are moved in the shader like skyboxes etc.
+  * Meshes, collision meshes, Kraut trees and materials are now compressed with zstandard compression.
+  * Added support for derived resource types.
+    
+Infrastructure:
+  * Using C++ 11 thread_local now.
+  * Log blocks now track the duration, which is then printed at the end. Gives simple profiling information.
+  * Added xxHash and used that in many places.
+  * Changed interface of rtti allocators to return the same type as EZ_NEW so that it can be assigned to a unique or shared ptr.
+  * Added Float16 wrappers for vec2, vec3, vec4
+  * Format strings now allow to use {} without numbers and auto increment the parameter index.
+  * Added "Swap" function to ezMap, ezSet, ezHashTable and ezHashSet.
+  * One can now unsubscribe from ezEvents either via a subscription ID or automatically via an Unsubscribe object.
+  * Added EZ_PROFILE_LIST_SCOPE.
+  * GPU timers are passed to the profiling system and showed in the same capture as CPU timers.
+  * Added ezCompressedStreamReaderZstd and ezCompressedStreamWriterZstd.
+  * CVars can now be set from the command line using "-CVarName Value"
+  * ezArrayPtr now supports to use "void" as internal type.
+  * Added ezThreadUtils::YieldHardwareThread.
+  * ezStreamReader & ezStreamWriter now have explicit methods to serialize arrays, maps and sets.
+  * Significant improvements to ezImage in both functionality and performance.
+  * ezImage now supports writing PNG and JPEG.
+  * Added "EnsureCount" function to all array containers.
+  * Added TexConvLib, a library to handle texture processing tasks.
+  * Added deduplication contexts for writing objects once to a file.
+  * Added a 'Breakable Sheet' component which implements simple destructible walls.
+
+Tools:
+  * The TestFramework UI now allows to easily open the test data and output data folders.
+  * Added parent allocator id to memory tracker and changed the allocator widget to a tree view in the inspector. Accumulated memory is now correct as well.
+  * Added a "data transfer" (ezInspector feature) for capturing profiling data.
+  * Added a button to launch ezInspector from the editor.
+  * The TestFramework now supports passing in a settings file via the command line.
+  * Added a new "Warning" output type to the test framework, to mark "skipped deactivated tests" even more prominently.
+  * Added ezTestOutput::DisabledNoWarning, for test blocks that should be disabled (due to slow performance or so), but not output a warning about it.
+  * Added TexConv2, a rewrite of the TexConv tool on top of recent ezImage improvements and the new TexConvLib.
+  
+Rendering:
+  * ezApplication exposes a flag to prefer NVIDIA GPUs on laptops with two GPUs.
+  * Decals now affect only static geometry or one specific dynamic object.
+  * Added the possibility to sample the scene color in the transparent pass.
+  * Sprite component now has a blend mode and can use hdr colors.
+  * Decals now also affect opacity of transparent objects.
+  * Added depth buffer access for transparent objects.
+  * ezMeshComponent now has a color property.
+  * New ezSetColorMsg to modify the color of mesh components, lights, decals and sprites at runtime.
+  * Added render targets that can be set up through assets and camera components.
+  * Added skeleton and animation clip assets, resources and components for very basic animation playback.
+  * Added the option to enable debug shader compiler flag by adding 'DEBUG' to a shader's target platform section.
+  * Static render data is now cached.
+  * Additional define whether to use fog on a material or not. Default Material always sets the define. For visual shaders the define can be controlled via bool flag on the Output node (default is true).
+  * The CameraComponent now uses the camera configs, instead of a direct render pipeline reference.
+  * Added support for Kraut tree rendering (with LODs, shadows, colliders).
+  * Added a RenderDoc plugin which enables taking GPU captures.
+  * ezImgui now has one imgui context per view. Call SetCurrentContextForView before using any imgui functions.
+
+Samples:
+  * Added a new RTS sample.
+  * Added lots of free textures.
+  
+
+
 Milestone 8
 -----------
 
