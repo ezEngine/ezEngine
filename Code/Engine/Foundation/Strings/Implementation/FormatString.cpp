@@ -55,8 +55,8 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezInt32 arg)
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgU& arg)
 {
   ezUInt32 writepos = 0;
-  ezStringUtils::OutputFormattedUInt(tmp, uiLength, writepos, arg.m_Value, arg.m_uiWidth, arg.m_bPadWithZeros, arg.m_uiBase,
-                                     arg.m_bUpperCase);
+  ezStringUtils::OutputFormattedUInt(
+    tmp, uiLength, writepos, arg.m_Value, arg.m_uiWidth, arg.m_bPadWithZeros, arg.m_uiBase, arg.m_bUpperCase);
   tmp[writepos] = '\0';
   return ezStringView(tmp, tmp + writepos);
 }
@@ -77,8 +77,8 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezUInt32 arg)
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgF& arg)
 {
   ezUInt32 writepos = 0;
-  ezStringUtils::OutputFormattedFloat(tmp, uiLength, writepos, arg.m_Value, arg.m_uiWidth, arg.m_bPadWithZeros, arg.m_iPrecision,
-                                      arg.m_bScientific);
+  ezStringUtils::OutputFormattedFloat(
+    tmp, uiLength, writepos, arg.m_Value, arg.m_uiWidth, arg.m_bPadWithZeros, arg.m_iPrecision, arg.m_bScientific);
   tmp[writepos] = '\0';
   return ezStringView(tmp, tmp + writepos);
 }
@@ -156,10 +156,19 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgErrorCode& arg
 {
   LPVOID lpMsgBuf = nullptr;
   FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, arg.m_ErrorCode,
-                 MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPWSTR)&lpMsgBuf, 0, nullptr);
+    MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPWSTR)&lpMsgBuf, 0, nullptr);
+
+  LPWSTR pCRLF = wcschr((LPWSTR)lpMsgBuf, L'\r');
+  if (pCRLF != nullptr)
+  {
+    // remove the \r\n that FormatMessageW always appends
+    *pCRLF = L'\0';
+  }
+
   ezStringUtils::snprintf(tmp, uiLength, "%i (\"%s\")", arg.m_ErrorCode, ezStringUtf8((LPWSTR)lpMsgBuf).GetData());
   LocalFree(lpMsgBuf);
   return ezStringView(tmp);
 }
 #endif
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_FormatString);

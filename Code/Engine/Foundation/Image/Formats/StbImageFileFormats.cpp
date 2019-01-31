@@ -128,7 +128,8 @@ ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& stream, ezImage& image
   return EZ_SUCCESS;
 }
 
-ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog, const char* szFileExtension) const
+ezResult ezStbImageFileFormats::WriteImage(
+  ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog, const char* szFileExtension) const
 {
   ezImageFormat::Enum compatibleFormats[] = {ezImageFormat::R8_UNORM, ezImageFormat::R8G8B8_UNORM, ezImageFormat::R8G8B8A8_UNORM};
 
@@ -137,8 +138,8 @@ ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& stream, const ezImage
 
   if (format == ezImageFormat::UNKNOWN)
   {
-    ezLog::Error(pLog, "No conversion from format '{0}' to a format suitable for PNG files known.",
-                 ezImageFormat::GetName(image.GetImageFormat()));
+    ezLog::Error(
+      pLog, "No conversion from format '{0}' to a format suitable for PNG files known.", ezImageFormat::GetName(image.GetImageFormat()));
     return EZ_FAILURE;
   }
 
@@ -150,21 +151,32 @@ ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& stream, const ezImage
     {
       // This should never happen
       EZ_ASSERT_DEV(
-          false, "ezImageConversion::Convert failed even though the conversion was to the format returned by FindClosestCompatibleFormat.");
+        false, "ezImageConversion::Convert failed even though the conversion was to the format returned by FindClosestCompatibleFormat.");
       return EZ_FAILURE;
     }
 
     return WriteImage(stream, convertedImage, pLog, szFileExtension);
   }
 
-
-  if (!stbi_write_png_to_func(write_func, &stream, image.GetWidth(), image.GetHeight(),
-                              ezImageFormat::GetNumChannels(image.GetImageFormat()), image.GetArrayPtr<void>().GetPtr(), 0))
+  if (ezStringUtils::IsEqual_NoCase(szFileExtension, "png"))
   {
-    return EZ_FAILURE;
+    if (stbi_write_png_to_func(write_func, &stream, image.GetWidth(), image.GetHeight(),
+          ezImageFormat::GetNumChannels(image.GetImageFormat()), image.GetArrayPtr<void>().GetPtr(), 0))
+    {
+      return EZ_SUCCESS;
+    }
   }
 
-  return EZ_SUCCESS;
+  if (ezStringUtils::IsEqual_NoCase(szFileExtension, "jpg") || ezStringUtils::IsEqual_NoCase(szFileExtension, "jpeg"))
+  {
+    if (stbi_write_jpg_to_func(write_func, &stream, image.GetWidth(), image.GetHeight(),
+          ezImageFormat::GetNumChannels(image.GetImageFormat()), image.GetArrayPtr<void>().GetPtr(), 95))
+    {
+      return EZ_SUCCESS;
+    }
+  }
+
+  return EZ_FAILURE;
 }
 
 bool ezStbImageFileFormats::CanReadFileType(const char* szExtension) const
@@ -175,7 +187,9 @@ bool ezStbImageFileFormats::CanReadFileType(const char* szExtension) const
 
 bool ezStbImageFileFormats::CanWriteFileType(const char* szExtension) const
 {
-  return ezStringUtils::IsEqual_NoCase(szExtension, "png");
+  return ezStringUtils::IsEqual_NoCase(szExtension, "png") || ezStringUtils::IsEqual_NoCase(szExtension, "jpg") ||
+         ezStringUtils::IsEqual_NoCase(szExtension, "jpeg");
+
 }
 
 

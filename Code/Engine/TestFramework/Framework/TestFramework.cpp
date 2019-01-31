@@ -983,6 +983,7 @@ ezResult ezTestBool(bool bCondition, const char* szErrorText, const char* szFile
 
   if (!bCondition)
   {
+    // if the test breaks here, go one up in the callstack to see where it exactly failed
     OUTPUT_TEST_ERROR
   }
 
