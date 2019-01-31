@@ -40,6 +40,8 @@ private:
   ezResult GenerateMipmaps();
   ezResult GenerateOutput();
 
+  ezResult GenerateThumbnailOutput();
+
 
 };
 

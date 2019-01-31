@@ -27,7 +27,7 @@
 
 
 ezTexConv2::ezTexConv2()
-    : ezApplication("TexConv2")
+  : ezApplication("TexConv2")
 {
   // texture types
   {
@@ -238,14 +238,30 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
   if (m_Processor.Process().Failed())
     return ezApplication::ApplicationExecution::Quit;
 
-  if (m_Processor.m_OutputImage.SaveTo(m_sOutputFile).Failed())
+  if (!m_sOutputFile.IsEmpty())
   {
-    ezLog::Error("Failed to write result to output file '{}'", m_sOutputFile);
-    return ezApplication::ApplicationExecution::Quit;
+    if (m_Processor.m_OutputImage.SaveTo(m_sOutputFile).Failed())
+    {
+      ezLog::Error("Failed to write main result to '{}'", m_sOutputFile);
+      return ezApplication::ApplicationExecution::Quit;
+    }
+    else
+    {
+      ezLog::Success("Wrote main result to '{}'", m_sOutputFile);
+    }
   }
-  else
+
+  if (!m_sOutputThumbnailFile.IsEmpty())
   {
-    ezLog::Success("Wrote output '{}'", m_sOutputFile);
+    if (m_Processor.m_ThumbnailOutputImage.SaveTo(m_sOutputThumbnailFile).Failed())
+    {
+      ezLog::Error("Failed to write thumbnail result to '{}'", m_sOutputThumbnailFile);
+      return ezApplication::ApplicationExecution::Quit;
+    }
+    else
+    {
+      ezLog::Success("Wrote thumbnail to '{}'", m_sOutputThumbnailFile);
+    }
   }
 
   return ezApplication::ApplicationExecution::Quit;
