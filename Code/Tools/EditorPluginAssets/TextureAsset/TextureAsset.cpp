@@ -287,7 +287,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(
       arguments << "-r";
       arguments << "in0.r";
       arguments << "-g";
-      arguments << "in1.y"; // always linear
+      arguments << "in1.g"; // always linear
     }
     break;
 

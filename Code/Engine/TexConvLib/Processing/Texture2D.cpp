@@ -66,13 +66,14 @@ ezResult ezTexConvProcessor::Assemble2DSlice(const ezTexConvSliceChannelMapping&
             case ezTexConvChannelValue::Black:
               fValue = 0.0f;
               break;
+            case ezTexConvChannelValue::Alpha:
             case ezTexConvChannelValue::White:
               fValue = 1.0f;
               break;
 
             default:
               fValue = 1.0f;
-              //EZ_ASSERT_NOT_IMPLEMENTED;
+              EZ_ASSERT_NOT_IMPLEMENTED;
               break;
           }
         }
