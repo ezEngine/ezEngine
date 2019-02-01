@@ -95,6 +95,7 @@ TextureAsset.LodSlider;Mipmap
 ezTexture2DUsageEnum::Unknown;Unknown
 ezTexture2DUsageEnum::Diffuse;Diffuse
 ezTexture2DUsageEnum::NormalMap;Normal Map
+ezTexture2DUsageEnum::NormalMapInverted;Normal Map (Inverted)
 ezTexture2DUsageEnum::Height;Height
 ezTexture2DUsageEnum::Mask;Mask
 ezTexture2DUsageEnum::LookupTable;Lookup Table
@@ -172,3 +173,9 @@ ezRootMotionExtractionMode::None;None
 ezRootMotionExtractionMode::Custom;Custom
 ezRootMotionExtractionMode::FromFeet;From Feet
 ezRootMotionExtractionMode::AvgFromFeet;Average From Feet
+ezTexConvCompressionMode::None;None
+ezTexConvCompressionMode::Medium;Medium
+ezTexConvCompressionMode::High;High
+ezTexConvMipmapMode::None;None
+ezTexConvMipmapMode::Linear;Linear
+ezTexConvMipmapMode::Kaiser;Kaiser

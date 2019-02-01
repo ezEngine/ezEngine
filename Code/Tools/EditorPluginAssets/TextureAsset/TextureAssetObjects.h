@@ -3,6 +3,7 @@
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
+#include <TexConvLib/Configuration/TexConvEnums.h>
 
 struct ezPropertyMetaStateEvent;
 
@@ -19,6 +20,7 @@ struct ezTexture2DUsageEnum
     //Other_Linear_Auto,
     Diffuse,
     NormalMap,
+    NormalMapInverted,
     EmissiveMask,
     EmissiveColor,
     Height,
@@ -143,8 +145,6 @@ public:
   bool IsHDR() const;
 
   bool m_bIsRenderTarget = false;
-  bool m_bMipmaps;
-  bool m_bCompression;
   bool m_bPremultipliedAlpha;
   bool m_bFlipHorizontal;
   float m_fCVarResolutionScale = 1.0f;
@@ -156,6 +156,9 @@ public:
   ezEnum<ezTexture2DResolution> m_Resolution;
   ezEnum<ezTexture2DUsageEnum> m_TextureUsage;
   ezEnum<ezRenderTargetFormat> m_RtFormat;
+
+  ezEnum<ezTexConvCompressionMode> m_CompressionMode;
+  ezEnum<ezTexConvMipmapMode> m_MipmapMode;
 
 private:
   ezEnum<ezTexture2DChannelMappingEnum> m_ChannelMapping;

@@ -6,7 +6,9 @@
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexture2DUsageEnum, 1)
-  EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::Unknown, ezTexture2DUsageEnum::Diffuse, ezTexture2DUsageEnum::NormalMap, ezTexture2DUsageEnum::EmissiveMask)
+  EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::Unknown, ezTexture2DUsageEnum::Diffuse)
+  EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::NormalMap, ezTexture2DUsageEnum::NormalMapInverted)
+  EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::EmissiveMask)
   EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::EmissiveColor, ezTexture2DUsageEnum::Height, ezTexture2DUsageEnum::Mask, ezTexture2DUsageEnum::LookupTable)
   EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::HDR)
   EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::Other_sRGB, ezTexture2DUsageEnum::Other_Linear)//, ezTexture2DUsageEnum::Other_sRGB_Auto, ezTexture2DUsageEnum::Other_Linear_Auto)
@@ -32,7 +34,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRenderTargetFormat, 1)
   EZ_ENUM_CONSTANTS(ezRenderTargetFormat::RGBA8sRgb, ezRenderTargetFormat::RGBA8, ezRenderTargetFormat::RGB10, ezRenderTargetFormat::RGBA16)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 2, ezRTTIDefaultAllocator<ezTextureAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 3, ezRTTIDefaultAllocator<ezTextureAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -44,8 +46,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 2, ezRTTIDefaultAlloca
     EZ_ENUM_MEMBER_PROPERTY("Resolution", ezTexture2DResolution, m_Resolution),
     EZ_MEMBER_PROPERTY("CVarResScale", m_fCVarResolutionScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
 
-    EZ_MEMBER_PROPERTY("Mipmaps", m_bMipmaps)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("Compression", m_bCompression)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_ENUM_MEMBER_PROPERTY("MipmapMode", ezTexConvMipmapMode, m_MipmapMode),
+    EZ_ENUM_MEMBER_PROPERTY("CompressionMode", ezTexConvCompressionMode, m_CompressionMode),
     EZ_MEMBER_PROPERTY("PremultipliedAlpha", m_bPremultipliedAlpha),
     EZ_MEMBER_PROPERTY("FlipHorizontal", m_bFlipHorizontal),
 
@@ -193,7 +195,7 @@ ezInt32 ezTextureAssetProperties::GetNumInputFiles() const
 
 ezInt32 ezTextureAssetProperties::GetNumChannels() const
 {
-  if (m_TextureUsage == ezTexture2DUsageEnum::NormalMap && m_bCompression)
+  if ((m_TextureUsage == ezTexture2DUsageEnum::NormalMap || m_TextureUsage == ezTexture2DUsageEnum::NormalMapInverted) && m_CompressionMode != ezTexConvCompressionMode::None)
   {
     return 2;
   }
@@ -231,7 +233,7 @@ bool ezTextureAssetProperties::IsSRGB() const
 
   if (m_TextureUsage == ezTexture2DUsageEnum::EmissiveMask || m_TextureUsage == ezTexture2DUsageEnum::Height ||
       m_TextureUsage == ezTexture2DUsageEnum::LookupTable || m_TextureUsage == ezTexture2DUsageEnum::Mask ||
-      m_TextureUsage == ezTexture2DUsageEnum::NormalMap || m_TextureUsage == ezTexture2DUsageEnum::Other_Linear ||
+      m_TextureUsage == ezTexture2DUsageEnum::NormalMap || m_TextureUsage == ezTexture2DUsageEnum::NormalMapInverted || m_TextureUsage == ezTexture2DUsageEnum::Other_Linear ||
       m_TextureUsage == ezTexture2DUsageEnum::HDR /* ||
       m_TextureUsage == ezTexture2DUsageEnum::Other_Linear_Auto*/)
     return false;
@@ -243,3 +245,41 @@ bool ezTextureAssetProperties::IsHDR() const
 {
   return m_TextureUsage == ezTexture2DUsageEnum::HDR;
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezTextureAssetPropertiesPatch_2_3 : public ezGraphPatch
+{
+public:
+  ezTextureAssetPropertiesPatch_2_3()
+    : ezGraphPatch("ezTextureAssetProperties", 3)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    auto* pMipmaps = pNode->FindProperty("Mipmaps");
+    if (pMipmaps && pMipmaps->m_Value.IsA<bool>())
+    {
+      if (pMipmaps->m_Value.Get<bool>())
+        pNode->AddProperty("MipmapMode", (ezInt32)ezTexConvMipmapMode::Linear);
+      else
+        pNode->AddProperty("MipmapMode", (ezInt32)ezTexConvMipmapMode::None);
+    }
+
+    auto* pCompression = pNode->FindProperty("Compression");
+    if (pCompression && pCompression->m_Value.IsA<bool>())
+    {
+      if (pCompression->m_Value.Get<bool>())
+        pNode->AddProperty("CompressionMode", (ezInt32)ezTexConvCompressionMode::Medium);
+      else
+        pNode->AddProperty("CompressionMode", (ezInt32)ezTexConvCompressionMode::None);
+    }
+  }
+};
+
+ezTextureAssetPropertiesPatch_2_3 g_ezTextureAssetPropertiesPatch_2_3;

@@ -143,9 +143,12 @@ ezStatus ezTextureAssetDocument::RunTexConv(
 
     if (bUseTexConv2)
     {
-      arguments << "-lowMips";
-      arguments << "6";
-      arguments << "-lowOut";
+      if (pProp->m_MipmapMode != ezTexConvMipmapMode::None)
+      {
+        arguments << "-lowMips";
+        arguments << "6";
+        arguments << "-lowOut";
+      }
     }
     else
     {
@@ -157,39 +160,47 @@ ezStatus ezTextureAssetDocument::RunTexConv(
 
   if (bUseTexConv2)
   {
-    if (pProp->m_bMipmaps)
+    arguments << "-mipmaps";
+
+    switch (pProp->m_MipmapMode)
     {
-      arguments << "-mipmaps";
-      arguments << "Linear";
-    }
-    else
-    {
-      arguments << "-mipmaps";
-      arguments << "None";
+      case ezTexConvMipmapMode::None:
+        arguments << "None";
+        break;
+      case ezTexConvMipmapMode::Linear:
+
+        arguments << "Linear";
+        break;
+      case ezTexConvMipmapMode::Kaiser:
+        arguments << "Kaiser";
+        break;
     }
 
-    if (pProp->m_bCompression)
+    arguments << "-compression";
+    switch (pProp->m_CompressionMode)
     {
-      arguments << "-compression";
-      arguments << "Quality";
-    }
-    else
-    {
-      arguments << "-compression";
-      arguments << "None";
+      case ezTexConvCompressionMode::None:
+        arguments << "None";
+        break;
+      case ezTexConvCompressionMode::Medium:
+        arguments << "Medium";
+        break;
+      case ezTexConvCompressionMode::High:
+        arguments << "High";
+        break;
     }
 
     arguments << "-usage";
     switch (pProp->m_TextureUsage)
     {
       case ezTexture2DUsageEnum::HDR:
-        arguments << "hdr";
+        arguments << "Hdr";
         break;
 
       case ezTexture2DUsageEnum::Diffuse:
       case ezTexture2DUsageEnum::EmissiveColor:
       case ezTexture2DUsageEnum::Other_sRGB:
-        arguments << "color";
+        arguments << "Color";
         break;
 
       case ezTexture2DUsageEnum::EmissiveMask:
@@ -197,11 +208,15 @@ ezStatus ezTextureAssetDocument::RunTexConv(
       case ezTexture2DUsageEnum::LookupTable:
       case ezTexture2DUsageEnum::Mask:
       case ezTexture2DUsageEnum::Other_Linear:
-        arguments << "linear";
+        arguments << "Linear";
         break;
 
       case ezTexture2DUsageEnum::NormalMap:
-        arguments << "normalmap";
+        arguments << "NormalMap";
+        break;
+
+      case ezTexture2DUsageEnum::NormalMapInverted:
+        arguments << "NormalMap_Inverted";
         break;
     }
   }
@@ -210,10 +225,10 @@ ezStatus ezTextureAssetDocument::RunTexConv(
     arguments << "-channels";
     arguments << ezConversionUtils::ToString(pProp->GetNumChannels(), temp).GetData();
 
-    if (pProp->m_bMipmaps)
+    if (pProp->m_MipmapMode != ezTexConvMipmapMode::None)
       arguments << "-mipmaps";
 
-    if (pProp->m_bCompression)
+    if (pProp->m_CompressionMode != ezTexConvCompressionMode::None)
       arguments << "-compress";
 
     if (pProp->IsSRGB())

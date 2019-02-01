@@ -17,6 +17,8 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALResourceFormat, 1)
   EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC6UFloat, ezGALResourceFormat::BC6Float)
   EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC7UNormalized, ezGALResourceFormat::BC7UNormalizedsRGB)
   EZ_ENUM_CONSTANTS(ezGALResourceFormat::RFloat)
+  EZ_ENUM_CONSTANTS(ezGALResourceFormat::RGUByte, ezGALResourceFormat::RGUByteNormalized)
+  EZ_ENUM_CONSTANTS(ezGALResourceFormat::RGUShort, ezGALResourceFormat::RGUShortNormalized)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 

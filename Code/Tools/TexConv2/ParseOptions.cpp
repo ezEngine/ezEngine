@@ -205,7 +205,7 @@ ezResult ezTexConv2::ParseCompressionMode()
 {
   if (!m_bOutputSupportsCompression)
   {
-    m_Processor.m_Descriptor.m_CompressionMode = ezTexConvCompressionMode::Uncompressed;
+    m_Processor.m_Descriptor.m_CompressionMode = ezTexConvCompressionMode::None;
     return EZ_SUCCESS;
   }
 

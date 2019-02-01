@@ -2,6 +2,8 @@
 
 #include <TexConvLib/Basics.h>
 
+#include <Foundation/Reflection/Reflection.h>
+
 struct ezTexConvOutputType
 {
   enum Enum
@@ -18,23 +20,22 @@ struct ezTexConvOutputType
   using StorageType = ezUInt8;
 };
 
-// TODO: Rename to something like 'quality mode' ?
-// and then use
-// Best (uncompressed), High (compressed), Low (compressed)
 struct ezTexConvCompressionMode
 {
   enum Enum
   {
     // note: order of enum values matters
-    OptimizeForSize = 1,
-    OptimizeForQuality = 2,
-    Uncompressed = 3,
+    None = 0, // uncompressed
+    Medium = 1, // compressed with high quality, if possible
+    High = 2, // strongest compression, if possible
 
-    Default = OptimizeForQuality,
+    Default = Medium,
   };
 
   using StorageType = ezUInt8;
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_TEXCONV_DLL, ezTexConvCompressionMode);
 
 struct ezTexConvUsage
 {
@@ -42,7 +43,6 @@ struct ezTexConvUsage
   {
     Auto, ///< Target format will be detected from heuristics (filename, content)
 
-    // Abstract modes:
     // Exact format will be decided together with ezTexConvCompressionMode
 
     Color,
@@ -72,6 +72,8 @@ struct ezTexConvMipmapMode
   using StorageType = ezUInt8;
 };
 
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_TEXCONV_DLL, ezTexConvMipmapMode);
+
 struct ezTexConvWrapMode
 {
   enum Enum
@@ -85,6 +87,8 @@ struct ezTexConvWrapMode
 
   using StorageType = ezUInt8;
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_TEXCONV_DLL, ezTexConvWrapMode);
 
 struct ezTexConvFilterMode
 {
@@ -111,6 +115,8 @@ struct ezTexConvFilterMode
 
   using StorageType = ezUInt8;
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_TEXCONV_DLL, ezTexConvFilterMode);
 
 struct ezTexConvTargetPlatform
 {

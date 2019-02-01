@@ -7,10 +7,10 @@ ezImageFormat::Enum DetermineOutputFormatPC(
 {
   if (targetFormat == ezTexConvUsage::NormalMap || targetFormat == ezTexConvUsage::NormalMap_Inverted)
   {
-    if (compressionMode == ezTexConvCompressionMode::OptimizeForSize)
+    if (compressionMode >= ezTexConvCompressionMode::High)
       return ezImageFormat::BC5_UNORM;
 
-    if (compressionMode == ezTexConvCompressionMode::OptimizeForQuality)
+    if (compressionMode >= ezTexConvCompressionMode::Medium)
       return ezImageFormat::R8G8_UNORM;
 
     return ezImageFormat::R16G16_UNORM;
@@ -18,11 +18,11 @@ ezImageFormat::Enum DetermineOutputFormatPC(
 
   if (targetFormat == ezTexConvUsage::Color)
   {
-    if (compressionMode == ezTexConvCompressionMode::OptimizeForSize && uiNumChannels < 4)
+    if (compressionMode >= ezTexConvCompressionMode::High && uiNumChannels < 4)
       return ezImageFormat::BC1_UNORM_SRGB;
 
     // TODO: encoder not yet supported
-    // if (compressionMode <= ezTexConvCompressionMode::OptimizeForQuality)
+    // if (compressionMode >= ezTexConvCompressionMode::Medium)
     // return ezImageFormat::BC7_UNORM_SRGB;
 
     return ezImageFormat::R8G8B8A8_UNORM_SRGB;
@@ -33,30 +33,30 @@ ezImageFormat::Enum DetermineOutputFormatPC(
     switch (uiNumChannels)
     {
       case 1:
-        if (compressionMode <= ezTexConvCompressionMode::OptimizeForQuality)
+        if (compressionMode >= ezTexConvCompressionMode::Medium)
           return ezImageFormat::BC4_UNORM;
 
         return ezImageFormat::R8_UNORM;
 
       case 2:
-        if (compressionMode <= ezTexConvCompressionMode::OptimizeForQuality)
+        if (compressionMode >= ezTexConvCompressionMode::Medium)
           return ezImageFormat::BC5_UNORM;
 
         return ezImageFormat::R8G8_UNORM;
 
       case 3:
-        if (compressionMode == ezTexConvCompressionMode::OptimizeForSize)
+        if (compressionMode >= ezTexConvCompressionMode::High)
           return ezImageFormat::BC1_UNORM;
 
         // TODO
-        //if (compressionMode == ezTexConvCompressionMode::OptimizeForQuality)
+        //if (compressionMode >= ezTexConvCompressionMode::Medium)
           //return ezImageFormat::BC7_UNORM;
 
         return ezImageFormat::R8G8B8A8_UNORM;
 
       case 4:
         // TODO
-        //if (compressionMode <= ezTexConvCompressionMode::OptimizeForQuality)
+        //if (compressionMode >= ezTexConvCompressionMode::Medium)
           //return ezImageFormat::BC7_UNORM;
 
         return ezImageFormat::R8G8B8A8_UNORM;
@@ -71,7 +71,7 @@ ezImageFormat::Enum DetermineOutputFormatPC(
     switch (uiNumChannels)
     {
       case 1:
-        if (compressionMode == ezTexConvCompressionMode::OptimizeForSize)
+        if (compressionMode >= ezTexConvCompressionMode::High)
           return ezImageFormat::BC6H_UF16;
 
         return ezImageFormat::R16_FLOAT;
@@ -80,10 +80,10 @@ ezImageFormat::Enum DetermineOutputFormatPC(
         return ezImageFormat::R16G16_FLOAT;
 
       case 3:
-        if (compressionMode == ezTexConvCompressionMode::OptimizeForSize)
+        if (compressionMode >= ezTexConvCompressionMode::High)
           return ezImageFormat::BC6H_UF16;
 
-        if (compressionMode == ezTexConvCompressionMode::OptimizeForQuality)
+        if (compressionMode >= ezTexConvCompressionMode::Medium)
           return ezImageFormat::R11G11B10_FLOAT;
 
         return ezImageFormat::R16G16B16A16_FLOAT;

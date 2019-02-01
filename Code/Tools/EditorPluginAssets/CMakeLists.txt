@@ -40,6 +40,7 @@ SET (LINK_LIBRARIES
   SharedPluginAssets
   ModelImporter
   Utilities
+  TexConvLib
 )
 
 SET (ADDITIONAL_DEPENDENCIES

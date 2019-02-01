@@ -58,9 +58,9 @@ ezTexConv2::ezTexConv2()
 
   // compression modes
   {
-    m_AllowedCompressionModes.PushBack({"Quality", ezTexConvCompressionMode::OptimizeForQuality});
-    m_AllowedCompressionModes.PushBack({"Size", ezTexConvCompressionMode::OptimizeForSize});
-    m_AllowedCompressionModes.PushBack({"None", ezTexConvCompressionMode::Uncompressed});
+    m_AllowedCompressionModes.PushBack({"Medium", ezTexConvCompressionMode::Medium});
+    m_AllowedCompressionModes.PushBack({"High", ezTexConvCompressionMode::High});
+    m_AllowedCompressionModes.PushBack({"None", ezTexConvCompressionMode::None});
   }
 
   // wrap modes
