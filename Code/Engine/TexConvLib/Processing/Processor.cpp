@@ -26,6 +26,8 @@ ezResult ezTexConvProcessor::Process()
 
   EZ_SUCCEED_OR_RETURN(Assemble2DTexture());
 
+  EZ_SUCCEED_OR_RETURN(AdjustHdrExposure());
+
   EZ_SUCCEED_OR_RETURN(GenerateMipmaps());
 
   EZ_SUCCEED_OR_RETURN(PremultiplyAlpha());

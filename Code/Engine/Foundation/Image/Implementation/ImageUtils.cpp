@@ -7,8 +7,8 @@
 #include <Foundation/SimdMath/SimdVec4f.h>
 
 template <typename TYPE>
-static void SetDiff(const ezImageView& ImageA, const ezImageView& ImageB, ezImage& out_Difference, ezUInt32 w, ezUInt32 h, ezUInt32 d,
-                    ezUInt32 comp)
+static void SetDiff(
+  const ezImageView& ImageA, const ezImageView& ImageB, ezImage& out_Difference, ezUInt32 w, ezUInt32 h, ezUInt32 d, ezUInt32 comp)
 {
   const TYPE* pA = ImageA.GetPixelPointer<TYPE>(0, 0, 0, w, h, d);
   const TYPE* pB = ImageB.GetPixelPointer<TYPE>(0, 0, 0, w, h, d);
@@ -283,7 +283,7 @@ void ezImageUtils::RotateSubImage180(ezImage& image, ezUInt32 uiMipLevel /*= 0*/
 }
 
 void ezImageUtils::Copy(ezImage& dst, ezUInt32 uiPosX, ezUInt32 uiPosY, const ezImageView& src, ezUInt32 uiMipLevel /*= 0*/,
-                        ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/)
+  ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/)
 {
   EZ_ASSERT_DEV(dst.GetImageFormat() == src.GetImageFormat(), "Can only copy when the image formats are identical");
 
@@ -360,7 +360,7 @@ ezResult ezImageUtils::ExtractLowerMipChain(const ezImageView& srcImg, ezImage& 
 }
 
 static ezSimdVec4f LoadSample(const ezSimdVec4f* source, ezUInt32 numSourceElements, ezUInt32 stride, ezInt32 index,
-                              ezImageAddressMode::Enum addressMode, const ezSimdVec4f& borderColor)
+  ezImageAddressMode::Enum addressMode, const ezSimdVec4f& borderColor)
 {
   bool useBorderColor = false;
   // result is in the range [-(w-1), (w-1)], bring it to [0, w - 1]
@@ -373,8 +373,8 @@ static ezSimdVec4f LoadSample(const ezSimdVec4f* source, ezUInt32 numSourceEleme
 }
 
 inline static void FilterLine(ezUInt32 numSourceElements, const ezSimdVec4f* __restrict sourceBegin, ezSimdVec4f* __restrict targetBegin,
-                              ezUInt32 stride, const ezImageFilterWeights& weights, ezArrayPtr<const ezInt32> firstSampleIndices,
-                              ezImageAddressMode::Enum addressMode, const ezSimdVec4f& borderColor)
+  ezUInt32 stride, const ezImageFilterWeights& weights, ezArrayPtr<const ezInt32> firstSampleIndices, ezImageAddressMode::Enum addressMode,
+  const ezSimdVec4f& borderColor)
 {
   // Convolve the image using the precomputed weights
   const ezUInt32 numWeights = weights.GetNumWeights();
@@ -406,8 +406,8 @@ inline static void FilterLine(ezUInt32 numSourceElements, const ezSimdVec4f* __r
       ezInt32 sourceIdx = firstSourceIdx;
       for (ezUInt32 weightIdx = 0; weightIdx < numWeights; ++weightIdx)
       {
-        total = ezSimdVec4f::MulAdd(LoadSample(sourceBegin, numSourceElements, stride, sourceIdx, addressMode, borderColor),
-                                    ezSimdVec4f(*nextWeightPtr++), total);
+        total = ezSimdVec4f::MulAdd(
+          LoadSample(sourceBegin, numSourceElements, stride, sourceIdx, addressMode, borderColor), ezSimdVec4f(*nextWeightPtr++), total);
         sourceIdx++;
       }
     }
@@ -422,8 +422,8 @@ inline static void FilterLine(ezUInt32 numSourceElements, const ezSimdVec4f* __r
   }
 }
 
-static void DownScaleFastLine(ezUInt32 pixelStride, const ezUInt8* src, ezUInt8* dest, ezUInt32 lengthIn, ezUInt32 strideIn,
-                              ezUInt32 lengthOut, ezUInt32 strideOut)
+static void DownScaleFastLine(
+  ezUInt32 pixelStride, const ezUInt8* src, ezUInt8* dest, ezUInt32 lengthIn, ezUInt32 strideIn, ezUInt32 lengthOut, ezUInt32 strideOut)
 {
   const ezUInt32 downScaleFactor = lengthIn / lengthOut;
 
@@ -478,8 +478,7 @@ static void DownScaleFast(const ezImageView& image, ezImage& out_Result, ezUInt3
       for (ezUInt32 row = 0; row < originalHeight; row++)
       {
         DownScaleFastLine(pixelStride, image.GetPixelPointer<ezUInt8>(0, face, arrayIndex, 0, row),
-                          intermediate.GetPixelPointer<ezUInt8>(0, face, arrayIndex, 0, row), originalWidth, pixelStride, width,
-                          pixelStride);
+          intermediate.GetPixelPointer<ezUInt8>(0, face, arrayIndex, 0, row), originalWidth, pixelStride, width, pixelStride);
       }
     }
   }
@@ -502,8 +501,8 @@ static void DownScaleFast(const ezImageView& image, ezImage& out_Result, ezUInt3
       for (ezUInt32 col = 0; col < width; col++)
       {
         DownScaleFastLine(pixelStride, intermediate.GetPixelPointer<ezUInt8>(0, face, arrayIndex, col),
-                          out_Result.GetPixelPointer<ezUInt8>(0, face, arrayIndex, col), originalHeight, intermediate.GetRowPitch(), height,
-                          out_Result.GetRowPitch());
+          out_Result.GetPixelPointer<ezUInt8>(0, face, arrayIndex, col), originalHeight, intermediate.GetRowPitch(), height,
+          out_Result.GetRowPitch());
       }
     }
   }
@@ -589,17 +588,15 @@ static void NormalizeCoverage(ezArrayPtr<ezColor> colors, float alphaThreshold, 
 
 
 ezResult ezImageUtils::Scale(const ezImageView& source, ezImage& target, ezUInt32 width, ezUInt32 height, const ezImageFilter* filter,
-                             ezImageAddressMode::Enum addressModeU, ezImageAddressMode::Enum addressModeV, const ezColor& borderColor)
+  ezImageAddressMode::Enum addressModeU, ezImageAddressMode::Enum addressModeV, const ezColor& borderColor)
 {
   return Scale3D(source, target, width, height, 1, filter, addressModeU, addressModeV, ezImageAddressMode::CLAMP, borderColor);
 }
 
 ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUInt32 width, ezUInt32 height, ezUInt32 depth,
-                               const ezImageFilter* filter /*= ez_NULL*/,
-                               ezImageAddressMode::Enum addressModeU /*= ezImageAddressMode::CLAMP*/,
-                               ezImageAddressMode::Enum addressModeV /*= ezImageAddressMode::CLAMP*/,
-                               ezImageAddressMode::Enum addressModeW /*= ezImageAddressMode::CLAMP*/,
-                               const ezColor& borderColor /*= ezColors::Black*/)
+  const ezImageFilter* filter /*= ez_NULL*/, ezImageAddressMode::Enum addressModeU /*= ezImageAddressMode::CLAMP*/,
+  ezImageAddressMode::Enum addressModeV /*= ezImageAddressMode::CLAMP*/,
+  ezImageAddressMode::Enum addressModeW /*= ezImageAddressMode::CLAMP*/, const ezColor& borderColor /*= ezColors::Black*/)
 {
   if (width == 0 || height == 0 || depth == 0)
   {
@@ -723,7 +720,7 @@ ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUIn
             const ezSimdVec4f* filterSource = stepSource->GetPixelPointer<ezSimdVec4f>(0, face, arrayIndex, 0, y, z);
             ezSimdVec4f* filterTarget = stepTarget->GetPixelPointer<ezSimdVec4f>(0, face, arrayIndex, 0, y, z);
             FilterLine(originalWidth, filterSource, filterTarget, 1, weights, firstSampleIndices, addressModeU,
-                       ezSimdVec4f(borderColor.r, borderColor.g, borderColor.b, borderColor.a));
+              ezSimdVec4f(borderColor.r, borderColor.g, borderColor.b, borderColor.a));
           }
         }
       }
@@ -767,7 +764,7 @@ ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUIn
             const ezSimdVec4f* filterSource = stepSource->GetPixelPointer<ezSimdVec4f>(0, face, arrayIndex, x, 0, z);
             ezSimdVec4f* filterTarget = stepTarget->GetPixelPointer<ezSimdVec4f>(0, face, arrayIndex, x, 0, z);
             FilterLine(originalHeight, filterSource, filterTarget, width, weights, firstSampleIndices, addressModeV,
-                       ezSimdVec4f(borderColor.r, borderColor.g, borderColor.b, borderColor.a));
+              ezSimdVec4f(borderColor.r, borderColor.g, borderColor.b, borderColor.a));
           }
         }
       }
@@ -811,7 +808,7 @@ ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUIn
             const ezSimdVec4f* filterSource = stepSource->GetPixelPointer<ezSimdVec4f>(0, face, arrayIndex, x, y, 0);
             ezSimdVec4f* filterTarget = stepTarget->GetPixelPointer<ezSimdVec4f>(0, face, arrayIndex, x, y, 0);
             FilterLine(originalHeight, filterSource, filterTarget, width * height, weights, firstSampleIndices, addressModeW,
-                       ezSimdVec4f(borderColor.r, borderColor.g, borderColor.b, borderColor.a));
+              ezSimdVec4f(borderColor.r, borderColor.g, borderColor.b, borderColor.a));
           }
         }
       }
@@ -868,7 +865,7 @@ void ezImageUtils::GenerateMipMaps(const ezImageView& source, ezImage& target, c
       if (mipMapOptions.m_preserveCoverage)
       {
         targetCoverage =
-            EvaluateAverageCoverage(source.GetSubImageView(0, face, arrayIndex).GetArrayPtr<ezColor>(), mipMapOptions.m_alphaThreshold);
+          EvaluateAverageCoverage(source.GetSubImageView(0, face, arrayIndex).GetArrayPtr<ezColor>(), mipMapOptions.m_alphaThreshold);
       }
 
       for (ezUInt32 mipMapLevel = 0; mipMapLevel < numMipMaps - 1; mipMapLevel++)
@@ -887,8 +884,8 @@ void ezImageUtils::GenerateMipMaps(const ezImageView& source, ezImage& target, c
         nextMipMap.ResetAndUseExternalStorage(nextMipMapHeader, dstData);
 
         ezImageUtils::Scale3D(currentMipMap, nextMipMap, nextMipMapHeader.GetWidth(), nextMipMapHeader.GetHeight(),
-                              nextMipMapHeader.GetDepth(), mipMapOptions.m_filter, mipMapOptions.m_addressModeU,
-                              mipMapOptions.m_addressModeV, mipMapOptions.m_addressModeW, mipMapOptions.m_borderColor);
+          nextMipMapHeader.GetDepth(), mipMapOptions.m_filter, mipMapOptions.m_addressModeU, mipMapOptions.m_addressModeV,
+          mipMapOptions.m_addressModeW, mipMapOptions.m_borderColor);
 
         if (mipMapOptions.m_preserveCoverage)
         {
@@ -959,13 +956,13 @@ void ezImageUtils::RenormalizeNormalMap(ezImage& image)
 
 void ezImageUtils::AdjustRoughness(ezImage& roughnessMap, const ezImageView& normalMap)
 {
-  EZ_ASSERT_DEV(roughnessMap.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT,
-                "This algorithm currently expects a RGBA 32 Float as input");
-  EZ_ASSERT_DEV(normalMap.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT,
-                "This algorithm currently expects a RGBA 32 Float as input");
+  EZ_ASSERT_DEV(
+    roughnessMap.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT, "This algorithm currently expects a RGBA 32 Float as input");
+  EZ_ASSERT_DEV(
+    normalMap.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT, "This algorithm currently expects a RGBA 32 Float as input");
 
   EZ_ASSERT_DEV(roughnessMap.GetWidth() >= normalMap.GetWidth() && roughnessMap.GetHeight() >= normalMap.GetHeight(),
-                "The roughness map needs to be bigger or same size than the normal map.");
+    "The roughness map needs to be bigger or same size than the normal map.");
 
   ezImage filteredNormalMap;
   ezImageUtils::MipMapOptions options;
@@ -984,7 +981,7 @@ void ezImageUtils::AdjustRoughness(ezImage& roughnessMap, const ezImageView& nor
   }
 
   EZ_ASSERT_DEV(roughnessMap.GetNumMipLevels() == filteredNormalMap.GetNumMipLevels(),
-                "Roughness and normal map must have the same number of mip maps");
+    "Roughness and normal map must have the same number of mip maps");
 
   ezSimdVec4f two(2.0f);
   ezSimdVec4f minusOne(-1.0f);
@@ -1015,357 +1012,272 @@ void ezImageUtils::AdjustRoughness(ezImage& roughnessMap, const ezImageView& nor
   }
 }
 
-/// Converts the cube map 'src' with the Direct3D layout into the cube map 'dst' with the internal ezR layout.
-static inline void ConvertCubemapLayout(const ezImageView& src, ezImage& dst)
+void ezImageUtils::ChangeExposure(ezImage& image, float bias)
 {
-  EZ_ASSERT_DEV(1 == src.GetNumArrayIndices() && 1 == src.GetNumMipLevels() && 6 == src.GetNumFaces() && 1 == src.GetDepth(),
-                "The source image is expected to be a cube map without MIP maps.");
-  EZ_ASSERT_DEV(src.GetWidth() > 0 && src.GetHeight() > 0, "The source image is expected to be of non-zero dimensions.");
-  EZ_ASSERT_DEV(src.GetArrayPtr<void*>() != dst.GetArrayPtr<void*>(),
-                "The destination image cannot share its data pointer with the source image.");
-  EZ_ASSERT_DEV(src.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT, "The source image is expected to be 4 x 32-bit float RGBA.");
+  EZ_ASSERT_DEV(image.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT, "This function expects an RGBA 32 float image as input");
 
-  // Create the destination image.
-  dst.ResetAndAlloc(src.GetHeader());
-  // Compute the size of a face of the cube map in QWORDs.
-  const ezUInt32 size = src.GetWidth();
-  const ezUInt32 faceSizeQWords = size * size * 16;
-  // Iterate over the faces of the source cube map.
-  for (ezUInt32 f = 0; f < 6; ++f)
+  if (bias == 0.0f)
+    return;
+
+  const float multiplier = ezMath::Pow2(bias);
+
+  for (ezColor& col : image.GetArrayPtr<ezColor>())
   {
-    // Mapping from the source face indices to the destination face indices.
-    static ezUInt32 faceMap[6] = {5, 4, 3, 2, 0, 1};
-    switch (f)
+    col = multiplier * col;
+  }
+}
+
+static void CopyImageRectToFace(ezImage& dstImg, const ezImageView& srcImg, ezUInt32 offsetX, ezUInt32 offsetY, ezUInt32 faceIndex)
+{
+  const ezUInt32 faceRowPitch = dstImg.GetRowPitch();
+  const ezUInt32 srcRowPitch = srcImg.GetRowPitch();
+
+  EZ_ASSERT_DEV(faceRowPitch > 0 && srcRowPitch > 0, "Compressed images are not supported.");
+
+  ezUInt8* dstFace = dstImg.GetPixelPointer<ezUInt8>(0, faceIndex);
+  const ezUInt8* srcPtr = srcImg.GetPixelPointer<ezUInt8>(0, 0, 0, offsetX, offsetY);
+  const ezUInt32 faceSize = dstImg.GetWidth();
+
+  for (ezUInt32 y = 0; y < faceSize; y++)
+  {
+    ezMemoryUtils::Copy(dstFace, srcPtr, faceRowPitch);
+    dstFace += faceRowPitch;
+    srcPtr += srcRowPitch;
+  }
+}
+
+ezResult ezImageUtils::CreateCubemapFromSingleFile(ezImage& dstImg, const ezImageView& srcImg)
+{
+  if (srcImg.GetNumFaces() == 6)
+  {
+    dstImg.ResetAndCopy(srcImg);
+    return EZ_SUCCESS;
+  }
+  else if (srcImg.GetNumFaces() == 1)
+  {
+    if (srcImg.GetWidth() % 3 == 0 && srcImg.GetHeight() % 4 == 0 && srcImg.GetWidth() / 3 == srcImg.GetHeight() / 4)
     {
-      case 2:
-      case 3:
-        for (ezUInt32 j = 0; j < size; ++j)
+      // Vertical cube map layout
+      //     +---+
+      //     | Y+|
+      // +---+---+---+
+      // | X-| Z+| X+|
+      // +---+---+---+
+      //     | Y-|
+      //     +---+
+      //     | Z-|
+      //     +---+
+      const ezUInt32 faceSize = srcImg.GetWidth() / 3;
+
+      ezImageHeader imgHeader;
+      imgHeader.SetWidth(faceSize);
+      imgHeader.SetHeight(faceSize);
+      imgHeader.SetImageFormat(srcImg.GetImageFormat());
+      imgHeader.SetDepth(1);
+      imgHeader.SetNumFaces(6);
+      imgHeader.SetNumMipLevels(1);
+      imgHeader.SetNumArrayIndices(1);
+
+      dstImg.ResetAndAlloc(imgHeader);
+
+      // face order in dds files is: positive x, negative x, positive y, negative y, positive z, negative z
+
+      // Positive X face
+      CopyImageRectToFace(dstImg, srcImg, faceSize * 2, faceSize, 0);
+
+      // Negative X face
+      CopyImageRectToFace(dstImg, srcImg, 0, faceSize, 1);
+
+      // Positive Y face
+      CopyImageRectToFace(dstImg, srcImg, faceSize, 0, 2);
+
+      // Negative Y face
+      CopyImageRectToFace(dstImg, srcImg, faceSize, faceSize * 2, 3);
+
+      // Positive Z face
+      CopyImageRectToFace(dstImg, srcImg, faceSize, faceSize, 4);
+
+      // Negative Z face
+      CopyImageRectToFace(dstImg, srcImg, faceSize, faceSize * 3, 5);
+      ezImageUtils::RotateSubImage180(dstImg, 0, 5);
+    }
+    else if (srcImg.GetWidth() % 4 == 0 && srcImg.GetHeight() % 3 == 0 && srcImg.GetWidth() / 4 == srcImg.GetHeight() / 3)
+    {
+      // Horizontal cube map layout
+      //     +---+
+      //     | Y+|
+      // +---+---+---+---+
+      // | X-| Z+| X+| Z-|
+      // +---+---+---+---+
+      //     | Y-|
+      //     +---+
+      const ezUInt32 faceSize = srcImg.GetWidth() / 4;
+
+      ezImageHeader imgHeader;
+      imgHeader.SetWidth(faceSize);
+      imgHeader.SetHeight(faceSize);
+      imgHeader.SetImageFormat(srcImg.GetImageFormat());
+      imgHeader.SetDepth(1);
+      imgHeader.SetNumFaces(6);
+      imgHeader.SetNumMipLevels(1);
+      imgHeader.SetNumArrayIndices(1);
+
+      dstImg.ResetAndAlloc(imgHeader);
+
+      // face order in dds files is: positive x, negative x, positive y, negative y, positive z, negative z
+
+      // Positive X face
+      CopyImageRectToFace(dstImg, srcImg, faceSize * 2, faceSize, 0);
+
+      // Negative X face
+      CopyImageRectToFace(dstImg, srcImg, 0, faceSize, 1);
+
+      // Positive Y face
+      CopyImageRectToFace(dstImg, srcImg, faceSize, 0, 2);
+
+      // Negative Y face
+      CopyImageRectToFace(dstImg, srcImg, faceSize, faceSize * 2, 3);
+
+      // Positive Z face
+      CopyImageRectToFace(dstImg, srcImg, faceSize, faceSize, 4);
+
+      // Negative Z face
+      CopyImageRectToFace(dstImg, srcImg, faceSize * 3, faceSize, 5);
+    }
+    else
+    {
+      // Spherical mapping
+      if (srcImg.GetWidth() % 4 != 0)
+      {
+        ezLog::Error("Width of the input image should be a multiple of 4");
+        return EZ_FAILURE;
+      }
+
+      const ezUInt32 faceSize = srcImg.GetWidth() / 4;
+
+      ezImageHeader imgHeader;
+      imgHeader.SetWidth(faceSize);
+      imgHeader.SetHeight(faceSize);
+      imgHeader.SetImageFormat(srcImg.GetImageFormat());
+      imgHeader.SetDepth(1);
+      imgHeader.SetNumFaces(6);
+      imgHeader.SetNumMipLevels(1);
+      imgHeader.SetNumArrayIndices(1);
+
+      dstImg.ResetAndAlloc(imgHeader);
+
+      // Corners of the UV space for the respective faces in model space
+      const ezVec3 faceCorners[] = {
+        ezVec3(0.5, 0.5, 0.5),   // X+
+        ezVec3(-0.5, 0.5, -0.5), // X-
+        ezVec3(-0.5, 0.5, -0.5), // Y+
+        ezVec3(-0.5, -0.5, 0.5), // Y-
+        ezVec3(-0.5, 0.5, 0.5),  // Z+
+        ezVec3(0.5, 0.5, -0.5)   // Z-
+      };
+
+      // UV Axis of the respective faces in model space
+      const ezVec3 faceAxis[] = {
+        ezVec3(0, 0, -1), ezVec3(0, -1, 0), // X+
+        ezVec3(0, 0, 1), ezVec3(0, -1, 0),  // X-
+        ezVec3(1, 0, 0), ezVec3(0, 0, 1),   // Y+
+        ezVec3(1, 0, 0), ezVec3(0, 0, -1),  // Y-
+        ezVec3(1, 0, 0), ezVec3(0, -1, 0),  // Z+
+        ezVec3(-1, 0, 0), ezVec3(0, -1, 0)  // Z-
+      };
+
+      const float fFaceSize = (float)faceSize;
+      const float fHalfPixel = 0.5f / fFaceSize;
+      const float fPixel = 1.0f / fFaceSize;
+
+      const float fHalfSrcWidth = srcImg.GetWidth() / 2.0f;
+      const float fSrcHeight = (float)srcImg.GetHeight();
+
+      const ezUInt32 srcWidthMinus1 = srcImg.GetWidth() - 1;
+      const ezUInt32 srcHeightMinus1 = srcImg.GetHeight() - 1;
+
+      EZ_ASSERT_DEBUG(srcImg.GetRowPitch() % sizeof(ezColor) == 0, "Row pitch should be a multiple of sizeof(ezColor)");
+      const ezUInt32 srcRowPitch = srcImg.GetRowPitch() / sizeof(ezColor);
+
+      EZ_ASSERT_DEBUG(dstImg.GetRowPitch() % sizeof(ezColor) == 0, "Row pitch should be a multiple of sizeof(ezColor)");
+      const ezUInt32 faceRowPitch = dstImg.GetRowPitch() / sizeof(ezColor);
+
+      const ezColor* srcData = srcImg.GetPixelPointer<ezColor>();
+      const float InvPi = 1.0f / ezMath::BasicType<float>::Pi();
+
+      for (ezUInt32 faceIndex = 0; faceIndex < 6; faceIndex++)
+      {
+        ezColor* faceData = dstImg.GetPixelPointer<ezColor>(0, faceIndex);
+        for (ezUInt32 y = 0; y < faceSize; y++)
         {
-          for (ezUInt32 i = 0; i < size; ++i)
+          const float dstV = (float)y * fPixel + fHalfPixel;
+
+          for (ezUInt32 x = 0; x < faceSize; x++)
           {
-            const ezColor* srcPixel = src.GetPixelPointer<ezColor>(0, f, 0, i, j);
-            ezColor* dstPixel;
-            if (f == 2)
-            {
-              // Swap the top and the bottom faces, and rotate the face 90 degrees clockwise.
-              dstPixel = dst.GetPixelPointer<ezColor>(0, faceMap[f], 0, (size - 1) - j, i);
-            }
-            else
-            {
-              // Swap the top and the bottom faces, and rotate the face 90 degrees counter-clockwise.
-              dstPixel = dst.GetPixelPointer<ezColor>(0, faceMap[f], 0, j, (size - 1) - i);
-            }
-            *dstPixel = *srcPixel;
+            const float dstU = (float)x * fPixel + fHalfPixel;
+            const ezVec3 modelSpacePos = faceCorners[faceIndex] + dstU * faceAxis[faceIndex * 2] + dstV * faceAxis[faceIndex * 2 + 1];
+            const ezVec3 modelSpaceDir = modelSpacePos.GetNormalized();
+
+            const float phi = ezMath::ATan2(modelSpaceDir.x, modelSpaceDir.z).GetRadian() + ezMath::BasicType<float>::Pi();
+            const float r = ezMath::Sqrt(modelSpaceDir.x * modelSpaceDir.x + modelSpaceDir.z * modelSpaceDir.z);
+            const float theta = ezMath::ATan2(modelSpaceDir.y, r).GetRadian() + ezMath::BasicType<float>::Pi() * 0.5f;
+
+            EZ_ASSERT_DEBUG(phi >= 0.0f && phi <= 2.0f * ezMath::BasicType<float>::Pi(), "");
+            EZ_ASSERT_DEBUG(theta >= 0.0f && theta <= ezMath::BasicType<float>::Pi(), "");
+
+            const float srcU = phi * InvPi * fHalfSrcWidth;
+            const float srcV = (1.0f - theta * InvPi) * fSrcHeight;
+
+            ezUInt32 x1 = (ezUInt32)ezMath::Floor(srcU);
+            ezUInt32 x2 = x1 + 1;
+            ezUInt32 y1 = (ezUInt32)ezMath::Floor(srcV);
+            ezUInt32 y2 = y1 + 1;
+
+            const float fracX = srcU - x1;
+            const float fracY = srcV - y1;
+
+            x1 = ezMath::Clamp(x1, 0u, srcWidthMinus1);
+            x2 = ezMath::Clamp(x2, 0u, srcWidthMinus1);
+            y1 = ezMath::Clamp(y1, 0u, srcHeightMinus1);
+            y2 = ezMath::Clamp(y2, 0u, srcHeightMinus1);
+
+            ezColor A = srcData[x1 + y1 * srcRowPitch];
+            ezColor B = srcData[x2 + y1 * srcRowPitch];
+            ezColor C = srcData[x1 + y2 * srcRowPitch];
+            ezColor D = srcData[x2 + y2 * srcRowPitch];
+
+            ezColor interpolated = A * (1 - fracX) * (1 - fracY) + B * (fracX) * (1 - fracY) + C * (1 - fracX) * fracY + D * fracX * fracY;
+            faceData[x + y * faceRowPitch] = interpolated;
           }
         }
-        break;
-
-      default:
-        // Rotate side faces 90 degrees clockwise.
-        memcpy(dst.GetPixelPointer<float>(0, faceMap[f], 0, 0, 0), src.GetPixelPointer<float>(0, f, 0, 0, 0), faceSizeQWords);
-    }
-  }
-}
-
-// Spherical map (a.k.a. latitude-longitude or cylindrical).
-// Parametrized as { phi: theta } in { X: Y }.
-static void ConvertSphericalToCubemap(const ezImageView& src, ezImage& dst, ezUInt32 dstDim)
-{
-  static const float ez_M_2PI = 6.283185307f;  // 2*pi
-  static const float ez_M_PI = 3.141592653f;   // pi
-  static const float ez_M_PI_2 = 1.570796326f; // pi/2
-
-  // Get the source image's dimensions.
-  const ezUInt32 srcHeight = src.GetHeight();
-  const ezUInt32 srcWidth = src.GetWidth();
-  // Copy and then patch the metadata for the resulting cube map.
-  ezImageHeader dstDesc = src.GetHeader();
-  dstDesc.SetWidth(dstDim);
-  dstDesc.SetHeight(dstDim);
-  dstDesc.SetNumFaces(6);
-  // Create a temporary image with the Direct3D layout.
-  ezImage img;
-  img.ResetAndAlloc(dstDesc);
-  // Write (gather) the cube map image data.
-  for (ezUInt32 f = 0; f < 6; ++f)
-  {
-    // Compute the cube map faces axes: right, up, forward.
-    ezSimdVec4f axes[3];
-    // Face mappings per https://msdn.microsoft.com/en-us/library/windows/desktop/bb204881
-    switch (f)
-    {
-      case 0: // +X: right face.
-        axes[0].Set(0.f, 0.f, -1.f, 0.0f);
-        axes[1].Set(0.f, 1.f, 0.f, 0.0f);
-        axes[2].Set(1.f, 0.f, 0.f, 0.0f);
-        break;
-      case 1: // -X: left face.
-        axes[0].Set(0.f, 0.f, 1.f, 0.0f);
-        axes[1].Set(0.f, 1.f, 0.f, 0.0f);
-        axes[2].Set(-1.f, 0.f, 0.f, 0.0f);
-        break;
-      case 2: // +Y: top face.
-        axes[0].Set(1.f, 0.f, 0.f, 0.0f);
-        axes[1].Set(0.f, 0.f, -1.f, 0.0f);
-        axes[2].Set(0.f, 1.f, 0.f, 0.0f);
-        break;
-      case 3: // -Y: bottom face.
-        axes[0].Set(1.f, 0.f, 0.f, 0.0f);
-        axes[1].Set(0.f, 0.f, 1.f, 0.0f);
-        axes[2].Set(0.f, -1.f, 0.f, 0.0f);
-        break;
-      case 4: // +Z: back face.
-        axes[0].Set(1.f, 0.f, 0.f, 0.0f);
-        axes[1].Set(0.f, 1.f, 0.f, 0.0f);
-        axes[2].Set(0.f, 0.f, 1.f, 0.0f);
-        break;
-      default: // -Z: front face.
-        axes[0].Set(-1.f, 0.f, 0.f, 0.0f);
-        axes[1].Set(0.f, 1.f, 0.f, 0.0f);
-        axes[2].Set(0.f, 0.f, -1.f, 0.0f);
-    }
-    // Compute the bottom left corner of the face.
-    const ezSimdFloat simdHalf = 0.5f;
-    const ezSimdFloat simdDstDim = dstDim;
-    const ezSimdVec4f bottomLeft =
-        axes[2] * (simdHalf * simdDstDim) - axes[0] * (simdHalf * simdDstDim) - axes[1] * (simdHalf * simdDstDim);
-    // Gather the cube map image data.
-    for (ezUInt32 j = 0; j < dstDim; ++j)
-    {
-      for (ezUInt32 i = 0; i < dstDim; ++i)
-      {
-        // Compute the normalized cube map direction.
-        // Apply the texel center offset of 0.5.
-        ezSimdVec4f dir = bottomLeft + axes[0] * ezSimdFloat(i + 0.5f) + axes[1] * ezSimdFloat(j + 0.5f);
-        dir.Normalize<3>();
-        // Represent 'dir' in the spherical coordinates.
-        const float cosTheta = dir.GetComponent<1>();
-        const float phi = ezMath::ATan2(dir.GetComponent<2>(), dir.GetComponent<0>()).GetRadian();
-        // Bias the phi angle into the (-1/2 * Pi, 3/2 * Pi] range.
-        const float biasedPhi = (phi > -ez_M_PI_2) ? phi : phi + ez_M_2PI;
-        // Convert (phi, theta) into (x, y) coordinates of the source image.
-        // Source image parametrization:
-        // X: [0, w) <- [3/2 * Pi, -1/2 * Pi)
-        // Y: [0, h) <- [cos(0), cos(Pi)) = [1, -1)
-        const float u = ((ez_M_PI + ez_M_PI_2) - biasedPhi) * (1.f / ez_M_2PI);
-        // For some reason, 'v' has to be mirrored. Perhaps the D3D9 docs are wrong.
-        const float v = 1.f - (ezMath::ACos(cosTheta).GetRadian() * (1.f / ez_M_PI));
-        // Rescale to account for the resolution of the source image.
-        const float x = u * srcWidth - 0.5f;
-        const float y = v * srcHeight - 0.5f;
-        // Compute sample positions for bilinear filtering.
-        const int xL = ezMath::Clamp(static_cast<int>(ezMath::Floor(x)), 0, static_cast<int>(srcWidth - 1));
-        const int xH = ezMath::Min<int>(xL + 1, srcWidth - 1);
-        const int yL = ezMath::Clamp(static_cast<int>(ezMath::Floor(y)), 0, static_cast<int>(srcHeight - 1));
-        const int yH = ezMath::Min<int>(yL + 1, srcHeight - 1);
-        // Fetch 4x samples[x][y].
-        ezSimdVec4f samples[2][2];
-        samples[0][0].Load<4>(src.GetPixelPointer<float>(0, 0, 0, xL, yL));
-        samples[1][0].Load<4>(src.GetPixelPointer<float>(0, 0, 0, xH, yL));
-        samples[0][1].Load<4>(src.GetPixelPointer<float>(0, 0, 0, xL, yH));
-        samples[1][1].Load<4>(src.GetPixelPointer<float>(0, 0, 0, xH, yH));
-        // Compute bilinear weights.
-        const ezSimdVec4f wX = ezSimdVec4f(x - xL);
-        const ezSimdVec4f wY = ezSimdVec4f(y - yL);
-        // Perform bilinear filtering of the source image.
-        ezSimdVec4f lerpX0, lerpX1, result;
-        lerpX0.Lerp(samples[0][0], samples[1][0], wX);
-        lerpX1.Lerp(samples[0][1], samples[1][1], wX);
-        result.Lerp(lerpX0, lerpX1, wY);
-        // Store the results.
-        result.Store<4>(img.GetPixelPointer<float>(0, f, 0, i, j));
       }
     }
+
+    return EZ_SUCCESS;
   }
-  // Perform conversion into the internal ezR layout.
-  ConvertCubemapLayout(img, dst);
+
+  ezLog::Error("Unexpected number of faces in cubemap input image.");
+  return EZ_FAILURE;
 }
 
-void ezImageUtils::ConvertToCubemap(const ezImageView& src, ezImage& dst)
+void ezImageUtils::CreateCubemapFrom6Files(ezImage& dstImg, const ezImageView* pSourceImages)
 {
-  EZ_ASSERT_DEV(1 == src.GetNumArrayIndices() && 1 == src.GetNumMipLevels() && 1 == src.GetNumFaces() && 1 == src.GetDepth(),
-                "The source image is expected to be a 2D texture.");
-  EZ_ASSERT_DEV(src.GetWidth() > 0 && src.GetHeight() > 0, "The source image is expected to be of non-zero dimensions.");
-  EZ_ASSERT_DEV(src.GetArrayPtr<void*>() != dst.GetArrayPtr<void*>(),
-                "The destination image cannot share its data pointer with the source image.");
-  EZ_ASSERT_DEV(src.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT, "The source image is expected to be 4 x 32-bit float RGBA.");
+  ezImageHeader header = pSourceImages[0].GetHeader();
+  header.SetNumFaces(6);
 
-  const ezUInt32 srcWidth = src.GetWidth();
-  const ezUInt32 srcHeight = src.GetHeight();
+  EZ_ASSERT_DEBUG(header.GetWidth() == header.GetHeight(), "Cubemap input images must be square");
+  EZ_ASSERT_DEBUG(ezMath::IsPowerOf2(header.GetWidth()), "Cubemap input images must have power-of-two dimensions.");
 
-  ezUInt32 dstDim;
-  ezUInt32 tileCountX;
-  ezUInt32 tileCountY;
+  dstImg.ResetAndAlloc(header);
 
-  const auto init = [&](ezUInt32 a_tileCountX, ezUInt32 a_tileCountY) {
-    if (srcWidth % a_tileCountX == 0 && srcHeight % a_tileCountY == 0 && srcWidth / a_tileCountX == srcHeight / a_tileCountY)
-    {
-      dstDim = srcWidth / a_tileCountX;
-      tileCountX = a_tileCountX;
-      tileCountY = a_tileCountY;
-      return true;
-    }
-    return false;
-  };
-
-  struct Transform
+  for (ezUInt32 i = 0; i < 6; ++i)
   {
-    int srcBaseX;
-    int srcBaseY;
-    int dstX_mulSrcX, dstX_mulSrcY, dstX_add;
-    int dstY_mulSrcX, dstY_mulSrcY, dstY_add;
-  };
-  enum
-  {
-    kFaceCount = 6
-  };
-  Transform transform[kFaceCount];
+    EZ_ASSERT_DEBUG(pSourceImages[i].GetImageFormat() == dstImg.GetImageFormat(), "All input images must have the same image format");
+    EZ_ASSERT_DEBUG(pSourceImages[i].GetWidth() == dstImg.GetWidth(), "All input images must have the same dimensions");
+    EZ_ASSERT_DEBUG(pSourceImages[i].GetHeight() == dstImg.GetHeight(), "All input images must have the same dimensions");
 
-  const auto setTransform = [&](int face, const int srcTileX, const int srcTileY, const int rotation) {
-    Transform& t = transform[face];
-    t.srcBaseX = (int)dstDim * srcTileX;
-    t.srcBaseY = (int)dstDim * srcTileY;
-    switch (rotation & 3)
-    {
-      case 0: // 0 degrees CCW
-        t.dstX_mulSrcX = 1;
-        t.dstX_mulSrcY = 0;
-        t.dstX_add = 0;
-        t.dstY_mulSrcX = 0;
-        t.dstY_mulSrcY = 1;
-        t.dstY_add = 0;
-        break;
-      case 1: // 90 degrees CCW
-        t.dstX_mulSrcX = 0;
-        t.dstX_mulSrcY = 1;
-        t.dstX_add = 0;
-        t.dstY_mulSrcX = -1;
-        t.dstY_mulSrcY = 0;
-        t.dstY_add = dstDim - 1;
-        break;
-      case 2: // 180 degrees CCW
-        t.dstX_mulSrcX = -1;
-        t.dstX_mulSrcY = 0;
-        t.dstX_add = dstDim - 1;
-        t.dstY_mulSrcX = 0;
-        t.dstY_mulSrcY = -1;
-        t.dstY_add = dstDim - 1;
-        break;
-      default: // 270 degrees CCW
-        t.dstX_mulSrcX = 0;
-        t.dstX_mulSrcY = -1;
-        t.dstX_add = dstDim - 1;
-        t.dstY_mulSrcX = 1;
-        t.dstY_mulSrcY = 0;
-        t.dstY_add = 0;
-        break;
-    }
-  };
-
-  // Determine layout of the input image and act based on it.
-  // Note that ezR requires LRUDBF order of faces (Left, Right, Up, Down, Backward, Forward).
-  if (init(4, 3))
-  {
-    // Horizontal cross
-    //  U
-    // LFRB
-    //  D
-    setTransform(0, 0, 1, 0);
-    setTransform(1, 2, 1, 0);
-    setTransform(2, 1, 0, 2);
-    setTransform(3, 1, 2, 2);
-    setTransform(4, 3, 1, 0);
-    setTransform(5, 1, 1, 0);
-  }
-  else if (init(3, 4))
-  {
-    // Vertical cross
-    //  U
-    // LFR
-    //  D
-    //  B
-    setTransform(0, 0, 1, 0);
-    setTransform(1, 2, 1, 0);
-    setTransform(2, 1, 0, 2);
-    setTransform(3, 1, 2, 2);
-    setTransform(4, 1, 3, 2);
-    setTransform(5, 1, 1, 0);
-  }
-  else if (init(6, 1))
-  {
-    // Horizontal strip
-    // LRUDBF
-    setTransform(0, 0, 0, 0);
-    setTransform(1, 1, 0, 0);
-    setTransform(2, 2, 0, 2);
-    setTransform(3, 3, 0, 2);
-    setTransform(4, 4, 0, 0);
-    setTransform(5, 5, 0, 0);
-  }
-  else if (init(1, 6))
-  {
-    // Vertical strip
-    // LRUDBF
-    setTransform(0, 0, 0, 0);
-    setTransform(1, 0, 1, 0);
-    setTransform(2, 0, 2, 2);
-    setTransform(3, 0, 3, 2);
-    setTransform(4, 0, 4, 0);
-    setTransform(5, 0, 5, 0);
-  }
-  else
-  {
-    // TODO: add support for angular spherical map (a.k.a. mirror ball)
-
-    // Latitude-Longitude
-    ConvertSphericalToCubemap(src, dst, srcHeight);
-    return;
-  }
-
-  /* Uncomment the following code (and use 'pSrc->' instead of 'src.' in the loop
-  below) when/if we support producing cubemaps that have different resolution
-  with the input image.
-
-  // Rescale the image to match the output cubemap size
-  const ezImage* pSrc = &src;
-  ezImage tmp;
-  if (srcWidth / tileCountX != dstDim)
-  {
-      const ezImageFilterBox filter;
-      const ezResult result = ezImageUtils::scale(
-          src, tmp, dstDim * countWidth, dstDim * countHeight, &filter,
-          ezImageAddressMode::CLAMP, ezImageAddressMode::CLAMP, ezColor(0, 0, 0));
-      EZ_ASSERT_DEV(0xb8252bc, result.isSuccess(), "Unexpected failure in scaling cubemap image");
-      pSrc = &tmp;
-  }
-  */
-
-  EZ_ASSERT_DEV(srcWidth / tileCountX == dstDim, "Unexpected wrong cubemap size.");
-
-  {
-    ezImageHeader dstDesc = src.GetHeader();
-    dstDesc.SetWidth(dstDim);
-    dstDesc.SetHeight(dstDim);
-    dstDesc.SetNumFaces(kFaceCount);
-    dst.ResetAndAlloc(dstDesc);
-  }
-
-  for (int face = 0; face < kFaceCount; ++face)
-  {
-    const Transform& t = transform[face];
-    ezSimdVec4f sample;
-    for (int y = 0; y < (int)dstDim; ++y)
-    {
-      for (int x = 0; x < (int)dstDim; ++x)
-      {
-        sample.Load<4>(src.GetPixelPointer<float>(0, 0, 0, ezUInt32(t.srcBaseX + x), ezUInt32(t.srcBaseY + y)));
-        const auto xx = ezUInt32(t.dstX_mulSrcX * x + t.dstX_mulSrcY * y + t.dstX_add);
-        const auto yy = ezUInt32(t.dstY_mulSrcX * x + t.dstY_mulSrcY * y + t.dstY_add);
-        sample.Store<4>(dst.GetPixelPointer<float>(0, face, 0, xx, yy));
-      }
-    }
+    CopyImageRectToFace(dstImg, pSourceImages[i], 0, 0, i);
   }
 }
-
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Image_Implementation_ImageUtils);

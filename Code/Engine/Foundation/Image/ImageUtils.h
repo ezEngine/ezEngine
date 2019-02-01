@@ -103,14 +103,23 @@ public:
   /// Adjust the roughness in lower mip levels so it maintains the same look from all distances.
   static void AdjustRoughness(ezImage& roughnessMap, const ezImageView& normalMap);
 
-  /// Converts the image to cubemap.
-  /// The input image must be in ezImageFormat::R32_G32_B32_A32_FLOAT.
+  /// \brief Changes the exposure of an HDR image by 2^bias
+  static void ChangeExposure(ezImage& image, float bias);
+
+  /// \brief Creates a cubemap from srcImg and stores it in dstImg.
   ///
-  /// Supported input image layouts:
-  ///   horizontal cross
-  ///   vertical cross
-  ///   horizontal strip
-  ///   vertical strip
-  ///   spherical map (a.k.a. latitude-longitude or cylindrical)
-  static void ConvertToCubemap(const ezImageView& src, ezImage& dst);
+  /// If srcImg is already a cubemap, the data will be copied 1:1 to dstImg.
+  /// If it is a 2D texture, it is analyzed and sub-images are copied to the proper faces of the output cubemap.
+  ///
+  /// Supported input layouts are:
+  ///  * Vertical Cross
+  ///  * Horizontal Cross
+  ///  * Spherical mapping
+  static ezResult CreateCubemapFromSingleFile(ezImage& dstImg, const ezImageView& srcImg);
+
+  /// \brief Copies the 6 given source images to the faces of dstImg.
+  ///
+  /// All input images must have the same square, power-of-two dimensions and mustn't be compressed.
+  static void CreateCubemapFrom6Files(ezImage& dstImg, const ezImageView* pSourceImages);
+
 };

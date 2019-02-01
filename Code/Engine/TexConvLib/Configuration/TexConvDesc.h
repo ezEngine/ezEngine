@@ -66,9 +66,9 @@ public:
   float m_fMipmapAlphaThreshold = 0.5f;
 
   // Misc options
-  bool m_bFlipHorizontal = false; // TODO: implement 2d flip
+  bool m_bFlipHorizontal = false;
   bool m_bPremultiplyAlpha = false;
-  float m_fHdrExposureBias = 1.0f; // TODO: implement HDR exposure
+  float m_fHdrExposureBias = 0.0f;
 
   // ez specific
   ezUInt64 m_uiAssetHash = 0;
