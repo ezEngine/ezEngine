@@ -67,7 +67,7 @@ public:
 
   // Misc options
   bool m_bFlipHorizontal = false; // TODO: implement 2d flip
-  bool m_bPremultiplyAlpha = false; // TODO: implement premultiply alpha
+  bool m_bPremultiplyAlpha = false;
   float m_fHdrExposureBias = 1.0f; // TODO: implement HDR exposure
 
   // ez specific

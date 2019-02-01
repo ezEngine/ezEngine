@@ -100,9 +100,13 @@ ezImageView ezImageView::GetRowView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace
   return ezImageView(header, ezArrayPtr<const void>(dataSlice.GetPtr(), dataSlice.GetCount()));
 }
 
-void ezImageView::ForceSRGBFormat()
+void ezImageView::ReinterpretAs(ezImageFormat::Enum format)
 {
-  SetImageFormat(ezImageFormat::AsSrgb(GetImageFormat()));
+  EZ_ASSERT_DEBUG(ezImageFormat::IsCompressed(format) == ezImageFormat::IsCompressed(GetImageFormat()), "Cannot reinterpret compressed and non-compressed formats");
+
+  EZ_ASSERT_DEBUG(ezImageFormat::GetBitsPerPixel(GetImageFormat()) == ezImageFormat::GetBitsPerPixel(format), "Cannot reinterpret between formats of different sizes");
+
+  SetImageFormat(format);
 }
 
 ezUInt32 ezImageView::ComputeLayout()

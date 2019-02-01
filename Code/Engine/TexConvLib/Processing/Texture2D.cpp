@@ -165,3 +165,34 @@ ezResult ezTexConvProcessor::GenerateMipmaps()
 
   return EZ_SUCCESS;
 }
+
+ezResult ezTexConvProcessor::PremultiplyAlpha()
+{
+  if (!m_Descriptor.m_bPremultiplyAlpha)
+    return EZ_SUCCESS;
+
+  for (ezUInt32 slice = 0; slice < m_pCurrentScratchImage->GetNumArrayIndices(); ++slice)
+  {
+    for (ezUInt32 face = 0; face < m_pCurrentScratchImage->GetNumFaces(); ++face)
+    {
+      for (ezUInt32 mip = 0; mip < m_pCurrentScratchImage->GetNumMipLevels(); ++mip)
+      {
+        ezColor* pPixel = m_pCurrentScratchImage->GetPixelPointer<ezColor>(mip, face, slice);
+
+        for (ezUInt32 y = 0; y < m_pCurrentScratchImage->GetHeight(mip); ++y)
+        {
+          for (ezUInt32 x = 0; x < m_pCurrentScratchImage->GetWidth(mip); ++x)
+          {
+            pPixel[x].r *= pPixel[x].a;
+            pPixel[x].g *= pPixel[x].a;
+            pPixel[x].b *= pPixel[x].a;
+          }
+
+          pPixel = ezMemoryUtils::AddByteOffset(pPixel, m_pCurrentScratchImage->GetRowPitch(mip));
+        }
+      }
+    }
+  }
+
+  return EZ_SUCCESS;
+}

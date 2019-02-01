@@ -104,7 +104,7 @@ ezResult ezTexConvProcessor::ForceSRGBFormats()
         if (iTex != -1)
         {
           auto& img = m_Descriptor.m_InputImages[iTex];
-          img.ForceSRGBFormat();
+          img.ReinterpretAs(ezImageFormat::AsSrgb(img.GetImageFormat()));
         }
       }
     }

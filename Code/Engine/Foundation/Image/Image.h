@@ -46,7 +46,8 @@ public:
   const T* GetPixelPointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 x = 0, ezUInt32 y = 0,
                            ezUInt32 z = 0) const;
 
-  void ForceSRGBFormat();
+  /// \brief Reinterprets the image with a given format; the format must have the same size in bits per pixel as the current one.
+  void ReinterpretAs(ezImageFormat::Enum format);
 
 public:
   using ezImageHeader::GetDepth;

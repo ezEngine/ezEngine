@@ -28,6 +28,8 @@ ezResult ezTexConvProcessor::Process()
 
   EZ_SUCCEED_OR_RETURN(GenerateMipmaps());
 
+  EZ_SUCCEED_OR_RETURN(PremultiplyAlpha());
+
   EZ_SUCCEED_OR_RETURN(GenerateOutput());
 
   EZ_SUCCEED_OR_RETURN(GenerateThumbnailOutput());

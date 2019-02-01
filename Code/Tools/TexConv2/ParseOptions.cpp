@@ -271,8 +271,8 @@ ezResult ezTexConv2::ParseMiscOptions()
 {
   if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Texture2D)
   {
-    EZ_SUCCEED_OR_RETURN(ParseBoolOption("-flipHorz", m_Processor.m_Descriptor.m_bFlipHorizontal));
-    EZ_SUCCEED_OR_RETURN(ParseBoolOption("-premultAlpha", m_Processor.m_Descriptor.m_bPremultiplyAlpha));
+    EZ_SUCCEED_OR_RETURN(ParseBoolOption("-flip_horz", m_Processor.m_Descriptor.m_bFlipHorizontal));
+    EZ_SUCCEED_OR_RETURN(ParseBoolOption("-premulalpha", m_Processor.m_Descriptor.m_bPremultiplyAlpha));
   }
 
   if (m_Processor.m_Descriptor.m_Usage == ezTexConvUsage::Color_Hdr || m_Processor.m_Descriptor.m_Usage == ezTexConvUsage::Grayscale_Hdr ||
