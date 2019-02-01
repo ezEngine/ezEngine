@@ -5,8 +5,7 @@
 ezResult ezTexConvProcessor::ForceSRGBFormats()
 {
   // if the output is going to be sRGB, assume the incoming RGB data is also already in sRGB
-  if (m_Descriptor.m_Usage == ezTexConvUsage::Color || m_Descriptor.m_Usage == ezTexConvUsage::Compressed_4_Channel_sRGB ||
-      m_Descriptor.m_Usage == ezTexConvUsage::Uncompressed_8_Bit_UNorm_4_Channel_SRGB)
+  if (m_Descriptor.m_Usage == ezTexConvUsage::Color)
   {
     for (const auto& mapping : m_Descriptor.m_ChannelMappings)
     {

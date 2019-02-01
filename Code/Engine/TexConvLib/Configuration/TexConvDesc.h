@@ -40,7 +40,7 @@ public:
   ezHybridArray<ezTexConvSliceChannelMapping, 6> m_ChannelMappings;
 
   // output type / platform
-  ezEnum<ezTexConvOutputType> m_OutputType; // TODO: implement cubemaps, 3D, render targets, decal atlas
+  ezEnum<ezTexConvOutputType> m_OutputType; // TODO: implement cubemaps, 3D, decal atlas
   ezEnum<ezTexConvTargetPlatform> m_TargetPlatform; // TODO: implement android
 
   // low resolution output

@@ -2,7 +2,8 @@
 
 #include <TexConvLib/Processing/Processor.h>
 
-ezImageFormat::Enum DetermineOutputFormatPC(ezTexConvUsage::Enum targetFormat, ezTexConvCompressionMode::Enum compressionMode)
+ezImageFormat::Enum DetermineOutputFormatPC(
+  ezTexConvUsage::Enum targetFormat, ezTexConvCompressionMode::Enum compressionMode, ezUInt32 uiNumChannels)
 {
   if (targetFormat == ezTexConvUsage::NormalMap || targetFormat == ezTexConvUsage::NormalMap_Inverted)
   {
@@ -17,145 +18,79 @@ ezImageFormat::Enum DetermineOutputFormatPC(ezTexConvUsage::Enum targetFormat, e
 
   if (targetFormat == ezTexConvUsage::Color)
   {
-    // if (compressionMode == ezTexConvCompressionMode::OptimizeForSize && alphaFormat != AlphaFormat::FULL)
-    //  return ezImageFormat::BC1_UNORM_SRGB;
+    if (compressionMode == ezTexConvCompressionMode::OptimizeForSize && uiNumChannels < 4)
+      return ezImageFormat::BC1_UNORM_SRGB;
 
     // TODO: encoder not yet supported
-    //if (compressionMode <= ezTexConvCompressionMode::OptimizeForQuality)
-      //return ezImageFormat::BC7_UNORM_SRGB;
+    // if (compressionMode <= ezTexConvCompressionMode::OptimizeForQuality)
+    // return ezImageFormat::BC7_UNORM_SRGB;
 
     return ezImageFormat::R8G8B8A8_UNORM_SRGB;
   }
 
-  if (targetFormat == ezTexConvUsage::Color_Hdr)
+  if (targetFormat == ezTexConvUsage::Linear)
   {
-    // if (compressionMode == ezTexConvCompressionMode::OptimizeForSize && alphaFormat == AlphaFormat::OPAQUE)
-    //  return ezImageFormat::BC6_F16_UNSIGNED;
+    switch (uiNumChannels)
+    {
+      case 1:
+        if (compressionMode <= ezTexConvCompressionMode::OptimizeForQuality)
+          return ezImageFormat::BC4_UNORM;
 
-    // if (compressionMode == ezTexConvCompressionMode::OptimizeForQuality && alphaFormat == AlphaFormat::OPAQUE)
-    //  return ezImageFormat::R11_G11_B10_UNSIGNED_FLOAT;
+        return ezImageFormat::R8_UNORM;
 
-    return ezImageFormat::R16G16B16A16_FLOAT;
+      case 2:
+        if (compressionMode <= ezTexConvCompressionMode::OptimizeForQuality)
+          return ezImageFormat::BC5_UNORM;
+
+        return ezImageFormat::R8G8_UNORM;
+
+      case 3:
+        if (compressionMode == ezTexConvCompressionMode::OptimizeForSize)
+          return ezImageFormat::BC1_UNORM;
+
+        // TODO
+        //if (compressionMode == ezTexConvCompressionMode::OptimizeForQuality)
+          //return ezImageFormat::BC7_UNORM;
+
+        return ezImageFormat::R8G8B8A8_UNORM;
+
+      case 4:
+        // TODO
+        //if (compressionMode <= ezTexConvCompressionMode::OptimizeForQuality)
+          //return ezImageFormat::BC7_UNORM;
+
+        return ezImageFormat::R8G8B8A8_UNORM;
+
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+    }
   }
 
-  if (targetFormat == ezTexConvUsage::Grayscale)
+  if (targetFormat == ezTexConvUsage::Hdr)
   {
-    if (compressionMode <= ezTexConvCompressionMode::OptimizeForQuality)
-      return ezImageFormat::BC4_UNORM;
+    switch (uiNumChannels)
+    {
+      case 1:
+        if (compressionMode == ezTexConvCompressionMode::OptimizeForSize)
+          return ezImageFormat::BC6H_UF16;
 
-    return ezImageFormat::R8_UNORM;
-  }
+        return ezImageFormat::R16_FLOAT;
 
-  if (targetFormat == ezTexConvUsage::Grayscale_Hdr)
-  {
-    if (compressionMode == ezTexConvCompressionMode::OptimizeForSize)
-      return ezImageFormat::BC6H_UF16;
+      case 2:
+        return ezImageFormat::R16G16_FLOAT;
 
-    if (compressionMode == ezTexConvCompressionMode::OptimizeForQuality)
-      return ezImageFormat::R16_FLOAT;
+      case 3:
+        if (compressionMode == ezTexConvCompressionMode::OptimizeForSize)
+          return ezImageFormat::BC6H_UF16;
 
-    return ezImageFormat::R32_FLOAT;
-  }
+        if (compressionMode == ezTexConvCompressionMode::OptimizeForQuality)
+          return ezImageFormat::R11G11B10_FLOAT;
 
-  if (targetFormat == ezTexConvUsage::Compressed_1_Channel)
-  {
-    return ezImageFormat::BC4_UNORM;
-  }
+        return ezImageFormat::R16G16B16A16_FLOAT;
 
-  if (targetFormat == ezTexConvUsage::Compressed_2_Channel)
-  {
-    return ezImageFormat::BC5_UNORM;
-  }
-
-  if (targetFormat == ezTexConvUsage::Compressed_4_Channel)
-  {
-    // if (alphaFormat != AlphaFormat::FULL)
-    //  return ezImageFormat::BC1_UNORM;
-
-    return ezImageFormat::BC7_UNORM;
-  }
-
-  if (targetFormat == ezTexConvUsage::Compressed_4_Channel_sRGB)
-  {
-    // if (alphaFormat != AlphaFormat::FULL)
-    //  return ezImageFormat::BC1_UNORM_SRGB;
-
-    return ezImageFormat::BC7_UNORM_SRGB;
-  }
-
-  if (targetFormat == ezTexConvUsage::Compressed_Hdr_3_Channel)
-  {
-    return ezImageFormat::BC6H_UF16;
-  }
-
-  if (targetFormat == ezTexConvUsage::Uncompressed_8_Bit_UNorm_1_Channel)
-  {
-    return ezImageFormat::R8_UNORM;
-  }
-
-  if (targetFormat == ezTexConvUsage::Uncompressed_8_Bit_UNorm_2_Channel)
-  {
-    return ezImageFormat::R8G8_UNORM;
-  }
-
-  if (targetFormat == ezTexConvUsage::Uncompressed_8_Bit_UNorm_4_Channel)
-  {
-    return ezImageFormat::R8G8B8A8_UNORM;
-  }
-
-  if (targetFormat == ezTexConvUsage::Uncompressed_8_Bit_UNorm_4_Channel_SRGB)
-  {
-    return ezImageFormat::R8G8B8A8_UNORM_SRGB;
-  }
-
-  if (targetFormat == ezTexConvUsage::Uncompressed_16_Bit_UNorm_1_Channel)
-  {
-    return ezImageFormat::R16_UNORM;
-  }
-
-  if (targetFormat == ezTexConvUsage::Uncompressed_16_Bit_UNorm_2_Channel)
-  {
-    return ezImageFormat::R16G16_UNORM;
-  }
-
-  if (targetFormat == ezTexConvUsage::Uncompressed_16_Bit_UNorm_4_Channel)
-  {
-    return ezImageFormat::R16G16B16A16_UNORM;
-  }
-
-  if (targetFormat == ezTexConvUsage::Uncompressed_16_Bit_Float_1_Channel)
-  {
-    return ezImageFormat::R16_FLOAT;
-  }
-
-  if (targetFormat == ezTexConvUsage::Uncompressed_16_Bit_Float_2_Channel)
-  {
-    return ezImageFormat::R16G16_FLOAT;
-  }
-
-  if (targetFormat == ezTexConvUsage::Uncompressed_16_Bit_Float_4_Channel)
-  {
-    return ezImageFormat::R16G16B16A16_FLOAT;
-  }
-
-  if (targetFormat == ezTexConvUsage::Uncompressed_32_Bit_Float_1_Channel)
-  {
-    return ezImageFormat::R32_FLOAT;
-  }
-
-  if (targetFormat == ezTexConvUsage::Uncompressed_32_Bit_Float_2_Channel)
-  {
-    return ezImageFormat::R32G32_FLOAT;
-  }
-
-  if (targetFormat == ezTexConvUsage::Uncompressed_32_Bit_Float_3_Channel)
-  {
-    return ezImageFormat::R32G32B32_FLOAT;
-  }
-
-  if (targetFormat == ezTexConvUsage::Uncompressed_32_Bit_Float_4_Channel)
-  {
-    return ezImageFormat::R32G32B32A32_FLOAT;
+      case 4:
+        return ezImageFormat::R16G16B16A16_FLOAT;
+    }
   }
 
   return ezImageFormat::UNKNOWN;
@@ -172,7 +107,7 @@ ezResult ezTexConvProcessor::ChooseOutputFormat()
       //  break;
 
     case ezTexConvTargetPlatform::PC:
-      m_OutputImageFormat = DetermineOutputFormatPC(m_Descriptor.m_Usage, m_Descriptor.m_CompressionMode);
+      m_OutputImageFormat = DetermineOutputFormatPC(m_Descriptor.m_Usage, m_Descriptor.m_CompressionMode, m_uiNumChannels);
       break;
 
     default:

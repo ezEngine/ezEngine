@@ -17,7 +17,6 @@
 - BC7 compression support
 
 - decal atlas support
-- render target
 
 - volume textures
 
@@ -38,30 +37,10 @@ ezTexConv2::ezTexConv2()
   {
     m_AllowedUsages.PushBack({"Auto", ezTexConvUsage::Auto});
     m_AllowedUsages.PushBack({"Color", ezTexConvUsage::Color});
-    m_AllowedUsages.PushBack({"Color_Hdr", ezTexConvUsage::Color_Hdr});
-    m_AllowedUsages.PushBack({"Grayscale", ezTexConvUsage::Grayscale});
-    m_AllowedUsages.PushBack({"Grayscale_Hdr", ezTexConvUsage::Grayscale_Hdr});
+    m_AllowedUsages.PushBack({"Linear", ezTexConvUsage::Linear});
+    m_AllowedUsages.PushBack({"Hdr", ezTexConvUsage::Hdr});
     m_AllowedUsages.PushBack({"NormalMap", ezTexConvUsage::NormalMap});
     m_AllowedUsages.PushBack({"NormalMap_Inverted", ezTexConvUsage::NormalMap_Inverted});
-    m_AllowedUsages.PushBack({"Compressed_1_Channel", ezTexConvUsage::Compressed_1_Channel});
-    m_AllowedUsages.PushBack({"Compressed_2_Channel", ezTexConvUsage::Compressed_2_Channel});
-    m_AllowedUsages.PushBack({"Compressed_4_Channel", ezTexConvUsage::Compressed_4_Channel});
-    m_AllowedUsages.PushBack({"Compressed_4_Channel_sRGB", ezTexConvUsage::Compressed_4_Channel_sRGB});
-    m_AllowedUsages.PushBack({"Compressed_Hdr_3_Channel", ezTexConvUsage::Compressed_Hdr_3_Channel});
-    m_AllowedUsages.PushBack({"Uncompressed_8_Bit_UNorm_1_Channel", ezTexConvUsage::Uncompressed_8_Bit_UNorm_1_Channel});
-    m_AllowedUsages.PushBack({"Uncompressed_8_Bit_UNorm_2_Channel", ezTexConvUsage::Uncompressed_8_Bit_UNorm_2_Channel});
-    m_AllowedUsages.PushBack({"Uncompressed_8_Bit_UNorm_4_Channel", ezTexConvUsage::Uncompressed_8_Bit_UNorm_4_Channel});
-    m_AllowedUsages.PushBack({"Uncompressed_8_Bit_UNorm_4_Channel_SRGB", ezTexConvUsage::Uncompressed_8_Bit_UNorm_4_Channel_SRGB});
-    m_AllowedUsages.PushBack({"Uncompressed_16_Bit_UNorm_1_Channel", ezTexConvUsage::Uncompressed_16_Bit_UNorm_1_Channel});
-    m_AllowedUsages.PushBack({"Uncompressed_16_Bit_UNorm_2_Channel", ezTexConvUsage::Uncompressed_16_Bit_UNorm_2_Channel});
-    m_AllowedUsages.PushBack({"Uncompressed_16_Bit_UNorm_4_Channel", ezTexConvUsage::Uncompressed_16_Bit_UNorm_4_Channel});
-    m_AllowedUsages.PushBack({"Uncompressed_16_Bit_Float_1_Channel", ezTexConvUsage::Uncompressed_16_Bit_Float_1_Channel});
-    m_AllowedUsages.PushBack({"Uncompressed_16_Bit_Float_2_Channel", ezTexConvUsage::Uncompressed_16_Bit_Float_2_Channel});
-    m_AllowedUsages.PushBack({"Uncompressed_16_Bit_Float_4_Channel", ezTexConvUsage::Uncompressed_16_Bit_Float_4_Channel});
-    m_AllowedUsages.PushBack({"Uncompressed_32_Bit_Float_1_Channel", ezTexConvUsage::Uncompressed_32_Bit_Float_1_Channel});
-    m_AllowedUsages.PushBack({"Uncompressed_32_Bit_Float_2_Channel", ezTexConvUsage::Uncompressed_32_Bit_Float_2_Channel});
-    m_AllowedUsages.PushBack({"Uncompressed_32_Bit_Float_3_Channel", ezTexConvUsage::Uncompressed_32_Bit_Float_3_Channel});
-    m_AllowedUsages.PushBack({"Uncompressed_32_Bit_Float_4_Channel", ezTexConvUsage::Uncompressed_32_Bit_Float_4_Channel});
   }
 
   // mipmap modes

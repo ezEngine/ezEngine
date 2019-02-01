@@ -144,6 +144,12 @@ ezGALResourceFormat::Enum ezTextureUtils::ImageFormatToGalFormat(ezImageFormat::
     case ezImageFormat::R8G8_UNORM:
       return ezGALResourceFormat::RGUByteNormalized;
 
+    case ezImageFormat::R16G16_UNORM:
+      return ezGALResourceFormat::RGUShortNormalized;
+
+    case ezImageFormat::R11G11B10_FLOAT:
+      return ezGALResourceFormat::RG11B10Float;
+
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
       break;

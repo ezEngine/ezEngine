@@ -13,12 +13,12 @@ struct NameToFormat
 
 // TODO (texconv): review this list
 static NameToFormat nameToFormatMap[] = {{"nrm", ezTexConvUsage::NormalMap},    {"norm", ezTexConvUsage::NormalMap},
-                                         {"_nb", ezTexConvUsage::NormalMap},    {"ibl", ezTexConvUsage::Color_Hdr},
+                                         {"_nb", ezTexConvUsage::NormalMap},    {"ibl", ezTexConvUsage::Hdr},
                                          {"diff", ezTexConvUsage::Color},       {"albedo", ezTexConvUsage::Color},
                                          {"emissive", ezTexConvUsage::Color},   {"emit", ezTexConvUsage::Color},
-                                         {"rough", ezTexConvUsage::Grayscale},  {"metallic", ezTexConvUsage::Grayscale},
-                                         {"_metal", ezTexConvUsage::Grayscale}, {"_ao", ezTexConvUsage::Grayscale},
-                                         {"height", ezTexConvUsage::Grayscale}};
+                                         {"rough", ezTexConvUsage::Linear},  {"metallic", ezTexConvUsage::Linear},
+                                         {"_metal", ezTexConvUsage::Linear}, {"_ao", ezTexConvUsage::Linear},
+                                         {"height", ezTexConvUsage::Linear}};
 
 
 static ezTexConvUsage::Enum DetectTargetFormatFromFilename(const char* szFile)
@@ -59,20 +59,22 @@ static ezTexConvUsage::Enum DetectTargetFormatFromImage(const ezImage& image)
     return ezTexConvUsage::NormalMap;
   }
 
+  // TODO (texconv): review
+
   if (ezImageFormat::GetNumChannels(format) == 1)
   {
     if (ezImageFormat::GetBitsPerChannel(format, ezImageFormatChannel::R) > 8)
     {
-      return ezTexConvUsage::Grayscale_Hdr;
+      return ezTexConvUsage::Hdr;
     }
 
-    return ezTexConvUsage::Grayscale;
+    return ezTexConvUsage::Linear;
   }
 
   if (ezImageFormat::GetBitsPerChannel(format, ezImageFormatChannel::R) >= 16 || format == ezImageFormat::BC6H_SF16 ||
       format == ezImageFormat::BC6H_UF16)
   {
-    return ezTexConvUsage::Color_Hdr;
+    return ezTexConvUsage::Hdr;
   }
 
   ezImage converted;

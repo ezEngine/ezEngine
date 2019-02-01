@@ -29,6 +29,9 @@ private:
   ezUInt32 m_uiTargetResolutionX = 0;
   ezUInt32 m_uiTargetResolutionY = 0;
 
+  ezUInt32 m_uiNumChannels = 4;
+
+  ezResult DetectNumChannels();
   ezResult LoadInputImages();
   ezResult AdjustTargetFormat();
   ezResult ForceSRGBFormats();

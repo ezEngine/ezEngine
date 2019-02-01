@@ -275,14 +275,9 @@ ezResult ezTexConv2::ParseMiscOptions()
     EZ_SUCCEED_OR_RETURN(ParseBoolOption("-premulalpha", m_Processor.m_Descriptor.m_bPremultiplyAlpha));
   }
 
-  if (m_Processor.m_Descriptor.m_Usage == ezTexConvUsage::Color_Hdr || m_Processor.m_Descriptor.m_Usage == ezTexConvUsage::Grayscale_Hdr ||
-      m_Processor.m_Descriptor.m_Usage == ezTexConvUsage::Compressed_Hdr_3_Channel ||
-      (m_Processor.m_Descriptor.m_Usage >= ezTexConvUsage::Uncompressed_16_Bit_UNorm_1_Channel &&
-        m_Processor.m_Descriptor.m_Usage <= ezTexConvUsage::Uncompressed_32_Bit_Float_4_Channel))
+  if (m_Processor.m_Descriptor.m_Usage == ezTexConvUsage::Hdr)
   {
-    // HDR format
-
-    EZ_SUCCEED_OR_RETURN(ParseFloatOption("-hdrExposure", 0.01f, 100.0f, m_Processor.m_Descriptor.m_fHdrExposureBias));
+    EZ_SUCCEED_OR_RETURN(ParseFloatOption("-hdrExposure", -20.0f, 20.0f, m_Processor.m_Descriptor.m_fHdrExposureBias));
   }
 
   return EZ_SUCCESS;

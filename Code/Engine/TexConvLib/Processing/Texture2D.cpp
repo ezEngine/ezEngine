@@ -8,18 +8,7 @@ ezResult ezTexConvProcessor::Assemble2DTexture()
 
   ezColor* pPixelOut = m_pCurrentScratchImage->GetPixelPointer<ezColor>();
 
-  if (m_Descriptor.m_ChannelMappings.IsEmpty())
-  {
-    ezTexConvSliceChannelMapping mapping;
-    mapping.m_Channel[0].m_iInputImageIndex = 0;
-    mapping.m_Channel[1].m_iInputImageIndex = 0;
-    mapping.m_Channel[2].m_iInputImageIndex = 0;
-    mapping.m_Channel[3].m_iInputImageIndex = 0;
-
-    return Assemble2DSlice(mapping, pPixelOut);
-  }
-  else
-    return Assemble2DSlice(m_Descriptor.m_ChannelMappings[0], pPixelOut);
+  return Assemble2DSlice(m_Descriptor.m_ChannelMappings[0], pPixelOut);
 }
 
 ezResult ezTexConvProcessor::Assemble2DSlice(const ezTexConvSliceChannelMapping& mapping, ezColor* pPixelOut)
@@ -67,6 +56,7 @@ ezResult ezTexConvProcessor::Assemble2DSlice(const ezTexConvSliceChannelMapping&
 
             default:
               EZ_ASSERT_NOT_IMPLEMENTED;
+              break;
           }
         }
         else
@@ -77,8 +67,12 @@ ezResult ezTexConvProcessor::Assemble2DSlice(const ezTexConvSliceChannelMapping&
               fValue = 0.0f;
               break;
             case ezTexConvChannelValue::White:
+              fValue = 1.0f;
+              break;
+
             default:
               fValue = 1.0f;
+              //EZ_ASSERT_NOT_IMPLEMENTED;
               break;
           }
         }

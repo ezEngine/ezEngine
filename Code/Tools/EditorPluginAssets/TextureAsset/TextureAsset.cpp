@@ -183,7 +183,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(
     switch (pProp->m_TextureUsage)
     {
       case ezTexture2DUsageEnum::HDR:
-        arguments << "color_hdr";
+        arguments << "hdr";
         break;
 
       case ezTexture2DUsageEnum::Diffuse:
@@ -197,22 +197,8 @@ ezStatus ezTextureAssetDocument::RunTexConv(
       case ezTexture2DUsageEnum::LookupTable:
       case ezTexture2DUsageEnum::Mask:
       case ezTexture2DUsageEnum::Other_Linear:
-      {
-        switch (pProp->GetNumChannels())
-        {
-          case 1:
-            arguments << "grayscale";
-            break;
-          case 2:
-            arguments << (pProp->m_bCompression ? "Compressed_2_Channel" : "Uncompressed_8_Bit_UNorm_2_Channel");
-            break;
-          case 3:
-          case 4:
-            arguments << (pProp->m_bCompression ? "Compressed_4_Channel" : "Uncompressed_8_Bit_UNorm_4_Channel");
-            break;
-        }
-      }
-      break;
+        arguments << "linear";
+        break;
 
       case ezTexture2DUsageEnum::NormalMap:
         arguments << "normalmap";

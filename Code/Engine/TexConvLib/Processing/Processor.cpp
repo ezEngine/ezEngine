@@ -10,6 +10,8 @@ ezTexConvProcessor::ezTexConvProcessor()
 
 ezResult ezTexConvProcessor::Process()
 {
+  EZ_SUCCEED_OR_RETURN(DetectNumChannels());
+
   EZ_SUCCEED_OR_RETURN(LoadInputImages());
 
   EZ_SUCCEED_OR_RETURN(AdjustTargetFormat());
@@ -37,6 +39,30 @@ ezResult ezTexConvProcessor::Process()
   EZ_SUCCEED_OR_RETURN(GenerateThumbnailOutput());
 
   EZ_SUCCEED_OR_RETURN(GenerateLowResOutput());
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezTexConvProcessor::DetectNumChannels()
+{
+  m_uiNumChannels = 0;
+
+  for (const auto& mapping : m_Descriptor.m_ChannelMappings)
+  {
+    for (ezUInt32 i = 0; i < 4; ++i)
+    {
+      if (mapping.m_Channel[i].m_iInputImageIndex != -1)
+      {
+        m_uiNumChannels = ezMath::Max(m_uiNumChannels, i + 1);
+      }
+    }
+  }
+
+  if (m_uiNumChannels == 0)
+  {
+    ezLog::Error("No proper channel mapping provided.");
+    return EZ_FAILURE;
+  }
 
   return EZ_SUCCESS;
 }

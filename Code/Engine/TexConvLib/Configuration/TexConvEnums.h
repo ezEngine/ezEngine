@@ -46,42 +46,11 @@ struct ezTexConvUsage
     // Exact format will be decided together with ezTexConvCompressionMode
 
     Color,
-    Color_Hdr,
-
-    Grayscale,
-    Grayscale_Hdr,
+    Linear,
+    Hdr,
 
     NormalMap,
     NormalMap_Inverted,
-
-    // Concrete modes:
-    // These formats will be mapped as closely to target platform features as possible
-    // e.g. BC1-7 on D3D etc.
-
-    Compressed_1_Channel,
-    Compressed_2_Channel,
-    Compressed_4_Channel,
-    Compressed_4_Channel_sRGB,
-
-    Compressed_Hdr_3_Channel,
-
-    Uncompressed_8_Bit_UNorm_1_Channel,
-    Uncompressed_8_Bit_UNorm_2_Channel,
-    Uncompressed_8_Bit_UNorm_4_Channel,
-    Uncompressed_8_Bit_UNorm_4_Channel_SRGB,
-
-    Uncompressed_16_Bit_UNorm_1_Channel,
-    Uncompressed_16_Bit_UNorm_2_Channel,
-    Uncompressed_16_Bit_UNorm_4_Channel,
-
-    Uncompressed_16_Bit_Float_1_Channel,
-    Uncompressed_16_Bit_Float_2_Channel,
-    Uncompressed_16_Bit_Float_4_Channel,
-
-    Uncompressed_32_Bit_Float_1_Channel,
-    Uncompressed_32_Bit_Float_2_Channel,
-    Uncompressed_32_Bit_Float_3_Channel,
-    Uncompressed_32_Bit_Float_4_Channel,
 
     Default = Auto
   };
