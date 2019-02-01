@@ -14,7 +14,7 @@ struct ezHashHelper<ezVec3>
   EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezVec3& value)
   {
     // could do something more clever that uses the fact it is a normalized vector
-    return ezHashing::xxHash32(&value, sizeof(ezVec3));
+    return ezHashingUtils::xxHash32(&value, sizeof(ezVec3));
   }
 
   EZ_ALWAYS_INLINE static bool Equal(const ezVec3& a, const ezVec3& b) { return a == b; }

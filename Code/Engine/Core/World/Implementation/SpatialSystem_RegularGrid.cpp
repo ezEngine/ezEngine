@@ -200,7 +200,7 @@ struct ezSpatialSystem_RegularGrid::CellKeyHashHelper
   {
     /*char bytes[4];
     *reinterpret_cast<ezUInt64*>(&bytes[0]) = value;
-    return ezHashing::MurmurHash32String(bytes);*/
+    return ezHashingUtils::MurmurHash32String(bytes);*/
     return ezUInt32(value * 2654435761U);
   }
 

@@ -4,7 +4,7 @@
 // For non-template code this is not really necessary, but to be sure, just include everything.
 
 #include <Foundation/Algorithm/Comparer.h>
-#include <Foundation/Algorithm/Hashing.h>
+#include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Algorithm/Sorting.h>
 
 #include <Foundation/Basics.h>

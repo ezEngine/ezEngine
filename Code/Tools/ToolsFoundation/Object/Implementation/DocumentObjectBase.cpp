@@ -90,7 +90,7 @@ void ezDocumentObject::ComputeObjectHash(ezUInt64& uiHash) const
   const ezIReflectedTypeAccessor& acc = GetTypeAccessor();
   auto pType = acc.GetType();
 
-  uiHash = ezHashing::xxHash64(&m_Guid, sizeof(ezUuid), uiHash);
+  uiHash = ezHashingUtils::xxHash64(&m_Guid, sizeof(ezUuid), uiHash);
   HashPropertiesRecursive(acc, uiHash, pType);
 }
 

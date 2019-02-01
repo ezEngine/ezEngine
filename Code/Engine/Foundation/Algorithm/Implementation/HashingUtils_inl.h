@@ -14,7 +14,7 @@ namespace ezInternal
     template <class Derived>
     EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezStringBase<Derived>& string)
     {
-      return ezHashing::MurmurHash32((void*)string.InternalGetData(), string.InternalGetElementCount());
+      return ezHashingUtils::MurmurHash32((void*)string.InternalGetData(), string.InternalGetElementCount());
     }
   };
 
@@ -103,7 +103,7 @@ struct ezHashHelper<const char*>
 {
   EZ_ALWAYS_INLINE static ezUInt32 Hash(const char* szValue)
   {
-    return ezHashing::MurmurHash32String(szValue);
+    return ezHashingUtils::MurmurHash32String(szValue);
   }
 
   EZ_ALWAYS_INLINE static bool Equal(const char* a, const char* b)

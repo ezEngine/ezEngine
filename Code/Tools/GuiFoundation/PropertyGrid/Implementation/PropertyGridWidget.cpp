@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <Foundation/Algorithm/Hashing.h>
+#include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Types/VarianceTypes.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
@@ -519,7 +519,7 @@ ezUInt32 ezQtPropertyGridWidget::GetGroupBoxHash(ezQtGroupBoxBase* pBox) const
     if (pCurBox != nullptr)
     {
       const QByteArray name = pCurBox->GetTitle().toUtf8().data();
-      uiHash = ezHashing::xxHash32(name, name.length());
+      uiHash = ezHashingUtils::xxHash32(name, name.length());
     }
     pCur = pCur->parentWidget();
   }

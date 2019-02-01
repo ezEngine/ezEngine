@@ -2,7 +2,7 @@
 
 /// \file
 
-#include <Foundation/Algorithm/Hashing.h>
+#include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Basics.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Configuration/Startup.h>
@@ -38,7 +38,7 @@ struct ezGraphVersioningHash
   EZ_FORCE_INLINE static ezUInt32 Hash(const ezVersionKey& a)
   {
     ezUInt32 uiHash = a.m_sType.GetHash();
-    uiHash = ezHashing::xxHash32(&a.m_uiTypeVersion, sizeof(a.m_uiTypeVersion), uiHash);
+    uiHash = ezHashingUtils::xxHash32(&a.m_uiTypeVersion, sizeof(a.m_uiTypeVersion), uiHash);
     return uiHash;
   }
 

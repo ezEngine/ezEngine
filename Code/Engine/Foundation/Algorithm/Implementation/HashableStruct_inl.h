@@ -1,4 +1,4 @@
-#include <Foundation/Algorithm/Hashing.h>
+#include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Memory/MemoryUtils.h>
 
 template <typename T>
@@ -10,5 +10,5 @@ ezHashableStruct<T>::ezHashableStruct()
 template <typename T>
 ezUInt32 ezHashableStruct<T>::CalculateHash() const
 {
-  return ezHashing::xxHash32(this, sizeof(T));
+  return ezHashingUtils::xxHash32(this, sizeof(T));
 }

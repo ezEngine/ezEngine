@@ -107,7 +107,7 @@ void ezSkyBoxComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 
   // Generate batch id from mesh, material and part index.
   ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash};
-  ezUInt32 uiBatchId = ezHashing::xxHash32(data, sizeof(data));
+  ezUInt32 uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
 
   ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
   {

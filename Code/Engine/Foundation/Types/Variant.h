@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Algorithm/Hashing.h>
+#include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Threading/AtomicInteger.h>
@@ -231,7 +231,7 @@ public:
   /// \brief Returns the sub value with szKey. This could be a value in a dictionary or a member property inside a reflected type.
   ///
   /// This function will return an invalid variant if no corresponding sub value is found.
-  ezVariant operator[](ezHashing::StringWrapper szKey) const; // [tested]
+  ezVariant operator[](ezHashingUtils::StringWrapper szKey) const; // [tested]
 
   /// \brief Returns whether the stored type can generally be converted to the desired type.
   ///

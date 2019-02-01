@@ -18,7 +18,7 @@ struct ComputeHashFunc
     EZ_CHECK_AT_COMPILETIME_MSG(sizeof(typename ezVariant::TypeDeduction<T>::StorageType) <= sizeof(float) * 4 &&
                                     !ezVariant::TypeDeduction<T>::forceSharing,
                                 "This type requires special handling! Add a specialization below.");
-    m_uiHash = ezHashing::xxHash64(m_pData, sizeof(T), m_uiHash);
+    m_uiHash = ezHashingUtils::xxHash64(m_pData, sizeof(T), m_uiHash);
   }
 
   const void* m_pData;
@@ -30,25 +30,25 @@ EZ_ALWAYS_INLINE void ComputeHashFunc::operator()<ezString>()
 {
   ezString* pData = (ezString*)m_pData;
 
-  m_uiHash = ezHashing::xxHash64(pData->GetData(), pData->GetElementCount(), m_uiHash);
+  m_uiHash = ezHashingUtils::xxHash64(pData->GetData(), pData->GetElementCount(), m_uiHash);
 }
 
 template <>
 EZ_ALWAYS_INLINE void ComputeHashFunc::operator()<ezMat3>()
 {
-  m_uiHash = ezHashing::xxHash64(m_pData, sizeof(ezMat3), m_uiHash);
+  m_uiHash = ezHashingUtils::xxHash64(m_pData, sizeof(ezMat3), m_uiHash);
 }
 
 template <>
 EZ_ALWAYS_INLINE void ComputeHashFunc::operator()<ezMat4>()
 {
-  m_uiHash = ezHashing::xxHash64(m_pData, sizeof(ezMat4), m_uiHash);
+  m_uiHash = ezHashingUtils::xxHash64(m_pData, sizeof(ezMat4), m_uiHash);
 }
 
 template <>
 EZ_ALWAYS_INLINE void ComputeHashFunc::operator()<ezTransform>()
 {
-  m_uiHash = ezHashing::xxHash64(m_pData, sizeof(ezTransform), m_uiHash);
+  m_uiHash = ezHashingUtils::xxHash64(m_pData, sizeof(ezTransform), m_uiHash);
 }
 
 template <>
@@ -56,7 +56,7 @@ EZ_ALWAYS_INLINE void ComputeHashFunc::operator()<ezDataBuffer>()
 {
   ezDataBuffer* pData = (ezDataBuffer*)m_pData;
 
-  m_uiHash = ezHashing::xxHash64(pData->GetData(), pData->GetCount(), m_uiHash);
+  m_uiHash = ezHashingUtils::xxHash64(pData->GetData(), pData->GetCount(), m_uiHash);
 }
 
 template <>
@@ -65,7 +65,7 @@ EZ_FORCE_INLINE void ComputeHashFunc::operator()<ezVariantArray>()
   ezVariantArray* pData = (ezVariantArray*)m_pData;
 
   EZ_ASSERT_NOT_IMPLEMENTED;
-  // m_uiHash = ezHashing::xxHash64(pData, sizeof(ezMat4), m_uiHash);
+  // m_uiHash = ezHashingUtils::xxHash64(pData, sizeof(ezMat4), m_uiHash);
 }
 
 template <>
@@ -74,7 +74,7 @@ EZ_FORCE_INLINE void ComputeHashFunc::operator()<ezVariantDictionary>()
   ezVariantDictionary* pData = (ezVariantDictionary*)m_pData;
 
   EZ_ASSERT_NOT_IMPLEMENTED;
-  // m_uiHash = ezHashing::xxHash64(pData, sizeof(ezMat4), m_uiHash);
+  // m_uiHash = ezHashingUtils::xxHash64(pData, sizeof(ezMat4), m_uiHash);
 }
 
 struct CompareFunc
@@ -224,7 +224,7 @@ ezVariant ezVariant::operator[](ezUInt32 uiIndex) const
   return ezVariant();
 }
 
-ezVariant ezVariant::operator[](ezHashing::StringWrapper szKey) const
+ezVariant ezVariant::operator[](ezHashingUtils::StringWrapper szKey) const
 {
   if (m_Type == Type::VariantDictionary)
   {

@@ -2,7 +2,7 @@
 
 #include <FileservePlugin/Client/FileserveClient.h>
 #include <FileservePlugin/Fileserver/Fileserver.h>
-#include <Foundation/Algorithm/Hashing.h>
+#include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Communication/RemoteInterfaceEnet.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Utilities/CommandLineUtils.h>

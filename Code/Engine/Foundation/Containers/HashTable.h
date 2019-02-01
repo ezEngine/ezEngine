@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Algorithm/Hashing.h>
+#include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
 #include <Foundation/Types/ArrayPtr.h>

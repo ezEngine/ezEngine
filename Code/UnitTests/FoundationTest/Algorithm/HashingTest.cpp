@@ -6,7 +6,7 @@
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Algorithm);
 
-// Warning for overflow in compile time executed static_assert(ezHashing::MurmurHash32...)
+// Warning for overflow in compile time executed static_assert(ezHashingUtils::MurmurHash32...)
 // Todo: Why is this not happening elsewhere?
 #pragma warning (disable:4307)
 
@@ -20,30 +20,30 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Hashfunction")
   {
-    ezUInt32 uiHashRT = ezHashing::MurmurHash32String(sb.GetData());
-    ezUInt32 uiHashCT = ezHashing::MurmurHash32String("This is a test string. 1234");
+    ezUInt32 uiHashRT = ezHashingUtils::MurmurHash32String(sb.GetData());
+    ezUInt32 uiHashCT = ezHashingUtils::MurmurHash32String("This is a test string. 1234");
 
 
     EZ_TEST_INT(uiHashRT, 0xb999d6c4);
     EZ_TEST_INT(uiHashRT, uiHashCT);
 
     // Static assert to ensure this is happening at compile time!
-    static_assert(ezHashing::MurmurHash32String("This is a test string. 1234") == static_cast<ezUInt32>(0xb999d6c4), "Error in compile time murmur hash calculation!");
+    static_assert(ezHashingUtils::MurmurHash32String("This is a test string. 1234") == static_cast<ezUInt32>(0xb999d6c4), "Error in compile time murmur hash calculation!");
 
     // check 64bit hashes
-    const ezUInt64 uiMurmurHash64 = ezHashing::MurmurHash64(sb.GetData(), sb.GetElementCount());
+    const ezUInt64 uiMurmurHash64 = ezHashingUtils::MurmurHash64(sb.GetData(), sb.GetElementCount());
     EZ_TEST_INT(uiMurmurHash64, 0xf8ebc5e8cb110786);
 
     // test crc32
-    const ezUInt32 uiCrc32 = ezHashing::CRC32Hash(sb.GetData(), sb.GetElementCount());
+    const ezUInt32 uiCrc32 = ezHashingUtils::CRC32Hash(sb.GetData(), sb.GetElementCount());
     EZ_TEST_INT(uiCrc32, 0x73b5e898);
 
     // 32 Bit xxHash
-    const ezUInt32 uiXXHash32 = ezHashing::xxHash32(sb.GetData(), sb.GetElementCount());
+    const ezUInt32 uiXXHash32 = ezHashingUtils::xxHash32(sb.GetData(), sb.GetElementCount());
     EZ_TEST_INT(uiXXHash32, 0xff35b049);
 
     // 64 Bit xxHash
-    const ezUInt64 uiXXHash64 = ezHashing::xxHash64(sb.GetData(), sb.GetElementCount());
+    const ezUInt64 uiXXHash64 = ezHashingUtils::xxHash64(sb.GetData(), sb.GetElementCount());
     EZ_TEST_INT(uiXXHash64, 0x141fb89c0bf32020);
 
   }
@@ -139,7 +139,7 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, HashableStruct)
   NonAutomaticInst.m_uiTestMember2 = 0x42u;
   NonAutomaticInst.m_uiTestMember3 = 0x23u;
 
-  ezUInt32 uiNonAutomaticHash = ezHashing::xxHash32(&NonAutomaticInst, sizeof(NonAutomaticInst));
+  ezUInt32 uiNonAutomaticHash = ezHashingUtils::xxHash32(&NonAutomaticInst, sizeof(NonAutomaticInst));
 
   EZ_TEST_INT(uiAutomaticHash, uiNonAutomaticHash);
 

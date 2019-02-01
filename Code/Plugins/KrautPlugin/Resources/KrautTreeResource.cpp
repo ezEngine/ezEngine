@@ -93,9 +93,9 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescrip
   for (const auto& mat : descriptor.m_Materials)
   {
     ezUInt32 uiTexHash = static_cast<ezUInt32>(mat.m_MaterialType);
-    uiTexHash = ezHashing::xxHash32(&mat.m_VariationColor, sizeof(mat.m_VariationColor), uiTexHash);
-    uiTexHash = ezHashing::xxHash32(mat.m_sDiffuseTexture.GetData(), mat.m_sDiffuseTexture.GetElementCount(), uiTexHash);
-    uiTexHash = ezHashing::xxHash32(mat.m_sNormalMapTexture.GetData(), mat.m_sNormalMapTexture.GetElementCount(), uiTexHash);
+    uiTexHash = ezHashingUtils::xxHash32(&mat.m_VariationColor, sizeof(mat.m_VariationColor), uiTexHash);
+    uiTexHash = ezHashingUtils::xxHash32(mat.m_sDiffuseTexture.GetData(), mat.m_sDiffuseTexture.GetElementCount(), uiTexHash);
+    uiTexHash = ezHashingUtils::xxHash32(mat.m_sNormalMapTexture.GetData(), mat.m_sNormalMapTexture.GetElementCount(), uiTexHash);
 
     sMatName.Format("KrautMaterial_{0}", uiTexHash);
 

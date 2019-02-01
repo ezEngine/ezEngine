@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <Foundation/Algorithm/Hashing.h>
+#include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/IO/MemoryStream.h>
 
@@ -33,7 +33,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryStream)
       uiData[i] = rand();
 
     // Calculate the hash so we can reuse the array
-    const ezUInt32 uiHashBeforeWriting = ezHashing::xxHash32(uiData, sizeof(ezUInt32) * 1024);
+    const ezUInt32 uiHashBeforeWriting = ezHashingUtils::xxHash32(uiData, sizeof(ezUInt32) * 1024);
 
     // Write the data
     EZ_TEST_BOOL(StreamWriter.WriteBytes(reinterpret_cast<const ezUInt8*>(uiData), sizeof(ezUInt32) * 1024) == EZ_SUCCESS);
@@ -49,7 +49,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryStream)
 
     EZ_TEST_BOOL(uiBytesRead == sizeof(ezUInt32) * 1024);
 
-    const ezUInt32 uiHashAfterReading = ezHashing::xxHash32(uiData, sizeof(ezUInt32) * 1024);
+    const ezUInt32 uiHashAfterReading = ezHashingUtils::xxHash32(uiData, sizeof(ezUInt32) * 1024);
 
     EZ_TEST_BOOL(uiHashAfterReading == uiHashBeforeWriting);
 
@@ -57,7 +57,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryStream)
     uiData[0] = 0x42;
     uiData[1] = 0x23;
 
-    const ezUInt32 uiHashOfModifiedData = ezHashing::xxHash32(uiData, sizeof(ezUInt32) * 4); // Only test the first 4 elements now
+    const ezUInt32 uiHashOfModifiedData = ezHashingUtils::xxHash32(uiData, sizeof(ezUInt32) * 4); // Only test the first 4 elements now
 
     StreamWriter.SetWritePosition(0);
 
@@ -73,7 +73,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryStream)
 
     EZ_TEST_BOOL(uiBytesRead == sizeof(ezUInt32) * 4);
 
-    const ezUInt32 uiHashAfterReadingOfModifiedData = ezHashing::xxHash32(uiData, sizeof(ezUInt32) * 4);
+    const ezUInt32 uiHashAfterReadingOfModifiedData = ezHashingUtils::xxHash32(uiData, sizeof(ezUInt32) * 4);
 
     EZ_TEST_BOOL(uiHashAfterReadingOfModifiedData == uiHashOfModifiedData);
 

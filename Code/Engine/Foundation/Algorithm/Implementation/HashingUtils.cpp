@@ -1,9 +1,9 @@
 #include <PCH.h>
 
-#include <Foundation/Algorithm/Hashing.h>
+#include <Foundation/Algorithm/HashingUtils.h>
 
 //static
-ezUInt32 ezHashing::MurmurHash32(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed /*= 0*/)
+ezUInt32 ezHashingUtils::MurmurHash32(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed /*= 0*/)
 {
   const ezUInt32 m = ezInternal::MURMUR_M;
   const ezUInt32 r = ezInternal::MURMUR_R;
@@ -52,7 +52,7 @@ ezUInt32 ezHashing::MurmurHash32(const void* pKey, size_t uiSizeInByte, ezUInt32
 }
 
 //static
-ezUInt64 ezHashing::MurmurHash64(const void* pKey, size_t uiSizeInByte, ezUInt64 uiSeed /*= 0*/)
+ezUInt64 ezHashingUtils::MurmurHash64(const void* pKey, size_t uiSizeInByte, ezUInt64 uiSeed /*= 0*/)
 {
   const ezUInt64 m = 0xc6a4a7935bd1e995ULL;
   const ezUInt64 r = 47;
@@ -139,7 +139,7 @@ static const ezUInt32 uiCRC32Table[256] =
         0xB3667A2E, 0xC4614AB8, 0x5D681B02, 0x2A6F2B94, 0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D};
 
 // static
-ezUInt32 ezHashing::CRC32Hash(const void* pKey, size_t uiSizeInBytes)
+ezUInt32 ezHashingUtils::CRC32Hash(const void* pKey, size_t uiSizeInBytes)
 {
   if (pKey == 0 || uiSizeInBytes <= 0)
     return 0;
@@ -156,13 +156,13 @@ ezUInt32 ezHashing::CRC32Hash(const void* pKey, size_t uiSizeInBytes)
 #include <ThirdParty/xxHash/xxhash.h>
 
 // static
-ezUInt32 ezHashing::xxHash32(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed /*= 0*/)
+ezUInt32 ezHashingUtils::xxHash32(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed /*= 0*/)
 {
   return XXH32(pKey, uiSizeInByte, uiSeed);
 }
 
 // static
-ezUInt64 ezHashing::xxHash64(const void* pKey, size_t uiSizeInByte, ezUInt64 uiSeed /*= 0*/)
+ezUInt64 ezHashingUtils::xxHash64(const void* pKey, size_t uiSizeInByte, ezUInt64 uiSeed /*= 0*/)
 {
   return XXH64(pKey, uiSizeInByte, uiSeed);
 }

@@ -3,7 +3,7 @@
 
 #include <Foundation/Basics.h>
 
-#include <Foundation/Algorithm/Hashing.h>
+#include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/StringUtils.h>
 

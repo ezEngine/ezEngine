@@ -364,7 +364,7 @@ namespace
 template <>
 struct ezHashHelper<LightAndRefView>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(LightAndRefView value) { return ezHashing::xxHash32(&value.m_pLight, sizeof(LightAndRefView)); }
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(LightAndRefView value) { return ezHashingUtils::xxHash32(&value.m_pLight, sizeof(LightAndRefView)); }
 
   EZ_ALWAYS_INLINE static bool Equal(const LightAndRefView& a, const LightAndRefView& b)
   {

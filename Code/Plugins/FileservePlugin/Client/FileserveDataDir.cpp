@@ -1,7 +1,7 @@
 #include <PCH.h>
 
 #include <FileservePlugin/Client/FileserveDataDir.h>
-#include <Foundation/Algorithm/Hashing.h>
+#include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Communication/RemoteInterfaceEnet.h>
 #include <Foundation/Logging/Log.h>
 

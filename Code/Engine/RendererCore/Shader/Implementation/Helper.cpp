@@ -100,7 +100,7 @@ namespace ezShaderHelper
     }
 
     auto bytes = buffer.GetByteArrayPtr();
-    return ezHashing::xxHash32(bytes.GetPtr(), bytes.GetCount());
+    return ezHashingUtils::xxHash32(bytes.GetPtr(), bytes.GetCount());
   }
 }
 

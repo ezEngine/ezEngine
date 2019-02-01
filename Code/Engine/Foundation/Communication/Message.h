@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Algorithm/Hashing.h>
+#include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/UniquePtr.h>
 
@@ -50,7 +50,7 @@ public:
   /// \brief Calculates a hash of the message.
   EZ_ALWAYS_INLINE ezUInt32 GetHash() const
   {
-    return ezHashing::xxHash32(this, m_uiSize);
+    return ezHashingUtils::xxHash32(this, m_uiSize);
   }
 
   /// \brief Implement this for efficient transmission across process boundaries (e.g. network transfer etc.)

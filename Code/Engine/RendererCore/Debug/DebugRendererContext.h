@@ -1,7 +1,7 @@
 #pragma once
 
 #include <RendererCore/Basics.h>
-#include <Foundation/Algorithm/Hashing.h>
+#include <Foundation/Algorithm/HashingUtils.h>
 
 class ezWorld;
 class ezView;

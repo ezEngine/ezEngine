@@ -5,7 +5,7 @@
 
 
 /// \brief This class provides implementations of different hashing algorithms.
-class EZ_FOUNDATION_DLL ezHashing
+class EZ_FOUNDATION_DLL ezHashingUtils
 {
 public:
   /// \brief helper struct to wrap a string pointer
@@ -51,4 +51,4 @@ struct ezHashHelper
 };
 
 #include <Foundation/Algorithm/Implementation/HashingMurmur_inl.h>
-#include <Foundation/Algorithm/Implementation/Hashing_inl.h>
+#include <Foundation/Algorithm/Implementation/HashingUtils_inl.h>

@@ -393,9 +393,9 @@ ezGameObject* ezGameObject::FindChildByPath(const char* path)
   ezUInt32 uiNameHash = 0;
 
   if (szSep == nullptr)
-    uiNameHash = ezHashing::MurmurHash32String(path);
+    uiNameHash = ezHashingUtils::MurmurHash32String(path);
   else
-    uiNameHash = ezHashing::MurmurHash32(path, szSep - path);
+    uiNameHash = ezHashingUtils::MurmurHash32(path, szSep - path);
 
   ezGameObject* pNextChild = FindChildByName(ezTempHashedString(uiNameHash), false);
 
@@ -430,12 +430,12 @@ ezGameObject* ezGameObject::SearchForChildByNameSequence(const char* szObjectSeq
   if (szSep == nullptr)
   {
     const size_t len = (size_t)ezStringUtils::GetStringElementCount(szObjectSequence);
-    uiNameHash = ezHashing::MurmurHash32(szObjectSequence, len);
+    uiNameHash = ezHashingUtils::MurmurHash32(szObjectSequence, len);
     szNextSequence = szObjectSequence + len;
   }
   else
   {
-    uiNameHash = ezHashing::MurmurHash32(szObjectSequence, szSep - szObjectSequence);
+    uiNameHash = ezHashingUtils::MurmurHash32(szObjectSequence, szSep - szObjectSequence);
     szNextSequence = szSep + 1;
   }
 
@@ -496,12 +496,12 @@ void ezGameObject::SearchForChildrenByNameSequence(const char* szObjectSequence,
   if (szSep == nullptr)
   {
     const size_t len = (size_t)ezStringUtils::GetStringElementCount(szObjectSequence);
-    uiNameHash = ezHashing::MurmurHash32(szObjectSequence, len);
+    uiNameHash = ezHashingUtils::MurmurHash32(szObjectSequence, len);
     szNextSequence = szObjectSequence + len;
   }
   else
   {
-    uiNameHash = ezHashing::MurmurHash32(szObjectSequence, szSep - szObjectSequence);
+    uiNameHash = ezHashingUtils::MurmurHash32(szObjectSequence, szSep - szObjectSequence);
     szNextSequence = szSep + 1;
   }
 

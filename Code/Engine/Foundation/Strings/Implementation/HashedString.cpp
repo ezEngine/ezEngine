@@ -49,7 +49,7 @@ void ezHashedString::InitHashedString()
 
   g_bHashedStringsInitialized = true;
 
-  g_hsEmpty = AddHashedString("", ezHashing::MurmurHash32String(""));
+  g_hsEmpty = AddHashedString("", ezHashingUtils::MurmurHash32String(""));
 
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   // this one should never get deleted, so make sure its refcount is 2

@@ -188,7 +188,7 @@ void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, con
 
     if (!fileContent.IsEmpty())
     {
-      uiHash = ezHashing::xxHash64(fileContent.GetData(), fileContent.GetCount(), uiHash);
+      uiHash = ezHashingUtils::xxHash64(fileContent.GetData(), fileContent.GetCount(), uiHash);
     }
 
     WriteMetaFile(sCachedMetaFile, 0, uiHash);
@@ -312,7 +312,7 @@ void ezFileserveClient::ComputeDataDirMountPoint(const char* szDataDir, ezString
 {
   EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szDataDir) || ezStringUtils::EndsWith(szDataDir, "/"), "Invalid path");
 
-  const ezUInt32 uiMountPoint = ezHashing::xxHash32(szDataDir, ezStringUtils::GetStringElementCount(szDataDir));
+  const ezUInt32 uiMountPoint = ezHashingUtils::xxHash32(szDataDir, ezStringUtils::GetStringElementCount(szDataDir));
   out_sMountPoint.Format("{0}", ezArgU(uiMountPoint, 8, true, 16));
 }
 

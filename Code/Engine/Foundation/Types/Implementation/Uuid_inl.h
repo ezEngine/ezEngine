@@ -50,14 +50,14 @@ void ezUuid::RevertCombinationWithSeed(const ezUuid& seed)
 
 void ezUuid::HashCombine(const ezUuid& guid)
 {
-  m_uiHigh = ezHashing::xxHash64(&guid.m_uiHigh, sizeof(ezUInt64), m_uiHigh);
-  m_uiLow = ezHashing::xxHash64(&guid.m_uiLow, sizeof(ezUInt64), m_uiLow);
+  m_uiHigh = ezHashingUtils::xxHash64(&guid.m_uiHigh, sizeof(ezUInt64), m_uiHigh);
+  m_uiLow = ezHashingUtils::xxHash64(&guid.m_uiLow, sizeof(ezUInt64), m_uiLow);
 }
 
 template <>
 struct ezHashHelper<ezUuid>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezUuid& value) { return ezHashing::xxHash32(&value, sizeof(ezUuid)); }
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezUuid& value) { return ezHashingUtils::xxHash32(&value, sizeof(ezUuid)); }
 
   EZ_ALWAYS_INLINE static bool Equal(const ezUuid& a, const ezUuid& b) { return a == b; }
 };

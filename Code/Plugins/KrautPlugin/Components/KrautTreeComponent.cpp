@@ -187,7 +187,7 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
 
       // Generate batch id from mesh, material and part index.
       const ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, subMeshIdx, 0};
-      const ezUInt32 uiBatchId = ezHashing::xxHash32(data, sizeof(data));
+      const ezUInt32 uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
 
       ezKrautRenderData* pRenderData = CreateBranchRenderData(uiBatchId);
 

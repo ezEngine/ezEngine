@@ -39,7 +39,7 @@ void ezConstantBufferStorageBase::UploadData(ezGALContext* pContext)
 
   m_bHasBeenModified = false;
 
-  ezUInt32 uiNewHash = ezHashing::xxHash32(m_Data.GetPtr(), m_Data.GetCount());
+  ezUInt32 uiNewHash = ezHashingUtils::xxHash32(m_Data.GetPtr(), m_Data.GetCount());
   if (m_uiLastHash != uiNewHash)
   {
     pContext->UpdateBuffer(m_hGALConstantBuffer, 0, m_Data);

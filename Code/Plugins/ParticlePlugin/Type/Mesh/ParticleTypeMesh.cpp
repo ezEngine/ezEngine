@@ -150,7 +150,7 @@ bool ezParticleTypeMesh::QueryMeshAndMaterialInfo() const
 
   // Generate batch id from mesh, material and part index.
   const ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, 0, 0};
-  m_uiBatchId = ezHashing::xxHash32(data, sizeof(data));
+  m_uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
 
   // Sort by material and then by mesh
   const ezUInt32 uiFlipWinding = 0;

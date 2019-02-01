@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Algorithm/Hashing.h>
+#include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Threading/AtomicInteger.h>
@@ -80,7 +80,7 @@ public:
   ///
   /// If you need to create an object to compare ezHashedString objects against, prefer to use ezTempHashedString. It will only compute
   /// the strings hash value, but does not require any thread synchronization.
-  void Assign(ezHashing::StringWrapper szString); // [tested]
+  void Assign(ezHashingUtils::StringWrapper szString); // [tested]
 
   /// \brief Comparing whether two hashed strings are identical is just a pointer comparison. This operation is what ezHashedString is
   /// optimized for.
@@ -159,7 +159,7 @@ public:
 
   /// \brief Creates an ezTempHashedString object from the given string. Computes the hash of the given string during runtime, which might
   /// be slow.
-  ezTempHashedString(ezHashing::StringWrapper szString); // [tested]
+  ezTempHashedString(ezHashingUtils::StringWrapper szString); // [tested]
 
   /// \brief Copies the hash from rhs.
   ezTempHashedString(const ezTempHashedString& rhs); // [tested]
@@ -175,7 +175,7 @@ public:
   void operator=(const char (&szString)[N]); // [tested]
 
   /// \brief Computes and stores the hash of the given string during runtime, which might be slow.
-  void operator=(ezHashing::StringWrapper szString); // [tested]
+  void operator=(ezHashingUtils::StringWrapper szString); // [tested]
 
   /// \brief Copies the hash from rhs.
   void operator=(const ezTempHashedString& rhs); // [tested]
@@ -198,7 +198,7 @@ public:
   template <size_t N>
   static constexpr ezUInt32 ComputeHash(const char (&szString)[N]);
 
-  static ezUInt32 ComputeHash(ezHashing::StringWrapper szString);
+  static ezUInt32 ComputeHash(ezHashingUtils::StringWrapper szString);
 
 
 private:

@@ -890,7 +890,7 @@ ID3D11Resource* ezGALDeviceDX11::FindTempBuffer(ezUInt32 uiSize)
 ID3D11Resource* ezGALDeviceDX11::FindTempTexture(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format)
 {
   ezUInt32 data[] = {uiWidth, uiHeight, uiDepth, (ezUInt32)format};
-  ezUInt32 uiHash = ezHashing::xxHash32(data, sizeof(data));
+  ezUInt32 uiHash = ezHashingUtils::xxHash32(data, sizeof(data));
 
   ID3D11Resource* pResource = nullptr;
   auto it = m_FreeTempResources[TempResourceType::Texture].Find(uiHash);

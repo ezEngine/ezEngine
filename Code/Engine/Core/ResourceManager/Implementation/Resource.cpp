@@ -57,7 +57,7 @@ void ezResource::SetPriority(ezResourcePriority priority)
 void ezResource::SetUniqueID(const char* szUniqueID, bool bIsReloadable)
 {
   m_UniqueID = szUniqueID;
-  m_uiUniqueIDHash = ezHashing::xxHash32(szUniqueID, ezStringUtils::GetStringElementCount(szUniqueID));
+  m_uiUniqueIDHash = ezHashingUtils::xxHash32(szUniqueID, ezStringUtils::GetStringElementCount(szUniqueID));
   SetIsReloadable(bIsReloadable);
 
   ezResourceEvent e;

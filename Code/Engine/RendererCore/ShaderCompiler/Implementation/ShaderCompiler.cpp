@@ -401,7 +401,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
       }
 
       spd.m_StageBinary[stage].m_Stage = (ezGALShaderStage::Enum)stage;
-      spd.m_StageBinary[stage].m_uiSourceHash = ezHashing::xxHash32(spd.m_szShaderSource[stage], uiSourceStringLen);
+      spd.m_StageBinary[stage].m_uiSourceHash = ezHashingUtils::xxHash32(spd.m_szShaderSource[stage], uiSourceStringLen);
 
       if (spd.m_StageBinary[stage].m_uiSourceHash != 0)
       {

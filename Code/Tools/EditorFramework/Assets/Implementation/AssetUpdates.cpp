@@ -702,7 +702,7 @@ ezUInt64 ezAssetCurator::HashFile(ezStreamReader& InputStream, ezStreamWriter* p
     if (uiRead == 0)
       break;
 
-    uiHash = ezHashing::xxHash64(uiCache, (size_t)uiRead, uiHash);
+    uiHash = ezHashingUtils::xxHash64(uiCache, (size_t)uiRead, uiHash);
 
     if (pPassThroughStream != nullptr)
       pPassThroughStream->WriteBytes(uiCache, uiRead);

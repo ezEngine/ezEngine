@@ -275,7 +275,7 @@ void ezBreakableSheetComponent::OnExtractRenderData(ezMsgExtractRenderData& msg)
 
   // Generate batch id from mesh, material and part index.
   const ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, GetUniqueIdForRendering(), uiFlipWinding};
-  const ezUInt32 uiBatchId = ezHashing::xxHash32(data, sizeof(data));
+  const ezUInt32 uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
 
   pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
   {

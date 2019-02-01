@@ -90,7 +90,7 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, 
     const ezUInt32 uiTextureIDHash = pShapeIconInfo->m_hTexture.GetResourceIDHash();
 
     ezUInt32 data[] = {(ezUInt32)blendMode, uiTextureIDHash};
-    ezUInt32 uiBatchId = ezHashing::xxHash32(data, sizeof(data));
+    ezUInt32 uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
 
     ezSpriteRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezSpriteRenderData>(pObject, uiBatchId);
     {
