@@ -88,13 +88,9 @@ void SimpleMeshRendererGameState::OnDeactivation()
   SUPER::OnDeactivation();
 }
 
-
-
 ezGameStatePriority SimpleMeshRendererGameState::DeterminePriority(ezWorld* pWorld) const
 {
-  return 
-
-ezGameStatePriority::Default;
+  return ezGameStatePriority::Default;
 }
 
 void SimpleMeshRendererGameState::CreateGameLevel()
@@ -225,7 +221,7 @@ void SimpleMeshRendererGameState::CreateGameLevel()
 
 void SimpleMeshRendererGameState::DestroyGameLevel()
 {
-  m_pMainWorld = nullptr;
+  EZ_DEFAULT_DELETE(m_pMainWorld);
 }
 
 void SimpleMeshRendererGameState::MoveObjectToPosition(const ezVec3& pos)

@@ -42,7 +42,7 @@ void Level::SetupLevel(ezUniquePtr<ezWorld> pWorld)
     obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), -ezAngle::Degree(120.0f));
 
     ezGameObject* pObj;
-    pWorld->CreateObject(obj, pObj);
+    m_pWorld->CreateObject(obj, pObj);
 
     ezDirectionalLightComponent* pDirLight;
     ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
