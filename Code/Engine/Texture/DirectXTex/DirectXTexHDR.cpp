@@ -1,5 +1,7 @@
 #include <PCH.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+
 //-------------------------------------------------------------------------------------
 // DirectXTexHDR.cpp
 //  
@@ -1125,7 +1127,7 @@ HRESULT DirectX::SaveToHDRFile(const Image& image, const wchar_t* szFile)
     return S_OK;
 }
 
-
+#endif
 
 EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexHDR);
 

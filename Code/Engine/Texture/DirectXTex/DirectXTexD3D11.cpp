@@ -1,5 +1,7 @@
 #include <PCH.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+
 //-------------------------------------------------------------------------------------
 // DirectXTexD3D11.cpp
 //  
@@ -965,7 +967,7 @@ HRESULT DirectX::CaptureTexture(
     return S_OK;
 }
 
-
+#endif
 
 EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexD3D11);
 

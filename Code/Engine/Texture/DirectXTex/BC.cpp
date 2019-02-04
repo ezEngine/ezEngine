@@ -1,5 +1,7 @@
 #include <PCH.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+
 //-------------------------------------------------------------------------------------
 // BC.cpp
 //  
@@ -1142,7 +1144,7 @@ void DirectX::D3DXEncodeBC3(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags)
     }
 }
 
-
+#endif
 
 EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_BC);
 

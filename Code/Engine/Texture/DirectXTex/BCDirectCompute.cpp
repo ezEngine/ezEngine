@@ -1,5 +1,7 @@
 #include <PCH.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+
 //-------------------------------------------------------------------------------------
 // BCDirectCompute.cpp
 //  
@@ -617,7 +619,7 @@ HRESULT GPUCompressBC::Compress(const Image& srcImage, const Image& destImage)
     return hr;
 }
 
-
+#endif
 
 EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_BCDirectCompute);
 

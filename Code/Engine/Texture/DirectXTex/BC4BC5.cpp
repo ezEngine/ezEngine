@@ -1,5 +1,7 @@
 #include <PCH.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+
 //-------------------------------------------------------------------------------------
 // BC4BC5.cpp
 //  
@@ -563,7 +565,7 @@ void DirectX::D3DXEncodeBC5S(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags)
     FindClosestSNORM(pBCG, theTexelsV);
 }
 
-
+#endif
 
 EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_BC4BC5);
 

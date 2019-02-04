@@ -1,5 +1,7 @@
 #include <PCH.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+
 //-------------------------------------------------------------------------------------
 // DirectXTexTGA.cpp
 //  
@@ -1447,7 +1449,7 @@ HRESULT DirectX::SaveToTGAFile(const Image& image, const wchar_t* szFile)
     return S_OK;
 }
 
-
+#endif
 
 EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexTGA);
 

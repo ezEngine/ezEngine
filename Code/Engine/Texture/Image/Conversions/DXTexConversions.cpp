@@ -8,7 +8,7 @@
 #include <Texture/Image/ImageConversion.h>
 #include <memory>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  define EZ_SUPPORTS_DIRECTXTEX EZ_ON
 #else
 #  define EZ_SUPPORTS_DIRECTXTEX EZ_OFF

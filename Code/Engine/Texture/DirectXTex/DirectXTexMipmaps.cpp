@@ -1,5 +1,7 @@
 #include <PCH.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+
 //-------------------------------------------------------------------------------------
 // DirectXTexMipMaps.cpp
 //  
@@ -3481,7 +3483,7 @@ HRESULT DirectX::ScaleMipMapsAlphaForCoverage(
     return S_OK;
 }
 
-
+#endif
 
 EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexMipmaps);
 

@@ -1,5 +1,7 @@
 #include <PCH.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+
 //-------------------------------------------------------------------------------------
 // DirectXTexDDS.cpp
 //  
@@ -2210,7 +2212,7 @@ HRESULT DirectX::SaveToDDSFile(
     return S_OK;
 }
 
-
+#endif
 
 EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexDDS);
 
