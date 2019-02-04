@@ -8,6 +8,8 @@
 # *** Do not modify this file. ***
 #
 
+BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
+
 # Get the name of this folder
 get_filename_component (CUR_FOLDER_NAME ${CMAKE_CURRENT_LIST_DIR} NAME_WE)
 
