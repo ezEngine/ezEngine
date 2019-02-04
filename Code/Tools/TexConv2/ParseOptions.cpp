@@ -7,9 +7,9 @@ ezResult ezTexConv2::ParseCommandLine()
   EZ_SUCCEED_OR_RETURN(ParseOutputFiles());
   EZ_SUCCEED_OR_RETURN(DetectOutputFormat());
 
+  EZ_SUCCEED_OR_RETURN(ParseOutputType());
   EZ_SUCCEED_OR_RETURN(ParseAssetHeader());
   EZ_SUCCEED_OR_RETURN(ParseTargetPlatform());
-  EZ_SUCCEED_OR_RETURN(ParseOutputType());
   EZ_SUCCEED_OR_RETURN(ParseCompressionMode());
   EZ_SUCCEED_OR_RETURN(ParseUsage());
   EZ_SUCCEED_OR_RETURN(ParseMipmapMode());
@@ -25,6 +25,12 @@ ezResult ezTexConv2::ParseCommandLine()
 
 ezResult ezTexConv2::ParseOutputType()
 {
+  if (m_sOutputFile.IsEmpty())
+  {
+    m_Processor.m_Descriptor.m_OutputType = ezTexConvOutputType::None;
+    return EZ_SUCCESS;
+  }
+
   ezInt32 value = -1;
   EZ_SUCCEED_OR_RETURN(ParseStringOption("-type", m_AllowedOutputTypes, value));
 
@@ -46,6 +52,17 @@ ezResult ezTexConv2::ParseOutputType()
       return EZ_FAILURE;
     }
   }
+  else if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::DecalAtlas)
+  {
+    if (!m_bOutputSupportsDecal)
+    {
+      ezLog::Error("Decal textures are not supported by the chosen output file format.");
+      return EZ_FAILURE;
+    }
+
+    if (!ParseFile("-atlasDesc", m_Processor.m_Descriptor.m_sDecalAtlasDescFile))
+      return EZ_FAILURE;
+  }
   else
   {
     EZ_ASSERT_NOT_IMPLEMENTED;
@@ -57,6 +74,9 @@ ezResult ezTexConv2::ParseOutputType()
 
 ezResult ezTexConv2::ParseInputFiles()
 {
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::DecalAtlas)
+    return EZ_SUCCESS;
+
   ezStringBuilder tmp, res;
   const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
 
@@ -159,6 +179,9 @@ ezResult ezTexConv2::ParseOutputFiles()
 
 ezResult ezTexConv2::ParseUsage()
 {
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::DecalAtlas)
+    return EZ_SUCCESS;
+
   ezInt32 value = -1;
   EZ_SUCCEED_OR_RETURN(ParseStringOption("-usage", m_AllowedUsages, value));
 
@@ -219,7 +242,9 @@ ezResult ezTexConv2::ParseCompressionMode()
 ezResult ezTexConv2::ParseWrapModes()
 {
   // cubemaps do not require any wrap mode settings
-  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::TextureCube)
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::TextureCube ||
+      m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::DecalAtlas ||
+      m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::None)
     return EZ_SUCCESS;
 
   {
@@ -257,7 +282,7 @@ ezResult ezTexConv2::ParseFilterModes()
 
 ezResult ezTexConv2::ParseResolutionModifiers()
 {
-  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::RenderTarget)
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::None)
     return EZ_SUCCESS;
 
   EZ_SUCCEED_OR_RETURN(ParseUIntOption("-minRes", 4, 8 * 1024, m_Processor.m_Descriptor.m_uiMinResolution));
@@ -269,7 +294,8 @@ ezResult ezTexConv2::ParseResolutionModifiers()
 
 ezResult ezTexConv2::ParseMiscOptions()
 {
-  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Texture2D)
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Texture2D ||
+      m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::None)
   {
     EZ_SUCCEED_OR_RETURN(ParseBoolOption("-flip_horz", m_Processor.m_Descriptor.m_bFlipHorizontal));
     EZ_SUCCEED_OR_RETURN(ParseBoolOption("-premulalpha", m_Processor.m_Descriptor.m_bPremultiplyAlpha));
@@ -292,14 +318,16 @@ ezResult ezTexConv2::ParseAssetHeader()
 
   const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
 
-  EZ_SUCCEED_OR_RETURN(ParseUIntOption("-assetVersion", 1, 255, m_uiEzFormatAssetVersion));
+  ezUInt32 tmp = m_Processor.m_Descriptor.m_uiAssetVersion;
+  EZ_SUCCEED_OR_RETURN(ParseUIntOption("-assetVersion", 1, 0xFFFF, tmp));
+  m_Processor.m_Descriptor.m_uiAssetVersion = tmp;
 
   const ezUInt64 uiHashLow = ezConversionUtils::ConvertHexStringToUInt32(pCmd->GetStringOption("-assetHashLow"));
   const ezUInt64 uiHashHigh = ezConversionUtils::ConvertHexStringToUInt32(pCmd->GetStringOption("-assetHashHigh"));
 
-  m_uiEzFormatAssetHash = (uiHashHigh << 32) | uiHashLow;
+  m_Processor.m_Descriptor.m_uiAssetHash = (uiHashHigh << 32) | uiHashLow;
 
-  if (m_uiEzFormatAssetHash == 0)
+  if (m_Processor.m_Descriptor.m_uiAssetHash == 0)
   {
     ezLog::Error("'-assetHashLow 0xHEX32' and '-assetHashHigh 0xHEX32' have not been specified.");
     return EZ_FAILURE;

@@ -47,6 +47,7 @@ SET (ADDITIONAL_DEPENDENCIES
   EditorPluginProceduralPlacement
   ParticlePlugin
   TexConv
+  TexConv2
   Player
   InspectorPlugin
   ShaderCompiler

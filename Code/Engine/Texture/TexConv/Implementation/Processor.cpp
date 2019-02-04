@@ -1,7 +1,7 @@
 #include <PCH.h>
 
-#include <Texture/TexConv/TexConvProcessor.h>
 #include <Texture/Image/ImageUtils.h>
+#include <Texture/TexConv/TexConvProcessor.h>
 
 // clang=format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexConvCompressionMode, 1)
@@ -17,18 +17,12 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexConvWrapMode, 1)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexConvFilterMode, 1)
-  EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedNearest),
-  EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedBilinear),
-  EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedTrilinear),
-  EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedAnisotropic2x),
-  EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedAnisotropic4x),
-  EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedAnisotropic8x),
-  EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedAnisotropic16x),
-  EZ_ENUM_CONSTANT(ezTexConvFilterMode::LowestQuality),
-  EZ_ENUM_CONSTANT(ezTexConvFilterMode::LowQuality),
-  EZ_ENUM_CONSTANT(ezTexConvFilterMode::DefaultQuality),
-  EZ_ENUM_CONSTANT(ezTexConvFilterMode::HighQuality),
-  EZ_ENUM_CONSTANT(ezTexConvFilterMode::HighestQuality),
+  EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedNearest), EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedBilinear),
+    EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedTrilinear), EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedAnisotropic2x),
+    EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedAnisotropic4x), EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedAnisotropic8x),
+    EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedAnisotropic16x), EZ_ENUM_CONSTANT(ezTexConvFilterMode::LowestQuality),
+    EZ_ENUM_CONSTANT(ezTexConvFilterMode::LowQuality), EZ_ENUM_CONSTANT(ezTexConvFilterMode::DefaultQuality),
+    EZ_ENUM_CONSTANT(ezTexConvFilterMode::HighQuality), EZ_ENUM_CONSTANT(ezTexConvFilterMode::HighestQuality),
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang=format on
 
@@ -40,35 +34,42 @@ ezTexConvProcessor::ezTexConvProcessor()
 
 ezResult ezTexConvProcessor::Process()
 {
-  EZ_SUCCEED_OR_RETURN(DetectNumChannels());
+  if (m_Descriptor.m_OutputType == ezTexConvOutputType::DecalAtlas)
+  {
+    EZ_SUCCEED_OR_RETURN(GenerateDecalAtlas());
+  }
+  else
+  {
+    EZ_SUCCEED_OR_RETURN(DetectNumChannels());
 
-  EZ_SUCCEED_OR_RETURN(LoadInputImages());
+    EZ_SUCCEED_OR_RETURN(LoadInputImages());
 
-  EZ_SUCCEED_OR_RETURN(AdjustTargetFormat());
+    EZ_SUCCEED_OR_RETURN(AdjustTargetFormat());
 
-  EZ_SUCCEED_OR_RETURN(ForceSRGBFormats());
+    EZ_SUCCEED_OR_RETURN(ForceSRGBFormats());
 
-  EZ_SUCCEED_OR_RETURN(ChooseOutputFormat());
+    EZ_SUCCEED_OR_RETURN(ChooseOutputFormat());
 
-  EZ_SUCCEED_OR_RETURN(DetermineTargetResolution());
+    EZ_SUCCEED_OR_RETURN(DetermineTargetResolution());
 
-  EZ_SUCCEED_OR_RETURN(ConvertInputImagesToFloat32());
+    EZ_SUCCEED_OR_RETURN(ConvertInputImagesToFloat32());
 
-  EZ_SUCCEED_OR_RETURN(ResizeInputImagesToSameDimensions());
+    EZ_SUCCEED_OR_RETURN(ResizeInputImagesToSameDimensions());
 
-  EZ_SUCCEED_OR_RETURN(Assemble2DTexture());
+    EZ_SUCCEED_OR_RETURN(Assemble2DTexture());
 
-  EZ_SUCCEED_OR_RETURN(AdjustHdrExposure());
+    EZ_SUCCEED_OR_RETURN(AdjustHdrExposure());
 
-  EZ_SUCCEED_OR_RETURN(GenerateMipmaps());
+    EZ_SUCCEED_OR_RETURN(GenerateMipmaps());
 
-  EZ_SUCCEED_OR_RETURN(PremultiplyAlpha());
+    EZ_SUCCEED_OR_RETURN(PremultiplyAlpha());
 
-  EZ_SUCCEED_OR_RETURN(GenerateOutput());
+    EZ_SUCCEED_OR_RETURN(GenerateOutput());
 
-  EZ_SUCCEED_OR_RETURN(GenerateThumbnailOutput());
+    EZ_SUCCEED_OR_RETURN(GenerateThumbnailOutput());
 
-  EZ_SUCCEED_OR_RETURN(GenerateLowResOutput());
+    EZ_SUCCEED_OR_RETURN(GenerateLowResOutput());
+  }
 
   return EZ_SUCCESS;
 }
@@ -207,4 +208,3 @@ ezResult ezTexConvProcessor::GenerateLowResOutput()
 
 
 EZ_STATICLINK_FILE(Texture, Texture_TexConv_Implementation_Processor);
-

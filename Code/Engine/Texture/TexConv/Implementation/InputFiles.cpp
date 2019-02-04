@@ -1,7 +1,7 @@
 #include <PCH.h>
 
-#include <Texture/TexConv/TexConvProcessor.h>
 #include <Texture/Image/ImageUtils.h>
+#include <Texture/TexConv/TexConvProcessor.h>
 
 ezResult ezTexConvProcessor::LoadInputImages()
 {
@@ -80,7 +80,9 @@ ezResult ezTexConvProcessor::ResizeInputImagesToSameDimensions()
   {
     auto& img = m_Descriptor.m_InputImages[idx];
 
-    if (ezImageUtils::Scale(img, img, m_uiTargetResolutionX, m_uiTargetResolutionY, nullptr, ezImageAddressMode::CLAMP, ezImageAddressMode::CLAMP).Failed())
+    if (ezImageUtils::Scale(
+          img, img, m_uiTargetResolutionX, m_uiTargetResolutionY, nullptr, ezImageAddressMode::CLAMP, ezImageAddressMode::CLAMP)
+          .Failed())
     {
       ezLog::Error("Could not resize '{}' to {}x{}", m_Descriptor.m_InputFiles[idx], m_uiTargetResolutionX, m_uiTargetResolutionY);
       return EZ_FAILURE;
@@ -90,7 +92,4 @@ ezResult ezTexConvProcessor::ResizeInputImagesToSameDimensions()
   return EZ_SUCCESS;
 }
 
-
-
 EZ_STATICLINK_FILE(Texture, Texture_TexConv_Implementation_InputFiles);
-

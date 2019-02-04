@@ -55,7 +55,6 @@ public:
   bool ParseFile(const char* szOption, ezString& result) const;
 
   bool IsTexFormat() const;
-  ezResult WriteTexFile(ezStreamWriter& stream, const ezImage& image);
   ezResult WriteOutputFile(const char* szFile, const ezImage& image);
 
 private:
@@ -66,7 +65,6 @@ private:
   bool m_bOutputSupports2D = false;
   bool m_bOutputSupports3D = false;
   bool m_bOutputSupportsCube = false;
-  bool m_bOutputSupportsRenderTarget = false;
   bool m_bOutputSupportsDecal = false;
   bool m_bOutputSupportsMipmaps = false;
   bool m_bOutputSupportsFiltering = false;
@@ -81,7 +79,4 @@ private:
   ezDynamicArray<KeyEnumValuePair> m_AllowedCompressionModes;
   ezDynamicArray<KeyEnumValuePair> m_AllowedWrapModes;
   ezDynamicArray<KeyEnumValuePair> m_AllowedFilterModes;
-
-  ezUInt32 m_uiEzFormatAssetVersion = 0;
-  ezUInt64 m_uiEzFormatAssetHash = 0;
 };

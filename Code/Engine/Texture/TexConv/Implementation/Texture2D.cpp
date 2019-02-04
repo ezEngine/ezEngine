@@ -1,6 +1,9 @@
 #include <PCH.h>
 
+#include <Core/Assets/AssetFileHeader.h>
+#include <Texture/Image/Formats/DdsFileFormat.h>
 #include <Texture/TexConv/TexConvProcessor.h>
+#include <Texture/ezTexFormat/ezTexFormat.h>
 
 ezResult ezTexConvProcessor::Assemble2DTexture()
 {
@@ -81,7 +84,30 @@ ezResult ezTexConvProcessor::Assemble2DSlice(const ezTexConvSliceChannelMapping&
   return EZ_SUCCESS;
 }
 
+ezResult ezTexConvProcessor::WriteTexFile(ezStreamWriter& stream, const ezImage& image)
+{
+  ezAssetFileHeader asset;
+  asset.SetFileHashAndVersion(m_Descriptor.m_uiAssetHash, m_Descriptor.m_uiAssetVersion);
 
+  asset.Write(stream);
+
+  ezTexFormat texFormat;
+  texFormat.m_bSRGB = ezImageFormat::IsSrgb(image.GetImageFormat());
+  texFormat.m_WrapModeU = m_Descriptor.m_WrapModes[0];
+  texFormat.m_WrapModeV = m_Descriptor.m_WrapModes[1];
+  texFormat.m_WrapModeW = m_Descriptor.m_WrapModes[2];
+  texFormat.m_TextureFilter = m_Descriptor.m_FilterMode;
+
+  texFormat.WriteTextureHeader(stream);
+
+  ezDdsFileFormat ddsWriter;
+  if (ddsWriter.WriteImage(stream, image, ezLog::GetThreadLocalLogSystem(), "dds").Failed())
+  {
+    ezLog::Error("Failed to write DDS image chunk to ezTex file.");
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
+}
 
 EZ_STATICLINK_FILE(Texture, Texture_TexConv_Implementation_Texture2D);
-

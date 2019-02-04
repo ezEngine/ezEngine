@@ -279,18 +279,19 @@ ezStatus ezDecalAssetDocumentManager::RunTexConv(const char* szTargetFile, const
   arguments << "-out";
   arguments << szTargetFile;
 
-  arguments << "-decal";
+  arguments << "-type";
+  arguments << "DecalAtlas";
 
-  arguments << "-in0";
+  arguments << "-atlasDesc";
   arguments << QString(szInputFile);
 
   ezStringBuilder cmd;
   for (ezInt32 i = 0; i < arguments.size(); ++i)
     cmd.Append(" ", arguments[i].toUtf8().data());
 
-  ezLog::Debug("TexConv.exe{0}", cmd);
+  ezLog::Debug("TexConv2.exe{0}", cmd);
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv2.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
 
   return ezStatus(EZ_SUCCESS);
 }

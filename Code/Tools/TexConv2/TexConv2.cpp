@@ -28,7 +28,8 @@ ezTexConv2::ezTexConv2()
   // texture types
   {
     m_AllowedOutputTypes.PushBack({"2D", ezTexConvOutputType::Texture2D});
-    m_AllowedOutputTypes.PushBack({"cubemap", ezTexConvOutputType::TextureCube});
+    m_AllowedOutputTypes.PushBack({"Cubemap", ezTexConvOutputType::TextureCube});
+    m_AllowedOutputTypes.PushBack({"DecalAtlas", ezTexConvOutputType::DecalAtlas});
   }
 
   // texture usages
@@ -113,6 +114,12 @@ void ezTexConv2::BeforeCoreSystemsShutdown()
 
 ezResult ezTexConv2::DetectOutputFormat()
 {
+  if (m_sOutputFile.IsEmpty())
+  {
+    m_Processor.m_Descriptor.m_OutputType = ezTexConvOutputType::None;
+    return EZ_SUCCESS;
+  }
+
   ezStringBuilder sExt = ezPathUtils::GetFileExtension(m_sOutputFile);
   sExt.ToUpper();
 
@@ -121,7 +128,6 @@ ezResult ezTexConv2::DetectOutputFormat()
     m_bOutputSupports2D = true;
     m_bOutputSupports3D = true;
     m_bOutputSupportsCube = true;
-    m_bOutputSupportsRenderTarget = false;
     m_bOutputSupportsDecal = false;
     m_bOutputSupportsMipmaps = true;
     m_bOutputSupportsFiltering = false;
@@ -133,7 +139,6 @@ ezResult ezTexConv2::DetectOutputFormat()
     m_bOutputSupports2D = true;
     m_bOutputSupports3D = false;
     m_bOutputSupportsCube = false;
-    m_bOutputSupportsRenderTarget = false;
     m_bOutputSupportsDecal = false;
     m_bOutputSupportsMipmaps = false;
     m_bOutputSupportsFiltering = false;
@@ -145,7 +150,6 @@ ezResult ezTexConv2::DetectOutputFormat()
     m_bOutputSupports2D = true;
     m_bOutputSupports3D = false;
     m_bOutputSupportsCube = false;
-    m_bOutputSupportsRenderTarget = false;
     m_bOutputSupportsDecal = false;
     m_bOutputSupportsMipmaps = true;
     m_bOutputSupportsFiltering = true;
@@ -157,7 +161,6 @@ ezResult ezTexConv2::DetectOutputFormat()
     m_bOutputSupports2D = false;
     m_bOutputSupports3D = true;
     m_bOutputSupportsCube = false;
-    m_bOutputSupportsRenderTarget = false;
     m_bOutputSupportsDecal = false;
     m_bOutputSupportsMipmaps = false;
     m_bOutputSupportsFiltering = true;
@@ -169,33 +172,19 @@ ezResult ezTexConv2::DetectOutputFormat()
     m_bOutputSupports2D = false;
     m_bOutputSupports3D = false;
     m_bOutputSupportsCube = true;
-    m_bOutputSupportsRenderTarget = false;
     m_bOutputSupportsDecal = false;
     m_bOutputSupportsMipmaps = true;
     m_bOutputSupportsFiltering = true;
     m_bOutputSupportsCompression = true;
     return EZ_SUCCESS;
   }
-  if (sExt == "EZRENDERTARGET")
+  if (sExt == "EZDECAL")
   {
     m_bOutputSupports2D = false;
     m_bOutputSupports3D = false;
     m_bOutputSupportsCube = false;
-    m_bOutputSupportsRenderTarget = true;
-    m_bOutputSupportsDecal = false;
-    m_bOutputSupportsMipmaps = false;
-    m_bOutputSupportsFiltering = true;
-    m_bOutputSupportsCompression = false;
-    return EZ_SUCCESS;
-  }
-  if (sExt == "EZDECALATLAS")
-  {
-    m_bOutputSupports2D = false;
-    m_bOutputSupports3D = false;
-    m_bOutputSupportsCube = false;
-    m_bOutputSupportsRenderTarget = false;
     m_bOutputSupportsDecal = true;
-    m_bOutputSupportsMipmaps = false;
+    m_bOutputSupportsMipmaps = true;
     m_bOutputSupportsFiltering = true;
     m_bOutputSupportsCompression = true;
     return EZ_SUCCESS;
@@ -213,32 +202,6 @@ bool ezTexConv2::IsTexFormat() const
   return ext.StartsWith_NoCase("ez");
 }
 
-ezResult ezTexConv2::WriteTexFile(ezStreamWriter& stream, const ezImage& image)
-{
-  ezAssetFileHeader asset;
-  asset.SetFileHashAndVersion(m_uiEzFormatAssetHash, m_uiEzFormatAssetVersion);
-
-  asset.Write(stream);
-
-  ezTexFormat texFormat;
-  texFormat.m_bSRGB = ezImageFormat::IsSrgb(image.GetImageFormat());
-  texFormat.m_WrapModeU = m_Processor.m_Descriptor.m_WrapModes[0];
-  texFormat.m_WrapModeV = m_Processor.m_Descriptor.m_WrapModes[1];
-  texFormat.m_WrapModeW = m_Processor.m_Descriptor.m_WrapModes[2];
-  texFormat.m_TextureFilter = m_Processor.m_Descriptor.m_FilterMode;
-
-  texFormat.WriteTextureHeader(stream);
-
-  ezDdsFileFormat ddsWriter;
-  if (ddsWriter.WriteImage(stream, image, ezLog::GetThreadLocalLogSystem(), "dds").Failed())
-  {
-    ezLog::Error("Failed to write DDS image chunk to ezTex file.");
-    return EZ_FAILURE;
-  }
-
-  return EZ_SUCCESS;
-}
-
 ezResult ezTexConv2::WriteOutputFile(const char* szFile, const ezImage& image)
 {
   if (IsTexFormat())
@@ -246,7 +209,7 @@ ezResult ezTexConv2::WriteOutputFile(const char* szFile, const ezImage& image)
     ezDeferredFileWriter file;
     file.SetOutput(szFile);
 
-    WriteTexFile(file, image);
+    m_Processor.WriteTexFile(file, image);
 
     return file.Close();
   }
@@ -263,6 +226,16 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
 
   if (m_Processor.Process().Failed())
     return ezApplication::ApplicationExecution::Quit;
+    
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::DecalAtlas)
+  {
+    ezDeferredFileWriter file;
+    file.SetOutput(m_sOutputFile);
+
+    file.WriteBytes(m_Processor.m_DecalAtlas.GetData(), m_Processor.m_DecalAtlas.GetStorageSize());
+
+    return ezApplication::ApplicationExecution::Quit;
+  }
 
   if (!m_sOutputFile.IsEmpty())
   {
