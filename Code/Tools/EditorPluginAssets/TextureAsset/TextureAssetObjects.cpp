@@ -127,15 +127,6 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
 
       switch (mapping)
       {
-        case ezTexture2DChannelMappingEnum::R1_G2:
-          props["Input2"].m_Visibility = ezPropertyUiState::Default;
-          // fall through
-
-        case ezTexture2DChannelMappingEnum::RG1:
-        case ezTexture2DChannelMappingEnum::R1:
-          props["Usage"].m_Visibility = ezPropertyUiState::Disabled;
-          break;
-
         case ezTexture2DChannelMappingEnum::R1_G2_B3_A4:
           props["Input4"].m_Visibility = ezPropertyUiState::Default;
           // fall through
@@ -145,8 +136,9 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
           // fall through
 
         case ezTexture2DChannelMappingEnum::RGB1_A2:
+        case ezTexture2DChannelMappingEnum::R1_G2:
           props["Input2"].m_Visibility = ezPropertyUiState::Default;
-          // fall through
+          break;
       }
     }
   }

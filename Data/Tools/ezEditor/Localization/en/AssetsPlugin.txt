@@ -173,9 +173,18 @@ ezRootMotionExtractionMode::None;None
 ezRootMotionExtractionMode::Custom;Custom
 ezRootMotionExtractionMode::FromFeet;From Feet
 ezRootMotionExtractionMode::AvgFromFeet;Average From Feet
-ezTexConvCompressionMode::None;None
-ezTexConvCompressionMode::Medium;Medium
-ezTexConvCompressionMode::High;High
-ezTexConvMipmapMode::None;None
-ezTexConvMipmapMode::Linear;Linear
-ezTexConvMipmapMode::Kaiser;Kaiser
+ezTexConvCompressionMode::None;Uncompressed
+ezTexConvCompressionMode::Medium;Medium Compression
+ezTexConvCompressionMode::High;Strong Compression
+ezTexConvMipmapMode::None;No Mipmaps
+ezTexConvMipmapMode::Linear;Generate: Linear
+ezTexConvMipmapMode::Kaiser;Generate: Kaiser
+MipmapMode;Mipmaps
+CompressionMode;Compression
+TextureFilter;Filtering
+AddressModeU;Address Mode U
+AddressModeV;Address Mode V
+AddressModeW;Address Mode W
+ChannelMapping;Channel Mapping
+FlipHorizontal;Flip Horizontal
+PremultipliedAlpha;Premultiply Alpha

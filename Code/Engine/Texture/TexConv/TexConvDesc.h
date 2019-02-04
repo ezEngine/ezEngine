@@ -50,7 +50,7 @@ public:
 
   // Format / Compression
   ezEnum<ezTexConvUsage> m_Usage;
-  ezEnum<ezTexConvCompressionMode> m_CompressionMode; // TODO: implement all compression encodings
+  ezEnum<ezTexConvCompressionMode> m_CompressionMode;
 
   // resolution clamp and downscale
   ezUInt32 m_uiMinResolution = 16;

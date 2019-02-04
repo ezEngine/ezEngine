@@ -4,21 +4,70 @@
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALResourceFormat, 1)
-  EZ_ENUM_CONSTANTS(ezGALResourceFormat::RGBAFloat, ezGALResourceFormat::RGBAHalf)
-  EZ_ENUM_CONSTANTS(ezGALResourceFormat::RGB10A2UIntNormalized, ezGALResourceFormat::RG11B10Float)
-  EZ_ENUM_CONSTANTS(ezGALResourceFormat::RGBAUByteNormalized, ezGALResourceFormat::RGBAUByteNormalizedsRGB)
-  EZ_ENUM_CONSTANTS(ezGALResourceFormat::D16, ezGALResourceFormat::D24S8)
-  EZ_ENUM_CONSTANTS(ezGALResourceFormat::BGRAUByteNormalized, ezGALResourceFormat::BGRAUByteNormalizedsRGB)
-  EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC1, ezGALResourceFormat::BC1sRGB)
-  EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC2, ezGALResourceFormat::BC2sRGB)
-  EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC3, ezGALResourceFormat::BC3sRGB)
-  EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC4UNormalized, ezGALResourceFormat::BC4Normalized)
-  EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC5UNormalized, ezGALResourceFormat::BC5Normalized)
-  EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC6UFloat, ezGALResourceFormat::BC6Float)
-  EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC7UNormalized, ezGALResourceFormat::BC7UNormalizedsRGB)
-  EZ_ENUM_CONSTANTS(ezGALResourceFormat::RFloat)
-  EZ_ENUM_CONSTANTS(ezGALResourceFormat::RGUByte, ezGALResourceFormat::RGUByteNormalized)
-  EZ_ENUM_CONSTANTS(ezGALResourceFormat::RGUShort, ezGALResourceFormat::RGUShortNormalized)
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAFloat),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAUInt),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAInt),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBFloat),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBUInt),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBInt),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::B5G6R5UNormalized),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::BGRAUByteNormalized),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::BGRAUByteNormalizedsRGB),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAHalf),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAUShort),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAUShortNormalized),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAShort),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAShortNormalized),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGFloat),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGUInt),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGInt),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGB10A2UInt),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGB10A2UIntNormalized),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RG11B10Float),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAUByteNormalized),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAUByteNormalizedsRGB),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAUByte),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAByteNormalized),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGBAByte),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGHalf),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGUShort),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGUShortNormalized),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGShort),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGShortNormalized),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGUByte),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGUByteNormalized),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGByte),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RGByteNormalized),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::DFloat),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RFloat),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RUInt),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RInt),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RHalf),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RUShort),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RUShortNormalized),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RShort),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RShortNormalized),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RUByte),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RUByteNormalized),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RByte),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::RByteNormalized),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::AUByteNormalized),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::D16),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::D24S8),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::BC1),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::BC1sRGB),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::BC2),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::BC2sRGB),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::BC3),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::BC3sRGB),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::BC4UNormalized),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::BC4Normalized),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::BC5UNormalized),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::BC5Normalized),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::BC6UFloat),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::BC6Float),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::BC7UNormalized),
+  EZ_ENUM_CONSTANT(ezGALResourceFormat::BC7UNormalizedsRGB)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 

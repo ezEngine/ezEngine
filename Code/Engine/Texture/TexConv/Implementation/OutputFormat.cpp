@@ -21,9 +21,8 @@ ezImageFormat::Enum DetermineOutputFormatPC(
     if (compressionMode >= ezTexConvCompressionMode::High && uiNumChannels < 4)
       return ezImageFormat::BC1_UNORM_SRGB;
 
-    // TODO: encoder not yet supported
-    // if (compressionMode >= ezTexConvCompressionMode::Medium)
-    // return ezImageFormat::BC7_UNORM_SRGB;
+    if (compressionMode >= ezTexConvCompressionMode::Medium)
+      return ezImageFormat::BC7_UNORM_SRGB;
 
     return ezImageFormat::R8G8B8A8_UNORM_SRGB;
   }
@@ -48,16 +47,14 @@ ezImageFormat::Enum DetermineOutputFormatPC(
         if (compressionMode >= ezTexConvCompressionMode::High)
           return ezImageFormat::BC1_UNORM;
 
-        // TODO
-        //if (compressionMode >= ezTexConvCompressionMode::Medium)
-          //return ezImageFormat::BC7_UNORM;
+        if (compressionMode >= ezTexConvCompressionMode::Medium)
+          return ezImageFormat::BC7_UNORM;
 
         return ezImageFormat::R8G8B8A8_UNORM;
 
       case 4:
-        // TODO
-        //if (compressionMode >= ezTexConvCompressionMode::Medium)
-          //return ezImageFormat::BC7_UNORM;
+        if (compressionMode >= ezTexConvCompressionMode::Medium)
+          return ezImageFormat::BC7_UNORM;
 
         return ezImageFormat::R8G8B8A8_UNORM;
 

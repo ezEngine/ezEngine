@@ -14,8 +14,6 @@
 - from multiple 2d textures
 - from single 2d texture
 
-- BC7 compression support
-
 - decal atlas support
 
 - volume textures
