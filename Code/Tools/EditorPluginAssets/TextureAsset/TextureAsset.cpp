@@ -9,8 +9,8 @@
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
-#include <Foundation/Image/Formats/DdsFileFormat.h>
-#include <Foundation/Image/ImageConversion.h>
+#include <Texture/Image/Formats/DdsFileFormat.h>
+#include <Texture/Image/ImageConversion.h>
 #include <QStringList>
 #include <QTextStream>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>

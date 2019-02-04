@@ -10,7 +10,7 @@
 //#define USE_EZIMAGE
 
 #ifdef USE_EZIMAGE
-#include <Foundation/Image/Image.h>
+#include <Texture/Image/Image.h>
 #endif
 
 

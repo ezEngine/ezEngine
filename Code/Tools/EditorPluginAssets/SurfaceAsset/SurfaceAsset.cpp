@@ -6,7 +6,7 @@
 #include <EditorPluginAssets/SurfaceAsset/SurfaceAsset.h>
 #include <EditorPluginAssets/SurfaceAsset/SurfaceAssetManager.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Image/Image.h>
+#include <Texture/Image/Image.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceAssetDocument, 1, ezRTTINoAllocator);

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <RendererCore/Basics.h>
-#include <Foundation/Image/Image.h>
+#include <Texture/Image/Image.h>
 
 namespace ezGraphicsUtils
 {

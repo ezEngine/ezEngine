@@ -5,13 +5,13 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
-#include <Foundation/Image/Formats/DdsFileFormat.h>
-#include <Foundation/Image/ImageConversion.h>
+#include <Texture/Image/Formats/DdsFileFormat.h>
+#include <Texture/Image/ImageConversion.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererCore/Textures/TextureLoader.h>
 #include <RendererCore/Textures/TextureUtils.h>
-#include <TexConvLib/ezTexFormat/ezTexFormat.h>
+#include <Texture/ezTexFormat/ezTexFormat.h>
 
 static ezTextureResourceLoader s_TextureResourceLoader;
 

@@ -1,7 +1,7 @@
 #include <PCH.h>
 
 #include <EditorPluginAssets/CollectionAsset/CollectionAssetWindow.moc.h>
-#include <Foundation/Image/ImageConversion.h>
+#include <Texture/Image/ImageConversion.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>

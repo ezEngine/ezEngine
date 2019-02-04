@@ -18,7 +18,7 @@
 #include <Foundation/Strings/TranslationLookup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
-#include <Foundation/Image/ImageConversion.h>
+#include <Texture/Image/ImageConversion.h>
 
 #include <Core/World/GameObject.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>

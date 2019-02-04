@@ -1,5 +1,5 @@
 #include "Main.h"
-#include <Foundation/Image/ImageUtils.h>
+#include <Texture/Image/ImageUtils.h>
 
 namespace
 {

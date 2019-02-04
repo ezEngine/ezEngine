@@ -3,7 +3,7 @@
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAsset.h>
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAssetManager.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Image/Image.h>
+#include <Texture/Image/Image.h>
 #include <Foundation/Tracks/Curve1D.h>
 #include <GameEngine/Curves/Curve1DResource.h>
 #include <QPaintEngine>

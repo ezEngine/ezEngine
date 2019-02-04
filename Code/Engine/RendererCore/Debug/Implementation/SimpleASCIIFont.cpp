@@ -1,8 +1,8 @@
 #include <PCH.h>
 
 #include <Foundation/IO/Stream.h>
-#include <Foundation/Image/Formats/TgaFileFormat.h>
-#include <Foundation/Image/ImageConversion.h>
+#include <Texture/Image/Formats/TgaFileFormat.h>
+#include <Texture/Image/ImageConversion.h>
 #include <RendererCore/Debug/SimpleASCIIFont.h>
 
 #if EZ_ENABLED(EZ_EMBED_FONT_FILE)

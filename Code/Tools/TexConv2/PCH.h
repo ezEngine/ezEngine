@@ -8,4 +8,4 @@
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
-#include <TexConvLib/Processing/Processor.h>
+#include <Texture/TexConv/TexConvProcessor.h>

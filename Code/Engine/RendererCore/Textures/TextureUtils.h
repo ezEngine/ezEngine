@@ -1,7 +1,7 @@
 #pragma once
 
 #include <RendererCore/Basics.h>
-#include <Foundation/Image/Image.h>
+#include <Texture/Image/Image.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 

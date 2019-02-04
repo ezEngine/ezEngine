@@ -4,8 +4,8 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/Image/Formats/DdsFileFormat.h>
-#include <Foundation/Image/Image.h>
+#include <Texture/Image/Formats/DdsFileFormat.h>
+#include <Texture/Image/Image.h>
 #include <Foundation/Math/Rect.h>
 #include <RendererCore/Decals/DecalAtlasResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>

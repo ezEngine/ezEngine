@@ -3,7 +3,7 @@
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/IO/MemoryStream.h>
-#include <Foundation/Image/Image.h>
+#include <Texture/Image/Image.h>
 #include <RendererCore/Basics.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
 #include <RendererFoundation/Basics.h>

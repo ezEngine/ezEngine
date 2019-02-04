@@ -21,7 +21,7 @@ SET (LINK_LIBRARIES
   RendererFoundation
   RendererDX11
   RendererCore
-  TexConvLib
+  Texture
 )
 
 BUILD_REQUIRES_DX11()

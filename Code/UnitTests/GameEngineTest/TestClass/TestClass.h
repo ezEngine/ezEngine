@@ -3,7 +3,7 @@
 #include <TestFramework/Framework/TestBaseClass.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/FallbackGameState.h>
-#include <Foundation/Image/Image.h>
+#include <Texture/Image/Image.h>
 
 class ezGameEngineTestGameState : public ezFallbackGameState
 {

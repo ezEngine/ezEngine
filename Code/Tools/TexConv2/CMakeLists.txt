@@ -18,8 +18,7 @@ BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
 SET (LINK_LIBRARIES
   Foundation
   Core
-  Utilities
-  TexConvLib
+  Texture
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)

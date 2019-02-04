@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <Foundation/Image/Image.h>
+#include <Texture/Image/Image.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>

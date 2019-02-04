@@ -3,7 +3,7 @@
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
-#include <TexConvLib/Configuration/TexConvEnums.h>
+#include <Texture/TexConv/TexConvEnums.h>
 
 struct ezPropertyMetaStateEvent;
 

@@ -1,9 +1,10 @@
 #include "Main.h"
-#include <Foundation/Image/ImageUtils.h>
-#include <Utilities/Textures/TextureGroupDesc.h>
+
 #include <Foundation/Math/Rect.h>
-#include <Utilities/Textures/TexturePacker.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Texture/Image/ImageUtils.h>
+#include <Texture/Utils/TextureGroupDesc.h>
+#include <Texture/Utils/TexturePacker.h>
 
 ezResult ezTexConv::CreateDecalLayerTexture(ezDynamicArray<DecalDesc>& decals, ezInt32 layer, ezStreamWriter& stream)
 {
@@ -67,7 +68,7 @@ ezResult ezTexConv::CreateDecalAtlas()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv::LoadDecalInputs(ezTextureGroupDesc &decalAtlasDesc, ezDynamicArray<DecalDesc> &decals)
+ezResult ezTexConv::LoadDecalInputs(ezTextureGroupDesc& decalAtlasDesc, ezDynamicArray<DecalDesc>& decals)
 {
   for (const auto& group : decalAtlasDesc.m_Groups)
   {
@@ -94,7 +95,7 @@ ezResult ezTexConv::LoadDecalInputs(ezTextureGroupDesc &decalAtlasDesc, ezDynami
 }
 
 
-ezResult ezTexConv::TrySortDecalsIntoAtlas(ezDynamicArray<DecalDesc> &decals, ezUInt32 uiWidth, ezUInt32 uiHeight, ezInt32 layer)
+ezResult ezTexConv::TrySortDecalsIntoAtlas(ezDynamicArray<DecalDesc>& decals, ezUInt32 uiWidth, ezUInt32 uiHeight, ezInt32 layer)
 {
   ezTexturePacker packer;
 
@@ -128,7 +129,7 @@ ezResult ezTexConv::TrySortDecalsIntoAtlas(ezDynamicArray<DecalDesc> &decals, ez
 }
 
 
-ezResult ezTexConv::SortDecalsIntoAtlas(ezDynamicArray<DecalDesc> &decals, ezUInt32& out_ResX, ezUInt32& out_ResY, ezInt32 layer)
+ezResult ezTexConv::SortDecalsIntoAtlas(ezDynamicArray<DecalDesc>& decals, ezUInt32& out_ResX, ezUInt32& out_ResY, ezInt32 layer)
 {
   for (ezUInt32 power = 8; power < 12; ++power)
   {
@@ -168,14 +169,16 @@ ezResult ezTexConv::ToFloatImage(const ezImage& src, ezImage& dst)
   if (ezImageConversion::Convert(src, dst, ezImageFormat::R32G32B32A32_FLOAT).Failed())
   {
     SetReturnCode(TexConvReturnCodes::FAILED_CONVERT_INPUT_TO_RGBA);
-    ezLog::Error("Failed to convert image from format {0} to R32G32B32A32_FLOAT. Format is not supported.", ezImageFormat::GetName(src.GetImageFormat()));
+    ezLog::Error("Failed to convert image from format {0} to R32G32B32A32_FLOAT. Format is not supported.",
+      ezImageFormat::GetName(src.GetImageFormat()));
     return EZ_FAILURE;
   }
 
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv::CreateDecalAtlasTexture(const ezDynamicArray<DecalDesc>& decals, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer)
+ezResult ezTexConv::CreateDecalAtlasTexture(
+  const ezDynamicArray<DecalDesc>& decals, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer)
 {
   ezImageHeader imgHeader;
   imgHeader.SetWidth(uiResX);
@@ -255,4 +258,3 @@ void ezTexConv::WriteDecalAtlasInfo(const ezDynamicArray<DecalDesc>& decals)
     }
   }
 }
-

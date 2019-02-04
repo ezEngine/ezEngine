@@ -1,12 +1,12 @@
 #include <PCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
-#include <Foundation/Image/Formats/DdsFileFormat.h>
+#include <Texture/Image/Formats/DdsFileFormat.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/Resources/Texture.h>
-#include <TexConvLib/ezTexFormat/ezTexFormat.h>
+#include <Texture/ezTexFormat/ezTexFormat.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeResource, 1, ezRTTIDefaultAllocator<ezTextureCubeResource>);

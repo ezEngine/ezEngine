@@ -20,7 +20,7 @@
 #include <Core/ResourceManager/ResourceManager.h>
 
 #include <Core/Graphics/Geometry.h>
-#include <Foundation/Image/ImageConversion.h>
+#include <Texture/Image/ImageConversion.h>
 
 #include <System/Window/Window.h>
 

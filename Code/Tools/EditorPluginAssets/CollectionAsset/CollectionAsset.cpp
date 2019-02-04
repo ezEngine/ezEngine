@@ -6,7 +6,7 @@
 #include <EditorPluginAssets/CollectionAsset/CollectionAsset.h>
 #include <EditorPluginAssets/CollectionAsset/CollectionAssetManager.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Image/Image.h>
+#include <Texture/Image/Image.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 // clang-format off

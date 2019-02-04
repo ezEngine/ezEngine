@@ -18,8 +18,7 @@ BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
 SET (LINK_LIBRARIES
   Foundation
   Core
-  Utilities
-  TexConvLib
+  Texture
 )
 
 # Visual Studio 2017 issues warnings because DirectXTex uses deprecated functions.

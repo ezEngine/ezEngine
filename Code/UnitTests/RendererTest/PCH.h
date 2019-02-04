@@ -19,9 +19,9 @@
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/SwapChain.h>
-#include <Foundation/Image/Image.h>
-#include <Foundation/Image/ImageUtils.h>
-#include <Foundation/Image/ImageConversion.h>
+#include <Texture/Image/Image.h>
+#include <Texture/Image/ImageUtils.h>
+#include <Texture/Image/ImageConversion.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/Shader/ShaderResource.h>
 

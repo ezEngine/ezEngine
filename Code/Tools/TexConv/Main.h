@@ -16,12 +16,12 @@
 #include <Foundation/Logging/HTMLWriter.h>
 #include <Core/Application/Application.h>
 #include <TexConv/DirectXTex/DirectXTex.h>
-#include <Foundation/Image/Image.h>
-#include <Foundation/Image/ImageConversion.h>
-#include <Foundation/Image/Formats/ImageFormatMappings.h>
+#include <Texture/Image/Image.h>
+#include <Texture/Image/ImageConversion.h>
+#include <Texture/Image/Formats/ImageFormatMappings.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <Core/Assets/AssetFileHeader.h>
-#include <Foundation/Image/Formats/DdsFileFormat.h>
+#include <Texture/Image/Formats/DdsFileFormat.h>
 #include <Foundation/Math/Rect.h>
 #include <memory>
 

@@ -1,6 +1,6 @@
 #include "Main.h"
 #include <wincodec.h>
-#include <Foundation\Image\ImageUtils.h>
+#include <Texture\Image\ImageUtils.h>
 
 /// \todo volume texture creation
 /// \todo resizing or downscaling to closest POT or max resolution

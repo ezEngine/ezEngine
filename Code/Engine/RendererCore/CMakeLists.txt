@@ -19,9 +19,9 @@
 
 SET (LINK_LIBRARIES
   Foundation
+  Texture
   Core
   RendererFoundation
-  TexConvLib
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)

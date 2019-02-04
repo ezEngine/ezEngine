@@ -3,7 +3,7 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
-#include <Foundation/Image/Formats/DdsFileFormat.h>
+#include <Texture/Image/Formats/DdsFileFormat.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>

@@ -15,8 +15,8 @@
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Image/Image.h>
-#include <Foundation/Image/ImageUtils.h>
+#include <Texture/Image/Image.h>
+#include <Texture/Image/ImageUtils.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Memory/MemoryUtils.h>
 #include <Foundation/Reflection/ReflectionUtils.h>

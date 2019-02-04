@@ -15,6 +15,7 @@
 SET (LINK_LIBRARIES
   Foundation      # Example: Another library build with cmake
   TestFramework
+  Texture
 )
 
 SET (ADDITIONAL_DEPENDENCIES

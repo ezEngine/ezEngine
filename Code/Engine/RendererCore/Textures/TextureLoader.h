@@ -3,10 +3,10 @@
 #include <RendererCore/Basics.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
-#include <Foundation/Image/Image.h>
+#include <Texture/Image/Image.h>
 #include <RendererFoundation/Basics.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
-#include <TexConvLib/ezTexFormat/ezTexFormat.h>
+#include <Texture/ezTexFormat/ezTexFormat.h>
 
 class EZ_RENDERERCORE_DLL ezTextureResourceLoader : public ezResourceTypeLoader
 {

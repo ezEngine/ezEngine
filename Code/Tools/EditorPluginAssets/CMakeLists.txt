@@ -39,8 +39,7 @@ SET (LINK_LIBRARIES
   GameEngine
   SharedPluginAssets
   ModelImporter
-  Utilities
-  TexConvLib
+  Texture
 )
 
 SET (ADDITIONAL_DEPENDENCIES

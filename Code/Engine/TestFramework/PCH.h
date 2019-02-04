@@ -19,9 +19,9 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/JSONWriter.h>
 #include <Foundation/IO/OSFile.h>
-#include <Foundation/Image/Image.h>
-#include <Foundation/Image/ImageConversion.h>
-#include <Foundation/Image/ImageUtils.h>
+#include <Texture/Image/Image.h>
+#include <Texture/Image/ImageConversion.h>
+#include <Texture/Image/ImageUtils.h>
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Math/Math.h>

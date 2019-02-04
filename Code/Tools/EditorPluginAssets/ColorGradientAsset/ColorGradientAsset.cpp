@@ -6,7 +6,7 @@
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAssetManager.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Image/Image.h>
+#include <Texture/Image/Image.h>
 #include <Foundation/Tracks/ColorGradient.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
 #include <GuiFoundation/Widgets/CurveEditData.h>

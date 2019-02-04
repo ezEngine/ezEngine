@@ -1,5 +1,5 @@
 #include "Main.h"
-#include <TexConvLib/ezTexFormat/ezTexFormat.h>
+#include <Texture/ezTexFormat/ezTexFormat.h>
 
 void ezTexConv::WriteTexHeader(ezStreamWriter& stream)
 {

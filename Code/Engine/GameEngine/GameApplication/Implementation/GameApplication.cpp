@@ -9,8 +9,8 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
-#include <Foundation/Image/Formats/TgaFileFormat.h>
-#include <Foundation/Image/Image.h>
+#include <Texture/Image/Formats/TgaFileFormat.h>
+#include <Texture/Image/Image.h>
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/DefaultTimeStepSmoothing.h>

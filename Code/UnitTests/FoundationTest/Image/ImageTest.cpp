@@ -3,12 +3,12 @@
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/Image/Formats/BmpFileFormat.h>
-#include <Foundation/Image/Formats/DdsFileFormat.h>
-#include <Foundation/Image/Formats/ImageFileFormat.h>
-#include <Foundation/Image/Image.h>
-#include <Foundation/Image/ImageConversion.h>
-#include <Foundation/Image/ImageUtils.h>
+#include <Texture/Image/Formats/BmpFileFormat.h>
+#include <Texture/Image/Formats/DdsFileFormat.h>
+#include <Texture/Image/Formats/ImageFileFormat.h>
+#include <Texture/Image/Image.h>
+#include <Texture/Image/ImageConversion.h>
+#include <Texture/Image/ImageUtils.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Image);
 

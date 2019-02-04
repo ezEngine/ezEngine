@@ -2,9 +2,9 @@
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
-#include <Foundation/Image/Formats/DdsFileFormat.h>
+#include <Texture/Image/Formats/DdsFileFormat.h>
 #include <TexConv2/TexConv2.h>
-#include <TexConvLib/ezTexFormat/ezTexFormat.h>
+#include <Texture/ezTexFormat/ezTexFormat.h>
 
 /* TODO LIST:
 
