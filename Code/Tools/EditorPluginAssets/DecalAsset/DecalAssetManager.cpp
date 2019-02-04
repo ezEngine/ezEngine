@@ -279,18 +279,6 @@ ezStatus ezDecalAssetDocumentManager::RunTexConv(const char* szTargetFile, const
   arguments << "-out";
   arguments << szTargetFile;
 
-  // if (bUpdateThumbnail)
-  //{
-  //  const ezStringBuilder sThumbnail = GetThumbnailFilePath();
-
-  //  // Thumbnail
-  //  const ezStringBuilder sDir = sThumbnail.GetFileDirectory();
-  //  ezOSFile::CreateDirectoryStructure(sDir);
-
-  //  arguments << "-thumbnail";
-  //  arguments << QString::fromUtf8(sThumbnail.GetData());
-  //}
-
   arguments << "-decal";
 
   arguments << "-in0";
@@ -303,16 +291,6 @@ ezStatus ezDecalAssetDocumentManager::RunTexConv(const char* szTargetFile, const
   ezLog::Debug("TexConv.exe{0}", cmd);
 
   EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
-
-  // if (bUpdateThumbnail)
-  //{
-  //  ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(GetGuid());
-  //  EZ_ASSERT_DEV(uiThumbnailHash != 0, "Thumbnail hash should never be zero when reaching this point!");
-  //  ezAssetFileHeader assetThumbnailHeader;
-  //  assetThumbnailHeader.SetFileHashAndVersion(uiThumbnailHash, GetAssetTypeVersion());
-  //  AppendThumbnailInfo(sThumbnail, assetThumbnailHeader);
-  //  InvalidateAssetThumbnail();
-  //}
 
   return ezStatus(EZ_SUCCESS);
 }

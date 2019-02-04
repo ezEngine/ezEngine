@@ -38,9 +38,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezDecalAssetProperties::ezDecalAssetProperties()
-    : m_fRoughnessValue(0.7f)
-    , m_fMetallicValue(0.0f)
-    , m_fOcclusionValue(1.0f)
+  : m_fRoughnessValue(0.7f)
+  , m_fMetallicValue(0.0f)
+  , m_fOcclusionValue(1.0f)
 {
 }
 
@@ -92,11 +92,12 @@ void ezDecalAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEv
 }
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocument, 3, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocument, 3, ezRTTINoAllocator)
+  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDecalAssetDocument::ezDecalAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezDecalAssetProperties>(szDocumentPath, true)
+  : ezSimpleAssetDocument<ezDecalAssetProperties>(szDocumentPath, true)
 {
 }
 
@@ -105,8 +106,8 @@ const char* ezDecalAssetDocument::QueryAssetType() const
   return "Decal";
 }
 
-ezStatus ezDecalAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                      const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezDecalAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
+  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   return static_cast<ezDecalAssetDocumentManager*>(GetAssetDocumentManager())->GenerateDecalTexture(pAssetProfile);
 }
@@ -118,17 +119,23 @@ ezStatus ezDecalAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& 
   QStringList arguments;
   ezStringBuilder temp;
 
-  arguments << "-premulalpha";
-  arguments << "-srgb";
-
   const ezStringBuilder sThumbnail = GetThumbnailFilePath();
+
+  arguments << "-premulalpha";
+
+  arguments << "-usage";
+  arguments << "Color";
+
   {
     // Thumbnail
     const ezStringBuilder sDir = sThumbnail.GetFileDirectory();
     ezOSFile::CreateDirectoryStructure(sDir);
 
-    arguments << "-thumbnail";
+    arguments << "-thumbnailOut";
     arguments << QString::fromUtf8(sThumbnail.GetData());
+
+    arguments << "-thumbnailRes";
+    arguments << "256";
   }
 
   {
@@ -144,15 +151,18 @@ ezStatus ezDecalAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& 
 
     arguments << temp.GetData();
     arguments << QString(sAbsPath.GetData());
+
+    arguments << "-rgba";
+    arguments << "in0.rgba";
   }
 
   ezStringBuilder cmd;
   for (ezInt32 i = 0; i < arguments.size(); ++i)
     cmd.Append(" ", arguments[i].toUtf8().data());
 
-  ezLog::Debug("TexConv.exe{0}", cmd);
+  ezLog::Debug("TexConv2.exe{0}", cmd);
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv2.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
 
   {
     ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(GetGuid());
@@ -183,8 +193,8 @@ ezDecalAssetDocumentGenerator::ezDecalAssetDocumentGenerator()
 
 ezDecalAssetDocumentGenerator::~ezDecalAssetDocumentGenerator() {}
 
-void ezDecalAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath,
-                                                   ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezDecalAssetDocumentGenerator::GetImportModes(
+  const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
 
@@ -204,8 +214,8 @@ void ezDecalAssetDocumentGenerator::GetImportModes(const char* szParentDirRelati
   }
 }
 
-ezStatus ezDecalAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info,
-                                                 ezDocument*& out_pGeneratedDocument)
+ezStatus ezDecalAssetDocumentGenerator::Generate(
+  const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
   out_pGeneratedDocument = pApp->CreateDocument(info.m_sOutputFileAbsolute, ezDocumentFlags::None);

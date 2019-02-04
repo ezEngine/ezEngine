@@ -9,10 +9,10 @@
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
-#include <Texture/Image/Formats/DdsFileFormat.h>
-#include <Texture/Image/ImageConversion.h>
 #include <QStringList>
 #include <QTextStream>
+#include <Texture/Image/Formats/DdsFileFormat.h>
+#include <Texture/Image/ImageConversion.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 // clang-format off
@@ -83,7 +83,6 @@ ezStatus ezTextureAssetDocument::RunTexConv(
   const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail, const ezTextureAssetProfileConfig* pAssetConfig)
 {
   const ezTextureAssetProperties* pProp = GetProperties();
-  const bool bUseTexConv2 = false;
 
   QStringList arguments;
   ezStringBuilder temp;
@@ -120,16 +119,9 @@ ezStatus ezTextureAssetDocument::RunTexConv(
     const ezStringBuilder sDir = sThumbnail.GetFileDirectory();
     ezOSFile::CreateDirectoryStructure(sDir);
 
-    if (bUseTexConv2)
-    {
-      arguments << "-thumbnailRes";
-      arguments << "256";
-      arguments << "-thumbnailOut";
-    }
-    else
-    {
-      arguments << "-thumbnail";
-    }
+    arguments << "-thumbnailRes";
+    arguments << "256";
+    arguments << "-thumbnailOut";
 
     arguments << QString::fromUtf8(sThumbnail.GetData());
   }
@@ -141,101 +133,74 @@ ezStatus ezTextureAssetDocument::RunTexConv(
     name.Append("-lowres");
     lowResPath.ChangeFileName(name);
 
-    if (bUseTexConv2)
+    if (pProp->m_MipmapMode != ezTexConvMipmapMode::None)
     {
-      if (pProp->m_MipmapMode != ezTexConvMipmapMode::None)
-      {
-        arguments << "-lowMips";
-        arguments << "6";
-        arguments << "-lowOut";
-      }
-    }
-    else
-    {
-      arguments << "-outLowRes";
+      arguments << "-lowMips";
+      arguments << "6";
+      arguments << "-lowOut";
     }
 
     arguments << QString::fromUtf8(lowResPath.GetData());
   }
 
-  if (bUseTexConv2)
+  arguments << "-mipmaps";
+
+  switch (pProp->m_MipmapMode)
   {
-    arguments << "-mipmaps";
+    case ezTexConvMipmapMode::None:
+      arguments << "None";
+      break;
+    case ezTexConvMipmapMode::Linear:
 
-    switch (pProp->m_MipmapMode)
-    {
-      case ezTexConvMipmapMode::None:
-        arguments << "None";
-        break;
-      case ezTexConvMipmapMode::Linear:
-
-        arguments << "Linear";
-        break;
-      case ezTexConvMipmapMode::Kaiser:
-        arguments << "Kaiser";
-        break;
-    }
-
-    arguments << "-compression";
-    switch (pProp->m_CompressionMode)
-    {
-      case ezTexConvCompressionMode::None:
-        arguments << "None";
-        break;
-      case ezTexConvCompressionMode::Medium:
-        arguments << "Medium";
-        break;
-      case ezTexConvCompressionMode::High:
-        arguments << "High";
-        break;
-    }
-
-    arguments << "-usage";
-    switch (pProp->m_TextureUsage)
-    {
-      case ezTexture2DUsageEnum::HDR:
-        arguments << "Hdr";
-        break;
-
-      case ezTexture2DUsageEnum::Diffuse:
-      case ezTexture2DUsageEnum::EmissiveColor:
-      case ezTexture2DUsageEnum::Other_sRGB:
-        arguments << "Color";
-        break;
-
-      case ezTexture2DUsageEnum::EmissiveMask:
-      case ezTexture2DUsageEnum::Height:
-      case ezTexture2DUsageEnum::LookupTable:
-      case ezTexture2DUsageEnum::Mask:
-      case ezTexture2DUsageEnum::Other_Linear:
-        arguments << "Linear";
-        break;
-
-      case ezTexture2DUsageEnum::NormalMap:
-        arguments << "NormalMap";
-        break;
-
-      case ezTexture2DUsageEnum::NormalMapInverted:
-        arguments << "NormalMap_Inverted";
-        break;
-    }
+      arguments << "Linear";
+      break;
+    case ezTexConvMipmapMode::Kaiser:
+      arguments << "Kaiser";
+      break;
   }
-  else
+
+  arguments << "-compression";
+  switch (pProp->m_CompressionMode)
   {
-    arguments << "-channels";
-    arguments << ezConversionUtils::ToString(pProp->GetNumChannels(), temp).GetData();
+    case ezTexConvCompressionMode::None:
+      arguments << "None";
+      break;
+    case ezTexConvCompressionMode::Medium:
+      arguments << "Medium";
+      break;
+    case ezTexConvCompressionMode::High:
+      arguments << "High";
+      break;
+  }
 
-    if (pProp->m_MipmapMode != ezTexConvMipmapMode::None)
-      arguments << "-mipmaps";
+  arguments << "-usage";
+  switch (pProp->m_TextureUsage)
+  {
+    case ezTexture2DUsageEnum::HDR:
+      arguments << "Hdr";
+      break;
 
-    if (pProp->m_CompressionMode != ezTexConvCompressionMode::None)
-      arguments << "-compress";
+    case ezTexture2DUsageEnum::Diffuse:
+    case ezTexture2DUsageEnum::EmissiveColor:
+    case ezTexture2DUsageEnum::Other_sRGB:
+      arguments << "Color";
+      break;
 
-    if (pProp->IsSRGB())
-      arguments << "-srgb";
+    case ezTexture2DUsageEnum::EmissiveMask:
+    case ezTexture2DUsageEnum::Height:
+    case ezTexture2DUsageEnum::LookupTable:
+    case ezTexture2DUsageEnum::Mask:
+    case ezTexture2DUsageEnum::Other_Linear:
+      arguments << "Linear";
+      break;
 
-    if (pProp->IsHDR())
-      arguments << "-hdr";
+    case ezTexture2DUsageEnum::NormalMap:
+      arguments << "NormalMap";
+      break;
+
+    case ezTexture2DUsageEnum::NormalMapInverted:
+      arguments << "NormalMap_Inverted";
+      break;
   }
 
   if (pProp->m_bPremultipliedAlpha)
@@ -245,29 +210,12 @@ ezStatus ezTextureAssetDocument::RunTexConv(
     arguments << "-flip_horz";
 
 
-  if (bUseTexConv2)
-  {
-    arguments << "-maxRes" << QString::number(pAssetConfig->m_uiMaxResolution);
-  }
-  else
-  {
-    arguments << "-maxResolution" << QString::number(pAssetConfig->m_uiMaxResolution);
-  }
+  arguments << "-maxRes" << QString::number(pAssetConfig->m_uiMaxResolution);
 
-  if (bUseTexConv2)
-  {
-    arguments << "-addressU" << ToWrapMode(pProp->m_AddressModeU);
-    arguments << "-addressV" << ToWrapMode(pProp->m_AddressModeV);
-    arguments << "-addressW" << ToWrapMode(pProp->m_AddressModeW);
-    arguments << "-filter" << ToFilterMode(pProp->m_TextureFilter);
-  }
-  else
-  {
-    arguments << "-addressU" << QString::number(pProp->m_AddressModeU.GetValue());
-    arguments << "-addressV" << QString::number(pProp->m_AddressModeV.GetValue());
-    arguments << "-addressW" << QString::number(pProp->m_AddressModeW.GetValue());
-    arguments << "-filter" << QString::number(pProp->m_TextureFilter.GetValue());
-  }
+  arguments << "-addressU" << ToWrapMode(pProp->m_AddressModeU);
+  arguments << "-addressV" << ToWrapMode(pProp->m_AddressModeV);
+  arguments << "-addressW" << ToWrapMode(pProp->m_AddressModeW);
+  arguments << "-filter" << ToFilterMode(pProp->m_TextureFilter);
 
   const ezInt32 iNumInputFiles = pProp->GetNumInputFiles();
   for (ezInt32 i = 0; i < iNumInputFiles; ++i)
@@ -367,16 +315,8 @@ ezStatus ezTextureAssetDocument::RunTexConv(
   for (ezInt32 i = 0; i < arguments.size(); ++i)
     cmd.Append(" ", arguments[i].toUtf8().data());
 
-  if (bUseTexConv2)
-  {
-    ezLog::Debug("TexConv2.exe{0}", cmd);
-    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv2.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
-  }
-  else
-  {
-    ezLog::Debug("TexConv.exe{0}", cmd);
-    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
-  }
+  ezLog::Debug("TexConv2.exe{0}", cmd);
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv2.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
 
   if (bUpdateThumbnail)
   {

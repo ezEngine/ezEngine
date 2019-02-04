@@ -8,10 +8,10 @@ struct ezTexConvOutputType
 {
   enum Enum
   {
+    None,
     Texture2D,
-    TextureCube,
-    RenderTarget,
     Texture3D,
+    TextureCube,
     DecalAtlas,
 
     Default = Texture2D
