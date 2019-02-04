@@ -265,3 +265,4 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::GetResourceHandleForExpor
 
   return LoadResource<ResourceType>(szResourceID);
 }
+

@@ -36,3 +36,4 @@ public:
 typedef ezSizeTemplate<ezUInt32> ezSizeU32;
 typedef ezSizeTemplate<float> ezSizeFloat;
 typedef ezSizeTemplate<double> ezSizeDouble;
+

@@ -20,3 +20,4 @@ void* ezThreadClassEntryPoint(void* pThreadParameter)
 }
 
 /// \endcond
+

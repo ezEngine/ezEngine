@@ -82,3 +82,4 @@ EZ_ALWAYS_INLINE bool ezComponent::IsActiveAndSimulating() const
   return m_ComponentFlags.AreAllSet(ezObjectFlags::Initialized | ezObjectFlags::Active) &&
          m_ComponentFlags.IsAnySet(ezObjectFlags::SimulationStarting | ezObjectFlags::SimulationStarted);
 }
+

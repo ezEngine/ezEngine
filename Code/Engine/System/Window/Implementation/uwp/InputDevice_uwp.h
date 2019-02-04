@@ -64,3 +64,4 @@ private:
   EventRegistrationToken m_eventRegistration_pointerWheelChanged;
   EventRegistrationToken m_eventRegistration_mouseMoved;
 };
+

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
@@ -101,6 +101,5 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////////
-
 
 

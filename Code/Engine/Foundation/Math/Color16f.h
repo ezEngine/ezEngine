@@ -46,3 +46,4 @@ public:
 };
 
 #include <Foundation/Math/Implementation/Color16f_inl.h>
+

@@ -855,3 +855,4 @@ bool ezGALContext::UnsetUnorderedAccessViews(const ezGALResourceBase* pResource)
 }
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Context_Implementation_Context);
+

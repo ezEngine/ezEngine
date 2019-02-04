@@ -11,3 +11,4 @@ namespace ezMemoryPolicies
 
   void ezGuardedAllocation::Deallocate(void* ptr) { EZ_ASSERT_NOT_IMPLEMENTED; }
 }
+

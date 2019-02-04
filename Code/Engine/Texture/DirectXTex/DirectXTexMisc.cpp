@@ -1,25 +1,23 @@
+#include <PCH.h>
+
 //-------------------------------------------------------------------------------------
 // DirectXTexMisc.cpp
 //  
 // DirectX Texture Library - Misc image operations
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
 
-#include "directxtexp.h"
+#include "DirectXTexp.h"
 
 using namespace DirectX;
 
 namespace
 {
-    const XMVECTORF32 g_Gamma22 = { 2.2f, 2.2f, 2.2f, 1.f };
+    const XMVECTORF32 g_Gamma22 = { { { 2.2f, 2.2f, 2.2f, 1.f } } };
 
     //-------------------------------------------------------------------------------------
     HRESULT ComputeMSE_(
@@ -37,7 +35,7 @@ namespace
 
         const size_t width = image1.width;
 
-        ScopedAlignedArrayXMVECTOR scanline(reinterpret_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*width) * 2, 16)));
+        ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*width) * 2, 16)));
         if (!scanline)
             return E_OUTOFMEMORY;
 
@@ -60,6 +58,9 @@ namespace
         case DXGI_FORMAT_BC7_UNORM_SRGB:
             flags |= CMSE_IMAGE1_SRGB;
             break;
+
+        default:
+            break;
         }
 
         switch (image2.format)
@@ -80,6 +81,9 @@ namespace
         case DXGI_FORMAT_BC7_UNORM_SRGB:
             flags |= CMSE_IMAGE2_SRGB;
             break;
+
+        default:
+            break;
         }
 
         const uint8_t *pSrc1 = image1.pixels;
@@ -89,7 +93,7 @@ namespace
         const size_t rowPitch2 = image2.rowPitch;
 
         XMVECTOR acc = g_XMZero;
-        static XMVECTORF32 two = { 2.0f, 2.0f, 2.0f, 2.0f };
+        static XMVECTORF32 two = { { { 2.0f, 2.0f, 2.0f, 2.0f } } };
 
         for (size_t h = 0; h < image1.height; ++h)
         {
@@ -120,7 +124,7 @@ namespace
                 }
                 if (flags & CMSE_IMAGE2_X2_BIAS)
                 {
-                    v1 = XMVectorMultiplyAdd(v2, two, g_XMNegativeOne);
+                    v2 = XMVectorMultiplyAdd(v2, two, g_XMNegativeOne);
                 }
 
                 // sum[ (I1 - I2)^2 ]
@@ -170,7 +174,7 @@ namespace
     //-------------------------------------------------------------------------------------
     HRESULT EvaluateImage_(
         const Image& image,
-        std::function<void __cdecl(_In_reads_(width) const XMVECTOR* pixels, size_t width, size_t y)> pixelFunc)
+        std::function<void __cdecl(_In_reads_(width) const XMVECTOR* pixels, size_t width, size_t y)>& pixelFunc)
     {
         if (!pixelFunc)
             return E_INVALIDARG;
@@ -182,7 +186,7 @@ namespace
 
         const size_t width = image.width;
 
-        ScopedAlignedArrayXMVECTOR scanline(reinterpret_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*width), 16)));
+        ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*width), 16)));
         if (!scanline)
             return E_OUTOFMEMORY;
 
@@ -206,7 +210,7 @@ namespace
     //-------------------------------------------------------------------------------------
     HRESULT TransformImage_(
         const Image& srcImage,
-        std::function<void __cdecl(_Out_writes_(width) XMVECTOR* outPixels, _In_reads_(width) const XMVECTOR* inPixels, size_t width, size_t y)> pixelFunc,
+        std::function<void __cdecl(_Out_writes_(width) XMVECTOR* outPixels, _In_reads_(width) const XMVECTOR* inPixels, size_t width, size_t y)>& pixelFunc,
         const Image& destImage)
     {
         if (!pixelFunc)
@@ -220,7 +224,7 @@ namespace
 
         const size_t width = srcImage.width;
 
-        ScopedAlignedArrayXMVECTOR scanlines(reinterpret_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*width*2), 16)));
+        ScopedAlignedArrayXMVECTOR scanlines(static_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*width*2), 16)));
         if (!scanlines)
             return E_OUTOFMEMORY;
 
@@ -345,7 +349,7 @@ HRESULT DirectX::CopyRectangle(
 
     uint8_t* pDest = dstImage.pixels + (yOffset * dstImage.rowPitch) + (xOffset * dbpp);
 
-    ScopedAlignedArrayXMVECTOR scanline(reinterpret_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*srcRect.w), 16)));
+    ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*srcRect.w), 16)));
     if (!scanline)
         return E_OUTOFMEMORY;
 
@@ -517,7 +521,7 @@ HRESULT DirectX::EvaluateImage(
         || metadata.height > UINT32_MAX)
         return E_INVALIDARG;
 
-    if (metadata.IsVolumemap() && metadata.depth > UINT32_MAX)
+    if (metadata.IsVolumemap() && metadata.depth > UINT16_MAX)
         return E_INVALIDARG;
 
     ScratchImage temp;
@@ -645,7 +649,7 @@ HRESULT DirectX::TransformImage(
         || metadata.height > UINT32_MAX)
         return E_INVALIDARG;
 
-    if (metadata.IsVolumemap() && metadata.depth > UINT32_MAX)
+    if (metadata.IsVolumemap() && metadata.depth > UINT16_MAX)
         return E_INVALIDARG;
 
     HRESULT hr = result.Initialize(metadata);
@@ -757,3 +761,8 @@ HRESULT DirectX::TransformImage(
 
     return S_OK;
 }
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexMisc);
+

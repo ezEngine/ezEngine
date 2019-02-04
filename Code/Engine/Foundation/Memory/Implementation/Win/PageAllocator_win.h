@@ -20,3 +20,4 @@ void ezPageAllocator::DeallocatePage(void* ptr)
 
   EZ_VERIFY(::VirtualFree(ptr, 0, MEM_RELEASE), "Could not free memory pages. Error Code '{0}'", ezArgErrorCode(::GetLastError()));
 }
+

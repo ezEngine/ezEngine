@@ -10,3 +10,4 @@ void ezGridNavmesh::CreateFromGrid(const ezGameGrid<CellData>& Grid, CellCompara
 
   CreateGraphEdges();
 }
+

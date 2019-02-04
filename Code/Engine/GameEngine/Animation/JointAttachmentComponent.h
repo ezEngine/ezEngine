@@ -35,3 +35,4 @@ protected:
   ezHashedString m_sJointToAttachTo;
   ezUInt16 m_uiJointIndex = ezInvalidJointIndex;
 };
+

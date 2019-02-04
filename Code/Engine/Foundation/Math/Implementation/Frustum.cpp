@@ -319,3 +319,4 @@ void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezVec3& vForwards, con
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Frustum);
+

@@ -162,3 +162,4 @@ void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, 
   DWORD dwError = GetLastError();
   EZ_ASSERT_DEV(dwError == WAIT_TIMEOUT, "GetQueuedCompletionStatus gave an error");
 }
+

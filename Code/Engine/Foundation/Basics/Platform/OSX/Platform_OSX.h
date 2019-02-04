@@ -34,3 +34,4 @@
 #  undef EZ_PLATFORM_ARCH_X86
 #  define EZ_PLATFORM_ARCH_X86 EZ_ON
 #endif
+

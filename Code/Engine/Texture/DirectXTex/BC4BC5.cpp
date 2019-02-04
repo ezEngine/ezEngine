@@ -1,19 +1,17 @@
+#include <PCH.h>
+
 //-------------------------------------------------------------------------------------
 // BC4BC5.cpp
 //  
 // Block-compression (BC) functionality for BC4 and BC5 (DirectX 10 texture compression)
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//  
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
 
-#include "directxtexp.h"
+#include "DirectXTexp.h"
 
 #include "BC.h"
 
@@ -74,13 +72,13 @@ namespace
 
         size_t GetIndex(size_t uOffset) const
         {
-            return (size_t)((data >> (3 * uOffset + 16)) & 0x07);
+            return static_cast<size_t>((data >> (3 * uOffset + 16)) & 0x07);
         }
 
         void SetIndex(size_t uOffset, size_t uIndex)
         {
-            data &= ~((uint64_t)0x07 << (3 * uOffset + 16));
-            data |= ((uint64_t)uIndex << (3 * uOffset + 16));
+            data &= ~(uint64_t(0x07) << (3 * uOffset + 16));
+            data |= (uint64_t(uIndex) << (3 * uOffset + 16));
         }
 
         union
@@ -133,13 +131,13 @@ namespace
 
         size_t GetIndex(size_t uOffset) const
         {
-            return (size_t)((data >> (3 * uOffset + 16)) & 0x07);
+            return static_cast<size_t>((data >> (3 * uOffset + 16)) & 0x07);
         }
 
         void SetIndex(size_t uOffset, size_t uIndex)
         {
-            data &= ~((uint64_t)0x07 << (3 * uOffset + 16));
-            data |= ((uint64_t)uIndex << (3 * uOffset + 16));
+            data &= ~(uint64_t(0x07) << (3 * uOffset + 16));
+            data |= (uint64_t(uIndex) << (3 * uOffset + 16));
         }
 
         union
@@ -172,14 +170,14 @@ namespace
                 if (fVal < -1)
                     fVal = -1;    // Clamp to -1
 
-        fVal = fVal * (int8_t)(dwMostNeg - 1);
+        fVal = fVal * static_cast<int8_t>(dwMostNeg - 1);
 
         if (fVal >= 0)
             fVal += .5f;
         else
             fVal -= .5f;
 
-        *piSNorm = (int8_t)(fVal);
+        *piSNorm = static_cast<int8_t>(fVal);
     }
 
 
@@ -190,17 +188,13 @@ namespace
         _Out_ uint8_t &endpointU_1)
     {
         // The boundary of codec for signed/unsigned format
-        float MIN_NORM;
-        float MAX_NORM = 1.0f;
-        int8_t iStart, iEnd;
-        size_t i;
-
-        MIN_NORM = 0.0f;
+        const float MIN_NORM = 0.f;
+        const float MAX_NORM = 1.f;
 
         // Find max/min of input texels
         float fBlockMax = theTexelsU[0];
         float fBlockMin = theTexelsU[0];
-        for (i = 0; i < BLOCK_SIZE; ++i)
+        for (size_t i = 0; i < BLOCK_SIZE; ++i)
         {
             if (theTexelsU[i] < fBlockMin)
             {
@@ -212,7 +206,7 @@ namespace
             }
         }
 
-        //  If there are boundary values in input texels, Should use 4 block-codec to guarantee
+        //  If there are boundary values in input texels, should use 4 interpolated color values to guarantee
         //  the exact code of the boundary values.
         bool bUsing4BlockCodec = (MIN_NORM == fBlockMin || MAX_NORM == fBlockMax);
 
@@ -221,20 +215,22 @@ namespace
 
         if (!bUsing4BlockCodec)
         {
+            // 6 interpolated color values
             OptimizeAlpha<false>(&fStart, &fEnd, theTexelsU, 8);
 
-            iStart = (uint8_t)(fStart * 255.0f);
-            iEnd = (uint8_t)(fEnd   * 255.0f);
+            auto iStart = static_cast<uint8_t>(fStart * 255.0f);
+            auto iEnd = static_cast<uint8_t>(fEnd * 255.0f);
 
             endpointU_0 = iEnd;
             endpointU_1 = iStart;
         }
         else
         {
+            // 4 interpolated color values
             OptimizeAlpha<false>(&fStart, &fEnd, theTexelsU, 6);
 
-            iStart = (uint8_t)(fStart * 255.0f);
-            iEnd = (uint8_t)(fEnd   * 255.0f);
+            auto iStart = static_cast<uint8_t>(fStart * 255.0f);
+            auto iEnd = static_cast<uint8_t>(fEnd * 255.0f);
 
             endpointU_1 = iEnd;
             endpointU_0 = iStart;
@@ -247,17 +243,13 @@ namespace
         _Out_ int8_t &endpointU_1)
     {
         //  The boundary of codec for signed/unsigned format
-        float MIN_NORM;
-        float MAX_NORM = 1.0f;
-        int8_t iStart, iEnd;
-        size_t i;
-
-        MIN_NORM = -1.0f;
+        const float MIN_NORM = -1.f;
+        const float MAX_NORM = 1.f;
 
         // Find max/min of input texels
         float fBlockMax = theTexelsU[0];
         float fBlockMin = theTexelsU[0];
-        for (i = 0; i < BLOCK_SIZE; ++i)
+        for (size_t i = 0; i < BLOCK_SIZE; ++i)
         {
             if (theTexelsU[i] < fBlockMin)
             {
@@ -269,7 +261,7 @@ namespace
             }
         }
 
-        //  If there are boundary values in input texels, Should use 4 block-codec to guarantee
+        //  If there are boundary values in input texels, should use 4 interpolated color values to guarantee
         //  the exact code of the boundary values.
         bool bUsing4BlockCodec = (MIN_NORM == fBlockMin || MAX_NORM == fBlockMax);
 
@@ -278,8 +270,10 @@ namespace
 
         if (!bUsing4BlockCodec)
         {
+            // 6 interpolated color values
             OptimizeAlpha<true>(&fStart, &fEnd, theTexelsU, 8);
 
+            int8_t iStart, iEnd;
             FloatToSNorm(fStart, &iStart);
             FloatToSNorm(fEnd, &iEnd);
 
@@ -288,8 +282,10 @@ namespace
         }
         else
         {
+            // 4 interpolated color values
             OptimizeAlpha<true>(&fStart, &fEnd, theTexelsU, 6);
 
+            int8_t iStart, iEnd;
             FloatToSNorm(fStart, &iStart);
             FloatToSNorm(fEnd, &iEnd);
 
@@ -333,12 +329,12 @@ namespace
         _In_reads_(NUM_PIXELS_PER_BLOCK) const float theTexelsU[])
     {
         float rGradient[8];
-        int i;
-        for (i = 0; i < 8; ++i)
+        for (size_t i = 0; i < 8; ++i)
         {
             rGradient[i] = pBC->DecodeFromIndex(i);
         }
-        for (i = 0; i < NUM_PIXELS_PER_BLOCK; ++i)
+
+        for (size_t i = 0; i < NUM_PIXELS_PER_BLOCK; ++i)
         {
             size_t uBestIndex = 0;
             float fBestDelta = 100000;
@@ -360,12 +356,12 @@ namespace
         _In_reads_(NUM_PIXELS_PER_BLOCK) const float theTexelsU[])
     {
         float rGradient[8];
-        int i;
-        for (i = 0; i < 8; ++i)
+        for (size_t i = 0; i < 8; ++i)
         {
             rGradient[i] = pBC->DecodeFromIndex(i);
         }
-        for (i = 0; i < NUM_PIXELS_PER_BLOCK; ++i)
+
+        for (size_t i = 0; i < NUM_PIXELS_PER_BLOCK; ++i)
         {
             size_t uBestIndex = 0;
             float fBestDelta = 100000;
@@ -566,3 +562,8 @@ void DirectX::D3DXEncodeBC5S(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags)
     FindClosestSNORM(pBCR, theTexelsU);
     FindClosestSNORM(pBCG, theTexelsV);
 }
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_BC4BC5);
+

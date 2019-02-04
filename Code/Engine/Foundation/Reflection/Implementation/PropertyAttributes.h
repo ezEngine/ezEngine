@@ -715,3 +715,4 @@ class EZ_FOUNDATION_DLL ezAutoGenVisScriptMsgHandler : public ezPropertyAttribut
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAutoGenVisScriptMsgHandler, ezPropertyAttribute);
 };
+

@@ -151,3 +151,4 @@ protected:
 
   ezImageFormat::Enum m_format;
 };
+

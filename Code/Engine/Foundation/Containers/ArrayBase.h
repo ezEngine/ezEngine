@@ -199,3 +199,4 @@ typename ezArrayBase<T, Derived>::const_reverse_iterator crend(const ezArrayBase
 
 
 #include <Foundation/Containers/Implementation/ArrayBase_inl.h>
+

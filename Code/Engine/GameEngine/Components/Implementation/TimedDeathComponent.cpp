@@ -144,3 +144,4 @@ ezTimedDeathComponentPatch_1_2 g_ezTimedDeathComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_TimedDeathComponent);
+

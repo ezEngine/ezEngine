@@ -131,3 +131,4 @@ private:
   virtual void UpdateInputSlotValues() override;
   virtual void RegisterInputSlots() override;
 };
+

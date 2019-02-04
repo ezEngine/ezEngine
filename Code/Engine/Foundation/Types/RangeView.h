@@ -130,3 +130,4 @@ typename ezRangeView<V, I>::ConstIterator cend(const ezRangeView<V, I>& containe
 }
 
 #include <Foundation/Types/Implementation/RangeView_inl.h>
+

@@ -461,3 +461,4 @@ const ezVec3Template<Type> ezVec3Template<Type>::GetRefractedVector(const ezVec3
 
   return ((n * (*this)) - (n + ezMath::Sqrt(1.0f - sinT2)) * vNormal);
 }
+

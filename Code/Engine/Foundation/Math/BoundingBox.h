@@ -161,3 +161,4 @@ bool operator!=(const ezBoundingBoxTemplate<Type>& lhs, const ezBoundingBoxTempl
 
 
 #include <Foundation/Math/Implementation/BoundingBox_inl.h>
+

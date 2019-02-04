@@ -46,3 +46,4 @@ EZ_END_STATIC_REFLECTED_TYPE;
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_VarianceTypes);
+

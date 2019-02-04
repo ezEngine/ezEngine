@@ -137,3 +137,4 @@ struct EZ_GAMEENGINE_DLL ezMsgBuildStaticMesh : public ezMessage
   /// \brief Append data to this description to add meshes to the automatic static mesh generation
   ezSmcDescription* m_pStaticMeshDescription;
 };
+

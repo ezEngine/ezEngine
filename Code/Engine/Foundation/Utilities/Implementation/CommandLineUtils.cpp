@@ -232,3 +232,4 @@ void ezCommandLineUtils::InjectCustomArgument(const char* szArgument)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_CommandLineUtils);
+

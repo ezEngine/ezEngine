@@ -45,3 +45,8 @@ void ezJointMapping::CreatePartialMapping(const ezSkeleton& skeleton, const ezAn
     }
   }
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_JointMapping);
+

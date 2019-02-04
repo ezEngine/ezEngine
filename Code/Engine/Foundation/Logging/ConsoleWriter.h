@@ -12,3 +12,4 @@ namespace ezLogWriter
     static void LogMessageHandler(const ezLoggingEventData& eventData);
   };
 }
+

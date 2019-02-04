@@ -179,3 +179,4 @@ private:
 
   ezTypelessResourceHandle m_Typeless;
 };
+

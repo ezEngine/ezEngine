@@ -256,3 +256,4 @@ private:
 
   mutable ezWindowHandle m_WindowHandle = ezWindowHandle();
 };
+

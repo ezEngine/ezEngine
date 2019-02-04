@@ -110,3 +110,4 @@ namespace ezDataDirectory
     ezOSFile m_File;
   };
 }
+

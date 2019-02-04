@@ -39,3 +39,4 @@ namespace ezIntersectionUtils
   /// \brief Tests whether a point is located on a line
   EZ_FOUNDATION_DLL bool IsPointOnLine(const ezVec3& vLineStart, const ezVec3& vLineEnd, const ezVec3& vPoint, float fMaxDist = 0.01f);
 }
+

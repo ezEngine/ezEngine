@@ -9,3 +9,4 @@ struct EZ_CORE_DLL ezMsgDeleteGameObject : public ezMessage
 
   bool m_bCancel = false;
 };
+

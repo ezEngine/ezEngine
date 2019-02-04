@@ -80,3 +80,8 @@ ezResult ezTexConvProcessor::Assemble2DSlice(const ezTexConvSliceChannelMapping&
 
   return EZ_SUCCESS;
 }
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_TexConv_Implementation_Texture2D);
+

@@ -397,3 +397,4 @@ void ezDecalComponent::OnSetColor(ezMsgSetColor& msg)
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Decals_Implementation_DecalComponent);
+

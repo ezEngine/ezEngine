@@ -130,3 +130,4 @@ namespace ezMath
 
   EZ_ALWAYS_INLINE float Mod(float f, float div) { return fmodf(f, div); }
 } // namespace ezMath
+

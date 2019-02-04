@@ -244,3 +244,4 @@ private:
 
   ezString m_DebugSourceInformation;
 };
+

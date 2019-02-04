@@ -84,3 +84,8 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezCpuMeshResource, ezMeshResourceDescriptor)
 
   return res;
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_CpuMeshResource);
+

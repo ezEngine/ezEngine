@@ -81,3 +81,4 @@ protected:
 
   ezDynamicArray<ezSpatialData*> m_DataAlwaysVisible;
 };
+

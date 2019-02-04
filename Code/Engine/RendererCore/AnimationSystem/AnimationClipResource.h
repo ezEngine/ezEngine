@@ -73,3 +73,4 @@ private:
 
   ezAnimationClipResourceDescriptor m_Descriptor;
 };
+

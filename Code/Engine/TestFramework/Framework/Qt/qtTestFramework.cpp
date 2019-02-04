@@ -36,3 +36,4 @@ void ezQtTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, dou
 #endif
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_Qt_qtTestFramework);
+

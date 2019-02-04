@@ -12,3 +12,4 @@ ezUInt32 ezHashableStruct<T>::CalculateHash() const
 {
   return ezHashingUtils::xxHash32(this, sizeof(T));
 }
+

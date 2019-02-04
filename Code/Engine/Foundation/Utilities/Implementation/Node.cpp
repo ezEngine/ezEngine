@@ -105,3 +105,4 @@ const ezNodePin* ezNode::GetPinByName(ezHashedString sName) const
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_Node);
+

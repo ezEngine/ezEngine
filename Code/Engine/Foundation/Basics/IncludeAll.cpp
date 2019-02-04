@@ -148,3 +148,4 @@
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Basics_IncludeAll);
+

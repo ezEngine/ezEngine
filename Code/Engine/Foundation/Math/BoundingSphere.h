@@ -148,3 +148,4 @@ bool operator!=(const ezBoundingSphereTemplate<Type>& lhs, const ezBoundingSpher
 
 
 #include <Foundation/Math/Implementation/BoundingSphere_inl.h>
+

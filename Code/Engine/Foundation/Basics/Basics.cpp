@@ -92,3 +92,4 @@ ezAllocatorBase* ezFoundation::GetStaticAllocator()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Basics);
+

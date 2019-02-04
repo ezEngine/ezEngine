@@ -68,3 +68,4 @@ private:
 
   ezGALSamplerStateHandle m_hSamplerState;
 };
+

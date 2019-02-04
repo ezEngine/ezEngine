@@ -183,3 +183,4 @@ public:
 ezPointLightComponentPatch_1_2 g_ezPointLightComponentPatch_1_2;
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_PointLightComponent);
+

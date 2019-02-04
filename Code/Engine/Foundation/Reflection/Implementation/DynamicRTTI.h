@@ -85,3 +85,4 @@ public:
     return GetDynamicRTTI()->IsDerivedFrom<T>();
   }
 };
+

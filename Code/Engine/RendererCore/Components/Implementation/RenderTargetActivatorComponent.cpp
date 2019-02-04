@@ -110,3 +110,4 @@ const char* ezRenderTargetActivatorComponent::GetRenderTargetFile() const
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_RenderTargetActivatorComponent);
+

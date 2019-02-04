@@ -396,3 +396,4 @@ void ezView::ApplyProperty(ezReflectedClass* pClass, PropertyValue& data, const 
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_View);
+

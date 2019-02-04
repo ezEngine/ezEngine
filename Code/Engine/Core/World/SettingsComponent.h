@@ -34,3 +34,4 @@ public:
 private:
   ezUInt32 m_uiSettingsModified;
 };
+

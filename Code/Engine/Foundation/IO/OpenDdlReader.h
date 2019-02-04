@@ -177,3 +177,4 @@ protected:
 
   ezMap<ezString, ezOpenDdlReaderElement*> m_GlobalNames;
 };
+

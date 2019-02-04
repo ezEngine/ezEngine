@@ -113,3 +113,4 @@ EZ_CORE_DLL ezResult ezUWPRun(ezApplication* pApp)
 #endif
 
 EZ_STATICLINK_FILE(Core, Core_Application_Implementation_uwp_Application_uwp);
+

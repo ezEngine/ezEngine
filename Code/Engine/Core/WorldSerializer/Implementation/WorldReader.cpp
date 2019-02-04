@@ -442,3 +442,4 @@ void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& 
 }
 
 EZ_STATICLINK_FILE(Core, Core_WorldSerializer_Implementation_WorldReader);
+

@@ -395,3 +395,4 @@ bool ezBoundingSphereTemplate<Type>::GetLineSegmentIntersection(const ezVec3Temp
 }
 
 #include <Foundation/Math/Implementation/AllClasses_inl.h>
+

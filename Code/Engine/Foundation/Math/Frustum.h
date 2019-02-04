@@ -98,3 +98,4 @@ private:
 };
 
 #include <Foundation/Math/Implementation/Frustum_inl.h>
+

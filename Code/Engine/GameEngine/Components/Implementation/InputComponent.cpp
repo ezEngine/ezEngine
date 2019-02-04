@@ -152,3 +152,4 @@ ezInputComponentPatch_1_2 g_ezInputComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_InputComponent);
+

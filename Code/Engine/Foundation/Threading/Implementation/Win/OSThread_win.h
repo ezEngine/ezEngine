@@ -93,3 +93,4 @@ void ezOSThread::Join()
 {
   WaitForSingleObject(m_Handle, INFINITE);
 }
+

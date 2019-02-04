@@ -74,3 +74,4 @@ protected:                                                                      
   idType m_InternalId;                                                                                                                     \
   operator idType() { return m_InternalId; }                                                                                               \
   operator const idType() const { return m_InternalId; }
+

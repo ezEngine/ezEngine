@@ -201,3 +201,8 @@ void ezAnimationPose::SetValidityOfAllTransforms(bool bValid)
     m_TransformsValid.ClearAllBits();
   }
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_AnimationPose);
+

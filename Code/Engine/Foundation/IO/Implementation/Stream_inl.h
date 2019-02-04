@@ -360,3 +360,4 @@ ezResult ezStreamReader::ReadMap(ezMapBase<KeyType, ValueType, Comparer>& Map)
 
   return EZ_SUCCESS;
 }
+

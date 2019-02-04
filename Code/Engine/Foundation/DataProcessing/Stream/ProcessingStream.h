@@ -104,3 +104,4 @@ protected:
 
   ezHashedString m_Name;
 };
+

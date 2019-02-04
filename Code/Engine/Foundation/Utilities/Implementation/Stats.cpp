@@ -42,3 +42,4 @@ void ezStats::SetStat(const char* szStatName, const char* szValue)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_Stats);
+

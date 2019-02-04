@@ -714,3 +714,4 @@ void ezHashTableBase<KeyType, ValueType, Hasher>::Swap(ezHashTableBase<KeyType, 
   ezMath::Swap(this->m_uiCapacity, other.m_uiCapacity);
   ezMath::Swap(this->m_pAllocator, other.m_pAllocator);
 }
+

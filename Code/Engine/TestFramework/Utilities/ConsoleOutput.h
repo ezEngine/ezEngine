@@ -73,3 +73,4 @@ inline void OutputToConsole(ezTestOutput::Enum Type, const char* szMsg)
     fflush(stdout);
   }
 }
+

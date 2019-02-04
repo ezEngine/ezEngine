@@ -56,3 +56,4 @@ static T* ezCreateRenderDataForThisFrame(const ezGameObject* pOwner, ezUInt32 ui
 
   return pRenderData;
 }
+

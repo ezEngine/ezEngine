@@ -141,3 +141,8 @@ void ezSimpleWindComponent::Initialize()
   // make sure to query the wind interface before any simulation starts
   ezWindWorldModuleInterface* pWindInterface = GetWorld()->GetOrCreateModule<ezWindWorldModuleInterface>();
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_SimpleWindComponent);
+

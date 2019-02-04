@@ -116,3 +116,4 @@ constexpr ezAngle operator/(ezAngle a, float f); // [tested]
 constexpr ezAngle operator/(float f, ezAngle a); // [tested]
 
 #include <Foundation/Math/Implementation/Angle_inl.h>
+

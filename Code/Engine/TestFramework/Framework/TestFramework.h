@@ -400,3 +400,4 @@ EZ_TEST_DLL ezResult ezTestImage(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, co
 ///
 /// \note Scheduling image comparisons is an optimization to only capture data when necessary, instead of capturing it every single frame.
 #define EZ_SCHEDULE_IMAGE_TEST(ImageNumber, MaxError) ezTestFramework::GetInstance()->ScheduleImageComparison(ImageNumber, MaxError);
+

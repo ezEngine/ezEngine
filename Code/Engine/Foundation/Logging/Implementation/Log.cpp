@@ -260,3 +260,4 @@ void ezLog::Debug(ezLogInterface* pInterface, const ezFormatString& string)
 #endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_Log);
+

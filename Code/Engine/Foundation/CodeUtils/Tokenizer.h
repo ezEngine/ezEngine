@@ -132,3 +132,4 @@ private:
   ezDeque<ezToken> m_Tokens;
   ezDynamicArray<ezUInt8> m_Data;
 };
+

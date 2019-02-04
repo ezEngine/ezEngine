@@ -32,3 +32,4 @@ void ezSingletonRegistry::Unregister(const char* szTypeName)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Configuration_Implementation_Singleton);
+

@@ -148,3 +148,4 @@ ezMat3 ezBasisAxis::CalculateTransformationMatrix(Enum forwardDir, Enum rightDir
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Math);
+

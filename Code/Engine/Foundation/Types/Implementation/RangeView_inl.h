@@ -53,3 +53,4 @@ ezRangeView<ValueType, IteratorType>::Iterator::Iterator(const ezRangeView<Value
     : ezRangeView<ValueType, IteratorType>::ConstIterator(view, pos)
 {
 }
+

@@ -59,3 +59,4 @@ protected:
   ezMaterialResourceHandle m_hMaterial;
   ezMap<ezUuid, SrmRenderObject> m_SrmRenderObjects;
 };
+

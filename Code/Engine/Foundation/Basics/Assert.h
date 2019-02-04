@@ -146,3 +146,4 @@ inline const char* ezFmt(const char* szFormat)
 #define EZ_ASSERT_RELEASE EZ_ASSERT_ALWAYS
 
 #endif
+

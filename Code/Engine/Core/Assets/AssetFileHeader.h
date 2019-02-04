@@ -43,3 +43,4 @@ private:
   ezUInt64 m_uiHash;
   ezUInt16 m_uiVersion;
 };
+

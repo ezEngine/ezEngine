@@ -68,3 +68,4 @@ void operator<<(ezStreamWriter& Stream, ezTypedResourceHandle<ResourceType> Valu
 {
   ezResourceHandleWriteContext::WriteHandle(&Stream, Value);
 }
+

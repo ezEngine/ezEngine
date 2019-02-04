@@ -130,3 +130,4 @@ namespace ezInternal
     return ExtendRawBuffer(ptr, pAllocator, uiCurrentCount, uiNewCount, ezGetTypeClass<T>());
   }
 }
+

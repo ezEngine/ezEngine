@@ -112,3 +112,4 @@ void ezMessageLoop_win::WakeUp()
 #endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_Win_MessageLoop_win);
+

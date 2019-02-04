@@ -1,19 +1,17 @@
+#include <PCH.h>
+
 //-------------------------------------------------------------------------------------
 // DirectXTexResize.cpp
-//
+//  
 // DirectX Texture Library - Image resizing operations
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
 
-#include "directxtexp.h"
+#include "DirectXTexp.h"
 
 #include "filters.h"
 
@@ -26,7 +24,7 @@ namespace DirectX
         _In_ size_t newWidth, _In_ size_t newHeight, _In_ DWORD filter, _Inout_ const Image* img);
 }
 
-namespace NS_FIX_1
+namespace
 {
     //--- Do image resize using WIC ---
     HRESULT PerformResizeUsingWIC(
@@ -60,6 +58,10 @@ namespace NS_FIX_1
         if (FAILED(hr))
             return hr;
 
+        if (srcImage.rowPitch > UINT32_MAX || srcImage.slicePitch > UINT32_MAX
+            || destImage.rowPitch > UINT32_MAX || destImage.slicePitch > UINT32_MAX)
+            return HRESULT_FROM_WIN32(ERROR_ARITHMETIC_OVERFLOW);
+
         ComPtr<IWICBitmap> source;
         hr = pWIC->CreateBitmapFromMemory(static_cast<UINT>(srcImage.width), static_cast<UINT>(srcImage.height), pfGUID,
             static_cast<UINT>(srcImage.rowPitch), static_cast<UINT>(srcImage.slicePitch),
@@ -91,7 +93,7 @@ namespace NS_FIX_1
 
             if (memcmp(&pfScaler, &pfGUID, sizeof(WICPixelFormatGUID)) == 0)
             {
-                hr = scaler->CopyPixels(0, static_cast<UINT>(destImage.rowPitch), static_cast<UINT>(destImage.slicePitch), destImage.pixels);
+                hr = scaler->CopyPixels(nullptr, static_cast<UINT>(destImage.rowPitch), static_cast<UINT>(destImage.slicePitch), destImage.pixels);
                 if (FAILED(hr))
                     return hr;
             }
@@ -111,11 +113,11 @@ namespace NS_FIX_1
                     return E_UNEXPECTED;
                 }
 
-                hr = FC->Initialize(scaler.Get(), pfGUID, _GetWICDither(filter), 0, 0, WICBitmapPaletteTypeCustom);
+                hr = FC->Initialize(scaler.Get(), pfGUID, _GetWICDither(filter), nullptr, 0, WICBitmapPaletteTypeMedianCut);
                 if (FAILED(hr))
                     return hr;
 
-                hr = FC->CopyPixels(0, static_cast<UINT>(destImage.rowPitch), static_cast<UINT>(destImage.slicePitch), destImage.pixels);
+                hr = FC->CopyPixels(nullptr, static_cast<UINT>(destImage.rowPitch), static_cast<UINT>(destImage.slicePitch), destImage.pixels);
                 if (FAILED(hr))
                     return hr;
             }
@@ -251,7 +253,7 @@ namespace NS_FIX_1
         assert(srcImage.format == destImage.format);
 
         // Allocate temporary space (2 scanlines)
-        ScopedAlignedArrayXMVECTOR scanline(reinterpret_cast<XMVECTOR*>(_aligned_malloc(
+        ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc(
             (sizeof(XMVECTOR) * (srcImage.width + destImage.width)), 16)));
         if (!scanline)
             return E_OUTOFMEMORY;
@@ -312,7 +314,7 @@ namespace NS_FIX_1
             return E_FAIL;
 
         // Allocate temporary space (3 scanlines)
-        ScopedAlignedArrayXMVECTOR scanline(reinterpret_cast<XMVECTOR*>(_aligned_malloc(
+        ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc(
             (sizeof(XMVECTOR) * (srcImage.width * 2 + destImage.width)), 16)));
         if (!scanline)
             return E_OUTOFMEMORY;
@@ -371,7 +373,7 @@ namespace NS_FIX_1
         assert(srcImage.format == destImage.format);
 
         // Allocate temporary space (3 scanlines, plus X and Y filters)
-        ScopedAlignedArrayXMVECTOR scanline(reinterpret_cast<XMVECTOR*>(_aligned_malloc(
+        ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc(
             (sizeof(XMVECTOR) * (srcImage.width * 2 + destImage.width)), 16)));
         if (!scanline)
             return E_OUTOFMEMORY;
@@ -457,7 +459,7 @@ namespace NS_FIX_1
         assert(srcImage.format == destImage.format);
 
         // Allocate temporary space (5 scanlines, plus X and Y filters)
-        ScopedAlignedArrayXMVECTOR scanline(reinterpret_cast<XMVECTOR*>(_aligned_malloc(
+        ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc(
             (sizeof(XMVECTOR) * (srcImage.width * 4 + destImage.width)), 16)));
         if (!scanline)
             return E_OUTOFMEMORY;
@@ -619,7 +621,7 @@ namespace NS_FIX_1
         using namespace TriangleFilter;
 
         // Allocate initial temporary space (1 scanline, accumulation rows, plus X and Y filters)
-        ScopedAlignedArrayXMVECTOR scanline(reinterpret_cast<XMVECTOR*>(_aligned_malloc(sizeof(XMVECTOR) * srcImage.width, 16)));
+        ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc(sizeof(XMVECTOR) * srcImage.width, 16)));
         if (!scanline)
             return E_OUTOFMEMORY;
 
@@ -682,13 +684,13 @@ namespace NS_FIX_1
                     if (rowFree)
                     {
                         // Steal and reuse scanline from 'free row' list
-                        assert(rowFree->scanline != 0);
+                        assert(rowFree->scanline != nullptr);
                         rowAcc->scanline.reset(rowFree->scanline.release());
                         rowFree = rowFree->next;
                     }
                     else
                     {
-                        rowAcc->scanline.reset(reinterpret_cast<XMVECTOR*>(_aligned_malloc(sizeof(XMVECTOR) * destImage.width, 16)));
+                        rowAcc->scanline.reset(static_cast<XMVECTOR*>(_aligned_malloc(sizeof(XMVECTOR) * destImage.width, 16)));
                         if (!rowAcc->scanline)
                             return E_OUTOFMEMORY;
                     }
@@ -758,7 +760,7 @@ namespace NS_FIX_1
                     {
                         // Need to slightly bias results for floating-point error accumulation which can
                         // be visible with harshly quantized values
-                        static const XMVECTORF32 Bias = { 0.f, 0.f, 0.f, 0.1f };
+                        static const XMVECTORF32 Bias = { { { 0.f, 0.f, 0.f, 0.1f } } };
 
                         XMVECTOR* ptr = pAccSrc;
                         for (size_t i = 0; i < destImage.width; ++i, ++ptr)
@@ -767,6 +769,9 @@ namespace NS_FIX_1
                         }
                     }
                     break;
+
+                    default:
+                        break;
                     }
 
                     // This performs any required clamping
@@ -859,6 +864,25 @@ HRESULT DirectX::Resize(
         return HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
     }
 
+    bool usewic = UseWICFiltering(srcImage.format, filter);
+
+    WICPixelFormatGUID pfGUID = {};
+    bool wicpf = (usewic) ? _DXGIToWIC(srcImage.format, pfGUID, true) : false;
+
+    if (usewic && !wicpf)
+    {
+        // Check to see if the source and/or result size is too big for WIC
+        uint64_t expandedSize = uint64_t(width) * uint64_t(height) * sizeof(float) * 4;
+        uint64_t expandedSize2 = uint64_t(srcImage.width) * uint64_t(srcImage.height) * sizeof(float) * 4;
+        if (expandedSize > UINT32_MAX || expandedSize2 > UINT32_MAX)
+        {
+            if (filter & TEX_FILTER_FORCE_WIC)
+                return HRESULT_FROM_WIN32(ERROR_ARITHMETIC_OVERFLOW);
+
+            usewic = false;
+        }
+    }
+
     HRESULT hr = image.Initialize2D(srcImage.format, width, height, 1, 1);
     if (FAILED(hr))
         return hr;
@@ -867,23 +891,23 @@ HRESULT DirectX::Resize(
     if (!rimage)
         return E_POINTER;
 
-    if (NS_FIX_1::UseWICFiltering(srcImage.format, filter))
+    if (usewic)
     {
-        WICPixelFormatGUID pfGUID;
-        if (_DXGIToWIC(srcImage.format, pfGUID, true))
+        if (wicpf)
         {
             // Case 1: Source format is supported by Windows Imaging Component
-            hr = NS_FIX_1::PerformResizeUsingWIC(srcImage, filter, pfGUID, *rimage);
+            hr = PerformResizeUsingWIC(srcImage, filter, pfGUID, *rimage);
         }
         else
         {
             // Case 2: Source format is not supported by WIC, so we have to convert, resize, and convert back
-            hr = NS_FIX_1::PerformResizeViaF32(srcImage, filter, *rimage);
+            hr = PerformResizeViaF32(srcImage, filter, *rimage);
         }
     }
     else
     {
-        hr = NS_FIX_1::PerformResizeUsingCustomFilters(srcImage, filter, *rimage);
+        // Case 3: not using WIC resizing
+        hr = PerformResizeUsingCustomFilters(srcImage, filter, *rimage);
     }
 
     if (FAILED(hr))
@@ -923,10 +947,24 @@ HRESULT DirectX::Resize(
     if (FAILED(hr))
         return hr;
 
-    bool usewic = !metadata.IsPMAlpha() && NS_FIX_1::UseWICFiltering(metadata.format, filter);
+    bool usewic = !metadata.IsPMAlpha() && UseWICFiltering(metadata.format, filter);
 
-    WICPixelFormatGUID pfGUID = { 0 };
+    WICPixelFormatGUID pfGUID = {};
     bool wicpf = (usewic) ? _DXGIToWIC(metadata.format, pfGUID, true) : false;
+
+    if (usewic && !wicpf)
+    {
+        // Check to see if the source and/or result size is too big for WIC
+        uint64_t expandedSize = uint64_t(width) * uint64_t(height) * sizeof(float) * 4;
+        uint64_t expandedSize2 = uint64_t(metadata.width) * uint64_t(metadata.height) * sizeof(float) * 4;
+        if (expandedSize > UINT32_MAX || expandedSize2 > UINT32_MAX)
+        {
+            if (filter & TEX_FILTER_FORCE_WIC)
+                return HRESULT_FROM_WIN32(ERROR_ARITHMETIC_OVERFLOW);
+
+            usewic = false;
+        }
+    }
 
     switch (metadata.dimension)
     {
@@ -968,18 +1006,18 @@ HRESULT DirectX::Resize(
                 if (wicpf)
                 {
                     // Case 1: Source format is supported by Windows Imaging Component
-                    hr = NS_FIX_1::PerformResizeUsingWIC(*srcimg, filter, pfGUID, *destimg);
+                    hr = PerformResizeUsingWIC(*srcimg, filter, pfGUID, *destimg);
                 }
                 else
                 {
                     // Case 2: Source format is not supported by WIC, so we have to convert, resize, and convert back
-                    hr = NS_FIX_1::PerformResizeViaF32(*srcimg, filter, *destimg);
+                    hr = PerformResizeViaF32(*srcimg, filter, *destimg);
                 }
             }
             else
             {
                 // Case 3: not using WIC resizing
-                hr = NS_FIX_1::PerformResizeUsingCustomFilters(*srcimg, filter, *destimg);
+                hr = PerformResizeUsingCustomFilters(*srcimg, filter, *destimg);
             }
 
             if (FAILED(hr))
@@ -1027,18 +1065,18 @@ HRESULT DirectX::Resize(
                 if (wicpf)
                 {
                     // Case 1: Source format is supported by Windows Imaging Component
-                    hr = NS_FIX_1::PerformResizeUsingWIC(*srcimg, filter, pfGUID, *destimg);
+                    hr = PerformResizeUsingWIC(*srcimg, filter, pfGUID, *destimg);
                 }
                 else
                 {
                     // Case 2: Source format is not supported by WIC, so we have to convert, resize, and convert back
-                    hr = NS_FIX_1::PerformResizeViaF32(*srcimg, filter, *destimg);
+                    hr = PerformResizeViaF32(*srcimg, filter, *destimg);
                 }
             }
             else
             {
                 // Case 3: not using WIC resizing
-                hr = NS_FIX_1::PerformResizeUsingCustomFilters(*srcimg, filter, *destimg);
+                hr = PerformResizeUsingCustomFilters(*srcimg, filter, *destimg);
             }
 
             if (FAILED(hr))
@@ -1056,3 +1094,8 @@ HRESULT DirectX::Resize(
 
     return S_OK;
 }
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexResize);
+

@@ -151,3 +151,4 @@ inline ezStringUtf32::ezStringUtf32(const wchar_t* szWChar, ezAllocatorBase* pAl
 {
   *this = szWChar;
 }
+

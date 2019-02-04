@@ -430,3 +430,8 @@ void ezVisualizeSkeletonComponentManager::ResourceEventHandler(const ezResourceE
     }
   }
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_VisualizeSkeletonComponent);
+

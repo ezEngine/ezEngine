@@ -81,3 +81,4 @@ namespace Details
   {                                                                                                                                        \
     return Details::ApplicationEntry<AppClass>(__VA_ARGS__);                                                                               \
   }
+

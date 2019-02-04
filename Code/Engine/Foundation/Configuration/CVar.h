@@ -236,3 +236,4 @@ typedef ezTypedCVar<ezHybridString<32>, ezCVarType::String> ezCVarString;
 
 
 #include <Foundation/Configuration/Implementation/CVar_inl.h>
+

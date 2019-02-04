@@ -237,3 +237,8 @@ ezUInt32 ezImageAddressMode::GetSampleIndex(ezUInt32 numTexels, ezInt32 index, E
   }
   return index;
 }
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_ImageFilter);
+

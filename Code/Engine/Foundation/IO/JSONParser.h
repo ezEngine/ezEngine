@@ -148,3 +148,4 @@ private:
 
   bool m_bSkippingMode;
 };
+

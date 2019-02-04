@@ -143,3 +143,4 @@ private:
   double m_PercentageRange;
   double m_SummedWeight;
 };
+

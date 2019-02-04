@@ -130,3 +130,4 @@ bool ezIntersectionUtils::IsPointOnLine(const ezVec3& vLineStart, const ezVec3& 
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Intersection);
+

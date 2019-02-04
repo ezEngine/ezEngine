@@ -517,3 +517,4 @@ EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateVelocity(const ezS
   m_lastGlobalPosition = m_globalTransform.m_Position;
   m_velocity.SetW(ezSimdFloat::Zero());
 }
+

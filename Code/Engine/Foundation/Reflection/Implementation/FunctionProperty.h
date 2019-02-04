@@ -164,3 +164,4 @@ public:
     ExecuteImpl(ezTraitInt<ezIsStandardType<CLASS>::value>(), returnValue, arguments, std::make_index_sequence<sizeof...(Args)>{});
   }
 };
+

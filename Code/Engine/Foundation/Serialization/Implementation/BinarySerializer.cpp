@@ -105,3 +105,4 @@ void ezAbstractGraphBinarySerializer::Read(ezStreamReader& stream, ezAbstractObj
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_BinarySerializer);
+

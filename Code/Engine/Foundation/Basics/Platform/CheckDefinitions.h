@@ -55,3 +55,4 @@
 #if !defined(EZ_SIMD_IMPLEMENTATION) || (EZ_SIMD_IMPLEMENTATION == 0)
 #error "EZ_SIMD_IMPLEMENTATION is not correctly defined."
 #endif
+

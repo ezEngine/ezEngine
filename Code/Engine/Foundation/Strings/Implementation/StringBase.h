@@ -195,3 +195,4 @@ typename ezStringBase<Derived>::const_reverse_iterator crend(const ezStringBase<
 }
 
 #include <Foundation/Strings/Implementation/StringBase_inl.h>
+

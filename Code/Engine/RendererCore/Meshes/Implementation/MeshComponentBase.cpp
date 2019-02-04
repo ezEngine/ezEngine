@@ -368,3 +368,8 @@ void ezMeshComponentBase::Materials_Remove(ezUInt32 uiIndex)
 {
   m_Materials.RemoveAtAndCopy(uiIndex);
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshComponentBase);
+

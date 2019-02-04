@@ -34,3 +34,4 @@ ezTime ezTime::Now()
 
   return ezTime::Seconds(double(temp.QuadPart) * g_fInvQpcFrequency);
 }
+

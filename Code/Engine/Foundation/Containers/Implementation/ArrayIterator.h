@@ -231,3 +231,4 @@ public:
   using const_reverse_pointer_iterator<T>::operator->;
   EZ_ALWAYS_INLINE T* operator->() { return this->m_ptr; }
 };
+

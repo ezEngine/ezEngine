@@ -9,3 +9,4 @@ ezTime ezTime::Now()
 
   return ezTime::Seconds((double)sp.tv_sec + (double)(sp.tv_nsec / 1000000000.0));
 }
+

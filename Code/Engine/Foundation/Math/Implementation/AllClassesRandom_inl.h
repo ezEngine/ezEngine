@@ -79,3 +79,4 @@ ezVec3Template<Type> ezVec3Template<Type>::CreateRandomDeviation(ezRandom& rng, 
   // rotate from X to our basis
   return qRotXtoDir * vec;
 }
+

@@ -23,3 +23,4 @@ void ezStatus::LogFailure(ezLogInterface* pLog)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_Status);
+

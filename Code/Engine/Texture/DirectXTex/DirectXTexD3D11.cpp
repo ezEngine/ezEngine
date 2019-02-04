@@ -1,19 +1,17 @@
+#include <PCH.h>
+
 //-------------------------------------------------------------------------------------
 // DirectXTexD3D11.cpp
 //  
 // DirectX Texture Library - Direct3D 11 helpers
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
 
-#include "directxtexp.h"
+#include "DirectXTexp.h"
 
 #if !defined(_XBOX_ONE) || !defined(_TITLE)
 #include <d3d10.h>
@@ -25,6 +23,10 @@
 
 using namespace DirectX;
 using Microsoft::WRL::ComPtr;
+
+static_assert(static_cast<int>(TEX_DIMENSION_TEXTURE1D) == static_cast<int>(D3D11_RESOURCE_DIMENSION_TEXTURE1D), "header enum mismatch");
+static_assert(static_cast<int>(TEX_DIMENSION_TEXTURE2D) == static_cast<int>(D3D11_RESOURCE_DIMENSION_TEXTURE2D), "header enum mismatch");
+static_assert(static_cast<int>(TEX_DIMENSION_TEXTURE3D) == static_cast<int>(D3D11_RESOURCE_DIMENSION_TEXTURE3D), "header enum mismatch");
 
 namespace
 {
@@ -81,7 +83,7 @@ namespace
                 if (FAILED(hr))
                     return hr;
 
-                auto pslice = reinterpret_cast<const uint8_t*>(mapped.pData);
+                auto pslice = static_cast<const uint8_t*>(mapped.pData);
                 if (!pslice)
                 {
                     pContext->Unmap(pSource, dindex);
@@ -169,7 +171,7 @@ namespace
                         return E_UNEXPECTED;
                     }
 
-                    auto sptr = reinterpret_cast<const uint8_t*>(mapped.pData);
+                    auto sptr = static_cast<const uint8_t*>(mapped.pData);
                     uint8_t* dptr = img->pixels;
                     for (size_t h = 0; h < lines; ++h)
                     {
@@ -236,6 +238,9 @@ bool DirectX::IsSupportedTexture(
         if (fl < D3D_FEATURE_LEVEL_11_0)
             return false;
         break;
+
+    default:
+        break;
     }
 
     // Validate miplevel count
@@ -254,6 +259,11 @@ bool DirectX::IsSupportedTexture(
     if (FAILED(hr))
     {
         formatSupport = 0;
+    }
+
+    if (metadata.mipLevels > 1 && !(formatSupport & D3D11_FORMAT_SUPPORT_MIP))
+    {
+        return false;
     }
 
     switch (metadata.dimension)
@@ -425,7 +435,7 @@ HRESULT DirectX::CreateTextureEx(
         return E_INVALIDARG;
 
     if ((metadata.width > UINT32_MAX) || (metadata.height > UINT32_MAX)
-        || (metadata.mipLevels > UINT32_MAX) || (metadata.arraySize > UINT32_MAX))
+        || (metadata.mipLevels > UINT16_MAX) || (metadata.arraySize > UINT16_MAX))
         return E_INVALIDARG;
 
     std::unique_ptr<D3D11_SUBRESOURCE_DATA[]> initData(new (std::nothrow) D3D11_SUBRESOURCE_DATA[metadata.mipLevels * metadata.arraySize]);
@@ -439,7 +449,7 @@ HRESULT DirectX::CreateTextureEx(
         if (!metadata.depth)
             return E_INVALIDARG;
 
-        if (metadata.depth > UINT32_MAX)
+        if (metadata.depth > UINT16_MAX)
             return E_INVALIDARG;
 
         if (metadata.arraySize > 1)
@@ -529,7 +539,7 @@ HRESULT DirectX::CreateTextureEx(
     }
 
     // Create texture using static initialization data
-    HRESULT hr = E_FAIL;
+    HRESULT hr = E_UNEXPECTED;
 
     DXGI_FORMAT tformat = (forceSRGB) ? MakeSRGB(metadata.format) : metadata.format;
 
@@ -537,7 +547,7 @@ HRESULT DirectX::CreateTextureEx(
     {
     case TEX_DIMENSION_TEXTURE1D:
     {
-        D3D11_TEXTURE1D_DESC desc;
+        D3D11_TEXTURE1D_DESC desc = {};
         desc.Width = static_cast<UINT>(metadata.width);
         desc.MipLevels = static_cast<UINT>(metadata.mipLevels);
         desc.ArraySize = static_cast<UINT>(metadata.arraySize);
@@ -553,7 +563,7 @@ HRESULT DirectX::CreateTextureEx(
 
     case TEX_DIMENSION_TEXTURE2D:
     {
-        D3D11_TEXTURE2D_DESC desc;
+        D3D11_TEXTURE2D_DESC desc = {};
         desc.Width = static_cast<UINT>(metadata.width);
         desc.Height = static_cast<UINT>(metadata.height);
         desc.MipLevels = static_cast<UINT>(metadata.mipLevels);
@@ -575,7 +585,7 @@ HRESULT DirectX::CreateTextureEx(
 
     case TEX_DIMENSION_TEXTURE3D:
     {
-        D3D11_TEXTURE3D_DESC desc;
+        D3D11_TEXTURE3D_DESC desc = {};
         desc.Width = static_cast<UINT>(metadata.width);
         desc.Height = static_cast<UINT>(metadata.height);
         desc.Depth = static_cast<UINT>(metadata.depth);
@@ -711,7 +721,7 @@ HRESULT DirectX::CreateShaderResourceViewEx(
 
 
 //-------------------------------------------------------------------------------------
-// Save a texture resource to a DDS file in memory/on disk
+// Save a texture resource
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
 HRESULT DirectX::CaptureTexture(
@@ -726,7 +736,7 @@ HRESULT DirectX::CaptureTexture(
     D3D11_RESOURCE_DIMENSION resType = D3D11_RESOURCE_DIMENSION_UNKNOWN;
     pSource->GetType(&resType);
 
-    HRESULT hr;
+    HRESULT hr = E_UNEXPECTED;
 
     switch (resType)
     {
@@ -755,7 +765,7 @@ HRESULT DirectX::CaptureTexture(
             desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
             desc.Usage = D3D11_USAGE_STAGING;
 
-            hr = pDevice->CreateTexture1D(&desc, 0, pStaging.GetAddressOf());
+            hr = pDevice->CreateTexture1D(&desc, nullptr, pStaging.GetAddressOf());
             if (FAILED(hr))
                 break;
 
@@ -801,7 +811,7 @@ HRESULT DirectX::CaptureTexture(
             desc.SampleDesc.Quality = 0;
 
             ComPtr<ID3D11Texture2D> pTemp;
-            hr = pDevice->CreateTexture2D(&desc, 0, pTemp.GetAddressOf());
+            hr = pDevice->CreateTexture2D(&desc, nullptr, pTemp.GetAddressOf());
             if (FAILED(hr))
                 break;
 
@@ -840,7 +850,7 @@ HRESULT DirectX::CaptureTexture(
             desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
             desc.Usage = D3D11_USAGE_STAGING;
 
-            hr = pDevice->CreateTexture2D(&desc, 0, pStaging.GetAddressOf());
+            hr = pDevice->CreateTexture2D(&desc, nullptr, pStaging.GetAddressOf());
             if (FAILED(hr))
                 break;
 
@@ -860,7 +870,7 @@ HRESULT DirectX::CaptureTexture(
             desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
             desc.Usage = D3D11_USAGE_STAGING;
 
-            hr = pDevice->CreateTexture2D(&desc, 0, &pStaging);
+            hr = pDevice->CreateTexture2D(&desc, nullptr, &pStaging);
             if (FAILED(hr))
                 break;
 
@@ -913,7 +923,7 @@ HRESULT DirectX::CaptureTexture(
             desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
             desc.Usage = D3D11_USAGE_STAGING;
 
-            hr = pDevice->CreateTexture3D(&desc, 0, pStaging.GetAddressOf());
+            hr = pDevice->CreateTexture3D(&desc, nullptr, pStaging.GetAddressOf());
             if (FAILED(hr))
                 break;
 
@@ -954,3 +964,8 @@ HRESULT DirectX::CaptureTexture(
 
     return S_OK;
 }
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexD3D11);
+

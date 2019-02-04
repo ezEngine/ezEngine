@@ -182,3 +182,4 @@ void ezTelemetry::Send(TransmitMode tm, ezTelemetryMessage& msg)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_TelemetryHelpers);
+

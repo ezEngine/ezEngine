@@ -11,3 +11,4 @@ public:
 
   static ezAllocatorId GetId();
 };
+

@@ -35,3 +35,4 @@ namespace ezShaderUtils
     return r | (g << 16);
   }
 }
+

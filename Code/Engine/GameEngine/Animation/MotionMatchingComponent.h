@@ -88,3 +88,4 @@ protected:
   ezUInt32 FindBestKeyframe(const TargetKeyframe& current, ezVec3 vLeftFootPosition, ezVec3 vRightFootPosition,
                             ezVec3 vTargetDir) const;
 };
+

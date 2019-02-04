@@ -164,3 +164,4 @@ void ezAreaDamageComponentManager::Update(const ezWorldModule::UpdateContext& co
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_AreaDamageComponent);
+

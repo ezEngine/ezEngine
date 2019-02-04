@@ -427,4 +427,5 @@ bool ezTgaFileFormat::CanWriteFileType(const char* szExtension) const
 
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Image_Formats_TgaFileFormat);
+EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_TgaFileFormat);
+

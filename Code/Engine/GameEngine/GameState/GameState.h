@@ -121,3 +121,4 @@ protected:
   bool m_bVirtualRealityMode = false;
 
 };
+

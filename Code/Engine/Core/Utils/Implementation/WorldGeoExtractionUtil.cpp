@@ -172,3 +172,8 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
 
   ezLog::Success("Wrote world geometry to '{0}'", file.GetFilePathAbsolute().GetView());
 }
+
+
+
+EZ_STATICLINK_FILE(Core, Core_Utils_Implementation_WorldGeoExtractionUtil);
+

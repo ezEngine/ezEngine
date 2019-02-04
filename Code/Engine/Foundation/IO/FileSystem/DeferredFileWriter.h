@@ -33,3 +33,4 @@ private:
   ezMemoryStreamStorage m_Storage;
   ezMemoryStreamWriter m_Writer;
 };
+

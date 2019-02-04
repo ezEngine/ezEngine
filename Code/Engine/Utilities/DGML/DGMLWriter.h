@@ -81,3 +81,4 @@ public:
   /// \brief Writes the graph as a DGML formatted document to the given string builder.
   static ezResult WriteGraphToString(ezStringBuilder& StringBuilder, const ezDGMLGraph& Graph);
 };
+

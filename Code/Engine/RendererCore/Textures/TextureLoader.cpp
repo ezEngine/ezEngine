@@ -216,3 +216,4 @@ void ezTextureResourceLoader::WriteTextureLoadStream(ezStreamWriter& w, const Lo
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_TextureLoader);
+

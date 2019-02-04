@@ -135,3 +135,4 @@ void EZ_IGNORE_UNUSED(const T&) {}
 #define EZ_MATH_CHECK_FOR_NAN EZ_ON
 
 #endif
+

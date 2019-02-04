@@ -295,3 +295,4 @@ struct EZ_TEXTURE_DLL ezImageFormat
   static ezImageFormat::Enum FromPixelMask(ezUInt32 uiRedMask, ezUInt32 uiGreenMask, ezUInt32 uiBlueMask, ezUInt32 uiAlphaMask,
                                            ezUInt32 uiBitsPerPixel);
 };
+

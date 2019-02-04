@@ -75,3 +75,4 @@ public:
 };
 
 #include <Foundation/SimdMath/Implementation/SimdBSphere_inl.h>
+

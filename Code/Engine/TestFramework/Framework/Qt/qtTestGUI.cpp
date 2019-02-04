@@ -578,3 +578,4 @@ void ezQtTestGUI::SetDarkTheme()
 
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_Qt_qtTestGUI);
+

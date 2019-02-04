@@ -1051,3 +1051,4 @@ void ezWorld::RecreateHierarchyData(ezGameObject* pObject, bool bWasDynamic)
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_World);
+

@@ -234,3 +234,4 @@ struct ezHashHelper<ezConstructionCounter>
 
   EZ_ALWAYS_INLINE static bool Equal(const ezConstructionCounter& a, const ezConstructionCounter& b) { return a == b; }
 };
+

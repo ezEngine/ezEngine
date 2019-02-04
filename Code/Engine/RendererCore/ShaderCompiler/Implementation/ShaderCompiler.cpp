@@ -499,3 +499,4 @@ void ezShaderCompiler::WriteFailedShaderSource(ezShaderProgramCompiler::ezShader
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_ShaderCompiler_Implementation_ShaderCompiler);
+

@@ -80,3 +80,4 @@ private:
 };
 
 #include <Foundation/Containers/Implementation/StaticRingBuffer_inl.h>
+

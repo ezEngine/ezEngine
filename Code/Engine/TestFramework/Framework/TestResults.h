@@ -174,3 +174,4 @@ private:
   std::deque<ezTestErrorMessage> m_Errors;
   std::deque<ezTestOutputMessage> m_TestOutput;
 };
+

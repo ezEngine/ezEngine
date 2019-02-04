@@ -163,3 +163,4 @@ ezFloat16Vec4::operator ezVec4() const
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Float16);
+

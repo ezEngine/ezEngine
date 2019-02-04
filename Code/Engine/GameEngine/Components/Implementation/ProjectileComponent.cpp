@@ -428,3 +428,4 @@ ezProjectileComponentPatch_1_2 g_ezProjectileComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_ProjectileComponent);
+

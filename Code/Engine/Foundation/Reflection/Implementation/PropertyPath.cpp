@@ -303,3 +303,8 @@ void ezPropertyPath::ResolvePath(void* pCurrentObject, const ezRTTI* pType, cons
     }
   }
 }
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_PropertyPath);
+

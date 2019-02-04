@@ -32,3 +32,4 @@ struct EZ_CORE_DLL ezGameObjectDesc
   float m_LocalUniformScaling = 1.0f;
   ezTagSet m_Tags;
 };
+

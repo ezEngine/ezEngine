@@ -194,3 +194,4 @@ EZ_ALWAYS_INLINE bool operator!=(const ezSimdTransform& lhs, const ezSimdTransfo
 {
   return !(lhs == rhs);
 }
+

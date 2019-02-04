@@ -74,3 +74,4 @@ protected:
 
   ezDynamicArray<ezSkeletonJoint> m_Joints;
 };
+

@@ -101,3 +101,4 @@ protected:
   ezUniquePtr<class ezMixedRealityFramework> m_pMixedRealityFramework;
 #endif
 };
+

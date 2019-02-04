@@ -40,3 +40,4 @@ private:
 
   FunctionType m_func;
 };
+

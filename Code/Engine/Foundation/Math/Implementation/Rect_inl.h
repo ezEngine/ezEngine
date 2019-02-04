@@ -40,3 +40,4 @@ EZ_ALWAYS_INLINE bool ezRectTemplate<Type>::HasNonZeroArea() const
 {
   return (width > 0) && (height > 0);
 }
+

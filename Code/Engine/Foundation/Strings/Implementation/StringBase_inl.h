@@ -301,3 +301,4 @@ EZ_ALWAYS_INLINE bool operator>=(const ezStringBase<DerivedLhs>& lhs, const char
 {
   return lhs.Compare(rhs) >= 0;
 }
+

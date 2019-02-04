@@ -107,3 +107,4 @@ void ezResourceHandleWriteContext::EndWritingToStream(ezStreamWriter* pStream)
 
 
 EZ_STATICLINK_FILE(Core, Core_WorldSerializer_Implementation_ResourceHandleWriter);
+

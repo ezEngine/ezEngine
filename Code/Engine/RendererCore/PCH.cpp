@@ -5,9 +5,17 @@ EZ_STATICLINK_LIBRARY(RendererCore)
   if (bReturn)
     return;
 
+  EZ_STATICLINK_REFERENCE(RendererCore_AnimationSystem_AnimationGraph_Implementation_AnimationClipSampler);
+  EZ_STATICLINK_REFERENCE(RendererCore_AnimationSystem_AnimationGraph_Implementation_AnimationGraphNode);
+  EZ_STATICLINK_REFERENCE(RendererCore_AnimationSystem_Implementation_AnimationClipResource);
   EZ_STATICLINK_REFERENCE(RendererCore_AnimationSystem_Implementation_AnimationPose);
+  EZ_STATICLINK_REFERENCE(RendererCore_AnimationSystem_Implementation_EditableSkeleton);
+  EZ_STATICLINK_REFERENCE(RendererCore_AnimationSystem_Implementation_JointMapping);
   EZ_STATICLINK_REFERENCE(RendererCore_AnimationSystem_Implementation_Skeleton);
   EZ_STATICLINK_REFERENCE(RendererCore_AnimationSystem_Implementation_SkeletonBuilder);
+  EZ_STATICLINK_REFERENCE(RendererCore_AnimationSystem_Implementation_SkeletonResource);
+  EZ_STATICLINK_REFERENCE(RendererCore_AnimationSystem_Implementation_VisualizeSkeletonComponent);
+  EZ_STATICLINK_REFERENCE(RendererCore_Components_Implementation_AlwaysVisibleComponent);
   EZ_STATICLINK_REFERENCE(RendererCore_Components_Implementation_CameraComponent);
   EZ_STATICLINK_REFERENCE(RendererCore_Components_Implementation_FogComponent);
   EZ_STATICLINK_REFERENCE(RendererCore_Components_Implementation_RenderComponent);
@@ -32,8 +40,10 @@ EZ_STATICLINK_LIBRARY(RendererCore)
   EZ_STATICLINK_REFERENCE(RendererCore_Lights_Implementation_ShadowPool);
   EZ_STATICLINK_REFERENCE(RendererCore_Lights_Implementation_SpotLightComponent);
   EZ_STATICLINK_REFERENCE(RendererCore_Material_Implementation_MaterialResource);
+  EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_CpuMeshResource);
   EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_MeshBufferResource);
   EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_MeshComponent);
+  EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_MeshComponentBase);
   EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_MeshRenderer);
   EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_MeshResource);
   EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_MeshResourceDescriptor);
@@ -89,6 +99,5 @@ EZ_STATICLINK_LIBRARY(RendererCore)
   EZ_STATICLINK_REFERENCE(RendererCore_Textures_TextureLoader);
   EZ_STATICLINK_REFERENCE(RendererCore_Textures_TextureUtils);
 }
-
 
 

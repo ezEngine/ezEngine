@@ -84,3 +84,4 @@ void ezVisualScriptNode_MathExpression::SetExpression(const char* e)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Nodes_VisualScriptMathExpressionNode);
+

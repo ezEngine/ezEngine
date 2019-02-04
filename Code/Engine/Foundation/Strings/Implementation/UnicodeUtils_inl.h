@@ -206,3 +206,4 @@ inline void ezUnicodeUtils::MoveToPriorUtf8(const char*& szUtf8, ezUInt32 uiNumC
     --uiNumCharacters;
   }
 }
+

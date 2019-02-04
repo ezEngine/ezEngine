@@ -91,3 +91,4 @@ EZ_FORCE_INLINE const T* ezStaticArray<T, C>::GetElementsPtr() const
 {
   return GetStaticArray();
 }
+

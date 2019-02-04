@@ -102,3 +102,4 @@ protected:
   ezDynamicArray<ezMaterialResourceHandle> m_Materials;
   ezColor m_Color;
 };
+

@@ -18,3 +18,4 @@ public:
   /// \brief Maps a FourCC code to an equivalent ezImageFormat::Enum.
   static ezImageFormat::Enum FromFourCc(ezUInt32 uiFourCc);
 };
+

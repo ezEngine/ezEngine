@@ -127,3 +127,4 @@ public:
 #  define EZ_PROFILE_LIST_NEXT_SECTION(szNextSectionName) /*empty*/
 
 #endif
+

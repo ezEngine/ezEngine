@@ -145,3 +145,4 @@ public:
     TYPE::UnregisterSingleton();
   }
 };
+

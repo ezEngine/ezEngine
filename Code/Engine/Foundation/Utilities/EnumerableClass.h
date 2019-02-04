@@ -99,3 +99,4 @@ private:
   ezEnumerable<self, self::ezEnumerableBase>* self::s_pFirstInstance = nullptr;                                                            \
   ezEnumerable<self, self::ezEnumerableBase>* self::s_pLastInstance = nullptr;                                                             \
   ezUInt32 self::s_uiInstances = 0
+

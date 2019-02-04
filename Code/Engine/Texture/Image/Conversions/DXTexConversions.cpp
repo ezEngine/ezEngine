@@ -253,3 +253,8 @@ class ezImageConversion_CompressDxTex : public ezImageConversionStepCompressBloc
 static ezImageConversion_CompressDxTex s_conversion_compressDxTex;
 
 #endif
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_Image_Conversions_DXTexConversions);
+

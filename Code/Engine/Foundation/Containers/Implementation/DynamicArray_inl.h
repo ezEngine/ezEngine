@@ -221,3 +221,4 @@ ezArrayPtr<T> ezMakeArrayPtr(ezDynamicArray<T, AllocatorWrapper>& dynArray)
 {
   return ezArrayPtr<T>(dynArray.GetData(), dynArray.GetCount());
 }
+

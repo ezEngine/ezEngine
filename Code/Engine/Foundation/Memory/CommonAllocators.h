@@ -22,3 +22,4 @@ typedef ezAllocator<ezMemoryPolicies::ezGuardedAllocation> ezGuardedAllocator;
 
 /// \brief Proxy allocator
 typedef ezAllocator<ezMemoryPolicies::ezProxyAllocation> ezProxyAllocator;
+

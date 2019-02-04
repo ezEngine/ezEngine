@@ -1648,3 +1648,4 @@ void ezReflectionUtils::SetAllMemberPropertiesToDefault(const ezRTTI* pRtti, voi
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_ReflectionUtils);
+

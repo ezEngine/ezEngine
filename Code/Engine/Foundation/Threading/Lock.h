@@ -23,3 +23,4 @@ private:
 
 /// \brief Shortcut for ezLock<Type> l(lock)
 #define EZ_LOCK(lock) ezLock<decltype(lock)> EZ_CONCAT(l_, EZ_SOURCE_LINE)(lock)
+

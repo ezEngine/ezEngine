@@ -26,3 +26,4 @@ public:
 public:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
 };
+

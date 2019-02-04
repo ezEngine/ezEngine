@@ -356,3 +356,4 @@ void ezShaderParser::ParsePermutationVarConfig(const char* szPermVarName, ezStri
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_ShaderCompiler_Implementation_ShaderParser);
+

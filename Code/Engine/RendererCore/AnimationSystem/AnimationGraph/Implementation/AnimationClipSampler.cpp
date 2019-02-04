@@ -221,3 +221,8 @@ ezTransform ezAnimationClipSampler::ComputeRootMotion(const ezAnimationClipResou
 
   return res;
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimationGraph_Implementation_AnimationClipSampler);
+

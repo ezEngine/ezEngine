@@ -93,3 +93,4 @@ private:
 };
 
 #include <Foundation/Types/Implementation/UniquePtr_inl.h>
+

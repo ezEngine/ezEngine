@@ -348,3 +348,4 @@ __metatable = \"Access Denied\",\n\
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Console_Implementation_LuaInterpreter);
+

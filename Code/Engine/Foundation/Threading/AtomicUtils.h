@@ -91,3 +91,4 @@ struct EZ_FOUNDATION_DLL ezAtomicUtils
 #else
 #error "Atomics are not implemented on current platform"
 #endif
+

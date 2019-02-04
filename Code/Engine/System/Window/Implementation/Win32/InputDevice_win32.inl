@@ -769,3 +769,4 @@ bool ezStandardInputDevice::GetShowMouseCursor() const
 {
   return m_bShowCursor;
 }
+

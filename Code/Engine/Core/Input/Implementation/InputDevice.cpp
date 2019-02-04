@@ -105,3 +105,4 @@ ezUInt32 ezInputDevice::RetrieveLastCharacterFromAllDevices()
 
 
 EZ_STATICLINK_FILE(Core, Core_Input_Implementation_InputDevice);
+

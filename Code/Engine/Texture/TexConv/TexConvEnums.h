@@ -145,3 +145,4 @@ struct ezTexConvChannelValue
     White, ///< don't read any channel, just take the constant value 0xFF / 1.0f
   };
 };
+

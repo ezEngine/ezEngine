@@ -88,3 +88,4 @@ void ezGlobalEvent::PrintGlobalEventStatistics()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_GlobalEvent);
+

@@ -221,3 +221,4 @@ void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests, TestSe
 
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Utilities_TestOrder);
+

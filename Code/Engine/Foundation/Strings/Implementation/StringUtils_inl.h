@@ -124,3 +124,4 @@ EZ_ALWAYS_INLINE bool ezStringUtils::IsEqualN_NoCase(const char* pString1, const
 {
   return ezStringUtils::CompareN_NoCase(pString1, pString2, uiCharsToCompare, pString1End, pString2End) == 0;
 }
+

@@ -70,3 +70,4 @@ void ezUwpUtils::ConvertGuid(const ezUuid& in, GUID& out)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Platform_uwp_UWPUtils);
+

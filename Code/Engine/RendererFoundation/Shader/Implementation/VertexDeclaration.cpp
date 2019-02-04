@@ -12,3 +12,4 @@ ezGALVertexDeclaration::~ezGALVertexDeclaration() {}
 
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Shader_Implementation_VertexDeclaration);
+

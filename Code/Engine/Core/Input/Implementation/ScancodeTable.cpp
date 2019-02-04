@@ -255,3 +255,4 @@ const char* ezInputManager::ConvertScanCodeToEngineName(ezUInt8 uiScanCode, bool
 
 
 EZ_STATICLINK_FILE(Core, Core_Input_Implementation_ScancodeTable);
+

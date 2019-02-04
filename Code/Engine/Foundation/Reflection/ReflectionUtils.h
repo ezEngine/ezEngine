@@ -113,3 +113,4 @@ public:
   /// \brief Sets all member properties in \a pObject of type \a pRtti to the value returned by ezToolsReflectionUtils::GetDefaultValue()
   static void SetAllMemberPropertiesToDefault(const ezRTTI* pRtti, void* pObject);
 };
+

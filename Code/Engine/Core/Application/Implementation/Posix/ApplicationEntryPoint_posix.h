@@ -32,3 +32,4 @@
     memset(pApp, 0, sizeof(AppClass));                                                                                                     \
     return iReturnCode;                                                                                                                    \
   }
+

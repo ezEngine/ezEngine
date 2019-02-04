@@ -68,3 +68,4 @@ typedef ezBitfield<ezDynamicArray<ezUInt32>> ezDynamicBitfield;
 
 
 #include <Foundation/Containers/Implementation/Bitfield_inl.h>
+

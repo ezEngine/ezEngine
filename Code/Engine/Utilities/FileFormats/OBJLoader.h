@@ -99,3 +99,4 @@ public:
   ezDeque<ezVec3> m_TexCoords;
   ezDeque<Face> m_Faces;
 };
+

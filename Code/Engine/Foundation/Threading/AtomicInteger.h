@@ -60,3 +60,4 @@ private:
 
 typedef ezAtomicInteger<ezInt32> ezAtomicInteger32; // [tested]
 typedef ezAtomicInteger<ezInt64> ezAtomicInteger64; // [tested]
+

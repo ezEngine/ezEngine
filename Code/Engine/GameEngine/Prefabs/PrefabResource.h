@@ -54,3 +54,4 @@ private:
   ezWorldReader m_WorldReader;
   ezDynamicArray<ezExposedPrefabParameterDesc> m_PrefabParamDescs;
 };
+

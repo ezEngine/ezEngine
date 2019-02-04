@@ -57,3 +57,4 @@ protected:
   ezSkeletonResourceHandle m_hSkeleton;
   ezAnimationClipSampler m_AnimationClipSampler;
 };
+

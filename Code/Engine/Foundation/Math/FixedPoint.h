@@ -114,3 +114,4 @@ float ToFloat(ezFixedPoint<DecimalBits> f) { return f.ToFloat(); }
   // ezFixedPoint operator/ (ezFixedPoint, int); // [tested]
 
 #include <Foundation/Math/Implementation/FixedPoint_inl.h>
+

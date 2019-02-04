@@ -564,3 +564,4 @@ void ezCurve1D::MakeAutoTangentRight(ezUInt32 uiCpIdx)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Tracks_Implementation_Curve1D);
+

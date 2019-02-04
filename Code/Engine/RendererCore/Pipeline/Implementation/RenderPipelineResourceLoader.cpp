@@ -289,3 +289,4 @@ void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(cons
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelineResourceLoader);
+

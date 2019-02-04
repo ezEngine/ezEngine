@@ -229,3 +229,4 @@ bool ezComponent::GetUserFlag(ezUInt8 flagIndex) const
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_Component);
+

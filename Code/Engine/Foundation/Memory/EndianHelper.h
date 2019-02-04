@@ -205,3 +205,4 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
     SwitchStructs(static_cast<void*>(pDataPointer), szFormat, sizeof(T), uiCount);
   }
 };
+

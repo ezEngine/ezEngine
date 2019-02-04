@@ -81,3 +81,4 @@ void ezAssetFileHeader::Read(ezStreamReader& stream)
 }
 
 EZ_STATICLINK_FILE(Core, Core_Assets_Implementation_AssetFileHeader);
+

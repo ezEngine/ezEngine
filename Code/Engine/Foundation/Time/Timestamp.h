@@ -187,3 +187,4 @@ private:
 };
 
 #include <Foundation/Time/Implementation/Timestamp_inl.h>
+

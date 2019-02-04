@@ -455,3 +455,4 @@ private:
 
 #include <Core/ResourceManager/Implementation/ResourceLock.h>
 #include <Core/ResourceManager/Implementation/ResourceManager_inl.h>
+

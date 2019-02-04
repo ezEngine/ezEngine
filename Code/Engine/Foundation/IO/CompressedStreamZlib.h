@@ -105,3 +105,4 @@ private:
 };
 
 #endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+

@@ -23,3 +23,4 @@ public:
 private:
   ezThreadSignalData m_Data;
 };
+

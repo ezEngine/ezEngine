@@ -140,3 +140,8 @@ ezResult ezTexConvProcessor::AdjustHdrExposure()
   ezImageUtils::ChangeExposure(*m_pCurrentScratchImage, m_Descriptor.m_fHdrExposureBias);
   return EZ_SUCCESS;
 }
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_TexConv_Implementation_TextureModifications);
+

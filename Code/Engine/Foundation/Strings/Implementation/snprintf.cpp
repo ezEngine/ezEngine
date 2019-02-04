@@ -1071,3 +1071,4 @@ void ezStringUtils::OutputFormattedFloat(char* szOutputBuffer, ezUInt32 uiBuffer
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_snprintf);
+

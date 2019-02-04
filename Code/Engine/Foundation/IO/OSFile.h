@@ -320,3 +320,4 @@ private:
   /// \brief Counts how many different files are touched.225
   static ezAtomicInteger32 s_FileCounter;
 };
+

@@ -43,3 +43,4 @@ void ezSystemInformation::Initialize()
 
   s_SystemInformation.m_bIsInitialized = true;
 }
+

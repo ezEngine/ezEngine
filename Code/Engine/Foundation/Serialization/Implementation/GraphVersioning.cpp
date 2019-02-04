@@ -291,3 +291,4 @@ ezUInt32 ezGraphVersioning::GetMaxPatchVersion(const ezHashedString& sType) cons
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_GraphVersioning);
+

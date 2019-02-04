@@ -75,3 +75,4 @@ public:
     return static_cast<T*>(Clone(pObject, ezGetStaticRTTI<T>()));
   }
 };
+

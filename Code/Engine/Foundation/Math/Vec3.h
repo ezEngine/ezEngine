@@ -242,3 +242,4 @@ template <typename Type>
 bool operator<(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2); // [tested]
 
 #include <Foundation/Math/Implementation/Vec3_inl.h>
+

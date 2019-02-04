@@ -346,3 +346,4 @@ typedef ezDynamicArray<ezUInt8> ezDataBuffer;
 #include <Foundation/Types/Implementation/VariantHelper_inl.h>
 #include <Foundation/Types/Implementation/VariantTypeDeduction_inl.h>
 #include <Foundation/Types/Implementation/Variant_inl.h>
+

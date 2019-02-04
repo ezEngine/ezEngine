@@ -32,3 +32,4 @@ struct EZ_ALIGN_16(ezSpatialData)
 
   ezUInt32 m_uiUserData[4] = {};
 };
+

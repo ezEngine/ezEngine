@@ -74,3 +74,4 @@ private:
   ezMap<ezGameObjectHandle, ezUInt32> m_WrittenGameObjectHandles;
   ezMap<ezComponentHandle, ezUInt32> m_WrittenComponentHandles;
 };
+

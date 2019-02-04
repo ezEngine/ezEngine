@@ -1000,3 +1000,4 @@ void ezDeque<T, A, Construct>::operator=(ezDequeBase<T, Construct>&& rhs)
 {
   ezDequeBase<T, Construct>::operator=(std::move(rhs));
 }
+

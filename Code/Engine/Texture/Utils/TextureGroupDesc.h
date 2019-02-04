@@ -27,3 +27,4 @@ public:
 
   ezDynamicArray<TextureGroup> m_Groups;
 };
+

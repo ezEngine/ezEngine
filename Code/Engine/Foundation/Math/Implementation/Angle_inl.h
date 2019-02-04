@@ -137,3 +137,4 @@ constexpr inline ezAngle operator/(float f, ezAngle a)
 {
   return ezAngle::Radian(a.GetRadian() / f);
 }
+

@@ -38,3 +38,4 @@ ezUInt32 RunThread(ezThread* pThread)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_Thread);
+

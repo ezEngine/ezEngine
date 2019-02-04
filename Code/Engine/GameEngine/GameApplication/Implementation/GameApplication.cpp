@@ -481,3 +481,4 @@ bool ezGameApplication::Run_ProcessApplicationInput()
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_GameApplication);
+

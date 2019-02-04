@@ -3,12 +3,8 @@
 //  
 // Utility header with helper classes for exception-safe handling of resources
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //-------------------------------------------------------------------------------------
 
 #pragma once
@@ -27,14 +23,14 @@ typedef std::unique_ptr<DirectX::XMVECTOR[], aligned_deleter> ScopedAlignedArray
 //---------------------------------------------------------------------------------
 struct handle_closer { void operator()(HANDLE h) { assert(h != INVALID_HANDLE_VALUE); if (h) CloseHandle(h); } };
 
-typedef public std::unique_ptr<void, handle_closer> ScopedHandle;
+typedef std::unique_ptr<void, handle_closer> ScopedHandle;
 
-inline HANDLE safe_handle( HANDLE h ) { return (h == INVALID_HANDLE_VALUE) ? 0 : h; }
+inline HANDLE safe_handle(HANDLE h) { return (h == INVALID_HANDLE_VALUE) ? nullptr : h; }
 
 //---------------------------------------------------------------------------------
 struct find_closer { void operator()(HANDLE h) { assert(h != INVALID_HANDLE_VALUE); if (h) FindClose(h); } };
 
-typedef public std::unique_ptr<void, find_closer> ScopedFindHandle;
+typedef std::unique_ptr<void, find_closer> ScopedFindHandle;
 
 //---------------------------------------------------------------------------------
 class auto_delete_file
@@ -49,14 +45,15 @@ public:
     {
         if (m_handle)
         {
-            FILE_DISPOSITION_INFO info = { 0 };
+            FILE_DISPOSITION_INFO info = {};
             info.DeleteFile = TRUE;
             (void)SetFileInformationByHandle(m_handle, FileDispositionInfo, &info, sizeof(info));
         }
     }
 
-    void clear() { m_handle = 0; }
+    void clear() { m_handle = nullptr; }
 
 private:
     HANDLE m_handle;
 };
+

@@ -39,3 +39,4 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_StackTracer);
+

@@ -36,3 +36,4 @@ private:
   bool m_bDebugOutput;
   bool m_bIsGlobalEventHandler;
 };
+

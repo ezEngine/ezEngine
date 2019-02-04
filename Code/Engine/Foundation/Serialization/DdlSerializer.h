@@ -40,3 +40,4 @@ public:
 private:
   static ezResult ReadBlocks(ezStreamReader& stream, ezHybridArray<ezSerializedBlock, 3>& blocks);
 };
+

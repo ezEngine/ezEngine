@@ -567,4 +567,5 @@ ezImageFormatType::Enum ezImageFormat::GetType(Enum format)
   return GetImageFormatMetaData(format).m_formatType;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Image_Implementation_ImageFormat);
+EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_ImageFormat);
+

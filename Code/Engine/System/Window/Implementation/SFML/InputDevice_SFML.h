@@ -81,3 +81,4 @@ private:
 
   void UpdateMouseCursor();
 };
+

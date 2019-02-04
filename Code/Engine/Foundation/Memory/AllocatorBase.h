@@ -105,3 +105,4 @@ private:
 
 /// \brief deletes a raw buffer stored in ptr using the default allocator, but does NOT call destructor
 #define EZ_DEFAULT_DELETE_RAW_BUFFER(ptr) EZ_DELETE_RAW_BUFFER(ezFoundation::GetDefaultAllocator(), ptr)
+

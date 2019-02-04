@@ -789,3 +789,4 @@ void ezSetBase<KeyType, Comparer>::SwapNilNode(Node*& pCurNode, NilNode* pOld, N
   SwapNilNode(pCurNode->m_pLink[0], pOld, pNew);
   SwapNilNode(pCurNode->m_pLink[1], pOld, pNew);
 }
+

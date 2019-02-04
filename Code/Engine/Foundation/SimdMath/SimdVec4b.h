@@ -50,3 +50,4 @@ public:
 #else
 #  error "Unknown SIMD implementation."
 #endif
+

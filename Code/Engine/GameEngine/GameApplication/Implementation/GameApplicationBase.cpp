@@ -530,3 +530,8 @@ void ezGameApplicationBase::Run_FinishFrame()
   // reset this state
   m_bTakeScreenshot = false;
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_GameApplicationBase);
+

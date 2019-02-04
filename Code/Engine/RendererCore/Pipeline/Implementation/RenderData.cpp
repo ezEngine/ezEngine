@@ -87,3 +87,4 @@ void ezMsgExtractRenderData::AddRenderData(ezRenderData* pRenderData, ezRenderDa
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderData);
+

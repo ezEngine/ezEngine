@@ -52,3 +52,4 @@ protected:
   ezEnum<ezVRDeviceType> m_deviceType;
   ezEnum<ezVRTransformSpace> m_space;
 };
+

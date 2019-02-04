@@ -221,3 +221,4 @@ struct ezTypeTraits
       value = (sizeof(chk<T>(0)) == sizeof(ezCompileTimeTrueType)) ? 1 : 0                                                                 \
     };                                                                                                                                     \
   }
+

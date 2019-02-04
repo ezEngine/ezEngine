@@ -19,3 +19,4 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Interfaces_VRInterface);
+

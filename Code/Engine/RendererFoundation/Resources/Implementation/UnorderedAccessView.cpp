@@ -13,3 +13,4 @@ ezGALUnorderedAccessView::ezGALUnorderedAccessView(ezGALResourceBase* pResource,
 ezGALUnorderedAccessView::~ezGALUnorderedAccessView() {}
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Resources_Implementation_UnorderedAccessView);
+

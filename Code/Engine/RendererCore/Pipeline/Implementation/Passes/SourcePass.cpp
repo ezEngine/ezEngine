@@ -109,3 +109,4 @@ ezSourcePassPatch_1_2 g_ezSourcePassPatch_1_2;
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_SourcePass);
+

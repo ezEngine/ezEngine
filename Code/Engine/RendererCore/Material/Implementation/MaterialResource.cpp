@@ -1015,3 +1015,4 @@ void ezMaterialResource::UpdateConstantBuffer(ezShaderPermutationResource* pShad
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Material_Implementation_MaterialResource);
+

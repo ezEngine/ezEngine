@@ -106,3 +106,4 @@ public:                                           \
 /// \brief This inserts a friend declaration into a class, such that the given group/subsystem can access private functions which it might need.
 #define EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(GroupName, SubsystemName) \
   friend class GroupName##SubsystemName##SubSystem;
+

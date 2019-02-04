@@ -149,3 +149,4 @@ private:
   ezGALBufferHandle m_hIndexBuffer;
   ezGALPrimitiveTopology::Enum m_Topology;
 };
+

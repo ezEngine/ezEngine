@@ -58,3 +58,4 @@ inline ezResult ezToResult(HRESULT result)
     HRESULT s = (code);                                                                                                                    \
     EZ_ASSERT_DEV(SUCCEEDED(s), "Call '{0}' failed with: {1}", EZ_STRINGIZE(code), ezHRESULTtoString(s));                                  \
   } while (false)
+

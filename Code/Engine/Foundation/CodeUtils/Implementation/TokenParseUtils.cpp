@@ -240,3 +240,4 @@ namespace ezTokenParseUtils
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_TokenParseUtils);
+

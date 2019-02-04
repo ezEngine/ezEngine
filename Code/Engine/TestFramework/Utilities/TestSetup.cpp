@@ -253,3 +253,4 @@ ezInt32 ezTestSetup::GetFailedTestCount()
 
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Utilities_TestSetup);
+

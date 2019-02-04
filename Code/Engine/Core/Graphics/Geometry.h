@@ -246,3 +246,4 @@ private:
   ezDeque<Polygon> m_Polygons;
   ezDeque<Line> m_Lines;
 };
+

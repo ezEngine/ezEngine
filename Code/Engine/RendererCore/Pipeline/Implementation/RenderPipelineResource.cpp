@@ -152,3 +152,4 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezRenderPipelineResource, ezRenderPipelineResou
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelineResource);
+

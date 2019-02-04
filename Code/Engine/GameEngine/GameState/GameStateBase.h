@@ -87,3 +87,4 @@ public:
 protected:
   bool m_bStateWantsToQuit = false;
 };
+

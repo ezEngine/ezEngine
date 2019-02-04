@@ -755,3 +755,4 @@ ezResult ezFileSystem::CreateDirectoryStructure(const char* szPath)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_FileSystem_Implementation_FileSystem);
+

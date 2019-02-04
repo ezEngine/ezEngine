@@ -166,3 +166,4 @@ ezTestAppRun ezTestBaseClass::DoSubTestRun(ezInt32 iIdentifier, double& fDuratio
 
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_TestBaseClass);
+

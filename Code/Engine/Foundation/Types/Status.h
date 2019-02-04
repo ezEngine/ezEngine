@@ -52,3 +52,4 @@ inline ezResult ezToResult(const ezStatus& result)
 {
   return result.m_Result;
 }
+

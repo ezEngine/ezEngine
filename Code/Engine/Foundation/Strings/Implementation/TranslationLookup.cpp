@@ -218,3 +218,4 @@ const char* ezTranslatorLogMissing::Translate(const char* szString, ezUInt32 uiS
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_TranslationLookup);
+

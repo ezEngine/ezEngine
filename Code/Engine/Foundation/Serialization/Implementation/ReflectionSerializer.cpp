@@ -421,3 +421,4 @@ void ezReflectionSerializer::Clone(const void* pObject, void* pClone, const ezRT
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_ReflectionSerializer);
+

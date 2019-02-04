@@ -192,3 +192,4 @@ private:
   friend EZ_CORE_DLL void ezRun_MainLoop(ezApplication* pApplicationInstance);
   friend EZ_CORE_DLL void ezRun_Shutdown(ezApplication* pApplicationInstance);
 };
+

@@ -149,3 +149,8 @@ void ezEditableSkeletonJoint::CopyPropertiesFrom(const ezEditableSkeletonJoint* 
   m_fWidth = pJoint->m_fWidth;
   m_fThickness = pJoint->m_fThickness;
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_EditableSkeleton);
+

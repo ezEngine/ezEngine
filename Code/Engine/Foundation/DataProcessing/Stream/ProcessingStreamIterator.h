@@ -34,3 +34,4 @@ protected:
 };
 
 #include <Foundation/DataProcessing/Stream/Implementation/ProcessingStreamIterator_inl.h>
+

@@ -26,3 +26,4 @@ EZ_FOUNDATION_DLL ezString ezHRESULTtoString(HRESULT result)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Platform_Win_HResultUtils);
+

@@ -45,3 +45,4 @@ private:
 };
 
 typedef ezTypedResourceHandle<class ezMeshResource> ezMeshResourceHandle;
+

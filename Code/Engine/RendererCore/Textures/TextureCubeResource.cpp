@@ -225,3 +225,4 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezTextureCubeResource, ezTextureCubeResourceDes
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_TextureCubeResource);
+

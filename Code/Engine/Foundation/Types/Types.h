@@ -227,3 +227,4 @@ struct ezSizeToType<8>
   typedef ezUInt64 Type;
 };
 /// \endcond
+

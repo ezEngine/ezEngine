@@ -67,3 +67,4 @@ public:
 private:
   ezResult RunCompiler(const ezResource* pResource, ezShaderPermutationBinary& BinaryInfo, bool bForce);
 };
+

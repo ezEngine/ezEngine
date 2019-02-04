@@ -30,3 +30,4 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Time_Implementation_Time);
+

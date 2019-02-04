@@ -37,3 +37,4 @@ private:
   ezDynamicArray<ezUInt8> m_Cache;
   bool m_bEOF;
 };
+

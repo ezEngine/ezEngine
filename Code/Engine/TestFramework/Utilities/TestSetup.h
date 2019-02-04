@@ -23,3 +23,4 @@ private:
   static int s_argc;
   static const char** s_argv;
 };
+

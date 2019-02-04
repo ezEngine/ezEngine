@@ -721,3 +721,4 @@ const ezRenderWorld::CameraConfig* ezRenderWorld::FindCameraConfig(const char* s
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_RenderWorld_Implementation_RenderWorld);
+

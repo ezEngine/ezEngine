@@ -159,3 +159,4 @@ private:
   ezTaskPriority::Enum m_Priority;
   OnTaskGroupFinished m_OnFinishedCallback;
 };
+

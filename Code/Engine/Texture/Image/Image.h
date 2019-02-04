@@ -182,3 +182,4 @@ private:
 };
 
 #include <Texture/Image/Implementation/Image_inl.h>
+

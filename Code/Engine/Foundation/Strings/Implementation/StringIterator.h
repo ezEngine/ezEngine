@@ -331,3 +331,4 @@ protected:
   const ezStringBase<STRING>* m_String;
   const char* m_pElement;
 };
+

@@ -190,3 +190,4 @@ void ezResource::VerifyAfterCreateResource(const ezResourceLoadDesc& ld)
 }
 
 EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_Resource);
+

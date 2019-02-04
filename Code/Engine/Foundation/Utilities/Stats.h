@@ -63,3 +63,4 @@ private:
 
   static ezEventStats s_StatsEvents;
 };
+

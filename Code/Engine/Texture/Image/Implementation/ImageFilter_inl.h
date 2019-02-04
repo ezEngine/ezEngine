@@ -9,3 +9,4 @@ inline ezArrayPtr<const float> ezImageFilterWeights::ViewWeights() const
 {
     return m_weights;
 }
+

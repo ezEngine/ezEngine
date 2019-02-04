@@ -207,3 +207,4 @@ public:                                                                         
 #define EZ_END_ABSTRACT_COMPONENT_TYPE EZ_END_DYNAMIC_REFLECTED_TYPE
 
 #include <Core/World/Implementation/ComponentManager_inl.h>
+

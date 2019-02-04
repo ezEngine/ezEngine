@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/World/World.h>
@@ -46,6 +46,5 @@ public:
 protected:
   virtual void OnSimulationStarted() override;
 };
-
 
 

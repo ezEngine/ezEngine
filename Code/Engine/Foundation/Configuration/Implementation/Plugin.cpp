@@ -589,3 +589,4 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Configuration_Implementation_Plugin);
+

@@ -562,3 +562,4 @@ void ezLSAOPass::AddLinesForDirection(const ezVec2I32& imageResolution, const ez
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_LSAOPass);
+

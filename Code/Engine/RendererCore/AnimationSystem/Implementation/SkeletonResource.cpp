@@ -119,3 +119,8 @@ void ezSkeletonResourceDescriptor::Load(ezStreamReader& stream)
     stream >> geo.m_Transform;
   }
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_SkeletonResource);
+

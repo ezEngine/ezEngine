@@ -74,3 +74,4 @@ protected:
   bool m_bParsingError;
   ezString m_sLastName;
 };
+

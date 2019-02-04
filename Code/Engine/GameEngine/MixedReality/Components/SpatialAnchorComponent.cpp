@@ -171,3 +171,4 @@ void ezSpatialAnchorComponent::OnDeactivated()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_MixedReality_Components_SpatialAnchorComponent);
+

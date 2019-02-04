@@ -37,3 +37,4 @@ private:
 
   static ezDoubleBufferedStackAllocator* s_pAllocator;
 };
+

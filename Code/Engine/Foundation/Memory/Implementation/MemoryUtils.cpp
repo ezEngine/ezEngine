@@ -100,3 +100,4 @@ void ezMemoryUtils::ReserveLower4GBAddressSpace()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_MemoryUtils);
+

@@ -2124,4 +2124,5 @@ static ezImageConversion_BC5_RG s_conversion_BC5_RG;
 static ezImageConversion_BC6_RGB s_conversion_BC6_RGB;
 static ezImageConversion_BC7_RGBA s_conversion_BC7_RGBA;
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Image_Conversions_DXTConversions);
+EZ_STATICLINK_FILE(Texture, Texture_Image_Conversions_DXTConversions);
+

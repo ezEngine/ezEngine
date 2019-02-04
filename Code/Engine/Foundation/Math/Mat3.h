@@ -214,3 +214,4 @@ template <typename Type>
 bool operator!=(const ezMat3Template<Type>& lhs, const ezMat3Template<Type>& rhs); // [tested]
 
 #include <Foundation/Math/Implementation/Mat3_inl.h>
+

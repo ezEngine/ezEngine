@@ -128,3 +128,4 @@ void ezHeadBoneComponent::OnChangeVerticalRotation(ezMsgChangeVerticalHeadBoneRo
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_HeadBoneComponent);
+

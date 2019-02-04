@@ -1,19 +1,17 @@
+#include <PCH.h>
+
 //-------------------------------------------------------------------------------------
 // DirectXTexCompress.cpp
 //  
 // DirectX Texture Library - Texture compression
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
 
-#include "directxtexp.h"
+#include "DirectXTexp.h"
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -28,20 +26,20 @@ namespace
 {
     inline DWORD GetBCFlags(_In_ DWORD compress)
     {
-        static_assert(TEX_COMPRESS_RGB_DITHER == BC_FLAGS_DITHER_RGB, "TEX_COMPRESS_* flags should match BC_FLAGS_*");
-        static_assert(TEX_COMPRESS_A_DITHER == BC_FLAGS_DITHER_A, "TEX_COMPRESS_* flags should match BC_FLAGS_*");
-        static_assert(TEX_COMPRESS_DITHER == (BC_FLAGS_DITHER_RGB | BC_FLAGS_DITHER_A), "TEX_COMPRESS_* flags should match BC_FLAGS_*");
-        static_assert(TEX_COMPRESS_UNIFORM == BC_FLAGS_UNIFORM, "TEX_COMPRESS_* flags should match BC_FLAGS_*");
-        static_assert(TEX_COMPRESS_BC7_USE_3SUBSETS == BC_FLAGS_USE_3SUBSETS, "TEX_COMPRESS_* flags should match BC_FLAGS_*");
-        static_assert(TEX_COMPRESS_BC7_QUICK == BC_FLAGS_FORCE_BC7_MODE6, "TEX_COMPRESS_* flags should match BC_FLAGS_*");
+        static_assert(static_cast<int>(TEX_COMPRESS_RGB_DITHER) == static_cast<int>(BC_FLAGS_DITHER_RGB), "TEX_COMPRESS_* flags should match BC_FLAGS_*");
+        static_assert(static_cast<int>(TEX_COMPRESS_A_DITHER) == static_cast<int>(BC_FLAGS_DITHER_A), "TEX_COMPRESS_* flags should match BC_FLAGS_*");
+        static_assert(static_cast<int>(TEX_COMPRESS_DITHER) == static_cast<int>(BC_FLAGS_DITHER_RGB | BC_FLAGS_DITHER_A), "TEX_COMPRESS_* flags should match BC_FLAGS_*");
+        static_assert(static_cast<int>(TEX_COMPRESS_UNIFORM) == static_cast<int>(BC_FLAGS_UNIFORM), "TEX_COMPRESS_* flags should match BC_FLAGS_*");
+        static_assert(static_cast<int>(TEX_COMPRESS_BC7_USE_3SUBSETS) == static_cast<int>(BC_FLAGS_USE_3SUBSETS), "TEX_COMPRESS_* flags should match BC_FLAGS_*");
+        static_assert(static_cast<int>(TEX_COMPRESS_BC7_QUICK) == static_cast<int>(BC_FLAGS_FORCE_BC7_MODE6), "TEX_COMPRESS_* flags should match BC_FLAGS_*");
         return (compress & (BC_FLAGS_DITHER_RGB | BC_FLAGS_DITHER_A | BC_FLAGS_UNIFORM | BC_FLAGS_USE_3SUBSETS | BC_FLAGS_FORCE_BC7_MODE6));
     }
 
     inline DWORD GetSRGBFlags(_In_ DWORD compress)
     {
-        static_assert(TEX_COMPRESS_SRGB_IN == TEX_FILTER_SRGB_IN, "TEX_COMPRESS_SRGB* should match TEX_FILTER_SRGB*");
-        static_assert(TEX_COMPRESS_SRGB_OUT == TEX_FILTER_SRGB_OUT, "TEX_COMPRESS_SRGB* should match TEX_FILTER_SRGB*");
-        static_assert(TEX_COMPRESS_SRGB == TEX_FILTER_SRGB, "TEX_COMPRESS_SRGB* should match TEX_FILTER_SRGB*");
+        static_assert(static_cast<int>(TEX_COMPRESS_SRGB_IN) == static_cast<int>(TEX_FILTER_SRGB_IN), "TEX_COMPRESS_SRGB* should match TEX_FILTER_SRGB*");
+        static_assert(static_cast<int>(TEX_COMPRESS_SRGB_OUT) == static_cast<int>(TEX_FILTER_SRGB_OUT), "TEX_COMPRESS_SRGB* should match TEX_FILTER_SRGB*");
+        static_assert(static_cast<int>(TEX_COMPRESS_SRGB) == static_cast<int>(TEX_FILTER_SRGB), "TEX_COMPRESS_SRGB* should match TEX_FILTER_SRGB*");
         return (compress & TEX_COMPRESS_SRGB);
     }
 
@@ -532,7 +530,7 @@ namespace DirectX
         }
 
         // Scan blocks for non-opaque alpha
-        static const XMVECTORF32 threshold = { 0.99f, 0.99f, 0.99f, 0.99f };
+        static const XMVECTORF32 threshold = { { { 0.99f, 0.99f, 0.99f, 0.99f } } };
 
         __declspec(align(16)) XMVECTOR temp[16];
         const uint8_t *pPixels = cImage.pixels;
@@ -802,7 +800,7 @@ HRESULT DirectX::Decompress(
             return E_INVALIDARG;
 
         if (IsTypeless(format) || IsPlanar(format) || IsPalettized(format))
-            HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
+            return HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
     }
 
     images.Release();
@@ -853,3 +851,8 @@ HRESULT DirectX::Decompress(
 
     return S_OK;
 }
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexCompress);
+

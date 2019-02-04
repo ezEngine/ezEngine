@@ -64,3 +64,4 @@ inline ezColor ezColorGammaUB::ToLinearFloat() const
 
   return ezColor(linear.x, linear.y, linear.z, ezMath::ColorByteToFloat(a));
 }
+

@@ -351,3 +351,4 @@ typename ezDequeBase<T, Construct>::const_reverse_iterator crend(const ezDequeBa
 }
 
 #include <Foundation/Containers/Implementation/Deque_inl.h>
+

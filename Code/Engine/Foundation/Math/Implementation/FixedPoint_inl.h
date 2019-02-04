@@ -141,3 +141,4 @@ ezFixedPoint<DecimalBits> operator/(const ezFixedPoint<DecimalBits>& lhs, ezInt3
   ret /= rhs;
   return ret;
 }
+

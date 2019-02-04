@@ -22,3 +22,4 @@ ezUInt16 ezWorldModuleFactory::RegisterWorldModule()
   const ezRTTI* pRtti = ezGetStaticRTTI<RTTIType>();
   return RegisterWorldModule(pRtti, &Helper::Create);
 }
+

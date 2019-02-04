@@ -120,3 +120,4 @@ ezResult ezDeduplicationWriteContext::WriteObjectInternal(ezStreamWriter& stream
 
   return EZ_SUCCESS;
 }
+

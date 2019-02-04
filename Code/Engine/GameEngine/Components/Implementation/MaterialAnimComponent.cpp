@@ -167,3 +167,4 @@ void ezMaterialAnimComponent::Update()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_MaterialAnimComponent);
+

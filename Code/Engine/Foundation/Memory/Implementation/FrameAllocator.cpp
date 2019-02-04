@@ -76,3 +76,4 @@ void ezFrameAllocator::Shutdown()
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_FrameAllocator);
+

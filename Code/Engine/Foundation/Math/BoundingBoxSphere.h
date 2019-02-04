@@ -79,3 +79,4 @@ bool operator!=(const ezBoundingBoxSphereTemplate<Type>& lhs, const ezBoundingBo
 
 
 #include <Foundation/Math/Implementation/BoundingBoxSphere_inl.h>
+

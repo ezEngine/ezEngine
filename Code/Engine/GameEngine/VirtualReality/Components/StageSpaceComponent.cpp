@@ -67,3 +67,4 @@ void ezStageSpaceComponent::OnDeactivated()
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VirtualReality_Components_StageSpaceComponent);
+

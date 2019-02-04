@@ -124,3 +124,4 @@ private:
   /// It allows to update hardware state, such as the vibration of gamepad motors.
   virtual void UpdateHardwareState(ezTime tTimeDifference) {}
 };
+

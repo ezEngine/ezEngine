@@ -33,3 +33,4 @@ namespace ezLogWriter
     ezFileWriter m_File;
   };
 }
+

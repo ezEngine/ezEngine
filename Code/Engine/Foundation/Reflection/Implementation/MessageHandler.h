@@ -98,3 +98,4 @@ namespace ezInternal
 
 #define EZ_IS_CONST_MESSAGE_HANDLER(Class, MessageType, Method)                                                                            \
   (sizeof(ezInternal::MessageHandlerTraits<Class, MessageType>::IsConst(Method)) == sizeof(ezCompileTimeTrueType))
+

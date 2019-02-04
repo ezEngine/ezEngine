@@ -81,3 +81,4 @@ private:
 
   ezHashTable<ezViewHandle, Context> m_ViewToContextTable;
 };
+

@@ -88,3 +88,4 @@ void ezSettingsComponentManager<ComponentType>::DeleteComponentStorage(ezCompone
     }
   }
 }
+

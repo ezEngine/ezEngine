@@ -58,3 +58,4 @@ private:
 
   static ezMap<ezString, FileCheckCache> s_FileTimestamps;
 };
+

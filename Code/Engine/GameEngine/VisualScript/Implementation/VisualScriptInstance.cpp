@@ -439,3 +439,4 @@ bool ezVisualScriptInstance::HandlesEventMessage(const ezEventMessage& msg) cons
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Implementation_VisualScriptInstance);
+

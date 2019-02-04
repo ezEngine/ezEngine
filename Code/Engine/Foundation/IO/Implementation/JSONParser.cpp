@@ -678,3 +678,4 @@ double ezJSONParser::ReadNumber()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_JSONParser);
+

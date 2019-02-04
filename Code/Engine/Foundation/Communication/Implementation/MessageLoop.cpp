@@ -187,3 +187,4 @@ void ezMessageLoop::RemoveChannel(ezIpcChannel* pChannel)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_MessageLoop);
+

@@ -38,3 +38,4 @@ struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseUpdated : public ezMessage
   const ezSkeleton* m_pSkeleton = nullptr;
   const ezAnimationPose* m_pPose = nullptr;
 };
+

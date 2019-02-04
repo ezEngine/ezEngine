@@ -345,3 +345,4 @@ protected:                                                                      
 private:
 
 #define EZ_RESOURCE_IMPLEMENT_CREATEABLE(SELF, SELF_DESCRIPTOR) ezResourceLoadDesc SELF::CreateResource(SELF_DESCRIPTOR&& descriptor)
+

@@ -23,3 +23,4 @@ inline ezColor ezColorLinear16f::ToLinearFloat() const
 {
   return ezColor(static_cast<float>(r), static_cast<float>(g), static_cast<float>(b), static_cast<float>(a));
 }
+

@@ -50,3 +50,4 @@ private:
   ezUInt32 m_uiTypeVersion;
   PatchType m_PatchType;
 };
+

@@ -89,3 +89,4 @@ public:
 };
 
 #include <Foundation/Strings/Implementation/PathUtils_inl.h>
+

@@ -102,3 +102,4 @@ EZ_ALWAYS_INLINE ezUInt32 ezHashingUtils::MurmurHash32String(StringWrapper str, 
 {
   return MurmurHash32(str.m_str, std::strlen(str.m_str), uiSeed);
 }
+

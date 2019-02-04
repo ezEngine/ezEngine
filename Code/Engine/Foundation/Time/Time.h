@@ -127,3 +127,4 @@ constexpr ezTime operator/(double f, ezTime t);
 
 
 #include <Foundation/Time/Implementation/Time_inl.h>
+

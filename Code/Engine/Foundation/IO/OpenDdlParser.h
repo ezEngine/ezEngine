@@ -203,3 +203,4 @@ private:
   float* m_pFloatCache;
   double* m_pDoubleCache;
 };
+

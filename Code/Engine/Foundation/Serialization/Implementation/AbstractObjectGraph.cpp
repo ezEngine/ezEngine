@@ -964,3 +964,4 @@ void ezAbstractObjectGraph::MergeArrays(const ezDynamicArray<ezVariant>& baseArr
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_AbstractObjectGraph);
+

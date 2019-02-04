@@ -81,3 +81,4 @@ void operator>>(ezStreamReader& Stream, ezTypedResourceHandle<ResourceType>& Val
 {
   ezResourceHandleReadContext::ReadHandle(&Stream, Value);
 }
+

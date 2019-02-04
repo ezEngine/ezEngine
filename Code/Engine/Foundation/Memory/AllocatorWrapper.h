@@ -32,3 +32,4 @@ struct EZ_FOUNDATION_DLL ezLocalAllocatorWrapper
 
   static ezAllocatorBase* GetAllocator();
 };
+

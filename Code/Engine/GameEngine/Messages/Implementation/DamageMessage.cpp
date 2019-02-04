@@ -70,3 +70,4 @@ void ezVisualScriptNode_OnDamage::HandleMessage(ezMessage* pMsg)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Messages_Implementation_DamageMessage);
+

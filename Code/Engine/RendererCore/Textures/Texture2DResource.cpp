@@ -473,3 +473,4 @@ void ezRenderToTexture2DResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUs
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_Texture2DResource);
+

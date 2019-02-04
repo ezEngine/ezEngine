@@ -36,3 +36,4 @@ EZ_ALWAYS_INLINE ezFormatStringImpl<ARGS...> ezFmt(const char* szFormat, ARGS&&.
 {
   return ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...);
 }
+

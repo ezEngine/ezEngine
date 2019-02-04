@@ -45,3 +45,4 @@ private:
   bool m_bShowCursor;
   bool m_bClipCursor;
 };
+

@@ -504,3 +504,4 @@ EZ_ALWAYS_INLINE bool ezWorld::ReportErrorWhenStaticObjectMoves() const
 {
   return m_Data.m_bReportErrorWhenStaticObjectMoves;
 }
+

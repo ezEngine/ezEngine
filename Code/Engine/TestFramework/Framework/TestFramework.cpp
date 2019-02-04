@@ -1158,3 +1158,4 @@ ezResult ezTestImage(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, const char* sz
 }
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_TestFramework);
+

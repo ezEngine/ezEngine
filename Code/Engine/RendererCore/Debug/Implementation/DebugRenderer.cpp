@@ -1114,3 +1114,4 @@ void ezDebugRenderer::OnEngineShutdown()
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Debug_Implementation_DebugRenderer);
+

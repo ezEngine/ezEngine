@@ -290,3 +290,4 @@ public:
 
 
 #include <Foundation/Strings/Implementation/StringUtils_inl.h>
+

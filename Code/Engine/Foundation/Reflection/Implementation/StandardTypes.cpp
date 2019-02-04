@@ -403,3 +403,4 @@ EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_StandardTypes);
+

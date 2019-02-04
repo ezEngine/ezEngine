@@ -319,3 +319,4 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Implementation_VisualScriptResource);
+

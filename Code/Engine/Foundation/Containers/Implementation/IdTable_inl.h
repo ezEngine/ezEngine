@@ -420,3 +420,4 @@ void ezIdTable<IdType, V, A>::operator=(const ezIdTableBase<IdType, V>& rhs)
 {
   ezIdTableBase<IdType, V>::operator=(rhs);
 }
+

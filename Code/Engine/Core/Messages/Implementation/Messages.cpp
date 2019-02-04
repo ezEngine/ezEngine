@@ -49,3 +49,4 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 EZ_STATICLINK_FILE(Core, Core_Messages_Implementation_Messages);
+

@@ -174,3 +174,4 @@ EZ_ALWAYS_INLINE bool ezSimdBBox::operator!=(const ezSimdBBox& rhs) const
 {
   return ((m_Min != rhs.m_Min) || (m_Max != rhs.m_Max)).AnySet<3>();
 }
+

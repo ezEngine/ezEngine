@@ -378,3 +378,4 @@ void ezTagSetTemplate<BlockStorageAllocator>::Load(ezStreamReader& stream, const
       Set(*pTag);
   }
 }
+

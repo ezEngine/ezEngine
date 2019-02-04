@@ -213,3 +213,4 @@ inline const char* ezLuaWrapper::GetStringParameter(ezUInt32 iParameter) const
 }
 
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
+

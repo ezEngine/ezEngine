@@ -18,3 +18,4 @@ public:
 private:
   ezVec3 m_vFallbackWind;
 };
+

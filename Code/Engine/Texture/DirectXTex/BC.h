@@ -3,12 +3,8 @@
 //  
 // Block-compression (BC) functionality
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//  
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
@@ -58,34 +54,34 @@ public:
     HDRColorA(const HDRColorA& c) : r(c.r), g(c.g), b(c.b), a(c.a) {}
 
     // binary operators
-    HDRColorA operator + ( const HDRColorA& c ) const
+    HDRColorA operator + (const HDRColorA& c) const
     {
         return HDRColorA(r + c.r, g + c.g, b + c.b, a + c.a);
     }
 
-    HDRColorA operator - ( const HDRColorA& c ) const
+    HDRColorA operator - (const HDRColorA& c) const
     {
         return HDRColorA(r - c.r, g - c.g, b - c.b, a - c.a);
     }
 
-    HDRColorA operator * ( float f ) const
+    HDRColorA operator * (float f) const
     {
         return HDRColorA(r * f, g * f, b * f, a * f);
     }
 
-    HDRColorA operator / ( float f ) const
+    HDRColorA operator / (float f) const
     {
         float fInv = 1.0f / f;
         return HDRColorA(r * fInv, g * fInv, b * fInv, a * fInv);
     }
 
-    float operator * ( const HDRColorA& c ) const
+    float operator * (const HDRColorA& c) const
     {
         return r * c.r + g * c.g + b * c.b + a * c.a;
     }
 
     // assignment operators
-    HDRColorA& operator += ( const HDRColorA& c )
+    HDRColorA& operator += (const HDRColorA& c)
     {
         r += c.r;
         g += c.g;
@@ -93,8 +89,8 @@ public:
         a += c.a;
         return *this;
     }
-    
-    HDRColorA& operator -= ( const HDRColorA& c )
+
+    HDRColorA& operator -= (const HDRColorA& c)
     {
         r -= c.r;
         g -= c.g;
@@ -102,8 +98,8 @@ public:
         a -= c.a;
         return *this;
     }
-    
-    HDRColorA& operator *= ( float f )
+
+    HDRColorA& operator *= (float f)
     {
         r *= f;
         g *= f;
@@ -111,8 +107,8 @@ public:
         a *= f;
         return *this;
     }
-    
-    HDRColorA& operator /= ( float f )
+
+    HDRColorA& operator /= (float f)
     {
         float fInv = 1.0f / f;
         r *= fInv;
@@ -174,7 +170,7 @@ struct D3DX_BC3
 //-------------------------------------------------------------------------------------
 #pragma warning(push)
 #pragma warning(disable : 4127)
-template <bool bRange> void OptimizeAlpha(float *pX, float *pY, const float *pPoints, size_t cSteps)
+template <bool bRange> void OptimizeAlpha(float *pX, float *pY, const float *pPoints, uint32_t cSteps)
 {
     static const float pC6[] = { 5.0f / 5.0f, 4.0f / 5.0f, 3.0f / 5.0f, 2.0f / 5.0f, 1.0f / 5.0f, 0.0f / 5.0f };
     static const float pD6[] = { 0.0f / 5.0f, 1.0f / 5.0f, 2.0f / 5.0f, 3.0f / 5.0f, 4.0f / 5.0f, 5.0f / 5.0f };
@@ -184,16 +180,8 @@ template <bool bRange> void OptimizeAlpha(float *pX, float *pY, const float *pPo
     const float *pC = (6 == cSteps) ? pC6 : pC8;
     const float *pD = (6 == cSteps) ? pD6 : pD8;
 
-    float MAX_VALUE = 1.0f;
-    float MIN_VALUE;
-    if (bRange)
-    {
-        MIN_VALUE = -1.0f;
-    }
-    else
-    {
-        MIN_VALUE = 0.0f;
-    }
+    const float MAX_VALUE = 1.0f;
+    const float MIN_VALUE = (bRange) ? -1.0f : 0.0f;
 
     // Find Min and Max points, as starting point
     float fX = MAX_VALUE;
@@ -228,16 +216,14 @@ template <bool bRange> void OptimizeAlpha(float *pX, float *pY, const float *pPo
     }
 
     // Use Newton's Method to find local minima of sum-of-squares error.
-    float fSteps = (float)(cSteps - 1);
+    auto fSteps = static_cast<float>(cSteps - 1);
 
     for (size_t iIteration = 0; iIteration < 8; iIteration++)
     {
-        float fScale;
-
         if ((fY - fX) < (1.0f / 256.0f))
             break;
 
-        fScale = fSteps / (fY - fX);
+        float fScale = fSteps / (fY - fX);
 
         // Calculate new steps
         float pSteps[8];
@@ -261,14 +247,13 @@ template <bool bRange> void OptimizeAlpha(float *pX, float *pY, const float *pPo
         {
             float fDot = (pPoints[iPoint] - fX) * fScale;
 
-            size_t iStep;
-
+            uint32_t iStep;
             if (fDot <= 0.0f)
                 iStep = ((6 == cSteps) && (pPoints[iPoint] <= fX * 0.5f)) ? 6 : 0;
             else if (fDot >= fSteps)
                 iStep = ((6 == cSteps) && (pPoints[iPoint] >= (fY + 1.0f) * 0.5f)) ? 7 : (cSteps - 1);
             else
-                iStep = static_cast<int32_t>(fDot + 0.5f);
+                iStep = uint32_t(fDot + 0.5f);
 
 
             if (iStep < cSteps)
@@ -337,4 +322,5 @@ void D3DXEncodeBC6HU(_Out_writes_(16) uint8_t *pBC, _In_reads_(NUM_PIXELS_PER_BL
 void D3DXEncodeBC6HS(_Out_writes_(16) uint8_t *pBC, _In_reads_(NUM_PIXELS_PER_BLOCK) const XMVECTOR *pColor, _In_ DWORD flags);
 void D3DXEncodeBC7(_Out_writes_(16) uint8_t *pBC, _In_reads_(NUM_PIXELS_PER_BLOCK) const XMVECTOR *pColor, _In_ DWORD flags);
 
-}; // namespace
+} // namespace
+

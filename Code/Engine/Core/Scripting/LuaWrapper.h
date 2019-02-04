@@ -335,3 +335,4 @@ private:
 #include <Core/Scripting/LuaWrapper/LuaWrapper.inl>
 
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
+

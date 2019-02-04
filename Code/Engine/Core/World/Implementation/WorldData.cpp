@@ -304,3 +304,4 @@ namespace ezInternal
 
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_WorldData);
+

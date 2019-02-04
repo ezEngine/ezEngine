@@ -64,3 +64,4 @@ private:
   ezRegisterSimpleTestHelper ezRegisterSimpleTest__##GroupName##TestName(                                                                  \
       &EZ_CONCAT(g_SimpleTestGroup__, GroupName), EZ_STRINGIZE(TestName), ezSimpleTestFunction__##GroupName##_##TestName);                 \
   static void ezSimpleTestFunction__##GroupName##_##TestName()
+

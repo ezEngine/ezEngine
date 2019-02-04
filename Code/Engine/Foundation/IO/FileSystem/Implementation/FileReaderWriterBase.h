@@ -86,3 +86,4 @@ protected:
 
   ezDataDirectoryWriter* m_pDataDirWriter;
 };
+

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Threading/Thread.h>
@@ -265,6 +265,5 @@ public:
 private:
   virtual ezUInt32 Run();
 };
-
 
 

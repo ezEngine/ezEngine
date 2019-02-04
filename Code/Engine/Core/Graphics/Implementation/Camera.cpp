@@ -331,3 +331,4 @@ void ezCamera::RotateGlobally(ezAngle X, ezAngle Y, ezAngle Z)
 
 
 EZ_STATICLINK_FILE(Core, Core_Graphics_Implementation_Camera);
+

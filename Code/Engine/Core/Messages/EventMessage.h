@@ -93,3 +93,4 @@ private:
 
   mutable ezComponentHandle m_hCachedReceiver;
 };
+

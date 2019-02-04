@@ -360,3 +360,4 @@ private:
 
   static InternalData* s_pData;
 };
+

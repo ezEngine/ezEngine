@@ -100,3 +100,4 @@ struct EZ_TEXTURE_DLL ezImageAddressMode
 
 
 #include <Texture/Image/Implementation/ImageFilter_inl.h>
+

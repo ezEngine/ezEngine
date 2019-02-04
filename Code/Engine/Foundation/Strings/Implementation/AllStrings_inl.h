@@ -78,3 +78,4 @@ void ezHybridStringBase<Size>::ReadAll(ezStreamReader& Stream)
 
   *this = (const char*)&Bytes[0];
 }
+

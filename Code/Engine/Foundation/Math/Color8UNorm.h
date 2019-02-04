@@ -93,3 +93,4 @@ EZ_CHECK_AT_COMPILETIME(sizeof(ezColorGammaUB) == 4);
 
 
 #include <Foundation/Math/Implementation/Color8UNorm_inl.h>
+

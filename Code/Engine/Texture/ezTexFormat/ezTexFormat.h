@@ -31,3 +31,4 @@ struct EZ_TEXTURE_DLL ezTexFormat
   void WriteRenderTargetHeader(ezStreamWriter& stream) const;
   void ReadHeader(ezStreamReader& stream);
 };
+

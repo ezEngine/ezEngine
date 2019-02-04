@@ -48,3 +48,4 @@ void ezThreadSignal::RaiseSignal()
 
   pthread_mutex_unlock(&m_Data.m_Mutex);
 }
+

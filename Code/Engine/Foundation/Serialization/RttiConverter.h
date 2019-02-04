@@ -101,3 +101,4 @@ private:
   ezRttiConverterContext* m_pContext;
   const ezAbstractObjectGraph* m_pGraph;
 };
+

@@ -92,3 +92,4 @@ void ezCollectionComponent::InitiatePreload()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Collection_Implementation_CollectionComponent);
+

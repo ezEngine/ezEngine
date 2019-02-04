@@ -142,3 +142,4 @@ public:
 #include <Foundation/IO/Implementation/StreamOperationsMath_inl.h>
 
 #include <Foundation/IO/Implementation/StreamOperationsOther_inl.h>
+

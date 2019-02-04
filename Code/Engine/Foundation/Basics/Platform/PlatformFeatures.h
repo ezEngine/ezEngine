@@ -36,3 +36,4 @@
 #ifndef EZ_SUPPORTS_CASE_INSENSITIVE_PATHS
 #error "EZ_SUPPORTS_CASE_INSENSITIVE_PATHS is not defined."
 #endif
+

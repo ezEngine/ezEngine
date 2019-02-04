@@ -163,3 +163,4 @@ private:                                                                        
   ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&func, instance), #func)
 
 #include <Core/World/Implementation/WorldModule_inl.h>
+

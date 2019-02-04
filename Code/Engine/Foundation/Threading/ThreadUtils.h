@@ -30,3 +30,4 @@ private:
   /// \brief Initialization functionality of the threading system (called by foundation startup and thus private)
   static void Initialize();
 };
+

@@ -742,3 +742,4 @@ void ezOpenDdlWriter::WriteBinaryAsString(const void* pData, ezUInt32 uiBytes)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_OpenDdlWriter);
+

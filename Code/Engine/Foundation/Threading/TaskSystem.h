@@ -308,3 +308,4 @@ private:
   // The target frame time used by FinishFrameTasks()
   static double s_fSmoothFrameMS;
 };
+

@@ -135,3 +135,4 @@ HRESULT ezUwpTestApplication::OnSessionRevoked(IInspectable* sender, IExtendedEx
 #endif
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_uwp_uwpTestApplication);
+

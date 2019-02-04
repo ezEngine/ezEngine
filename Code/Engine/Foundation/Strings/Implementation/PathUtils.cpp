@@ -257,3 +257,4 @@ ezResult ezPathUtils::MakeValidFilename(const char* szFilename, ezUInt32 replace
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_PathUtils);
+

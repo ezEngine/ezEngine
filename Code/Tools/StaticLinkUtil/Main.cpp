@@ -188,15 +188,10 @@ public:
 
   void SanitizeSourceCode(ezStringBuilder& sInOut)
   {
-    sInOut.ReplaceAll("\r", "");
-
     if (!sInOut.EndsWith("\n"))
       sInOut.Append("\n");
 
-    if (!sInOut.EndsWith("\n\n"))
-      sInOut.Append("\n");
-
-    while (sInOut.EndsWith("\n\n\n\n\n"))
+    while (sInOut.EndsWith("\n\n\n\n"))
       sInOut.Shrink(0, 1);
   }
 

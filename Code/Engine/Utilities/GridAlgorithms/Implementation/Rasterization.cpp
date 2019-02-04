@@ -493,3 +493,4 @@ void ez2DGridUtils::ComputeVisibleAreaInCone(ezInt32 iPosX, ezInt32 iPosY, ezUIn
 
 
 EZ_STATICLINK_FILE(Utilities, Utilities_GridAlgorithms_Implementation_Rasterization);
+

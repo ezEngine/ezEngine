@@ -164,3 +164,4 @@ private:
   ezHybridArray<ControlPoint, 8> m_ControlPoints;
   ezHybridArray<ezVec2d, 24> m_LinearApproximation;
 };
+

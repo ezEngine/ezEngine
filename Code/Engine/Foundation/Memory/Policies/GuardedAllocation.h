@@ -26,3 +26,4 @@ namespace ezMemoryPolicies
     ezStaticRingBuffer<void*, (1 << 16)> m_AllocationsToFreeLater;
   };
 }
+

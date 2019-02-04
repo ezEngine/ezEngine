@@ -421,3 +421,4 @@ void ezRttiConverterWriter::AddProperties(ezAbstractObjectNode* pNode, const ezR
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_RttiConverterWriter);
+

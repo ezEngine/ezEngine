@@ -264,3 +264,4 @@ EZ_FORCE_INLINE void ezBlockStorage<T, BlockSize, StorageType>::Delete(T* pObjec
   *reinterpret_cast<ezUInt32*>(pObject) = m_uiFreelistStart;
   m_uiFreelistStart = uiIndex;
 }
+

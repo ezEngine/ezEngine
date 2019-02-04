@@ -498,3 +498,4 @@ void ezTestFrameworkResult::ezTestResult::Reset()
 
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_TestResults);
+

@@ -51,3 +51,4 @@ const char* ezApplication::GetArgument(ezUInt32 uiArgument) const
 ezApplication* ezApplication::s_pApplicationInstance = nullptr;
 
 EZ_STATICLINK_FILE(Core, Core_Application_Implementation_Application);
+

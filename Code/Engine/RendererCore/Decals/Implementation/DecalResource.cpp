@@ -119,3 +119,4 @@ bool ezDecalResourceLoader::IsResourceOutdated(const ezResource* pResource) cons
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Decals_Implementation_DecalResource);
+

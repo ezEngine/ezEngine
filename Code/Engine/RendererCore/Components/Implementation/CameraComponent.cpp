@@ -765,3 +765,4 @@ ezCameraComponentPatch_8_9 g_ezCameraComponentPatch_8_9;
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_CameraComponent);
+

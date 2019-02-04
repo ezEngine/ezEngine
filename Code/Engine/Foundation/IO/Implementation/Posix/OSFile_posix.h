@@ -282,3 +282,4 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
 }
 
 #endif // EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+

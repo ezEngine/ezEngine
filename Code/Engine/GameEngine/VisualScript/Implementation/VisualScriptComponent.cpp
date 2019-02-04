@@ -353,3 +353,4 @@ bool ezVisualScriptComponent::GetParameter(const char* szKey, ezVariant& out_val
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Implementation_VisualScriptComponent);
+

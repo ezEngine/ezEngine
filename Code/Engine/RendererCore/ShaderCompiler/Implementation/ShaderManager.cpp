@@ -363,3 +363,4 @@ ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInter
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_ShaderCompiler_Implementation_ShaderManager);
+

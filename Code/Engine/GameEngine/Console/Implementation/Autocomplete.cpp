@@ -212,3 +212,4 @@ const ezString ezConsole::FindCommonString(const ezDeque<ezString>& vStrings)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Console_Implementation_Autocomplete);
+

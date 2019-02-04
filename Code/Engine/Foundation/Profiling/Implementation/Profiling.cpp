@@ -78,3 +78,4 @@ ezProfilingSystem::GPUData& ezProfilingSystem::AllocateGPUData()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Profiling_Implementation_Profiling);
+

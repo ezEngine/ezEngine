@@ -130,3 +130,4 @@ private:
   ezHybridArray<AlphaCP, 8> m_AlphaCPs;
   ezHybridArray<IntensityCP, 8> m_IntensityCPs;
 };
+

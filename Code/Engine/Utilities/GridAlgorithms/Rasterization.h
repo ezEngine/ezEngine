@@ -159,3 +159,4 @@ namespace ez2DGridUtils
                                                  EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = nullptr,
                                                  ezDynamicArray<ezUInt8>* pTempArray = nullptr);
 }
+

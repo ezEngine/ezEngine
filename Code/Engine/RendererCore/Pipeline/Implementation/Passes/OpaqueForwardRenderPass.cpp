@@ -101,3 +101,4 @@ void ezOpaqueForwardRenderPass::RenderObjects(const ezRenderViewContext& renderV
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_OpaqueForwardRenderPass);
+

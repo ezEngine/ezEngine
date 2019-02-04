@@ -326,3 +326,4 @@ ezUInt64 ezVariant::ComputeHash(ezUInt64 uiSeed) const
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_Variant);
+

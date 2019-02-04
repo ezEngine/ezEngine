@@ -119,3 +119,4 @@ void ezViewRenderMode::GetDebugText(Enum renderMode, ezStringBuilder& out_sDebug
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_ViewRenderMode);
+

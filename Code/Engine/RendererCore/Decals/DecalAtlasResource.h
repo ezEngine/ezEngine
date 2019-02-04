@@ -57,3 +57,4 @@ private:
   ezVec2U32 m_BaseColorSize;
   ezVec2U32 m_NormalSize;
 };
+

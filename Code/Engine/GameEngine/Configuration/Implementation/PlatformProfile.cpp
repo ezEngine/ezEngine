@@ -156,3 +156,8 @@ ezResult ezPlatformProfile::LoadForRuntime(const char* szFile)
 
   return EZ_SUCCESS;
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Configuration_Implementation_PlatformProfile);
+

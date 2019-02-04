@@ -85,3 +85,4 @@ ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_FileSystem_Implementation_FileReader);
+

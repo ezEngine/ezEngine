@@ -1,19 +1,17 @@
+#include <PCH.h>
+
 //-------------------------------------------------------------------------------------
 // DirectXTexPMAlpha.cpp
 //  
 // DirectX Texture Library - Premultiplied alpha operations
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
 
-#include "directxtexp.h"
+#include "DirectXTexp.h"
 
 using namespace DirectX;
 
@@ -26,7 +24,7 @@ namespace
         assert(srcImage.width == destImage.width);
         assert(srcImage.height == destImage.height);
 
-        ScopedAlignedArrayXMVECTOR scanline(reinterpret_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*srcImage.width), 16)));
+        ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*srcImage.width), 16)));
         if (!scanline)
             return E_OUTOFMEMORY;
 
@@ -64,12 +62,12 @@ namespace
         assert(srcImage.width == destImage.width);
         assert(srcImage.height == destImage.height);
 
-        static_assert(TEX_PMALPHA_SRGB_IN == TEX_FILTER_SRGB_IN, "TEX_PMALHPA_SRGB* should match TEX_FILTER_SRGB*");
-        static_assert(TEX_PMALPHA_SRGB_OUT == TEX_FILTER_SRGB_OUT, "TEX_PMALHPA_SRGB* should match TEX_FILTER_SRGB*");
-        static_assert(TEX_PMALPHA_SRGB == TEX_FILTER_SRGB, "TEX_PMALHPA_SRGB* should match TEX_FILTER_SRGB*");
+        static_assert(static_cast<int>(TEX_PMALPHA_SRGB_IN) == static_cast<int>(TEX_FILTER_SRGB_IN), "TEX_PMALHPA_SRGB* should match TEX_FILTER_SRGB*");
+        static_assert(static_cast<int>(TEX_PMALPHA_SRGB_OUT) == static_cast<int>(TEX_FILTER_SRGB_OUT), "TEX_PMALHPA_SRGB* should match TEX_FILTER_SRGB*");
+        static_assert(static_cast<int>(TEX_PMALPHA_SRGB) == static_cast<int>(TEX_FILTER_SRGB), "TEX_PMALHPA_SRGB* should match TEX_FILTER_SRGB*");
         flags &= TEX_PMALPHA_SRGB;
 
-        ScopedAlignedArrayXMVECTOR scanline(reinterpret_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*srcImage.width), 16)));
+        ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*srcImage.width), 16)));
         if (!scanline)
             return E_OUTOFMEMORY;
 
@@ -109,7 +107,7 @@ namespace
         assert(srcImage.width == destImage.width);
         assert(srcImage.height == destImage.height);
 
-        ScopedAlignedArrayXMVECTOR scanline(reinterpret_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*srcImage.width), 16)));
+        ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*srcImage.width), 16)));
         if (!scanline)
             return E_OUTOFMEMORY;
 
@@ -147,12 +145,12 @@ namespace
         assert(srcImage.width == destImage.width);
         assert(srcImage.height == destImage.height);
 
-        static_assert(TEX_PMALPHA_SRGB_IN == TEX_FILTER_SRGB_IN, "TEX_PMALHPA_SRGB* should match TEX_FILTER_SRGB*");
-        static_assert(TEX_PMALPHA_SRGB_OUT == TEX_FILTER_SRGB_OUT, "TEX_PMALHPA_SRGB* should match TEX_FILTER_SRGB*");
-        static_assert(TEX_PMALPHA_SRGB == TEX_FILTER_SRGB, "TEX_PMALHPA_SRGB* should match TEX_FILTER_SRGB*");
+        static_assert(static_cast<int>(TEX_PMALPHA_SRGB_IN) == static_cast<int>(TEX_FILTER_SRGB_IN), "TEX_PMALHPA_SRGB* should match TEX_FILTER_SRGB*");
+        static_assert(static_cast<int>(TEX_PMALPHA_SRGB_OUT) == static_cast<int>(TEX_FILTER_SRGB_OUT), "TEX_PMALHPA_SRGB* should match TEX_FILTER_SRGB*");
+        static_assert(static_cast<int>(TEX_PMALPHA_SRGB) == static_cast<int>(TEX_FILTER_SRGB), "TEX_PMALHPA_SRGB* should match TEX_FILTER_SRGB*");
         flags &= TEX_PMALPHA_SRGB;
 
-        ScopedAlignedArrayXMVECTOR scanline(reinterpret_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*srcImage.width), 16)));
+        ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*srcImage.width), 16)));
         if (!scanline)
             return E_OUTOFMEMORY;
 
@@ -326,3 +324,8 @@ HRESULT DirectX::PremultiplyAlpha(
 
     return S_OK;
 }
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexPMAlpha);
+

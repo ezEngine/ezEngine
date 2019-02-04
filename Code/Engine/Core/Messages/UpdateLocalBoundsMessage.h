@@ -20,3 +20,4 @@ private:
   ezBoundingBoxSphere m_ResultingLocalBounds;
   bool m_bAlwaysVisible = false;
 };
+

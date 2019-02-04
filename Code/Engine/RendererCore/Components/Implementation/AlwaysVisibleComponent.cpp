@@ -38,3 +38,8 @@ ezResult ezAlwaysVisibleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, b
   bAlwaysVisible = true;
   return EZ_SUCCESS;
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_AlwaysVisibleComponent);
+

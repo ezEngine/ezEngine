@@ -158,3 +158,4 @@ private:
   static ezStartupStage::Enum s_CurrentState;
   static ezDynamicArray<const char*> s_ApplicationTags;
 };
+

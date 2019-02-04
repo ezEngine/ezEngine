@@ -290,3 +290,4 @@ EZ_ALWAYS_INLINE void ezSharedPtr<T>::ReleaseReferenceIfValid()
     m_pAllocator = nullptr;
   }
 }
+

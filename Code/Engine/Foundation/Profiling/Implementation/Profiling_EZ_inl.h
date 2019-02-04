@@ -336,3 +336,4 @@ void ezProfilingListScope::StartNextSection(const char* szNextSectionName)
     e.m_szFunctionName = nullptr;
   }
 }
+

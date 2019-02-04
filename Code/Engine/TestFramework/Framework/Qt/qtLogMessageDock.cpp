@@ -265,3 +265,4 @@ void ezQtLogMessageModel::UpdateVisibleEntries()
 #endif
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_Qt_qtLogMessageDock);
+

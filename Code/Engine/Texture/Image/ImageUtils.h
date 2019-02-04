@@ -123,3 +123,4 @@ public:
   static void CreateCubemapFrom6Files(ezImage& dstImg, const ezImageView* pSourceImages);
 
 };
+

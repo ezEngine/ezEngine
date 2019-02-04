@@ -1213,3 +1213,4 @@ void ezResourceManager::EnableExportMode()
 }
 
 EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_ResourceManager);
+

@@ -48,3 +48,4 @@ void ezLogEntryDelegate::HandleLogMessage(const ezLoggingEventData& le)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_LogEntry);
+

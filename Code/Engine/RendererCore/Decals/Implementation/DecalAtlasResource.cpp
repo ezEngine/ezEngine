@@ -222,3 +222,4 @@ void ezDecalAtlasResource::ReportResourceIsMissing()
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Decals_Implementation_DecalAtlasResource);
+

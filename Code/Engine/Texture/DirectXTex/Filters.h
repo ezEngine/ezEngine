@@ -3,12 +3,8 @@
 //  
 // Utility header with helpers for implementing image filters
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //-------------------------------------------------------------------------------------
 
 #pragma once
@@ -27,27 +23,27 @@ namespace DirectX
 // Box filtering helpers
 //-------------------------------------------------------------------------------------
 
-XMGLOBALCONST XMVECTORF32 g_boxScale = { 0.25f, 0.25f, 0.25f, 0.25f };
-XMGLOBALCONST XMVECTORF32 g_boxScale3D = { 0.125f, 0.125f, 0.125f, 0.125f };
+XMGLOBALCONST XMVECTORF32 g_boxScale   = { { { 0.25f, 0.25f, 0.25f, 0.25f } } };
+XMGLOBALCONST XMVECTORF32 g_boxScale3D = { { { 0.125f, 0.125f, 0.125f, 0.125f } } };
 
 #define AVERAGE4( res, p0, p1, p2, p3 ) \
 { \
-    XMVECTOR v = XMVectorAdd( (p0), (p1) ); \
-    v = XMVectorAdd( v, (p2) ); \
-    v = XMVectorAdd( v, (p3) ); \
-    res = XMVectorMultiply( v, g_boxScale ); \
+    XMVECTOR v = XMVectorAdd((p0), (p1)); \
+    v = XMVectorAdd(v, (p2)); \
+    v = XMVectorAdd(v, (p3)); \
+    res = XMVectorMultiply(v, g_boxScale); \
 }
 
 #define AVERAGE8( res, p0, p1, p2, p3, p4, p5, p6, p7) \
 { \
-    XMVECTOR v = XMVectorAdd( (p0), (p1) ); \
-    v = XMVectorAdd( v, (p2) ); \
-    v = XMVectorAdd( v, (p3) ); \
-    v = XMVectorAdd( v, (p4) ); \
-    v = XMVectorAdd( v, (p5) ); \
-    v = XMVectorAdd( v, (p6) ); \
-    v = XMVectorAdd( v, (p7) ); \
-    res = XMVectorMultiply( v, g_boxScale3D ); \
+    XMVECTOR v = XMVectorAdd((p0), (p1)); \
+    v = XMVectorAdd(v, (p2)); \
+    v = XMVectorAdd(v, (p3)); \
+    v = XMVectorAdd(v, (p4)); \
+    v = XMVectorAdd(v, (p5)); \
+    v = XMVectorAdd(v, (p6)); \
+    v = XMVectorAdd(v, (p7)); \
+    res = XMVectorMultiply(v, g_boxScale3D); \
 }
 
 
@@ -67,7 +63,7 @@ inline void _CreateLinearFilter(_In_ size_t source, _In_ size_t dest, _In_ bool 
 {
     assert(source > 0);
     assert(dest > 0);
-    assert(lf != 0);
+    assert(lf != nullptr);
 
     float scale = float(source) / float(dest);
 
@@ -102,23 +98,25 @@ inline void _CreateLinearFilter(_In_ size_t source, _In_ size_t dest, _In_ bool 
 }
 
 #define BILINEAR_INTERPOLATE( res, x, y, r0, r1 ) \
-    res = ( y.weight0 * ( (r0)[ x.u0 ] * x.weight0 + (r0)[ x.u1 ] * x.weight1 ) ) \
-          + ( y.weight1 * ( (r1)[ x.u0 ] * x.weight0 + (r1)[ x.u1 ] * x.weight1 ) )
+    res = XMVectorAdd(XMVectorScale(XMVectorAdd(XMVectorScale((r0)[ x.u0 ], x.weight0), XMVectorScale((r0)[ x.u1 ], x.weight1)), y.weight0), \
+                      XMVectorScale(XMVectorAdd(XMVectorScale((r1)[ x.u0 ], x.weight0), XMVectorScale((r1)[ x.u1 ], x.weight1)), y.weight1) )
 
 #define TRILINEAR_INTERPOLATE( res, x, y, z, r0, r1, r2, r3 ) \
-    res = ( z.weight0 * ( ( y.weight0 * ( (r0)[ x.u0 ] * x.weight0 + (r0)[ x.u1 ] * x.weight1 ) ) \
-                          + ( y.weight1 * ( (r1)[ x.u0 ] * x.weight0 + (r1)[ x.u1 ] * x.weight1 ) ) ) ) \
-          + ( z.weight1 * ( ( y.weight0 * ( (r2)[ x.u0 ] * x.weight0 + (r2)[ x.u1 ] * x.weight1 ) ) \
-                             + ( y.weight1 * ( (r3)[ x.u0 ] * x.weight0 + (r3)[ x.u1 ] * x.weight1 ) ) ) )
-
+{\
+    XMVECTOR a0 = XMVectorScale(XMVectorAdd(XMVectorScale((r0)[ x.u0 ], x.weight0 ), XMVectorScale((r0)[ x.u1 ], x.weight1)), y.weight0); \
+    XMVECTOR a1 = XMVectorScale(XMVectorAdd(XMVectorScale((r1)[ x.u0 ], x.weight0 ), XMVectorScale((r1)[ x.u1 ], x.weight1)), y.weight1); \
+    XMVECTOR a2 = XMVectorScale(XMVectorAdd(XMVectorScale((r2)[ x.u0 ], x.weight0 ), XMVectorScale((r2)[ x.u1 ], x.weight1)), y.weight0); \
+    XMVECTOR a3 = XMVectorScale(XMVectorAdd(XMVectorScale((r3)[ x.u0 ], x.weight0 ), XMVectorScale((r3)[ x.u1 ], x.weight1)), y.weight1); \
+    res = XMVectorAdd(XMVectorScale(XMVectorAdd(a0, a1), z.weight0), XMVectorScale(XMVectorAdd(a2, a3), z.weight1)); \
+}
 
 //-------------------------------------------------------------------------------------
 // Cubic filtering helpers
 //-------------------------------------------------------------------------------------
 
-XMGLOBALCONST XMVECTORF32 g_cubicThird = { 1.f/3.f, 1.f/3.f, 1.f/3.f, 1.f/3.f }; 
-XMGLOBALCONST XMVECTORF32 g_cubicSixth = { 1.f/6.f, 1.f/6.f, 1.f/6.f, 1.f/6.f }; 
-XMGLOBALCONST XMVECTORF32 g_cubicHalf = { 1.f/2.f, 1.f/2.f, 1.f/2.f, 1.f/2.f };
+XMGLOBALCONST XMVECTORF32 g_cubicThird = { { { 1.f / 3.f, 1.f / 3.f, 1.f / 3.f, 1.f / 3.f } } };
+XMGLOBALCONST XMVECTORF32 g_cubicSixth = { { { 1.f / 6.f, 1.f / 6.f, 1.f / 6.f, 1.f / 6.f } } };
+XMGLOBALCONST XMVECTORF32 g_cubicHalf  = { { { 1.f / 2.f, 1.f / 2.f, 1.f / 2.f, 1.f / 2.f } } };
 
 inline ptrdiff_t bounduvw(ptrdiff_t u, ptrdiff_t maxu, bool wrap, bool mirror)
 {
@@ -165,7 +163,7 @@ inline void _CreateCubicFilter(_In_ size_t source, _In_ size_t dest, _In_ bool w
 {
     assert(source > 0);
     assert(dest > 0);
-    assert(cf != 0);
+    assert(cf != nullptr);
 
     float scale = float(source) / float(dest);
 
@@ -192,16 +190,18 @@ inline void _CreateCubicFilter(_In_ size_t source, _In_ size_t dest, _In_ bool w
 #define CUBIC_INTERPOLATE( res, dx, p0, p1, p2, p3 ) \
 { \
     XMVECTOR a0 = (p1); \
-    XMVECTOR d0 = (p0) - a0; \
-    XMVECTOR d2 = (p2) - a0; \
-    XMVECTOR d3 = (p3) - a0; \
-    XMVECTOR a1 = d2 - g_cubicThird*d0 - g_cubicSixth*d3; \
-    XMVECTOR a2 = g_cubicHalf*d0 + g_cubicHalf*d2; \
-    XMVECTOR a3 = g_cubicSixth*d3 - g_cubicSixth*d0 - g_cubicHalf*d2;  \
-    XMVECTOR vdx = XMVectorReplicate( dx ); \
-    XMVECTOR vdx2 = vdx * vdx; \
-    XMVECTOR vdx3 = vdx2 * vdx; \
-    res = a0 + a1*vdx + a2*vdx2 + a3*vdx3; \
+    XMVECTOR d0 = XMVectorSubtract(p0, a0); \
+    XMVECTOR d2 = XMVectorSubtract(p2, a0); \
+    XMVECTOR d3 = XMVectorSubtract(p3, a0); \
+    XMVECTOR a1 = XMVectorSubtract(d2, XMVectorMultiply(g_cubicThird, d0)); \
+    a1 = XMVectorSubtract(a1, XMVectorMultiply(g_cubicSixth, d3)); \
+    XMVECTOR a2 = XMVectorAdd(XMVectorMultiply(g_cubicHalf, d0), XMVectorMultiply(g_cubicHalf, d2)); \
+    XMVECTOR a3 = XMVectorSubtract(XMVectorMultiply(g_cubicSixth, d3), XMVectorMultiply(g_cubicSixth, d0)); \
+    a3 = XMVectorSubtract(a3, XMVectorMultiply(g_cubicHalf, d2)); \
+    XMVECTOR vdx = XMVectorReplicate(dx); \
+    XMVECTOR vdx2 = XMVectorMultiply(vdx, vdx); \
+    XMVECTOR vdx3 = XMVectorMultiply(vdx2, vdx); \
+    res = XMVectorAdd(XMVectorAdd(XMVectorAdd(a0, XMVectorMultiply(a1, vdx)), XMVectorMultiply(a2, vdx2)), XMVectorMultiply(a3, vdx3)); \
 }
 
 
@@ -237,7 +237,7 @@ namespace TriangleFilter
         TriangleRow*                next;
         ScopedAlignedArrayXMVECTOR  scanline;
 
-        TriangleRow() : remaining(0), next(nullptr) {}
+        TriangleRow() noexcept : remaining(0), next(nullptr) {}
     };
 
     static const size_t TF_FILTER_SIZE = sizeof(Filter) - sizeof(FilterFrom);
@@ -263,8 +263,8 @@ namespace TriangleFilter
             float src = float(u) - 0.5f;
             float destMin = src * scale;
             float destMax = destMin + scale;
-
-            totalSize += TF_FROM_SIZE + TF_TO_SIZE + size_t(destMax - destMin + repeat + 1.f) * TF_TO_SIZE * 2;
+            float t = destMax - destMin + repeat + 1.f;
+            totalSize += TF_FROM_SIZE + TF_TO_SIZE + size_t(t) * TF_TO_SIZE * 2;
         }
 
         uint8_t* pFilter = nullptr;
@@ -294,7 +294,7 @@ namespace TriangleFilter
             tf->totalSize = totalSize;
         }
 
-        assert(pFilter != 0);
+        assert(pFilter != nullptr);
         _Analysis_assume_(pFilter != 0);
 
         // Filter setup
@@ -418,6 +418,7 @@ namespace TriangleFilter
         return S_OK;
     }
 
-}; // namespace TriangleFilter
+} // namespace TriangleFilter
 
-}; // namespace DirectX
+} // namespace DirectX
+

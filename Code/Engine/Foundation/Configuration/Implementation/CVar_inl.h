@@ -72,3 +72,4 @@ void ezTypedCVar<Type, CVarType>::operator=(const Type& value)
   // broadcast the same to the 'all cvars' event handlers
   s_AllCVarEvents.Broadcast(e);
 }
+

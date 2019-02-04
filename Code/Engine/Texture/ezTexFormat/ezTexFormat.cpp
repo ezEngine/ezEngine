@@ -72,3 +72,8 @@ void ezTexFormat::ReadHeader(ezStreamReader& stream)
     stream >> m_GalRenderTargetFormat;
   }
 }
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_ezTexFormat_ezTexFormat);
+

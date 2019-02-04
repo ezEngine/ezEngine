@@ -215,3 +215,4 @@ ezSeparatedBilateralBlurPassPatch_1_2 g_ezSeparatedBilateralBlurPassPatch_1_2;
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_SeparatedBilateralBlur);
+

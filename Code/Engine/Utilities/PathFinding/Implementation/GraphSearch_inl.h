@@ -217,3 +217,4 @@ ezResult ezPathSearch<PathStateType>::FindClosest(ezInt64 iStartNodeIndex, const
   m_pStateGenerator->SearchFinished(EZ_FAILURE);
   return EZ_FAILURE;
 }
+

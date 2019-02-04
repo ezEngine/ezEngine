@@ -170,3 +170,4 @@ void ezBitfield<Container>::ClearRange(ezUInt32 uiFirstBit, ezUInt32 uiLastBit)
   for (ezUInt32 i = uiPrevIntBit; i <= uiLastBit; ++i)
     ClearBit(i);
 }
+

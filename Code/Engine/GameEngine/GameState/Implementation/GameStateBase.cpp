@@ -25,3 +25,8 @@ bool ezGameStateBase::WasQuitRequested() const
 {
   return m_bStateWantsToQuit;
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_GameState_Implementation_GameStateBase);
+

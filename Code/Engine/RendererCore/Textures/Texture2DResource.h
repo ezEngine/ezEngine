@@ -110,3 +110,4 @@ protected:
   ezDynamicArray<ezViewHandle> m_RenderViews;
 
 };
+

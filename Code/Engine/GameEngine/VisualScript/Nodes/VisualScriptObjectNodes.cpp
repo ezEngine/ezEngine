@@ -170,3 +170,4 @@ void* ezVisualScriptNode_HasName::GetInputPinDataPointer(ezUInt8 uiPin)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Nodes_VisualScriptObjectNodes);
+

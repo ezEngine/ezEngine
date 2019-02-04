@@ -231,3 +231,4 @@ class ezVariantHelper
     ezString* m_pResult;
   };
 };
+

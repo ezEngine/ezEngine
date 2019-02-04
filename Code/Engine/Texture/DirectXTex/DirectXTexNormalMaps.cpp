@@ -1,19 +1,17 @@
+#include <PCH.h>
+
 //-------------------------------------------------------------------------------------
 // DirectXTexNormalMaps.cpp
 //  
 // DirectX Texture Library - Normal map operations
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
 
-#include "directxtexp.h"
+#include "DirectXTexp.h"
 
 using namespace DirectX;
 
@@ -25,7 +23,7 @@ namespace
     {
         XMFLOAT4A f;
 
-        static XMVECTORF32 lScale = { 0.2125f, 0.7154f, 0.0721f, 1.f };
+        static XMVECTORF32 lScale = { { { 0.2125f, 0.7154f, 0.0721f, 1.f } } };
 
         static_assert(CNMAP_CHANNEL_RED == 0x1, "CNMAP_CHANNEL_ flag values don't match mask");
         switch (flags & 0xf)
@@ -42,7 +40,6 @@ namespace
             XMStoreFloat4A(&f, v);
             return f.x + f.y + f.z;
         }
-        break;
 
         default:
             assert(false);
@@ -97,11 +94,11 @@ namespace
             return E_FAIL;
 
         // Allocate temporary space (4 scanlines and 3 evaluated rows)
-        ScopedAlignedArrayXMVECTOR scanline(reinterpret_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*width * 4), 16)));
+        ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*width * 4), 16)));
         if (!scanline)
             return E_OUTOFMEMORY;
 
-        ScopedAlignedArrayFloat buffer(reinterpret_cast<float*>(_aligned_malloc(((sizeof(float) * (width + 2)) * 3), 16)));
+        ScopedAlignedArrayFloat buffer(static_cast<float*>(_aligned_malloc(((sizeof(float) * (width + 2)) * 3), 16)));
         if (!buffer)
             return E_OUTOFMEMORY;
 
@@ -395,3 +392,8 @@ HRESULT DirectX::ComputeNormalMap(
 
     return S_OK;
 }
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexNormalMaps);
+

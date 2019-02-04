@@ -398,3 +398,4 @@ const char* ezInputManager::GetInputSlotTouchPointPositionY(unsigned int index)
 }
 
 EZ_STATICLINK_FILE(Core, Core_Input_Implementation_InputManager);
+

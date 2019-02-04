@@ -16,3 +16,4 @@ public:
   /// \brief Extracts the render geometry for export etc.
   void OnExtractGeometry(ezMsgExtractGeometry& msg);
 };
+

@@ -13,3 +13,4 @@ public:
 
   ezGALSwapChainHandle m_hSwapChain;
 };
+

@@ -102,3 +102,4 @@ EZ_ALWAYS_INLINE ezAtomicInteger<T>::operator T() const
 {
   return ezAtomicUtils::Read(m_value);
 }
+

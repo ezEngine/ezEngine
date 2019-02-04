@@ -63,3 +63,4 @@ EZ_ALWAYS_INLINE T ezDynamicCast(const ezReflectedClass* pObject)
   }
   return nullptr;
 }
+

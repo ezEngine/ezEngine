@@ -50,4 +50,5 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 
-EZ_STATICLINK_FILE(InputXBox360, InputXBox360_Startup);
+EZ_STATICLINK_FILE(System, System_XBoxController_Startup);
+

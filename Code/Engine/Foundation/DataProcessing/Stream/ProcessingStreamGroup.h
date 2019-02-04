@@ -111,3 +111,4 @@ private:
 
   bool m_bStreamAssignmentDirty;
 };
+

@@ -130,3 +130,4 @@ bool ezGraphicsUtils::IsTriangleFlipRequired(const ezMat3& mTransformation)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_GraphicsUtils);
+

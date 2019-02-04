@@ -476,3 +476,4 @@ bool ezBoundingBoxTemplate<Type>::GetLineSegmentIntersection(const ezVec3Templat
 
 
 #include <Foundation/Math/Implementation/AllClasses_inl.h>
+

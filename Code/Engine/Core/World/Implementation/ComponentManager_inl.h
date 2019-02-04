@@ -215,3 +215,4 @@ void ezComponentManagerSimple<ComponentType, UpdateType, StorageType>::SimpleUpd
     out_sName = sName;
   }
 }
+

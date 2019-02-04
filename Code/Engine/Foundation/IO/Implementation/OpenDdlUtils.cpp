@@ -1459,3 +1459,4 @@ void ezOpenDdlUtils::StoreUInt64(ezOpenDdlWriter& writer, ezUInt64 value, const 
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_OpenDdlUtils);
+

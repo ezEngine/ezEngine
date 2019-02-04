@@ -588,3 +588,4 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CopySign(const ezSimdVec4f& magnitude,
   __m128 minusZero = _mm_set1_ps(-0.0f);
   return _mm_or_ps(_mm_andnot_ps(minusZero, magnitude.m_v), _mm_and_ps(minusZero, sign.m_v));
 }
+

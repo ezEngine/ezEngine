@@ -627,3 +627,4 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
   {                                                                                                                                        \
     #MemberName, ezGetStaticRTTI < EZ_MEMBER_TYPE(OwnType, MemberName)::MessageType > ()                                                   \
   }
+

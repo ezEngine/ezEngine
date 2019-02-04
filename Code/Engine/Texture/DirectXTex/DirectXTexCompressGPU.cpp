@@ -1,31 +1,29 @@
+#include <PCH.h>
+
 //-------------------------------------------------------------------------------------
 // DirectXTexCompressGPU.cpp
-//
+//  
 // DirectX Texture Library - DirectCompute-based texture compression
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
 
-#include "directxtexp.h"
+#include "DirectXTexp.h"
 
 #include "bcdirectcompute.h"
 
 using namespace DirectX;
 
-namespace NS_FIX_2
+namespace
 {
     inline DWORD GetSRGBFlags(_In_ DWORD compress)
     {
-        static_assert(TEX_COMPRESS_SRGB_IN == TEX_FILTER_SRGB_IN, "TEX_COMPRESS_SRGB* should match TEX_FILTER_SRGB*");
-        static_assert(TEX_COMPRESS_SRGB_OUT == TEX_FILTER_SRGB_OUT, "TEX_COMPRESS_SRGB* should match TEX_FILTER_SRGB*");
-        static_assert(TEX_COMPRESS_SRGB == TEX_FILTER_SRGB, "TEX_COMPRESS_SRGB* should match TEX_FILTER_SRGB*");
+        static_assert(static_cast<int>(TEX_COMPRESS_SRGB_IN) == static_cast<int>(TEX_FILTER_SRGB_IN), "TEX_COMPRESS_SRGB* should match TEX_FILTER_SRGB*");
+        static_assert(static_cast<int>(TEX_COMPRESS_SRGB_OUT) == static_cast<int>(TEX_FILTER_SRGB_OUT), "TEX_COMPRESS_SRGB* should match TEX_FILTER_SRGB*");
+        static_assert(static_cast<int>(TEX_COMPRESS_SRGB) == static_cast<int>(TEX_FILTER_SRGB), "TEX_COMPRESS_SRGB* should match TEX_FILTER_SRGB*");
         return (compress & TEX_COMPRESS_SRGB);
     }
 
@@ -62,7 +60,7 @@ namespace NS_FIX_2
             return E_POINTER;
         }
 
-        ScopedAlignedArrayXMVECTOR scanline(reinterpret_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR) * srcImage.width), 16)));
+        ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR) * srcImage.width), 16)));
         if (!scanline)
         {
             image.Release();
@@ -167,7 +165,7 @@ namespace NS_FIX_2
         {
             // Convert format and then use as the source image
             ScratchImage image;
-            HRESULT hr;
+            HRESULT hr = E_UNEXPECTED;
 
             DWORD srgb = GetSRGBFlags(compress);
 
@@ -186,7 +184,6 @@ namespace NS_FIX_2
                 break;
 
             default:
-                hr = E_UNEXPECTED;
                 break;
             }
 
@@ -250,7 +247,7 @@ HRESULT DirectX::Compress(
         return E_POINTER;
     }
 
-    hr = NS_FIX_2::GPUCompress(gpubc.get(), srcImage, *img, compress);
+    hr = GPUCompress(gpubc.get(), srcImage, *img, compress);
     if (FAILED(hr))
         image.Release();
 
@@ -346,7 +343,7 @@ HRESULT DirectX::Compress(
                     return E_FAIL;
                 }
 
-                hr = NS_FIX_2::GPUCompress(gpubc.get(), src, dest[index], compress);
+                hr = GPUCompress(gpubc.get(), src, dest[index], compress);
                 if (FAILED(hr))
                 {
                     cImages.Release();
@@ -397,7 +394,7 @@ HRESULT DirectX::Compress(
                     return E_FAIL;
                 }
 
-                hr = NS_FIX_2::GPUCompress(gpubc.get(), src, dest[index], compress);
+                hr = GPUCompress(gpubc.get(), src, dest[index], compress);
                 if (FAILED(hr))
                 {
                     cImages.Release();
@@ -423,3 +420,8 @@ HRESULT DirectX::Compress(
 
     return S_OK;
 }
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexCompressGPU);
+

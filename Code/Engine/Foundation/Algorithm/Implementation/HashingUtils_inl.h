@@ -125,3 +125,4 @@ struct ezHashHelper<T*>
     return a == b;
   }
 };
+

@@ -203,3 +203,4 @@ ezWindow::~ezWindow()
 }
 
 EZ_STATICLINK_FILE(System, System_Window_Implementation_Window);
+

@@ -35,3 +35,4 @@ namespace ezMemoryPolicies
     ezAllocatorBase* m_pParent;
   };
 }
+

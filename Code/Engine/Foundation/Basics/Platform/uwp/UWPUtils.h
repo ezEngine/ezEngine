@@ -150,3 +150,4 @@ namespace ezUwpUtils
   ezUuid EZ_FOUNDATION_DLL ConvertGuid(const GUID& in);
   void EZ_FOUNDATION_DLL ConvertGuid(const ezUuid& in, GUID& out);
 }
+

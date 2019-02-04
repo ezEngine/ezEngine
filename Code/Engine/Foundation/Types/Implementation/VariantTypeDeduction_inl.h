@@ -556,3 +556,4 @@ struct ezVariant::TypeDeduction<T*>
 };
 
 /// \endcond
+

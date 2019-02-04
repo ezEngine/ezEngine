@@ -15,3 +15,4 @@ ezGALResourceView::~ezGALResourceView() {}
 
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Resources_Implementation_ResourceView);
+

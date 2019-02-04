@@ -17,3 +17,4 @@ EZ_ENUM_CONSTANTS(ezGALMSAASampleCount::None, ezGALMSAASampleCount::TwoSamples, 
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Basics);
+

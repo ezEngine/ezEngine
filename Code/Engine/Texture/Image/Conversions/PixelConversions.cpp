@@ -1422,4 +1422,5 @@ static ezImageConversion_R11G11B10_to_FLOAT s_conversion_R11G11B10_to_FLOAT;
 static ezImageConversion_R11G11B10_to_HALF s_conversion_R11G11B10_to_HALF;
 static ezImageConversion_FLOAT_to_R11G11B10 s_conversion_FLOAT_to_R11G11B10;
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Image_Conversions_PixelConversions);
+EZ_STATICLINK_FILE(Texture, Texture_Image_Conversions_PixelConversions);
+

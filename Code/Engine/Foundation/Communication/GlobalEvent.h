@@ -97,4 +97,3 @@ private:
   static void EventHandler_##name (const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3)
 
 
-

@@ -78,3 +78,4 @@ private:
   bool m_bIsValid = false;
   ezHybridArray<ResolvedStep, 2> m_PathSteps;
 };
+

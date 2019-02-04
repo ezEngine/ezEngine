@@ -102,3 +102,4 @@ template <typename Method, typename Class>
 typename ezMakeDelegateHelper<Method>::DelegateType ezMakeDelegate(Method method, Class* pClass);
 
 #include <Foundation/Types/Implementation/Delegate_inl.h>
+

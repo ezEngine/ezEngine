@@ -158,3 +158,4 @@ void ezMeshComponent::OnExtractGeometry(ezMsgExtractGeometry& msg)
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshComponent);
+

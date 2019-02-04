@@ -115,3 +115,4 @@ void ezIpcChannelEnet::EnetEventHandler(const ezRemoteEvent& e)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_IpcChannelEnet);
+

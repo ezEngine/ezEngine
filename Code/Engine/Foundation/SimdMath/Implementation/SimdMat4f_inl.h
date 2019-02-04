@@ -191,3 +191,4 @@ EZ_ALWAYS_INLINE bool ezSimdMat4f::operator!=(const ezSimdMat4f& other) const
 {
   return !(*this == other);
 }
+

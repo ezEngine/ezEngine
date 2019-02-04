@@ -4,4 +4,5 @@
 #include <tmmintrin.h>
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Image_Conversions_SwizzleConversions);
+EZ_STATICLINK_FILE(Texture, Texture_Image_Conversions_SwizzleConversions);
+

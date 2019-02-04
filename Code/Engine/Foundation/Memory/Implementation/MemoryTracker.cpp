@@ -406,3 +406,4 @@ ezMemoryTracker::Iterator ezMemoryTracker::GetIterator()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_MemoryTracker);
+

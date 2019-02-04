@@ -123,3 +123,4 @@ template <typename Type>
 bool operator!=(const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2); // [tested]
 
 #include <Foundation/Math/Implementation/Quat_inl.h>
+

@@ -636,3 +636,4 @@ ezSpatialSystem_RegularGrid::Cell* ezSpatialSystem_RegularGrid::GetOrCreateCell(
 
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_SpatialSystem_RegularGrid);
+

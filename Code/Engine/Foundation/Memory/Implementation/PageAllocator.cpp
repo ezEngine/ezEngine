@@ -30,3 +30,4 @@ ezAllocatorId ezPageAllocator::GetId()
 #endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_PageAllocator);
+

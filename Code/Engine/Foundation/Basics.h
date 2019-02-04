@@ -100,3 +100,4 @@ private:
 
   static bool s_bIsInitialized;
 };
+

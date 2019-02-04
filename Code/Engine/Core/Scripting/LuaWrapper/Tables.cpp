@@ -67,3 +67,4 @@ void ezLuaWrapper::CloseAllTables()
 
 
 EZ_STATICLINK_FILE(Core, Core_Scripting_LuaWrapper_Tables);
+

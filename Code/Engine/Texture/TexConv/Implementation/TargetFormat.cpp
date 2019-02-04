@@ -189,3 +189,8 @@ ezResult ezTexConvProcessor::DetermineTargetResolution()
 
   return EZ_SUCCESS;
 }
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_TexConv_Implementation_TargetFormat);
+

@@ -322,3 +322,4 @@ template <typename KeyType, typename ValueType, typename Comparer>
 typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator cend(const ezMapBase<KeyType, ValueType, Comparer>& container) { return typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator(); }
 
 #include <Foundation/Containers/Implementation/Map_inl.h>
+

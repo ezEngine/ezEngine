@@ -377,3 +377,4 @@ const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildOfType(const char
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_OpenDdlReader);
+

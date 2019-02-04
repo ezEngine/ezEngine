@@ -36,3 +36,4 @@ void ezNpcComponent::DeserializeComponent(ezWorldReader& stream)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_NpcComponent);
+

@@ -43,3 +43,4 @@ private:
 
   ezSkeletonResourceDescriptor m_Descriptor;
 };
+

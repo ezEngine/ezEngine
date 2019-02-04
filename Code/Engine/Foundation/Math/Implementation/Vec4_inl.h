@@ -445,3 +445,4 @@ EZ_FORCE_INLINE bool operator<(const ezVec4Template<Type>& v1, const ezVec4Templ
 
   return (v1.w < v2.w);
 }
+

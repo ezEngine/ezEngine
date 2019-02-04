@@ -583,3 +583,4 @@ EZ_ALWAYS_INLINE bool ezMemoryUtils::IsEqual(const T* a, const T* b, size_t uiCo
 
 
 #undef EZ_CHECK_CLASS
+

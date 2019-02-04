@@ -729,3 +729,4 @@ ezResult ezMat4Template<Type>::SetScalingFactors(const ezVec3Template<Type>& vXY
 }
 
 #include <Foundation/Math/Implementation/AllClasses_inl.h>
+

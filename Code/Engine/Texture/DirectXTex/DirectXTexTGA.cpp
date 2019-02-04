@@ -1,19 +1,17 @@
+#include <PCH.h>
+
 //-------------------------------------------------------------------------------------
 // DirectXTexTGA.cpp
-//
+//  
 // DirectX Texture Library - Targa Truevision (TGA) file format reader/writer
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
 
-#include "directxtexp.h"
+#include "DirectXTexp.h"
 
 //
 // The implementation here has the following limitations:
@@ -25,7 +23,7 @@
 
 using namespace DirectX;
 
-namespace NS_FIX_3
+namespace
 {
     enum TGAImageType
     {
@@ -45,8 +43,6 @@ namespace NS_FIX_3
         TGA_FLAGS_INTERLEAVED_2WAY = 0x40, // Deprecated
         TGA_FLAGS_INTERLEAVED_4WAY = 0x80, // Deprecated
     };
-
-    const char* g_TGA20_Signature = "TRUEVISION-XFILE.";
 
 #pragma pack(push,1)
     struct TGA_HEADER
@@ -135,7 +131,7 @@ namespace NS_FIX_3
             return HRESULT_FROM_WIN32(ERROR_INVALID_DATA);
         }
 
-        auto pHeader = reinterpret_cast<const TGA_HEADER*>(pSource);
+        auto pHeader = static_cast<const TGA_HEADER*>(pSource);
 
         if (pHeader->bColorMapType != 0
             || pHeader->wColorMapLength != 0)
@@ -241,7 +237,7 @@ namespace NS_FIX_3
     {
         assert(image);
 
-        auto pPixels = reinterpret_cast<uint8_t*>(image->pixels);
+        uint8_t* pPixels = image->pixels;
         if (!pPixels)
             return E_POINTER;
 
@@ -278,10 +274,12 @@ namespace NS_FIX_3
         else
         {
             size_t slicePitch;
-            ComputePitch(image->format, image->width, image->height, rowPitch, slicePitch, CP_FLAGS_NONE);
+            HRESULT hr = ComputePitch(image->format, image->width, image->height, rowPitch, slicePitch, CP_FLAGS_NONE);
+            if (FAILED(hr))
+                return hr;
         }
 
-        auto sPtr = reinterpret_cast<const uint8_t*>(pSource);
+        auto sPtr = static_cast<const uint8_t*>(pSource);
         const uint8_t* endPtr = sPtr + size;
 
         switch (image->format)
@@ -293,7 +291,7 @@ namespace NS_FIX_3
                 size_t offset = ((convFlags & CONV_FLAGS_INVERTX) ? (image->width - 1) : 0);
                 assert(offset < rowPitch);
 
-                uint8_t* dPtr = reinterpret_cast<uint8_t*>(image->pixels)
+                uint8_t* dPtr = image->pixels
                     + (image->rowPitch * ((convFlags & CONV_FLAGS_INVERTY) ? y : (image->height - y - 1)))
                     + offset;
 
@@ -305,7 +303,7 @@ namespace NS_FIX_3
                     if (*sPtr & 0x80)
                     {
                         // Repeat
-                        size_t j = (*sPtr & 0x7F) + 1;
+                        size_t j = size_t(*sPtr & 0x7F) + 1;
                         if (++sPtr >= endPtr)
                             return E_FAIL;
 
@@ -327,7 +325,7 @@ namespace NS_FIX_3
                     else
                     {
                         // Literal
-                        size_t j = (*sPtr & 0x7F) + 1;
+                        size_t j = size_t(*sPtr & 0x7F) + 1;
                         ++sPtr;
 
                         if (sPtr + j > endPtr)
@@ -359,7 +357,7 @@ namespace NS_FIX_3
                 size_t offset = ((convFlags & CONV_FLAGS_INVERTX) ? (image->width - 1) : 0);
                 assert(offset * 2 < rowPitch);
 
-                uint16_t* dPtr = reinterpret_cast<uint16_t*>(reinterpret_cast<uint8_t*>(image->pixels)
+                auto dPtr = reinterpret_cast<uint16_t*>(image->pixels
                     + (image->rowPitch * ((convFlags & CONV_FLAGS_INVERTY) ? y : (image->height - y - 1))))
                     + offset;
 
@@ -371,13 +369,13 @@ namespace NS_FIX_3
                     if (*sPtr & 0x80)
                     {
                         // Repeat
-                        size_t j = (*sPtr & 0x7F) + 1;
+                        size_t j = size_t(*sPtr & 0x7F) + 1;
                         ++sPtr;
 
                         if (sPtr + 1 >= endPtr)
                             return E_FAIL;
 
-                        uint16_t t = *sPtr | (*(sPtr + 1) << 8);
+                        auto t = static_cast<uint16_t>(unsigned(*sPtr) | (*(sPtr + 1u) << 8));
                         if (t & 0x8000)
                             nonzeroa = true;
                         sPtr += 2;
@@ -398,7 +396,7 @@ namespace NS_FIX_3
                     else
                     {
                         // Literal
-                        size_t j = (*sPtr & 0x7F) + 1;
+                        size_t j = size_t(*sPtr & 0x7F) + 1;
                         ++sPtr;
 
                         if (sPtr + (j * 2) > endPtr)
@@ -409,7 +407,7 @@ namespace NS_FIX_3
                             if (x >= image->width)
                                 return E_FAIL;
 
-                            uint16_t t = *sPtr | (*(sPtr + 1) << 8);
+                            auto t = static_cast<uint16_t>(unsigned(*sPtr) | (*(sPtr + 1u) << 8));
                             if (t & 0x8000)
                                 nonzeroa = true;
                             sPtr += 2;
@@ -442,7 +440,7 @@ namespace NS_FIX_3
             {
                 size_t offset = ((convFlags & CONV_FLAGS_INVERTX) ? (image->width - 1) : 0);
 
-                uint32_t* dPtr = reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*>(image->pixels)
+                auto dPtr = reinterpret_cast<uint32_t*>(image->pixels
                     + (image->rowPitch * ((convFlags & CONV_FLAGS_INVERTY) ? y : (image->height - y - 1))))
                     + offset;
 
@@ -454,7 +452,7 @@ namespace NS_FIX_3
                     if (*sPtr & 0x80)
                     {
                         // Repeat
-                        size_t j = (*sPtr & 0x7F) + 1;
+                        size_t j = size_t(*sPtr & 0x7F) + 1;
                         ++sPtr;
 
                         DWORD t;
@@ -503,7 +501,7 @@ namespace NS_FIX_3
                     else
                     {
                         // Literal
-                        size_t j = (*sPtr & 0x7F) + 1;
+                        size_t j = size_t(*sPtr & 0x7F) + 1;
                         ++sPtr;
 
                         if (convFlags & CONV_FLAGS_EXPAND)
@@ -602,10 +600,12 @@ namespace NS_FIX_3
         else
         {
             size_t slicePitch;
-            ComputePitch(image->format, image->width, image->height, rowPitch, slicePitch, CP_FLAGS_NONE);
+            HRESULT hr = ComputePitch(image->format, image->width, image->height, rowPitch, slicePitch, CP_FLAGS_NONE);
+            if (FAILED(hr))
+                return hr;
         }
 
-        const uint8_t* sPtr = reinterpret_cast<const uint8_t*>(pSource);
+        auto sPtr = static_cast<const uint8_t*>(pSource);
         const uint8_t* endPtr = sPtr + size;
 
         switch (image->format)
@@ -617,7 +617,7 @@ namespace NS_FIX_3
                 size_t offset = ((convFlags & CONV_FLAGS_INVERTX) ? (image->width - 1) : 0);
                 assert(offset < rowPitch);
 
-                uint8_t* dPtr = reinterpret_cast<uint8_t*>(image->pixels)
+                uint8_t* dPtr = image->pixels
                     + (image->rowPitch * ((convFlags & CONV_FLAGS_INVERTY) ? y : (image->height - y - 1)))
                     + offset;
 
@@ -645,7 +645,7 @@ namespace NS_FIX_3
                 size_t offset = ((convFlags & CONV_FLAGS_INVERTX) ? (image->width - 1) : 0);
                 assert(offset * 2 < rowPitch);
 
-                uint16_t* dPtr = reinterpret_cast<uint16_t*>(reinterpret_cast<uint8_t*>(image->pixels)
+                auto dPtr = reinterpret_cast<uint16_t*>(image->pixels
                     + (image->rowPitch * ((convFlags & CONV_FLAGS_INVERTY) ? y : (image->height - y - 1))))
                     + offset;
 
@@ -654,7 +654,7 @@ namespace NS_FIX_3
                     if (sPtr + 1 >= endPtr)
                         return E_FAIL;
 
-                    uint16_t t = *sPtr | (*(sPtr + 1) << 8);
+                    auto t = static_cast<uint16_t>(unsigned(*sPtr) | (*(sPtr + 1u) << 8));
                     sPtr += 2;
                     *dPtr = t;
 
@@ -686,7 +686,7 @@ namespace NS_FIX_3
             {
                 size_t offset = ((convFlags & CONV_FLAGS_INVERTX) ? (image->width - 1) : 0);
 
-                uint32_t* dPtr = reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*>(image->pixels)
+                auto dPtr = reinterpret_cast<uint32_t*>(image->pixels
                     + (image->rowPitch * ((convFlags & CONV_FLAGS_INVERTY) ? y : (image->height - y - 1))))
                     + offset;
 
@@ -754,8 +754,8 @@ namespace NS_FIX_3
     {
         memset(&header, 0, sizeof(TGA_HEADER));
 
-        if ((image.width > 0xFFFF)
-            || (image.height > 0xFFFF))
+        if ((image.width > UINT16_MAX)
+            || (image.height > UINT16_MAX))
         {
             return HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
         }
@@ -824,8 +824,8 @@ namespace NS_FIX_3
 
         assert(pDestination != pSource);
 
-        const uint32_t * __restrict sPtr = reinterpret_cast<const uint32_t*>(pSource);
-        uint8_t * __restrict dPtr = reinterpret_cast<uint8_t*>(pDestination);
+        const uint32_t * __restrict sPtr = static_cast<const uint32_t*>(pSource);
+        uint8_t * __restrict dPtr = static_cast<uint8_t*>(pDestination);
 
         if (inSize >= 4 && outSize >= 3)
         {
@@ -858,13 +858,13 @@ _Use_decl_annotations_
 HRESULT DirectX::GetMetadataFromTGAMemory(
     const void* pSource,
     size_t size,
-    TexMetadata& metadata )
+    TexMetadata& metadata)
 {
-    if ( !pSource || size == 0 )
+    if (!pSource || size == 0)
         return E_INVALIDARG;
 
     size_t offset;
-    return NS_FIX_3::DecodeTGAHeader( pSource, size, metadata, offset, 0 );
+    return DecodeTGAHeader(pSource, size, metadata, offset, nullptr);
 }
 
 _Use_decl_annotations_
@@ -898,21 +898,21 @@ HRESULT DirectX::GetMetadataFromTGAFile(const wchar_t* szFile, TexMetadata& meta
     }
 
     // Need at least enough data to fill the standard header to be a valid TGA
-    if (fileInfo.EndOfFile.LowPart < (sizeof(NS_FIX_3::TGA_HEADER)))
+    if (fileInfo.EndOfFile.LowPart < (sizeof(TGA_HEADER)))
     {
         return E_FAIL;
     }
 
     // Read the standard header (we don't need the file footer to parse the file)
-    uint8_t header[sizeof(NS_FIX_3::TGA_HEADER)];
+    uint8_t header[sizeof(TGA_HEADER)] = {};
     DWORD bytesRead = 0;
-    if (!ReadFile(hFile.get(), header, sizeof(NS_FIX_3::TGA_HEADER), &bytesRead, nullptr))
+    if (!ReadFile(hFile.get(), header, sizeof(TGA_HEADER), &bytesRead, nullptr))
     {
         return HRESULT_FROM_WIN32(GetLastError());
     }
 
     size_t offset;
-    return NS_FIX_3::DecodeTGAHeader(header, bytesRead, metadata, offset, 0);
+    return DecodeTGAHeader(header, bytesRead, metadata, offset, nullptr);
 }
 
 
@@ -934,14 +934,14 @@ HRESULT DirectX::LoadFromTGAMemory(
     size_t offset;
     DWORD convFlags = 0;
     TexMetadata mdata;
-    HRESULT hr = NS_FIX_3::DecodeTGAHeader(pSource, size, mdata, offset, &convFlags);
+    HRESULT hr = DecodeTGAHeader(pSource, size, mdata, offset, &convFlags);
     if (FAILED(hr))
         return hr;
 
     if (offset > size)
         return E_FAIL;
 
-    auto pPixels = reinterpret_cast<const void*>(reinterpret_cast<const uint8_t*>(pSource) + offset);
+    const void* pPixels = static_cast<const uint8_t*>(pSource) + offset;
 
     size_t remaining = size - offset;
     if (remaining == 0)
@@ -951,13 +951,13 @@ HRESULT DirectX::LoadFromTGAMemory(
     if (FAILED(hr))
         return hr;
 
-    if (convFlags & NS_FIX_3::CONV_FLAGS_RLE)
+    if (convFlags & CONV_FLAGS_RLE)
     {
-        hr = NS_FIX_3::UncompressPixels(pPixels, remaining, image.GetImage(0, 0, 0), convFlags);
+        hr = UncompressPixels(pPixels, remaining, image.GetImage(0, 0, 0), convFlags);
     }
     else
     {
-        hr = NS_FIX_3::CopyPixels(pPixels, remaining, image.GetImage(0, 0, 0), convFlags);
+        hr = CopyPixels(pPixels, remaining, image.GetImage(0, 0, 0), convFlags);
     }
 
     if (FAILED(hr))
@@ -1012,15 +1012,15 @@ HRESULT DirectX::LoadFromTGAFile(
     }
 
     // Need at least enough data to fill the header to be a valid TGA
-    if (fileInfo.EndOfFile.LowPart < sizeof(NS_FIX_3::TGA_HEADER))
+    if (fileInfo.EndOfFile.LowPart < sizeof(TGA_HEADER))
     {
         return E_FAIL;
     }
 
     // Read the header
-    uint8_t header[sizeof(NS_FIX_3::TGA_HEADER)];
+    uint8_t header[sizeof(TGA_HEADER)] = {};
     DWORD bytesRead = 0;
-    if (!ReadFile(hFile.get(), header, sizeof(NS_FIX_3::TGA_HEADER), &bytesRead, nullptr))
+    if (!ReadFile(hFile.get(), header, sizeof(TGA_HEADER), &bytesRead, nullptr))
     {
         return HRESULT_FROM_WIN32(GetLastError());
     }
@@ -1028,20 +1028,20 @@ HRESULT DirectX::LoadFromTGAFile(
     size_t offset;
     DWORD convFlags = 0;
     TexMetadata mdata;
-    HRESULT hr = NS_FIX_3::DecodeTGAHeader(header, bytesRead, mdata, offset, &convFlags);
+    HRESULT hr = DecodeTGAHeader(header, bytesRead, mdata, offset, &convFlags);
     if (FAILED(hr))
         return hr;
 
     // Read the pixels
-    DWORD remaining = static_cast<DWORD>(fileInfo.EndOfFile.LowPart - offset);
+    auto remaining = static_cast<DWORD>(fileInfo.EndOfFile.LowPart - offset);
     if (remaining == 0)
         return E_FAIL;
 
-    if (offset > sizeof(NS_FIX_3::TGA_HEADER))
+    if (offset > sizeof(TGA_HEADER))
     {
         // Skip past the id string
-        LARGE_INTEGER filePos = { static_cast<DWORD>(offset), 0 };
-        if (!SetFilePointerEx(hFile.get(), filePos, 0, FILE_BEGIN))
+        LARGE_INTEGER filePos = { { static_cast<DWORD>(offset), 0 } };
+        if (!SetFilePointerEx(hFile.get(), filePos, nullptr, FILE_BEGIN))
         {
             return HRESULT_FROM_WIN32(GetLastError());
         }
@@ -1053,9 +1053,21 @@ HRESULT DirectX::LoadFromTGAFile(
 
     assert(image.GetPixels());
 
-    if (!(convFlags & (NS_FIX_3::CONV_FLAGS_RLE | NS_FIX_3::CONV_FLAGS_EXPAND | NS_FIX_3::CONV_FLAGS_INVERTX)) && (convFlags & NS_FIX_3::CONV_FLAGS_INVERTY))
+    if (!(convFlags & (CONV_FLAGS_RLE | CONV_FLAGS_EXPAND | CONV_FLAGS_INVERTX)) && (convFlags & CONV_FLAGS_INVERTY))
     {
         // This case we can read directly into the image buffer in place
+        if (remaining < image.GetPixelsSize())
+        {
+            image.Release();
+            return HRESULT_FROM_WIN32(ERROR_HANDLE_EOF);
+        }
+
+        if (image.GetPixelsSize() > UINT32_MAX)
+        {
+            image.Release();
+            return HRESULT_FROM_WIN32(ERROR_ARITHMETIC_OVERFLOW);
+        }
+
         if (!ReadFile(hFile.get(), image.GetPixels(), static_cast<DWORD>(image.GetPixelsSize()), &bytesRead, nullptr))
         {
             image.Release();
@@ -1095,7 +1107,7 @@ HRESULT DirectX::LoadFromTGAFile(
 
             for (size_t h = 0; h < img->height; ++h)
             {
-                const uint32_t* sPtr = reinterpret_cast<const uint32_t*>(pPixels);
+                auto sPtr = reinterpret_cast<const uint32_t*>(pPixels);
 
                 for (size_t x = 0; x < img->width; ++x)
                 {
@@ -1153,7 +1165,7 @@ HRESULT DirectX::LoadFromTGAFile(
 
             for (size_t h = 0; h < img->height; ++h)
             {
-                const uint16_t* sPtr = reinterpret_cast<const uint16_t*>(pPixels);
+                auto sPtr = reinterpret_cast<const uint16_t*>(pPixels);
 
                 for (size_t x = 0; x < img->width; ++x)
                 {
@@ -1175,7 +1187,7 @@ HRESULT DirectX::LoadFromTGAFile(
             // If there are no non-zero alpha channel entries, we'll assume alpha is not used and force it to opaque
             if (!nonzeroa)
             {
-                hr = NS_FIX_3::SetAlphaChannelToOpaque(img);
+                hr = SetAlphaChannelToOpaque(img);
                 if (FAILED(hr))
                 {
                     image.Release();
@@ -1184,6 +1196,9 @@ HRESULT DirectX::LoadFromTGAFile(
             }
         }
         break;
+
+        default:
+            break;
         }
     }
     else // RLE || EXPAND || INVERTX || !INVERTY
@@ -1207,13 +1222,13 @@ HRESULT DirectX::LoadFromTGAFile(
             return E_FAIL;
         }
 
-        if (convFlags & NS_FIX_3::CONV_FLAGS_RLE)
+        if (convFlags & CONV_FLAGS_RLE)
         {
-            hr = NS_FIX_3::UncompressPixels(temp.get(), remaining, image.GetImage(0, 0, 0), convFlags);
+            hr = UncompressPixels(temp.get(), remaining, image.GetImage(0, 0, 0), convFlags);
         }
         else
         {
-            hr = NS_FIX_3::CopyPixels(temp.get(), remaining, image.GetImage(0, 0, 0), convFlags);
+            hr = CopyPixels(temp.get(), remaining, image.GetImage(0, 0, 0), convFlags);
         }
 
         if (FAILED(hr))
@@ -1239,9 +1254,9 @@ HRESULT DirectX::SaveToTGAMemory(const Image& image, Blob& blob)
     if (!image.pixels)
         return E_POINTER;
 
-    NS_FIX_3::TGA_HEADER tga_header;
+    TGA_HEADER tga_header = {};
     DWORD convFlags = 0;
-    HRESULT hr = NS_FIX_3::EncodeTGAHeader(image, tga_header, convFlags);
+    HRESULT hr = EncodeTGAHeader(image, tga_header, convFlags);
     if (FAILED(hr))
         return hr;
 
@@ -1249,37 +1264,39 @@ HRESULT DirectX::SaveToTGAMemory(const Image& image, Blob& blob)
 
     // Determine memory required for image data
     size_t rowPitch, slicePitch;
-    if (convFlags & NS_FIX_3::CONV_FLAGS_888)
+    if (convFlags & CONV_FLAGS_888)
     {
         rowPitch = image.width * 3;
         slicePitch = image.height * rowPitch;
     }
     else
     {
-        ComputePitch(image.format, image.width, image.height, rowPitch, slicePitch, CP_FLAGS_NONE);
+        hr = ComputePitch(image.format, image.width, image.height, rowPitch, slicePitch, CP_FLAGS_NONE);
+        if (FAILED(hr))
+            return hr;
     }
 
-    hr = blob.Initialize(sizeof(NS_FIX_3::TGA_HEADER) + slicePitch);
+    hr = blob.Initialize(sizeof(TGA_HEADER) + slicePitch);
     if (FAILED(hr))
         return hr;
 
     // Copy header
-    auto dPtr = reinterpret_cast<uint8_t*>(blob.GetBufferPointer());
-    assert(dPtr != 0);
-    memcpy_s(dPtr, blob.GetBufferSize(), &tga_header, sizeof(NS_FIX_3::TGA_HEADER));
-    dPtr += sizeof(NS_FIX_3::TGA_HEADER);
+    auto dPtr = static_cast<uint8_t*>(blob.GetBufferPointer());
+    assert(dPtr != nullptr);
+    memcpy_s(dPtr, blob.GetBufferSize(), &tga_header, sizeof(TGA_HEADER));
+    dPtr += sizeof(TGA_HEADER);
 
-    auto pPixels = reinterpret_cast<const uint8_t*>(image.pixels);
+    const uint8_t* pPixels = image.pixels;
     assert(pPixels);
 
     for (size_t y = 0; y < image.height; ++y)
     {
         // Copy pixels
-        if (convFlags & NS_FIX_3::CONV_FLAGS_888)
+        if (convFlags & CONV_FLAGS_888)
         {
-          NS_FIX_3::Copy24bppScanline(dPtr, rowPitch, pPixels, image.rowPitch);
+            Copy24bppScanline(dPtr, rowPitch, pPixels, image.rowPitch);
         }
-        else if (convFlags & NS_FIX_3::CONV_FLAGS_SWIZZLE)
+        else if (convFlags & CONV_FLAGS_SWIZZLE)
         {
             _SwizzleScanline(dPtr, rowPitch, pPixels, image.rowPitch, image.format, TEXP_SCANLINE_NONE);
         }
@@ -1308,9 +1325,9 @@ HRESULT DirectX::SaveToTGAFile(const Image& image, const wchar_t* szFile)
     if (!image.pixels)
         return E_POINTER;
 
-    NS_FIX_3::TGA_HEADER tga_header;
+    TGA_HEADER tga_header = {};
     DWORD convFlags = 0;
-    HRESULT hr = NS_FIX_3::EncodeTGAHeader(image, tga_header, convFlags);
+    HRESULT hr = EncodeTGAHeader(image, tga_header, convFlags);
     if (FAILED(hr))
         return hr;
 
@@ -1329,14 +1346,27 @@ HRESULT DirectX::SaveToTGAFile(const Image& image, const wchar_t* szFile)
 
     // Determine size for TGA pixel data
     size_t rowPitch, slicePitch;
-    if (convFlags & NS_FIX_3::CONV_FLAGS_888)
+    if (convFlags & CONV_FLAGS_888)
     {
-        rowPitch = image.width * 3;
-        slicePitch = image.height * rowPitch;
+        uint64_t pitch = uint64_t(image.width) * 3u;
+        uint64_t slice = uint64_t(image.height) * pitch;
+
+#if defined(_M_IX86) || defined(_M_ARM) || defined(_M_HYBRID_X86_ARM64)
+        static_assert(sizeof(size_t) == 4, "Not a 32-bit platform!");
+        if (pitch > UINT32_MAX || slice > UINT32_MAX)
+            return HRESULT_FROM_WIN32(ERROR_ARITHMETIC_OVERFLOW);
+#else
+        static_assert(sizeof(size_t) == 8, "Not a 64-bit platform!");
+#endif
+
+        rowPitch = static_cast<size_t>(pitch);
+        slicePitch = static_cast<size_t>(slice);
     }
     else
     {
-        ComputePitch(image.format, image.width, image.height, rowPitch, slicePitch, CP_FLAGS_NONE);
+        hr = ComputePitch(image.format, image.width, image.height, rowPitch, slicePitch, CP_FLAGS_NONE);
+        if (FAILED(hr))
+            return hr;
     }
 
     if (slicePitch < 65535)
@@ -1370,25 +1400,28 @@ HRESULT DirectX::SaveToTGAFile(const Image& image, const wchar_t* szFile)
 
         // Write header
         DWORD bytesWritten;
-        if (!WriteFile(hFile.get(), &tga_header, sizeof(NS_FIX_3::TGA_HEADER), &bytesWritten, nullptr))
+        if (!WriteFile(hFile.get(), &tga_header, sizeof(TGA_HEADER), &bytesWritten, nullptr))
         {
             return HRESULT_FROM_WIN32(GetLastError());
         }
 
-        if (bytesWritten != sizeof(NS_FIX_3::TGA_HEADER))
+        if (bytesWritten != sizeof(TGA_HEADER))
             return E_FAIL;
 
+        if (rowPitch > UINT32_MAX)
+            return HRESULT_FROM_WIN32(ERROR_ARITHMETIC_OVERFLOW);
+
         // Write pixels
-        auto pPixels = reinterpret_cast<const uint8_t*>(image.pixels);
+        const uint8_t* pPixels = image.pixels;
 
         for (size_t y = 0; y < image.height; ++y)
         {
             // Copy pixels
-            if (convFlags & NS_FIX_3::CONV_FLAGS_888)
+            if (convFlags & CONV_FLAGS_888)
             {
-              NS_FIX_3::Copy24bppScanline(temp.get(), rowPitch, pPixels, image.rowPitch);
+                Copy24bppScanline(temp.get(), rowPitch, pPixels, image.rowPitch);
             }
-            else if (convFlags & NS_FIX_3::CONV_FLAGS_SWIZZLE)
+            else if (convFlags & CONV_FLAGS_SWIZZLE)
             {
                 _SwizzleScanline(temp.get(), rowPitch, pPixels, image.rowPitch, image.format, TEXP_SCANLINE_NONE);
             }
@@ -1413,3 +1446,8 @@ HRESULT DirectX::SaveToTGAFile(const Image& image, const wchar_t* szFile)
 
     return S_OK;
 }
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexTGA);
+

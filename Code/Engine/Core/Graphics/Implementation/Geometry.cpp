@@ -1809,3 +1809,4 @@ void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThic
 }
 
 EZ_STATICLINK_FILE(Core, Core_Graphics_Implementation_Geometry);
+

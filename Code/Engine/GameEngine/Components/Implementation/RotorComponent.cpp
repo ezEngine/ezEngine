@@ -188,3 +188,4 @@ ezRotorComponentPatch_1_2 g_ezRotorComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_RotorComponent);
+

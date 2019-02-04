@@ -81,3 +81,4 @@ void ezComponentManagerBase::PatchIdTable(ezComponent* pComponent)
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_ComponentManager);
+

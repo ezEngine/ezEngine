@@ -46,3 +46,4 @@ void ezProcessingStreamSpawnerZeroInitialized::InitializeElements(ezUInt64 uiSta
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_DataProcessing_Stream_DefaultImplementations_Implementation_ZeroInitializer);
+

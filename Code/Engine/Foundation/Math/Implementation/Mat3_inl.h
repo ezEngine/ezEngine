@@ -515,3 +515,4 @@ Type ezMat3Template<Type>::GetDeterminant() const
 }
 
 #include <Foundation/Math/Implementation/AllClasses_inl.h>
+

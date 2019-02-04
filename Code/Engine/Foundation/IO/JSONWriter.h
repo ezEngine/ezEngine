@@ -405,3 +405,4 @@ protected:
 
   ezHybridArray<JSONState, 16> m_StateStack;
 };
+

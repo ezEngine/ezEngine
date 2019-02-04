@@ -51,3 +51,4 @@ void ezTypelessResourceHandle::operator=(ezTypelessResourceHandle&& rhs)
 
 
 EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_ResourceHandle);
+

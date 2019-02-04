@@ -28,3 +28,4 @@ public:
 private:
   ezVec2 m_vMouseScale;
 };
+

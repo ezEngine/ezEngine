@@ -140,4 +140,5 @@ void ezGameAppInputConfig::ApplyAll(const ezArrayPtr<ezGameAppInputConfig>& acti
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_InputConfig);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Configuration_Implementation_InputConfig);
+

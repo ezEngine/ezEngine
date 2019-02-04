@@ -78,3 +78,4 @@ private:
 };
 
 EZ_DECLARE_FLAGS_OPERATORS(ezDirectoryWatcher::Watch);
+

@@ -73,3 +73,4 @@ public:
   ezUInt64 m_uiAssetHash = 0;
   ezUInt16 m_uiAssetVersion = 0;
 };
+

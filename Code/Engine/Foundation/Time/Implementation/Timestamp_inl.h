@@ -133,3 +133,4 @@ inline void ezDateTime::SetMicroseconds(ezUInt32 uiMicroSeconds)
 {
   m_uiMicroseconds = ezMath::Clamp<ezUInt32>(uiMicroSeconds, 0u, 999999u);
 }
+

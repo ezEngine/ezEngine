@@ -423,3 +423,4 @@ const ezColor ezColor::YellowGreen(ezColorGammaUB(0x9A, 0xCD, 0x32));
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Color);
+

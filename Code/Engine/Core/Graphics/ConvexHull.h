@@ -107,3 +107,4 @@ private:
 
   ezDeque<Triangle> m_Triangles;
 };
+

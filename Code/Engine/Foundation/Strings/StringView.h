@@ -99,3 +99,4 @@ private:
 
 
 #include <Foundation/Strings/Implementation/StringView_inl.h>
+

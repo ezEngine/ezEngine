@@ -146,3 +146,4 @@ private:
   SetterFunc m_Setter;
   PointerFunc m_Pointer;
 };
+

@@ -136,3 +136,4 @@ ezEvent<EventData, MutexType, AllocatorWrapper>::ezEvent(ezAllocatorBase* pAlloc
     : ezEventBase<EventData, MutexType>(pAllocator)
 {
 }
+

@@ -743,4 +743,5 @@ bool ezBmpFileFormat::CanWriteFileType(const char* szExtension) const
 
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Image_Formats_BmpFileFormat);
+EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_BmpFileFormat);
+

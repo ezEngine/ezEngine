@@ -478,3 +478,4 @@ void ezStandardInputDevice::SetShowMouseCursor(bool bShow)
   m_bShowCursor = bShow;
   m_pWindow->setMouseCursorVisible(m_bShowCursor);
 }
+

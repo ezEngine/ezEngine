@@ -16,3 +16,4 @@ public:
 
   ezMap<ezString, ezString> m_CameraPipelines;
 };
+

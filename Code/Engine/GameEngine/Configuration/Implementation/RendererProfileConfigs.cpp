@@ -74,3 +74,8 @@ void ezRenderPipelineProfileConfig::LoadRuntimeData(ezChunkStreamReader& stream)
     ezRenderWorld::EndModifyCameraConfigs();
   }
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Configuration_Implementation_RendererProfileConfigs);
+

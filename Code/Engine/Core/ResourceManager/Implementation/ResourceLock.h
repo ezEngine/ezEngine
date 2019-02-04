@@ -49,3 +49,4 @@ private:
   ezResourceAcquireResult m_AcquireResult;
   RESOURCE_TYPE* m_pResource;
 };
+

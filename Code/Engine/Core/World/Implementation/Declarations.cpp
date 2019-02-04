@@ -96,3 +96,4 @@ void ezOnComponentFinishedAction2::HandleDeleteObjectMsg(ezMsgDeleteGameObject& 
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_Declarations);
+

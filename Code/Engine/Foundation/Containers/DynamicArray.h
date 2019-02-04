@@ -106,3 +106,4 @@ ezArrayPtr<T> ezMakeArrayPtr(ezDynamicArray<T, AllocatorWrapper>& dynArray);
 EZ_CHECK_AT_COMPILETIME_MSG(ezGetTypeClass<ezDynamicArray<int>>::value == 2, "dynamic array is not memory relocatable");
 
 #include <Foundation/Containers/Implementation/DynamicArray_inl.h>
+

@@ -54,3 +54,4 @@ namespace ezGraphicsUtils
 
   EZ_FOUNDATION_DLL bool IsTriangleFlipRequired(const ezMat3& mTransformation);
 }
+

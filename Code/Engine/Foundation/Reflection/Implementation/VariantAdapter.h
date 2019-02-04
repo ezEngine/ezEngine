@@ -339,3 +339,4 @@ struct ezVariantAdapter<const char*, const char*, 1, 0>
 
   ezVariant& m_value;
 };
+

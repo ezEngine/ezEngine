@@ -358,3 +358,4 @@ void ezList<T, A>::operator=(const ezListBase<T>& rhs)
 {
   ezListBase<T>::operator=(rhs);
 }
+

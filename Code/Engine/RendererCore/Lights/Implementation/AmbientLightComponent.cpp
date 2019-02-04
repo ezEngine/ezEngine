@@ -166,3 +166,4 @@ ezAmbientLightComponentPatch_1_2 g_ezAmbientLightComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_AmbientLightComponent);
+

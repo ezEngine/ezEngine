@@ -46,3 +46,4 @@ private:
   ezTime m_LastCheckpoint;
   mutable ezTime m_TotalDuration;
 };
+

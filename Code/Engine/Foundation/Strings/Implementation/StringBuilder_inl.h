@@ -351,3 +351,4 @@ EZ_FORCE_INLINE ezStringView ezStringBuilder::GetRootedPathRootName() const
 }
 
 #include <Foundation/Strings/Implementation/AllStrings_inl.h>
+

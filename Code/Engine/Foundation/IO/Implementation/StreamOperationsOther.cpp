@@ -251,3 +251,4 @@ void operator>>(ezStreamReader& Stream, ezVariant& Value)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StreamOperationsOther);
+

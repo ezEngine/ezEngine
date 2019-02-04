@@ -290,3 +290,4 @@ void ezHybridArray<T, Size, A>::operator=(const ezArrayPtr<const T>& rhs)
 {
   ezArrayBase<T, ezHybridArrayBase<T, Size>>::operator=((ezArrayPtr<const T>)rhs);
 }
+

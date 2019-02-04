@@ -44,3 +44,4 @@ private:
   ezUInt64 m_uiCacheWritePosition;
   ezDynamicArray<ezUInt8> m_Cache;
 };
+

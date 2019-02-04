@@ -49,3 +49,4 @@ private:
 
   Cell* GetOrCreateCell(const ezSimdBBoxSphere& bounds);
 };
+

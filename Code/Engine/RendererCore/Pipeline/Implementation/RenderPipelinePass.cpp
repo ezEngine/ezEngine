@@ -151,3 +151,4 @@ void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& ren
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelinePass);
+

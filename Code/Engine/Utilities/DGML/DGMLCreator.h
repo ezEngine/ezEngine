@@ -13,3 +13,4 @@ public:
   /// \brief Adds the world hierarchy (game objects and components) to the given graph object.
   static void FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& Graph);
 };
+

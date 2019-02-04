@@ -455,3 +455,4 @@ private:
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezGameObject);
 
 #include <Core/World/Implementation/GameObject_inl.h>
+

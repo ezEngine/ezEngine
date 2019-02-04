@@ -55,3 +55,4 @@ private:
   float m_fPlaybackSpeed = 1.0f;
   bool m_bLoop = false;
 };
+

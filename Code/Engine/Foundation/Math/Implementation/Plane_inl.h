@@ -463,3 +463,4 @@ ezResult ezPlaneTemplate<Type>::GetPlanesIntersectionPoint(const ezPlaneTemplate
 }
 
 #include <Foundation/Math/Implementation/AllClasses_inl.h>
+

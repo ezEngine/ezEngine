@@ -36,3 +36,4 @@ protected:
 
   ezDeque<BuilderJoint> m_Joints;
 };
+

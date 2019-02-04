@@ -272,3 +272,4 @@ EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const e
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezUntrackedString& arg);
 
 #include <Foundation/Strings/Implementation/String_inl.h>
+

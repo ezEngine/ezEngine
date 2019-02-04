@@ -218,3 +218,4 @@ void ezPreprocessor::StringifyTokens(const TokenStream& Tokens, ezStringBuilder&
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_Macros);
+

@@ -6,7 +6,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
     return;
 
   EZ_STATICLINK_REFERENCE(Foundation_Algorithm_Implementation_HashHelperString);
-  EZ_STATICLINK_REFERENCE(Foundation_Algorithm_Implementation_Hashing);
+  EZ_STATICLINK_REFERENCE(Foundation_Algorithm_Implementation_HashingUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Assert);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Basics);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_IncludeAll);
@@ -53,7 +53,9 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_IO_FileSystem_Implementation_FileSystem);
   EZ_STATICLINK_REFERENCE(Foundation_IO_FileSystem_Implementation_FileWriter);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_ChunkStream);
-  EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_CompressedStream);
+  EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_CompressedStreamZlib);
+  EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_CompressedStreamZstd);
+  EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_DeduplicationContext);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_DependencyFile);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_DirectoryWatcher);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_JSONParser);
@@ -89,6 +91,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Policies_GuardedAllocation);
   EZ_STATICLINK_REFERENCE(Foundation_Profiling_Implementation_Profiling);
   EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_PropertyAttributes);
+  EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_PropertyPath);
   EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_RTTI);
   EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_ReflectionUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_StandardTypes);
@@ -140,3 +143,4 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_StackTracer);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Stats);
 }
+

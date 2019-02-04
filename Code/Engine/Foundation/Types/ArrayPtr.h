@@ -370,3 +370,4 @@ typename ezArrayPtr<T>::const_reverse_iterator crend(const ezArrayPtr<T>& contai
 {
   return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() - 1);
 }
+

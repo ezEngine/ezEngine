@@ -63,4 +63,5 @@ ezResult ezTextureGroupDesc::Load(const char* szFile)
 
 
 
-EZ_STATICLINK_FILE(Utilities, Utilities_Textures_Implementation_TextureGroupDesc);
+EZ_STATICLINK_FILE(Texture, Texture_Utils_Implementation_TextureGroupDesc);
+

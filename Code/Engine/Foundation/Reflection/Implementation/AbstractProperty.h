@@ -553,3 +553,4 @@ public:
 
   virtual const ezRTTI* GetSpecificType() const override { return GetReturnType(); }
 };
+

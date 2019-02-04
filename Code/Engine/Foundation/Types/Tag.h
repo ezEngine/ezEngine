@@ -46,3 +46,4 @@ private:
 #include <Foundation/Types/TagSet.h>
 
 #include <Foundation/Types/Implementation/Tag_inl.h>
+

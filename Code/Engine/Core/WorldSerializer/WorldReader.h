@@ -114,3 +114,4 @@ private:
   ezMemoryStreamStorage m_ComponentStream;
   ezResourceHandleReadContext m_HandleReadContext;
 };
+

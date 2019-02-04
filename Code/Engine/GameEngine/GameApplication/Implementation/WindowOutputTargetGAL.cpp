@@ -45,3 +45,8 @@ ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_Image)
 
   return EZ_SUCCESS;
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_WindowOutputTargetGAL);
+

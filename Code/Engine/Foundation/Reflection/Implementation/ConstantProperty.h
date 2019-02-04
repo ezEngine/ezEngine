@@ -60,3 +60,4 @@ public:
 private:
   Type m_Value;
 };
+

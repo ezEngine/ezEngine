@@ -199,3 +199,4 @@ inline const ezTransformTemplate<Type> ezTransformTemplate<Type>::GetInverse() c
 
   return ezTransformTemplate<Type>(invPos, invRot, invScale);
 }
+

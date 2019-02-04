@@ -1187,3 +1187,4 @@ void ezRenderContext::SetAllowAsyncShaderLoading(bool bAllow)
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_RenderContext_Implementation_RenderContext);
+

@@ -413,3 +413,4 @@ void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pD
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ClusteredDataExtractor);
+

@@ -45,3 +45,4 @@ protected:
   ezTime m_LastChange;
   ezTime m_NextChange;
 };
+

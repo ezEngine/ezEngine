@@ -77,3 +77,4 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezShaderResource, ezShaderResourceDescriptor)
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Implementation_ShaderResource);
+

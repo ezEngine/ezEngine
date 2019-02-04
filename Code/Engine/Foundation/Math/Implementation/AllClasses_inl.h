@@ -437,3 +437,4 @@ void ezMat4Template<Type>::SetLookAtMatrix(const ezVec3Template<Type>& vStartPos
   SetTranslationVector(-(Rotation * vStartPos));
   SetRow(3, ezVec4Template<Type>(0, 0, 0, 1));
 }
+

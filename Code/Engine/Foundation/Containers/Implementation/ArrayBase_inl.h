@@ -442,3 +442,4 @@ void ezArrayBase<T, Derived>::DoSwap(ezArrayBase<T, Derived>& other)
   ezMath::Swap(this->m_uiCapacity, other.m_uiCapacity);
   ezMath::Swap(this->m_uiCount, other.m_uiCount);
 }
+

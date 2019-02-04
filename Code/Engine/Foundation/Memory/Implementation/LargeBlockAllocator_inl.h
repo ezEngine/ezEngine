@@ -228,3 +228,4 @@ void ezLargeBlockAllocator<BlockSize>::Deallocate(void* ptr)
     m_freeBlocks.PushBack(uiSuperBlockIndex * SuperBlock::NUM_BLOCKS + uiInnerBlockIndex);
   }
 }
+

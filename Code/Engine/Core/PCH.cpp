@@ -31,6 +31,7 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_Scripting_LuaWrapper_Initialize);
   EZ_STATICLINK_REFERENCE(Core_Scripting_LuaWrapper_Tables);
   EZ_STATICLINK_REFERENCE(Core_Scripting_LuaWrapper_Variables);
+  EZ_STATICLINK_REFERENCE(Core_Utils_Implementation_WorldGeoExtractionUtil);
   EZ_STATICLINK_REFERENCE(Core_WorldSerializer_Implementation_ResourceHandleReader);
   EZ_STATICLINK_REFERENCE(Core_WorldSerializer_Implementation_ResourceHandleWriter);
   EZ_STATICLINK_REFERENCE(Core_WorldSerializer_Implementation_WorldReader);
@@ -47,3 +48,4 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_WorldData);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_WorldModule);
 }
+

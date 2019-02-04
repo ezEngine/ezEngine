@@ -292,3 +292,4 @@ private:
     return EZ_NEW(pAllocator, CLASS, *static_cast<const CLASS*>(pObject));
   }
 };
+

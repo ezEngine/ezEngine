@@ -841,3 +841,4 @@ void ezGameObject::TransformationData::UpdateSpatialData(bool bWasAlwaysVisible,
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_GameObject);
+

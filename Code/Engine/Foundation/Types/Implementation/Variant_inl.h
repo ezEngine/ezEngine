@@ -632,3 +632,4 @@ struct ezHashHelper<ezVariant>
 
   EZ_ALWAYS_INLINE static bool Equal(const ezVariant& a, const ezVariant& b) { return a == b; }
 };
+

@@ -118,3 +118,4 @@ ezProfilingScopeAndMarker::~ezProfilingScopeAndMarker()
 }
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Profiling_Implementation_Profiling);
+

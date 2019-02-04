@@ -17,3 +17,4 @@ public:
   virtual bool Execute(const ezSkeleton& skeleton, ezAnimationPose& currentPose, ezTransform* pRootMotion) = 0;
 
 };
+

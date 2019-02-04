@@ -939,3 +939,4 @@ bool ezStringUtils::IsValidIdentifierName(const char* pString, const char* pStri
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringUtils);
+

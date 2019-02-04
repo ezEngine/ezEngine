@@ -142,3 +142,4 @@ private:
   /// \brief Every node has a unique index, the map allows to store many objects at each node, using that index
   ezMap<ezDynamicTree::ezMultiMapKey, ezDynamicTree::ezObjectData> m_NodeMap;
 };
+

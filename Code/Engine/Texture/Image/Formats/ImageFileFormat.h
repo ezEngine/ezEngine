@@ -28,3 +28,4 @@ public:
 
   EZ_DECLARE_ENUMERABLE_CLASS(ezImageFileFormat);
 };
+

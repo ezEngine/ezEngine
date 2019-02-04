@@ -268,3 +268,4 @@ void ezSimdVec4i::Transpose(ezSimdVec4i& v0, ezSimdVec4i& v1, ezSimdVec4i& v2, e
   v3.m_v = _mm_unpackhi_epi64(T2, T3);
 }
 #endif
+

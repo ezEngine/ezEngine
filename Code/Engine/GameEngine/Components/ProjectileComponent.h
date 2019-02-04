@@ -94,3 +94,4 @@ typedef ezComponentManagerSimple<class ezProjectileComponent, ezComponentUpdateT
 
     ezVec3 m_vVelocity;
   };
+

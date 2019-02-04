@@ -69,3 +69,4 @@ public:
   /// Allows the generator to do some cleanup.
   virtual void SearchFinished(ezResult res) {}
 };
+

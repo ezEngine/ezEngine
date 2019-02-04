@@ -298,3 +298,4 @@ void ezGPUResourcePool::UpdateMemoryStats() const
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_GPUResourcePool_Implementation_GPUResourcePool);
+

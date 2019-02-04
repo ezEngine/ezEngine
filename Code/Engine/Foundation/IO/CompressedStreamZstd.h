@@ -148,3 +148,4 @@ private:
 };
 
 #endif // BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+

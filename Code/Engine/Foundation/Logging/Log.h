@@ -335,3 +335,4 @@ private:
 };
 
 #include <Foundation/Logging/Implementation/Log_inl.h>
+

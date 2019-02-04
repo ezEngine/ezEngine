@@ -10,3 +10,4 @@ struct EZ_CORE_DLL ezMsgSetPlaying : public ezMessage
 
   bool m_bPlay = true;
 };
+

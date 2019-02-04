@@ -248,3 +248,4 @@ void ezExposedPrefabParameterDesc::Load(ezStreamReader& stream)
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Prefabs_Implementation_PrefabResource);
+

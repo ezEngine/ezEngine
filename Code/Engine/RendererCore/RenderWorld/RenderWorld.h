@@ -93,3 +93,4 @@ private:
 
   static ezUInt64 s_uiFrameCounter;
 };
+

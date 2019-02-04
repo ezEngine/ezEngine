@@ -61,3 +61,4 @@ ezTime ezStopwatch::Checkpoint()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Time_Implementation_Stopwatch);
+

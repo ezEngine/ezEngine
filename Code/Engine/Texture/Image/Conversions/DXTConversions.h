@@ -10,3 +10,4 @@ EZ_TEXTURE_DLL void ezDecompressBlockBC6(const ezUInt8* pSource, ezColorLinear16
 EZ_TEXTURE_DLL void ezDecompressBlockBC7(const ezUInt8* pSource, ezColorBaseUB* pTarget);
 
 EZ_TEXTURE_DLL void ezUnpackPaletteBC4(ezUInt32 a0, ezUInt32 a1, ezUInt32* alphas);
+

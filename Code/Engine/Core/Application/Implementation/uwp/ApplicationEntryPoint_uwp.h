@@ -54,3 +54,4 @@ namespace Details
   {                                                                                                                                        \
     return ::Details::EntryFunc<AppClass>(__VA_ARGS__);                                                                                    \
   }
+

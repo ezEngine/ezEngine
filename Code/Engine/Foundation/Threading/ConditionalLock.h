@@ -28,3 +28,4 @@ private:
   T& m_lock;
   bool m_bCondition;
 };
+

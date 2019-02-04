@@ -1,19 +1,17 @@
+#include <PCH.h>
+
 //-------------------------------------------------------------------------------------
 // DirectXTexConvert.cpp
 //  
 // DirectX Texture Library - Image pixel format conversion 
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
 
-#include "directxtexp.h"
+#include "DirectXTexp.h"
 
 using namespace DirectX;
 using namespace DirectX::PackedVector;
@@ -56,12 +54,12 @@ namespace
 
     inline float FloatFrom7e3(uint32_t Value)
     {
-        uint32_t Mantissa = (uint32_t)(Value & 0x7F);
+        auto Mantissa = static_cast<uint32_t>(Value & 0x7F);
 
         uint32_t Exponent = (Value & 0x380);
         if (Exponent != 0)  // The value is normalized
         {
-            Exponent = (uint32_t)((Value >> 7) & 0x7);
+            Exponent = static_cast<uint32_t>((Value >> 7) & 0x7);
         }
         else if (Mantissa != 0)     // The value is denormalized
         {
@@ -78,7 +76,7 @@ namespace
         }
         else                        // The value is zero
         {
-            Exponent = (uint32_t)-124;
+            Exponent = uint32_t(-124);
         }
 
         uint32_t Result = ((Exponent + 124) << 23) | // Exponent
@@ -122,12 +120,12 @@ namespace
 
     inline float FloatFrom6e4(uint32_t Value)
     {
-        uint32_t Mantissa = (uint32_t)(Value & 0x3F);
+        uint32_t Mantissa = static_cast<uint32_t>(Value & 0x3F);
 
         uint32_t Exponent = (Value & 0x3C0);
         if (Exponent != 0)  // The value is normalized
         {
-            Exponent = (uint32_t)((Value >> 6) & 0xF);
+            Exponent = static_cast<uint32_t>((Value >> 6) & 0xF);
         }
         else if (Mantissa != 0)     // The value is denormalized
         {
@@ -144,7 +142,7 @@ namespace
         }
         else                        // The value is zero
         {
-            Exponent = (uint32_t)-120;
+            Exponent = uint32_t(-120);
         }
 
         uint32_t Result = ((Exponent + 120) << 23) | // Exponent
@@ -192,10 +190,10 @@ namespace
     }
 #endif
 
-    const XMVECTORF32 g_Grayscale = { 0.2125f, 0.7154f, 0.0721f, 0.0f };
-    const XMVECTORF32 g_HalfMin = { -65504.f, -65504.f, -65504.f, -65504.f };
-    const XMVECTORF32 g_HalfMax = { 65504.f, 65504.f, 65504.f, 65504.f };
-    const XMVECTORF32 g_8BitBias = { 0.5f / 255.f, 0.5f / 255.f, 0.5f / 255.f, 0.5f / 255.f };
+    const XMVECTORF32 g_Grayscale = { { { 0.2125f, 0.7154f, 0.0721f, 0.0f } } };
+    const XMVECTORF32 g_HalfMin   = { { { -65504.f, -65504.f, -65504.f, -65504.f } } };
+    const XMVECTORF32 g_HalfMax   = { { { 65504.f, 65504.f, 65504.f, 65504.f } } };
+    const XMVECTORF32 g_8BitBias  = { { { 0.5f / 255.f, 0.5f / 255.f, 0.5f / 255.f, 0.5f / 255.f } } };
 }
 
 //-------------------------------------------------------------------------------------
@@ -236,7 +234,7 @@ void DirectX::_CopyScanline(
 
                 if (pDestination == pSource)
                 {
-                    uint32_t *dPtr = reinterpret_cast<uint32_t*> (pDestination);
+                    auto dPtr = static_cast<uint32_t*>(pDestination);
                     for (size_t count = 0; count < (outSize - 15); count += 16)
                     {
                         dPtr += 3;
@@ -245,8 +243,8 @@ void DirectX::_CopyScanline(
                 }
                 else
                 {
-                    const uint32_t * __restrict sPtr = reinterpret_cast<const uint32_t*>(pSource);
-                    uint32_t * __restrict dPtr = reinterpret_cast<uint32_t*>(pDestination);
+                    const uint32_t * __restrict sPtr = static_cast<const uint32_t*>(pSource);
+                    uint32_t * __restrict dPtr = static_cast<uint32_t*>(pDestination);
                     size_t size = std::min<size_t>(outSize, inSize);
                     for (size_t count = 0; count < (size - 15); count += 16)
                     {
@@ -280,7 +278,7 @@ void DirectX::_CopyScanline(
 
                 if (pDestination == pSource)
                 {
-                    uint16_t *dPtr = reinterpret_cast<uint16_t*>(pDestination);
+                    auto dPtr = static_cast<uint16_t*>(pDestination);
                     for (size_t count = 0; count < (outSize - 7); count += 8)
                     {
                         dPtr += 3;
@@ -289,8 +287,8 @@ void DirectX::_CopyScanline(
                 }
                 else
                 {
-                    const uint16_t * __restrict sPtr = reinterpret_cast<const uint16_t*>(pSource);
-                    uint16_t * __restrict dPtr = reinterpret_cast<uint16_t*>(pDestination);
+                    const uint16_t * __restrict sPtr = static_cast<const uint16_t*>(pSource);
+                    uint16_t * __restrict dPtr = static_cast<uint16_t*>(pDestination);
                     size_t size = std::min<size_t>(outSize, inSize);
                     for (size_t count = 0; count < (size - 7); count += 8)
                     {
@@ -317,7 +315,7 @@ void DirectX::_CopyScanline(
             {
                 if (pDestination == pSource)
                 {
-                    uint32_t *dPtr = reinterpret_cast<uint32_t*>(pDestination);
+                    auto dPtr = static_cast<uint32_t*>(pDestination);
                     for (size_t count = 0; count < (outSize - 3); count += 4)
                     {
                         *dPtr |= 0xC0000000;
@@ -326,8 +324,8 @@ void DirectX::_CopyScanline(
                 }
                 else
                 {
-                    const uint32_t * __restrict sPtr = reinterpret_cast<const uint32_t*>(pSource);
-                    uint32_t * __restrict dPtr = reinterpret_cast<uint32_t*>(pDestination);
+                    const uint32_t * __restrict sPtr = static_cast<const uint32_t*>(pSource);
+                    uint32_t * __restrict dPtr = static_cast<uint32_t*>(pDestination);
                     size_t size = std::min<size_t>(outSize, inSize);
                     for (size_t count = 0; count < (size - 3); count += 4)
                     {
@@ -354,7 +352,7 @@ void DirectX::_CopyScanline(
 
                 if (pDestination == pSource)
                 {
-                    uint32_t *dPtr = reinterpret_cast<uint32_t*>(pDestination);
+                    auto dPtr = static_cast<uint32_t*>(pDestination);
                     for (size_t count = 0; count < (outSize - 3); count += 4)
                     {
                         uint32_t t = *dPtr & 0xFFFFFF;
@@ -364,8 +362,8 @@ void DirectX::_CopyScanline(
                 }
                 else
                 {
-                    const uint32_t * __restrict sPtr = reinterpret_cast<const uint32_t*>(pSource);
-                    uint32_t * __restrict dPtr = reinterpret_cast<uint32_t*>(pDestination);
+                    const uint32_t * __restrict sPtr = static_cast<const uint32_t*>(pSource);
+                    uint32_t * __restrict dPtr = static_cast<uint32_t*>(pDestination);
                     size_t size = std::min<size_t>(outSize, inSize);
                     for (size_t count = 0; count < (size - 3); count += 4)
                     {
@@ -383,7 +381,7 @@ void DirectX::_CopyScanline(
             {
                 if (pDestination == pSource)
                 {
-                    uint16_t *dPtr = reinterpret_cast<uint16_t*>(pDestination);
+                    auto dPtr = static_cast<uint16_t*>(pDestination);
                     for (size_t count = 0; count < (outSize - 1); count += 2)
                     {
                         *(dPtr++) |= 0x8000;
@@ -391,8 +389,8 @@ void DirectX::_CopyScanline(
                 }
                 else
                 {
-                    const uint16_t * __restrict sPtr = reinterpret_cast<const uint16_t*>(pSource);
-                    uint16_t * __restrict dPtr = reinterpret_cast<uint16_t*>(pDestination);
+                    const uint16_t * __restrict sPtr = static_cast<const uint16_t*>(pSource);
+                    uint16_t * __restrict dPtr = static_cast<uint16_t*>(pDestination);
                     size_t size = std::min<size_t>(outSize, inSize);
                     for (size_t count = 0; count < (size - 1); count += 2)
                     {
@@ -413,7 +411,7 @@ void DirectX::_CopyScanline(
             {
                 if (pDestination == pSource)
                 {
-                    uint16_t *dPtr = reinterpret_cast<uint16_t*>(pDestination);
+                    auto dPtr = static_cast<uint16_t*>(pDestination);
                     for (size_t count = 0; count < (outSize - 1); count += 2)
                     {
                         *(dPtr++) |= 0xF000;
@@ -421,8 +419,8 @@ void DirectX::_CopyScanline(
                 }
                 else
                 {
-                    const uint16_t * __restrict sPtr = reinterpret_cast<const uint16_t*>(pSource);
-                    uint16_t * __restrict dPtr = reinterpret_cast<uint16_t*>(pDestination);
+                    const uint16_t * __restrict sPtr = static_cast<const uint16_t*>(pSource);
+                    uint16_t * __restrict dPtr = static_cast<uint16_t*>(pDestination);
                     size_t size = std::min<size_t>(outSize, inSize);
                     for (size_t count = 0; count < (size - 1); count += 2)
                     {
@@ -475,7 +473,7 @@ void DirectX::_SwizzleScanline(
                 // Swap Red (R) and Blue (B) channel (used for D3DFMT_A2R10G10B10 legacy sources)
                 if (pDestination == pSource)
                 {
-                    uint32_t *dPtr = reinterpret_cast<uint32_t*>(pDestination);
+                    auto dPtr = static_cast<uint32_t*>(pDestination);
                     for (size_t count = 0; count < (outSize - 3); count += 4)
                     {
                         uint32_t t = *dPtr;
@@ -490,8 +488,8 @@ void DirectX::_SwizzleScanline(
                 }
                 else
                 {
-                    const uint32_t * __restrict sPtr = reinterpret_cast<const uint32_t*>(pSource);
-                    uint32_t * __restrict dPtr = reinterpret_cast<uint32_t*>(pDestination);
+                    const uint32_t * __restrict sPtr = static_cast<const uint32_t*>(pSource);
+                    uint32_t * __restrict dPtr = static_cast<uint32_t*>(pDestination);
                     size_t size = std::min<size_t>(outSize, inSize);
                     for (size_t count = 0; count < (size - 3); count += 4)
                     {
@@ -525,7 +523,7 @@ void DirectX::_SwizzleScanline(
             // Swap Red (R) and Blue (B) channels (used to convert from DXGI 1.1 BGR formats to DXGI 1.0 RGB)
             if (pDestination == pSource)
             {
-                uint32_t *dPtr = reinterpret_cast<uint32_t*>(pDestination);
+                auto dPtr = static_cast<uint32_t*>(pDestination);
                 for (size_t count = 0; count < (outSize - 3); count += 4)
                 {
                     uint32_t t = *dPtr;
@@ -540,8 +538,8 @@ void DirectX::_SwizzleScanline(
             }
             else
             {
-                const uint32_t * __restrict sPtr = reinterpret_cast<const uint32_t*>(pSource);
-                uint32_t * __restrict dPtr = reinterpret_cast<uint32_t*>(pDestination);
+                const uint32_t * __restrict sPtr = static_cast<const uint32_t*>(pSource);
+                uint32_t * __restrict dPtr = static_cast<uint32_t*>(pDestination);
                 size_t size = std::min<size_t>(outSize, inSize);
                 for (size_t count = 0; count < (size - 3); count += 4)
                 {
@@ -568,7 +566,7 @@ void DirectX::_SwizzleScanline(
                 // Reorder YUV components (used to convert legacy UYVY -> YUY2)
                 if (pDestination == pSource)
                 {
-                    uint32_t *dPtr = reinterpret_cast<uint32_t*>(pDestination);
+                    auto dPtr = static_cast<uint32_t*>(pDestination);
                     for (size_t count = 0; count < (outSize - 3); count += 4)
                     {
                         uint32_t t = *dPtr;
@@ -583,8 +581,8 @@ void DirectX::_SwizzleScanline(
                 }
                 else
                 {
-                    const uint32_t * __restrict sPtr = reinterpret_cast<const uint32_t*>(pSource);
-                    uint32_t * __restrict dPtr = reinterpret_cast<uint32_t*>(pDestination);
+                    const uint32_t * __restrict sPtr = static_cast<const uint32_t*>(pSource);
+                    uint32_t * __restrict dPtr = static_cast<uint32_t*>(pDestination);
                     size_t size = std::min<size_t>(outSize, inSize);
                     for (size_t count = 0; count < (size - 3); count += 4)
                     {
@@ -641,8 +639,8 @@ bool DirectX::_ExpandScanline(
         // DXGI_FORMAT_B5G6R5_UNORM -> DXGI_FORMAT_R8G8B8A8_UNORM
         if (inSize >= 2 && outSize >= 4)
         {
-            const uint16_t * __restrict sPtr = reinterpret_cast<const uint16_t*>(pSource);
-            uint32_t * __restrict dPtr = reinterpret_cast<uint32_t*>(pDestination);
+            const uint16_t * __restrict sPtr = static_cast<const uint16_t*>(pSource);
+            uint32_t * __restrict dPtr = static_cast<uint32_t*>(pDestination);
 
             for (size_t ocount = 0, icount = 0; ((icount < (inSize - 1)) && (ocount < (outSize - 3))); icount += 2, ocount += 4)
             {
@@ -665,8 +663,8 @@ bool DirectX::_ExpandScanline(
         // DXGI_FORMAT_B5G5R5A1_UNORM -> DXGI_FORMAT_R8G8B8A8_UNORM
         if (inSize >= 2 && outSize >= 4)
         {
-            const uint16_t * __restrict sPtr = reinterpret_cast<const uint16_t*>(pSource);
-            uint32_t * __restrict dPtr = reinterpret_cast<uint32_t*>(pDestination);
+            const uint16_t * __restrict sPtr = static_cast<const uint16_t*>(pSource);
+            uint32_t * __restrict dPtr = static_cast<uint32_t*>(pDestination);
 
             for (size_t ocount = 0, icount = 0; ((icount < (inSize - 1)) && (ocount < (outSize - 3))); icount += 2, ocount += 4)
             {
@@ -690,8 +688,8 @@ bool DirectX::_ExpandScanline(
         // DXGI_FORMAT_B4G4R4A4_UNORM -> DXGI_FORMAT_R8G8B8A8_UNORM
         if (inSize >= 2 && outSize >= 4)
         {
-            const uint16_t * __restrict sPtr = reinterpret_cast<const uint16_t*>(pSource);
-            uint32_t * __restrict dPtr = reinterpret_cast<uint32_t*>(pDestination);
+            const uint16_t * __restrict sPtr = static_cast<const uint16_t*>(pSource);
+            uint32_t * __restrict dPtr = static_cast<uint32_t*>(pDestination);
 
             for (size_t ocount = 0, icount = 0; ((icount < (inSize - 1)) && (ocount < (outSize - 3))); icount += 2, ocount += 4)
             {
@@ -707,9 +705,10 @@ bool DirectX::_ExpandScanline(
             return true;
         }
         return false;
-    }
 
-    return false;
+    default:
+        return false;
+    }
 }
 
 
@@ -717,41 +716,41 @@ bool DirectX::_ExpandScanline(
 // Loads an image row into standard RGBA XMVECTOR (aligned) array
 //-------------------------------------------------------------------------------------
 #define LOAD_SCANLINE( type, func )\
-        if ( size >= sizeof(type) )\
+        if (size >= sizeof(type))\
         {\
             const type * __restrict sPtr = reinterpret_cast<const type*>(pSource);\
-            for( size_t icount = 0; icount < ( size - sizeof(type) + 1 ); icount += sizeof(type) )\
+            for(size_t icount = 0; icount < (size - sizeof(type) + 1); icount += sizeof(type))\
             {\
-                if ( dPtr >= ePtr ) break;\
-                *(dPtr++) = func( sPtr++ );\
+                if (dPtr >= ePtr) break;\
+                *(dPtr++) = func(sPtr++);\
             }\
             return true;\
         }\
         return false;
 
 #define LOAD_SCANLINE3( type, func, defvec )\
-        if ( size >= sizeof(type) )\
+        if (size >= sizeof(type))\
         {\
             const type * __restrict sPtr = reinterpret_cast<const type*>(pSource);\
-            for( size_t icount = 0; icount < ( size - sizeof(type) + 1 ); icount += sizeof(type) )\
+            for(size_t icount = 0; icount < (size - sizeof(type) + 1); icount += sizeof(type))\
             {\
-                XMVECTOR v = func( sPtr++ );\
-                if ( dPtr >= ePtr ) break;\
-                *(dPtr++) = XMVectorSelect( defvec, v, g_XMSelect1110 );\
+                XMVECTOR v = func(sPtr++);\
+                if (dPtr >= ePtr) break;\
+                *(dPtr++) = XMVectorSelect(defvec, v, g_XMSelect1110);\
             }\
             return true;\
         }\
         return false;
 
 #define LOAD_SCANLINE2( type, func, defvec )\
-        if ( size >= sizeof(type) )\
+        if (size >= sizeof(type))\
         {\
             const type * __restrict sPtr = reinterpret_cast<const type*>(pSource);\
-            for( size_t icount = 0; icount < ( size - sizeof(type) + 1 ); icount += sizeof(type) )\
+            for(size_t icount = 0; icount < (size - sizeof(type) + 1); icount += sizeof(type))\
             {\
-                XMVECTOR v = func( sPtr++ );\
-                if ( dPtr >= ePtr ) break;\
-                *(dPtr++) = XMVectorSelect( defvec, v, g_XMSelect1100 );\
+                XMVECTOR v = func(sPtr++);\
+                if (dPtr >= ePtr) break;\
+                *(dPtr++) = XMVectorSelect(defvec, v, g_XMSelect1100);\
             }\
             return true;\
         }\
@@ -765,7 +764,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     size_t size,
     DXGI_FORMAT format)
 {
-    assert(pDestination && count > 0 && (((uintptr_t)pDestination & 0xF) == 0));
+    assert(pDestination && count > 0 && ((reinterpret_cast<uintptr_t>(pDestination) & 0xF) == 0));
     assert(pSource && size > 0);
     assert(IsValid(format) && !IsTypeless(format, false) && !IsCompressed(format) && !IsPlanar(format) && !IsPalettized(format));
 
@@ -828,10 +827,10 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
             const size_t psize = sizeof(float) + sizeof(uint32_t);
             if (size >= psize)
             {
-                const float * sPtr = reinterpret_cast<const float*>(pSource);
+                auto sPtr = static_cast<const float*>(pSource);
                 for (size_t icount = 0; icount < (size - psize + 1); icount += psize)
                 {
-                    const uint8_t* ps8 = reinterpret_cast<const uint8_t*>(&sPtr[1]);
+                    auto ps8 = reinterpret_cast<const uint8_t*>(&sPtr[1]);
                     if (dPtr >= ePtr) break;
                     *(dPtr++) = XMVectorSet(sPtr[0], static_cast<float>(*ps8), 0.f, 1.f);
                     sPtr += 2;
@@ -846,7 +845,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
         const size_t psize = sizeof(float) + sizeof(uint32_t);
         if (size >= psize)
         {
-            const float * sPtr = reinterpret_cast<const float*>(pSource);
+            auto sPtr = static_cast<const float*>(pSource);
             for (size_t icount = 0; icount < (size - psize + 1); icount += psize)
             {
                 if (dPtr >= ePtr) break;
@@ -863,10 +862,10 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
         const size_t psize = sizeof(float) + sizeof(uint32_t);
         if (size >= psize)
         {
-            const float * sPtr = reinterpret_cast<const float*>(pSource);
+            auto sPtr = static_cast<const float*>(pSource);
             for (size_t icount = 0; icount < (size - psize + 1); icount += psize)
             {
-                const uint8_t* pg8 = reinterpret_cast<const uint8_t*>(&sPtr[1]);
+                auto pg8 = reinterpret_cast<const uint8_t*>(&sPtr[1]);
                 if (dPtr >= ePtr) break;
                 *(dPtr++) = XMVectorSet(0.f /* typeless component assumed zero */, static_cast<float>(*pg8), 0.f, 1.f);
                 sPtr += 2;
@@ -920,7 +919,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_R32_FLOAT:
         if (size >= sizeof(float))
         {
-            const float* __restrict sPtr = reinterpret_cast<const float*>(pSource);
+            const float* __restrict sPtr = static_cast<const float*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(float) + 1); icount += sizeof(float))
             {
                 XMVECTOR v = XMLoadFloat(sPtr++);
@@ -934,7 +933,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_R32_UINT:
         if (size >= sizeof(uint32_t))
         {
-            const uint32_t* __restrict sPtr = reinterpret_cast<const uint32_t*>(pSource);
+            const uint32_t* __restrict sPtr = static_cast<const uint32_t*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(uint32_t) + 1); icount += sizeof(uint32_t))
             {
                 XMVECTOR v = XMLoadInt(sPtr++);
@@ -949,10 +948,10 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_R32_SINT:
         if (size >= sizeof(int32_t))
         {
-            const int32_t * __restrict sPtr = reinterpret_cast<const int32_t*>(pSource);
+            const int32_t * __restrict sPtr = static_cast<const int32_t*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(int32_t) + 1); icount += sizeof(int32_t))
             {
-                XMVECTOR v = XMLoadInt(reinterpret_cast<const uint32_t*> (sPtr++));
+                XMVECTOR v = XMLoadInt(reinterpret_cast<const uint32_t*>(sPtr++));
                 v = XMConvertVectorIntToFloat(v, 0);
                 if (dPtr >= ePtr) break;
                 *(dPtr++) = XMVectorSelect(g_XMIdentityR3, v, g_XMSelect1000);
@@ -964,11 +963,11 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_D24_UNORM_S8_UINT:
         if (size >= sizeof(uint32_t))
         {
-            const uint32_t * sPtr = reinterpret_cast<const uint32_t*>(pSource);
+            auto sPtr = static_cast<const uint32_t*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(uint32_t) + 1); icount += sizeof(uint32_t))
             {
-                float d = static_cast<float>(*sPtr & 0xFFFFFF) / 16777215.f;
-                float s = static_cast<float>((*sPtr & 0xFF000000) >> 24);
+                auto d = static_cast<float>(*sPtr & 0xFFFFFF) / 16777215.f;
+                auto s = static_cast<float>((*sPtr & 0xFF000000) >> 24);
                 ++sPtr;
                 if (dPtr >= ePtr) break;
                 *(dPtr++) = XMVectorSet(d, s, 0.f, 1.f);
@@ -980,10 +979,10 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_R24_UNORM_X8_TYPELESS:
         if (size >= sizeof(uint32_t))
         {
-            const uint32_t * sPtr = reinterpret_cast<const uint32_t*>(pSource);
+            auto sPtr = static_cast<const uint32_t*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(uint32_t) + 1); icount += sizeof(uint32_t))
             {
-                float r = static_cast<float>(*sPtr & 0xFFFFFF) / 16777215.f;
+                auto r = static_cast<float>(*sPtr & 0xFFFFFF) / 16777215.f;
                 ++sPtr;
                 if (dPtr >= ePtr) break;
                 *(dPtr++) = XMVectorSet(r, 0.f /* typeless component assumed zero */, 0.f, 1.f);
@@ -995,10 +994,10 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_X24_TYPELESS_G8_UINT:
         if (size >= sizeof(uint32_t))
         {
-            const uint32_t * sPtr = reinterpret_cast<const uint32_t*>(pSource);
+            auto sPtr = static_cast<const uint32_t*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(uint32_t) + 1); icount += sizeof(uint32_t))
             {
-                float g = static_cast<float>((*sPtr & 0xFF000000) >> 24);
+                auto g = static_cast<float>((*sPtr & 0xFF000000) >> 24);
                 ++sPtr;
                 if (dPtr >= ePtr) break;
                 *(dPtr++) = XMVectorSet(0.f /* typeless component assumed zero */, g, 0.f, 1.f);
@@ -1022,7 +1021,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_R16_FLOAT:
         if (size >= sizeof(HALF))
         {
-            const HALF * __restrict sPtr = reinterpret_cast<const HALF*>(pSource);
+            const HALF * __restrict sPtr = static_cast<const HALF*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(HALF) + 1); icount += sizeof(HALF))
             {
                 if (dPtr >= ePtr) break;
@@ -1036,7 +1035,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_R16_UNORM:
         if (size >= sizeof(uint16_t))
         {
-            const uint16_t* __restrict sPtr = reinterpret_cast<const uint16_t*>(pSource);
+            const uint16_t* __restrict sPtr = static_cast<const uint16_t*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(uint16_t) + 1); icount += sizeof(uint16_t))
             {
                 if (dPtr >= ePtr) break;
@@ -1049,7 +1048,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_R16_UINT:
         if (size >= sizeof(uint16_t))
         {
-            const uint16_t * __restrict sPtr = reinterpret_cast<const uint16_t*>(pSource);
+            const uint16_t * __restrict sPtr = static_cast<const uint16_t*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(uint16_t) + 1); icount += sizeof(uint16_t))
             {
                 if (dPtr >= ePtr) break;
@@ -1062,7 +1061,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_R16_SNORM:
         if (size >= sizeof(int16_t))
         {
-            const int16_t * __restrict sPtr = reinterpret_cast<const int16_t*>(pSource);
+            const int16_t * __restrict sPtr = static_cast<const int16_t*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(int16_t) + 1); icount += sizeof(int16_t))
             {
                 if (dPtr >= ePtr) break;
@@ -1075,7 +1074,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_R16_SINT:
         if (size >= sizeof(int16_t))
         {
-            const int16_t * __restrict sPtr = reinterpret_cast<const int16_t*>(pSource);
+            const int16_t * __restrict sPtr = static_cast<const int16_t*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(int16_t) + 1); icount += sizeof(int16_t))
             {
                 if (dPtr >= ePtr) break;
@@ -1088,7 +1087,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_R8_UNORM:
         if (size >= sizeof(uint8_t))
         {
-            const uint8_t * __restrict sPtr = reinterpret_cast<const uint8_t*>(pSource);
+            const uint8_t * __restrict sPtr = static_cast<const uint8_t*>(pSource);
             for (size_t icount = 0; icount < size; icount += sizeof(uint8_t))
             {
                 if (dPtr >= ePtr) break;
@@ -1101,7 +1100,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_R8_UINT:
         if (size >= sizeof(uint8_t))
         {
-            const uint8_t * __restrict sPtr = reinterpret_cast<const uint8_t*>(pSource);
+            const uint8_t * __restrict sPtr = static_cast<const uint8_t*>(pSource);
             for (size_t icount = 0; icount < size; icount += sizeof(uint8_t))
             {
                 if (dPtr >= ePtr) break;
@@ -1114,7 +1113,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_R8_SNORM:
         if (size >= sizeof(int8_t))
         {
-            const int8_t * __restrict sPtr = reinterpret_cast<const int8_t*>(pSource);
+            const int8_t * __restrict sPtr = static_cast<const int8_t*>(pSource);
             for (size_t icount = 0; icount < size; icount += sizeof(int8_t))
             {
                 if (dPtr >= ePtr) break;
@@ -1127,7 +1126,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_R8_SINT:
         if (size >= sizeof(int8_t))
         {
-            const int8_t * __restrict sPtr = reinterpret_cast<const int8_t*>(pSource);
+            const int8_t * __restrict sPtr = static_cast<const int8_t*>(pSource);
             for (size_t icount = 0; icount < size; icount += sizeof(int8_t))
             {
                 if (dPtr >= ePtr) break;
@@ -1140,7 +1139,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_A8_UNORM:
         if (size >= sizeof(uint8_t))
         {
-            const uint8_t * __restrict sPtr = reinterpret_cast<const uint8_t*>(pSource);
+            const uint8_t * __restrict sPtr = static_cast<const uint8_t*>(pSource);
             for (size_t icount = 0; icount < size; icount += sizeof(uint8_t))
             {
                 if (dPtr >= ePtr) break;
@@ -1153,7 +1152,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_R1_UNORM:
         if (size >= sizeof(uint8_t))
         {
-            const uint8_t * __restrict sPtr = reinterpret_cast<const uint8_t*>(pSource);
+            const uint8_t * __restrict sPtr = static_cast<const uint8_t*>(pSource);
             for (size_t icount = 0; icount < size; icount += sizeof(uint8_t))
             {
                 for (size_t bcount = 8; bcount > 0; --bcount)
@@ -1174,7 +1173,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_R8G8_B8G8_UNORM:
         if (size >= sizeof(XMUBYTEN4))
         {
-            const XMUBYTEN4 * __restrict sPtr = reinterpret_cast<const XMUBYTEN4*>(pSource);
+            const XMUBYTEN4 * __restrict sPtr = static_cast<const XMUBYTEN4*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(XMUBYTEN4) + 1); icount += sizeof(XMUBYTEN4))
             {
                 XMVECTOR v = XMLoadUByteN4(sPtr++);
@@ -1191,7 +1190,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_G8R8_G8B8_UNORM:
         if (size >= sizeof(XMUBYTEN4))
         {
-            const XMUBYTEN4 * __restrict sPtr = reinterpret_cast<const XMUBYTEN4*>(pSource);
+            const XMUBYTEN4 * __restrict sPtr = static_cast<const XMUBYTEN4*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(XMUBYTEN4) + 1); icount += sizeof(XMUBYTEN4))
             {
                 XMVECTOR v = XMLoadUByteN4(sPtr++);
@@ -1209,8 +1208,8 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_B5G6R5_UNORM:
         if (size >= sizeof(XMU565))
         {
-            static const XMVECTORF32 s_Scale = { 1.f / 31.f, 1.f / 63.f, 1.f / 31.f, 1.f };
-            const XMU565 * __restrict sPtr = reinterpret_cast<const XMU565*>(pSource);
+            static const XMVECTORF32 s_Scale = { { { 1.f / 31.f, 1.f / 63.f, 1.f / 31.f, 1.f } } };
+            const XMU565 * __restrict sPtr = static_cast<const XMU565*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(XMU565) + 1); icount += sizeof(XMU565))
             {
                 XMVECTOR v = XMLoadU565(sPtr++);
@@ -1226,8 +1225,8 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_B5G5R5A1_UNORM:
         if (size >= sizeof(XMU555))
         {
-            static const XMVECTORF32 s_Scale = { 1.f / 31.f, 1.f / 31.f, 1.f / 31.f, 1.f };
-            const XMU555 * __restrict sPtr = reinterpret_cast<const XMU555*>(pSource);
+            static const XMVECTORF32 s_Scale = { { { 1.f / 31.f, 1.f / 31.f, 1.f / 31.f, 1.f } } };
+            const XMU555 * __restrict sPtr = static_cast<const XMU555*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(XMU555) + 1); icount += sizeof(XMU555))
             {
                 XMVECTOR v = XMLoadU555(sPtr++);
@@ -1243,7 +1242,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
         if (size >= sizeof(XMUBYTEN4))
         {
-            const XMUBYTEN4 * __restrict sPtr = reinterpret_cast<const XMUBYTEN4*>(pSource);
+            const XMUBYTEN4 * __restrict sPtr = static_cast<const XMUBYTEN4*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(XMUBYTEN4) + 1); icount += sizeof(XMUBYTEN4))
             {
                 XMVECTOR v = XMLoadUByteN4(sPtr++);
@@ -1258,7 +1257,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
         if (size >= sizeof(XMUBYTEN4))
         {
-            const XMUBYTEN4 * __restrict sPtr = reinterpret_cast<const XMUBYTEN4*>(pSource);
+            const XMUBYTEN4 * __restrict sPtr = static_cast<const XMUBYTEN4*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(XMUBYTEN4) + 1); icount += sizeof(XMUBYTEN4))
             {
                 XMVECTOR v = XMLoadUByteN4(sPtr++);
@@ -1273,7 +1272,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_AYUV:
         if (size >= sizeof(XMUBYTEN4))
         {
-            const XMUBYTEN4 * __restrict sPtr = reinterpret_cast<const XMUBYTEN4*>(pSource);
+            const XMUBYTEN4 * __restrict sPtr = static_cast<const XMUBYTEN4*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(XMUBYTEN4) + 1); icount += sizeof(XMUBYTEN4))
             {
                 int v = int(sPtr->x) - 128;
@@ -1284,13 +1283,13 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
 
                 // http://msdn.microsoft.com/en-us/library/windows/desktop/dd206750.aspx
 
-                // Y’  = Y - 16
-                // Cb’ = Cb - 128
-                // Cr’ = Cr - 128
+                // Y'  = Y - 16
+                // Cb' = Cb - 128
+                // Cr' = Cr - 128
 
-                // R = 1.1644Y’ + 1.5960Cr’
-                // G = 1.1644Y’ - 0.3917Cb’ - 0.8128Cr’
-                // B = 1.1644Y’ + 2.0172Cb’
+                // R = 1.1644Y' + 1.5960Cr'
+                // G = 1.1644Y' - 0.3917Cb' - 0.8128Cr'
+                // B = 1.1644Y' + 2.0172Cb'
 
                 int r = (298 * y + 409 * v + 128) >> 8;
                 int g = (298 * y - 100 * u - 208 * v + 128) >> 8;
@@ -1309,7 +1308,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_Y410:
         if (size >= sizeof(XMUDECN4))
         {
-            const XMUDECN4 * __restrict sPtr = reinterpret_cast<const XMUDECN4*>(pSource);
+            const XMUDECN4 * __restrict sPtr = static_cast<const XMUDECN4*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(XMUDECN4) + 1); icount += sizeof(XMUDECN4))
             {
                 int64_t u = int(sPtr->x) - 512;
@@ -1320,17 +1319,17 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
 
                 // http://msdn.microsoft.com/en-us/library/windows/desktop/bb970578.aspx
 
-                // Y’  = Y - 64
-                // Cb’ = Cb - 512
-                // Cr’ = Cr - 512
+                // Y'  = Y - 64
+                // Cb' = Cb - 512
+                // Cr' = Cr - 512
 
-                // R = 1.1678Y’ + 1.6007Cr’
-                // G = 1.1678Y’ - 0.3929Cb’ - 0.8152Cr’
-                // B = 1.1678Y’ + 2.0232Cb’
+                // R = 1.1678Y' + 1.6007Cr'
+                // G = 1.1678Y' - 0.3929Cb' - 0.8152Cr'
+                // B = 1.1678Y' + 2.0232Cb'
 
-                int r = static_cast<int>((76533 * y + 104905 * v + 32768) >> 16);
-                int g = static_cast<int>((76533 * y - 25747 * u - 53425 * v + 32768) >> 16);
-                int b = static_cast<int>((76533 * y + 132590 * u + 32768) >> 16);
+                auto r = static_cast<int>((76533 * y + 104905 * v + 32768) >> 16);
+                auto g = static_cast<int>((76533 * y - 25747 * u - 53425 * v + 32768) >> 16);
+                auto b = static_cast<int>((76533 * y + 132590 * u + 32768) >> 16);
 
                 if (dPtr >= ePtr) break;
                 *(dPtr++) = XMVectorSet(float(std::min<int>(std::max<int>(r, 0), 1023)) / 1023.f,
@@ -1345,7 +1344,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_Y416:
         if (size >= sizeof(XMUSHORTN4))
         {
-            const XMUSHORTN4 * __restrict sPtr = reinterpret_cast<const XMUSHORTN4*>(pSource);
+            const XMUSHORTN4 * __restrict sPtr = static_cast<const XMUSHORTN4*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(XMUSHORTN4) + 1); icount += sizeof(XMUSHORTN4))
             {
                 int64_t u = int64_t(sPtr->x) - 32768;
@@ -1356,13 +1355,13 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
 
                 // http://msdn.microsoft.com/en-us/library/windows/desktop/bb970578.aspx
 
-                // Y’  = Y - 4096
-                // Cb’ = Cb - 32768
-                // Cr’ = Cr - 32768
+                // Y'  = Y - 4096
+                // Cb' = Cb - 32768
+                // Cr' = Cr - 32768
 
-                // R = 1.1689Y’ + 1.6023Cr’
-                // G = 1.1689Y’ - 0.3933Cb’ - 0.8160Cr’
-                // B = 1.1689Y’+ 2.0251Cb’
+                // R = 1.1689Y' + 1.6023Cr'
+                // G = 1.1689Y' - 0.3933Cb' - 0.8160Cr'
+                // B = 1.1689Y'+ 2.0251Cb'
 
                 int r = static_cast<int>((76607 * y + 105006 * v + 32768) >> 16);
                 int g = static_cast<int>((76607 * y - 25772 * u - 53477 * v + 32768) >> 16);
@@ -1381,7 +1380,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_YUY2:
         if (size >= sizeof(XMUBYTEN4))
         {
-            const XMUBYTEN4 * __restrict sPtr = reinterpret_cast<const XMUBYTEN4*>(pSource);
+            const XMUBYTEN4 * __restrict sPtr = static_cast<const XMUBYTEN4*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(XMUBYTEN4) + 1); icount += sizeof(XMUBYTEN4))
             {
                 int y0 = int(sPtr->x) - 16;
@@ -1419,7 +1418,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
         // Same as Y216 with least significant 6 bits set to zero
         if (size >= sizeof(XMUSHORTN4))
         {
-            const XMUSHORTN4 * __restrict sPtr = reinterpret_cast<const XMUSHORTN4*>(pSource);
+            const XMUSHORTN4 * __restrict sPtr = static_cast<const XMUSHORTN4*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(XMUSHORTN4) + 1); icount += sizeof(XMUSHORTN4))
             {
                 int64_t y0 = int64_t(sPtr->x >> 6) - 64;
@@ -1429,9 +1428,9 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
                 ++sPtr;
 
                 // See Y410
-                int r = static_cast<int>((76533 * y0 + 104905 * v + 32768) >> 16);
-                int g = static_cast<int>((76533 * y0 - 25747 * u - 53425 * v + 32768) >> 16);
-                int b = static_cast<int>((76533 * y0 + 132590 * u + 32768) >> 16);
+                auto r = static_cast<int>((76533 * y0 + 104905 * v + 32768) >> 16);
+                auto g = static_cast<int>((76533 * y0 - 25747 * u - 53425 * v + 32768) >> 16);
+                auto b = static_cast<int>((76533 * y0 + 132590 * u + 32768) >> 16);
 
                 if (dPtr >= ePtr) break;
                 *(dPtr++) = XMVectorSet(float(std::min<int>(std::max<int>(r, 0), 1023)) / 1023.f,
@@ -1456,7 +1455,7 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_Y216:
         if (size >= sizeof(XMUSHORTN4))
         {
-            const XMUSHORTN4 * __restrict sPtr = reinterpret_cast<const XMUSHORTN4*>(pSource);
+            const XMUSHORTN4 * __restrict sPtr = static_cast<const XMUSHORTN4*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(XMUSHORTN4) + 1); icount += sizeof(XMUSHORTN4))
             {
                 int64_t y0 = int64_t(sPtr->x) - 4096;
@@ -1466,9 +1465,9 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
                 ++sPtr;
 
                 // See Y416
-                int r = static_cast<int>((76607 * y0 + 105006 * v + 32768) >> 16);
-                int g = static_cast<int>((76607 * y0 - 25772 * u - 53477 * v + 32768) >> 16);
-                int b = static_cast<int>((76607 * y0 + 132718 * u + 32768) >> 16);
+                auto r = static_cast<int>((76607 * y0 + 105006 * v + 32768) >> 16);
+                auto g = static_cast<int>((76607 * y0 - 25772 * u - 53477 * v + 32768) >> 16);
+                auto b = static_cast<int>((76607 * y0 + 132718 * u + 32768) >> 16);
 
                 if (dPtr >= ePtr) break;
                 *(dPtr++) = XMVectorSet(float(std::min<int>(std::max<int>(r, 0), 65535)) / 65535.f,
@@ -1493,8 +1492,8 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
     case DXGI_FORMAT_B4G4R4A4_UNORM:
         if (size >= sizeof(XMUNIBBLE4))
         {
-            static const XMVECTORF32 s_Scale = { 1.f / 15.f, 1.f / 15.f, 1.f / 15.f, 1.f / 15.f };
-            const XMUNIBBLE4 * __restrict sPtr = reinterpret_cast<const XMUNIBBLE4*>(pSource);
+            static const XMVECTORF32 s_Scale = { { { 1.f / 15.f, 1.f / 15.f, 1.f / 15.f, 1.f / 15.f } } };
+            const XMUNIBBLE4 * __restrict sPtr = static_cast<const XMUNIBBLE4*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(XMUNIBBLE4) + 1); icount += sizeof(XMUNIBBLE4))
             {
                 XMVECTOR v = XMLoadUNibble4(sPtr++);
@@ -1510,17 +1509,17 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
         // Xbox One specific 7e3 format
         if (size >= sizeof(XMUDECN4))
         {
-            const XMUDECN4 * __restrict sPtr = reinterpret_cast<const XMUDECN4*>(pSource);
+            const XMUDECN4 * __restrict sPtr = static_cast<const XMUDECN4*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(XMUDECN4) + 1); icount += sizeof(XMUDECN4))
             {
                 if (dPtr >= ePtr) break;
 
-                XMVECTORF32 vResult = {
+                XMVECTORF32 vResult = { { {
                     FloatFrom7e3(sPtr->x),
                     FloatFrom7e3(sPtr->y),
                     FloatFrom7e3(sPtr->z),
-                    (float)(sPtr->v >> 30) / 3.0f
-                };
+                    static_cast<float>(sPtr->v >> 30) / 3.0f
+                } } };
 
                 ++sPtr;
 
@@ -1534,17 +1533,17 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
         // Xbox One specific 6e4 format
         if (size >= sizeof(XMUDECN4))
         {
-            const XMUDECN4 * __restrict sPtr = reinterpret_cast<const XMUDECN4*>(pSource);
+            const XMUDECN4 * __restrict sPtr = static_cast<const XMUDECN4*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(XMUDECN4) + 1); icount += sizeof(XMUDECN4))
             {
                 if (dPtr >= ePtr) break;
 
-                XMVECTORF32 vResult = {
+                XMVECTORF32 vResult = { { {
                     FloatFrom6e4(sPtr->x),
                     FloatFrom6e4(sPtr->y),
                     FloatFrom6e4(sPtr->z),
-                    (float)(sPtr->v >> 30) / 3.0f
-                };
+                    static_cast<float>(sPtr->v >> 30) / 3.0f
+                } } };
 
                 ++sPtr;
 
@@ -1562,8 +1561,8 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
         // Xbox One specific format
         if (size >= sizeof(uint8_t))
         {
-            static const XMVECTORF32 s_Scale = { 1.f / 15.f, 1.f / 15.f, 0.f, 0.f };
-            const uint8_t * __restrict sPtr = reinterpret_cast<const uint8_t*>(pSource);
+            static const XMVECTORF32 s_Scale = { { { 1.f / 15.f, 1.f / 15.f, 0.f, 0.f } } };
+            const uint8_t * __restrict sPtr = static_cast<const uint8_t*>(pSource);
             for (size_t icount = 0; icount < (size - sizeof(uint8_t) + 1); icount += sizeof(uint8_t))
             {
                 XMUNIBBLE4 nibble;
@@ -1593,13 +1592,13 @@ _Use_decl_annotations_ bool DirectX::_LoadScanline(
 // Stores an image row from standard RGBA XMVECTOR (aligned) array
 //-------------------------------------------------------------------------------------
 #define STORE_SCANLINE( type, func )\
-        if ( size >= sizeof(type) )\
+        if (size >= sizeof(type))\
         {\
             type * __restrict dPtr = reinterpret_cast<type*>(pDestination);\
-            for( size_t icount = 0; icount < ( size - sizeof(type) + 1 ); icount += sizeof(type) )\
+            for(size_t icount = 0; icount < (size - sizeof(type) + 1); icount += sizeof(type))\
             {\
-                if ( sPtr >= ePtr ) break;\
-                func( dPtr++, *sPtr++ );\
+                if (sPtr >= ePtr) break;\
+                func(dPtr++, *sPtr++);\
             }\
             return true; \
         }\
@@ -1615,7 +1614,7 @@ bool DirectX::_StoreScanline(
     float threshold)
 {
     assert(pDestination && size > 0);
-    assert(pSource && count > 0 && (((uintptr_t)pSource & 0xF) == 0));
+    assert(pSource && count > 0 && ((reinterpret_cast<uintptr_t>(pSource) & 0xF) == 0));
     assert(IsValid(format) && !IsTypeless(format) && !IsCompressed(format) && !IsPlanar(format) && !IsPalettized(format));
 
     const XMVECTOR* __restrict sPtr = pSource;
@@ -1647,7 +1646,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_R16G16B16A16_FLOAT:
         if (size >= sizeof(XMHALF4))
         {
-            XMHALF4* __restrict dPtr = reinterpret_cast<XMHALF4*>(pDestination);
+            XMHALF4* __restrict dPtr = static_cast<XMHALF4*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(XMHALF4) + 1); icount += sizeof(XMHALF4))
             {
                 if (sPtr >= ePtr) break;
@@ -1685,14 +1684,14 @@ bool DirectX::_StoreScanline(
             const size_t psize = sizeof(float) + sizeof(uint32_t);
             if (size >= psize)
             {
-                float *dPtr = reinterpret_cast<float*>(pDestination);
+                auto dPtr = static_cast<float*>(pDestination);
                 for (size_t icount = 0; icount < (size - psize + 1); icount += psize)
                 {
                     if (sPtr >= ePtr) break;
                     XMFLOAT4 f;
                     XMStoreFloat4(&f, *sPtr++);
                     dPtr[0] = f.x;
-                    uint8_t* ps8 = reinterpret_cast<uint8_t*>(&dPtr[1]);
+                    auto ps8 = reinterpret_cast<uint8_t*>(&dPtr[1]);
                     ps8[0] = static_cast<uint8_t>(std::min<float>(255.f, std::max<float>(0.f, f.y)));
                     ps8[1] = ps8[2] = ps8[3] = 0;
                     dPtr += 2;
@@ -1718,7 +1717,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
         if (size >= sizeof(XMUBYTEN4))
         {
-            XMUBYTEN4 * __restrict dPtr = reinterpret_cast<XMUBYTEN4*>(pDestination);
+            XMUBYTEN4 * __restrict dPtr = static_cast<XMUBYTEN4*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(XMUBYTEN4) + 1); icount += sizeof(XMUBYTEN4))
             {
                 if (sPtr >= ePtr) break;
@@ -1741,7 +1740,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_R16G16_FLOAT:
         if (size >= sizeof(XMHALF2))
         {
-            XMHALF2* __restrict dPtr = reinterpret_cast<XMHALF2*>(pDestination);
+            XMHALF2* __restrict dPtr = static_cast<XMHALF2*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(XMHALF2) + 1); icount += sizeof(XMHALF2))
             {
                 if (sPtr >= ePtr) break;
@@ -1769,7 +1768,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_R32_FLOAT:
         if (size >= sizeof(float))
         {
-            float * __restrict dPtr = reinterpret_cast<float*>(pDestination);
+            float * __restrict dPtr = static_cast<float*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(float) + 1); icount += sizeof(float))
             {
                 if (sPtr >= ePtr) break;
@@ -1782,7 +1781,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_R32_UINT:
         if (size >= sizeof(uint32_t))
         {
-            uint32_t * __restrict dPtr = reinterpret_cast<uint32_t*>(pDestination);
+            uint32_t * __restrict dPtr = static_cast<uint32_t*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(uint32_t) + 1); icount += sizeof(uint32_t))
             {
                 if (sPtr >= ePtr) break;
@@ -1796,7 +1795,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_R32_SINT:
         if (size >= sizeof(int32_t))
         {
-            uint32_t * __restrict dPtr = reinterpret_cast<uint32_t*>(pDestination);
+            uint32_t * __restrict dPtr = static_cast<uint32_t*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(int32_t) + 1); icount += sizeof(int32_t))
             {
                 if (sPtr >= ePtr) break;
@@ -1810,9 +1809,9 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_D24_UNORM_S8_UINT:
         if (size >= sizeof(uint32_t))
         {
-            static const XMVECTORF32 clamp = { 1.f, 255.f, 0.f, 0.f };
+            static const XMVECTORF32 clamp = { { { 1.f, 255.f, 0.f, 0.f } } };
             XMVECTOR zero = XMVectorZero();
-            uint32_t *dPtr = reinterpret_cast<uint32_t*>(pDestination);
+            auto dPtr = static_cast<uint32_t*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(uint32_t) + 1); icount += sizeof(uint32_t))
             {
                 if (sPtr >= ePtr) break;
@@ -1840,7 +1839,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_R16_FLOAT:
         if (size >= sizeof(HALF))
         {
-            HALF * __restrict dPtr = reinterpret_cast<HALF*>(pDestination);
+            HALF * __restrict dPtr = static_cast<HALF*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(HALF) + 1); icount += sizeof(HALF))
             {
                 if (sPtr >= ePtr) break;
@@ -1856,7 +1855,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_R16_UNORM:
         if (size >= sizeof(uint16_t))
         {
-            uint16_t * __restrict dPtr = reinterpret_cast<uint16_t*>(pDestination);
+            uint16_t * __restrict dPtr = static_cast<uint16_t*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(uint16_t) + 1); icount += sizeof(uint16_t))
             {
                 if (sPtr >= ePtr) break;
@@ -1871,7 +1870,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_R16_UINT:
         if (size >= sizeof(uint16_t))
         {
-            uint16_t * __restrict dPtr = reinterpret_cast<uint16_t*>(pDestination);
+            uint16_t * __restrict dPtr = static_cast<uint16_t*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(uint16_t) + 1); icount += sizeof(uint16_t))
             {
                 if (sPtr >= ePtr) break;
@@ -1886,7 +1885,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_R16_SNORM:
         if (size >= sizeof(int16_t))
         {
-            int16_t * __restrict dPtr = reinterpret_cast<int16_t*>(pDestination);
+            int16_t * __restrict dPtr = static_cast<int16_t*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(int16_t) + 1); icount += sizeof(int16_t))
             {
                 if (sPtr >= ePtr) break;
@@ -1901,7 +1900,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_R16_SINT:
         if (size >= sizeof(int16_t))
         {
-            int16_t * __restrict dPtr = reinterpret_cast<int16_t*>(pDestination);
+            int16_t * __restrict dPtr = static_cast<int16_t*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(int16_t) + 1); icount += sizeof(int16_t))
             {
                 if (sPtr >= ePtr) break;
@@ -1916,7 +1915,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_R8_UNORM:
         if (size >= sizeof(uint8_t))
         {
-            uint8_t * __restrict dPtr = reinterpret_cast<uint8_t*>(pDestination);
+            uint8_t * __restrict dPtr = static_cast<uint8_t*>(pDestination);
             for (size_t icount = 0; icount < size; icount += sizeof(uint8_t))
             {
                 if (sPtr >= ePtr) break;
@@ -1931,7 +1930,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_R8_UINT:
         if (size >= sizeof(uint8_t))
         {
-            uint8_t * __restrict dPtr = reinterpret_cast<uint8_t*>(pDestination);
+            uint8_t * __restrict dPtr = static_cast<uint8_t*>(pDestination);
             for (size_t icount = 0; icount < size; icount += sizeof(uint8_t))
             {
                 if (sPtr >= ePtr) break;
@@ -1946,7 +1945,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_R8_SNORM:
         if (size >= sizeof(int8_t))
         {
-            int8_t * __restrict dPtr = reinterpret_cast<int8_t*>(pDestination);
+            int8_t * __restrict dPtr = static_cast<int8_t*>(pDestination);
             for (size_t icount = 0; icount < size; icount += sizeof(int8_t))
             {
                 if (sPtr >= ePtr) break;
@@ -1961,7 +1960,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_R8_SINT:
         if (size >= sizeof(int8_t))
         {
-            int8_t * __restrict dPtr = reinterpret_cast<int8_t*>(pDestination);
+            int8_t * __restrict dPtr = static_cast<int8_t*>(pDestination);
             for (size_t icount = 0; icount < size; icount += sizeof(int8_t))
             {
                 if (sPtr >= ePtr) break;
@@ -1976,7 +1975,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_A8_UNORM:
         if (size >= sizeof(uint8_t))
         {
-            uint8_t * __restrict dPtr = reinterpret_cast<uint8_t*>(pDestination);
+            uint8_t * __restrict dPtr = static_cast<uint8_t*>(pDestination);
             for (size_t icount = 0; icount < size; icount += sizeof(uint8_t))
             {
                 if (sPtr >= ePtr) break;
@@ -1991,7 +1990,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_R1_UNORM:
         if (size >= sizeof(uint8_t))
         {
-            uint8_t * __restrict dPtr = reinterpret_cast<uint8_t*>(pDestination);
+            uint8_t * __restrict dPtr = static_cast<uint8_t*>(pDestination);
             for (size_t icount = 0; icount < size; icount += sizeof(uint8_t))
             {
                 uint8_t pixels = 0;
@@ -2018,7 +2017,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_R8G8_B8G8_UNORM:
         if (size >= sizeof(XMUBYTEN4))
         {
-            XMUBYTEN4 * __restrict dPtr = reinterpret_cast<XMUBYTEN4*>(pDestination);
+            XMUBYTEN4 * __restrict dPtr = static_cast<XMUBYTEN4*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(XMUBYTEN4) + 1); icount += sizeof(XMUBYTEN4))
             {
                 if (sPtr >= ePtr) break;
@@ -2035,9 +2034,9 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_G8R8_G8B8_UNORM:
         if (size >= sizeof(XMUBYTEN4))
         {
-            static XMVECTORU32 select1101 = { XM_SELECT_1, XM_SELECT_1, XM_SELECT_0, XM_SELECT_1 };
+            static XMVECTORU32 select1101 = { { { XM_SELECT_1, XM_SELECT_1, XM_SELECT_0, XM_SELECT_1 } } };
 
-            XMUBYTEN4 * __restrict dPtr = reinterpret_cast<XMUBYTEN4*>(pDestination);
+            XMUBYTEN4 * __restrict dPtr = static_cast<XMUBYTEN4*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(XMUBYTEN4) + 1); icount += sizeof(XMUBYTEN4))
             {
                 if (sPtr >= ePtr) break;
@@ -2054,8 +2053,8 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_B5G6R5_UNORM:
         if (size >= sizeof(XMU565))
         {
-            static const XMVECTORF32 s_Scale = { 31.f, 63.f, 31.f, 1.f };
-            XMU565 * __restrict dPtr = reinterpret_cast<XMU565*>(pDestination);
+            static const XMVECTORF32 s_Scale = { { { 31.f, 63.f, 31.f, 1.f } } };
+            XMU565 * __restrict dPtr = static_cast<XMU565*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(XMU565) + 1); icount += sizeof(XMU565))
             {
                 if (sPtr >= ePtr) break;
@@ -2070,8 +2069,8 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_B5G5R5A1_UNORM:
         if (size >= sizeof(XMU555))
         {
-            static const XMVECTORF32 s_Scale = { 31.f, 31.f, 31.f, 1.f };
-            XMU555 * __restrict dPtr = reinterpret_cast<XMU555*>(pDestination);
+            static const XMVECTORF32 s_Scale = { { { 31.f, 31.f, 31.f, 1.f } } };
+            XMU555 * __restrict dPtr = static_cast<XMU555*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(XMU555) + 1); icount += sizeof(XMU555))
             {
                 if (sPtr >= ePtr) break;
@@ -2089,7 +2088,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
         if (size >= sizeof(XMUBYTEN4))
         {
-            XMUBYTEN4 * __restrict dPtr = reinterpret_cast<XMUBYTEN4*>(pDestination);
+            XMUBYTEN4 * __restrict dPtr = static_cast<XMUBYTEN4*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(XMUBYTEN4) + 1); icount += sizeof(XMUBYTEN4))
             {
                 if (sPtr >= ePtr) break;
@@ -2105,7 +2104,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
         if (size >= sizeof(XMUBYTEN4))
         {
-            XMUBYTEN4 * __restrict dPtr = reinterpret_cast<XMUBYTEN4*>(pDestination);
+            XMUBYTEN4 * __restrict dPtr = static_cast<XMUBYTEN4*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(XMUBYTEN4) + 1); icount += sizeof(XMUBYTEN4))
             {
                 if (sPtr >= ePtr) break;
@@ -2120,7 +2119,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_AYUV:
         if (size >= sizeof(XMUBYTEN4))
         {
-            XMUBYTEN4 * __restrict dPtr = reinterpret_cast<XMUBYTEN4*>(pDestination);
+            XMUBYTEN4 * __restrict dPtr = static_cast<XMUBYTEN4*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(XMUBYTEN4) + 1); icount += sizeof(XMUBYTEN4))
             {
                 if (sPtr >= ePtr) break;
@@ -2151,7 +2150,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_Y410:
         if (size >= sizeof(XMUDECN4))
         {
-            XMUDECN4 * __restrict dPtr = reinterpret_cast<XMUDECN4*>(pDestination);
+            XMUDECN4 * __restrict dPtr = static_cast<XMUDECN4*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(XMUDECN4) + 1); icount += sizeof(XMUDECN4))
             {
                 if (sPtr >= ePtr) break;
@@ -2186,7 +2185,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_Y416:
         if (size >= sizeof(XMUSHORTN4))
         {
-            XMUSHORTN4 * __restrict dPtr = reinterpret_cast<XMUSHORTN4*>(pDestination);
+            XMUSHORTN4 * __restrict dPtr = static_cast<XMUSHORTN4*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(XMUSHORTN4) + 1); icount += sizeof(XMUSHORTN4))
             {
                 if (sPtr >= ePtr) break;
@@ -2221,7 +2220,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_YUY2:
         if (size >= sizeof(XMUBYTEN4))
         {
-            XMUBYTEN4 * __restrict dPtr = reinterpret_cast<XMUBYTEN4*>(pDestination);
+            XMUBYTEN4 * __restrict dPtr = static_cast<XMUBYTEN4*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(XMUBYTEN4) + 1); icount += sizeof(XMUBYTEN4))
             {
                 if (sPtr >= ePtr) break;
@@ -2262,7 +2261,7 @@ bool DirectX::_StoreScanline(
         // Same as Y216 with least significant 6 bits set to zero
         if (size >= sizeof(XMUSHORTN4))
         {
-            XMUSHORTN4 * __restrict dPtr = reinterpret_cast<XMUSHORTN4*>(pDestination);
+            XMUSHORTN4 * __restrict dPtr = static_cast<XMUSHORTN4*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(XMUSHORTN4) + 1); icount += sizeof(XMUSHORTN4))
             {
                 if (sPtr >= ePtr) break;
@@ -2310,7 +2309,7 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_Y216:
         if (size >= sizeof(XMUSHORTN4))
         {
-            XMUSHORTN4 * __restrict dPtr = reinterpret_cast<XMUSHORTN4*>(pDestination);
+            XMUSHORTN4 * __restrict dPtr = static_cast<XMUSHORTN4*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(XMUSHORTN4) + 1); icount += sizeof(XMUSHORTN4))
             {
                 if (sPtr >= ePtr) break;
@@ -2358,8 +2357,8 @@ bool DirectX::_StoreScanline(
     case DXGI_FORMAT_B4G4R4A4_UNORM:
         if (size >= sizeof(XMUNIBBLE4))
         {
-            static const XMVECTORF32 s_Scale = { 15.f, 15.f, 15.f, 15.f };
-            XMUNIBBLE4 * __restrict dPtr = reinterpret_cast<XMUNIBBLE4*>(pDestination);
+            static const XMVECTORF32 s_Scale = { { { 15.f, 15.f, 15.f, 15.f } } };
+            XMUNIBBLE4 * __restrict dPtr = static_cast<XMUNIBBLE4*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(XMUNIBBLE4) + 1); icount += sizeof(XMUNIBBLE4))
             {
                 if (sPtr >= ePtr) break;
@@ -2375,10 +2374,10 @@ bool DirectX::_StoreScanline(
         // Xbox One specific 7e3 format with alpha
         if (size >= sizeof(XMUDECN4))
         {
-            static const XMVECTORF32  Scale = { 1.0f, 1.0f, 1.0f, 3.0f };
-            static const XMVECTORF32  C = { 31.875f, 31.875f, 31.875f, 3.f };
+            static const XMVECTORF32  Scale = { { { 1.0f, 1.0f, 1.0f, 3.0f } } };
+            static const XMVECTORF32  C = { { { 31.875f, 31.875f, 31.875f, 3.f } } };
 
-            XMUDECN4 * __restrict dPtr = reinterpret_cast<XMUDECN4*>(pDestination);
+            XMUDECN4 * __restrict dPtr = static_cast<XMUDECN4*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(XMUDECN4) + 1); icount += sizeof(XMUDECN4))
             {
                 if (sPtr >= ePtr) break;
@@ -2392,7 +2391,7 @@ bool DirectX::_StoreScanline(
                 dPtr->x = FloatTo7e3(tmp.x);
                 dPtr->y = FloatTo7e3(tmp.y);
                 dPtr->z = FloatTo7e3(tmp.z);
-                dPtr->w = (uint32_t)tmp.w;
+                dPtr->w = static_cast<uint32_t>(tmp.w);
                 ++dPtr;
             }
             return true;
@@ -2403,10 +2402,10 @@ bool DirectX::_StoreScanline(
         // Xbox One specific 6e4 format with alpha
         if (size >= sizeof(XMUDECN4))
         {
-            static const XMVECTORF32  Scale = { 1.0f, 1.0f, 1.0f, 3.0f };
-            static const XMVECTORF32  C = { 508.f, 508.f, 508.f, 3.f };
+            static const XMVECTORF32  Scale = { { { 1.0f, 1.0f, 1.0f, 3.0f } } };
+            static const XMVECTORF32  C = { { { 508.f, 508.f, 508.f, 3.f } } };
 
-            XMUDECN4 * __restrict dPtr = reinterpret_cast<XMUDECN4*>(pDestination);
+            XMUDECN4 * __restrict dPtr = static_cast<XMUDECN4*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(XMUDECN4) + 1); icount += sizeof(XMUDECN4))
             {
                 if (sPtr >= ePtr) break;
@@ -2420,7 +2419,7 @@ bool DirectX::_StoreScanline(
                 dPtr->x = FloatTo6e4(tmp.x);
                 dPtr->y = FloatTo6e4(tmp.y);
                 dPtr->z = FloatTo6e4(tmp.z);
-                dPtr->w = (uint32_t)tmp.w;
+                dPtr->w = static_cast<uint32_t>(tmp.w);
                 ++dPtr;
             }
             return true;
@@ -2435,8 +2434,8 @@ bool DirectX::_StoreScanline(
         // Xbox One specific format
         if (size >= sizeof(uint8_t))
         {
-            static const XMVECTORF32 s_Scale = { 15.f, 15.f, 0.f, 0.f };
-            uint8_t * __restrict dPtr = reinterpret_cast<uint8_t*>(pDestination);
+            static const XMVECTORF32 s_Scale = { { { 15.f, 15.f, 0.f, 0.f } } };
+            uint8_t * __restrict dPtr = static_cast<uint8_t*>(pDestination);
             for (size_t icount = 0; icount < (size - sizeof(uint8_t) + 1); icount += sizeof(uint8_t))
             {
                 if (sPtr >= ePtr) break;
@@ -2631,6 +2630,97 @@ HRESULT DirectX::_ConvertFromR32G32B32A32(
 
 
 //-------------------------------------------------------------------------------------
+// Convert DXGI image to/from GUID_WICPixelFormat64bppRGBAHalf (no range conversions)
+//-------------------------------------------------------------------------------------
+_Use_decl_annotations_
+HRESULT DirectX::_ConvertToR16G16B16A16(const Image& srcImage, ScratchImage& image)
+{
+    if (!srcImage.pixels)
+        return E_POINTER;
+
+    HRESULT hr = image.Initialize2D(DXGI_FORMAT_R16G16B16A16_FLOAT, srcImage.width, srcImage.height, 1, 1);
+    if (FAILED(hr))
+        return hr;
+
+    ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR) * srcImage.width), 16)));
+    if (!scanline)
+    {
+        image.Release();
+        return E_OUTOFMEMORY;
+    }
+
+    const Image *img = image.GetImage(0, 0, 0);
+    if (!img)
+    {
+        image.Release();
+        return E_POINTER;
+    }
+
+    uint8_t* pDest = img->pixels;
+    if (!pDest)
+    {
+        image.Release();
+        return E_POINTER;
+    }
+
+    const uint8_t *pSrc = srcImage.pixels;
+    for (size_t h = 0; h < srcImage.height; ++h)
+    {
+        if (!_LoadScanline(scanline.get(), srcImage.width, pSrc, srcImage.rowPitch, srcImage.format))
+        {
+            image.Release();
+            return E_FAIL;
+        }
+
+        XMConvertFloatToHalfStream(
+            reinterpret_cast<HALF*>(pDest), sizeof(HALF),
+            reinterpret_cast<float*>(scanline.get()), sizeof(float),
+            srcImage.width * 4);
+
+        pSrc += srcImage.rowPitch;
+        pDest += img->rowPitch;
+    }
+
+    return S_OK;
+}
+
+_Use_decl_annotations_
+HRESULT DirectX::_ConvertFromR16G16B16A16(const Image& srcImage, const Image& destImage)
+{
+    assert(srcImage.format == DXGI_FORMAT_R16G16B16A16_FLOAT);
+
+    if (!srcImage.pixels || !destImage.pixels)
+        return E_POINTER;
+
+    if (srcImage.width != destImage.width || srcImage.height != destImage.height)
+        return E_FAIL;
+
+    ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR) * srcImage.width), 16)));
+    if (!scanline)
+        return E_OUTOFMEMORY;
+
+    const uint8_t *pSrc = srcImage.pixels;
+    uint8_t* pDest = destImage.pixels;
+
+    for (size_t h = 0; h < srcImage.height; ++h)
+    {
+        XMConvertHalfToFloatStream(
+            reinterpret_cast<float*>(scanline.get()), sizeof(float),
+            reinterpret_cast<const HALF*>(pSrc), sizeof(HALF),
+            srcImage.width * 4);
+
+        if (!_StoreScanline(pDest, destImage.rowPitch, destImage.format, scanline.get(), srcImage.width))
+            return E_FAIL;
+
+        pSrc += srcImage.rowPitch;
+        pDest += destImage.rowPitch;
+    }
+
+    return S_OK;
+}
+
+
+//-------------------------------------------------------------------------------------
 // Convert from Linear RGB to sRGB
 //
 // if C_linear <= 0.0031308 -> C_srgb = 12.92 * C_linear
@@ -2648,7 +2738,7 @@ bool DirectX::_StoreScanlineLinear(
     float threshold)
 {
     assert(pDestination && size > 0);
-    assert(pSource && count > 0 && (((uintptr_t)pSource & 0xF) == 0));
+    assert(pSource && count > 0 && ((reinterpret_cast<uintptr_t>(pSource) & 0xF) == 0));
     assert(IsValid(format) && !IsTypeless(format) && !IsCompressed(format) && !IsPlanar(format) && !IsPalettized(format));
 
     switch (format)
@@ -2722,7 +2812,7 @@ bool DirectX::_LoadScanlineLinear(
     DXGI_FORMAT format,
     DWORD flags)
 {
-    assert(pDestination && count > 0 && (((uintptr_t)pDestination & 0xF) == 0));
+    assert(pDestination && count > 0 && ((reinterpret_cast<uintptr_t>(pDestination) & 0xF) == 0));
     assert(pSource && size > 0);
     assert(IsValid(format) && !IsTypeless(format, false) && !IsCompressed(format) && !IsPlanar(format) && !IsPalettized(format));
 
@@ -2885,11 +2975,11 @@ namespace
     };
 
 #pragma prefast( suppress : 25004, "Signature must match bsearch_s" );
-    int __cdecl _ConvertCompare(void *context, const void* ptr1, const void *ptr2)
+    int __cdecl ConvertCompare(void *context, const void* ptr1, const void *ptr2) noexcept
     {
         UNREFERENCED_PARAMETER(context);
-        const ConvertData *p1 = reinterpret_cast<const ConvertData*>(ptr1);
-        const ConvertData *p2 = reinterpret_cast<const ConvertData*>(ptr2);
+        auto p1 = static_cast<const ConvertData*>(ptr1);
+        auto p2 = static_cast<const ConvertData*>(ptr2);
         if (p1->format == p2->format) return 0;
         else return (p1->format < p2->format) ? -1 : 1;
     }
@@ -2909,9 +2999,9 @@ DWORD DirectX::_GetConvertFlags(DXGI_FORMAT format)
     }
 #endif
 
-    ConvertData key = { format, 0 };
-    const ConvertData* in = (const ConvertData*)bsearch_s(&key, g_ConvertTable, _countof(g_ConvertTable), sizeof(ConvertData),
-        _ConvertCompare, nullptr);
+    ConvertData key = { format, 0, 0 };
+    auto in = reinterpret_cast<const ConvertData*>(bsearch_s(&key, g_ConvertTable, _countof(g_ConvertTable), sizeof(ConvertData),
+        ConvertCompare, nullptr));
     return (in) ? in->flags : 0;
 }
 
@@ -2923,7 +3013,7 @@ void DirectX::_ConvertScanline(
     DXGI_FORMAT inFormat,
     DWORD flags)
 {
-    assert(pBuffer && count > 0 && (((uintptr_t)pBuffer & 0xF) == 0));
+    assert(pBuffer && count > 0 && ((reinterpret_cast<uintptr_t>(pBuffer) & 0xF) == 0));
     assert(IsValid(outFormat) && !IsTypeless(outFormat) && !IsPlanar(outFormat) && !IsPalettized(outFormat));
     assert(IsValid(inFormat) && !IsTypeless(inFormat) && !IsPlanar(inFormat) && !IsPalettized(inFormat));
 
@@ -2942,12 +3032,12 @@ void DirectX::_ConvertScanline(
 #endif
 
     // Determine conversion details about source and dest formats
-    ConvertData key = { inFormat, 0 };
-    const ConvertData* in = (const ConvertData*)bsearch_s(&key, g_ConvertTable, _countof(g_ConvertTable), sizeof(ConvertData),
-        _ConvertCompare, nullptr);
+    ConvertData key = { inFormat, 0, 0 };
+    auto in = reinterpret_cast<const ConvertData*>(
+        bsearch_s(&key, g_ConvertTable, _countof(g_ConvertTable), sizeof(ConvertData), ConvertCompare, nullptr));
     key.format = outFormat;
-    const ConvertData* out = (const ConvertData*)bsearch_s(&key, g_ConvertTable, _countof(g_ConvertTable), sizeof(ConvertData),
-        _ConvertCompare, nullptr);
+    auto out = reinterpret_cast<const ConvertData*>(
+        bsearch_s(&key, g_ConvertTable, _countof(g_ConvertTable), sizeof(ConvertData), ConvertCompare, nullptr));
     if (!in || !out)
     {
         assert(false);
@@ -2974,6 +3064,9 @@ void DirectX::_ConvertScanline(
     case DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM:
         flags &= ~TEX_FILTER_SRGB_IN;
         break;
+
+    default:
+        break;
     }
 
     switch (outFormat)
@@ -2991,6 +3084,9 @@ void DirectX::_ConvertScanline(
     case DXGI_FORMAT_A8_UNORM:
     case DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM:
         flags &= ~TEX_FILTER_SRGB_OUT;
+        break;
+
+    default:
         break;
     }
 
@@ -3025,7 +3121,7 @@ void DirectX::_ConvertScanline(
                 if (in->flags & CONVF_STENCIL)
                 {
                     // Stencil -> Alpha
-                    static const XMVECTORF32 S = { 1.f, 1.f, 1.f, 255.f };
+                    static const XMVECTORF32 S = { { { 1.f, 1.f, 1.f, 255.f } } };
 
                     if (out->flags & CONVF_UNORM)
                     {
@@ -3161,7 +3257,7 @@ void DirectX::_ConvertScanline(
                         break;
                     }
 
-                    // fall-through
+                    __fallthrough;
 
                 case TEX_FILTER_RGB_COPY_RED:
                 {
@@ -3206,8 +3302,8 @@ void DirectX::_ConvertScanline(
                 if (out->flags & CONVF_STENCIL)
                 {
                     // Alpha -> Stencil (green channel)
-                    static const XMVECTORU32 select0100 = { XM_SELECT_0, XM_SELECT_1, XM_SELECT_0, XM_SELECT_0 };
-                    static const XMVECTORF32 S = { 255.f, 255.f, 255.f, 255.f };
+                    static const XMVECTORU32 select0100 = { { { XM_SELECT_0, XM_SELECT_1, XM_SELECT_0, XM_SELECT_0 } } };
+                    static const XMVECTORF32 S = { { { 255.f, 255.f, 255.f, 255.f } } };
 
                     if (in->flags & CONVF_UNORM)
                     {
@@ -3445,7 +3541,7 @@ void DirectX::_ConvertScanline(
                     break;
                 }
 
-                // fall-through
+                __fallthrough;
 
             case TEX_FILTER_RGB_COPY_RED:
             {
@@ -3538,7 +3634,7 @@ void DirectX::_ConvertScanline(
                         break;
                     }
 
-                    // fall-through
+                    __fallthrough;
 
                 case TEX_FILTER_RGB_COPY_RED:
                     // Leave data unchanged and the store will handle this...
@@ -3613,70 +3709,71 @@ namespace
         -0.468750f,  0.031250f, -0.343750f, 0.156250f, -0.468750f, 0.031250f, -0.343750f, 0.156250f,
     };
 
-    const XMVECTORF32 g_Scale16pc = { 65535.f, 65535.f, 65535.f, 65535.f };
-    const XMVECTORF32 g_Scale15pc = { 32767.f, 32767.f, 32767.f, 32767.f };
-    const XMVECTORF32 g_Scale10pc = { 1023.f,  1023.f,  1023.f,     3.f };
-    const XMVECTORF32 g_Scale9pc = { 511.f,   511.f,   511.f,     3.f };
-    const XMVECTORF32 g_Scale8pc = { 255.f,   255.f,   255.f,   255.f };
-    const XMVECTORF32 g_Scale7pc = { 127.f,   127.f,   127.f,   127.f };
-    const XMVECTORF32 g_Scale565pc = { 31.f,    63.f,    31.f,     1.f };
-    const XMVECTORF32 g_Scale5551pc = { 31.f,    31.f,    31.f,     1.f };
-    const XMVECTORF32 g_Scale4pc = { 15.f,    15.f,    15.f,    15.f };
+    const XMVECTORF32 g_Scale16pc   = { { { 65535.f, 65535.f, 65535.f, 65535.f } } };
+    const XMVECTORF32 g_Scale15pc   = { { { 32767.f, 32767.f, 32767.f, 32767.f } } };
+    const XMVECTORF32 g_Scale10pc   = { { {  1023.f,  1023.f,  1023.f,     3.f } } };
+    const XMVECTORF32 g_Scale9pc    = { { {   511.f,   511.f,   511.f,     3.f } } };
+    const XMVECTORF32 g_Scale8pc    = { { {   255.f,   255.f,   255.f,   255.f } } };
+    const XMVECTORF32 g_Scale7pc    = { { {   127.f,   127.f,   127.f,   127.f } } };
+    const XMVECTORF32 g_Scale565pc  = { { {    31.f,    63.f,    31.f,     1.f } } };
+    const XMVECTORF32 g_Scale5551pc = { { {    31.f,    31.f,    31.f,     1.f } } };
+    const XMVECTORF32 g_Scale4pc    = { { {    15.f,    15.f,    15.f,    15.f } } };
 
-    const XMVECTORF32 g_ErrorWeight3 = { 3.f / 16.f, 3.f / 16.f, 3.f / 16.f, 3.f / 16.f };
-    const XMVECTORF32 g_ErrorWeight5 = { 5.f / 16.f, 5.f / 16.f, 5.f / 16.f, 5.f / 16.f };
-    const XMVECTORF32 g_ErrorWeight1 = { 1.f / 16.f, 1.f / 16.f, 1.f / 16.f, 1.f / 16.f };
-    const XMVECTORF32 g_ErrorWeight7 = { 7.f / 16.f, 7.f / 16.f, 7.f / 16.f, 7.f / 16.f };
+    const XMVECTORF32 g_ErrorWeight3 = { { { 3.f / 16.f, 3.f / 16.f, 3.f / 16.f, 3.f / 16.f } } };
+    const XMVECTORF32 g_ErrorWeight5 = { { { 5.f / 16.f, 5.f / 16.f, 5.f / 16.f, 5.f / 16.f } } };
+    const XMVECTORF32 g_ErrorWeight1 = { { { 1.f / 16.f, 1.f / 16.f, 1.f / 16.f, 1.f / 16.f } } };
+    const XMVECTORF32 g_ErrorWeight7 = { { { 7.f / 16.f, 7.f / 16.f, 7.f / 16.f, 7.f / 16.f } } };
 
 #define STORE_SCANLINE( type, scalev, clampzero, norm, itype, mask, row, bgr ) \
-        if ( size >= sizeof(type) ) \
+        if (size >= sizeof(type)) \
         { \
             type * __restrict dest = reinterpret_cast<type*>(pDestination); \
-            for( size_t i = 0; i < count; ++i ) \
+            for(size_t i = 0; i < count; ++i) \
             { \
-                ptrdiff_t index = static_cast<ptrdiff_t>( ( row & 1 ) ? ( count - i - 1 ) : i ); \
-                ptrdiff_t delta = ( row & 1 ) ? -2 : 0; \
+                auto index = static_cast<ptrdiff_t>((row & 1) ? (count - i - 1) : i ); \
+                ptrdiff_t delta = (row & 1) ? -2 : 0; \
                 \
                 XMVECTOR v = sPtr[ index ]; \
-                if ( bgr ) { v = XMVectorSwizzle<2, 1, 0, 3>( v ); } \
-                if ( norm && clampzero ) v = XMVectorSaturate( v ) ; \
-                else if ( clampzero ) v = XMVectorClamp( v, g_XMZero, scalev ); \
-                else if ( norm ) v = XMVectorClamp( v, g_XMNegativeOne, g_XMOne ); \
-                else v = XMVectorClamp( v, -scalev + g_XMOne, scalev ); \
-                v = XMVectorAdd( v, vError ); \
-                if ( norm ) v = XMVectorMultiply( v, scalev ); \
+                if (bgr) { v = XMVectorSwizzle<2, 1, 0, 3>(v); } \
+                if (norm && clampzero) v = XMVectorSaturate(v) ; \
+                else if (clampzero) v = XMVectorClamp(v, g_XMZero, scalev); \
+                else if (norm) v = XMVectorClamp(v, g_XMNegativeOne, g_XMOne); \
+                else v = XMVectorClamp(v, XMVectorAdd(XMVectorNegate(scalev), g_XMOne), scalev); \
+                v = XMVectorAdd(v, vError); \
+                if (norm) v = XMVectorMultiply(v, scalev); \
                 \
                 XMVECTOR target; \
-                if ( pDiffusionErrors ) \
+                if (pDiffusionErrors) \
                 { \
-                    target = XMVectorRound( v ); \
-                    vError = XMVectorSubtract( v, target ); \
-                    if (norm) vError = XMVectorDivide( vError, scalev ); \
+                    target = XMVectorRound(v); \
+                    vError = XMVectorSubtract(v, target); \
+                    if (norm) vError = XMVectorDivide(vError, scalev); \
                     \
                     /* Distribute error to next scanline and next pixel */ \
-                    pDiffusionErrors[ index-delta ]   += XMVectorMultiply( g_ErrorWeight3, vError ); \
-                    pDiffusionErrors[ index+1 ]       += XMVectorMultiply( g_ErrorWeight5, vError ); \
-                    pDiffusionErrors[ index+2+delta ] += XMVectorMultiply( g_ErrorWeight1, vError ); \
-                    vError = XMVectorMultiply( vError, g_ErrorWeight7 ); \
+                    pDiffusionErrors[ index-delta ]   = XMVectorMultiplyAdd(g_ErrorWeight3, vError, pDiffusionErrors[ index-delta ]); \
+                    pDiffusionErrors[ index+1 ]       = XMVectorMultiplyAdd(g_ErrorWeight5, vError, pDiffusionErrors[ index+1 ]); \
+                    pDiffusionErrors[ index+2+delta ] = XMVectorMultiplyAdd(g_ErrorWeight1, vError, pDiffusionErrors[ index+2+delta ]); \
+                    vError = XMVectorMultiply(vError, g_ErrorWeight7); \
                 } \
                 else \
                 { \
                     /* Applied ordered dither */ \
-                    target = XMVectorAdd( v, ordered[ index & 3 ] ); \
-                    target = XMVectorRound( target ); \
+                    target = XMVectorAdd(v, ordered[ index & 3 ]); \
+                    target = XMVectorRound(target); \
                 } \
                 \
-                target = XMVectorMin( scalev, target ); \
-                target = XMVectorMax( (clampzero) ? g_XMZero : ( -scalev + g_XMOne ), target ); \
+                target = XMVectorMin(scalev, target); \
+                target = XMVectorMax((clampzero) ? g_XMZero : (XMVectorAdd(XMVectorNegate(scalev), g_XMOne)), target); \
                 \
                 XMFLOAT4A tmp; \
-                XMStoreFloat4A( &tmp, target ); \
+                XMStoreFloat4A(&tmp, target); \
                 \
                 auto dPtr = &dest[ index ]; \
-                dPtr->x = static_cast<itype>( tmp.x ) & mask; \
-                dPtr->y = static_cast<itype>( tmp.y ) & mask; \
-                dPtr->z = static_cast<itype>( tmp.z ) & mask; \
-                dPtr->w = static_cast<itype>( tmp.w ) & mask; \
+                if (dPtr >= ePtr) break; \
+                dPtr->x = static_cast<itype>(tmp.x) & mask; \
+                dPtr->y = static_cast<itype>(tmp.y) & mask; \
+                dPtr->z = static_cast<itype>(tmp.z) & mask; \
+                dPtr->w = static_cast<itype>(tmp.w) & mask; \
             } \
             return true; \
         } \
@@ -3684,51 +3781,52 @@ namespace
 
 #define STORE_SCANLINE2( type, scalev, clampzero, norm, itype, mask, row ) \
         /* The 2 component cases are always bgr=false */ \
-        if ( size >= sizeof(type) ) \
+        if (size >= sizeof(type)) \
         { \
             type * __restrict dest = reinterpret_cast<type*>(pDestination); \
-            for( size_t i = 0; i < count; ++i ) \
+            for(size_t i = 0; i < count; ++i) \
             { \
-                ptrdiff_t index = static_cast<ptrdiff_t>( ( row & 1 ) ? ( count - i - 1 ) : i ); \
-                ptrdiff_t delta = ( row & 1 ) ? -2 : 0; \
+                auto index = static_cast<ptrdiff_t>((row & 1) ? (count - i - 1) : i ); \
+                ptrdiff_t delta = (row & 1) ? -2 : 0; \
                 \
                 XMVECTOR v = sPtr[ index ]; \
-                if ( norm && clampzero ) v = XMVectorSaturate( v ) ; \
-                else if ( clampzero ) v = XMVectorClamp( v, g_XMZero, scalev ); \
-                else if ( norm ) v = XMVectorClamp( v, g_XMNegativeOne, g_XMOne ); \
-                else v = XMVectorClamp( v, -scalev + g_XMOne, scalev ); \
-                v = XMVectorAdd( v, vError ); \
-                if ( norm ) v = XMVectorMultiply( v, scalev ); \
+                if (norm && clampzero) v = XMVectorSaturate(v) ; \
+                else if (clampzero) v = XMVectorClamp(v, g_XMZero, scalev); \
+                else if (norm) v = XMVectorClamp(v, g_XMNegativeOne, g_XMOne); \
+                else v = XMVectorClamp(v, XMVectorAdd(XMVectorNegate(scalev), g_XMOne), scalev); \
+                v = XMVectorAdd(v, vError); \
+                if (norm) v = XMVectorMultiply(v, scalev); \
                 \
                 XMVECTOR target; \
-                if ( pDiffusionErrors ) \
+                if (pDiffusionErrors) \
                 { \
-                    target = XMVectorRound( v ); \
-                    vError = XMVectorSubtract( v, target ); \
-                    if (norm) vError = XMVectorDivide( vError, scalev ); \
+                    target = XMVectorRound(v); \
+                    vError = XMVectorSubtract(v, target); \
+                    if (norm) vError = XMVectorDivide(vError, scalev); \
                     \
                     /* Distribute error to next scanline and next pixel */ \
-                    pDiffusionErrors[ index-delta ]   += XMVectorMultiply( g_ErrorWeight3, vError ); \
-                    pDiffusionErrors[ index+1 ]       += XMVectorMultiply( g_ErrorWeight5, vError ); \
-                    pDiffusionErrors[ index+2+delta ] += XMVectorMultiply( g_ErrorWeight1, vError ); \
-                    vError = XMVectorMultiply( vError, g_ErrorWeight7 ); \
+                    pDiffusionErrors[ index-delta ]   = XMVectorMultiplyAdd(g_ErrorWeight3, vError, pDiffusionErrors[ index-delta ]); \
+                    pDiffusionErrors[ index+1 ]       = XMVectorMultiplyAdd(g_ErrorWeight5, vError, pDiffusionErrors[ index+1 ]); \
+                    pDiffusionErrors[ index+2+delta ] = XMVectorMultiplyAdd(g_ErrorWeight1, vError, pDiffusionErrors[ index+2+delta ]); \
+                    vError = XMVectorMultiply(vError, g_ErrorWeight7); \
                 } \
                 else \
                 { \
                     /* Applied ordered dither */ \
-                    target = XMVectorAdd( v, ordered[ index & 3 ] ); \
-                    target = XMVectorRound( target ); \
+                    target = XMVectorAdd(v, ordered[ index & 3 ]); \
+                    target = XMVectorRound(target); \
                 } \
                 \
-                target = XMVectorMin( scalev, target ); \
-                target = XMVectorMax( (clampzero) ? g_XMZero : ( -scalev + g_XMOne ), target ); \
+                target = XMVectorMin(scalev, target); \
+                target = XMVectorMax((clampzero) ? g_XMZero : (XMVectorAdd(XMVectorNegate(scalev), g_XMOne)), target); \
                 \
                 XMFLOAT4A tmp; \
-                XMStoreFloat4A( &tmp, target ); \
+                XMStoreFloat4A(&tmp, target); \
                 \
                 auto dPtr = &dest[ index ]; \
-                dPtr->x = static_cast<itype>( tmp.x ) & mask; \
-                dPtr->y = static_cast<itype>( tmp.y ) & mask; \
+                if (dPtr >= ePtr) break; \
+                dPtr->x = static_cast<itype>(tmp.x) & mask; \
+                dPtr->y = static_cast<itype>(tmp.y) & mask; \
             } \
             return true; \
         } \
@@ -3736,46 +3834,48 @@ namespace
 
 #define STORE_SCANLINE1( type, scalev, clampzero, norm, mask, row, selectw ) \
         /* The 1 component cases are always bgr=false */ \
-        if ( size >= sizeof(type) ) \
+        if (size >= sizeof(type)) \
         { \
             type * __restrict dest = reinterpret_cast<type*>(pDestination); \
-            for( size_t i = 0; i < count; ++i ) \
+            for(size_t i = 0; i < count; ++i) \
             { \
-                ptrdiff_t index = static_cast<ptrdiff_t>( ( row & 1 ) ? ( count - i - 1 ) : i ); \
-                ptrdiff_t delta = ( row & 1 ) ? -2 : 0; \
+                auto index = static_cast<ptrdiff_t>((row & 1) ? (count - i - 1) : i ); \
+                ptrdiff_t delta = (row & 1) ? -2 : 0; \
                 \
                 XMVECTOR v = sPtr[ index ]; \
-                if ( norm && clampzero ) v = XMVectorSaturate( v ) ; \
-                else if ( clampzero ) v = XMVectorClamp( v, g_XMZero, scalev ); \
-                else if ( norm ) v = XMVectorClamp( v, g_XMNegativeOne, g_XMOne ); \
-                else v = XMVectorClamp( v, -scalev + g_XMOne, scalev ); \
-                v = XMVectorAdd( v, vError ); \
-                if ( norm ) v = XMVectorMultiply( v, scalev ); \
+                if (norm && clampzero) v = XMVectorSaturate(v) ; \
+                else if (clampzero) v = XMVectorClamp(v, g_XMZero, scalev); \
+                else if (norm) v = XMVectorClamp(v, g_XMNegativeOne, g_XMOne); \
+                else v = XMVectorClamp(v, XMVectorAdd(XMVectorNegate(scalev), g_XMOne), scalev); \
+                v = XMVectorAdd(v, vError); \
+                if (norm) v = XMVectorMultiply(v, scalev); \
                 \
                 XMVECTOR target; \
-                if ( pDiffusionErrors ) \
+                if (pDiffusionErrors) \
                 { \
-                    target = XMVectorRound( v ); \
-                    vError = XMVectorSubtract( v, target ); \
-                    if (norm) vError = XMVectorDivide( vError, scalev ); \
+                    target = XMVectorRound(v); \
+                    vError = XMVectorSubtract(v, target); \
+                    if (norm) vError = XMVectorDivide(vError, scalev); \
                     \
                     /* Distribute error to next scanline and next pixel */ \
-                    pDiffusionErrors[ index-delta ]   += XMVectorMultiply( g_ErrorWeight3, vError ); \
-                    pDiffusionErrors[ index+1 ]       += XMVectorMultiply( g_ErrorWeight5, vError ); \
-                    pDiffusionErrors[ index+2+delta ] += XMVectorMultiply( g_ErrorWeight1, vError ); \
-                    vError = XMVectorMultiply( vError, g_ErrorWeight7 ); \
+                    pDiffusionErrors[ index-delta ]   = XMVectorMultiplyAdd(g_ErrorWeight3, vError, pDiffusionErrors[ index-delta ]); \
+                    pDiffusionErrors[ index+1 ]       = XMVectorMultiplyAdd(g_ErrorWeight5, vError, pDiffusionErrors[ index+1 ]); \
+                    pDiffusionErrors[ index+2+delta ] = XMVectorMultiplyAdd(g_ErrorWeight1, vError, pDiffusionErrors[ index+2+delta ]); \
+                    vError = XMVectorMultiply(vError, g_ErrorWeight7); \
                 } \
                 else \
                 { \
                     /* Applied ordered dither */ \
-                    target = XMVectorAdd( v, ordered[ index & 3 ] ); \
-                    target = XMVectorRound( target ); \
+                    target = XMVectorAdd(v, ordered[ index & 3 ]); \
+                    target = XMVectorRound(target); \
                 } \
                 \
-                target = XMVectorMin( scalev, target ); \
-                target = XMVectorMax( (clampzero) ? g_XMZero : ( -scalev + g_XMOne ), target ); \
+                target = XMVectorMin(scalev, target); \
+                target = XMVectorMax((clampzero) ? g_XMZero : (XMVectorAdd(XMVectorNegate(scalev), g_XMOne)), target); \
                 \
-                dest[ index ] = static_cast<type>( (selectw) ? XMVectorGetW( target ) : XMVectorGetX( target ) ) & mask; \
+                auto dPtr = &dest[ index ]; \
+                if (dPtr >= ePtr) break; \
+                *dPtr = static_cast<type>((selectw) ? XMVectorGetW(target) : XMVectorGetX(target)) & mask; \
             } \
             return true; \
         } \
@@ -3798,7 +3898,7 @@ bool DirectX::_StoreScanlineDither(
     XMVECTOR* pDiffusionErrors)
 {
     assert(pDestination && size > 0);
-    assert(pSource && count > 0 && (((uintptr_t)pSource & 0xF) == 0));
+    assert(pSource && count > 0 && ((reinterpret_cast<uintptr_t>(pSource) & 0xF) == 0));
     assert(IsValid(format) && !IsTypeless(format) && !IsCompressed(format) && !IsPlanar(format) && !IsPalettized(format));
 
     XMVECTOR ordered[4];
@@ -3837,6 +3937,8 @@ bool DirectX::_StoreScanlineDither(
     if (!sPtr)
         return false;
 
+    const void* ePtr = static_cast<const uint8_t*>(pDestination) + size;
+
     XMVECTOR vError = XMVectorZero();
 
     switch (static_cast<int>(format))
@@ -3862,15 +3964,15 @@ bool DirectX::_StoreScanlineDither(
     case DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM:
         if (size >= sizeof(XMUDEC4))
         {
-            static const XMVECTORF32  Scale = { 510.0f, 510.0f, 510.0f, 3.0f };
-            static const XMVECTORF32  Bias = { 384.0f, 384.0f, 384.0f, 0.0f };
-            static const XMVECTORF32  MinXR = { -0.7529f, -0.7529f, -0.7529f, 0.f };
-            static const XMVECTORF32  MaxXR = { 1.2529f, 1.2529f, 1.2529f, 1.0f };
+            static const XMVECTORF32  Scale = { { { 510.0f, 510.0f, 510.0f, 3.0f } } };
+            static const XMVECTORF32  Bias  = { { { 384.0f, 384.0f, 384.0f, 0.0f } } };
+            static const XMVECTORF32  MinXR = { { { -0.7529f, -0.7529f, -0.7529f, 0.f } } };
+            static const XMVECTORF32  MaxXR = { { { 1.2529f, 1.2529f, 1.2529f, 1.0f } } };
 
-            XMUDEC4 * __restrict dest = reinterpret_cast<XMUDEC4*>(pDestination);
+            XMUDEC4 * __restrict dest = static_cast<XMUDEC4*>(pDestination);
             for (size_t i = 0; i < count; ++i)
             {
-                ptrdiff_t index = static_cast<ptrdiff_t>((y & 1) ? (count - i - 1) : i);
+                auto index = static_cast<ptrdiff_t>((y & 1) ? (count - i - 1) : i);
                 ptrdiff_t delta = (y & 1) ? -2 : 0;
 
                 XMVECTOR v = XMVectorClamp(sPtr[index], MinXR, MaxXR);
@@ -3884,9 +3986,9 @@ bool DirectX::_StoreScanlineDither(
                     vError = XMVectorDivide(vError, Scale);
 
                     // Distribute error to next scanline and next pixel
-                    pDiffusionErrors[index - delta] += XMVectorMultiply(g_ErrorWeight3, vError);
-                    pDiffusionErrors[index + 1] += XMVectorMultiply(g_ErrorWeight5, vError);
-                    pDiffusionErrors[index + 2 + delta] += XMVectorMultiply(g_ErrorWeight1, vError);
+                    pDiffusionErrors[index - delta]     = XMVectorMultiplyAdd(g_ErrorWeight3, vError, pDiffusionErrors[index - delta]);
+                    pDiffusionErrors[index + 1]         = XMVectorMultiplyAdd(g_ErrorWeight5, vError, pDiffusionErrors[index + 1]);
+                    pDiffusionErrors[index + 2 + delta] = XMVectorMultiplyAdd(g_ErrorWeight1, vError, pDiffusionErrors[index + 2 + delta]);
                     vError = XMVectorMultiply(vError, g_ErrorWeight7);
                 }
                 else
@@ -3903,6 +4005,7 @@ bool DirectX::_StoreScanlineDither(
                 XMStoreFloat4A(&tmp, target);
 
                 auto dPtr = &dest[index];
+                if (dPtr >= ePtr) break;
                 dPtr->x = static_cast<uint16_t>(tmp.x) & 0x3FF;
                 dPtr->y = static_cast<uint16_t>(tmp.y) & 0x3FF;
                 dPtr->z = static_cast<uint16_t>(tmp.z) & 0x3FF;
@@ -3940,14 +4043,14 @@ bool DirectX::_StoreScanlineDither(
     case DXGI_FORMAT_D24_UNORM_S8_UINT:
         if (size >= sizeof(uint32_t))
         {
-            static const XMVECTORF32 Clamp = { 1.f,  255.f, 0.f, 0.f };
-            static const XMVECTORF32 Scale = { 16777215.f,   1.f, 0.f, 0.f };
-            static const XMVECTORF32 Scale2 = { 16777215.f, 255.f, 0.f, 0.f };
+            static const XMVECTORF32 Clamp  = { { { 1.f,  255.f, 0.f, 0.f } } };
+            static const XMVECTORF32 Scale  = { { { 16777215.f,   1.f, 0.f, 0.f } } };
+            static const XMVECTORF32 Scale2 = { { { 16777215.f, 255.f, 0.f, 0.f } } };
 
-            uint32_t * __restrict dest = reinterpret_cast<uint32_t*>(pDestination);
+            uint32_t * __restrict dest = static_cast<uint32_t*>(pDestination);
             for (size_t i = 0; i < count; ++i)
             {
-                ptrdiff_t index = static_cast<ptrdiff_t>((y & 1) ? (count - i - 1) : i);
+                auto index = static_cast<ptrdiff_t>((y & 1) ? (count - i - 1) : i);
                 ptrdiff_t delta = (y & 1) ? -2 : 0;
 
                 XMVECTOR v = XMVectorClamp(sPtr[index], g_XMZero, Clamp);
@@ -3962,9 +4065,9 @@ bool DirectX::_StoreScanlineDither(
                     vError = XMVectorDivide(vError, Scale);
 
                     // Distribute error to next scanline and next pixel
-                    pDiffusionErrors[index - delta] += XMVectorMultiply(g_ErrorWeight3, vError);
-                    pDiffusionErrors[index + 1] += XMVectorMultiply(g_ErrorWeight5, vError);
-                    pDiffusionErrors[index + 2 + delta] += XMVectorMultiply(g_ErrorWeight1, vError);
+                    pDiffusionErrors[index - delta]     = XMVectorMultiplyAdd(g_ErrorWeight3, vError, pDiffusionErrors[index - delta]);
+                    pDiffusionErrors[index + 1]         = XMVectorMultiplyAdd(g_ErrorWeight5, vError, pDiffusionErrors[index + 1]);
+                    pDiffusionErrors[index + 2 + delta] = XMVectorMultiplyAdd(g_ErrorWeight1, vError, pDiffusionErrors[index + 2 + delta]);
                     vError = XMVectorMultiply(vError, g_ErrorWeight7);
                 }
                 else
@@ -3980,6 +4083,7 @@ bool DirectX::_StoreScanlineDither(
                 XMStoreFloat4A(&tmp, target);
 
                 auto dPtr = &dest[index];
+                if (dPtr >= ePtr) break;
                 *dPtr = (static_cast<uint32_t>(tmp.x) & 0xFFFFFF)
                     | ((static_cast<uint32_t>(tmp.y) & 0xFF) << 24);
             }
@@ -4030,10 +4134,10 @@ bool DirectX::_StoreScanlineDither(
     case DXGI_FORMAT_B5G6R5_UNORM:
         if (size >= sizeof(XMU565))
         {
-            XMU565 * __restrict dest = reinterpret_cast<XMU565*>(pDestination);
+            XMU565 * __restrict dest = static_cast<XMU565*>(pDestination);
             for (size_t i = 0; i < count; ++i)
             {
-                ptrdiff_t index = static_cast<ptrdiff_t>((y & 1) ? (count - i - 1) : i);
+                auto index = static_cast<ptrdiff_t>((y & 1) ? (count - i - 1) : i);
                 ptrdiff_t delta = (y & 1) ? -2 : 0;
 
                 XMVECTOR v = XMVectorSwizzle<2, 1, 0, 3>(sPtr[index]);
@@ -4049,9 +4153,9 @@ bool DirectX::_StoreScanlineDither(
                     vError = XMVectorDivide(vError, g_Scale565pc);
 
                     // Distribute error to next scanline and next pixel
-                    pDiffusionErrors[index - delta] += XMVectorMultiply(g_ErrorWeight3, vError);
-                    pDiffusionErrors[index + 1] += XMVectorMultiply(g_ErrorWeight5, vError);
-                    pDiffusionErrors[index + 2 + delta] += XMVectorMultiply(g_ErrorWeight1, vError);
+                    pDiffusionErrors[index - delta]     = XMVectorMultiplyAdd(g_ErrorWeight3, vError, pDiffusionErrors[index - delta]);
+                    pDiffusionErrors[index + 1]         = XMVectorMultiplyAdd(g_ErrorWeight5, vError, pDiffusionErrors[index + 1]);
+                    pDiffusionErrors[index + 2 + delta] = XMVectorMultiplyAdd(g_ErrorWeight1, vError, pDiffusionErrors[index + 2 + delta]);
                     vError = XMVectorMultiply(vError, g_ErrorWeight7);
                 }
                 else
@@ -4067,6 +4171,7 @@ bool DirectX::_StoreScanlineDither(
                 XMStoreFloat4A(&tmp, target);
 
                 auto dPtr = &dest[index];
+                if (dPtr >= ePtr) break;
                 dPtr->x = static_cast<uint16_t>(tmp.x) & 0x1F;
                 dPtr->y = static_cast<uint16_t>(tmp.y) & 0x3F;
                 dPtr->z = static_cast<uint16_t>(tmp.z) & 0x1F;
@@ -4078,10 +4183,10 @@ bool DirectX::_StoreScanlineDither(
     case DXGI_FORMAT_B5G5R5A1_UNORM:
         if (size >= sizeof(XMU555))
         {
-            XMU555 * __restrict dest = reinterpret_cast<XMU555*>(pDestination);
+            XMU555 * __restrict dest = static_cast<XMU555*>(pDestination);
             for (size_t i = 0; i < count; ++i)
             {
-                ptrdiff_t index = static_cast<ptrdiff_t>((y & 1) ? (count - i - 1) : i);
+                auto index = static_cast<ptrdiff_t>((y & 1) ? (count - i - 1) : i);
                 ptrdiff_t delta = (y & 1) ? -2 : 0;
 
                 XMVECTOR v = XMVectorSwizzle<2, 1, 0, 3>(sPtr[index]);
@@ -4097,9 +4202,9 @@ bool DirectX::_StoreScanlineDither(
                     vError = XMVectorDivide(vError, g_Scale5551pc);
 
                     // Distribute error to next scanline and next pixel
-                    pDiffusionErrors[index - delta] += XMVectorMultiply(g_ErrorWeight3, vError);
-                    pDiffusionErrors[index + 1] += XMVectorMultiply(g_ErrorWeight5, vError);
-                    pDiffusionErrors[index + 2 + delta] += XMVectorMultiply(g_ErrorWeight1, vError);
+                    pDiffusionErrors[index - delta]     = XMVectorMultiplyAdd(g_ErrorWeight3, vError, pDiffusionErrors[index - delta]);
+                    pDiffusionErrors[index + 1]         = XMVectorMultiplyAdd(g_ErrorWeight5, vError, pDiffusionErrors[index + 1]);
+                    pDiffusionErrors[index + 2 + delta] = XMVectorMultiplyAdd(g_ErrorWeight1, vError, pDiffusionErrors[index + 2 + delta]);
                     vError = XMVectorMultiply(vError, g_ErrorWeight7);
                 }
                 else
@@ -4115,6 +4220,7 @@ bool DirectX::_StoreScanlineDither(
                 XMStoreFloat4A(&tmp, target);
 
                 auto dPtr = &dest[index];
+                if (dPtr >= ePtr) break;
                 dPtr->x = static_cast<uint16_t>(tmp.x) & 0x1F;
                 dPtr->y = static_cast<uint16_t>(tmp.y) & 0x1F;
                 dPtr->z = static_cast<uint16_t>(tmp.z) & 0x1F;
@@ -4132,10 +4238,10 @@ bool DirectX::_StoreScanlineDither(
     case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
         if (size >= sizeof(XMUBYTEN4))
         {
-            XMUBYTEN4 * __restrict dest = reinterpret_cast<XMUBYTEN4*>(pDestination);
+            XMUBYTEN4 * __restrict dest = static_cast<XMUBYTEN4*>(pDestination);
             for (size_t i = 0; i < count; ++i)
             {
-                ptrdiff_t index = static_cast<ptrdiff_t>((y & 1) ? (count - i - 1) : i);
+                auto index = static_cast<ptrdiff_t>((y & 1) ? (count - i - 1) : i);
                 ptrdiff_t delta = (y & 1) ? -2 : 0;
 
                 XMVECTOR v = XMVectorSwizzle<2, 1, 0, 3>(sPtr[index]);
@@ -4151,9 +4257,9 @@ bool DirectX::_StoreScanlineDither(
                     vError = XMVectorDivide(vError, g_Scale8pc);
 
                     // Distribute error to next scanline and next pixel
-                    pDiffusionErrors[index - delta] += XMVectorMultiply(g_ErrorWeight3, vError);
-                    pDiffusionErrors[index + 1] += XMVectorMultiply(g_ErrorWeight5, vError);
-                    pDiffusionErrors[index + 2 + delta] += XMVectorMultiply(g_ErrorWeight1, vError);
+                    pDiffusionErrors[index - delta]     = XMVectorMultiplyAdd(g_ErrorWeight3, vError, pDiffusionErrors[index - delta]);
+                    pDiffusionErrors[index + 1]         = XMVectorMultiplyAdd(g_ErrorWeight5, vError, pDiffusionErrors[index + 1]);
+                    pDiffusionErrors[index + 2 + delta] = XMVectorMultiplyAdd(g_ErrorWeight1, vError, pDiffusionErrors[index + 2 + delta]);
                     vError = XMVectorMultiply(vError, g_ErrorWeight7);
                 }
                 else
@@ -4169,6 +4275,7 @@ bool DirectX::_StoreScanlineDither(
                 XMStoreFloat4A(&tmp, target);
 
                 auto dPtr = &dest[index];
+                if (dPtr >= ePtr) break;
                 dPtr->x = static_cast<uint8_t>(tmp.x) & 0xFF;
                 dPtr->y = static_cast<uint8_t>(tmp.y) & 0xFF;
                 dPtr->z = static_cast<uint8_t>(tmp.z) & 0xFF;
@@ -4187,10 +4294,10 @@ bool DirectX::_StoreScanlineDither(
     case XBOX_DXGI_FORMAT_R4G4_UNORM:
         if (size >= sizeof(uint8_t))
         {
-            uint8_t * __restrict dest = reinterpret_cast<uint8_t*>(pDestination);
+            uint8_t * __restrict dest = static_cast<uint8_t*>(pDestination);
             for (size_t i = 0; i < count; ++i)
             {
-                ptrdiff_t index = static_cast<ptrdiff_t>((y & 1) ? (count - i - 1) : i);
+                auto index = static_cast<ptrdiff_t>((y & 1) ? (count - i - 1) : i);
                 ptrdiff_t delta = (y & 1) ? -2 : 0;
 
                 XMVECTOR v = XMVectorSaturate(sPtr[index]);
@@ -4205,9 +4312,9 @@ bool DirectX::_StoreScanlineDither(
                     vError = XMVectorDivide(vError, g_Scale4pc);
 
                     // Distribute error to next scanline and next pixel
-                    pDiffusionErrors[index - delta] += XMVectorMultiply(g_ErrorWeight3, vError);
-                    pDiffusionErrors[index + 1] += XMVectorMultiply(g_ErrorWeight5, vError);
-                    pDiffusionErrors[index + 2 + delta] += XMVectorMultiply(g_ErrorWeight1, vError);
+                    pDiffusionErrors[index - delta]     = XMVectorMultiplyAdd(g_ErrorWeight3, vError, pDiffusionErrors[index - delta]);
+                    pDiffusionErrors[index + 1]         = XMVectorMultiplyAdd(g_ErrorWeight5, vError, pDiffusionErrors[index + 1]);
+                    pDiffusionErrors[index + 2 + delta] = XMVectorMultiplyAdd(g_ErrorWeight1, vError, pDiffusionErrors[index + 2 + delta]);
                     vError = XMVectorMultiply(vError, g_ErrorWeight7);
                 }
                 else
@@ -4222,8 +4329,9 @@ bool DirectX::_StoreScanlineDither(
                 XMFLOAT4A tmp;
                 XMStoreFloat4A(&tmp, target);
 
-                dest[index] = (static_cast<uint8_t>(tmp.x) & 0xF)
-                    | ((static_cast<uint8_t>(tmp.y) & 0xF) << 4);
+                auto dPtr = &dest[index];
+                if (dPtr >= ePtr) break;
+                *dPtr = static_cast<uint8_t>((unsigned(tmp.x) & 0xF) | ((unsigned(tmp.y) & 0xF) << 4));
             }
             return true;
         }
@@ -4252,8 +4360,8 @@ namespace
         _Out_ WICPixelFormatGUID& pfGUID,
         _Out_ WICPixelFormatGUID& targetGUID)
     {
-        memcpy(&pfGUID, &GUID_NULL, sizeof(GUID));
-        memcpy(&targetGUID, &GUID_NULL, sizeof(GUID));
+        memset(&pfGUID, 0, sizeof(GUID));
+        memset(&targetGUID, 0, sizeof(GUID));
 
         if (filter & TEX_FILTER_FORCE_NON_WIC)
         {
@@ -4285,6 +4393,7 @@ namespace
             return false;
         }
 
+        // Check for special cases
 #if defined(_XBOX_ONE) && defined(_TITLE)
         if (sformat == DXGI_FORMAT_R16G16B16A16_FLOAT
             || sformat == DXGI_FORMAT_R16_FLOAT
@@ -4296,7 +4405,30 @@ namespace
         }
 #endif
 
-        // Check for special cases
+        switch (sformat)
+        {
+        case DXGI_FORMAT_R32G32B32A32_FLOAT:
+        case DXGI_FORMAT_R32G32B32_FLOAT:
+        case DXGI_FORMAT_R32G32_FLOAT:
+        case DXGI_FORMAT_R32_FLOAT:
+        case DXGI_FORMAT_D32_FLOAT:
+            switch (tformat)
+            {
+            case DXGI_FORMAT_R16G16B16A16_FLOAT:
+            case DXGI_FORMAT_R16G16_FLOAT:
+            case DXGI_FORMAT_R16_FLOAT:
+                // WIC conversions for FP32->FP16 can result in NaN values instead of clamping for min/max value
+                return false;
+
+            default:
+                break;
+            }
+            break;
+
+        default:
+            break;
+        }
+
         switch (sformat)
         {
         case DXGI_FORMAT_R32G32B32A32_FLOAT:
@@ -4311,6 +4443,9 @@ namespace
             case DXGI_FORMAT_A8_UNORM:
                 // Conversion logic for these kinds of textures is unintuitive for WIC code paths
                 return false;
+
+            default:
+                break;
             }
             break;
 
@@ -4323,6 +4458,9 @@ namespace
             case DXGI_FORMAT_A8_UNORM:
                 // Conversion logic for these kinds of textures is unintuitive for WIC code paths
                 return false;
+
+            default:
+                break;
             }
             break;
 
@@ -4336,6 +4474,9 @@ namespace
             case DXGI_FORMAT_A8_UNORM:
                 // Conversion logic for these kinds of textures is unintuitive for WIC code paths
                 return false;
+
+            default:
+                break;
             }
         }
 
@@ -4397,6 +4538,10 @@ namespace
             return E_UNEXPECTED;
         }
 
+        if (srcImage.rowPitch > UINT32_MAX || srcImage.slicePitch > UINT32_MAX
+            || destImage.rowPitch > UINT32_MAX || destImage.slicePitch > UINT32_MAX)
+            return HRESULT_FROM_WIN32(ERROR_ARITHMETIC_OVERFLOW);
+
         ComPtr<IWICBitmap> source;
         hr = pWIC->CreateBitmapFromMemory(static_cast<UINT>(srcImage.width), static_cast<UINT>(srcImage.height), pfGUID,
             static_cast<UINT>(srcImage.rowPitch), static_cast<UINT>(srcImage.slicePitch),
@@ -4404,11 +4549,11 @@ namespace
         if (FAILED(hr))
             return hr;
 
-        hr = FC->Initialize(source.Get(), targetGUID, _GetWICDither(filter), 0, threshold * 100.f, WICBitmapPaletteTypeCustom);
+        hr = FC->Initialize(source.Get(), targetGUID, _GetWICDither(filter), nullptr, threshold * 100.0, WICBitmapPaletteTypeMedianCut);
         if (FAILED(hr))
             return hr;
 
-        hr = FC->CopyPixels(0, static_cast<UINT>(destImage.rowPitch), static_cast<UINT>(destImage.slicePitch), destImage.pixels);
+        hr = FC->CopyPixels(nullptr, static_cast<UINT>(destImage.rowPitch), static_cast<UINT>(destImage.slicePitch), destImage.pixels);
         if (FAILED(hr))
             return hr;
 
@@ -4439,7 +4584,7 @@ namespace
         if (filter & TEX_FILTER_DITHER_DIFFUSION)
         {
             // Error diffusion dithering (aka Floyd-Steinberg dithering)
-            ScopedAlignedArrayXMVECTOR scanline(reinterpret_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*(width * 2 + 2)), 16)));
+            ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*(width * 2 + 2)), 16)));
             if (!scanline)
                 return E_OUTOFMEMORY;
 
@@ -4462,7 +4607,7 @@ namespace
         }
         else
         {
-            ScopedAlignedArrayXMVECTOR scanline(reinterpret_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*width), 16)));
+            ScopedAlignedArrayXMVECTOR scanline(static_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR)*width), 16)));
             if (!scanline)
                 return E_OUTOFMEMORY;
 
@@ -4538,21 +4683,21 @@ namespace
         {\
             size_t rowPitch = srcImage.rowPitch;\
             \
-            auto sourceE = reinterpret_cast<const srcType*>( pSrc + srcImage.slicePitch );\
-            auto pSrcUV = pSrc + ( srcImage.height * rowPitch );\
+            auto sourceE = reinterpret_cast<const srcType*>(pSrc + srcImage.slicePitch);\
+            auto pSrcUV = pSrc + (srcImage.height * rowPitch);\
             \
-            for( size_t y = 0; y < srcImage.height; y+= 2 )\
+            for(size_t y = 0; y < srcImage.height; y+= 2)\
             {\
-                auto sPtrY0 = reinterpret_cast<const srcType*>( pSrc );\
-                auto sPtrY2 = reinterpret_cast<const srcType*>( pSrc + rowPitch );\
-                auto sPtrUV = reinterpret_cast<const srcType*>( pSrcUV );\
+                auto sPtrY0 = reinterpret_cast<const srcType*>(pSrc);\
+                auto sPtrY2 = reinterpret_cast<const srcType*>(pSrc + rowPitch);\
+                auto sPtrUV = reinterpret_cast<const srcType*>(pSrcUV);\
                 \
                 destType * __restrict dPtr0 = reinterpret_cast<destType*>(pDest);\
                 destType * __restrict dPtr1 = reinterpret_cast<destType*>(pDest + destImage.rowPitch);\
                 \
-                for( size_t x = 0; x < srcImage.width; x+= 2 )\
+                for(size_t x = 0; x < srcImage.width; x+= 2)\
                 {\
-                    if ( (sPtrUV+1) >= sourceE ) break;\
+                    if ((sPtrUV+1) >= sourceE) break;\
                     \
                     srcType u = *(sPtrUV++);\
                     srcType v = *(sPtrUV++);\
@@ -4994,3 +5139,8 @@ HRESULT DirectX::ConvertToSinglePlane(
 
     return S_OK;
 }
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexConvert);
+

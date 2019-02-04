@@ -34,3 +34,4 @@ private:
     EZ_ASSERT_DEV(pContext == nullptr || EZ_CONCAT(s_pActiveContext, type) == nullptr, "Only one context can be active at a time.");       \
     EZ_CONCAT(s_pActiveContext, type) = static_cast<type*>(pContext);                                                                      \
   }
+

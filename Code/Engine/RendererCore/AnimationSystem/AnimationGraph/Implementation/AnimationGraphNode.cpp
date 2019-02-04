@@ -6,3 +6,8 @@ ezAnimationGraphNode::ezAnimationGraphNode() = default;
 ezAnimationGraphNode::~ezAnimationGraphNode() = default;
 
 void ezAnimationGraphNode::Step(ezTime tDiff) {}
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimationGraph_Implementation_AnimationGraphNode);
+

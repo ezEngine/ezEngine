@@ -104,3 +104,4 @@ ezArrayPtr<ezComponentHandle> ezEventMessageHandlerComponent::GetAllGlobalEventH
 
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_EventMessageHandlerComponent);
+

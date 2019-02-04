@@ -278,3 +278,4 @@ inline void ezConversionUtils::ConvertBinaryToHex(const void* pBinaryData, ezUIn
     append(tmp);
   }
 }
+

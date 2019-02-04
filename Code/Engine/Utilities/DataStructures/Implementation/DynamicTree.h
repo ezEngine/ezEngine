@@ -45,3 +45,4 @@ typedef bool (*EZ_VISIBLE_OBJ_CALLBACK)(void* pPassThrough, ezDynamicTreeObjectC
 
 class ezDynamicOctree;
 class ezDynamicQuadtree;
+

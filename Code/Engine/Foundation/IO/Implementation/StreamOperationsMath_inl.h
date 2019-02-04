@@ -305,3 +305,4 @@ inline ezStreamReader& operator>>(ezStreamReader& Stream, ezColorLinearUB& Value
   Stream >> Value.a;
   return Stream;
 }
+

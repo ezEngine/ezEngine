@@ -76,3 +76,4 @@ private:
   ezSkeletonResourceHandle m_hSkeleton;
   mutable ezMeshResourceHandle m_hMesh;
 };
+

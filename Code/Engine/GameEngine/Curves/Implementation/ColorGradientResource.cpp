@@ -97,3 +97,4 @@ void ezColorGradientResourceDescriptor::Load(ezStreamReader& stream)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Curves_Implementation_ColorGradientResource);
+

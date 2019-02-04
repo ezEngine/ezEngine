@@ -279,3 +279,4 @@ void ezVirtualThumbStick::RegisterInputSlots()
 
 
 EZ_STATICLINK_FILE(Core, Core_Input_Implementation_VirtualThumbStick);
+

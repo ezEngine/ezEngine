@@ -8,25 +8,16 @@
 // (compatible) constants and structures so that one can use DDS files 
 // without needing to include ddraw.h.
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkId=248926
+// http://go.microsoft.com/fwlink/?LinkId=248929
+// http://go.microsoft.com/fwlink/?LinkID=615561
 //--------------------------------------------------------------------------------------
 
 #pragma once
 
-#if defined(_XBOX_ONE) && defined(_TITLE)
-#include <d3d11_x.h>
-#else
-#include <dxgiformat.h>
-#endif
-
-#include <stdint.h>
 
 namespace DirectX
 {
@@ -37,14 +28,14 @@ const uint32_t DDS_MAGIC = 0x20534444; // "DDS "
 
 struct DDS_PIXELFORMAT
 {
-    uint32_t    dwSize;
-    uint32_t    dwFlags;
-    uint32_t    dwFourCC;
-    uint32_t    dwRGBBitCount;
-    uint32_t    dwRBitMask;
-    uint32_t    dwGBitMask;
-    uint32_t    dwBBitMask;
-    uint32_t    dwABitMask;
+    uint32_t    size;
+    uint32_t    flags;
+    uint32_t    fourCC;
+    uint32_t    RGBBitCount;
+    uint32_t    RBitMask;
+    uint32_t    GBitMask;
+    uint32_t    BBitMask;
+    uint32_t    ABitMask;
 };
 
 #define DDS_FOURCC      0x00000004  // DDPF_FOURCC
@@ -52,14 +43,18 @@ struct DDS_PIXELFORMAT
 #define DDS_RGBA        0x00000041  // DDPF_RGB | DDPF_ALPHAPIXELS
 #define DDS_LUMINANCE   0x00020000  // DDPF_LUMINANCE
 #define DDS_LUMINANCEA  0x00020001  // DDPF_LUMINANCE | DDPF_ALPHAPIXELS
+#define DDS_ALPHAPIXELS 0x00000001  // DDPF_ALPHAPIXELS
 #define DDS_ALPHA       0x00000002  // DDPF_ALPHA
 #define DDS_PAL8        0x00000020  // DDPF_PALETTEINDEXED8
+#define DDS_PAL8A       0x00000021  // DDPF_PALETTEINDEXED8 | DDPF_ALPHAPIXELS
 #define DDS_BUMPDUDV    0x00080000  // DDPF_BUMPDUDV
 
 #ifndef MAKEFOURCC
-    #define MAKEFOURCC(ch0, ch1, ch2, ch3)                              \
-                ((uint32_t)(uint8_t)(ch0) | ((uint32_t)(uint8_t)(ch1) << 8) |       \
-                ((uint32_t)(uint8_t)(ch2) << 16) | ((uint32_t)(uint8_t)(ch3) << 24 ))
+    #define MAKEFOURCC(ch0, ch1, ch2, ch3) \
+                (static_cast<uint32_t>(static_cast<uint8_t>(ch0)) \
+                | (static_cast<uint32_t>(static_cast<uint8_t>(ch1)) << 8) \
+                | (static_cast<uint32_t>(static_cast<uint8_t>(ch2)) << 16) \
+                | (static_cast<uint32_t>(static_cast<uint8_t>(ch3)) << 24))
 #endif /* defined(MAKEFOURCC) */
 
 extern __declspec(selectany) const DDS_PIXELFORMAT DDSPF_DXT1 =
@@ -134,6 +129,9 @@ extern __declspec(selectany) const DDS_PIXELFORMAT DDSPF_L16 =
 extern __declspec(selectany) const DDS_PIXELFORMAT DDSPF_A8L8 =
     { sizeof(DDS_PIXELFORMAT), DDS_LUMINANCEA, 0, 16, 0x00ff, 0x0000, 0x0000, 0xff00 };
 
+extern __declspec(selectany) const DDS_PIXELFORMAT DDSPF_A8L8_ALT =
+    { sizeof(DDS_PIXELFORMAT), DDS_LUMINANCEA, 0, 8, 0x00ff, 0x0000, 0x0000, 0xff00 };
+
 extern __declspec(selectany) const DDS_PIXELFORMAT DDSPF_A8 =
     { sizeof(DDS_PIXELFORMAT), DDS_ALPHA, 0, 8, 0x00, 0x00, 0x00, 0xff };
 
@@ -201,38 +199,38 @@ enum DDS_MISC_FLAGS2
 
 enum DDS_ALPHA_MODE
 {
-    DDS_ALPHA_MODE_UNKNOWN       = 0,
-    DDS_ALPHA_MODE_STRAIGHT      = 1,
+    DDS_ALPHA_MODE_UNKNOWN = 0,
+    DDS_ALPHA_MODE_STRAIGHT = 1,
     DDS_ALPHA_MODE_PREMULTIPLIED = 2,
-    DDS_ALPHA_MODE_OPAQUE        = 3,
-    DDS_ALPHA_MODE_CUSTOM        = 4,
+    DDS_ALPHA_MODE_OPAQUE = 3,
+    DDS_ALPHA_MODE_CUSTOM = 4,
 };
 
 struct DDS_HEADER
 {
-    uint32_t    dwSize;
-    uint32_t    dwFlags;
-    uint32_t    dwHeight;
-    uint32_t    dwWidth;
-    uint32_t    dwPitchOrLinearSize;
-    uint32_t    dwDepth; // only if DDS_HEADER_FLAGS_VOLUME is set in dwFlags
-    uint32_t    dwMipMapCount;
-    uint32_t    dwReserved1[11];
+    uint32_t        size;
+    uint32_t        flags;
+    uint32_t        height;
+    uint32_t        width;
+    uint32_t        pitchOrLinearSize;
+    uint32_t        depth; // only if DDS_HEADER_FLAGS_VOLUME is set in flags
+    uint32_t        mipMapCount;
+    uint32_t        reserved1[11];
     DDS_PIXELFORMAT ddspf;
-    uint32_t    dwCaps;
-    uint32_t    dwCaps2;
-    uint32_t    dwCaps3;
-    uint32_t    dwCaps4;
-    uint32_t    dwReserved2;
+    uint32_t        caps;
+    uint32_t        caps2;
+    uint32_t        caps3;
+    uint32_t        caps4;
+    uint32_t        reserved2;
 };
 
 struct DDS_HEADER_DXT10
 {
-    DXGI_FORMAT dxgiFormat;
-    uint32_t    resourceDimension;
-    uint32_t    miscFlag; // see DDS_RESOURCE_MISC_FLAG
-    uint32_t    arraySize;
-    uint32_t    miscFlags2; // see DDS_MISC_FLAGS2
+    DXGI_FORMAT     dxgiFormat;
+    uint32_t        resourceDimension;
+    uint32_t        miscFlag; // see D3D11_RESOURCE_MISC_FLAG
+    uint32_t        arraySize;
+    uint32_t        miscFlags2; // see DDS_MISC_FLAGS2
 };
 
 #pragma pack(pop)
@@ -240,4 +238,5 @@ struct DDS_HEADER_DXT10
 static_assert( sizeof(DDS_HEADER) == 124, "DDS Header size mismatch" );
 static_assert( sizeof(DDS_HEADER_DXT10) == 20, "DDS DX10 Extended Header size mismatch");
 
-}; // namespace
+} // namespace
+

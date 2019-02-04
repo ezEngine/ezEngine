@@ -341,4 +341,8 @@ bool ezImage::UsesExternalStorage() const
   return m_internalStorage.GetArrayPtr() != m_dataPtr;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Image_Implementation_Image);
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_Image);
+

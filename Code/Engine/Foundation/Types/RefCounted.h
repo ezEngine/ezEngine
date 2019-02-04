@@ -161,3 +161,4 @@ class ezRefCountedContainer : public ezRefCounted
 public:
   TYPE m_Content;
 };
+

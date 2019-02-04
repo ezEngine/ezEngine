@@ -289,4 +289,5 @@ void ezGameApplication::Deinit_ShutdownGraphicsDevice()
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_ProjectSetup);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_GameApplicationInit);
+

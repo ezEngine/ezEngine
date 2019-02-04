@@ -140,3 +140,8 @@ bool ezSkeleton::IsJointDescendantOf(ezUInt16 uiJoint, ezUInt16 uiExpectedParent
 //    joint.m_JointTransform = totalTransform * joint.m_JointTransform;
 //  }
 //}
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_Skeleton);
+

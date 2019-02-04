@@ -27,3 +27,4 @@ namespace ezMemoryPolicies
 #error "ezAlignedHeapAllocation is not implemented on current platform"
 #endif
 }
+

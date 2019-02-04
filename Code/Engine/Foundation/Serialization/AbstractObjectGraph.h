@@ -172,3 +172,4 @@ private:
   ezMap<ezUuid, ezAbstractObjectNode*> m_Nodes;
   ezMap<const char*, ezAbstractObjectNode*, CompareConstChar> m_NodesByName;
 };
+

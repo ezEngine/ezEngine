@@ -101,3 +101,4 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMax<1>() const
 {
   return GetComponent<0>();
 }
+

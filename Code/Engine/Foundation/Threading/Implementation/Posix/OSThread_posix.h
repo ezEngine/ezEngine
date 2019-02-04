@@ -48,3 +48,4 @@ void ezOSThread::Join()
 {
   pthread_join(m_Handle, nullptr);
 }
+

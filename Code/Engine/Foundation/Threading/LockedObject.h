@@ -58,3 +58,4 @@ private:
   mutable T* m_pLock;
   mutable O* m_pObject;
 };
+

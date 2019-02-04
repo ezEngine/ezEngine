@@ -31,3 +31,4 @@ private:
   ezTime m_LastTimeStepTaken;
   ezStaticRingBuffer<ezTime, 11> m_LastTimeSteps;
 };
+

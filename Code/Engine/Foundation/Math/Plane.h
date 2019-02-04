@@ -180,3 +180,4 @@ template <typename Type>
 bool operator!=(const ezPlaneTemplate<Type>& lhs, const ezPlaneTemplate<Type>& rhs); // [tested]
 
 #include <Foundation/Math/Implementation/Plane_inl.h>
+

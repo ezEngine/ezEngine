@@ -1,9 +1,9 @@
 #pragma once
-#include <GameEngine/Basics.h>
+
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Foundation/Reflection/Reflection.h>
+#include <GameEngine/Basics.h>
 #include <RendererFoundation/Basics.h>
-#include <Foundation/Reflection/Implementation/DynamicRTTI.h>
-#include <Foundation/Reflection/Implementation/RTTI.h>
 
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 class ezViewHandle;
@@ -149,7 +149,7 @@ public:
   /// \brief Creates a VR view using the given render pipeline and camera.
   /// The camera is automatically updated with the HMD transforms.
   virtual ezViewHandle CreateVRView(const ezRenderPipelineResourceHandle& hRenderPipeline, ezCamera* pCamera,
-                                    ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None) = 0;
+    ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None) = 0;
   /// \brief Returns the VR view.
   virtual ezViewHandle GetVRView() const = 0;
   /// \brief Destroys the VR view.

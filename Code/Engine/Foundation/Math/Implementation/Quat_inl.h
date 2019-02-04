@@ -432,3 +432,4 @@ void ezQuatTemplate<Type>::SetFromEulerAngles(const ezAngle& x, const ezAngle& y
   v.y = (float)(cy * cr * sp + sy * sr * cp);
   v.z = (float)(sy * cr * cp - cy * sr * sp);
 }
+

@@ -19,3 +19,4 @@ struct ezCompareHelper
 };
 
 // See <Foundation/Strings/String.h> for ezString specialization and case insensitive version.
+

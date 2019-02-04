@@ -133,3 +133,4 @@ void ezSpriteRenderer::FillSpriteData(const ezRenderDataBatch& batch, ezUInt32 u
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_SpriteRenderer);
+

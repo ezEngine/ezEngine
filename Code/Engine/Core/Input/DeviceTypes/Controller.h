@@ -113,3 +113,4 @@ private:
   ezInt8 m_iControllerMapping[MaxControllers];
   float m_fVibrationStrength[MaxControllers][Motor::ENUM_COUNT];
 };
+
