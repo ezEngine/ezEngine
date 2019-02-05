@@ -2,8 +2,8 @@
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
-#include <Texture/Image/Formats/DdsFileFormat.h>
 #include <TexConv2/TexConv2.h>
+#include <Texture/Image/Formats/DdsFileFormat.h>
 #include <Texture/ezTexFormat/ezTexFormat.h>
 
 /* TODO LIST:
@@ -15,8 +15,6 @@
 - from single 2d texture
 
 - volume textures
-
-- delete low res image before creating one, to clean up
 
 - docs for params / help
 */
@@ -252,7 +250,7 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
 
   if (m_Processor.Process().Failed())
     return ezApplication::ApplicationExecution::Quit;
-    
+
   if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::DecalAtlas)
   {
     ezDeferredFileWriter file;
@@ -290,12 +288,18 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
     ezLog::Success("Wrote thumbnail to '{}'", m_sOutputThumbnailFile);
   }
 
-  if (!m_sOutputLowResFile.IsEmpty() && m_Processor.m_LowResOutputImage.GetNumMipLevels() > 1)
+  if (!m_sOutputLowResFile.IsEmpty())
   {
-    if (WriteOutputFile(m_sOutputLowResFile, m_Processor.m_LowResOutputImage).Failed())
+    // the image may not exist, if we do not have enough mips, so make sure any old low-res file is cleaned up
+    ezOSFile::DeleteFile(m_sOutputLowResFile);
+
+    if (m_Processor.m_LowResOutputImage.GetNumMipLevels() > 1)
     {
-      ezLog::Error("Failed to write low-res result to '{}'", m_sOutputLowResFile);
-      return ezApplication::ApplicationExecution::Quit;
+      if (WriteOutputFile(m_sOutputLowResFile, m_Processor.m_LowResOutputImage).Failed())
+      {
+        ezLog::Error("Failed to write low-res result to '{}'", m_sOutputLowResFile);
+        return ezApplication::ApplicationExecution::Quit;
+      }
     }
 
     ezLog::Success("Wrote low-res result to '{}'", m_sOutputLowResFile);

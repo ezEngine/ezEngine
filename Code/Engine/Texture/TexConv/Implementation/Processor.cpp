@@ -173,12 +173,50 @@ ezResult ezTexConvProcessor::GenerateThumbnailOutput(const ezImage& srcImg, ezIm
   }
 
   dstImg.ResetAndMove(std::move(*pCurrentScratch));
+
+  // we want to write out the thumbnail unchanged, so make sure it has a non-sRGB format
   dstImg.ReinterpretAs(ezImageFormat::AsLinear(dstImg.GetImageFormat()));
 
   if (dstImg.Convert(ezImageFormat::R8G8B8A8_UNORM).Failed())
   {
     ezLog::Error("Failed to convert thumbnail image to RGBA8.");
     return EZ_FAILURE;
+  }
+
+  // generate alpha checkerboard pattern
+  {
+    const float fTileSize = 16.0f;
+
+    ezColorLinearUB* pPixels = dstImg.GetPixelPointer<ezColorLinearUB>();
+    const ezUInt32 rowPitch = dstImg.GetRowPitch();
+
+    ezInt32 checkCounter = 0;
+    ezColor tiles[2]
+    {
+      ezColor::LightGray,
+      ezColor::DarkGray
+    };
+
+
+    for (ezUInt32 y = 0; y < dstImg.GetHeight(); ++y)
+    {
+      checkCounter = (ezInt32)ezMath::Floor(y / fTileSize);
+
+      for (ezUInt32 x = 0; x < dstImg.GetWidth(); ++x)
+      {
+        ezColorLinearUB& col = pPixels[x];
+
+        if (col.a < 255)
+        {
+          const ezColor colF = col;
+          const ezInt32 tileIdx = (checkCounter + (ezInt32)ezMath::Floor(x / fTileSize)) % 2;
+
+          col = ezMath::Lerp(tiles[tileIdx], colF, ezMath::Sqrt(colF.a)).WithAlpha(colF.a);
+        }
+      }
+
+      pPixels = ezMemoryUtils::AddByteOffset(pPixels, rowPitch);
+    }
   }
 
   return EZ_SUCCESS;

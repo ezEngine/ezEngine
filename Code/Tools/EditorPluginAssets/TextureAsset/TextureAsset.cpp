@@ -133,12 +133,9 @@ ezStatus ezTextureAssetDocument::RunTexConv(
     name.Append("-lowres");
     lowResPath.ChangeFileName(name);
 
-    if (pProp->m_MipmapMode != ezTexConvMipmapMode::None)
-    {
-      arguments << "-lowMips";
-      arguments << "6";
-      arguments << "-lowOut";
-    }
+    arguments << "-lowMips";
+    arguments << "6";
+    arguments << "-lowOut";
 
     arguments << QString::fromUtf8(lowResPath.GetData());
   }

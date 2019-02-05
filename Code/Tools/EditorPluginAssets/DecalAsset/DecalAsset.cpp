@@ -121,8 +121,6 @@ ezStatus ezDecalAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& 
 
   const ezStringBuilder sThumbnail = GetThumbnailFilePath();
 
-  arguments << "-premulalpha";
-
   arguments << "-usage";
   arguments << "Color";
 
