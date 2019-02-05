@@ -68,24 +68,23 @@ ezTexConv2::ezTexConv2()
     m_AllowedWrapModes.PushBack({"Clamp", ezImageAddressMode::Clamp});
     m_AllowedWrapModes.PushBack({"ClampBorder", ezImageAddressMode::ClampBorder});
     m_AllowedWrapModes.PushBack({"Mirror", ezImageAddressMode::Mirror});
-    m_AllowedWrapModes.PushBack({"MirrorOnce", ezImageAddressMode::MirrorOnce});
   }
 
   // filter modes
   {
-    m_AllowedFilterModes.PushBack({"Default", ezTexConvFilterMode::DefaultQuality});
-    m_AllowedFilterModes.PushBack({"Lowest", ezTexConvFilterMode::LowestQuality});
-    m_AllowedFilterModes.PushBack({"Low", ezTexConvFilterMode::LowQuality});
-    m_AllowedFilterModes.PushBack({"High", ezTexConvFilterMode::HighQuality});
-    m_AllowedFilterModes.PushBack({"Highest", ezTexConvFilterMode::HighestQuality});
+    m_AllowedFilterModes.PushBack({"Default", ezTextureFilterSetting::DefaultQuality});
+    m_AllowedFilterModes.PushBack({"Lowest", ezTextureFilterSetting::LowestQuality});
+    m_AllowedFilterModes.PushBack({"Low", ezTextureFilterSetting::LowQuality});
+    m_AllowedFilterModes.PushBack({"High", ezTextureFilterSetting::HighQuality});
+    m_AllowedFilterModes.PushBack({"Highest", ezTextureFilterSetting::HighestQuality});
 
-    m_AllowedFilterModes.PushBack({"Nearest", ezTexConvFilterMode::FixedNearest});
-    m_AllowedFilterModes.PushBack({"Bilinear", ezTexConvFilterMode::FixedBilinear});
-    m_AllowedFilterModes.PushBack({"Trilinear", ezTexConvFilterMode::FixedTrilinear});
-    m_AllowedFilterModes.PushBack({"Aniso2x", ezTexConvFilterMode::FixedAnisotropic2x});
-    m_AllowedFilterModes.PushBack({"Aniso4x", ezTexConvFilterMode::FixedAnisotropic4x});
-    m_AllowedFilterModes.PushBack({"Aniso8x", ezTexConvFilterMode::FixedAnisotropic8x});
-    m_AllowedFilterModes.PushBack({"Aniso16x", ezTexConvFilterMode::FixedAnisotropic16x});
+    m_AllowedFilterModes.PushBack({"Nearest", ezTextureFilterSetting::FixedNearest});
+    m_AllowedFilterModes.PushBack({"Bilinear", ezTextureFilterSetting::FixedBilinear});
+    m_AllowedFilterModes.PushBack({"Trilinear", ezTextureFilterSetting::FixedTrilinear});
+    m_AllowedFilterModes.PushBack({"Aniso2x", ezTextureFilterSetting::FixedAnisotropic2x});
+    m_AllowedFilterModes.PushBack({"Aniso4x", ezTextureFilterSetting::FixedAnisotropic4x});
+    m_AllowedFilterModes.PushBack({"Aniso8x", ezTextureFilterSetting::FixedAnisotropic8x});
+    m_AllowedFilterModes.PushBack({"Aniso16x", ezTextureFilterSetting::FixedAnisotropic16x});
   }
 }
 

@@ -16,7 +16,7 @@ void ezTexConv::WriteTexHeader(ezStreamWriter& stream)
     texFormat.m_AddressModeU = static_cast<ezImageAddressMode::Enum>(m_uiAddressU);
     texFormat.m_AddressModeV = static_cast<ezImageAddressMode::Enum>(m_uiAddressV);
     texFormat.m_AddressModeW = static_cast<ezImageAddressMode::Enum>(m_uiAddressW);
-    texFormat.m_TextureFilter = static_cast<ezTexConvFilterMode::Enum>(m_uiFilterSetting);
+    texFormat.m_TextureFilter = static_cast<ezTextureFilterSetting::Enum>(m_uiFilterSetting);
 
     texFormat.WriteTextureHeader(stream);
   }

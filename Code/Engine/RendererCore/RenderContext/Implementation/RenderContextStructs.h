@@ -99,35 +99,3 @@ struct EZ_RENDERERCORE_DLL ezDefaultSamplerFlags
 
 EZ_DECLARE_FLAGS_OPERATORS(ezDefaultSamplerFlags);
 
-//////////////////////////////////////////////////////////////////////////
-// ezTextureFilterSetting
-//////////////////////////////////////////////////////////////////////////
-
-struct EZ_RENDERERCORE_DLL ezTextureFilterSetting
-{
-  typedef ezUInt8 StorageType;
-
-  enum Enum
-  {
-    // Attention: When these are changed, make sure TexConv still writes the correct default value into ezTextureXX files
-
-    FixedNearest,
-    FixedBilinear,
-    FixedTrilinear,
-    FixedAnisotropic2x,
-    FixedAnisotropic4x,
-    FixedAnisotropic8x,
-    FixedAnisotropic16x,
-
-    LowestQuality,
-    LowQuality,
-    DefaultQuality = 9, // the default that is used by TexConv
-    HighQuality,
-    HighestQuality,
-
-    Default = DefaultQuality
-  };
-};
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezTextureFilterSetting);
-

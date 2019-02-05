@@ -414,14 +414,6 @@ static ezUInt32 GetSampleIndex(ezUInt32 numTexels, ezInt32 index, ezImageAddress
       case ezImageAddressMode::Clamp:
         return ezMath::Clamp<ezInt32>(index, 0, numTexels - 1);
 
-      case ezImageAddressMode::MirrorOnce:
-        if (index < 0)
-        {
-          index = -index - 1;
-        }
-        index = ezMath::Clamp<ezInt32>(0, index, numTexels - 1);
-        return index;
-
       case ezImageAddressMode::ClampBorder:
         outUseBorderColor = true;
         return 0;

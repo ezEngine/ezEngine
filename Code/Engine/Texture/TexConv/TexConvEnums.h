@@ -74,34 +74,6 @@ struct ezTexConvMipmapMode
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_TEXTURE_DLL, ezTexConvMipmapMode);
 
-struct ezTexConvFilterMode
-{
-  enum Enum
-  {
-    // fixed modes, use with care
-    FixedNearest,
-    FixedBilinear,
-    FixedTrilinear,
-    FixedAnisotropic2x,
-    FixedAnisotropic4x,
-    FixedAnisotropic8x,
-    FixedAnisotropic16x,
-
-    // modes relative to the runtime 'default' setting
-    LowestQuality,
-    LowQuality,
-    DefaultQuality = 9,
-    HighQuality,
-    HighestQuality,
-
-    Default = DefaultQuality
-  };
-
-  using StorageType = ezUInt8;
-};
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_TEXTURE_DLL, ezTexConvFilterMode);
-
 struct ezTexConvTargetPlatform
 {
   enum Enum

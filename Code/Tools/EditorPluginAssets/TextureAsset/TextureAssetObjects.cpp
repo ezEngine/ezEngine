@@ -73,6 +73,8 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
 
     const bool isRenderTarget = e.m_pObject->GetTypeAccessor().GetValue("IsRenderTarget").ConvertTo<bool>();
 
+    props["AddressModeW"].m_Visibility = ezPropertyUiState::Invisible;
+
     if (isRenderTarget)
     {
       const ezInt32 resMode = e.m_pObject->GetTypeAccessor().GetValue("Resolution").ConvertTo<ezInt32>();

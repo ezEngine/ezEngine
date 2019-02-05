@@ -43,8 +43,6 @@ static const char* ToWrapMode(ezImageAddressMode::Enum mode)
       return "ClampBorder";
     case ezImageAddressMode::Mirror:
       return "Mirror";
-    case ezImageAddressMode::MirrorOnce:
-      return "MirrorOnce";
   }
 
   return "";

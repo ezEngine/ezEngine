@@ -16,7 +16,7 @@ struct EZ_TEXTURE_DLL ezTexFormat
   ezEnum<ezImageAddressMode> m_AddressModeW;
 
   // version 2
-  ezEnum<ezTexConvFilterMode> m_TextureFilter;
+  ezEnum<ezTextureFilterSetting> m_TextureFilter;
 
   // version 3
   ezInt16 m_iRenderTargetResolutionX = 0;

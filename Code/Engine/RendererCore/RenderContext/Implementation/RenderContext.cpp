@@ -25,14 +25,6 @@ ezMap<ezUInt32, ezDynamicArray<ezConstantBufferStorageBase*>> ezRenderContext::s
 ezGALSamplerStateHandle ezRenderContext::s_hDefaultSamplerStates[4];
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureFilterSetting, 1)
-  EZ_ENUM_CONSTANTS(ezTextureFilterSetting::FixedNearest, ezTextureFilterSetting::FixedBilinear, ezTextureFilterSetting::FixedTrilinear, ezTextureFilterSetting::FixedAnisotropic2x)
-  EZ_ENUM_CONSTANTS(ezTextureFilterSetting::FixedAnisotropic4x, ezTextureFilterSetting::FixedAnisotropic8x, ezTextureFilterSetting::FixedAnisotropic16x)
-  EZ_ENUM_CONSTANTS(ezTextureFilterSetting::LowestQuality, ezTextureFilterSetting::LowQuality, ezTextureFilterSetting::DefaultQuality, ezTextureFilterSetting::HighQuality, ezTextureFilterSetting::HighestQuality)
-EZ_END_STATIC_REFLECTED_ENUM;
-// clang-format on
-
-// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RendererContext)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES

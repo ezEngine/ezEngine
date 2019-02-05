@@ -276,7 +276,7 @@ ezResult ezTexConv2::ParseFilterModes()
   ezInt32 value = -1;
   EZ_SUCCEED_OR_RETURN(ParseStringOption("-filter", m_AllowedFilterModes, value));
 
-  m_Processor.m_Descriptor.m_FilterMode = static_cast<ezTexConvFilterMode::Enum>(value);
+  m_Processor.m_Descriptor.m_FilterMode = static_cast<ezTextureFilterSetting::Enum>(value);
   return EZ_SUCCESS;
 }
 

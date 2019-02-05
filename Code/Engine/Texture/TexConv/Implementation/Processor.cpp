@@ -11,15 +11,6 @@ EZ_END_STATIC_REFLECTED_ENUM;
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexConvMipmapMode, 1)
   EZ_ENUM_CONSTANTS(ezTexConvMipmapMode::None, ezTexConvMipmapMode::Linear, ezTexConvMipmapMode::Kaiser)
 EZ_END_STATIC_REFLECTED_ENUM;
-
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexConvFilterMode, 1)
-  EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedNearest), EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedBilinear),
-    EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedTrilinear), EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedAnisotropic2x),
-    EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedAnisotropic4x), EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedAnisotropic8x),
-    EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedAnisotropic16x), EZ_ENUM_CONSTANT(ezTexConvFilterMode::LowestQuality),
-    EZ_ENUM_CONSTANT(ezTexConvFilterMode::LowQuality), EZ_ENUM_CONSTANT(ezTexConvFilterMode::DefaultQuality),
-    EZ_ENUM_CONSTANT(ezTexConvFilterMode::HighQuality), EZ_ENUM_CONSTANT(ezTexConvFilterMode::HighestQuality),
-EZ_END_STATIC_REFLECTED_ENUM;
 // clang=format on
 
 ezTexConvProcessor::ezTexConvProcessor() = default;

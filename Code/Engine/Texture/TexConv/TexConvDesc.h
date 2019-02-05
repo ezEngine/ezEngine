@@ -60,7 +60,7 @@ public:
 
   // Mipmaps / filtering
   ezEnum<ezTexConvMipmapMode> m_MipmapMode;
-  ezEnum<ezTexConvFilterMode> m_FilterMode; // only used when writing to ez specific formats
+  ezEnum<ezTextureFilterSetting> m_FilterMode; // only used when writing to ez specific formats
   ezEnum<ezImageAddressMode> m_AddressModeU;
   ezEnum<ezImageAddressMode> m_AddressModeV;
   ezEnum<ezImageAddressMode> m_AddressModeW;
