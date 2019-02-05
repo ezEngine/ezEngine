@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Math/Rect.h>
 #include <Texture/TexConv/TexConvDesc.h>
-#include <Foundation/IO/MemoryStream.h>
 
 class ezTextureGroupDesc;
 
@@ -22,64 +22,71 @@ public:
   ezImage m_ThumbnailOutputImage;
   ezMemoryStreamStorage m_DecalAtlas;
 
-  ezResult WriteTexFile(ezStreamWriter& stream, const ezImage& image);
-
 private:
-  ezEnum<ezImageFormat> m_OutputImageFormat;
 
-  ezImage* m_pCurrentScratchImage = nullptr;
-  ezImage* m_pOtherScratchImage = nullptr;
+  //////////////////////////////////////////////////////////////////////////
+  // Modifying the Descriptor
 
-  ezImage m_ScratchImage1;
-  ezImage m_ScratchImage2;
+  ezResult LoadInputImages();
+  ezResult ForceSRGBFormats();
+  ezResult ConvertAndScaleInputImages(ezUInt32 uiResolutionX, ezUInt32 uiResolutionY);
 
-  ezUInt32 m_uiTargetResolutionX = 0;
-  ezUInt32 m_uiTargetResolutionY = 0;
+  //////////////////////////////////////////////////////////////////////////
+  // Reading from the descriptor
 
-  ezUInt32 m_uiNumChannels = 4;
+  ezResult ChooseOutputFormat(ezEnum<ezImageFormat>& out_Format, ezEnum<ezTexConvUsage> usage, ezUInt32 uiNumChannels) const;
+  ezResult DetermineTargetResolution(const ezImage& image, ezEnum<ezImageFormat> OutputImageFormat, ezUInt32& out_uiTargetResolutionX, ezUInt32& out_uiTargetResolutionY) const;
+  ezResult Assemble2DTexture(const ezImageHeader& refImg, ezImage& dst) const;
+  ezResult AdjustHdrExposure(ezImage& img) const;
+  ezResult PremultiplyAlpha(ezImage& image) const;
+  ezResult Assemble2DSlice(const ezTexConvSliceChannelMapping& mapping, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezColor* pPixelOut) const;
+  ezResult GenerateMipmaps(ezImage& img) const;
 
-  enum DecalLayer
+  //////////////////////////////////////////////////////////////////////////
+  // Purely functional
+
+  static ezResult DetectNumChannels(ezArrayPtr<const ezTexConvSliceChannelMapping> channelMapping, ezUInt32& uiNumChannels);
+  static ezResult AdjustUsage(const char* szFilename, const ezImage& srcImg, ezEnum<ezTexConvUsage>& inout_Usage);
+  static ezResult ConvertAndScaleImage(const char* szImageName, ezImage& inout_Image, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY);
+
+  //////////////////////////////////////////////////////////////////////////
+  // Output Generation
+
+  static ezResult GenerateOutput(ezImage&& src, ezImage& dst, ezEnum<ezImageFormat> format);
+  static ezResult GenerateThumbnailOutput(const ezImage& srcImg, ezImage& dstImg, ezUInt32 uiTargetRes);
+  static ezResult GenerateLowResOutput(const ezImage& srcImg, ezImage& dstImg, ezUInt32 uiLowResMip);
+
+  //////////////////////////////////////////////////////////////////////////
+  // Texture Atlas
+
+  enum TextureAtlasLayer
   {
     BaseColor,
     Normal,
     ENUM_COUNT,
   };
 
-  struct DecalDesc
+  struct TextureAtlasItem
   {
     ezString m_sIdentifier;
-    ezString m_sFile[DecalLayer::ENUM_COUNT];
-    ezImage m_Image[DecalLayer::ENUM_COUNT];
-    ezRectU32 m_Rect[DecalLayer::ENUM_COUNT];
+    ezString m_sInputFile[TextureAtlasLayer::ENUM_COUNT];
+    ezImage m_InputImage[TextureAtlasLayer::ENUM_COUNT];
+    ezRectU32 m_AtlasRect[TextureAtlasLayer::ENUM_COUNT];
   };
 
-  ezDynamicArray<DecalDesc> m_Decals;
+  ezResult LoadAtlasInputs(const ezTextureGroupDesc& atlasDesc, ezDynamicArray<TextureAtlasItem>& items) const;
+  ezResult CreateAtlasLayerTexture(ezDynamicArray<TextureAtlasItem>& atlasItems, ezInt32 layer, ezStreamWriter& stream);
 
-  ezResult DetectNumChannels();
-  ezResult LoadInputImages();
-  ezResult AdjustTargetFormat();
-  ezResult ForceSRGBFormats();
-  ezResult ChooseOutputFormat();
-  ezResult DetermineTargetResolution();
-  ezResult ConvertInputImagesToFloat32();
-  ezResult ResizeInputImagesToSameDimensions();
-  ezResult Assemble2DTexture();
-  ezResult AdjustHdrExposure();
-  ezResult PremultiplyAlpha();
-  ezResult Assemble2DSlice(const ezTexConvSliceChannelMapping& mapping, ezColor* pPixelOut);
-  ezResult GenerateMipmaps();
-  ezResult GenerateOutput();
+  static ezResult WriteTextureAtlasInfo(const ezDynamicArray<TextureAtlasItem>& decals, ezStreamWriter& stream);
+  static ezResult TrySortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiWidth, ezUInt32 uiHeight, ezInt32 layer);
+  static ezResult SortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>& decals, ezUInt32& out_ResX, ezUInt32& out_ResY, ezInt32 layer);
+  static ezResult CreateAtlasTexture(ezDynamicArray<TextureAtlasItem>& decals, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer);
 
-  ezResult GenerateDecalAtlas();
-  ezResult LoadDecalInputs(ezTextureGroupDesc& decalAtlasDesc);
-  static ezResult WriteDecalAtlasInfo(ezDynamicArray<DecalDesc>& decals, ezStreamWriter& stream);
-  ezResult CreateDecalLayerTexture(ezInt32 layer, ezStreamWriter& stream);
-  static ezResult TrySortDecalsIntoAtlas(ezDynamicArray<DecalDesc>& decals, ezUInt32 uiWidth, ezUInt32 uiHeight, ezInt32 layer);
-  static ezResult SortDecalsIntoAtlas(ezDynamicArray<DecalDesc>& decals, ezUInt32& out_ResX, ezUInt32& out_ResY, ezInt32 layer);
-  static ezResult CreateDecalAtlasTexture(ezDynamicArray<DecalDesc>& decals, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer);
+  //////////////////////////////////////////////////////////////////////////
+  // Decal Atlas
 
-  ezResult GenerateThumbnailOutput();
-  ezResult GenerateLowResOutput();
+  ezResult GenerateDecalAtlas(ezMemoryStreamWriter& stream);
+
 };
 
 

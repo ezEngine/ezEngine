@@ -26,70 +26,73 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexConvFilterMode, 1)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang=format on
 
-ezTexConvProcessor::ezTexConvProcessor()
-{
-  m_pCurrentScratchImage = &m_ScratchImage1;
-  m_pOtherScratchImage = &m_ScratchImage2;
-}
+ezTexConvProcessor::ezTexConvProcessor() = default;
 
 ezResult ezTexConvProcessor::Process()
 {
   if (m_Descriptor.m_OutputType == ezTexConvOutputType::DecalAtlas)
   {
-    EZ_SUCCEED_OR_RETURN(GenerateDecalAtlas());
+    ezMemoryStreamWriter stream(&m_DecalAtlas);
+    EZ_SUCCEED_OR_RETURN(GenerateDecalAtlas(stream));
   }
   else
   {
-    EZ_SUCCEED_OR_RETURN(DetectNumChannels());
+    ezUInt32 uiNumChannelsUsed = 0;
+    EZ_SUCCEED_OR_RETURN(DetectNumChannels(m_Descriptor.m_ChannelMappings, uiNumChannelsUsed));
 
     EZ_SUCCEED_OR_RETURN(LoadInputImages());
 
-    EZ_SUCCEED_OR_RETURN(AdjustTargetFormat());
+    EZ_SUCCEED_OR_RETURN(AdjustUsage(m_Descriptor.m_InputFiles[0], m_Descriptor.m_InputImages[0], m_Descriptor.m_Usage));
 
     EZ_SUCCEED_OR_RETURN(ForceSRGBFormats());
 
-    EZ_SUCCEED_OR_RETURN(ChooseOutputFormat());
+    ezEnum<ezImageFormat> OutputImageFormat;
 
-    EZ_SUCCEED_OR_RETURN(DetermineTargetResolution());
+    EZ_SUCCEED_OR_RETURN(ChooseOutputFormat(OutputImageFormat, m_Descriptor.m_Usage, uiNumChannelsUsed));
 
-    EZ_SUCCEED_OR_RETURN(ConvertInputImagesToFloat32());
+    ezUInt32 uiTargetResolutionX = 0;
+    ezUInt32 uiTargetResolutionY = 0;
 
-    EZ_SUCCEED_OR_RETURN(ResizeInputImagesToSameDimensions());
+    EZ_SUCCEED_OR_RETURN(
+      DetermineTargetResolution(m_Descriptor.m_InputImages[0], OutputImageFormat, uiTargetResolutionX, uiTargetResolutionY));
 
-    EZ_SUCCEED_OR_RETURN(Assemble2DTexture());
+    EZ_SUCCEED_OR_RETURN(ConvertAndScaleInputImages(uiTargetResolutionX, uiTargetResolutionY));
 
-    EZ_SUCCEED_OR_RETURN(AdjustHdrExposure());
+    ezImage img2D;
+    EZ_SUCCEED_OR_RETURN(Assemble2DTexture(m_Descriptor.m_InputImages[0].GetHeader(), img2D));
 
-    EZ_SUCCEED_OR_RETURN(GenerateMipmaps());
+    EZ_SUCCEED_OR_RETURN(AdjustHdrExposure(img2D));
 
-    EZ_SUCCEED_OR_RETURN(PremultiplyAlpha());
+    EZ_SUCCEED_OR_RETURN(GenerateMipmaps(img2D));
 
-    EZ_SUCCEED_OR_RETURN(GenerateOutput());
+    EZ_SUCCEED_OR_RETURN(PremultiplyAlpha(img2D));
 
-    EZ_SUCCEED_OR_RETURN(GenerateThumbnailOutput());
+    EZ_SUCCEED_OR_RETURN(GenerateOutput(std::move(img2D), m_OutputImage, OutputImageFormat));
 
-    EZ_SUCCEED_OR_RETURN(GenerateLowResOutput());
+    EZ_SUCCEED_OR_RETURN(GenerateThumbnailOutput(m_OutputImage, m_ThumbnailOutputImage, m_Descriptor.m_uiThumbnailOutputResolution));
+
+    EZ_SUCCEED_OR_RETURN(GenerateLowResOutput(m_OutputImage, m_LowResOutputImage, m_Descriptor.m_uiLowResMipmaps));
   }
 
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::DetectNumChannels()
+ezResult ezTexConvProcessor::DetectNumChannels(ezArrayPtr<const ezTexConvSliceChannelMapping> channelMapping, ezUInt32& uiNumChannels)
 {
-  m_uiNumChannels = 0;
+  uiNumChannels = 0;
 
-  for (const auto& mapping : m_Descriptor.m_ChannelMappings)
+  for (const auto& mapping : channelMapping)
   {
     for (ezUInt32 i = 0; i < 4; ++i)
     {
       if (mapping.m_Channel[i].m_iInputImageIndex != -1)
       {
-        m_uiNumChannels = ezMath::Max(m_uiNumChannels, i + 1);
+        uiNumChannels = ezMath::Max(uiNumChannels, i + 1);
       }
     }
   }
 
-  if (m_uiNumChannels == 0)
+  if (uiNumChannels == 0)
   {
     ezLog::Error("No proper channel mapping provided.");
     return EZ_FAILURE;
@@ -98,30 +101,29 @@ ezResult ezTexConvProcessor::DetectNumChannels()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::GenerateOutput()
+ezResult ezTexConvProcessor::GenerateOutput(ezImage&& src, ezImage& dst, ezEnum<ezImageFormat> format)
 {
-  m_OutputImage.ResetAndMove(std::move(*m_pCurrentScratchImage));
+  dst.ResetAndMove(std::move(src));
 
-  if (m_OutputImage.Convert(m_OutputImageFormat).Failed())
+  if (dst.Convert(format).Failed())
   {
-    ezLog::Error("Failed to convert result image to final output format '{}'", ezImageFormat::GetName(m_OutputImageFormat));
+    ezLog::Error("Failed to convert result image to output format '{}'", ezImageFormat::GetName(format));
     return EZ_FAILURE;
   }
 
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::GenerateThumbnailOutput()
+ezResult ezTexConvProcessor::GenerateThumbnailOutput(const ezImage& srcImg, ezImage& dstImg, ezUInt32 uiTargetRes)
 {
-  const ezUInt32 uiTargetRes = m_Descriptor.m_uiThumbnailOutputResolution;
   if (uiTargetRes == 0)
     return EZ_SUCCESS;
 
   ezUInt32 uiBestMip = 0;
 
-  for (ezUInt32 m = 0; m < m_OutputImage.GetNumMipLevels(); ++m)
+  for (ezUInt32 m = 0; m < srcImg.GetNumMipLevels(); ++m)
   {
-    if (m_OutputImage.GetWidth(m) <= uiTargetRes && m_OutputImage.GetHeight(m) <= uiTargetRes)
+    if (srcImg.GetWidth(m) <= uiTargetRes && srcImg.GetHeight(m) <= uiTargetRes)
     {
       uiBestMip = m;
       break;
@@ -130,44 +132,50 @@ ezResult ezTexConvProcessor::GenerateThumbnailOutput()
     uiBestMip = m;
   }
 
-  m_pCurrentScratchImage->ResetAndCopy(m_OutputImage.GetSubImageView(uiBestMip));
+  ezImage scratch1, scratch2;
+  ezImage* pCurrentScratch = &scratch1;
+  ezImage* pOtherScratch = &scratch2;
 
-  if (m_pCurrentScratchImage->GetWidth() > uiTargetRes || m_pCurrentScratchImage->GetHeight() > uiTargetRes)
+  pCurrentScratch->ResetAndCopy(srcImg.GetSubImageView(uiBestMip));
+
+  if (pCurrentScratch->GetWidth() > uiTargetRes || pCurrentScratch->GetHeight() > uiTargetRes)
   {
-    if (m_pCurrentScratchImage->GetWidth() > m_pCurrentScratchImage->GetHeight())
+    if (pCurrentScratch->GetWidth() > pCurrentScratch->GetHeight())
     {
-      const float fAspectRatio = (float)m_pCurrentScratchImage->GetWidth() / (float)uiTargetRes;
-      ezUInt32 uiTargetHeight = (ezUInt32)(m_pCurrentScratchImage->GetHeight() / fAspectRatio);
+      const float fAspectRatio = (float)pCurrentScratch->GetWidth() / (float)uiTargetRes;
+      ezUInt32 uiTargetHeight = (ezUInt32)(pCurrentScratch->GetHeight() / fAspectRatio);
 
       uiTargetHeight = ezMath::Max(uiTargetHeight, 4U);
 
-      if (ezImageUtils::Scale(*m_pCurrentScratchImage, *m_pOtherScratchImage, uiTargetRes, uiTargetHeight).Failed())
+      if (ezImageUtils::Scale(*pCurrentScratch, *pOtherScratch, uiTargetRes, uiTargetHeight).Failed())
       {
-        ezLog::Error("Failed to resize thumbnail image from {}x{} to {}x{}", m_pCurrentScratchImage->GetWidth(),
-          m_pCurrentScratchImage->GetHeight(), uiTargetRes, uiTargetHeight);
+        ezLog::Error("Failed to resize thumbnail image from {}x{} to {}x{}", pCurrentScratch->GetWidth(),
+          pCurrentScratch->GetHeight(), uiTargetRes, uiTargetHeight);
         return EZ_FAILURE;
       }
     }
     else
     {
-      const float fAspectRatio = (float)m_pCurrentScratchImage->GetHeight() / (float)uiTargetRes;
-      ezUInt32 uiTargetWidth = (ezUInt32)(m_pCurrentScratchImage->GetWidth() / fAspectRatio);
+      const float fAspectRatio = (float)pCurrentScratch->GetHeight() / (float)uiTargetRes;
+      ezUInt32 uiTargetWidth = (ezUInt32)(pCurrentScratch->GetWidth() / fAspectRatio);
 
       uiTargetWidth = ezMath::Max(uiTargetWidth, 4U);
 
-      if (ezImageUtils::Scale(*m_pCurrentScratchImage, *m_pOtherScratchImage, uiTargetWidth, uiTargetRes).Failed())
+      if (ezImageUtils::Scale(*pCurrentScratch, *pOtherScratch, uiTargetWidth, uiTargetRes).Failed())
       {
-        ezLog::Error("Failed to resize thumbnail image from {}x{} to {}x{}", m_pCurrentScratchImage->GetWidth(),
-          m_pCurrentScratchImage->GetHeight(), uiTargetWidth, uiTargetRes);
+        ezLog::Error("Failed to resize thumbnail image from {}x{} to {}x{}", pCurrentScratch->GetWidth(),
+          pCurrentScratch->GetHeight(), uiTargetWidth, uiTargetRes);
         return EZ_FAILURE;
       }
     }
 
-    ezMath::Swap(m_pCurrentScratchImage, m_pOtherScratchImage);
+    ezMath::Swap(pCurrentScratch, pOtherScratch);
   }
 
-  m_ThumbnailOutputImage.ResetAndMove(std::move(*m_pCurrentScratchImage));
-  if (m_ThumbnailOutputImage.Convert(ezImageFormat::R8G8B8A8_UNORM_SRGB).Failed())
+  dstImg.ResetAndMove(std::move(*pCurrentScratch));
+  dstImg.ReinterpretAs(ezImageFormat::AsLinear(dstImg.GetImageFormat()));
+
+  if (dstImg.Convert(ezImageFormat::R8G8B8A8_UNORM).Failed())
   {
     ezLog::Error("Failed to convert thumbnail image to RGBA8.");
     return EZ_FAILURE;
@@ -176,31 +184,23 @@ ezResult ezTexConvProcessor::GenerateThumbnailOutput()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::GenerateLowResOutput()
+ezResult ezTexConvProcessor::GenerateLowResOutput(const ezImage& srcImg, ezImage& dstImg, ezUInt32 uiLowResMip)
 {
-  if (m_Descriptor.m_uiLowResMipmaps == 0)
+  if (uiLowResMip == 0)
     return EZ_SUCCESS;
 
-  if (m_Descriptor.m_MipmapMode == ezTexConvMipmapMode::None)
-  {
-    ezLog::Error("LowRes data cannot be generated for images without mipmaps.");
-    return EZ_FAILURE;
-  }
-
-  if (m_OutputImage.GetNumMipLevels() <= m_Descriptor.m_uiLowResMipmaps)
+  if (srcImg.GetNumMipLevels() <= uiLowResMip)
   {
     // probably just a low-resolution input image, do not generate output, but also do not fail
     ezLog::Warning("LowRes image not generated, original resolution is already below threshold.");
     return EZ_SUCCESS;
   }
 
-  if (ezImageUtils::ExtractLowerMipChain(m_OutputImage, *m_pCurrentScratchImage, m_Descriptor.m_uiLowResMipmaps).Failed())
+  if (ezImageUtils::ExtractLowerMipChain(srcImg, dstImg, uiLowResMip).Failed())
   {
     ezLog::Error("Failed to extract low-res mipmap chain from output image.");
     return EZ_FAILURE;
   }
-
-  m_LowResOutputImage.ResetAndMove(std::move(*m_pCurrentScratchImage));
 
   return EZ_SUCCESS;
 }

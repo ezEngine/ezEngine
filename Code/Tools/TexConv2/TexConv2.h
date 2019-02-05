@@ -55,6 +55,7 @@ public:
   bool ParseFile(const char* szOption, ezString& result) const;
 
   bool IsTexFormat() const;
+  ezResult WriteTexFile(ezStreamWriter& stream, const ezImage& image);
   ezResult WriteOutputFile(const char* szFile, const ezImage& image);
 
 private:

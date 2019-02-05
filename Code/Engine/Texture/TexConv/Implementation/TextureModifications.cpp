@@ -26,7 +26,7 @@ ezResult ezTexConvProcessor::ForceSRGBFormats()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::GenerateMipmaps()
+ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img) const
 {
   ezImageUtils::MipMapOptions opt;
 
@@ -92,10 +92,11 @@ ezResult ezTexConvProcessor::GenerateMipmaps()
   opt.m_renormalizeNormals =
     m_Descriptor.m_Usage == ezTexConvUsage::NormalMap || m_Descriptor.m_Usage == ezTexConvUsage::NormalMap_Inverted;
 
-  ezImageUtils::GenerateMipMaps(*m_pCurrentScratchImage, *m_pOtherScratchImage, opt);
-  ezMath::Swap(m_pCurrentScratchImage, m_pOtherScratchImage);
+  ezImage scratch;
+  ezImageUtils::GenerateMipMaps(img, scratch, opt);
+  img.ResetAndMove(std::move(scratch));
 
-  if (m_pCurrentScratchImage->GetNumMipLevels() <= 1)
+  if (img.GetNumMipLevels() <= 1)
   {
     ezLog::Error("Mipmap generation failed.");
     return EZ_FAILURE;
@@ -104,29 +105,29 @@ ezResult ezTexConvProcessor::GenerateMipmaps()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::PremultiplyAlpha()
+ezResult ezTexConvProcessor::PremultiplyAlpha(ezImage& image) const
 {
   if (!m_Descriptor.m_bPremultiplyAlpha)
     return EZ_SUCCESS;
 
-  for (ezUInt32 slice = 0; slice < m_pCurrentScratchImage->GetNumArrayIndices(); ++slice)
+  for (ezUInt32 slice = 0; slice < image.GetNumArrayIndices(); ++slice)
   {
-    for (ezUInt32 face = 0; face < m_pCurrentScratchImage->GetNumFaces(); ++face)
+    for (ezUInt32 face = 0; face < image.GetNumFaces(); ++face)
     {
-      for (ezUInt32 mip = 0; mip < m_pCurrentScratchImage->GetNumMipLevels(); ++mip)
+      for (ezUInt32 mip = 0; mip < image.GetNumMipLevels(); ++mip)
       {
-        ezColor* pPixel = m_pCurrentScratchImage->GetPixelPointer<ezColor>(mip, face, slice);
+        ezColor* pPixel = image.GetPixelPointer<ezColor>(mip, face, slice);
 
-        for (ezUInt32 y = 0; y < m_pCurrentScratchImage->GetHeight(mip); ++y)
+        for (ezUInt32 y = 0; y < image.GetHeight(mip); ++y)
         {
-          for (ezUInt32 x = 0; x < m_pCurrentScratchImage->GetWidth(mip); ++x)
+          for (ezUInt32 x = 0; x < image.GetWidth(mip); ++x)
           {
             pPixel[x].r *= pPixel[x].a;
             pPixel[x].g *= pPixel[x].a;
             pPixel[x].b *= pPixel[x].a;
           }
 
-          pPixel = ezMemoryUtils::AddByteOffset(pPixel, m_pCurrentScratchImage->GetRowPitch(mip));
+          pPixel = ezMemoryUtils::AddByteOffset(pPixel, image.GetRowPitch(mip));
         }
       }
     }
@@ -135,9 +136,9 @@ ezResult ezTexConvProcessor::PremultiplyAlpha()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::AdjustHdrExposure()
+ezResult ezTexConvProcessor::AdjustHdrExposure(ezImage& img) const
 {
-  ezImageUtils::ChangeExposure(*m_pCurrentScratchImage, m_Descriptor.m_fHdrExposureBias);
+  ezImageUtils::ChangeExposure(img, m_Descriptor.m_fHdrExposureBias);
   return EZ_SUCCESS;
 }
 

@@ -14,9 +14,9 @@
 - from multiple 2d textures
 - from single 2d texture
 
-- decal atlas support
-
 - volume textures
+
+- delete low res image before creating one, to clean up
 
 - docs for params / help
 */
@@ -202,6 +202,32 @@ bool ezTexConv2::IsTexFormat() const
   return ext.StartsWith_NoCase("ez");
 }
 
+ezResult ezTexConv2::WriteTexFile(ezStreamWriter& stream, const ezImage& image)
+{
+  ezAssetFileHeader asset;
+  asset.SetFileHashAndVersion(m_Processor.m_Descriptor.m_uiAssetHash, m_Processor.m_Descriptor.m_uiAssetVersion);
+
+  asset.Write(stream);
+
+  ezTexFormat texFormat;
+  texFormat.m_bSRGB = ezImageFormat::IsSrgb(image.GetImageFormat());
+  texFormat.m_WrapModeU = m_Processor.m_Descriptor.m_WrapModes[0];
+  texFormat.m_WrapModeV = m_Processor.m_Descriptor.m_WrapModes[1];
+  texFormat.m_WrapModeW = m_Processor.m_Descriptor.m_WrapModes[2];
+  texFormat.m_TextureFilter = m_Processor.m_Descriptor.m_FilterMode;
+
+  texFormat.WriteTextureHeader(stream);
+
+  ezDdsFileFormat ddsWriter;
+  if (ddsWriter.WriteImage(stream, image, ezLog::GetThreadLocalLogSystem(), "dds").Failed())
+  {
+    ezLog::Error("Failed to write DDS image chunk to ezTex file.");
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
+}
+
 ezResult ezTexConv2::WriteOutputFile(const char* szFile, const ezImage& image)
 {
   if (IsTexFormat())
@@ -209,7 +235,7 @@ ezResult ezTexConv2::WriteOutputFile(const char* szFile, const ezImage& image)
     ezDeferredFileWriter file;
     file.SetOutput(szFile);
 
-    m_Processor.WriteTexFile(file, image);
+    WriteTexFile(file, image);
 
     return file.Close();
   }
@@ -231,6 +257,11 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
   {
     ezDeferredFileWriter file;
     file.SetOutput(m_sOutputFile);
+
+    ezAssetFileHeader header;
+    header.SetFileHashAndVersion(m_Processor.m_Descriptor.m_uiAssetHash, m_Processor.m_Descriptor.m_uiAssetVersion);
+
+    header.Write(file);
 
     file.WriteBytes(m_Processor.m_DecalAtlas.GetData(), m_Processor.m_DecalAtlas.GetStorageSize());
 
@@ -259,7 +290,7 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
     ezLog::Success("Wrote thumbnail to '{}'", m_sOutputThumbnailFile);
   }
 
-  if (!m_sOutputLowResFile.IsEmpty() && m_Processor.m_LowResOutputImage.GetNumMipLevels() > 0)
+  if (!m_sOutputLowResFile.IsEmpty() && m_Processor.m_LowResOutputImage.GetNumMipLevels() > 1)
   {
     if (WriteOutputFile(m_sOutputLowResFile, m_Processor.m_LowResOutputImage).Failed())
     {

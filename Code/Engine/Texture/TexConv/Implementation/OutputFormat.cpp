@@ -2,7 +2,7 @@
 
 #include <Texture/TexConv/TexConvProcessor.h>
 
-ezImageFormat::Enum DetermineOutputFormatPC(
+static ezImageFormat::Enum DetermineOutputFormatPC(
   ezTexConvUsage::Enum targetFormat, ezTexConvCompressionMode::Enum compressionMode, ezUInt32 uiNumChannels)
 {
   if (targetFormat == ezTexConvUsage::NormalMap || targetFormat == ezTexConvUsage::NormalMap_Inverted)
@@ -93,25 +93,25 @@ ezImageFormat::Enum DetermineOutputFormatPC(
   return ezImageFormat::UNKNOWN;
 }
 
-ezResult ezTexConvProcessor::ChooseOutputFormat()
+ezResult ezTexConvProcessor::ChooseOutputFormat(ezEnum<ezImageFormat>& out_Format, ezEnum<ezTexConvUsage> usage, ezUInt32 uiNumChannels) const
 {
-  EZ_ASSERT_DEV(m_OutputImageFormat == ezImageFormat::UNKNOWN, "Output format already set");
+  EZ_ASSERT_DEV(out_Format == ezImageFormat::UNKNOWN, "Output format already set");
 
   switch (m_Descriptor.m_TargetPlatform)
   {
       // case  ezTexConvTargetPlatform::Android:
-      //  m_OutputImageFormat = DetermineOutputFormatAndroid(m_Descriptor.m_TargetFormat, m_Descriptor.m_CompressionMode);
+      //  out_Format = DetermineOutputFormatAndroid(m_Descriptor.m_TargetFormat, m_Descriptor.m_CompressionMode);
       //  break;
 
     case ezTexConvTargetPlatform::PC:
-      m_OutputImageFormat = DetermineOutputFormatPC(m_Descriptor.m_Usage, m_Descriptor.m_CompressionMode, m_uiNumChannels);
+      out_Format = DetermineOutputFormatPC(usage, m_Descriptor.m_CompressionMode, uiNumChannels);
       break;
 
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
-  if (m_OutputImageFormat == ezImageFormat::UNKNOWN)
+  if (out_Format == ezImageFormat::UNKNOWN)
   {
     ezLog::Error("Failed to decide for an output image format.");
     return EZ_FAILURE;

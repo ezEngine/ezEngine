@@ -1,20 +1,20 @@
 #include <PCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <Texture/Image/Formats/DdsFileFormat.h>
 #include <Texture/TexConv/TexConvProcessor.h>
 #include <Texture/ezTexFormat/ezTexFormat.h>
 
-ezResult ezTexConvProcessor::Assemble2DTexture()
+ezResult ezTexConvProcessor::Assemble2DTexture(const ezImageHeader& refImg, ezImage& dst) const
 {
-  m_pCurrentScratchImage->ResetAndAlloc(m_Descriptor.m_InputImages[0].GetHeader());
+  dst.ResetAndAlloc(refImg);
 
-  ezColor* pPixelOut = m_pCurrentScratchImage->GetPixelPointer<ezColor>();
+  ezColor* pPixelOut = dst.GetPixelPointer<ezColor>();
 
-  return Assemble2DSlice(m_Descriptor.m_ChannelMappings[0], pPixelOut);
+  return Assemble2DSlice(m_Descriptor.m_ChannelMappings[0], refImg.GetWidth(), refImg.GetHeight(), pPixelOut);
 }
 
-ezResult ezTexConvProcessor::Assemble2DSlice(const ezTexConvSliceChannelMapping& mapping, ezColor* pPixelOut)
+ezResult ezTexConvProcessor::Assemble2DSlice(
+  const ezTexConvSliceChannelMapping& mapping, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezColor* pPixelOut) const
 {
   ezHybridArray<const ezColor*, 16> pSource;
   for (ezUInt32 i = 0; i < m_Descriptor.m_InputImages.GetCount(); ++i)
@@ -24,12 +24,12 @@ ezResult ezTexConvProcessor::Assemble2DSlice(const ezTexConvSliceChannelMapping&
 
   const bool bFlip = m_Descriptor.m_bFlipHorizontal;
 
-  for (ezUInt32 y = 0; y < m_uiTargetResolutionY; ++y)
+  for (ezUInt32 y = 0; y < uiResolutionY; ++y)
   {
-    const ezUInt32 pixelReadRowOffset = m_uiTargetResolutionX * y;
-    const ezUInt32 pixelWriteRowOffset = m_uiTargetResolutionX * (bFlip ? (m_uiTargetResolutionY - y - 1) : y);
+    const ezUInt32 pixelReadRowOffset = uiResolutionX * y;
+    const ezUInt32 pixelWriteRowOffset = uiResolutionX * (bFlip ? (uiResolutionY - y - 1) : y);
 
-    for (ezUInt32 x = 0; x < m_uiTargetResolutionX; ++x)
+    for (ezUInt32 x = 0; x < uiResolutionX; ++x)
     {
 
       for (ezUInt32 channel = 0; channel < 4; ++channel)
@@ -84,27 +84,33 @@ ezResult ezTexConvProcessor::Assemble2DSlice(const ezTexConvSliceChannelMapping&
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::WriteTexFile(ezStreamWriter& stream, const ezImage& image)
+ezResult ezTexConvProcessor::DetermineTargetResolution(
+  const ezImage& image, ezEnum<ezImageFormat> OutputImageFormat, ezUInt32& out_uiTargetResolutionX, ezUInt32& out_uiTargetResolutionY) const
 {
-  ezAssetFileHeader asset;
-  asset.SetFileHashAndVersion(m_Descriptor.m_uiAssetHash, m_Descriptor.m_uiAssetVersion);
+  EZ_ASSERT_DEV(out_uiTargetResolutionX == 0 && out_uiTargetResolutionY == 0, "Target resolution already determined");
 
-  asset.Write(stream);
+  const ezUInt32 uiOrgResX = image.GetWidth();
+  const ezUInt32 uiOrgResY = image.GetHeight();
 
-  ezTexFormat texFormat;
-  texFormat.m_bSRGB = ezImageFormat::IsSrgb(image.GetImageFormat());
-  texFormat.m_WrapModeU = m_Descriptor.m_WrapModes[0];
-  texFormat.m_WrapModeV = m_Descriptor.m_WrapModes[1];
-  texFormat.m_WrapModeW = m_Descriptor.m_WrapModes[2];
-  texFormat.m_TextureFilter = m_Descriptor.m_FilterMode;
+  out_uiTargetResolutionX = uiOrgResX;
+  out_uiTargetResolutionY = uiOrgResY;
 
-  texFormat.WriteTextureHeader(stream);
+  out_uiTargetResolutionX /= (1 << m_Descriptor.m_uiDownscaleSteps);
+  out_uiTargetResolutionY /= (1 << m_Descriptor.m_uiDownscaleSteps);
 
-  ezDdsFileFormat ddsWriter;
-  if (ddsWriter.WriteImage(stream, image, ezLog::GetThreadLocalLogSystem(), "dds").Failed())
+  out_uiTargetResolutionX = ezMath::Clamp(out_uiTargetResolutionX, m_Descriptor.m_uiMinResolution, m_Descriptor.m_uiMaxResolution);
+  out_uiTargetResolutionY = ezMath::Clamp(out_uiTargetResolutionY, m_Descriptor.m_uiMinResolution, m_Descriptor.m_uiMaxResolution);
+
+  if (OutputImageFormat != ezImageFormat::UNKNOWN && ezImageFormat::IsCompressed(OutputImageFormat))
   {
-    ezLog::Error("Failed to write DDS image chunk to ezTex file.");
-    return EZ_FAILURE;
+    if (out_uiTargetResolutionX % 4 != 0 || out_uiTargetResolutionY % 4 != 0)
+    {
+      ezLog::Error("Chosen output image format is compressed, but target resolution is not divisible by 4. {}x{} -> downscale {} / "
+                   "clamp({}, {}) -> {}x{}",
+        uiOrgResX, uiOrgResY, m_Descriptor.m_uiDownscaleSteps, m_Descriptor.m_uiMinResolution, m_Descriptor.m_uiMaxResolution,
+        out_uiTargetResolutionX, out_uiTargetResolutionY);
+      return EZ_FAILURE;
+    }
   }
 
   return EZ_SUCCESS;

@@ -20,7 +20,6 @@
 SET (LINK_LIBRARIES
   ThirdParty
   Foundation
-  Core
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)

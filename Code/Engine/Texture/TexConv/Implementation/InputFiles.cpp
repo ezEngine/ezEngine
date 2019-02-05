@@ -58,35 +58,34 @@ ezResult ezTexConvProcessor::LoadInputImages()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::ConvertInputImagesToFloat32()
+ezResult ezTexConvProcessor::ConvertAndScaleImage(
+  const char* szImageName, ezImage& inout_Image, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY)
 {
-  for (ezUInt32 idx = 0; idx < m_Descriptor.m_InputImages.GetCount(); ++idx)
+  if (inout_Image.Convert(ezImageFormat::R32G32B32A32_FLOAT).Failed())
   {
-    auto& img = m_Descriptor.m_InputImages[idx];
+    ezLog::Error("Could not convert '{}' to RGBA 32-Bit Float format.", szImageName);
+    return EZ_FAILURE;
+  }
 
-    if (img.Convert(ezImageFormat::R32G32B32A32_FLOAT).Failed())
-    {
-      ezLog::Error("Could not convert '{}' to RGBA 32-Bit Float format.", m_Descriptor.m_InputFiles[idx]);
-      return EZ_FAILURE;
-    }
+  if (ezImageUtils::Scale(
+        inout_Image, inout_Image, uiResolutionX, uiResolutionY, nullptr, ezImageAddressMode::CLAMP, ezImageAddressMode::CLAMP)
+        .Failed())
+  {
+    ezLog::Error("Could not resize '{}' to {}x{}", szImageName, uiResolutionX, uiResolutionY);
+    return EZ_FAILURE;
   }
 
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::ResizeInputImagesToSameDimensions()
+ezResult ezTexConvProcessor::ConvertAndScaleInputImages(ezUInt32 uiResolutionX, ezUInt32 uiResolutionY)
 {
   for (ezUInt32 idx = 0; idx < m_Descriptor.m_InputImages.GetCount(); ++idx)
   {
     auto& img = m_Descriptor.m_InputImages[idx];
+    const char* szName = m_Descriptor.m_InputFiles[idx];
 
-    if (ezImageUtils::Scale(
-          img, img, m_uiTargetResolutionX, m_uiTargetResolutionY, nullptr, ezImageAddressMode::CLAMP, ezImageAddressMode::CLAMP)
-          .Failed())
-    {
-      ezLog::Error("Could not resize '{}' to {}x{}", m_Descriptor.m_InputFiles[idx], m_uiTargetResolutionX, m_uiTargetResolutionY);
-      return EZ_FAILURE;
-    }
+    EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(szName, img, uiResolutionX, uiResolutionY));
   }
 
   return EZ_SUCCESS;

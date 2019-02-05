@@ -258,7 +258,7 @@ public:
     if (pMipmaps && pMipmaps->m_Value.IsA<bool>())
     {
       if (pMipmaps->m_Value.Get<bool>())
-        pNode->AddProperty("MipmapMode", (ezInt32)ezTexConvMipmapMode::Linear);
+        pNode->AddProperty("MipmapMode", (ezInt32)ezTexConvMipmapMode::Kaiser);
       else
         pNode->AddProperty("MipmapMode", (ezInt32)ezTexConvMipmapMode::None);
     }
