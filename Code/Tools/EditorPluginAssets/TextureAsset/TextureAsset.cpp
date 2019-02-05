@@ -46,7 +46,7 @@ static const char* ToWrapMode(ezTexture2DAddressMode::Enum mode)
   return "";
 }
 
-static const char* ToFilterMode(ezTextureFilterSetting::Enum mode)
+const char* ToFilterMode(ezTextureFilterSetting::Enum mode)
 {
   switch (mode)
   {

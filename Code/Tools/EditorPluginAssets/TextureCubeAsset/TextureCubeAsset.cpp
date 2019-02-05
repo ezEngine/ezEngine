@@ -9,10 +9,10 @@
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
-#include <Texture/Image/Formats/DdsFileFormat.h>
-#include <Texture/Image/ImageConversion.h>
 #include <QStringList>
 #include <QTextStream>
+#include <Texture/Image/Formats/DdsFileFormat.h>
+#include <Texture/Image/ImageConversion.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 // clang-format off
@@ -24,14 +24,18 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureCubeChannelMode, 1)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
+const char* ToFilterMode(ezTextureFilterSetting::Enum mode);
+
 ezTextureCubeAssetDocument::ezTextureCubeAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezTextureCubeAssetProperties>(szDocumentPath, true)
+  : ezSimpleAssetDocument<ezTextureCubeAssetProperties>(szDocumentPath, true)
 {
   m_iTextureLod = -1;
 }
 
 ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail)
 {
+  const bool bRunTexConv2 = false;
+
   const ezTextureCubeAssetProperties* pProp = GetProperties();
 
   QStringList arguments;
@@ -69,31 +73,94 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
     const ezStringBuilder sDir = sThumbnail.GetFileDirectory();
     ezOSFile::CreateDirectoryStructure(sDir);
 
-    arguments << "-thumbnail";
+    if (bRunTexConv2)
+    {
+      arguments << "-thumbnailRes";
+      arguments << "256";
+      arguments << "-thumbnailOut";
+    }
+    else
+    {
+      arguments << "-thumbnail";
+    }
+
     arguments << QString::fromUtf8(sThumbnail.GetData());
   }
 
-  arguments << "-channels";
-  arguments << ezConversionUtils::ToString(pProp->GetNumChannels(), temp).GetData();
+  // TODO: downscale steps and min/max resolution
+  // TODO: hdr exposure
 
-  if (pProp->m_bMipmaps)
+  if (bRunTexConv2)
+  {
     arguments << "-mipmaps";
 
-  if (pProp->m_bCompression)
-    arguments << "-compress";
+    // TODO: more mipmap modes ?
+    if (pProp->m_bMipmaps)
+    {
+      arguments << "Linear";
+    }
+    else
+    {
+      arguments << "None";
+    }
 
-  if (pProp->IsSRGB())
-    arguments << "-srgb";
+    arguments << "-compression";
 
-  if (pProp->IsHDR())
-    arguments << "-hdr";
+    // TODO: more compression modes
+    if (pProp->m_bCompression)
+    {
+      arguments << "Medium";
+    }
+    else
+    {
+      arguments << "None";
+    }
+
+    // TODO: better usage mode
+    arguments << "-usage";
+
+    if (pProp->IsSRGB())
+    {
+      arguments << "Color";
+    }
+    else if (pProp->IsHDR())
+    {
+      arguments << "Hdr";
+    }
+    else
+    {
+      arguments << "Linear";
+    }
+
+    arguments << "-filter" << ToFilterMode(pProp->m_TextureFilter);
+
+    arguments << "-type";
+    arguments << "Cubemap";
+  }
+  else
+  {
+    arguments << "-channels";
+    arguments << ezConversionUtils::ToString(pProp->GetNumChannels(), temp).GetData();
+
+    if (pProp->m_bMipmaps)
+      arguments << "-mipmaps";
+
+    if (pProp->m_bCompression)
+      arguments << "-compress";
+
+    if (pProp->IsSRGB())
+      arguments << "-srgb";
+
+    if (pProp->IsHDR())
+      arguments << "-hdr";
+
+    arguments << "-filter" << QString::number(pProp->m_TextureFilter.GetValue());
+
+    arguments << "-cubemap";
+  }
 
   if (pProp->m_bPremultipliedAlpha)
     arguments << "-premulalpha";
-
-  arguments << "-cubemap";
-
-  arguments << "-filter" << QString::number(pProp->m_TextureFilter.GetValue());
 
   const ezInt32 iNumInputFiles = pProp->GetNumInputFiles();
   for (ezInt32 i = 0; i < iNumInputFiles; ++i)
@@ -111,9 +178,18 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
   for (ezInt32 i = 0; i < arguments.size(); ++i)
     cmd.Append(" ", arguments[i].toUtf8().data());
 
-  ezLog::Debug("TexConv.exe{0}", cmd);
+  if (bRunTexConv2)
+  {
+    ezLog::Debug("TexConv.exe2{0}", cmd);
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
+    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv2.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
+  }
+  else
+  {
+    ezLog::Debug("TexConv.exe{0}", cmd);
+
+    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
+  }
 
   if (bUpdateThumbnail)
   {
@@ -128,10 +204,10 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                            const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag,
+  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
-  //EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
+  // EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
   const bool bUpdateThumbnail = pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile();
 
   ezStatus result = RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail);
@@ -173,8 +249,8 @@ ezTextureCubeAssetDocumentGenerator::ezTextureCubeAssetDocumentGenerator()
 
 ezTextureCubeAssetDocumentGenerator::~ezTextureCubeAssetDocumentGenerator() {}
 
-void ezTextureCubeAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath,
-                                                         ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezTextureCubeAssetDocumentGenerator::GetImportModes(
+  const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
 
@@ -183,7 +259,7 @@ void ezTextureCubeAssetDocumentGenerator::GetImportModes(const char* szParentDir
 
   /// \todo Make this configurable
   const bool isCubemap =
-      ((baseFilename.FindSubString_NoCase("cubemap") != nullptr) || (baseFilename.FindSubString_NoCase("skybox") != nullptr));
+    ((baseFilename.FindSubString_NoCase("cubemap") != nullptr) || (baseFilename.FindSubString_NoCase("skybox") != nullptr));
 
   baseOutputFile.ChangeFileExtension(GetDocumentExtension());
 
@@ -209,8 +285,8 @@ void ezTextureCubeAssetDocumentGenerator::GetImportModes(const char* szParentDir
   }
 }
 
-ezStatus ezTextureCubeAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info,
-                                                       ezDocument*& out_pGeneratedDocument)
+ezStatus ezTextureCubeAssetDocumentGenerator::Generate(
+  const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 

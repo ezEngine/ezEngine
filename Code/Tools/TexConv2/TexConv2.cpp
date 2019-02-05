@@ -16,6 +16,8 @@
 
 - volume textures
 
+- better texture atlas specification
+
 - docs for params / help
 */
 
