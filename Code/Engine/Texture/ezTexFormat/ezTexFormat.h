@@ -1,8 +1,9 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Texture/TexConv/TexConvEnums.h>
 #include <Foundation/Types/Enum.h>
+#include <Texture/Image/ImageEnums.h>
+#include <Texture/TexConv/TexConvEnums.h>
 
 class ezStreamWriter;
 class ezStreamReader;
@@ -10,9 +11,9 @@ class ezStreamReader;
 struct EZ_TEXTURE_DLL ezTexFormat
 {
   bool m_bSRGB = false;
-  ezEnum<ezTexConvWrapMode> m_WrapModeU;
-  ezEnum<ezTexConvWrapMode> m_WrapModeV;
-  ezEnum<ezTexConvWrapMode> m_WrapModeW;
+  ezEnum<ezImageAddressMode> m_AddressModeU;
+  ezEnum<ezImageAddressMode> m_AddressModeV;
+  ezEnum<ezImageAddressMode> m_AddressModeW;
 
   // version 2
   ezEnum<ezTexConvFilterMode> m_TextureFilter;
@@ -31,4 +32,3 @@ struct EZ_TEXTURE_DLL ezTexFormat
   void WriteRenderTargetHeader(ezStreamWriter& stream) const;
   void ReadHeader(ezStreamReader& stream);
 };
-

@@ -201,22 +201,6 @@ inline ezGALDepthStencilStateCreationDescription::ezGALDepthStencilStateCreation
 {
 }
 
-inline ezGALSamplerStateCreationDescription::ezGALSamplerStateCreationDescription()
-  : m_MinFilter(ezGALTextureFilterMode::Linear),
-    m_MagFilter(ezGALTextureFilterMode::Linear),
-    m_MipFilter(ezGALTextureFilterMode::Linear),
-    m_AddressU(ezGALTextureAddressMode::Wrap),
-    m_AddressV(ezGALTextureAddressMode::Wrap),
-    m_AddressW(ezGALTextureAddressMode::Wrap),
-    m_SampleCompareFunc(ezGALCompareFunc::Never),
-    m_BorderColor(0.0f, 0.0f, 0.0f, 0.0f),
-    m_fMipLodBias(0),
-    m_fMinMip(-1.0f),
-    m_fMaxMip(42000.0f),
-    m_uiMaxAnisotropy(4)
-{
-}
-
 inline ezGALUnorderedAccessViewCreationDescription::ezGALUnorderedAccessViewCreationDescription()
   : m_hTexture()
   , m_hBuffer()

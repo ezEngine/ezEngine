@@ -74,22 +74,6 @@ struct ezTexConvMipmapMode
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_TEXTURE_DLL, ezTexConvMipmapMode);
 
-struct ezTexConvWrapMode
-{
-  enum Enum
-  {
-    Repeat = 0,
-    Mirror = 1,
-    Clamp = 2,
-
-    Default = Repeat
-  };
-
-  using StorageType = ezUInt8;
-};
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_TEXTURE_DLL, ezTexConvWrapMode);
-
 struct ezTexConvFilterMode
 {
   enum Enum

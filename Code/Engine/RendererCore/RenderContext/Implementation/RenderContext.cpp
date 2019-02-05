@@ -755,9 +755,9 @@ ezGALSamplerStateHandle ezRenderContext::GetDefaultSamplerState(ezBitflags<ezDef
     desc.m_MagFilter = flags.IsSet(ezDefaultSamplerFlags::LinearFiltering) ? ezGALTextureFilterMode::Linear : ezGALTextureFilterMode::Point;
     desc.m_MipFilter = flags.IsSet(ezDefaultSamplerFlags::LinearFiltering) ? ezGALTextureFilterMode::Linear : ezGALTextureFilterMode::Point;
 
-    desc.m_AddressU = flags.IsSet(ezDefaultSamplerFlags::Clamp) ? ezGALTextureAddressMode::Clamp : ezGALTextureAddressMode::Wrap;
-    desc.m_AddressV = flags.IsSet(ezDefaultSamplerFlags::Clamp) ? ezGALTextureAddressMode::Clamp : ezGALTextureAddressMode::Wrap;
-    desc.m_AddressW = flags.IsSet(ezDefaultSamplerFlags::Clamp) ? ezGALTextureAddressMode::Clamp : ezGALTextureAddressMode::Wrap;
+    desc.m_AddressU = flags.IsSet(ezDefaultSamplerFlags::Clamp) ? ezImageAddressMode::Clamp : ezImageAddressMode::Repeat;
+    desc.m_AddressV = flags.IsSet(ezDefaultSamplerFlags::Clamp) ? ezImageAddressMode::Clamp : ezImageAddressMode::Repeat;
+    desc.m_AddressW = flags.IsSet(ezDefaultSamplerFlags::Clamp) ? ezImageAddressMode::Clamp : ezImageAddressMode::Repeat;
 
     s_hDefaultSamplerStates[uiSamplerStateIndex] = ezGALDevice::GetDefaultDevice()->CreateSamplerState(desc);
   }

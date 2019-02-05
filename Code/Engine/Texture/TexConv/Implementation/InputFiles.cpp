@@ -68,7 +68,7 @@ ezResult ezTexConvProcessor::ConvertAndScaleImage(
   }
 
   if (ezImageUtils::Scale(
-        inout_Image, inout_Image, uiResolutionX, uiResolutionY, nullptr, ezImageAddressMode::CLAMP, ezImageAddressMode::CLAMP)
+        inout_Image, inout_Image, uiResolutionX, uiResolutionY, nullptr, ezImageAddressMode::Clamp, ezImageAddressMode::Clamp)
         .Failed())
   {
     ezLog::Error("Could not resize '{}' to {}x{}", szImageName, uiResolutionX, uiResolutionY);

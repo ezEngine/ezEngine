@@ -21,10 +21,6 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexture2DChannelMappingEnum, 1)
   EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::RGBA1, ezTexture2DChannelMappingEnum::RGB1_A2, ezTexture2DChannelMappingEnum::R1_G2_B3_A4)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexture2DAddressMode, 1)
-  EZ_ENUM_CONSTANTS(ezTexture2DAddressMode::Wrap, ezTexture2DAddressMode::Mirror, ezTexture2DAddressMode::Clamp)
-EZ_END_STATIC_REFLECTED_ENUM;
-
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexture2DResolution, 1)
   EZ_ENUM_CONSTANTS(ezTexture2DResolution::Fixed64x64, ezTexture2DResolution::Fixed128x128, ezTexture2DResolution::Fixed256x256, ezTexture2DResolution::Fixed512x512, ezTexture2DResolution::Fixed1024x1024, ezTexture2DResolution::Fixed2048x2048)
   EZ_ENUM_CONSTANTS(ezTexture2DResolution::CVarRtResolution1, ezTexture2DResolution::CVarRtResolution2)
@@ -34,7 +30,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRenderTargetFormat, 1)
   EZ_ENUM_CONSTANTS(ezRenderTargetFormat::RGBA8sRgb, ezRenderTargetFormat::RGBA8, ezRenderTargetFormat::RGB10, ezRenderTargetFormat::RGBA16)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 3, ezRTTIDefaultAllocator<ezTextureAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 4, ezRTTIDefaultAllocator<ezTextureAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -52,9 +48,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 3, ezRTTIDefaultAlloca
     EZ_MEMBER_PROPERTY("FlipHorizontal", m_bFlipHorizontal),
 
     EZ_ENUM_MEMBER_PROPERTY("TextureFilter", ezTextureFilterSetting, m_TextureFilter),
-    EZ_ENUM_MEMBER_PROPERTY("AddressModeU", ezTexture2DAddressMode, m_AddressModeU),
-    EZ_ENUM_MEMBER_PROPERTY("AddressModeV", ezTexture2DAddressMode, m_AddressModeV),
-    EZ_ENUM_MEMBER_PROPERTY("AddressModeW", ezTexture2DAddressMode, m_AddressModeW),
+    EZ_ENUM_MEMBER_PROPERTY("AddressModeU", ezImageAddressMode, m_AddressModeU),
+    EZ_ENUM_MEMBER_PROPERTY("AddressModeV", ezImageAddressMode, m_AddressModeV),
+    EZ_ENUM_MEMBER_PROPERTY("AddressModeW", ezImageAddressMode, m_AddressModeW),
 
     EZ_ENUM_MEMBER_PROPERTY("ChannelMapping", ezTexture2DChannelMappingEnum, m_ChannelMapping),
 
@@ -187,7 +183,8 @@ ezInt32 ezTextureAssetProperties::GetNumInputFiles() const
 
 ezInt32 ezTextureAssetProperties::GetNumChannels() const
 {
-  if ((m_TextureUsage == ezTexture2DUsageEnum::NormalMap || m_TextureUsage == ezTexture2DUsageEnum::NormalMapInverted) && m_CompressionMode != ezTexConvCompressionMode::None)
+  if ((m_TextureUsage == ezTexture2DUsageEnum::NormalMap || m_TextureUsage == ezTexture2DUsageEnum::NormalMapInverted) &&
+      m_CompressionMode != ezTexConvCompressionMode::None)
   {
     return 2;
   }
@@ -275,3 +272,41 @@ public:
 };
 
 ezTextureAssetPropertiesPatch_2_3 g_ezTextureAssetPropertiesPatch_2_3;
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezTextureAssetPropertiesPatch_3_4 : public ezGraphPatch
+{
+public:
+  ezTextureAssetPropertiesPatch_3_4()
+    : ezGraphPatch("ezTextureAssetProperties", 4)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    const char* szAddressModes[] = {"AddressModeU", "AddressModeV", "AddressModeW"};
+
+    for (ezUInt32 i = 0; i < 3; ++i)
+    {
+      auto* pAddress = pNode->FindProperty(szAddressModes[i]);
+      if (pAddress && pAddress->m_Value.IsA<ezString>())
+      {
+        if (pAddress->m_Value.Get<ezString>() == "ezTexture2DAddressMode::Wrap")
+        {
+          pNode->ChangeProperty(szAddressModes[i], (ezInt32)ezImageAddressMode::Repeat);
+        }
+        else if (pAddress->m_Value.Get<ezString>() == "ezTexture2DAddressMode::Clamp")
+        {
+          pNode->ChangeProperty(szAddressModes[i], (ezInt32)ezImageAddressMode::Clamp);
+        }
+        else if (pAddress->m_Value.Get<ezString>() == "ezTexture2DAddressMode::Mirror")
+        {
+          pNode->ChangeProperty(szAddressModes[i], (ezInt32)ezImageAddressMode::Mirror);
+        }
+      }
+    }
+  }
+};
+
+ezTextureAssetPropertiesPatch_3_4 g_ezTextureAssetPropertiesPatch_3_4;

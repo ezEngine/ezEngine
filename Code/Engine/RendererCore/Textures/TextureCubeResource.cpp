@@ -159,9 +159,9 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
 
   ezTextureCubeResourceDescriptor td;
   td.m_DescGAL = texDesc;
-  td.m_SamplerDesc.m_AddressU = static_cast<ezGALTextureAddressMode::Enum>(texFormat.m_WrapModeU.GetValue());
-  td.m_SamplerDesc.m_AddressV = static_cast<ezGALTextureAddressMode::Enum>(texFormat.m_WrapModeV.GetValue());
-  td.m_SamplerDesc.m_AddressW = static_cast<ezGALTextureAddressMode::Enum>(texFormat.m_WrapModeW.GetValue());
+  td.m_SamplerDesc.m_AddressU = texFormat.m_AddressModeU;
+  td.m_SamplerDesc.m_AddressV = texFormat.m_AddressModeV;
+  td.m_SamplerDesc.m_AddressW = texFormat.m_AddressModeW;
   td.m_InitialContent = InitDataPtr;
 
   ezTextureUtils::ConfigureSampler(static_cast<ezTextureFilterSetting::Enum>(texFormat.m_TextureFilter.GetValue()), td.m_SamplerDesc);

@@ -80,24 +80,5 @@ private:
     ezUInt32 m_dstSamplesReduced;
 };
 
-
-/// \brief Addressing mode for images.
-struct EZ_TEXTURE_DLL ezImageAddressMode
-{
-  enum Enum
-  {
-    WRAP = 0,
-    MIRROR = 1,
-    CLAMP = 2,
-    BORDER = 3,
-    MIRROR_ONCE = 4,
-
-    COUNT
-  };
-
-  static ezUInt32 GetSampleIndex(ezUInt32 numTexels, ezInt32 index, Enum addressMode, bool& outUseBorderColor);
-};
-
-
 #include <Texture/Image/Implementation/ImageFilter_inl.h>
 

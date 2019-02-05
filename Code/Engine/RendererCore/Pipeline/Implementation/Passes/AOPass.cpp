@@ -346,9 +346,9 @@ void ezAOPass::CreateSamplerState()
     desc.m_MinFilter = ezGALTextureFilterMode::Point;
     desc.m_MagFilter = ezGALTextureFilterMode::Point;
     desc.m_MipFilter = ezGALTextureFilterMode::Point;
-    desc.m_AddressU = ezGALTextureAddressMode::Border;
-    desc.m_AddressV = ezGALTextureAddressMode::Border;
-    desc.m_AddressW = ezGALTextureAddressMode::Border;
+    desc.m_AddressU = ezImageAddressMode::ClampBorder;
+    desc.m_AddressV = ezImageAddressMode::ClampBorder;
+    desc.m_AddressW = ezImageAddressMode::ClampBorder;
     desc.m_BorderColor = ezColor::White * m_fFadeOutEnd;
 
     m_hSSAOSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(desc);

@@ -4,9 +4,10 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HybridArray.h>
-#include <Texture/Image/Image.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <Texture/Image/Image.h>
+#include <Texture/Image/ImageEnums.h>
 
 struct ezTexConvChannelMapping
 {
@@ -19,10 +20,10 @@ struct ezTexConvChannelMapping
 struct ezTexConvSliceChannelMapping
 {
   ezTexConvChannelMapping m_Channel[4] = {
-      ezTexConvChannelMapping{-1, ezTexConvChannelValue::Red},
-      ezTexConvChannelMapping{-1, ezTexConvChannelValue::Green},
-      ezTexConvChannelMapping{-1, ezTexConvChannelValue::Blue},
-      ezTexConvChannelMapping{-1, ezTexConvChannelValue::Alpha},
+    ezTexConvChannelMapping{-1, ezTexConvChannelValue::Red},
+    ezTexConvChannelMapping{-1, ezTexConvChannelValue::Green},
+    ezTexConvChannelMapping{-1, ezTexConvChannelValue::Blue},
+    ezTexConvChannelMapping{-1, ezTexConvChannelValue::Alpha},
   };
 };
 
@@ -39,7 +40,7 @@ public:
   ezHybridArray<ezTexConvSliceChannelMapping, 6> m_ChannelMappings;
 
   // output type / platform
-  ezEnum<ezTexConvOutputType> m_OutputType; // TODO: implement cubemaps, 3D, decal atlas
+  ezEnum<ezTexConvOutputType> m_OutputType;         // TODO: implement cubemaps, 3D, decal atlas
   ezEnum<ezTexConvTargetPlatform> m_TargetPlatform; // TODO: implement android
 
   // low resolution output
@@ -60,7 +61,9 @@ public:
   // Mipmaps / filtering
   ezEnum<ezTexConvMipmapMode> m_MipmapMode;
   ezEnum<ezTexConvFilterMode> m_FilterMode; // only used when writing to ez specific formats
-  ezEnum<ezTexConvWrapMode> m_WrapModes[3]; // U, V, W
+  ezEnum<ezImageAddressMode> m_AddressModeU;
+  ezEnum<ezImageAddressMode> m_AddressModeV;
+  ezEnum<ezImageAddressMode> m_AddressModeW;
   bool m_bPreserveMipmapCoverage = false;
   float m_fMipmapAlphaThreshold = 0.5f;
 
@@ -76,4 +79,3 @@ public:
   // Decals
   ezString m_sDecalAtlasDescFile;
 };
-

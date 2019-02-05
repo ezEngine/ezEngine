@@ -570,9 +570,9 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
     //  bool bSRGB = true;
     //  bool bIsFallback = true;
 
-    //  ezEnum<ezGALTextureAddressMode> addressModeU = ezGALTextureAddressMode::Wrap;
-    //  ezEnum<ezGALTextureAddressMode> addressModeV = ezGALTextureAddressMode::Wrap;
-    //  ezEnum<ezGALTextureAddressMode> addressModeW = ezGALTextureAddressMode::Wrap;
+    //  ezEnum<ezImageAddressMode> addressModeU = ezImageAddressMode::Wrap;
+    //  ezEnum<ezImageAddressMode> addressModeV = ezImageAddressMode::Wrap;
+    //  ezEnum<ezImageAddressMode> addressModeW = ezImageAddressMode::Wrap;
     //  ezEnum<ezTextureFilterSetting> textureFilter = ezTextureFilterSetting::Default;
 
     //  w << bIsFallback;

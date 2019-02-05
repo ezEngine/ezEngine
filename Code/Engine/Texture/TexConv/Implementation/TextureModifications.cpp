@@ -1,7 +1,7 @@
 #include <PCH.h>
 
-#include <Texture/TexConv/TexConvProcessor.h>
 #include <Texture/Image/ImageUtils.h>
+#include <Texture/TexConv/TexConvProcessor.h>
 
 ezResult ezTexConvProcessor::ForceSRGBFormats()
 {
@@ -47,44 +47,9 @@ ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img) const
       break;
   }
 
-  switch (m_Descriptor.m_WrapModes[0])
-  {
-    case ezTexConvWrapMode::Repeat:
-      opt.m_addressModeU = ezImageAddressMode::WRAP;
-      break;
-    case ezTexConvWrapMode::Clamp:
-      opt.m_addressModeU = ezImageAddressMode::CLAMP;
-      break;
-    case ezTexConvWrapMode::Mirror:
-      opt.m_addressModeU = ezImageAddressMode::MIRROR;
-      break;
-  }
-
-  switch (m_Descriptor.m_WrapModes[1])
-  {
-    case ezTexConvWrapMode::Repeat:
-      opt.m_addressModeV = ezImageAddressMode::WRAP;
-      break;
-    case ezTexConvWrapMode::Clamp:
-      opt.m_addressModeV = ezImageAddressMode::CLAMP;
-      break;
-    case ezTexConvWrapMode::Mirror:
-      opt.m_addressModeV = ezImageAddressMode::MIRROR;
-      break;
-  }
-
-  switch (m_Descriptor.m_WrapModes[2])
-  {
-    case ezTexConvWrapMode::Repeat:
-      opt.m_addressModeW = ezImageAddressMode::WRAP;
-      break;
-    case ezTexConvWrapMode::Clamp:
-      opt.m_addressModeW = ezImageAddressMode::CLAMP;
-      break;
-    case ezTexConvWrapMode::Mirror:
-      opt.m_addressModeW = ezImageAddressMode::MIRROR;
-      break;
-  }
+  opt.m_addressModeU = m_Descriptor.m_AddressModeU;
+  opt.m_addressModeV = m_Descriptor.m_AddressModeV;
+  opt.m_addressModeW = m_Descriptor.m_AddressModeW;
 
   opt.m_preserveCoverage = m_Descriptor.m_bPreserveMipmapCoverage;
   opt.m_alphaThreshold = m_Descriptor.m_fMipmapAlphaThreshold;
@@ -145,4 +110,3 @@ ezResult ezTexConvProcessor::AdjustHdrExposure(ezImage& img) const
 
 
 EZ_STATICLINK_FILE(Texture, Texture_TexConv_Implementation_TextureModifications);
-

@@ -9,9 +9,9 @@ void ezTexFormat::WriteTextureHeader(ezStreamWriter& stream) const
   stream << uiFileFormatVersion;
 
   stream << m_bSRGB;
-  stream << m_WrapModeU;
-  stream << m_WrapModeV;
-  stream << m_WrapModeW;
+  stream << m_AddressModeU;
+  stream << m_AddressModeV;
+  stream << m_AddressModeW;
   stream << m_TextureFilter;
 }
 
@@ -22,9 +22,9 @@ void ezTexFormat::WriteRenderTargetHeader(ezStreamWriter& stream) const
 
   // version 2
   stream << m_bSRGB;
-  stream << m_WrapModeU;
-  stream << m_WrapModeV;
-  stream << m_WrapModeW;
+  stream << m_AddressModeU;
+  stream << m_AddressModeV;
+  stream << m_AddressModeW;
   stream << m_TextureFilter;
 
   // version 3
@@ -47,9 +47,9 @@ void ezTexFormat::ReadHeader(ezStreamReader& stream)
   if (uiFileFormatVersion >= 2)
   {
     stream >> m_bSRGB;
-    stream >> m_WrapModeU;
-    stream >> m_WrapModeV;
-    stream >> m_WrapModeW;
+    stream >> m_AddressModeU;
+    stream >> m_AddressModeV;
+    stream >> m_AddressModeW;
     stream >> m_TextureFilter;
   }
 

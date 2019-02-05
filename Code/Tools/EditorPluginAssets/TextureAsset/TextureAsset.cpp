@@ -16,7 +16,7 @@
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocument, 5, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocument, 6, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureChannelMode, 1)
@@ -31,16 +31,20 @@ ezTextureAssetDocument::ezTextureAssetDocument(const char* szDocumentPath)
   m_iTextureLod = -1;
 }
 
-static const char* ToWrapMode(ezTexture2DAddressMode::Enum mode)
+static const char* ToWrapMode(ezImageAddressMode::Enum mode)
 {
   switch (mode)
   {
-    case ezTexture2DAddressMode::Wrap:
+    case ezImageAddressMode::Repeat:
       return "Repeat";
-    case ezTexture2DAddressMode::Mirror:
-      return "Mirror";
-    case ezTexture2DAddressMode::Clamp:
+    case ezImageAddressMode::Clamp:
       return "Clamp";
+    case ezImageAddressMode::ClampBorder:
+      return "ClampBorder";
+    case ezImageAddressMode::Mirror:
+      return "Mirror";
+    case ezImageAddressMode::MirrorOnce:
+      return "MirrorOnce";
   }
 
   return "";

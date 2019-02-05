@@ -241,25 +241,7 @@ struct ezGALTextureFilterMode
     Linear,
     Anisotropic,
 
-    ENUM_COUNT
-  };
-};
-
-struct ezGALTextureAddressMode
-{
-  typedef ezUInt8 StorageType;
-
-  enum Enum
-  {
-    Wrap = 0,
-    Mirror,
-    Clamp,
-    Border,
-    MirrorOnce,
-
-    ENUM_COUNT,
-
-    Default = Wrap
+    Default = Linear
   };
 };
 

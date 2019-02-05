@@ -3,6 +3,7 @@
 #include <Texture/Image/Image.h>
 #include <Foundation/Math/Size.h>
 #include <Texture/Image/ImageFilter.h>
+#include <Texture/Image/ImageEnums.h>
 
 class EZ_TEXTURE_DLL ezImageUtils
 {
@@ -13,10 +14,10 @@ public:
   /// \brief Computes the mean square error for the block at (offsetx, offsety) to (offsetx + uiBlockSize, offsety + uiBlockSize). DifferenceImage is expected to be an image that represents the difference between two images.
   static ezUInt32 ComputeMeanSquareError(const ezImageView& DifferenceImage, ezUInt8 uiBlockSize, ezUInt32 offsetx, ezUInt32 offsety);
 
-  /// \brief Computes the mean square error of DifferenceImage, by computing the mse for blocks of uiBlockSize and returning the maximum mse that was found.
+  /// \brief Computes the mean square error of DifferenceImage, by computing the MSE for blocks of uiBlockSize and returning the maximum MSE that was found.
   static ezUInt32 ComputeMeanSquareError(const ezImageView& DifferenceImage, ezUInt8 uiBlockSize);
 
-  /// \brief Returns the subimage of \a input that starts at \a offset and has the size \a newsize
+  /// \brief Returns the sub-image of \a input that starts at \a offset and has the size \a newsize
   static void CropImage(const ezImageView& input, const ezVec2I32& offset, const ezSizeU32& newsize, ezImage& output);
 
   /// \brief rotates a sub image by 180 degrees in place. Only works with uncompressed images.
@@ -37,59 +38,44 @@ public:
     /// Mip map generation options
   struct MipMapOptions
   {
-    MipMapOptions()
-    {
-      m_filter = nullptr;
-      m_renormalizeNormals = false;
-      m_preserveCoverage = false;
-      m_alphaThreshold = 0.5f;
-
-      m_addressModeU = ezImageAddressMode::CLAMP;
-      m_addressModeV = ezImageAddressMode::CLAMP;
-      m_addressModeW = ezImageAddressMode::CLAMP;
-
-      m_borderColor = ezColor::Black;
-      m_numMipMaps = 0;
-    }
-
     /// The filter to use for mipmap generation. Defaults to bilinear filtering (Triangle filter) if none is given.
-    const ezImageFilter* m_filter;
+    const ezImageFilter* m_filter = nullptr;
 
     /// Rescale RGB components to unit length.
-    bool m_renormalizeNormals;
+    bool m_renormalizeNormals = false;
 
     /// If true, the alpha values are scaled to preserve the average coverage when alpha testing is enabled,
-    bool m_preserveCoverage;
+    bool m_preserveCoverage = false;
 
     /// The alpha test threshold to use when m_preserveCoverage == true.
-    float m_alphaThreshold;
+    float m_alphaThreshold = 0.5f;
 
     /// The address mode for samples when filtering outside of the image dimensions in the horizontal direction.
-    ezImageAddressMode::Enum m_addressModeU;
+    ezImageAddressMode::Enum m_addressModeU = ezImageAddressMode::Clamp;
 
     /// The address mode for samples when filtering outside of the image dimensions in the vertical direction.
-    ezImageAddressMode::Enum m_addressModeV;
+    ezImageAddressMode::Enum m_addressModeV = ezImageAddressMode::Clamp;
 
     /// The address mode for samples when filtering outside of the image dimensions in the depth direction.
-    ezImageAddressMode::Enum m_addressModeW;
+    ezImageAddressMode::Enum m_addressModeW = ezImageAddressMode::Clamp;
 
     /// The border color if texture address mode equals BORDER.
-    ezColor m_borderColor;
+    ezColor m_borderColor = ezColor::Black;
 
     /// How many mip maps should be generated. Pass 0 to generate all mip map levels.
-    ezUInt32 m_numMipMaps;
+    ezUInt32 m_numMipMaps = 0;
   };
 
   /// Scales the image.
   static ezResult Scale(const ezImageView& source, ezImage& target, ezUInt32 width, ezUInt32 height,
-                        const ezImageFilter* filter = nullptr, ezImageAddressMode::Enum addressModeU = ezImageAddressMode::CLAMP,
-                        ezImageAddressMode::Enum addressModeV = ezImageAddressMode::CLAMP, const ezColor& borderColor = ezColor::Black);
+                        const ezImageFilter* filter = nullptr, ezImageAddressMode::Enum addressModeU = ezImageAddressMode::Clamp,
+                        ezImageAddressMode::Enum addressModeV = ezImageAddressMode::Clamp, const ezColor& borderColor = ezColor::Black);
 
   /// Scales the image.
   static ezResult Scale3D(const ezImageView& source, ezImage& target, ezUInt32 width, ezUInt32 height, ezUInt32 depth,
-                          const ezImageFilter* filter = nullptr, ezImageAddressMode::Enum addressModeU = ezImageAddressMode::CLAMP,
-                          ezImageAddressMode::Enum addressModeV = ezImageAddressMode::CLAMP,
-                          ezImageAddressMode::Enum addressModeW = ezImageAddressMode::CLAMP, const ezColor& borderColor = ezColor::Black);
+                          const ezImageFilter* filter = nullptr, ezImageAddressMode::Enum addressModeU = ezImageAddressMode::Clamp,
+                          ezImageAddressMode::Enum addressModeV = ezImageAddressMode::Clamp,
+                          ezImageAddressMode::Enum addressModeW = ezImageAddressMode::Clamp, const ezColor& borderColor = ezColor::Black);
 
   /// Genererates the mip maps for the image. The input texture must be in ezImageFormat::R32_G32_B32_A32_FLOAT
   static void GenerateMipMaps(const ezImageView& source, ezImage& target, const MipMapOptions& options);

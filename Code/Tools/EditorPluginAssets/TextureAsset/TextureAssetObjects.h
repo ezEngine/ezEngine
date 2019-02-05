@@ -61,23 +61,6 @@ struct ezTexture2DChannelMappingEnum
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTexture2DChannelMappingEnum);
 
-
-struct ezTexture2DAddressMode
-{
-  typedef ezInt8 StorageType;
-
-  enum Enum
-  {
-    Wrap = 0,
-    Mirror,
-    Clamp,
-
-    Default = Wrap
-  };
-};
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTexture2DAddressMode);
-
 struct ezTexture2DResolution
 {
   typedef ezInt8 StorageType;
@@ -150,9 +133,9 @@ public:
   float m_fCVarResolutionScale = 1.0f;
 
   ezEnum<ezTextureFilterSetting> m_TextureFilter;
-  ezEnum<ezTexture2DAddressMode> m_AddressModeU;
-  ezEnum<ezTexture2DAddressMode> m_AddressModeV;
-  ezEnum<ezTexture2DAddressMode> m_AddressModeW;
+  ezEnum<ezImageAddressMode> m_AddressModeU;
+  ezEnum<ezImageAddressMode> m_AddressModeV;
+  ezEnum<ezImageAddressMode> m_AddressModeW;
   ezEnum<ezTexture2DResolution> m_Resolution;
   ezEnum<ezTexture2DUsageEnum> m_TextureUsage;
   ezEnum<ezRenderTargetFormat> m_RtFormat;

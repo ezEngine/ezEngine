@@ -107,9 +107,9 @@ namespace ezMeshImportUtils
 
       if (bTextureClamp)
       {
-        pAccessor->SetValue(pTextureAsset, "AddressModeU", (int)ezTexture2DAddressMode::Clamp).LogFailure();
-        pAccessor->SetValue(pTextureAsset, "AddressModeV", (int)ezTexture2DAddressMode::Clamp).LogFailure();
-        pAccessor->SetValue(pTextureAsset, "AddressModeW", (int)ezTexture2DAddressMode::Clamp).LogFailure();
+        pAccessor->SetValue(pTextureAsset, "AddressModeU", (int)ezImageAddressMode::Clamp).LogFailure();
+        pAccessor->SetValue(pTextureAsset, "AddressModeV", (int)ezImageAddressMode::Clamp).LogFailure();
+        pAccessor->SetValue(pTextureAsset, "AddressModeW", (int)ezImageAddressMode::Clamp).LogFailure();
       }
 
       // TODO: Set... something else?

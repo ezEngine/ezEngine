@@ -162,9 +162,9 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDecalAtlasResource, ezDecalAtlasResourceDescr
 void ezDecalAtlasResource::CreateLayerTexture(const ezImage& img, bool bSRGB, ezTexture2DResourceHandle& out_hTexture)
 {
   ezTexture2DResourceDescriptor td;
-  td.m_SamplerDesc.m_AddressU = ezGALTextureAddressMode::Clamp;
-  td.m_SamplerDesc.m_AddressV = ezGALTextureAddressMode::Clamp;
-  td.m_SamplerDesc.m_AddressW = ezGALTextureAddressMode::Clamp;
+  td.m_SamplerDesc.m_AddressU = ezImageAddressMode::Clamp;
+  td.m_SamplerDesc.m_AddressV = ezImageAddressMode::Clamp;
+  td.m_SamplerDesc.m_AddressW = ezImageAddressMode::Clamp;
 
   ezUInt32 uiMemory;
   ezHybridArray<ezGALSystemMemoryDescription, 32> initData;

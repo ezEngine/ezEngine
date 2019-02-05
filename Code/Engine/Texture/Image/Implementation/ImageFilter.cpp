@@ -185,59 +185,6 @@ ezSimdFloat ezImageFilterWeights::GetWeight(ezUInt32 dstSampleIndex, ezUInt32 we
   return ezSimdFloat(m_weights[(dstSampleIndex % m_dstSamplesReduced) * m_numWeights + weightIndex]);
 }
 
-ezUInt32 ezImageAddressMode::GetSampleIndex(ezUInt32 numTexels, ezInt32 index, Enum addressMode, bool& outUseBorderColor) {
-  outUseBorderColor = false;
-  if (ezUInt32(index) >= numTexels)
-  {
-    switch (addressMode)
-    {
-      case ezImageAddressMode::WRAP:
-        index %= numTexels;
-
-        if (index < 0)
-        {
-          index += numTexels;
-        }
-        return index;
-
-      case ezImageAddressMode::MIRROR:
-      {
-        if (index < 0)
-        {
-          index = -index - 1;
-        }
-        bool flip = (index / numTexels) & 1;
-        index %= numTexels;
-        if (flip)
-        {
-          index = numTexels - index - 1;
-        }
-        return index;
-      }
-
-      case ezImageAddressMode::CLAMP:
-        return ezMath::Clamp<ezInt32>(index, 0, numTexels - 1);
-
-      case ezImageAddressMode::MIRROR_ONCE:
-        if (index < 0)
-        {
-          index = -index - 1;
-        }
-        index = ezMath::Clamp<ezInt32>(0, index, numTexels - 1);
-        return index;
-
-      case ezImageAddressMode::BORDER:
-        outUseBorderColor = true;
-        return 0;
-
-      default:
-        EZ_ASSERT_NOT_IMPLEMENTED
-        return 0;
-    }
-  }
-  return index;
-}
-
 
 
 EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_ImageFilter);

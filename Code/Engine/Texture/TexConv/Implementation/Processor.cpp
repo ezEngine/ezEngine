@@ -12,10 +12,6 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexConvMipmapMode, 1)
   EZ_ENUM_CONSTANTS(ezTexConvMipmapMode::None, ezTexConvMipmapMode::Linear, ezTexConvMipmapMode::Kaiser)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexConvWrapMode, 1)
-  EZ_ENUM_CONSTANTS(ezTexConvWrapMode::Repeat, ezTexConvWrapMode::Mirror, ezTexConvWrapMode::Clamp)
-EZ_END_STATIC_REFLECTED_ENUM;
-
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexConvFilterMode, 1)
   EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedNearest), EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedBilinear),
     EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedTrilinear), EZ_ENUM_CONSTANT(ezTexConvFilterMode::FixedAnisotropic2x),

@@ -64,9 +64,11 @@ ezTexConv2::ezTexConv2()
 
   // wrap modes
   {
-    m_AllowedWrapModes.PushBack({"Repeat", ezTexConvWrapMode::Repeat});
-    m_AllowedWrapModes.PushBack({"Clamp", ezTexConvWrapMode::Clamp});
-    m_AllowedWrapModes.PushBack({"Mirror", ezTexConvWrapMode::Mirror});
+    m_AllowedWrapModes.PushBack({"Repeat", ezImageAddressMode::Repeat});
+    m_AllowedWrapModes.PushBack({"Clamp", ezImageAddressMode::Clamp});
+    m_AllowedWrapModes.PushBack({"ClampBorder", ezImageAddressMode::ClampBorder});
+    m_AllowedWrapModes.PushBack({"Mirror", ezImageAddressMode::Mirror});
+    m_AllowedWrapModes.PushBack({"MirrorOnce", ezImageAddressMode::MirrorOnce});
   }
 
   // filter modes
@@ -211,9 +213,9 @@ ezResult ezTexConv2::WriteTexFile(ezStreamWriter& stream, const ezImage& image)
 
   ezTexFormat texFormat;
   texFormat.m_bSRGB = ezImageFormat::IsSrgb(image.GetImageFormat());
-  texFormat.m_WrapModeU = m_Processor.m_Descriptor.m_WrapModes[0];
-  texFormat.m_WrapModeV = m_Processor.m_Descriptor.m_WrapModes[1];
-  texFormat.m_WrapModeW = m_Processor.m_Descriptor.m_WrapModes[2];
+  texFormat.m_AddressModeU = m_Processor.m_Descriptor.m_AddressModeU;
+  texFormat.m_AddressModeV = m_Processor.m_Descriptor.m_AddressModeV;
+  texFormat.m_AddressModeW = m_Processor.m_Descriptor.m_AddressModeW;
   texFormat.m_TextureFilter = m_Processor.m_Descriptor.m_FilterMode;
 
   texFormat.WriteTextureHeader(stream);

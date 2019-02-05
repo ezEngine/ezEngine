@@ -13,9 +13,9 @@ void ezTexConv::WriteTexHeader(ezStreamWriter& stream)
 
     ezTexFormat texFormat;
     texFormat.m_bSRGB = m_bSRGBOutput;
-    texFormat.m_WrapModeU = static_cast<ezTexConvWrapMode::Enum>(m_uiAddressU);
-    texFormat.m_WrapModeV = static_cast<ezTexConvWrapMode::Enum>(m_uiAddressV);
-    texFormat.m_WrapModeW = static_cast<ezTexConvWrapMode::Enum>(m_uiAddressW);
+    texFormat.m_AddressModeU = static_cast<ezImageAddressMode::Enum>(m_uiAddressU);
+    texFormat.m_AddressModeV = static_cast<ezImageAddressMode::Enum>(m_uiAddressV);
+    texFormat.m_AddressModeW = static_cast<ezImageAddressMode::Enum>(m_uiAddressW);
     texFormat.m_TextureFilter = static_cast<ezTexConvFilterMode::Enum>(m_uiFilterSetting);
 
     texFormat.WriteTextureHeader(stream);

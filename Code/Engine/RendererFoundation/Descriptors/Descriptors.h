@@ -2,12 +2,13 @@
 #pragma once
 
 #include <Foundation/Algorithm/HashableStruct.h>
-#include <Foundation/Types/RefCounted.h>
-#include <Foundation/Math/Color.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Containers/StaticArray.h>
+#include <Foundation/Math/Color.h>
+#include <Foundation/Types/RefCounted.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 #include <RendererFoundation/Shader/ShaderByteCode.h>
-#include <Foundation/Containers/StaticArray.h>
+#include <Texture/Image/ImageEnums.h>
 
 class ezWindowBase;
 
@@ -57,8 +58,10 @@ struct ezGALRenderTargetBlendDescription : public ezHashableStruct<ezGALRenderTa
   ezGALBlend::Enum m_DestBlendAlpha;
   ezGALBlendOp::Enum m_BlendOpAlpha;
 
-  ezUInt8 m_uiWriteMask;      ///< Enables writes to color channels. Bit1 = Red Channel, Bit2 = Green Channel, Bit3 = Blue Channel, Bit4 = Alpha Channel, Bit 5-8 are unused
-  bool m_bBlendingEnabled;    ///< If enabled, the color will be blended into the render target. Otherwise it will overwrite the render target. Set m_uiWriteMask to 0 to disable all writes to the render target.
+  ezUInt8 m_uiWriteMask; ///< Enables writes to color channels. Bit1 = Red Channel, Bit2 = Green Channel, Bit3 = Blue Channel, Bit4 = Alpha
+                         ///< Channel, Bit 5-8 are unused
+  bool m_bBlendingEnabled; ///< If enabled, the color will be blended into the render target. Otherwise it will overwrite the render target.
+                           ///< Set m_uiWriteMask to 0 to disable all writes to the render target.
 };
 
 struct ezGALBlendStateCreationDescription : public ezHashableStruct<ezGALBlendStateCreationDescription>
@@ -67,8 +70,9 @@ struct ezGALBlendStateCreationDescription : public ezHashableStruct<ezGALBlendSt
 
   ezGALRenderTargetBlendDescription m_RenderTargetBlendDescriptions[EZ_GAL_MAX_RENDERTARGET_COUNT];
 
-  bool m_bAlphaToCoverage;    ///< Alpha-to-coverage can only be used with MSAA render targets. Default is false.
-  bool m_bIndependentBlend;   ///< If disabled, the blend state of the first render target is used for all render targets. Otherwise each render target uses a different blend state.
+  bool m_bAlphaToCoverage;  ///< Alpha-to-coverage can only be used with MSAA render targets. Default is false.
+  bool m_bIndependentBlend; ///< If disabled, the blend state of the first render target is used for all render targets. Otherwise each
+                            ///< render target uses a different blend state.
 };
 
 struct ezGALStencilOpDescription : public ezHashableStruct<ezGALStencilOpDescription>
@@ -91,7 +95,8 @@ struct ezGALDepthStencilStateCreationDescription : public ezHashableStruct<ezGAL
 
   ezGALCompareFunc::Enum m_DepthTestFunc;
 
-  bool m_bSeparateFrontAndBack; ///< If false, DX11 will use front face values for both front & back face values, GL will not call gl*Separate() funcs
+  bool m_bSeparateFrontAndBack; ///< If false, DX11 will use front face values for both front & back face values, GL will not call
+                                ///< gl*Separate() funcs
   bool m_bDepthTest;
   bool m_bDepthWrite;
   bool m_bStencilTest;
@@ -109,31 +114,30 @@ struct ezGALRasterizerStateCreationDescription : public ezHashableStruct<ezGALRa
   float m_fDepthBiasClamp;        ///< The pixel depth bias clamp. Default is 0
   float m_fSlopeScaledDepthBias;  ///< The pixel slope scaled depth bias clamp. Default is 0
   bool m_bWireFrame;              ///< Whether triangles are rendered filled or as wireframe. Default is false
-  bool m_bFrontCounterClockwise;  ///< Sets which triangle winding order defines the 'front' of a triangle. If true, the front of a triangle is the one where the vertices appear in counter clockwise order. Default is false
+  bool m_bFrontCounterClockwise;  ///< Sets which triangle winding order defines the 'front' of a triangle. If true, the front of a triangle
+                                  ///< is the one where the vertices appear in counter clockwise order. Default is false
   bool m_bScissorTest;
 };
 
 struct ezGALSamplerStateCreationDescription : public ezHashableStruct<ezGALSamplerStateCreationDescription>
 {
-  ezGALSamplerStateCreationDescription();
-
   ezEnum<ezGALTextureFilterMode> m_MinFilter;
   ezEnum<ezGALTextureFilterMode> m_MagFilter;
   ezEnum<ezGALTextureFilterMode> m_MipFilter;
 
-  ezEnum<ezGALTextureAddressMode> m_AddressU;
-  ezEnum<ezGALTextureAddressMode> m_AddressV;
-  ezEnum<ezGALTextureAddressMode> m_AddressW;
+  ezEnum<ezImageAddressMode> m_AddressU;
+  ezEnum<ezImageAddressMode> m_AddressV;
+  ezEnum<ezImageAddressMode> m_AddressW;
 
-  ezGALCompareFunc::Enum m_SampleCompareFunc;
+  ezGALCompareFunc::Enum m_SampleCompareFunc = ezGALCompareFunc::Never;
 
-  ezColor m_BorderColor;
+  ezColor m_BorderColor = ezColor::Black;
 
-  float m_fMipLodBias;
-  float m_fMinMip;
-  float m_fMaxMip;
+  float m_fMipLodBias = 0.0f;
+  float m_fMinMip = -1.0f;
+  float m_fMaxMip = 42000.0f;
 
-  ezUInt32 m_uiMaxAnisotropy;
+  ezUInt32 m_uiMaxAnisotropy = 4;
 };
 
 struct ezGALVertexAttributeSemantic
@@ -169,7 +173,8 @@ struct ezGALVertexAttribute
 {
   ezGALVertexAttribute();
 
-  ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum eSemantic, ezGALResourceFormat::Enum eFormat, ezUInt16 uiOffset, ezUInt8 uiVertexBufferSlot, bool bInstanceData);
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum eSemantic, ezGALResourceFormat::Enum eFormat, ezUInt16 uiOffset,
+    ezUInt8 uiVertexBufferSlot, bool bInstanceData);
 
   ezGALVertexAttributeSemantic::Enum m_eSemantic;
   ezGALResourceFormat::Enum m_eFormat;
@@ -178,7 +183,8 @@ struct ezGALVertexAttribute
   bool m_bInstanceData;
 };
 
-struct EZ_RENDERERFOUNDATION_DLL ezGALVertexDeclarationCreationDescription : public ezHashableStruct<ezGALVertexDeclarationCreationDescription>
+struct EZ_RENDERERFOUNDATION_DLL ezGALVertexDeclarationCreationDescription
+  : public ezHashableStruct<ezGALVertexDeclarationCreationDescription>
 {
   ezGALShaderHandle m_hShader;
   ezStaticArray<ezGALVertexAttribute, 16> m_VertexAttributes;
@@ -230,7 +236,8 @@ struct ezGALTextureCreationDescription : public ezHashableStruct<ezGALTextureCre
 {
   ezGALTextureCreationDescription();
 
-  void SetAsRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount = ezGALMSAASampleCount::None);
+  void SetAsRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format,
+    ezGALMSAASampleCount::Enum sampleCount = ezGALMSAASampleCount::None);
 
   ezUInt32 m_uiWidth;
   ezUInt32 m_uiHeight;
@@ -270,7 +277,7 @@ struct ezGALResourceViewCreationDescription : public ezHashableStruct<ezGALResou
   ezUInt32 m_uiMipLevelsToUse;
 
   ezUInt32 m_uiFirstArraySlice; // For cubemap array: index of first 2d slice to start with
-  ezUInt32 m_uiArraySize; // For cubemap array: number of cubemaps
+  ezUInt32 m_uiArraySize;       // For cubemap array: number of cubemaps
 
   // Buffer only
   ezUInt32 m_uiFirstElement;
@@ -300,7 +307,8 @@ struct ezGALRenderTargetViewCreationDescription : public ezHashableStruct<ezGALR
   ezUInt32 m_uiFirstSlice;
   ezUInt32 m_uiSliceCount;
 
-  bool m_bReadOnly; ///< Can be used for depth stencil views to create read only views (e.g. for soft particles using the native depth buffer)
+  bool
+    m_bReadOnly; ///< Can be used for depth stencil views to create read only views (e.g. for soft particles using the native depth buffer)
 };
 
 struct ezGALUnorderedAccessViewCreationDescription : public ezHashableStruct<ezGALUnorderedAccessViewCreationDescription>
@@ -314,9 +322,9 @@ struct ezGALUnorderedAccessViewCreationDescription : public ezHashableStruct<ezG
   ezGALResourceFormat::Enum m_OverrideViewFormat;
 
   // Texture only
-  ezUInt32 m_uiMipLevelToUse; ///< Which MipLevel is accessed with this UAV
+  ezUInt32 m_uiMipLevelToUse;   ///< Which MipLevel is accessed with this UAV
   ezUInt32 m_uiFirstArraySlice; ///< First depth slice for 3D Textures.
-  ezUInt32 m_uiArraySize; ///< Number of depth slices for 3D textures.
+  ezUInt32 m_uiArraySize;       ///< Number of depth slices for 3D textures.
 
   // Buffer only
   ezUInt32 m_uiFirstElement;
@@ -345,7 +353,8 @@ struct ezGALQueryCreationDescription : public ezHashableStruct<ezGALQueryCreatio
 
   ezGALQueryType::Enum m_type;
 
-  /// In case this query is used for occlusion culling (type AnySamplesPassed), this determines whether drawing should be done if the query status is still unknown.
+  /// In case this query is used for occlusion culling (type AnySamplesPassed), this determines whether drawing should be done if the query
+  /// status is still unknown.
   bool m_bDrawIfUnknown;
 };
 
@@ -368,4 +377,3 @@ struct ezGALDeviceEvent
 };
 
 #include <RendererFoundation/Descriptors/Implementation/Descriptors_inl.h>
-

@@ -114,9 +114,9 @@ void ezTransparentForwardRenderPass::CreateSamplerState()
     desc.m_MinFilter = ezGALTextureFilterMode::Linear;
     desc.m_MagFilter = ezGALTextureFilterMode::Linear;
     desc.m_MipFilter = ezGALTextureFilterMode::Linear;
-    desc.m_AddressU = ezGALTextureAddressMode::Clamp;
-    desc.m_AddressV = ezGALTextureAddressMode::Mirror;
-    desc.m_AddressW = ezGALTextureAddressMode::Mirror;
+    desc.m_AddressU = ezImageAddressMode::Clamp;
+    desc.m_AddressV = ezImageAddressMode::Mirror;
+    desc.m_AddressW = ezImageAddressMode::Mirror;
 
     m_hSceneColorSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(desc);
   }

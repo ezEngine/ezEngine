@@ -152,9 +152,9 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
     *Stream >> bIsFallback;
     texFormat.ReadHeader(*Stream);
 
-    td.m_SamplerDesc.m_AddressU = static_cast<ezGALTextureAddressMode::Enum>(texFormat.m_WrapModeU.GetValue());
-    td.m_SamplerDesc.m_AddressV = static_cast<ezGALTextureAddressMode::Enum>(texFormat.m_WrapModeV.GetValue());
-    td.m_SamplerDesc.m_AddressW = static_cast<ezGALTextureAddressMode::Enum>(texFormat.m_WrapModeW.GetValue());
+    td.m_SamplerDesc.m_AddressU = texFormat.m_AddressModeU;
+    td.m_SamplerDesc.m_AddressV = texFormat.m_AddressModeV;
+    td.m_SamplerDesc.m_AddressW = texFormat.m_AddressModeW;
   }
 
   const bool bIsRenderTarget = texFormat.m_iRenderTargetResolutionX != 0;
@@ -418,9 +418,9 @@ ezResourceLoadDesc ezRenderToTexture2DResource::UpdateContent(ezStreamReader* St
     *Stream >> bIsFallback;
     texFormat.ReadHeader(*Stream);
 
-    td.m_SamplerDesc.m_AddressU = static_cast<ezGALTextureAddressMode::Enum>(texFormat.m_WrapModeU.GetValue());
-    td.m_SamplerDesc.m_AddressV = static_cast<ezGALTextureAddressMode::Enum>(texFormat.m_WrapModeV.GetValue());
-    td.m_SamplerDesc.m_AddressW = static_cast<ezGALTextureAddressMode::Enum>(texFormat.m_WrapModeW.GetValue());
+    td.m_SamplerDesc.m_AddressU = texFormat.m_AddressModeU;
+    td.m_SamplerDesc.m_AddressV = texFormat.m_AddressModeV;
+    td.m_SamplerDesc.m_AddressW = texFormat.m_AddressModeW;
   }
 
   const bool bIsRenderTarget = texFormat.m_iRenderTargetResolutionX != 0;

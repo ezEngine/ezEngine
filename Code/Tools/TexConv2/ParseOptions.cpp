@@ -250,19 +250,19 @@ ezResult ezTexConv2::ParseWrapModes()
   {
     ezInt32 value = -1;
     EZ_SUCCEED_OR_RETURN(ParseStringOption("-addressU", m_AllowedWrapModes, value));
-    m_Processor.m_Descriptor.m_WrapModes[0] = static_cast<ezTexConvWrapMode::Enum>(value);
+    m_Processor.m_Descriptor.m_AddressModeU = static_cast<ezImageAddressMode::Enum>(value);
   }
   {
     ezInt32 value = -1;
     EZ_SUCCEED_OR_RETURN(ParseStringOption("-addressV", m_AllowedWrapModes, value));
-    m_Processor.m_Descriptor.m_WrapModes[1] = static_cast<ezTexConvWrapMode::Enum>(value);
+    m_Processor.m_Descriptor.m_AddressModeV = static_cast<ezImageAddressMode::Enum>(value);
   }
 
   if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Texture3D)
   {
     ezInt32 value = -1;
     EZ_SUCCEED_OR_RETURN(ParseStringOption("-addressW", m_AllowedWrapModes, value));
-    m_Processor.m_Descriptor.m_WrapModes[2] = static_cast<ezTexConvWrapMode::Enum>(value);
+    m_Processor.m_Descriptor.m_AddressModeW = static_cast<ezImageAddressMode::Enum>(value);
   }
 
   return EZ_SUCCESS;

@@ -4,6 +4,7 @@
 
 #include <Texture/Image/ImageConversion.h>
 #include <Texture/Image/ImageFilter.h>
+#include <Texture/Image/ImageEnums.h>
 #include <Foundation/SimdMath/SimdVec4f.h>
 
 template <typename TYPE>
@@ -377,12 +378,68 @@ ezResult ezImageUtils::ExtractLowerMipChain(const ezImageView& srcImg, ezImage& 
   return EZ_SUCCESS;
 }
 
+
+
+static ezUInt32 GetSampleIndex(ezUInt32 numTexels, ezInt32 index, ezImageAddressMode::Enum addressMode, bool& outUseBorderColor)
+{
+  outUseBorderColor = false;
+  if (ezUInt32(index) >= numTexels)
+  {
+    switch (addressMode)
+    {
+      case ezImageAddressMode::Repeat:
+        index %= numTexels;
+
+        if (index < 0)
+        {
+          index += numTexels;
+        }
+        return index;
+
+      case ezImageAddressMode::Mirror:
+      {
+        if (index < 0)
+        {
+          index = -index - 1;
+        }
+        bool flip = (index / numTexels) & 1;
+        index %= numTexels;
+        if (flip)
+        {
+          index = numTexels - index - 1;
+        }
+        return index;
+      }
+
+      case ezImageAddressMode::Clamp:
+        return ezMath::Clamp<ezInt32>(index, 0, numTexels - 1);
+
+      case ezImageAddressMode::MirrorOnce:
+        if (index < 0)
+        {
+          index = -index - 1;
+        }
+        index = ezMath::Clamp<ezInt32>(0, index, numTexels - 1);
+        return index;
+
+      case ezImageAddressMode::ClampBorder:
+        outUseBorderColor = true;
+        return 0;
+
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED
+        return 0;
+    }
+  }
+  return index;
+}
+
 static ezSimdVec4f LoadSample(const ezSimdVec4f* source, ezUInt32 numSourceElements, ezUInt32 stride, ezInt32 index,
   ezImageAddressMode::Enum addressMode, const ezSimdVec4f& borderColor)
 {
   bool useBorderColor = false;
   // result is in the range [-(w-1), (w-1)], bring it to [0, w - 1]
-  index = ezImageAddressMode::GetSampleIndex(numSourceElements, index, addressMode, useBorderColor);
+  index = GetSampleIndex(numSourceElements, index, addressMode, useBorderColor);
   if (useBorderColor)
   {
     return borderColor;
@@ -608,7 +665,7 @@ static void NormalizeCoverage(ezArrayPtr<ezColor> colors, float alphaThreshold, 
 ezResult ezImageUtils::Scale(const ezImageView& source, ezImage& target, ezUInt32 width, ezUInt32 height, const ezImageFilter* filter,
   ezImageAddressMode::Enum addressModeU, ezImageAddressMode::Enum addressModeV, const ezColor& borderColor)
 {
-  return Scale3D(source, target, width, height, 1, filter, addressModeU, addressModeV, ezImageAddressMode::CLAMP, borderColor);
+  return Scale3D(source, target, width, height, 1, filter, addressModeU, addressModeV, ezImageAddressMode::Clamp, borderColor);
 }
 
 ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUInt32 width, ezUInt32 height, ezUInt32 depth,
@@ -852,8 +909,8 @@ void ezImageUtils::GenerateMipMaps(const ezImageView& source, ezImage& target, c
   // Enforce CLAMP addressing mode for cubemaps
   if (source.GetNumFaces() == 6)
   {
-    mipMapOptions.m_addressModeU = ezImageAddressMode::CLAMP;
-    mipMapOptions.m_addressModeV = ezImageAddressMode::CLAMP;
+    mipMapOptions.m_addressModeU = ezImageAddressMode::Clamp;
+    mipMapOptions.m_addressModeV = ezImageAddressMode::Clamp;
   }
 
   ezUInt32 numMipMaps = header.ComputeNumberOfMipMaps();
