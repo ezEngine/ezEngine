@@ -95,8 +95,8 @@ public:
   ezInt32 GetNumInputFiles() const;
 
   bool m_bIsRenderTarget = false;
-  bool m_bPremultipliedAlpha;
-  bool m_bFlipHorizontal;
+  bool m_bPremultipliedAlpha = false;
+  bool m_bFlipHorizontal = false;
   float m_fCVarResolutionScale = 1.0f;
 
   ezEnum<ezTextureFilterSetting> m_TextureFilter;

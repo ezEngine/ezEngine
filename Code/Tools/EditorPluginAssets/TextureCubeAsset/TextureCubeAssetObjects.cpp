@@ -5,25 +5,18 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureCubeUsageEnum, 1)
-  EZ_ENUM_CONSTANTS(ezTextureCubeUsageEnum::Unknown, ezTextureCubeUsageEnum::Skybox, ezTextureCubeUsageEnum::SkyboxHDR, ezTextureCubeUsageEnum::LookupTable)
-  EZ_ENUM_CONSTANTS(ezTextureCubeUsageEnum::Other_sRGB, ezTextureCubeUsageEnum::Other_Linear)
-EZ_END_STATIC_REFLECTED_ENUM;
-
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureCubeChannelMappingEnum, 1)
   EZ_ENUM_CONSTANTS(ezTextureCubeChannelMappingEnum::RGB1, ezTextureCubeChannelMappingEnum::RGBA1, ezTextureCubeChannelMappingEnum::RGB1TO6, ezTextureCubeChannelMappingEnum::RGBA1TO6)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeAssetProperties, 2, ezRTTIDefaultAllocator<ezTextureCubeAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeAssetProperties, 3, ezRTTIDefaultAllocator<ezTextureCubeAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    /// \todo Accessor properties with enums don't link
-    EZ_ENUM_MEMBER_PROPERTY("Usage", ezTextureCubeUsageEnum, m_TextureUsage),
+    EZ_ENUM_MEMBER_PROPERTY("Usage", ezTexConvUsage, m_TextureUsage),
 
-    EZ_MEMBER_PROPERTY("Mipmaps", m_bMipmaps)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("Compression", m_bCompression)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("PremultipliedAlpha", m_bPremultipliedAlpha),
+    EZ_ENUM_MEMBER_PROPERTY("MipmapMode", ezTexConvMipmapMode, m_MipmapMode),
+    EZ_ENUM_MEMBER_PROPERTY("CompressionMode", ezTexConvCompressionMode, m_CompressionMode),
 
     EZ_ENUM_MEMBER_PROPERTY("TextureFilter", ezTextureFilterSetting, m_TextureFilter),
 
@@ -104,7 +97,6 @@ ezString ezTextureCubeAssetProperties::GetAbsoluteInputFilePath(ezInt32 iInput) 
   return sPath;
 }
 
-
 ezInt32 ezTextureCubeAssetProperties::GetNumInputFiles() const
 {
   switch (m_ChannelMapping)
@@ -122,35 +114,61 @@ ezInt32 ezTextureCubeAssetProperties::GetNumInputFiles() const
   return 1;
 }
 
+//////////////////////////////////////////////////////////////////////////
 
-ezInt32 ezTextureCubeAssetProperties::GetNumChannels() const
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezTextureCubeAssetProperties_2_3 : public ezGraphPatch
 {
-  switch (m_ChannelMapping)
+public:
+  ezTextureCubeAssetProperties_2_3()
+    : ezGraphPatch("ezTextureCubeAssetProperties", 3)
   {
-    case ezTextureCubeChannelMappingEnum::RGB1:
-    case ezTextureCubeChannelMappingEnum::RGB1TO6:
-      return 3;
-
-    case ezTextureCubeChannelMappingEnum::RGBA1:
-    case ezTextureCubeChannelMappingEnum::RGBA1TO6:
-      return 4;
   }
 
-  EZ_REPORT_FAILURE("Invalid Code Path");
-  return 4;
-}
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    auto* pUsage = pNode->FindProperty("Usage");
+    if (pUsage && pUsage->m_Value.IsA<ezString>())
+    {
+      if (pUsage->m_Value.Get<ezString>() == "ezTextureCubeUsageEnum::Unknown")
+      {
+        pNode->ChangeProperty("Usage", (ezInt32)ezTexConvUsage::Auto);
+      }
+      else if (pUsage->m_Value.Get<ezString>() == "ezTextureCubeUsageEnum::Other_sRGB" ||
+               pUsage->m_Value.Get<ezString>() == "ezTextureCubeUsageEnum::Skybox")
+      {
+        pNode->ChangeProperty("Usage", (ezInt32)ezTexConvUsage::Color);
+      }
+      else if (pUsage->m_Value.Get<ezString>() == "ezTextureCubeUsageEnum::Other_Linear" ||
+               pUsage->m_Value.Get<ezString>() == "ezTextureCubeUsageEnum::LookupTable")
+      {
+        pNode->ChangeProperty("Usage", (ezInt32)ezTexConvUsage::Linear);
+      }
+      else if (pUsage->m_Value.Get<ezString>() == "ezTextureCubeUsageEnum::SkyboxHDR")
+      {
+        pNode->ChangeProperty("Usage", (ezInt32)ezTexConvUsage::Hdr);
+      }
+    }
 
-bool ezTextureCubeAssetProperties::IsSRGB() const
-{
-  if (m_TextureUsage == ezTextureCubeUsageEnum::SkyboxHDR || m_TextureUsage == ezTextureCubeUsageEnum::LookupTable ||
-      m_TextureUsage == ezTextureCubeUsageEnum::Other_Linear)
-    return false;
+    auto* pMipmaps = pNode->FindProperty("Mipmaps");
+    if (pMipmaps && pMipmaps->m_Value.IsA<bool>())
+    {
+      if (pMipmaps->m_Value.Get<bool>())
+        pNode->AddProperty("MipmapMode", (ezInt32)ezTexConvMipmapMode::Kaiser);
+      else
+        pNode->AddProperty("MipmapMode", (ezInt32)ezTexConvMipmapMode::None);
+    }
 
+    auto* pCompression = pNode->FindProperty("Compression");
+    if (pCompression && pCompression->m_Value.IsA<bool>())
+    {
+      if (pCompression->m_Value.Get<bool>())
+        pNode->AddProperty("CompressionMode", (ezInt32)ezTexConvCompressionMode::Medium);
+      else
+        pNode->AddProperty("CompressionMode", (ezInt32)ezTexConvCompressionMode::None);
+    }
+  }
+};
 
-  return true;
-}
-
-bool ezTextureCubeAssetProperties::IsHDR() const
-{
-  return m_TextureUsage == ezTextureCubeUsageEnum::SkyboxHDR;
-}
+ezTextureCubeAssetProperties_2_3 g_ezTextureCubeAssetProperties_2_3;

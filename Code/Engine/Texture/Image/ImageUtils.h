@@ -106,7 +106,7 @@ public:
   /// \brief Copies the 6 given source images to the faces of dstImg.
   ///
   /// All input images must have the same square, power-of-two dimensions and mustn't be compressed.
-  static void CreateCubemapFrom6Files(ezImage& dstImg, const ezImageView* pSourceImages);
+  static ezResult CreateCubemapFrom6Files(ezImage& dstImg, const ezImageView* pSourceImages);
 
 };
 

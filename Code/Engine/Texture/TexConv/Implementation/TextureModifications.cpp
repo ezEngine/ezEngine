@@ -75,27 +75,11 @@ ezResult ezTexConvProcessor::PremultiplyAlpha(ezImage& image) const
   if (!m_Descriptor.m_bPremultiplyAlpha)
     return EZ_SUCCESS;
 
-  for (ezUInt32 slice = 0; slice < image.GetNumArrayIndices(); ++slice)
+  for (ezColor& col : image.GetArrayPtr<ezColor>())
   {
-    for (ezUInt32 face = 0; face < image.GetNumFaces(); ++face)
-    {
-      for (ezUInt32 mip = 0; mip < image.GetNumMipLevels(); ++mip)
-      {
-        ezColor* pPixel = image.GetPixelPointer<ezColor>(mip, face, slice);
-
-        for (ezUInt32 y = 0; y < image.GetHeight(mip); ++y)
-        {
-          for (ezUInt32 x = 0; x < image.GetWidth(mip); ++x)
-          {
-            pPixel[x].r *= pPixel[x].a;
-            pPixel[x].g *= pPixel[x].a;
-            pPixel[x].b *= pPixel[x].a;
-          }
-
-          pPixel = ezMemoryUtils::AddByteOffset(pPixel, image.GetRowPitch(mip));
-        }
-      }
-    }
+    col.r *= col.a;
+    col.g *= col.a;
+    col.b *= col.a;
   }
 
   return EZ_SUCCESS;

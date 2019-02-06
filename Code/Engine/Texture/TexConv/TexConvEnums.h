@@ -68,7 +68,7 @@ struct ezTexConvMipmapMode
     Linear,
     Kaiser,
 
-    Default = Linear
+    Default = Kaiser
   };
 
   using StorageType = ezUInt8;

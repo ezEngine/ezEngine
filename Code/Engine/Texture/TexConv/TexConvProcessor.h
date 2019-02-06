@@ -37,6 +37,7 @@ private:
   ezResult ChooseOutputFormat(ezEnum<ezImageFormat>& out_Format, ezEnum<ezTexConvUsage> usage, ezUInt32 uiNumChannels) const;
   ezResult DetermineTargetResolution(const ezImage& image, ezEnum<ezImageFormat> OutputImageFormat, ezUInt32& out_uiTargetResolutionX, ezUInt32& out_uiTargetResolutionY) const;
   ezResult Assemble2DTexture(const ezImageHeader& refImg, ezImage& dst) const;
+  ezResult AssembleCubemap(ezImage& dst) const;
   ezResult AdjustHdrExposure(ezImage& img) const;
   ezResult PremultiplyAlpha(ezImage& image) const;
   ezResult Assemble2DSlice(const ezTexConvSliceChannelMapping& mapping, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezColor* pPixelOut) const;

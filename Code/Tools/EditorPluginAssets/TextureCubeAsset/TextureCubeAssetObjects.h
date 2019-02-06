@@ -3,29 +3,9 @@
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
+#include <Texture/TexConv/TexConvEnums.h>
 
 struct ezPropertyMetaStateEvent;
-
-struct ezTextureCubeUsageEnum
-{
-  typedef ezInt8 StorageType;
-
-  enum Enum
-  {
-    Unknown,
-    Other_sRGB,
-    Other_Linear,
-    Skybox,
-    SkyboxHDR,
-    LookupTable,
-
-    Default = Unknown,
-  };
-};
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTextureCubeUsageEnum);
-
-
 
 struct ezTextureCubeChannelMappingEnum
 {
@@ -69,23 +49,15 @@ public:
   const char* GetInputFile5() const { return m_Input[5]; }
 
   ezString GetAbsoluteInputFilePath(ezInt32 iInput) const;
-
-  ezTextureCubeChannelMappingEnum::Enum GetChannelMapping() const { return m_ChannelMapping; }
-
   ezInt32 GetNumInputFiles() const;
-  ezInt32 GetNumChannels() const;
 
-  bool IsSRGB() const;
-  bool IsHDR() const;
-
-  bool m_bMipmaps;
-  bool m_bCompression;
-  bool m_bPremultipliedAlpha;
+  ezEnum<ezTexConvCompressionMode> m_CompressionMode;
+  ezEnum<ezTexConvMipmapMode> m_MipmapMode;
 
   ezEnum<ezTextureFilterSetting> m_TextureFilter;
+  ezEnum<ezTexConvUsage> m_TextureUsage;
+  ezEnum<ezTextureCubeChannelMappingEnum> m_ChannelMapping;
 
 private:
-  ezEnum<ezTextureCubeUsageEnum> m_TextureUsage;
-  ezEnum<ezTextureCubeChannelMappingEnum> m_ChannelMapping;
   ezString m_Input[6];
 };

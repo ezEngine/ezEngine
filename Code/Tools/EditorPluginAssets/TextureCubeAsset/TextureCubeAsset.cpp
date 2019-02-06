@@ -25,6 +25,9 @@ EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 const char* ToFilterMode(ezTextureFilterSetting::Enum mode);
+const char* ToUsageMode(ezTexConvUsage::Enum mode);
+const char* ToCompressionMode(ezTexConvCompressionMode::Enum mode);
+const char* ToMipmapMode(ezTexConvMipmapMode::Enum mode);
 
 ezTextureCubeAssetDocument::ezTextureCubeAssetDocument(const char* szDocumentPath)
   : ezSimpleAssetDocument<ezTextureCubeAssetProperties>(szDocumentPath, true)
@@ -34,8 +37,6 @@ ezTextureCubeAssetDocument::ezTextureCubeAssetDocument(const char* szDocumentPat
 
 ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail)
 {
-  const bool bRunTexConv2 = false;
-
   const ezTextureCubeAssetProperties* pProp = GetProperties();
 
   QStringList arguments;
@@ -73,16 +74,9 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
     const ezStringBuilder sDir = sThumbnail.GetFileDirectory();
     ezOSFile::CreateDirectoryStructure(sDir);
 
-    if (bRunTexConv2)
-    {
-      arguments << "-thumbnailRes";
-      arguments << "256";
-      arguments << "-thumbnailOut";
-    }
-    else
-    {
-      arguments << "-thumbnail";
-    }
+    arguments << "-thumbnailRes";
+    arguments << "256";
+    arguments << "-thumbnailOut";
 
     arguments << QString::fromUtf8(sThumbnail.GetData());
   }
@@ -90,86 +84,74 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
   // TODO: downscale steps and min/max resolution
   // TODO: hdr exposure
 
-  if (bRunTexConv2)
+  arguments << "-mipmaps";
+  arguments << ToMipmapMode(pProp->m_MipmapMode);
+
+  arguments << "-compression";
+  arguments << ToCompressionMode(pProp->m_CompressionMode);
+
+  arguments << "-usage";
+  arguments << ToUsageMode(pProp->m_TextureUsage);
+
+  arguments << "-filter" << ToFilterMode(pProp->m_TextureFilter);
+
+  arguments << "-type";
+  arguments << "Cubemap";
+
+  switch (pProp->m_ChannelMapping)
   {
-    arguments << "-mipmaps";
+    case ezTextureCubeChannelMappingEnum::RGB1:
+      arguments << "-rgb"
+                << "in0";
+      break;
 
-    // TODO: more mipmap modes ?
-    if (pProp->m_bMipmaps)
-    {
-      arguments << "Linear";
-    }
-    else
-    {
-      arguments << "None";
-    }
+    case ezTextureCubeChannelMappingEnum::RGB1TO6:
+      arguments << "-rgb0"
+                << "in0";
+      arguments << "-rgb1"
+                << "in1";
+      arguments << "-rgb2"
+                << "in2";
+      arguments << "-rgb3"
+                << "in3";
+      arguments << "-rgb4"
+                << "in4";
+      arguments << "-rgb5"
+                << "in5";
+      break;
 
-    arguments << "-compression";
 
-    // TODO: more compression modes
-    if (pProp->m_bCompression)
-    {
-      arguments << "Medium";
-    }
-    else
-    {
-      arguments << "None";
-    }
+    case ezTextureCubeChannelMappingEnum::RGBA1:
+      arguments << "-rgba"
+                << "in0";
+      break;
 
-    // TODO: better usage mode
-    arguments << "-usage";
+    case ezTextureCubeChannelMappingEnum::RGBA1TO6:
+      arguments << "-rgba0"
+                << "in0";
+      arguments << "-rgba1"
+                << "in1";
+      arguments << "-rgba2"
+                << "in2";
+      arguments << "-rgba3"
+                << "in3";
+      arguments << "-rgba4"
+                << "in4";
+      arguments << "-rgba5"
+                << "in5";
+      break;
 
-    if (pProp->IsSRGB())
-    {
-      arguments << "Color";
-    }
-    else if (pProp->IsHDR())
-    {
-      arguments << "Hdr";
-    }
-    else
-    {
-      arguments << "Linear";
-    }
-
-    arguments << "-filter" << ToFilterMode(pProp->m_TextureFilter);
-
-    arguments << "-type";
-    arguments << "Cubemap";
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
   }
-  else
-  {
-    arguments << "-channels";
-    arguments << ezConversionUtils::ToString(pProp->GetNumChannels(), temp).GetData();
-
-    if (pProp->m_bMipmaps)
-      arguments << "-mipmaps";
-
-    if (pProp->m_bCompression)
-      arguments << "-compress";
-
-    if (pProp->IsSRGB())
-      arguments << "-srgb";
-
-    if (pProp->IsHDR())
-      arguments << "-hdr";
-
-    arguments << "-filter" << QString::number(pProp->m_TextureFilter.GetValue());
-
-    arguments << "-cubemap";
-  }
-
-  if (pProp->m_bPremultipliedAlpha)
-    arguments << "-premulalpha";
 
   const ezInt32 iNumInputFiles = pProp->GetNumInputFiles();
   for (ezInt32 i = 0; i < iNumInputFiles; ++i)
   {
-    temp.Format("-in{0}", i);
-
     if (ezStringUtils::IsNullOrEmpty(pProp->GetInputFile(i)))
       break;
 
+    temp.Format("-in{0}", i);
     arguments << temp.GetData();
     arguments << QString(pProp->GetAbsoluteInputFilePath(i).GetData());
   }
@@ -178,18 +160,9 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
   for (ezInt32 i = 0; i < arguments.size(); ++i)
     cmd.Append(" ", arguments[i].toUtf8().data());
 
-  if (bRunTexConv2)
-  {
-    ezLog::Debug("TexConv.exe2{0}", cmd);
+  ezLog::Debug("TexConv2.exe{0}", cmd);
 
-    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv2.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
-  }
-  else
-  {
-    ezLog::Debug("TexConv.exe{0}", cmd);
-
-    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
-  }
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv2.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
 
   if (bUpdateThumbnail)
   {
@@ -304,11 +277,11 @@ ezStatus ezTextureCubeAssetDocumentGenerator::Generate(
 
   if (info.m_sName == "CubemapImport.SkyboxHDR")
   {
-    accessor.SetValue("Usage", (int)ezTextureCubeUsageEnum::SkyboxHDR);
+    accessor.SetValue("Usage", (int)ezTexConvUsage::Hdr);
   }
   else if (info.m_sName == "CubemapImport.Skybox")
   {
-    accessor.SetValue("Usage", (int)ezTextureCubeUsageEnum::Skybox);
+    accessor.SetValue("Usage", (int)ezTexConvUsage::Color);
   }
 
   return ezStatus(EZ_SUCCESS);

@@ -9,14 +9,12 @@
 /* TODO LIST:
 
 - cubemaps:
-- from single cubemap dds
 - from multiple cubemap dds
-- from multiple 2d textures
-- from single 2d texture
 
 - volume textures
 
 - better texture atlas specification
+- better texture atlas mipmap generation
 
 - docs for params / help
 */

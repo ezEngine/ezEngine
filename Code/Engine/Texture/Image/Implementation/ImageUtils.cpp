@@ -2,10 +2,10 @@
 
 #include <Texture/Image/ImageUtils.h>
 
-#include <Texture/Image/ImageConversion.h>
-#include <Texture/Image/ImageFilter.h>
-#include <Texture/Image/ImageEnums.h>
 #include <Foundation/SimdMath/SimdVec4f.h>
+#include <Texture/Image/ImageConversion.h>
+#include <Texture/Image/ImageEnums.h>
+#include <Texture/Image/ImageFilter.h>
 
 template <typename TYPE>
 static void SetDiff(
@@ -308,16 +308,16 @@ void ezImageUtils::Copy(ezImage& dstImg, ezUInt32 uiPosX, ezUInt32 uiPosY, const
 
   // TODO: make this faster
 
-  //const ezUInt32 faceRowPitch = dstImg.GetRowPitch();
-  //const ezUInt32 srcRowPitch = srcImg.GetRowPitch();
+  // const ezUInt32 faceRowPitch = dstImg.GetRowPitch();
+  // const ezUInt32 srcRowPitch = srcImg.GetRowPitch();
 
-  //EZ_ASSERT_DEV(faceRowPitch > 0 && srcRowPitch > 0, "Compressed images are not supported.");
+  // EZ_ASSERT_DEV(faceRowPitch > 0 && srcRowPitch > 0, "Compressed images are not supported.");
 
-  //ezUInt8* dstFace = dstImg.GetPixelPointer<ezUInt8>(0, uiFace);
-  //const ezUInt8* srcPtr = srcImg.GetPixelPointer<ezUInt8>(0, 0, 0, offsetX, offsetY);
-  //const ezUInt32 faceSize = dstImg.GetWidth();
+  // ezUInt8* dstFace = dstImg.GetPixelPointer<ezUInt8>(0, uiFace);
+  // const ezUInt8* srcPtr = srcImg.GetPixelPointer<ezUInt8>(0, 0, 0, offsetX, offsetY);
+  // const ezUInt32 faceSize = dstImg.GetWidth();
 
-  //for (ezUInt32 y = 0; y < faceSize; y++)
+  // for (ezUInt32 y = 0; y < faceSize; y++)
   //{
   //  ezMemoryUtils::Copy(dstFace, srcPtr, faceRowPitch);
   //  dstFace += faceRowPitch;
@@ -1327,25 +1327,34 @@ ezResult ezImageUtils::CreateCubemapFromSingleFile(ezImage& dstImg, const ezImag
   return EZ_FAILURE;
 }
 
-void ezImageUtils::CreateCubemapFrom6Files(ezImage& dstImg, const ezImageView* pSourceImages)
+ezResult ezImageUtils::CreateCubemapFrom6Files(ezImage& dstImg, const ezImageView* pSourceImages)
 {
   ezImageHeader header = pSourceImages[0].GetHeader();
   header.SetNumFaces(6);
 
-  EZ_ASSERT_DEBUG(header.GetWidth() == header.GetHeight(), "Cubemap input images must be square");
-  EZ_ASSERT_DEBUG(ezMath::IsPowerOf2(header.GetWidth()), "Cubemap input images must have power-of-two dimensions.");
+  if (header.GetWidth() != header.GetHeight())
+    return EZ_FAILURE;
+
+  if (!ezMath::IsPowerOf2(header.GetWidth()))
+    return EZ_FAILURE;
 
   dstImg.ResetAndAlloc(header);
 
   for (ezUInt32 i = 0; i < 6; ++i)
   {
-    EZ_ASSERT_DEBUG(pSourceImages[i].GetImageFormat() == dstImg.GetImageFormat(), "All input images must have the same image format");
-    EZ_ASSERT_DEBUG(pSourceImages[i].GetWidth() == dstImg.GetWidth(), "All input images must have the same dimensions");
-    EZ_ASSERT_DEBUG(pSourceImages[i].GetHeight() == dstImg.GetHeight(), "All input images must have the same dimensions");
+    if (pSourceImages[i].GetImageFormat() != dstImg.GetImageFormat())
+      return EZ_FAILURE;
+
+    if (pSourceImages[i].GetWidth() != dstImg.GetWidth())
+      return EZ_FAILURE;
+
+    if (pSourceImages[i].GetHeight() != dstImg.GetHeight())
+      return EZ_FAILURE;
 
     CopyImageRectToFace(dstImg, pSourceImages[i], 0, 0, i);
   }
+
+  return EZ_SUCCESS;
 }
 
 EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_ImageUtils);
-

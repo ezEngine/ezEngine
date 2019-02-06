@@ -1,8 +1,6 @@
 #include <PCH.h>
 
-#include <Texture/Image/Formats/DdsFileFormat.h>
 #include <Texture/TexConv/TexConvProcessor.h>
-#include <Texture/ezTexFormat/ezTexFormat.h>
 
 ezResult ezTexConvProcessor::Assemble2DTexture(const ezImageHeader& refImg, ezImage& dst) const
 {

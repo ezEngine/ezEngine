@@ -13,12 +13,9 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexConvMipmapMode, 1)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexConvUsage, 1)
-  EZ_ENUM_CONSTANT(ezTexConvUsage::Auto),
-  EZ_ENUM_CONSTANT(ezTexConvUsage::Color),
-  EZ_ENUM_CONSTANT(ezTexConvUsage::Linear),
-  EZ_ENUM_CONSTANT(ezTexConvUsage::Hdr),
-  EZ_ENUM_CONSTANT(ezTexConvUsage::NormalMap),
-  EZ_ENUM_CONSTANT(ezTexConvUsage::NormalMap_Inverted),
+  EZ_ENUM_CONSTANT(ezTexConvUsage::Auto), EZ_ENUM_CONSTANT(ezTexConvUsage::Color), EZ_ENUM_CONSTANT(ezTexConvUsage::Linear),
+    EZ_ENUM_CONSTANT(ezTexConvUsage::Hdr), EZ_ENUM_CONSTANT(ezTexConvUsage::NormalMap),
+    EZ_ENUM_CONSTANT(ezTexConvUsage::NormalMap_Inverted),
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang=format on
 
@@ -54,16 +51,23 @@ ezResult ezTexConvProcessor::Process()
 
     EZ_SUCCEED_OR_RETURN(ConvertAndScaleInputImages(uiTargetResolutionX, uiTargetResolutionY));
 
-    ezImage img2D;
-    EZ_SUCCEED_OR_RETURN(Assemble2DTexture(m_Descriptor.m_InputImages[0].GetHeader(), img2D));
+    ezImage assembledImg;
+    if (m_Descriptor.m_OutputType == ezTexConvOutputType::Texture2D)
+    {
+      EZ_SUCCEED_OR_RETURN(Assemble2DTexture(m_Descriptor.m_InputImages[0].GetHeader(), assembledImg));
+    }
+    else if (m_Descriptor.m_OutputType == ezTexConvOutputType::TextureCube)
+    {
+      EZ_SUCCEED_OR_RETURN(AssembleCubemap(assembledImg));
+    }
 
-    EZ_SUCCEED_OR_RETURN(AdjustHdrExposure(img2D));
+    EZ_SUCCEED_OR_RETURN(AdjustHdrExposure(assembledImg));
 
-    EZ_SUCCEED_OR_RETURN(GenerateMipmaps(img2D));
+    EZ_SUCCEED_OR_RETURN(GenerateMipmaps(assembledImg));
 
-    EZ_SUCCEED_OR_RETURN(PremultiplyAlpha(img2D));
+    EZ_SUCCEED_OR_RETURN(PremultiplyAlpha(assembledImg));
 
-    EZ_SUCCEED_OR_RETURN(GenerateOutput(std::move(img2D), m_OutputImage, OutputImageFormat));
+    EZ_SUCCEED_OR_RETURN(GenerateOutput(std::move(assembledImg), m_OutputImage, OutputImageFormat));
 
     EZ_SUCCEED_OR_RETURN(GenerateThumbnailOutput(m_OutputImage, m_ThumbnailOutputImage, m_Descriptor.m_uiThumbnailOutputResolution));
 
@@ -132,7 +136,7 @@ ezResult ezTexConvProcessor::GenerateThumbnailOutput(const ezImage& srcImg, ezIm
   ezImage* pCurrentScratch = &scratch1;
   ezImage* pOtherScratch = &scratch2;
 
-  pCurrentScratch->ResetAndCopy(srcImg.GetSubImageView(uiBestMip));
+  pCurrentScratch->ResetAndCopy(srcImg.GetSubImageView(uiBestMip, 0));
 
   if (pCurrentScratch->GetWidth() > uiTargetRes || pCurrentScratch->GetHeight() > uiTargetRes)
   {
@@ -145,8 +149,8 @@ ezResult ezTexConvProcessor::GenerateThumbnailOutput(const ezImage& srcImg, ezIm
 
       if (ezImageUtils::Scale(*pCurrentScratch, *pOtherScratch, uiTargetRes, uiTargetHeight).Failed())
       {
-        ezLog::Error("Failed to resize thumbnail image from {}x{} to {}x{}", pCurrentScratch->GetWidth(),
-          pCurrentScratch->GetHeight(), uiTargetRes, uiTargetHeight);
+        ezLog::Error("Failed to resize thumbnail image from {}x{} to {}x{}", pCurrentScratch->GetWidth(), pCurrentScratch->GetHeight(),
+          uiTargetRes, uiTargetHeight);
         return EZ_FAILURE;
       }
     }
@@ -159,8 +163,8 @@ ezResult ezTexConvProcessor::GenerateThumbnailOutput(const ezImage& srcImg, ezIm
 
       if (ezImageUtils::Scale(*pCurrentScratch, *pOtherScratch, uiTargetWidth, uiTargetRes).Failed())
       {
-        ezLog::Error("Failed to resize thumbnail image from {}x{} to {}x{}", pCurrentScratch->GetWidth(),
-          pCurrentScratch->GetHeight(), uiTargetWidth, uiTargetRes);
+        ezLog::Error("Failed to resize thumbnail image from {}x{} to {}x{}", pCurrentScratch->GetWidth(), pCurrentScratch->GetHeight(),
+          uiTargetWidth, uiTargetRes);
         return EZ_FAILURE;
       }
     }
@@ -187,11 +191,7 @@ ezResult ezTexConvProcessor::GenerateThumbnailOutput(const ezImage& srcImg, ezIm
     const ezUInt32 rowPitch = dstImg.GetRowPitch();
 
     ezInt32 checkCounter = 0;
-    ezColor tiles[2]
-    {
-      ezColor::LightGray,
-      ezColor::DarkGray
-    };
+    ezColor tiles[2]{ezColor::LightGray, ezColor::DarkGray};
 
 
     for (ezUInt32 y = 0; y < dstImg.GetHeight(); ++y)
