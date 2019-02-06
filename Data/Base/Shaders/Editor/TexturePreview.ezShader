@@ -55,29 +55,41 @@ float4 SampleTexture(PS_IN Input)
 float4 main(PS_IN Input) : SV_Target
 {
   float3 color = float3(1, 1, 1);
+  float4 texel = SampleTexture(Input).rgba;
 
   if (ShowChannelMode == 0)
   {
-    color = SampleTexture(Input).rgb;
+    float3 background[2];
+    background[0] = float3(0.66, 0.66, 0.66);
+    background[1] = float3(0.82, 0.82, 0.82);
+
+    int bgIdx = (int)
+    (floor(Input.TexCoord0.x * 16.0) + floor(Input.TexCoord0.y * 16.0)) & 1;
+
+    color = lerp(background[bgIdx], texel.rgb, texel.a);
   }
   else if (ShowChannelMode == 1)
   {
-    color = SampleTexture(Input).r;
+    color = texel.rgb;
   }
   else if (ShowChannelMode == 2)
   {
-    color = SampleTexture(Input).g;
+    color = texel.r;
   }
   else if (ShowChannelMode == 3)
   {
-    color = SampleTexture(Input).b;
+    color = texel.g;
   }
   else if (ShowChannelMode == 4)
   {
-    color = SrgbToLinear(SampleTexture(Input).a); // alpha is always linear
+    color = texel.b;
+  }
+  else if (ShowChannelMode == 5)
+  {
+    color = SrgbToLinear(texel.a); // alpha is always linear
   }
 
-  if (IsLinear && ShowChannelMode < 4)
+  if (IsLinear && ShowChannelMode < 5)
   {
     color = SrgbToLinear(color);
   }

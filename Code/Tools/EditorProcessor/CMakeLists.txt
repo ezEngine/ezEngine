@@ -40,7 +40,7 @@ SET (ADDITIONAL_DEPENDENCIES
   EditorEngineProcess
   EditorPluginScene
   EditorPluginAssets
-  TexConv
+  TexConv2
 )
 
 if (EZ_BUILD_FMOD)

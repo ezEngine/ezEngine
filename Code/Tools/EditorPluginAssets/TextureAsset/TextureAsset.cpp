@@ -20,7 +20,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocument, 6, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureChannelMode, 1)
-  EZ_ENUM_CONSTANTS(ezTextureChannelMode::RGB, ezTextureChannelMode::Red, ezTextureChannelMode::Green, ezTextureChannelMode::Blue,
+  EZ_ENUM_CONSTANTS(ezTextureChannelMode::RGBA, ezTextureChannelMode::RGB, ezTextureChannelMode::Red, ezTextureChannelMode::Green, ezTextureChannelMode::Blue,
                   ezTextureChannelMode::Alpha)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on

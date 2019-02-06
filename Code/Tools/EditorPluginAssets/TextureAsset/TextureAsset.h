@@ -12,13 +12,14 @@ struct ezTextureChannelMode
 
   enum Enum
   {
+    RGBA,
     RGB,
     Red,
     Green,
     Blue,
     Alpha,
 
-    Default = RGB
+    Default = RGBA
   };
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTextureChannelMode);
