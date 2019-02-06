@@ -1,7 +1,6 @@
 #include <PCH.h>
 
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
-#include <Texture/Image/Formats/DdsFileFormat.h>
 #include <Texture/Image/ImageUtils.h>
 #include <Texture/TexConv/TexConvProcessor.h>
 #include <Texture/Utils/TextureGroupDesc.h>
@@ -60,9 +59,13 @@ ezResult ezTexConvProcessor::WriteTextureAtlasInfo(const ezDynamicArray<TextureA
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::TrySortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiWidth, ezUInt32 uiHeight, ezInt32 layer)
+ezResult ezTexConvProcessor::TrySortItemsIntoAtlas(
+  ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiWidth, ezUInt32 uiHeight, ezInt32 layer, ezUInt32 uiPixelAlign)
 {
   ezTexturePacker packer;
+
+  // TODO: review, currently the texture packer only works on 128 sized cells
+  uiPixelAlign = 128;
 
   packer.SetTextureSize(uiWidth, uiHeight, items.GetCount() * 2);
 
@@ -70,7 +73,8 @@ ezResult ezTexConvProcessor::TrySortItemsIntoAtlas(ezDynamicArray<TextureAtlasIt
   {
     if (!item.m_sInputFile[layer].IsEmpty())
     {
-      packer.AddTexture((item.m_InputImage[layer].GetWidth() + 127) / 128, (item.m_InputImage[layer].GetHeight() + 127) / 128);
+      packer.AddTexture((item.m_InputImage[layer].GetWidth() + (uiPixelAlign - 1)) / uiPixelAlign,
+        (item.m_InputImage[layer].GetHeight() + (uiPixelAlign - 1)) / uiPixelAlign);
     }
   }
 
@@ -93,7 +97,8 @@ ezResult ezTexConvProcessor::TrySortItemsIntoAtlas(ezDynamicArray<TextureAtlasIt
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::SortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>& decals, ezUInt32& out_ResX, ezUInt32& out_ResY, ezInt32 layer)
+ezResult ezTexConvProcessor::SortItemsIntoAtlas(
+  ezDynamicArray<TextureAtlasItem>& decals, ezUInt32& out_ResX, ezUInt32& out_ResY, ezInt32 layer, ezUInt32 uiPixelAlign)
 {
   for (ezUInt32 power = 8; power < 12; ++power)
   {
@@ -102,21 +107,21 @@ ezResult ezTexConvProcessor::SortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>
     const ezUInt32 resDiv128 = resolution / 128;
     const ezUInt32 halfResDiv128 = halfRes / 128;
 
-    if (TrySortItemsIntoAtlas(decals, resDiv128, halfResDiv128, layer).Succeeded())
+    if (TrySortItemsIntoAtlas(decals, resDiv128, halfResDiv128, layer, uiPixelAlign).Succeeded())
     {
       out_ResX = resolution;
       out_ResY = halfRes;
       return EZ_SUCCESS;
     }
 
-    if (TrySortItemsIntoAtlas(decals, halfResDiv128, resDiv128, layer).Succeeded())
+    if (TrySortItemsIntoAtlas(decals, halfResDiv128, resDiv128, layer, uiPixelAlign).Succeeded())
     {
       out_ResX = halfRes;
       out_ResY = resolution;
       return EZ_SUCCESS;
     }
 
-    if (TrySortItemsIntoAtlas(decals, resDiv128, resDiv128, layer).Succeeded())
+    if (TrySortItemsIntoAtlas(decals, resDiv128, resDiv128, layer, uiPixelAlign).Succeeded())
     {
       out_ResX = resolution;
       out_ResY = resolution;
@@ -127,7 +132,8 @@ ezResult ezTexConvProcessor::SortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>
   return EZ_FAILURE;
 }
 
-ezResult ezTexConvProcessor::CreateAtlasTexture(ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer)
+ezResult ezTexConvProcessor::CreateAtlasTexture(
+  ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer)
 {
   ezImageHeader imgHeader;
   imgHeader.SetWidth(uiResX);
@@ -180,17 +186,22 @@ ezResult ezTexConvProcessor::CreateAtlasTexture(ezDynamicArray<TextureAtlasItem>
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::CreateAtlasLayerTexture(ezDynamicArray<TextureAtlasItem>& atlasItems, ezInt32 layer, ezStreamWriter& stream)
+ezResult ezTexConvProcessor::CreateAtlasLayerTexture(
+  ezDynamicArray<TextureAtlasItem>& atlasItems, ezInt32 layer, ezImage& dstImg, ezUInt32 uiNumMipmaps)
 {
+  EZ_ASSERT_DEV(uiNumMipmaps > 0, "Number of mipmaps to generate must be at least 1");
+
+  const ezUInt32 uiPixelAlign = ezMath::Pow2((int)uiNumMipmaps);
+
   ezUInt32 uiTexWidth, uiTexHeight;
-  EZ_SUCCEED_OR_RETURN(SortItemsIntoAtlas(atlasItems, uiTexWidth, uiTexHeight, layer));
+  EZ_SUCCEED_OR_RETURN(SortItemsIntoAtlas(atlasItems, uiTexWidth, uiTexHeight, layer, uiPixelAlign));
 
   ezLog::Success("Required Resolution for Decal Atlas: {0} x {1}", uiTexWidth, uiTexHeight);
 
   ezImage atlasImg;
   EZ_SUCCEED_OR_RETURN(CreateAtlasTexture(atlasItems, uiTexWidth, uiTexHeight, atlasImg, layer));
 
-  EZ_SUCCEED_OR_RETURN(GenerateMipmaps(atlasImg));
+  EZ_SUCCEED_OR_RETURN(GenerateMipmaps(atlasImg, uiNumMipmaps));
 
   ezEnum<ezImageFormat> OutputImageFormat;
 
@@ -209,14 +220,7 @@ ezResult ezTexConvProcessor::CreateAtlasLayerTexture(ezDynamicArray<TextureAtlas
       return EZ_FAILURE;
   }
 
-  EZ_SUCCEED_OR_RETURN(GenerateOutput(std::move(atlasImg), m_OutputImage, OutputImageFormat));
-
-  ezDdsFileFormat ddsWriter;
-  if (ddsWriter.WriteImage(stream, m_OutputImage, ezLog::GetThreadLocalLogSystem(), "dds").Failed())
-  {
-    ezLog::Error("Failed to write DDS image to decal atlas file.");
-    return EZ_FAILURE;
-  }
+  EZ_SUCCEED_OR_RETURN(GenerateOutput(std::move(atlasImg), dstImg, OutputImageFormat));
 
   return EZ_SUCCESS;
 }

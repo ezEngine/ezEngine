@@ -59,8 +59,8 @@ public:
   static void RemoveEventHandler(ezEventStats::Handler handler) { s_StatsEvents.RemoveEventHandler(handler); }
 
 private:
+  static ezMutex s_Mutex;
   static MapType s_Stats;
-
   static ezEventStats s_StatsEvents;
 };
 

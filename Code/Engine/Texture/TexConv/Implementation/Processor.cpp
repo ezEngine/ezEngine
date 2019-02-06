@@ -52,7 +52,8 @@ ezResult ezTexConvProcessor::Process()
     EZ_SUCCEED_OR_RETURN(ConvertAndScaleInputImages(uiTargetResolutionX, uiTargetResolutionY));
 
     ezImage assembledImg;
-    if (m_Descriptor.m_OutputType == ezTexConvOutputType::Texture2D)
+    if (m_Descriptor.m_OutputType == ezTexConvOutputType::Texture2D ||
+      m_Descriptor.m_OutputType == ezTexConvOutputType::None)
     {
       EZ_SUCCEED_OR_RETURN(Assemble2DTexture(m_Descriptor.m_InputImages[0].GetHeader(), assembledImg));
     }

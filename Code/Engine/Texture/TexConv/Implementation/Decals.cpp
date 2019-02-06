@@ -1,5 +1,6 @@
 #include <PCH.h>
 
+#include <Texture/Image/Formats/DdsFileFormat.h>
 #include <Texture/TexConv/TexConvProcessor.h>
 #include <Texture/Utils/TextureGroupDesc.h>
 
@@ -31,8 +32,36 @@ ezResult ezTexConvProcessor::GenerateDecalAtlas(ezMemoryStreamWriter& stream)
   const ezUInt8 uiVersion = 1;
   stream << uiVersion;
 
-  EZ_SUCCEED_OR_RETURN(CreateAtlasLayerTexture(atlasItems, TextureAtlasLayer::BaseColor, stream));
-  EZ_SUCCEED_OR_RETURN(CreateAtlasLayerTexture(atlasItems, TextureAtlasLayer::Normal, stream));
+  ezDdsFileFormat ddsWriter;
+  ezImage atlasImg;
+
+  bool bDebugOutput = true;
+
+  EZ_SUCCEED_OR_RETURN(CreateAtlasLayerTexture(atlasItems, TextureAtlasLayer::BaseColor, atlasImg, 4));
+
+  if (ddsWriter.WriteImage(stream, atlasImg, ezLog::GetThreadLocalLogSystem(), "dds").Failed())
+  {
+    ezLog::Error("Failed to write DDS image to decal atlas file.");
+    return EZ_FAILURE;
+  }
+
+  if (bDebugOutput)
+  {
+    atlasImg.SaveTo("D:/DecalAtlas_diff.dds");
+  }
+
+  EZ_SUCCEED_OR_RETURN(CreateAtlasLayerTexture(atlasItems, TextureAtlasLayer::Normal, atlasImg, 4));
+
+  if (ddsWriter.WriteImage(stream, atlasImg, ezLog::GetThreadLocalLogSystem(), "dds").Failed())
+  {
+    ezLog::Error("Failed to write DDS image to decal atlas file.");
+    return EZ_FAILURE;
+  }
+
+  if (bDebugOutput)
+  {
+    atlasImg.SaveTo("D:/DecalAtlas_norm.dds");
+  }
 
   EZ_SUCCEED_OR_RETURN(WriteTextureAtlasInfo(atlasItems, stream));
 

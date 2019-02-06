@@ -46,7 +46,6 @@ SET (ADDITIONAL_DEPENDENCIES
   EditorPluginFileserve
   EditorPluginProceduralPlacement
   ParticlePlugin
-  TexConv
   TexConv2
   Player
   InspectorPlugin

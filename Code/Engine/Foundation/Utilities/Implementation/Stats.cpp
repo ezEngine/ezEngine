@@ -2,11 +2,14 @@
 
 #include <Foundation/Utilities/Stats.h>
 
+ezMutex ezStats::s_Mutex;
 ezStats::MapType ezStats::s_Stats;
 ezStats::ezEventStats ezStats::s_StatsEvents;
 
 void ezStats::RemoveStat(const char* szStatName)
 {
+  EZ_LOCK(s_Mutex);
+
   MapType::Iterator it = s_Stats.Find(szStatName);
 
   if (!it.IsValid())
@@ -24,6 +27,8 @@ void ezStats::RemoveStat(const char* szStatName)
 
 void ezStats::SetStat(const char* szStatName, const char* szValue)
 {
+  EZ_LOCK(s_Mutex);
+
   bool bExisted = false;
   auto it = s_Stats.FindOrAdd(szStatName, &bExisted);
 

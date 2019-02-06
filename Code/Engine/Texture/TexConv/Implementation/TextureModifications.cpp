@@ -26,9 +26,10 @@ ezResult ezTexConvProcessor::ForceSRGBFormats()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img) const
+ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips) const
 {
   ezImageUtils::MipMapOptions opt;
+  opt.m_numMipMaps = uiNumMips;
 
   ezImageFilterBox filterLinear;
   ezImageFilterSincWithKaiserWindow filterKaiser;

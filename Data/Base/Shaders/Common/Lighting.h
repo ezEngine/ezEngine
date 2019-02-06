@@ -423,7 +423,7 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
       float2 baseAtlasOffset = RG16FToFloat2(decalData.baseAtlasOffset);
 
       float4 decalBaseColor = RGBA16FToFloat4(decalData.colorRG, decalData.colorBA);
-      decalBaseColor *= DecalAtlasBaseColorTexture.SampleLevel(LinearClampSampler, decalPosition.xy * baseAtlasScale + baseAtlasOffset, 0);
+      decalBaseColor *= DecalAtlasBaseColorTexture.Sample(LinearClampSampler, decalPosition.xy * baseAtlasScale + baseAtlasOffset);
       fade *= decalBaseColor.a;
 
       matData.diffuseColor = lerp(matData.diffuseColor, decalBaseColor.rgb, fade);

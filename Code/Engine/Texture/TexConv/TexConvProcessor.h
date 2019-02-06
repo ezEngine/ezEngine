@@ -41,7 +41,7 @@ private:
   ezResult AdjustHdrExposure(ezImage& img) const;
   ezResult PremultiplyAlpha(ezImage& image) const;
   ezResult Assemble2DSlice(const ezTexConvSliceChannelMapping& mapping, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezColor* pPixelOut) const;
-  ezResult GenerateMipmaps(ezImage& img) const;
+  ezResult GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips = 0) const;
 
   //////////////////////////////////////////////////////////////////////////
   // Purely functional
@@ -76,11 +76,11 @@ private:
   };
 
   ezResult LoadAtlasInputs(const ezTextureGroupDesc& atlasDesc, ezDynamicArray<TextureAtlasItem>& items) const;
-  ezResult CreateAtlasLayerTexture(ezDynamicArray<TextureAtlasItem>& atlasItems, ezInt32 layer, ezStreamWriter& stream);
+  ezResult CreateAtlasLayerTexture(ezDynamicArray<TextureAtlasItem>& atlasItems, ezInt32 layer, ezImage& dstImg, ezUInt32 uiNumMipmaps);
 
   static ezResult WriteTextureAtlasInfo(const ezDynamicArray<TextureAtlasItem>& decals, ezStreamWriter& stream);
-  static ezResult TrySortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiWidth, ezUInt32 uiHeight, ezInt32 layer);
-  static ezResult SortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>& decals, ezUInt32& out_ResX, ezUInt32& out_ResY, ezInt32 layer);
+  static ezResult TrySortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiWidth, ezUInt32 uiHeight, ezInt32 layer, ezUInt32 uiPixelAlign);
+  static ezResult SortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>& decals, ezUInt32& out_ResX, ezUInt32& out_ResY, ezInt32 layer, ezUInt32 uiPixelAlign);
   static ezResult CreateAtlasTexture(ezDynamicArray<TextureAtlasItem>& decals, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer);
 
   //////////////////////////////////////////////////////////////////////////
