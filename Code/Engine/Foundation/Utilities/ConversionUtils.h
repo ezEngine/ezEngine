@@ -46,10 +46,10 @@ namespace ezConversionUtils
   EZ_FOUNDATION_DLL ezResult StringToInt64(const char* szString, ezInt64& out_Res,
                                            const char** out_LastParsePosition = nullptr); // [tested]
 
-  /// \brief Pases szString and converts it to a double value. Returns EZ_FAILURE if the string contains no parsable floating point value.
+  /// \brief Parses szString and converts it to a double value. Returns EZ_FAILURE if the string contains no parseable floating point value.
   ///
   /// \param szString
-  ///   If szString is nullptr or an empty string or starts with an some non-whitespace and non-sign character, EZ_FAILURE is returned.
+  ///   If szString is nullptr or an empty string or starts with some non-whitespace and non-sign character, EZ_FAILURE is returned.
   ///   All whitespace at the start of the string are skipped. Each minus sign flips the sign of the output value, so --3 will return 3.
   ///   Plus signs are skipped and have no effect, so -+3 will still return -3.
   ///   The value string may contain one '.' to separate integer and fractional part. It may also contain an 'e' for scientific notation
@@ -81,7 +81,7 @@ namespace ezConversionUtils
   ///   detecting the validity, the sign and where the value ends and then use atof to parse only that substring with maximum precision.
   EZ_FOUNDATION_DLL ezResult StringToFloat(const char* szString, double& out_Res, const char** out_LastParsePosition = nullptr); // [tested]
 
-  /// \brief Parses szString and checks that the first word it finds stats with a phrase that can be interpreted as a boolean value.
+  /// \brief Parses szString and checks that the first word it finds starts with a phrase that can be interpreted as a boolean value.
   ///
   /// \param szString
   ///   If szString starts with whitespace characters, they are skipped. EZ_SUCCESS is returned (and out_Res is filled with true/false),

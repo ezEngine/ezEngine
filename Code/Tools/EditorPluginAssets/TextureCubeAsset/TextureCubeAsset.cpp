@@ -81,8 +81,14 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
     arguments << QString::fromUtf8(sThumbnail.GetData());
   }
 
+  if (pProp->m_TextureUsage == ezTexConvUsage::Hdr)
+  {
+    arguments << "-hdrExposure";
+    temp.Format("{0}", ezArgF(pProp->m_fHdrExposureBias, 2));
+    arguments << temp.GetData();
+  }
+
   // TODO: downscale steps and min/max resolution
-  // TODO: hdr exposure
 
   arguments << "-mipmaps";
   arguments << ToMipmapMode(pProp->m_MipmapMode);

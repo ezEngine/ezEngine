@@ -63,7 +63,7 @@ VS_OUT main(VS_IN Input)
     result.BiTangent = float3(0, 0, 1);
 
     float3 camDir = mul(-GetCameraDirForwards(), objectToWorld);
-    float3 mainDirs[8] = 
+    float3 mainDirs[8] =
     {
       float3(0, +1, 0),
       float3(0.7071, 0.7071, 0),
@@ -89,7 +89,7 @@ VS_OUT main(VS_IN Input)
       }
     }
 
-    // flip the texture along X if necessary    
+    // flip the texture along X if necessary
     [flatten]
     if (impostorFace >= 4)
     {
@@ -250,7 +250,7 @@ float GetOpacity()
   float opacity = BaseTexture.Sample(BaseTexture_AutoSampler, GetTexCoord()).a;
 
   #if BLEND_MODE == BLEND_MODE_MASKED
-     return opacity - 0.1;
+     return opacity - 0.5;
    #else
     return opacity;
   #endif

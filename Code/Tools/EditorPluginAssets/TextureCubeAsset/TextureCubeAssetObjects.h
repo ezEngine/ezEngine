@@ -58,6 +58,8 @@ public:
   ezEnum<ezTexConvUsage> m_TextureUsage;
   ezEnum<ezTextureCubeChannelMappingEnum> m_ChannelMapping;
 
+  float m_fHdrExposureBias = 0;
+
 private:
   ezString m_Input[6];
 };

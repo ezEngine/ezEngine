@@ -8,9 +8,6 @@
 
 /* TODO LIST:
 
-- cubemaps:
-- from multiple cubemap dds
-
 - volume textures
 
 - better texture atlas specification

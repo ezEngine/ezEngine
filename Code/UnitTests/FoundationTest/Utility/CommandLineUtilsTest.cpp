@@ -129,7 +129,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetIntOption")
   {
     const int argc = 9;
-    const char* argv[argc] = {"bla/blub/myprogram.exe", "-Test1", "23", "-Test2", "42", "-Test3", "-Test4", "11", "-Test5"};
+    const char* argv[argc] = {"bla/blub/myprogram.exe", "-Test1", "23", "-Test2", "42", "-Test3", "-Test4", "-11", "-Test5"};
 
     ezCommandLineUtils CmdLn;
     CmdLn.SetCommandLine(argc, argv);
@@ -146,14 +146,14 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
     EZ_TEST_INT(CmdLn.GetIntOption("-Test1", 2), 23);
     EZ_TEST_INT(CmdLn.GetIntOption("-Test2", 3), 42);
     EZ_TEST_INT(CmdLn.GetIntOption("-Test3", 4), 4);
-    EZ_TEST_INT(CmdLn.GetIntOption("-Test4", 5), 11);
+    EZ_TEST_INT(CmdLn.GetIntOption("-Test4", 5), -11);
     EZ_TEST_INT(CmdLn.GetIntOption("-Test5"), 0);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFloatOption")
   {
     const int argc = 9;
-    const char* argv[argc] = {"bla/blub/myprogram.exe", "-Test1", "23.45", "-Test2", "42.3", "-Test3", "-Test4", "11", "-Test5"};
+    const char* argv[argc] = {"bla/blub/myprogram.exe", "-Test1", "23.45", "-Test2", "42.3", "-Test3", "-Test4", "-11", "-Test5"};
 
     ezCommandLineUtils CmdLn;
     CmdLn.SetCommandLine(argc, argv);
@@ -170,7 +170,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
     EZ_TEST_DOUBLE(CmdLn.GetFloatOption("-Test1", 2.3), 23.45, 0.0);
     EZ_TEST_DOUBLE(CmdLn.GetFloatOption("-Test2", 3.4), 42.3, 0.0);
     EZ_TEST_DOUBLE(CmdLn.GetFloatOption("-Test3", 4.5), 4.5, 0.0);
-    EZ_TEST_DOUBLE(CmdLn.GetFloatOption("-Test4", 5.6), 11, 0.0);
+    EZ_TEST_DOUBLE(CmdLn.GetFloatOption("-Test4", 5.6), -11, 0.0);
     EZ_TEST_DOUBLE(CmdLn.GetFloatOption("-Test5"), 0, 0.0);
   }
 }

@@ -213,6 +213,20 @@ ezStatus ezTextureAssetDocument::RunTexConv(
   if (pProp->m_bFlipHorizontal)
     arguments << "-flip_horz";
 
+  if (pProp->m_bPreserveAlphaCoverage)
+  {
+    arguments << "-mipsPerserveCoverage";
+    arguments << "-mipsAlphaThreshold";
+    temp.Format("{0}", ezArgF(pProp->m_fAlphaThreshold, 2));
+    arguments << temp.GetData();
+  }
+
+  if (pProp->m_TextureUsage == ezTexConvUsage::Hdr)
+  {
+    arguments << "-hdrExposure";
+    temp.Format("{0}", ezArgF(pProp->m_fHdrExposureBias, 2));
+    arguments << temp.GetData();
+  }
 
   arguments << "-maxRes" << QString::number(pAssetConfig->m_uiMaxResolution);
 

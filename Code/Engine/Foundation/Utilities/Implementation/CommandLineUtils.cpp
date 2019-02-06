@@ -196,10 +196,7 @@ ezInt32 ezCommandLineUtils::GetIntOption(const char* szOption, ezInt32 iDefault,
   if (iIndex + 1 == m_Commands.GetCount()) // last command
     return iDefault;
 
-  if (m_Commands[iIndex + 1].StartsWith("-")) // next command is the next option
-    return iDefault;
-
-  // otherwise try to convert the next option to an integer
+  // try to convert the next option to a number
   ezInt32 iRes = iDefault;
   ezConversionUtils::StringToInt(m_Commands[iIndex + 1].GetData(), iRes);
 
@@ -216,10 +213,7 @@ double ezCommandLineUtils::GetFloatOption(const char* szOption, double fDefault,
   if (iIndex + 1 == m_Commands.GetCount()) // last command
     return fDefault;
 
-  if (m_Commands[iIndex + 1].StartsWith("-")) // next command is the next option
-    return fDefault;
-
-  // otherwise try to convert the next option to an integer
+  // try to convert the next option to a number
   double fRes = fDefault;
   ezConversionUtils::StringToFloat(m_Commands[iIndex + 1].GetData(), fRes);
 

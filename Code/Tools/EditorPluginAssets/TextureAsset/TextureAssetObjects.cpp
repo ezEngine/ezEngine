@@ -33,9 +33,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 5, ezRTTIDefaultAlloca
     EZ_MEMBER_PROPERTY("CVarResScale", m_fCVarResolutionScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
 
     EZ_ENUM_MEMBER_PROPERTY("MipmapMode", ezTexConvMipmapMode, m_MipmapMode),
+    EZ_MEMBER_PROPERTY("PreserveAlphaCoverage", m_bPreserveAlphaCoverage),
+    EZ_MEMBER_PROPERTY("AlphaThreshold", m_fAlphaThreshold)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ENUM_MEMBER_PROPERTY("CompressionMode", ezTexConvCompressionMode, m_CompressionMode),
     EZ_MEMBER_PROPERTY("PremultipliedAlpha", m_bPremultipliedAlpha),
     EZ_MEMBER_PROPERTY("FlipHorizontal", m_bFlipHorizontal),
+    EZ_MEMBER_PROPERTY("HdrExposureBias", m_fHdrExposureBias)->AddAttributes(new ezClampValueAttribute(-20.0f, 20.0f)),
 
     EZ_ENUM_MEMBER_PROPERTY("TextureFilter", ezTextureFilterSetting, m_TextureFilter),
     EZ_ENUM_MEMBER_PROPERTY("AddressModeU", ezImageAddressMode, m_AddressModeU),
@@ -77,6 +80,10 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
       props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Invisible;
       props["FlipHorizontal"].m_Visibility = ezPropertyUiState::Invisible;
       props["ChannelMapping"].m_Visibility = ezPropertyUiState::Invisible;
+      props["PreserveAlphaCoverage"].m_Visibility = ezPropertyUiState::Invisible;
+      props["AlphaThreshold"].m_Visibility = ezPropertyUiState::Invisible;
+      props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Invisible;
+      props["HdrExposureBias"].m_Visibility = ezPropertyUiState::Invisible;
 
       props["Input1"].m_Visibility = ezPropertyUiState::Invisible;
       props["Input2"].m_Visibility = ezPropertyUiState::Invisible;
@@ -88,15 +95,22 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
     }
     else
     {
+      const bool hasMips = e.m_pObject->GetTypeAccessor().GetValue("MipmapMode").ConvertTo<ezInt32>() != ezTexConvMipmapMode::None;
+      const bool isHDR = e.m_pObject->GetTypeAccessor().GetValue("Usage").ConvertTo<ezInt32>() == ezTexConvUsage::Hdr;
+
       props["CVarResScale"].m_Visibility = ezPropertyUiState::Invisible;
       props["Usage"].m_Visibility = ezPropertyUiState::Default;
       props["Mipmaps"].m_Visibility = ezPropertyUiState::Default;
       props["Compression"].m_Visibility = ezPropertyUiState::Default;
-      props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Default;
+      props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Disabled;
       props["FlipHorizontal"].m_Visibility = ezPropertyUiState::Default;
       props["ChannelMapping"].m_Visibility = ezPropertyUiState::Default;
       props["Format"].m_Visibility = ezPropertyUiState::Invisible;
       props["Resolution"].m_Visibility = ezPropertyUiState::Invisible;
+      props["PreserveAlphaCoverage"].m_Visibility = ezPropertyUiState::Disabled;
+      props["AlphaThreshold"].m_Visibility = ezPropertyUiState::Disabled;
+      props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Disabled;
+      props["HdrExposureBias"].m_Visibility = ezPropertyUiState::Disabled;
 
       const ezInt64 mapping = e.m_pObject->GetTypeAccessor().GetValue("ChannelMapping").ConvertTo<ezInt64>();
 
@@ -127,6 +141,23 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
         case ezTexture2DChannelMappingEnum::R1_G2:
           props["Input2"].m_Visibility = ezPropertyUiState::Default;
           break;
+      }
+
+      if (mapping == ezTexture2DChannelMappingEnum::RGBA1 || mapping == ezTexture2DChannelMappingEnum::R1_G2_B3_A4 ||
+          mapping == ezTexture2DChannelMappingEnum::RGB1_A2 || mapping == ezTexture2DChannelMappingEnum::R1_G2_B3_A4)
+      {
+        props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Default;
+
+        if (hasMips)
+        {
+          props["PreserveAlphaCoverage"].m_Visibility = ezPropertyUiState::Default;
+          props["AlphaThreshold"].m_Visibility = ezPropertyUiState::Default;
+        }
+      }
+
+      if (isHDR)
+      {
+        props["HdrExposureBias"].m_Visibility = ezPropertyUiState::Default;
       }
     }
   }

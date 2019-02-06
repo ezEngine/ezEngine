@@ -18,6 +18,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeAssetProperties, 3, ezRTTIDefaultAl
     EZ_ENUM_MEMBER_PROPERTY("MipmapMode", ezTexConvMipmapMode, m_MipmapMode),
     EZ_ENUM_MEMBER_PROPERTY("CompressionMode", ezTexConvCompressionMode, m_CompressionMode),
 
+    EZ_MEMBER_PROPERTY("HdrExposureBias", m_fHdrExposureBias)->AddAttributes(new ezClampValueAttribute(-20.0f, 20.0f)),
+
     EZ_ENUM_MEMBER_PROPERTY("TextureFilter", ezTextureFilterSetting, m_TextureFilter),
 
     EZ_ENUM_MEMBER_PROPERTY("ChannelMapping", ezTextureCubeChannelMappingEnum, m_ChannelMapping),
@@ -40,6 +42,7 @@ void ezTextureCubeAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaS
   if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezTextureCubeAssetProperties>())
   {
     const ezInt64 mapping = e.m_pObject->GetTypeAccessor().GetValue("ChannelMapping").ConvertTo<ezInt64>();
+    const bool isHDR = e.m_pObject->GetTypeAccessor().GetValue("Usage").ConvertTo<ezInt32>() == ezTexConvUsage::Hdr;
 
     auto& props = *e.m_pPropertyStates;
 
@@ -50,6 +53,12 @@ void ezTextureCubeAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaS
     props["Input4"].m_Visibility = ezPropertyUiState::Invisible;
     props["Input5"].m_Visibility = ezPropertyUiState::Invisible;
     props["Input6"].m_Visibility = ezPropertyUiState::Invisible;
+    props["HdrExposureBias"].m_Visibility = ezPropertyUiState::Disabled;
+
+    if (isHDR)
+    {
+      props["HdrExposureBias"].m_Visibility = ezPropertyUiState::Default;
+    }
 
     if (mapping == ezTextureCubeChannelMappingEnum::RGB1TO6 || mapping == ezTextureCubeChannelMappingEnum::RGBA1TO6)
     {
