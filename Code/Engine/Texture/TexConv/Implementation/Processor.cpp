@@ -11,6 +11,15 @@ EZ_END_STATIC_REFLECTED_ENUM;
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexConvMipmapMode, 1)
   EZ_ENUM_CONSTANTS(ezTexConvMipmapMode::None, ezTexConvMipmapMode::Linear, ezTexConvMipmapMode::Kaiser)
 EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexConvUsage, 1)
+  EZ_ENUM_CONSTANT(ezTexConvUsage::Auto),
+  EZ_ENUM_CONSTANT(ezTexConvUsage::Color),
+  EZ_ENUM_CONSTANT(ezTexConvUsage::Linear),
+  EZ_ENUM_CONSTANT(ezTexConvUsage::Hdr),
+  EZ_ENUM_CONSTANT(ezTexConvUsage::NormalMap),
+  EZ_ENUM_CONSTANT(ezTexConvUsage::NormalMap_Inverted),
+EZ_END_STATIC_REFLECTED_ENUM;
 // clang=format on
 
 ezTexConvProcessor::ezTexConvProcessor() = default;

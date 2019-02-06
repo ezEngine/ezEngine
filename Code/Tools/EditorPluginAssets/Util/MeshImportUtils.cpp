@@ -62,44 +62,44 @@ namespace ezMeshImportUtils
       ezEnum<ezTexture2DChannelMappingEnum> channelMapping;
 
       // Try to map usage.
-      ezEnum<ezTexture2DUsageEnum> usage;
+      ezEnum<ezTexConvUsage> usage;
       switch (hint)
       {
         case ezModelImporter::SemanticHint::DIFFUSE:
-          usage = ezTexture2DUsageEnum::Diffuse;
+          usage = ezTexConvUsage::Color;
           break;
 
         case ezModelImporter::SemanticHint::DIFFUSE_ALPHA:
-          usage = ezTexture2DUsageEnum::Diffuse;
+          usage = ezTexConvUsage::Color;
           channelMapping = ezTexture2DChannelMappingEnum::RGBA1;
           break;
 
         case ezModelImporter::SemanticHint::AMBIENT: // Making wild guesses here.
         case ezModelImporter::SemanticHint::EMISSIVE:
-          usage = ezTexture2DUsageEnum::Other_sRGB;
+          usage = ezTexConvUsage::Color;
           break;
 
         case ezModelImporter::SemanticHint::ROUGHNESS:
         case ezModelImporter::SemanticHint::METALLIC:
           channelMapping = ezTexture2DChannelMappingEnum::R1;
-          usage = ezTexture2DUsageEnum::Other_Linear;
+          usage = ezTexConvUsage::Linear;
           break;
 
         case ezModelImporter::SemanticHint::LIGHTMAP: // Lightmap linear? Modern ones likely.
-          usage = ezTexture2DUsageEnum::Other_Linear;
+          usage = ezTexConvUsage::Linear;
           break;
 
         case ezModelImporter::SemanticHint::NORMAL:
-          usage = ezTexture2DUsageEnum::NormalMap;
+          usage = ezTexConvUsage::NormalMap;
           break;
 
         case ezModelImporter::SemanticHint::DISPLACEMENT:
-          usage = ezTexture2DUsageEnum::Height;
+          usage = ezTexConvUsage::Linear;
           channelMapping = ezTexture2DChannelMappingEnum::R1;
           break;
 
         default:
-          usage = ezTexture2DUsageEnum::Unknown;
+          usage = ezTexConvUsage::Auto;
       }
 
       pAccessor->SetValue(pTextureAsset, "Usage", usage.GetValue()).LogFailure();

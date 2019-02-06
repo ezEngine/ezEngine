@@ -7,35 +7,6 @@
 
 struct ezPropertyMetaStateEvent;
 
-struct ezTexture2DUsageEnum
-{
-  typedef ezInt8 StorageType;
-
-  enum Enum
-  {
-    Unknown,
-    Other_sRGB,
-    Other_Linear,
-    //Other_sRGB_Auto,
-    //Other_Linear_Auto,
-    Diffuse,
-    NormalMap,
-    NormalMapInverted,
-    EmissiveMask,
-    EmissiveColor,
-    Height,
-    Mask,
-    LookupTable,
-    HDR,
-
-    Default = Unknown,
-  };
-};
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTexture2DUsageEnum);
-
-
-
 struct ezTexture2DChannelMappingEnum
 {
   typedef ezInt8 StorageType;
@@ -122,10 +93,6 @@ public:
   ezTexture2DChannelMappingEnum::Enum GetChannelMapping() const { return m_ChannelMapping; }
 
   ezInt32 GetNumInputFiles() const;
-  ezInt32 GetNumChannels() const;
-
-  bool IsSRGB() const;
-  bool IsHDR() const;
 
   bool m_bIsRenderTarget = false;
   bool m_bPremultipliedAlpha;
@@ -137,7 +104,7 @@ public:
   ezEnum<ezImageAddressMode> m_AddressModeV;
   ezEnum<ezImageAddressMode> m_AddressModeW;
   ezEnum<ezTexture2DResolution> m_Resolution;
-  ezEnum<ezTexture2DUsageEnum> m_TextureUsage;
+  ezEnum<ezTexConvUsage> m_TextureUsage;
   ezEnum<ezRenderTargetFormat> m_RtFormat;
 
   ezEnum<ezTexConvCompressionMode> m_CompressionMode;

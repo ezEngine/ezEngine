@@ -58,6 +58,8 @@ struct ezTexConvUsage
   using StorageType = ezUInt8;
 };
 
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_TEXTURE_DLL, ezTexConvUsage);
+
 struct ezTexConvMipmapMode
 {
   enum Enum

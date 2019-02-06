@@ -5,15 +5,6 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexture2DUsageEnum, 1)
-  EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::Unknown, ezTexture2DUsageEnum::Diffuse)
-  EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::NormalMap, ezTexture2DUsageEnum::NormalMapInverted)
-  EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::EmissiveMask)
-  EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::EmissiveColor, ezTexture2DUsageEnum::Height, ezTexture2DUsageEnum::Mask, ezTexture2DUsageEnum::LookupTable)
-  EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::HDR)
-  EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::Other_sRGB, ezTexture2DUsageEnum::Other_Linear)//, ezTexture2DUsageEnum::Other_sRGB_Auto, ezTexture2DUsageEnum::Other_Linear_Auto)
-EZ_END_STATIC_REFLECTED_ENUM;
-
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexture2DChannelMappingEnum, 1)
   EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::R1)
   EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::RG1, ezTexture2DChannelMappingEnum::R1_G2)
@@ -30,13 +21,12 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRenderTargetFormat, 1)
   EZ_ENUM_CONSTANTS(ezRenderTargetFormat::RGBA8sRgb, ezRenderTargetFormat::RGBA8, ezRenderTargetFormat::RGB10, ezRenderTargetFormat::RGBA16)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 4, ezRTTIDefaultAllocator<ezTextureAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 5, ezRTTIDefaultAllocator<ezTextureAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    /// \todo Accessor properties with enums don't link
     EZ_MEMBER_PROPERTY("IsRenderTarget", m_bIsRenderTarget)->AddAttributes(new ezHiddenAttribute),
-    EZ_ENUM_MEMBER_PROPERTY("Usage", ezTexture2DUsageEnum, m_TextureUsage),
+    EZ_ENUM_MEMBER_PROPERTY("Usage", ezTexConvUsage, m_TextureUsage),
 
     EZ_ENUM_MEMBER_PROPERTY("Format", ezRenderTargetFormat, m_RtFormat),
     EZ_ENUM_MEMBER_PROPERTY("Resolution", ezTexture2DResolution, m_Resolution),
@@ -155,7 +145,6 @@ ezString ezTextureAssetProperties::GetAbsoluteInputFilePath(ezInt32 iInput) cons
   return sPath;
 }
 
-
 ezInt32 ezTextureAssetProperties::GetNumInputFiles() const
 {
   switch (m_ChannelMapping)
@@ -182,60 +171,6 @@ ezInt32 ezTextureAssetProperties::GetNumInputFiles() const
   return 1;
 }
 
-
-ezInt32 ezTextureAssetProperties::GetNumChannels() const
-{
-  if ((m_TextureUsage == ezTexture2DUsageEnum::NormalMap || m_TextureUsage == ezTexture2DUsageEnum::NormalMapInverted) &&
-      m_CompressionMode != ezTexConvCompressionMode::None)
-  {
-    return 2;
-  }
-
-  switch (m_ChannelMapping)
-  {
-    case ezTexture2DChannelMappingEnum::R1:
-      return 1;
-
-    case ezTexture2DChannelMappingEnum::RG1:
-    case ezTexture2DChannelMappingEnum::R1_G2:
-      return 2;
-
-    case ezTexture2DChannelMappingEnum::RGB1:
-    case ezTexture2DChannelMappingEnum::R1_G2_B3:
-      return 3;
-
-    case ezTexture2DChannelMappingEnum::RGB1_ABLACK:
-    case ezTexture2DChannelMappingEnum::RGBA1:
-    case ezTexture2DChannelMappingEnum::RGB1_A2:
-    case ezTexture2DChannelMappingEnum::R1_G2_B3_A4:
-      return 4;
-  }
-
-  EZ_REPORT_FAILURE("Invalid Code Path");
-  return 4;
-}
-
-bool ezTextureAssetProperties::IsSRGB() const
-{
-  // these formats can never be sRGB
-  if (m_ChannelMapping == ezTexture2DChannelMappingEnum::R1 || m_ChannelMapping == ezTexture2DChannelMappingEnum::R1_G2 ||
-      m_ChannelMapping == ezTexture2DChannelMappingEnum::RG1)
-    return false;
-
-  if (m_TextureUsage == ezTexture2DUsageEnum::EmissiveMask || m_TextureUsage == ezTexture2DUsageEnum::Height ||
-      m_TextureUsage == ezTexture2DUsageEnum::LookupTable || m_TextureUsage == ezTexture2DUsageEnum::Mask ||
-      m_TextureUsage == ezTexture2DUsageEnum::NormalMap || m_TextureUsage == ezTexture2DUsageEnum::NormalMapInverted || m_TextureUsage == ezTexture2DUsageEnum::Other_Linear ||
-      m_TextureUsage == ezTexture2DUsageEnum::HDR /* ||
-      m_TextureUsage == ezTexture2DUsageEnum::Other_Linear_Auto*/)
-    return false;
-
-  return true;
-}
-
-bool ezTextureAssetProperties::IsHDR() const
-{
-  return m_TextureUsage == ezTexture2DUsageEnum::HDR;
-}
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -312,3 +247,50 @@ public:
 };
 
 ezTextureAssetPropertiesPatch_3_4 g_ezTextureAssetPropertiesPatch_3_4;
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezTextureAssetPropertiesPatch_4_5 : public ezGraphPatch
+{
+public:
+  ezTextureAssetPropertiesPatch_4_5()
+    : ezGraphPatch("ezTextureAssetProperties", 5)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    auto* pUsage = pNode->FindProperty("Usage");
+    if (pUsage && pUsage->m_Value.IsA<ezString>())
+    {
+      if (pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::Unknown")
+      {
+        pNode->ChangeProperty("Usage", (ezInt32)ezTexConvUsage::Auto);
+      }
+      else if (pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::Other_sRGB" ||
+               pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::Diffuse" ||
+               pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::EmissiveColor")
+      {
+        pNode->ChangeProperty("Usage", (ezInt32)ezTexConvUsage::Color);
+      }
+      else if (pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::Height" ||
+               pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::Mask" ||
+               pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::LookupTable" ||
+               pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::Other_Linear" ||
+               pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::EmissiveMask")
+      {
+        pNode->ChangeProperty("Usage", (ezInt32)ezTexConvUsage::Linear);
+      }
+      else if (pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::NormalMap")
+      {
+        pNode->ChangeProperty("Usage", (ezInt32)ezTexConvUsage::NormalMap);
+      }
+      else if (pUsage->m_Value.Get<ezString>() == "ezTexture2DUsageEnum::HDR")
+      {
+        pNode->ChangeProperty("Usage", (ezInt32)ezTexConvUsage::Hdr);
+      }
+    }
+  }
+};
+
+ezTextureAssetPropertiesPatch_4_5 g_ezTextureAssetPropertiesPatch_4_5;

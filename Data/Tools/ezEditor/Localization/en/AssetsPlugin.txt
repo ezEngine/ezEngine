@@ -189,3 +189,9 @@ ezImageAddressMode::Repeat;Repeat
 ezImageAddressMode::Clamp;Clamp
 ezImageAddressMode::ClampBorder;Clamp to Black
 ezImageAddressMode::Mirror;Mirror
+ezTexConvUsage::Auto;Auto
+ezTexConvUsage::Color;Color
+ezTexConvUsage::Linear;Linear
+ezTexConvUsage::Hdr;HDR
+ezTexConvUsage::NormalMap;Normal Map
+ezTexConvUsage::NormalMap_Inverted; Normal Map (inverted)

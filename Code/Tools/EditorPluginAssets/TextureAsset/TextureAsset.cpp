@@ -45,6 +45,7 @@ static const char* ToWrapMode(ezImageAddressMode::Enum mode)
       return "Mirror";
   }
 
+  EZ_ASSERT_NOT_IMPLEMENTED;
   return "";
 }
 
@@ -78,6 +79,61 @@ const char* ToFilterMode(ezTextureFilterSetting::Enum mode)
       return "Highest";
   }
 
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return "";
+}
+
+const char* ToUsageMode(ezTexConvUsage::Enum mode)
+{
+  switch (mode)
+  {
+  case ezTexConvUsage::Auto:
+    return "Auto";
+  case ezTexConvUsage::Color:
+    return "Color";
+  case ezTexConvUsage::Linear:
+    return "Linear";
+  case ezTexConvUsage::Hdr:
+    return "Hdr";
+  case ezTexConvUsage::NormalMap:
+    return "NormalMap";
+  case ezTexConvUsage::NormalMap_Inverted:
+    return "NormalMap_Inverted";
+  }
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return "";
+}
+
+const char* ToMipmapMode(ezTexConvMipmapMode::Enum mode)
+{
+  switch(mode)
+  {
+  case ezTexConvMipmapMode::None:
+    return "None";
+  case ezTexConvMipmapMode::Linear:
+    return "Linear";
+  case ezTexConvMipmapMode::Kaiser:
+    return "Kaiser";
+  }
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return "";
+}
+
+const char* ToCompressionMode(ezTexConvCompressionMode::Enum mode)
+{
+  switch (mode)
+  {
+    case ezTexConvCompressionMode::None:
+      return "None";
+    case ezTexConvCompressionMode::Medium:
+      return "Medium";
+    case ezTexConvCompressionMode::High:
+      return "High";
+  }
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
   return "";
 }
 
@@ -143,64 +199,13 @@ ezStatus ezTextureAssetDocument::RunTexConv(
   }
 
   arguments << "-mipmaps";
-
-  switch (pProp->m_MipmapMode)
-  {
-    case ezTexConvMipmapMode::None:
-      arguments << "None";
-      break;
-    case ezTexConvMipmapMode::Linear:
-
-      arguments << "Linear";
-      break;
-    case ezTexConvMipmapMode::Kaiser:
-      arguments << "Kaiser";
-      break;
-  }
+  arguments << ToMipmapMode(pProp->m_MipmapMode);
 
   arguments << "-compression";
-  switch (pProp->m_CompressionMode)
-  {
-    case ezTexConvCompressionMode::None:
-      arguments << "None";
-      break;
-    case ezTexConvCompressionMode::Medium:
-      arguments << "Medium";
-      break;
-    case ezTexConvCompressionMode::High:
-      arguments << "High";
-      break;
-  }
+  arguments << ToCompressionMode(pProp->m_CompressionMode);
 
   arguments << "-usage";
-  switch (pProp->m_TextureUsage)
-  {
-    case ezTexture2DUsageEnum::HDR:
-      arguments << "Hdr";
-      break;
-
-    case ezTexture2DUsageEnum::Diffuse:
-    case ezTexture2DUsageEnum::EmissiveColor:
-    case ezTexture2DUsageEnum::Other_sRGB:
-      arguments << "Color";
-      break;
-
-    case ezTexture2DUsageEnum::EmissiveMask:
-    case ezTexture2DUsageEnum::Height:
-    case ezTexture2DUsageEnum::LookupTable:
-    case ezTexture2DUsageEnum::Mask:
-    case ezTexture2DUsageEnum::Other_Linear:
-      arguments << "Linear";
-      break;
-
-    case ezTexture2DUsageEnum::NormalMap:
-      arguments << "NormalMap";
-      break;
-
-    case ezTexture2DUsageEnum::NormalMapInverted:
-      arguments << "NormalMap_Inverted";
-      break;
-  }
+  arguments << ToUsageMode(pProp->m_TextureUsage);
 
   if (pProp->m_bPremultipliedAlpha)
     arguments << "-premulalpha";
@@ -367,7 +372,30 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
     const ezUInt8 uiTexFileFormatVersion = 5;
     file << uiTexFileFormatVersion;
 
-    file << props->IsSRGB();
+    ezGALResourceFormat::Enum format = ezGALResourceFormat::Invalid;
+    bool bIsSRGB = false;
+
+    switch (props->m_RtFormat)
+    {
+      case ezRenderTargetFormat::RGBA8:
+        format = ezGALResourceFormat::RGBAUByteNormalized;
+        break;
+
+      case ezRenderTargetFormat::RGBA8sRgb:
+        format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+        bIsSRGB = true;
+        break;
+
+      case ezRenderTargetFormat::RGB10:
+        format = ezGALResourceFormat::RG11B10Float;
+        break;
+
+      case ezRenderTargetFormat::RGBA16:
+        format = ezGALResourceFormat::RGBAHalf;
+        break;
+    }
+
+    file << bIsSRGB;
     file << (ezUInt8)props->m_AddressModeU;
     file << (ezUInt8)props->m_AddressModeV;
     file << (ezUInt8)props->m_AddressModeW;
@@ -411,27 +439,6 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
         break;
       default:
         EZ_ASSERT_NOT_IMPLEMENTED;
-    }
-
-    ezGALResourceFormat::Enum format = ezGALResourceFormat::Invalid;
-
-    switch (props->m_RtFormat)
-    {
-      case ezRenderTargetFormat::RGBA8:
-        format = ezGALResourceFormat::RGBAUByteNormalized;
-        break;
-
-      case ezRenderTargetFormat::RGBA8sRgb:
-        format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
-        break;
-
-      case ezRenderTargetFormat::RGB10:
-        format = ezGALResourceFormat::RG11B10Float;
-        break;
-
-      case ezRenderTargetFormat::RGBA16:
-        format = ezGALResourceFormat::RGBAHalf;
-        break;
     }
 
     file << resX;
@@ -694,19 +701,19 @@ ezStatus ezTextureAssetDocumentGenerator::Generate(
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("Input1", szDataDirRelativePath);
   accessor.SetValue("ChannelMapping", (int)ezTexture2DChannelMappingEnum::RGB1);
-  accessor.SetValue("Usage", (int)ezTexture2DUsageEnum::Other_Linear);
+  accessor.SetValue("Usage", (int)ezTexConvUsage::Linear);
 
   if (info.m_sName == "TextureImport.Diffuse")
   {
-    accessor.SetValue("Usage", (int)ezTexture2DUsageEnum::Diffuse);
+    accessor.SetValue("Usage", (int)ezTexConvUsage::Color);
   }
   else if (info.m_sName == "TextureImport.Normal")
   {
-    accessor.SetValue("Usage", (int)ezTexture2DUsageEnum::NormalMap);
+    accessor.SetValue("Usage", (int)ezTexConvUsage::NormalMap);
   }
   else if (info.m_sName == "TextureImport.HDR")
   {
-    accessor.SetValue("Usage", (int)ezTexture2DUsageEnum::HDR);
+    accessor.SetValue("Usage", (int)ezTexConvUsage::Hdr);
   }
   else if (info.m_sName == "TextureImport.Linear")
   {

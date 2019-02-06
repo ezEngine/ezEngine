@@ -11,15 +11,15 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16720824653015378333,5146898993846862963}}
-		u4 %Hash{1155634799897504621}
+		u4 %Hash{7330844237950764138}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 2a3d3f9d-afb5-412f-85e8-e35ce0b5b0a1 }"}
-			s{"{ 4dc82890-39e3-4bfc-a97d-86a984d4d3db }"}
 			s{"{ 6d619c33-6611-432b-a924-27b1b9bfd8db }"}
 			s{"{ 9fc549fc-8c68-4e48-848d-170ca279f323 }"}
+			s{"{ ac614d7c-2b31-4a7b-aa0c-c5d8200b7b89 }"}
 			s{"{ b342874a-d967-425a-9bf1-87bb3186350e }"}
 		}
 	}
@@ -31,7 +31,7 @@ o
 {
 	Uuid %id{u4{3438646989274628691,620208323700163491}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -44,7 +44,7 @@ o
 {
 	Uuid %id{u4{16053068368506557491,634568423694459266}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -107,7 +107,7 @@ o
 {
 	Uuid %id{u4{3202708597344516542,1057013311220954453}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -145,7 +145,7 @@ o
 {
 	Uuid %id{u4{14283661562731194520,1984543621017388742}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -205,7 +205,7 @@ o
 {
 	Uuid %id{u4{1414583814628551305,2369780075425017943}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -318,7 +318,7 @@ o
 {
 	Uuid %id{u4{3000537101472283465,2679261917116443196}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -331,7 +331,7 @@ o
 {
 	Uuid %id{u4{12321662469997424202,2787956526527472112}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -369,7 +369,7 @@ o
 {
 	Uuid %id{u4{18082085855169928293,2959015450071628267}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -416,7 +416,7 @@ o
 {
 	Uuid %id{u4{6580441560473116788,2999087876261780522}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -554,7 +554,7 @@ o
 {
 	Uuid %id{u4{17042153046718786879,3197459853789183014}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -567,7 +567,7 @@ o
 {
 	Uuid %id{u4{4080294991934256455,3436230285859847585}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -580,7 +580,7 @@ o
 {
 	Uuid %id{u4{2683238028202031177,3471633548736381207}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -593,7 +593,7 @@ o
 {
 	Uuid %id{u4{1040200464319521105,3479049936978716086}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -606,7 +606,7 @@ o
 {
 	Uuid %id{u4{18306890152348793940,3513511765500294406}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -619,7 +619,7 @@ o
 {
 	Uuid %id{u4{338383717041677135,3524629812775382835}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -632,7 +632,7 @@ o
 {
 	Uuid %id{u4{13788539961899005426,4625782422037290591}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -645,7 +645,7 @@ o
 {
 	Uuid %id{u4{7024423093143974535,4626274139622335098}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{1}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -683,7 +683,7 @@ o
 {
 	Uuid %id{u4{3017731058605489161,4822681768279939633}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -755,7 +755,7 @@ o
 		Color %Color{f{0,0x0000803F,0x0000803F,0x0000803F}}
 		f %MaxScreenSize{0x0000C845}
 		f %Size{0x0000803F}
-		s %Texture{"{ 4dc82890-39e3-4bfc-a97d-86a984d4d3db }"}
+		s %Texture{"{ ac614d7c-2b31-4a7b-aa0c-c5d8200b7b89 }"}
 	}
 }
 o
@@ -812,7 +812,7 @@ o
 {
 	Uuid %id{u4{2565920092424047279,5085346652101328346}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -869,12 +869,14 @@ o
 {
 	Uuid %id{u4{6649872664470933906,5257958707099631661}}
 	s %t{"ezCameraComponent"}
-	u3 %v{7}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %CameraRenderPipeline{""}
 		f %Dimensions{0x00002041}
+		i1 %EditorShortcut{-1}
 		VarArray %ExcludeTags{}
 		f %ExposureCompensation{0}
 		f %FOV{0x00007042}
@@ -883,12 +885,11 @@ o
 		VarArray %IncludeTags{}
 		s %Mode{"ezCameraMode::PerspectiveFixedFovY"}
 		f %NearPlane{0x0000803E}
-		s %RenderPipeline{""}
 		s %RenderTarget{""}
 		Vec2 %RenderTargetOffset{f{0,0}}
 		Vec2 %RenderTargetSize{f{0x0000803F,0x0000803F}}
 		b %ShowStats{0}
-		f %ShutterTime{0x0000803F}
+		Time %ShutterTime{d{0x000000000000F03F}}
 		s %UsageHint{"ezCameraUsageHint::MainView"}
 	}
 }
@@ -946,7 +947,7 @@ o
 {
 	Uuid %id{u4{15972393494207207582,5360155742999536602}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{1}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -985,7 +986,7 @@ o
 {
 	Uuid %id{u4{3983361683413612259,6174118767422472837}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1001,7 +1002,7 @@ o
 {
 	Uuid %id{u4{11007029897421370862,6240109562646996523}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1014,7 +1015,7 @@ o
 {
 	Uuid %id{u4{12546951177162971094,6253674737568912954}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1162,7 +1163,7 @@ o
 {
 	Uuid %id{u4{16753868013519276326,7833822206455568402}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1300,7 +1301,7 @@ o
 {
 	Uuid %id{u4{18085081356754144226,8254255707530369807}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1313,7 +1314,7 @@ o
 {
 	Uuid %id{u4{8959462651569733347,8362950316941398723}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1351,7 +1352,7 @@ o
 {
 	Uuid %id{u4{14719886036742237438,8534009240485554878}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1364,7 +1365,7 @@ o
 {
 	Uuid %id{u4{3218241742045425933,8574081666675707133}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1502,7 +1503,7 @@ o
 {
 	Uuid %id{u4{13679953228291096024,8772453644203109625}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1515,7 +1516,7 @@ o
 {
 	Uuid %id{u4{718095173506565600,9011224076273774196}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1528,7 +1529,7 @@ o
 {
 	Uuid %id{u4{17767782283483891938,9046627339150307818}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1541,7 +1542,7 @@ o
 {
 	Uuid %id{u4{16124744719601381866,9054043727392642697}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1554,7 +1555,7 @@ o
 {
 	Uuid %id{u4{14944690333921103085,9088505555914221017}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1567,7 +1568,7 @@ o
 {
 	Uuid %id{u4{15422927972323537896,9099623603189309446}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1605,7 +1606,7 @@ o
 {
 	Uuid %id{u4{8840950597262479753,9650559082355954600}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1677,7 +1678,7 @@ o
 {
 	Uuid %id{u4{7550012719438435504,9884948185468398174}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1902,7 +1903,7 @@ o
 {
 	Uuid %id{u4{14609962872770395972,10550406138493876903}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{0}
@@ -1915,7 +1916,7 @@ o
 {
 	Uuid %id{u4{12287505207375376994,10571266130657904739}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1987,7 +1988,7 @@ o
 {
 	Uuid %id{u4{4114307645305423677,10610539537735158615}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{1}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2151,7 +2152,7 @@ o
 {
 	Uuid %id{u4{13091665871301954662,11807585181291222300}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2167,7 +2168,7 @@ o
 {
 	Uuid %id{u4{7500912706077784465,11859215876521450211}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2230,7 +2231,7 @@ o
 {
 	Uuid %id{u4{3443840380553946824,12698283564269914159}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2268,7 +2269,7 @@ o
 {
 	Uuid %id{u4{6944764180618215088,13447846083535261419}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2381,7 +2382,7 @@ o
 {
 	Uuid %id{u4{6724456606441244215,14823856143364273536}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2744,7 +2745,7 @@ o
 {
 	Uuid %id{u4{7786237229542929601,15159865969458211641}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2807,7 +2808,7 @@ o
 {
 	Uuid %id{u4{5274231360271760104,15222609432314328232}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2837,7 +2838,7 @@ o
 {
 	Uuid %id{u4{17107362598068070338,15268560578869240557}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2850,7 +2851,7 @@ o
 {
 	Uuid %id{u4{8818019666323069144,15268928462680865302}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2938,7 +2939,7 @@ o
 {
 	Uuid %id{u4{14595356728796900841,15331304041725357148}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3026,7 +3027,7 @@ o
 {
 	Uuid %id{u4{18139145034848209881,15377623072091894218}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3089,7 +3090,7 @@ o
 {
 	Uuid %id{u4{9704473227939995354,15394852081233159925}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3102,7 +3103,7 @@ o
 {
 	Uuid %id{u4{4421041909531022813,15439619502413396712}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3140,7 +3141,7 @@ o
 {
 	Uuid %id{u4{3560054195283076054,15468596150437997156}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3153,7 +3154,7 @@ o
 {
 	Uuid %id{u4{11366141688543762924,15479691928603548967}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3166,7 +3167,7 @@ o
 {
 	Uuid %id{u4{1909036040259853316,15502362965269513303}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3179,7 +3180,7 @@ o
 {
 	Uuid %id{u4{578854522755584475,15503546690644188841}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3267,7 +3268,7 @@ o
 {
 	Uuid %id{u4{8854135819272593427,15542435391459665558}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3280,7 +3281,7 @@ o
 {
 	Uuid %id{u4{5452824346311162356,15548681995636050373}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3343,7 +3344,7 @@ o
 {
 	Uuid %id{u4{12881179563808216791,15577290759849026072}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3381,7 +3382,7 @@ o
 {
 	Uuid %id{u4{12397924125323902467,15588754421826202628}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3719,7 +3720,7 @@ o
 {
 	Uuid %id{u4{6339277907928088566,15674605614188344996}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3732,7 +3733,7 @@ o
 {
 	Uuid %id{u4{3381109101079881399,15678063906130951459}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3745,7 +3746,7 @@ o
 {
 	Uuid %id{u4{6274380498555380971,15679951999946307108}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3783,7 +3784,7 @@ o
 {
 	Uuid %id{u4{13284377686940828677,15714678040378497251}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3821,7 +3822,7 @@ o
 {
 	Uuid %id{u4{869103231808711902,15740807368987068050}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3834,7 +3835,7 @@ o
 {
 	Uuid %id{u4{14901958649432274151,15748093547436581120}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3847,7 +3848,7 @@ o
 {
 	Uuid %id{u4{194858875271169266,15748349683393182227}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3910,7 +3911,7 @@ o
 {
 	Uuid %id{u4{4412891537860020942,15787126399353605120}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3923,7 +3924,7 @@ o
 {
 	Uuid %id{u4{7139958654283909377,15788422109583334482}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4170,7 +4171,7 @@ o
 {
 	Uuid %id{u4{5776339944247863272,15856788156847610036}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4305,7 +4306,7 @@ o
 {
 	Uuid %id{u4{15490464057721880777,15899223424740894907}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4368,7 +4369,7 @@ o
 {
 	Uuid %id{u4{5299345099476947152,15913050017905899743}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4406,7 +4407,7 @@ o
 {
 	Uuid %id{u4{8865995120004902591,15916834338201616030}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4444,7 +4445,7 @@ o
 {
 	Uuid %id{u4{7468938156272677313,15952237601078149652}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4457,7 +4458,7 @@ o
 {
 	Uuid %id{u4{5825900592390167241,15959653989320484531}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4495,7 +4496,7 @@ o
 {
 	Uuid %id{u4{6353989250733733094,15979577801057732621}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4508,7 +4509,7 @@ o
 {
 	Uuid %id{u4{17601670140529579468,15986794087110736974}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4521,7 +4522,7 @@ o
 {
 	Uuid %id{u4{4645846206709888460,15994115817842062851}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4534,7 +4535,7 @@ o
 {
 	Uuid %id{u4{5124083845112323271,16005233865117151280}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4547,7 +4548,7 @@ o
 {
 	Uuid %id{u4{6364845352537469898,16007918034151923823}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4560,7 +4561,7 @@ o
 {
 	Uuid %id{u4{4956932287001507816,16014981063934266243}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4573,7 +4574,7 @@ o
 {
 	Uuid %id{u4{3313894723118997744,16022397452176601122}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4611,7 +4612,7 @@ o
 {
 	Uuid %id{u4{9897777556785042134,16025896831424269691}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4624,7 +4625,7 @@ o
 {
 	Uuid %id{u4{11536763329420367363,16027847080391766191}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4637,7 +4638,7 @@ o
 {
 	Uuid %id{u4{2133840337438718963,16056859280698179442}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4650,7 +4651,7 @@ o
 {
 	Uuid %id{u4{8500720593052816856,16061300094300803313}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4663,7 +4664,7 @@ o
 {
 	Uuid %id{u4{35119034723555858,16067919506581918446}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4676,7 +4677,7 @@ o
 {
 	Uuid %id{u4{2612077975841153774,16067977327973267871}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4689,7 +4690,7 @@ o
 {
 	Uuid %id{u4{6857683029170306784,16068716482543138192}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4752,7 +4753,7 @@ o
 {
 	Uuid %id{u4{5677628643490028003,16103178311064716512}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4790,7 +4791,7 @@ o
 {
 	Uuid %id{u4{6155866281892462814,16114296358339804941}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4903,7 +4904,7 @@ o
 {
 	Uuid %id{u4{10784231118401968344,16151820449976564314}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4941,7 +4942,7 @@ o
 {
 	Uuid %id{u4{12125268737709973989,16178976957696079978}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4979,7 +4980,7 @@ o
 {
 	Uuid %id{u4{9387174154669743066,16187223712853097936}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5017,7 +5018,7 @@ o
 {
 	Uuid %id{u4{9145680157776481513,16192996659233902666}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5030,7 +5031,7 @@ o
 {
 	Uuid %id{u4{7744136590787232994,16194640101095432815}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5068,7 +5069,7 @@ o
 {
 	Uuid %id{u4{4141746699605779413,16201790901374559208}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5081,7 +5082,7 @@ o
 {
 	Uuid %id{u4{623624443013162484,16219049383886232233}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5094,7 +5095,7 @@ o
 {
 	Uuid %id{u4{4639812085745049044,16225564519181401545}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5107,7 +5108,7 @@ o
 {
 	Uuid %id{u4{6564082205106954213,16229101929617011135}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5120,7 +5121,7 @@ o
 {
 	Uuid %id{u4{7042319843509389024,16240219976892099564}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5133,7 +5134,7 @@ o
 {
 	Uuid %id{u4{2171815337059335379,16256471790429349312}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5146,7 +5147,7 @@ o
 {
 	Uuid %id{u4{3242755122012823766,16260967782057935167}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5184,7 +5185,7 @@ o
 {
 	Uuid %id{u4{10496830520969225949,16266291484109320938}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5197,7 +5198,7 @@ o
 {
 	Uuid %id{u4{1599717558130313694,16268384170300270046}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5235,7 +5236,7 @@ o
 {
 	Uuid %id{u4{20061452592070634,16301691268644931582}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5248,7 +5249,7 @@ o
 {
 	Uuid %id{u4{419663172450034913,16302845998821848366}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5286,7 +5287,7 @@ o
 {
 	Uuid %id{u4{13462872068130920150,16310485510785588124}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5299,7 +5300,7 @@ o
 {
 	Uuid %id{u4{897900810852469724,16313964046096936795}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5412,7 +5413,7 @@ o
 {
 	Uuid %id{u4{11492940705584476116,16365166399840378228}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5450,7 +5451,7 @@ o
 {
 	Uuid %id{u4{11085335929258832575,16417421361413634725}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5463,7 +5464,7 @@ o
 {
 	Uuid %id{u4{5780484837764574725,16472750192189087737}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5476,7 +5477,7 @@ o
 {
 	Uuid %id{u4{776551379593872625,16481544434329744279}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5489,7 +5490,7 @@ o
 {
 	Uuid %id{u4{15981716539894247141,16505061916179985509}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5502,7 +5503,7 @@ o
 {
 	Uuid %id{u4{12725584616777314836,16512822618379239992}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5515,7 +5516,7 @@ o
 {
 	Uuid %id{u4{7721651158606612736,16521616860519896534}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5528,7 +5529,7 @@ o
 {
 	Uuid %id{u4{17253364090756980207,16536225323384534383}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5541,7 +5542,7 @@ o
 {
 	Uuid %id{u4{14584659576162021863,16540465179056519131}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5554,7 +5555,7 @@ o
 {
 	Uuid %id{u4{12941622012279511791,16547881567298854010}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5617,7 +5618,7 @@ o
 {
 	Uuid %id{u4{5751719796060168702,16576297749574686638}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5630,7 +5631,7 @@ o
 {
 	Uuid %id{u4{11761567626599233010,16582343395820432330}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5668,7 +5669,7 @@ o
 {
 	Uuid %id{u4{12239805265001667821,16593461443095520759}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5906,7 +5907,7 @@ o
 {
 	Uuid %id{u4{16570221948183853767,16656191793484299296}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5944,7 +5945,7 @@ o
 {
 	Uuid %id{u4{15173164984451628489,16691595056360832918}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5982,7 +5983,7 @@ o
 {
 	Uuid %id{u4{13530127420569118417,16699011444603167797}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6020,7 +6021,7 @@ o
 {
 	Uuid %id{u4{4740552029313433311,16711194595906642484}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6033,7 +6034,7 @@ o
 {
 	Uuid %id{u4{18183362644852282827,16719988838047299026}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6046,7 +6047,7 @@ o
 {
 	Uuid %id{u4{12350073034888839636,16733473273124746117}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6059,7 +6060,7 @@ o
 {
 	Uuid %id{u4{12828310673291274447,16744591320399834546}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6072,7 +6073,7 @@ o
 {
 	Uuid %id{u4{16213431282305838793,16774669727102089130}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6085,7 +6086,7 @@ o
 {
 	Uuid %id{u4{10225438048238454503,16949965027977307055}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6098,7 +6099,7 @@ o
 {
 	Uuid %id{u4{5221504590067752403,16958759270117963597}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6111,7 +6112,7 @@ o
 {
 	Uuid %id{u4{8828381084506229225,16985368290853840677}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6124,7 +6125,7 @@ o
 {
 	Uuid %id{u4{7185343520623719153,16992784679096175556}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6137,7 +6138,7 @@ o
 {
 	Uuid %id{u4{3824447626335527125,16994162532994497219}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6150,7 +6151,7 @@ o
 {
 	Uuid %id{u4{2181410062453017053,17001578921236832098}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6163,7 +6164,7 @@ o
 {
 	Uuid %id{u4{3251573227521308369,17013440159172753701}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6176,7 +6177,7 @@ o
 {
 	Uuid %id{u4{6005289134943440372,17027246507617753876}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6189,7 +6190,7 @@ o
 {
 	Uuid %id{u4{1001355676772738272,17036040749758410418}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6202,7 +6203,7 @@ o
 {
 	Uuid %id{u4{6483526773345875183,17038364554892842305}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6215,7 +6216,7 @@ o
 {
 	Uuid %id{u4{1479593315175173083,17047158797033498847}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6228,7 +6229,7 @@ o
 {
 	Uuid %id{u4{1854516263789083091,17048843422049287323}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6241,7 +6242,7 @@ o
 {
 	Uuid %id{u4{211478699906573019,17056259810291622202}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6254,7 +6255,7 @@ o
 {
 	Uuid %id{u4{17478168387935845854,17090721638813200522}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6267,7 +6268,7 @@ o
 {
 	Uuid %id{u4{17956406026338280665,17101839686088288951}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6280,7 +6281,7 @@ o
 {
 	Uuid %id{u4{8045627400216768033,17413126320243759557}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6296,7 +6297,7 @@ o
 {
 	Uuid %id{u4{10081598852938107982,17594879524831382910}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6359,7 +6360,7 @@ o
 {
 	Uuid %id{u4{6589931428878833239,17998051863021916064}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6460,12 +6461,12 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
+		s %ParentTypeName{"ezMeshComponentBase"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponent"}
 		u3 %TypeSize{128}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -6483,6 +6484,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezPrefabReferenceComponent"}
 		u3 %TypeSize{96}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{7605758958972330253,6687734095884105025}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshComponentBase"}
+		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -6608,8 +6627,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeSize{520}
-		u3 %TypeVersion{7}
+		u3 %TypeSize{536}
+		u3 %TypeVersion{9}
 	}
 }
 o
