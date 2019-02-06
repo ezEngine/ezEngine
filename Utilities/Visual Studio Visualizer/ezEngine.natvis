@@ -41,7 +41,7 @@
 		<DisplayString>{m_Data.m_pElement->m_Value.m_sString}</DisplayString>
 		<StringView>m_Data.m_pElement->m_Value.m_sString</StringView>
 		<Expand>
-			<Item Name="ref">m_Data.m_pElement->m_Value.m_iRefCount</Item>
+			<!--<Item Name="ref">m_Data.m_pElement->m_Value.m_iRefCount</Item>-->
 			<Item Name="hash">m_Data.m_pElement->m_Key,x</Item>
 		</Expand>
 	</Type>

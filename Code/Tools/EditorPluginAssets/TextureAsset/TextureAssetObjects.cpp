@@ -232,7 +232,7 @@ public:
     if (pCompression && pCompression->m_Value.IsA<bool>())
     {
       if (pCompression->m_Value.Get<bool>())
-        pNode->AddProperty("CompressionMode", (ezInt32)ezTexConvCompressionMode::Medium);
+        pNode->AddProperty("CompressionMode", (ezInt32)ezTexConvCompressionMode::High);
       else
         pNode->AddProperty("CompressionMode", (ezInt32)ezTexConvCompressionMode::None);
     }
