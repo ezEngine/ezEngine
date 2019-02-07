@@ -1,6 +1,5 @@
 #pragma once
 
-#include <GuiFoundation/PCH.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 
 class QHBoxLayout;

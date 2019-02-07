@@ -452,7 +452,7 @@ public:
     if (ReadEntireFile(szFile, sFileContent) == EZ_FAILURE)
       return;
 
-    if (ezStringUtils::EndsWith(szFile, "/PCH.h"))
+    if (ezStringUtils::EndsWith(szFile, "PCH.h"))
       ezLog::Dev("Skipping PCH for #include search: '{0}'", szFile);
     else
       FindIncludes(sFileContent);

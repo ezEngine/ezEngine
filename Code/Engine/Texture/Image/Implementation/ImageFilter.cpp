@@ -180,7 +180,7 @@ ezUInt32 ezImageFilterWeights::GetNumWeights() const
 
 ezSimdFloat ezImageFilterWeights::GetWeight(ezUInt32 dstSampleIndex, ezUInt32 weightIndex) const
 {
-  EZ_ASSERT_DEBUG(weightIndex < m_numWeights, "Invalid weight index %i (should be < %i)", weightIndex, m_numWeights);
+  EZ_ASSERT_DEBUG(weightIndex < m_numWeights, "Invalid weight index {} (should be < {})", weightIndex, m_numWeights);
 
   return ezSimdFloat(m_weights[(dstSampleIndex % m_dstSamplesReduced) * m_numWeights + weightIndex]);
 }

@@ -1,4 +1,6 @@
 #pragma once
 
-#include <Core/PCH.h>
+#include <Foundation/Basics.h>
+#include <Foundation/Logging/Log.h>
+
 #include <PxPhysicsAPI.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <FoundationPCH.h>
 
 #include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Configuration/Startup.h>

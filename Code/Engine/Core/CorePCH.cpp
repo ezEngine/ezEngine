@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <CorePCH.h>
 
 EZ_STATICLINK_LIBRARY(Core)
 {

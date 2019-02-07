@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <CorePCH.h>
 
 #include <Core/Application/Config/PluginConfig.h>
 #include <Foundation/IO/FileSystem/FileReader.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <FoundationPCH.h>
 
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/GraphPatch.h>

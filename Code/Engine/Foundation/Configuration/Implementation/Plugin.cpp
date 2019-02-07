@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <FoundationPCH.h>
 
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Containers/Set.h>

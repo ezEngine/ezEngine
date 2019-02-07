@@ -33,7 +33,7 @@ private:
       ezImageFormat::Enum format = static_cast<ezImageFormat::Enum>(i);
 
       const char* name = ezImageFormat::GetName(format);
-      EZ_ASSERT_DEV(name != nullptr, "Missing format information for format %i", i);
+      EZ_ASSERT_DEV(name != nullptr, "Missing format information for format {}", i);
 
       bool isEncodable = ezImageConversion::IsConvertible(defaultFormat, format);
 

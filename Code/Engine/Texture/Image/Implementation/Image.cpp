@@ -34,7 +34,7 @@ void ezImageView::ResetAndViewExternalStorage(const ezImageHeader& header, ezArr
 
   ezUInt32 dataSize = ComputeLayout();
 
-  EZ_ASSERT_DEV(imageData.GetCount() == dataSize, "Provided image storage (%i bytes) doesn't match required data size (%i bytes)",
+  EZ_ASSERT_DEV(imageData.GetCount() == dataSize, "Provided image storage ({} bytes) doesn't match required data size ({} bytes)",
                 imageData.GetCount(), dataSize);
 
   // Const cast is safe here as we will only perform non-const access if this is an ezImage which owns mutable access to the storage
