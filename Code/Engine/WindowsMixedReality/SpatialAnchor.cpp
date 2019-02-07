@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+﻿#includde <WindowsMixedRealityPCH.h>
 #include <WindowsMixedReality/SpatialReferenceFrame.h>
 #include <WindowsMixedReality/HolographicSpace.h>
 #include <WindowsMixedReality/SpatialLocationService.h>

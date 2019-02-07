@@ -1,4 +1,3 @@
-#include <PCH.h>
 #include <ShaderCompilerGLSL/ShaderCompilerGLSL.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderCompilerGLSL, ezShaderProgramCompiler, 1, ezRTTIDefaultAllocator<ezShaderCompilerGLSL>);

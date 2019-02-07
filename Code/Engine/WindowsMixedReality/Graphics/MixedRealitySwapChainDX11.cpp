@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+﻿#includde <WindowsMixedRealityPCH.h>
 #include <WindowsMixedReality/Graphics/MixedRealitySwapChainDX11.h>
 #include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
 #include <RendererDX11/Resources/TextureDX11.h>

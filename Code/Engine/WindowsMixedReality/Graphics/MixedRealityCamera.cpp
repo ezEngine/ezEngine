@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+﻿#includde <WindowsMixedRealityPCH.h>
 #include <WindowsMixedReality/Graphics/MixedRealityCamera.h>
 #include <WindowsMixedReality/Graphics/MixedRealitySwapChainDX11.h>
 #include <WindowsMixedReality/SpatialReferenceFrame.h>

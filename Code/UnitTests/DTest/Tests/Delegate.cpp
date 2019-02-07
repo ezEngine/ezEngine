@@ -1,4 +1,3 @@
-#include <DTest/PCH.h>
 #include <Foundation/Types/Delegate.h>
 
 int TargetFunction(float arg1, double arg2)

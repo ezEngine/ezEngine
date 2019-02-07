@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+﻿#includde <WindowsMixedRealityPCH.h>
 #include <InputXBox360/InputDeviceXBox.h>
 
 // Among other things, this plugin defines input devices, which is why it acts as a subsystem to InputDevices and depends on the InputManager.

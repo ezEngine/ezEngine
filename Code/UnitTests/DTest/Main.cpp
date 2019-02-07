@@ -1,4 +1,3 @@
-#include <DTest/PCH.h>
 #include <TestFramework/Framework/TestFramework.h>
 #include <TestFramework/Utilities/TestSetup.h>
 
@@ -35,7 +34,7 @@ void ezIncreaseAssertCount()
 int ezTestMain(int argc, char **argv)
 {
   ezTestSetup::InitTestFramework("FoundationTest", "Foundation Tests", argc, (const char**) argv);
-  
+
   // *** Add additional output handlers and configurations here. ***
 
   while (ezTestSetup::RunTests() == ezTestAppRun::Continue)
@@ -43,7 +42,7 @@ int ezTestMain(int argc, char **argv)
   }
 
   const ezInt32 iFailedTests = ezTestSetup::GetFailedTestCount();
-  
+
   ezTestSetup::DeInitTestFramework();
   return iFailedTests;
 }

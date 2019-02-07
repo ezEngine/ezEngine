@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <OpenVRPluginPCH.h>
 
 #include <OpenVRPlugin/OpenVRIncludes.h>
 #include <OpenVRPlugin/OpenVRSingleton.h>
