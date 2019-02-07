@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/EditTools/EditTool.h>
 #include <EditorFramework/Gizmos/DrawBoxGizmo.h>
 

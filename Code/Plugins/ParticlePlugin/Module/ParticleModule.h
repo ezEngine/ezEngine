@@ -2,7 +2,7 @@
 
 #include <Foundation/DataProcessing/Stream/ProcessingStream.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
-#include <ParticlePlugin/Basics.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
 #include <ParticlePlugin/Declarations.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 

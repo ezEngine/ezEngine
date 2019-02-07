@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameEngine/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <RendererCore/Pipeline/Declarations.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <RendererCore/Pipeline/RenderData.h>

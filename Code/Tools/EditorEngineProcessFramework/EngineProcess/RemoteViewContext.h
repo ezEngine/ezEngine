@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <EditorEngineProcessFramework/Plugin.h>
+#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 #include <System/Window/Window.h>
 #include <RendererCore/Pipeline/Declarations.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/PropertyGrid/PropertyBaseWidget.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>

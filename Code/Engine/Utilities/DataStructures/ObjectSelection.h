@@ -3,7 +3,7 @@
 #include <Core/World/GameObject.h>
 #include <Core/World/World.h>
 #include <Foundation/Containers/Deque.h>
-#include <Utilities/Basics.h>
+#include <Utilities/UtilitiesDLL.h>
 
 /// \brief Stores a list of game objects as a 'selection'. Provides some common convenience functions for working with selections.
 class EZ_UTILITIES_DLL ezObjectSelection

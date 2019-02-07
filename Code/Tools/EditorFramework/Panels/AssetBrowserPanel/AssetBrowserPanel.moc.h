@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 #include <Tools/EditorFramework/ui_AssetBrowserPanel.h>

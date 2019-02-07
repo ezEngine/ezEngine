@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorPluginAssets/Plugin.h>
+#include <EditorPluginAssets/EditorPluginAssetsDLL.h>
 #include <EditorPluginAssets/Util/AssetUtils.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <ModelImporter/Declarations.h>

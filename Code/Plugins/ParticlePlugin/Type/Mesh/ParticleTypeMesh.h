@@ -3,7 +3,7 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <ParticlePlugin/Type/ParticleType.h>
 #include <RendererCore/Pipeline/RenderData.h>
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 typedef ezTypedResourceHandle<class ezMeshResource> ezMeshResourceHandle;
 typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <FmodPlugin/Basics.h>
+#include <FmodPlugin/FmodPluginDLL.h>
 #include <Core/World/World.h>
 #include <Core/World/Component.h>
 

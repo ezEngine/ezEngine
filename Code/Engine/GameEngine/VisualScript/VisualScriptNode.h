@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameEngine/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Core/World/Declarations.h>

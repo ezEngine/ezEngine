@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <Tools/EditorFramework/ui_TagsDlg.h>
 #include <Foundation/Strings/String.h>
 #include <QDialog>

@@ -2,7 +2,7 @@
 
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
-#include <GameEngine/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
 
 typedef ezComponentManagerSimple<class ezSimpleWindComponent, ezComponentUpdateType::WhenSimulating> ezSimpleWindComponentManager;
 

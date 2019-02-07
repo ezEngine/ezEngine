@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Logging/LogEntry.h>
 #include <Foundation/Containers/Deque.h>
 #include <QAbstractItemModel>

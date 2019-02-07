@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
+#include <RendererCore/RendererCoreDLL.h>
 #include <Core/World/World.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 

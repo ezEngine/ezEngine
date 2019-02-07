@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/ResourceManager/Resource.h>
-#include <RecastPlugin/Basics.h>
+#include <RecastPlugin/RecastPluginDLL.h>
 
 typedef ezTypedResourceHandle<class ezRecastNavMeshResource> ezRecastNavMeshResourceHandle;
 

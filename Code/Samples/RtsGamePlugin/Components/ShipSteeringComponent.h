@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RtsGamePlugin/RtsGamePlugin.h>
+#include <RtsGamePlugin/RtsGamePluginDLL.h>
 #include <RtsGamePlugin/Components/ComponentMessages.h>
 
 class RtsShipSteeringComponentManager : public ezComponentManager<class RtsShipSteeringComponent, ezBlockStorageType::Compact>

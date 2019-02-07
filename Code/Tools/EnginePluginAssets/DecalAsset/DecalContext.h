@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <EnginePluginAssets/Plugin.h>
+#include <EnginePluginAssets/EnginePluginAssetsDLL.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 
 class EZ_ENGINEPLUGINASSETS_DLL ezDecalContext : public ezEngineProcessDocumentContext

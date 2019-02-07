@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ParticlePlugin/Basics.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
 #include <RendererCore/Pipeline/Extractor.h>
 
 class ezView;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameEngine/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <Foundation/CodeUtils/MathExpression.h>
 

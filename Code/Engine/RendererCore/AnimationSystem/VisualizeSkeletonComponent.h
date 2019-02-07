@@ -1,6 +1,6 @@
 #pragma once
 
-#include <PhysXPlugin/Basics.h>
+#include <PhysXPlugin/PhysXPluginDLL.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <RendererCore/Components/RenderComponent.h>

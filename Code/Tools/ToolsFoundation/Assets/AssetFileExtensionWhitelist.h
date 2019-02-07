@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ToolsFoundation/Basics.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Strings/String.h>

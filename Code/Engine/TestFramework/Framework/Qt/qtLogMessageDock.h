@@ -5,7 +5,7 @@
 #include <Code/Engine/TestFramework/ui_qtLogMessageDock.h>
 #include <QAbstractItemModel>
 #include <QDockWidget>
-#include <TestFramework/Basics.h>
+#include <TestFramework/TestFrameworkDLL.h>
 #include <vector>
 
 class ezQtTestFramework;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
-#include <System/Basics.h>
+#include <System/SystemDLL.h>
 
 #include <windows.applicationmodel.core.h>
 #include <wrl/client.h>

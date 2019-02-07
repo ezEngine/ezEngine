@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Basics.h>
+#include <Core/CoreDLL.h>
 #include <Foundation/Communication/Message.h>
 
 struct EZ_CORE_DLL ezMsgDeleteGameObject : public ezMessage

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
+#include <RendererCore/RendererCoreDLL.h>
 #include <Core/World/Declarations.h>
 #include <Foundation/Communication/Message.h>
 

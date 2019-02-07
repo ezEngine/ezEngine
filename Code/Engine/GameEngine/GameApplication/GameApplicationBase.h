@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameEngine/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
 
 #include <Core/Application/Application.h>
 #include <Foundation/Types/UniquePtr.h>

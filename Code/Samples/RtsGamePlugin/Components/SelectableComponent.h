@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RtsGamePlugin/RtsGamePlugin.h>
+#include <RtsGamePlugin/RtsGamePluginDLL.h>
 
 typedef ezComponentManager<class RtsSelectableComponent, ezBlockStorageType::Compact> RtsSelectableComponentManager;
 

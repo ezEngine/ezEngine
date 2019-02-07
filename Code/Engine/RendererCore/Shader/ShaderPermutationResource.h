@@ -3,7 +3,7 @@
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Time/Timestamp.h>
-#include <RendererCore/Basics.h>
+#include <RendererCore/RendererCoreDLL.h>
 #include <RendererCore/Shader/ShaderPermutationBinary.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 

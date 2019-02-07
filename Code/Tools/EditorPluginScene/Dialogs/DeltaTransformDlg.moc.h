@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorPluginScene/Plugin.h>
+#include <EditorPluginScene/EditorPluginSceneDLL.h>
 #include <Tools/EditorPluginScene/ui_DeltaTransformDlg.h>
 #include <QDialog>
 

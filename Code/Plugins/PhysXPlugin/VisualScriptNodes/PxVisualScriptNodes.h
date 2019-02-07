@@ -1,6 +1,6 @@
 #pragma once
 
-#include <PhysXPlugin/Basics.h>
+#include <PhysXPlugin/PhysXPluginDLL.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <Core/Messages/TriggerMessage.h>
 #include <Foundation/Strings/HashedString.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <Tools/EditorFramework/ui_AssetBrowserDlg.h>
 #include <QDialog>
 

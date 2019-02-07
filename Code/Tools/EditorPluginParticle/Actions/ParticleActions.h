@@ -1,7 +1,7 @@
 #pragma once
 
-#include <EditorPluginParticle/Plugin.h>
-#include <GuiFoundation/Basics.h>
+#include <EditorPluginParticle/EditorPluginParticleDLL.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
 
 class ezParticleEffectAssetDocument;

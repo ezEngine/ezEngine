@@ -4,7 +4,7 @@
 #include <EditorFramework/Assets/AssetDocumentInfo.h>
 #include <GameEngine/Configuration/PlatformProfile.h>
 #include <EditorFramework/Assets/Declarations.h>
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <Foundation/Algorithm/HashHelperString.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Containers/HashTable.h>

@@ -5,7 +5,7 @@
 #  include <Code/Engine/TestFramework/ui_qtTestGUI.h>
 #  include <QMainWindow>
 
-#  include <TestFramework/Basics.h>
+#  include <TestFramework/TestFrameworkDLL.h>
 
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #    define USE_WIN_EXTRAS EZ_ON

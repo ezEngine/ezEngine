@@ -1,9 +1,9 @@
-﻿
+
 #pragma once
 
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Shader/VertexDeclaration.h>
-#include <RendererDX11/Basics.h>
+#include <RendererDX11/RendererDX11DLL.h>
 
 struct ID3D11InputLayout;
 

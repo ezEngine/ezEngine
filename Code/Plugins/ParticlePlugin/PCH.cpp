@@ -1,7 +1,7 @@
 #include <PCH.h>
 
 #include <Foundation/Configuration/Plugin.h>
-#include <ParticlePlugin/Basics.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
 #include <ParticlePlugin/Declarations.h>
 
 // clang-format off

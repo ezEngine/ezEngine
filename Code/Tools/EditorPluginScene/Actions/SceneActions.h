@@ -1,9 +1,9 @@
 #pragma once
 
-#include <EditorPluginScene/Plugin.h>
+#include <EditorPluginScene/EditorPluginSceneDLL.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <GuiFoundation/Action/BaseActions.h>
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 class ezPreferences;
 

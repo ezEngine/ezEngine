@@ -1,6 +1,6 @@
 #pragma once
 
-#include <FileservePlugin/Plugin.h>
+#include <FileservePlugin/FileservePluginDLL.h>
 
 #include <Foundation/Communication/RemoteInterface.h>
 #include <Foundation/Configuration/Singleton.h>

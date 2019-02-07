@@ -2,7 +2,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
-#include <TestFramework/Basics.h>
+#include <TestFramework/TestFrameworkDLL.h>
 #include <TestFramework/Framework/TestFramework.h>
 
 #include <Foundation/Basics/Platform/uwp/UWPUtils.h>

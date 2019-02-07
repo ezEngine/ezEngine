@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 #include <Foundation/Containers/HashTable.h>
 
 class EZ_RENDERERFOUNDATION_DLL ezGALResourceBase : public ezRefCounted

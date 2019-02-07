@@ -1,7 +1,7 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
-#include <GuiFoundation/Basics.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
 
 class ezPreferences;

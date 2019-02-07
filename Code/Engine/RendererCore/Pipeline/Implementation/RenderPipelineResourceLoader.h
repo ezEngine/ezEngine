@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
+#include <RendererCore/RendererCoreDLL.h>
 #include <Foundation/Serialization/RttiConverter.h>
 
 class ezRenderPipeline;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ToolsFoundation/Basics.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <ToolsFoundation/Object/ObjectMetaData.h>
 #include <ToolsFoundation/Document/Document.h>

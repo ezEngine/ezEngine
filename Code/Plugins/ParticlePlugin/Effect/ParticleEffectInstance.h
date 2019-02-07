@@ -3,7 +3,7 @@
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Math/Transform.h>
 #include <Foundation/Threading/TaskSystem.h>
-#include <ParticlePlugin/Basics.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 class ezParticleEffectInstance;

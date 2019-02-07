@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Code/Tools/GuiFoundation/ui_LogWidget.h>
 #include <Foundation/Logging/Log.h>
 #include <QWidget>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Algorithm/HashingUtils.h>
-#include <TestFramework/Basics.h>
+#include <TestFramework/TestFrameworkDLL.h>
 
 struct ezConstructionCounter
 {

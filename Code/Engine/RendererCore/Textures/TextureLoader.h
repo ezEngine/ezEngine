@@ -1,10 +1,10 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
+#include <RendererCore/RendererCoreDLL.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Texture/Image/Image.h>
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
 #include <Texture/ezTexFormat/ezTexFormat.h>
 

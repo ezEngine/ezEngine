@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Basics.h>
+#include <Core/CoreDLL.h>
 #include <Foundation/IO/Stream.h>
 
 /// \brief Simple class to handle asset file headers (the very first bytes in all transformed asset files)

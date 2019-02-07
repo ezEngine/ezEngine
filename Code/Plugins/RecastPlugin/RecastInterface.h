@@ -1,7 +1,7 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Math/Vec3.h>
-#include <RecastPlugin/Basics.h>
+#include <RecastPlugin/RecastPluginDLL.h>
 #include <Foundation/Configuration/Plugin.h>
 //
 //class ezAiInterface

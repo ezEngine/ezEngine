@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <Foundation/Strings/String.h>
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <QWidget>

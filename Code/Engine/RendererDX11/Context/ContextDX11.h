@@ -1,7 +1,7 @@
-﻿
+
 #pragma once
 
-#include <RendererDX11/Basics.h>
+#include <RendererDX11/RendererDX11DLL.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Context/Context.h>
 #include <Foundation/Types/Bitflags.h>

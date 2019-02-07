@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SampleGamePlugin/SampleGamePlugin.h>
+#include <SampleGamePlugin/SampleGamePluginDLL.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/GameState.h>
 #include <GameEngine/GameState/FallbackGameState.h>

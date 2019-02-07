@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameEngine/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <Core/World/World.h>
 #include <Core/World/Component.h>
 #include <GameEngine/Resources/PropertyAnimResource.h>

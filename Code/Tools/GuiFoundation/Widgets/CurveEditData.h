@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Math/Color8UNorm.h>

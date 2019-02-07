@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameEngine/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <Foundation/Math/Vec3.h>
 #include <Utilities/DataStructures/DynamicOctree.h>
 

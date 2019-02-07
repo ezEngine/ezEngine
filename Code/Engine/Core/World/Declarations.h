@@ -6,7 +6,7 @@
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/Id.h>
 
-#include <Core/Basics.h>
+#include <Core/CoreDLL.h>
 
 class ezWorld;
 class ezSpatialSystem;

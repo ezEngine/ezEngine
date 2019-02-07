@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/ResourceManager/Resource.h>
-#include <ProceduralPlacementPlugin/Basics.h>
+#include <ProceduralPlacementPlugin/ProceduralPlacementPluginDLL.h>
 
 typedef ezTypedResourceHandle<class ezProceduralPlacementResource> ezProceduralPlacementResourceHandle;
 

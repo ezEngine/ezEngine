@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Widgets/GroupBoxBase.moc.h>
 
 class EZ_GUIFOUNDATION_DLL ezQtInlinedGroupBox : public ezQtGroupBoxBase

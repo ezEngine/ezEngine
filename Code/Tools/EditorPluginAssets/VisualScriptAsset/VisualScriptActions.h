@@ -1,7 +1,7 @@
-﻿#pragma once
+#pragma once
 
-#include <EditorPluginAssets/Plugin.h>
-#include <GuiFoundation/Basics.h>
+#include <EditorPluginAssets/EditorPluginAssetsDLL.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
 
 class ezVisualScriptActions

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <FmodPlugin/Basics.h>
+#include <FmodPlugin/FmodPluginDLL.h>
 #include <Core/ResourceManager/Resource.h>
 
 typedef ezTypedResourceHandle<class ezFmodSoundEventResource> ezFmodSoundEventResourceHandle;

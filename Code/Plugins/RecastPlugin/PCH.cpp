@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <RecastPlugin/Basics.h>
+#include <RecastPlugin/RecastPluginDLL.h>
 
 EZ_STATICLINK_LIBRARY(RecastPlugin)
 {

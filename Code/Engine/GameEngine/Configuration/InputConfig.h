@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameEngine/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/Variant.h>
 

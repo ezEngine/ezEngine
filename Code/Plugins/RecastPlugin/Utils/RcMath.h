@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <RecastPlugin/Basics.h>
+#include <RecastPlugin/RecastPluginDLL.h>
 #include <Foundation/Math/Declarations.h>
 
 /// \brief Helper class to convert between Recast's convention (float[3] and Y is up) and ezVec3 (Z up)

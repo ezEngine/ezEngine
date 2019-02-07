@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <PhysXPlugin/Basics.h>
+#include <PhysXPlugin/PhysXPluginDLL.h>
 #include <Foundation/SimdMath/SimdTransform.h>
 
 #include <PxPhysicsAPI.h>

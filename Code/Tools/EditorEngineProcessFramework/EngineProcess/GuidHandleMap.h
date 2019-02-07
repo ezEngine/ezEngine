@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <EditorEngineProcessFramework/Plugin.h>
+#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 
 template<typename HandleType>
 class ezEditorGuidEngineHandleMap

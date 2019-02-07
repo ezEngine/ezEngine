@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorEngineProcessFramework/Plugin.h>
+#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <Foundation/Types/Uuid.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <EditorEngineProcessFramework/EngineProcess/WorldRttiConverterContext.h>

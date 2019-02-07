@@ -4,10 +4,10 @@
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Texture/Image/Image.h>
-#include <RendererCore/Basics.h>
+#include <RendererCore/RendererCoreDLL.h>
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;

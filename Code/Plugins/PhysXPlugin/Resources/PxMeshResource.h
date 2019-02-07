@@ -2,7 +2,7 @@
 
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Math/BoundingBoxSphere.h>
-#include <PhysXPlugin/Basics.h>
+#include <PhysXPlugin/PhysXPluginDLL.h>
 
 typedef ezTypedResourceHandle<class ezPxMeshResource> ezPxMeshResourceHandle;
 typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;

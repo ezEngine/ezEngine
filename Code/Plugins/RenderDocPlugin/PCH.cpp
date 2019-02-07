@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <RenderDocPlugin/Basics.h>
+#include <RenderDocPlugin/RenderDocPluginDLL.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Strings/TranslationLookup.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <FmodPlugin/Basics.h>
+#include <FmodPlugin/FmodPluginDLL.h>
 #include <GameEngine/Interfaces/SoundInterface.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Singleton.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RecastPlugin/Basics.h>
+#include <RecastPlugin/RecastPluginDLL.h>
 #include <Core/World/WorldModule.h>
 #include <NavMeshBuilder/NavMeshPointsOfInterest.h>
 

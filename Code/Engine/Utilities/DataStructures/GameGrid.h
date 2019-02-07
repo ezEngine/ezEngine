@@ -4,7 +4,7 @@
 #include <Foundation/Math/Mat3.h>
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Math/Vec3.h>
-#include <Utilities/Basics.h>
+#include <Utilities/UtilitiesDLL.h>
 
 /// \brief ezGameGrid is a general purpose 2D grid structure that has several convenience functions which are often required when working
 /// with a grid.

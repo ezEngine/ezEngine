@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/World/Declarations.h>
-#include <Utilities/Basics.h>
+#include <Utilities/UtilitiesDLL.h>
 
 class ezWorld;
 class ezDGMLGraph;

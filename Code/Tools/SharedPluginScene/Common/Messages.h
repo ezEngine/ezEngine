@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <SharedPluginScene/Plugin.h>
+#include <SharedPluginScene/SharedPluginSceneDLL.h>
 
 class EZ_SHAREDPLUGINSCENE_DLL ezExposedSceneProperty : public ezReflectedClass
 {

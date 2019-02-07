@@ -3,7 +3,7 @@
 /// \file
 
 #include <Core/Application/Implementation/ApplicationEntryPoint.h>
-#include <Core/Basics.h>
+#include <Core/CoreDLL.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 
 class ezApplication;

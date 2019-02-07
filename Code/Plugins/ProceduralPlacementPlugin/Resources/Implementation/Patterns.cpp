@@ -1,7 +1,7 @@
 #include <PCH.h>
 
 #include <Foundation/Containers/HashTable.h>
-#include <ProceduralPlacementPlugin/Basics.h>
+#include <ProceduralPlacementPlugin/ProceduralPlacementPluginDLL.h>
 
 namespace ezPPInternal
 {

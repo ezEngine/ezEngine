@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/EditTools/GizmoEditTool.h>
 #include <EditorFramework/Gizmos/TranslateGizmo.h>
 #include <EditorFramework/Gizmos/RotateGizmo.h>

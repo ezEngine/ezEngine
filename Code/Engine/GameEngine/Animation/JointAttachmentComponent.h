@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/World/ComponentManager.h>
-#include <GameEngine/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 
 typedef ezComponentManager<class ezJointAttachmentComponent, ezBlockStorageType::FreeList> ezJointAttachmentComponentManager;

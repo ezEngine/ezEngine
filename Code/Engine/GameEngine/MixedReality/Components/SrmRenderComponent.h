@@ -3,7 +3,7 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/SettingsComponent.h>
 #include <Core/World/SettingsComponentManager.h>
-#include <GameEngine/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
 
 struct ezSrmManagerEvent;
 struct ezMeshBufferResourceDescriptor;

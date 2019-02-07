@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <ToolsFoundation/Basics.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <Foundation/Logging/Log.h>

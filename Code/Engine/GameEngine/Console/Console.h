@@ -5,7 +5,7 @@
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/StringBuilder.h>
-#include <GameEngine/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/Console/ConsoleFunction.h>
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Containers/StaticArray.h>

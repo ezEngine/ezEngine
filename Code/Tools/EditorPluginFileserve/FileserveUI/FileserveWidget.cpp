@@ -6,7 +6,7 @@
 #include <FileservePlugin/Fileserver/Fileserver.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <QAbstractSocket>
 #include <QHostAddress>
 #include <QInputDialog>

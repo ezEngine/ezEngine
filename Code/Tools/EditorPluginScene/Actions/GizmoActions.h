@@ -1,7 +1,7 @@
 #pragma once
 
-#include <EditorPluginScene/Plugin.h>
-#include <GuiFoundation/Basics.h>
+#include <EditorPluginScene/EditorPluginSceneDLL.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
 
 /////

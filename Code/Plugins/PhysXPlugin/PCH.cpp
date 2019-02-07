@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <PhysXPlugin/Basics.h>
+#include <PhysXPlugin/PhysXPluginDLL.h>
 
 EZ_STATICLINK_LIBRARY(PhysXPlugin)
 {

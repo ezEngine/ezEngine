@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Logging/Log.h>
-#include <System/Basics.h>
+#include <System/SystemDLL.h>
 #include <System/Window/Window.h>
 
 static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPARAM WParam, LPARAM LParam)

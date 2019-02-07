@@ -2,7 +2,7 @@
 
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
 #include <SFML/Window.hpp>
-#include <System/Basics.h>
+#include <System/SystemDLL.h>
 
 /// \brief Implements an input device abstraction on top of the SFML library.
 ///

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ToolsFoundation/Basics.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>

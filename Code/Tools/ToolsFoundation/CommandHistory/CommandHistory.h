@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ToolsFoundation/Basics.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <ToolsFoundation/Command/Command.h>
 
 class ezCommandHistory;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Types/Bitflags.h>
-#include <ModelImporter/Plugin.h>
+#include <ModelImporter/ModelImporterDLL.h>
 
 namespace ezModelImporter
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 #include <Foundation/Strings/String.h>
 

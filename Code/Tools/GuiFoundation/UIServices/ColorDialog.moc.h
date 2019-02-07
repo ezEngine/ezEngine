@@ -1,4 +1,4 @@
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Math/Color.h>
 #include <Code/Tools/GuiFoundation/ui_ColorDialog.h>
 #include <GuiFoundation/UIServices/ColorDlgWidgets.moc.h>

@@ -2,8 +2,8 @@
 
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Reflection/Reflection.h>
-#include <GameEngine/Basics.h>
-#include <RendererFoundation/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 class ezViewHandle;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Basics.h>
+#include <Core/CoreDLL.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/Bitflags.h>

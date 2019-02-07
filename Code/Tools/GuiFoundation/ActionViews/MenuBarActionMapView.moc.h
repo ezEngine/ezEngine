@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 #include <GuiFoundation/Action/ActionMap.h>
 #include <QMenuBar>

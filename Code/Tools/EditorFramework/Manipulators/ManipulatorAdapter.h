@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <Foundation/Types/Variant.h>
 #include <ToolsFoundation/Object/ObjectMetaData.h>
 #include <ToolsFoundation/Document/Document.h>

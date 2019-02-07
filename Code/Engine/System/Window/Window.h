@@ -5,7 +5,7 @@
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <System/Basics.h>
+#include <System/SystemDLL.h>
 
 class ezOpenDdlWriter;
 class ezOpenDdlReader;

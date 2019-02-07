@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ParticlePlugin/Type/ParticleType.h>
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <ParticlePlugin/Type/Trail/TrailRenderer.h>
 

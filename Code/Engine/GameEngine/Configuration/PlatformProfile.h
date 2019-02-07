@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Reflection/Reflection.h>
-#include <GameEngine/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
 
 class ezChunkStreamWriter;
 class ezChunkStreamReader;

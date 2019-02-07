@@ -1,7 +1,7 @@
 #pragma once
 
-#include <EditorPluginPhysX/Plugin.h>
-#include <GuiFoundation/Basics.h>
+#include <EditorPluginPhysX/EditorPluginPhysXDLL.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
 
 

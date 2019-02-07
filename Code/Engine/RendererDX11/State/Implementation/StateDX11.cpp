@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <RendererDX11/Basics.h>
+#include <RendererDX11/RendererDX11DLL.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/State/StateDX11.h>
 

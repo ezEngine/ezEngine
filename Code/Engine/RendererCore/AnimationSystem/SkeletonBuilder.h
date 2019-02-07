@@ -2,7 +2,7 @@
 
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/AnimationSystem/Skeleton.h>
-#include <RendererCore/Basics.h>
+#include <RendererCore/RendererCoreDLL.h>
 
 /// \brief The skeleton builder class provides the means to build skeleton instances from scratch.
 /// This class is not necessary to use skeletons, usually they should be deserialized from data created by the tools.

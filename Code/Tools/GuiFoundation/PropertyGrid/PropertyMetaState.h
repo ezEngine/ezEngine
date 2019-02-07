@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>

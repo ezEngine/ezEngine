@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ToolsFoundation/Basics.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/Status.h>
 #include <ToolsFoundation/Selection/SelectionManager.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>

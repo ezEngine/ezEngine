@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorPluginFmod/Plugin.h>
+#include <EditorPluginFmod/EditorPluginFmodDLL.h>
 #include <QDialog>
 #include <Tools/EditorPluginFmod/ui_FmodProjectSettingsDlg.h>
 #include <FmodPlugin/FmodSingleton.h>

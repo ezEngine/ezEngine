@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Basics.h>
+#include <Core/CoreDLL.h>
 #include <Core/Input/Declarations.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Reflection/Reflection.h>

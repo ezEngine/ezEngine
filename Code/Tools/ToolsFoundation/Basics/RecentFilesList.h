@@ -1,4 +1,4 @@
-#include <ToolsFoundation/Basics.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Strings/String.h>
 

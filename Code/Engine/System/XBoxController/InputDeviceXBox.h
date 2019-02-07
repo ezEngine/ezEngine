@@ -1,6 +1,6 @@
 #pragma once
 
-#include <System/Basics.h>
+#include <System/SystemDLL.h>
 #include <Core/Input/DeviceTypes/Controller.h>
 
 /// \brief An implementation of ezInputDeviceController that handles XBox 360 controllers.

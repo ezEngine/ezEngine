@@ -7,7 +7,7 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/Id.h>
 #include <Foundation/Types/RefCounted.h>
-#include <ParticlePlugin/Basics.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
 
 class ezWorld;
 class ezParticleSystemDescriptor;

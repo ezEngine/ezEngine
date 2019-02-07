@@ -2,7 +2,7 @@
 
 #include <ParticlePlugin/Type/ParticleType.h>
 #include <ParticlePlugin/Type/Quad/QuadParticleRenderer.h>
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
 

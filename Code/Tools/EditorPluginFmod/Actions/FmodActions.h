@@ -1,7 +1,7 @@
-﻿#pragma once
+#pragma once
 
-#include <EditorPluginFmod/Plugin.h>
-#include <GuiFoundation/Basics.h>
+#include <EditorPluginFmod/EditorPluginFmodDLL.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
 #include <Foundation/Configuration/CVar.h>
 

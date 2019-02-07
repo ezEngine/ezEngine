@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <ProceduralPlacementPlugin/Basics.h>
+#include <ProceduralPlacementPlugin/ProceduralPlacementPluginDLL.h>
 #include <Foundation/Memory/StackAllocator.h>
 #include <Foundation/Types/Variant.h>
 

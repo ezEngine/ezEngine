@@ -1,7 +1,7 @@
 #include <PCH.h>
 
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
-#include <EditorEngineProcessFramework/Plugin.h>
+#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSceneViewPerspective, 1)
 EZ_BITFLAGS_CONSTANTS(ezSceneViewPerspective::Orthogonal_Front, ezSceneViewPerspective::Orthogonal_Right,

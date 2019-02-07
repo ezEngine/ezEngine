@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <RecastPlugin/Basics.h>
+#include <RecastPlugin/RecastPluginDLL.h>
 #include <GameEngine/AI/PointOfInterestGraph.h>
 #include <Foundation/Time/Time.h>
 

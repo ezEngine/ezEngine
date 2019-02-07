@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ToolsFoundation/Basics.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <Foundation/Types/Status.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 

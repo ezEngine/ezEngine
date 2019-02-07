@@ -4,7 +4,7 @@
 #include <Foundation/Basics/Platform/uwp/UWPUtils.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <System/Basics.h>
+#include <System/SystemDLL.h>
 #include <System/Window/Window.h>
 #include <windows.applicationmodel.core.h>
 #include <windows.ui.core.h>

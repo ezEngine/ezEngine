@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ToolsFoundation/Basics.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <EditorEngineProcessFramework/IPC/SyncObject.h>
 #include <Foundation/Math/Mat4.h>
 #include <Core/World/GameObject.h>

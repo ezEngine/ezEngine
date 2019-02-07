@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <GameEngine/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/Components/TransformComponent.h>
 
 typedef ezComponentManagerSimple<class ezHeadBoneComponent, ezComponentUpdateType::WhenSimulating> ezHeadBoneComponentManager;

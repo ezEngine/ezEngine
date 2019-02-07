@@ -2,7 +2,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 // \brief This class can be used to construct render target setups on the stack.
 class EZ_RENDERERFOUNDATION_DLL ezGALRenderTagetSetup

@@ -5,7 +5,7 @@
 #include <EditorFramework/EditorApp/Configuration/Plugins.h>
 #include <EditorFramework/EditorApp/WhatsNew.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/TestFramework/EditorTests.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Configuration/Singleton.h>

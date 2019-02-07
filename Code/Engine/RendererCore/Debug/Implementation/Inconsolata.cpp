@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <RendererCore/Basics.h>
+#include <RendererCore/RendererCoreDLL.h>
 
 #if EZ_ENABLED(EZ_EMBED_FONT_FILE)
 

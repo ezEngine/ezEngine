@@ -7,7 +7,7 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/Pipeline/Declarations.h>
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 class ezWindow;
 class ezWindowOutputTargetBase;

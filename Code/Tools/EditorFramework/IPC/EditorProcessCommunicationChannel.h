@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorEngineProcessFramework/IPC/ProcessCommunicationChannel.h>
 
 class QStringList;

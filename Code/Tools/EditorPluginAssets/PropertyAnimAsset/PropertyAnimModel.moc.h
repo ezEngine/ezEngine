@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <QAbstractItemModel>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Strings/String.h>

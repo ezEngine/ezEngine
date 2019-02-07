@@ -1,7 +1,7 @@
 #include <PCH.h>
 
 #include <Foundation/Configuration/CVar.h>
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/CVarWidget.moc.h>
 #include <QComboBox>

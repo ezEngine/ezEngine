@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 #include <Foundation/Profiling/Profiling.h>
 
 /// Sets profiling marker and GPU timings for the current scope.

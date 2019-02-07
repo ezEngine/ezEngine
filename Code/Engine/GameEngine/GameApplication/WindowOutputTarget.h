@@ -1,9 +1,9 @@
 #pragma once
 
-#include <GameEngine/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/GameApplication/WindowOutputTargetBase.h>
 
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 class ezWindowOutputTargetGAL : public ezWindowOutputTargetBase
 {

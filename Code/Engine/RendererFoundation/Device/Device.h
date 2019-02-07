@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Strings/HashedString.h>

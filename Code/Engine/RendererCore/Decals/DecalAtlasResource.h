@@ -3,7 +3,7 @@
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Math/Rect.h>
-#include <RendererCore/Basics.h>
+#include <RendererCore/RendererCoreDLL.h>
 
 typedef ezTypedResourceHandle<class ezDecalAtlasResource> ezDecalAtlasResourceHandle;
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;

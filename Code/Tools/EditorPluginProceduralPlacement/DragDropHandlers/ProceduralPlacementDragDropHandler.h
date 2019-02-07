@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <EditorPluginProceduralPlacement/Plugin.h>
+#include <EditorPluginProceduralPlacement/EditorPluginProceduralPlacementDLL.h>
 #include <EditorFramework/DragDrop/ComponentDragDropHandler.h>
 
 class EZ_EDITORPLUGINPROCEDURALPLACEMENT_DLL ezProceduralPlacementComponentDragDropHandler : public ezComponentDragDropHandler

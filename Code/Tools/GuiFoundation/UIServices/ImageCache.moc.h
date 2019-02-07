@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>

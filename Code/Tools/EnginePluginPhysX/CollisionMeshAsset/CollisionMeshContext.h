@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
-#include <EnginePluginPhysX/Plugin.h>
+#include <EnginePluginPhysX/EnginePluginPhysXDLL.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>
 
 class ezObjectSelectionMsgToEngine;

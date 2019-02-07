@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Containers/DynamicArray.h>
 

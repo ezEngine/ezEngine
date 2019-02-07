@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ToolsFoundation/Basics.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <Foundation/Types/Variant.h>
 #include <Foundation/Types/Enum.h>
 #include <Foundation/Types/Bitflags.h>

@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <EnginePluginParticle/Plugin.h>
+#include <EnginePluginParticle/EnginePluginParticleDLL.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 

@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <EditorPluginFileserve/Plugin.h>
+#include <EditorPluginFileserve/EditorPluginFileserveDLL.h>
 
 void OnLoadPlugin(bool bReloading) {}
 

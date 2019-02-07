@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RtsGamePlugin/RtsGamePlugin.h>
+#include <RtsGamePlugin/RtsGamePluginDLL.h>
 
 struct RtsMsgSetTarget;
 

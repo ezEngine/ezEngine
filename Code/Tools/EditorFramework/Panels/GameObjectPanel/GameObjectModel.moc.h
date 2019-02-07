@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/GUI/RawDocumentTreeModel.moc.h>
 #include <ToolsFoundation/Object/ObjectMetaData.h>
 #include <EditorFramework/Document/GameObjectDocument.h>

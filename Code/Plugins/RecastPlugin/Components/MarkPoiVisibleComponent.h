@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <RecastPlugin/Basics.h>
+#include <RecastPlugin/RecastPluginDLL.h>
 #include <Core/World/World.h>
 #include <Core/World/Component.h>
 #include <RecastPlugin/Components/RecastNavMeshComponent.h>

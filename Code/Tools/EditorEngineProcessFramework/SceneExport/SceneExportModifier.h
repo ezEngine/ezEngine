@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorEngineProcessFramework/Plugin.h>
+#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <Foundation/Reflection/Reflection.h>
 
 class ezWorld;

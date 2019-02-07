@@ -4,7 +4,7 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/World.h>
 #include <Foundation/Types/RangeView.h>
-#include <ParticlePlugin/Basics.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
 #include <ParticlePlugin/Effect/ParticleEffectController.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <RendererCore/Components/RenderComponent.h>

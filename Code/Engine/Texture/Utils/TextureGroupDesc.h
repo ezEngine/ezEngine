@@ -34,11 +34,15 @@ struct EZ_TEXTURE_DLL ezTextureAtlasLayerDesc
 {
   ezEnum<ezTexConvUsage> m_Usage;
   ezDynamicArray<ezString> m_Filenames;
+
+  ezResult Serialize(ezStreamWriter& stream) const;
+  ezResult Deserialize(ezStreamReader& stream);
 };
 
 struct EZ_TEXTURE_DLL ezTextureAtlasDesc
 {
   ezHybridArray<ezTextureAtlasLayerDesc, 4> m_Layers;
 
-
+  ezResult Save(const char* szFile) const;
+  ezResult Load(const char* szFile);
 };

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Math/Color16f.h>
-#include <ParticlePlugin/Basics.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>

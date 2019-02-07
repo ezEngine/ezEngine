@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Types/SharedPtr.h>
-#include <ModelImporter/Plugin.h>
+#include <ModelImporter/ModelImporterDLL.h>
 #include <ModelImporter/Declarations.h>
 
 class ezStreamReader;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
+#include <RendererCore/RendererCoreDLL.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/Map.h>

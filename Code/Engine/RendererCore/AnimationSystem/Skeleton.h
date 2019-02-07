@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
+#include <RendererCore/RendererCoreDLL.h>
 
 #include <Foundation/Math/Mat3.h>
 #include <Foundation/Reflection/Reflection.h>

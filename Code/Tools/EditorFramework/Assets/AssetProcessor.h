@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Configuration/Singleton.h>

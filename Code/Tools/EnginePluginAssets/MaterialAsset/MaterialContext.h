@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EnginePluginAssets/Plugin.h>
+#include <EnginePluginAssets/EnginePluginAssetsDLL.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Shader/ShaderResource.h>

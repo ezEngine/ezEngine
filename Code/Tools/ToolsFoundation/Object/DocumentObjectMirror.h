@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ToolsFoundation/Basics.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <Foundation/Serialization/RttiConverter.h>
 #include <Foundation/Containers/HybridArray.h>

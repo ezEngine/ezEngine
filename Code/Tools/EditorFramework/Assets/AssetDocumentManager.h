@@ -2,7 +2,7 @@
 
 #include <EditorFramework/Assets/AssetDocumentInfo.h>
 #include <EditorFramework/Assets/Declarations.h>
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <Foundation/Types/Status.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 

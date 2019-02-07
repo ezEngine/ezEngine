@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <FileservePlugin/Plugin.h>
+#include <FileservePlugin/FileservePluginDLL.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/String.h>
 

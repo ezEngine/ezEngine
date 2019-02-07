@@ -2,8 +2,8 @@
 
 #include <Foundation/Reflection/Reflection.h>
 #include <Core/World/Declarations.h>
-#include <RendererCore/Basics.h>
-#include <RendererFoundation/Basics.h>
+#include <RendererCore/RendererCoreDLL.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
 class ezCamera;

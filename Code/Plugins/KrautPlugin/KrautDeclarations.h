@@ -1,6 +1,6 @@
 #pragma once
 
-#include <KrautPlugin/Basics.h>
+#include <KrautPlugin/KrautPluginDLL.h>
 
 struct ezResourceEvent;
 

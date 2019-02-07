@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameEngine/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/GameState/GameState.h>
 
 #include <Foundation/Threading/DelegateTask.h>

@@ -4,7 +4,7 @@
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/LSAOConstants.h>
 
 /// \brief Defines the depth compare function to be used to decide sample weights.

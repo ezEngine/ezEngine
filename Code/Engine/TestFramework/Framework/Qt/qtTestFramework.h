@@ -3,7 +3,7 @@
 #ifdef EZ_USE_QT
 
 #include <QObject>
-#include <TestFramework/Basics.h>
+#include <TestFramework/TestFrameworkDLL.h>
 #include <TestFramework/Framework/TestFramework.h>
 
 /// \brief Derived ezTestFramework which signals the GUI to update whenever a new tests result comes in.

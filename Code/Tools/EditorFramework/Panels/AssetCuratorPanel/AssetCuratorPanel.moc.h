@@ -1,7 +1,7 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 #include <Tools/EditorFramework/ui_AssetCuratorPanel.h>
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>

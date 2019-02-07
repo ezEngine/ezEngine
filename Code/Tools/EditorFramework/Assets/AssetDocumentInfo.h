@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ToolsFoundation/Document/Document.h>
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 
 class EZ_EDITORFRAMEWORK_DLL ezAssetDocumentInfo final : public ezDocumentInfo
 {

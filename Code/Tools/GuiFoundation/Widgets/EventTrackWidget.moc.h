@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <GuiFoundation/Widgets/EventTrackEditData.h>
 #include <Foundation/Math/Vec2.h>

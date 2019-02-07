@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Basics.h>
+#include <Core/CoreDLL.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Math/Vec3.h>

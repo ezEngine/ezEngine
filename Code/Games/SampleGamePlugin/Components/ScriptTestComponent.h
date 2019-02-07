@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SampleGamePlugin/SampleGamePlugin.h>
+#include <SampleGamePlugin/SampleGamePluginDLL.h>
 #include <Core/World/Component.h>
 #include <Core/World/ComponentManager.h>
 #include <Core/World/World.h>

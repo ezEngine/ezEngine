@@ -1,6 +1,6 @@
 #pragma once
 
-#include <PhysXCooking/Basics.h>
+#include <PhysXCooking/PhysXCookingDLL.h>
 #include <PhysXPlugin/PhysXInterface.h>
 #include <Foundation/Types/Status.h>
 

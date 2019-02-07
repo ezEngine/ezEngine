@@ -3,7 +3,7 @@
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Containers/HashTable.h>
-#include <RendererCore/Basics.h>
+#include <RendererCore/RendererCoreDLL.h>
 
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 class ezRenderPipeline;

@@ -1,7 +1,7 @@
-﻿#pragma once
+#pragma once
 
-#include <EditorPluginProceduralPlacement/Plugin.h>
-#include <GuiFoundation/Basics.h>
+#include <EditorPluginProceduralPlacement/EditorPluginProceduralPlacementDLL.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
 
 class ezPreferences;

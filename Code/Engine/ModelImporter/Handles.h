@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ModelImporter/Plugin.h>
+#include <ModelImporter/ModelImporterDLL.h>
 #include <ModelImporter/Declarations.h>
 #include <Foundation/Types/Id.h>
 #include <Foundation/Algorithm/HashingUtils.h>

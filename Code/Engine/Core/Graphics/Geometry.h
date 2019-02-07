@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Basics.h>
+#include <Core/CoreDLL.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Math/Color.h>

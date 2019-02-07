@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ParticlePlugin/Type/ParticleType.h>
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 #include <ParticlePlugin/Type/Point/PointRenderer.h>
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypePointFactory : public ezParticleTypeFactory

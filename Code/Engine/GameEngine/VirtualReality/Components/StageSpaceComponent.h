@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameEngine/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/Interfaces/VRInterface.h>
 #include <Core/World/SettingsComponentManager.h>
 

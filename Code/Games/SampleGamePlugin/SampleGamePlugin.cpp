@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <SampleGamePlugin/SampleGamePlugin.h>
+#include <SampleGamePlugin/SampleGamePluginDLL.h>
 
 void OnLoadPlugin(bool bReloading) {}
 

@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 #include <Foundation/Reflection/Reflection.h>
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat

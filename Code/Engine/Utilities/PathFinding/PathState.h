@@ -2,7 +2,7 @@
 
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Math/Math.h>
-#include <Utilities/Basics.h>
+#include <Utilities/UtilitiesDLL.h>
 
 /// \brief Base class for all path finding state objects.
 struct ezPathState

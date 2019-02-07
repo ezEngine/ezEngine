@@ -2,7 +2,7 @@
 
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Math/BoundingBoxSphere.h>
-#include <RendererCore/Basics.h>
+#include <RendererCore/RendererCoreDLL.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
 typedef ezTypedResourceHandle<class ezMeshBufferResource> ezMeshBufferResourceHandle;

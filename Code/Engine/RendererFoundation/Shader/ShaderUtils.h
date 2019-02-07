@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 #include <Foundation/Math/Float16.h>
 #include <Foundation/Math/Vec2.h>

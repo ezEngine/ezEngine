@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ParticlePlugin/Basics.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleEffectController

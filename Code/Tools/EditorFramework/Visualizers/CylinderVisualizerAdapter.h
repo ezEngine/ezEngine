@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>
 
 struct ezGizmoEvent;

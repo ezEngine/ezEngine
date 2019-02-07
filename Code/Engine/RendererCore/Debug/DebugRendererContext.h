@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
+#include <RendererCore/RendererCoreDLL.h>
 #include <Foundation/Algorithm/HashingUtils.h>
 
 class ezWorld;

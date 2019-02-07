@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <QDialog>
 #include <Code/Tools/GuiFoundation/ui_PickDocumentObjectDlg.h>
 #include <Foundation/Strings/String.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
+#include <RendererCore/RendererCoreDLL.h>
 #include <Texture/Image/Image.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>

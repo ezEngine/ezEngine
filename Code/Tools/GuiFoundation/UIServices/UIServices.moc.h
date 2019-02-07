@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Types/Status.h>
 #include <Foundation/Communication/Event.h>
 #include <QApplication>

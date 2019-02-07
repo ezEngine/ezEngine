@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <EditorEngineProcessFramework/Plugin.h>
+#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Communication/Event.h>

@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <EditorEngineProcessFramework/Plugin.h>
+#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
 
 /// \brief An object mirror that mirrors across IPC to the engine process.

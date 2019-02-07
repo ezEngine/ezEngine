@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <ProceduralPlacementPlugin/Basics.h>
+#include <ProceduralPlacementPlugin/ProceduralPlacementPluginDLL.h>
 #include <ProceduralPlacementPlugin/VM/ExpressionVM.h>
 #include <Foundation/Threading/TaskSystem.h>
 

@@ -2,7 +2,7 @@
 
 #include <Foundation/Math/Color.h>
 #include <Foundation/Strings/String.h>
-#include <Utilities/Basics.h>
+#include <Utilities/UtilitiesDLL.h>
 
 /// \brief This class encapsulates building a DGML compatible graph.
 class EZ_UTILITIES_DLL ezDGMLGraph

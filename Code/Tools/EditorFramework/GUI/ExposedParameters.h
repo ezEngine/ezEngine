@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <Foundation/Reflection/Reflection.h>
 
 struct EZ_EDITORFRAMEWORK_DLL ezExposedParameter

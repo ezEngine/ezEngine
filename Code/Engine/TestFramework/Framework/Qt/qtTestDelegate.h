@@ -3,7 +3,7 @@
 #ifdef EZ_USE_QT
 
 #include <QStyledItemDelegate>
-#include <TestFramework/Basics.h>
+#include <TestFramework/TestFrameworkDLL.h>
 #include <TestFramework/Framework/Qt/qtTestFramework.h>
 
 class ezQtTestFramework;

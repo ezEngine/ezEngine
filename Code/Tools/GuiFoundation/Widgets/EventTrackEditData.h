@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Strings/HashedString.h>

@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Code/Tools/GuiFoundation/ui_CollapsibleGroupBox.h>
 #include <GuiFoundation/Widgets/GroupBoxBase.moc.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Tracks/ColorGradient.h>
 #include <Code/Tools/GuiFoundation/ui_ColorGradientEditorWidget.h>
 #include <Foundation/Math/Color8UNorm.h>

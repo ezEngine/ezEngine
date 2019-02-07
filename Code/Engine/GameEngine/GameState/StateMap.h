@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameEngine/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/Declarations.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Strings/HashedString.h>

@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <EnginePluginParticle/Plugin.h>
+#include <EnginePluginParticle/EnginePluginParticleDLL.h>
 
 void OnLoadPlugin(bool bReloading) {}
 

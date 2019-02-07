@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <QAbstractItemView>
 #include <QStyledItemDelegate>
 #include <QHoverEvent>

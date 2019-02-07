@@ -2,7 +2,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
-#include <Core/Basics.h>
+#include <Core/CoreDLL.h>
 #include <Foundation/Strings/String.h>
 
 #include <Windows.ApplicationModel.core.h>

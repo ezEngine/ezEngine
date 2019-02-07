@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EnginePluginPhysX/Plugin.h>
+#include <EnginePluginPhysX/EnginePluginPhysXDLL.h>
 #include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
 
 class EZ_ENGINEPLUGINPHYSX_DLL ezSceneExportModifier_StaticMeshConversion : public ezSceneExportModifier

@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/Enum.h>
 #include <Foundation/Types/Variant.h>

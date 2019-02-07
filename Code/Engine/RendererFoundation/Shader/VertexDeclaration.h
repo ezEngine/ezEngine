@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
 class EZ_RENDERERFOUNDATION_DLL ezGALVertexDeclaration : public ezGALObject<ezGALVertexDeclarationCreationDescription>

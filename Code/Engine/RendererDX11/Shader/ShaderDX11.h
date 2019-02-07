@@ -1,9 +1,9 @@
-﻿
+
 #pragma once
 
-#include <RendererFoundation/Basics.h>
+#include <RendererDX11/RendererDX11DLL.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Shader/Shader.h>
-#include <RendererDX11/Basics.h>
 
 struct ID3D11VertexShader;
 struct ID3D11HullShader;
@@ -15,7 +15,6 @@ struct ID3D11ComputeShader;
 class EZ_RENDERERDX11_DLL ezGALShaderDX11 : public ezGALShader
 {
 public:
-
   void SetDebugName(const char* szName) const override;
 
   EZ_ALWAYS_INLINE ID3D11VertexShader* GetDXVertexShader() const;
@@ -32,7 +31,6 @@ public:
 
 
 protected:
-
   friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;
 
@@ -50,7 +48,6 @@ protected:
   ID3D11GeometryShader* m_pGeometryShader;
   ID3D11PixelShader* m_pPixelShader;
   ID3D11ComputeShader* m_pComputeShader;
-
 };
 
 #include <RendererDX11/Shader/Implementation/ShaderDX11_inl.h>

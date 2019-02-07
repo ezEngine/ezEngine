@@ -2,7 +2,7 @@
 
 #include <Core/Application/Application.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <Foundation/IO/DirectoryWatcher.h>

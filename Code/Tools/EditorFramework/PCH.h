@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/Action/ActionMapManager.h>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
-#include <RendererFoundation/Basics.h>
+#include <RendererCore/RendererCoreDLL.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 #include <Foundation/Containers/DynamicArray.h>
 
 class EZ_RENDERERCORE_DLL ezConstantBufferStorageBase

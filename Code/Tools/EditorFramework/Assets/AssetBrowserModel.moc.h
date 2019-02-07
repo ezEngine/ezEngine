@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Types/Uuid.h>

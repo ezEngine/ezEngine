@@ -4,7 +4,7 @@
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/BoundingBoxSphere.h>
 #include <Foundation/Math/Random.h>
-#include <ParticlePlugin/Basics.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
 #include <ParticlePlugin/Declarations.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
 

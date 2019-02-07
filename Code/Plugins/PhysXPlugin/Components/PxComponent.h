@@ -1,6 +1,6 @@
 #pragma once
 
-#include <PhysXPlugin/Basics.h>
+#include <PhysXPlugin/PhysXPluginDLL.h>
 #include <Core/World/World.h>
 #include <Core/World/Component.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>

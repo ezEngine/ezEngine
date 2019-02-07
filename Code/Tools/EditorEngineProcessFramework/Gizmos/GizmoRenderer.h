@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorEngineProcessFramework/Plugin.h>
+#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGizmoRenderer : public ezRenderer

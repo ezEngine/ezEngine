@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <EditorPluginFmod/Plugin.h>
+#include <EditorPluginFmod/EditorPluginFmodDLL.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <Foundation/Strings/String.h>
 

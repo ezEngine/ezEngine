@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 
 class ezViewMarqueePickingResultMsgToEditor;

@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <RecastPlugin/Basics.h>
+#include <RecastPlugin/RecastPluginDLL.h>
 #include <GameEngine/Components/NpcComponent.h>
 
 class ezRecastWorldModule;

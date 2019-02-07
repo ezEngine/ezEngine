@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ToolsFoundation/Basics.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <Foundation/Reflection/Reflection.h>
 
 /// \brief A factory that creates the closest matching objects according to the passed type.

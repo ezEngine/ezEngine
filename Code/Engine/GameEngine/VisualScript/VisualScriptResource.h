@@ -3,7 +3,7 @@
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Reflection/Reflection.h>
-#include <GameEngine/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
 
 typedef ezTypedResourceHandle<class ezVisualScriptResource> ezVisualScriptResourceHandle;
 

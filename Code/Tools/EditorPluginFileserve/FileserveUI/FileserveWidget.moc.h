@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorPluginFileserve/Plugin.h>
+#include <EditorPluginFileserve/EditorPluginFileserveDLL.h>
 #include <Tools/EditorPluginFileserve/ui_FileserveWidget.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Containers/HashTable.h>

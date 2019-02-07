@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameEngine/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <Core/ResourceManager/Resource.h>
 
 struct EZ_GAMEENGINE_DLL ezCollectionEntry

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <QWidget>
 #include <Foundation/Containers/HybridArray.h>
 #include <Core/Graphics/Camera.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SharedPluginAssets/Plugin.h>
+#include <SharedPluginAssets/SharedPluginAssetsDLL.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 
 

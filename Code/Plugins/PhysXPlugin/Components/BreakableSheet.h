@@ -1,6 +1,6 @@
 #pragma once
 
-#include <PhysXPlugin/Basics.h>
+#include <PhysXPlugin/PhysXPluginDLL.h>
 #include <PhysXPlugin/Utilities/PxUserData.h>
 #include <Core/Messages/EventMessage.h>
 #include <RendererCore/Components/RenderComponent.h>

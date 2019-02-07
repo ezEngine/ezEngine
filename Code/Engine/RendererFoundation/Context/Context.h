@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Context/ContextState.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Math/Color.h>

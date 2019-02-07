@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <ProceduralPlacementPlugin/Basics.h>
+#include <ProceduralPlacementPlugin/ProceduralPlacementPluginDLL.h>
 
 namespace ezPPInternal
 {

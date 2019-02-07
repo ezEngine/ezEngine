@@ -3,7 +3,7 @@
 #include <RtsGamePlugin/GameMode/BattleMode/BattleMode.h>
 #include <RtsGamePlugin/GameMode/EditLevelMode/EditLevelMode.h>
 #include <RtsGamePlugin/GameMode/MainMenuMode/MainMenuMode.h>
-#include <RtsGamePlugin/RtsGamePlugin.h>
+#include <RtsGamePlugin/RtsGamePluginDLL.h>
 
 class RtsGameMode;
 typedef ezTypedResourceHandle<class ezCollectionResource> ezCollectionResourceHandle;

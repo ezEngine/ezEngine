@@ -1,7 +1,7 @@
-﻿#pragma once
+#pragma once
 
-#include <EditorEngineProcessFramework/Plugin.h>
-#include <ToolsFoundation/Basics.h>
+#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 

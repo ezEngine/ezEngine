@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <ProceduralPlacementPlugin/Basics.h>
+#include <ProceduralPlacementPlugin/ProceduralPlacementPluginDLL.h>
 #include <Foundation/Containers/DynamicArray.h>
 
 class EZ_PROCEDURALPLACEMENTPLUGIN_DLL ezExpressionByteCode

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Math/Math.h>
-#include <Utilities/Basics.h>
+#include <Utilities/UtilitiesDLL.h>
 #include <Utilities/PathFinding/PathState.h>
 
 /// \brief Implements a directed breadth-first search through a graph (A*).

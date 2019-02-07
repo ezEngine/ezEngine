@@ -3,7 +3,7 @@
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
-#include <Utilities/Basics.h>
+#include <Utilities/UtilitiesDLL.h>
 
 /// \brief A loader class for OBJ/MTL files.
 ///

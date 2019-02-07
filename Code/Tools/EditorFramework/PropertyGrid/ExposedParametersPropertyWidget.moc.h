@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorFramework/GUI/ExposedParameters.h>
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <GuiFoundation/PropertyGrid/PropertyBaseWidget.moc.h>
 #include <ToolsFoundation/Object/ObjectProxyAccessor.h>
 

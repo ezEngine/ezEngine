@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameEngine/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <RendererCore/AnimationSystem/AnimationGraph/AnimationClipSampler.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>

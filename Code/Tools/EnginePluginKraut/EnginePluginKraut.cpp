@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <EnginePluginKraut/Plugin.h>
+#include <EnginePluginKraut/EnginePluginKrautDLL.h>
 
 void OnLoadPlugin(bool bReloading) {}
 

@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <EditorPluginFileserve/Plugin.h>
+#include <EditorPluginFileserve/EditorPluginFileserveDLL.h>
 #include <Foundation/Containers/Deque.h>
 #include <QAbstractListModel>
 

@@ -2,7 +2,7 @@
 
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <QWidgetAction>
 
 class ezQtSearchWidget;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
-#include <EnginePluginKraut/Plugin.h>
+#include <EnginePluginKraut/EnginePluginKrautDLL.h>
 #include <KrautPlugin/Components/KrautTreeComponent.h>
 
 class ezObjectSelectionMsgToEngine;

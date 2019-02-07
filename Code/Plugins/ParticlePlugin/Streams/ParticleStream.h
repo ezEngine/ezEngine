@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ParticlePlugin/Basics.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
 #include <ParticlePlugin/Declarations.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>

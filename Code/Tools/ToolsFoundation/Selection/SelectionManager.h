@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ToolsFoundation/Basics.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 
 class ezDocument;

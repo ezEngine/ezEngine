@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/State/State.h>
 
 ezGALBlendState::ezGALBlendState(const ezGALBlendStateCreationDescription& Description)

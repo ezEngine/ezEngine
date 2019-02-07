@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <EditorPluginAssets/Plugin.h>
+#include <EditorPluginAssets/EditorPluginAssetsDLL.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <EditorFramework/Preferences/Preferences.h>

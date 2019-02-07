@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
 
 struct ezToolsProjectEvent;

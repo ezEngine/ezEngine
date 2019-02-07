@@ -3,7 +3,7 @@
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Time.h>
-#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 class QProgressDialog;
 class QWinTaskbarProgress;

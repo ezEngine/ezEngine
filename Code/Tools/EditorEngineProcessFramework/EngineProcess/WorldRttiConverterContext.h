@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorEngineProcessFramework/Plugin.h>
+#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <EditorEngineProcessFramework/IPC/IPCObjectMirrorEngine.h>
 #include <EditorEngineProcessFramework/EngineProcess/GuidHandleMap.h>
 #include <Core/World/World.h>

@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#include <FmodPlugin/Basics.h>
+#include <FmodPlugin/FmodPluginDLL.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Strings/TranslationLookup.h>
 

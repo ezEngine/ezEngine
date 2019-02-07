@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ToolsFoundation/Basics.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <ToolsFoundation/Document/Document.h>

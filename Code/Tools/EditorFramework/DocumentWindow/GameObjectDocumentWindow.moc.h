@@ -1,5 +1,5 @@
 #pragma once
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 
 class ezGameObjectDocument;

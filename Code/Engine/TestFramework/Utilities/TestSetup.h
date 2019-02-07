@@ -1,6 +1,6 @@
 #pragma once
 
-#include <TestFramework/Basics.h>
+#include <TestFramework/TestFrameworkDLL.h>
 
 class ezTestFramework;
 

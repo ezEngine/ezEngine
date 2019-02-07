@@ -2,7 +2,7 @@
 
 #include <Foundation/Math/Color.h>
 #include <Foundation/Math/Transform.h>
-#include <RendererCore/Basics.h>
+#include <RendererCore/RendererCoreDLL.h>
 #include <RendererCore/Debug/DebugRendererContext.h>
 #include <RendererCore/Declarations.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RenderDocPlugin/Basics.h>
+#include <RenderDocPlugin/RenderDocPluginDLL.h>
 #include <GameEngine/Interfaces/FrameCaptureInterface.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Singleton.h>

@@ -3,7 +3,7 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/WorldModule.h>
 #include <Foundation/Containers/IdTable.h>
-#include <ParticlePlugin/Basics.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
 

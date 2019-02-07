@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <QDialog>
 #include <Tools/EditorFramework/ui_DataDirsDlg.h>
 #include <Core/Application/Config/FileSystemConfig.h>

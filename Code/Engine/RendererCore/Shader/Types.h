@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
+#include <RendererCore/RendererCoreDLL.h>
 
 /// \brief A wrapper class that converts a ezMat3 into the correct data layout for shaders.
 class ezShaderMat3

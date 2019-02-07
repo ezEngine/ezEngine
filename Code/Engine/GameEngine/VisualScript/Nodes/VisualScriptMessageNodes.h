@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameEngine/Basics.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <Core/Messages/EventMessage.h>
 #include <Core/Messages/TriggerMessage.h>

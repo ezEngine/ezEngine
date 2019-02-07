@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <ProceduralPlacementPlugin/Basics.h>
+#include <ProceduralPlacementPlugin/ProceduralPlacementPluginDLL.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <Core/World/Declarations.h>
 

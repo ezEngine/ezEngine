@@ -1,7 +1,7 @@
 #include <PCH.h>
 
 #include <EditorEngineProcessFramework/EngineProcess/WorldRttiConverterContext.h>
-#include <EditorEngineProcessFramework/Plugin.h>
+#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 
 void ezWorldRttiConverterContext::Clear()
 {

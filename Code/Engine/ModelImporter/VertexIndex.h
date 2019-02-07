@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include <ModelImporter/Plugin.h>
+#include <ModelImporter/ModelImporterDLL.h>
 
 namespace ezModelImporter
 {
