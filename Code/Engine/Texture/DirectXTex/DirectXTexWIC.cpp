@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <TexturePCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 

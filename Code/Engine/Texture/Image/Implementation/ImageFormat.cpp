@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <TexturePCH.h>
 
 #include <Foundation/Containers/StaticArray.h>
 #include <Texture/Image/ImageFormat.h>

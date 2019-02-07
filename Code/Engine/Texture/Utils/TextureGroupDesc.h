@@ -3,7 +3,8 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Strings/String.h>
-#include <Texture/Export.h>
+#include <Texture/TextureDLL.h>
+#include <Texture/TexConv/TexConvEnums.h>
 
 /// \brief Describes a list of texture groups
 ///
@@ -28,3 +29,16 @@ public:
   ezDynamicArray<TextureGroup> m_Groups;
 };
 
+
+struct EZ_TEXTURE_DLL ezTextureAtlasLayerDesc
+{
+  ezEnum<ezTexConvUsage> m_Usage;
+  ezDynamicArray<ezString> m_Filenames;
+};
+
+struct EZ_TEXTURE_DLL ezTextureAtlasDesc
+{
+  ezHybridArray<ezTextureAtlasLayerDesc, 4> m_Layers;
+
+
+};

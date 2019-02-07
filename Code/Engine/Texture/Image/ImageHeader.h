@@ -4,7 +4,7 @@
 #include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Math/Math.h>
 
-#include <Texture/Export.h>
+#include <Texture/TextureDLL.h>
 #include <Texture/Image/ImageFormat.h>
 
 /// \brief A class containing image meta data, such as format and dimensions.

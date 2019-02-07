@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <TexturePCH.h>
 
 #include <Foundation/Containers/HashTable.h>
 #include <Texture/Image/ImageConversion.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <TexturePCH.h>
 
 #include <Foundation/IO/Stream.h>
 #include <Texture/Image/Formats/DdsFileFormat.h>

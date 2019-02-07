@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <TexturePCH.h>
 
 #include <Foundation/Math/Color16f.h>
 #include <Foundation/Strings/StringConversion.h>

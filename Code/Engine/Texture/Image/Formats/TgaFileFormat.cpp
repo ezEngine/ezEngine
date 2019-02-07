@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <TexturePCH.h>
 
 #include <Texture/Image/Formats/TgaFileFormat.h>
 

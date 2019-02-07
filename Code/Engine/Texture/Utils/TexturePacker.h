@@ -2,7 +2,7 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Math/Vec2.h>
-#include <Texture/Export.h>
+#include <Texture/TextureDLL.h>
 
 class EZ_TEXTURE_DLL ezTexturePacker
 {

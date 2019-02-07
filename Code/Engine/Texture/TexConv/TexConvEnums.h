@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Texture/Export.h>
+#include <Texture/TextureDLL.h>
 
 #include <Foundation/Reflection/Reflection.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Texture/Export.h>
+#include <Texture/TextureDLL.h>
 #include <Foundation/Types/Types.h>
 
 /// \brief Enum describing the type of an image format.
