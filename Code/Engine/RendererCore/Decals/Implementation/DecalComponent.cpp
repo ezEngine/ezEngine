@@ -300,12 +300,17 @@ void ezDecalComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
     ezResourceLock<ezDecalAtlasResource> pDecalAtlas(hDecalAtlas, ezResourceAcquireMode::NoFallback);
     ezVec2U32 baseTextureSize = pDecalAtlas->GetBaseColorTextureSize();
 
-    if (auto pDecalInfo = pDecalAtlas->GetAllDecals().GetValue(m_hDecal.GetResourceIDHash()))
+    const auto& atlas = pDecalAtlas->GetAtlas();
+    const ezUInt32 decalIdx = atlas.m_Items.Find(m_hDecal.GetResourceIDHash());
+
+    if (decalIdx != ezInvalidIndex)
     {
-      baseAtlasScale.x = (float)pDecalInfo->m_BaseColorRect.width / baseTextureSize.x * 0.5f;
-      baseAtlasScale.y = (float)pDecalInfo->m_BaseColorRect.height / baseTextureSize.y * 0.5f;
-      baseAtlasOffset.x = (float)pDecalInfo->m_BaseColorRect.x / baseTextureSize.x + baseAtlasScale.x;
-      baseAtlasOffset.y = (float)pDecalInfo->m_BaseColorRect.y / baseTextureSize.y + baseAtlasScale.y;
+      const auto& item = atlas.m_Items.GetValue(decalIdx);
+
+      baseAtlasScale.x = (float)item.m_LayerRects[0].width / baseTextureSize.x * 0.5f;
+      baseAtlasScale.y = (float)item.m_LayerRects[0].height / baseTextureSize.y * 0.5f;
+      baseAtlasOffset.x = (float)item.m_LayerRects[0].x / baseTextureSize.x + baseAtlasScale.x;
+      baseAtlasOffset.y = (float)item.m_LayerRects[0].y / baseTextureSize.y + baseAtlasScale.y;
     }
   }
 

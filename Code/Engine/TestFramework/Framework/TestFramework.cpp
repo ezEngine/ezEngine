@@ -8,7 +8,7 @@
 #ifdef EZ_TESTFRAMEWORK_USE_FILESERVE
 #  include <FileservePlugin/Client/FileserveClient.h>
 #  include <FileservePlugin/Client/FileserveDataDir.h>
-#  include <FileservePlugin/Plugin.h>
+#  include <FileservePlugin/FileservePluginDLL.h>
 #endif
 
 ezTestFramework* ezTestFramework::s_pInstance = nullptr;

@@ -23,10 +23,10 @@ ezTexConvProcessor::ezTexConvProcessor() = default;
 
 ezResult ezTexConvProcessor::Process()
 {
-  if (m_Descriptor.m_OutputType == ezTexConvOutputType::DecalAtlas)
+  if (m_Descriptor.m_OutputType == ezTexConvOutputType::TextureAtlas)
   {
-    ezMemoryStreamWriter stream(&m_DecalAtlas);
-    EZ_SUCCEED_OR_RETURN(GenerateDecalAtlas(stream));
+    ezMemoryStreamWriter stream(&m_TextureAtlas);
+    EZ_SUCCEED_OR_RETURN(GenerateTextureAtlas(stream));
   }
   else
   {

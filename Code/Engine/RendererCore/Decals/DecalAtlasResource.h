@@ -4,6 +4,7 @@
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Math/Rect.h>
 #include <RendererCore/RendererCoreDLL.h>
+#include <Texture/Utils/TextureAtlasDesc.h>
 
 typedef ezTypedResourceHandle<class ezDecalAtlasResource> ezDecalAtlasResourceHandle;
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
@@ -23,13 +24,6 @@ class EZ_RENDERERCORE_DLL ezDecalAtlasResource : public ezResource
 public:
   ezDecalAtlasResource();
 
-  struct DecalInfo
-  {
-    ezString m_sIdentifier;
-    ezRectU32 m_BaseColorRect;
-    ezRectU32 m_NormalRect;
-  };
-
   /// \brief Returns the one global decal atlas resource
   static ezDecalAtlasResourceHandle GetDecalAtlasResource();
 
@@ -37,7 +31,7 @@ public:
   const ezTexture2DResourceHandle& GetNormalTexture() const { return m_hNormal; }
   const ezVec2U32& GetBaseColorTextureSize() const { return m_BaseColorSize; }
   const ezVec2U32& GetNormalTextureSize() const { return m_NormalSize; }
-  const ezMap<ezUInt32, DecalInfo>& GetAllDecals() const { return m_Decals; }
+  const ezTextureAtlasRuntimeDesc& GetAtlas() const { return m_Atlas; }
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
@@ -50,7 +44,7 @@ private:
 
   void CreateLayerTexture(const ezImage& img, bool bSRGB, ezTexture2DResourceHandle& out_hTexture);
 
-  ezMap<ezUInt32, DecalInfo> m_Decals;
+  ezTextureAtlasRuntimeDesc m_Atlas;
   static ezUInt32 s_uiDecalAtlasResources;
   ezTexture2DResourceHandle m_hBaseColor;
   ezTexture2DResourceHandle m_hNormal;

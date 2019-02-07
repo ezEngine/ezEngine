@@ -23,6 +23,11 @@ void ezImageView::Clear()
   m_dataPtr.Clear();
 }
 
+bool ezImageView::IsValid() const
+{
+  return !m_dataPtr.IsEmpty();
+}
+
 void ezImageView::ResetAndViewExternalStorage(const ezImageHeader& header, ezArrayPtr<const void> imageData)
 {
   static_cast<ezImageHeader&>(*this) = header;

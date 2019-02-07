@@ -28,7 +28,7 @@ static const char* ToString(ezTexConvChannelValue::Enum e)
 
 ezResult ezTexConv2::ParseChannelMappings()
 {
-  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::DecalAtlas)
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::TextureAtlas)
     return EZ_SUCCESS;
 
   auto& mappings = m_Processor.m_Descriptor.m_ChannelMappings;

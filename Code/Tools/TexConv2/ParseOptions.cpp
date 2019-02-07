@@ -52,15 +52,15 @@ ezResult ezTexConv2::ParseOutputType()
       return EZ_FAILURE;
     }
   }
-  else if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::DecalAtlas)
+  else if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::TextureAtlas)
   {
-    if (!m_bOutputSupportsDecal)
+    if (!m_bOutputSupportsAtlas)
     {
-      ezLog::Error("Decal textures are not supported by the chosen output file format.");
+      ezLog::Error("Atlas textures are not supported by the chosen output file format.");
       return EZ_FAILURE;
     }
 
-    if (!ParseFile("-atlasDesc", m_Processor.m_Descriptor.m_sDecalAtlasDescFile))
+    if (!ParseFile("-atlasDesc", m_Processor.m_Descriptor.m_sTextureAtlasDescFile))
       return EZ_FAILURE;
   }
   else
@@ -74,7 +74,7 @@ ezResult ezTexConv2::ParseOutputType()
 
 ezResult ezTexConv2::ParseInputFiles()
 {
-  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::DecalAtlas)
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::TextureAtlas)
     return EZ_SUCCESS;
 
   ezStringBuilder tmp, res;
@@ -179,7 +179,7 @@ ezResult ezTexConv2::ParseOutputFiles()
 
 ezResult ezTexConv2::ParseUsage()
 {
-  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::DecalAtlas)
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::TextureAtlas)
     return EZ_SUCCESS;
 
   ezInt32 value = -1;
@@ -243,7 +243,7 @@ ezResult ezTexConv2::ParseWrapModes()
 {
   // cubemaps do not require any wrap mode settings
   if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::TextureCube ||
-      m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::DecalAtlas ||
+      m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::TextureAtlas ||
       m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::None)
     return EZ_SUCCESS;
 

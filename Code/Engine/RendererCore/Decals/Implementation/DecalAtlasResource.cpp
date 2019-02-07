@@ -108,7 +108,11 @@ ezResourceLoadDesc ezDecalAtlasResource::UpdateContent(ezStreamReader* Stream)
   {
     ezUInt8 uiVersion = 0;
     *Stream >> uiVersion;
-    EZ_ASSERT_DEV(uiVersion == 1, "Invalid decal atlas version {0}", uiVersion);
+    EZ_ASSERT_DEV(uiVersion == 1 || uiVersion == 2, "Invalid decal atlas version {0}", uiVersion);
+
+    // this version is now incompatible
+    if (uiVersion == 1)
+      return res;
   }
 
   // read the textures
@@ -143,7 +147,7 @@ ezResourceLoadDesc ezDecalAtlasResource::UpdateContent(ezStreamReader* Stream)
 
 void ezDecalAtlasResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezDecalAtlasResource) + (ezUInt32)m_Decals.GetHeapMemoryUsage();
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezDecalAtlasResource) + (ezUInt32)m_Atlas.m_Items.GetHeapMemoryUsage();
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
@@ -154,7 +158,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDecalAtlasResource, ezDecalAtlasResourceDescr
   ret.m_uiQualityLevelsLoadable = 0;
   ret.m_State = ezResourceState::Loaded;
 
-  m_Decals.Clear();
+  m_Atlas.Clear();
 
   return ret;
 }
@@ -180,32 +184,7 @@ void ezDecalAtlasResource::CreateLayerTexture(const ezImage& img, bool bSRGB, ez
 
 void ezDecalAtlasResource::ReadDecalInfo(ezStreamReader* Stream)
 {
-  m_Decals.Clear();
-
-  ezUInt32 uiNumDecals = 0;
-  *Stream >> uiNumDecals;
-
-  ezString sIdentifier;
-  ezUInt32 uiHash;
-
-  for (ezUInt32 i = 0; i < uiNumDecals; ++i)
-  {
-    *Stream >> sIdentifier;
-    *Stream >> uiHash;
-
-    auto& decal = m_Decals[uiHash];
-    decal.m_sIdentifier = sIdentifier;
-
-    *Stream >> decal.m_BaseColorRect.x;
-    *Stream >> decal.m_BaseColorRect.y;
-    *Stream >> decal.m_BaseColorRect.width;
-    *Stream >> decal.m_BaseColorRect.height;
-
-    *Stream >> decal.m_NormalRect.x;
-    *Stream >> decal.m_NormalRect.y;
-    *Stream >> decal.m_NormalRect.width;
-    *Stream >> decal.m_NormalRect.height;
-  }
+  m_Atlas.Deserialize(*Stream);
 }
 
 void ezDecalAtlasResource::ReportResourceIsMissing()

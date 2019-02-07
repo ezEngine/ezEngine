@@ -10,7 +10,6 @@
 
 - volume textures
 
-- better texture atlas specification
 - better texture atlas mipmap generation
 
 - docs for params / help
@@ -24,7 +23,7 @@ ezTexConv2::ezTexConv2()
   {
     m_AllowedOutputTypes.PushBack({"2D", ezTexConvOutputType::Texture2D});
     m_AllowedOutputTypes.PushBack({"Cubemap", ezTexConvOutputType::TextureCube});
-    m_AllowedOutputTypes.PushBack({"DecalAtlas", ezTexConvOutputType::DecalAtlas});
+    m_AllowedOutputTypes.PushBack({"TextureAtlas", ezTexConvOutputType::TextureAtlas});
   }
 
   // texture usages
@@ -124,7 +123,7 @@ ezResult ezTexConv2::DetectOutputFormat()
     m_bOutputSupports2D = true;
     m_bOutputSupports3D = true;
     m_bOutputSupportsCube = true;
-    m_bOutputSupportsDecal = false;
+    m_bOutputSupportsAtlas = false;
     m_bOutputSupportsMipmaps = true;
     m_bOutputSupportsFiltering = false;
     m_bOutputSupportsCompression = true;
@@ -135,7 +134,7 @@ ezResult ezTexConv2::DetectOutputFormat()
     m_bOutputSupports2D = true;
     m_bOutputSupports3D = false;
     m_bOutputSupportsCube = false;
-    m_bOutputSupportsDecal = false;
+    m_bOutputSupportsAtlas = false;
     m_bOutputSupportsMipmaps = false;
     m_bOutputSupportsFiltering = false;
     m_bOutputSupportsCompression = false;
@@ -146,7 +145,7 @@ ezResult ezTexConv2::DetectOutputFormat()
     m_bOutputSupports2D = true;
     m_bOutputSupports3D = false;
     m_bOutputSupportsCube = false;
-    m_bOutputSupportsDecal = false;
+    m_bOutputSupportsAtlas = false;
     m_bOutputSupportsMipmaps = true;
     m_bOutputSupportsFiltering = true;
     m_bOutputSupportsCompression = true;
@@ -157,7 +156,7 @@ ezResult ezTexConv2::DetectOutputFormat()
     m_bOutputSupports2D = false;
     m_bOutputSupports3D = true;
     m_bOutputSupportsCube = false;
-    m_bOutputSupportsDecal = false;
+    m_bOutputSupportsAtlas = false;
     m_bOutputSupportsMipmaps = false;
     m_bOutputSupportsFiltering = true;
     m_bOutputSupportsCompression = true;
@@ -168,18 +167,18 @@ ezResult ezTexConv2::DetectOutputFormat()
     m_bOutputSupports2D = false;
     m_bOutputSupports3D = false;
     m_bOutputSupportsCube = true;
-    m_bOutputSupportsDecal = false;
+    m_bOutputSupportsAtlas = false;
     m_bOutputSupportsMipmaps = true;
     m_bOutputSupportsFiltering = true;
     m_bOutputSupportsCompression = true;
     return EZ_SUCCESS;
   }
-  if (sExt == "EZDECAL")
+  if (sExt == "EZTEXTUREATLAS")
   {
     m_bOutputSupports2D = false;
     m_bOutputSupports3D = false;
     m_bOutputSupportsCube = false;
-    m_bOutputSupportsDecal = true;
+    m_bOutputSupportsAtlas = true;
     m_bOutputSupportsMipmaps = true;
     m_bOutputSupportsFiltering = true;
     m_bOutputSupportsCompression = true;
@@ -249,7 +248,7 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
   if (m_Processor.Process().Failed())
     return ezApplication::ApplicationExecution::Quit;
 
-  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::DecalAtlas)
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::TextureAtlas)
   {
     ezDeferredFileWriter file;
     file.SetOutput(m_sOutputFile);
@@ -259,7 +258,7 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
 
     header.Write(file);
 
-    file.WriteBytes(m_Processor.m_DecalAtlas.GetData(), m_Processor.m_DecalAtlas.GetStorageSize());
+    file.WriteBytes(m_Processor.m_TextureAtlas.GetData(), m_Processor.m_TextureAtlas.GetStorageSize());
 
     return ezApplication::ApplicationExecution::Quit;
   }

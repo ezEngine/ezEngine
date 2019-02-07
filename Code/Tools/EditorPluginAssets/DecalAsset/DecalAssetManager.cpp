@@ -9,7 +9,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
-#include <Texture/Utils/TextureGroupDesc.h>
+#include <Texture/Utils/TextureAtlasDesc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
@@ -54,7 +54,7 @@ void ezDecalAssetDocumentManager::AddEntriesToAssetTable(
 
   if (projectDir.StartsWith_NoCase(szDataDirectory))
   {
-    inout_GuidToPath["{ ProjectDecalAtlas }"] = "PC/Decals.ezDecal";
+    inout_GuidToPath["{ ProjectDecalAtlas }"] = "PC/Decals.ezTextureAtlas";
   }
 }
 
@@ -125,11 +125,15 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
   if (IsDecalTextureUpToDate(decalFile, uiSettingsHash))
     return ezStatus(EZ_SUCCESS);
 
-  ezTextureGroupDesc texGroup;
+  ezTextureAtlasCreationDesc atlasDesc;
 
   // find all decal assets, extract their file information to pass it along to TexConv
   {
-    texGroup.m_Groups.Reserve(64);
+    atlasDesc.m_Layers.SetCount(2);
+    atlasDesc.m_Layers[0].m_Usage = ezTexConvUsage::Color;
+    atlasDesc.m_Layers[1].m_Usage = ezTexConvUsage::NormalMap;
+
+    atlasDesc.m_Items.Reserve(64);
 
     ezQtEditorApp* pEditorApp = ezQtEditorApp::GetSingleton();
     ezStringBuilder sAbsPath;
@@ -157,11 +161,11 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
       ezDecalAssetDocument* pDecalAsset = static_cast<ezDecalAssetDocument*>(pDoc);
 
       {
-        auto& group = texGroup.m_Groups.ExpandAndGetRef();
+        auto& item = atlasDesc.m_Items.ExpandAndGetRef();
 
         // store the GUID as the decal identifier
         ezConversionUtils::ToString(pDecalAsset->GetGuid(), sAbsPath);
-        group.m_sFilepaths[0] = sAbsPath;
+        item.m_uiUniqueID = ezHashingUtils::xxHash32(sAbsPath.GetData(), sAbsPath.GetElementCount());
 
         {
           sAbsPath = pDecalAsset->GetProperties()->m_sBaseColor;
@@ -170,7 +174,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
             return ezStatus(ezFmt("Invalid texture path '{0}'", sAbsPath));
           }
 
-          group.m_sFilepaths[1] = sAbsPath;
+          item.m_sLayerInput[0] = sAbsPath;
         }
 
         {
@@ -180,7 +184,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
             return ezStatus(ezFmt("Invalid texture path '{0}'", sAbsPath));
           }
 
-          group.m_sFilepaths[2] = sAbsPath;
+          item.m_sLayerInput[1] = sAbsPath;
         }
       }
 
@@ -204,10 +208,10 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
   {
     ezStringBuilder texGroupFile = ezToolsProject::GetSingleton()->GetProjectDirectory();
     texGroupFile.AppendPath("AssetCache", GetDecalTexturePath(pAssetProfile));
-    texGroupFile.ChangeFileExtension("DecalTexGroup");
+    texGroupFile.ChangeFileExtension("ezDecalAtlasDesc");
 
-    if (texGroup.Save(texGroupFile).Failed())
-      return ezStatus(ezFmt("Failed to save tex group file '{0}'", texGroupFile));
+    if (atlasDesc.Save(texGroupFile).Failed())
+      return ezStatus(ezFmt("Failed to save texture atlas descriptor file '{0}'", texGroupFile));
 
     result = RunTexConv(decalFile, texGroupFile, header);
   }
@@ -244,7 +248,7 @@ ezString ezDecalAssetDocumentManager::GetDecalTexturePath(const ezPlatformProfil
 {
   const ezPlatformProfile* pAssetProfile = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile0);
   ezStringBuilder result = "Decals";
-  GenerateOutputFilename(result, pAssetProfile, "ezDecal", true);
+  GenerateOutputFilename(result, pAssetProfile, "ezTextureAtlas", true);
 
   return result;
 }
@@ -280,7 +284,7 @@ ezStatus ezDecalAssetDocumentManager::RunTexConv(const char* szTargetFile, const
   arguments << szTargetFile;
 
   arguments << "-type";
-  arguments << "DecalAtlas";
+  arguments << "TextureAtlas";
 
   arguments << "-atlasDesc";
   arguments << QString(szInputFile);

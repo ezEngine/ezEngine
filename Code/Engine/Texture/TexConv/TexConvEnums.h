@@ -12,7 +12,7 @@ struct ezTexConvOutputType
     Texture2D,
     Texture3D,
     TextureCube,
-    DecalAtlas,
+    TextureAtlas,
 
     Default = Texture2D
   };

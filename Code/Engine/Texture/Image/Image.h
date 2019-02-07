@@ -19,6 +19,9 @@ public:
   /// \brief Constructs an empty image view.
   void Clear();
 
+  /// \brief Returns false if the image view does not reference any data yet.
+  bool IsValid() const;
+
   /// \brief Constructs an image view with the given header and image data.
   void ResetAndViewExternalStorage(const ezImageHeader& header, ezArrayPtr<const void> imageData);
 

@@ -4,7 +4,7 @@
 #include <Foundation/Math/Rect.h>
 #include <Texture/TexConv/TexConvDesc.h>
 
-class ezTextureGroupDesc;
+struct ezTextureAtlasCreationDesc;
 
 class EZ_TEXTURE_DLL ezTexConvProcessor
 {
@@ -20,7 +20,7 @@ public:
   ezImage m_OutputImage;
   ezImage m_LowResOutputImage;
   ezImage m_ThumbnailOutputImage;
-  ezMemoryStreamStorage m_DecalAtlas;
+  ezMemoryStreamStorage m_TextureAtlas;
 
 private:
 
@@ -60,33 +60,25 @@ private:
   //////////////////////////////////////////////////////////////////////////
   // Texture Atlas
 
-  enum TextureAtlasLayer
-  {
-    BaseColor,
-    Normal,
-    ENUM_COUNT,
-  };
-
   struct TextureAtlasItem
   {
-    ezString m_sIdentifier;
-    ezString m_sInputFile[TextureAtlasLayer::ENUM_COUNT];
-    ezImage m_InputImage[TextureAtlasLayer::ENUM_COUNT];
-    ezRectU32 m_AtlasRect[TextureAtlasLayer::ENUM_COUNT];
+    ezUInt32 m_uiUniqueID = 0;
+    ezImage m_InputImage[4];
+    ezRectU32 m_AtlasRect[4];
   };
 
-  ezResult LoadAtlasInputs(const ezTextureGroupDesc& atlasDesc, ezDynamicArray<TextureAtlasItem>& items) const;
-  ezResult CreateAtlasLayerTexture(ezDynamicArray<TextureAtlasItem>& atlasItems, ezInt32 layer, ezImage& dstImg, ezUInt32 uiNumMipmaps);
+  ezResult LoadAtlasInputs(const ezTextureAtlasCreationDesc& atlasDesc, ezDynamicArray<TextureAtlasItem>& items) const;
+  ezResult CreateAtlasLayerTexture(const ezTextureAtlasCreationDesc& atlasDesc, ezDynamicArray<TextureAtlasItem>& atlasItems, ezInt32 layer, ezImage& dstImg, ezUInt32 uiNumMipmaps);
 
-  static ezResult WriteTextureAtlasInfo(const ezDynamicArray<TextureAtlasItem>& decals, ezStreamWriter& stream);
+  static ezResult WriteTextureAtlasInfo(const ezDynamicArray<TextureAtlasItem>& atlasItems, ezUInt32 uiNumLayers, ezStreamWriter& stream);
   static ezResult TrySortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiWidth, ezUInt32 uiHeight, ezInt32 layer, ezUInt32 uiPixelAlign);
-  static ezResult SortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>& decals, ezUInt32& out_ResX, ezUInt32& out_ResY, ezInt32 layer, ezUInt32 uiPixelAlign);
-  static ezResult CreateAtlasTexture(ezDynamicArray<TextureAtlasItem>& decals, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer);
+  static ezResult SortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>& items, ezUInt32& out_ResX, ezUInt32& out_ResY, ezInt32 layer, ezUInt32 uiPixelAlign);
+  static ezResult CreateAtlasTexture(ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer);
 
   //////////////////////////////////////////////////////////////////////////
-  // Decal Atlas
+  // Texture Atlas
 
-  ezResult GenerateDecalAtlas(ezMemoryStreamWriter& stream);
+  ezResult GenerateTextureAtlas(ezMemoryStreamWriter& stream);
 
 };
 

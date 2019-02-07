@@ -66,7 +66,7 @@ private:
   bool m_bOutputSupports2D = false;
   bool m_bOutputSupports3D = false;
   bool m_bOutputSupportsCube = false;
-  bool m_bOutputSupportsDecal = false;
+  bool m_bOutputSupportsAtlas = false;
   bool m_bOutputSupportsMipmaps = false;
   bool m_bOutputSupportsFiltering = false;
   bool m_bOutputSupportsCompression = false;
