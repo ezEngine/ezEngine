@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <CoreTestPCH.h>
 
 #include <Core/Input/InputManager.h>
 #include <Foundation/Memory/MemoryUtils.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include "DocumentWindow/EngineViewWidget.moc.h"
 #include <EditorFramework/InputContexts/EditorInputContext.h>

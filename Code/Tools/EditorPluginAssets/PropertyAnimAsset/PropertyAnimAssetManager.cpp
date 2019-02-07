@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAsset.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAssetManager.h>

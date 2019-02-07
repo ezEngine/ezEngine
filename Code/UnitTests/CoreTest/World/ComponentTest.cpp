@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <CoreTestPCH.h>
 
 #include <Core/World/World.h>
 #include <Foundation/Time/Clock.h>

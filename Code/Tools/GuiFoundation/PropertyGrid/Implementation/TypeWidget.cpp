@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <GuiFoundationPCH.h>
 
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <Foundation/Strings/TranslationLookup.h>

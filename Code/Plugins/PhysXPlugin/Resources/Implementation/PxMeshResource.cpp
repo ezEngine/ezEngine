@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <PhysXPluginPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/Utils/WorldGeoExtractionUtil.h>

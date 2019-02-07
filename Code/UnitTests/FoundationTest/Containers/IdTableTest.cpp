@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <FoundationTestPCH.h>
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/IdTable.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginScenePCH.h>
 
 #include <Commands/SceneCommands.h>
 #include <Core/Assets/AssetFileHeader.h>

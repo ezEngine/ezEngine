@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RendererCorePCH.h>
 
 #include <Foundation/Serialization/BinarySerializer.h>
 #include <RendererCore/Pipeline/Extractor.h>

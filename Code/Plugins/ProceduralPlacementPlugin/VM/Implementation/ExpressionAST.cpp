@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ProceduralPlacementPluginPCH.h>
 
 #include <ProceduralPlacementPlugin/VM/ExpressionAST.h>
 #include <Utilities/DGML/DGMLWriter.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <GuiFoundationPCH.h>
 
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>

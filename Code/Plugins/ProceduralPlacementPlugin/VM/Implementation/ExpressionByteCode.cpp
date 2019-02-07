@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ProceduralPlacementPluginPCH.h>
 
 #include <Foundation/IO/ChunkStream.h>
 #include <ProceduralPlacementPlugin/VM/ExpressionByteCode.h>

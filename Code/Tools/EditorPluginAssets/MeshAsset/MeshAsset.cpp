@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginAssetsPCH.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>

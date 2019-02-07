@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <TestFrameworkPCH.h>
 
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Logging/VisualStudioWriter.h>

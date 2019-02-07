@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <FoundationTestPCH.h>
 
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/Stream.h>

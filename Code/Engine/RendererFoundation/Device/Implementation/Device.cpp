@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RendererFoundationPCH.h>
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>

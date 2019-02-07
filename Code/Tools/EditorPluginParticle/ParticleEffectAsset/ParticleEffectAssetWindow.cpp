@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginParticlePCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>

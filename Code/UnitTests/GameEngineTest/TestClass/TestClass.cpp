@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <GameEngineTestPCH.h>
 
 #include "TestClass.h"
 #include <Core/World/World.h>

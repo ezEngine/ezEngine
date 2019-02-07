@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ModelImporterPCH.h>
 
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Types/RefCounted.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EnginePluginScenePCH.h>
 
 #include <EnginePluginScene/EnginePluginSceneDLL.h>
 

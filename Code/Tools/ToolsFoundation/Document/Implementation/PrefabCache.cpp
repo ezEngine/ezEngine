@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ToolsFoundationPCH.h>
 
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/MemoryStream.h>

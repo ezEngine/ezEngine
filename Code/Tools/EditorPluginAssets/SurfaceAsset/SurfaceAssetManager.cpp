@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginAssetsPCH.h>
 
 #include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
 #include <EditorPluginAssets/SurfaceAsset/SurfaceAsset.h>

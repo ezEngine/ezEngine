@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RendererCorePCH.h>
 
 #include <Core/Graphics/Camera.h>
 #include <Foundation/Configuration/CVar.h>

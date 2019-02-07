@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginScenePCH.h>
 
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorPluginScene/DragDropHandlers/MeshDragDropHandler.h>

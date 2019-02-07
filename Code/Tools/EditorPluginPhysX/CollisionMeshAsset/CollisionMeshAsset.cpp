@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginPhysXPCH.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <EditorFramework/Assets/AssetCurator.h>

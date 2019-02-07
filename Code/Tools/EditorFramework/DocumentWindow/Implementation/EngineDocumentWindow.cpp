@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include <EditorEngineProcessFramework/IPC/SyncObject.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>

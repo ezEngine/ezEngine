@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <FoundationTestPCH.h>
 
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Memory/CommonAllocators.h>

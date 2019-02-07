@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPCH.h>
 
 #include <Core/Application/Application.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>

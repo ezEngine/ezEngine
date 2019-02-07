@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ParticlePluginPCH.h>
 
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/World.h>

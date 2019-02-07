@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <TestFrameworkPCH.h>
 
 #include <Foundation/Profiling/Profiling.h>
 #include <TestFramework/Framework/TestFramework.h>

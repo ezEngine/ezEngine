@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ParticlePluginPCH.h>
 
 #include <ParticlePlugin/Type/Point/ParticleTypePoint.h>
 #include <RendererCore/Shader/ShaderResource.h>

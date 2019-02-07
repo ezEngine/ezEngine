@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 #include <EditorFramework/GUI/ExposedParametersTypeRegistry.h>
 #include <EditorFramework/GUI/ExposedParameters.h>
 #include <Assets/AssetCurator.h>

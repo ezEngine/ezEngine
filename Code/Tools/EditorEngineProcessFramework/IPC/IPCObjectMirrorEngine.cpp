@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorEngineProcessFrameworkPCH.h>
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/IPC/IPCObjectMirrorEngine.h>

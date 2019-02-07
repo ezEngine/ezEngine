@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RendererCorePCH.h>
 
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>

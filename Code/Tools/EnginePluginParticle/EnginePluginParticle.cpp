@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EnginePluginParticlePCH.h>
 
 #include <EnginePluginParticle/EnginePluginParticleDLL.h>
 

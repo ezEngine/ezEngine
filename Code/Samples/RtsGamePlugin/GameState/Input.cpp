@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RtsGamePluginPCH.h>
 
 #include <RtsGamePlugin/GameState/RtsGameState.h>
 

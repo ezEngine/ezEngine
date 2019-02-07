@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RendererCorePCH.h>
 
 #include <RendererCore/Pipeline/Passes/DepthOnlyPass.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginFmodPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>

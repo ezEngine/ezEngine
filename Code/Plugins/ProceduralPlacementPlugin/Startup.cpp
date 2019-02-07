@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ProceduralPlacementPluginPCH.h>
 
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Startup.h>

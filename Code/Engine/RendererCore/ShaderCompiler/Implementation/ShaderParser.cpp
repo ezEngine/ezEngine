@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RendererCorePCH.h>
 
 #include <Foundation/CodeUtils/Tokenizer.h>
 #include <Foundation/Types/Variant.h>

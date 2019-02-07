@@ -1,5 +1,5 @@
 
-#include <PCH.h>
+#include <FoundationTestPCH.h>
 
 #include <Foundation/DataProcessing/Stream/DefaultImplementations/ZeroInitializer.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>

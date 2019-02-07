@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EnginePluginPhysXPCH.h>
 
 #include <EnginePluginPhysX/EnginePluginPhysXDLL.h>
 

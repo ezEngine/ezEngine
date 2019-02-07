@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <SharedPluginScenePCH.h>
 
 #include <SharedPluginScene/Common/Messages.h>
 

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginAssetsPCH.h>
 
 #include <Core/World/GameObject.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>

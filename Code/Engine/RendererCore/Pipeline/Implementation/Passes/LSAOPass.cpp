@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RendererCorePCH.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <FoundationTestPCH.h>
 
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/Thread.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>

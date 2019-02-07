@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginFmodPCH.h>
 
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>

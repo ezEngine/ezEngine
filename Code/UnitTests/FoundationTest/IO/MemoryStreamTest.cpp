@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <FoundationTestPCH.h>
 
 #include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Containers/DynamicArray.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
 #include <EditorPluginAssets/SceneImport/SceneImportDlg.moc.h>

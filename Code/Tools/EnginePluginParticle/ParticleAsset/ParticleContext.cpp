@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EnginePluginParticlePCH.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>

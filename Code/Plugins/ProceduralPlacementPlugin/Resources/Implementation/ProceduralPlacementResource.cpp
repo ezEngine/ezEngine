@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ProceduralPlacementPluginPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/ChunkStream.h>

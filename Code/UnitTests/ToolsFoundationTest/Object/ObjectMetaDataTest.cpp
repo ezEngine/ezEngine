@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ToolsFoundationTestPCH.h>
 
 #include <Foundation/Types/Uuid.h>
 #include <ToolsFoundation/Object/ObjectMetaData.h>

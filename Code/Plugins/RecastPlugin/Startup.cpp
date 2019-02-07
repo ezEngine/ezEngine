@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RecastPluginPCH.h>
 
 #include <Foundation/Configuration/Startup.h>
 #include <RecastPlugin/RecastInterface.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/Actions/GameObjectDocumentActions.h>
 #include <EditorFramework/Assets/AssetDocument.h>

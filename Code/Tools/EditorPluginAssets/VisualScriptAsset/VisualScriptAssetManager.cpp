@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAsset.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAssetManager.h>

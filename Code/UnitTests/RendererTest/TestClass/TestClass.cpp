@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RendererTestPCH.h>
 
 #include "TestClass.h"
 #include <Core/ResourceManager/ResourceManager.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <InspectorPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
 #include <Inspector/MemoryWidget.moc.h>

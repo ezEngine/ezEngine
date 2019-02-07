@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginAssetsPCH.h>
 
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <EditorFramework/Assets/AssetCurator.h>

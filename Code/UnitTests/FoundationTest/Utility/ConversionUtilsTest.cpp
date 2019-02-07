@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <FoundationTestPCH.h>
 
 #include <Foundation/Math/Random.h>
 #include <Foundation/Utilities/ConversionUtils.h>

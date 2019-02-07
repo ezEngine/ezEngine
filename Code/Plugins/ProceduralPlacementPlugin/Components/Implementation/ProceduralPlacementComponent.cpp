@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ProceduralPlacementPluginPCH.h>
 
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>

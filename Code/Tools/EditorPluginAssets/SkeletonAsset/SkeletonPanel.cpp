@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginAssetsPCH.h>
 
 #include <EditorFramework/GUI/RawDocumentTreeModel.moc.h>
 #include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>

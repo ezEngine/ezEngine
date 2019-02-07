@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <FoundationTestPCH.h>
 
 #define INT_DECLARE(name, n) \
   int name = n;

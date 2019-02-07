@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EnginePluginAssetsPCH.h>
 
 #include <EnginePluginAssets/EnginePluginAssetsDLL.h>
 

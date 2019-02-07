@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorEngineProcessFramework/IPC/SyncObject.h>

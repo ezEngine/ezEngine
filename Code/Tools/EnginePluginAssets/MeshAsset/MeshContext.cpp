@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EnginePluginAssetsPCH.h>
 
 #include <EnginePluginAssets/MeshAsset/MeshContext.h>
 #include <EnginePluginAssets/MeshAsset/MeshView.h>

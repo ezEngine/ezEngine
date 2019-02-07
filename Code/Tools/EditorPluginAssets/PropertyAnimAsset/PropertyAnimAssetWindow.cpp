@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginAssetsPCH.h>
 
 #include <EditorFramework/DocumentWindow/GameObjectViewWidget.moc.h>
 #include <EditorFramework/DocumentWindow/QuadViewWidget.moc.h>

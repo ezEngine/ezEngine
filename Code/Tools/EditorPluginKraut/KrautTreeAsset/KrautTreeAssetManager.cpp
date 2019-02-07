@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginKrautPCH.h>
 
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAsset.h>
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetManager.h>

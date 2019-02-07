@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EnginePluginAssetsPCH.h>
 
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/Component.h>

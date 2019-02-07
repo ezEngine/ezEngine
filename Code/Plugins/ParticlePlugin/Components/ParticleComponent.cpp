@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ParticlePluginPCH.h>
 
 #include <Core/Messages/CommonMessages.h>
 #include <Core/Messages/DeleteObjectMessage.h>

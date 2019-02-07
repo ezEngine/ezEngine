@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <GuiFoundationPCH.h>
 
 #include <GuiFoundation/UIServices/QtWaitForOperationDlg.moc.h>
 #include <QTimer>

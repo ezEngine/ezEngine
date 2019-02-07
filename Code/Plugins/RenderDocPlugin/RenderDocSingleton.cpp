@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RenderDocPluginPCH.h>
 
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Utilities/CommandLineUtils.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <FoundationTestPCH.h>
 
 // This test does not actually run, it tests compile time stuff
 

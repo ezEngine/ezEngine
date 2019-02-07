@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ParticlePluginPCH.h>
 
 #include <Core/World/World.h>
 #include <Foundation/DataProcessing/Stream/DefaultImplementations/ZeroInitializer.h>

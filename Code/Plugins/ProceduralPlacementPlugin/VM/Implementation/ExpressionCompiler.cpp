@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ProceduralPlacementPluginPCH.h>
 
 #include <ProceduralPlacementPlugin/VM/ExpressionByteCode.h>
 #include <ProceduralPlacementPlugin/VM/ExpressionCompiler.h>

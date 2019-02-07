@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RendererCorePCH.h>
 
 #include <Foundation/Math/Frustum.h>
 #include <Foundation/Reflection/ReflectionUtils.h>

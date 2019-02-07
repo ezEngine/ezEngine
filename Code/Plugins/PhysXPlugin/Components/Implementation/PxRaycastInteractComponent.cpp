@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <PhysXPluginPCH.h>
 
 #include <Core/Messages/EventMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>

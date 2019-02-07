@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RendererCorePCH.h>
 
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>

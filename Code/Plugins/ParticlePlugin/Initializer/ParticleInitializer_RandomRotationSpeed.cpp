@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ParticlePluginPCH.h>
 
 #include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>

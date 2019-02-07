@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RendererCorePCH.h>
 
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/View.h>

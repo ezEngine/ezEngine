@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <SampleGamePluginPCH.h>
 
 #include <Foundation/Logging/Log.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>

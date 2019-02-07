@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ParticlePluginPCH.h>
 
 #include <Foundation/Types/ScopeExit.h>
 #include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>

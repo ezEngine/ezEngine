@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EnginePluginAssetsPCH.h>
 
 #include <EnginePluginAssets/AnimationClipAsset/AnimationClipContext.h>
 #include <EnginePluginAssets/AnimationClipAsset/AnimationClipView.h>

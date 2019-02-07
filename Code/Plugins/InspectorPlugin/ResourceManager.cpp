@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <InspectorPluginPCH.h>
 
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceManager.h>

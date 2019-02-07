@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginFmodPCH.h>
 
 #include <EditorPluginFmod/SoundEventAsset/SoundEventAsset.h>
 #include <EditorPluginFmod/SoundEventAsset/SoundEventAssetManager.h>

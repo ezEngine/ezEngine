@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ModelImporterPCH.h>
 
 #include <Foundation/Logging/Log.h>
 #include <ModelImporter/Importers/PbrtImporter_Context.h>

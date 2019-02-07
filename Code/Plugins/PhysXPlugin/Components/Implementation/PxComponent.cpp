@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <PhysXPluginPCH.h>
 
 #include <PhysXPlugin/Components/PxComponent.h>
 

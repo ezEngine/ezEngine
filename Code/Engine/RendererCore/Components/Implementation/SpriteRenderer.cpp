@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RendererCorePCH.h>
 
 #include <Foundation/Math/Float16.h>
 #include <Foundation/Types/ScopeExit.h>

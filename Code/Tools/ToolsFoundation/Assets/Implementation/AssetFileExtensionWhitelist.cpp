@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ToolsFoundationPCH.h>
 
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 

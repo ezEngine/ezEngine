@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EnginePluginPhysXPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/World/World.h>

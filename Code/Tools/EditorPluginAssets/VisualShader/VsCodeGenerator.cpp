@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/VisualShader/VsCodeGenerator.h>
 #include <Foundation/Types/ScopeExit.h>

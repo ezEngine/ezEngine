@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginScenePCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/DocumentWindow/QuadViewWidget.moc.h>

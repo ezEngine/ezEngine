@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <FoundationTestPCH.h>
 
 #include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Logging/ConsoleWriter.h>

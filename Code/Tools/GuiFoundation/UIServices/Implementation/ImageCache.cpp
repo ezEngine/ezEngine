@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <GuiFoundationPCH.h>
 
 #include <Foundation/Threading/ThreadUtils.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>

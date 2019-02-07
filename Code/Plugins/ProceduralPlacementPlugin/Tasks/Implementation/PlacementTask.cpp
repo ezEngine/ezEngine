@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ProceduralPlacementPluginPCH.h>
 
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/SimdMath/SimdRandom.h>

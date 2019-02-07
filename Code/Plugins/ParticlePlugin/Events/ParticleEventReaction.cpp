@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ParticlePluginPCH.h>
 
 #include <ParticlePlugin/Events/ParticleEventReaction.h>
 

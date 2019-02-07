@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <CoreTestPCH.h>
 
 #include <Core/Scripting/LuaWrapper.h>
 

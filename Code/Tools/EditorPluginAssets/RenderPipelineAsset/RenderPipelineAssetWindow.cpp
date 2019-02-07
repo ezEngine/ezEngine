@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAssetScene.moc.h>
 #include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAssetWindow.moc.h>

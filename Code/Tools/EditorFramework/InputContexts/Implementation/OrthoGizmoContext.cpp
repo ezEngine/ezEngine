@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>

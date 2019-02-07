@@ -1,10 +1,11 @@
 #pragma once
 
+#include <ShaderCompilerHLSL/ShaderCompilerHLSLDLL.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 
 struct ID3D11ShaderReflectionConstantBuffer;
 
-class ezShaderCompilerHLSL : public ezShaderProgramCompiler
+class EZ_SHADERCOMPILERHLSL_DLL ezShaderCompilerHLSL : public ezShaderProgramCompiler
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezShaderCompilerHLSL, ezShaderProgramCompiler);
 

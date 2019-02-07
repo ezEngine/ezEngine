@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <GuiFoundationPCH.h>
 
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/NodeEditor/NodeView.moc.h>

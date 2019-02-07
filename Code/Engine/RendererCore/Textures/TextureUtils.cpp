@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RendererCorePCH.h>
 
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/TextureUtils.h>

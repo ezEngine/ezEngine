@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <GuiFoundationPCH.h>
 
 #include <GuiFoundation/Dialogs/PickDocumentObjectDlg.moc.h>
 #include <ToolsFoundation/Document/Document.h>

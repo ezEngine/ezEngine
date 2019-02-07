@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/Actions/TransformGizmoActions.h>
 #include <EditorFramework/EditTools/StandardGizmoEditTools.h>

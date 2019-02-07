@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginProceduralPlacementPCH.h>
 
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorPluginProceduralPlacement/DragDropHandlers/ProceduralPlacementDragDropHandler.h>

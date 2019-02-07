@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RtsGamePluginPCH.h>
 
 #include <RtsGamePlugin/Components/ComponentMessages.h>
 #include <RtsGamePlugin/GameMode/BattleMode/BattleMode.h>

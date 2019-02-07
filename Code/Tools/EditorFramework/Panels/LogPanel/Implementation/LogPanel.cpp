@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
 #include <Foundation/Strings/TranslationLookup.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginPhysXPCH.h>
 
 #include <EditorPluginPhysX/Dialogs/PhysXProjectSettingsDlg.moc.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>

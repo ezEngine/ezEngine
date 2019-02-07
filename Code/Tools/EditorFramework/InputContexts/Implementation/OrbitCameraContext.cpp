@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include <Core/Graphics/Camera.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>

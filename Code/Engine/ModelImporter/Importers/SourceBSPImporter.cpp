@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ModelImporterPCH.h>
 
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <ModelImporter/Importers/SourceBSPImporter.h>

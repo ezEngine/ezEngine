@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <PhysXPluginPCH.h>
 
 #include <Components/PxStaticActorComponent.h>
 #include <Components/PxTriggerComponent.h>

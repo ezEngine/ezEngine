@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ToolsFoundationTestPCH.h>
 
 #include <ToolsFoundationTest/Object/TestObjectManager.h>
 

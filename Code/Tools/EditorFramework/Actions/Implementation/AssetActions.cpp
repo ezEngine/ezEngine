@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Assets/AssetCurator.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RecastPluginPCH.h>
 
 #include <Foundation/Containers/StaticArray.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshPointsOfInterest.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ProceduralPlacementPluginPCH.h>
 
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/SimdMath/SimdRandom.h>

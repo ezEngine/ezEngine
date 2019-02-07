@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <CoreTestPCH.h>
 
 #include <Foundation/Containers/Deque.h>
 #include <Utilities/DataStructures/DynamicOctree.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <SampleGamePluginPCH.h>
 
 #include <Core/World/World.h>
 #include <Foundation/Logging/Log.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/PropertyGrid/DynamicStringEnumPropertyWidget.moc.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>

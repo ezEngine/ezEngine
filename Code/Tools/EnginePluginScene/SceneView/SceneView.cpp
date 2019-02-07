@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EnginePluginScenePCH.h>
 
 #include <Core/ResourceManager/ResourceManager.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>

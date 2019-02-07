@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <FoundationTestPCH.h>
 
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Math/Vec3.h>

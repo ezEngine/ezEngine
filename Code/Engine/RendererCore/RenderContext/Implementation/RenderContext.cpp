@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RendererCorePCH.h>
 
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Types/ScopeExit.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RtsGamePluginPCH.h>
 
 void OnLoadPlugin(bool bReloading)
 {

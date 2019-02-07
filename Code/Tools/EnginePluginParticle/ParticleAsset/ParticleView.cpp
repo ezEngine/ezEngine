@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EnginePluginParticlePCH.h>
 
 #include <Core/ResourceManager/ResourceManager.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>

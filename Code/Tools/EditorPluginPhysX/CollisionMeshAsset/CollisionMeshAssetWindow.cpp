@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginPhysXPCH.h>
 
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>

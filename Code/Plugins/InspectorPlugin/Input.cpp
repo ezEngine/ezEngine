@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <InspectorPluginPCH.h>
 
 #include <Core/Input/InputManager.h>
 #include <Foundation/Communication/Telemetry.h>

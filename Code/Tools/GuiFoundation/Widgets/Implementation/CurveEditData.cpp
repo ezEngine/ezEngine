@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <GuiFoundationPCH.h>
 
 #include <Foundation/Math/Math.h>
 #include <Foundation/Tracks/Curve1D.h>

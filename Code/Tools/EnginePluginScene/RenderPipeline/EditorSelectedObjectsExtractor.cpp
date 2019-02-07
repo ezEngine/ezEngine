@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EnginePluginScenePCH.h>
 
 #include <EnginePluginScene/RenderPipeline/EditorSelectedObjectsExtractor.h>
 #include <EnginePluginScene/SceneContext/SceneContext.h>

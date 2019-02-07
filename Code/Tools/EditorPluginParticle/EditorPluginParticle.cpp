@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginParticlePCH.h>
 
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>

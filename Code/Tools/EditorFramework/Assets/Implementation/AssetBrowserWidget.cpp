@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/Assets/AssetBrowserFilter.moc.h>
 #include <EditorFramework/Assets/AssetBrowserWidget.moc.h>

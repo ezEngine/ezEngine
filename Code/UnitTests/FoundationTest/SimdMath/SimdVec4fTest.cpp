@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <FoundationTestPCH.h>
 
 #include <Foundation/Math/Vec4.h>
 #include <Foundation/SimdMath/SimdVec4f.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <PCH.h>
+#include <GameEngineTestPCH.h>
 
 #include "../TestClass/TestClass.h"
 

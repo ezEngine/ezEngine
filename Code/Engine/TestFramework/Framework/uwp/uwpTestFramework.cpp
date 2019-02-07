@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <TestFrameworkPCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 #include <TestFramework/Framework/uwp/uwpTestApplication.h>

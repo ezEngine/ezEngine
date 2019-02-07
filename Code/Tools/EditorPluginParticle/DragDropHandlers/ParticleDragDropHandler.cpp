@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginParticlePCH.h>
 
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorPluginParticle/DragDropHandlers/ParticleDragDropHandler.h>

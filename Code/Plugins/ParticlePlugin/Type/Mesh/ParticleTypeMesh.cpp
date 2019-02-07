@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ParticlePluginPCH.h>
 
 #include <Core/World/World.h>
 #include <Foundation/Math/Color16f.h>

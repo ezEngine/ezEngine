@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <InspectorPluginPCH.h>
 
 #include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Communication/Telemetry.h>

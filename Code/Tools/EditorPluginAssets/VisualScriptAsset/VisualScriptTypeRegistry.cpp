@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginAssetsPCH.h>
 
 #include <Core/Messages/EventMessage.h>
 #include <Core/World/Component.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginAssetsPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>

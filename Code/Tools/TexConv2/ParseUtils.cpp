@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <TexConv2PCH.h>
 
 #include <TexConv2/TexConv2.h>
 

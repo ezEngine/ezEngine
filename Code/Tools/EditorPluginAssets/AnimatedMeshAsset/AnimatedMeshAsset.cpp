@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAsset.h>
 #include <EditorPluginAssets/Util/MeshImportUtils.h>

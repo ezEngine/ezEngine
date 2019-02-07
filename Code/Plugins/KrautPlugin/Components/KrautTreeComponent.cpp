@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <KrautPluginPCH.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <Core/ResourceManager/ResourceManager.h>

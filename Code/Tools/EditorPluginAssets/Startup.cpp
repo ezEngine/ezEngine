@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginAssetsPCH.h>
 
 #include <Foundation/Configuration/Startup.h>
 #include <ModelImporter/Importers/AssimpImporter.h>

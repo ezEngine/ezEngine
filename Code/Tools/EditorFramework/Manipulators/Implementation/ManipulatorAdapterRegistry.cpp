@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/Manipulators/ManipulatorAdapterRegistry.h>
 #include <Foundation/Configuration/Startup.h>

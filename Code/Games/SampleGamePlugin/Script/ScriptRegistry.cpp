@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <SampleGamePluginPCH.h>
 
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>

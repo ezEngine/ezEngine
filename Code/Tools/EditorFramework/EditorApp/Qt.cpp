@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <QStyleFactory>

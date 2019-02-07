@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ToolsFoundationPCH.h>
 
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
 #include <ToolsFoundation/Document/Document.h>

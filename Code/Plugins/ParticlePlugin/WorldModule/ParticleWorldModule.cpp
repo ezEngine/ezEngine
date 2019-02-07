@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ParticlePluginPCH.h>
 
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 #include <Foundation/Threading/Lock.h>

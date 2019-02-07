@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <FoundationTestPCH.h>
 
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Types/UniquePtr.h>

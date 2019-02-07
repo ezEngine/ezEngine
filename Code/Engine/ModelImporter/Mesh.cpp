@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ModelImporterPCH.h>
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/Implementation/FormatStringArgs.h>

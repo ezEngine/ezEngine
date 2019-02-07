@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RendererCorePCH.h>
 
 #include <RendererCore/AnimationSystem/EditableSkeleton.h>
 #include <RendererCore/AnimationSystem/SkeletonBuilder.h>

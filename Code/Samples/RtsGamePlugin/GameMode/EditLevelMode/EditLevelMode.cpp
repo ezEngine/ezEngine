@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RtsGamePluginPCH.h>
 
 #include <RendererCore/Messages/SetColorMessage.h>
 #include <RtsGamePlugin/GameMode/EditLevelMode/EditLevelMode.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>

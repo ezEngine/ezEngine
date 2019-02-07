@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <ModelImporterPCH.h>
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/IO/FileSystem/FileReader.h>

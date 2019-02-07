@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/Dialogs/EnginePluginConfigDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>

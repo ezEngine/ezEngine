@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RtsGamePluginPCH.h>
 
 #include <RtsGamePlugin/AI/AiUtilitySystem.h>
 

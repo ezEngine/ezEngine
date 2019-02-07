@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <InspectorPCH.h>
 
 #include <Core/Application/Application.h>
 #include <Foundation/Communication/Telemetry.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <GameEngineTestPCH.h>
 
 #include <RendererCore/Textures/TextureUtils.h>
 #include <TestFramework/Framework/TestFramework.h>

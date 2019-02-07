@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RendererCorePCH.h>
 
 #include <Foundation/IO/Stream.h>
 #include <Texture/Image/Formats/TgaFileFormat.h>

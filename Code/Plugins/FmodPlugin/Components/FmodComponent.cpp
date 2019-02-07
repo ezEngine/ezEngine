@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <FmodPluginPCH.h>
 
 #include <FmodPlugin/Components/FmodComponent.h>
 #include <FmodPlugin/FmodIncludes.h>

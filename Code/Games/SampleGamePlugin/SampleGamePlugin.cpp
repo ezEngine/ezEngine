@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <SampleGamePluginPCH.h>
 
 #include <SampleGamePlugin/SampleGamePluginDLL.h>
 

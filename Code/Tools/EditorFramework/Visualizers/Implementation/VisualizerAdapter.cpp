@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>
 #include <Foundation/Math/Transform.h>

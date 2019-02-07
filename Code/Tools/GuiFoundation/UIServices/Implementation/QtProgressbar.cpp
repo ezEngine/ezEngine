@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <GuiFoundationPCH.h>
 
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/UIServices/QtProgressbar.h>

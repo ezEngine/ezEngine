@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RendererCorePCH.h>
 
 #include <RendererCore/Decals/DecalAtlasResource.h>
 #include <RendererCore/Lights/ClusteredDataExtractor.h>

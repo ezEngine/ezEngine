@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/Document/GameObjectContextDocument.h>
 #include <Foundation/Profiling/Profiling.h>

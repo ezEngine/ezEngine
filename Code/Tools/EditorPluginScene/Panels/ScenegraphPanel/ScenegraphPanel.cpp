@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginScenePCH.h>
 
 #include <Actions/SelectionActions.h>
 #include <Core/World/GameObject.h>

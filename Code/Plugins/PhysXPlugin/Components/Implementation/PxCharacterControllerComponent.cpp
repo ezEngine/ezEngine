@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <PhysXPluginPCH.h>
 
 #include <Core/Messages/CollisionMessage.h>
 #include <Core/Messages/TriggerMessage.h>

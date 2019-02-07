@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EnginePluginAssetsPCH.h>
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 #include <EnginePluginAssets/DecalAsset/DecalContext.h>

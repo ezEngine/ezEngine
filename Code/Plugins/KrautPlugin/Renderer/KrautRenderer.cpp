@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <KrautPluginPCH.h>
 
 #include <KrautPlugin/Components/KrautTreeComponent.h>
 #include <KrautPlugin/Renderer/KrautRenderer.h>

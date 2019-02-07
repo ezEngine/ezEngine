@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <GuiFoundationPCH.h>
 
 #include <Foundation/Math/Math.h>
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>

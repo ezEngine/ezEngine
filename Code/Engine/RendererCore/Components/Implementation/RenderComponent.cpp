@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RendererCorePCH.h>
 
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>

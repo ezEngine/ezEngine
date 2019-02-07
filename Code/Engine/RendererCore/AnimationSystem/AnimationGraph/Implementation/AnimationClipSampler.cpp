@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <RendererCorePCH.h>
 
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>

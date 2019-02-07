@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/SurfaceAsset/SurfaceAssetWindow.moc.h>
 #include <Texture/Image/ImageConversion.h>

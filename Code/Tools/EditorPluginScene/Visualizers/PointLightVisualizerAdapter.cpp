@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginScenePCH.h>
 
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>

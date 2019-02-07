@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <GuiFoundationPCH.h>
 
 #include <Foundation/Configuration/Startup.h>
 #include <GuiFoundation/Action/ActionMapManager.h>

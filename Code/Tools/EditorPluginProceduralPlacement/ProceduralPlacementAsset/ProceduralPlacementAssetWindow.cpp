@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginProceduralPlacementPCH.h>
 
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementAsset.h>
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementAssetWindow.moc.h>

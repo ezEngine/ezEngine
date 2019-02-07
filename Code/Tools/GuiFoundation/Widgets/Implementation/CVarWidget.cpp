@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <GuiFoundationPCH.h>
 
 #include <Foundation/Configuration/CVar.h>
 #include <GuiFoundation/GuiFoundationDLL.h>

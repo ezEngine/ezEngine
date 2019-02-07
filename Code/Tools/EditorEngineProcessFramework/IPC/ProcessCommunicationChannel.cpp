@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorEngineProcessFrameworkPCH.h>
 
 #include <EditorEngineProcessFramework/IPC/ProcessCommunicationChannel.h>
 #include <Foundation/Communication/IpcChannel.h>

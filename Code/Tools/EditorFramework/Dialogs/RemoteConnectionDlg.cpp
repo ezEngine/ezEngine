@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/Dialogs/LaunchFileserveDlg.moc.h>
 #include <EditorFramework/Dialogs/RemoteConnectionDlg.moc.h>

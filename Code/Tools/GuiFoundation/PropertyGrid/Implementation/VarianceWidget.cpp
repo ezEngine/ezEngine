@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <GuiFoundationPCH.h>
 
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/PropertyGrid/Implementation/VarianceWidget.moc.h>

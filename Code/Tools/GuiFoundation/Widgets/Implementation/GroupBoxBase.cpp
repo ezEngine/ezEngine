@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <GuiFoundationPCH.h>
 
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/GroupBoxBase.moc.h>

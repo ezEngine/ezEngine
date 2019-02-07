@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <Foundation/Math/Math.h>

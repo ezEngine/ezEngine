@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <TestFrameworkPCH.h>
 
 #include <Foundation/Types/ScopeExit.h>
 #include <TestFramework/Framework/TestResults.h>

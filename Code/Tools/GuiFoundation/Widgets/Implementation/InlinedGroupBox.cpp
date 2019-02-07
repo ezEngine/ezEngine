@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <GuiFoundationPCH.h>
 
 #include <GuiFoundation/Widgets/InlinedGroupBox.moc.h>
 #include <QBoxLayout>

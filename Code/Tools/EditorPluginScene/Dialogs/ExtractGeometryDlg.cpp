@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginScenePCH.h>
 
 #include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Core/World/GameObject.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include <DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Actions/QuadViewActions.h>

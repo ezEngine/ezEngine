@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <FoundationTestPCH.h>
 
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <FoundationTest/Reflection/ReflectionTestClasses.h>

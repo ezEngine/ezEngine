@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include "EditorApp/EditorApp.moc.h"
 #include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/TextureAsset/TextureAsset.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetManager.h>

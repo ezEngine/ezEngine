@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/EditorApp/WhatsNew.h>
 #include <Foundation/IO/FileSystem/FileReader.h>

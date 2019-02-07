@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <GuiFoundationPCH.h>
 
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+#include <StochasticRenderingPluginPCH.h>
 
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
