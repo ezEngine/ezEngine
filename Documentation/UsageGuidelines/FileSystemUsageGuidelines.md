@@ -8,16 +8,16 @@ Overview
 
 The following is a list of abstractions that you should be aware of. Each one will be explained in more detail below.
 
-  * __Streams__ (ezStreamReaderBase, ezStreamWriterBase) are the basis for all reading and writing of abstract data streams. These are the two classes that you will use whenever something that acts like a file is passed around, even though it does not need to represent an actual file.
+  * __Streams__ (ezStreamReader, ezStreamWriter) are the basis for all reading and writing of abstract data streams. These are the two classes that you will use whenever something that acts like a file is passed around, even though it does not need to represent an actual file.
   * __Low Level File Abstraction__ (ezOSFile): This is the abstraction layer that implements reading and writing to actual files on disk in a mostly platform independent manner. This is what you typically should not need to use, at all. However, when something is not possible through the higher level abstractions, you might need to do it through this interface.
-  * __High Level File System__ (ezFileSystem, ezFileReader, ezFileWriter): Through ezFileSystem you can configure a virtual file-system. ezFileReader and ezFileWriter should be what you typically use to open 'files' in that virtual file-system. ezFileReader and ezFileWriter implement the respective stream interfaces ezStreamReaderBase and ezStreamWriterBase, so once you have opened a file through these classes, you can pass them to any function that works on streams.
+  * __High Level File System__ (ezFileSystem, ezFileReader, ezFileWriter): Through ezFileSystem you can configure a virtual file-system. ezFileReader and ezFileWriter should be what you typically use to open 'files' in that virtual file-system. ezFileReader and ezFileWriter implement the respective stream interfaces ezStreamReader and ezStreamWriter, so once you have opened a file through these classes, you can pass them to any function that works on streams.
 
 Streams
 -------
 
 A 'stream' is simply a series of bytes. This data stream can come from a physical file, through a network or it can be generated fully procedurally.
 
-Streams typically come in two forms: Ones that you can read from and ones that you can write to. In ezEngine those two types of streams are represented with the interface classes ezStreamReaderBase and ezStreamWriterBase respectively. The stream interfaces are reduced in functionality to what all types of data streams can provide. Reading is always done from the current read position. Writing will always append data at the end of the stream. You cannot seek to an arbitrary position (when reading you can skip ahead) and you cannot re-read the same data or overwrite previously written data.
+Streams typically come in two forms: Ones that you can read from and ones that you can write to. In ezEngine those two types of streams are represented with the interface classes ezStreamReader and ezStreamWriter respectively. The stream interfaces are reduced in functionality to what all types of data streams can provide. Reading is always done from the current read position. Writing will always append data at the end of the stream. You cannot seek to an arbitrary position (when reading you can skip ahead) and you cannot re-read the same data or overwrite previously written data.
 Although this can be limiting in a few scenarios, it is absolutely sufficient for the vast majority of use cases. For the few cases where you really need to set the read or write position, you can revert to another abstraction layer, e.g. on an ezOSFile you have more control.
   
 Inside the core engine we typically do not care about files, at all. Therefore you will not find many functions that take a file-name string. In the few cases that this is so, those functions are usually just convenience functions that internally open a file and then pass along the file as a stream.
@@ -33,12 +33,11 @@ ezEngine often uses memory streams to store incoming data for fast access later.
 
 ezEngine comes with a variety of stream implementations:
 
-  * __Compressed Streams__: Through ezCompressedStreamReader and ezCompressedStreamWriter you can easily add zip compression to your data streams. These classes take another stream as input or output, so you can pass it a file or memory stream to work upon.
+  * __Compressed Streams__: Through ezCompressedStreamReaderZstd and ezCompressedStreamWriterZstd you can easily add zip compression to your data streams. These classes take another stream as input or output, so you can pass it a file or memory stream to work upon.
   * __Chunk Streams__: A chunk stream is basically a stream that is divided into distinct parts which are fully separated from each other. This allows to handle one stream (e.g. a file) as if it were actually multiple streams, which is useful when you want to package multiple files into one. The useful feature of these streams is that code often reads a stream until it ends (e.g. nothing more can be read). When you package multiple files into one stream, this behavior can end badly. A chunk stream enables you to prevent code from reading further than a specific point (a virtual 'end-of-stream' position).
   Chunk formats are also useful when you only want to read or update certain parts of a file, without knowing how the rest of the file format works. This is possible because the size of each chunk is stored in the stream which allows to skip or read an entire chunk and pass it through.
-  * __Archive Stream__: This is a high level file format that is implemented through ezArchiveWriter and ezArchiveReader. An 'archive' is a a chunk format that additionally allows to store information about the object types that have been written to the archive and how to deserialize them. When an object type cannot be read, the archive is able to skip over the data, making the format perfect for situations where files must be readable, even when not all custom code for all objects is available.
-
-Please note that you can combine different types of streams. For example you can write to a file by using ezFileWriter, pass that stream to ezArchiveWriter, so that you get an archive file format, and then even use ezCompressedStreamWriter to compress individual chunks in the archive.
+  
+Please note that you can combine different types of streams. For example you can write to a file by using ezFileWriter, pass that stream to ezChunkStreamWriter and then even use ezCompressedStreamWriterZstd to compress individual chunks in the file.
 
 ### Using Standard Types with Streams ###
 
@@ -62,7 +61,7 @@ Since ezOSFile provides actual file access, it also has some file specific featu
 
 Additionally there are static functions for deleting files, creating directory structures, querying whether a file exists, and so on.
 
-ezOSFile is a thin abstraction over the operating system, it does not yet implement a higher level interface. Therefore it deliberately does not implement the stream interfaces, so you cannot pass an ezOSFile instance to a function that takes an ezStreamReaderBase or ezStreamWriterBase.
+ezOSFile is a thin abstraction over the operating system, it does not yet implement a higher level interface. Therefore it deliberately does not implement the stream interfaces, so you cannot pass an ezOSFile instance to a function that takes an ezStreamReader or ezStreamWriter.
 
 Usually you only need to use ezOSFile for some of the static functions that implement more infrequently used features, such as ezOSFile::CopyFile or ezOSFile::GetFileStats. These might not be available in higher level abstractions.
 

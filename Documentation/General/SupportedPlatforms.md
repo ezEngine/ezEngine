@@ -15,8 +15,6 @@ Versions:
   * Windows 10
 
 Compilers:
-  * Visual Studio 2015 32 Bit
-  * Visual Studio 2015 64 Bit
   * Visual Studio 2017 32 Bit
   * Visual Studio 2017 64 Bit
 

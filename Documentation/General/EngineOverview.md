@@ -15,20 +15,14 @@ Foundation itself only depends on the **ThirdParty** library, which contains all
 
 The **Core** library is built on top of Foundation. This library contains engine specific features, such as the Game Object system. **Core** is where most of the actual engine infrastructure is implemented.
 
-**CoreUtils** builds on top of **Core**. It contains 'nice to have' utility features, but no critical infrastructure. This is where you will find some interesting high-level code.
-
 **System** is the library that is supposed to contain all the high-level platform specific code that might be difficult to abstract. Currently this mostly contains window creation code.
-
-**InputXBox360** implements the XBox 360 controller code. This library can only be built on Windows systems.
-
-**GameUtils** contains some code that might be useful when creating a game. This code is not tested thoroughly and there is no guarantee it is useful or correct. This code is mostly added to implement our own samples.
 
 The **TestFramework** library implements code to manage our unit-tests. You can ignore this entirely.
 
+**GameEngine** builds on top of all the other libraries, including the rendering code. It contains the most high-level code for a game engine, such as AI and Animation, ezGameApplication and ezGameState, which are the basis for any game application built with ez, the prefab system, the visual scripting and much more.
 
-In general the most interesting libraries to look at are **Foundation**, **Core** and **CoreUtils**. **GameUtils** might also contain some useful stuff, depending on the type of game you want to make.
-
-  
+In general the most interesting libraries to look at are **Foundation**, **Core** and **GameEngine**.
+ 
   
   
 
@@ -91,13 +85,13 @@ In **Foundation\\Utilties** you will find some utility functionality, such as ez
 
 In **Foundation\\IO** you will find lots of functionality for reading and writing data.
 
-ezStreamReaderBase and ezStreamWriterBase are the interfaces for all IO operations. Derived from these classes you will find ezMemoryStreamReader / ezMemoryStreamWriter for working with data in-memory. ezCompressedStreamReader and ezCompressedStreamWriter allow to zip and unzip data and ezChunkStreamWriter / ezChunkStreamReader implement a 'chunked' format that can be used for building file formats that another application may not fully understand. Finally ezArchiveReader / ezArchiveWriter implement a high-level file format container for serializing complex objects.
+ezStreamReader and ezStreamWriter are the interfaces for all IO operations. Derived from these classes you will find ezMemoryStreamReader / ezMemoryStreamWriter for working with data in-memory. ezCompressedStreamReaderZstd and ezCompressedStreamWriterZstd allow to zip and unzip data and ezChunkStreamWriter / ezChunkStreamReader implement a 'chunked' format that can be used for building file formats that another application may not fully understand.
 
 ezOSFile is the low-level file abstraction, in most cases you should not need to work with this. Instead prefer ezFileSystem which adds functionality for virtual file systems through mount points. For example a compressed file or a remote folder may be mounted as a read-only directory. ezFileSystem is the central class to manage file accesses, but to actually read or write a file, use ezFileReader and ezFileWriter, which also implement the ezStream* interface.
 
-To store data in a structured way, ezJSONWriter and ezExtendedJSONWriter are provided. For convenient retrieval ezJSONReader and ezExtendedJSONReader are available. For less convenient but more flexible and efficient JSON reading you can also use ezJSONParser.
+To store data in a structured way, ezJSONWriter and ezOpenDdlWriter are provided. For convenient retrieval ezJSONReader and ezOpenDdlReader are available. For less convenient but more flexible and efficient JSON/[OpenDDL](http://openddl.org/) reading you can also use ezJSONParser or ezOpenDdlParser.
 
-In **Foundation\\Reflection** you will find the reflection system of the ezEngine. This is used by the game objects and some other high-level code for object type identification and properties. This may be used for scripting, for setting up objects from configuration files and for editors. Most notable classes are ezRTTI and ezReflectedClass.
+In **Foundation\\Reflection** you will find the reflection system of ezEngine. This is used by the game objects and some other high-level code for object type identification and properties. This may be used for scripting, for setting up objects from configuration files and for editors. Most notable classes are ezRTTI and ezReflectedClass.
 
 
 
@@ -116,7 +110,7 @@ In **Core\\ResourceManager** you will find the static class ezResourceManager wh
 In **Core\\World** you will find the game object system. ezGameObject is the class to use to manage entities, ezComponent is the base component class that allows to implement and attach components to your entities. All entities belong to an instance of ezWorld, which represents your scene graph.
 
 
-Library Overview: CoreUtils
+Library Overview: GameEngine
 ---------------------------
 
 In **CoreUtils\\CodeUtils** you can find utitlies to work with code or text, such as ezTokenizer. You will also find a full implementation of a C preprocessor (ezPreprocessor).

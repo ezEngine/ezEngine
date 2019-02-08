@@ -2,8 +2,7 @@ Getting Started {#GettingStarted}
 ===============
 
 IDE to use:
-  * Visual Studio 2015 (tested)
-  * Visual Studio 2017 (tested)
+  * Visual Studio 2017
 
 Build System:
   * Solutions are generated with CMake.

@@ -9,9 +9,12 @@ By default it is very tiresome to view the actual content of some base types lik
 
 How to Use
 ---------------
-ezEngine comes with a *.natvis file for Visual Studio. You can find the file under [Code/Utilities/Visual Studio Visualizer/ezEngine.natvis](../../../Code/Utilities/Visual Studio Visualizer/ezEngine.natvis)
-- Copy _ezEngine.natvis_ to "%USERPROFILE%/My Documents/Visual Studio XYZW/Visualizers/"
-- Have a fun debug session! No restart of Visual Studio needed!
+
+ezEngine comes with a *.natvis file for Visual Studio. You can find the file under [Utilities/Visual Studio Visualizer/ezEngine.natvis](../../../Utilities/Visual Studio Visualizer/ezEngine.natvis)
+
+The CMake generated solution will automatically reference the natvis file, so it will work out of the box. In case you do not use CMake, you can copy the file manually to "%USERPROFILE%/My Documents/Visual Studio XYZW/Visualizers/"
+
+Have a fun debug session! No restart of Visual Studio needed!
 
 Supported Types
 ---------------
