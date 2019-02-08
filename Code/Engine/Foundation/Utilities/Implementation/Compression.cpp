@@ -19,7 +19,7 @@ namespace ezCompressionUtils
     size_t uiSizeBound = ZSTD_compressBound(pUncompressedData.GetCount());
     if(uiSizeBound > std::numeric_limits<ezUInt32>::max())
     {
-      ezLog::Error("Can't compress since the output container can't hold enough elements ({0})", uiSizeBound);
+      ezLog::Error("Can't compress since the output container can't hold enough elements ({0})", static_cast<ezUInt64>(uiSizeBound));
       return EZ_FAILURE;
     }
 
@@ -54,7 +54,7 @@ namespace ezCompressionUtils
 
     if (uiSize > std::numeric_limits<ezUInt32>::max())
     {
-      ezLog::Error("Can't compress since the output container can't hold enough elements ({0})", uiSize);
+      ezLog::Error("Can't compress since the output container can't hold enough elements ({0})", static_cast<ezUInt64>(uiSize));
       return EZ_FAILURE;
     }
 
