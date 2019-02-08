@@ -1,10 +1,10 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
-#include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 #include <GuiFoundation/Action/ActionMap.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <QMenuBar>
 #include <QSharedPointer>
+#include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 
 class QWidget;
 class ezActionMap;
@@ -15,6 +15,7 @@ class EZ_GUIFOUNDATION_DLL ezQtMenuBarActionMapView : public QMenuBar
 {
   Q_OBJECT
   EZ_DISALLOW_COPY_AND_ASSIGN(ezQtMenuBarActionMapView);
+
 public:
   explicit ezQtMenuBarActionMapView(QWidget* parent);
   ~ezQtMenuBarActionMapView();

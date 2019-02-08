@@ -1,10 +1,10 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
-#include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 #include <GuiFoundation/Action/ActionMap.h>
-#include <QToolBar>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <QSharedPointer>
+#include <QToolBar>
+#include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 
 class QWidget;
 class ezActionMap;
@@ -16,6 +16,7 @@ class EZ_GUIFOUNDATION_DLL ezQtToolBarActionMapView : public QToolBar
 {
   Q_OBJECT
   EZ_DISALLOW_COPY_AND_ASSIGN(ezQtToolBarActionMapView);
+
 public:
   explicit ezQtToolBarActionMapView(QString title, QWidget* parent);
   ~ezQtToolBarActionMapView();

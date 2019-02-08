@@ -98,11 +98,11 @@ private:
 /// As long as there is one resource handle that references a resource, it is considered 'in use' and thus might not get unloaded.
 /// So be careful where you store resource handles.
 /// If necessary you can call Invalidate() to clear a resource handle and thus also remove the reference to the resource.
-template <typename ResourceType>
+template <typename RESOURCE_TYPE>
 class ezTypedResourceHandle
 {
 public:
-  typedef ResourceType ResourceType;
+  typedef RESOURCE_TYPE ResourceType;
 
   /// \brief A default constructed handle is invalid and does not reference any resource.
   ezTypedResourceHandle() {}

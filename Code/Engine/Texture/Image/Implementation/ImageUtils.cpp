@@ -201,7 +201,7 @@ static void ApplyFunc(ImageType& image, Func func)
   ezUInt32 uiDepthPitch = image.GetDepthPitch();
   ezUInt32 uiNumChannels = ezImageFormat::GetNumChannels(image.GetImageFormat());
 
-  auto pSlicePointer = image.GetPixelPointer<ezUInt8>();
+  auto pSlicePointer = image.template GetPixelPointer<ezUInt8>();
 
   for (ezUInt32 z = 0; z < image.GetDepth(); ++z)
   {

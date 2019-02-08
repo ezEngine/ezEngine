@@ -1,10 +1,10 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
-#include <GuiFoundation/Action/BaseActions.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/Variant.h>
+#include <GuiFoundation/Action/BaseActions.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 
 #include <QObject>
@@ -38,8 +38,8 @@ protected:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(GuiFoundation, QtProxies);
   static ezRttiMappedObjectFactory<ezQtProxy> s_Factory;
   static ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> s_GlobalActions;
-  static ezMap<const ezDocument*, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > s_DocumentActions;
-  static ezMap<QWidget*, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > s_WindowActions;
+  static ezMap<const ezDocument*, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>>> s_DocumentActions;
+  static ezMap<QWidget*, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>>> s_WindowActions;
   static QObject* s_pSignalProxy;
 
 protected:
@@ -52,7 +52,6 @@ class EZ_GUIFOUNDATION_DLL ezQtActionProxy : public ezQtProxy
 
 public:
   virtual QAction* GetQAction() = 0;
-
 };
 
 class EZ_GUIFOUNDATION_DLL ezQtCategoryProxy : public ezQtProxy
