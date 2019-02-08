@@ -1157,11 +1157,12 @@ namespace
       return *this;
     }
 
-    void toF16(ezFloat16 f16[3], bool isSigned) const
+    void toF16(ezFloat16 f16[4], bool isSigned) const
     {
       f16[0] = intToF16(r, isSigned);
       f16[1] = intToF16(g, isSigned);
       f16[2] = intToF16(b, isSigned);
+      f16[3] = 1.0f;
     }
 
   private:
