@@ -51,4 +51,5 @@
   <include location="../QtResources/resources.qrc"/>
  </resources>
  <connections/>
-</ui>
+</ui> 
+
