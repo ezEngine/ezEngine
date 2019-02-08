@@ -2,9 +2,9 @@
 
 #ifdef EZ_USE_QT
 
-#include <QStyledItemDelegate>
-#include <TestFramework/TestFrameworkDLL.h>
-#include <TestFramework/Framework/Qt/qtTestFramework.h>
+#  include <QStyledItemDelegate>
+#  include <TestFramework/Framework/Qt/qtTestFramework.h>
+#  include <TestFramework/TestFrameworkDLL.h>
 
 class ezQtTestFramework;
 
@@ -21,4 +21,3 @@ public: // QStyledItemDelegate interface
 };
 
 #endif
-

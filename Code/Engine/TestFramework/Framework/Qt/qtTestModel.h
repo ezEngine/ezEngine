@@ -2,11 +2,11 @@
 
 #ifdef EZ_USE_QT
 
-#include <QAbstractItemModel>
-#include <QColor>
-#include <QIcon>
-#include <TestFramework/TestFrameworkDLL.h>
-#include <TestFramework/Framework/Qt/qtTestFramework.h>
+#  include <QAbstractItemModel>
+#  include <QColor>
+#  include <QIcon>
+#  include <TestFramework/Framework/Qt/qtTestFramework.h>
+#  include <TestFramework/TestFrameworkDLL.h>
 
 class ezQtTestFramework;
 
@@ -111,4 +111,3 @@ private:
 };
 
 #endif
-

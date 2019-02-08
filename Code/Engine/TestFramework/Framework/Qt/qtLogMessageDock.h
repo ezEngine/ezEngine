@@ -2,11 +2,11 @@
 
 #ifdef EZ_USE_QT
 
-#include <Code/Engine/TestFramework/ui_qtLogMessageDock.h>
-#include <QAbstractItemModel>
-#include <QDockWidget>
-#include <TestFramework/TestFrameworkDLL.h>
-#include <vector>
+#  include <Code/Engine/TestFramework/ui_qtLogMessageDock.h>
+#  include <QAbstractItemModel>
+#  include <QDockWidget>
+#  include <TestFramework/TestFrameworkDLL.h>
+#  include <vector>
 
 class ezQtTestFramework;
 struct ezTestResultData;
@@ -66,4 +66,3 @@ private:
 };
 
 #endif
-
