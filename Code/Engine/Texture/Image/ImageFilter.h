@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Texture/TextureDLL.h>
 #include <Foundation/SimdMath/SimdFloat.h>
 #include <Foundation/Containers/HybridArray.h>
 

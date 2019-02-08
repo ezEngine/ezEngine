@@ -20,7 +20,7 @@ void ezTypelessResourceHandle::Invalidate()
 
 ezUInt32 ezTypelessResourceHandle::GetResourceIDHash() const
 {
-  return m_pResource->GetResourceIDHash();
+  return IsValid() ? m_pResource->GetResourceIDHash() : 0;
 }
 
 const ezString& ezTypelessResourceHandle::GetResourceID() const
@@ -51,4 +51,3 @@ void ezTypelessResourceHandle::operator=(ezTypelessResourceHandle&& rhs)
 
 
 EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_ResourceHandle);
-

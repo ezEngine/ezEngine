@@ -1,5 +1,7 @@
 #include <TestFrameworkPCH.h>
 
+#include <Texture/Image/Formats/ImageFileFormat.h>
+#include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Utilities/StackTracer.h>
@@ -138,6 +140,12 @@ void ezTestFramework::RegisterOutputHandler(OutputHandler Handler)
   }
 
   m_OutputHandlers.push_back(Handler);
+}
+
+
+void ezTestFramework::SetImageDiffExtraInfoCallback(ImageDiffExtraInfoCallback provider)
+{
+  m_ImageDiffExtraInfoCallback = provider;  
 }
 
 bool ezTestFramework::GetAssertOnTestFail()
@@ -743,7 +751,7 @@ void ezTestFramework::ErrorImpl(const char* szError, const char* szFile, ezInt32
                      szMsg);
 
   g_bBlockOutput = true;
-  ezTestFramework::Output(ezTestOutput::Error, szError); // This will also increase the global error count.
+  ezTestFramework::Output(ezTestOutput::Error,"%s", szError); // This will also increase the global error count.
   ezTestFramework::Output(ezTestOutput::BeginBlock, "");
   {
     if ((ezTestFramework::s_szTestBlockName != nullptr) && (ezTestFramework::s_szTestBlockName[0] != '\0'))
@@ -827,12 +835,267 @@ void ezTestFramework::GetCurrentComparisonImageName(ezStringBuilder& sImgName)
   GenerateComparisonImageName(m_uiComparisonImageNumber, sImgName);
 }
 
-static bool PerformImageComparison(ezStringBuilder sImgName, const ezImage& img, ezUInt32 uiMaxError, char* szErrorMsg)
+static const ezUInt8 s_Base64EncodingTable[64] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+                                                  'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
+                                                  'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+                                                  'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
+
+static const ezUInt8 BASE64_CHARS_PER_LINE = 76;
+
+static ezUInt32 GetBase64EncodedLength(ezUInt32 inputLength, bool insertLineBreaks)
 {
-  ezImage imgRGB;
-  if (ezImageConversion::Convert(img, imgRGB, ezImageFormat::B8G8R8_UNORM).Failed())
+  ezUInt32 outputLength = (inputLength + 2) / 3 * 4;
+
+  if (insertLineBreaks)
   {
-    safeprintf(szErrorMsg, 512, "Captured Image '%s' could not be converted to BGR8", sImgName.GetData());
+    outputLength += outputLength / BASE64_CHARS_PER_LINE;
+  }
+
+  return outputLength;
+}
+
+
+static ezDynamicArray<char> ArrayToBase64(ezArrayPtr<const ezUInt8> in, bool insertLineBreaks = true)
+{
+  ezDynamicArray<char> out;
+  out.SetCountUninitialized(GetBase64EncodedLength(in.GetCount(), insertLineBreaks));
+
+  ezUInt32 offsetIn = 0;
+  ezUInt32 offsetOut = 0;
+
+  ezUInt32 blocksTillNewline = BASE64_CHARS_PER_LINE / 4;
+  while (offsetIn < in.GetCount())
+  {
+    ezUInt8 ibuf[3] = {0};
+
+    ezUInt32 ibuflen = ezMath::Min(in.GetCount() - offsetIn, 3u);
+
+    for (ezUInt32 i = 0; i < ibuflen; ++i)
+    {
+      ibuf[i] = in[offsetIn++];
+    }
+
+    char obuf[4];
+    obuf[0] = s_Base64EncodingTable[(ibuf[0] >> 2)];
+    obuf[1] = s_Base64EncodingTable[((ibuf[0] << 4) & 0x30) | (ibuf[1] >> 4)];
+    obuf[2] = s_Base64EncodingTable[((ibuf[1] << 2) & 0x3c) | (ibuf[2] >> 6)];
+    obuf[3] = s_Base64EncodingTable[(ibuf[2] & 0x3f)];
+
+    if (ibuflen >= 3)
+    {
+      out[offsetOut++] = obuf[0];
+      out[offsetOut++] = obuf[1];
+      out[offsetOut++] = obuf[2];
+      out[offsetOut++] = obuf[3];
+    }
+    else // need to pad up to 4
+    {
+      switch (ibuflen)
+      {
+        case 1:
+          out[offsetOut++] = obuf[0];
+          out[offsetOut++] = obuf[1];
+          out[offsetOut++] = '=';
+          out[offsetOut++] = '=';
+          break;
+        case 2:
+          out[offsetOut++] = obuf[0];
+          out[offsetOut++] = obuf[1];
+          out[offsetOut++] = obuf[2];
+          out[offsetOut++] = '=';
+          break;
+      }
+    }
+
+    if (--blocksTillNewline == 0)
+    {
+      if (insertLineBreaks)
+      {
+        out[offsetOut++] = '\n';
+      }
+      blocksTillNewline = 19;
+    }
+  }
+
+  return out;
+}
+
+static void AppendImageData(ezStringBuilder& output, ezImage& img)
+{
+  ezImageFileFormat* format = ezImageFileFormat::GetWriterFormat("png");
+  EZ_ASSERT_DEV(format != nullptr, "No PNG writer found");
+
+  ezDynamicArray<ezUInt8> imgData;
+  ezMemoryStreamContainerWrapperStorage<ezDynamicArray<ezUInt8>> storage(&imgData);
+  ezMemoryStreamWriter writer(&storage);
+  format->WriteImage(writer, img, ezLog::GetThreadLocalLogSystem(), "png");
+
+  ezDynamicArray<char> imgDataBase64 = ArrayToBase64(imgData.GetArrayPtr());
+  ezStringView imgDataBase64StringView(imgDataBase64.GetArrayPtr().GetPtr(), imgDataBase64.GetArrayPtr().GetEndPtr());
+  output.AppendFormat("data:image/png;base64,{0}", imgDataBase64StringView);
+}
+
+void ezTestFramework::WriteImageDiffHtml(const char* fileName, ezImage& referenceImgRgb, ezImage& referenceImgAlpha,
+                                         ezImage& capturedImgRgb, ezImage& capturedImgAlpha, ezImage& diffImgRgb, ezImage& diffImgAlpha,
+                                         ezUInt32 uiError, ezUInt32 uiThreshold, ezUInt8 uiMinDiffRgb, ezUInt8 uiMaxDiffRgb,
+                                         ezUInt8 uiMinDiffAlpha, ezUInt8 uiMaxDiffAlpha)
+{
+
+  ezFileWriter outputFile;
+  if (outputFile.Open(fileName).Failed())
+  {
+    ezTestFramework::Output(ezTestOutput::Warning, "Could not open HTML diff file \"%s\" for writing.", fileName);
+    return;
+  }
+
+  ezStringBuilder output;
+  output.Append("<!DOCTYPE html PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n"
+                "<!DOCTYPE html PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n"
+                "<HTML> <HEAD>\n");
+  const char* szTestName = GetTest(GetCurrentTestIndex())->m_szTestName;
+  const char* szSubTestName = GetTest(GetCurrentTestIndex())->m_SubTests[GetCurrentSubTestIndex()].m_szSubTestName;
+  output.AppendFormat("<TITLE>{} - {}</TITLE>\n", szTestName, szSubTestName);
+  output.Append("<script type = \"text/javascript\">\n"
+                "function showReferenceImage()\n"
+                "{\n"
+                "    document.getElementById('image_current_rgb').style.display = 'none'\n"
+                "    document.getElementById('image_current_a').style.display = 'none'\n"
+                "    document.getElementById('image_reference_rgb').style.display = 'inline-block'\n"
+                "    document.getElementById('image_reference_a').style.display = 'inline-block'\n"
+                "    document.getElementById('image_caption_rgb').innerHTML = 'Displaying: Reference Image RGB'\n"
+                "    document.getElementById('image_caption_a').innerHTML = 'Displaying: Reference Image Alpha'\n"
+                "}\n"
+                "function showCurrentImage()\n"
+                "{\n"
+                "    document.getElementById('image_current_rgb').style.display = 'inline-block'\n"
+                "    document.getElementById('image_current_a').style.display = 'inline-block'\n"
+                "    document.getElementById('image_reference_rgb').style.display = 'none'\n"
+                "    document.getElementById('image_reference_a').style.display = 'none'\n"
+                "    document.getElementById('image_caption_rgb').innerHTML = 'Displaying: Current Image RGB'\n"
+                "    document.getElementById('image_caption_a').innerHTML = 'Displaying: Current Image Alpha'\n"
+                "}\n"
+                "function imageover()\n"
+                "{\n"
+                "    var mode = document.querySelector('input[name=\"image_interaction_mode\"]:checked').value\n"
+                "    if (mode == 'interactive')\n"
+                "    {\n"
+                "        showReferenceImage()\n"
+                "    }\n"
+                "}\n"
+                "function imageout()\n"
+                "{\n"
+                "    var mode = document.querySelector('input[name=\"image_interaction_mode\"]:checked').value\n"
+                "    if (mode == 'interactive')\n"
+                "    {\n"
+                "        showCurrentImage()\n"
+                "    }\n"
+                "}\n"
+                "function handleModeClick(clickedItem)\n"
+                "{\n"
+                "    if (clickedItem.value == 'current_image' || clickedItem.value == 'interactive')\n"
+                "    {\n"
+                "        showCurrentImage()\n"
+                "    }\n"
+                "    else if (clickedItem.value == 'reference_image')\n"
+                "    {\n"
+                "        showReferenceImage()\n"
+                "    }\n"
+                "}\n"
+                "</script>\n"
+                "</HEAD>\n"
+                "<BODY bgcolor=\"#ccdddd\">\n"
+                "<div style=\"line-height: 1.5; margin-top: 0px; margin-left: 10px; font-family: sans-serif;\">\n");
+
+  output.AppendFormat("<b>Test result for \"{} > {}\" from ", szTestName, szSubTestName);
+  ezDateTime dateTime(ezTimestamp::CurrentTimestamp());
+  output.AppendFormat("{}-{}-{} {}:{}:{}</b><br>\n", dateTime.GetYear(), ezArgI(dateTime.GetMonth(), 2, true),
+                      ezArgI(dateTime.GetDay(), 2, true), ezArgI(dateTime.GetHour(), 2, true), ezArgI(dateTime.GetMinute(), 2, true),
+                      ezArgI(dateTime.GetSecond(), 2, true));
+
+  output.Append("<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n");
+
+  if (m_ImageDiffExtraInfoCallback)
+  {
+    ezDynamicArray<std::pair<ezString, ezString>> extraInfo = m_ImageDiffExtraInfoCallback();
+
+    for (const auto& labelValuePair : extraInfo)
+    {
+      output.AppendFormat("<tr>\n"
+                          "<td>{}:</td>\n"
+                          "<td align=\"right\" style=\"padding-left: 2em;\">{}</td>\n"
+                          "</tr>\n", labelValuePair.first, labelValuePair.second);
+    }
+  }
+
+  output.AppendFormat("<tr>\n"
+                      "<td>Error metric:</td>\n"
+                      "<td align=\"right\" style=\"padding-left: 2em;\">{}</td>\n"
+                      "</tr>\n", uiError);
+  output.AppendFormat("<tr>\n"
+                      "<td>Error threshold:</td>\n"
+                      "<td align=\"right\" style=\"padding-left: 2em;\">{}</td>\n"
+                      "</tr>\n", uiThreshold);
+  output.Append("</table>\n"
+                "<div style=\"margin-top: 0.5em; margin-bottom: -0.75em\">\n"
+                "    <input type=\"radio\" name=\"image_interaction_mode\" onclick=\"handleModeClick(this)\" value=\"interactive\" "
+                "checked=\"checked\"> Mouse-Over Image Switching\n"
+                "    <input type=\"radio\" name=\"image_interaction_mode\" onclick=\"handleModeClick(this)\" value=\"current_image\"> "
+                "Current Image\n"
+                "    <input type=\"radio\" name=\"image_interaction_mode\" onclick=\"handleModeClick(this)\" value=\"reference_image\"> "
+                "Reference Image\n"
+                "</div>\n");
+
+  output.AppendFormat("<div style=\"width:{}px;display: inline-block;\">\n", capturedImgRgb.GetWidth());
+
+  output.Append("<p id=\"image_caption_rgb\">Displaying: Current Image RGB</p>\n"
+
+                "<div style=\"block;\" onmouseover=\"imageover()\" onmouseout=\"imageout()\">\n"
+                "<img id=\"image_current_rgb\" alt=\"Captured Image RGB\" src=\"");
+  AppendImageData(output, capturedImgRgb);
+  output.Append("\" />\n"
+                "<img id=\"image_reference_rgb\" style=\"display: none\" alt=\"Reference Image RGB\" src=\"");
+  AppendImageData(output, referenceImgRgb);
+  output.Append("\" />\n"
+                "</div>\n"
+                "<div style=\"display: block;\">\n");
+  output.AppendFormat("<p>RGB Difference (min: {}, max: {}):</p>\n", uiMinDiffRgb, uiMaxDiffRgb);
+  output.Append("<img alt=\"Diff Image RGB\" src=\"");
+  AppendImageData(output, diffImgRgb);
+  output.Append("\" />\n"
+                "</div>\n"
+                "</div>\n");
+
+  output.AppendFormat("<div style=\"width:{}px;display: inline-block;\">\n", capturedImgAlpha.GetWidth());
+
+  output.Append("<p id=\"image_caption_a\">Displaying: Current Image Alpha</p>\n"
+                "<div style=\"display: block;\" onmouseover=\"imageover()\" onmouseout=\"imageout()\">\n"
+                "<img id=\"image_current_a\" alt=\"Captured Image Alpha\" src=\"");
+  AppendImageData(output, capturedImgAlpha);
+  output.Append("\" />\n"
+                "<img id=\"image_reference_a\" style=\"display: none\" alt=\"Reference Image Alpha\" src=\"");
+  AppendImageData(output, referenceImgAlpha);
+  output.Append("\" />\n"
+                "</div>\n"
+                "<div style=\"px;display: block;\">\n");
+  output.AppendFormat("<p>Alpha Difference (min: {}, max: {}):</p>\n", uiMinDiffAlpha, uiMaxDiffAlpha);
+  output.Append("<img alt=\"Diff Image Alpha\" src=\"");
+  AppendImageData(output, diffImgAlpha);
+  output.Append("\" />\n"
+                "</div>\n"
+                "</div>\n"
+                "</div>\n"
+                "</BODY> </HTML>");
+
+  outputFile.WriteBytes(output.GetData(), output.GetCharacterCount());
+  outputFile.Close();
+}
+
+bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezImage& img, ezUInt32 uiMaxError, char* szErrorMsg)
+{
+  ezImage imgRgba;
+  if (ezImageConversion::Convert(img, imgRgba, ezImageFormat::R8G8B8A8_UNORM).Failed())
+  {
+    safeprintf(szErrorMsg, 512, "Captured Image '%s' could not be converted to RGBA8", sImgName.GetData());
     return false;
   }
 
@@ -840,48 +1103,79 @@ static bool PerformImageComparison(ezStringBuilder sImgName, const ezImage& img,
   sImgPathReference.Format("Images_Reference/{0}.png", sImgName);
   sImgPathResult.Format(":imgout/Images_Result/{0}.png", sImgName);
 
-  ezImage imgExp, imgExpRGB;
+  ezImage imgExp, imgExpRgba;
   if (imgExp.LoadFrom(sImgPathReference).Failed())
   {
-    imgRGB.SaveTo(sImgPathResult);
+    imgRgba.SaveTo(sImgPathResult);
 
     safeprintf(szErrorMsg, 512, "Comparison Image '%s' could not be read", sImgPathReference.GetData());
     return false;
   }
 
-  if (ezImageConversion::Convert(imgExp, imgExpRGB, ezImageFormat::B8G8R8_UNORM).Failed())
+  if (ezImageConversion::Convert(imgExp, imgExpRgba, ezImageFormat::R8G8B8A8_UNORM).Failed())
   {
-    imgRGB.SaveTo(sImgPathResult);
+    imgRgba.SaveTo(sImgPathResult);
 
-    safeprintf(szErrorMsg, 512, "Comparison Image '%s' could not be converted to BGR8", sImgPathReference.GetData());
+    safeprintf(szErrorMsg, 512, "Comparison Image '%s' could not be converted to RGBA8", sImgPathReference.GetData());
     return false;
   }
 
-  if (imgRGB.GetWidth() != imgExpRGB.GetWidth() || imgRGB.GetHeight() != imgExpRGB.GetHeight())
+  if (imgRgba.GetWidth() != imgExpRgba.GetWidth() || imgRgba.GetHeight() != imgExpRgba.GetHeight())
   {
-    imgRGB.SaveTo(sImgPathResult);
+    imgRgba.SaveTo(sImgPathResult);
 
     safeprintf(szErrorMsg, 512, "Comparison Image '%s' size (%ix%i) does not match captured image size (%ix%i)",
-               sImgPathReference.GetData(), imgRGB.GetWidth(), imgRGB.GetHeight(), imgExpRGB.GetWidth(), imgExpRGB.GetHeight());
+               sImgPathReference.GetData(), imgRgba.GetWidth(), imgRgba.GetHeight(), imgExpRgba.GetWidth(), imgExpRgba.GetHeight());
     return false;
   }
 
-  ezImage imgDiff;
-  ezImageUtils::ComputeImageDifferenceABS(imgExpRGB, imgRGB, imgDiff);
+  ezImage imgDiffRgba;
+  ezImageUtils::ComputeImageDifferenceABS(imgExpRgba, imgRgba, imgDiffRgba);
 
-  const ezUInt32 uiMeanError = ezImageUtils::ComputeMeanSquareError(imgDiff, 32);
+  const ezUInt32 uiMeanError = ezImageUtils::ComputeMeanSquareError(imgDiffRgba, 32);
 
   if (uiMeanError > uiMaxError)
   {
-    imgRGB.SaveTo(sImgPathResult);
+    imgRgba.SaveTo(sImgPathResult);
+
+    ezUInt8 uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha;
+    ezImageUtils::Normalize(imgDiffRgba, uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
+
+    ezImage imgDiffRgb;
+    ezImageConversion::Convert(imgDiffRgba, imgDiffRgb, ezImageFormat::R8G8B8_UNORM);
 
     ezStringBuilder sImgDiffName;
-    sImgDiffName.Format(":imgout/Images_Diff/{0}.tga", sImgName);
+    sImgDiffName.Format(":imgout/Images_Diff/{0}.png", sImgName);
+    imgDiffRgb.SaveTo(sImgDiffName);
 
-    imgDiff.SaveTo(sImgDiffName);
+    ezImage imgDiffAlpha;
+    ezImageUtils::ExtractAlphaChannel(imgDiffRgba, imgDiffAlpha);
 
-    safeprintf(szErrorMsg, 512, "Image Comparison Failed: Error of %u exceeds threshold of %u for image '%s'", uiMeanError, uiMaxError,
+    ezStringBuilder sImgDiffAlphaName;
+    sImgDiffAlphaName.Format(":imgout/Images_Diff/{0}_alpha.png", sImgName);
+    imgDiffAlpha.SaveTo(sImgDiffAlphaName);
+
+    ezImage imgExpRgb;
+    ezImageConversion::Convert(imgExpRgba, imgExpRgb, ezImageFormat::R8G8B8_UNORM);
+    ezImage imgExpAlpha;
+    ezImageUtils::ExtractAlphaChannel(imgExpRgba, imgExpAlpha);
+
+    ezImage imgRgb;
+    ezImageConversion::Convert(imgRgba, imgRgb, ezImageFormat::R8G8B8_UNORM);
+    ezImage imgAlpha;
+    ezImageUtils::ExtractAlphaChannel(imgRgba, imgAlpha);
+
+    ezStringBuilder sDiffHtmlPath;
+    sDiffHtmlPath.Format(":imgout/Html_Diff/{0}.html", sImgName);
+    WriteImageDiffHtml(sDiffHtmlPath, imgExpRgb, imgExpAlpha, imgRgb, imgAlpha, imgDiffRgb, imgDiffAlpha,
+                       uiMeanError, uiMaxError, uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
+
+    safeprintf(szErrorMsg, 512, "Image Comparison Failed: Error of %u exceeds threshold of %u for image '%s'.", uiMeanError, uiMaxError,
                sImgName.GetData());
+
+    ezStringBuilder sDiffHtmlPathAbs;
+    ezFileSystem::ResolvePath(sDiffHtmlPath, &sDiffHtmlPathAbs, nullptr);
+    ezTestFramework::Output(ezTestOutput::ImageDiffFile, sDiffHtmlPathAbs.GetData());
     return false;
   }
 

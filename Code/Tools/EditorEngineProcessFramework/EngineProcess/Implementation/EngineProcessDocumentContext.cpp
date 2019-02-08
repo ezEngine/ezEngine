@@ -656,8 +656,10 @@ void ezEngineProcessDocumentContext::ClearTagRecursive(ezGameObject* pObject, co
 
 void ezEngineProcessDocumentContext::UpdateSyncObjects()
 {
-  for (auto* pSyncObject : m_SyncObjects)
+  for (auto it : m_SyncObjects)
   {
+    auto pSyncObject = it.Value();
+
     if (pSyncObject->GetModified())
     {
       // reset the modified state to make sure the object isn't updated unless a new sync messages comes in

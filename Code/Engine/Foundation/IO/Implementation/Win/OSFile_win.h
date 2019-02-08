@@ -289,6 +289,15 @@ ezResult ezFileSystemIterator::StartSearch(const char* szSearchStart, bool bRecu
   ezStringBuilder sSearch = szSearchStart;
   sSearch.MakeCleanPath();
 
+  // The Windows documentation disallows trailing (back)slashes.
+  sSearch.Trim(nullptr, "/");
+
+  // Since the use of wildcard-ed file names will disable recursion, we ensure both are not used simultaneously.
+  // TODO:
+  /*const bool bHasWildcard = sSearch.FindLastSubString("*") || sSearch.FindLastSubString("?");
+  EZ_ASSERT_DEV(bRecursive == false || bHasWildcard == false,
+    "Recursive file iteration does not support wildcards. Either don't use recursion, or filter the filenames manually.");*/
+
   m_sCurPath = sSearch.GetFileDirectory();
 
   EZ_ASSERT_DEV(sSearch.IsAbsolutePath(), "The path '{0}' is not absolute.", m_sCurPath);

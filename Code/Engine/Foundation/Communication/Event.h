@@ -34,9 +34,26 @@ public:
   /// and automatically remove the event handler upon destruction.
   class Unsubscriber
   {
+    EZ_DISALLOW_COPY_AND_ASSIGN(Unsubscriber);
+
   public:
     Unsubscriber() = default;
+    Unsubscriber(Unsubscriber&& other)
+    {
+      m_pEvent = other.m_pEvent;
+      m_SubscriptionID = other.m_SubscriptionID;
+      other.Clear();
+    }
     ~Unsubscriber() { Unsubscribe(); }
+
+    void operator=(Unsubscriber&& other)
+    {
+      Unsubscribe();
+
+      m_pEvent = other.m_pEvent;
+      m_SubscriptionID = other.m_SubscriptionID;
+      other.Clear();
+    }
 
     /// \brief If the unsubscriber holds a valid subscription, it will be removed from the target ezEvent.
     void Unsubscribe()

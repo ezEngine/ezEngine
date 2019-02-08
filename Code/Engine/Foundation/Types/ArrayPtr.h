@@ -228,6 +228,22 @@ public:
     return ezArrayPtr<ByteType>(reinterpret_cast<ByteType*>(GetPtr()), GetCount() * sizeof(T));
   }
 
+  /// \brief Cast an ArrayPtr to an ArrayPtr to a different, but same size, type
+  template <typename U>
+  EZ_ALWAYS_INLINE ezArrayPtr<U> Cast()
+  {
+    static_assert(sizeof(T) == sizeof(U), "Can only cast with equivalent element size.");
+    return ezArrayPtr<U>(reinterpret_cast<U*>(GetPtr()), GetCount());
+  }
+
+  /// \brief Cast an ArrayPtr to an ArrayPtr to a different, but same size, type
+  template <typename U>
+  EZ_ALWAYS_INLINE ezArrayPtr<const U> Cast() const
+  {
+    static_assert(sizeof(T) == sizeof(U), "Can only cast with equivalent element size.");
+    return ezArrayPtr<const U>(reinterpret_cast<const U*>(GetPtr()), GetCount());
+  }
+
   /// \brief Index access.
   EZ_FORCE_INLINE const ValueType& operator[](ezUInt32 uiIndex) const // [tested]
   {

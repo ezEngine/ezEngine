@@ -21,6 +21,7 @@ struct ezTestOutput
     Message,
     Warning,
     Error,
+    ImageDiffFile,
     Duration,
     FinalResult,
     AllOutputTypes

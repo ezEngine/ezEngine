@@ -134,6 +134,10 @@ struct ezOutputToHTML
         details << szMsg << "<br/>";
         break;
 
+      case ezTestOutput::ImageDiffFile:
+        details << "<a href=\"" << szMsg << "\">View Image Comparison Result</a><br/>";
+        break;
+
       case ezTestOutput::Success:
         // nothing to do here
         break;

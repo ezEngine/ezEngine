@@ -162,9 +162,9 @@ void ezParticleWorldModule::ConfigureParticleStreamFactories()
 
 void ezParticleWorldModule::ClearParticleStreamFactories()
 {
-  for (auto pFactory : m_StreamFactories)
+  for (auto it : m_StreamFactories)
   {
-    pFactory->GetDynamicRTTI()->GetAllocator()->Deallocate(pFactory);
+    it.Value()->GetDynamicRTTI()->GetAllocator()->Deallocate(it.Value());
   }
 
   m_StreamFactories.Clear();

@@ -60,16 +60,16 @@ ezQtShortcutEditorDlg::ezQtShortcutEditorDlg(QWidget* parent)
 
       pParent->setFont(0, font);
 
-      for (auto idx : it.Value())
+      for (auto it2 : it.Value())
       {
-        const auto& item = m_ActionDescs[idx];
+        const auto& item = m_ActionDescs[it2.Value()];
         auto pItem = new QTreeWidgetItem(pParent);
 
         /// \todo Instead of removing &, replace it by underlined text (requires formatted text output)
         sTemp = ezTranslate(item->m_sActionName);
         sTemp.ReplaceAll("&", "");
 
-        pItem->setData(0, Qt::UserRole, idx);
+        pItem->setData(0, Qt::UserRole, it2.Value());
         pItem->setData(0, Qt::DisplayRole, item->m_sActionName.GetData());
         pItem->setData(1, Qt::DisplayRole, sTemp.GetData());
         pItem->setData(2, Qt::DisplayRole, item->m_sShortcut.GetData());

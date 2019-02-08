@@ -141,14 +141,18 @@ namespace
 
   void ReplaceTypeName(ezAbstractObjectGraph& graph, ezAbstractObjectGraph& typesGraph, const char* szOldName, const char* szNewName)
   {
-    for (auto* pNode : graph.GetAllNodes())
+    for (auto it : graph.GetAllNodes())
     {
+      auto* pNode = it.Value();
+
       if (ezStringUtils::IsEqual(szOldName, pNode->GetType()))
         pNode->SetType(szNewName);
     }
 
-    for (auto* pNode : typesGraph.GetAllNodes())
+    for (auto it : typesGraph.GetAllNodes())
     {
+      auto* pNode = it.Value();
+
       if (ezStringUtils::IsEqual("ezReflectedTypeDescriptor", pNode->GetType()))
       {
         if (auto* pProp = pNode->FindProperty("TypeName"))

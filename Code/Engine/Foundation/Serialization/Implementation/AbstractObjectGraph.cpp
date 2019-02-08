@@ -245,14 +245,14 @@ void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraph(ezAbstractObjectNode* roo
   ReMapNodeGuidsToMatchGraphRecursive(guidMap, root, rhsGraph, rhsRoot);
 
   // go through all nodes to remap remaining occurrences of remapped guids
-  for (auto* pNode : m_Nodes)
+  for (auto it : m_Nodes)
   {
     // check every property
-    for (auto& prop : pNode->m_Properties)
+    for (auto& prop : it.Value()->m_Properties)
     {
       RemapVariant(prop.m_Value, guidMap);
     }
-    m_Nodes[pNode->m_Guid] = pNode;
+    m_Nodes[it.Value()->m_Guid] = it.Value();
   }
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Texture/TextureDLL.h>
+#include <Texture/Image/ImageEnums.h>
 #include <Foundation/Types/Types.h>
 
 /// \brief Enum describing the type of an image format.
@@ -205,8 +206,6 @@ struct EZ_TEXTURE_DLL ezImageFormat
     A1B5G5R5_UNORM_SRGB,
     X1B5G5R5_UNORM,
     X1B5G5R5_UNORM_SRGB,
-
-    NV12,
 
     NUM_FORMATS,
 

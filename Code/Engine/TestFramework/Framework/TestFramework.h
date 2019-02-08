@@ -7,7 +7,8 @@
 #include <TestFramework/Framework/TestResults.h>
 
 #include <functional>
-
+#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Strings/String.h>
 
 class EZ_TEST_DLL ezTestFramework
 {
@@ -72,7 +73,20 @@ public:
   bool IsImageComparisonScheduled() const { return m_bImageComparisonScheduled; }
   void GenerateComparisonImageName(ezUInt32 uiImageNumber, ezStringBuilder& sImgName);
   void GetCurrentComparisonImageName(ezStringBuilder& sImgName);
+
+  /// \brief Writes an Html file that contains test information and an image diff view for failed image comparisons.
+  void WriteImageDiffHtml(const char* fileName, ezImage& referenceImgRgb, ezImage& referenceImgAlpha, ezImage& capturedImgRgb,
+                          ezImage& capturedImgAlpha, ezImage& diffImgRgb, ezImage& diffImgAlpha, ezUInt32 uiError, ezUInt32 uiThreshold,
+                          ezUInt8 uiMinDiffRgb, ezUInt8 uiMaxDiffRgb, ezUInt8 uiMinDiffAlpha, ezUInt8 uiMaxDiffAlpha);
+                          
+  bool PerformImageComparison(ezStringBuilder sImgName, const ezImage& img, ezUInt32 uiMaxError, char* szErrorMsg);
   bool CompareImages(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, char* szErrorMsg);
+
+  /// \brief A function to be called to add extra info to image diff output, that is not available from here.
+  /// E.g. device specific info like driver version.
+  typedef std::function<ezDynamicArray<std::pair<ezString, ezString>>()> ImageDiffExtraInfoCallback;
+  void SetImageDiffExtraInfoCallback(ImageDiffExtraInfoCallback provider);
+
   typedef std::function<void(bool)> ImageComparisonCallback; /// \brief A function to be called after every image comparison with a bool
                                                              /// indicating if the images matched or not.
   void SetImageComparisonCallback(const ImageComparisonCallback& callback);
@@ -126,6 +140,7 @@ private:
   std::deque<ezTestEntry> m_TestEntries;
   ezTestFrameworkResult m_Result;
   ezAssertHandler m_PreviousAssertHandler = nullptr;
+  ImageDiffExtraInfoCallback m_ImageDiffExtraInfoCallback;
   ImageComparisonCallback m_ImageComparisonCallback;
 
   ezInt32 m_iExecutingTest = 0;

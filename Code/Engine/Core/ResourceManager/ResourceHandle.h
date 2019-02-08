@@ -1,9 +1,13 @@
 #pragma once
 
 #include <Core/CoreDLL.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/String.h>
 
 class ezResource;
+
+template <typename T>
+class ezResourceLock;
 
 // These out-of-line helper functions allow to forward declare resource handles without knowledge about the resource class.
 EZ_CORE_DLL void IncreaseResourceRefCount(ezResource* pResource);
@@ -98,6 +102,8 @@ template <typename ResourceType>
 class ezTypedResourceHandle
 {
 public:
+  typedef ResourceType ResourceType;
+
   /// \brief A default constructed handle is invalid and does not reference any resource.
   ezTypedResourceHandle() {}
 
@@ -119,11 +125,21 @@ public:
   {
   }
 
-  template <typename DerivedType>
-  ezTypedResourceHandle(const ezTypedResourceHandle<DerivedType>& rhs)
+  template <typename BaseOrDerivedType>
+  ezTypedResourceHandle(const ezTypedResourceHandle<BaseOrDerivedType>& rhs)
       : m_Typeless(rhs.m_Typeless)
   {
-    static_assert(std::is_base_of<ResourceType, DerivedType>::value, "Only derived types can be assigned to handles of this type");
+    static_assert(std::is_base_of<ResourceType, BaseOrDerivedType>::value || std::is_base_of<BaseOrDerivedType, ResourceType>::value,
+        "Only related types can be assigned to handles of this type");
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    if (std::is_base_of<BaseOrDerivedType, ResourceType>::value)
+    {
+      EZ_ASSERT_DEBUG(rhs.IsValid(), "Cannot cast invalid base handle to derived type!");
+      ezResourceLock<BaseOrDerivedType> lock(rhs, ezResourceAcquireMode::PointerOnly);
+      EZ_ASSERT_DEBUG(ezDynamicCast<const ResourceType*>(lock.GetPointer()) != nullptr, "Types are not related!");
+    }
+#endif
   }
 
   /// \brief Releases the current reference and increases the refcount of the given resource.
@@ -157,6 +173,9 @@ public:
   /// \brief Returns whether the handle stores a valid pointer to a resource.
   EZ_ALWAYS_INLINE bool IsValid() const { return m_Typeless.IsValid(); }
 
+  /// \brief Returns whether the handle stores a valid pointer to a resource.
+  EZ_ALWAYS_INLINE explicit operator bool() const { return m_Typeless.IsValid(); }
+
   /// \brief Clears any reference to a resource and reduces its refcount.
   EZ_ALWAYS_INLINE void Invalidate() { m_Typeless.Invalidate(); }
 
@@ -179,4 +198,3 @@ private:
 
   ezTypelessResourceHandle m_Typeless;
 };
-
