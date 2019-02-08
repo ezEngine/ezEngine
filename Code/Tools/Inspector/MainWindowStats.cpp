@@ -157,46 +157,6 @@ QTreeWidgetItem* ezQtMainWindow::CreateStat(const char* szPath, bool bParent)
   return sd.m_pItem;
 }
 
-double ExtractValue(const char* szString)
-{
-  ezStringBuilder res;
-
-  ezStringView view(szString);
-  auto it = rbegin(view);
-
-  bool bFoundNumber = false;
-
-  while (it.IsValid())
-  {
-    const ezUInt32 uiChar = it.GetCharacter();
-
-    if (bFoundNumber)
-    {
-      if ((uiChar >= '0' && uiChar <= '9') || uiChar == '.')
-        res.Prepend(uiChar);
-      else
-        break;
-    }
-    else
-    {
-      if (uiChar >= '0' && uiChar <= '9')
-      {
-        res.Prepend(uiChar);
-        bFoundNumber = true;
-      }
-    }
-
-    ++it;
-  }
-
-  double dRes = 0.0f;
-
-  if (!res.IsEmpty())
-    ezConversionUtils::StringToFloat(res.GetData(), dRes);
-
-  return dRes;
-}
-
 void ezQtMainWindow::SetFavourite(const ezString& sStat, bool bFavourite)
 {
   StatData& sd = m_Stats[sStat];
@@ -210,7 +170,7 @@ void ezQtMainWindow::SetFavourite(const ezString& sStat, bool bFavourite)
       sd.m_pItemFavourite = new QTreeWidgetItem();
       TreeFavourites->addTopLevelItem(sd.m_pItemFavourite);
       sd.m_pItemFavourite->setData(0, Qt::DisplayRole, sStat.GetData());
-      sd.m_pItemFavourite->setData(1, Qt::DisplayRole, sd.m_sValue.GetData());
+      sd.m_pItemFavourite->setData(1, Qt::DisplayRole, sd.m_Value.ConvertTo<ezString>().GetData());
       sd.m_pItemFavourite->setIcon(0, QIcon(":/Icons/Icons/StatFavourite.png"));
 
       TreeFavourites->resizeColumnToContents(0);

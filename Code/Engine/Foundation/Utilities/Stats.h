@@ -4,6 +4,7 @@
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Types/Variant.h>
 
 /// \brief This class holds a simple map that maps strings (keys) to strings (values), which represent certain stats.
 ///
@@ -13,7 +14,7 @@
 class EZ_FOUNDATION_DLL ezStats
 {
 public:
-  typedef ezMap<ezString, ezString> MapType;
+  typedef ezMap<ezString, ezVariant> MapType;
 
   /// \brief Removes the stat with the given name.
   ///
@@ -26,10 +27,10 @@ public:
   /// to display the stats in a hierarchical way.
   /// This function will also send the name and value of the stat through ezTelemetry, such that tools like ezInspector will show the
   /// changed value.
-  static void SetStat(const char* szStatName, const char* szValue);
+  static void SetStat(const char* szStatName, const ezVariant& value);
 
-  /// \brief Returns the value of the given stat. Returns an empty string, if the stat did not exist before.
-  static const char* GetStat(const char* szStatName) { return s_Stats[szStatName].GetData(); }
+  /// \brief Returns the value of the given stat. Returns an invalid ezVariant, if the stat did not exist before.
+  static const ezVariant& GetStat(const char* szStatName) { return s_Stats[szStatName]; }
 
   /// \brief Returns the entire map of stats, can be used to display them.
   static const MapType& GetAllStats() { return s_Stats; }
@@ -47,7 +48,7 @@ public:
 
     EventType m_EventType;
     const char* m_szStatName;
-    const char* m_szNewStatValue;
+    ezVariant m_NewStatValue;
   };
 
   typedef ezEvent<const StatsEventData&, ezMutex> ezEventStats;

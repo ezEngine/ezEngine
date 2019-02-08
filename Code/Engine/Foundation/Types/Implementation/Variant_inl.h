@@ -239,11 +239,11 @@ EZ_FORCE_INLINE bool ezVariant::operator==(const T& other) const
     };
   };
 
-  if (IsFloatingPoint(m_Type))
+  if (IsFloatingPoint())
   {
     return ezVariantHelper::CompareFloat(*this, other, ezTraitInt<TypeInfo::isNumber>());
   }
-  else if (IsNumber(m_Type))
+  else if (IsNumber())
   {
     return ezVariantHelper::CompareNumber(*this, other, ezTraitInt<TypeInfo::isNumber>());
   }
@@ -261,6 +261,16 @@ EZ_ALWAYS_INLINE bool ezVariant::operator!=(const T& other) const
 EZ_ALWAYS_INLINE bool ezVariant::IsValid() const
 {
   return m_Type != Type::Invalid;
+}
+
+EZ_ALWAYS_INLINE bool ezVariant::IsNumber() const
+{
+  return IsNumberStatic(m_Type);
+}
+
+EZ_ALWAYS_INLINE bool ezVariant::IsFloatingPoint() const
+{
+  return IsFloatingPointStatic(m_Type);
 }
 
 template <typename T>
@@ -578,12 +588,12 @@ EZ_FORCE_INLINE const T& ezVariant::Cast() const
                                                                       : *reinterpret_cast<const T*>(&m_Data);
 }
 
-EZ_ALWAYS_INLINE bool ezVariant::IsNumber(ezUInt32 type)
+EZ_ALWAYS_INLINE bool ezVariant::IsNumberStatic(ezUInt32 type)
 {
   return type > Type::Invalid && type <= Type::Double;
 }
 
-EZ_ALWAYS_INLINE bool ezVariant::IsFloatingPoint(ezUInt32 type)
+EZ_ALWAYS_INLINE bool ezVariant::IsFloatingPointStatic(ezUInt32 type)
 {
   return type == Type::Float || type == Type::Double;
 }

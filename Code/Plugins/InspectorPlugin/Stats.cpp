@@ -20,7 +20,7 @@ static void StatsEventHandler(const ezStats::StatsEventData& e)
       ezTelemetryMessage msg;
       msg.SetMessageID('STAT', ' SET');
       msg.GetWriter() << e.m_szStatName;
-      msg.GetWriter() << e.m_szNewStatValue;
+      msg.GetWriter() << e.m_NewStatValue;
       msg.GetWriter() << ezTime::Now();
 
       ezTelemetry::Broadcast(Mode, msg);
@@ -50,7 +50,7 @@ static void SendAllStatsTelemetry()
     ezTelemetryMessage msg;
     msg.SetMessageID('STAT', ' SET');
     msg.GetWriter() << it.Key().GetData();
-    msg.GetWriter() << it.Value().GetData();
+    msg.GetWriter() << it.Value();
 
     ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
   }
@@ -75,23 +75,20 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
 
       const ezTime TimeDiff = Now - LastTime;
 
-      ezStringBuilder s, s2;
-      s.Format("{0}ms", ezArgF(TimeDiff.GetMilliseconds(), 2));
-      ezStats::SetStat("App/FrameTime", s.GetData());
+      ezStringBuilder s;
+      ezStats::SetStat("App/FrameTime[ms]", TimeDiff.GetMilliseconds());
 
       LastTime = Now;
 
       if ((Now - LastFPS).GetSeconds() >= 1.0)
       {
-        s.Format("{0}", uiFPS);
-        ezStats::SetStat("App/FPS", s.GetData());
+        ezStats::SetStat("App/FPS", uiFPS);
 
         LastFPS = Now;
         uiFPS = 0;
       }
 
-      s.Format("{0}", ezOSThread::GetThreadCount());
-      ezStats::SetStat("App/Active Threads", s.GetData());
+      ezStats::SetStat("App/Active Threads", ezOSThread::GetThreadCount());
 
       // Tasksystem Thread Utilization
       {
@@ -100,15 +97,11 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
           ezUInt32 uiNumTasks = 0;
           const double Utilization = ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::ShortTasks, t, &uiNumTasks);
 
-          s.Format("Utilization/Short{0}_Load", ezArgI(t, 2, true));
-          s2.Format("{0}%%", ezArgF(Utilization * 100.0, 2));
-
-          ezStats::SetStat(s.GetData(), s2.GetData());
+          s.Format("Utilization/Short{0}_Load[%%]", ezArgI(t, 2, true));
+          ezStats::SetStat(s.GetData(), Utilization * 100.0);
 
           s.Format("Utilization/Short{0}_Tasks", ezArgI(t, 2, true));
-          s2.Format("{0}", uiNumTasks);
-
-          ezStats::SetStat(s.GetData(), s2.GetData());
+          ezStats::SetStat(s.GetData(), uiNumTasks);
         }
 
         for (ezUInt32 t = 0; t < ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::LongTasks); ++t)
@@ -116,15 +109,11 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
           ezUInt32 uiNumTasks = 0;
           const double Utilization = ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::LongTasks, t, &uiNumTasks);
 
-          s.Format("Utilization/Long{0}_Load", ezArgI(t, 2, true));
-          s2.Format("{0}%%", ezArgF(Utilization * 100.0, 2));
-
-          ezStats::SetStat(s.GetData(), s2.GetData());
+          s.Format("Utilization/Long{0}_Load[%%]", ezArgI(t, 2, true));
+          ezStats::SetStat(s.GetData(), Utilization * 100.0);
 
           s.Format("Utilization/Long{0}_Tasks", ezArgI(t, 2, true));
-          s2.Format("{0}", uiNumTasks);
-
-          ezStats::SetStat(s.GetData(), s2.GetData());
+          ezStats::SetStat(s.GetData(), uiNumTasks);
         }
 
         for (ezUInt32 t = 0; t < ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::FileAccess); ++t)
@@ -132,15 +121,11 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
           ezUInt32 uiNumTasks = 0;
           const double Utilization = ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::FileAccess, t, &uiNumTasks);
 
-          s.Format("Utilization/File{0}_Load", ezArgI(t, 2, true));
-          s2.Format("{0}%%", ezArgF(Utilization * 100.0, 2));
-
-          ezStats::SetStat(s.GetData(), s2.GetData());
+          s.Format("Utilization/File{0}_Load[%%]", ezArgI(t, 2, true));
+          ezStats::SetStat(s.GetData(), Utilization * 100.0);
 
           s.Format("Utilization/File{0}_Tasks", ezArgI(t, 2, true));
-          s2.Format("{0}", uiNumTasks);
-
-          ezStats::SetStat(s.GetData(), s2.GetData());
+          ezStats::SetStat(s.GetData(), uiNumTasks);
         }
       }
     }

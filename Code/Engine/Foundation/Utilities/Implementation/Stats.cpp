@@ -20,27 +20,26 @@ void ezStats::RemoveStat(const char* szStatName)
   StatsEventData e;
   e.m_EventType = StatsEventData::Remove;
   e.m_szStatName = szStatName;
-  e.m_szNewStatValue = nullptr;
 
   s_StatsEvents.Broadcast(e);
 }
 
-void ezStats::SetStat(const char* szStatName, const char* szValue)
+void ezStats::SetStat(const char* szStatName, const ezVariant& value)
 {
   EZ_LOCK(s_Mutex);
 
   bool bExisted = false;
   auto it = s_Stats.FindOrAdd(szStatName, &bExisted);
 
-  if (it.Value() == szValue)
+  if (it.Value() == value)
     return;
 
-  it.Value() = szValue;
+  it.Value() = value;
 
   StatsEventData e;
   e.m_EventType = bExisted ? StatsEventData::Set : StatsEventData::Add;
   e.m_szStatName = szStatName;
-  e.m_szNewStatValue = szValue;
+  e.m_NewStatValue = value;
 
   s_StatsEvents.Broadcast(e);
 }

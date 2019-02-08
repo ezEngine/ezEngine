@@ -87,6 +87,10 @@ void ezTestFramework::Initialize()
   // this path
   ezFileSystem::SetSpecialDirectory("eztest", ezTestFramework::GetInstance()->GetAbsOutputPath());
 
+  // Setting ez assert handler 
+  m_PreviousAssertHandler = ezGetAssertHandler();
+  ezSetAssertHandler(TestAssertHandler);
+
   CreateOutputFolder();
 
   // figure out which tests exist
@@ -399,10 +403,6 @@ void ezTestFramework::StartTests()
   m_bTestsRunning = true;
 
   ezTestFramework::Output(ezTestOutput::StartOutput, "");
-
-  m_PreviousAssertHandler = ezGetAssertHandler();
-
-  ezSetAssertHandler(TestAssertHandler);
 }
 
 // Redirects engine warnings / errors to test-framework output

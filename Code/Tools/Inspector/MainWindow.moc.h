@@ -88,7 +88,7 @@ private:
   {
     ezDeque<StatSample> m_History;
 
-    ezString m_sValue;
+    ezVariant m_Value;
     QTreeWidgetItem* m_pItem;
     QTreeWidgetItem* m_pItemFavourite;
 

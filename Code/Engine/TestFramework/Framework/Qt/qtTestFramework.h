@@ -2,9 +2,9 @@
 
 #ifdef EZ_USE_QT
 
-#  include <QObject>
-#  include <TestFramework/Framework/TestFramework.h>
-#  include <TestFramework/TestFrameworkDLL.h>
+#include <QObject>
+#include <TestFramework/TestFrameworkDLL.h>
+#include <TestFramework/Framework/TestFramework.h>
 
 /// \brief Derived ezTestFramework which signals the GUI to update whenever a new tests result comes in.
 class EZ_TEST_DLL ezQtTestFramework : public QObject, public ezTestFramework
@@ -27,3 +27,4 @@ protected:
 };
 
 #endif
+

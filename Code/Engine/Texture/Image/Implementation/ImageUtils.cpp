@@ -554,7 +554,7 @@ ezResult ezImageUtils::ExtractLowerMipChain(const ezImageView& srcImg, ezImage& 
 
 
 
-static ezUInt32 GetSampleIndex(ezUInt32 numTexels, ezInt32 index, ezImageAddressMode::Enum addressMode, bool& outUseBorderColor)
+ezUInt32 ezImageUtils::GetSampleIndex(ezUInt32 numTexels, ezInt32 index, ezImageAddressMode::Enum addressMode, bool& outUseBorderColor)
 {
   outUseBorderColor = false;
   if (ezUInt32(index) >= numTexels)
@@ -605,7 +605,7 @@ static ezSimdVec4f LoadSample(const ezSimdVec4f* source, ezUInt32 numSourceEleme
 {
   bool useBorderColor = false;
   // result is in the range [-(w-1), (w-1)], bring it to [0, w - 1]
-  index = GetSampleIndex(numSourceElements, index, addressMode, useBorderColor);
+  index = ezImageUtils::GetSampleIndex(numSourceElements, index, addressMode, useBorderColor);
   if (useBorderColor)
   {
     return borderColor;
@@ -835,9 +835,9 @@ ezResult ezImageUtils::Scale(const ezImageView& source, ezImage& target, ezUInt3
 }
 
 ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUInt32 width, ezUInt32 height, ezUInt32 depth,
-  const ezImageFilter* filter /*= ez_NULL*/, ezImageAddressMode::Enum addressModeU /*= ezImageAddressMode::CLAMP*/,
-                               ezImageAddressMode::Enum addressModeV /*= ezImageAddressMode::CLAMP*/,
-  ezImageAddressMode::Enum addressModeW /*= ezImageAddressMode::CLAMP*/, const ezColor& borderColor /*= ezColors::Black*/)
+  const ezImageFilter* filter /*= ez_NULL*/, ezImageAddressMode::Enum addressModeU /*= ezImageAddressMode::Clamp*/,
+                               ezImageAddressMode::Enum addressModeV /*= ezImageAddressMode::Clamp*/,
+  ezImageAddressMode::Enum addressModeW /*= ezImageAddressMode::Clamp*/, const ezColor& borderColor /*= ezColors::Black*/)
 {
   if (width == 0 || height == 0 || depth == 0)
   {

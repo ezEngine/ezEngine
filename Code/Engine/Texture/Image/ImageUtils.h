@@ -116,5 +116,6 @@ public:
   /// All input images must have the same square, power-of-two dimensions and mustn't be compressed.
   static ezResult CreateCubemapFrom6Files(ezImage& dstImg, const ezImageView* pSourceImages);
 
+  static ezUInt32 GetSampleIndex(ezUInt32 numTexels, ezInt32 index, ezImageAddressMode::Enum addressMode, bool& outUseBorderColor);
 };
 

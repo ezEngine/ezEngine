@@ -116,9 +116,16 @@ namespace
 
 } // namespace
 
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+static const ezTestBlock::Enum EnableInRelease = ezTestBlock::DisabledNoWarning;
+#else
+static const ezTestBlock::Enum EnableInRelease = ezTestBlock::Enabled;
+#endif
+
 EZ_CREATE_SIMPLE_TEST(World, Profile_Creation)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Create many nodes")
+  EZ_TEST_BLOCK(EnableInRelease, "Create many nodes")
   {
     // it makes no difference whether we create static or dynamic nodes
     static bool bDynamic = true;
@@ -138,7 +145,7 @@ EZ_CREATE_SIMPLE_TEST(World, Profile_Creation)
 
 EZ_CREATE_SIMPLE_TEST(World, Profile_Update)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Update 1,000,000 static nodes")
+  EZ_TEST_BLOCK(EnableInRelease, "Update 1,000,000 static nodes")
   {
     ezWorldDesc worldDesc("Test");
     ezWorld world(worldDesc);
@@ -158,7 +165,7 @@ EZ_CREATE_SIMPLE_TEST(World, Profile_Update)
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Update 100,000 dynamic nodes")
+  EZ_TEST_BLOCK(EnableInRelease, "Update 100,000 dynamic nodes")
   {
     ezWorldDesc worldDesc("Test");
     ezWorld world(worldDesc);
@@ -178,7 +185,7 @@ EZ_CREATE_SIMPLE_TEST(World, Profile_Update)
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Update 100,000 dynamic nodes with components")
+  EZ_TEST_BLOCK(EnableInRelease, "Update 100,000 dynamic nodes with components")
   {
     ezWorldDesc worldDesc("Test");
     ezWorld world(worldDesc);
@@ -198,7 +205,7 @@ EZ_CREATE_SIMPLE_TEST(World, Profile_Update)
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Update 250,000 dynamic nodes")
+  EZ_TEST_BLOCK(EnableInRelease, "Update 250,000 dynamic nodes")
   {
     ezWorldDesc worldDesc("Test");
     ezWorld world(worldDesc);
@@ -218,7 +225,7 @@ EZ_CREATE_SIMPLE_TEST(World, Profile_Update)
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Update 1,000,000 dynamic nodes")
+  EZ_TEST_BLOCK(EnableInRelease, "Update 1,000,000 dynamic nodes")
   {
     ezWorldDesc worldDesc("Test");
     ezWorld world(worldDesc);

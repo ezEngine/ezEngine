@@ -171,11 +171,11 @@ bool ezVariant::operator==(const ezVariant& other) const
   {
     return true;
   }
-  else if (IsFloatingPoint(m_Type) && IsNumber(other.m_Type))
+  else if (IsFloatingPoint() && other.IsNumber())
   {
     return ConvertNumber<double>() == other.ConvertNumber<double>();
   }
-  else if (IsNumber(m_Type) && IsNumber(other.m_Type))
+  else if (IsNumber() && other.IsNumber())
   {
     return ConvertNumber<ezInt64>() == other.ConvertNumber<ezInt64>();
   }
@@ -263,7 +263,7 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
   if (!IsValid() || type == Type::Invalid)
     return false;
 
-  if (IsNumber(type) && (IsNumber(m_Type) || m_Type == Type::String))
+  if (IsNumberStatic(type) && (IsNumber() || m_Type == Type::String))
     return true;
 
   if (type == Type::String && m_Type < Type::LastStandardType && m_Type != Type::DataBuffer)

@@ -65,8 +65,8 @@ ezResult ezDeduplicationWriteContext::WriteSet(ezStreamWriter& stream, const ezS
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-ezResult ezDeduplicationWriteContext::WriteMap(ezStreamWriter& stream, const ezMapBase<KeyType, ValueType, Comparer>& Map,
-                                               WriteMapMode mode)
+ezResult ezDeduplicationWriteContext::WriteMap(
+    ezStreamWriter& stream, const ezMapBase<KeyType, ValueType, Comparer>& Map, WriteMapMode mode)
 {
   const ezUInt64 uiWriteSize = Map.GetCount();
   stream.WriteQWordValue(&uiWriteSize);
@@ -103,21 +103,29 @@ template <typename T>
 ezResult ezDeduplicationWriteContext::WriteObjectInternal(ezStreamWriter& stream, const T* pObject)
 {
   ezUInt32 uiIndex = ezInvalidIndex;
-  bool bIsRealObject = !m_Objects.TryGetValue(pObject, uiIndex);
-  stream << bIsRealObject;
 
-  if (bIsRealObject)
+  if (pObject)
   {
-    uiIndex = m_Objects.GetCount();
-    m_Objects.Insert(pObject, uiIndex);
+    bool bIsRealObject = !m_Objects.TryGetValue(pObject, uiIndex);
+    stream << bIsRealObject;
 
-    return ezStreamWriterUtil::Serialize<T>(stream, *pObject);
+    if (bIsRealObject)
+    {
+      uiIndex = m_Objects.GetCount();
+      m_Objects.Insert(pObject, uiIndex);
+
+      return ezStreamWriterUtil::Serialize<T>(stream, *pObject);
+    }
+    else
+    {
+      stream << uiIndex;
+    }
   }
   else
   {
-    stream << uiIndex;
+    stream << false;
+    stream << ezInvalidIndex;
   }
 
   return EZ_SUCCESS;
 }
-

@@ -348,8 +348,6 @@ void ezQtMainWindow::UpdateAlwaysOnTop()
   }
 }
 
-double ExtractValue(const char* szString);
-
 void ezQtMainWindow::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
@@ -388,10 +386,10 @@ void ezQtMainWindow::ProcessTelemetry(void* pUnuseed)
 
         StatData& sd = s_pWidget->m_Stats[sStatName];
 
-        Msg.GetReader() >> sd.m_sValue;
+        Msg.GetReader() >> sd.m_Value;
 
         StatSample ss;
-        ss.m_Value = ExtractValue(sd.m_sValue.GetData());
+        ss.m_Value = sd.m_Value.ConvertTo<double>();
         Msg.GetReader() >> ss.m_AtGlobalTime;
 
         sd.m_History.PushBack(ss);
@@ -410,10 +408,11 @@ void ezQtMainWindow::ProcessTelemetry(void* pUnuseed)
             sd.m_pItem->setCheckState(0, Qt::Checked);
         }
 
-        sd.m_pItem->setData(1, Qt::DisplayRole, sd.m_sValue.GetData());
+        const ezString sValue = sd.m_Value.ConvertTo<ezString>();
+        sd.m_pItem->setData(1, Qt::DisplayRole, sValue.GetData());
 
         if (sd.m_pItemFavourite)
-          sd.m_pItemFavourite->setData(1, Qt::DisplayRole, sd.m_sValue.GetData());
+          sd.m_pItemFavourite->setData(1, Qt::DisplayRole, sValue.GetData());
       }
       break;
     }

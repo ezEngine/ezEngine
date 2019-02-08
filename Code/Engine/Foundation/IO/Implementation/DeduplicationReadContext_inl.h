@@ -40,10 +40,18 @@ ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& stream, T*& pObj
     ezUInt32 uiIndex;
     stream >> uiIndex;
 
-    if (uiIndex >= m_Objects.GetCount())
+    if (uiIndex < m_Objects.GetCount())
+    {
+      pObject = static_cast<T*>(m_Objects[uiIndex]);
+    }
+    else if (uiIndex == ezInvalidIndex)
+    {
+      pObject = nullptr;
+    }
+    else
+    {
       return EZ_FAILURE;
-
-    pObject = static_cast<T*>(m_Objects[uiIndex]);
+    }
   }
 
   return EZ_SUCCESS;
@@ -74,14 +82,14 @@ ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& stream, ezUnique
 }
 
 template <typename ArrayType, typename ValueType>
-ezResult ezDeduplicationReadContext::ReadArray(ezStreamReader& stream, ezArrayBase<ValueType, ArrayType>& Array,
-                                               ezAllocatorBase* pAllocator)
+ezResult ezDeduplicationReadContext::ReadArray(
+    ezStreamReader& stream, ezArrayBase<ValueType, ArrayType>& Array, ezAllocatorBase* pAllocator)
 {
   ezUInt64 uiCount = 0;
   stream.ReadQWordValue(&uiCount);
 
   EZ_ASSERT_DEV(uiCount < std::numeric_limits<ezUInt32>::max(),
-                "Containers currently use 32 bit for counts internally. Value from file is too large.");
+      "Containers currently use 32 bit for counts internally. Value from file is too large.");
 
   Array.Clear();
 
@@ -105,7 +113,7 @@ ezResult ezDeduplicationReadContext::ReadSet(ezStreamReader& stream, ezSetBase<K
   stream.ReadQWordValue(&uiCount);
 
   EZ_ASSERT_DEV(uiCount < std::numeric_limits<ezUInt32>::max(),
-                "Containers currently use 32 bit for counts internally. Value from file is too large.");
+      "Containers currently use 32 bit for counts internally. Value from file is too large.");
 
   Set.Clear();
 
@@ -143,13 +151,13 @@ namespace ezInternal
 
 template <typename KeyType, typename ValueType, typename Comparer>
 ezResult ezDeduplicationReadContext::ReadMap(ezStreamReader& stream, ezMapBase<KeyType, ValueType, Comparer>& Map, ReadMapMode mode,
-                                             ezAllocatorBase* pKeyAllocator, ezAllocatorBase* pValueAllocator)
+    ezAllocatorBase* pKeyAllocator, ezAllocatorBase* pValueAllocator)
 {
   ezUInt64 uiCount = 0;
   stream.ReadQWordValue(&uiCount);
 
   EZ_ASSERT_DEV(uiCount < std::numeric_limits<ezUInt32>::max(),
-                "Containers currently use 32 bit for counts internally. Value from file is too large.");
+      "Containers currently use 32 bit for counts internally. Value from file is too large.");
 
   Map.Clear();
 
@@ -192,4 +200,3 @@ ezResult ezDeduplicationReadContext::ReadMap(ezStreamReader& stream, ezMapBase<K
 
   return EZ_SUCCESS;
 }
-

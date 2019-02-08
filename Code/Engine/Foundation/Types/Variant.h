@@ -197,6 +197,14 @@ public:
   /// \brief Returns whether this variant stores any other type than 'Invalid'.
   bool IsValid() const; // [tested]
 
+  /// \brief Returns whether the stored type is numerical type either integer or floating point.
+  ///
+  /// Bool counts as number.
+  bool IsNumber() const; // [tested]
+
+  /// \brief Returns whether the stored type is floating point.
+  bool IsFloatingPoint() const; // [tested]
+
   /// \brief Returns whether the stored type is exactly the given type.
   ///
   /// \note This explicitly also differentiates between the different integer types.
@@ -333,8 +341,8 @@ private:
   template <typename T>
   const T& Cast() const;
 
-  static bool IsNumber(ezUInt32 type);
-  static bool IsFloatingPoint(ezUInt32 type);
+  static bool IsNumberStatic(ezUInt32 type);
+  static bool IsFloatingPointStatic(ezUInt32 type);
 
   template <typename T>
   T ConvertNumber() const;
