@@ -11,6 +11,12 @@ struct ezImageSizeofHelper<void>
   static constexpr size_t Size = 1;
 };
 
+template <>
+struct ezImageSizeofHelper<const void>
+{
+  static constexpr size_t Size = 1;
+};
+
 template <typename T>
 ezArrayPtr<const T> ezImageView::GetArrayPtr() const
 {
@@ -53,4 +59,3 @@ void ezImageView::ValidateDataTypeAccessor() const
   ezUInt32 bytesPerBlock = ezImageFormat::GetBitsPerBlock(GetImageFormat()) / 8;
   EZ_ASSERT_DEV(bytesPerBlock % ezImageSizeofHelper<T>::Size == 0, "Accessor type is not suitable for interpreting contained data");
 }
-

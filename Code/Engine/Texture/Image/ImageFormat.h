@@ -206,6 +206,8 @@ struct EZ_TEXTURE_DLL ezImageFormat
     X1B5G5R5_UNORM,
     X1B5G5R5_UNORM_SRGB,
 
+    NV12,
+
     NUM_FORMATS,
 
     Default = UNKNOWN
@@ -264,8 +266,14 @@ struct EZ_TEXTURE_DLL ezImageFormat
   /// \brief Returns true if the format is compressed.
   static bool IsCompressed(Enum format);
 
+  /// \brief Returns true if the format is a depth format.
+  static bool IsDepth(Enum format);
+
   /// \brief Returns whether the given format is an sRGB format.
   static bool IsSrgb(Enum format);
+
+  /// \brief Returns true if the format is a stencil format.
+  static bool IsStencil(Enum format);
 
   /// \brief Returns the corresponding sRGB format if one exists; otherwise returns the unmodified format.
   static Enum AsSrgb(Enum format);
@@ -294,5 +302,12 @@ struct EZ_TEXTURE_DLL ezImageFormat
   /// \brief Finds a format matching the given component masks.
   static ezImageFormat::Enum FromPixelMask(ezUInt32 uiRedMask, ezUInt32 uiGreenMask, ezUInt32 uiBlueMask, ezUInt32 uiAlphaMask,
                                            ezUInt32 uiBitsPerPixel);
+
+  /// \brief Returns true if the data formats are compatible, i.e. can be copied into one another
+  static bool IsCompatible(Enum left, Enum right);
+
+  /// \brief Returns true if the most high-res miplevel requires block alignment
+  static bool RequiresFirstLevelBlockAlignment(Enum format);
 };
 
+EZ_DEFINE_AS_POD_TYPE(ezImageFormat::Enum);

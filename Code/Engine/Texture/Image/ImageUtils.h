@@ -17,6 +17,14 @@ public:
   /// \brief Computes the mean square error of DifferenceImage, by computing the MSE for blocks of uiBlockSize and returning the maximum MSE that was found.
   static ezUInt32 ComputeMeanSquareError(const ezImageView& DifferenceImage, ezUInt8 uiBlockSize);
 
+  /// \brief Rescales pixel values to use the full value range by scaling from [min, max] to [0, 255].
+  /// Computes combined min/max for RGB and separate min/max for alpha.
+  static void Normalize(ezImage& image);
+  static void Normalize(ezImage& image, ezUInt8& uiMinRgb, ezUInt8& uiMaxRgb, ezUInt8& uiMinAlpha, ezUInt8& uiMaxAlpha);
+
+  /// \brief Extracts the alpha channel from 8bpp 4 channel images into a 8bpp single channel image.
+	static void ExtractAlphaChannel(const ezImageView& inputImage, ezImage& outputImage);
+
   /// \brief Returns the sub-image of \a input that starts at \a offset and has the size \a newsize
   static void CropImage(const ezImageView& input, const ezVec2I32& offset, const ezSizeU32& newsize, ezImage& output);
 

@@ -77,8 +77,10 @@ void ezImageUtils::ComputeImageDifferenceABS(const ezImageView& ImageA, const ez
           case ezImageFormat::B8G8R8X8_UNORM:
           case ezImageFormat::B8G8R8A8_UNORM_SRGB:
           case ezImageFormat::B8G8R8X8_UNORM_SRGB:
-            SetDiff<ezUInt32>(ImageA, ImageB, out_Difference, 0, 0, d, uiSize2D);
-            break;
+          {
+            SetDiff<ezUInt8>(ImageA, ImageB, out_Difference, 0, 0, d, 4 * uiSize2D);
+          }
+          break;
 
           case ezImageFormat::B8G8R8_UNORM:
           {
@@ -185,6 +187,178 @@ ezUInt32 ezImageUtils::ComputeMeanSquareError(const ezImageView& DifferenceImage
   return uiMaxError;
 }
 
+template <typename Func, typename ImageType>
+static void ApplyFunc(ImageType& image, Func func)
+{
+  ezUInt32 uiWidth = image.GetWidth();
+  ezUInt32 uiHeight = image.GetHeight();
+  ezUInt32 uiDepth = image.GetDepth();
+
+  EZ_ASSERT_DEV(uiWidth > 0 && uiHeight > 0 && uiDepth > 0, "The image passed to FindMinMax has illegal dimension {}x{}x{}.", uiWidth,
+                uiHeight, uiDepth);
+
+  ezUInt32 uiRowPitch = image.GetRowPitch();
+  ezUInt32 uiDepthPitch = image.GetDepthPitch();
+  ezUInt32 uiNumChannels = ezImageFormat::GetNumChannels(image.GetImageFormat());
+
+  auto pSlicePointer = image.GetPixelPointer<ezUInt8>();
+
+  for (ezUInt32 z = 0; z < image.GetDepth(); ++z)
+  {
+    auto pRowPointer = pSlicePointer;
+
+    for (ezUInt32 y = 0; y < uiHeight; ++y)
+    {
+      auto pPixelPointer = pRowPointer;
+      for (ezUInt32 x = 0; x < uiWidth; ++x)
+      {
+        for (ezUInt32 c = 0; c < uiNumChannels; ++c)
+        {
+          func(pPixelPointer++, x, y, z, c);
+        }
+      }
+
+      pRowPointer += uiRowPitch;
+    }
+
+    pSlicePointer += uiDepthPitch;
+  }
+}
+
+static void FindMinMax(const ezImageView& image, ezUInt8& uiMinRgb, ezUInt8& uiMaxRgb, ezUInt8& uiMinAlpha, ezUInt8& uiMaxAlpha)
+{
+  ezImageFormat::Enum imageFormat = image.GetImageFormat();
+  EZ_ASSERT_DEV(ezImageFormat::GetBitsPerChannel(imageFormat, ezImageFormatChannel::R) == 8 &&
+                    ezImageFormat::GetDataType(imageFormat) == ezImageFormatDataType::UNORM,
+                "Only 8bpp unorm formats are supported in FindMinMax");
+
+  uiMinRgb = 255u;
+  uiMinAlpha = 255u;
+  uiMaxRgb = 0u;
+  uiMaxAlpha = 0u;
+
+  auto minMax = [&](const ezUInt8* pixel, ezUInt32 /*x*/, ezUInt32 /*y*/, ezUInt32 /*z*/, ezUInt32 c)
+  {
+    ezUInt8 val = *pixel;
+
+    if (c < 3)
+    {
+      uiMinRgb = ezMath::Min(uiMinRgb, val);
+      uiMaxRgb = ezMath::Max(uiMaxRgb, val);
+    }
+    else
+    {
+      uiMinAlpha = ezMath::Min(uiMinAlpha, val);
+      uiMaxAlpha = ezMath::Max(uiMaxAlpha, val);
+    }
+  };
+  ApplyFunc(image, minMax);
+}
+
+void ezImageUtils::Normalize(ezImage& image)
+{
+  ezUInt8 uiMinRgb, uiMaxRgb, uiMinAlpha, uiMaxAlpha;
+  Normalize(image, uiMinRgb, uiMaxRgb, uiMinAlpha, uiMaxAlpha);
+}
+
+void ezImageUtils::Normalize(ezImage & image, ezUInt8& uiMinRgb, ezUInt8& uiMaxRgb, ezUInt8& uiMinAlpha, ezUInt8& uiMaxAlpha)
+{
+  ezImageFormat::Enum imageFormat = image.GetImageFormat();
+
+  EZ_ASSERT_DEV(ezImageFormat::GetBitsPerChannel(imageFormat, ezImageFormatChannel::R) == 8 &&
+                ezImageFormat::GetDataType(imageFormat) == ezImageFormatDataType::UNORM,
+                "Only 8bpp unorm formats are supported in NormalizeImage");
+
+  bool ignoreAlpha = false;
+  if (imageFormat == ezImageFormat::B8G8R8X8_UNORM || imageFormat == ezImageFormat::B8G8R8X8_UNORM_SRGB)
+  {
+    ignoreAlpha = true;
+  }
+
+  FindMinMax(image, uiMinRgb, uiMaxRgb, uiMinAlpha, uiMaxAlpha);
+  ezUInt8 uiRangeRgb = uiMaxRgb - uiMinRgb;
+  ezUInt8 uiRangeAlpha = uiMaxAlpha - uiMinAlpha;
+
+  auto normalize = [&](ezUInt8* pixel, ezUInt32 /*x*/, ezUInt32 /*y*/, ezUInt32 /*z*/, ezUInt32 c)
+  {
+    ezUInt8 val = *pixel;
+    if (c < 3)
+    {
+      // color channels are uniform when min == max, in that case keep original value as scaling is not meaningful
+      if (uiRangeRgb != 0)
+      {
+        *pixel = 255u * (static_cast<float>(val - uiMinRgb) / (uiRangeRgb));
+      }
+    }
+    else
+    {
+      // alpha is uniform when minAlpha == maxAlpha, in that case keep original alpha as scaling is not meaningful
+      if (!ignoreAlpha && uiRangeAlpha != 0)
+      {
+        *pixel = 255u * (static_cast<float>(val - uiMinAlpha) / (uiRangeAlpha));
+      }
+    }
+  };
+  ApplyFunc(image, normalize);
+}
+
+void ezImageUtils::ExtractAlphaChannel(const ezImageView& inputImage, ezImage& outputImage)
+{
+  switch (ezImageFormat::Enum imageFormat = inputImage.GetImageFormat())
+  {
+    case ezImageFormat::R8G8B8A8_UNORM:
+    case ezImageFormat::R8G8B8A8_UNORM_SRGB:
+    case ezImageFormat::R8G8B8A8_UINT:
+    case ezImageFormat::R8G8B8A8_SNORM:
+    case ezImageFormat::R8G8B8A8_SINT:
+    case ezImageFormat::B8G8R8A8_UNORM:
+    case ezImageFormat::B8G8R8A8_UNORM_SRGB:
+      break;
+    default:
+      EZ_REPORT_FAILURE("ExtractAlpha needs an image with 8bpp and 4 channel. The ezImageFormat {} is not supported.",
+                        (ezUInt32)imageFormat);
+      return;
+  }
+
+  ezImageHeader outputHeader = inputImage.GetHeader();
+  outputHeader.SetImageFormat(ezImageFormat::R8_UNORM);
+  outputImage.ResetAndAlloc(outputHeader);
+
+  const ezUInt8* pInputSlice = inputImage.GetPixelPointer<ezUInt8>();
+  ezUInt8* pOutputSlice = outputImage.GetPixelPointer<ezUInt8>();
+
+  ezUInt32 uiInputRowPitch = inputImage.GetRowPitch();
+  ezUInt32 uiInputDepthPitch = inputImage.GetDepthPitch();
+
+  ezUInt32 uiOutputRowPitch = outputImage.GetRowPitch();
+  ezUInt32 uiOutputDepthPitch = outputImage.GetDepthPitch();
+
+  for (ezUInt32 d = 0; d < inputImage.GetDepth(); ++d)
+  {
+    const ezUInt8* pInputRow = pInputSlice;
+    ezUInt8* pOutputRow = pOutputSlice;
+
+    for (ezUInt32 y = 0; y < inputImage.GetHeight(); ++y)
+    {
+      const ezUInt8* pInputPixel = pInputRow;
+      ezUInt8* pOutputPixel = pOutputRow;
+      for (ezUInt32 x = 0; x < inputImage.GetWidth(); ++x)
+      {
+        *pOutputPixel = pInputPixel[3];
+
+        pInputPixel += 4;
+        ++pOutputPixel;
+      }
+
+      pInputRow += uiInputRowPitch;
+      pOutputRow += uiOutputRowPitch;
+    }
+
+    pInputSlice += uiInputDepthPitch;
+    pOutputSlice += uiOutputDepthPitch;
+  }
+}
+
 void ezImageUtils::CropImage(const ezImageView& input, const ezVec2I32& offset, const ezSizeU32& newsize, ezImage& output)
 {
   EZ_ASSERT_DEV(offset.x >= 0, "Offset is invalid");
@@ -284,7 +458,7 @@ void ezImageUtils::RotateSubImage180(ezImage& image, ezUInt32 uiMipLevel /*= 0*/
 }
 
 void ezImageUtils::Copy(ezImage& dstImg, ezUInt32 uiPosX, ezUInt32 uiPosY, const ezImageView& srcImg, ezUInt32 uiMipLevel /*= 0*/,
-  ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/)
+                        ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/)
 {
   EZ_ASSERT_DEV(dstImg.GetImageFormat() == srcImg.GetImageFormat(), "Can only copy when the image formats are identical");
 
@@ -427,7 +601,7 @@ static ezUInt32 GetSampleIndex(ezUInt32 numTexels, ezInt32 index, ezImageAddress
 }
 
 static ezSimdVec4f LoadSample(const ezSimdVec4f* source, ezUInt32 numSourceElements, ezUInt32 stride, ezInt32 index,
-  ezImageAddressMode::Enum addressMode, const ezSimdVec4f& borderColor)
+                              ezImageAddressMode::Enum addressMode, const ezSimdVec4f& borderColor)
 {
   bool useBorderColor = false;
   // result is in the range [-(w-1), (w-1)], bring it to [0, w - 1]
@@ -568,8 +742,8 @@ static void DownScaleFast(const ezImageView& image, ezImage& out_Result, ezUInt3
       for (ezUInt32 col = 0; col < width; col++)
       {
         DownScaleFastLine(pixelStride, intermediate.GetPixelPointer<ezUInt8>(0, face, arrayIndex, col),
-          out_Result.GetPixelPointer<ezUInt8>(0, face, arrayIndex, col), originalHeight, intermediate.GetRowPitch(), height,
-          out_Result.GetRowPitch());
+                          out_Result.GetPixelPointer<ezUInt8>(0, face, arrayIndex, col), originalHeight, intermediate.GetRowPitch(), height,
+                          out_Result.GetRowPitch());
       }
     }
   }
@@ -655,14 +829,14 @@ static void NormalizeCoverage(ezArrayPtr<ezColor> colors, float alphaThreshold, 
 
 
 ezResult ezImageUtils::Scale(const ezImageView& source, ezImage& target, ezUInt32 width, ezUInt32 height, const ezImageFilter* filter,
-  ezImageAddressMode::Enum addressModeU, ezImageAddressMode::Enum addressModeV, const ezColor& borderColor)
+                             ezImageAddressMode::Enum addressModeU, ezImageAddressMode::Enum addressModeV, const ezColor& borderColor)
 {
   return Scale3D(source, target, width, height, 1, filter, addressModeU, addressModeV, ezImageAddressMode::Clamp, borderColor);
 }
 
 ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUInt32 width, ezUInt32 height, ezUInt32 depth,
   const ezImageFilter* filter /*= ez_NULL*/, ezImageAddressMode::Enum addressModeU /*= ezImageAddressMode::CLAMP*/,
-  ezImageAddressMode::Enum addressModeV /*= ezImageAddressMode::CLAMP*/,
+                               ezImageAddressMode::Enum addressModeV /*= ezImageAddressMode::CLAMP*/,
   ezImageAddressMode::Enum addressModeW /*= ezImageAddressMode::CLAMP*/, const ezColor& borderColor /*= ezColors::Black*/)
 {
   if (width == 0 || height == 0 || depth == 0)
@@ -787,7 +961,7 @@ ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUIn
             const ezSimdVec4f* filterSource = stepSource->GetPixelPointer<ezSimdVec4f>(0, face, arrayIndex, 0, y, z);
             ezSimdVec4f* filterTarget = stepTarget->GetPixelPointer<ezSimdVec4f>(0, face, arrayIndex, 0, y, z);
             FilterLine(originalWidth, filterSource, filterTarget, 1, weights, firstSampleIndices, addressModeU,
-              ezSimdVec4f(borderColor.r, borderColor.g, borderColor.b, borderColor.a));
+                       ezSimdVec4f(borderColor.r, borderColor.g, borderColor.b, borderColor.a));
           }
         }
       }
@@ -831,7 +1005,7 @@ ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUIn
             const ezSimdVec4f* filterSource = stepSource->GetPixelPointer<ezSimdVec4f>(0, face, arrayIndex, x, 0, z);
             ezSimdVec4f* filterTarget = stepTarget->GetPixelPointer<ezSimdVec4f>(0, face, arrayIndex, x, 0, z);
             FilterLine(originalHeight, filterSource, filterTarget, width, weights, firstSampleIndices, addressModeV,
-              ezSimdVec4f(borderColor.r, borderColor.g, borderColor.b, borderColor.a));
+                       ezSimdVec4f(borderColor.r, borderColor.g, borderColor.b, borderColor.a));
           }
         }
       }
@@ -875,7 +1049,7 @@ ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& target, ezUIn
             const ezSimdVec4f* filterSource = stepSource->GetPixelPointer<ezSimdVec4f>(0, face, arrayIndex, x, y, 0);
             ezSimdVec4f* filterTarget = stepTarget->GetPixelPointer<ezSimdVec4f>(0, face, arrayIndex, x, y, 0);
             FilterLine(originalHeight, filterSource, filterTarget, width * height, weights, firstSampleIndices, addressModeW,
-              ezSimdVec4f(borderColor.r, borderColor.g, borderColor.b, borderColor.a));
+                       ezSimdVec4f(borderColor.r, borderColor.g, borderColor.b, borderColor.a));
           }
         }
       }
@@ -932,7 +1106,7 @@ void ezImageUtils::GenerateMipMaps(const ezImageView& source, ezImage& target, c
       if (mipMapOptions.m_preserveCoverage)
       {
         targetCoverage =
-          EvaluateAverageCoverage(source.GetSubImageView(0, face, arrayIndex).GetArrayPtr<ezColor>(), mipMapOptions.m_alphaThreshold);
+            EvaluateAverageCoverage(source.GetSubImageView(0, face, arrayIndex).GetArrayPtr<ezColor>(), mipMapOptions.m_alphaThreshold);
       }
 
       for (ezUInt32 mipMapLevel = 0; mipMapLevel < numMipMaps - 1; mipMapLevel++)
@@ -1029,7 +1203,7 @@ void ezImageUtils::AdjustRoughness(ezImage& roughnessMap, const ezImageView& nor
     normalMap.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT, "This algorithm currently expects a RGBA 32 Float as input");
 
   EZ_ASSERT_DEV(roughnessMap.GetWidth() >= normalMap.GetWidth() && roughnessMap.GetHeight() >= normalMap.GetHeight(),
-    "The roughness map needs to be bigger or same size than the normal map.");
+                "The roughness map needs to be bigger or same size than the normal map.");
 
   ezImage filteredNormalMap;
   ezImageUtils::MipMapOptions options;
@@ -1048,7 +1222,7 @@ void ezImageUtils::AdjustRoughness(ezImage& roughnessMap, const ezImageView& nor
   }
 
   EZ_ASSERT_DEV(roughnessMap.GetNumMipLevels() == filteredNormalMap.GetNumMipLevels(),
-    "Roughness and normal map must have the same number of mip maps");
+                "Roughness and normal map must have the same number of mip maps");
 
   ezSimdVec4f two(2.0f);
   ezSimdVec4f minusOne(-1.0f);
@@ -1089,13 +1263,13 @@ void ezImageUtils::ChangeExposure(ezImage& image, float bias)
   const float multiplier = ezMath::Pow2(bias);
 
   for (ezColor& col : image.GetArrayPtr<ezColor>())
-  {
+            {
     col = multiplier * col;
   }
 }
 
 static void CopyImageRectToFace(ezImage& dstImg, const ezImageView& srcImg, ezUInt32 offsetX, ezUInt32 offsetY, ezUInt32 faceIndex)
-{
+            {
   const ezUInt32 faceRowPitch = dstImg.GetRowPitch();
   const ezUInt32 srcRowPitch = srcImg.GetRowPitch();
 
@@ -1110,8 +1284,8 @@ static void CopyImageRectToFace(ezImage& dstImg, const ezImageView& srcImg, ezUI
     ezMemoryUtils::Copy(dstFace, srcPtr, faceRowPitch);
     dstFace += faceRowPitch;
     srcPtr += srcRowPitch;
-  }
-}
+            }
+          }
 
 ezResult ezImageUtils::CreateCubemapFromSingleFile(ezImage& dstImg, const ezImageView& srcImg)
 {
@@ -1119,7 +1293,7 @@ ezResult ezImageUtils::CreateCubemapFromSingleFile(ezImage& dstImg, const ezImag
   {
     dstImg.ResetAndCopy(srcImg);
     return EZ_SUCCESS;
-  }
+        }
   else if (srcImg.GetNumFaces() == 1)
   {
     if (srcImg.GetWidth() % 3 == 0 && srcImg.GetHeight() % 4 == 0 && srcImg.GetWidth() / 3 == srcImg.GetHeight() / 4)
@@ -1251,7 +1425,7 @@ ezResult ezImageUtils::CreateCubemapFromSingleFile(ezImage& dstImg, const ezImag
         ezVec3(1, 0, 0), ezVec3(0, 0, -1),  // Y-
         ezVec3(1, 0, 0), ezVec3(0, -1, 0),  // Z+
         ezVec3(-1, 0, 0), ezVec3(0, -1, 0)  // Z-
-      };
+  };
 
       const float fFaceSize = (float)faceSize;
       const float fHalfPixel = 0.5f / fFaceSize;
@@ -1276,11 +1450,11 @@ ezResult ezImageUtils::CreateCubemapFromSingleFile(ezImage& dstImg, const ezImag
       {
         ezColor* faceData = dstImg.GetPixelPointer<ezColor>(0, faceIndex);
         for (ezUInt32 y = 0; y < faceSize; y++)
-        {
+  {
           const float dstV = (float)y * fPixel + fHalfPixel;
 
           for (ezUInt32 x = 0; x < faceSize; x++)
-          {
+  {
             const float dstU = (float)x * fPixel + fHalfPixel;
             const ezVec3 modelSpacePos = faceCorners[faceIndex] + dstU * faceAxis[faceIndex * 2] + dstV * faceAxis[faceIndex * 2 + 1];
             const ezVec3 modelSpaceDir = modelSpacePos.GetNormalized();
@@ -1321,11 +1495,11 @@ ezResult ezImageUtils::CreateCubemapFromSingleFile(ezImage& dstImg, const ezImag
     }
 
     return EZ_SUCCESS;
-  }
+    }
 
   ezLog::Error("Unexpected number of faces in cubemap input image.");
   return EZ_FAILURE;
-}
+  }
 
 ezResult ezImageUtils::CreateCubemapFrom6Files(ezImage& dstImg, const ezImageView* pSourceImages)
 {

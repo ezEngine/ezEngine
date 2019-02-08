@@ -60,18 +60,15 @@ ezResult ezImageView::SaveTo(const char* szFileName, ezLogInterface* pLog) const
 
   ezStringView it = ezPathUtils::GetFileExtension(szFileName);
 
-  for (ezImageFileFormat* pFormat = ezImageFileFormat::GetFirstInstance(); pFormat; pFormat = pFormat->GetNextInstance())
+  if (ezImageFileFormat* pFormat = ezImageFileFormat::GetWriterFormat(it.GetData()))
   {
-    if (pFormat->CanWriteFileType(it.GetData()))
+    if (pFormat->WriteImage(writer, *this, pLog, it.GetData()) != EZ_SUCCESS)
     {
-      if (pFormat->WriteImage(writer, *this, pLog, it.GetData()) != EZ_SUCCESS)
-      {
-        ezLog::Error(pLog, "Failed to write image file '{0}'", szFileName);
-        return EZ_FAILURE;
-      }
-
-      return EZ_SUCCESS;
+      ezLog::Error(pLog, "Failed to write image file '{0}'", szFileName);
+      return EZ_FAILURE;
     }
+
+    return EZ_SUCCESS;
   }
 
   ezLog::Error(pLog, "No known image file format for extension '{0}'", it);
@@ -260,10 +257,8 @@ ezResult ezImage::LoadFrom(const char* szFileName, ezLogInterface* pLog)
 
   ezStringView it = ezPathUtils::GetFileExtension(szFileName);
 
-  for (ezImageFileFormat* pFormat = ezImageFileFormat::GetFirstInstance(); pFormat; pFormat = pFormat->GetNextInstance())
+  if (ezImageFileFormat* pFormat = ezImageFileFormat::GetReaderFormat(it.GetData()))
   {
-    if (pFormat->CanReadFileType(it.GetData()))
-    {
       if (pFormat->ReadImage(reader, *this, pLog, it.GetData()) != EZ_SUCCESS)
       {
         ezLog::Warning(pLog, "Failed to read image file '{0}'", szFileName);
@@ -271,7 +266,6 @@ ezResult ezImage::LoadFrom(const char* szFileName, ezLogInterface* pLog)
       }
 
       return EZ_SUCCESS;
-    }
   }
 
   ezLog::Warning(pLog, "No known image file format for extension '{0}'", it);

@@ -25,6 +25,11 @@ public:
   /// \brief Should return true, if files with the given extension can be written.
   virtual bool CanWriteFileType(const char* szExtension) const = 0;
 
+  /// \brief Returns an ezImageFileFormat that can read the given extension. Returns nullptr if there is no appropriate ezImageFileFormat.
+  static ezImageFileFormat* GetReaderFormat(const char* extension);
+
+  /// \brief Returns an ezImageFileFormat that can write the given extension. Returns nullptr if there is no appropriate ezImageFileFormat.
+  static ezImageFileFormat* GetWriterFormat(const char* extension);
 
   EZ_DECLARE_ENUMERABLE_CLASS(ezImageFileFormat);
 };
