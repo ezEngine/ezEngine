@@ -31,3 +31,6 @@ ezImageFileFormat* ezImageFileFormat::GetWriterFormat(const char* extension)
 
   return nullptr;
 }
+
+EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_ImageFileFormat);
+

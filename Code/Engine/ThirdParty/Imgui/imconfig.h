@@ -16,23 +16,24 @@
 //////////////////////////////////////////////////////////////////////////
 // Start ezEngine edit
 // Configure the DLL Import/Export Define
-#ifdef WIN32
+#ifdef BUILDSYSTEM_COMPILE_ENGINE_AS_DLL
 #ifdef BUILDSYSTEM_BUILDING_THIRDPARTY_LIB
 #define IMGUI_API __declspec(dllexport)
 #else
 #define IMGUI_API __declspec(dllimport)
 #endif
+#endif
 
+#ifdef WIN32
 // No support for clipboard functions in UWP, need to port first. (a great opportunity to support this project!)
 #if WINAPI_FAMILY==WINAPI_FAMILY_APP
 #define IMGUI_DISABLE_WIN32_DEFAULT_CLIPBOARD_FUNCTIONS
 #define IMGUI_DISABLE_WIN32_DEFAULT_IME_FUNCTIONS
 #endif
+#endif
 
 extern thread_local struct ImGuiContext* g_ThreadLocalContext;
 #define GImGui g_ThreadLocalContext
-
-#endif
 // End ezEngine edit
 //////////////////////////////////////////////////////////////////////////
 

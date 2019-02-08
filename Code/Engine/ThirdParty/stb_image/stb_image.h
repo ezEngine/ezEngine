@@ -330,7 +330,7 @@ extern "C" {
 //////////////////////////////////////////////////////////////////////////
 // Start ezEngine edit
 // Configure the DLL Import/Export Define
-#ifdef WIN32
+#ifdef BUILDSYSTEM_COMPILE_ENGINE_AS_DLL
 #ifdef BUILDSYSTEM_BUILDING_THIRDPARTY_LIB
 #define EZ_THIRDPARTY_DLL __declspec(dllexport)
 #else

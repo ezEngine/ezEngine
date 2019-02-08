@@ -6,6 +6,8 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 
+#if EZ_ENABLED(EZ_USE_PROFILING)
+
 struct GPUTimingScope
 {
   EZ_DECLARE_POD_TYPE();
@@ -116,6 +118,8 @@ ezProfilingScopeAndMarker::~ezProfilingScopeAndMarker()
   m_pGALContext->PopMarker();
   m_pTimingScope->m_EndTimestamp = m_pGALContext->InsertTimestamp();
 }
+
+#endif
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Profiling_Implementation_Profiling);
 

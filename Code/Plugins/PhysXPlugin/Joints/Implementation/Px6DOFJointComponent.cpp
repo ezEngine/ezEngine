@@ -97,4 +97,4 @@ PxJoint* ezPx6DOFJointComponent::CreateJointType(PxRigidActor* actor0, const PxT
 
 
 
-EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Joints_Implementation_PxDistanceJointComponent);
+EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Joints_Implementation_Px6DOFJointComponent);
