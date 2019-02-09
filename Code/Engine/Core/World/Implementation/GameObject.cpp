@@ -569,7 +569,23 @@ void ezGameObject::UpdateLocalBounds()
   }
 }
 
-bool ezGameObject::TryGetComponentOfBaseType(const ezRTTI* pType, ezComponent*& out_pComponent) const
+bool ezGameObject::TryGetComponentOfBaseType(const ezRTTI* pType, ezComponent*& out_pComponent)
+{
+  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  {
+    ezComponent* pComponent = m_Components[i];
+    if (pComponent->IsInstanceOf(pType))
+    {
+      out_pComponent = pComponent;
+      return true;
+    }
+  }
+
+  out_pComponent = nullptr;
+  return false;
+}
+
+bool ezGameObject::TryGetComponentOfBaseType(const ezRTTI* pType, const ezComponent*& out_pComponent) const
 {
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
@@ -586,7 +602,21 @@ bool ezGameObject::TryGetComponentOfBaseType(const ezRTTI* pType, ezComponent*& 
 }
 
 
-void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezHybridArray<ezComponent*, 8>& out_components) const
+void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezHybridArray<ezComponent*, 8>& out_components)
+{
+  out_components.Clear();
+
+  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  {
+    ezComponent* pComponent = m_Components[i];
+    if (pComponent->IsInstanceOf(pType))
+    {
+      out_components.PushBack(pComponent);
+    }
+  }
+}
+
+void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezHybridArray<const ezComponent*, 8>& out_components) const
 {
   out_components.Clear();
 

@@ -54,7 +54,7 @@ void ezEditorSelectedObjectsExtractor::Extract(const ezView& view, const ezDynam
     if (pSelection == nullptr)
       return;
 
-    ezCameraComponent* pCamComp = nullptr;
+    const ezCameraComponent* pCamComp = nullptr;
 
     CreateRenderTargetTexture(view);
 

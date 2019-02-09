@@ -284,17 +284,31 @@ public:
 
   /// \brief Tries to find a component of the given base type in the objects components list and returns the first match.
   template <typename T>
-  bool TryGetComponentOfBaseType(T*& out_pComponent) const;
+  bool TryGetComponentOfBaseType(T*& out_pComponent);
 
   /// \brief Tries to find a component of the given base type in the objects components list and returns the first match.
-  bool TryGetComponentOfBaseType(const ezRTTI* pType, ezComponent*& out_pComponent) const;
+  template <typename T>
+  bool TryGetComponentOfBaseType(const T*& out_pComponent) const;
+
+  /// \brief Tries to find a component of the given base type in the objects components list and returns the first match.
+  bool TryGetComponentOfBaseType(const ezRTTI* pType, ezComponent*& out_pComponent);
+
+  /// \brief Tries to find a component of the given base type in the objects components list and returns the first match.
+  bool TryGetComponentOfBaseType(const ezRTTI* pType, const ezComponent*& out_pComponent) const;
 
   /// \brief Tries to find components of the given base type in the objects components list and returns all matches.
   template <typename T>
-  void TryGetComponentsOfBaseType(ezHybridArray<T*, 8>& out_components) const;
+  void TryGetComponentsOfBaseType(ezHybridArray<T*, 8>& out_components);
 
   /// \brief Tries to find components of the given base type in the objects components list and returns all matches.
-  void TryGetComponentsOfBaseType(const ezRTTI* pType, ezHybridArray<ezComponent*, 8>& out_components) const;
+  template <typename T>
+  void TryGetComponentsOfBaseType(ezHybridArray<const T*, 8>& out_components) const;
+
+  /// \brief Tries to find components of the given base type in the objects components list and returns all matches.
+  void TryGetComponentsOfBaseType(const ezRTTI* pType, ezHybridArray<ezComponent*, 8>& out_components);
+
+  /// \brief Tries to find components of the given base type in the objects components list and returns all matches.
+  void TryGetComponentsOfBaseType(const ezRTTI* pType, ezHybridArray<const ezComponent*, 8>& out_components) const;
 
   /// \brief Returns a list of all components attached to this object.
   ezArrayPtr<ezComponent* const> GetComponents();

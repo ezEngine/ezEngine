@@ -429,13 +429,19 @@ EZ_ALWAYS_INLINE ezSpatialDataHandle ezGameObject::GetSpatialData() const
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezGameObject::TryGetComponentOfBaseType(T*& out_pComponent) const
+EZ_ALWAYS_INLINE bool ezGameObject::TryGetComponentOfBaseType(T*& out_pComponent)
 {
   return TryGetComponentOfBaseType(ezGetStaticRTTI<T>(), (ezComponent*&)out_pComponent);
 }
 
 template <typename T>
-void ezGameObject::TryGetComponentsOfBaseType(ezHybridArray<T*, 8>& out_components) const
+EZ_ALWAYS_INLINE bool ezGameObject::TryGetComponentOfBaseType(const T*& out_pComponent) const
+{
+  return TryGetComponentOfBaseType(ezGetStaticRTTI<T>(), (const ezComponent*&)out_pComponent);
+}
+
+template <typename T>
+void ezGameObject::TryGetComponentsOfBaseType(ezHybridArray<T*, 8>& out_components)
 {
   out_components.Clear();
 
@@ -445,6 +451,21 @@ void ezGameObject::TryGetComponentsOfBaseType(ezHybridArray<T*, 8>& out_componen
     if (pComponent->IsInstanceOf<T>())
     {
       out_components.PushBack(static_cast<T*>(pComponent));
+    }
+  }
+}
+
+template <typename T>
+void ezGameObject::TryGetComponentsOfBaseType(ezHybridArray<const T*, 8>& out_components) const
+{
+  out_components.Clear();
+
+  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  {
+    ezComponent* pComponent = m_Components[i];
+    if (pComponent->IsInstanceOf<T>())
+    {
+      out_components.PushBack(static_cast<const T*>(pComponent));
     }
   }
 }

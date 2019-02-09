@@ -51,7 +51,7 @@ void ezPxActorComponent::AddShapesFromObject(ezGameObject* pObject, PxRigidActor
 
 void ezPxActorComponent::AddShapesToNavMesh(const ezGameObject* pObject, ezMsgExtractGeometry& msg) const
 {
-  ezHybridArray<ezPxShapeComponent*, 8> shapes;
+  ezHybridArray<const ezPxShapeComponent*, 8> shapes;
   pObject->TryGetComponentsOfBaseType(shapes);
 
   for (auto pShape : shapes)
@@ -65,7 +65,7 @@ void ezPxActorComponent::AddShapesToNavMesh(const ezGameObject* pObject, ezMsgEx
   for (auto itChild = pObject->GetChildren(); itChild.IsValid(); ++itChild)
   {
     // ignore all children that are actors themselves
-    ezPxActorComponent* pActorComponent;
+    const ezPxActorComponent* pActorComponent;
     if (itChild->TryGetComponentOfBaseType<ezPxActorComponent>(pActorComponent))
       continue;
 
