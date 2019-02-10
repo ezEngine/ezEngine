@@ -12,7 +12,7 @@ Permutation variables solve this problem by creating different variants of the s
 In shader code, permutation variables are exposed as #define'd preprocessor variables and therefore can be evaluated like any other preprocessor directive.
 
 
-The Shader Render State Section
+The Shader Permutations Section
 -------------------------------
 
 Each shader is made up of several **sections**.
