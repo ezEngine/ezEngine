@@ -1,11 +1,5 @@
 #cmake
 
-# Use this to get all current variables of cmake
-#get_cmake_property(_variableNames VARIABLES)
-#foreach (_variableName ${_variableNames})
-#    message(STATUS "${_variableName}=${${_variableName}}")
-#endforeach()
-
 #########################################################################################
 ## CMAKE Policies
 
@@ -37,10 +31,6 @@ set (COMPILER_SETTINGS_DEBUG "")
 set (LINKER_SETTINGS_ALL "")
 set (LINKER_SETTINGS_RELEASE "")
 set (LINKER_SETTINGS_DEBUG "")
-
-# Doesn't work on OSX:
-#set (CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER}) # use the C++ compiler also for C code
-#set (CMAKE_DEBUG_POSTFIX "_d") # you could add a postfix for debug libraries here
 
 # set the default build type
 IF(NOT CMAKE_BUILD_TYPE)
@@ -239,7 +229,6 @@ if (BUILDSYSTEM_PLATFORM_WINDOWS)
   set (EZ_COMPILE_ENGINE_AS_DLL ON CACHE BOOL "Whether to compile the code as a shared libraries (DLL).")
 endif()
 
-#set (EZ_STRICT_WARNINGS OFF CACHE BOOL "Whether to compile the code with highest warning level. Good luck with that.")
 set (EZ_ENABLE_QT_SUPPORT ON CACHE BOOL "Whether to add Qt support.")
 set (EZ_QT_DIR $ENV{QTDIR} CACHE PATH "Directory of qt installation")
 set (EZ_QT_DIR_FOUND "NOT_FOUND" CACHE PATH "Last found directory of qt installation")
@@ -248,14 +237,10 @@ set (EZ_USE_PCH ON CACHE BOOL "Whether to use Precompiled Headers.")
 set (EZ_IGNORE_USERCONFIG_HEADER OFF CACHE BOOL "When disabled certain compile settings need to be configured through the UserConfig.h file in ezFoundation. When enabled those settings can be done from CMake. Do not enable this when you want to build ezEngine with CMake but then use that library in another project, as the settings in UserConfig.h and the pre-built library will differ.")
 set (EZ_ENABLE_D_SCRIPT OFF CACHE BOOL "If D Scripting should be enabled")
 set (EZ_USE_VISUALD OFF CACHE BOOL "If VisualD is installed on the system and should be used for D projects")
-set (EZ_BUILD_SAMPLES ON CACHE BOOL "Whether sample projects should be added to the solution")
-set (EZ_BUILD_GAMES OFF CACHE BOOL "Whether game projects should be added to the solution")
-set (EZ_BUILD_UNITTESTS ON CACHE BOOL "Whether unit-test projects should be added to the solution")
 set (EZ_BUILD_PHYSX OFF CACHE BOOL "Whether support for nVidia PhysX should be added")
 set (EZ_BUILD_KRAUT ON CACHE BOOL "Whether support for Kraut should be added")
 set (EZ_BUILD_FMOD OFF CACHE BOOL "Whether support for FMod should be added")
 set (EZ_BUILD_OFFICIAL_FBX_SDK OFF CACHE BOOL "Whether to use the official Autodesk FBX SDK or not")
-# set (EZ_BUILD_EMBREE OFF CACHE BOOL "Whether support for Embree should be added")
 set (EZ_BUILD_OPENVR OFF CACHE BOOL "Whether support for OpenVR aka. SteamVR should be added")
 set (EZ_ENABLE_FOLDER_UNITY_FILES ON CACHE BOOL "Whether unity cpp files should be created per folder")
 set (EZ_ENABLE_PVS_STUDIO_HEADER_IN_UNITY_FILES ON CACHE BOOL "Adds the necessary comment to the generated unity files for PVS checking")
@@ -536,7 +521,6 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER)
     endif()
 
     if (PCH_FOUND)
-      message (STATUS "Enabling Precompiled Header for this project.")
       set_source_files_properties(${PCH_CPP} PROPERTIES COMPILE_FLAGS "/Yc${PCH_H}")
 
       # Remove CMAKE's increase of the max pre-compiled header size (/Zm1000)
