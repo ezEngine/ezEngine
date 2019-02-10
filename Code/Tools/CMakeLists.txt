@@ -1,3 +1,3 @@
 #cmake
 
-include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_GlobTools.txt)
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_GlobTools.txt")

@@ -37,7 +37,7 @@ if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
   LIST(APPEND ADDITIONAL_DEPENDENCIES ShaderCompilerHLSL)
 endif()
 
-include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
 
 if (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
   # Adds this project to 'Tests.txt', notifying the build server to run this as a test.

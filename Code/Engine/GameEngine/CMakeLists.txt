@@ -36,4 +36,4 @@ if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP AND EZ_ENABLE_MIXEDREALITY_SUPPORT)
   LIST(APPEND LINK_LIBRARIES WindowsMixedReality)
 endif()
 
-include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")

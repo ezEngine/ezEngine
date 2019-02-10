@@ -47,7 +47,7 @@ foreach(CONF DEBUG RELEASE MINSIZE RELWITHDEB)
   string(REPLACE "/" "\\" DPOST_BUILD_${CONF}_FMT "${DPOST_BUILD_${CONF}_FMT}")
 endforeach()
 
-configure_file("${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/DMakeFileTemplate-${PROJECT_TYPE}.mak" "${MAKEFILENAME}" @ONLY)
+configure_file("${EZ_CMAKE_UTILS_PATH}/DMakeFileTemplate-${PROJECT_TYPE}.mak" "${MAKEFILENAME}" @ONLY)
 
 foreach(DFILE ${DFILES_LIST})
   get_filename_component(SRC_GRP "${DFILE}" DIRECTORY)

@@ -33,7 +33,7 @@ endif()
 
 set (BUILDSYSTEM_PREVENT_STATIC_CODE_ANALYSIS true)
 
-include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
 
 # This will break clang makefile builds:
 if(MSVC)

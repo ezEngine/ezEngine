@@ -21,4 +21,4 @@ SET (LINK_LIBRARIES
   Texture
 )
 
-include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")

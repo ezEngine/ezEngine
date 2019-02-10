@@ -8,7 +8,7 @@ get_filename_component (CUR_FOLDER_NAME ${CMAKE_CURRENT_LIST_DIR} NAME_WE)
 # push the folder name
 list (APPEND LIST_CURRENT_FOLDER ${CMAKE_CURRENT_LIST_DIR}/../../RendererGL/)
 
-	include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_LibraryFolder.txt)
+	include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_LibraryFolder.txt")
 
 # pop the folder name
 list (REMOVE_AT LIST_CURRENT_FOLDER -1)

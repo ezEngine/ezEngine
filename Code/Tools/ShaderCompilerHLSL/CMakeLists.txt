@@ -22,4 +22,4 @@ SET (LINK_LIBRARIES
 
 BUILD_REQUIRES_DX11()
 
-include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")

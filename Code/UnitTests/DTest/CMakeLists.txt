@@ -23,4 +23,4 @@ SET (LINK_LIBRARIES
 # we want this library to always end up as a static library
 set (EZ_COMPILE_ENGINE_AS_DLL 0)
 
-include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")

@@ -32,6 +32,6 @@ SET (LINK_LIBRARIES
   GuiFoundation
 )
 
-include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
 
 

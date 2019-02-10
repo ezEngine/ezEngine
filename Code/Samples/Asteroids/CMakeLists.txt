@@ -48,4 +48,4 @@ if(BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
   #source_group("Content Files" FILES ${CONTENT_FILES})  # Todo: Either recursive folder or just hide
 endif()
 
-include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")

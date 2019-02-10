@@ -37,5 +37,5 @@ SET (EZ_COPY_QT_DLLS ON)
 #  testWidget.h
 #)
 
-include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
 

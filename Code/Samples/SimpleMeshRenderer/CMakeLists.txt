@@ -40,4 +40,4 @@ endif()
 # Set this to true, if your application is a real win32 app (not a console app)
 SET (IS_WIN32_APPLICATION true)
 
-include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")

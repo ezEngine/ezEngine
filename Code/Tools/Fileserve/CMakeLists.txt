@@ -33,4 +33,4 @@ if (EZ_ENABLE_QT_SUPPORT)
 endif()
 
 
-include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")

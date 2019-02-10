@@ -72,7 +72,7 @@ SET (LINK_LIBRARIES
 )
 
 
-include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E copy_if_different

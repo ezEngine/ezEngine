@@ -38,4 +38,4 @@ SET (LINK_LIBRARIES
   SharedPluginAssets
 )
 
-include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
