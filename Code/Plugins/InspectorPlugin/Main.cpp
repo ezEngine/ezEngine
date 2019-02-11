@@ -3,12 +3,7 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Startup.h>
 
-void OnLoadPlugin(bool bReloading) {}
-void OnUnloadPlugin(bool bReloading) {}
-
-ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
-
-EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_INSPECTORPLUGIN_DLL, ezInspectorPlugin);
+ezPlugin g_Plugin(false);
 
 void AddLogWriter();
 void RemoveLogWriter();

@@ -1,11 +1,11 @@
 #pragma once
 
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <FmodPlugin/FmodPluginDLL.h>
-#include <GameEngine/Interfaces/SoundInterface.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Singleton.h>
-#include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <GameEngine/Interfaces/SoundInterface.h>
 
 struct ezGameApplicationExecutionEvent;
 class ezOpenDdlWriter;
@@ -26,9 +26,10 @@ enum class ezFmodSpeakerMode : ezUInt8
 struct EZ_FMODPLUGIN_DLL ezFmodConfiguration
 {
   ezString m_sMasterSoundBank;
-  ezFmodSpeakerMode m_SpeakerMode = ezFmodSpeakerMode::Mode5Point1; ///< This must be set to what is configured in Fmod Studio for the target platform. Using anything else is incorrect.
-  ezUInt16 m_uiVirtualChannels = 32; ///< See FMOD::Studio::System::initialize
-  ezUInt32 m_uiSamplerRate = 0; ///< See FMOD::System::setSoftwareFormat
+  ezFmodSpeakerMode m_SpeakerMode = ezFmodSpeakerMode::Mode5Point1; ///< This must be set to what is configured in Fmod Studio for the
+                                                                    ///< target platform. Using anything else is incorrect.
+  ezUInt16 m_uiVirtualChannels = 32;                                ///< See FMOD::Studio::System::initialize
+  ezUInt32 m_uiSamplerRate = 0;                                     ///< See FMOD::System::setSoftwareFormat
 
   void Save(ezOpenDdlWriter& ddl) const;
   void Load(const ezOpenDdlReaderElement& ddl);
@@ -37,7 +38,7 @@ struct EZ_FMODPLUGIN_DLL ezFmodConfiguration
   bool operator!=(const ezFmodConfiguration& rhs) const { return !operator==(rhs); }
 };
 
-/// \brief All available fmod platform configurations 
+/// \brief All available fmod platform configurations
 struct EZ_FMODPLUGIN_DLL ezFmodAssetProfiles
 {
   ezResult Save(const char* szFile) const;
@@ -78,7 +79,8 @@ public:
   virtual void SetMasterChannelMute(bool mute) override;
   virtual bool GetMasterChannelMute() const override;
 
-  /// \brief Allows to pause all sounds. Useful for when the application goes to a background state and you want to pause all sounds, instead of mute them.
+  /// \brief Allows to pause all sounds. Useful for when the application goes to a background state and you want to pause all sounds,
+  /// instead of mute them.
   virtual void SetMasterChannelPaused(bool paused) override;
   virtual bool GetMasterChannelPaused() const override;
 
@@ -109,7 +111,8 @@ public:
 
 
   virtual void SetListenerOverrideMode(bool enabled) override;
-  virtual void SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& vForward, const ezVec3& vUp, const ezVec3& vVelocity) override;
+  virtual void SetListener(
+    ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& vForward, const ezVec3& vUp, const ezVec3& vVelocity) override;
   ezVec3 GetListenerPosition() { return m_ListenerPosition; }
 
 private:
@@ -119,7 +122,6 @@ private:
   mutable ezMutex m_DeletionQueueMutex;
 
 private:
-
   void DetectPlatform();
   ezResult LoadMasterSoundBank(const char* szMasterBankResourceID);
 
@@ -143,5 +145,3 @@ private:
 
   ezUniquePtr<Data> m_pData;
 };
-
-EZ_DYNAMIC_PLUGIN_DECLARATION(EZ_FMODPLUGIN_DLL, ezFmodPlugin);

@@ -41,9 +41,4 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Kraut, KrautPlugin)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-void OnLoadPlugin(bool bReloading) {}
-void OnUnloadPlugin(bool bReloading) {}
-
-ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
-
-EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_KRAUTPLUGIN_DLL, ezKrautPlugin);
+ezPlugin g_Plugin(false);

@@ -12,8 +12,6 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <RendererCore/AnimationSystem/EditableSkeleton.h>
 
-EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_MODELIMPORTER_DLL, ezModelImporter);
-
 EZ_IMPLEMENT_SINGLETON(ezModelImporter::Importer);
 
 namespace ezModelImporter

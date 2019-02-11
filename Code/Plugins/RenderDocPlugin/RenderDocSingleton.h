@@ -1,9 +1,9 @@
 #pragma once
 
-#include <RenderDocPlugin/RenderDocPluginDLL.h>
-#include <GameEngine/Interfaces/FrameCaptureInterface.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Singleton.h>
+#include <GameEngine/Interfaces/FrameCaptureInterface.h>
+#include <RenderDocPlugin/RenderDocPluginDLL.h>
 
 struct RENDERDOC_API_1_4_0;
 
@@ -34,10 +34,6 @@ public:
   virtual ezResult GetLastAbsCaptureFileName(ezStringBuilder& out_sFileName) const override;
 
 private:
-
   RENDERDOC_API_1_4_0* m_pRenderDocAPI = nullptr;
   HMODULE m_HandleToFree = nullptr;
-
 };
-
-EZ_DYNAMIC_PLUGIN_DECLARATION(EZ_RENDERDOCPLUGIN_DLL, ezRenderDocPlugin);

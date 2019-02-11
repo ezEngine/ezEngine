@@ -38,8 +38,8 @@ void OnLoadPlugin(bool bReloading)
     {
       ezActionMapManager::RegisterActionMap("CollisionMeshAssetMenuBar");
       ezProjectActions::MapActions("CollisionMeshAssetMenuBar");
-      ezStandardMenus::MapActions("CollisionMeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit |
-                                                                   ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions("CollisionMeshAssetMenuBar",
+        ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezDocumentActions::MapActions("CollisionMeshAssetMenuBar", "Menu.File", false);
       ezCommandHistoryActions::MapActions("CollisionMeshAssetMenuBar", "Menu.Edit");
     }
@@ -74,9 +74,6 @@ void OnUnloadPlugin(bool bReloading)
 }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin, "ezEditorPluginScene", "ezPhysXPlugin");
-
-EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_EDITORPLUGINPHYSX_DLL, ezEditorPluginPhysX);
-
 
 
 void UpdateCollisionLayerDynamicEnumValues()

@@ -1,8 +1,8 @@
 #include <RenderDocPluginPCH.h>
 
-#include <RenderDocPlugin/RenderDocPluginDLL.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Strings/TranslationLookup.h>
+#include <RenderDocPlugin/RenderDocPluginDLL.h>
 
 EZ_STATICLINK_LIBRARY(RenderDocPlugin)
 {
@@ -12,9 +12,4 @@ EZ_STATICLINK_LIBRARY(RenderDocPlugin)
   EZ_STATICLINK_REFERENCE(RenderDocPlugin_RenderDocSingleton);
 }
 
-void OnLoadPlugin(bool bReloading) {}
-void OnUnloadPlugin(bool bReloading) {}
-
-ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
-
-EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_RENDERDOCPLUGIN_DLL, ezRenderDocPlugin);
+ezPlugin g_Plugin(false);

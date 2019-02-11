@@ -45,12 +45,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 //////////////////////////////////////////////////////////////////////////
 
-void OnLoadPlugin(bool bReloading) {}
-void OnUnloadPlugin(bool bReloading) {}
-
-ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
-
-EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_PHYSXPLUGIN_DLL, ezPhysXPlugin);
+ezPlugin g_Plugin(false);
 
 
 

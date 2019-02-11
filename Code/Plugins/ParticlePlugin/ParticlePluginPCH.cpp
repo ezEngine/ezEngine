@@ -1,8 +1,8 @@
 #include <ParticlePluginPCH.h>
 
 #include <Foundation/Configuration/Plugin.h>
-#include <ParticlePlugin/ParticlePluginDLL.h>
 #include <ParticlePlugin/Declarations.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
 
 // clang-format off
 
@@ -46,12 +46,7 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 // clang-format on
 
-void OnLoadPlugin(bool bReloading) {}
-void OnUnloadPlugin(bool bReloading) {}
-
-ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
-
-EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_PARTICLEPLUGIN_DLL, ezParticlePlugin);
+ezPlugin g_Plugin(false);
 
 //////////////////////////////////////////////////////////////////////////
 

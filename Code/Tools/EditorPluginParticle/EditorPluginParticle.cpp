@@ -29,8 +29,8 @@ void OnLoadPlugin(bool bReloading)
     {
       ezActionMapManager::RegisterActionMap("ParticleEffectAssetMenuBar");
       ezProjectActions::MapActions("ParticleEffectAssetMenuBar");
-      ezStandardMenus::MapActions("ParticleEffectAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit |
-                                                                    ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions("ParticleEffectAssetMenuBar",
+        ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezDocumentActions::MapActions("ParticleEffectAssetMenuBar", "Menu.File", false);
       ezCommandHistoryActions::MapActions("ParticleEffectAssetMenuBar", "Menu.Edit");
     }
@@ -57,5 +57,3 @@ void OnLoadPlugin(bool bReloading)
 void OnUnloadPlugin(bool bReloading) {}
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
-
-EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_EDITORPLUGINPARTICLE_DLL, ezEditorPluginParticle);

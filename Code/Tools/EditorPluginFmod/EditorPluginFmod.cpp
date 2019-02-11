@@ -25,10 +25,10 @@ void OnLoadPlugin(bool bReloading)
 
   // Mesh Asset
   {// Menu Bar
-   {ezActionMapManager::RegisterActionMap("SoundBankAssetMenuBar");
+    {ezActionMapManager::RegisterActionMap("SoundBankAssetMenuBar");
   ezProjectActions::MapActions("SoundBankAssetMenuBar");
-  ezStandardMenus::MapActions("SoundBankAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels |
-                                                           ezStandardMenuTypes::Help);
+  ezStandardMenus::MapActions("SoundBankAssetMenuBar",
+    ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
   ezDocumentActions::MapActions("SoundBankAssetMenuBar", "Menu.File", false);
   ezCommandHistoryActions::MapActions("SoundBankAssetMenuBar", "Menu.Edit");
 }
@@ -73,5 +73,3 @@ static void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
 
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin, "ezEditorPluginScene");
-
-EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_EDITORPLUGINFMOD_DLL, ezEditorPluginFmod);

@@ -21,11 +21,11 @@ void OnLoadPlugin(bool bReloading)
 
   // Asset
   {// Menu Bar
-   {const char* szMenuBar = "ProceduralPlacementAssetMenuBar";
+    {const char* szMenuBar = "ProceduralPlacementAssetMenuBar";
   ezActionMapManager::RegisterActionMap(szMenuBar);
   ezProjectActions::MapActions(szMenuBar);
-  ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels |
-                                             ezStandardMenuTypes::Help);
+  ezStandardMenus::MapActions(
+    szMenuBar, ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
   ezDocumentActions::MapActions(szMenuBar, "Menu.File", false);
   ezCommandHistoryActions::MapActions(szMenuBar, "Menu.Edit");
 }
@@ -71,5 +71,3 @@ void OnUnloadPlugin(bool bReloading)
 
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin, "ezEditorPluginScene");
-
-EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_EDITORPLUGINPROCEDURALPLACEMENT_DLL, ezEditorPluginProceduralPlacement);

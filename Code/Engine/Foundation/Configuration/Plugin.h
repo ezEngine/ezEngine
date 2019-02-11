@@ -140,34 +140,3 @@ private:
   static ezInt32 s_iPluginChangeRecursionCounter;
 };
 
-
-/// \brief Insert this into a common header file of a plugin that is typically loaded dynamically, to enable easy integration for static linking as well.
-///
-/// This macro will declare some dummy variable to ensure that a plugin is always referenced (and thus linked into an application),
-/// if that header with the declaration in it has been included in an application.
-/// This enables integrating a library which is typically loaded dynamically, statically into an application.
-///
-/// Note that once the header that contains this macro has been included, the static reference is always there and thus linking
-/// to the library is inevitable. If the library should be loaded dynamically, the application shouldn't even include any of its headers.
-///
-/// This macro also ensures that a plugin DLL exports any symbols at all, which is necessary on Windows to have a .lib and .exp file generated,
-/// which is in turn required to statically link against the library.
-#define EZ_DYNAMIC_PLUGIN_DECLARATION(LINKAGE, Plugin) \
-                                                       \
-  LINKAGE void ezPluginHelper_##Plugin();              \
-                                                       \
-  class ezDynamicPluginHelper_##Plugin                 \
-  {                                                    \
-  public:                                              \
-    ezDynamicPluginHelper_##Plugin()                   \
-    {                                                  \
-      ezPluginHelper_##Plugin();                       \
-    }                                                  \
-  };                                                   \
-                                                       \
-  static ezDynamicPluginHelper_##Plugin ezPluginHelperVar_##Plugin
-
-/// \brief The counter part to EZ_DYNAMIC_PLUGIN_DECLARATION. Must be put into some cpp file of a plugin.
-#define EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(LINKAGE, Plugin) \
-  LINKAGE void ezPluginHelper_##Plugin() {}
-

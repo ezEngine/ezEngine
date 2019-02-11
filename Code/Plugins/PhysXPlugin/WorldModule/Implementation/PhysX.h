@@ -1,12 +1,12 @@
-﻿#pragma once
+#pragma once
 
-#include <PhysXPlugin/PhysXInterface.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Memory/CommonAllocators.h>
-#include <GameEngine/Surfaces/SurfaceResource.h>
 #include <GameEngine/CollisionFilter/CollisionFilter.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <GameEngine/Surfaces/SurfaceResource.h>
+#include <PhysXPlugin/PhysXInterface.h>
 
 #include <PxPhysicsAPI.h>
 using namespace physx;
@@ -37,7 +37,8 @@ public:
 class ezPxQueryFilter : public PxQueryFilterCallback
 {
 public:
-  virtual PxQueryHitType::Enum preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags) override;
+  virtual PxQueryHitType::Enum preFilter(
+    const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags) override;
   virtual PxQueryHitType::Enum postFilter(const PxFilterData& filterData, const PxQueryHit& hit) override;
 };
 
@@ -83,5 +84,3 @@ private:
   PxPvd* m_PvdConnection;
   ezCollisionFilterConfig m_CollisionFilterConfig;
 };
-
-EZ_DYNAMIC_PLUGIN_DECLARATION(EZ_PHYSXPLUGIN_DLL, ezPhysXPlugin);

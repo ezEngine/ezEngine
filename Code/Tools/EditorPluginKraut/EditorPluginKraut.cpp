@@ -9,12 +9,12 @@
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
+#include <EditorFramework/Actions/AssetActions.h>
+#include <EditorFramework/Actions/ProjectActions.h>
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetObjects.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/UIServices/DynamicEnums.h>
 #include <PhysXCooking/PhysXCooking.h>
-#include <EditorFramework/Actions/ProjectActions.h>
-#include <EditorFramework/Actions/AssetActions.h>
 
 void OnLoadPlugin(bool bReloading)
 {
@@ -28,8 +28,8 @@ void OnLoadPlugin(bool bReloading)
     {
       ezActionMapManager::RegisterActionMap("KrautTreeAssetMenuBar");
       ezProjectActions::MapActions("KrautTreeAssetMenuBar");
-      ezStandardMenus::MapActions("KrautTreeAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit |
-                                                                   ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions("KrautTreeAssetMenuBar",
+        ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezDocumentActions::MapActions("KrautTreeAssetMenuBar", "Menu.File", false);
       ezCommandHistoryActions::MapActions("KrautTreeAssetMenuBar", "Menu.Edit");
     }
@@ -44,10 +44,6 @@ void OnLoadPlugin(bool bReloading)
   }
 }
 
-void OnUnloadPlugin(bool bReloading)
-{
-}
+void OnUnloadPlugin(bool bReloading) {}
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin, "ezEditorPluginScene");
-
-EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_EDITORPLUGINKRAUT_DLL, ezEditorPluginKraut);
