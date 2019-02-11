@@ -61,7 +61,7 @@ struct ezHashHelper<ezInt32>
 {
   EZ_ALWAYS_INLINE static ezUInt32 Hash(ezInt32 value)
   {
-    return value * 2654435761U;
+    return ezHashHelper<ezUInt32>::Hash(ezUInt32(value));
   }
 
   EZ_ALWAYS_INLINE static bool Equal(ezInt32 a, ezInt32 b)
@@ -75,7 +75,10 @@ struct ezHashHelper<ezUInt64>
 {
   EZ_ALWAYS_INLINE static ezUInt32 Hash(ezUInt64 value)
   {
-    return ezUInt32(value * 2654435761U);
+    // boost::hash_combine.
+    ezUInt32 a = ezUInt32(value >> 32);
+    ezUInt32 b = ezUInt32(value);
+    return a ^ (b + 0x9e3779b9 + (a << 6) + (b >> 2));
   }
 
   EZ_ALWAYS_INLINE static bool Equal(ezUInt64 a, ezUInt64 b)
@@ -89,7 +92,7 @@ struct ezHashHelper<ezInt64>
 {
   EZ_ALWAYS_INLINE static ezUInt32 Hash(ezInt64 value)
   {
-    return ezUInt32(value * 2654435761U);
+    return ezHashHelper<ezUInt64>::Hash(ezUInt64(value));
   }
 
   EZ_ALWAYS_INLINE static bool Equal(ezInt64 a, ezInt64 b)
@@ -117,7 +120,7 @@ struct ezHashHelper<T*>
 {
   EZ_ALWAYS_INLINE static ezUInt32 Hash(T* value)
   {
-    return ezUInt32((reinterpret_cast<size_t>(value) >> 4) * 2654435761U);
+    return ezHashHelper<size_t>::Hash(reinterpret_cast<size_t>(value) >> 4);
   }
 
   EZ_ALWAYS_INLINE static bool Equal(T* a, T* b)
@@ -125,4 +128,3 @@ struct ezHashHelper<T*>
     return a == b;
   }
 };
-

@@ -14,6 +14,7 @@ struct ezTime;
 class ezUuid;
 struct ezStringView;
 
+typedef ezDynamicArray<ezUInt8> ezDataBuffer;
 typedef ezDynamicArray<ezVariant> ezVariantArray;
 typedef ezHashTable<ezString, ezVariant> ezVariantDictionary;
 
@@ -116,12 +117,6 @@ public:
   /// \brief Moves the data from the other variant.
   ezVariant(ezVariant&& other); // [tested]
 
-  /// \brief Deduces the type of the passed argument and stores that type in the variant.
-  ///
-  /// If the type to be stored in the variant is not supported, a compile time error will occur.
-  template <typename T>
-  explicit ezVariant(const T& value); // [tested]
-
   ezVariant(const bool& value);
   ezVariant(const ezInt8& value);
   ezVariant(const ezUInt8& value);
@@ -148,17 +143,19 @@ public:
   ezVariant(const ezMat4& value);
   ezVariant(const ezTransform& value);
   ezVariant(const char* value);
-  template <size_t N>
-  ezVariant(const char(&value)[N]);
+  ezVariant(const ezString& value);
+  ezVariant(const ezUntrackedString& value);
   ezVariant(const ezStringView& value);
+  ezVariant(const ezDataBuffer& value);
   ezVariant(const ezTime& value);
   ezVariant(const ezUuid& value);
   ezVariant(const ezAngle& value);
   ezVariant(const ezColorGammaUB& value);
 
-
   ezVariant(const ezVariantArray& value);
   ezVariant(const ezVariantDictionary& value);
+  ezVariant(ezReflectedClass* value);
+  ezVariant(void* value);
 
   /// \brief If necessary, this will deallocate any heap memory that is not in use any more.
   ~ezVariant();
@@ -308,8 +305,8 @@ private:
 
   public:
     EZ_ALWAYS_INLINE TypedSharedData(const T& value)
-        : SharedData(&m_t)
-        , m_t(value)
+      : SharedData(&m_t)
+      , m_t(value)
     {
     }
   };
@@ -323,13 +320,10 @@ private:
   ezUInt32 m_bIsShared : 1;
 
   template <typename T>
-  void Init(const T& value);
+  void InitInplace(const T& value);
 
-  template <typename StorageType, typename T>
-  void Store(const T& value, ezTraitInt<0>); // in-place storage
-
-  template <typename StorageType, typename T>
-  void Store(const T& value, ezTraitInt<1>); // shared storage
+  template <typename T>
+  void InitShared(const T& value);
 
   void Release();
   void CopyFrom(const ezVariant& other);
@@ -349,7 +343,6 @@ private:
 };
 
 typedef ezVariant::Type ezVariantType;
-typedef ezDynamicArray<ezUInt8> ezDataBuffer;
 
 #include <Foundation/Types/Implementation/VariantHelper_inl.h>
 #include <Foundation/Types/Implementation/VariantTypeDeduction_inl.h>

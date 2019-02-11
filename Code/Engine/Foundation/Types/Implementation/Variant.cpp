@@ -8,6 +8,66 @@ EZ_CHECK_AT_COMPILETIME(sizeof(ezVariant) == 24);
 EZ_CHECK_AT_COMPILETIME(sizeof(ezVariant) == 20);
 #endif
 
+/// constructors
+
+ezVariant::ezVariant(const ezMat3& value)
+{
+  InitShared(value);
+}
+
+ezVariant::ezVariant(const ezMat4& value)
+{
+  InitShared(value);
+}
+
+ezVariant::ezVariant(const ezTransform& value)
+{
+  InitShared(value);
+}
+
+ezVariant::ezVariant(const char* value)
+{
+  InitShared(value);
+}
+
+ezVariant::ezVariant(const ezString& value)
+{
+  InitShared(value);
+}
+
+ezVariant::ezVariant(const ezUntrackedString& value)
+{
+  InitShared(value);
+}
+
+ezVariant::ezVariant(const ezDataBuffer& value)
+{
+  InitShared(value);
+}
+
+ezVariant::ezVariant(const ezVariantArray& value)
+{
+  InitShared(value);
+}
+
+ezVariant::ezVariant(const ezVariantDictionary& value)
+{
+  InitShared(value);
+}
+
+template <typename T>
+EZ_ALWAYS_INLINE void ezVariant::InitShared(const T& value)
+{
+  typedef typename TypeDeduction<T>::StorageType StorageType;
+
+  EZ_CHECK_AT_COMPILETIME_MSG((sizeof(StorageType) > sizeof(Data)) || TypeDeduction<T>::forceSharing, "value of this type should be stored inplace");
+  EZ_CHECK_AT_COMPILETIME_MSG(TypeDeduction<T>::value != Type::Invalid, "value of this type cannot be stored in a Variant");
+
+  m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>, value);
+  m_Type = TypeDeduction<T>::value;
+  m_bIsShared = true;
+}
+
 /// functors
 
 struct ComputeHashFunc

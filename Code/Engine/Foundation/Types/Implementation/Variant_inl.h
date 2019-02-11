@@ -15,181 +15,149 @@ EZ_ALWAYS_INLINE ezVariant::ezVariant(ezVariant&& other)
   MoveFrom(std::move(other));
 }
 
-template <typename T>
-EZ_ALWAYS_INLINE ezVariant::ezVariant(const T& value)
-{
-  Init(value);
-}
-
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const bool& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezInt8& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezUInt8& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezInt16& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezUInt16& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezInt32& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezUInt32& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezInt64& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezUInt64& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const float& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const double& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezColor& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec2& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec3& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec4& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec2I32& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec3I32& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec4I32& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec2U32& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec3U32& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec4U32& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezQuat& value)
 {
-  Init(value);
-}
-
-EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezMat3& value)
-{
-  Init(value);
-}
-
-EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezMat4& value)
-{
-  Init(value);
-}
-
-EZ_ALWAYS_INLINE ezVariant::ezVariant(const char* value)
-{
-  Init(value);
-}
-
-template <size_t N>
-EZ_ALWAYS_INLINE ezVariant::ezVariant(const char (&value)[N])
-{
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezStringView& value)
 {
-  Init(value);
-}
-
-EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezTransform& value)
-{
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezTime& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezUuid& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezAngle& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezColorGammaUB& value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
-EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVariantArray& value)
+EZ_ALWAYS_INLINE ezVariant::ezVariant(ezReflectedClass* value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
-EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVariantDictionary& value)
+EZ_ALWAYS_INLINE ezVariant::ezVariant(void* value)
 {
-  Init(value);
+  InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::~ezVariant()
@@ -218,8 +186,7 @@ EZ_ALWAYS_INLINE void ezVariant::operator=(ezVariant&& other)
 template <typename T>
 EZ_ALWAYS_INLINE void ezVariant::operator=(const T& value)
 {
-  Release();
-  Init(value);
+  *this = ezVariant(value);
 }
 
 EZ_ALWAYS_INLINE bool ezVariant::operator!=(const ezVariant& other) const
@@ -503,29 +470,14 @@ void ezVariant::DispatchTo(Functor& functor, Type::Enum type)
 /// private methods
 
 template <typename T>
-EZ_FORCE_INLINE void ezVariant::Init(const T& value)
+EZ_FORCE_INLINE void ezVariant::InitInplace(const T& value)
 {
   EZ_CHECK_AT_COMPILETIME_MSG(TypeDeduction<T>::value != Type::Invalid, "value of this type cannot be stored in a Variant");
-
-  m_Type = TypeDeduction<T>::value;
-
-  Store<typename TypeDeduction<T>::StorageType, T>(value, ezTraitInt < (sizeof(typename TypeDeduction<T>::StorageType) > sizeof(Data)) ||
-                                                              TypeDeduction<T>::forceSharing > ());
-}
-
-template <typename StorageType, typename T>
-EZ_FORCE_INLINE void ezVariant::Store(const T& value, ezTraitInt<0>)
-{
   EZ_CHECK_AT_COMPILETIME_MSG(ezIsPodType<T>::value, "in place data needs to be POD");
   ezMemoryUtils::CopyConstruct(reinterpret_cast<T*>(&m_Data), value, 1);
-  m_bIsShared = false;
-}
 
-template <typename StorageType, typename T>
-EZ_ALWAYS_INLINE void ezVariant::Store(const T& value, ezTraitInt<1>)
-{
-  m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>, value);
-  m_bIsShared = true;
+  m_Type = TypeDeduction<T>::value;
+  m_bIsShared = false;
 }
 
 inline void ezVariant::Release()
