@@ -155,7 +155,17 @@ EZ_ALWAYS_INLINE ezVariant::ezVariant(ezReflectedClass* value)
   InitInplace(value);
 }
 
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezReflectedClass* value)
+{
+  InitInplace(value);
+}
+
 EZ_ALWAYS_INLINE ezVariant::ezVariant(void* value)
+{
+  InitInplace(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const void* value)
 {
   InitInplace(value);
 }

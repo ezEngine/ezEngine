@@ -155,7 +155,9 @@ public:
   ezVariant(const ezVariantArray& value);
   ezVariant(const ezVariantDictionary& value);
   ezVariant(ezReflectedClass* value);
+  ezVariant(const ezReflectedClass* value);
   ezVariant(void* value);
+  ezVariant(const void* value);
 
   /// \brief If necessary, this will deallocate any heap memory that is not in use any more.
   ~ezVariant();

@@ -6,14 +6,6 @@
 #include <Texture/Image/Formats/DdsFileFormat.h>
 #include <Texture/ezTexFormat/ezTexFormat.h>
 
-/* TODO LIST:
-
-- better texture atlas mipmap generation
-
-- docs for params / help
-*/
-
-
 ezTexConv2::ezTexConv2()
   : ezApplication("TexConv2")
 {
@@ -188,7 +180,6 @@ ezResult ezTexConv2::DetectOutputFormat()
   return EZ_FAILURE;
 }
 
-
 bool ezTexConv2::IsTexFormat() const
 {
   const ezStringView ext = ezPathUtils::GetFileExtension(m_sOutputFile);
@@ -262,7 +253,7 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
     return ezApplication::ApplicationExecution::Quit;
   }
 
-  if (!m_sOutputFile.IsEmpty())
+  if (!m_sOutputFile.IsEmpty() && m_Processor.m_OutputImage.IsValid())
   {
     if (WriteOutputFile(m_sOutputFile, m_Processor.m_OutputImage).Failed())
     {
@@ -273,7 +264,7 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
     ezLog::Success("Wrote main result to '{}'", m_sOutputFile);
   }
 
-  if (!m_sOutputThumbnailFile.IsEmpty())
+  if (!m_sOutputThumbnailFile.IsEmpty() && m_Processor.m_ThumbnailOutputImage.IsValid())
   {
     if (m_Processor.m_ThumbnailOutputImage.SaveTo(m_sOutputThumbnailFile).Failed())
     {
@@ -289,16 +280,16 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
     // the image may not exist, if we do not have enough mips, so make sure any old low-res file is cleaned up
     ezOSFile::DeleteFile(m_sOutputLowResFile);
 
-    if (m_Processor.m_LowResOutputImage.GetNumMipLevels() > 1)
+    if (m_Processor.m_LowResOutputImage.IsValid())
     {
       if (WriteOutputFile(m_sOutputLowResFile, m_Processor.m_LowResOutputImage).Failed())
       {
         ezLog::Error("Failed to write low-res result to '{}'", m_sOutputLowResFile);
         return ezApplication::ApplicationExecution::Quit;
       }
-    }
 
-    ezLog::Success("Wrote low-res result to '{}'", m_sOutputLowResFile);
+      ezLog::Success("Wrote low-res result to '{}'", m_sOutputLowResFile);
+    }
   }
 
   return ezApplication::ApplicationExecution::Quit;

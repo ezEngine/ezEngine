@@ -112,6 +112,21 @@ void ezTexConv2::PrintOptionValues(const char* szOption, const ezDynamicArray<Ke
   }
 }
 
+void ezTexConv2::PrintOptionValuesHelp(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed) const
+{
+  ezStringBuilder out(szOption, " ");
+
+  for (ezUInt32 i = 0; i < allowed.GetCount(); ++i)
+  {
+    if (i > 0)
+      out.Append(" | ");
+
+    out.Append(allowed[i].m_szKey);
+  }
+
+  ezLog::Info(out);
+}
+
 bool ezTexConv2::ParseFile(const char* szOption, ezString& result) const
 {
   const auto pCmd = ezCommandLineUtils::GetGlobalInstance();

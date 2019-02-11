@@ -4,6 +4,85 @@
 
 ezResult ezTexConv2::ParseCommandLine()
 {
+  auto* pCmd = ezCommandLineUtils::GetGlobalInstance();
+  if (pCmd->GetBoolOption("-help") || pCmd->GetBoolOption("--help") || pCmd->GetBoolOption("-h"))
+  {
+    ezLog::Info("ezTexConv Help:");
+    ezLog::Info("");
+    ezLog::Info("  -out \"File.ext\"");
+    ezLog::Info("     Absolute path to main output file");
+    ezLog::Info("     ext = tga, dds, ezTexture2D, ezTexture3D, ezTextureCube or ezTextureAtlas.");
+    ezLog::Info("");
+    ezLog::Info("  -inX \"File\"");
+    ezLog::Info("    Specifies input image X.");
+    ezLog::Info("    X = 0 .. 63, e.g. -in0, -in1, etc.");
+    ezLog::Info("    If X is not given, X equals 0.");
+    ezLog::Info("");
+    ezLog::Info("  -r / -rg / -rgb / -rgba inX.rgba");
+    ezLog::Info("    Specifies how many output channels are used (1 - 4) and from which input image to take the data.");
+    ezLog::Info("    Examples:");
+    ezLog::Info("    -rgba in0 -> Output has 4 channels, all taken from input image 0.");
+    ezLog::Info("    -rgb in0 -> Output has 3 channels, all taken from input image 0.");
+    ezLog::Info("    -rgb in0 -a in1.r -> Output has 4 channels, RGB taken from input image 0 (RGB) Alpha taken from input 1 (Red).");
+    ezLog::Info("    -rgb in0.bgr -> Output has 3 channels, taken from image 0 and swapped blue and red.");
+    ezLog::Info("    -r in0.r -g in1.r -b in2.r -a in3.r -> Output has 4 channels, each one taken from another input image (Red).");
+    ezLog::Info("    -rgb0 in0 -rgb1 in1 -rgb2 in2 -rgb3 in3 -rgb4 in4 -rgb5 in5 -> Output has 3 channels and six faces (-type Cubemap), built from 6 images.");
+
+    ezLog::Info("");
+    ezLog::Info("  -thumbnailOut \"File.ext\"");
+    ezLog::Info("     Absolute path to 2D thumbnail file.");
+    ezLog::Info("     ext = tga, jpg, png");
+    ezLog::Info("  -thumbnailRes Number");
+    ezLog::Info("     Thumbnail resolution. Should be a power-of-two.");
+    ezLog::Info("");
+    ezLog::Info("  -lowOut \"File.ext\"");
+    ezLog::Info("     Absolute path to low-resolution output file.");
+    ezLog::Info("     ext = Same as main output");
+    ezLog::Info("  -lowMips Number");
+    ezLog::Info("     Number of mipmaps to use from main result as low-res data.");
+    ezLog::Info("");
+    PrintOptionValuesHelp("  -type", m_AllowedOutputTypes);
+    ezLog::Info("     The type of output to generate.");
+    ezLog::Info("");
+    ezLog::Info("  -assetVersion Number");
+    ezLog::Info("     Asset version number to embed in ez specific output formats.");
+    ezLog::Info("  -assetHashLow 0xHEX_VALUE / -assetHashHigh 0xHEX_VALUE");
+    ezLog::Info("     Low and high part of a 64 bit asset hash value.");
+    ezLog::Info("     Required to be non-zero when using ez specific output formats.");
+    ezLog::Info("");
+    PrintOptionValuesHelp("  -compression", m_AllowedCompressionModes);
+    ezLog::Info("     Compression strength for output format.");
+    ezLog::Info("");
+    PrintOptionValuesHelp("  -usage", m_AllowedUsages);
+    ezLog::Info("     What type of data the image contains. Affects which final output format is used and how mipmaps are generated.");
+    ezLog::Info("");
+    PrintOptionValuesHelp("  -mipmaps", m_AllowedMimapModes);
+    ezLog::Info("     Whether to generate mipmaps and with which algorithm.");
+    ezLog::Info("  -mipsPerserveCoverage");
+    ezLog::Info("     Whether to preserve alpha-coverage in mipmaps for alpha-tested geometry.");
+    ezLog::Info("  -mipsAlphaThreshold float [0; 1]");
+    ezLog::Info("     Alpha threshold used by renderer for alpha-testing, when alpha-coverage should be preserved.");
+    ezLog::Info("");
+    PrintOptionValuesHelp("  -addressU/V/W", m_AllowedWrapModes);
+    ezLog::Info("     Which texture address mode to use along U/V/W. Only supported by ez-specific output formats.");
+    PrintOptionValuesHelp("  -filter", m_AllowedFilterModes);
+    ezLog::Info("     Which texture filter mode to use at runtime. Only supported by ez-specific output formats.");
+    ezLog::Info("");
+    ezLog::Info("  -minRes / -maxRes Number");
+    ezLog::Info("    The minimum and maximum resolution allowed for the output.");
+    ezLog::Info("  -downscale Number");
+    ezLog::Info("    How often to half the input texture resolution.");
+    ezLog::Info("");
+    ezLog::Info("  -flip_horz");
+    ezLog::Info("    Whether to flip the output horizontally.");
+    ezLog::Info("  -premulalpha");
+    ezLog::Info("    Whether to multiply the alpha channel into the RGB channels.");
+    ezLog::Info("  -hdrExposure float [-20;+20]");
+    ezLog::Info("    For scaling HDR image brightness up or down.");
+
+    return EZ_FAILURE;
+  }
+
   EZ_SUCCEED_OR_RETURN(ParseOutputFiles());
   EZ_SUCCEED_OR_RETURN(DetectOutputFormat());
 

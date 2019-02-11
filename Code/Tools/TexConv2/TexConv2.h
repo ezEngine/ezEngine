@@ -52,6 +52,7 @@ public:
   ezResult ParseBoolOption(const char* szOption, bool& bResult) const;
   ezResult ParseStringOption(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed, ezInt32& iResult) const;
   void PrintOptionValues(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed) const;
+  void PrintOptionValuesHelp(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed) const;
   bool ParseFile(const char* szOption, ezString& result) const;
 
   bool IsTexFormat() const;
