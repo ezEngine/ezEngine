@@ -8,8 +8,6 @@
 
 /* TODO LIST:
 
-- volume textures
-
 - better texture atlas mipmap generation
 
 - docs for params / help
@@ -22,8 +20,9 @@ ezTexConv2::ezTexConv2()
   // texture types
   {
     m_AllowedOutputTypes.PushBack({"2D", ezTexConvOutputType::Texture2D});
-    m_AllowedOutputTypes.PushBack({"Cubemap", ezTexConvOutputType::TextureCube});
-    m_AllowedOutputTypes.PushBack({"TextureAtlas", ezTexConvOutputType::TextureAtlas});
+    m_AllowedOutputTypes.PushBack({"Volume", ezTexConvOutputType::Volume});
+    m_AllowedOutputTypes.PushBack({"Cubemap", ezTexConvOutputType::Cubemap});
+    m_AllowedOutputTypes.PushBack({"Atlas", ezTexConvOutputType::Atlas});
   }
 
   // texture usages
@@ -157,7 +156,7 @@ ezResult ezTexConv2::DetectOutputFormat()
     m_bOutputSupports3D = true;
     m_bOutputSupportsCube = false;
     m_bOutputSupportsAtlas = false;
-    m_bOutputSupportsMipmaps = false;
+    m_bOutputSupportsMipmaps = true;
     m_bOutputSupportsFiltering = true;
     m_bOutputSupportsCompression = true;
     return EZ_SUCCESS;
@@ -248,7 +247,7 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
   if (m_Processor.Process().Failed())
     return ezApplication::ApplicationExecution::Quit;
 
-  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::TextureAtlas)
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas)
   {
     ezDeferredFileWriter file;
     file.SetOutput(m_sOutputFile);

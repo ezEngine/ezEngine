@@ -40,7 +40,7 @@ public:
   ezHybridArray<ezTexConvSliceChannelMapping, 6> m_ChannelMappings;
 
   // output type / platform
-  ezEnum<ezTexConvOutputType> m_OutputType;         // TODO: volume textures
+  ezEnum<ezTexConvOutputType> m_OutputType;
   ezEnum<ezTexConvTargetPlatform> m_TargetPlatform; // TODO: implement android
 
   // low resolution output

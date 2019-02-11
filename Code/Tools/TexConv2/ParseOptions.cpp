@@ -44,7 +44,7 @@ ezResult ezTexConv2::ParseOutputType()
       return EZ_FAILURE;
     }
   }
-  else if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::TextureCube)
+  else if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Cubemap)
   {
     if (!m_bOutputSupportsCube)
     {
@@ -52,7 +52,7 @@ ezResult ezTexConv2::ParseOutputType()
       return EZ_FAILURE;
     }
   }
-  else if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::TextureAtlas)
+  else if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas)
   {
     if (!m_bOutputSupportsAtlas)
     {
@@ -62,6 +62,14 @@ ezResult ezTexConv2::ParseOutputType()
 
     if (!ParseFile("-atlasDesc", m_Processor.m_Descriptor.m_sTextureAtlasDescFile))
       return EZ_FAILURE;
+  }
+  else if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Volume)
+  {
+    if (!m_bOutputSupports3D)
+    {
+      ezLog::Error("Volume textures are not supported by the chosen output file format.");
+      return EZ_FAILURE;
+    }
   }
   else
   {
@@ -74,7 +82,7 @@ ezResult ezTexConv2::ParseOutputType()
 
 ezResult ezTexConv2::ParseInputFiles()
 {
-  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::TextureAtlas)
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas)
     return EZ_SUCCESS;
 
   ezStringBuilder tmp, res;
@@ -108,7 +116,7 @@ ezResult ezTexConv2::ParseInputFiles()
     }
   }
 
-  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::TextureCube)
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Cubemap)
   {
     // 0 = +X = Right
     // 1 = -X = Left
@@ -179,7 +187,7 @@ ezResult ezTexConv2::ParseOutputFiles()
 
 ezResult ezTexConv2::ParseUsage()
 {
-  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::TextureAtlas)
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas)
     return EZ_SUCCESS;
 
   ezInt32 value = -1;
@@ -191,9 +199,6 @@ ezResult ezTexConv2::ParseUsage()
 
 ezResult ezTexConv2::ParseMipmapMode()
 {
-  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Texture3D)
-    return EZ_SUCCESS;
-
   if (!m_bOutputSupportsMipmaps)
   {
     m_Processor.m_Descriptor.m_MipmapMode = ezTexConvMipmapMode::None;
@@ -242,8 +247,8 @@ ezResult ezTexConv2::ParseCompressionMode()
 ezResult ezTexConv2::ParseWrapModes()
 {
   // cubemaps do not require any wrap mode settings
-  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::TextureCube ||
-      m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::TextureAtlas ||
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Cubemap ||
+      m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas ||
       m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::None)
     return EZ_SUCCESS;
 
@@ -258,7 +263,7 @@ ezResult ezTexConv2::ParseWrapModes()
     m_Processor.m_Descriptor.m_AddressModeV = static_cast<ezImageAddressMode::Enum>(value);
   }
 
-  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Texture3D)
+  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Volume)
   {
     ezInt32 value = -1;
     EZ_SUCCEED_OR_RETURN(ParseStringOption("-addressW", m_AllowedWrapModes, value));

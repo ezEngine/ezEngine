@@ -9,7 +9,7 @@
 
 ezResult ezTexConvProcessor::GenerateTextureAtlas(ezMemoryStreamWriter& stream)
 {
-  if (m_Descriptor.m_OutputType != ezTexConvOutputType::TextureAtlas)
+  if (m_Descriptor.m_OutputType != ezTexConvOutputType::Atlas)
     return EZ_SUCCESS;
 
 
@@ -225,7 +225,13 @@ ezResult ezTexConvProcessor::CreateAtlasTexture(
         }
       }
 
-      ezImageUtils::Copy(atlas, item.m_AtlasRect[layer].x, item.m_AtlasRect[layer].y, itemImage);
+      ezRectU32 r;
+      r.x = 0;
+      r.y = 0;
+      r.width = itemImage.GetWidth();
+      r.height = itemImage.GetHeight();
+
+      ezImageUtils::Copy(itemImage, r, atlas, ezVec3U32(item.m_AtlasRect[layer].x, item.m_AtlasRect[layer].y, 0));
     }
   }
 

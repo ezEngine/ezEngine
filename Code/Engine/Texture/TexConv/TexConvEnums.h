@@ -10,9 +10,9 @@ struct ezTexConvOutputType
   {
     None,
     Texture2D,
-    Texture3D,
-    TextureCube,
-    TextureAtlas,
+    Volume,
+    Cubemap,
+    Atlas,
 
     Default = Texture2D
   };

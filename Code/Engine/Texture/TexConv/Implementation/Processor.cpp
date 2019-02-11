@@ -23,7 +23,7 @@ ezTexConvProcessor::ezTexConvProcessor() = default;
 
 ezResult ezTexConvProcessor::Process()
 {
-  if (m_Descriptor.m_OutputType == ezTexConvOutputType::TextureAtlas)
+  if (m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas)
   {
     ezMemoryStreamWriter stream(&m_TextureAtlas);
     EZ_SUCCEED_OR_RETURN(GenerateTextureAtlas(stream));
@@ -52,14 +52,17 @@ ezResult ezTexConvProcessor::Process()
     EZ_SUCCEED_OR_RETURN(ConvertAndScaleInputImages(uiTargetResolutionX, uiTargetResolutionY));
 
     ezImage assembledImg;
-    if (m_Descriptor.m_OutputType == ezTexConvOutputType::Texture2D ||
-      m_Descriptor.m_OutputType == ezTexConvOutputType::None)
+    if (m_Descriptor.m_OutputType == ezTexConvOutputType::Texture2D || m_Descriptor.m_OutputType == ezTexConvOutputType::None)
     {
       EZ_SUCCEED_OR_RETURN(Assemble2DTexture(m_Descriptor.m_InputImages[0].GetHeader(), assembledImg));
     }
-    else if (m_Descriptor.m_OutputType == ezTexConvOutputType::TextureCube)
+    else if (m_Descriptor.m_OutputType == ezTexConvOutputType::Cubemap)
     {
       EZ_SUCCEED_OR_RETURN(AssembleCubemap(assembledImg));
+    }
+    else if (m_Descriptor.m_OutputType == ezTexConvOutputType::Volume)
+    {
+      EZ_SUCCEED_OR_RETURN(Assemble3DTexture(assembledImg));
     }
 
     EZ_SUCCEED_OR_RETURN(AdjustHdrExposure(assembledImg));

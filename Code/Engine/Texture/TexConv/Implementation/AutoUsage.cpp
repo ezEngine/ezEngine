@@ -5,18 +5,44 @@
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageConversion.h>
 
-struct NameToUsage
+struct FileSuffixToUsage
 {
-  const char* name;
-  const ezTexConvUsage::Enum usage;
+  const char* m_szSuffix = nullptr;
+  const ezTexConvUsage::Enum m_Usage = ezTexConvUsage::Auto;
 };
 
-// TODO (texconv): review this list
-static NameToUsage nameToUsageMap[] = {{"nrm", ezTexConvUsage::NormalMap}, {"norm", ezTexConvUsage::NormalMap},
-  {"_nb", ezTexConvUsage::NormalMap}, {"ibl", ezTexConvUsage::Hdr}, {"diff", ezTexConvUsage::Color}, {"albedo", ezTexConvUsage::Color},
-  {"emissive", ezTexConvUsage::Color}, {"emit", ezTexConvUsage::Color}, {"rough", ezTexConvUsage::Linear},
-  {"metallic", ezTexConvUsage::Linear}, {"_metal", ezTexConvUsage::Linear}, {"_ao", ezTexConvUsage::Linear},
-  {"height", ezTexConvUsage::Linear}};
+static FileSuffixToUsage suffixToUsageMap[] = {
+  //
+  {"_d", ezTexConvUsage::Color},       //
+  {"diff", ezTexConvUsage::Color},     //
+  {"diffuse", ezTexConvUsage::Color},  //
+  {"albedo", ezTexConvUsage::Color},   //
+  {"col", ezTexConvUsage::Color},      //
+  {"color", ezTexConvUsage::Color},    //
+  {"emissive", ezTexConvUsage::Color}, //
+  {"emit", ezTexConvUsage::Color},     //
+
+  {"_n", ezTexConvUsage::NormalMap},      //
+  {"nrm", ezTexConvUsage::NormalMap},     //
+  {"norm", ezTexConvUsage::NormalMap},    //
+  {"normal", ezTexConvUsage::NormalMap},  //
+  {"normals", ezTexConvUsage::NormalMap}, //
+
+  {"_rgh", ezTexConvUsage::Linear},      //
+  {"_rough", ezTexConvUsage::Linear},    //
+  {"roughness", ezTexConvUsage::Linear}, //
+
+  {"_met", ezTexConvUsage::Linear},     //
+  {"_metal", ezTexConvUsage::Linear},   //
+  {"metallic", ezTexConvUsage::Linear}, //
+
+  {"height", ezTexConvUsage::Linear},   //
+  {"_disp", ezTexConvUsage::Linear},    //
+
+  {"_ao", ezTexConvUsage::Linear},      //
+
+  {"_alpha", ezTexConvUsage::Linear},   //
+};
 
 
 static ezTexConvUsage::Enum DetectUsageFromFilename(const char* szFile)
@@ -24,11 +50,11 @@ static ezTexConvUsage::Enum DetectUsageFromFilename(const char* szFile)
   ezStringBuilder name = ezPathUtils::GetFileName(szFile);
   name.ToLower();
 
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(nameToUsageMap); ++i)
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(suffixToUsageMap); ++i)
   {
-    if (name.FindSubString(nameToUsageMap[i].name) != nullptr)
+    if (name.EndsWith_NoCase(suffixToUsageMap[i].m_szSuffix))
     {
-      return nameToUsageMap[i].usage;
+      return suffixToUsageMap[i].m_Usage;
     }
   }
 
@@ -57,28 +83,21 @@ static ezTexConvUsage::Enum DetectUsageFromImage(const ezImage& image)
     return ezTexConvUsage::NormalMap;
   }
 
-  // TODO (texconv): review
-
-  if (ezImageFormat::GetNumChannels(format) == 1)
-  {
-    if (ezImageFormat::GetBitsPerChannel(format, ezImageFormatChannel::R) > 8)
-    {
-      return ezTexConvUsage::Hdr;
-    }
-
-    return ezTexConvUsage::Linear;
-  }
-
-  if (ezImageFormat::GetBitsPerChannel(format, ezImageFormatChannel::R) >= 16 || format == ezImageFormat::BC6H_SF16 ||
+  if (ezImageFormat::GetBitsPerChannel(format, ezImageFormatChannel::R) > 8 || format == ezImageFormat::BC6H_SF16 ||
       format == ezImageFormat::BC6H_UF16)
   {
     return ezTexConvUsage::Hdr;
   }
 
+  if (ezImageFormat::GetNumChannels(format) <= 2)
+  {
+    return ezTexConvUsage::Linear;
+  }
+
   const ezImage* pImgRGBA = &image;
   ezImage convertedRGBA;
 
-  if (image.GetImageFormat() != ezImageFormat::R8G8B8A8_UNORM && image.GetImageFormat() != ezImageFormat::R8G8B8A8_UNORM_SRGB)
+  if (image.GetImageFormat() != ezImageFormat::R8G8B8A8_UNORM)
   {
     pImgRGBA = &convertedRGBA;
     if (ezImageConversion::Convert(image, convertedRGBA, ezImageFormat::R8G8B8A8_UNORM).Failed())

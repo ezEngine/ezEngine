@@ -1,9 +1,10 @@
 #pragma once
 
-#include <Texture/Image/Image.h>
+#include <Foundation/Math/Rect.h>
 #include <Foundation/Math/Size.h>
-#include <Texture/Image/ImageFilter.h>
+#include <Texture/Image/Image.h>
 #include <Texture/Image/ImageEnums.h>
+#include <Texture/Image/ImageFilter.h>
 
 class EZ_TEXTURE_DLL ezImageUtils
 {
@@ -11,10 +12,12 @@ public:
   /// \brief Returns the image with the difference (absolute values) between ImageA and ImageB.
   static void ComputeImageDifferenceABS(const ezImageView& ImageA, const ezImageView& ImageB, ezImage& out_Difference);
 
-  /// \brief Computes the mean square error for the block at (offsetx, offsety) to (offsetx + uiBlockSize, offsety + uiBlockSize). DifferenceImage is expected to be an image that represents the difference between two images.
+  /// \brief Computes the mean square error for the block at (offsetx, offsety) to (offsetx + uiBlockSize, offsety + uiBlockSize).
+  /// DifferenceImage is expected to be an image that represents the difference between two images.
   static ezUInt32 ComputeMeanSquareError(const ezImageView& DifferenceImage, ezUInt8 uiBlockSize, ezUInt32 offsetx, ezUInt32 offsety);
 
-  /// \brief Computes the mean square error of DifferenceImage, by computing the MSE for blocks of uiBlockSize and returning the maximum MSE that was found.
+  /// \brief Computes the mean square error of DifferenceImage, by computing the MSE for blocks of uiBlockSize and returning the maximum MSE
+  /// that was found.
   static ezUInt32 ComputeMeanSquareError(const ezImageView& DifferenceImage, ezUInt8 uiBlockSize);
 
   /// \brief Rescales pixel values to use the full value range by scaling from [min, max] to [0, 255].
@@ -23,7 +26,7 @@ public:
   static void Normalize(ezImage& image, ezUInt8& uiMinRgb, ezUInt8& uiMaxRgb, ezUInt8& uiMinAlpha, ezUInt8& uiMaxAlpha);
 
   /// \brief Extracts the alpha channel from 8bpp 4 channel images into a 8bpp single channel image.
-	static void ExtractAlphaChannel(const ezImageView& inputImage, ezImage& outputImage);
+  static void ExtractAlphaChannel(const ezImageView& inputImage, ezImage& outputImage);
 
   /// \brief Returns the sub-image of \a input that starts at \a offset and has the size \a newsize
   static void CropImage(const ezImageView& input, const ezVec2I32& offset, const ezSizeU32& newsize, ezImage& output);
@@ -35,15 +38,13 @@ public:
   ///
   /// The image must fit, no scaling or cropping is done. Image formats must be identical. Compressed formats are not supported.
   /// If the target location leaves not enough room for the source image to be copied, bad stuff will happen.
-  static void Copy(ezImage& dst, ezUInt32 uiPosX, ezUInt32 uiPosY, const ezImageView& src, ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0,
-                   ezUInt32 uiArrayIndex = 0);
+  static ezResult Copy(const ezImageView& srcImg, const ezRectU32& srcRect, ezImage& dstImg, const ezVec3U32& dstOffset,
+    ezUInt32 uiDstMipLevel = 0, ezUInt32 uiDstFace = 0, ezUInt32 uiDstArrayIndex = 0);
 
   /// \brief Copies the lower uiNumMips data of a 2D image into another one.
-  ///
-  /// Does not support 3D, cubemap or array textures.
   static ezResult ExtractLowerMipChain(const ezImageView& src, ezImage& dst, ezUInt32 uiNumMips);
 
-    /// Mip map generation options
+  /// Mip map generation options
   struct MipMapOptions
   {
     /// The filter to use for mipmap generation. Defaults to bilinear filtering (Triangle filter) if none is given.
@@ -75,15 +76,15 @@ public:
   };
 
   /// Scales the image.
-  static ezResult Scale(const ezImageView& source, ezImage& target, ezUInt32 width, ezUInt32 height,
-                        const ezImageFilter* filter = nullptr, ezImageAddressMode::Enum addressModeU = ezImageAddressMode::Clamp,
-                        ezImageAddressMode::Enum addressModeV = ezImageAddressMode::Clamp, const ezColor& borderColor = ezColor::Black);
+  static ezResult Scale(const ezImageView& source, ezImage& target, ezUInt32 width, ezUInt32 height, const ezImageFilter* filter = nullptr,
+    ezImageAddressMode::Enum addressModeU = ezImageAddressMode::Clamp, ezImageAddressMode::Enum addressModeV = ezImageAddressMode::Clamp,
+    const ezColor& borderColor = ezColor::Black);
 
   /// Scales the image.
   static ezResult Scale3D(const ezImageView& source, ezImage& target, ezUInt32 width, ezUInt32 height, ezUInt32 depth,
-                          const ezImageFilter* filter = nullptr, ezImageAddressMode::Enum addressModeU = ezImageAddressMode::Clamp,
-                          ezImageAddressMode::Enum addressModeV = ezImageAddressMode::Clamp,
-                          ezImageAddressMode::Enum addressModeW = ezImageAddressMode::Clamp, const ezColor& borderColor = ezColor::Black);
+    const ezImageFilter* filter = nullptr, ezImageAddressMode::Enum addressModeU = ezImageAddressMode::Clamp,
+    ezImageAddressMode::Enum addressModeV = ezImageAddressMode::Clamp, ezImageAddressMode::Enum addressModeW = ezImageAddressMode::Clamp,
+    const ezColor& borderColor = ezColor::Black);
 
   /// Genererates the mip maps for the image. The input texture must be in ezImageFormat::R32_G32_B32_A32_FLOAT
   static void GenerateMipMaps(const ezImageView& source, ezImage& target, const MipMapOptions& options);
@@ -116,6 +117,7 @@ public:
   /// All input images must have the same square, power-of-two dimensions and mustn't be compressed.
   static ezResult CreateCubemapFrom6Files(ezImage& dstImg, const ezImageView* pSourceImages);
 
+  static ezResult CreateVolumeTextureFromSingleFile(ezImage& dstImg, const ezImageView& srcImg);
+
   static ezUInt32 GetSampleIndex(ezUInt32 numTexels, ezInt32 index, ezImageAddressMode::Enum addressMode, bool& outUseBorderColor);
 };
-

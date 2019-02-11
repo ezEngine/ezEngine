@@ -284,7 +284,7 @@ ezStatus ezDecalAssetDocumentManager::RunTexConv(const char* szTargetFile, const
   arguments << szTargetFile;
 
   arguments << "-type";
-  arguments << "TextureAtlas";
+  arguments << "Atlas";
 
   arguments << "-atlasDesc";
   arguments << QString(szInputFile);

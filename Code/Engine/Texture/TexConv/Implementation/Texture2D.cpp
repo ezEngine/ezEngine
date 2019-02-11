@@ -99,6 +99,12 @@ ezResult ezTexConvProcessor::DetermineTargetResolution(
   out_uiTargetResolutionX = ezMath::Clamp(out_uiTargetResolutionX, m_Descriptor.m_uiMinResolution, m_Descriptor.m_uiMaxResolution);
   out_uiTargetResolutionY = ezMath::Clamp(out_uiTargetResolutionY, m_Descriptor.m_uiMinResolution, m_Descriptor.m_uiMaxResolution);
 
+  if (m_Descriptor.m_OutputType == ezTexConvOutputType::Volume)
+  {
+    ezUInt32 uiScaleFactor = uiOrgResY / out_uiTargetResolutionY;
+    out_uiTargetResolutionX = uiOrgResX / uiScaleFactor;
+  }
+
   if (OutputImageFormat != ezImageFormat::UNKNOWN && ezImageFormat::IsCompressed(OutputImageFormat))
   {
     if (out_uiTargetResolutionX % 4 != 0 || out_uiTargetResolutionY % 4 != 0)
