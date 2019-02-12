@@ -115,11 +115,10 @@ void ezQtUiServices::LoadState()
 void ezQtUiServices::ShowAllDocumentsStatusBarMessage(const ezFormatString& msg, ezTime timeOut)
 {
   ezStringBuilder tmp;
-  msg.GetText(tmp);
 
   Event e;
   e.m_Type = Event::ShowDocumentStatusBarText;
-  e.m_sText = tmp;
+  e.m_sText = msg.GetText(tmp);
   e.m_Time = timeOut;
 
   s_Events.Broadcast(e);
@@ -128,11 +127,10 @@ void ezQtUiServices::ShowAllDocumentsStatusBarMessage(const ezFormatString& msg,
 void ezQtUiServices::ShowGlobalStatusBarMessage(const ezFormatString& msg)
 {
   ezStringBuilder tmp;
-  msg.GetText(tmp);
 
   Event e;
   e.m_Type = Event::ShowGlobalStatusBarText;
-  e.m_sText = tmp;
+  e.m_sText = msg.GetText(tmp);
   e.m_Time = ezTime::Seconds(0);
 
   s_Events.Broadcast(e);

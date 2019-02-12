@@ -32,7 +32,7 @@ Plugin
 {
 	string %Path{"ezFmodPlugin"}
 	bool %LoadCopy{false}
-	string %DependencyOf{"<manual>","EditorPluginFmod"}
+	string %DependencyOf{"EditorPluginFmod"}
 }
 Plugin
 {
@@ -44,13 +44,13 @@ Plugin
 {
 	string %Path{"ezParticlePlugin"}
 	bool %LoadCopy{false}
-	string %DependencyOf{"<manual>","EditorPluginParticle"}
+	string %DependencyOf{"EditorPluginParticle"}
 }
 Plugin
 {
 	string %Path{"ezPhysXPlugin"}
 	bool %LoadCopy{false}
-	string %DependencyOf{"<manual>","EditorPluginPhysX"}
+	string %DependencyOf{"EditorPluginPhysX"}
 }
 Plugin
 {
@@ -60,7 +60,7 @@ Plugin
 }
 Plugin
 {
-	string %Path{"ezRtsGamePlugin"}
+	string %Path{"ezSampleGamePlugin"}
 	bool %LoadCopy{false}
 	string %DependencyOf{"<manual>"}
 }

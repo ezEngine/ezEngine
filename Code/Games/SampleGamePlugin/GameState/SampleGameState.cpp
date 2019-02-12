@@ -49,7 +49,7 @@ void SampleGameState::BeforeWorldUpdate()
 
     ezImgui::GetSingleton()->SetCurrentContextForView(m_hMainView);
     ezImgui::GetSingleton()->SetPassInputToImgui(
-        false); // reset this state, to deactivate input processing as long as SampleGameState::ProcessInput() isn't called again
+      false); // reset this state, to deactivate input processing as long as SampleGameState::ProcessInput() isn't called again
 
     ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
     ImGui::Begin("Imgui Window", &window);
@@ -76,9 +76,9 @@ void SampleGameState::BeforeWorldUpdate()
 
 ezGameStatePriority SampleGameState::DeterminePriority(ezWorld* pWorld) const
 {
-  return 
+  return
 
-ezGameStatePriority::Default;
+    ezGameStatePriority::Default;
 }
 
 void SampleGameState::ConfigureInputDevices()
