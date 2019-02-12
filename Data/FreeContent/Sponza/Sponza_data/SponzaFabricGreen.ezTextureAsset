@@ -11,7 +11,7 @@ o
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"Sponza/Sponza_data/sponza_fabric_green_diff.dds"}
+			s{"Sponza/Sponza_data/sponza_fabric_green_diff.jpg"}
 		}
 		Uuid %DocumentID{u4{1171484781611469456,5350490299940126824}}
 		u4 %Hash{3628042894872934259}
@@ -38,7 +38,7 @@ o
 		b %Compression{1}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
-		s %Input1{"Sponza/Sponza_data/sponza_fabric_green_diff.dds"}
+		s %Input1{"Sponza/Sponza_data/sponza_fabric_green_diff.jpg"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}

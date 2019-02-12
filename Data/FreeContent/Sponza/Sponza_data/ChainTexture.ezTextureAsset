@@ -11,10 +11,10 @@ o
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"Sponza/Sponza_data/chain_texture_diff.dds"}
+			s{"Sponza/Sponza_data/chain_texture_diff.png"}
 		}
 		Uuid %DocumentID{u4{4637170429876470702,5642529540442132511}}
-		u4 %Hash{17795126200327939126}
+		u4 %Hash{18416948344236148280}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -27,27 +27,30 @@ o
 {
 	Uuid %id{u4{13273011094000490666,5641862591920899124}}
 	s %t{"ezTextureAssetProperties"}
-	u3 %v{2}
+	u3 %v{5}
 	p
 	{
-		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
-		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
-		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeU{"ezImageAddressMode::Repeat"}
+		s %AddressModeV{"ezImageAddressMode::Repeat"}
+		s %AddressModeW{"ezImageAddressMode::Repeat"}
+		f %AlphaThreshold{0x0000003F}
 		f %CVarResScale{0x0000803F}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
-		b %Compression{1}
+		s %CompressionMode{"ezTexConvCompressionMode::High"}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
-		s %Input1{"Sponza/Sponza_data/chain_texture_diff.dds"}
+		f %HdrExposureBias{0}
+		s %Input1{"Sponza/Sponza_data/chain_texture_diff.png"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
 		b %IsRenderTarget{0}
-		b %Mipmaps{1}
+		s %MipmapMode{"ezTexConvMipmapMode::Kaiser"}
 		b %PremultipliedAlpha{0}
+		b %PreserveAlphaCoverage{0}
 		s %Resolution{"ezTexture2DResolution::Fixed256x256"}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
+		s %Usage{"ezTexConvUsage::Color"}
 	}
 }
 o
@@ -69,7 +72,7 @@ Types
 {
 o
 {
-	Uuid %id{u4{16525015919620456114,1260764774871595735}}
+	Uuid %id{u4{12203372038544747648,1304846957001536306}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -78,9 +81,9 @@ o
 		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"ezEditorPluginAssets"}
+		s %PluginName{"Static"}
 		VarArray %Properties{}
-		s %TypeName{"ezTexture2DUsageEnum"}
+		s %TypeName{"ezTexConvCompressionMode"}
 		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
@@ -99,8 +102,26 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezTextureAssetProperties"}
-		u3 %TypeSize{288}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{296}
+		u3 %TypeVersion{5}
+	}
+}
+o
+{
+	Uuid %id{u4{6606822328587505351,4158023727683023298}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezTexConvUsage"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -195,6 +216,24 @@ o
 }
 o
 {
+	Uuid %id{u4{14746541170062030859,14911800878971067818}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezImageAddressMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{2947336711354777548,15013008608905564043}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -213,7 +252,7 @@ o
 }
 o
 {
-	Uuid %id{u4{3803356223104059213,16351383165338240824}}
+	Uuid %id{u4{2647008765262101666,17105863286049156560}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -222,9 +261,9 @@ o
 		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"ezEditorPluginAssets"}
+		s %PluginName{"Static"}
 		VarArray %Properties{}
-		s %TypeName{"ezTexture2DAddressMode"}
+		s %TypeName{"ezTexConvMipmapMode"}
 		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}

@@ -53,12 +53,9 @@ The **PhysXPlugin** and **FmodPlugin** projects are examples that show how to ex
 First Time Opening the Sponza Sample Project
 --------------------------------------------
 
-The data for the Sponza project is very large which is why it is not checked in uncompressed. You need to extract some data manually first.
+The data for the Sponza project is very large which is why it is not checked in uncompressed. You need to extract its data manually first:
 
-Go to **Trunk/Data/FreeContent/Sponza** and extract **Sponza.7z** into the same folder.
-Go to **Trunk/Data/FreeContent/Trees** and extract **Trees.7z** into the same folder.
-
-You now have all required source assets.
+Go to **Trunk/Data/FreeContent** and extract **Sponza.7z** into the same folder.
 
 Run the Editor and select **Editor > Open Document** and open **Trunk/Data/EditorSamples/Sponza/Scenes/Sponza.ezScene**.
 

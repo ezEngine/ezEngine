@@ -11,7 +11,7 @@ o
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"Sponza/Sponza_data/vase_round.dds"}
+			s{"Sponza/Sponza_data/vase_round.jpg"}
 		}
 		Uuid %DocumentID{u4{5895025858826839201,5103975785320087454}}
 		u4 %Hash{10939882454909730095}
@@ -38,7 +38,7 @@ o
 		b %Compression{1}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
-		s %Input1{"Sponza/Sponza_data/vase_round.dds"}
+		s %Input1{"Sponza/Sponza_data/vase_round.jpg"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
