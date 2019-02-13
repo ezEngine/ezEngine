@@ -68,7 +68,9 @@ In **Foundation\\Basics** you can find a lot of platform specific code, most of 
 
 In **Foundation\\Basics\\Types** you will find some fundamental types that are used frequently in ez. ezDelegate is often used for callbacks. ezEnum is used for type-safe enum types and ezBitflags is used for type-safe and easy to use bitflags. ezArrayPtr is a 'fat pointer' that stores the start and length of an array. Finally ezVariant is a type that can store different types of data (float, int, string, vector, etc.) and knows which type it has stored. It can do conversions between related types and is often used in message passing.
 
-  
+
+In **Foundation\\CodeUtils** you can find utitlies to work with code or text, such as ezTokenizer. You will also find a full implementation of a C preprocessor (ezPreprocessor).
+
 
 In **Foundation\\Communication** you can find functionality to communicate with other code. ezEvent is a frequently used class to raise events and thus inform other code of changes. ezMessage is used for message passing, which is quite often used with the game object system (which you will find in the **Core** library). ezTelemetry is a system to broadcast information from the running application to other applications, usually tools for introspection, such as ezInspector.
 
@@ -103,9 +105,13 @@ In **Core** you will find the core engine infrastructure.
 
 In **Core\\Application** you can find code to more easily set up your application loop in a platform independent way.
 
+In **Core\\Graphics** you will find code commonly needed for doing graphics, such as ezCamera for camera controls and ezGeometry to create geometric objects.
+
 In **Core\\Input** you will find ezInputManager which can be used for retrieving input from various different devices, e.g. mouse, keyboard, gamepad or virtual thumbstick. The system is easily extensible to include custom devices.
 
 In **Core\\ResourceManager** you will find the static class ezResourceManager which is the central class for resource loading (e.g. textures, shaders, etc.). For implementing custom resource types you need to derive from ezResource and for customizing the loading procedure you may need to implement a custom ezResourceTypeLoader. All resources are referenced through ezResourceHandle types, which implement reference counting.
+
+In **Core\\Scripting** you can find ezLuaWrapper that allows to easily work with Lua scripts.
 
 In **Core\\World** you will find the game object system. ezGameObject is the class to use to manage entities, ezComponent is the base component class that allows to implement and attach components to your entities. All entities belong to an instance of ezWorld, which represents your scene graph.
 
@@ -113,18 +119,37 @@ In **Core\\World** you will find the game object system. ezGameObject is the cla
 Library Overview: GameEngine
 ---------------------------
 
-In **CoreUtils\\CodeUtils** you can find utitlies to work with code or text, such as ezTokenizer. You will also find a full implementation of a C preprocessor (ezPreprocessor).
+In **GameEngine** you will find all the high-level code needed in a game engine.
 
-**CoreUtils\\Console** contains code for a Quake-like ingame console that can be used for changing the game configuration (through ezCVar or custom functions) and to see the ezLog output.
 
-**CoreUtils\\DataStructures** contains data structures that are too engine specific to be put into **Foundation**. Here you will find such things as octree and quadtree implementations.
+**GameEngine\\Console** contains code for a Quake-like ingame console that can be used for changing the game configuration (through ezCVar or custom functions) and to see the ezLog output.
 
-In **CoreUtils\\Debugging** you can find tools to ease debugging. ezDataTransfer allows to broadcast custom data from your application to outside tools, such as ezInspector.
+**GameEngine\\GameApplication** contains ezGameApplication, which extends ezApplication with higher-level, more game specific functionality. This is one of the most important high-level classes to look at and extend when writing your own, stand-alone game application (assuming you cannot do without ezGameState alone).
 
-In **CoreUtils\\Geometry** you will find code to load certain formats (e.g. ezOBJLoader) or create geometric objects (ezGeometry).
+In **GameEngine\\GameState** you find ezGameState, which is the most important class to extend when writing your own game code, especially if you want to be able to run your code within the editor.
 
-In **CoreUtils\\Graphics** you can find a class to handle camera movements in 3D (ezCamera). ezGraphicsUtils provides additional utility functions, e.g. creation of a very simple font texture through code.
+**GameEngine\\Interfaces** contains various interface definitions for instance for basic interactions with physics and audio engines.
 
-In **CoreUtils\\Image** you will find ezImage which can be used to read, write and convert images from various formats.
+**GameEngine\\Prefabs** contains the code to work with prefabs.
 
-In **CoreUtils\\Scripting** you can find ezLuaWrapper that allows to easily work with Lua scripts.
+Library Overview: Texture
+-------------------------
+
+In **Texture** you will find various things related to working with images and textures.
+
+
+In **Texture\\Image** you will find ezImage which can be used to read, write and convert images from various formats.
+
+
+Library Overview: Utilities
+---------------------------
+
+In **Utilities** you will find various different things that may be useful, but are not used by the general engine runtime. They may be used by some tool or by a sample game, though.
+
+
+**Utilities\\DataStructures** contains data structures that are too engine specific. Here you will find things such as octree and quadtree implementations (ezDynamicOctree).
+
+**Utilities\\GridAlgorithms** contains functionality to rasterize circles and lines into grids. This can be extremely useful for 2D top down games, like strategy games, to do line-of-sight computations and such.
+
+**Utilities\\PathFinding** contains functionality to do path searches on graphs and simple nav-mesh generation for 2D grids.
+

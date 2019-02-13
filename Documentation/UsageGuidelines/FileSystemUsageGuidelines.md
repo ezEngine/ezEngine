@@ -51,6 +51,16 @@ The stream interfaces only provide the functions 'ReadBytes' and 'WriteBytes'. F
     read_stream >> v;
     read_stream >> s;
 
+### Using Complex Types with Streams ###
+
+To serialize and deserialize data that is in ez containers, you can also use functions like ezStreamReader::ReadArray(), ezStreamReader::ReadMap(), ezStreamWriter::WriteArray() and ezStreamWriter::WriteMap(). Those functions will try to serialize the container information and all the elements. For that to work, there must either be << and >> operaters overloaded for the element type, or the element types must have member functions with the following signature:
+
+    ezResult Serialize(ezStreamWriter& stream) const;
+    ezResult Deserialize(ezStreamReader& stream);
+
+Using these functions allows to return success or failure, which is not possible with the shift operators. If any element fails to de-/serialize, the whole operation (e.g. ezStreamWriter::WriteArray()) will fail and terminate early.
+
+**Note:** ezStreamWriter::WriteArray() and similar functions are provided for convenience. However, when it is important to have full control over file versioning and backwards compatibility of a file format, it may be preferable to serialize containers manually.
   
 Low Level File Abstraction
 --------------------------
