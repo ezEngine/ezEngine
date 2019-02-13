@@ -24,9 +24,6 @@ SET (LINK_LIBRARIES
   RendererCore
   RendererDX11
   GameEngine
-  ShaderCompilerHLSL
-  FileservePlugin
-  InspectorPlugin
 )
 
 if (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP AND EZ_BUILD_OPENVR)
