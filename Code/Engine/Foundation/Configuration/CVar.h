@@ -96,6 +96,9 @@ public:
   /// So it might not be necessary to call this function manually at shutdown.
   static void SaveCVars(); // [tested]
 
+  /// \brief Calls LoadCVarsFromCommandLine() and then LoadCVarsFromFile()
+  static void LoadCVars(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true); // [tested]
+
   /// \brief Loads the CVars from the settings files in the storage folder.
   ///
   /// This function has no effect, if the storage folder has not been set via 'SetStorageFolder' yet
@@ -107,7 +110,16 @@ public:
   /// Otherwise their 'Current' value will always stay unchanged and the value from disk will only be
   /// stored in the 'Restart' value.
   /// Independent on the parameter settings, all CVar changes during loading will always trigger change events.
-  static void LoadCVars(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true); // [tested]
+  ///
+  ///
+  /// \sa LoadCVarsFromCommandLine()
+  static void LoadCVarsFromFile(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true); // [tested]
+
+  /// \brief Similar to LoadCVarsFromFile() but tries to get the CVar values from the command line
+  ///
+  /// \note A CVar will only ever be loaded once. This function should be called before LoadCVarsFromFile(),
+  /// otherwise it could get flagged as 'already loaded' even if the value was never taken from file or command line.
+  static void LoadCVarsFromCommandLine(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true); // [tested]
 
 
 

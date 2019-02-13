@@ -222,6 +222,12 @@ void ezCVar::SaveCVars()
   }
 }
 
+void ezCVar::LoadCVars(bool bOnlyNewOnes /*= true*/, bool bSetAsCurrentValue /*= true*/)
+{
+  LoadCVarsFromCommandLine(bOnlyNewOnes, bSetAsCurrentValue);
+  LoadCVarsFromFile(bOnlyNewOnes, bSetAsCurrentValue);
+}
+
 static ezResult ReadLine(ezStreamReader& Stream, ezStringBuilder& sLine)
 {
   sLine.Clear();
@@ -306,21 +312,17 @@ static ezResult ParseLine(const ezStringBuilder& sLine, ezStringBuilder& VarName
   return EZ_SUCCESS;
 }
 
-void ezCVar::LoadCVars(bool bOnlyNewOnes, bool bSetAsCurrentValue)
+void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue)
 {
-  // first gather all the cvars by plugin
+  if (s_StorageFolder.IsEmpty())
+    return;
+
   ezMap<ezString, ezHybridArray<ezCVar*, 128>> PluginCVars;
-  ezHybridArray<ezCVar*, 128> CmdLineCVars;
 
+  // first gather all the cvars by plugin
   {
-    ezCVar* pCVar = ezCVar::GetFirstInstance();
-    while (pCVar)
+    for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
     {
-      if (!bOnlyNewOnes || pCVar->m_bHasNeverBeenLoaded)
-      {
-        CmdLineCVars.PushBack(pCVar);
-      }
-
       // only load cvars that should be saved
       if (pCVar->GetFlags().IsAnySet(ezCVarFlags::Save))
       {
@@ -335,17 +337,14 @@ void ezCVar::LoadCVars(bool bOnlyNewOnes, bool bSetAsCurrentValue)
 
       // it doesn't matter whether the CVar could be loaded from file, either it works the first time, or it stays at its current value
       pCVar->m_bHasNeverBeenLoaded = false;
-
-      pCVar = pCVar->GetNextInstance();
     }
   }
 
-  ezStringBuilder sTemp;
-
   // now load all cvars from their plugin specific file
-  if (!s_StorageFolder.IsEmpty())
   {
     ezMap<ezString, ezHybridArray<ezCVar*, 128>>::Iterator it = PluginCVars.GetIterator();
+
+    ezStringBuilder sTemp;
 
     while (it.IsValid())
     {
@@ -428,71 +427,74 @@ void ezCVar::LoadCVars(bool bOnlyNewOnes, bool bSetAsCurrentValue)
       ++it;
     }
   }
+}
 
-  // now override values from the command line
+void ezCVar::LoadCVarsFromCommandLine(bool bOnlyNewOnes /*= true*/, bool bSetAsCurrentValue /*= true*/)
+{
+  ezStringBuilder sTemp;
+
+  for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
   {
-    for (ezUInt32 var = 0; var < CmdLineCVars.GetCount(); ++var)
+    if (bOnlyNewOnes && !pCVar->m_bHasNeverBeenLoaded)
+      continue;
+
+    sTemp.Set("-", pCVar->GetName());
+
+    if (ezCommandLineUtils::GetGlobalInstance()->GetOptionIndex(sTemp) != -1)
     {
-      ezCVar* pCVar = CmdLineCVars[var];
+      // has been specified on the command line -> mark it as 'has been loaded'
+      pCVar->m_bHasNeverBeenLoaded = false;
 
-      sTemp.Set("-", pCVar->GetName());
-
-      if (ezCommandLineUtils::GetGlobalInstance()->GetOptionIndex(sTemp) != -1)
+      switch (pCVar->GetType())
       {
-        switch (pCVar->GetType())
+        case ezCVarType::Int:
         {
-          case ezCVarType::Int:
-          {
-            ezCVarInt* pTyped = (ezCVarInt*)pCVar;
-            ezInt32 Value = pTyped->m_Values[ezCVarValue::Stored];
-            Value = ezCommandLineUtils::GetGlobalInstance()->GetIntOption(sTemp, Value);
+          ezCVarInt* pTyped = (ezCVarInt*)pCVar;
+          ezInt32 Value = pTyped->m_Values[ezCVarValue::Stored];
+          Value = ezCommandLineUtils::GetGlobalInstance()->GetIntOption(sTemp, Value);
 
-            pTyped->m_Values[ezCVarValue::Stored] = Value;
-            *pTyped = Value;
-          }
-          break;
-          case ezCVarType::Bool:
-          {
-            ezCVarBool* pTyped = (ezCVarBool*)pCVar;
-            bool Value = pTyped->m_Values[ezCVarValue::Stored];
-            Value = ezCommandLineUtils::GetGlobalInstance()->GetBoolOption(sTemp, Value);
-
-            pTyped->m_Values[ezCVarValue::Stored] = Value;
-            *pTyped = Value;
-          }
-          break;
-          case ezCVarType::Float:
-          {
-            ezCVarFloat* pTyped = (ezCVarFloat*)pCVar;
-            double Value = pTyped->m_Values[ezCVarValue::Stored];
-            Value = ezCommandLineUtils::GetGlobalInstance()->GetFloatOption(sTemp, Value);
-
-            pTyped->m_Values[ezCVarValue::Stored] = static_cast<float>(Value);
-            *pTyped = Value;
-          }
-          break;
-          case ezCVarType::String:
-          {
-            ezCVarString* pTyped = (ezCVarString*)pCVar;
-            ezString Value = ezCommandLineUtils::GetGlobalInstance()->GetStringOption(sTemp, 0, pTyped->m_Values[ezCVarValue::Stored]);
-
-            pTyped->m_Values[ezCVarValue::Stored] = Value;
-            *pTyped = Value;
-          }
-          break;
-          default:
-            EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
-            break;
+          pTyped->m_Values[ezCVarValue::Stored] = Value;
+          *pTyped = Value;
         }
+        break;
+        case ezCVarType::Bool:
+        {
+          ezCVarBool* pTyped = (ezCVarBool*)pCVar;
+          bool Value = pTyped->m_Values[ezCVarValue::Stored];
+          Value = ezCommandLineUtils::GetGlobalInstance()->GetBoolOption(sTemp, Value);
 
-        if (bSetAsCurrentValue)
-          pCVar->SetToRestartValue();
+          pTyped->m_Values[ezCVarValue::Stored] = Value;
+          *pTyped = Value;
+        }
+        break;
+        case ezCVarType::Float:
+        {
+          ezCVarFloat* pTyped = (ezCVarFloat*)pCVar;
+          double Value = pTyped->m_Values[ezCVarValue::Stored];
+          Value = ezCommandLineUtils::GetGlobalInstance()->GetFloatOption(sTemp, Value);
+
+          pTyped->m_Values[ezCVarValue::Stored] = static_cast<float>(Value);
+          *pTyped = Value;
+        }
+        break;
+        case ezCVarType::String:
+        {
+          ezCVarString* pTyped = (ezCVarString*)pCVar;
+          ezString Value = ezCommandLineUtils::GetGlobalInstance()->GetStringOption(sTemp, 0, pTyped->m_Values[ezCVarValue::Stored]);
+
+          pTyped->m_Values[ezCVarValue::Stored] = Value;
+          *pTyped = Value;
+        }
+        break;
+        default:
+          EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
+          break;
       }
+
+      if (bSetAsCurrentValue)
+        pCVar->SetToRestartValue();
     }
   }
 }
 
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Configuration_Implementation_CVar);
-
