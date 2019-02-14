@@ -16,10 +16,10 @@ class EZ_FOUNDATION_DLL ezStreamReader
 
 public:
   /// \brief Constructor
-  ezStreamReader() {}
+  ezStreamReader();
 
   /// \brief Virtual destructor to ensure correct cleanup
-  virtual ~ezStreamReader() {}
+  virtual ~ezStreamReader();
 
   /// \brief Reads a raw number of bytes into the read buffer, this is the only method which has to be implemented to fully implement the
   /// interface.
@@ -53,6 +53,9 @@ public:
   template <typename KeyType, typename ValueType, typename Comparer>
   ezResult ReadMap(ezMapBase<KeyType, ValueType, Comparer>& Map); // [tested]
 
+  /// \brief Reads a string into a ezStringBuilder
+  ezResult ReadString(ezStringBuilder& builder); // [tested]
+
   /// \brief Helper method to skip a number of bytes (implementations of the stream reader may implement this more efficiently for example)
   virtual ezUInt64 SkipBytes(ezUInt64 uiBytesToSkip)
   {
@@ -85,10 +88,10 @@ class EZ_FOUNDATION_DLL ezStreamWriter
 
 public:
   /// \brief Constructor
-  ezStreamWriter() {}
+  ezStreamWriter();
 
   /// \brief Virtual destructor to ensure correct cleanup
-  virtual ~ezStreamWriter() {}
+  virtual ~ezStreamWriter();
 
   /// \brief Writes a raw number of bytes from the buffer, this is the only method which has to be implemented to fully implement the
   /// interface.
@@ -131,6 +134,9 @@ public:
   /// \brief Writes a map
   template <typename KeyType, typename ValueType, typename Comparer>
   ezResult WriteMap(const ezMapBase<KeyType, ValueType, Comparer>& Map); // [tested]
+
+  /// \brief Writes a string
+  ezResult WriteString(const ezStringView szStringView); // [tested]
 };
 
 // Contains the helper methods of both interfaces

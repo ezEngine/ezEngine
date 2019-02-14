@@ -10,15 +10,8 @@
 
 ezStreamWriter& operator<<(ezStreamWriter& Stream, const char* szValue)
 {
-  ezUInt32 uiLength = 0;
-
-  if (szValue != nullptr)
-    uiLength = static_cast<ezUInt32>(strlen(szValue));
-
-  Stream << uiLength;
-
-  if (uiLength > 0)
-    Stream.WriteBytes(reinterpret_cast<const ezUInt8*>(szValue), uiLength);
+  ezStringView szView(szValue);
+  Stream.WriteString(szView);
 
   return Stream;
 }
@@ -27,32 +20,13 @@ ezStreamWriter& operator<<(ezStreamWriter& Stream, const char* szValue)
 
 ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezStringBuilder& sValue)
 {
-  /// \todo This could be more efficient by using the existing length information
-
-  return Stream << sValue.GetData();
+  Stream.WriteString(sValue.GetView());
+  return Stream;
 }
 
 ezStreamReader& operator>>(ezStreamReader& Stream, ezStringBuilder& sValue)
 {
-  /// \todo This could be more efficient by reading directly into the string array
-
-  ezUInt32 uiLength = 0;
-
-  Stream >> uiLength;
-
-  if (uiLength > 0)
-  {
-    ezHybridArray<ezUInt8, 256> sTemp;
-    sTemp.SetCountUninitialized(uiLength + 1);
-
-    Stream.ReadBytes(&sTemp[0], uiLength);
-    sTemp[uiLength] = '\0';
-
-    sValue = reinterpret_cast<const char*>(&sTemp[0]);
-  }
-  else
-    sValue.Clear();
-
+  Stream.ReadString(sValue);
   return Stream;
 }
 

@@ -453,6 +453,8 @@ private:
   template <ezUInt16 T>
   friend struct ezHybridStringBase;
 
+  friend ezStreamReader;
+
   ezUInt32 m_uiCharacterCount;
   ezHybridArray<char, 128> m_Data;
 };

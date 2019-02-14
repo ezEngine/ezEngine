@@ -6,6 +6,9 @@
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Containers/HybridArray.h>
 
+#include <Foundation/Strings/String.h>
+#include <Foundation/IO/StringDeduplicationContext.h>
+
 namespace
 {
   struct SerializableStructWithMethods
@@ -239,5 +242,69 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
     EZ_TEST_BOOL(TestMapReadBack.GetValue(42)->IsEqual("Hello"));
     EZ_TEST_BOOL(TestMapReadBack.GetValue(5)->IsEqual("!"));
     EZ_TEST_BOOL(TestMapReadBack.GetValue(23)->IsEqual("World"));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "String Deduplication")
+  {
+    ezMemoryStreamStorage StreamStorageNonDeduplicated(4096);
+    ezMemoryStreamStorage StreamStorageDeduplicated(4096);
+
+    ezHybridString<4> str1 = "Hello World";
+    ezDynamicString str2 = "Hello World 2";
+    ezStringBuilder str3 = "Hello Schlumpf";
+
+    // Non deduplicated serialization
+    {
+      ezMemoryStreamWriter StreamWriter(&StreamStorageNonDeduplicated);
+
+      StreamWriter << str1;
+      StreamWriter << str2;
+      StreamWriter << str1;
+      StreamWriter << str3;
+      StreamWriter << str1;
+      StreamWriter << str2;
+    }
+
+    // Deduplicated serialization
+    {
+      ezMemoryStreamWriter StreamWriter(&StreamStorageDeduplicated);
+
+      ezStringDeduplicationWriteContext StringDeduplicationContext(StreamWriter);
+      auto& DeduplicationWriter = StringDeduplicationContext.Begin();
+
+      DeduplicationWriter << str1;
+      DeduplicationWriter << str2;
+      DeduplicationWriter << str1;
+      DeduplicationWriter << str3;
+      DeduplicationWriter << str1;
+      DeduplicationWriter << str2;
+
+      StringDeduplicationContext.End();
+
+      EZ_TEST_INT(StringDeduplicationContext.GetUniqueStringCount(), 3);
+    }
+
+    EZ_TEST_BOOL(StreamStorageDeduplicated.GetStorageSize() < StreamStorageNonDeduplicated.GetStorageSize());
+
+    // Read the deduplicated strings back
+    {
+      ezMemoryStreamReader StreamReader(&StreamStorageDeduplicated);
+
+      ezStringDeduplicationReadContext StringDeduplicationReadContext(StreamReader);
+
+      ezHybridString<16> szRead0, szRead1, szRead2;
+      ezStringBuilder szRead3, szRead4, szRead5;
+
+      StreamReader >> szRead0;
+      StreamReader >> szRead1;
+      StreamReader >> szRead2;
+      StreamReader >> szRead3;
+      StreamReader >> szRead4;
+      StreamReader >> szRead5;
+
+      EZ_TEST_STRING(szRead0, szRead2);
+      EZ_TEST_STRING(szRead0, szRead4);
+      EZ_TEST_STRING(szRead1, szRead5);
+    }
   }
 }

@@ -6,7 +6,7 @@
 ///
 /// Typically a context is created before any serialization happens and can then be accessed anywhere through the GetContext method.
 template <typename Derived>
-class ezSerializationContext
+class EZ_FOUNDATION_DLL ezSerializationContext
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezSerializationContext);
 
@@ -16,7 +16,7 @@ public:
 
   static Derived* GetContext();
 
-private:
+protected:
   static void SetContext(ezSerializationContext* pContext);
 };
 

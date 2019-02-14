@@ -161,30 +161,16 @@ EZ_FOUNDATION_DLL ezStreamWriter& operator<<(ezStreamWriter& Stream, const char*
 template <ezUInt16 Size, typename AllocatorWrapper>
 inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezHybridString<Size, AllocatorWrapper>& sValue)
 {
-  return Stream << sValue.GetData();
+  Stream.WriteString(sValue.GetView());
+  return Stream;
 }
 
 template <ezUInt16 Size, typename AllocatorWrapper>
 inline ezStreamReader& operator>>(ezStreamReader& Stream, ezHybridString<Size, AllocatorWrapper>& sValue)
 {
-  ezUInt32 uiLength = 0;
-
-  Stream >> uiLength;
-
-  if (uiLength > 0)
-  {
-    /// \todo This could be more efficient by reading directly into the string array
-
-    ezHybridArray<ezUInt8, 256> sTemp;
-    sTemp.SetCountUninitialized(uiLength + 1);
-
-    Stream.ReadBytes(&sTemp[0], uiLength);
-    sTemp[uiLength] = '\0';
-
-    sValue = reinterpret_cast<const char*>(&sTemp[0]);
-  }
-  else
-    sValue.Clear();
+  ezStringBuilder builder;
+  Stream.ReadString(builder);
+  sValue = std::move(builder);
 
   return Stream;
 }
