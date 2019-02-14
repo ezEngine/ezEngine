@@ -131,6 +131,11 @@ public:
   /// \brief Returns the currently set default logging system, or a thread local instance of ezGlobalLog, if nothing else was set.
   static ezLogInterface* GetThreadLocalLogSystem();
 
+  /// \brief Sets the default log level which is used when new per thread logging systems are created on demand.
+  ///
+  /// Note that changes using this method will not affect already created log systems.
+  static void SetDefaultLogLevel(ezLogMsgType::Enum LogLevel);
+
   /// \brief An error that needs to be fixed as soon as possible.
   static void Error(ezLogInterface* pInterface, const ezFormatString& string);
 
@@ -265,8 +270,8 @@ private:
   // Needed to call 'EndLogBlock'
   friend class ezLogBlock;
 
-  /// \brief Which messages to filter out.
-  static ezLogMsgType::Enum s_LogLevel;
+  /// \brief Which messages to filter out by default.
+  static ezLogMsgType::Enum s_DefaultLogLevel;
 
   /// \brief Ends grouping log messages.
   static void EndLogBlock(ezLogInterface* pInterface, ezLogBlock* pBlock);

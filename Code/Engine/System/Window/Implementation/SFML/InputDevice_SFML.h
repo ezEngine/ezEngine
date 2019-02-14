@@ -48,10 +48,8 @@ public:
   ///
   /// If, however, you need to allow the user to move the mouse cursor outside the window, be aware that the relative mouse
   /// motions will stop working, once the mouse cursor reaches the screen borders.
-  void SetClipMouseCursor(bool bEnable);
-
-  /// \brief Returns whether the mouse is confined to the application window or not.
-  bool GetClipMouseCursor() const { return m_bClipCursor; }
+  virtual void SetClipMouseCursor(ezMouseCursorClipMode::Enum mode) override;
+  virtual ezMouseCursorClipMode::Enum GetClipMouseCursor() const override { return m_ClipCursorMode; }
 
   /// \brief Shows or hides the mouse cursor inside the application window.
   ///
@@ -77,7 +75,7 @@ private:
   ezVec2I32 m_vLastMousePos;
 
   bool m_bShowCursor;
-  bool m_bClipCursor;
+  ezMouseCursorClipMode::Enum m_ClipCursorMode = ezMouseCursorClipMode::NoClip;
 
   void UpdateMouseCursor();
 };

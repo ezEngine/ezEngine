@@ -79,6 +79,13 @@ void SetAppStats()
 #endif
   ezStats::SetStat("Features/Profiling", sOut.GetData());
 
+#if EZ_ENABLED(EZ_USE_ALLOCATION_TRACKING)
+  sOut = "Enabled";
+#else
+  sOut = "Disabled";
+#endif
+  ezStats::SetStat("Features/Allocation Tracking", sOut.GetData());
+
 #if EZ_ENABLED(EZ_USE_ALLOCATION_STACK_TRACING)
   sOut = "Enabled";
 #else

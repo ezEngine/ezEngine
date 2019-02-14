@@ -6,17 +6,14 @@
 #include <Foundation/Strings/StringConversion.h>
 #include <System/Window/Implementation/Win32/InputDevice_win32.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator)
+  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 bool ezStandardInputDevice::s_bMainWindowUsed = false;
 
 ezStandardInputDevice::ezStandardInputDevice(ezUInt32 uiWindowNumber)
 {
-  m_uiWindowNumber = uiWindowNumber;
-  m_bClipCursor = false;
-  m_bShowCursor = true;
-
   if (uiWindowNumber == 0)
   {
     EZ_ASSERT_RELEASE(!s_bMainWindowUsed, "You cannot have two devices of Type ezStandardInputDevice with the window number zero.");
@@ -270,13 +267,23 @@ void ezStandardInputDevice::ResetInputSlotValues()
   m_InputSlotValues[ezInputSlot_MouseDblClick2] = 0;
 }
 
-void SetClipRect(bool bClip, HWND hWnd)
+void ezStandardInputDevice::ApplyClipRect(ezMouseCursorClipMode::Enum mode, HWND hWnd)
 {
-  if (bClip)
+  if (!m_bApplyClipRect)
+    return;
+
+  m_bApplyClipRect = false;
+
+  if (mode == ezMouseCursorClipMode::NoClip)
+  {
+    ClipCursor(nullptr);
+    return;
+  }
+
+  RECT r;
   {
     RECT area;
     GetClientRect(hWnd, &area);
-
     POINT p0, p1;
     p0.x = 0;
     p0.y = 0;
@@ -286,23 +293,40 @@ void SetClipRect(bool bClip, HWND hWnd)
     ClientToScreen(hWnd, &p0);
     ClientToScreen(hWnd, &p1);
 
-    RECT r;
     r.top = p0.y;
     r.left = p0.x;
     r.right = p1.x;
     r.bottom = p1.y;
-
-    ClipCursor(&r);
   }
-  else
-    ClipCursor(nullptr);
+
+  if (mode == ezMouseCursorClipMode::ClipToPosition)
+  {
+    POINT mp;
+    if (GetCursorPos(&mp))
+    {
+      // make sure the position is inside the window rect
+      mp.x = ezMath::Clamp(mp.x, r.left, r.right);
+      mp.y = ezMath::Clamp(mp.y, r.top, r.bottom);
+
+      r.top = mp.y;
+      r.bottom = mp.y;
+      r.left = mp.x;
+      r.right = mp.x;
+    }
+  }
+
+  ClipCursor(&r);
 }
 
-void ezStandardInputDevice::SetClipMouseCursor(bool bEnable)
+void ezStandardInputDevice::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode)
 {
-  m_bClipCursor = bEnable;
+  if (m_ClipCursorMode == mode)
+    return;
 
-  if (!bEnable)
+  m_ClipCursorMode = mode;
+  m_bApplyClipRect = m_ClipCursorMode != ezMouseCursorClipMode::NoClip;
+
+  if (m_ClipCursorMode == ezMouseCursorClipMode::NoClip)
     ClipCursor(nullptr);
 }
 
@@ -329,8 +353,10 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
         m_InputSlotValues[ezInputSlot_MouseWheelUp] = iRotated / 120.0f;
       else
         m_InputSlotValues[ezInputSlot_MouseWheelDown] = iRotated / -120.0f;
+
+      break;
     }
-    break;
+
     case WM_MOUSEMOVE:
     {
       RECT area;
@@ -344,17 +370,26 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
 
       m_InputSlotValues[ezInputSlot_MousePositionX] = (fPosX / uiResX) + m_uiWindowNumber;
       m_InputSlotValues[ezInputSlot_MousePositionY] = (fPosY / uiResY);
+
+      if (m_ClipCursorMode == ezMouseCursorClipMode::ClipToPosition || m_ClipCursorMode == ezMouseCursorClipMode::ClipToWindowImmediate)
+      {
+        ApplyClipRect(m_ClipCursorMode, hWnd);
+      }
+
+      break;
     }
-    break;
 
     case WM_SETFOCUS:
     {
-      SetClipRect(m_bClipCursor, hWnd);
+      m_bApplyClipRect = true;
+      ApplyClipRect(m_ClipCursorMode, hWnd);
+      break;
     }
-    break;
+
     case WM_KILLFOCUS:
     {
-      SetClipRect(false, hWnd);
+      m_bApplyClipRect = true;
+      ApplyClipRect(ezMouseCursorClipMode::NoClip, hWnd);
 
       auto it = m_InputSlotValues.GetIterator();
 
@@ -363,8 +398,10 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
         it.Value() = 0.0f;
         it.Next();
       }
-    }
+
       return;
+    }
+
     case WM_CHAR:
       m_LastCharacter = (wchar_t)wParam;
       return;
@@ -391,7 +428,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
 
     case WM_LBUTTONUP:
       m_InputSlotValues[ezInputSlot_MouseButton0] = 0.0f;
-      SetClipRect(m_bClipCursor, hWnd);
+      ApplyClipRect(m_ClipCursorMode, hWnd);
 
       --s_iMouseCaptureCount;
       if (s_iMouseCaptureCount <= 0)
@@ -410,7 +447,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
 
     case WM_RBUTTONUP:
       m_InputSlotValues[ezInputSlot_MouseButton1] = 0.0f;
-      SetClipRect(m_bClipCursor, hWnd);
+      ApplyClipRect(m_ClipCursorMode, hWnd);
 
       --s_iMouseCaptureCount;
       if (s_iMouseCaptureCount <= 0)
@@ -466,7 +503,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
 #else
 
     case WM_LBUTTONUP:
-      SetClipRect(m_bClipCursor, hWnd);
+      ApplyClipRect(m_bClipCursor, hWnd);
       return;
 
 #endif
@@ -539,7 +576,18 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
 
         if ((m_InputSlotValues[ezInputSlot_KeyLeftCtrl] > 0.1f) && (m_InputSlotValues[ezInputSlot_KeyLeftAlt] > 0.1f) &&
             (m_InputSlotValues[ezInputSlot_KeyNumpadEnter] > 0.1f))
-          SetClipMouseCursor(!m_bClipCursor);
+        {
+          switch (GetClipMouseCursor())
+          {
+            case ezMouseCursorClipMode::NoClip:
+              SetClipMouseCursor(ezMouseCursorClipMode::ClipToWindow);
+              break;
+
+            default:
+              SetClipMouseCursor(ezMouseCursorClipMode::NoClip);
+              break;
+          }
+        }
       }
       else if (raw->header.dwType == RIM_TYPEMOUSE)
       {
@@ -604,7 +652,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
         else
         {
           ezLog::Info("Unknown Mouse Move: {0} | {1}, Flags = {2}", ezArgF(raw->data.mouse.lLastX, 1), ezArgF(raw->data.mouse.lLastY, 1),
-                      (ezUInt32)raw->data.mouse.usFlags);
+              (ezUInt32)raw->data.mouse.usFlags);
         }
       }
     }
@@ -769,4 +817,3 @@ bool ezStandardInputDevice::GetShowMouseCursor() const
 {
   return m_bShowCursor;
 }
-

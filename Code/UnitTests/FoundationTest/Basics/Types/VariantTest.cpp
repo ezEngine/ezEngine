@@ -53,6 +53,9 @@ inline void TestIntegerVariant(ezVariant::Type::Enum type)
 
   b = ezVariant((T)19);
   EZ_TEST_BOOL(b == (T)19);
+
+  EZ_TEST_BOOL(b.IsNumber());
+  EZ_TEST_BOOL(b.IsFloatingPoint() == false);
 }
 
 inline void TestNumberCanConvertTo(const ezVariant& v)
@@ -198,6 +201,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     b = ezVariant(true);
     EZ_TEST_BOOL(b == true);
     EZ_TEST_BOOL(!b[0].IsValid());
+
+    EZ_TEST_BOOL(b.IsNumber());
+    EZ_TEST_BOOL(b.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezInt8") { TestIntegerVariant<ezInt8>(ezVariant::Type::Int8); }
@@ -243,6 +249,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     b = ezVariant(19.0f);
     EZ_TEST_BOOL(b == 19.0f);
+
+    EZ_TEST_BOOL(b.IsNumber());
+    EZ_TEST_BOOL(b.IsFloatingPoint());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "double")
@@ -272,6 +281,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     b = ezVariant(19.0);
     EZ_TEST_BOOL(b == 19.0);
+
+    EZ_TEST_BOOL(b.IsNumber());
+    EZ_TEST_BOOL(b.IsFloatingPoint());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezColor")
@@ -307,6 +319,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v["a"] == 1);
     EZ_TEST_BOOL(v["x"] == ezVariant());
     EZ_TEST_BOOL(!v["x"].IsValid());
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezColorGammaUB")
@@ -341,6 +356,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v["a"] == 255);
     EZ_TEST_BOOL(v["x"] == ezVariant());
     EZ_TEST_BOOL(!v["x"].IsValid());
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezVec2")
@@ -366,6 +384,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v[1] == 9);
     EZ_TEST_BOOL(v["x"] == 7);
     EZ_TEST_BOOL(v["y"] == 9);
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezVec3")
@@ -393,6 +414,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v["x"] == 7);
     EZ_TEST_BOOL(v["y"] == 9);
     EZ_TEST_BOOL(v["z"] == 8);
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezVec4")
@@ -422,6 +446,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v["y"] == 9);
     EZ_TEST_BOOL(v["z"] == 8);
     EZ_TEST_BOOL(v["w"] == 4);
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezVec2I32")
@@ -447,6 +474,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v[1] == 9);
     EZ_TEST_BOOL(v["x"] == 7);
     EZ_TEST_BOOL(v["y"] == 9);
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezVec3I32")
@@ -474,6 +504,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v["x"] == 7);
     EZ_TEST_BOOL(v["y"] == 9);
     EZ_TEST_BOOL(v["z"] == 8);
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezVec4I32")
@@ -503,6 +536,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v["y"] == 9);
     EZ_TEST_BOOL(v["z"] == 8);
     EZ_TEST_BOOL(v["w"] == 4);
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezQuat")
@@ -532,6 +568,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v["v"]["y"] == 9);
     EZ_TEST_BOOL(v["v"]["z"] == 8);
     EZ_TEST_BOOL(v["w"] == 4);
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezMat3")
@@ -553,6 +592,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     v = ezVariant(ezMat3(5, 8, 9, 3, 1, 2, 3, 4, 4));
     EZ_TEST_BOOL(v == ezMat3(5, 8, 9, 3, 1, 2, 3, 4, 4));
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezMat4")
@@ -574,6 +616,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     v = ezVariant(ezMat4(5, 8, 9, 3, 1, 2, 1, 4, 5, 3, 7, 3, 6, 8, 6, 8));
     EZ_TEST_BOOL(v == ezMat4(5, 8, 9, 3, 1, 2, 1, 4, 5, 3, 7, 3, 6, 8, 6, 8));
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTransform")
@@ -589,6 +634,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     v = ezTransform(ezVec3(5, 8, 9), ezQuat(3, 1, 2, 3), ezVec3(4, 5, 3));
     EZ_TEST_BOOL(v == ezTransform(ezVec3(5, 8, 9), ezQuat(3, 1, 2, 3), ezVec3(4, 5, 3)));
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "const char*")
@@ -617,6 +665,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     v = ezVariant("blärg!");
     EZ_TEST_BOOL(v == ezString("blärg!"));
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezString")
@@ -638,6 +689,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     v = ezVariant(ezString("blärg!"));
     EZ_TEST_BOOL(v == ezString("blärg!"));
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezStringView")
@@ -660,6 +714,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     v = ezStringView("blurg!");
     EZ_TEST_BOOL(v == ezStringView("blurg!"));
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezDataBuffer")
@@ -684,6 +741,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     EZ_TEST_BOOL(va == a);
     EZ_TEST_BOOL(va != a2);
+
+    EZ_TEST_BOOL(va.IsNumber() == false);
+    EZ_TEST_BOOL(va.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTime")
@@ -705,6 +765,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     v = ezVariant(ezTime::Seconds(13));
     EZ_TEST_BOOL(v == ezTime::Seconds(13));
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezUuid")
@@ -724,6 +787,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     ezUuid uuid2;
     uuid2.CreateNewUuid();
     EZ_TEST_BOOL(ezVariant(uuid) != ezVariant(uuid2));
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezAngle")
@@ -745,6 +811,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     v = ezVariant(ezAngle::Degree(13));
     EZ_TEST_BOOL(v == ezAngle::Degree(13));
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezVariantArray")
@@ -775,6 +844,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(va[2] == ezString("test"));
     EZ_TEST_BOOL(va[4] == ezVariant());
     EZ_TEST_BOOL(!va[4].IsValid());
+
+    EZ_TEST_BOOL(va.IsNumber() == false);
+    EZ_TEST_BOOL(va.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezVariantDictionary")
@@ -804,6 +876,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(va["pon"] == ezString("ies"));
     EZ_TEST_BOOL(va["x"] == ezVariant());
     EZ_TEST_BOOL(!va["x"].IsValid());
+
+    EZ_TEST_BOOL(va.IsNumber() == false);
+    EZ_TEST_BOOL(va.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezReflectedClass*")
@@ -825,6 +900,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v[1] == 2.0f);
     EZ_TEST_BOOL(v["u"] == 1.0f);
     EZ_TEST_BOOL(v["v"] == 2.0f);
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "void*")
@@ -841,6 +919,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.IsA<void*>());
     EZ_TEST_BOOL(v.Get<void*>() == &blub);
     EZ_TEST_BOOL(v.Get<void*>() != &blub2);
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (bool)")

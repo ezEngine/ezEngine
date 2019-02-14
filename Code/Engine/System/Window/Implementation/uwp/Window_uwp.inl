@@ -131,7 +131,7 @@ ezResult ezWindow::Initialize()
   }
 
   m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice, s_uwpWindowData->m_coreWindow.Get());
-  m_pInputDevice->SetClipMouseCursor(m_CreationDescription.m_bClipMouseCursor);
+  m_pInputDevice->SetClipMouseCursor(m_CreationDescription.m_bClipMouseCursor ? ezMouseCursorClipMode::ClipToWindow : ezMouseCursorClipMode::NoClip);
   m_pInputDevice->SetShowMouseCursor(m_CreationDescription.m_bShowMouseCursor);
 
   m_bInitialized = true;

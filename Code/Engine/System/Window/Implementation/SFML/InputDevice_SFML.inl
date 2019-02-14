@@ -449,14 +449,14 @@ void ezStandardInputDevice::UpdateMouseCursor()
   m_InputSlotValues[ezInputSlot_MouseMovePosY] += ((vDiff.y > 0) ? (float)vDiff.y : 0.0f) * GetMouseSpeed().y;
 }
 
-void ezStandardInputDevice::SetClipMouseCursor(bool bEnable)
+void ezStandardInputDevice::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode)
 {
-  if (m_bClipCursor == bEnable)
+  if (m_ClipCursorMode == mode)
     return;
 
-  m_bClipCursor = bEnable;
+  m_ClipCursorMode = mode;
 
-  if (!m_bClipCursor)
+  if (!m_ClipCursorMode != ezMouseCursorClipMode::NoClip)
   {
     // pass the emulated mouse position back to the OS, to prevent mouse jumping
     sf::Mouse::setPosition(sf::Vector2i(m_vEmulatedMousePos.x, m_vEmulatedMousePos.y), *m_pWindow);

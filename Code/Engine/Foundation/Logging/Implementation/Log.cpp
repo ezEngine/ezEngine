@@ -4,7 +4,7 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Time/Time.h>
 
-ezLogMsgType::Enum ezLog::s_LogLevel = ezLogMsgType::All;
+ezLogMsgType::Enum ezLog::s_DefaultLogLevel = ezLogMsgType::All;
 ezAtomicInteger32 ezGlobalLog::s_uiMessageCount[ezLogMsgType::ENUM_COUNT];
 ezLoggingEvent ezGlobalLog::s_LoggingEvent;
 
@@ -183,9 +183,15 @@ ezLogInterface* ezLog::GetThreadLocalLogSystem()
   {
     // use new, not EZ_DEFAULT_NEW, to prevent tracking
     s_DefaultLogSystem = new ezGlobalLog;
+    s_DefaultLogSystem->SetLogLevel(s_DefaultLogLevel);
   }
 
   return s_DefaultLogSystem;
+}
+
+void ezLog::SetDefaultLogLevel(ezLogMsgType::Enum LogLevel)
+{
+  s_DefaultLogLevel = LogLevel;
 }
 
 void ezLog::Error(ezLogInterface* pInterface, const ezFormatString& string)

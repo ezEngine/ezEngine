@@ -6,7 +6,7 @@ void RtsGameState::ConfigureInputDevices()
 {
   SUPER::ConfigureInputDevices();
 
-  m_pMainWindow->GetInputDevice()->SetClipMouseCursor(true);
+  m_pMainWindow->GetInputDevice()->SetClipMouseCursor(ezMouseCursorClipMode::ClipToWindow);
   m_pMainWindow->GetInputDevice()->SetShowMouseCursor(true);
   m_pMainWindow->GetInputDevice()->SetMouseSpeed(ezVec2(0.002f));
 }

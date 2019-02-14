@@ -556,17 +556,17 @@ void SetClipRect(bool bClip, HWND hWnd)
   // NOT IMPLEMENTED. TODO
 }
 
-void ezStandardInputDevice::SetClipMouseCursor(bool bEnable)
+void ezStandardInputDevice::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode)
 {
-  if (m_bClipCursor == bEnable)
+  if (m_ClipCursorMode == mode)
     return;
 
-  if (bEnable)
+  if (mode != ezMouseCursorClipMode::NoClip)
     m_coreWindow->SetPointerCapture();
   else
     m_coreWindow->ReleasePointerCapture();
 
-  m_bClipCursor = bEnable;
+  m_ClipCursorMode = mode;
 }
 
 void ezStandardInputDevice::SetShowMouseCursor(bool bShow)

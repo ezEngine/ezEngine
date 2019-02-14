@@ -16,7 +16,7 @@ struct ezMemoryTrackingFlags
     All = EnableTracking | EnableStackTrace,
 
     Default = 0
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if EZ_ENABLED(EZ_USE_ALLOCATION_TRACKING)
               | EnableTracking
 #endif
 #if EZ_ENABLED(EZ_USE_ALLOCATION_STACK_TRACING)
