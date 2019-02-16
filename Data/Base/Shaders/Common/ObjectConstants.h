@@ -7,8 +7,8 @@ struct EZ_ALIGN_16(ezPerInstanceData)
 {
   TRANSFORM(ObjectToWorld);
   TRANSFORM(ObjectToWorldNormal);
+  FLOAT1(BoundingSphereRadius);
   INT1(GameObjectID);
-  FLOAT1(GlobalUniformScale); // only used by some renderers, ie ones that need to span billboards
 
   INT2(Reserved);
   COLOR4F(Color);

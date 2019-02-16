@@ -159,17 +159,7 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
 
     const ezGameObject* pOwner = GetOwner();
 
-    float fGlobalUniformScale = pOwner->GetLocalUniformScaling();
-
-    // compute global uniform scale
-    {
-      const ezGameObject* pParent = pOwner->GetParent();
-      while (pParent)
-      {
-        fGlobalUniformScale *= pParent->GetLocalUniformScaling();
-        pParent = pParent->GetParent();
-      }
-    }
+    float fGlobalUniformScale = pOwner->GetGlobalScalingSimd().HorizontalSum<3>() * ezSimdFloat(1.0f / 3.0f);
 
     const ezTransform tOwner = pOwner->GetGlobalTransform();
     const ezBoundingBoxSphere bounds = pOwner->GetGlobalBounds();
@@ -196,7 +186,6 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
         pRenderData->m_uiThisLodIndex = uiCurLod;
 
         pRenderData->m_GlobalTransform = tOwner;
-        pRenderData->m_fGlobalUniformScale = fGlobalUniformScale;
         pRenderData->m_GlobalBounds = bounds;
         pRenderData->m_hMesh = lodData.m_hMesh;
         pRenderData->m_uiSubMeshIndex = subMeshIdx;

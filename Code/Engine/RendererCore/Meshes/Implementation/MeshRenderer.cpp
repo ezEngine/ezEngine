@@ -145,6 +145,7 @@ void ezMeshRenderer::FillPerInstanceData(ezArrayPtr<ezPerInstanceData> instanceD
       perInstanceData.ObjectToWorldNormal = shaderT;
     }
 
+    perInstanceData.BoundingSphereRadius = pRenderData->m_GlobalBounds.m_fSphereRadius;
     perInstanceData.GameObjectID = pRenderData->m_uiUniqueID;
     perInstanceData.Color = pRenderData->m_Color;
 

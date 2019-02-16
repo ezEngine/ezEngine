@@ -146,7 +146,6 @@ void ezKrautRenderer::FillPerInstanceData(const ezVec3& vLodCamPos, ezArrayPtr<e
 
     auto& perInstanceData = instanceData[uiCurrentIndex];
     perInstanceData.ObjectToWorld = objectToWorld;
-    perInstanceData.GlobalUniformScale = pRenderData->m_fGlobalUniformScale;
 
     // always assumes uniform-scale only
     perInstanceData.ObjectToWorldNormal = objectToWorld;

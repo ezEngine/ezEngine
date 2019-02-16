@@ -50,11 +50,18 @@ VS_OUT main(VS_IN Input)
   float4 worldPosition = mul(objectToWorld, float4(Input.Position.xyz, 1));
 
   result.LeafNormal = float3(0, 0, 0);
+  
+  float3 scale;
+  scale.x = length(objectToWorld._m00_m10_m20);
+  scale.y = length(objectToWorld._m01_m11_m21);
+  scale.z = length(objectToWorld._m02_m12_m22);
+  
+  float globalUniformScale = dot(scale, 1.0 / 3.0);
 
   [branch]
   if (KrautTreeMode == 4) // Billboard Impostor
   {
-    worldPosition.xyz += GetCameraDirRight() * result.TexCoord1.x * data.GlobalUniformScale;
+    worldPosition.xyz += GetCameraDirRight() * result.TexCoord1.x * globalUniformScale;
     result.TexCoord1.x = 1.0;
     result.Normal = -GetCameraDirForwards();
     result.Normal.z = 0;
@@ -112,7 +119,7 @@ VS_OUT main(VS_IN Input)
     result.LeafNormal = worldPosition.xyz - mul(objectToWorld, float4(LeafCenter, 1));
 
     float2 span = result.TexCoord0.xy * 2.0 - 1.0;
-    float size = result.TexCoord1.x * data.GlobalUniformScale;
+    float size = result.TexCoord1.x * globalUniformScale;
 
     worldPosition.xyz += span.x * GetCameraDirRight() * size;
     worldPosition.xyz += span.y * GetCameraDirUp() * size;

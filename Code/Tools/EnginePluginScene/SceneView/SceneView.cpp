@@ -188,6 +188,7 @@ ezViewHandle ezSceneViewContext::CreateView()
   pView->SetWorld(pDocumentContext->GetWorld());
   pView->SetCamera(&m_Camera);
   pView->SetCullingCamera(&m_CullingCamera);
+  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
 
   const ezTag& tagHidden = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorHidden");
 
