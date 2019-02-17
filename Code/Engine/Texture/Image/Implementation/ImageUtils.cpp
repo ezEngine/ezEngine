@@ -1254,7 +1254,7 @@ static void CopyImageRectToFace(ezImage& dstImg, const ezImageView& srcImg, ezUI
   r.width = dstImg.GetWidth();
   r.height = r.width;
 
-  ezImageUtils::Copy(srcImg, r, dstImg, ezVec3U32(offsetX, offsetY, 0), 0, faceIndex);
+  ezImageUtils::Copy(srcImg, r, dstImg, ezVec3U32(0), 0, faceIndex);
 }
 
 ezResult ezImageUtils::CreateCubemapFromSingleFile(ezImage& dstImg, const ezImageView& srcImg)

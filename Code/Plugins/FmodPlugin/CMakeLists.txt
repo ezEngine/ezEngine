@@ -1,4 +1,4 @@
-﻿#cmake
+#cmake
 
 #
 # Copy this file into the folder of an engine library to add it to the solution.
@@ -28,18 +28,16 @@ SET (LINK_LIBRARIES
   RendererCore
 )
 
-AddFmod()
-
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
 
-add_custom_command(TARGET ${PROJECT_NAME}
-  COMMAND ${CMAKE_COMMAND}
-	-DMSVC_BUILD_CONFIG_DIR=${CMAKE_CFG_INTDIR}
-  -DBUILDSYSTEM_PLATFORM_64BIT=${BUILDSYSTEM_PLATFORM_64BIT}
-  -DBUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP=${BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP}
-  -DBUILDSYSTEM_PLATFORM_WINDOWS_UWP=${BUILDSYSTEM_PLATFORM_WINDOWS_UWP}
-  -DFMOD_SOURCE=${EZ_FMOD_DIR}
-	-DFMOD_TARGET=$<TARGET_FILE_DIR:${PROJECT_NAME}>
-	-P "${CMAKE_CURRENT_SOURCE_DIR}/CopyFModDlls.cmake"
-  VERBATIM
-)
+find_package(Fmod REQUIRED)
+
+if (FMOD_FOUND)
+  target_link_libraries(${PROJECT_NAME} Fmod::Studio)
+
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Fmod::Studio> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Fmod::LowLevel> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+  )
+
+endif()

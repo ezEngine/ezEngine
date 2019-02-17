@@ -1,4 +1,4 @@
-﻿#cmake
+#cmake
 
 #
 # Copy this file into the folder of an engine library to add it to the solution.
@@ -33,30 +33,16 @@ SET (LINK_LIBRARIES
   FmodPlugin
 )
 
-include_directories ("${EZ_FMOD_DIR}/api/studio/inc")
-include_directories ("${EZ_FMOD_DIR}/api/fsbank/inc")
-include_directories ("${EZ_FMOD_DIR}/api/lowlevel/inc")
-
-link_directories ("${EZ_FMOD_DIR}/api/studio/lib")
-link_directories ("${EZ_FMOD_DIR}/api/fsbank/lib")
-link_directories ("${EZ_FMOD_DIR}/api/lowlevel/lib")
-
-if (${BUILDSYSTEM_PLATFORM_64BIT})
-
-  SET (LINK_LIBRARIES 
-    ${LINK_LIBRARIES}
-		fmod64_vc
-		fmodstudio64_vc
-	)
-
-else()
-
-  SET (LINK_LIBRARIES 
-    ${LINK_LIBRARIES}
-		fmod_vc
-		fmodstudio_vc
-	)
-endif()
-
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
 
+find_package(Fmod REQUIRED)
+
+if (FMOD_FOUND)
+  target_link_libraries(${PROJECT_NAME} Fmod::Studio)
+
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Fmod::Studio> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Fmod::LowLevel> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+  )
+
+endif()
