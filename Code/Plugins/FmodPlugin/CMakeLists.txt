@@ -30,14 +30,14 @@ SET (LINK_LIBRARIES
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
 
-find_package(Fmod REQUIRED)
+find_package(ezFmod REQUIRED)
 
-if (FMOD_FOUND)
-  target_link_libraries(${PROJECT_NAME} Fmod::Studio)
+if (EZFMOD_FOUND)
+  target_link_libraries(${PROJECT_NAME} ezFmod::Studio)
 
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Fmod::Studio> $<TARGET_FILE_DIR:${PROJECT_NAME}>
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Fmod::LowLevel> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezFmod::Studio> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezFmod::LowLevel> $<TARGET_FILE_DIR:${PROJECT_NAME}>
   )
 
 endif()
