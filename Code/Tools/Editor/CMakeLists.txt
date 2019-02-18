@@ -74,7 +74,7 @@ endif()
 
 if (EZ_BUILD_SAMPLES)
 	SET (ADDITIONAL_DEPENDENCIES ${ADDITIONAL_DEPENDENCIES}
-    RtsGamePlugin
+    # RtsGamePlugin
     )
 endif()
 
