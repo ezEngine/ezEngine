@@ -26,8 +26,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
 else()
 	# Desktop Windows builds
 
-	find_path(EZ_FMOD_DIR fmod.h
-		CMAKE_FIND_ROOT_PATH api/lowlevel/inc
+	find_path(EZ_FMOD_DIR api/lowlevel/inc/fmod.h
 		PATHS
 		[HKEY_CURRENT_USER\\Software\\FMOD\ Studio\ API\ Windows]
 	)
@@ -47,9 +46,9 @@ set (FMOD_DIR_FSBANK "${EZ_FMOD_DIR}/api/fsbank")
 set (FMOD_DIR_LOWLVL "${EZ_FMOD_DIR}/api/lowlevel")
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(Fmod DEFAULT_MSG EZ_FMOD_DIR)
+find_package_handle_standard_args(EzFmod DEFAULT_MSG EZ_FMOD_DIR)
 
-if (FMOD_FOUND)
+if (EZFMOD_FOUND)
 
 	add_library(ezFmod::LowLevel SHARED IMPORTED)
 	set_target_properties(ezFmod::LowLevel PROPERTIES IMPORTED_LOCATION "${FMOD_DIR_LOWLVL}/lib/fmod${FMOD_DLL_SUFFIX}")
