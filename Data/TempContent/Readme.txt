@@ -1,1 +1,0 @@
-Content in here may not be redistributed. Sources may be commercial or require special licenses.

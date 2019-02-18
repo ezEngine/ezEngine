@@ -1,1 +1,0 @@
-Textures taken from https://hdrihaven.com/
