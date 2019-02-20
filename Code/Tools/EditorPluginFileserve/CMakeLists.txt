@@ -22,6 +22,7 @@ QT_MODULES(Core Gui Widgets Network)
 
 # Call this in case this project does not function without Qt.
 BUILD_REQUIRES_QT()
+SET (EZ_COPY_QT_DLLS ON)
 
 SET (LINK_LIBRARIES
   Foundation
