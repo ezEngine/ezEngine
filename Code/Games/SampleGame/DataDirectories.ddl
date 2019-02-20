@@ -10,9 +10,3 @@ DataDir
 	string %RootName{"project"}
 	bool %Writable{true}
 }
-DataDir
-{
-	string %Path{">sdk/Data/FreeContent"}
-	string %RootName{""}
-	bool %Writable{false}
-}
