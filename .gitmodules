@@ -1,0 +1,3 @@
+[submodule "Data/Content"]
+	path = Data/Content
+	url = https://github.com/ezEngine/content
