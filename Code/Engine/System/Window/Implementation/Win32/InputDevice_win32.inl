@@ -598,13 +598,13 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
         if ((raw->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) == 0)
         {
           m_InputSlotValues[ezInputSlot_MouseMoveNegX] +=
-              ((raw->data.mouse.lLastX < 0) ? (float)-raw->data.mouse.lLastX : 0.0f) * GetMouseSpeed().x;
+            ((raw->data.mouse.lLastX < 0) ? (float)-raw->data.mouse.lLastX : 0.0f) * GetMouseSpeed().x;
           m_InputSlotValues[ezInputSlot_MouseMovePosX] +=
-              ((raw->data.mouse.lLastX > 0) ? (float)raw->data.mouse.lLastX : 0.0f) * GetMouseSpeed().x;
+            ((raw->data.mouse.lLastX > 0) ? (float)raw->data.mouse.lLastX : 0.0f) * GetMouseSpeed().x;
           m_InputSlotValues[ezInputSlot_MouseMoveNegY] +=
-              ((raw->data.mouse.lLastY < 0) ? (float)-raw->data.mouse.lLastY : 0.0f) * GetMouseSpeed().y;
+            ((raw->data.mouse.lLastY < 0) ? (float)-raw->data.mouse.lLastY : 0.0f) * GetMouseSpeed().y;
           m_InputSlotValues[ezInputSlot_MouseMovePosY] +=
-              ((raw->data.mouse.lLastY > 0) ? (float)raw->data.mouse.lLastY : 0.0f) * GetMouseSpeed().y;
+            ((raw->data.mouse.lLastY > 0) ? (float)raw->data.mouse.lLastY : 0.0f) * GetMouseSpeed().y;
 
 // Mouse input does not always work via WM_INPUT
 // e.g. some VMs don't send mouse click input via WM_INPUT when the mouse cursor is visible
@@ -627,32 +627,59 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
         }
         else if ((raw->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) != 0)
         {
-          static int iTouchPoint = 0;
-          static bool bTouchPointDown = false;
-
-          const char* szSlot = ezInputManager::GetInputSlotTouchPoint(iTouchPoint);
-          const char* szSlotX = ezInputManager::GetInputSlotTouchPointPositionX(iTouchPoint);
-          const char* szSlotY = ezInputManager::GetInputSlotTouchPointPositionY(iTouchPoint);
-
-          m_InputSlotValues[szSlotX] = (raw->data.mouse.lLastX / 65535.0f) + m_uiWindowNumber;
-          m_InputSlotValues[szSlotY] = (raw->data.mouse.lLastY / 65535.0f);
-
-          if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN | RI_MOUSE_BUTTON_2_DOWN)) != 0)
+          if ((raw->data.mouse.usFlags & MOUSE_VIRTUAL_DESKTOP) != 0)
           {
-            bTouchPointDown = true;
-            m_InputSlotValues[szSlot] = 1.0f;
+            // if this flag is set, we are getting mouse input through a remote desktop session
+            // and that means we will not get any relative mouse move events, so we need to emulate them
+
+            static const ezInt32 iVirtualDesktopW = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+            static const ezInt32 iVirtualDesktopH = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+
+            static ezVec2 vLastPos(ezMath::BasicType<float>::MaxValue());
+            const ezVec2 vNewPos(
+              (raw->data.mouse.lLastX / 65535.0f) * iVirtualDesktopW, (raw->data.mouse.lLastY / 65535.0f) * iVirtualDesktopH);
+
+            if (vLastPos.x != ezMath::BasicType<float>::MaxValue())
+            {
+              const ezVec2 vDiff = vNewPos - vLastPos;
+
+              m_InputSlotValues[ezInputSlot_MouseMoveNegX] += ((vDiff.x < 0) ? (float)-vDiff.x : 0.0f) * GetMouseSpeed().x;
+              m_InputSlotValues[ezInputSlot_MouseMovePosX] += ((vDiff.x > 0) ? (float)vDiff.x : 0.0f) * GetMouseSpeed().x;
+              m_InputSlotValues[ezInputSlot_MouseMoveNegY] += ((vDiff.y < 0) ? (float)-vDiff.y : 0.0f) * GetMouseSpeed().y;
+              m_InputSlotValues[ezInputSlot_MouseMovePosY] += ((vDiff.y > 0) ? (float)vDiff.y : 0.0f) * GetMouseSpeed().y;
+            }
+
+            vLastPos = vNewPos;
           }
-
-          if ((uiButtons & (RI_MOUSE_BUTTON_1_UP | RI_MOUSE_BUTTON_2_UP)) != 0)
+          else
           {
-            bTouchPointDown = false;
-            m_InputSlotValues[szSlot] = 0.0f;
+            static int iTouchPoint = 0;
+            static bool bTouchPointDown = false;
+
+            const char* szSlot = ezInputManager::GetInputSlotTouchPoint(iTouchPoint);
+            const char* szSlotX = ezInputManager::GetInputSlotTouchPointPositionX(iTouchPoint);
+            const char* szSlotY = ezInputManager::GetInputSlotTouchPointPositionY(iTouchPoint);
+
+            m_InputSlotValues[szSlotX] = (raw->data.mouse.lLastX / 65535.0f) + m_uiWindowNumber;
+            m_InputSlotValues[szSlotY] = (raw->data.mouse.lLastY / 65535.0f);
+
+            if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN | RI_MOUSE_BUTTON_2_DOWN)) != 0)
+            {
+              bTouchPointDown = true;
+              m_InputSlotValues[szSlot] = 1.0f;
+            }
+
+            if ((uiButtons & (RI_MOUSE_BUTTON_1_UP | RI_MOUSE_BUTTON_2_UP)) != 0)
+            {
+              bTouchPointDown = false;
+              m_InputSlotValues[szSlot] = 0.0f;
+            }
           }
         }
         else
         {
           ezLog::Info("Unknown Mouse Move: {0} | {1}, Flags = {2}", ezArgF(raw->data.mouse.lLastX, 1), ezArgF(raw->data.mouse.lLastY, 1),
-              (ezUInt32)raw->data.mouse.usFlags);
+            (ezUInt32)raw->data.mouse.usFlags);
         }
       }
     }
