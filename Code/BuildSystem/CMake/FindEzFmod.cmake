@@ -3,7 +3,7 @@
 # conveniently, the Fmod installer will set a registry entry for this, so just look it up
 
 # early out, if this target has been created before
-if (TARGET ezezFmod::LowLevel)
+if (TARGET ezFmod::LowLevel)
 	return()
 endif()
 
@@ -74,6 +74,7 @@ if (EZFMOD_FOUND)
 
 endif()
 
+mark_as_advanced(FORCE EZ_FMOD_DIR)
 
 unset (FMOD_DIR_STUDIO)
 unset (FMOD_DIR_FSBANK)

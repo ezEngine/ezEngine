@@ -48,40 +48,16 @@ if (EZ_BUILD_OFFICIAL_FBX_SDK)
 
 endif()
 
-
-
-SET (ASSIMP_DIR "${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp")
-
-if (DEFINED BUILDSYSTEM_COMPILER_MSVC_141)
-  SET (ASSIMP_DIR "${ASSIMP_DIR}/vc141win") # VS 2017
-else()
-  SET (ASSIMP_DIR "${ASSIMP_DIR}/vc140win") # VS 2015
-endif()
-
-if (${BUILDSYSTEM_PLATFORM_64BIT})
-  SET (ASSIMP_DIR "${ASSIMP_DIR}64")
-else()
-  SET (ASSIMP_DIR "${ASSIMP_DIR}32")
-endif()
-
-SET (LINK_LIBRARIES
-    ${LINK_LIBRARIES}
-    #debug ${ASSIMP_DIR}/assimp-debug.lib
-    debug ${ASSIMP_DIR}/assimp.lib
-    optimized ${ASSIMP_DIR}/assimp.lib
-)
-
-
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-          COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          ${ASSIMP_DIR}/assimp.dll
-          $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+find_package(EzAssImp REQUIRED)
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-          COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          #${ASSIMP_DIR}/assimp-debug.dll
-          ${ASSIMP_DIR}/assimp.dll
-          $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+if (EZASSIMP_FOUND)
 
+  target_link_libraries(${PROJECT_NAME} EzAssImp::EzAssImp)
+
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:EzAssImp::EzAssImp> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+  )
+
+endif()

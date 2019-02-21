@@ -46,23 +46,16 @@ SET (ADDITIONAL_DEPENDENCIES
   EnginePluginAssets
 )
 
-
-SET (ASSIMP_DIR "${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp")
-
-SET (ASSIMP_DIR "${ASSIMP_DIR}/vc141win")
-
-if (${BUILDSYSTEM_PLATFORM_64BIT})
-  SET (ASSIMP_DIR "${ASSIMP_DIR}64")
-else()
-  SET (ASSIMP_DIR "${ASSIMP_DIR}32")
-endif()
-
-SET (LINK_LIBRARIES
-    ${LINK_LIBRARIES}
-    #debug ${ASSIMP_DIR}/assimp-debug.lib
-    debug ${ASSIMP_DIR}/assimp.lib
-    optimized ${ASSIMP_DIR}/assimp.lib
-)
-
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
 
+find_package(EzAssImp REQUIRED)
+
+if (EZASSIMP_FOUND)
+
+  target_link_libraries(${PROJECT_NAME} EzAssImp::EzAssImp)
+
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:EzAssImp::EzAssImp> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+  )
+
+endif()
