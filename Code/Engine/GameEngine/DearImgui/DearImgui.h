@@ -79,6 +79,7 @@ private:
     ezUInt64 m_uiFrameRenderCounter = -1;
   };
 
+  ezMutex m_ViewToContextTableMutex;
   ezHashTable<ezViewHandle, Context> m_ViewToContextTable;
 };
 

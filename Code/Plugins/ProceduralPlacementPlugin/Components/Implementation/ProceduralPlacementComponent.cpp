@@ -38,6 +38,7 @@ using namespace ezPPInternal;
 ezCVarFloat CVarCullDistanceScale("pp_CullDistanceScale", 1.0f, ezCVarFlags::Default,
                                   "Global scale to control cull distance for all layers");
 ezCVarInt CVarMaxProcessingTiles("pp_MaxProcessingTiles", 10, ezCVarFlags::Default, "Maximum number of tiles in process");
+ezCVarInt CVarMaxPlacedObjects("pp_MaxPlacedObjects", 256, ezCVarFlags::Default, "Maximum number of objects placed per frame");
 ezCVarBool CVarVisTiles("pp_VisTiles", false, ezCVarFlags::Default, "Enables debug visualization of procedural placement tiles");
 
 ezProceduralPlacementComponentManager::ezProceduralPlacementComponentManager(ezWorld* pWorld)
@@ -299,6 +300,8 @@ void ezProceduralPlacementComponentManager::PlaceObjects(const ezWorldModule::Up
 {
   EZ_PROFILE_SCOPE("Place objects");
 
+  ezUInt32 uiTotalNumPlacedObjects = 0;
+
   for (ezUInt32 i = 0; i < m_PlacementTaskInfos.GetCount(); ++i)
   {
     auto& taskInfo = m_PlacementTaskInfos[i];
@@ -309,7 +312,9 @@ void ezProceduralPlacementComponentManager::PlaceObjects(const ezWorldModule::Up
     {
       ezUInt32 uiTileIndex = taskInfo.m_uiTileIndex;
       auto& activeTile = m_ActiveTiles[uiTileIndex];
-      if (activeTile.PlaceObjects(*GetWorld(), *taskInfo.m_pTask) > 0)
+
+      ezUInt32 uiPlaceObjects = activeTile.PlaceObjects(*GetWorld(), *taskInfo.m_pTask);
+      if (uiPlaceObjects > 0)
       {
         auto& tileDesc = activeTile.GetDesc();
 
@@ -326,6 +331,13 @@ void ezProceduralPlacementComponentManager::PlaceObjects(const ezWorldModule::Up
 
       // mark task for re-use
       DeallocatePlacementTask(i);
+
+      uiTotalNumPlacedObjects += uiPlaceObjects;
+    }
+
+    if (uiTotalNumPlacedObjects >= (ezUInt32)CVarMaxPlacedObjects)
+    {
+      break;
     }
   }
 }

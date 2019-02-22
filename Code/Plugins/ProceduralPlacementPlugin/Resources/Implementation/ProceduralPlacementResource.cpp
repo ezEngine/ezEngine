@@ -3,6 +3,7 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
+#include <GameEngine/Prefabs/PrefabResource.h>
 #include <ProceduralPlacementPlugin/Resources/ProceduralPlacementResource.h>
 #include <ProceduralPlacementPlugin/VM/ExpressionByteCode.h>
 
@@ -110,7 +111,7 @@ ezResourceLoadDesc ezProceduralPlacementResource::UpdateContent(ezStreamReader* 
           for (ezUInt32 uiObjectIndex = 0; uiObjectIndex < uiNumObjectsToPlace; ++uiObjectIndex)
           {
             chunk >> sTemp;
-            pLayer->m_ObjectsToPlace.ExpandAndGetRef().Assign(sTemp.GetData());
+            pLayer->m_ObjectsToPlace.ExpandAndGetRef() = ezResourceManager::LoadResource<ezPrefabResource>(sTemp);
           }
 
           pLayer->m_pPattern = ezPPInternal::GetPattern("Bayer");
@@ -182,7 +183,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezProceduralPlacementResource, ezProceduralPlac
 
   auto pLayer = EZ_DEFAULT_NEW(ezPPInternal::Layer);
   pLayer->m_sName.Assign("MissingLayer");
-  pLayer->m_ObjectsToPlace.PushBack(ezMakeHashedString("Missing Prefab"));
+  pLayer->m_ObjectsToPlace.PushBack(ezResourceManager::GetResourceTypeMissingFallback<ezPrefabResource>());
   pLayer->m_pPattern = ezPPInternal::GetPattern("Bayer");
   pLayer->m_fFootprint = 3.0f;
   pLayer->m_vMinOffset.Set(-1.0f, -1.0f, -0.5f);

@@ -26,6 +26,8 @@ ezImgui::~ezImgui()
 
 void ezImgui::SetCurrentContextForView(const ezViewHandle& hView)
 {
+  EZ_LOCK(m_ViewToContextTableMutex);
+
   Context& context = m_ViewToContextTable[hView];
   if (context.m_pImGuiContext == nullptr)
   {

@@ -18,6 +18,7 @@
 
 class ezExpressionByteCode;
 typedef ezTypedResourceHandle<class ezColorGradientResource> ezColorGradientResourceHandle;
+typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
 
 namespace ezPPInternal
 {
@@ -69,7 +70,7 @@ namespace ezPPInternal
 
     ezHashedString m_sName;
 
-    ezHybridArray<ezHashedString, 4> m_ObjectsToPlace;
+    ezHybridArray<ezPrefabResourceHandle, 4> m_ObjectsToPlace;
 
     const Pattern* m_pPattern;
     float m_fFootprint;

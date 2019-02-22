@@ -29,29 +29,34 @@ ezImguiExtractor::ezImguiExtractor(const char* szName)
 void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
                                ezExtractedRenderData& extractedRenderData)
 {
-  if (ezImgui::GetSingleton() == nullptr)
+  ezImgui* pImGui = ezImgui::GetSingleton();
+  if (pImGui == nullptr)
   {
     return;
   }
 
-  ezImgui::Context context;
-  if (!ezImgui::GetSingleton()->m_ViewToContextTable.TryGetValue(view.GetHandle(), context))
   {
-    // No context for this view
-    return;
-  }
+    EZ_LOCK(pImGui->m_ViewToContextTableMutex);
+    ezImgui::Context context;
+    if (!pImGui->m_ViewToContextTable.TryGetValue(view.GetHandle(), context))
+    {
+      // No context for this view
+      return;
+    }
 
-  ezUInt64 uiCurrentFrameCounter = ezRenderWorld::GetFrameCounter();
-  if (context.m_uiFrameBeginCounter != uiCurrentFrameCounter)
-  {
-    // Nothing was rendered with ImGui this frame
-    return;
-  }
+    ezUInt64 uiCurrentFrameCounter = ezRenderWorld::GetFrameCounter();
+    if (context.m_uiFrameBeginCounter != uiCurrentFrameCounter)
+    {
+      // Nothing was rendered with ImGui this frame
+      return;
+    }
 
-  ImGui::SetCurrentContext(context.m_pImGuiContext);
+    context.m_uiFrameRenderCounter = uiCurrentFrameCounter;
+
+    ImGui::SetCurrentContext(context.m_pImGuiContext);
+  }
+  
   ImGui::Render();
-
-  context.m_uiFrameRenderCounter = uiCurrentFrameCounter;
 
   ImDrawData* pDrawData = ImGui::GetDrawData();
 

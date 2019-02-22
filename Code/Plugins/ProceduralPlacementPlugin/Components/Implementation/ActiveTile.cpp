@@ -166,30 +166,42 @@ ezUInt32 ActiveTile::PlaceObjects(ezWorld& world, const PlacementTask& placement
   ezGameObjectDesc desc;
   auto& objectsToPlace = m_pLayer->m_ObjectsToPlace;
 
+  ezHybridArray<ezPrefabResource*, 4> prefabs;
+  prefabs.SetCount(objectsToPlace.GetCount());
+
   auto objectTransforms = placementTask.GetOutputTransforms();
   for (auto& objectTransform : objectTransforms)
   {
-    desc.m_LocalPosition = ezSimdConversion::ToVec3(objectTransform.m_Transform.m_Position);
-    desc.m_LocalRotation = ezSimdConversion::ToQuat(objectTransform.m_Transform.m_Rotation);
-    desc.m_LocalScaling = ezSimdConversion::ToVec3(objectTransform.m_Transform.m_Scale);
+    const ezUInt32 uiObjectIndex = objectTransform.m_uiObjectIndex;
+    ezPrefabResource* pPrefab = prefabs[uiObjectIndex];
 
-    ezGameObject* pObject = nullptr;
-    ezGameObjectHandle hObject = world.CreateObject(desc, pObject);
+    if (pPrefab == nullptr)
+    {
+      pPrefab = ezResourceManager::BeginAcquireResource(objectsToPlace[uiObjectIndex], ezResourceAcquireMode::NoFallback);
+      prefabs[uiObjectIndex] = pPrefab;
+    }
 
-    // pObject->GetTags().Set(tag);
+    ezTransform transform = ezSimdConversion::ToTransform(objectTransform.m_Transform);
+    ezHybridArray<ezGameObject*, 8> rootObjects;
+    pPrefab->InstantiatePrefab(world, transform, ezGameObjectHandle(), &rootObjects, nullptr, nullptr);
 
-    ezPrefabReferenceComponent* pPrefabReferenceComponent = nullptr;
-    ezPrefabReferenceComponent::CreateComponent(pObject, pPrefabReferenceComponent);
+    for (auto pRootObject : rootObjects)
+    {
+      // Set the color
+      ezMsgSetColor msg;
+      msg.m_Color = objectTransform.m_Color;
+      pRootObject->PostMessageRecursive(msg, ezObjectMsgQueueType::AfterInitialized);
 
-    auto& objectToPlace = objectsToPlace[objectTransform.m_uiObjectIndex];
-    pPrefabReferenceComponent->SetPrefabFile(objectToPlace);
+      m_PlacedObjects.PushBack(pRootObject->GetHandle());
+    }
+  }
 
-    // Set the color
-    ezMsgSetColor msg;
-    msg.m_Color = objectTransform.m_Color;
-    pObject->PostMessageRecursive(msg, ezObjectMsgQueueType::AfterInitialized);
-
-    m_PlacedObjects.PushBack(hObject);
+  for (auto pPrefab : prefabs)
+  {
+    if (pPrefab != nullptr)
+    {
+      ezResourceManager::EndAcquireResource(pPrefab);
+    }
   }
 
   m_State = State::Finished;
