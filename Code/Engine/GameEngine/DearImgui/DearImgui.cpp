@@ -10,11 +10,30 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
+namespace
+{
+  void* ezImguiAllocate(size_t uiSize, void* pUserData)
+  {
+    ezAllocatorBase* pAllocator = static_cast<ezAllocatorBase*>(pUserData);
+    return pAllocator->Allocate(uiSize, EZ_ALIGNMENT_MINIMUM);
+  }
+
+  void ezImguiDeallocate(void* ptr, void* pUserData)
+  {
+    if (ptr != nullptr)
+    {
+      ezAllocatorBase* pAllocator = static_cast<ezAllocatorBase*>(pUserData);
+      pAllocator->Deallocate(ptr);
+    }
+  }
+}
+
 EZ_IMPLEMENT_SINGLETON(ezImgui);
 
 ezImgui::ezImgui(ezImguiConfigFontCallback configFontCallback, ezImguiConfigStyleCallback configStyleCallback)
-    : m_SingletonRegistrar(this)
-    , m_ConfigStyleCallback(configStyleCallback)
+  : m_SingletonRegistrar(this)
+  , m_Allocator("ImGui", ezFoundation::GetDefaultAllocator())
+  , m_ConfigStyleCallback(configStyleCallback)
 {
   Startup(configFontCallback);
 }
@@ -52,6 +71,8 @@ void ezImgui::SetCurrentContextForView(const ezViewHandle& hView)
 
 void ezImgui::Startup(ezImguiConfigFontCallback configFontCallback)
 {
+  ImGui::SetAllocatorFunctions(&ezImguiAllocate, &ezImguiDeallocate, &m_Allocator);
+
   m_pSharedFontAtlas = EZ_DEFAULT_NEW(ImFontAtlas);
 
   if (configFontCallback.IsValid())
@@ -241,4 +262,3 @@ void ezImgui::BeginFrame(const ezViewHandle& hView)
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_DearImgui_DearImgui);
-

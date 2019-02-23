@@ -102,7 +102,7 @@ struct EZ_RENDERERCORE_DLL ezMsgExtractRenderData : public ezMessage
 private:
   friend class ezExtractor;
 
-  ezHybridArray<ezInternal::RenderDataCacheEntry, 4> m_ExtractedRenderData;
+  ezHybridArray<ezInternal::RenderDataCacheEntry, 16> m_ExtractedRenderData;
 };
 
 #include <RendererCore/Pipeline/Implementation/RenderData_inl.h>

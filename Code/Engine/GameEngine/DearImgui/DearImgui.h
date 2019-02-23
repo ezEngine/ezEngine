@@ -3,6 +3,7 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Math/Size.h>
+#include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/GameEngineDLL.h>
 #include <RendererCore/Pipeline/Declarations.h>
@@ -62,6 +63,8 @@ private:
 
   ImGuiContext* CreateContext();
   void BeginFrame(const ezViewHandle& hView);
+
+  ezProxyAllocator m_Allocator;
 
   bool m_bPassInputToImgui = true;
   bool m_bImguiWantsInput = false;

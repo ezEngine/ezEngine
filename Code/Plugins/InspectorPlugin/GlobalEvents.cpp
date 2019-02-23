@@ -63,22 +63,18 @@ static void SendChangedGlobalEventTelemetry()
     return;
   }
 
-  bool bChange = false;
-
   for (ezGlobalEvent::EventMap::ConstIterator it = data.GetIterator(); it.IsValid(); ++it)
   {
-    const ezGlobalEvent::EventData& ed1 = it.Value();
-    const ezGlobalEvent::EventData& ed2 = s_LastState[it.Key()];
+    const ezGlobalEvent::EventData& currentEventData = it.Value();
+    ezGlobalEvent::EventData& lastEventData = s_LastState[it.Key()];
 
-    if (ezMemoryUtils::ByteCompare(&ed1, &ed2) != 0)
+    if (ezMemoryUtils::ByteCompare(&currentEventData, &lastEventData) != 0)
     {
-      bChange = true;
       SendGlobalEventTelemetry(it.Key().GetData(), it.Value());
+
+      lastEventData = currentEventData;
     }
   }
-
-  if (bChange)
-    s_LastState = data;
 }
 
 namespace GlobalEventsDetail
