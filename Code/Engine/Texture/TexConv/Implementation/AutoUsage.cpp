@@ -28,20 +28,24 @@ static FileSuffixToUsage suffixToUsageMap[] = {
   {"normal", ezTexConvUsage::NormalMap},  //
   {"normals", ezTexConvUsage::NormalMap}, //
 
+  {"_r", ezTexConvUsage::Linear},        //
   {"_rgh", ezTexConvUsage::Linear},      //
   {"_rough", ezTexConvUsage::Linear},    //
   {"roughness", ezTexConvUsage::Linear}, //
 
+  {"_m", ezTexConvUsage::Linear},       //
   {"_met", ezTexConvUsage::Linear},     //
   {"_metal", ezTexConvUsage::Linear},   //
   {"metallic", ezTexConvUsage::Linear}, //
 
-  {"height", ezTexConvUsage::Linear},   //
-  {"_disp", ezTexConvUsage::Linear},    //
+  {"_h", ezTexConvUsage::Linear},     //
+  {"height", ezTexConvUsage::Linear}, //
+  {"_disp", ezTexConvUsage::Linear},  //
 
-  {"_ao", ezTexConvUsage::Linear},      //
+  {"_ao", ezTexConvUsage::Linear},       //
+  {"occlusion", ezTexConvUsage::Linear}, //
 
-  {"_alpha", ezTexConvUsage::Linear},   //
+  {"_alpha", ezTexConvUsage::Linear}, //
 };
 
 

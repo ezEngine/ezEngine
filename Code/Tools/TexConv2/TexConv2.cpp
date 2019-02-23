@@ -232,6 +232,8 @@ ezResult ezTexConv2::WriteOutputFile(const char* szFile, const ezImage& image)
 
 ezApplication::ApplicationExecution ezTexConv2::Run()
 {
+  SetReturnCode(-1);
+
   if (ParseCommandLine().Failed())
     return ezApplication::ApplicationExecution::Quit;
 
@@ -292,6 +294,7 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
     }
   }
 
+  SetReturnCode(0);
   return ezApplication::ApplicationExecution::Quit;
 }
 
