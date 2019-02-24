@@ -582,6 +582,22 @@ namespace ezModelImporter
       return nullptr;
     }
 
+    if (assimpScene->mMetaData != nullptr)
+    {
+      double fUnitScale = 1.0;
+      if (assimpScene->mMetaData->Get("UnitScaleFactor", fUnitScale))
+      {
+        if (aiNode* node = assimpScene->mRootNode)
+        {
+          // Only fbx files have this unit scale factor and the default unit for fbx is cm. We want meters.
+          fUnitScale = fUnitScale / 100.0f;
+          node->mTransformation.a1 *= fUnitScale;
+          node->mTransformation.b2 *= fUnitScale;
+          node->mTransformation.c3 *= fUnitScale;
+        }
+      }
+    }
+
     ezSharedPtr<Scene> outScene = EZ_DEFAULT_NEW(Scene);
 
     // Import materials.
