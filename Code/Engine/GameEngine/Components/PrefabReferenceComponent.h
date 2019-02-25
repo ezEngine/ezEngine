@@ -35,8 +35,6 @@ public:
   ezPrefabReferenceComponent();
   ~ezPrefabReferenceComponent();
 
-  static bool s_bDeleteComponentsAfterInstantiation /*= true*/;
-
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 

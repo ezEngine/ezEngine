@@ -40,7 +40,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 3, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-bool ezPrefabReferenceComponent::s_bDeleteComponentsAfterInstantiation = true;
+enum PrefabComponentFlags
+{
+  SelfDeletion = 1
+};
 
 ezPrefabReferenceComponent::ezPrefabReferenceComponent() = default;
 ezPrefabReferenceComponent::~ezPrefabReferenceComponent() = default;
@@ -124,7 +127,13 @@ void ezPrefabReferenceComponent::SetPrefab(const ezPrefabResourceHandle& hPrefab
 
   m_hPrefab = hPrefab;
 
-  GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);
+  if (IsActiveAndInitialized())
+  {
+    // only add to update list, if not yet activated,
+    // since OnActivate will do the instantiation anyway
+
+    GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);
+  }
 }
 
 
@@ -177,6 +186,9 @@ void ezPrefabReferenceComponent::OnActivated()
 
 void ezPrefabReferenceComponent::OnDeactivated()
 {
+  // if this was created procedurally during editor runtime, we do not need to clear specific nodes
+  // after simulation, the scene is deleted anyway
+
   ClearPreviousInstances();
 
   SUPER::OnDeactivated();
@@ -186,6 +198,9 @@ void ezPrefabReferenceComponent::ClearPreviousInstances()
 {
   if (GetUniqueID() != ezInvalidIndex)
   {
+    // if this is in the editor, and the 'activate' flag is toggled,
+    // get rid of all our created child objects
+
     const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance");
 
     for (auto it = GetOwner()->GetChildren(); it.IsValid(); ++it)
@@ -200,29 +215,26 @@ void ezPrefabReferenceComponent::ClearPreviousInstances()
 
 void ezPrefabReferenceComponent::Deinitialize()
 {
-  if (!IsActiveAndSimulating() && IsActive())
-  {
-    // when the component has been activated and now deleted, without ever starting simulation,
-    // remove the children (through Deactivate)
-    // this is for the editor use case, where the component is always active, but simulation never starts
-    // without this, removing the component would not remove the children
-
-    OnDeactivated();
-  }
-  else
+  if (GetUserFlag(PrefabComponentFlags::SelfDeletion))
   {
     // do nothing, ie do not call OnDeactivated()
     // we do want to keep the created child objects around when this component gets destroyed during simulation
     // that's because the component actually deletes itself when simulation starts
+    return;
   }
+
+  // remove the children (through Deactivate)
+  OnDeactivated();
 }
 
 void ezPrefabReferenceComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  if (s_bDeleteComponentsAfterInstantiation)
+  if (GetUniqueID() == ezInvalidIndex)
   {
+    SetUserFlag(PrefabComponentFlags::SelfDeletion, true);
+
     // remove the prefab reference component, to prevent issues after another serialization/deserialization
     // and also to save some memory
     DeleteComponent();
@@ -231,9 +243,8 @@ void ezPrefabReferenceComponent::OnSimulationStarted()
 
 const ezRangeView<const char*, ezUInt32> ezPrefabReferenceComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>(
-      [this]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Parameters.GetCount(); }, [this](ezUInt32& it) { ++it; },
-      [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
+  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Parameters.GetCount(); },
+    [this](ezUInt32& it) { ++it; }, [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
 }
 
 void ezPrefabReferenceComponent::SetParameter(const char* szKey, const ezVariant& value)
@@ -272,7 +283,7 @@ bool ezPrefabReferenceComponent::GetParameter(const char* szKey, ezVariant& out_
 //////////////////////////////////////////////////////////////////////////
 
 ezPrefabReferenceComponentManager::ezPrefabReferenceComponentManager(ezWorld* pWorld)
-    : ezComponentManager<ComponentType, ezBlockStorageType::Compact>(pWorld)
+  : ezComponentManager<ComponentType, ezBlockStorageType::Compact>(pWorld)
 {
   ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezPrefabReferenceComponentManager::ResourceEventHandler, this));
 }
@@ -336,4 +347,3 @@ void ezPrefabReferenceComponentManager::AddToUpdateList(ezPrefabReferenceCompone
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_PrefabReferenceComponent);
-

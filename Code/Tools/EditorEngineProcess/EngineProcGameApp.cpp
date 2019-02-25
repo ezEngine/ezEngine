@@ -23,8 +23,6 @@ ezInputDeviceXBox360 g_XboxInputDevice;
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
     : ezGameApplication("ezEditorEngineProcess", nullptr)
 {
-  // in the editor setting, do not delete prefab components after instantiation, otherwise runtime picking would break
-  ezPrefabReferenceComponent::s_bDeleteComponentsAfterInstantiation = false;
 }
 
 void ezEngineProcessGameApplication::BeforeCoreSystemsStartup()
