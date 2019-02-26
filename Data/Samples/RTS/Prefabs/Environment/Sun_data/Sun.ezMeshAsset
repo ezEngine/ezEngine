@@ -1,0 +1,213 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{10741760120864177544,5403483661380958337}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Mesh"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{10741760120864177544,5403483661380958337}}
+		u4 %Hash{8946398924503902271}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
+		}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{2141627957716179340,4825170375375296615}}
+	s %t{"ezMeshAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		f %Angle{0x0000B443}
+		b %Cap{1}
+		b %Cap2{1}
+		u2 %Detail{32}
+		u2 %Detail2{32}
+		s %ForwardDir{"ezBasisAxis::PositiveX"}
+		f %Height{0x0000803F}
+		b %ImportMaterials{1}
+		b %InvertNormals{0}
+		VarArray %Materials
+		{
+			Uuid{u4{2846879190015255863,5922488954415973521}}
+		}
+		s %MeshFile{""}
+		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		s %PrimitiveType{"ezMeshPrimitive::Sphere"}
+		f %Radius{0x0000003F}
+		f %Radius2{0x0000003F}
+		b %RecalculateNormals{0}
+		s %RightDir{"ezBasisAxis::PositiveY"}
+		s %SubmeshName{""}
+		f %UniformScaling{0x0000803F}
+		s %UpDir{"ezBasisAxis::PositiveZ"}
+		b %UseSubfolderForMaterialImport{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{2141627957716179340,4825170375375296615}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{2846879190015255863,5922488954415973521}}
+	s %t{"ezMaterialResourceSlot"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Default"}
+		s %Resource{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{16151412834014881353,455602171930801939}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBasisAxis"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12984103802138964609,1901275426220383600}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11061541817101818123,3867562407177176337}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14671648138773591326,5868081672200965352}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezMaterialResourceSlot"}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6467017751125590593,7158000587691918333}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12548133714559506524,15048962895131464253}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshAssetProperties"}
+		u3 %TypeSize{1248}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{12318933889413480389,17746338614557059932}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshPrimitive"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+}
