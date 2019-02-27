@@ -48,8 +48,8 @@ void ezGreyBoxEditTool::GetGridSettings(ezGridSettingsMsgToEngine& msg)
   ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument());
 
   msg.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue(); // negative density = local space
-  msg.m_vGridTangent1.SetZero();                                  // indicates that the grid is disabled
-  msg.m_vGridTangent2.SetZero();                                  // indicates that the grid is disabled
+  msg.m_vGridTangent1.SetZero();
+  msg.m_vGridTangent2.SetZero();
 
   if (pPreferences->GetShowGrid())
   {
@@ -63,9 +63,6 @@ void ezGreyBoxEditTool::GetGridSettings(ezGridSettingsMsgToEngine& msg)
     else if (m_DrawBoxGizmo.GetCurrentMode() == ezDrawBoxGizmo::ManipulateMode::DrawHeight)
     {
       const ezVec3 vCamDir = GetWindow()->GetFocusedViewWidget()->m_pViewConfig->m_Camera.GetDirForwards();
-
-      // float dummy;
-      // m_DrawBoxGizmo.GetResult(msg.m_vGridCenter, dummy, dummy, dummy, dummy, dummy, dummy);
 
       msg.m_vGridCenter = m_DrawBoxGizmo.GetStartPosition();
 

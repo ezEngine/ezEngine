@@ -12,6 +12,8 @@ public:
   ezNonUniformBoxManipulatorAdapter();
   ~ezNonUniformBoxManipulatorAdapter();
 
+  virtual void QueryGridSettings(ezGridSettingsMsgToEngine& outGridSettings) override;
+
 protected:
   virtual void Finalize() override;
   virtual void Update() override;

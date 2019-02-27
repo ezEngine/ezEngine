@@ -10,6 +10,7 @@ class ezDocumentObject;
 struct ezDocumentObjectPropertyEvent;
 struct ezQtDocumentWindowEvent;
 class ezObjectAccessorBase;
+class ezGridSettingsMsgToEngine;
 
 class EZ_EDITORFRAMEWORK_DLL ezManipulatorAdapter
 {
@@ -18,6 +19,8 @@ public:
   virtual ~ezManipulatorAdapter();
 
   void SetManipulator(const ezManipulatorAttribute* pAttribute, const ezDocumentObject* pObject);
+
+  virtual void QueryGridSettings(ezGridSettingsMsgToEngine& outGridSettings) {}
 
 private:
   void DocumentObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);

@@ -2,13 +2,25 @@
 
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/Manipulators/NonUniformBoxManipulatorAdapter.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezNonUniformBoxManipulatorAdapter::ezNonUniformBoxManipulatorAdapter() {}
+ezNonUniformBoxManipulatorAdapter::ezNonUniformBoxManipulatorAdapter() = default;
+ezNonUniformBoxManipulatorAdapter::~ezNonUniformBoxManipulatorAdapter() = default;
 
-ezNonUniformBoxManipulatorAdapter::~ezNonUniformBoxManipulatorAdapter() {}
+void ezNonUniformBoxManipulatorAdapter::QueryGridSettings(ezGridSettingsMsgToEngine& outGridSettings)
+{
+  outGridSettings.m_vGridCenter = m_Gizmo.GetTransformation().m_vPosition;
+
+  // if density != 0, it is enabled at least in ortho mode
+  outGridSettings.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue();
+
+  // to be active in perspective mode, tangents have to be non-zero
+  outGridSettings.m_vGridTangent1.SetZero();
+  outGridSettings.m_vGridTangent2.SetZero();
+}
 
 void ezNonUniformBoxManipulatorAdapter::Finalize()
 {
@@ -82,7 +94,7 @@ void ezNonUniformBoxManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
       if (pAttr->HasSixAxis())
       {
         ChangeProperties(pAttr->GetNegXProperty(), neg.x, pAttr->GetPosXProperty(), pos.x, pAttr->GetNegYProperty(), neg.y,
-                         pAttr->GetPosYProperty(), pos.y, pAttr->GetNegZProperty(), neg.z, pAttr->GetPosZProperty(), pos.z);
+          pAttr->GetPosYProperty(), pos.y, pAttr->GetNegZProperty(), neg.z, pAttr->GetPosZProperty(), pos.z);
       }
       else
       {

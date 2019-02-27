@@ -157,10 +157,13 @@ void ezTranslateGizmoEditTool::GetGridSettings(ezGridSettingsMsgToEngine& msg)
   auto pSceneDoc = GetDocument();
   ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument());
 
+  // if density != 0, it is enabled at least in ortho mode
   msg.m_fGridDensity =
       ezSnapProvider::GetTranslationSnapValue() * (pSceneDoc->GetGizmoWorldSpace() ? 1.0f : -1.0f); // negative density = local space
-  msg.m_vGridTangent1.SetZero();                                                                    // indicates that the grid is disabled
-  msg.m_vGridTangent2.SetZero();                                                                    // indicates that the grid is disabled
+
+  // to be active in perspective mode, tangents have to be non-zero
+  msg.m_vGridTangent1.SetZero();
+  msg.m_vGridTangent2.SetZero();
 
   ezTranslateGizmo& translateGizmo = m_TranslateGizmo;
 

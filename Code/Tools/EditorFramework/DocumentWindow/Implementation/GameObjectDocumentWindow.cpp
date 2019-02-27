@@ -10,6 +10,7 @@
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <Preferences/EditorPreferences.h>
 #include <Preferences/ScenePreferences.h>
+#include <Manipulators/ManipulatorAdapterRegistry.h>
 
 ezQtGameObjectDocumentWindow::ezQtGameObjectDocumentWindow(ezGameObjectDocument* pDocument)
     : ezQtEngineDocumentWindow(pDocument)
@@ -51,11 +52,14 @@ ezWorldSettingsMsgToEngine ezQtGameObjectDocumentWindow::GetWorldSettings() cons
 ezGridSettingsMsgToEngine ezQtGameObjectDocumentWindow::GetGridSettings() const
 {
   ezGridSettingsMsgToEngine msg;
-  const ezHybridArray<ezPropertySelection, 8>* selection = nullptr;
 
   if (auto pTool = GetGameObjectDocument()->GetActiveEditTool())
   {
     pTool->GetGridSettings(msg);
+  }
+  else
+  {
+    ezManipulatorAdapterRegistry::GetSingleton()->QueryGridSettings(GetDocument(), msg);
   }
 
   return msg;

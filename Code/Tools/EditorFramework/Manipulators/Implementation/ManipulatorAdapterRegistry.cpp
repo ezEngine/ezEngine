@@ -43,6 +43,14 @@ ezManipulatorAdapterRegistry::~ezManipulatorAdapterRegistry()
   }
 }
 
+void ezManipulatorAdapterRegistry::QueryGridSettings(const ezDocument* pDocument, ezGridSettingsMsgToEngine& outGridSettings)
+{
+  for (auto& adapt : m_DocumentAdapters[pDocument].m_Adapters)
+  {
+    adapt->QueryGridSettings(outGridSettings);
+  }
+}
+
 void ezManipulatorAdapterRegistry::ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e)
 {
   ClearAdapters(e.m_pDocument);
