@@ -58,8 +58,6 @@ if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
   endif()
 endif()
 
-AddPhysX(TRUE)
-
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
 
 

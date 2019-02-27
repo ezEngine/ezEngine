@@ -21,11 +21,23 @@ BUILD_CONDITIONAL(EZ_BUILD_PHYSX)
 #  OpenGL32.lib    # Example: A library that can be found in any lib path, but was not built with cmake
 # )
 
-SET (LINK_LIBRARIES 
+SET (LINK_LIBRARIES
   Foundation
   Core
   ThirdParty
 )
-AddPhysX(TRUE)
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
+
+find_package(ezPhysX REQUIRED)
+
+if (EZPHYSX_FOUND)
+  target_link_libraries(${PROJECT_NAME} ezPhysX::Cooking)
+
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezPhysX::Foundation> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezPhysX::Cooking> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+  )
+
+endif()
+

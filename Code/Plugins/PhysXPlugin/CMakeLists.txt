@@ -30,24 +30,26 @@ SET (LINK_LIBRARIES
   RendererFoundation
   RendererCore
 )
-AddPhysX(FALSE)
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
 
+find_package(ezPhysX REQUIRED)
 
-# Copy dlls for win desktop build
-#
-# Note that this needs to be done after the library is defined (via CMAKE_Library.txt) which is why this can't be done in CMAKE_PhysX.txt
-# (Also, this should happen only in a single one project.)
-if (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
-    add_custom_command(TARGET ${PROJECT_NAME}
-        COMMAND ${CMAKE_COMMAND}
-            -DMSVC_BUILD_CONFIG_DIR=${CMAKE_CFG_INTDIR}
-            -DBUILDSYSTEM_PLATFORM_64BIT=${BUILDSYSTEM_PLATFORM_64BIT}
-            -DPHYSX_SOURCE=${PHYSX_BIN_DIR}
-            -DPXSHARED_SOURCE=${PXSHARED_BIN_DIR}
-            -DPHYSX_TARGET=$<TARGET_FILE_DIR:${PROJECT_NAME}>
-            -P "${CMAKE_CURRENT_SOURCE_DIR}/CopyPhysXDlls.cmake"
-        VERBATIM
-    )
- endif()
+if (EZPHYSX_FOUND)
+  target_link_libraries(${PROJECT_NAME} ezPhysX::PhysX)
+  target_link_libraries(${PROJECT_NAME} ezPhysX::Extensions)
+  target_link_libraries(${PROJECT_NAME} ezPhysX::PVD)
+  target_link_libraries(${PROJECT_NAME} ezPhysX::Character)
+
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezPhysX::nvTools> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezPhysX::Foundation> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezPhysX::Common> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezPhysX::PhysX> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezPhysX::Extensions> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezPhysX::PVD> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezPhysX::Character> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+  )
+
+endif()
+
