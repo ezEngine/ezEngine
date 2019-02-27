@@ -37,7 +37,7 @@ protected:
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override {}
 
 private:
-  bool IsViewInOthoMode() const;
+  bool IsViewInOrthoMode() const;
 
   ezVec2I32 m_LastMousePos;
   ezVec3 m_vUnsnappedTranslationResult;

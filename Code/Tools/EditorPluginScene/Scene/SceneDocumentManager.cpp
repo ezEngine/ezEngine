@@ -140,7 +140,7 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
       ezSetObjectPropertyCommand propCmd;
       propCmd.m_Object = cmd.m_NewObjectGuid;
       propCmd.m_sProperty = "LocalPosition";
-      propCmd.m_NewValue = ezVec3(-3, 0, 2);
+      propCmd.m_NewValue = ezVec3(0, 0, 0);
       EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
     }
 
@@ -185,7 +185,7 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
       ezSetObjectPropertyCommand propCmd;
       propCmd.m_Object = cmd.m_NewObjectGuid;
       propCmd.m_sProperty = "LocalPosition";
-      propCmd.m_NewValue = ezVec3(0, 0, -0.5f);
+      propCmd.m_NewValue = ezVec3(3, 0, 0);
       EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
     }
   }
@@ -290,7 +290,7 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
       ezSetObjectPropertyCommand propCmd;
       propCmd.m_Object = cmd.m_NewObjectGuid;
       propCmd.m_sProperty = "Mesh";
-      propCmd.m_NewValue = "{ 87012036-2712-42af-80ba-c0fd29d5a480 }";
+      propCmd.m_NewValue = "{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"; // Base/Meshes/Sphere.ezMeshAsset
       EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
     }
   }

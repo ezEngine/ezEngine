@@ -42,7 +42,7 @@ void ezOrthoGizmoContext::FocusLost(bool bCancel)
 
 ezEditorInput ezOrthoGizmoContext::DoMousePressEvent(QMouseEvent* e)
 {
-  if (!IsViewInOthoMode())
+  if (!IsViewInOrthoMode())
     return ezEditorInput::MayBeHandledByOthers;
   if (GetOwnerWindow()->GetDocument()->GetSelectionManager()->IsSelectionEmpty())
     return ezEditorInput::MayBeHandledByOthers;
@@ -169,7 +169,7 @@ ezEditorInput ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
   return ezEditorInput::MayBeHandledByOthers;
 }
 
-bool ezOrthoGizmoContext::IsViewInOthoMode() const
+bool ezOrthoGizmoContext::IsViewInOrthoMode() const
 {
   return (GetOwnerView()->m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective);
 }

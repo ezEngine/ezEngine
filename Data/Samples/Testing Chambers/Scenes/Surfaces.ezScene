@@ -11,12 +11,13 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{332678910050156717,5413383538482065259}}
-		u4 %Hash{18368569752283500379}
+		u4 %Hash{6327059144929515609}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 			s{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
 			s{"{ 700252a3-0f42-4bdf-9a4e-acb2ea759784 }"}
 		}
@@ -471,7 +472,7 @@ o
 		b %Active{1}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
-		s %Material{""}
+		s %Material{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x00004842}
 		f %SizeNegY{0x00004842}

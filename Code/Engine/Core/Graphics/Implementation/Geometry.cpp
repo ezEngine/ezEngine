@@ -1139,7 +1139,9 @@ void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks
       vPos.y = -ezMath::Sin(fDegree) * fRadius * fCosDS;
       vPos.z = fY;
 
-      AddVertex(vPos, vPos.GetNormalized(), ezVec2(fU, fV), color, iCustomIndex, mTransform);
+      ezVec3 vNormal = vPos;
+      vNormal.NormalizeIfNotZero(ezVec3(0, 0, 1));
+      AddVertex(vPos, vNormal, ezVec2(fU, fV), color, iCustomIndex, mTransform);
     }
   }
 
