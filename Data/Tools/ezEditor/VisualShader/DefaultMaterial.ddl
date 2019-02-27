@@ -45,9 +45,16 @@ CAMERA_MODE=CAMERA_MODE_PERSPECTIVE
   #define USE_WORLD_POSITION_OFFSET
 #endif
 
-#include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialVertexShader.h>
 #include <Shaders/Common/VisualShaderUtil.h>
+
+CONSTANT_BUFFER(ezMaterialConstants, 1)
+{
+  FLOAT1(MaskThreshold);
+  
+  // Insert custom Visual Shader parameters here
+  VSE_CONSTANTS
+}
 
 VS_OUT main(VS_IN Input)
 {
@@ -111,7 +118,6 @@ float MaskThreshold @Default($prop0);
 " }
 
   string %CodePixelIncludes { "
-#include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialPixelShader.h>
 #include <Shaders/Common/VisualShaderUtil.h>
 " }
@@ -119,6 +125,14 @@ float MaskThreshold @Default($prop0);
   string %CodePixelSamplers { "" }
   string %CodePixelConstants { "" }
   string %CodePixelBody { "
+  
+CONSTANT_BUFFER(ezMaterialConstants, 1)
+{
+  FLOAT1(MaskThreshold);
+  
+  // Insert custom Visual Shader parameters here
+  VSE_CONSTANTS
+}
 
 float3 GetBaseColor()
 {
