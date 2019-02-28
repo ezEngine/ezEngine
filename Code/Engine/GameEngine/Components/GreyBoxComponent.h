@@ -94,6 +94,7 @@ public:
 protected:
   ezEnum<ezGreyBoxShape> m_Shape;
   ezMaterialResourceHandle m_hMaterial;
+  ezColor m_Color = ezColor::White;
   float m_fSizeNegX = 0;
   float m_fSizePosX = 0;
   float m_fSizeNegY = 0;

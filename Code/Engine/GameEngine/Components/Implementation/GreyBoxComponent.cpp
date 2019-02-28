@@ -14,12 +14,13 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGreyBoxShape, 1)
   EZ_ENUM_CONSTANTS(ezGreyBoxShape::StairsX, ezGreyBoxShape::StairsY, ezGreyBoxShape::ArchX, ezGreyBoxShape::ArchY, ezGreyBoxShape::SpiralStairs)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 2, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_ACCESSOR_PROPERTY("Shape", ezGreyBoxShape, GetShape, SetShape),
     EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("Material")),
+    EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
     EZ_ACCESSOR_PROPERTY("SizeNegX", GetSizeNegX, SetSizeNegX),//->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("SizePosX", GetSizePosX, SetSizePosX),//->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("SizeNegY", GetSizeNegY, SetSizeNegY),//->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
@@ -73,6 +74,9 @@ void ezGreyBoxComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fThickness;
   s << m_bSlopedTop;
   s << m_bSlopedBottom;
+
+  // Version 3
+  s << m_Color;
 }
 
 void ezGreyBoxComponent::DeserializeComponent(ezWorldReader& stream)
@@ -97,6 +101,11 @@ void ezGreyBoxComponent::DeserializeComponent(ezWorldReader& stream)
     s >> m_fThickness;
     s >> m_bSlopedTop;
     s >> m_bSlopedBottom;
+  }
+
+  if (uiVersion >= 3)
+  {
+    s >> m_Color;
   }
 }
 
@@ -146,7 +155,7 @@ void ezGreyBoxComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
       pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
       pRenderData->m_hMesh = m_hMesh;
       pRenderData->m_hMaterial = hMaterial;
-      pRenderData->m_Color = ezColor::White;
+      pRenderData->m_Color = m_Color;
 
       pRenderData->m_uiSubMeshIndex = uiPartIndex;
       pRenderData->m_uiFlipWinding = uiFlipWinding;
@@ -329,34 +338,34 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
   switch (m_Shape)
   {
     case ezGreyBoxShape::Box:
-      geom.AddTexturedBox(size, ezColor::White, t);
+      geom.AddTexturedBox(size, m_Color, t);
       break;
 
     case ezGreyBoxShape::RampX:
-      geom.AddTexturedRamp(size, ezColor::White, t);
+      geom.AddTexturedRamp(size, m_Color, t);
       break;
 
     case ezGreyBoxShape::RampY:
       ezMath::Swap(size.x, size.y);
       t.SetRotationMatrixZ(ezAngle::Degree(-90.0f));
       t.SetTranslationVector(offset);
-      geom.AddTexturedRamp(size, ezColor::White, t);
+      geom.AddTexturedRamp(size, m_Color, t);
       break;
 
     case ezGreyBoxShape::Column:
       t.SetScalingFactors(size);
-      geom.AddCylinder(0.5f, 0.5f, 0.5f, 0.5f, true, true, m_uiDetail, ezColor::White, t);
+      geom.AddCylinder(0.5f, 0.5f, 0.5f, 0.5f, true, true, m_uiDetail, m_Color, t);
       break;
 
     case ezGreyBoxShape::StairsX:
-      geom.AddStairs(size, m_uiDetail, m_Curvature, m_bSlopedTop, ezColor::White, t);
+      geom.AddStairs(size, m_uiDetail, m_Curvature, m_bSlopedTop, m_Color, t);
       break;
 
     case ezGreyBoxShape::StairsY:
       ezMath::Swap(size.x, size.y);
       t.SetRotationMatrixZ(ezAngle::Degree(-90.0f));
       t.SetTranslationVector(offset);
-      geom.AddStairs(size, m_uiDetail, m_Curvature, m_bSlopedTop, ezColor::White, t);
+      geom.AddStairs(size, m_uiDetail, m_Curvature, m_bSlopedTop, m_Color, t);
       break;
 
     case ezGreyBoxShape::ArchX:
@@ -369,7 +378,7 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
       t2.SetRotationMatrixX(ezAngle::Degree(90));
       t = t2 * t;
       t.SetTranslationVector(offset);
-      geom.AddArch(size, m_uiDetail, m_fThickness, m_Curvature, false, false, false, ezColor::White, t);
+      geom.AddArch(size, m_uiDetail, m_fThickness, m_Curvature, false, false, false, m_Color, t);
     }
     break;
 
@@ -381,12 +390,12 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
       ezMath::Swap(size.y, size.z);
       t = t3 * t2 * t;
       t.SetTranslationVector(offset);
-      geom.AddArch(size, m_uiDetail, m_fThickness, m_Curvature, false, false, false, ezColor::White, t);
+      geom.AddArch(size, m_uiDetail, m_fThickness, m_Curvature, false, false, false, m_Color, t);
     }
     break;
 
     case ezGreyBoxShape::SpiralStairs:
-      geom.AddArch(size, m_uiDetail, m_fThickness, m_Curvature, true, m_bSlopedBottom, m_bSlopedTop, ezColor::White, t);
+      geom.AddArch(size, m_uiDetail, m_fThickness, m_Curvature, true, m_bSlopedBottom, m_bSlopedTop, m_Color, t);
       break;
 
     default:
