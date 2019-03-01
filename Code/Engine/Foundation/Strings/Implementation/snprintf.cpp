@@ -768,6 +768,21 @@ static void FormatUFloatScientific(char* szOutputBuffer, unsigned int uiBufferSi
   OutputInt(szOutputBuffer, uiBufferSize, uiWritePos, exp, 0, 3, sprintfFlags::ForceZeroSign, 10);
 }
 
+static bool IsAllZero(char* szBuffer)
+{
+  while (*szBuffer != '\0')
+  {
+    if (*szBuffer != '0' && *szBuffer != '.')
+    {
+      return false;
+    }
+
+    ++szBuffer;
+  }
+
+  return true;
+}
+
 static void OutputFloat(char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, double value, int iWidth, int iPrecision,
                         unsigned int Flags, bool bUpperCase, bool bScientific, bool bRemoveZeroes)
 {
@@ -782,14 +797,20 @@ static void OutputFloat(char* szOutputBuffer, unsigned int uiBufferSize, unsigne
 
   szBuffer[iNumDigits] = '\0';
 
-  int iNumberWidth = GetSignSize((long long int)value, Flags, 10, iPrecision) + iNumDigits;
+  double signValue = value;
+
+  // if the stringification of a float value with the given precision resulted in only zeros, do not print a minus sign
+  if (IsAllZero(szBuffer))
+    signValue = 0;
+
+  int iNumberWidth = GetSignSize((long long int)signValue, Flags, 10, iPrecision) + iNumDigits;
 
   // when right justifying, first output the padding
   if ((Flags & sprintfFlags::LeftJustify) == 0)
-    OutputIntSignAndPadding(szOutputBuffer, uiBufferSize, uiWritePos, value < 0 ? -1 : 1, Flags, iWidth - iNumberWidth, 10, false,
-                            iPrecision);
+    OutputIntSignAndPadding(
+      szOutputBuffer, uiBufferSize, uiWritePos, signValue < 0 ? -1 : 1, Flags, iWidth - iNumberWidth, 10, false, iPrecision);
   else
-    OutputIntSign(szOutputBuffer, uiBufferSize, uiWritePos, value < 0 ? -1 : 1, Flags, 10, false, 1);
+    OutputIntSign(szOutputBuffer, uiBufferSize, uiWritePos, signValue < 0 ? -1 : 1, Flags, 10, false, 1);
 
   OutputString(szOutputBuffer, uiBufferSize, uiWritePos, szBuffer, Flags, 0, -1);
 
