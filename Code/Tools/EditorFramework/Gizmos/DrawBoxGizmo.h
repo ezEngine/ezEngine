@@ -46,7 +46,9 @@ protected:
 private:
   void SwitchMode(bool bCancel);
   void UpdateBox();
-  void UpdateGrid(bool bControlPressed);
+  void DisableGrid(bool bControlPressed);
+  void UpdateGrid(QMouseEvent* e);
+  bool PickPosition(QMouseEvent* e);
 
   ManipulateMode m_ManipulateMode;
   ezEngineGizmoHandle m_Box;

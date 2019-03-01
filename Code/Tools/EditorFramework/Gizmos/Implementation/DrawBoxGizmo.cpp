@@ -50,36 +50,47 @@ void ezDrawBoxGizmo::DoFocusLost(bool bCancel)
     SetActiveInputContext(nullptr);
 }
 
+bool ezDrawBoxGizmo::PickPosition(QMouseEvent* e)
+{
+  const QPoint mousePos = GetOwnerWindow()->mapFromGlobal(QCursor::pos());
+
+  const ezObjectPickingResult& res = GetOwnerView()->PickObject(mousePos.x(), mousePos.y());
+
+  m_vUpAxis = GetOwnerView()->GetFallbackPickingPlane().m_vNormal;
+  m_vUpAxis.x = ezMath::Abs(m_vUpAxis.x);
+  m_vUpAxis.y = ezMath::Abs(m_vUpAxis.y);
+  m_vUpAxis.z = ezMath::Abs(m_vUpAxis.z);
+
+  if (res.m_PickedObject.IsValid() && !e->modifiers().testFlag(Qt::ShiftModifier))
+  {
+    m_vCurrentPosition = res.m_vPickedPosition;
+  }
+  else
+  {
+    if (GetOwnerView()
+          ->PickPlane(e->pos().x(), e->pos().y(), GetOwnerView()->GetFallbackPickingPlane(m_vLastStartPoint), m_vCurrentPosition)
+          .Failed())
+    {
+      return false;
+    }
+  }
+
+  ezSnapProvider::SnapTranslation(m_vCurrentPosition);
+  return true;
+}
+
 ezEditorInput ezDrawBoxGizmo::DoMousePressEvent(QMouseEvent* e)
 {
-  if (e->buttons() == Qt::LeftButton && e->modifiers() == Qt::ControlModifier)
+  if (e->buttons() == Qt::LeftButton && e->modifiers().testFlag(Qt::ControlModifier))
   {
     if (m_ManipulateMode == ManipulateMode::None)
     {
-      const QPoint mousePos = GetOwnerWindow()->mapFromGlobal(QCursor::pos());
-
-      const ezObjectPickingResult& res = GetOwnerView()->PickObject(mousePos.x(), mousePos.y());
-
-      m_vUpAxis = GetOwnerView()->GetFallbackPickingPlane().m_vNormal;
-      m_vUpAxis.x = ezMath::Abs(m_vUpAxis.x);
-      m_vUpAxis.y = ezMath::Abs(m_vUpAxis.y);
-      m_vUpAxis.z = ezMath::Abs(m_vUpAxis.z);
-
-      if (res.m_PickedObject.IsValid())
+      if (!PickPosition(e))
       {
-        m_vCurrentPosition = res.m_vPickedPosition;
-        m_vLastStartPoint = res.m_vPickedPosition;
-      }
-      else
-      {
-        if (GetOwnerView()
-              ->PickPlane(e->pos().x(), e->pos().y(), GetOwnerView()->GetFallbackPickingPlane(m_vLastStartPoint), m_vCurrentPosition)
-              .Failed())
-          return ezEditorInput::WasExclusivelyHandled; // failed to pick anything
+        return ezEditorInput::WasExclusivelyHandled; // failed to pick anything
       }
 
-      ezSnapProvider::SnapTranslation(m_vCurrentPosition);
-
+      m_vLastStartPoint = m_vCurrentPosition;
       SwitchMode(false);
       return ezEditorInput::WasExclusivelyHandled;
     }
@@ -107,7 +118,7 @@ ezEditorInput ezDrawBoxGizmo::DoMouseReleaseEvent(QMouseEvent* e)
 
 ezEditorInput ezDrawBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
 {
-  UpdateGrid(e->modifiers() == Qt::ControlModifier);
+  UpdateGrid(e);
 
   if (!IsActiveInputContext())
     return ezEditorInput::MayBeHandledByOthers;
@@ -140,7 +151,7 @@ ezEditorInput ezDrawBoxGizmo::DoKeyPressEvent(QKeyEvent* e)
   if (!IsVisible())
     return ezEditorInput::MayBeHandledByOthers;
 
-  UpdateGrid(e->modifiers() == Qt::ControlModifier);
+  DisableGrid(e->modifiers().testFlag(Qt::ControlModifier));
 
   if (e->key() == Qt::Key_Escape)
   {
@@ -156,7 +167,7 @@ ezEditorInput ezDrawBoxGizmo::DoKeyPressEvent(QKeyEvent* e)
 
 ezEditorInput ezDrawBoxGizmo::DoKeyReleaseEvent(QKeyEvent* e)
 {
-  UpdateGrid(e->modifiers() == Qt::ControlModifier);
+  DisableGrid(e->modifiers().testFlag(Qt::ControlModifier));
 
   return ezEditorInput::MayBeHandledByOthers;
 }
@@ -267,21 +278,25 @@ void ezDrawBoxGizmo::UpdateBox()
   m_Box.SetVisible(true);
 }
 
-void ezDrawBoxGizmo::UpdateGrid(bool bControlPressed)
+void ezDrawBoxGizmo::DisableGrid(bool bControlPressed)
 {
-  if (m_ManipulateMode == ManipulateMode::None && bControlPressed)
-  {
-    const QPoint mousePos = GetOwnerWindow()->mapFromGlobal(QCursor::pos());
-    const ezObjectPickingResult& res = GetOwnerView()->PickObject(mousePos.x(), mousePos.y());
-
-    m_vCurrentPosition = res.m_vPickedPosition;
-    ezSnapProvider::SnapTranslation(m_vCurrentPosition);
-    m_vFirstCorner = m_vCurrentPosition;
-    m_bDisplayGrid = true;
-  }
-  else
+  if (!bControlPressed)
   {
     m_bDisplayGrid = false;
+  }
+}
+
+void ezDrawBoxGizmo::UpdateGrid(QMouseEvent* e)
+{
+  m_bDisplayGrid = false;
+
+  if (m_ManipulateMode == ManipulateMode::None && e->modifiers().testFlag(Qt::ControlModifier))
+  {
+    if (e != nullptr && PickPosition(e))
+    {
+      m_vFirstCorner = m_vCurrentPosition;
+      m_bDisplayGrid = true;
+    }
   }
 }
 
