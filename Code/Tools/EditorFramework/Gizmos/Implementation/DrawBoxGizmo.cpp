@@ -8,10 +8,12 @@
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Math/Mat4.h>
+#include <Foundation/Strings/Implementation/FormatStringArgs.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <QMouseEvent>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDrawBoxGizmo, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDrawBoxGizmo, 1, ezRTTINoAllocator)
+  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDrawBoxGizmo::ezDrawBoxGizmo()
@@ -71,8 +73,8 @@ ezEditorInput ezDrawBoxGizmo::DoMousePressEvent(QMouseEvent* e)
       else
       {
         if (GetOwnerView()
-                ->PickPlane(e->pos().x(), e->pos().y(), GetOwnerView()->GetFallbackPickingPlane(m_vLastStartPoint), m_vCurrentPosition)
-                .Failed())
+              ->PickPlane(e->pos().x(), e->pos().y(), GetOwnerView()->GetFallbackPickingPlane(m_vLastStartPoint), m_vCurrentPosition)
+              .Failed())
           return ezEditorInput::WasExclusivelyHandled; // failed to pick anything
       }
 
@@ -105,6 +107,8 @@ ezEditorInput ezDrawBoxGizmo::DoMouseReleaseEvent(QMouseEvent* e)
 
 ezEditorInput ezDrawBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
 {
+  UpdateGrid(e->modifiers() == Qt::ControlModifier);
+
   if (!IsActiveInputContext())
     return ezEditorInput::MayBeHandledByOthers;
 
@@ -136,6 +140,8 @@ ezEditorInput ezDrawBoxGizmo::DoKeyPressEvent(QKeyEvent* e)
   if (!IsVisible())
     return ezEditorInput::MayBeHandledByOthers;
 
+  UpdateGrid(e->modifiers() == Qt::ControlModifier);
+
   if (e->key() == Qt::Key_Escape)
   {
     if (m_ManipulateMode != ManipulateMode::None)
@@ -150,6 +156,8 @@ ezEditorInput ezDrawBoxGizmo::DoKeyPressEvent(QKeyEvent* e)
 
 ezEditorInput ezDrawBoxGizmo::DoKeyReleaseEvent(QKeyEvent* e)
 {
+  UpdateGrid(e->modifiers() == Qt::ControlModifier);
+
   return ezEditorInput::MayBeHandledByOthers;
 }
 
@@ -171,6 +179,7 @@ void ezDrawBoxGizmo::SwitchMode(bool bCancel)
   {
     m_ManipulateMode = ManipulateMode::DrawBase;
     m_vFirstCorner = m_vCurrentPosition;
+    m_vSecondCorner = m_vFirstCorner;
 
     SetActiveInputContext(this);
     UpdateBox();
@@ -258,8 +267,26 @@ void ezDrawBoxGizmo::UpdateBox()
   m_Box.SetVisible(true);
 }
 
+void ezDrawBoxGizmo::UpdateGrid(bool bControlPressed)
+{
+  if (m_ManipulateMode == ManipulateMode::None && bControlPressed)
+  {
+    const QPoint mousePos = GetOwnerWindow()->mapFromGlobal(QCursor::pos());
+    const ezObjectPickingResult& res = GetOwnerView()->PickObject(mousePos.x(), mousePos.y());
+
+    m_vCurrentPosition = res.m_vPickedPosition;
+    ezSnapProvider::SnapTranslation(m_vCurrentPosition);
+    m_vFirstCorner = m_vCurrentPosition;
+    m_bDisplayGrid = true;
+  }
+  else
+  {
+    m_bDisplayGrid = false;
+  }
+}
+
 void ezDrawBoxGizmo::GetResult(ezVec3& out_Origin, float& out_fSizeNegX, float& out_fSizePosX, float& out_fSizeNegY, float& out_fSizePosY,
-                               float& out_fSizeNegZ, float& out_fSizePosZ) const
+  float& out_fSizeNegZ, float& out_fSizePosZ) const
 {
   out_Origin = m_vFirstCorner;
 
@@ -320,13 +347,32 @@ void ezDrawBoxGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
   switch (m_ManipulateMode)
   {
     case ManipulateMode::None:
+    {
       pWindow->SetPermanentStatusBarMsg("Hold CTRL and click-drag to draw a box.");
       break;
+    }
+
     case ManipulateMode::DrawBase:
-      pWindow->SetPermanentStatusBarMsg("Release the mouse to finish the base. ESC to cancel.");
+    {
+      ezVec3 diff = m_vSecondCorner - m_vFirstCorner;
+      diff.x = ezMath::Abs(diff.x);
+      diff.y = ezMath::Abs(diff.y);
+
+      pWindow->SetPermanentStatusBarMsg(ezFmt("[Width: {}, Depth: {}, Height: {}] Release the mouse to finish the base. ESC to cancel.",
+        ezArgF(diff.y, 2, false, 2), ezArgF(diff.x, 2, false, 2), ezArgF(m_fBoxHeight, 2, false, 2)));
       break;
+    }
+
     case ManipulateMode::DrawHeight:
-      pWindow->SetPermanentStatusBarMsg("Draw up/down to specify the box height. Click to finish, ESC to cancel.");
+    {
+      ezVec3 diff = m_vSecondCorner - m_vFirstCorner;
+      diff.x = ezMath::Abs(diff.x);
+      diff.y = ezMath::Abs(diff.y);
+
+      pWindow->SetPermanentStatusBarMsg(
+        ezFmt("[Width: {}, Depth: {}, Height: {}] Draw up/down to specify the box height. Click to finish, ESC to cancel.",
+          ezArgF(diff.y, 2, false, 2), ezArgF(diff.x, 2, false, 2), ezArgF(m_fBoxHeight, 2, false, 2)));
       break;
+    }
   }
 }

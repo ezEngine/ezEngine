@@ -36,6 +36,7 @@ public:
   ezEvent<const ezManipulatorManagerEvent&> m_Events;
 
   void HideActiveManipulator(const ezDocument* pDoc, bool bHide);
+  void ToggleHideActiveManipulator(const ezDocument* pDoc);
 
 private:
   struct Data

@@ -11,6 +11,7 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectMetaData, 1, ezRTTINoAllocator)
@@ -94,7 +95,16 @@ void ezGameObjectDocument::SetActiveEditTool(const ezRTTI* pEditToolType)
   }
 
   if (m_pActiveEditTool == pEditTool)
+  {
+    if (m_pActiveEditTool == nullptr)
+    {
+      // if there is currently no active edit tool, we may still have a manipulator active
+      // if so, when repeatedly selecting this action, toggle the visibility of manipulators
+      ezManipulatorManager::GetSingleton()->ToggleHideActiveManipulator(this);
+    }
+
     return;
+  }
 
   if (m_pActiveEditTool)
     m_pActiveEditTool->SetActive(false);

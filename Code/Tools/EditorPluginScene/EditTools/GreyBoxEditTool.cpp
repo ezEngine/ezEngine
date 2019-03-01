@@ -77,6 +77,16 @@ void ezGreyBoxEditTool::GetGridSettings(ezGridSettingsMsgToEngine& msg)
         msg.m_vGridTangent2 = ezVec3(0, 0, 1);
       }
     }
+    else if (m_DrawBoxGizmo.GetCurrentMode() == ezDrawBoxGizmo::ManipulateMode::None)
+    {
+      if (m_DrawBoxGizmo.GetDisplayGrid())
+      {
+        msg.m_vGridCenter = m_DrawBoxGizmo.GetStartPosition();
+
+        msg.m_vGridTangent1 = ezVec3(1, 0, 0);
+        msg.m_vGridTangent2 = ezVec3(0, 1, 0);
+      }
+    }
   }
 }
 

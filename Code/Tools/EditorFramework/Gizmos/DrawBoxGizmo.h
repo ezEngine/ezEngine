@@ -1,9 +1,9 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
 #include <QPoint>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 class EZ_EDITORFRAMEWORK_DLL ezDrawBoxGizmo : public ezGizmo
 {
@@ -20,12 +20,15 @@ public:
   ezDrawBoxGizmo();
   ~ezDrawBoxGizmo();
 
-  void GetResult(ezVec3& out_Origin, float& out_fSizeNegX, float& out_fSizePosX, float& out_fSizeNegY, float& out_fSizePosY, float& out_fSizeNegZ, float& out_fSizePosZ) const;
+  void GetResult(ezVec3& out_Origin, float& out_fSizeNegX, float& out_fSizePosX, float& out_fSizeNegY, float& out_fSizePosY,
+    float& out_fSizeNegZ, float& out_fSizePosZ) const;
 
   ManipulateMode GetCurrentMode() const { return m_ManipulateMode; }
   const ezVec3& GetStartPosition() const { return m_vFirstCorner; }
 
   virtual void UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow) override;
+
+  bool GetDisplayGrid() const { return m_bDisplayGrid; }
 
 protected:
   virtual void DoFocusLost(bool bCancel) override;
@@ -41,9 +44,9 @@ protected:
   virtual void OnTransformationChanged(const ezTransform& transform) override;
 
 private:
-
   void SwitchMode(bool bCancel);
   void UpdateBox();
+  void UpdateGrid(bool bControlPressed);
 
   ManipulateMode m_ManipulateMode;
   ezEngineGizmoHandle m_Box;
@@ -57,4 +60,5 @@ private:
   ezVec3 m_vLastStartPoint;
   float m_fBoxHeight = 0.5f;
   float m_fOriginalBoxHeight = 0.5f;
+  bool m_bDisplayGrid = false;
 };

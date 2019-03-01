@@ -123,6 +123,26 @@ void ezManipulatorManager::HideActiveManipulator(const ezDocument* pDoc, bool bH
   }
 }
 
+void ezManipulatorManager::ToggleHideActiveManipulator(const ezDocument* pDoc)
+{
+  auto it = m_ActiveManipulator.Find(pDoc);
+
+  if (it.IsValid())
+  {
+    it.Value().m_bHideManipulators = !it.Value().m_bHideManipulators;
+
+    if (it.Value().m_bHideManipulators)
+    {
+      ezHybridArray<ezPropertySelection, 8> clearSel;
+      InternalSetActiveManipulator(pDoc, it.Value().m_pAttribute, clearSel, false);
+    }
+    else
+    {
+      TransferToCurrentSelection(pDoc);
+    }
+  }
+}
+
 void ezManipulatorManager::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
   if (e.m_EventType == ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved)
