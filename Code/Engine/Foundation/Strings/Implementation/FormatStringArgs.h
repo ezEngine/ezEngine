@@ -5,6 +5,7 @@
 
 class ezStringBuilder;
 class ezVariant;
+class ezAngle;
 
 struct ezArgI
 {
@@ -104,6 +105,8 @@ EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const e
 EZ_FOUNDATION_DLL const ezStringView& BuildString(char* tmp, ezUInt32 uiLength, const ezStringView& arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgC& arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgP& arg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezResult result);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezVariant& result);
+EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezResult arg);
+EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezVariant& arg);
+EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezAngle& arg);
+
 

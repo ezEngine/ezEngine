@@ -136,19 +136,32 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgP& arg)
   return ezStringView(tmp);
 }
 
-ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezResult result)
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezResult arg)
 {
-  if (result.Failed())
+  if (arg.Failed())
     return "<failed>";
   else
     return "<succeeded>";
 }
 
-ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezVariant& result)
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezVariant& arg)
 {
-  ezString sString = result.ConvertTo<ezString>();
+  ezString sString = arg.ConvertTo<ezString>();
   ezStringUtils::snprintf(tmp, uiLength, "%s", sString.GetData());
   return ezStringView(tmp);
+}
+
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezAngle& arg)
+{
+  ezUInt32 writepos = 0;
+  ezStringUtils::OutputFormattedFloat(tmp, uiLength-2, writepos, arg.GetDegree(), 1, false, 1, false);
+
+  // Utf-8 representation of the degree sign
+  tmp[writepos+0] = (char)0xC2;
+  tmp[writepos+1] = (char)0xB0;
+  tmp[writepos+2] = '\0';
+
+  return ezStringView(tmp, tmp + writepos + 2);
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
