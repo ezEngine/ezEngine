@@ -10,8 +10,9 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezViewRenderMode, 1)
   EZ_ENUM_CONSTANTS(ezViewRenderMode::WireframeColor, ezViewRenderMode::WireframeMonochrome)
   EZ_ENUM_CONSTANTS(ezViewRenderMode::LitOnly)
   EZ_ENUM_CONSTANTS(ezViewRenderMode::LightCount, ezViewRenderMode::DecalCount)
-  EZ_ENUM_CONSTANTS(ezViewRenderMode::TexCoordsUV0)
-  EZ_ENUM_CONSTANTS(ezViewRenderMode::PixelNormals, ezViewRenderMode::VertexNormals, ezViewRenderMode::VertexTangents)
+  EZ_ENUM_CONSTANTS(ezViewRenderMode::TexCoordsUV0, ezViewRenderMode::TexCoordsUV1)
+  EZ_ENUM_CONSTANTS(ezViewRenderMode::VertexColors)
+  EZ_ENUM_CONSTANTS(ezViewRenderMode::VertexNormals, ezViewRenderMode::VertexTangents, ezViewRenderMode::PixelNormals)
   EZ_ENUM_CONSTANTS(ezViewRenderMode::DiffuseColor, ezViewRenderMode::DiffuseColorRange, ezViewRenderMode::SpecularColor)
   EZ_ENUM_CONSTANTS(ezViewRenderMode::EmissiveColor)
   EZ_ENUM_CONSTANTS(ezViewRenderMode::Roughness, ezViewRenderMode::Occlusion, ezViewRenderMode::Depth)
@@ -61,14 +62,20 @@ int ezViewRenderMode::GetRenderPassForShader(Enum renderMode)
     case ezViewRenderMode::TexCoordsUV0:
       return EDITOR_RENDER_PASS_TEXCOORDS_UV0;
 
-    case ezViewRenderMode::PixelNormals:
-      return EDITOR_RENDER_PASS_PIXEL_NORMALS;
+    case ezViewRenderMode::TexCoordsUV1:
+      return EDITOR_RENDER_PASS_TEXCOORDS_UV1;
+
+    case ezViewRenderMode::VertexColors:
+      return EDITOR_RENDER_PASS_VERTEX_COLORS;
 
     case ezViewRenderMode::VertexNormals:
       return EDITOR_RENDER_PASS_VERTEX_NORMALS;
 
     case ezViewRenderMode::VertexTangents:
       return EDITOR_RENDER_PASS_VERTEX_TANGENTS;
+
+    case ezViewRenderMode::PixelNormals:
+      return EDITOR_RENDER_PASS_PIXEL_NORMALS;
 
     case ezViewRenderMode::DiffuseColor:
       return EDITOR_RENDER_PASS_DIFFUSE_COLOR;

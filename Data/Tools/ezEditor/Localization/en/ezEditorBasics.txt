@@ -66,6 +66,8 @@ ezViewRenderMode::LitOnly;Lit Only
 ezViewRenderMode::LightCount;Light Count
 ezViewRenderMode::DecalCount;Decal Count
 ezViewRenderMode::TexCoordsUV0;Texture Coordinates (UV0)
+ezViewRenderMode::TexCoordsUV1;Texture Coordinates (UV1)
+ezViewRenderMode::VertexColors;Vertex Colors
 ezViewRenderMode::PixelNormals;Pixel Normals
 ezViewRenderMode::VertexNormals;Vertex Normals
 ezViewRenderMode::VertexTangents;Vertex Tangents
