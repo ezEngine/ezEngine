@@ -363,7 +363,7 @@ void ezDrawBoxGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
   {
     case ManipulateMode::None:
     {
-      pWindow->SetPermanentStatusBarMsg("Hold CTRL and click-drag to draw a box.");
+      pWindow->SetPermanentStatusBarMsg("Hold CTRL and click-drag to draw a box. Hold SHIFT to reuse the previous plane height.");
       break;
     }
 

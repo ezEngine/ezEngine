@@ -73,7 +73,10 @@ public:
   static ezQtDocumentWindow* FindWindowByDocument(const ezDocument* pDocument);
   ezQtContainerWindow* GetContainerWindow() const;
 
+  /// \brief Shows the given message for 5 seconds in the statusbar, then shows the permanent message again.
   void ShowTemporaryStatusBarMsg(const ezFormatString& sText);
+
+  /// \brief Sets which text to show permanently in the statusbar. Set an empty string to clear the message.
   void SetPermanentStatusBarMsg(const ezFormatString& sText);
 
   /// \brief Sets at which tab order index this window is located

@@ -110,6 +110,8 @@ void ezTranslateGizmo::DoFocusLost(bool bCancel)
 
   m_vStartPosition = GetTransformation().m_vPosition;
   m_TotalMouseDiff.SetZero();
+
+  GetOwnerWindow()->SetPermanentStatusBarMsg("");
 }
 
 ezEditorInput ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
@@ -343,6 +345,12 @@ ezEditorInput ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
   m_vLastMoveDiff = mTrans.m_vPosition - vLastPos;
 
   SetTransformation(mTrans);
+
+  // set statusbar message
+  {
+    const ezVec3 diff = -GetTransformation().m_qRotation * GetTranslationResult();
+    GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Translation: {}, {}, {}", ezArgF(diff.x, 2), ezArgF(diff.y, 2), ezArgF(diff.z, 2)));
+  }
 
   if (!m_vLastMoveDiff.IsZero())
   {

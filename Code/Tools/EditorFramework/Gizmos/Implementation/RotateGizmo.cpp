@@ -65,6 +65,8 @@ void ezRotateGizmo::DoFocusLost(bool bCancel)
   m_AxisY.SetVisible(true);
   m_AxisZ.SetVisible(true);
 
+  GetOwnerWindow()->SetPermanentStatusBarMsg("");
+
   QApplication::restoreOverrideCursor();
 }
 
@@ -205,6 +207,8 @@ ezEditorInput ezRotateGizmo::DoMouseMoveEvent(QMouseEvent* e)
   mTrans.m_qRotation = m_CurrentRotation * m_StartRotation;
 
   SetTransformation(mTrans);
+
+  GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Rotation: {}", rot));
 
   ezGizmoEvent ev;
   ev.m_pGizmo = this;
