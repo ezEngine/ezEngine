@@ -407,6 +407,7 @@ void ezSelectionAction::CreatePrefab()
     }
 
     auto res = m_pSceneDocument->CreatePrefabDocumentFromSelection(sFile, ezGetStaticRTTI<ezGameObject>());
+    m_pSceneDocument->ScheduleSendObjectSelection(); // fix selection of prefab object
     ezQtUiServices::MessageBoxStatus(res, "Failed to create Prefab", "Successfully created Prefab");
   }
 }

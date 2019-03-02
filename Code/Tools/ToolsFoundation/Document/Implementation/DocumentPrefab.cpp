@@ -70,14 +70,17 @@ ezStatus ezDocument::CreatePrefabDocumentFromSelection(const char* szFile, const
 
   if (res.m_Result.Succeeded())
   {
-    ReplaceByPrefab(pNode, szFile, PrefabGuid, SeedGuid);
+    ezUuid newObj = ReplaceByPrefab(pNode, szFile, PrefabGuid, SeedGuid);
+
+    auto pObject = GetObjectManager()->GetObject(newObj);
+    GetSelectionManager()->SetSelection(pObject);
   }
 
   return res;
 }
 
-ezStatus ezDocument::CreatePrefabDocument(const char* szFile, const ezDocumentObject* pSaveAsPrefab, const ezUuid& invPrefabSeed,
-                                          ezUuid& out_NewDocumentGuid)
+ezStatus ezDocument::CreatePrefabDocument(
+  const char* szFile, const ezDocumentObject* pSaveAsPrefab, const ezUuid& invPrefabSeed, ezUuid& out_NewDocumentGuid)
 {
   EZ_ASSERT_DEV(pSaveAsPrefab != nullptr, "CreatePrefabDocument: pSaveAsPrefab must be a valod object!");
   const ezRTTI* pRootType = pSaveAsPrefab->GetTypeAccessor().GetType();
@@ -98,7 +101,8 @@ ezStatus ezDocument::CreatePrefabDocument(const char* szFile, const ezDocumentOb
 
   ezDocument* pSceneDocument = nullptr;
 
-  EZ_SUCCEED_OR_RETURN(pTypeDesc->m_pManager->CreateDocument("Prefab", szFile, pSceneDocument, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList));
+  EZ_SUCCEED_OR_RETURN(pTypeDesc->m_pManager->CreateDocument(
+    "Prefab", szFile, pSceneDocument, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList));
 
   out_NewDocumentGuid = pSceneDocument->GetGuid();
 
@@ -109,8 +113,8 @@ ezStatus ezDocument::CreatePrefabDocument(const char* szFile, const ezDocumentOb
   ezDocumentObject* pPrefabSceneMainObject = pSceneDocument->GetObjectManager()->CreateObject(pRootType, rootGuid);
   pSceneDocument->GetObjectManager()->AddObject(pPrefabSceneMainObject, pPrefabSceneRoot, "Children", 0);
 
-  ezDocumentObjectConverterReader reader(&PrefabGraph, pSceneDocument->GetObjectManager(),
-                                         ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+  ezDocumentObjectConverterReader reader(
+    &PrefabGraph, pSceneDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
   reader.ApplyPropertiesToObject(pPrefabGraphMainNode, pPrefabSceneMainObject);
 
   pSceneDocument->SetModified(true);
@@ -121,28 +125,70 @@ ezStatus ezDocument::CreatePrefabDocument(const char* szFile, const ezDocumentOb
 }
 
 
-ezUuid ezDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset,
-                                   const ezUuid& PrefabSeed)
+ezUuid ezDocument::ReplaceByPrefab(
+  const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed)
 {
   GetCommandHistory()->StartTransaction("Replace by Prefab");
 
-  ezRemoveObjectCommand remCmd;
-  remCmd.m_Object = pRootObject->GetGuid();
+  ezUuid instantiatedRoot;
 
-  ezInstantiatePrefabCommand instCmd;
-  instCmd.m_Index = pRootObject->GetParent()->GetChildIndex(pRootObject);
-  instCmd.m_bAllowPickedPosition = false;
-  instCmd.m_CreateFromPrefab = PrefabAsset;
-  instCmd.m_Parent = pRootObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pRootObject->GetParent()->GetGuid();
-  instCmd.m_sBasePrefabGraph = ezPrefabUtils::ReadDocumentAsString(
+  if (false) // create editor prefab
+  {
+    ezInstantiatePrefabCommand instCmd;
+    instCmd.m_Index = pRootObject->GetParent()->GetChildIndex(pRootObject) - 1;
+    instCmd.m_bAllowPickedPosition = false;
+    instCmd.m_CreateFromPrefab = PrefabAsset;
+    instCmd.m_Parent = pRootObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pRootObject->GetParent()->GetGuid();
+    instCmd.m_sBasePrefabGraph = ezPrefabUtils::ReadDocumentAsString(
       szPrefabFile); // since the prefab might have been created just now, going through the cache (via GUID) will most likely fail
-  instCmd.m_RemapGuid = PrefabSeed;
+    instCmd.m_RemapGuid = PrefabSeed;
 
-  GetCommandHistory()->AddCommand(remCmd);
-  GetCommandHistory()->AddCommand(instCmd);
+    GetCommandHistory()->AddCommand(instCmd);
+
+    instantiatedRoot = instCmd.m_CreatedRootObject;
+  }
+  else // create an object with the reference prefab component
+  {
+    auto pHistory = GetCommandHistory();
+
+    ezStringBuilder tmp;
+    ezUuid CmpGuid;
+    instantiatedRoot.CreateNewUuid();
+    CmpGuid.CreateNewUuid();
+
+    ezAddObjectCommand cmd;
+    cmd.m_Parent = (pRootObject->GetParent() == GetObjectManager()->GetRootObject()) ? ezUuid() : pRootObject->GetParent()->GetGuid();
+    cmd.m_Index = -1;
+    cmd.SetType("ezGameObject");
+    cmd.m_NewObjectGuid = instantiatedRoot;
+    cmd.m_sParentProperty = "Children";
+
+    EZ_VERIFY(pHistory->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+
+    cmd.SetType("ezPrefabReferenceComponent");
+    cmd.m_sParentProperty = "Components";
+    cmd.m_Index = -1;
+    cmd.m_NewObjectGuid = CmpGuid;
+    cmd.m_Parent = instantiatedRoot;
+    EZ_VERIFY(pHistory->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+
+    ezSetObjectPropertyCommand cmd2;
+    cmd2.m_Object = CmpGuid;
+    cmd2.m_sProperty = "Prefab";
+    cmd2.m_NewValue = ezConversionUtils::ToString(PrefabAsset, tmp).GetData();
+    EZ_VERIFY(pHistory->AddCommand(cmd2).m_Result.Succeeded(), "AddCommand failed");
+  }
+
+  {
+    ezRemoveObjectCommand remCmd;
+    remCmd.m_Object = pRootObject->GetGuid();
+
+    GetCommandHistory()->AddCommand(remCmd);
+  }
+
   GetCommandHistory()->FinishTransaction();
 
-  return instCmd.m_CreatedRootObject;
+  return instantiatedRoot;
 }
 
 ezUuid ezDocument::RevertPrefab(const ezDocumentObject* pObject)
@@ -208,8 +254,8 @@ void ezDocument::UpdatePrefabsRecursive(ezDocumentObject* pObject)
   }
 }
 
-void ezDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed,
-                                    const char* szBasePrefab)
+void ezDocument::UpdatePrefabObject(
+  ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab)
 {
   const ezStringBuilder& sNewBasePrefab = ezPrefabCache::GetSingleton()->GetCachedPrefabDocument(PrefabAsset);
 
