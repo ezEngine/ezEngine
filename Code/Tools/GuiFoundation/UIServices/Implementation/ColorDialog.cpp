@@ -4,13 +4,13 @@
 #include <GuiFoundation/UIServices/ColorDialog.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
-QPoint ezQtColorDialog::s_LastDialogPosition;
+QByteArray ezQtColorDialog::s_LastDialogGeometry;
 
 void ezQtUiServices::ShowColorDialog(const ezColor& color, bool bAlpha, bool bHDR, QWidget* pParent, const char* slotCurColChanged,
                                      const char* slotAccept, const char* slotReject)
 {
   m_pColorDlg = new ezQtColorDialog(color, pParent);
-  m_pColorDlg->move(m_ColorDlgPos);
+  m_pColorDlg->restoreGeometry(m_ColorDlgGeometry);
   m_pColorDlg->ShowAlpha(bAlpha);
   m_pColorDlg->ShowHDR(bHDR);
 
@@ -23,7 +23,7 @@ void ezQtUiServices::ShowColorDialog(const ezColor& color, bool bAlpha, bool bHD
   delete m_pColorDlg;
   m_pColorDlg = nullptr;
 
-  m_ColorDlgPos = ezQtColorDialog::GetLastDialogPosition();
+  m_ColorDlgGeometry = ezQtColorDialog::GetLastDialogGeometry();
 }
 
 ezQtColorDialog::ezQtColorDialog(const ezColor& initial, QWidget* parent)
@@ -81,7 +81,7 @@ ezQtColorDialog::ezQtColorDialog(const ezColor& initial, QWidget* parent)
 
 ezQtColorDialog::~ezQtColorDialog()
 {
-  s_LastDialogPosition = pos();
+  s_LastDialogGeometry = saveGeometry();
 }
 
 void ezQtColorDialog::ShowAlpha(bool enable)

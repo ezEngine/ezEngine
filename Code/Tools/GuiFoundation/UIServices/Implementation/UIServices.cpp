@@ -43,7 +43,7 @@ void ezQtUiServices::SaveState()
   QSettings Settings;
   Settings.beginGroup("EditorGUI");
   {
-    Settings.setValue("ColorDlgPos", m_ColorDlgPos);
+    Settings.setValue("ColorDlgGeom", m_ColorDlgGeometry);
   }
   Settings.endGroup();
 }
@@ -107,7 +107,7 @@ void ezQtUiServices::LoadState()
   QSettings Settings;
   Settings.beginGroup("EditorGUI");
   {
-    m_ColorDlgPos = Settings.value("ColorDlgPos", QPoint(100, 100)).toPoint();
+    m_ColorDlgGeometry = Settings.value("ColorDlgGeom").toByteArray();
   }
   Settings.endGroup();
 }

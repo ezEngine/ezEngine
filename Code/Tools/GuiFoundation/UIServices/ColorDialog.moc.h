@@ -21,7 +21,7 @@ public:
   void ShowAlpha(bool enable);
   void ShowHDR(bool enable);
 
-  static QPoint GetLastDialogPosition() { return s_LastDialogPosition; }
+  static QByteArray GetLastDialogGeometry() { return s_LastDialogGeometry; }
 
 Q_SIGNALS:
   void CurrentColorChanged(const ezColor& color);
@@ -56,7 +56,7 @@ private:
 
   ezColor m_CurrentColor;
 
-  static QPoint s_LastDialogPosition;
+  static QByteArray s_LastDialogGeometry;
 
 private:
   void ApplyColor();

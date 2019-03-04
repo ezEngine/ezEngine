@@ -89,7 +89,7 @@ public:
 
 private:
   ezQtColorDialog* m_pColorDlg;
-  QPoint m_ColorDlgPos;
+  QByteArray m_ColorDlgGeometry;
 
   static ezMap<ezString, QIcon> s_IconsCache;
   static ezMap<ezString, QImage> s_ImagesCache;
