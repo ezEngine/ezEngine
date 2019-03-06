@@ -1,9 +1,5 @@
 #cmake
 
-if (POLICY CMP0043)
-  cmake_policy(SET CMP0043 NEW)
-endif()
-
 SET (LINK_LIBRARIES
   Foundation
   Texture
