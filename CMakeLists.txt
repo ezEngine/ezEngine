@@ -16,6 +16,12 @@ project (${EZ_SOLUTION_NAME}
 file(WRITE ${CMAKE_BINARY_DIR}/Targets.txt "")
 file(WRITE ${CMAKE_BINARY_DIR}/Tests.txt "")
 
+# Required to find cmake modules like 'FindDirectX.cmake'
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${EZ_CMAKE_UTILS_PATH})
+
+include("ezUtils")
+ez_detect_platform()
+
 #Clear cached qt dirs
 set (Qt5Core_DIR "" CACHE PATH "" FORCE)
 set (Qt5Gui_DIR "" CACHE PATH "" FORCE)

@@ -39,141 +39,44 @@ IF(NOT CMAKE_BUILD_TYPE)
       FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-# Required to find cmake modules like 'FindDirectX.cmake'
-set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR})
-
 #########################################################################################
 ## Detects the current platform
 
-set (PLATFORM_PREFIX "")
+ez_detect_platform()
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-  # Windows
-  message (STATUS "Platform is Windows (BUILDSYSTEM_PLATFORM_WINDOWS)")
-  set (BUILDSYSTEM_PLATFORM_WINDOWS ON)
-  set (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP ON)
-  set (PLATFORM_PREFIX "Win")
-  if( ${CMAKE_SYSTEM_VERSION} EQUAL 6.1 ) # Windows 7
-    set (BUILDSYSTEM_PLATFORM_WINDOWS_7 ON)
-  endif()
-
-elseif (CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
-  # Windows Universal
-  message (STATUS "Platform is Windows Universal (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)")
-  set (BUILDSYSTEM_PLATFORM_WINDOWS ON)
-  set (BUILDSYSTEM_PLATFORM_WINDOWS_UWP ON)
-  set (PLATFORM_PREFIX "WinUWP")
-
-elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CURRENT_OSX_VERSION)
-  # OS X
-  message (STATUS "Platform is OS X (BUILDSYSTEM_PLATFORM_OSX, BUILDSYSTEM_PLATFORM_POSIX)")
-  set (BUILDSYSTEM_PLATFORM_OSX ON)
-  set (BUILDSYSTEM_PLATFORM_POSIX ON)
-  set (PLATFORM_PREFIX "Osx")
-
-elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  # Linux
-  message (STATUS "Platform is Linux (BUILDSYSTEM_PLATFORM_LINUX, BUILDSYSTEM_PLATFORM_POSIX)")
-  set (BUILDSYSTEM_PLATFORM_LINUX ON)
-  set (BUILDSYSTEM_PLATFORM_POSIX ON)
-  set (PLATFORM_PREFIX "Linux")
-
-else ()
-  message (FATAL_ERROR "Platform '${CMAKE_SYSTEM_NAME}' is not supported! Please extend CMAKE_GeneralConfig.txt.")
-endif ()
+get_property(PLATFORM_PREFIX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_PREFIX)
+get_property(BUILDSYSTEM_PLATFORM_WINDOWS GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS)
+get_property(BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
+get_property(BUILDSYSTEM_PLATFORM_WINDOWS_UWP GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS_UWP)
+get_property(BUILDSYSTEM_PLATFORM_WINDOWS_7 GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS_7)
+get_property(BUILDSYSTEM_PLATFORM_POSIX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_POSIX)
+get_property(BUILDSYSTEM_PLATFORM_OSX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_OSX)
+get_property(BUILDSYSTEM_PLATFORM_LINUX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_LINUX)
 
 
 #########################################################################################
 ## Detects the current build-system / generator
 
-set (BUILDSYSTEM_PREFIX "")
+ez_detect_generator()
 
-if (BUILDSYSTEM_PLATFORM_WINDOWS)
-  # Supported windows generators
-  if (MSVC)
-    # Visual Studio (All VS generators define MSVC)
-    message (STATUS "Buildsystem is MSVC (BUILDSYSTEM_MSVC)")
-    set (BUILDSYSTEM_MSVC ON)
-    set (BUILDSYSTEM_PREFIX "Vs")
-    set (BUILDSYSTEM_CONFIGURATION $<CONFIGURATION>)
-  else ()
-    message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Windows! Please extend CMAKE_GeneralConfig.txt.")
-  endif ()
+get_property(BUILDSYSTEM_PREFIX GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX)
+get_property(BUILDSYSTEM_CONFIGURATION GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION)
+get_property(BUILDSYSTEM_MSVC GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MSVC)
+get_property(BUILDSYSTEM_XCODE GLOBAL PROPERTY EZ_CMAKE_GENERATOR_XCODE)
+get_property(BUILDSYSTEM_MAKE GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MAKE)
 
-elseif (BUILDSYSTEM_PLATFORM_OSX)
-  # Supported OSX generators
-  if (CMAKE_GENERATOR STREQUAL "Xcode")
-    # XCODE
-    message (STATUS "Buildsystem is Xcode (BUILDSYSTEM_XCODE)")
-    set (BUILDSYSTEM_XCODE ON)
-    set (BUILDSYSTEM_PREFIX "Xcode")
-    set (BUILDSYSTEM_CONFIGURATION $<CONFIGURATION>)
-  elseif (CMAKE_GENERATOR STREQUAL "Unix Makefiles")
-    # Unix Makefiles (for QtCreator etc.)
-    message (STATUS "Buildsystem is Make (BUILDSYSTEM_MAKE)")
-    set (BUILDSYSTEM_MAKE ON)
-    set (BUILDSYSTEM_PREFIX "Make")
-    set (BUILDSYSTEM_CONFIGURATION ${CMAKE_BUILD_TYPE})
-  else ()
-    message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on OS X! Please extend CMAKE_GeneralConfig.txt.")
-  endif ()
-
-elseif (BUILDSYSTEM_PLATFORM_LINUX)
-  if (CMAKE_GENERATOR STREQUAL "Unix Makefiles")
-    # Unix Makefiles (for QtCreator etc.)
-    message (STATUS "Buildsystem is Make (BUILDSYSTEM_MAKE)")
-    set (BUILDSYSTEM_MAKE ON)
-    set (BUILDSYSTEM_PREFIX "Make")
-    set (BUILDSYSTEM_CONFIGURATION ${CMAKE_BUILD_TYPE})
-  else ()
-    message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Linux! Please extend CMAKE_GeneralConfig.txt.")
-  endif ()
-
-else ()
-  message (FATAL_ERROR "Platform '${CMAKE_SYSTEM_NAME}' has not setup the supported generators. Please extend CMAKE_GeneralConfig.txt.")
-endif ()
 
 #########################################################################################
 ## Detects the current compiler
 
-set (COMPILER_POSTFIX "")
+ez_detect_compiler()
 
-if (BUILDSYSTEM_MSVC)
-  # Visual Studio Compiler
-  message (STATUS "Compiler is MSVC (BUILDSYSTEM_COMPILER_MSVC)")
-  message (STATUS "MSVC_VERSION is ${MSVC_VERSION}")
-
-  set (BUILDSYSTEM_COMPILER_MSVC ON)
-
-  if(MSVC_VERSION GREATER_EQUAL 1910)
-    message (STATUS "Compiler is Visual Studio 2017 (BUILDSYSTEM_COMPILER_MSVC_141)")
-    set (BUILDSYSTEM_COMPILER_MSVC_141 ON)
-    set (COMPILER_POSTFIX "2017")
-  elseif (MSVC_VERSION GREATER_EQUAL 1900)
-    message (STATUS "Compiler is Visual Studio 2015 (BUILDSYSTEM_COMPILER_MSVC_140)")
-    set (BUILDSYSTEM_COMPILER_MSVC_140 ON)
-    set (COMPILER_POSTFIX "2015")
-  else ()
-    message (FATAL_ERROR "Compiler for generator '${CMAKE_GENERATOR}' is not supported on MSVC! Please extend CMAKE_GeneralConfig.txt.")
-  endif ()
-
-elseif (BUILDSYSTEM_PLATFORM_OSX)
-  # Currently all are clang by default.
-  # We should probably make this more idiot-proof in case someone actually changes the compiler to gcc.
-  message (STATUS "Compiler is clang (BUILDSYSTEM_COMPILER_CLANG)")
-  set (BUILDSYSTEM_COMPILER_CLANG ON)
-  set (COMPILER_POSTFIX "Clang")
-
-elseif (BUILDSYSTEM_PLATFORM_LINUX)
-  # Currently all are gcc by default. See OSX comment.
-  message (STATUS "Compiler is gcc (BUILDSYSTEM_COMPILER_GCC)")
-  set (BUILDSYSTEM_COMPILER_GCC ON)
-  set (COMPILER_POSTFIX "Gcc")
-
-else ()
-  message (FATAL_ERROR "Compiler for generator '${CMAKE_GENERATOR}' is not supported on '${CMAKE_SYSTEM_NAME}'. Please extend CMAKE_GeneralConfig.txt.")
-endif ()
-
+get_property(COMPILER_POSTFIX GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX)
+get_property(BUILDSYSTEM_COMPILER_MSVC GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC)
+get_property(BUILDSYSTEM_COMPILER_MSVC_140 GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_140)
+get_property(BUILDSYSTEM_COMPILER_MSVC_141 GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_141)
+get_property(BUILDSYSTEM_COMPILER_CLANG GLOBAL PROPERTY EZ_CMAKE_COMPILER_CLANG)
+get_property(BUILDSYSTEM_COMPILER_GCC GLOBAL PROPERTY EZ_CMAKE_COMPILER_GCC)
 
 #########################################################################################
 ## Detects the current architecture
