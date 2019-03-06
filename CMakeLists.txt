@@ -1,9 +1,6 @@
 #cmake
 
-cmake_minimum_required(VERSION 3.5)
-
-# Going to bump this to 3.13 soon, due to new features in target_sources in that version
-# cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.13)
 
 set(EZ_CMAKE_UTILS_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Code/BuildSystem/CMake" CACHE INTERNAL "The path where ez stores CMake utility functions.")
 

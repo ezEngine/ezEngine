@@ -683,6 +683,3 @@ include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Samples")
 include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../UnitTests")
 include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../ThirdParty")
 
-#########################################################################################
-## Functions for external libraries
-include (${CMAKE_CURRENT_LIST_DIR}/ExternalLibraries/CMAKE_AllExternalLibraries.txt)

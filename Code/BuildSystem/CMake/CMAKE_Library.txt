@@ -49,9 +49,6 @@ include (${CMAKE_CURRENT_LIST_DIR}/CMAKE_LibraryFolder.txt)
 # Get the name of this folder
 get_filename_component (CUR_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
-# add the name of the library to the list of libs to be exported
-set_property (GLOBAL APPEND PROPERTY ALL_KNOWN_PROJECTS ${PROJECT_NAME})
-
 # if this library uses a precompile header
 if (BUILDSYSTEM_MSVC)
   ADD_MSVC_PRECOMPILED_HEADER ()

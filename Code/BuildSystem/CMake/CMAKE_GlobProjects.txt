@@ -9,21 +9,9 @@ file (GLOB DIRS_PLUGINS "${CMAKE_SOURCE_DIR}/Code/Plugins/*/CMakeLists.txt")
 file (GLOB DIRS_SCRIPT_D "${CMAKE_SOURCE_DIR}/Code/Engine/Script/D/*/CMakeLists.txt")
 set (DIRS ${DIRS_ENGINE} ${DIRS_PLUGINS} ${DIRS_SCRIPT_D})
 
-# setup the variable where all project-names are stored, that should be exported
-set_property (GLOBAL PROPERTY ALL_KNOWN_PROJECTS "")
-
-# add all those directories to the to-be-processed queue
 foreach (VAR ${DIRS})
   get_filename_component (RES ${VAR} PATH)
 
-  # add directory to the queue
   add_subdirectory (${RES})
 endforeach ()
-
-get_property (KNOWN_LIBS GLOBAL PROPERTY ALL_KNOWN_PROJECTS)
-
-# Export all the cmake settings for this project
-# This allows other cmake projects to import them, and easily configure dependencies
-export(TARGETS ${KNOWN_LIBS} NAMESPACE ez FILE "${CMAKE_BINARY_DIR}/exports.cmake")
-
 
