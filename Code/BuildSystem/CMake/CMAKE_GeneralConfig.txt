@@ -110,10 +110,6 @@ set (EZ_BUILD_OFFICIAL_FBX_SDK OFF CACHE BOOL "Whether to use the official Autod
 set (EZ_BUILD_OPENVR OFF CACHE BOOL "Whether support for OpenVR aka. SteamVR should be added")
 set (EZ_ENABLE_FOLDER_UNITY_FILES ON CACHE BOOL "Whether unity cpp files should be created per folder")
 set (EZ_ENABLE_PVS_STUDIO_HEADER_IN_UNITY_FILES ON CACHE BOOL "Adds the necessary comment to the generated unity files for PVS checking")
-set (EZ_ENABLE_ENET_SUPPORT ON CACHE BOOL "Whether to add support for Enet. This is needed for Telemetry.")
-set (EZ_ENABLE_LUA_SUPPORT ON CACHE BOOL "Whether to add support for Lua.")
-set (EZ_ENABLE_ZLIB_SUPPORT OFF CACHE BOOL "Whether to add support for zlib.")
-set (EZ_ENABLE_ZSTD_SUPPORT ON CACHE BOOL "Whether to add support for zstd.")
 set (EZ_ENABLE_MIXEDREALITY_SUPPORT OFF CACHE BOOL "Whether to add support for Windows Mixed Reality.")
 
 set (EZ_OUTPUT_DIRECTORY_LIB "${CMAKE_SOURCE_DIR}/Output/Lib" CACHE PATH "Where to store the compiled .lib files.")
@@ -197,17 +193,9 @@ if (BUILDSYSTEM_COMPILER_MSVC)
   if (BUILDSYSTEM_PLATFORM_32BIT)
     # enable SSE2 (incompatible with /fp:except)
     set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /arch:SSE2")
-
-    if(MSVC10)
-      # enable static code analysis, only works on 32 Bit builds
-      # (may cause compile errors when combined with Qt, disabled for the time being)
-      #set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /analyze")
-      #message (STATUS "Enabling static code analysis.")
-    endif ()
   endif ()
 
   if(MSVC11 OR MSVC12)
-    #set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /analyze")
     set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /d2Zi+")
     set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /d2Zi+")
   endif()
@@ -264,39 +252,6 @@ else ()
 endif ()
 
 add_definitions (-DBUILDSYSTEM_CONFIGURATION="${BUILDSYSTEM_CONFIGURATION}")
-
-#########################################################################################
-## additional preprocessor definitions
-
-
-
-#########################################################################################
-## Enet support
-
-if (EZ_ENABLE_ENET_SUPPORT)
-  add_definitions (-DBUILDSYSTEM_ENABLE_ENET_SUPPORT)
-endif()
-
-#########################################################################################
-## Lua support
-
-if (EZ_ENABLE_LUA_SUPPORT)
-  add_definitions (-DBUILDSYSTEM_ENABLE_LUA_SUPPORT)
-endif()
-
-#########################################################################################
-## zlib support
-
-if (EZ_ENABLE_ZLIB_SUPPORT)
-  add_definitions (-DBUILDSYSTEM_ENABLE_ZLIB_SUPPORT)
-endif()
-
-#########################################################################################
-## zstd support
-
-if (EZ_ENABLE_ZSTD_SUPPORT)
-  add_definitions (-DBUILDSYSTEM_ENABLE_ZSTD_SUPPORT)
-endif()
 
 #########################################################################################
 ## Windows Mixed Reality support (UWP only)
