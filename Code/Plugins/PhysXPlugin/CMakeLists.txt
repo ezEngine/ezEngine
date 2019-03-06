@@ -1,10 +1,12 @@
 ﻿#cmake
 
-if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
+set (EZ_BUILD_PHYSX OFF CACHE BOOL "Whether support for nVidia PhysX should be added")
+
+if (NOT EZ_BUILD_PHYSX)
 	return()
 endif()
 
-if (NOT EZ_BUILD_PHYSX)
+if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
 	return()
 endif()
 

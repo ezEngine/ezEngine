@@ -1,10 +1,12 @@
 #cmake
 
-if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
+set (EZ_BUILD_FMOD OFF CACHE BOOL "Whether support for FMod should be added")
+
+if (NOT EZ_BUILD_FMOD)
 	return()
 endif()
 
-if (NOT EZ_BUILD_FMOD)
+if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
 	return()
 endif()
 
