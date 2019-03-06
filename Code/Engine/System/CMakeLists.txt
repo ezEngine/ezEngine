@@ -1,14 +1,8 @@
 #cmake
 
-#
-# Copy this file into the folder of an engine library to add it to the solution.
-# Below there are configuration options to add preprocessor definitions and link dependencies to the library.
-#
-# *** Modify this file as required ***
-#
-
-# Pass a boolean expression into this macro to build this project only if the expression evaluates to true.
-BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
+if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
+	return()
+endif()
 
 SET (LINK_LIBRARIES 
   Foundation

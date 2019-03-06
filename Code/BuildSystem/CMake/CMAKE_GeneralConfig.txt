@@ -368,7 +368,7 @@ MACRO(BUILD_REQUIRES_DX11)
     set (LINK_LIBRARIES ${LINK_LIBRARIES} ${DirectX11_D3D11_LIBRARIES})
   else ()
     get_filename_component (BUILD_REQUIRES_DX11_MACRO_FOLDERNAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
-    message (FATAL_ERROR "Platform '${CMAKE_SYSTEM_NAME}' does not support DirectX. Exclude the project '${BUILD_REQUIRES_DX11_MACRO_FOLDERNAME}' with 'BUILD_CONDITIONAL'!")
+    message (FATAL_ERROR "Platform '${CMAKE_SYSTEM_NAME}' does not support DirectX.")
   endif ()
 ENDMACRO()
 
@@ -419,21 +419,6 @@ ENDMACRO()
 MACRO(QT_MODULES modules)
   SET (EZ_QTPROJECT ON)
   SET (EZ_QT_MODULES ${ARGV})
-ENDMACRO()
-
-
-#########################################################################################
-## Macro to skip a project / library if a certain conditional is not met.
-
-MACRO(BUILD_CONDITIONAL expression)
-  # Negating this in place doesn't work as cmake does not support braces.
-  if (${ARGV})
-
-  else ()
-    get_filename_component (BUILD_CONDITIONAL_MACRO_FOLDERNAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
-    Message (STATUS "Skipping ${BUILD_CONDITIONAL_MACRO_FOLDERNAME}. Not supported in this configuration.")
-    return ()
-  endif ()
 ENDMACRO()
 
 
