@@ -271,4 +271,75 @@ function(ez_detect_compiler)
 	
 endfunction()
 
+######################################
+### ez_detect_architecture
+######################################
+
+function(ez_detect_architecture)
+
+	get_property(PREFIX GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX)
+	
+	if (PREFIX)
+		# has already run before and EZ_CMAKE_ARCHITECTURE_POSTFIX is already set
+		#message (STATUS "Redundant call to ez_detect_architecture()")
+		return()
+	endif()
+
+	set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "")
+	set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT OFF)
+	set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT OFF)
+
+	if (BUILDSYSTEM_PLATFORM_WINDOWS AND BUILDSYSTEM_COMPILER_MSVC)
+	  
+	  # Detect 64-bit builds for MSVC.
+	  if (CMAKE_CL_64)
+	  
+		message (STATUS "Platform is 64-Bit (BUILDSYSTEM_PLATFORM_64BIT)")
+		set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
+		set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "64")
+		
+	  else ()
+	  
+		message (STATUS "Platform is 32-Bit (BUILDSYSTEM_PLATFORM_32BIT)")
+		set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
+		set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "32")
+		
+	  endif ()
+
+	elseif (BUILDSYSTEM_PLATFORM_OSX AND BUILDSYSTEM_COMPILER_CLANG)
+	
+	  # OS X always has 32/64 bit support in the project files and the user switches on demand.
+	  # However, we do not support 32 bit with our current build configuration so we throw an error on 32-bit systems.
+	  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+	  
+		message (STATUS "Platform is 64-Bit (BUILDSYSTEM_PLATFORM_64BIT)")
+		set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
+		set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "64")
+		
+	  else ()
+		message (FATAL_ERROR "32-Bit is not supported on OS X!")
+	  endif ()
+
+	elseif (BUILDSYSTEM_PLATFORM_LINUX AND BUILDSYSTEM_COMPILER_GCC)
+	  
+	  # Detect 64-bit builds for Linux, no other way than checking CMAKE_SIZEOF_VOID_P.
+	  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+	  
+		message (STATUS "Platform is 64-Bit (BUILDSYSTEM_PLATFORM_64BIT)")
+		set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
+		set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "64")
+		
+	  else ()
+	  
+		message (STATUS "Platform is 32-Bit (BUILDSYSTEM_PLATFORM_32BIT)")
+		set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
+		set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "32")
+		
+	  endif ()
+
+	else ()
+	  message (FATAL_ERROR "Architecture could not be determined. Please extend CMAKE_GeneralConfig.txt.")
+	endif ()	
+
+endfunction()
 

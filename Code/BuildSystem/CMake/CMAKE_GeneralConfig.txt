@@ -81,46 +81,11 @@ get_property(BUILDSYSTEM_COMPILER_GCC GLOBAL PROPERTY EZ_CMAKE_COMPILER_GCC)
 #########################################################################################
 ## Detects the current architecture
 
-set (ARCHITECTURE_POSTFIX "")
+ez_detect_architecture()
 
-if (BUILDSYSTEM_PLATFORM_WINDOWS AND BUILDSYSTEM_COMPILER_MSVC)
-  # Detect 64-bit builds for MSVC.
-  if (CMAKE_CL_64)
-    message (STATUS "Platform is 64-Bit (BUILDSYSTEM_PLATFORM_64BIT)")
-    set (BUILDSYSTEM_PLATFORM_64BIT ON)
-    set (ARCHITECTURE_POSTFIX "64")
-  else ()
-    message (STATUS "Platform is 32-Bit (BUILDSYSTEM_PLATFORM_32BIT)")
-    set (BUILDSYSTEM_PLATFORM_32BIT ON)
-    set (ARCHITECTURE_POSTFIX "32")
-  endif ()
-
-elseif (BUILDSYSTEM_PLATFORM_OSX AND BUILDSYSTEM_COMPILER_CLANG)
-  # OS X always has 32/64 bit support in the project files and the user switches on demand.
-  # However, we do not support 32 bit with our current build configuration so we throw an error on 32-bit systems.
-  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-    message (STATUS "Platform is 64-Bit (BUILDSYSTEM_PLATFORM_64BIT)")
-    set (BUILDSYSTEM_PLATFORM_64BIT ON)
-    set (ARCHITECTURE_POSTFIX "64")
-  else ()
-    message (FATAL_ERROR "32-Bit is not supported on OS X!")
-  endif ()
-
-elseif (BUILDSYSTEM_PLATFORM_LINUX AND BUILDSYSTEM_COMPILER_GCC)
-  # Detect 64-bit builds for Linux, no other way than checking CMAKE_SIZEOF_VOID_P.
-  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-    message (STATUS "Platform is 64-Bit (BUILDSYSTEM_PLATFORM_64BIT)")
-    set (BUILDSYSTEM_PLATFORM_64BIT ON)
-    set (ARCHITECTURE_POSTFIX "64")
-  else ()
-    message (STATUS "Platform is 32-Bit (BUILDSYSTEM_PLATFORM_32BIT)")
-    set (BUILDSYSTEM_PLATFORM_32BIT ON)
-    set (ARCHITECTURE_POSTFIX "32")
-  endif ()
-
-else ()
-  message (FATAL_ERROR "Architecture could not be determined. Please extend CMAKE_GeneralConfig.txt.")
-endif ()
+get_property(ARCHITECTURE_POSTFIX GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX)
+get_property(BUILDSYSTEM_PLATFORM_32BIT GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT)
+get_property(BUILDSYSTEM_PLATFORM_64BIT GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT)
 
 
 #########################################################################################
@@ -375,25 +340,6 @@ else()
 
 endif()
 
-
-
-#########################################################################################
-## packages that should be enabled
-
-# Enable OpenMP support, if possible
-# Takes ages on non-windows systems and is executed every time. Also we won't use it anyway.
-# find_package (OpenMP)
-
-
-
-#########################################################################################
-
-# Enable OpenMP
-if (OPENMP_FOUND)
-    set (COMPILER_SETTINGS "${COMPILER_SETTINGS} ${OpenMP_CXX_FLAGS}")
-endif ()
-
-
 #########################################################################################
 ## Macro to enable pre-compiled headers
 
@@ -455,19 +401,6 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER)
 
   ENDIF(MSVC)
 ENDMACRO(ADD_MSVC_PRECOMPILED_HEADER)
-
-#########################################################################################
-## Macro to enable/disable application projects
-
-MACRO(BUILD_APPLICATION_PROJECT)
-  get_filename_component (PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
-  string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
-  set(EZ_BUILD_APPLICATION_${PROJECT_NAME_UPPER} ON CACHE BOOL "Whether to build the application '${PROJECT_NAME_UPPER}'")
-
-  if (NOT EZ_BUILD_APPLICATION_${PROJECT_NAME_UPPER})
-    return ()
-  endif ()
-ENDMACRO()
 
 
 #########################################################################################
@@ -578,7 +511,7 @@ ENDMACRO()
 #########################################################################################
 ## Include directories
 
-include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Engine")  # this way it will also work for applications
+include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Engine")
 include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Tools")
 include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Plugins")
 include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Games")
