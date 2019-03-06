@@ -27,7 +27,7 @@ endif()
 #################
 
 set (EZ_3RDPARTY_ENET_SUPPORT ON CACHE BOOL "Whether to add support for Enet.")
-mark_as_advanced(EZ_3RDPARTY_ENET_SUPPORT)
+mark_as_advanced(FORCE EZ_3RDPARTY_ENET_SUPPORT)
 
 if (EZ_3RDPARTY_ENET_SUPPORT)
   target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_ENET_SUPPORT)
@@ -38,7 +38,7 @@ endif()
 #################
 
 set (EZ_3RDPARTY_LUA_SUPPORT ON CACHE BOOL "Whether to add support for Lua.")
-mark_as_advanced(EZ_3RDPARTY_LUA_SUPPORT)
+mark_as_advanced(FORCE EZ_3RDPARTY_LUA_SUPPORT)
 
 if (EZ_3RDPARTY_LUA_SUPPORT)
   target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_LUA_SUPPORT)
@@ -49,7 +49,7 @@ endif()
 #################
 
 set (EZ_3RDPARTY_ZLIB_SUPPORT OFF CACHE BOOL "Whether to add support for zlib.")
-mark_as_advanced(EZ_3RDPARTY_ZLIB_SUPPORT)
+mark_as_advanced(FORCE EZ_3RDPARTY_ZLIB_SUPPORT)
 
 if (EZ_3RDPARTY_ZLIB_SUPPORT)
   target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_ZLIB_SUPPORT)
@@ -60,7 +60,7 @@ endif()
 #################
 
 set (EZ_3RDPARTY_ZSTD_SUPPORT ON CACHE BOOL "Whether to add support for zstd.")
-mark_as_advanced(EZ_3RDPARTY_ZSTD_SUPPORT)
+mark_as_advanced(FORCE EZ_3RDPARTY_ZSTD_SUPPORT)
 
 if (EZ_3RDPARTY_ZSTD_SUPPORT)
   target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_ZSTD_SUPPORT)
