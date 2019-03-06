@@ -43,9 +43,6 @@ if (IS_WIN32_APPLICATION)
 	set (APP_CONFIG "WIN32")
 endif ()
 
-# add the name of the library to the list of libs to be exported
-set_property (GLOBAL APPEND PROPERTY ALL_KNOWN_PROJECTS ${PROJECT_NAME})
-
 # if this library uses a precompile header
 if (BUILDSYSTEM_MSVC)
   ADD_MSVC_PRECOMPILED_HEADER()

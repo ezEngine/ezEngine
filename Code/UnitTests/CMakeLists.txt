@@ -6,4 +6,4 @@ if (NOT EZ_BUILD_UNITTESTS)
 	return()
 endif()
 
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_GlobUnitTests.txt")
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_GlobSubDirs.txt")

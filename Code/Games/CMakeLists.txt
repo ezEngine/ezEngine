@@ -6,4 +6,4 @@ if (NOT EZ_BUILD_GAMES)
 	return()
 endif()
 
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_GlobGames.txt")
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_GlobSubDirs.txt")
