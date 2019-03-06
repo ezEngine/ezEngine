@@ -3,6 +3,42 @@ include("ezUtilsUnityFiles")
 include("ezUtilsQt")
 
 ######################################
+### ez_detect_project_name
+######################################
+
+function(ez_detect_project_name OUT_NAME)
+
+	set (DETECTED_NAME "ezEngine")
+	
+	# unfortunately this has to be known before the PROJECT command, 
+	# but platform and compiler settings are only detected by CMake AFTER the project command
+	# CMAKE_GENERATOR is the only value available before that, so we have to regex this a bit to
+	# generate a useful name
+	# thus, only VS solutions currently get nice names
+
+	if (${CMAKE_GENERATOR} MATCHES "Visual Studio")
+
+		set (DETECTED_NAME "ezVs")
+		
+		if (${CMAKE_GENERATOR} MATCHES "Visual Studio 15")
+			set (DETECTED_NAME "${DETECTED_NAME}2017")
+		elseif (${CMAKE_GENERATOR} MATCHES "Visual Studio 16")
+			set (DETECTED_NAME "${DETECTED_NAME}2019")
+		endif()
+
+		if (${CMAKE_GENERATOR} MATCHES "64$")
+			set (DETECTED_NAME "${DETECTED_NAME}x64")
+		else()
+			set (DETECTED_NAME "${DETECTED_NAME}x32")
+		endif()
+		
+	endif()
+
+	set(${OUT_NAME} "${DETECTED_NAME}" PARENT_SCOPE)
+
+endfunction()
+
+######################################
 ### ez_grep_sources
 ######################################
 
