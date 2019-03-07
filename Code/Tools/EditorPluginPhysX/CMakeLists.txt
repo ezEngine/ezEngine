@@ -8,10 +8,6 @@ if (NOT EZ_BUILD_PHYSX)
 	return()
 endif()
 
-QT_MODULES(Core Gui Widgets)
-
-BUILD_REQUIRES_QT()
-
 SET (LINK_LIBRARIES 
   Foundation
   EditorFramework
@@ -27,3 +23,5 @@ SET (ADDITIONAL_DEPENDENCIES
 )
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
+
+ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets)

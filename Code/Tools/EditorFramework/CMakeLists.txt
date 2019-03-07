@@ -4,11 +4,6 @@ if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
 	return()
 endif()
 
-# Enables the use of Qt in this project and sets up the required modules.
-QT_MODULES(Core Gui Widgets)
-
-BUILD_REQUIRES_QT()
-
 SET (LINK_LIBRARIES
   Foundation
   Core
@@ -23,3 +18,5 @@ SET (LINK_LIBRARIES
 )
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
+
+ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets)

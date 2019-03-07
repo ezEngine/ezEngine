@@ -6,10 +6,6 @@ endif()
 
 SET (IS_WIN32_APPLICATION true)
 
-QT_MODULES(Core Gui Widgets Network)
-
-BUILD_REQUIRES_QT()
-
 SET (LINK_LIBRARIES
   Foundation
   Core
@@ -36,4 +32,4 @@ endif()
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
 
-
+ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets Network)

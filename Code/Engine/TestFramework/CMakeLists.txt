@@ -16,15 +16,6 @@ if(EZ_TESTFRAMEWORK_USE_FILESERVE)
   SET (LINK_LIBRARIES ${LINK_LIBRARIES} FileservePlugin)
 endif()
 
-# Enables the use of Qt in this library and sets up the required modules.
-if (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
-  QT_MODULES(Core Gui Widgets WinExtras)
-else()
-  QT_MODULES(Core Gui Widgets)
-endif()
-
-SET (EZ_COPY_QT_DLLS ON)
-
 # Set all headers, that shall be MOC'ed that do not end with moc.h and thus will be MOC'ed automatically.
 SET (EZ_MOC_HEADERS
   Framework/Qt/qtTestFramework.h
@@ -35,6 +26,12 @@ SET (EZ_MOC_HEADERS
 )
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
+
+if (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
+  ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets WinExtras)
+else()
+  ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets)
+endif()
 
 if(EZ_TESTFRAMEWORK_USE_FILESERVE)
   target_compile_definitions (${PROJECT_NAME} PRIVATE EZ_TESTFRAMEWORK_USE_FILESERVE)

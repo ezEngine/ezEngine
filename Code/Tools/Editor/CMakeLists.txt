@@ -7,11 +7,6 @@ endif()
 # Set this to true, if your application is a real win32 app (not a console app)
 SET (IS_WIN32_APPLICATION true)
 
-# Enables the use of Qt in this project and sets up the required modules.
-QT_MODULES(Core Gui Widgets Network)
-
-BUILD_REQUIRES_QT()
-
 SET (LINK_LIBRARIES
   Foundation
   Core
@@ -65,4 +60,4 @@ endif()
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
 
-
+ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets Network)

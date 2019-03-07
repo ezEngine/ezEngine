@@ -72,8 +72,6 @@ get_property(BUILDSYSTEM_PLATFORM_64BIT GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64
 
 set (EZ_ENABLE_QT_SUPPORT ON CACHE BOOL "Whether to add Qt support.")
 set (EZ_QT_DIR $ENV{QTDIR} CACHE PATH "Directory of qt installation")
-set (EZ_QT_DIR_FOUND "NOT_FOUND" CACHE PATH "Last found directory of qt installation")
-mark_as_advanced(FORCE EZ_QT_DIR_FOUND)
 set (EZ_USE_PCH ON CACHE BOOL "Whether to use Precompiled Headers.")
 mark_as_advanced(FORCE EZ_USE_PCH)
 set (EZ_ENABLE_FOLDER_UNITY_FILES ON CACHE BOOL "Whether unity cpp files should be created per folder")
@@ -237,27 +235,6 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER)
 
   ENDIF(MSVC)
 ENDMACRO(ADD_MSVC_PRECOMPILED_HEADER)
-
-#########################################################################################
-## Macro to skip a Qt-only project if EZ_ENABLE_QT_SUPPORT is not enabled globally
-
-MACRO(BUILD_REQUIRES_QT)
-  if (EZ_QTPROJECT AND NOT EZ_ENABLE_QT_SUPPORT)
-    get_filename_component (BUILD_REQUIRES_QT_MACRO_FOLDERNAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
-    Message (STATUS "Skipping ${BUILD_REQUIRES_QT_MACRO_FOLDERNAME}. Requires Qt which is disabled.")
-    return ()
-  endif ()
-ENDMACRO()
-
-
-#########################################################################################
-## Macro to enable qt support for this library / project and store the required modules
-
-MACRO(QT_MODULES modules)
-  SET (EZ_QTPROJECT ON)
-  SET (EZ_QT_MODULES ${ARGV})
-ENDMACRO()
-
 
 #########################################################################################
 ## Macro to write the current project into the target list file

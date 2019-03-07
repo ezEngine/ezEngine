@@ -17,7 +17,6 @@ set (ALL_SOURCE_FILES "")
 
 set (LIBRARY_PCH FALSE)
 
-include (${CMAKE_CURRENT_LIST_DIR}/CMAKE_Qt.txt)
 include (${CMAKE_CURRENT_LIST_DIR}/CMAKE_LibraryFolder.txt)
 
 set (APP_CONFIG "")
@@ -84,7 +83,7 @@ ez_set_default_target_output_dirs(${PROJECT_NAME})
 ez_set_common_target_include_dirs(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 ez_set_common_target_definitions(${PROJECT_NAME})
 
-target_link_libraries (${PROJECT_NAME} ${LINK_LIBRARIES} ${QT_LIBRARIES})
+target_link_libraries (${PROJECT_NAME} ${LINK_LIBRARIES})
 
 # Add additional dependencies
 if (ADDITIONAL_DEPENDENCIES)
@@ -145,8 +144,6 @@ if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
     RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO}/${PROJECT_NAME}"
   )
 endif()
-
-QT_ADD_MODULES()
 
 # Add to target list
 ADD_TO_TARGET_LIST(C++)

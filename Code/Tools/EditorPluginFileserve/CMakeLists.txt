@@ -4,11 +4,6 @@ if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
 	return()
 endif()
 
-QT_MODULES(Core Gui Widgets Network)
-
-BUILD_REQUIRES_QT()
-SET (EZ_COPY_QT_DLLS ON)
-
 SET (LINK_LIBRARIES
   Foundation
   FileservePlugin
@@ -17,3 +12,4 @@ SET (LINK_LIBRARIES
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
 
+ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets Network)
