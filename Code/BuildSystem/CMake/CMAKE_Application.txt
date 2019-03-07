@@ -82,6 +82,7 @@ add_executable (${PROJECT_NAME} ${APP_CONFIG} ${ALL_SOURCE_FILES} ${CONTENT_FILE
 
 ez_set_default_target_output_dirs(${PROJECT_NAME})
 ez_set_common_target_include_dirs(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
+ez_set_common_target_definitions(${PROJECT_NAME})
 
 target_link_libraries (${PROJECT_NAME} ${LINK_LIBRARIES} ${QT_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
 
@@ -94,15 +95,11 @@ SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 file(RELATIVE_PATH RELATIVE_PARENT_FOLDER "${CMAKE_SOURCE_DIR}/Code" ${PARENT_FOLDER})
 SET_PROPERTY(TARGET ${PROJECT_NAME} PROPERTY FOLDER ${RELATIVE_PARENT_FOLDER})
 
-
 if (BUILDSYSTEM_PLATFORM_OSX OR BUILDSYSTEM_PLATFORM_LINUX)
   find_package(X11 REQUIRED)
   target_include_directories (${PROJECT_NAME} PRIVATE ${X11_X11_INCLUDE_PATH})
   target_link_libraries (${PROJECT_NAME} ${X11_X11_LIB})
 endif ()
-
-string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
-add_definitions (-DBUILDSYSTEM_BUILDING_${PROJECT_NAME_UPPER})
 
 # We need to link against X11, pthread and rt last or linker errors will occur.
 if (BUILDSYSTEM_COMPILER_GCC)

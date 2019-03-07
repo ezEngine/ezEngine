@@ -155,3 +155,31 @@ function(ez_set_common_target_include_dirs TARGET_NAME TARGET_FOLDER)
 	#message(STATUS "Public include dir: '${PARENT_DIR}'")
 
 endfunction()
+
+######################################
+### ez_set_common_target_definitions
+######################################
+
+function(ez_set_common_target_definitions TARGET_NAME)
+
+	# set the BUILDSYSTEM_COMPILE_ENGINE_AS_DLL definition
+	if (BUILDSYSTEM_PLATFORM_WINDOWS)
+	  set (EZ_COMPILE_ENGINE_AS_DLL ON CACHE BOOL "Whether to compile the code as a shared libraries (DLL).")
+		mark_as_advanced(FORCE EZ_COMPILE_ENGINE_AS_DLL)
+		
+		target_compile_definitions(${TARGET_NAME} PUBLIC BUILDSYSTEM_COMPILE_ENGINE_AS_DLL)
+
+	else()
+	  unset(EZ_COMPILE_ENGINE_AS_DLL CACHE)
+	endif()
+
+	# set the BUILDSYSTEM_CONFIGURATION definition
+	ez_detect_generator()
+	get_property(BUILDSYSTEM_CONFIGURATION GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION)
+	target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_CONFIGURATION="${BUILDSYSTEM_CONFIGURATION}")
+
+	# set the BUILDSYSTEM_BUILDING_XYZ_LIB definition
+	string(TOUPPER ${TARGET_NAME} PROJECT_NAME_UPPER)
+	target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_BUILDING_${PROJECT_NAME_UPPER}_LIB)
+
+endfunction()

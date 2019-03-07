@@ -12,10 +12,8 @@ if(BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
   SET (EZ_TESTFRAMEWORK_USE_FILESERVE ON)
 endif()
 
-
 if(EZ_TESTFRAMEWORK_USE_FILESERVE)
   SET (LINK_LIBRARIES ${LINK_LIBRARIES} FileservePlugin)
-  add_definitions (-DEZ_TESTFRAMEWORK_USE_FILESERVE)
 endif()
 
 # Enables the use of Qt in this library and sets up the required modules.
@@ -37,3 +35,7 @@ SET (EZ_MOC_HEADERS
 )
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
+
+if(EZ_TESTFRAMEWORK_USE_FILESERVE)
+  target_compile_definitions (${PROJECT_NAME} PRIVATE EZ_TESTFRAMEWORK_USE_FILESERVE)
+endif()

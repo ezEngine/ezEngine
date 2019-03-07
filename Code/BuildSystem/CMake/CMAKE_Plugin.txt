@@ -30,15 +30,12 @@ endif ()
 if (BUILDSYSTEM_MSVC)
   ADD_MSVC_PRECOMPILED_HEADER()
 endif ()
-
-string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
-add_definitions (-DBUILDSYSTEM_BUILDING_${PROJECT_NAME_UPPER}_LIB)
-
 # Define the Exe Project, add all required sources to it
 add_library (${PROJECT_NAME} SHARED ${APP_CONFIG} ${ALL_SOURCE_FILES})
 
 ez_set_default_target_output_dirs(${PROJECT_NAME})
 ez_set_common_target_include_dirs(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
+ez_set_common_target_definitions(${PROJECT_NAME})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES IMPORT_PREFIX "ez")
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "ez")

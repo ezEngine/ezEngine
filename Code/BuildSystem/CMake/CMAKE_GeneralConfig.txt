@@ -70,14 +70,6 @@ get_property(BUILDSYSTEM_PLATFORM_64BIT GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64
 #########################################################################################
 ## Configuration Variables
 
-# Define GUI Variables to configure the project
-if (BUILDSYSTEM_PLATFORM_WINDOWS)
-  set (EZ_COMPILE_ENGINE_AS_DLL ON CACHE BOOL "Whether to compile the code as a shared libraries (DLL).")
-  mark_as_advanced(FORCE EZ_COMPILE_ENGINE_AS_DLL)
-else()
-  unset(EZ_COMPILE_ENGINE_AS_DLL CACHE)
-endif()
-
 set (EZ_ENABLE_QT_SUPPORT ON CACHE BOOL "Whether to add Qt support.")
 set (EZ_QT_DIR $ENV{QTDIR} CACHE PATH "Directory of qt installation")
 set (EZ_QT_DIR_FOUND "NOT_FOUND" CACHE PATH "Last found directory of qt installation")
@@ -176,19 +168,6 @@ elseif (BUILDSYSTEM_COMPILER_GCC)
 else ()
   message (FATAL_ERROR "Not settings are defined for the selected compiler. Please extend CMAKE_GeneralConfig.txt.")
 endif ()
-
-
-#########################################################################################
-## Code that depends on the values of the configuration variables
-
-if (EZ_COMPILE_ENGINE_AS_DLL)
-    message (STATUS "Linking to the Engine through DLLs.")
-    add_definitions (-DBUILDSYSTEM_COMPILE_ENGINE_AS_DLL)
-else ()
-    message (STATUS "Linking to the Engine through Static Libraries.")
-endif ()
-
-add_definitions (-DBUILDSYSTEM_CONFIGURATION="${BUILDSYSTEM_CONFIGURATION}")
 
 #########################################################################################
 ## Windows Mixed Reality support (UWP only)
