@@ -77,13 +77,11 @@ if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
   set(CONTENT_FILES ${CONTENT_FILES} ${UWP_ASSETS})
 endif()
 
-# Add the application source directory as an additional include dir (required to find PCH.h etc.)
-include_directories (${CMAKE_CURRENT_SOURCE_DIR})
-
 # Define the Exe Project, add all required sources to it
 add_executable (${PROJECT_NAME} ${APP_CONFIG} ${ALL_SOURCE_FILES} ${CONTENT_FILES})
 
 ez_set_default_target_output_dirs(${PROJECT_NAME})
+ez_set_common_target_include_dirs(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries (${PROJECT_NAME} ${LINK_LIBRARIES} ${QT_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
 
@@ -99,7 +97,7 @@ SET_PROPERTY(TARGET ${PROJECT_NAME} PROPERTY FOLDER ${RELATIVE_PARENT_FOLDER})
 
 if (BUILDSYSTEM_PLATFORM_OSX OR BUILDSYSTEM_PLATFORM_LINUX)
   find_package(X11 REQUIRED)
-  include_directories (${X11_X11_INCLUDE_PATH})
+  target_include_directories (${PROJECT_NAME} PRIVATE ${X11_X11_INCLUDE_PATH})
   target_link_libraries (${PROJECT_NAME} ${X11_X11_LIB})
 endif ()
 

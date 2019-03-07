@@ -36,9 +36,6 @@ endif ()
 string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
 add_definitions (-DBUILDSYSTEM_BUILDING_${PROJECT_NAME_UPPER}_LIB)
 
-# Add the application source directory as an additional include dir (required to find PCH.h etc.)
-include_directories (${CMAKE_CURRENT_SOURCE_DIR})
-
 # add the library to the solution
 if (EZ_COMPILE_ENGINE_AS_DLL)
   # add the project as a shared library
@@ -61,6 +58,7 @@ else ()
 endif ()
 
 ez_set_default_target_output_dirs(${PROJECT_NAME})
+ez_set_common_target_include_dirs(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (BUILDSYSTEM_PLATFORM_LINUX)
   # Workaround for: https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899
@@ -69,7 +67,7 @@ endif ()
 
 if (BUILDSYSTEM_PLATFORM_OSX OR BUILDSYSTEM_PLATFORM_LINUX)
   find_package(X11 REQUIRED)
-  include_directories (${X11_X11_INCLUDE_PATH})
+  target_include_directories (${PROJECT_NAME} PRIVATE ${X11_X11_INCLUDE_PATH})
   target_link_libraries (${PROJECT_NAME} ${X11_X11_LIB})
 endif ()
 

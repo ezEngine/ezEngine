@@ -348,16 +348,3 @@ MACRO(ADD_TEST needs_hardware_access)
 
   file(APPEND ${CMAKE_BINARY_DIR}/Tests.txt "${ADD_TEST_MACRO_FOLDERNAME}|${ADD_TEST_MACRO_HWA}|0\n")
 ENDMACRO()
-
-
-#########################################################################################
-## Include directories
-
-include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Engine")
-include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Tools")
-include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Plugins")
-include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Games")
-include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Samples")
-include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../UnitTests")
-include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../ThirdParty")
-

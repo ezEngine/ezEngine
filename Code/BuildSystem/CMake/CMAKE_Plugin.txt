@@ -34,13 +34,11 @@ endif ()
 string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
 add_definitions (-DBUILDSYSTEM_BUILDING_${PROJECT_NAME_UPPER}_LIB)
 
-# Add the application source directory as an additional include dir (required to find PCH.h etc.)
-include_directories (${CMAKE_CURRENT_SOURCE_DIR})
-
 # Define the Exe Project, add all required sources to it
 add_library (${PROJECT_NAME} SHARED ${APP_CONFIG} ${ALL_SOURCE_FILES})
 
 ez_set_default_target_output_dirs(${PROJECT_NAME})
+ez_set_common_target_include_dirs(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES IMPORT_PREFIX "ez")
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "ez")

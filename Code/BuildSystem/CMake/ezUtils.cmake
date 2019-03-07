@@ -138,3 +138,20 @@ function(ez_write_configuration_txt)
 	file(APPEND ${CMAKE_BINARY_DIR}/Configuration.txt ${CONFIGURATION_DESC})
 
 endfunction()
+
+
+######################################
+### ez_set_common_target_include_dirs
+######################################
+
+function(ez_set_common_target_include_dirs TARGET_NAME TARGET_FOLDER)
+
+	get_filename_component(PARENT_DIR ${TARGET_FOLDER} DIRECTORY)
+
+	target_include_directories(${TARGET_NAME} PRIVATE "${TARGET_FOLDER}")
+	target_include_directories(${TARGET_NAME} PUBLIC "${PARENT_DIR}")
+
+	#message(STATUS "Private include dir: '${TARGET_FOLDER}'")
+	#message(STATUS "Public include dir: '${PARENT_DIR}'")
+
+endfunction()
