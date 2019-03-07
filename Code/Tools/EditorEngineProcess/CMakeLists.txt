@@ -7,8 +7,6 @@ endif()
 # Set this to true, if your application is a real win32 app (not a console app)
 SET (IS_WIN32_APPLICATION true)
 
-BUILD_REQUIRES_DX11()
-
 SET (LINK_LIBRARIES
   Foundation
   ThirdParty
@@ -46,4 +44,4 @@ endif()
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
 
-
+ez_link_target_dx11(${PROJECT_NAME})

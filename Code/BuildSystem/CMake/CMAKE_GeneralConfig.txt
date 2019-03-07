@@ -238,50 +238,6 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER)
   ENDIF(MSVC)
 ENDMACRO(ADD_MSVC_PRECOMPILED_HEADER)
 
-
-#########################################################################################
-## Macro to include directX dependencies
-
-MACRO(BUILD_REQUIRES_DX11)
-  if (${BUILDSYSTEM_PLATFORM_WINDOWS})
-    set (EZ_REQUIRES_DX11 ON)
-    find_package (DirectX11)
-    set (LINK_LIBRARIES ${LINK_LIBRARIES} ${DirectX11_D3D11_LIBRARIES})
-  else ()
-    get_filename_component (BUILD_REQUIRES_DX11_MACRO_FOLDERNAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
-    message (FATAL_ERROR "Platform '${CMAKE_SYSTEM_NAME}' does not support DirectX.")
-  endif ()
-ENDMACRO()
-
-MACRO(DX11_COPY_DLLS)
-  if (${EZ_REQUIRES_DX11})
-    if (${BUILDSYSTEM_PLATFORM_64BIT})
-       set (DX11_COPY_DLLS_BIT "x64")
-    else ()
-       set (DX11_COPY_DLLS_BIT "x86")
-    endif ()
-
-    if( ${DirectX11_LIBRARY} MATCHES "/8\\.0/")
-       set (DX11_COPY_DLLS_WINSDKVERSION "8.0")
-       set (DX11_COPY_DLLS_DLL_VERSION "46")
-    elseif( ${DirectX11_LIBRARY} MATCHES "/8\\.1/")
-       set (DX11_COPY_DLLS_WINSDKVERSION "8.1")
-       set (DX11_COPY_DLLS_DLL_VERSION "47")
-    elseif( ${DirectX11_LIBRARY} MATCHES "/10/")
-       set (DX11_COPY_DLLS_WINSDKVERSION "10")
-       set (DX11_COPY_DLLS_DLL_VERSION "47")
-    endif ()
-
-    if (${DX11_COPY_DLLS_WINSDKVERSION})
-      add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "%ProgramFiles(x86)%/Windows Kits/${DX11_COPY_DLLS_WINSDKVERSION}/Redist/D3D/${DX11_COPY_DLLS_BIT}/d3dcompiler_${DX11_COPY_DLLS_DLL_VERSION}.dll"
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>)
-    endif ()
-  endif ()
-ENDMACRO()
-
-
 #########################################################################################
 ## Macro to skip a Qt-only project if EZ_ENABLE_QT_SUPPORT is not enabled globally
 

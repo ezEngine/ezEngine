@@ -2,6 +2,7 @@ include("ezUtilsPCH")
 include("ezUtilsUnityFiles")
 include("ezUtilsQt")
 include("ezUtilsDetect")
+include("ezUtilsDX11")
 
 ######################################
 ### ez_grep_sources

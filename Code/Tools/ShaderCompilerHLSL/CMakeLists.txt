@@ -10,6 +10,6 @@ SET (LINK_LIBRARIES
   RendererFoundation
 )
 
-BUILD_REQUIRES_DX11()
-
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
+
+ez_link_target_dx11(${PROJECT_NAME})

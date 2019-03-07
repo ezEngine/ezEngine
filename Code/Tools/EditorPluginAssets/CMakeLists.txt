@@ -8,8 +8,6 @@ QT_MODULES(Core Gui Widgets)
 
 BUILD_REQUIRES_QT()
 
-BUILD_REQUIRES_DX11()
-
 SET (LINK_LIBRARIES
   Foundation
   EditorFramework
@@ -31,6 +29,8 @@ SET (ADDITIONAL_DEPENDENCIES
 )
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
+
+ez_link_target_dx11(${PROJECT_NAME})
 
 find_package(EzAssImp REQUIRED)
 
