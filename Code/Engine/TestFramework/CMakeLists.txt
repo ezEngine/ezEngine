@@ -1,25 +1,7 @@
 #cmake
 
-#
-# Copy this file into the folder of an engine library to add it to the solution.
-# Below there are configuration options to add preprocessor definitions and link dependencies to the library.
-#
-# *** Modify this file as required ***
-#
-
-# BUILD_CONDITIONAL(EZ_BUILD_UNITTESTS)
-
-if (POLICY CMP0043)
-  cmake_policy(SET CMP0043 NEW)
-endif()
-
-# Add all the preprocessor definitions that are needed to configure this library
-# add_definitions (-DMY_PREPROCESS_DEFINITION_1)
-# add_definitions (-DMY_PREPROCESS_DEFINITION_2)
-
-# Add all the libraries that this project needs to link against here
 SET (LINK_LIBRARIES
-  Foundation      # Example: Another library build with cmake
+  Foundation
   Texture
   FileservePlugin
 )
@@ -30,10 +12,8 @@ if(BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
   SET (EZ_TESTFRAMEWORK_USE_FILESERVE ON)
 endif()
 
-
 if(EZ_TESTFRAMEWORK_USE_FILESERVE)
   SET (LINK_LIBRARIES ${LINK_LIBRARIES} FileservePlugin)
-  add_definitions (-DEZ_TESTFRAMEWORK_USE_FILESERVE)
 endif()
 
 # Enables the use of Qt in this library and sets up the required modules.
@@ -55,3 +35,7 @@ SET (EZ_MOC_HEADERS
 )
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
+
+if(EZ_TESTFRAMEWORK_USE_FILESERVE)
+  target_compile_definitions (${PROJECT_NAME} PRIVATE EZ_TESTFRAMEWORK_USE_FILESERVE)
+endif()
