@@ -18,11 +18,7 @@ project (${EZ_SOLUTION_NAME}
 	HOMEPAGE_URL "http://ezEngine.net"
 	LANGUAGES C CXX)
 
-#Clear Targets.txt and Tests.txt
-file(WRITE ${CMAKE_BINARY_DIR}/Targets.txt "")
-file(WRITE ${CMAKE_BINARY_DIR}/Tests.txt "")
-
-ez_detect_platform()
+ez_write_configuration_txt()
 
 #Clear cached qt dirs
 set (Qt5Core_DIR "" CACHE PATH "" FORCE)

@@ -83,6 +83,8 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 # Define the Exe Project, add all required sources to it
 add_executable (${PROJECT_NAME} ${APP_CONFIG} ${ALL_SOURCE_FILES} ${CONTENT_FILES})
 
+ez_set_default_target_output_dirs(${PROJECT_NAME})
+
 target_link_libraries (${PROJECT_NAME} ${LINK_LIBRARIES} ${QT_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
 
 # Add additional dependencies

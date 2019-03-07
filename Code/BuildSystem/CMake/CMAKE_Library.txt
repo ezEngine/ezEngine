@@ -60,6 +60,8 @@ else ()
   target_link_libraries (${PROJECT_NAME} ${LINK_LIBRARIES})
 endif ()
 
+ez_set_default_target_output_dirs(${PROJECT_NAME})
+
 if (BUILDSYSTEM_PLATFORM_LINUX)
   # Workaround for: https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899
   target_link_libraries (${PROJECT_NAME} "-lgcc_s -lgcc")
