@@ -84,7 +84,7 @@ ez_set_default_target_output_dirs(${PROJECT_NAME})
 ez_set_common_target_include_dirs(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 ez_set_common_target_definitions(${PROJECT_NAME})
 
-target_link_libraries (${PROJECT_NAME} ${LINK_LIBRARIES} ${QT_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
+target_link_libraries (${PROJECT_NAME} ${LINK_LIBRARIES} ${QT_LIBRARIES})
 
 # Add additional dependencies
 if (ADDITIONAL_DEPENDENCIES)
