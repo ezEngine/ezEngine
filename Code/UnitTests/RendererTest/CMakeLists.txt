@@ -4,21 +4,7 @@ if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
 	return()
 endif()
 
-BUILD_REQUIRES_DX11()
-
-SET (LINK_LIBRARIES
-  ThirdParty
-  Foundation
-  TestFramework
-  Core
-  Texture
-  RendererCore
-  RendererFoundation
-  RendererDX11
-  System
-)
-
-SET (ADDITIONAL_DEPENDENCIES
+set(ADDITIONAL_DEPENDENCIES
   ShaderCompilerHLSL
 )
 
@@ -28,6 +14,14 @@ endif()
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
 
-# Adds this project to 'Tests.txt', notifying the build server to run this as a test.
-# The first parameter sets whether this tests needs direct hardware access to the GPU.
-ADD_TEST(ON)
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
+  TestFramework
+  RendererCore
+  RendererDX11
+  System
+)
+
+ez_link_target_dx11(${PROJECT_NAME})
+
+ez_ci_add_test(${PROJECT_NAME} ON)

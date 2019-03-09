@@ -1,25 +1,23 @@
-﻿#cmake
+#cmake
 
 if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
 	return()
 endif()
 
-# Enables the use of Qt in this project and sets up the required modules.
-QT_MODULES(Core Gui Widgets)
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
 
-BUILD_REQUIRES_QT()
+ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets)
 
-SET (LINK_LIBRARIES
-  Foundation
-  Core
-  ToolsFoundation
-  RendererFoundation
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   RendererCore
-  System
+  ToolsFoundation
   GuiFoundation
-  TestFramework
   GameEngine
   EditorEngineProcessFramework
 )
 
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+  TestFramework
+)

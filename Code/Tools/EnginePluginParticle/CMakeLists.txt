@@ -1,22 +1,17 @@
-﻿#cmake
+#cmake
 
 if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
 	return()
 endif()
 
-BUILD_REQUIRES_DX11()
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
 
-SET (LINK_LIBRARIES
-  Foundation
+ez_link_target_dx11(${PROJECT_NAME})
+
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
   EditorEngineProcessFramework
-  Core
-  System
-  RendererFoundation
-  RendererDX11
-  RendererCore
   GameEngine
   SharedPluginAssets
   ParticlePlugin
 )
-
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")

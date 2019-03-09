@@ -17,7 +17,6 @@ set (ALL_SOURCE_FILES "")
 
 set (LIBRARY_PCH FALSE)
 
-include (${CMAKE_CURRENT_LIST_DIR}/CMAKE_Qt.txt)
 include (${CMAKE_CURRENT_LIST_DIR}/CMAKE_LibraryFolder.txt)
 
 set (APP_CONFIG "")
@@ -63,9 +62,9 @@ if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
   string(UUID PACKAGE_GUID NAMESPACE ${PACKAGE_GUID} NAME "ezEngine!" TYPE MD5) # Generate GUID
 
   # Add spatial perception to appx manifest if we're linking against WindowsMixedReality.
-  if (WindowsMixedReality IN_LIST LINK_LIBRARIES)
-    set(EXTRA_APP_CAPABILITIES "<uap2:Capability Name=\"spatialPerception\"/>")
-  endif()
+  #if (WindowsMixedReality IN_LIST LINK_LIBRARIES)
+    #set(EXTRA_APP_CAPABILITIES "<uap2:Capability Name=\"spatialPerception\"/>")
+  #endif()
 
   configure_file(${CONTENT_DIRECTORY_SRC}/package_template.appxmanifest ${CONTENT_DIRECTORY_DST}Package.appxmanifest @ONLY)
 
@@ -84,8 +83,6 @@ ez_set_default_target_output_dirs(${PROJECT_NAME})
 ez_set_common_target_include_dirs(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 ez_set_common_target_definitions(${PROJECT_NAME})
 
-target_link_libraries (${PROJECT_NAME} ${LINK_LIBRARIES} ${QT_LIBRARIES})
-
 # Add additional dependencies
 if (ADDITIONAL_DEPENDENCIES)
   add_dependencies(${PROJECT_NAME} ${ADDITIONAL_DEPENDENCIES})
@@ -98,12 +95,12 @@ SET_PROPERTY(TARGET ${PROJECT_NAME} PROPERTY FOLDER ${RELATIVE_PARENT_FOLDER})
 if (BUILDSYSTEM_PLATFORM_OSX OR BUILDSYSTEM_PLATFORM_LINUX)
   find_package(X11 REQUIRED)
   target_include_directories (${PROJECT_NAME} PRIVATE ${X11_X11_INCLUDE_PATH})
-  target_link_libraries (${PROJECT_NAME} ${X11_X11_LIB})
+  target_link_libraries (${PROJECT_NAME} PRIVATE ${X11_X11_LIB})
 endif ()
 
 # We need to link against X11, pthread and rt last or linker errors will occur.
 if (BUILDSYSTEM_COMPILER_GCC)
-	target_link_libraries (${PROJECT_NAME} pthread rt)
+	target_link_libraries (${PROJECT_NAME} PRIVATE pthread rt)
 endif ()
 
 if (COMPILER_SETTINGS_ALL)
@@ -146,9 +143,5 @@ if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
   )
 endif()
 
-QT_ADD_MODULES()
-DX11_COPY_DLLS()
-
-# Add to target list
-ADD_TO_TARGET_LIST(C++)
+ez_ci_add_to_targets_list(${PROJECT_NAME} C++)
 

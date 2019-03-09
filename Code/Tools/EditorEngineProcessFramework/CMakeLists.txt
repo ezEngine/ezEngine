@@ -4,19 +4,30 @@ if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
 	return()
 endif()
 
-SET (LINK_LIBRARIES
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
+
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+
   Foundation
   Core
   Texture
-  ToolsFoundation
   RendererFoundation
   RendererCore
   System
   GameEngine
 )
 
-if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP AND EZ_ENABLE_MIXEDREALITY_SUPPORT)
-  LIST(APPEND LINK_LIBRARIES WindowsMixedReality)
-endif()
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
+  ToolsFoundation
+)
 
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
+if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP AND EZ_ENABLE_MIXEDREALITY_SUPPORT)
+
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+    WindowsMixedReality
+  )
+
+endif()

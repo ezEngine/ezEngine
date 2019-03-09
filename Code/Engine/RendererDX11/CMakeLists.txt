@@ -4,12 +4,18 @@ if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
 	return()
 endif()
 
-SET (LINK_LIBRARIES 
-  Foundation 
-  RendererFoundation
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
+
+ez_link_target_dx11(${PROJECT_NAME})
+
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+
   System
 )
 
-BUILD_REQUIRES_DX11()
-
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
+  Foundation
+  RendererFoundation
+)

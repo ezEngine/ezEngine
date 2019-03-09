@@ -5,21 +5,23 @@ if (NOT BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
 endif()
 
 if (EZ_ENABLE_QT_SUPPORT)
-	QT_MODULES(Core Gui Widgets Network)
-	SET (EZ_COPY_QT_DLLS ON)
+	SET (IS_WIN32_APPLICATION true)
 endif()
 
-SET (LINK_LIBRARIES
-  Foundation
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
+
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   Core
   FileservePlugin
 )
 
-#if Qt is enabled, link agains the library that contains the UI code
 if (EZ_ENABLE_QT_SUPPORT)
-	SET (IS_WIN32_APPLICATION true)
-	SET (LINK_LIBRARIES ${LINK_LIBRARIES} EditorPluginFileserve)
+	ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets Network)
+
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+    EditorPluginFileserve
+  )
+
 endif()
-
-
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")

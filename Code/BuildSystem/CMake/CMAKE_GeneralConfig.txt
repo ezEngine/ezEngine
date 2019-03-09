@@ -72,8 +72,6 @@ get_property(BUILDSYSTEM_PLATFORM_64BIT GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64
 
 set (EZ_ENABLE_QT_SUPPORT ON CACHE BOOL "Whether to add Qt support.")
 set (EZ_QT_DIR $ENV{QTDIR} CACHE PATH "Directory of qt installation")
-set (EZ_QT_DIR_FOUND "NOT_FOUND" CACHE PATH "Last found directory of qt installation")
-mark_as_advanced(FORCE EZ_QT_DIR_FOUND)
 set (EZ_USE_PCH ON CACHE BOOL "Whether to use Precompiled Headers.")
 mark_as_advanced(FORCE EZ_USE_PCH)
 set (EZ_ENABLE_FOLDER_UNITY_FILES ON CACHE BOOL "Whether unity cpp files should be created per folder")
@@ -237,93 +235,3 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER)
 
   ENDIF(MSVC)
 ENDMACRO(ADD_MSVC_PRECOMPILED_HEADER)
-
-
-#########################################################################################
-## Macro to include directX dependencies
-
-MACRO(BUILD_REQUIRES_DX11)
-  if (${BUILDSYSTEM_PLATFORM_WINDOWS})
-    set (EZ_REQUIRES_DX11 ON)
-    find_package (DirectX11)
-    set (LINK_LIBRARIES ${LINK_LIBRARIES} ${DirectX11_D3D11_LIBRARIES})
-  else ()
-    get_filename_component (BUILD_REQUIRES_DX11_MACRO_FOLDERNAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
-    message (FATAL_ERROR "Platform '${CMAKE_SYSTEM_NAME}' does not support DirectX.")
-  endif ()
-ENDMACRO()
-
-MACRO(DX11_COPY_DLLS)
-  if (${EZ_REQUIRES_DX11})
-    if (${BUILDSYSTEM_PLATFORM_64BIT})
-       set (DX11_COPY_DLLS_BIT "x64")
-    else ()
-       set (DX11_COPY_DLLS_BIT "x86")
-    endif ()
-
-    if( ${DirectX11_LIBRARY} MATCHES "/8\\.0/")
-       set (DX11_COPY_DLLS_WINSDKVERSION "8.0")
-       set (DX11_COPY_DLLS_DLL_VERSION "46")
-    elseif( ${DirectX11_LIBRARY} MATCHES "/8\\.1/")
-       set (DX11_COPY_DLLS_WINSDKVERSION "8.1")
-       set (DX11_COPY_DLLS_DLL_VERSION "47")
-    elseif( ${DirectX11_LIBRARY} MATCHES "/10/")
-       set (DX11_COPY_DLLS_WINSDKVERSION "10")
-       set (DX11_COPY_DLLS_DLL_VERSION "47")
-    endif ()
-
-    if (${DX11_COPY_DLLS_WINSDKVERSION})
-      add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "%ProgramFiles(x86)%/Windows Kits/${DX11_COPY_DLLS_WINSDKVERSION}/Redist/D3D/${DX11_COPY_DLLS_BIT}/d3dcompiler_${DX11_COPY_DLLS_DLL_VERSION}.dll"
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>)
-    endif ()
-  endif ()
-ENDMACRO()
-
-
-#########################################################################################
-## Macro to skip a Qt-only project if EZ_ENABLE_QT_SUPPORT is not enabled globally
-
-MACRO(BUILD_REQUIRES_QT)
-  if (EZ_QTPROJECT AND NOT EZ_ENABLE_QT_SUPPORT)
-    get_filename_component (BUILD_REQUIRES_QT_MACRO_FOLDERNAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
-    Message (STATUS "Skipping ${BUILD_REQUIRES_QT_MACRO_FOLDERNAME}. Requires Qt which is disabled.")
-    return ()
-  endif ()
-ENDMACRO()
-
-
-#########################################################################################
-## Macro to enable qt support for this library / project and store the required modules
-
-MACRO(QT_MODULES modules)
-  SET (EZ_QTPROJECT ON)
-  SET (EZ_QT_MODULES ${ARGV})
-ENDMACRO()
-
-
-#########################################################################################
-## Macro to write the current project into the target list file
-
-MACRO(ADD_TO_TARGET_LIST language)
-  file(RELATIVE_PATH ADD_TO_TARGET_LIST_MACRO_FOLDERNAME ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
-  file(APPEND ${CMAKE_BINARY_DIR}/Targets.txt "${PROJECT_NAME}|${ADD_TO_TARGET_LIST_MACRO_FOLDERNAME}|0|${language}|${LINK_LIBRARIES}\n")
-ENDMACRO()
-
-
-#########################################################################################
-## Macro to write the current project into the tests list file
-
-MACRO(ADD_TEST needs_hardware_access)
-  set (ADD_TEST_MACRO_HWA 0)
-  if (${needs_hardware_access})
-    set (ADD_TEST_MACRO_HWA 1)
-  else ()
-    set (ADD_TEST_MACRO_HWA 0)
-  endif ()
-
-  get_filename_component (ADD_TEST_MACRO_FOLDERNAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
-
-  file(APPEND ${CMAKE_BINARY_DIR}/Tests.txt "${ADD_TEST_MACRO_FOLDERNAME}|${ADD_TEST_MACRO_HWA}|0\n")
-ENDMACRO()

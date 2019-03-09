@@ -8,14 +8,11 @@ if (NOT EZ_BUILD_KRAUT)
 	return()
 endif()
 
-SET (LINK_LIBRARIES
-  Foundation
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
+
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
   EditorEngineProcessFramework
-  Core
-  RendererFoundation
-  RendererCore
   GameEngine
   KrautPlugin
 )
-
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")

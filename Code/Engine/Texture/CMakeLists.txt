@@ -1,8 +1,8 @@
 #cmake
 
-SET (LINK_LIBRARIES
-  ThirdParty
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
+
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   Foundation
 )
-
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")

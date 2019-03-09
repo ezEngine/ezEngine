@@ -1,18 +1,16 @@
 #cmake
 
-SET (LINK_LIBRARIES
-  Foundation      # Example: Another library build with cmake
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
+
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   ToolsFoundation
 )
 
 if (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
-  QT_MODULES(Core Gui Widgets WinExtras)
+  ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets WinExtras)
 else()
-  QT_MODULES(Core Gui Widgets)
+  ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets)
 endif()
 
-BUILD_REQUIRES_QT()
-SET (EZ_COPY_QT_DLLS ON)
-
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
 

@@ -22,7 +22,6 @@ if ((NATVIS_FILE) AND ((MSVC_VERSION GREATER 1900) OR (MSVC_VERSION EQUAL 1900))
 	SET(ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${NATVIS_FILE})
 endif()
 
-include (${CMAKE_CURRENT_LIST_DIR}/CMAKE_Qt.txt)
 include (${CMAKE_CURRENT_LIST_DIR}/CMAKE_LibraryFolder.txt)
 
 # Get the name of this folder
@@ -37,21 +36,9 @@ endif ()
 if (EZ_COMPILE_ENGINE_AS_DLL)
   # add the project as a shared library
   add_library (${PROJECT_NAME} SHARED ${ALL_SOURCE_FILES})
-
-  # for DLLs we need to know what other libraries to link against
-  target_link_libraries (${PROJECT_NAME} ${LINK_LIBRARIES})
-
-  # This sets which linker dependencies are passed through to other libraries.
-  # Ie. agains which libraries other libraries are supposed to link, as well.
-  # Setting this to empty, means that other libraries will NOT link against
-  # any additional libraries, which should not be required anyway, since this
-  # is a shared library which should already contain everything.
-  set_target_properties(${PROJECT_NAME} PROPERTIES INTERFACE_LINK_LIBRARIES "")
 else ()
   # add the project as a static library
   add_library (${PROJECT_NAME} ${ALL_SOURCE_FILES})
-
-  target_link_libraries (${PROJECT_NAME} ${LINK_LIBRARIES})
 endif ()
 
 ez_set_default_target_output_dirs(${PROJECT_NAME})
@@ -60,13 +47,13 @@ ez_set_common_target_definitions(${PROJECT_NAME})
 
 if (BUILDSYSTEM_PLATFORM_LINUX)
   # Workaround for: https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899
-  target_link_libraries (${PROJECT_NAME} "-lgcc_s -lgcc")
+  target_link_libraries (${PROJECT_NAME} PRIVATE -lgcc_s -lgcc)
 endif ()
 
 if (BUILDSYSTEM_PLATFORM_OSX OR BUILDSYSTEM_PLATFORM_LINUX)
   find_package(X11 REQUIRED)
   target_include_directories (${PROJECT_NAME} PRIVATE ${X11_X11_INCLUDE_PATH})
-  target_link_libraries (${PROJECT_NAME} ${X11_X11_LIB})
+  target_link_libraries (${PROJECT_NAME} PRIVATE ${X11_X11_LIB})
 endif ()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES IMPORT_PREFIX "ez")
@@ -113,10 +100,7 @@ if (LINKER_SETTINGS_RELEASE)
   set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_MINSIZEREL     ${LINKER_SETTINGS_RELEASE})
 endif ()
 
-QT_ADD_MODULES()
-DX11_COPY_DLLS()
-# Add to target list
-ADD_TO_TARGET_LIST(C++)
+ez_ci_add_to_targets_list(${PROJECT_NAME} C++)
 
 
 

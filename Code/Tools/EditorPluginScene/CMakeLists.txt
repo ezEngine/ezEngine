@@ -4,29 +4,19 @@ if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
 	return()
 endif()
 
-QT_MODULES(Core Gui Widgets)
-
-BUILD_REQUIRES_QT()
-
-BUILD_REQUIRES_DX11()
-
-SET (LINK_LIBRARIES
-  Foundation
-  EditorFramework
-  ToolsFoundation
-  Core
-  System
-  RendererFoundation
-  RendererDX11
-  RendererCore
-  GameEngine
-  ModelImporter
-  SharedPluginScene
-)
-
 SET (ADDITIONAL_DEPENDENCIES
   EnginePluginScene
 )
 
-
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
+
+ez_link_target_dx11(${PROJECT_NAME})
+ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets)
+
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+  EditorFramework
+  GameEngine
+  ModelImporter
+  SharedPluginScene
+)

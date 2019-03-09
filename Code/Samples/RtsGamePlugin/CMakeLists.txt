@@ -4,17 +4,12 @@ if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
 	return()
 endif()
 
-BUILD_REQUIRES_DX11()
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
 
-SET (LINK_LIBRARIES
-  Foundation
-  Core
-  System
+ez_link_target_dx11(${PROJECT_NAME})
+
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   GameEngine
-  ThirdParty
-  RendererFoundation
-  RendererCore
   Utilities
 )
-
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")

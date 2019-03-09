@@ -1,25 +1,27 @@
-﻿#cmake
-
-if(MSVC)
-  if(BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
-    SET (LINK_LIBRARIES
-      ${LINK_LIBRARIES}
-      OneCore.lib
-    )
-  else()
-    SET (LINK_LIBRARIES
-      ${LINK_LIBRARIES}
-      ws2_32.lib
-      Kernel32.lib
-      runtimeobject.lib
-    )
-  endif()
-endif()
+#cmake
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
 
 if(MSVC)
   target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32)
+
+  if(BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
+
+    target_link_libraries(${PROJECT_NAME}
+      PRIVATE
+      OneCore.lib
+    )
+
+  else()
+
+    target_link_libraries(${PROJECT_NAME}
+      PRIVATE
+      ws2_32.lib
+      Kernel32.lib
+      runtimeobject.lib
+    )
+
+  endif()
 endif()
 
 #################

@@ -10,19 +10,17 @@ if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
 	return()
 endif()
 
-SET (LINK_LIBRARIES
-  Foundation
-  Core
-  GameEngine
-  RendererCore
-)
-
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
+
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
+  GameEngine
+)
 
 find_package(ezFmod REQUIRED)
 
 if (EZFMOD_FOUND)
-  target_link_libraries(${PROJECT_NAME} ezFmod::Studio)
+  target_link_libraries(${PROJECT_NAME} PRIVATE ezFmod::Studio)
 
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezFmod::Studio> $<TARGET_FILE_DIR:${PROJECT_NAME}>

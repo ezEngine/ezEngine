@@ -4,15 +4,25 @@ if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
 	return()
 endif()
 
-SET (LINK_LIBRARIES 
-  Foundation
-  Core
-)
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
 
 if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
-  SET (LINK_LIBRARIES ${LINK_LIBRARIES} Xinputuap)
+
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+    Xinputuap
+  )
+
 elseif (BUILDSYSTEM_PLATFORM_WINDOWS)
-  SET (LINK_LIBRARIES ${LINK_LIBRARIES} XINPUT9_1_0)
+
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+    XINPUT9_1_0
+  )
+
 endif()
 
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
+  Core
+)

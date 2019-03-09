@@ -2,17 +2,12 @@
 
 SET (IS_WIN32_APPLICATION true)
 
-QT_MODULES(Core Gui Widgets)
-
-BUILD_REQUIRES_QT()
-
-SET (LINK_LIBRARIES
-  Foundation
-  Core
-  ThirdParty
-  GuiFoundation
-)
-
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
 
+ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets)
 
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+  Core
+  GuiFoundation
+)
