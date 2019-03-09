@@ -145,6 +145,5 @@ if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
   )
 endif()
 
-# Add to target list
-ADD_TO_TARGET_LIST(C++)
+ez_ci_add_to_targets_list(${PROJECT_NAME} C++)
 

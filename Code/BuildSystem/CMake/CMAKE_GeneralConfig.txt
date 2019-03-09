@@ -235,28 +235,3 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER)
 
   ENDIF(MSVC)
 ENDMACRO(ADD_MSVC_PRECOMPILED_HEADER)
-
-#########################################################################################
-## Macro to write the current project into the target list file
-
-MACRO(ADD_TO_TARGET_LIST language)
-  file(RELATIVE_PATH ADD_TO_TARGET_LIST_MACRO_FOLDERNAME ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
-  file(APPEND ${CMAKE_BINARY_DIR}/Targets.txt "${PROJECT_NAME}|${ADD_TO_TARGET_LIST_MACRO_FOLDERNAME}|0|${language}|${LINK_LIBRARIES}\n")
-ENDMACRO()
-
-
-#########################################################################################
-## Macro to write the current project into the tests list file
-
-MACRO(ADD_TEST needs_hardware_access)
-  set (ADD_TEST_MACRO_HWA 0)
-  if (${needs_hardware_access})
-    set (ADD_TEST_MACRO_HWA 1)
-  else ()
-    set (ADD_TEST_MACRO_HWA 0)
-  endif ()
-
-  get_filename_component (ADD_TEST_MACRO_FOLDERNAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
-
-  file(APPEND ${CMAKE_BINARY_DIR}/Tests.txt "${ADD_TEST_MACRO_FOLDERNAME}|${ADD_TEST_MACRO_HWA}|0\n")
-ENDMACRO()
