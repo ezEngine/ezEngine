@@ -1,11 +1,10 @@
 #cmake
 
-SET (LINK_LIBRARIES
-  Foundation
-  Texture
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
+
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   Core
   RendererFoundation
-  ThirdParty
+  Texture
 )
-
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")

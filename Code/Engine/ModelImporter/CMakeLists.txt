@@ -1,12 +1,12 @@
 #cmake
 
-set (LINK_LIBRARIES
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
+
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   Foundation
   RendererCore
-  ThirdParty
 )
-
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
 
 # deactivated for now, would need to be updated to modern CMake
 #set (EZ_BUILD_OFFICIAL_FBX_SDK OFF CACHE BOOL "Whether to use the official Autodesk FBX SDK or not")
@@ -41,7 +41,7 @@ find_package(EzAssImp REQUIRED)
 
 if (EZASSIMP_FOUND)
 
-  target_link_libraries(${PROJECT_NAME} EzAssImp::EzAssImp)
+  target_link_libraries(${PROJECT_NAME} PRIVATE EzAssImp::EzAssImp)
 
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:EzAssImp::EzAssImp> $<TARGET_FILE_DIR:${PROJECT_NAME}>

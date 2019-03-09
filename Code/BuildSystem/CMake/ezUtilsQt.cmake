@@ -16,7 +16,7 @@ function(ez_link_target_qt TARGET_NAME)
         
         find_package (Qt5${module} REQUIRED PATHS ${EZ_QT_DIR})
 
-        target_link_libraries(${TARGET_NAME} "Qt5::${module}")
+        target_link_libraries(${TARGET_NAME} PUBLIC "Qt5::${module}")
       
     endforeach()
 

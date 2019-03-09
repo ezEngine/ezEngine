@@ -4,9 +4,9 @@ if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
 	return()
 endif()
 
-SET (LINK_LIBRARIES
-  Foundation
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
+
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   EditorEngineProcessFramework
 )
-
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")

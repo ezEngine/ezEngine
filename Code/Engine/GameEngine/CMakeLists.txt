@@ -1,22 +1,33 @@
 #cmake
 
-SET (LINK_LIBRARIES
-  Foundation
-  Core
-  System
-  ThirdParty
-  RendererFoundation
-  RendererCore
+
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
+
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
   RendererDX11
-  Texture
+)
+
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
+  System
+  RendererCore
 )
 
 if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
-  LIST(APPEND LINK_LIBRARIES FileservePlugin)
+
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+    FileservePlugin
+  )
+
 endif()
 
 if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP AND EZ_ENABLE_MIXEDREALITY_SUPPORT)
-  LIST(APPEND LINK_LIBRARIES WindowsMixedReality)
-endif()
 
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+    WindowsMixedReality
+  )
+
+endif()

@@ -1,40 +1,46 @@
 #cmake
 
-SET (LINK_LIBRARIES
-  ThirdParty
- )
+set(NATVIS_FILE "${CMAKE_SOURCE_DIR}/Utilities/Visual Studio Visualizer/ezEngine.natvis")
 
-SET(NATVIS_FILE "${CMAKE_SOURCE_DIR}/Utilities/Visual Studio Visualizer/ezEngine.natvis")
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
 
 if (MSVC)
-  SET (LINK_LIBRARIES
-    ${LINK_LIBRARIES}
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+
     Rpcrt4.lib
   )
 endif()
 
 if (BUILDSYSTEM_PLATFORM_LINUX)
-  SET (LINK_LIBRARIES
-    ${LINK_LIBRARIES}
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+
     uuid
   )
 endif()
 
 if (CURRENT_OSX_VERSION)
-  FIND_LIBRARY(CORESERVICES_LIBRARY CoreServices )
-  FIND_LIBRARY(COREFOUNDATION_LIBRARY CoreFoundation )
+  find_library(CORESERVICES_LIBRARY CoreServices)
+  find_library(COREFOUNDATION_LIBRARY CoreFoundation)
 
-  MARK_AS_ADVANCED (CORESERVICES_LIBRARY
-                    COREFOUNDATION_LIBRARY)
+  mark_as_advanced(FORCE CORESERVICES_LIBRARY COREFOUNDATION_LIBRARY)
 
-  SET (LINK_LIBRARIES
-    ${LINK_LIBRARIES}
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+
     ${CORESERVICES_LIBRARY}
     ${COREFOUNDATION_LIBRARY}
   )
 endif()
 
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
+
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
+
+  ThirdParty
+)
+
 
 ####################################################
 ## UserConfig header settings

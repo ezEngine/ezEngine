@@ -1,8 +1,8 @@
 #cmake
 
-SET (LINK_LIBRARIES
-  Foundation
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
+
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   TestFramework
 )
-
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")

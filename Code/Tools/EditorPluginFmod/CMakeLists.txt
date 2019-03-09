@@ -8,23 +8,21 @@ if (NOT EZ_BUILD_FMOD)
 	return()
 endif()
 
-SET (LINK_LIBRARIES 
-  Foundation
-  EditorFramework
-  ToolsFoundation
-  Core
-  GameEngine
-  FmodPlugin
-)
-
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
 
 ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets)
 
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+  EditorFramework
+  GameEngine
+  FmodPlugin
+)
+
 find_package(EzFmod REQUIRED)
 
 if (EZFMOD_FOUND)
-  target_link_libraries(${PROJECT_NAME} ezFmod::Studio)
+  target_link_libraries(${PROJECT_NAME} PRIVATE ezFmod::Studio)
 
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezFmod::Studio> $<TARGET_FILE_DIR:${PROJECT_NAME}>

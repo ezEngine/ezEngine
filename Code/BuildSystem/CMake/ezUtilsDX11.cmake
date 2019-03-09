@@ -6,7 +6,7 @@ function(ez_link_target_dx11 TARGET_NAME)
 
 	find_package (DirectX11)
 	target_link_libraries(${TARGET_NAME} 
-		# PRIVATE 
+		PRIVATE 
 		${DirectX11_D3D11_LIBRARIES})
 
 	if (CMAKE_SIZEOF_VOID_P EQUAL 8)

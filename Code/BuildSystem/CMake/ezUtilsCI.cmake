@@ -8,7 +8,6 @@ function(ez_ci_add_to_targets_list TARGET_NAME LANGUAGE)
 	file(RELATIVE_PATH REL_PATH_TO_FOLDER ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 	get_target_property(LINK_LIBS ${TARGET_NAME} LINK_LIBRARIES)
-	message(STATUS "Target Link Libs: ${LINK_LIBS}")
 
 	file(APPEND ${CMAKE_BINARY_DIR}/Targets.txt "${TARGET_NAME}|${REL_PATH_TO_FOLDER}|0|${LANGUAGE}|${LINK_LIBS}\n")
 

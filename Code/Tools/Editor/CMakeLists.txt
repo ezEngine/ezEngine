@@ -7,16 +7,6 @@ endif()
 # Set this to true, if your application is a real win32 app (not a console app)
 SET (IS_WIN32_APPLICATION true)
 
-SET (LINK_LIBRARIES
-  Foundation
-  Core
-  ThirdParty
-  EditorFramework
-  EditorEngineProcessFramework
-  ToolsFoundation
-  GuiFoundation
-)
-
 SET (ADDITIONAL_DEPENDENCIES
   EditorProcessor
   EditorEngineProcess
@@ -61,3 +51,9 @@ endif()
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
 
 ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets Network)
+
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+  EditorFramework
+  EditorEngineProcessFramework
+)
