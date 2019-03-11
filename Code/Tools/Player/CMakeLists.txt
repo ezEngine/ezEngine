@@ -4,18 +4,6 @@ if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
 	return()
 endif()
 
-SET (ADDITIONAL_DEPENDENCIES
-  ShaderCompilerHLSL
-  InspectorPlugin
-)
-
-if (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
-  SET (ADDITIONAL_DEPENDENCIES
-    ${ADDITIONAL_DEPENDENCIES}
-    RenderDocPlugin
-  )
-endif()
-
 # Set this to true, if your application is a real win32 app (not a console app)
 SET (IS_WIN32_APPLICATION true)
 
@@ -25,3 +13,12 @@ target_link_libraries(${PROJECT_NAME}
   PRIVATE
   GameEngine
 )
+
+add_dependencies(${PROJECT_NAME}
+  ShaderCompilerHLSL
+  InspectorPlugin
+)
+
+if (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
+  add_dependencies(${PROJECT_NAME} RenderDocPlugin)
+endif()

@@ -4,10 +4,6 @@ if (NOT BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
 	return()
 endif()
 
-SET (ADDITIONAL_DEPENDENCIES
-  ShaderCompilerHLSL
-)
-
 # Set this to true, if your application is a real win32 app (not a console app)
 SET (IS_WIN32_APPLICATION true)
 
@@ -17,4 +13,8 @@ target_link_libraries(${PROJECT_NAME}
   PUBLIC
   GameEngine
   RendererDX11
+)
+
+add_dependencies(${PROJECT_NAME}
+  ShaderCompilerHLSL
 )
