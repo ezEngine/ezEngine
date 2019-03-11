@@ -8,10 +8,6 @@ if (NOT EZ_BUILD_KRAUT)
 	return()
 endif()
 
-SET (ADDITIONAL_DEPENDENCIES
-  EnginePluginKraut
-)
-
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
 
 ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets)
@@ -23,4 +19,8 @@ target_link_libraries(${PROJECT_NAME}
   KrautPlugin
   ModelImporter
   EditorPluginAssets
+)
+
+add_dependencies(${PROJECT_NAME}
+  EnginePluginKraut
 )

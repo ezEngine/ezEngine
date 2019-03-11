@@ -4,10 +4,6 @@ if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
 	return()
 endif()
 
-SET (ADDITIONAL_DEPENDENCIES
-  EnginePluginAssets
-)
-
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
 
 target_link_libraries(${PROJECT_NAME}
@@ -32,3 +28,5 @@ if (EZASSIMP_FOUND)
   )
 
 endif()
+
+add_dependencies(${PROJECT_NAME} EnginePluginAssets)

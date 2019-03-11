@@ -6,21 +6,6 @@ endif()
 
 SET (IS_WIN32_APPLICATION true)
 
-SET (ADDITIONAL_DEPENDENCIES
-  EditorEngineProcess
-  EditorPluginScene
-  EditorPluginAssets
-  TexConv2
-)
-
-if (EZ_BUILD_FMOD)
-	SET (ADDITIONAL_DEPENDENCIES ${ADDITIONAL_DEPENDENCIES} EditorPluginFmod FmodPlugin)
-endif()
-
-if (EZ_BUILD_PHYSX)
-	SET (ADDITIONAL_DEPENDENCIES ${ADDITIONAL_DEPENDENCIES} EditorPluginPhysX PhysXPlugin)
-endif()
-
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
 
 ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets Network)
@@ -29,3 +14,18 @@ target_link_libraries(${PROJECT_NAME}
   PRIVATE
   EditorFramework
 )
+
+add_dependencies(${PROJECT_NAME}
+  EditorEngineProcess
+  EditorPluginScene
+  EditorPluginAssets
+  TexConv2
+)
+
+if (EZ_BUILD_FMOD)
+	add_dependencies(${PROJECT_NAME} EditorPluginFmod FmodPlugin)
+endif()
+
+if (EZ_BUILD_PHYSX)
+	add_dependencies(${PROJECT_NAME} EditorPluginPhysX PhysXPlugin)
+endif()

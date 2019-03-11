@@ -7,15 +7,6 @@ endif()
 # Set this to true, if your application is a real win32 app (not a console app)
 SET (IS_WIN32_APPLICATION true)
 
-SET (ADDITIONAL_DEPENDENCIES
-  ShaderCompilerHLSL
-  EnginePluginScene
-  EnginePluginAssets
-  EnginePluginParticle
-  RecastPlugin
-  InspectorPlugin
-)
-
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
 
 ez_link_target_dx11(${PROJECT_NAME})
@@ -54,3 +45,12 @@ if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
 
   endif()
 endif()
+
+add_dependencies(${PROJECT_NAME}
+  ShaderCompilerHLSL
+  EnginePluginScene
+  EnginePluginAssets
+  EnginePluginParticle
+  RecastPlugin
+  InspectorPlugin
+)
