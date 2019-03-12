@@ -9,7 +9,11 @@ SET (IS_WIN32_APPLICATION true)
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
 
-ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets Network)
+if (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
+  ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network WinExtras)
+else()
+  ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network)
+endif()
 
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
