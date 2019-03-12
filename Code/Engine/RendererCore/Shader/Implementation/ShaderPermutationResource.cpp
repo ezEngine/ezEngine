@@ -206,7 +206,7 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResource* pResou
     sPermutationFile.Shrink(
         ezShaderManager::GetCacheDirectory().GetCharacterCount() + ezShaderManager::GetActivePlatform().GetCharacterCount() + 2, 1);
 
-    sPermutationFile.Shrink(0, 8); // remove the hash at the end
+    sPermutationFile.Shrink(0, 9); // remove underscore and the hash at the end
     sPermutationFile.Append(".ezShader");
 
     ezArrayPtr<const ezPermutationVar> permutationVars = static_cast<const ezShaderPermutationResource*>(pResource)->GetPermutationVars();

@@ -341,7 +341,7 @@ ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInter
     sShaderFile.ChangeFileExtension("");
     if (sShaderFile.EndsWith("."))
       sShaderFile.Shrink(0, 1);
-    sShaderFile.AppendFormat("{0}.ezPermutation", ezArgU(uiPermutationHash, 8, true, 16, true));
+    sShaderFile.AppendFormat("_{0}.ezPermutation", ezArgU(uiPermutationHash, 8, true, 16, true));
 
     *pPermutationPath = sShaderFile;
   }

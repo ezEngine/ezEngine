@@ -357,7 +357,6 @@ void ezShaderTypeRegistry::UpdateShaderType(ShaderData& data)
   desc.m_sTypeName = data.m_sShaderPath;
   desc.m_sPluginName = "ShaderTypes";
   desc.m_sParentTypeName = m_pBaseType->GetTypeName();
-  ;
   desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Class;
   desc.m_uiTypeSize = 0;
   desc.m_uiTypeVersion = 2;
