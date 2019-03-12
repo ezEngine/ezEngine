@@ -1,40 +1,23 @@
-﻿#cmake
+#cmake
 
-#
-# Copy this file into the folder of an engine library to add it to the solution.
-# Below there are configuration options to add preprocessor definitions and link dependencies to the library.
-#
-# *** Modify this file as required ***
-#
-
-if (POLICY CMP0043)
-  cmake_policy(SET CMP0043 NEW)
+if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
+	return()
 endif()
 
-BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
 
-# Add all the preprocessor definitions that are needed to configure this library
-# add_definitions (-DMY_PREPROCESS_DEFINITION_1)
-# add_definitions (-DMY_PREPROCESS_DEFINITION_2)
+ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets)
 
-# Enables the use of Qt in this project and sets up the required modules.
-QT_MODULES(Core Gui Widgets)
-
-# Call this in case this project does not function without Qt.
-BUILD_REQUIRES_QT()
-
-# Add all the libraries that this project needs to link against here
-SET (LINK_LIBRARIES
-  Foundation
-  Core
-  ToolsFoundation
-  RendererFoundation
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   RendererCore
-  System
+  ToolsFoundation
   GuiFoundation
-  TestFramework
   GameEngine
   EditorEngineProcessFramework
 )
 
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+  TestFramework
+)

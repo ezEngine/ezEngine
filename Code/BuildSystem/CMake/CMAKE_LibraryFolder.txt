@@ -8,7 +8,7 @@ file (GLOB INLINE_FILES "${CURRENT_FOLDER}/*.inl")
 file (GLOB SOURCE_FILES "${CURRENT_FOLDER}/*.cpp" "${CURRENT_FOLDER}/*.c")
 file (GLOB RESOURCE_FILES "${CURRENT_FOLDER}/*.rc" "${CURRENT_FOLDER}/*.ico")
 
-if (EZ_ENABLE_QT_SUPPORT AND EZ_QTPROJECT)
+if (EZ_ENABLE_QT_SUPPORT)
   file (GLOB     UI_FILES "${CURRENT_FOLDER}/*.ui")
   file (GLOB    QRC_FILES "${CURRENT_FOLDER}/*.qrc")
   file (GLOB  MOC_HEADERS "${CURRENT_FOLDER}/*.moc.h")
@@ -36,10 +36,16 @@ if (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
 	set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${RESOURCE_FILES})
 endif()
 
-if (EZ_ENABLE_QT_SUPPORT AND EZ_QTPROJECT)
+if (EZ_ENABLE_QT_SUPPORT)
+  # this is necessary so that MOC preprocesses the files correctly
+  # WRAP_CPP should just take the compile definitions of the project, but somehow it currently doesn't
+  add_definitions (-DEZ_USE_QT)
+  
   set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${UI_FILES})
   set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${QRC_FILES})
   #set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${MOC_HEADERS})
+  
+  find_package (Qt5Widgets REQUIRED PATHS ${EZ_QT_DIR})
 
   if (UI_FILES)
     QT5_WRAP_UI (UI_HEADERS ${UI_FILES})

@@ -1,41 +1,78 @@
-﻿#cmake
+#cmake
 
-#
-# Copy this file into the folder of an engine library to add it to the solution.
-# Below there are configuration options to add preprocessor definitions and link dependencies to the library.
-#
-# *** Modify this file as required ***
-#
-
-# Add all the preprocessor definitions that are needed to configure this library
-
-SET (LINK_LIBRARIES
-
-)
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
 
 if(MSVC)
-  add_definitions (-DWIN32)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32)
 
   if(BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
-    SET (LINK_LIBRARIES
-      ${LINK_LIBRARIES}
+
+    target_link_libraries(${PROJECT_NAME}
+      PRIVATE
       OneCore.lib
     )
+
   else()
-    SET (LINK_LIBRARIES
-      ${LINK_LIBRARIES}
+
+    target_link_libraries(${PROJECT_NAME}
+      PRIVATE
       ws2_32.lib
       Kernel32.lib
       runtimeobject.lib
     )
+
   endif()
 endif()
 
-set (BUILDSYSTEM_PREVENT_STATIC_CODE_ANALYSIS true)
+#################
+## Enet
+#################
 
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
+set (EZ_3RDPARTY_ENET_SUPPORT ON CACHE BOOL "Whether to add support for Enet.")
+mark_as_advanced(FORCE EZ_3RDPARTY_ENET_SUPPORT)
+
+if (EZ_3RDPARTY_ENET_SUPPORT)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_ENET_SUPPORT)
+endif()
+
+#################
+## Lua
+#################
+
+set (EZ_3RDPARTY_LUA_SUPPORT ON CACHE BOOL "Whether to add support for Lua.")
+mark_as_advanced(FORCE EZ_3RDPARTY_LUA_SUPPORT)
+
+if (EZ_3RDPARTY_LUA_SUPPORT)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_LUA_SUPPORT)
+endif()
+
+#################
+## Zlib
+#################
+
+set (EZ_3RDPARTY_ZLIB_SUPPORT OFF CACHE BOOL "Whether to add support for zlib.")
+mark_as_advanced(FORCE EZ_3RDPARTY_ZLIB_SUPPORT)
+
+if (EZ_3RDPARTY_ZLIB_SUPPORT)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_ZLIB_SUPPORT)
+endif()
+
+#################
+## Zstandard
+#################
+
+set (EZ_3RDPARTY_ZSTD_SUPPORT ON CACHE BOOL "Whether to add support for zstd.")
+mark_as_advanced(FORCE EZ_3RDPARTY_ZSTD_SUPPORT)
+
+if (EZ_3RDPARTY_ZSTD_SUPPORT)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_ZSTD_SUPPORT)
+endif()
+
+#################
+#################
+
 
 # This will break clang makefile builds:
 if(MSVC)
-  SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CPP)
+  set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CPP)
 endif()
