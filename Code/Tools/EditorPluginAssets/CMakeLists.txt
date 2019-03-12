@@ -15,7 +15,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 ez_link_target_dx11(${PROJECT_NAME})
-ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets)
+ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets)
 
 find_package(EzAssImp REQUIRED)
 

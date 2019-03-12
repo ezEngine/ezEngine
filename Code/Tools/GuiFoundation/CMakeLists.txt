@@ -8,9 +8,9 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 if (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
-  ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets WinExtras)
+  ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network WinExtras COPY_DLLS)
 else()
-  ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets)
+  ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network COPY_DLLS)
 endif()
 
 
