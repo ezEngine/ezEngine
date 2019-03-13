@@ -41,9 +41,14 @@ inline ezResult ezSimdQuat::GetRotationAxisAndAngle(ezSimdVec4f& vAxis, ezSimdFl
   const float d = ezMath::Sin(acos);
 
   if (d == 0)
-    return EZ_FAILURE;
+  {
+    vAxis.Set(1.0f, 0.0f, 0.0f, 0.0f);
+  }
+  else
+  {
+    vAxis = m_v / d;
+  }
 
-  vAxis = m_v / d;
   angle = acos * 2;
 
   return EZ_SUCCESS;

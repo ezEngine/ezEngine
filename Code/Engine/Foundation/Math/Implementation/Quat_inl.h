@@ -71,9 +71,14 @@ ezResult ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& vAx
   const float d = ezMath::Sin(acos);
 
   if (d == 0)
-    return EZ_FAILURE;
+  {
+    vAxis.Set(1, 0, 0);
+  }
+  else
+  {
+    vAxis = (v / d);
+  }
 
-  vAxis = (v / d);
   angle = acos * 2;
 
   return EZ_SUCCESS;
