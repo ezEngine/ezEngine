@@ -14,6 +14,20 @@ class ezWindowBase;
 struct ezWindowCreationDesc;
 class ezWorld;
 
+/// Allows custom code to inject logic at specific points during
+/// initialization or during shutdown. The events are listed in
+/// the order in which they typically happen.
+struct ezGameApplicationStaticEvent
+{
+  enum class Type
+  {
+    AfterGameStateActivated,
+    BeforeGameStateDeactivated
+  };
+
+  Type m_Type;
+};
+
 /// Allows custom code to inject logic at specific update points.
 /// The events are listed in the order in which they typically happen.
 struct ezGameApplicationExecutionEvent
@@ -101,6 +115,12 @@ public:
   /// The previous ezWindowOutputTargetBase object (if any) will be destroyed.
   void SetWindowOutputTarget(const ezWindowBase* pWindow, ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget);
 
+  /// \brief Returns the number of windows currently registered
+  ezUInt32 GetWindowCount() const;
+
+  /// \brief Retrieves a previously registered window with the respective index
+  ezWindowBase* GetWindow(ezUInt32 uiWindowIndex) const;
+
 protected:
   virtual ezUniquePtr<ezWindowOutputTargetBase> CreateWindowOutputTarget(ezWindowBase* pWindow) = 0;
   virtual void DestroyWindowOutputTarget(ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget) = 0;
@@ -182,9 +202,15 @@ public:
   ///
   /// In the editor case, there are cases where a 'player start position' is specified, which can be used
   /// by the game state to place the player.
+  ///
+  /// Broadcasts local event: ezGameApplicationStaticEvent::AfterGameStateActivated
+  /// Broadcasts global event: AfterGameStateActivation(ezGameStateBase*)
   ezResult ActivateGameState(ezWorld* pWorld = nullptr, const ezTransform* pStartPosition = nullptr);
 
   /// \brief Deactivates and destroys the active game state.
+  ///
+  /// Broadcasts local event: ezGameApplicationStaticEvent::BeforeGameStateDeactivated
+  /// Broadcasts global event: BeforeGameStateDeactivation(ezGameStateBase*)
   void DeactivateGameState();
 
   /// \brief Returns the currently active game state. Could be nullptr.
@@ -252,6 +278,8 @@ protected:
   virtual void Init_ConfigureCVars();
   virtual void Init_SetupGraphicsDevice() = 0;
   virtual void Init_SetupDefaultResources();
+
+  ezEvent<const ezGameApplicationStaticEvent&> m_StaticEvents;
 
   ///@}
   /// \name Application Shutdown

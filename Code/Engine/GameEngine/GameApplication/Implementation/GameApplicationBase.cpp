@@ -116,6 +116,19 @@ void ezGameApplicationBase::SetWindowOutputTarget(const ezWindowBase* pWindow, e
   EZ_REPORT_FAILURE("The given window is not part of the application!");
 }
 
+
+ezUInt32 ezGameApplicationBase::GetWindowCount() const
+{
+  return m_Windows.GetCount();
+}
+
+ezWindowBase* ezGameApplicationBase::GetWindow(ezUInt32 uiWindowIndex) const
+{
+  EZ_ASSERT_DEV(m_Windows.GetCount() < uiWindowIndex, "Window index out of bounds!");
+
+  return m_Windows[uiWindowIndex].m_pWindow;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 void AppendCurrentTimestamp(ezStringBuilder& out_String)
@@ -227,8 +240,7 @@ ezResult ezGameApplicationBase::GetAbsFrameCaptureOutputPath(ezStringBuilder& sO
 
 void ezGameApplicationBase::ExecuteFrameCapture(ezWindowHandle targetWindowHandle, const char* szContext /*= nullptr*/)
 {
-  ezFrameCaptureInterface* pCaptureInterface =
-      ezSingletonRegistry::GetSingletonInstance<ezFrameCaptureInterface>("ezFrameCaptureInterface");
+  ezFrameCaptureInterface* pCaptureInterface = ezSingletonRegistry::GetSingletonInstance<ezFrameCaptureInterface>();
   if (!pCaptureInterface)
   {
     return;
@@ -287,6 +299,13 @@ ezResult ezGameApplicationBase::ActivateGameState(ezWorld* pWorld /*= nullptr*/,
 
   m_pWorldLinkedWithGameState = pWorld;
   m_pGameState->OnActivation(pWorld, pStartPosition);
+
+  ezGameApplicationStaticEvent e;
+  e.m_Type = ezGameApplicationStaticEvent::Type::AfterGameStateActivated;
+  m_StaticEvents.Broadcast(e);
+
+  EZ_BROADCAST_EVENT(AfterGameStateActivation, m_pGameState.Borrow());
+
   return EZ_SUCCESS;
 }
 
@@ -294,6 +313,12 @@ void ezGameApplicationBase::DeactivateGameState()
 {
   if (m_pGameState == nullptr)
     return;
+
+  EZ_BROADCAST_EVENT(BeforeGameStateDeactivation, m_pGameState.Borrow());
+
+  ezGameApplicationStaticEvent e;
+  e.m_Type = ezGameApplicationStaticEvent::Type::BeforeGameStateDeactivated;
+  m_StaticEvents.Broadcast(e);
 
   m_pGameState->OnDeactivation();
   m_pGameState = nullptr;
