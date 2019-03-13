@@ -122,6 +122,10 @@ public:
   void SetGlobalKey(const ezHashedString& sGlobalKey);
   const char* GetGlobalKey() const;
 
+  /// \brief Enables or disabled notification message when children are added or removed. The notification message is sent to this object and all its parent objects.
+  void EnableChildChangesNotifications();
+  void DisableChildChangesNotifications();
+
   /// \brief Defines during re-parenting what transform is going to be preserved.
   enum class TransformPreservation
   {
@@ -281,6 +285,9 @@ public:
   /// \brief Returns a handle to the internal spatial data.
   ezSpatialDataHandle GetSpatialData() const;
 
+  /// \brief Enables or disabled notification message when components are added or removed. The notification message is sent to this object and all its parent objects.
+  void EnableComponentChangesNotifications();
+  void DisableComponentChangesNotifications();
 
   /// \brief Tries to find a component of the given base type in the objects components list and returns the first match.
   template <typename T>
@@ -378,6 +385,8 @@ private:
   void AddComponent(ezComponent* pComponent);
   void RemoveComponent(ezComponent* pComponent);
   void FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr);
+
+  void SendNotificationMessage(ezMessage& msg);
 
   struct EZ_CORE_DLL EZ_ALIGN_16(TransformationData)
   {

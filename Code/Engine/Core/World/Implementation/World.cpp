@@ -1,6 +1,7 @@
 #include <CorePCH.h>
 
 #include <Core/Messages/DeleteObjectMessage.h>
+#include <Core/Messages/HierarchyChangedMessages.h>
 #include <Core/World/World.h>
 #include <Core/World/WorldModule.h>
 #include <Foundation/Memory/FrameAllocator.h>
@@ -467,6 +468,16 @@ void ezWorld::LinkToParent(ezGameObject* pObject)
     pParentObject->m_ChildCount++;
 
     pObject->m_pTransformationData->m_pParentData = pParentObject->m_pTransformationData;
+
+    if (pParentObject->m_Flags.IsSet(ezObjectFlags::ChildChangesNotifications))
+    {
+      ezMsgChildrenChanged msg;
+      msg.m_Type = ezMsgChildrenChanged::Type::ChildAdded;
+      msg.m_hParent = pParentObject->GetHandle();
+      msg.m_hChild = pObject->GetHandle();
+
+      pParentObject->SendNotificationMessage(msg);
+    }
   }
 }
 
@@ -494,6 +505,16 @@ void ezWorld::UnlinkFromParent(ezGameObject* pObject)
 
     // Note that the sibling indices must not be set to 0 here.
     // They are still needed if we currently iterate over child objects.
+
+    if (pParentObject->m_Flags.IsSet(ezObjectFlags::ChildChangesNotifications))
+    {
+      ezMsgChildrenChanged msg;
+      msg.m_Type = ezMsgChildrenChanged::Type::ChildRemoved;
+      msg.m_hParent = pParentObject->GetHandle();
+      msg.m_hChild = pObject->GetHandle();
+
+      pParentObject->SendNotificationMessage(msg);
+    }
   }
 }
 

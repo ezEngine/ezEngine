@@ -123,6 +123,16 @@ EZ_ALWAYS_INLINE bool ezGameObject::HasName(const ezTempHashedString& name) cons
   return m_sName == name;
 }
 
+EZ_ALWAYS_INLINE void ezGameObject::EnableChildChangesNotifications()
+{
+  m_Flags.Add(ezObjectFlags::ChildChangesNotifications);
+}
+
+EZ_ALWAYS_INLINE void ezGameObject::DisableChildChangesNotifications()
+{
+  m_Flags.Remove(ezObjectFlags::ChildChangesNotifications);
+}
+
 EZ_ALWAYS_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children,
                                                 ezGameObject::TransformPreservation preserve)
 {
@@ -426,6 +436,16 @@ EZ_ALWAYS_INLINE void ezGameObject::UpdateGlobalTransformAndBounds()
 EZ_ALWAYS_INLINE ezSpatialDataHandle ezGameObject::GetSpatialData() const
 {
   return m_pTransformationData->m_hSpatialData;
+}
+
+EZ_ALWAYS_INLINE void ezGameObject::EnableComponentChangesNotifications()
+{
+  m_Flags.Add(ezObjectFlags::ComponentChangesNotifications);
+}
+
+EZ_ALWAYS_INLINE void ezGameObject::DisableComponentChangesNotifications()
+{
+  m_Flags.Remove(ezObjectFlags::ComponentChangesNotifications);
 }
 
 template <typename T>
