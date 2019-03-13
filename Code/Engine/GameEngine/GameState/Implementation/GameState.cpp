@@ -37,7 +37,7 @@ void ezGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPositio
   m_pMainWorld = pWorld;
   bool bCreateNewWindow = true;
   m_bVirtualRealityMode = ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-vr", false);
-  if (m_bVirtualRealityMode && !ezSingletonRegistry::GetSingletonInstance<ezVRInterface>("ezVRInterface"))
+  if (m_bVirtualRealityMode && !ezSingletonRegistry::GetSingletonInstance<ezVRInterface>())
   {
     m_bVirtualRealityMode = false;
     ezLog::Error("-vr argument ignored, no ezVRInterface present.");
@@ -76,7 +76,7 @@ void ezGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPositio
     {
       // TODO: Don't hardcode the HololensRenderPipeline.ezRendePipelineAsset
       auto hRenderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 2fe25ded-776c-7f9e-354f-e4c52a33d125 }");
-      ezVRInterface* pVRInterface = ezSingletonRegistry::GetSingletonInstance<ezVRInterface>("ezVRInterface");
+      ezVRInterface* pVRInterface = ezSingletonRegistry::GetRequiredSingletonInstance<ezVRInterface>();
       pVRInterface->Initialize();
       m_hMainView = pVRInterface->CreateVRView(hRenderPipeline, &m_MainCamera);
       ChangeMainWorld(pWorld);
@@ -108,7 +108,7 @@ void ezGameState::OnDeactivation()
 {
   if (m_bVirtualRealityMode)
   {
-    ezVRInterface* pVRInterface = ezSingletonRegistry::GetSingletonInstance<ezVRInterface>("ezVRInterface");
+    ezVRInterface* pVRInterface = ezSingletonRegistry::GetRequiredSingletonInstance<ezVRInterface>();
     pVRInterface->DestroyVRView();
     pVRInterface->Deinitialize();
   }

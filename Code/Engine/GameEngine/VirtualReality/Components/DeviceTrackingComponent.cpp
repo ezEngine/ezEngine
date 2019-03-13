@@ -75,7 +75,7 @@ void ezDeviceTrackingComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezDeviceTrackingComponent::Update()
 {
-  if (ezVRInterface* pVRInterface = ezSingletonRegistry::GetSingletonInstance<ezVRInterface>("ezVRInterface"))
+  if (ezVRInterface* pVRInterface = ezSingletonRegistry::GetSingletonInstance<ezVRInterface>())
   {
     ezVRDeviceID deviceID = pVRInterface->GetDeviceIDByType(m_deviceType);
     if (deviceID != -1)

@@ -45,7 +45,7 @@ ezPhysXInterface* ezPhysXCooking::s_pPhysX = nullptr;
 
 void ezPhysXCooking::Startup()
 {
-  s_pPhysX = ezSingletonRegistry::GetSingletonInstance<ezPhysXInterface>("ezPhysXInterface");
+  s_pPhysX = ezSingletonRegistry::GetRequiredSingletonInstance<ezPhysXInterface>();
 
   PxCookingParams params = PxCookingParams(s_pPhysX->GetPhysXAPI()->getTolerancesScale());
   params.targetPlatform = PxPlatform::ePC;
