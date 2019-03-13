@@ -133,6 +133,9 @@ struct EZ_SYSTEM_DLL ezWindowCreationDesc
   /// Whether the mouse cursor should be visible or not.
   /// \see ezStandardInputDevice::SetShowMouseCursor
   bool m_bShowMouseCursor = false;
+
+  /// Whether the window is activated and focussed on Initialize()
+  bool m_bSetForegroundOnInit = true;
 };
 
 /// \brief A simple abstraction for platform specific window creation.

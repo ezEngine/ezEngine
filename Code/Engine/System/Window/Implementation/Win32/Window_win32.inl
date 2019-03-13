@@ -184,11 +184,14 @@ ezResult ezWindow::Initialize()
   // safe window pointer for lookup in ezWindowsMessageFuncTrampoline
   SetWindowLongPtrW(m_WindowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
-  // activate window
-  ShowWindow(m_WindowHandle, SW_SHOW);
-  SetActiveWindow(m_WindowHandle);
-  SetFocus(m_WindowHandle);
-  SetForegroundWindow(m_WindowHandle);
+  // show window and activate if required
+  ShowWindow(m_WindowHandle, m_CreationDescription.m_bSetForegroundOnInit ? SW_SHOWNORMAL : SW_SHOWNOACTIVATE);
+  if (m_CreationDescription.m_bSetForegroundOnInit)
+  {
+    SetActiveWindow(m_WindowHandle);
+    SetFocus(m_WindowHandle);
+    SetForegroundWindow(m_WindowHandle);
+  }
 
   RECT r;
   GetClientRect(m_WindowHandle, &r);
