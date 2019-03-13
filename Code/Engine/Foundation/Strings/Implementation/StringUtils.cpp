@@ -3,7 +3,7 @@
 #include <Foundation/Strings/StringView.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
 #include <Foundation/Logging/Log.h>
 
 ezAtomicInteger32 ezStringUtils::g_MaxUsedStringLength;

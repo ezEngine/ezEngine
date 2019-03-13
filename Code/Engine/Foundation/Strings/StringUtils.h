@@ -277,7 +277,7 @@ public:
   static void OutputFormattedFloat(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, double value, ezUInt8 uiWidth,
                                    bool bPadZeros, ezInt8 iPrecision, bool bScientific);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   static void AddUsedStringLength(ezUInt32 uiLength);
   static void PrintStringLengthStatistics();
   static ezAtomicInteger32 g_MaxUsedStringLength;
