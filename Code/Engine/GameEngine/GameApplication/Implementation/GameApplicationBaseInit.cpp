@@ -212,7 +212,7 @@ void ezGameApplicationBase::Deinit_UnloadPlugins()
   ezPlugin* pPlugin = ezPlugin::GetFirstInstance();
   while (pPlugin != nullptr)
   {
-    s = ezPlugin::GetFirstInstance()->GetPluginName();
+    s = pPlugin->GetPluginName();
     ToUnload.Insert(s);
 
     pPlugin = pPlugin->GetNextInstance();
