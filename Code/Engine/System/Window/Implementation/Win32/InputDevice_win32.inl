@@ -14,6 +14,8 @@ bool ezStandardInputDevice::s_bMainWindowUsed = false;
 
 ezStandardInputDevice::ezStandardInputDevice(ezUInt32 uiWindowNumber)
 {
+  m_uiWindowNumber = uiWindowNumber;
+
   if (uiWindowNumber == 0)
   {
     EZ_ASSERT_RELEASE(!s_bMainWindowUsed, "You cannot have two devices of Type ezStandardInputDevice with the window number zero.");
@@ -368,7 +370,8 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
       const float fPosX = (float)((short)LOWORD(lParam));
       const float fPosY = (float)((short)HIWORD(lParam));
 
-      m_InputSlotValues[ezInputSlot_MousePositionX] = (fPosX / uiResX) + m_uiWindowNumber;
+      m_iMouseIsOverWindowNumber = m_uiWindowNumber;
+      m_InputSlotValues[ezInputSlot_MousePositionX] = (fPosX / uiResX);
       m_InputSlotValues[ezInputSlot_MousePositionY] = (fPosY / uiResY);
 
       if (m_ClipCursorMode == ezMouseCursorClipMode::ClipToPosition || m_ClipCursorMode == ezMouseCursorClipMode::ClipToWindowImmediate)

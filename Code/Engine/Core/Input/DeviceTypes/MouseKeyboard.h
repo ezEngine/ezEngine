@@ -52,6 +52,12 @@ public:
   /// \brief Returns the scaling factor that is applied on all (relative) mouse input.
   ezVec2 GetMouseSpeed() const { return m_vMouseScale; }
 
-private:
+  /// \brief Returns the number of the ezWindow over which the mouse moved last.
+  static ezInt32 GetWindowNumberMouseIsOver() { return m_iMouseIsOverWindowNumber; }
+
+protected:
   ezVec2 m_vMouseScale;
+
+  static ezInt32 m_iMouseIsOverWindowNumber;
 };
+

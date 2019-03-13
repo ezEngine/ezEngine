@@ -62,7 +62,7 @@ struct ezInputSlotFlags
     IsTouchPosition           =                         ValueRangeZeroToOne  |                        FullAxis |                    NeverTimeScale | ValuesAreNonContinuous,
     IsTouchPoint              =                         ValueBinaryZeroOrOne | Pressable | Holdable |                                                ActivationDependsOnOthers,
     IsDPad                    =                         ValueBinaryZeroOrOne | Pressable | Holdable | HalfAxis,
-    IsTrackedValue            =                         ValueRangeZeroToInf  |                        HalfAxis                                     | ValuesAreNonContinuous,
+    IsTrackedValue            =                         ValueRangeZeroToInf  |                        HalfAxis |                    NeverTimeScale | ValuesAreNonContinuous,
 
     Default                   = None
   };

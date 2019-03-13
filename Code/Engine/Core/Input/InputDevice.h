@@ -46,6 +46,9 @@ public:
   /// \brief Default Constructor.
   ezInputDevice();
 
+  /// \brief Allows to query current input values for the given slot
+  float GetInputSlotState(const char* slot) const;
+
 private:
   friend class ezInputManager;
 
