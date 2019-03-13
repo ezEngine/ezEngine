@@ -1,8 +1,9 @@
 #include <TestFrameworkPCH.h>
 
 #include <Texture/Image/Formats/ImageFileFormat.h>
-#include <Foundation/IO/MemoryStream.h>
+
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Utilities/StackTracer.h>
 #include <TestFramework/Utilities/TestOrder.h>
@@ -149,7 +150,7 @@ void ezTestFramework::RegisterOutputHandler(OutputHandler Handler)
 
 void ezTestFramework::SetImageDiffExtraInfoCallback(ImageDiffExtraInfoCallback provider)
 {
-  m_ImageDiffExtraInfoCallback = provider;  
+  m_ImageDiffExtraInfoCallback = provider;
 }
 
 bool ezTestFramework::GetAssertOnTestFail()
@@ -751,7 +752,7 @@ void ezTestFramework::ErrorImpl(const char* szError, const char* szFile, ezInt32
                      szMsg);
 
   g_bBlockOutput = true;
-  ezTestFramework::Output(ezTestOutput::Error,"%s", szError); // This will also increase the global error count.
+  ezTestFramework::Output(ezTestOutput::Error, "%s", szError); // This will also increase the global error count.
   ezTestFramework::Output(ezTestOutput::BeginBlock, "");
   {
     if ((ezTestFramework::s_szTestBlockName != nullptr) && (ezTestFramework::s_szTestBlockName[0] != '\0'))
@@ -1023,18 +1024,21 @@ void ezTestFramework::WriteImageDiffHtml(const char* fileName, ezImage& referenc
       output.AppendFormat("<tr>\n"
                           "<td>{}:</td>\n"
                           "<td align=\"right\" style=\"padding-left: 2em;\">{}</td>\n"
-                          "</tr>\n", labelValuePair.first, labelValuePair.second);
+                          "</tr>\n",
+                          labelValuePair.first, labelValuePair.second);
     }
   }
 
   output.AppendFormat("<tr>\n"
                       "<td>Error metric:</td>\n"
                       "<td align=\"right\" style=\"padding-left: 2em;\">{}</td>\n"
-                      "</tr>\n", uiError);
+                      "</tr>\n",
+                      uiError);
   output.AppendFormat("<tr>\n"
                       "<td>Error threshold:</td>\n"
                       "<td align=\"right\" style=\"padding-left: 2em;\">{}</td>\n"
-                      "</tr>\n", uiThreshold);
+                      "</tr>\n",
+                      uiThreshold);
   output.Append("</table>\n"
                 "<div style=\"margin-top: 0.5em; margin-bottom: -0.75em\">\n"
                 "    <input type=\"radio\" name=\"image_interaction_mode\" onclick=\"handleModeClick(this)\" value=\"interactive\" "
@@ -1167,8 +1171,8 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
 
     ezStringBuilder sDiffHtmlPath;
     sDiffHtmlPath.Format(":imgout/Html_Diff/{0}.html", sImgName);
-    WriteImageDiffHtml(sDiffHtmlPath, imgExpRgb, imgExpAlpha, imgRgb, imgAlpha, imgDiffRgb, imgDiffAlpha,
-                       uiMeanError, uiMaxError, uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
+    WriteImageDiffHtml(sDiffHtmlPath, imgExpRgb, imgExpAlpha, imgRgb, imgAlpha, imgDiffRgb, imgDiffAlpha, uiMeanError, uiMaxError,
+                       uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
 
     safeprintf(szErrorMsg, 512, "Image Comparison Failed: Error of %u exceeds threshold of %u for image '%s'.", uiMeanError, uiMaxError,
                sImgName.GetData());
@@ -1439,7 +1443,8 @@ ezResult ezTestFiles(const char* szFile1, const char* szFile2, const char* szFil
   return EZ_SUCCESS;
 }
 
-ezResult ezTestImage(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
+ezResult ezTestImage(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, const char* szFile, ezInt32 iLine, const char* szFunction,
+                     const char* szMsg, ...)
 {
   char szErrorText[512] = "";
 
@@ -1452,4 +1457,3 @@ ezResult ezTestImage(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, const char* sz
 }
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_TestFramework);
-
