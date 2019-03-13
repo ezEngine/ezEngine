@@ -98,6 +98,17 @@ inline ezResult ezToResult(ezResult result)
     }                                                                                                                                      \
   } while (false)
 
+/// \brief Like EZ_SUCCEED_OR_RETURN, but with custom error logging.
+#define EZ_SUCCEED_OR_RETURN_CUSTOM_LOG(code, log)                                                                                         \
+  do                                                                                                                                       \
+  {                                                                                                                                        \
+    auto s = (code);                                                                                                                       \
+    if (ezToResult(s).Failed())                                                                                                            \
+    {                                                                                                                                      \
+      ezLog::Error("Call '{0}' failed with: {1}", EZ_STRINGIZE(code), log);                                                                \
+      return s;                                                                                                                            \
+    }                                                                                                                                      \
+  } while (false)
 
 //////////////////////////////////////////////////////////////////////////
 
