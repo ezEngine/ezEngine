@@ -1,6 +1,7 @@
 #include <FoundationPCH.h>
 
 #include <Foundation/CodeUtils/Tokenizer.h>
+#include <Foundation/Memory/CommonAllocators.h>
 
 const char* ezTokenType::EnumNames[ezTokenType::ENUM_COUNT] =
     {
@@ -15,8 +16,17 @@ const char* ezTokenType::EnumNames[ezTokenType::ENUM_COUNT] =
         "String2",
 };
 
+namespace
+{
+  // This allocator is used to get rid of some of the memory allocation tracking
+  // that would otherwise occur for allocations made by the tokenizer.
+  thread_local ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryTrackingFlags::None> s_ClassAllocator("ezTokenizer", ezFoundation::GetDefaultAllocator());
+}
+
 
 ezTokenizer::ezTokenizer()
+  : m_Tokens(&s_ClassAllocator)
+  , m_Data(&s_ClassAllocator)
 {
   m_pLog = nullptr;
   m_CurMode = ezTokenType::Unknown;
