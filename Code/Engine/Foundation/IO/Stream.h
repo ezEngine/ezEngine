@@ -13,7 +13,7 @@ typedef ezUInt16 ezTypeVersion;
 /// \brief Interface for binary in (read) streams.
 class EZ_FOUNDATION_DLL ezStreamReader
 {
-
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezStreamReader);
 public:
   /// \brief Constructor
   ezStreamReader();
@@ -85,7 +85,7 @@ public:
 /// \brief Interface for binary out (write) streams.
 class EZ_FOUNDATION_DLL ezStreamWriter
 {
-
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezStreamWriter);
 public:
   /// \brief Constructor
   ezStreamWriter();

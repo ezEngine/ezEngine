@@ -81,6 +81,19 @@ Only concrete and clocks.\n\
     EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2) == EZ_SUCCESS);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Add / Remove Data Dirs")
+  {
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory("", "xyz-rooted", "xyz", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+
+    EZ_TEST_BOOL(ezFileSystem::FindDataDirectoryWithRoot("xyz") != nullptr);
+
+    EZ_TEST_BOOL(ezFileSystem::RemoveDataDirectory("xyz") == true);
+
+    EZ_TEST_BOOL(ezFileSystem::FindDataDirectoryWithRoot("xyz") == nullptr);
+
+    EZ_TEST_BOOL(ezFileSystem::RemoveDataDirectory("xyz") == false);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Write File")
   {
     ezFileWriter FileOut;
