@@ -44,6 +44,7 @@ public:
   EZ_ALWAYS_INLINE ezResourceAcquireResult GetAcquireResult() const { return m_AcquireResult; }
 
   EZ_ALWAYS_INLINE const RESOURCE_TYPE* GetPointer() const { return m_pResource; }
+  EZ_ALWAYS_INLINE RESOURCE_TYPE* GetPointerNonConst() const { return m_pResource; }
 
 private:
   ezResourceAcquireResult m_AcquireResult;

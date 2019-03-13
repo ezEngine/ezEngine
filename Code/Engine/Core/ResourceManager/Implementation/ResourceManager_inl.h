@@ -101,6 +101,11 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
                   "The requested resource does not have the same type ('{0}') as the resource handle ('{1}').",
                   pResource->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<ResourceType>()->GetTypeName());
 
+  if (mode == ezResourceAcquireMode::AllowFallback && s_ForceNoFallbackAcquisition)
+  {
+    mode = ezResourceAcquireMode::NoFallback;
+  }
+
   if (mode == ezResourceAcquireMode::PointerOnly ||
       (mode == ezResourceAcquireMode::MetaInfo && pResource->GetLoadingState() >= ezResourceState::UnloadedMetaInfoAvailable))
   {

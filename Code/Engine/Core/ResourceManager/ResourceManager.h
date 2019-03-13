@@ -153,6 +153,9 @@ public:
   template <typename ResourceType>
   static void EndAcquireResource(ResourceType* pResource);
 
+  /// \brief Forces the resource manager to treat ezResourceAcquireMode::AllowFallback as ezResourceAcquireMode::NoFallback on BeginAcquireResource.
+  static void ForceNoFallbackAcquisition(bool force) { s_ForceNoFallbackAcquisition = force; }
+
   ///@}
   /// \name Unloading resources
   ///@{
@@ -248,7 +251,7 @@ public:
 public:
   /// \brief Enables export mode. In this mode the resource manager will assert when it actually tries to load a resource.
   /// This can be useful when exporting resource handles but the actual resource content is not needed.
-  static void EnableExportMode();
+  static void EnableExportMode(bool enable);
 
   /// \brief Creates a resource handle for the given resource ID. This method can only be used if export mode is enabled.
   /// Internally it will create a resource but does not load the content. This way it can be ensured that the resource handle is always only
@@ -397,6 +400,9 @@ private:
   static void RunWorkerTask(ezResource* pResource);
   static void UpdateLoadingDeadlines();
   static bool ReloadResource(ezResource* pResource, bool bForce);
+
+private:
+  static bool s_ForceNoFallbackAcquisition;
 
   // this is the resource preload queue
   static ezDeque<LoadingInfo> s_RequireLoading;
