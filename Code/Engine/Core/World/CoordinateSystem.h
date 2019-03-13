@@ -3,6 +3,7 @@
 #include <Foundation/Math/Vec3.h>
 
 #include <Core/World/Declarations.h>
+#include <Foundation/Types/RefCounted.h>
 
 struct EZ_CORE_DLL ezCoordinateSystem
 {
@@ -13,7 +14,7 @@ struct EZ_CORE_DLL ezCoordinateSystem
   ezVec3 m_vUpDir;
 };
 
-class EZ_CORE_DLL ezCoordinateSystemProvider
+class EZ_CORE_DLL ezCoordinateSystemProvider : public ezRefCounted
 {
 public:
   ezCoordinateSystemProvider(const ezWorld* pOwnerWorld)

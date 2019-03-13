@@ -220,7 +220,7 @@ ezEditorInput ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
     const ezVec3 vCamDiff = vNewPos - m_vOrbitPoint;
 
     m_vOrbitPoint = vNewPos;
-    m_pCamera->MoveGlobally(vCamDiff);
+    m_pCamera->MoveGlobally(vCamDiff.x, vCamDiff.y, vCamDiff.z);
   }
 
   if (m_Mode == Mode::Pan)
@@ -234,7 +234,7 @@ ezEditorInput ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
     const ezVec3 vCamDiff = vNewPos - m_vOrbitPoint;
 
     m_vOrbitPoint = vNewPos;
-    m_pCamera->MoveGlobally(vCamDiff);
+    m_pCamera->MoveGlobally(vCamDiff.x , vCamDiff.y, vCamDiff.z);
   }
 
   if (m_Mode == Mode::UpDown)
@@ -247,7 +247,7 @@ ezEditorInput ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
     const ezVec3 vCamDiff = vNewPos - m_vOrbitPoint;
 
     m_vOrbitPoint = vNewPos;
-    m_pCamera->MoveGlobally(vCamDiff);
+    m_pCamera->MoveGlobally(vCamDiff.x , vCamDiff.y, vCamDiff.z);
   }
 
   return ezEditorInput::WasExclusivelyHandled;
@@ -292,7 +292,7 @@ ezEditorInput ezOrbitCameraContext::DoKeyPressEvent(QKeyEvent* e)
   {
     const ezVec3 vDiff = m_Volume.GetCenter() - m_vOrbitPoint;
     m_vOrbitPoint = m_Volume.GetCenter();
-    m_pCamera->MoveGlobally(vDiff);
+    m_pCamera->MoveGlobally(vDiff.x , vDiff.y, vDiff.z);
 
     return ezEditorInput::WasExclusivelyHandled;
   }

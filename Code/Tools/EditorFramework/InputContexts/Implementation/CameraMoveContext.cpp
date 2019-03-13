@@ -111,9 +111,9 @@ void ezCameraMoveContext::UpdateContext()
   if (m_bMoveLeft)
     m_pCamera->MoveLocally(0, -fSpeedFactor, 0);
   if (m_bMoveUp)
-    m_pCamera->MoveGlobally(ezVec3(0, 0, 1) * fSpeedFactor);
+    m_pCamera->MoveGlobally(0, 0, 1 * fSpeedFactor);
   if (m_bMoveDown)
-    m_pCamera->MoveGlobally(ezVec3(0, 0, -1) * fSpeedFactor);
+    m_pCamera->MoveGlobally(0, 0, -1 * fSpeedFactor);
   if (m_bMoveForwardsInPlane)
   {
     if (m_pCamera->IsPerspective())
@@ -121,7 +121,7 @@ void ezCameraMoveContext::UpdateContext()
       ezVec3 vDir = m_pCamera->GetCenterDirForwards();
       vDir.z = 0.0f;
       vDir.NormalizeIfNotZero(ezVec3::ZeroVector());
-      m_pCamera->MoveGlobally(vDir * fSpeedFactor);
+      m_pCamera->MoveGlobally(vDir.x * fSpeedFactor, vDir.y * fSpeedFactor, vDir.z * fSpeedFactor);
     }
     else
     {
@@ -135,7 +135,7 @@ void ezCameraMoveContext::UpdateContext()
       ezVec3 vDir = m_pCamera->GetCenterDirForwards();
       vDir.z = 0.0f;
       vDir.NormalizeIfNotZero(ezVec3::ZeroVector());
-      m_pCamera->MoveGlobally(vDir * -fSpeedFactor);
+      m_pCamera->MoveGlobally(vDir.x * -fSpeedFactor, vDir.y * -fSpeedFactor, vDir.z * -fSpeedFactor);
     }
     else
     {
@@ -546,7 +546,7 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
       float fMoveUp = -diff.y * fMouseMoveSensitivity;
       float fMoveRight = diff.x * fMouseMoveSensitivity;
 
-      m_vOrbitPoint += m_pCamera->MoveLocally(0, fMoveRight, fMoveUp);
+      m_pCamera->MoveLocally(0, fMoveRight, fMoveUp);
 
       m_LastMousePos = UpdateMouseMode(e);
       return ezEditorInput::WasExclusivelyHandled;
@@ -584,7 +584,7 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
       float fMoveRight = diff.x * fMouseMoveSensitivity;
       float fMoveForward = -diff.y * fMouseMoveSensitivity;
 
-      m_vOrbitPoint += m_pCamera->MoveLocally(fMoveForward, fMoveRight, 0);
+      m_pCamera->MoveLocally(fMoveForward, fMoveRight, 0);
 
       m_LastMousePos = UpdateMouseMode(e);
 
@@ -596,14 +596,14 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
       float fMoveRight = diff.x * fMouseMoveSensitivity;
       float fMoveForward = -diff.y * fMouseMoveSensitivity;
 
-      m_vOrbitPoint += m_pCamera->MoveLocally(0, fMoveRight, 0);
+      m_pCamera->MoveLocally(0, fMoveRight, 0);
 
       ezVec3 vDir = m_pCamera->GetCenterDirForwards();
       vDir.z = 0.0f;
       vDir.NormalizeIfNotZero(ezVec3::ZeroVector());
 
       m_vOrbitPoint += vDir * fMoveForward;
-      m_pCamera->MoveGlobally(vDir * fMoveForward);
+      m_pCamera->MoveGlobally(vDir.x * fMoveForward, vDir.y * fMoveForward, vDir.z * fMoveForward);
 
       m_LastMousePos = UpdateMouseMode(e);
 
@@ -646,7 +646,7 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
           const ezVec3 vDiff = vNewPoint - m_vOrbitPoint;
 
           m_vOrbitPoint = vNewPoint;
-          m_pCamera->MoveGlobally(vDiff);
+          m_pCamera->MoveGlobally(vDiff.x, vDiff.y, vDiff.z);
         }
       }
 

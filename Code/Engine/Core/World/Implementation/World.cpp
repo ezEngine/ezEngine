@@ -86,6 +86,14 @@ void ezWorld::Clear()
   }
 }
 
+void ezWorld::SetCoordinateSystemProvider(const ezSharedPtr<ezCoordinateSystemProvider>& pProvider)
+{
+  EZ_ASSERT_DEV(pProvider != nullptr, "Coordinate System Provider must not be null");
+
+  m_Data.m_pCoordinateSystemProvider = pProvider;
+  m_Data.m_pCoordinateSystemProvider->m_pOwnerWorld = this;
+}
+
 ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObject*& out_pObject)
 {
   CheckForWriteAccess();

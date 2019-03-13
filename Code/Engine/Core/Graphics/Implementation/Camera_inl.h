@@ -1,25 +1,5 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezVec3 ezCamera::GetPosition(ezCameraEye eye) const
-{
-  return m_vCameraPosition[static_cast<int>(eye)];
-}
-
-EZ_ALWAYS_INLINE ezVec3 ezCamera::GetDirForwards(ezCameraEye eye) const
-{
-  return m_mViewMatrix[static_cast<int>(eye)].GetRow(2).GetAsVec3();
-}
-
-EZ_ALWAYS_INLINE ezVec3 ezCamera::GetDirUp(ezCameraEye eye) const
-{
-  return m_mViewMatrix[static_cast<int>(eye)].GetRow(1).GetAsVec3();
-}
-
-EZ_ALWAYS_INLINE ezVec3 ezCamera::GetDirRight(ezCameraEye eye) const
-{
-  return m_mViewMatrix[static_cast<int>(eye)].GetRow(0).GetAsVec3();
-}
-
 inline ezVec3 ezCamera::GetCenterPosition() const
 {
   if (m_Mode == ezCameraMode::Stereo)

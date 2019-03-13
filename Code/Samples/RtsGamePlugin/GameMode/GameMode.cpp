@@ -85,7 +85,7 @@ void RtsGameMode::DoDefaultCameraInput(const RtsMouseInputState& MouseInput)
     const float fMoveX = fDimX * moveX * fMoveScale;
     const float fMoveY = fDimY * moveY * fMoveScale;
 
-    m_pMainCamera->MoveGlobally(ezVec3(-fMoveY, fMoveX, 0));
+    m_pMainCamera->MoveGlobally(-fMoveY, fMoveX, 0);
   }
 }
 
