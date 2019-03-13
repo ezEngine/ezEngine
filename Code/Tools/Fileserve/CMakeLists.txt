@@ -17,7 +17,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 if (EZ_ENABLE_QT_SUPPORT)
-	ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets Network)
+  ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network)
 
   target_link_libraries(${PROJECT_NAME}
     PRIVATE

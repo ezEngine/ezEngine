@@ -12,20 +12,13 @@ ez_detect_project_name(DETECTED_NAME)
 
 set (EZ_SOLUTION_NAME ${DETECTED_NAME} CACHE STRING "The name of the solution")
 
-project (${EZ_SOLUTION_NAME} 
-	VERSION 1.0 
+project (${EZ_SOLUTION_NAME}
+	VERSION 1.0
 	DESCRIPTION "An open-source game engine"
 	HOMEPAGE_URL "http://ezEngine.net"
 	LANGUAGES C CXX)
 
 ez_write_configuration_txt()
-
-#Clear cached qt dirs
-set (Qt5Core_DIR "" CACHE PATH "" FORCE)
-set (Qt5Gui_DIR "" CACHE PATH "" FORCE)
-set (Qt5Widgets_DIR "" CACHE PATH "" FORCE)
-set (Qt5Network_DIR "" CACHE PATH "" FORCE)
-set (Qt5WinExtras_DIR "" CACHE PATH "" FORCE)
 
 add_subdirectory (Code)
 

@@ -83,11 +83,6 @@ ez_set_default_target_output_dirs(${PROJECT_NAME})
 ez_set_common_target_include_dirs(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 ez_set_common_target_definitions(${PROJECT_NAME})
 
-# Add additional dependencies
-if (ADDITIONAL_DEPENDENCIES)
-  add_dependencies(${PROJECT_NAME} ${ADDITIONAL_DEPENDENCIES})
-endif ()
-
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 file(RELATIVE_PATH RELATIVE_PARENT_FOLDER "${CMAKE_SOURCE_DIR}/Code" ${PARENT_FOLDER})
 SET_PROPERTY(TARGET ${PROJECT_NAME} PROPERTY FOLDER ${RELATIVE_PARENT_FOLDER})

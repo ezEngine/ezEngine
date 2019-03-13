@@ -39,9 +39,9 @@ target_link_libraries(${PROJECT_NAME}
 
 
 if (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
-  ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets WinExtras)
+  ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets WinExtras COPY_DLLS)
 else()
-  ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets)
+  ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets COPY_DLLS)
 endif()
 
 if(EZ_TESTFRAMEWORK_USE_FILESERVE)

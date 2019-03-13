@@ -7,7 +7,21 @@ endif()
 # Set this to true, if your application is a real win32 app (not a console app)
 SET (IS_WIN32_APPLICATION true)
 
-SET (ADDITIONAL_DEPENDENCIES
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
+
+if (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
+  ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network WinExtras)
+else()
+  ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network)
+endif()
+
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+  EditorFramework
+  EditorEngineProcessFramework
+)
+
+add_dependencies(${PROJECT_NAME}
   EditorProcessor
   EditorEngineProcess
   EditorPluginScene
@@ -25,35 +39,21 @@ SET (ADDITIONAL_DEPENDENCIES
 )
 
 if (EZ_BUILD_FMOD)
-	SET (ADDITIONAL_DEPENDENCIES ${ADDITIONAL_DEPENDENCIES} EditorPluginFmod FmodPlugin)
+	add_dependencies(${PROJECT_NAME} EditorPluginFmod FmodPlugin)
 endif()
 
 if (EZ_BUILD_PHYSX)
-	SET (ADDITIONAL_DEPENDENCIES ${ADDITIONAL_DEPENDENCIES} EditorPluginPhysX PhysXPlugin)
+	add_dependencies(${PROJECT_NAME} EditorPluginPhysX PhysXPlugin)
 endif()
 
 if (EZ_BUILD_KRAUT)
-	SET (ADDITIONAL_DEPENDENCIES ${ADDITIONAL_DEPENDENCIES} EditorPluginKraut KrautPlugin)
+	add_dependencies(${PROJECT_NAME} EditorPluginKraut KrautPlugin)
 endif()
 
 if (EZ_BUILD_GAMES)
-	SET (ADDITIONAL_DEPENDENCIES ${ADDITIONAL_DEPENDENCIES}
-    SampleGamePlugin
-    )
+	add_dependencies(${PROJECT_NAME} SampleGamePlugin)
 endif()
 
 if (EZ_BUILD_SAMPLES)
-	SET (ADDITIONAL_DEPENDENCIES ${ADDITIONAL_DEPENDENCIES}
-    # RtsGamePlugin
-    )
+	add_dependencies(${PROJECT_NAME} RtsGamePlugin)
 endif()
-
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
-
-ez_link_target_qt(${PROJECT_NAME} Core Gui Widgets Network)
-
-target_link_libraries(${PROJECT_NAME}
-  PRIVATE
-  EditorFramework
-  EditorEngineProcessFramework
-)

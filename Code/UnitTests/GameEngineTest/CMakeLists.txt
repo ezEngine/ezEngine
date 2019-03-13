@@ -4,14 +4,6 @@ if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
 	return()
 endif()
 
-SET (ADDITIONAL_DEPENDENCIES
-  ShaderCompilerHLSL
-)
-
-if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
-  LIST(APPEND ADDITIONAL_DEPENDENCIES ShaderCompilerHLSL)
-endif()
-
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
 
 target_link_libraries(${PROJECT_NAME}
@@ -26,4 +18,8 @@ ez_link_target_dx11(${PROJECT_NAME})
 if (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
   ez_ci_add_test(${PROJECT_NAME} ON)
 endif()
+
+add_dependencies(${PROJECT_NAME}
+  ShaderCompilerHLSL
+)
 
