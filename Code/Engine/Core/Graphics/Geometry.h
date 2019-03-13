@@ -95,6 +95,13 @@ public:
   /// The tangent generation is done by Morten S. Mikkelsen's tangent space generation code.
   void ComputeTangents();
 
+  /// \brief Checks if present tangents are meaningful and resetting them if necessary
+  ///
+  /// Checks if the tangents are approximately orthogonal to the vertex normal and
+  /// of unit length. If this is not the case the respective tangent will be zeroed.
+  /// The caller can provide a custom floating point comparison epsilon
+  void ValidateTangents(float epsilon = 0.01f);
+
   /// \brief Returns the number of triangles that the polygons are made up of
   ezUInt32 CalculateTriangleCount() const;
 
@@ -103,6 +110,9 @@ public:
 
   /// \brief Changes the color for all vertices (starting at vertex \a uiFirstVertex).
   void SetAllVertexColor(const ezColor& color, ezUInt32 uiFirstVertex = 0);
+
+  /// \brief Changes the texture coordinates for all vertices (starting at vertex \a uiFirstVertex).
+  void SetAllVertexTexCoord(const ezVec2& texCoord, ezUInt32 uiFirstVertex = 0);
 
   /// \brief Transforms all vertices by the given transform.
   ///
