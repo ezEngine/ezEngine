@@ -79,11 +79,11 @@ namespace
     const ezView* m_pReferenceView;
   };
 
-  struct PoolData
+  struct ShadowPoolData
   {
-    PoolData() { Clear(); }
+    ShadowPoolData() { Clear(); }
 
-    ~PoolData()
+    ~ShadowPoolData()
     {
       for (auto& shadowView : m_ShadowViews)
       {
@@ -242,7 +242,7 @@ namespace
     ezGALBufferHandle m_hShadowDataBuffer;
   };
 
-  static PoolData* s_pPool;
+  static ShadowPoolData* s_pPool;
 
   struct SortedShadowData
   {
@@ -626,7 +626,7 @@ ezGALBufferHandle ezShadowPool::GetShadowDataBuffer()
 // static
 void ezShadowPool::OnEngineStartup()
 {
-  s_pPool = EZ_DEFAULT_NEW(PoolData);
+  s_pPool = EZ_DEFAULT_NEW(ShadowPoolData);
 
   ezRenderWorld::s_EndExtractionEvent.AddEventHandler(OnEndExtraction);
   ezRenderWorld::s_BeginRenderEvent.AddEventHandler(OnBeginRender);
