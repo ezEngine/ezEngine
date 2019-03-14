@@ -261,10 +261,13 @@ protected:
   virtual ezString FindProjectDirectory() const = 0;
   virtual ezString GetBaseDataDirectoryPath() const;
 
-  virtual void ExecuteInitFunctions();
+  /// \brief Executes all 'BaseInit_' functions. Typically done very early, before core system startup
+  virtual void ExecuteBaseInitFunctions();
+  virtual void BaseInit_ConfigureLogging();
 
+  /// \brief Executes all 'Init_' functions. Typically done after core system startup
+  virtual void ExecuteInitFunctions();
   virtual void Init_PlatformProfile_SetPreferred();
-  virtual void Init_ConfigureLogging();
   virtual void Init_ConfigureTelemetry();
   virtual void Init_FileSystem_SetSpecialDirs();
   virtual void Init_FileSystem_SetDataDirFactories();

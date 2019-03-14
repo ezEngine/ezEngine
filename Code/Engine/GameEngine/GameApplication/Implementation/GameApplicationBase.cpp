@@ -371,6 +371,8 @@ void ezGameApplicationBase::BeforeCoreSystemsStartup()
 {
   ezStartup::AddApplicationTag("runtime");
 
+  ExecuteBaseInitFunctions();
+
   SUPER::BeforeCoreSystemsStartup();
 }
 
@@ -383,6 +385,11 @@ void ezGameApplicationBase::AfterCoreSystemsStartup()
   ezStartup::StartupHighLevelSystems();
 
   ActivateGameStateAtStartup();
+}
+
+void ezGameApplicationBase::ExecuteBaseInitFunctions()
+{
+  BaseInit_ConfigureLogging();
 }
 
 void ezGameApplicationBase::BeforeHighLevelSystemsShutdown()
