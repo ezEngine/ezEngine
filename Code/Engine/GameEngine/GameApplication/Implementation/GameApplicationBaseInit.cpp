@@ -55,6 +55,8 @@ void ezGameApplicationBase::Init_ConfigureLogging()
 void ezGameApplicationBase::Init_ConfigureTelemetry()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezTelemetry::s_uiPort = ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-TelemetryPort", ezTelemetry::s_uiPort);
+  ezTelemetry::SetServerName(GetApplicationName());
   ezTelemetry::CreateServer();
 #endif
 }

@@ -223,6 +223,7 @@ void ezQtMainWindow::UpdateNetwork()
   {
     static ezUInt32 uiServerID = 0;
     static bool bConnected = false;
+    static ezString sLastServerName;
 
     if (ezTelemetry::IsConnectedToServer())
     {
@@ -241,6 +242,12 @@ void ezQtMainWindow::UpdateNetwork()
         ezQtLogDockWidget::s_pWidget->Log("Reconnected to Server.");
       }
 
+      if (sLastServerName != ezTelemetry::GetServerName())
+      {
+        sLastServerName = ezTelemetry::GetServerName();
+        setWindowTitle(QString("ezInspector - %1").arg(sLastServerName.GetData()));
+      }
+
       bConnected = true;
     }
     else
@@ -248,6 +255,8 @@ void ezQtMainWindow::UpdateNetwork()
       if (bConnected)
       {
         ezQtLogDockWidget::s_pWidget->Log("Lost Connection to Server.");
+        setWindowTitle(QString("ezInspector - disconnected"));
+        sLastServerName.Clear();
       }
 
       bConnected = false;
