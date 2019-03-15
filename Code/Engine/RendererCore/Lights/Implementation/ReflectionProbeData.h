@@ -17,8 +17,12 @@ struct ezReflectionProbeMode
   };
 };
 
+typedef ezGenericId<24, 8> ezReflectionProbeId;
+
 struct EZ_RENDERERCORE_DLL ezReflectionProbeData
 {
+  ezReflectionProbeId m_Id;
+
   ezTagSet m_IncludeTags;
   ezTagSet m_ExcludeTags;
 

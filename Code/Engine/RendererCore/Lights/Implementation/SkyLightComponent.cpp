@@ -42,11 +42,15 @@ ezSkyLightComponent::~ezSkyLightComponent() = default;
 
 void ezSkyLightComponent::OnActivated()
 {
+  ezReflectionPool::RegisterReflectionProbe(m_ReflectionProbeData);
+
   GetOwner()->UpdateLocalBounds();
 }
 
 void ezSkyLightComponent::OnDeactivated()
 {
+  ezReflectionPool::DeregisterReflectionProbe(m_ReflectionProbeData);
+
   GetOwner()->UpdateLocalBounds();
 }
 
@@ -80,7 +84,7 @@ void ezSkyLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
     return;
 
-  ezReflectionPool::AddReflectionProbe(m_ReflectionProbeData, 10.0f);
+  ezReflectionPool::AddReflectionProbe(m_ReflectionProbeData, GetWorld(), GetOwner()->GetGlobalPosition(), 10.0f);
 }
 
 void ezSkyLightComponent::SerializeComponent(ezWorldWriter& stream) const

@@ -10,11 +10,13 @@ struct ezReflectionProbeData;
 class EZ_RENDERERCORE_DLL ezReflectionPool
 {
 public:
+  static void RegisterReflectionProbe(ezReflectionProbeData& data);
+  static void DeregisterReflectionProbe(ezReflectionProbeData& data);
 
-  static void AddReflectionProbe(const ezReflectionProbeData& data, float fPriority = 0.0f);
+  static void AddReflectionProbe(const ezReflectionProbeData& data, const ezWorld* pWorld, const ezVec3& vPosition, ezUInt16 uiPriority = 1);
 
-  //static ezGALTextureHandle GetReflectionPoolTexture();
-  //static ezGALBufferHandle GetShadowDataBuffer();
+  // static ezGALTextureHandle GetReflectionPoolTexture();
+  // static ezGALBufferHandle GetShadowDataBuffer();
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, ReflectionPool);
@@ -22,7 +24,11 @@ private:
   static void OnEngineStartup();
   static void OnEngineShutdown();
 
-  static void OnEndExtraction(ezUInt64);
-  //static void OnBeginRender(ezUInt64);
-};
+  static void OnEndExtraction(ezUInt64 uiFrameCounter);
 
+  static void RenderActiveProbes(ezUInt64 uiFrameCounter);
+  static void FilterActiveProbes(ezUInt64 uiFrameCounter);
+
+  struct Data;
+  static Data* s_pData;
+};
