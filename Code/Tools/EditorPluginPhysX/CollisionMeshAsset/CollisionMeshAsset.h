@@ -30,7 +30,7 @@ protected:
 
   ezStatus CreateMeshFromFile(const ezMat3 &mTransformation, ezPhysXCookingMesh& outMesh);
   ezStatus CreateMeshFromGeom(ezGeometry& geom, ezPhysXCookingMesh& outMesh);
-  virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
+  virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
   bool m_bIsConvexMesh = false;
 };

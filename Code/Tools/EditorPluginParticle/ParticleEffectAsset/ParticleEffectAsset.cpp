@@ -221,8 +221,8 @@ ezStatus ezParticleEffectAssetDocument::InternalTransformAsset(ezStreamWriter& s
   return WriteParticleEffectAsset(stream, pAssetProfile);
 }
 
-ezStatus ezParticleEffectAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
+ezStatus ezParticleEffectAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
-  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
+  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
   return status;
 }

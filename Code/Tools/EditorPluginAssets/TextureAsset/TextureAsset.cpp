@@ -340,9 +340,10 @@ ezStatus ezTextureAssetDocument::RunTexConv(
   {
     ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(GetGuid());
     EZ_ASSERT_DEV(uiThumbnailHash != 0, "Thumbnail hash should never be zero when reaching this point!");
-    ezAssetFileHeader assetThumbnailHeader;
-    assetThumbnailHeader.SetFileHashAndVersion(uiThumbnailHash, GetAssetTypeVersion());
-    AppendThumbnailInfo(sThumbnail, assetThumbnailHeader);
+
+    ThumbnailInfo thumbnailInfo;
+    thumbnailInfo.SetFileHashAndVersion(uiThumbnailHash, GetAssetTypeVersion());
+    AppendThumbnailInfo(sThumbnail, thumbnailInfo);
     InvalidateAssetThumbnail();
   }
 

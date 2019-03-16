@@ -112,7 +112,7 @@ ezStatus ezDecalAssetDocument::InternalTransformAsset(ezStreamWriter& stream, co
   return static_cast<ezDecalAssetDocumentManager*>(GetAssetDocumentManager())->GenerateDecalTexture(pAssetProfile);
 }
 
-ezStatus ezDecalAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
+ezStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Unused)
 {
   const ezDecalAssetProperties* pProp = GetProperties();
 
@@ -165,9 +165,10 @@ ezStatus ezDecalAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& 
   {
     ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(GetGuid());
     EZ_ASSERT_DEV(uiThumbnailHash != 0, "Thumbnail hash should never be zero when reaching this point!");
-    ezAssetFileHeader assetThumbnailHeader;
-    assetThumbnailHeader.SetFileHashAndVersion(uiThumbnailHash, GetAssetTypeVersion());
-    AppendThumbnailInfo(sThumbnail, assetThumbnailHeader);
+
+    ThumbnailInfo thumbnailInfo;
+    thumbnailInfo.SetFileHashAndVersion(uiThumbnailHash, GetAssetTypeVersion());
+    AppendThumbnailInfo(sThumbnail, thumbnailInfo);
     InvalidateAssetThumbnail();
   }
 
