@@ -32,7 +32,7 @@ protected:
   void CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor& desc);
   ezStatus CreateMeshFromFile(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor &desc);
 
-  virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
+  virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
 };
 

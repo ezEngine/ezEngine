@@ -296,9 +296,9 @@ ezStatus ezCollisionMeshAssetDocument::WriteToStream(ezChunkStreamWriter& stream
   return ezPhysXCooking::WriteResourceToStream(stream, mesh, surfaces, pProp->m_bIsConvexMesh);
 }
 
-ezStatus ezCollisionMeshAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
+ezStatus ezCollisionMeshAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
-  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
+  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
   return status;
 }
 

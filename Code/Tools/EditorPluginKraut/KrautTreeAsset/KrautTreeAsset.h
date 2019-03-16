@@ -22,7 +22,7 @@ protected:
 
   void SyncBackAssetProperties(ezKrautTreeAssetProperties*& pProp, ezKrautTreeResourceDescriptor& desc);
 
-  virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
+  virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
   ezString ImportTexture(const char* szFilename, ezModelImporter::SemanticHint::Enum hint, bool bTextureClamp);
 };

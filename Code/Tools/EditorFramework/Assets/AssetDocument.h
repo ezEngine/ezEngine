@@ -18,6 +18,40 @@ class EZ_EDITORFRAMEWORK_DLL ezAssetDocument : public ezDocument
   EZ_ADD_DYNAMIC_REFLECTION(ezAssetDocument, ezDocument);
 
 public:
+
+  /// \brief The thumbnail info containing the hash of the file is appended to assets.
+  /// The serialized size of this class can't change since it is found by seeking to the end of the file.
+  class EZ_EDITORFRAMEWORK_DLL ThumbnailInfo
+  {
+    public:
+
+      ezResult Deserialize(ezStreamReader& Reader);
+      ezResult Serialize(ezStreamWriter& Writer) const;
+
+      /// \brief Checks whether the stored file contains the same hash.
+      bool IsThumbnailUpToDate(ezUInt64 uiExpectedHash, ezUInt16 uiVersion) const
+      {
+        return (m_uiHash == uiExpectedHash && m_uiVersion == uiVersion);
+      }
+
+      /// \brief Sets the asset file hash
+      void SetFileHashAndVersion(ezUInt64 hash, ezUInt16 v)
+      {
+        m_uiHash = hash;
+        m_uiVersion = v;
+      }
+
+      /// \brief Returns the serialized size of the thumbnail info.
+      /// Used to seek to the end of the file and find the thumbnail info struct.
+      constexpr ezUInt32 GetSerializedSize() const { return 19; }
+
+    private:
+
+      ezUInt64 m_uiHash = 0;
+      ezUInt16 m_uiVersion = 0;
+      ezUInt16 m_uiReserved = 0;
+  };
+
   ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, bool bUseEngineConnection, bool bUseIPCObjectMirror);
   ~ezAssetDocument();
 
@@ -159,19 +193,25 @@ protected:
   ///@{
 
   /// \brief Override this function to generate a thumbnail. Only called if GetAssetFlags returns ezAssetDocumentFlags::SupportsThumbnail.
-  virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader);
+  virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& thumbnailInfo);
+
   /// \brief Returns the full path to the jpg file in which the thumbnail for this asset is supposed to be
   ezString GetThumbnailFilePath() const;
+
   /// \brief Should be called after manually changing the thumbnail, such that the system will reload it
   void InvalidateAssetThumbnail() const;
+
   /// \brief Requests the engine side to render a thumbnail, will call SaveThumbnail on success.
-  ezStatus RemoteCreateThumbnail(const ezAssetFileHeader& header) const;
+  ezStatus RemoteCreateThumbnail(const ThumbnailInfo& thumbnailInfo) const;
+
   /// \brief Saves the given image as the new thumbnail for the asset
-  ezStatus SaveThumbnail(const ezImage& img, const ezAssetFileHeader& header) const;
+  ezStatus SaveThumbnail(const ezImage& img, const ThumbnailInfo& thumbnailInfo) const;
+
   /// \brief Saves the given image as the new thumbnail for the asset
-  ezStatus SaveThumbnail(const QImage& img, const ezAssetFileHeader& header) const;
+  ezStatus SaveThumbnail(const QImage& img, const ThumbnailInfo& thumbnailInfo) const;
+
   /// \brief Appends an asset header containing the thumbnail hash to the file. Each thumbnail is appended by it to check up-to-date state.
-  void AppendThumbnailInfo(const char* szThumbnailFile, const ezAssetFileHeader& header) const;
+  void AppendThumbnailInfo(const char* szThumbnailFile, const ThumbnailInfo& thumbnailInfo) const;
 
   ///@}
 

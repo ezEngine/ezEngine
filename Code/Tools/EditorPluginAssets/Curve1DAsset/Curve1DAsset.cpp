@@ -48,7 +48,7 @@ ezStatus ezCurve1DAssetDocument::InternalTransformAsset(ezStreamWriter& stream, 
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
+ezStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
   const ezCurveGroupData* pProp = GetProperties();
 
@@ -144,7 +144,7 @@ ezStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader
     }
   }
 
-  return SaveThumbnail(qimg, AssetHeader);
+  return SaveThumbnail(qimg, ThumbnailInfo);
 }
 
   //////////////////////////////////////////////////////////////////////////

@@ -125,9 +125,9 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezSkeletonAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
+ezStatus ezSkeletonAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
-  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
+  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
   return status;
 }
 

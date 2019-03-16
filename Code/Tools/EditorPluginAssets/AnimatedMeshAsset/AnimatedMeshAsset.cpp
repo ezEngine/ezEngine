@@ -84,9 +84,9 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezAnimatedMeshAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
+ezStatus ezAnimatedMeshAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
-  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
+  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
   return status;
 }
 

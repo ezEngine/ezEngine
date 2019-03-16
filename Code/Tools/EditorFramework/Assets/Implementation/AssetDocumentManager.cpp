@@ -7,6 +7,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Serialization/RttiConverter.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentManager, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -85,27 +86,22 @@ bool ezAssetDocumentManager::IsThumbnailUpToDate(const char* szDocumentPath, ezU
   if (file.Open(sThumbPath, 256).Failed())
     return false;
 
-  char szTag[8];
+  ezAssetDocument::ThumbnailInfo thumbnailInfo;
 
-  const ezUInt64 uiHeaderSize = ezAssetFileHeader::GetSerializedSize() + 7;
+  const ezUInt64 uiHeaderSize = thumbnailInfo.GetSerializedSize();
   ezUInt64 uiFileSize = file.GetFileSize();
+
   if (uiFileSize < uiHeaderSize)
     return false;
 
   file.SkipBytes(uiFileSize - uiHeaderSize);
-  file.ReadBytes(szTag, 7);
-  szTag[7] = '\0';
-  if (!ezStringUtils::IsEqual(szTag, "ezThumb"))
-    return false;
 
-  ezAssetFileHeader assetHeader;
-  assetHeader.Read(file);
-  if (assetHeader.GetFileHash() != uiThumbnailHash)
+  if(thumbnailInfo.Deserialize(file).Failed())
+  {
     return false;
-  if (assetHeader.GetFileVersion() != uiTypeVersion)
-    return false;
+  }
 
-  return true;
+  return thumbnailInfo.IsThumbnailUpToDate(uiThumbnailHash, uiTypeVersion);
 }
 
 void ezAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile,
