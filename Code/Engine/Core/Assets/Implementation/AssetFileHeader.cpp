@@ -22,7 +22,7 @@ enum ezAssetFileHeaderVersion : ezUInt8
   VersionCurrent = VersionCount - 1
 };
 
-void ezAssetFileHeader::Write(ezStreamWriter& stream) const
+ezResult ezAssetFileHeader::Write(ezStreamWriter& stream) const
 {
   EZ_ASSERT_DEBUG(m_uiHash != 0xFFFFFFFFFFFFFFFF, "Cannot write an invalid hash to file");
 
@@ -36,9 +36,11 @@ void ezAssetFileHeader::Write(ezStreamWriter& stream) const
   stream << m_uiHash;
   // 2 for the type version
   stream << m_uiVersion;
+
+  return EZ_SUCCESS;
 }
 
-void ezAssetFileHeader::Read(ezStreamReader& stream)
+ezResult ezAssetFileHeader::Read(ezStreamReader& stream)
 {
   // initialize to 'invalid'
   m_uiHash = 0xFFFFFFFFFFFFFFFF;
@@ -48,7 +50,7 @@ void ezAssetFileHeader::Read(ezStreamReader& stream)
   if (stream.ReadBytes(szTag, 7) < 7)
   {
     EZ_REPORT_FAILURE("The stream does not contain a valid asset file header");
-    return;
+    return EZ_FAILURE;
   }
 
   szTag[7] = '\0';
@@ -57,7 +59,7 @@ void ezAssetFileHeader::Read(ezStreamReader& stream)
   EZ_ASSERT_DEBUG(ezStringUtils::IsEqual(szTag, g_szAssetTag), "The stream does not contain a valid asset file header");
 
   if (!ezStringUtils::IsEqual(szTag, g_szAssetTag))
-    return;
+    return EZ_FAILURE;
 
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
@@ -75,9 +77,11 @@ void ezAssetFileHeader::Read(ezStreamReader& stream)
 
   // older version? set the hash to 'invalid'
   if (uiVersion != ezAssetFileHeaderVersion::VersionCurrent)
-    return;
+    return EZ_FAILURE;
 
   m_uiHash = uiHash;
+
+  return EZ_SUCCESS;
 }
 
 EZ_STATICLINK_FILE(Core, Core_Assets_Implementation_AssetFileHeader);

@@ -179,7 +179,7 @@ private:
 
   virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
-  ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
+  ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
   void SyncObjectHiddenState();
   void SyncObjectHiddenState(ezDocumentObject* pObject);

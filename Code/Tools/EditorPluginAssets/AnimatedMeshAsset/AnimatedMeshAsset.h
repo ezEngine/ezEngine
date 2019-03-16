@@ -32,7 +32,7 @@ protected:
   ezStatus CreateMeshFromFile(ezAnimatedMeshAssetProperties* pProp, ezMeshResourceDescriptor& desc);
 
 
-  virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
+  virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 };
 
 //////////////////////////////////////////////////////////////////////////

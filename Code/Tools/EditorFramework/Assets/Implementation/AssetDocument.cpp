@@ -397,9 +397,9 @@ ezStatus ezAssetDocument::CreateThumbnail()
     return ezStatus("Computing the hash for this asset or any dependency failed");
 
   {
-    ezAssetFileHeader AssetHeader;
-    AssetHeader.SetFileHashAndVersion(uiThumbHash, GetAssetTypeVersion());
-    ezStatus res = InternalCreateThumbnail(AssetHeader);
+    ThumbnailInfo ThumbnailInfo;
+    ThumbnailInfo.SetFileHashAndVersion(uiThumbHash, GetAssetTypeVersion());
+    ezStatus res = InternalCreateThumbnail(ThumbnailInfo);
 
     InvalidateAssetThumbnail();
     ezAssetCurator::GetSingleton()->NotifyOfAssetChange(GetGuid());
@@ -438,7 +438,7 @@ void ezAssetDocument::InvalidateAssetThumbnail() const
   ezQtImageCache::GetSingleton()->InvalidateCache(sResourceFile);
 }
 
-ezStatus ezAssetDocument::SaveThumbnail(const ezImage& img, const ezAssetFileHeader& header) const
+ezStatus ezAssetDocument::SaveThumbnail(const ezImage& img, const ThumbnailInfo& thumbnailInfo) const
 {
   ezImage converted;
 
@@ -456,10 +456,10 @@ ezStatus ezAssetDocument::SaveThumbnail(const ezImage& img, const ezAssetFileHea
 
   QImage qimg(converted.GetPixelPointer<ezUInt8>(), converted.GetWidth(), converted.GetHeight(), QImage::Format_RGBA8888);
 
-  return SaveThumbnail(qimg, header);
+  return SaveThumbnail(qimg, thumbnailInfo);
 }
 
-ezStatus ezAssetDocument::SaveThumbnail(const QImage& qimg0, const ezAssetFileHeader& header) const
+ezStatus ezAssetDocument::SaveThumbnail(const QImage& qimg0, const ThumbnailInfo& thumbnailInfo) const
 {
   const ezStringBuilder sResourceFile = GetThumbnailFilePath();
   EZ_LOG_BLOCK("Save Asset Thumbnail", sResourceFile.GetData());
@@ -507,13 +507,13 @@ ezStatus ezAssetDocument::SaveThumbnail(const QImage& qimg0, const ezAssetFileHe
     return ezStatus(ezFmt("Could not save asset thumbnail: '{0}'", sResourceFile));
   }
 
-  AppendThumbnailInfo(sResourceFile, header);
+  AppendThumbnailInfo(sResourceFile, thumbnailInfo);
   InvalidateAssetThumbnail();
 
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezAssetDocument::AppendThumbnailInfo(const char* szThumbnailFile, const ezAssetFileHeader& header) const
+void ezAssetDocument::AppendThumbnailInfo(const char* szThumbnailFile, const ThumbnailInfo& thumbnailInfo) const
 {
   ezMemoryStreamStorage storage;
   {
@@ -529,9 +529,7 @@ void ezAssetDocument::AppendThumbnailInfo(const char* szThumbnailFile, const ezA
   writer.SetOutput(szThumbnailFile);
   writer.WriteBytes(storage.GetData(), storage.GetStorageSize());
 
-  static const char* sztTag = "ezThumb";
-  writer.WriteBytes(sztTag, 7);
-  header.Write(writer);
+  thumbnailInfo.Serialize(writer);
 
   if (writer.Close().Failed())
   {
@@ -598,13 +596,13 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
   }
 }
 
-ezStatus ezAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
+ezStatus ezAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& thumbnailInfo)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
   return ezStatus("Not implemented");
 }
 
-ezStatus ezAssetDocument::RemoteCreateThumbnail(const ezAssetFileHeader& header) const
+ezStatus ezAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailInfo) const
 {
   ezAssetCurator::GetSingleton()->WriteAssetTables();
 
@@ -659,7 +657,7 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ezAssetFileHeader& header)
     image.ResetAndAlloc(imgHeader);
     EZ_ASSERT_DEV(data.GetCount() == imgHeader.ComputeDataSize(), "Thumbnail ezImage has different size than data buffer!");
     ezMemoryUtils::Copy(image.GetPixelPointer<ezUInt8>(), data.GetData(), msg.m_uiWidth * msg.m_uiHeight * 4);
-    SaveThumbnail(image, header);
+    SaveThumbnail(image, thumbnailInfo);
 
     ezLog::Success("{0} thumbnail for \"{1}\" has been exported.", QueryAssetType(), GetDocumentPath());
 
@@ -769,3 +767,39 @@ const char* ezAssetDocument::GetDocumentTypeDisplayString() const
 
   return dummy;
 }
+
+namespace
+{
+  static const char* szThumbnailInfoTag = "ezThumb";
+}
+
+ezResult ezAssetDocument::ThumbnailInfo::Deserialize(ezStreamReader& Reader)
+{
+  char tag[8] = {0};
+
+  if(Reader.ReadBytes(tag, 7) != 7)
+    return EZ_FAILURE;
+
+  if(!ezStringUtils::IsEqual(tag, szThumbnailInfoTag))
+  {
+    return EZ_FAILURE;
+  }
+
+  Reader >> m_uiHash;
+  Reader >> m_uiVersion;
+  Reader >> m_uiReserved;
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezAssetDocument::ThumbnailInfo::Serialize(ezStreamWriter& Writer) const
+{
+  Writer.WriteBytes(szThumbnailInfoTag, 7);
+
+  Writer << m_uiHash;
+  Writer << m_uiVersion;
+  Writer << m_uiReserved;
+
+  return EZ_SUCCESS;
+}
+

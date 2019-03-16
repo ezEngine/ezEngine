@@ -726,9 +726,9 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
   return WriteMaterialAsset(stream, pAssetProfile, true);
 }
 
-ezStatus ezMaterialAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
+ezStatus ezMaterialAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
-  return ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
+  return ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
 }
 
 void ezMaterialAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const

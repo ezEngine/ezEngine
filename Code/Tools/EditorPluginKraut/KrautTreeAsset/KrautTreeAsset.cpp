@@ -394,9 +394,9 @@ void ezKrautTreeAssetDocument::SyncBackAssetProperties(ezKrautTreeAssetPropertie
   }
 }
 
-ezStatus ezKrautTreeAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
+ezStatus ezKrautTreeAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
-  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
+  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
   return status;
 }
 

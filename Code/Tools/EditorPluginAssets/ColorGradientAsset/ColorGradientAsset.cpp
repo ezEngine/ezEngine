@@ -189,7 +189,7 @@ ezStatus ezColorGradientAssetDocument::InternalTransformAsset(ezStreamWriter& st
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezColorGradientAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
+ezStatus ezColorGradientAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
   const ezColorGradientAssetData* pProp = GetProperties();
 
@@ -248,7 +248,7 @@ ezStatus ezColorGradientAssetDocument::InternalCreateThumbnail(const ezAssetFile
     }
   }
 
-  return SaveThumbnail(img, AssetHeader);
+  return SaveThumbnail(img, ThumbnailInfo);
 }
 
   //////////////////////////////////////////////////////////////////////////
