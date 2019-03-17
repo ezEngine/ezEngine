@@ -1,6 +1,8 @@
 #cmake
 
-if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
+ez_all_vars()
+
+if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
 	return()
 endif()
 
@@ -15,7 +17,7 @@ target_link_libraries(${PROJECT_NAME}
 
 ez_link_target_dx11(${PROJECT_NAME})
 
-if (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
+if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
   ez_ci_add_test(${PROJECT_NAME} ON)
 endif()
 

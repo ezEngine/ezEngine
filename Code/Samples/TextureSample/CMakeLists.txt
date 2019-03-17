@@ -1,6 +1,6 @@
 #cmake
 
-if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
+if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
 	return()
 endif()
 

@@ -1,6 +1,8 @@
 #cmake
 
-if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
+ez_all_vars()
+
+if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
 	return()
 endif()
 
@@ -8,7 +10,7 @@ endif()
 SET (IS_WIN32_APPLICATION true)
 
 # Add content files for UWP version.
-if(BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
+if(EZ_CMAKE_PLATFORM_WINDOWS_UWP)
   #file(GLOB SAMPLE_FILES ../../Data/Samples/Asteroids/*)
   #set_property(SOURCE ${SAMPLE_FILES} PROPERTY VS_DEPLOYMENT_CONTENT 1)
   #set_property(SOURCE ${SAMPLE_FILES} PROPERTY VS_DEPLOYMENT_LOCATION "Data/Samples/Asteroids")

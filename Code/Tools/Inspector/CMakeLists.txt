@@ -1,5 +1,7 @@
 #cmake
 
+ez_requires_qt()
+
 SET (IS_WIN32_APPLICATION true)
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")

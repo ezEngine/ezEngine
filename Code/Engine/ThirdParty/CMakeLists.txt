@@ -5,7 +5,7 @@ include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
 if(MSVC)
   target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32)
 
-  if(BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
+  if(EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 
     target_link_libraries(${PROJECT_NAME}
       PRIVATE

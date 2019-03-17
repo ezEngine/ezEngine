@@ -18,9 +18,14 @@ project (${EZ_SOLUTION_NAME}
 	HOMEPAGE_URL "http://ezEngine.net"
 	LANGUAGES C CXX)
 
+ez_check_build_type()
 ez_write_configuration_txt()
 
 add_subdirectory (Code)
 
-# sets the Editor project as the default startup project in Visual Studio
-set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT Editor)
+if (TARGET Editor)
+
+	# sets the Editor project as the default startup project in Visual Studio
+	set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT Editor)
+	
+endif()
