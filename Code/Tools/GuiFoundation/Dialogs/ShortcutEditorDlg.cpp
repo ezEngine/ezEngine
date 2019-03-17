@@ -80,7 +80,7 @@ ezQtShortcutEditorDlg::ezQtShortcutEditorDlg(QWidget* parent)
         else
           pItem->setBackgroundColor(2, Qt::darkYellow);
 
-        sTemp.Set("Default: ", item->m_sDefaultShortcut.IsEmpty() ? "<none>" : item->m_sDefaultShortcut);
+        sTemp.Set("Default: ", item->m_sDefaultShortcut.IsEmpty() ? "<none>" : item->m_sDefaultShortcut.GetData());
 
         pItem->setToolTip(2, QString::fromUtf8(sTemp.GetData()));
       }

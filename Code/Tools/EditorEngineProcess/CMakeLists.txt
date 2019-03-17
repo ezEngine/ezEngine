@@ -1,6 +1,8 @@
 #cmake
 
-if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
+ez_all_vars()
+
+if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
 	return()
 endif()
 
@@ -19,7 +21,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 # For plugins to work in UWP builds, they must be direct link dependencies, otherwise they are not packaged with the app.
-if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
+if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 
   target_link_libraries(${PROJECT_NAME}
     PRIVATE

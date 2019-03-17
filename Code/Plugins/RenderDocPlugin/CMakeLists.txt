@@ -1,6 +1,8 @@
 #cmake
 
-if (NOT BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
+ez_all_vars()
+
+if (NOT EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
 	return()
 endif()
 

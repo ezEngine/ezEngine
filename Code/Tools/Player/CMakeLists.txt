@@ -1,6 +1,8 @@
 #cmake
 
-if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
+ez_all_vars()
+
+if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
 	return()
 endif()
 
@@ -19,6 +21,6 @@ add_dependencies(${PROJECT_NAME}
   InspectorPlugin
 )
 
-if (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
+if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
   add_dependencies(${PROJECT_NAME} RenderDocPlugin)
 endif()

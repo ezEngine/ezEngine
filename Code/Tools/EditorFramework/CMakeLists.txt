@@ -1,12 +1,15 @@
 #cmake
 
-if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
+ez_all_vars()
+ez_requires_qt()
+
+if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
 	return()
 endif()
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
 
-if (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
+if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
   ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets WinExtras)
 else()
   ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets)

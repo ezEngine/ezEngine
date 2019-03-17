@@ -49,16 +49,12 @@ function(ez_detect_platform)
 	endif()
 
 	set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_PREFIX "")
-	
 	set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS_UWP OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS_7 OFF)
-	
 	set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_POSIX OFF)
-	
 	set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_OSX OFF)
-	
 	set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_LINUX OFF)
 	
 	message (STATUS "CMAKE_SYSTEM_NAME is '${CMAKE_SYSTEM_NAME}'")
@@ -73,7 +69,7 @@ function(ez_detect_platform)
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_PREFIX "Win") 
 
 	  if( ${CMAKE_SYSTEM_VERSION} EQUAL 6.1 )
-		set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS_7 ON)
+			set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS_7 ON)
 	  endif()
 
 	elseif (CMAKE_SYSTEM_NAME STREQUAL "WindowsStore") # Windows Universal
@@ -111,6 +107,24 @@ function(ez_detect_platform)
 
 endfunction()
 
+######################################
+### ez_platform_vars
+######################################
+
+macro(ez_platform_vars)
+
+	ez_detect_platform()
+
+	get_property(EZ_CMAKE_PLATFORM_PREFIX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_PREFIX)
+	get_property(EZ_CMAKE_PLATFORM_WINDOWS GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS)
+	get_property(EZ_CMAKE_PLATFORM_WINDOWS_UWP GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS_UWP)
+	get_property(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
+	get_property(EZ_CMAKE_PLATFORM_WINDOWS_7 GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS_7)
+	get_property(EZ_CMAKE_PLATFORM_POSIX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_POSIX)
+	get_property(EZ_CMAKE_PLATFORM_OSX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_OSX)
+	get_property(EZ_CMAKE_PLATFORM_LINUX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_LINUX)
+
+endmacro()
 
 ######################################
 ### ez_detect_generator
@@ -196,6 +210,21 @@ function(ez_detect_generator)
 
 endfunction()
 
+######################################
+### ez_generator_vars
+######################################
+
+macro(ez_generator_vars)
+
+	ez_detect_generator()
+
+	get_property(EZ_CMAKE_GENERATOR_PREFIX GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX)
+	get_property(EZ_CMAKE_GENERATOR_CONFIGURATION GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION)
+	get_property(EZ_CMAKE_GENERATOR_MSVC GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MSVC)
+	get_property(EZ_CMAKE_GENERATOR_XCODE GLOBAL PROPERTY EZ_CMAKE_GENERATOR_XCODE)
+	get_property(EZ_CMAKE_GENERATOR_MAKE GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MAKE)
+
+endmacro()
 
 ######################################
 ### ez_detect_compiler
@@ -272,6 +301,23 @@ function(ez_detect_compiler)
 	endif ()
 	
 endfunction()
+
+######################################
+### ez_compiler_vars
+######################################
+
+macro(ez_compiler_vars)
+
+	ez_detect_compiler()
+
+	get_property(EZ_CMAKE_COMPILER_POSTFIX GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX)
+	get_property(EZ_CMAKE_COMPILER_MSVC GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC)
+	get_property(EZ_CMAKE_COMPILER_MSVC_140 GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_140)
+	get_property(EZ_CMAKE_COMPILER_MSVC_141 GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_141)
+	get_property(EZ_CMAKE_COMPILER_CLANG GLOBAL PROPERTY EZ_CMAKE_COMPILER_CLANG)
+	get_property(EZ_CMAKE_COMPILER_GCC GLOBAL PROPERTY EZ_CMAKE_COMPILER_GCC)
+
+endmacro()
 
 ######################################
 ### ez_detect_architecture
@@ -355,3 +401,31 @@ function(ez_detect_architecture)
 
 endfunction()
 
+
+######################################
+### ez_architecture_vars
+######################################
+
+macro(ez_architecture_vars)
+
+	ez_detect_architecture()
+
+	get_property(EZ_CMAKE_ARCHITECTURE_POSTFIX GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX)
+	get_property(EZ_CMAKE_ARCHITECTURE_32BIT GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT)
+	get_property(EZ_CMAKE_ARCHITECTURE_64BIT GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT)
+
+endmacro()
+
+
+######################################
+### ez_all_vars
+######################################
+
+macro(ez_all_vars)
+
+	ez_architecture_vars()
+	ez_compiler_vars()
+	ez_generator_vars()
+	ez_platform_vars()
+
+endmacro()

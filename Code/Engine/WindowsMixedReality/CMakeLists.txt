@@ -1,6 +1,8 @@
 ﻿#cmake
 
-if (NOT BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
+ez_all_vars()
+
+if (NOT EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 	return()
 endif()
 

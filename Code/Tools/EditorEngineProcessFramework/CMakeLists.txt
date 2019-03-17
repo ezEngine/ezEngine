@@ -1,6 +1,8 @@
 #cmake
 
-if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
+ez_all_vars()
+
+if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
 	return()
 endif()
 
@@ -23,11 +25,11 @@ target_link_libraries(${PROJECT_NAME}
   ToolsFoundation
 )
 
-if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP AND EZ_ENABLE_MIXEDREALITY_SUPPORT)
-
-  target_link_libraries(${PROJECT_NAME}
-    PRIVATE
-    WindowsMixedReality
-  )
-
-endif()
+# if (EZ_CMAKE_PLATFORM_WINDOWS_UWP AND EZ_ENABLE_MIXEDREALITY_SUPPORT)
+# 
+#   target_link_libraries(${PROJECT_NAME}
+#     PRIVATE
+#     WindowsMixedReality
+#   )
+# 
+# endif()

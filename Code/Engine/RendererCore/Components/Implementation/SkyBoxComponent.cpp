@@ -208,7 +208,7 @@ void ezSkyBoxComponent::SetCubeMapFile(const char* szFile)
 
 const char* ezSkyBoxComponent::GetCubeMapFile() const
 {
-  return m_hCubeMap.IsValid() ? m_hCubeMap.GetResourceID() : "";
+  return m_hCubeMap.IsValid() ? m_hCubeMap.GetResourceID().GetData() : "";
 }
 
 void ezSkyBoxComponent::SetCubeMap(const ezTextureCubeResourceHandle& hCubeMap)
