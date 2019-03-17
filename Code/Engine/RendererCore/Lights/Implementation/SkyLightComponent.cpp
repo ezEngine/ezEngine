@@ -32,6 +32,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkyLightComponent, 1, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
+static ezUInt32 s_uiSkyLightPriority = 10;
+
 ezSkyLightComponent::ezSkyLightComponent()
   : m_fIntensity(1.0f)
   , m_fSaturation(1.0f)
@@ -42,7 +44,7 @@ ezSkyLightComponent::~ezSkyLightComponent() = default;
 
 void ezSkyLightComponent::OnActivated()
 {
-  ezReflectionPool::RegisterReflectionProbe(m_ReflectionProbeData);
+  ezReflectionPool::RegisterReflectionProbe(m_ReflectionProbeData, GetWorld(), s_uiSkyLightPriority);
 
   GetOwner()->UpdateLocalBounds();
 }
@@ -81,10 +83,15 @@ void ezSkyLightComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 
 void ezSkyLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
+  // Don't trigger reflection rendering for selection or in shadow or other reflection views.
+  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow ||
+      msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Reflection)
     return;
 
-  ezReflectionPool::AddReflectionProbe(m_ReflectionProbeData, GetWorld(), GetOwner()->GetGlobalPosition(), 10.0f);
+  if (m_fIntensity <= 0.0f)
+    return;
+
+  ezReflectionPool::AddReflectionProbe(m_ReflectionProbeData, GetOwner()->GetGlobalPosition(), s_uiSkyLightPriority);
 }
 
 void ezSkyLightComponent::SerializeComponent(ezWorldWriter& stream) const

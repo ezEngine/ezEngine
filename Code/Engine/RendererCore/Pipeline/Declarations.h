@@ -97,6 +97,7 @@ struct EZ_RENDERERCORE_DLL ezCameraUsageHint
     RenderTarget,
     Culling,
     Shadow,
+    Reflection,
     Thumbnail,
 
     ENUM_COUNT,
