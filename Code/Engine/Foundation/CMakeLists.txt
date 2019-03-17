@@ -12,7 +12,7 @@ if (MSVC)
   )
 endif()
 
-if (BUILDSYSTEM_PLATFORM_LINUX)
+if (EZ_CMAKE_PLATFORM_LINUX)
   target_link_libraries(${PROJECT_NAME}
     PRIVATE
 

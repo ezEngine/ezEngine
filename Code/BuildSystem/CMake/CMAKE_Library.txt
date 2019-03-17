@@ -22,13 +22,15 @@ if ((NATVIS_FILE) AND ((MSVC_VERSION GREATER 1900) OR (MSVC_VERSION EQUAL 1900))
 	SET(ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${NATVIS_FILE})
 endif()
 
+ez_all_vars()
+
 include (${CMAKE_CURRENT_LIST_DIR}/CMAKE_LibraryFolder.txt)
 
 # Get the name of this folder
 get_filename_component (CUR_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
 # if this library uses a precompile header
-if (BUILDSYSTEM_MSVC)
+if (MSVC)
   ADD_MSVC_PRECOMPILED_HEADER ()
 endif ()
 
@@ -44,13 +46,14 @@ endif ()
 ez_set_default_target_output_dirs(${PROJECT_NAME})
 ez_set_common_target_include_dirs(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 ez_set_common_target_definitions(${PROJECT_NAME})
+ez_set_build_flags(${PROJECT_NAME})
 
-if (BUILDSYSTEM_PLATFORM_LINUX)
+if (EZ_CMAKE_PLATFORM_LINUX)
   # Workaround for: https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899
   target_link_libraries (${PROJECT_NAME} PRIVATE -lgcc_s -lgcc)
 endif ()
 
-if (BUILDSYSTEM_PLATFORM_OSX OR BUILDSYSTEM_PLATFORM_LINUX)
+if (EZ_CMAKE_PLATFORM_OSX OR EZ_CMAKE_PLATFORM_LINUX)
   find_package(X11 REQUIRED)
   target_include_directories (${PROJECT_NAME} PRIVATE ${X11_X11_INCLUDE_PATH})
   target_link_libraries (${PROJECT_NAME} PRIVATE ${X11_X11_LIB})

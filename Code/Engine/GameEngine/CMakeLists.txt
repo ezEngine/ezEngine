@@ -14,7 +14,7 @@ target_link_libraries(${PROJECT_NAME}
   RendererCore
 )
 
-if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
+if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 
   target_link_libraries(${PROJECT_NAME}
     PRIVATE
@@ -23,11 +23,11 @@ if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
 
 endif()
 
-if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP AND EZ_ENABLE_MIXEDREALITY_SUPPORT)
-
-  target_link_libraries(${PROJECT_NAME}
-    PRIVATE
-    WindowsMixedReality
-  )
-
-endif()
+# if (EZ_CMAKE_PLATFORM_WINDOWS_UWP AND EZ_ENABLE_MIXEDREALITY_SUPPORT)
+# 
+#   target_link_libraries(${PROJECT_NAME}
+#     PRIVATE
+#     WindowsMixedReality
+#   )
+# 
+# endif()

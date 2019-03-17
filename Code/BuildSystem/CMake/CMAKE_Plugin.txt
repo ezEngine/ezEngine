@@ -26,7 +26,7 @@ if (IS_WIN32_APPLICATION)
 endif ()
 
 # if this library uses a precompile header
-if (BUILDSYSTEM_MSVC)
+if (MSVC)
   ADD_MSVC_PRECOMPILED_HEADER()
 endif ()
 # Define the Exe Project, add all required sources to it
@@ -35,6 +35,7 @@ add_library (${PROJECT_NAME} SHARED ${APP_CONFIG} ${ALL_SOURCE_FILES})
 ez_set_default_target_output_dirs(${PROJECT_NAME})
 ez_set_common_target_include_dirs(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 ez_set_common_target_definitions(${PROJECT_NAME})
+ez_set_build_flags(${PROJECT_NAME})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES IMPORT_PREFIX "ez")
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "ez")

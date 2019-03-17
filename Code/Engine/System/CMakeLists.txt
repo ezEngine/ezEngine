@@ -1,19 +1,21 @@
 #cmake
 
-if (NOT BUILDSYSTEM_PLATFORM_WINDOWS)
+ez_all_vars()
+
+if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
 	return()
 endif()
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
 
-if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
+if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 
   target_link_libraries(${PROJECT_NAME}
     PRIVATE
     Xinputuap
   )
 
-elseif (BUILDSYSTEM_PLATFORM_WINDOWS)
+elseif (EZ_CMAKE_PLATFORM_WINDOWS)
 
   target_link_libraries(${PROJECT_NAME}
     PRIVATE

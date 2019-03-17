@@ -1,8 +1,22 @@
 ######################################
+### ez_requires_qt
+######################################
+
+macro(ez_requires_qt)
+
+    if (NOT EZ_ENABLE_QT_SUPPORT)
+        return()
+    endif()
+
+endmacro()
+
+######################################
 ### ez_link_target_qt
 ######################################
 
 function(ez_link_target_qt)
+
+    ez_requires_qt()
 
     set(FN_OPTIONS COPY_DLLS)
     set(FN_ONEVALUEARGS TARGET)
