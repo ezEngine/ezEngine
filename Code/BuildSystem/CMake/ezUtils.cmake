@@ -167,3 +167,19 @@ function(ez_set_common_target_definitions TARGET_NAME)
 	target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_BUILDING_${PROJECT_NAME_UPPER}_LIB)
 
 endfunction()
+
+######################################
+### ez_set_project_ide_folder
+######################################
+
+function(ez_set_project_ide_folder TARGET_NAME PROJECT_SOURCE_DIR)
+
+	# globally enable sorting targets into folders in IDEs
+	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+	get_filename_component (PARENT_FOLDER ${PROJECT_SOURCE_DIR} PATH)
+
+	file(RELATIVE_PATH RELATIVE_PARENT_FOLDER "${CMAKE_SOURCE_DIR}/Code" ${PARENT_FOLDER})
+	set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER ${RELATIVE_PARENT_FOLDER})
+
+endfunction()

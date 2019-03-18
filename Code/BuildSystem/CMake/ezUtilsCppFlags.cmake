@@ -68,15 +68,20 @@ function(ez_set_build_flags_msvc TARGET_NAME)
   if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 		target_compile_options(${TARGET_NAME} PRIVATE "-msse4.1")
 	endif()
-		
-	set (LINKER_SETTINGS_RELEASE "${LINKER_SETTINGS_RELEASE} /INCREMENTAL:NO")
+	
+	set (LINKER_FLAGS_RELEASE "")
+	
+	set (LINKER_FLAGS_RELEASE "${LINKER_FLAGS_RELEASE} /INCREMENTAL:NO")
 		
 	# Remove unreferenced data (does not work together with incremental build)
-	set (LINKER_SETTINGS_RELEASE "${LINKER_SETTINGS_RELEASE} /OPT:REF")
+	set (LINKER_FLAGS_RELEASE "${LINKER_FLAGS_RELEASE} /OPT:REF")
 		
 	# Don't know what it does, but Clemens wants it :-) (does not work together with incremental build)
-	set (LINKER_SETTINGS_RELEASE "${LINKER_SETTINGS_RELEASE} /OPT:ICF")	
-		
+	set (LINKER_FLAGS_RELEASE "${LINKER_FLAGS_RELEASE} /OPT:ICF")	
+
+  	set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE        ${LINKER_FLAGS_RELEASE})
+	set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_MINSIZEREL     ${LINKER_FLAGS_RELEASE})
+  		
 endfunction()
 				
 function(ez_set_build_flags_clang TARGET_NAME)
