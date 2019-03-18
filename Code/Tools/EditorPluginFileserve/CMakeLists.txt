@@ -7,7 +7,7 @@ if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
 	return()
 endif()
 
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
 
 ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network)
 
