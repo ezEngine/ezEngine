@@ -6,9 +6,6 @@ if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
 	return()
 endif()
 
-# Set this to true, if your application is a real win32 app (not a console app)
-SET (IS_WIN32_APPLICATION true)
-
 # Add content files for UWP version.
 if(EZ_CMAKE_PLATFORM_WINDOWS_UWP)
   #file(GLOB SAMPLE_FILES ../../Data/Samples/Asteroids/*)
@@ -23,6 +20,8 @@ if(EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 endif()
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
+
+ez_make_winmain_executable(${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC

@@ -1,7 +1,5 @@
 #cmake
 
-set(NATVIS_FILE "${CMAKE_SOURCE_DIR}/Utilities/Visual Studio Visualizer/ezEngine.natvis")
-
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
 
 if (MSVC)
@@ -41,6 +39,7 @@ target_link_libraries(${PROJECT_NAME}
   ThirdParty
 )
 
+ez_set_natvis_file(${PROJECT_NAME} "${CMAKE_SOURCE_DIR}/Utilities/Visual Studio Visualizer/ezEngine.natvis")
 
 ####################################################
 ## UserConfig header settings

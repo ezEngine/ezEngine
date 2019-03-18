@@ -183,3 +183,54 @@ function(ez_set_project_ide_folder TARGET_NAME PROJECT_SOURCE_DIR)
 	set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER ${RELATIVE_PARENT_FOLDER})
 
 endfunction()
+
+######################################
+### ez_set_library_properties
+######################################
+
+function(ez_set_library_properties TARGET_NAME)
+
+	ez_all_vars()
+
+	set_target_properties(${TARGET_NAME} PROPERTIES IMPORT_PREFIX "ez")
+	set_target_properties(${TARGET_NAME} PROPERTIES PREFIX "ez")
+
+	if (EZ_CMAKE_PLATFORM_LINUX)
+		# Workaround for: https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899
+		target_link_libraries (${PROJECT_NAME} PRIVATE -lgcc_s -lgcc)
+	endif ()
+
+	if (EZ_CMAKE_PLATFORM_OSX OR EZ_CMAKE_PLATFORM_LINUX)
+		find_package(X11 REQUIRED)
+		target_include_directories (${PROJECT_NAME} PRIVATE ${X11_X11_INCLUDE_PATH})
+		target_link_libraries (${PROJECT_NAME} PRIVATE ${X11_X11_LIB})
+	endif ()
+
+endfunction()
+
+######################################
+### ez_set_natvis_file
+######################################
+
+function(ez_set_natvis_file TARGET_NAME NATVIS_FILE)
+
+	# We need at least visual studio 2015 for this to work
+	if ((MSVC_VERSION GREATER 1900) OR (MSVC_VERSION EQUAL 1900))
+
+		target_sources(${TARGET_NAME} PRIVATE ${NATVIS_FILE})
+
+	endif()
+
+endfunction()
+
+
+######################################
+### ez_make_winmain_executable
+######################################
+
+function(ez_make_winmain_executable TARGET_NAME)
+
+	set_property(TARGET ${TARGET_NAME} PROPERTY WIN32_EXECUTABLE ON)
+
+endfunction()
+
