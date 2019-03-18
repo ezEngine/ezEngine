@@ -15,8 +15,6 @@ set (LIST_SOURCE_GROUP_FOLDER "")
 set (LIST_CURRENT_FOLDER ${CMAKE_CURRENT_SOURCE_DIR})
 set (ALL_SOURCE_FILES "")
 
-set (LIBRARY_PCH FALSE)
-
 ez_all_vars()
 
 include (${CMAKE_CURRENT_LIST_DIR}/CMAKE_LibraryFolder.txt)
@@ -86,9 +84,7 @@ ez_set_common_target_include_dirs(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 ez_set_common_target_definitions(${PROJECT_NAME})
 ez_set_build_flags(${PROJECT_NAME})
 
-SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
-file(RELATIVE_PATH RELATIVE_PARENT_FOLDER "${CMAKE_SOURCE_DIR}/Code" ${PARENT_FOLDER})
-SET_PROPERTY(TARGET ${PROJECT_NAME} PROPERTY FOLDER ${RELATIVE_PARENT_FOLDER})
+ez_set_project_ide_folder(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (EZ_CMAKE_PLATFORM_OSX OR EZ_CMAKE_PLATFORM_LINUX)
   find_package(X11 REQUIRED)
@@ -99,35 +95,6 @@ endif ()
 # We need to link against X11, pthread and rt last or linker errors will occur.
 if (EZ_CMAKE_COMPILER_GCC)
 	target_link_libraries (${PROJECT_NAME} PRIVATE pthread rt)
-endif ()
-
-if (COMPILER_SETTINGS_ALL)
-  set_target_properties (${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${COMPILER_SETTINGS_ALL}")
-endif ()
-
-if (COMPILER_SETTINGS_RELEASE)
-  target_compile_options(${PROJECT_NAME} PUBLIC $<$<CONFIG:RELEASE>:${COMPILER_SETTINGS_RELEASE}>)
-  target_compile_options(${PROJECT_NAME} PUBLIC $<$<CONFIG:RELWITHDEBINFO>:${COMPILER_SETTINGS_RELEASE}>)
-endif()
-
-if (COMPILER_SETTINGS_DEBUG)
-  target_compile_options(${PROJECT_NAME} PUBLIC $<$<CONFIG:DEBUG>:${COMPILER_SETTINGS_DEBUG}>)
-endif ()
-
-if (LINKER_SETTINGS_ALL)
-  set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_DEBUG          ${LINKER_SETTINGS_ALL})
-  set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELWITHDEBINFO ${LINKER_SETTINGS_ALL})
-  set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE        ${LINKER_SETTINGS_ALL})
-  set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_MINSIZEREL     ${LINKER_SETTINGS_ALL})
-endif ()
-if (LINKER_SETTINGS_DEBUG)
-  set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_DEBUG          ${LINKER_SETTINGS_DEBUG})
-  set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELWITHDEBINFO ${LINKER_SETTINGS_DEBUG})
-
-endif ()
-if (LINKER_SETTINGS_RELEASE)
-  set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE        ${LINKER_SETTINGS_RELEASE})
-  set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_MINSIZEREL     ${LINKER_SETTINGS_RELEASE})
 endif ()
 
 # UWP has deployment problems if all applications output to the same path.
