@@ -84,6 +84,16 @@ namespace
     ezUInt16 m_uiPriority = 0;
     ezEnum<UpdateStep> m_LastUpdateStep;
 
+    struct Step
+    {
+      EZ_DECLARE_POD_TYPE();
+
+      ezUInt8 m_uiViewIndex;
+      ezEnum<UpdateStep> m_UpdateStep;
+    };
+
+    ezHybridArray<Step, 8> m_UpdateSteps;
+
     ezUInt32 GetPriority(ezUInt64 uiCurrentFrame) const
     {
       ezUInt32 uiFramesSinceLastUpdate = m_uiLastUpdatedFrame < uiCurrentFrame ? ezUInt32(uiCurrentFrame - m_uiLastUpdatedFrame) : 1000;
@@ -123,6 +133,19 @@ struct ezHashHelper<ezReflectionProbeId>
 
 struct ezReflectionPool::Data
 {
+  ~Data()
+  {
+    for (auto& renderView : m_RenderViews)
+    {
+      ezRenderWorld::DeleteView(renderView.m_hView);
+    }
+
+    for (auto& filterView : m_FilterViews)
+    {
+      ezRenderWorld::DeleteView(filterView.m_hView);
+    }
+  }
+
   void SortActiveProbes(const ezDynamicArray<ezReflectionProbeId>& activeProbes, ezUInt64 uiFrameCounter)
   {
     m_SortedUpdateInfo.Clear();
@@ -153,7 +176,7 @@ struct ezReflectionPool::Data
       const auto& sortedUpdateInfo = m_SortedUpdateInfo[uiSortedUpdateInfoIndex];
       auto pUpdateInfo = sortedUpdateInfo.m_pUpdateInfo;
 
-      auto& updateSteps = m_UpdateSteps[m_ActiveDynamicProbes[sortedUpdateInfo.m_uiIndex]];
+      auto& updateSteps = pUpdateInfo->m_UpdateSteps;
       UpdateStep::Enum nextStep =
         UpdateStep::NextStep(updateSteps.IsEmpty() ? pUpdateInfo->m_LastUpdateStep : updateSteps.PeekBack().m_UpdateStep);
 
@@ -163,7 +186,7 @@ struct ezReflectionPool::Data
       {
         if (uiRenderViewIndex < m_RenderViews.GetCount())
         {
-          updateSteps.PushBack({ (ezUInt8)uiRenderViewIndex, nextStep });
+          updateSteps.PushBack({(ezUInt8)uiRenderViewIndex, nextStep});
           ++uiRenderViewIndex;
         }
         else
@@ -175,7 +198,7 @@ struct ezReflectionPool::Data
       {
         if (uiFilterViewIndex < m_FilterViews.GetCount())
         {
-          updateSteps.PushBack({ (ezUInt8)uiFilterViewIndex, nextStep });
+          updateSteps.PushBack({(ezUInt8)uiFilterViewIndex, nextStep});
           ++uiFilterViewIndex;
         }
         bNextProbe = true;
@@ -235,15 +258,8 @@ struct ezReflectionPool::Data
     }
   }
 
-  struct Step
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    ezUInt8 m_uiViewIndex;
-    ezEnum<UpdateStep> m_UpdateStep;
-  };
-
-  void AddViewToRender(const Step& step, const ezReflectionProbeData& data, ProbeUpdateInfo* pUpdateInfo, const ezVec3& vPosition)
+  void AddViewToRender(
+    const ProbeUpdateInfo::Step& step, const ezReflectionProbeData& data, ProbeUpdateInfo* pUpdateInfo, const ezVec3& vPosition)
   {
     ezVec3 vForward[6] = {
       ezVec3(1.0f, 0.0f, 0.0f),
@@ -293,10 +309,6 @@ struct ezReflectionPool::Data
   ezDynamicArray<ezReflectionProbeId> m_ActiveDynamicProbes;
 
   ezDynamicArray<SortedUpdateInfo> m_SortedUpdateInfo;
-
-  typedef ezHybridArray<Step, 8> ProbeUpdateSteps;
-
-  ezHashTable<ezReflectionProbeId, ProbeUpdateSteps> m_UpdateSteps;
 };
 
 ezReflectionPool::Data* ezReflectionPool::s_pData;
@@ -329,8 +341,8 @@ void ezReflectionPool::AddReflectionProbe(const ezReflectionProbeData& data, con
     return;
 
   ezUInt64 uiCurrentFrame = ezRenderWorld::GetFrameCounter();
-  const ezReflectionPool::Data::ProbeUpdateSteps* pUpdateSteps = nullptr;
-
+  bool bExecuteUpdateSteps = false;
+  
   {
     EZ_LOCK(s_pData->m_ActiveProbesMutex);
 
@@ -339,22 +351,23 @@ void ezReflectionPool::AddReflectionProbe(const ezReflectionProbeData& data, con
     if (pUpdateInfo->m_uiLastActiveFrame != uiCurrentFrame)
     {
       pUpdateInfo->m_uiLastActiveFrame = uiCurrentFrame;
-
-      pUpdateSteps = s_pData->m_UpdateSteps.GetValue(data.m_Id);
+      bExecuteUpdateSteps = !pUpdateInfo->m_UpdateSteps.IsEmpty();
 
       // Add as active for next frame
       s_pData->m_ActiveDynamicProbes.PushBack(data.m_Id);
     }
   }
 
-  if (pUpdateSteps != nullptr && !pUpdateSteps->IsEmpty())
+  if (bExecuteUpdateSteps)
   {
-    for (auto& step : *pUpdateSteps)
+    for (auto& step : pUpdateInfo->m_UpdateSteps)
     {
       s_pData->AddViewToRender(step, data, pUpdateInfo, vPosition);
     }
 
-    pUpdateInfo->m_LastUpdateStep = pUpdateSteps->PeekBack().m_UpdateStep;
+    pUpdateInfo->m_LastUpdateStep = pUpdateInfo->m_UpdateSteps.PeekBack().m_UpdateStep;
+    pUpdateInfo->m_UpdateSteps.Clear();
+
     pUpdateInfo->m_uiLastUpdatedFrame = uiCurrentFrame;
   }
 }
@@ -397,5 +410,5 @@ void ezReflectionPool::OnBeginExtraction(ezUInt64 uiFrameCounter)
 // static
 void ezReflectionPool::OnEndExtraction(ezUInt64 uiFrameCounter)
 {
-  s_pData->m_UpdateSteps.Clear();
+
 }
