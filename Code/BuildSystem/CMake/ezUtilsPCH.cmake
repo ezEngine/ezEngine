@@ -86,13 +86,22 @@ function(ez_auto_detect_pch_for_target TARGET_NAME PROJECT_DIRECTORY)
 endfunction()
 
 ######################################
-### ez_pch_consume
+### ez_pch_use
 ######################################
 
-function(ez_pch_consume TARGET_FILE)
+function(ez_pch_use TARGET_CPP PCH_H)
 
-  # set_source_files_properties (${src_file} PROPERTIES COMPILE_FLAGS "/Yu${PCH_H}")
+  set_source_files_properties (${TARGET_CPP} PROPERTIES COMPILE_FLAGS "/Yu${PCH_H}")
 
 endfunction()
 
 
+######################################
+### ez_pch_create
+######################################
+
+function(ez_pch_create TARGET_CPP PCH_H)
+
+  set_source_files_properties(${TARGET_CPP} PROPERTIES COMPILE_FLAGS "/Yc${PCH_H}")
+
+endfunction()
