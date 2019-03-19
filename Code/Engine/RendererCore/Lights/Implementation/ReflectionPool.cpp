@@ -4,6 +4,7 @@
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Lights/Implementation/ReflectionPool.h>
 #include <RendererCore/Lights/Implementation/ReflectionProbeData.h>
 #include <RendererCore/Pipeline/View.h>
@@ -78,6 +79,36 @@ namespace
 
   struct ProbeUpdateInfo
   {
+    ProbeUpdateInfo()
+    {
+      {
+        ezGALTextureCreationDescription desc;
+        desc.m_uiWidth = s_uiReflectionCubeMapSize;
+        desc.m_uiHeight = s_uiReflectionCubeMapSize;
+        desc.m_Format = ezGALResourceFormat::RGBAHalf;
+        desc.m_Type = ezGALTextureType::TextureCube;
+        desc.m_bCreateRenderTarget = true;
+        desc.m_bAllowDynamicMipGeneration = true;
+
+        m_hCubemap = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(desc);
+      }
+
+      for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hCubemapViews); ++i)
+      {
+        ezGALRenderTargetViewCreationDescription desc;
+        desc.m_hTexture = m_hCubemap;
+        desc.m_uiFirstSlice = i;
+        desc.m_uiSliceCount = 1;
+
+        m_hCubemapViews[i] = ezGALDevice::GetDefaultDevice()->CreateRenderTargetView(desc);
+      }
+    }
+
+    ~ProbeUpdateInfo()
+    {
+      ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(m_hCubemap);
+    }
+
     ezUInt64 m_uiLastActiveFrame = -1;
     ezUInt64 m_uiLastUpdatedFrame = -1;
     ezWorld* m_pWorld = nullptr;
@@ -93,6 +124,9 @@ namespace
     };
 
     ezHybridArray<Step, 8> m_UpdateSteps;
+
+    ezGALTextureHandle m_hCubemap;
+    ezGALRenderTargetViewHandle m_hCubemapViews[6];
 
     ezUInt32 GetPriority(ezUInt64 uiCurrentFrame) const
     {
@@ -259,7 +293,7 @@ struct ezReflectionPool::Data
   }
 
   void AddViewToRender(
-    const ProbeUpdateInfo::Step& step, const ezReflectionProbeData& data, ProbeUpdateInfo* pUpdateInfo, const ezVec3& vPosition)
+    const ProbeUpdateInfo::Step& step, const ezReflectionProbeData& data, ProbeUpdateInfo& updateInfo, const ezVec3& vPosition)
   {
     ezVec3 vForward[6] = {
       ezVec3(1.0f, 0.0f, 0.0f),
@@ -292,7 +326,18 @@ struct ezReflectionPool::Data
 
       pView->m_IncludeTags = data.m_IncludeTags;
       pView->m_ExcludeTags = data.m_ExcludeTags;
-      pView->SetWorld(pUpdateInfo->m_pWorld);
+      pView->SetWorld(updateInfo.m_pWorld);
+
+      if (step.m_UpdateStep == UpdateStep::Filter)
+      {
+      }
+      else
+      {
+        ezGALRenderTagetSetup renderTargetSetup;
+        renderTargetSetup.SetRenderTarget(0, updateInfo.m_hCubemapViews[uiFaceIndex]);
+
+        pView->SetRenderTargetSetup(renderTargetSetup);
+      }
 
       pReflectionView->m_Camera.LookAt(vPosition, vPosition + vForward[uiFaceIndex], vUp);
 
@@ -342,7 +387,7 @@ void ezReflectionPool::AddReflectionProbe(const ezReflectionProbeData& data, con
 
   ezUInt64 uiCurrentFrame = ezRenderWorld::GetFrameCounter();
   bool bExecuteUpdateSteps = false;
-  
+
   {
     EZ_LOCK(s_pData->m_ActiveProbesMutex);
 
@@ -362,7 +407,7 @@ void ezReflectionPool::AddReflectionProbe(const ezReflectionProbeData& data, con
   {
     for (auto& step : pUpdateInfo->m_UpdateSteps)
     {
-      s_pData->AddViewToRender(step, data, pUpdateInfo, vPosition);
+      s_pData->AddViewToRender(step, data, *pUpdateInfo, vPosition);
     }
 
     pUpdateInfo->m_LastUpdateStep = pUpdateInfo->m_UpdateSteps.PeekBack().m_UpdateStep;
@@ -408,7 +453,4 @@ void ezReflectionPool::OnBeginExtraction(ezUInt64 uiFrameCounter)
 }
 
 // static
-void ezReflectionPool::OnEndExtraction(ezUInt64 uiFrameCounter)
-{
-
-}
+void ezReflectionPool::OnEndExtraction(ezUInt64 uiFrameCounter) {}

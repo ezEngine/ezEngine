@@ -6,6 +6,11 @@
 
 #include <d3d11.h>
 
+bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALRenderTargetViewCreationDescription& viewDesc)
+{
+  return texDesc.m_uiArraySize > 1 || viewDesc.m_uiFirstSlice > 0;
+}
+
 ezGALRenderTargetViewDX11::ezGALRenderTargetViewDX11(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description)
     : ezGALRenderTargetView(pTexture, Description)
     , m_pRenderTargetView(nullptr)
@@ -55,6 +60,8 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
     return EZ_FAILURE;
   }
 
+  const bool bIsArrayView = IsArrayView(texDesc, m_Description);
+
   if (bIsDepthFormat)
   {
     D3D11_DEPTH_STENCIL_VIEW_DESC DSViewDesc;
@@ -62,7 +69,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 
     if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
     {
-      if (texDesc.m_uiArraySize == 1)
+      if (!bIsArrayView)
       {
         DSViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
         DSViewDesc.Texture2D.MipSlice = m_Description.m_uiMipLevel;
@@ -77,7 +84,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
     }
     else
     {
-      if (texDesc.m_uiArraySize == 1)
+      if (!bIsArrayView)
       {
         DSViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
         // DSViewDesc.Texture2DMS.UnusedField_NothingToDefine;
@@ -111,7 +118,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 
     if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
     {
-      if (texDesc.m_uiArraySize == 1)
+      if (!bIsArrayView)
       {
         RTViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
         RTViewDesc.Texture2D.MipSlice = m_Description.m_uiMipLevel;
@@ -126,7 +133,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
     }
     else
     {
-      if (texDesc.m_uiArraySize == 1)
+      if (!bIsArrayView)
       {
         RTViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
         // RTViewDesc.Texture2DMS.UnusedField_NothingToDefine;
