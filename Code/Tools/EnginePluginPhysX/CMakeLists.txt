@@ -10,7 +10,7 @@ if (NOT EZ_BUILD_PHYSX)
 	return()
 endif()
 
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Plugin.txt")
+include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
 
 ez_link_target_dx11(${PROJECT_NAME})
 

@@ -2,9 +2,9 @@
 
 ez_requires_qt()
 
-SET (IS_WIN32_APPLICATION true)
-
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
+
+ez_make_winmain_executable(${PROJECT_NAME})
 
 ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets)
 
