@@ -4,10 +4,28 @@
 
 function(ez_link_target_dx11 TARGET_NAME)
 
-	find_package (DirectX11)
+	get_property(EZ_DX11_LIBRARY GLOBAL PROPERTY EZ_DX11_LIBRARY)
+
+	# only execute find_package once
+	if (NOT EZ_DX11_LIBRARY)
+
+		find_package(DirectX11)
+
+		if (DirectX11_FOUND)
+		
+			set_property(GLOBAL PROPERTY EZ_DX11_LIBRARY ${DirectX11_LIBRARY})
+			set_property(GLOBAL PROPERTY EZ_DX11_LIBRARIES ${DirectX11_D3D11_LIBRARIES})
+
+		endif()
+
+	endif()
+
+	get_property(EZ_DX11_LIBRARY GLOBAL PROPERTY EZ_DX11_LIBRARY)
+	get_property(EZ_DX11_LIBRARIES GLOBAL PROPERTY EZ_DX11_LIBRARIES)
+
 	target_link_libraries(${TARGET_NAME} 
 		PRIVATE 
-		${DirectX11_D3D11_LIBRARIES})
+		${EZ_DX11_LIBRARIES})
 
 	if (CMAKE_SIZEOF_VOID_P EQUAL 8)
 			set (DX11_COPY_DLLS_BIT "x64")
@@ -15,13 +33,13 @@ function(ez_link_target_dx11 TARGET_NAME)
 			set (DX11_COPY_DLLS_BIT "x86")
 	endif ()
 
-	if( ${DirectX11_LIBRARY} MATCHES "/8\\.0/")
+	if( ${EZ_DX11_LIBRARY} MATCHES "/8\\.0/")
 			set (DX11_COPY_DLLS_WINSDKVERSION "8.0")
 			set (DX11_COPY_DLLS_DLL_VERSION "46")
-	elseif( ${DirectX11_LIBRARY} MATCHES "/8\\.1/")
+	elseif( ${EZ_DX11_LIBRARY} MATCHES "/8\\.1/")
 			set (DX11_COPY_DLLS_WINSDKVERSION "8.1")
 			set (DX11_COPY_DLLS_DLL_VERSION "47")
-	elseif( ${DirectX11_LIBRARY} MATCHES "/10/")
+	elseif( ${EZ_DX11_LIBRARY} MATCHES "/10/")
 			set (DX11_COPY_DLLS_WINSDKVERSION "10")
 			set (DX11_COPY_DLLS_DLL_VERSION "47")
 	endif ()

@@ -86,7 +86,7 @@ function(ez_auto_detect_pch_for_target TARGET_NAME PROJECT_DIRECTORY)
 endfunction()
 
 ######################################
-### ez_auto_detect_pch_for_target
+### ez_pch_consume
 ######################################
 
 function(ez_pch_consume TARGET_FILE)

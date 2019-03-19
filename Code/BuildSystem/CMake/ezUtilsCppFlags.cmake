@@ -115,27 +115,23 @@ endfunction()
 
 function(ez_set_build_flags TARGET_NAME)
 
-	ez_detect_compiler()
-
-	get_property(BUILDSYSTEM_COMPILER_MSVC GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC)
-	get_property(BUILDSYSTEM_COMPILER_CLANG GLOBAL PROPERTY EZ_CMAKE_COMPILER_CLANG)
-	get_property(BUILDSYSTEM_COMPILER_GCC GLOBAL PROPERTY EZ_CMAKE_COMPILER_GCC)
+	ez_compiler_vars()
 
 	set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 17)
 
-	if (BUILDSYSTEM_COMPILER_MSVC)
+	if (EZ_CMAKE_COMPILER_MSVC)
 
 		ez_set_build_flags_msvc(${TARGET_NAME})
 
 	endif()
 
-	if (BUILDSYSTEM_COMPILER_CLANG)
+	if (EZ_CMAKE_COMPILER_CLANG)
 
 		ez_set_build_flags_clang(${TARGET_NAME})
 
 	endif()
 
-	if (BUILDSYSTEM_COMPILER_GCC)
+	if (EZ_CMAKE_COMPILER_GCC)
 
 		ez_set_build_flags_gcc(${TARGET_NAME})
 
