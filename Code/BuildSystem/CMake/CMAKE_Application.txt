@@ -68,7 +68,7 @@ endif()
 # Define the Exe Project, add all required sources to it
 add_executable (${PROJECT_NAME} ${ALL_SOURCE_FILES} ${CONTENT_FILES})
 
-ez_auto_pch("${ALL_SOURCE_FILES}")
+ez_auto_pch(${PROJECT_NAME} "${ALL_SOURCE_FILES}")
 ez_set_default_target_output_dirs(${PROJECT_NAME})
 ez_set_common_target_include_dirs(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 ez_set_common_target_definitions(${PROJECT_NAME})
