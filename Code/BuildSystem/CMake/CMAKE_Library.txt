@@ -19,10 +19,6 @@ ez_all_vars()
 
 include (${EZ_CMAKE_UTILS_PATH}/CMAKE_LibraryFolder.txt)
 
-if (MSVC)
-  ADD_MSVC_PRECOMPILED_HEADER()
-endif ()
-
 # add the library to the solution
 if (EZ_COMPILE_ENGINE_AS_DLL)
   # add the project as a shared library
@@ -32,6 +28,7 @@ else ()
   add_library (${PROJECT_NAME} ${ALL_SOURCE_FILES})
 endif ()
 
+ez_auto_pch("${ALL_SOURCE_FILES}")
 ez_set_default_target_output_dirs(${PROJECT_NAME})
 ez_set_common_target_include_dirs(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 ez_set_common_target_definitions(${PROJECT_NAME})
