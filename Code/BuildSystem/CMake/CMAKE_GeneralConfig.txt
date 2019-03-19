@@ -1,8 +1,5 @@
 #cmake
 
-#########################################################################################
-## Macro to enable pre-compiled headers
-
 MACRO(ADD_MSVC_PRECOMPILED_HEADER)
   IF(MSVC)
     set (PCH_FOUND false)
@@ -28,18 +25,7 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER)
     endif()
 
     if (PCH_FOUND)
-      set_source_files_properties(${PCH_CPP} PROPERTIES COMPILE_FLAGS "/Yc${PCH_H}")
-
-      # Remove CMAKE's increase of the max pre-compiled header size (/Zm1000)
-      # as this will cause C1027 errors during compiling due to ASLR.
-      if (NOT CMAKE_CXX_FLAGS)
-        message (FATAL_ERROR "CMAKE_CXX_FLAGS is empty! Cause unknown but clear cache and rerun configure solves the problem.")
-      endif ()
-
-      string(REGEX REPLACE "/Zm[0-9]+ *" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-      # Force the above change into the cache.
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" CACHE STRING "" FORCE)
-
+	  ez_pch_create(${PCH_CPP} ${PCH_H})
 
       foreach (src_file ${ALL_SOURCE_FILES})
         GET_FILENAME_COMPONENT(RawFilename ${src_file} NAME_WE)
@@ -48,9 +34,8 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER)
         if (${Extension} STREQUAL ".cpp")
           if (NOT RawFilename MATCHES "PCH$")
             # We don't want to enable PCH usage for QRC files (they all start with qrc_)
-            #if (NOT ${src_file} MATCHES ".*(/moc_|/qrc_).*")
 			if (NOT ${src_file} MATCHES ".*(/qrc_).*")
-              set_source_files_properties (${src_file} PROPERTIES COMPILE_FLAGS "/Yu${PCH_H}")
+			  ez_pch_use(${src_file} ${PCH_H})
             endif ()
           endif ()
         endif ()
@@ -59,5 +44,5 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER)
 
     endif()
 
-  ENDIF(MSVC)
-ENDMACRO(ADD_MSVC_PRECOMPILED_HEADER)
+  ENDIF()
+ENDMACRO()
