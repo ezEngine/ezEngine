@@ -24,7 +24,7 @@ function(ez_detect_project_name OUT_NAME)
 
 		if (${CMAKE_GENERATOR} MATCHES "64$")
 			set (DETECTED_NAME "${DETECTED_NAME}x64")
-		else()
+		elseif (${CMAKE_GENERATOR} MATCHES "32$")
 			set (DETECTED_NAME "${DETECTED_NAME}x32")
 		endif()
 		
@@ -61,7 +61,7 @@ function(ez_detect_platform)
 
 	if (CMAKE_SYSTEM_NAME STREQUAL "Windows") # Desktop Windows
 	
-	  message (STATUS "Platform is Windows (BUILDSYSTEM_PLATFORM_WINDOWS, BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)")
+	  message (STATUS "Platform is Windows (EZ_CMAKE_PLATFORM_WINDOWS, EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)")
 	  
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS ON)
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP ON)
@@ -74,7 +74,7 @@ function(ez_detect_platform)
 
 	elseif (CMAKE_SYSTEM_NAME STREQUAL "WindowsStore") # Windows Universal
 	  
-	  message (STATUS "Platform is Windows Universal (BUILDSYSTEM_PLATFORM_WINDOWS, BUILDSYSTEM_PLATFORM_WINDOWS_UWP)")
+	  message (STATUS "Platform is Windows Universal (EZ_CMAKE_PLATFORM_WINDOWS, EZ_CMAKE_PLATFORM_WINDOWS_UWP)")
 	  
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS ON)
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS_UWP ON)
@@ -83,7 +83,7 @@ function(ez_detect_platform)
 
 	elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CURRENT_OSX_VERSION) # OS X
 	  
-	  message (STATUS "Platform is OS X (BUILDSYSTEM_PLATFORM_OSX, BUILDSYSTEM_PLATFORM_POSIX)")
+	  message (STATUS "Platform is OS X (EZ_CMAKE_PLATFORM_OSX, EZ_CMAKE_PLATFORM_POSIX)")
 	  
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_POSIX ON)
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_OSX ON)
@@ -92,7 +92,7 @@ function(ez_detect_platform)
 
 	elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux") # Linux
 	
-	  message (STATUS "Platform is Linux (BUILDSYSTEM_PLATFORM_LINUX, BUILDSYSTEM_PLATFORM_POSIX)")
+	  message (STATUS "Platform is Linux (EZ_CMAKE_PLATFORM_LINUX, EZ_CMAKE_PLATFORM_POSIX)")
 	  
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_POSIX ON)
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_LINUX ON)
@@ -140,10 +140,7 @@ function(ez_detect_generator)
 		return()
 	endif()
 	
-	ez_detect_platform()
-	get_property(BUILDSYSTEM_PLATFORM_WINDOWS GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS)
-	get_property(BUILDSYSTEM_PLATFORM_OSX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_OSX)
-	get_property(BUILDSYSTEM_PLATFORM_LINUX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_LINUX)	
+	ez_platform_vars()
 	
 	set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "")
 	set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION "undefined")
@@ -153,26 +150,26 @@ function(ez_detect_generator)
 	
 	message (STATUS "CMAKE_GENERATOR is '${CMAKE_GENERATOR}'")
 
-	if (BUILDSYSTEM_PLATFORM_WINDOWS) # Supported windows generators
+	if (EZ_CMAKE_PLATFORM_WINDOWS) # Supported windows generators
 	
 	  if (MSVC)
 	  
-		# Visual Studio (All VS generators define MSVC)
-		message (STATUS "Generator is MSVC (BUILDSYSTEM_MSVC)")
-		
-		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MSVC ON)
-		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Vs")
-		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION $<CONFIGURATION>)
+			# Visual Studio (All VS generators define MSVC)
+			message (STATUS "Generator is MSVC (EZ_CMAKE_GENERATOR_MSVC)")
+			
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MSVC ON)
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Vs")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION $<CONFIGURATION>)
 		
 	  else ()
-		message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Windows! Please extend ez_detect_generator()")
+			message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Windows! Please extend ez_detect_generator()")
 	  endif ()
 
-	elseif (BUILDSYSTEM_PLATFORM_OSX) # Supported OSX generators
+	elseif (EZ_CMAKE_PLATFORM_OSX) # Supported OSX generators
 	
 	  if (CMAKE_GENERATOR STREQUAL "Xcode") # XCODE
 	  
-		message (STATUS "Buildsystem is Xcode (BUILDSYSTEM_XCODE)")
+		message (STATUS "Buildsystem is Xcode (EZ_CMAKE_GENERATOR_XCODE)")
 		
 		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_XCODE ON)
 		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Xcode")
@@ -180,7 +177,7 @@ function(ez_detect_generator)
 
 	  elseif (CMAKE_GENERATOR STREQUAL "Unix Makefiles") # Unix Makefiles (for QtCreator etc.)
 	  
-		message (STATUS "Buildsystem is Make (BUILDSYSTEM_MAKE)")
+		message (STATUS "Buildsystem is Make (EZ_CMAKE_GENERATOR_MAKE)")
 		
 		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MAKE ON)
 		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Make")
@@ -190,11 +187,11 @@ function(ez_detect_generator)
 		message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on OS X! Please extend ez_detect_generator()")
 	  endif ()
 
-	elseif (BUILDSYSTEM_PLATFORM_LINUX)
+	elseif (EZ_CMAKE_PLATFORM_LINUX)
 	
 	  if (CMAKE_GENERATOR STREQUAL "Unix Makefiles") # Unix Makefiles (for QtCreator etc.)
 		
-		message (STATUS "Buildsystem is Make (BUILDSYSTEM_MAKE)")
+		message (STATUS "Buildsystem is Make (EZ_CMAKE_GENERATOR_MAKE)")
 		
 		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MAKE ON)
 		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Make")
@@ -240,11 +237,8 @@ function(ez_detect_compiler)
 		return()
 	endif()
 
-	ez_detect_platform()
-	get_property(BUILDSYSTEM_PLATFORM_OSX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_OSX)
-	get_property(BUILDSYSTEM_PLATFORM_LINUX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_LINUX)
-
-	ez_detect_generator()
+	ez_platform_vars()
+	ez_generator_vars()
 	get_property(GENERATOR_MSVC GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MSVC)
 	
 	
@@ -258,41 +252,40 @@ function(ez_detect_compiler)
 	
 	if (GENERATOR_MSVC) # Visual Studio Compiler
 	  
-	  message (STATUS "Compiler is MSVC (BUILDSYSTEM_COMPILER_MSVC)")
-	  message (STATUS "MSVC_VERSION is ${MSVC_VERSION}")
+	  message (STATUS "Compiler is MSVC (EZ_CMAKE_COMPILER_MSVC) version ${MSVC_VERSION}")
 
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC ON)
 
 	  if(MSVC_VERSION GREATER_EQUAL 1910)
 	  
-		message (STATUS "Compiler is Visual Studio 2017 (BUILDSYSTEM_COMPILER_MSVC_141)")
-		set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_141 ON)
-		set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX "2017")
+			message (STATUS "Compiler is Visual Studio 2017 (EZ_CMAKE_COMPILER_MSVC_141)")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_141 ON)
+			set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX "2017")
 		
 	  elseif (MSVC_VERSION GREATER_EQUAL 1900)
 	  
-		message (STATUS "Compiler is Visual Studio 2015 (BUILDSYSTEM_COMPILER_MSVC_140)")
-		set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_140 ON)
-		set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX "2015")
+			message (STATUS "Compiler is Visual Studio 2015 (EZ_CMAKE_COMPILER_MSVC_140)")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_140 ON)
+			set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX "2015")
 		
 	  else ()
 	  
-		message (FATAL_ERROR "Compiler for generator '${CMAKE_GENERATOR}' is not supported on MSVC! Please extend ez_detect_compiler()")
+			message (FATAL_ERROR "Compiler for generator '${CMAKE_GENERATOR}' is not supported on MSVC! Please extend ez_detect_compiler()")
 		
 	  endif ()
 
-	elseif (BUILDSYSTEM_PLATFORM_OSX)
+	elseif (EZ_CMAKE_PLATFORM_OSX)
 	
 	  # Currently all are clang by default.
 	  # We should probably make this more idiot-proof in case someone actually changes the compiler to gcc.
-	  message (STATUS "Compiler is clang (BUILDSYSTEM_COMPILER_CLANG)")
+	  message (STATUS "Compiler is clang (EZ_CMAKE_COMPILER_CLANG)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_CLANG ON)
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX "Clang")
 
-	elseif (BUILDSYSTEM_PLATFORM_LINUX)
+	elseif (EZ_CMAKE_PLATFORM_LINUX)
 	
 	  # Currently all are gcc by default. See OSX comment.
-	  message (STATUS "Compiler is gcc (BUILDSYSTEM_COMPILER_GCC)")
+	  message (STATUS "Compiler is gcc (EZ_CMAKE_COMPILER_GCC)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_GCC ON)
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX "Gcc")
 
@@ -337,40 +330,33 @@ function(ez_detect_architecture)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT OFF)
 
-	ez_detect_platform()
-	get_property(BUILDSYSTEM_PLATFORM_WINDOWS GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS)
-	get_property(BUILDSYSTEM_PLATFORM_OSX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_OSX)
-	get_property(BUILDSYSTEM_PLATFORM_LINUX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_LINUX)
+	ez_platform_vars()
+	ez_compiler_vars()
 
-	ez_detect_compiler()
-	get_property(BUILDSYSTEM_COMPILER_MSVC GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC)
-	get_property(BUILDSYSTEM_COMPILER_CLANG GLOBAL PROPERTY EZ_CMAKE_COMPILER_CLANG)
-	get_property(BUILDSYSTEM_COMPILER_GCC GLOBAL PROPERTY EZ_CMAKE_COMPILER_GCC)
-
-	if (BUILDSYSTEM_PLATFORM_WINDOWS AND BUILDSYSTEM_COMPILER_MSVC)
+	if (EZ_CMAKE_PLATFORM_WINDOWS AND EZ_CMAKE_COMPILER_MSVC)
 	  
 	  # Detect 64-bit builds for MSVC.
 	  if (CMAKE_CL_64)
 	  
-			message (STATUS "Platform is 64-Bit (BUILDSYSTEM_PLATFORM_64BIT)")
+			message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
 			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
 			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "64")
 		
 	  else ()
 	  
-			message (STATUS "Platform is 32-Bit (BUILDSYSTEM_PLATFORM_32BIT)")
+			message (STATUS "Platform is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
 			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
 			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "32")
 		
 	  endif ()
 
-	elseif (BUILDSYSTEM_PLATFORM_OSX AND BUILDSYSTEM_COMPILER_CLANG)
+	elseif (EZ_CMAKE_PLATFORM_OSX AND EZ_CMAKE_COMPILER_CLANG)
 	
 	  # OS X always has 32/64 bit support in the project files and the user switches on demand.
 	  # However, we do not support 32 bit with our current build configuration so we throw an error on 32-bit systems.
 	  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
 	  
-			message (STATUS "Platform is 64-Bit (BUILDSYSTEM_PLATFORM_64BIT)")
+			message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
 			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
 			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "64")
 		
@@ -378,18 +364,18 @@ function(ez_detect_architecture)
 			message (FATAL_ERROR "32-Bit is not supported on OS X!")
 	  endif ()
 
-	elseif (BUILDSYSTEM_PLATFORM_LINUX AND BUILDSYSTEM_COMPILER_GCC)
+	elseif (EZ_CMAKE_PLATFORM_LINUX AND EZ_CMAKE_COMPILER_GCC)
 	  
 	  # Detect 64-bit builds for Linux, no other way than checking CMAKE_SIZEOF_VOID_P.
 	  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
 	  
-			message (STATUS "Platform is 64-Bit (BUILDSYSTEM_PLATFORM_64BIT)")
+			message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
 			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
 			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "64")
 		
 	  else ()
 	  
-			message (STATUS "Platform is 32-Bit (BUILDSYSTEM_PLATFORM_32BIT)")
+			message (STATUS "Platform is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
 			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
 			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "32")
 		
