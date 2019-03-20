@@ -142,6 +142,7 @@ struct ezGALTextureType
     Texture2D = 0,
     TextureCube,
     Texture3D,
+    Proxy,
 
     ENUM_COUNT
   };

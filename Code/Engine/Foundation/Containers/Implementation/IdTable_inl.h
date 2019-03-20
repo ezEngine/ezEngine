@@ -231,7 +231,7 @@ bool ezIdTableBase<IdType, ValueType>::Remove(const IdType id, ValueType* out_ol
     return false;
 
   if (out_oldValue != nullptr)
-    *out_oldValue = m_pEntries[uiIndex].value;
+    *out_oldValue = std::move(m_pEntries[uiIndex].value);
 
   ezMemoryUtils::Destruct(&entry.value, 1);
 

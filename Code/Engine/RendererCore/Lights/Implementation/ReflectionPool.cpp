@@ -93,20 +93,44 @@ namespace
         m_hCubemap = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(desc);
       }
 
-      for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hCubemapViews); ++i)
+      for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hCubemapProxies); ++i)
       {
-        ezGALRenderTargetViewCreationDescription desc;
-        desc.m_hTexture = m_hCubemap;
-        desc.m_uiFirstSlice = i;
-        desc.m_uiSliceCount = 1;
-
-        m_hCubemapViews[i] = ezGALDevice::GetDefaultDevice()->CreateRenderTargetView(desc);
+        m_hCubemapProxies[i] = ezGALDevice::GetDefaultDevice()->CreateProxyTexture(m_hCubemap, i);
       }
+    }
+
+    ProbeUpdateInfo(ProbeUpdateInfo&& other)
+    {
+      *this = std::move(other);
     }
 
     ~ProbeUpdateInfo()
     {
       ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(m_hCubemap);
+
+      for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hCubemapProxies); ++i)
+      {
+        ezGALDevice::GetDefaultDevice()->DestroyProxyTexture(m_hCubemapProxies[i]);
+      }
+    }
+
+    void operator=(ProbeUpdateInfo&& other)
+    {
+      m_uiLastActiveFrame = other.m_uiLastActiveFrame;
+      m_uiLastUpdatedFrame = other.m_uiLastUpdatedFrame;
+      m_pWorld = other.m_pWorld;
+      m_LastUpdateStep = other.m_LastUpdateStep;
+
+      m_UpdateSteps = std::move(other.m_UpdateSteps);
+
+      m_hCubemap = other.m_hCubemap;
+      other.m_hCubemap.Invalidate();
+
+      for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hCubemapProxies); ++i)
+      {
+        m_hCubemapProxies[i] = other.m_hCubemapProxies[i];
+        other.m_hCubemapProxies[i].Invalidate();
+      }
     }
 
     ezUInt64 m_uiLastActiveFrame = -1;
@@ -126,7 +150,7 @@ namespace
     ezHybridArray<Step, 8> m_UpdateSteps;
 
     ezGALTextureHandle m_hCubemap;
-    ezGALRenderTargetViewHandle m_hCubemapViews[6];
+    ezGALTextureHandle m_hCubemapProxies[6];
 
     ezUInt32 GetPriority(ezUInt64 uiCurrentFrame) const
     {
@@ -334,7 +358,8 @@ struct ezReflectionPool::Data
       else
       {
         ezGALRenderTagetSetup renderTargetSetup;
-        renderTargetSetup.SetRenderTarget(0, updateInfo.m_hCubemapViews[uiFaceIndex]);
+        renderTargetSetup.SetRenderTarget(
+          0, ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(updateInfo.m_hCubemapProxies[uiFaceIndex]));
 
         pView->SetRenderTargetSetup(renderTargetSetup);
       }
