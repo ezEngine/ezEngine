@@ -106,11 +106,17 @@ namespace
 
     ~ProbeUpdateInfo()
     {
-      ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(m_hCubemap);
-
       for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hCubemapProxies); ++i)
       {
-        ezGALDevice::GetDefaultDevice()->DestroyProxyTexture(m_hCubemapProxies[i]);
+        if (!m_hCubemapProxies[i].IsInvalidated())
+        {
+          ezGALDevice::GetDefaultDevice()->DestroyProxyTexture(m_hCubemapProxies[i]);
+        }
+      }
+
+      if (!m_hCubemap.IsInvalidated())
+      {
+        ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(m_hCubemap);
       }
     }
 

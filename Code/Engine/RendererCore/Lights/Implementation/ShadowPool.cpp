@@ -68,6 +68,7 @@ namespace
     float m_fSlopeBias;
     float m_fConstantBias;
     float m_fFadeOutStart;
+    float m_fMinRange;
     ezUInt32 m_uiPackedDataOffset; // in 16 bytes steps
   };
 
@@ -335,6 +336,7 @@ struct ezShadowPool::Data
     out_pData->m_fSlopeBias = pLight->GetSlopeBias() * 100.0f;       // map from user friendly range to real range
     out_pData->m_fConstantBias = pLight->GetConstantBias() / 100.0f; // map from user friendly range to real range
     out_pData->m_fFadeOutStart = 1.0f;
+    out_pData->m_fMinRange = 1.0f;
     out_pData->m_uiPackedDataOffset = m_uiUsedPackedShadowData;
 
     m_LightToShadowDataTable.Insert(key, m_uiUsedShadowData);
@@ -386,8 +388,11 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
     return ezInvalidIndex;
   }
 
+  float fMaxReferenceSize = ezMath::Max(pReferenceView->GetViewport().width, pReferenceView->GetViewport().height);
+  float fShadowMapScale = fMaxReferenceSize / s_uiShadowMapSize;
+
   ShadowData* pData = nullptr;
-  if (s_pData->GetDataForExtraction(pDirLight, pReferenceView, pDirLight->GetMinShadowRange(), sizeof(ezDirShadowData), pData))
+  if (s_pData->GetDataForExtraction(pDirLight, pReferenceView, fShadowMapScale, sizeof(ezDirShadowData), pData))
   {
     return pData->m_uiPackedDataOffset;
   }
@@ -397,6 +402,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
 
   pData->m_uiType = LIGHT_TYPE_DIR;
   pData->m_fFadeOutStart = pDirLight->GetFadeOutStart();
+  pData->m_fMinRange = pDirLight->GetMinShadowRange();
   pData->m_Views.SetCount(uiNumCascades);
 
   // determine cascade ranges
@@ -825,7 +831,7 @@ void ezShadowPool::OnEndExtraction(ezUInt64 uiFrameCounter)
         float zRange = cascadeSize / pFirstCascadeCamera->GetFarPlane();
 
         float actualPenumbraSize = shadowData.m_fPenumbraSize / pLastCascadeCamera->GetFovOrDim();
-        float penumbraSizeIncrement = ezMath::Max(goodPenumbraSize - actualPenumbraSize, 0.0f) / shadowData.m_fShadowMapScale;
+        float penumbraSizeIncrement = ezMath::Max(goodPenumbraSize - actualPenumbraSize, 0.0f) / shadowData.m_fMinRange;
 
         ezUInt32 uiParams2Index = GET_SHADOW_PARAMS2_INDEX(shadowData.m_uiPackedDataOffset);
         ezVec4& shadowParams2 = packedShadowData[uiParams2Index];
