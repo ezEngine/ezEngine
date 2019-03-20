@@ -23,9 +23,9 @@ ezGALRenderTargetViewDX11::~ezGALRenderTargetViewDX11() {}
 
 ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 {
-  const ezGALTextureDX11* pTexture = nullptr;
+  const ezGALTexture* pTexture = nullptr;
   if (!m_Description.m_hTexture.IsInvalidated())
-    pTexture = static_cast<const ezGALTextureDX11*>(pDevice->GetTexture(m_Description.m_hTexture));
+    pTexture = pDevice->GetTexture(m_Description.m_hTexture);
 
   if (pTexture == nullptr)
   {
@@ -60,7 +60,8 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
     return EZ_FAILURE;
   }
 
-  const bool bIsArrayView = IsArrayView(texDesc, m_Description);
+  ID3D11Resource* pDXResource = static_cast<const ezGALTextureDX11*>(pTexture->GetParentTexture())->GetDXTexture();
+  const bool bIsArrayView = IsArrayView(texDesc, m_Description);  
 
   if (bIsDepthFormat)
   {
@@ -101,7 +102,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
     if (m_Description.m_bReadOnly)
       DSViewDesc.Flags |= (D3D11_DSV_READ_ONLY_DEPTH | D3D11_DSV_READ_ONLY_STENCIL);
 
-    if (FAILED(pDXDevice->GetDXDevice()->CreateDepthStencilView(pTexture->GetDXTexture(), &DSViewDesc, &m_pDepthStencilView)))
+    if (FAILED(pDXDevice->GetDXDevice()->CreateDepthStencilView(pDXResource, &DSViewDesc, &m_pDepthStencilView)))
     {
       ezLog::Error("Couldn't create depth stencil view!");
       return EZ_FAILURE;
@@ -146,7 +147,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
       }
     }
 
-    if (FAILED(pDXDevice->GetDXDevice()->CreateRenderTargetView(pTexture->GetDXTexture(), &RTViewDesc, &m_pRenderTargetView)))
+    if (FAILED(pDXDevice->GetDXDevice()->CreateRenderTargetView(pDXResource, &RTViewDesc, &m_pRenderTargetView)))
     {
       ezLog::Error("Couldn't create rendertarget view!");
       return EZ_FAILURE;

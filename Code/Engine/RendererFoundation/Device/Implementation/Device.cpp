@@ -620,7 +620,6 @@ void ezGALDevice::DestroyTexture(ezGALTextureHandle hTexture)
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   ezGALTexture* pTexture = nullptr;
-
   if (m_Textures.TryGetValue(hTexture, pTexture))
   {
     AddDeadObject(GALObjectType::Texture, hTexture);
@@ -648,6 +647,11 @@ ezGALTextureHandle ezGALDevice::CreateProxyTexture(ezGALTextureHandle hParentTex
     return ezGALTextureHandle();
   }
 
+  const auto& parentDesc = pParentTexture->GetDescription();
+  EZ_ASSERT_DEV(parentDesc.m_Type != ezGALTextureType::Texture2DProxy, "Can't create a proxy texture of a proxy texture.");
+  EZ_ASSERT_DEV(parentDesc.m_Type == ezGALTextureType::TextureCube || parentDesc.m_uiArraySize > 1,
+    "Proxy textures can only be created for cubemaps or array textures.");
+
   ezGALProxyTexture* pProxyTexture = EZ_NEW(&m_Allocator, ezGALProxyTexture, *pParentTexture);
   ezGALTextureHandle hProxyTexture(m_Textures.Insert(pProxyTexture));
 
@@ -657,9 +661,9 @@ ezGALTextureHandle ezGALDevice::CreateProxyTexture(ezGALTextureHandle hParentTex
   if (desc.m_bAllowShaderResourceView)
   {
     ezGALResourceViewCreationDescription viewDesc;
-    viewDesc.m_hTexture = hParentTexture;
+    viewDesc.m_hTexture = hProxyTexture;
     viewDesc.m_uiFirstArraySlice = uiSlice;
-    viewDesc.m_uiArraySize = desc.m_uiArraySize;
+    viewDesc.m_uiArraySize = 1;
 
     pProxyTexture->m_hDefaultResourceView = CreateResourceView(viewDesc);
   }
@@ -668,9 +672,9 @@ ezGALTextureHandle ezGALDevice::CreateProxyTexture(ezGALTextureHandle hParentTex
   if (desc.m_bCreateRenderTarget)
   {
     ezGALRenderTargetViewCreationDescription rtDesc;
-    rtDesc.m_hTexture = hParentTexture;
+    rtDesc.m_hTexture = hProxyTexture;
     rtDesc.m_uiFirstSlice = uiSlice;
-    rtDesc.m_uiSliceCount = desc.m_uiArraySize;
+    rtDesc.m_uiSliceCount = 1;
 
     pProxyTexture->m_hDefaultRenderTargetView = CreateRenderTargetView(rtDesc);
   }
@@ -685,13 +689,9 @@ void ezGALDevice::DestroyProxyTexture(ezGALTextureHandle hProxyTexture)
   ezGALTexture* pTexture = nullptr;
   if (m_Textures.TryGetValue(hProxyTexture, pTexture))
   {
-    EZ_ASSERT_DEV(pTexture->GetDescription().m_Type == ezGALTextureType::Proxy, "Given texture is not a proxy texture");
+    EZ_ASSERT_DEV(pTexture->GetDescription().m_Type == ezGALTextureType::Texture2DProxy, "Given texture is not a proxy texture");
 
-    ezGALProxyTexture* pProxyTexture = static_cast<ezGALProxyTexture*>(pTexture);
-    pProxyTexture->m_hDefaultResourceView.Invalidate();
-    pProxyTexture->m_hDefaultRenderTargetView.Invalidate();
-
-    EZ_DELETE(&m_Allocator, pProxyTexture);
+    AddDeadObject(GALObjectType::Texture, hProxyTexture);
   }
   else
   {

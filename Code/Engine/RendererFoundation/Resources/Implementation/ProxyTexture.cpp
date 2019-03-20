@@ -2,22 +2,29 @@
 
 #include <RendererFoundation/Resources/ProxyTexture.h>
 
-namespace 
+namespace
 {
   ezGALTextureCreationDescription MakeProxyDesc(const ezGALTextureCreationDescription& parentDesc)
   {
     ezGALTextureCreationDescription desc = parentDesc;
-    desc.m_Type = ezGALTextureType::Proxy;
+    desc.m_Type = ezGALTextureType::Texture2DProxy;
     return desc;
   }
-}
+} // namespace
 
 ezGALProxyTexture::ezGALProxyTexture(const ezGALTexture& parentTexture)
   : ezGALTexture(MakeProxyDesc(parentTexture.GetDescription()))
+  , m_pParentTexture(&parentTexture)
 {
 }
 
 ezGALProxyTexture::~ezGALProxyTexture() {}
+
+
+const ezGALTexture* ezGALProxyTexture::GetParentTexture() const
+{
+  return m_pParentTexture;
+}
 
 ezResult ezGALProxyTexture::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {

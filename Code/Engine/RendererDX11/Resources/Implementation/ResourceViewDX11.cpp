@@ -7,6 +7,10 @@
 
 #include <d3d11.h>
 
+bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALResourceViewCreationDescription& viewDesc)
+{
+  return texDesc.m_uiArraySize > 1 || viewDesc.m_uiFirstArraySlice > 0;
+}
 
 ezGALResourceViewDX11::ezGALResourceViewDX11(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description)
     : ezGALResourceView(pResource, Description)
@@ -18,13 +22,13 @@ ezGALResourceViewDX11::~ezGALResourceViewDX11() {}
 
 ezResult ezGALResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
 {
-  const ezGALTextureDX11* pTexture = nullptr;
+  const ezGALTexture* pTexture = nullptr;
   if (!m_Description.m_hTexture.IsInvalidated())
-    pTexture = static_cast<const ezGALTextureDX11*>(pDevice->GetTexture(m_Description.m_hTexture));
+    pTexture = pDevice->GetTexture(m_Description.m_hTexture);
 
-  const ezGALBufferDX11* pBuffer = nullptr;
+  const ezGALBuffer* pBuffer = nullptr;
   if (!m_Description.m_hBuffer.IsInvalidated())
-    pBuffer = static_cast<const ezGALBufferDX11*>(pDevice->GetBuffer(m_Description.m_hBuffer));
+    pBuffer = pDevice->GetBuffer(m_Description.m_hBuffer);
 
   if (pTexture == nullptr && pBuffer == nullptr)
   {
@@ -37,10 +41,8 @@ ezResult ezGALResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
 
   if (pTexture)
   {
-    const ezGALTextureCreationDescription& TexDesc = pTexture->GetDescription();
-
     if (ViewFormat == ezGALResourceFormat::Invalid)
-      ViewFormat = TexDesc.m_Format;
+      ViewFormat = pTexture->GetDescription().m_Format;
   }
   else if (pBuffer)
   {
@@ -73,7 +75,6 @@ ezResult ezGALResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
     return EZ_FAILURE;
   }
 
-
   D3D11_SHADER_RESOURCE_VIEW_DESC DXSRVDesc;
   DXSRVDesc.Format = DXViewFormat;
 
@@ -81,16 +82,19 @@ ezResult ezGALResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
 
   if (pTexture)
   {
-    pDXResource = pTexture->GetDXTexture();
-    const ezGALTextureCreationDescription& TexDesc = pTexture->GetDescription();
+    pDXResource = static_cast<const ezGALTextureDX11*>(pTexture->GetParentTexture())->GetDXTexture();
+    const ezGALTextureCreationDescription& texDesc = pTexture->GetDescription();
 
-    switch (TexDesc.m_Type)
+    const bool bIsArrayView = IsArrayView(texDesc, m_Description);
+
+    switch (texDesc.m_Type)
     {
       case ezGALTextureType::Texture2D:
+      case ezGALTextureType::Texture2DProxy:
 
-        if (TexDesc.m_uiArraySize == 1)
+        if (!bIsArrayView)
         {
-          if (TexDesc.m_SampleCount == ezGALMSAASampleCount::None)
+          if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
           {
             DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
             DXSRVDesc.Texture2D.MipLevels = m_Description.m_uiMipLevelsToUse;
@@ -103,7 +107,7 @@ ezResult ezGALResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
         }
         else
         {
-          if (TexDesc.m_SampleCount == ezGALMSAASampleCount::None)
+          if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
           {
             DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
             DXSRVDesc.Texture2DArray.MipLevels = m_Description.m_uiMipLevelsToUse;
@@ -123,7 +127,7 @@ ezResult ezGALResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
 
       case ezGALTextureType::TextureCube:
 
-        if (TexDesc.m_uiArraySize == 1)
+        if (!bIsArrayView)
         {
           DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
           DXSRVDesc.TextureCube.MipLevels = m_Description.m_uiMipLevelsToUse;
@@ -155,7 +159,7 @@ ezResult ezGALResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
   }
   else if (pBuffer)
   {
-    pDXResource = pBuffer->GetDXBuffer();
+    pDXResource = static_cast<const ezGALBufferDX11*>(pBuffer)->GetDXBuffer();
 
     if (pBuffer->GetDescription().m_bUseAsStructuredBuffer)
       DXSRVDesc.Format = DXGI_FORMAT_UNKNOWN;
