@@ -38,6 +38,7 @@ ez_set_project_ide_folder(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 
 ez_ci_add_to_targets_list(${PROJECT_NAME} C++)
 
+ez_generate_folder_unity_files_for_target(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR} ${SKIP_UNITY_FOR_FOLDER})
 
 
 
