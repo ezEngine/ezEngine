@@ -6,87 +6,24 @@ list (GET LIST_CURRENT_FOLDER -1 CURRENT_FOLDER)
 file (GLOB HEADER_FILES "${CURRENT_FOLDER}/*.h" "${CURRENT_FOLDER}/*.hpp")
 file (GLOB INLINE_FILES "${CURRENT_FOLDER}/*.inl")
 file (GLOB SOURCE_FILES "${CURRENT_FOLDER}/*.cpp" "${CURRENT_FOLDER}/*.c")
-file (GLOB RESOURCE_FILES "${CURRENT_FOLDER}/*.rc" "${CURRENT_FOLDER}/*.ico")
 
 if (EZ_ENABLE_QT_SUPPORT)
   file (GLOB     UI_FILES "${CURRENT_FOLDER}/*.ui")
   file (GLOB    QRC_FILES "${CURRENT_FOLDER}/*.qrc")
-  file (GLOB  MOC_HEADERS "${CURRENT_FOLDER}/*.moc.h")
 
-  # Add user defined headers to the list
-  if (EZ_MOC_HEADERS)
-    set(MOC_HEADERS ${MOC_HEADERS} ${EZ_MOC_HEADERS})
-    set(EZ_MOC_HEADERS false)
-  endif()
+  set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${UI_FILES})
+  set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${QRC_FILES})
+
 endif ()
-
-foreach (CUR_SOURCE ${SOURCE_FILES})
-  get_filename_component(RawFilename ${CUR_SOURCE} NAME)
-  string(SUBSTRING ${RawFilename} 0 5 STARTS_WITH)
-  if (${STARTS_WITH} STREQUAL "unity")
-    list(REMOVE_ITEM SOURCE_FILES ${CUR_SOURCE})
-  endif ()
-endforeach ()
 
 set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${HEADER_FILES})
 set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${INLINE_FILES})
 set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${SOURCE_FILES})
 
 if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
+	file (GLOB RESOURCE_FILES "${CURRENT_FOLDER}/*.rc" "${CURRENT_FOLDER}/*.ico")
 	set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${RESOURCE_FILES})
 endif()
-
-if (EZ_ENABLE_QT_SUPPORT)
-  # this is necessary so that MOC preprocesses the files correctly
-  # WRAP_CPP should just take the compile definitions of the project, but somehow it currently doesn't
-  add_definitions (-DEZ_USE_QT)
-
-  set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${UI_FILES})
-  set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${QRC_FILES})
-  #set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${MOC_HEADERS})
-
-  find_package (Qt5Widgets REQUIRED PATHS ${EZ_QT_DIR})
-
-  if (UI_FILES)
-    QT5_WRAP_UI (UI_HEADERS ${UI_FILES})
-
-    set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${UI_HEADERS})
-    source_group (QT\\UI FILES ${UI_FILES} ${UI_HEADERS})
-  endif ()
-
-  if (MOC_HEADERS)
-    # QT5_WRAP_CPP appends to the MOC_FILES variable. So we have to empty it first.
-
-    set (PCH_H "PCH.h")
-
-    if (EZ_USE_PCH)
-      foreach (src_file ${ALL_SOURCE_FILES})
-        get_filename_component(RawFilename ${src_file} NAME_WE)
-        get_filename_component(Extension ${src_file} EXT)
-
-        if (${Extension} STREQUAL ".cpp")
-          if (RawFilename MATCHES "PCH$")
-            set (PCH_FOUND true)
-            set (PCH_H "${RawFilename}.h")
-          endif()
-        endif ()
-
-      endforeach ()
-    endif()
-
-    set (MOC_FILES "")
-	QT5_WRAP_CPP (MOC_FILES ${MOC_HEADERS} OPTIONS -b "${PCH_H}")
-    set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${MOC_FILES})
-    source_group (QT\\MOC FILES ${MOC_FILES})
-  endif ()
-
-  if (QRC_FILES)
-    QT5_ADD_RESOURCES (QRC_OUTPUT ${QRC_FILES})
-
-    set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${QRC_OUTPUT})
-    source_group (QT\\QRC FILES ${QRC_FILES} ${QRC_OUTPUT})
-  endif ()
-endif ()
 
 set (SOURCE_GROUP_FOLDER "")
 
@@ -95,7 +32,7 @@ foreach (VAR ${LIST_SOURCE_GROUP_FOLDER})
     set (SOURCE_GROUP_FOLDER "${SOURCE_GROUP_FOLDER}\\${VAR}")
 endforeach ()
 
-source_group ("${SOURCE_GROUP_FOLDER}" FILES ${HEADER_FILES} ${INLINE_FILES} ${SOURCE_FILES} ${UI_FILES} ${QRC_FILES} ${MOC_HEADERS})
+source_group ("${SOURCE_GROUP_FOLDER}" FILES ${HEADER_FILES} ${INLINE_FILES} ${SOURCE_FILES} ${UI_FILES} ${QRC_FILES})
 
 # find all cmake files below this directory
 file (GLOB DIRS "${CURRENT_FOLDER}/*/CMakeLists.txt")

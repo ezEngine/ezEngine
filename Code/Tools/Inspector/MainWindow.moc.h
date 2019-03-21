@@ -2,14 +2,15 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Containers/Deque.h>
-#include <Foundation/Strings/String.h>
-#include <QMainWindow>
-#include <Tools/Inspector/ui_MainWindow.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
+#include <Foundation/Strings/String.h>
 #include <Foundation/Time/Time.h>
-#include <qtreewidget.h>
+#include <Foundation/Types/Variant.h>
 #include <Inspector/StatVisWidget.moc.h>
+#include <QMainWindow>
+#include <Tools/Inspector/ui_MainWindow.h>
+#include <qtreewidget.h>
 
 class ezQtMainWindow : public QMainWindow, public Ui_MainWindow
 {
@@ -109,7 +110,4 @@ private:
   ezQtStatVisWidget* m_pStatHistoryWidgets[10];
 
   QAction* m_pActionShowStatIn[10];
-  
 };
-
-

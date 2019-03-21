@@ -74,6 +74,12 @@ ez_set_common_target_include_dirs(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 ez_set_common_target_definitions(${PROJECT_NAME})
 ez_set_build_flags(${PROJECT_NAME})
 
+ez_qt_wrap_target_files(${PROJECT_NAME} "${ALL_SOURCE_FILES}")
+
+if (EZ_MOC_HEADERS)
+	ez_qt_wrap_target_moc_files(${PROJECT_NAME} "${EZ_MOC_HEADERS}")
+endif()
+
 ez_set_project_ide_folder(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (EZ_CMAKE_PLATFORM_OSX OR EZ_CMAKE_PLATFORM_LINUX)
