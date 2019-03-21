@@ -96,13 +96,13 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
 
   auto hSwapChainRTV = pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
 
-  ezGALRenderTagetSetup BackBufferRenderTargetSetup;
+  ezGALRenderTargetSetup BackBufferRenderTargetSetup;
   BackBufferRenderTargetSetup.SetRenderTarget(0, hSwapChainRTV);
 
   SetupRenderTarget(BackBufferRenderTargetSetup, uiWidth, uiHeight);
 }
 
-void ezEngineProcessViewContext::SetupRenderTarget(ezGALRenderTagetSetup& renderTargetSetup, ezUInt16 uiWidth, ezUInt16 uiHeight)
+void ezEngineProcessViewContext::SetupRenderTarget(ezGALRenderTargetSetup& renderTargetSetup, ezUInt16 uiWidth, ezUInt16 uiHeight)
 {
   EZ_LOG_BLOCK("ezEngineProcessViewContext::SetupRenderTarget");
 

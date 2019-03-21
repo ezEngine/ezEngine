@@ -153,7 +153,7 @@ ezApplication::ApplicationExecution ezShaderExplorerApp::Run()
     gc.WorldTime = gc.GlobalTime;
 
 
-    ezGALRenderTagetSetup RTS;
+    ezGALRenderTargetSetup RTS;
     RTS.SetRenderTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
 
     pContext->SetRenderTargetSetup(RTS);

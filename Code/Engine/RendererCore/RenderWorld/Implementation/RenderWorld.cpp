@@ -651,7 +651,10 @@ void ezRenderWorld::RebuildPipelines()
     ezView* pView = nullptr;
     if (s_Views.TryGetValue(pipelineToRebuild.m_hView, pView))
     {
-      pipelineToRebuild.m_pPipeline->Rebuild(*pView);
+      if (pipelineToRebuild.m_pPipeline->Rebuild(*pView) == ezRenderPipeline::PipelineState::RebuildError)
+      {
+        ezLog::Error("Failed to rebuild pipeline '{}' for view '{}'", pipelineToRebuild.m_pPipeline->m_sName, pView->GetName());
+      }
     }
   }
 

@@ -277,7 +277,7 @@ struct ezShadowPool::Data
 
     pView->SetCameraUsageHint(ezCameraUsageHint::Shadow);
 
-    ezGALRenderTagetSetup renderTargetSetup;
+    ezGALRenderTargetSetup renderTargetSetup;
     renderTargetSetup.SetDepthStencilTarget(ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(m_hShadowAtlasTexture));
     pView->SetRenderTargetSetup(renderTargetSetup);
 
@@ -939,7 +939,7 @@ void ezShadowPool::OnBeginRender(ezUInt64 uiFrameCounter)
   {
     EZ_PROFILE_SCOPE("Shadow Atlas Texture Clear");
 
-    ezGALRenderTagetSetup renderTargetSetup;
+    ezGALRenderTargetSetup renderTargetSetup;
     renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(s_pData->m_hShadowAtlasTexture));
 
     pGALContext->SetRenderTargetSetup(renderTargetSetup);

@@ -74,7 +74,7 @@ void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
     // Setup render target
-    ezGALRenderTagetSetup renderTargetSetup;
+    ezGALRenderTargetSetup renderTargetSetup;
     renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
 
     // Bind render target and viewport

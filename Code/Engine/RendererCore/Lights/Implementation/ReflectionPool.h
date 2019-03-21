@@ -15,6 +15,7 @@ public:
 
   static void AddReflectionProbe(const ezReflectionProbeData& data, const ezVec3& vPosition, ezUInt16 uiPriority = 1);
 
+  static ezUInt32 GetReflectionCubeMapSize();
   // static ezGALTextureHandle GetReflectionPoolTexture();
   // static ezGALBufferHandle GetShadowDataBuffer();
 

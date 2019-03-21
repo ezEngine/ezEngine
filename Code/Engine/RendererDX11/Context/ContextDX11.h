@@ -169,6 +169,10 @@ protected:
 
   virtual void CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, const ezArrayPtr<ezGALSystemMemoryDescription>* pData) override;
 
+  virtual void GenerateMipMapsPlatform(const ezGALResourceView* pResourceView) override;
+
+  // Misc
+
   virtual void FlushPlatform() override;
 
   // Debug helper functions

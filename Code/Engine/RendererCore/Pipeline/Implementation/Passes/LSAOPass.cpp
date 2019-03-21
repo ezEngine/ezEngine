@@ -137,7 +137,7 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
   // Set rendertarget immediately to ensure that depth buffer is no longer bound (we need it right away in the sweeping part)
-  ezGALRenderTagetSetup renderTargetSetup;
+  ezGALRenderTargetSetup renderTargetSetup;
   ezGALTextureHandle tempTexture;
   if (m_bDistributedGathering)
   {
@@ -259,7 +259,7 @@ void ezLSAOPass::ExecuteInactive(const ezRenderViewContext& renderViewContext,
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
-  ezGALRenderTagetSetup renderTargetSetup;
+  ezGALRenderTargetSetup renderTargetSetup;
   renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
   pGALContext->SetRenderTargetSetup(renderTargetSetup);
 

@@ -23,7 +23,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALContextState
 
   ezGALRasterizerStateHandle m_hRasterizerState;
 
-  ezGALRenderTagetSetup m_RenderTargetSetup;
+  ezGALRenderTargetSetup m_RenderTargetSetup;
 
   ezGALBufferHandle m_hConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT];
 

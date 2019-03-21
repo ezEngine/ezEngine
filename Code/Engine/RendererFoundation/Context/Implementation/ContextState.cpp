@@ -18,7 +18,7 @@ void ezGALContextState::Invalidate()
 
   m_hRasterizerState = ezGALRasterizerStateHandle();
 
-  m_RenderTargetSetup = ezGALRenderTagetSetup();
+  m_RenderTargetSetup = ezGALRenderTargetSetup();
 
   // ezGALBufferHandle m_hConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT];
 

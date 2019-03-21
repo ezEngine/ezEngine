@@ -45,11 +45,6 @@ ezRenderPipeline::~ezRenderPipeline()
   }
 }
 
-void ezRenderPipeline::ResetPipelineState()
-{
-  m_PipelineState = PipelineState::Uninitialized;
-}
-
 void ezRenderPipeline::AddPass(ezUniquePtr<ezRenderPipelinePass>&& pPass)
 {
   m_PipelineState = PipelineState::Uninitialized;

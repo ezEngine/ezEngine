@@ -89,7 +89,7 @@ public:
   ezGlobalConstants& WriteGlobalConstants();
   const ezGlobalConstants& ReadGlobalConstants() const;
 
-  void SetViewportAndRenderTargetSetup(const ezRectFloat& viewport, const ezGALRenderTagetSetup& renderTargetSetup);
+  void SetViewportAndRenderTargetSetup(const ezRectFloat& viewport, const ezGALRenderTargetSetup& renderTargetSetup);
 
   /// \brief Sets the texture filter mode that is used by default for texture resources.
   ///

@@ -861,6 +861,12 @@ void ezGALContextDX11::CopyTextureReadbackResultPlatform(const ezGALTexture* pTe
   }
 }
 
+void ezGALContextDX11::GenerateMipMapsPlatform(const ezGALResourceView* pResourceView)
+{
+  const ezGALResourceViewDX11* pDXResourceView = static_cast<const ezGALResourceViewDX11*>(pResourceView);
+
+  m_pDXContext->GenerateMips(pDXResourceView->GetDXResourceView());
+}
 
 void ezGALContextDX11::FlushPlatform()
 {

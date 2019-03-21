@@ -63,7 +63,7 @@ ezApplication::ApplicationExecution ezComputeShaderHistogramApp::Run()
 
     // Draw background.
     {
-      ezGALRenderTagetSetup RTS;
+      ezGALRenderTargetSetup RTS;
       RTS.SetRenderTarget(0, m_hScreenRTV);
       renderContext.SetViewportAndRenderTargetSetup(viewport, RTS);
 
@@ -81,7 +81,7 @@ ezApplication::ApplicationExecution ezComputeShaderHistogramApp::Run()
 
     // Switch to backbuffer (so that the screen texture is no longer bound)
     {
-      ezGALRenderTagetSetup RTS;
+      ezGALRenderTargetSetup RTS;
       RTS.SetRenderTarget(0, m_hBackbufferRTV);
       renderContext.SetViewportAndRenderTargetSetup(viewport, RTS);
     }

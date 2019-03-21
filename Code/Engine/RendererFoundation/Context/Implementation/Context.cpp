@@ -349,7 +349,7 @@ void ezGALContext::SetResourceView(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot
   CountStateChange();
 }
 
-void ezGALContext::SetRenderTargetSetup(const ezGALRenderTagetSetup& RenderTargetSetup)
+void ezGALContext::SetRenderTargetSetup(const ezGALRenderTargetSetup& RenderTargetSetup)
 {
   AssertRenderingThread();
 
@@ -762,6 +762,21 @@ void ezGALContext::CopyTextureReadbackResult(ezGALTextureHandle hTexture, const 
   }
 }
 
+void ezGALContext::GenerateMipMaps(ezGALResourceViewHandle hResourceView)
+{
+  AssertRenderingThread();
+
+  const ezGALResourceView* pResourceView = m_pDevice->GetResourceView(hResourceView);
+  if (pResourceView != nullptr)
+  {
+    EZ_ASSERT_DEV(!pResourceView->GetDescription().m_hTexture.IsInvalidated(), "Resource view needs a valid texture to generate mip maps.");
+    const ezGALTexture* pTexture = m_pDevice->GetTexture(pResourceView->GetDescription().m_hTexture);
+    EZ_ASSERT_DEV(pTexture->GetDescription().m_bAllowDynamicMipGeneration,
+      "Dynamic mip map generation needs to be enabled (m_bAllowDynamicMipGeneration = true)!");
+
+    GenerateMipMapsPlatform(pResourceView);
+  }
+}
 
 void ezGALContext::Flush()
 {

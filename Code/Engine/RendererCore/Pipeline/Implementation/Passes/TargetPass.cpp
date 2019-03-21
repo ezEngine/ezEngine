@@ -35,7 +35,7 @@ ezTargetPass::~ezTargetPass() {}
 ezGALTextureHandle ezTargetPass::GetTextureHandle(const ezView& view, const ezNodePin* pPin)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  const ezGALRenderTagetSetup& setup = view.GetRenderTargetSetup();
+  const ezGALRenderTargetSetup& setup = view.GetRenderTargetSetup();
 
   // auto inputs = GetInputPins();
   if (pPin->m_pParent != this)

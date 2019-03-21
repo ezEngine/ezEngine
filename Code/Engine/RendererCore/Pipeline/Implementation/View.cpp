@@ -68,13 +68,16 @@ void ezView::SetWorld(ezWorld* pWorld)
   m_pWorld = pWorld;
 }
 
-void ezView::SetRenderTargetSetup(ezGALRenderTagetSetup& renderTargetSetup)
+void ezView::SetRenderTargetSetup(ezGALRenderTargetSetup& renderTargetSetup)
 {
-  m_RenderTargetSetup = renderTargetSetup;
-  if (m_pRenderPipeline)
+  if (m_RenderTargetSetup != renderTargetSetup)
   {
-    ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
-    m_pRenderPipeline->ResetPipelineState();
+    m_RenderTargetSetup = renderTargetSetup;
+
+    if (m_pRenderPipeline)
+    {
+      ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
+    }
   }
 }
 

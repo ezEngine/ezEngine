@@ -645,7 +645,7 @@ void ezCameraComponent::ActivateRenderToTexture()
 
   pRenderTarget->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezCameraComponent::ResourceChangeEventHandler, this));
 
-  ezGALRenderTagetSetup renderTargetSetup;
+  ezGALRenderTargetSetup renderTargetSetup;
   renderTargetSetup.SetRenderTarget(0, pRenderTarget->GetRenderTargetView());
   pRenderTargetView->SetRenderTargetSetup(renderTargetSetup);
 

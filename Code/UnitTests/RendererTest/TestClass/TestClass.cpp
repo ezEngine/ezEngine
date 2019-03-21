@@ -199,7 +199,7 @@ void ezGraphicsTest::ClearScreen(const ezColor& color)
   ezGALSwapChainHandle hPrimarySwapChain = m_pDevice->GetPrimarySwapChain();
   const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(hPrimarySwapChain);
 
-  ezGALRenderTagetSetup RTS;
+  ezGALRenderTargetSetup RTS;
   RTS.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture()))
       .SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture));
 

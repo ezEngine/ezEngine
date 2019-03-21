@@ -85,6 +85,7 @@ namespace
         ezGALTextureCreationDescription desc;
         desc.m_uiWidth = s_uiReflectionCubeMapSize;
         desc.m_uiHeight = s_uiReflectionCubeMapSize;
+        desc.m_uiMipLevelCount = ezMath::Log2i(s_uiReflectionCubeMapSize) - 1; // only down to 4x4
         desc.m_Format = ezGALResourceFormat::RGBAHalf;
         desc.m_Type = ezGALTextureType::TextureCube;
         desc.m_bCreateRenderTarget = true;
@@ -99,10 +100,7 @@ namespace
       }
     }
 
-    ProbeUpdateInfo(ProbeUpdateInfo&& other)
-    {
-      *this = std::move(other);
-    }
+    ProbeUpdateInfo(ProbeUpdateInfo&& other) { *this = std::move(other); }
 
     ~ProbeUpdateInfo()
     {
@@ -181,6 +179,40 @@ namespace
       return m_uiIndex < other.m_uiIndex;
     }
   };
+
+  static void CreateViews(
+    ezDynamicArray<ReflectionView>& views, ezUInt32 uiMaxRenderViews, const char* szNameSuffix, const char* szRenderPipelineResource)
+  {
+    uiMaxRenderViews = ezMath::Max<ezUInt32>(uiMaxRenderViews, 1);
+
+    if (uiMaxRenderViews > views.GetCount())
+    {
+      ezStringBuilder sName;
+
+      ezUInt32 uiCurrentCount = views.GetCount();
+      for (ezUInt32 i = uiCurrentCount; i < uiMaxRenderViews; ++i)
+      {
+        auto& renderView = views.ExpandAndGetRef();
+
+        sName.Format("Reflection Probe {} {}", szNameSuffix, i);
+
+        ezView* pView = nullptr;
+        renderView.m_hView = ezRenderWorld::CreateView(sName, pView);
+
+        pView->SetCameraUsageHint(ezCameraUsageHint::Reflection);
+        pView->SetViewport(ezRectFloat(0.0f, 0.0f, s_uiReflectionCubeMapSize, s_uiReflectionCubeMapSize));
+
+        pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>(szRenderPipelineResource));
+
+        renderView.m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 90.0f, 0.1f, 100.0f); // TODO: expose
+        pView->SetCamera(&renderView.m_Camera);
+      }
+    }
+    else if (uiMaxRenderViews < views.GetCount())
+    {
+      views.SetCount(uiMaxRenderViews);
+    }
+  }
 
 } // namespace
 
@@ -287,39 +319,13 @@ struct ezReflectionPool::Data
     }
   }
 
-  void CreateRenderViews()
+  void UpdateViews()
   {
-    ezUInt32 uiMaxRenderViews = ezMath::Max<ezUInt32>(CVarMaxRenderViews, 1);
+    // ReflectionRenderPipeline.ezRenderPipelineAsset
+    CreateViews(m_RenderViews, CVarMaxRenderViews, "Render", "{ 734898e8-b1a2-0da2-c4ae-701912983c2f }");
 
-    if (uiMaxRenderViews > m_RenderViews.GetCount())
-    {
-      ezStringBuilder sName;
-
-      ezUInt32 uiCurrentCount = m_RenderViews.GetCount();
-      for (ezUInt32 i = uiCurrentCount; i < uiMaxRenderViews; ++i)
-      {
-        auto& renderView = m_RenderViews.ExpandAndGetRef();
-
-        sName.Format("Reflection Probe Render {}", i);
-
-        ezView* pView = nullptr;
-        renderView.m_hView = ezRenderWorld::CreateView(sName, pView);
-
-        pView->SetCameraUsageHint(ezCameraUsageHint::Reflection);
-        pView->SetViewport(ezRectFloat(0.0f, 0.0f, s_uiReflectionCubeMapSize, s_uiReflectionCubeMapSize));
-
-        // ReflectionRenderPipeline.ezRenderPipelineAsset
-        pView->SetRenderPipelineResource(
-          ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 734898e8-b1a2-0da2-c4ae-701912983c2f }"));
-
-        renderView.m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 90.0f, 0.1f, 100.0f); // TODO: expose
-        pView->SetCamera(&renderView.m_Camera);
-      }
-    }
-    else if (uiMaxRenderViews < m_RenderViews.GetCount())
-    {
-      m_RenderViews.SetCount(uiMaxRenderViews);
-    }
+    // ReflectionFilterPipeline.ezRenderPipelineAsset
+    CreateViews(m_FilterViews, CVarMaxFilterViews, "Filter", "{ 3437db17-ddf1-4b67-b80f-9999d6b0c352 }");
   }
 
   void AddViewToRender(
@@ -360,10 +366,11 @@ struct ezReflectionPool::Data
 
       if (step.m_UpdateStep == UpdateStep::Filter)
       {
+        pView->SetRenderPassProperty("ReflectionFilterPass", "InputCubemap", updateInfo.m_hCubemap.GetInternalID().m_Data);
       }
       else
       {
-        ezGALRenderTagetSetup renderTargetSetup;
+        ezGALRenderTargetSetup renderTargetSetup;
         renderTargetSetup.SetRenderTarget(
           0, ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(updateInfo.m_hCubemapProxies[uiFaceIndex]));
 
@@ -436,9 +443,9 @@ void ezReflectionPool::AddReflectionProbe(const ezReflectionProbeData& data, con
 
   if (bExecuteUpdateSteps)
   {
-    for (auto& step : pUpdateInfo->m_UpdateSteps)
+    for (ezUInt32 i = pUpdateInfo->m_UpdateSteps.GetCount(); i-- > 0;)
     {
-      s_pData->AddViewToRender(step, data, *pUpdateInfo, vPosition);
+      s_pData->AddViewToRender(pUpdateInfo->m_UpdateSteps[i], data, *pUpdateInfo, vPosition);
     }
 
     pUpdateInfo->m_LastUpdateStep = pUpdateInfo->m_UpdateSteps.PeekBack().m_UpdateStep;
@@ -446,6 +453,12 @@ void ezReflectionPool::AddReflectionProbe(const ezReflectionProbeData& data, con
 
     pUpdateInfo->m_uiLastUpdatedFrame = uiCurrentFrame;
   }
+}
+
+// static
+ezUInt32 ezReflectionPool::GetReflectionCubeMapSize()
+{
+  return s_uiReflectionCubeMapSize;
 }
 
 // static
@@ -471,7 +484,7 @@ void ezReflectionPool::OnBeginExtraction(ezUInt64 uiFrameCounter)
 {
   EZ_PROFILE_SCOPE("Reflection Pool Update");
 
-  s_pData->CreateRenderViews();
+  s_pData->UpdateViews();
 
   // generate possible update steps for active probes
   {

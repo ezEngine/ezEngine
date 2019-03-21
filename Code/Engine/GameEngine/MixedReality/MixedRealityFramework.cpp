@@ -179,7 +179,7 @@ ezViewHandle ezMixedRealityFramework::CreateHolographicView(ezWindowBase* pWindo
   ezViewHandle hMainView = ezRenderWorld::CreateView("Holographic View", pMainView);
   pMainView->SetCameraUsageHint(ezCameraUsageHint::MainView);
 
-  ezGALRenderTagetSetup renderTargetSetup;
+  ezGALRenderTargetSetup renderTargetSetup;
   renderTargetSetup.SetRenderTarget(0, hBackBufferRTV);
   pMainView->SetRenderTargetSetup(renderTargetSetup);
   pMainView->SetRenderPipelineResource(hRenderPipeline);

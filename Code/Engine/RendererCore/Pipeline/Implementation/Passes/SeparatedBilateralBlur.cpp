@@ -117,7 +117,7 @@ void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderView
     rvcd.m_hTexture = tempTexture;
     ezGALResourceViewHandle hTempTextureRView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
 
-    ezGALRenderTagetSetup renderTargetSetup;
+    ezGALRenderTargetSetup renderTargetSetup;
     renderTargetSetup.SetDepthStencilTarget(ezGALRenderTargetViewHandle());
 
     // Bind shader and inputs
