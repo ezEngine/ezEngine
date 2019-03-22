@@ -239,6 +239,11 @@ void ezTestFramework::GetTestSettingsFromCommandLine(int argc, const char** argv
   if (cmd.GetStringOptionArguments("-json") == 1)
     m_Settings.m_sJsonOutput = cmd.GetStringOption("-json", 0, "");
 
+  if (cmd.GetStringOptionArguments("-outputDir") == 1)
+  {
+    m_sAbsTestOutputDir = cmd.GetStringOption("-outputDir", 0, "");
+  }
+
   if (cmd.GetStringOptionArguments("-settings") == 1)
   {
     m_sAbsTestSettingsFilePath = cmd.GetStringOption("-settings", 0, "");
@@ -1177,9 +1182,9 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
     safeprintf(szErrorMsg, 512, "Image Comparison Failed: Error of %u exceeds threshold of %u for image '%s'.", uiMeanError, uiMaxError,
                sImgName.GetData());
 
-    ezStringBuilder sDiffHtmlPathAbs;
-    ezFileSystem::ResolvePath(sDiffHtmlPath, &sDiffHtmlPathAbs, nullptr);
-    ezTestFramework::Output(ezTestOutput::ImageDiffFile, sDiffHtmlPathAbs.GetData());
+    ezStringBuilder sDataDirRelativePath;
+    ezFileSystem::ResolvePath(sDiffHtmlPath, nullptr, &sDataDirRelativePath);
+    ezTestFramework::Output(ezTestOutput::ImageDiffFile, sDataDirRelativePath);
     return false;
   }
 
