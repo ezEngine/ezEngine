@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Containers/Deque.h>
@@ -16,7 +16,7 @@ class EZ_FOUNDATION_DLL ezTelemetry
 public:
 
   /// \brief The port over which ezTelemetry will connect.
-  static ezUInt16 s_uiPort;
+  static ezUInt16 s_uiPort /* = 1040*/;
 
   /// \brief Defines how the ezTelemetry system was configured.
   enum ConnectionMode
@@ -92,7 +92,14 @@ public:
   static ezTime GetPingToServer() { return s_PingToServer; }
 
   /// \brief Returns the name of the machine on which the Server is running. Only meaningful if there is an active connection (see IsConnectedToServer() ).
-  //static const char* GetServerName() { return s_ServerName.GetData(); }
+  static const char* GetServerName() { return s_ServerName; }
+
+  /// \brief Sets the name of the telemetry server. This is broadcast to connected clients, which can display this string for usability.
+  ///
+  /// Usually this would be used to send the application name, to make it easier to see to which app the tool is connected,
+  /// but setting a custom name can be used to add important details, e.g. whether the app is running in single-player or multi-player mode etc.
+  /// The server name can be changed at any time.
+  static void SetServerName(const char* name);
 
   /// \brief Returns the IP address of the machine on which the Server is running. Only meaningful if there is an active connection (see IsConnectedToServer() ).
   static const char* GetServerIP() { return s_ServerIP.GetData(); }
@@ -202,7 +209,7 @@ private:
   static ezUInt32 s_uiApplicationID;
   static ezUInt32 s_uiServerID;
 
-  //static ezString s_ServerName;
+  static ezString s_ServerName;
   static ezString s_ServerIP;
 
   static bool s_bConnectedToServer;
@@ -210,6 +217,8 @@ private:
   static bool s_bAllowNetworkUpdate;
 
   static void QueueOutgoingMessage(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes);
+
+  static void SendServerName();
 
   static ezTime s_PingToServer;
 

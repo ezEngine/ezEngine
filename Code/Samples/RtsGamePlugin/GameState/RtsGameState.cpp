@@ -103,7 +103,7 @@ void RtsGameState::BeforeWorldUpdate()
   }
 
   // update the sound listener position to be the same as the camera position
-  if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>("ezSoundInterface"))
+  if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>())
   {
     const ezVec3 pos = m_MainCamera.GetCenterPosition();
     const ezVec3 dir = m_MainCamera.GetCenterDirForwards();

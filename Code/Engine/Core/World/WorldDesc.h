@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/UniquePtr.h>
 
 #include <Core/World/CoordinateSystem.h>
@@ -24,9 +25,8 @@ struct ezWorldDesc
   ezUInt64 m_uiRandomNumberGeneratorSeed;
 
   ezUniquePtr<ezSpatialSystem> m_pSpatialSystem;
-  ezUniquePtr<ezCoordinateSystemProvider> m_pCoordinateSystemProvider;
+  ezSharedPtr<ezCoordinateSystemProvider> m_pCoordinateSystemProvider;
   ezUniquePtr<ezTimeStepSmoothing> m_pTimeStepSmoothing; // if nullptr, ezDefaultTimeStepSmoothing will be used
 
   bool m_bReportErrorWhenStaticObjectMoves;
 };
-

@@ -1,6 +1,7 @@
 #include <CorePCH.h>
 
 #include <Core/Messages/DeleteObjectMessage.h>
+#include <Core/Messages/HierarchyChangedMessages.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/World/World.h>
 
@@ -642,6 +643,16 @@ void ezGameObject::AddComponent(ezComponent* pComponent)
 
   pComponent->m_pOwner = this;
   m_Components.PushBack(pComponent);
+
+  if (m_Flags.IsSet(ezObjectFlags::ComponentChangesNotifications))
+  {
+    ezMsgComponentsChanged msg;
+    msg.m_Type = ezMsgComponentsChanged::Type::ComponentAdded;
+    msg.m_hOwner = GetHandle();
+    msg.m_hComponent = pComponent->GetHandle();
+
+    SendNotificationMessage(msg);
+  }
 }
 
 void ezGameObject::RemoveComponent(ezComponent* pComponent)
@@ -649,33 +660,18 @@ void ezGameObject::RemoveComponent(ezComponent* pComponent)
   ezUInt32 uiIndex = m_Components.IndexOf(pComponent);
   EZ_ASSERT_DEV(uiIndex != ezInvalidIndex, "Component not found");
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  if (IsActive() && IsStatic() && GetWorld()->ReportErrorWhenStaticObjectMoves())
-  {
-    // TODO: Revisit this assert. Currently fails during the Core tests.
-    //EZ_ASSERT_DEV(uiIndex == m_Components.GetCount() - 1, "A component was removed from static object '{0}' during runtime. This can break render data caching!", GetName());
-  }
-#endif
-
   pComponent->m_pOwner = nullptr;
   m_Components.RemoveAtAndSwap(uiIndex);
-}
 
-void ezGameObject::FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr)
-{
-  ezUInt32 uiIndex = m_Components.IndexOf(pOldPtr);
-  EZ_ASSERT_DEV(uiIndex != ezInvalidIndex, "Memory corruption?");
-  m_Components[uiIndex] = pNewPtr;
-}
+  if (m_Flags.IsSet(ezObjectFlags::ComponentChangesNotifications))
+  {
+    ezMsgComponentsChanged msg;
+    msg.m_Type = ezMsgComponentsChanged::Type::ComponentRemoved;
+    msg.m_hOwner = GetHandle();
+    msg.m_hComponent = pComponent->GetHandle();
 
-void ezGameObject::PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
-{
-  m_pWorld->PostMessage(GetHandle(), msg, queueType, delay);
-}
-
-void ezGameObject::PostMessageRecursive(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
-{
-  m_pWorld->PostMessageRecursive(GetHandle(), msg, queueType, delay);
+    SendNotificationMessage(msg);
+  }
 }
 
 bool ezGameObject::SendMessage(ezMessage& msg)
@@ -785,6 +781,36 @@ bool ezGameObject::SendMessageRecursive(ezMessage& msg) const
   //#
   return bSentToAny;
 }
+
+void ezGameObject::PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+{
+  m_pWorld->PostMessage(GetHandle(), msg, queueType, delay);
+}
+
+void ezGameObject::PostMessageRecursive(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+{
+  m_pWorld->PostMessageRecursive(GetHandle(), msg, queueType, delay);
+}
+
+void ezGameObject::FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr)
+{
+  ezUInt32 uiIndex = m_Components.IndexOf(pOldPtr);
+  EZ_ASSERT_DEV(uiIndex != ezInvalidIndex, "Memory corruption?");
+  m_Components[uiIndex] = pNewPtr;
+}
+
+void ezGameObject::SendNotificationMessage(ezMessage& msg)
+{
+  ezGameObject* pObject = this;
+  while (pObject != nullptr)
+  {
+    pObject->SendMessage(msg);
+
+    pObject = pObject->GetParent();
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 void ezGameObject::TransformationData::UpdateLocalTransform()
 {

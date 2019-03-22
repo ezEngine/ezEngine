@@ -243,7 +243,7 @@ public:
       {
         // build the absolute path to the current file
         b = it.GetCurrentPath();
-        b.AppendPath(it.GetStats().m_sFileName.GetData());
+        b.AppendPath(it.GetStats().m_sName.GetData());
 
         // log some info
         ezLog::Info("{0}: {1}", it.GetStats().m_bIsDirectory ? "Directory" : "File", b);

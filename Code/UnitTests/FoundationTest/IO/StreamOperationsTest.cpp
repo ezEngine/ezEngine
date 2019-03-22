@@ -244,6 +244,39 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
     EZ_TEST_BOOL(TestMapReadBack.GetValue(23)->IsEqual("World"));
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezHashTable Stream Operators")
+  {
+    ezMemoryStreamStorage StreamStorage(4096);
+
+    // Create writer
+    ezMemoryStreamWriter StreamWriter(&StreamStorage);
+
+    ezHashTable<ezUInt64, ezString> TestHashTable;
+    TestHashTable.Insert(42, "Hello");
+    TestHashTable.Insert(23, "World");
+    TestHashTable.Insert(5, "!");
+
+    StreamWriter.WriteHashTable(TestHashTable);
+
+    ezMap<ezUInt64, ezString> TestHashTableReadBack;
+
+    TestHashTableReadBack.Insert(1, "Shouldn't be there after deserialization.");
+
+    ezMemoryStreamReader StreamReader(&StreamStorage);
+
+    StreamReader.ReadMap(TestHashTableReadBack);
+
+    EZ_TEST_INT(TestHashTableReadBack.GetCount(), 3);
+
+    EZ_TEST_BOOL(TestHashTableReadBack.Contains(42));
+    EZ_TEST_BOOL(TestHashTableReadBack.Contains(5));
+    EZ_TEST_BOOL(TestHashTableReadBack.Contains(23));
+
+    EZ_TEST_BOOL(TestHashTableReadBack.GetValue(42)->IsEqual("Hello"));
+    EZ_TEST_BOOL(TestHashTableReadBack.GetValue(5)->IsEqual("!"));
+    EZ_TEST_BOOL(TestHashTableReadBack.GetValue(23)->IsEqual("World"));
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "String Deduplication")
   {
     ezMemoryStreamStorage StreamStorageNonDeduplicated(4096);

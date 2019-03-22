@@ -9,7 +9,7 @@
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Logging);
 
-class ezTestLogInterface : public ezLogInterface
+class ezLogTestLogInterface : public ezLogInterface
 {
 public:
   virtual void HandleLogMessage(const ezLoggingEventData& le) override
@@ -55,8 +55,8 @@ public:
 
 EZ_CREATE_SIMPLE_TEST(Logging, Log)
 {
-  ezTestLogInterface log;
-  ezTestLogInterface log2;
+  ezLogTestLogInterface log;
+  ezLogTestLogInterface log2;
   ezLogSystemScope logScope(&log);
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Output")

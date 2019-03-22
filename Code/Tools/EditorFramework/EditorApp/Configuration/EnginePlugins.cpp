@@ -20,7 +20,7 @@ void ezQtEditorApp::DetectAvailableEnginePlugins()
     {
       do
       {
-        ezStringBuilder sPlugin = fsit.GetStats().m_sFileName;
+        ezStringBuilder sPlugin = fsit.GetStats().m_sName;
         sPlugin.RemoveFileExtension();
 
         if (sPlugin.FindSubString_NoCase("EnginePlugin") != nullptr || sPlugin.EndsWith_NoCase("Plugin"))

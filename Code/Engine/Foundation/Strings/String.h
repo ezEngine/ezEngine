@@ -178,8 +178,9 @@ typedef ezHybridString<128> ezString128;
 typedef ezHybridString<256> ezString256;
 
 EZ_CHECK_AT_COMPILETIME_MSG(ezGetTypeClass<ezString>::value == 2, "string is not memory relocatable");
-template <>
-struct ezCompareHelper<ezString>
+
+template <ezUInt16 Size>
+struct ezCompareHelper<ezHybridString<Size>>
 {
   template <typename DerivedLhs, typename DerivedRhs>
   EZ_ALWAYS_INLINE bool Less(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) const

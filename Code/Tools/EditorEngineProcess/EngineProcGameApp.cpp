@@ -469,9 +469,9 @@ ezUniquePtr<ezEditorEngineProcessApp> ezEngineProcessGameApplication::CreateEngi
   return EZ_DEFAULT_NEW(ezEditorEngineProcessApp);
 }
 
-void ezEngineProcessGameApplication::Init_ConfigureLogging()
+void ezEngineProcessGameApplication::BaseInit_ConfigureLogging()
 {
-  SUPER::Init_ConfigureLogging();
+  SUPER::BaseInit_ConfigureLogging();
 
   ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezEngineProcessGameApplication::LogWriter, this));
 

@@ -4,14 +4,16 @@
 
 ezString64 ezOSFile::s_ApplicationPath;
 ezString64 ezOSFile::s_UserDataPath;
+ezString64 ezOSFile::s_TempDataPath;
 ezAtomicInteger32 ezOSFile::s_FileCounter;
 ezOSFile::Event ezOSFile::s_FileEvents;
 
-ezFileStats::ezFileStats()
+ezFileStats::ezFileStats() = default;
+
+void ezFileStats::GetFullPath(ezStringBuilder& path) const
 {
-  m_LastModificationTime.Invalidate();
-  m_uiFileSize = 0;
-  m_bIsDirectory = false;
+  path.Set(m_sParentPath, "/", m_sName);
+  path.MakeCleanPath();
 }
 
 ezOSFile::ezOSFile()
@@ -389,8 +391,6 @@ done:
 
 ezResult ezOSFile::GetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats)
 {
-  /// \todo We should implement this also on ezFileSystem, to be able to support stats through virtual filesystems
-
   const ezTime t0 = ezTime::Now();
 
   ezStringBuilder s = szFileOrFolder;
@@ -416,7 +416,7 @@ ezResult ezOSFile::GetFileStats(const char* szFileOrFolder, ezFileStats& out_Sta
   return Res;
 }
 
-#if EZ_ENABLED(EZ_SUPPORTS_CASE_INSENSITIVE_PATHS) && EZ_ENABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
+#  if EZ_ENABLED(EZ_SUPPORTS_CASE_INSENSITIVE_PATHS) && EZ_ENABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
 ezResult ezOSFile::GetFileCasing(const char* szFileOrFolder, ezStringBuilder& out_sCorrectSpelling)
 {
   /// \todo We should implement this also on ezFileSystem, to be able to support stats through virtual filesystems
@@ -454,7 +454,7 @@ ezResult ezOSFile::GetFileCasing(const char* szFileOrFolder, ezStringBuilder& ou
         break;
       }
 
-      out_sCorrectSpelling.AppendPath(stats.m_sFileName.GetData());
+      out_sCorrectSpelling.AppendPath(stats.m_sName.GetData());
     }
     sCurPath.Append(it.GetCharacter());
     ++it;
@@ -474,24 +474,128 @@ ezResult ezOSFile::GetFileCasing(const char* szFileOrFolder, ezStringBuilder& ou
 
   return Res;
 }
-#endif // EZ_SUPPORTS_CASE_INSENSITIVE_PATHS && EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS
 
+#  endif // EZ_SUPPORTS_CASE_INSENSITIVE_PATHS && EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS
 
 #endif // EZ_SUPPORTS_FILE_STATS
 
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+
+void ezOSFile::GatherAllItemsInFolder(ezDynamicArray<ezFileStats>& out_ItemList, const char* szFolder)
+{
+  out_ItemList.Clear();
+
+  ezFileSystemIterator iterator;
+  if (iterator.StartSearch(szFolder, true, true).Failed())
+    return;
+
+  out_ItemList.Reserve(128);
+
+  while (true)
+  {
+    out_ItemList.PushBack(iterator.GetStats());
+
+    if (iterator.Next().Failed())
+      break;
+  }
+}
+
+ezResult ezOSFile::CopyFolder(const char* szSourceFolder, const char* szDestinationFolder)
+{
+  // TODO: once we use C++ 17, use std::filesystem instead
+
+  ezDynamicArray<ezFileStats> items;
+  GatherAllItemsInFolder(items, szSourceFolder);
+
+  ezStringBuilder srcPath;
+  ezStringBuilder dstPath;
+  ezStringBuilder relPath;
+
+  for (const auto& item : items)
+  {
+    srcPath = item.m_sParentPath;
+    srcPath.AppendPath(item.m_sName);
+
+    relPath = srcPath;
+
+    if (relPath.MakeRelativeTo(szSourceFolder).Failed())
+      return EZ_FAILURE; // unexpected to ever fail, but don't want to assert on it
+
+    dstPath = szDestinationFolder;
+    dstPath.AppendPath(relPath);
+
+    if (item.m_bIsDirectory)
+    {
+      if (ezOSFile::CreateDirectoryStructure(dstPath).Failed())
+        return EZ_FAILURE;
+    }
+    else
+    {
+      if (ezOSFile::CopyFile(srcPath, dstPath).Failed())
+        return EZ_FAILURE;
+    }
+
+    // TODO: make sure to remove read-only flags of copied files ?
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezOSFile::DeleteFolder(const char* szFolder)
+{
+  // TODO: once we use C++ 17, use std::filesystem instead
+
+  ezDynamicArray<ezFileStats> items;
+  GatherAllItemsInFolder(items, szFolder);
+
+  ezStringBuilder fullPath;
+
+  for (const auto& item : items)
+  {
+    if (item.m_bIsDirectory)
+      continue;
+
+    fullPath = item.m_sParentPath;
+    fullPath.AppendPath(item.m_sName);
+
+    if (ezOSFile::DeleteFile(fullPath).Failed())
+      return EZ_FAILURE;
+  }
+
+  // not worth the effort at the moment to implement all the details,
+  // it is likely that this implementation will use std::filesystem soon
+
+  //for (ezUInt32 i = items.GetCount(); i > 0; --i)
+  //{
+  //  const auto& item = items[i - 1];
+
+  //  if (!item.m_bIsDirectory)
+  //    continue;
+
+  //  fullPath = item.m_sParentPath;
+  //  fullPath.AppendPath(item.m_sName);
+
+  //  // TODO: delete empty folders now
+  //}
+
+  return EZ_SUCCESS;
+}
+
+#endif // EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <Foundation/IO/Implementation/Win/OSFile_win.h>
+#  include <Foundation/IO/Implementation/Win/OSFile_win.h>
 
 // For UWP we're currently using a mix of WinRT functions and posix.
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#include <Foundation/IO/Implementation/Posix/OSFile_posix.h>
-#endif
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+#    include <Foundation/IO/Implementation/Posix/OSFile_posix.h>
+#  endif
 #elif EZ_ENABLED(EZ_USE_POSIX_FILE_API)
-#include <Foundation/IO/Implementation/Posix/OSFile_posix.h>
+#  include <Foundation/IO/Implementation/Posix/OSFile_posix.h>
 #else
-#error "Unknown Platform."
+#  error "Unknown Platform."
 #endif
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_OSFile);
-

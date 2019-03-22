@@ -8,6 +8,7 @@
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Time/Timestamp.h>
+#include <Foundation/Memory/CommonAllocators.h>
 
 /// \brief This object caches files in a tokenized state. It can be shared among ezPreprocessor instances to improve performance when
 /// they access the same files.
@@ -206,9 +207,16 @@ private:
 
   struct CustomDefine
   {
-    ezDynamicArray<ezUInt8> m_Content;
+    ezHybridArray<ezUInt8, 64> m_Content;
     ezTokenizer m_Tokenized;
   };
+
+  // This class-local allocator is used to get rid of some of the memory allocation
+  // tracking that would otherwise occur for allocations made by the preprocessor.
+  // If changing its position in the class, make sure it always comes before all
+  // other members that depend on it to ensure deallocations in those members
+  // happen before the allocator get destroyed.
+  ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryTrackingFlags::None> m_ClassAllocator;
 
   bool m_bPassThroughPragma;
   bool m_bPassThroughLine;
@@ -267,7 +275,7 @@ private: // *** Macro Definition ***
   ezResult StoreDefine(const ezToken* pMacroNameToken, const ezTokenParseUtils::TokenStream* pReplacementTokens, ezUInt32 uiFirstReplacementToken, ezInt32 iNumParameters, bool bUsesVarArgs);
   ezResult ExtractParameterName(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezString& sIdentifierName);
 
-  ezMap<ezString, MacroDefinition> m_Macros;
+  ezMap<ezString256, MacroDefinition> m_Macros;
 
   static const ezInt32 s_MacroParameter0 = ezTokenType::ENUM_COUNT + 2;
   static ezString s_ParamNames[32];

@@ -873,7 +873,7 @@ void ezStringBuilder::RemoveFileExtension()
   }
 }
 
-void ezStringBuilder::MakeRelativeTo(const char* szAbsolutePathToMakeThisRelativeTo)
+ezResult ezStringBuilder::MakeRelativeTo(const char* szAbsolutePathToMakeThisRelativeTo)
 {
   ezStringBuilder sAbsBase = szAbsolutePathToMakeThisRelativeTo;
   sAbsBase.MakeCleanPath();
@@ -883,7 +883,7 @@ void ezStringBuilder::MakeRelativeTo(const char* szAbsolutePathToMakeThisRelativ
   if (sAbsBase.IsEqual_NoCase(sAbsThis.GetData()))
   {
     Clear();
-    return;
+    return EZ_SUCCESS;
   }
 
   if (!sAbsBase.EndsWith("/"))
@@ -908,7 +908,7 @@ void ezStringBuilder::MakeRelativeTo(const char* szAbsolutePathToMakeThisRelativ
         ++szStart;
       }
 
-      return;
+      return EZ_SUCCESS;
     }
     else
       sAbsThis.Shrink(0, 1);
@@ -917,13 +917,18 @@ void ezStringBuilder::MakeRelativeTo(const char* szAbsolutePathToMakeThisRelativ
   const ezUInt32 uiMinLen = ezMath::Min(sAbsBase.GetElementCount(), sAbsThis.GetElementCount());
 
   ezInt32 iSame = uiMinLen - 1;
-  for (; iSame > 0; --iSame)
+  for (; iSame >= 0; --iSame)
   {
     if (sAbsBase.GetData()[iSame] != '/')
       continue;
 
     if (sAbsBase.IsEqualN_NoCase(sAbsThis.GetData(), iSame + 1))
       break;
+  }
+
+  if (iSame < 0)
+  {
+    return EZ_FAILURE;
   }
 
   Clear();
@@ -938,6 +943,8 @@ void ezStringBuilder::MakeRelativeTo(const char* szAbsolutePathToMakeThisRelativ
     ++iSame;
 
   Append(&(sAbsThis.GetData()[iSame]));
+
+  return EZ_SUCCESS;
 }
 
 /// An empty folder (zero length) does not contain ANY files.\n

@@ -25,7 +25,7 @@ void ezQtEditorApp::DetectAvailableEditorPlugins()
     {
       do
       {
-        ezStringBuilder sPlugin = fsit.GetStats().m_sFileName;
+        ezStringBuilder sPlugin = fsit.GetStats().m_sName;
         sPlugin.RemoveFileExtension();
 
         s_EditorPlugins.m_Plugins[sPlugin].m_bAvailable = true;

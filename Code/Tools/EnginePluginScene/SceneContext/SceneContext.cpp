@@ -368,7 +368,7 @@ void ezSceneContext::OnSimulationEnabled()
 
   ezGameApplication::GetGameApplicationInstance()->ReinitializeInputConfig();
 
-  if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>("ezSoundInterface"))
+  if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>())
   {
     pSoundInterface->SetListenerOverrideMode(true);
   }
@@ -380,7 +380,7 @@ void ezSceneContext::OnSimulationDisabled()
 
   ezResourceManager::ResetAllResources();
 
-  if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>("ezSoundInterface"))
+  if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>())
   {
     pSoundInterface->SetListenerOverrideMode(false);
   }
@@ -480,7 +480,7 @@ void ezSceneContext::OnPlayTheGameModeStarted(const ezTransform* pStartPosition)
 
   SendProcessMessage(&msgRet);
 
-  if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>("ezSoundInterface"))
+  if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>())
   {
     pSoundInterface->SetListenerOverrideMode(false);
   }

@@ -51,7 +51,7 @@ void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
     {
       if (!m_pSceneContext->IsPlayTheGameActive())
       {
-        if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>("ezSoundInterface"))
+        if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>())
         {
           pSoundInterface->SetListener(-1, pMsg2->m_vPosition, pMsg2->m_vDirForwards, pMsg2->m_vDirUp, ezVec3::ZeroVector());
         }

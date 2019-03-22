@@ -543,10 +543,10 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     ezWorldDesc worldDesc("Test");
     ezWorld world(worldDesc);
 
-    ezUniquePtr<CustomCoordinateSystemProvider> pProvider = EZ_DEFAULT_NEW(CustomCoordinateSystemProvider, &world);
+    ezSharedPtr<CustomCoordinateSystemProvider> pProvider = EZ_DEFAULT_NEW(CustomCoordinateSystemProvider, &world);
     CustomCoordinateSystemProvider* pProviderBackup = pProvider.Borrow();
 
-    world.SetCoordinateSystemProvider(std::move(pProvider));
+    world.SetCoordinateSystemProvider(pProvider);
     EZ_TEST_BOOL(&world.GetCoordinateSystemProvider() == pProviderBackup);
 
     ezVec3 pos = ezVec3(2, 3, 0);

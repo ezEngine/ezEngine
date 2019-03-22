@@ -1320,43 +1320,63 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     ezStringBuilder p;
 
     p = "a/b\\c/d\\\\e/f/g";
-    p.MakeRelativeTo("a\\b/c");
+    EZ_TEST_BOOL(p.MakeRelativeTo("a\\b/c").Succeeded());
+    EZ_TEST_BOOL(p == "d/e/f/g");
+    EZ_TEST_BOOL(p.MakeRelativeTo("a\\b/c").Failed());
     EZ_TEST_BOOL(p == "d/e/f/g");
 
     p = "a/b\\c//d\\\\e/f/g";
-    p.MakeRelativeTo("a\\b/c");
+    EZ_TEST_BOOL(p.MakeRelativeTo("a\\b/c").Succeeded());
+    EZ_TEST_BOOL(p == "d/e/f/g");
+    EZ_TEST_BOOL(p.MakeRelativeTo("a\\b/c").Failed());
     EZ_TEST_BOOL(p == "d/e/f/g");
 
     p = "a/b\\c/d\\\\e/f/g";
-    p.MakeRelativeTo("a\\b/c/");
+    EZ_TEST_BOOL(p.MakeRelativeTo("a\\b/c/").Succeeded());
+    EZ_TEST_BOOL(p == "d/e/f/g");
+    EZ_TEST_BOOL(p.MakeRelativeTo("a\\b/c/").Failed());
     EZ_TEST_BOOL(p == "d/e/f/g");
 
     p = "a/b\\c//d\\\\e/f/g";
-    p.MakeRelativeTo("a\\b/c/");
+    EZ_TEST_BOOL(p.MakeRelativeTo("a\\b/c/").Succeeded());
+    EZ_TEST_BOOL(p == "d/e/f/g");
+    EZ_TEST_BOOL(p.MakeRelativeTo("a\\b/c/").Failed());
     EZ_TEST_BOOL(p == "d/e/f/g");
 
     p = "a/b\\c//d\\\\e/f/g";
-    p.MakeRelativeTo("a\\b/c\\/d/\\e\\f/g");
+    EZ_TEST_BOOL(p.MakeRelativeTo("a\\b/c\\/d/\\e\\f/g").Succeeded());
+    EZ_TEST_BOOL(p == "");
+    EZ_TEST_BOOL(p.MakeRelativeTo("a\\b/c\\/d/\\e\\f/g").Failed());
     EZ_TEST_BOOL(p == "");
 
     p = "a/b\\c//d\\\\e/f/g/";
-    p.MakeRelativeTo("a\\b/c\\/d//e\\f/g\\h/i");
+    EZ_TEST_BOOL(p.MakeRelativeTo("a\\b/c\\/d//e\\f/g\\h/i").Succeeded());
+    EZ_TEST_BOOL(p == "../../");
+    EZ_TEST_BOOL(p.MakeRelativeTo("a\\b/c\\/d//e\\f/g\\h/i").Failed());
     EZ_TEST_BOOL(p == "../../");
 
     p = "a/b\\c//d\\\\e/f/g/j/k";
-    p.MakeRelativeTo("a\\b/c\\/d//e\\f/g\\h/i");
+    EZ_TEST_BOOL(p.MakeRelativeTo("a\\b/c\\/d//e\\f/g\\h/i").Succeeded());
+    EZ_TEST_BOOL(p == "../../j/k");
+    EZ_TEST_BOOL(p.MakeRelativeTo("a\\b/c\\/d//e\\f/g\\h/i").Failed());
     EZ_TEST_BOOL(p == "../../j/k");
 
     p = "a/b\\c//d\\\\e/f/ge";
-    p.MakeRelativeTo("a\\b/c//d/\\e\\f/g\\h/i");
+    EZ_TEST_BOOL(p.MakeRelativeTo("a\\b/c//d/\\e\\f/g\\h/i").Succeeded());
+    EZ_TEST_BOOL(p == "../../../ge");
+    EZ_TEST_BOOL(p.MakeRelativeTo("a\\b/c//d/\\e\\f/g\\h/i").Failed());
     EZ_TEST_BOOL(p == "../../../ge");
 
     p = "a/b\\c//d\\\\e/f/g.txt";
-    p.MakeRelativeTo("a\\b/c//d//e\\f/g\\h/i");
+    EZ_TEST_BOOL(p.MakeRelativeTo("a\\b/c//d//e\\f/g\\h/i").Succeeded());
+    EZ_TEST_BOOL(p == "../../../g.txt");
+    EZ_TEST_BOOL(p.MakeRelativeTo("a\\b/c//d//e\\f/g\\h/i").Failed());
     EZ_TEST_BOOL(p == "../../../g.txt");
 
     p = "a/b\\c//d\\\\e/f/g";
-    p.MakeRelativeTo("a\\b/c//d//e\\f/g\\h/i");
+    EZ_TEST_BOOL(p.MakeRelativeTo("a\\b/c//d//e\\f/g\\h/i").Succeeded());
+    EZ_TEST_BOOL(p == "../../");
+    EZ_TEST_BOOL(p.MakeRelativeTo("a\\b/c//d//e\\f/g\\h/i").Failed());
     EZ_TEST_BOOL(p == "../../");
   }
 

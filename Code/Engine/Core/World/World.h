@@ -207,7 +207,7 @@ public:
   void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_CoordinateSystem) const;
 
   /// \brief Sets the coordinate system provider that should be used in this world.
-  void SetCoordinateSystemProvider(ezUniquePtr<ezCoordinateSystemProvider>&& pProvider);
+  void SetCoordinateSystemProvider(const ezSharedPtr<ezCoordinateSystemProvider>& pProvider);
 
   /// \brief Returns the coordinate system provider that is associated with this world.
   ezCoordinateSystemProvider& GetCoordinateSystemProvider();

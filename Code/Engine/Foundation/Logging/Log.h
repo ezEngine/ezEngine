@@ -5,7 +5,8 @@
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/Threading/AtomicInteger.h>
 
-/// \brief Use this helper macro to easily create a scoped logging group. Will generate unique variable names to make the static code analysis happy.
+/// \brief Use this helper macro to easily create a scoped logging group. Will generate unique variable names to make the static code
+/// analysis happy.
 #define EZ_LOG_BLOCK ezLogBlock EZ_CONCAT(_logblock_, EZ_SOURCE_LINE)
 
 // Forward declaration, class is at the end of this file
@@ -47,7 +48,8 @@ struct EZ_FOUNDATION_DLL ezLoggingEventData
   /// \brief The information text.
   const char* m_szText = "";
 
-  /// \brief An optional tag extracted from the log-string (if it started with "[SomeTag]Logging String.") Can be used by log-writers for additional configuration, or simply be ignored.
+  /// \brief An optional tag extracted from the log-string (if it started with "[SomeTag]Logging String.") Can be used by log-writers for
+  /// additional configuration, or simply be ignored.
   const char* m_szTag = "";
 
   /// \brief Used by log-blocks for profiling the duration of the block
@@ -66,7 +68,8 @@ public:
   /// \brief Override this function to handle logging events.
   virtual void HandleLogMessage(const ezLoggingEventData& le) = 0;
 
-  /// \brief LogLevel is between ezLogEventType::None and ezLogEventType::All and defines which messages will be logged and which will be filtered out.
+  /// \brief LogLevel is between ezLogEventType::None and ezLogEventType::All and defines which messages will be logged and which will be
+  /// filtered out.
   EZ_ALWAYS_INLINE void SetLogLevel(ezLogMsgType::Enum LogLevel) { m_LogLevel = LogLevel; }
 
   /// \brief Returns the currently set log level.
@@ -263,7 +266,8 @@ public:
     Debug(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
-  /// \brief Usually called internally by the other log functions, but can be called directly, if the message type is already known. pInterface must be != nullptr.
+  /// \brief Usually called internally by the other log functions, but can be called directly, if the message type is already known.
+  /// pInterface must be != nullptr.
   static void BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum type, const char* szString);
 
 private:
@@ -328,16 +332,13 @@ public:
   }
 
   /// \brief Resets the previous ezLogInterface through ezLog::SetThreadLocalLogSystem()
-  ~ezLogSystemScope()
-  {
-    ezLog::SetThreadLocalLogSystem(m_pPrevious);
-  }
+  ~ezLogSystemScope() { ezLog::SetThreadLocalLogSystem(m_pPrevious); }
+
+protected:
+  ezLogInterface* m_pPrevious;
 
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezLogSystemScope);
-
-  ezLogInterface* m_pPrevious;
 };
 
 #include <Foundation/Logging/Implementation/Log_inl.h>
-

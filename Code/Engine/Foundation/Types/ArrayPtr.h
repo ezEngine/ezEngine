@@ -232,7 +232,7 @@ public:
   template <typename U>
   EZ_ALWAYS_INLINE ezArrayPtr<U> Cast()
   {
-    static_assert(sizeof(T) == sizeof(U), "Can only cast with equivalent element size.");
+    static_assert(sizeof(ezArrayPtrDetail::VoidTypeHelper<T>::valueType) == sizeof(ezArrayPtrDetail::VoidTypeHelper<U>::valueType), "Can only cast with equivalent element size.");
     return ezArrayPtr<U>(reinterpret_cast<U*>(GetPtr()), GetCount());
   }
 
@@ -240,7 +240,8 @@ public:
   template <typename U>
   EZ_ALWAYS_INLINE ezArrayPtr<const U> Cast() const
   {
-    static_assert(sizeof(T) == sizeof(U), "Can only cast with equivalent element size.");
+    static_assert(sizeof(ezArrayPtrDetail::VoidTypeHelper<T>::valueType) == sizeof(ezArrayPtrDetail::VoidTypeHelper<U>::valueType),
+        "Can only cast with equivalent element size.");
     return ezArrayPtr<const U>(reinterpret_cast<const U*>(GetPtr()), GetCount());
   }
 

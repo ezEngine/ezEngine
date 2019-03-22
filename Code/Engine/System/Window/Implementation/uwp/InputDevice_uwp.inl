@@ -172,7 +172,7 @@ HRESULT ezStandardInputDevice::OnPointerMovePressEnter(ICoreWindow* coreWindow, 
   EZ_SUCCEED_OR_RETURN(pointerDevice->get_PointerDeviceType(&deviceType));
 
   // Pointer position.
-  // From the documention: "The position of the pointer in device-independent pixel (DIP)."
+  // From the documentation: "The position of the pointer in device-independent pixel (DIP)."
   // Note also, that there is "raw position" which may be free of pointer prediction etc.
   ABI::Windows::Foundation::Point pointerPosition;
   EZ_SUCCEED_OR_RETURN(pointerPoint->get_Position(&pointerPosition));
@@ -189,6 +189,7 @@ HRESULT ezStandardInputDevice::OnPointerMovePressEnter(ICoreWindow* coreWindow, 
     // RegisterInputSlot(ezInputSlot_MouseDblClick1, "Right Double Click", ezInputSlotFlags::IsDoubleClick);
     // RegisterInputSlot(ezInputSlot_MouseDblClick2, "Middle Double Click", ezInputSlotFlags::IsDoubleClick);
 
+    m_iMouseIsOverWindowNumber = 0;
     m_InputSlotValues[ezInputSlot_MousePositionX] = relativePosX;
     m_InputSlotValues[ezInputSlot_MousePositionY] = relativePosY;
 

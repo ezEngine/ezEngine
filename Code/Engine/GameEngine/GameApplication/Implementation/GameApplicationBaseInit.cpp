@@ -22,7 +22,6 @@ ezString ezGameApplicationBase::GetBaseDataDirectoryPath() const
 void ezGameApplicationBase::ExecuteInitFunctions()
 {
   Init_PlatformProfile_SetPreferred();
-  Init_ConfigureLogging();
   Init_ConfigureTelemetry();
   Init_FileSystem_SetSpecialDirs();
   Init_FileSystem_SetDataDirFactories();
@@ -44,7 +43,7 @@ void ezGameApplicationBase::Init_PlatformProfile_SetPreferred()
   m_PlatformProfile.AddMissingConfigs();
 }
 
-void ezGameApplicationBase::Init_ConfigureLogging()
+void ezGameApplicationBase::BaseInit_ConfigureLogging()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
@@ -55,6 +54,8 @@ void ezGameApplicationBase::Init_ConfigureLogging()
 void ezGameApplicationBase::Init_ConfigureTelemetry()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezTelemetry::s_uiPort = ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-TelemetryPort", ezTelemetry::s_uiPort);
+  ezTelemetry::SetServerName(GetApplicationName());
   ezTelemetry::CreateServer();
 #endif
 }
@@ -212,7 +213,7 @@ void ezGameApplicationBase::Deinit_UnloadPlugins()
   ezPlugin* pPlugin = ezPlugin::GetFirstInstance();
   while (pPlugin != nullptr)
   {
-    s = ezPlugin::GetFirstInstance()->GetPluginName();
+    s = pPlugin->GetPluginName();
     ToUnload.Insert(s);
 
     pPlugin = pPlugin->GetNextInstance();

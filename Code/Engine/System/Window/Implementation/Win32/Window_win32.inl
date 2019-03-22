@@ -90,7 +90,7 @@ ezResult ezWindow::Initialize()
   if (m_CreationDescription.m_WindowMode == ezWindowMode::FullscreenFixedResolution)
   {
     ezLog::Dev("Changing display resolution for fullscreen mode to {0}*{1}", m_CreationDescription.m_Resolution.width,
-        m_CreationDescription.m_Resolution.height);
+      m_CreationDescription.m_Resolution.height);
 
     DEVMODEW dmScreenSettings = {};
     dmScreenSettings.dmSize = sizeof(DEVMODEW);
@@ -166,14 +166,14 @@ ezResult ezWindow::Initialize()
   const int iHeight = Rect.bottom - Rect.top;
 
   ezLog::Info("Window Dimensions: {0}*{1} at left/top origin ({2}, {3}).", iWidth, iHeight, m_CreationDescription.m_Position.x,
-      m_CreationDescription.m_Position.y);
+    m_CreationDescription.m_Position.y);
 
 
   // create window
   ezStringWChar sTitelWChar(m_CreationDescription.m_Title.GetData());
   const wchar_t* sTitelWCharRaw = sTitelWChar.GetData();
   m_WindowHandle = CreateWindowExW(dwExStyle, windowClass.lpszClassName, sTitelWCharRaw, dwWindowStyle, m_CreationDescription.m_Position.x,
-      m_CreationDescription.m_Position.y, iWidth, iHeight, nullptr, nullptr, windowClass.hInstance, nullptr);
+    m_CreationDescription.m_Position.y, iWidth, iHeight, nullptr, nullptr, windowClass.hInstance, nullptr);
 
   if (m_WindowHandle == INVALID_HANDLE_VALUE)
   {
@@ -184,22 +184,38 @@ ezResult ezWindow::Initialize()
   // safe window pointer for lookup in ezWindowsMessageFuncTrampoline
   SetWindowLongPtrW(m_WindowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
-  // activate window
-  ShowWindow(m_WindowHandle, SW_SHOW);
-  SetActiveWindow(m_WindowHandle);
-  SetFocus(m_WindowHandle);
-  SetForegroundWindow(m_WindowHandle);
+  // show window and activate if required
+  ShowWindow(m_WindowHandle, m_CreationDescription.m_bSetForegroundOnInit ? SW_SHOWNORMAL : SW_SHOWNOACTIVATE);
+  if (m_CreationDescription.m_bSetForegroundOnInit)
+  {
+    SetActiveWindow(m_WindowHandle);
+    SetFocus(m_WindowHandle);
+    SetForegroundWindow(m_WindowHandle);
+  }
 
   RECT r;
   GetClientRect(m_WindowHandle, &r);
+
+  // Force size change to the desired size if CreateWindowExW 'fixed' the size to fit into your current monitor.
+  if (m_CreationDescription.m_WindowMode == ezWindowMode::WindowFixedResolution &&
+      (m_CreationDescription.m_Resolution.width != r.right - r.left || m_CreationDescription.m_Resolution.height != r.bottom - r.top))
+  {
+    ::SetWindowPos(
+      m_WindowHandle, HWND_NOTOPMOST, 0, 0, iWidth, iHeight, SWP_NOSENDCHANGING | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
+    GetClientRect(m_WindowHandle, &r);
+  }
+
   m_CreationDescription.m_Resolution.width = r.right - r.left;
   m_CreationDescription.m_Resolution.height = r.bottom - r.top;
+
+
 
   m_bInitialized = true;
   ezLog::Success("Created window successfully. Resolution is {0}*{1}", GetClientAreaSize().width, GetClientAreaSize().height);
 
   m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice, m_CreationDescription.m_uiWindowNumber);
-  m_pInputDevice->SetClipMouseCursor(m_CreationDescription.m_bClipMouseCursor ? ezMouseCursorClipMode::ClipToWindow : ezMouseCursorClipMode::NoClip);
+  m_pInputDevice->SetClipMouseCursor(
+    m_CreationDescription.m_bClipMouseCursor ? ezMouseCursorClipMode::ClipToWindow : ezMouseCursorClipMode::NoClip);
   m_pInputDevice->SetShowMouseCursor(m_CreationDescription.m_bShowMouseCursor);
 
   return EZ_SUCCESS;

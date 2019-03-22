@@ -9,6 +9,7 @@
 
 #include <Core/World/GameObject.h>
 #include <Core/World/WorldDesc.h>
+#include <Foundation/Types/SharedPtr.h>
 
 namespace ezInternal
 {
@@ -120,7 +121,7 @@ namespace ezInternal
     ezDynamicArray<UpdateTask*, ezLocalAllocatorWrapper> m_UpdateTasks;
 
     ezUniquePtr<ezSpatialSystem> m_pSpatialSystem;
-    ezUniquePtr<ezCoordinateSystemProvider> m_pCoordinateSystemProvider;
+    ezSharedPtr<ezCoordinateSystemProvider> m_pCoordinateSystemProvider;
     ezUniquePtr<ezTimeStepSmoothing> m_pTimeStepSmoothing;
 
     ezClock m_Clock;

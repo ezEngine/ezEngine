@@ -1457,7 +1457,7 @@ void ezAssetCurator::IterateDataDirectory(const char* szDataDir, const ezSet<ezS
     // we do not want to recurse into the AssetCache folder
     if (iterator.GetStats().m_bIsDirectory)
     {
-      if (iterator.GetStats().m_sFileName == "AssetCache")
+      if (iterator.GetStats().m_sName == "AssetCache")
       {
         if (iterator.SkipFolder().Failed())
           break;
@@ -1472,7 +1472,7 @@ void ezAssetCurator::IterateDataDirectory(const char* szDataDir, const ezSet<ezS
     }
 
     sPath = iterator.GetCurrentPath();
-    sPath.AppendPath(iterator.GetStats().m_sFileName);
+    sPath.AppendPath(iterator.GetStats().m_sName);
     sPath.MakeCleanPath();
 
     HandleSingleFile(sPath, validExtensions, iterator.GetStats());

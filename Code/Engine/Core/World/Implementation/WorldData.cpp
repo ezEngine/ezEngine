@@ -71,7 +71,7 @@ namespace ezInternal
     EZ_CHECK_AT_COMPILETIME(sizeof(QueuedMsgMetaData) == 16);
 
     m_pSpatialSystem = std::move(desc.m_pSpatialSystem);
-    m_pCoordinateSystemProvider = std::move(desc.m_pCoordinateSystemProvider);
+    m_pCoordinateSystemProvider = desc.m_pCoordinateSystemProvider;
 
     if (m_pSpatialSystem == nullptr)
     {
