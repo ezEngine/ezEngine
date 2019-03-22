@@ -49,7 +49,7 @@ ezGALTextureHandle ezTargetPass::GetTextureHandle(const ezView& view, const ezNo
   {
     hTarget = setup.GetDepthStencilTarget();
   }
-  else
+  else if (pPin->m_uiInputIndex <= setup.GetMaxRenderTargetIndex())
   {
     hTarget = setup.GetRenderTarget(pPin->m_uiInputIndex);
   }

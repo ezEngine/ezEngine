@@ -46,6 +46,7 @@ ezCVarInt CVarMaxFilterViews(
 namespace
 {
   static ezUInt32 s_uiReflectionCubeMapSize = 128;
+  static ezUInt32 s_uiNumReflectionProbeCubeMaps = 32;
 
   struct ReflectionView
   {
@@ -240,6 +241,12 @@ struct ezReflectionPool::Data
     {
       ezRenderWorld::DeleteView(filterView.m_hView);
     }
+
+    if (!m_hFilteredSpecularCubeMaps.IsInvalidated())
+    {
+      ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hFilteredSpecularCubeMaps);
+      m_hFilteredSpecularCubeMaps.Invalidate();
+    }
   }
 
   void SortActiveProbes(const ezDynamicArray<ezReflectionProbeId>& activeProbes, ezUInt64 uiFrameCounter)
@@ -319,13 +326,27 @@ struct ezReflectionPool::Data
     }
   }
 
-  void UpdateViews()
+  void CreateViewsAndResources()
   {
     // ReflectionRenderPipeline.ezRenderPipelineAsset
     CreateViews(m_RenderViews, CVarMaxRenderViews, "Render", "{ 734898e8-b1a2-0da2-c4ae-701912983c2f }");
 
     // ReflectionFilterPipeline.ezRenderPipelineAsset
     CreateViews(m_FilterViews, CVarMaxFilterViews, "Filter", "{ 3437db17-ddf1-4b67-b80f-9999d6b0c352 }");
+
+    if (m_hFilteredSpecularCubeMaps.IsInvalidated())
+    {
+      ezGALTextureCreationDescription desc;
+      desc.m_uiWidth = s_uiReflectionCubeMapSize;
+      desc.m_uiHeight = s_uiReflectionCubeMapSize;
+      desc.m_uiMipLevelCount = ezMath::Log2i(s_uiReflectionCubeMapSize) - 1; // only down to 4x4
+      desc.m_uiArraySize = s_uiNumReflectionProbeCubeMaps;
+      desc.m_Format = ezGALResourceFormat::RGBAHalf;
+      desc.m_Type = ezGALTextureType::TextureCube;
+      desc.m_bCreateRenderTarget = true;
+
+      m_hFilteredSpecularCubeMaps = ezGALDevice::GetDefaultDevice()->CreateTexture(desc);
+    }
   }
 
   void AddViewToRender(
@@ -364,18 +385,19 @@ struct ezReflectionPool::Data
       pView->m_ExcludeTags = data.m_ExcludeTags;
       pView->SetWorld(updateInfo.m_pWorld);
 
+      ezGALRenderTargetSetup renderTargetSetup;
       if (step.m_UpdateStep == UpdateStep::Filter)
       {
+        renderTargetSetup.SetRenderTarget(0, ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(m_hFilteredSpecularCubeMaps));
+
         pView->SetRenderPassProperty("ReflectionFilterPass", "InputCubemap", updateInfo.m_hCubemap.GetInternalID().m_Data);
       }
       else
       {
-        ezGALRenderTargetSetup renderTargetSetup;
         renderTargetSetup.SetRenderTarget(
           0, ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(updateInfo.m_hCubemapProxies[uiFaceIndex]));
-
-        pView->SetRenderTargetSetup(renderTargetSetup);
       }
+      pView->SetRenderTargetSetup(renderTargetSetup);
 
       pReflectionView->m_Camera.LookAt(vPosition, vPosition + vForward[uiFaceIndex], vUp);
 
@@ -392,6 +414,8 @@ struct ezReflectionPool::Data
   ezDynamicArray<ezReflectionProbeId> m_ActiveDynamicProbes;
 
   ezDynamicArray<SortedUpdateInfo> m_SortedUpdateInfo;
+
+  ezGALTextureHandle m_hFilteredSpecularCubeMaps;
 };
 
 ezReflectionPool::Data* ezReflectionPool::s_pData;
@@ -484,7 +508,12 @@ void ezReflectionPool::OnBeginExtraction(ezUInt64 uiFrameCounter)
 {
   EZ_PROFILE_SCOPE("Reflection Pool Update");
 
-  s_pData->UpdateViews();
+  if (s_pData->m_ActiveDynamicProbes.IsEmpty())
+  {
+    return;
+  }
+
+  s_pData->CreateViewsAndResources();
 
   // generate possible update steps for active probes
   {

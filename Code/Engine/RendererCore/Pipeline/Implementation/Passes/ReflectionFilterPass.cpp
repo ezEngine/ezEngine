@@ -81,6 +81,27 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
   if (pFilteredSpecularOutput != nullptr && !pFilteredSpecularOutput->m_TextureHandle.IsInvalidated())
   {
     pGALContext->GenerateMipMaps(pDevice->GetDefaultResourceView(m_hInputCubemap));
+
+    ezUInt32 uiNumMipMaps = pInputCubemap->GetDescription().m_uiMipLevelCount;
+
+    ezBoundingBoxu32 srcBox;
+    srcBox.m_vMin = ezVec3U32(0);
+    srcBox.m_vMax = ezVec3U32(pInputCubemap->GetDescription().m_uiWidth, pInputCubemap->GetDescription().m_uiHeight, 1);
+
+    for (ezUInt32 uiMipMapIndex = 0; uiMipMapIndex < uiNumMipMaps; ++uiMipMapIndex)
+    {
+      for (ezUInt32 uiFaceIndex = 0; uiFaceIndex < 6; ++uiFaceIndex)
+      {
+        ezGALTextureSubresource destSubResource{uiMipMapIndex, uiFaceIndex};
+        ezGALTextureSubresource srcSubResource{uiMipMapIndex, uiFaceIndex};       
+
+        pGALContext->CopyTextureRegion(
+          pFilteredSpecularOutput->m_TextureHandle, destSubResource, ezVec3U32(0), m_hInputCubemap, srcSubResource, srcBox);
+      }
+
+      srcBox.m_vMax.x >>= 1;
+      srcBox.m_vMax.y >>= 1;
+    }
   }
 }
 
