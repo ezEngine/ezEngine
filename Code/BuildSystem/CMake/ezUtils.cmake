@@ -278,3 +278,22 @@ function(ez_glob_source_files ROOT_DIR RESULT_ALL_SOURCES)
   set(${RESULT_ALL_SOURCES} ${CPP_FILES} ${H_FILES} ${C_FILES} ${UI_FILES} ${QRC_FILES} ${RES_FILES} PARENT_SCOPE)
 
 endfunction()
+
+######################################
+### ez_add_all_subdirs
+######################################
+
+function(ez_add_all_subdirs)
+
+	# find all cmake files below this directory
+	file (GLOB SUB_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/*/CMakeLists.txt")
+
+	foreach (VAR ${SUB_DIRS})
+		
+		get_filename_component (RES ${VAR} DIRECTORY)
+
+		add_subdirectory (${RES})
+	
+	endforeach ()
+
+endfunction()
