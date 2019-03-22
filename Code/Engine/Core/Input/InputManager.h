@@ -269,10 +269,11 @@ public:
   typedef ezEvent<const InputEventData&> ezEventInput;
 
   /// \brief Adds an event handler that is called for input events.
-  static void AddEventHandler(ezEventInput::Handler handler) { s_InputEvents.AddEventHandler(handler); }
+  static ezEventSubscriptionID AddEventHandler(ezEventInput::Handler handler) { return s_InputEvents.AddEventHandler(handler); }
 
   /// \brief Removes a previously added event handler.
   static void RemoveEventHandler(ezEventInput::Handler handler) { s_InputEvents.RemoveEventHandler(handler); }
+  static void RemoveEventHandler(ezEventSubscriptionID id) { s_InputEvents.RemoveEventHandler(id); }
 
 private:
   friend class ezInputDevice;
