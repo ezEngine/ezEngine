@@ -1,0 +1,62 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+BLEND_MODE = BLEND_MODE_OPAQUE
+RENDER_PASS
+TWO_SIDED = FALSE
+FLIP_WINDING = FALSE
+SHADING_MODE = SHADING_MODE_FULLBRIGHT
+SHADING_QUALITY = SHADING_QUALITY_NORMAL
+CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+
+[RENDERSTATE]
+
+#include <Shaders/Materials/MaterialState.h>
+
+[SHADER]
+
+#define USE_NORMAL
+
+[VERTEXSHADER]
+
+#include <Shaders/Materials/MaterialVertexShader.h>
+
+VS_OUT main(VS_IN Input)
+{
+  return FillVertexData(Input);
+}
+
+[PIXELSHADER]
+
+#include <Shaders/Materials/MaterialPixelShader.h>
+
+float3 GetNormal()
+{
+  return G.Input.Normal;
+}
+
+float3 GetDiffuseColor()
+{
+  float3 normal = normalize(G.Input.Normal);
+  float3 viewDir = normalize(G.Input.WorldPosition - GetCameraPosition());
+  float3 reflectionDir = CubeMapDirection(reflect(viewDir, normal));
+
+  return ReflectionSpecularTexture.Sample(LinearSampler, float4(reflectionDir, 0)).rgb;
+}
+
+float3 GetSpecularColor()
+{
+  return 0.0f;
+}
+
+float GetRoughness()
+{
+  return 1.0f;
+}
+
+float GetOpacity()
+{
+  return 1.0f;
+}

@@ -60,12 +60,12 @@ namespace
 
     enum Enum
     {
-      RenderPosX,
-      RenderNegX,
-      RenderPosY,
-      RenderNegY,
-      RenderPosZ,
-      RenderNegZ,
+      RenderFace0,
+      RenderFace1,
+      RenderFace2,
+      RenderFace3,
+      RenderFace4,
+      RenderFace5,
       Filter,
 
       ENUM_COUNT,
@@ -73,7 +73,7 @@ namespace
       Default = Filter
     };
 
-    static bool IsRenderStep(Enum value) { return value >= UpdateStep::RenderPosX && value <= UpdateStep::RenderNegZ; }
+    static bool IsRenderStep(Enum value) { return value >= UpdateStep::RenderFace0 && value <= UpdateStep::RenderFace5; }
 
     static Enum NextStep(Enum value) { return static_cast<UpdateStep::Enum>((value + 1) % UpdateStep::ENUM_COUNT); }
   };
@@ -242,10 +242,10 @@ struct ezReflectionPool::Data
       ezRenderWorld::DeleteView(filterView.m_hView);
     }
 
-    if (!m_hFilteredSpecularCubeMaps.IsInvalidated())
+    if (!m_hReflectionSpecularTexture.IsInvalidated())
     {
-      ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hFilteredSpecularCubeMaps);
-      m_hFilteredSpecularCubeMaps.Invalidate();
+      ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hReflectionSpecularTexture);
+      m_hReflectionSpecularTexture.Invalidate();
     }
   }
 
@@ -334,7 +334,7 @@ struct ezReflectionPool::Data
     // ReflectionFilterPipeline.ezRenderPipelineAsset
     CreateViews(m_FilterViews, CVarMaxFilterViews, "Filter", "{ 3437db17-ddf1-4b67-b80f-9999d6b0c352 }");
 
-    if (m_hFilteredSpecularCubeMaps.IsInvalidated())
+    if (m_hReflectionSpecularTexture.IsInvalidated())
     {
       ezGALTextureCreationDescription desc;
       desc.m_uiWidth = s_uiReflectionCubeMapSize;
@@ -345,7 +345,7 @@ struct ezReflectionPool::Data
       desc.m_Type = ezGALTextureType::TextureCube;
       desc.m_bCreateRenderTarget = true;
 
-      m_hFilteredSpecularCubeMaps = ezGALDevice::GetDefaultDevice()->CreateTexture(desc);
+      m_hReflectionSpecularTexture = ezGALDevice::GetDefaultDevice()->CreateTexture(desc);
     }
   }
 
@@ -355,13 +355,20 @@ struct ezReflectionPool::Data
     ezVec3 vForward[6] = {
       ezVec3(1.0f, 0.0f, 0.0f),
       ezVec3(-1.0f, 0.0f, 0.0f),
+      ezVec3(0.0f, 0.0f, 1.0f),
+      ezVec3(0.0f, 0.0f, -1.0f),
+      ezVec3(0.0f, -1.0f, 0.0f),
+      ezVec3(0.0f, 1.0f, 0.0f),
+    };
+
+    ezVec3 vUp[6] = {
+      ezVec3(0.0f, 0.0f, 1.0f),
+      ezVec3(0.0f, 0.0f, 1.0f),
       ezVec3(0.0f, 1.0f, 0.0f),
       ezVec3(0.0f, -1.0f, 0.0f),
       ezVec3(0.0f, 0.0f, 1.0f),
-      ezVec3(0.0f, 0.0f, -1.0f),
+      ezVec3(0.0f, 0.0f, 1.0f),
     };
-
-    ezVec3 vUp = ezVec3(0.0f, 0.0f, 1.0f);
 
     // Setup view and camera
     {
@@ -388,7 +395,7 @@ struct ezReflectionPool::Data
       ezGALRenderTargetSetup renderTargetSetup;
       if (step.m_UpdateStep == UpdateStep::Filter)
       {
-        renderTargetSetup.SetRenderTarget(0, ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(m_hFilteredSpecularCubeMaps));
+        renderTargetSetup.SetRenderTarget(0, ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(m_hReflectionSpecularTexture));
 
         pView->SetRenderPassProperty("ReflectionFilterPass", "InputCubemap", updateInfo.m_hCubemap.GetInternalID().m_Data);
       }
@@ -399,7 +406,7 @@ struct ezReflectionPool::Data
       }
       pView->SetRenderTargetSetup(renderTargetSetup);
 
-      pReflectionView->m_Camera.LookAt(vPosition, vPosition + vForward[uiFaceIndex], vUp);
+      pReflectionView->m_Camera.LookAt(vPosition, vPosition + vForward[uiFaceIndex], vUp[uiFaceIndex]);
 
       ezRenderWorld::AddViewToRender(pReflectionView->m_hView);
     }
@@ -415,7 +422,7 @@ struct ezReflectionPool::Data
 
   ezDynamicArray<SortedUpdateInfo> m_SortedUpdateInfo;
 
-  ezGALTextureHandle m_hFilteredSpecularCubeMaps;
+  ezGALTextureHandle m_hReflectionSpecularTexture;
 };
 
 ezReflectionPool::Data* ezReflectionPool::s_pData;
@@ -483,6 +490,11 @@ void ezReflectionPool::AddReflectionProbe(const ezReflectionProbeData& data, con
 ezUInt32 ezReflectionPool::GetReflectionCubeMapSize()
 {
   return s_uiReflectionCubeMapSize;
+}
+
+ezGALTextureHandle ezReflectionPool::GetReflectionSpecularTexture()
+{
+  return s_pData->m_hReflectionSpecularTexture;
 }
 
 // static

@@ -4,6 +4,7 @@
 #include <RendererCore/Lights/ClusteredDataExtractor.h>
 #include <RendererCore/Lights/ClusteredDataProvider.h>
 #include <RendererCore/Lights/Implementation/ClusteredDataUtils.h>
+#include <RendererCore/Lights/Implementation/ReflectionPool.h>
 #include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -87,6 +88,7 @@ void ezClusteredDataGPU::BindResources(ezRenderContext* pRenderContext)
 
   auto hShadowDataBufferView = pDevice->GetDefaultResourceView(ezShadowPool::GetShadowDataBuffer());
   auto hShadowAtlasTextureView = pDevice->GetDefaultResourceView(ezShadowPool::GetShadowAtlasTexture());
+  auto hReflectionSpecularTextureView = pDevice->GetDefaultResourceView(ezReflectionPool::GetReflectionSpecularTexture());
 
   pRenderContext->BindBuffer("perLightDataBuffer", pDevice->GetDefaultResourceView(m_hLightDataBuffer));
   pRenderContext->BindBuffer("perDecalDataBuffer", pDevice->GetDefaultResourceView(m_hDecalDataBuffer));
@@ -101,13 +103,17 @@ void ezClusteredDataGPU::BindResources(ezRenderContext* pRenderContext)
   pRenderContext->BindTexture2D("DecalAtlasBaseColorTexture", pDecalAtlas->GetBaseColorTexture());
   pRenderContext->BindTexture2D("DecalAtlasNormalTexture", pDecalAtlas->GetNormalTexture());
 
+  pRenderContext->BindTextureCube("ReflectionSpecularTexture", hReflectionSpecularTextureView);
+
   pRenderContext->BindConstantBuffer("ezClusteredDataConstants", m_hConstantBuffer);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClusteredDataProvider, 1, ezRTTIDefaultAllocator<ezClusteredDataProvider>) {}
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClusteredDataProvider, 1, ezRTTIDefaultAllocator<ezClusteredDataProvider>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezClusteredDataProvider::ezClusteredDataProvider() {}
 
@@ -143,7 +149,7 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
     const ezRectFloat& viewport = renderViewContext.m_pViewData->m_ViewPortRect;
 
     ezClusteredDataConstants* pConstants =
-        renderViewContext.m_pRenderContext->GetConstantBufferData<ezClusteredDataConstants>(m_Data.m_hConstantBuffer);
+      renderViewContext.m_pRenderContext->GetConstantBufferData<ezClusteredDataConstants>(m_Data.m_hConstantBuffer);
     pConstants->DepthSliceScale = s_fDepthSliceScale;
     pConstants->DepthSliceBias = s_fDepthSliceBias;
     pConstants->InvTileSize = ezVec2(NUM_CLUSTERS_X / viewport.width, NUM_CLUSTERS_Y / viewport.height);
@@ -166,4 +172,3 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ClusteredDataProvider);
-

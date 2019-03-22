@@ -501,8 +501,6 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
 
 void ezShaderCompiler::WriteFailedShaderSource(ezShaderProgramCompiler::ezShaderProgramData& spd, ezLogInterface* pLog)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
-
   for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
     if (spd.m_StageBinary[stage].m_uiSourceHash != 0 && spd.m_bWriteToDisk[stage])

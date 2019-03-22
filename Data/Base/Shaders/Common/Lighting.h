@@ -16,6 +16,8 @@ SamplerComparisonState ShadowSampler;
 Texture2D DecalAtlasBaseColorTexture;
 Texture2D DecalAtlasNormalTexture;
 
+TextureCubeArray ReflectionSpecularTexture;
+
 Texture2D SceneDepth;
 Texture2D SceneColor;
 SamplerState SceneColorSampler;
