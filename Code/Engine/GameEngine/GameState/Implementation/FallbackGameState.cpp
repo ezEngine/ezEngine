@@ -208,9 +208,9 @@ void ezFallbackGameState::ProcessInput()
     m_MainCamera.MoveLocally(0, fInput * fMoveSpeed, 0);
 
   if (ezInputManager::GetInputActionState("Game", "MoveUp", &fInput) != ezKeyState::Up)
-    m_MainCamera.MoveGlobally(ezVec3(0, 0, fInput * fMoveSpeed));
+    m_MainCamera.MoveGlobally(0, 0, fInput * fMoveSpeed);
   if (ezInputManager::GetInputActionState("Game", "MoveDown", &fInput) != ezKeyState::Up)
-    m_MainCamera.MoveGlobally(ezVec3(0, 0, -fInput * fMoveSpeed));
+    m_MainCamera.MoveGlobally(0, 0, -fInput * fMoveSpeed);
 
   if (ezInputManager::GetInputActionState("Game", "TurnLeft", &fInput) != ezKeyState::Up)
     m_MainCamera.RotateGlobally(ezAngle(), ezAngle(), ezAngle::Degree(-fRotateSpeed * fInput));

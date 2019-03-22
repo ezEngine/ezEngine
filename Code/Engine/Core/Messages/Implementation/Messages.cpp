@@ -3,6 +3,7 @@
 #include <Core/Messages/CollisionMessage.h>
 #include <Core/Messages/CommonMessages.h>
 #include <Core/Messages/DeleteObjectMessage.h>
+#include <Core/Messages/HierarchyChangedMessages.h>
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 
@@ -46,6 +47,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetPlaying, 1, ezRTTIDefaultAllocator<ezMsg
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgChildrenChanged);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgChildrenChanged, 1, ezRTTIDefaultAllocator<ezMsgChildrenChanged>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgComponentsChanged);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgComponentsChanged, 1, ezRTTIDefaultAllocator<ezMsgComponentsChanged>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 // clang-format on
 
 EZ_STATICLINK_FILE(Core, Core_Messages_Implementation_Messages);

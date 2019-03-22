@@ -313,6 +313,20 @@ void ezGeometry::ComputeTangents()
   m_Vertices = std::move(context.m_Vertices);
 }
 
+void ezGeometry::ValidateTangents(float epsilon)
+{
+  for (auto& vertex : m_Vertices)
+  {
+    // checking for orthogonality to the normal and for squared unit length (standard case) or 3 (magic number for binormal inversion)
+    if (!ezMath::IsEqual(vertex.m_vNormal.GetLengthSquared(), 1.f, epsilon) ||
+      !ezMath::IsEqual(vertex.m_vNormal.Dot(vertex.m_vTangent), 0.f, epsilon) ||
+      !(ezMath::IsEqual(vertex.m_vTangent.GetLengthSquared(), 1.f, epsilon) || ezMath::IsEqual(vertex.m_vTangent.GetLengthSquared(), 3.f, epsilon)))
+    {
+      vertex.m_vTangent.SetZero();
+    }
+  }
+}
+
 ezUInt32 ezGeometry::CalculateTriangleCount() const
 {
   const ezUInt32 numPolys = m_Polygons.GetCount();
@@ -336,6 +350,13 @@ void ezGeometry::SetAllVertexColor(const ezColor& color, ezUInt32 uiFirstVertex)
 {
   for (ezUInt32 v = uiFirstVertex; v < m_Vertices.GetCount(); ++v)
     m_Vertices[v].m_Color = color;
+}
+
+
+void ezGeometry::SetAllVertexTexCoord(const ezVec2& texCoord, ezUInt32 uiFirstVertex /*= 0*/)
+{
+  for (ezUInt32 v = uiFirstVertex; v < m_Vertices.GetCount(); ++v)
+    m_Vertices[v].m_vTexCoord = texCoord;
 }
 
 void ezGeometry::TransformVertices(const ezMat4& mTransform, ezUInt32 uiFirstVertex)
@@ -508,7 +529,6 @@ void ezGeometry::AddBox(const ezVec3& size, const ezColor& color, const ezMat4& 
   poly[3] = idx[7];
   AddPolygon(poly, bFlipWinding);
 }
-
 
 void ezGeometry::AddLineBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/,
                             ezInt32 iCustomIndex /*= 0*/)

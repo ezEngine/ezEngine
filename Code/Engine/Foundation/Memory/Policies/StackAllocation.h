@@ -86,7 +86,7 @@ namespace ezMemoryPolicies
     EZ_FORCE_INLINE void Deallocate(void* ptr)
     {
       // ptr is not on top of the stack, can't deallocate now
-      if (ptr < m_currentBucket.GetPtr() || ptr > m_pNextAllocation)
+      if (ptr != m_buckets[m_uiCurrentBucketIndex].pLastAllocation)
         return;
 
       // does this empty the current bucket?

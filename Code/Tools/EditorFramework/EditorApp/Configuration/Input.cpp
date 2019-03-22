@@ -22,7 +22,7 @@ void ezQtEditorApp::GetKnownInputSlots(ezDynamicArray<ezString>& slotList) const
     do
     {
       sFile = it.GetCurrentPath();
-      sFile.AppendPath(it.GetStats().m_sFileName);
+      sFile.AppendPath(it.GetStats().m_sName);
 
       ezFileReader reader;
       if (reader.Open(sFile).Succeeded())

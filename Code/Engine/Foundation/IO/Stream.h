@@ -7,13 +7,14 @@
 #include <Foundation/Containers/ArrayBase.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Containers/Map.h>
+#include <Foundation/Containers/HashTable.h>
 
 typedef ezUInt16 ezTypeVersion;
 
 /// \brief Interface for binary in (read) streams.
 class EZ_FOUNDATION_DLL ezStreamReader
 {
-
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezStreamReader);
 public:
   /// \brief Constructor
   ezStreamReader();
@@ -53,6 +54,10 @@ public:
   template <typename KeyType, typename ValueType, typename Comparer>
   ezResult ReadMap(ezMapBase<KeyType, ValueType, Comparer>& Map); // [tested]
 
+  /// \brief Read a hash table (note that the entry order is not stable)
+  template <typename KeyType, typename ValueType, typename Hasher>
+  ezResult ReadHashTable(ezHashTableBase<KeyType, ValueType, Hasher>& HashTable); // [tested]
+
   /// \brief Reads a string into a ezStringBuilder
   ezResult ReadString(ezStringBuilder& builder); // [tested]
 
@@ -85,7 +90,7 @@ public:
 /// \brief Interface for binary out (write) streams.
 class EZ_FOUNDATION_DLL ezStreamWriter
 {
-
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezStreamWriter);
 public:
   /// \brief Constructor
   ezStreamWriter();
@@ -134,6 +139,10 @@ public:
   /// \brief Writes a map
   template <typename KeyType, typename ValueType, typename Comparer>
   ezResult WriteMap(const ezMapBase<KeyType, ValueType, Comparer>& Map); // [tested]
+
+  /// \brief Writes a hash table (note that the entry order might change on read)
+  template <typename KeyType, typename ValueType, typename Hasher>
+  ezResult WriteHashTable(const ezHashTableBase<KeyType, ValueType, Hasher>& HashTable); // [tested]
 
   /// \brief Writes a string
   ezResult WriteString(const ezStringView szStringView); // [tested]

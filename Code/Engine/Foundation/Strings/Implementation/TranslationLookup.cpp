@@ -86,7 +86,7 @@ void ezTranslatorFromFiles::LoadTranslationFilesFromFolder(const char* szFolder)
     do
     {
       fullpath = it.GetCurrentPath();
-      fullpath.AppendPath(it.GetStats().m_sFileName);
+      fullpath.AppendPath(it.GetStats().m_sName);
 
       LoadTranslationFile(fullpath);
     } while (it.Next().Succeeded());

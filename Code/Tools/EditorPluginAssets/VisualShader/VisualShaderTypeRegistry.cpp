@@ -77,7 +77,7 @@ void ezVisualShaderTypeRegistry::UpdateNodeData()
   {
     do
     {
-      UpdateNodeData(it.GetStats().m_sFileName);
+      UpdateNodeData(it.GetStats().m_sName);
     } while (it.Next().Succeeded());
     }
 }

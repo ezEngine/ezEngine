@@ -44,17 +44,25 @@ struct EZ_FOUNDATION_DLL ezFileStats
 {
   ezFileStats();
 
-  /// \brief The name of the file or folder that the stats are for. Does not include the path to it.
-  ezStringBuilder m_sFileName;
+  /// \brief Stores the concatenated m_sParentPath and m_sName in \a path.
+  void GetFullPath(ezStringBuilder& path) const;
+
+  /// \brief Path to the parent folder.
+  /// Append m_sName to m_sParentPath to obtain the full path.
+  ezStringBuilder m_sParentPath;
+
+  /// \brief The name of the file or folder that the stats are for. Does not include the parent path to it.
+  /// Append m_sName to m_sParentPath to obtain the full path.
+  ezString m_sName;
 
   /// \brief The last modification time as an UTC timestamp since Unix epoch.
   ezTimestamp m_LastModificationTime;
 
   /// \brief The size of the file in bytes.
-  ezUInt64 m_uiFileSize;
+  ezUInt64 m_uiFileSize = 0;
 
   /// \brief Whether the file object is a file or folder.
-  bool m_bIsDirectory;
+  bool m_bIsDirectory = false;
 };
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
@@ -74,7 +82,7 @@ public:
 
   /// \brief Starts a search at the given folder. Use * and ? as wildcards.
   ///
-  /// To iterate all files from on folder, use '/Some/Folder/*'
+  /// To iterate all files from on folder, use '/Some/Folder'
   /// To iterate over all files of a certain type (in one folder) use '/Some/Folder/*.ext'
   /// Only the final path segment can use placeholders, folders in between must be fully named.
   /// If bRecursive is false, the iterator will only iterate over the files in the start folder, and will not recurse into subdirectories.
@@ -195,14 +203,40 @@ public:
 
 #endif
 
+#if (EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)) || defined(EZ_DOCS)
+
+  /// \brief Returns the ezFileStats for all files and folders in the given folder
+  static void GatherAllItemsInFolder(ezDynamicArray<ezFileStats>& out_ItemList, const char* szFolder);
+
+  /// \brief Copies \a szSourceFolder to \a szDestinationFolder. Overwrites existing files.
+  static ezResult CopyFolder(const char* szSourceFolder, const char* szDestinationFolder);
+
+  /// \brief Deletes all files recursively in \a szFolder.
+  ///
+  /// \note The current implementation does not remove the (empty) folders themselves.
+  static ezResult DeleteFolder(const char* szFolder);
+
+#endif
+
   /// \brief Returns the path in which the applications binary file is located.
   static const char* GetApplicationDirectory();
 
   /// \brief Returns the folder into which user data may be safely written.
+  /// Append a sub-folder for your application.
   ///
-  /// On Windows this is typically the %appdata% folder.
+  /// On Windows this is the '%appdata%' directory.
+  /// On Posix systems this is the '~' (home) directory.
+  ///
   /// If szSubFolder is specified, it will be appended to the result.
   static ezString GetUserDataFolder(const char* szSubFolder = nullptr);
+
+  /// \brief Returns the folder into which temp data may be written.
+  ///
+  /// On Windows this is the '%localappdata%/Temp' directory.
+  /// On Posix systems this is the '~/.cache' directory.
+  ///
+  /// If szSubFolder is specified, it will be appended to the result.
+  static ezString GetTempDataFolder(const char* szSubFolder = nullptr);
 
 public:
   /// \brief Describes the types of events that ezOSFile sends.
@@ -316,6 +350,9 @@ private:
 
   /// \brief The path where user data is stored on this OS
   static ezString64 s_UserDataPath;
+
+  /// \brief The path where temp data is stored on this OS
+  static ezString64 s_TempDataPath;
 
   /// \brief Counts how many different files are touched.225
   static ezAtomicInteger32 s_FileCounter;

@@ -97,7 +97,7 @@ void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, 
   OVERLAPPED* lpOverlapped;
   DWORD numberOfBytes;
   ULONG_PTR completionKey;
-  while (GetQueuedCompletionStatus(m_pImpl->m_completionPort, &numberOfBytes, &completionKey, &lpOverlapped, 10) != 0)
+  while (GetQueuedCompletionStatus(m_pImpl->m_completionPort, &numberOfBytes, &completionKey, &lpOverlapped, 0) != 0)
   {
     if (numberOfBytes <= 0)
     {

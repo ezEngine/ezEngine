@@ -3,6 +3,7 @@
 #include <Core/Application/Application.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Threading/ThreadUtils.h>
 
 ezApplication::ezApplication(const char* szAppName)
     : m_iReturnCode(0)
@@ -29,6 +30,18 @@ void ezApplication::BeforeCoreSystemsStartup()
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   ezRTTI::VerifyCorrectnessForAllTypes();
+#endif
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-WaitForDebugger"))
+  {
+    while (!IsDebuggerPresent())
+    {
+      ezThreadUtils::Sleep(ezTime::Milliseconds(1));
+    }
+
+    EZ_DEBUG_BREAK;
+  }
 #endif
 }
 

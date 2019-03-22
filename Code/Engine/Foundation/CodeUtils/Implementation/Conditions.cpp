@@ -26,7 +26,7 @@ ezResult ezPreprocessor::CopyTokensAndEvaluateDefined(const TokenStream& Source,
         continue;
       }
 
-      if (ezString(Source[uiCurToken]->m_DataView) == "defined")
+      if (Source[uiCurToken]->m_DataView.IsEqual("defined"))
       {
         ++uiCurToken;
 
@@ -38,9 +38,7 @@ ezResult ezPreprocessor::CopyTokensAndEvaluateDefined(const TokenStream& Source,
 
         ezToken* pReplacement = nullptr;
 
-        const ezString sIdentifier = Source[uiIdentifier]->m_DataView;
-
-        const bool bDefined = m_Macros.Find(sIdentifier).IsValid();
+        const bool bDefined = m_Macros.Find(Source[uiIdentifier]->m_DataView).IsValid();
 
         // broadcast that 'defined' is being evaluated
         {
@@ -80,11 +78,11 @@ ezResult ezPreprocessor::EvaluateCondition(const TokenStream& Tokens, ezUInt32& 
 {
   iResult = 0;
 
-  TokenStream Copied;
+  TokenStream Copied(&m_ClassAllocator);
   if (CopyTokensAndEvaluateDefined(Tokens, uiCurToken, Copied).Failed())
     return EZ_FAILURE;
 
-  TokenStream Expanded;
+  TokenStream Expanded(&m_ClassAllocator);
 
   if (Expand(Copied, Expanded).Failed())
     return EZ_FAILURE;

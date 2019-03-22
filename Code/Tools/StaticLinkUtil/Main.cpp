@@ -627,7 +627,7 @@ public:
       {
         // build the absolute path to the current file
         b = it.GetCurrentPath();
-        b.AppendPath(it.GetStats().m_sFileName.GetData());
+        b.AppendPath(it.GetStats().m_sName.GetData());
 
         // file extensions are always converted to lower-case actually
         sExt = b.GetFileExtension();
@@ -702,7 +702,7 @@ public:
       {
         // build the absolute path to the current file
         sFile = it.GetCurrentPath();
-        sFile.AppendPath(it.GetStats().m_sFileName.GetData());
+        sFile.AppendPath(it.GetStats().m_sName.GetData());
 
         // file extensions are always converted to lower-case actually
         sExt = sFile.GetFileExtension();

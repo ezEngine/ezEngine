@@ -247,7 +247,8 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
 
     out_Stats.m_uiFileSize = 0;
     out_Stats.m_bIsDirectory = true;
-    out_Stats.m_sFileName = s;
+    out_Stats.m_sParentPath.Clear();
+    out_Stats.m_sName = s;
     out_Stats.m_LastModificationTime.Invalidate();
     return EZ_SUCCESS;
   }
@@ -260,7 +261,9 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
 
   out_Stats.m_uiFileSize = HighLowToUInt64(data.nFileSizeHigh, data.nFileSizeLow);
   out_Stats.m_bIsDirectory = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
-  out_Stats.m_sFileName = data.cFileName;
+  out_Stats.m_sParentPath = szFileOrFolder;
+  out_Stats.m_sParentPath.PathParentDirectory();
+  out_Stats.m_sName = data.cFileName;
   out_Stats.m_LastModificationTime.SetInt64(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
 
   FindClose(hSearch);
@@ -289,14 +292,16 @@ ezResult ezFileSystemIterator::StartSearch(const char* szSearchStart, bool bRecu
   ezStringBuilder sSearch = szSearchStart;
   sSearch.MakeCleanPath();
 
+  // same as just passing in the folder path, so remove this
+  if (sSearch.EndsWith("/*"))
+    sSearch.Shrink(0, 2);
+
   // The Windows documentation disallows trailing (back)slashes.
   sSearch.Trim(nullptr, "/");
 
   // Since the use of wildcard-ed file names will disable recursion, we ensure both are not used simultaneously.
-  // TODO:
-  /*const bool bHasWildcard = sSearch.FindLastSubString("*") || sSearch.FindLastSubString("?");
-  EZ_ASSERT_DEV(bRecursive == false || bHasWildcard == false,
-    "Recursive file iteration does not support wildcards. Either don't use recursion, or filter the filenames manually.");*/
+  const bool bHasWildcard = sSearch.FindLastSubString("*") || sSearch.FindLastSubString("?");
+  EZ_ASSERT_DEV(bRecursive == false || bHasWildcard == false, "Recursive file iteration does not support wildcards. Either don't use recursion, or filter the filenames manually.");
 
   m_sCurPath = sSearch.GetFileDirectory();
 
@@ -313,12 +318,13 @@ ezResult ezFileSystemIterator::StartSearch(const char* szSearchStart, bool bRecu
 
   m_CurFile.m_uiFileSize = HighLowToUInt64(data.nFileSizeHigh, data.nFileSizeLow);
   m_CurFile.m_bIsDirectory = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
-  m_CurFile.m_sFileName = data.cFileName;
+  m_CurFile.m_sParentPath = m_sCurPath;
+  m_CurFile.m_sName = data.cFileName;
   m_CurFile.m_LastModificationTime.SetInt64(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
 
   m_Data.m_Handles.PushBack(hSearch);
 
-  if ((m_CurFile.m_sFileName == "..") || (m_CurFile.m_sFileName == "."))
+  if ((m_CurFile.m_sName == "..") || (m_CurFile.m_sName == "."))
     return Next(); // will search for the next file or folder that is not ".." or "." ; might return false though
 
   if (m_CurFile.m_bIsDirectory && !m_bReportFolders)
@@ -332,9 +338,9 @@ ezResult ezFileSystemIterator::Next()
   if (m_Data.m_Handles.IsEmpty())
     return EZ_FAILURE;
 
-  if (m_bRecursive && m_CurFile.m_bIsDirectory && (m_CurFile.m_sFileName != "..") && (m_CurFile.m_sFileName != "."))
+  if (m_bRecursive && m_CurFile.m_bIsDirectory && (m_CurFile.m_sName != "..") && (m_CurFile.m_sName != "."))
   {
-    m_sCurPath.AppendPath(m_CurFile.m_sFileName.GetData());
+    m_sCurPath.AppendPath(m_CurFile.m_sName.GetData());
 
     ezStringBuilder sNewSearch = m_sCurPath;
     sNewSearch.AppendPath("*");
@@ -346,12 +352,13 @@ ezResult ezFileSystemIterator::Next()
     {
       m_CurFile.m_uiFileSize = HighLowToUInt64(data.nFileSizeHigh, data.nFileSizeLow);
       m_CurFile.m_bIsDirectory = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
-      m_CurFile.m_sFileName = data.cFileName;
+      m_CurFile.m_sParentPath = m_sCurPath;
+      m_CurFile.m_sName = data.cFileName;
       m_CurFile.m_LastModificationTime.SetInt64(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
 
       m_Data.m_Handles.PushBack(hSearch);
 
-      if ((m_CurFile.m_sFileName == "..") || (m_CurFile.m_sFileName == "."))
+      if ((m_CurFile.m_sName == "..") || (m_CurFile.m_sName == "."))
         return Next(); // will search for the next file or folder that is not ".." or "." ; might return false though
 
       if (m_CurFile.m_bIsDirectory && !m_bReportFolders)
@@ -380,10 +387,11 @@ ezResult ezFileSystemIterator::Next()
 
   m_CurFile.m_uiFileSize = HighLowToUInt64(data.nFileSizeHigh, data.nFileSizeLow);
   m_CurFile.m_bIsDirectory = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
-  m_CurFile.m_sFileName = data.cFileName;
+  m_CurFile.m_sParentPath = m_sCurPath;
+  m_CurFile.m_sName = data.cFileName;
   m_CurFile.m_LastModificationTime.SetInt64(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
 
-  if ((m_CurFile.m_sFileName == "..") || (m_CurFile.m_sFileName == "."))
+  if ((m_CurFile.m_sName == "..") || (m_CurFile.m_sName == "."))
     return Next();
 
   if (m_CurFile.m_bIsDirectory && !m_bReportFolders)
@@ -464,3 +472,44 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
   return s;
 }
 
+ezString ezOSFile::GetTempDataFolder(const char* szSubFolder /*= nullptr*/)
+{
+  ezStringBuilder s;
+
+  if (s_TempDataPath.IsEmpty())
+  {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+    ComPtr<ABI::Windows::Storage::IApplicationDataStatics> appDataStatics;
+    if (SUCCEEDED(ABI::Windows::Foundation::GetActivationFactory(
+          HStringReference(RuntimeClass_Windows_Storage_ApplicationData).Get(), &appDataStatics)))
+    {
+      ComPtr<ABI::Windows::Storage::IApplicationData> applicationData;
+      if (SUCCEEDED(appDataStatics->get_Current(&applicationData)))
+      {
+        ComPtr<ABI::Windows::Storage::IStorageFolder> applicationTempData;
+        if (SUCCEEDED(applicationData->get_TemporaryFolder(&applicationTempData)))
+        {
+          ComPtr<ABI::Windows::Storage::IStorageItem> tempFolderItem;
+          if (SUCCEEDED(applicationTempData.As(&tempFolderItem)))
+          {
+            HSTRING path;
+            tempFolderItem->get_Path(&path);
+            s_TempDataPath = ezStringUtf8(path).GetData();
+          }
+        }
+      }
+    }
+#else
+    WCHAR szPath[MAX_PATH];
+    SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, SHGFP_TYPE_CURRENT, szPath);
+    s = ezStringWChar(szPath).GetData();
+    s.AppendPath("Temp");
+    s_TempDataPath = s;
+#endif
+  }
+
+  s = s_TempDataPath;
+  s.AppendPath(szSubFolder);
+  s.MakeCleanPath();
+  return s;
+}

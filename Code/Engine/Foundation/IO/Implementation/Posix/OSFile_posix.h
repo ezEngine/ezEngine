@@ -213,7 +213,9 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
 
   out_Stats.m_bIsDirectory = S_ISDIR(tempStat.st_mode);
   out_Stats.m_uiFileSize = tempStat.st_size;
-  out_Stats.m_sFileName = ezPathUtils::GetFileNameAndExtension(szFileOrFolder); // no OS support, so just pass it through
+  out_Stats.m_sParentPath = szFileOrFolder;
+  out_Stats.m_sParentPath.PathParentDirectory();
+  out_Stats.m_sName = ezPathUtils::GetFileNameAndExtension(szFileOrFolder); // no OS support, so just pass it through
   out_Stats.m_LastModificationTime.SetInt64(tempStat.st_mtime, ezSIUnitOfTime::Second);
 
   return EZ_SUCCESS;
@@ -276,6 +278,19 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
   }
 
   ezStringBuilder s = s_UserDataPath;
+  s.AppendPath(szSubFolder);
+  s.MakeCleanPath();
+  return s;
+}
+
+ezString ezOSFile::GetTempDataFolder(const char* szSubFolder)
+{
+  if (s_TempDataPath.IsEmpty())
+  {
+    s_TempDataPath = GetUserDataFolder(".cache");
+  }
+
+  ezStringBuilder s = s_TempDataPath;
   s.AppendPath(szSubFolder);
   s.MakeCleanPath();
   return s;

@@ -110,6 +110,7 @@ void ezWindowCreationDesc::SaveToDDL(ezOpenDdlWriter& writer)
 
   ezOpenDdlUtils::StoreBool(writer, m_bClipMouseCursor, "ClipMouseCursor");
   ezOpenDdlUtils::StoreBool(writer, m_bShowMouseCursor, "ShowMouseCursor");
+  ezOpenDdlUtils::StoreBool(writer, m_bSetForegroundOnInit, "SetForegroundOnInit");
 
   writer.EndObject();
 }
@@ -177,6 +178,9 @@ void ezWindowCreationDesc::LoadFromDDL(const ezOpenDdlReaderElement* pParentElem
 
     if (const ezOpenDdlReaderElement* pShowMouseCursor = pDesc->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "ShowMouseCursor"))
       m_bShowMouseCursor = pShowMouseCursor->GetPrimitivesBool()[0];
+
+    if (const ezOpenDdlReaderElement* pSetForegroundOnInit = pDesc->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "SetForegroundOnInit"))
+      m_bSetForegroundOnInit = pSetForegroundOnInit->GetPrimitivesBool()[0];
   }
 }
 

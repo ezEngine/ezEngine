@@ -1,8 +1,11 @@
 #pragma once
 
 #include <Core/CoreDLL.h>
+#include <Core/World/CoordinateSystem.h>
 #include <Foundation/Math/Mat4.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Types/UniquePtr.h>
+#include <Foundation/Types/SharedPtr.h>
 
 /// \brief Specifies in which mode this camera is configured.
 struct EZ_CORE_DLL ezCameraMode
@@ -25,7 +28,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezCameraMode);
 
 /// \brief Determines left or right eye of a stereo camera.
 ///
-/// As a general rule, this parameter does not matter for monoscopic cameras and will always return the same value.
+/// As a general rule, this parameter does not matter for mono-scopic cameras and will always return the same value.
 enum class EZ_CORE_DLL ezCameraEye
 {
   Left,
@@ -38,6 +41,14 @@ class EZ_CORE_DLL ezCamera
 {
 public:
   ezCamera();
+
+  /// \brief Allows to specify a different coordinate system in which the camera input and output coordinates are given.
+  ///
+  /// The default in z is forward = PositiveX, right = PositiveY, Up = PositiveZ.
+  void SetCoordinateSystem(ezBasisAxis::Enum forwardAxis, ezBasisAxis::Enum rightAxis, ezBasisAxis::Enum upAxis);
+
+  /// \brief Allows to specify a full ezCoordinateSystemProvider to determine forward/right/up vectors for camera movement
+  void SetCoordinateSystem(const ezSharedPtr<ezCoordinateSystemProvider>& provider);
 
   /// \brief Returns the position of the camera that should be used for rendering etc.
   ezVec3 GetPosition(ezCameraEye eye = ezCameraEye::Left) const;
@@ -109,14 +120,16 @@ public:
   ///   These stereo projection matrices will only be returned by getProjectionMatrix for the given aspectRatio.
   void SetStereoProjection(const ezMat4& mProjectionLeftEye, const ezMat4& mProjectionRightEye, float fAspectRatioWidthDivHeight);
 
-
   /// \brief Returns the fFovOrDim parameter that was passed to SetCameraProjectionAndMode().
   float GetFovOrDim() const;
 
   /// \brief Returns the current camera mode.
   ezCameraMode::Enum GetCameraMode() const;
+
   bool IsPerspective() const;
+
   bool IsOrthographic() const;
+
   /// \brief Whether this is a stereoscopic camera.
   bool IsStereoscopic() const;
 
@@ -130,29 +143,31 @@ public:
   /// Not supported for stereo cameras.
   void LookAt(const ezVec3& vCameraPos, const ezVec3& vTargetPos, const ezVec3& vUp);
 
-  /// \brief Moves the camera in its local space. Returns the movement that was made.
+  /// \brief Moves the camera in its local space along the forward/right/up directions of the coordinate system.
   ///
   /// Not supported for stereo cameras.
-  ezVec3 MoveLocally(float fForward, float fRight, float fUp);
+  void MoveLocally(float fForward, float fRight, float fUp);
 
-  /// \brief Moves the camera in global space.
+  /// \brief Moves the camera in global space along the forward/right/up directions of the coordinate system.
   ///
   /// Not supported for stereo cameras.
-  void MoveGlobally(const ezVec3& vMove);
+  void MoveGlobally(float fForward, float fRight, float fUp);
 
-  /// \brief Rotates the camera around the X (forward), Y (right) and Z (up) axis in its own local space.
+  /// \brief Rotates the camera around the forward, right and up axis in its own local space.
   ///
-  /// Rotate around Y for looking up/down. X is roll. For turning left/right use Z with RotateGlobally().
+  /// Rotate around \a rightAxis for looking up/down. \forwardAxis is roll. For turning left/right use RotateGlobally().
   /// Not supported for stereo cameras.
-  void RotateLocally(ezAngle X, ezAngle Y, ezAngle Z);
+  void RotateLocally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle upAxis);
 
-  /// \brief Rotates the camera around the X, Y and Z axis in global space.
+  /// \brief Rotates the camera around the forward, right and up axis of the coordinate system in global space.
   ///
   /// Rotate around Z for turning the camera left/right.
   /// Not supported for stereo cameras.
-  void RotateGlobally(ezAngle X, ezAngle Y, ezAngle Z);
+  void RotateGlobally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle upAxis);
 
   /// \brief Returns the view matrix for the given eye.
+  ///
+  /// \note The view matrix is given in OpenGL convention.
   const ezMat4& GetViewMatrix(ezCameraEye eye = ezCameraEye::Left) const;
 
   /// \brief Calculates the projection matrix from the current camera properties and stores it in out_projectionMatrix.
@@ -160,9 +175,10 @@ public:
   /// If the camera is stereo and the given aspect ratio is close to the aspect ratio passed in SetStereoProjection,
   /// the matrix set in SetStereoProjection will be used.
   void GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out_projectionMatrix, ezCameraEye eye = ezCameraEye::Left,
-                           ezProjectionDepthRange::Enum depthRange = ezProjectionDepthRange::Default) const;
+    ezProjectionDepthRange::Enum depthRange = ezProjectionDepthRange::Default) const;
 
   float GetExposure() const;
+
   void SetExposure(float fExposure);
 
   /// \brief Returns a counter that is increased every time the camera settings are modified.
@@ -186,16 +202,21 @@ private:
 
   /// \brief This function is called by RotateLocally() and RotateGlobally() BEFORE the values are applied,
   /// and allows to adjust them (e.g. for limiting how far the camera can rotate).
-  void ClampRotationAngles(bool bLocalSpace, ezAngle& X, ezAngle& Y, ezAngle& Z);
+  void ClampRotationAngles(bool bLocalSpace, ezAngle& forwardAxis, ezAngle& rightAxis, ezAngle& upAxis);
 
-  float m_fNearPlane;
-  float m_fFarPlane;
+  ezVec3 InternalGetPosition(ezCameraEye eye = ezCameraEye::Left) const;
+  ezVec3 InternalGetDirForwards(ezCameraEye eye = ezCameraEye::Left) const;
+  ezVec3 InternalGetDirUp(ezCameraEye eye = ezCameraEye::Left) const;
+  ezVec3 InternalGetDirRight(ezCameraEye eye = ezCameraEye::Left) const;
 
-  ezCameraMode::Enum m_Mode;
+  float m_fNearPlane = 0.1f;
+  float m_fFarPlane = 1000.0f;
 
-  float m_fFovOrDim;
+  ezCameraMode::Enum m_Mode = ezCameraMode::None;
 
-  float m_fExposure;
+  float m_fFovOrDim = 90.0f;
+
+  float m_fExposure = 1.0f;
 
   ezVec3 m_vCameraPosition[2];
   ezMat4 m_mViewMatrix[2];
@@ -205,10 +226,14 @@ private:
   float m_fAspectOfPrecomputedStereoProjection = -1.0;
   ezMat4 m_mStereoProjectionMatrix[2];
 
-  ezUInt32 m_uiSettingsModificationCounter;
-  ezUInt32 m_uiOrientationModificationCounter;
+  ezUInt32 m_uiSettingsModificationCounter = 0;
+  ezUInt32 m_uiOrientationModificationCounter = 0;
+
+  ezSharedPtr<ezCoordinateSystemProvider> m_CoordinateSystem;
+
+  ezVec3 MapExternalToInternal(const ezVec3& v) const;
+  ezVec3 MapInternalToExternal(const ezVec3& v) const;
 };
 
 
 #include <Core/Graphics/Implementation/Camera_inl.h>
-

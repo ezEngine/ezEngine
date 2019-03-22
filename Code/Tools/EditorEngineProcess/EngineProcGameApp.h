@@ -27,7 +27,7 @@ public:
   void LogWriter(const ezLoggingEventData& e);
 
 protected:
-  virtual void Init_ConfigureLogging() override;
+  virtual void BaseInit_ConfigureLogging() override;
   virtual void Deinit_ShutdownLogging() override;
   virtual void Init_FileSystem_ConfigureDataDirs() override;
   virtual bool Run_ProcessApplicationInput() override;

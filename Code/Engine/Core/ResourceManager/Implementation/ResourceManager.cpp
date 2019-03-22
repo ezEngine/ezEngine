@@ -27,6 +27,7 @@
 // Resource Loader
 //   Requires No File Access -> on non-File Thread
 
+bool ezResourceManager::s_ForceNoFallbackAcquisition = false;
 ezHashTable<const ezRTTI*, ezResourceManager::LoadedResources> ezResourceManager::s_LoadedResources;
 ezMap<ezString, ezResourceTypeLoader*> ezResourceManager::s_ResourceTypeLoader;
 ezResourceLoaderFromFile ezResourceManager::s_FileResourceLoader;
@@ -1207,9 +1208,9 @@ void ezResourceManager::SetResourceLowResData(const ezTypelessResourceHandle& hR
   }
 }
 
-void ezResourceManager::EnableExportMode()
+void ezResourceManager::EnableExportMode(bool enable)
 {
-  s_bExportMode = true;
+  s_bExportMode = enable;
 }
 
 EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_ResourceManager);

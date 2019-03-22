@@ -17,10 +17,12 @@ Only concrete and clocks.\n\
   const ezUInt32 uiTextLen = sFileContent.GetElementCount();
 
   ezStringBuilder sOutputFile = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  sOutputFile.MakeCleanPath();
   sOutputFile.AppendPath("IO", "SubFolder");
   sOutputFile.AppendPath("OSFile_TestFile.txt");
 
   ezStringBuilder sOutputFile2 = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  sOutputFile2.MakeCleanPath();
   sOutputFile2.AppendPath("IO", "SubFolder2");
   sOutputFile2.AppendPath("OSFile_TestFileCopy.txt");
 
@@ -162,12 +164,12 @@ Only concrete and clocks.\n\
     ezFileSystemIterator it;
     if (it.StartSearch(sOutputFolder.GetData(), true, true) == EZ_SUCCESS)
     {
-      int SkipFolder = 1;
+      int SkipFolder = 0;
 
       do
       {
         sFullPath = it.GetCurrentPath();
-        sFullPath.AppendPath(it.GetStats().m_sFileName.GetData());
+        sFullPath.AppendPath(it.GetStats().m_sName.GetData());
 
         it.GetStats();
         it.GetCurrentPath();

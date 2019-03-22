@@ -44,7 +44,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, Singleton)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Singleton Registration")
   {
     {
-      TestSingleton* pSingleton = ezSingletonRegistry::GetSingletonInstance<TestSingleton>("TestSingleton");
+      TestSingleton* pSingleton = ezSingletonRegistry::GetSingletonInstance<TestSingleton>();
       EZ_TEST_BOOL(pSingleton == nullptr);
     }
 
@@ -52,14 +52,14 @@ EZ_CREATE_SIMPLE_TEST(Configuration, Singleton)
       TestSingleton g_Singleton;
 
       {
-        TestSingleton* pSingleton = ezSingletonRegistry::GetSingletonInstance<TestSingleton>("TestSingleton");
+        TestSingleton* pSingleton = ezSingletonRegistry::GetSingletonInstance<TestSingleton>();
         EZ_TEST_BOOL(pSingleton == &g_Singleton);
         EZ_TEST_INT(pSingleton->m_iValue, 41);
       }
     }
 
     {
-      TestSingleton* pSingleton = ezSingletonRegistry::GetSingletonInstance<TestSingleton>("TestSingleton");
+      TestSingleton* pSingleton = ezSingletonRegistry::GetSingletonInstance<TestSingleton>();
       EZ_TEST_BOOL(pSingleton == nullptr);
     }
   }
@@ -67,7 +67,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, Singleton)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Singleton of Interface")
   {
     {
-      SingletonInterface* pSingleton = ezSingletonRegistry::GetSingletonInstance<SingletonInterface>("SingletonInterface");
+      SingletonInterface* pSingleton = ezSingletonRegistry::GetSingletonInstance<SingletonInterface>();
       EZ_TEST_BOOL(pSingleton == nullptr);
     }
 
@@ -75,14 +75,37 @@ EZ_CREATE_SIMPLE_TEST(Configuration, Singleton)
       TestSingletonOfInterface g_Singleton;
 
       {
-        SingletonInterface* pSingleton = ezSingletonRegistry::GetSingletonInstance<SingletonInterface>("SingletonInterface");
+        SingletonInterface* pSingleton = ezSingletonRegistry::GetSingletonInstance<SingletonInterface>();
+        EZ_TEST_BOOL(pSingleton == &g_Singleton);
+        EZ_TEST_INT(pSingleton->GetValue(), 23);
+      }
+
+      {
+        TestSingletonOfInterface* pSingleton = ezSingletonRegistry::GetSingletonInstance<TestSingletonOfInterface>();
+        EZ_TEST_BOOL(pSingleton == &g_Singleton);
+        EZ_TEST_INT(pSingleton->GetValue(), 23);
+      }
+
+      {
+        SingletonInterface* pSingleton = ezSingletonRegistry::GetRequiredSingletonInstance<SingletonInterface>();
+        EZ_TEST_BOOL(pSingleton == &g_Singleton);
+        EZ_TEST_INT(pSingleton->GetValue(), 23);
+      }
+
+      {
+        TestSingletonOfInterface* pSingleton = ezSingletonRegistry::GetRequiredSingletonInstance<TestSingletonOfInterface>();
         EZ_TEST_BOOL(pSingleton == &g_Singleton);
         EZ_TEST_INT(pSingleton->GetValue(), 23);
       }
     }
 
     {
-      SingletonInterface* pSingleton = ezSingletonRegistry::GetSingletonInstance<SingletonInterface>("SingletonInterface");
+      SingletonInterface* pSingleton = ezSingletonRegistry::GetSingletonInstance<SingletonInterface>();
+      EZ_TEST_BOOL(pSingleton == nullptr);
+    }
+
+    {
+      TestSingletonOfInterface* pSingleton = ezSingletonRegistry::GetSingletonInstance<TestSingletonOfInterface>();
       EZ_TEST_BOOL(pSingleton == nullptr);
     }
   }

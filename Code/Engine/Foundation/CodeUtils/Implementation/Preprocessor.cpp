@@ -7,6 +7,9 @@ ezString ezPreprocessor::s_ParamNames[32];
 using namespace ezTokenParseUtils;
 
 ezPreprocessor::ezPreprocessor()
+  : m_ClassAllocator("ezPreprocessor", ezFoundation::GetDefaultAllocator())
+  , m_Macros(ezCompareHelper<ezString256>(), &m_ClassAllocator)
+  , m_CustomDefines(&m_ClassAllocator)
 {
   SetCustomFileCache();
   m_pLog = nullptr;
@@ -366,9 +369,7 @@ ezResult ezPreprocessor::HandleIfdef(const TokenStream& Tokens, ezUInt32 uiCurTo
   if (Expect(Tokens, uiCurToken, ezTokenType::Identifier, &uiIdentifier).Failed())
     return EZ_FAILURE;
 
-  const ezString sIdentifier = Tokens[uiIdentifier]->m_DataView;
-
-  const bool bDefined = m_Macros.Find(sIdentifier).IsValid();
+  const bool bDefined = m_Macros.Find(Tokens[uiIdentifier]->m_DataView).IsValid();
 
   // broadcast that '#ifdef' is being evaluated
   {

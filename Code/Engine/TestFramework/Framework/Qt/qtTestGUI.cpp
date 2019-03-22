@@ -273,8 +273,8 @@ void ezQtTestGUI::on_actionEnableOnlyThis_triggered()
   CurrentIndex = m_pModel->index(CurrentIndex.row(), 0, CurrentIndex.parent());
 
   m_pTestFramework->SetAllTestsEnabledStatus(false);
-  EnableAllParents(CurrentIndex);
   SetCheckStateRecursive(CurrentIndex, true);
+  EnableAllParents(CurrentIndex);
 
   m_pModel->dataChanged(QModelIndex(), QModelIndex());
 }
