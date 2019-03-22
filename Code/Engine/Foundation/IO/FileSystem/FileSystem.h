@@ -168,6 +168,7 @@ public:
   ///
   /// ">sdk/" - Resolves to what GetSdkRootDirectory() returns.
   /// ">user/" - Resolves to what ezOSFile::GetUserDataFolder() returns.
+  /// ">temp/" - Resolves to what ezOSFile::GetTempDataFolder() returns.
   /// ">appdir/" - Resolves to what ezOSFile::GetApplicationDirectory() returns.
   ///
   /// Returns EZ_FAILURE if \a szDirectory starts with an unknown special directory.

@@ -784,6 +784,14 @@ ezResult ezFileSystem::ResolveSpecialDirectory(const char* szDirectory, ezString
     return EZ_SUCCESS;
   }
 
+  if (sName == "temp")
+  {
+    out_Path = ezOSFile::GetTempDataFolder();
+    out_Path.AppendPath(&szDirectory[5]);
+    out_Path.MakeCleanPath();
+    return EZ_SUCCESS;
+  }
+
   if (sName == "appdir")
   {
     out_Path = ezOSFile::GetApplicationDirectory();

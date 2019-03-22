@@ -119,7 +119,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
         do
         {
           sStringsBank = fsIt.GetCurrentPath();
-          sStringsBank.AppendPath(fsIt.GetStats().m_sFileName);
+          sStringsBank.AppendPath(fsIt.GetStats().m_sName);
 
           FMOD::Studio::Bank* pStringsBank = nullptr;
           if (pSystem->loadBankFile(sStringsBank, FMOD_STUDIO_LOAD_BANK_NORMAL, &pStringsBank) == FMOD_OK && pStringsBank != nullptr)

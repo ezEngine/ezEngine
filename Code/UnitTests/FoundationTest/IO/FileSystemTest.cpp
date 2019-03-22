@@ -190,7 +190,7 @@ Only concrete and clocks.\n\
     EZ_TEST_BOOL(ezFileSystem::GetFileStats(":output1/FileSystemTest.txt", stat).Succeeded());
 
     EZ_TEST_BOOL(!stat.m_bIsDirectory);
-    EZ_TEST_STRING(stat.m_sFileName, "FileSystemTest.txt");
+    EZ_TEST_STRING(stat.m_sName, "FileSystemTest.txt");
     EZ_TEST_INT(stat.m_uiFileSize, 4);
 
     ezFileSystem::DeleteFile(":output1/FileSystemTest.txt");

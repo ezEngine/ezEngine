@@ -167,7 +167,7 @@ Only concrete and clocks.\n\
       do
       {
         sFullPath = it.GetCurrentPath();
-        sFullPath.AppendPath(it.GetStats().m_sFileName.GetData());
+        sFullPath.AppendPath(it.GetStats().m_sName.GetData());
 
         it.GetStats();
         it.GetCurrentPath();
