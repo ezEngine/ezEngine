@@ -17,7 +17,9 @@ She isn't greeted by faces,\n\
 Only concrete and clocks.\n\
 ...";
 
-  const ezStringBuilder szOutputFolder = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  ezStringBuilder szOutputFolder = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  szOutputFolder.MakeCleanPath();
+
   ezStringBuilder sOutputFolderResolved;
   ezFileSystem::ResolveSpecialDirectory(szOutputFolder, sOutputFolderResolved);
 
