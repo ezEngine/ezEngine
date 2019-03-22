@@ -260,3 +260,21 @@ function(ez_gather_subfolders START_FOLDER RESULT_FOLDERS)
 
 endfunction()
 
+
+######################################
+### ez_glob_source_files
+######################################
+
+function(ez_glob_source_files ROOT_DIR RESULT_ALL_SOURCES)
+
+  file(GLOB_RECURSE CPP_FILES "${ROOT_DIR}/*.cpp")
+  file(GLOB_RECURSE H_FILES "${ROOT_DIR}/*.h" "${ROOT_DIR}/*.hpp" "${ROOT_DIR}/*.inl")
+  file(GLOB_RECURSE C_FILES "${ROOT_DIR}/*.c")
+
+  file(GLOB_RECURSE UI_FILES "${ROOT_DIR}/*.ui")
+  file(GLOB_RECURSE QRC_FILES "${ROOT_DIR}/*.qrc")
+  file(GLOB_RECURSE RES_FILES "${ROOT_DIR}/*.ico" "${ROOT_DIR}/*.rc")
+
+  set(${RESULT_ALL_SOURCES} ${CPP_FILES} ${H_FILES} ${C_FILES} ${UI_FILES} ${QRC_FILES} ${RES_FILES} PARENT_SCOPE)
+
+endfunction()

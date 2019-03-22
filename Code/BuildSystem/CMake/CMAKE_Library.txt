@@ -1,35 +1,21 @@
 #cmake
 
-# Get the name of this folder
-get_filename_component (CUR_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
-get_filename_component (PARENT_FOLDER ${CMAKE_CURRENT_SOURCE_DIR} PATH)
-get_filename_component (PARENT_FOLDER_NAME ${PARENT_FOLDER} NAME_WE)
-
-# the library name
-set (PROJECT_NAME "${CUR_FOLDER_NAME}")
-set (PROJECT_FOLDER_NAME ${CUR_FOLDER_NAME})
+# Get the name of this folder as the project name
+get_filename_component (PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
 message (STATUS "Adding Library: ${PROJECT_NAME}")
 
-file(GLOB SOURCE_FILES_H "${CMAKE_CURRENT_SOURCE_DIR}/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/*.inl")
-file(GLOB SOURCE_FILES_C "${CMAKE_CURRENT_SOURCE_DIR}/*.c")
-file(GLOB SOURCE_FILES_CPP "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-
-set (LIST_SOURCE_GROUP_FOLDER "")
-set (LIST_CURRENT_FOLDER ${CMAKE_CURRENT_SOURCE_DIR})
-set (ALL_SOURCE_FILES "")
-
 ez_all_vars()
 
-include (${EZ_CMAKE_UTILS_PATH}/CMAKE_LibraryFolder.txt)
-
-#set(ALL_SOURCE_FILES ${SOURCE_FILES_H} ${SOURCE_FILES_C} ${SOURCE_FILES_CPP})
+ez_glob_source_files(${CMAKE_CURRENT_SOURCE_DIR} ALL_SOURCE_FILES)
 
 if (EZ_COMPILE_ENGINE_AS_DLL)
   add_library (${PROJECT_NAME} SHARED ${ALL_SOURCE_FILES})
 else ()
   add_library (${PROJECT_NAME} ${ALL_SOURCE_FILES})
 endif ()
+
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${ALL_SOURCE_FILES})
 
 ez_auto_pch(${PROJECT_NAME} "${ALL_SOURCE_FILES}")
 ez_set_default_target_output_dirs(${PROJECT_NAME})
