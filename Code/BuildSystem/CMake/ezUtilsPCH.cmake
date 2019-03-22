@@ -1,5 +1,37 @@
 
 ######################################
+### ez_set_target_pch
+######################################
+
+function(ez_set_target_pch TARGET_NAME PCH_NAME)
+
+  if (NOT EZ_USE_PCH)
+    return()
+  endif()
+
+  #message(STATUS "Setting PCH for '${TARGET_NAME}': ${PCH_NAME}")
+  set_property(TARGET ${TARGET_NAME} PROPERTY "PCH_FILE_NAME" ${PCH_NAME})
+
+endfunction()
+
+######################################
+### ez_retrieve_target_pch
+######################################
+
+function(ez_retrieve_target_pch TARGET_NAME PCH_NAME)
+
+  if (NOT EZ_USE_PCH)
+    return()
+  endif()
+
+  get_property(RESULT TARGET ${TARGET_NAME} PROPERTY "PCH_FILE_NAME")
+
+  set (${PCH_NAME} ${RESULT} PARENT_SCOPE)
+  #message(STATUS "Retrieved PCH for '${TARGET_NAME}': ${RESULT}")
+
+endfunction()
+
+######################################
 ### ez_pch_use
 ######################################
 
@@ -76,7 +108,7 @@ endfunction()
 ### ez_auto_pch
 ######################################
 
-function(ez_auto_pch FILES)
+function(ez_auto_pch TARGET_NAME FILES)
 
   ez_find_pch_in_file_list("${FILES}" PCH_NAME)
 
@@ -87,5 +119,7 @@ function(ez_auto_pch FILES)
   ez_pch_create("${PCH_NAME}.h" "${PCH_NAME}.cpp")
 
   ez_pch_use("${PCH_NAME}.h" "${FILES}")
+
+  ez_set_target_pch(${TARGET_NAME} ${PCH_NAME})
   
 endfunction()

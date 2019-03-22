@@ -1,23 +1,13 @@
 #cmake
 
-# Get the name of this folder
-get_filename_component (CUR_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
-get_filename_component (PARENT_FOLDER ${CMAKE_CURRENT_SOURCE_DIR} PATH)
-get_filename_component (PARENT_FOLDER_NAME ${PARENT_FOLDER} NAME_WE)
-
-# the library name
-set (PROJECT_NAME "${CUR_FOLDER_NAME}")
-set (PROJECT_FOLDER_NAME ${CUR_FOLDER_NAME})
+# Get the name of this folder as the project name
+get_filename_component (PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
 message (STATUS "Adding Application: ${PROJECT_NAME}")
 
-set (LIST_SOURCE_GROUP_FOLDER "")
-set (LIST_CURRENT_FOLDER ${CMAKE_CURRENT_SOURCE_DIR})
-set (ALL_SOURCE_FILES "")
-
 ez_all_vars()
 
-include (${CMAKE_CURRENT_LIST_DIR}/CMAKE_LibraryFolder.txt)
+ez_glob_source_files(${CMAKE_CURRENT_SOURCE_DIR} ALL_SOURCE_FILES)
 
 # Setup package if necessary
 # TODO: Move to somewhere else
@@ -57,7 +47,6 @@ if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 
   configure_file(${CONTENT_DIRECTORY_SRC}/package_template.appxmanifest ${CONTENT_DIRECTORY_DST}Package.appxmanifest @ONLY)
 
-
   list(APPEND UWP_ASSETS ${CONTENT_DIRECTORY_DST}Package.appxmanifest)
 
   # Include all content.
@@ -68,11 +57,17 @@ endif()
 # Define the Exe Project, add all required sources to it
 add_executable (${PROJECT_NAME} ${ALL_SOURCE_FILES} ${CONTENT_FILES})
 
-ez_auto_pch("${ALL_SOURCE_FILES}")
+ez_auto_pch(${PROJECT_NAME} "${ALL_SOURCE_FILES}")
 ez_set_default_target_output_dirs(${PROJECT_NAME})
 ez_set_common_target_include_dirs(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 ez_set_common_target_definitions(${PROJECT_NAME})
 ez_set_build_flags(${PROJECT_NAME})
+
+ez_qt_wrap_target_files(${PROJECT_NAME} "${ALL_SOURCE_FILES}")
+
+if (EZ_MOC_HEADERS)
+	ez_qt_wrap_target_moc_files(${PROJECT_NAME} "${EZ_MOC_HEADERS}")
+endif()
 
 ez_set_project_ide_folder(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 

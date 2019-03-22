@@ -87,6 +87,34 @@ function(ez_generate_folder_unity_file TARGET_NAME PROJECT_DIRECTORY SUB_FOLDER_
 
   # add the file to the target and sort it into the proper sub-tree
   target_sources(${TARGET_NAME} PRIVATE ${FOLDER_UNITY_FILE})
-  source_group(${SUB_FOLDER_PATH} FILES ${FOLDER_UNITY_FILE})
+
+  string(REPLACE "/" "\\" SOURCE_GROUP_PATH "${SUB_FOLDER_PATH}")
+  source_group("${SOURCE_GROUP_PATH}" FILES ${FOLDER_UNITY_FILE})
+
+endfunction()
+
+######################################
+### ez_generate_folder_unity_files_for_target
+######################################
+
+function(ez_generate_folder_unity_files_for_target TARGET_NAME TARGET_DIRECTORY)
+
+  ez_gather_subfolders(${TARGET_DIRECTORY} ALL_FOLDERS)
+
+  foreach(CUR_FOLDER ${ALL_FOLDERS})
+
+    if (ARGN)
+
+      if (${CUR_FOLDER} IN_LIST ARGN)
+        continue()
+      endif()
+
+    endif()
+
+    file(GLOB FILES_IN_FOLDER RELATIVE "${TARGET_DIRECTORY}/${CUR_FOLDER}" "${TARGET_DIRECTORY}/${CUR_FOLDER}/*.cpp")
+
+    ez_generate_folder_unity_file(${TARGET_NAME} "${TARGET_DIRECTORY}" "${CUR_FOLDER}" "${FILES_IN_FOLDER}")
+
+  endforeach()
 
 endfunction()

@@ -1,5 +1,7 @@
 #cmake
 
+set(SKIP_UNITY_FOR_FOLDER "Recast")
+
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
 
 if(MSVC)

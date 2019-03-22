@@ -10,11 +10,11 @@ endif()
 
 # set all headers, that shall be MOC'ed that do not end with moc.h and thus will be MOC'ed automatically.
 set (EZ_MOC_HEADERS
-  Framework/Qt/qtTestFramework.h
-  Framework/Qt/qtTestGUI.h
-  Framework/Qt/qtTestModel.h
-  Framework/Qt/qtTestDelegate.h
-  Framework/Qt/qtLogMessageDock.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/Framework/Qt/qtTestFramework.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/Framework/Qt/qtTestGUI.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/Framework/Qt/qtTestModel.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/Framework/Qt/qtTestDelegate.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/Framework/Qt/qtLogMessageDock.h
 )
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")

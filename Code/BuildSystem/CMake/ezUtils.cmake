@@ -60,25 +60,25 @@ function(ez_set_target_output_dirs TARGET_NAME LIB_OUTPUT_DR DLL_OUTPUT_DR)
     LIBRARY_OUTPUT_DIRECTORY "${OUTPUT_LIB_DEBUG}"
     ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_LIB_DEBUG}"
 	)
-	
+
 	set_target_properties(${TARGET_NAME} PROPERTIES
 	  RUNTIME_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_DLL_DEBUG}"
     LIBRARY_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_LIB_DEBUG}"
     ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_LIB_DEBUG}"
-  )	
+  )
 
 	set_target_properties(${TARGET_NAME} PROPERTIES
 	  RUNTIME_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_DLL_RELEASE}"
     LIBRARY_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_LIB_RELEASE}"
     ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_LIB_RELEASE}"
-  )	
+  )
 
 	set_target_properties(${TARGET_NAME} PROPERTIES
 	  RUNTIME_OUTPUT_DIRECTORYMINSIZEREL "${OUTPUT_DLL_MINSIZE}"
     LIBRARY_OUTPUT_DIRECTORYMINSIZEREL "${OUTPUT_LIB_MINSIZE}"
     ARCHIVE_OUTPUT_DIRECTORYMINSIZEREL "${OUTPUT_LIB_MINSIZE}"
 	)
-		
+
 	set_target_properties(${TARGET_NAME} PROPERTIES
 	  RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${OUTPUT_DLL_RELWITHDEB}"
     LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO "${OUTPUT_LIB_RELWITHDEB}"
@@ -152,7 +152,7 @@ function(ez_set_common_target_definitions TARGET_NAME)
 	if (EZ_CMAKE_PLATFORM_WINDOWS)
 	  set (EZ_COMPILE_ENGINE_AS_DLL ON CACHE BOOL "Whether to compile the code as a shared libraries (DLL).")
 		mark_as_advanced(FORCE EZ_COMPILE_ENGINE_AS_DLL)
-		
+
 		target_compile_definitions(${TARGET_NAME} PUBLIC BUILDSYSTEM_COMPILE_ENGINE_AS_DLL)
 
 	else()
@@ -234,3 +234,47 @@ function(ez_make_winmain_executable TARGET_NAME)
 
 endfunction()
 
+
+######################################
+### ez_gather_subfolders
+######################################
+
+function(ez_gather_subfolders START_FOLDER RESULT_FOLDERS)
+
+	set(ALL_FILES "")
+	set(ALL_DIRS "")
+
+	file(GLOB_RECURSE ALL_FILES RELATIVE "${START_FOLDER}" "${START_FOLDER}/*")
+
+	foreach(FILE ${ALL_FILES})
+
+		get_filename_component(FILE_PATH ${FILE} DIRECTORY)
+
+		list(APPEND ALL_DIRS ${FILE_PATH})
+
+	endforeach()
+
+	list(REMOVE_DUPLICATES ALL_DIRS)
+
+	set(${RESULT_FOLDERS} ${ALL_DIRS} PARENT_SCOPE)
+
+endfunction()
+
+
+######################################
+### ez_glob_source_files
+######################################
+
+function(ez_glob_source_files ROOT_DIR RESULT_ALL_SOURCES)
+
+  file(GLOB_RECURSE CPP_FILES "${ROOT_DIR}/*.cpp")
+  file(GLOB_RECURSE H_FILES "${ROOT_DIR}/*.h" "${ROOT_DIR}/*.hpp" "${ROOT_DIR}/*.inl")
+  file(GLOB_RECURSE C_FILES "${ROOT_DIR}/*.c")
+
+  file(GLOB_RECURSE UI_FILES "${ROOT_DIR}/*.ui")
+  file(GLOB_RECURSE QRC_FILES "${ROOT_DIR}/*.qrc")
+  file(GLOB_RECURSE RES_FILES "${ROOT_DIR}/*.ico" "${ROOT_DIR}/*.rc")
+
+  set(${RESULT_ALL_SOURCES} ${CPP_FILES} ${H_FILES} ${C_FILES} ${UI_FILES} ${QRC_FILES} ${RES_FILES} PARENT_SCOPE)
+
+endfunction()
