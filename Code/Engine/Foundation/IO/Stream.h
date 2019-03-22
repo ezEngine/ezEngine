@@ -7,6 +7,7 @@
 #include <Foundation/Containers/ArrayBase.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Containers/Map.h>
+#include <Foundation/Containers/HashTable.h>
 
 typedef ezUInt16 ezTypeVersion;
 
@@ -52,6 +53,10 @@ public:
   /// \brief Reads a map
   template <typename KeyType, typename ValueType, typename Comparer>
   ezResult ReadMap(ezMapBase<KeyType, ValueType, Comparer>& Map); // [tested]
+
+  /// \brief Read a hash table (note that the entry order is not stable)
+  template <typename KeyType, typename ValueType, typename Hasher>
+  ezResult ReadHashTable(ezHashTableBase<KeyType, ValueType, Hasher>& HashTable); // [tested]
 
   /// \brief Reads a string into a ezStringBuilder
   ezResult ReadString(ezStringBuilder& builder); // [tested]
@@ -134,6 +139,10 @@ public:
   /// \brief Writes a map
   template <typename KeyType, typename ValueType, typename Comparer>
   ezResult WriteMap(const ezMapBase<KeyType, ValueType, Comparer>& Map); // [tested]
+
+  /// \brief Writes a hash table (note that the entry order might change on read)
+  template <typename KeyType, typename ValueType, typename Hasher>
+  ezResult WriteHashTable(const ezHashTableBase<KeyType, ValueType, Hasher>& HashTable); // [tested]
 
   /// \brief Writes a string
   ezResult WriteString(const ezStringView szStringView); // [tested]
