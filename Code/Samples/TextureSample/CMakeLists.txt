@@ -1,5 +1,3 @@
-#cmake
-
 if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
 	return()
 endif()

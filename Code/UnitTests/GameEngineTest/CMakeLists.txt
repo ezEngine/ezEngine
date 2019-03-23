@@ -1,5 +1,3 @@
-#cmake
-
 ez_all_vars()
 
 if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
@@ -18,7 +16,7 @@ target_link_libraries(${PROJECT_NAME}
 ez_link_target_dx11(${PROJECT_NAME})
 
 if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
-  ez_ci_add_test(${PROJECT_NAME} ON)
+  ez_ci_add_test(${PROJECT_NAME} NEEDS_HW_ACCESS)
 endif()
 
 add_dependencies(${PROJECT_NAME}

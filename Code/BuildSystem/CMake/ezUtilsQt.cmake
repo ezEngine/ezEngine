@@ -1,5 +1,5 @@
 ######################################
-### ez_requires_qt
+### ez_requires_qt()
 ######################################
 
 macro(ez_requires_qt)
@@ -11,7 +11,7 @@ macro(ez_requires_qt)
 endmacro()
 
 ######################################
-### ez_prepare_find_qt
+### ez_prepare_find_qt()
 ######################################
 
 function(ez_prepare_find_qt)
@@ -41,7 +41,7 @@ function(ez_prepare_find_qt)
 endfunction()
 
 ######################################
-### ez_link_target_qt
+### ez_link_target_qt(TARGET <target> COMPONENTS <qt components> [COPY_DLLS])
 ######################################
 
 function(ez_link_target_qt)
@@ -103,7 +103,7 @@ endfunction()
 
 
 ######################################
-### ez_qt_wrap_target_ui_files
+### ez_qt_wrap_target_ui_files(<target> <files>)
 ######################################
 
 function(ez_qt_wrap_target_ui_files TARGET_NAME FILES_TO_WRAP)
@@ -136,7 +136,7 @@ function(ez_qt_wrap_target_ui_files TARGET_NAME FILES_TO_WRAP)
 endfunction()
 
 ######################################
-### ez_qt_wrap_target_moc_files
+### ez_qt_wrap_target_moc_files(<target> <files>)
 ######################################
 
 function(ez_qt_wrap_target_moc_files TARGET_NAME FILES_TO_WRAP)
@@ -164,7 +164,7 @@ endfunction()
     
     
 ######################################
-### ez_qt_wrap_target_qrc_files
+### ez_qt_wrap_target_qrc_files(<target> <files>)
 ######################################
 
 function(ez_qt_wrap_target_qrc_files TARGET_NAME FILES_TO_WRAP)
@@ -188,7 +188,7 @@ function(ez_qt_wrap_target_qrc_files TARGET_NAME FILES_TO_WRAP)
 endfunction()
     
 ######################################
-### ez_qt_wrap_target_files
+### ez_qt_wrap_target_files(<target> <files>)
 ######################################
 
 function(ez_qt_wrap_target_files TARGET_NAME FILES_TO_WRAP)

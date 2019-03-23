@@ -1,5 +1,3 @@
-#cmake
-
 ez_all_vars()
 
 if (NOT EZ_CMAKE_PLATFORM_WINDOWS)

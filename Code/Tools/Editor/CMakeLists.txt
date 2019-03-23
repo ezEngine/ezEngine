@@ -1,5 +1,3 @@
-#cmake
-
 ez_all_vars()
 
 ez_requires_qt()

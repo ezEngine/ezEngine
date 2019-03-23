@@ -1,6 +1,6 @@
 
 ######################################
-### ez_ci_add_to_targets_list
+### ez_ci_add_to_targets_list(<target> [C++])
 ######################################
 
 function(ez_ci_add_to_targets_list TARGET_NAME LANGUAGE)
@@ -14,12 +14,21 @@ function(ez_ci_add_to_targets_list TARGET_NAME LANGUAGE)
 endfunction()
 
 ######################################
-### ez_ci_add_test
+### ez_ci_add_test(<target> [NEEDS_HW_ACCESS])
 ######################################
 
-function(ez_ci_add_test TARGET_NAME NEEDS_HW_ACCESS)
+function(ez_ci_add_test TARGET_NAME)
 
-	if (${NEEDS_HW_ACCESS})
+	set(ARG_OPTIONS NEEDS_HW_ACCESS)
+	set(ARG_ONEVALUEARGS "")
+	set(ARG_MULTIVALUEARGS "")
+	cmake_parse_arguments(ARG "${ARG_OPTIONS}" "${ARG_ONEVALUEARGS}" "${ARG_MULTIVALUEARGS}" ${ARGN} )
+
+	if (ARG_UNPARSED_ARGUMENTS)
+		message(FATAL_ERROR "ez_ci_add_test: Invalid arguments '${ARG_UNPARSED_ARGUMENTS}'")
+	endif()
+
+	if (${ARG_NEEDS_HW_ACCESS})
 		set (HWA_VALUE 1)
 	else ()
 		set (HWA_VALUE 0)

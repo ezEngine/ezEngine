@@ -1,5 +1,5 @@
 ######################################
-### ez_link_target_dx11
+### ez_link_target_dx11(<target>)
 ######################################
 
 function(ez_link_target_dx11 TARGET_NAME)

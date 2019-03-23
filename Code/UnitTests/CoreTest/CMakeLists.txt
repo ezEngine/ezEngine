@@ -1,5 +1,3 @@
-#cmake
-
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
 
 target_link_libraries(${PROJECT_NAME}
@@ -9,4 +7,4 @@ target_link_libraries(${PROJECT_NAME}
   Core
 )
 
-ez_ci_add_test(${PROJECT_NAME} OFF)
+ez_ci_add_test(${PROJECT_NAME})

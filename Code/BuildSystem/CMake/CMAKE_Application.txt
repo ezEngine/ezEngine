@@ -1,5 +1,3 @@
-#cmake
-
 # Get the name of this folder as the project name
 get_filename_component (PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
@@ -59,28 +57,13 @@ add_executable (${PROJECT_NAME} ${ALL_SOURCE_FILES} ${CONTENT_FILES})
 
 ez_auto_pch(${PROJECT_NAME} "${ALL_SOURCE_FILES}")
 ez_set_default_target_output_dirs(${PROJECT_NAME})
-ez_set_common_target_include_dirs(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
+ez_add_target_folder_as_include_dir(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 ez_set_common_target_definitions(${PROJECT_NAME})
 ez_set_build_flags(${PROJECT_NAME})
-
-ez_qt_wrap_target_files(${PROJECT_NAME} "${ALL_SOURCE_FILES}")
-
-if (EZ_MOC_HEADERS)
-	ez_qt_wrap_target_moc_files(${PROJECT_NAME} "${EZ_MOC_HEADERS}")
-endif()
-
+ez_set_application_properties(${PROJECT_NAME})
 ez_set_project_ide_folder(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 
-if (EZ_CMAKE_PLATFORM_OSX OR EZ_CMAKE_PLATFORM_LINUX)
-  find_package(X11 REQUIRED)
-  target_include_directories (${PROJECT_NAME} PRIVATE ${X11_X11_INCLUDE_PATH})
-  target_link_libraries (${PROJECT_NAME} PRIVATE ${X11_X11_LIB})
-endif ()
-
-# We need to link against X11, pthread and rt last or linker errors will occur.
-if (EZ_CMAKE_COMPILER_GCC)
-	target_link_libraries (${PROJECT_NAME} PRIVATE pthread rt)
-endif ()
+ez_qt_wrap_target_files(${PROJECT_NAME} "${ALL_SOURCE_FILES}")
 
 # UWP has deployment problems if all applications output to the same path.
 if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)

@@ -1,5 +1,3 @@
-#cmake
-
 ez_all_vars()
 
 if (NOT EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
@@ -14,4 +12,4 @@ target_link_libraries(${PROJECT_NAME}
   ToolsFoundation
 )
 
-ez_ci_add_test(${PROJECT_NAME} OFF)
+ez_ci_add_test(${PROJECT_NAME})

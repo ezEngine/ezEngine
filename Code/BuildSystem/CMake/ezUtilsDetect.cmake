@@ -1,5 +1,5 @@
 ######################################
-### ez_detect_project_name
+### ez_detect_project_name(<out-name>)
 ######################################
 
 function(ez_detect_project_name OUT_NAME)
@@ -35,7 +35,7 @@ function(ez_detect_project_name OUT_NAME)
 endfunction()
 
 ######################################
-### ez_detect_platform
+### ez_detect_platform()
 ######################################
 
 function(ez_detect_platform)
@@ -108,7 +108,7 @@ function(ez_detect_platform)
 endfunction()
 
 ######################################
-### ez_platform_vars
+### ez_platform_vars()
 ######################################
 
 macro(ez_platform_vars)
@@ -127,7 +127,7 @@ macro(ez_platform_vars)
 endmacro()
 
 ######################################
-### ez_detect_generator
+### ez_detect_generator()
 ######################################
 
 function(ez_detect_generator)
@@ -208,7 +208,7 @@ function(ez_detect_generator)
 endfunction()
 
 ######################################
-### ez_generator_vars
+### ez_generator_vars()
 ######################################
 
 macro(ez_generator_vars)
@@ -224,7 +224,7 @@ macro(ez_generator_vars)
 endmacro()
 
 ######################################
-### ez_detect_compiler
+### ez_detect_compiler()
 ######################################
 
 function(ez_detect_compiler)
@@ -296,7 +296,7 @@ function(ez_detect_compiler)
 endfunction()
 
 ######################################
-### ez_compiler_vars
+### ez_compiler_vars()
 ######################################
 
 macro(ez_compiler_vars)
@@ -313,7 +313,7 @@ macro(ez_compiler_vars)
 endmacro()
 
 ######################################
-### ez_detect_architecture
+### ez_detect_architecture()
 ######################################
 
 function(ez_detect_architecture)
@@ -389,7 +389,7 @@ endfunction()
 
 
 ######################################
-### ez_architecture_vars
+### ez_architecture_vars()
 ######################################
 
 macro(ez_architecture_vars)
@@ -404,7 +404,7 @@ endmacro()
 
 
 ######################################
-### ez_all_vars
+### ez_all_vars()
 ######################################
 
 macro(ez_all_vars)
