@@ -4,6 +4,7 @@
 #include <Core/Graphics/Geometry.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Math/Color16f.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Lights/Implementation/ReflectionPool.h>
@@ -251,6 +252,12 @@ struct ezReflectionPool::Data
       ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hReflectionSpecularTexture);
       m_hReflectionSpecularTexture.Invalidate();
     }
+
+    if (!m_hSkyIrradianceTexture.IsInvalidated())
+    {
+      ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hSkyIrradianceTexture);
+      m_hSkyIrradianceTexture.Invalidate();
+    }
   }
 
   void SortActiveProbes(const ezDynamicArray<ezReflectionProbeId>& activeProbes, ezUInt64 uiFrameCounter)
@@ -355,6 +362,19 @@ struct ezReflectionPool::Data
       desc.m_bCreateRenderTarget = true;
 
       m_hReflectionSpecularTexture = ezGALDevice::GetDefaultDevice()->CreateTexture(desc);
+    }
+
+    if (m_hSkyIrradianceTexture.IsInvalidated())
+    {
+      ezGALTextureCreationDescription desc;
+      desc.m_uiWidth = 6;
+      desc.m_uiHeight = 1;
+      desc.m_Format = ezGALResourceFormat::RGBAHalf;
+      desc.m_Type = ezGALTextureType::Texture2D;
+      desc.m_bCreateRenderTarget = true;
+      desc.m_bAllowUAV = true;
+
+      m_hSkyIrradianceTexture = ezGALDevice::GetDefaultDevice()->CreateTexture(desc);
     }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -464,6 +484,9 @@ struct ezReflectionPool::Data
   ezDynamicArray<SortedUpdateInfo> m_SortedUpdateInfo;
 
   ezGALTextureHandle m_hReflectionSpecularTexture;
+  ezGALTextureHandle m_hSkyIrradianceTexture;
+
+  ezAmbientCube<ezColorLinear16f> m_SkyIrradianceStorage;
 
   ezMeshResourceHandle m_hDebugSphere;
   ezMaterialResourceHandle m_hDebugMaterial;
@@ -575,14 +598,27 @@ void ezReflectionPool::ExtractReflectionProbe(
 }
 
 // static
+void ezReflectionPool::SetConstantSkyIrradiance(const ezAmbientCube<ezColor>& skyIrradiance)
+{
+  s_pData->m_SkyIrradianceStorage = skyIrradiance;
+}
+
+// static
 ezUInt32 ezReflectionPool::GetReflectionCubeMapSize()
 {
   return s_uiReflectionCubeMapSize;
 }
 
+// static
 ezGALTextureHandle ezReflectionPool::GetReflectionSpecularTexture()
 {
   return s_pData->m_hReflectionSpecularTexture;
+}
+
+// static
+ezGALTextureHandle ezReflectionPool::GetSkyIrradianceTexture()
+{
+  return s_pData->m_hSkyIrradianceTexture;
 }
 
 // static
@@ -591,14 +627,14 @@ void ezReflectionPool::OnEngineStartup()
   s_pData = EZ_DEFAULT_NEW(ezReflectionPool::Data);
 
   ezRenderWorld::s_BeginExtractionEvent.AddEventHandler(OnBeginExtraction);
-  ezRenderWorld::s_EndExtractionEvent.AddEventHandler(OnEndExtraction);
+  ezRenderWorld::s_BeginRenderEvent.AddEventHandler(OnBeginRender);
 }
 
 // static
 void ezReflectionPool::OnEngineShutdown()
 {
   ezRenderWorld::s_BeginExtractionEvent.RemoveEventHandler(OnBeginExtraction);
-  ezRenderWorld::s_EndExtractionEvent.RemoveEventHandler(OnEndExtraction);
+  ezRenderWorld::s_BeginRenderEvent.RemoveEventHandler(OnBeginRender);
 
   EZ_DEFAULT_DELETE(s_pData);
 }
@@ -626,4 +662,21 @@ void ezReflectionPool::OnBeginExtraction(ezUInt64 uiFrameCounter)
 }
 
 // static
-void ezReflectionPool::OnEndExtraction(ezUInt64 uiFrameCounter) {}
+void ezReflectionPool::OnBeginRender(ezUInt64 uiFrameCounter)
+{
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezGALContext* pGALContext = pDevice->GetPrimaryContext();
+
+  if (!s_pData->m_hSkyIrradianceTexture.IsInvalidated())
+  {
+    ezBoundingBoxu32 destBox;
+    destBox.m_vMin.SetZero();
+    destBox.m_vMax.Set(6, 1, 1);
+
+    ezGALSystemMemoryDescription memDesc;
+    memDesc.m_pData = &s_pData->m_SkyIrradianceStorage.m_Values[0];
+    memDesc.m_uiRowPitch = sizeof(s_pData->m_SkyIrradianceStorage);
+
+    pGALContext->UpdateTexture(s_pData->m_hSkyIrradianceTexture, ezGALTextureSubresource(), destBox, memDesc);
+  }
+}

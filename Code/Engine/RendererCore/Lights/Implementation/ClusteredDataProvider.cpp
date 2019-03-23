@@ -88,7 +88,9 @@ void ezClusteredDataGPU::BindResources(ezRenderContext* pRenderContext)
 
   auto hShadowDataBufferView = pDevice->GetDefaultResourceView(ezShadowPool::GetShadowDataBuffer());
   auto hShadowAtlasTextureView = pDevice->GetDefaultResourceView(ezShadowPool::GetShadowAtlasTexture());
+
   auto hReflectionSpecularTextureView = pDevice->GetDefaultResourceView(ezReflectionPool::GetReflectionSpecularTexture());
+  auto hSkyIrradianceTextureView = pDevice->GetDefaultResourceView(ezReflectionPool::GetSkyIrradianceTexture());
 
   pRenderContext->BindBuffer("perLightDataBuffer", pDevice->GetDefaultResourceView(m_hLightDataBuffer));
   pRenderContext->BindBuffer("perDecalDataBuffer", pDevice->GetDefaultResourceView(m_hDecalDataBuffer));
@@ -104,6 +106,7 @@ void ezClusteredDataGPU::BindResources(ezRenderContext* pRenderContext)
   pRenderContext->BindTexture2D("DecalAtlasNormalTexture", pDecalAtlas->GetNormalTexture());
 
   pRenderContext->BindTextureCube("ReflectionSpecularTexture", hReflectionSpecularTextureView);
+  pRenderContext->BindTexture2D("SkyIrradianceTexture", hSkyIrradianceTextureView);
 
   pRenderContext->BindConstantBuffer("ezClusteredDataConstants", m_hConstantBuffer);
 }
@@ -155,9 +158,6 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
     pConstants->InvTileSize = ezVec2(NUM_CLUSTERS_X / viewport.width, NUM_CLUSTERS_Y / viewport.height);
     pConstants->NumLights = pData->m_LightData.GetCount();
     pConstants->NumDecals = pData->m_DecalData.GetCount();
-
-    pConstants->AmbientTopColor = pData->m_AmbientTopColor;
-    pConstants->AmbientBottomColor = pData->m_AmbientBottomColor;
 
     pConstants->FogHeight = pData->m_fFogHeight;
     pConstants->FogHeightFalloff = pData->m_fFogHeightFalloff;

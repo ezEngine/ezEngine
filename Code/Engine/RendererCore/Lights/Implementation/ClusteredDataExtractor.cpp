@@ -138,18 +138,8 @@ namespace
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClusteredDataCPU, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezClusteredDataCPU::ezClusteredDataCPU()
-    : m_AmbientTopColor(ezColor::Black)
-    , m_AmbientBottomColor(ezColor::Black)
-    , m_fFogHeight(0.0f)
-    , m_fFogHeightFalloff(0.0f)
-    , m_fFogDensityAtCameraPos(0.0f)
-    , m_fFogDensity(0.0f)
-    , m_FogColor(ezColor::Black)
-{
-}
-
-ezClusteredDataCPU::~ezClusteredDataCPU() {}
+ezClusteredDataCPU::ezClusteredDataCPU() = default;
+ezClusteredDataCPU::~ezClusteredDataCPU() = default;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -247,11 +237,6 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
           FillDirLightData(m_TempLightData.ExpandAndGetRef(), pDirLightRenderData);
 
           RasterizeDirLight(pDirLightRenderData, uiLightIndex, m_TempLightsClusters.GetArrayPtr());
-        }
-        else if (auto pAmbientLightRenderData = ezDynamicCast<const ezAmbientLightRenderData*>(it))
-        {
-          pData->m_AmbientTopColor = pAmbientLightRenderData->m_TopColor;
-          pData->m_AmbientBottomColor = pAmbientLightRenderData->m_BottomColor;
         }
         else if (auto pFogRenderData = ezDynamicCast<const ezFogRenderData*>(it))
         {

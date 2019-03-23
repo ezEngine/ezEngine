@@ -114,9 +114,6 @@ CONSTANT_BUFFER(ezClusteredDataConstants, 3)
   UINT1(NumDecals);
   UINT2(Padding);
 
-  COLOR4F(AmbientTopColor);
-  COLOR4F(AmbientBottomColor);
-
   FLOAT1(FogHeight);
   FLOAT1(FogHeightFalloff);
   FLOAT1(FogDensityAtCameraPos);

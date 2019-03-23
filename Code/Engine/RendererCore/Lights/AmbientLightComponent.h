@@ -8,16 +8,6 @@ struct ezMsgUpdateLocalBounds;
 
 typedef ezSettingsComponentManager<class ezAmbientLightComponent> ezAmbientLightComponentManager;
 
-/// \brief The render data object for ambient light.
-class EZ_RENDERERCORE_DLL ezAmbientLightRenderData : public ezRenderData
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezAmbientLightRenderData, ezRenderData);
-
-public:
-  ezColor m_TopColor;
-  ezColor m_BottomColor;
-};
-
 class EZ_RENDERERCORE_DLL ezAmbientLightComponent : public ezSettingsComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezAmbientLightComponent, ezSettingsComponent, ezAmbientLightComponentManager);

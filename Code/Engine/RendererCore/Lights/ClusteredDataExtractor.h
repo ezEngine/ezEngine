@@ -27,14 +27,11 @@ public:
   ezArrayPtr<ezPerClusterData> m_ClusterData;
   ezArrayPtr<ezUInt32> m_ClusterItemList;
 
-  ezColor m_AmbientTopColor;
-  ezColor m_AmbientBottomColor;
-
-  float m_fFogHeight;
-  float m_fFogHeightFalloff;
-  float m_fFogDensityAtCameraPos;
-  float m_fFogDensity;
-  ezColor m_FogColor;
+  float m_fFogHeight = 0.0f;
+  float m_fFogHeightFalloff = 0.0f;
+  float m_fFogDensityAtCameraPos = 0.0f;
+  float m_fFogDensity = 0.0f;
+  ezColor m_FogColor = ezColor::Black;
 };
 
 class EZ_RENDERERCORE_DLL ezClusteredDataExtractor : public ezExtractor

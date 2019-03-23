@@ -6,6 +6,7 @@
 
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/LightData.h>
+#include <Shaders/Common/AmbientCubeBasis.h>
 #include <Shaders/Common/BRDF.h>
 
 Texture2D SSAOTexture;
@@ -17,6 +18,7 @@ Texture2D DecalAtlasBaseColorTexture;
 Texture2D DecalAtlasNormalTexture;
 
 TextureCubeArray ReflectionSpecularTexture;
+Texture2D SkyIrradianceTexture;
 
 Texture2D SceneDepth;
 Texture2D SceneColor;
@@ -371,9 +373,9 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
     occlusion *= ssao;
   }
 
-  // simple two color diffuse ambient
-  float3 ambientLight = lerp(AmbientBottomColor.rgb, AmbientTopColor.rgb, matData.worldNormal.z * 0.5f + 0.5f);
-  totalLight.diffuseLight += matData.diffuseColor * ambientLight * occlusion;
+  // sky light in ambient cube basis
+  float3 skyLight = EvaluateAmbientCube(SkyIrradianceTexture, 0, matData.worldNormal).rgb;
+  totalLight.diffuseLight += matData.diffuseColor * skyLight * occlusion;
 
   return totalLight;
 }

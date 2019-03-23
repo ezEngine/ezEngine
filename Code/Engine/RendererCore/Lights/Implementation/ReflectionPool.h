@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Graphics/AmbientCubeBasis.h>
 #include <RendererCore/Declarations.h>
 
 class ezGALTextureHandle;
@@ -14,10 +15,15 @@ public:
   static void RegisterReflectionProbe(ezReflectionProbeData& data, ezWorld* pWorld, float fPriority = 1.0f);
   static void DeregisterReflectionProbe(ezReflectionProbeData& data);
 
-  static void ExtractReflectionProbe(ezMsgExtractRenderData& msg, const ezReflectionProbeData& data, const ezComponent* pComponent, float fPriority = 1.0f);
+  static void ExtractReflectionProbe(
+    ezMsgExtractRenderData& msg, const ezReflectionProbeData& data, const ezComponent* pComponent, float fPriority = 1.0f);
+
+  static void SetConstantSkyIrradiance(const ezAmbientCube<ezColor>& skyIrradiance);
 
   static ezUInt32 GetReflectionCubeMapSize();
   static ezGALTextureHandle GetReflectionSpecularTexture();
+  static ezGALTextureHandle GetSkyIrradianceTexture();
+
   // static ezGALBufferHandle GetShadowDataBuffer();
 
 private:
@@ -27,7 +33,7 @@ private:
   static void OnEngineShutdown();
 
   static void OnBeginExtraction(ezUInt64 uiFrameCounter);
-  static void OnEndExtraction(ezUInt64 uiFrameCounter);
+  static void OnBeginRender(ezUInt64 uiFrameCounter);
 
   struct Data;
   static Data* s_pData;
