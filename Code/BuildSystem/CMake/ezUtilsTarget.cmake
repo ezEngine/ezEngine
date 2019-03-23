@@ -31,9 +31,17 @@ function(ez_create_target TYPE TARGET_NAME)
 
         endif ()
 
+        ez_set_library_properties(${TARGET_NAME})
+
     elseif (${TYPE} STREQUAL "APPLICATION")
 
         message (STATUS "Creating Application: ${TARGET_NAME}")
+
+        add_executable (${TARGET_NAME} ${ALL_SOURCE_FILES})
+
+        ez_uwp_add_default_content(${TARGET_NAME})
+
+        ez_set_application_properties(${TARGET_NAME})
 
     else()
 
@@ -57,8 +65,6 @@ function(ez_create_target TYPE TARGET_NAME)
     ez_set_common_target_definitions(${TARGET_NAME})
 
     ez_set_build_flags(${TARGET_NAME})
-
-    ez_set_library_properties(${TARGET_NAME})
 
     ez_set_project_ide_folder(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
     
