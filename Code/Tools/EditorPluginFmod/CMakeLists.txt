@@ -1,17 +1,15 @@
-#cmake
+ez_cmake_init()
 
-ez_all_vars()
 ez_requires_qt()
 
-if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
-	return()
-endif()
+ez_requires_windows()
 
-if (NOT EZ_BUILD_FMOD)
-	return()
-endif()
+ez_requires(${EZ_BUILD_FMOD})
 
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
+# Get the name of this folder as the project name
+get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
+
+ez_create_target(LIBRARY ${PROJECT_NAME})
 
 ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets)
 

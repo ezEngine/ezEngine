@@ -1,6 +1,6 @@
 
 ######################################
-### ez_check_build_type
+### ez_check_build_type()
 ######################################
 
 function(ez_check_build_type)
@@ -15,6 +15,10 @@ function(ez_check_build_type)
 
 endfunction()
 
+
+######################################
+### ez_set_build_flags_msvc(<target>)
+######################################
 
 function(ez_set_build_flags_msvc TARGET_NAME)
 
@@ -79,10 +83,14 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	# Don't know what it does, but Clemens wants it :-) (does not work together with incremental build)
 	set (LINKER_FLAGS_RELEASE "${LINKER_FLAGS_RELEASE} /OPT:ICF")	
 
-  	set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE        ${LINKER_FLAGS_RELEASE})
-	set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_MINSIZEREL     ${LINKER_FLAGS_RELEASE})
+  	set_target_properties (${TARGET_NAME} PROPERTIES LINK_FLAGS_RELEASE        ${LINKER_FLAGS_RELEASE})
+	set_target_properties (${TARGET_NAME} PROPERTIES LINK_FLAGS_MINSIZEREL     ${LINKER_FLAGS_RELEASE})
   		
 endfunction()
+
+######################################
+### ez_set_build_flags_clang(<target>)
+######################################
 				
 function(ez_set_build_flags_clang TARGET_NAME)
 		
@@ -98,6 +106,10 @@ function(ez_set_build_flags_clang TARGET_NAME)
 
 endfunction()
 
+######################################
+### ez_set_build_flags_gcc(<target>)
+######################################
+
 function(ez_set_build_flags_gcc TARGET_NAME)
 
 	# Wno-enum-compare removes all annoying enum cast warnings
@@ -112,10 +124,13 @@ function(ez_set_build_flags_gcc TARGET_NAME)
 
 endfunction()
 
+######################################
+### ez_set_build_flags(<target>)
+######################################
 
 function(ez_set_build_flags TARGET_NAME)
 
-	ez_compiler_vars()
+	ez_pull_compiler_vars()
 
 	set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 17)
 

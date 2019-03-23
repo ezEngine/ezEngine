@@ -1,5 +1,5 @@
 ######################################
-### ez_link_target_dx11
+### ez_link_target_dx11(<target>)
 ######################################
 
 function(ez_link_target_dx11 TARGET_NAME)
@@ -53,3 +53,12 @@ function(ez_link_target_dx11 TARGET_NAME)
 
 endfunction()
 
+######################################
+### ez_requires_d3d()
+######################################
+
+macro(ez_requires_d3d)
+
+	ez_requires_windows()
+
+endmacro()

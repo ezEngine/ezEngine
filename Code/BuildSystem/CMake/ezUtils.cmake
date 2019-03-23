@@ -6,54 +6,33 @@ include("ezUtilsDetect")
 include("ezUtilsDX11")
 include("ezUtilsCI")
 include("ezUtilsCppFlags")
+include("ezUtilsUWP")
+include("ezUtilsTarget")
 
 ######################################
-### ez_grep_sources
+### ez_set_target_output_dirs(<target> <lib-output-dir> <dll-output-dir>)
 ######################################
 
-function(ez_grep_sources START_FOLDER OUT_FILES)
+function(ez_set_target_output_dirs TARGET_NAME LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
 
-  file(GLOB_RECURSE SOURCE_FILES_CPP RELATIVE "${START_FOLDER}" "${START_FOLDER}/*.cpp")
-  file(GLOB_RECURSE SOURCE_FILES_H RELATIVE "${START_FOLDER}" "${START_FOLDER}/*.h")
+	ez_pull_all_vars()
 
-  #message(STATUS "Globbed cpp: ${SOURCE_FILES_CPP}")
-  #message(STATUS "Globbed h: ${SOURCE_FILES_H}")
+	set(SUB_DIR "")
 
-  set(${OUT_FILES} "${SOURCE_FILES_CPP};${SOURCE_FILES_H}" PARENT_SCOPE)
+	if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
+		# UWP has deployment problems if all applications output to the same path.
+		set(SUB_DIR "/${TARGET_NAME}")
+	endif()
 
-endfunction()
+	set (OUTPUT_LIB_DEBUG       "${LIB_OUTPUT_DIR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}Debug${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
+	set (OUTPUT_LIB_RELEASE     "${LIB_OUTPUT_DIR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}Release${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
+	set (OUTPUT_LIB_MINSIZE     "${LIB_OUTPUT_DIR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}MinSize${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
+	set (OUTPUT_LIB_RELWITHDEB  "${LIB_OUTPUT_DIR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}RelDeb${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
 
-######################################
-### ez_add_project_files
-######################################
-
-function(ez_add_project_files TARGET_NAME ROOT_DIR SUB_FOLDER FILE_LIST)
-
-  foreach(FILE IN ITEMS ${FILE_LIST})
-    set(CUR_FILE "${SUB_FOLDER}/${FILE}")
-    target_sources(${TARGET_NAME} PRIVATE "${CUR_FILE}")
-    source_group(TREE ${ROOT_DIR} FILES ${CUR_FILE})
-  endforeach()
-
-endfunction()
-
-######################################
-### ez_set_target_output_dirs
-######################################
-
-function(ez_set_target_output_dirs TARGET_NAME LIB_OUTPUT_DR DLL_OUTPUT_DR)
-
-	ez_all_vars()
-
-	set (OUTPUT_LIB_DEBUG       "${LIB_OUTPUT_DR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}Debug${EZ_CMAKE_ARCHITECTURE_POSTFIX}")
-	set (OUTPUT_LIB_RELEASE     "${LIB_OUTPUT_DR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}Release${EZ_CMAKE_ARCHITECTURE_POSTFIX}")
-	set (OUTPUT_LIB_MINSIZE     "${LIB_OUTPUT_DR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}MinSize${EZ_CMAKE_ARCHITECTURE_POSTFIX}")
-	set (OUTPUT_LIB_RELWITHDEB  "${LIB_OUTPUT_DR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}RelDeb${EZ_CMAKE_ARCHITECTURE_POSTFIX}")
-
-	set (OUTPUT_DLL_DEBUG       "${DLL_OUTPUT_DR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}Debug${EZ_CMAKE_ARCHITECTURE_POSTFIX}")
-	set (OUTPUT_DLL_RELEASE     "${DLL_OUTPUT_DR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}Release${EZ_CMAKE_ARCHITECTURE_POSTFIX}")
-	set (OUTPUT_DLL_MINSIZE     "${DLL_OUTPUT_DR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}MinSize${EZ_CMAKE_ARCHITECTURE_POSTFIX}")
-	set (OUTPUT_DLL_RELWITHDEB  "${DLL_OUTPUT_DR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}RelDeb${EZ_CMAKE_ARCHITECTURE_POSTFIX}")
+	set (OUTPUT_DLL_DEBUG       "${DLL_OUTPUT_DIR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}Debug${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
+	set (OUTPUT_DLL_RELEASE     "${DLL_OUTPUT_DIR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}Release${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
+	set (OUTPUT_DLL_MINSIZE     "${DLL_OUTPUT_DIR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}MinSize${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
+	set (OUTPUT_DLL_RELWITHDEB  "${DLL_OUTPUT_DIR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}RelDeb${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
 
 	set_target_properties(${TARGET_NAME} PROPERTIES
 	  RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DLL_DEBUG}"
@@ -88,7 +67,7 @@ function(ez_set_target_output_dirs TARGET_NAME LIB_OUTPUT_DR DLL_OUTPUT_DR)
 endfunction()
 
 ######################################
-### ez_set_default_target_output_dirs
+### ez_set_default_target_output_dirs(<target>)
 ######################################
 
 function(ez_set_default_target_output_dirs TARGET_NAME)
@@ -105,7 +84,7 @@ endfunction()
 
 
 ######################################
-### ez_write_configuration_txt
+### ez_write_configuration_txt()
 ######################################
 
 function(ez_write_configuration_txt)
@@ -114,7 +93,7 @@ function(ez_write_configuration_txt)
 	file(WRITE ${CMAKE_BINARY_DIR}/Targets.txt "")
 	file(WRITE ${CMAKE_BINARY_DIR}/Tests.txt "")
 
-	ez_all_vars()
+	ez_pull_all_vars()
 
 	# Write configuration to file, as this is done at configure time we must pin the configuration in place (RelDeb is used because all build machines use this).
 	file(WRITE ${CMAKE_BINARY_DIR}/Configuration.txt "")
@@ -125,28 +104,25 @@ endfunction()
 
 
 ######################################
-### ez_set_common_target_include_dirs
+### ez_add_target_folder_as_include_dir(<target> <path-to-target>)
 ######################################
 
-function(ez_set_common_target_include_dirs TARGET_NAME TARGET_FOLDER)
+function(ez_add_target_folder_as_include_dir TARGET_NAME TARGET_FOLDER)
 
 	get_filename_component(PARENT_DIR ${TARGET_FOLDER} DIRECTORY)
 
 	target_include_directories(${TARGET_NAME} PRIVATE "${TARGET_FOLDER}")
 	target_include_directories(${TARGET_NAME} PUBLIC "${PARENT_DIR}")
 
-	#message(STATUS "Private include dir: '${TARGET_FOLDER}'")
-	#message(STATUS "Public include dir: '${PARENT_DIR}'")
-
 endfunction()
 
 ######################################
-### ez_set_common_target_definitions
+### ez_set_common_target_definitions(<target>)
 ######################################
 
 function(ez_set_common_target_definitions TARGET_NAME)
 
-	ez_all_vars()
+	ez_pull_all_vars()
 
 	# set the BUILDSYSTEM_COMPILE_ENGINE_AS_DLL definition
 	if (EZ_CMAKE_PLATFORM_WINDOWS)
@@ -169,7 +145,7 @@ function(ez_set_common_target_definitions TARGET_NAME)
 endfunction()
 
 ######################################
-### ez_set_project_ide_folder
+### ez_set_project_ide_folder(<target> <path-to-target>)
 ######################################
 
 function(ez_set_project_ide_folder TARGET_NAME PROJECT_SOURCE_DIR)
@@ -185,31 +161,52 @@ function(ez_set_project_ide_folder TARGET_NAME PROJECT_SOURCE_DIR)
 endfunction()
 
 ######################################
-### ez_set_library_properties
+### ez_set_library_properties(<target>)
 ######################################
 
 function(ez_set_library_properties TARGET_NAME)
 
-	ez_all_vars()
+	ez_pull_all_vars()
 
 	set_target_properties(${TARGET_NAME} PROPERTIES IMPORT_PREFIX "ez")
 	set_target_properties(${TARGET_NAME} PROPERTIES PREFIX "ez")
 
 	if (EZ_CMAKE_PLATFORM_LINUX)
 		# Workaround for: https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899
-		target_link_libraries (${PROJECT_NAME} PRIVATE -lgcc_s -lgcc)
+		target_link_libraries (${TARGET_NAME} PRIVATE -lgcc_s -lgcc)
 	endif ()
 
 	if (EZ_CMAKE_PLATFORM_OSX OR EZ_CMAKE_PLATFORM_LINUX)
 		find_package(X11 REQUIRED)
-		target_include_directories (${PROJECT_NAME} PRIVATE ${X11_X11_INCLUDE_PATH})
-		target_link_libraries (${PROJECT_NAME} PRIVATE ${X11_X11_LIB})
+		target_include_directories (${TARGET_NAME} PRIVATE ${X11_X11_INCLUDE_PATH})
+		target_link_libraries (${TARGET_NAME} PRIVATE ${X11_X11_LIB})
 	endif ()
 
 endfunction()
 
 ######################################
-### ez_set_natvis_file
+### ez_set_application_properties(<target>)
+######################################
+
+function(ez_set_application_properties TARGET_NAME)
+
+	ez_pull_all_vars()
+
+	if (EZ_CMAKE_PLATFORM_OSX OR EZ_CMAKE_PLATFORM_LINUX)
+		find_package(X11 REQUIRED)
+		target_include_directories (${TARGET_NAME} PRIVATE ${X11_X11_INCLUDE_PATH})
+		target_link_libraries (${TARGET_NAME} PRIVATE ${X11_X11_LIB})
+	endif ()
+
+	# We need to link against X11, pthread and rt last or linker errors will occur.
+	if (EZ_CMAKE_COMPILER_GCC)
+		target_link_libraries (${TARGET_NAME} PRIVATE pthread rt)
+	endif ()
+
+endfunction()
+
+######################################
+### ez_set_natvis_file(<target> <path-to-natvis-file>)
 ######################################
 
 function(ez_set_natvis_file TARGET_NAME NATVIS_FILE)
@@ -225,7 +222,7 @@ endfunction()
 
 
 ######################################
-### ez_make_winmain_executable
+### ez_make_winmain_executable(<target>)
 ######################################
 
 function(ez_make_winmain_executable TARGET_NAME)
@@ -236,7 +233,7 @@ endfunction()
 
 
 ######################################
-### ez_gather_subfolders
+### ez_gather_subfolders(<abs-path-to-folder> <out-sub-folders>)
 ######################################
 
 function(ez_gather_subfolders START_FOLDER RESULT_FOLDERS)
@@ -262,7 +259,7 @@ endfunction()
 
 
 ######################################
-### ez_glob_source_files
+### ez_glob_source_files(<path-to-folder> <out-files>)
 ######################################
 
 function(ez_glob_source_files ROOT_DIR RESULT_ALL_SOURCES)
@@ -278,3 +275,54 @@ function(ez_glob_source_files ROOT_DIR RESULT_ALL_SOURCES)
   set(${RESULT_ALL_SOURCES} ${CPP_FILES} ${H_FILES} ${C_FILES} ${UI_FILES} ${QRC_FILES} ${RES_FILES} PARENT_SCOPE)
 
 endfunction()
+
+######################################
+### ez_add_all_subdirs()
+######################################
+
+function(ez_add_all_subdirs)
+
+	# find all cmake files below this directory
+	file (GLOB SUB_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/*/CMakeLists.txt")
+
+	foreach (VAR ${SUB_DIRS})
+		
+		get_filename_component (RES ${VAR} DIRECTORY)
+
+		add_subdirectory (${RES})
+	
+	endforeach ()
+
+endfunction()
+
+######################################
+### ez_cmake_init()
+######################################
+
+macro(ez_cmake_init)
+
+	ez_pull_all_vars()
+
+endmacro()
+
+######################################
+### ez_requires(<variable>)
+######################################
+
+macro(ez_requires VARIABLE)
+
+    if (NOT ${VARIABLE})
+        return()
+    endif()
+
+endmacro()
+
+######################################
+### ez_requires_windows()
+######################################
+
+macro(ez_requires_windows)
+
+    ez_requires(${EZ_CMAKE_PLATFORM_WINDOWS})
+
+endmacro()

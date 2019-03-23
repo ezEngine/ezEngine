@@ -1,22 +1,17 @@
-#cmake
-
-ez_all_vars()
+ez_cmake_init()
 
 ez_requires_qt()
 
-if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
-	return()
-endif()
+ez_requires_windows()
 
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
+# Get the name of this folder as the project name
+get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
+
+ez_create_target(APPLICATION ${PROJECT_NAME})
 
 ez_make_winmain_executable(${PROJECT_NAME})
 
-if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
-  ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network WinExtras)
-else()
-  ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network)
-endif()
+ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network)
 
 target_link_libraries(${PROJECT_NAME}
   PRIVATE

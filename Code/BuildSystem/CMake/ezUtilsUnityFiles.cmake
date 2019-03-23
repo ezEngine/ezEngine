@@ -1,5 +1,5 @@
 ######################################
-### ez_write_pvs_header
+### ez_write_pvs_header(<file-path> <optional-text>)
 ######################################
 
 function(ez_write_pvs_header TARGET_FILE OPTIONAL_TEXT)
@@ -13,7 +13,7 @@ function(ez_write_pvs_header TARGET_FILE OPTIONAL_TEXT)
 endfunction()
 
 ######################################
-### ez_generate_folder_unity_file
+### ez_generate_folder_unity_file(<target> <project-path> <rel-path-to-folder> <files-in-folder>)
 ######################################
 
 function(ez_generate_folder_unity_file TARGET_NAME PROJECT_DIRECTORY SUB_FOLDER_PATH FILE_LIST)
@@ -94,7 +94,7 @@ function(ez_generate_folder_unity_file TARGET_NAME PROJECT_DIRECTORY SUB_FOLDER_
 endfunction()
 
 ######################################
-### ez_generate_folder_unity_files_for_target
+### ez_generate_folder_unity_files_for_target(<target> <project-path> [<folder-to-exclude> ...])
 ######################################
 
 function(ez_generate_folder_unity_files_for_target TARGET_NAME TARGET_DIRECTORY)

@@ -1,12 +1,11 @@
-#cmake
+ez_cmake_init()
 
-ez_all_vars()
+ez_requires_d3d()
 
-if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
-	return()
-endif()
+# Get the name of this folder as the project name
+get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
+ez_create_target(APPLICATION ${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
@@ -17,9 +16,7 @@ target_link_libraries(${PROJECT_NAME}
 
 ez_link_target_dx11(${PROJECT_NAME})
 
-if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
-  ez_ci_add_test(${PROJECT_NAME} ON)
-endif()
+ez_ci_add_test(${PROJECT_NAME} NEEDS_HW_ACCESS)
 
 add_dependencies(${PROJECT_NAME}
   ShaderCompilerHLSL

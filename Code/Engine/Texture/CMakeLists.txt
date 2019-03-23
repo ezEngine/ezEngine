@@ -1,8 +1,9 @@
-#cmake
+ez_cmake_init()
 
-set(SKIP_UNITY_FOR_FOLDER "DirectXTex")
+# Get the name of this folder as the project name
+get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")
+ez_create_target(LIBRARY ${PROJECT_NAME} EXCLUDE_FOLDER_FOR_UNITY DirectXTex)
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC

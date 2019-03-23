@@ -1,6 +1,6 @@
 
 ######################################
-### ez_set_target_pch
+### ez_set_target_pch(<target> <pch-name>)
 ######################################
 
 function(ez_set_target_pch TARGET_NAME PCH_NAME)
@@ -15,7 +15,7 @@ function(ez_set_target_pch TARGET_NAME PCH_NAME)
 endfunction()
 
 ######################################
-### ez_retrieve_target_pch
+### ez_retrieve_target_pch(<target> <pch-name>)
 ######################################
 
 function(ez_retrieve_target_pch TARGET_NAME PCH_NAME)
@@ -32,7 +32,7 @@ function(ez_retrieve_target_pch TARGET_NAME PCH_NAME)
 endfunction()
 
 ######################################
-### ez_pch_use
+### ez_pch_use(<pch-header> <cpp-files>)
 ######################################
 
 function(ez_pch_use PCH_H TARGET_CPPS)
@@ -63,7 +63,7 @@ function(ez_pch_use PCH_H TARGET_CPPS)
 endfunction()
 
 ######################################
-### ez_pch_create
+### ez_pch_create(<pch-header> <cpp-file>)
 ######################################
 
 function(ez_pch_create PCH_H TARGET_CPP)
@@ -81,7 +81,7 @@ function(ez_pch_create PCH_H TARGET_CPP)
 endfunction()
 
 ######################################
-### ez_find_pch_in_file_list
+### ez_find_pch_in_file_list(<files> <out-pch-name>)
 ######################################
 
 function(ez_find_pch_in_file_list FILE_LIST PCH_NAME)
@@ -105,10 +105,16 @@ function(ez_find_pch_in_file_list FILE_LIST PCH_NAME)
 endfunction()
 
 ######################################
-### ez_auto_pch
+### ez_auto_pch(<target> <files> [<file-exclude-regex> ... ])
 ######################################
 
 function(ez_auto_pch TARGET_NAME FILES)
+
+  foreach(EXCLUDE_PATTERN ${ARGN})
+
+    list(FILTER FILES EXCLUDE REGEX ${EXCLUDE_PATTERN})
+
+  endforeach()
 
   ez_find_pch_in_file_list("${FILES}" PCH_NAME)
 
