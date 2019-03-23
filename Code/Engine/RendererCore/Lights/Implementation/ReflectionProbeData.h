@@ -28,6 +28,9 @@ struct EZ_RENDERERCORE_DLL ezReflectionProbeData
 
   ezEnum<ezReflectionProbeMode> m_Mode;
   bool m_bShowDebugInfo = false;
+
+  ezResult Serialize(ezStreamWriter& stream) const;
+  ezResult Deserialize(ezStreamReader& stream);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezReflectionProbeData);

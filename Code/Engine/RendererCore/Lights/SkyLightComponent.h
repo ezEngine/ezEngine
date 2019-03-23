@@ -5,6 +5,7 @@
 #include <RendererCore/Lights/Implementation/ReflectionProbeData.h>
 
 struct ezMsgUpdateLocalBounds;
+struct ezMsgExtractRenderData;
 
 typedef ezSettingsComponentManager<class ezSkyLightComponent> ezSkyLightComponentManager;
 

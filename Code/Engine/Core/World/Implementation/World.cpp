@@ -798,10 +798,6 @@ void ezWorld::ProcessComponentsToInitialize()
                                                   // without ever running the simulation
       continue;
 
-    // may have been initialized by someone else in the mean time
-    if (pComponent->IsInitialized())
-      continue;
-
     // make sure the object's transform is up to date before the component is initialized
     if (pComponent->GetOwner())
     {
@@ -814,6 +810,7 @@ void ezWorld::ProcessComponentsToInitialize()
     {
       pComponent->OnActivated();
 
+      EZ_ASSERT_DEBUG(!m_Data.m_ComponentsToStartSimulation.Contains(hComponent), "Must not be added twice to start simulation list");
       m_Data.m_ComponentsToStartSimulation.PushBack(hComponent);
     }
   }

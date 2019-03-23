@@ -83,15 +83,15 @@ void ezSkyLightComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 
 void ezSkyLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  // Don't trigger reflection rendering for selection or in shadow or other reflection views.
-  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow ||
+  // Don't trigger reflection rendering in shadow or other reflection views.
+  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow ||
       msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Reflection)
     return;
 
   if (m_fIntensity <= 0.0f)
     return;
 
-  ezReflectionPool::AddReflectionProbe(m_ReflectionProbeData, GetOwner()->GetGlobalPosition(), s_uiSkyLightPriority);
+  ezReflectionPool::ExtractReflectionProbe(msg, m_ReflectionProbeData, this, s_uiSkyLightPriority);
 }
 
 void ezSkyLightComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -102,6 +102,7 @@ void ezSkyLightComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_fIntensity;
   s << m_fSaturation;
+  m_ReflectionProbeData.Serialize(s);
 }
 
 void ezSkyLightComponent::DeserializeComponent(ezWorldReader& stream)
@@ -112,4 +113,5 @@ void ezSkyLightComponent::DeserializeComponent(ezWorldReader& stream)
 
   s >> m_fIntensity;
   s >> m_fSaturation;
+  m_ReflectionProbeData.Deserialize(s);
 }

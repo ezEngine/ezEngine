@@ -5,15 +5,16 @@
 class ezGALTextureHandle;
 class ezGALBufferHandle;
 class ezView;
+struct ezMsgExtractRenderData;
 struct ezReflectionProbeData;
 
 class EZ_RENDERERCORE_DLL ezReflectionPool
 {
 public:
-  static void RegisterReflectionProbe(ezReflectionProbeData& data, ezWorld* pWorld, ezUInt16 uiPriority = 1);
+  static void RegisterReflectionProbe(ezReflectionProbeData& data, ezWorld* pWorld, float fPriority = 1.0f);
   static void DeregisterReflectionProbe(ezReflectionProbeData& data);
 
-  static void AddReflectionProbe(const ezReflectionProbeData& data, const ezVec3& vPosition, ezUInt16 uiPriority = 1);
+  static void ExtractReflectionProbe(ezMsgExtractRenderData& msg, const ezReflectionProbeData& data, const ezComponent* pComponent, float fPriority = 1.0f);
 
   static ezUInt32 GetReflectionCubeMapSize();
   static ezGALTextureHandle GetReflectionSpecularTexture();

@@ -1,12 +1,14 @@
 #include <RendererCorePCH.h>
 
 #include <Core/Graphics/Camera.h>
+#include <Core/Graphics/Geometry.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Lights/Implementation/ReflectionPool.h>
 #include <RendererCore/Lights/Implementation/ReflectionProbeData.h>
+#include <RendererCore/Meshes/MeshComponentBase.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
@@ -35,7 +37,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 ezCVarInt CVarMaxRenderViews(
-  "r_ReflectionPoolMaxRenderViews", 6, ezCVarFlags::Default, "The maximum number of render views for reflection probes each frame");
+  "r_ReflectionPoolMaxRenderViews", 1, ezCVarFlags::Default, "The maximum number of render views for reflection probes each frame");
 ezCVarInt CVarMaxFilterViews(
   "r_ReflectionPoolMaxFilterViews", 1, ezCVarFlags::Default, "The maximum number of filter views for reflection probes each frame");
 
@@ -47,6 +49,7 @@ namespace
 {
   static ezUInt32 s_uiReflectionCubeMapSize = 128;
   static ezUInt32 s_uiNumReflectionProbeCubeMaps = 32;
+  static float s_fDebugSphereRadius = 0.3f;
 
   struct ReflectionView
   {
@@ -141,7 +144,8 @@ namespace
     ezUInt64 m_uiLastActiveFrame = -1;
     ezUInt64 m_uiLastUpdatedFrame = -1;
     ezWorld* m_pWorld = nullptr;
-    ezUInt16 m_uiPriority = 0;
+    float m_fPriority = 0.0f;
+    ezUInt32 m_uiIndexInUpdateQueue = 0;
     ezEnum<UpdateStep> m_LastUpdateStep;
 
     struct Step
@@ -157,10 +161,10 @@ namespace
     ezGALTextureHandle m_hCubemap;
     ezGALTextureHandle m_hCubemapProxies[6];
 
-    ezUInt32 GetPriority(ezUInt64 uiCurrentFrame) const
+    float GetPriority(ezUInt64 uiCurrentFrame) const
     {
-      ezUInt32 uiFramesSinceLastUpdate = m_uiLastUpdatedFrame < uiCurrentFrame ? ezUInt32(uiCurrentFrame - m_uiLastUpdatedFrame) : 1000;
-      return uiFramesSinceLastUpdate * m_uiPriority;
+      ezUInt32 uiFramesSinceLastUpdate = m_uiLastUpdatedFrame < uiCurrentFrame ? ezUInt32(uiCurrentFrame - m_uiLastUpdatedFrame) : 10000;
+      return uiFramesSinceLastUpdate * m_fPriority;
     }
   };
 
@@ -170,11 +174,11 @@ namespace
 
     ProbeUpdateInfo* m_pUpdateInfo = nullptr;
     ezUInt32 m_uiIndex = 0;
-    ezUInt32 m_uiPriority = 0;
+    float m_fPriority = 0.0f;
 
     EZ_ALWAYS_INLINE bool operator<(const SortedUpdateInfo& other) const
     {
-      if (m_uiPriority > other.m_uiPriority) // we want to sort descending (higher priority first)
+      if (m_fPriority > other.m_fPriority) // we want to sort descending (higher priority first)
         return true;
 
       return m_uiIndex < other.m_uiIndex;
@@ -261,11 +265,16 @@ struct ezReflectionPool::Data
         auto& sorted = m_SortedUpdateInfo.ExpandAndGetRef();
         sorted.m_pUpdateInfo = pUpdateInfo;
         sorted.m_uiIndex = uiActiveProbeIndex;
-        sorted.m_uiPriority = pUpdateInfo->GetPriority(uiFrameCounter);
+        sorted.m_fPriority = pUpdateInfo->GetPriority(uiFrameCounter);
       }
     }
 
     m_SortedUpdateInfo.Sort();
+
+    for (ezUInt32 i = 0; i < m_SortedUpdateInfo.GetCount(); ++i)
+    {
+      m_SortedUpdateInfo[i].m_pUpdateInfo->m_uiIndexInUpdateQueue = i;
+    }
   }
 
   void GenerateUpdateSteps()
@@ -316,7 +325,7 @@ struct ezReflectionPool::Data
       // advance to next probe if it has the same priority as the current probe
       if (uiSortedUpdateInfoIndex + 1 < s_pData->m_SortedUpdateInfo.GetCount())
       {
-        bNextProbe |= s_pData->m_SortedUpdateInfo[uiSortedUpdateInfoIndex + 1].m_uiPriority == sortedUpdateInfo.m_uiPriority;
+        bNextProbe |= s_pData->m_SortedUpdateInfo[uiSortedUpdateInfoIndex + 1].m_fPriority == sortedUpdateInfo.m_fPriority;
       }
 
       if (bNextProbe)
@@ -347,6 +356,38 @@ struct ezReflectionPool::Data
 
       m_hReflectionSpecularTexture = ezGALDevice::GetDefaultDevice()->CreateTexture(desc);
     }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    ezGeometry geom;
+    geom.AddSphere(s_fDebugSphereRadius, 32, 16, ezColor::White);
+
+    const char* szBufferResourceName = "ReflectionProbeDebugSphereBuffer";
+    ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szBufferResourceName);
+    if (!hMeshBuffer.IsValid())
+    {
+      ezMeshBufferResourceDescriptor desc;
+      desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+      desc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
+      desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+
+      hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szBufferResourceName, std::move(desc), szBufferResourceName);
+    }
+
+    const char* szMeshResourceName = "ReflectionProbeDebugSphere";
+    m_hDebugSphere = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshResourceName);
+    if (!m_hDebugSphere.IsValid())
+    {
+      ezMeshResourceDescriptor desc;
+      desc.UseExistingMeshBuffer(hMeshBuffer);
+      desc.AddSubMesh(geom.CalculateTriangleCount(), 0, 0);
+      desc.ComputeBounds();
+
+      m_hDebugSphere = ezResourceManager::CreateResource<ezMeshResource>(szMeshResourceName, std::move(desc), szMeshResourceName);
+    }
+
+    m_hDebugMaterial = ezResourceManager::LoadResource<ezMaterialResource>(
+      "{ 6f8067d0-ece8-44e1-af46-79b49266de41 }"); // ReflectionProbeVisualization.ezMaterialAsset
+#endif
   }
 
   void AddViewToRender(
@@ -423,16 +464,19 @@ struct ezReflectionPool::Data
   ezDynamicArray<SortedUpdateInfo> m_SortedUpdateInfo;
 
   ezGALTextureHandle m_hReflectionSpecularTexture;
+
+  ezMeshResourceHandle m_hDebugSphere;
+  ezMaterialResourceHandle m_hDebugMaterial;
 };
 
 ezReflectionPool::Data* ezReflectionPool::s_pData;
 
 // static
-void ezReflectionPool::RegisterReflectionProbe(ezReflectionProbeData& data, ezWorld* pWorld, ezUInt16 uiPriority /*= 1*/)
+void ezReflectionPool::RegisterReflectionProbe(ezReflectionProbeData& data, ezWorld* pWorld, float fPriority /*= 1.0f*/)
 {
   ProbeUpdateInfo updateInfo;
   updateInfo.m_pWorld = pWorld;
-  updateInfo.m_uiPriority = ezMath::Max<ezUInt16>(uiPriority, 1);
+  updateInfo.m_fPriority = ezMath::Clamp(fPriority, ezMath::BasicType<float>::DefaultEpsilon(), 100.0f);
 
   data.m_Id = s_pData->m_UpdateInfo.Insert(std::move(updateInfo));
 
@@ -446,9 +490,11 @@ void ezReflectionPool::DeregisterReflectionProbe(ezReflectionProbeData& data)
 }
 
 // static
-void ezReflectionPool::AddReflectionProbe(const ezReflectionProbeData& data, const ezVec3& vPosition, ezUInt16 uiPriority /*= 1*/)
+void ezReflectionPool::ExtractReflectionProbe(
+  ezMsgExtractRenderData& msg, const ezReflectionProbeData& data, const ezComponent* pComponent, float fPriority /*= 1.0f*/)
 {
-  uiPriority = ezMath::Max<ezUInt16>(uiPriority, 1);
+  fPriority = ezMath::Clamp(fPriority, ezMath::BasicType<float>::DefaultEpsilon(), 100.0f);
+  ezVec3 vPosition = pComponent->GetOwner()->GetGlobalPosition();
 
   ProbeUpdateInfo* pUpdateInfo = nullptr;
   if (!s_pData->m_UpdateInfo.TryGetValue(data.m_Id, pUpdateInfo))
@@ -460,7 +506,7 @@ void ezReflectionPool::AddReflectionProbe(const ezReflectionProbeData& data, con
   {
     EZ_LOCK(s_pData->m_ActiveProbesMutex);
 
-    pUpdateInfo->m_uiPriority = ezMath::Max(pUpdateInfo->m_uiPriority, uiPriority);
+    pUpdateInfo->m_fPriority = ezMath::Max(pUpdateInfo->m_fPriority, fPriority);
 
     if (pUpdateInfo->m_uiLastActiveFrame != uiCurrentFrame)
     {
@@ -484,6 +530,48 @@ void ezReflectionPool::AddReflectionProbe(const ezReflectionProbeData& data, con
 
     pUpdateInfo->m_uiLastUpdatedFrame = uiCurrentFrame;
   }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (data.m_bShowDebugInfo)
+  {
+    const ezGameObject* pOwner = pComponent->GetOwner();
+
+    const ezUInt32 uiMeshIDHash = s_pData->m_hDebugSphere.GetResourceIDHash();
+    const ezUInt32 uiMaterialIDHash = s_pData->m_hDebugMaterial.GetResourceIDHash();
+
+    // Generate batch id from mesh, material and part index.
+    ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, 0, 0};
+    ezUInt32 uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
+
+    ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(pOwner, uiBatchId);
+    {
+      pRenderData->m_GlobalTransform = pOwner->GetGlobalTransform();
+      pRenderData->m_GlobalBounds = pOwner->GetGlobalBounds();
+      pRenderData->m_hMesh = s_pData->m_hDebugSphere;
+      pRenderData->m_hMaterial = s_pData->m_hDebugMaterial;
+      pRenderData->m_Color = ezColor::White;
+
+      pRenderData->m_uiSubMeshIndex = 0;
+      pRenderData->m_uiFlipWinding = false;
+      pRenderData->m_uiUniformScale = true;
+
+      pRenderData->m_uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(pComponent, 0);
+    }
+
+    // Sort by material and then by mesh
+    ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE) | 0;
+    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, uiSortingKey, ezRenderData::Caching::IfStatic);
+
+    if (msg.m_OverrideCategory == ezInvalidRenderDataCategory)
+    {
+      ezStringBuilder sTemp;
+      sTemp.Format("Priority: {}\\nIndex in Update Queue: {}", pUpdateInfo->m_fPriority, pUpdateInfo->m_uiIndexInUpdateQueue);
+
+      ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sTemp, vPosition + ezVec3(0, 0, s_fDebugSphereRadius), ezColor::LightPink, 16,
+        ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Bottom);
+    }
+  }
+#endif
 }
 
 // static
