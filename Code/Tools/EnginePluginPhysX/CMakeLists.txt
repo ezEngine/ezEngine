@@ -1,12 +1,8 @@
 ez_cmake_init()
 
-if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
-	return()
-endif()
+ez_requires_windows()
 
-if (NOT EZ_BUILD_PHYSX)
-	return()
-endif()
+ez_requires(${EZ_BUILD_PHYSX})
 
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)

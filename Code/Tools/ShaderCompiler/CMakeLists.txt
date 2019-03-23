@@ -1,8 +1,6 @@
 ez_cmake_init()
 
-if (NOT EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
-	return()
-endif()
+ez_requires_d3d()
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
 

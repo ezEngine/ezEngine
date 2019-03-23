@@ -1,12 +1,8 @@
 ﻿ez_cmake_init()
 
-if (NOT EZ_CMAKE_PLATFORM_WINDOWS_UWP)
-	return()
-endif()
+ez_requires(${EZ_CMAKE_PLATFORM_WINDOWS_UWP})
 
-if (NOT EZ_ENABLE_MIXEDREALITY_SUPPORT)
-	return()
-endif()
+ez_requires(${EZ_ENABLE_MIXEDREALITY_SUPPORT})
 
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)

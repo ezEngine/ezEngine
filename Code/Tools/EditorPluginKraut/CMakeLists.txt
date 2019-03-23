@@ -2,13 +2,9 @@ ez_cmake_init()
 
 ez_requires_qt()
 
-if (NOT EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
-	return()
-endif()
+ez_requires_windows()
 
-if (NOT EZ_BUILD_KRAUT)
-	return()
-endif()
+ez_requires(${EZ_BUILD_KRAUT})
 
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)

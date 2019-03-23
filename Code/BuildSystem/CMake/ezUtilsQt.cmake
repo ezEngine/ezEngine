@@ -4,9 +4,7 @@
 
 macro(ez_requires_qt)
 
-    if (NOT EZ_ENABLE_QT_SUPPORT)
-        return()
-    endif()
+    ez_requires(${EZ_ENABLE_QT_SUPPORT})
 
 endmacro()
 

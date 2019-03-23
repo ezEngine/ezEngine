@@ -2,9 +2,7 @@ ez_cmake_init()
 
 ez_requires_qt()
 
-if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
-	return()
-endif()
+ez_requires_windows()
 
 include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
 

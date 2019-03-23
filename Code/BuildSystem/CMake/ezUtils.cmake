@@ -296,3 +296,25 @@ macro(ez_cmake_init)
 	ez_pull_all_vars()
 
 endmacro()
+
+######################################
+### ez_requires(<variable>)
+######################################
+
+macro(ez_requires VARIABLE)
+
+    if (NOT ${VARIABLE})
+        return()
+    endif()
+
+endmacro()
+
+######################################
+### ez_requires_windows()
+######################################
+
+macro(ez_requires_windows)
+
+    ez_requires(${EZ_CMAKE_PLATFORM_WINDOWS})
+
+endmacro()

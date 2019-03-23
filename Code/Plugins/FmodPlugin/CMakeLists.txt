@@ -2,13 +2,9 @@ ez_cmake_init()
 
 set (EZ_BUILD_FMOD OFF CACHE BOOL "Whether support for FMod should be added")
 
-if (NOT EZ_BUILD_FMOD)
-	return()
-endif()
+ez_requires(${EZ_BUILD_FMOD})
 
-if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
-	return()
-endif()
+ez_requires_windows()
 
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)

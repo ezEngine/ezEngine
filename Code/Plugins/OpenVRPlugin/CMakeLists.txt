@@ -2,13 +2,9 @@ ez_cmake_init()
 
 set (EZ_BUILD_OPENVR OFF CACHE BOOL "Whether support for OpenVR aka. SteamVR should be added")
 
-if (NOT EZ_BUILD_OPENVR)
-	return()
-endif()
+ez_requires(${EZ_BUILD_OPENVR})
 
-if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
-	return()
-endif()
+ez_requires_windows()
 
 AddOpenVR()
 
