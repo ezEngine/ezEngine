@@ -1,12 +1,12 @@
 ######################################
-### ez_create_target(<LIBRARY | APPLICATION> <target-name> [NO_PCH] [NO_UNITY] [NO_QT])
+### ez_create_target(<LIBRARY | APPLICATION> <target-name> [NO_PCH] [NO_UNITY] [NO_QT] [EXCLUDE_FOLDER_FOR_UNITY <relative-folder>...])
 ######################################
 
 function(ez_create_target TYPE TARGET_NAME)
 
     set(ARG_OPTIONS NO_PCH NO_UNITY NO_QT)
     set(ARG_ONEVALUEARGS "")
-    set(ARG_MULTIVALUEARGS "")
+    set(ARG_MULTIVALUEARGS EXCLUDE_FOLDER_FOR_UNITY)
     cmake_parse_arguments(ARG "${ARG_OPTIONS}" "${ARG_ONEVALUEARGS}" "${ARG_MULTIVALUEARGS}" ${ARGN} )
 
     if (ARG_UNPARSED_ARGUMENTS)
@@ -72,7 +72,7 @@ function(ez_create_target TYPE TARGET_NAME)
     
     if (NOT ${ARG_NO_UNITY})
         
-        ez_generate_folder_unity_files_for_target(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR} ${SKIP_UNITY_FOR_FOLDER})
+        ez_generate_folder_unity_files_for_target(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR} "${ARG_EXCLUDE_FOLDER_FOR_UNITY}")
 
     endif()
 

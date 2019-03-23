@@ -1,11 +1,9 @@
 ez_cmake_init()
 
-set(SKIP_UNITY_FOR_FOLDER "Recast")
-
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
-ez_create_target(LIBRARY ${PROJECT_NAME})
+ez_create_target(LIBRARY ${PROJECT_NAME} EXCLUDE_FOLDER_FOR_UNITY Recast)
 
 if(MSVC)
   target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32)
