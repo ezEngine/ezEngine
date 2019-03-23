@@ -6,7 +6,7 @@ function(ez_create_target TYPE TARGET_NAME)
 
     set(ARG_OPTIONS NO_PCH NO_UNITY NO_QT)
     set(ARG_ONEVALUEARGS "")
-    set(ARG_MULTIVALUEARGS EXCLUDE_FOLDER_FOR_UNITY)
+    set(ARG_MULTIVALUEARGS EXCLUDE_FOLDER_FOR_UNITY EXCLUDE_FROM_PCH_REGEX)
     cmake_parse_arguments(ARG "${ARG_OPTIONS}" "${ARG_ONEVALUEARGS}" "${ARG_MULTIVALUEARGS}" ${ARGN} )
 
     if (ARG_UNPARSED_ARGUMENTS)
@@ -54,7 +54,7 @@ function(ez_create_target TYPE TARGET_NAME)
     
     if (NOT ${ARG_NO_PCH})
 
-        ez_auto_pch(${TARGET_NAME} "${ALL_SOURCE_FILES}")
+        ez_auto_pch(${TARGET_NAME} "${ALL_SOURCE_FILES}" ${ARG_EXCLUDE_FROM_PCH_REGEX})
 
     endif()
 

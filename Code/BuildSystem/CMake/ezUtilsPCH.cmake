@@ -105,10 +105,16 @@ function(ez_find_pch_in_file_list FILE_LIST PCH_NAME)
 endfunction()
 
 ######################################
-### ez_auto_pch(<target> <files>)
+### ez_auto_pch(<target> <files> [<file-exclude-regex> ... ])
 ######################################
 
 function(ez_auto_pch TARGET_NAME FILES)
+
+  foreach(EXCLUDE_PATTERN ${ARGN})
+
+    list(FILTER FILES EXCLUDE REGEX ${EXCLUDE_PATTERN})
+
+  endforeach()
 
   ez_find_pch_in_file_list("${FILES}" PCH_NAME)
 
