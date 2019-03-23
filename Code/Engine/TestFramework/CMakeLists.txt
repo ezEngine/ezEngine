@@ -43,11 +43,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 
-if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
-  ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets WinExtras COPY_DLLS)
-else()
-  ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets COPY_DLLS)
-endif()
+ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets WinExtras COPY_DLLS)
 
 if(EZ_TESTFRAMEWORK_USE_FILESERVE)
   target_compile_definitions (${PROJECT_NAME} PRIVATE EZ_TESTFRAMEWORK_USE_FILESERVE)

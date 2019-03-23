@@ -46,6 +46,8 @@ endfunction()
 
 function(ez_link_target_qt)
 
+    ez_pull_all_vars()
+
     ez_requires_qt()
 
     set(FN_OPTIONS COPY_DLLS)
@@ -67,6 +69,13 @@ function(ez_link_target_qt)
     target_compile_definitions(${FN_ARG_TARGET} PUBLIC EZ_USE_QT)
 
     foreach(module ${FN_ARG_COMPONENTS})
+
+        if (NOT ${EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP})
+            # skip Windows-only components
+            if (${module} STREQUAL "WinExtras")
+                continue()
+            endif()
+        endif()
 
         target_link_libraries(${FN_ARG_TARGET} PUBLIC "Qt5::${module}")
 

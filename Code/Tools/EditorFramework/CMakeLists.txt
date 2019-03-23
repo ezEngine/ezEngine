@@ -11,11 +11,7 @@ get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
 ez_create_target(LIBRARY ${PROJECT_NAME})
 
-if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
-  ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets WinExtras)
-else()
-  ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets)
-endif()
+ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets WinExtras)
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
