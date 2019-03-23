@@ -1,4 +1,4 @@
-ez_all_vars()
+ez_cmake_init()
 
 set(EZ_TESTFRAMEWORK_USE_FILESERVE OFF)
 

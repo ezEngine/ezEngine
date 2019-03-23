@@ -3,7 +3,7 @@ get_filename_component (PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
 message (STATUS "Adding Application: ${PROJECT_NAME}")
 
-ez_all_vars()
+ez_pull_all_vars()
 
 ez_glob_source_files(${CMAKE_CURRENT_SOURCE_DIR} ALL_SOURCE_FILES)
 

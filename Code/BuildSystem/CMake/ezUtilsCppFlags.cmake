@@ -130,7 +130,7 @@ endfunction()
 
 function(ez_set_build_flags TARGET_NAME)
 
-	ez_compiler_vars()
+	ez_pull_compiler_vars()
 
 	set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 17)
 

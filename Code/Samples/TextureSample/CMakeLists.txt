@@ -1,3 +1,5 @@
+ez_cmake_init()
+
 if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
 	return()
 endif()

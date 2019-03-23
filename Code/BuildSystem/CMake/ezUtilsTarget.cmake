@@ -13,7 +13,7 @@ function(ez_create_target TYPE TARGET_NAME)
         message(FATAL_ERROR "ez_create_target: Invalid arguments '${ARG_UNPARSED_ARGUMENTS}'")
     endif()
 
-    ez_all_vars()
+    ez_pull_all_vars()
 
     ez_glob_source_files(${CMAKE_CURRENT_SOURCE_DIR} ALL_SOURCE_FILES)
 

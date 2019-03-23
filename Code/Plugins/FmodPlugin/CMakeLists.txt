@@ -1,4 +1,4 @@
-ez_all_vars()
+ez_cmake_init()
 
 set (EZ_BUILD_FMOD OFF CACHE BOOL "Whether support for FMod should be added")
 

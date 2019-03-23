@@ -1,3 +1,5 @@
+ez_cmake_init()
+
 set(SKIP_UNITY_FOR_FOLDER "DirectXTex")
 
 # Get the name of this folder as the project name

@@ -1,4 +1,5 @@
-ez_all_vars()
+ez_cmake_init()
+
 ez_requires_qt()
 
 # Get the name of this folder as the project name

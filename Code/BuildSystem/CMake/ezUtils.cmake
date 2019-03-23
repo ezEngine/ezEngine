@@ -14,7 +14,7 @@ include("ezUtilsTarget")
 
 function(ez_set_target_output_dirs TARGET_NAME LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
 
-	ez_all_vars()
+	ez_pull_all_vars()
 
 	set (OUTPUT_LIB_DEBUG       "${LIB_OUTPUT_DIR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}Debug${EZ_CMAKE_ARCHITECTURE_POSTFIX}")
 	set (OUTPUT_LIB_RELEASE     "${LIB_OUTPUT_DIR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}Release${EZ_CMAKE_ARCHITECTURE_POSTFIX}")
@@ -85,7 +85,7 @@ function(ez_write_configuration_txt)
 	file(WRITE ${CMAKE_BINARY_DIR}/Targets.txt "")
 	file(WRITE ${CMAKE_BINARY_DIR}/Tests.txt "")
 
-	ez_all_vars()
+	ez_pull_all_vars()
 
 	# Write configuration to file, as this is done at configure time we must pin the configuration in place (RelDeb is used because all build machines use this).
 	file(WRITE ${CMAKE_BINARY_DIR}/Configuration.txt "")
@@ -114,7 +114,7 @@ endfunction()
 
 function(ez_set_common_target_definitions TARGET_NAME)
 
-	ez_all_vars()
+	ez_pull_all_vars()
 
 	# set the BUILDSYSTEM_COMPILE_ENGINE_AS_DLL definition
 	if (EZ_CMAKE_PLATFORM_WINDOWS)
@@ -158,7 +158,7 @@ endfunction()
 
 function(ez_set_library_properties TARGET_NAME)
 
-	ez_all_vars()
+	ez_pull_all_vars()
 
 	set_target_properties(${TARGET_NAME} PROPERTIES IMPORT_PREFIX "ez")
 	set_target_properties(${TARGET_NAME} PROPERTIES PREFIX "ez")
@@ -182,7 +182,7 @@ endfunction()
 
 function(ez_set_application_properties TARGET_NAME)
 
-	ez_all_vars()
+	ez_pull_all_vars()
 
 	if (EZ_CMAKE_PLATFORM_OSX OR EZ_CMAKE_PLATFORM_LINUX)
 		find_package(X11 REQUIRED)
@@ -286,3 +286,13 @@ function(ez_add_all_subdirs)
 	endforeach ()
 
 endfunction()
+
+######################################
+### ez_cmake_init()
+######################################
+
+macro(ez_cmake_init)
+
+	ez_pull_all_vars()
+
+endmacro()

@@ -1,4 +1,5 @@
-ez_all_vars()
+ez_cmake_init()
+
 ez_requires_qt()
 
 if (NOT EZ_CMAKE_PLATFORM_WINDOWS)

@@ -1,4 +1,4 @@
-﻿ez_all_vars()
+﻿ez_cmake_init()
 
 if (NOT EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 	return()

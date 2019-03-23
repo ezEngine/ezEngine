@@ -108,10 +108,10 @@ function(ez_detect_platform)
 endfunction()
 
 ######################################
-### ez_platform_vars()
+### ez_pull_platform_vars()
 ######################################
 
-macro(ez_platform_vars)
+macro(ez_pull_platform_vars)
 
 	ez_detect_platform()
 
@@ -140,7 +140,7 @@ function(ez_detect_generator)
 		return()
 	endif()
 	
-	ez_platform_vars()
+	ez_pull_platform_vars()
 	
 	set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "")
 	set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION "undefined")
@@ -208,10 +208,10 @@ function(ez_detect_generator)
 endfunction()
 
 ######################################
-### ez_generator_vars()
+### ez_pull_generator_vars()
 ######################################
 
-macro(ez_generator_vars)
+macro(ez_pull_generator_vars)
 
 	ez_detect_generator()
 
@@ -237,8 +237,8 @@ function(ez_detect_compiler)
 		return()
 	endif()
 
-	ez_platform_vars()
-	ez_generator_vars()
+	ez_pull_platform_vars()
+	ez_pull_generator_vars()
 	get_property(GENERATOR_MSVC GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MSVC)
 	
 	
@@ -296,10 +296,10 @@ function(ez_detect_compiler)
 endfunction()
 
 ######################################
-### ez_compiler_vars()
+### ez_pull_compiler_vars()
 ######################################
 
-macro(ez_compiler_vars)
+macro(ez_pull_compiler_vars)
 
 	ez_detect_compiler()
 
@@ -330,8 +330,8 @@ function(ez_detect_architecture)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT OFF)
 
-	ez_platform_vars()
-	ez_compiler_vars()
+	ez_pull_platform_vars()
+	ez_pull_compiler_vars()
 
 	if (EZ_CMAKE_PLATFORM_WINDOWS AND EZ_CMAKE_COMPILER_MSVC)
 	  
@@ -389,10 +389,10 @@ endfunction()
 
 
 ######################################
-### ez_architecture_vars()
+### ez_pull_architecture_vars()
 ######################################
 
-macro(ez_architecture_vars)
+macro(ez_pull_architecture_vars)
 
 	ez_detect_architecture()
 
@@ -404,14 +404,14 @@ endmacro()
 
 
 ######################################
-### ez_all_vars()
+### ez_pull_all_vars()
 ######################################
 
-macro(ez_all_vars)
+macro(ez_pull_all_vars)
 
-	ez_architecture_vars()
-	ez_compiler_vars()
-	ez_generator_vars()
-	ez_platform_vars()
+	ez_pull_architecture_vars()
+	ez_pull_compiler_vars()
+	ez_pull_generator_vars()
+	ez_pull_platform_vars()
 
 endmacro()

@@ -1,4 +1,4 @@
-ez_all_vars()
+ez_cmake_init()
 
 set (EZ_BUILD_PHYSX OFF CACHE BOOL "Whether support for nVidia PhysX should be added")
 
