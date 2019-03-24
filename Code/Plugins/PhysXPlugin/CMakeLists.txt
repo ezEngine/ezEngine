@@ -1,8 +1,6 @@
 ez_cmake_init()
 
-set (EZ_BUILD_PHYSX OFF CACHE BOOL "Whether support for nVidia PhysX should be added")
-
-ez_requires(${EZ_BUILD_PHYSX})
+ez_requires_physx()
 
 ez_requires_windows()
 

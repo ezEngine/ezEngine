@@ -1,6 +1,6 @@
 ez_cmake_init()
 
-ez_requires_qt()
+ez_requires_editor()
 
 ez_requires_windows()
 
