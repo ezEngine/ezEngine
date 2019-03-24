@@ -6,7 +6,7 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 
-//#include <RendererCore/../../../Data/Base/Shaders/Pipeline/BloomConstants.h>
+#include <RendererCore/../../../Data/Base/Shaders/Pipeline/ReflectionIrradianceConstants.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReflectionFilterPass, 1, ezRTTIDefaultAllocator<ezReflectionFilterPass>)
@@ -31,20 +31,17 @@ ezReflectionFilterPass::ezReflectionFilterPass()
   , m_fSaturation(1.0f)
 {
   {
-    // Load shader.
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Bloom.ezShader");
-    EZ_ASSERT_DEV(m_hShader.IsValid(), "Could not load bloom shader!");
-  }
+    m_hIrradianceConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezReflectionIrradianceConstants>();
 
-  {
-    // m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezBloomConstants>();
+    m_hIrradianceShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/ReflectionIrradiance.ezShader");
+    EZ_ASSERT_DEV(m_hIrradianceShader.IsValid(), "Could not load ReflectionIrradiance shader!");
   }
 }
 
 ezReflectionFilterPass::~ezReflectionFilterPass()
 {
-  ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
-  m_hConstantBuffer.Invalidate();
+  ezRenderContext::DeleteConstantBufferStorage(m_hIrradianceConstantBuffer);
+  m_hIrradianceConstantBuffer.Invalidate();
 }
 
 bool ezReflectionFilterPass::GetRenderTargetDescriptions(
@@ -76,12 +73,11 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
   }
 
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
+  pGALContext->GenerateMipMaps(pDevice->GetDefaultResourceView(m_hInputCubemap));
 
   auto pFilteredSpecularOutput = outputs[m_PinFilteredSpecular.m_uiOutputIndex];
   if (pFilteredSpecularOutput != nullptr && !pFilteredSpecularOutput->m_TextureHandle.IsInvalidated())
   {
-    pGALContext->GenerateMipMaps(pDevice->GetDefaultResourceView(m_hInputCubemap));
-
     ezUInt32 uiNumMipMaps = pInputCubemap->GetDescription().m_uiMipLevelCount;
 
     ezBoundingBoxu32 srcBox;
@@ -102,6 +98,17 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
       srcBox.m_vMax.x >>= 1;
       srcBox.m_vMax.y >>= 1;
     }
+  }
+
+  auto pIrradianceOutput = outputs[m_PinIrradianceData.m_uiOutputIndex];
+  if (pIrradianceOutput != nullptr && !pFilteredSpecularOutput->m_TextureHandle.IsInvalidated())
+  {
+    renderViewContext.m_pRenderContext->BindTextureCube("InputCubemap", pDevice->GetDefaultResourceView(m_hInputCubemap));
+
+    renderViewContext.m_pRenderContext->BindConstantBuffer("ezReflectionIrradianceConstants", m_hIrradianceConstantBuffer);
+    renderViewContext.m_pRenderContext->BindShader(m_hIrradianceShader);
+
+    renderViewContext.m_pRenderContext->Dispatch(1);
   }
 }
 

@@ -35,7 +35,7 @@ protected:
 
   ezGALTextureHandle m_hInputCubemap;
 
-  ezConstantBufferStorageHandle m_hConstantBuffer;
-  ezShaderResourceHandle m_hShader;
+  ezConstantBufferStorageHandle m_hIrradianceConstantBuffer;
+  ezShaderResourceHandle m_hIrradianceShader;
 };
 

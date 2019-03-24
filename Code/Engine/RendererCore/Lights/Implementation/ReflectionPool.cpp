@@ -342,7 +342,7 @@ struct ezReflectionPool::Data
     }
   }
 
-  void CreateViewsAndResources()
+  void CreateReflectionViewsAndResources()
   {
     // ReflectionRenderPipeline.ezRenderPipelineAsset
     CreateViews(m_RenderViews, CVarMaxRenderViews, "Render", "{ 734898e8-b1a2-0da2-c4ae-701912983c2f }");
@@ -362,19 +362,6 @@ struct ezReflectionPool::Data
       desc.m_bCreateRenderTarget = true;
 
       m_hReflectionSpecularTexture = ezGALDevice::GetDefaultDevice()->CreateTexture(desc);
-    }
-
-    if (m_hSkyIrradianceTexture.IsInvalidated())
-    {
-      ezGALTextureCreationDescription desc;
-      desc.m_uiWidth = 6;
-      desc.m_uiHeight = 1;
-      desc.m_Format = ezGALResourceFormat::RGBAHalf;
-      desc.m_Type = ezGALTextureType::Texture2D;
-      desc.m_bCreateRenderTarget = true;
-      desc.m_bAllowUAV = true;
-
-      m_hSkyIrradianceTexture = ezGALDevice::GetDefaultDevice()->CreateTexture(desc);
     }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -410,6 +397,22 @@ struct ezReflectionPool::Data
 #endif
   }
 
+  void CreateSkyIrradianceTexture()
+  {
+    if (m_hSkyIrradianceTexture.IsInvalidated())
+    {
+      ezGALTextureCreationDescription desc;
+      desc.m_uiWidth = 6;
+      desc.m_uiHeight = 1;
+      desc.m_Format = ezGALResourceFormat::RGBAHalf;
+      desc.m_Type = ezGALTextureType::Texture2D;
+      desc.m_bCreateRenderTarget = true;
+      desc.m_bAllowUAV = true;
+
+      m_hSkyIrradianceTexture = ezGALDevice::GetDefaultDevice()->CreateTexture(desc);
+    }
+  }
+
   void AddViewToRender(
     const ProbeUpdateInfo::Step& step, const ezReflectionProbeData& data, ProbeUpdateInfo& updateInfo, const ezVec3& vPosition)
   {
@@ -430,6 +433,8 @@ struct ezReflectionPool::Data
       ezVec3(0.0f, 0.0f, 1.0f),
       ezVec3(0.0f, 0.0f, 1.0f),
     };
+
+    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
     // Setup view and camera
     {
@@ -456,14 +461,15 @@ struct ezReflectionPool::Data
       ezGALRenderTargetSetup renderTargetSetup;
       if (step.m_UpdateStep == UpdateStep::Filter)
       {
-        renderTargetSetup.SetRenderTarget(0, ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(m_hReflectionSpecularTexture));
+        renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hReflectionSpecularTexture));
+        renderTargetSetup.SetRenderTarget(2, pDevice->GetDefaultRenderTargetView(m_hSkyIrradianceTexture));
 
         pView->SetRenderPassProperty("ReflectionFilterPass", "InputCubemap", updateInfo.m_hCubemap.GetInternalID().m_Data);
       }
       else
       {
         renderTargetSetup.SetRenderTarget(
-          0, ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(updateInfo.m_hCubemapProxies[uiFaceIndex]));
+          0, pDevice->GetDefaultRenderTargetView(updateInfo.m_hCubemapProxies[uiFaceIndex]));
       }
       pView->SetRenderTargetSetup(renderTargetSetup);
 
@@ -480,6 +486,7 @@ struct ezReflectionPool::Data
 
   ezMutex m_ActiveProbesMutex;
   ezDynamicArray<ezReflectionProbeId> m_ActiveDynamicProbes;
+  bool m_bHasSkyLight[2];
 
   ezDynamicArray<SortedUpdateInfo> m_SortedUpdateInfo;
 
@@ -522,6 +529,8 @@ void ezReflectionPool::ExtractReflectionProbe(
   ProbeUpdateInfo* pUpdateInfo = nullptr;
   if (!s_pData->m_UpdateInfo.TryGetValue(data.m_Id, pUpdateInfo))
     return;
+
+  s_pData->m_bHasSkyLight[ezRenderWorld::GetDataIndexForExtraction()] = true;
 
   ezUInt64 uiCurrentFrame = ezRenderWorld::GetFrameCounter();
   bool bExecuteUpdateSteps = false;
@@ -644,12 +653,14 @@ void ezReflectionPool::OnBeginExtraction(ezUInt64 uiFrameCounter)
 {
   EZ_PROFILE_SCOPE("Reflection Pool Update");
 
+  s_pData->CreateSkyIrradianceTexture();
+
   if (s_pData->m_ActiveDynamicProbes.IsEmpty())
   {
     return;
   }
 
-  s_pData->CreateViewsAndResources();
+  s_pData->CreateReflectionViewsAndResources();
 
   // generate possible update steps for active probes
   {
@@ -667,7 +678,9 @@ void ezReflectionPool::OnBeginRender(ezUInt64 uiFrameCounter)
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pGALContext = pDevice->GetPrimaryContext();
 
-  if (!s_pData->m_hSkyIrradianceTexture.IsInvalidated())
+  bool& bHasSkyLight = s_pData->m_bHasSkyLight[ezRenderWorld::GetDataIndexForRendering()];
+
+  if (!s_pData->m_hSkyIrradianceTexture.IsInvalidated() && !bHasSkyLight)
   {
     ezBoundingBoxu32 destBox;
     destBox.m_vMin.SetZero();
@@ -678,5 +691,9 @@ void ezReflectionPool::OnBeginRender(ezUInt64 uiFrameCounter)
     memDesc.m_uiRowPitch = sizeof(s_pData->m_SkyIrradianceStorage);
 
     pGALContext->UpdateTexture(s_pData->m_hSkyIrradianceTexture, ezGALTextureSubresource(), destBox, memDesc);
+
+    s_pData->m_SkyIrradianceStorage = ezAmbientCube<ezColorLinear16f>();
   }
+
+  bHasSkyLight = false;
 }
