@@ -1,4 +1,11 @@
 ######################################
+### Qt support
+######################################
+
+set (EZ_ENABLE_QT_SUPPORT ON CACHE BOOL "Whether to add Qt support.")
+set (EZ_QT_DIR $ENV{QTDIR} CACHE PATH "Directory of qt installation")
+
+######################################
 ### ez_requires_qt()
 ######################################
 
@@ -115,6 +122,8 @@ endfunction()
 
 function(ez_qt_wrap_target_ui_files TARGET_NAME FILES_TO_WRAP)
 
+    ez_requires_qt()
+
     list(FILTER FILES_TO_WRAP INCLUDE REGEX ".*\.ui$")
 
     if (NOT FILES_TO_WRAP)
@@ -148,6 +157,8 @@ endfunction()
 
 function(ez_qt_wrap_target_moc_files TARGET_NAME FILES_TO_WRAP)
 
+    ez_requires_qt()
+
     list(FILTER FILES_TO_WRAP INCLUDE REGEX ".*\.h$")
 
     if (NOT FILES_TO_WRAP)
@@ -175,6 +186,8 @@ endfunction()
 ######################################
 
 function(ez_qt_wrap_target_qrc_files TARGET_NAME FILES_TO_WRAP)
+
+    ez_requires_qt()
     
     list(FILTER FILES_TO_WRAP INCLUDE REGEX ".*\.qrc$")
 
@@ -199,6 +212,8 @@ endfunction()
 ######################################
 
 function(ez_qt_wrap_target_files TARGET_NAME FILES_TO_WRAP)
+
+    ez_requires_qt()
 
     ez_qt_wrap_target_qrc_files(${TARGET_NAME} "${FILES_TO_WRAP}")
     

@@ -1,8 +1,6 @@
 ez_cmake_init()
 
-ez_requires_qt()
-
-ez_requires_windows()
+ez_requires_editor()
 
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
@@ -19,17 +17,6 @@ target_link_libraries(${PROJECT_NAME}
 
 ez_link_target_dx11(${PROJECT_NAME})
 ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets)
-
-find_package(EzAssImp REQUIRED)
-
-if (EZASSIMP_FOUND)
-
-  target_link_libraries(${PROJECT_NAME} PRIVATE EzAssImp::EzAssImp)
-
-  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:EzAssImp::EzAssImp> $<TARGET_FILE_DIR:${PROJECT_NAME}>
-  )
-
-endif()
+ez_link_target_assimp(${PROJECT_NAME})
 
 add_dependencies(${PROJECT_NAME} EnginePluginAssets)

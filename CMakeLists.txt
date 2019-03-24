@@ -19,7 +19,11 @@ project (${EZ_SOLUTION_NAME}
 ez_check_build_type()
 ez_write_configuration_txt()
 
-add_subdirectory (Code)
+add_subdirectory(Code)
+
+ez_add_external_projects_folder("_1")
+ez_add_external_projects_folder("_2")
+ez_add_external_projects_folder("_3")
 
 if (TARGET Editor)
 
