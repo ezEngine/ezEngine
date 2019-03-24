@@ -154,9 +154,9 @@ function(ez_set_project_ide_folder TARGET_NAME PROJECT_SOURCE_DIR)
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 	get_filename_component (PARENT_FOLDER ${PROJECT_SOURCE_DIR} PATH)
+	get_filename_component (IDE_FOLDER ${PARENT_FOLDER} NAME)
 
-	file(RELATIVE_PATH RELATIVE_PARENT_FOLDER "${CMAKE_SOURCE_DIR}/Code" ${PARENT_FOLDER})
-	set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER ${RELATIVE_PARENT_FOLDER})
+	set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER ${IDE_FOLDER})
 
 endfunction()
 
@@ -326,3 +326,34 @@ macro(ez_requires_windows)
     ez_requires(${EZ_CMAKE_PLATFORM_WINDOWS})
 
 endmacro()
+
+######################################
+### ez_requires_editor()
+######################################
+
+macro(ez_requires_editor)
+
+		ez_requires_qt()
+		ez_requires_d3d()
+
+endmacro()
+
+######################################
+### ez_add_external_folder(<project-number>)
+######################################
+
+function(ez_add_external_projects_folder PROJECT_NUMBER)
+
+	set(CACHE_VAR_NAME "EZ_EXTERNAL_PROJECT${PROJECT_NUMBER}")
+
+	set (${CACHE_VAR_NAME} "" CACHE PATH "A folder outside the ez repository that should be parsed for CMakeLists.txt files to include projects into the ez solution.")
+
+	set(CACHE_VAR_VALUE ${${CACHE_VAR_NAME}})
+
+	if (NOT CACHE_VAR_VALUE)
+		return()
+	endif()
+
+	add_subdirectory(${CACHE_VAR_VALUE} "${CMAKE_BINARY_DIR}/ExternalProject${PROJECT_NUMBER}")	
+
+endfunction()

@@ -21,12 +21,12 @@ function(ez_create_target TYPE TARGET_NAME)
 
         if (${EZ_COMPILE_ENGINE_AS_DLL})
 
-            message (STATUS "Creating Shared Library: ${TARGET_NAME}")
+            message (STATUS "Shared Library: ${TARGET_NAME}")
             add_library (${TARGET_NAME} SHARED ${ALL_SOURCE_FILES})
 
         else ()
 
-            message (STATUS "Creating Static Library: ${TARGET_NAME}")
+            message (STATUS "Static Library: ${TARGET_NAME}")
             add_library (${TARGET_NAME} ${ALL_SOURCE_FILES})
 
         endif ()
@@ -35,7 +35,7 @@ function(ez_create_target TYPE TARGET_NAME)
 
     elseif (${TYPE} STREQUAL "APPLICATION")
 
-        message (STATUS "Creating Application: ${TARGET_NAME}")
+        message (STATUS "Application: ${TARGET_NAME}")
 
         add_executable (${TARGET_NAME} ${ALL_SOURCE_FILES})
 
