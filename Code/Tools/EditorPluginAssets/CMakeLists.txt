@@ -17,17 +17,6 @@ target_link_libraries(${PROJECT_NAME}
 
 ez_link_target_dx11(${PROJECT_NAME})
 ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets)
-
-find_package(EzAssImp REQUIRED)
-
-if (EZASSIMP_FOUND)
-
-  target_link_libraries(${PROJECT_NAME} PRIVATE EzAssImp::EzAssImp)
-
-  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:EzAssImp::EzAssImp> $<TARGET_FILE_DIR:${PROJECT_NAME}>
-  )
-
-endif()
+ez_link_target_assimp(${PROJECT_NAME})
 
 add_dependencies(${PROJECT_NAME} EnginePluginAssets)

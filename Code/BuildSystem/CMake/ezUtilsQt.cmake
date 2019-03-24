@@ -1,4 +1,11 @@
 ######################################
+### Qt support
+######################################
+
+set (EZ_ENABLE_QT_SUPPORT ON CACHE BOOL "Whether to add Qt support.")
+set (EZ_QT_DIR $ENV{QTDIR} CACHE PATH "Directory of qt installation")
+
+######################################
 ### ez_requires_qt()
 ######################################
 
