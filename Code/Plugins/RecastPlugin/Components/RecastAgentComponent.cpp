@@ -8,7 +8,7 @@
 #include <RecastPlugin/Utils/RcMath.h>
 #include <RecastPlugin/WorldModule/RecastWorldModule.h>
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <ThirdParty/Recast/DetourCrowd.h>
+#include <Recast/DetourCrowd.h>
 
 //////////////////////////////////////////////////////////////////////////
 

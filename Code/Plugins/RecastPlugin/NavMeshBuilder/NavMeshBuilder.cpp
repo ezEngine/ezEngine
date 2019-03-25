@@ -4,9 +4,9 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Types/ScopeExit.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
-#include <ThirdParty/Recast/DetourNavMesh.h>
-#include <ThirdParty/Recast/DetourNavMeshBuilder.h>
-#include <ThirdParty/Recast/Recast.h>
+#include <Recast/DetourNavMesh.h>
+#include <Recast/DetourNavMeshBuilder.h>
+#include <Recast/Recast.h>
 #include <Core/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off

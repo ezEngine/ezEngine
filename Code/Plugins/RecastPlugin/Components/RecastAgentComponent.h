@@ -5,8 +5,8 @@
 #include <Core/World/Component.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
 #include <RecastPlugin/Components/RecastNavMeshComponent.h>
-#include <ThirdParty/Recast/DetourNavMeshQuery.h>
-#include <ThirdParty/Recast/DetourPathCorridor.h>
+#include <Recast/DetourNavMeshQuery.h>
+#include <Recast/DetourPathCorridor.h>
 #include <GameEngine/Components/AgentSteeringComponent.h>
 
 class ezRecastWorldModule;
