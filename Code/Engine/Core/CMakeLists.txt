@@ -8,6 +8,9 @@ ez_create_target(LIBRARY ${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
   Foundation
+
+  PRIVATE
+  mikktspace
 )
 
 if (EZ_3RDPARTY_LUA_SUPPORT)

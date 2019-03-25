@@ -3,7 +3,7 @@
 #include <Core/Graphics/Geometry.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Math/Quat.h>
-#include <ThirdParty/mikktspace/mikktspace.h>
+#include <mikktspace/mikktspace.h>
 
 bool ezGeometry::Vertex::operator<(const ezGeometry::Vertex& rhs) const
 {

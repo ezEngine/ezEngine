@@ -17,9 +17,9 @@ function(ez_create_target TYPE TARGET_NAME)
 
     ez_glob_source_files(${CMAKE_CURRENT_SOURCE_DIR} ALL_SOURCE_FILES)
 
-    if (${TYPE} STREQUAL "LIBRARY")
+    if (${TYPE} STREQUAL "LIBRARY" OR ${TYPE} STREQUAL "STATIC_LIBRARY")
 
-        if (${EZ_COMPILE_ENGINE_AS_DLL})
+        if (${EZ_COMPILE_ENGINE_AS_DLL} AND ${TYPE} STREQUAL "LIBRARY")
 
             message (STATUS "Shared Library: ${TARGET_NAME}")
             add_library (${TARGET_NAME} SHARED ${ALL_SOURCE_FILES})

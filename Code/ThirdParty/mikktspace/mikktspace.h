@@ -58,23 +58,6 @@ extern "C" {
  * and also quad triangulator plugin.
  */
 
-
-//////////////////////////////////////////////////////////////////////////
-// Start ezEngine edit
-// Configure the DLL Import/Export Define
-#ifdef BUILDSYSTEM_COMPILE_ENGINE_AS_DLL
-#ifdef BUILDSYSTEM_BUILDING_THIRDPARTY_LIB
-#define EZ_THIRDPARTY_DLL __declspec(dllexport)
-#else
-#define EZ_THIRDPARTY_DLL __declspec(dllimport)
-#endif
-#else
-#define EZ_THIRDPARTY_DLL
-#endif
-// End ezEngine edit
-//////////////////////////////////////////////////////////////////////////
-
-
 typedef int tbool;
 typedef struct SMikkTSpaceContext SMikkTSpaceContext;
 
@@ -126,8 +109,8 @@ struct SMikkTSpaceContext
 };
 
 // these are both thread safe!
-/*Start ezEngine edit*/ EZ_THIRDPARTY_DLL /*End ezEngine edit*/ tbool genTangSpaceDefault(const SMikkTSpaceContext * pContext);	// Default (recommended) fAngularThreshold is 180 degrees (which means threshold disabled)
-/*Start ezEngine edit*/ EZ_THIRDPARTY_DLL /*End ezEngine edit*/ tbool genTangSpace(const SMikkTSpaceContext * pContext, const float fAngularThreshold);
+tbool genTangSpaceDefault(const SMikkTSpaceContext * pContext);	// Default (recommended) fAngularThreshold is 180 degrees (which means threshold disabled)
+tbool genTangSpace(const SMikkTSpaceContext * pContext, const float fAngularThreshold);
 
 
 // To avoid visual errors (distortions/unwanted hard edges in lighting), when using sampled normal maps, the
