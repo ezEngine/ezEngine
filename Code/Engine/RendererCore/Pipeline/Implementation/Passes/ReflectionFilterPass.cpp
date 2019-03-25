@@ -101,9 +101,24 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
   }
 
   auto pIrradianceOutput = outputs[m_PinIrradianceData.m_uiOutputIndex];
-  if (pIrradianceOutput != nullptr && !pFilteredSpecularOutput->m_TextureHandle.IsInvalidated())
+  if (pIrradianceOutput != nullptr && !pIrradianceOutput->m_TextureHandle.IsInvalidated())
   {
+    EZ_PROFILE_AND_MARKER(pGALContext, "Irradiance");
+
+    pGALContext->SetRenderTargetSetup(ezGALRenderTargetSetup());
+
+    ezGALUnorderedAccessViewHandle hIrradianceOutput;
+    {
+      ezGALUnorderedAccessViewCreationDescription desc;
+      desc.m_hTexture = pIrradianceOutput->m_TextureHandle;
+
+      hIrradianceOutput = pDevice->CreateUnorderedAccessView(desc);
+    }
+    renderViewContext.m_pRenderContext->BindUAV("IrradianceOutput", hIrradianceOutput);
+
     renderViewContext.m_pRenderContext->BindTextureCube("InputCubemap", pDevice->GetDefaultResourceView(m_hInputCubemap));
+
+    UpdateIrradianceConstantBuffer();
 
     renderViewContext.m_pRenderContext->BindConstantBuffer("ezReflectionIrradianceConstants", m_hIrradianceConstantBuffer);
     renderViewContext.m_pRenderContext->BindShader(m_hIrradianceShader);
@@ -122,12 +137,10 @@ void ezReflectionFilterPass::SetInputCubemap(ezUInt32 uiCubemapHandle)
   m_hInputCubemap = ezGALTextureHandle(ezGAL::ez18_14Id(uiCubemapHandle));
 }
 
-void ezReflectionFilterPass::UpdateConstantBuffer(ezVec2 pixelSize, const ezColor& tintColor)
+void ezReflectionFilterPass::UpdateIrradianceConstantBuffer()
 {
-  /*ezBloomConstants* constants = ezRenderContext::GetConstantBufferData<ezBloomConstants>(m_hConstantBuffer);
-  constants->PixelSize = pixelSize;
-  constants->BloomThreshold = m_fThreshold;
-  constants->BloomIntensity = m_fIntensity;
-
-  constants->TintColor = tintColor;*/
+  auto constants = ezRenderContext::GetConstantBufferData<ezReflectionIrradianceConstants>(m_hIrradianceConstantBuffer);
+  constants->LodLevel = 6; // TODO: calculate from cubemap size and number of samples
+  constants->Intensity = m_fIntensity;
+  constants->Saturation = m_fSaturation;
 }

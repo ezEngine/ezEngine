@@ -340,6 +340,13 @@ void ezGALContext::SetResourceView(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot
   }
 
   const ezGALResourceView* pResourceView = m_pDevice->GetResourceView(hResourceView);
+  if (pResourceView != nullptr)
+  {
+    if (UnsetUnorderedAccessViews(pResourceView->GetResource()))
+    {
+      FlushPlatform();
+    }
+  }
 
   SetResourceViewPlatform(Stage, uiSlot, pResourceView);
 
@@ -373,8 +380,17 @@ void ezGALContext::SetRenderTargetSetup(const ezGALRenderTargetSetup& RenderTarg
       const ezGALRenderTargetView* pRenderTargetView = m_pDevice->GetRenderTargetView(RenderTargetSetup.GetRenderTarget(uiIndex));
       if (pRenderTargetView != nullptr)
       {
-        bFlushNeeded |= UnsetResourceViews(pRenderTargetView->GetTexture());
-        bFlushNeeded |= UnsetUnorderedAccessViews(pRenderTargetView->GetTexture());
+        const ezGALTexture* pTexture = pRenderTargetView->GetTexture();
+        
+        bFlushNeeded |= UnsetResourceViews(pTexture);
+        bFlushNeeded |= UnsetUnorderedAccessViews(pTexture);
+
+        const ezGALTexture* pParentTexture = pTexture->GetParentTexture();
+        if (pParentTexture != pTexture)
+        {
+          bFlushNeeded |= UnsetResourceViews(pParentTexture);
+          bFlushNeeded |= UnsetUnorderedAccessViews(pParentTexture);
+        }
       }
 
       pRenderTargetViews[uiIndex] = pRenderTargetView;
@@ -386,8 +402,17 @@ void ezGALContext::SetRenderTargetSetup(const ezGALRenderTargetSetup& RenderTarg
   pDepthStencilView = m_pDevice->GetRenderTargetView(RenderTargetSetup.GetDepthStencilTarget());
   if (pDepthStencilView != nullptr)
   {
-    bFlushNeeded |= UnsetResourceViews(pDepthStencilView->GetTexture());
-    bFlushNeeded |= UnsetUnorderedAccessViews(pDepthStencilView->GetTexture());
+    const ezGALTexture* pTexture = pDepthStencilView->GetTexture();
+
+    bFlushNeeded |= UnsetResourceViews(pTexture);
+    bFlushNeeded |= UnsetUnorderedAccessViews(pTexture);
+
+    const ezGALTexture* pParentTexture = pTexture->GetParentTexture();
+    if (pParentTexture != pTexture)
+    {
+      bFlushNeeded |= UnsetResourceViews(pParentTexture);
+      bFlushNeeded |= UnsetUnorderedAccessViews(pParentTexture);
+    }
   }
 
   if (bFlushNeeded)
@@ -413,18 +438,15 @@ void ezGALContext::SetUnorderedAccessView(ezUInt32 uiSlot, ezGALUnorderedAccessV
     return;
   }
 
-  bool bFlushNeeded = false;
-
   const ezGALUnorderedAccessView* pUnorderedAccessView = m_pDevice->GetUnorderedAccessView(hUnorderedAccessView);
   if (pUnorderedAccessView != nullptr)
   {
-    bFlushNeeded |= UnsetResourceViews(pUnorderedAccessView->GetResource());
+    if (UnsetResourceViews(pUnorderedAccessView->GetResource()))
+    {
+      FlushPlatform();
+    }
   }
 
-  if (bFlushNeeded)
-  {
-    FlushPlatform();
-  }
   SetUnorderedAccessViewPlatform(uiSlot, pUnorderedAccessView);
 
   m_State.m_hUnorderedAccessViews[uiSlot] = hUnorderedAccessView;

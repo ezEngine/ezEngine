@@ -36,13 +36,13 @@ void main(uint DispatchId : SV_DispatchThreadID)
 {
   float3 dir = FibonacciSphere(DispatchId, NUM_THREADS);
   
-  float3 inputColor = InputCubemap.SampleLevel(LinearSampler, dir, LodLevel).rgb;
+  float3 inputColor = InputCubemap.SampleLevel(LinearSampler, CubeMapDirection(dir), LodLevel).rgb;
   float weight = (4.0f * PI) / NUM_THREADS;
   
   AmbientCubeFloat3 localAC;
   FillAmbientCubeFromSample(localAC, inputColor, dir, weight);
   
-  SharedACs[DispatchId] = localAC;  
+  SharedACs[DispatchId] = localAC;
   
   GroupMemoryBarrierWithGroupSync();
   

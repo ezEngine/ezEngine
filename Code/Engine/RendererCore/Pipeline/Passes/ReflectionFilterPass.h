@@ -24,7 +24,7 @@ public:
 
 protected:
 
-  void UpdateConstantBuffer(ezVec2 pixelSize, const ezColor& tintColor);
+  void UpdateIrradianceConstantBuffer();
 
   ezOutputNodePin m_PinFilteredSpecular;
   ezOutputNodePin m_PinAvgLuminance;
