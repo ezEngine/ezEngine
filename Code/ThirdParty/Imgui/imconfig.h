@@ -17,7 +17,7 @@
 // Start ezEngine edit
 // Configure the DLL Import/Export Define
 #ifdef BUILDSYSTEM_COMPILE_ENGINE_AS_DLL
-#ifdef BUILDSYSTEM_BUILDING_THIRDPARTY_LIB
+#ifdef BUILDSYSTEM_BUILDING_IMGUI_LIB
 #define IMGUI_API __declspec(dllexport)
 #else
 #define IMGUI_API __declspec(dllimport)

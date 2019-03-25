@@ -14,6 +14,7 @@ target_link_libraries(${PROJECT_NAME}
   PUBLIC
   System
   RendererCore
+  Imgui
 )
 
 if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)

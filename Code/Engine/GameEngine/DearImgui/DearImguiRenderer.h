@@ -7,7 +7,7 @@
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <Foundation/Math/Rect.h>
-#include <ThirdParty/Imgui/imgui.h>
+#include <Imgui/imgui.h>
 
 class ezRenderDataBatch;
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;

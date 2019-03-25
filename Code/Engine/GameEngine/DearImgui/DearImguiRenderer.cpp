@@ -6,7 +6,7 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererFoundation/Device/Device.h>
-#include <ThirdParty/Imgui/imgui_internal.h>
+#include <Imgui/imgui_internal.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
