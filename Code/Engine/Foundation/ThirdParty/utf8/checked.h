@@ -1,4 +1,4 @@
-// Copyright 2006 Nemanja Trifunovic
+// Copyright 2006-2016 Nemanja Trifunovic
 
 /*
 Permission is hereby granted, free of charge, to any person or organization
@@ -41,7 +41,7 @@ namespace utf8
     class invalid_code_point : public exception {
         uint32_t cp;
     public:
-        invalid_code_point(uint32_t cp) : cp(cp) {}
+        invalid_code_point(uint32_t codepoint) : cp(codepoint) {}
         virtual const char* what() const throw() { return "Invalid code point"; }
         uint32_t code_point() const {return cp;}
     };
@@ -109,13 +109,13 @@ namespace utf8
                 case internal::NOT_ENOUGH_ROOM:
                     throw not_enough_room();
                 case internal::INVALID_LEAD:
-                    utf8::append (replacement, out);
+                    out = utf8::append (replacement, out);
                     ++start;
                     break;
                 case internal::INCOMPLETE_SEQUENCE:
                 case internal::OVERLONG_SEQUENCE:
                 case internal::INVALID_CODE_POINT:
-                    utf8::append (replacement, out);
+                    out = utf8::append (replacement, out);
                     ++start;
                     // just one replacement mark for the sequence
                     while (start != end && utf8::internal::is_trail(*start))
@@ -233,7 +233,7 @@ namespace utf8
     template <typename u16bit_iterator, typename octet_iterator>
     u16bit_iterator utf8to16 (octet_iterator start, octet_iterator end, u16bit_iterator result)
     {
-        while (start != end) {
+        while (start < end) {
             uint32_t cp = utf8::next(start, end);
             if (cp > 0xffff) { //make a surrogate pair
                 *result++ = static_cast<uint16_t>((cp >> 10)   + internal::LEAD_OFFSET);
@@ -272,7 +272,7 @@ namespace utf8
     template <typename octet_iterator, typename u32bit_iterator>
     u32bit_iterator utf8to32 (octet_iterator start, octet_iterator end, u32bit_iterator result)
     {
-        while (start != end)
+        while (start < end)
             (*result++) = utf8::next(start, end);
 
         return result;
@@ -313,11 +313,11 @@ namespace utf8
       octet_iterator range_start;
       octet_iterator range_end;
       public:
-      iterator () {};
+      iterator () {}
       explicit iterator (const octet_iterator& octet_it,
-                         const octet_iterator& range_start,
-                         const octet_iterator& range_end) :
-               it(octet_it), range_start(range_start), range_end(range_end)
+                         const octet_iterator& rangestart,
+                         const octet_iterator& rangeend) :
+               it(octet_it), range_start(rangestart), range_end(rangeend)
       {
           if (it < range_start || it > range_end)
               throw std::out_of_range("Invalid utf-8 iterator position");
