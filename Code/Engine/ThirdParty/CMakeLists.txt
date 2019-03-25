@@ -39,17 +39,6 @@ if (EZ_3RDPARTY_ENET_SUPPORT)
 endif()
 
 #################
-## Zlib
-#################
-
-set (EZ_3RDPARTY_ZLIB_SUPPORT OFF CACHE BOOL "Whether to add support for zlib.")
-mark_as_advanced(FORCE EZ_3RDPARTY_ZLIB_SUPPORT)
-
-if (EZ_3RDPARTY_ZLIB_SUPPORT)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_ZLIB_SUPPORT)
-endif()
-
-#################
 #################
 
 
