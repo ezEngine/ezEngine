@@ -1,5 +1,3 @@
-#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-
 /*
  * Copyright (c) 2016-present, Yann Collet, Facebook, Inc.
  * All rights reserved.
@@ -340,7 +338,3 @@ size_t POOL_sizeof(POOL_ctx* ctx) {
 }
 
 #endif  /* ZSTD_MULTITHREAD */
-
-#endif
-
-

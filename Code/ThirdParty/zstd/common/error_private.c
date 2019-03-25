@@ -1,5 +1,3 @@
-#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-
 /*
  * Copyright (c) 2016-present, Yann Collet, Facebook, Inc.
  * All rights reserved.
@@ -54,5 +52,3 @@ const char* ERR_getErrorString(ERR_enum code)
     }
 #endif
 }
-
-#endif

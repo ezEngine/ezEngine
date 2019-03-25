@@ -1,5 +1,3 @@
-#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-
 /* ******************************************************************
    debug
    Part of FSE library
@@ -44,5 +42,3 @@
 #include "debug.h"
 
 int g_debuglevel = DEBUGLEVEL;
-
-#endif

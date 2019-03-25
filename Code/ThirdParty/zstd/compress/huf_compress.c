@@ -1,5 +1,3 @@
-#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-
 /* ******************************************************************
    Huffman encoder, part of New Generation Entropy library
    Copyright (C) 2013-2016, Yann Collet.
@@ -798,5 +796,3 @@ size_t HUF_compress (void* dst, size_t maxDstSize, const void* src, size_t srcSi
 {
     return HUF_compress2(dst, maxDstSize, src, srcSize, 255, HUF_TABLELOG_DEFAULT);
 }
-
-#endif

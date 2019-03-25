@@ -50,17 +50,6 @@ if (EZ_3RDPARTY_ZLIB_SUPPORT)
 endif()
 
 #################
-## Zstandard
-#################
-
-set (EZ_3RDPARTY_ZSTD_SUPPORT ON CACHE BOOL "Whether to add support for zstd.")
-mark_as_advanced(FORCE EZ_3RDPARTY_ZSTD_SUPPORT)
-
-if (EZ_3RDPARTY_ZSTD_SUPPORT)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_ZSTD_SUPPORT)
-endif()
-
-#################
 #################
 
 

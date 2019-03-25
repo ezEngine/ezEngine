@@ -1,5 +1,3 @@
-#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-
 /* ******************************************************************
    huff0 huffman decoder,
    part of Finite State Entropy library
@@ -1232,5 +1230,3 @@ size_t HUF_decompress4X_hufOnly_wksp_bmi2(HUF_DTable* dctx, void* dst, size_t ds
 #endif
     }
 }
-
-#endif

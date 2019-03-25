@@ -1,5 +1,3 @@
-#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-
 /* ******************************************************************
    FSE : Finite State Entropy decoder
    Copyright (C) 2013-2015, Yann Collet.
@@ -309,5 +307,3 @@ size_t FSE_decompress(void* dst, size_t dstCapacity, const void* cSrc, size_t cS
 
 
 #endif   /* FSE_COMMONDEFS_ONLY */
-
-#endif

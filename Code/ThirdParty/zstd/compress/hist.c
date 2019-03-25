@@ -1,5 +1,3 @@
-#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-
 /* ******************************************************************
    hist : Histogram functions
    part of Finite State Entropy project
@@ -203,5 +201,3 @@ size_t HIST_count(unsigned* count, unsigned* maxSymbolValuePtr,
     unsigned tmpCounters[HIST_WKSP_SIZE_U32];
     return HIST_count_wksp(count, maxSymbolValuePtr, src, srcSize, tmpCounters, sizeof(tmpCounters));
 }
-
-#endif

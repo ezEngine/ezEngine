@@ -1,5 +1,3 @@
-#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-
 /*
  * Copyright (c) 2016-present, Yann Collet, Facebook, Inc.
  * All rights reserved.
@@ -391,5 +389,3 @@ size_t ZSTD_compressBlock_fast_extDict(
         return ZSTD_compressBlock_fast_extDict_generic(ms, seqStore, rep, src, srcSize, 7);
     }
 }
-
-#endif

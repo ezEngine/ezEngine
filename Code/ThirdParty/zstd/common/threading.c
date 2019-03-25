@@ -1,5 +1,3 @@
-#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-
 /**
  * Copyright (c) 2016 Tino Reichardt
  * All rights reserved.
@@ -75,5 +73,3 @@ int ZSTD_pthread_join(ZSTD_pthread_t thread, void **value_ptr)
 }
 
 #endif   /* ZSTD_MULTITHREAD */
-
-#endif
