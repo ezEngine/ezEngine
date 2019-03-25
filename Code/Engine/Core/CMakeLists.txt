@@ -9,3 +9,12 @@ target_link_libraries(${PROJECT_NAME}
   PUBLIC
   Foundation
 )
+
+if (EZ_3RDPARTY_LUA_SUPPORT)
+
+  target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+    Lua
+  )
+
+endif()

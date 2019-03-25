@@ -7,9 +7,9 @@
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
 extern "C" {
-#include <ThirdParty/Lua/lauxlib.h>
-#include <ThirdParty/Lua/lua.h>
-#include <ThirdParty/Lua/lualib.h>
+#include <Lua/lauxlib.h>
+#include <Lua/lua.h>
+#include <Lua/lualib.h>
 }
 
 /// This class encapsulates ONE Lua-Script.

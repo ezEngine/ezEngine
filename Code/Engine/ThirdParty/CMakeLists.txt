@@ -39,17 +39,6 @@ if (EZ_3RDPARTY_ENET_SUPPORT)
 endif()
 
 #################
-## Lua
-#################
-
-set (EZ_3RDPARTY_LUA_SUPPORT ON CACHE BOOL "Whether to add support for Lua.")
-mark_as_advanced(FORCE EZ_3RDPARTY_LUA_SUPPORT)
-
-if (EZ_3RDPARTY_LUA_SUPPORT)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_LUA_SUPPORT)
-endif()
-
-#################
 ## Zlib
 #################
 
