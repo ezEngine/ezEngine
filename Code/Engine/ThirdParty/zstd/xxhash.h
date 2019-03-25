@@ -1,2 +1,2 @@
 #define XXH_INLINE_ALL
-#include "../xxHash/xxhash.h"
+#include <Foundation/ThirdParty/xxHash/xxhash.h>
