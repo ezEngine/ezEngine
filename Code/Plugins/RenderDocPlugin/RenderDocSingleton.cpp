@@ -3,7 +3,7 @@
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <RenderDocPlugin/RenderDocSingleton.h>
-#include <ThirdParty/RenderDoc/renderdoc_app.h>
+#include <RenderDocPlugin/ThirdParty/renderdoc_app.h>
 
 EZ_IMPLEMENT_SINGLETON(ezRenderDoc);
 
