@@ -5,8 +5,8 @@
 
 #include <Foundation/IO/MemoryStream.h>
 #include <Texture/Image/ImageConversion.h>
-#include <ThirdParty/stb_image/stb_image.h>
-#include <ThirdParty/stb_image/stb_image_write.h>
+#include <stb_image/stb_image.h>
+#include <stb_image/stb_image_write.h>
 
 
 ezStbImageFileFormats g_StbImageFormats;

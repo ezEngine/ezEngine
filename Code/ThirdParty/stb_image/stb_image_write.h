@@ -153,7 +153,7 @@ LICENSE
 // Start ezEngine edit
 // Configure the DLL Import/Export Define
 #ifdef BUILDSYSTEM_COMPILE_ENGINE_AS_DLL
-#ifdef BUILDSYSTEM_BUILDING_THIRDPARTY_LIB
+#ifdef BUILDSYSTEM_BUILDING_STB_IMAGE_LIB
 #define EZ_THIRDPARTY_DLL __declspec(dllexport)
 #else
 #define EZ_THIRDPARTY_DLL __declspec(dllimport)
