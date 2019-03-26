@@ -60,7 +60,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
     return EZ_FAILURE;
   }
 
-  ID3D11Resource* pDXResource = static_cast<const ezGALTextureDX11*>(pTexture->GetParentTexture())->GetDXTexture();
+  ID3D11Resource* pDXResource = static_cast<const ezGALTextureDX11*>(pTexture->GetParentResource())->GetDXTexture();
   const bool bIsArrayView = IsArrayView(texDesc, m_Description);  
 
   if (bIsDepthFormat)

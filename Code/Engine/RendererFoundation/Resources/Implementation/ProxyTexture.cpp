@@ -21,7 +21,7 @@ ezGALProxyTexture::ezGALProxyTexture(const ezGALTexture& parentTexture)
 ezGALProxyTexture::~ezGALProxyTexture() {}
 
 
-const ezGALTexture* ezGALProxyTexture::GetParentTexture() const
+const ezGALResourceBase* ezGALProxyTexture::GetParentResource() const
 {
   return m_pParentTexture;
 }

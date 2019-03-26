@@ -8,7 +8,7 @@ class EZ_RENDERERFOUNDATION_DLL ezGALProxyTexture : public ezGALTexture
 public:
   virtual ~ezGALProxyTexture();
 
-  virtual const ezGALTexture* GetParentTexture() const override;
+  virtual const ezGALResourceBase* GetParentResource() const override;
 
 protected:
   friend class ezGALDevice;

@@ -8,8 +8,6 @@ class EZ_RENDERERFOUNDATION_DLL ezGALTexture : public ezGALResource<ezGALTexture
 {
 public:
 
-  virtual const ezGALTexture* GetParentTexture() const;
-
 protected:
 
   friend class ezGALDevice;

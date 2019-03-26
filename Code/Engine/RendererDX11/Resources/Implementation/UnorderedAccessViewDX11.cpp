@@ -74,7 +74,7 @@ ezResult ezGALUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
 
   if (pTexture)
   {
-    pDXResource = static_cast<const ezGALTextureDX11*>(pTexture->GetParentTexture())->GetDXTexture();
+    pDXResource = static_cast<const ezGALTextureDX11*>(pTexture->GetParentResource())->GetDXTexture();
     const ezGALTextureCreationDescription& texDesc = pTexture->GetDescription();
 
     const bool bIsArrayView = IsArrayView(texDesc, m_Description);

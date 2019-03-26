@@ -10,11 +10,11 @@
 #include <RendererFoundation/Resources/UnorderedAccesView.h>
 
 ezGALContext::ezGALContext(ezGALDevice* pDevice)
-    : m_pDevice(pDevice)
-    , m_uiDrawCalls(0)
-    , m_uiDispatchCalls(0)
-    , m_uiStateChanges(0)
-    , m_uiRedundantStateChanges(0)
+  : m_pDevice(pDevice)
+  , m_uiDrawCalls(0)
+  , m_uiDispatchCalls(0)
+  , m_uiStateChanges(0)
+  , m_uiRedundantStateChanges(0)
 {
   EZ_ASSERT_DEV(pDevice != nullptr, "The context needs a valid device pointer!");
 
@@ -24,7 +24,7 @@ ezGALContext::ezGALContext(ezGALDevice* pDevice)
 ezGALContext::~ezGALContext() {}
 
 void ezGALContext::Clear(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask /*= 0xFFFFFFFFu*/, bool bClearDepth /*= true*/,
-                         bool bClearStencil /*= true*/, float fDepthClear /*= 1.0f*/, ezUInt8 uiStencilClear /*= 0x0u*/)
+  bool bClearStencil /*= true*/, float fDepthClear /*= 1.0f*/, ezUInt8 uiStencilClear /*= 0x0u*/)
 {
   AssertRenderingThread();
 
@@ -167,7 +167,7 @@ void ezGALContext::Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroup
   AssertRenderingThread();
 
   EZ_ASSERT_DEBUG(uiThreadGroupCountX > 0 && uiThreadGroupCountY > 0 && uiThreadGroupCountZ > 0,
-                  "Thread group counts of zero are not meaningful. Did you mean 1?");
+    "Thread group counts of zero are not meaningful. Did you mean 1?");
 
   /// \todo Assert for compute
 
@@ -351,7 +351,8 @@ void ezGALContext::SetResourceView(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot
   SetResourceViewPlatform(Stage, uiSlot, pResourceView);
 
   m_State.m_hResourceViews[Stage][uiSlot] = hResourceView;
-  m_State.m_pResourcesForResourceViews[Stage][uiSlot] = pResourceView != nullptr ? pResourceView->GetResource() : nullptr;
+  m_State.m_pResourcesForResourceViews[Stage][uiSlot] =
+    pResourceView != nullptr ? pResourceView->GetResource()->GetParentResource() : nullptr;
 
   CountStateChange();
 }
@@ -380,17 +381,10 @@ void ezGALContext::SetRenderTargetSetup(const ezGALRenderTargetSetup& RenderTarg
       const ezGALRenderTargetView* pRenderTargetView = m_pDevice->GetRenderTargetView(RenderTargetSetup.GetRenderTarget(uiIndex));
       if (pRenderTargetView != nullptr)
       {
-        const ezGALTexture* pTexture = pRenderTargetView->GetTexture();
-        
+        const ezGALResourceBase* pTexture = pRenderTargetView->GetTexture()->GetParentResource();
+
         bFlushNeeded |= UnsetResourceViews(pTexture);
         bFlushNeeded |= UnsetUnorderedAccessViews(pTexture);
-
-        const ezGALTexture* pParentTexture = pTexture->GetParentTexture();
-        if (pParentTexture != pTexture)
-        {
-          bFlushNeeded |= UnsetResourceViews(pParentTexture);
-          bFlushNeeded |= UnsetUnorderedAccessViews(pParentTexture);
-        }
       }
 
       pRenderTargetViews[uiIndex] = pRenderTargetView;
@@ -402,17 +396,10 @@ void ezGALContext::SetRenderTargetSetup(const ezGALRenderTargetSetup& RenderTarg
   pDepthStencilView = m_pDevice->GetRenderTargetView(RenderTargetSetup.GetDepthStencilTarget());
   if (pDepthStencilView != nullptr)
   {
-    const ezGALTexture* pTexture = pDepthStencilView->GetTexture();
+    const ezGALResourceBase* pTexture = pDepthStencilView->GetTexture()->GetParentResource();
 
     bFlushNeeded |= UnsetResourceViews(pTexture);
     bFlushNeeded |= UnsetUnorderedAccessViews(pTexture);
-
-    const ezGALTexture* pParentTexture = pTexture->GetParentTexture();
-    if (pParentTexture != pTexture)
-    {
-      bFlushNeeded |= UnsetResourceViews(pParentTexture);
-      bFlushNeeded |= UnsetUnorderedAccessViews(pParentTexture);
-    }
   }
 
   if (bFlushNeeded)
@@ -450,7 +437,8 @@ void ezGALContext::SetUnorderedAccessView(ezUInt32 uiSlot, ezGALUnorderedAccessV
   SetUnorderedAccessViewPlatform(uiSlot, pUnorderedAccessView);
 
   m_State.m_hUnorderedAccessViews[uiSlot] = hUnorderedAccessView;
-  m_State.m_pResourcesForUnorderedAccessViews[uiSlot] = pUnorderedAccessView != nullptr ? pUnorderedAccessView->GetResource() : nullptr;
+  m_State.m_pResourcesForUnorderedAccessViews[uiSlot] =
+    pUnorderedAccessView != nullptr ? pUnorderedAccessView->GetResource()->GetParentResource() : nullptr;
 
   CountStateChange();
 }
@@ -634,8 +622,8 @@ void ezGALContext::CopyBuffer(ezGALBufferHandle hDest, ezGALBufferHandle hSource
   }
 }
 
-void ezGALContext::CopyBufferRegion(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezGALBufferHandle hSource, ezUInt32 uiSourceOffset,
-                                    ezUInt32 uiByteCount)
+void ezGALContext::CopyBufferRegion(
+  ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezGALBufferHandle hSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount)
 {
   AssertRenderingThread();
 
@@ -658,8 +646,8 @@ void ezGALContext::CopyBufferRegion(ezGALBufferHandle hDest, ezUInt32 uiDestOffs
   }
 }
 
-void ezGALContext::UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData,
-                                ezGALUpdateMode::Enum updateMode)
+void ezGALContext::UpdateBuffer(
+  ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData, ezGALUpdateMode::Enum updateMode)
 {
   AssertRenderingThread();
 
@@ -701,8 +689,8 @@ void ezGALContext::CopyTexture(ezGALTextureHandle hDest, ezGALTextureHandle hSou
 }
 
 void ezGALContext::CopyTextureRegion(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource,
-                                     const ezVec3U32& DestinationPoint, ezGALTextureHandle hSource,
-                                     const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box)
+  const ezVec3U32& DestinationPoint, ezGALTextureHandle hSource, const ezGALTextureSubresource& SourceSubResource,
+  const ezBoundingBoxu32& Box)
 {
   AssertRenderingThread();
 
@@ -720,7 +708,7 @@ void ezGALContext::CopyTextureRegion(ezGALTextureHandle hDest, const ezGALTextur
 }
 
 void ezGALContext::UpdateTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource,
-                                 const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData)
+  const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData)
 {
   AssertRenderingThread();
 
@@ -737,7 +725,7 @@ void ezGALContext::UpdateTexture(ezGALTextureHandle hDest, const ezGALTextureSub
 }
 
 void ezGALContext::ResolveTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource,
-                                  ezGALTextureHandle hSource, const ezGALTextureSubresource& SourceSubResource)
+  ezGALTextureHandle hSource, const ezGALTextureSubresource& SourceSubResource)
 {
   AssertRenderingThread();
 
@@ -763,7 +751,7 @@ void ezGALContext::ReadbackTexture(ezGALTextureHandle hTexture)
   if (pTexture != nullptr)
   {
     EZ_ASSERT_RELEASE(pTexture->GetDescription().m_ResourceAccess.m_bReadBack,
-                      "A texture supplied to read-back needs to be created with the correct resource usage (m_bReadBack = true)!");
+      "A texture supplied to read-back needs to be created with the correct resource usage (m_bReadBack = true)!");
 
     ReadbackTexturePlatform(pTexture);
   }
@@ -778,7 +766,7 @@ void ezGALContext::CopyTextureReadbackResult(ezGALTextureHandle hTexture, const 
   if (pTexture != nullptr)
   {
     EZ_ASSERT_RELEASE(pTexture->GetDescription().m_ResourceAccess.m_bReadBack,
-                      "A texture supplied to read-back needs to be created with the correct resource usage (m_bReadBack = true)!");
+      "A texture supplied to read-back needs to be created with the correct resource usage (m_bReadBack = true)!");
 
     CopyTextureReadbackResultPlatform(pTexture, pData);
   }
@@ -850,6 +838,8 @@ void ezGALContext::InvalidateState()
 
 bool ezGALContext::UnsetResourceViews(const ezGALResourceBase* pResource)
 {
+  EZ_ASSERT_DEV(pResource->GetParentResource() == pResource, "No proxies allowed");
+
   bool bResult = false;
 
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
@@ -873,6 +863,8 @@ bool ezGALContext::UnsetResourceViews(const ezGALResourceBase* pResource)
 
 bool ezGALContext::UnsetUnorderedAccessViews(const ezGALResourceBase* pResource)
 {
+  EZ_ASSERT_DEV(pResource->GetParentResource() == pResource, "No proxies allowed");
+
   bool bResult = false;
 
   for (ezUInt32 uiSlot = 0; uiSlot < EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT; ++uiSlot)
@@ -892,4 +884,3 @@ bool ezGALContext::UnsetUnorderedAccessViews(const ezGALResourceBase* pResource)
 }
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Context_Implementation_Context);
-
