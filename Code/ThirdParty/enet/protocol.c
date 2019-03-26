@@ -8,9 +8,9 @@
 #include <stdio.h>
 #include <string.h>
 #define ENET_BUILDING_LIB 1
-#include <ThirdParty/enet/utility.h>
-#include <ThirdParty/enet/time.h>
-#include <ThirdParty/enet/enet.h>
+#include <enet/utility.h>
+#include <enet/enet_time.h>
+#include <enet/enet.h>
 
 static size_t commandSizes [ENET_PROTOCOL_COMMAND_COUNT] =
 {

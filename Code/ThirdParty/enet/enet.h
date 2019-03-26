@@ -20,15 +20,15 @@ extern "C"
 #include <stdlib.h>
 
 #ifdef _WIN32
-#include <ThirdParty/enet/win32.h>
+#include <enet/win32.h>
 #else
-#include <ThirdParty/enet/unix.h>
+#include <enet/unix.h>
 #endif
 
-#include <ThirdParty/enet/types.h>
-#include <ThirdParty/enet/protocol.h>
-#include <ThirdParty/enet/list.h>
-#include <ThirdParty/enet/callbacks.h>
+#include <enet/types.h>
+#include <enet/protocol.h>
+#include <enet/list.h>
+#include <enet/callbacks.h>
 
 #define ENET_VERSION_MAJOR 1
 #define ENET_VERSION_MINOR 3

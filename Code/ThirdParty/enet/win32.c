@@ -11,7 +11,7 @@
 
 #include <time.h>
 #define ENET_BUILDING_LIB 1
-#include <ThirdParty/enet/enet.h>
+#include <enet/enet.h>
 
 static enet_uint32 timeBase = 0;
 

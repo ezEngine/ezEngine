@@ -7,7 +7,7 @@
 
 #include <string.h>
 #define ENET_BUILDING_LIB 1
-#include <ThirdParty/enet/enet.h>
+#include <enet/enet.h>
 
 /** @defgroup peer ENet peer functions
     @{

@@ -2,7 +2,7 @@
 
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Threading/ThreadUtils.h>
-#include <ThirdParty/enet/enet.h>
+#include <enet/enet.h>
 
 class ezTelemetryThread;
 

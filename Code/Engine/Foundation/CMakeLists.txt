@@ -39,7 +39,7 @@ endif()
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
 
-  ThirdParty
+  enet
 )
 
 if (EZ_3RDPARTY_ZSTD_SUPPORT)

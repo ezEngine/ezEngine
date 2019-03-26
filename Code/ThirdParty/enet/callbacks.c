@@ -6,7 +6,7 @@
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
 
 #define ENET_BUILDING_LIB 1
-#include <ThirdParty/enet/enet.h>
+#include <enet/enet.h>
 
 static ENetCallbacks callbacks = { malloc, free, abort };
 
