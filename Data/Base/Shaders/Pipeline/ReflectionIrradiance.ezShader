@@ -25,6 +25,7 @@ float3 FibonacciSphere(int sampleIndex, int numSamples)
 }
 
 #define NUM_THREADS 64
+#define NUM_SAMPLES_PER_THREAD 1
 
 TextureCube InputCubemap;
 RWTexture2D<float4> IrradianceOutput;
@@ -34,13 +35,19 @@ groupshared AmbientCubeFloat3 SharedACs[NUM_THREADS];
 [numthreads(NUM_THREADS, 1, 1)]
 void main(uint DispatchId : SV_DispatchThreadID)
 {
-  float3 dir = FibonacciSphere(DispatchId, NUM_THREADS);
+  uint totalNumSamples = NUM_THREADS * NUM_SAMPLES_PER_THREAD;
+  float weight = (4.0f * PI) / totalNumSamples;
   
-  float3 inputColor = InputCubemap.SampleLevel(LinearSampler, CubeMapDirection(dir), LodLevel).rgb;
-  float weight = (4.0f * PI) / NUM_THREADS;
+  AmbientCubeFloat3 localAC = (AmbientCubeFloat3)0;
   
-  AmbientCubeFloat3 localAC;
-  FillAmbientCubeFromSample(localAC, inputColor, dir, weight);
+  for (uint sampleIndex = 0; sampleIndex < NUM_SAMPLES_PER_THREAD; ++sampleIndex)
+  {
+    float3 dir = FibonacciSphere(DispatchId * NUM_SAMPLES_PER_THREAD + sampleIndex, totalNumSamples);
+    
+    float3 inputColor = InputCubemap.SampleLevel(LinearSampler, CubeMapDirection(dir), LodLevel).rgb;    
+    
+    AddSampleToAmbientCube(localAC, inputColor, dir, weight);
+  }  
   
   SharedACs[DispatchId] = localAC;
   
@@ -48,6 +55,7 @@ void main(uint DispatchId : SV_DispatchThreadID)
   
   if (DispatchId == 0)
   {
+    // TODO: proper parallel reduction
     for (uint threadIndex = 1; threadIndex < NUM_THREADS; ++threadIndex)
     {
       AddAmbientCube(localAC, SharedACs[threadIndex]);
