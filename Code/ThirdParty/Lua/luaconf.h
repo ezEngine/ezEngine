@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #ifndef luaconf_h
 #define luaconf_h
 
@@ -771,11 +769,5 @@
 ** without modifying the main part of the file.
 */
 
-
-
-
-
 #endif
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

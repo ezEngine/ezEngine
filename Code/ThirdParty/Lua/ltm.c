@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #define ltm_c
 #define LUA_CORE
 
@@ -148,6 +146,4 @@ int luaT_callorderTM (lua_State *L, const TValue *p1, const TValue *p2,
   else
     return !l_isfalse(L->top);
 }
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

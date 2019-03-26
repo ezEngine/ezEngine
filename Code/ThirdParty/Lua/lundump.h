@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #ifndef lundump_h
 #define lundump_h
 
@@ -32,6 +30,4 @@ LUAI_FUNC int luaU_dump (lua_State* L, const Proto* f, lua_Writer w,
                          void* data, int strip);
 
 #endif
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

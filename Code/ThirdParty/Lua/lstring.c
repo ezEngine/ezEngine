@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #define lstring_c
 #define LUA_CORE
 
@@ -247,6 +245,3 @@ Udata *luaS_newudata (lua_State *L, size_t s) {
   setuservalue(L, u, luaO_nilobject);
   return u;
 }
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
-

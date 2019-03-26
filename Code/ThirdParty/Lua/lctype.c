@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #define lctype_c
 #define LUA_CORE
 
@@ -55,6 +53,4 @@ LUAI_DDEF const lu_byte luai_ctype_[UCHAR_MAX + 2] = {
 };
 
 #endif			/* } */
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

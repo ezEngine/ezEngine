@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #ifndef lmem_h
 #define lmem_h
 
@@ -68,6 +66,3 @@ LUAI_FUNC void *luaM_growaux_ (lua_State *L, void *block, int *size,
                                const char *what);
 
 #endif
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
-

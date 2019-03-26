@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #define lobject_c
 #define LUA_CORE
 
@@ -476,6 +474,4 @@ void luaO_chunkid (char *out, const char *source, size_t bufflen) {
     memcpy(out, POS, (LL(POS) + 1) * sizeof(char));
   }
 }
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

@@ -5,8 +5,6 @@
 ** See Copyright Notice at the end of this file
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #ifndef lua_h
 #define lua_h
 
@@ -485,6 +483,4 @@ struct lua_Debug {
 
 
 #endif
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

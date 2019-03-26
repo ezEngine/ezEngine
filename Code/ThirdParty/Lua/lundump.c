@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #define lundump_c
 #define LUA_CORE
 
@@ -278,6 +276,4 @@ LClosure *luaU_undump(lua_State *L, ZIO *Z, const char *name) {
   luai_verifycode(L, buff, cl->p);
   return cl;
 }
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

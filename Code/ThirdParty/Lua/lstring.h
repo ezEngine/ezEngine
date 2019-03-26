@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #ifndef lstring_h
 #define lstring_h
 
@@ -49,6 +47,4 @@ LUAI_FUNC TString *luaS_createlngstrobj (lua_State *L, size_t l);
 
 
 #endif
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

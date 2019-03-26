@@ -12,7 +12,7 @@ set (EZ_QT_DIR $ENV{QTDIR} CACHE PATH "Directory of qt installation")
 macro(ez_requires_physx)
 
 	ez_requires_windows()
-	ez_requires(${EZ_BUILD_PHYSX})
+	ez_requires(EZ_BUILD_PHYSX)
 
 endmacro()
 
@@ -59,12 +59,12 @@ function(ez_link_target_physx_cooking TARGET_NAME)
 
 	if (EZPHYSX_FOUND)
 	  target_link_libraries(${TARGET_NAME} PRIVATE ezPhysX::Cooking)
-	
+
 	  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezPhysX::Foundation> $<TARGET_FILE_DIR:${TARGET_NAME}>
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezPhysX::Cooking> $<TARGET_FILE_DIR:${TARGET_NAME}>
 	  )
-	
+
 	endif()
 
 endfunction()

@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #define ldo_c
 #define LUA_CORE
 
@@ -793,7 +791,4 @@ int luaD_protectedparser (lua_State *L, ZIO *z, const char *name,
   L->nny--;
   return status;
 }
-
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

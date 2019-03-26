@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #define lmem_c
 #define LUA_CORE
 
@@ -99,6 +97,3 @@ void *luaM_realloc_ (lua_State *L, void *block, size_t osize, size_t nsize) {
   g->GCdebt = (g->GCdebt + nsize) - realosize;
   return newblock;
 }
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
-

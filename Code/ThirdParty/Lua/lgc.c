@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #define lgc_c
 #define LUA_CORE
 
@@ -1181,7 +1179,4 @@ void luaC_fullgc (lua_State *L, int isemergency) {
 }
 
 /* }====================================================== */
-
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

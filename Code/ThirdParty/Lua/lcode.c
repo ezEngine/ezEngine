@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #define lcode_c
 #define LUA_CORE
 
@@ -954,6 +952,4 @@ void luaK_setlist (FuncState *fs, int base, int nelems, int tostore) {
     luaX_syntaxerror(fs->ls, "constructor too long");
   fs->freereg = base + 1;  /* free registers with list values */
 }
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #ifndef ltm_h
 #define ltm_h
 
@@ -74,6 +72,4 @@ LUAI_FUNC int luaT_callorderTM (lua_State *L, const TValue *p1,
 
 
 #endif
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

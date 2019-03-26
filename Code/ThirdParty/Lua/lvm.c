@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #define lvm_c
 #define LUA_CORE
 
@@ -1302,6 +1300,4 @@ void luaV_execute (lua_State *L) {
 }
 
 /* }================================================================== */
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

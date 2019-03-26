@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #ifndef ldebug_h
 #define ldebug_h
 
@@ -39,6 +37,4 @@ LUAI_FUNC void luaG_traceexec (lua_State *L);
 
 
 #endif
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

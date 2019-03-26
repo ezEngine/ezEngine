@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #define lbitlib_c
 #define LUA_LIB
 
@@ -233,6 +231,4 @@ LUAMOD_API int luaopen_bit32 (lua_State *L) {
 }
 
 #endif					/* } */
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

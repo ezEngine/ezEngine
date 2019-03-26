@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #ifndef ltable_h
 #define ltable_h
 
@@ -58,6 +56,4 @@ LUAI_FUNC int luaH_isdummy (Node *n);
 
 
 #endif
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

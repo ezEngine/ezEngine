@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #define ldump_c
 #define LUA_CORE
 
@@ -214,7 +212,4 @@ int luaU_dump(lua_State *L, const Proto *f, lua_Writer w, void *data,
   DumpFunction(f, NULL, &D);
   return D.status;
 }
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 

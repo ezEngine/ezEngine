@@ -44,7 +44,7 @@ target_link_libraries(${PROJECT_NAME}
 
 if (EZ_3RDPARTY_ZSTD_SUPPORT)
 
-  target_link_libraries(${PROJECT_NAME} PRIVATE zstd)
+  target_link_libraries(${PROJECT_NAME} PUBLIC zstd)
 
 endif()
 

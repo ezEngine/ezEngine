@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #ifndef lstate_h
 #define lstate_h
 
@@ -224,6 +222,4 @@ LUAI_FUNC void luaE_shrinkCI (lua_State *L);
 
 
 #endif
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #ifndef lgc_h
 #define lgc_h
 
@@ -147,6 +145,4 @@ LUAI_FUNC void luaC_upvdeccount (lua_State *L, UpVal *uv);
 
 
 #endif
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

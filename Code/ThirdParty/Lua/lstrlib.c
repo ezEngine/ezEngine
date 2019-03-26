@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 #define lstrlib_c
 #define LUA_LIB
 
@@ -1552,6 +1550,4 @@ LUAMOD_API int luaopen_string (lua_State *L) {
   createmetatable(L);
   return 1;
 }
-
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
