@@ -15,16 +15,6 @@ ezGALBufferDX11::ezGALBufferDX11(const ezGALBufferCreationDescription& Descripti
 
 ezGALBufferDX11::~ezGALBufferDX11() {}
 
-void ezGALBufferDX11::SetDebugName(const char* szName) const
-{
-  ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szName);
-
-  if (m_pDXBuffer != nullptr)
-  {
-    m_pDXBuffer->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
-  }
-}
-
 ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ezUInt8> pInitialData)
 {
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
@@ -127,6 +117,14 @@ ezResult ezGALBufferDX11::DeInitPlatform(ezGALDevice* pDevice)
   return EZ_SUCCESS;
 }
 
+void ezGALBufferDX11::SetDebugNamePlatform(const char* szName) const
+{
+  ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szName);
 
+  if (m_pDXBuffer != nullptr)
+  {
+    m_pDXBuffer->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
+  }
+}
 
 EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Resources_Implementation_BufferDX11);

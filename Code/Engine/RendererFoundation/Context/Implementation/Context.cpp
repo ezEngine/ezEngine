@@ -310,7 +310,7 @@ void ezGALContext::SetConstantBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer)
 void ezGALContext::SetSamplerState(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALSamplerStateHandle hSamplerState)
 {
   AssertRenderingThread();
-  EZ_ASSERT_RELEASE(uiSlot < EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT, "Sampler state slot index too big!");
+  EZ_ASSERT_RELEASE(uiSlot < EZ_GAL_MAX_SAMPLER_COUNT, "Sampler state slot index too big!");
 
   if (m_State.m_hSamplerStates[Stage][uiSlot] == hSamplerState)
   {
@@ -333,7 +333,8 @@ void ezGALContext::SetResourceView(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot
 
   /// \todo Check if the device supports the stage / the slot index
 
-  if (m_State.m_hResourceViews[Stage][uiSlot] == hResourceView)
+  auto& boundResourceViews = m_State.m_hResourceViews[Stage];
+  if (uiSlot < boundResourceViews.GetCount() && boundResourceViews[uiSlot] == hResourceView)
   {
     CountRedundantStateChange();
     return;
@@ -350,9 +351,12 @@ void ezGALContext::SetResourceView(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot
 
   SetResourceViewPlatform(Stage, uiSlot, pResourceView);
 
-  m_State.m_hResourceViews[Stage][uiSlot] = hResourceView;
-  m_State.m_pResourcesForResourceViews[Stage][uiSlot] =
-    pResourceView != nullptr ? pResourceView->GetResource()->GetParentResource() : nullptr;
+  boundResourceViews.EnsureCount(uiSlot + 1);
+  boundResourceViews[uiSlot] = hResourceView;
+
+  auto& boundResources = m_State.m_pResourcesForResourceViews[Stage];
+  boundResources.EnsureCount(uiSlot + 1);
+  boundResources[uiSlot] = pResourceView != nullptr ? pResourceView->GetResource()->GetParentResource() : nullptr;
 
   CountStateChange();
 }
@@ -419,7 +423,7 @@ void ezGALContext::SetUnorderedAccessView(ezUInt32 uiSlot, ezGALUnorderedAccessV
 
   /// \todo Check if the device supports the stage / the slot index
 
-  if (m_State.m_hUnorderedAccessViews[uiSlot] == hUnorderedAccessView)
+  if (uiSlot < m_State.m_hUnorderedAccessViews.GetCount() && m_State.m_hUnorderedAccessViews[uiSlot] == hUnorderedAccessView)
   {
     CountRedundantStateChange();
     return;
@@ -436,7 +440,10 @@ void ezGALContext::SetUnorderedAccessView(ezUInt32 uiSlot, ezGALUnorderedAccessV
 
   SetUnorderedAccessViewPlatform(uiSlot, pUnorderedAccessView);
 
+  m_State.m_hUnorderedAccessViews.EnsureCount(uiSlot + 1);
   m_State.m_hUnorderedAccessViews[uiSlot] = hUnorderedAccessView;
+
+  m_State.m_pResourcesForUnorderedAccessViews.EnsureCount(uiSlot + 1);
   m_State.m_pResourcesForUnorderedAccessViews[uiSlot] =
     pUnorderedAccessView != nullptr ? pUnorderedAccessView->GetResource()->GetParentResource() : nullptr;
 
@@ -844,7 +851,7 @@ bool ezGALContext::UnsetResourceViews(const ezGALResourceBase* pResource)
 
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
-    for (ezUInt32 uiSlot = 0; uiSlot < EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT; ++uiSlot)
+    for (ezUInt32 uiSlot = 0; uiSlot < m_State.m_pResourcesForResourceViews[stage].GetCount(); ++uiSlot)
     {
       if (m_State.m_pResourcesForResourceViews[stage][uiSlot] == pResource)
       {
@@ -867,7 +874,7 @@ bool ezGALContext::UnsetUnorderedAccessViews(const ezGALResourceBase* pResource)
 
   bool bResult = false;
 
-  for (ezUInt32 uiSlot = 0; uiSlot < EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT; ++uiSlot)
+  for (ezUInt32 uiSlot = 0; uiSlot < m_State.m_pResourcesForUnorderedAccessViews.GetCount(); ++uiSlot)
   {
     if (m_State.m_pResourcesForUnorderedAccessViews[uiSlot] == pResource)
     {

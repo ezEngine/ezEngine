@@ -3,11 +3,19 @@
 
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <Foundation/Containers/HashTable.h>
+#include <Foundation/Strings/HashedString.h>
 
 class EZ_RENDERERFOUNDATION_DLL ezGALResourceBase : public ezRefCounted
 {
 public:
-  virtual void SetDebugName(const char* szName) const = 0;
+  void SetDebugName(const char* szName) const
+  {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    m_sDebugName.Assign(szName);
+#endif
+
+    SetDebugNamePlatform(szName);
+  }
 
   virtual const ezGALResourceBase* GetParentResource() const { return this; }
 
@@ -23,6 +31,12 @@ protected:
     EZ_ASSERT_DEV(m_RenderTargetViews.IsEmpty(), "Dangling render target views");
     EZ_ASSERT_DEV(m_UnorderedAccessViews.IsEmpty(), "Dangling unordered access views");
   }
+
+  virtual void SetDebugNamePlatform(const char* szName) const = 0;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  mutable ezHashedString m_sDebugName;
+#endif
 
   ezGALResourceViewHandle m_hDefaultResourceView;
   ezGALRenderTargetViewHandle m_hDefaultRenderTargetView;

@@ -18,7 +18,7 @@ protected:
   virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  virtual void SetDebugName(const char* szName) const override;
+  virtual void SetDebugNamePlatform(const char* szName) const override;
 
   const ezGALTexture* m_pParentTexture;
 };

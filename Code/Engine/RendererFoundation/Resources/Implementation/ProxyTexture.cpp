@@ -36,4 +36,4 @@ ezResult ezGALProxyTexture::DeInitPlatform(ezGALDevice* pDevice)
   return EZ_SUCCESS;
 }
 
-void ezGALProxyTexture::SetDebugName(const char* szName) const {}
+void ezGALProxyTexture::SetDebugNamePlatform(const char* szName) const {}

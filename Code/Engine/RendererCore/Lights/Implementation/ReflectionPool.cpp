@@ -86,6 +86,8 @@ namespace
   {
     ProbeUpdateInfo()
     {
+      ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
       {
         ezGALTextureCreationDescription desc;
         desc.m_uiWidth = s_uiReflectionCubeMapSize;
@@ -97,11 +99,16 @@ namespace
         desc.m_bAllowDynamicMipGeneration = true;
 
         m_hCubemap = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(desc);
+        pDevice->GetTexture(m_hCubemap)->SetDebugName("Reflection Cubemap");
       }
 
+      ezStringBuilder sName;
       for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hCubemapProxies); ++i)
       {
         m_hCubemapProxies[i] = ezGALDevice::GetDefaultDevice()->CreateProxyTexture(m_hCubemap, i);
+
+        sName.Format("Reflection Cubemap Proxy {}", i);
+        pDevice->GetTexture(m_hCubemapProxies[i])->SetDebugName(sName);
       }
     }
 
@@ -352,6 +359,8 @@ struct ezReflectionPool::Data
 
     if (m_hReflectionSpecularTexture.IsInvalidated())
     {
+      ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
       ezGALTextureCreationDescription desc;
       desc.m_uiWidth = s_uiReflectionCubeMapSize;
       desc.m_uiHeight = s_uiReflectionCubeMapSize;
@@ -361,7 +370,8 @@ struct ezReflectionPool::Data
       desc.m_Type = ezGALTextureType::TextureCube;
       desc.m_bCreateRenderTarget = true;
 
-      m_hReflectionSpecularTexture = ezGALDevice::GetDefaultDevice()->CreateTexture(desc);
+      m_hReflectionSpecularTexture = pDevice->CreateTexture(desc);
+      pDevice->GetTexture(m_hReflectionSpecularTexture)->SetDebugName("Reflection Specular Texture");
     }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -401,6 +411,8 @@ struct ezReflectionPool::Data
   {
     if (m_hSkyIrradianceTexture.IsInvalidated())
     {
+      ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
       ezGALTextureCreationDescription desc;
       desc.m_uiWidth = 6;
       desc.m_uiHeight = 1;
@@ -409,7 +421,8 @@ struct ezReflectionPool::Data
       desc.m_bCreateRenderTarget = true;
       desc.m_bAllowUAV = true;
 
-      m_hSkyIrradianceTexture = ezGALDevice::GetDefaultDevice()->CreateTexture(desc);
+      m_hSkyIrradianceTexture = pDevice->CreateTexture(desc);
+      pDevice->GetTexture(m_hSkyIrradianceTexture)->SetDebugName("Sky Irradiance Texture");
     }
   }
 
