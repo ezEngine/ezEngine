@@ -36,11 +36,11 @@ if (CURRENT_OSX_VERSION)
 endif()
 
 
-target_link_libraries(${PROJECT_NAME}
-  PUBLIC
+if (EZ_3RDPARTY_ENET_SUPPORT)
 
-  enet
-)
+  target_link_libraries(${PROJECT_NAME} PUBLIC enet)
+
+endif()
 
 if (EZ_3RDPARTY_ZSTD_SUPPORT)
 
