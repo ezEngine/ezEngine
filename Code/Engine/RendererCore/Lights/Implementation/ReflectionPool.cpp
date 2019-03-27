@@ -477,6 +477,8 @@ struct ezReflectionPool::Data
         renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hReflectionSpecularTexture));
         renderTargetSetup.SetRenderTarget(2, pDevice->GetDefaultRenderTargetView(m_hSkyIrradianceTexture));
 
+        pView->SetRenderPassProperty("ReflectionFilterPass", "Intensity", data.m_fIntensity);
+        pView->SetRenderPassProperty("ReflectionFilterPass", "Saturation", data.m_fSaturation);
         pView->SetRenderPassProperty("ReflectionFilterPass", "InputCubemap", updateInfo.m_hCubemap.GetInternalID().m_Data);
       }
       else

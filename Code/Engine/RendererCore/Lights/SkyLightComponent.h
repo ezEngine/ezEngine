@@ -33,8 +33,5 @@ public:
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
 private:
-  float m_fIntensity;
-  float m_fSaturation;
-
   ezReflectionProbeData m_ReflectionProbeData;
 };

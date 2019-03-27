@@ -16,8 +16,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReflectionFilterPass, 1, ezRTTIDefaultAllocato
     EZ_MEMBER_PROPERTY("FilteredSpecular", m_PinFilteredSpecular),
     EZ_MEMBER_PROPERTY("AvgLuminance", m_PinAvgLuminance),
     EZ_MEMBER_PROPERTY("IrradianceData", m_PinIrradianceData),
-    EZ_MEMBER_PROPERTY("Saturation", m_fSaturation)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("Saturation", m_fSaturation)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_ACCESSOR_PROPERTY("InputCubemap", GetInputCubemap, SetInputCubemap)
   }
   EZ_END_PROPERTIES;

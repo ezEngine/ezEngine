@@ -92,6 +92,7 @@ void OnLoadPlugin(bool bReloading)
   {
     ezToolsTagRegistry::AddTag(ezToolsTag("Default", "CastShadow", true));
     ezToolsTagRegistry::AddTag(ezToolsTag("Default", "AutoColMesh", true));
+    ezToolsTagRegistry::AddTag(ezToolsTag("Default", "SkyLight", true));
   }
 
   ezSelectionActions::RegisterActions();

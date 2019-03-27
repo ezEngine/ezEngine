@@ -35,8 +35,6 @@ EZ_END_COMPONENT_TYPE
 static ezUInt32 s_uiSkyLightPriority = 10;
 
 ezSkyLightComponent::ezSkyLightComponent()
-  : m_fIntensity(1.0f)
-  , m_fSaturation(1.0f)
 {
 }
 
@@ -58,22 +56,22 @@ void ezSkyLightComponent::OnDeactivated()
 
 void ezSkyLightComponent::SetIntensity(float fIntensity)
 {
-  m_fIntensity = fIntensity;
+  m_ReflectionProbeData.m_fIntensity = fIntensity;
 }
 
 float ezSkyLightComponent::GetIntensity() const
 {
-  return m_fIntensity;
+  return m_ReflectionProbeData.m_fIntensity;
 }
 
 void ezSkyLightComponent::SetSaturation(float fSaturation)
 {
-  m_fSaturation = fSaturation;
+  m_ReflectionProbeData.m_fSaturation = fSaturation;
 }
 
 float ezSkyLightComponent::GetSaturation() const
 {
-  return m_fSaturation;
+  return m_ReflectionProbeData.m_fSaturation;
 }
 
 void ezSkyLightComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
@@ -88,7 +86,7 @@ void ezSkyLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
       msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Reflection)
     return;
 
-  if (m_fIntensity <= 0.0f)
+  if (m_ReflectionProbeData.m_fIntensity <= 0.0f)
     return;
 
   ezReflectionPool::ExtractReflectionProbe(msg, m_ReflectionProbeData, this, s_uiSkyLightPriority);
@@ -100,8 +98,6 @@ void ezSkyLightComponent::SerializeComponent(ezWorldWriter& stream) const
 
   ezStreamWriter& s = stream.GetStream();
 
-  s << m_fIntensity;
-  s << m_fSaturation;
   m_ReflectionProbeData.Serialize(s);
 }
 
@@ -111,7 +107,5 @@ void ezSkyLightComponent::DeserializeComponent(ezWorldReader& stream)
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
-  s >> m_fIntensity;
-  s >> m_fSaturation;
   m_ReflectionProbeData.Deserialize(s);
 }
