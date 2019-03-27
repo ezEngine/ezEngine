@@ -164,15 +164,23 @@ function(ez_set_project_ide_folder TARGET_NAME PROJECT_SOURCE_DIR)
 endfunction()
 
 ######################################
+### ez_add_output_ez_prefix(<target>)
+######################################
+
+function(ez_add_output_ez_prefix TARGET_NAME)
+
+	set_target_properties(${TARGET_NAME} PROPERTIES IMPORT_PREFIX "ez")
+	set_target_properties(${TARGET_NAME} PROPERTIES PREFIX "ez")
+
+endfunction()
+
+######################################
 ### ez_set_library_properties(<target>)
 ######################################
 
 function(ez_set_library_properties TARGET_NAME)
 
 	ez_pull_all_vars()
-
-	set_target_properties(${TARGET_NAME} PROPERTIES IMPORT_PREFIX "ez")
-	set_target_properties(${TARGET_NAME} PROPERTIES PREFIX "ez")
 
 	if (EZ_CMAKE_PLATFORM_LINUX)
 		# Workaround for: https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899

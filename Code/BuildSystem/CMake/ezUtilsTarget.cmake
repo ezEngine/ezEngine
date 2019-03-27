@@ -4,7 +4,7 @@
 
 function(ez_create_target TYPE TARGET_NAME)
 
-    set(ARG_OPTIONS NO_PCH NO_UNITY NO_QT)
+    set(ARG_OPTIONS NO_PCH NO_UNITY NO_QT NO_EZ_PREFIX)
     set(ARG_ONEVALUEARGS "")
     set(ARG_MULTIVALUEARGS EXCLUDE_FOLDER_FOR_UNITY EXCLUDE_FROM_PCH_REGEX)
     cmake_parse_arguments(ARG "${ARG_OPTIONS}" "${ARG_ONEVALUEARGS}" "${ARG_MULTIVALUEARGS}" ${ARGN} )
@@ -30,6 +30,10 @@ function(ez_create_target TYPE TARGET_NAME)
             add_library (${TARGET_NAME} ${ALL_SOURCE_FILES})
 
         endif ()
+
+        if (NOT ARG_NO_EZ_PREFIX)
+            ez_add_output_ez_prefix(${TARGET_NAME})
+        endif()
 
         ez_set_library_properties(${TARGET_NAME})
 
