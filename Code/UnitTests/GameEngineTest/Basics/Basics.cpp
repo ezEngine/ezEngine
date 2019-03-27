@@ -175,7 +175,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestManyMeshesExec(ezInt32 i
     pCamera->LookAt(pos, pos + ezVec3(1, 0, 0), ezVec3(0, 0, 1));
   }
 
-  ezResourceManager::FinishLoadingOfResources();
+  ezResourceManager::ForceNoFallbackAcquisition(3);
 
   if (Run() == ezApplication::Quit)
     return ezTestAppRun::Quit;
@@ -245,7 +245,7 @@ void ezGameEngineTestApplication_Basics::SubTestSkyboxSetup()
 
 ezTestAppRun ezGameEngineTestApplication_Basics::SubTestSkyboxExec(ezInt32 iCurFrame)
 {
-  ezResourceManager::FinishLoadingOfResources();
+  ezResourceManager::ForceNoFallbackAcquisition(3);
 
   auto pCamera = ezDynamicCast<ezGameState*>(GetActiveGameState())->GetMainCamera();
   pCamera->SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 120.0f, 1.0f, 100.0f);

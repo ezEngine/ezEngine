@@ -60,6 +60,4 @@ void ezSceneExportModifier_RemoveShapeIconComponents::ModifyWorld(ezWorld& world
 
     ++num;
   }
-
-  // ezLog::Debug("Removed {0} shape icon components", num);
 }

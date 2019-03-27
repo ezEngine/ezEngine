@@ -2,6 +2,7 @@
 
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Foundation/Profiling/Profiling.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResource, 1, ezRTTINoAllocator);
@@ -88,6 +89,8 @@ void ezResource::CallUnloadData(Unload WhatToUnload)
 
 void ezResource::CallUpdateContent(ezStreamReader* Stream)
 {
+  EZ_PROFILE_SCOPE("CallUpdateContent");
+
   EZ_LOG_BLOCK("ezResource::UpdateContent", GetResourceID().GetData());
 
   ezResourceLoadDesc ld = UpdateContent(Stream);

@@ -163,8 +163,8 @@ public:
 
 private:
   friend class ezResourceManager;
-  friend class ezResourceManagerWorkerDiskRead;
-  friend class ezResourceManagerWorkerMainThread;
+  friend class ezResourceManagerWorkerDataLoad;
+  friend class ezResourceManagerWorkerUpdateContent;
 
   /// \brief Called by ezResourceManager shortly after resource creation.
   void SetUniqueID(const char* szUniqueID, bool bIsReloadable);

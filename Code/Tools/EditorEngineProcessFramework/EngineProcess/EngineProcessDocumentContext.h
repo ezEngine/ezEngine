@@ -120,7 +120,6 @@ private:
 
 
 private:
-  void ResourceEventHandler(const ezResourceEvent& e);
   void ClearViewContexts();
 
   // Maps a document guid to the corresponding context that handles that document on the engine side
@@ -139,8 +138,8 @@ private:
 private:
   enum Constants
   {
-    ThumbnailSuperscaleFactor = 4, ///< Thumbnail render target size is multiplied by this and then the final image is downscaled again. Needs to be pot.
-    ThumbnailConvergenceFramesTarget = 2 ///< Due to multi-threaded rendering, this must be at least 2
+    ThumbnailSuperscaleFactor = 2, ///< Thumbnail render target size is multiplied by this and then the final image is downscaled again. Needs to be power-of-two.
+    ThumbnailConvergenceFramesTarget = 4 ///< Due to multi-threaded rendering, this must be at least 2
   };
 
   ezUInt8 m_uiThumbnailConvergenceFrames;

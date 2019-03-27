@@ -83,15 +83,6 @@ public:
   /// other resources to be loaded first. This is only a hint and there are no guarantees when the resource is available.
   static void PreloadResource(const ezTypelessResourceHandle& hResource, ezTime tShouldBeAvailableIn);
 
-  /// \brief Makes sure all resources that are currently in the preload queue, are finished loading.
-  ///
-  /// Returns whether any resources were waited for.
-  /// \note This will only wait for the preload queue to be empty at this point in time. It does not mean that all resources
-  /// are fully loaded (all levels-of-detail). Once you render a frame, more resources might end up in the preload queue again.
-  /// So if one wants to make a full detail screenshot and have all resources loaded with all details, one must render multiple frames
-  /// and only make a screenshot once no resources where waited for anymore.
-  static bool FinishLoadingOfResources();
-
   ///@}
   /// \name Reloading resources
   ///@{
@@ -154,7 +145,7 @@ public:
   static void EndAcquireResource(ResourceType* pResource);
 
   /// \brief Forces the resource manager to treat ezResourceAcquireMode::AllowFallback as ezResourceAcquireMode::NoFallback on BeginAcquireResource.
-  static void ForceNoFallbackAcquisition(bool force) { s_ForceNoFallbackAcquisition = force; }
+  static void ForceNoFallbackAcquisition(ezUInt32 uiNumFrames = 0xFFFFFFFF);
 
   ///@}
   /// \name Unloading resources
@@ -342,8 +333,8 @@ private:
 
 private:
   friend class ezResource;
-  friend class ezResourceManagerWorkerDiskRead;
-  friend class ezResourceManagerWorkerMainThread;
+  friend class ezResourceManagerWorkerDataLoad;
+  friend class ezResourceManagerWorkerUpdateContent;
   friend class ezResourceHandleReadContext;
 
   // Events
@@ -402,30 +393,27 @@ private:
   static bool ReloadResource(ezResource* pResource, bool bForce);
 
 private:
-  static bool s_ForceNoFallbackAcquisition;
+  static ezUInt32 s_uiForceNoFallbackAcquisition;
 
   // this is the resource preload queue
   static ezDeque<LoadingInfo> s_RequireLoading;
   static ezHashTable<const ezRTTI*, LoadedResources> s_LoadedResources;
-  static const ezUInt32 MaxDiskReadTasks = 2;
-  static const ezUInt32 MaxMainThreadTasks = 16;
+  static const ezUInt32 MaxDataLoadTasks = 4;
+  static const ezUInt32 MaxUpdateContentTasks = 16;
   static bool s_bTaskRunning;
   static bool s_bShutdown;
-  static ezResourceManagerWorkerDiskRead s_WorkerTasksDiskRead[MaxDiskReadTasks];
-  static ezResourceManagerWorkerMainThread s_WorkerTasksMainThread[MaxMainThreadTasks];
-  static ezUInt8 s_uiCurrentWorkerMainThread;
-  static ezUInt8 s_uiCurrentWorkerDiskRead;
+  static ezResourceManagerWorkerDataLoad s_WorkerTasksDataLoad[MaxDataLoadTasks];
+  static ezResourceManagerWorkerUpdateContent s_WorkerTasksUpdateContent[MaxUpdateContentTasks];
+  static ezUInt8 s_uiCurrentUpdateContentWorkerTask;
+  static ezUInt8 s_uiCurrentLoadDataWorkerTask;
   static ezTime s_LastDeadlineUpdate;
   static ezTime s_LastFrameUpdate;
-  static ezAtomicInteger32 s_ResourcesLoadedRecently;
-  static ezAtomicInteger32 s_ResourcesInLoadingLimbo; // not in the loading queue anymore but not yet finished loading either (typically now
-                                                      // a task in the task system)
 
   // Type loaders
 private:
   static ezResourceTypeLoader* GetResourceTypeLoader(const ezRTTI* pRTTI);
 
-  static ezMap<ezString, ezResourceTypeLoader*> s_ResourceTypeLoader;
+  static ezMap<const ezRTTI*, ezResourceTypeLoader*> s_ResourceTypeLoader;
   static ezResourceLoaderFromFile s_FileResourceLoader;
   static ezResourceTypeLoader* s_pDefaultResourceLoader;
   static ezMap<ezResource*, ezUniquePtr<ezResourceTypeLoader>> s_CustomLoaders;

@@ -5,23 +5,27 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 
-/// \brief [internal] Worker thread/task for loading resources from disk.
-class EZ_CORE_DLL ezResourceManagerWorkerDiskRead : public ezTask
+/// \brief [internal] Worker task for loading resources (typically from disk).
+class EZ_CORE_DLL ezResourceManagerWorkerDataLoad : public ezTask
 {
 private:
   friend class ezResourceManager;
 
-  ezResourceManagerWorkerDiskRead() = default;
+  ezResourceManagerWorkerDataLoad();
+  ~ezResourceManagerWorkerDataLoad();
 
   static void DoWork(bool bCalledExternally);
 
   virtual void Execute() override;
 };
 
-/// \brief [internal] Worker thread/task for loading on the main thread.
-class EZ_CORE_DLL ezResourceManagerWorkerMainThread : public ezTask
+/// \brief [internal] Worker task for uploading resource data.
+/// Depending on the resource type, this may get scheduled to run on the main thread or on any thread.
+class EZ_CORE_DLL ezResourceManagerWorkerUpdateContent : public ezTask
 {
 public:
+  ~ezResourceManagerWorkerUpdateContent();
+
   ezResourceLoadData m_LoaderData;
   ezResource* m_pResourceToLoad = nullptr;
   ezResourceTypeLoader* m_pLoader = nullptr;
@@ -31,7 +35,7 @@ public:
 
 private:
   friend class ezResourceManager;
-  ezResourceManagerWorkerMainThread() = default;
+  ezResourceManagerWorkerUpdateContent();
 
   virtual void Execute() override;
 };

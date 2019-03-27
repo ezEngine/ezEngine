@@ -97,8 +97,7 @@ ezStringView ezSubAsset::GetName() const
 {
   if (m_bMainAsset)
     return ezPathUtils::GetFileName(m_pAssetInfo->m_sDataDirRelativePath.GetData(),
-                                    m_pAssetInfo->m_sDataDirRelativePath.GetData() +
-                                        m_pAssetInfo->m_sDataDirRelativePath.GetElementCount());
+      m_pAssetInfo->m_sDataDirRelativePath.GetData() + m_pAssetInfo->m_sDataDirRelativePath.GetElementCount());
   else
     return m_Data.m_sName;
 }
@@ -119,7 +118,7 @@ void ezSubAsset::GetSubAssetIdentifier(ezStringBuilder& out_sPath) const
 ////////////////////////////////////////////////////////////////////////
 
 ezAssetCurator::ezAssetCurator()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
   m_bRunUpdateTask = false;
   m_bNeedToReloadResources = false;
@@ -162,8 +161,8 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
 
       ezDirectoryWatcher* pWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
       ezResult res = pWatcher->OpenDirectory(sTemp, ezDirectoryWatcher::Watch::Reads | ezDirectoryWatcher::Watch::Writes |
-                                                        ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Renames |
-                                                        ezDirectoryWatcher::Watch::Subdirectories);
+                                                      ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Renames |
+                                                      ezDirectoryWatcher::Watch::Subdirectories);
 
       if (res.Failed())
       {
@@ -658,8 +657,7 @@ ezUInt64 ezAssetCurator::GetAssetReferenceHash(ezUuid assetGuid)
 }
 
 ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile* pAssetProfile,
-                                                            const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash,
-                                                            ezUInt64& out_ThumbHash)
+  const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash)
 {
   CURATOR_PROFILE("IsAssetUpToDate");
 
@@ -711,8 +709,8 @@ ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetG
   }
 }
 
-void ezAssetCurator::GetAssetTransformStats(ezUInt32& out_uiNumAssets,
-                                            ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT>& out_count)
+void ezAssetCurator::GetAssetTransformStats(
+  ezUInt32& out_uiNumAssets, ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT>& out_count)
 {
   EZ_LOCK(m_CuratorMutex);
   out_count.SetCountUninitialized(ezAssetInfo::TransformState::COUNT);
@@ -926,12 +924,12 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
   const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
   if (ezDocumentManager::FindDocumentTypeFromPath(pAssetInfo->m_sAbsolutePath, false, pTypeDesc).Failed())
   {
-    return ezStatus(ezFmt("The asset '{0}' could not be queried for its ezDocumentTypeDescriptor, skipping transform!",
-                          pAssetInfo->m_sDataDirRelativePath));
+    return ezStatus(ezFmt(
+      "The asset '{0}' could not be queried for its ezDocumentTypeDescriptor, skipping transform!", pAssetInfo->m_sDataDirRelativePath));
   }
 
   EZ_ASSERT_DEV(pTypeDesc->m_pDocumentType->IsDerivedFrom<ezAssetDocument>(),
-                "Asset document does not derive from correct base class ('{0}')", pAssetInfo->m_sDataDirRelativePath);
+    "Asset document does not derive from correct base class ('{0}')", pAssetInfo->m_sDataDirRelativePath);
 
   auto assetFlags = static_cast<ezAssetDocumentManager*>(pTypeDesc->m_pManager)->GetAssetDocumentTypeFlags(pTypeDesc);
 
@@ -1284,14 +1282,26 @@ void ezAssetCurator::ProcessAllCoreAssets()
       auto pSubAsset = FindSubAsset(sCoreCollectionPath);
       if (pSubAsset)
       {
+        // prefer certain asset types over others, to ensure that thumbnail generation works
+        ezHybridArray<ezTempHashedString, 4> transformOrder;
+        transformOrder.PushBack(ezTempHashedString("RenderPipeline"));
+        transformOrder.PushBack(ezTempHashedString(""));
+
         ezStatus resReferences(EZ_SUCCESS);
-        for (const auto& ref : pSubAsset->m_pAssetInfo->m_Info->m_RuntimeDependencies)
+
+        for (const ezTempHashedString& name : transformOrder)
         {
-          if (ezAssetInfo* pInfo = GetAssetInfo(ref))
+          for (const auto& ref : pSubAsset->m_pAssetInfo->m_Info->m_RuntimeDependencies)
           {
-            resReferences = ProcessAsset(pInfo, pAssetProfile, false);
-            if (resReferences.m_Result.Failed())
-              break;
+            if (ezAssetInfo* pInfo = GetAssetInfo(ref))
+            {
+              if (name.GetHash() == 0 || pInfo->m_Info->m_sAssetTypeName == name)
+              {
+                resReferences = ProcessAsset(pInfo, pAssetProfile, false);
+                if (resReferences.m_Result.Failed())
+                  break;
+              }
+            }
           }
         }
       }
@@ -1539,8 +1549,8 @@ void ezAssetCurator::LoadCaches()
 
           const ezRTTI* pType = nullptr;
           ezAssetDocumentInfo* pEntry = static_cast<ezAssetDocumentInfo*>(ezReflectionSerializer::ReadObjectFromBinary(reader, pType));
-          EZ_ASSERT_DEBUG(pEntry != nullptr && pType == ezGetStaticRTTI<ezAssetDocumentInfo>(),
-                          "Failed to deserialize ezAssetDocumentInfo!");
+          EZ_ASSERT_DEBUG(
+            pEntry != nullptr && pType == ezGetStaticRTTI<ezAssetDocumentInfo>(), "Failed to deserialize ezAssetDocumentInfo!");
           m_CachedAssets.Insert(sPath, ezUniquePtr<ezAssetDocumentInfo>(pEntry, ezFoundation::GetDefaultAllocator()));
 
           ezFileStatus stat;

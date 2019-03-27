@@ -19,6 +19,8 @@ struct FileResourceLoadData
 
 ezResourceLoadData ezResourceLoaderFromFile::OpenDataStream(const ezResource* pResource)
 {
+  EZ_PROFILE_SCOPE("ReadResourceFile");
+
   ezResourceLoadData res;
 
   ezFileReader File;
@@ -35,7 +37,6 @@ ezResourceLoadData ezResourceLoaderFromFile::OpenDataStream(const ezResource* pR
   }
 
 #endif
-
 
   FileResourceLoadData* pData = EZ_DEFAULT_NEW(FileResourceLoadData);
 

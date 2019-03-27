@@ -89,8 +89,6 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
                                                       const ezTypedResourceHandle<ResourceType>& hFallbackResource,
                                                       ezResourcePriority Priority, ezResourceAcquireResult* out_AcquireResult /*= nullptr*/)
 {
-  // EZ_LOCK(s_ResourceMutex);
-
   EZ_ASSERT_DEV(hResource.IsValid(), "Cannot acquire a resource through an invalid handle!");
 
   ResourceType* pResource = (ResourceType*)hResource.m_Typeless.m_pResource;
@@ -101,7 +99,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
                   "The requested resource does not have the same type ('{0}') as the resource handle ('{1}').",
                   pResource->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<ResourceType>()->GetTypeName());
 
-  if (mode == ezResourceAcquireMode::AllowFallback && s_ForceNoFallbackAcquisition)
+  if (mode == ezResourceAcquireMode::AllowFallback && s_uiForceNoFallbackAcquisition > 0)
   {
     mode = ezResourceAcquireMode::NoFallback;
   }
@@ -173,19 +171,11 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
     // When you get a crash with a stack overflow in this code path, then the resource to be used as the
     // 'missing resource' replacement might be missing itself.
 
-    if (/*mode == ezResourceAcquireMode::AllowFallback && (hFallbackResource.IsValid() || */ ezResourceManager::
-            GetResourceTypeMissingFallback<ResourceType>()
-                .IsValid()) //)
+    if (ezResourceManager::GetResourceTypeMissingFallback<ResourceType>().IsValid())
     {
       if (out_AcquireResult)
         *out_AcquireResult = ezResourceAcquireResult::MissingFallback;
 
-      // prefer the fallback given for this situation (might e.g. be a default normal map)
-      // use the type specific missing resource otherwise
-
-      // if (hFallbackResource.IsValid())
-      //  return (ResourceType*) BeginAcquireResource(hFallbackResource, ezResourceAcquireMode::NoFallback);
-      // else
       return (ResourceType*)BeginAcquireResource(ezResourceManager::GetResourceTypeMissingFallback<ResourceType>(),
                                                  ezResourceAcquireMode::NoFallback);
     }
@@ -253,7 +243,7 @@ void ezResourceManager::SetResourceTypeLoader(ezResourceTypeLoader* creator)
 {
   EZ_LOCK(s_ResourceMutex);
 
-  s_ResourceTypeLoader[ezGetStaticRTTI<ResourceType>()->GetTypeName()] = creator;
+  s_ResourceTypeLoader[ezGetStaticRTTI<ResourceType>()] = creator;
 }
 
 inline void ezResourceManager::SetDefaultResourceLoader(ezResourceTypeLoader* pDefaultLoader)

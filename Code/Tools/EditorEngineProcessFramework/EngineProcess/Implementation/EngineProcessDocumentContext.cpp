@@ -306,17 +306,6 @@ ezEditorEngineSyncObject* ezEngineProcessDocumentContext::FindSyncObject(const e
   return m_SyncObjects.GetValueOrDefault(guid, nullptr);
 }
 
-void ezEngineProcessDocumentContext::ResourceEventHandler(const ezResourceEvent& e)
-{
-  // If any resource has changed we assume it's not a good idea to take a screenshot now,
-  // so we restart the counter.
-  // TODO: Even in combination with ezResourceManager::FinishLoadingOfResources we end up with
-  // broken thumbnails :-/
-
-  // ezLog::Debug("Resource changed, resetting counter");
-  // m_uiThumbnailConvergenceFrames = 0;
-}
-
 void ezEngineProcessDocumentContext::ClearViewContexts()
 {
   for (auto* pContext : m_ViewContexts)
@@ -437,33 +426,18 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
   {
     m_uiThumbnailConvergenceFrames++;
 
-    // ezLog::Debug("Updating document context for thumbnail: {0}", m_uiThumbnailConvergenceFrames);
-
-    // Once all resources are loaded and UpdateThumbnailViewContext returns true,
-    // we render 'ThumbnailConvergenceFramesTarget' frames and than download it.
-    if (ezResourceManager::FinishLoadingOfResources())
-    {
-      // ezLog::Debug("Resources loaded, Resetting convergence counter");
-      m_uiThumbnailConvergenceFrames = 0;
-    }
-
     if (!UpdateThumbnailViewContext(m_pThumbnailViewContext))
     {
-      // ezLog::Debug("Not updated thumbnail context, Resetting convergence counter");
       m_uiThumbnailConvergenceFrames = 0;
     }
 
     if (m_uiThumbnailConvergenceFrames > ThumbnailConvergenceFramesTarget)
     {
-      // ezLog::Debug("Convergence > threshold, storing thumbnail");
-
       ezCreateThumbnailMsgToEditor ret;
       ret.m_DocumentGuid = GetDocumentGuid();
 
       // Download image
       {
-        // ezLog::Success("Reading back Thumbnail");
-
         ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hThumbnailColorRT);
 
         ezGALSystemMemoryDescription MemDesc;
@@ -507,7 +481,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
     }
     else
     {
-      // ezLog::Info("Rendering Thumbnail");
+      ezResourceManager::ForceNoFallbackAcquisition(3);
       m_pThumbnailViewContext->Redraw(false);
     }
   }
@@ -563,10 +537,9 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
       .SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hThumbnailDepthRT));
   m_pThumbnailViewContext->SetupRenderTarget(m_ThumbnailRenderTargetSetup, m_uiThumbnailWidth, m_uiThumbnailHeight);
 
+  ezResourceManager::ForceNoFallbackAcquisition(3);
   UpdateThumbnailViewContext(m_pThumbnailViewContext);
   m_pThumbnailViewContext->Redraw(false);
-
-  ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::ResourceEventHandler, this));
 
   OnThumbnailViewContextCreated();
 }
@@ -574,8 +547,6 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
 void ezEngineProcessDocumentContext::DestroyThumbnailViewContext()
 {
   OnDestroyThumbnailViewContext();
-
-  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::ResourceEventHandler, this));
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
