@@ -164,15 +164,23 @@ function(ez_set_project_ide_folder TARGET_NAME PROJECT_SOURCE_DIR)
 endfunction()
 
 ######################################
+### ez_add_output_ez_prefix(<target>)
+######################################
+
+function(ez_add_output_ez_prefix TARGET_NAME)
+
+	set_target_properties(${TARGET_NAME} PROPERTIES IMPORT_PREFIX "ez")
+	set_target_properties(${TARGET_NAME} PROPERTIES PREFIX "ez")
+
+endfunction()
+
+######################################
 ### ez_set_library_properties(<target>)
 ######################################
 
 function(ez_set_library_properties TARGET_NAME)
 
 	ez_pull_all_vars()
-
-	set_target_properties(${TARGET_NAME} PROPERTIES IMPORT_PREFIX "ez")
-	set_target_properties(${TARGET_NAME} PROPERTIES PREFIX "ez")
 
 	if (EZ_CMAKE_PLATFORM_LINUX)
 		# Workaround for: https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899
@@ -289,11 +297,11 @@ function(ez_add_all_subdirs)
 	file (GLOB SUB_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/*/CMakeLists.txt")
 
 	foreach (VAR ${SUB_DIRS})
-		
+
 		get_filename_component (RES ${VAR} DIRECTORY)
 
 		add_subdirectory (${RES})
-	
+
 	endforeach ()
 
 endfunction()
@@ -312,11 +320,21 @@ endmacro()
 ### ez_requires(<variable>)
 ######################################
 
-macro(ez_requires VARIABLE)
+macro(ez_requires)
 
-    if (NOT ${VARIABLE})
-        return()
+  if(${ARGC} EQUAL 0)
+    return()
+  endif()
+
+  set(ALL_ARGS "${ARGN}")
+
+  foreach(arg IN LISTS ALL_ARGS)
+
+    if (NOT ${arg})
+      return()
     endif()
+
+  endforeach()
 
 endmacro()
 
@@ -326,7 +344,7 @@ endmacro()
 
 macro(ez_requires_windows)
 
-    ez_requires(${EZ_CMAKE_PLATFORM_WINDOWS})
+    ez_requires(EZ_CMAKE_PLATFORM_WINDOWS)
 
 endmacro()
 
@@ -357,6 +375,6 @@ function(ez_add_external_projects_folder PROJECT_NUMBER)
 		return()
 	endif()
 
-	add_subdirectory(${CACHE_VAR_VALUE} "${CMAKE_BINARY_DIR}/ExternalProject${PROJECT_NUMBER}")	
+	add_subdirectory(${CACHE_VAR_VALUE} "${CMAKE_BINARY_DIR}/ExternalProject${PROJECT_NUMBER}")
 
 endfunction()

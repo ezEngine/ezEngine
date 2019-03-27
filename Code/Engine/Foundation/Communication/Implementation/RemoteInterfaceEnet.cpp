@@ -7,7 +7,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Types/ScopeExit.h>
-#include <ThirdParty/enet/enet.h>
+#include <enet/enet.h>
 
 bool ezRemoteInterfaceEnet::s_bEnetInitialized = false;
 

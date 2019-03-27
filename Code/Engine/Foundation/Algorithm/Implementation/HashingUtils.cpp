@@ -153,7 +153,7 @@ ezUInt32 ezHashingUtils::CRC32Hash(const void* pKey, size_t uiSizeInBytes)
 }
 
 #define XXH_INLINE_ALL
-#include <ThirdParty/xxHash/xxhash.h>
+#include <Foundation/ThirdParty/xxHash/xxhash.h>
 
 // static
 ezUInt32 ezHashingUtils::xxHash32(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed /*= 0*/)

@@ -2,7 +2,7 @@
 
 #include <Core/World/World.h>
 #include <RecastPlugin/WorldModule/RecastWorldModule.h>
-#include <ThirdParty/Recast/DetourCrowd.h>
+#include <Recast/DetourCrowd.h>
 
 EZ_IMPLEMENT_WORLD_MODULE(ezRecastWorldModule);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecastWorldModule, 1, ezRTTINoAllocator)

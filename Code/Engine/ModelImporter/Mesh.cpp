@@ -6,7 +6,7 @@
 #include <ModelImporter/Mesh.h>
 #include <ModelImporter/VertexData.h>
 
-#include <ThirdParty/mikktspace/mikktspace.h>
+#include <mikktspace/mikktspace.h>
 
 template <>
 struct ezHashHelper<ezVec3>

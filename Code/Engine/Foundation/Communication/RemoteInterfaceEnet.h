@@ -4,7 +4,7 @@
 
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
 
-#include <ThirdParty/enet/enet.h>
+#include <enet/enet.h>
 
 /// \brief An implementation for ezRemoteInterface built on top of Enet
 class EZ_FOUNDATION_DLL ezRemoteInterfaceEnet : public ezRemoteInterface

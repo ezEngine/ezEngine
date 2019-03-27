@@ -2,7 +2,7 @@
 
 #include <Foundation/Containers/StaticArray.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshPointsOfInterest.h>
-#include <ThirdParty/Recast/Recast.h>
+#include <Recast/Recast.h>
 
 ezNavMeshPointOfInterestGraph::ezNavMeshPointOfInterestGraph() {}
 

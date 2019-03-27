@@ -13,10 +13,10 @@
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererFoundation/Device/Device.h>
+#include <Core/Utils/WorldGeoExtractionUtil.h>
 
 #define JC_VORONOI_IMPLEMENTATION
-#include <Core/Utils/WorldGeoExtractionUtil.h>
-#include <ThirdParty/jc_voronoi/jc_voronoi.h>
+#include <PhysXPlugin/ThirdParty/jc_voronoi.h>
 
 EZ_DEFINE_AS_POD_TYPE(jcv_point);
 

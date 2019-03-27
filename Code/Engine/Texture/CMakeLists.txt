@@ -8,4 +8,7 @@ ez_create_target(LIBRARY ${PROJECT_NAME} EXCLUDE_FOLDER_FOR_UNITY DirectXTex)
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
   Foundation
+
+  PRIVATE
+  stb_image
 )

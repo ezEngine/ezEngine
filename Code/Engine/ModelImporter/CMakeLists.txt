@@ -11,6 +11,9 @@ target_link_libraries(${PROJECT_NAME}
   PUBLIC
   Foundation
   RendererCore
+
+  PRIVATE
+  mikktspace
 )
 
 # deactivated for now, would need to be updated to modern CMake

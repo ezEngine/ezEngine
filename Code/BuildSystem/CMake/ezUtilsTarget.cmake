@@ -4,7 +4,7 @@
 
 function(ez_create_target TYPE TARGET_NAME)
 
-    set(ARG_OPTIONS NO_PCH NO_UNITY NO_QT)
+    set(ARG_OPTIONS NO_PCH NO_UNITY NO_QT NO_EZ_PREFIX)
     set(ARG_ONEVALUEARGS "")
     set(ARG_MULTIVALUEARGS EXCLUDE_FOLDER_FOR_UNITY EXCLUDE_FROM_PCH_REGEX)
     cmake_parse_arguments(ARG "${ARG_OPTIONS}" "${ARG_ONEVALUEARGS}" "${ARG_MULTIVALUEARGS}" ${ARGN} )
@@ -17,9 +17,9 @@ function(ez_create_target TYPE TARGET_NAME)
 
     ez_glob_source_files(${CMAKE_CURRENT_SOURCE_DIR} ALL_SOURCE_FILES)
 
-    if (${TYPE} STREQUAL "LIBRARY")
+    if ((${TYPE} STREQUAL "LIBRARY") OR (${TYPE} STREQUAL "STATIC_LIBRARY"))
 
-        if (${EZ_COMPILE_ENGINE_AS_DLL})
+        if ((${EZ_COMPILE_ENGINE_AS_DLL}) AND (${TYPE} STREQUAL "LIBRARY"))
 
             message (STATUS "Shared Library: ${TARGET_NAME}")
             add_library (${TARGET_NAME} SHARED ${ALL_SOURCE_FILES})
@@ -30,6 +30,10 @@ function(ez_create_target TYPE TARGET_NAME)
             add_library (${TARGET_NAME} ${ALL_SOURCE_FILES})
 
         endif ()
+
+        if (NOT ARG_NO_EZ_PREFIX)
+            ez_add_output_ez_prefix(${TARGET_NAME})
+        endif()
 
         ez_set_library_properties(${TARGET_NAME})
 
@@ -51,7 +55,7 @@ function(ez_create_target TYPE TARGET_NAME)
 
     # sort files into the on-disk folder structure in the IDE
     source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${ALL_SOURCE_FILES})
-    
+
     if (NOT ${ARG_NO_PCH})
 
         ez_auto_pch(${TARGET_NAME} "${ALL_SOURCE_FILES}" ${ARG_EXCLUDE_FROM_PCH_REGEX})
@@ -67,17 +71,17 @@ function(ez_create_target TYPE TARGET_NAME)
     ez_set_build_flags(${TARGET_NAME})
 
     ez_set_project_ide_folder(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
-    
+
     if (NOT ${ARG_NO_QT})
 
         ez_qt_wrap_target_files(${TARGET_NAME} "${ALL_SOURCE_FILES}")
-    
+
     endif()
-    
+
     ez_ci_add_to_targets_list(${TARGET_NAME} C++)
-    
+
     if (NOT ${ARG_NO_UNITY})
-        
+
         ez_generate_folder_unity_files_for_target(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR} "${ARG_EXCLUDE_FOLDER_FOR_UNITY}")
 
     endif()

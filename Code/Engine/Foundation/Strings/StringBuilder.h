@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ThirdParty/utf8/utf8.h>
+#include <Foundation/ThirdParty/utf8/utf8.h>
 
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Memory/MemoryUtils.h>

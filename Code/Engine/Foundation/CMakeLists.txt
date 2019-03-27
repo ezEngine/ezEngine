@@ -36,11 +36,17 @@ if (CURRENT_OSX_VERSION)
 endif()
 
 
-target_link_libraries(${PROJECT_NAME}
-  PUBLIC
+if (EZ_3RDPARTY_ENET_SUPPORT)
 
-  ThirdParty
-)
+  target_link_libraries(${PROJECT_NAME} PUBLIC enet)
+
+endif()
+
+if (EZ_3RDPARTY_ZSTD_SUPPORT)
+
+  target_link_libraries(${PROJECT_NAME} PUBLIC zstd)
+
+endif()
 
 ez_set_natvis_file(${PROJECT_NAME} "${CMAKE_SOURCE_DIR}/Utilities/Visual Studio Visualizer/ezEngine.natvis")
 

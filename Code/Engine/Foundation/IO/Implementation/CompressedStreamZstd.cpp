@@ -4,7 +4,7 @@
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
 
-#  include <ThirdParty/zstd/zstd.h>
+#  include <zstd/zstd.h>
 
 ezCompressedStreamReaderZstd::ezCompressedStreamReaderZstd() = default;
 

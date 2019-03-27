@@ -17,3 +17,5 @@ The following libraries are used in ezEngine:
   * [Recast](https://github.com/recastnavigation/recastnavigation) A library to generate navigation meshes from arbitrary 3D geometry.
   * [xxHash](https://github.com/Cyan4973/xxHash) A very fast hash algorithm.
   * [zstd](https://facebook.github.io/zstd) A very fast lossless compression library. It is used by ezCompressedStreamReaderZstd and ezCompressedStreamWriterZstd.
+  * [jc_voronoi](https://github.com/JCash/voronoi/blob/dev/src/jc_voronoi.h) A fast single file 2D voronoi diagram generator. Used by ezBreakableSheetComponent.
+  * [RenderDoc](https://renderdoc.org/) RenderDoc is a free MIT licensed stand-alone graphics debugger. The ezRenderDocPlugin enables full control over taking RenderDoc snapshots from within the engine.

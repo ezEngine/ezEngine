@@ -11,7 +11,7 @@ set (EZ_QT_DIR $ENV{QTDIR} CACHE PATH "Directory of qt installation")
 
 macro(ez_requires_qt)
 
-    ez_requires(${EZ_ENABLE_QT_SUPPORT})
+    ez_requires(EZ_ENABLE_QT_SUPPORT)
 
 endmacro()
 
@@ -170,17 +170,17 @@ function(ez_qt_wrap_target_moc_files TARGET_NAME FILES_TO_WRAP)
 
     set(Qt5Core_MOC_EXECUTABLE Qt5::moc)
     qt5_wrap_cpp(MOC_FILES TARGET ${TARGET_NAME} ${FILES_TO_WRAP})
-    
+
     # retrieve target PCH
     #qt5_wrap_cpp(MOC_FILES TARGET ${TARGET_NAME} ${FILES_TO_WRAP} OPTIONS -b "${PCH_H}")
-    
+
     target_sources(${TARGET_NAME} PRIVATE ${MOC_FILES})
-    
+
     source_group("Qt\\MOC Files" FILES ${MOC_FILES})
 
 endfunction()
-    
-    
+
+
 ######################################
 ### ez_qt_wrap_target_qrc_files(<target> <files>)
 ######################################
@@ -188,7 +188,7 @@ endfunction()
 function(ez_qt_wrap_target_qrc_files TARGET_NAME FILES_TO_WRAP)
 
     ez_requires_qt()
-    
+
     list(FILTER FILES_TO_WRAP INCLUDE REGEX ".*\.qrc$")
 
     if (NOT FILES_TO_WRAP)
@@ -197,16 +197,16 @@ function(ez_qt_wrap_target_qrc_files TARGET_NAME FILES_TO_WRAP)
 
     ez_prepare_find_qt()
     find_package(Qt5 COMPONENTS Widgets REQUIRED PATHS ${EZ_QT_DIR})
-    
+
     set(Qt5Core_RCC_EXECUTABLE Qt5::rcc)
     qt5_add_resources(QRC_FILES ${FILES_TO_WRAP})
-    
+
     target_sources(${TARGET_NAME} PRIVATE ${QRC_FILES})
-    
+
     source_group("Qt\\QRC Files" FILES ${QRC_FILES})
-    
+
 endfunction()
-    
+
 ######################################
 ### ez_qt_wrap_target_files(<target> <files>)
 ######################################
@@ -216,9 +216,9 @@ function(ez_qt_wrap_target_files TARGET_NAME FILES_TO_WRAP)
     ez_requires_qt()
 
     ez_qt_wrap_target_qrc_files(${TARGET_NAME} "${FILES_TO_WRAP}")
-    
+
     ez_qt_wrap_target_ui_files(${TARGET_NAME} "${FILES_TO_WRAP}")
-    
+
     # in this automated method, we only MOC files that end with ".moc.h"
     list(FILTER FILES_TO_WRAP INCLUDE REGEX ".*\.moc\.h")
     ez_qt_wrap_target_moc_files(${TARGET_NAME} "${FILES_TO_WRAP}")

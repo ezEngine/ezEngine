@@ -7,7 +7,7 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/GameEngineDLL.h>
 #include <RendererCore/Pipeline/Declarations.h>
-#include <ThirdParty/Imgui/imgui.h>
+#include <Imgui/imgui.h>
 
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
 
