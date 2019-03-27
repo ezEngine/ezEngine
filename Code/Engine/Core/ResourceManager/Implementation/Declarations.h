@@ -28,7 +28,6 @@ struct ezResourceEvent
     ResourceContentUnloading, ///< Resource is about to be unloaded, but still valid at this point. \note When a resource is 'reloaded' this
                               ///< is the important event to track. Every reload starts with an unload. The actual 'load' (UpdateContant)
                               ///< only happens on demand.
-    ResourcePriorityChanged,  ///< Sent when the priority of a resource is modified.
   };
 
   Type m_Type;
@@ -55,28 +54,32 @@ struct ezResourceFlags
   /// \brief The flags of an ezResource instance.
   enum Enum
   {
-    UpdateOnMainThread    = EZ_BIT(0),  ///< After loading the resource data on a thread, it must be uploaded on the main thread. Use this for resources which require a context that is only available on the main thread.
-    NoFileAccessRequired  = EZ_BIT(1),  ///< The resource 'loading' does not require file accesses and can therefore be done on one or several non-file-loading threads. Use this for procedurally generated data.
+    UpdateOnMainThread      = EZ_BIT(0),  ///< After loading the resource data on a thread, it must be uploaded on the main thread. Use this for resources which require a context that is only available on the main thread.
+    NoFileAccessRequired    = EZ_BIT(1),  ///< The resource 'loading' does not require file accesses and can therefore be done on one or several non-file-loading threads. Use this for procedurally generated data.
     /// \todo implement NoFileAccessRequired
-    ResourceHasFallback   = EZ_BIT(2),  ///< Specifies whether this resource has a valid fallback resource that could be used. Automatically updated in ezResource::SetFallbackResource.
-    IsReloadable          = EZ_BIT(3),  ///< The resource was created, not loaded from file
-    IsPreloading          = EZ_BIT(4),
-    HasCustomDataLoader   = EZ_BIT(6),  ///< True if someone wants to update a resource with custom data and has created a resource loader to update this specific resource
-    PreventFileReload     = EZ_BIT(7),  ///< Once this flag is set, no reloading from file is done, until the flag is manually removed. Automatically set when a custom loader is used. To restore a file to the disk state, this flag must be removed and then the resource can be reloaded.
-    HasLowResData         = EZ_BIT(8),  ///< Whether low resolution data was set on a resource once before
-    IsCreatedResource     = EZ_BIT(9),  ///< When this is set, the resource was created and not loaded from file
-    Default               = 0,
+    ResourceHasFallback     = EZ_BIT(2),  ///< Specifies whether this resource has a valid fallback resource that could be used. Automatically updated in ezResource::SetFallbackResource.
+    ResourceHasTypeFallback = EZ_BIT(3),  ///< Specifies whether this resource has a valid type fallback that could be used.
+    IsReloadable            = EZ_BIT(4),  ///< The resource was created, not loaded from file
+    IsPreloading            = EZ_BIT(5),
+    HasCustomDataLoader     = EZ_BIT(6),  ///< True if someone wants to update a resource with custom data and has created a resource loader to update this specific resource
+    PreventFileReload       = EZ_BIT(7),  ///< Once this flag is set, no reloading from file is done, until the flag is manually removed. Automatically set when a custom loader is used. To restore a file to the disk state, this flag must be removed and then the resource can be reloaded.
+    HasLowResData           = EZ_BIT(8),  ///< Whether low resolution data was set on a resource once before
+    IsCreatedResource       = EZ_BIT(9),  ///< When this is set, the resource was created and not loaded from file
+    Default                 = 0,
   };
 
   struct Bits
   {
-    StorageType UpdateOnMainThread    : 1;
-    StorageType NoFileAccessRequired  : 1;
-    StorageType ResourceHasFallback   : 1;
-    StorageType IsReloadable          : 1;
-    StorageType IsPreloading          : 1;
-    StorageType IsMissingFallback     : 1;
-    StorageType HasCustomDataLoader   : 1;
+    StorageType UpdateOnMainThread      : 1;
+    StorageType NoFileAccessRequired    : 1;
+    StorageType ResourceHasFallback     : 1;
+    StorageType ResourceHasTypeFallback : 1;
+    StorageType IsReloadable            : 1;
+    StorageType IsPreloading            : 1;
+    StorageType HasCustomDataLoader     : 1;
+    StorageType PreventFileReload       : 1;
+    StorageType HasLowResData           : 1;
+    StorageType IsCreatedResource       : 1;
   };
 };
 
@@ -103,17 +106,6 @@ struct ezResourceLoadDesc
   ezUInt8 m_uiQualityLevelsLoadable = 0xFF;     // invalid
 };
 
-/// \brief The priority of a resource. Determines how soon it will be loaded and how late it will be unloaded.
-enum class ezResourcePriority
-{
-  Highest,
-  High,
-  Normal,
-  Low,
-  Lowest,
-  Unchanged ///< When a function might adjust the priority of a resource, this means it should keep it unchanged.
-};
-
 /// \brief Describes what data of a resource needs to be accessed and thus how much of the resource needs to be loaded.
 enum class ezResourceAcquireMode
 {
@@ -138,4 +130,3 @@ enum class ezResourceAcquireResult
 };
 
 // clang-format on
-

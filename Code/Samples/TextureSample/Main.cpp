@@ -259,7 +259,7 @@ public:
           ezTexture2DResourceHandle hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sResourceName);
 
           if (g_bPreloadAllTextures)
-            ezResourceManager::PreloadResource(hTexture, ezTime::Seconds(1.0));
+            ezResourceManager::PreloadResource(hTexture);
         }
       }
     }
@@ -356,7 +356,7 @@ public:
           sResourceName.Printf("Loaded_%+03i_%+03i_D", x, y);
 
           ezTexture2DResourceHandle hTexture =
-              ezResourceManager::LoadResource<ezTexture2DResource>(sResourceName, ezResourcePriority::Highest, ezTexture2DResourceHandle());
+              ezResourceManager::LoadResource<ezTexture2DResource>(sResourceName);
 
           // force immediate loading
           if (g_bForceImmediateLoading)

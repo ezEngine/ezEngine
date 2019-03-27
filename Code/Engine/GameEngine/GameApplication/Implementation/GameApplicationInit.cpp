@@ -55,9 +55,9 @@ void ezGameApplication::Init_SetupDefaultResources()
   {
     ezShaderResourceDescriptor desc;
     ezShaderResourceHandle hFallbackShader =
-        ezResourceManager::CreateResource<ezShaderResource>("FallbackShaderResource", std::move(desc), "FallbackShaderResource");
+      ezResourceManager::CreateResource<ezShaderResource>("FallbackShaderResource", std::move(desc), "FallbackShaderResource");
     ezShaderResourceHandle hMissingShader =
-        ezResourceManager::CreateResource<ezShaderResource>("MissingShaderResource", std::move(desc), "MissingShaderResource");
+      ezResourceManager::CreateResource<ezShaderResource>("MissingShaderResource", std::move(desc), "MissingShaderResource");
 
     ezResourceManager::SetResourceTypeLoadingFallback<ezShaderResource>(hFallbackShader);
     ezResourceManager::SetResourceTypeMissingFallback<ezShaderResource>(hMissingShader);
@@ -67,15 +67,14 @@ void ezGameApplication::Init_SetupDefaultResources()
   {
     ezShaderPermutationResourceDescriptor desc;
     ezShaderPermutationResourceHandle hFallbackShaderPermutation = ezResourceManager::CreateResource<ezShaderPermutationResource>(
-        "FallbackShaderPermutationResource", std::move(desc), "FallbackShaderPermutationResource");
+      "FallbackShaderPermutationResource", std::move(desc), "FallbackShaderPermutationResource");
 
     ezResourceManager::SetResourceTypeLoadingFallback<ezShaderPermutationResource>(hFallbackShaderPermutation);
   }
 
   // 2D Textures
   {
-    ezTexture2DResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTexture2DResource>(
-        "Textures/LoadingTexture_D.dds", ezResourcePriority::Highest, ezTexture2DResourceHandle());
+    ezTexture2DResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/LoadingTexture_D.dds");
     ezTexture2DResourceHandle hMissingTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/MissingTexture_D.dds");
 
     ezResourceManager::SetResourceTypeLoadingFallback<ezTexture2DResource>(hFallbackTexture);
@@ -88,7 +87,8 @@ void ezGameApplication::Init_SetupDefaultResources()
     desc.m_uiWidth = 128;
     desc.m_uiHeight = 128;
 
-    ezRenderToTexture2DResourceHandle hMissingTexture = ezResourceManager::CreateResource<ezRenderToTexture2DResource>("R22DT_Missing", std::move(desc));
+    ezRenderToTexture2DResourceHandle hMissingTexture =
+      ezResourceManager::CreateResource<ezRenderToTexture2DResource>("R22DT_Missing", std::move(desc));
 
     ezResourceManager::SetResourceTypeMissingFallback<ezRenderToTexture2DResource>(hMissingTexture);
   }
@@ -107,9 +107,9 @@ void ezGameApplication::Init_SetupDefaultResources()
   // Materials
   {
     ezMaterialResourceHandle hMissingMaterial =
-        ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/MissingMaterial.ezMaterial");
-    ezMaterialResourceHandle hFallbackMaterial = ezResourceManager::LoadResource<ezMaterialResource>(
-        "Materials/BaseMaterials/LoadingMaterial.ezMaterial", ezResourcePriority::Highest, ezMaterialResourceHandle());
+      ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/MissingMaterial.ezMaterial");
+    ezMaterialResourceHandle hFallbackMaterial =
+      ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/LoadingMaterial.ezMaterial");
 
     ezResourceManager::SetResourceTypeLoadingFallback<ezMaterialResource>(hFallbackMaterial);
     ezResourceManager::SetResourceTypeMissingFallback<ezMaterialResource>(hMissingMaterial);
@@ -135,7 +135,7 @@ void ezGameApplication::Init_SetupDefaultResources()
   {
     ezCollectionResourceDescriptor desc;
     ezCollectionResourceHandle hMissingCollection =
-        ezResourceManager::CreateResource<ezCollectionResource>("MissingCollectionResource", std::move(desc), "MissingCollectionResource");
+      ezResourceManager::CreateResource<ezCollectionResource>("MissingCollectionResource", std::move(desc), "MissingCollectionResource");
 
     ezResourceManager::SetResourceTypeMissingFallback<ezCollectionResource>(hMissingCollection);
   }
@@ -153,8 +153,8 @@ void ezGameApplication::Init_SetupDefaultResources()
     cg.m_Gradient.AddColorControlPoint(1, ezColor::LawnGreen);
     cg.m_Gradient.SortControlPoints();
 
-    ezColorGradientResourceHandle hResource = ezResourceManager::CreateResource<ezColorGradientResource>(
-        "MissingColorGradient", std::move(cg), "Missing Color Gradient Resource");
+    ezColorGradientResourceHandle hResource =
+      ezResourceManager::CreateResource<ezColorGradientResource>("MissingColorGradient", std::move(cg), "Missing Color Gradient Resource");
     ezResourceManager::SetResourceTypeMissingFallback<ezColorGradientResource>(hResource);
   }
 
@@ -167,7 +167,7 @@ void ezGameApplication::Init_SetupDefaultResources()
     curve.CreateLinearApproximation();
 
     ezCurve1DResourceHandle hResource =
-        ezResourceManager::CreateResource<ezCurve1DResource>("MissingCurve1D", std::move(cd), "Missing Curve1D Resource");
+      ezResourceManager::CreateResource<ezCurve1DResource>("MissingCurve1D", std::move(cd), "Missing Curve1D Resource");
     ezResourceManager::SetResourceTypeMissingFallback<ezCurve1DResource>(hResource);
   }
 
@@ -176,7 +176,7 @@ void ezGameApplication::Init_SetupDefaultResources()
     ezVisualScriptResourceDescriptor desc;
 
     ezVisualScriptResourceHandle hResource =
-        ezResourceManager::CreateResource<ezVisualScriptResource>("MissingVisualScript", std::move(desc), "Missing Visual Script Resource");
+      ezResourceManager::CreateResource<ezVisualScriptResource>("MissingVisualScript", std::move(desc), "Missing Visual Script Resource");
     ezResourceManager::SetResourceTypeMissingFallback<ezVisualScriptResource>(hResource);
   }
 
@@ -186,7 +186,7 @@ void ezGameApplication::Init_SetupDefaultResources()
     desc.m_AnimationDuration = ezTime::Seconds(0.1);
 
     ezPropertyAnimResourceHandle hResource = ezResourceManager::CreateResource<ezPropertyAnimResource>(
-        "MissingPropertyAnim", std::move(desc), "Missing Property Animation Resource");
+      "MissingPropertyAnim", std::move(desc), "Missing Property Animation Resource");
     ezResourceManager::SetResourceTypeMissingFallback<ezPropertyAnimResource>(hResource);
   }
 
@@ -195,7 +195,7 @@ void ezGameApplication::Init_SetupDefaultResources()
     ezSkeletonResourceDescriptor desc;
 
     ezSkeletonResourceHandle hResource =
-        ezResourceManager::CreateResource<ezSkeletonResource>("MissingSkeleton", std::move(desc), "Missing Skeleton Resource");
+      ezResourceManager::CreateResource<ezSkeletonResource>("MissingSkeleton", std::move(desc), "Missing Skeleton Resource");
     ezResourceManager::SetResourceTypeMissingFallback<ezSkeletonResource>(hResource);
   }
 
@@ -204,7 +204,7 @@ void ezGameApplication::Init_SetupDefaultResources()
     ezAnimationClipResourceDescriptor desc;
 
     ezAnimationClipResourceHandle hResource = ezResourceManager::CreateResource<ezAnimationClipResource>(
-        "MissingAnimationClip", std::move(desc), "Missing Animation Clip Resource");
+      "MissingAnimationClip", std::move(desc), "Missing Animation Clip Resource");
     ezResourceManager::SetResourceTypeMissingFallback<ezAnimationClipResource>(hResource);
   }
 }
@@ -290,4 +290,3 @@ void ezGameApplication::Deinit_ShutdownGraphicsDevice()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_GameApplicationInit);
-

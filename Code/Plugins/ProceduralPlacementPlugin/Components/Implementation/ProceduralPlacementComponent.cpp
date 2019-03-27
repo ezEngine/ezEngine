@@ -595,9 +595,8 @@ void ezProceduralPlacementComponent::SetResourceFile(const char* szFile)
 
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
-    hResource = ezResourceManager::LoadResource<ezProceduralPlacementResource>(szFile, ezResourcePriority::High,
-                                                                               ezProceduralPlacementResourceHandle());
-    ezResourceManager::PreloadResource(hResource, ezTime::Seconds(0.0));
+    hResource = ezResourceManager::LoadResource<ezProceduralPlacementResource>(szFile);
+    ezResourceManager::PreloadResource(hResource);
   }
 
   SetResource(hResource);

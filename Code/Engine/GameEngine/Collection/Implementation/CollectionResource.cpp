@@ -14,7 +14,7 @@ ezCollectionResource::ezCollectionResource()
   m_bRegistered = false;
 }
 
-void ezCollectionResource::PreloadResources(ezTime tShouldBeAvailableIn)
+void ezCollectionResource::PreloadResources()
 {
   m_hPreloadedResources.Clear();
   m_hPreloadedResources.Reserve(m_Collection.m_Resources.GetCount());
@@ -32,7 +32,7 @@ void ezCollectionResource::PreloadResources(ezTime tShouldBeAvailableIn)
     ezTypelessResourceHandle hTypeless = ezResourceManager::LoadResourceByType(pRtti, e.m_sRedirectionName);
     m_hPreloadedResources.PushBack(hTypeless);
 
-    ezResourceManager::PreloadResource(hTypeless, tShouldBeAvailableIn);
+    ezResourceManager::PreloadResource(hTypeless);
   }
 }
 
@@ -52,7 +52,7 @@ ezResourceLoadDesc ezCollectionResource::UnloadData(Unload WhatToUnload)
 {
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
-  res.m_uiQualityLevelsLoadable = 1;
+  res.m_uiQualityLevelsLoadable = 0;
   res.m_State = ezResourceState::Unloaded;
 
   {

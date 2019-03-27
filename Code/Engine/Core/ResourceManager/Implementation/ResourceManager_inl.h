@@ -15,13 +15,13 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* 
 }
 
 template <typename ResourceType>
-ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* szResourceID, ezResourcePriority Priority,
-                                                                    ezTypedResourceHandle<ResourceType> hLoadingFallback)
+ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(
+  const char* szResourceID, ezTypedResourceHandle<ResourceType> hLoadingFallback)
 {
   ezTypedResourceHandle<ResourceType> hResource(GetResource<ResourceType>(szResourceID, true));
 
-  ResourceType* pResource = ezResourceManager::BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly,
-                                                                    ezTypedResourceHandle<ResourceType>(), Priority);
+  ResourceType* pResource =
+    ezResourceManager::BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly, ezTypedResourceHandle<ResourceType>());
 
   if (hLoadingFallback.IsValid())
   {
@@ -51,8 +51,8 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::GetExistingResource(const
 }
 
 template <typename ResourceType, typename DescriptorType>
-ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(const char* szResourceID, DescriptorType&& descriptor,
-                                                                      const char* szResourceDescription)
+ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(
+  const char* szResourceID, DescriptorType&& descriptor, const char* szResourceDescription)
 {
   static_assert(std::is_rvalue_reference<DescriptorType&&>::value, "Please std::move the descriptor into this function");
 
@@ -66,8 +66,8 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(const char
   pResource->SetResourceDescription(szResourceDescription);
   pResource->m_Flags.Add(ezResourceFlags::IsCreatedResource);
 
-  EZ_ASSERT_DEV(pResource->GetLoadingState() == ezResourceState::Unloaded,
-                "CreateResource was called on a resource that is already created");
+  EZ_ASSERT_DEV(
+    pResource->GetLoadingState() == ezResourceState::Unloaded, "CreateResource was called on a resource that is already created");
 
   // If this does not compile, you either passed in the wrong descriptor type for the given resource type
   // or you forgot to std::move the descriptor when calling CreateResource
@@ -86,18 +86,17 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(const char
 
 template <typename ResourceType>
 ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandle<ResourceType>& hResource, ezResourceAcquireMode mode,
-                                                      const ezTypedResourceHandle<ResourceType>& hFallbackResource,
-                                                      ezResourcePriority Priority, ezResourceAcquireResult* out_AcquireResult /*= nullptr*/)
+  const ezTypedResourceHandle<ResourceType>& hFallbackResource, ezResourceAcquireResult* out_AcquireResult /*= nullptr*/)
 {
   EZ_ASSERT_DEV(hResource.IsValid(), "Cannot acquire a resource through an invalid handle!");
 
   ResourceType* pResource = (ResourceType*)hResource.m_Typeless.m_pResource;
 
-  EZ_ASSERT_DEV(pResource->m_iLockCount < 20,
-                "You probably forgot somewhere to call 'EndAcquireResource' in sync with 'BeginAcquireResource'.");
+  EZ_ASSERT_DEV(
+    pResource->m_iLockCount < 20, "You probably forgot somewhere to call 'EndAcquireResource' in sync with 'BeginAcquireResource'.");
   EZ_ASSERT_DEBUG(pResource->GetDynamicRTTI()->IsDerivedFrom<ResourceType>(),
-                  "The requested resource does not have the same type ('{0}') as the resource handle ('{1}').",
-                  pResource->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<ResourceType>()->GetTypeName());
+    "The requested resource does not have the same type ('{0}') as the resource handle ('{1}').",
+    pResource->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<ResourceType>()->GetTypeName());
 
   if (mode == ezResourceAcquireMode::AllowFallback && s_uiForceNoFallbackAcquisition > 0)
   {
@@ -107,9 +106,6 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
   if (mode == ezResourceAcquireMode::PointerOnly ||
       (mode == ezResourceAcquireMode::MetaInfo && pResource->GetLoadingState() >= ezResourceState::UnloadedMetaInfoAvailable))
   {
-    if (Priority != ezResourcePriority::Unchanged)
-      pResource->SetPriority(Priority);
-
     if (out_AcquireResult)
       *out_AcquireResult = ezResourceAcquireResult::Final;
 
@@ -125,16 +121,11 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
   {
     if (pResource->GetLoadingState() != ezResourceState::Loaded)
     {
-      // only modify the priority, if the resource is not yet loaded
-      if (Priority != ezResourcePriority::Unchanged)
-        pResource->SetPriority(Priority);
-
       // will prepend this at the preload array, thus will be loaded immediately
-      // even after recalculating priorities, it will end up as top priority
       InternalPreloadResource(pResource, true);
 
       if (mode == ezResourceAcquireMode::AllowFallback && (pResource->m_hLoadingFallback.IsValid() || hFallbackResource.IsValid() ||
-                                                           GetResourceTypeLoadingFallback<ResourceType>().IsValid()))
+                                                            GetResourceTypeLoadingFallback<ResourceType>().IsValid()))
       {
         // return the fallback resource for now, if there is one
         if (out_AcquireResult)
@@ -154,7 +145,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
       }
 
       const ezResourceState RequestedState =
-          (mode == ezResourceAcquireMode::MetaInfo) ? ezResourceState::UnloadedMetaInfoAvailable : ezResourceState::Loaded;
+        (mode == ezResourceAcquireMode::MetaInfo) ? ezResourceState::UnloadedMetaInfoAvailable : ezResourceState::Loaded;
 
       EnsureResourceLoadingState(pResource, RequestedState);
     }
@@ -176,14 +167,14 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
       if (out_AcquireResult)
         *out_AcquireResult = ezResourceAcquireResult::MissingFallback;
 
-      return (ResourceType*)BeginAcquireResource(ezResourceManager::GetResourceTypeMissingFallback<ResourceType>(),
-                                                 ezResourceAcquireMode::NoFallback);
+      return (ResourceType*)BeginAcquireResource(
+        ezResourceManager::GetResourceTypeMissingFallback<ResourceType>(), ezResourceAcquireMode::NoFallback);
     }
 
     if (mode != ezResourceAcquireMode::NoFallbackAllowMissing)
     {
       EZ_REPORT_FAILURE("The resource '{0}' of type '{1}' is missing and no fallback is available", pResource->GetResourceID(),
-                        ezGetStaticRTTI<ResourceType>()->GetTypeName());
+        ezGetStaticRTTI<ResourceType>()->GetTypeName());
     }
 
     if (out_AcquireResult)
@@ -260,4 +251,3 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::GetResourceHandleForExpor
 
   return LoadResource<ResourceType>(szResourceID);
 }
-

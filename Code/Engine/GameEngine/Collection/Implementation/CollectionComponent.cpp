@@ -5,13 +5,12 @@
 #include <GameEngine/Collection/CollectionComponent.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezCollectionComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezCollectionComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Collection", GetCollectionFile, SetCollectionFile)->AddAttributes(new ezAssetBrowserAttribute("Collection")),
     EZ_MEMBER_PROPERTY("PreloadAtStart", m_bPreloadAtStart)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("TimeToLoad", m_TimeToLoad)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(10.0)), new ezClampValueAttribute(ezTime::Seconds(0), ezTime::Seconds(120))),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -33,16 +32,25 @@ void ezCollectionComponent::SerializeComponent(ezWorldWriter& stream) const
   SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
 
+  // Version 1
   s << m_hCollection;
+
+  // Version 2
+  s << m_bPreloadAtStart;
 }
 
 void ezCollectionComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
   s >> m_hCollection;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_bPreloadAtStart;
+  }
 }
 
 void ezCollectionComponent::SetCollectionFile(const char* szFile)
@@ -52,7 +60,7 @@ void ezCollectionComponent::SetCollectionFile(const char* szFile)
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
     hResource = ezResourceManager::LoadResource<ezCollectionResource>(szFile);
-    ezResourceManager::PreloadResource(hResource, ezTime::Seconds(0.0));
+    ezResourceManager::PreloadResource(hResource);
   }
 
   SetCollection(hResource);
@@ -85,7 +93,7 @@ void ezCollectionComponent::InitiatePreload()
   {
     ezResourceLock<ezCollectionResource> pCollection(m_hCollection, ezResourceAcquireMode::NoFallback);
 
-    pCollection->PreloadResources(m_TimeToLoad);
+    pCollection->PreloadResources();
   }
 }
 

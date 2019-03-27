@@ -391,7 +391,7 @@ void ezPxCharacterControllerComponent::SetFallbackWalkSurfaceFile(const char* sz
   }
 
   if (m_hFallbackWalkSurface.IsValid())
-    ezResourceManager::PreloadResource(m_hFallbackWalkSurface, ezTime::Seconds(1.0));
+    ezResourceManager::PreloadResource(m_hFallbackWalkSurface);
 }
 
 const char* ezPxCharacterControllerComponent::GetFallbackWalkSurfaceFile() const

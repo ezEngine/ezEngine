@@ -45,7 +45,7 @@ public:
   void UnregisterNames();
 
   /// \brief Puts every resource for which a resource type could be found into the preload queue of the ezResourceManager
-  void PreloadResources(ezTime tShouldBeAvailableIn);
+  void PreloadResources();
 
 
 private:

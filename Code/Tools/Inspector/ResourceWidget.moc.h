@@ -47,7 +47,6 @@ private:
     QTableWidgetItem* m_pMainItem;
     ezString m_sResourceID;
     ezString m_sResourceType;
-    ezResourcePriority m_Priority;
     ezBitflags<ezResourceFlags> m_Flags;
     ezResourceLoadDesc m_LoadingState;
     ezResource::MemoryUsage m_Memory;

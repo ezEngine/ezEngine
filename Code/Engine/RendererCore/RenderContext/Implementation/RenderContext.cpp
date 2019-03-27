@@ -930,7 +930,7 @@ ezShaderPermutationResource* ezRenderContext::ApplyShaderState()
     return nullptr;
 
   m_hActiveShaderPermutation =
-      ezShaderManager::PreloadSinglePermutation(m_hActiveShader, m_PermutationVariables, ezTime::Seconds(0.0), m_bAllowAsyncShaderLoading);
+      ezShaderManager::PreloadSinglePermutation(m_hActiveShader, m_PermutationVariables, m_bAllowAsyncShaderLoading);
 
   if (!m_hActiveShaderPermutation.IsValid())
     return nullptr;

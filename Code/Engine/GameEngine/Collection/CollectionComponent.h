@@ -28,7 +28,6 @@ public:
   EZ_ALWAYS_INLINE const ezCollectionResourceHandle& GetCollection() const { return m_hCollection; }
 
   bool m_bPreloadAtStart;
-  ezTime m_TimeToLoad;
 
 protected:
 

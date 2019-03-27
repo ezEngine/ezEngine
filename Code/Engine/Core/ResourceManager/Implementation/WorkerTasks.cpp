@@ -55,9 +55,6 @@ void ezResourceManagerWorkerDataLoad::DoWork(bool bCalledExternally)
 
   ezResourceLoadData LoaderData = pLoader->OpenDataStream(pResourceToLoad);
 
-  // the resource data has been loaded (at least one piece), reset the due date
-  pResourceToLoad->SetDueDate();
-
   // we need this info later to do some work in a lock, all the directly following code is outside the lock
   const bool bResourceIsLoadedOnMainThread = pResourceToLoad->GetBaseResourceFlags().IsAnySet(ezResourceFlags::UpdateOnMainThread);
 
@@ -115,6 +112,12 @@ void ezResourceManagerWorkerUpdateContent::Execute()
     m_pResourceToLoad->SetResourceDescription(m_LoaderData.m_sResourceDescription);
 
   m_pResourceToLoad->CallUpdateContent(m_LoaderData.m_pDataStream);
+
+  if (m_pResourceToLoad->m_uiQualityLevelsLoadable > 0)
+  {
+    // if the resource can have more details loaded, put it into the preload queue right away again
+    ezResourceManager::PreloadResource(m_pResourceToLoad);
+  }
 
   // update the file modification date, if available
   if (m_LoaderData.m_LoadedFileModificationDate.IsValid())

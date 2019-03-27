@@ -54,7 +54,7 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
   LoadingInfo li;
   li.m_pResource = pResource;
   // not necessary here
-  // li.m_DueDate = pResource->GetLoadingDeadline();
+  // li.m_fPriority = pResource->GetLoadingPriority();
 
   if (bHighestPriority)
     s_RequireLoading.PushFront(li);
@@ -154,38 +154,23 @@ void ezResourceManager::UpdateLoadingDeadlines()
   ezUInt32 uiCount = s_RequireLoading.GetCount();
   for (ezUInt32 i = 0; i < uiCount; ++i)
   {
-    s_RequireLoading[i].m_DueDate = s_RequireLoading[i].m_pResource->GetLoadingDeadline(tNow);
+    s_RequireLoading[i].m_fPriority = s_RequireLoading[i].m_pResource->GetLoadingPriority(tNow);
   }
 
   s_RequireLoading.Sort();
 }
 
-
-void ezResourceManager::PreloadResource(ezResource* pResource, ezTime tShouldBeAvailableIn)
+void ezResourceManager::PreloadResource(ezResource* pResource)
 {
-  const ezTime tNow = s_LastFrameUpdate;
-
-  pResource->SetDueDate(ezMath::Min(tNow + tShouldBeAvailableIn, pResource->m_DueDate));
-  InternalPreloadResource(pResource,
-    tShouldBeAvailableIn <= ezTime::Seconds(0.0)); // if the user set the timeout to zero or below, it will be scheduled immediately
+  InternalPreloadResource(pResource, false);
 }
 
-
-void ezResourceManager::PreloadResource(const ezTypelessResourceHandle& hResource, ezTime tShouldBeAvailableIn)
+void ezResourceManager::PreloadResource(const ezTypelessResourceHandle& hResource)
 {
-  // this is the same as BeginAcquireResource in PointerOnly mode
-
   EZ_ASSERT_DEV(hResource.IsValid(), "Cannot acquire a resource through an invalid handle!");
 
   ezResource* pResource = hResource.m_pResource;
-  EZ_ASSERT_DEV(
-    pResource->m_iLockCount < 20, "You probably forgot somewhere to call 'EndAcquireResource' in sync with 'BeginAcquireResource'.");
-
-  {
-    pResource->m_iLockCount.Increment();
-    PreloadResource(hResource.m_pResource, tShouldBeAvailableIn);
-    pResource->m_iLockCount.Decrement();
-  }
+  PreloadResource(hResource.m_pResource);
 }
 
 bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)

@@ -48,8 +48,7 @@ public:
   /// If a valid fallback resource is specified, the resource will store that as its instance specific fallback resource. This will be used
   /// when trying to acquire the resource later.
   template <typename ResourceType>
-  static ezTypedResourceHandle<ResourceType> LoadResource(const char* szResourceID, ezResourcePriority Priority,
-                                                          ezTypedResourceHandle<ResourceType> hLoadingFallback);
+  static ezTypedResourceHandle<ResourceType> LoadResource(const char* szResourceID, ezTypedResourceHandle<ResourceType> hLoadingFallback);
 
 
   /// \brief Same as LoadResource(), but instead of a template argument, the resource type to use is given as ezRTTI info. Returns a
@@ -69,8 +68,8 @@ public:
   /// \param szResourceDescription An optional description that might help during debugging. Often a human readable name or path is stored
   /// here, to make it easier to identify this resource.
   template <typename ResourceType, typename DescriptorType>
-  static ezTypedResourceHandle<ResourceType> CreateResource(const char* szResourceID, DescriptorType&& descriptor,
-                                                            const char* szResourceDescription = nullptr);
+  static ezTypedResourceHandle<ResourceType> CreateResource(
+    const char* szResourceID, DescriptorType&& descriptor, const char* szResourceDescription = nullptr);
 
   /// \brief Returns a handle to the resource with the given ID. If the resource does not exist, the handle is invalid.
   ///
@@ -81,7 +80,7 @@ public:
 
   /// \brief Triggers loading of the given resource. tShouldBeAvailableIn specifies how long the resource is not yet needed, thus allowing
   /// other resources to be loaded first. This is only a hint and there are no guarantees when the resource is available.
-  static void PreloadResource(const ezTypelessResourceHandle& hResource, ezTime tShouldBeAvailableIn);
+  static void PreloadResource(const ezTypelessResourceHandle& hResource);
 
   ///@}
   /// \name Reloading resources
@@ -134,17 +133,17 @@ public:
   /// the resource is loaded, in case it is not yet available.
   /// \param out_AcquireResult Returns how successful the acquisition was. See ezResourceAcquireResult for details.
   template <typename ResourceType>
-  static ResourceType*
-  BeginAcquireResource(const ezTypedResourceHandle<ResourceType>& hResource, ezResourceAcquireMode mode,
-                       const ezTypedResourceHandle<ResourceType>& hLoadingFallback = ezTypedResourceHandle<ResourceType>(),
-                       ezResourcePriority Priority = ezResourcePriority::Unchanged, ezResourceAcquireResult* out_AcquireResult = nullptr);
+  static ResourceType* BeginAcquireResource(const ezTypedResourceHandle<ResourceType>& hResource, ezResourceAcquireMode mode,
+    const ezTypedResourceHandle<ResourceType>& hLoadingFallback = ezTypedResourceHandle<ResourceType>(),
+    ezResourceAcquireResult* out_AcquireResult = nullptr);
 
   /// \brief Needs to be called in concert with BeginAcquireResource() after accessing a resource has been finished. Prefer to use
   /// ezResourceLock instead.
   template <typename ResourceType>
   static void EndAcquireResource(ResourceType* pResource);
 
-  /// \brief Forces the resource manager to treat ezResourceAcquireMode::AllowFallback as ezResourceAcquireMode::NoFallback on BeginAcquireResource.
+  /// \brief Forces the resource manager to treat ezResourceAcquireMode::AllowFallback as ezResourceAcquireMode::NoFallback on
+  /// BeginAcquireResource.
   static void ForceNoFallbackAcquisition(ezUInt32 uiNumFrames = 0xFFFFFFFF);
 
   ///@}
@@ -364,25 +363,16 @@ private:
 
   struct LoadingInfo
   {
-    ezTime m_DueDate;
-    ezResource* m_pResource;
+    float m_fPriority = 0;
+    ezResource* m_pResource = nullptr;
 
     EZ_ALWAYS_INLINE bool operator==(const LoadingInfo& rhs) const { return m_pResource == rhs.m_pResource; }
-
-    inline bool operator<(const LoadingInfo& rhs) const
-    {
-      if (m_DueDate < rhs.m_DueDate)
-        return true;
-      if (m_DueDate > rhs.m_DueDate)
-        return false;
-
-      return m_pResource < rhs.m_pResource;
-    }
+    EZ_ALWAYS_INLINE bool operator<(const LoadingInfo& rhs) const { return m_fPriority < rhs.m_fPriority; }
   };
 
   static void EnsureResourceLoadingState(ezResource* pResource, const ezResourceState RequestedState);
   static bool HelpResourceLoading();
-  static void PreloadResource(ezResource* pResource, ezTime tShouldBeAvailableIn);
+  static void PreloadResource(ezResource* pResource);
   static void InternalPreloadResource(ezResource* pResource, bool bHighestPriority);
 
   template <typename ResourceType>
@@ -449,4 +439,3 @@ private:
 
 #include <Core/ResourceManager/Implementation/ResourceLock.h>
 #include <Core/ResourceManager/Implementation/ResourceManager_inl.h>
-

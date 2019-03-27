@@ -105,8 +105,8 @@ void ezPrefabReferenceComponent::SetPrefabFile(const char* szFile)
 
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
-    hResource = ezResourceManager::LoadResource<ezPrefabResource>(szFile, ezResourcePriority::High, ezPrefabResourceHandle());
-    ezResourceManager::PreloadResource(hResource, ezTime::Seconds(0.0));
+    hResource = ezResourceManager::LoadResource<ezPrefabResource>(szFile);
+    ezResourceManager::PreloadResource(hResource);
   }
 
   SetPrefab(hResource);

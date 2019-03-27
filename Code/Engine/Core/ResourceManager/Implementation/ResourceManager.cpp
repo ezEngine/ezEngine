@@ -389,6 +389,7 @@ ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* szRe
 
   ezResource* pNewResource = pRtti->GetAllocator()->Allocate<ezResource>();
   pNewResource->SetUniqueID(szResourceID, bIsReloadable);
+  pNewResource->m_Flags.AddOrRemove(ezResourceFlags::ResourceHasTypeFallback, pNewResource->HasResourceTypeLoadingFallback());
 
   lr.m_Resources.Insert(sHashedResourceID, pNewResource);
 

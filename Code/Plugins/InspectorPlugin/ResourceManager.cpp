@@ -16,7 +16,7 @@ namespace ResourceManagerDetail
     Msg.GetWriter() << pRes->GetResourceIDHash();
     Msg.GetWriter() << pRes->GetResourceID();
     Msg.GetWriter() << pRes->GetDynamicRTTI()->GetTypeName();
-    Msg.GetWriter() << static_cast<ezUInt8>(pRes->GetPriority());
+    //Msg.GetWriter() << static_cast<ezUInt8>(pRes->GetPriority());
     Msg.GetWriter() << static_cast<ezUInt8>(pRes->GetBaseResourceFlags().GetValue());
     Msg.GetWriter() << static_cast<ezUInt8>(pRes->GetLoadingState());
     Msg.GetWriter() << pRes->GetNumQualityLevelsDiscardable();
@@ -35,7 +35,7 @@ namespace ResourceManagerDetail
     Msg.SetMessageID('RESM', 'UPDT');
 
     Msg.GetWriter() << pRes->GetResourceIDHash();
-    Msg.GetWriter() << static_cast<ezUInt8>(pRes->GetPriority());
+    //Msg.GetWriter() << static_cast<ezUInt8>(pRes->GetPriority());
     Msg.GetWriter() << static_cast<ezUInt8>(pRes->GetBaseResourceFlags().GetValue());
     Msg.GetWriter() << static_cast<ezUInt8>(pRes->GetLoadingState());
     Msg.GetWriter() << pRes->GetNumQualityLevelsDiscardable();
@@ -90,7 +90,6 @@ namespace ResourceManagerDetail
 
       case ezResourceEvent::Type::ResourceContentUpdated:
       case ezResourceEvent::Type::ResourceContentUnloading:
-      case ezResourceEvent::Type::ResourcePriorityChanged:
         SendSmallResourceInfo(e.m_pResource);
         return;
 

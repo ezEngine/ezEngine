@@ -49,7 +49,7 @@ ezResourceLoadDesc ezFmodSoundEventResource::UnloadData(Unload WhatToUnload)
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
-  res.m_uiQualityLevelsLoadable = 1;
+  res.m_uiQualityLevelsLoadable = 0;
   res.m_State = ezResourceState::Unloaded;
 
   return res;

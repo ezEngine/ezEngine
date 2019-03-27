@@ -95,7 +95,7 @@ void ezPxShapeComponent::SetSurfaceFile(const char* szFile)
   }
 
   if (m_hSurface.IsValid())
-    ezResourceManager::PreloadResource(m_hSurface, ezTime::Seconds(5.0));
+    ezResourceManager::PreloadResource(m_hSurface);
 }
 
 const char* ezPxShapeComponent::GetSurfaceFile() const

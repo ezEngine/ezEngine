@@ -539,50 +539,6 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
       }
     }
 
-    // Fallback low res texture
-    // ezMemoryStreamStorage storage;
-    // ezImage img;
-    //{
-    //  const ezColorGammaUB color = ezColor::RebeccaPurple;
-
-    //  img.SetWidth(4);
-    //  img.SetHeight(4);
-    //  img.SetDepth(1);
-    //  img.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM_SRGB);
-    //  img.SetNumMipLevels(1);
-    //  img.SetNumFaces(1);
-    //  img.AllocateImageData();
-    //  ezUInt8* pPixels = img.GetPixelPointer<ezUInt8>();
-
-    //  for (ezUInt32 px = 0; px < 4 * 4 * 4; px += 4)
-    //  {
-    //    pPixels[px + 0] = color.r;
-    //    pPixels[px + 1] = color.g;
-    //    pPixels[px + 2] = color.b;
-    //    pPixels[px + 3] = color.a;
-    //  }
-
-    //  ezMemoryStreamWriter w(&storage);
-
-    //  ezImage* pImage = &img;
-    //  w.WriteBytes(&pImage, sizeof(ezImage*));
-
-    //  bool bSRGB = true;
-    //  bool bIsFallback = true;
-
-    //  ezEnum<ezImageAddressMode> addressModeU = ezImageAddressMode::Wrap;
-    //  ezEnum<ezImageAddressMode> addressModeV = ezImageAddressMode::Wrap;
-    //  ezEnum<ezImageAddressMode> addressModeW = ezImageAddressMode::Wrap;
-    //  ezEnum<ezTextureFilterSetting> textureFilter = ezTextureFilterSetting::Default;
-
-    //  w << bIsFallback;
-    //  w << bSRGB;
-    //  w << addressModeU;
-    //  w << addressModeV;
-    //  w << addressModeW;
-    //  w << textureFilter;
-    //}
-
     // 2D Textures
     {
       ezUInt16 uiTextures = 0;
@@ -598,13 +554,9 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
         if (sTemp.IsEmpty() || sTemp2.IsEmpty())
           continue;
 
-        // ezMemoryStreamReader fallbackTextureStream(&storage);
-
         ezMaterialResourceDescriptor::Texture2DBinding& tc = m_Desc.m_Texture2DBindings.ExpandAndGetRef();
         tc.m_Name.Assign(sTemp.GetData());
-        tc.m_Value = ezResourceManager::LoadResource<ezTexture2DResource>(sTemp2, ezResourcePriority::Lowest, ezTexture2DResourceHandle());
-
-        // ezResourceManager::SetResourceLowResData(tc.m_Value, &fallbackTextureStream);
+        tc.m_Value = ezResourceManager::LoadResource<ezTexture2DResource>(sTemp2);
       }
     }
 
@@ -627,7 +579,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
         ezMaterialResourceDescriptor::TextureCubeBinding& tc = m_Desc.m_TextureCubeBindings.ExpandAndGetRef();
         tc.m_Name.Assign(sTemp.GetData());
         tc.m_Value =
-            ezResourceManager::LoadResource<ezTextureCubeResource>(sTemp2, ezResourcePriority::Lowest, ezTextureCubeResourceHandle());
+            ezResourceManager::LoadResource<ezTextureCubeResource>(sTemp2);
       }
     }
 
@@ -769,7 +721,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
           tc.m_Name.Assign(tmp.GetData());
 
           tmp = pValue->GetPrimitivesString()[0];
-          tc.m_Value = ezResourceManager::LoadResource<ezTexture2DResource>(tmp, ezResourcePriority::Low, ezTexture2DResourceHandle());
+          tc.m_Value = ezResourceManager::LoadResource<ezTexture2DResource>(tmp);
         }
       }
 
@@ -788,7 +740,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
           tmp = pValue->GetPrimitivesString()[0];
           tc.m_Value =
-              ezResourceManager::LoadResource<ezTextureCubeResource>(tmp, ezResourcePriority::Lowest, ezTextureCubeResourceHandle());
+              ezResourceManager::LoadResource<ezTextureCubeResource>(tmp);
         }
       }
     }

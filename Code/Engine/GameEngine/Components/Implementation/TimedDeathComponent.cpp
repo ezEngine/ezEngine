@@ -75,7 +75,7 @@ void ezTimedDeathComponent::OnSimulationStarted()
   // make sure the prefab is available when the component dies
   if (m_hTimeoutPrefab.IsValid())
   {
-    ezResourceManager::PreloadResource(m_hTimeoutPrefab, tKill);
+    ezResourceManager::PreloadResource(m_hTimeoutPrefab);
   }
 }
 

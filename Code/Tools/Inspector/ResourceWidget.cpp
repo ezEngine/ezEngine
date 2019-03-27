@@ -224,41 +224,41 @@ void ezQtResourceWidget::UpdateTable()
       pItem = Table->item(iTableRow, 0);
       pItem->setText(res.m_sResourceType.GetData());
 
-      pItem = Table->item(iTableRow, 1);
-      pItem->setTextAlignment(Qt::AlignHCenter);
+      //pItem = Table->item(iTableRow, 1);
+      //pItem->setTextAlignment(Qt::AlignHCenter);
 
-      switch (res.m_Priority)
-      {
-        case ezResourcePriority::Highest:
-          pItem->setText("Highest");
-          pItem->setTextColor(QColor::fromRgb(255, 106, 0));
-          break;
-        case ezResourcePriority::High:
-          pItem->setText("High");
-          pItem->setTextColor(QColor::fromRgb(255, 216, 0));
-          break;
-        case ezResourcePriority::Normal:
-          pItem->setText("Normal");
-          pItem->setTextColor(QColor::fromRgb(0, 148, 255));
-          break;
-        case ezResourcePriority::Low:
-          pItem->setText("Low");
-          pItem->setTextColor(QColor::fromRgb(127, 146, 255));
-          break;
-        case ezResourcePriority::Lowest:
-          pItem->setText("Lowest");
-          pItem->setTextColor(QColor::fromRgb(127, 201, 255));
-          break;
+      //switch (res.m_Priority)
+      //{
+      //  case ezResourcePriority::Highest:
+      //    pItem->setText("Highest");
+      //    pItem->setTextColor(QColor::fromRgb(255, 106, 0));
+      //    break;
+      //  case ezResourcePriority::High:
+      //    pItem->setText("High");
+      //    pItem->setTextColor(QColor::fromRgb(255, 216, 0));
+      //    break;
+      //  case ezResourcePriority::Normal:
+      //    pItem->setText("Normal");
+      //    pItem->setTextColor(QColor::fromRgb(0, 148, 255));
+      //    break;
+      //  case ezResourcePriority::Low:
+      //    pItem->setText("Low");
+      //    pItem->setTextColor(QColor::fromRgb(127, 146, 255));
+      //    break;
+      //  case ezResourcePriority::Lowest:
+      //    pItem->setText("Lowest");
+      //    pItem->setTextColor(QColor::fromRgb(127, 201, 255));
+      //    break;
 
-        case ezResourcePriority::Unchanged:
-          break;
-      }
+      //  case ezResourcePriority::Unchanged:
+      //    break;
+      //}
 
-      if (res.m_Flags.IsAnySet(ezResourceFlags::IsPreloading))
-      {
-        pItem->setText("Preloading");
-        pItem->setTextColor(QColor::fromRgb(86, 255, 25));
-      }
+      //if (res.m_Flags.IsAnySet(ezResourceFlags::IsPreloading))
+      //{
+      //  pItem->setText("Preloading");
+      //  pItem->setTextColor(QColor::fromRgb(86, 255, 25));
+      //}
 
       pItem = Table->item(iTableRow, 2);
       pItem->setTextAlignment(Qt::AlignHCenter);
@@ -396,9 +396,9 @@ void ezQtResourceWidget::ProcessTelemetry(void* pUnuseed)
         s_pWidget->m_ResourceTypes.Insert(rd.m_sResourceType);
       }
 
-      ezUInt8 uiPriority = 0;
-      Msg.GetReader() >> uiPriority;
-      rd.m_Priority = (ezResourcePriority)uiPriority;
+      //ezUInt8 uiPriority = 0;
+      //Msg.GetReader() >> uiPriority;
+      //rd.m_Priority = (ezResourcePriority)uiPriority;
 
       ezUInt8 uiFlags = 0;
       Msg.GetReader() >> uiFlags;
@@ -419,9 +419,9 @@ void ezQtResourceWidget::ProcessTelemetry(void* pUnuseed)
 
     if (Msg.GetMessageID() == 'UPDT')
     {
-      ezUInt8 uiPriority = 0;
-      Msg.GetReader() >> uiPriority;
-      rd.m_Priority = (ezResourcePriority)uiPriority;
+      //ezUInt8 uiPriority = 0;
+      //Msg.GetReader() >> uiPriority;
+      //rd.m_Priority = (ezResourcePriority)uiPriority;
 
       ezUInt8 uiFlags = 0;
       Msg.GetReader() >> uiFlags;

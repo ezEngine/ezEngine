@@ -338,7 +338,7 @@ void ezProjectileComponent::OnSimulationStarted()
     // make sure the prefab is available when the projectile dies
     if (m_hTimeoutPrefab.IsValid())
     {
-      ezResourceManager::PreloadResource(m_hTimeoutPrefab, m_MaxLifetime);
+      ezResourceManager::PreloadResource(m_hTimeoutPrefab);
     }
   }
 
@@ -389,7 +389,7 @@ void ezProjectileComponent::SetFallbackSurfaceFile(const char* szFile)
     m_hFallbackSurface = ezResourceManager::LoadResource<ezSurfaceResource>(szFile);
   }
   if (m_hFallbackSurface.IsValid())
-    ezResourceManager::PreloadResource(m_hFallbackSurface, ezTime::Seconds(1.0));
+    ezResourceManager::PreloadResource(m_hFallbackSurface);
 }
 
 const char* ezProjectileComponent::GetFallbackSurfaceFile() const

@@ -21,10 +21,9 @@ class ezResourceLock
 {
 public:
   EZ_ALWAYS_INLINE ezResourceLock(const ezTypedResourceHandle<RESOURCE_TYPE>& hResource, ezResourceAcquireMode mode,
-                 const ezTypedResourceHandle<RESOURCE_TYPE>& hFallbackResource = ezTypedResourceHandle<RESOURCE_TYPE>(),
-                 ezResourcePriority Priority = ezResourcePriority::Unchanged)
+                 const ezTypedResourceHandle<RESOURCE_TYPE>& hFallbackResource = ezTypedResourceHandle<RESOURCE_TYPE>())
   {
-    m_pResource = ezResourceManager::BeginAcquireResource(hResource, mode, hFallbackResource, Priority, &m_AcquireResult);
+    m_pResource = ezResourceManager::BeginAcquireResource(hResource, mode, hFallbackResource, &m_AcquireResult);
   }
 
   EZ_ALWAYS_INLINE ~ezResourceLock()
