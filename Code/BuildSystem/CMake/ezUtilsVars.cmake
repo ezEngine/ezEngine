@@ -31,3 +31,26 @@ set (EZ_ENABLE_PVS_STUDIO_HEADER_IN_UNITY_FILES ON CACHE BOOL "Adds the necessar
 
 mark_as_advanced(FORCE EZ_ENABLE_PVS_STUDIO_HEADER_IN_UNITY_FILES)
 
+######################################
+### 3rd Party Code
+######################################
+
+### enet
+set (EZ_3RDPARTY_ENET_SUPPORT ON CACHE BOOL "Whether to add support for Enet.")
+mark_as_advanced(FORCE EZ_3RDPARTY_ENET_SUPPORT)
+
+### Recast
+set (EZ_3RDPARTY_RECAST_SUPPORT ON CACHE BOOL "Whether to add support for Recast.")
+mark_as_advanced(FORCE EZ_3RDPARTY_RECAST_SUPPORT)
+
+### ImGui
+set (EZ_3RDPARTY_IMGUI_SUPPORT ON CACHE BOOL "Whether to add support for ImGui.")
+mark_as_advanced(FORCE EZ_3RDPARTY_IMGUI_SUPPORT)
+
+### Lua
+set (EZ_3RDPARTY_LUA_SUPPORT ON CACHE BOOL "Whether to add support for Lua.")
+mark_as_advanced(FORCE EZ_3RDPARTY_LUA_SUPPORT)
+
+### zstd
+set (EZ_3RDPARTY_ZSTD_SUPPORT ON CACHE BOOL "Whether to add support for zstd.")
+mark_as_advanced(FORCE EZ_3RDPARTY_ZSTD_SUPPORT)

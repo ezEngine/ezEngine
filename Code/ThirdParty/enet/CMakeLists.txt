@@ -1,8 +1,5 @@
 ez_cmake_init()
 
-set (EZ_3RDPARTY_ENET_SUPPORT ON CACHE BOOL "Whether to add support for Enet.")
-mark_as_advanced(FORCE EZ_3RDPARTY_ENET_SUPPORT)
-
 ez_requires(EZ_3RDPARTY_ENET_SUPPORT)
 
 # Get the name of this folder as the project name
