@@ -13,12 +13,12 @@ class EZ_RENDERERCORE_DLL ezReflectionPool
 {
 public:
   static void RegisterReflectionProbe(ezReflectionProbeData& data, ezWorld* pWorld, float fPriority = 1.0f);
-  static void DeregisterReflectionProbe(ezReflectionProbeData& data);
+  static void DeregisterReflectionProbe(ezReflectionProbeData& data, ezWorld* pWorld);
 
   static void ExtractReflectionProbe(
     ezMsgExtractRenderData& msg, const ezReflectionProbeData& data, const ezComponent* pComponent, float fPriority = 1.0f);
 
-  static void SetConstantSkyIrradiance(const ezAmbientCube<ezColor>& skyIrradiance);
+  static void SetConstantSkyIrradiance(const ezWorld* pWorld, const ezAmbientCube<ezColor>& skyIrradiance);
 
   static ezUInt32 GetReflectionCubeMapSize();
   static ezGALTextureHandle GetReflectionSpecularTexture();

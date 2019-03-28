@@ -68,7 +68,7 @@ void main(uint DispatchId : SV_DispatchThreadID)
       float luminance = GetLuminance(color);
       color = lerp(luminance, color, Saturation) * Intensity;
       
-      IrradianceOutput[uint2(i, 0)] = float4(color, 1);
+      IrradianceOutput[uint2(i, OutputIndex)] = float4(color, 1);
     }
   }
 }

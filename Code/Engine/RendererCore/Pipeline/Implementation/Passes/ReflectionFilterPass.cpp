@@ -18,6 +18,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReflectionFilterPass, 1, ezRTTIDefaultAllocato
     EZ_MEMBER_PROPERTY("IrradianceData", m_PinIrradianceData),
     EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("Saturation", m_fSaturation)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("OutputIndex", m_uiOutputIndex),
     EZ_ACCESSOR_PROPERTY("InputCubemap", GetInputCubemap, SetInputCubemap)
   }
   EZ_END_PROPERTIES;
@@ -29,6 +30,7 @@ ezReflectionFilterPass::ezReflectionFilterPass()
   : ezRenderPipelinePass("ReflectionFilterPass")
   , m_fIntensity(1.0f)
   , m_fSaturation(1.0f)
+  , m_uiOutputIndex(0)
 {
   {
     m_hIrradianceConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezReflectionIrradianceConstants>();
@@ -88,7 +90,7 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
     {
       for (ezUInt32 uiFaceIndex = 0; uiFaceIndex < 6; ++uiFaceIndex)
       {
-        ezGALTextureSubresource destSubResource{uiMipMapIndex, uiFaceIndex};
+        ezGALTextureSubresource destSubResource{uiMipMapIndex, m_uiOutputIndex * 6 + uiFaceIndex};
         ezGALTextureSubresource srcSubResource{uiMipMapIndex, uiFaceIndex};       
 
         pGALContext->CopyTextureRegion(
@@ -143,4 +145,5 @@ void ezReflectionFilterPass::UpdateIrradianceConstantBuffer()
   constants->LodLevel = 6; // TODO: calculate from cubemap size and number of samples
   constants->Intensity = m_fIntensity;
   constants->Saturation = m_fSaturation;
+  constants->OutputIndex = m_uiOutputIndex;
 }

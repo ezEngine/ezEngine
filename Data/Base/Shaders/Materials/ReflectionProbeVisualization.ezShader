@@ -43,7 +43,7 @@ float3 GetDiffuseColor()
   float3 viewDir = normalize(G.Input.WorldPosition - GetCameraPosition());
   float3 reflectionDir = CubeMapDirection(reflect(viewDir, normal));
 
-  return ReflectionSpecularTexture.Sample(LinearSampler, float4(reflectionDir, 0)).rgb;
+  return ReflectionSpecularTexture.Sample(LinearSampler, float4(reflectionDir, SkyIrradianceIndex)).rgb;
 }
 
 float3 GetSpecularColor()

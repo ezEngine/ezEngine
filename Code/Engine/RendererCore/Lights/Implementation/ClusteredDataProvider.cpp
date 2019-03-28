@@ -159,6 +159,8 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
     pConstants->NumLights = pData->m_LightData.GetCount();
     pConstants->NumDecals = pData->m_DecalData.GetCount();
 
+    pConstants->SkyIrradianceIndex = pData->m_uiSkyIrradianceIndex;
+
     pConstants->FogHeight = pData->m_fFogHeight;
     pConstants->FogHeightFalloff = pData->m_fFogHeightFalloff;
     pConstants->FogDensityAtCameraPos = pData->m_fFogDensityAtCameraPos;

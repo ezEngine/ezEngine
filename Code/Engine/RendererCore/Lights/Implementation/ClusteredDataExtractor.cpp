@@ -265,6 +265,8 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
 
     pData->m_LightData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezPerLightData, m_TempLightData.GetCount());
     pData->m_LightData.CopyFrom(m_TempLightData);
+
+    pData->m_uiSkyIrradianceIndex = view.GetWorld()->GetIndex();
   }
 
   // Decals

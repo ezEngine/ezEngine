@@ -374,7 +374,7 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
   }
 
   // sky light in ambient cube basis
-  float3 skyLight = EvaluateAmbientCube(SkyIrradianceTexture, 0, matData.worldNormal).rgb;
+  float3 skyLight = EvaluateAmbientCube(SkyIrradianceTexture, SkyIrradianceIndex, matData.worldNormal).rgb;
   totalLight.diffuseLight += matData.diffuseColor * skyLight * occlusion;
 
   return totalLight;

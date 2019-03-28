@@ -114,7 +114,7 @@ void ezAmbientLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) c
   ambientLightIrradiance.m_Values[ezAmbientCubeBasis::PosZ] = topColor;
   ambientLightIrradiance.m_Values[ezAmbientCubeBasis::NegZ] = bottomColor;
 
-  ezReflectionPool::SetConstantSkyIrradiance(ambientLightIrradiance);
+  ezReflectionPool::SetConstantSkyIrradiance(GetWorld(), ambientLightIrradiance);
 }
 
 void ezAmbientLightComponent::SerializeComponent(ezWorldWriter& stream) const

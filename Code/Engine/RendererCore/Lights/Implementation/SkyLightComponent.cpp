@@ -8,7 +8,7 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSkyLightComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezSkyLightComponent, 1, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -49,7 +49,7 @@ void ezSkyLightComponent::OnActivated()
 
 void ezSkyLightComponent::OnDeactivated()
 {
-  ezReflectionPool::DeregisterReflectionProbe(m_ReflectionProbeData);
+  ezReflectionPool::DeregisterReflectionProbe(m_ReflectionProbeData, GetWorld());
 
   GetOwner()->UpdateLocalBounds();
 }

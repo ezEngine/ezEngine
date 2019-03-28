@@ -32,6 +32,7 @@ protected:
 
   float m_fIntensity;
   float m_fSaturation;
+  ezUInt32 m_uiOutputIndex;
 
   ezGALTextureHandle m_hInputCubemap;
 

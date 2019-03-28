@@ -27,6 +27,8 @@ public:
   ezArrayPtr<ezPerClusterData> m_ClusterData;
   ezArrayPtr<ezUInt32> m_ClusterItemList;
 
+  ezUInt32 m_uiSkyIrradianceIndex = 0;
+
   float m_fFogHeight = 0.0f;
   float m_fFogHeightFalloff = 0.0f;
   float m_fFogDensityAtCameraPos = 0.0f;
