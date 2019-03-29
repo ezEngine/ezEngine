@@ -70,27 +70,26 @@ public:
 
 
   ezGALTextureHandle CreateTexture(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData = ezArrayPtr<ezGALSystemMemoryDescription>());
-
   void DestroyTexture(ezGALTextureHandle hTexture);
+
+  ezGALTextureHandle CreateProxyTexture(ezGALTextureHandle hParentTexture, ezUInt32 uiSlice);
+  void DestroyProxyTexture(ezGALTextureHandle hProxyTexture);
 
   // Resource views
   ezGALResourceViewHandle GetDefaultResourceView(ezGALTextureHandle hTexture);
   ezGALResourceViewHandle GetDefaultResourceView(ezGALBufferHandle hBuffer);
 
   ezGALResourceViewHandle CreateResourceView(const ezGALResourceViewCreationDescription& Description);
-
   void DestroyResourceView(ezGALResourceViewHandle hResourceView);
 
   // Render target views
   ezGALRenderTargetViewHandle GetDefaultRenderTargetView(ezGALTextureHandle hTexture);
 
   ezGALRenderTargetViewHandle CreateRenderTargetView(const ezGALRenderTargetViewCreationDescription& Description);
-
   void DestroyRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView);
 
   // Unordered access views
   ezGALUnorderedAccessViewHandle CreateUnorderedAccessView(const ezGALUnorderedAccessViewCreationDescription& Description);
-
   void DestroyUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView);
 
 

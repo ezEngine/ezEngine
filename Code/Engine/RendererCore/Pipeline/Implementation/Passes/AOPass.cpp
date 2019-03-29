@@ -184,7 +184,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
   renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
                                                      1);
 
-  ezGALRenderTagetSetup renderTargetSetup;
+  ezGALRenderTargetSetup renderTargetSetup;
 
   // Mip map passes
   {
@@ -302,7 +302,7 @@ void ezAOPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, con
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
-  ezGALRenderTagetSetup renderTargetSetup;
+  ezGALRenderTargetSetup renderTargetSetup;
   renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
   pGALContext->SetRenderTargetSetup(renderTargetSetup);
 

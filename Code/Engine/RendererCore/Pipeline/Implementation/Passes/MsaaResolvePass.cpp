@@ -82,7 +82,7 @@ void ezMsaaResolvePass::Execute(const ezRenderViewContext& renderViewContext,
   if (m_bIsDepth)
   {
     // Setup render target
-    ezGALRenderTagetSetup renderTargetSetup;
+    ezGALRenderTargetSetup renderTargetSetup;
     renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
 
     // Bind render target and viewport

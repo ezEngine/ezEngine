@@ -13,16 +13,6 @@ ezGALQueryDX11::ezGALQueryDX11(const ezGALQueryCreationDescription& Description)
 
 ezGALQueryDX11::~ezGALQueryDX11() {}
 
-void ezGALQueryDX11::SetDebugName(const char* szName) const
-{
-  ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szName);
-
-  if (m_pDXQuery != nullptr)
-  {
-    m_pDXQuery->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
-  }
-}
-
 ezResult ezGALQueryDX11::InitPlatform(ezGALDevice* pDevice)
 {
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
@@ -62,5 +52,14 @@ ezResult ezGALQueryDX11::DeInitPlatform(ezGALDevice* pDevice)
   return EZ_SUCCESS;
 }
 
+void ezGALQueryDX11::SetDebugNamePlatform(const char* szName) const
+{
+  ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szName);
+
+  if (m_pDXQuery != nullptr)
+  {
+    m_pDXQuery->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
+  }
+}
 
 EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Resources_Implementation_QueryDX11);

@@ -134,7 +134,7 @@ void ezEditorSelectedObjectsExtractor::CreateRenderTargetView(const ezView& view
 
   m_RenderTargetCamera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 45, 0.1f, 100.0f);
 
-  ezGALRenderTagetSetup renderTargetSetup;
+  ezGALRenderTargetSetup renderTargetSetup;
   renderTargetSetup.SetRenderTarget(0, pRenderTarget->GetRenderTargetView());
   pRenderTargetView->SetRenderTargetSetup(renderTargetSetup);
 

@@ -35,8 +35,8 @@ public:
   const ezWorld* GetWorld() const;
 
 
-  void SetRenderTargetSetup(ezGALRenderTagetSetup& renderTargetSetup);
-  const ezGALRenderTagetSetup& GetRenderTargetSetup() const;
+  void SetRenderTargetSetup(ezGALRenderTargetSetup& renderTargetSetup);
+  const ezGALRenderTargetSetup& GetRenderTargetSetup() const;
 
   void SetRenderPipelineResource(ezRenderPipelineResourceHandle hPipeline);
   ezRenderPipelineResourceHandle GetRenderPipelineResource() const;
@@ -128,7 +128,7 @@ private:
 
   ezWorld* m_pWorld;
 
-  ezGALRenderTagetSetup m_RenderTargetSetup;
+  ezGALRenderTargetSetup m_RenderTargetSetup;
   ezRenderPipelineResourceHandle m_hRenderPipeline;
   ezUInt32 m_uiRenderPipelineResourceDescriptionCounter;
   ezSharedPtr<ezRenderPipeline> m_pRenderPipeline;

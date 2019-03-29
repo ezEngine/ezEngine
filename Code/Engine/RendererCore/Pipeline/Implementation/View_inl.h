@@ -19,7 +19,7 @@ EZ_ALWAYS_INLINE const ezWorld* ezView::GetWorld() const
   return m_pWorld;
 }
 
-EZ_ALWAYS_INLINE const ezGALRenderTagetSetup& ezView::GetRenderTargetSetup() const
+EZ_ALWAYS_INLINE const ezGALRenderTargetSetup& ezView::GetRenderTargetSetup() const
 {
   return m_RenderTargetSetup;
 }

@@ -107,6 +107,7 @@ ezAmbientLightComponent;Ambient Light
 ezDirectionalLightComponent;Directional Light
 ezSpotLightComponent;Spot Light
 ezPointLightComponent;Point Light
+ezSkyLightComponent;Sky Light
 ezSkyBoxComponent;Sky Box
 ezFogComponent;Fog
 ezSpriteComponent;Sprite
@@ -121,6 +122,7 @@ Components;Components
 Materials;Materials
 Surfaces;Surfaces
 Interactions;Interactions
+ReflectionData;Reflection Data
 ezProjectileSurfaceInteraction;Surface Interaction
 ezProjectileReaction::Absorb;Absorb
 ezProjectileReaction::Reflect;Reflect

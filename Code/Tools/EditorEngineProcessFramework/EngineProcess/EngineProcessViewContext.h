@@ -10,7 +10,7 @@ class ezEngineProcessDocumentContext;
 class ezEditorEngineDocumentMsg;
 class ezViewRedrawMsgToEngine;
 class ezEditorEngineViewMsg;
-class ezGALRenderTagetSetup;
+class ezGALRenderTargetSetup;
 
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
@@ -49,7 +49,7 @@ public:
   ezEngineProcessDocumentContext* GetDocumentContext() const { return m_pDocumentContext; }
 
   virtual void HandleViewMessage(const ezEditorEngineViewMsg* pMsg);
-  virtual void SetupRenderTarget(ezGALRenderTagetSetup& renderTargetSetup, ezUInt16 uiWidth, ezUInt16 uiHeight);
+  virtual void SetupRenderTarget(ezGALRenderTargetSetup& renderTargetSetup, ezUInt16 uiWidth, ezUInt16 uiHeight);
   virtual void Redraw(bool bRenderEditorGizmos);
 
   /// \brief Focuses camera on the given object

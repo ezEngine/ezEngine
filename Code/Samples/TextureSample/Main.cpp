@@ -306,7 +306,7 @@ public:
       ezGALContext* pContext = m_pDevice->GetPrimaryContext();
 
 
-      ezGALRenderTagetSetup RTS;
+      ezGALRenderTargetSetup RTS;
       RTS.SetRenderTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
 
       pContext->SetRenderTargetSetup(RTS);

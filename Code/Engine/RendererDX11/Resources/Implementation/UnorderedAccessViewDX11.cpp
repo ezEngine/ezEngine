@@ -7,11 +7,15 @@
 
 #include <d3d11.h>
 
+bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALUnorderedAccessViewCreationDescription& viewDesc)
+{
+  return texDesc.m_uiArraySize > 1 || viewDesc.m_uiFirstArraySlice > 0;
+}
 
-ezGALUnorderedAccessViewDX11::ezGALUnorderedAccessViewDX11(ezGALResourceBase* pResource,
-                                                           const ezGALUnorderedAccessViewCreationDescription& Description)
-    : ezGALUnorderedAccessView(pResource, Description)
-    , m_pDXUnorderedAccessView(nullptr)
+ezGALUnorderedAccessViewDX11::ezGALUnorderedAccessViewDX11(
+  ezGALResourceBase* pResource, const ezGALUnorderedAccessViewCreationDescription& Description)
+  : ezGALUnorderedAccessView(pResource, Description)
+  , m_pDXUnorderedAccessView(nullptr)
 {
 }
 
@@ -19,13 +23,13 @@ ezGALUnorderedAccessViewDX11::~ezGALUnorderedAccessViewDX11() {}
 
 ezResult ezGALUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
 {
-  const ezGALTextureDX11* pTexture = nullptr;
+  const ezGALTexture* pTexture = nullptr;
   if (!m_Description.m_hTexture.IsInvalidated())
-    pTexture = static_cast<const ezGALTextureDX11*>(pDevice->GetTexture(m_Description.m_hTexture));
+    pTexture = pDevice->GetTexture(m_Description.m_hTexture);
 
-  const ezGALBufferDX11* pBuffer = nullptr;
+  const ezGALBuffer* pBuffer = nullptr;
   if (!m_Description.m_hBuffer.IsInvalidated())
-    pBuffer = static_cast<const ezGALBufferDX11*>(pDevice->GetBuffer(m_Description.m_hBuffer));
+    pBuffer = pDevice->GetBuffer(m_Description.m_hBuffer);
 
   if (pTexture == nullptr && pBuffer == nullptr)
   {
@@ -63,7 +67,6 @@ ezResult ezGALUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
     return EZ_FAILURE;
   }
 
-
   D3D11_UNORDERED_ACCESS_VIEW_DESC DXUAVDesc;
   DXUAVDesc.Format = DXViewFormat;
 
@@ -71,14 +74,17 @@ ezResult ezGALUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
 
   if (pTexture)
   {
-    pDXResource = pTexture->GetDXTexture();
-    const ezGALTextureCreationDescription& TexDesc = pTexture->GetDescription();
+    pDXResource = static_cast<const ezGALTextureDX11*>(pTexture->GetParentResource())->GetDXTexture();
+    const ezGALTextureCreationDescription& texDesc = pTexture->GetDescription();
 
-    switch (TexDesc.m_Type)
+    const bool bIsArrayView = IsArrayView(texDesc, m_Description);
+
+    switch (texDesc.m_Type)
     {
       case ezGALTextureType::Texture2D:
+      case ezGALTextureType::Texture2DProxy:
 
-        if (TexDesc.m_uiArraySize == 1)
+        if (!bIsArrayView)
         {
           DXUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
           DXUAVDesc.Texture2D.MipSlice = m_Description.m_uiMipLevelToUse;
@@ -107,7 +113,7 @@ ezResult ezGALUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
   }
   else if (pBuffer)
   {
-    pDXResource = pBuffer->GetDXBuffer();
+    pDXResource = static_cast<const ezGALBufferDX11*>(pBuffer)->GetDXBuffer();
 
     if (pBuffer->GetDescription().m_bUseAsStructuredBuffer)
       DXUAVDesc.Format = DXGI_FORMAT_UNKNOWN;

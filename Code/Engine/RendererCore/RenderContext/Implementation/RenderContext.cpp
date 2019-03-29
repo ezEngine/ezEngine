@@ -642,7 +642,7 @@ const ezGlobalConstants& ezRenderContext::ReadGlobalConstants() const
   return pStorage->GetDataForReading();
 }
 
-void ezRenderContext::SetViewportAndRenderTargetSetup(const ezRectFloat& viewport, const ezGALRenderTagetSetup& renderTargetSetup)
+void ezRenderContext::SetViewportAndRenderTargetSetup(const ezRectFloat& viewport, const ezGALRenderTargetSetup& renderTargetSetup)
 {
   ezGALMSAASampleCount::Enum msaaSampleCount = ezGALMSAASampleCount::None;
 

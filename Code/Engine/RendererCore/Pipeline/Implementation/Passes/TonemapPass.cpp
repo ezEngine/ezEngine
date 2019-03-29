@@ -101,7 +101,7 @@ void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   // Setup render target
-  ezGALRenderTagetSetup renderTargetSetup;
+  ezGALRenderTargetSetup renderTargetSetup;
   renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
 
   renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);

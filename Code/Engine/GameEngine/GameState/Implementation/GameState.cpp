@@ -212,7 +212,7 @@ void ezGameState::SetupMainView(ezWindowOutputTargetBase* pOutputTarget, ezTyped
   m_hMainView = ezRenderWorld::CreateView("MainView", pView);
   pView->SetCameraUsageHint(ezCameraUsageHint::MainView);
 
-  ezGALRenderTagetSetup renderTargetSetup;
+  ezGALRenderTargetSetup renderTargetSetup;
   renderTargetSetup.SetRenderTarget(0, hBackBuffer);
   pView->SetRenderTargetSetup(renderTargetSetup);
   pView->SetRenderPipelineResource(hRenderPipeline);

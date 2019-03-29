@@ -3,7 +3,6 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Core/World/Declarations.h>
 #include <RendererCore/RendererCoreDLL.h>
-#include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
 class ezCamera;
@@ -98,6 +97,7 @@ struct EZ_RENDERERCORE_DLL ezCameraUsageHint
     RenderTarget,
     Culling,
     Shadow,
+    Reflection,
     Thumbnail,
 
     ENUM_COUNT,

@@ -51,9 +51,8 @@ ezGALContextDX11::ezGALContextDX11(ezGALDevice* pDevice, ID3D11DeviceContext* pD
 
   for (ezUInt32 s = 0; s < ezGALShaderStage::ENUM_COUNT; s++)
   {
-    for (ezUInt32 i = 0; i < EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT; i++)
+    for (ezUInt32 i = 0; i < EZ_GAL_MAX_SAMPLER_COUNT; i++)
     {
-      m_pBoundShaderResourceViews[s][i] = nullptr;
       m_pBoundSamplerStates[s][i] = nullptr;
     }
 
@@ -64,10 +63,6 @@ ezGALContextDX11::ezGALContextDX11(ezGALDevice* pDevice, ID3D11DeviceContext* pD
     m_pBoundShaders[s] = nullptr;
   }
 
-  for (ezUInt32 i = 0; i < EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT; i++)
-  {
-    m_pBoundUnoderedAccessViews[i] = nullptr;
-  }
   m_pBoundUnoderedAccessViewsRange.Reset();
 }
 
@@ -317,7 +312,7 @@ void ezGALContextDX11::FlushDeferredStateChanges()
   {
     const ezUInt32 uiStartSlot = m_pBoundUnoderedAccessViewsRange.m_uiMin;
     const ezUInt32 uiNumSlots = m_pBoundUnoderedAccessViewsRange.GetCount();
-    m_pDXContext->CSSetUnorderedAccessViews(uiStartSlot, uiNumSlots, m_pBoundUnoderedAccessViews + uiStartSlot,
+    m_pDXContext->CSSetUnorderedAccessViews(uiStartSlot, uiNumSlots, m_pBoundUnoderedAccessViews.GetData() + uiStartSlot,
                                             nullptr); // Todo: Count reset.
 
     m_pBoundUnoderedAccessViewsRange.Reset();
@@ -332,7 +327,7 @@ void ezGALContextDX11::FlushDeferredStateChanges()
       const ezUInt32 uiNumSlots = m_BoundShaderResourceViewsRange[stage].GetCount();
 
       SetShaderResources((ezGALShaderStage::Enum)stage, m_pDXContext, uiStartSlot, uiNumSlots,
-                         m_pBoundShaderResourceViews[stage] + uiStartSlot);
+                         m_pBoundShaderResourceViews[stage].GetData() + uiStartSlot);
 
       m_BoundShaderResourceViewsRange[stage].Reset();
     }
@@ -490,8 +485,10 @@ void ezGALContextDX11::SetSamplerStatePlatform(ezGALShaderStage::Enum Stage, ezU
 
 void ezGALContextDX11::SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALResourceView* pResourceView)
 {
-  m_pBoundShaderResourceViews[Stage][uiSlot] =
-      pResourceView != nullptr ? static_cast<const ezGALResourceViewDX11*>(pResourceView)->GetDXResourceView() : nullptr;
+  auto& boundShaderResourceViews = m_pBoundShaderResourceViews[Stage];
+  boundShaderResourceViews.EnsureCount(uiSlot + 1);
+  boundShaderResourceViews[uiSlot] =
+    pResourceView != nullptr ? static_cast<const ezGALResourceViewDX11*>(pResourceView)->GetDXResourceView() : nullptr;
   m_BoundShaderResourceViewsRange[Stage].SetToIncludeValue(uiSlot);
 }
 
@@ -535,9 +532,9 @@ void ezGALContextDX11::SetRenderTargetSetupPlatform(ezArrayPtr<const ezGALRender
 
 void ezGALContextDX11::SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALUnorderedAccessView* pUnorderedAccessView)
 {
-  m_pBoundUnoderedAccessViews[uiSlot] = pUnorderedAccessView != nullptr
-                                            ? static_cast<const ezGALUnorderedAccessViewDX11*>(pUnorderedAccessView)->GetDXResourceView()
-                                            : nullptr;
+  m_pBoundUnoderedAccessViews.EnsureCount(uiSlot + 1);
+  m_pBoundUnoderedAccessViews[uiSlot] =
+    pUnorderedAccessView != nullptr ? static_cast<const ezGALUnorderedAccessViewDX11*>(pUnorderedAccessView)->GetDXResourceView() : nullptr;
   m_pBoundUnoderedAccessViewsRange.SetToIncludeValue(uiSlot);
 }
 
@@ -861,6 +858,12 @@ void ezGALContextDX11::CopyTextureReadbackResultPlatform(const ezGALTexture* pTe
   }
 }
 
+void ezGALContextDX11::GenerateMipMapsPlatform(const ezGALResourceView* pResourceView)
+{
+  const ezGALResourceViewDX11* pDXResourceView = static_cast<const ezGALResourceViewDX11*>(pResourceView);
+
+  m_pDXContext->GenerateMips(pDXResourceView->GetDXResourceView());
+}
 
 void ezGALContextDX11::FlushPlatform()
 {

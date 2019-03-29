@@ -94,7 +94,7 @@ ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCame
 
     auto hSwapChainRTV = pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
 
-    ezGALRenderTagetSetup BackBufferRenderTargetSetup;
+    ezGALRenderTargetSetup BackBufferRenderTargetSetup;
     BackBufferRenderTargetSetup.SetRenderTarget(0, hSwapChainRTV);
 
     // setup view

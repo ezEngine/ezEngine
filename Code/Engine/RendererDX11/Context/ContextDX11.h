@@ -169,6 +169,10 @@ protected:
 
   virtual void CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, const ezArrayPtr<ezGALSystemMemoryDescription>* pData) override;
 
+  virtual void GenerateMipMapsPlatform(const ezGALResourceView* pResourceView) override;
+
+  // Misc
+
   virtual void FlushPlatform() override;
 
   // Debug helper functions
@@ -201,13 +205,13 @@ protected:
 
   ezUInt32 m_uiBoundRenderTargetCount;
 
-  ID3D11ShaderResourceView* m_pBoundShaderResourceViews[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
+  ezHybridArray<ID3D11ShaderResourceView*, 16> m_pBoundShaderResourceViews[ezGALShaderStage::ENUM_COUNT];
   ezGALDX11::ModifiedRange m_BoundShaderResourceViewsRange[ezGALShaderStage::ENUM_COUNT];
 
-  ID3D11UnorderedAccessView* m_pBoundUnoderedAccessViews[EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
+  ezHybridArray<ID3D11UnorderedAccessView*, 16> m_pBoundUnoderedAccessViews;
   ezGALDX11::ModifiedRange m_pBoundUnoderedAccessViewsRange;
 
-  ID3D11SamplerState* m_pBoundSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
+  ID3D11SamplerState* m_pBoundSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SAMPLER_COUNT];
   ezGALDX11::ModifiedRange m_BoundSamplerStatesRange[ezGALShaderStage::ENUM_COUNT];
 
   ID3D11DeviceChild* m_pBoundShaders[ezGALShaderStage::ENUM_COUNT];

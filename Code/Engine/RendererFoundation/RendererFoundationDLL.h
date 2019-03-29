@@ -18,7 +18,7 @@
 
 // Necessary array sizes
 #define EZ_GAL_MAX_CONSTANT_BUFFER_COUNT 16
-#define EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT 16
+#define EZ_GAL_MAX_SAMPLER_COUNT 16
 #define EZ_GAL_MAX_VERTEX_BUFFER_COUNT 16
 #define EZ_GAL_MAX_RENDERTARGET_COUNT 8
 
@@ -142,6 +142,7 @@ struct ezGALTextureType
     Texture2D = 0,
     TextureCube,
     Texture3D,
+    Texture2DProxy,
 
     ENUM_COUNT
   };

@@ -146,7 +146,7 @@ private:
   ezUInt16 m_uiThumbnailWidth;
   ezUInt16 m_uiThumbnailHeight;
   ezEngineProcessViewContext* m_pThumbnailViewContext;
-  ezGALRenderTagetSetup m_ThumbnailRenderTargetSetup;
+  ezGALRenderTargetSetup m_ThumbnailRenderTargetSetup;
   ezGALTextureHandle m_hThumbnailColorRT;
   ezGALTextureHandle m_hThumbnailDepthRT;
   bool m_bWorldSimStateBeforeThumbnail;

@@ -112,10 +112,9 @@ CONSTANT_BUFFER(ezClusteredDataConstants, 3)
 
   UINT1(NumLights);
   UINT1(NumDecals);
-  UINT2(Padding);
-
-  COLOR4F(AmbientTopColor);
-  COLOR4F(AmbientBottomColor);
+  UINT1(Padding);
+  
+  UINT1(SkyIrradianceIndex);  
 
   FLOAT1(FogHeight);
   FLOAT1(FogHeightFalloff);

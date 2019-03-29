@@ -6,6 +6,7 @@
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Math/Color.h>
 #include <Foundation/Types/RefCounted.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 #include <RendererFoundation/Shader/ShaderByteCode.h>
 #include <Texture/Image/ImageEnums.h>

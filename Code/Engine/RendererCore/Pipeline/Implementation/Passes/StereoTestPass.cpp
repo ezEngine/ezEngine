@@ -67,7 +67,7 @@ void ezStereoTestPass::Execute(const ezRenderViewContext& renderViewContext, con
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   // Setup render target
-  ezGALRenderTagetSetup renderTargetSetup;
+  ezGALRenderTargetSetup renderTargetSetup;
   renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
 
   // Bind render target and viewport

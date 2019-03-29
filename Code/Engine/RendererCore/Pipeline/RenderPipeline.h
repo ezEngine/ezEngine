@@ -25,9 +25,6 @@ public:
   ezRenderPipeline();
   ~ezRenderPipeline();
 
-  // \brief Resets the pipeline state to 'Uninitialized' to force a recompute (e.g. when the render target has changed).
-  void ResetPipelineState();
-
   void AddPass(ezUniquePtr<ezRenderPipelinePass>&& pPass);
   void RemovePass(ezRenderPipelinePass* pPass);
   void GetPasses(ezHybridArray<const ezRenderPipelinePass*, 16>& passes) const;

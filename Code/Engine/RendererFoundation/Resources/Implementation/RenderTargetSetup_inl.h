@@ -1,24 +1,24 @@
 
 #pragma once
 
-bool ezGALRenderTagetSetup::HasRenderTargets() const
+bool ezGALRenderTargetSetup::HasRenderTargets() const
 {
   return m_uiMaxRTIndex != 0xFFu;
 }
 
-ezUInt8 ezGALRenderTagetSetup::GetMaxRenderTargetIndex() const
+ezUInt8 ezGALRenderTargetSetup::GetMaxRenderTargetIndex() const
 {
   return m_uiMaxRTIndex;
 }
 
-ezGALRenderTargetViewHandle ezGALRenderTagetSetup::GetRenderTarget( ezUInt8 uiIndex ) const
+ezGALRenderTargetViewHandle ezGALRenderTargetSetup::GetRenderTarget( ezUInt8 uiIndex ) const
 {
   EZ_ASSERT_DEBUG( uiIndex <= m_uiMaxRTIndex, "Render target index out of range" );
 
   return m_hRTs[uiIndex];
 }
 
-ezGALRenderTargetViewHandle ezGALRenderTagetSetup::GetDepthStencilTarget() const
+ezGALRenderTargetViewHandle ezGALRenderTargetSetup::GetDepthStencilTarget() const
 {
   return m_hDSTarget;
 }

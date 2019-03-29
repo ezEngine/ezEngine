@@ -6,6 +6,11 @@
 
 #include <d3d11.h>
 
+bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALRenderTargetViewCreationDescription& viewDesc)
+{
+  return texDesc.m_uiArraySize > 1 || viewDesc.m_uiFirstSlice > 0;
+}
+
 ezGALRenderTargetViewDX11::ezGALRenderTargetViewDX11(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description)
     : ezGALRenderTargetView(pTexture, Description)
     , m_pRenderTargetView(nullptr)
@@ -18,9 +23,9 @@ ezGALRenderTargetViewDX11::~ezGALRenderTargetViewDX11() {}
 
 ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 {
-  const ezGALTextureDX11* pTexture = nullptr;
+  const ezGALTexture* pTexture = nullptr;
   if (!m_Description.m_hTexture.IsInvalidated())
-    pTexture = static_cast<const ezGALTextureDX11*>(pDevice->GetTexture(m_Description.m_hTexture));
+    pTexture = pDevice->GetTexture(m_Description.m_hTexture);
 
   if (pTexture == nullptr)
   {
@@ -55,6 +60,9 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
     return EZ_FAILURE;
   }
 
+  ID3D11Resource* pDXResource = static_cast<const ezGALTextureDX11*>(pTexture->GetParentResource())->GetDXTexture();
+  const bool bIsArrayView = IsArrayView(texDesc, m_Description);  
+
   if (bIsDepthFormat)
   {
     D3D11_DEPTH_STENCIL_VIEW_DESC DSViewDesc;
@@ -62,7 +70,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 
     if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
     {
-      if (texDesc.m_uiArraySize == 1)
+      if (!bIsArrayView)
       {
         DSViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
         DSViewDesc.Texture2D.MipSlice = m_Description.m_uiMipLevel;
@@ -77,7 +85,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
     }
     else
     {
-      if (texDesc.m_uiArraySize == 1)
+      if (!bIsArrayView)
       {
         DSViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
         // DSViewDesc.Texture2DMS.UnusedField_NothingToDefine;
@@ -94,7 +102,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
     if (m_Description.m_bReadOnly)
       DSViewDesc.Flags |= (D3D11_DSV_READ_ONLY_DEPTH | D3D11_DSV_READ_ONLY_STENCIL);
 
-    if (FAILED(pDXDevice->GetDXDevice()->CreateDepthStencilView(pTexture->GetDXTexture(), &DSViewDesc, &m_pDepthStencilView)))
+    if (FAILED(pDXDevice->GetDXDevice()->CreateDepthStencilView(pDXResource, &DSViewDesc, &m_pDepthStencilView)))
     {
       ezLog::Error("Couldn't create depth stencil view!");
       return EZ_FAILURE;
@@ -111,7 +119,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 
     if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
     {
-      if (texDesc.m_uiArraySize == 1)
+      if (!bIsArrayView)
       {
         RTViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
         RTViewDesc.Texture2D.MipSlice = m_Description.m_uiMipLevel;
@@ -126,7 +134,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
     }
     else
     {
-      if (texDesc.m_uiArraySize == 1)
+      if (!bIsArrayView)
       {
         RTViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
         // RTViewDesc.Texture2DMS.UnusedField_NothingToDefine;
@@ -139,7 +147,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
       }
     }
 
-    if (FAILED(pDXDevice->GetDXDevice()->CreateRenderTargetView(pTexture->GetDXTexture(), &RTViewDesc, &m_pRenderTargetView)))
+    if (FAILED(pDXDevice->GetDXDevice()->CreateRenderTargetView(pDXResource, &RTViewDesc, &m_pRenderTargetView)))
     {
       ezLog::Error("Couldn't create rendertarget view!");
       return EZ_FAILURE;
