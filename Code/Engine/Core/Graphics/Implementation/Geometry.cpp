@@ -1477,10 +1477,11 @@ void ezGeometry::AddTexturedRamp(const ezVec3& size, const ezColor& color, const
   ezUInt32 idx3[3];
 
   {
-    idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, 1), ezVec2(0, 1), color, iCustomIndex, mTransform);
-    idx[1] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, +halfSize.z), ezVec3(0, 0, 1), ezVec2(0, 0), color, iCustomIndex, mTransform);
-    idx[2] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, +halfSize.z), ezVec3(0, 0, 1), ezVec2(1, 0), color, iCustomIndex, mTransform);
-    idx[3] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, -halfSize.z), ezVec3(0, 0, 1), ezVec2(1, 1), color, iCustomIndex, mTransform);
+    ezVec3 vNormal = ezVec3(-halfSize.z, 0, halfSize.x).GetNormalized();
+    idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), vNormal, ezVec2(0, 1), color, iCustomIndex, mTransform);
+    idx[1] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, +halfSize.z), vNormal, ezVec2(0, 0), color, iCustomIndex, mTransform);
+    idx[2] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, +halfSize.z), vNormal, ezVec2(1, 0), color, iCustomIndex, mTransform);
+    idx[3] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, -halfSize.z), vNormal, ezVec2(1, 1), color, iCustomIndex, mTransform);
     AddPolygon(idx, bFlipWinding);
   }
 
