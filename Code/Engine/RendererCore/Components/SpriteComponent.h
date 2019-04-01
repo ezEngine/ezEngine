@@ -31,6 +31,8 @@ class EZ_RENDERERCORE_DLL ezSpriteRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezSpriteRenderData, ezRenderData);
 
 public:
+  void FillBatchIdAndSortingKey();
+
   ezTexture2DResourceHandle m_hTexture;
 
   float m_fSize;

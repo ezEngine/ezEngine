@@ -124,11 +124,6 @@ void ezKrautTreeComponent::SetKrautTree(const ezKrautTreeResourceHandle& hTree)
   }
 }
 
-ezKrautRenderData* ezKrautTreeComponent::CreateBranchRenderData(ezUInt32 uiBatchId) const
-{
-  return ezCreateRenderDataForThisFrame<ezKrautRenderData>(GetOwner(), uiBatchId);
-}
-
 void ezKrautTreeComponent::Initialize()
 {
   SUPER::Initialize();
@@ -179,9 +174,12 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
       const ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, subMeshIdx, 0};
       const ezUInt32 uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
 
-      ezKrautRenderData* pRenderData = CreateBranchRenderData(uiBatchId);
+      ezKrautRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezKrautRenderData>(GetOwner());
 
       {
+        pRenderData->m_uiBatchId = uiBatchId;
+        pRenderData->m_uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFF);
+
         pRenderData->m_pTreeLodInfo = m_pLodInfo;
         pRenderData->m_uiThisLodIndex = uiCurLod;
 
@@ -197,9 +195,7 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
         pRenderData->m_fLodDistanceMaxSQR = fMaxDistSQR;
       }
 
-      // Sort by material and then by mesh
-      const ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE);
-      msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, uiSortingKey, ezRenderData::Caching::IfStatic);
+      msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::IfStatic);
     }
   }
 }

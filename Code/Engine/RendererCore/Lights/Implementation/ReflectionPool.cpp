@@ -599,31 +599,20 @@ void ezReflectionPool::ExtractReflectionProbe(
   {
     const ezGameObject* pOwner = pComponent->GetOwner();
 
-    const ezUInt32 uiMeshIDHash = s_pData->m_hDebugSphere.GetResourceIDHash();
-    const ezUInt32 uiMaterialIDHash = s_pData->m_hDebugMaterial.GetResourceIDHash();
-
-    // Generate batch id from mesh, material and part index.
-    ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, 0, 0};
-    ezUInt32 uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
-
-    ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(pOwner, uiBatchId);
+    ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
     {
       pRenderData->m_GlobalTransform = pOwner->GetGlobalTransform();
       pRenderData->m_GlobalBounds = pOwner->GetGlobalBounds();
       pRenderData->m_hMesh = s_pData->m_hDebugSphere;
       pRenderData->m_hMaterial = s_pData->m_hDebugMaterial;
       pRenderData->m_Color = ezColor::White;
-
       pRenderData->m_uiSubMeshIndex = 0;
-      pRenderData->m_uiFlipWinding = false;
-      pRenderData->m_uiUniformScale = true;
-
       pRenderData->m_uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(pComponent, 0);
+
+      pRenderData->FillBatchIdAndSortingKey();
     }
 
-    // Sort by material and then by mesh
-    ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE) | 0;
-    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, uiSortingKey, ezRenderData::Caching::IfStatic);
+    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::IfStatic);
 
     if (msg.m_OverrideCategory == ezInvalidRenderDataCategory)
     {

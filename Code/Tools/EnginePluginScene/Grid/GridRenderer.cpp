@@ -230,8 +230,7 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
   const ezCamera* cam = view.GetCamera();
   float fDensity = m_pSceneContext->GetGridDensity();
 
-  /// \todo Are these parameters correct?
-  ezGridRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezGridRenderData>(nullptr, 0);
+  ezGridRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezGridRenderData>(nullptr);
   pRenderData->m_GlobalBounds.SetInvalid();
   pRenderData->m_bOrthoMode = cam->IsOrthographic();
   pRenderData->m_bGlobal = m_pSceneContext->IsGridInGlobalSpace();
@@ -295,5 +294,5 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
     pRenderData->m_iLastLine2 = iNumLines;
   }
 
-  extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleTransparent, 0);
+  extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleTransparent);
 }

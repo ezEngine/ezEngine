@@ -104,16 +104,14 @@ void ezFogComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
     return;
 
-  ezUInt32 uiBatchId = 0;
-
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezFogRenderData>(GetOwner(), uiBatchId);
+  auto pRenderData = ezCreateRenderDataForThisFrame<ezFogRenderData>(GetOwner());
 
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_Color = m_Color;
   pRenderData->m_fDensity = m_fDensity / 100.0f;
   pRenderData->m_fHeightFalloff = m_fHeightFalloff;
 
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId, ezRenderData::Caching::IfStatic);
+  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, ezRenderData::Caching::IfStatic);
 }
 
 void ezFogComponent::SerializeComponent(ezWorldWriter& stream) const

@@ -55,8 +55,6 @@ protected:
   ezProcessingStream* m_pStreamAxis = nullptr;
 
   mutable bool m_bRenderDataCached = false;
-  mutable ezUInt32 m_uiBatchId = 0;
-  mutable ezUInt32 m_uiSortingKey = 0;
   mutable ezBoundingBoxSphere m_Bounds;
   mutable ezRenderData::Category m_RenderCategory;
 };

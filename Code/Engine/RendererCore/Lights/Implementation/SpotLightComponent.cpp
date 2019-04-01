@@ -148,18 +148,14 @@ void ezSpotLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   if (CVarVisLightSize)
   {
-    ezVec3 textPos;
-    msg.m_pView->ComputeScreenSpacePos(t.m_vPosition, textPos);
-
     ezStringBuilder sb;
     sb.Format("{0}", fScreenSpaceSize);
-    ezDebugRenderer::Draw2DText(msg.m_pView->GetHandle(), sb, ezVec2I32((int)textPos.x, (int)textPos.y), ezColor::Olive);
+    ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, t.m_vPosition, ezColor::Olive);
     ezDebugRenderer::DrawLineSphere(msg.m_pView->GetHandle(), bs, ezColor::Olive);
   }
 #endif
 
-  ezUInt32 uiBatchId = m_bCastShadows ? 0 : 1;
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezSpotLightRenderData>(GetOwner(), uiBatchId);
+  auto pRenderData = ezCreateRenderDataForThisFrame<ezSpotLightRenderData>(GetOwner());
 
   pRenderData->m_GlobalTransform = t;
   pRenderData->m_LightColor = m_LightColor;
@@ -170,8 +166,10 @@ void ezSpotLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
   pRenderData->m_hProjectedTexture = m_hProjectedTexture;
   pRenderData->m_uiShadowDataOffset = m_bCastShadows ? ezShadowPool::AddSpotLight(this, fScreenSpaceSize) : ezInvalidIndex;
 
+  pRenderData->FillBatchIdAndSortingKey(fScreenSpaceSize);
+
   ezRenderData::Caching::Enum caching = m_bCastShadows ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId, caching);
+  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, caching);
 }
 
 void ezSpotLightComponent::SerializeComponent(ezWorldWriter& stream) const

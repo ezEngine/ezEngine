@@ -101,11 +101,6 @@ void ezPxVisColMeshComponent::SetMesh(const ezPxMeshResourceHandle& hMesh)
   }
 }
 
-ezMeshRenderData* ezPxVisColMeshComponent::CreateRenderData(ezUInt32 uiBatchId) const
-{
-  return ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
-}
-
 void ezPxVisColMeshComponent::CreateCollisionRenderMesh()
 {
   if (!m_hCollisionMesh.IsValid())
@@ -240,26 +235,15 @@ void ezPxVisColMeshComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) c
   if (!m_hMesh.IsValid())
     return;
 
-  const ezUInt32 uiMeshIDHash = m_hMesh.GetResourceIDHash();
-
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowFallback);
   ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
 
   for (ezUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
   {
     const ezUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
-    ezMaterialResourceHandle hMaterial;
+    ezMaterialResourceHandle hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
-    hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
-
-    const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? hMaterial.GetResourceIDHash() : 0;
-    const ezUInt32 uiFlipWinding = GetOwner()->GetGlobalTransformSimd().ContainsNegativeScale() ? 1 : 0;
-
-    // Generate batch id from mesh, material and part index.
-    ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, uiPartIndex, uiFlipWinding};
-    ezUInt32 uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
-
-    ezMeshRenderData* pRenderData = CreateRenderData(uiBatchId);
+    ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
     {
       pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
       pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
@@ -267,11 +251,11 @@ void ezPxVisColMeshComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) c
       pRenderData->m_hMaterial = hMaterial;
       pRenderData->m_uiSubMeshIndex = uiPartIndex;
       pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
+
+      pRenderData->FillBatchIdAndSortingKey();
     }
 
-    // Sort by material and then by mesh
-    ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE) | uiFlipWinding;
-    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, uiSortingKey, ezRenderData::Caching::IfStatic);
+    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::IfStatic);
   }
 }
 

@@ -64,10 +64,10 @@ void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ez
   {
     for (int draw = 0; draw < pDrawData->CmdListsCount; ++draw)
     {
-      ezImguiRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezImguiRenderData>(nullptr, 0);
+      ezImguiRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezImguiRenderData>(nullptr);
+      pRenderData->m_uiSortingKey = draw;
       pRenderData->m_GlobalTransform.SetIdentity();
       pRenderData->m_GlobalBounds.SetInvalid();
-      pRenderData->m_uiBatchId = 0;
 
       // copy the vertex data
       // uses the frame allocator to prevent unnecessary deallocations
@@ -110,7 +110,7 @@ void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ez
         }
       }
 
-      extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::GUI, draw);
+      extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::GUI);
     }
   }
 }

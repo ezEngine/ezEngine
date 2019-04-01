@@ -62,7 +62,7 @@ public:
     return m_ViewDebugContext;
   }
 
-  void AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category, ezUInt32 uiRenderDataSortingKey);
+  void AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category);
   void AddFrameData(const ezRenderData* pFrameData);
 
   void SortAndBatch();

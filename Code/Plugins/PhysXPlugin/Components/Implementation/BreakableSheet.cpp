@@ -256,8 +256,6 @@ void ezBreakableSheetComponent::OnExtractRenderData(ezMsgExtractRenderData& msg)
 
   ezMaterialResourceHandle hMaterial;
   ezMeshResourceHandle hMesh;
-  ezMeshRenderData* pRenderData = nullptr;
-  ezUInt32 uiSortingKey = 0;
 
   if (m_bBroken)
   {
@@ -270,14 +268,7 @@ void ezBreakableSheetComponent::OnExtractRenderData(ezMsgExtractRenderData& msg)
     hMesh = m_hUnbrokenMesh;
   }
 
-  const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? hMaterial.GetResourceIDHash() : 0;
-  const ezUInt32 uiMeshIDHash = hMesh.GetResourceIDHash();
-
-  // Generate batch id from mesh, material and part index.
-  const ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, GetUniqueIdForRendering(), uiFlipWinding};
-  const ezUInt32 uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
-
-  pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
+  ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
   {
     pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
     pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
@@ -301,13 +292,10 @@ void ezBreakableSheetComponent::OnExtractRenderData(ezMsgExtractRenderData& msg)
     }
 
     pRenderData->m_uiSubMeshIndex = 0;
-    pRenderData->m_uiFlipWinding = uiFlipWinding;
-    pRenderData->m_uiUniformScale = uiUniformScale;
-
     pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
-  }
 
-  uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE) | uiFlipWinding;
+    pRenderData->FillBatchIdAndSortingKey();
+  }
 
   ezRenderData::Category category = ezDefaultRenderDataCategories::LitOpaque;
   if (hMaterial.IsValid())
@@ -328,7 +316,7 @@ void ezBreakableSheetComponent::OnExtractRenderData(ezMsgExtractRenderData& msg)
     }
   }
 
-  msg.AddRenderData(pRenderData, category, uiSortingKey, ezRenderData::Caching::Never);
+  msg.AddRenderData(pRenderData, category, ezRenderData::Caching::Never);
 }
 
 void ezBreakableSheetComponent::OnCollision(ezMsgCollision& msg)

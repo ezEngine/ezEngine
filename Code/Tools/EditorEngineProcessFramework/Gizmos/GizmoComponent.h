@@ -28,7 +28,7 @@ public:
   bool m_bIsPickable = true;
 
 protected:
-  virtual ezMeshRenderData* CreateRenderData(ezUInt32 uiBatchId) const override;
+  virtual ezMeshRenderData* CreateRenderData() const override;
 
 };
 

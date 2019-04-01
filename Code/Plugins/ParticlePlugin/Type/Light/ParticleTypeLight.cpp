@@ -16,6 +16,7 @@
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererCore/Pipeline/View.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeLightFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeLightFactory>)
@@ -122,8 +123,8 @@ void ezParticleTypeLight::CreateRequiredStreams()
 }
 
 
-void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData,
-                                                const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleTypeLight::ExtractTypeRenderData(
+  const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   EZ_PROFILE_SCOPE("PFX: Light");
 
@@ -180,7 +181,7 @@ void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedR
         continue;
     }
 
-    auto pRenderData = ezCreateRenderDataForThisFrame<ezPointLightRenderData>(nullptr, uiBatchId);
+    auto pRenderData = ezCreateRenderDataForThisFrame<ezPointLightRenderData>(nullptr);
 
     pRenderData->m_GlobalTransform.SetIdentity();
     pRenderData->m_GlobalTransform.m_vPosition = transform * pPosition[i].GetAsVec3();
@@ -189,7 +190,11 @@ void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedR
     pRenderData->m_fRange = pSize[i] * sizeFactor;
     pRenderData->m_uiShadowDataOffset = ezInvalidIndex;
 
-    extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId);
+    float fScreenSpaceSize = ezLightComponent::CalculateScreenSpaceSize(
+      ezBoundingSphere(pRenderData->m_GlobalTransform.m_vPosition, pRenderData->m_fRange * 0.5f), *view.GetCullingCamera());
+    pRenderData->FillBatchIdAndSortingKey(fScreenSpaceSize);
+
+    extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light);
   }
 }
 

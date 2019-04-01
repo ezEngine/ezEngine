@@ -243,9 +243,11 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
     }
   }
 
+  auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleTrailRenderData>(nullptr);
+
   /// \todo Is this batch ID correct?
-  const ezUInt32 uiBatchId = m_hTexture.GetResourceIDHash() + m_uiMaxPoints;
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleTrailRenderData>(nullptr, uiBatchId);
+  pRenderData->m_uiBatchId = m_hTexture.GetResourceIDHash() + m_uiMaxPoints;
+  pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode);
 
   pRenderData->m_bApplyObjectTransform = GetOwnerEffect()->NeedsToApplyTransform();
   pRenderData->m_RenderMode = m_RenderMode;
@@ -280,8 +282,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
       break;
   }
 
-  const ezUInt32 uiSortingKey = ComputeSortingKey(m_RenderMode);
-  extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent, uiSortingKey);
+  extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent);
 }
 
 void ezParticleTypeTrail::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)

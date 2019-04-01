@@ -13,9 +13,11 @@ class EZ_RENDERERCORE_DLL ezMeshRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezMeshRenderData, ezRenderData);
 
 public:
+  void FillBatchIdAndSortingKey();
+
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
-  ezColor m_Color;
+  ezColor m_Color = ezColor::White;
   ezGALBufferHandle m_hSkinningMatrices;
   ezArrayPtr<const ezUInt8>
       m_pNewSkinningMatricesData; // Optional - if set the buffer specified in m_hSkinningMatrices will be updated with this data
@@ -24,7 +26,7 @@ public:
   ezUInt32 m_uiFlipWinding : 1;
   ezUInt32 m_uiUniformScale : 1;
 
-  ezUInt32 m_uiUniqueID;
+  ezUInt32 m_uiUniqueID = 0;
 };
 
 struct EZ_RENDERERCORE_DLL ezMsgSetMeshMaterial : public ezMessage
@@ -86,7 +88,7 @@ public:
   void OnSetColor(ezMsgSetColor& msg);
 
 protected:
-  virtual ezMeshRenderData* CreateRenderData(ezUInt32 uiBatchId) const;
+  virtual ezMeshRenderData* CreateRenderData() const;
 
   ezGALBufferHandle m_hSkinningTransformsBuffer;
   ezArrayPtr<const ezMat4> m_SkinningMatrices;

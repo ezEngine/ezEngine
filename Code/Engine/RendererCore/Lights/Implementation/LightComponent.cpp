@@ -9,7 +9,16 @@
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLightRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
+void ezLightRenderData::FillBatchIdAndSortingKey(float fScreenSpaceSize)
+{
+  m_uiSortingKey = (m_uiShadowDataOffset != ezInvalidIndex) ? 0 : 1;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 4)
 {
   EZ_BEGIN_PROPERTIES
