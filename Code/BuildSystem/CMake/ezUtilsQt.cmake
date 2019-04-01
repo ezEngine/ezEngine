@@ -169,10 +169,13 @@ function(ez_qt_wrap_target_moc_files TARGET_NAME FILES_TO_WRAP)
     find_package(Qt5 COMPONENTS Widgets REQUIRED PATHS ${EZ_QT_DIR})
 
     set(Qt5Core_MOC_EXECUTABLE Qt5::moc)
-    qt5_wrap_cpp(MOC_FILES TARGET ${TARGET_NAME} ${FILES_TO_WRAP})
+    ez_retrieve_target_pch(${TARGET_NAME} PCH_H)
 
-    # retrieve target PCH
-    #qt5_wrap_cpp(MOC_FILES TARGET ${TARGET_NAME} ${FILES_TO_WRAP} OPTIONS -b "${PCH_H}")
+    if (PCH_H)
+        qt5_wrap_cpp(MOC_FILES TARGET ${TARGET_NAME} ${FILES_TO_WRAP} OPTIONS -b "${PCH_H}.h")
+    else()
+        qt5_wrap_cpp(MOC_FILES TARGET ${TARGET_NAME} ${FILES_TO_WRAP})
+    endif()
 
     target_sources(${TARGET_NAME} PRIVATE ${MOC_FILES})
 
