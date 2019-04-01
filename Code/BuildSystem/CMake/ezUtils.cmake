@@ -11,6 +11,7 @@ include("ezUtilsCI")
 include("ezUtilsCppFlags")
 include("ezUtilsUWP")
 include("ezUtilsTarget")
+include("ezUtilsVcpkg")
 
 ######################################
 ### ez_set_target_output_dirs(<target> <lib-output-dir> <dll-output-dir>)

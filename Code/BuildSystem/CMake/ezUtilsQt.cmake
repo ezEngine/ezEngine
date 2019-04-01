@@ -41,7 +41,9 @@ function(ez_prepare_find_qt)
     endif()
 
     # force find_package to search for Qt in the correct folder
-    set (CMAKE_PREFIX_PATH ${EZ_QT_DIR})
+    if (EZ_QT_DIR)
+        set (CMAKE_PREFIX_PATH ${EZ_QT_DIR} PARENT_SCOPE)
+    endif()
 
 endfunction()
 
@@ -66,7 +68,11 @@ function(ez_link_target_qt)
 
     ez_prepare_find_qt()
 
-    find_package (Qt5 COMPONENTS ${FN_ARG_COMPONENTS} REQUIRED PATHS ${EZ_QT_DIR})
+    if (EZ_QT_DIR)
+        find_package (Qt5 COMPONENTS ${FN_ARG_COMPONENTS} REQUIRED PATHS ${EZ_QT_DIR})
+    else()
+        find_package (Qt5 COMPONENTS ${FN_ARG_COMPONENTS} REQUIRED)
+    endif()
 
     target_include_directories(${FN_ARG_TARGET} PRIVATE ${CMAKE_BINARY_DIR})
     target_include_directories(${FN_ARG_TARGET} PRIVATE ${CMAKE_BINARY_DIR}/Code)
@@ -97,7 +103,7 @@ function(ez_link_target_qt)
 
     endforeach()
 
-    if (FN_ARG_COPY_DLLS)
+    if (EZ_QT_DIR AND FN_ARG_COPY_DLLS)
 
         # Copy 'imageformats' into the binary folder.
         add_custom_command(TARGET ${FN_ARG_TARGET} POST_BUILD
@@ -131,7 +137,11 @@ function(ez_qt_wrap_target_ui_files TARGET_NAME FILES_TO_WRAP)
     endif()
 
     ez_prepare_find_qt()
-    find_package(Qt5 COMPONENTS Widgets REQUIRED PATHS ${EZ_QT_DIR})
+    if (EZ_QT_DIR)
+        find_package(Qt5 COMPONENTS Widgets REQUIRED PATHS ${EZ_QT_DIR})
+    else()
+        find_package(Qt5 COMPONENTS Widgets REQUIRED)
+    endif()
 
     if (NOT TARGET Qt5::uic)
         message(FATAL_ERROR "UIC.exe not found")
@@ -166,7 +176,11 @@ function(ez_qt_wrap_target_moc_files TARGET_NAME FILES_TO_WRAP)
     endif()
 
     ez_prepare_find_qt()
-    find_package(Qt5 COMPONENTS Widgets REQUIRED PATHS ${EZ_QT_DIR})
+    if (EZ_QT_DIR)
+        find_package(Qt5 COMPONENTS Widgets REQUIRED PATHS ${EZ_QT_DIR})
+    else()
+        find_package(Qt5 COMPONENTS Widgets REQUIRED)
+    endif()
 
     set(Qt5Core_MOC_EXECUTABLE Qt5::moc)
     ez_retrieve_target_pch(${TARGET_NAME} PCH_H)
@@ -199,7 +213,11 @@ function(ez_qt_wrap_target_qrc_files TARGET_NAME FILES_TO_WRAP)
     endif()
 
     ez_prepare_find_qt()
-    find_package(Qt5 COMPONENTS Widgets REQUIRED PATHS ${EZ_QT_DIR})
+    if (EZ_QT_DIR)
+        find_package(Qt5 COMPONENTS Widgets REQUIRED PATHS ${EZ_QT_DIR})
+    else()
+        find_package(Qt5 COMPONENTS Widgets REQUIRED)
+    endif()
 
     set(Qt5Core_RCC_EXECUTABLE Qt5::rcc)
     qt5_add_resources(QRC_FILES ${FILES_TO_WRAP})

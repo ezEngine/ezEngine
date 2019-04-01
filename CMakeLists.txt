@@ -6,6 +6,14 @@ set(EZ_CMAKE_UTILS_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Code/BuildSystem/CMake" CAC
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${EZ_CMAKE_UTILS_PATH})
 
 include("ezUtils")
+
+ez_vcpkg_show_info()
+ez_vcpkg_init()
+
+if (EZ_VCPKG_INSTALL_QT)
+	ez_vcpkg_install("qt5-base;qt5-winextras")
+endif()
+
 ez_detect_project_name(DETECTED_NAME)
 
 set (EZ_SOLUTION_NAME ${DETECTED_NAME} CACHE STRING "The name of the solution")
