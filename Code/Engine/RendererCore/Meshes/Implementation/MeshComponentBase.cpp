@@ -225,6 +225,8 @@ void ezMeshComponentBase::OnExtractRenderData(ezMsgExtractRenderData& msg) const
         pRenderData->m_pNewSkinningMatricesData = ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(m_SkinningMatrices.GetPtr()),
                                                                             m_SkinningMatrices.GetCount() * sizeof(ezMat4));
       }
+
+      pRenderData->FillBatchIdAndSortingKey();
     }
 
     // Determine render data category.
