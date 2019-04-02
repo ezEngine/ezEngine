@@ -100,17 +100,14 @@ void ezParticleTypePoint::ExtractTypeRenderData(const ezView& view, ezExtractedR
     }
   }
 
-  /// \todo Is this batch ID correct?
-  const ezUInt32 uiBatchId = 0;
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezParticlePointRenderData>(nullptr, uiBatchId);
+  auto pRenderData = ezCreateRenderDataForThisFrame<ezParticlePointRenderData>(nullptr);
 
   pRenderData->m_bApplyObjectTransform = GetOwnerEffect()->NeedsToApplyTransform();
   pRenderData->m_GlobalTransform = instanceTransform;
   pRenderData->m_BaseParticleData = m_BaseParticleData;
   pRenderData->m_BillboardParticleData = m_BillboardParticleData;
 
-  const ezUInt32 uiSortingKey = 0;
-  extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent, uiSortingKey);
+  extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent);
 }
 
 

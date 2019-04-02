@@ -28,22 +28,19 @@ EZ_FORCE_INLINE const char* ezRenderData::GetCategoryName(Category category)
   return s_CategoryData[category.m_uiValue].m_sName.GetString();
 }
 
-EZ_FORCE_INLINE ezUInt64 ezRenderData::GetCategorySortingKey(Category category, ezUInt32 uiRenderDataSortingKey, const ezCamera& camera) const
+EZ_FORCE_INLINE ezUInt64 ezRenderData::GetCategorySortingKey(Category category, const ezCamera& camera) const
 {
-  return s_CategoryData[category.m_uiValue].m_sortingKeyFunc(this, uiRenderDataSortingKey, camera);
+  return s_CategoryData[category.m_uiValue].m_sortingKeyFunc(this, m_uiSortingKey, camera);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-static T* ezCreateRenderDataForThisFrame(const ezGameObject* pOwner, ezUInt32 uiBatchId)
+static T* ezCreateRenderDataForThisFrame(const ezGameObject* pOwner)
 {
   EZ_CHECK_AT_COMPILETIME(EZ_IS_DERIVED_FROM_STATIC(ezRenderData, T));
 
   T* pRenderData = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), T);
-  //ezMemoryUtils::ZeroFill(pRenderData);
-
-  pRenderData->m_uiBatchId = uiBatchId;
 
   if (pOwner != nullptr)
   {

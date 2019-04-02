@@ -22,9 +22,9 @@ ezGizmoComponent::ezGizmoComponent()
   m_bUseDepthPrepass = false;
 }
 
-ezMeshRenderData* ezGizmoComponent::CreateRenderData(ezUInt32 uiBatchId) const
+ezMeshRenderData* ezGizmoComponent::CreateRenderData() const
 {
-  ezGizmoRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezGizmoRenderData>(GetOwner(), uiBatchId);
+  ezGizmoRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezGizmoRenderData>(GetOwner());
   pRenderData->m_GizmoColor = m_GizmoColor;
   pRenderData->m_bUseDepthPrepass = m_bUseDepthPrepass;
   pRenderData->m_bIsPickable = m_bIsPickable;

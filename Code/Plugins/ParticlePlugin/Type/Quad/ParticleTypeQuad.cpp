@@ -421,9 +421,11 @@ void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRend
 
 void ezParticleTypeQuad::AddParticleRenderData(ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform) const
 {
+  auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleQuadRenderData>(nullptr);
+
   /// \todo Is this batch ID correct?
-  const ezUInt32 uiBatchId = m_hTexture.GetResourceIDHash();
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleQuadRenderData>(nullptr, uiBatchId);
+  pRenderData->m_uiBatchId = m_hTexture.GetResourceIDHash();
+  pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode);
 
   pRenderData->m_bApplyObjectTransform = GetOwnerEffect()->NeedsToApplyTransform();
   pRenderData->m_GlobalTransform = instanceTransform;
@@ -475,10 +477,9 @@ void ezParticleTypeQuad::AddParticleRenderData(ezExtractedRenderData& extractedR
       break;
   }
 
-  const ezUInt32 uiSortingKey = ComputeSortingKey(m_RenderMode);
   extractedRenderData.AddRenderData(pRenderData,
                                     /*m_RenderMode == ezParticleTypeRenderMode::Opaque ? ezDefaultRenderDataCategories::LitOpaque :*/
-                                    ezDefaultRenderDataCategories::LitTransparent, uiSortingKey);
+                                    ezDefaultRenderDataCategories::LitTransparent);
 }
 
 void ezParticleTypeQuad::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)

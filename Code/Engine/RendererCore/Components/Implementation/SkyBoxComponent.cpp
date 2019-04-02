@@ -100,29 +100,20 @@ void ezSkyBoxComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || msg.m_pView->GetCamera()->IsOrthographic())
     return;
 
-  const ezUInt32 uiMeshIDHash = m_hMesh.GetResourceIDHash();
-
-  ezMaterialResourceHandle hMaterial = m_hCubeMapMaterial;
-  const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? hMaterial.GetResourceIDHash() : 0;
-
-  // Generate batch id from mesh, material and part index.
-  ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash};
-  ezUInt32 uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
-
-  ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
+  ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
   {
     pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
     pRenderData->m_GlobalTransform.m_vPosition.SetZero(); // skybox should always be at the origin
     pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
     pRenderData->m_hMesh = m_hMesh;
-    pRenderData->m_hMaterial = hMaterial;
+    pRenderData->m_hMaterial = m_hCubeMapMaterial;
     pRenderData->m_uiSubMeshIndex = 0;
     pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
+
+    pRenderData->FillBatchIdAndSortingKey();
   }
 
-  // Sort by material and then by mesh
-  ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFF);
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Sky, uiSortingKey, ezRenderData::Caching::Never);
+  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Sky, ezRenderData::Caching::Never);
 }
 
 void ezSkyBoxComponent::SerializeComponent(ezWorldWriter& stream) const

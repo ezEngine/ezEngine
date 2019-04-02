@@ -145,17 +145,6 @@ bool ezParticleTypeMesh::QueryMeshAndMaterialInfo() const
 
   m_Bounds = pMesh->GetBounds();
 
-  const ezUInt32 uiMeshIDHash = m_hMesh.GetResourceIDHash();
-  const ezUInt32 uiMaterialIDHash = m_hMaterial.GetResourceIDHash();
-
-  // Generate batch id from mesh, material and part index.
-  const ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, 0, 0};
-  m_uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
-
-  // Sort by material and then by mesh
-  const ezUInt32 uiFlipWinding = 0;
-  m_uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE) | uiFlipWinding;
-
   {
     m_RenderCategory = ezDefaultRenderDataCategories::LitOpaque;
 
@@ -223,7 +212,7 @@ void ezParticleTypeMesh::ExtractTypeRenderData(const ezView& view, ezExtractedRe
       trans.m_vPosition = pPosition[idx].GetAsVec3();
       trans.m_vScale.Set(pSize[idx]);
 
-      ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(nullptr, m_uiBatchId);
+      ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(nullptr);
       {
         pRenderData->m_GlobalTransform = trans;
         pRenderData->m_GlobalBounds = m_Bounds;
@@ -232,13 +221,12 @@ void ezParticleTypeMesh::ExtractTypeRenderData(const ezView& view, ezExtractedRe
         pRenderData->m_Color = pColor[idx].ToLinearFloat() * tintColor;
 
         pRenderData->m_uiSubMeshIndex = 0;
-        pRenderData->m_uiFlipWinding = uiFlipWinding;
-        pRenderData->m_uiUniformScale = 1;
-
         pRenderData->m_uiUniqueID = 0xFFFFFFFF;
+
+        pRenderData->FillBatchIdAndSortingKey();
       }
 
-      extractedRenderData.AddRenderData(pRenderData, m_RenderCategory, m_uiSortingKey);
+      extractedRenderData.AddRenderData(pRenderData, m_RenderCategory);
     }
   }
 }

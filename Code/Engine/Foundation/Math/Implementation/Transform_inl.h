@@ -37,6 +37,19 @@ inline const ezTransformTemplate<Type> ezTransformTemplate<Type>::IdentityTransf
 }
 
 template <typename Type>
+EZ_ALWAYS_INLINE bool ezTransformTemplate<Type>::ContainsNegativeScale() const
+{
+  return (m_vScale.x * m_vScale.y * m_vScale.z) < 0.0f;
+}
+
+template <typename Type>
+EZ_ALWAYS_INLINE bool ezTransformTemplate<Type>::ContainsUniformScale() const
+{
+  const Type fEpsilon = ezMath::BasicType<Type>::DefaultEpsilon();
+  return ezMath::IsEqual(m_vScale.x, m_vScale.y, fEpsilon) && ezMath::IsEqual(m_vScale.x, m_vScale.z, fEpsilon);
+}
+
+template <typename Type>
 inline bool ezTransformTemplate<Type>::IsIdentical(const ezTransformTemplate<Type>& rhs) const
 {
   return m_vPosition.IsIdentical(rhs.m_vPosition) && (m_qRotation == rhs.m_qRotation) && m_vScale.IsIdentical(rhs.m_vScale);
