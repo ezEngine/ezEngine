@@ -61,3 +61,6 @@ mark_as_advanced(FORCE EZ_3RDPARTY_ZSTD_SUPPORT)
 
 ### Qt
 set (EZ_VCPKG_INSTALL_QT OFF CACHE BOOL "Whether to install Qt via vcpkg.")
+
+### PhysX
+set (EZ_VCPKG_INSTALL_PHYSX OFF CACHE BOOL "Whether to install PhysX 4 via vcpkg.")

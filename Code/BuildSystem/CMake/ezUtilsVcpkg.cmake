@@ -43,8 +43,8 @@ function(ez_vcpkg_init)
 		endif()
 
 		set(CMAKE_TOOLCHAIN_FILE ${EZ_VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake CACHE STRING "" FORCE)
-		message(STATUS "Forcing CMAKE_TOOLCHAIN_FILE to point to '${CMAKE_TOOLCHAIN_FILE}'") 
-		
+		message(STATUS "Forcing CMAKE_TOOLCHAIN_FILE to point to '${CMAKE_TOOLCHAIN_FILE}'")
+
 	endif()
 
 	message(STATUS "EZ_VCPKG_ROOT is '${EZ_VCPKG_ROOT}'")
@@ -59,7 +59,19 @@ endfunction()
 
 function(ez_vcpkg_install PACKAGES)
 
-	get_property(EZ_VCPKG_ROOT GLOBAL PROPERTY "EZ_VCPKG_ROOT")
+    ez_cmake_init()
+
+    get_property(EZ_VCPKG_ROOT GLOBAL PROPERTY "EZ_VCPKG_ROOT")
+
+    if (EZ_CMAKE_PLATFORM_WINDOWS)
+        if (EZ_CMAKE_ARCHITECTURE_64BIT)
+            set(VCPKG_TARGET_TRIPLET "x64-windows")
+        else()
+            set(VCPKG_TARGET_TRIPLET "x86-windows")
+        endif()
+    else()
+        message(FATAL_ERROR "vcpkg target triplet is not configured for this platform")
+    endif()
 
 	foreach(PACKAGE ${PACKAGES})
 

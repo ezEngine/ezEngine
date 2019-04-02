@@ -1,13 +1,14 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Time/Time.h>
-#include <Foundation/Strings/String.h>
 #include <Foundation/Containers/Map.h>
+#include <Foundation/Strings/String.h>
+#include <Foundation/Time/Time.h>
+#include <QAction>
 #include <QDockWidget>
-#include <Tools/Inspector/ui_StatVisWidget.h>
 #include <QGraphicsView>
 #include <QListWidgetItem>
+#include <Tools/Inspector/ui_StatVisWidget.h>
 
 class ezQtStatVisWidget : public QDockWidget, public Ui_StatVisWidget
 {
@@ -42,7 +43,6 @@ public:
   QAction m_ShowWindowAction;
 
 private:
-
   QGraphicsPathItem* m_pPath[s_uiMaxColors];
   QGraphicsPathItem* m_pPathMax;
   QGraphicsScene m_Scene;
@@ -55,10 +55,7 @@ private:
 
   struct StatsData
   {
-    StatsData()
-    {
-      m_pListItem = nullptr;
-    }
+    StatsData() { m_pListItem = nullptr; }
 
     QListWidgetItem* m_pListItem;
     ezUInt8 m_uiColor;
@@ -66,5 +63,3 @@ private:
 
   ezMap<ezString, StatsData> m_Stats;
 };
-
-
