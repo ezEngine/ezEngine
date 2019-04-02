@@ -45,9 +45,26 @@
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Containers/StaticRingBuffer.h>
 
+#include <Foundation/IO/ChunkStream.h>
+#include <Foundation/IO/CompressedStreamZlib.h>
+#include <Foundation/IO/CompressedStreamZstd.h>
+#include <Foundation/IO/DeduplicationReadContext.h>
+#include <Foundation/IO/DeduplicationWriteContext.h>
+#include <Foundation/IO/DependencyFile.h>
+#include <Foundation/IO/DirectoryWatcher.h>
+#include <Foundation/IO/JSONParser.h>
+#include <Foundation/IO/JSONReader.h>
+#include <Foundation/IO/JSONWriter.h>
+#include <Foundation/IO/MemoryMappedFile.h>
+#include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/IO/OpenDdlParser.h>
+#include <Foundation/IO/OpenDdlReader.h>
+#include <Foundation/IO/OpenDdlUtils.h>
+#include <Foundation/IO/SerializationContext.h>
 #include <Foundation/IO/Stream.h>
+#include <Foundation/IO/StringDeduplicationContext.h>
 
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
@@ -148,4 +165,3 @@
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Basics_IncludeAll);
-
