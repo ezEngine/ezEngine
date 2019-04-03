@@ -39,7 +39,8 @@ function(ez_vcpkg_init)
 		endif()
 
 		if(NOT EXISTS "${EZ_VCPKG_ROOT}/vcpkg.exe" OR NOT EXISTS "${EZ_VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
-			message(FATAL_ERROR "vcpkg is not installed. Either install it manually and set the environment variable VCPKG_ROOT to its directory, or run InstallVcpkg.bat")
+			message("vcpkg is not installed. Either install it manually and set the environment variable VCPKG_ROOT to its directory, or run InstallVcpkg.bat")
+			return()
 		endif()
 
 		set(CMAKE_TOOLCHAIN_FILE ${EZ_VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake CACHE STRING "" FORCE)
