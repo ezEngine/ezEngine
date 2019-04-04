@@ -5,6 +5,7 @@
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Profiling/Profiling.h>
 
 struct FileResourceLoadData
 {

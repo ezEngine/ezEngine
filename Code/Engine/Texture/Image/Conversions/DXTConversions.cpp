@@ -1701,7 +1701,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult DecompressBlocks(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numBlocks,
+  virtual ezResult DecompressBlocks(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt32 numBlocks,
                                     ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     const ezUInt32 elementsPerBlock = 16;
@@ -1736,7 +1736,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult DecompressBlocks(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numBlocks,
+  virtual ezResult DecompressBlocks(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt32 numBlocks,
                                     ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     const ezUInt32 elementsPerBlock = 16;
@@ -1784,7 +1784,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult DecompressBlocks(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numBlocks,
+  virtual ezResult DecompressBlocks(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt32 numBlocks,
                                     ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     const ezUInt32 elementsPerBlock = 16;
@@ -1825,7 +1825,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult DecompressBlocks(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numBlocks,
+  virtual ezResult DecompressBlocks(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt32 numBlocks,
                                     ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     const ezUInt32 elementsPerBlock = 16;
@@ -1872,7 +1872,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult DecompressBlocks(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numBlocks,
+  virtual ezResult DecompressBlocks(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt32 numBlocks,
                                     ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     const ezUInt32 elementsPerBlock = 16;
@@ -1921,7 +1921,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult DecompressBlocks(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numBlocks,
+  virtual ezResult DecompressBlocks(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt32 numBlocks,
                                     ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     const ezUInt32 targetFormatByteSize = ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
@@ -1959,7 +1959,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult DecompressBlocks(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numBlocks,
+  virtual ezResult DecompressBlocks(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt32 numBlocks,
                                     ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     const ezUInt32 sourceStride = s_bc67NumPixelsPerBlock * ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
@@ -1996,7 +1996,7 @@ class ezImageConversion_CompressBC4 : public ezImageConversionStepCompressBlocks
     return supportedConversions;
   }
 
-  virtual ezResult CompressBlocks(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numBlocksX, ezUInt32 numBlocksY,
+  virtual ezResult CompressBlocks(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt32 numBlocksX, ezUInt32 numBlocksY,
                                   ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 stride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
@@ -2053,7 +2053,7 @@ class ezImageConversion_CompressBC5 : public ezImageConversionStepCompressBlocks
     return supportedConversions;
   }
 
-  virtual ezResult CompressBlocks(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numBlocksX, ezUInt32 numBlocksY,
+  virtual ezResult CompressBlocks(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt32 numBlocksX, ezUInt32 numBlocksY,
                                   ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 stride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;

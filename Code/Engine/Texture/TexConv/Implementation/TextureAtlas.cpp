@@ -191,7 +191,7 @@ ezResult ezTexConvProcessor::CreateAtlasTexture(
 
   // make sure the target texture is filled with all black
   {
-    auto pixelData = atlas.GetArrayPtr<ezUInt8>();
+    auto pixelData = atlas.GetBlobPtr<ezUInt8>();
     ezMemoryUtils::ZeroFill(pixelData.GetPtr(), pixelData.GetCount());
   }
 

@@ -11,7 +11,7 @@ ezImageView::ezImageView()
   Clear();
 }
 
-ezImageView::ezImageView(const ezImageHeader& header, ezArrayPtr<const void> imageData)
+ezImageView::ezImageView(const ezImageHeader& header, ezBlobPtr<const void> imageData)
 {
   ResetAndViewExternalStorage(header, imageData);
 }
@@ -28,17 +28,17 @@ bool ezImageView::IsValid() const
   return !m_dataPtr.IsEmpty();
 }
 
-void ezImageView::ResetAndViewExternalStorage(const ezImageHeader& header, ezArrayPtr<const void> imageData)
+void ezImageView::ResetAndViewExternalStorage(const ezImageHeader& header, ezBlobPtr<const void> imageData)
 {
   static_cast<ezImageHeader&>(*this) = header;
 
-  ezUInt32 dataSize = ComputeLayout();
+  ezUInt64 dataSize = ComputeLayout();
 
   EZ_ASSERT_DEV(imageData.GetCount() == dataSize, "Provided image storage ({} bytes) doesn't match required data size ({} bytes)",
                 imageData.GetCount(), dataSize);
 
   // Const cast is safe here as we will only perform non-const access if this is an ezImage which owns mutable access to the storage
-  m_dataPtr = ezArrayPtr<ezUInt8>(const_cast<ezUInt8*>(static_cast<const ezUInt8*>(imageData.GetPtr())), imageData.GetCount());
+  m_dataPtr = ezBlobPtr<ezUInt8>(const_cast<ezUInt8*>(static_cast<const ezUInt8*>(imageData.GetPtr())), imageData.GetCount());
 }
 
 ezResult ezImageView::SaveTo(const char* szFileName, ezLogInterface* pLog) const
@@ -92,14 +92,14 @@ ezImageView ezImageView::GetRowView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace
   header.SetDepth(1);
   header.SetImageFormat(m_format);
 
-  ezUInt32 offset = 0;
+  ezUInt64 offset = 0;
 
   offset += GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex);
   offset += z * GetDepthPitch(uiMipLevel);
   offset += y * GetRowPitch(uiMipLevel);
 
-  ezArrayPtr<const ezUInt8> dataSlice = m_dataPtr.GetSubArray(offset, GetRowPitch(uiMipLevel));
-  return ezImageView(header, ezArrayPtr<const void>(dataSlice.GetPtr(), dataSlice.GetCount()));
+  ezBlobPtr<const ezUInt8> dataSlice = m_dataPtr.GetSubArray(offset, GetRowPitch(uiMipLevel));
+  return ezImageView(header, ezBlobPtr<const void>(dataSlice.GetPtr(), dataSlice.GetCount()));
 }
 
 void ezImageView::ReinterpretAs(ezImageFormat::Enum format)
@@ -111,12 +111,12 @@ void ezImageView::ReinterpretAs(ezImageFormat::Enum format)
   SetImageFormat(format);
 }
 
-ezUInt32 ezImageView::ComputeLayout()
+ezUInt64 ezImageView::ComputeLayout()
 {
   m_subImageOffsets.Clear();
   m_subImageOffsets.Reserve(m_uiNumMipLevels * m_uiNumFaces * m_uiNumArrayIndices);
 
-  ezUInt32 uiDataSize = 0;
+  ezUInt64 uiDataSize = 0;
 
   bool bCompressed = ezImageFormat::GetType(m_format) == ezImageFormatType::BLOCK_COMPRESSED;
   ezUInt32 uiBitsPerPixel = ezImageFormat::GetBitsPerPixel(m_format);
@@ -147,7 +147,7 @@ void ezImageView::ValidateSubImageIndices(ezUInt32 uiMipLevel, ezUInt32 uiFace, 
   EZ_ASSERT_DEV(uiArrayIndex < m_uiNumArrayIndices, "Invalid array slice");
 }
 
-const ezUInt32& ezImageView::GetSubImageOffset(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const
+const ezUInt64& ezImageView::GetSubImageOffset(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const
 {
   ValidateSubImageIndices(uiMipLevel, uiFace, uiArrayIndex);
   return m_subImageOffsets[uiMipLevel + m_uiNumMipLevels * (uiFace + m_uiNumFaces * uiArrayIndex)];
@@ -163,7 +163,7 @@ ezImage::ezImage(const ezImageHeader& header)
   ResetAndAlloc(header);
 }
 
-ezImage::ezImage(const ezImageHeader& header, ezArrayPtr<void> externalData)
+ezImage::ezImage(const ezImageHeader& header, ezBlobPtr<void> externalData)
 {
   ResetAndUseExternalStorage(header, externalData);
 }
@@ -192,7 +192,7 @@ void ezImage::Clear()
 
 void ezImage::ResetAndAlloc(const ezImageHeader& header)
 {
-  const ezUInt32 requiredSize = header.ComputeDataSize();
+  const ezUInt64 requiredSize = header.ComputeDataSize();
 
   // it is debatable whether this function should reuse external storage, at all
   // however, it is especially dangerous to rely on the external storage being big enough, since many functions just take an ezImage as a
@@ -204,13 +204,13 @@ void ezImage::ResetAndAlloc(const ezImageHeader& header)
   if (!UsesExternalStorage() || m_dataPtr.GetCount() < requiredSize)
   {
     m_internalStorage.SetCountUninitialized(requiredSize);
-    m_dataPtr = m_internalStorage.GetArrayPtr();
+    m_dataPtr = m_internalStorage.GetBlobPtr<ezUInt8>();
   }
 
-  ezImageView::ResetAndViewExternalStorage(header, ezArrayPtr<const void>(m_dataPtr.GetPtr(), m_dataPtr.GetCount()));
+  ezImageView::ResetAndViewExternalStorage(header, ezBlobPtr<const void>(m_dataPtr.GetPtr(), m_dataPtr.GetCount()));
 }
 
-void ezImage::ResetAndUseExternalStorage(const ezImageHeader& header, ezArrayPtr<void> externalData)
+void ezImage::ResetAndUseExternalStorage(const ezImageHeader& header, ezBlobPtr<void> externalData)
 {
   m_internalStorage.Clear();
 
@@ -232,7 +232,7 @@ void ezImage::ResetAndMove(ezImage&& other)
   {
     m_internalStorage = std::move(other.m_internalStorage);
     m_subImageOffsets = std::move(other.m_subImageOffsets);
-    m_dataPtr = m_internalStorage.GetArrayPtr();
+    m_dataPtr = m_internalStorage.GetBlobPtr<ezUInt8>();
     other.Clear();
   }
 }
@@ -241,7 +241,7 @@ void ezImage::ResetAndCopy(const ezImageView& other)
 {
   ResetAndAlloc(other.GetHeader());
 
-  memcpy(GetArrayPtr<void>().GetPtr(), other.GetArrayPtr<void>().GetPtr(), GetArrayPtr<void>().GetCount());
+  memcpy(GetBlobPtr<void>().GetPtr(), other.GetBlobPtr<void>().GetPtr(), GetBlobPtr<void>().GetCount());
 }
 
 ezResult ezImage::LoadFrom(const char* szFileName, ezLogInterface* pLog)
@@ -292,9 +292,9 @@ ezImageView ezImageView::GetSubImageView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 u
   const ezUInt32& offset = GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex);
   ezUInt32 size = *(&offset + 1) - offset;
 
-  ezArrayPtr<const ezUInt8> subView = m_dataPtr.GetSubArray(offset, size);
+  ezBlobPtr<const ezUInt8> subView = m_dataPtr.GetSubArray(offset, size);
 
-  return ezImageView(header, ezArrayPtr<const void>(subView.GetPtr(), subView.GetCount()));
+  return ezImageView(header, ezBlobPtr<const void>(subView.GetPtr(), subView.GetCount()));
 }
 
 ezImage ezImage::GetSubImageView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/)
@@ -302,8 +302,8 @@ ezImage ezImage::GetSubImageView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*
   ezImageView constView = ezImageView::GetSubImageView(uiMipLevel, uiFace, uiArrayIndex);
 
   // Create an ezImage attached to the view. Const cast is safe here since we own the storage.
-  return ezImage(constView.GetHeader(), ezArrayPtr<void>(const_cast<ezUInt8*>(constView.GetArrayPtr<ezUInt8>().GetPtr()),
-                                                         constView.GetArrayPtr<ezUInt8>().GetCount()));
+  return ezImage(constView.GetHeader(), ezBlobPtr<void>(const_cast<ezUInt8*>(constView.GetBlobPtr<ezUInt8>().GetPtr()),
+                                                         constView.GetBlobPtr<ezUInt8>().GetCount()));
 }
 
 ezImage ezImage::GetSliceView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/, ezUInt32 z /*= 0*/)
@@ -311,8 +311,8 @@ ezImage ezImage::GetSliceView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0
   ezImageView constView = ezImageView::GetSliceView(uiMipLevel, uiFace, uiArrayIndex, z);
 
   // Create an ezImage attached to the view. Const cast is safe here since we own the storage.
-  return ezImage(constView.GetHeader(), ezArrayPtr<void>(const_cast<ezUInt8*>(constView.GetArrayPtr<ezUInt8>().GetPtr()),
-                                                         constView.GetArrayPtr<ezUInt8>().GetCount()));
+  return ezImage(constView.GetHeader(), ezBlobPtr<void>(const_cast<ezUInt8*>(constView.GetBlobPtr<ezUInt8>().GetPtr()),
+                                                         constView.GetBlobPtr<ezUInt8>().GetCount()));
 }
 
 ezImageView ezImageView::GetSliceView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/,
@@ -330,18 +330,15 @@ ezImageView ezImageView::GetSliceView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFa
   ezUInt32 offset = GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex) + z * GetDepthPitch(uiMipLevel);
   ezUInt32 size = GetDepthPitch(uiMipLevel);
 
-  ezArrayPtr<const ezUInt8> subView = m_dataPtr.GetSubArray(offset, size);
+  ezBlobPtr<const ezUInt8> subView = m_dataPtr.GetSubArray(offset, size);
 
-  return ezImageView(header, ezArrayPtr<const void>(subView.GetPtr(), subView.GetCount()));
+  return ezImageView(header, ezBlobPtr<const void>(subView.GetPtr(), subView.GetCount()));
 }
 
 bool ezImage::UsesExternalStorage() const
 {
-  return m_internalStorage.GetArrayPtr() != m_dataPtr;
+  return m_internalStorage.GetBlobPtr<ezUInt8>() != m_dataPtr;
 }
-
-
-
 
 EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_Image);
 
