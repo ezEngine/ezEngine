@@ -1072,8 +1072,8 @@ void ezDebugRenderer::OnEngineStartup()
 
     ezGALSystemMemoryDescription memoryDesc;
     memoryDesc.m_pData = debugFontImage.GetPixelPointer<ezUInt8>();
-    memoryDesc.m_uiRowPitch = debugFontImage.GetRowPitch();
-    memoryDesc.m_uiSlicePitch = debugFontImage.GetDepthPitch();
+    memoryDesc.m_uiRowPitch = static_cast<ezUInt32>(debugFontImage.GetRowPitch());
+    memoryDesc.m_uiSlicePitch = static_cast<ezUInt32>(debugFontImage.GetDepthPitch());
 
     ezTexture2DResourceDescriptor desc;
     desc.m_DescGAL.m_uiWidth = debugFontImage.GetWidth();

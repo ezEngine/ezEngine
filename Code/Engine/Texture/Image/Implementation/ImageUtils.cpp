@@ -128,8 +128,8 @@ ezUInt32 ezImageUtils::ComputeMeanSquareError(const ezImageView& DifferenceImage
 
   ezUInt32 error = 0;
 
-  ezUInt32 uiRowPitch = DifferenceImage.GetRowPitch();
-  ezUInt32 uiDepthPitch = DifferenceImage.GetDepthPitch();
+  ezUInt64 uiRowPitch = DifferenceImage.GetRowPitch();
+  ezUInt64 uiDepthPitch = DifferenceImage.GetDepthPitch();
   ezUInt32 uiNumComponents = ezImageFormat::GetNumChannels(DifferenceImage.GetImageFormat());
 
   // Treat image as single-component format and scale the width instead
@@ -197,8 +197,8 @@ static void ApplyFunc(ImageType& image, Func func)
   EZ_ASSERT_DEV(uiWidth > 0 && uiHeight > 0 && uiDepth > 0, "The image passed to FindMinMax has illegal dimension {}x{}x{}.", uiWidth,
     uiHeight, uiDepth);
 
-  ezUInt32 uiRowPitch = image.GetRowPitch();
-  ezUInt32 uiDepthPitch = image.GetDepthPitch();
+  ezUInt64 uiRowPitch = image.GetRowPitch();
+  ezUInt64 uiDepthPitch = image.GetDepthPitch();
   ezUInt32 uiNumChannels = ezImageFormat::GetNumChannels(image.GetImageFormat());
 
   auto pSlicePointer = image.template GetPixelPointer<ezUInt8>();
@@ -285,7 +285,7 @@ void ezImageUtils::Normalize(ezImage& image, ezUInt8& uiMinRgb, ezUInt8& uiMaxRg
       // color channels are uniform when min == max, in that case keep original value as scaling is not meaningful
       if (uiRangeRgb != 0)
       {
-        *pixel = 255u * (static_cast<float>(val - uiMinRgb) / (uiRangeRgb));
+        *pixel = static_cast<ezUInt8>(255u * (static_cast<float>(val - uiMinRgb) / (uiRangeRgb)));
       }
     }
     else
@@ -293,7 +293,7 @@ void ezImageUtils::Normalize(ezImage& image, ezUInt8& uiMinRgb, ezUInt8& uiMaxRg
       // alpha is uniform when minAlpha == maxAlpha, in that case keep original alpha as scaling is not meaningful
       if (!ignoreAlpha && uiRangeAlpha != 0)
       {
-        *pixel = 255u * (static_cast<float>(val - uiMinAlpha) / (uiRangeAlpha));
+        *pixel = static_cast<ezUInt8>(255u * (static_cast<float>(val - uiMinAlpha) / (uiRangeAlpha)));
       }
     }
   };
@@ -325,11 +325,11 @@ void ezImageUtils::ExtractAlphaChannel(const ezImageView& inputImage, ezImage& o
   const ezUInt8* pInputSlice = inputImage.GetPixelPointer<ezUInt8>();
   ezUInt8* pOutputSlice = outputImage.GetPixelPointer<ezUInt8>();
 
-  ezUInt32 uiInputRowPitch = inputImage.GetRowPitch();
-  ezUInt32 uiInputDepthPitch = inputImage.GetDepthPitch();
+  ezUInt64 uiInputRowPitch = inputImage.GetRowPitch();
+  ezUInt64 uiInputDepthPitch = inputImage.GetDepthPitch();
 
-  ezUInt32 uiOutputRowPitch = outputImage.GetRowPitch();
-  ezUInt32 uiOutputDepthPitch = outputImage.GetDepthPitch();
+  ezUInt64 uiOutputRowPitch = outputImage.GetRowPitch();
+  ezUInt64 uiOutputDepthPitch = outputImage.GetDepthPitch();
 
   for (ezUInt32 d = 0; d < inputImage.GetDepth(); ++d)
   {
@@ -464,8 +464,8 @@ ezResult ezImageUtils::Copy(const ezImageView& srcImg, const ezRectU32& srcRect,
   if (ezImageFormat::IsCompressed(dstImg.GetImageFormat())) // Compressed formats are not supported
     return EZ_FAILURE;
 
-  const ezUInt32 uiDstRowPitch = dstImg.GetRowPitch(uiDstMipLevel);
-  const ezUInt32 uiSrcRowPitch = srcImg.GetRowPitch(uiDstMipLevel);
+  const ezUInt64 uiDstRowPitch = dstImg.GetRowPitch(uiDstMipLevel);
+  const ezUInt64 uiSrcRowPitch = srcImg.GetRowPitch(uiDstMipLevel);
   const ezUInt32 uiCopyBytesPerRow = ezImageFormat::GetBitsPerPixel(srcImg.GetImageFormat()) * srcRect.width / 8;
 
   ezUInt8* dstPtr = dstImg.GetPixelPointer<ezUInt8>(uiDstMipLevel, uiDstFace, uiDstArrayIndex, dstOffset.x, dstOffset.y, dstOffset.z);
@@ -713,6 +713,9 @@ static void DownScaleFast(const ezImageView& image, ezImage& out_Result, ezUInt3
 
   out_Result.ResetAndAlloc(outHeader);
 
+  EZ_ASSERT_DEBUG(intermediate.GetRowPitch() < ezMath::BasicType<ezUInt32>::MaxValue(), "Row pitch exceeds ezUInt32 max value.");
+  EZ_ASSERT_DEBUG(out_Result.GetRowPitch() < ezMath::BasicType<ezUInt32>::MaxValue(), "Row pitch exceeds ezUInt32 max value.");
+
   for (ezUInt32 arrayIndex = 0; arrayIndex < numArrayElements; arrayIndex++)
   {
     for (ezUInt32 face = 0; face < numFaces; face++)
@@ -720,8 +723,8 @@ static void DownScaleFast(const ezImageView& image, ezImage& out_Result, ezUInt3
       for (ezUInt32 col = 0; col < width; col++)
       {
         DownScaleFastLine(pixelStride, intermediate.GetPixelPointer<ezUInt8>(0, face, arrayIndex, col),
-          out_Result.GetPixelPointer<ezUInt8>(0, face, arrayIndex, col), originalHeight, intermediate.GetRowPitch(), height,
-          out_Result.GetRowPitch());
+          out_Result.GetPixelPointer<ezUInt8>(0, face, arrayIndex, col), originalHeight, static_cast<ezUInt32>(intermediate.GetRowPitch()), height,
+          static_cast<ezUInt32>(out_Result.GetRowPitch()));
       }
     }
   }
@@ -746,7 +749,7 @@ static void NormalizeCoverage(ezBlobPtr<ezColor> colors, float alphaThreshold, f
 
   // Generate histogram of alpha values
   ezUInt64 totalPixels = colors.GetCount();
-  ezUInt64 alphaHistogram[256] = {};
+  ezUInt32 alphaHistogram[256] = {};
   for (ezUInt64 idx = 0; idx < totalPixels; ++idx)
   {
     alphaHistogram[ezMath::ColorFloatToByte(colors[idx].a)]++;
@@ -1408,10 +1411,10 @@ ezResult ezImageUtils::CreateCubemapFromSingleFile(ezImage& dstImg, const ezImag
       const ezUInt32 srcHeightMinus1 = srcImg.GetHeight() - 1;
 
       EZ_ASSERT_DEBUG(srcImg.GetRowPitch() % sizeof(ezColor) == 0, "Row pitch should be a multiple of sizeof(ezColor)");
-      const ezUInt32 srcRowPitch = srcImg.GetRowPitch() / sizeof(ezColor);
+      const ezUInt64 srcRowPitch = srcImg.GetRowPitch() / sizeof(ezColor);
 
       EZ_ASSERT_DEBUG(dstImg.GetRowPitch() % sizeof(ezColor) == 0, "Row pitch should be a multiple of sizeof(ezColor)");
-      const ezUInt32 faceRowPitch = dstImg.GetRowPitch() / sizeof(ezColor);
+      const ezUInt64 faceRowPitch = dstImg.GetRowPitch() / sizeof(ezColor);
 
       const ezColor* srcData = srcImg.GetPixelPointer<ezColor>();
       const float InvPi = 1.0f / ezMath::BasicType<float>::Pi();

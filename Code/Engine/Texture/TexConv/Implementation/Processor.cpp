@@ -192,7 +192,7 @@ ezResult ezTexConvProcessor::GenerateThumbnailOutput(const ezImage& srcImg, ezIm
     const float fTileSize = 16.0f;
 
     ezColorLinearUB* pPixels = dstImg.GetPixelPointer<ezColorLinearUB>();
-    const ezUInt32 rowPitch = dstImg.GetRowPitch();
+    const ezUInt64 rowPitch = dstImg.GetRowPitch();
 
     ezInt32 checkCounter = 0;
     ezColor tiles[2]{ezColor::LightGray, ezColor::DarkGray};
@@ -215,7 +215,7 @@ ezResult ezTexConvProcessor::GenerateThumbnailOutput(const ezImage& srcImg, ezIm
         }
       }
 
-      pPixels = ezMemoryUtils::AddByteOffset(pPixels, rowPitch);
+      pPixels = ezMemoryUtils::AddByteOffset(pPixels, static_cast<ptrdiff_t>(rowPitch));
     }
   }
 

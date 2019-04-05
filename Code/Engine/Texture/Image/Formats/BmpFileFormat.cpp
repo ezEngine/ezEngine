@@ -140,17 +140,22 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
     return WriteImage(stream, convertedImage, pLog, szFileExtension);
   }
 
-  ezUInt32 uiRowPitch = image.GetRowPitch(0);
+  ezUInt64 uiRowPitch = image.GetRowPitch(0);
 
   ezUInt32 uiHeight = image.GetHeight(0);
 
-  int dataSize = uiRowPitch * uiHeight;
+  ezUInt64 dataSize = uiRowPitch * uiHeight;
+  if(dataSize >= ezMath::BasicType<ezUInt32>::MaxValue())
+  {
+    EZ_ASSERT_DEV(false, "Size overflow in BMP file format.");
+    return EZ_FAILURE;
+  }
 
   ezBmpFileInfoHeader fileInfoHeader;
   fileInfoHeader.m_width = image.GetWidth(0);
   fileInfoHeader.m_height = uiHeight;
   fileInfoHeader.m_planes = 1;
-  fileInfoHeader.m_bitCount = ezImageFormat::GetBitsPerPixel(format);
+  fileInfoHeader.m_bitCount = static_cast<ezUInt16>(ezImageFormat::GetBitsPerPixel(format));
 
   fileInfoHeader.m_sizeImage = 0; // Can be zero unless we store the data compressed
 
@@ -206,7 +211,7 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
 
   ezBmpFileHeader header;
   header.m_type = ezBmpFileMagic;
-  header.m_size = uiHeaderSize + dataSize;
+  header.m_size = uiHeaderSize + static_cast<ezUInt32>(dataSize);
   header.m_reserved1 = 0;
   header.m_reserved2 = 0;
   header.m_offBits = uiHeaderSize;
@@ -261,7 +266,7 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
     }
   }
 
-  const ezUInt32 uiPaddedRowPitch = ((uiRowPitch - 1) / 4 + 1) * 4;
+  const ezUInt64 uiPaddedRowPitch = ((uiRowPitch - 1) / 4 + 1) * 4;
   // Write rows in reverse order
   for (ezInt32 iRow = uiHeight - 1; iRow >= 0; iRow--)
   {
@@ -497,7 +502,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
   image.ResetAndAlloc(header);
 
-  ezUInt32 uiRowPitch = image.GetRowPitch(0);
+  ezUInt64 uiRowPitch = image.GetRowPitch(0);
 
   if (bIndexed)
   {

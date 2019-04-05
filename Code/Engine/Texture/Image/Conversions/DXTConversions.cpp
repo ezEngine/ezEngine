@@ -2000,7 +2000,7 @@ class ezImageConversion_CompressBC4 : public ezImageConversionStepCompressBlocks
                                   ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 stride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
-    ezUInt32 rowPitch = ezImageFormat::GetRowPitch(sourceFormat, 4 * numBlocksX);
+    ezUInt64 rowPitch = ezImageFormat::GetRowPitch(sourceFormat, 4 * numBlocksX);
 
     // Bias to shift signed data into unsigned range so we can treat it the same as unsigned
     ezUInt8 bias = 0;
@@ -2057,7 +2057,7 @@ class ezImageConversion_CompressBC5 : public ezImageConversionStepCompressBlocks
                                   ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 stride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
-    ezUInt32 rowPitch = ezImageFormat::GetRowPitch(sourceFormat, 4 * numBlocksX);
+    ezUInt64 rowPitch = ezImageFormat::GetRowPitch(sourceFormat, 4 * numBlocksX);
 
     // Bias to shift signed data into unsigned range so we can treat it the same as unsigned
     ezUInt8 bias = 0;

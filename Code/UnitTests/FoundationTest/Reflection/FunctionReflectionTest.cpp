@@ -369,14 +369,14 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
 
     ezVariant ret(&retS);
     funccall.Execute(&test, test.m_values, ret);
-    EZ_TEST_INT(retS.m_fFloat1, 42);
-    EZ_TEST_FLOAT(retS.m_UInt8, 42, 0);
+    EZ_TEST_FLOAT(retS.m_fFloat1, 42, 0);
+    EZ_TEST_INT(retS.m_UInt8, 42);
 
-    EZ_TEST_INT(rs.m_fFloat1, 999);
-    EZ_TEST_FLOAT(rs.m_UInt8, 666, 0);
+    EZ_TEST_FLOAT(rs.m_fFloat1, 999, 0);
+    EZ_TEST_INT(rs.m_UInt8, 666);
 
-    EZ_TEST_INT(ps.m_fFloat1, 666);
-    EZ_TEST_FLOAT(ps.m_UInt8, 999, 0);
+    EZ_TEST_DOUBLE(ps.m_fFloat1, 666, 0);
+    EZ_TEST_INT(ps.m_UInt8, 999);
 
     test.m_bPtrAreNull = true;
     test.m_values[4] = ezVariant();

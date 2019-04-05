@@ -299,7 +299,7 @@ ezResult ezStreamReader::ReadArray(ezArrayBase<ValueType, ArrayType>& Array)
 
   if (uiCount > 0)
   {
-    static_cast<ArrayType&>(Array).Reserve(uiCount);
+    static_cast<ArrayType&>(Array).Reserve(static_cast<ezUInt32>(uiCount));
 
     for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
     {

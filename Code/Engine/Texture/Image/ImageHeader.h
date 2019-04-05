@@ -99,7 +99,7 @@ public:
   ezUInt32 GetNumBlocksZ(ezUInt32 uiMipLevel = 0) const { return ezImageFormat::GetNumBlocksZ(m_format, GetDepth(uiMipLevel)); }
 
   /// \brief Returns the offset in bytes between two subsequent rows of the given mip level.
-  ezUInt32 GetRowPitch(ezUInt32 uiMipLevel = 0) const { return ezImageFormat::GetRowPitch(GetImageFormat(), GetWidth(uiMipLevel)); }
+  ezUInt64 GetRowPitch(ezUInt32 uiMipLevel = 0) const { return ezImageFormat::GetRowPitch(GetImageFormat(), GetWidth(uiMipLevel)); }
 
   /// \brief Returns the offset in bytes between two subsequent depth slices of the given mip level.
   ezUInt64 GetDepthPitch(ezUInt32 uiMipLevel = 0) const

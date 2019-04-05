@@ -215,7 +215,7 @@ namespace
         renderView.m_hView = ezRenderWorld::CreateView(sName, pView);
 
         pView->SetCameraUsageHint(ezCameraUsageHint::Reflection);
-        pView->SetViewport(ezRectFloat(0.0f, 0.0f, s_uiReflectionCubeMapSize, s_uiReflectionCubeMapSize));
+        pView->SetViewport(ezRectFloat(0.0f, 0.0f, static_cast<float>(s_uiReflectionCubeMapSize), static_cast<float>(s_uiReflectionCubeMapSize)));
 
         pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>(szRenderPipelineResource));
 

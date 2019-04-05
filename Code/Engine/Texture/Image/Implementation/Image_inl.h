@@ -41,7 +41,7 @@ const T* ezImageView::GetPixelPointer(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFa
   EZ_ASSERT_DEV(y < GetNumBlocksY(uiMipLevel), "Invalid y coordinate");
   EZ_ASSERT_DEV(z < GetNumBlocksZ(uiMipLevel), "Invalid z coordinate");
 
-  ezUInt32 offset = GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex) + z * GetDepthPitch(uiMipLevel) + y * GetRowPitch(uiMipLevel) + x * ezImageFormat::GetBitsPerBlock(m_format) / 8;
+  ezUInt64 offset = GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex) + z * GetDepthPitch(uiMipLevel) + y * GetRowPitch(uiMipLevel) + x * ezImageFormat::GetBitsPerBlock(m_format) / 8;
   return reinterpret_cast<const T*>(&m_dataPtr[offset]);
 }
 

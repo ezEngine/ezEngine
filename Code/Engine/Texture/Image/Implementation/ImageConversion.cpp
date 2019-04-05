@@ -539,7 +539,7 @@ ezResult ezImageConversion::ConvertSingleStepDecompress(const ezImageView& sourc
         const ezUInt32 numBlocksX = source.GetNumBlocksX(mipLevel);
         const ezUInt32 numBlocksY = source.GetNumBlocksY(mipLevel);
 
-        const ezUInt32 targetRowPitch = target.GetRowPitch(mipLevel);
+        const ezUInt64 targetRowPitch = target.GetRowPitch(mipLevel);
         const ezUInt32 targetBytesPerPixel = ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
 
         const ezUInt32 blockSizeInBytes = ezImageFormat::GetBitsPerBlock(sourceFormat) / 8;
@@ -605,7 +605,7 @@ ezResult ezImageConversion::ConvertSingleStepCompress(const ezImageView& source,
         const ezUInt32 targetWidth = numBlocksX * ezImageFormat::GetBlockWidth(targetFormat);
         const ezUInt32 targetHeight = numBlocksY * ezImageFormat::GetBlockHeight(targetFormat);
 
-        const ezUInt32 sourceRowPitch = source.GetRowPitch(mipLevel);
+        const ezUInt64 sourceRowPitch = source.GetRowPitch(mipLevel);
         const ezUInt32 sourceBytesPerPixel = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
 
         const ezUInt32 blockSizeInBytes = ezImageFormat::GetBitsPerBlock(targetFormat) / 8;
@@ -626,7 +626,7 @@ ezResult ezImageConversion::ConvertSingleStepCompress(const ezImageView& source,
             ezUInt32 sourceY = ezMath::Min(y, sourceHeight - 1);
 
             memcpy(paddedSlice.GetPixelPointer<void>(0, 0, 0, 0, y),
-                   source.GetPixelPointer<void>(mipLevel, face, arrayIndex, 0, sourceY, slice), sourceRowPitch);
+                   source.GetPixelPointer<void>(mipLevel, face, arrayIndex, 0, sourceY, slice), static_cast<size_t>(sourceRowPitch));
 
             for (ezUInt32 x = sourceWidth; x < targetWidth; ++x)
             {

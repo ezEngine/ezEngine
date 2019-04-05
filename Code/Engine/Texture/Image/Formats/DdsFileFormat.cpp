@@ -347,7 +347,7 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
   {
     case ezImageFormatType::LINEAR:
       fileHeader.m_uiFlags |= ezDdsdFlags::PITCH;
-      fileHeader.m_uiPitchOrLinearSize = image.GetRowPitch(0);
+      fileHeader.m_uiPitchOrLinearSize = static_cast<ezUInt32>(image.GetRowPitch(0));
       break;
 
     case ezImageFormatType::BLOCK_COMPRESSED:

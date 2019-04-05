@@ -289,8 +289,8 @@ ezImageView ezImageView::GetSubImageView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 u
   header.SetDepth(GetDepth(uiMipLevel));
   header.SetImageFormat(m_format);
 
-  const ezUInt32& offset = GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex);
-  ezUInt32 size = *(&offset + 1) - offset;
+  const ezUInt64& offset = GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex);
+  ezUInt64 size = *(&offset + 1) - offset;
 
   ezBlobPtr<const ezUInt8> subView = m_dataPtr.GetSubArray(offset, size);
 
@@ -327,8 +327,8 @@ ezImageView ezImageView::GetSliceView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFa
   header.SetDepth(1);
   header.SetImageFormat(m_format);
 
-  ezUInt32 offset = GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex) + z * GetDepthPitch(uiMipLevel);
-  ezUInt32 size = GetDepthPitch(uiMipLevel);
+  ezUInt64 offset = GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex) + z * GetDepthPitch(uiMipLevel);
+  ezUInt64 size = GetDepthPitch(uiMipLevel);
 
   ezBlobPtr<const ezUInt8> subView = m_dataPtr.GetSubArray(offset, size);
 

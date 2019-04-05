@@ -174,7 +174,7 @@ void ezImgui::BeginFrame(const ezViewHandle& hView)
   }
 
   auto viewport = pView->GetViewport();
-  m_CurrentWindowResolution = ezSizeU32(viewport.width, viewport.height);
+  m_CurrentWindowResolution = ezSizeU32(static_cast<ezUInt32>(viewport.width), static_cast<ezUInt32>(viewport.height));
 
   ImGuiIO& cfg = ImGui::GetIO();
 

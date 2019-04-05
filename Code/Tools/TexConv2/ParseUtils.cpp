@@ -50,7 +50,7 @@ ezResult ezTexConv2::ParseFloatOption(const char* szOption, float fMinValue, flo
   const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
   float fDefault = fResult;
 
-  const float val = pCmd->GetFloatOption(szOption, fResult);
+  const float val = static_cast<float>(pCmd->GetFloatOption(szOption, fResult));
 
   if (!ezMath::IsInRange(val, fMinValue, fMaxValue))
   {

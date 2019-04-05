@@ -218,14 +218,14 @@ EZ_CREATE_SIMPLE_TEST(Math, Random)
 
     for (ezInt32 i = 2; i < 10000; ++i)
     {
-      const float val = r.FloatInRange(i, i);
+      const float val = r.FloatInRange(static_cast<float>(i), static_cast<float>(i));
       EZ_TEST_BOOL(val >= i);
       EZ_TEST_BOOL(val < i + i);
     }
 
     for (ezInt32 i = 2; i < 10000; ++i)
     {
-      const float val = r.FloatInRange(-i, 2 * i);
+      const float val = r.FloatInRange(static_cast<float>(-i), 2 * static_cast<float>(i));
       EZ_TEST_BOOL(val >= -i);
       EZ_TEST_BOOL(val < -i + 2 * i);
     }
@@ -241,14 +241,14 @@ EZ_CREATE_SIMPLE_TEST(Math, Random)
 
     for (ezInt32 i = 2; i < 10000; ++i)
     {
-      const float val = r.FloatMinMax(i, 2 * i);
+      const float val = r.FloatMinMax(static_cast<float>(i), static_cast<float>(2 * i));
       EZ_TEST_BOOL(val >= i);
       EZ_TEST_BOOL(val <= i + i);
     }
 
     for (ezInt32 i = 2; i < 10000; ++i)
     {
-      const float val = r.FloatMinMax(-i, i);
+      const float val = r.FloatMinMax(static_cast<float>(-i), static_cast<float>(i));
       EZ_TEST_BOOL(val >= -i);
       EZ_TEST_BOOL(val <= i);
     }
