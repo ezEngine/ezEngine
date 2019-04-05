@@ -5,6 +5,7 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererFoundation/Profiling/Profiling.h>
+#include <RendererFoundation/Resources/Texture.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/ReflectionIrradianceConstants.h>
 

@@ -6,6 +6,8 @@
 #include <RendererCore/Lights/Implementation/ReflectionPool.h>
 #include <RendererCore/Lights/SkyLightComponent.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Pipeline/View.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezSkyLightComponent, 1, ezComponentMode::Dynamic)

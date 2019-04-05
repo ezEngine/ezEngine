@@ -6,6 +6,8 @@
 class ezGALTextureHandle;
 class ezGALBufferHandle;
 class ezView;
+class ezWorld;
+class ezComponent;
 struct ezMsgExtractRenderData;
 struct ezReflectionProbeData;
 
