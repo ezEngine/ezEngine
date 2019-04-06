@@ -109,11 +109,11 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
       uiHeader[2] = 10;
     }
 
-    uiHeader[13] = image.GetWidth(0) / 256;
-    uiHeader[15] = image.GetHeight(0) / 256;
-    uiHeader[12] = image.GetWidth(0) % 256;
-    uiHeader[14] = image.GetHeight(0) % 256;
-    uiHeader[16] = ezImageFormat::GetBitsPerPixel(image.GetImageFormat());
+    uiHeader[13] = static_cast<ezUInt8>(image.GetWidth(0) / 256);
+    uiHeader[15] = static_cast<ezUInt8>(image.GetHeight(0) / 256);
+    uiHeader[12] = static_cast<ezUInt8>(image.GetWidth(0) % 256);
+    uiHeader[14] = static_cast<ezUInt8>(image.GetHeight(0) % 256);
+    uiHeader[16] = static_cast<ezUInt8>(ezImageFormat::GetBitsPerPixel(image.GetImageFormat()));
 
     stream.WriteBytes(uiHeader, 18);
   }
@@ -184,7 +184,7 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
             ++iEqual;
           else
           {
-            ezUInt8 uiRepeat = iEqual + 127;
+            ezUInt8 uiRepeat = static_cast<ezUInt8>(iEqual + 127);
 
             stream << uiRepeat;
             stream << pc.b;
@@ -246,7 +246,7 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
     }
     else if (iRLE == 2) // equal values
     {
-      ezUInt8 uiRepeat = iEqual + 127;
+      ezUInt8 uiRepeat = static_cast<ezUInt8>(iEqual + 127);
 
       stream << uiRepeat;
       stream << pc.b;

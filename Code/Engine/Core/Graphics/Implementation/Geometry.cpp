@@ -439,7 +439,7 @@ void ezGeometry::AddTesselatedRectXY(const ezVec2& size, const ezColor& color, e
   const ezVec2 halfSize = size * 0.5f;
   bool bFlipWinding = mTransform.GetRotationalPart().GetDeterminant() < 0;
 
-  const ezVec2 sizeFraction = size.CompDiv(ezVec2(uiTesselationX, uiTesselationY));
+  const ezVec2 sizeFraction = size.CompDiv(ezVec2(static_cast<float>(uiTesselationX), static_cast<float>(uiTesselationY)));
 
   for (ezUInt32 vy = 0; vy < uiTesselationY + 1; ++vy)
   {

@@ -76,7 +76,7 @@ ezResult ezTexConvProcessor::PremultiplyAlpha(ezImage& image) const
   if (!m_Descriptor.m_bPremultiplyAlpha)
     return EZ_SUCCESS;
 
-  for (ezColor& col : image.GetArrayPtr<ezColor>())
+  for (ezColor& col : image.GetBlobPtr<ezColor>())
   {
     col.r *= col.a;
     col.g *= col.a;

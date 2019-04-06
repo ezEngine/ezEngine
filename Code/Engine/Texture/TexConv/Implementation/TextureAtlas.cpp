@@ -74,7 +74,8 @@ ezResult ezTexConvProcessor::LoadAtlasInputs(const ezTextureAtlasCreationDesc& a
         }
 
         ezUInt32 uiResX = 0, uiResY = 0;
-        EZ_SUCCEED_OR_RETURN(DetermineTargetResolution(item.m_InputImage[layer], ezImageFormat::UNKNOWN, uiResX, uiResY));
+        ezEnum<ezImageFormat> format = ezImageFormat::UNKNOWN;
+        EZ_SUCCEED_OR_RETURN(DetermineTargetResolution(item.m_InputImage[layer], format, uiResX, uiResY));
 
         EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(srcItem.m_sLayerInput[layer], item.m_InputImage[layer], uiResX, uiResY));
       }
@@ -191,7 +192,7 @@ ezResult ezTexConvProcessor::CreateAtlasTexture(
 
   // make sure the target texture is filled with all black
   {
-    auto pixelData = atlas.GetArrayPtr<ezUInt8>();
+    auto pixelData = atlas.GetBlobPtr<ezUInt8>();
     ezMemoryUtils::ZeroFill(pixelData.GetPtr(), pixelData.GetCount());
   }
 

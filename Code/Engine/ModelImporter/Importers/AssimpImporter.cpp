@@ -591,9 +591,9 @@ namespace ezModelImporter
         {
           // Only fbx files have this unit scale factor and the default unit for fbx is cm. We want meters.
           fUnitScale = fUnitScale / 100.0f;
-          node->mTransformation.a1 *= fUnitScale;
-          node->mTransformation.b2 *= fUnitScale;
-          node->mTransformation.c3 *= fUnitScale;
+          node->mTransformation.a1 *= static_cast<float>(fUnitScale);
+          node->mTransformation.b2 *= static_cast<float>(fUnitScale);
+          node->mTransformation.c3 *= static_cast<float>(fUnitScale);
         }
       }
     }

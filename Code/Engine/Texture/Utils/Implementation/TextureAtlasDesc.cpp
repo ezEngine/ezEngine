@@ -8,7 +8,10 @@ ezResult ezTextureAtlasCreationDesc::Serialize(ezStreamWriter& stream) const
 {
   stream.WriteVersion(1);
 
-  const ezUInt8 uiNumLayers = m_Layers.GetCount();
+  if(m_Layers.GetCount() > 255u)
+    return EZ_FAILURE;
+
+  const ezUInt8 uiNumLayers = static_cast<ezUInt8>(m_Layers.GetCount());
   stream << uiNumLayers;
 
   for (ezUInt32 l = 0; l < uiNumLayers; ++l)

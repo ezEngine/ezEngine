@@ -53,7 +53,7 @@ struct EZ_TEXTURE_DLL ezImageFormatChannel
 struct EZ_TEXTURE_DLL ezImageFormat
 {
   /// \brief Enum describing the encoding format of the pixels of an image.
-  enum Enum
+  enum Enum : ezUInt16
   {
     UNKNOWN,
 
@@ -290,10 +290,10 @@ struct EZ_TEXTURE_DLL ezImageFormat
   static ezUInt32 GetNumBlocksZ(Enum format, ezUInt32 depth);
 
   /// \brief Computes the size in bytes of a row of blocks (compressed) or pixels (if uncompressed) of the given width.
-  static ezUInt32 GetRowPitch(Enum format, ezUInt32 width);
+  static ezUInt64 GetRowPitch(Enum format, ezUInt32 width);
 
   /// \brief Computes the size in bytes of a 2D slice of blocks (compressed) or pixels (if uncompressed) of the given width and height.
-  static ezUInt32 GetDepthPitch(Enum format, ezUInt32 width, ezUInt32 height);
+  static ezUInt64 GetDepthPitch(Enum format, ezUInt32 width, ezUInt32 height);
 
   /// \brief Returns the type of the image format.
   static ezImageFormatType::Enum GetType(Enum format);

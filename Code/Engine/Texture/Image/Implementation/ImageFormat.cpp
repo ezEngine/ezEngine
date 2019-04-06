@@ -702,14 +702,14 @@ ezUInt32 ezImageFormat::GetNumBlocksZ(Enum format, ezUInt32 depth)
   return (depth - 1) / GetBlockDepth(format) + 1;
 }
 
-ezUInt32 ezImageFormat::GetRowPitch(Enum format, ezUInt32 width)
+ezUInt64 ezImageFormat::GetRowPitch(Enum format, ezUInt32 width)
 {
-  return GetNumBlocksX(format, width) * GetBitsPerBlock(format) / 8;
+  return static_cast<ezUInt64>(GetNumBlocksX(format, width)) * GetBitsPerBlock(format) / 8;
 }
 
-ezUInt32 ezImageFormat::GetDepthPitch(Enum format, ezUInt32 width, ezUInt32 height)
+ezUInt64 ezImageFormat::GetDepthPitch(Enum format, ezUInt32 width, ezUInt32 height)
 {
-  return GetNumBlocksY(format, height) * GetRowPitch(format, width);
+  return static_cast<ezUInt64>(GetNumBlocksY(format, height)) * static_cast<ezUInt64>(GetRowPitch(format, width));
 }
 
 ezImageFormatType::Enum ezImageFormat::GetType(Enum format)

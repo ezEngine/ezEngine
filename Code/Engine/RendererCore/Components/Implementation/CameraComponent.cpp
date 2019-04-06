@@ -491,7 +491,7 @@ float ezCameraComponent::GetEV100() const
   // EV_100 + log2 (S /100) = log2 (N^2 / t)
   // EV_100 = log2 (N^2 / t) - log2 (S /100)
   // EV_100 = log2 (N^2 / t . 100 / S)
-  return ezMath::Log2((m_fAperture * m_fAperture) / m_ShutterTime.GetSeconds() * 100.0f / m_fISO) - m_fExposureCompensation;
+  return ezMath::Log2((m_fAperture * m_fAperture) / m_ShutterTime.AsFloatInSeconds() * 100.0f / m_fISO) - m_fExposureCompensation;
 }
 
 float ezCameraComponent::GetExposure() const

@@ -110,9 +110,9 @@ EZ_CREATE_SIMPLE_TEST(IO, DeduplicationContext)
     ComplexObject obj;
     for (ezUInt32 i = 0; i < 20; ++i)
     {
-      obj.m_Transforms.ExpandAndGetRef() = EZ_DEFAULT_NEW(ezTransform, ezVec3(i, 0, 0));
-      obj.m_Positions.ExpandAndGetRef() = ezVec3(1, 2, i);
-      obj.m_Scales.ExpandAndGetRef() = EZ_DEFAULT_NEW(RefCountedVec3, ezVec3(0, i, 0));
+      obj.m_Transforms.ExpandAndGetRef() = EZ_DEFAULT_NEW(ezTransform, ezVec3(static_cast<float>(i), 0, 0));
+      obj.m_Positions.ExpandAndGetRef() = ezVec3(1, 2, static_cast<float>(i));
+      obj.m_Scales.ExpandAndGetRef() = EZ_DEFAULT_NEW(RefCountedVec3, ezVec3(0, static_cast<float>(i), 0));
     }
 
     for (ezUInt32 i = 0; i < 10; ++i)
@@ -156,9 +156,9 @@ EZ_CREATE_SIMPLE_TEST(IO, DeduplicationContext)
       EZ_TEST_BOOL(component.m_pPosition == &obj.m_Positions[component.m_uiIndex]);
       EZ_TEST_BOOL(component.m_pScale == obj.m_Scales[component.m_uiIndex]);
 
-      EZ_TEST_BOOL(component.m_pTransform->m_vPosition == ezVec3(i * 2, 0, 0));
-      EZ_TEST_BOOL(*component.m_pPosition == ezVec3(1, 2, i * 2));
-      EZ_TEST_BOOL(component.m_pScale->m_v == ezVec3(0, i * 2, 0));
+      EZ_TEST_BOOL(component.m_pTransform->m_vPosition == ezVec3(static_cast<float>(i) * 2, 0, 0));
+      EZ_TEST_BOOL(*component.m_pPosition == ezVec3(1, 2, static_cast<float>(i) * 2));
+      EZ_TEST_BOOL(component.m_pScale->m_v == ezVec3(0, static_cast<float>(i) * 2, 0));
     }
 
     for (ezUInt32 i = 0; i < 10; ++i)

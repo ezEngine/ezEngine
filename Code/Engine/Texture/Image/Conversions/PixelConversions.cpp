@@ -52,7 +52,7 @@ ezUInt16 ezCompressA4B4G4R4(ezColorBaseUB color)
   ezUInt32 g = (color.g * 15 + 135) >> 8;
   ezUInt32 b = (color.b * 15 + 135) >> 8;
   ezUInt32 a = (color.a * 15 + 135) >> 8;
-  return (r << 12) | (g << 8) | (b << 4) | a;
+  return static_cast<ezUInt16>((r << 12) | (g << 8) | (b << 4) | a);
 }
 
 ezColorBaseUB ezDecompressB4G4R4A4(ezUInt16 uiColor)
@@ -71,15 +71,15 @@ ezUInt16 ezCompressB4G4R4A4(ezColorBaseUB color)
   ezUInt32 g = (color.g * 15 + 135) >> 8;
   ezUInt32 b = (color.b * 15 + 135) >> 8;
   ezUInt32 a = (color.a * 15 + 135) >> 8;
-  return (a << 12) | (r << 8) | (g << 4) | b;
+  return static_cast<ezUInt16>((a << 12) | (r << 8) | (g << 4) | b);
 }
 
 ezColorBaseUB ezDecompressB5G6R5(ezUInt16 uiColor)
 {
   ezColorBaseUB result;
-  result.r = ((uiColor & 0xF800u) * 527 + 47104) >> 17;
-  result.g = ((uiColor & 0x07E0u) * 259 + 1056) >> 11;
-  result.b = ((uiColor & 0x001Fu) * 527 + 23) >> 6;
+  result.r = static_cast<ezUInt8>(((uiColor & 0xF800u) * 527 + 47104) >> 17);
+  result.g = static_cast<ezUInt8>(((uiColor & 0x07E0u) * 259 + 1056) >> 11);
+  result.b = static_cast<ezUInt8>(((uiColor & 0x001Fu) * 527 + 23) >> 6);
   result.a = 0xFF;
 
   return result;
@@ -90,15 +90,15 @@ ezUInt16 ezCompressB5G6R5(ezColorBaseUB color)
   ezUInt32 r = (color.r * 249 + 1024) >> 11;
   ezUInt32 g = (color.g * 253 + 512) >> 10;
   ezUInt32 b = (color.b * 249 + 1024) >> 11;
-  return (r << 11) | (g << 5) | b;
+  return static_cast<ezUInt16>((r << 11) | (g << 5) | b);
 }
 
 ezColorBaseUB ezDecompressB5G5R5X1(ezUInt16 uiColor)
 {
   ezColorBaseUB result;
-  result.r = ((uiColor & 0x7C00u) * 527 + 23552) >> 16;
-  result.g = ((uiColor & 0x03E0u) * 527 + 736) >> 11;
-  result.b = ((uiColor & 0x001Fu) * 527 + 23) >> 6;
+  result.r = static_cast<ezUInt8>(((uiColor & 0x7C00u) * 527 + 23552) >> 16);
+  result.g = static_cast<ezUInt8>(((uiColor & 0x03E0u) * 527 + 736) >> 11);
+  result.b = static_cast<ezUInt8>(((uiColor & 0x001Fu) * 527 + 23) >> 6);
   result.a = 0xFF;
   return result;
 }
@@ -108,16 +108,16 @@ ezUInt16 ezCompressB5G5R5X1(ezColorBaseUB color)
   ezUInt32 r = (color.r * 249 + 1024) >> 11;
   ezUInt32 g = (color.g * 249 + 1024) >> 11;
   ezUInt32 b = (color.b * 249 + 1024) >> 11;
-  return (1 << 15) | (r << 10) | (g << 5) | b;
+  return static_cast<ezUInt16>((1 << 15) | (r << 10) | (g << 5) | b);
 }
 
 ezColorBaseUB ezDecompressB5G5R5A1(ezUInt16 uiColor)
 {
   ezColorBaseUB result;
-  result.r = ((uiColor & 0x7C00u) * 527 + 23552) >> 16;
-  result.g = ((uiColor & 0x03E0u) * 527 + 736) >> 11;
-  result.b = ((uiColor & 0x001Fu) * 527 + 23) >> 6;
-  result.a = ((uiColor & 0x8000u) * 255) >> 15;
+  result.r = static_cast<ezUInt8>(((uiColor & 0x7C00u) * 527 + 23552) >> 16);
+  result.g = static_cast<ezUInt8>(((uiColor & 0x03E0u) * 527 + 736) >> 11);
+  result.b = static_cast<ezUInt8>(((uiColor & 0x001Fu) * 527 + 23) >> 6);
+  result.a = static_cast<ezUInt8>(((uiColor & 0x8000u) * 255) >> 15);
   return result;
 }
 
@@ -127,15 +127,15 @@ ezUInt16 ezCompressB5G5R5A1(ezColorBaseUB color)
   ezUInt32 g = (color.g * 249 + 1024) >> 11;
   ezUInt32 b = (color.b * 249 + 1024) >> 11;
   ezUInt32 a = (color.a) >> 7;
-  return (a << 15) | (r << 10) | (g << 5) | b;
+  return static_cast<ezUInt16>((a << 15) | (r << 10) | (g << 5) | b);
 }
 
 ezColorBaseUB ezDecompressX1B5G5R5(ezUInt16 uiColor)
 {
   ezColorBaseUB result;
-  result.r = ((uiColor & 0xF800u) * 527 + 23552) >> 17;
-  result.g = ((uiColor & 0x07C0u) * 527 + 736) >> 12;
-  result.b = ((uiColor & 0x003Eu) * 527 + 23) >> 7;
+  result.r = static_cast<ezUInt8>(((uiColor & 0xF800u) * 527 + 23552) >> 17);
+  result.g = static_cast<ezUInt8>(((uiColor & 0x07C0u) * 527 + 736) >> 12);
+  result.b = static_cast<ezUInt8>(((uiColor & 0x003Eu) * 527 + 23) >> 7);
   result.a = 0xFF;
   return result;
 }
@@ -145,16 +145,16 @@ ezUInt16 ezCompressX1B5G5R5(ezColorBaseUB color)
   ezUInt32 r = (color.r * 249 + 1024) >> 11;
   ezUInt32 g = (color.g * 249 + 1024) >> 11;
   ezUInt32 b = (color.b * 249 + 1024) >> 11;
-  return (r << 11) | (g << 6) | (b << 1) | 1;
+  return static_cast<ezUInt16>((r << 11) | (g << 6) | (b << 1) | 1);
 }
 
 ezColorBaseUB ezDecompressA1B5G5R5(ezUInt16 uiColor)
 {
   ezColorBaseUB result;
-  result.r = ((uiColor & 0xF800u) * 527 + 23552) >> 17;
-  result.g = ((uiColor & 0x07C0u) * 527 + 736) >> 12;
-  result.b = ((uiColor & 0x003Eu) * 527 + 23) >> 7;
-  result.a = (uiColor & 0x0001u) * 255;
+  result.r = static_cast<ezUInt8>(((uiColor & 0xF800u) * 527 + 23552) >> 17);
+  result.g = static_cast<ezUInt8>(((uiColor & 0x07C0u) * 527 + 736) >> 12);
+  result.b = static_cast<ezUInt8>(((uiColor & 0x003Eu) * 527 + 23) >> 7);
+  result.a = static_cast<ezUInt8>((uiColor & 0x0001u) * 255);
   return result;
 }
 
@@ -164,7 +164,7 @@ ezUInt16 ezCompressA1B5G5R5(ezColorBaseUB color)
   ezUInt32 g = (color.g * 249 + 1024) >> 11;
   ezUInt32 b = (color.b * 249 + 1024) >> 11;
   ezUInt32 a = color.a >> 7;
-  return (r << 11) | (g << 6) | (b << 1) | a;
+  return static_cast<ezUInt16>((r << 11) | (g << 6) | (b << 1) | a);
 }
 
 template <ezColorBaseUB (*decompressFunc)(ezUInt16), ezImageFormat::Enum templateSourceFormat>
@@ -184,7 +184,7 @@ class ezImageConversionStep_Decompress16bpp : ezImageConversionStepLinear
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numElements,
+  virtual ezResult ConvertPixels(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt64 numElements,
                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = 2;
@@ -223,7 +223,7 @@ class ezImageConversionStep_Compress16bpp : ezImageConversionStepLinear
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numElements,
+  virtual ezResult ConvertPixels(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt64 numElements,
                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = 4;
@@ -267,7 +267,7 @@ struct ezImageSwizzleConversion32_2103 : public ezImageConversionStepLinear
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numElements,
+  virtual ezResult ConvertPixels(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt64 numElements,
                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = 4;
@@ -352,7 +352,7 @@ struct ezImageConversion_BGRX_BGRA : public ezImageConversionStepLinear
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numElements,
+  virtual ezResult ConvertPixels(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt64 numElements,
                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = 4;
@@ -417,7 +417,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numElements,
+  virtual ezResult ConvertPixels(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt64 numElements,
                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     // Work with single channels instead of pixels
@@ -510,7 +510,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numElements,
+  virtual ezResult ConvertPixels(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt64 numElements,
                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = 16;
@@ -546,7 +546,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numElements,
+  virtual ezResult ConvertPixels(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt64 numElements,
                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     // Work with single channels instead of pixels
@@ -585,7 +585,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numElements,
+  virtual ezResult ConvertPixels(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt64 numElements,
                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     // Work with single channels instead of pixels
@@ -625,7 +625,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numElements,
+  virtual ezResult ConvertPixels(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt64 numElements,
                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     // Work with single channels instead of pixels
@@ -665,7 +665,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numElements,
+  virtual ezResult ConvertPixels(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt64 numElements,
                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     // Work with single channels instead of pixels
@@ -701,7 +701,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numElements,
+  virtual ezResult ConvertPixels(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt64 numElements,
                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = 4;
@@ -737,7 +737,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numElements,
+  virtual ezResult ConvertPixels(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt64 numElements,
                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     // Work with single channels instead of pixels
@@ -775,7 +775,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numElements,
+  virtual ezResult ConvertPixels(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt64 numElements,
                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     // Work with single channels instead of pixels
@@ -813,7 +813,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numElements,
+  virtual ezResult ConvertPixels(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt64 numElements,
                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     // Work with single channels instead of pixels
@@ -854,7 +854,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numElements,
+  virtual ezResult ConvertPixels(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt64 numElements,
                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
@@ -928,7 +928,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numElements,
+  virtual ezResult ConvertPixels(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt64 numElements,
                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
@@ -1026,7 +1026,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numElements,
+  virtual ezResult ConvertPixels(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt64 numElements,
                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
@@ -1078,7 +1078,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numElements,
+  virtual ezResult ConvertPixels(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt64 numElements,
                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
@@ -1215,7 +1215,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numElements,
+  virtual ezResult ConvertPixels(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt64 numElements,
                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
@@ -1358,7 +1358,7 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<const void> source, ezArrayPtr<void> target, ezUInt32 numElements,
+  virtual ezResult ConvertPixels(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt64 numElements,
                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     ezUInt32 sourceStride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;

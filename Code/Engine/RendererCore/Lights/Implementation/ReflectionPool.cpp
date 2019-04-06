@@ -6,12 +6,14 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Math/Color16f.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Lights/Implementation/ReflectionPool.h>
 #include <RendererCore/Lights/Implementation/ReflectionProbeData.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Texture.h>
 
@@ -213,7 +215,7 @@ namespace
         renderView.m_hView = ezRenderWorld::CreateView(sName, pView);
 
         pView->SetCameraUsageHint(ezCameraUsageHint::Reflection);
-        pView->SetViewport(ezRectFloat(0.0f, 0.0f, s_uiReflectionCubeMapSize, s_uiReflectionCubeMapSize));
+        pView->SetViewport(ezRectFloat(0.0f, 0.0f, static_cast<float>(s_uiReflectionCubeMapSize), static_cast<float>(s_uiReflectionCubeMapSize)));
 
         pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>(szRenderPipelineResource));
 

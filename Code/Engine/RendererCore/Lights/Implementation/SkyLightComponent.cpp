@@ -6,6 +6,8 @@
 #include <RendererCore/Lights/Implementation/ReflectionPool.h>
 #include <RendererCore/Lights/SkyLightComponent.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Pipeline/View.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezSkyLightComponent, 1, ezComponentMode::Dynamic)
@@ -32,7 +34,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkyLightComponent, 1, ezComponentMode::Dynamic)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-static ezUInt32 s_uiSkyLightPriority = 10;
+static float s_fSkyLightPriority = 10.0f;
 
 ezSkyLightComponent::ezSkyLightComponent()
 {
@@ -42,7 +44,7 @@ ezSkyLightComponent::~ezSkyLightComponent() = default;
 
 void ezSkyLightComponent::OnActivated()
 {
-  ezReflectionPool::RegisterReflectionProbe(m_ReflectionProbeData, GetWorld(), s_uiSkyLightPriority);
+  ezReflectionPool::RegisterReflectionProbe(m_ReflectionProbeData, GetWorld(), s_fSkyLightPriority);
 
   GetOwner()->UpdateLocalBounds();
 }
@@ -89,7 +91,7 @@ void ezSkyLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
   if (m_ReflectionProbeData.m_fIntensity <= 0.0f)
     return;
 
-  ezReflectionPool::ExtractReflectionProbe(msg, m_ReflectionProbeData, this, s_uiSkyLightPriority);
+  ezReflectionPool::ExtractReflectionProbe(msg, m_ReflectionProbeData, this, s_fSkyLightPriority);
 }
 
 void ezSkyLightComponent::SerializeComponent(ezWorldWriter& stream) const
