@@ -1,6 +1,8 @@
 #include <FoundationTestPCH.h>
 
 #include <Foundation/Types/Delegate.h>
+#include <Foundation/Types/RefCounted.h>
+#include <Foundation/Types/SharedPtr.h>
 
 namespace
 {
@@ -87,10 +89,12 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
 
     d = TestDelegate(&TestType::Method, &test);
     EZ_TEST_BOOL(d == TestDelegate(&TestType::Method, &test));
+    EZ_TEST_BOOL(!d.IsHeapAllocated());
     EZ_TEST_INT(d(4), 46);
 
     d = TestDelegate(&TestTypeDerived::Method, &test);
     EZ_TEST_BOOL(d == TestDelegate(&TestTypeDerived::Method, &test));
+    EZ_TEST_BOOL(!d.IsHeapAllocated());
     EZ_TEST_INT(d(4), 8);
 
   }
@@ -105,6 +109,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
 
     many = TestDelegateMany(&TestType::MethodWithManyParams, &test);
     EZ_TEST_BOOL(many == TestDelegateMany(&TestType::MethodWithManyParams, &test));
+    EZ_TEST_BOOL(!d.IsHeapAllocated());
     EZ_TEST_INT(many(1,10,100,1000,10000,100000), 1111111);
 
   }
@@ -122,6 +127,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
 
     d = TestDelegate(&TestType::ConstMethod, &constTest);
     EZ_TEST_BOOL(d == TestDelegate(&TestType::ConstMethod, &constTest));
+    EZ_TEST_BOOL(!d.IsHeapAllocated());
     EZ_TEST_INT(d(4), 43);
   }
 
@@ -131,10 +137,12 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
 
     d = TestDelegate(&TestType::VirtualMethod, &test);
     EZ_TEST_BOOL(d == TestDelegate(&TestType::VirtualMethod, &test));
+    EZ_TEST_BOOL(!d.IsHeapAllocated());
     EZ_TEST_INT(d(4), 47);
 
     d = TestDelegate(&TestTypeDerived::VirtualMethod, &test);
     EZ_TEST_BOOL(d == TestDelegate(&TestTypeDerived::VirtualMethod, &test));
+    EZ_TEST_BOOL(!d.IsHeapAllocated());
     EZ_TEST_INT(d(4), 47);
   }
 
@@ -142,19 +150,28 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
   {
     d = &Function;
     EZ_TEST_BOOL(d == &Function);
+    EZ_TEST_BOOL(!d.IsHeapAllocated());
     EZ_TEST_INT(d(4), 6);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - no capture")
   {
     d = [](ezInt32 i) { return i * 4; };
+    EZ_TEST_BOOL(!d.IsHeapAllocated());
     EZ_TEST_INT(d(2), 8);
+
+    TestDelegate d2 = d;
+    EZ_TEST_BOOL(d2 == d);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture by value")
   {
     ezInt32 c = 20;
-    d = [c](ezInt32) { return c; };
+    d = [c](ezInt32)
+    {
+      return c;
+    };
+    EZ_TEST_BOOL(d.IsHeapAllocated());
     EZ_TEST_INT(d(3), 20);
     c = 10;
     EZ_TEST_INT(d(3), 20);
@@ -164,6 +181,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
   {
     ezInt32 c = 20;
     d = [c](ezInt32) mutable { return c; };
+    EZ_TEST_BOOL(d.IsHeapAllocated());
     EZ_TEST_INT(d(3), 20);
     c = 10;
     EZ_TEST_INT(d(3), 20);
@@ -173,6 +191,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
       c = 1;
       return result;
     };
+    EZ_TEST_BOOL(d.IsHeapAllocated());
     EZ_TEST_INT(d(3), 13);
     EZ_TEST_INT(d(3), 4);
   }
@@ -184,8 +203,110 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
       c = 5;
       return i;
     };
+    EZ_TEST_BOOL(d.IsHeapAllocated());
     EZ_TEST_INT(d(3), 3);
     EZ_TEST_INT(c, 5);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture by value of non-pod")
+  {
+    struct RefCountedInt : public ezRefCounted
+    {
+      RefCountedInt() = default;
+      RefCountedInt(int i)
+        : m_value(i)
+      {
+      }
+      int m_value;
+    };
+
+    ezSharedPtr<RefCountedInt> shared = EZ_DEFAULT_NEW(RefCountedInt, 1);
+    EZ_TEST_INT(shared->GetRefCount(), 1);
+    {
+      TestDelegate deleteMe = [shared](ezInt32 i) -> decltype(i) { return 0; };
+      EZ_TEST_BOOL(deleteMe.IsHeapAllocated());
+      EZ_TEST_INT(shared->GetRefCount(), 2);
+    }
+    EZ_TEST_INT(shared->GetRefCount(), 1);
+
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture lots of things")
+  {
+
+    ezInt64 a = 10;
+    ezInt64 b = 20;
+    ezInt64 c = 30;
+    d = [a, b, c](ezInt32 i) -> ezInt32 { return static_cast<ezInt32>(a + b + c + i); };
+    EZ_TEST_INT(d(6), 66);
+    EZ_TEST_BOOL(d.IsHeapAllocated());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move semantics")
+  {
+    // Move pure function
+    {
+      d.Invalidate();
+      TestDelegate d2 = &Function;
+      d = std::move(d2);
+      EZ_TEST_BOOL(d.IsValid());
+      EZ_TEST_BOOL(!d2.IsValid());
+      EZ_TEST_BOOL(!d.IsHeapAllocated());
+      EZ_TEST_INT(d(4), 6);
+    }
+
+    // Move delegate
+    ezConstructionCounter::Reset();    
+    d.Invalidate();
+    {
+      ezConstructionCounter value;
+      value.m_iData = 666;
+      EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 1);
+      EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 0);
+      TestDelegate d2 = [value](ezInt32 i) -> ezInt32 { return value.m_iData; };
+      EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 3); // Capture plus moving the lambda.
+      EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 1); // Move of lambda
+      d = std::move(d2);
+      // Moving should not affect anything.
+      EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 3);
+      EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 1);
+      EZ_TEST_BOOL(d.IsValid());
+      EZ_TEST_BOOL(!d2.IsValid());
+      EZ_TEST_BOOL(d.IsHeapAllocated());
+      EZ_TEST_INT(d(0), 666);
+    }
+    EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 2); // value out of scope
+    EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 3);
+    d.Invalidate();
+    EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 3); // lambda destroyed.
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - Copy")
+  {
+    d.Invalidate();
+    ezConstructionCounter::Reset();
+    {
+      ezConstructionCounter value;
+      value.m_iData = 666;
+      EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 1);
+      EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 0);
+      TestDelegate d2 = [value](ezInt32 i) -> ezInt32 { return value.m_iData; };
+      EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 3); // Capture plus moving the lambda.
+      EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 1);  // Move of lambda
+      d = d2;
+      EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 4); // Lambda Copy
+      EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 1);
+      EZ_TEST_BOOL(d.IsValid());
+      EZ_TEST_BOOL(d2.IsValid());
+      EZ_TEST_BOOL(d.IsHeapAllocated());
+      EZ_TEST_BOOL(d2.IsHeapAllocated());
+      EZ_TEST_INT(d(0), 666);
+      EZ_TEST_INT(d2(0), 666);
+    }
+    EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 3); // value and lambda out of scope
+    EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 4);
+    d.Invalidate();
+    EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 4); // lambda destroyed.
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezMakeDelegate")
