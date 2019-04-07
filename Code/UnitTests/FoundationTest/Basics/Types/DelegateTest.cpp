@@ -8,6 +8,8 @@ namespace
   {
     TestType() {}
 
+    ezInt32 MethodWithManyParams(ezInt32 a, ezInt32 b, ezInt32 c, ezInt32 d, ezInt32 e, ezInt32 f) { return m_iA + a + b + c + d + e + f; }
+
     ezInt32 Method(ezInt32 b) { return b + m_iA; }
 
     ezInt32 ConstMethod(ezInt32 b) const { return b + m_iA + 4; }
@@ -67,7 +69,7 @@ namespace
   };
 
   static ezInt32 Function(ezInt32 b) { return b + 2; }
-}
+} // namespace
 
 EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
 {
@@ -84,10 +86,27 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     test.m_iA = 42;
 
     d = TestDelegate(&TestType::Method, &test);
+    EZ_TEST_BOOL(d == TestDelegate(&TestType::Method, &test));
     EZ_TEST_INT(d(4), 46);
 
     d = TestDelegate(&TestTypeDerived::Method, &test);
+    EZ_TEST_BOOL(d == TestDelegate(&TestTypeDerived::Method, &test));
     EZ_TEST_INT(d(4), 8);
+
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Method With Many Params")
+  {
+    typedef ezDelegate<ezInt32(ezInt32, ezInt32, ezInt32, ezInt32, ezInt32, ezInt32)> TestDelegateMany;
+    TestDelegateMany many;
+
+    TestType test;
+    test.m_iA = 1000000;
+
+    many = TestDelegateMany(&TestType::MethodWithManyParams, &test);
+    EZ_TEST_BOOL(many == TestDelegateMany(&TestType::MethodWithManyParams, &test));
+    EZ_TEST_INT(many(1,10,100,1000,10000,100000), 1111111);
+
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Complex Class")
@@ -102,6 +121,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     constTest.m_iA = 35;
 
     d = TestDelegate(&TestType::ConstMethod, &constTest);
+    EZ_TEST_BOOL(d == TestDelegate(&TestType::ConstMethod, &constTest));
     EZ_TEST_INT(d(4), 43);
   }
 
@@ -110,15 +130,18 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     TestTypeDerived test;
 
     d = TestDelegate(&TestType::VirtualMethod, &test);
+    EZ_TEST_BOOL(d == TestDelegate(&TestType::VirtualMethod, &test));
     EZ_TEST_INT(d(4), 47);
 
     d = TestDelegate(&TestTypeDerived::VirtualMethod, &test);
+    EZ_TEST_BOOL(d == TestDelegate(&TestTypeDerived::VirtualMethod, &test));
     EZ_TEST_INT(d(4), 47);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Function")
   {
     d = &Function;
+    EZ_TEST_BOOL(d == &Function);
     EZ_TEST_INT(d(4), 6);
   }
 
@@ -168,11 +191,15 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezMakeDelegate")
   {
     auto d1 = ezMakeDelegate(&Function);
+    EZ_TEST_BOOL(d1 == ezMakeDelegate(&Function));
 
     TestType instance;
     auto d2 = ezMakeDelegate(&TestType::Method, &instance);
+    EZ_TEST_BOOL(d2 == ezMakeDelegate(&TestType::Method, &instance));
     auto d3 = ezMakeDelegate(&TestType::ConstMethod, &instance);
+    EZ_TEST_BOOL(d3 == ezMakeDelegate(&TestType::ConstMethod, &instance));
     auto d4 = ezMakeDelegate(&TestType::VirtualMethod, &instance);
+    EZ_TEST_BOOL(d4 == ezMakeDelegate(&TestType::VirtualMethod, &instance));
 
     EZ_IGNORE_UNUSED(d1);
     EZ_IGNORE_UNUSED(d2);

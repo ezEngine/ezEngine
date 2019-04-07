@@ -1,9 +1,9 @@
 
-template <typename R EZ_COMMA_IF(ARG_COUNT) EZ_LIST(typename ARG, ARG_COUNT)>
-struct ezDelegate<R(EZ_LIST(ARG, ARG_COUNT))> : public ezDelegateBase
+template <typename R, class... Args>
+struct ezDelegate<R(Args...)> : public ezDelegateBase
 {
 private:
-  typedef ezDelegate<R(EZ_LIST(ARG, ARG_COUNT))> SelfType;
+  typedef ezDelegate<R(Args...)> SelfType;
 
 public:
   EZ_DECLARE_POD_TYPE();
@@ -88,10 +88,10 @@ public:
   EZ_FORCE_INLINE void operator=(std::nullptr_t) { m_pDispatchFunction = nullptr; }
 
   /// \brief Function call operator. This will call the function that is bound to the delegate, or assert if nothing was bound.
-  EZ_FORCE_INLINE R operator()(EZ_PAIR_LIST(ARG, arg, ARG_COUNT)) const
+  EZ_FORCE_INLINE R operator()(Args... params) const
   {
     EZ_ASSERT_DEBUG(m_pDispatchFunction != nullptr, "Delegate is not bound.");
-    return (*m_pDispatchFunction)(*this EZ_COMMA_IF(ARG_COUNT) EZ_LIST(arg, ARG_COUNT));
+    return (*m_pDispatchFunction)(*this, params...);
   }
 
   /// \brief Checks whether two delegates are bound to the exact same function, including the class instance.
@@ -115,29 +115,29 @@ public:
 
 private:
   template <typename Method, typename Class>
-  static EZ_FORCE_INLINE R DispatchToMethod(const SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
+  static EZ_FORCE_INLINE R DispatchToMethod(const SelfType& self, Args... params)
   {
     EZ_ASSERT_DEBUG(self.m_pInstance.m_Ptr != nullptr, "Instance must not be null.");
     Method method = *reinterpret_cast<Method*>(&self.m_Data);
-    return (static_cast<Class*>(self.m_pInstance.m_Ptr)->*method)(EZ_LIST(arg, ARG_COUNT));
+    return (static_cast<Class*>(self.m_pInstance.m_Ptr)->*method)(params...);
   }
 
   template <typename Method, typename Class>
-  static EZ_FORCE_INLINE R DispatchToConstMethod(const SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
+  static EZ_FORCE_INLINE R DispatchToConstMethod(const SelfType& self, Args... params)
   {
     EZ_ASSERT_DEBUG(self.m_pInstance.m_ConstPtr != nullptr, "Instance must not be null.");
     Method method = *reinterpret_cast<Method*>(&self.m_Data);
-    return (static_cast<const Class*>(self.m_pInstance.m_ConstPtr)->*method)(EZ_LIST(arg, ARG_COUNT));
+    return (static_cast<const Class*>(self.m_pInstance.m_ConstPtr)->*method)(params...);
   }
 
   template <typename Function>
-  static EZ_ALWAYS_INLINE R DispatchToFunction(const SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
+  static EZ_ALWAYS_INLINE R DispatchToFunction(const SelfType& self, Args... params)
   {
-    return (*reinterpret_cast<Function*>(&self.m_Data))(EZ_LIST(arg, ARG_COUNT));
+    return (*reinterpret_cast<Function*>(&self.m_Data))(params...);
   }
 
 
-  typedef R (*DispatchFunction)(const SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_LIST(ARG, ARG_COUNT));
+  typedef R (*DispatchFunction)(const SelfType& self, Args...);
   DispatchFunction m_pDispatchFunction;
 
   enum
@@ -147,15 +147,20 @@ private:
   mutable ezUInt8 m_Data[DATA_SIZE];
 };
 
-template <typename Class, typename R EZ_COMMA_IF(ARG_COUNT) EZ_LIST(typename ARG, ARG_COUNT)>
-struct ezMakeDelegateHelper<R (Class::*)(EZ_LIST(ARG, ARG_COUNT))>
+template <typename T>
+struct ezMakeDelegateHelper
 {
-  typedef ezDelegate<R(EZ_LIST(ARG, ARG_COUNT))> DelegateType;
 };
 
-template <typename Class, typename R EZ_COMMA_IF(ARG_COUNT) EZ_LIST(typename ARG, ARG_COUNT)>
-struct ezMakeDelegateHelper<R (Class::*)(EZ_LIST(ARG, ARG_COUNT)) const>
+template <typename Class, typename R, typename... Args>
+struct ezMakeDelegateHelper<R (Class::*)(Args...)>
 {
-  typedef ezDelegate<R(EZ_LIST(ARG, ARG_COUNT))> DelegateType;
+  typedef ezDelegate<R(Args...)> DelegateType;
+};
+
+template <typename Class, typename R, typename... Args>
+struct ezMakeDelegateHelper<R (Class::*)(Args...) const>
+{
+  typedef ezDelegate<R(Args...)> DelegateType;
 };
 
