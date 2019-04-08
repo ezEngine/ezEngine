@@ -21,13 +21,25 @@ struct ezLambdaDelegateStorage : public ezLambdaDelegateStorageBase
   }
 
 private:
+  template < typename = typename std::enable_if< std::is_copy_constructible<Function>::value >::type>
   ezLambdaDelegateStorage(const Function& func)
     : m_func(func)
   {
   }
 
 public:
-  virtual ezLambdaDelegateStorageBase* Clone() const override { return EZ_DEFAULT_NEW(ezLambdaDelegateStorage<Function>, m_func); }
+  virtual ezLambdaDelegateStorageBase* Clone() const override
+  {
+    if constexpr (std::is_copy_constructible<Function>::value)
+    {
+      return EZ_DEFAULT_NEW(ezLambdaDelegateStorage<Function>, m_func);
+    }
+    else
+    {
+      EZ_REPORT_FAILURE("The ezDelegate stores a lambda that is not copyable. Copying this ezDelegate is not supported.");
+      return nullptr;
+    }
+  }
   Function m_func;
 };
 

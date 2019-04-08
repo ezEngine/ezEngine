@@ -309,6 +309,18 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 4); // lambda destroyed.
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture non-copyable type")
+  {
+    ezUniquePtr<ezConstructionCounter> data(EZ_DEFAULT_NEW(ezConstructionCounter));
+    data->m_iData = 666;
+    TestDelegate d2 = [data = std::move(data)](ezInt32 i) -> ezInt32 { return data->m_iData; };
+    EZ_TEST_INT(d2(0), 666);
+    d = std::move(d2);
+    EZ_TEST_BOOL(d.IsValid());
+    EZ_TEST_BOOL(!d2.IsValid());
+    EZ_TEST_INT(d(0), 666);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezMakeDelegate")
   {
     auto d1 = ezMakeDelegate(&Function);
