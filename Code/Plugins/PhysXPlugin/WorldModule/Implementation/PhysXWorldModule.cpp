@@ -962,7 +962,7 @@ void ezPhysXWorldModule::SimulateStep(ezTime deltaTime)
     EZ_PX_WRITE_LOCK(*m_pPxScene);
 
     EZ_PROFILE_SCOPE("Simulate");
-    m_pPxScene->simulate(deltaTime.GetSeconds(), nullptr, m_ScratchMemory.GetData(), m_ScratchMemory.GetCount());
+    m_pPxScene->simulate(deltaTime.AsFloatInSeconds(), nullptr, m_ScratchMemory.GetData(), m_ScratchMemory.GetCount());
   }
 
   {
