@@ -85,6 +85,9 @@ public:
   /// \brief Gives read and write access to the token stream.
   ezDeque<ezToken>& GetTokens() { return m_Tokens; }
 
+  /// \brief Returns an array of all tokens. New line tokens are ignored.
+  void GetAllLines(ezHybridArray<const ezToken*, 32>& Tokens) const;
+
   /// \brief Returns an array of tokens that represent the next line in the file.
   ///
   /// Returns EZ_SUCCESS when there was more data to return, EZ_FAILURE if the end of the file was reached already.

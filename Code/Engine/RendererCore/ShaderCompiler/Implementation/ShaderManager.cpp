@@ -141,9 +141,9 @@ void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTem
   }
 
   ezVariant defaultValue;
-  ezHybridArray<ezHashedString, 16> enumValues;
+  ezShaderParser::EnumDefinition enumDef;
 
-  ezShaderParser::ParsePermutationVarConfig(szName, sTemp, defaultValue, enumValues);
+  ezShaderParser::ParsePermutationVarConfig(sTemp, defaultValue, enumDef);
   if (defaultValue.IsValid())
   {
     ezHashedString sName;
@@ -152,7 +152,7 @@ void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTem
     auto& config = s_PermutationVarConfigs[sName];
     config.m_sName = sName;
     config.m_DefaultValue = defaultValue;
-    config.m_EnumValues = enumValues;
+    config.m_EnumValues = enumDef.m_Values;
   }
 }
 

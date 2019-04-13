@@ -402,6 +402,20 @@ void ezTokenizer::HandleNonIdentifier()
   AddToken();
 }
 
+void ezTokenizer::GetAllLines(ezHybridArray<const ezToken*, 32>& Tokens) const
+{
+  Tokens.Clear();
+  Tokens.Reserve(m_Tokens.GetCount());
+
+  for (const ezToken& curToken : m_Tokens)
+  {
+    if (curToken.m_iType != ezTokenType::Newline)
+    {
+      Tokens.PushBack(&curToken);
+    }
+  }
+}
+
 ezResult ezTokenizer::GetNextLine(ezUInt32& uiFirstToken, ezHybridArray<ezToken*, 32>& Tokens)
 {
   Tokens.Clear();
