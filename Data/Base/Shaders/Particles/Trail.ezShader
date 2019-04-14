@@ -7,6 +7,7 @@ TWO_SIDED
 PARTICLE_RENDER_MODE
 PARTICLE_TRAIL_POINTS
 SHADING_QUALITY=SHADING_QUALITY_NORMAL
+CAMERA_MODE
 
 [RENDERSTATE]
 
@@ -124,7 +125,11 @@ float4 main(PS_IN Input) : SV_Target
 {
   float4 texCol = ParticleTexture.Sample(ParticleTexture_AutoSampler, Input.TexCoord0.xy);
 
-  float proximityFadeOut = CalcProximityFadeOut(Input.Position);
+  float proximityFadeOut = 1.0;
+
+  #if CAMERA_MODE != CAMERA_MODE_ORTHO
+    proximityFadeOut = CalcProximityFadeOut(Input.Position);
+  #endif
 
   float opacity = Input.Color.a * texCol.a * proximityFadeOut;
 

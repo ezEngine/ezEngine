@@ -57,9 +57,9 @@ void ezPlayerApplication::AfterCoreSystemsStartup()
 
 void ezPlayerApplication::BeforeHighLevelSystemsShutdown()
 {
-  m_pWorld = nullptr;
-
   SUPER::BeforeHighLevelSystemsShutdown();
+
+  m_pWorld = nullptr;
 }
 
 void ezPlayerApplication::SetupLevel()

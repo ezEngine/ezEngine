@@ -57,6 +57,7 @@ ezResourceLoadData ezResourceLoaderFromFile::OpenDataStream(const ezResource* pR
       break;
   }
 
+  pData->m_Reader.SetDebugSourceInformation(File.GetFilePathAbsolute());
   res.m_pDataStream = &pData->m_Reader;
   res.m_pCustomLoaderData = pData;
 
