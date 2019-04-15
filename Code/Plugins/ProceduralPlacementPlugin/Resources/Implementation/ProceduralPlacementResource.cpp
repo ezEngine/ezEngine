@@ -4,6 +4,7 @@
 #include <Foundation/IO/ChunkStream.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
+#include <GameEngine/Surfaces/SurfaceResource.h>
 #include <ProceduralPlacementPlugin/Resources/ProceduralPlacementResource.h>
 #include <ProceduralPlacementPlugin/VM/ExpressionByteCode.h>
 
@@ -20,7 +21,7 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezProceduralPlacementResource);
 // clang-format on
 
 ezProceduralPlacementResource::ezProceduralPlacementResource()
-    : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -143,6 +144,16 @@ ezResourceLoadDesc ezProceduralPlacementResource::UpdateContent(ezStreamReader* 
           ezUInt32 uiByteCodeIndex = ezInvalidIndex;
           chunk >> uiByteCodeIndex;
           m_LayerToByteCodeIndex.Insert(pLayer, uiByteCodeIndex);
+
+          if (chunk.GetCurrentChunk().m_uiChunkVersion >= 3)
+          {
+            chunk >> sTemp;
+
+            if (!sTemp.IsEmpty())
+            {
+              pLayer->m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sTemp);
+            }
+          }
 
           m_Layers.PushBack(pLayer);
         }

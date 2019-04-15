@@ -42,6 +42,10 @@ public:
   bool InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle hObject, const ezVec3& vPosition, const ezVec3& vSurfaceNormal, const ezVec3& vIncomingDirection,
     const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID);
 
+  bool IsBasedOn(const ezSurfaceResource* pThisOrBaseSurface) const;
+
+  bool IsBasedOn(const ezSurfaceResourceHandle hThisOrBaseSurface) const;
+
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;

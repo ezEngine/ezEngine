@@ -41,6 +41,8 @@ public:
 
   ezUInt32 m_uiCollisionLayer;
 
+  ezString m_sSurface;
+
   ezString m_sColorGradient;
 
   ezUInt32 m_uiByteCodeIndex;

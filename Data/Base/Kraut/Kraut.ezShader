@@ -24,8 +24,6 @@ int KrautTreeMode; // 0 == regular mesh, 1 == frond, 2 == leaf, 3 == static impo
 
 [VERTEXSHADER]
 
-#define VSE_CONSTANTS INT1(KrautTreeMode);
-
 #define USE_COLOR
 #define USE_NORMAL
 #define USE_TANGENT
@@ -37,7 +35,25 @@ int KrautTreeMode; // 0 == regular mesh, 1 == frond, 2 == leaf, 3 == static impo
   #define USE_DEBUG_INTERPOLATOR
 #endif
 
-#include <Shaders/Materials/DefaultMaterialCB.h>
+#include <Shaders/Common/GlobalConstants.h>
+
+CONSTANT_BUFFER(ezMaterialConstants, 1)
+{
+  COLOR4F(BaseColor);
+  FLOAT1(MetallicValue);
+  FLOAT1(ReflectanceValue);
+  FLOAT1(RoughnessValue);
+  FLOAT1(MaskThreshold);
+  BOOL(UseBaseTexture);
+  BOOL(UseMetallicTexture);
+  BOOL(UseNormalAndRoughnessTexture);
+  BOOL(UseEmissiveTexture);
+  COLOR4F(EmissiveColor);
+  BOOL(UseOcclusionTexture);
+  
+  INT1(KrautTreeMode);
+};
+
 #include <Shaders/Materials/MaterialVertexShader.h>
 #include "TreeShaderData.h"
 
@@ -149,8 +165,6 @@ VS_OUT main(VS_IN Input)
 
 [GEOMETRYSHADER]
 
-#define VSE_CONSTANTS INT1(KrautTreeMode);
-
 #define USE_COLOR
 #define USE_NORMAL
 #define USE_TANGENT
@@ -161,8 +175,6 @@ VS_OUT main(VS_IN Input)
 #include <Shaders/Materials/MaterialStereoGeometryShader.h>
 
 [PIXELSHADER]
-
-#define VSE_CONSTANTS INT1(KrautTreeMode);
 
 #define USE_COLOR
 #define USE_NORMAL
@@ -179,7 +191,25 @@ VS_OUT main(VS_IN Input)
   #define USE_DEBUG_INTERPOLATOR
 #endif
 
-#include <Shaders/Materials/DefaultMaterialCB.h>
+#include <Shaders/Common/GlobalConstants.h>
+
+CONSTANT_BUFFER(ezMaterialConstants, 1)
+{
+  COLOR4F(BaseColor);
+  FLOAT1(MetallicValue);
+  FLOAT1(ReflectanceValue);
+  FLOAT1(RoughnessValue);
+  FLOAT1(MaskThreshold);
+  BOOL(UseBaseTexture);
+  BOOL(UseMetallicTexture);
+  BOOL(UseNormalAndRoughnessTexture);
+  BOOL(UseEmissiveTexture);
+  COLOR4F(EmissiveColor);
+  BOOL(UseOcclusionTexture);
+  
+  INT1(KrautTreeMode);
+};
+
 #include <Shaders/Materials/MaterialPixelShader.h>
 
 Texture2D BaseTexture;

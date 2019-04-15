@@ -269,7 +269,27 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
   return true;
 }
 
+bool ezSurfaceResource::IsBasedOn(const ezSurfaceResource* pThisOrBaseSurface) const
+{
+  if (pThisOrBaseSurface == this)
+    return true;
 
+  if (m_Descriptor.m_hBaseSurface.IsValid())
+  {
+    ezResourceLock<ezSurfaceResource> pBase(m_Descriptor.m_hBaseSurface, ezResourceAcquireMode::NoFallback);
+
+    return pBase->IsBasedOn(pThisOrBaseSurface);
+  }
+
+  return false;
+}
+
+bool ezSurfaceResource::IsBasedOn(const ezSurfaceResourceHandle hThisOrBaseSurface) const
+{
+  ezResourceLock<ezSurfaceResource> pThisOrBaseSurface(hThisOrBaseSurface, ezResourceAcquireMode::NoFallback);
+
+  return IsBasedOn(pThisOrBaseSurface.GetPointer());
+}
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Surfaces_SurfaceResource);
 

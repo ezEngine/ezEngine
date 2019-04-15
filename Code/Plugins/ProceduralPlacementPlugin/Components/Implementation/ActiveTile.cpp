@@ -5,6 +5,7 @@
 #include <Foundation/SimdMath/SimdRandom.h>
 #include <GameEngine/Components/PrefabReferenceComponent.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <GameEngine/Surfaces/SurfaceResource.h>
 #include <ProceduralPlacementPlugin/Components/Implementation/ActiveTile.h>
 #include <ProceduralPlacementPlugin/Tasks/PlacementTask.h>
 #include <RendererCore/Messages/SetColorMessage.h>
@@ -12,8 +13,8 @@
 using namespace ezPPInternal;
 
 ActiveTile::ActiveTile()
-    : m_pLayer(nullptr)
-    , m_State(State::Invalid)
+  : m_pLayer(nullptr)
+  , m_State(State::Invalid)
 {
 }
 
@@ -129,9 +130,22 @@ void ActiveTile::PrepareTask(const ezPhysicsWorldModuleInterface* pPhysicsModule
     rayStart.SetZ(fZStart);
 
     ezPhysicsHitResult hitResult;
-    if (!pPhysicsModule->CastRay(ezSimdConversion::ToVec3(rayStart), rayDir, fZRange, uiCollisionLayer, hitResult,
-                                 ezPhysicsShapeType::Static))
+    if (!pPhysicsModule->CastRay(
+          ezSimdConversion::ToVec3(rayStart), rayDir, fZRange, uiCollisionLayer, hitResult, ezPhysicsShapeType::Static))
       continue;
+
+    if (m_pLayer->m_hSurface.IsValid())
+    {
+      if (!hitResult.m_hSurface.IsValid())
+        continue;
+
+      ezResourceLock<ezSurfaceResource> hitSurface(hitResult.m_hSurface, ezResourceAcquireMode::NoFallbackAllowMissing);
+      if (hitSurface.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
+        continue;
+
+      if (!hitSurface->IsBasedOn(m_pLayer->m_hSurface))
+        continue;
+    }
 
     bool bInBoundingBox = false;
     ezSimdVec4f hitPosition = ezSimdConversion::ToVec3(hitResult.m_vPosition);

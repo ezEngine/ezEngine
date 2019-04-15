@@ -123,7 +123,7 @@ ezStatus ezProceduralPlacementAssetDocument::InternalTransformAsset(ezStreamWrit
   }
 
   {
-    chunk.BeginChunk("Layers", 2);
+    chunk.BeginChunk("Layers", 3);
 
     chunk << uiNumOutputNodes;
 

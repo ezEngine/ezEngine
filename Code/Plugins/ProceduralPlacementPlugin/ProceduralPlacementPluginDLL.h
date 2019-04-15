@@ -19,6 +19,7 @@
 class ezExpressionByteCode;
 typedef ezTypedResourceHandle<class ezColorGradientResource> ezColorGradientResourceHandle;
 typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
+typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 
 namespace ezPPInternal
 {
@@ -88,6 +89,8 @@ namespace ezPPInternal
     ezUInt32 m_uiCollisionLayer;
 
     ezColorGradientResourceHandle m_hColorGradient;
+
+    ezSurfaceResourceHandle m_hSurface;
 
     ezExpressionByteCode* m_pByteCode;
   };

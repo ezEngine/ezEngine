@@ -9,8 +9,8 @@
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementAssetDocumentManager, 1,
-                                ezRTTIDefaultAllocator<ezProceduralPlacementAssetDocumentManager>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(
+  ezProceduralPlacementAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezProceduralPlacementAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezProceduralPlacementAssetDocumentManager::ezProceduralPlacementAssetDocumentManager()
@@ -32,6 +32,12 @@ ezProceduralPlacementAssetDocumentManager::~ezProceduralPlacementAssetDocumentMa
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezProceduralPlacementAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
+ezBitflags<ezAssetDocumentFlags> ezProceduralPlacementAssetDocumentManager::GetAssetDocumentTypeFlags(
+  const ezDocumentTypeDescriptor* pDescriptor) const
+{
+  return ezAssetDocumentFlags::AutoTransformOnSave;
+}
+
 void ezProceduralPlacementAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
 {
   switch (e.m_Type)
@@ -47,8 +53,8 @@ void ezProceduralPlacementAssetDocumentManager::OnDocumentManagerEvent(const ezD
   }
 }
 
-ezStatus ezProceduralPlacementAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
-                                                                           bool bCreateNewDocument, ezDocument*& out_pDocument)
+ezStatus ezProceduralPlacementAssetDocumentManager::InternalCreateDocument(
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezProceduralPlacementAssetDocument(szPath);
 
@@ -56,7 +62,7 @@ ezStatus ezProceduralPlacementAssetDocumentManager::InternalCreateDocument(const
 }
 
 void ezProceduralPlacementAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+  ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
