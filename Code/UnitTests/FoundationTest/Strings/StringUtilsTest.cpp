@@ -823,6 +823,25 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     }
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsDecimalDigit / IsHexDigit")
+  {
+    EZ_TEST_BOOL(ezStringUtils::IsDecimalDigit('0'));
+    EZ_TEST_BOOL(ezStringUtils::IsDecimalDigit('4'));
+    EZ_TEST_BOOL(ezStringUtils::IsDecimalDigit('9'));
+    EZ_TEST_BOOL(!ezStringUtils::IsDecimalDigit('/'));
+    EZ_TEST_BOOL(!ezStringUtils::IsDecimalDigit('A'));
+
+    EZ_TEST_BOOL(ezStringUtils::IsHexDigit('0'));
+    EZ_TEST_BOOL(ezStringUtils::IsHexDigit('4'));
+    EZ_TEST_BOOL(ezStringUtils::IsHexDigit('9'));
+    EZ_TEST_BOOL(ezStringUtils::IsHexDigit('A'));
+    EZ_TEST_BOOL(ezStringUtils::IsHexDigit('E'));
+    EZ_TEST_BOOL(ezStringUtils::IsHexDigit('a'));
+    EZ_TEST_BOOL(ezStringUtils::IsHexDigit('f'));
+    EZ_TEST_BOOL(!ezStringUtils::IsHexDigit('g'));
+    EZ_TEST_BOOL(!ezStringUtils::IsHexDigit('/'));    
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsWordDelimiter_English / IsIdentifierDelimiter_C_Code")
   {
     for (ezUInt32 i = 0; i < 256; ++i)

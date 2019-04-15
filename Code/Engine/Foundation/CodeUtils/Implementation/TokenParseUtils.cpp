@@ -237,39 +237,6 @@ namespace ezTokenParseUtils
       sResult.Append(sTemp.GetView());
     }
   }
-
-  ezResult ParseNumber(const TokenStream& Tokens, ezUInt32& uiCurToken, double& out_fResult)
-  {
-    SkipWhitespace(Tokens, uiCurToken);
-    ezUInt32 uiOldToken = uiCurToken;
-
-    ezStringBuilder sNumber;
-
-    ezUInt32 uiIntegerPart = uiCurToken;
-    if (Accept(Tokens, uiCurToken, ezTokenType::Identifier, &uiIntegerPart))
-    {
-      sNumber = Tokens[uiIntegerPart]->m_DataView;
-    }
-    
-    if (Accept(Tokens, uiCurToken, "."))
-    {
-      sNumber.Append(".");
-    }
-
-    ezUInt32 uiFractionalPart = uiCurToken;
-    if (Accept(Tokens, uiCurToken, ezTokenType::Identifier, &uiFractionalPart))
-    {
-      sNumber.Append(Tokens[uiFractionalPart]->m_DataView);
-    }
-
-    if (ezConversionUtils::StringToFloat(sNumber, out_fResult).Failed())
-    {
-      uiCurToken = uiOldToken;
-      return EZ_FAILURE;
-    }
-
-    return EZ_SUCCESS;
-  }
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_TokenParseUtils);

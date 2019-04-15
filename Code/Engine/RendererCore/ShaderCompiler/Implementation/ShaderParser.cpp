@@ -60,6 +60,33 @@ namespace
       return ezVariant(sValue.GetData());
     }
 
+    if (Accept(Tokens, uiCurToken, ezTokenType::Integer, &uiValueToken))
+    {
+      ezString sValue = Tokens[uiValueToken]->m_DataView;
+
+      ezInt64 iValue = 0;
+      if (sValue.StartsWith_NoCase("0x"))
+      {
+        iValue = ezConversionUtils::ConvertHexStringToUInt32(sValue);
+      }
+      else
+      {
+        ezConversionUtils::StringToInt64(sValue, iValue);
+      }
+
+      return ezVariant(iValue);
+    }
+
+    if (Accept(Tokens, uiCurToken, ezTokenType::Float, &uiValueToken))
+    {
+      ezString sValue = Tokens[uiValueToken]->m_DataView;
+
+      double fValue = 0;
+      ezConversionUtils::StringToFloat(sValue, fValue);
+
+      return ezVariant(fValue);
+    }
+
     if (Accept(Tokens, uiCurToken, "true", "false", &uiValueToken))
     {
       bool bValue = Tokens[uiValueToken]->m_DataView == "true";
@@ -132,12 +159,6 @@ namespace
           }
         }
       }
-    }
-
-    double fValue = 0;
-    if (ParseNumber(Tokens, uiCurToken, fValue).Succeeded())
-    {
-      return ezVariant(fValue);
     }
 
     return ezVariant();
@@ -248,7 +269,7 @@ namespace
       if (Accept(Tokens, uiCurToken, "="))
       {
         ezUInt32 uiValueToken = uiCurToken;
-        Accept(Tokens, uiCurToken, ezTokenType::Identifier, &uiValueToken);
+        Accept(Tokens, uiCurToken, ezTokenType::Integer, &uiValueToken);
 
         ezInt32 iValue = 0;
         if (ezConversionUtils::StringToInt(Tokens[uiValueToken]->m_DataView.GetData(), iValue).Succeeded() && iValue >= 0)

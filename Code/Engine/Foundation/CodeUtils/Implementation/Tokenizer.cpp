@@ -3,17 +3,18 @@
 #include <Foundation/CodeUtils/Tokenizer.h>
 #include <Foundation/Memory/CommonAllocators.h>
 
-const char* ezTokenType::EnumNames[ezTokenType::ENUM_COUNT] =
-    {
-        "Unknown",
-        "Whitespace",
-        "Identifier",
-        "NonIdentifier",
-        "Newline",
-        "LineComment",
-        "BlockComment",
-        "String1",
-        "String2",
+const char* ezTokenType::EnumNames[ezTokenType::ENUM_COUNT] = {
+  "Unknown",
+  "Whitespace",
+  "Identifier",
+  "NonIdentifier",
+  "Newline",
+  "LineComment",
+  "BlockComment",
+  "String1",
+  "String2",
+  "Integer",
+  "Float",
 };
 
 namespace
@@ -159,6 +160,11 @@ void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> Data, ezLogInterface* pLog)
         HandleString('\'');
         break;
 
+      case ezTokenType::Integer:
+      case ezTokenType::Float:
+        HandleNumber();
+        break;
+
       case ezTokenType::LineComment:
         HandleLineComment();
         break;
@@ -229,6 +235,13 @@ void ezTokenizer::HandleUnknown()
   if ((m_uiCurChar == ' ') || (m_uiCurChar == '\t'))
   {
     m_CurMode = ezTokenType::Whitespace;
+    NextChar();
+    return;
+  }
+
+  if (ezStringUtils::IsDecimalDigit(m_uiCurChar) || m_uiCurChar == '.')
+  {
+    m_CurMode = m_uiCurChar == '.' ? ezTokenType::Float : ezTokenType::Integer;
     NextChar();
     return;
   }
@@ -324,6 +337,76 @@ void ezTokenizer::HandleString(char terminator)
   }
 
   ezLog::Error(m_pLog, "String not closed at end of file");
+  AddToken();
+}
+
+void ezTokenizer::HandleNumber()
+{
+  if (m_uiCurChar == 'x' || m_uiCurChar == 'X')
+  {
+    NextChar();
+
+    ezUInt32 uiDigitsRead = 0;
+    while (ezStringUtils::IsHexDigit(m_uiCurChar))
+    {
+      NextChar();
+      ++uiDigitsRead;
+    }
+
+    if (uiDigitsRead < 1)
+    {
+      ezLog::Error(m_pLog, "Invalid hex literal");
+    }
+  }
+  else
+  {
+    while (ezStringUtils::IsDecimalDigit(m_uiCurChar))
+    {
+      NextChar();
+    }
+
+    if (m_CurMode != ezTokenType::Float && (m_uiCurChar == '.' || m_uiCurChar == 'e' || m_uiCurChar == 'E'))
+    {
+      m_CurMode = ezTokenType::Float;
+      bool bAllowExponent = true;
+
+      if (m_uiCurChar == '.')
+      {
+        NextChar();
+
+        ezUInt32 uiDigitsRead = 0;
+        while (ezStringUtils::IsDecimalDigit(m_uiCurChar))
+        {
+          NextChar();
+          ++uiDigitsRead;
+        }
+
+        bAllowExponent = uiDigitsRead > 0;
+      }
+
+      if ((m_uiCurChar == 'e' || m_uiCurChar == 'E') && bAllowExponent)
+      {
+        NextChar();
+        if (m_uiCurChar == '+' || m_uiCurChar == '-')
+        {
+          NextChar();
+        }
+
+        ezUInt32 uiDigitsRead = 0;
+        while (ezStringUtils::IsDecimalDigit(m_uiCurChar))
+        {
+          NextChar();
+          ++uiDigitsRead;
+        }
+
+        if (uiDigitsRead < 1)
+        {
+          ezLog::Error(m_pLog, "Invalid float literal");
+        }
+      }
+    }
+  }
+
   AddToken();
 }
 
@@ -459,7 +542,7 @@ ezResult ezTokenizer::GetNextLine(ezUInt32& uiFirstToken, ezHybridArray<const ez
         {
           ezStringBuilder s1 = m_Tokens[uiFirstToken - 1].m_DataView;
           ezStringBuilder s2 = m_Tokens[uiFirstToken + 2].m_DataView;
-          ezLog::Warning("Line {0}: The \\ at the line end is in the middle of an identifier name ('{1}' and '{2}'). However, merging identifier names is currently not supported.", m_Tokens[uiFirstToken].m_uiLine, s1, s2);
+          ezLog::Warning("Line {0}: The \\ at the line end is in the middle of an identifier name ('{1}' and '{2}'). However, merging identifier names is m_uiCurCharly not supported.", m_Tokens[uiFirstToken].m_uiLine, s1, s2);
         }
 
         // ignore this

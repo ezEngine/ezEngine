@@ -20,6 +20,8 @@ struct EZ_FOUNDATION_DLL ezTokenType
     BlockComment,  ///< A comment that starts with a slash and a star, and ends at the next star/slash combination (or end of file)
     String1,       ///< A string enclosed in "
     String2,       ///< A string enclosed in '
+    Integer,       ///< An integer number
+    Float,         ///< A floating point number
     EndOfFile,     ///< End-of-file marker
     ENUM_COUNT,
   };
@@ -111,6 +113,7 @@ private:
 
   void HandleUnknown();
   void HandleString(char terminator);
+  void HandleNumber();
   void HandleLineComment();
   void HandleBlockComment();
   void HandleWhitespace();

@@ -75,7 +75,7 @@ const ezTokenizer* ezTokenizedFileCache::Tokenize(const ezString& sFileName, ezA
         SkipWhitespace(Tokens, uiNext);
 
         if (uiNext < Tokens.GetCount() &&
-            Tokens[uiNext].m_iType == ezTokenType::Identifier)
+            Tokens[uiNext].m_iType == ezTokenType::Integer)
         {
           ezInt32 iNextLine = 0;
 

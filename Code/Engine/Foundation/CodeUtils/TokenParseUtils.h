@@ -20,7 +20,5 @@ namespace ezTokenParseUtils
   EZ_FOUNDATION_DLL void CombineTokensToString(const TokenStream& Tokens, ezUInt32 uiCurToken, ezStringBuilder& sResult, bool bKeepComments = true, bool bRemoveRedundantWhitespace = false, bool bInsertLine = false);
   EZ_FOUNDATION_DLL void CombineRelevantTokensToString(const TokenStream& Tokens, ezUInt32 uiCurToken, ezStringBuilder& sResult);
   EZ_FOUNDATION_DLL void CreateCleanTokenStream(const TokenStream& Tokens, ezUInt32 uiCurToken, TokenStream& Destination, bool bKeepComments);
-
-  EZ_FOUNDATION_DLL ezResult ParseNumber(const TokenStream& Tokens, ezUInt32& uiCurToken, double& out_fResult);
 }
 

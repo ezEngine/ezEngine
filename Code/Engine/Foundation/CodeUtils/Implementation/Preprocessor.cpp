@@ -324,7 +324,7 @@ ezResult ezPreprocessor::HandleLine(const TokenStream& Tokens, ezUInt32 uiCurTok
     CopyRelevantTokens(Tokens, uiHashToken, TokenOutput, true);
 
   ezUInt32 uiNumberToken = 0;
-  if (Expect(Tokens, uiCurToken, ezTokenType::Identifier, &uiNumberToken).Failed())
+  if (Expect(Tokens, uiCurToken, ezTokenType::Integer, &uiNumberToken).Failed())
     return EZ_FAILURE;
 
   ezInt32 iNextLine = 0;
