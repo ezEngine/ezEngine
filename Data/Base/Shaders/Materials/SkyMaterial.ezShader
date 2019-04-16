@@ -21,7 +21,7 @@ bool UseFog @Default(true);
 float VirtualDistance @Default(1000.0f);
 
 TextureCube CubeMap;
-Color BaseColor @Default(1.0, 1.0, 1.0);
+Color BaseColor @Default(Color(1.0, 1.0, 1.0));
 
 [RENDERSTATE]
 

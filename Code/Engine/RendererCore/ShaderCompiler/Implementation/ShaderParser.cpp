@@ -87,7 +87,7 @@ namespace
       return ezVariant(fValue);
     }
 
-    if (Accept(Tokens, uiCurToken, "true", "false", &uiValueToken))
+    if (Accept(Tokens, uiCurToken, "true", &uiValueToken) || Accept(Tokens, uiCurToken, "false", &uiValueToken))
     {
       bool bValue = Tokens[uiValueToken]->m_DataView == "true";
       return ezVariant(bValue);

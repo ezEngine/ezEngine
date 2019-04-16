@@ -24,7 +24,7 @@ float MaskThreshold @Default(0.25);
 
 bool UseBaseTexture;
 Texture2D BaseTexture;
-Color BaseColor @Default(1.0, 1.0, 1.0);
+Color BaseColor @Default(Color(1.0, 1.0, 1.0));
 
 bool UseNormalAndRoughnessTexture;
 Texture2D NormalTexture;
@@ -37,7 +37,7 @@ float MetallicValue @Default(0.0) @Clamp(0.0, 1.0);
 
 bool UseEmissiveTexture;
 Texture2D EmissiveTexture;
-Color EmissiveColor @Default(0.0, 0.0, 0.0);
+Color EmissiveColor @Default(Color(0.0, 0.0, 0.0));
 
 bool UseOcclusionTexture;
 Texture2D OcclusionTexture;

@@ -239,10 +239,10 @@ void ezTokenizer::HandleUnknown()
     return;
   }
 
-  if (ezStringUtils::IsDecimalDigit(m_uiCurChar) || m_uiCurChar == '.')
+  if (ezStringUtils::IsDecimalDigit(m_uiCurChar) || (m_uiCurChar == '.' && ezStringUtils::IsDecimalDigit(m_uiNextChar)))
   {
     m_CurMode = m_uiCurChar == '.' ? ezTokenType::Float : ezTokenType::Integer;
-    NextChar();
+    // Do not advance to next char here since we need the first character in HandleNumber
     return;
   }
 
@@ -342,8 +342,9 @@ void ezTokenizer::HandleString(char terminator)
 
 void ezTokenizer::HandleNumber()
 {
-  if (m_uiCurChar == 'x' || m_uiCurChar == 'X')
+  if (m_uiCurChar == '0' && m_uiNextChar == 'x' || m_uiNextChar == 'X')
   {
+    NextChar();
     NextChar();
 
     ezUInt32 uiDigitsRead = 0;
@@ -360,6 +361,8 @@ void ezTokenizer::HandleNumber()
   }
   else
   {
+    NextChar();
+
     while (ezStringUtils::IsDecimalDigit(m_uiCurChar))
     {
       NextChar();
@@ -403,6 +406,11 @@ void ezTokenizer::HandleNumber()
         {
           ezLog::Error(m_pLog, "Invalid float literal");
         }
+      }
+
+      if (m_uiCurChar == 'f') // skip float suffix
+      {
+        NextChar();
       }
     }
   }
