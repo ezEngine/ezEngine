@@ -91,6 +91,8 @@ void ezQtProceduralPlacementNode::UpdateTitle()
       else if (prop->GetSpecificType() == ezGetStaticRTTI<bool>())
       {
         sVal = val.Get<bool>() ? "[x]" : "[ ]";
+
+        m_bIsActive = val.Get<bool>();
       }
       else if (val.CanConvertTo<ezString>())
       {

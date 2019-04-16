@@ -8,6 +8,7 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/Action/DocumentActions.h>
+#include <GuiFoundation/Action/EditActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
@@ -22,12 +23,15 @@ void OnLoadPlugin(bool bReloading)
   // Asset
   {// Menu Bar
     {const char* szMenuBar = "ProceduralPlacementAssetMenuBar";
+
   ezActionMapManager::RegisterActionMap(szMenuBar);
   ezProjectActions::MapActions(szMenuBar);
   ezStandardMenus::MapActions(
     szMenuBar, ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
   ezDocumentActions::MapActions(szMenuBar, "Menu.File", false);
   ezCommandHistoryActions::MapActions(szMenuBar, "Menu.Edit");
+
+  ezEditActions::MapActions("ProceduralPlacementAssetMenuBar", "Menu.Edit", false, false);
 }
 
 // Tool Bar

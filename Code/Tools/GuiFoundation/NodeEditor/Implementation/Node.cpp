@@ -225,6 +225,8 @@ void ezQtNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
     UpdateTitle();
     UpdateGeometry();
     m_DirtyFlags.Remove(ezNodeFlags::UpdateTitle);
+
+    m_pLabel->setEnabled(m_bIsActive);
   }
 
   auto palette = QApplication::palette();
@@ -234,10 +236,16 @@ void ezQtNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
   painter->setBrush(brush());
   painter->drawPath(path());
 
+  QColor headerColor = m_HeaderColor;
+
+
+  if (!m_bIsActive)
+    headerColor.setRgb(100, 100, 100);
+
   // Draw header
   painter->setClipPath(path());
   painter->setPen(QPen(Qt::NoPen));
-  painter->setBrush(m_HeaderColor);
+  painter->setBrush(headerColor);
   painter->drawRect(m_HeaderRect);
   painter->setClipping(false);
 

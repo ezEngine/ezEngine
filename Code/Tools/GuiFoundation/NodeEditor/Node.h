@@ -65,6 +65,7 @@ protected:
   virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
   virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
 
+  bool m_bIsActive = true;
   QColor m_HeaderColor;
   QGraphicsTextItem* m_pLabel;
 
