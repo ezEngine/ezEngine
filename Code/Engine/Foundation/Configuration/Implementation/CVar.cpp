@@ -116,6 +116,8 @@ ezCVar::ezCVar(const char* szName, ezBitflags<ezCVarFlags> Flags, const char* sz
   // 'RequiresRestart' only works together with 'Save'
   if (m_Flags.IsAnySet(ezCVarFlags::RequiresRestart))
     m_Flags.Add(ezCVarFlags::Save);
+
+  EZ_ASSERT_DEV(!ezStringUtils::IsNullOrEmpty(m_szDescription), "Please add a useful description for CVar '{}'.", szName);
 }
 
 ezCVar* ezCVar::FindCVarByName(const char* szName)
