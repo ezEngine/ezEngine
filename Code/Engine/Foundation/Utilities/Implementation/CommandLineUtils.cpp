@@ -52,8 +52,16 @@ void ezCommandLineUtils::SplitCommandLineString(const char* commandString, bool 
     outArgsV.PushBack(str.GetData());
 }
 
-void ezCommandLineUtils::SetCommandLine(ezUInt32 argc, const char** argv)
+void ezCommandLineUtils::SetCommandLine(ezUInt32 argc, const char** argv, ArgMode mode /*= UseArgcArgv*/)
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  if (mode == ArgMode::PreferOsArgs)
+  {
+    SetCommandLine();
+    return;
+  }
+#endif
+
   m_Commands.Clear();
   m_Commands.Reserve(argc);
 
@@ -80,7 +88,7 @@ void ezCommandLineUtils::SetCommandLine()
     argv[i] = ArgvUtf8[i].GetData();
   }
 
-  SetCommandLine(argc, argv.GetPtr());
+  SetCommandLine(argc, argv.GetPtr(), ArgMode::UseArgcArgv);
 
 
   EZ_DEFAULT_DELETE_ARRAY(ArgvUtf8);

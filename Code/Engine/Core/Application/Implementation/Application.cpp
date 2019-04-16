@@ -50,7 +50,8 @@ void ezApplication::SetCommandLineArguments(ezUInt32 uiArgumentCount, const char
 {
   m_uiArgumentCount = uiArgumentCount;
   m_ppArguments = ppArguments;
-  ezCommandLineUtils::GetGlobalInstance()->SetCommandLine(uiArgumentCount, ppArguments);
+
+  ezCommandLineUtils::GetGlobalInstance()->SetCommandLine(uiArgumentCount, ppArguments, ezCommandLineUtils::PreferOsArgs);
 }
 
 
