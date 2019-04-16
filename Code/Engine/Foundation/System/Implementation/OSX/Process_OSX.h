@@ -8,11 +8,11 @@ ezProcess::ezProcess()
 
 ezProcess::~ezProcess()
 {
-  /// \todo Implement ~ezProcess::ezProcess on OSX
+  /// \todo Implement ezProcess::~ezProcess on OSX
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
-ezResult ezProcess::Launch()
+ezResult ezProcess::Execute(const ezProcessOptions& opt, ezInt32* out_iExitCode /*= nullptr*/)
 {
   /// \todo Implement ezProcess::Execute on OSX
 
@@ -20,9 +20,17 @@ ezResult ezProcess::Launch()
   return EZ_FAILURE;
 }
 
-ezResult ezProcess::LaunchAsync()
+ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaunchFlags> launchFlags /*= ezProcessLaunchFlags::None*/)
 {
-  /// \todo Implement ezProcess::LaunchDetached on OSX
+  /// \todo Implement ezProcess::Launch on OSX
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return EZ_FAILURE;
+}
+
+ezResult ezProcess::ResumeSuspended()
+{
+  /// \todo Implement ezProcess::ResumeSuspended on OSX
 
   EZ_ASSERT_NOT_IMPLEMENTED;
   return EZ_FAILURE;
@@ -57,4 +65,20 @@ void ezProcess::Detach()
   /// \todo Implement ezProcess::Detach on OSX
 
   EZ_ASSERT_NOT_IMPLEMENTED;
+}
+
+ezOsProcessHandle ezProcess::GetProcessHandle() const
+{
+  /// \todo Implement ezProcess::GetProcessHandle on OSX
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return nullptr;
+}
+
+ezOsProcessID ezProcess::GetProcessID() const
+{
+  /// \todo Implement ezProcess::GetProcessID on OSX
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return 0;
 }

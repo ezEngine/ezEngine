@@ -6,7 +6,7 @@ struct ezPipeWin
 {
   HANDLE m_pipeRead = nullptr;
   HANDLE m_pipeWrite = nullptr;
-  std::future<void> m_read;
+  std::thread m_readThread;
 
   void Create()
   {
@@ -33,7 +33,7 @@ struct ezPipeWin
       CloseHandle(m_pipeWrite);
       m_pipeWrite = nullptr;
 
-      m_read.wait();
+      m_readThread.join();
       CloseHandle(m_pipeRead);
       m_pipeRead = nullptr;
     }
@@ -43,7 +43,7 @@ struct ezPipeWin
   {
     if (m_pipeWrite)
     {
-      m_read = std::async(std::launch::async, [&]() {
+      m_readThread = std::thread([&]() {
         constexpr int BUFSIZE = 512;
         char chBuf[BUFSIZE];
         while (true)
@@ -63,6 +63,7 @@ struct ezPipeWin
 struct ezProcessImpl
 {
   ezOsProcessHandle m_ProcessHandle = nullptr;
+  ezOsProcessHandle m_MainThreadHandle = nullptr;
   ezOsProcessID m_ProcessID = 0;
   ezPipeWin m_pipeStdOut;
   ezPipeWin m_pipeStdErr;
@@ -71,6 +72,12 @@ struct ezProcessImpl
 
   void Close()
   {
+    if (m_MainThreadHandle != nullptr)
+    {
+      CloseHandle(m_MainThreadHandle);
+      m_MainThreadHandle = nullptr;
+    }
+
     if (m_ProcessHandle != nullptr)
     {
       CloseHandle(m_ProcessHandle);
@@ -91,18 +98,34 @@ ezProcess::~ezProcess()
 {
   if (GetState() == ezProcessState::Running)
   {
+    ezLog::Dev("Process still running - terminating '{}'", m_sProcess);
+
     Terminate();
   }
 }
 
-ezResult ezProcess::LaunchAsync()
+ezOsProcessHandle ezProcess::GetProcessHandle() const
+{
+  return m_impl->m_ProcessHandle;
+}
+
+ezOsProcessID ezProcess::GetProcessID() const
+{
+  return m_impl->m_ProcessID;
+}
+
+ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaunchFlags> launchFlags /*= ezAsyncProcessFlags::None*/)
 {
   EZ_ASSERT_DEV(m_impl->m_ProcessHandle == nullptr, "Cannot reuse an instance of ezProcess");
   EZ_ASSERT_DEV(m_impl->m_ProcessID == 0, "Cannot reuse an instance of ezProcess");
 
-  ezStringBuilder sProcess = m_sProcess;
+  ezStringBuilder sProcess = opt.m_sProcess;
   sProcess.MakeCleanPath();
   sProcess.ReplaceAll("/", "\\");
+
+  m_sProcess = sProcess;
+  m_onStdOut = opt.m_onStdOut;
+  m_onStdError = opt.m_onStdError;
 
   STARTUPINFOW si;
   ezMemoryUtils::ZeroFill(&si, 1);
@@ -127,18 +150,24 @@ ezResult ezProcess::LaunchAsync()
 
 
   ezStringBuilder sCmdLine;
-  BuildCommandLineString(sProcess, sCmdLine);
+  BuildFullCommandLineString(opt, sProcess, sCmdLine);
 
-  DWORD dwCreationFlags = 0;
+  DWORD dwCreationFlags = NORMAL_PRIORITY_CLASS | CREATE_UNICODE_ENVIRONMENT;
 
-  if (m_bHideConsoleWindow)
+  if (opt.m_bHideConsoleWindow)
   {
     dwCreationFlags |= CREATE_NO_WINDOW;
   }
+
+  if (launchFlags.IsSet(ezProcessLaunchFlags::Suspended))
+  {
+    dwCreationFlags |= CREATE_SUSPENDED;
+  }
+
   if (!CreateProcessW(ezStringWChar(sProcess).GetData(), const_cast<wchar_t*>(ezStringWChar(sCmdLine).GetData()),
-        nullptr, // lpProcessAttributes
-        nullptr, // lpThreadAttributes
-        (si.dwFlags & STARTF_USESTDHANDLES) != 0 ? TRUE : FALSE,    // bInheritHandles
+        nullptr,                                                 // lpProcessAttributes
+        nullptr,                                                 // lpThreadAttributes
+        (si.dwFlags & STARTF_USESTDHANDLES) != 0 ? TRUE : FALSE, // bInheritHandles
         dwCreationFlags,
         nullptr, // lpEnvironment
         nullptr, // lpCurrentDirectory
@@ -156,6 +185,35 @@ ezResult ezProcess::LaunchAsync()
 
   m_impl->m_ProcessHandle = pi.hProcess;
   m_impl->m_ProcessID = pi.dwProcessId;
+
+  if (launchFlags.IsSet(ezProcessLaunchFlags::Suspended))
+  {
+    // store the main thread handle for ResumeSuspended() later 
+    m_impl->m_MainThreadHandle = pi.hThread;
+  }
+  else
+  {
+    CloseHandle(pi.hThread);
+  }
+
+  if (launchFlags.IsSet(ezProcessLaunchFlags::Detached))
+  {
+    Detach();
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezProcess::ResumeSuspended()
+{
+  if (m_impl->m_ProcessHandle == nullptr || m_impl->m_MainThreadHandle == nullptr)
+    return EZ_FAILURE;
+
+  ResumeThread(m_impl->m_MainThreadHandle);
+
+  // invalidate the thread handle, so that we cannot resume the process twice
+  CloseHandle(m_impl->m_MainThreadHandle);
+  m_impl->m_MainThreadHandle = nullptr;
 
   return EZ_SUCCESS;
 }
@@ -182,10 +240,7 @@ ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
 
   if (res == WAIT_FAILED)
   {
-    ezStringBuilder sCmdLine;
-    BuildCommandLineString(m_sProcess, sCmdLine);
-
-    ezLog::Error("Failed to wait for '{} {}' - {}", m_sProcess, sCmdLine, ezArgErrorCode(GetLastError()));
+    ezLog::Error("Failed to wait for '{}' - {}", m_sProcess, ezArgErrorCode(GetLastError()));
     return EZ_FAILURE;
   }
 
@@ -199,10 +254,17 @@ ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
   return EZ_SUCCESS;
 }
 
-ezResult ezProcess::Launch()
+ezResult ezProcess::Execute(const ezProcessOptions& opt, ezInt32* out_iExitCode /*= nullptr*/)
 {
-  EZ_SUCCEED_OR_RETURN(LaunchAsync());
-  EZ_SUCCEED_OR_RETURN(WaitToFinish());
+  ezProcess proc;
+
+  EZ_SUCCEED_OR_RETURN(proc.Launch(opt));
+  EZ_SUCCEED_OR_RETURN(proc.WaitToFinish());
+
+  if (out_iExitCode != nullptr)
+  {
+    *out_iExitCode = proc.GetExitCode();
+  }
 
   return EZ_SUCCESS;
 }
