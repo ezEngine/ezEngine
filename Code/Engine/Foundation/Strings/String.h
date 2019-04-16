@@ -127,7 +127,7 @@ private:
   friend class ezStringBuilder;
 
   ezHybridArray<char, Size> m_Data;
-  ezUInt32 m_uiCharacterCount;
+  ezUInt32 m_uiCharacterCount = 0;
 };
 
 

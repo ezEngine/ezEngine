@@ -102,15 +102,17 @@ ezResult ezGameEngineTestApplication::LoadScene(const char* szSceneFile)
   }
 }
 
-void ezGameEngineTestApplication::BeforeCoreSystemsStartup()
+ezResult ezGameEngineTestApplication::BeforeCoreSystemsStartup()
 {
-  SUPER::BeforeCoreSystemsStartup();
+  EZ_SUCCEED_OR_RETURN(SUPER::BeforeCoreSystemsStartup());
 
   ezStringBuilder sProjectPath(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath(), "/", m_sProjectDirName);
 
   ezStringBuilder sProject;
   ezFileSystem::ResolveSpecialDirectory(sProjectPath, sProject);
   m_sAppProjectPath = sProject;
+
+  return EZ_SUCCESS;
 }
 
 

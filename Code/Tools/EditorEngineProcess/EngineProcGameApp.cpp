@@ -25,7 +25,7 @@ ezEngineProcessGameApplication::ezEngineProcessGameApplication()
 {
 }
 
-void ezEngineProcessGameApplication::BeforeCoreSystemsStartup()
+ezResult ezEngineProcessGameApplication::BeforeCoreSystemsStartup()
 {
   m_pApp = CreateEngineProcessApp();
 
@@ -47,7 +47,7 @@ void ezEngineProcessGameApplication::BeforeCoreSystemsStartup()
 
   ezStartup::AddApplicationTag("editorengineprocess");
 
-  SUPER::BeforeCoreSystemsStartup();
+  return SUPER::BeforeCoreSystemsStartup();
 }
 
 void ezEngineProcessGameApplication::AfterCoreSystemsStartup()

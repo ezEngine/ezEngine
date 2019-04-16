@@ -16,7 +16,7 @@ class ezApplication;
 EZ_CORE_DLL void ezRun(ezApplication* pApplicationInstance);
 
 /// \brief [internal] Called by ezRun()
-EZ_CORE_DLL void ezRun_Startup(ezApplication* pApplicationInstance);
+EZ_CORE_DLL ezResult ezRun_Startup(ezApplication* pApplicationInstance);
 /// \brief [internal] Called by ezRun()
 EZ_CORE_DLL void ezRun_MainLoop(ezApplication* pApplicationInstance);
 /// \brief [internal] Called by ezRun()
@@ -88,7 +88,7 @@ public:
   /// Override this function to be able to configure subsystems, before they are initialized.
   /// After this function returns, ezStartup::StartupCoreSystems() is automatically called.
   /// If you need to set up custom allocators, this is the place to do this.
-  virtual void BeforeCoreSystemsStartup();
+  virtual ezResult BeforeCoreSystemsStartup();
 
   /// \brief This function is called after basic engine initialization has been done.
   ///
@@ -188,7 +188,7 @@ private:
   static ezApplication* s_pApplicationInstance;
 
   friend EZ_CORE_DLL void ezRun(ezApplication* pApplicationInstance);
-  friend EZ_CORE_DLL void ezRun_Startup(ezApplication* pApplicationInstance);
+  friend EZ_CORE_DLL ezResult ezRun_Startup(ezApplication* pApplicationInstance);
   friend EZ_CORE_DLL void ezRun_MainLoop(ezApplication* pApplicationInstance);
   friend EZ_CORE_DLL void ezRun_Shutdown(ezApplication* pApplicationInstance);
 };

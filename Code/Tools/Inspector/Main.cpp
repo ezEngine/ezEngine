@@ -66,12 +66,12 @@ public:
     QApplication::setPalette(palette);
   }
 
-  virtual void BeforeCoreSystemsStartup() override
+  virtual ezResult BeforeCoreSystemsStartup() override
   {
     ezStartup::AddApplicationTag("tool");
     ezStartup::AddApplicationTag("inspector");
 
-    ezApplication::BeforeCoreSystemsStartup();
+    return ezApplication::BeforeCoreSystemsStartup();
   }
 
   virtual ApplicationExecution Run() override

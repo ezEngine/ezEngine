@@ -20,13 +20,15 @@ public:
     m_pEditorApp = new ezQtEditorApp;
   }
 
-  virtual void BeforeCoreSystemsStartup() override
+  virtual ezResult BeforeCoreSystemsStartup() override
   {
     ezStartup::AddApplicationTag("tool");
     ezStartup::AddApplicationTag("editor");
     ezStartup::AddApplicationTag("editorapp");
 
     ezQtEditorApp::GetSingleton()->InitQt(GetArgumentCount(), (char**)GetArgumentsArray());
+
+    return EZ_SUCCESS;
   }
 
   virtual void AfterCoreSystemsShutdown() override

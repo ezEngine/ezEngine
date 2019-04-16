@@ -24,15 +24,15 @@ ezPlayerApplication::ezPlayerApplication()
   m_pWorld = nullptr;
 }
 
-void ezPlayerApplication::BeforeCoreSystemsStartup()
+ezResult ezPlayerApplication::BeforeCoreSystemsStartup()
 {
   ezStartup::AddApplicationTag("player");
 
-  SUPER::BeforeCoreSystemsStartup();
+  EZ_SUCCEED_OR_RETURN(SUPER::BeforeCoreSystemsStartup());
 
   m_sSceneFile = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene", 0, "");
-  EZ_ASSERT_ALWAYS(!m_sSceneFile.IsEmpty(),
-                   "Scene file has not been specified. Use the -scene command followed by a full path to the ezBinaryScene file");
+  EZ_ASSERT_ALWAYS(
+    !m_sSceneFile.IsEmpty(), "Scene file has not been specified. Use the -scene command followed by a full path to the ezBinaryScene file");
 
   ezStringBuilder projectPath;
   if (ezFileSystem::FindFolderWithSubPath(m_sSceneFile, "ezProject", projectPath).Succeeded())
@@ -41,6 +41,8 @@ void ezPlayerApplication::BeforeCoreSystemsStartup()
   }
 
   EZ_ASSERT_ALWAYS(!m_sAppProjectPath.IsEmpty(), "No project directory could be found for scene file '{0}'", m_sSceneFile);
+
+  return EZ_SUCCESS;
 }
 
 

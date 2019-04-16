@@ -63,7 +63,7 @@ public:
   /// \brief Returns true if this type is derived from the given type.
   bool IsDerivedFrom(const ezRTTI* pBaseType) const; // [tested]
 
-  /// \brief Returns true if this type is derived from the given type.
+  /// \brief Returns true if this type is derived from or identical to the given type.
   template <typename BASE>
   EZ_ALWAYS_INLINE bool IsDerivedFrom() const
   {

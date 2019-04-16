@@ -21,7 +21,7 @@ void ezApplication::SetApplicationName(const char* szAppName)
   m_sAppName = szAppName;
 }
 
-void ezApplication::BeforeCoreSystemsStartup()
+ezResult ezApplication::BeforeCoreSystemsStartup()
 {
   if (ezFileSystem::DetectSdkRootDirectory().Failed())
   {
@@ -43,6 +43,7 @@ void ezApplication::BeforeCoreSystemsStartup()
     EZ_DEBUG_BREAK;
   }
 #endif
+  return EZ_SUCCESS;
 }
 
 

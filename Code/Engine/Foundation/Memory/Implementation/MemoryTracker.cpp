@@ -301,8 +301,8 @@ struct LeakInfo
   EZ_DECLARE_POD_TYPE();
 
   ezAllocatorId m_AllocatorId;
-  size_t m_uiSize;
-  const void* m_pParentLeak;
+  size_t m_uiSize = 0;
+  const void* m_pParentLeak = nullptr;
 
   EZ_ALWAYS_INLINE bool IsRootLeak() const { return m_pParentLeak == nullptr && m_AllocatorId != s_pTrackerData->m_StaticAllocatorId; }
 };

@@ -23,7 +23,7 @@ public:
   {
   }
 
-  virtual void BeforeCoreSystemsStartup() override;
+  virtual ezResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
   virtual void BeforeCoreSystemsShutdown() override;
 

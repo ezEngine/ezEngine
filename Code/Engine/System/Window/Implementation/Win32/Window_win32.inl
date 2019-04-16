@@ -117,7 +117,7 @@ ezResult ezWindow::Initialize()
       m_CreationDescription.m_WindowMode == ezWindowMode::WindowResizable)
   {
     ezLog::Dev("Window is not fullscreen.");
-    dwWindowStyle |= WS_OVERLAPPED | WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE;
+    dwWindowStyle |= WS_OVERLAPPED | WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
   }
   else
   {

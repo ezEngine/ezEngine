@@ -367,13 +367,13 @@ void ezGameApplicationBase::ActivateGameStateAtStartup()
   ActivateGameState();
 }
 
-void ezGameApplicationBase::BeforeCoreSystemsStartup()
+ezResult ezGameApplicationBase::BeforeCoreSystemsStartup()
 {
   ezStartup::AddApplicationTag("runtime");
 
   ExecuteBaseInitFunctions();
 
-  SUPER::BeforeCoreSystemsStartup();
+  return SUPER::BeforeCoreSystemsStartup();
 }
 
 void ezGameApplicationBase::AfterCoreSystemsStartup()
