@@ -60,7 +60,8 @@ const char* ezOpenDdlReader::CopyString(const ezStringView& string)
   return m_Strings.PeekBack().GetData();
 }
 
-ezOpenDdlReaderElement* ezOpenDdlReader::CreateElement(ezOpenDdlPrimitiveType type, const char* szType, const char* szName, bool bGlobalName)
+ezOpenDdlReaderElement* ezOpenDdlReader::CreateElement(
+  ezOpenDdlPrimitiveType type, const char* szType, const char* szName, bool bGlobalName)
 {
   ezOpenDdlReaderElement* pElement = &m_Elements.ExpandAndGetRef();
   pElement->m_pFirstChild = nullptr;
@@ -240,11 +241,14 @@ void ezOpenDdlReader::OnPrimitiveString(ezUInt32 count, const ezStringView* pDat
 
 void ezOpenDdlReader::OnParsingError(const char* szMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn)
 {
-  m_ObjectStack.Clear();
-  m_GlobalNames.Clear();
-  m_Elements.Clear();
+  if (bFatal)
+  {
+    m_ObjectStack.Clear();
+    m_GlobalNames.Clear();
+    m_Elements.Clear();
 
-  ClearDataChunks();
+    ClearDataChunks();
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -333,7 +337,8 @@ const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChild(const char* szNa
   return nullptr;
 }
 
-const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildOfType(ezOpenDdlPrimitiveType type, const char* szName, ezUInt32 uiMinNumberOfPrimitives /* = 1*/) const
+const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildOfType(
+  ezOpenDdlPrimitiveType type, const char* szName, ezUInt32 uiMinNumberOfPrimitives /* = 1*/) const
 {
   /// \test This is new
 
@@ -361,8 +366,7 @@ const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildOfType(const char
 
   while (pChild)
   {
-    if (pChild->GetPrimitivesType() == ezOpenDdlPrimitiveType::Custom &&
-        ezStringUtils::IsEqual(pChild->GetCustomType(), szType) &&
+    if (pChild->GetPrimitivesType() == ezOpenDdlPrimitiveType::Custom && ezStringUtils::IsEqual(pChild->GetCustomType(), szType) &&
         (szName == nullptr || ezStringUtils::IsEqual(pChild->GetName(), szName)))
     {
       return pChild;
@@ -377,4 +381,3 @@ const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildOfType(const char
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_OpenDdlReader);
-
