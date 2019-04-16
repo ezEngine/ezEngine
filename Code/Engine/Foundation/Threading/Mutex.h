@@ -19,8 +19,12 @@ public:
   /// \brief Releases a lock that has been previously acquired
   void Release();
 
+  /// \brief Returns true, if the mutex is currently acquired. Can be used to assert that a lock was entered.
+  EZ_ALWAYS_INLINE bool IsLocked() const { return m_iLockCount > 0; }
+
 private:
   ezMutexHandle m_Handle;
+  ezInt32 m_iLockCount = 0;
 
   EZ_DISALLOW_COPY_AND_ASSIGN(ezMutex);
 };
@@ -37,13 +41,14 @@ public:
 
   /// \brief Implements the 'Release' interface function, but does nothing.
   EZ_ALWAYS_INLINE void Release() {}
+
+  EZ_ALWAYS_INLINE bool IsLocked() const { return false; }
 };
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <Foundation/Threading/Implementation/Win/Mutex_win.h>
+#  include <Foundation/Threading/Implementation/Win/Mutex_win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-#include <Foundation/Threading/Implementation/Posix/Mutex_posix.h>
+#  include <Foundation/Threading/Implementation/Posix/Mutex_posix.h>
 #else
-#error "Mutex is not implemented on current platform"
+#  error "Mutex is not implemented on current platform"
 #endif
-

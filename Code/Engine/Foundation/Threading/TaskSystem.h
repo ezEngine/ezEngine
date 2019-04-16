@@ -8,6 +8,8 @@
 #include <Foundation/Threading/Thread.h>
 #include <Foundation/Threading/ThreadSignal.h>
 
+class ezDGMLGraph;
+
 /// \brief Derive from this base class to implement custom tasks.
 class EZ_FOUNDATION_DLL ezTask
 {
@@ -17,10 +19,27 @@ class EZ_FOUNDATION_DLL ezTask
   typedef ezDelegate<void(ezTask*)> OnTaskFinished;
 
 public:
-  ezTask();
+  ezTask(const char* szTaskName = nullptr);
   virtual ~ezTask() {}
 
-  /// \brief Changes the name of the task, which it will be displayed in profiling tools.
+  /// \brief Changes the multiplicity of this task.
+  ///
+  /// This has to be set before the task is scheduled, ie. before the task group that the task belongs to
+  /// has all its dependencies fulfilled and has its tasks queued for execution.
+  /// It is allowed to change the multiplicity after the task is added to the ezTaskSystem, as long
+  /// as the calling code guarantees to set this value in time.
+  ///
+  /// A task that has a multiplicity of zero (the default) will have its Execute() function called exactly once.
+  /// A task with a multiplicity of N will have its ExecuteWithMultiplicity() function called exactly N times,
+  /// potentially in parallel on multiple threads.
+  /// Since N can be dynamically decided each frame, one can dynamically scale the amount of parallelism
+  /// according to the workload.
+  void SetMultiplicity(ezUInt32 uiMultiplicity); // [tested]
+
+  /// \sa SetMultiplicity
+  ezUInt32 GetMultiplicity() const { return m_uiMultiplicity; } // [tested]
+
+  /// \brief Changes the name of the task, which will be displayed in profiling tools.
   ///
   /// This will only have an effect if it is called before the task is added to a task group.
   void SetTaskName(const char* szName); // [tested]
@@ -37,14 +56,28 @@ public:
   /// If other code needs to be able to check whether a task is finished, you should give it
   /// the ezTaskGroupID of the task's group. That one can be used to query whether the group
   /// has finished, even minutes later.
-  bool IsTaskFinished() const { return m_bIsFinished; } // [tested]
+  bool IsTaskFinished() const { return m_iRemainingRuns == 0; } // [tested]
 
   /// \brief Can be used inside an overridden 'Execute' function to terminate execution prematurely.
   bool HasBeenCanceled() const { return m_bCancelExecution; } // [tested]
 
 private:
   /// \brief Override this to implement the task's supposed functionality.
-  virtual void Execute() = 0;
+  ///
+  /// This function is called for tasks that use multiplicity.
+  /// A task that uses multiplicity is automatically run N times by the ezTaskSystem,
+  /// each time with an increasing invocation index. This allows to have a single task
+  /// to handle something, but then decide dynamically how often to execute it, to subdivide
+  /// the workload into multiple pieces.
+  /// Since the same task is executed multiple times in parallel, tasks with multiplicity should
+  /// not have any mutable state, which is why this function is const.
+  virtual void ExecuteWithMultiplicity(ezUInt32 uiInvocation) const {} // [tested]
+
+  /// \brief Override this to implement the task's supposed functionality.
+  ///
+  /// This function is called for tasks that do not use multiplicity.
+  /// Ie. tasks that are run a single time for each time they are added to the ezTaskSystem.
+  virtual void Execute() {} // [tested]
 
 private:
   // The task system and its worker threads implement most of the functionality of the task handling.
@@ -55,10 +88,10 @@ private:
   void Reset();
 
   /// \brief Called by ezTaskSystem to execute the task. Calls 'Execute' internally.
-  void Run();
+  void Run(ezUInt32 uiInvocation);
 
-  /// \brief Set to true once the task is finished or properly canceled.
-  volatile bool m_bIsFinished;
+  /// \brief Decremented when a task is finished, set to zero when canceled.
+  ezAtomicInteger32 m_iRemainingRuns;
 
   /// \brief Set to true when the task is SUPPOSED to cancel. Whether the task is able to do that, depends on its implementation.
   volatile bool m_bCancelExecution;
@@ -73,6 +106,8 @@ private:
   ezTaskGroupID m_BelongsToGroup;
 
   ezString m_sTaskName;
+
+  ezUInt32 m_uiMultiplicity = 0;
 };
 
 /// \brief This system allows to automatically distribute tasks onto a number of worker threads.
@@ -124,7 +159,7 @@ public:
   /// All tasks that are added to this group will be run with the same given \a Priority.
   /// Once all tasks in the group are finished and thus the group is finished, an optional \a Callback can be executed.
   static ezTaskGroupID CreateTaskGroup(ezTaskPriority::Enum Priority,
-                                       ezTaskGroup::OnTaskGroupFinished Callback = ezTaskGroup::OnTaskGroupFinished()); // [tested]
+    ezTaskGroup::OnTaskGroupFinished Callback = ezTaskGroup::OnTaskGroupFinished()); // [tested]
 
   /// \brief Adds a task to the given task group. The group must not yet have been started.
   static void AddTaskToGroup(ezTaskGroupID Group, ezTask* pTask); // [tested]
@@ -233,6 +268,13 @@ public:
   /// \brief Subscribes to the worker thread stopped event. The callback will be called on each worker thread before it stops.
   static void SubscribeToWorkerThreadStopped(ezDelegate<void()> callback);
 
+  /// \brief Writes the internal state of the ezTaskSystem as a DGML graph.
+  static void WriteStateSnapshotToDGML(ezDGMLGraph& graph);
+
+  /// \brief Convenience function to write the task graph snapshot to a file. If no path is given, the file is written to
+  /// ":appdata/TaskGraphs/__date__.dgml"
+  static void WriteStateSnapshotToDGML(const char* szPath = nullptr);
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, TaskSystem);
   friend class ezTaskWorkerThread;
@@ -245,6 +287,7 @@ private:
   {
     ezTask* m_pTask;
     ezTaskGroup* m_pBelongsToGroup;
+    ezUInt32 m_uiInvocation = 0;
   };
 
   // The arrays of all the active worker threads.
@@ -308,4 +351,3 @@ private:
   // The target frame time used by FinishFrameTasks()
   static double s_fSmoothFrameMS;
 };
-

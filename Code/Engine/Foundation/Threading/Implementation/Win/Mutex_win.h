@@ -1,5 +1,5 @@
 #ifdef EZ_MUTEX_WIN_INL_H_INCLUDED
-#error "This file must not be included twice."
+#  error "This file must not be included twice."
 #endif
 
 #define EZ_MUTEX_WIN_INL_H_INCLUDED
@@ -17,10 +17,11 @@ inline ezMutex::~ezMutex()
 inline void ezMutex::Acquire()
 {
   EnterCriticalSection(&m_Handle);
+  ++m_iLockCount;
 }
 
 inline void ezMutex::Release()
 {
+  --m_iLockCount;
   LeaveCriticalSection(&m_Handle);
 }
-

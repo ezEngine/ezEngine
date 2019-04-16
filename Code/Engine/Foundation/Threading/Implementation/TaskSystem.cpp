@@ -3,6 +3,8 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/TaskSystem.h>
+#include <Foundation/Utilities/DGMLWriter.h>
+#include <Time/Timestamp.h>
 
 ezMutex ezTaskSystem::s_TaskSystemMutex;
 
@@ -282,5 +284,113 @@ void ezTaskSystem::FireWorkerThreadStopped()
   }
 }
 
+void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& graph)
+{
+  EZ_LOCK(s_TaskSystemMutex);
+
+  ezHashTable<const ezTaskGroup*, ezDGMLGraph::NodeId> groupNodeIds;
+
+  ezStringBuilder title, tmp;
+
+  ezDGMLGraph::NodeDesc taskGroupND;
+  taskGroupND.m_Color = ezColor::CornflowerBlue;
+  taskGroupND.m_Shape = ezDGMLGraph::NodeShape::Rectangle;
+
+  ezDGMLGraph::NodeDesc taskNodeND;
+  taskNodeND.m_Color = ezColor::OrangeRed;
+  taskNodeND.m_Shape = ezDGMLGraph::NodeShape::RoundedRectangle;
+
+  const ezDGMLGraph::PropertyId activeId = graph.AddPropertyType("Active");
+  const ezDGMLGraph::PropertyId activeDepsId = graph.AddPropertyType("ActiveDependencies");
+  const ezDGMLGraph::PropertyId scheduledId = graph.AddPropertyType("Scheduled");
+  const ezDGMLGraph::PropertyId finishedId = graph.AddPropertyType("Finished");
+  const ezDGMLGraph::PropertyId multiplicityId = graph.AddPropertyType("Multiplicity");
+  const ezDGMLGraph::PropertyId remainingRunsId = graph.AddPropertyType("RemainingRuns");
+
+  for (ezUInt32 g = 0; g < s_TaskGroups.GetCount(); ++g)
+  {
+    const ezTaskGroup& tg = s_TaskGroups[g];
+
+    if (!tg.m_bInUse)
+      continue;
+
+    title.Format("Group {}", g);
+
+    const ezDGMLGraph::NodeId taskGroupId = graph.AddGroup(title, ezDGMLGraph::GroupType::Expanded, &taskGroupND);
+    groupNodeIds[&tg] = taskGroupId;
+
+    graph.AddNodeProperty(taskGroupId, activeId, tg.m_bIsActive ? "true" : "false");
+    graph.AddNodeProperty(taskGroupId, activeDepsId, ezFmt("{}", tg.m_iActiveDependencies));
+
+    for (ezUInt32 t = 0; t < tg.m_Tasks.GetCount(); ++t)
+    {
+      const ezTask& task = *tg.m_Tasks[t];
+      const ezDGMLGraph::NodeId taskNodeId = graph.AddNode(task.m_sTaskName, &taskNodeND);
+
+      graph.AddNodeToGroup(taskNodeId, taskGroupId);
+
+      graph.AddNodeProperty(taskNodeId, scheduledId, task.m_bTaskIsScheduled ? "true" : "false");
+      graph.AddNodeProperty(taskNodeId, finishedId, task.IsTaskFinished() ? "true" : "false");
+
+      tmp.Format("{}", task.GetMultiplicity());
+      graph.AddNodeProperty(taskNodeId, multiplicityId, tmp);
+
+      tmp.Format("{}", task.m_iRemainingRuns);
+      graph.AddNodeProperty(taskNodeId, remainingRunsId, tmp);
+    }
+  }
+
+  for (ezUInt32 g = 0; g < s_TaskGroups.GetCount(); ++g)
+  {
+    const ezTaskGroup& tg = s_TaskGroups[g];
+
+    if (!tg.m_bInUse)
+      continue;
+
+    const ezDGMLGraph::NodeId ownNodeId = groupNodeIds[&tg];
+
+    for (const ezTaskGroupID& dependsOn : tg.m_DependsOn)
+    {
+      ezDGMLGraph::NodeId otherNodeId;
+
+      // filter out already fulfilled dependencies
+      if (dependsOn.m_pTaskGroup->m_uiGroupCounter != dependsOn.m_uiGroupCounter)
+        continue;
+
+      // filter out already fulfilled dependencies
+      if (!groupNodeIds.TryGetValue(dependsOn.m_pTaskGroup, otherNodeId))
+        continue;
+
+      EZ_ASSERT_DEBUG(otherNodeId != ownNodeId, "");
+
+      graph.AddConnection(otherNodeId, ownNodeId);
+    }
+  }
+}
+
+void ezTaskSystem::WriteStateSnapshotToDGML(const char* szPath /*= nullptr*/)
+{
+  ezStringBuilder sPath = szPath;
+
+  if (sPath.IsEmpty())
+  {
+    sPath = ":appdata/TaskGraphs/";
+
+    const ezDateTime dt = ezTimestamp::CurrentTimestamp();
+
+    sPath.AppendFormat("{0}-{1}-{2}_{3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true),
+      ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true),
+      ezArgU(dt.GetMicroseconds() / 1000, 3, true));
+
+    sPath.ChangeFileExtension("dgml");
+  }
+
+  ezDGMLGraph graph;
+  ezTaskSystem::WriteStateSnapshotToDGML(graph);
+
+  ezDGMLGraphWriter::WriteGraphToFile(sPath, graph);
+}
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystem);
+
 

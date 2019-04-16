@@ -108,13 +108,13 @@ void ezTaskSystem::SetWorkThreadCount(ezInt8 iShortTasks, ezInt8 iLongTasks)
   // these settings are supposed to be a sensible default for most applications
   // an app can of course change that to optimize for its own usage
 
-  // 1 on single core, dual core, tri core CPUs, 2 on Quad core, 4 on six cores and up
+  // at least 2 threads, 4 on six cores and up
   if (iShortTasks <= 0)
-    iShortTasks = ezMath::Clamp<ezInt8>(info.GetCPUCoreCount() - 2, 1, 4);
+    iShortTasks = ezMath::Clamp<ezInt8>(info.GetCPUCoreCount() - 2, 2, 4);
 
-  // 1 on single core, dual core, tri core CPUs, 2 on Quad core, 4 on six cores, 6 on eight cores and up
+  // at least 2 threads, 4 on six cores, 6 on eight cores and up
   if (iLongTasks <= 0)
-    iLongTasks = ezMath::Clamp<ezInt8>(info.GetCPUCoreCount() - 2, 1, 6);
+    iLongTasks = ezMath::Clamp<ezInt8>(info.GetCPUCoreCount() - 2, 2, 6);
 
   // plus there is always one additional 'file access' thread
   // and the main thread, of course

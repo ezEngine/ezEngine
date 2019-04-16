@@ -4,24 +4,8 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/TaskSystem.h>
 
-ezTaskGroupID::ezTaskGroupID()
-{
-  m_pTaskGroup = nullptr;
-  m_uiGroupCounter = 0;
-}
-
-bool ezTaskGroupID::IsValid() const
-{
-  return m_pTaskGroup != nullptr;
-}
-
-ezTaskGroup::ezTaskGroup()
-{
-  m_bInUse = false;
-  m_bIsActive = false;
-  m_uiGroupCounter = 1;
-  m_Priority = ezTaskPriority::ThisFrame;
-}
+ezTaskGroup::ezTaskGroup() = default;
+ezTaskGroup::~ezTaskGroup() = default;
 
 ezTaskGroupID ezTaskSystem::CreateTaskGroup(ezTaskPriority::Enum Priority, ezTaskGroup::OnTaskGroupFinished Callback)
 {
@@ -38,6 +22,7 @@ ezTaskGroupID ezTaskSystem::CreateTaskGroup(ezTaskPriority::Enum Priority, ezTas
 
   // no free group found, create a new one
   s_TaskGroups.PushBack(ezTaskGroup());
+  s_TaskGroups[i].m_uiTaskGroupIndex = i;
 
 foundtaskgroup:
 
@@ -64,13 +49,15 @@ void ezTaskSystem::DebugCheckTaskGroup(ezTaskGroupID Group)
   EZ_ASSERT_DEV(Group.m_pTaskGroup != nullptr, "TaskGroupID is invalid.");
   EZ_ASSERT_DEV(Group.m_pTaskGroup->m_uiGroupCounter == Group.m_uiGroupCounter, "The given TaskGroupID is not valid anymore.");
   EZ_ASSERT_DEV(!Group.m_pTaskGroup->m_bIsActive, "The given TaskGroupID is already started, you cannot modify it anymore.");
+  EZ_ASSERT_DEV(Group.m_pTaskGroup->m_iActiveDependencies == 0, "Invalid active dependenices");
 #endif
 }
 
 void ezTaskSystem::AddTaskToGroup(ezTaskGroupID Group, ezTask* pTask)
 {
   EZ_ASSERT_DEBUG(pTask != nullptr, "Cannot add nullptr tasks.");
-  EZ_ASSERT_DEV(pTask->IsTaskFinished(), "The task that is not finished! Cannot reuse a task before it is done.");
+  EZ_ASSERT_DEV(pTask->IsTaskFinished(), "The given task is not finished! Cannot reuse a task before it is done.");
+  EZ_ASSERT_DEBUG(!pTask->m_sTaskName.IsEmpty(), "Every task should have a name");
 
   DebugCheckTaskGroup(Group);
 
@@ -81,6 +68,10 @@ void ezTaskSystem::AddTaskToGroup(ezTaskGroupID Group, ezTask* pTask)
 
 void ezTaskSystem::AddTaskGroupDependency(ezTaskGroupID Group, ezTaskGroupID DependsOn)
 {
+  EZ_ASSERT_DEBUG(DependsOn.IsValid(), "Invalid dependency");
+  EZ_ASSERT_DEBUG(
+    Group.m_pTaskGroup != DependsOn.m_pTaskGroup || Group.m_uiGroupCounter != DependsOn.m_uiGroupCounter, "Group cannot depend on itselfs");
+
   DebugCheckTaskGroup(Group);
 
   Group.m_pTaskGroup->m_DependsOn.PushBack(DependsOn);
@@ -104,11 +95,11 @@ void ezTaskSystem::StartTaskGroup(ezTaskGroupID Group)
 
     for (ezUInt32 i = 0; i < tg.m_DependsOn.GetCount(); ++i)
     {
-      ezTaskGroup& Dependency = *tg.m_DependsOn[i].m_pTaskGroup;
-
       // if the counters still match, the other task group has not yet been finished, and thus is a real dependency
       if (!IsTaskGroupFinished(tg.m_DependsOn[i]))
       {
+        ezTaskGroup& Dependency = *tg.m_DependsOn[i].m_pTaskGroup;
+
         // add this task group to the list of dependencies, such that when that group finishes, this task group can get woken up
         Dependency.m_OthersDependingOnMe.PushBack(Group);
 
@@ -147,21 +138,37 @@ void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup)
     return;
   }
 
+  ezInt32 iRemainingTasks = 0;
+
   // add all the tasks to the task list, so that they will be processed
   {
     EZ_LOCK(s_TaskSystemMutex);
 
-    // store how many tasks from this groups still need to be processed
-    pGroup->m_iRemainingTasks = pGroup->m_Tasks.GetCount();
 
-    TaskData td;
-    td.m_pBelongsToGroup = pGroup;
+    // store how many tasks from this groups still need to be processed
+
+    for (auto pTask : pGroup->m_Tasks)
+    {
+      iRemainingTasks += ezMath::Max(1u, pTask->m_uiMultiplicity);
+      pTask->m_iRemainingRuns = ezMath::Max(1u, pTask->m_uiMultiplicity);
+    }
+
+    pGroup->m_iRemainingTasks = iRemainingTasks;
+
 
     for (ezUInt32 task = 0; task < pGroup->m_Tasks.GetCount(); ++task)
     {
-      td.m_pTask = pGroup->m_Tasks[task];
-      td.m_pTask->m_bTaskIsScheduled = true;
-      s_Tasks[pGroup->m_Priority].PushBack(td);
+      auto& pTask = pGroup->m_Tasks[task];
+
+      for (ezUInt32 mult = 0; mult < ezMath::Max(1u, pTask->m_uiMultiplicity); ++mult)
+      {
+        TaskData td;
+        td.m_pBelongsToGroup = pGroup;
+        td.m_pTask = pTask;
+        td.m_pTask->m_bTaskIsScheduled = true;
+        td.m_uiInvocation = mult;
+        s_Tasks[pGroup->m_Priority].PushBack(td);
+      }
     }
   }
 
@@ -174,18 +181,39 @@ void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup)
     case ezTaskPriority::EarlyNextFrame:
     case ezTaskPriority::NextFrame:
     case ezTaskPriority::LateNextFrame:
-      s_TasksAvailableSignal[ezWorkerThreadType::ShortTasks].RaiseSignal();
+    {
+      const ezUInt32 uiNumSignals = ezMath::Min<ezUInt32>(iRemainingTasks, s_WorkerThreads[ezWorkerThreadType::ShortTasks].GetCount());
+
+      for (ezUInt32 i = 0; i < uiNumSignals; ++i)
+      {
+        s_TasksAvailableSignal[ezWorkerThreadType::ShortTasks].RaiseSignal();
+      }
       break;
+    }
 
     case ezTaskPriority::LongRunning:
     case ezTaskPriority::LongRunningHighPriority:
-      s_TasksAvailableSignal[ezWorkerThreadType::LongTasks].RaiseSignal();
+    {
+      const ezUInt32 uiNumSignals = ezMath::Min<ezUInt32>(iRemainingTasks, s_WorkerThreads[ezWorkerThreadType::LongTasks].GetCount());
+
+      for (ezUInt32 i = 0; i < uiNumSignals; ++i)
+      {
+        s_TasksAvailableSignal[ezWorkerThreadType::LongTasks].RaiseSignal();
+      }
       break;
+    }
 
     case ezTaskPriority::FileAccess:
     case ezTaskPriority::FileAccessHighPriority:
-      s_TasksAvailableSignal[ezWorkerThreadType::FileAccess].RaiseSignal();
+    {
+      const ezUInt32 uiNumSignals = ezMath::Min<ezUInt32>(iRemainingTasks, s_WorkerThreads[ezWorkerThreadType::FileAccess].GetCount());
+
+      for (ezUInt32 i = 0; i < uiNumSignals; ++i)
+      {
+        s_TasksAvailableSignal[ezWorkerThreadType::FileAccess].RaiseSignal();
+      }
       break;
+    }
 
     case ezTaskPriority::SomeFrameMainThread:
     case ezTaskPriority::ThisFrameMainThread:
@@ -278,4 +306,3 @@ ezResult ezTaskSystem::CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum On
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskGroups);
-
