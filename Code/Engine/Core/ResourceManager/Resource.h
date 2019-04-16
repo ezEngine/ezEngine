@@ -83,6 +83,12 @@ public:
   /// \brief Returns the priority that is used by the resource manager to determine which resource to load next.
   float GetLoadingPriority(ezTime tNow) const;
 
+  /// \brief Returns the current resource priority.
+  ezResourcePriority GetPriority() const { return m_Priority; }
+
+  /// \brief Changes the current resource priority.
+  void SetPriority(ezResourcePriority priority);
+
   /// \brief Returns the basic flags for the resource type. Mostly used the resource manager.
   EZ_ALWAYS_INLINE const ezBitflags<ezResourceFlags>& GetBaseResourceFlags() const { return m_Flags; }
 
@@ -197,6 +203,7 @@ private:
   ezBitflags<ezResourceFlags> m_Flags;
 
   ezTime m_LastAcquire;
+  ezResourcePriority m_Priority = ezResourcePriority::Medium;
   ezTimestamp m_LoadedFileModificationTime;
 };
 
@@ -284,7 +291,6 @@ private:                                                                        
     EZ_RESOURCE_VALIDATE_FALLBACK(SELF);                                                                                                   \
     ezResourceManager::AddResourceCleanupCallback(&SELF::CleanupDynamicPluginReferences);                                                  \
   }
-
 
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)

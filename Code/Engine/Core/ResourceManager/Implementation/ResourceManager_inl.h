@@ -121,8 +121,8 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
   {
     if (pResource->GetLoadingState() != ezResourceState::Loaded)
     {
-      // will prepend this at the preload array, thus will be loaded immediately
-      InternalPreloadResource(pResource, true);
+      // if NoFallback is specified, it will prepended to the preload array, thus will be loaded immediately
+      InternalPreloadResource(pResource, mode >= ezResourceAcquireMode::NoFallback);
 
       if (mode == ezResourceAcquireMode::AllowFallback && (pResource->m_hLoadingFallback.IsValid() || hFallbackResource.IsValid() ||
                                                             GetResourceTypeLoadingFallback<ResourceType>().IsValid()))
@@ -199,6 +199,45 @@ void ezResourceManager::EndAcquireResource(ResourceType* pResource)
   pResource->m_iLockCount.Decrement();
 }
 
+template <typename ResourceType>
+static ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> ezResourceManager::GetAllResourcesOfType()
+{
+  const ezRTTI* pBaseType = ezGetStaticRTTI<ResourceType>();
+
+  // We use a static container here to ensure its life-time is extended beyond
+  // calls to this function as the locked object does not own the passed-in object
+  // and thus does not extend the data life-time. It is safe to do this, as the
+  // locked object holding the container ensures the container will not be
+  // accessed concurrently.
+  ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> loadedResourcesLock(s_ResourceMutex, &s_LoadedResourceOfTypeTempContainer);
+
+  s_LoadedResourceOfTypeTempContainer.Clear();
+
+  for (auto itType = s_LoadedResources.GetIterator(); itType.IsValid(); itType.Next())
+  {
+    const ezRTTI* pDerivedType = itType.Key();
+
+    if (pDerivedType->IsDerivedFrom(pBaseType))
+    {
+      const LoadedResources& lr = s_LoadedResources[pDerivedType];
+
+      if (lr.m_Resources.IsEmpty())
+      {
+        // Nothing to do, avoid alloc/reserve below.
+        continue;
+      }
+
+      s_LoadedResourceOfTypeTempContainer.Reserve(s_LoadedResourceOfTypeTempContainer.GetCount() + lr.m_Resources.GetCount());
+
+      for (auto itResource = lr.m_Resources.GetIterator(); itResource.IsValid(); itResource.Next())
+      {
+        s_LoadedResourceOfTypeTempContainer.PushBack(itResource.Value());
+      }
+    }
+  }
+
+  return loadedResourcesLock;
+}
 
 template <typename ResourceType>
 void ezResourceManager::RestoreResource(const ezTypedResourceHandle<ResourceType>& hResource)

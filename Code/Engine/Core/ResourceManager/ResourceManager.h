@@ -6,6 +6,7 @@
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Containers/HashTable.h>
+#include <Foundation/Threading/LockedObject.h>
 
 /// \brief The central class for managing all types derived from ezResource
 class EZ_CORE_DLL ezResourceManager
@@ -82,6 +83,8 @@ public:
   /// other resources to be loaded first. This is only a hint and there are no guarantees when the resource is available.
   static void PreloadResource(const ezTypelessResourceHandle& hResource);
 
+  static ezResourceState GetLoadingState(const ezTypelessResourceHandle& hResource);
+
   ///@}
   /// \name Reloading resources
   ///@{
@@ -145,6 +148,12 @@ public:
   /// \brief Forces the resource manager to treat ezResourceAcquireMode::AllowFallback as ezResourceAcquireMode::NoFallback on
   /// BeginAcquireResource.
   static void ForceNoFallbackAcquisition(ezUInt32 uiNumFrames = 0xFFFFFFFF);
+
+  /// \brief Retrieves an array of pointers to resources of the indicated type which
+  /// are loaded at the moment. Destroy the returned object as soon as possible as it
+  /// holds the entire resource manager locked.
+  template <typename ResourceType>
+  static ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> GetAllResourcesOfType();
 
   ///@}
   /// \name Unloading resources
@@ -325,6 +334,22 @@ private:
   static ezDynamicArray<ResourceCleanupCB> s_ResourceCleanupCallbacks;
 
   ///@}
+  /// \name Resource Priorities
+  ///@{
+
+public:
+
+  /// \brief Specifies which resource to use as a loading fallback for the given type, while a resource is not yet loaded.
+  template <typename RESOURCE_TYPE>
+  static void SetResourceTypeDefaultPriority(ezResourcePriority priority)
+  {
+    s_ResourceTypePriorities[ezGetStaticRTTI<RESOURCE_TYPE>()] = priority;
+  }
+
+private:
+  static ezMap<const ezRTTI*, ezResourcePriority> s_ResourceTypePriorities;
+
+  ///@}
 
   //////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////
@@ -380,6 +405,7 @@ private:
   static ezResource* GetResource(const ezRTTI* pRtti, const char* szResourceID, bool bIsReloadable);
   static void RunWorkerTask(ezResource* pResource);
   static void UpdateLoadingDeadlines();
+  static void ReverseBubbleSortStep(ezDeque<ezResourceManager::LoadingInfo>& data);
   static bool ReloadResource(ezResource* pResource, bool bForce);
 
 private:
@@ -396,8 +422,11 @@ private:
   static ezResourceManagerWorkerUpdateContent s_WorkerTasksUpdateContent[MaxUpdateContentTasks];
   static ezUInt8 s_uiCurrentUpdateContentWorkerTask;
   static ezUInt8 s_uiCurrentLoadDataWorkerTask;
-  static ezTime s_LastDeadlineUpdate;
   static ezTime s_LastFrameUpdate;
+  static ezUInt32 s_uiLastResourcePriorityUpdateIdx;
+
+  static ezDynamicArray<ezResource*> s_LoadedResourceOfTypeTempContainer;
+  static ezHashTable<ezTempHashedString, const ezRTTI*> s_ResourcesToUnloadOnMainThread;
 
   // Type loaders
 private:

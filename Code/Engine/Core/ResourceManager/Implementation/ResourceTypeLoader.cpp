@@ -5,7 +5,6 @@
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
-#include <Foundation/Profiling/Profiling.h>
 
 struct FileResourceLoadData
 {
@@ -57,7 +56,6 @@ ezResourceLoadData ezResourceLoaderFromFile::OpenDataStream(const ezResource* pR
       break;
   }
 
-  pData->m_Reader.SetDebugSourceInformation(File.GetFilePathAbsolute());
   res.m_pDataStream = &pData->m_Reader;
   res.m_pCustomLoaderData = pData;
 
