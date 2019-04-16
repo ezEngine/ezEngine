@@ -117,16 +117,34 @@ ezMemoryMappedFile::Mode ezMemoryMappedFile::GetMode() const
   return m_Impl->m_Mode;
 }
 
-const void* ezMemoryMappedFile::GetReadPointer() const
+const void* ezMemoryMappedFile::GetReadPointer(ezUInt64 uiOffset /*= 0*/, OffsetBase base /*= OffsetBase::Start*/) const
 {
   EZ_ASSERT_DEBUG(m_Impl->m_Mode >= Mode::ReadOnly, "File must be opened with read access before accessing it for reading.");
-  return m_Impl->m_pMappedFilePtr;
+  EZ_ASSERT_DEBUG(uiOffset <= m_Impl->m_uiFileSize, "Read offset must be smaller than mapped file size");
+
+  if (base == OffsetBase::Start)
+  {
+    return ezMemoryUtils::AddByteOffset(m_Impl->m_pMappedFilePtr, uiOffset);
+  }
+  else
+  {
+    return ezMemoryUtils::AddByteOffset(m_Impl->m_pMappedFilePtr, m_Impl->m_uiFileSize - uiOffset);
+  }
 }
 
-void* ezMemoryMappedFile::GetWritePointer()
+void* ezMemoryMappedFile::GetWritePointer(ezUInt64 uiOffset /*= 0*/, OffsetBase base /*= OffsetBase::Start*/)
 {
   EZ_ASSERT_DEBUG(m_Impl->m_Mode >= Mode::ReadWrite, "File must be opened with read/write access before accessing it for writing.");
-  return m_Impl->m_pMappedFilePtr;
+  EZ_ASSERT_DEBUG(uiOffset <= m_Impl->m_uiFileSize, "Read offset must be smaller than mapped file size");
+
+  if (base == OffsetBase::Start)
+  {
+    return ezMemoryUtils::AddByteOffset(m_Impl->m_pMappedFilePtr, uiOffset);
+  }
+  else
+  {
+    return ezMemoryUtils::AddByteOffset(m_Impl->m_pMappedFilePtr, m_Impl->m_uiFileSize - uiOffset);
+  }
 }
 
 ezUInt64 ezMemoryMappedFile::GetFileSize() const
