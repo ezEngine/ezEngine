@@ -28,6 +28,8 @@ ezMap<ezString, ezString> ezFileSystem::s_SpecialDirectories;
 
 void ezFileSystem::RegisterDataDirectoryFactory(ezDataDirFactory Factory, float fPriority /*= 0*/)
 {
+  EZ_LOCK(s_Data->m_FsMutex);
+
   auto& data = s_Data->m_DataDirFactories.ExpandAndGetRef();
   data.m_Factory = Factory;
   data.m_fPriority = fPriority;
@@ -69,7 +71,6 @@ ezResult ezFileSystem::AddDataDirectory(const char* szDataDirectory, const char*
   EZ_ASSERT_DEV(Usage != AllowWrites || !ezStringUtils::IsNullOrEmpty(szRootName),
     "A data directory must have a non-empty, unique name to be mounted for write access");
 
-
   ezStringBuilder sPath = szDataDirectory;
   sPath.MakeCleanPath();
 
@@ -78,6 +79,8 @@ ezResult ezFileSystem::AddDataDirectory(const char* szDataDirectory, const char*
 
   ezStringBuilder sCleanRootName = szRootName;
   CleanUpRootName(sCleanRootName);
+
+  EZ_LOCK(s_Data->m_FsMutex);
 
   bool failed = false;
   if (FindDataDirectoryWithRoot(sCleanRootName) != nullptr)
@@ -138,6 +141,8 @@ bool ezFileSystem::RemoveDataDirectory(const char* szRootName)
   ezStringBuilder sCleanRootName = szRootName;
   CleanUpRootName(sCleanRootName);
 
+  EZ_LOCK(s_Data->m_FsMutex);
+
   for (ezUInt32 i = 0; i < s_Data->m_DataDirectories.GetCount();)
   {
     if (s_Data->m_DataDirectories[i].m_sRootName == sCleanRootName)
@@ -167,6 +172,8 @@ bool ezFileSystem::RemoveDataDirectory(const char* szRootName)
 ezUInt32 ezFileSystem::RemoveDataDirectoryGroup(const char* szGroup)
 {
   EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
+
+  EZ_LOCK(s_Data->m_FsMutex);
 
   ezUInt32 uiRemoved = 0;
 
@@ -200,6 +207,8 @@ void ezFileSystem::ClearAllDataDirectories()
 {
   EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
+  EZ_LOCK(s_Data->m_FsMutex);
+
   for (ezInt32 i = s_Data->m_DataDirectories.GetCount() - 1; i >= 0; --i)
   {
     {
@@ -222,6 +231,8 @@ ezDataDirectoryType* ezFileSystem::FindDataDirectoryWithRoot(const char* szRootN
 {
   if (ezStringUtils::IsNullOrEmpty(szRootName))
     return nullptr;
+
+  EZ_LOCK(s_Data->m_FsMutex);
 
   for (const auto& dd : s_Data->m_DataDirectories)
   {
@@ -250,6 +261,8 @@ ezDataDirectoryType* ezFileSystem::GetDataDirectory(ezUInt32 uiDataDirIndex)
 
 const char* ezFileSystem::GetDataDirRelativePath(const char* szPath, ezUInt32 uiDataDir)
 {
+  EZ_LOCK(s_Data->m_FsMutex);
+
   // if an absolute path is given, this will check whether the absolute path would fall into this data directory
   // if yes, the prefix path is removed and then only the relative path is given to the data directory type
   // otherwise the data directory would prepend its own path and thus create an invalid path to work with
@@ -290,7 +303,9 @@ const char* ezFileSystem::GetDataDirRelativePath(const char* szPath, ezUInt32 ui
 
 ezFileSystem::DataDirectory* ezFileSystem::GetDataDirForRoot(const ezString& sRoot)
 {
-  for (ezUInt32 i = 0; i < s_Data->m_DataDirectories.GetCount(); ++i)
+  EZ_LOCK(s_Data->m_FsMutex);
+
+  for (ezInt32 i = (ezInt32)s_Data->m_DataDirectories.GetCount() - 1; i >= 0; --i)
   {
     if (s_Data->m_DataDirectories[i].m_sRootName == sRoot)
       return &s_Data->m_DataDirectories[i];
@@ -318,7 +333,9 @@ void ezFileSystem::DeleteFile(const char* szFile)
   if (sRootName.IsEmpty())
     return;
 
-  for (ezUInt32 i = 0; i < s_Data->m_DataDirectories.GetCount(); ++i)
+  EZ_LOCK(s_Data->m_FsMutex);
+
+  for (ezInt32 i = (ezInt32)s_Data->m_DataDirectories.GetCount() - 1; i >= 0; --i)
   {
     // do not delete data from directories that are mounted as read only
     if (s_Data->m_DataDirectories[i].m_Usage != AllowWrites)
@@ -353,7 +370,9 @@ bool ezFileSystem::ExistsFile(const char* szFile)
 
   const bool bOneSpecificDataDir = !sRootName.IsEmpty();
 
-  for (ezUInt32 i = 0; i < s_Data->m_DataDirectories.GetCount(); ++i)
+  EZ_LOCK(s_Data->m_FsMutex);
+
+  for (ezInt32 i = (ezInt32)s_Data->m_DataDirectories.GetCount() - 1; i >= 0; --i)
   {
     if (!sRootName.IsEmpty() && s_Data->m_DataDirectories[i].m_sRootName != sRootName)
       continue;
@@ -372,12 +391,14 @@ ezResult ezFileSystem::GetFileStats(const char* szFileOrFolder, ezFileStats& out
 {
   EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
+  EZ_LOCK(s_Data->m_FsMutex);
+
   ezString sRootName;
   szFileOrFolder = ExtractRootName(szFileOrFolder, sRootName);
 
   const bool bOneSpecificDataDir = !sRootName.IsEmpty();
 
-  for (ezUInt32 i = 0; i < s_Data->m_DataDirectories.GetCount(); ++i)
+  for (ezInt32 i = (ezInt32)s_Data->m_DataDirectories.GetCount() - 1; i >= 0; --i)
   {
     if (!sRootName.IsEmpty() && s_Data->m_DataDirectories[i].m_sRootName != sRootName)
       continue;
@@ -425,6 +446,8 @@ ezDataDirectoryReader* ezFileSystem::GetFileReader(const char* szFile, bool bAll
 
   if (ezStringUtils::IsNullOrEmpty(szFile))
     return nullptr;
+
+  EZ_LOCK(s_Data->m_FsMutex);
 
   ezString sRootName;
   szFile = ExtractRootName(szFile, sRootName);
@@ -491,6 +514,8 @@ ezDataDirectoryWriter* ezFileSystem::GetFileWriter(const char* szFile, bool bAll
 
   if (ezStringUtils::IsNullOrEmpty(szFile))
     return nullptr;
+
+  EZ_LOCK(s_Data->m_FsMutex);
 
   ezString sRootName;
 
@@ -562,6 +587,8 @@ ezDataDirectoryWriter* ezFileSystem::GetFileWriter(const char* szFile, bool bAll
 ezResult ezFileSystem::ResolvePath(const char* szPath, ezStringBuilder* out_sAbsolutePath, ezStringBuilder* out_sDataDirRelativePath)
 {
   EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
+
+  EZ_LOCK(s_Data->m_FsMutex);
 
   ezStringBuilder absPath, relPath;
 
@@ -654,6 +681,8 @@ ezResult ezFileSystem::FindFolderWithSubPath(const char* szStartDirectory, const
 
 bool ezFileSystem::ResolveAssetRedirection(const char* szPathOrAssetGuid, ezStringBuilder& out_sRedirection)
 {
+  EZ_LOCK(s_Data->m_FsMutex);
+
   for (auto& dd : s_Data->m_DataDirectories)
   {
     if (dd.m_pDataDirectory->ResolveAssetRedirection(szPathOrAssetGuid, out_sRedirection))
@@ -668,6 +697,8 @@ void ezFileSystem::ReloadAllExternalDataDirectoryConfigs()
 {
   EZ_LOG_BLOCK("ReloadAllExternalDataDirectoryConfigs");
 
+  EZ_LOCK(s_Data->m_FsMutex);
+
   for (auto& dd : s_Data->m_DataDirectories)
   {
     dd.m_pDataDirectory->ReloadExternalConfigs();
@@ -681,9 +712,13 @@ void ezFileSystem::Startup()
 
 void ezFileSystem::Shutdown()
 {
-  s_Data->m_DataDirFactories.Clear();
+  {
+    EZ_LOCK(s_Data->m_FsMutex);
 
-  ClearAllDataDirectories();
+    s_Data->m_DataDirFactories.Clear();
+
+    ClearAllDataDirectories();
+  }
 
   EZ_DEFAULT_DELETE(s_Data);
 }

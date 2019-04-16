@@ -13,10 +13,7 @@ inline ezResult ezDataDirectoryReaderWriterBase::Open(const char* szResourcePath
   m_pDataDirectory = pDataDirectory;
   m_sFilePath = szResourcePath;
 
-  if (InternalOpen() == EZ_SUCCESS)
-    return EZ_SUCCESS;
-
-  return EZ_FAILURE;
+  return InternalOpen();
 }
 
 inline const ezString128& ezDataDirectoryReaderWriterBase::GetFilePath() const

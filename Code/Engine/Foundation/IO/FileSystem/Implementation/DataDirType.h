@@ -66,7 +66,7 @@ protected:
 
   /// \brief This function checks whether the given file exists in this data directory.
   ///
-  /// The default implementation will simply calls ezOSFile::ExistsFile
+  /// The default implementation simply calls ezOSFile::ExistsFile
   /// An optimized implementation might look this information up in some hash-map.
   virtual bool ExistsFile(const char* szFile, bool bOneSpecificDataDir);
 

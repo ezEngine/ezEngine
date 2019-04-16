@@ -274,6 +274,7 @@ private:
     ezHybridArray<DataDirectory, 16> m_DataDirectories;
 
     ezEvent<const FileEvent&, ezMutex> m_Event;
+    ezMutex m_FsMutex;
   };
 
   /// \brief Returns a list of data directory categories that were embedded in the path.

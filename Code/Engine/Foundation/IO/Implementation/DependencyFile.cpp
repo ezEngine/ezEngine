@@ -160,7 +160,7 @@ ezResult ezDependencyFile::RetrieveFileTimeStamp(const char* szFile, ezTimestamp
     }
 
     ezFileStats stats;
-    if (ezOSFile::GetFileStats(sAbsPath, stats).Failed())
+    if (ezFileSystem::GetFileStats(sAbsPath, stats).Failed())
     {
       ezLog::Error("Could not query the file stats for '{0}'", szFile);
       return EZ_FAILURE;
