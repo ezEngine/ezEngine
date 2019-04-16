@@ -17,6 +17,7 @@ enum ezAssetFileHeaderVersion : ezUInt8
 {
   Version1 = 1,
   Version2,
+  Version3,
 
   VersionCount,
   VersionCurrent = VersionCount - 1
@@ -37,6 +38,7 @@ ezResult ezAssetFileHeader::Write(ezStreamWriter& stream) const
   // 2 for the type version
   stream << m_uiVersion;
 
+  stream << m_sGenerator;
   return EZ_SUCCESS;
 }
 
@@ -73,6 +75,11 @@ ezResult ezAssetFileHeader::Read(ezStreamReader& stream)
   if (uiVersion >= ezAssetFileHeaderVersion::Version2)
   {
     stream >> m_uiVersion;
+  }
+
+  if (uiVersion >= ezAssetFileHeaderVersion::Version3)
+  {
+    stream >> m_sGenerator;
   }
 
   // older version? set the hash to 'invalid'

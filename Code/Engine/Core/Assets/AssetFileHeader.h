@@ -2,6 +2,7 @@
 
 #include <Core/CoreDLL.h>
 #include <Foundation/IO/Stream.h>
+#include <Foundation/Strings/HashedString.h>
 
 /// \brief Simple class to handle asset file headers (the very first bytes in all transformed asset files)
 class EZ_CORE_DLL ezAssetFileHeader
@@ -34,8 +35,14 @@ public:
   /// \brief Returns the asset type version
   ezUInt16 GetFileVersion() const { return m_uiVersion; }
 
+  /// \brief Returns the generator which was used to produce the asset file
+  const ezHashedString& GetGenerator() { return m_sGenerator; }
+
+  /// \brief Allows to set the generator string
+  void SetGenerator(const char* szGenerator) { m_sGenerator.Assign(szGenerator); }
+
 private:
   ezUInt64 m_uiHash;
   ezUInt16 m_uiVersion;
+  ezHashedString m_sGenerator;
 };
-
