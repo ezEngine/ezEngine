@@ -9,20 +9,14 @@ namespace
 {
   struct TableEntry
   {
-    TableEntry()
-    {
-      m_step = nullptr;
-      m_sourceFormat = ezImageFormat::UNKNOWN;
-      m_targetFormat = ezImageFormat::UNKNOWN;
-      m_flags = ezImageConversionFlags::Default;
-      m_cost = ezMath::BasicType<float>::MaxValue();
-    }
+    TableEntry() = default;
 
     TableEntry(const ezImageConversionStep* pStep, const ezImageConversionEntry& entry)
     {
       m_step = pStep;
       m_sourceFormat = entry.m_sourceFormat;
       m_targetFormat = entry.m_targetFormat;
+      m_numChannels = ezMath::Min(ezImageFormat::GetNumChannels(entry.m_sourceFormat), ezImageFormat::GetNumChannels(entry.m_targetFormat));
 
       float sourceBpp = ezImageFormat::GetExactBitsPerPixel(m_sourceFormat);
       float targetBpp = ezImageFormat::GetExactBitsPerPixel(m_targetFormat);
@@ -50,11 +44,12 @@ namespace
       }
     }
 
-    const ezImageConversionStep* m_step;
-    ezImageFormat::Enum m_sourceFormat;
-    ezImageFormat::Enum m_targetFormat;
+    const ezImageConversionStep* m_step = nullptr;
+    ezImageFormat::Enum m_sourceFormat = ezImageFormat::UNKNOWN;
+    ezImageFormat::Enum m_targetFormat = ezImageFormat::UNKNOWN;
     ezBitflags<ezImageConversionFlags> m_flags;
-    float m_cost;
+    float m_cost = ezMath::BasicType<float>::MaxValue();
+    ezUInt32 m_numChannels = 0;
 
     static TableEntry chain(const TableEntry& a, const TableEntry& b)
     {
@@ -72,14 +67,31 @@ namespace
       entry.m_sourceFormat = a.m_sourceFormat;
       entry.m_targetFormat = a.m_targetFormat;
       entry.m_flags = a.m_flags;
+      entry.m_numChannels = ezMath::Min(a.m_numChannels, b.m_numChannels);
       return entry;
     }
 
-    bool operator<(const TableEntry& other) const { return m_cost < other.m_cost; }
+    bool operator<(const TableEntry& other) const
+    {
+      if (m_numChannels > other.m_numChannels)
+        return true;
 
-    bool isAdmissible() const { return m_cost < ezMath::BasicType<float>::MaxValue(); }
+      if (m_numChannels < other.m_numChannels)
+        return false;
+
+      return m_cost < other.m_cost;
+    }
+
+    bool isAdmissible() const
+    {
+      if (m_numChannels == 0)
+        return false;
+
+      return m_cost < ezMath::BasicType<float>::MaxValue();
+    }
   };
 
+  ezMutex s_conversionTableLock;
   ezHashTable<ezUInt32, TableEntry> s_conversionTable;
   bool s_conversionTableValid = false;
 
@@ -139,6 +151,8 @@ ezImageConversionStep::~ezImageConversionStep()
 ezResult ezImageConversion::BuildPath(ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat, bool bSourceEqualsTarget,
                                       ezHybridArray<ezImageConversion::ConversionPathNode, 16>& path_out, ezUInt32& numScratchBuffers_out)
 {
+  EZ_LOCK(s_conversionTableLock);
+
   path_out.Clear();
   numScratchBuffers_out = 0;
 
@@ -251,6 +265,8 @@ ezResult ezImageConversion::BuildPath(ezImageFormat::Enum sourceFormat, ezImageF
 
 void ezImageConversion::RebuildConversionTable()
 {
+  EZ_LOCK(s_conversionTableLock);
+
   s_conversionTable.Clear();
 
   // Prime conversion table with known conversions
@@ -289,12 +305,10 @@ void ezImageConversion::RebuildConversionTable()
 
   for (ezUInt32 i = 0; i < ezImageFormat::NUM_FORMATS; i++)
   {
-    ezImageFormat::Enum format = static_cast<ezImageFormat::Enum>(i);
+    const ezImageFormat::Enum format = static_cast<ezImageFormat::Enum>(i);
     // Add copy-conversion (from and to same format)
     s_conversionTable.Insert(MakeKey(format, format),
-                             TableEntry(nullptr, ezImageConversionEntry(ezImageConversionEntry(static_cast<ezImageFormat::Enum>(i),
-                                                                                               static_cast<ezImageFormat::Enum>(i),
-                                                                                               ezImageConversionFlags::InPlace))));
+      TableEntry(nullptr, ezImageConversionEntry(ezImageConversionEntry(format, format, ezImageConversionFlags::InPlace))));
   }
 
   // Straight from http://en.wikipedia.org/wiki/Floyd-Warshall_algorithm
@@ -654,6 +668,8 @@ ezResult ezImageConversion::ConvertSingleStepCompress(const ezImageView& source,
 
 bool ezImageConversion::IsConvertible(ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat)
 {
+  EZ_LOCK(s_conversionTableLock);
+
   if (!s_conversionTableValid)
   {
     RebuildConversionTable();
@@ -663,9 +679,11 @@ bool ezImageConversion::IsConvertible(ezImageFormat::Enum sourceFormat, ezImageF
   return s_conversionTable.Contains(tableIndex);
 }
 
-ezImageFormat::Enum ezImageConversion::FindClosestCompatibleFormat(ezImageFormat::Enum format,
-                                                                   ezArrayPtr<const ezImageFormat::Enum> compatibleFormats)
+ezImageFormat::Enum ezImageConversion::FindClosestCompatibleFormat(
+  ezImageFormat::Enum format, ezArrayPtr<const ezImageFormat::Enum> compatibleFormats)
 {
+  EZ_LOCK(s_conversionTableLock);
+
   if (!s_conversionTableValid)
   {
     RebuildConversionTable();

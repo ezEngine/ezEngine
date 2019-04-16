@@ -5,7 +5,7 @@
 static ezImageFormat::Enum DetermineOutputFormatPC(
   ezTexConvUsage::Enum targetFormat, ezTexConvCompressionMode::Enum compressionMode, ezUInt32 uiNumChannels)
 {
-  if (targetFormat == ezTexConvUsage::NormalMap || targetFormat == ezTexConvUsage::NormalMap_Inverted)
+  if (targetFormat == ezTexConvUsage::NormalMap || targetFormat == ezTexConvUsage::NormalMap_Inverted || targetFormat == ezTexConvUsage::BumpMap)
   {
     if (compressionMode >= ezTexConvCompressionMode::High)
       return ezImageFormat::BC5_UNORM;

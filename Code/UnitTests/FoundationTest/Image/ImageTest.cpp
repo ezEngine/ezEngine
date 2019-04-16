@@ -145,6 +145,8 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
       {"RGBA", "png", 0},
       {"RGB", "jpg", 4650},
       {"RGBA", "jpeg", 16670},
+      {"RGB", "tif", 0},
+      {"RGBA", "tif", 0},
     };
 
     const char* szTestImagePath = "TGATestImages/good";
@@ -170,7 +172,7 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
         EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName), "Output image file is missing: '%s'", fileName.GetData());
 
         ezImage image2;
-        EZ_TEST_BOOL_MSG(image2.LoadFrom(fileName).Succeeded(), "Reading written image fialed: '%s'", fileName.GetData());
+        EZ_TEST_BOOL_MSG(image2.LoadFrom(fileName).Succeeded(), "Reading written image failed: '%s'", fileName.GetData());
 
         image.Convert(ezImageFormat::R8G8B8A8_UNORM_SRGB);
         image2.Convert(ezImageFormat::R8G8B8A8_UNORM_SRGB);

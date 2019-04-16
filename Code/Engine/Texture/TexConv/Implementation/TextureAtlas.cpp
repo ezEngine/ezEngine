@@ -74,8 +74,7 @@ ezResult ezTexConvProcessor::LoadAtlasInputs(const ezTextureAtlasCreationDesc& a
         }
 
         ezUInt32 uiResX = 0, uiResY = 0;
-        ezEnum<ezImageFormat> format = ezImageFormat::UNKNOWN;
-        EZ_SUCCEED_OR_RETURN(DetermineTargetResolution(item.m_InputImage[layer], format, uiResX, uiResY));
+        EZ_SUCCEED_OR_RETURN(DetermineTargetResolution(item.m_InputImage[layer], ezImageFormat::UNKNOWN, uiResX, uiResY));
 
         EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(srcItem.m_sLayerInput[layer], item.m_InputImage[layer], uiResX, uiResY));
       }
