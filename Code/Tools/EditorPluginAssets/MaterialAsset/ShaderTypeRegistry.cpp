@@ -46,6 +46,7 @@ namespace
   };
 
   static ezHashTable<ezString, PermutationVarConfig> s_PermutationVarConfigs;
+  static ezHashTable<ezString, const ezRTTI*> s_EnumTypes;
 
   const ezRTTI* GetPermutationType(const ezShaderParser::ParameterDefinition& def)
   {
@@ -121,6 +122,47 @@ namespace
     return nullptr;
   }
 
+  const ezRTTI* GetEnumType(const ezShaderParser::EnumDefinition& def)
+  {
+    const ezRTTI* pType = nullptr;
+    if (s_EnumTypes.TryGetValue(def.m_sName, pType))
+    {
+      return pType;
+    }
+
+    ezReflectedTypeDescriptor descEnum;
+    descEnum.m_sTypeName = def.m_sName;
+    descEnum.m_sPluginName = "ShaderTypes";
+    descEnum.m_sParentTypeName = ezGetStaticRTTI<ezEnumBase>()->GetTypeName();
+    descEnum.m_Flags = ezTypeFlags::IsEnum | ezTypeFlags::Phantom;
+    descEnum.m_uiTypeSize = 0;
+    descEnum.m_uiTypeVersion = 1;
+
+    ezArrayPtr<ezPropertyAttribute* const> noAttributes;
+
+    ezStringBuilder sEnumName;
+    sEnumName.Format("{0}::Default", def.m_sName);
+
+    descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, def.m_uiDefaultValue, noAttributes));
+
+    for (ezUInt32 i = 0; i < def.m_Values.GetCount(); ++i)
+    {
+      if (def.m_Values[i].IsEmpty())
+        continue;
+
+      ezStringBuilder sEnumName;
+      sEnumName.Format("{0}::{1}", def.m_sName, def.m_Values[i]);
+
+      descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, (ezUInt32)i, noAttributes));
+    }
+
+    pType = ezPhantomRttiManager::RegisterType(descEnum);
+
+    s_EnumTypes.Insert(def.m_sName, pType);
+
+    return pType;
+  }
+
   const ezRTTI* GetType(const ezShaderParser::ParameterDefinition& def)
   {
     if (def.m_pType != nullptr)
@@ -133,7 +175,10 @@ namespace
       return GetPermutationType(def);
     }
 
-    return nullptr;
+    const ezRTTI* pType = nullptr;
+    s_EnumTypes.TryGetValue(def.m_sType, pType);
+
+    return pType;
   }
 
   void AddAttributes(ezShaderParser::ParameterDefinition& def, const ezRTTI* pType, ezHybridArray<ezPropertyAttribute*, 2>& attributes)
@@ -267,7 +312,7 @@ void ezShaderTypeRegistry::UpdateShaderType(ShaderData& data)
 
   ezHybridArray<ezShaderParser::ParameterDefinition, 16> parameters;
   ezHybridArray<ezShaderParser::EnumDefinition, 4> enumDefinitions;
-
+  
   {
     ezFileStats Stats;
     bool bStat = ezOSFile::GetFileStats(data.m_sAbsShaderPath, Stats).Succeeded();
@@ -290,6 +335,11 @@ void ezShaderTypeRegistry::UpdateShaderType(ShaderData& data)
   desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Class;
   desc.m_uiTypeSize = 0;
   desc.m_uiTypeVersion = 2;
+
+  for (auto& enumDef : enumDefinitions)
+  {
+    GetEnumType(enumDef);
+  }
 
   for (auto& parameter : parameters)
   {

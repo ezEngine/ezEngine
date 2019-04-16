@@ -26,7 +26,7 @@ public:
   struct EnumDefinition
   {
     ezString m_sName;
-    ezVariant m_DefaultValue;
+    ezUInt32 m_uiDefaultValue;
     ezHybridArray<ezHashedString, 16> m_Values;
   };
 

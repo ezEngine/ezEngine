@@ -314,7 +314,7 @@ namespace
       }
     }
 
-    out_EnumDefinition.m_DefaultValue = uiDefaultValue;
+    out_EnumDefinition.m_uiDefaultValue = uiDefaultValue;
 
     if (!Accept(Tokens, uiCurToken, "}"))
     {
@@ -505,7 +505,7 @@ void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_De
     ezUInt32 uiCurToken = 0;
     ParseEnum(tokens, uiCurToken, out_EnumDefinition);
 
-    out_DefaultValue = out_EnumDefinition.m_DefaultValue;
+    out_DefaultValue = out_EnumDefinition.m_uiDefaultValue;
   }
   else
   {
