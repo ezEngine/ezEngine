@@ -17,6 +17,11 @@ ezGameStateWindow::~ezGameStateWindow()
 }
 
 
+void ezGameStateWindow::ResetOnClickClose(ezDelegate<void()> onClickClose)
+{
+  m_OnClickClose = onClickClose;
+}
+
 void ezGameStateWindow::OnClickClose()
 {
   if (m_OnClickClose.IsValid())

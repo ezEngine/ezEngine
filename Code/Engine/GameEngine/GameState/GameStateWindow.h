@@ -11,6 +11,8 @@ public:
   ezGameStateWindow(const ezWindowCreationDesc& windowdesc, ezDelegate<void()> onClickClose = nullptr);
   ~ezGameStateWindow();
 
+  void ResetOnClickClose(ezDelegate<void()> onClickClose);
+
 private:
   virtual void OnResize(const ezSizeU32& newWindowSize) override;
   virtual void OnClickClose() override;
