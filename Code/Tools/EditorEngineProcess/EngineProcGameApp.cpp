@@ -15,11 +15,6 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <System/XBoxController/InputDeviceXBox.h>
-ezInputDeviceXBox360 g_XboxInputDevice;
-#endif
-
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
     : ezGameApplication("ezEditorEngineProcess", nullptr)
 {

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <System/SystemDLL.h>
+#include <XBoxControllerPlugin/XBoxControllerDLL.h>
 #include <Core/Input/DeviceTypes/Controller.h>
 
 /// \brief An implementation of ezInputDeviceController that handles XBox 360 controllers.
 ///
 /// Works on all platforms that provide the XINPUT API.
-class EZ_SYSTEM_DLL ezInputDeviceXBox360 : public ezInputDeviceController
+class EZ_XBOXCONTROLLER_DLL ezInputDeviceXBox360 : public ezInputDeviceController
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezInputDeviceXBox360, ezInputDeviceController);
 

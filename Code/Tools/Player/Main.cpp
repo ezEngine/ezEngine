@@ -13,13 +13,8 @@
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <System/XBoxController/InputDeviceXBox.h>
-ezInputDeviceXBox360 g_XboxInputDevice;
-#endif
-
 ezPlayerApplication::ezPlayerApplication()
-    : ezGameApplication("ezPlayer", nullptr)
+  : ezGameApplication("ezPlayer", nullptr)
 {
   m_pWorld = nullptr;
 }

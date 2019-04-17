@@ -1,6 +1,4 @@
-#include <SystemPCH.h>
-
-#include <System/XBoxController/InputDeviceXBox.h>
+#include <XBoxControllerPlugin/InputDeviceXBox.h>
 #include <Foundation/Configuration/Startup.h>
 
 static ezInputDeviceXBox360* g_InputDeviceXBox360 = nullptr;
@@ -49,6 +47,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InputDevices, InputDeviceXBox360)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
+ezPlugin g_Plugin(false);
 
 EZ_STATICLINK_FILE(System, System_XBoxController_Startup);
 

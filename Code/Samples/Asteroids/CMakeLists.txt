@@ -25,6 +25,7 @@ ez_make_winmain_executable(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
   GameEngine
+  XBoxControllerPlugin
 )
 
 add_dependencies(${PROJECT_NAME}

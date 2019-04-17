@@ -72,7 +72,12 @@ void ezGameApplicationBase::Init_FileSystem_SetDataDirFactories()
 
 void ezGameApplicationBase::Init_ConfigureAssetManagement() {}
 
-void ezGameApplicationBase::Init_LoadRequiredPlugins() {}
+void ezGameApplicationBase::Init_LoadRequiredPlugins()
+{
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  ezPlugin::LoadPlugin("XBoxControllerPlugin");
+#endif
+}
 
 void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
 {
