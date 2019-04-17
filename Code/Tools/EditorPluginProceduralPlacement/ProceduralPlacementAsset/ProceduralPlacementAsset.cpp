@@ -8,10 +8,10 @@
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Strings/PathUtils.h>
+#include <Foundation/Utilities/DGMLWriter.h>
 #include <ProceduralPlacementPlugin/VM/ExpressionByteCode.h>
 #include <ProceduralPlacementPlugin/VM/ExpressionCompiler.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <Utilities/DGML/DGMLWriter.h>
 
 namespace
 {
@@ -34,13 +34,13 @@ namespace
       ezLog::Error("Failed to dump AST to: {0}", sFileName);
     }
   }
-}
+} // namespace
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementAssetDocument, 2, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezProceduralPlacementAssetDocument::ezProceduralPlacementAssetDocument(const char* szDocumentPath)
-    : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezProceduralPlacementNodeManager), false, false)
+  : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezProceduralPlacementNodeManager), false, false)
 {
 }
 
@@ -67,8 +67,8 @@ void ezProceduralPlacementAssetDocument::UpdateAssetDocumentInfo(ezAssetDocument
   }
 }
 
-ezStatus ezProceduralPlacementAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                                    const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezProceduralPlacementAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
+  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
 
@@ -183,9 +183,9 @@ void ezProceduralPlacementAssetDocument::GetAllOutputNodes(ezDynamicArray<const 
   }
 }
 
-ezExpressionAST::Node* ezProceduralPlacementAssetDocument::GenerateExpressionAST(
-    const ezDocumentObject* outputNode, ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter,
-    ezHashTable<const ezDocumentObject*, CachedNode>& nodeCache, ezExpressionAST& out_Ast) const
+ezExpressionAST::Node* ezProceduralPlacementAssetDocument::GenerateExpressionAST(const ezDocumentObject* outputNode,
+  ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter,
+  ezHashTable<const ezDocumentObject*, CachedNode>& nodeCache, ezExpressionAST& out_Ast) const
 {
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
 

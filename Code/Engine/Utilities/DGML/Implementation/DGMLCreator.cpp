@@ -2,8 +2,8 @@
 
 #include <Core/World/GameObject.h>
 #include <Core/World/World.h>
+#include <Foundation/Utilities/DGMLWriter.h>
 #include <Utilities/DGML/DGMLCreator.h>
-#include <Utilities/DGML/DGMLWriter.h>
 
 void ezDGMLGraphCreator::FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& Graph)
 {
@@ -17,9 +17,12 @@ void ezDGMLGraphCreator::FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& Graph)
   struct GraphVisitor
   {
     GraphVisitor(ezDGMLGraph& Graph)
-        : m_Graph(Graph)
+      : m_Graph(Graph)
     {
-      m_WorldNodeId = Graph.AddNode("World", ezColor::DarkRed, ezDGMLGraph::NodeShape::Button);
+      ezDGMLGraph::NodeDesc nd;
+      nd.m_Color = ezColor::DarkRed;
+      nd.m_Shape = ezDGMLGraph::NodeShape::Button;
+      m_WorldNodeId = Graph.AddNode("World", &nd);
     }
 
     ezVisitorExecution::Enum Visit(ezGameObject* pObject)
@@ -28,8 +31,10 @@ void ezDGMLGraphCreator::FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& Graph)
       name.Format("GameObject: \"{0}\"", ezStringUtils::IsNullOrEmpty(pObject->GetName()) ? "<Unnamed>" : pObject->GetName());
 
       // Create node for game object
-      auto gameObjectNodeId =
-          m_Graph.AddNode(name.GetData(), ezColor::CornflowerBlue /* The Original! */, ezDGMLGraph::NodeShape::Rectangle);
+      ezDGMLGraph::NodeDesc nd;
+      nd.m_Color = ezColor::CornflowerBlue;
+      nd.m_Shape = ezDGMLGraph::NodeShape::Rectangle;
+      auto gameObjectNodeId = m_Graph.AddNode(name.GetData(), &nd);
 
       m_VisitedObjects.Insert(pObject, gameObjectNodeId);
 
@@ -54,7 +59,10 @@ void ezDGMLGraphCreator::FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& Graph)
       {
         auto szComponentName = component->GetDynamicRTTI()->GetTypeName();
 
-        auto componentNodeId = m_Graph.AddNode(szComponentName, ezColor::LimeGreen, ezDGMLGraph::NodeShape::RoundedRectangle);
+        ezDGMLGraph::NodeDesc nd;
+        nd.m_Color = ezColor::LimeGreen;
+        nd.m_Shape = ezDGMLGraph::NodeShape::RoundedRectangle;
+        auto componentNodeId = m_Graph.AddNode(szComponentName, &nd);
 
         // And add the link to the game object
 
@@ -77,4 +85,3 @@ void ezDGMLGraphCreator::FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& Graph)
 
 
 EZ_STATICLINK_FILE(Utilities, Utilities_DGML_Implementation_DGMLCreator);
-
