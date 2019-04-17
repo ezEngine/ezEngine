@@ -3,7 +3,14 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/StringUtils.h>
 
-bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
+#include <cstdlib>
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#  include <crtdbg.h>
+#endif
+
+bool ezDefaultAssertHandler(
+  const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
   char szTemp[1024 * 4] = "";
   ezStringUtils::snprintf(szTemp, EZ_ARRAY_SIZE(szTemp), "\n\n *** Assertion ***\n\n    Expression: \"%s\"\n    Function: \"%s\"\n    File: \"%s\"\n    Line: %u\n    Message: \"%s\"\n\n", szExpression, szFunction, szSourceFile, uiLine, szAssertMsg);
