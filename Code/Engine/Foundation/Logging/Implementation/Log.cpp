@@ -12,17 +12,19 @@ ezLoggingEvent ezGlobalLog::s_LoggingEvent;
 static thread_local ezLogInterface* s_DefaultLogSystem = nullptr;
 
 
-void ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler handler)
+ezEventSubscriptionID ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler handler)
 {
-  if (!s_LoggingEvent.HasEventHandler(handler))
-  {
-    s_LoggingEvent.AddEventHandler(handler);
-  }
+  return s_LoggingEvent.AddEventHandler(handler);
 }
 
 void ezGlobalLog::RemoveLogWriter(ezLoggingEvent::Handler handler)
 {
   s_LoggingEvent.RemoveEventHandler(handler);
+}
+
+void ezGlobalLog::RemoveLogWriter(ezEventSubscriptionID subscriptionID)
+{
+  s_LoggingEvent.RemoveEventHandler(subscriptionID);
 }
 
 void ezGlobalLog::HandleLogMessage(const ezLoggingEventData& le)

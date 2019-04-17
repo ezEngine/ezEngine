@@ -232,9 +232,14 @@ void ezGameApplicationBase::Deinit_UnloadPlugins()
   }
 }
 
-void ezGameApplicationBase::Deinit_ShutdownLogging() {}
+void ezGameApplicationBase::Deinit_ShutdownLogging()
+{
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
+  ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+#endif
+}
 
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_GameApplicationBaseInit);
-
