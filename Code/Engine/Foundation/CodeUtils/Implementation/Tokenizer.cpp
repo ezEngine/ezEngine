@@ -3,17 +3,18 @@
 #include <Foundation/CodeUtils/Tokenizer.h>
 #include <Foundation/Memory/CommonAllocators.h>
 
-const char* ezTokenType::EnumNames[ezTokenType::ENUM_COUNT] =
-    {
-        "Unknown",
-        "Whitespace",
-        "Identifier",
-        "NonIdentifier",
-        "Newline",
-        "LineComment",
-        "BlockComment",
-        "String1",
-        "String2",
+const char* ezTokenType::EnumNames[ezTokenType::ENUM_COUNT] = {
+  "Unknown",
+  "Whitespace",
+  "Identifier",
+  "NonIdentifier",
+  "Newline",
+  "LineComment",
+  "BlockComment",
+  "String1",
+  "String2",
+  "Integer",
+  "Float",
 };
 
 namespace
@@ -159,6 +160,11 @@ void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> Data, ezLogInterface* pLog)
         HandleString('\'');
         break;
 
+      case ezTokenType::Integer:
+      case ezTokenType::Float:
+        HandleNumber();
+        break;
+
       case ezTokenType::LineComment:
         HandleLineComment();
         break;
@@ -230,6 +236,13 @@ void ezTokenizer::HandleUnknown()
   {
     m_CurMode = ezTokenType::Whitespace;
     NextChar();
+    return;
+  }
+
+  if (ezStringUtils::IsDecimalDigit(m_uiCurChar) || (m_uiCurChar == '.' && ezStringUtils::IsDecimalDigit(m_uiNextChar)))
+  {
+    m_CurMode = m_uiCurChar == '.' ? ezTokenType::Float : ezTokenType::Integer;
+    // Do not advance to next char here since we need the first character in HandleNumber
     return;
   }
 
@@ -327,6 +340,84 @@ void ezTokenizer::HandleString(char terminator)
   AddToken();
 }
 
+void ezTokenizer::HandleNumber()
+{
+  if (m_uiCurChar == '0' && (m_uiNextChar == 'x' || m_uiNextChar == 'X'))
+  {
+    NextChar();
+    NextChar();
+
+    ezUInt32 uiDigitsRead = 0;
+    while (ezStringUtils::IsHexDigit(m_uiCurChar))
+    {
+      NextChar();
+      ++uiDigitsRead;
+    }
+
+    if (uiDigitsRead < 1)
+    {
+      ezLog::Error(m_pLog, "Invalid hex literal");
+    }
+  }
+  else
+  {
+    NextChar();
+
+    while (ezStringUtils::IsDecimalDigit(m_uiCurChar))
+    {
+      NextChar();
+    }
+
+    if (m_CurMode != ezTokenType::Float && (m_uiCurChar == '.' || m_uiCurChar == 'e' || m_uiCurChar == 'E'))
+    {
+      m_CurMode = ezTokenType::Float;
+      bool bAllowExponent = true;
+
+      if (m_uiCurChar == '.')
+      {
+        NextChar();
+
+        ezUInt32 uiDigitsRead = 0;
+        while (ezStringUtils::IsDecimalDigit(m_uiCurChar))
+        {
+          NextChar();
+          ++uiDigitsRead;
+        }
+
+        bAllowExponent = uiDigitsRead > 0;
+      }
+
+      if ((m_uiCurChar == 'e' || m_uiCurChar == 'E') && bAllowExponent)
+      {
+        NextChar();
+        if (m_uiCurChar == '+' || m_uiCurChar == '-')
+        {
+          NextChar();
+        }
+
+        ezUInt32 uiDigitsRead = 0;
+        while (ezStringUtils::IsDecimalDigit(m_uiCurChar))
+        {
+          NextChar();
+          ++uiDigitsRead;
+        }
+
+        if (uiDigitsRead < 1)
+        {
+          ezLog::Error(m_pLog, "Invalid float literal");
+        }
+      }
+
+      if (m_uiCurChar == 'f') // skip float suffix
+      {
+        NextChar();
+      }
+    }
+  }
+
+  AddToken();
+}
+
 void ezTokenizer::HandleLineComment()
 {
   while (m_uiCurChar != '\0')
@@ -400,6 +491,20 @@ void ezTokenizer::HandleIdentifier()
 void ezTokenizer::HandleNonIdentifier()
 {
   AddToken();
+}
+
+void ezTokenizer::GetAllLines(ezHybridArray<const ezToken*, 32>& Tokens) const
+{
+  Tokens.Clear();
+  Tokens.Reserve(m_Tokens.GetCount());
+
+  for (const ezToken& curToken : m_Tokens)
+  {
+    if (curToken.m_iType != ezTokenType::Newline)
+    {
+      Tokens.PushBack(&curToken);
+    }
+  }
 }
 
 ezResult ezTokenizer::GetNextLine(ezUInt32& uiFirstToken, ezHybridArray<ezToken*, 32>& Tokens)

@@ -253,41 +253,42 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
 
   // Consume constant or variable.
   ezUInt32 uiValueToken = uiCurToken;
-  if (Accept(tokens, uiCurToken, ezTokenType::Identifier, &uiValueToken))
+  if (Accept(tokens, uiCurToken, ezTokenType::Integer) || Accept(tokens, uiCurToken, ezTokenType::Float))
   {
     const ezString sVal = tokens[uiValueToken]->m_DataView;
 
     double fConstant = 0;
+    ezConversionUtils::StringToFloat(sVal, fConstant);
+    
+    m_InstructionStream.PushBack(InstructionType::PushConstant);
+    m_InstructionStream.PushBack(m_Constants.GetCount());
+    m_Constants.PushBack(fConstant);
 
-    // It's either a double or a variable
-    if (ezConversionUtils::StringToFloat(sVal, fConstant).Succeeded())
+    return EZ_SUCCESS;
+  }
+  else if (Accept(tokens, uiCurToken, ezTokenType::Identifier, &uiValueToken))
+  {
+    const ezString sVal = tokens[uiValueToken]->m_DataView;
+
+    // Check if it really qualifies as variable!
+    for (char varChar : sVal)
     {
-      m_InstructionStream.PushBack(InstructionType::PushConstant);
-      m_InstructionStream.PushBack(m_Constants.GetCount());
-      m_Constants.PushBack(fConstant);
-    }
-    else
-    {
-      // Check if it really qualifies as variable!
-      for (char varChar : sVal)
+      const char* validChar = s_szValidVariableCharacters;
+      for (; *validChar != '\0'; ++validChar)
       {
-        const char* validChar = s_szValidVariableCharacters;
-        for (; *validChar != '\0'; ++validChar)
-        {
-          if (*validChar == varChar)
-            break;
-        }
-        if (*validChar == '\0') // Walked to the end, so the varChar was not any of the valid chars!
-        {
-          ezLog::Error(m_pLog, "Invalid character {0} in variable name: {1}", varChar, sVal);
-          return EZ_FAILURE;
-        }
+        if (*validChar == varChar)
+          break;
       }
-
-      m_InstructionStream.PushBack(InstructionType::PushVariable);
-      m_InstructionStream.PushBack(tokens[uiValueToken]->m_uiColumn - 1);
-      m_InstructionStream.PushBack(tokens[uiValueToken]->m_uiColumn - 1 + sVal.GetElementCount());
+      if (*validChar == '\0') // Walked to the end, so the varChar was not any of the valid chars!
+      {
+        ezLog::Error(m_pLog, "Invalid character {0} in variable name: {1}", varChar, sVal);
+        return EZ_FAILURE;
+      }
     }
+
+    m_InstructionStream.PushBack(InstructionType::PushVariable);
+    m_InstructionStream.PushBack(tokens[uiValueToken]->m_uiColumn - 1);
+    m_InstructionStream.PushBack(tokens[uiValueToken]->m_uiColumn - 1 + sVal.GetElementCount());
 
     return EZ_SUCCESS;
   }

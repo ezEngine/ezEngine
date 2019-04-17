@@ -134,7 +134,7 @@ ezResult ezPreprocessor::ParseFactor(const TokenStream& Tokens, ezUInt32& uiCurT
   }
 
   ezUInt32 uiValueToken = uiCurToken;
-  if (Accept(Tokens, uiCurToken, ezTokenType::Identifier, &uiValueToken))
+  if (Accept(Tokens, uiCurToken, ezTokenType::Identifier, &uiValueToken) || Accept(Tokens, uiCurToken, ezTokenType::Integer, &uiValueToken))
   {
     const ezString sVal = Tokens[uiValueToken]->m_DataView;
 

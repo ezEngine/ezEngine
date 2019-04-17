@@ -243,6 +243,12 @@ public:
   /// '\v' (vertical tab)
   static bool IsWhiteSpace(ezUInt32 uiChar); // [tested]
 
+  /// \brief A decimal digit from 0..9
+  static bool IsDecimalDigit(ezUInt32 uiChar); // [tested]
+
+  /// \brief A hexadecimal digit from 0..F
+  static bool IsHexDigit(ezUInt32 uiChar); // [tested]
+
   /// \brief A default word delimiter function for English text.
   static bool IsWordDelimiter_English(ezUInt32 uiChar); // [tested]
 

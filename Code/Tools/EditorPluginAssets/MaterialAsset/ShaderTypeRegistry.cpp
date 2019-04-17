@@ -45,36 +45,10 @@ namespace
     const ezRTTI* m_pType;
   };
 
-  static ezHashTable<const char*, const ezRTTI*> s_NameToTypeTable;
-
-  void InitializeTables()
-  {
-    if (!s_NameToTypeTable.IsEmpty())
-      return;
-
-    s_NameToTypeTable.Insert("float", ezGetStaticRTTI<float>());
-    s_NameToTypeTable.Insert("float2", ezGetStaticRTTI<ezVec2>());
-    s_NameToTypeTable.Insert("float3", ezGetStaticRTTI<ezVec3>());
-    s_NameToTypeTable.Insert("float4", ezGetStaticRTTI<ezVec4>());
-    s_NameToTypeTable.Insert("int", ezGetStaticRTTI<int>());
-    s_NameToTypeTable.Insert("int2", ezGetStaticRTTI<ezVec2I32>());
-    s_NameToTypeTable.Insert("int3", ezGetStaticRTTI<ezVec3I32>());
-    s_NameToTypeTable.Insert("int4", ezGetStaticRTTI<ezVec4I32>());
-    s_NameToTypeTable.Insert("uint", ezGetStaticRTTI<ezUInt32>());
-    s_NameToTypeTable.Insert("uint2", ezGetStaticRTTI<ezVec2U32>());
-    s_NameToTypeTable.Insert("uint3", ezGetStaticRTTI<ezVec3U32>());
-    s_NameToTypeTable.Insert("uint4", ezGetStaticRTTI<ezVec4U32>());
-    s_NameToTypeTable.Insert("bool", ezGetStaticRTTI<bool>());
-    s_NameToTypeTable.Insert("Color", ezGetStaticRTTI<ezColor>());
-    /// \todo Are we going to support linear UB colors ?
-    s_NameToTypeTable.Insert("Texture2D", ezGetStaticRTTI<ezString>());
-    s_NameToTypeTable.Insert("Texture3D", ezGetStaticRTTI<ezString>());
-    s_NameToTypeTable.Insert("TextureCube", ezGetStaticRTTI<ezString>());
-  }
-
   static ezHashTable<ezString, PermutationVarConfig> s_PermutationVarConfigs;
+  static ezHashTable<ezString, const ezRTTI*> s_EnumTypes;
 
-  const ezRTTI* GetPermutationType(ezShaderParser::ParameterDefinition& def)
+  const ezRTTI* GetPermutationType(const ezShaderParser::ParameterDefinition& def)
   {
     EZ_ASSERT_DEV(def.m_sType.IsEqual("Permutation"), "");
 
@@ -99,9 +73,9 @@ namespace
     sTemp.ReadAll(file);
 
     ezVariant defaultValue;
-    ezHybridArray<ezHashedString, 16> enumValues;
+    ezShaderParser::EnumDefinition enumDefinition;
 
-    ezShaderParser::ParsePermutationVarConfig(def.m_sName, sTemp, defaultValue, enumValues);
+    ezShaderParser::ParsePermutationVarConfig(sTemp, defaultValue, enumDefinition);
     if (defaultValue.IsValid())
     {
       pConfig = &(s_PermutationVarConfigs[def.m_sName]);
@@ -128,13 +102,13 @@ namespace
 
         descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, defaultValue.Get<ezUInt32>(), noAttributes));
 
-        for (ezUInt32 i = 0; i < enumValues.GetCount(); ++i)
+        for (ezUInt32 i = 0; i < enumDefinition.m_Values.GetCount(); ++i)
         {
-          if (enumValues[i].IsEmpty())
+          if (enumDefinition.m_Values[i].IsEmpty())
             continue;
 
           ezStringBuilder sEnumName;
-          sEnumName.Format("{0}::{1}", def.m_sName, enumValues[i]);
+          sEnumName.Format("{0}::{1}", def.m_sName, enumDefinition.m_Values[i]);
 
           descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, (ezUInt32)i, noAttributes));
         }
@@ -148,9 +122,53 @@ namespace
     return nullptr;
   }
 
-  const ezRTTI* GetType(ezShaderParser::ParameterDefinition& def)
+  const ezRTTI* GetEnumType(const ezShaderParser::EnumDefinition& def)
   {
-    InitializeTables();
+    const ezRTTI* pType = nullptr;
+    if (s_EnumTypes.TryGetValue(def.m_sName, pType))
+    {
+      return pType;
+    }
+
+    ezReflectedTypeDescriptor descEnum;
+    descEnum.m_sTypeName = def.m_sName;
+    descEnum.m_sPluginName = "ShaderTypes";
+    descEnum.m_sParentTypeName = ezGetStaticRTTI<ezEnumBase>()->GetTypeName();
+    descEnum.m_Flags = ezTypeFlags::IsEnum | ezTypeFlags::Phantom;
+    descEnum.m_uiTypeSize = 0;
+    descEnum.m_uiTypeVersion = 1;
+
+    ezArrayPtr<ezPropertyAttribute* const> noAttributes;
+
+    ezStringBuilder sEnumName;
+    sEnumName.Format("{0}::Default", def.m_sName);
+
+    descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, def.m_uiDefaultValue, noAttributes));
+
+    for (ezUInt32 i = 0; i < def.m_Values.GetCount(); ++i)
+    {
+      if (def.m_Values[i].IsEmpty())
+        continue;
+
+      ezStringBuilder sEnumName;
+      sEnumName.Format("{0}::{1}", def.m_sName, def.m_Values[i]);
+
+      descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, (ezUInt32)i, noAttributes));
+    }
+
+    pType = ezPhantomRttiManager::RegisterType(descEnum);
+
+    s_EnumTypes.Insert(def.m_sName, pType);
+
+    return pType;
+  }
+
+  const ezRTTI* GetType(const ezShaderParser::ParameterDefinition& def)
+  {
+    if (def.m_pType != nullptr)
+    {
+      return def.m_pType;
+    }
 
     if (def.m_sType.IsEqual("Permutation"))
     {
@@ -158,7 +176,8 @@ namespace
     }
 
     const ezRTTI* pType = nullptr;
-    s_NameToTypeTable.TryGetValue(def.m_sType.GetData(), pType);
+    s_EnumTypes.TryGetValue(def.m_sType, pType);
+
     return pType;
   }
 
@@ -166,6 +185,21 @@ namespace
   {
     if (def.m_sType.StartsWith_NoCase("texture"))
     {
+      if (def.m_sType.IsEqual("Texture2D"))
+      {
+        attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture 2D"));
+        attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture 2D;Render Target"));
+      }
+      else if (def.m_sType.IsEqual("Texture3D"))
+      {
+        attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture 3D"));
+        attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture 3D"));
+      }
+      else if (def.m_sType.IsEqual("TextureCube"))
+      {
+        attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture Cube"));
+        attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture Cube"));
+      }
     }
     else if (def.m_sType.StartsWith_NoCase("permutation"))
     {
@@ -176,88 +210,28 @@ namespace
       attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Constant"));
     }
 
-    if (def.m_sType.IsEqual("Texture2D"))
-    {
-      attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture 2D"));
-      attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture 2D;Render Target"));
-    }
-    else if (def.m_sType.IsEqual("Texture3D"))
-    {
-      attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture 3D"));
-      attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture 3D"));
-    }
-    else if (def.m_sType.IsEqual("TextureCube"))
-    {
-      attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture Cube"));
-      attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture Cube"));
-    }
-
     for (auto& attributeDef : def.m_Attributes)
     {
-      float fValues[4] = {};
-      ezUInt32 uiNumFloats = ezConversionUtils::ExtractFloatsFromString(attributeDef.m_sValue, 4, fValues);
-
-      if (attributeDef.m_sName.IsEqual("Default"))
+      if (attributeDef.m_sType.IsEqual("Default") && attributeDef.m_Values.GetCount() >= 1)
       {
-        ///\todo: this needs a proper implementation for types other than float
-        if (pType == ezGetStaticRTTI<float>())
+        if (pType == ezGetStaticRTTI<ezColor>())
         {
-          if (uiNumFloats >= 1)
-          {
-            attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, fValues[0]));
-          }
-        }
-        if (pType == ezGetStaticRTTI<ezVec2>())
-        {
-          if (uiNumFloats >= 2)
-          {
-            attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, ezVec2(fValues[0], fValues[1])));
-          }
-        }
-        if (pType == ezGetStaticRTTI<ezVec3>())
-        {
-          if (uiNumFloats >= 3)
-          {
-            attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, ezVec3(fValues[0], fValues[1], fValues[2])));
-          }
-        }
-        if (pType == ezGetStaticRTTI<ezVec4>())
-        {
-          if (uiNumFloats == 4)
-          {
-            attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, ezVec4(fValues[0], fValues[1], fValues[2], fValues[3])));
-          }
-        }
-        else if (pType == ezGetStaticRTTI<ezColor>())
-        {
-          if (uiNumFloats >= 3)
-          {
-            ezColor color(fValues[0], fValues[1], fValues[2]);
-            if (uiNumFloats == 4)
-            {
-              color.a = fValues[3];
-            }
+          // always expose the alpha channel for color properties
+          attributes.PushBack(EZ_DEFAULT_NEW(ezExposeColorAlphaAttribute));
 
-            attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, color));
-
-            // always expose the alpha channel for color properties
-            attributes.PushBack(EZ_DEFAULT_NEW(ezExposeColorAlphaAttribute));
+          // patch default type, VSE writes float4 instead of color
+          if (attributeDef.m_Values[0].GetType() == ezVariantType::Vector4)
+          {
+            ezVec4 v = attributeDef.m_Values[0].Get<ezVec4>();
+            attributeDef.m_Values[0] = ezColor(v.x, v.y, v.z, v.w);
           }
         }
-        else if (pType == ezGetStaticRTTI<ezString>())
-        {
-          attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, ezVariant(attributeDef.m_sValue)));
-        }
+
+        attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, attributeDef.m_Values[0]));        
       }
-      else if (attributeDef.m_sName.IsEqual("Clamp"))
+      else if (attributeDef.m_sType.IsEqual("Clamp") && attributeDef.m_Values.GetCount() >= 2)
       {
-        if (pType == ezGetStaticRTTI<float>())
-        {
-          if (uiNumFloats >= 2)
-          {
-            attributes.PushBack(EZ_DEFAULT_NEW(ezClampValueAttribute, fValues[0], fValues[1]));
-          }
-        }
+        attributes.PushBack(EZ_DEFAULT_NEW(ezClampValueAttribute, attributeDef.m_Values[0], attributeDef.m_Values[1]));
       }
     }
   }
@@ -337,7 +311,8 @@ void ezShaderTypeRegistry::UpdateShaderType(ShaderData& data)
   EZ_LOG_BLOCK("Updating Shader Parameters", data.m_sShaderPath.GetData());
 
   ezHybridArray<ezShaderParser::ParameterDefinition, 16> parameters;
-
+  ezHybridArray<ezShaderParser::EnumDefinition, 4> enumDefinitions;
+  
   {
     ezFileStats Stats;
     bool bStat = ezOSFile::GetFileStats(data.m_sAbsShaderPath, Stats).Succeeded();
@@ -349,7 +324,7 @@ void ezShaderTypeRegistry::UpdateShaderType(ShaderData& data)
       return;
     }
 
-    ezShaderParser::ParseMaterialParameterSection(file, parameters);
+    ezShaderParser::ParseMaterialParameterSection(file, parameters, enumDefinitions);
     data.m_fileModifiedTime = Stats.m_LastModificationTime;
   }
 
@@ -360,6 +335,11 @@ void ezShaderTypeRegistry::UpdateShaderType(ShaderData& data)
   desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Class;
   desc.m_uiTypeSize = 0;
   desc.m_uiTypeVersion = 2;
+
+  for (auto& enumDef : enumDefinitions)
+  {
+    GetEnumType(enumDef);
+  }
 
   for (auto& parameter : parameters)
   {

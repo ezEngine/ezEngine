@@ -125,3 +125,13 @@ EZ_ALWAYS_INLINE bool ezStringUtils::IsEqualN_NoCase(const char* pString1, const
   return ezStringUtils::CompareN_NoCase(pString1, pString2, uiCharsToCompare, pString1End, pString2End) == 0;
 }
 
+EZ_ALWAYS_INLINE bool ezStringUtils::IsDecimalDigit(ezUInt32 uiChar)
+{
+  return (uiChar >= '0' && uiChar <= '9');
+}
+
+EZ_ALWAYS_INLINE bool ezStringUtils::IsHexDigit(ezUInt32 uiChar)
+{
+  return IsDecimalDigit(uiChar) || (uiChar >= 'A' && uiChar <= 'F') || (uiChar >= 'a' && uiChar <= 'f');
+}
+

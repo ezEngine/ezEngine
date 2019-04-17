@@ -124,7 +124,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0x0000803E}
+		d %Value{0x000000000000D03F}
 	}
 }
 o
@@ -269,10 +269,23 @@ o
 }
 o
 {
-	Uuid %id{u4{8841353700765633788,6300541515330189163}}
-	s %t{"ezExposeColorAlphaAttribute"}
+	Uuid %id{u4{15627491270869756527,6243390200236019521}}
+	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
-	p{}
+	p
+	{
+		b %Value{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8841353700765633788,6300541515330189163}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Color %Value{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+	}
 }
 o
 {
@@ -405,6 +418,7 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{17719889580936951450,17425918634288647917}}
+			Uuid{u4{15627491270869756527,6243390200236019521}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
@@ -460,12 +474,9 @@ o
 o
 {
 	Uuid %id{u4{13754454282246037307,13323104836659046162}}
-	s %t{"ezDefaultValueAttribute"}
+	s %t{"ezExposeColorAlphaAttribute"}
 	u3 %v{1}
-	p
-	{
-		Color %Value{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-	}
+	p{}
 }
 o
 {
@@ -573,7 +584,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0x00007A44}
+		d %Value{0x0000000000408F40}
 	}
 }
 o
