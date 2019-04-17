@@ -22,7 +22,8 @@ public:
 
   /// \brief Configures the reader to decompress the data from the given input stream.
   ///
-  /// Calling this a second time on the same instance is valid and allows to reuse the decoder, which is more efficient than creating a new one.
+  /// Calling this a second time on the same instance is valid and allows to reuse the decoder, which is more efficient than creating a new
+  /// one.
   void SetInputStream(ezStreamReader* pInputStream); // [tested]
 
   /// \brief Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
@@ -45,8 +46,8 @@ private:
   bool m_bReachedEnd = false;
   ezDynamicArray<ezUInt8> m_CompressedCache;
   ezStreamReader* m_pInputStream = nullptr;
-  /*ZSTD_DStream*/void* m_pZstdDStream = nullptr;
-  /*ZSTD_inBuffer*/InBufferImpl m_InBuffer;
+  /*ZSTD_DStream*/ void* m_pZstdDStream = nullptr;
+  /*ZSTD_inBuffer*/ InBufferImpl m_InBuffer;
 };
 
 /// \brief A stream writer that will compress all incoming data and then passes it on into another stream.
@@ -87,11 +88,12 @@ public:
   /// (ie sent over a network) even before the full data is compressed. Otherwise 4 KB is a good default.
   ///
   /// This has to be called before writing any bytes to the stream. It may be called by the constructor.
-  /// If this is called a second time, on the same writer, the writer finishes up all work on the previous stream and can then be reused on another
-  /// stream. This can prevent internal allocations, if one wants to use compression on multiple streams consecutively.
-  /// It also allows to create a compressor stream early, but decide at a later pointer whether or with which stream to use it, and it will
-  /// only allocate internal structures once that final decision is made.
-  void SetOutputStream(ezStreamWriter* pOutputStream, Compression Ratio = Compression::Default, ezUInt32 uiCompressionCacheSizeKB = 4); // [tested]
+  /// If this is called a second time, on the same writer, the writer finishes up all work on the previous stream and can then be reused on
+  /// another stream. This can prevent internal allocations, if one wants to use compression on multiple streams consecutively. It also
+  /// allows to create a compressor stream early, but decide at a later pointer whether or with which stream to use it, and it will only
+  /// allocate internal structures once that final decision is made.
+  void SetOutputStream(
+    ezStreamWriter* pOutputStream, Compression Ratio = Compression::Default, ezUInt32 uiCompressionCacheSizeKB = 4); // [tested]
 
   /// \brief Compresses \a uiBytesToWrite from \a pWriteBuffer.
   ///
@@ -111,11 +113,16 @@ public:
 
   /// \brief Returns the current compressed size of the data.
   ///
-  /// This value is only accurate after FinishCompressedStream() has been called. Before that it is only a rough value, because a lot of data
-  /// might still be cached and not yet accounted for.
-  /// Note that GetCompressedSize() returns the compressed size of the data, not the size of the data that was written to the output stream,
-  /// which will be larger (1 additional byte per 255 compressed bytes, plus one zero terminator byte).
+  /// This value is only accurate after FinishCompressedStream() has been called. Before that it is only a rough value, because a lot of
+  /// data might still be cached and not yet accounted for. Note that GetCompressedSize() returns the compressed size of the data, not the
+  /// size of the data that was written to the output stream, which will be larger (1 additional byte per 255 compressed bytes, plus one
+  /// zero terminator byte).
   ezUInt64 GetCompressedSize() const { return m_uiCompressedSize; } // [tested]
+
+  /// \brief Returns the exact number of bytes written to the output stream so far.
+  ///
+  /// This includes bytes written for bookkeeping. It is strictly larger than GetCompressedSize().
+  ezUInt64 GetWrittenBytes() const { return m_uiWrittenBytes; } // [tested]
 
   /// \brief Flushes the internal compressor caches and writes the compressed data to the stream.
   ///
@@ -131,6 +138,7 @@ private:
 
   ezUInt64 m_uiUncompressedSize = 0;
   ezUInt64 m_uiCompressedSize = 0;
+  ezUInt64 m_uiWrittenBytes = 0;
 
   // local declaration to reduce #include dependencies
   struct OutBufferImpl
@@ -141,11 +149,10 @@ private:
   };
 
   ezStreamWriter* m_pOutputStream = nullptr;
-  /*ZSTD_CStream*/void* m_pZstdCStream = nullptr;
-  /*ZSTD_outBuffer*/OutBufferImpl m_OutBuffer;
+  /*ZSTD_CStream*/ void* m_pZstdCStream = nullptr;
+  /*ZSTD_outBuffer*/ OutBufferImpl m_OutBuffer;
 
   ezDynamicArray<ezUInt8> m_CompressedCache;
 };
 
 #endif // BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-

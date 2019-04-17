@@ -76,8 +76,11 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStreamZstd)
 
     const ezUInt64 uiCompressed = CompressedWriter.GetCompressedSize();
     const ezUInt64 uiUncompressed = CompressedWriter.GetUncompressedSize();
+    const ezUInt64 uiBytesWritten = CompressedWriter.GetWrittenBytes();
 
     EZ_TEST_INT(uiUncompressed, TestData.GetCount() * sizeof(ezUInt32));
+    EZ_TEST_BOOL(uiBytesWritten > uiCompressed);
+    EZ_TEST_BOOL(uiBytesWritten < uiUncompressed);
 
     const float fRatio = (float)uiUncompressed / (float)uiCompressed;
     EZ_TEST_BOOL(fRatio >= fExpectedCompressionRatio);

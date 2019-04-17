@@ -54,7 +54,7 @@ public:
   /// \brief Creates the storage object for a memory stream. Use \a uiInitialCapacity to reserve a some memory up front, to reduce
   /// reallocations.
   ezMemoryStreamContainerStorage(ezUInt32 uiInitialCapacity = 0, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator())
-      : m_Storage(pAllocator)
+    : m_Storage(pAllocator)
   {
     m_Storage.Reserve(uiInitialCapacity);
   }
@@ -84,7 +84,7 @@ class EZ_FOUNDATION_DLL ezMemoryStreamStorage : public ezMemoryStreamContainerSt
 {
 public:
   ezMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator())
-      : ezMemoryStreamContainerStorage<ezHybridArray<ezUInt8, 256>>(uiInitialCapacity, pAllocator)
+    : ezMemoryStreamContainerStorage<ezHybridArray<ezUInt8, 256>>(uiInitialCapacity, pAllocator)
   {
   }
 };
@@ -204,20 +204,28 @@ private:
 class EZ_FOUNDATION_DLL ezRawMemoryStreamReader : public ezStreamReader
 {
 public:
+  ezRawMemoryStreamReader();
+
   /// \brief Initialize the raw memory reader with the chunk of memory that is the data storage.
-  ezRawMemoryStreamReader(const void* pData, ezUInt32 uiDataSize);
+  ezRawMemoryStreamReader(const void* pData, ezUInt64 uiDataSize); // [tested]
 
   /// \brief Initialize the raw memory reader with the chunk of memory from a standard ez container.
   /// \note The container must store the data in a contiguous array.
   template <typename CONTAINER>
   ezRawMemoryStreamReader(const CONTAINER& container) // [tested]
   {
-    m_pRawMemory = static_cast<const ezUInt8*>(container.GetData());
-    m_uiChunkSize = container.GetCount();
-    m_uiReadPosition = 0;
+    Reset(container);
   }
 
   ~ezRawMemoryStreamReader();
+
+  void Reset(const void* pData, ezUInt64 uiDataSize); // [tested]
+
+  template <typename CONTAINER>
+  void Reset(const CONTAINER& container) // [tested]
+  {
+    Reset(static_cast<const ezUInt8*>(container.GetData()), container.GetCount());
+  }
 
   /// \brief Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
   ///
@@ -228,20 +236,19 @@ public:
   virtual ezUInt64 SkipBytes(ezUInt64 uiBytesToSkip) override; // [tested]
 
   /// \brief Sets the read position to be used
-  void SetReadPosition(ezUInt32 uiReadPosition); // [tested]
+  void SetReadPosition(ezUInt64 uiReadPosition); // [tested]
 
   /// \brief Returns the total available bytes in the memory stream
-  ezUInt32 GetByteCount() const; // [tested]
+  ezUInt64 GetByteCount() const; // [tested]
 
   /// \brief Allows to set a string as the source of information in the memory stream for debug purposes.
   void SetDebugSourceInformation(const char* szDebugSourceInformation);
 
 private:
-  const ezUInt8* m_pRawMemory;
+  const ezUInt8* m_pRawMemory = nullptr;
 
-  ezUInt32 m_uiChunkSize;
-  ezUInt32 m_uiReadPosition;
+  ezUInt64 m_uiChunkSize = 0;
+  ezUInt64 m_uiReadPosition = 0;
 
   ezString m_DebugSourceInformation;
 };
-
