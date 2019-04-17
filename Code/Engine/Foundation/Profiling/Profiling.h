@@ -2,6 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Time/Time.h>
+#include <Foundation/Containers/StaticRingBuffer.h>
 
 class ezStreamWriter;
 class ezThread;
@@ -37,7 +38,7 @@ public:
   EZ_FOUNDATION_DLL static void StartNextSection(const char* szNextSectionName);
 
 protected:
-  static thread_local ezProfilingListScope* s_pCurrentList;
+  static thread_local ezProfilingListScope* s_pCurrentList; 
 
   ezProfilingListScope* m_pPreviousList;
 
@@ -54,6 +55,9 @@ class EZ_FOUNDATION_DLL ezProfilingSystem
 public:
   /// \brief This is implementation specific. The default profiling captures the current data and writes it as JSON to the output stream.
   static void Capture(ezStreamWriter& outputStream);
+
+  /// \brief Should be called once per frame to capture the timestamp of the new frame.
+  static void StartNewFrame();
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, ProfilingSystem);
@@ -85,6 +89,15 @@ public:
   /// \brief Allocates GPU profiling data in the internal event ringbuffer.
   static GPUData& AllocateGPUData();
 
+  enum
+  {
+    RING_BUFFER_SIZE_FRAMES = 120 * 60, 
+  };
+
+#if EZ_ENABLED(EZ_USE_PROFILING)
+  static ezStaticRingBuffer<ezTime, RING_BUFFER_SIZE_FRAMES> s_FrameStartTimes;
+  static ezUInt64 s_uiFrameCount;
+#endif
 };
 
 #if EZ_ENABLED(EZ_USE_PROFILING) || defined(EZ_DOCS)

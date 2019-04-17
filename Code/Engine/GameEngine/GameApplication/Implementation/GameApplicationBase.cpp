@@ -558,6 +558,7 @@ void ezGameApplicationBase::Run_FinishFrame()
   ezResourceManager::PerFrameUpdate();
   ezTaskSystem::FinishFrameTasks();
   ezFrameAllocator::Swap();
+  ezProfilingSystem::StartNewFrame();
 
   // reset this state
   m_bTakeScreenshot = false;
