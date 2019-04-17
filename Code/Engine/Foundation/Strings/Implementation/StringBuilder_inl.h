@@ -126,6 +126,7 @@ inline void ezStringBuilder::Append(ezUInt32 uiChar)
     m_Data[uiOldCount + i] = szChar[i];
   }
   m_Data[uiOldCount + uiCharLen] = '\0';
+  ++m_uiCharacterCount;
 }
 
 inline void ezStringBuilder::Prepend(ezUInt32 uiChar)

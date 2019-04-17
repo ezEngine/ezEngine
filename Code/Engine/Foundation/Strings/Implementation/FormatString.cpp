@@ -164,6 +164,31 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezAngle& arg)
   return ezStringView(tmp, tmp + writepos + 2);
 }
 
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgHumanReadable& arg)
+{
+  ezUInt32 suffixIndex = 0;
+  ezUInt64 divider = 1;
+  double absValue = ezMath::Abs(arg.m_Value);
+  while (absValue / divider >= arg.m_Base && suffixIndex < arg.m_SuffixCount - 1)
+  {
+    divider *= arg.m_Base;
+    ++suffixIndex;
+  }
+
+  ezUInt32 writepos = 0;
+  if (divider == 1 && ezMath::Fraction(arg.m_Value) == 0.0)
+  {
+    ezStringUtils::OutputFormattedInt(tmp, uiLength, writepos, static_cast<ezInt64>(arg.m_Value), 1, false, 10);
+  }
+  else
+  {
+    ezStringUtils::OutputFormattedFloat(tmp, uiLength, writepos, arg.m_Value / divider, 1, false, 2, false);
+  }
+  ezStringUtils::Copy(tmp+writepos, uiLength - writepos, arg.m_Suffixes[suffixIndex]);
+
+  return ezStringView(tmp);
+}
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgErrorCode& arg)
 {
