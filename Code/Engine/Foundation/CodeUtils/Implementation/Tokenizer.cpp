@@ -342,7 +342,7 @@ void ezTokenizer::HandleString(char terminator)
 
 void ezTokenizer::HandleNumber()
 {
-  if (m_uiCurChar == '0' && m_uiNextChar == 'x' || m_uiNextChar == 'X')
+  if (m_uiCurChar == '0' && (m_uiNextChar == 'x' || m_uiNextChar == 'X'))
   {
     NextChar();
     NextChar();
@@ -550,7 +550,7 @@ ezResult ezTokenizer::GetNextLine(ezUInt32& uiFirstToken, ezHybridArray<const ez
         {
           ezStringBuilder s1 = m_Tokens[uiFirstToken - 1].m_DataView;
           ezStringBuilder s2 = m_Tokens[uiFirstToken + 2].m_DataView;
-          ezLog::Warning("Line {0}: The \\ at the line end is in the middle of an identifier name ('{1}' and '{2}'). However, merging identifier names is m_uiCurCharly not supported.", m_Tokens[uiFirstToken].m_uiLine, s1, s2);
+          ezLog::Warning("Line {0}: The \\ at the line end is in the middle of an identifier name ('{1}' and '{2}'). However, merging identifier names is currently not supported.", m_Tokens[uiFirstToken].m_uiLine, s1, s2);
         }
 
         // ignore this
