@@ -279,7 +279,7 @@ void ezQtVisualScriptNode::InitNode(const ezDocumentNodeManager* pManager, const
   }
 }
 
-void ezQtVisualScriptNode::UpdateTitle()
+void ezQtVisualScriptNode::UpdateState()
 {
   ezStringBuilder sTitle;
 

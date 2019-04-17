@@ -38,6 +38,8 @@ public:
   virtual void UpdateConnections();
   void SetHighlightState(ezQtPinHighlightState state);
 
+  void SetActive(bool active);
+
 protected:
   virtual bool AdjustRenderingForHighlight(ezQtPinHighlightState state);
   virtual QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
@@ -45,6 +47,8 @@ protected:
   ezQtPinHighlightState m_HighlightState = ezQtPinHighlightState::None;
 
 private:
+  bool m_bIsActive = true;
+
   ezHybridArray<ezQtConnection*, 6> m_Connections;
   QPointF m_PinCenter;
   const ezPin* m_pPin;

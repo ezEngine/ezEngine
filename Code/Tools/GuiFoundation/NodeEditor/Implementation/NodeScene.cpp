@@ -499,7 +499,7 @@ void ezQtNodeScene::PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e
   if (!it.IsValid())
     return;
 
-  it.Value()->UpdateTitle();
+  it.Value()->UpdateState();
 }
 
 void ezQtNodeScene::SelectionEventsHandler(const ezSelectionManagerEvent& e)

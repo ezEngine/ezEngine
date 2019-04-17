@@ -46,7 +46,7 @@ void ezQtProceduralPlacementNode::InitNode(const ezDocumentNodeManager* pManager
   }
 }
 
-void ezQtProceduralPlacementNode::UpdateTitle()
+void ezQtProceduralPlacementNode::UpdateState()
 {
   ezStringBuilder sTitle;
 
@@ -92,7 +92,10 @@ void ezQtProceduralPlacementNode::UpdateTitle()
       {
         sVal = val.Get<bool>() ? "[x]" : "[ ]";
 
-        m_bIsActive = val.Get<bool>();
+        if (ezStringUtils::IsEqual(prop->GetPropertyName(), "Active"))
+        {
+          SetActive(val.Get<bool>());
+        }
       }
       else if (val.CanConvertTo<ezString>())
       {

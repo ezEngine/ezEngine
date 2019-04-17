@@ -153,9 +153,23 @@ void ezQtPin::SetHighlightState(ezQtPinHighlightState state)
   }
 }
 
+void ezQtPin::SetActive(bool active)
+{
+  m_bIsActive = active;
+
+  if (AdjustRenderingForHighlight(m_HighlightState))
+  {
+    update();
+  }
+}
+
 bool ezQtPin::AdjustRenderingForHighlight(ezQtPinHighlightState state)
 {
-  const ezColorGammaUB pinColor = GetPin()->GetColor();
+  ezColorGammaUB pinColor = GetPin()->GetColor();
+  QColor base = QApplication::palette().base().color();
+
+  if (!m_bIsActive)
+     pinColor = ezMath::Lerp<ezColor>(ezColorGammaUB(base.red(), base.green(), base.blue()), pinColor, 0.2f);
 
   switch (state)
   {
@@ -165,7 +179,7 @@ bool ezQtPin::AdjustRenderingForHighlight(ezQtPinHighlightState state)
       p.setColor(qRgb(pinColor.r, pinColor.g, pinColor.b));
       setPen(p);
 
-      setBrush(GetConnections().IsEmpty() ? QApplication::palette().base() : pen().color().darker(125));
+      setBrush(GetConnections().IsEmpty() ? base : pen().color().darker(125));
     }
     break;
 
@@ -173,10 +187,10 @@ bool ezQtPin::AdjustRenderingForHighlight(ezQtPinHighlightState state)
     case ezQtPinHighlightState::CannotConnectSameDirection:
     {
       QPen p = pen();
-      p.setColor(QApplication::palette().base().color().lighter());
+      p.setColor(base.lighter());
       setPen(p);
 
-      setBrush(QApplication::palette().base());
+      setBrush(base);
     }
     break;
 
@@ -187,10 +201,16 @@ bool ezQtPin::AdjustRenderingForHighlight(ezQtPinHighlightState state)
       p.setColor(qRgb(pinColor.r, pinColor.g, pinColor.b));
       setPen(p);
 
-      setBrush(QApplication::palette().base());
+      setBrush(base);
     }
     break;
   }
+
+  QColor labelColor = QApplication::palette().buttonText().color();
+  if (!m_bIsActive)
+    labelColor = labelColor.darker(150);
+
+  m_pLabel->setDefaultTextColor(labelColor);
 
   return true;
 }

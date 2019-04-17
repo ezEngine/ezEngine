@@ -10,6 +10,6 @@ public:
 
   virtual void InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject) override;
 
-  virtual void UpdateTitle() override;
+  virtual void UpdateState() override;
 };
 

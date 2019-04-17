@@ -63,7 +63,7 @@ void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentO
   m_pManager = pManager;
   m_pObject = pObject;
   CreatePins();
-  UpdateTitle();
+  UpdateState();
 
   UpdateGeometry();
 
@@ -149,9 +149,27 @@ void ezQtNode::UpdateGeometry()
   }
 }
 
-void ezQtNode::UpdateTitle()
+void ezQtNode::UpdateState()
 {
   m_pLabel->setPlainText(m_pObject->GetTypeAccessor().GetType()->GetTypeName());
+}
+
+void ezQtNode::SetActive(bool active)
+{
+  if (m_bIsActive != active)
+  {
+    m_bIsActive = active;
+
+    for (auto pInputPin : m_Inputs)
+    {
+      pInputPin->SetActive(active);
+    }
+
+    for (auto pOutputPin : m_Outputs)
+    {
+      pOutputPin->SetActive(active);
+    }
+  }
 }
 
 void ezQtNode::CreatePins()
@@ -222,11 +240,9 @@ void ezQtNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
 {
   if (m_DirtyFlags.IsSet(ezNodeFlags::UpdateTitle))
   {
-    UpdateTitle();
+    UpdateState();
     UpdateGeometry();
     m_DirtyFlags.Remove(ezNodeFlags::UpdateTitle);
-
-    m_pLabel->setEnabled(m_bIsActive);
   }
 
   auto palette = QApplication::palette();
@@ -238,9 +254,8 @@ void ezQtNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
 
   QColor headerColor = m_HeaderColor;
 
-
   if (!m_bIsActive)
-    headerColor.setRgb(100, 100, 100);
+    headerColor.setAlpha(50);
 
   // Draw header
   painter->setClipPath(path());
@@ -249,18 +264,29 @@ void ezQtNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
   painter->drawRect(m_HeaderRect);
   painter->setClipping(false);
 
-  // Draw outline
+  QColor labelColor;
 
+  // Draw outline
   if (isSelected())
   {
     QPen p = pen();
     p.setColor(palette.highlight().color());
     painter->setPen(p);
+
+    labelColor = palette.highlightedText().color();
   }
   else
   {
     painter->setPen(pen());
+
+    labelColor = palette.buttonText().color();
   }
+
+  // Label
+  if (!m_bIsActive)
+    labelColor = labelColor.darker(150);
+
+  m_pLabel->setDefaultTextColor(labelColor);
 
   painter->setBrush(QBrush(Qt::NoBrush));
   painter->drawPath(path());
@@ -278,9 +304,6 @@ QVariant ezQtNode::itemChange(GraphicsItemChange change, const QVariant& value)
     {
       if (!pHistory->IsInUndoRedo() && !pHistory->IsInTransaction())
         m_DirtyFlags.Add(ezNodeFlags::SelectionChanged);
-
-      auto palette = QApplication::palette();
-      m_pLabel->setDefaultTextColor(isSelected() ? palette.highlightedText().color() : palette.buttonText().color());
     }
     break;
     case QGraphicsItem::ItemPositionHasChanged:

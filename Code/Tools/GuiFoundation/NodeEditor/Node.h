@@ -55,17 +55,18 @@ public:
   void ResetFlags();
 
   void EnableDropShadow(bool enable);
-  virtual void UpdateTitle();
+  virtual void UpdateState();
 
   const ezDocumentNodeManager* GetNodeManager() const { return m_pManager; }
   const ezHybridArray<ezQtPin*, 6>& GetInputPins() const { return m_Inputs; }
   const ezHybridArray<ezQtPin*, 6>& GetOutputPins() const { return m_Outputs; }
 
+  void SetActive(bool active);
+
 protected:
   virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
   virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
 
-  bool m_bIsActive = true;
   QColor m_HeaderColor;
   QGraphicsTextItem* m_pLabel;
 
@@ -73,6 +74,8 @@ private:
   const ezDocumentNodeManager* m_pManager;
   const ezDocumentObject* m_pObject;
   ezBitflags<ezNodeFlags> m_DirtyFlags;
+
+  bool m_bIsActive = true;
 
   // Header
   QRectF m_HeaderRect;

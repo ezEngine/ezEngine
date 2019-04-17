@@ -115,7 +115,7 @@ void ezQtVisualShaderNode::InitNode(const ezDocumentNodeManager* pManager, const
   }
 }
 
-void ezQtVisualShaderNode::UpdateTitle()
+void ezQtVisualShaderNode::UpdateState()
 {
   ezStringBuilder temp = GetObject()->GetTypeAccessor().GetType()->GetTypeName();
   if (temp.StartsWith_NoCase("ShaderNode::"))
