@@ -62,6 +62,20 @@ void operator>>(ezStreamReader& Stream, ezHashedString& Value)
   Value.Assign(sTemp.GetData());
 }
 
+// ezTempHashedString
+
+void operator<<(ezStreamWriter& Stream, const ezTempHashedString& Value)
+{
+  Stream << Value.GetHash();
+}
+
+void operator>>(ezStreamReader& Stream, ezTempHashedString& Value)
+{
+  ezUInt32 hash;
+  Stream >> hash;
+  Value = ezTempHashedString(hash);
+}
+
 // ezVariant
 
 struct WriteValueFunc

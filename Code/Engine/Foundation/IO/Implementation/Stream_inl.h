@@ -386,6 +386,7 @@ ezResult ezStreamReader::ReadHashTable(ezHashTableBase<KeyType, ValueType, Hashe
     uiCount < std::numeric_limits<ezUInt32>::max(), "Containers currently use 32 bit for counts internally. Value from file is too large.");
 
   HashTable.Clear();
+  HashTable.Reserve(static_cast<ezUInt32>(uiCount));
 
   for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
   {
