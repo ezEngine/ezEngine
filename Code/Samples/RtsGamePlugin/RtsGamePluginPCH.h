@@ -11,6 +11,7 @@
 #include <Foundation/Communication/Message.h>
 #include <Foundation/Logging/Log.h>
 
+#include <Core/Collection/CollectionResource.h>
 #include <Core/Input/Declarations.h>
 #include <Core/Input/InputManager.h>
 #include <Core/Messages/EventMessage.h>
@@ -24,7 +25,6 @@
 
 #include <System/Window/Window.h>
 
-#include <GameEngine/Collection/CollectionResource.h>
 #include <GameEngine/DearImgui/DearImgui.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/FallbackGameState.h>

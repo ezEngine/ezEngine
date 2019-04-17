@@ -1,7 +1,8 @@
-#include <GameEnginePCH.h>
+#include <CorePCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
-#include <GameEngine/Collection/CollectionResource.h>
+#include <Core/Collection/CollectionResource.h>
+#include <Foundation/Profiling/Profiling.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionResource, 1, ezRTTIDefaultAllocator<ezCollectionResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -11,29 +12,56 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezCollectionResource);
 ezCollectionResource::ezCollectionResource()
     : ezResource(DoUpdate::OnAnyThread, 1)
 {
-  m_bRegistered = false;
 }
 
 void ezCollectionResource::PreloadResources()
 {
+  EZ_PROFILE_SCOPE("Inject Resources to Preload");
+
   m_hPreloadedResources.Clear();
   m_hPreloadedResources.Reserve(m_Collection.m_Resources.GetCount());
 
   for (const auto& e : m_Collection.m_Resources)
   {
-    if (e.m_sResourceTypeName.IsEmpty())
+    if (e.m_sAssetTypeName.IsEmpty())
       continue;
 
-    const ezRTTI* pRtti = ezResourceManager::FindResourceForAssetType(e.m_sResourceTypeName);
+    const ezRTTI* pRtti = ezResourceManager::FindResourceForAssetType(e.m_sAssetTypeName);
 
     if (pRtti == nullptr)
       continue;
 
-    ezTypelessResourceHandle hTypeless = ezResourceManager::LoadResourceByType(pRtti, e.m_sRedirectionName);
+    ezTypelessResourceHandle hTypeless = ezResourceManager::LoadResourceByType(pRtti, e.m_sResourceID);
     m_hPreloadedResources.PushBack(hTypeless);
 
     ezResourceManager::PreloadResource(hTypeless);
   }
+}
+
+float ezCollectionResource::GetPreloadProgress() const
+{
+  ezUInt32 uiNumLoaded = 0;
+  ezUInt32 uiNumTotal = 0;
+
+  for (const ezTypelessResourceHandle& hResource : m_hPreloadedResources)
+  {
+    ezResourceState state = ezResourceManager::GetLoadingState(hResource);
+
+    if (state == ezResourceState::Loaded || state == ezResourceState::LoadedResourceMissing)
+    {
+      ++uiNumLoaded;
+    }
+
+    if (state != ezResourceState::Invalid)
+    {
+      ++uiNumTotal;
+    }
+  }
+
+  if (uiNumTotal == 0)
+    return 1.0f;
+
+  return static_cast<float>(uiNumLoaded) / static_cast<float>(uiNumTotal);
 }
 
 EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezCollectionResource, ezCollectionResourceDescriptor)
@@ -117,9 +145,9 @@ void ezCollectionResource::RegisterNames()
 
   for (const auto& entry : m_Collection.m_Resources)
   {
-    if (!entry.m_sLookupName.IsEmpty())
+    if (!entry.m_sOptionalNiceLookupName.IsEmpty())
     {
-      ezResourceManager::RegisterNamedResource(entry.m_sLookupName, entry.m_sRedirectionName);
+      ezResourceManager::RegisterNamedResource(entry.m_sOptionalNiceLookupName, entry.m_sResourceID);
     }
   }
 }
@@ -136,9 +164,9 @@ void ezCollectionResource::UnregisterNames()
 
   for (const auto& entry : m_Collection.m_Resources)
   {
-    if (!entry.m_sLookupName.IsEmpty())
+    if (!entry.m_sOptionalNiceLookupName.IsEmpty())
     {
-      ezResourceManager::UnregisterNamedResource(entry.m_sLookupName);
+      ezResourceManager::UnregisterNamedResource(entry.m_sOptionalNiceLookupName);
     }
   }
 }
@@ -155,9 +183,9 @@ void ezCollectionResourceDescriptor::Save(ezStreamWriter& stream) const
 
   for (ezUInt32 i = 0; i < uiNumResources; ++i)
   {
-    stream << m_Resources[i].m_sResourceTypeName;
-    stream << m_Resources[i].m_sLookupName;
-    stream << m_Resources[i].m_sRedirectionName;
+    stream << m_Resources[i].m_sAssetTypeName;
+    stream << m_Resources[i].m_sOptionalNiceLookupName;
+    stream << m_Resources[i].m_sResourceID;
   }
 }
 
@@ -178,9 +206,9 @@ void ezCollectionResourceDescriptor::Load(ezStreamReader& stream)
 
   for (ezUInt32 i = 0; i < uiNumResources; ++i)
   {
-    stream >> m_Resources[i].m_sResourceTypeName;
-    stream >> m_Resources[i].m_sLookupName;
-    stream >> m_Resources[i].m_sRedirectionName;
+    stream >> m_Resources[i].m_sAssetTypeName;
+    stream >> m_Resources[i].m_sOptionalNiceLookupName;
+    stream >> m_Resources[i].m_sResourceID;
   }
 }
 

@@ -1,7 +1,7 @@
 #include <GameEnginePCH.h>
 
+#include <Core/Collection/CollectionResource.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
-#include <GameEngine/Collection/CollectionResource.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
 #include <GameEngine/Curves/Curve1DResource.h>
 #include <GameEngine/GameApplication/GameApplication.h>
