@@ -35,7 +35,7 @@ namespace ezMath
   constexpr EZ_ALWAYS_INLINE ezUInt32 RoundDown(ezUInt32 value, ezUInt16 multiple)
   {
     //
-    return (value <= 0) ? ((value - multiple + 1) / multiple) * multiple : (value / multiple) * multiple;
+    return (value / multiple) * multiple;
   }
 
   constexpr EZ_ALWAYS_INLINE bool IsOdd(ezInt32 i)

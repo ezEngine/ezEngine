@@ -202,6 +202,18 @@ namespace ezMath
   template <typename Type>
   constexpr Type Invert(Type f); // [tested]
 
+  /// \brief Returns a multiple of the given multiple that is larger than or equal to value.
+  constexpr ezInt32 RoundUp(ezInt32 value, ezUInt16 multiple); // [tested]
+
+  /// \brief Returns a multiple of the given multiple that is smaller than or equal to value.
+  constexpr ezInt32 RoundDown(ezInt32 value, ezUInt16 multiple); // [tested]
+
+  /// \brief Returns a multiple of the given multiple that is greater than or equal to value.
+  constexpr ezUInt32 RoundUp(ezUInt32 value, ezUInt16 multiple); // [tested]
+
+  /// \brief Returns a multiple of the given multiple that is smaller than or equal to value.
+  constexpr ezUInt32 RoundDown(ezUInt32 value, ezUInt16 multiple); // [tested]
+
   /// \brief Returns true, if i is an odd number
   constexpr bool IsOdd(ezInt32 i); // [tested]
 

@@ -425,6 +425,22 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_INT(ezMath::RoundDown(-15, 4), -16);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RoundUp (unsigned int)")
+  {
+    EZ_TEST_INT(ezMath::RoundUp(12u, 7), 14);
+    EZ_TEST_INT(ezMath::RoundUp(16u, 4), 16);
+    EZ_TEST_INT(ezMath::RoundUp(17u, 4), 20);
+    EZ_TEST_INT(ezMath::RoundUp(15u, 4), 16);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RoundDown (unsigned int)")
+  {
+    EZ_TEST_INT(ezMath::RoundDown(12u, 7), 7);
+    EZ_TEST_INT(ezMath::RoundDown(16u, 4), 16);
+    EZ_TEST_INT(ezMath::RoundDown(17u, 4), 16);
+    EZ_TEST_INT(ezMath::RoundDown(15u, 4), 12);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Fraction")
   {
     EZ_TEST_FLOAT(ezMath::Fraction(12.34f), 0.34f, 0.00001f);
