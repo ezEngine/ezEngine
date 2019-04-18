@@ -23,7 +23,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ProceduralPlacement)
     pRegistry->UpdateNodeTypes();
     const ezRTTI* pBaseType = pRegistry->GetBaseType();
 
-    //ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualScriptPin(); });
+    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtProceduralPlacementPin(); });
     ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtProceduralPlacementNode(); });
   }
 

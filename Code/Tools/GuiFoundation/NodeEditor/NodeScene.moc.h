@@ -55,6 +55,7 @@ private:
   void DisconnectPins(const ezConnection* pConnection);
   void MarkupConnectablePins(ezQtPin* pSourcePin);
   void ResetConnectablePinMarkup();
+  void OpenSearchMenu(QPoint screenPos);
 
 protected:
   virtual ezStatus RemoveNode(ezQtNode* pNode);

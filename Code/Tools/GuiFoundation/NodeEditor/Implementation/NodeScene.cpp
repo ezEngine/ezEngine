@@ -109,13 +109,14 @@ ezRttiMappedObjectFactory<ezQtConnection>& ezQtNodeScene::GetConnectionFactory()
 
 void ezQtNodeScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
-  s_LastMouseInteraction = ezVec2(event->scenePos().x(), event->scenePos().y());
+  m_vPos = ezVec2(event->scenePos().x(), event->scenePos().y());
+  s_LastMouseInteraction = m_vPos;
 
   if (m_pTempConnection)
   {
     event->accept();
 
-    ezVec2 bestPos = s_LastMouseInteraction;
+    ezVec2 bestPos = m_vPos;
 
     // snap to the closest pin that we can connect to
     if (!m_ConnectablePins.IsEmpty())
@@ -278,8 +279,6 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
     iType = pItem != nullptr ? pItem->type() : -1;
   }
 
-  ezQtSearchableMenu* pSearchMenu = nullptr;
-
   QMenu menu;
   if (iType == Type::Pin)
   {
@@ -287,6 +286,8 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
     QAction* pAction = new QAction("Disconnect Pin", &menu);
     menu.addAction(pAction);
     connect(pAction, &QAction::triggered, this, [this, pPin](bool bChecked) { DisconnectPinsAction(pPin); });
+
+    pPin->ExtendContextMenu(menu);
   }
   else if (iType == Type::Node)
   {
@@ -315,53 +316,35 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
   }
   else
   {
-    pSearchMenu = new ezQtSearchableMenu(&menu);
-    menu.addAction(pSearchMenu);
-
-    connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, &ezQtNodeScene::OnMenuItemTriggered);
-    connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, [&menu]() { menu.close(); });
-
-    ezStringBuilder sFullName;
-
-    ezHybridArray<const ezRTTI*, 32> types;
-    m_pManager->GetCreateableTypes(types);
-    auto pos = contextMenuEvent->scenePos();
-    m_vPos = ezVec2(pos.x(), pos.y());
-    for (const ezRTTI* pRtti : types)
-    {
-      const char* szCleanName = pRtti->GetTypeName();
-
-      const char* szColonColon = ezStringUtils::FindLastSubString(szCleanName, "::");
-      if (szColonColon != nullptr)
-        szCleanName = szColonColon + 2;
-
-      const char* szUnderscore = ezStringUtils::FindLastSubString(szCleanName, "_");
-      if (szUnderscore != nullptr)
-        szCleanName = szUnderscore + 1;
-
-      sFullName = m_pManager->GetTypeCategory(pRtti);
-      sFullName.AppendPath(szCleanName);
-
-      pSearchMenu->AddItem(sFullName, qVariantFromValue((void*)pRtti));
-    }
-
-    pSearchMenu->Finalize(m_sContextMenuSearchText);
+    OpenSearchMenu(contextMenuEvent->screenPos());
+    return;
   }
 
   menu.exec(contextMenuEvent->screenPos());
-
-  if (pSearchMenu)
-  {
-    m_sContextMenuSearchText = pSearchMenu->GetSearchText();
-  }
 }
 
 void ezQtNodeScene::keyPressEvent(QKeyEvent* event)
 {
+  QTransform id;
+  QGraphicsItem* pItem = itemAt(QPointF(m_vPos.x, m_vPos.y), id);
+  if (pItem && pItem->type() == Type::Pin)
+  {
+    ezQtPin* pin = static_cast<ezQtPin*>(pItem);
+    if (event->key() == Qt::Key_Delete)
+    {
+      DisconnectPinsAction(pin);
+    }
+
+    pin->keyPressEvent(event);
+  }
+
   if (event->key() == Qt::Key_Delete)
   {
     RemoveSelectedNodesAction();
-    return;
+  }
+  else if (event->key() == Qt::Key_Space)
+  {
+    OpenSearchMenu(QCursor::pos());
   }
 }
 
@@ -678,6 +661,48 @@ void ezQtNodeScene::ResetConnectablePinMarkup()
       ezQtPin* pQtTargetPin = pTargetNode->GetOutputPin(pin);
       pQtTargetPin->SetHighlightState(ezQtPinHighlightState::None);
     }
+  }
+}
+
+void ezQtNodeScene::OpenSearchMenu(QPoint screenPos)
+{
+  QMenu menu;
+  ezQtSearchableMenu* pSearchMenu = new ezQtSearchableMenu(&menu);
+  menu.addAction(pSearchMenu);
+
+  connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, &ezQtNodeScene::OnMenuItemTriggered);
+  connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, [&menu]() { menu.close(); });
+
+  ezStringBuilder sFullName;
+
+  ezHybridArray<const ezRTTI*, 32> types;
+  m_pManager->GetCreateableTypes(types);
+
+  for (const ezRTTI* pRtti : types)
+  {
+    const char* szCleanName = pRtti->GetTypeName();
+
+    const char* szColonColon = ezStringUtils::FindLastSubString(szCleanName, "::");
+    if (szColonColon != nullptr)
+      szCleanName = szColonColon + 2;
+
+    const char* szUnderscore = ezStringUtils::FindLastSubString(szCleanName, "_");
+    if (szUnderscore != nullptr)
+      szCleanName = szUnderscore + 1;
+
+    sFullName = m_pManager->GetTypeCategory(pRtti);
+    sFullName.AppendPath(szCleanName);
+
+    pSearchMenu->AddItem(sFullName, qVariantFromValue((void*)pRtti));
+  }
+
+  pSearchMenu->Finalize(m_sContextMenuSearchText);
+
+  menu.exec(screenPos);
+
+  if (pSearchMenu)
+  {
+    m_sContextMenuSearchText = pSearchMenu->GetSearchText();
   }
 }
 

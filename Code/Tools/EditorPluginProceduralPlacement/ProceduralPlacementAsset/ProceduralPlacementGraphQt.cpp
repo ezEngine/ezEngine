@@ -7,9 +7,10 @@
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <GuiFoundation/NodeEditor/Pin.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <ToolsFoundation/Command/NodeCommands.h>
+
 #include <QPainter>
 #include <QTimer>
-#include <ToolsFoundation/Command/NodeCommands.h>
 
 namespace
 {
@@ -24,8 +25,9 @@ namespace
 
     return ezColor::DarkOliveGreen;
   }
-}
+} // namespace
 
+//////////////////////////////////////////////////////////////////////////
 
 ezQtProceduralPlacementNode::ezQtProceduralPlacementNode()
 {
@@ -116,4 +118,57 @@ void ezQtProceduralPlacementNode::UpdateState()
   }
 
   m_pLabel->setPlainText(sTitle.GetData());
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+ezQtProceduralPlacementPin::ezQtProceduralPlacementPin() = default;
+
+void ezQtProceduralPlacementPin::ExtendContextMenu(QMenu& menu)
+{
+  QAction* pAction = new QAction("Debug", &menu);
+  pAction->setCheckable(true);
+  pAction->setChecked(m_bDebug);
+  pAction->connect(pAction, &QAction::triggered, [this](bool bChecked) { SetDebug(bChecked); });
+
+  menu.addAction(pAction);
+}
+
+void ezQtProceduralPlacementPin::keyPressEvent(QKeyEvent* event)
+{
+  if (event->key() == Qt::Key_D || event->key() == Qt::Key_F9)
+  {
+    SetDebug(!m_bDebug);
+  }
+}
+
+void ezQtProceduralPlacementPin::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
+{
+  ezQtPin::paint(painter, option, widget);
+
+  painter->save();
+  painter->setPen(QPen(QColor(220, 0, 0), 3.5f, Qt::DotLine));
+  painter->setBrush(Qt::NoBrush);
+
+  if (m_bDebug)
+  {
+    float pad = 3.5f;
+    QRectF bounds = path().boundingRect().adjusted(-pad, -pad, pad, pad);
+    painter->drawEllipse(bounds);
+  }
+
+  painter->restore();
+}
+
+QRectF ezQtProceduralPlacementPin::boundingRect() const
+{
+  QRectF bounds = ezQtPin::boundingRect();
+  return bounds.adjusted(-6, -6, 6, 6);
+}
+
+void ezQtProceduralPlacementPin::SetDebug(bool bDebug)
+{
+  m_bDebug = bDebug;
+
+  update();
 }

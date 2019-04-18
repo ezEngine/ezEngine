@@ -170,6 +170,8 @@ void ezQtNode::SetActive(bool active)
       pOutputPin->SetActive(active);
     }
   }
+
+  update();
 }
 
 void ezQtNode::CreatePins()

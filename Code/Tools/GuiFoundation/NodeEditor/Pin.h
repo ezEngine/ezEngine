@@ -40,6 +40,9 @@ public:
 
   void SetActive(bool active);
 
+  virtual void ExtendContextMenu(QMenu& menu) {}
+  virtual void keyPressEvent(QKeyEvent* event) override {}
+
 protected:
   virtual bool AdjustRenderingForHighlight(ezQtPinHighlightState state);
   virtual QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
