@@ -83,6 +83,30 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
 
     TestFormat(ezFmt("{0}, {1}, {2}, {3}", ezInt8(-1), ezInt16(-2), ezInt32(-3), ezInt64(-4)), "-1, -2, -3, -4");
     TestFormat(ezFmt("{0}, {1}, {2}, {3}", ezUInt8(1), ezUInt16(2), ezUInt32(3), ezUInt64(4)), "1, 2, 3, 4");
+
+    TestFormat(ezFmt("{0}, {1}", ezArgHumanReadable(0ll), ezArgHumanReadable(1ll)), "0, 1");
+    TestFormat(ezFmt("{0}, {1}", ezArgHumanReadable(-0ll), ezArgHumanReadable(-1ll)), "0, -1");
+    TestFormat(ezFmt("{0}, {1}", ezArgHumanReadable(999ll), ezArgHumanReadable(1000ll)), "999, 1.00K");
+    TestFormat(ezFmt("{0}, {1}", ezArgHumanReadable(-999ll), ezArgHumanReadable(-1000ll)), "-999, -1.00K");
+    // 999.999 gets rounded up for precision 2, so result is 1000.00K not 999.99K
+    TestFormat(ezFmt("{0}, {1}", ezArgHumanReadable(999'999ll), ezArgHumanReadable(1'000'000ll)), "1000.00K, 1.00M");
+    TestFormat(ezFmt("{0}, {1}", ezArgHumanReadable(-999'999ll), ezArgHumanReadable(-1'000'000ll)), "-1000.00K, -1.00M");
+
+    TestFormat(ezFmt("{0}, {1}", ezArgFileSize(0u), ezArgFileSize(1u)), "0B, 1B");
+    TestFormat(ezFmt("{0}, {1}", ezArgFileSize(1023u), ezArgFileSize(1024u)), "1023B, 1.00KB");
+    // 1023.999 gets rounded up for precision 2, so result is 1024.00KB not 1023.99KB
+    TestFormat(ezFmt("{0}, {1}", ezArgFileSize(1024u*1024u - 1u), ezArgFileSize(1024u*1024u)), "1024.00KB, 1.00MB");
+
+    const char* const suffixes[] = { " Foo", " Bar", " Foobar" };
+    const ezUInt32 suffixCount = EZ_ARRAY_SIZE(suffixes);
+    TestFormat(ezFmt("{0}", ezArgHumanReadable(0ll, 25u, suffixes, suffixCount)), "0 Foo");
+    TestFormat(ezFmt("{0}", ezArgHumanReadable(25ll, 25u, suffixes, suffixCount)), "1.00 Bar");
+    TestFormat(ezFmt("{0}", ezArgHumanReadable(25ll * 25ll * 2ll, 25u, suffixes, suffixCount)), "2.00 Foobar");
+
+    TestFormat(ezFmt("{0}", ezArgHumanReadable(-0ll, 25u, suffixes, suffixCount)), "0 Foo");
+    TestFormat(ezFmt("{0}", ezArgHumanReadable(-25ll, 25u, suffixes, suffixCount)), "-1.00 Bar");
+    TestFormat(ezFmt("{0}", ezArgHumanReadable(-25ll * 25ll * 2ll, 25u, suffixes, suffixCount)), "-2.00 Foobar");
+
     TestFormat(ezFmt("'{0}, {1}'", "inl", sz), "'inl, sz'");
     TestFormat(ezFmt("'{0}'", string), "'string'");
     TestFormat(ezFmt("'{0}'", sb), "'builder'");

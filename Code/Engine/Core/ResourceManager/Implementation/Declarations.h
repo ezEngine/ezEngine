@@ -28,6 +28,7 @@ struct ezResourceEvent
     ResourceContentUnloading, ///< Resource is about to be unloaded, but still valid at this point. \note When a resource is 'reloaded' this
                               ///< is the important event to track. Every reload starts with an unload. The actual 'load' (UpdateContant)
                               ///< only happens on demand.
+    ResourcePriorityChanged,  ///< Sent when the priority of a resource is modified.
   };
 
   Type m_Type;
@@ -127,6 +128,16 @@ enum class ezResourceAcquireResult
   MissingFallback, ///< The resource could not be loaded, but a missing fallback was available and has been returned.
   LoadingFallback, ///< The resource has not yet been loaded, but a loading fallback was available and has been returned.
   Final,           ///< The resource is fully available.
+};
+
+enum class ezResourcePriority
+{
+  Critical = 0,
+  VeryHigh = 1,
+  High     = 2,
+  Medium   = 3,
+  Low      = 4,
+  VeryLow  = 5,
 };
 
 // clang-format on

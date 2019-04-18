@@ -11,16 +11,25 @@ public:
   ezTestLogInterface() = default;
   ~ezTestLogInterface();
   virtual void HandleLogMessage(const ezLoggingEventData& le) override;
-  /// \brief Add expected error message. Will fail the test when expected error message is not
+
+  /// \brief Add expected message. Will fail the test when the expected message is not
   /// encountered. Can take an optional count, if messages are expected multiple times
-  void ExpectError(const char* msg, ezInt32 count = 1);
+  void ExpectMessage(const char* msg, ezLogMsgType::Enum type = ezLogMsgType::All, ezInt32 count = 1);
 
   /// \brief Set the log interface that unhandled messages are forwarded to.
   void SetParentLog(ezLogInterface* pInterface) { m_pParentLog = pInterface; }
 
 private:
   ezLogInterface* m_pParentLog = nullptr;
-  ezHybridArray<std::pair<ezInt32, ezString>, 8> m_expectedErrors;
+
+  struct ExpectedMsg
+  {
+    ezInt32 m_iCount = 0;
+    ezString m_sMsgSubString;
+    ezLogMsgType::Enum m_Type = ezLogMsgType::All;
+  };
+
+  ezHybridArray<ExpectedMsg, 8> m_expectedMessages;
 };
 
 /// \brief A class that sets a custom ezTestLogInterface as the thread local default log system,

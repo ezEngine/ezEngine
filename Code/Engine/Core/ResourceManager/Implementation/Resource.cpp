@@ -98,13 +98,16 @@ void ezResource::CallUpdateContent(ezStreamReader* Stream)
 
 float ezResource::GetLoadingPriority(ezTime tNow) const
 {
+  if (m_Priority == ezResourcePriority::Critical)
+    return 0.0f;
+
   // low priority values mean it gets loaded earlier
-  float fPriority = 0.0f;
+  float fPriority = static_cast<float>(m_Priority) * 10.0f;
 
   if (GetLoadingState() == ezResourceState::Loaded)
   {
     // already loaded -> more penalty
-    fPriority += 100.0f;
+    fPriority += 30.0f;
 
     // the more it could discard, the less important it is to load more of it
     fPriority += GetNumQualityLevelsDiscardable() * 10.0f;
@@ -131,6 +134,19 @@ float ezResource::GetLoadingPriority(ezTime tNow) const
   const float fTimePriority = ezMath::Min(10.0f, secondsSinceAcquire);
 
   return fPriority + fTimePriority;
+}
+
+void ezResource::SetPriority(ezResourcePriority priority)
+{
+  if (m_Priority == priority)
+    return;
+
+  m_Priority = priority;
+
+  ezResourceEvent e;
+  e.m_pResource = this;
+  e.m_Type = ezResourceEvent::Type::ResourcePriorityChanged;
+  ezResourceManager::BroadcastResourceEvent(e);
 }
 
 ezResourceTypeLoader* ezResource::GetDefaultResourceTypeLoader() const

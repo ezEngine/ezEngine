@@ -3,7 +3,7 @@
 #include <Core/Application/Application.h>
 #include <Foundation/Configuration/Startup.h>
 
-void ezRun_Startup(ezApplication* pApplicationInstance)
+ezResult ezRun_Startup(ezApplication* pApplicationInstance)
 {
   EZ_ASSERT_ALWAYS(pApplicationInstance != nullptr, "ezRun() requires a valid non-null application instance pointer.");
   EZ_ASSERT_ALWAYS(ezApplication::s_pApplicationInstance == nullptr, "There can only be one ezApplication.");
@@ -11,7 +11,7 @@ void ezRun_Startup(ezApplication* pApplicationInstance)
   // Set application instance pointer to the supplied instance
   ezApplication::s_pApplicationInstance = pApplicationInstance;
 
-  pApplicationInstance->BeforeCoreSystemsStartup();
+  EZ_SUCCEED_OR_RETURN(pApplicationInstance->BeforeCoreSystemsStartup());
 
   // this will startup all base and core systems
   // 'StartupHighLevelSystems' must not be done before a window is available (if at all)
@@ -19,6 +19,7 @@ void ezRun_Startup(ezApplication* pApplicationInstance)
   ezStartup::StartupCoreSystems();
 
   pApplicationInstance->AfterCoreSystemsStartup();
+  return EZ_SUCCESS;
 }
 
 void ezRun_MainLoop(ezApplication* pApplicationInstance)
@@ -59,8 +60,10 @@ void ezRun_Shutdown(ezApplication* pApplicationInstance)
 
 void ezRun(ezApplication* pApplicationInstance)
 {
-  ezRun_Startup(pApplicationInstance);
-  ezRun_MainLoop(pApplicationInstance);
+  if (ezRun_Startup(pApplicationInstance).Succeeded())
+  {
+    ezRun_MainLoop(pApplicationInstance);
+  }
   ezRun_Shutdown(pApplicationInstance);
 }
 

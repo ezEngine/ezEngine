@@ -11,10 +11,7 @@ namespace
     ezUInt64 m_uiThreadId;
     ezString m_sName;
 
-    bool operator==(const ThreadInfo& rhs) const
-    {
-      return m_uiThreadId == rhs.m_uiThreadId && m_sName == rhs.m_sName;
-    }
+    bool operator==(const ThreadInfo& rhs) const { return m_uiThreadId == rhs.m_uiThreadId && m_sName == rhs.m_sName; }
   };
 
   static ezHybridArray<ThreadInfo, 16> s_ThreadInfos;
@@ -57,7 +54,8 @@ namespace
   static ezDynamicArray<EventBuffer*> s_AllEventBuffers;
   static ezMutex s_AllEventBuffersMutex;
 
-  typedef ezStaticRingBuffer<ezProfilingSystem::GPUData, RING_BUFFER_SIZE_PER_THREAD / sizeof(ezProfilingSystem::GPUData)> GPUDataRingBuffer;
+  typedef ezStaticRingBuffer<ezProfilingSystem::GPUData, RING_BUFFER_SIZE_PER_THREAD / sizeof(ezProfilingSystem::GPUData)>
+    GPUDataRingBuffer;
   static GPUDataRingBuffer* s_GPUData;
 
   Event& AllocateEvent(const char* szName, ezUInt32 uiNameLength, Event::Type type)
@@ -104,8 +102,69 @@ void ezProfilingSystem::Capture(ezStreamWriter& outputStream)
   {
     writer.BeginArray("traceEvents");
 
+    const ezUInt32 uiFramesThreadID = 1;
+    const ezUInt32 uiGPUThreadID = 0;
+
     {
       EZ_LOCK(s_ThreadInfosMutex);
+
+      // Frames thread
+      {
+        writer.BeginObject();
+        writer.AddVariableString("name", "thread_name");
+        writer.AddVariableString("cat", "__metadata");
+        writer.AddVariableUInt32("pid", 1); // dummy value
+        writer.AddVariableUInt64("tid", uiFramesThreadID);
+        writer.AddVariableString("ph", "M");
+
+        writer.BeginObject("args");
+        writer.AddVariableString("name", "Frames");
+        writer.EndObject();
+
+        writer.EndObject();
+
+        writer.BeginObject();
+        writer.AddVariableString("name", "thread_sort_index");
+        writer.AddVariableString("cat", "__metadata");
+        writer.AddVariableUInt32("pid", 1); // dummy value
+        writer.AddVariableUInt64("tid", uiFramesThreadID);
+        writer.AddVariableString("ph", "M");
+
+        writer.BeginObject("args");
+        writer.AddVariableInt32("sort_index", -1);
+        writer.EndObject();
+
+        writer.EndObject();
+      }
+
+      // GPU thread
+      {
+        writer.BeginObject();
+        writer.AddVariableString("name", "thread_name");
+        writer.AddVariableString("cat", "__metadata");
+        writer.AddVariableUInt32("pid", 1); // dummy value
+        writer.AddVariableUInt64("tid", uiGPUThreadID);
+        writer.AddVariableString("ph", "M");
+
+        writer.BeginObject("args");
+        writer.AddVariableString("name", "GPU");
+        writer.EndObject();
+
+        writer.EndObject();
+
+        writer.BeginObject();
+        writer.AddVariableString("name", "thread_sort_index");
+        writer.AddVariableString("cat", "__metadata");
+        writer.AddVariableUInt32("pid", 1); // dummy value
+        writer.AddVariableUInt64("tid", uiGPUThreadID);
+        writer.AddVariableString("ph", "M");
+
+        writer.BeginObject("args");
+        writer.AddVariableInt32("sort_index", -2);
+        writer.EndObject();
+
+        writer.EndObject();
+      }
 
       for (const ThreadInfo& info : s_ThreadInfos)
       {
@@ -113,12 +172,11 @@ void ezProfilingSystem::Capture(ezStreamWriter& outputStream)
         writer.AddVariableString("name", "thread_name");
         writer.AddVariableString("cat", "__metadata");
         writer.AddVariableUInt32("pid", 1); // dummy value
-        writer.AddVariableUInt64("tid", info.m_uiThreadId);
-        writer.AddVariableUInt64("ts", 0);
+        writer.AddVariableUInt64("tid", info.m_uiThreadId + 2);
         writer.AddVariableString("ph", "M");
 
         writer.BeginObject("args");
-        writer.AddVariableString("name", info.m_sName.GetData());
+        writer.AddVariableString("name", info.m_sName);
         writer.EndObject();
 
         writer.EndObject();
@@ -130,7 +188,7 @@ void ezProfilingSystem::Capture(ezStreamWriter& outputStream)
 
       for (auto pEventBuffer : s_AllEventBuffers)
       {
-        ezUInt64 uiThreadId = pEventBuffer->m_uiThreadId;
+        ezUInt64 uiThreadId = pEventBuffer->m_uiThreadId + 2;
         for (ezUInt32 i = 0; i < pEventBuffer->m_Data.GetCount(); ++i)
         {
           const Event& e = pEventBuffer->m_Data[i];
@@ -154,6 +212,38 @@ void ezProfilingSystem::Capture(ezStreamWriter& outputStream)
       }
     }
 
+    // frame start/end
+    {
+      ezStringBuilder sFrameName;
+
+      const ezUInt32 uiNumFrames = s_FrameStartTimes.GetCount();
+      for (ezUInt32 i = 1; i < uiNumFrames; ++i)
+      {
+        const ezTime t0 = s_FrameStartTimes[i - 1];
+        const ezTime t1 = s_FrameStartTimes[i];
+
+        const ezUInt64 localFrameID = uiNumFrames - i - 1;
+        sFrameName.Format("Frame {}", s_uiFrameCount - localFrameID);
+
+        writer.BeginObject();
+        writer.AddVariableString("name", sFrameName);
+        writer.AddVariableUInt32("pid", 1); // dummy value
+        writer.AddVariableUInt64("tid", uiFramesThreadID);
+        writer.AddVariableUInt64("ts", static_cast<ezUInt64>(t0.GetMicroseconds()));
+        writer.AddVariableString("ph", "B");
+        writer.EndObject();
+
+        writer.BeginObject();
+        writer.AddVariableString("name", sFrameName);
+        writer.AddVariableUInt32("pid", 1); // dummy value
+        writer.AddVariableUInt64("tid", uiFramesThreadID);
+        writer.AddVariableUInt64("ts", static_cast<ezUInt64>(t1.GetMicroseconds()));
+        writer.AddVariableString("ph", "E");
+        writer.EndObject();
+      }
+    }
+
+    // GPU data
     {
       for (ezUInt32 i = 0; i < s_GPUData->GetCount(); ++i)
       {
@@ -162,7 +252,7 @@ void ezProfilingSystem::Capture(ezStreamWriter& outputStream)
         writer.BeginObject();
         writer.AddVariableString("name", e.m_szName);
         writer.AddVariableUInt32("pid", 1); // dummy value
-        writer.AddVariableUInt64("tid", 0);
+        writer.AddVariableUInt64("tid", uiGPUThreadID);
         writer.AddVariableUInt64("ts", static_cast<ezUInt64>(e.m_BeginTime.GetMicroseconds()));
         writer.AddVariableString("ph", "B");
         writer.EndObject();
@@ -170,7 +260,7 @@ void ezProfilingSystem::Capture(ezStreamWriter& outputStream)
         writer.BeginObject();
         writer.AddVariableString("name", e.m_szName);
         writer.AddVariableUInt32("pid", 1); // dummy value
-        writer.AddVariableUInt64("tid", 0);
+        writer.AddVariableUInt64("tid", uiGPUThreadID);
         writer.AddVariableUInt64("ts", static_cast<ezUInt64>(e.m_EndTime.GetMicroseconds()));
         writer.AddVariableString("ph", "E");
         writer.EndObject();
@@ -241,16 +331,6 @@ void ezProfilingSystem::InitializeGPUData()
   {
     s_GPUData = EZ_DEFAULT_NEW(GPUDataRingBuffer);
   }
-
-  ThreadInfo info;
-  info.m_uiThreadId = 0;
-  info.m_sName = "GPU";
-
-  EZ_LOCK(s_ThreadInfosMutex);
-  if (!s_ThreadInfos.Contains(info))
-  {
-    s_ThreadInfos.PushBack(info);
-  }
 }
 
 ezProfilingSystem::GPUData& ezProfilingSystem::AllocateGPUData()
@@ -267,8 +347,8 @@ ezProfilingSystem::GPUData& ezProfilingSystem::AllocateGPUData()
 //////////////////////////////////////////////////////////////////////////
 
 ezProfilingScope::ezProfilingScope(const char* szName, const char* szFunctionName)
-    : m_szName(szName)
-    , m_uiNameLength((ezUInt32)::strlen(szName))
+  : m_szName(szName)
+  , m_uiNameLength((ezUInt32)::strlen(szName))
 {
   Event& e = AllocateEvent(m_szName, m_uiNameLength, Event::Begin);
   e.m_szFunctionName = szFunctionName;
@@ -285,10 +365,10 @@ ezProfilingScope::~ezProfilingScope()
 thread_local ezProfilingListScope* ezProfilingListScope::s_pCurrentList = nullptr;
 
 ezProfilingListScope::ezProfilingListScope(const char* szListName, const char* szFirstSectionName, const char* szFunctionName)
-    : m_szListName(szListName)
-    , m_uiListNameLength((ezUInt32)::strlen(szListName))
-    , m_szCurSectionName(szFirstSectionName)
-    , m_uiCurSectionNameLength((ezUInt32)::strlen(szFirstSectionName))
+  : m_szListName(szListName)
+  , m_uiListNameLength((ezUInt32)::strlen(szListName))
+  , m_szCurSectionName(szFirstSectionName)
+  , m_uiCurSectionNameLength((ezUInt32)::strlen(szFirstSectionName))
 {
   m_pPreviousList = s_pCurrentList;
   s_pCurrentList = this;
@@ -336,4 +416,3 @@ void ezProfilingListScope::StartNextSection(const char* szNextSectionName)
     e.m_szFunctionName = nullptr;
   }
 }
-

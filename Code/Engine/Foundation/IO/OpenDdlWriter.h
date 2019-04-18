@@ -42,6 +42,9 @@ public:
   /// \brief Configures how float values are output.
   void SetFloatPrecisionMode(FloatPrecisionMode mode) { m_FloatPrecisionMode = mode; }
 
+  /// \brief Returns how float values are output.
+  FloatPrecisionMode GetFloatPrecisionMode() const { return m_FloatPrecisionMode; }
+
   /// \brief Allows to set the indentation. Negative values are possible.
   /// This makes it possible to set the indentation e.g. to -2, thus the output will only have indentation after a level of 3 has been reached.
   void SetIndentation(ezInt8 iIndentation) { m_iIndentation = iIndentation; }

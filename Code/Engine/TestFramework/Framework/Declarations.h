@@ -1,6 +1,7 @@
 #pragma once
 
 #include <TestFramework/TestFrameworkDLL.h>
+#include <Foundation/Types/Status.h>
 #include <deque>
 #include <string>
 
@@ -28,6 +29,7 @@ struct ezTestEntry
   ezTestEntry()
       : m_pTest(nullptr)
       , m_szTestName("")
+      , m_available(EZ_SUCCESS)
       , m_bEnableTest(true)
   {
   }
@@ -35,6 +37,7 @@ struct ezTestEntry
   ezTestBaseClass* m_pTest;
   const char* m_szTestName;
   std::deque<ezSubTestEntry> m_SubTests;
+  ezStatus m_available;
   bool m_bEnableTest;
 };
 

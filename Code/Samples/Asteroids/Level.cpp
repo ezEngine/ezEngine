@@ -13,7 +13,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
-#include <GameEngine/Collection/CollectionResource.h>
+#include <Core/Collection/CollectionResource.h>
 
 extern const char* szPlayerActions[MaxPlayerActions];
 

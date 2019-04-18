@@ -4,7 +4,10 @@
 #include <Foundation/Containers/Implementation/ArrayIterator.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
 
-#define ezInvalidIndex 0xFFFFFFFF
+/// \brief Value used by containers for indices to indicate an invalid index.
+#ifndef ezInvalidIndex
+#  define ezInvalidIndex 0xFFFFFFFF
+#endif
 
 /// \brief A double ended queue container.
 ///
@@ -351,4 +354,3 @@ typename ezDequeBase<T, Construct>::const_reverse_iterator crend(const ezDequeBa
 }
 
 #include <Foundation/Containers/Implementation/Deque_inl.h>
-

@@ -8,6 +8,9 @@
 
 #if EZ_ENABLED(EZ_USE_PROFILING)
 
+ezStaticRingBuffer<ezTime, ezProfilingSystem::RING_BUFFER_SIZE_FRAMES> ezProfilingSystem::s_FrameStartTimes;
+ezUInt64 ezProfilingSystem::s_uiFrameCount = 0;
+
 class ezProfileCaptureDataTransfer : public ezDataTransfer
 {
 private:
@@ -53,6 +56,19 @@ void ezProfilingSystem::Initialize()
   SetThreadName("Main Thread");
 }
 
+// static
+void ezProfilingSystem::StartNewFrame()
+{
+  ++s_uiFrameCount;
+
+  if (!s_FrameStartTimes.CanAppend())
+  {
+    s_FrameStartTimes.PopFront();
+  }
+
+  s_FrameStartTimes.PushBack(ezTime::Now());
+}
+
 #else
 
 // static
@@ -66,6 +82,8 @@ void ezProfilingSystem::Capture(ezStreamWriter& outputStream) {}
 
 void ezProfilingSystem::RemoveThread() {}
 
+void ezProfilingSystem::StartNewFrame() {}
+
 void ezProfilingSystem::InitializeGPUData() {}
 
 static ezProfilingSystem::GPUData s_Dummy;
@@ -73,6 +91,7 @@ ezProfilingSystem::GPUData& ezProfilingSystem::AllocateGPUData()
 {
   return s_Dummy;
 }
+
 
 #endif
 

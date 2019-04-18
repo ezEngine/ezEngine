@@ -21,7 +21,7 @@ void ezApplication::SetApplicationName(const char* szAppName)
   m_sAppName = szAppName;
 }
 
-void ezApplication::BeforeCoreSystemsStartup()
+ezResult ezApplication::BeforeCoreSystemsStartup()
 {
   if (ezFileSystem::DetectSdkRootDirectory().Failed())
   {
@@ -43,6 +43,7 @@ void ezApplication::BeforeCoreSystemsStartup()
     EZ_DEBUG_BREAK;
   }
 #endif
+  return EZ_SUCCESS;
 }
 
 
@@ -50,7 +51,8 @@ void ezApplication::SetCommandLineArguments(ezUInt32 uiArgumentCount, const char
 {
   m_uiArgumentCount = uiArgumentCount;
   m_ppArguments = ppArguments;
-  ezCommandLineUtils::GetGlobalInstance()->SetCommandLine(uiArgumentCount, ppArguments);
+
+  ezCommandLineUtils::GetGlobalInstance()->SetCommandLine(uiArgumentCount, ppArguments, ezCommandLineUtils::PreferOsArgs);
 }
 
 

@@ -1,14 +1,16 @@
-#include "Level.h"
 #include "ProjectileComponent.h"
-#include "ShipComponent.h"
 #include "CollidableComponent.h"
-#include <System/XBoxController/InputDeviceXBox.h>
+#include "Level.h"
+#include "ShipComponent.h"
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Utilities/Stats.h>
 #include <RendererCore/Meshes/MeshComponent.h>
+#include <XboxControllerPlugin/InputDeviceXBox.h>
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ProjectileComponent, 1, ezComponentMode::Dynamic);
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
 ezCVarFloat CVar_ProjectileTimeToLive("g_ProjectileTimeToLive", 0.5f, ezCVarFlags::Default, "Projectile time to Live");
 ezCVarFloat CVar_SparksTimeToLive("g_SparksTimeToLive", 3.0f, ezCVarFlags::Default, "Projectile time to fade out");
@@ -46,7 +48,7 @@ void ProjectileComponent::Update()
   GetOwner()->SetLocalPosition(GetOwner()->GetLocalPosition() + vDistance);
 
   // Deactivate the rest of the function, if you want to profile overall engine performance
-  //if (!m_bDoesDamage)
+  // if (!m_bDoesDamage)
   //  return;
 
   CollidableComponentManager* pCollidableManager = GetWorld()->GetOrCreateComponentManager<CollidableComponentManager>();
@@ -77,13 +79,11 @@ void ProjectileComponent::Update()
         pShipComponent->m_fHealth = ezMath::Max(pShipComponent->m_fHealth - CVar_ProjectileDamage, 0.0f);
 
         {
-          float HitTrack[20] =
-          {
-            1.0f, 0.1f, 0.0f, 0.1f, 0.0f, 0.1f, 0.0f, 0.1f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
-          };
+          float HitTrack[20] = {
+            1.0f, 0.1f, 0.0f, 0.1f, 0.0f, 0.1f, 0.0f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 
-          ezInputDeviceXBox360::GetDevice()->AddVibrationTrack(pShipComponent->m_iPlayerIndex, ezInputDeviceController::Motor::LeftMotor, HitTrack, 20);
+          ezInputDeviceXBox360::GetDevice()->AddVibrationTrack(
+            pShipComponent->m_iPlayerIndex, ezInputDeviceController::Motor::LeftMotor, HitTrack, 20);
         }
 
         const float fAngle = (float)GetWorld()->GetRandomNumberGenerator().DoubleMinMax(10.0, 100.0);

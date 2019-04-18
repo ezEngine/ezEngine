@@ -3,6 +3,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 #include <TestFramework/Framework/Declarations.h>
+#include <Foundation/Types/Status.h>
 
 struct ezTestConfiguration;
 class ezImage;
@@ -26,6 +27,8 @@ public:
   virtual ezResult GetImage(ezImage& img) { return EZ_FAILURE; }
 
 private:
+  /// Called at startup to determine if the test can be run. Should return a detailed error message on failure.
+  virtual ezStatus IsTestAvailable() const {  return ezStatus(EZ_SUCCESS); };
   /// Called at startup to setup all tests. Should use 'AddSubTest' to register all the sub-tests to the test framework.
   virtual void SetupSubTests() /*override*/ = 0;
   /// Called to run the test that was registered with the given identifier.

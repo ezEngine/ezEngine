@@ -29,7 +29,7 @@ public:
   /// \brief Compares two ring-buffers for inequality.
   bool operator!=(const ezStaticRingBuffer<T, Capacity>& rhs) const; // [tested]
 
-  /// \brief Appends an element at the end of the ring-buffer.
+  /// \brief Appends an element at the end of the ring-buffer. Asserts that CanAppend() is true.
   void PushBack(const T& element); // [tested]
 
   /// \brief Accesses the latest element in the ring-buffer.

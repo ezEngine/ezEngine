@@ -34,7 +34,7 @@ class ezTask;
 /// executed on the main thread should never assume a certain state of other systems.
 struct ezTaskPriority
 {
-  enum Enum
+  enum Enum : ezUInt8
   {
     EarlyThisFrame,          ///< Highest priority, guaranteed to get finished in this frame.
     ThisFrame,               ///< Medium priority, guaranteed to get finished in this frame.
@@ -61,7 +61,7 @@ struct ezTaskPriority
 /// \brief Enum that describes what to do when waiting for or canceling tasks, that have already started execution.
 struct ezOnTaskRunning
 {
-  enum Enum
+  enum Enum : ezUInt8
   {
     WaitTillFinished,
     ReturnWithoutBlocking
@@ -71,7 +71,7 @@ struct ezOnTaskRunning
 /// \internal Enum that lists the different task worker thread types.
 struct ezWorkerThreadType
 {
-  enum Enum
+  enum Enum : ezUInt8
   {
     ShortTasks,
     LongTasks,
@@ -120,26 +120,30 @@ private:
 class EZ_FOUNDATION_DLL ezTaskGroupID
 {
 public:
-  ezTaskGroupID();
+  EZ_ALWAYS_INLINE ezTaskGroupID() = default;
 
   /// \brief Returns false, if the object has not been initialized before
-  bool IsValid() const;
+  EZ_ALWAYS_INLINE bool IsValid() const { return m_pTaskGroup != nullptr; }
+
+  void Invalidate() { m_pTaskGroup = nullptr; }
 
 private:
   friend class ezTaskSystem;
 
   // the counter is used to determine whether this group id references the 'same' group, as m_pTaskGroup.
   // if m_pTaskGroup->m_uiGroupCounter is different to this->m_uiGroupCounter, then the group ID is not valid anymore.
-  volatile ezUInt32 m_uiGroupCounter;
+  volatile ezUInt32 m_uiGroupCounter = 0;
 
   // points to the actual task group object
-  ezTaskGroup* m_pTaskGroup;
+  ezTaskGroup* m_pTaskGroup = nullptr;
 };
 
 /// \internal Should have been a nested struct in ezTaskSystem, but that does not work with forward declarations.
 class ezTaskGroup
 {
 public:
+  ~ezTaskGroup();
+
   /// \brief The function type to use when one wants to get informed when a task group has been finished.
   typedef ezDelegate<void()> OnTaskGroupFinished;
 
@@ -148,15 +152,15 @@ private:
 
   ezTaskGroup();
 
-  bool m_bInUse;
-  bool m_bIsActive;
-  ezUInt16 m_uiGroupCounter;
+  bool m_bInUse = false;
+  bool m_bIsActive = false;
+  ezUInt16 m_uiTaskGroupIndex = 0xFFFF; // only there as a debugging aid
+  ezUInt32 m_uiGroupCounter = 1;
   ezHybridArray<ezTask*, 16> m_Tasks;
   ezHybridArray<ezTaskGroupID, 4> m_DependsOn;
   ezHybridArray<ezTaskGroupID, 8> m_OthersDependingOnMe;
   ezAtomicInteger32 m_iActiveDependencies;
   ezAtomicInteger32 m_iRemainingTasks;
-  ezTaskPriority::Enum m_Priority;
   OnTaskGroupFinished m_OnFinishedCallback;
+  ezTaskPriority::Enum m_Priority = ezTaskPriority::ThisFrame;
 };
-

@@ -584,11 +584,9 @@ void ezOpenDdlParser::ReadString()
 {
   m_uiTempStringLength = 0;
 
-  bool bEscapeSequence = false;
-
   while (true)
   {
-    bEscapeSequence = (m_uiCurByte == '\\');
+    const bool bEscapeSequence = (m_uiCurByte == '\\');
 
     m_uiCurByte = '\0';
 

@@ -23,13 +23,13 @@ void ezResourceManagerWorkerDataLoad::DoWork(bool bCalledExternally)
   {
     EZ_LOCK(ezResourceManager::s_ResourceMutex);
 
-    ezResourceManager::UpdateLoadingDeadlines();
-
     if (ezResourceManager::s_RequireLoading.IsEmpty())
     {
       ezResourceManager::s_bTaskRunning = false;
       return;
     }
+
+    ezResourceManager::UpdateLoadingDeadlines();
 
     auto it = ezResourceManager::s_RequireLoading.PeekFront();
     pResourceToLoad = it.m_pResource;
@@ -82,7 +82,7 @@ void ezResourceManagerWorkerDataLoad::DoWork(bool bCalledExternally)
 
     // schedule the task to run, either on the main thread or on some other thread
     ezTaskSystem::StartSingleTask(
-      pWorkerMainThread, bResourceIsLoadedOnMainThread ? ezTaskPriority::SomeFrameMainThread : ezTaskPriority::NextFrame);
+      pWorkerMainThread, bResourceIsLoadedOnMainThread ? ezTaskPriority::SomeFrameMainThread : ezTaskPriority::LongRunningHighPriority);
   }
 
   // all this will happen inside a lock

@@ -6,7 +6,7 @@
 #include <Foundation/Types/Delegate.h>
 
 /// \brief Identifies an event subscription. Zero is always an invalid subscription ID.
-typedef ezUInt16 ezEventSubscriptionID;
+typedef ezUInt32 ezEventSubscriptionID;
 
 /// \brief This class allows to propagate events to code that might be interested in them.
 ///

@@ -4,6 +4,7 @@
 #include <Foundation/Threading/Implementation/ThreadingDeclarations.h>
 
 struct ezTime;
+class ezThread;
 
 /// \brief Contains general thread functions.
 class EZ_FOUNDATION_DLL ezThreadUtils

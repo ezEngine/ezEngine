@@ -1,7 +1,7 @@
 #include <ProceduralPlacementPluginPCH.h>
 
 #include <ProceduralPlacementPlugin/VM/ExpressionAST.h>
-#include <Utilities/DGML/DGMLWriter.h>
+#include <Foundation/Utilities/DGMLWriter.h>
 
 // static
 bool ezExpressionAST::NodeType::IsUnary(Enum nodeType)
@@ -205,7 +205,9 @@ void ezExpressionAST::PrintGraph(ezDGMLGraph& graph) const
 
     sTmp.Format("{0}: {1}", NodeType::GetName(pOutputNode->m_Type), pOutputNode->m_sName);
 
-    ezUInt32 uiGraphNode = graph.AddNode(sTmp, ezColor::LightBlue);
+    ezDGMLGraph::NodeDesc nd;
+    nd.m_Color = ezColor::LightBlue;
+    ezUInt32 uiGraphNode = graph.AddNode(sTmp, &nd);
 
     nodeStack.PushBack({pOutputNode->m_pExpression, uiGraphNode});
   }
@@ -241,7 +243,9 @@ void ezExpressionAST::PrintGraph(ezDGMLGraph& graph) const
           color = ezColor::LightGoldenRodYellow;
         }
 
-        uiGraphNode = graph.AddNode(sTmp, color);
+        ezDGMLGraph::NodeDesc nd;
+        nd.m_Color = color;
+        uiGraphNode = graph.AddNode(sTmp, &nd);
         nodeCache.Insert(currentNodeInfo.m_pNode, uiGraphNode);
 
         // push children
@@ -254,7 +258,9 @@ void ezExpressionAST::PrintGraph(ezDGMLGraph& graph) const
     }
     else
     {
-      uiGraphNode = graph.AddNode("Invalid", ezColor::OrangeRed);
+      ezDGMLGraph::NodeDesc nd;
+      nd.m_Color = ezColor::OrangeRed;
+      uiGraphNode = graph.AddNode("Invalid", &nd);
     }
 
     graph.AddConnection(uiGraphNode, currentNodeInfo.m_uiParentGraphNode);

@@ -255,7 +255,7 @@ protected:
   /// \name Application Startup
   ///@{
 protected:
-  virtual void BeforeCoreSystemsStartup() override;
+  virtual ezResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
 
   virtual ezString FindProjectDirectory() const = 0;

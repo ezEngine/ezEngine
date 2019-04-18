@@ -78,4 +78,7 @@ public:
 
   // Texture Atlas
   ezString m_sTextureAtlasDescFile;
+
+  // Bump map filter
+  ezEnum<ezTexConvBumpMapFilter> m_BumpMapFilter;
 };

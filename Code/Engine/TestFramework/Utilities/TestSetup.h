@@ -17,7 +17,9 @@ public:
   static ezInt32 GetFailedTestCount();
 
   /// \brief Deletes the test framework and outputs final test output.
-  static void DeInitTestFramework();
+  ///
+  /// If bSilent is true, the function will not print anything to the console (debug info)
+  static void DeInitTestFramework(bool bSilent = false);
 
 private:
   static int s_argc;

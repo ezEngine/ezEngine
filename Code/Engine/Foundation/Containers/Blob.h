@@ -231,6 +231,21 @@ private:
   ezUInt64 m_uiCount;
 };
 
+/// \brief Helper function to create ezArrayPtr from a pointer of some type and a count.
+template <typename T>
+EZ_ALWAYS_INLINE ezBlobPtr<T> ezMakeBlobPtr(T* ptr, ezUInt64 uiCount)
+{
+  return ezBlobPtr<T>(ptr, uiCount);
+}
+
+/// \brief Helper function to create ezArrayPtr from a static array the a size known at compile-time.
+template <typename T, ezUInt64 N>
+EZ_ALWAYS_INLINE ezBlobPtr<T> ezMakeBlobPtr(T (&staticArray)[N])
+{
+  return ezBlobPtr<T>(staticArray);
+}
+
+
 template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
 typename ezBlobPtr<T>::iterator begin(ezBlobPtr<T>& container)
 {

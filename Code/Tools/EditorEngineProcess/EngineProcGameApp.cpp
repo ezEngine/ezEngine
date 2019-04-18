@@ -15,17 +15,12 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <System/XBoxController/InputDeviceXBox.h>
-ezInputDeviceXBox360 g_XboxInputDevice;
-#endif
-
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
     : ezGameApplication("ezEditorEngineProcess", nullptr)
 {
 }
 
-void ezEngineProcessGameApplication::BeforeCoreSystemsStartup()
+ezResult ezEngineProcessGameApplication::BeforeCoreSystemsStartup()
 {
   m_pApp = CreateEngineProcessApp();
 
@@ -47,7 +42,7 @@ void ezEngineProcessGameApplication::BeforeCoreSystemsStartup()
 
   ezStartup::AddApplicationTag("editorengineprocess");
 
-  SUPER::BeforeCoreSystemsStartup();
+  return SUPER::BeforeCoreSystemsStartup();
 }
 
 void ezEngineProcessGameApplication::AfterCoreSystemsStartup()

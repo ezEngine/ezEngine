@@ -26,6 +26,16 @@ struct ezOutputToHTML
     static std::string sDuration;
     static std::ostringstream details;
 
+    auto FlushDetails = [&]()
+    {
+      if (bDetails)
+      {
+        bDetails = false;
+        htmlFile << "<tr>\n<td colspan=\"4\" class=\"title\" />" << details.str() << "\n</tr>";
+        details.str("");
+      }
+    };
+
     switch (Type)
     {
       case ezTestOutput::StartOutput:
@@ -69,20 +79,27 @@ struct ezOutputToHTML
 
         if (iIndentation == 1)
         {
+          // Test start
           htmlFile << "<tr>\n<td colspan=\"4\" class=\"category\" />" << szMsg << "\n</tr>";
         }
         else if (iIndentation == 2)
         {
+          // Sub-test start
+          FlushDetails();
           bError = false;
-          bDetails = false;
-          details.str("");
           sSubTest = szMsg;
         }
         break;
 
       case ezTestOutput::EndBlock:
+        if (iIndentation == 1)
+        {
+          // Test end
+          FlushDetails();
+        }
         if (iIndentation == 2)
         {
+          // Sub-test end
           if (bError)
           {
             htmlFile << "<tr>\n<td class=\"error\">" << sSubTest
@@ -90,24 +107,13 @@ struct ezOutputToHTML
                         "<td class=\"error\">Failed</td>\n<td class=\"error\">"
                      << sDuration
                      << "</td>\n"
-                        "<td class=\"error\">";
-          }
-          else if (bDetails)
-          {
-            htmlFile << "<tr>\n<td class=\"details\">" << sSubTest
-                     << "</td>\n"
-                        "<td class=\"details\">Passed</td>\n<td class=\"details\">"
-                     << sDuration
-                     << "</td>\n"
-                        "<td class=\"details\">";
+                        "<td class=\"error\"></td>\n</tr>";
           }
           else
           {
-            htmlFile << "<tr>\n<td>" << sSubTest << "</td>\n<td>Passed</td>\n<td>" << sDuration << "</td>\n<td>";
+            htmlFile << "<tr>\n<td>" << sSubTest << "</td>\n<td>Passed</td>\n<td>" << sDuration << "</td>\n<td></td>\n</tr>";
           }
-
-          htmlFile << details.str();
-          htmlFile << "</td>\n</tr>";
+          FlushDetails();
         }
         else if (iIndentation == 3)
         {
@@ -135,7 +141,7 @@ struct ezOutputToHTML
         break;
 
       case ezTestOutput::ImageDiffFile:
-        details << "<a href=\"" << szMsg << "\">View Image Comparison Result</a><br/>";
+        details << "<a href=\"" << szMsg << "\" target=\"_blank\">View Image Comparison Result</a><br/>";
         break;
 
       case ezTestOutput::Success:

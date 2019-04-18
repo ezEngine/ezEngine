@@ -149,6 +149,7 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
   bool bTestEnabled = true;
   bool bParentEnabled = true;
   bool bIsSubTest = entryType == ezQtTestModelEntry::SubTestNode;
+  const ezStatus& testAvailable = m_pTestFramework->IsTestAvailable(bIsSubTest ? pParentEntry->GetTestIndex() : pEntry->GetTestIndex());
 
   if (bIsSubTest)
   {
@@ -178,6 +179,21 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
       case Qt::DecorationRole:
       {
         return (bTestEnabled && bParentEnabled) ? m_TestIcon : m_TestIconOff;
+      }
+      case Qt::ForegroundRole:
+      {
+        if (testAvailable.Failed())
+        {
+          QPalette palette = QApplication::palette();
+          return palette.color(QPalette::Disabled, QPalette::Text);
+        }
+      }
+      case Qt::ToolTipRole:
+      {
+        if (testAvailable.Failed())
+        {
+          return QString("Test not available: %1").arg(testAvailable.m_sMessage.GetData());
+        }
       }
       default:
         return QVariant();
@@ -328,7 +344,11 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
     {
       case Qt::DisplayRole:
       {
-        if (bTestEnabled && bParentEnabled)
+        if (testAvailable.Failed())
+        {
+          return QString("Test not available: %1").arg(testAvailable.m_sMessage.GetData());
+        }
+        else if (bTestEnabled && bParentEnabled)
         {
           if (bIsSubTest)
           {
@@ -349,7 +369,7 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
             const ezUInt32 iExecuted = m_pResult->GetSubTestCount(pEntry->GetTestIndex(), ezTestResultQuery::Executed);
             const ezUInt32 iSucceeded = m_pResult->GetSubTestCount(pEntry->GetTestIndex(), ezTestResultQuery::Success);
 
-            if (iExecuted == iEnabled)
+            if (TestResult.m_bExecuted && iExecuted == iEnabled)
             {
               return (TestResult.m_bSuccess && iExecuted == iSucceeded) ? QString("Passed") : QString("Failed");
             }
@@ -371,7 +391,12 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
       }
       case Qt::TextColorRole:
       {
-        if (TestResult.m_bExecuted)
+        if (testAvailable.Failed())
+        {
+          QPalette palette = QApplication::palette();
+          return palette.color(QPalette::Disabled, QPalette::Text);
+        }
+        else if (TestResult.m_bExecuted)
         {
           return TestResult.m_bSuccess ? m_SucessColor : m_FailedColor;
         }

@@ -16,20 +16,11 @@ namespace ezDataDirectory
     return m_File.Open(sPath.GetData(), ezFileMode::Read);
   }
 
-  void FolderReader::InternalClose()
-  {
-    m_File.Close();
-  }
+  void FolderReader::InternalClose() { m_File.Close(); }
 
-  ezUInt64 FolderReader::Read(void* pBuffer, ezUInt64 uiBytes)
-  {
-    return m_File.Read(pBuffer, uiBytes);
-  }
+  ezUInt64 FolderReader::Read(void* pBuffer, ezUInt64 uiBytes) { return m_File.Read(pBuffer, uiBytes); }
 
-  ezUInt64 FolderReader::GetFileSize() const
-  {
-    return m_File.GetFileSize();
-  }
+  ezUInt64 FolderReader::GetFileSize() const { return m_File.GetFileSize(); }
 
   ezResult FolderWriter::InternalOpen()
   {
@@ -39,22 +30,14 @@ namespace ezDataDirectory
     return m_File.Open(sPath.GetData(), ezFileMode::Write);
   }
 
-  void FolderWriter::InternalClose()
-  {
-    m_File.Close();
-  }
+  void FolderWriter::InternalClose() { m_File.Close(); }
 
-  ezResult FolderWriter::Write(const void* pBuffer, ezUInt64 uiBytes)
-  {
-    return m_File.Write(pBuffer, uiBytes);
-  }
+  ezResult FolderWriter::Write(const void* pBuffer, ezUInt64 uiBytes) { return m_File.Write(pBuffer, uiBytes); }
 
-  ezUInt64 FolderWriter::GetFileSize() const
-  {
-    return m_File.GetFileSize();
-  }
+  ezUInt64 FolderWriter::GetFileSize() const { return m_File.GetFileSize(); }
 
-  ezDataDirectoryType* FolderType::Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage)
+  ezDataDirectoryType* FolderType::Factory(
+    const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage)
   {
     FolderType* pDataDir = EZ_DEFAULT_NEW(FolderType);
 
@@ -101,10 +84,7 @@ namespace ezDataDirectory
       EZ_DEFAULT_DELETE(m_Writers[i]);
   }
 
-  void FolderType::ReloadExternalConfigs()
-  {
-    LoadRedirectionFile();
-  }
+  void FolderType::ReloadExternalConfigs() { LoadRedirectionFile(); }
 
   void FolderType::LoadRedirectionFile()
   {
@@ -156,10 +136,10 @@ namespace ezDataDirectory
           szLineStart = szLineEnd + 1;
         }
 
-        //ezLog::Debug("Redirection file contains {0} entries", m_FileRedirection.GetCount());
+        // ezLog::Debug("Redirection file contains {0} entries", m_FileRedirection.GetCount());
       }
-      //else
-      //ezLog::Debug("No Redirection file found in: '{0}'", sRedirectionFile);
+      // else
+      // ezLog::Debug("No Redirection file found in: '{0}'", sRedirectionFile);
     }
   }
 
@@ -177,6 +157,15 @@ namespace ezDataDirectory
   ezResult FolderType::GetFileStats(const char* szFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats)
   {
     ezStringBuilder sPath = GetRedirectedDataDirectoryPath();
+
+    if (ezPathUtils::IsAbsolutePath(szFileOrFolder))
+    {
+      if (!ezStringUtils::StartsWith_NoCase(szFileOrFolder, sPath))
+        return EZ_FAILURE;
+
+      sPath.Clear();
+    }
+
     sPath.AppendPath(szFileOrFolder);
     return ezOSFile::GetFileStats(sPath, out_Stats);
   }
@@ -220,15 +209,9 @@ namespace ezDataDirectory
     }
   }
 
-  ezDataDirectory::FolderReader* FolderType::CreateFolderReader() const
-  {
-    return EZ_DEFAULT_NEW(FolderReader);
-  }
+  ezDataDirectory::FolderReader* FolderType::CreateFolderReader() const { return EZ_DEFAULT_NEW(FolderReader); }
 
-  ezDataDirectory::FolderWriter* FolderType::CreateFolderWriter() const
-  {
-    return EZ_DEFAULT_NEW(FolderWriter);
-  }
+  ezDataDirectory::FolderWriter* FolderType::CreateFolderWriter() const { return EZ_DEFAULT_NEW(FolderWriter); }
 
   ezDataDirectoryReader* FolderType::OpenFileToRead(const char* szFile, bool bSpecificallyThisDataDir)
   {
@@ -327,9 +310,8 @@ namespace ezDataDirectory
     // if it succeeds, we return the reader
     return pWriter;
   }
-}
+} // namespace ezDataDirectory
 
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_FileSystem_Implementation_DataDirTypeFolder);
-

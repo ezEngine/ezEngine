@@ -1,13 +1,13 @@
 #pragma once
 
+#include <Core/Collection/CollectionResource.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
-#include <GameEngine/Collection/CollectionResource.h>
 
 class ezCollectionAssetEntry : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCollectionAssetEntry, ezReflectedClass);
-public:
 
+public:
   ezString m_sLookupName;
   ezString m_sRedirectionAsset;
 };
@@ -15,8 +15,8 @@ public:
 class ezCollectionAssetData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCollectionAssetData, ezReflectedClass);
-public:
 
+public:
   ezDynamicArray<ezCollectionAssetEntry> m_Entries;
 };
 
@@ -32,5 +32,6 @@ public:
   virtual const char* QueryAssetType() const override { return "Collection"; }
 
 protected:
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+    const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
 };

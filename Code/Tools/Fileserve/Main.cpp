@@ -55,12 +55,12 @@ int main(int argc, const char** argv)
   return iReturnCode;
 }
 
-void ezFileserverApp::BeforeCoreSystemsStartup()
+ezResult ezFileserverApp::BeforeCoreSystemsStartup()
 {
   ezStartup::AddApplicationTag("tool");
   ezStartup::AddApplicationTag("fileserve");
 
-  ezApplication::BeforeCoreSystemsStartup();
+  return SUPER::BeforeCoreSystemsStartup();
 }
 
 void ezFileserverApp::FileserverEventHandler(const ezFileserverEvent& e)

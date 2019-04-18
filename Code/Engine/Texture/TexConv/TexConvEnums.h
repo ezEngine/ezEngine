@@ -52,6 +52,8 @@ struct ezTexConvUsage
     NormalMap,
     NormalMap_Inverted,
 
+    BumpMap,
+
     Default = Auto
   };
 
@@ -104,3 +106,17 @@ struct ezTexConvChannelValue
   };
 };
 
+/// \brief Defines which filter kernel is used to approximate the x/y bump map gradients
+struct ezTexConvBumpMapFilter
+{
+  enum Enum
+  {
+    Finite, ///< Simple finite differences in a 4-Neighborhood
+    Sobel,  ///< Sobel kernel (8-Neighborhood)
+    Scharr, ///< Scharr kernel (8-Neighborhood)
+
+    Default = Finite
+  };
+
+  using StorageType = ezUInt8;
+};

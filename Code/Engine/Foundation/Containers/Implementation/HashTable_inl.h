@@ -1,10 +1,16 @@
 
-#define ezInvalidIndex 0xFFFFFFFF
+/// \brief Value used by containers for indices to indicate an invalid index.
+#ifndef ezInvalidIndex
+#  define ezInvalidIndex 0xFFFFFFFF
+#endif
 
 // ***** Const Iterator *****
 
 template <typename K, typename V, typename H>
-ezHashTableBase<K, V, H>::ConstIterator::ConstIterator(const ezHashTableBase<K, V, H>& hashTable) : m_hashTable(&hashTable), m_uiCurrentIndex(0), m_uiCurrentCount(0)
+ezHashTableBase<K, V, H>::ConstIterator::ConstIterator(const ezHashTableBase<K, V, H>& hashTable)
+  : m_hashTable(&hashTable)
+  , m_uiCurrentIndex(0)
+  , m_uiCurrentCount(0)
 {
   if (m_hashTable->IsEmpty())
     return;
@@ -69,13 +75,13 @@ EZ_ALWAYS_INLINE void ezHashTableBase<K, V, H>::ConstIterator::operator++()
 
 template <typename K, typename V, typename H>
 ezHashTableBase<K, V, H>::Iterator::Iterator(const ezHashTableBase<K, V, H>& hashTable)
-    : ConstIterator(hashTable)
+  : ConstIterator(hashTable)
 {
 }
 
 template <typename K, typename V, typename H>
 ezHashTableBase<K, V, H>::Iterator::Iterator(const typename ezHashTableBase<K, V, H>::Iterator& rhs)
-    : ConstIterator(*rhs.m_hashTable)
+  : ConstIterator(*rhs.m_hashTable)
 {
   this->m_uiCurrentIndex = rhs.m_uiCurrentIndex;
   this->m_uiCurrentCount = rhs.m_uiCurrentCount;
@@ -652,32 +658,38 @@ EZ_FORCE_INLINE void ezHashTableBase<K, V, H>::MarkEntryAsDeleted(ezUInt32 uiEnt
 
 
 template <typename K, typename V, typename H, typename A>
-ezHashTable<K, V, H, A>::ezHashTable() : ezHashTableBase<K, V, H>(A::GetAllocator())
+ezHashTable<K, V, H, A>::ezHashTable()
+  : ezHashTableBase<K, V, H>(A::GetAllocator())
 {
 }
 
 template <typename K, typename V, typename H, typename A>
-ezHashTable<K, V, H, A>::ezHashTable(ezAllocatorBase* pAllocator) : ezHashTableBase<K, V, H>(pAllocator)
+ezHashTable<K, V, H, A>::ezHashTable(ezAllocatorBase* pAllocator)
+  : ezHashTableBase<K, V, H>(pAllocator)
 {
 }
 
 template <typename K, typename V, typename H, typename A>
-ezHashTable<K, V, H, A>::ezHashTable(const ezHashTable<K, V, H, A>& other) : ezHashTableBase<K, V, H>(other, A::GetAllocator())
+ezHashTable<K, V, H, A>::ezHashTable(const ezHashTable<K, V, H, A>& other)
+  : ezHashTableBase<K, V, H>(other, A::GetAllocator())
 {
 }
 
 template <typename K, typename V, typename H, typename A>
-ezHashTable<K, V, H, A>::ezHashTable(const ezHashTableBase<K, V, H>& other) : ezHashTableBase<K, V, H>(other, A::GetAllocator())
+ezHashTable<K, V, H, A>::ezHashTable(const ezHashTableBase<K, V, H>& other)
+  : ezHashTableBase<K, V, H>(other, A::GetAllocator())
 {
 }
 
 template <typename K, typename V, typename H, typename A>
-ezHashTable<K, V, H, A>::ezHashTable(ezHashTable<K, V, H, A>&& other) : ezHashTableBase<K, V, H>(std::move(other), A::GetAllocator())
+ezHashTable<K, V, H, A>::ezHashTable(ezHashTable<K, V, H, A>&& other)
+  : ezHashTableBase<K, V, H>(std::move(other), A::GetAllocator())
 {
 }
 
 template <typename K, typename V, typename H, typename A>
-ezHashTable<K, V, H, A>::ezHashTable(ezHashTableBase<K, V, H>&& other) : ezHashTableBase<K, V, H>(std::move(other), A::GetAllocator())
+ezHashTable<K, V, H, A>::ezHashTable(ezHashTableBase<K, V, H>&& other)
+  : ezHashTableBase<K, V, H>(std::move(other), A::GetAllocator())
 {
 }
 
@@ -714,4 +726,3 @@ void ezHashTableBase<KeyType, ValueType, Hasher>::Swap(ezHashTableBase<KeyType, 
   ezMath::Swap(this->m_uiCapacity, other.m_uiCapacity);
   ezMath::Swap(this->m_pAllocator, other.m_pAllocator);
 }
-

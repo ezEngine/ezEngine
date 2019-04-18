@@ -66,7 +66,7 @@ protected:
   virtual ezUniquePtr<ezWindowOutputTargetBase> CreateWindowOutputTarget(ezWindowBase* pWindow) override;
   virtual void DestroyWindowOutputTarget(ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget) override;
 
-  virtual void BeforeCoreSystemsStartup() override;
+  virtual ezResult BeforeCoreSystemsStartup() override;
 
   virtual void Init_ConfigureInput() override;
   virtual void Init_ConfigureAssetManagement() override;

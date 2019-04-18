@@ -1,17 +1,17 @@
 #include "Main.h"
-#include <Foundation/Logging/Log.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/Logging/Log.h>
+#include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
-#include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 
 ezShaderCompilerApplication::ezShaderCompilerApplication()
   : ezGameApplication("ezShaderCompiler", nullptr)
 {
 }
 
-void ezShaderCompilerApplication::BeforeCoreSystemsStartup()
+ezResult ezShaderCompilerApplication::BeforeCoreSystemsStartup()
 {
   ezStartup::AddApplicationTag("tool");
   ezStartup::AddApplicationTag("shadercompiler");
@@ -19,7 +19,7 @@ void ezShaderCompilerApplication::BeforeCoreSystemsStartup()
   // only print important messages
   ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::InfoMsg);
 
-  SUPER::BeforeCoreSystemsStartup();
+  EZ_SUCCEED_OR_RETURN(SUPER::BeforeCoreSystemsStartup());
 
   auto cmd = ezCommandLineUtils::GetGlobalInstance();
 
@@ -32,7 +32,7 @@ void ezShaderCompilerApplication::BeforeCoreSystemsStartup()
   m_sPlatforms = cmd->GetStringOption("-platform", 0, "");
 
   if (m_sPlatforms.IsEmpty())
-    m_sPlatforms = "DX11_SM50";// "ALL";
+    m_sPlatforms = "DX11_SM50"; // "ALL";
 
   const ezUInt32 pvs = cmd->GetStringOptionArguments("-perm");
 
@@ -57,6 +57,8 @@ void ezShaderCompilerApplication::BeforeCoreSystemsStartup()
     ezLog::Dev("Fixed permutation variable: {0} = {1}", var, val);
     m_FixedPermVars[var].PushBack(val);
   }
+
+  return EZ_SUCCESS;
 }
 
 
@@ -199,6 +201,3 @@ ezApplication::ApplicationExecution ezShaderCompilerApplication::Run()
 }
 
 EZ_APPLICATION_ENTRY_POINT(ezShaderCompilerApplication);
-
-
-

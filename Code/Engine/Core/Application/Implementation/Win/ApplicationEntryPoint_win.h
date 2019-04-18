@@ -5,7 +5,7 @@
 
 #include <Foundation/Memory/MemoryTracker.h>
 
-namespace Details
+namespace ezApplicationDetails
 {
   template <typename AppClass, typename... Args>
   int ConsoleEntry(int argc, const char** argv, Args&&... arguments)
@@ -66,7 +66,7 @@ namespace Details
   extern "C" {                                                                                                                             \
   _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;                                                                             \
   }                                                                                                                                        \
-  int main(int argc, const char** argv) { return Details::ConsoleEntry<AppClass>(argc, argv, __VA_ARGS__); }
+  int main(int argc, const char** argv) { return ezApplicationDetails::ConsoleEntry<AppClass>(argc, argv, __VA_ARGS__); }
 
 /// \brief This macro allows for easy creation of application entry points (since they can't be placed in DLLs)
 ///
@@ -79,6 +79,6 @@ namespace Details
   }                                                                                                                                        \
   int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)                                        \
   {                                                                                                                                        \
-    return Details::ApplicationEntry<AppClass>(__VA_ARGS__);                                                                               \
+    return ezApplicationDetails::ApplicationEntry<AppClass>(__VA_ARGS__);                                                                  \
   }
 

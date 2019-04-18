@@ -9,24 +9,17 @@
 /// \todo Do not unload resources while they are acquired
 /// \todo Resource Type Memory Thresholds
 /// \todo Preload does not load all quality levels
-/// \todo Priority change on acquire not visible in inspector
-
-/// Events:
-///   Resource being loaded (Task) -> loading time
 
 /// Infos to Display:
 ///   Ref Count (max)
 ///   Fallback: Type / Instance
 ///   Loading Time
 
-/// Inspector -> Engine
-///   Resource to Preview
+/// Resource Flags:
+/// Category / Group (Texture Sets)
 
-// Resource Flags:
-// Category / Group (Texture Sets)
-
-// Resource Loader
-//   Requires No File Access -> on non-File Thread
+/// Resource Loader
+///   Requires No File Access -> on non-File Thread
 
 ezUInt32 ezResourceManager::s_uiForceNoFallbackAcquisition = 0;
 ezHashTable<const ezRTTI*, ezResourceManager::LoadedResources> ezResourceManager::s_LoadedResources;
@@ -42,8 +35,10 @@ ezResourceManagerWorkerDataLoad ezResourceManager::s_WorkerTasksDataLoad[MaxData
 ezResourceManagerWorkerUpdateContent ezResourceManager::s_WorkerTasksUpdateContent[MaxUpdateContentTasks];
 ezUInt8 ezResourceManager::s_uiCurrentUpdateContentWorkerTask = 0;
 ezUInt8 ezResourceManager::s_uiCurrentLoadDataWorkerTask = 0;
-ezTime ezResourceManager::s_LastDeadlineUpdate;
 ezTime ezResourceManager::s_LastFrameUpdate;
+ezUInt32 ezResourceManager::s_uiLastResourcePriorityUpdateIdx = 0;
+ezDynamicArray<ezResource*> ezResourceManager::s_LoadedResourceOfTypeTempContainer;
+ezHashTable<ezTempHashedString, const ezRTTI*> ezResourceManager::s_ResourcesToUnloadOnMainThread;
 bool ezResourceManager::s_bBroadcastExistsEvent = false;
 ezEvent<const ezResourceEvent&> ezResourceManager::s_ResourceEvents;
 ezEvent<const ezResourceManagerEvent&> ezResourceManager::s_ManagerEvents;
@@ -53,6 +48,7 @@ ezMap<ezString, const ezRTTI*> ezResourceManager::s_AssetToResourceType;
 ezMap<ezResource*, ezUniquePtr<ezResourceTypeLoader>> ezResourceManager::s_CustomLoaders;
 ezMap<const ezRTTI*, ezHybridArray<ezResourceManager::DerivedTypeInfo, 4>> ezResourceManager::s_DerivedTypeInfos;
 ezDynamicArray<ezResourceManager::ResourceCleanupCB> ezResourceManager::s_ResourceCleanupCallbacks;
+ezMap<const ezRTTI*, ezResourcePriority> ezResourceManager::s_ResourceTypePriorities;
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ResourceManager)
@@ -180,14 +176,14 @@ ezUInt32 ezResourceManager::FreeUnusedResources(bool bFreeAllUnused)
         const auto& CurKey = it.Key();
 
         EZ_ASSERT_DEBUG(pReference->m_iLockCount == 0, "Resource '{0}' has a refcount of zero, but is still in an acquired state.",
-                        pReference->GetResourceID());
+          pReference->GetResourceID());
 
         bUnloadedAny = true;
         ++uiUnloaded;
         pReference->CallUnloadData(ezResource::Unload::AllQualityLevels);
 
         EZ_ASSERT_DEBUG(pReference->GetLoadingState() <= ezResourceState::UnloadedMetaInfoAvailable,
-                        "Resource '{0}' should be in an unloaded state now.", pReference->GetResourceID());
+          "Resource '{0}' should be in an unloaded state now.", pReference->GetResourceID());
 
         // broadcast that we are going to delete the resource
         {
@@ -256,6 +252,38 @@ void ezResourceManager::PerFrameUpdate()
         ezResourceManager::BroadcastResourceEvent(e);
       }
     }
+  }
+
+  {
+    EZ_LOCK(s_ResourceMutex);
+
+    for (auto it = s_ResourcesToUnloadOnMainThread.GetIterator(); it.IsValid(); it.Next())
+    {
+      // Identify the container of loaded resource for the type of resource we want to unload.
+      ezResourceManager::LoadedResources loadedResourcesForType;
+      if (s_LoadedResources.TryGetValue(it.Value(), loadedResourcesForType) == false)
+      {
+        continue;
+      }
+
+      // See, if the resource we want to unload still exists.
+      ezResource* resourceToUnload = nullptr;
+
+      if (loadedResourcesForType.m_Resources.TryGetValue(it.Key(), resourceToUnload) == false)
+      {
+        continue;
+      }
+
+      EZ_ASSERT_DEV(resourceToUnload != nullptr, "Found a resource above, should not be nullptr.");
+
+      // If the resource was still loaded, we are going to unload it now.
+      resourceToUnload->CallUnloadData(ezResource::Unload::AllQualityLevels);
+
+      EZ_ASSERT_DEV(resourceToUnload->GetLoadingState() <= ezResourceState::UnloadedMetaInfoAvailable,
+        "Resource '{0}' should be in an unloaded state now.", resourceToUnload->GetResourceID());
+    }
+
+    s_ResourcesToUnloadOnMainThread.Clear();
   }
 }
 
@@ -370,7 +398,7 @@ ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* szRe
 
   EZ_ASSERT_DEBUG(pRtti != nullptr, "There is no RTTI information available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
   EZ_ASSERT_DEBUG(pRtti->GetAllocator() != nullptr && pRtti->GetAllocator()->CanAllocate(),
-                  "There is no RTTI allocator available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
+    "There is no RTTI allocator available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
 
   ezResource* pResource = nullptr;
   ezTempHashedString sHashedResourceID(szResourceID);
@@ -388,6 +416,7 @@ ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* szRe
     return pResource;
 
   ezResource* pNewResource = pRtti->GetAllocator()->Allocate<ezResource>();
+  pNewResource->m_Priority = s_ResourceTypePriorities.GetValueOrDefault(pRtti, ezResourcePriority::Medium);
   pNewResource->SetUniqueID(szResourceID, bIsReloadable);
   pNewResource->m_Flags.AddOrRemove(ezResourceFlags::ResourceHasTypeFallback, pNewResource->HasResourceTypeLoadingFallback());
 
@@ -396,8 +425,8 @@ ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* szRe
   return pNewResource;
 }
 
-void ezResourceManager::RegisterResourceOverrideType(const ezRTTI* pDerivedTypeToUse,
-                                                     ezDelegate<bool(const ezStringBuilder&)> OverrideDecider)
+void ezResourceManager::RegisterResourceOverrideType(
+  const ezRTTI* pDerivedTypeToUse, ezDelegate<bool(const ezStringBuilder&)> OverrideDecider)
 {
   const ezRTTI* pParentType = pDerivedTypeToUse->GetParentType();
   while (pParentType != nullptr && pParentType != ezGetStaticRTTI<ezResource>())
@@ -527,10 +556,10 @@ void ezResourceManager::SetResourceLowResData(const ezTypelessResourceHandle& hR
     MemUsage.m_uiMemoryGPU = 0xFFFFFFFF;
     pResource->UpdateMemoryUsage(MemUsage);
 
-    EZ_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage",
-                  pResource->GetResourceID());
-    EZ_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage",
-                  pResource->GetResourceID());
+    EZ_ASSERT_DEV(
+      MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage", pResource->GetResourceID());
+    EZ_ASSERT_DEV(
+      MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage", pResource->GetResourceID());
 
     pResource->m_MemoryUsage = MemUsage;
   }
@@ -542,4 +571,3 @@ void ezResourceManager::EnableExportMode(bool enable)
 }
 
 EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_ResourceManager);
-

@@ -57,7 +57,6 @@
 #include <Foundation/IO/JSONWriter.h>
 #include <Foundation/IO/MemoryMappedFile.h>
 #include <Foundation/IO/MemoryStream.h>
-#include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/OpenDdlParser.h>
 #include <Foundation/IO/OpenDdlReader.h>
@@ -65,6 +64,9 @@
 #include <Foundation/IO/SerializationContext.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
+
+#include <Foundation/IO/Archive/Archive.h>
+#include <Foundation/IO/Archive/DataDirTypeArchive.h>
 
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>

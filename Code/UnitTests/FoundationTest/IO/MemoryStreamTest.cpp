@@ -111,7 +111,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryStream)
       ezRawMemoryStreamReader reader(OrigStorage);
 
       ezDynamicArray<ezUInt8> CopyStorage;
-      CopyStorage.SetCountUninitialized(reader.GetByteCount());
+      CopyStorage.SetCountUninitialized(static_cast<ezUInt32>(reader.GetByteCount()));
       reader.ReadBytes(CopyStorage.GetData(), reader.GetByteCount());
 
       EZ_TEST_BOOL(OrigStorage == CopyStorage);
@@ -121,7 +121,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryStream)
       ezRawMemoryStreamReader reader(OrigStorage.GetData() + 510, 490);
 
       ezDynamicArray<ezUInt8> CopyStorage;
-      CopyStorage.SetCountUninitialized(reader.GetByteCount());
+      CopyStorage.SetCountUninitialized(static_cast<ezUInt32>(reader.GetByteCount()));
       reader.ReadBytes(CopyStorage.GetData(), reader.GetByteCount());
 
       EZ_TEST_BOOL(OrigStorage != CopyStorage);

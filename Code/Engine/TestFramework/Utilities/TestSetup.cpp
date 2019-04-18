@@ -8,17 +8,17 @@
 #include <Foundation/Utilities/StackTracer.h>
 
 #ifdef EZ_USE_QT
-#include <TestFramework/Framework/Qt/qtTestFramework.h>
-#include <TestFramework/Framework/Qt/qtTestGUI.h>
+#  include <TestFramework/Framework/Qt/qtTestFramework.h>
+#  include <TestFramework/Framework/Qt/qtTestGUI.h>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#include <TestFramework/Framework/Uwp/uwpTestFramework.h>
+#  include <TestFramework/Framework/Uwp/uwpTestFramework.h>
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <conio.h>
+#  include <conio.h>
 #else if EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-#include <csignal>
-#include <cxxabi.h>
+#  include <csignal>
+#  include <cxxabi.h>
 #endif
 
 namespace ExceptionHandler
@@ -131,7 +131,7 @@ namespace ExceptionHandler
   }
 
 #endif
-}
+} // namespace ExceptionHandler
 
 int ezTestSetup::s_argc = 0;
 const char** ezTestSetup::s_argv = nullptr;
@@ -215,7 +215,7 @@ ezTestAppRun ezTestSetup::RunTests()
 #endif
 }
 
-void ezTestSetup::DeInitTestFramework()
+void ezTestSetup::DeInitTestFramework(bool bSilent /*= false*/)
 {
   ezTestFramework* pTestFramework = ezTestFramework::GetInstance();
 
@@ -223,13 +223,16 @@ void ezTestSetup::DeInitTestFramework()
 
   // In the UWP case we never initialized this thread for ez, so we can't do log output now.
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
-  ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-  ezStringUtils::PrintStringLengthStatistics();
+  if (!bSilent)
+  {
+    ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
+    ezStringUtils::PrintStringLengthStatistics();
+  }
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   TestSettings settings = pTestFramework->GetSettings();
-  if (settings.m_bKeepConsoleOpen)
+  if (settings.m_bKeepConsoleOpen && !bSilent)
   {
     if (IsDebuggerPresent())
     {
@@ -253,4 +256,3 @@ ezInt32 ezTestSetup::GetFailedTestCount()
 
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Utilities_TestSetup);
-

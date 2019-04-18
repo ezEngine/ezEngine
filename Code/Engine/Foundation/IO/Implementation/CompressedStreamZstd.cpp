@@ -165,6 +165,7 @@ void ezCompressedStreamWriterZstd::SetOutputStream(ezStreamWriter* pOutputStream
 
   m_uiUncompressedSize = 0;
   m_uiCompressedSize = 0;
+  m_uiWrittenBytes = 0;
 
   if (pOutputStream != nullptr)
   {
@@ -205,6 +206,7 @@ ezResult ezCompressedStreamWriterZstd::FinishCompressedStream()
   if (m_pOutputStream->WriteBytes(&uiTerminator, sizeof(ezUInt16)) == EZ_FAILURE)
     return EZ_FAILURE;
 
+  m_uiWrittenBytes += sizeof(ezUInt16);
   m_pOutputStream = nullptr;
 
   return EZ_SUCCESS;
@@ -244,6 +246,7 @@ ezResult ezCompressedStreamWriterZstd::FlushWriteCache()
     return EZ_FAILURE;
 
   m_uiCompressedSize += uiUsedCache;
+  m_uiWrittenBytes += sizeof(ezUInt16) + uiUsedCache;
 
   // reset the write position
   m_OutBuffer.pos = 0;

@@ -36,10 +36,11 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
     {
       LoadingInfo li;
       li.m_pResource = pResource;
+      pResource->SetPriority(ezResourcePriority::Critical);
 
       // move it to the front of the queue
       // if it is not in the queue anymore, it has already been started by some thread
-      if (s_RequireLoading.RemoveAndCopy(li))
+      if (s_RequireLoading.RemoveAndSwap(li))
       {
         s_RequireLoading.PushFront(li);
       }
@@ -53,13 +54,18 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
 
   LoadingInfo li;
   li.m_pResource = pResource;
-  // not necessary here
-  // li.m_fPriority = pResource->GetLoadingPriority();
 
   if (bHighestPriority)
+  {
+    pResource->SetPriority(ezResourcePriority::Critical);
+    li.m_fPriority = 0.0f;
     s_RequireLoading.PushFront(li);
+  }
   else
+  {
+    li.m_fPriority = pResource->GetLoadingPriority(s_LastFrameUpdate);
     s_RequireLoading.PushBack(li);
+  }
 
   // the mutex will be released by RunWorkerTask
   RunWorkerTask(pResource);
@@ -133,31 +139,69 @@ void ezResourceManager::RunWorkerTask(ezResource* pResource)
   }
 }
 
+void ezResourceManager::ReverseBubbleSortStep(ezDeque<ezResourceManager::LoadingInfo>& data)
+{
+  // Yep, it's really bubble sort!
+  // This will move the entry with the smallest value to the front and move all other values closer to their correct position,
+  // which is exactly what we need for the priority queue.
+  // We do this once a frame, which gives us nice iterative sorting, with relatively deterministic performance characteristics.
+
+  EZ_ASSERT_DEBUG(s_ResourceMutex.IsLocked(), "Calling code must acquire s_ResourceMutex");
+
+  const ezUInt32 uiCount = data.GetCount();
+
+  for (ezUInt32 i = uiCount; i > 1; --i)
+  {
+    const ezUInt32 idx2 = i - 1;
+    const ezUInt32 idx1 = i - 2;
+
+    if (data[idx1].m_fPriority > data[idx1].m_fPriority)
+    {
+      ezMath::Swap(data[idx1], data[idx2]);
+    }
+  }
+}
+
 void ezResourceManager::UpdateLoadingDeadlines()
 {
-  // EZ_ASSERT_DEBUG(s_ResourceMutex.IsLocked(), "Calling code must acquire s_ResourceMutex");
-
-  /// \todo do this incrementally each frame
-
-  const ezTime tNow = ezTime::Now();
-
-  if (tNow - s_LastDeadlineUpdate < ezTime::Milliseconds(100))
-    return;
-
-  s_LastDeadlineUpdate = tNow;
-
   if (s_RequireLoading.IsEmpty())
     return;
 
+  EZ_ASSERT_DEBUG(s_ResourceMutex.IsLocked(), "Calling code must acquire s_ResourceMutex");
+
   EZ_PROFILE_SCOPE("UpdateLoadingDeadlines");
 
-  ezUInt32 uiCount = s_RequireLoading.GetCount();
-  for (ezUInt32 i = 0; i < uiCount; ++i)
+  const ezUInt32 uiCount = s_RequireLoading.GetCount();
+  s_uiLastResourcePriorityUpdateIdx = ezMath::Min(s_uiLastResourcePriorityUpdateIdx, uiCount);
+
+  ezUInt32 uiUpdateCount = ezMath::Min(50u, uiCount - s_uiLastResourcePriorityUpdateIdx);
+
+  if (uiUpdateCount == 0)
   {
-    s_RequireLoading[i].m_fPriority = s_RequireLoading[i].m_pResource->GetLoadingPriority(tNow);
+    s_uiLastResourcePriorityUpdateIdx = 0;
+    uiUpdateCount = ezMath::Min(50u, uiCount - s_uiLastResourcePriorityUpdateIdx);
   }
 
-  s_RequireLoading.Sort();
+  if (uiUpdateCount > 0)
+  {
+    {
+      EZ_PROFILE_SCOPE("EvalLoadingDeadlines");
+
+      const ezTime tNow = ezTime::Now();
+
+      for (ezUInt32 i = 0; i < uiUpdateCount; ++i)
+      {
+        auto& element = s_RequireLoading[s_uiLastResourcePriorityUpdateIdx];
+        element.m_fPriority = element.m_pResource->GetLoadingPriority(tNow);
+        ++s_uiLastResourcePriorityUpdateIdx;
+      }
+    }
+
+    {
+      EZ_PROFILE_SCOPE("SortLoadingDeadlines");
+      ReverseBubbleSortStep(s_RequireLoading);
+    }
+  }
 }
 
 void ezResourceManager::PreloadResource(ezResource* pResource)
@@ -171,6 +215,14 @@ void ezResourceManager::PreloadResource(const ezTypelessResourceHandle& hResourc
 
   ezResource* pResource = hResource.m_pResource;
   PreloadResource(hResource.m_pResource);
+}
+
+ezResourceState ezResourceManager::GetLoadingState(const ezTypelessResourceHandle& hResource)
+{
+  if (hResource.m_pResource == nullptr)
+    return ezResourceState::Invalid;
+
+  return hResource.m_pResource->GetLoadingState();
 }
 
 bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
@@ -236,11 +288,18 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
     }
   }
 
-  // make sure existing data is purged
-  pResource->CallUnloadData(ezResource::Unload::AllQualityLevels);
+  if (pResource->GetBaseResourceFlags().IsSet(ezResourceFlags::UpdateOnMainThread) == false || ezThreadUtils::IsMainThread())
+  {
+    // make sure existing data is purged
+    pResource->CallUnloadData(ezResource::Unload::AllQualityLevels);
 
-  EZ_ASSERT_DEV(pResource->GetLoadingState() <= ezResourceState::UnloadedMetaInfoAvailable,
-    "Resource '{0}' should be in an unloaded state now.", pResource->GetResourceID());
+    EZ_ASSERT_DEV(pResource->GetLoadingState() <= ezResourceState::UnloadedMetaInfoAvailable,
+      "Resource '{0}' should be in an unloaded state now.", pResource->GetResourceID());
+  }
+  else
+  {
+    s_ResourcesToUnloadOnMainThread.Insert(ezTempHashedString(pResource->GetResourceID().GetData()), pResource->GetDynamicRTTI());
+  }
 
   if (bAllowPreloading)
   {

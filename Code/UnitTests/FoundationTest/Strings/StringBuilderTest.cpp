@@ -215,7 +215,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     ezStringUtf32 u32(L"äöüß");
 
     ezStringBuilder s("abc");
+    EZ_TEST_INT(s.GetCharacterCount(), 3);
     s.Append(u32.GetData()[0]);
+    EZ_TEST_INT(s.GetCharacterCount(), 4);
 
     EZ_TEST_BOOL(s == ezStringUtf8(L"abcä").GetData());
   }
@@ -225,7 +227,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     ezStringUtf32 u32(L"äöüß");
 
     ezStringBuilder s("abc");
+    EZ_TEST_INT(s.GetCharacterCount(), 3);
     s.Prepend(u32.GetData()[0]);
+    EZ_TEST_INT(s.GetCharacterCount(), 4);
 
     EZ_TEST_BOOL(s == ezStringUtf8(L"äabc").GetData());
   }
@@ -233,7 +237,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Append(char)")
   {
     ezStringBuilder s("abc");
+    EZ_TEST_INT(s.GetCharacterCount(), 3);
     s.Append("de", "fg", "hi", ezStringUtf8(L"öä").GetData(), "jk", ezStringUtf8(L"ü€").GetData());
+    EZ_TEST_INT(s.GetCharacterCount(), 15);
 
     EZ_TEST_BOOL(s == ezStringUtf8(L"abcdefghiöäjkü€").GetData());
 
@@ -245,7 +251,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Append(wchar_t)")
   {
     ezStringBuilder s("abc");
+    EZ_TEST_INT(s.GetCharacterCount(), 3);
     s.Append(L"de", L"fg", L"hi", L"öä", L"jk", L"ü€");
+    EZ_TEST_INT(s.GetCharacterCount(), 15);
 
     EZ_TEST_BOOL(s == ezStringUtf8(L"abcdefghiöäjkü€").GetData());
 

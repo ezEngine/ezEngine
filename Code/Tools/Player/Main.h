@@ -11,7 +11,7 @@ public:
 
 
 private:
-  virtual void BeforeCoreSystemsStartup() override;
+  virtual ezResult BeforeCoreSystemsStartup() override;
 
   virtual void AfterCoreSystemsStartup() override;
 

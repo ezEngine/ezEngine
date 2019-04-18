@@ -5,10 +5,10 @@
 #include <Foundation/Time/Clock.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
-#include <System/XBoxController/InputDeviceXBox.h>
-
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <System/Window/Window.h>
+
+#include <XboxControllerPlugin/InputDeviceXBox.h>
 
 EZ_APPLICATION_ENTRY_POINT(ezGameApplication, "Asteroids", "Data/Samples/Asteroids");
 

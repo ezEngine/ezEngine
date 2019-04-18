@@ -7,6 +7,11 @@
 // This #include is quite vital, do not remove it!
 #include <Foundation/Strings/FormatString.h>
 
+/// \brief Value used by containers for indices to indicate an invalid index.
+#ifndef ezInvalidIndex
+#  define ezInvalidIndex 0xFFFFFFFF
+#endif
+
 namespace ezArrayPtrDetail
 {
   template <typename U>
@@ -31,7 +36,7 @@ namespace ezArrayPtrDetail
 
     VoidPtrHelper() {}
     VoidPtrHelper(U* p)
-        : m_ptr(p)
+      : m_ptr(p)
     {
     }
     operator U*() const { return m_ptr; }
@@ -60,7 +65,7 @@ namespace ezArrayPtrDetail
     typedef U* pointerType;
   };
 
-  template<>
+  template <>
   struct VoidTypeHelper<void>
   {
     typedef ezUInt8 valueType;
@@ -94,8 +99,8 @@ public:
 
   /// \brief Initializes the ezArrayPtr to be empty.
   EZ_ALWAYS_INLINE ezArrayPtr() // [tested]
-      : m_ptr(nullptr)
-      , m_uiCount(0u)
+    : m_ptr(nullptr)
+    , m_uiCount(0u)
   {
   }
 
@@ -105,8 +110,8 @@ public:
   template <typename U, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value ||
                                                     sizeof(typename ezArrayPtrDetail::VoidTypeHelper<U>::valueType) == 1>>
   inline ezArrayPtr(U* ptr, ezUInt32 uiCount) // [tested]
-      : m_ptr(ptr)
-      , m_uiCount(uiCount)
+    : m_ptr(ptr)
+    , m_uiCount(uiCount)
   {
     // If any of the arguments is invalid, we invalidate ourself.
     if (m_ptr == nullptr || m_uiCount == 0)
@@ -119,15 +124,15 @@ public:
   /// \brief Initializes the ezArrayPtr to encapsulate the given array.
   template <size_t N>
   EZ_ALWAYS_INLINE ezArrayPtr(ValueType (&staticArray)[N]) // [tested]
-      : m_ptr(staticArray)
-      , m_uiCount(static_cast<ezUInt32>(N))
+    : m_ptr(staticArray)
+    , m_uiCount(static_cast<ezUInt32>(N))
   {
   }
 
   /// \brief Initializes the ezArrayPtr to be a copy of \a other. No memory is allocated or copied.
   EZ_ALWAYS_INLINE ezArrayPtr(const ezArrayPtr<T>& other) // [tested]
-      : m_ptr(other.m_ptr)
-      , m_uiCount(other.m_uiCount)
+    : m_ptr(other.m_ptr)
+    , m_uiCount(other.m_uiCount)
   {
   }
 
@@ -188,7 +193,7 @@ public:
   EZ_FORCE_INLINE ezArrayPtr<const T> GetSubArray(ezUInt32 uiStart, ezUInt32 uiCount) const // [tested]
   {
     EZ_ASSERT_DEV(uiStart + uiCount <= GetCount(), "uiStart+uiCount ({0}) has to be smaller or equal than the count ({1}).",
-                  uiStart + uiCount, GetCount());
+      uiStart + uiCount, GetCount());
     return ezArrayPtr<const T>(GetPtr() + uiStart, uiCount);
   }
 
@@ -196,7 +201,7 @@ public:
   EZ_FORCE_INLINE ezArrayPtr<T> GetSubArray(ezUInt32 uiStart, ezUInt32 uiCount) // [tested]
   {
     EZ_ASSERT_DEV(uiStart + uiCount <= GetCount(), "uiStart+uiCount ({0}) has to be smaller or equal than the count ({1}).",
-                  uiStart + uiCount, GetCount());
+      uiStart + uiCount, GetCount());
     return ezArrayPtr<T>(GetPtr() + uiStart, uiCount);
   }
 
@@ -232,7 +237,8 @@ public:
   template <typename U>
   EZ_ALWAYS_INLINE ezArrayPtr<U> Cast()
   {
-    static_assert(sizeof(ezArrayPtrDetail::VoidTypeHelper<T>::valueType) == sizeof(ezArrayPtrDetail::VoidTypeHelper<U>::valueType), "Can only cast with equivalent element size.");
+    static_assert(sizeof(ezArrayPtrDetail::VoidTypeHelper<T>::valueType) == sizeof(ezArrayPtrDetail::VoidTypeHelper<U>::valueType),
+      "Can only cast with equivalent element size.");
     return ezArrayPtr<U>(reinterpret_cast<U*>(GetPtr()), GetCount());
   }
 
@@ -241,7 +247,7 @@ public:
   EZ_ALWAYS_INLINE ezArrayPtr<const U> Cast() const
   {
     static_assert(sizeof(ezArrayPtrDetail::VoidTypeHelper<T>::valueType) == sizeof(ezArrayPtrDetail::VoidTypeHelper<U>::valueType),
-        "Can only cast with equivalent element size.");
+      "Can only cast with equivalent element size.");
     return ezArrayPtr<const U>(reinterpret_cast<const U*>(GetPtr()), GetCount());
   }
 
@@ -281,7 +287,7 @@ public:
   inline void CopyFrom(const ezArrayPtr<const T>& other) // [tested]
   {
     EZ_ASSERT_DEV(GetCount() == other.GetCount(), "Count for copy does not match. Target has {0} elements, source {1} elements", GetCount(),
-                  other.GetCount());
+      other.GetCount());
 
     ezMemoryUtils::Copy(static_cast<ValueType*>(GetPtr()), static_cast<const ValueType*>(other.GetPtr()), GetCount());
   }
@@ -387,4 +393,3 @@ typename ezArrayPtr<T>::const_reverse_iterator crend(const ezArrayPtr<T>& contai
 {
   return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() - 1);
 }
-

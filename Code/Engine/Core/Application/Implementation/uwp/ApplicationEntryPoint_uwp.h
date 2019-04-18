@@ -8,7 +8,7 @@
 class ezApplication;
 extern EZ_CORE_DLL ezResult ezUWPRun(ezApplication* pApp);
 
-namespace Details
+namespace ezApplicationDetails
 {
   template <typename AppClass, typename... Args>
   int EntryFunc(Args&&... arguments)
@@ -43,7 +43,7 @@ namespace Details
 #define EZ_CONSOLEAPP_ENTRY_POINT(AppClass, ...)                                                                                           \
   static char appBuffer[sizeof(AppClass)]; /* Not on the stack to cope with smaller stacks */                                              \
                                                                                                                                            \
-  int main(int argc, const char** argv) { return ::Details::EntryFunc<AppClass>(__VA_ARGS__); }
+  int main(int argc, const char** argv) { return ::ezApplicationDetails::EntryFunc<AppClass>(__VA_ARGS__); }
 
 /// \brief This macro allows for easy creation of application entry points (since they can't be placed in DLLs)
 ///
@@ -52,6 +52,6 @@ namespace Details
 #define EZ_APPLICATION_ENTRY_POINT(AppClass, ...)                                                                                          \
   int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)                                        \
   {                                                                                                                                        \
-    return ::Details::EntryFunc<AppClass>(__VA_ARGS__);                                                                                    \
+    return ::ezApplicationDetails::EntryFunc<AppClass>(__VA_ARGS__);                                                                       \
   }
 

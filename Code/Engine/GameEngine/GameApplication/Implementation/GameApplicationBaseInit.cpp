@@ -7,6 +7,7 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/IO/Archive/DataDirTypeArchive.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OpenDdlReader.h>
@@ -68,11 +69,17 @@ void ezGameApplicationBase::Init_FileSystem_SetSpecialDirs()
 void ezGameApplicationBase::Init_FileSystem_SetDataDirFactories()
 {
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
+  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::ArchiveType::Factory);
 }
 
 void ezGameApplicationBase::Init_ConfigureAssetManagement() {}
 
-void ezGameApplicationBase::Init_LoadRequiredPlugins() {}
+void ezGameApplicationBase::Init_LoadRequiredPlugins()
+{
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  ezPlugin::LoadPlugin("XBoxControllerPlugin");
+#endif
+}
 
 void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
 {
@@ -232,9 +239,14 @@ void ezGameApplicationBase::Deinit_UnloadPlugins()
   }
 }
 
-void ezGameApplicationBase::Deinit_ShutdownLogging() {}
+void ezGameApplicationBase::Deinit_ShutdownLogging()
+{
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
+  ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+#endif
+}
 
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_GameApplicationBaseInit);
-

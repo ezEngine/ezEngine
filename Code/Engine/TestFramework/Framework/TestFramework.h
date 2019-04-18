@@ -50,6 +50,7 @@ public:
   ezUInt32 GetTestCount() const;
   ezUInt32 GetTestEnabledCount() const;
   ezUInt32 GetSubTestEnabledCount(ezUInt32 uiTestIndex) const;
+  const ezStatus& IsTestAvailable(ezUInt32 uiTestIndex) const;
   bool IsTestEnabled(ezUInt32 uiTestIndex) const;
   bool IsSubTestEnabled(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex) const;
   void SetTestEnabled(ezUInt32 uiTestIndex, bool bEnabled);

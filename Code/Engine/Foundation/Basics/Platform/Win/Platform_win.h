@@ -134,11 +134,17 @@
 // conditional expression is constant
 #  pragma warning(disable : 4127)
 
+// conversion from 'int 32' to 'int 16', possible loss of data
+#  pragma warning(disable : 4244)
+
 // signed/unsigned mismatch
 #  pragma warning(disable : 4245)
 
 // signed/unsigned mismatch
 #  pragma warning(disable : 4389)
+
+// declaration of 'X' hides previous local declaration
+#  pragma warning(disable : 4456)
 
 // cast truncates constant value
 #  pragma warning(disable : 4310)

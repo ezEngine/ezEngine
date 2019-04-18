@@ -241,7 +241,7 @@ void ezImage::ResetAndCopy(const ezImageView& other)
 {
   ResetAndAlloc(other.GetHeader());
 
-  memcpy(GetBlobPtr<void>().GetPtr(), other.GetBlobPtr<void>().GetPtr(), GetBlobPtr<void>().GetCount());
+  memcpy(GetBlobPtr<ezUInt8>().GetPtr(), other.GetBlobPtr<ezUInt8>().GetPtr(), other.GetBlobPtr<ezUInt8>().GetCount());
 }
 
 ezResult ezImage::LoadFrom(const char* szFileName, ezLogInterface* pLog)

@@ -18,10 +18,11 @@ EZ_ALWAYS_INLINE ezMutex::~ezMutex()
 EZ_ALWAYS_INLINE void ezMutex::Acquire()
 {
   pthread_mutex_lock(&m_Handle);
+  ++m_iLockCount;
 }
 
 EZ_ALWAYS_INLINE void ezMutex::Release()
 {
+  --m_iLockCount;
   pthread_mutex_unlock(&m_Handle);
 }
-

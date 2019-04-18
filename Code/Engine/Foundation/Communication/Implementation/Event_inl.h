@@ -26,7 +26,7 @@ ezEventSubscriptionID ezEventBase<EventData, MutexType>::AddEventHandler(Handler
 {
   EZ_LOCK(m_Mutex);
 
-  EZ_ASSERT_DEV(!HasEventHandler(handler), "Event handler cannot be added twice");
+  EZ_ASSERT_DEV(handler.IsHeapAllocated() || !HasEventHandler(handler), "Event handler cannot be added twice");
 
   auto& item = m_EventHandlers.ExpandAndGetRef();
   item.m_Handler = handler;
@@ -51,6 +51,8 @@ void ezEventBase<EventData, MutexType>::AddEventHandler(Handler handler, Unsubsc
 template <typename EventData, typename MutexType>
 void ezEventBase<EventData, MutexType>::RemoveEventHandler(Handler handler) const
 {
+  EZ_ASSERT_DEV(!handler.IsHeapAllocated(), "Lambdas that capture data cannot be removed via function pointer. Use an ezEventSubscriptionID instead.");
+
   EZ_LOCK(m_Mutex);
 
   for (ezUInt32 idx = 0; idx < m_EventHandlers.GetCount(); ++idx)
@@ -89,6 +91,8 @@ void ezEventBase<EventData, MutexType>::RemoveEventHandler(ezEventSubscriptionID
 template <typename EventData, typename MutexType>
 bool ezEventBase<EventData, MutexType>::HasEventHandler(Handler handler) const
 {
+  EZ_ASSERT_DEV(!handler.IsHeapAllocated(), "Lambdas that capture data cannot be checked via function pointer. Use an ezEventSubscriptionID instead.");
+
   EZ_LOCK(m_Mutex);
 
   for (ezUInt32 i = 0; i < m_EventHandlers.GetCount(); ++i)

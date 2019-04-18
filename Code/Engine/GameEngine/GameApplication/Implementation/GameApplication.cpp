@@ -92,7 +92,7 @@ void ezGameApplication::ReinitializeInputConfig()
   Init_ConfigureInput();
 }
 
-void ezGameApplication::BeforeCoreSystemsStartup()
+ezResult ezGameApplication::BeforeCoreSystemsStartup()
 {
   SUPER::BeforeCoreSystemsStartup();
 
@@ -102,6 +102,8 @@ void ezGameApplication::BeforeCoreSystemsStartup()
     m_pMixedRealityFramework = EZ_DEFAULT_NEW(ezMixedRealityFramework, nullptr);
   }
 #endif
+
+  return EZ_SUCCESS;
 }
 
 ezString ezGameApplication::FindProjectDirectory() const

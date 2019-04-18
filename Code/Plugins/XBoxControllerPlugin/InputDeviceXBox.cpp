@@ -1,7 +1,7 @@
-#include <SystemPCH.h>
-
 #include <Core/Input/InputManager.h>
-#include <System/XBoxController/InputDeviceXBox.h>
+#include <Foundation/Logging/Log.h>
+#include <XBoxControllerPlugin/InputDeviceXBox.h>
+
 #include <Xinput.h>
 
 
@@ -85,9 +85,15 @@ void ezInputDeviceXBox360::RegisterInputSlots()
 }
 
 const char* szControllerName[] = {
-    "controller0_", "controller1_", "controller2_", "controller3_",
+  "controller0_",
+  "controller1_",
+  "controller2_",
+  "controller3_",
 
-    "controller4_", "controller5_", "controller6_", "controller7_",
+  "controller4_",
+  "controller5_",
+  "controller6_",
+  "controller7_",
 };
 
 EZ_CHECK_AT_COMPILETIME(EZ_ARRAY_SIZE(szControllerName) >= ezInputDeviceXBox360::MaxControllers);
@@ -222,4 +228,3 @@ void ezInputDeviceXBox360::ApplyVibration(ezUInt8 uiPhysicalController, Motor::E
 
 
 EZ_STATICLINK_FILE(System, System_XBoxController_InputDeviceXBox);
-
