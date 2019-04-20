@@ -113,14 +113,14 @@ ezResult ezTexConvProcessor::DetermineTargetResolution(
     bool issueWarning = false;
     if (out_uiTargetResolutionX % blockWidth != 0)
     {
-      out_uiTargetResolutionX = ezMath::RoundUp(out_uiTargetResolutionX, blockWidth);
+      out_uiTargetResolutionX = ezMath::RoundUp(out_uiTargetResolutionX, static_cast<ezUInt16>(blockWidth));
       issueWarning = true;
     }
 
     ezUInt32 blockHeight = ezImageFormat::GetBlockHeight(OutputImageFormat);
     if (out_uiTargetResolutionY % blockHeight != 0)
     {
-      out_uiTargetResolutionY = ezMath::RoundUp(out_uiTargetResolutionY, blockHeight);
+      out_uiTargetResolutionY = ezMath::RoundUp(out_uiTargetResolutionY, static_cast<ezUInt16>(blockHeight));
       issueWarning = true;
     }
 

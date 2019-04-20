@@ -69,7 +69,7 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
   while (ezUInt64 bytesRead = stream.ReadBytes(tempStorage, tempStorageSize))
   {
-    storage.PushBackRange(ezArrayPtr<ezUInt8>(tempStorage, bytesRead));
+    storage.PushBackRange(ezArrayPtr<ezUInt8>(tempStorage, static_cast<ezUInt32>(bytesRead)));
   }
 
   if (storage.IsEmpty())
@@ -120,7 +120,7 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   image.ResetAndAlloc(imageHeader);
 
   // Read image data into destination image
-  ezUInt32 destRowPitch = imageHeader.GetRowPitch();
+  ezUInt64 destRowPitch = imageHeader.GetRowPitch();
   ezUInt32 itemIdx = 0;
   for (ezUInt32 arrayIdx = 0; arrayIdx < imageHeader.GetNumArrayIndices(); ++arrayIdx)
   {
@@ -141,11 +141,11 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
           else
           {
             // Row pitches don't match - copy row by row
-            ezUInt32 bytesPerRow = ezMath::Min(destRowPitch, ezUInt32(sourceImage->rowPitch));
+            ezUInt64 bytesPerRow = ezMath::Min(destRowPitch, sourceImage->rowPitch);
             const uint8_t* sourcePixels = sourceImage->pixels;
             for (ezUInt32 rowIdx = 0; rowIdx < imageHeader.GetHeight(); ++rowIdx)
             {
-              ezMemoryUtils::Copy(destPixels, sourcePixels, bytesPerRow);
+              ezMemoryUtils::Copy(destPixels, sourcePixels, static_cast<size_t>(bytesPerRow));
 
               destPixels += destRowPitch;
               sourcePixels += sourceImage->rowPitch;
