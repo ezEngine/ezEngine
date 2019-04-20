@@ -540,7 +540,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
 
         static bool bWasStupidLeftShift = false;
 
-        const ezUInt32 uiScanCode = raw->data.keyboard.MakeCode;
+        const ezUInt8 uiScanCode = static_cast<ezUInt8>(raw->data.keyboard.MakeCode);
         const bool bIsExtended = (raw->data.keyboard.Flags & RI_KEY_E0) != 0;
 
         if (uiScanCode == 42 && bIsExtended) // 42 has to be special I guess
