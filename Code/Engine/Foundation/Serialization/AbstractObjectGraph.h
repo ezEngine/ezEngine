@@ -85,7 +85,7 @@ struct EZ_FOUNDATION_DLL ezObjectChangeType
 {
   typedef ezInt8 StorageType;
 
-  enum Enum
+  enum Enum : ezInt8
   {
     NodeAdded,
     NodeRemoved,

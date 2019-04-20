@@ -101,7 +101,7 @@ void ezTaskSystem::StopWorkerThreads()
   }
 }
 
-void ezTaskSystem::SetWorkThreadCount(ezInt8 iShortTasks, ezInt8 iLongTasks)
+void ezTaskSystem::SetWorkThreadCount(ezInt32 iShortTasks, ezInt32 iLongTasks)
 {
   ezSystemInformation info = ezSystemInformation::Get();
 
@@ -110,27 +110,27 @@ void ezTaskSystem::SetWorkThreadCount(ezInt8 iShortTasks, ezInt8 iLongTasks)
 
   // at least 2 threads, 4 on six cores and up
   if (iShortTasks <= 0)
-    iShortTasks = ezMath::Clamp<ezInt8>(info.GetCPUCoreCount() - 2, 2, 4);
+    iShortTasks = ezMath::Clamp<ezInt32>(static_cast<ezInt32>(info.GetCPUCoreCount() - 2), 2, 4);
 
   // at least 2 threads, 4 on six cores, 6 on eight cores and up
   if (iLongTasks <= 0)
-    iLongTasks = ezMath::Clamp<ezInt8>(info.GetCPUCoreCount() - 2, 2, 6);
+    iLongTasks = ezMath::Clamp<ezInt32>(static_cast<ezInt32>(info.GetCPUCoreCount() - 2), 2, 6);
 
   // plus there is always one additional 'file access' thread
   // and the main thread, of course
 
-  iShortTasks = ezMath::Max<ezInt8>(iShortTasks, 1);
-  iLongTasks = ezMath::Max<ezInt8>(iLongTasks, 1);
+  const ezUInt32 uiShortTasks = static_cast<ezUInt32>(ezMath::Max<ezInt32>(iShortTasks, 1));
+  const ezUInt32 uiLongTasks = static_cast<ezUInt32>(ezMath::Max<ezInt32>(iLongTasks, 1));
 
   // if nothing has changed, do nothing
-  if (s_WorkerThreads[ezWorkerThreadType::ShortTasks].GetCount() == iShortTasks &&
-      s_WorkerThreads[ezWorkerThreadType::LongTasks].GetCount() == iLongTasks)
+  if (s_WorkerThreads[ezWorkerThreadType::ShortTasks].GetCount() == uiShortTasks &&
+      s_WorkerThreads[ezWorkerThreadType::LongTasks].GetCount() == uiLongTasks)
     return;
 
   StopWorkerThreads();
 
-  s_WorkerThreads[ezWorkerThreadType::ShortTasks].SetCount(iShortTasks);
-  s_WorkerThreads[ezWorkerThreadType::LongTasks].SetCount(iLongTasks);
+  s_WorkerThreads[ezWorkerThreadType::ShortTasks].SetCount(uiShortTasks);
+  s_WorkerThreads[ezWorkerThreadType::LongTasks].SetCount(uiLongTasks);
   s_WorkerThreads[ezWorkerThreadType::FileAccess].SetCount(1);
 
   for (ezUInt32 type = 0; type < ezWorkerThreadType::ENUM_COUNT; ++type)

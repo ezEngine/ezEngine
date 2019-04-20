@@ -97,7 +97,7 @@ void ezUnicodeUtils::EncodeUtf32ToWChar(ezUInt32 uiUtf32, WCharIterator& szWChar
   }
   else
   {
-    *szWCharOutput = uiUtf32;
+    *szWCharOutput = static_cast<typename WCharIterator::InsertionType>(uiUtf32);
     ++szWCharOutput;
   }
 }

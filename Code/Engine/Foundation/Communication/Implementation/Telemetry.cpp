@@ -278,7 +278,7 @@ ezResult ezTelemetry::InitializeAsClient(const char* szConnectTo)
     sConnectTo.Shrink(0, ezStringUtils::GetStringElementCount(szColon));
 
     ezStringBuilder sPort = szColon + 1;
-    s_uiPort = atoi(sPort.GetData());
+    s_uiPort = static_cast<ezUInt16>(atoi(sPort.GetData()));
   }
 
   if (sConnectTo.IsEmpty() || sConnectTo.IsEqual_NoCase("localhost"))

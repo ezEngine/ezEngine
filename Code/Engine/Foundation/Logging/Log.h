@@ -18,7 +18,7 @@ struct EZ_FOUNDATION_DLL ezLogMsgType
 {
   typedef ezInt8 StorageType;
 
-  enum Enum
+  enum Enum : ezInt8
   {
     BeginGroup = -2,       ///< A logging group has been opened.
     EndGroup = -1,         ///< A logging group has been closed.
@@ -43,7 +43,7 @@ struct EZ_FOUNDATION_DLL ezLoggingEventData
   ezLogMsgType::Enum m_EventType = ezLogMsgType::None;
 
   /// \brief How many "levels" to indent.
-  ezUInt32 m_uiIndentation = 0;
+  ezUInt8 m_uiIndentation = 0;
 
   /// \brief The information text.
   const char* m_szText = "";
@@ -317,7 +317,7 @@ private:
   ezLogBlock* m_pParentBlock;
   const char* m_szName;
   const char* m_szContextInfo;
-  ezInt32 m_iBlockDepth;
+  ezUInt8 m_uiBlockDepth;
   bool m_bWritten;
   double m_fSeconds; // for profiling
 };

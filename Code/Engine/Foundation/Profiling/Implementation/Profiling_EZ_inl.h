@@ -22,7 +22,7 @@ namespace
   {
     EZ_DECLARE_POD_TYPE();
 
-    enum Type
+    enum Type : ezUInt8
     {
       Begin,
       End

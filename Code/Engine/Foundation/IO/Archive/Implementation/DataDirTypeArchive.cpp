@@ -3,6 +3,7 @@
 #include <Foundation/IO/Archive/DataDirTypeArchive.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/IO/OSFile.h>
 
 ezDataDirectory::ArchiveType::ArchiveType() = default;
 ezDataDirectory::ArchiveType::~ArchiveType() = default;

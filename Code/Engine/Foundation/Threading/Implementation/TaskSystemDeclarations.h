@@ -97,9 +97,6 @@ private:
   // Which types of tasks this thread should work on.
   ezWorkerThreadType::Enum m_WorkerType;
 
-  // For display purposes.
-  ezUInt8 m_uiWorkerThreadNumber;
-
   virtual ezUInt32 Run() override;
 
   // Computes the thread utilization by dividing the thread active time by the time that has passed since the last update.
@@ -114,6 +111,9 @@ private:
   double m_ThreadUtilization;
   ezAtomicInteger32 m_iTasksExecutionCounter;
   ezUInt32 m_uiNumTasksExecuted;
+
+  // For display purposes.
+  ezUInt32 m_uiWorkerThreadNumber;
 };
 
 /// \brief Given out by ezTaskSystem::CreateTaskGroup to identify a task group.

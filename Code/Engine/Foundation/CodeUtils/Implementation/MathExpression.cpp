@@ -271,7 +271,7 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
     const ezString sVal = tokens[uiValueToken]->m_DataView;
 
     // Check if it really qualifies as variable!
-    for (char varChar : sVal)
+    for (auto varChar : sVal)
     {
       const char* validChar = s_szValidVariableCharacters;
       for (; *validChar != '\0'; ++validChar)

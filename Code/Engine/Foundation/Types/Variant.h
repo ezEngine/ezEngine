@@ -35,7 +35,7 @@ public:
     /// \brief This enum describes the type of data that is currently stored inside the variant.
     /// Note that changes to this enum require an increase of the reflection version and either
     /// patches to the serializer or a re-export of binary data that contains ezVariants.
-    enum Enum
+    enum Enum : ezUInt8
     {
       Invalid = 0, ///< The variant stores no (valid) data at the moment.
 

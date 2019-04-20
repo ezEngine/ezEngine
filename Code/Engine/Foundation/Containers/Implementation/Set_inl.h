@@ -408,7 +408,7 @@ bool ezSetBase<KeyType, Comparer>::Remove(const CompatibleKeyType& key)
 
 template <typename KeyType, typename Comparer>
 template <typename CompatibleKeyType>
-typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::AcquireNode(CompatibleKeyType&& key, ezInt32 m_uiLevel, Node* pParent)
+typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::AcquireNode(CompatibleKeyType&& key, ezUInt16 uiLevel, Node* pParent)
 {
   Node* pNode;
 
@@ -427,7 +427,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Acqui
 
   pNode->m_pParent = pParent;
   pNode->m_Key = std::forward<CompatibleKeyType>(key);
-  pNode->m_uiLevel = m_uiLevel;
+  pNode->m_uiLevel = uiLevel;
   pNode->m_pLink[0] = reinterpret_cast<Node*>(&m_NilNode);
   pNode->m_pLink[1] = reinterpret_cast<Node*>(&m_NilNode);
 

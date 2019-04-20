@@ -22,7 +22,7 @@ ezTaskGroupID ezTaskSystem::CreateTaskGroup(ezTaskPriority::Enum Priority, ezTas
 
   // no free group found, create a new one
   s_TaskGroups.PushBack(ezTaskGroup());
-  s_TaskGroups[i].m_uiTaskGroupIndex = i;
+  s_TaskGroups[i].m_uiTaskGroupIndex = static_cast<ezUInt16>(i);
 
 foundtaskgroup:
 

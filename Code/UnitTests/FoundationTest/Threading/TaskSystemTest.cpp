@@ -77,10 +77,10 @@ public:
 
 EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
 {
-  ezUInt32 uiWorkersShort = 4;
-  ezUInt32 uiWorkersLong = 4;
+  ezInt32 iWorkersShort = 4;
+  ezInt32 iWorkersLong = 4;
 
-  ezTaskSystem::SetWorkThreadCount(uiWorkersShort, uiWorkersLong);
+  ezTaskSystem::SetWorkThreadCount(iWorkersShort, iWorkersLong);
   ezThreadUtils::Sleep(ezTime::Milliseconds(500));
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Single Tasks")
@@ -218,7 +218,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     }
 
     // up to the number of worker threads tasks can be still active
-    EZ_TEST_BOOL(iNotAllThisTasksFinished <= (ezInt32)uiWorkersShort);
+    EZ_TEST_BOOL(iNotAllThisTasksFinished <= iWorkersShort);
 
     ezInt32 iNotAllNextTasksFinished = 0;
 
