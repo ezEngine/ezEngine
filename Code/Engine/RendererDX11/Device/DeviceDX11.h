@@ -4,6 +4,7 @@
 #include <RendererDX11/RendererDX11DLL.h>
 #include <RendererFoundation/Device/Device.h>
 #include <Foundation/Types/Bitflags.h>
+#include <dxgi.h>
 
 struct ID3D11Device;
 struct ID3D11DeviceContext;
@@ -14,8 +15,7 @@ struct IDXGIDevice1;
 struct ID3D11Resource;
 struct ID3D11Query;
 struct IDXGIAdapter;
-enum DXGI_FORMAT;
-enum D3D_FEATURE_LEVEL;
+enum D3D_FEATURE_LEVEL : int;
 
 typedef ezGALFormatLookupEntry<DXGI_FORMAT, (DXGI_FORMAT)0> ezGALFormatLookupEntryDX11;
 typedef ezGALFormatLookupTable<ezGALFormatLookupEntryDX11> ezGALFormatLookupTableDX11;
