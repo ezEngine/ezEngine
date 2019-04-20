@@ -19,16 +19,16 @@ ezInputDeviceController::ezInputDeviceController()
 {
   m_uiVibrationTrackPos = 0;
 
-  for (ezInt32 c = 0; c < MaxControllers; ++c)
+  for (ezInt8 c = 0; c < MaxControllers; ++c)
   {
     m_bVibrationEnabled[c] = false;
     m_iControllerMapping[c] = c;
 
-    for (ezInt32 m = 0; m < Motor::ENUM_COUNT; ++m)
+    for (ezInt8 m = 0; m < Motor::ENUM_COUNT; ++m)
     {
       m_fVibrationStrength[c][m] = 0.0f;
 
-      for (ezUInt32 t = 0; t < MaxVibrationSamples; ++t)
+      for (ezUInt8 t = 0; t < MaxVibrationSamples; ++t)
         m_fVibrationTracks[c][m][t] = 0.0f;
     }
   }
@@ -146,7 +146,7 @@ void ezInputDeviceController::UpdateVibration(ezTime tTimeDifference)
   }
 
   // go through all controllers and motors
-  for (ezUInt32 c = 0; c < MaxControllers; ++c)
+  for (ezUInt8 c = 0; c < MaxControllers; ++c)
   {
     // ignore if vibration is disabled on this controller
     if (!m_bVibrationEnabled[c])
@@ -165,7 +165,7 @@ void ezInputDeviceController::UpdateVibration(ezTime tTimeDifference)
 
   // now send the back-end all the information about how to vibrate which physical controller
   // this also always resets vibration to zero for controllers that might have been changed to another virtual controller etc.
-  for (ezUInt32 c = 0; c < MaxControllers; ++c)
+  for (ezUInt8 c = 0; c < MaxControllers; ++c)
   {
     for (ezUInt32 m = 0; m < Motor::ENUM_COUNT; ++m)
       ApplyVibration(c, (Motor::Enum)m, fVibrationToApply[c][m]);

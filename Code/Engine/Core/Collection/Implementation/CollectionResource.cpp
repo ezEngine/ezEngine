@@ -175,7 +175,7 @@ void ezCollectionResourceDescriptor::Save(ezStreamWriter& stream) const
 {
   const ezUInt8 uiVersion = 1;
   const ezUInt8 uiIdentifier = 0xC0; // dummy to fill the header to 32 Bit
-  const ezUInt16 uiNumResources = m_Resources.GetCount();
+  const ezUInt16 uiNumResources = static_cast<ezUInt16>(m_Resources.GetCount());
 
   stream << uiVersion;
   stream << uiIdentifier;

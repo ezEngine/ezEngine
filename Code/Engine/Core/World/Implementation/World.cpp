@@ -10,6 +10,8 @@
 
 ezStaticArray<ezWorld*, 64> ezWorld::s_Worlds;
 
+const ezUInt16 c_InvalidWorldIndex = 0xFFFFu;
+
 ezWorld::ezWorld(ezWorldDesc& desc)
     : m_UpdateTask("", ezMakeDelegate(&ezWorld::UpdateFromThread, this))
     , m_Data(desc)
@@ -20,10 +22,10 @@ ezWorld::ezWorld(ezWorldDesc& desc)
   sb.Append(".Update");
   m_UpdateTask.SetTaskName(sb);
 
-  m_uiIndex = ezInvalidIndex;
+  m_uiIndex = c_InvalidWorldIndex;
 
   // find a free world slot
-  for (ezUInt32 i = 0; i < s_Worlds.GetCount(); i++)
+  for (ezUInt16 i = 0; i < static_cast<ezUInt16>(s_Worlds.GetCount()); i++)
   {
     if (s_Worlds[i] == nullptr)
     {
@@ -33,9 +35,9 @@ ezWorld::ezWorld(ezWorldDesc& desc)
     }
   }
 
-  if (m_uiIndex == ezInvalidIndex)
+  if (m_uiIndex == c_InvalidWorldIndex)
   {
-    m_uiIndex = s_Worlds.GetCount();
+    m_uiIndex = static_cast<ezUInt16>(s_Worlds.GetCount());
     s_Worlds.PushBack(this);
   }
 }
@@ -72,7 +74,7 @@ ezWorld::~ezWorld()
   m_Data.m_Modules.Clear();
 
   s_Worlds[m_uiIndex] = nullptr;
-  m_uiIndex = ezInvalidIndex;
+  m_uiIndex = c_InvalidWorldIndex;
 }
 
 
@@ -101,7 +103,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   ezGameObject* pParentObject = nullptr;
   ezGameObject::TransformationData* pParentData = nullptr;
   ezUInt32 uiParentIndex = 0;
-  ezUInt32 uiHierarchyLevel = 0;
+  ezUInt16 uiHierarchyLevel = 0;
   bool bDynamic = desc.m_bDynamic;
 
   if (TryGetObject(desc.m_hParent, pParentObject))
@@ -1049,7 +1051,7 @@ void ezWorld::RecreateHierarchyData(ezGameObject* pObject, bool bWasDynamic)
 {
   ezGameObject* pParent = pObject->GetParent();
 
-  const ezUInt32 uiNewHierarchyLevel = pParent != nullptr ? pParent->m_uiHierarchyLevel + 1 : 0;
+  const ezUInt16 uiNewHierarchyLevel = pParent != nullptr ? pParent->m_uiHierarchyLevel + 1 : 0;
   const ezUInt32 uiOldHierarchyLevel = pObject->m_uiHierarchyLevel;
 
   const bool bIsDynamic = pObject->IsDynamic();
