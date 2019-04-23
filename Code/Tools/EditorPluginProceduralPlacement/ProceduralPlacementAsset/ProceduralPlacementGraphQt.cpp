@@ -123,6 +123,7 @@ void ezQtProceduralPlacementNode::UpdateState()
 //////////////////////////////////////////////////////////////////////////
 
 ezQtProceduralPlacementPin::ezQtProceduralPlacementPin() = default;
+ezQtProceduralPlacementPin::~ezQtProceduralPlacementPin() = default;
 
 void ezQtProceduralPlacementPin::ExtendContextMenu(QMenu& menu)
 {
@@ -168,7 +169,57 @@ QRectF ezQtProceduralPlacementPin::boundingRect() const
 
 void ezQtProceduralPlacementPin::SetDebug(bool bDebug)
 {
-  m_bDebug = bDebug;
+  if (m_bDebug != bDebug)
+  {
+    m_bDebug = bDebug;
 
-  update();
+    auto pScene = static_cast<ezQtProceduralPlacementScene*>(scene());
+    pScene->SetDebugPin(bDebug ? this : nullptr);
+
+    update();
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+ezQtProceduralPlacementScene::ezQtProceduralPlacementScene(QObject* parent /*= nullptr*/)
+  : ezQtNodeScene(parent)
+{
+}
+
+ezQtProceduralPlacementScene::~ezQtProceduralPlacementScene() = default;
+
+void ezQtProceduralPlacementScene::SetDebugPin(ezQtProceduralPlacementPin* pDebugPin)
+{
+  if (m_pDebugPin == pDebugPin)
+    return;
+
+  if (m_pDebugPin != nullptr)
+  {
+    m_pDebugPin->SetDebug(false);
+  }
+
+  m_pDebugPin = pDebugPin;
+
+  if (ezQtDocumentWindow* window = qobject_cast<ezQtDocumentWindow*>(parent()))
+  {
+    auto document = static_cast<ezProceduralPlacementAssetDocument*>(window->GetDocument());
+    document->SetDebugPin(pDebugPin != nullptr ? pDebugPin->GetPin() : nullptr);
+  }
+}
+
+ezStatus ezQtProceduralPlacementScene::RemoveNode(ezQtNode* pNode)
+{
+  auto pins = pNode->GetInputPins();
+  pins.PushBackRange(pNode->GetOutputPins());
+
+  for (auto pPin : pins)
+  {
+    if (pPin == m_pDebugPin)
+    {
+      m_pDebugPin->SetDebug(false);
+    }
+  }
+
+  return ezQtNodeScene::RemoveNode(pNode);
 }

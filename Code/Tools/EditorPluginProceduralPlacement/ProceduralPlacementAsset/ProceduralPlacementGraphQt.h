@@ -17,6 +17,7 @@ class ezQtProceduralPlacementPin : public ezQtPin
 {
 public:
   ezQtProceduralPlacementPin();
+  ~ezQtProceduralPlacementPin();
 
   virtual void ExtendContextMenu(QMenu& menu) override;
 
@@ -28,4 +29,18 @@ public:
 
 private:
   bool m_bDebug = false;
+};
+
+class ezQtProceduralPlacementScene : public ezQtNodeScene
+{
+public:
+  ezQtProceduralPlacementScene(QObject* parent = nullptr);
+  ~ezQtProceduralPlacementScene();
+
+  void SetDebugPin(ezQtProceduralPlacementPin* pDebugPin);
+
+private:
+  virtual ezStatus RemoveNode(ezQtNode* pNode) override;
+
+  ezQtProceduralPlacementPin* m_pDebugPin = nullptr;
 };

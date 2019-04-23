@@ -22,30 +22,30 @@ public:
 
   void Save(ezStreamWriter& stream);
 
-  bool m_bActive;
+  bool m_bActive = true;
 
   ezString m_sName;
   ezHybridArray<ezString, 4> m_ObjectsToPlace;
 
-  float m_fFootprint;
+  float m_fFootprint = 1.0f;
 
-  ezVec3 m_vMinOffset;
-  ezVec3 m_vMaxOffset;
+  ezVec3 m_vMinOffset = ezVec3(0);
+  ezVec3 m_vMaxOffset = ezVec3(0);
 
-  float m_fAlignToNormal;
+  float m_fAlignToNormal = 1.0f;
 
-  ezVec3 m_vMinScale;
-  ezVec3 m_vMaxScale;
+  ezVec3 m_vMinScale = ezVec3(1);
+  ezVec3 m_vMaxScale = ezVec3(1);
 
-  float m_fCullDistance;
+  float m_fCullDistance = 100;
 
-  ezUInt32 m_uiCollisionLayer;
+  ezUInt32 m_uiCollisionLayer = 0;
 
   ezString m_sSurface;
 
   ezString m_sColorGradient;
 
-  ezUInt32 m_uiByteCodeIndex;
+  ezUInt32 m_uiByteCodeIndex = ezInvalidIndex;
 
   ezInputNodePin m_DensityPin;
   ezInputNodePin m_ScalePin;

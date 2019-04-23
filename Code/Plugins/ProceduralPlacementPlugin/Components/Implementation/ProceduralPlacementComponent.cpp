@@ -434,7 +434,9 @@ ezUInt32 ezProceduralPlacementComponentManager::AllocatePlacementTask(ezUInt32 u
     uiNewTaskIndex = m_PlacementTaskInfos.GetCount();
     auto& newTask = m_PlacementTaskInfos.ExpandAndGetRef();
 
-    newTask.m_pTask = EZ_DEFAULT_NEW(PlacementTask);
+    ezStringBuilder sName;
+    sName.Format("Placement Task {}", uiNewTaskIndex);
+    newTask.m_pTask = EZ_DEFAULT_NEW(PlacementTask, sName);
   }
 
   m_PlacementTaskInfos[uiNewTaskIndex].m_uiTileIndex = uiTileIndex;

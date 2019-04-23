@@ -19,9 +19,12 @@ namespace
 
     return ezExpression::Stream(sName, ezExpression::Stream::Type::Float, byteData, sizeof(T));
   }
-}
+} // namespace
 
-PlacementTask::PlacementTask() {}
+PlacementTask::PlacementTask(const char* szName)
+  : ezTask(szName)
+{
+}
 
 PlacementTask::~PlacementTask() {}
 
@@ -45,18 +48,18 @@ void PlacementTask::Execute()
     ezHybridArray<ezExpression::Stream, 8> inputs;
     {
       inputs.PushBack(
-          MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.x), ezPPInternal::ExpressionInputs::s_sPositionX));
+        MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.x), ezPPInternal::ExpressionInputs::s_sPositionX));
       inputs.PushBack(
-          MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.y), ezPPInternal::ExpressionInputs::s_sPositionY));
+        MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.y), ezPPInternal::ExpressionInputs::s_sPositionY));
       inputs.PushBack(
-          MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.z), ezPPInternal::ExpressionInputs::s_sPositionZ));
+        MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.z), ezPPInternal::ExpressionInputs::s_sPositionZ));
 
       inputs.PushBack(
-          MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.x), ezPPInternal::ExpressionInputs::s_sNormalX));
+        MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.x), ezPPInternal::ExpressionInputs::s_sNormalX));
       inputs.PushBack(
-          MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.y), ezPPInternal::ExpressionInputs::s_sNormalY));
+        MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.y), ezPPInternal::ExpressionInputs::s_sNormalY));
       inputs.PushBack(
-          MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.z), ezPPInternal::ExpressionInputs::s_sNormalZ));
+        MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.z), ezPPInternal::ExpressionInputs::s_sNormalZ));
 
       // Point index
       ezArrayPtr<float> pointIndex = m_TempData.GetArrayPtr().GetSubArray(0, uiNumInstances);
@@ -84,7 +87,7 @@ void PlacementTask::Execute()
     m_VM.Execute(*(m_pLayer->m_pByteCode), inputs, outputs, uiNumInstances);
 
     // Test density against point threshold and fill remaining input point data from expression
-    int iMaxObjectIndex = m_pLayer->m_ObjectsToPlace.GetCount() - 1;
+    float fMaxObjectIndex = m_pLayer->m_ObjectsToPlace.GetCount() - 1;
     const Pattern* pPattern = m_pLayer->m_pPattern;
     for (ezUInt32 i = 0; i < uiNumInstances; ++i)
     {
@@ -95,8 +98,8 @@ void PlacementTask::Execute()
       if (density[i] >= fThreshold)
       {
         inputPoint.m_fScale = scale[i];
-        inputPoint.m_uiColorIndex = (ezUInt8)ezMath::Clamp(colorIndex[i], 0.0f, 255.0f);
-        inputPoint.m_uiObjectIndex = (ezUInt8)ezMath::Clamp(static_cast<int>(objectIndex[i]), 0, iMaxObjectIndex);
+        inputPoint.m_uiColorIndex = ezMath::ColorFloatToByte(colorIndex[i]);
+        inputPoint.m_uiObjectIndex = static_cast<ezUInt8>(ezMath::Saturate(objectIndex[i]) * fMaxObjectIndex + 0.5f);
 
         m_ValidPoints.PushBack(i);
       }
@@ -158,7 +161,7 @@ void PlacementTask::Execute()
     ezColorGammaUB objectColor = ezColor::White;
     if (pColorGradient != nullptr)
     {
-      float colorIndex = placementPoint.m_uiColorIndex / 255.0f;
+      float colorIndex = ezMath::ColorByteToFloat(placementPoint.m_uiColorIndex);
       ezUInt8 alpha;
       pColorGradient->EvaluateColor(colorIndex, objectColor);
       pColorGradient->EvaluateAlpha(colorIndex, alpha);

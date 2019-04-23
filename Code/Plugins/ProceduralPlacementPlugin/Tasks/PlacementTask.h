@@ -9,7 +9,7 @@ namespace ezPPInternal
   class EZ_PROCEDURALPLACEMENTPLUGIN_DLL PlacementTask : public ezTask
   {
   public:
-    PlacementTask();
+    PlacementTask(const char* szName);
     ~PlacementTask();
 
     void Clear();

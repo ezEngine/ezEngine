@@ -2,17 +2,17 @@
 
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementAsset.h>
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementAssetWindow.moc.h>
+#include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementGraphQt.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/NodeEditor/NodeView.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <QLabel>
 #include <QLayout>
 
 ezProceduralPlacementAssetDocumentWindow::ezProceduralPlacementAssetDocumentWindow(ezDocument* pDocument)
-    : ezQtDocumentWindow(pDocument)
+  : ezQtDocumentWindow(pDocument)
 {
   // GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezProceduralPlacementAssetDocumentWindow::PropertyEventHandler,
   // this));
@@ -51,7 +51,7 @@ ezProceduralPlacementAssetDocumentWindow::ezProceduralPlacementAssetDocumentWind
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
   }
 
-  m_pScene = new ezQtNodeScene(this);
+  m_pScene = new ezQtProceduralPlacementScene(this);
   m_pScene->SetDocumentNodeManager(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
   m_pView = new ezQtNodeView(this);
   m_pView->SetScene(m_pScene);
