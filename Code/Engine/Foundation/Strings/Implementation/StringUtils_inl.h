@@ -91,10 +91,16 @@ inline void ezStringUtils::GetCharacterAndElementCount(const char* szUtf8, ezUIn
   if (IsNullOrEmpty(szUtf8))
     return;
 
-  while ((*szUtf8 != '\0') && (szUtf8 < pStringEnd))
+  while (szUtf8 < pStringEnd)
   {
+    char uiByte = *szUtf8;
+    if(uiByte == '\0')
+    {
+      break;
+    }
+
     // skip all the Utf8 continuation bytes
-    if (!ezUnicodeUtils::IsUtf8ContinuationByte(*szUtf8))
+    if (!ezUnicodeUtils::IsUtf8ContinuationByte(uiByte))
       ++uiCharacterCount;
 
     ++szUtf8;

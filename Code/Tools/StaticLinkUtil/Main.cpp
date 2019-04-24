@@ -183,7 +183,8 @@ public:
 
   ezString GetLibraryMarkerName()
   {
-    return ezPathUtils::GetFileName(m_sSearchDir.GetData()).GetData();
+    ezStringBuilder tmp;
+    return ezPathUtils::GetFileName(m_sSearchDir.GetData()).GetData(tmp);
   }
 
   void SanitizeSourceCode(ezStringBuilder& sInOut)

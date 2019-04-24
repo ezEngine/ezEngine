@@ -67,7 +67,7 @@ void ezStringBuilder::Append(const ezStringView& view)
   // first figure out how much the string has to grow
   {
     ezUInt32 uiCharacters = 0;
-    ezStringUtils::GetCharacterAndElementCount(view.GetData(), uiCharacters, uiStrLen, view.GetEndPosition());
+    ezStringUtils::GetCharacterAndElementCount(view.GetStartPointer(), uiCharacters, uiStrLen, view.GetEndPointer());
     uiMoreBytes += uiStrLen;
     m_uiCharacterCount += uiCharacters;
   }
@@ -81,7 +81,7 @@ void ezStringBuilder::Append(const ezStringView& view)
   // and then append all the strings
   {
     // make enough room to copy the entire string, including the T-800
-    ezStringUtils::Copy(&m_Data[uiPrevCount - 1], uiStrLen + 1, view.GetData(), view.GetData() + uiStrLen);
+    ezStringUtils::Copy(&m_Data[uiPrevCount - 1], uiStrLen + 1, view.GetStartPointer(), view.GetStartPointer() + uiStrLen);
 
     uiPrevCount += uiStrLen;
   }
@@ -347,12 +347,12 @@ void ezStringBuilder::ReplaceSubString(const char* szStartPos, const char* szEnd
 
   ezUInt32 uiWordChars = 0;
   ezUInt32 uiWordBytes = 0;
-  ezStringUtils::GetCharacterAndElementCount(szReplaceWith.GetData(), uiWordChars, uiWordBytes, szReplaceWith.GetEndPosition());
+  ezStringUtils::GetCharacterAndElementCount(szReplaceWith.GetStartPointer(), uiWordChars, uiWordBytes, szReplaceWith.GetEndPointer());
 
   const ezUInt32 uiSubStringBytes = (ezUInt32)(szEndPos - szStartPos);
 
   char* szWritePos = const_cast<char*>(szStartPos); // szStartPos points into our own data anyway
-  const char* szReadPos = szReplaceWith.GetData();
+  const char* szReadPos = szReplaceWith.GetStartPointer();
 
   // most simple case, just replace characters
   if (uiSubStringBytes == uiWordBytes)
@@ -381,7 +381,7 @@ void ezStringBuilder::ReplaceSubString(const char* szStartPos, const char* szEnd
     m_uiCharacterCount += uiWordChars;
 
     // first copy the replacement to the correct position
-    ezMemoryUtils::Copy(szWritePos, szReplaceWith.GetData(), uiWordBytes);
+    ezMemoryUtils::Copy(szWritePos, szReplaceWith.GetStartPointer(), uiWordBytes);
 
     const ezUInt32 uiDifference = uiSubStringBytes - uiWordBytes;
 
@@ -414,7 +414,7 @@ void ezStringBuilder::ReplaceSubString(const char* szStartPos, const char* szEnd
     ezMemoryUtils::CopyOverlapped(szWritePos + uiWordBytes, szWritePos + uiSubStringBytes, szStringEnd - (szWritePos + uiSubStringBytes));
 
     // now copy the replacement to the correct position
-    ezMemoryUtils::Copy(szWritePos, szReplaceWith.GetData(), uiWordBytes);
+    ezMemoryUtils::Copy(szWritePos, szReplaceWith.GetStartPointer(), uiWordBytes);
   }
 }
 
@@ -469,7 +469,7 @@ const char* ezStringBuilder::ReplaceLast(const char* szSearchFor, const ezString
 ezUInt32 ezStringBuilder::ReplaceAll(const char* szSearchFor, const ezStringView& szReplacement)
 {
   const ezUInt32 uiSearchBytes = ezStringUtils::GetStringElementCount(szSearchFor);
-  const ezUInt32 uiWordBytes = ezStringUtils::GetStringElementCount(szReplacement.GetData(), szReplacement.GetEndPosition());
+  const ezUInt32 uiWordBytes = ezStringUtils::GetStringElementCount(szReplacement.GetStartPointer(), szReplacement.GetEndPointer());
 
   ezUInt32 uiReplacements = 0;
   ezUInt32 uiOffset = 0;
@@ -546,7 +546,7 @@ const char* ezStringBuilder::ReplaceLast_NoCase(const char* szSearchFor, const e
 ezUInt32 ezStringBuilder::ReplaceAll_NoCase(const char* szSearchFor, const ezStringView& szReplacement)
 {
   const ezUInt32 uiSearchBytes = ezStringUtils::GetStringElementCount(szSearchFor);
-  const ezUInt32 uiWordBytes = ezStringUtils::GetStringElementCount(szReplacement.GetData(), szReplacement.GetEndPosition());
+  const ezUInt32 uiWordBytes = ezStringUtils::GetStringElementCount(szReplacement.GetStartPointer(), szReplacement.GetEndPointer());
 
   ezUInt32 uiReplacements = 0;
   ezUInt32 uiOffset = 0;
@@ -604,7 +604,7 @@ ezUInt32 ezStringBuilder::ReplaceWholeWordAll(const char* szSearchFor, const ezS
                                               ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB)
 {
   const ezUInt32 uiSearchBytes = ezStringUtils::GetStringElementCount(szSearchFor);
-  const ezUInt32 uiWordBytes = ezStringUtils::GetStringElementCount(szReplaceWith.GetData(), szReplaceWith.GetEndPosition());
+  const ezUInt32 uiWordBytes = ezStringUtils::GetStringElementCount(szReplaceWith.GetStartPointer(), szReplaceWith.GetEndPointer());
 
   ezUInt32 uiReplacements = 0;
   ezUInt32 uiOffset = 0;
@@ -634,7 +634,7 @@ ezUInt32 ezStringBuilder::ReplaceWholeWordAll_NoCase(const char* szSearchFor, co
                                                      ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB)
 {
   const ezUInt32 uiSearchBytes = ezStringUtils::GetStringElementCount(szSearchFor);
-  const ezUInt32 uiWordBytes = ezStringUtils::GetStringElementCount(szReplaceWith.GetData(), szReplaceWith.GetEndPosition());
+  const ezUInt32 uiWordBytes = ezStringUtils::GetStringElementCount(szReplaceWith.GetStartPointer(), szReplaceWith.GetEndPointer());
 
   ezUInt32 uiReplacements = 0;
   ezUInt32 uiOffset = 0;
@@ -665,7 +665,7 @@ void ezStringBuilder::operator=(const ezStringView& rhs)
   ezUInt32 uiBytes;
   ezUInt32 uiCharacters;
 
-  ezStringUtils::GetCharacterAndElementCount(rhs.GetData(), uiCharacters, uiBytes, rhs.GetEndPosition());
+  ezStringUtils::GetCharacterAndElementCount(rhs.GetStartPointer(), uiCharacters, uiBytes, rhs.GetEndPointer());
 
   // if we need more room, allocate up front (rhs cannot use our own data in this case)
   if (uiBytes + 1 > m_Data.GetCount())
@@ -675,7 +675,7 @@ void ezStringBuilder::operator=(const ezStringView& rhs)
   // if it comes from our own array, the data will always be a sub-set -> smaller than this array
   // in this case we defer the SetCount till later, to ensure that the data is not corrupted (destructed) before we copy it
   // however, when the new data is larger than the old, it cannot be from our own data, so we can (and must) reallocate before copying
-  ezMemoryUtils::CopyOverlapped(&m_Data[0], rhs.GetData(), uiBytes);
+  ezMemoryUtils::CopyOverlapped(&m_Data[0], rhs.GetStartPointer(), uiBytes);
 
   m_Data.SetCountUninitialized(uiBytes + 1);
   m_Data[uiBytes] = '\0';
@@ -842,14 +842,14 @@ void ezStringBuilder::ChangeFileName(const char* szNewFileName)
 {
   ezStringView it = ezPathUtils::GetFileName(GetData(), GetData() + m_Data.GetCount() - 1);
 
-  ReplaceSubString(it.GetData(), it.GetEndPosition(), szNewFileName);
+  ReplaceSubString(it.GetStartPointer(), it.GetEndPointer(), szNewFileName);
 }
 
 void ezStringBuilder::ChangeFileNameAndExtension(const char* szNewFileNameWithExtension)
 {
   ezStringView it = ezPathUtils::GetFileNameAndExtension(GetData(), GetData() + m_Data.GetCount() - 1);
 
-  ReplaceSubString(it.GetData(), it.GetEndPosition(), szNewFileNameWithExtension);
+  ReplaceSubString(it.GetStartPointer(), it.GetEndPointer(), szNewFileNameWithExtension);
 }
 
 void ezStringBuilder::ChangeFileExtension(const char* szNewExtension)
@@ -861,7 +861,7 @@ void ezStringBuilder::ChangeFileExtension(const char* szNewExtension)
   if (it.IsEmpty() && !EndsWith("."))
     Append(".", szNewExtension);
   else
-    ReplaceSubString(it.GetData(), it.GetEndPosition(), szNewExtension);
+    ReplaceSubString(it.GetStartPointer(), it.GetEndPointer(), szNewExtension);
 }
 
 void ezStringBuilder::RemoveFileExtension()

@@ -437,7 +437,7 @@ const char* ezFileSystem::ExtractRootName(const char* szPath, ezString& rootName
   rootName = sCur;
   ++it;
 
-  return it.GetData(); // return the string after the data-dir filter declaration
+  return it.GetStartPointer(); // return the string after the data-dir filter declaration
 }
 
 ezDataDirectoryReader* ezFileSystem::GetFileReader(const char* szFile, bool bAllowFileEvents)

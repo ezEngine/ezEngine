@@ -95,7 +95,7 @@ namespace
 
     auto& dataView = Tokens[uiCurToken]->m_DataView;
     if (Tokens[uiCurToken]->m_iType == ezTokenType::Identifier &&
-        ezStringUtils::IsValidIdentifierName(dataView.GetStartPosition(), dataView.GetEndPosition()))
+        ezStringUtils::IsValidIdentifierName(dataView.GetStartPointer(), dataView.GetEndPointer()))
     {
       // complex type constructor
       const ezRTTI* pType = nullptr;
@@ -272,7 +272,7 @@ namespace
         Accept(Tokens, uiCurToken, ezTokenType::Integer, &uiValueToken);
 
         ezInt32 iValue = 0;
-        if (ezConversionUtils::StringToInt(Tokens[uiValueToken]->m_DataView.GetData(), iValue).Succeeded() && iValue >= 0)
+        if (ezConversionUtils::StringToInt(Tokens[uiValueToken]->m_DataView.GetStartPointer(), iValue).Succeeded() && iValue >= 0)
         {
           uiCurrentValue = iValue;
         }
@@ -350,7 +350,7 @@ void ezShaderParser::ParseMaterialParameterSection(
   ezStringView s = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::MATERIALPARAMETER, uiFirstLine);
 
   ezTokenizer tokenizer;
-  tokenizer.Tokenize(ezArrayPtr<const ezUInt8>((const ezUInt8*)s.GetData(), s.GetElementCount()), ezLog::GetThreadLocalLogSystem());
+  tokenizer.Tokenize(ezArrayPtr<const ezUInt8>((const ezUInt8*)s.GetStartPointer(), s.GetElementCount()), ezLog::GetThreadLocalLogSystem());
 
   TokenStream tokens;
   tokenizer.GetAllLines(tokens);
@@ -401,7 +401,7 @@ void ezShaderParser::ParsePermutationSection(
   out_FixedPermVars.Clear();
 
   ezTokenizer tokenizer;
-  tokenizer.Tokenize(ezArrayPtr<const ezUInt8>((const ezUInt8*)s.GetData(), s.GetElementCount()), ezLog::GetThreadLocalLogSystem());
+  tokenizer.Tokenize(ezArrayPtr<const ezUInt8>((const ezUInt8*)s.GetStartPointer(), s.GetElementCount()), ezLog::GetThreadLocalLogSystem());
 
   enum class State
   {
@@ -497,7 +497,7 @@ void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_De
   else if (s.StartsWith("enum"))
   {
     ezTokenizer tokenizer;
-    tokenizer.Tokenize(ezArrayPtr<const ezUInt8>((const ezUInt8*)s.GetData(), s.GetElementCount()), ezLog::GetThreadLocalLogSystem());
+    tokenizer.Tokenize(ezArrayPtr<const ezUInt8>((const ezUInt8*)s.GetStartPointer(), s.GetElementCount()), ezLog::GetThreadLocalLogSystem());
 
     TokenStream tokens;
     tokenizer.GetAllLines(tokens);

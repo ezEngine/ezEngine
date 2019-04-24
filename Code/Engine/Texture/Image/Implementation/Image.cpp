@@ -60,9 +60,9 @@ ezResult ezImageView::SaveTo(const char* szFileName, ezLogInterface* pLog) const
 
   ezStringView it = ezPathUtils::GetFileExtension(szFileName);
 
-  if (ezImageFileFormat* pFormat = ezImageFileFormat::GetWriterFormat(it.GetData()))
+  if (ezImageFileFormat* pFormat = ezImageFileFormat::GetWriterFormat(it.GetStartPointer()))
   {
-    if (pFormat->WriteImage(writer, *this, pLog, it.GetData()) != EZ_SUCCESS)
+    if (pFormat->WriteImage(writer, *this, pLog, it.GetStartPointer()) != EZ_SUCCESS)
     {
       ezLog::Error(pLog, "Failed to write image file '{0}'", szFileName);
       return EZ_FAILURE;
@@ -257,9 +257,9 @@ ezResult ezImage::LoadFrom(const char* szFileName, ezLogInterface* pLog)
 
   ezStringView it = ezPathUtils::GetFileExtension(szFileName);
 
-  if (ezImageFileFormat* pFormat = ezImageFileFormat::GetReaderFormat(it.GetData()))
+  if (ezImageFileFormat* pFormat = ezImageFileFormat::GetReaderFormat(it.GetStartPointer()))
   {
-      if (pFormat->ReadImage(reader, *this, pLog, it.GetData()) != EZ_SUCCESS)
+      if (pFormat->ReadImage(reader, *this, pLog, it.GetStartPointer()) != EZ_SUCCESS)
       {
         ezLog::Warning(pLog, "Failed to read image file '{0}'", szFileName);
         return EZ_FAILURE;

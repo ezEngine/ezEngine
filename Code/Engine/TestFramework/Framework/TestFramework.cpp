@@ -120,6 +120,10 @@ void ezTestFramework::Initialize()
 void ezTestFramework::DeInitialize()
 {
   m_bIsInitialized = false;
+
+  ezSetAssertHandler(m_PreviousAssertHandler);
+  m_PreviousAssertHandler = nullptr;
+
 }
 
 const char* ezTestFramework::GetTestName() const
@@ -610,9 +614,6 @@ void ezTestFramework::ExecuteNextTest()
 
 void ezTestFramework::EndTests()
 {
-  ezSetAssertHandler(m_PreviousAssertHandler);
-  m_PreviousAssertHandler = nullptr;
-
   m_bTestsRunning = false;
   if (GetTestsFailedCount() == 0)
     ezTestFramework::Output(ezTestOutput::FinalResult, "All tests passed.");

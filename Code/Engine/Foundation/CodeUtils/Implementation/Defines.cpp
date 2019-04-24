@@ -174,7 +174,7 @@ ezResult ezPreprocessor::AddCustomDefine(const char* szDefinition)
     NewTokens[t].m_uiLine = m_CustomDefines.GetCount();
     NewTokens[t].m_uiColumn = uiColumn;
 
-    uiColumn += ezStringUtils::GetCharacterCount(NewTokens[t].m_DataView.GetData());
+    uiColumn += ezStringUtils::GetCharacterCount(NewTokens[t].m_DataView.GetStartPointer(), NewTokens[t].m_DataView.GetEndPointer());
   }
 
   ezUInt32 uiCurToken = 0;

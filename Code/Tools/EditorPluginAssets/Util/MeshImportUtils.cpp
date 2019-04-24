@@ -23,7 +23,7 @@ namespace ezMeshImportUtils
     ezPathUtils::MakeValidFilename(textureNameTemp, '_', textureName);
 
     ezStringBuilder newAssetPathAbs = szImportTargetFolder;
-    newAssetPathAbs.AppendPath(ezStringBuilder(szTexturePath).GetFileName().GetData());
+    newAssetPathAbs.AppendPath(ezStringBuilder(szTexturePath).GetFileNameAndExtension().GetStartPointer());
     newAssetPathAbs.ChangeFileExtension("ezTextureAsset");
 
     // Try to resolve.

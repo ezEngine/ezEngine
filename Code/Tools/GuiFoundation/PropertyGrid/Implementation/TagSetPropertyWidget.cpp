@@ -103,13 +103,15 @@ void ezQtPropertyEditorTagSetWidget::OnInit()
     m_pMenu->addAction(pAction);
   }
 
+  ezStringBuilder tmp;
+
   // if a tag category is empty, it will never show up in the menu, thus the user doesn't know the name of the valid category
   // therefore, for every empty category, add an entry
   for (const auto& catname : categories)
   {
     /*QAction* pCategory = */ m_pMenu->addSection(
         ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"),
-        QLatin1String("[") + QString(catname.GetData()) + QLatin1String("]"));
+        QLatin1String("[") + QString(catname.GetData(tmp)) + QLatin1String("]"));
   }
 }
 

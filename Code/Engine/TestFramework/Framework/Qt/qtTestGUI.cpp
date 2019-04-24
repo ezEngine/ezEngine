@@ -165,8 +165,9 @@ void ezQtTestGUI::on_actionShowMessageBox_triggered(bool bChecked)
 
 void ezQtTestGUI::on_actionSaveTestSettingsAs_triggered()
 {
+  ezStringBuilder tmp;
   ezStringView defaultDir = ezPathUtils::GetFileDirectory(m_pTestFramework->GetAbsTestSettingsFilePath());
-  QString dir = defaultDir.IsValid() ? defaultDir.GetData() : QString();
+  QString dir = defaultDir.IsValid() ? defaultDir.GetData(tmp) : QString();
   QString sSavePath = QFileDialog::getSaveFileName(this, QLatin1String("Save Test Settings As"), dir);
   if (!sSavePath.isEmpty())
   {

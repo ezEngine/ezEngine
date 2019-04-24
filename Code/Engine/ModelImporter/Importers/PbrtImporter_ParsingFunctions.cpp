@@ -34,19 +34,19 @@ namespace ezModelImporter
     {
       SkipWhiteSpaces(remainingSceneText);
 
-      const char* begin = remainingSceneText.GetData();
+      const char* begin = remainingSceneText.GetStartPointer();
       while (remainingSceneText.GetCharacter() != '\0' && remainingSceneText.GetCharacter() != '\r' &&
              remainingSceneText.GetCharacter() != '\n' && !ezStringUtils::IsWhiteSpace(remainingSceneText.GetCharacter()))
       {
         ++remainingSceneText;
       }
 
-      ezStringView commandName = ezStringView(begin, remainingSceneText.GetData());
+      ezStringView commandName = ezStringView(begin, remainingSceneText.GetStartPointer());
 
       SkipWhiteSpaces(remainingSceneText);
 
       // Manipulates the data source. This is semantically a bad thing to do, but the this const_cast saves us a lot of string copying.
-      ezStringUtils::ToLowerString(const_cast<char*>(commandName.GetData()), commandName.GetEndPosition());
+      ezStringUtils::ToLowerString(const_cast<char*>(commandName.GetStartPointer()), commandName.GetEndPointer());
 
       return commandName;
     }
@@ -59,13 +59,13 @@ namespace ezModelImporter
         return nullptr;
 
       ++remainingSceneText;
-      const char* begin = remainingSceneText.GetData();
+      const char* begin = remainingSceneText.GetStartPointer();
       while (remainingSceneText.GetCharacter() != '\0' && remainingSceneText.GetCharacter() != blockEnd)
       {
         ++remainingSceneText;
       }
 
-      const char* end = remainingSceneText.GetData();
+      const char* end = remainingSceneText.GetStartPointer();
 
       if (remainingSceneText.GetCharacter() == blockEnd)
         ++remainingSceneText;
@@ -75,26 +75,26 @@ namespace ezModelImporter
 
     ParamType GetParamType(const ezStringView& type)
     {
-      ezUInt32 stringLen = static_cast<ezUInt32>(type.GetEndPosition() - type.GetStartPosition());
+      ezUInt32 stringLen = static_cast<ezUInt32>(type.GetEndPointer() - type.GetStartPointer());
 
-      if (ezStringUtils::IsEqualN_NoCase(type.GetData(), "float", stringLen, type.GetEndPosition()))
+      if (ezStringUtils::IsEqualN_NoCase(type.GetStartPointer(), "float", stringLen, type.GetEndPointer()))
         return ParamType::FLOAT;
-      else if (ezStringUtils::IsEqualN_NoCase(type.GetData(), "string", stringLen, type.GetEndPosition()))
+      else if (ezStringUtils::IsEqualN_NoCase(type.GetStartPointer(), "string", stringLen, type.GetEndPointer()))
         return ParamType::STRING;
-      else if (ezStringUtils::IsEqualN_NoCase(type.GetData(), "spectrum", stringLen, type.GetEndPosition()))
+      else if (ezStringUtils::IsEqualN_NoCase(type.GetStartPointer(), "spectrum", stringLen, type.GetEndPointer()))
         return ParamType::SPECTRUM;
-      else if (ezStringUtils::IsEqualN_NoCase(type.GetData(), "texture", stringLen, type.GetEndPosition()))
+      else if (ezStringUtils::IsEqualN_NoCase(type.GetStartPointer(), "texture", stringLen, type.GetEndPointer()))
         return ParamType::TEXTURE;
-      else if (ezStringUtils::IsEqualN_NoCase(type.GetData(), "integer", stringLen, type.GetEndPosition()))
+      else if (ezStringUtils::IsEqualN_NoCase(type.GetStartPointer(), "integer", stringLen, type.GetEndPointer()))
         return ParamType::INT;
-      else if (ezStringUtils::IsEqualN_NoCase(type.GetData(), "point", stringLen, type.GetEndPosition()) ||
-               ezStringUtils::IsEqualN_NoCase(type.GetData(), "normal", stringLen, type.GetEndPosition()) ||
-               ezStringUtils::IsEqualN_NoCase(type.GetData(), "vector", stringLen, type.GetEndPosition()))
+      else if (ezStringUtils::IsEqualN_NoCase(type.GetStartPointer(), "point", stringLen, type.GetEndPointer()) ||
+               ezStringUtils::IsEqualN_NoCase(type.GetStartPointer(), "normal", stringLen, type.GetEndPointer()) ||
+               ezStringUtils::IsEqualN_NoCase(type.GetStartPointer(), "vector", stringLen, type.GetEndPointer()))
         return ParamType::VECTOR3;
-      else if (ezStringUtils::IsEqualN_NoCase(type.GetData(), "rgb", stringLen, type.GetEndPosition()) ||
-               ezStringUtils::IsEqualN_NoCase(type.GetData(), "color", stringLen, type.GetEndPosition()))
+      else if (ezStringUtils::IsEqualN_NoCase(type.GetStartPointer(), "rgb", stringLen, type.GetEndPointer()) ||
+               ezStringUtils::IsEqualN_NoCase(type.GetStartPointer(), "color", stringLen, type.GetEndPointer()))
         return ParamType::COLOR;
-      else if (ezStringUtils::IsEqualN_NoCase(type.GetData(), "bool", stringLen, type.GetEndPosition()))
+      else if (ezStringUtils::IsEqualN_NoCase(type.GetStartPointer(), "bool", stringLen, type.GetEndPointer()))
         return ParamType::BOOL;
       else
         return ParamType::INVALID;
@@ -104,7 +104,7 @@ namespace ezModelImporter
     {
       double x, y, z;
       const char* newStartPos;
-      if (ezConversionUtils::StringToFloat(params.GetData(), x, &newStartPos).Failed() ||
+      if (ezConversionUtils::StringToFloat(params.GetStartPointer(), x, &newStartPos).Failed() ||
           ezConversionUtils::StringToFloat(newStartPos, y, &newStartPos).Failed() ||
           ezConversionUtils::StringToFloat(newStartPos, z, &newStartPos).Failed())
         return EZ_FAILURE;
@@ -118,7 +118,7 @@ namespace ezModelImporter
 
     ezResult ParseFloats(ezStringView& params, ezArrayPtr<float> outFloats, int numExpectedFloats)
     {
-      const char* startPos = params.GetStartPosition();
+      const char* startPos = params.GetStartPointer();
       for (int i = 0; i < numExpectedFloats; ++i)
       {
         SkipWhiteSpaces(params);
@@ -152,11 +152,11 @@ namespace ezModelImporter
           // No brackets, so it still can be a single value delimited by newline or whitespace.
           SkipWhiteSpaces(remainingSceneText);
 
-          const char* begin = remainingSceneText.GetStartPosition();
-          while (!ezStringUtils::IsWhiteSpace(*remainingSceneText.GetStartPosition()))
+          const char* begin = remainingSceneText.GetStartPointer();
+          while (!ezStringUtils::IsWhiteSpace(*remainingSceneText.GetStartPointer()))
             ++remainingSceneText;
 
-          params = ezStringView(begin, remainingSceneText.GetStartPosition());
+          params = ezStringView(begin, remainingSceneText.GetStartPointer());
         }
         SkipWhiteSpaces(params);
       }
@@ -174,7 +174,7 @@ namespace ezModelImporter
         }
         params = ezStringView(start, end);
 
-        if (remainingSceneText.GetStartPosition() < end + 1)
+        if (remainingSceneText.GetStartPointer() < end + 1)
           remainingSceneText.SetStartPosition(end + 1);
       }
 
@@ -188,8 +188,8 @@ namespace ezModelImporter
           case ParamType::FLOAT:
           {
             double d = 0;
-            const char* newStartPos = params.GetData();
-            if (ezConversionUtils::StringToFloat(params.GetData(), d, &newStartPos).Failed())
+            const char* newStartPos = params.GetStartPointer();
+            if (ezConversionUtils::StringToFloat(params.GetStartPointer(), d, &newStartPos).Failed())
               stopParsing = true;
             else
               entries.PushBack(static_cast<float>(d));
@@ -199,8 +199,8 @@ namespace ezModelImporter
           case ParamType::INT:
           {
             ezInt32 i = 0;
-            const char* newStartPos = params.GetData();
-            if (ezConversionUtils::StringToInt(params.GetData(), i, &newStartPos).Failed())
+            const char* newStartPos = params.GetStartPointer();
+            if (ezConversionUtils::StringToInt(params.GetStartPointer(), i, &newStartPos).Failed())
               stopParsing = true;
             else
               entries.PushBack(i);
@@ -243,7 +243,7 @@ namespace ezModelImporter
             else
               entries.PushBack(false);
             const char* next = params.FindSubString(" ");
-            params.SetStartPosition(next ? next : params.GetEndPosition());
+            params.SetStartPosition(next ? next : params.GetEndPointer());
             break;
           }
 

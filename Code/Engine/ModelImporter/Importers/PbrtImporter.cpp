@@ -154,7 +154,7 @@ namespace ezModelImporter
           }
           else
           {
-            ezStringView paramTypeString(parameterDesc.GetData(), separatorPos);
+            ezStringView paramTypeString(parameterDesc.GetStartPointer(), separatorPos);
             ParamType paramType = PbrtParseHelper::GetParamType(paramTypeString);
             if (paramType == ParamType::INVALID)
             {
@@ -165,7 +165,7 @@ namespace ezModelImporter
             }
 
             parameter.type = paramType;
-            parameter.name = ezStringView(separatorPos + 1, parameterDesc.GetEndPosition());
+            parameter.name = ezStringView(separatorPos + 1, parameterDesc.GetEndPointer());
             parameter.data = PbrtParseHelper::ParseParameterBlock(paramType, remainingSceneText);
           }
 

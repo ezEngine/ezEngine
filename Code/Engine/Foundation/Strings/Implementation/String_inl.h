@@ -130,11 +130,11 @@ void ezHybridStringBase<Size>::operator=(const wchar_t* szString)
 template <ezUInt16 Size>
 void ezHybridStringBase<Size>::operator=(const ezStringView& rhs)
 {
-  EZ_ASSERT_DEBUG(rhs.GetData() < m_Data.GetData() || rhs.GetData() >= m_Data.GetData() + m_Data.GetCount(),
+  EZ_ASSERT_DEBUG(rhs.GetStartPointer() < m_Data.GetData() || rhs.GetStartPointer() >= m_Data.GetData() + m_Data.GetCount(),
                   "Can't assign string a value that points to ourself!");
 
   m_Data.SetCountUninitialized(rhs.GetElementCount() + 1);
-  ezStringUtils::Copy(&m_Data[0], m_Data.GetCount(), rhs.GetData(), rhs.GetEndPosition());
+  ezStringUtils::Copy(&m_Data[0], m_Data.GetCount(), rhs.GetStartPointer(), rhs.GetEndPointer());
   m_uiCharacterCount = ezStringUtils::GetCharacterCount(GetData());
 }
 

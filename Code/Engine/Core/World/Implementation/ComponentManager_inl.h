@@ -203,7 +203,7 @@ void ezComponentManagerSimple<ComponentType, UpdateType, StorageType>::SimpleUpd
 
   if (szEnd != nullptr && sName.StartsWith("ezComponentManagerSimple<class "))
   {
-    ezStringView sChoppedName(sName.GetData() + ezStringUtils::GetStringElementCount("ezComponentManagerSimple<class "), szEnd);
+    ezStringView sChoppedName(sName.GetStartPointer() + ezStringUtils::GetStringElementCount("ezComponentManagerSimple<class "), szEnd);
 
     EZ_ASSERT_DEV(!sChoppedName.IsEmpty(), "Chopped name is empty: '{0}'", sName);
 

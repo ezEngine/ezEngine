@@ -50,9 +50,9 @@ ezResult ezPropertyPath::InitializeFromPath(const ezRTTI& rootObjectRtti, const 
     {
       const char* szBracket = part.FindSubString("[");
 
-      sIndex.SetSubString_FromTo(szBracket + 1, part.GetEndPosition() - 1);
+      sIndex.SetSubString_FromTo(szBracket + 1, part.GetEndPointer() - 1);
 
-      sFieldName.SetSubString_FromTo(part.GetStartPosition(), szBracket);
+      sFieldName.SetSubString_FromTo(part.GetStartPointer(), szBracket);
     }
     else
     {
