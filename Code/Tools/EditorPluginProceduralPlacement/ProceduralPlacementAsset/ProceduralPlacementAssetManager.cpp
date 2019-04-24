@@ -46,7 +46,8 @@ void ezProceduralPlacementAssetDocumentManager::OnDocumentManagerEvent(const ezD
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezProceduralPlacementAssetDocument>())
       {
-        ezProceduralPlacementAssetDocumentWindow* pDocWnd = new ezProceduralPlacementAssetDocumentWindow(e.m_pDocument);
+        ezProceduralPlacementAssetDocumentWindow* pDocWnd =
+          new ezProceduralPlacementAssetDocumentWindow(static_cast<ezProceduralPlacementAssetDocument*>(e.m_pDocument));
       }
     }
     break;

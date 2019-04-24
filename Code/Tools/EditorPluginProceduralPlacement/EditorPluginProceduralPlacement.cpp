@@ -17,6 +17,7 @@ static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 void OnLoadPlugin(bool bReloading)
 {
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginProceduralPlacement", "ezProceduralPlacementPlugin");
+  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginProceduralPlacement", "ezEnginePluginProceduralPlacement");
 
   // ezToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
 

@@ -231,7 +231,7 @@ namespace
     return EZ_SUCCESS;
   }
 
-  ezResult ParseEnum(const TokenStream& Tokens, ezUInt32& uiCurToken, ezShaderParser::EnumDefinition& out_EnumDefinition)
+  ezResult ParseEnum(const TokenStream& Tokens, ezUInt32& uiCurToken, ezShaderParser::EnumDefinition& out_EnumDefinition, bool bCheckPrefix)
   {
     if (!Accept(Tokens, uiCurToken, "enum"))
     {
@@ -287,7 +287,7 @@ namespace
         uiDefaultValue = uiCurrentValue;
       }
 
-      if (!sValueName.StartsWith(sEnumPrefix))
+      if (bCheckPrefix && !sValueName.StartsWith(sEnumPrefix))
       {
         ezLog::Error("Enum value does not start with the expected enum name as prefix: '{0}'", sEnumPrefix);
       }
@@ -360,7 +360,7 @@ void ezShaderParser::ParseMaterialParameterSection(
   while (!Accept(tokens, uiCurToken, ezTokenType::EndOfFile))
   {
     EnumDefinition enumDef;
-    if (ParseEnum(tokens, uiCurToken, enumDef).Succeeded())
+    if (ParseEnum(tokens, uiCurToken, enumDef, false).Succeeded())
     {
       out_EnumDefinitions.PushBack(std::move(enumDef));
       continue;
@@ -503,7 +503,7 @@ void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_De
     tokenizer.GetAllLines(tokens);
 
     ezUInt32 uiCurToken = 0;
-    ParseEnum(tokens, uiCurToken, out_EnumDefinition);
+    ParseEnum(tokens, uiCurToken, out_EnumDefinition, true);
 
     out_DefaultValue = out_EnumDefinition.m_uiDefaultValue;
   }

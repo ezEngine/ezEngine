@@ -1,27 +1,34 @@
 #pragma once
 
-#include <Foundation/Basics.h>
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
+
+class ezProceduralPlacementAssetDocument;
 
 class ezQtNodeScene;
 class ezQtNodeView;
 
-class ezProceduralPlacementAssetDocumentWindow : public ezQtDocumentWindow
+class ezProceduralPlacementAssetDocumentWindow : public ezQtEngineDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezProceduralPlacementAssetDocumentWindow(ezDocument* pDocument);
+  ezProceduralPlacementAssetDocumentWindow(ezProceduralPlacementAssetDocument* pDocument);
   ~ezProceduralPlacementAssetDocumentWindow();
 
-  virtual const char* GetGroupName() const { return "ProceduralPlacementAsset"; }
+  ezProceduralPlacementAssetDocument* GetProceduralPlacementDocument();
+
   virtual const char* GetWindowLayoutGroupName() const override { return "ProceduralPlacementAsset"; }
 
-  private Q_SLOTS:
+private Q_SLOTS:
 
 
 private:
+  void UpdatePreview();
+  void RestoreResource();
+
+  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+
   ezQtNodeScene* m_pScene;
   ezQtNodeView* m_pView;
 };

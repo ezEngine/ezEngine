@@ -1,5 +1,6 @@
 #include <EditorPluginProceduralPlacementPCH.h>
 
+#include <Core/Assets/AssetFileHeader.h>
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementAsset.h>
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementAssetWindow.moc.h>
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementGraphQt.h>
@@ -10,12 +11,13 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <QLabel>
 #include <QLayout>
+#include <SharedPluginAssets/Common/Messages.h>
 
-ezProceduralPlacementAssetDocumentWindow::ezProceduralPlacementAssetDocumentWindow(ezDocument* pDocument)
-  : ezQtDocumentWindow(pDocument)
+ezProceduralPlacementAssetDocumentWindow::ezProceduralPlacementAssetDocumentWindow(ezProceduralPlacementAssetDocument* pDocument)
+  : ezQtEngineDocumentWindow(pDocument)
 {
-  // GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezProceduralPlacementAssetDocumentWindow::PropertyEventHandler,
-  // this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(
+    ezMakeDelegate(&ezProceduralPlacementAssetDocumentWindow::PropertyEventHandler, this));
 
   // Menu Bar
   {
@@ -57,11 +59,60 @@ ezProceduralPlacementAssetDocumentWindow::ezProceduralPlacementAssetDocumentWind
   m_pView->SetScene(m_pScene);
   setCentralWidget(m_pView);
 
+  UpdatePreview();
+
   FinishWindowCreation();
 }
 
 ezProceduralPlacementAssetDocumentWindow::~ezProceduralPlacementAssetDocumentWindow()
 {
-  // GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezProceduralPlacementAssetDocumentWindow::PropertyEventHandler,
-  // this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(
+    ezMakeDelegate(&ezProceduralPlacementAssetDocumentWindow::PropertyEventHandler, this));
+
+  RestoreResource();
+}
+
+ezProceduralPlacementAssetDocument* ezProceduralPlacementAssetDocumentWindow::GetProceduralPlacementDocument()
+{
+  return static_cast<ezProceduralPlacementAssetDocument*>(GetDocument());
+}
+
+void ezProceduralPlacementAssetDocumentWindow::UpdatePreview()
+{
+  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+    return;
+
+  ezEditorEngineResourceUpdateMsg msg;
+  msg.m_sResourceType = "ProceduralPlacement";
+
+  ezMemoryStreamStorage streamStorage;
+  ezMemoryStreamWriter memoryWriter(&streamStorage);
+
+  // Write Path
+  ezStringBuilder sAbsFilePath = GetDocument()->GetDocumentPath();
+  sAbsFilePath.ChangeFileExtension("ezProceduralPlacement");
+  // Write Header
+  memoryWriter << sAbsFilePath;
+  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(GetDocument()->GetGuid());
+  ezAssetFileHeader AssetHeader;
+  AssetHeader.SetFileHashAndVersion(uiHash, GetProceduralPlacementDocument()->GetAssetTypeVersion());
+  AssetHeader.Write(memoryWriter);
+  // Write Asset Data
+  if (GetProceduralPlacementDocument()->WriteAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile()).Succeeded())
+  {
+    msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize());
+
+    GetEditorEngineConnection()->SendMessage(&msg);
+  }
+}
+
+void ezProceduralPlacementAssetDocumentWindow::RestoreResource()
+{
+  ezEditorEngineRestoreResourceMsg msg;
+  GetEditorEngineConnection()->SendMessage(&msg);
+}
+
+void ezProceduralPlacementAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+{
+  UpdatePreview();
 }

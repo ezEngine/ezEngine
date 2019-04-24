@@ -35,13 +35,18 @@ namespace
       ezLog::Error("Failed to dump AST to: {0}", sFileName);
     }
   }
+
+  static const char* s_szSphereAssetId = "{ a3ce5d3d-be5e-4bda-8820-b1ce3b3d33fd }"; // Base/Prefabs/Sphere.ezPrefab
+  static const char* s_szBWGradientAssetId =
+    "{ 3834b7d0-5a3f-140d-31d8-3a2bf48b09bd }"; // Base/Textures/BlackWhiteGradient.ezColorGradientAsset
+
 } // namespace
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementAssetDocument, 2, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezProceduralPlacementAssetDocument::ezProceduralPlacementAssetDocument(const char* szDocumentPath)
-  : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezProceduralPlacementNodeManager), false, false)
+  : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezProceduralPlacementNodeManager), true, false)
 {
 }
 
@@ -53,35 +58,17 @@ void ezProceduralPlacementAssetDocument::SetDebugPin(const ezPin* pDebugPin)
   {
     CreateDebugNode();
   }
+
+  ezDocumentObjectPropertyEvent e;
+  e.m_EventType = ezDocumentObjectPropertyEvent::Type::PropertySet;
+  e.m_sProperty = "DebugPin";
+
+  GetObjectManager()->m_PropertyEvents.Broadcast(e);
 }
 
-void ezProceduralPlacementAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+ezStatus ezProceduralPlacementAssetDocument::WriteAsset(ezStreamWriter& stream, const ezPlatformProfile* pAssetProfile) const
 {
-  SUPER::UpdateAssetDocumentInfo(pInfo);
-
-  ezDynamicArray<const ezDocumentObject*> outputNodes;
-  GetAllOutputNodes(outputNodes);
-
-  for (auto pOutputNode : outputNodes)
-  {
-    auto& typeAccessor = pOutputNode->GetTypeAccessor();
-
-    ezUInt32 uiNumObjects = typeAccessor.GetCount("Objects");
-    for (ezUInt32 i = 0; i < uiNumObjects; ++i)
-    {
-      ezVariant prefab = typeAccessor.GetValue("Objects", i);
-      if (prefab.IsA<ezString>())
-      {
-        pInfo->m_RuntimeDependencies.Insert(prefab.Get<ezString>());
-      }
-    }
-  }
-}
-
-ezStatus ezProceduralPlacementAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
-  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
-{
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
+  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
 
   ezAbstractObjectGraph graph;
   ezDocumentObjectConverterWriter objectWriter(&graph, pManager);
@@ -192,6 +179,51 @@ ezStatus ezProceduralPlacementAssetDocument::InternalTransformAsset(ezStreamWrit
   }
 
   return ezStatus(EZ_SUCCESS);
+}
+
+void ezProceduralPlacementAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+{
+  SUPER::UpdateAssetDocumentInfo(pInfo);
+
+  if (m_pDebugPin == nullptr)
+  {
+    ezDynamicArray<const ezDocumentObject*> outputNodes;
+    GetAllOutputNodes(outputNodes);
+
+    for (auto pOutputNode : outputNodes)
+    {
+      auto& typeAccessor = pOutputNode->GetTypeAccessor();
+
+      ezUInt32 uiNumObjects = typeAccessor.GetCount("Objects");
+      for (ezUInt32 i = 0; i < uiNumObjects; ++i)
+      {
+        ezVariant prefab = typeAccessor.GetValue("Objects", i);
+        if (prefab.IsA<ezString>())
+        {
+          pInfo->m_RuntimeDependencies.Insert(prefab.Get<ezString>());
+        }
+      }
+
+      ezVariant colorGradient = typeAccessor.GetValue("ColorGradient");
+      if (colorGradient.IsA<ezString>())
+      {
+        pInfo->m_RuntimeDependencies.Insert(colorGradient.Get<ezString>());
+      }
+    }
+  }
+  else
+  {
+    pInfo->m_RuntimeDependencies.Insert(s_szSphereAssetId);
+    pInfo->m_RuntimeDependencies.Insert(s_szBWGradientAssetId);
+  }
+}
+
+ezStatus ezProceduralPlacementAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
+  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+{
+  EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szOutputTag), "Additional output '{0}' not implemented!", szOutputTag);
+
+  return WriteAsset(stream, pAssetProfile);
 }
 
 void ezProceduralPlacementAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
@@ -463,6 +495,6 @@ void ezProceduralPlacementAssetDocument::CreateDebugNode()
 
   m_pDebugNode = EZ_DEFAULT_NEW(ezProceduralPlacementLayerOutput);
   m_pDebugNode->m_sName = "Debug";
-  m_pDebugNode->m_ObjectsToPlace.PushBack("{ a3ce5d3d-be5e-4bda-8820-b1ce3b3d33fd }"); // Base/Prefabs/Sphere.ezPrefab
-  m_pDebugNode->m_sColorGradient = "{ 3834b7d0-5a3f-140d-31d8-3a2bf48b09bd }"; // Base/Textures/BlackWhiteGradient.ezColorGradientAsset
+  m_pDebugNode->m_ObjectsToPlace.PushBack(s_szSphereAssetId);
+  m_pDebugNode->m_sColorGradient = s_szBWGradientAssetId;
 }

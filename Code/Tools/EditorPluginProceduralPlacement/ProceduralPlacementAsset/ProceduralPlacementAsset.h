@@ -21,6 +21,8 @@ public:
 
   void SetDebugPin(const ezPin* pDebugPin);
 
+  ezStatus WriteAsset(ezStreamWriter& stream, const ezPlatformProfile* pAssetProfile) const;
+
 protected:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
