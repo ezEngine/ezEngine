@@ -467,7 +467,7 @@ class EZ_FOUNDATION_DLL ezTransformManipulatorAttribute : public ezManipulatorAt
 
 public:
   ezTransformManipulatorAttribute();
-  ezTransformManipulatorAttribute(const char* szTranslateProperty, const char* szRotateProperty, const char* szScaleProperty);
+  ezTransformManipulatorAttribute(const char* szTranslateProperty, const char* szRotateProperty = nullptr, const char* szScaleProperty = nullptr);
 
   const ezUntrackedString& GetTranslateProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetRotateProperty() const { return m_sProperty2; }

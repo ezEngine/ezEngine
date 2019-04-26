@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ProceduralPlacementPlugin/Resources/ProceduralPlacementResource.h>
 #include <Core/World/World.h>
@@ -99,6 +99,16 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
+struct ezBoxWithFadeOut
+{
+  ezVec3 m_vPosition;
+  ezQuat m_Rotation;
+  ezVec3 m_vExtents;
+  ezVec3 m_vFadeOutRange;
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCEDURALPLACEMENTPLUGIN_DLL, ezBoxWithFadeOut);
+
 class EZ_PROCEDURALPLACEMENTPLUGIN_DLL ezProceduralPlacementComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezProceduralPlacementComponent, ezComponent, ezProceduralPlacementComponentManager);
@@ -129,4 +139,6 @@ private:
 
   ezProceduralPlacementResourceHandle m_hResource;
   ezVec3 m_vExtents;
+
+  ezDynamicArray<ezBoxWithFadeOut> m_Boxes;
 };
