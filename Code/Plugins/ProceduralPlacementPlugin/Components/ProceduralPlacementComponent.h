@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ProceduralPlacementPlugin/Resources/ProceduralPlacementResource.h>
 #include <Core/World/World.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <ProceduralPlacementPlugin/Resources/ProceduralPlacementResource.h>
 
 class ezProceduralPlacementComponent;
 struct ezMsgUpdateLocalBounds;
@@ -10,7 +10,8 @@ struct ezMsgExtractRenderData;
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_PROCEDURALPLACEMENTPLUGIN_DLL ezProceduralPlacementComponentManager : public ezComponentManager<ezProceduralPlacementComponent, ezBlockStorageType::Compact>
+class EZ_PROCEDURALPLACEMENTPLUGIN_DLL ezProceduralPlacementComponentManager
+  : public ezComponentManager<ezProceduralPlacementComponent, ezBlockStorageType::Compact>
 {
 public:
   ezProceduralPlacementComponentManager(ezWorld* pWorld);
@@ -35,47 +36,23 @@ private:
   void DeallocatePlacementTask(ezUInt32 uiPlacementTaskIndex);
   ezUInt32 GetNumAllocatedPlacementTasks() const;
 
-  void RemoveTilesForResource(ezUInt32 uiResourceIdHash, bool* out_bAnyObjectsRemoved = nullptr);
+  void RemoveTilesForComponent(ezProceduralPlacementComponent* pComponent, bool* out_bAnyObjectsRemoved = nullptr);
   void OnResourceEvent(const ezResourceEvent& resourceEvent);
 
-  void AddVisibleResource(const ezProceduralPlacementResourceHandle& hResource, const ezVec3& cameraPosition, const ezVec3& cameraDirection) const;
-  void ClearVisibleResources();
+  void AddVisibleComponent(const ezComponentHandle& hComponent, const ezVec3& cameraPosition, const ezVec3& cameraDirection) const;
+  void ClearVisibleComponents();
 
-  struct VisibleResource
+  struct VisibleComponent
   {
-    ezProceduralPlacementResourceHandle m_hResource;
+    ezComponentHandle m_hComponent;
     ezVec3 m_vCameraPosition;
     ezVec3 m_vCameraDirection;
   };
 
-  mutable ezMutex m_VisibleResourcesMutex;
-  mutable ezDynamicArray<VisibleResource> m_VisibleResources;
+  mutable ezMutex m_VisibleComponentsMutex;
+  mutable ezDynamicArray<VisibleComponent> m_VisibleComponents;
 
-  ezDynamicArray<ezProceduralPlacementResourceHandle> m_ResourcesToUpdate;
-
-  struct ActiveLayer
-  {
-    ezSharedPtr<const ezPPInternal::Layer> m_pLayer;
-
-    ezHashTable<ezUInt64, ezUInt32> m_TileIndices;
-  };
-
-  struct ActiveResource
-  {
-    struct Bounds
-    {
-      EZ_DECLARE_POD_TYPE();
-
-      ezSimdBBox m_GlobalBoundingBox;
-      ezSimdTransform m_LocalBoundingBox;
-      ezComponentHandle m_hComponent;
-    };
-
-    ezDynamicArray<Bounds, ezAlignedAllocatorWrapper> m_Bounds;
-    ezDynamicArray<ActiveLayer> m_Layers;
-  };
-
-  ezHashTable<ezUInt32, ActiveResource> m_ActiveResources;
+  ezDynamicArray<ezComponentHandle> m_ComponentsToUpdate;
 
   ezDynamicArray<ezPPInternal::ActiveTile, ezAlignedAllocatorWrapper> m_ActiveTiles;
   ezDynamicArray<ezUInt32> m_FreeTiles;
@@ -84,7 +61,11 @@ private:
   {
     EZ_ALWAYS_INLINE bool IsValid() const { return m_uiTileIndex != ezInvalidIndex; }
     EZ_ALWAYS_INLINE bool IsScheduled() const { return m_taskGroupID.IsValid(); }
-    EZ_ALWAYS_INLINE void Invalidate() { m_taskGroupID = ezTaskGroupID(); m_uiTileIndex = ezInvalidIndex; }
+    EZ_ALWAYS_INLINE void Invalidate()
+    {
+      m_taskGroupID = ezTaskGroupID();
+      m_uiTileIndex = ezInvalidIndex;
+    }
 
     ezUniquePtr<ezPPInternal::PlacementTask> m_pTask;
     ezTaskGroupID m_taskGroupID;
@@ -105,6 +86,9 @@ struct ezProcGenBoxExtents
   ezQuat m_Rotation = ezQuat::IdentityQuaternion();
   ezVec3 m_vInnerExtents = ezVec3(8);
   ezVec3 m_vOuterExtents = ezVec3(10);
+
+  ezResult Serialize(ezStreamWriter& stream) const;
+  ezResult Deserialize(ezStreamReader& stream);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCEDURALPLACEMENTPLUGIN_DLL, ezProcGenBoxExtents);
@@ -126,9 +110,6 @@ public:
   void SetResource(const ezProceduralPlacementResourceHandle& hResource);
   const ezProceduralPlacementResourceHandle& GetResource() const { return m_hResource; }
 
-  void SetExtents(const ezVec3& value);
-  const ezVec3& GetExtents() const { return m_vExtents; }
-
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
   void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
@@ -136,9 +117,27 @@ public:
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
 private:
-
   ezProceduralPlacementResourceHandle m_hResource;
-  ezVec3 m_vExtents;
 
   ezDynamicArray<ezProcGenBoxExtents> m_Extents;
+
+  // runtime data
+  struct Bounds
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    ezSimdBBox m_GlobalBoundingBox;
+    ezSimdTransform m_GlobalToLocalBoxTransform;
+  };
+
+  ezDynamicArray<Bounds, ezAlignedAllocatorWrapper> m_Bounds;
+
+  struct ActiveLayer
+  {
+    ezSharedPtr<const ezPPInternal::Layer> m_pLayer;
+
+    ezHashTable<ezUInt64, ezUInt32> m_TileIndices;
+  };
+
+  ezDynamicArray<ActiveLayer> m_Layers;
 };

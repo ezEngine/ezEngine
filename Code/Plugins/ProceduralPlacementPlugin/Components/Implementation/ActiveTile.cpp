@@ -50,14 +50,14 @@ void ActiveTile::Deinitialize(ezWorld& world)
   }
   m_PlacedObjects.Clear();
 
-  m_Desc.m_uiResourceIdHash = 0;
+  m_Desc.m_hComponent.Invalidate();
   m_pLayer = nullptr;
   m_State = State::Invalid;
 }
 
 bool ActiveTile::IsValid() const
 {
-  return m_Desc.m_uiResourceIdHash != 0 && m_pLayer != nullptr;
+  return !m_Desc.m_hComponent.IsInvalidated() && m_pLayer != nullptr;
 }
 
 const TileDesc& ActiveTile::GetDesc() const
@@ -150,9 +150,9 @@ void ActiveTile::PrepareTask(const ezPhysicsWorldModuleInterface* pPhysicsModule
     bool bInBoundingBox = false;
     ezSimdVec4f hitPosition = ezSimdConversion::ToVec3(hitResult.m_vPosition);
     ezSimdVec4f allOne = ezSimdVec4f(1.0f);
-    for (auto& boundingBox : m_Desc.m_LocalBoundingBoxes)
+    for (auto& globalToLocalBox : m_Desc.m_GlobalToLocalBoxTransforms)
     {
-      ezSimdVec4f localHitPosition = boundingBox.TransformPosition(hitPosition).Abs();
+      ezSimdVec4f localHitPosition = globalToLocalBox.TransformPosition(hitPosition).Abs();
       if ((localHitPosition <= allOne).AllSet<3>())
       {
         bInBoundingBox = true;
