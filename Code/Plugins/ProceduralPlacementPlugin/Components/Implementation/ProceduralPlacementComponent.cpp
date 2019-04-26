@@ -554,21 +554,23 @@ void ezProceduralPlacementComponentManager::ClearVisibleResources()
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezBoxWithFadeOut, ezNoBase, 1, ezRTTIDefaultAllocator<ezBoxWithFadeOut>)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProcGenBoxExtents, ezNoBase, 1, ezRTTIDefaultAllocator<ezProcGenBoxExtents>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Position", m_vPosition),
     EZ_MEMBER_PROPERTY("Rotation", m_Rotation),
-    EZ_MEMBER_PROPERTY("Extents", m_vExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(10.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
-    EZ_MEMBER_PROPERTY("FadeOutRange", m_vFadeOutRange)->AddAttributes(new ezClampValueAttribute(ezVec3(0), ezVariant())),
+    EZ_MEMBER_PROPERTY("InnerExtents", m_vInnerExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(8.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
+    EZ_MEMBER_PROPERTY("OuterExtents", m_vOuterExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(10.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
+      new ezBoxManipulatorAttribute("InnerExtents", "Position", "Rotation"),
+      new ezBoxVisualizerAttribute("InnerExtents", "Position", "Rotation", nullptr, ezColor::Yellow),
+      new ezBoxManipulatorAttribute("OuterExtents", "Position", "Rotation"),
+      new ezBoxVisualizerAttribute("OuterExtents", "Position", "Rotation", nullptr, ezColor::CornflowerBlue),
       new ezTransformManipulatorAttribute("Position", "Rotation"),
-      new ezBoxManipulatorAttribute("Extents"),
-      new ezBoxVisualizerAttribute("Extents", nullptr, ezColor::CornflowerBlue, "Position"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -579,8 +581,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProceduralPlacementComponent, 1, ezComponentMode::Stat
   EZ_BEGIN_PROPERTIES
   {
       EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("Procedural Placement")),
-      EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(10.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
-      EZ_ARRAY_MEMBER_PROPERTY("Boxes", m_Boxes),
+      EZ_ARRAY_MEMBER_PROPERTY("Extents2", m_Extents),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -592,8 +593,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezProceduralPlacementComponent, 1, ezComponentMode::Stat
   EZ_BEGIN_ATTRIBUTES
   {
       new ezCategoryAttribute("ProceduralPlacement"),
-      new ezBoxManipulatorAttribute("Extents"),
-      new ezBoxVisualizerAttribute("Extents"),
   }
   EZ_END_ATTRIBUTES;
 }

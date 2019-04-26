@@ -99,15 +99,15 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-struct ezBoxWithFadeOut
+struct ezProcGenBoxExtents
 {
-  ezVec3 m_vPosition;
-  ezQuat m_Rotation;
-  ezVec3 m_vExtents;
-  ezVec3 m_vFadeOutRange;
+  ezVec3 m_vPosition = ezVec3::ZeroVector();
+  ezQuat m_Rotation = ezQuat::IdentityQuaternion();
+  ezVec3 m_vInnerExtents = ezVec3(8);
+  ezVec3 m_vOuterExtents = ezVec3(10);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCEDURALPLACEMENTPLUGIN_DLL, ezBoxWithFadeOut);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCEDURALPLACEMENTPLUGIN_DLL, ezProcGenBoxExtents);
 
 class EZ_PROCEDURALPLACEMENTPLUGIN_DLL ezProceduralPlacementComponent : public ezComponent
 {
@@ -140,5 +140,5 @@ private:
   ezProceduralPlacementResourceHandle m_hResource;
   ezVec3 m_vExtents;
 
-  ezDynamicArray<ezBoxWithFadeOut> m_Boxes;
+  ezDynamicArray<ezProcGenBoxExtents> m_Extents;
 };

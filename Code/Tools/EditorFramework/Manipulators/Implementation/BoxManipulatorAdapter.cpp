@@ -39,7 +39,21 @@ void ezBoxManipulatorAdapter::Update()
     m_Gizmo.SetSize(vSize);
   }
 
-  m_Gizmo.SetTransformation(GetObjectTransform());
+  m_vPositionOffset.SetZero();
+
+  if (!pAttr->GetOffsetProperty().IsEmpty())
+  {
+    m_vPositionOffset = pObjectAccessor->Get<ezVec3>(m_pObject, GetProperty(pAttr->GetOffsetProperty()));
+  }
+
+  m_Rotation.SetIdentity();
+
+  if (!pAttr->GetRotationProperty().IsEmpty())
+  {
+    m_Rotation = pObjectAccessor->Get<ezQuat>(m_pObject, GetProperty(pAttr->GetRotationProperty()));
+  }
+
+  UpdateGizmoTransform();
 }
 
 void ezBoxManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
@@ -70,5 +84,10 @@ void ezBoxManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 
 void ezBoxManipulatorAdapter::UpdateGizmoTransform()
 {
-  m_Gizmo.SetTransformation(GetObjectTransform());
+  ezTransform t;
+  t.m_vScale.Set(1);
+  t.m_vPosition = m_vPositionOffset;
+  t.m_qRotation = m_Rotation;
+
+  m_Gizmo.SetTransformation(GetObjectTransform() * t);
 }

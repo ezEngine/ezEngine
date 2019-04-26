@@ -19,5 +19,7 @@ protected:
 
   virtual void UpdateGizmoTransform() override;
 
+  ezVec3 m_vPositionOffset;
+  ezQuat m_Rotation;
   ezBoxGizmo m_Gizmo;
 };

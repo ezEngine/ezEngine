@@ -20,5 +20,6 @@ protected:
 
   ezVec3 m_Scale;
   ezVec3 m_vPositionOffset;
+  ezQuat m_Rotation;
   ezEngineGizmoHandle m_Gizmo;
 };
