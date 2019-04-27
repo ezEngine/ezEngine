@@ -82,10 +82,9 @@ private:
 
 struct ezProcGenBoxExtents
 {
-  ezVec3 m_vPosition = ezVec3::ZeroVector();
+  ezVec3 m_vOffset = ezVec3::ZeroVector();
   ezQuat m_Rotation = ezQuat::IdentityQuaternion();
-  ezVec3 m_vInnerExtents = ezVec3(8);
-  ezVec3 m_vOuterExtents = ezVec3(10);
+  ezVec3 m_vExtents = ezVec3(10);
 
   ezResult Serialize(ezStreamWriter& stream) const;
   ezResult Deserialize(ezStreamReader& stream);
@@ -117,9 +116,17 @@ public:
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
 private:
+  ezUInt32 BoxExtents_GetCount() const;
+  const ezProcGenBoxExtents& BoxExtents_GetValue(ezUInt32 uiIndex) const;
+  void BoxExtents_SetValue(ezUInt32 uiIndex, const ezProcGenBoxExtents& value);
+  void BoxExtents_Insert(ezUInt32 uiIndex, const ezProcGenBoxExtents& value);
+  void BoxExtents_Remove(ezUInt32 uiIndex);
+
+  void UpdateBoundsAndTiles();
+
   ezProceduralPlacementResourceHandle m_hResource;
 
-  ezDynamicArray<ezProcGenBoxExtents> m_Extents;
+  ezDynamicArray<ezProcGenBoxExtents> m_BoxExtents;
 
   // runtime data
   struct Bounds

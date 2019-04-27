@@ -3,3 +3,5 @@ ProceduralPlacement.DumpDisassembly;Dump Disassembly
 Objects;Objects
 ProceduralPlacement;Procedural Placement
 ezProceduralPlacementComponent;Procedural Placement
+ezProcGenBoxExtents;Box Extents
+BoxExtents;Extents

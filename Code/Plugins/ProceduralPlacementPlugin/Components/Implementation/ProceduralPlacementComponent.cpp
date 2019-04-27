@@ -91,6 +91,8 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
       continue;
     }
 
+    RemoveTilesForComponent(pComponent, &bAnyObjectsRemoved);
+
     ezResourceLock<ezProceduralPlacementResource> pResource(pComponent->m_hResource, ezResourceAcquireMode::NoFallback);
     auto layers = pResource->GetLayers();
 
@@ -535,19 +537,16 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProcGenBoxExtents, ezNoBase, 1, ezRTTIDefaultAl
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Position", m_vPosition),
+    EZ_MEMBER_PROPERTY("Offset", m_vOffset),
     EZ_MEMBER_PROPERTY("Rotation", m_Rotation),
-    EZ_MEMBER_PROPERTY("InnerExtents", m_vInnerExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(8.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
-    EZ_MEMBER_PROPERTY("OuterExtents", m_vOuterExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(10.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
+    EZ_MEMBER_PROPERTY("Extents", m_vExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(10.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-      new ezBoxManipulatorAttribute("InnerExtents", "Position", "Rotation"),
-      new ezBoxVisualizerAttribute("InnerExtents", "Position", "Rotation", nullptr, ezColor::Yellow),
-      new ezBoxManipulatorAttribute("OuterExtents", "Position", "Rotation"),
-      new ezBoxVisualizerAttribute("OuterExtents", "Position", "Rotation", nullptr, ezColor::CornflowerBlue),
-      new ezTransformManipulatorAttribute("Position", "Rotation"),
+      new ezBoxManipulatorAttribute("Extents", "Offset", "Rotation"),
+      new ezBoxVisualizerAttribute("Extents", "Offset", "Rotation", nullptr, ezColor::CornflowerBlue),
+      new ezTransformManipulatorAttribute("Offset", "Rotation"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -558,7 +557,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProceduralPlacementComponent, 1, ezComponentMode::Stat
   EZ_BEGIN_PROPERTIES
   {
       EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("Procedural Placement")),
-      EZ_ARRAY_MEMBER_PROPERTY("Extents", m_Extents),
+      EZ_ARRAY_ACCESSOR_PROPERTY("BoxExtents", BoxExtents_GetCount, BoxExtents_GetValue, BoxExtents_SetValue, BoxExtents_Insert, BoxExtents_Remove),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -582,29 +581,7 @@ ezProceduralPlacementComponent::~ezProceduralPlacementComponent() {}
 
 void ezProceduralPlacementComponent::OnActivated()
 {
-  GetOwner()->UpdateLocalBounds();
-
-  ezSimdTransform ownerTransform = GetOwner()->GetGlobalTransformSimd();
-
-  for (auto& boxExtent : m_Extents)
-  {
-    ezSimdTransform localBoxTransform;
-    localBoxTransform.m_Position = ezSimdConversion::ToVec3(boxExtent.m_vPosition);
-    localBoxTransform.m_Rotation = ezSimdConversion::ToQuat(boxExtent.m_Rotation);
-    localBoxTransform.m_Scale = ezSimdConversion::ToVec3(boxExtent.m_vOuterExtents * 0.5f);
-
-    ezSimdTransform finalBoxTransform;
-    finalBoxTransform.SetGlobalTransform(ownerTransform, localBoxTransform);
-
-    ezSimdBBox globalBox(ezSimdVec4f(-1.0f), ezSimdVec4f(1.0f));
-    globalBox.Transform(finalBoxTransform.GetAsMat4());
-
-    auto& bounds = m_Bounds.ExpandAndGetRef();
-    bounds.m_GlobalBoundingBox = globalBox;
-    bounds.m_GlobalToLocalBoxTransform = finalBoxTransform.GetInverse();
-  }
-
-  GetWorld()->GetComponentManager<ezProceduralPlacementComponentManager>()->AddComponent(this);
+  UpdateBoundsAndTiles();
 }
 
 void ezProceduralPlacementComponent::OnDeactivated()
@@ -614,7 +591,8 @@ void ezProceduralPlacementComponent::OnDeactivated()
   m_Bounds.Clear();
   m_Layers.Clear();
 
-  GetWorld()->GetComponentManager<ezProceduralPlacementComponentManager>()->RemoveComponent(this);
+  auto pManager = static_cast<ezProceduralPlacementComponentManager*>(GetOwningManager());
+  pManager->RemoveComponent(this);
 }
 
 void ezProceduralPlacementComponent::SetResourceFile(const char* szFile)
@@ -640,31 +618,33 @@ const char* ezProceduralPlacementComponent::GetResourceFile() const
 
 void ezProceduralPlacementComponent::SetResource(const ezProceduralPlacementResourceHandle& hResource)
 {
+  auto pManager = static_cast<ezProceduralPlacementComponentManager*>(GetOwningManager());
+
   if (IsActiveAndInitialized())
   {
-    GetWorld()->GetComponentManager<ezProceduralPlacementComponentManager>()->RemoveComponent(this);
+    pManager->RemoveComponent(this);
   }
 
   m_hResource = hResource;
 
   if (IsActiveAndInitialized())
   {
-    GetWorld()->GetComponentManager<ezProceduralPlacementComponentManager>()->AddComponent(this);
+    pManager->AddComponent(this);
   }
 }
 
 void ezProceduralPlacementComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
-  if (m_Extents.IsEmpty())
+  if (m_BoxExtents.IsEmpty())
     return;
 
   ezBoundingBoxSphere bounds;
   bounds.SetInvalid();
 
-  for (auto& boxExtent : m_Extents)
+  for (auto& boxExtent : m_BoxExtents)
   {
-    ezBoundingBoxSphere localBox = ezBoundingBox(-boxExtent.m_vOuterExtents * 0.5f, boxExtent.m_vOuterExtents * 0.5f);
-    localBox.Transform(ezTransform(boxExtent.m_vPosition, boxExtent.m_Rotation).GetAsMat4());
+    ezBoundingBoxSphere localBox = ezBoundingBox(-boxExtent.m_vExtents * 0.5f, boxExtent.m_vExtents * 0.5f);
+    localBox.Transform(ezTransform(boxExtent.m_vOffset, boxExtent.m_Rotation).GetAsMat4());
 
     bounds.ExpandToInclude(localBox);
   }
@@ -701,7 +681,7 @@ void ezProceduralPlacementComponent::SerializeComponent(ezWorldWriter& stream) c
   ezStreamWriter& s = stream.GetStream();
 
   s << m_hResource;
-  s.WriteArray(m_Extents);
+  s.WriteArray(m_BoxExtents);
 }
 
 void ezProceduralPlacementComponent::DeserializeComponent(ezWorldReader& stream)
@@ -711,25 +691,93 @@ void ezProceduralPlacementComponent::DeserializeComponent(ezWorldReader& stream)
   ezStreamReader& s = stream.GetStream();
 
   s >> m_hResource;
-  s.ReadArray(m_Extents);
+  s.ReadArray(m_BoxExtents);
 }
+
+ezUInt32 ezProceduralPlacementComponent::BoxExtents_GetCount() const
+{
+  return m_BoxExtents.GetCount();
+}
+
+const ezProcGenBoxExtents& ezProceduralPlacementComponent::BoxExtents_GetValue(ezUInt32 uiIndex) const
+{
+  return m_BoxExtents[uiIndex];
+}
+
+void ezProceduralPlacementComponent::BoxExtents_SetValue(ezUInt32 uiIndex, const ezProcGenBoxExtents& value)
+{
+  m_BoxExtents.EnsureCount(uiIndex + 1);
+  m_BoxExtents[uiIndex] = value;
+
+  UpdateBoundsAndTiles();
+}
+
+void ezProceduralPlacementComponent::BoxExtents_Insert(ezUInt32 uiIndex, const ezProcGenBoxExtents& value)
+{
+  m_BoxExtents.Insert(value, uiIndex);
+
+  UpdateBoundsAndTiles();
+}
+
+void ezProceduralPlacementComponent::BoxExtents_Remove(ezUInt32 uiIndex)
+{
+  m_BoxExtents.RemoveAtAndCopy(uiIndex);
+
+  UpdateBoundsAndTiles();
+}
+
+void ezProceduralPlacementComponent::UpdateBoundsAndTiles()
+{
+  if (IsActiveAndInitialized())
+  {
+    auto pManager = static_cast<ezProceduralPlacementComponentManager*>(GetOwningManager());
+
+    pManager->RemoveComponent(this);
+
+    GetOwner()->UpdateLocalBounds();
+
+    m_Bounds.Clear();
+    m_Layers.Clear();
+
+    ezSimdTransform ownerTransform = GetOwner()->GetGlobalTransformSimd();
+    for (auto& boxExtent : m_BoxExtents)
+    {
+      ezSimdTransform localBoxTransform;
+      localBoxTransform.m_Position = ezSimdConversion::ToVec3(boxExtent.m_vOffset);
+      localBoxTransform.m_Rotation = ezSimdConversion::ToQuat(boxExtent.m_Rotation);
+      localBoxTransform.m_Scale = ezSimdConversion::ToVec3(boxExtent.m_vExtents * 0.5f);
+
+      ezSimdTransform finalBoxTransform;
+      finalBoxTransform.SetGlobalTransform(ownerTransform, localBoxTransform);
+
+      ezSimdBBox globalBox(ezSimdVec4f(-1.0f), ezSimdVec4f(1.0f));
+      globalBox.Transform(finalBoxTransform.GetAsMat4());
+
+      auto& bounds = m_Bounds.ExpandAndGetRef();
+      bounds.m_GlobalBoundingBox = globalBox;
+      bounds.m_GlobalToLocalBoxTransform = finalBoxTransform.GetInverse();
+    }
+
+    pManager->AddComponent(this);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 ezResult ezProcGenBoxExtents::Serialize(ezStreamWriter& stream) const
 {
-  stream << m_vPosition;
+  stream << m_vOffset;
   stream << m_Rotation;
-  stream << m_vInnerExtents;
-  stream << m_vOuterExtents;
+  stream << m_vExtents;
 
   return EZ_SUCCESS;
 }
 
 ezResult ezProcGenBoxExtents::Deserialize(ezStreamReader& stream)
 {
-  stream >> m_vPosition;
+  stream >> m_vOffset;
   stream >> m_Rotation;
-  stream >> m_vInnerExtents;
-  stream >> m_vOuterExtents;
+  stream >> m_vExtents;
 
   return EZ_SUCCESS;
 }
