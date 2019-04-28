@@ -194,6 +194,14 @@ void ezInstancedMeshComponent::UpdateRenderInstanceData()
 
   const ezTransform ownerTransform = GetOwner()->GetGlobalTransform();
 
+  float fBoundingSphereRadius = 1.0f;
+
+  if (m_hMesh.IsValid())
+  {
+    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowFallback);
+    fBoundingSphereRadius = pMesh->GetBounds().GetSphere().m_fRadius;
+  }
+
   for (ezUInt32 i = 0; i < m_rawInstancedData.GetCount(); ++i)
   {
     //const ezTransform globalTransform = m_rawInstancedData[i].m_transform * ownerTransform;
@@ -218,8 +226,8 @@ void ezInstancedMeshComponent::UpdateRenderInstanceData()
       instanceData[i].ObjectToWorldNormal = shaderT;
     }
 
-    instanceData[i].GameObjectID = 0; // TODO
-    instanceData[i].BoundingSphereRadius = 2.0f; // TODO
+    instanceData[i].GameObjectID = GetUniqueIdForRendering();
+    instanceData[i].BoundingSphereRadius = fBoundingSphereRadius;
 
     instanceData[i].Color = m_rawInstancedData[i].m_color;
   }
