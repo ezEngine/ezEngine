@@ -4,6 +4,8 @@
 
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/CompressedStreamZstd.h>
+#include <Foundation/IO/MemoryStream.h>
+#include <Foundation/IO/MemoryMappedFile.h>
 
 ezResult ezArchiveUtils::WriteHeader(ezStreamWriter& stream)
 {

@@ -5,6 +5,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
 #include <Foundation/Time/Timestamp.h>
+#include <Foundation/IO/MemoryStream.h>
 
 class ezArchiveEntry;
 

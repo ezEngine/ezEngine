@@ -2,6 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <GuiFoundation/NodeEditor/Node.h>
+#include <GuiFoundation/NodeEditor/Pin.h>
 
 class ezQtProceduralPlacementNode : public ezQtNode
 {

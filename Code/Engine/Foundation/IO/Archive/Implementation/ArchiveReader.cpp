@@ -4,6 +4,8 @@
 
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/IO/Archive/ArchiveUtils.h>
 
 ezResult ezArchiveReader::OpenArchive(const char* szPath)
 {
