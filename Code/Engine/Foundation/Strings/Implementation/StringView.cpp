@@ -1,6 +1,7 @@
 #include <FoundationPCH.h>
 
 #include <Foundation/Strings/StringView.h>
+#include <Foundation/Strings/StringBuilder.h>
 
 ezUInt32 ezStringView::GetCharacter() const
 {

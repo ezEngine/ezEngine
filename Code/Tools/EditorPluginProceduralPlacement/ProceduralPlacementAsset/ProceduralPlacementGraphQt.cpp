@@ -8,9 +8,13 @@
 #include <GuiFoundation/NodeEditor/Pin.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/Command/NodeCommands.h>
+#include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementAsset.h>
+
 
 #include <QPainter>
 #include <QTimer>
+#include <QAction>
+#include <QMenu>
 
 namespace
 {

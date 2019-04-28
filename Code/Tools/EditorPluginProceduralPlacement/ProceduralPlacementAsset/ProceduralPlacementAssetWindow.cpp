@@ -12,6 +12,7 @@
 #include <QLabel>
 #include <QLayout>
 #include <SharedPluginAssets/Common/Messages.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 
 ezProceduralPlacementAssetDocumentWindow::ezProceduralPlacementAssetDocumentWindow(ezProceduralPlacementAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)

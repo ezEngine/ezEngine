@@ -87,7 +87,7 @@ void PlacementTask::Execute()
     m_VM.Execute(*(m_pLayer->m_pByteCode), inputs, outputs, uiNumInstances);
 
     // Test density against point threshold and fill remaining input point data from expression
-    float fMaxObjectIndex = m_pLayer->m_ObjectsToPlace.GetCount() - 1;
+    float fMaxObjectIndex = static_cast<float>(m_pLayer->m_ObjectsToPlace.GetCount() - 1);
     const Pattern* pPattern = m_pLayer->m_pPattern;
     for (ezUInt32 i = 0; i < uiNumInstances; ++i)
     {
