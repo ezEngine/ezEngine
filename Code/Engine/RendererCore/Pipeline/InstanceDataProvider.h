@@ -5,13 +5,15 @@
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 
 struct ezPerInstanceData;
+class ezInstanceDataProvider;
+class ezInstancedMeshComponent;
 
 struct EZ_RENDERERCORE_DLL ezInstanceData
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezInstanceData);
 public:
 
-  ezInstanceData();
+  ezInstanceData(ezUInt32 uiMaxInstanceCount = 1024);
   ~ezInstanceData();
 
   ezGALBufferHandle m_hInstanceDataBuffer;
@@ -24,7 +26,8 @@ public:
   void UpdateInstanceData(ezRenderContext* pRenderContext, ezUInt32 uiCount);
 
 private:
-  friend class ezInstanceDataProvider;
+  friend ezInstanceDataProvider;
+  friend ezInstancedMeshComponent;
 
   void CreateBuffer(ezUInt32 uiSize);
   void Reset();
