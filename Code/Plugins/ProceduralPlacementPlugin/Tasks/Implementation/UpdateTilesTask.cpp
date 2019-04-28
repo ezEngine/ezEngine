@@ -6,7 +6,7 @@
 
 ezCVarFloat CVarCullDistanceScale(
   "pp_CullDistanceScale", 1.0f, ezCVarFlags::Default, "Global scale to control cull distance for all layers");
-ezCVarInt CVarMaxCullRadius("pp_MaxCullRadius", 10, ezCVarFlags::Default, "Maximum cull radius in number of tiles");
+ezCVarInt CVarMaxCullRadius("pp_MaxCullRadius", 8, ezCVarFlags::Default, "Maximum cull radius in number of tiles");
 
 UpdateTilesTask::UpdateTilesTask(ezProceduralPlacementComponent* pComponent, ezUInt32 uiLayerIndex)
   : m_pComponent(pComponent)

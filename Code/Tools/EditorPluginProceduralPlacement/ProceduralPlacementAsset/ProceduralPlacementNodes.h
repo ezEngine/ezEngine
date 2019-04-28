@@ -37,7 +37,7 @@ public:
   ezVec3 m_vMinScale = ezVec3(1);
   ezVec3 m_vMaxScale = ezVec3(1);
 
-  float m_fCullDistance = 100;
+  float m_fCullDistance = 30.0f;
 
   ezUInt32 m_uiCollisionLayer = 0;
 
@@ -65,6 +65,11 @@ public:
   ezInt32 m_iSeed = -1;
 
   ezOutputNodePin m_OutputValuePin;
+
+private:
+  void OnObjectCreated(const ezAbstractObjectNode& node);
+
+  ezUInt32 m_uiAutoSeed;
 };
 
 //////////////////////////////////////////////////////////////////////////
