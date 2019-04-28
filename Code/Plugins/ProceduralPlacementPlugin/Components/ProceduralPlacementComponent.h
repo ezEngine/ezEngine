@@ -23,7 +23,8 @@ public:
 private:
   friend class ezProceduralPlacementComponent;
 
-  void Update(const ezWorldModule::UpdateContext& context);
+  void Prepare(const ezWorldModule::UpdateContext& context);
+  void Raycast(const ezWorldModule::UpdateContext& context);
   void PlaceObjects(const ezWorldModule::UpdateContext& context);
 
   void AddComponent(ezProceduralPlacementComponent* pComponent);
@@ -76,6 +77,7 @@ private:
   ezDynamicArray<ezUInt32> m_FreePlacementTasks;
 
   ezDynamicArray<ezPPInternal::TileDesc, ezAlignedAllocatorWrapper> m_NewTiles;
+  ezTaskGroupID m_UpdateTilesTaskGroupID;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -99,6 +101,8 @@ class EZ_PROCEDURALPLACEMENTPLUGIN_DLL ezProceduralPlacementComponent : public e
 public:
   ezProceduralPlacementComponent();
   ~ezProceduralPlacementComponent();
+
+  ezProceduralPlacementComponent& operator=(ezProceduralPlacementComponent&& other);
 
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
@@ -129,6 +133,8 @@ private:
   ezDynamicArray<ezProcGenBoxExtents> m_BoxExtents;
 
   // runtime data
+  friend class ezPPInternal::UpdateTilesTask;
+
   struct Bounds
   {
     EZ_DECLARE_POD_TYPE();
@@ -144,6 +150,8 @@ private:
     ezSharedPtr<const ezPPInternal::Layer> m_pLayer;
 
     ezHashTable<ezUInt64, ezUInt32> m_TileIndices;
+
+    ezUniquePtr<ezPPInternal::UpdateTilesTask> m_pUpdateTilesTask;
   };
 
   ezDynamicArray<ActiveLayer> m_Layers;

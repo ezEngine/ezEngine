@@ -32,5 +32,4 @@ namespace ezPPInternal
 
     ezExpressionVM m_VM;
   };
-
 }

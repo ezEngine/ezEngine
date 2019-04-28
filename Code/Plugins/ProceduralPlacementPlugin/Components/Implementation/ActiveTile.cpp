@@ -78,8 +78,9 @@ ezArrayPtr<const ezGameObjectHandle> ActiveTile::GetPlacedObjects() const
 ezBoundingBox ActiveTile::GetBoundingBox() const
 {
   float fTileSize = m_pLayer->GetTileSize();
-  ezVec3 vMin = ezVec3(m_Desc.m_iPosX * fTileSize, m_Desc.m_iPosY * fTileSize, m_Desc.m_fMinZ);
-  ezVec3 vMax = (vMin.GetAsVec2() + ezVec2(fTileSize)).GetAsVec3(m_Desc.m_fMaxZ);
+  ezVec2 vCenter = ezVec2(m_Desc.m_iPosX * fTileSize, m_Desc.m_iPosY * fTileSize);
+  ezVec3 vMin = (vCenter - ezVec2(fTileSize * 0.5f)).GetAsVec3(m_Desc.m_fMinZ);
+  ezVec3 vMax = (vCenter + ezVec2(fTileSize * 0.5f)).GetAsVec3(m_Desc.m_fMaxZ);
 
   return ezBoundingBox(vMin, vMax);
 }

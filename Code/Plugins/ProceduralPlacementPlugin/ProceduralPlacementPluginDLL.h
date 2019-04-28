@@ -25,6 +25,7 @@ typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 namespace ezPPInternal
 {
   class ActiveTile;
+  class UpdateTilesTask;
   class PlacementTask;
 
   struct Pattern
