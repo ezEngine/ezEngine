@@ -119,7 +119,6 @@ ezMeshComponentBase::ezMeshComponentBase()
   m_Color = ezColor::White;
 
   m_pExplicitInstanceData = nullptr;
-  m_bExplicitInstanceDataDirty = false;
 }
 
 ezMeshComponentBase::~ezMeshComponentBase() {}
@@ -235,11 +234,7 @@ void ezMeshComponentBase::OnExtractRenderData(ezMsgExtractRenderData& msg) const
         pRenderData->m_uiUniqueID = this->GetUniqueIdForRendering();
 
         pRenderData->m_pExplicitInstanceData = m_pExplicitInstanceData;
-        pRenderData->m_bExplicitInstanceDataDirty = m_bExplicitInstanceDataDirty;
         pRenderData->m_uiExplicitInstanceCount = GetExplicitInstanceDataCount();
-
-        // Dirty:
-        const_cast<ezMeshComponentBase*>(this)->m_bExplicitInstanceDataDirty = false;
       }
 
       pRenderData->FillBatchIdAndSortingKey();

@@ -4,9 +4,10 @@
 #include <Foundation/Containers/DynamicArray.h>
 
 struct ezPerInstanceData;
-
+class ezInstancedMeshComponent;
 struct ezMsgExtractGeometry;
-typedef ezComponentManager<class ezInstancedMeshComponent, ezBlockStorageType::Compact> ezInstancedMeshComponentManager;
+class ezStreamWriter;
+class ezStreamReader;
 
 class EZ_RENDERERCORE_DLL ezMeshInstanceData : public ezReflectedClass
 {
@@ -23,9 +24,35 @@ class EZ_RENDERERCORE_DLL ezMeshInstanceData : public ezReflectedClass
     void SetLocalScaling(ezVec3 scaling);
     ezVec3 GetLocalScaling() const;
 
+    ezResult Serialize(ezStreamWriter& writer) const;
+    ezResult Deserialize(ezStreamReader& reader);
+
     ezTransform m_transform;
 
     ezColor m_color;
+};
+
+class EZ_RENDERERCORE_DLL ezInstancedMeshComponentManager
+  : public ezComponentManager<class ezInstancedMeshComponent, ezBlockStorageType::Compact>
+{
+public:
+  typedef ezComponentManager<ezInstancedMeshComponent, ezBlockStorageType::Compact> SUPER;
+
+  ezInstancedMeshComponentManager(ezWorld* pWorld);
+
+  void EnqueueUpdate(ezComponentHandle hComponent);
+
+private:
+
+  mutable ezMutex m_Mutex;
+  ezDeque<ezComponentHandle> m_RequireUpdate;
+
+protected:
+
+  void OnRenderBegin(ezUInt64 uiFrameCounter);
+
+  virtual void Initialize() override;
+  virtual void Deinitialize() override;
 };
 
 class EZ_RENDERERCORE_DLL ezInstancedMeshComponent : public ezMeshComponentBase
@@ -51,8 +78,11 @@ public:
 
 public:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
 protected:
+
+  void EnqueueForUpdate();
 
   virtual ezUInt32 GetExplicitInstanceDataCount() const override;
 
@@ -66,4 +96,6 @@ protected:
 
   // Unpacked, reflected instance data for editing and ease of access
   ezDynamicArray<ezMeshInstanceData> m_rawInstancedData;
+
+  mutable bool m_bInUpdateQueue = false;
 };

@@ -31,8 +31,6 @@ public:
   ezUInt32 m_uiUniformScale : 1;
 
   ezUInt32 m_uiUniqueID = 0;
-
-  bool m_bExplicitInstanceDataDirty = false;
 };
 
 struct EZ_RENDERERCORE_DLL ezMsgSetMeshMaterial : public ezMessage
@@ -101,7 +99,6 @@ protected:
   ezArrayPtr<const ezMat4> m_SkinningMatrices;
 
   ezInstanceData* m_pExplicitInstanceData;
-  bool m_bExplicitInstanceDataDirty;
 
   ezUInt32 Materials_GetCount() const;
   const char* Materials_GetValue(ezUInt32 uiIndex) const;

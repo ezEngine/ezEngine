@@ -6,6 +6,10 @@
 #include <RendererCore/Pipeline/InstanceDataProvider.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <Core/WorldSerializer/WorldReader.h>
 
 
 
@@ -33,6 +37,83 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshInstanceData, 1, ezRTTIDefaultAllocator<ez
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+
+static const ezTypeVersion s_MeshInstanceDataVersion = 1;
+ezResult ezMeshInstanceData::Serialize(ezStreamWriter& writer) const
+{
+  writer.WriteVersion(s_MeshInstanceDataVersion);
+
+  writer << m_transform;
+  writer << m_color;
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezMeshInstanceData::Deserialize(ezStreamReader& reader)
+{
+  /*auto version = */reader.ReadVersion(s_MeshInstanceDataVersion);
+
+  reader >> m_transform;
+  reader >> m_color;
+
+  return EZ_SUCCESS;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+ezInstancedMeshComponentManager::ezInstancedMeshComponentManager(ezWorld* pWorld)
+  : SUPER(pWorld)
+{
+}
+void ezInstancedMeshComponentManager::EnqueueUpdate(ezComponentHandle hComponent)
+{
+  EZ_LOCK(m_Mutex);
+  m_RequireUpdate.PushBack(hComponent);
+}
+
+void ezInstancedMeshComponentManager::OnRenderBegin(ezUInt64 uiFrameCounter)
+{
+  EZ_LOCK(m_Mutex);
+
+  if(m_RequireUpdate.IsEmpty())
+    return;
+
+  for (const auto& hComp : m_RequireUpdate)
+  {
+    ezInstancedMeshComponent* pComp = nullptr;
+    if (!TryGetComponent(hComp, pComp))
+      continue;
+
+    pComp->UpdateRenderInstanceData();
+    if(pComp->m_pExplicitInstanceData)
+    {
+      pComp->m_pExplicitInstanceData->UpdateInstanceData(ezRenderContext::GetDefaultInstance(), pComp->GetExplicitInstanceDataCount());
+    }
+
+    pComp->m_bInUpdateQueue = false;
+  }
+
+  m_RequireUpdate.Clear();
+}
+
+void ezInstancedMeshComponentManager::Initialize()
+{
+  SUPER::Initialize();
+
+  ezRenderWorld::s_BeginRenderEvent.AddEventHandler(ezMakeDelegate(&ezInstancedMeshComponentManager::OnRenderBegin, this));
+}
+
+void ezInstancedMeshComponentManager::Deinitialize()
+{
+  EZ_LOCK(m_Mutex);
+
+  ezRenderWorld::s_BeginRenderEvent.RemoveEventHandler(ezMakeDelegate(&ezInstancedMeshComponentManager::OnRenderBegin, this));
+
+  SUPER::Deinitialize();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_COMPONENT_TYPE(ezInstancedMeshComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -46,7 +127,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezInstancedMeshComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnExtractGeometry)
+    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnExtractGeometry),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -87,32 +169,42 @@ ezVec3 ezMeshInstanceData::GetLocalScaling() const
 ezInstancedMeshComponent::ezInstancedMeshComponent() = default;
 ezInstancedMeshComponent::~ezInstancedMeshComponent() = default;
 
-void ezInstancedMeshComponent::SerializeComponent(ezWorldWriter& stream) const {}
+void ezInstancedMeshComponent::SerializeComponent(ezWorldWriter& stream) const
+{
+  SUPER::SerializeComponent(stream);
 
-void ezInstancedMeshComponent::DeserializeComponent(ezWorldReader& stream) {}
+  stream.GetStream().WriteArray(m_rawInstancedData);  
+}
+
+void ezInstancedMeshComponent::DeserializeComponent(ezWorldReader& stream)
+{
+  SUPER::DeserializeComponent(stream);
+
+  stream.GetStream().ReadArray(m_rawInstancedData);
+}
 
 void ezInstancedMeshComponent::Initialize()
 {
   SUPER::Initialize();
 
+  EZ_DEFAULT_DELETE(m_pExplicitInstanceData);
+  m_pExplicitInstanceData = nullptr;
+
   m_pExplicitInstanceData = EZ_DEFAULT_NEW(ezInstanceData);
 
-  UpdateRenderInstanceData();
-
-  if (!m_rawInstancedData.IsEmpty())
-    m_bExplicitInstanceDataDirty = true;
+  EnqueueForUpdate();
 }
 
 void ezInstancedMeshComponent::OnActivated()
 {
   SUPER::OnActivated();
 
+  EZ_DEFAULT_DELETE(m_pExplicitInstanceData);
+  m_pExplicitInstanceData = nullptr;
+
   m_pExplicitInstanceData = EZ_DEFAULT_NEW(ezInstanceData);
 
-  UpdateRenderInstanceData();
-
-  if (!m_rawInstancedData.IsEmpty())
-    m_bExplicitInstanceDataDirty = true;
+  EnqueueForUpdate();
 }
 
 void ezInstancedMeshComponent::OnDeactivated()
@@ -147,6 +239,29 @@ ezResult ezInstancedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, b
   return EZ_FAILURE;
 }
 
+void ezInstancedMeshComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+{
+  if (!m_hMesh.IsValid())
+    return;
+
+  SUPER::OnExtractRenderData(msg);
+
+  // OnExtractRenderData() is called when the game object this component is attached to
+  // moves for example. We enqueue an update in that case so that transform changes
+  // are propagated to the instance buffer.
+  const_cast<ezInstancedMeshComponent*>(this)->EnqueueForUpdate();
+}
+
+
+void ezInstancedMeshComponent::EnqueueForUpdate()
+{
+  if(m_bInUpdateQueue)
+    return;
+
+  static_cast<ezInstancedMeshComponentManager*>(GetOwningManager())->EnqueueUpdate(GetHandle());
+
+  m_bInUpdateQueue = true;
+}
 
 ezUInt32 ezInstancedMeshComponent::GetExplicitInstanceDataCount() const
 {
@@ -166,20 +281,21 @@ ezMeshInstanceData ezInstancedMeshComponent::Instances_GetValue(ezUInt32 uiIndex
 void ezInstancedMeshComponent::Instances_SetValue(ezUInt32 uiIndex, ezMeshInstanceData value)
 {
   m_rawInstancedData[uiIndex] = value;
-  m_bExplicitInstanceDataDirty = true;
-  UpdateRenderInstanceData(); // TODO
+  EnqueueForUpdate();
 }
 
 void ezInstancedMeshComponent::Instances_Insert(ezUInt32 uiIndex, ezMeshInstanceData value)
 {
   m_rawInstancedData.Insert(value, uiIndex);
-  m_bExplicitInstanceDataDirty = true;
+
+  EnqueueForUpdate();
 }
 
 void ezInstancedMeshComponent::Instances_Remove(ezUInt32 uiIndex)
 {
   m_rawInstancedData.RemoveAtAndCopy(uiIndex);
-  m_bExplicitInstanceDataDirty = true;
+
+  EnqueueForUpdate();
 }
 
 void ezInstancedMeshComponent::UpdateRenderInstanceData()
@@ -229,7 +345,7 @@ void ezInstancedMeshComponent::UpdateRenderInstanceData()
     instanceData[i].GameObjectID = GetUniqueIdForRendering();
     instanceData[i].BoundingSphereRadius = fBoundingSphereRadius;
 
-    instanceData[i].Color = m_rawInstancedData[i].m_color;
+    instanceData[i].Color = m_Color * m_rawInstancedData[i].m_color;
   }
 }
 

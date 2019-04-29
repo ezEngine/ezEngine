@@ -124,12 +124,6 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
   {
     ezUInt32 uiInstanceCount = pRenderData->m_uiExplicitInstanceCount;
 
-    if (pRenderData->m_bExplicitInstanceDataDirty)
-    {
-      pInstanceData->UpdateInstanceData(pContext, uiInstanceCount);
-      const_cast<ezMeshRenderData*>(pRenderData)->m_bExplicitInstanceDataDirty = false; // TODO: Horrible
-    }
-
     if (renderViewContext.m_pCamera->IsStereoscopic())
       uiInstanceCount *= 2;
 
@@ -137,7 +131,6 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
 
     // TODO: Handle failed draw call
     pContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive, uiInstanceCount);
-
   }
 }
 
