@@ -288,6 +288,13 @@ void ezQtDocumentWindow::SlotRestoreLayout()
 
 void ezQtDocumentWindow::SaveWindowLayout()
 {
+  // This is a workaround for newer Qt versions (5.13 or so) that seem to change the state of QDockWidgets to "closed" once the parent QMainWindow
+  // gets the closeEvent, even though they still exist and the QMainWindow is not yet deleted.
+  // Previously this function was called multiple times, including once after the QMainWindow got its closeEvent, which would then save a corrupted
+  // state. Therefore, once the parent ezQtContainerWindow gets the closeEvent, we now prevent further saving of the window layout.
+  if (!m_bAllowSaveWindowLayout)
+    return;
+
   const bool bMaximized = isMaximized();
 
   if (bMaximized)
@@ -320,6 +327,11 @@ void ezQtDocumentWindow::RestoreWindowLayout()
   Settings.endGroup();
 
   qApp->processEvents();
+}
+
+void ezQtDocumentWindow::DisableWindowLayoutSaving()
+{
+  m_bAllowSaveWindowLayout = false;
 }
 
 ezStatus ezQtDocumentWindow::SaveDocument()

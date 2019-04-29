@@ -96,6 +96,7 @@ private Q_SLOTS:
 private:
   void SaveWindowLayout();
   void RestoreWindowLayout();
+  void DisableWindowLayoutSaving();
 
   void ShutdownDocumentWindow();
 
@@ -108,6 +109,7 @@ private:
   bool m_bRedrawIsTriggered;
   bool m_bIsDrawingATM;
   bool m_bTriggerRedrawQueued;
+  bool m_bAllowSaveWindowLayout = true;
   ezInt16 m_iTargetFramerate;
   ezDocument* m_pDocument;
   ezQtContainerWindow* m_pContainerWindow;

@@ -141,6 +141,14 @@ void ezQtContainerWindow::closeEvent(QCloseEvent* e)
       if (pContainer != this)
         pContainer->close();
     }
+
+    // do not close the documents in the main container window here,
+    // as that would remove them from the recently-open documents list and not restore them when opening the editor again
+    ezDynamicArray<ezQtDocumentWindow*> windows = m_DocumentWindows;
+    for (ezQtDocumentWindow* pWindow : windows)
+    {
+      pWindow->DisableWindowLayoutSaving();
+    }
   }
   else
   {
@@ -156,6 +164,8 @@ void ezQtContainerWindow::closeEvent(QCloseEvent* e)
       return;
     }
 
+    // closing a non-main window should close all documents as well
+    // this will remove them from the recently-open documents list and not restore them next time
     ezDynamicArray<ezQtDocumentWindow*> windows = m_DocumentWindows;
     for (ezQtDocumentWindow* pWindow : windows)
     {
