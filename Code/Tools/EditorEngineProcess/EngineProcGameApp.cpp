@@ -557,9 +557,13 @@ void ezEngineProcessGameApplication::HandleResourceUpdateMsg(const ezResourceUpd
 
   if (hResource.IsValid())
   {
+    ezStringBuilder sResourceDesc;
+    sResourceDesc.Set(msg.m_sResourceType, "LiveUpdate");
+
     ezUniquePtr<ezResourceLoaderFromMemory> loader(EZ_DEFAULT_NEW(ezResourceLoaderFromMemory));
     loader->m_ModificationTimestamp = ezTimestamp::CurrentTimestamp();
-    loader->m_sResourceDescription = "MaterialImmediateEditorUpdate";
+    loader->m_sResourceDescription = sResourceDesc;
+
     ezMemoryStreamWriter memoryWriter(&loader->m_CustomData);
     memoryWriter.WriteBytes(msg.m_Data.GetData(), msg.m_Data.GetCount());
 
