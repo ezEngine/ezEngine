@@ -288,10 +288,10 @@ void ezQtDocumentWindow::SlotRestoreLayout()
 
 void ezQtDocumentWindow::SaveWindowLayout()
 {
-  // This is a workaround for newer Qt versions (5.13 or so) that seem to change the state of QDockWidgets to "closed" once the parent QMainWindow
-  // gets the closeEvent, even though they still exist and the QMainWindow is not yet deleted.
-  // Previously this function was called multiple times, including once after the QMainWindow got its closeEvent, which would then save a corrupted
-  // state. Therefore, once the parent ezQtContainerWindow gets the closeEvent, we now prevent further saving of the window layout.
+  // This is a workaround for newer Qt versions (5.13 or so) that seem to change the state of QDockWidgets to "closed" once the parent
+  // QMainWindow gets the closeEvent, even though they still exist and the QMainWindow is not yet deleted. Previously this function was
+  // called multiple times, including once after the QMainWindow got its closeEvent, which would then save a corrupted state. Therefore,
+  // once the parent ezQtContainerWindow gets the closeEvent, we now prevent further saving of the window layout.
   if (!m_bAllowSaveWindowLayout)
     return;
 
@@ -326,6 +326,20 @@ void ezQtDocumentWindow::RestoreWindowLayout()
   }
   Settings.endGroup();
 
+  // with certain Qt versions the window state could be saved corrupted
+  // if that is the case, make sure that non-closable widgets get restored to be visible
+  // otherwise the user would need to delete the serialized state from the registry
+  {
+    for (QDockWidget* dockWidget : findChildren<QDockWidget*>())
+    {
+      // not closable means the user can generally not change the visible state -> make sure it is visible
+      if (!dockWidget->features().testFlag(QDockWidget::DockWidgetClosable) && dockWidget->isHidden())
+      {
+        dockWidget->show();
+      }
+    }
+  }
+
   qApp->processEvents();
 }
 
@@ -344,8 +358,8 @@ ezStatus ezQtDocumentWindow::SaveDocument()
         if (ezQtUiServices::MessageBoxQuestion("Warning! This document contained unknown object types that could not be loaded. Saving the "
                                                "document means those objects will get lost permanently.\n\nDo you really want to save this "
                                                "document?",
-                                               QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No,
-                                               QMessageBox::StandardButton::No) != QMessageBox::StandardButton::Yes)
+              QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No,
+              QMessageBox::StandardButton::No) != QMessageBox::StandardButton::Yes)
           return ezStatus(EZ_SUCCESS); // failed successfully
       }
     }
@@ -407,10 +421,9 @@ bool ezQtDocumentWindow::InternalCanCloseWindow()
 
   if (m_pDocument && m_pDocument->IsModified())
   {
-    QMessageBox::StandardButton res =
-        QMessageBox::question(this, QLatin1String("ezEditor"), QLatin1String("Save before closing?"),
-                              QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel,
-                              QMessageBox::StandardButton::Cancel);
+    QMessageBox::StandardButton res = QMessageBox::question(this, QLatin1String("ezEditor"), QLatin1String("Save before closing?"),
+      QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel,
+      QMessageBox::StandardButton::Cancel);
 
     if (res == QMessageBox::StandardButton::Cancel)
       return false;
