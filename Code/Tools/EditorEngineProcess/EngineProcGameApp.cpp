@@ -291,6 +291,14 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     else
       ezLog::Warning("Unknown ezSimpleConfigMsgToEngine '{0}'", pMsg->m_sWhatToDo);
   }
+  else if (const auto* pMsg = ezDynamicCast<const ezResourceUpdateMsgToEngine*>(e.m_pMessage))
+  {
+    HandleResourceUpdateMsg(*pMsg);
+  }
+  else if (const auto* pMsg = ezDynamicCast<const ezRestoreResourceMsgToEngine*>(e.m_pMessage))
+  {
+    HandleResourceRestoreMsg(*pMsg);
+  }
   else if (const auto* pMsg = ezDynamicCast<const ezChangeCVarMsgToEngine*>(e.m_pMessage))
   {
     if (ezCVar* pCVar = ezCVar::FindCVarByName(pMsg->m_sCVarName))
@@ -533,4 +541,48 @@ void ezEngineProcessGameApplication::TransmitCVar(const ezCVar* pCVar)
   }
 
   m_IPC.SendMessage(&msg);
+}
+
+void ezEngineProcessGameApplication::HandleResourceUpdateMsg(const ezResourceUpdateMsgToEngine& msg)
+{
+  const ezRTTI* pRtti = ezResourceManager::FindResourceForAssetType(msg.m_sResourceType);
+
+  if (pRtti == nullptr)
+  {
+    ezLog::Error("Resource Type '{}' is unknown.", msg.m_sResourceType);
+    return;
+  }
+
+  ezTypelessResourceHandle hResource = ezResourceManager::GetExistingResourceByType(pRtti, msg.m_sResourceID);
+
+  if (hResource.IsValid())
+  {
+    ezUniquePtr<ezResourceLoaderFromMemory> loader(EZ_DEFAULT_NEW(ezResourceLoaderFromMemory));
+    loader->m_ModificationTimestamp = ezTimestamp::CurrentTimestamp();
+    loader->m_sResourceDescription = "MaterialImmediateEditorUpdate";
+    ezMemoryStreamWriter memoryWriter(&loader->m_CustomData);
+    memoryWriter.WriteBytes(msg.m_Data.GetData(), msg.m_Data.GetCount());
+
+    ezResourceManager::UpdateResourceWithCustomLoader(hResource, std::move(loader));
+
+    ezResourceManager::ForceLoadResourceNow(hResource);
+  }
+}
+
+void ezEngineProcessGameApplication::HandleResourceRestoreMsg(const ezRestoreResourceMsgToEngine& msg)
+{
+  const ezRTTI* pRtti = ezResourceManager::FindResourceForAssetType(msg.m_sResourceType);
+
+  if (pRtti == nullptr)
+  {
+    ezLog::Error("Resource Type '{}' is unknown.", msg.m_sResourceType);
+    return;
+  }
+
+  ezTypelessResourceHandle hResource = ezResourceManager::GetExistingResourceByType(pRtti, msg.m_sResourceID);
+
+  if (hResource.IsValid())
+  {
+    ezResourceManager::RestoreResource(hResource);
+  }
 }

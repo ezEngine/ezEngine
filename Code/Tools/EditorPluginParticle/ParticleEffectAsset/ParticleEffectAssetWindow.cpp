@@ -624,8 +624,11 @@ void ezQtParticleEffectAssetDocumentWindow::UpdatePreview()
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
-  ezEditorEngineResourceUpdateMsg msg;
-  msg.m_sResourceType = "Particle";
+  ezResourceUpdateMsgToEngine msg;
+  msg.m_sResourceType = "Particle Effect";
+
+  ezStringBuilder tmp;
+  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
   ezMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter memoryWriter(&streamStorage);
@@ -643,7 +646,7 @@ void ezQtParticleEffectAssetDocumentWindow::UpdatePreview()
   GetParticleDocument()->WriteParticleEffectAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile());
   msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize());
 
-  GetEditorEngineConnection()->SendMessage(&msg);
+  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
 void ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
@@ -775,6 +778,11 @@ void ezQtParticleEffectAssetDocumentWindow::SendRedrawMsg()
 
 void ezQtParticleEffectAssetDocumentWindow::RestoreResource()
 {
-  ezEditorEngineRestoreResourceMsg msg;
-  GetEditorEngineConnection()->SendMessage(&msg);
+  ezRestoreResourceMsgToEngine msg;
+  msg.m_sResourceType = "Particle Effect";
+
+  ezStringBuilder tmp;
+  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+
+  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }

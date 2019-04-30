@@ -51,30 +51,6 @@ void ezParticleContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     return;
   }
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineResourceUpdateMsg>())
-  {
-    const ezEditorEngineResourceUpdateMsg* pMsg2 = static_cast<const ezEditorEngineResourceUpdateMsg*>(pMsg);
-
-    if (pMsg2->m_sResourceType == "Particle")
-    {
-      ezUniquePtr<ezResourceLoaderFromMemory> loader(EZ_DEFAULT_NEW(ezResourceLoaderFromMemory));
-      loader->m_ModificationTimestamp = ezTimestamp::CurrentTimestamp();
-      loader->m_sResourceDescription = "ParticleImmediateEditorUpdate";
-      ezMemoryStreamWriter memoryWriter(&loader->m_CustomData);
-      memoryWriter.WriteBytes(pMsg2->m_Data.GetData(), pMsg2->m_Data.GetCount());
-
-      ezResourceManager::UpdateResourceWithCustomLoader(m_hParticle, std::move(loader));
-
-      // force loading of the resource (not needed here, works well without it)
-      // ezResourceLock<ezParticleEffectResource> pResource(m_hParticle, ezResourceAcquireMode::NoFallback);
-    }
-  }
-
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineRestoreResourceMsg>())
-  {
-    ezResourceManager::RestoreResource(m_hParticle);
-  }
-
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineRestartSimulationMsg>())
   {
     RestartEffect();

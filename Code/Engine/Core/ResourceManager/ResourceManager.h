@@ -79,10 +79,17 @@ public:
   template <typename ResourceType>
   static ezTypedResourceHandle<ResourceType> GetExistingResource(const char* szResourceID);
 
+  /// \brief Same as GetExistingResourceByType() but allows to specify the resource type as an ezRTTI.
+  static ezTypelessResourceHandle GetExistingResourceByType(const ezRTTI* pResourceType, const char* szResourceID);
+
   /// \brief Triggers loading of the given resource. tShouldBeAvailableIn specifies how long the resource is not yet needed, thus allowing
   /// other resources to be loaded first. This is only a hint and there are no guarantees when the resource is available.
   static void PreloadResource(const ezTypelessResourceHandle& hResource);
 
+  /// \brief Similar to locking a resource with 'NoFallback' acquire mode, but can be done with a typeless handle and does not return a result.
+  static void ForceLoadResourceNow(const ezTypelessResourceHandle& hResource);
+
+  /// \brief Returns the current loading state of the given resource.
   static ezResourceState GetLoadingState(const ezTypelessResourceHandle& hResource);
 
   ///@}
@@ -118,8 +125,7 @@ public:
   /// \brief Removes the 'PreventFileReload' flag and forces a reload on the resource.
   ///
   /// \sa UpdateResourceWithCustomLoader()
-  template <typename ResourceType>
-  static void RestoreResource(const ezTypedResourceHandle<ResourceType>& hResource);
+  static void RestoreResource(const ezTypelessResourceHandle& hResource);
 
   ///@}
   /// \name Acquiring resources
