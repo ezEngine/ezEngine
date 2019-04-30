@@ -21,27 +21,7 @@ ezProceduralPlacementContext::ezProceduralPlacementContext() {}
 
 void ezProceduralPlacementContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineResourceUpdateMsg>())
-  {
-    const ezEditorEngineResourceUpdateMsg* pMsg2 = static_cast<const ezEditorEngineResourceUpdateMsg*>(pMsg);
-
-    if (pMsg2->m_sResourceType == "ProceduralPlacement")
-    {
-      ezUniquePtr<ezResourceLoaderFromMemory> loader(EZ_DEFAULT_NEW(ezResourceLoaderFromMemory));
-      loader->m_ModificationTimestamp = ezTimestamp::CurrentTimestamp();
-      loader->m_sResourceDescription = "ProcGenImmediateEditorUpdate";
-      ezMemoryStreamWriter memoryWriter(&loader->m_CustomData);
-      memoryWriter.WriteBytes(pMsg2->m_Data.GetData(), pMsg2->m_Data.GetCount());
-
-      ezResourceManager::UpdateResourceWithCustomLoader(m_hProcGen, std::move(loader));
-
-      // force loading of the resource
-      ezResourceLock<ezProceduralPlacementResource> pResource(m_hProcGen, ezResourceAcquireMode::NoFallback);
-    }
-  }
-
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineRestoreResourceMsg>() ||
-      pMsg->GetDynamicRTTI()->IsDerivedFrom<ezCreateThumbnailMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezCreateThumbnailMsgToEngine>())
   {
     ezResourceManager::RestoreResource(m_hProcGen);
   }

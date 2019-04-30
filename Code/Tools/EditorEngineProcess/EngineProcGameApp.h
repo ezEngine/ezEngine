@@ -9,6 +9,8 @@
 class ezEditorEngineProcessApp;
 class ezDocumentOpenMsgToEngine;
 class ezEngineProcessDocumentContext;
+class ezResourceUpdateMsgToEngine;
+class ezRestoreResourceMsgToEngine;
 
 class ezEngineProcessGameApplication : public ezGameApplication
 {
@@ -48,6 +50,9 @@ private:
   void EventHandlerCVar(const ezCVar::CVarEvent& e);
   void EventHandlerCVarPlugin(const ezPlugin::PluginEvent& e);
   void TransmitCVar(const ezCVar* pCVar);
+
+  void HandleResourceUpdateMsg(const ezResourceUpdateMsgToEngine& msg);
+  void HandleResourceRestoreMsg(const ezRestoreResourceMsgToEngine& msg);
 
   ezEngineProcessDocumentContext* CreateDocumentContext(const ezDocumentOpenMsgToEngine* pMsg);
 

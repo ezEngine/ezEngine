@@ -93,6 +93,26 @@ public:
   ezString m_sPayload;
 };
 
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezResourceUpdateMsgToEngine : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezResourceUpdateMsgToEngine, ezEditorEngineMsg);
+
+public:
+  ezString m_sResourceType;
+  ezString m_sResourceID;
+  ezDataBuffer m_Data;
+};
+
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezRestoreResourceMsgToEngine : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezRestoreResourceMsgToEngine, ezEditorEngineMsg);
+public:
+
+  ezString m_sResourceType;
+  ezString m_sResourceID;
+
+};
+
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezChangeCVarMsgToEngine : public ezEditorEngineMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezChangeCVarMsgToEngine, ezEditorEngineMsg);

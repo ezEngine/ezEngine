@@ -83,8 +83,11 @@ void ezProceduralPlacementAssetDocumentWindow::UpdatePreview()
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
-  ezEditorEngineResourceUpdateMsg msg;
-  msg.m_sResourceType = "ProceduralPlacement";
+  ezResourceUpdateMsgToEngine msg;
+  msg.m_sResourceType = "Procedural Placement";
+
+  ezStringBuilder tmp;
+  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
   ezMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter memoryWriter(&streamStorage);
@@ -103,14 +106,19 @@ void ezProceduralPlacementAssetDocumentWindow::UpdatePreview()
   {
     msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize());
 
-    GetEditorEngineConnection()->SendMessage(&msg);
+    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }
 }
 
 void ezProceduralPlacementAssetDocumentWindow::RestoreResource()
 {
-  ezEditorEngineRestoreResourceMsg msg;
-  GetEditorEngineConnection()->SendMessage(&msg);
+  ezRestoreResourceMsgToEngine msg;
+  msg.m_sResourceType = "Procedural Placement";
+
+  ezStringBuilder tmp;
+  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+
+  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
 void ezProceduralPlacementAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
