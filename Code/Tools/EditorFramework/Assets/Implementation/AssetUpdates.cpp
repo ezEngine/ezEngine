@@ -198,56 +198,23 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const ezUuid& assetGuid)
 
 static ezResult PatchAssetGuid(const char* szAbsFilePath, ezUuid oldGuid, ezUuid newGuid)
 {
-  ezStringBuilder sContent;
+  const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
+  if (ezDocumentManager::FindDocumentTypeFromPath(szAbsFilePath, true, pTypeDesc).Failed())
+    return EZ_FAILURE;
 
+  if (ezDocument* pDocument = pTypeDesc->m_pManager->GetDocumentByPath(szAbsFilePath))
   {
-    ezFileReader file;
-    ezUInt32 uiTries = 0;
-
-    while (file.Open(szAbsFilePath).Failed())
-    {
-      if (uiTries >= 5)
-        return EZ_FAILURE;
-
-      ezThreadUtils::Sleep(ezTime::Milliseconds(50 * (uiTries + 1)));
-      uiTries++;
-    }
-
-    sContent.ReadAll(file);
+    pTypeDesc->m_pManager->CloseDocument(pDocument);
   }
 
+  ezUInt32 uiTries = 0;
+  while (pTypeDesc->m_pManager->CloneDocument(szAbsFilePath, szAbsFilePath, newGuid).Failed())
   {
-    // DDL
-    ezUInt64 oldL, oldH;
-    oldGuid.GetValues(oldL, oldH);
+    if (uiTries >= 5)
+      return EZ_FAILURE;
 
-    ezUInt64 newL, newH;
-    newGuid.GetValues(newL, newH);
-
-    ezStringBuilder sOld;
-    sOld.Format("{0},{1}", oldL, oldH);
-
-    ezStringBuilder sNew;
-    sNew.Format("{0},{1}", newL, newH);
-
-    sContent.ReplaceAll(sOld, sNew);
-  }
-
-  {
-    ezFileWriter file;
-
-    ezUInt32 uiTries = 0;
-
-    while (file.Open(szAbsFilePath).Failed())
-    {
-      if (uiTries >= 5)
-        return EZ_FAILURE;
-
-      ezThreadUtils::Sleep(ezTime::Milliseconds(50 * (uiTries + 1)));
-      uiTries++;
-    }
-
-    return file.WriteBytes(sContent.GetData(), sContent.GetElementCount());
+    ezThreadUtils::Sleep(ezTime::Milliseconds(50 * (uiTries + 1)));
+    uiTries++;
   }
 
   return EZ_SUCCESS;
