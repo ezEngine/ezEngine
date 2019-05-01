@@ -215,23 +215,16 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
   return afterSaveID;
 }
 
-ezStatus ezDocument::InternalLoadDocument()
+ezStatus ezDocument::ReadDocument(const char* sDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& header,
+  ezUniquePtr<ezAbstractObjectGraph>& objects, ezUniquePtr<ezAbstractObjectGraph>& types)
 {
-  EZ_PROFILE_SCOPE("InternalLoadDocument");
-  // this would currently crash in Qt, due to the processEvents in the QtProgressBar
-  // ezProgressRange range("Loading Document", 5, false);
-
-  ezUniquePtr<ezAbstractObjectGraph> header;
-  ezUniquePtr<ezAbstractObjectGraph> objects;
-  ezUniquePtr<ezAbstractObjectGraph> types;
-
   ezMemoryStreamStorage storage;
   ezMemoryStreamReader memreader(&storage);
 
   {
     EZ_PROFILE_SCOPE("Read File");
     ezFileReader file;
-    if (file.Open(m_sDocumentPath) == EZ_FAILURE)
+    if (file.Open(sDocumentPath) == EZ_FAILURE)
     {
       return ezStatus("Unable to open file for reading!");
     }
@@ -250,46 +243,66 @@ ezStatus ezDocument::InternalLoadDocument()
       ezLog::Debug("DDL parsing time: {0} msec", ezArgF(t.GetMilliseconds(), 1));
     }
   }
+  return ezStatus(EZ_SUCCESS);
+}
 
+ezStatus ezDocument::ReadAndRegisterTypes(const ezAbstractObjectGraph& types)
+{
+  EZ_PROFILE_SCOPE("Deserializing Types");
+  // range.BeginNextStep("Deserializing Types");
+
+  // Deserialize and register serialized phantom types.
+  ezString sDescTypeName = ezGetStaticRTTI<ezReflectedTypeDescriptor>()->GetTypeName();
+  ezDynamicArray<ezReflectedTypeDescriptor*> descriptors;
+  auto& nodes = types.GetAllNodes();
+  descriptors.Reserve(nodes.GetCount()); // Overkill but doesn't matter much as it's just temporary.
+  ezRttiConverterContext context;
+  ezRttiConverterReader rttiConverter(&types, &context);
+
+  for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
   {
-    EZ_PROFILE_SCOPE("Deserializing Types");
-    // range.BeginNextStep("Deserializing Types");
-
-    // Deserialize and register serialized phantom types.
-    ezString sDescTypeName = ezGetStaticRTTI<ezReflectedTypeDescriptor>()->GetTypeName();
-    ezDynamicArray<ezReflectedTypeDescriptor*> descriptors;
-    auto& nodes = types->GetAllNodes();
-    descriptors.Reserve(nodes.GetCount()); // Overkill but doesn't matter much as it's just temporary.
-    ezRttiConverterContext context;
-    ezRttiConverterReader rttiConverter(types.Borrow(), &context);
-
-    for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
+    if (it.Value()->GetType() == sDescTypeName)
     {
-      if (it.Value()->GetType() == sDescTypeName)
+      ezReflectedTypeDescriptor* pDesc = static_cast<ezReflectedTypeDescriptor*>(rttiConverter.CreateObjectFromNode(it.Value()));
+      if (pDesc->m_Flags.IsSet(ezTypeFlags::Minimal))
       {
-        ezReflectedTypeDescriptor* pDesc = static_cast<ezReflectedTypeDescriptor*>(rttiConverter.CreateObjectFromNode(it.Value()));
-        if (pDesc->m_Flags.IsSet(ezTypeFlags::Minimal))
-        {
-          ezGetStaticRTTI<ezReflectedTypeDescriptor>()->GetAllocator()->Deallocate(pDesc);
-        }
-        else
-        {
-          descriptors.PushBack(pDesc);
-        }
+        ezGetStaticRTTI<ezReflectedTypeDescriptor>()->GetAllocator()->Deallocate(pDesc);
+      }
+      else
+      {
+        descriptors.PushBack(pDesc);
       }
     }
-    ezToolsReflectionUtils::DependencySortTypeDescriptorArray(descriptors);
-    for (ezReflectedTypeDescriptor* desc : descriptors)
-    {
-      if (!ezRTTI::FindTypeByName(desc->m_sTypeName))
-      {
-        ezPhantomRttiManager::RegisterType(*desc);
-      }
-      ezGetStaticRTTI<ezReflectedTypeDescriptor>()->GetAllocator()->Deallocate(desc);
-    }
-
-    //
   }
+  ezToolsReflectionUtils::DependencySortTypeDescriptorArray(descriptors);
+  for (ezReflectedTypeDescriptor* desc : descriptors)
+  {
+    if (!ezRTTI::FindTypeByName(desc->m_sTypeName))
+    {
+      ezPhantomRttiManager::RegisterType(*desc);
+    }
+    ezGetStaticRTTI<ezReflectedTypeDescriptor>()->GetAllocator()->Deallocate(desc);
+  }
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezDocument::InternalLoadDocument()
+{
+  EZ_PROFILE_SCOPE("InternalLoadDocument");
+  // this would currently crash in Qt, due to the processEvents in the QtProgressBar
+  // ezProgressRange range("Loading Document", 5, false);
+
+  ezUniquePtr<ezAbstractObjectGraph> header;
+  ezUniquePtr<ezAbstractObjectGraph> objects;
+  ezUniquePtr<ezAbstractObjectGraph> types;
+
+  ezStatus res = ReadDocument(m_sDocumentPath, header, objects, types);
+  if (res.Failed())
+    return res;
+
+  res = ReadAndRegisterTypes(*types.Borrow());
+  if (res.Failed())
+    return res;
 
   {
     EZ_PROFILE_SCOPE("Restoring Header");

@@ -10,6 +10,7 @@
 #include <QClipboard>
 #include <QMimeData>
 #include <ToolsFoundation/Project/ToolsProject.h>
+#include <ToolsFoundation/Document/DocumentManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -78,7 +79,7 @@ void ezDocumentActions::MapActions(const char* szMapping, const char* szPath, bo
   ezStringBuilder sSubPath(szPath, "/SaveCategory");
 
   pMap->MapAction(s_hSave, sSubPath, 1.0f);
-  // pMap->MapAction(s_hSaveAs, sSubPath, 2.0f);
+  pMap->MapAction(s_hSaveAs, sSubPath, 2.0f);
   pMap->MapAction(s_hSaveAll, sSubPath, 3.0f);
 
   if (!bForToolbar)
@@ -197,8 +198,44 @@ void ezDocumentAction::Execute(const ezVariant& value)
     break;
 
     case ezDocumentAction::ButtonType::SaveAs:
-      /// \todo Save as
-      break;
+    {
+      ezQtDocumentWindow* pWnd = ezQtDocumentWindow::FindWindowByDocument(m_Context.m_pDocument);
+      if (pWnd->SaveDocument().Succeeded())
+      {
+        auto* desc = m_Context.m_pDocument->GetDocumentTypeDescriptor();
+        ezStringBuilder sAllFilters;
+        sAllFilters.Append(desc->m_sDocumentTypeName, " (*.", desc->m_sFileExtension, ")");
+        QString sSelectedExt;
+        ezString sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Document"),
+          m_Context.m_pDocument->GetDocumentPath(), QString::fromUtf8(sAllFilters.GetData()), &sSelectedExt,
+          QFileDialog::Option::DontResolveSymlinks).toUtf8().data();
+
+        if (!sFile.IsEmpty())
+        {
+          ezUuid newDoc;
+          newDoc.CreateNewUuid();
+          ezStatus res =
+            m_Context.m_pDocument->GetDocumentManager()->CloneDocument(m_Context.m_pDocument->GetDocumentPath(), sFile, newDoc);
+
+          if (res.Failed())
+          {
+            ezStringBuilder s;
+            s.Format("Failed to save document: \n'{0}'", sFile);
+            ezQtUiServices::MessageBoxStatus(res, s);
+          }
+          else
+          {
+            const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
+            if (ezDocumentManager::FindDocumentTypeFromPath(sFile, false, pTypeDesc).Succeeded())
+            {
+              ezDocument* pDocument = nullptr;
+              m_Context.m_pDocument->GetDocumentManager()->OpenDocument(pTypeDesc->m_sDocumentTypeName, sFile, pDocument);
+            }
+          }
+        }
+      }
+    }
+    break;
 
     case ezDocumentAction::ButtonType::SaveAll:
     {

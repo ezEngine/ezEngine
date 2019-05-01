@@ -20,6 +20,7 @@ public:
   ezStatus CreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags = ezDocumentFlags::None);
   ezStatus OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument,
     ezBitflags<ezDocumentFlags> flags = ezDocumentFlags::AddToRecentFilesList | ezDocumentFlags::RequestWindow, const ezDocumentObject* pOpenContext = nullptr);
+  virtual ezStatus CloneDocument(const char* szPath, const char* szClonePath, ezUuid& inout_cloneGuid);
   void CloseDocument(ezDocument* pDocument);
   void EnsureWindowRequested(ezDocument* pDocument, const ezDocumentObject* pOpenContext = nullptr);
 

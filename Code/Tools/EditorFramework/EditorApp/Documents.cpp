@@ -3,6 +3,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <ToolsFoundation/Document/DocumentUtils.h>
 
 void ezQtEditorApp::OpenDocumentQueued(const char* szDocument, const ezDocumentObject* pOpenContext /*= nullptr*/)
 {
@@ -79,19 +80,16 @@ ezDocument* ezQtEditorApp::CreateDocument(const char* szDocument, ezBitflags<ezD
     flags.Remove(ezDocumentFlags::RequestWindow);
 
   const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
-
-  if (ezDocumentManager::FindDocumentTypeFromPath(szDocument, true, pTypeDesc).Failed())
+  ezStatus res = ezDocumentUtils::IsValidSaveLocationForDocument(szDocument, &pTypeDesc);
+  if (res.Failed())
   {
-    ezStringBuilder sTemp;
-    sTemp.Format("The selected file extension '{0}' is not registered with any known type.\nCannot create file '{1}'",
-      ezPathUtils::GetFileExtension(szDocument), szDocument);
-    ezQtUiServices::MessageBoxWarning(sTemp);
+    ezStringBuilder s;
+    s.Format("Failed to create document: \n'{0}'", szDocument);
+    ezQtUiServices::MessageBoxStatus(res, s);
     return nullptr;
   }
 
-  // does the same document already exist and is open ?
-  ezDocument* pDocument = pTypeDesc->m_pManager->GetDocumentByPath(szDocument);
-  if (!pDocument)
+  ezDocument* pDocument = nullptr;
   {
     ezStatus res = pTypeDesc->m_pManager->CreateDocument(pTypeDesc->m_sDocumentTypeName, szDocument, pDocument, flags);
     if (res.m_Result.Failed())
@@ -106,12 +104,7 @@ ezDocument* ezQtEditorApp::CreateDocument(const char* szDocument, ezBitflags<ezD
       pTypeDesc->m_sDocumentTypeName);
     EZ_ASSERT_DEV(pDocument->GetUnknownObjectTypeInstances() == 0, "Newly created documents should not contain unknown types.");
   }
-  else
-  {
-    ezQtUiServices::MessageBoxInformation(
-      "The selected document is already open. You need to close the document before you can re-create it.");
-    return nullptr;
-  }
+
 
   if (flags.IsSet(ezDocumentFlags::RequestWindow))
     ezQtContainerWindow::EnsureVisibleAnyContainer(pDocument);

@@ -204,7 +204,10 @@ ezAbstractObjectNode::Property* ezAbstractObjectNode::FindProperty(const char* s
 void ezAbstractObjectGraph::ReMapNodeGuids(const ezUuid& seedGuid, bool bRemapInverse /*= false*/)
 {
   ezHybridArray<ezAbstractObjectNode*, 16> nodes;
-  ezMap<ezUuid, ezUuid> guidMap;
+  nodes.Reserve(m_Nodes.GetCount());
+  ezHashTable<ezUuid, ezUuid> guidMap;
+  guidMap.Reserve(m_Nodes.GetCount());
+  
   for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
   {
     ezUuid newGuid = it.Key();
@@ -239,7 +242,7 @@ void ezAbstractObjectGraph::ReMapNodeGuids(const ezUuid& seedGuid, bool bRemapIn
 void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraph(ezAbstractObjectNode* root, const ezAbstractObjectGraph& rhsGraph,
                                                        const ezAbstractObjectNode* rhsRoot)
 {
-  ezMap<ezUuid, ezUuid> guidMap;
+  ezHashTable<ezUuid, ezUuid> guidMap;
   EZ_ASSERT_DEV(ezStringUtils::IsEqual(root->GetType(), rhsRoot->GetType()), "Roots must have the same type to be able re-map guids!");
 
   ReMapNodeGuidsToMatchGraphRecursive(guidMap, root, rhsGraph, rhsRoot);
@@ -256,7 +259,7 @@ void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraph(ezAbstractObjectNode* roo
   }
 }
 
-void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraphRecursive(ezMap<ezUuid, ezUuid>& guidMap, ezAbstractObjectNode* lhs,
+void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraphRecursive(ezHashTable<ezUuid, ezUuid>& guidMap, ezAbstractObjectNode* lhs,
                                                                 const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhs)
 {
   if (!ezStringUtils::IsEqual(lhs->GetType(), rhs->GetType()))
@@ -693,7 +696,7 @@ void ezAbstractObjectGraph::MergeDiffs(const ezDeque<ezAbstractGraphDiffOperatio
   }
 }
 
-void ezAbstractObjectGraph::RemapVariant(ezVariant& value, const ezMap<ezUuid, ezUuid>& guidMap)
+void ezAbstractObjectGraph::RemapVariant(ezVariant& value, const ezHashTable<ezUuid, ezUuid>& guidMap)
 {
   // if the property is a guid, we check if we need to remap it
   if (value.IsA<ezUuid>())
@@ -701,11 +704,9 @@ void ezAbstractObjectGraph::RemapVariant(ezVariant& value, const ezMap<ezUuid, e
     const ezUuid& guid = value.Get<ezUuid>();
 
     // if we find the guid in our map, replace it by the new guid
-    auto it = guidMap.Find(guid);
-
-    if (it.IsValid())
+    if (auto* found = guidMap.GetValue(guid))
     {
-      value = it.Value();
+      value = *found;
     }
   }
   // Arrays may be of uuids

@@ -85,6 +85,10 @@ public:
   ezStatus SaveDocument(bool bForce = false);
   typedef ezDelegate<void(ezDocument* doc, ezStatus res)> AfterSaveCallback;
   ezTaskGroupID SaveDocumentAsync(AfterSaveCallback callback, bool bForce = false);
+
+  static ezStatus ReadDocument(const char* sDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& header, ezUniquePtr<ezAbstractObjectGraph>& objects, ezUniquePtr<ezAbstractObjectGraph>& types);
+  static ezStatus ReadAndRegisterTypes(const ezAbstractObjectGraph& types);
+
   ezStatus LoadDocument() { return InternalLoadDocument(); }
 
   /// \brief Brings the corresponding window to the front.
