@@ -7,16 +7,17 @@
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectContextDocument, 2, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezGameObjectContextDocument::ezGameObjectContextDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager,
-                                                         bool bUseEngineConnection, bool bUseIPCObjectMirror)
-    : ezGameObjectDocument(szDocumentPath, pObjectManager, bUseEngineConnection, bUseIPCObjectMirror)
+ezGameObjectContextDocument::ezGameObjectContextDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
+  : ezGameObjectDocument(szDocumentPath, pObjectManager, engineConnectionType)
 {
 }
 
-ezGameObjectContextDocument::~ezGameObjectContextDocument() {}
+ezGameObjectContextDocument::~ezGameObjectContextDocument() = default;
 
 ezStatus ezGameObjectContextDocument::SetContext(ezUuid documentGuid, ezUuid objectGuid)
 {
@@ -51,8 +52,8 @@ ezStatus ezGameObjectContextDocument::SetContext(ezUuid documentGuid, ezUuid obj
 
   ezRttiConverterContext context;
   ezRttiConverterReader rttiConverter(&graph, &context);
-  ezDocumentObjectConverterReader objectConverter(&graph, GetObjectManager(),
-                                                  ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+  ezDocumentObjectConverterReader objectConverter(
+    &graph, GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
   {
     EZ_PROFILE_SCOPE("Restoring Objects");
     auto* pRootNode = graph.GetNodeByName("ObjectTree");

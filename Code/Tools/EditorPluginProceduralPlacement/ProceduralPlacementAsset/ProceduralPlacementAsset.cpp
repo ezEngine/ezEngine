@@ -46,7 +46,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementAssetDocument, 2, ezRTTINoA
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezProceduralPlacementAssetDocument::ezProceduralPlacementAssetDocument(const char* szDocumentPath)
-  : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezProceduralPlacementNodeManager), true, false)
+  : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezProceduralPlacementNodeManager), ezAssetDocEngineConnection::Simple)
 {
 }
 

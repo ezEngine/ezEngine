@@ -87,7 +87,7 @@ void ezIntensityControlPoint::SetTickFromTime(ezTime time, ezInt64 fps)
 }
 
 ezColorGradientAssetDocument::ezColorGradientAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezColorGradientAssetData>(szDocumentPath)
+    : ezSimpleAssetDocument<ezColorGradientAssetData>(szDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 

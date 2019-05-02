@@ -13,6 +13,13 @@ class ezAssetDocumentManager;
 class ezPlatformProfile;
 class QImage;
 
+enum class ezAssetDocEngineConnection : ezUInt8
+{
+  None,
+  Simple,
+  FullObjectMirroring
+};
+
 class EZ_EDITORFRAMEWORK_DLL ezAssetDocument : public ezDocument
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAssetDocument, ezDocument);
@@ -52,7 +59,7 @@ public:
       ezUInt16 m_uiReserved = 0;
   };
 
-  ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, bool bUseEngineConnection, bool bUseIPCObjectMirror);
+  ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType);
   ~ezAssetDocument();
 
   /// \name Asset Functions
@@ -233,8 +240,7 @@ private:
   ezStatus DoTransformAsset(const ezPlatformProfile* pAssetProfile, bool bTriggeredManually);
 
   EngineStatus m_EngineStatus;
-  bool m_bUseIPCObjectMirror;
-  bool m_bUseEngineConnection;
+  ezAssetDocEngineConnection m_EngineConnectionType = ezAssetDocEngineConnection::None;
 
   ezEditorEngineConnection* m_pEngineConnection;
 

@@ -16,7 +16,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocument, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezKrautTreeAssetDocument::ezKrautTreeAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezKrautTreeAssetProperties>(szDocumentPath, true)
+    : ezSimpleAssetDocument<ezKrautTreeAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
 {
 }
 

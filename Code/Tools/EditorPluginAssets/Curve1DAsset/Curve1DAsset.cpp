@@ -13,7 +13,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DAssetDocument, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezCurve1DAssetDocument::ezCurve1DAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezCurveGroupData>(szDocumentPath)
+    : ezSimpleAssetDocument<ezCurveGroupData>(szDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 

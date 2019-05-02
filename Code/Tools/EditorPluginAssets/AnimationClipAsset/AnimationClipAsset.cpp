@@ -44,7 +44,7 @@ ezAnimationClipAssetProperties::ezAnimationClipAssetProperties()
 }
 
 ezAnimationClipAssetDocument::ezAnimationClipAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezAnimationClipAssetProperties>(szDocumentPath, true)
+    : ezSimpleAssetDocument<ezAnimationClipAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
 {
 }
 

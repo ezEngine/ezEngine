@@ -19,7 +19,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezSoundEventAssetDocument::ezSoundEventAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezSoundEventAssetProperties>(szDocumentPath)
+    : ezSimpleAssetDocument<ezSoundEventAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 

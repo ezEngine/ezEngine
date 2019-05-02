@@ -23,7 +23,7 @@ static ezMat3 CalculateTransformationMatrix(const ezMeshAssetProperties* pProp)
 }
 
 ezMeshAssetDocument::ezMeshAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezMeshAssetProperties>(szDocumentPath, true)
+    : ezSimpleAssetDocument<ezMeshAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
 {
 }
 
