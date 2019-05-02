@@ -3,6 +3,7 @@
 #include <Foundation/Configuration/CVar.h>
 #include <ProceduralPlacementPlugin/Components/ProceduralPlacementComponent.h>
 #include <ProceduralPlacementPlugin/Tasks/UpdateTilesTask.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 ezCVarFloat CVarCullDistanceScale(
   "pp_CullDistanceScale", 1.0f, ezCVarFlags::Default, "Global scale to control cull distance for all layers");
@@ -23,6 +24,7 @@ UpdateTilesTask::~UpdateTilesTask() = default;
 void ezPPInternal::UpdateTilesTask::Execute()
 {
   m_NewTiles.Clear();
+  m_OldTileKeys.Clear();
 
   ezHybridArray<ezSimdTransform, 8, ezAlignedAllocatorWrapper> globalToLocalBoxTransforms;
 
@@ -31,6 +33,11 @@ void ezPPInternal::UpdateTilesTask::Execute()
   const float fTileSize = activeLayer.m_pLayer->GetTileSize();
   const float fPatternSize = activeLayer.m_pLayer->m_pPattern->m_fSize;
   const float fCullDistance = activeLayer.m_pLayer->m_fCullDistance * CVarCullDistanceScale;
+
+  float fRadius = ezMath::Min<float>(ezMath::Ceil(fCullDistance / fTileSize), CVarMaxCullRadius);
+  ezInt32 iRadius = static_cast<ezInt32>(fRadius);
+  ezInt32 iRadiusSqr = iRadius * iRadius;
+
   ezSimdVec4f fHalfTileSize = ezSimdVec4f(fTileSize * 0.5f);
 
   for (ezVec3 vCameraPosition : m_vCameraPositions)
@@ -40,9 +47,6 @@ void ezPPInternal::UpdateTilesTask::Execute()
     float fPosY = ezMath::Round(cameraPos.y);
     ezInt32 iPosX = static_cast<ezInt32>(fPosX);
     ezInt32 iPosY = static_cast<ezInt32>(fPosY);
-    float fRadius = ezMath::Min<float>(ezMath::Ceil(fCullDistance / fTileSize), CVarMaxCullRadius);
-    ezInt32 iRadius = static_cast<ezInt32>(fRadius);
-    ezInt32 iRadiusSqr = iRadius * iRadius;
 
     float fY = (fPosY - fRadius) * fTileSize;
     ezInt32 iY = -iRadius;
@@ -57,7 +61,11 @@ void ezPPInternal::UpdateTilesTask::Execute()
         if (iX * iX + iY * iY <= iRadiusSqr)
         {
           ezUInt64 uiTileKey = GetTileKey(iPosX + iX, iPosY + iY);
-          if (!activeLayer.m_TileIndices.Contains(uiTileKey))
+          if (activeLayer.m_TileIndices.Contains(uiTileKey))
+          {
+            activeLayer.m_TileIndices[uiTileKey].m_uiLastSeenFrame = ezRenderWorld::GetFrameCounter();
+          }
+          else
           {
             ezSimdVec4f testPos = ezSimdVec4f(fX, fY, 0.0f);
             ezSimdFloat minZ = 10000.0f;
@@ -81,7 +89,11 @@ void ezPPInternal::UpdateTilesTask::Execute()
 
             if (!globalToLocalBoxTransforms.IsEmpty())
             {
-              activeLayer.m_TileIndices.Insert(uiTileKey, EmptyTileIndex);
+              ezProceduralPlacementComponent::ActiveLayer::TileIndexAndAge emptyTile;
+              emptyTile.m_uiIndex = EmptyTileIndex;
+              emptyTile.m_uiLastSeenFrame = 0;
+
+              activeLayer.m_TileIndices.Insert(uiTileKey, emptyTile);
 
               auto& newTile = m_NewTiles.ExpandAndGetRef();
               newTile.m_hComponent = m_pComponent->GetHandle();
@@ -107,4 +119,32 @@ void ezPPInternal::UpdateTilesTask::Execute()
   }
 
   m_vCameraPositions.Clear();
+
+  // Find old tiles
+  ezUInt32 uiMaxActiveTiles = (ezUInt32)iRadius * 2;
+  uiMaxActiveTiles *= uiMaxActiveTiles;
+
+  if (activeLayer.m_TileIndices.GetCount() > uiMaxActiveTiles)
+  {
+    m_TilesByAge.Clear();
+
+    for (auto it = activeLayer.m_TileIndices.GetIterator(); it.IsValid(); ++it)
+    {
+      if (it.Value().m_uiIndex != EmptyTileIndex)
+      {
+        m_TilesByAge.PushBack({it.Key(), it.Value().m_uiLastSeenFrame});
+      }
+    }
+
+    if (m_TilesByAge.GetCount() > uiMaxActiveTiles)
+    {
+      m_TilesByAge.Sort([](auto& tileA, auto& tileB) { return tileA.m_uiLastSeenFrame < tileB.m_uiLastSeenFrame; });
+
+      ezUInt32 uiOldTileCount = m_TilesByAge.GetCount() - uiMaxActiveTiles;
+      for (ezUInt32 i = 0; i < uiOldTileCount; ++i)
+      {
+        m_OldTileKeys.PushBack(m_TilesByAge[i].m_uiTileKey);
+      }
+    }
+  }
 }

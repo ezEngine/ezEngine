@@ -23,8 +23,8 @@ public:
 private:
   friend class ezProceduralPlacementComponent;
 
-  void Prepare(const ezWorldModule::UpdateContext& context);
-  void Raycast(const ezWorldModule::UpdateContext& context);
+  void UpdateTiles(const ezWorldModule::UpdateContext& context);
+  void PreparePlace(const ezWorldModule::UpdateContext& context);
   void PlaceObjects(const ezWorldModule::UpdateContext& context);
 
   void AddComponent(ezProceduralPlacementComponent* pComponent);
@@ -149,7 +149,15 @@ private:
   {
     ezSharedPtr<const ezPPInternal::Layer> m_pLayer;
 
-    ezHashTable<ezUInt64, ezUInt32> m_TileIndices;
+    struct TileIndexAndAge
+    {
+      EZ_DECLARE_POD_TYPE();
+
+      ezUInt32 m_uiIndex;
+      ezUInt64 m_uiLastSeenFrame;
+    };
+
+    ezHashTable<ezUInt64, TileIndexAndAge> m_TileIndices;
 
     ezUniquePtr<ezPPInternal::UpdateTilesTask> m_pUpdateTilesTask;
   };

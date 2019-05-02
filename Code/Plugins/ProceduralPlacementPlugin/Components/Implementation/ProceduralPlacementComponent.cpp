@@ -13,6 +13,7 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 using namespace ezPPInternal;
 
@@ -30,7 +31,7 @@ ezProceduralPlacementComponentManager::~ezProceduralPlacementComponentManager() 
 void ezProceduralPlacementComponentManager::Initialize()
 {
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProceduralPlacementComponentManager::Prepare, this);
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProceduralPlacementComponentManager::UpdateTiles, this);
     desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync;
     desc.m_fPriority = 10000.0f;
 
@@ -38,7 +39,7 @@ void ezProceduralPlacementComponentManager::Initialize()
   }
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProceduralPlacementComponentManager::Raycast, this);
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProceduralPlacementComponentManager::PreparePlace, this);
     desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::Async;
 
     this->RegisterUpdateFunction(desc);
@@ -65,7 +66,7 @@ void ezProceduralPlacementComponentManager::Deinitialize()
   m_ActiveTiles.Clear();
 }
 
-void ezProceduralPlacementComponentManager::Prepare(const ezWorldModule::UpdateContext& context)
+void ezProceduralPlacementComponentManager::UpdateTiles(const ezWorldModule::UpdateContext& context)
 {
   // Update resource data
   bool bAnyObjectsRemoved = false;
@@ -129,9 +130,9 @@ void ezProceduralPlacementComponentManager::Prepare(const ezWorldModule::UpdateC
   ezTaskSystem::StartTaskGroup(m_UpdateTilesTaskGroupID);
 }
 
-void ezProceduralPlacementComponentManager::Raycast(const ezWorldModule::UpdateContext& context)
+void ezProceduralPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateContext& context)
 {
-  // Find new active tiles
+  // Find new active tiles and remove old ones
   {
     ezTaskSystem::WaitForGroup(m_UpdateTilesTaskGroupID);
     m_UpdateTilesTaskGroupID.Invalidate();
@@ -148,6 +149,16 @@ void ezProceduralPlacementComponentManager::Raycast(const ezWorldModule::UpdateC
       for (auto& activeLayer : activeLayers)
       {
         m_NewTiles.PushBackRange(activeLayer.m_pUpdateTilesTask->GetNewTiles());
+
+        auto oldTiles = activeLayer.m_pUpdateTilesTask->GetOldTiles();
+        for (ezUInt64 uiOldTileKey : oldTiles)
+        {
+          ezProceduralPlacementComponent::ActiveLayer::TileIndexAndAge tileIndex;
+          if (activeLayer.m_TileIndices.Remove(uiOldTileKey, &tileIndex))
+          {
+            DeallocateTile(tileIndex.m_uiIndex);
+          }
+        }
       }
     }
 
@@ -273,7 +284,9 @@ void ezProceduralPlacementComponentManager::PlaceObjects(const ezWorldModule::Up
           auto& activeLayer = pComponent->m_Layers[tileDesc.m_uiLayerIndex];
 
           ezUInt64 uiTileKey = GetTileKey(tileDesc.m_iPosX, tileDesc.m_iPosY);
-          activeLayer.m_TileIndices[uiTileKey] = uiTileIndex;
+          auto& tile = activeLayer.m_TileIndices[uiTileKey];
+          tile.m_uiIndex = uiTileIndex;
+          tile.m_uiLastSeenFrame = ezRenderWorld::GetFrameCounter();
         }
       }
 
