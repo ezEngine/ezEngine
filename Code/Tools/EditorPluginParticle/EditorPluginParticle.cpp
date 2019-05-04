@@ -54,6 +54,10 @@ void OnLoadPlugin(bool bReloading)
   }
 }
 
-void OnUnloadPlugin(bool bReloading) {}
+void OnUnloadPlugin(bool bReloading)
+{
+  ezParticleActions::UnregisterActions();
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezParticleEffectAssetDocument::PropertyMetaStateEventHandler);
+}
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);

@@ -94,8 +94,11 @@ bool ezEditorProcessCommunicationChannel::IsClientAlive() const
 
 void ezEditorProcessCommunicationChannel::CloseConnection()
 {
-  EZ_DEFAULT_DELETE(m_pChannel);
-
+  if (m_pChannel)
+  {
+    m_pChannel->m_MessageEvent.RemoveEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::MessageFunc, this));
+    EZ_DEFAULT_DELETE(m_pChannel);
+  }
   if (m_pClientProcess)
   {
     m_pClientProcess->close();
@@ -129,7 +132,11 @@ bool ezEditorProcessRemoteCommunicationChannel::IsConnected() const
 
 void ezEditorProcessRemoteCommunicationChannel::CloseConnection()
 {
-  EZ_DEFAULT_DELETE(m_pChannel);
+  if (m_pChannel)
+  {
+    m_pChannel->m_MessageEvent.RemoveEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::MessageFunc, this));
+    EZ_DEFAULT_DELETE(m_pChannel);
+  }
 }
 
 void ezEditorProcessRemoteCommunicationChannel::TryConnect()

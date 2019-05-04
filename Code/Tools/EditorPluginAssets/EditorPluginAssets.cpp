@@ -472,7 +472,13 @@ void OnLoadPlugin(bool bReloading)
 
 void OnUnloadPlugin(bool bReloading)
 {
+  ezTextureAssetActions::UnregisterActions();
+  ezTextureCubeAssetActions::UnregisterActions();
+  ezVisualShaderActions::UnregisterActions();
   ezAssetPluginActions::UnregisterActions();
+  ezVisualScriptActions::UnregisterActions();
+
+
 
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezMeshAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezTextureAssetProperties::PropertyMetaStateEventHandler);

@@ -233,6 +233,13 @@ void ezActionManager::Shutdown()
   ezStandardMenus::UnregisterActions();
   ezCommandHistoryActions::UnregisterActions();
   ezEditActions::UnregisterActions();
+
+  EZ_ASSERT_DEV(s_ActionTable.IsEmpty(), "Some actions were registered but not unregistred.");
+  EZ_ASSERT_DEV(s_CategoryPathToActions.IsEmpty(), "Some actions were registered but not unregistred.");
+
+  s_ActionTable.Clear();
+  s_CategoryPathToActions.Clear();
+  s_ShortcutOverride.Clear();
 }
 
 ezActionDescriptor* ezActionManager::CreateActionDesc(const ezActionDescriptor& desc)

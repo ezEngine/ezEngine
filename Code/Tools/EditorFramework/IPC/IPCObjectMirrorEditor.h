@@ -15,6 +15,7 @@ public:
   ~ezIPCObjectMirrorEditor();
 
   void SetIPC(ezEditorEngineConnection* pIPC);
+  ezEditorEngineConnection* GetIPC();
   virtual void ApplyOp(ezObjectChange& change) override;
 
 private:

@@ -244,6 +244,7 @@ void ezProfilingSystem::Capture(ezStreamWriter& outputStream)
     }
 
     // GPU data
+    if (s_GPUData)
     {
       for (ezUInt32 i = 0; i < s_GPUData->GetCount(); ++i)
       {

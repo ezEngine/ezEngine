@@ -37,7 +37,7 @@ class ezVisualScriptTypeRegistry
 
 public:
   ezVisualScriptTypeRegistry();
-
+  ~ezVisualScriptTypeRegistry();
   const ezVisualScriptNodeDescriptor* GetDescriptorForType(const ezRTTI* pRtti) const;
 
   const ezRTTI* GetNodeBaseType() const { return m_pBaseType; }

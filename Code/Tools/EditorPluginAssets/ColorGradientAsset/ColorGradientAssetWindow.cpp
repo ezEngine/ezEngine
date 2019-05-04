@@ -47,7 +47,7 @@ ezQtColorGradientAssetDocumentWindow::ezQtColorGradientAssetDocumentWindow(ezDoc
   m_pGradientEditor = new ezQtColorGradientEditorWidget(this);
 
   QWidget* pContainer = new QWidget(this);
-  pContainer->setLayout(new QVBoxLayout(this));
+  pContainer->setLayout(new QVBoxLayout());
   pContainer->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
   pContainer->layout()->addWidget(m_pGradientEditor);
   pContainer->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));

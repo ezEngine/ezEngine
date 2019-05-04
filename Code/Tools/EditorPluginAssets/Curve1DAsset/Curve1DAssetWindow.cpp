@@ -46,7 +46,7 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
   m_pCurveEditor = new ezQtCurve1DEditorWidget(this);
 
   QWidget* pContainer = new QWidget(this);
-  pContainer->setLayout(new QVBoxLayout(this));
+  pContainer->setLayout(new QVBoxLayout());
   pContainer->layout()->addWidget(m_pCurveEditor);
 
   setCentralWidget(pContainer);

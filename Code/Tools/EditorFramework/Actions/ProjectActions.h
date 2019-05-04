@@ -37,7 +37,6 @@ public:
   static ezActionDescriptorHandle s_hInputConfig;
   static ezActionDescriptorHandle s_hPreferencesDlg;
   static ezActionDescriptorHandle s_hTagsDlg;
-  static ezActionDescriptorHandle s_hEditorTests;
   static ezActionDescriptorHandle s_hAssetProfiles;
 
   static ezActionDescriptorHandle s_hToolsMenu;
@@ -95,7 +94,6 @@ public:
     PreferencesDialog,
     TagsDialog,
     EnginePlugins,
-    EditorTests,
     ImportAsset,
     AssetProfiles,
   };
