@@ -36,18 +36,7 @@ ezQtEditorApp::~ezQtEditorApp()
 
 ezInt32 ezQtEditorApp::RunEditor()
 {
-  connect(m_pTimer, SIGNAL(timeout()), this, SLOT(SlotTimedUpdate()), Qt::QueuedConnection);
-  m_pTimer->start(1);
-
   ezInt32 ret = s_pQtApplication->exec();
-
-  ezToolsProject::CloseProject();
-
-  if (!m_bHeadless)
-  {
-    m_WhatsNew.StoreLastRead();
-  }
-
   return ret;
 }
 

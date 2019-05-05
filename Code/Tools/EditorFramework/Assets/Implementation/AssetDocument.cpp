@@ -91,18 +91,23 @@ void ezAssetDocument::InternalAfterSaveDocument()
   const auto flags = GetAssetFlags();
   ezAssetCurator::GetSingleton()->NotifyOfFileChange(GetDocumentPath());
 
-  if (flags.IsAnySet(ezAssetDocumentFlags::AutoTransformOnSave))
+  // If we request an engine connection but the mirror is not set up yet we are still
+  // creating the document and TransformAsset will most likely fail.
+  if (m_EngineConnectionType != ezAssetDocEngineConnection::None && m_Mirror.GetIPC())
   {
-    /// \todo Should only be done for platform agnostic assets
-    auto ret = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), false);
+    if (flags.IsAnySet(ezAssetDocumentFlags::AutoTransformOnSave))
+    {
+      /// \todo Should only be done for platform agnostic assets
+      auto ret = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), false);
 
-    if (ret.m_Result.Failed())
-    {
-      ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage, GetDocumentPath());
-    }
-    else
-    {
-      ezAssetCurator::GetSingleton()->WriteAssetTables();
+      if (ret.m_Result.Failed())
+      {
+        ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage, GetDocumentPath());
+      }
+      else
+      {
+        ezAssetCurator::GetSingleton()->WriteAssetTables();
+      }
     }
   }
 }

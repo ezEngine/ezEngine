@@ -17,6 +17,11 @@ void ezIPCObjectMirrorEditor::SetIPC(ezEditorEngineConnection* pIPC)
   m_pIPC = pIPC;
 }
 
+ezEditorEngineConnection* ezIPCObjectMirrorEditor::GetIPC()
+{
+  return m_pIPC;
+}
+
 void ezIPCObjectMirrorEditor::ApplyOp(ezObjectChange& change)
 {
   if (m_pManager)

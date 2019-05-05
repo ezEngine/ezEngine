@@ -56,12 +56,6 @@ void ezVisualizerManager::SelectionEventHandler(const ezSelectionManagerEvent& e
 
 void ezVisualizerManager::SendEventToRecreateVisualizers(const ezDocument* pDoc)
 {
-  if (m_DocsSubscribed[pDoc].m_bSubscribed == false)
-  {
-    m_DocsSubscribed[pDoc].m_bSubscribed = true;
-    pDoc->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezVisualizerManager::StructureEventHandler, this));
-  }
-
   if (m_DocsSubscribed[pDoc].m_bActivated)
   {
     const auto& sel = pDoc->GetSelectionManager()->GetSelection();
@@ -88,10 +82,14 @@ void ezVisualizerManager::DocumentManagerEventHandler(const ezDocumentManager::E
   if (e.m_Type == ezDocumentManager::Event::Type::DocumentOpened)
   {
     e.m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezVisualizerManager::SelectionEventHandler, this));
+    e.m_pDocument->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezVisualizerManager::StructureEventHandler, this));
   }
 
   if (e.m_Type == ezDocumentManager::Event::Type::DocumentClosing)
   {
+    e.m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezVisualizerManager::SelectionEventHandler, this));
+    e.m_pDocument->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezVisualizerManager::StructureEventHandler, this));
+
     SetVisualizersActive(e.m_pDocument, false);
   }
 }

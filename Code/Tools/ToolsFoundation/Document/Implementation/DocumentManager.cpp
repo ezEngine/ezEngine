@@ -222,7 +222,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
       EZ_ASSERT_DEV(DocumentTypes[i]->m_bCanCreate, "This document manager cannot create the document type '{0}'", szDocumentTypeName);
 
       {
-        EZ_PROFILE_SCOPE("InternalCreateDocument");
+        EZ_PROFILE_SCOPE(szDocumentTypeName);
         status = InternalCreateDocument(szDocumentTypeName, sPath, bCreate, out_pDocument);
         EZ_ASSERT_DEV(status.m_Result == EZ_FAILURE || out_pDocument != nullptr,
                       "Status was success, but the document manager returned a nullptr document.");

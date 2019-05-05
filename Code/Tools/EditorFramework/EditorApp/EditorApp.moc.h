@@ -6,7 +6,6 @@
 #include <EditorFramework/EditorApp/WhatsNew.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <EditorFramework/TestFramework/EditorTests.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Containers/Set.h>
@@ -17,13 +16,13 @@
 #include <QApplication>
 #include <ToolsFoundation/Basics/RecentFilesList.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
+#include <Foundation/Types/Bitflags.h>
 
 class QMainWindow;
 class QWidget;
 class ezProgress;
 class ezQtProgressbar;
 class ezQtEditorApp;
-class ezEditorTests;
 class QStringList;
 
 struct EZ_EDITORFRAMEWORK_DLL ezEditorAppEvent
@@ -43,6 +42,28 @@ class EZ_EDITORFRAMEWORK_DLL ezQtEditorApp : public QObject
   Q_OBJECT
 
   EZ_DECLARE_SINGLETON(ezQtEditorApp);
+
+public:
+  struct StartupFlags
+  {
+    typedef ezUInt8 StorageType;
+    enum Enum
+    {
+      Headless = EZ_BIT(0),
+      SafeMode = EZ_BIT(1),
+      NoRecent = EZ_BIT(2),
+      Debug = EZ_BIT(3),
+      Default = 0,
+    };
+
+    struct Bits
+    {
+      StorageType Headless : 1;
+      StorageType SafeMode : 1;
+      StorageType NoRecent : 1;
+      StorageType Debug : 1;
+    };
+  };
 
 public:
   ezQtEditorApp();
@@ -112,7 +133,8 @@ public:
   ezRecentFilesList LoadOpenDocumentsList();
 
   void InitQt(int argc, char** argv);
-  void StartupEditor(bool bHeadless);
+  void StartupEditor();
+  void StartupEditor(ezBitflags<StartupFlags> flags, const char* szUserDataFolder = nullptr);
   void ShutdownEditor();
   ezInt32 RunEditor();
   void DeInitQt();
@@ -143,7 +165,7 @@ public:
   ezDocument* OpenDocument(const char* szDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext = nullptr);
   ezDocument* CreateDocument(const char* szDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext = nullptr);
 
-  void CreateOrOpenProject(bool bCreate, const char* szFile);
+  ezResult CreateOrOpenProject(bool bCreate, const char* szFile);
 
   /// \brief Adds a data directory as a hard dependency to the project. Should be used by plugins to ensure their required data is
   /// available. The path must be relative to the SdkRoot folder.
@@ -171,8 +193,6 @@ public:
   /// All input slots to be exposed by the editor are stored in 'Shared/Tools/ezEditor/InputSlots'
   /// as txt files. Each line names one input slot.
   void GetKnownInputSlots(ezDynamicArray<ezString>& slots) const;
-
-  void ExecuteTests();
 
 Q_SIGNALS:
   void IdleEvent();
@@ -253,7 +273,7 @@ private:
   ezProgress* m_pProgressbar;
   ezQtProgressbar* m_pQtProgressbar;
 
-  ezUniquePtr<ezEditorTests> m_TestFramework;
-
   ezWhatsNewText m_WhatsNew;
 };
+
+EZ_DECLARE_FLAGS_OPERATORS(ezQtEditorApp::StartupFlags);

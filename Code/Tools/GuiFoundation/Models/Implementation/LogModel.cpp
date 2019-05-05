@@ -28,6 +28,7 @@ void ezQtLogModel::Clear()
 
   m_AllMessages.Clear();
   m_VisibleMessages.Clear();
+  m_BlockQueue.Clear();
   Invalidate();
   m_bIsValid = true;
 }

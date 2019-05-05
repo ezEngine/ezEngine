@@ -92,7 +92,7 @@ public:
     SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
 #endif
 
-    ezQtEditorApp::GetSingleton()->StartupEditor(true);
+    ezQtEditorApp::GetSingleton()->StartupEditor(ezQtEditorApp::StartupFlags::Headless);
     ezQtUiServices::SetHeadless(true);
 
     const ezStringBuilder sProject = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-project");

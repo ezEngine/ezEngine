@@ -194,16 +194,40 @@ ezTestAppRun ezTestSetup::RunTests()
 
   int argc = s_argc;
   char** argv = const_cast<char**>(s_argv);
-  QApplication app(argc, argv);
 
-  app.setApplicationName(pTestFramework->GetTestName());
-
-  ezQtTestGUI::SetDarkTheme();
+  if (qApp != nullptr)
+  {
+    bool ok = false;
+    int iCount = qApp->property("Shared").toInt(&ok);
+    EZ_ASSERT_DEV(ok, "Existing QApplication was not constructed by EZ!");
+    qApp->setProperty("Shared", QVariant::fromValue(iCount + 1));
+  }
+  else
+  {
+    new QApplication(argc, argv);
+    qApp->setProperty("Shared", QVariant::fromValue((int)1));
+    qApp->setApplicationName(pTestFramework->GetTestName());
+    ezQtTestGUI::SetDarkTheme();
+  }
+  
   // Create main window
-  ezQtTestGUI mainWindow(*static_cast<ezQtTestFramework*>(pTestFramework));
-  mainWindow.show();
+  {
+    ezQtTestGUI mainWindow(*static_cast<ezQtTestFramework*>(pTestFramework));
+    mainWindow.show();
 
-  app.exec();
+    qApp->exec();
+  }
+  {
+    const int iCount = qApp->property("Shared").toInt();
+    if (iCount == 1)
+    {
+      delete qApp;
+    }
+    else
+    {
+      qApp->setProperty("Shared", QVariant::fromValue(iCount - 1));
+    }
+  }
 
   return ezTestAppRun::Quit;
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)

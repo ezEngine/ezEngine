@@ -43,5 +43,7 @@ private:
 #if EZ_ENABLED(USE_WIN_EXTRAS)
   QWinTaskbarButton* m_pWinTaskBarButton = nullptr;
   QWinTaskbarProgress* m_pWinTaskBarProgress = nullptr;
+  QMetaObject::Connection m_OnButtonDestroyed;
+  QMetaObject::Connection m_OnProgressDestroyed;
 #endif
 };
