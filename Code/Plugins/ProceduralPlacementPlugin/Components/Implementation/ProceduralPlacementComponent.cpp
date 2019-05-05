@@ -18,8 +18,8 @@
 
 using namespace ezPPInternal;
 
-ezCVarInt CVarMaxProcessingTiles("pp_MaxProcessingTiles", 10, ezCVarFlags::Default, "Maximum number of tiles in process");
-ezCVarInt CVarMaxPlacedObjects("pp_MaxPlacedObjects", 256, ezCVarFlags::Default, "Maximum number of objects placed per frame");
+ezCVarInt CVarMaxProcessingTiles("pp_MaxProcessingTiles", 8, ezCVarFlags::Default, "Maximum number of tiles in process");
+ezCVarInt CVarMaxPlacedObjects("pp_MaxPlacedObjects", 128, ezCVarFlags::Default, "Maximum number of objects placed per frame");
 ezCVarBool CVarVisTiles("pp_VisTiles", false, ezCVarFlags::Default, "Enables debug visualization of procedural placement tiles");
 
 ezProceduralPlacementComponentManager::ezProceduralPlacementComponentManager(ezWorld* pWorld)
