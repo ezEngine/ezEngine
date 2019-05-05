@@ -9,6 +9,7 @@
 #include <ProceduralPlacementPlugin/Components/Implementation/ActiveTile.h>
 #include <ProceduralPlacementPlugin/Components/ProceduralPlacementComponent.h>
 #include <ProceduralPlacementPlugin/Tasks/PlacementTask.h>
+#include <ProceduralPlacementPlugin/Tasks/PrepareTask.h>
 #include <ProceduralPlacementPlugin/Tasks/UpdateTilesTask.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
@@ -191,7 +192,7 @@ void ezProceduralPlacementComponentManager::PreparePlace(const ezWorldModule::Up
   {
     EZ_PROFILE_SCOPE("Allocate new tiles");
 
-    while (!m_NewTiles.IsEmpty() && GetNumAllocatedPlacementTasks() < (ezUInt32)CVarMaxProcessingTiles)
+    while (!m_NewTiles.IsEmpty() && GetNumAllocatedProcessingTasks() < (ezUInt32)CVarMaxProcessingTiles)
     {
       const TileDesc& newTile = m_NewTiles.PeekBack();
 
@@ -201,7 +202,7 @@ void ezProceduralPlacementComponentManager::PreparePlace(const ezWorldModule::Up
         auto& pLayer = pComponent->m_Layers[newTile.m_uiLayerIndex].m_pLayer;
         ezUInt32 uiNewTileIndex = AllocateTile(newTile, pLayer);
 
-        AllocatePlacementTask(uiNewTileIndex);
+        AllocateProcessingTask(uiNewTileIndex);
       }
 
       m_NewTiles.PopBack();
@@ -210,30 +211,41 @@ void ezProceduralPlacementComponentManager::PreparePlace(const ezWorldModule::Up
 
   const ezWorld* pWorld = GetWorld();
 
-  // Update processing tiles
+  // Update processing tasks
   if (GetWorldSimulationEnabled())
   {
     if (const ezPhysicsWorldModuleInterface* pPhysicsModule = pWorld->GetModule<ezPhysicsWorldModuleInterface>())
     {
-      EZ_PROFILE_SCOPE("Update processing tiles");
-
-      for (ezUInt32 i = 0; i < m_PlacementTaskInfos.GetCount(); ++i)
       {
-        auto& taskInfo = m_PlacementTaskInfos[i];
-        if (!taskInfo.IsValid() || taskInfo.IsScheduled())
-          continue;
+        EZ_PROFILE_SCOPE("Prepare processing tasks");
 
-        m_ActiveTiles[taskInfo.m_uiTileIndex].PrepareTask(pPhysicsModule, *taskInfo.m_pTask);
+        ezTaskGroupID prepareTaskGroupID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
 
-        if (!taskInfo.m_pTask->GetInputPoints().IsEmpty())
+        for (auto& processingTask : m_ProcessingTasks)
         {
-          taskInfo.m_taskGroupID = ezTaskSystem::StartSingleTask(taskInfo.m_pTask.Borrow(), ezTaskPriority::LongRunningHighPriority);
+          if (!processingTask.IsValid() || processingTask.IsScheduled())
+            continue;
+
+          ezTaskSystem::AddTaskToGroup(prepareTaskGroupID, processingTask.m_pPrepareTask.Borrow());
         }
-        else
+
+        ezTaskSystem::StartTaskGroup(prepareTaskGroupID);
+        ezTaskSystem::WaitForGroup(prepareTaskGroupID);
+      }
+
+      {
+        EZ_PROFILE_SCOPE("Kickoff placement tasks");
+
+        for (auto& processingTask : m_ProcessingTasks)
         {
-          // mark tile & task for re-use
-          DeallocateTile(taskInfo.m_uiTileIndex);
-          DeallocatePlacementTask(i);
+          if (!processingTask.IsValid() || processingTask.IsScheduled())
+            continue;
+
+          auto& activeTile = m_ActiveTiles[processingTask.m_uiTileIndex];
+          activeTile.PrepareTask(pPhysicsModule, *processingTask.m_pPlacementTask);
+
+          processingTask.m_PlacementTaskGroupID =
+            ezTaskSystem::StartSingleTask(processingTask.m_pPlacementTask.Borrow(), ezTaskPriority::LongRunningHighPriority);
         }
       }
     }
@@ -261,24 +273,24 @@ void ezProceduralPlacementComponentManager::PlaceObjects(const ezWorldModule::Up
 
   ezUInt32 uiTotalNumPlacedObjects = 0;
 
-  for (ezUInt32 i = 0; i < m_PlacementTaskInfos.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < m_ProcessingTasks.GetCount(); ++i)
   {
-    auto& taskInfo = m_PlacementTaskInfos[i];
-    if (!taskInfo.IsValid() || !taskInfo.IsScheduled())
+    auto& task = m_ProcessingTasks[i];
+    if (!task.IsValid() || !task.IsScheduled())
       continue;
 
-    if (taskInfo.m_pTask->IsTaskFinished())
+    if (task.m_pPlacementTask->IsTaskFinished())
     {
       ezUInt32 uiPlacedObjects = 0;
 
-      ezUInt32 uiTileIndex = taskInfo.m_uiTileIndex;
+      ezUInt32 uiTileIndex = task.m_uiTileIndex;
       auto& activeTile = m_ActiveTiles[uiTileIndex];
 
       auto& tileDesc = activeTile.GetDesc();
       ezProceduralPlacementComponent* pComponent = nullptr;
       if (TryGetComponent(tileDesc.m_hComponent, pComponent))
       {
-        uiPlacedObjects = activeTile.PlaceObjects(*GetWorld(), *taskInfo.m_pTask);
+        uiPlacedObjects = activeTile.PlaceObjects(*GetWorld(), task.m_pPlacementTask->GetOutputTransforms());
         if (uiPlacedObjects > 0)
         {
           auto& activeLayer = pComponent->m_Layers[tileDesc.m_uiLayerIndex];
@@ -297,7 +309,7 @@ void ezProceduralPlacementComponentManager::PlaceObjects(const ezWorldModule::Up
       }
 
       // mark task for re-use
-      DeallocatePlacementTask(i);
+      DeallocateProcessingTask(i);
 
       uiTotalNumPlacedObjects += uiPlacedObjects;
     }
@@ -355,45 +367,48 @@ void ezProceduralPlacementComponentManager::DeallocateTile(ezUInt32 uiTileIndex)
   m_FreeTiles.PushBack(uiTileIndex);
 }
 
-ezUInt32 ezProceduralPlacementComponentManager::AllocatePlacementTask(ezUInt32 uiTileIndex)
+ezUInt32 ezProceduralPlacementComponentManager::AllocateProcessingTask(ezUInt32 uiTileIndex)
 {
   ezUInt32 uiNewTaskIndex = ezInvalidIndex;
-  if (!m_FreePlacementTasks.IsEmpty())
+  if (!m_FreeProcessingTasks.IsEmpty())
   {
-    uiNewTaskIndex = m_FreePlacementTasks.PeekBack();
-    m_FreePlacementTasks.PopBack();
+    uiNewTaskIndex = m_FreeProcessingTasks.PeekBack();
+    m_FreeProcessingTasks.PopBack();
   }
   else
   {
-    uiNewTaskIndex = m_PlacementTaskInfos.GetCount();
-    auto& newTask = m_PlacementTaskInfos.ExpandAndGetRef();
+    uiNewTaskIndex = m_ProcessingTasks.GetCount();
+    auto& newTask = m_ProcessingTasks.ExpandAndGetRef();
 
     ezStringBuilder sName;
+    sName.Format("Prepare Task {}", uiNewTaskIndex);
+    newTask.m_pPrepareTask = EZ_DEFAULT_NEW(PrepareTask, sName);
+
     sName.Format("Placement Task {}", uiNewTaskIndex);
-    newTask.m_pTask = EZ_DEFAULT_NEW(PlacementTask, sName);
+    newTask.m_pPlacementTask = EZ_DEFAULT_NEW(PlacementTask, sName);
   }
 
-  m_PlacementTaskInfos[uiNewTaskIndex].m_uiTileIndex = uiTileIndex;
+  m_ProcessingTasks[uiNewTaskIndex].m_uiTileIndex = uiTileIndex;
   return uiNewTaskIndex;
 }
 
-void ezProceduralPlacementComponentManager::DeallocatePlacementTask(ezUInt32 uiPlacementTaskIndex)
+void ezProceduralPlacementComponentManager::DeallocateProcessingTask(ezUInt32 uiTaskIndex)
 {
-  auto& task = m_PlacementTaskInfos[uiPlacementTaskIndex];
+  auto& task = m_ProcessingTasks[uiTaskIndex];
   if (task.IsScheduled())
   {
-    ezTaskSystem::WaitForGroup(task.m_taskGroupID);
+    ezTaskSystem::WaitForGroup(task.m_PlacementTaskGroupID);
   }
 
-  task.m_pTask->Clear();
+  task.m_pPlacementTask->Clear();
   task.Invalidate();
 
-  m_FreePlacementTasks.PushBack(uiPlacementTaskIndex);
+  m_FreeProcessingTasks.PushBack(uiTaskIndex);
 }
 
-ezUInt32 ezProceduralPlacementComponentManager::GetNumAllocatedPlacementTasks() const
+ezUInt32 ezProceduralPlacementComponentManager::GetNumAllocatedProcessingTasks() const
 {
-  return m_PlacementTaskInfos.GetCount() - m_FreePlacementTasks.GetCount();
+  return m_ProcessingTasks.GetCount() - m_FreeProcessingTasks.GetCount();
 }
 
 void ezProceduralPlacementComponentManager::RemoveTilesForComponent(
@@ -426,12 +441,12 @@ void ezProceduralPlacementComponentManager::RemoveTilesForComponent(
 
       DeallocateTile(uiTileIndex);
 
-      for (ezUInt32 i = 0; i < m_PlacementTaskInfos.GetCount(); ++i)
+      for (ezUInt32 i = 0; i < m_ProcessingTasks.GetCount(); ++i)
       {
-        auto& taskInfo = m_PlacementTaskInfos[i];
+        auto& taskInfo = m_ProcessingTasks[i];
         if (taskInfo.m_uiTileIndex == uiTileIndex)
         {
-          DeallocatePlacementTask(i);
+          DeallocateProcessingTask(i);
         }
       }
     }

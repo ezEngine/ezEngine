@@ -26,6 +26,7 @@ namespace ezPPInternal
 {
   class ActiveTile;
   class UpdateTilesTask;
+  class PrepareTask;
   class PlacementTask;
 
   struct Pattern

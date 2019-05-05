@@ -28,7 +28,7 @@ namespace ezPPInternal
 
     void PrepareTask(const ezPhysicsWorldModuleInterface* pPhysicsModule, PlacementTask& placementTask);
 
-    ezUInt32 PlaceObjects(ezWorld& world, const PlacementTask& placementTask);
+    ezUInt32 PlaceObjects(ezWorld& world, ezArrayPtr<const PlacementTransform> objectTransforms);
 
   private:
     TileDesc m_Desc;
