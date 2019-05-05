@@ -7,7 +7,7 @@
 
 ezCVarFloat CVarCullDistanceScale(
   "pp_CullDistanceScale", 1.0f, ezCVarFlags::Default, "Global scale to control cull distance for all layers");
-ezCVarInt CVarMaxCullRadius("pp_MaxCullRadius", 8, ezCVarFlags::Default, "Maximum cull radius in number of tiles");
+ezCVarInt CVarMaxCullRadius("pp_MaxCullRadius", 10, ezCVarFlags::Default, "Maximum cull radius in number of tiles");
 
 UpdateTilesTask::UpdateTilesTask(ezProceduralPlacementComponent* pComponent, ezUInt32 uiLayerIndex)
   : m_pComponent(pComponent)
@@ -34,7 +34,7 @@ void ezPPInternal::UpdateTilesTask::Execute()
   const float fPatternSize = activeLayer.m_pLayer->m_pPattern->m_fSize;
   const float fCullDistance = activeLayer.m_pLayer->m_fCullDistance * CVarCullDistanceScale;
 
-  float fRadius = ezMath::Min<float>(ezMath::Ceil(fCullDistance / fTileSize), CVarMaxCullRadius);
+  float fRadius = ezMath::Min<float>(ezMath::Ceil(fCullDistance / fTileSize + 1.0f), CVarMaxCullRadius);
   ezInt32 iRadius = static_cast<ezInt32>(fRadius);
   ezInt32 iRadiusSqr = iRadius * iRadius;
 
