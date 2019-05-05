@@ -103,7 +103,7 @@ void ezPPInternal::UpdateTilesTask::Execute()
               newTile.m_fMinZ = minZ;
               newTile.m_fMaxZ = maxZ;
               newTile.m_fPatternSize = fPatternSize;
-              newTile.m_fDistanceToCamera = -1.0f;
+              newTile.m_fDistanceToCamera = ezMath::BasicType<float>::MaxValue();
               newTile.m_GlobalToLocalBoxTransforms = globalToLocalBoxTransforms;
             }
           }
@@ -117,6 +117,23 @@ void ezPPInternal::UpdateTilesTask::Execute()
       fY += fTileSize;
     }
   }
+
+  // Update distance to camera
+  for (auto& newTile : m_NewTiles)
+  {
+    ezVec2 tilePos = ezVec2((float)newTile.m_iPosX, (float)newTile.m_iPosY);
+
+    for (ezVec3 vCameraPosition : m_vCameraPositions)
+    {
+      ezVec2 cameraPos = vCameraPosition.GetAsVec2() / fTileSize;
+
+      float fDistance = (tilePos - cameraPos).GetLengthSquared();
+      newTile.m_fDistanceToCamera = ezMath::Min(newTile.m_fDistanceToCamera, fDistance);
+    }
+  }
+
+  // Pre-sort by distance, larger distances come first since new tiles are processed in reverse order.
+  m_NewTiles.Sort([](auto& tileA, auto& tileB) { return tileA.m_fDistanceToCamera > tileB.m_fDistanceToCamera; });
 
   m_vCameraPositions.Clear();
 

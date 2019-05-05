@@ -64,10 +64,12 @@ private:
     EZ_ALWAYS_INLINE bool IsScheduled() const { return m_PlacementTaskGroupID.IsValid(); }
     EZ_ALWAYS_INLINE void Invalidate()
     {
+      m_uiScheduledFrame = -1;
       m_PlacementTaskGroupID.Invalidate();
       m_uiTileIndex = ezInvalidIndex;
     }
 
+    ezUInt64 m_uiScheduledFrame;
     ezUniquePtr<ezPPInternal::PrepareTask> m_pPrepareTask;
     ezUniquePtr<ezPPInternal::PlacementTask> m_pPlacementTask;
     ezTaskGroupID m_PlacementTaskGroupID;
@@ -76,6 +78,14 @@ private:
 
   ezDynamicArray<ProcessingTask> m_ProcessingTasks;
   ezDynamicArray<ezUInt32> m_FreeProcessingTasks;
+
+  struct SortedProcessingTask
+  {
+    ezUInt64 m_uiScheduledFrame = 0;
+    ezUInt32 m_uiTaskIndex = 0;
+  };
+
+  ezDynamicArray<SortedProcessingTask> m_SortedProcessingTasks;
 
   ezDynamicArray<ezPPInternal::TileDesc, ezAlignedAllocatorWrapper> m_NewTiles;
   ezTaskGroupID m_UpdateTilesTaskGroupID;

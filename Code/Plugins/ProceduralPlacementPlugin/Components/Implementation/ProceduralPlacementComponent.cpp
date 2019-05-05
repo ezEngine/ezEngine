@@ -167,20 +167,6 @@ void ezProceduralPlacementComponentManager::PreparePlace(const ezWorldModule::Up
     {
       EZ_PROFILE_SCOPE("Sort new tiles");
 
-      for (auto& newTile : m_NewTiles)
-      {
-        ezVec2 tilePos = ezVec2((float)newTile.m_iPosX, (float)newTile.m_iPosY) * newTile.m_fPatternSize;
-
-        float fMinDistance = ezMath::BasicType<float>::MaxValue();
-        for (auto& visibleComponent : m_VisibleComponents)
-        {
-          float fDistance = (tilePos - visibleComponent.m_vCameraPosition.GetAsVec2()).GetLengthSquared();
-          fMinDistance = ezMath::Min(fMinDistance, fDistance);
-        }
-
-        newTile.m_fDistanceToCamera = fMinDistance;
-      }
-
       // Sort by distance, larger distances come first since new tiles are processed in reverse order.
       m_NewTiles.Sort([](auto& tileA, auto& tileB) { return tileA.m_fDistanceToCamera > tileB.m_fDistanceToCamera; });
     }
@@ -244,6 +230,7 @@ void ezProceduralPlacementComponentManager::PreparePlace(const ezWorldModule::Up
           auto& activeTile = m_ActiveTiles[processingTask.m_uiTileIndex];
           activeTile.PrepareTask(pPhysicsModule, *processingTask.m_pPlacementTask);
 
+          processingTask.m_uiScheduledFrame = ezRenderWorld::GetFrameCounter();
           processingTask.m_PlacementTaskGroupID =
             ezTaskSystem::StartSingleTask(processingTask.m_pPlacementTask.Borrow(), ezTaskPriority::LongRunningHighPriority);
         }
@@ -271,11 +258,21 @@ void ezProceduralPlacementComponentManager::PlaceObjects(const ezWorldModule::Up
 {
   EZ_PROFILE_SCOPE("Place objects");
 
-  ezUInt32 uiTotalNumPlacedObjects = 0;
-
+  m_SortedProcessingTasks.Clear();
   for (ezUInt32 i = 0; i < m_ProcessingTasks.GetCount(); ++i)
   {
-    auto& task = m_ProcessingTasks[i];
+    auto& sortedTask = m_SortedProcessingTasks.ExpandAndGetRef();
+    sortedTask.m_uiScheduledFrame = m_ProcessingTasks[i].m_uiScheduledFrame;
+    sortedTask.m_uiTaskIndex = i;
+  }
+
+  m_SortedProcessingTasks.Sort([](auto& taskA, auto& taskB) { return taskA.m_uiScheduledFrame < taskB.m_uiScheduledFrame; });
+
+  ezUInt32 uiTotalNumPlacedObjects = 0;
+
+  for (auto& sortedTask : m_SortedProcessingTasks)
+  {
+    auto& task = m_ProcessingTasks[sortedTask.m_uiTaskIndex];
     if (!task.IsValid() || !task.IsScheduled())
       continue;
 
@@ -309,7 +306,7 @@ void ezProceduralPlacementComponentManager::PlaceObjects(const ezWorldModule::Up
       }
 
       // mark task for re-use
-      DeallocateProcessingTask(i);
+      DeallocateProcessingTask(sortedTask.m_uiTaskIndex);
 
       uiTotalNumPlacedObjects += uiPlacedObjects;
     }
