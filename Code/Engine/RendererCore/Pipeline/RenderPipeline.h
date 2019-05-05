@@ -72,8 +72,8 @@ private:
 
   void RemoveConnections(ezRenderPipelinePass* pPass);
   void ClearRenderPassGraphTextures();
-  bool AreInputDescriptionsAvailable(const ezRenderPipelinePass* pPass, const ezDynamicArray<ezRenderPipelinePass*>& done) const;
-  bool ArePassThroughInputsDone(const ezRenderPipelinePass* pPass, const ezDynamicArray<ezRenderPipelinePass*>& done) const;
+  bool AreInputDescriptionsAvailable(const ezRenderPipelinePass* pPass, const ezHybridArray<ezRenderPipelinePass*, 32>& done) const;
+  bool ArePassThroughInputsDone(const ezRenderPipelinePass* pPass, const ezHybridArray<ezRenderPipelinePass*, 32>& done) const;
 
   ezFrameDataProviderBase* GetFrameDataProvider(const ezRTTI* pRtti);
 
@@ -123,8 +123,11 @@ private: // Member data
   ezDynamicArray<ezUInt16> m_TextureUsageIdxSortedByFirstUsage; ///< Indices map into m_TextureUsage
   ezDynamicArray<ezUInt16> m_TextureUsageIdxSortedByLastUsage; ///< Indices map into m_TextureUsage
 
+  ezHashTable<ezRenderPipelinePassConnection*, ezUInt32> m_ConnectionToTextureIndex;
+
   // Extractors
   ezDynamicArray<ezUniquePtr<ezExtractor>> m_Extractors;
+  ezDynamicArray<ezUniquePtr<ezExtractor>> m_SortedExtractors;
 
   // Data Providers
   ezDynamicArray<ezUniquePtr<ezFrameDataProviderBase>> m_DataProviders;

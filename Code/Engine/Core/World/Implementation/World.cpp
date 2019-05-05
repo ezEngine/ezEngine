@@ -625,6 +625,8 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
 
 void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 {
+  EZ_PROFILE_SCOPE("Process Queued Messages");
+
   struct MessageComparer
   {
     EZ_FORCE_INLINE bool Less(const ezInternal::WorldData::MessageQueue::Entry& a,
