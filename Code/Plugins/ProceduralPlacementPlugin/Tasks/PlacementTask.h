@@ -1,8 +1,10 @@
 #pragma once
 
+#include <Foundation/Threading/TaskSystem.h>
 #include <ProceduralPlacementPlugin/ProceduralPlacementPluginDLL.h>
 #include <ProceduralPlacementPlugin/VM/ExpressionVM.h>
-#include <Foundation/Threading/TaskSystem.h>
+
+class ezPhysicsWorldModuleInterface;
 
 namespace ezPPInternal
 {
@@ -19,11 +21,20 @@ namespace ezPPInternal
 
   private:
     friend class ActiveTile;
+    friend class PrepareTask;
 
     virtual void Execute() override;
 
+    void FindPlacementPoints();
+    void ExecuteVM();
+
+    const ezPhysicsWorldModuleInterface* m_pPhysicsModule = nullptr;
+
     ezSharedPtr<const Layer> m_pLayer;
-    ezInt32 m_iTileSeed;
+    ezInt32 m_iTileSeed = 0;
+    ezBoundingBox m_TileBoundingBox;
+
+    ezDynamicArray<ezSimdTransform, ezAlignedAllocatorWrapper> m_GlobalToLocalBoxTransforms;
 
     ezDynamicArray<PlacementPoint, ezAlignedAllocatorWrapper> m_InputPoints;
     ezDynamicArray<PlacementTransform, ezAlignedAllocatorWrapper> m_OutputTransforms;
@@ -32,5 +43,4 @@ namespace ezPPInternal
 
     ezExpressionVM m_VM;
   };
-
-}
+} // namespace ezPPInternal

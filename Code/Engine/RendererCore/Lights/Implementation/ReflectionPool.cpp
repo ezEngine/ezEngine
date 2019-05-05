@@ -215,7 +215,8 @@ namespace
         renderView.m_hView = ezRenderWorld::CreateView(sName, pView);
 
         pView->SetCameraUsageHint(ezCameraUsageHint::Reflection);
-        pView->SetViewport(ezRectFloat(0.0f, 0.0f, static_cast<float>(s_uiReflectionCubeMapSize), static_cast<float>(s_uiReflectionCubeMapSize)));
+        pView->SetViewport(
+          ezRectFloat(0.0f, 0.0f, static_cast<float>(s_uiReflectionCubeMapSize), static_cast<float>(s_uiReflectionCubeMapSize)));
 
         pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>(szRenderPipelineResource));
 
@@ -384,35 +385,41 @@ struct ezReflectionPool::Data
     }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    ezGeometry geom;
-    geom.AddSphere(s_fDebugSphereRadius, 32, 16, ezColor::White);
-
-    const char* szBufferResourceName = "ReflectionProbeDebugSphereBuffer";
-    ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szBufferResourceName);
-    if (!hMeshBuffer.IsValid())
-    {
-      ezMeshBufferResourceDescriptor desc;
-      desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-      desc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
-      desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
-
-      hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szBufferResourceName, std::move(desc), szBufferResourceName);
-    }
-
-    const char* szMeshResourceName = "ReflectionProbeDebugSphere";
-    m_hDebugSphere = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshResourceName);
     if (!m_hDebugSphere.IsValid())
     {
-      ezMeshResourceDescriptor desc;
-      desc.UseExistingMeshBuffer(hMeshBuffer);
-      desc.AddSubMesh(geom.CalculateTriangleCount(), 0, 0);
-      desc.ComputeBounds();
+      ezGeometry geom;
+      geom.AddSphere(s_fDebugSphereRadius, 32, 16, ezColor::White);
 
-      m_hDebugSphere = ezResourceManager::CreateResource<ezMeshResource>(szMeshResourceName, std::move(desc), szMeshResourceName);
+      const char* szBufferResourceName = "ReflectionProbeDebugSphereBuffer";
+      ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szBufferResourceName);
+      if (!hMeshBuffer.IsValid())
+      {
+        ezMeshBufferResourceDescriptor desc;
+        desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+        desc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
+        desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+
+        hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szBufferResourceName, std::move(desc), szBufferResourceName);
+      }
+
+      const char* szMeshResourceName = "ReflectionProbeDebugSphere";
+      m_hDebugSphere = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshResourceName);
+      if (!m_hDebugSphere.IsValid())
+      {
+        ezMeshResourceDescriptor desc;
+        desc.UseExistingMeshBuffer(hMeshBuffer);
+        desc.AddSubMesh(geom.CalculateTriangleCount(), 0, 0);
+        desc.ComputeBounds();
+
+        m_hDebugSphere = ezResourceManager::CreateResource<ezMeshResource>(szMeshResourceName, std::move(desc), szMeshResourceName);
+      }
     }
 
-    m_hDebugMaterial = ezResourceManager::LoadResource<ezMaterialResource>(
-      "{ 6f8067d0-ece8-44e1-af46-79b49266de41 }"); // ReflectionProbeVisualization.ezMaterialAsset
+    if (!m_hDebugMaterial.IsValid())
+    {
+      m_hDebugMaterial = ezResourceManager::LoadResource<ezMaterialResource>(
+        "{ 6f8067d0-ece8-44e1-af46-79b49266de41 }"); // ReflectionProbeVisualization.ezMaterialAsset
+    }
 #endif
   }
 
@@ -721,7 +728,7 @@ void ezReflectionPool::OnBeginRender(ezUInt64 uiFrameCounter)
     {
       ezBoundingBoxu32 destBox;
       destBox.m_vMin.Set(0, i, 0);
-      destBox.m_vMax.Set(6, i+1, 1);
+      destBox.m_vMax.Set(6, i + 1, 1);
 
       ezGALSystemMemoryDescription memDesc;
       memDesc.m_pData = &skyIrradianceStorage[i].m_Values[0];

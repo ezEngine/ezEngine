@@ -2,19 +2,20 @@
 
 // Configure the DLL Import/Export Define
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
-  #ifdef BUILDSYSTEM_BUILDING_PROCEDURALPLACEMENTPLUGIN_LIB
-    #define EZ_PROCEDURALPLACEMENTPLUGIN_DLL __declspec(dllexport)
-  #else
-    #define EZ_PROCEDURALPLACEMENTPLUGIN_DLL __declspec(dllimport)
-  #endif
+#  ifdef BUILDSYSTEM_BUILDING_PROCEDURALPLACEMENTPLUGIN_LIB
+#    define EZ_PROCEDURALPLACEMENTPLUGIN_DLL __declspec(dllexport)
+#  else
+#    define EZ_PROCEDURALPLACEMENTPLUGIN_DLL __declspec(dllimport)
+#  endif
 #else
-  #define EZ_PROCEDURALPLACEMENTPLUGIN_DLL
+#  define EZ_PROCEDURALPLACEMENTPLUGIN_DLL
 #endif
 
+#include <Core/ResourceManager/ResourceHandle.h>
+#include <Core/World/Declarations.h>
 #include <Foundation/SimdMath/SimdTransform.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/SharedPtr.h>
-#include <Core/ResourceManager/ResourceHandle.h>
 
 class ezExpressionByteCode;
 typedef ezTypedResourceHandle<class ezColorGradientResource> ezColorGradientResourceHandle;
@@ -24,6 +25,8 @@ typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 namespace ezPPInternal
 {
   class ActiveTile;
+  class UpdateTilesTask;
+  class PrepareTask;
   class PlacementTask;
 
   struct Pattern
@@ -55,18 +58,12 @@ namespace ezPPInternal
       m_pByteCode = nullptr;
     }
 
-    float GetTileSize() const
-    {
-      return m_pPattern->m_fSize * m_fFootprint;
-    }
+    float GetTileSize() const { return m_pPattern->m_fSize * m_fFootprint; }
 
     bool IsValid() const
     {
-      return !m_ObjectsToPlace.IsEmpty() &&
-        m_pPattern != nullptr &&
-        m_fFootprint > 0.0f &&
-        m_fCullDistance > 0.0f &&
-        m_pByteCode != nullptr;
+      return !m_ObjectsToPlace.IsEmpty() && m_pPattern != nullptr && m_fFootprint > 0.0f && m_fCullDistance > 0.0f &&
+             m_pByteCode != nullptr;
     }
 
     ezHashedString m_sName;
@@ -138,7 +135,7 @@ namespace ezPPInternal
 
   struct TileDesc
   {
-    ezUInt32 m_uiResourceIdHash;
+    ezComponentHandle m_hComponent;
     ezUInt32 m_uiLayerIndex;
     ezInt32 m_iPosX;
     ezInt32 m_iPosY;
@@ -147,6 +144,6 @@ namespace ezPPInternal
     float m_fPatternSize;
     float m_fDistanceToCamera;
 
-    ezHybridArray<ezSimdTransform, 8, ezAlignedAllocatorWrapper> m_LocalBoundingBoxes;
+    ezHybridArray<ezSimdTransform, 8, ezAlignedAllocatorWrapper> m_GlobalToLocalBoxTransforms;
   };
-}
+} // namespace ezPPInternal

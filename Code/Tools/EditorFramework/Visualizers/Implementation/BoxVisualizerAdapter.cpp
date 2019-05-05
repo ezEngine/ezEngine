@@ -33,7 +33,6 @@ void ezBoxVisualizerAdapter::Update()
 
   if (!pAttr->GetSizeProperty().IsEmpty())
   {
-
     m_Scale = pObjectAccessor->Get<ezVec3>(m_pObject, GetProperty(pAttr->GetSizeProperty()));
   }
 
@@ -55,14 +54,21 @@ void ezBoxVisualizerAdapter::Update()
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezVec3>(), "Invalid property bound to ezBoxVisualizerAttribute 'offset'");
     m_vPositionOffset += value.ConvertTo<ezVec3>();
   }
+
+  m_Rotation.SetIdentity();
+
+  if (!pAttr->GetRotationProperty().IsEmpty())
+  {
+    m_Rotation = pObjectAccessor->Get<ezQuat>(m_pObject, GetProperty(pAttr->GetRotationProperty()));
+  }
 }
 
 void ezBoxVisualizerAdapter::UpdateGizmoTransform()
 {
   ezTransform t;
-  t.m_qRotation.SetIdentity();
   t.m_vScale = m_Scale;
   t.m_vPosition = m_vPositionOffset;
+  t.m_qRotation = m_Rotation;
 
   m_Gizmo.SetTransformation(GetObjectTransform() * t);
 }

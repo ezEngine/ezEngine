@@ -21,6 +21,10 @@ protected:
 
   virtual void UpdateGizmoTransform() override;
 
+  ezVec3 GetTranslation();
+  ezQuat GetRotation();
+  ezVec3 GetScale();
+
   ezTranslateGizmo m_TranslateGizmo;
   ezRotateGizmo m_RotateGizmo;
   ezManipulatorScaleGizmo m_ScaleGizmo;

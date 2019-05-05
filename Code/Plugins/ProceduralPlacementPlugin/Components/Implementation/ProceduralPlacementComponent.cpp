@@ -9,40 +9,21 @@
 #include <ProceduralPlacementPlugin/Components/Implementation/ActiveTile.h>
 #include <ProceduralPlacementPlugin/Components/ProceduralPlacementComponent.h>
 #include <ProceduralPlacementPlugin/Tasks/PlacementTask.h>
+#include <ProceduralPlacementPlugin/Tasks/PrepareTask.h>
+#include <ProceduralPlacementPlugin/Tasks/UpdateTilesTask.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
-
-namespace
-{
-  enum
-  {
-    MAX_TILE_INDEX = (1 << 20) - 1,
-    TILE_INDEX_MASK = (1 << 21) - 1
-  };
-
-  EZ_ALWAYS_INLINE ezUInt64 GetTileKey(ezInt32 x, ezInt32 y, ezInt32 z)
-  {
-    ezUInt64 sx = (x + MAX_TILE_INDEX) & TILE_INDEX_MASK;
-    ezUInt64 sy = (y + MAX_TILE_INDEX) & TILE_INDEX_MASK;
-    ezUInt64 sz = (z + MAX_TILE_INDEX) & TILE_INDEX_MASK;
-
-    return (sx << 42) | (sy << 21) | sz;
-  }
-
-#define EmptyTileIndex ezInvalidIndex
-}
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 using namespace ezPPInternal;
 
-ezCVarFloat CVarCullDistanceScale("pp_CullDistanceScale", 1.0f, ezCVarFlags::Default,
-                                  "Global scale to control cull distance for all layers");
-ezCVarInt CVarMaxProcessingTiles("pp_MaxProcessingTiles", 10, ezCVarFlags::Default, "Maximum number of tiles in process");
-ezCVarInt CVarMaxPlacedObjects("pp_MaxPlacedObjects", 256, ezCVarFlags::Default, "Maximum number of objects placed per frame");
+ezCVarInt CVarMaxProcessingTiles("pp_MaxProcessingTiles", 8, ezCVarFlags::Default, "Maximum number of tiles in process");
+ezCVarInt CVarMaxPlacedObjects("pp_MaxPlacedObjects", 128, ezCVarFlags::Default, "Maximum number of objects placed per frame");
 ezCVarBool CVarVisTiles("pp_VisTiles", false, ezCVarFlags::Default, "Enables debug visualization of procedural placement tiles");
 
 ezProceduralPlacementComponentManager::ezProceduralPlacementComponentManager(ezWorld* pWorld)
-    : ezComponentManager<ezProceduralPlacementComponent, ezBlockStorageType::Compact>(pWorld)
+  : ezComponentManager<ezProceduralPlacementComponent, ezBlockStorageType::Compact>(pWorld)
 {
 }
 
@@ -51,7 +32,15 @@ ezProceduralPlacementComponentManager::~ezProceduralPlacementComponentManager() 
 void ezProceduralPlacementComponentManager::Initialize()
 {
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProceduralPlacementComponentManager::Update, this);
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProceduralPlacementComponentManager::UpdateTiles, this);
+    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync;
+    desc.m_fPriority = 10000.0f;
+
+    this->RegisterUpdateFunction(desc);
+  }
+
+  {
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProceduralPlacementComponentManager::PreparePlace, this);
     desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::Async;
 
     this->RegisterUpdateFunction(desc);
@@ -78,31 +67,37 @@ void ezProceduralPlacementComponentManager::Deinitialize()
   m_ActiveTiles.Clear();
 }
 
-void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateContext& context)
+void ezProceduralPlacementComponentManager::UpdateTiles(const ezWorldModule::UpdateContext& context)
 {
   // Update resource data
   bool bAnyObjectsRemoved = false;
 
-  for (auto& hResource : m_ResourcesToUpdate)
+  for (auto& hComponent : m_ComponentsToUpdate)
   {
-    ezUInt32 uiResourceIdHash = hResource.GetResourceIDHash();
-    RemoveTilesForResource(uiResourceIdHash, &bAnyObjectsRemoved);
+    ezProceduralPlacementComponent* pComponent = nullptr;
+    if (!TryGetComponent(hComponent, pComponent))
+    {
+      continue;
+    }
 
-    ActiveResource& activeResource = m_ActiveResources[uiResourceIdHash];
+    RemoveTilesForComponent(pComponent, &bAnyObjectsRemoved);
 
-    ezResourceLock<ezProceduralPlacementResource> pResource(hResource, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezProceduralPlacementResource> pResource(pComponent->m_hResource, ezResourceAcquireMode::NoFallback);
     auto layers = pResource->GetLayers();
 
-    activeResource.m_Layers.Clear();
-    for (auto& pLayer : layers)
+    pComponent->m_Layers.Clear();
+    for (ezUInt32 uiLayerIndex = 0; uiLayerIndex < layers.GetCount(); ++uiLayerIndex)
     {
+      const auto& pLayer = layers[uiLayerIndex];
       if (pLayer->IsValid())
       {
-        activeResource.m_Layers.ExpandAndGetRef().m_pLayer = pLayer;
+        auto& activeLayer = pComponent->m_Layers.ExpandAndGetRef();
+        activeLayer.m_pLayer = pLayer;
+        activeLayer.m_pUpdateTilesTask = EZ_DEFAULT_NEW(UpdateTilesTask, pComponent, uiLayerIndex);
       }
     }
   }
-  m_ResourcesToUpdate.Clear();
+  m_ComponentsToUpdate.Clear();
 
   // If we removed any objects during resource update do nothing else this frame so objects are actually deleted before we place new ones.
   if (bAnyObjectsRemoved)
@@ -110,101 +105,60 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
     return;
   }
 
-  // TODO: split this function into tasks
+  // Schedule tile update tasks
+  m_UpdateTilesTaskGroupID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
 
-  // Find new active tiles
+  for (auto& visibleComponent : m_VisibleComponents)
   {
-    EZ_PROFILE_SCOPE("Find new tiles");
-
-    ezHybridArray<ezSimdTransform, 8, ezAlignedAllocatorWrapper> localBoundingBoxes;
-
-    for (auto& visibleResource : m_VisibleResources)
+    ezProceduralPlacementComponent* pComponent = nullptr;
+    if (!TryGetComponent(visibleComponent.m_hComponent, pComponent))
     {
-      auto& hResource = visibleResource.m_hResource;
-      ezUInt32 uiResourceIdHash = hResource.GetResourceIDHash();
+      continue;
+    }
 
-      ActiveResource* pActiveResource = nullptr;
-      EZ_VERIFY(m_ActiveResources.TryGetValue(uiResourceIdHash, pActiveResource), "Implementation error");
+    auto& activeLayers = pComponent->m_Layers;
+    for (auto& activeLayer : activeLayers)
+    {
+      activeLayer.m_pUpdateTilesTask->AddCameraPosition(visibleComponent.m_vCameraPosition);
 
-      auto& activeLayers = pActiveResource->m_Layers;
-
-      for (ezUInt32 uiLayerIndex = 0; uiLayerIndex < activeLayers.GetCount(); ++uiLayerIndex)
+      if (activeLayer.m_pUpdateTilesTask->IsTaskFinished())
       {
-        auto& activeLayer = activeLayers[uiLayerIndex];
+        ezTaskSystem::AddTaskToGroup(m_UpdateTilesTaskGroupID, activeLayer.m_pUpdateTilesTask.Borrow());
+      }
+    }
+  }
 
-        const float fTileSize = activeLayer.m_pLayer->GetTileSize();
-        const float fPatternSize = activeLayer.m_pLayer->m_pPattern->m_fSize;
-        const float fCullDistance = activeLayer.m_pLayer->m_fCullDistance * CVarCullDistanceScale;
-        ezSimdVec4f fHalfTileSize = ezSimdVec4f(fTileSize * 0.5f);
+  ezTaskSystem::StartTaskGroup(m_UpdateTilesTaskGroupID);
+}
 
-        ezVec3 cameraPos = visibleResource.m_vCameraPosition / fTileSize;
-        float fPosX = ezMath::Round(cameraPos.x);
-        float fPosY = ezMath::Round(cameraPos.y);
-        ezInt32 iPosX = static_cast<ezInt32>(fPosX);
-        ezInt32 iPosY = static_cast<ezInt32>(fPosY);
-        float fRadius = ezMath::Ceil(fCullDistance / fTileSize);
-        ezInt32 iRadius = static_cast<ezInt32>(fRadius);
-        ezInt32 iRadiusSqr = iRadius * iRadius;
+void ezProceduralPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateContext& context)
+{
+  // Find new active tiles and remove old ones
+  {
+    ezTaskSystem::WaitForGroup(m_UpdateTilesTaskGroupID);
+    m_UpdateTilesTaskGroupID.Invalidate();
 
-        float fY = (fPosY - fRadius + 0.5f) * fTileSize;
-        ezInt32 iY = -iRadius;
+    for (auto& visibleComponent : m_VisibleComponents)
+    {
+      ezProceduralPlacementComponent* pComponent = nullptr;
+      if (!TryGetComponent(visibleComponent.m_hComponent, pComponent))
+      {
+        continue;
+      }
 
-        while (iY <= iRadius)
+      auto& activeLayers = pComponent->m_Layers;
+      for (auto& activeLayer : activeLayers)
+      {
+        m_NewTiles.PushBackRange(activeLayer.m_pUpdateTilesTask->GetNewTiles());
+
+        auto oldTiles = activeLayer.m_pUpdateTilesTask->GetOldTiles();
+        for (ezUInt64 uiOldTileKey : oldTiles)
         {
-          float fX = (fPosX - fRadius + 0.5f) * fTileSize;
-          ezInt32 iX = -iRadius;
-
-          while (iX <= iRadius)
+          ezProceduralPlacementComponent::ActiveLayer::TileIndexAndAge tileIndex;
+          if (activeLayer.m_TileIndices.Remove(uiOldTileKey, &tileIndex))
           {
-            if (iX * iX + iY * iY <= iRadiusSqr)
-            {
-              ezUInt64 uiTileKey = GetTileKey(iPosX + iX, iPosY + iY, 0);
-              if (!activeLayer.m_TileIndices.Contains(uiTileKey))
-              {
-                ezSimdVec4f testPos = ezSimdVec4f(fX, fY, 0.0f);
-                ezSimdFloat minZ = 10000.0f;
-                ezSimdFloat maxZ = -10000.0f;
-
-                localBoundingBoxes.Clear();
-
-                for (auto& bounds : pActiveResource->m_Bounds)
-                {
-                  ezSimdBBox extendedBox = bounds.m_GlobalBoundingBox;
-                  extendedBox.Grow(fHalfTileSize);
-
-                  if (((testPos >= extendedBox.m_Min) && (testPos <= extendedBox.m_Max)).AllSet<2>())
-                  {
-                    minZ = minZ.Min(bounds.m_GlobalBoundingBox.m_Min.z());
-                    maxZ = maxZ.Max(bounds.m_GlobalBoundingBox.m_Max.z());
-
-                    localBoundingBoxes.PushBack(bounds.m_LocalBoundingBox);
-                  }
-                }
-
-                if (!localBoundingBoxes.IsEmpty())
-                {
-                  activeLayer.m_TileIndices.Insert(uiTileKey, EmptyTileIndex);
-
-                  auto& newTile = m_NewTiles.ExpandAndGetRef();
-                  newTile.m_uiResourceIdHash = uiResourceIdHash;
-                  newTile.m_uiLayerIndex = uiLayerIndex;
-                  newTile.m_iPosX = iPosX + iX;
-                  newTile.m_iPosY = iPosY + iY;
-                  newTile.m_fMinZ = minZ;
-                  newTile.m_fMaxZ = maxZ;
-                  newTile.m_fPatternSize = fPatternSize;
-                  newTile.m_fDistanceToCamera = -1.0f;
-                  newTile.m_LocalBoundingBoxes = localBoundingBoxes;
-                }
-              }
-            }
-
-            ++iX;
-            fX += fTileSize;
+            DeallocateTile(tileIndex.m_uiIndex);
           }
-
-          ++iY;
-          fY += fTileSize;
         }
       }
     }
@@ -218,9 +172,9 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
         ezVec2 tilePos = ezVec2((float)newTile.m_iPosX, (float)newTile.m_iPosY) * newTile.m_fPatternSize;
 
         float fMinDistance = ezMath::BasicType<float>::MaxValue();
-        for (auto& visibleResource : m_VisibleResources)
+        for (auto& visibleComponent : m_VisibleComponents)
         {
-          float fDistance = (tilePos - visibleResource.m_vCameraPosition.GetAsVec2()).GetLengthSquared();
+          float fDistance = (tilePos - visibleComponent.m_vCameraPosition.GetAsVec2()).GetLengthSquared();
           fMinDistance = ezMath::Min(fMinDistance, fDistance);
         }
 
@@ -231,50 +185,67 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
       m_NewTiles.Sort([](auto& tileA, auto& tileB) { return tileA.m_fDistanceToCamera > tileB.m_fDistanceToCamera; });
     }
 
-    ClearVisibleResources();
+    ClearVisibleComponents();
   }
 
   // Allocate new tiles and placement tasks
   {
     EZ_PROFILE_SCOPE("Allocate new tiles");
 
-    while (!m_NewTiles.IsEmpty() && GetNumAllocatedPlacementTasks() < (ezUInt32)CVarMaxProcessingTiles)
+    while (!m_NewTiles.IsEmpty() && GetNumAllocatedProcessingTasks() < (ezUInt32)CVarMaxProcessingTiles)
     {
       const TileDesc& newTile = m_NewTiles.PeekBack();
-      auto& pLayer = m_ActiveResources[newTile.m_uiResourceIdHash].m_Layers[newTile.m_uiLayerIndex].m_pLayer;
-      ezUInt32 uiNewTileIndex = AllocateTile(newTile, pLayer);
 
-      AllocatePlacementTask(uiNewTileIndex);
+      ezProceduralPlacementComponent* pComponent = nullptr;
+      if (TryGetComponent(newTile.m_hComponent, pComponent))
+      {
+        auto& pLayer = pComponent->m_Layers[newTile.m_uiLayerIndex].m_pLayer;
+        ezUInt32 uiNewTileIndex = AllocateTile(newTile, pLayer);
+
+        AllocateProcessingTask(uiNewTileIndex);
+      }
+
       m_NewTiles.PopBack();
     }
   }
 
   const ezWorld* pWorld = GetWorld();
 
-  // Update processing tiles
+  // Update processing tasks
   if (GetWorldSimulationEnabled())
   {
     if (const ezPhysicsWorldModuleInterface* pPhysicsModule = pWorld->GetModule<ezPhysicsWorldModuleInterface>())
     {
-      EZ_PROFILE_SCOPE("Update processing tiles");
-
-      for (ezUInt32 i = 0; i < m_PlacementTaskInfos.GetCount(); ++i)
       {
-        auto& taskInfo = m_PlacementTaskInfos[i];
-        if (!taskInfo.IsValid() || taskInfo.IsScheduled())
-          continue;
+        EZ_PROFILE_SCOPE("Prepare processing tasks");
 
-        m_ActiveTiles[taskInfo.m_uiTileIndex].PrepareTask(pPhysicsModule, *taskInfo.m_pTask);
+        ezTaskGroupID prepareTaskGroupID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
 
-        if (!taskInfo.m_pTask->GetInputPoints().IsEmpty())
+        for (auto& processingTask : m_ProcessingTasks)
         {
-          taskInfo.m_taskGroupID = ezTaskSystem::StartSingleTask(taskInfo.m_pTask.Borrow(), ezTaskPriority::LongRunningHighPriority);
+          if (!processingTask.IsValid() || processingTask.IsScheduled())
+            continue;
+
+          ezTaskSystem::AddTaskToGroup(prepareTaskGroupID, processingTask.m_pPrepareTask.Borrow());
         }
-        else
+
+        ezTaskSystem::StartTaskGroup(prepareTaskGroupID);
+        ezTaskSystem::WaitForGroup(prepareTaskGroupID);
+      }
+
+      {
+        EZ_PROFILE_SCOPE("Kickoff placement tasks");
+
+        for (auto& processingTask : m_ProcessingTasks)
         {
-          // mark tile & task for re-use
-          DeallocateTile(taskInfo.m_uiTileIndex);
-          DeallocatePlacementTask(i);
+          if (!processingTask.IsValid() || processingTask.IsScheduled())
+            continue;
+
+          auto& activeTile = m_ActiveTiles[processingTask.m_uiTileIndex];
+          activeTile.PrepareTask(pPhysicsModule, *processingTask.m_pPlacementTask);
+
+          processingTask.m_PlacementTaskGroupID =
+            ezTaskSystem::StartSingleTask(processingTask.m_pPlacementTask.Borrow(), ezTaskPriority::LongRunningHighPriority);
         }
       }
     }
@@ -302,37 +273,45 @@ void ezProceduralPlacementComponentManager::PlaceObjects(const ezWorldModule::Up
 
   ezUInt32 uiTotalNumPlacedObjects = 0;
 
-  for (ezUInt32 i = 0; i < m_PlacementTaskInfos.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < m_ProcessingTasks.GetCount(); ++i)
   {
-    auto& taskInfo = m_PlacementTaskInfos[i];
-    if (!taskInfo.IsValid() || !taskInfo.IsScheduled())
+    auto& task = m_ProcessingTasks[i];
+    if (!task.IsValid() || !task.IsScheduled())
       continue;
 
-    if (taskInfo.m_pTask->IsTaskFinished())
+    if (task.m_pPlacementTask->IsTaskFinished())
     {
-      ezUInt32 uiTileIndex = taskInfo.m_uiTileIndex;
+      ezUInt32 uiPlacedObjects = 0;
+
+      ezUInt32 uiTileIndex = task.m_uiTileIndex;
       auto& activeTile = m_ActiveTiles[uiTileIndex];
 
-      ezUInt32 uiPlaceObjects = activeTile.PlaceObjects(*GetWorld(), *taskInfo.m_pTask);
-      if (uiPlaceObjects > 0)
+      auto& tileDesc = activeTile.GetDesc();
+      ezProceduralPlacementComponent* pComponent = nullptr;
+      if (TryGetComponent(tileDesc.m_hComponent, pComponent))
       {
-        auto& tileDesc = activeTile.GetDesc();
+        uiPlacedObjects = activeTile.PlaceObjects(*GetWorld(), task.m_pPlacementTask->GetOutputTransforms());
+        if (uiPlacedObjects > 0)
+        {
+          auto& activeLayer = pComponent->m_Layers[tileDesc.m_uiLayerIndex];
 
-        auto& activeLayer = m_ActiveResources[tileDesc.m_uiResourceIdHash].m_Layers[tileDesc.m_uiLayerIndex];
-
-        ezUInt64 uiTileKey = GetTileKey(tileDesc.m_iPosX, tileDesc.m_iPosY, 0);
-        activeLayer.m_TileIndices[uiTileKey] = uiTileIndex;
+          ezUInt64 uiTileKey = GetTileKey(tileDesc.m_iPosX, tileDesc.m_iPosY);
+          auto& tile = activeLayer.m_TileIndices[uiTileKey];
+          tile.m_uiIndex = uiTileIndex;
+          tile.m_uiLastSeenFrame = ezRenderWorld::GetFrameCounter();
+        }
       }
-      else
+
+      if (uiPlacedObjects == 0)
       {
         // mark tile for re-use
         DeallocateTile(uiTileIndex);
       }
 
       // mark task for re-use
-      DeallocatePlacementTask(i);
+      DeallocateProcessingTask(i);
 
-      uiTotalNumPlacedObjects += uiPlaceObjects;
+      uiTotalNumPlacedObjects += uiPlacedObjects;
     }
 
     if (uiTotalNumPlacedObjects >= (ezUInt32)CVarMaxPlacedObjects)
@@ -350,22 +329,7 @@ void ezProceduralPlacementComponentManager::AddComponent(ezProceduralPlacementCo
     return;
   }
 
-  ezUInt32 uiResourceIdHash = hResource.GetResourceIDHash();
-  if (!m_ActiveResources.Contains(uiResourceIdHash))
-  {
-    m_ResourcesToUpdate.PushBack(hResource);
-  }
-
-  ezSimdTransform localBoundingBox = pComponent->GetOwner()->GetGlobalTransformSimd();
-  localBoundingBox.m_Scale = localBoundingBox.m_Scale.CompMul(ezSimdConversion::ToVec3(pComponent->GetExtents() * 0.5f));
-  localBoundingBox.Invert();
-
-  ActiveResource& activeResource = m_ActiveResources[uiResourceIdHash];
-
-  auto& bounds = activeResource.m_Bounds.ExpandAndGetRef();
-  bounds.m_GlobalBoundingBox = pComponent->GetOwner()->GetGlobalBoundsSimd().GetBox();
-  bounds.m_LocalBoundingBox = localBoundingBox;
-  bounds.m_hComponent = pComponent->GetHandle();
+  m_ComponentsToUpdate.PushBack(pComponent->GetHandle());
 }
 
 void ezProceduralPlacementComponentManager::RemoveComponent(ezProceduralPlacementComponent* pComponent)
@@ -376,25 +340,7 @@ void ezProceduralPlacementComponentManager::RemoveComponent(ezProceduralPlacemen
     return;
   }
 
-  ezUInt32 uiResourceIdHash = hResource.GetResourceIDHash();
-
-  ActiveResource* pActiveResource = nullptr;
-  if (m_ActiveResources.TryGetValue(uiResourceIdHash, pActiveResource))
-  {
-    ezComponentHandle hComponent = pComponent->GetHandle();
-
-    for (ezUInt32 i = 0; i < pActiveResource->m_Bounds.GetCount(); ++i)
-    {
-      auto& bounds = pActiveResource->m_Bounds[i];
-      if (bounds.m_hComponent == hComponent)
-      {
-        pActiveResource->m_Bounds.RemoveAtAndSwap(i);
-        break;
-      }
-    }
-  }
-
-  RemoveTilesForResource(uiResourceIdHash);
+  RemoveTilesForComponent(pComponent);
 }
 
 ezUInt32 ezProceduralPlacementComponentManager::AllocateTile(const TileDesc& desc, ezSharedPtr<const Layer>& pLayer)
@@ -421,61 +367,58 @@ void ezProceduralPlacementComponentManager::DeallocateTile(ezUInt32 uiTileIndex)
   m_FreeTiles.PushBack(uiTileIndex);
 }
 
-ezUInt32 ezProceduralPlacementComponentManager::AllocatePlacementTask(ezUInt32 uiTileIndex)
+ezUInt32 ezProceduralPlacementComponentManager::AllocateProcessingTask(ezUInt32 uiTileIndex)
 {
   ezUInt32 uiNewTaskIndex = ezInvalidIndex;
-  if (!m_FreePlacementTasks.IsEmpty())
+  if (!m_FreeProcessingTasks.IsEmpty())
   {
-    uiNewTaskIndex = m_FreePlacementTasks.PeekBack();
-    m_FreePlacementTasks.PopBack();
+    uiNewTaskIndex = m_FreeProcessingTasks.PeekBack();
+    m_FreeProcessingTasks.PopBack();
   }
   else
   {
-    uiNewTaskIndex = m_PlacementTaskInfos.GetCount();
-    auto& newTask = m_PlacementTaskInfos.ExpandAndGetRef();
+    uiNewTaskIndex = m_ProcessingTasks.GetCount();
+    auto& newTask = m_ProcessingTasks.ExpandAndGetRef();
 
     ezStringBuilder sName;
+    sName.Format("Prepare Task {}", uiNewTaskIndex);
+    newTask.m_pPrepareTask = EZ_DEFAULT_NEW(PrepareTask, sName);
+
     sName.Format("Placement Task {}", uiNewTaskIndex);
-    newTask.m_pTask = EZ_DEFAULT_NEW(PlacementTask, sName);
+    newTask.m_pPlacementTask = EZ_DEFAULT_NEW(PlacementTask, sName);
   }
 
-  m_PlacementTaskInfos[uiNewTaskIndex].m_uiTileIndex = uiTileIndex;
+  m_ProcessingTasks[uiNewTaskIndex].m_uiTileIndex = uiTileIndex;
   return uiNewTaskIndex;
 }
 
-void ezProceduralPlacementComponentManager::DeallocatePlacementTask(ezUInt32 uiPlacementTaskIndex)
+void ezProceduralPlacementComponentManager::DeallocateProcessingTask(ezUInt32 uiTaskIndex)
 {
-  auto& task = m_PlacementTaskInfos[uiPlacementTaskIndex];
+  auto& task = m_ProcessingTasks[uiTaskIndex];
   if (task.IsScheduled())
   {
-    ezTaskSystem::WaitForGroup(task.m_taskGroupID);
+    ezTaskSystem::WaitForGroup(task.m_PlacementTaskGroupID);
   }
 
-  task.m_pTask->Clear();
+  task.m_pPlacementTask->Clear();
   task.Invalidate();
 
-  m_FreePlacementTasks.PushBack(uiPlacementTaskIndex);
+  m_FreeProcessingTasks.PushBack(uiTaskIndex);
 }
 
-ezUInt32 ezProceduralPlacementComponentManager::GetNumAllocatedPlacementTasks() const
+ezUInt32 ezProceduralPlacementComponentManager::GetNumAllocatedProcessingTasks() const
 {
-  return m_PlacementTaskInfos.GetCount() - m_FreePlacementTasks.GetCount();
+  return m_ProcessingTasks.GetCount() - m_FreeProcessingTasks.GetCount();
 }
 
-void ezProceduralPlacementComponentManager::RemoveTilesForResource(ezUInt32 uiResourceIdHash, bool* out_bAnyObjectsRemoved)
+void ezProceduralPlacementComponentManager::RemoveTilesForComponent(
+  ezProceduralPlacementComponent* pComponent, bool* out_bAnyObjectsRemoved /*= nullptr*/)
 {
-  ActiveResource* pActiveResource = nullptr;
-  if (!m_ActiveResources.TryGetValue(uiResourceIdHash, pActiveResource))
-    return;
-
-  for (auto& layer : pActiveResource->m_Layers)
-  {
-    layer.m_TileIndices.Clear();
-  }
+  ezComponentHandle hComponent = pComponent->GetHandle();
 
   for (ezUInt32 uiNewTileIndex = 0; uiNewTileIndex < m_NewTiles.GetCount(); ++uiNewTileIndex)
   {
-    if (m_NewTiles[uiNewTileIndex].m_uiResourceIdHash == uiResourceIdHash)
+    if (m_NewTiles[uiNewTileIndex].m_hComponent == hComponent)
     {
       m_NewTiles.RemoveAtAndSwap(uiNewTileIndex);
       --uiNewTileIndex;
@@ -489,7 +432,7 @@ void ezProceduralPlacementComponentManager::RemoveTilesForResource(ezUInt32 uiRe
       continue;
 
     auto& tileDesc = activeTile.GetDesc();
-    if (tileDesc.m_uiResourceIdHash == uiResourceIdHash)
+    if (tileDesc.m_hComponent == hComponent)
     {
       if (out_bAnyObjectsRemoved != nullptr && !m_ActiveTiles[uiTileIndex].GetPlacedObjects().IsEmpty())
       {
@@ -498,12 +441,12 @@ void ezProceduralPlacementComponentManager::RemoveTilesForResource(ezUInt32 uiRe
 
       DeallocateTile(uiTileIndex);
 
-      for (ezUInt32 i = 0; i < m_PlacementTaskInfos.GetCount(); ++i)
+      for (ezUInt32 i = 0; i < m_ProcessingTasks.GetCount(); ++i)
       {
-        auto& taskInfo = m_PlacementTaskInfos[i];
+        auto& taskInfo = m_ProcessingTasks[i];
         if (taskInfo.m_uiTileIndex == uiTileIndex)
         {
-          DeallocatePlacementTask(i);
+          DeallocateProcessingTask(i);
         }
       }
     }
@@ -519,76 +462,104 @@ void ezProceduralPlacementComponentManager::OnResourceEvent(const ezResourceEven
   {
     ezProceduralPlacementResourceHandle hResource = pResource->GetResourceHandle();
 
-    if (!m_ResourcesToUpdate.Contains(hResource))
+    for (auto it = GetComponents(); it.IsValid(); it.Next())
     {
-      m_ResourcesToUpdate.PushBack(hResource);
+      if (it->m_hResource == hResource && !m_ComponentsToUpdate.Contains(it->GetHandle()))
+      {
+        m_ComponentsToUpdate.PushBack(it->GetHandle());
+      }
     }
   }
 }
 
-void ezProceduralPlacementComponentManager::AddVisibleResource(const ezProceduralPlacementResourceHandle& hResource,
-                                                               const ezVec3& cameraPosition, const ezVec3& cameraDirection) const
+void ezProceduralPlacementComponentManager::AddVisibleComponent(
+  const ezComponentHandle& hComponent, const ezVec3& cameraPosition, const ezVec3& cameraDirection) const
 {
-  EZ_LOCK(m_VisibleResourcesMutex);
+  EZ_LOCK(m_VisibleComponentsMutex);
 
-  for (auto& visibleResource : m_VisibleResources)
+  for (auto& visibleComponent : m_VisibleComponents)
   {
-    if (visibleResource.m_hResource == hResource && visibleResource.m_vCameraPosition == cameraPosition &&
-        visibleResource.m_vCameraDirection == cameraDirection)
+    if (visibleComponent.m_hComponent == hComponent && visibleComponent.m_vCameraPosition == cameraPosition &&
+        visibleComponent.m_vCameraDirection == cameraDirection)
     {
       return;
     }
   }
 
-  auto& visibleResource = m_VisibleResources.ExpandAndGetRef();
-  visibleResource.m_hResource = hResource;
-  visibleResource.m_vCameraPosition = cameraPosition;
-  visibleResource.m_vCameraDirection = cameraDirection;
+  auto& visibleComponent = m_VisibleComponents.ExpandAndGetRef();
+  visibleComponent.m_hComponent = hComponent;
+  visibleComponent.m_vCameraPosition = cameraPosition;
+  visibleComponent.m_vCameraDirection = cameraDirection;
 }
 
-void ezProceduralPlacementComponentManager::ClearVisibleResources()
+void ezProceduralPlacementComponentManager::ClearVisibleComponents()
 {
-  m_VisibleResources.Clear();
+  m_VisibleComponents.Clear();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProcGenBoxExtents, ezNoBase, 1, ezRTTIDefaultAllocator<ezProcGenBoxExtents>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Offset", m_vOffset),
+    EZ_MEMBER_PROPERTY("Rotation", m_Rotation),
+    EZ_MEMBER_PROPERTY("Extents", m_vExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(10.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+      new ezBoxManipulatorAttribute("Extents", "Offset", "Rotation"),
+      new ezBoxVisualizerAttribute("Extents", "Offset", "Rotation", nullptr, ezColor::CornflowerBlue),
+      new ezTransformManipulatorAttribute("Offset", "Rotation"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_STATIC_REFLECTED_TYPE;
+
 EZ_BEGIN_COMPONENT_TYPE(ezProceduralPlacementComponent, 1, ezComponentMode::Static)
 {
-  EZ_BEGIN_PROPERTIES{
-      EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)
-          ->AddAttributes(new ezAssetBrowserAttribute("Procedural Placement")),
-      EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)
-          ->AddAttributes(new ezDefaultValueAttribute(ezVec3(10.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
-  } EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS{
+  EZ_BEGIN_PROPERTIES
+  {
+      EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("Procedural Placement")),
+      EZ_ARRAY_ACCESSOR_PROPERTY("BoxExtents", BoxExtents_GetCount, BoxExtents_GetValue, BoxExtents_SetValue, BoxExtents_Insert, BoxExtents_Remove),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
       EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
       EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
-  } EZ_END_MESSAGEHANDLERS; EZ_BEGIN_ATTRIBUTES{
+  }
+  EZ_END_MESSAGEHANDLERS;
+  EZ_BEGIN_ATTRIBUTES
+  {
       new ezCategoryAttribute("ProceduralPlacement"),
-      new ezBoxManipulatorAttribute("Extents"),
-      new ezBoxVisualizerAttribute("Extents"),
-  } EZ_END_ATTRIBUTES;
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
-ezProceduralPlacementComponent::ezProceduralPlacementComponent()
-{
-  m_vExtents.Set(10.0f);
-}
-
-ezProceduralPlacementComponent::~ezProceduralPlacementComponent() {}
+ezProceduralPlacementComponent::ezProceduralPlacementComponent() = default;
+ezProceduralPlacementComponent::~ezProceduralPlacementComponent() = default;
+ezProceduralPlacementComponent& ezProceduralPlacementComponent::operator=(ezProceduralPlacementComponent&& other) = default;
 
 void ezProceduralPlacementComponent::OnActivated()
 {
-  GetOwner()->UpdateLocalBounds();
-  GetWorld()->GetComponentManager<ezProceduralPlacementComponentManager>()->AddComponent(this);
+  UpdateBoundsAndTiles();
 }
 
 void ezProceduralPlacementComponent::OnDeactivated()
 {
   GetOwner()->UpdateLocalBounds();
-  GetWorld()->GetComponentManager<ezProceduralPlacementComponentManager>()->RemoveComponent(this);
+
+  m_Bounds.Clear();
+  m_Layers.Clear();
+
+  auto pManager = static_cast<ezProceduralPlacementComponentManager*>(GetOwningManager());
+  pManager->RemoveComponent(this);
 }
 
 void ezProceduralPlacementComponent::SetResourceFile(const char* szFile)
@@ -614,36 +585,38 @@ const char* ezProceduralPlacementComponent::GetResourceFile() const
 
 void ezProceduralPlacementComponent::SetResource(const ezProceduralPlacementResourceHandle& hResource)
 {
+  auto pManager = static_cast<ezProceduralPlacementComponentManager*>(GetOwningManager());
+
   if (IsActiveAndInitialized())
   {
-    GetWorld()->GetComponentManager<ezProceduralPlacementComponentManager>()->RemoveComponent(this);
+    pManager->RemoveComponent(this);
   }
 
   m_hResource = hResource;
 
   if (IsActiveAndInitialized())
   {
-    GetWorld()->GetComponentManager<ezProceduralPlacementComponentManager>()->AddComponent(this);
-  }
-}
-
-void ezProceduralPlacementComponent::SetExtents(const ezVec3& value)
-{
-  m_vExtents = value.CompMax(ezVec3::ZeroVector());
-
-  if (IsActiveAndInitialized())
-  {
-    GetWorld()->GetComponentManager<ezProceduralPlacementComponentManager>()->RemoveComponent(this);
-
-    GetOwner()->UpdateLocalBounds();
-
-    GetWorld()->GetComponentManager<ezProceduralPlacementComponentManager>()->AddComponent(this);
+    pManager->AddComponent(this);
   }
 }
 
 void ezProceduralPlacementComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
-  msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f));
+  if (m_BoxExtents.IsEmpty())
+    return;
+
+  ezBoundingBoxSphere bounds;
+  bounds.SetInvalid();
+
+  for (auto& boxExtent : m_BoxExtents)
+  {
+    ezBoundingBoxSphere localBox = ezBoundingBox(-boxExtent.m_vExtents * 0.5f, boxExtent.m_vExtents * 0.5f);
+    localBox.Transform(ezTransform(boxExtent.m_vOffset, boxExtent.m_Rotation).GetAsMat4());
+
+    bounds.ExpandToInclude(localBox);
+  }
+
+  msg.AddBounds(bounds);
 }
 
 void ezProceduralPlacementComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
@@ -662,8 +635,8 @@ void ezProceduralPlacementComponent::OnExtractRenderData(ezMsgExtractRenderData&
 
     if (m_hResource.IsValid())
     {
-      GetWorld()->GetComponentManager<ezProceduralPlacementComponentManager>()->AddVisibleResource(m_hResource, cameraPosition,
-                                                                                                   cameraDirection);
+      auto pManager = static_cast<const ezProceduralPlacementComponentManager*>(GetOwningManager());
+      pManager->AddVisibleComponent(GetHandle(), cameraPosition, cameraDirection);
     }
   }
 }
@@ -675,7 +648,7 @@ void ezProceduralPlacementComponent::SerializeComponent(ezWorldWriter& stream) c
   ezStreamWriter& s = stream.GetStream();
 
   s << m_hResource;
-  s << m_vExtents;
+  s.WriteArray(m_BoxExtents);
 }
 
 void ezProceduralPlacementComponent::DeserializeComponent(ezWorldReader& stream)
@@ -685,5 +658,93 @@ void ezProceduralPlacementComponent::DeserializeComponent(ezWorldReader& stream)
   ezStreamReader& s = stream.GetStream();
 
   s >> m_hResource;
-  s >> m_vExtents;
+  s.ReadArray(m_BoxExtents);
+}
+
+ezUInt32 ezProceduralPlacementComponent::BoxExtents_GetCount() const
+{
+  return m_BoxExtents.GetCount();
+}
+
+const ezProcGenBoxExtents& ezProceduralPlacementComponent::BoxExtents_GetValue(ezUInt32 uiIndex) const
+{
+  return m_BoxExtents[uiIndex];
+}
+
+void ezProceduralPlacementComponent::BoxExtents_SetValue(ezUInt32 uiIndex, const ezProcGenBoxExtents& value)
+{
+  m_BoxExtents.EnsureCount(uiIndex + 1);
+  m_BoxExtents[uiIndex] = value;
+
+  UpdateBoundsAndTiles();
+}
+
+void ezProceduralPlacementComponent::BoxExtents_Insert(ezUInt32 uiIndex, const ezProcGenBoxExtents& value)
+{
+  m_BoxExtents.Insert(value, uiIndex);
+
+  UpdateBoundsAndTiles();
+}
+
+void ezProceduralPlacementComponent::BoxExtents_Remove(ezUInt32 uiIndex)
+{
+  m_BoxExtents.RemoveAtAndCopy(uiIndex);
+
+  UpdateBoundsAndTiles();
+}
+
+void ezProceduralPlacementComponent::UpdateBoundsAndTiles()
+{
+  if (IsActiveAndInitialized())
+  {
+    auto pManager = static_cast<ezProceduralPlacementComponentManager*>(GetOwningManager());
+
+    pManager->RemoveComponent(this);
+
+    GetOwner()->UpdateLocalBounds();
+
+    m_Bounds.Clear();
+    m_Layers.Clear();
+
+    ezSimdTransform ownerTransform = GetOwner()->GetGlobalTransformSimd();
+    for (auto& boxExtent : m_BoxExtents)
+    {
+      ezSimdTransform localBoxTransform;
+      localBoxTransform.m_Position = ezSimdConversion::ToVec3(boxExtent.m_vOffset);
+      localBoxTransform.m_Rotation = ezSimdConversion::ToQuat(boxExtent.m_Rotation);
+      localBoxTransform.m_Scale = ezSimdConversion::ToVec3(boxExtent.m_vExtents * 0.5f);
+
+      ezSimdTransform finalBoxTransform;
+      finalBoxTransform.SetGlobalTransform(ownerTransform, localBoxTransform);
+
+      ezSimdBBox globalBox(ezSimdVec4f(-1.0f), ezSimdVec4f(1.0f));
+      globalBox.Transform(finalBoxTransform.GetAsMat4());
+
+      auto& bounds = m_Bounds.ExpandAndGetRef();
+      bounds.m_GlobalBoundingBox = globalBox;
+      bounds.m_GlobalToLocalBoxTransform = finalBoxTransform.GetInverse();
+    }
+
+    pManager->AddComponent(this);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+ezResult ezProcGenBoxExtents::Serialize(ezStreamWriter& stream) const
+{
+  stream << m_vOffset;
+  stream << m_Rotation;
+  stream << m_vExtents;
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezProcGenBoxExtents::Deserialize(ezStreamReader& stream)
+{
+  stream >> m_vOffset;
+  stream >> m_Rotation;
+  stream >> m_vExtents;
+
+  return EZ_SUCCESS;
 }

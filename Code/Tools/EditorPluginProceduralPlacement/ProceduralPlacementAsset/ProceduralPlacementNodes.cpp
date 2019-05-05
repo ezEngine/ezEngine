@@ -1,6 +1,7 @@
 #include <EditorPluginProceduralPlacementPCH.h>
 
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementNodes.h>
+#include <Foundation/Math/Random.h>
 
 namespace
 {
@@ -47,7 +48,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementLayerOutput, 1, ezRTTIDefau
     EZ_MEMBER_PROPERTY("MinScale", m_vMinScale)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0.0f), ezVariant())),
     EZ_MEMBER_PROPERTY("MaxScale", m_vMaxScale)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0.0f), ezVariant())),
     EZ_MEMBER_PROPERTY("ColorGradient", m_sColorGradient)->AddAttributes(new ezAssetBrowserAttribute("ColorGradient")),
-    EZ_MEMBER_PROPERTY("CullDistance", m_fCullDistance)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("CullDistance", m_fCullDistance)->AddAttributes(new ezDefaultValueAttribute(30.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("Surface", m_sSurface)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
 
@@ -164,6 +165,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementRandom, 1, ezRTTIDefaultAll
     EZ_MEMBER_PROPERTY("Value", m_OutputValuePin)
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_FUNCTION_PROPERTY(OnObjectCreated),
+  }
+  EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezTitleAttribute("Random: {Seed}"),
@@ -177,8 +183,16 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezExpressionAST::Node* ezProceduralPlacementRandom::GenerateExpressionASTNode(
   ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast)
 {
-  auto pRandom = CreateRandom(m_iSeed, out_Ast);
+  ezRandom rnd;
+  rnd.Initialize(m_iSeed < 0 ? m_uiAutoSeed : m_iSeed);
+
+  auto pRandom = CreateRandom(rnd.FloatMinMax(0.0f, 100000.0f), out_Ast);
   return pRandom;
+}
+
+void ezProceduralPlacementRandom::OnObjectCreated(const ezAbstractObjectNode& node)
+{
+  m_uiAutoSeed = ezHashHelper<ezUuid>::Hash(node.GetGuid());
 }
 
 //////////////////////////////////////////////////////////////////////////

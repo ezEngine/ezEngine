@@ -1,8 +1,11 @@
 #include <ProceduralPlacementPluginPCH.h>
 
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/SimdMath/SimdRandom.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <GameEngine/Surfaces/SurfaceResource.h>
 #include <ProceduralPlacementPlugin/Tasks/PlacementTask.h>
 
 using namespace ezPPInternal;
@@ -28,9 +31,15 @@ PlacementTask::PlacementTask(const char* szName)
 
 PlacementTask::~PlacementTask() {}
 
-void ezPPInternal::PlacementTask::Clear()
+void PlacementTask::Clear()
 {
+  m_pPhysicsModule = nullptr;
+
   m_pLayer = nullptr;
+  m_iTileSeed = 0;
+  m_TileBoundingBox.SetInvalid();
+  m_GlobalToLocalBoxTransforms.Clear();
+
   m_InputPoints.Clear();
   m_OutputTransforms.Clear();
   m_TempData.Clear();
@@ -39,27 +48,105 @@ void ezPPInternal::PlacementTask::Clear()
 
 void PlacementTask::Execute()
 {
+  FindPlacementPoints();
+
+  if (!m_InputPoints.IsEmpty())
+  {
+    ExecuteVM();
+  }
+}
+
+void PlacementTask::FindPlacementPoints()
+{
+  EZ_PROFILE_SCOPE("FindPlacementPoints");
+
+  EZ_ASSERT_DEV(m_pPhysicsModule != nullptr, "Physics module must be valid");
+
+  ezSimdVec4i seed = ezSimdVec4i(m_iTileSeed) + ezSimdVec4i(0, 3, 7, 11);
+
+  float fZRange = m_TileBoundingBox.GetExtents().z;
+  ezSimdFloat fZStart = m_TileBoundingBox.m_vMax.z;
+  ezSimdVec4f vXY = ezSimdConversion::ToVec3(m_TileBoundingBox.m_vMin);
+  ezSimdVec4f vMinOffset = ezSimdConversion::ToVec3(m_pLayer->m_vMinOffset);
+  ezSimdVec4f vMaxOffset = ezSimdConversion::ToVec3(m_pLayer->m_vMaxOffset);
+
+  ezVec3 rayDir = ezVec3(0, 0, -1);
+  ezUInt32 uiCollisionLayer = m_pLayer->m_uiCollisionLayer;
+
+  auto& patternPoints = m_pLayer->m_pPattern->m_Points;
+
+  for (ezUInt32 i = 0; i < patternPoints.GetCount(); ++i)
+  {
+    auto& patternPoint = patternPoints[i];
+    ezSimdVec4f patternCoords = ezSimdConversion::ToVec3(patternPoint.m_Coordinates.GetAsVec3(0.0f));
+
+    ezSimdVec4f rayStart = (vXY + patternCoords * m_pLayer->m_fFootprint);
+    rayStart += ezSimdRandom::FloatMinMax(seed + ezSimdVec4i(i), vMinOffset, vMaxOffset);
+    rayStart.SetZ(fZStart);
+
+    ezPhysicsHitResult hitResult;
+    if (!m_pPhysicsModule->CastRay(
+          ezSimdConversion::ToVec3(rayStart), rayDir, fZRange, uiCollisionLayer, hitResult, ezPhysicsShapeType::Static))
+      continue;
+
+    if (m_pLayer->m_hSurface.IsValid())
+    {
+      if (!hitResult.m_hSurface.IsValid())
+        continue;
+
+      ezResourceLock<ezSurfaceResource> hitSurface(hitResult.m_hSurface, ezResourceAcquireMode::NoFallbackAllowMissing);
+      if (hitSurface.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
+        continue;
+
+      if (!hitSurface->IsBasedOn(m_pLayer->m_hSurface))
+        continue;
+    }
+
+    bool bInBoundingBox = false;
+    ezSimdVec4f hitPosition = ezSimdConversion::ToVec3(hitResult.m_vPosition);
+    ezSimdVec4f allOne = ezSimdVec4f(1.0f);
+    for (auto& globalToLocalBox : m_GlobalToLocalBoxTransforms)
+    {
+      ezSimdVec4f localHitPosition = globalToLocalBox.TransformPosition(hitPosition).Abs();
+      if ((localHitPosition <= allOne).AllSet<3>())
+      {
+        bInBoundingBox = true;
+        break;
+      }
+    }
+
+    if (bInBoundingBox)
+    {
+      PlacementPoint& placementPoint = m_InputPoints.ExpandAndGetRef();
+      placementPoint.m_vPosition = hitResult.m_vPosition;
+      placementPoint.m_fScale = 1.0f;
+      placementPoint.m_vNormal = hitResult.m_vNormal;
+      placementPoint.m_uiColorIndex = 0;
+      placementPoint.m_uiObjectIndex = 0;
+      placementPoint.m_uiPointIndex = i;
+    }
+  }
+}
+
+void PlacementTask::ExecuteVM()
+{
   // Execute bytecode
   if (m_pLayer->m_pByteCode != nullptr)
   {
+    EZ_PROFILE_SCOPE("ExecuteVM");
+
     ezUInt32 uiNumInstances = m_InputPoints.GetCount();
     m_TempData.SetCountUninitialized(uiNumInstances * 5);
 
     ezHybridArray<ezExpression::Stream, 8> inputs;
     {
-      inputs.PushBack(
-        MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.x), ezPPInternal::ExpressionInputs::s_sPositionX));
-      inputs.PushBack(
-        MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.y), ezPPInternal::ExpressionInputs::s_sPositionY));
-      inputs.PushBack(
-        MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.z), ezPPInternal::ExpressionInputs::s_sPositionZ));
+      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.x), ExpressionInputs::s_sPositionX));
+      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.y), ExpressionInputs::s_sPositionY));
+      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.z), ExpressionInputs::s_sPositionZ));
 
-      inputs.PushBack(
-        MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.x), ezPPInternal::ExpressionInputs::s_sNormalX));
-      inputs.PushBack(
-        MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.y), ezPPInternal::ExpressionInputs::s_sNormalY));
-      inputs.PushBack(
-        MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.z), ezPPInternal::ExpressionInputs::s_sNormalZ));
+      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.x), ExpressionInputs::s_sNormalX));
+      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.y), ExpressionInputs::s_sNormalY));
+      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.z), ExpressionInputs::s_sNormalZ));
 
       // Point index
       ezArrayPtr<float> pointIndex = m_TempData.GetArrayPtr().GetSubArray(0, uiNumInstances);
@@ -67,7 +154,7 @@ void PlacementTask::Execute()
       {
         pointIndex[i] = m_InputPoints[i].m_uiPointIndex;
       }
-      inputs.PushBack(MakeStream(pointIndex, 0, ezPPInternal::ExpressionInputs::s_sPointIndex));
+      inputs.PushBack(MakeStream(pointIndex, 0, ExpressionInputs::s_sPointIndex));
     }
 
     ezArrayPtr<float> density = m_TempData.GetArrayPtr().GetSubArray(uiNumInstances * 1, uiNumInstances);
@@ -77,10 +164,10 @@ void PlacementTask::Execute()
 
     ezHybridArray<ezExpression::Stream, 8> outputs;
     {
-      outputs.PushBack(MakeStream(density, 0, ezPPInternal::ExpressionOutputs::s_sDensity));
-      outputs.PushBack(MakeStream(scale, 0, ezPPInternal::ExpressionOutputs::s_sScale));
-      outputs.PushBack(MakeStream(colorIndex, 0, ezPPInternal::ExpressionOutputs::s_sColorIndex));
-      outputs.PushBack(MakeStream(objectIndex, 0, ezPPInternal::ExpressionOutputs::s_sObjectIndex));
+      outputs.PushBack(MakeStream(density, 0, ExpressionOutputs::s_sDensity));
+      outputs.PushBack(MakeStream(scale, 0, ExpressionOutputs::s_sScale));
+      outputs.PushBack(MakeStream(colorIndex, 0, ExpressionOutputs::s_sColorIndex));
+      outputs.PushBack(MakeStream(objectIndex, 0, ExpressionOutputs::s_sObjectIndex));
     }
 
     // Execute expression bytecode
@@ -111,7 +198,8 @@ void PlacementTask::Execute()
     return;
   }
 
-  // Construct final transforms
+  EZ_PROFILE_SCOPE("Construct final transforms");
+
   m_OutputTransforms.SetCountUninitialized(m_ValidPoints.GetCount());
 
   ezSimdVec4i seed = ezSimdVec4i(m_iTileSeed) + ezSimdVec4i(0, 3, 7, 11);
