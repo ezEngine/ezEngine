@@ -47,7 +47,7 @@ EZ_END_COMPONENT_TYPE
 ezMeshComponent::ezMeshComponent() = default;
 ezMeshComponent::~ezMeshComponent() = default;
 
-void ezMeshComponent::OnExtractGeometry(ezMsgExtractGeometry& msg)
+void ezMeshComponent::OnExtractGeometry(ezMsgExtractGeometry& msg) const
 {
   if (msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh)
     return;
