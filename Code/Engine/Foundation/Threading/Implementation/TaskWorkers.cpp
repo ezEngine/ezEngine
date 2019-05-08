@@ -53,6 +53,19 @@ bool ezTaskSystem::IsLoadingThread()
   return ezThreadUtils::GetCurrentThreadID() == s_WorkerThreads[ezWorkerThreadType::FileAccess][0]->GetThreadID();
 }
 
+bool ezTaskSystem::IsLongRunningThread()
+{
+  for (auto pLongRunningThread : s_WorkerThreads[ezWorkerThreadType::LongTasks])
+  {
+    if (ezThreadUtils::GetCurrentThreadID() == pLongRunningThread->GetThreadID())
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 void ezTaskSystem::StopWorkerThreads()
 {
   // tell all threads that they should terminate
