@@ -248,6 +248,9 @@ public:
   /// If bWaitForIt is true, the function returns only after it is guaranteed that all tasks are properly terminated.
   static ezResult CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum OnTaskRunning = ezOnTaskRunning::WaitTillFinished); // [tested]
 
+  /// \brief Helps executing tasks that a suitable for the calling thread. Returns true if a task was found and executed. 
+  static bool HelpExecutingTasks();
+
   /// \brief Returns true when the thread that this function is executed on is the file loading thread.
   static bool IsLoadingThread();
 
@@ -304,6 +307,9 @@ private:
 
   // Is called whenever a dependency of pGroup has finished. Once all dependencies are finished, the group's tasks will get scheduled.
   static void DependencyHasFinished(ezTaskGroup* pGroup);
+
+  /// Returns true when the thread that this function is executed on is a worker thread for long running tasks.
+  static bool IsLongRunningThread();
 
   // Shuts down all worker threads. Does NOT finish the remaining tasks. Does not clear them either, though.
   static void StopWorkerThreads();

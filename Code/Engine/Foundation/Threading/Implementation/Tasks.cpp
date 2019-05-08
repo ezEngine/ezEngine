@@ -206,9 +206,6 @@ void ezTaskSystem::WaitForTask(ezTask* pTask)
 
   EZ_PROFILE_SCOPE("WaitForTask");
 
-  const bool bIsMainThread = ezThreadUtils::IsMainThread();
-  const bool bIsLoadingThread = IsLoadingThread();
-
   ezTaskPriority::Enum FirstPriority = ezTaskPriority::EarlyThisFrame;
   ezTaskPriority::Enum LastPriority = ezTaskPriority::LateNextFrame;
 
@@ -219,7 +216,7 @@ void ezTaskSystem::WaitForTask(ezTask* pTask)
   // to be loaded, we have a circular dependency on the thread itself and thus a deadlock
   bool bAllowDefaultWork = true;
 
-  if (bIsMainThread)
+  if (ezThreadUtils::IsMainThread())
   {
     // if this is the main thread, we need to execute the main-thread tasks
     // otherwise a dependency on which pTask is waiting, might not get fulfilled
@@ -230,10 +227,16 @@ void ezTaskSystem::WaitForTask(ezTask* pTask)
     /// could be removed)
     bAllowDefaultWork = false;
   }
-  else if (bIsLoadingThread)
+  else if (IsLoadingThread())
   {
     FirstPriority = ezTaskPriority::FileAccessHighPriority;
     LastPriority = ezTaskPriority::FileAccess;
+    bAllowDefaultWork = false;
+  }
+  else if (IsLongRunningThread())
+  {
+    FirstPriority = ezTaskPriority::LongRunningHighPriority;
+    LastPriority = ezTaskPriority::LongRunning;
     bAllowDefaultWork = false;
   }
 
@@ -327,5 +330,19 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
   return EZ_FAILURE;
 }
 
+bool ezTaskSystem::HelpExecutingTasks()
+{
+  ezTaskPriority::Enum FirstPriority = ezTaskPriority::EarlyThisFrame;
+  ezTaskPriority::Enum LastPriority = ezTaskPriority::LateNextFrame;
+
+  if (ezThreadUtils::IsMainThread())
+  {
+    // if this is the main thread, we need to execute the main-thread tasks
+    FirstPriority = ezTaskPriority::ThisFrameMainThread;
+    LastPriority = ezTaskPriority::SomeFrameMainThread;
+  }
+
+  return ExecuteTask(FirstPriority, LastPriority);
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_Tasks);

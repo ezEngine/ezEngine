@@ -966,26 +966,17 @@ void ezPhysXWorldModule::SimulateStep(ezTime deltaTime)
   }
 
   {
-    int numCheck = 0;
-    int numFetch = 0;
-
-    // TODO: PhysX HACK / WORKAROUND:
-    // As far as I can tell, there is a multi-threading bug in checkResults(true).
-    // When multiple threads are trying to acquire the read-lock on the PX scene, the blocking version
-    // of checkResults (which is also called by fetchResults) can dead-lock.
-    //
-    // By doing checkResults manually and using the non-blocking version, this seems to work.
-    // Unfortunately we are now wasting resources in our custom spin-lock :(
-
-    ///\todo execute tasks instead of waiting
     EZ_PROFILE_SCOPE("FetchResult");
+
+    // Help executing tasks while we wait for the simulation to finish    
     while (!m_pPxScene->checkResults(false))
     {
-      ++numCheck;
+      ezTaskSystem::HelpExecutingTasks();
     }
 
     EZ_PX_WRITE_LOCK(*m_pPxScene);
 
+    int numFetch = 0;
     while (!m_pPxScene->fetchResults(false))
     {
       ++numFetch;
