@@ -1,6 +1,6 @@
-﻿#include <FoundationTestPCH.h>
+#include <FoundationTestPCH.h>
 
-// NOTE: always save as Unicode UTF-8 with signature
+// NOTE: always save as Unicode UTF-8 with signature or compile with /utf-8 on windows.
 
 #include <Foundation/Strings/String.h>
 
@@ -253,21 +253,21 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
 
     EZ_TEST_BOOL(it.GetStartPointer() == &s.GetData()[5]);
     EZ_TEST_BOOL(it.GetEndPointer() == &s.GetData()[9]);
-    EZ_TEST_STRING(it.GetData(tmp), "öü");
+    EZ_TEST_STRING(it.GetData(tmp), u8"öü");
     EZ_TEST_BOOL(it.IsValid());
 
     it.Shrink(1, 1);
 
     EZ_TEST_BOOL(it.GetStartPointer() == &s.GetData()[7]);
     EZ_TEST_BOOL(it.GetEndPointer() == &s.GetData()[7]);
-    EZ_TEST_STRING(it.GetData(tmp), &s.GetData()[7]);
+    EZ_TEST_STRING(it.GetData(tmp), "");
     EZ_TEST_BOOL(!it.IsValid());
 
     it.Shrink(10, 10);
 
     EZ_TEST_BOOL(it.GetStartPointer() == &s.GetData()[7]);
     EZ_TEST_BOOL(it.GetEndPointer() == &s.GetData()[7]);
-    EZ_TEST_STRING(it.GetData(tmp), &s.GetData()[7]);
+    EZ_TEST_STRING(it.GetData(tmp), "");
     EZ_TEST_BOOL(!it.IsValid());
   }
 

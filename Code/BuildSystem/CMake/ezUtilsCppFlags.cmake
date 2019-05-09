@@ -45,6 +45,9 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	# enable standard conform casting behavior - casting results always in rvalue
 	target_compile_options(${TARGET_NAME} PRIVATE "/Zc:rvalueCast")
 	
+	# force the compiler to interpret code as utf8.
+	target_compile_options(${TARGET_NAME} PRIVATE /utf-8)
+	
   # /WX: treat warnings as errors
   if (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 		target_compile_options(${TARGET_NAME} PRIVATE "/WX")
