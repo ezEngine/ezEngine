@@ -71,8 +71,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBSphere)
     t.m_Scale = ezSimdVec4f(1, -2, -4);
 
     s.Transform(t);
-
-    EZ_TEST_BOOL((s.m_CenterAndRadius == ezSimdVec4f(4, 10, 6, 8)).AllSet());
+    EZ_TEST_BOOL(s.m_CenterAndRadius.IsEqual(ezSimdVec4f(4, 10, 6, 8), ezSimdFloat(ezMath::BasicType<float>::SmallEpsilon())).AllSet());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetDistanceTo (point)")
