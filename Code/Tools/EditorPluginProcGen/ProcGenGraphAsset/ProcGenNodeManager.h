@@ -15,15 +15,13 @@ public:
   ezProcGenNodeRegistry();
 
   const ezRTTI* GetBaseType() const { return m_pBaseType; }
-  const ezRTTI* GetLayerOutputType() const { return m_pLayerOutputType; }
+  const ezRTTI* GetPlacementOutputType() const { return m_pPlacementOutputType; }
 
   void UpdateNodeTypes();
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(EditorFramework, ProceduralPlacement);
-
   const ezRTTI* m_pBaseType;
-  const ezRTTI* m_pLayerOutputType;
+  const ezRTTI* m_pPlacementOutputType;
 };
 
 class ezProcGenNodeManager : public ezDocumentNodeManager

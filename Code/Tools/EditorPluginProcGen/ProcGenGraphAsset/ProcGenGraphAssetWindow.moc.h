@@ -16,7 +16,7 @@ public:
   ezProcGenGraphAssetDocumentWindow(ezProcGenGraphAssetDocument* pDocument);
   ~ezProcGenGraphAssetDocumentWindow();
 
-  ezProcGenGraphAssetDocument* GetProceduralPlacementDocument();
+  ezProcGenGraphAssetDocument* GetProcGenGraphDocument();
 
   virtual const char* GetWindowLayoutGroupName() const override { return "ProcGenAsset"; }
 

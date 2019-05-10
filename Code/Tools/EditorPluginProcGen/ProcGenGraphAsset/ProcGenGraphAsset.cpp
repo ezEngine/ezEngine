@@ -16,13 +16,13 @@
 
 namespace
 {
-  void DumpAST(const ezExpressionAST& ast, ezStringView sAssetName, ezStringView sLayerName)
+  void DumpAST(const ezExpressionAST& ast, ezStringView sAssetName, ezStringView sOutputName)
   {
     ezDGMLGraph dgmlGraph;
     ast.PrintGraph(dgmlGraph);
 
     ezStringBuilder sFileName;
-    sFileName.Format(":appdata/{0}_{1}_AST.dgml", sAssetName, sLayerName);
+    sFileName.Format(":appdata/{0}_{1}_AST.dgml", sAssetName, sOutputName);
 
     ezDGMLGraphWriter dgmlGraphWriter;
     EZ_IGNORE_UNUSED(dgmlGraphWriter);
@@ -114,9 +114,9 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
         {
           ezStringBuilder sDocumentPath = GetDocumentPath();
           ezStringView sAssetName = sDocumentPath.GetFileNameAndExtension();
-          ezStringView sLayerName = pOutputNode->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
+          ezStringView sOutputName = pOutputNode->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
 
-          DumpAST(ast, sAssetName, sLayerName);
+          DumpAST(ast, sAssetName, sOutputName);
         }
 
         ezExpressionByteCode byteCode;
@@ -145,7 +145,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
   }
 
   {
-    chunk.BeginChunk("Layers", 3);
+    chunk.BeginChunk("PlacementOutputs", 3);
 
     chunk << uiNumOutputNodes;
 
@@ -155,7 +155,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
       {
         CachedNode cachedNode;
         EZ_VERIFY(nodeCache.TryGetValue(outputNodes[uiOutputNodeIndex], cachedNode), "Implementation error");
-        auto pOutputNode = static_cast<ezProcPlacementOutput*>(cachedNode.m_pPPNode);
+        auto pOutputNode = static_cast<ezProcGenPlacementOutput*>(cachedNode.m_pPPNode);
         pOutputNode->m_uiByteCodeIndex = uiOutputNodeIndex;
 
         pOutputNode->Save(chunk);
@@ -326,7 +326,7 @@ void ezProcGenGraphAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractOb
 
 void ezProcGenGraphAssetDocument::GetAllOutputNodes(ezDynamicArray<const ezDocumentObject*>& allNodes) const
 {
-  const ezRTTI* pLayerOutputRtti = ezProcGenNodeRegistry::GetSingleton()->GetLayerOutputType();
+  const ezRTTI* pPlacementOutputRtti = ezProcGenNodeRegistry::GetSingleton()->GetPlacementOutputType();
 
   allNodes.Clear();
   allNodes.Reserve(64);
@@ -335,7 +335,7 @@ void ezProcGenGraphAssetDocument::GetAllOutputNodes(ezDynamicArray<const ezDocum
   for (const ezDocumentObject* pObject : children)
   {
     const ezRTTI* pRtti = pObject->GetTypeAccessor().GetType();
-    if (!pRtti->IsDerivedFrom(pLayerOutputRtti))
+    if (!pRtti->IsDerivedFrom(pPlacementOutputRtti))
       continue;
 
     if (pObject->GetTypeAccessor().GetValue("Active").ConvertTo<bool>())
@@ -403,9 +403,9 @@ ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateDebugExpressionAST(e
   }
 
   ezHybridArray<ezExpressionAST::Node*, 8> inputAstNodes;
-  inputAstNodes.SetCount(4); // output layer node has 4 inputs
+  inputAstNodes.SetCount(4); // placement output node has 4 inputs
 
-  // Recursively generate all dependent code and pretend it is connected to the color index input of the debug layer output node.
+  // Recursively generate all dependent code and pretend it is connected to the color index input of the debug placement output node.
   inputAstNodes[2] = GenerateExpressionAST(pPinSource->GetParent(), objectWriter, rttiConverter, nodeCache, out_Ast);
 
   return m_pDebugNode->GenerateExpressionASTNode(inputAstNodes, out_Ast);
@@ -419,7 +419,7 @@ void ezProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembl
   if (!selection.IsEmpty())
   {
     pSelectedNode = selection[0];
-    if (!pSelectedNode->GetType()->IsDerivedFrom(ezProcGenNodeRegistry::GetSingleton()->GetLayerOutputType()))
+    if (!pSelectedNode->GetType()->IsDerivedFrom(ezProcGenNodeRegistry::GetSingleton()->GetPlacementOutputType()))
     {
       pSelectedNode = nullptr;
     }
@@ -444,11 +444,11 @@ void ezProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembl
 
   ezStringBuilder sDocumentPath = GetDocumentPath();
   ezStringView sAssetName = sDocumentPath.GetFileNameAndExtension();
-  ezStringView sLayerName = pSelectedNode->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
+  ezStringView sOutputName = pSelectedNode->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
 
   if (bAst)
   {
-    DumpAST(ast, sAssetName, sLayerName);
+    DumpAST(ast, sAssetName, sOutputName);
   }
 
   if (bDisassembly)
@@ -462,7 +462,7 @@ void ezProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembl
       byteCode.Disassemble(sDisassembly);
 
       ezStringBuilder sFileName;
-      sFileName.Format(":appdata/{0}_{1}_ByteCode.txt", sAssetName, sLayerName);
+      sFileName.Format(":appdata/{0}_{1}_ByteCode.txt", sAssetName, sOutputName);
 
       ezFileWriter fileWriter;
       if (fileWriter.Open(sFileName).Succeeded())
@@ -493,7 +493,7 @@ void ezProcGenGraphAssetDocument::CreateDebugNode()
   if (m_pDebugNode != nullptr)
     return;
 
-  m_pDebugNode = EZ_DEFAULT_NEW(ezProcPlacementOutput);
+  m_pDebugNode = EZ_DEFAULT_NEW(ezProcGenPlacementOutput);
   m_pDebugNode->m_sName = "Debug";
   m_pDebugNode->m_ObjectsToPlace.PushBack(s_szSphereAssetId);
   m_pDebugNode->m_sColorGradient = s_szBWGradientAssetId;

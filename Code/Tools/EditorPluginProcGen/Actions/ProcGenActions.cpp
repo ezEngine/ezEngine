@@ -13,8 +13,8 @@ void ezProcGenActions::RegisterActions()
 {
   s_hCategory = EZ_REGISTER_CATEGORY("ProcGen");
   s_hDumpAST = EZ_REGISTER_ACTION_1(
-    "ProcGen.DumpAST", ezActionScope::Document, "Procedural Placement", "", ezProcGenAction, ezProcGenAction::ActionType::DumpAST);
-  s_hDumpDisassembly = EZ_REGISTER_ACTION_1("ProcGen.DumpDisassembly", ezActionScope::Document, "Procedural Placement", "", ezProcGenAction,
+    "ProcGen.DumpAST", ezActionScope::Document, "ProcGen Graph", "", ezProcGenAction, ezProcGenAction::ActionType::DumpAST);
+  s_hDumpDisassembly = EZ_REGISTER_ACTION_1("ProcGen.DumpDisassembly", ezActionScope::Document, "ProcGen Graph", "", ezProcGenAction,
     ezProcGenAction::ActionType::DumpDisassembly);
 }
 

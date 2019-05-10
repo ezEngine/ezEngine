@@ -115,7 +115,7 @@ void ezQtProcGenNode::UpdateState()
   else
   {
     sTitle = GetObject()->GetTypeAccessor().GetType()->GetTypeName();
-    if (sTitle.StartsWith_NoCase("ezProceduralPlacement"))
+    if (sTitle.StartsWith_NoCase("ezProcGen"))
     {
       sTitle.Shrink(21, 0);
     }

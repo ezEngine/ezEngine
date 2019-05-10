@@ -6,7 +6,7 @@
 #include <ProcGenPlugin/VM/ExpressionVM.h>
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(ProceduralPlacement, ProceduralPlacementPlugin)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(ProcGen, ProcGenPlugin)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",
@@ -15,10 +15,10 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(ProceduralPlacement, ProceduralPlacementPlugin)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezResourceManager::RegisterResourceForAssetType("Procedural Placement", ezGetStaticRTTI<ezProcGenGraphResource>());
+    ezResourceManager::RegisterResourceForAssetType("ProcGen Graph", ezGetStaticRTTI<ezProcGenGraphResource>());
 
     ezProcGenGraphResourceDescriptor desc;
-    ezProcGenGraphResourceHandle hResource = ezResourceManager::CreateResource<ezProcGenGraphResource>("ProceduralPlacementMissing", std::move(desc), "Fallback for missing Procedural Placement Resource");
+    ezProcGenGraphResourceHandle hResource = ezResourceManager::CreateResource<ezProcGenGraphResource>("ProcGenGraphMissing", std::move(desc), "Fallback for missing ProcGen Graph Resource");
     ezResourceManager::SetResourceTypeMissingFallback<ezProcGenGraphResource>(hResource);
 
     //ezExpressionVM::Test();

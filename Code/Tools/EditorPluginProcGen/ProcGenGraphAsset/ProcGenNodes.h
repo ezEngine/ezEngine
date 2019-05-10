@@ -13,9 +13,9 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezProcPlacementOutput : public ezProcGenNodeBase
+class ezProcGenPlacementOutput : public ezProcGenNodeBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcPlacementOutput, ezProcGenNodeBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenPlacementOutput, ezProcGenNodeBase);
 
 public:
   virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast) override;

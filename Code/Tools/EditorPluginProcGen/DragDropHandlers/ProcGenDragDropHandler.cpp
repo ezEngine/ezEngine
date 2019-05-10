@@ -12,7 +12,7 @@ float ezProcPlacementComponentDragDropHandler::CanHandle(const ezDragDropInfo* p
   if (ezComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
     return 0.0f;
 
-  return IsSpecificAssetType(pInfo, "Procedural Placement") ? 1.0f : 0.0f;
+  return IsSpecificAssetType(pInfo, "ProcGen Graph") ? 1.0f : 0.0f;
 }
 
 void ezProcPlacementComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)

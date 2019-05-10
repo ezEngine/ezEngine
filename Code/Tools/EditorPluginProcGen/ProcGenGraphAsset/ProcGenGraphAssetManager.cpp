@@ -17,13 +17,13 @@ ezProcGenGraphAssetDocumentManager::ezProcGenGraphAssetDocumentManager()
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Procedural Placement Asset";
-  m_AssetDesc.m_sFileExtension = "ezProceduralPlacementAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Procedural_Placement.png";
+  m_AssetDesc.m_sDocumentTypeName = "ProcGen Graph Asset";
+  m_AssetDesc.m_sFileExtension = "ezProcGenGraphAsset";
+  m_AssetDesc.m_sIcon = ":/AssetIcons/ProcGen.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezProcGenGraphAssetDocument>();
   m_AssetDesc.m_pManager = this;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("Procedural Placement", QPixmap(":/AssetIcons/Procedural_Placement.png"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("ProcGen Graph", QPixmap(":/AssetIcons/ProcGen.png"));
 }
 
 ezProcGenGraphAssetDocumentManager::~ezProcGenGraphAssetDocumentManager()

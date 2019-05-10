@@ -73,7 +73,7 @@ ezProcGenGraphAssetDocumentWindow::~ezProcGenGraphAssetDocumentWindow()
   RestoreResource();
 }
 
-ezProcGenGraphAssetDocument* ezProcGenGraphAssetDocumentWindow::GetProceduralPlacementDocument()
+ezProcGenGraphAssetDocument* ezProcGenGraphAssetDocumentWindow::GetProcGenGraphDocument()
 {
   return static_cast<ezProcGenGraphAssetDocument*>(GetDocument());
 }
@@ -84,7 +84,7 @@ void ezProcGenGraphAssetDocumentWindow::UpdatePreview()
     return;
 
   ezResourceUpdateMsgToEngine msg;
-  msg.m_sResourceType = "Procedural Placement";
+  msg.m_sResourceType = "ProcGen Graph";
 
   ezStringBuilder tmp;
   msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
@@ -94,15 +94,15 @@ void ezProcGenGraphAssetDocumentWindow::UpdatePreview()
 
   // Write Path
   ezStringBuilder sAbsFilePath = GetDocument()->GetDocumentPath();
-  sAbsFilePath.ChangeFileExtension("ezProceduralPlacement");
+  sAbsFilePath.ChangeFileExtension("ezProcGenGraph");
   // Write Header
   memoryWriter << sAbsFilePath;
   const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(GetDocument()->GetGuid());
   ezAssetFileHeader AssetHeader;
-  AssetHeader.SetFileHashAndVersion(uiHash, GetProceduralPlacementDocument()->GetAssetTypeVersion());
+  AssetHeader.SetFileHashAndVersion(uiHash, GetProcGenGraphDocument()->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter);
   // Write Asset Data
-  if (GetProceduralPlacementDocument()->WriteAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile()).Succeeded())
+  if (GetProcGenGraphDocument()->WriteAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile()).Succeeded())
   {
     msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize());
 
@@ -113,7 +113,7 @@ void ezProcGenGraphAssetDocumentWindow::UpdatePreview()
 void ezProcGenGraphAssetDocumentWindow::RestoreResource()
 {
   ezRestoreResourceMsgToEngine msg;
-  msg.m_sResourceType = "Procedural Placement";
+  msg.m_sResourceType = "ProcGen Graph";
 
   ezStringBuilder tmp;
   msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);

@@ -34,7 +34,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcPlacementOutput, 1, ezRTTIDefaultAllocator<ezProcPlacementOutput>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenPlacementOutput, 1, ezRTTIDefaultAllocator<ezProcGenPlacementOutput>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -61,7 +61,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcPlacementOutput, 1, ezRTTIDefaultAllocator
 
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezTitleAttribute("{Active} Layer: {Name}"),
+    new ezTitleAttribute("{Active} Placement Output: {Name}"),
     new ezCategoryAttribute("Output"),
   }
   EZ_END_ATTRIBUTES;
@@ -69,7 +69,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcPlacementOutput, 1, ezRTTIDefaultAllocator
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezExpressionAST::Node* ezProcPlacementOutput::GenerateExpressionASTNode(
+ezExpressionAST::Node* ezProcGenPlacementOutput::GenerateExpressionASTNode(
   ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast)
 {
   out_Ast.m_OutputNodes.Clear();
@@ -121,7 +121,7 @@ ezExpressionAST::Node* ezProcPlacementOutput::GenerateExpressionASTNode(
   return nullptr;
 }
 
-void ezProcPlacementOutput::Save(ezStreamWriter& stream)
+void ezProcGenPlacementOutput::Save(ezStreamWriter& stream)
 {
   stream << m_sName;
 

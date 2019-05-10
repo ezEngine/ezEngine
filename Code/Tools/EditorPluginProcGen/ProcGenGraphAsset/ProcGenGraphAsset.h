@@ -5,7 +5,7 @@
 
 class ezDocumentObjectConverterWriter;
 class ezProcGenNodeBase;
-class ezProcPlacementOutput;
+class ezProcGenPlacementOutput;
 class ezPin;
 
 class ezProcGenGraphAssetDocument : public ezAssetDocument
@@ -17,7 +17,7 @@ public:
 
   virtual const char* GetDocumentTypeDisplayString() const override { return "ProcGen Graph Asset"; }
 
-  virtual const char* QueryAssetType() const override { return "Procedural Placement"; }
+  virtual const char* QueryAssetType() const override { return "ProcGen Graph"; }
 
   void SetDebugPin(const ezPin* pDebugPin);
 
@@ -58,5 +58,5 @@ private:
   void CreateDebugNode();
 
   const ezPin* m_pDebugPin = nullptr;
-  ezUniquePtr<ezProcPlacementOutput> m_pDebugNode;
+  ezUniquePtr<ezProcGenPlacementOutput> m_pDebugNode;
 };

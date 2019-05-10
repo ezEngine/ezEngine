@@ -10,10 +10,11 @@
 EZ_IMPLEMENT_SINGLETON(ezProcGenNodeRegistry);
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ProceduralPlacement)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ProcGen)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
-  "PluginAssets", "ReflectedTypeManager"
+    "PluginAssets",
+    "ReflectedTypeManager"
   END_SUBSYSTEM_DEPENDENCIES
 
   ON_CORESYSTEMS_STARTUP
@@ -33,14 +34,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ProceduralPlacement)
     EZ_DEFAULT_DELETE(pDummy);
   }
 
-  ON_HIGHLEVELSYSTEMS_STARTUP
-  {
-  }
-
-  ON_HIGHLEVELSYSTEMS_SHUTDOWN
-  {
-  }
-
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
@@ -49,13 +42,13 @@ ezProcGenNodeRegistry::ezProcGenNodeRegistry()
     : m_SingletonRegistrar(this)
 {
   m_pBaseType = nullptr;
-  m_pLayerOutputType = nullptr;
+  m_pPlacementOutputType = nullptr;
 }
 
 void ezProcGenNodeRegistry::UpdateNodeTypes()
 {
   m_pBaseType = ezGetStaticRTTI<ezProcGenNodeBase>();
-  m_pLayerOutputType = ezGetStaticRTTI<ezProcPlacementOutput>();
+  m_pPlacementOutputType = ezGetStaticRTTI<ezProcGenPlacementOutput>();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -141,7 +134,7 @@ ezStatus ezProcGenNodeManager::InternalCanConnect(const ezPin* pSource, const ez
 }
 
 #if 0
-const char* ezProceduralPlacementNodeManager::GetTypeCategory(const ezRTTI* pRtti) const
+const char* ezProcGenNodeManager::GetTypeCategory(const ezRTTI* pRtti) const
 {
   const ezVisualScriptNodeDescriptor* pDesc = ezVisualScriptTypeRegistry::GetSingleton()->GetDescriptorForType(pRtti);
 

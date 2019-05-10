@@ -8,7 +8,7 @@ o
 	s %n{"Header"}
 	p
 	{
-		s %AssetType{"Procedural Placement"}
+		s %AssetType{"ProcGen Graph"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12029954962534532266,5346896610498349464}}
 		u4 %Hash{1889161450190878584}
@@ -35,7 +35,7 @@ o
 o
 {
 	Uuid %id{u4{9419475339902937217,5567842822621767264}}
-	s %t{"ezProceduralPlacementLayerOutput"}
+	s %t{"ezProcGenPlacementOutput"}
 	u3 %v{1}
 	p
 	{
@@ -131,9 +131,9 @@ o
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"ezEditorPluginProceduralPlacement"}
+		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
-		s %TypeName{"ezProceduralPlacementNodeBase"}
+		s %TypeName{"ezProcGenNodeBase"}
 		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
@@ -148,10 +148,10 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezProceduralPlacementNodeBase"}
-		s %PluginName{"ezEditorPluginProceduralPlacement"}
+		s %ParentTypeName{"ezProcGenNodeBase"}
+		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
-		s %TypeName{"ezProceduralPlacementLayerOutput"}
+		s %TypeName{"ezProcGenPlacementOutput"}
 		u3 %TypeSize{624}
 		u3 %TypeVersion{1}
 	}

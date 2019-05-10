@@ -1,6 +1,6 @@
 #include <EditorPluginProcGenPCH.h>
 
-EZ_STATICLINK_LIBRARY(EditorPluginProceduralPlacement)
+EZ_STATICLINK_LIBRARY(EditorPluginProcGen)
 {
   if (bReturn)
     return;
