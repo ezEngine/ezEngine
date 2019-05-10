@@ -24,6 +24,18 @@ EZ_FORCE_INLINE void ezAmbientCube<T>::operator=(const ezAmbientCube<U>& other)
 }
 
 template <typename T>
+EZ_FORCE_INLINE bool ezAmbientCube<T>::operator==(const ezAmbientCube& other) const
+{
+  return ezMemoryUtils::IsEqual(m_Values, other.m_Values);
+}
+
+template <typename T>
+EZ_ALWAYS_INLINE bool ezAmbientCube<T>::operator!=(const ezAmbientCube& other) const
+{
+  return !(*this == other);
+}
+
+template <typename T>
 T ezAmbientCube<T>::Evaluate(const ezVec3& vNormal)
 {
   ezVec3 vNormalSquared = vNormal.CompMul(vNormal);

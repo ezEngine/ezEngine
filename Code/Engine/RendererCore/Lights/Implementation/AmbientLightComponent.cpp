@@ -20,7 +20,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezAmbientLightComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
@@ -51,17 +50,25 @@ void ezAmbientLightComponent::Deinitialize()
 void ezAmbientLightComponent::OnActivated()
 {
   GetOwner()->UpdateLocalBounds();
+
+  UpdateSkyIrradiance();
 }
 
 void ezAmbientLightComponent::OnDeactivated()
 {
   GetOwner()->UpdateLocalBounds();
+
+  ezReflectionPool::ResetConstantSkyIrradiance(GetWorld());
 }
 
 void ezAmbientLightComponent::SetTopColor(ezColorGammaUB color)
 {
   m_TopColor = color;
-  SetModified(EZ_BIT(1));
+
+  if (IsActiveAndInitialized())
+  {
+    UpdateSkyIrradiance();
+  }
 }
 
 ezColorGammaUB ezAmbientLightComponent::GetTopColor() const
@@ -72,7 +79,11 @@ ezColorGammaUB ezAmbientLightComponent::GetTopColor() const
 void ezAmbientLightComponent::SetBottomColor(ezColorGammaUB color)
 {
   m_BottomColor = color;
-  SetModified(EZ_BIT(2));
+
+  if (IsActiveAndInitialized())
+  {
+    UpdateSkyIrradiance();
+  }
 }
 
 ezColorGammaUB ezAmbientLightComponent::GetBottomColor() const
@@ -83,7 +94,11 @@ ezColorGammaUB ezAmbientLightComponent::GetBottomColor() const
 void ezAmbientLightComponent::SetIntensity(float fIntensity)
 {
   m_fIntensity = fIntensity;
-  SetModified(EZ_BIT(3));
+
+  if (IsActiveAndInitialized())
+  {
+    UpdateSkyIrradiance();
+  }
 }
 
 float ezAmbientLightComponent::GetIntensity() const
@@ -91,30 +106,9 @@ float ezAmbientLightComponent::GetIntensity() const
   return m_fIntensity;
 }
 
-
 void ezAmbientLightComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
   msg.SetAlwaysVisible();
-}
-
-void ezAmbientLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
-{
-  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
-    return;
-
-  ezColor topColor = ezColor(m_TopColor) * m_fIntensity;
-  ezColor bottomColor = ezColor(m_BottomColor) * m_fIntensity;
-  ezColor midColor = ezMath::Lerp(bottomColor, topColor, 0.5f);
-
-  ezAmbientCube<ezColor> ambientLightIrradiance;
-  ambientLightIrradiance.m_Values[ezAmbientCubeBasis::PosX] = midColor;
-  ambientLightIrradiance.m_Values[ezAmbientCubeBasis::NegX] = midColor;
-  ambientLightIrradiance.m_Values[ezAmbientCubeBasis::PosY] = midColor;
-  ambientLightIrradiance.m_Values[ezAmbientCubeBasis::NegY] = midColor;
-  ambientLightIrradiance.m_Values[ezAmbientCubeBasis::PosZ] = topColor;
-  ambientLightIrradiance.m_Values[ezAmbientCubeBasis::NegZ] = bottomColor;
-
-  ezReflectionPool::SetConstantSkyIrradiance(GetWorld(), ambientLightIrradiance);
 }
 
 void ezAmbientLightComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -139,7 +133,22 @@ void ezAmbientLightComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fIntensity;
 }
 
+void ezAmbientLightComponent::UpdateSkyIrradiance()
+{
+  ezColor topColor = ezColor(m_TopColor) * m_fIntensity;
+  ezColor bottomColor = ezColor(m_BottomColor) * m_fIntensity;
+  ezColor midColor = ezMath::Lerp(bottomColor, topColor, 0.5f);
 
+  ezAmbientCube<ezColor> ambientLightIrradiance;
+  ambientLightIrradiance.m_Values[ezAmbientCubeBasis::PosX] = midColor;
+  ambientLightIrradiance.m_Values[ezAmbientCubeBasis::NegX] = midColor;
+  ambientLightIrradiance.m_Values[ezAmbientCubeBasis::PosY] = midColor;
+  ambientLightIrradiance.m_Values[ezAmbientCubeBasis::NegY] = midColor;
+  ambientLightIrradiance.m_Values[ezAmbientCubeBasis::PosZ] = topColor;
+  ambientLightIrradiance.m_Values[ezAmbientCubeBasis::NegZ] = bottomColor;
+
+  ezReflectionPool::SetConstantSkyIrradiance(GetWorld(), ambientLightIrradiance);
+}
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
