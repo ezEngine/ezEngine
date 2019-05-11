@@ -85,6 +85,8 @@ void ezTestFramework::Initialize()
     // to make sure that no child process that the tests launch shows an assert dialog in case of a crash
     #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
       _putenv("EZ_SILENT_ASSERTS=1");
+    #else
+      setenv("EZ_SILENT_ASSERTS", "1", 1);
     #endif
   }
 
