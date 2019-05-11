@@ -24,12 +24,6 @@ Plugin
 }
 Plugin
 {
-	string %Path{"ezEnginePluginProceduralPlacement"}
-	bool %LoadCopy{false}
-	string %DependencyOf{"EditorPluginProceduralPlacement"}
-}
-Plugin
-{
 	string %Path{"ezEnginePluginScene"}
 	bool %LoadCopy{false}
 	string %DependencyOf{"EditorPluginScene"}
@@ -60,9 +54,9 @@ Plugin
 }
 Plugin
 {
-	string %Path{"ezProceduralPlacementPlugin"}
+	string %Path{"ezProcGenPlugin"}
 	bool %LoadCopy{false}
-	string %DependencyOf{"<manual>","EditorPluginProceduralPlacement"}
+	string %DependencyOf{"<manual>","EditorPluginProcGen"}
 }
 Plugin
 {

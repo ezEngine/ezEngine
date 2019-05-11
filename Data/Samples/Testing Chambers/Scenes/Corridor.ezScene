@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{13611242935576824204}
+		u4 %Hash{6179145179810412830}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -5732,7 +5732,7 @@ o
 o
 {
 	Uuid %id{u4{16131629614973461429,5208171056684284849}}
-	s %t{"ezProceduralPlacementComponent"}
+	s %t{"ezProcPlacementComponent"}
 	u3 %v{1}
 	p
 	{
@@ -19293,24 +19293,6 @@ o
 }
 o
 {
-	Uuid %id{u4{13068179037296247958,1735471371214565641}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"ezEditorPluginProceduralPlacement"}
-		VarArray %Properties{}
-		s %TypeName{"ezProceduralPlacementComponent"}
-		u3 %TypeSize{128}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{4447097914284062604,1918706753753133111}}
 	s %t{"ezCategoryAttribute"}
 	u3 %v{1}
@@ -19603,6 +19585,24 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"MaxSimplification"}
 		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{2406542229663305138,6676649039585463701}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcPlacementComponent"}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -20350,7 +20350,7 @@ o
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{""}
-		s %PluginName{"ezEditorPluginProceduralPlacement"}
+		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGenBoxExtents"}
 		u3 %TypeSize{40}

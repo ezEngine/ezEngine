@@ -25,7 +25,7 @@ add_dependencies(${PROJECT_NAME}
   EditorPluginAssets
   EditorPluginParticle
   EditorPluginFileserve
-  EditorPluginProceduralPlacement
+  EditorPluginProcGen
   ParticlePlugin
   TexConv2
   Player

@@ -1,0 +1,213 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{12029954962534532266,5346896610498349464}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"ProcGen Graph"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{12029954962534532266,5346896610498349464}}
+		u4 %Hash{1889161450190878584}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
+			s{"{ 3837dd47-58a1-4659-a678-a88416d16fc0 }"}
+			s{"{ e8c45e75-2e03-4758-852c-a51ff3947c78 }"}
+		}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{2999212054573773310,509719251074501563}}
+	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{9419475339902937217,5567842822621767264}}
+	s %t{"ezProcGenPlacementOutput"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		f %AlignToNormal{0x3333333F}
+		u3 %CollisionLayer{0}
+		s %ColorGradient{""}
+		Uuid %ColorIndex{u4{2999212054573773310,509719251074501563}}
+		f %CullDistance{0x0000C842}
+		Uuid %Density{u4{1044769443117931852,8136319887141812986}}
+		f %Footprint{0x00002041}
+		Vec3 %MaxOffset{f{0x0000A040,0x0000A040,0}}
+		Vec3 %MaxScale{f{0x0000C03F,0x0000C03F,0x0000C03F}}
+		Vec3 %MinOffset{f{0x0000803F,0x0000803F,0xCDCC4CBE}}
+		Vec3 %MinScale{f{0x3333333F,0x3333333F,0x3333333F}}
+		s %Name{"Trees"}
+		VarArray %Node::Connections{}
+		Vec2 %Node::Pos{f{0xA5B6A544,0x427CFF43}}
+		Uuid %ObjectIndex{u4{1908035079840421668,10913566884444882326}}
+		VarArray %Objects
+		{
+			s{"{ 3837dd47-58a1-4659-a678-a88416d16fc0 }"}
+			s{"{ e8c45e75-2e03-4758-852c-a51ff3947c78 }"}
+		}
+		Uuid %Scale{u4{3802373625921773586,6217822183134204743}}
+		s %Surface{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{3802373625921773586,6217822183134204743}}
+	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{9419475339902937217,5567842822621767264}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{1044769443117931852,8136319887141812986}}
+	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{1908035079840421668,10913566884444882326}}
+	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{3685083895523917851,2226837618108554341}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezNodePin"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezInputNodePin"}
+		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3348215827797513989,3151030670214517724}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcGenNodeBase"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1093267139089957756,5922977518126335047}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezProcGenNodeBase"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcGenPlacementOutput"}
+		u3 %TypeSize{624}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15698232889620855237,16383335355841921482}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezNodePin"}
+		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+}
