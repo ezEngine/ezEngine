@@ -16,7 +16,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <conio.h>
-#else if EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
 #  include <csignal>
 #  include <cxxabi.h>
 #endif
@@ -59,7 +59,7 @@ namespace ExceptionHandler
     }
     return EXCEPTION_CONTINUE_SEARCH;
   }
-#else if EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
   void TopLevelExceptionHandler() noexcept
   {
     Print("***Unhandled Exception:***\n");

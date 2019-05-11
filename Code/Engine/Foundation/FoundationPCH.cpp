@@ -137,6 +137,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Types_Implementation_Variant);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_CommandLineUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_ConversionUtils);
+  EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_DGMLWriter);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_GraphicsUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Node);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Progress);

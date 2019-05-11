@@ -21,7 +21,7 @@ struct ezLambdaDelegateStorage : public ezLambdaDelegateStorageBase
   }
 
 private:
-  template < typename = typename std::enable_if< std::is_copy_constructible<Function>::value >::type>
+  template < typename = typename std::enable_if< std::is_copy_constructible<Function>::value >>
   ezLambdaDelegateStorage(const Function& func)
     : m_func(func)
   {

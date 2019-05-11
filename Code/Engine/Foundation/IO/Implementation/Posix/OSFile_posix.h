@@ -287,7 +287,7 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder)
 {
   if (s_TempDataPath.IsEmpty())
   {
-    s_TempDataPath = GetUserDataFolder(".cache");
+    s_TempDataPath = GetUserDataFolder(".cache").GetData();
   }
 
   ezStringBuilder s = s_TempDataPath;

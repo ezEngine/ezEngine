@@ -64,8 +64,8 @@ EZ_FORCE_INLINE bool ezComponentManager<T, StorageType>::TryGetComponent(const e
   EZ_ASSERT_DEV(ComponentType::TypeId() == component.GetInternalID().m_TypeId,
                 "The given component handle is not of the expected type. Expected type id {0}, got type id {1}", ComponentType::TypeId(),
                 component.GetInternalID().m_TypeId);
-  EZ_ASSERT_DEV(component.GetInternalID().m_WorldIndex == GetWorld()->GetIndex(),
-                "Component does not belong to this world. Expected world id {0} got id {1}", GetWorld()->GetIndex(),
+  EZ_ASSERT_DEV(component.GetInternalID().m_WorldIndex == GetWorldIndex(),
+                "Component does not belong to this world. Expected world id {0} got id {1}", GetWorldIndex(),
                 component.GetInternalID().m_WorldIndex);
 
   ezComponent* pComponent = nullptr;
@@ -81,8 +81,8 @@ EZ_FORCE_INLINE bool ezComponentManager<T, StorageType>::TryGetComponent(const e
   EZ_ASSERT_DEV(ComponentType::TypeId() == component.GetInternalID().m_TypeId,
                 "The given component handle is not of the expected type. Expected type id {0}, got type id {1}", ComponentType::TypeId(),
                 component.GetInternalID().m_TypeId);
-  EZ_ASSERT_DEV(component.GetInternalID().m_WorldIndex == GetWorld()->GetIndex(),
-                "Component does not belong to this world. Expected world id {0} got id {1}", GetWorld()->GetIndex(),
+  EZ_ASSERT_DEV(component.GetInternalID().m_WorldIndex == GetWorldIndex(),
+                "Component does not belong to this world. Expected world id {0} got id {1}", GetWorldIndex(),
                 component.GetInternalID().m_WorldIndex);
 
   const ezComponent* pComponent = nullptr;

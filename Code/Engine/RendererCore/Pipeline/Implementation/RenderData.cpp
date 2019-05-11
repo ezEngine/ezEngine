@@ -81,7 +81,7 @@ void ezMsgExtractRenderData::AddRenderData(
   auto& cached = m_ExtractedRenderData.ExpandAndGetRef();
   cached.m_pRenderData = pRenderData;
   cached.m_uiCategory = category.m_uiValue;
-  cached.m_uiComponentIndex = 0xFFFF;
+  cached.m_uiComponentIndex = 0x7FFF;
   cached.m_uiCacheIfStatic = (cachingBehavior == ezRenderData::Caching::IfStatic);
 }
 

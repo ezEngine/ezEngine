@@ -992,7 +992,7 @@ void ezQtEventTrackWidget::ComputeSelectionRect()
   if (bbox.IsValid())
   {
     m_selectionBRect.setCoords(bbox.m_vMin.x, bbox.m_vMin.y, bbox.m_vMax.x, bbox.m_vMax.y);
-    m_selectionBRect.normalized();
+    m_selectionBRect = m_selectionBRect.normalized();
   }
 }
 

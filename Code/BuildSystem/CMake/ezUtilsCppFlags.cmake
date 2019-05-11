@@ -116,14 +116,17 @@ endfunction()
 function(ez_set_build_flags_gcc TARGET_NAME)
 
 	# Wno-enum-compare removes all annoying enum cast warnings
-	target_compile_options(${TARGET_NAME} PRIVATE "-fPIC -Wno-enum-compare -mssse3 -mfpmath=sse -gdwarf-3")
+	target_compile_options(${TARGET_NAME} PRIVATE -fPIC -Wno-enum-compare -mssse3 -mfpmath=sse -gdwarf-3 -pthread)
 
 	# dynamic linking will fail without fPIC (plugins)
 	# gdwarf-3 will use the old debug info which is compatible with older gdb versions.
-  # these were previously set as CMAKE_C_FLAGS (not CPP)
-	target_compile_options(${TARGET_NAME} PRIVATE "-fPIC -gdwarf-3")
+	# these were previously set as CMAKE_C_FLAGS (not CPP)
+	target_compile_options(${TARGET_NAME} PRIVATE -fPIC -gdwarf-3)
 
-	target_compile_options(${TARGET_NAME} PRIVATE "-msse4.1")
+	target_compile_options(${TARGET_NAME} PRIVATE -msse4.1)
+	
+	# Disable warning: multi-character character constant
+	target_compile_options(${TARGET_NAME} PRIVATE -Wno-multichar)
 
 endfunction()
 
