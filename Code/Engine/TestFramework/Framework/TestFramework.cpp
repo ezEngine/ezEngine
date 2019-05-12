@@ -6,6 +6,7 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Utilities/StackTracer.h>
+#include <Foundation/Types/ScopeExit.h>
 #include <TestFramework/Utilities/TestOrder.h>
 
 #include <cstdlib>
@@ -90,9 +91,13 @@ void ezTestFramework::Initialize()
     #endif
   }
 
-  // Don't do this, it will spam the log with sub-system messages
-  // ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-  // ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  // We briefly add the log writers in this scope to be able to print startup failures of the test framework for CI.
+  ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
+  ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  EZ_SCOPE_EXIT({
+    ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
+    ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  });
 
   ezStartup::AddApplicationTag("testframework");
   ezStartup::StartupCoreSystems();
