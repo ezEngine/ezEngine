@@ -174,7 +174,7 @@ void ezIpcChannel::ReceiveMessageData(ezArrayPtr<const ezUInt8> data)
 
       ezProcessMessage* pMsg = (ezProcessMessage*)ezReflectionSerializer::ReadObjectFromBinary(reader, pRtti);
       ezUniquePtr<ezProcessMessage> msg(pMsg, ezFoundation::GetDefaultAllocator());
-      if (msg.Borrow() != nullptr)
+      if (msg != nullptr)
       {
         EnqueueMessage(std::move(msg));
       }

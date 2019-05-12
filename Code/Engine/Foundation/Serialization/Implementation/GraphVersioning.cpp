@@ -205,7 +205,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 ezGraphVersioning::ezGraphVersioning()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
   ezPlugin::s_PluginEvents.AddEventHandler(ezMakeDelegate(&ezGraphVersioning::PluginEventHandler, this));
 
@@ -251,6 +251,7 @@ void ezGraphVersioning::UpdatePatches()
 
   while (pInstance)
   {
+    pInstance->Initialize();
     switch (pInstance->GetPatchType())
     {
       case ezGraphPatch::PatchType::NodePatch:
@@ -291,4 +292,3 @@ ezUInt32 ezGraphVersioning::GetMaxPatchVersion(const ezHashedString& sType) cons
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_GraphVersioning);
-

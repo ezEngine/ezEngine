@@ -120,14 +120,11 @@ struct ezHashHelper<T*>
 {
   EZ_ALWAYS_INLINE static ezUInt32 Hash(T* value)
   {
-    if constexpr (sizeof(T*) == 8)
-    {
-      return ezHashHelper<ezUInt64>::Hash(reinterpret_cast<ezUInt64>(value) >> 4);
-    }
-    else
-    {
-      return ezHashHelper<ezUInt32>::Hash(reinterpret_cast<ezUInt32>(value) >> 4);
-    }
+#if EZ_ENABLED(EZ_PLATFORM_64BIT)
+    return ezHashHelper<ezUInt64>::Hash(reinterpret_cast<ezUInt64>(value) >> 4);
+#else
+    return ezHashHelper<ezUInt32>::Hash(reinterpret_cast<ezUInt32>(value) >> 4);
+#endif
   }
 
   EZ_ALWAYS_INLINE static bool Equal(T* a, T* b)
