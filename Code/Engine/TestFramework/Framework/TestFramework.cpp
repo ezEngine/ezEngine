@@ -91,12 +91,20 @@ void ezTestFramework::Initialize()
     #endif
   }
 
-  // We briefly add the log writers in this scope to be able to print startup failures of the test framework for CI.
-  ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-  ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  // Don't add loggers if FoundationTest is running ezProcess tests on itself.
+  const bool bIsTestingEzProcess = ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-cmd");
+  if (!bIsTestingEzProcess)
+  {
+    // We briefly add the log writers in this scope to be able to print startup failures of the test framework for CI.
+    ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
+    ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  }
   EZ_SCOPE_EXIT({
-    ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
-    ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+    if (!bIsTestingEzProcess)
+    {
+      ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
+      ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+    }
   });
 
   ezStartup::AddApplicationTag("testframework");
