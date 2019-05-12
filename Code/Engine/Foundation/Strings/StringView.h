@@ -98,8 +98,7 @@ public:
   void Trim(const char* szTrimCharsStart, const char* szTrimCharsEnd); // [tested]
 
 private:
-  template <typename Derived>
-  friend struct ezStringBase;
+  friend struct ezStringBase<ezStringView>;
 
   /// \brief Private because it does not guarantee zero-terminated results. Use the overload that takes an ezStringBuilder for storage.
   const char* GetData() const;

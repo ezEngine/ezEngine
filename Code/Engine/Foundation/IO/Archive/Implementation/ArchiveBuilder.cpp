@@ -2,6 +2,7 @@
 
 #include <Foundation/IO/Archive/ArchiveBuilder.h>
 
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
 #include <Foundation/IO/Archive/ArchiveUtils.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
@@ -117,3 +118,4 @@ bool ezArchiveBuilder::WriteFileProgressCallback(ezUInt64 bytesWritten, ezUInt64
 {
   return true;
 }
+#endif

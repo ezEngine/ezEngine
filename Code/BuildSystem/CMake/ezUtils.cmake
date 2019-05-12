@@ -185,7 +185,7 @@ function(ez_set_library_properties TARGET_NAME)
 
 	if (EZ_CMAKE_PLATFORM_LINUX)
 		# Workaround for: https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899
-		target_link_libraries (${TARGET_NAME} PRIVATE -lgcc_s -lgcc)
+		target_link_libraries (${TARGET_NAME} PRIVATE -lgcc_s -lgcc pthread rt)
 	endif ()
 
 	if (EZ_CMAKE_PLATFORM_OSX OR EZ_CMAKE_PLATFORM_LINUX)

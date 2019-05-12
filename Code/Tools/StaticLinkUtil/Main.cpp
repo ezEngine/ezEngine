@@ -617,6 +617,7 @@ public:
 
     const ezUInt32 uiSearchDirLength = m_sSearchDir.GetElementCount() + 1;
 
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
     // get a directory iterator for the search directory
     ezFileSystemIterator it;
     if (it.StartSearch(m_sSearchDir.GetData(), true, false) == EZ_SUCCESS)
@@ -653,6 +654,10 @@ public:
     }
     else
       ezLog::Error("Could not search the directory '{0}'", m_sSearchDir);
+
+#else
+    EZ_REPORT_FAILURE("No file system iterator support, StaticLinkUtil sample can't run.");
+#endif
   }
 
   void MakeSureStaticLinkLibraryMacroExists()
@@ -692,6 +697,7 @@ public:
 
     EZ_LOG_BLOCK("FindRefPointGroupFile");
 
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
     // get a directory iterator for the search directory
     ezFileSystemIterator it;
     if (it.StartSearch(m_sSearchDir.GetData(), true, false) == EZ_SUCCESS)
@@ -732,7 +738,9 @@ public:
     }
     else
       ezLog::Error("Could not search the directory '{0}'", m_sSearchDir);
-
+#else
+    EZ_REPORT_FAILURE("No file system iterator support, StaticLinkUtil sample can't run.");
+#endif
     MakeSureStaticLinkLibraryMacroExists();
   }
 

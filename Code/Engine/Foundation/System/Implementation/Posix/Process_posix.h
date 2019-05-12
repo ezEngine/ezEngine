@@ -1,6 +1,11 @@
 #include <Foundation/System/Process.h>
 
-ezProcess::ezProcess()
+struct ezProcessImpl
+{
+  EZ_DECLARE_POD_TYPE();
+};
+
+  ezProcess::ezProcess()
 {
   /// \todo Implement ezProcess::ezProcess on Posix
   EZ_ASSERT_NOT_IMPLEMENTED;

@@ -83,7 +83,11 @@ void ezTestFramework::Initialize()
   {
     // if the UI is run with GUI disabled, set the environment variable EZ_SILENT_ASSERTS
     // to make sure that no child process that the tests launch shows an assert dialog in case of a crash
-    _putenv("EZ_SILENT_ASSERTS=1");
+    #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+      _putenv("EZ_SILENT_ASSERTS=1");
+    #else
+      setenv("EZ_SILENT_ASSERTS", "1", 1);
+    #endif
   }
 
   // Don't do this, it will spam the log with sub-system messages

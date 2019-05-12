@@ -5,6 +5,7 @@
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <Foundation/Types/Delegate.h>
 
 typedef void* ezOsProcessHandle;
 typedef ezUInt32 ezOsProcessID;

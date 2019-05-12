@@ -1,11 +1,11 @@
 #include <CorePCH.h>
 
-#include <Foundation/IO/OSFile.h>
 #include <Core/Collection/CollectionUtils.h>
+#include <Foundation/IO/OSFile.h>
 
-
-void ezCollectionUtils::AddFiles(ezCollectionResourceDescriptor& collection, const char* szAssetTypeName,
-  const char* szAbsPathToFolder, const char* szFileExtension, const char* szStripPrefix, const char* szPrependPrefix)
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
+void ezCollectionUtils::AddFiles(ezCollectionResourceDescriptor& collection, const char* szAssetTypeName, const char* szAbsPathToFolder,
+  const char* szFileExtension, const char* szStripPrefix, const char* szPrependPrefix)
 {
   ezFileSystemIterator fsIt;
 
@@ -37,4 +37,4 @@ void ezCollectionUtils::AddFiles(ezCollectionResourceDescriptor& collection, con
 
   } while (fsIt.Next().Succeeded());
 }
-
+#  endif

@@ -1,5 +1,10 @@
 #include <Foundation/System/ProcessGroup.h>
 
+struct ezProcessGroupImpl
+{
+  EZ_DECLARE_POD_TYPE();
+};
+
 ezProcessGroup::ezProcessGroup(const char* szGroupName /*= nullptr*/)
 {
   /// \todo Implement ezProcessGroup on Posix

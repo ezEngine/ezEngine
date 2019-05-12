@@ -232,6 +232,8 @@ public:
     ezUInt32 uiFiles = 0;
     ezMap<ezString, FileStats> FileTypeStatistics;
 
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
+
     // get a directory iterator for the search directory
     ezFileSystemIterator it;
     if (it.StartSearch(m_szSearchDir) == EZ_SUCCESS)
@@ -269,7 +271,6 @@ public:
       }
       while (it.Next() == EZ_SUCCESS);
 
-
       // now output some statistics
       ezLog::Info("Directories: {0}, Files: {1}, Avg. Files per Dir: {2}", uiDirectories, uiFiles, ezArgF(uiFiles / (float) uiDirectories, 1));
 
@@ -290,7 +291,9 @@ public:
     }
     else
       ezLog::Error("Could not search the directory '{0}'", m_szSearchDir);
-
+#else
+    EZ_REPORT_FAILURE("No file system iterator support, LineCount sample can't run.");
+#endif
     return ezApplication::Quit;
   }
 };

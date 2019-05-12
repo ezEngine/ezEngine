@@ -46,6 +46,10 @@ public:
   EZ_DECLARE_ENUMERABLE_CLASS(ezGraphPatch);
 
 private:
+  friend class ezGraphVersioning;
+  void Initialize();
+
+  const char* m_szType = nullptr;
   ezHashedString m_sType;
   ezUInt32 m_uiTypeVersion;
   PatchType m_PatchType;

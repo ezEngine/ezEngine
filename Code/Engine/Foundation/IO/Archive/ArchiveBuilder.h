@@ -5,6 +5,7 @@
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Types/Delegate.h>
 
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
 /// \brief Utility class to build an ezArchive file from files/folders on disk
 ///
 /// All functionality for writing an ezArchive file is available through ezArchiveUtils.
@@ -51,3 +52,4 @@ protected:
   /// Override this to get a progress report for writing a single file to the output
   virtual bool WriteFileProgressCallback(ezUInt64 bytesWritten, ezUInt64 bytesTotal) const;
 };
+#endif

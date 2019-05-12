@@ -200,7 +200,7 @@ void ezResourceManager::EndAcquireResource(ResourceType* pResource)
 }
 
 template <typename ResourceType>
-static ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> ezResourceManager::GetAllResourcesOfType()
+ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> ezResourceManager::GetAllResourcesOfType()
 {
   const ezRTTI* pBaseType = ezGetStaticRTTI<ResourceType>();
 
