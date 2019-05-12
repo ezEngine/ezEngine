@@ -14,9 +14,9 @@ ezGraphPatch::ezGraphPatch(const char* szType, ezUInt32 uiTypeVersion, PatchType
 {
 }
 
-const ezHashedString ezGraphPatch::GetType() const
+const char* ezGraphPatch::GetType() const
 {
-  return m_sType;
+  return m_szType;
 }
 
 ezUInt32 ezGraphPatch::GetTypeVersion() const
@@ -28,12 +28,6 @@ ezUInt32 ezGraphPatch::GetTypeVersion() const
 ezGraphPatch::PatchType ezGraphPatch::GetPatchType() const
 {
   return m_PatchType;
-}
-
-void ezGraphPatch::Initialize()
-{
-  if (!ezStringUtils::IsNullOrEmpty(m_szType))
-    m_sType.Assign(m_szType);
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_GraphPatch);

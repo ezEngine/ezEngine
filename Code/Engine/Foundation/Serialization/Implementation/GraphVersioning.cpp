@@ -251,12 +251,11 @@ void ezGraphVersioning::UpdatePatches()
 
   while (pInstance)
   {
-    pInstance->Initialize();
     switch (pInstance->GetPatchType())
     {
       case ezGraphPatch::PatchType::NodePatch:
       {
-        key.m_sType = pInstance->GetType();
+        key.m_sType.Assign(pInstance->GetType());
         key.m_uiTypeVersion = pInstance->GetTypeVersion();
         m_NodePatches.Insert(key, pInstance);
 
