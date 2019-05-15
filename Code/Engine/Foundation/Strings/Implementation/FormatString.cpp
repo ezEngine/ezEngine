@@ -267,8 +267,13 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgHumanReadable&
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgErrorCode& arg)
 {
   LPVOID lpMsgBuf = nullptr;
-  FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, arg.m_ErrorCode,
-    MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPWSTR)&lpMsgBuf, 0, nullptr);
+  if (FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, arg.m_ErrorCode,
+    MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPWSTR)&lpMsgBuf, 0, nullptr) == 0)
+  {
+    DWORD err = GetLastError();
+    ezStringUtils::snprintf(tmp, uiLength, "%i (FormatMessageW failed with error code %i)", arg.m_ErrorCode, err);
+    return ezStringView(tmp);
+  }
 
   LPWSTR pCRLF = wcschr((LPWSTR)lpMsgBuf, L'\r');
   if (pCRLF != nullptr)
