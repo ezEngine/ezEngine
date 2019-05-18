@@ -193,6 +193,8 @@ function(ez_set_library_properties TARGET_NAME)
 		find_package(SFML REQUIRED system window)
 		target_include_directories (${TARGET_NAME} PRIVATE ${X11_X11_INCLUDE_PATH} ${SFML_INCLUDE_DIR})
 		target_link_libraries (${TARGET_NAME} PRIVATE ${X11_X11_LIB} ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})
+		message(STATUS "SFML INCLUDES ${SFML_INCLUDE_DIR}")
+		message(STATUS "SFML LIBS ${SFML_LIBRARIES}")
 	endif ()
 
 endfunction()
@@ -210,6 +212,8 @@ function(ez_set_application_properties TARGET_NAME)
 		find_package(SFML REQUIRED system window)
 		target_include_directories (${TARGET_NAME} PRIVATE ${X11_X11_INCLUDE_PATH} ${SFML_INCLUDE_DIR})
 		target_link_libraries (${TARGET_NAME} PRIVATE ${X11_X11_LIB} ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})
+		message(STATUS "SFML INCLUDES ${SFML_INCLUDE_DIR}")
+		message(STATUS "SFML LIBS ${SFML_LIBRARIES}")
 	endif ()
 
 	# We need to link against X11, pthread and rt last or linker errors will occur.
