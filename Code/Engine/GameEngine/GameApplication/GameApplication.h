@@ -75,9 +75,9 @@ protected:
   virtual void Init_SetupGraphicsDevice() override;
   virtual void Deinit_ShutdownGraphicsDevice() override;
 
-  virtual bool IsGameUpdateEnabled() const;
+  virtual bool IsGameUpdateEnabled() const override;
 
-  virtual bool Run_ProcessApplicationInput();
+  virtual bool Run_ProcessApplicationInput() override;
   virtual void Run_WorldUpdateAndRender() override;
 
   /// \brief Stores what is given to the constructor
