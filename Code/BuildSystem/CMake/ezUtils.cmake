@@ -190,8 +190,9 @@ function(ez_set_library_properties TARGET_NAME)
 
 	if (EZ_CMAKE_PLATFORM_OSX OR EZ_CMAKE_PLATFORM_LINUX)
 		find_package(X11 REQUIRED)
-		target_include_directories (${TARGET_NAME} PRIVATE ${X11_X11_INCLUDE_PATH})
-		target_link_libraries (${TARGET_NAME} PRIVATE ${X11_X11_LIB})
+		find_package(SFML REQUIRED)
+		target_include_directories (${TARGET_NAME} PRIVATE ${X11_X11_INCLUDE_PATH} ${SFML_INCLUDE_DIR})
+		target_link_libraries (${TARGET_NAME} PRIVATE ${X11_X11_LIB} ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})
 	endif ()
 
 endfunction()
@@ -206,8 +207,9 @@ function(ez_set_application_properties TARGET_NAME)
 
 	if (EZ_CMAKE_PLATFORM_OSX OR EZ_CMAKE_PLATFORM_LINUX)
 		find_package(X11 REQUIRED)
-		target_include_directories (${TARGET_NAME} PRIVATE ${X11_X11_INCLUDE_PATH})
-		target_link_libraries (${TARGET_NAME} PRIVATE ${X11_X11_LIB})
+		find_package(SFML REQUIRED)
+		target_include_directories (${TARGET_NAME} PRIVATE ${X11_X11_INCLUDE_PATH} ${SFML_INCLUDE_DIR})
+		target_link_libraries (${TARGET_NAME} PRIVATE ${X11_X11_LIB} ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})
 	endif ()
 
 	# We need to link against X11, pthread and rt last or linker errors will occur.
