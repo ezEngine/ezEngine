@@ -36,15 +36,15 @@
 /// \brief Put this in some cpp file of a subsystem to start its startup / shutdown sequence declaration.
 ///
 /// The first parameter is the name of the group, in which the subsystem resides, the second is the name of the subsystem itself.
-#define EZ_BEGIN_SUBSYSTEM_DECLARATION(GroupName, SubsystemName)    \
-  class GroupName##SubsystemName##SubSystem;                        \
-  class GroupName##SubsystemName##SubSystem : public ezSubSystem    \
-  {                                                                 \
-  public:                                                           \
-    virtual const char* GetGroupName() const { return #GroupName; } \
-                                                                    \
-  public:                                                           \
-    virtual const char* GetSubSystemName() const { return #SubsystemName; }
+#define EZ_BEGIN_SUBSYSTEM_DECLARATION(GroupName, SubsystemName)             \
+  class GroupName##SubsystemName##SubSystem;                                 \
+  class GroupName##SubsystemName##SubSystem : public ezSubSystem             \
+  {                                                                          \
+  public:                                                                    \
+    virtual const char* GetGroupName() const override { return #GroupName; } \
+                                                                             \
+  public:                                                                    \
+    virtual const char* GetSubSystemName() const override { return #SubsystemName; }
 
 /// \brief Finishes a subsystem's startup / shutdown sequence declaration.
 #define EZ_END_SUBSYSTEM_DECLARATION \
@@ -89,10 +89,10 @@ private:                   \
 /// \brief Begins the list of subsystems, on which the currently declared system depends on.
 ///
 /// Must be followed by a series of strings with the names of the dependencies.
-#define BEGIN_SUBSYSTEM_DEPENDENCIES              \
-public:                                           \
-  virtual const char* GetDependency(ezInt32 iDep) \
-  {                                               \
+#define BEGIN_SUBSYSTEM_DEPENDENCIES                                                                                                       \
+public:                                                    \
+  virtual const char* GetDependency(ezInt32 iDep) override \
+  {                                                        \
     const char* szDeps[] = {
 
 /// \brief Ends the list of subsystems, on which the currently declared system depends on.

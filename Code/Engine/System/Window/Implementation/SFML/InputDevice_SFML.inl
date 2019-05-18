@@ -1,6 +1,6 @@
 #include <SystemPCH.h>
 
-#include <SFML/Window.hpp>
+#include <SFML/Window/Window.hpp>
 #include <System/Window/Implementation/SFML/InputDevice_SFML.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator);
