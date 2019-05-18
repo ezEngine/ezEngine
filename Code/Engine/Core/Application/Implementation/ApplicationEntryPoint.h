@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/CoreDLL.h>
+#include <string>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
