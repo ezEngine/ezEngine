@@ -7,8 +7,6 @@
 #include <Foundation/Utilities/Node.h>
 #include <ToolsFoundation/Command/NodeCommands.h>
 
-EZ_IMPLEMENT_SINGLETON(ezProcGenNodeRegistry);
-
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ProcGen)
 
@@ -19,10 +17,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ProcGen)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezProcGenNodeRegistry* pRegistry = EZ_DEFAULT_NEW(ezProcGenNodeRegistry);
-
-    pRegistry->UpdateNodeTypes();
-    const ezRTTI* pBaseType = pRegistry->GetBaseType();
+    const ezRTTI* pBaseType = ezGetStaticRTTI<ezProcGenNodeBase>();
 
     ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtProcGenPin(); });
     ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtProcGenNode(); });
@@ -30,37 +25,21 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ProcGen)
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezProcGenNodeRegistry* pDummy = ezProcGenNodeRegistry::GetSingleton();
-    EZ_DEFAULT_DELETE(pDummy);
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-
-ezProcGenNodeRegistry::ezProcGenNodeRegistry()
-    : m_SingletonRegistrar(this)
-{
-  m_pBaseType = nullptr;
-  m_pPlacementOutputType = nullptr;
-}
-
-void ezProcGenNodeRegistry::UpdateNodeTypes()
-{
-  m_pBaseType = ezGetStaticRTTI<ezProcGenNodeBase>();
-  m_pPlacementOutputType = ezGetStaticRTTI<ezProcGenPlacementOutput>();
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 bool ezProcGenNodeManager::InternalIsNode(const ezDocumentObject* pObject) const
 {
-  return pObject->GetType()->IsDerivedFrom(ezProcGenNodeRegistry::GetSingleton()->GetBaseType());
+  return pObject->GetType()->IsDerivedFrom(ezGetStaticRTTI<ezProcGenNodeBase>());
 }
 
 void ezProcGenNodeManager::InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node)
 {
-  const ezRTTI* pNodeBaseType = ezProcGenNodeRegistry::GetSingleton()->GetBaseType();
+  const ezRTTI* pNodeBaseType = ezGetStaticRTTI<ezProcGenNodeBase>();
 
   auto pType = pObject->GetTypeAccessor().GetType();
   if (!pType->IsDerivedFrom(pNodeBaseType))
@@ -114,7 +93,7 @@ void ezProcGenNodeManager::InternalDestroyPins(const ezDocumentObject* pObject, 
 
 void ezProcGenNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const
 {
-  const ezRTTI* pNodeBaseType = ezProcGenNodeRegistry::GetSingleton()->GetBaseType();
+  const ezRTTI* pNodeBaseType = ezGetStaticRTTI<ezProcGenNodeBase>();
 
   for (auto it = ezRTTI::GetFirstInstance(); it != nullptr; it = it->GetNextInstance())
   {

@@ -78,20 +78,11 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
 
   ezHashTable<const ezDocumentObject*, CachedNode> nodeCache;
 
-  ezDynamicArray<const ezDocumentObject*> outputNodes;
-  ezUInt32 uiNumOutputNodes;
+  ezDynamicArray<const ezDocumentObject*> placementNodes;
+  ezDynamicArray<const ezDocumentObject*> vertexColorNodes;
+  GetAllOutputNodes(placementNodes, vertexColorNodes);
 
   const bool bDebug = m_pDebugPin != nullptr;
-
-  if (!bDebug)
-  {
-    GetAllOutputNodes(outputNodes);
-    uiNumOutputNodes = outputNodes.GetCount();
-  }
-  else
-  {
-    uiNumOutputNodes = 1;
-  }
 
   ezChunkStreamWriter chunk(stream);
   chunk.BeginStream(1);
@@ -99,33 +90,53 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
   {
     chunk.BeginChunk("ByteCode", 1);
 
+    ezUInt32 uiNumOutputNodes = vertexColorNodes.GetCount();
+    uiNumOutputNodes += bDebug ? 1 : placementNodes.GetCount();
+
     chunk << uiNumOutputNodes;
 
     ezExpressionAST ast;
     ezExpressionCompiler compiler;
 
+    auto WriteByteCode = [&](const ezDocumentObject* pOutputNode, ezUInt32& uiByteCodeIndex) {
+      GenerateExpressionAST(pOutputNode, objectWriter, rttiConverter, nodeCache, ast);
+
+      if (false)
+      {
+        ezStringBuilder sDocumentPath = GetDocumentPath();
+        ezStringView sAssetName = sDocumentPath.GetFileNameAndExtension();
+        ezStringView sOutputName = pOutputNode->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
+
+        DumpAST(ast, sAssetName, sOutputName);
+      }
+
+      ezExpressionByteCode byteCode;
+      if (compiler.Compile(ast, byteCode).Failed())
+      {
+        return ezStatus("Compilation failed");
+      }
+
+      byteCode.Save(chunk);
+
+      CachedNode cachedNode;
+      EZ_VERIFY(nodeCache.TryGetValue(pOutputNode, cachedNode), "Implementation error");
+      ezStaticCast<ezProcGenOutput*>(cachedNode.m_pPPNode)->m_uiByteCodeIndex = uiByteCodeIndex;
+      ++uiByteCodeIndex;
+
+      return ezStatus(EZ_SUCCESS);
+    };
+
+    ezUInt32 uiByteCodeIndex = 0;
+    for (auto pVertexColorNode : vertexColorNodes)
+    {
+      EZ_SUCCEED_OR_RETURN(WriteByteCode(pVertexColorNode, uiByteCodeIndex));
+    }
+
     if (!bDebug)
     {
-      for (auto pOutputNode : outputNodes)
+      for (auto pPlacementNode : placementNodes)
       {
-        GenerateExpressionAST(pOutputNode, objectWriter, rttiConverter, nodeCache, ast);
-
-        if (false)
-        {
-          ezStringBuilder sDocumentPath = GetDocumentPath();
-          ezStringView sAssetName = sDocumentPath.GetFileNameAndExtension();
-          ezStringView sOutputName = pOutputNode->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
-
-          DumpAST(ast, sAssetName, sOutputName);
-        }
-
-        ezExpressionByteCode byteCode;
-        if (compiler.Compile(ast, byteCode).Failed())
-        {
-          return ezStatus("Compilation failed");
-        }
-
-        byteCode.Save(chunk);
+        EZ_SUCCEED_OR_RETURN(WriteByteCode(pPlacementNode, uiByteCodeIndex));
       }
     }
     else
@@ -139,6 +150,8 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
       }
 
       byteCode.Save(chunk);
+
+      m_pDebugNode->m_uiByteCodeIndex = uiByteCodeIndex;
     }
 
     chunk.EndChunk();
@@ -147,25 +160,43 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
   {
     chunk.BeginChunk("PlacementOutputs", 3);
 
-    chunk << uiNumOutputNodes;
-
     if (!bDebug)
     {
-      for (ezUInt32 uiOutputNodeIndex = 0; uiOutputNodeIndex < uiNumOutputNodes; ++uiOutputNodeIndex)
+      chunk << placementNodes.GetCount();
+
+      for (auto pPlacementNode : placementNodes)
       {
         CachedNode cachedNode;
-        EZ_VERIFY(nodeCache.TryGetValue(outputNodes[uiOutputNodeIndex], cachedNode), "Implementation error");
-        auto pOutputNode = static_cast<ezProcGenPlacementOutput*>(cachedNode.m_pPPNode);
-        pOutputNode->m_uiByteCodeIndex = uiOutputNodeIndex;
-
-        pOutputNode->Save(chunk);
+        EZ_VERIFY(nodeCache.TryGetValue(pPlacementNode, cachedNode), "Implementation error");
+        if (auto pPlacementOutput = ezDynamicCast<ezProcGenPlacementOutput*>(cachedNode.m_pPPNode))
+        {
+          pPlacementOutput->Save(chunk);
+        }
       }
     }
     else
     {
-      m_pDebugNode->m_uiByteCodeIndex = 0;
+      chunk << 1u;
 
       m_pDebugNode->Save(chunk);
+    }
+
+    chunk.EndChunk();
+  }
+
+  {
+    chunk.BeginChunk("VertexColorOutputs", 1);
+
+    chunk << vertexColorNodes.GetCount();
+
+    for (auto pVertexColorNode : vertexColorNodes)
+    {
+      CachedNode cachedNode;
+      EZ_VERIFY(nodeCache.TryGetValue(pVertexColorNode, cachedNode), "Implementation error");
+      if (auto pVertexColorOutput = ezDynamicCast<ezProcGenVertexColorOutput*>(cachedNode.m_pPPNode))
+      {
+        pVertexColorOutput->Save(chunk);
+      }
     }
 
     chunk.EndChunk();
@@ -187,12 +218,13 @@ void ezProcGenGraphAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* p
 
   if (m_pDebugPin == nullptr)
   {
-    ezDynamicArray<const ezDocumentObject*> outputNodes;
-    GetAllOutputNodes(outputNodes);
+    ezDynamicArray<const ezDocumentObject*> placementNodes;
+    ezDynamicArray<const ezDocumentObject*> vertexColorNodes;
+    GetAllOutputNodes(placementNodes, vertexColorNodes);
 
-    for (auto pOutputNode : outputNodes)
+    for (auto pPlacementNode : placementNodes)
     {
-      auto& typeAccessor = pOutputNode->GetTypeAccessor();
+      auto& typeAccessor = pPlacementNode->GetTypeAccessor();
 
       ezUInt32 uiNumObjects = typeAccessor.GetCount("Objects");
       for (ezUInt32 i = 0; i < uiNumObjects; ++i)
@@ -324,23 +356,29 @@ void ezProcGenGraphAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractOb
   pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }
 
-void ezProcGenGraphAssetDocument::GetAllOutputNodes(ezDynamicArray<const ezDocumentObject*>& allNodes) const
+void ezProcGenGraphAssetDocument::GetAllOutputNodes(
+  ezDynamicArray<const ezDocumentObject*>& placementNodes, ezDynamicArray<const ezDocumentObject*>& vertexColorNodes) const
 {
-  const ezRTTI* pPlacementOutputRtti = ezProcGenNodeRegistry::GetSingleton()->GetPlacementOutputType();
+  const ezRTTI* pPlacementOutputRtti = ezGetStaticRTTI<ezProcGenPlacementOutput>();
+  const ezRTTI* pVertexColorOutputRtti = ezGetStaticRTTI<ezProcGenVertexColorOutput>();
 
-  allNodes.Clear();
-  allNodes.Reserve(64);
+  placementNodes.Clear();
+  vertexColorNodes.Clear();
 
   const auto& children = GetObjectManager()->GetRootObject()->GetChildren();
   for (const ezDocumentObject* pObject : children)
   {
-    const ezRTTI* pRtti = pObject->GetTypeAccessor().GetType();
-    if (!pRtti->IsDerivedFrom(pPlacementOutputRtti))
-      continue;
-
     if (pObject->GetTypeAccessor().GetValue("Active").ConvertTo<bool>())
     {
-      allNodes.PushBack(pObject);
+      const ezRTTI* pRtti = pObject->GetTypeAccessor().GetType();
+      if (pRtti->IsDerivedFrom(pPlacementOutputRtti))
+      {
+        placementNodes.PushBack(pObject);
+      }
+      else if (pRtti->IsDerivedFrom(pVertexColorOutputRtti))
+      {
+        vertexColorNodes.PushBack(pObject);
+      }
     }
   }
 }
@@ -419,7 +457,7 @@ void ezProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembl
   if (!selection.IsEmpty())
   {
     pSelectedNode = selection[0];
-    if (!pSelectedNode->GetType()->IsDerivedFrom(ezProcGenNodeRegistry::GetSingleton()->GetPlacementOutputType()))
+    if (!pSelectedNode->GetType()->IsDerivedFrom(ezGetStaticRTTI<ezProcGenOutput>()))
     {
       pSelectedNode = nullptr;
     }

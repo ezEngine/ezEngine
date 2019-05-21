@@ -91,6 +91,11 @@ namespace ezProcGenInternal
     static ezHashedString s_sScale;
     static ezHashedString s_sColorIndex;
     static ezHashedString s_sObjectIndex;
+
+    static ezHashedString s_sR;
+    static ezHashedString s_sG;
+    static ezHashedString s_sB;
+    static ezHashedString s_sA;
   };
 
   struct PlacementPoint
