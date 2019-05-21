@@ -33,21 +33,6 @@ namespace ezProcGenInternal
 
   struct PlacementOutput : public ezRefCounted
   {
-    PlacementOutput()
-    {
-      m_pPattern = nullptr;
-      m_fFootprint = 1.0f;
-      m_vMinOffset.SetZero();
-      m_vMaxOffset.SetZero();
-      m_fAlignToNormal = 1.0f;
-      m_vMinScale.Set(1.0f);
-      m_vMaxScale.Set(1.0f);
-      m_fCullDistance = 100.0f;
-      m_uiCollisionLayer = 0;
-
-      m_pByteCode = nullptr;
-    }
-
     float GetTileSize() const { return m_pPattern->m_fSize * m_fFootprint; }
 
     bool IsValid() const
@@ -60,26 +45,33 @@ namespace ezProcGenInternal
 
     ezHybridArray<ezPrefabResourceHandle, 4> m_ObjectsToPlace;
 
-    const Pattern* m_pPattern;
-    float m_fFootprint;
+    const Pattern* m_pPattern = nullptr;
+    float m_fFootprint = 1.0f;
 
-    ezVec3 m_vMinOffset;
-    ezVec3 m_vMaxOffset;
+    ezVec3 m_vMinOffset = ezVec3::ZeroVector();
+    ezVec3 m_vMaxOffset = ezVec3::ZeroVector();
 
-    float m_fAlignToNormal;
+    float m_fAlignToNormal = 1.0f;
 
-    ezVec3 m_vMinScale;
-    ezVec3 m_vMaxScale;
+    ezVec3 m_vMinScale = ezVec3(1.0f);
+    ezVec3 m_vMaxScale = ezVec3(1.0f);
 
-    float m_fCullDistance;
+    float m_fCullDistance = 30.0f;
 
-    ezUInt32 m_uiCollisionLayer;
+    ezUInt32 m_uiCollisionLayer = 0;
 
     ezColorGradientResourceHandle m_hColorGradient;
 
     ezSurfaceResourceHandle m_hSurface;
 
-    ezExpressionByteCode* m_pByteCode;
+    ezExpressionByteCode* m_pByteCode = nullptr;
+  };
+
+  struct VertexColorOutput : public ezRefCounted
+  {
+    ezHashedString m_sName;
+
+    ezExpressionByteCode* m_pByteCode = nullptr;
   };
 
   struct EZ_PROCGENPLUGIN_DLL ExpressionInputs
@@ -136,4 +128,4 @@ namespace ezProcGenInternal
 
     ezHybridArray<ezSimdTransform, 8, ezAlignedAllocatorWrapper> m_GlobalToLocalBoxTransforms;
   };
-} // namespace ezPPInternal
+} // namespace ezProcGenInternal
