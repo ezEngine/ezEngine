@@ -82,6 +82,8 @@ public:
   bool IsImageComparisonScheduled() const { return m_bImageComparisonScheduled; }
   void GenerateComparisonImageName(ezUInt32 uiImageNumber, ezStringBuilder& sImgName);
   void GetCurrentComparisonImageName(ezStringBuilder& sImgName);
+  void SetImageReferenceFolderName(const char* szFolderName);
+  void SetImageReferenceOverrideFolderName(const char* szFolderName);
 
   /// \brief Writes an Html file that contains test information and an image diff view for failed image comparisons.
   void WriteImageDiffHtml(const char* fileName, ezImage& referenceImgRgb, ezImage& referenceImgAlpha, ezImage& capturedImgRgb,
@@ -171,9 +173,12 @@ private:
 
   bool m_bIsInitialized = false;
 
+  // image comparisons
   bool m_bImageComparisonScheduled = false;
   ezUInt32 m_uiMaxImageComparisonError = 0;
   ezUInt32 m_uiComparisonImageNumber = 0;
+  std::string m_sImageReferenceFolderName = "Images_Reference";
+  std::string m_sImageReferenceOverrideFolderName;
 
 protected:
   ezInt32 m_iCurrentTestIndex = -1;

@@ -134,7 +134,6 @@ void ezTestFramework::DeInitialize()
 
   ezSetAssertHandler(m_PreviousAssertHandler);
   m_PreviousAssertHandler = nullptr;
-
 }
 
 const char* ezTestFramework::GetTestName() const
@@ -937,6 +936,16 @@ void ezTestFramework::GetCurrentComparisonImageName(ezStringBuilder& sImgName)
   GenerateComparisonImageName(m_uiComparisonImageNumber, sImgName);
 }
 
+void ezTestFramework::SetImageReferenceFolderName(const char* szFolderName)
+{
+  m_sImageReferenceFolderName = szFolderName;
+}
+
+void ezTestFramework::SetImageReferenceOverrideFolderName(const char* szFolderName)
+{
+  m_sImageReferenceOverrideFolderName = szFolderName;
+}
+
 static const ezUInt8 s_Base64EncodingTable[64] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
   'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
   't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
@@ -1204,7 +1213,23 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
   }
 
   ezStringBuilder sImgPathReference, sImgPathResult;
-  sImgPathReference.Format("Images_Reference/{0}.png", sImgName);
+
+  if (!m_sImageReferenceOverrideFolderName.empty())
+  {
+    sImgPathReference.Format("{0}/{1}.png", m_sImageReferenceOverrideFolderName.c_str(), sImgName);
+
+    if (!ezFileSystem::ExistsFile(sImgPathReference))
+    {
+      // try the regular path
+      sImgPathReference.Clear();
+    }
+  }
+
+  if (sImgPathReference.IsEmpty())
+  {
+    sImgPathReference.Format("{0}/{1}.png", m_sImageReferenceFolderName.c_str(), sImgName);
+  }
+
   sImgPathResult.Format(":imgout/Images_Result/{0}.png", sImgName);
 
   ezImage imgExp, imgExpRgba;
@@ -1274,8 +1299,8 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
     WriteImageDiffHtml(sDiffHtmlPath, imgExpRgb, imgExpAlpha, imgRgb, imgAlpha, imgDiffRgb, imgDiffAlpha, uiMeanError, uiMaxError,
       uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
 
-    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Image Comparison Failed: Error of %u exceeds threshold of %u for image '%s'.", uiMeanError, uiMaxError,
-      sImgName.GetData());
+    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Image Comparison Failed: Error of %u exceeds threshold of %u for image '%s'.",
+      uiMeanError, uiMaxError, sImgName.GetData());
 
     ezStringBuilder sDataDirRelativePath;
     ezFileSystem::ResolvePath(sDiffHtmlPath, nullptr, &sDataDirRelativePath);
@@ -1543,7 +1568,8 @@ ezResult ezTestFiles(
 
       if (uiRead1 != uiRead2)
       {
-        safeprintf(szErrorText, s_iMaxErrorMessageLength, "Failure: Files could not read same amount of data: '%s' and '%s'", szFile1, szFile2);
+        safeprintf(
+          szErrorText, s_iMaxErrorMessageLength, "Failure: Files could not read same amount of data: '%s' and '%s'", szFile1, szFile2);
 
         OUTPUT_TEST_ERROR
       }
