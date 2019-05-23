@@ -355,6 +355,15 @@ void ezJSONWriter::WriteVariant(const ezVariant& value)
 }
 
 
+bool ezJSONWriter::HadWriteError() const
+{
+  return m_bHadWriteError;
+}
+
+void ezJSONWriter::SetWriteErrorState()
+{
+  m_bHadWriteError = true;
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_JSONWriter);
 
