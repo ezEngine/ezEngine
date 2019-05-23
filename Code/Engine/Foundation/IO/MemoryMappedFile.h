@@ -35,6 +35,13 @@ public:
   /// \param mode How to map the file into memory.
   ezResult Open(const char* szAbsolutePath, Mode mode);
 
+  /// \brief Attempts to open or create the given shared memory block addressed by szSharedName
+  ///
+  /// \param szSharedName The name of the shared memory region.
+  /// \param uiSize The size of the memory which should be mapped.
+  /// \param mode How to map the file into memory.
+  ezResult OpenShared(const char* szSharedName, ezUInt64 uiSize, Mode mode);
+
   /// \brief Removes the memory mapping. Outstanding modifications will be written back to disk at this point.
   void Close();
 
