@@ -37,6 +37,13 @@ inline const ezTransformTemplate<Type> ezTransformTemplate<Type>::IdentityTransf
 }
 
 template <typename Type>
+EZ_ALWAYS_INLINE Type ezTransformTemplate<Type>::GetMaxScale() const
+{
+  ezVec3 absScale = m_vScale.Abs();
+  return ezMath::Max(absScale.x, ezMath::Max(absScale.y, absScale.z));
+}
+
+template <typename Type>
 EZ_ALWAYS_INLINE bool ezTransformTemplate<Type>::ContainsNegativeScale() const
 {
   return (m_vScale.x * m_vScale.y * m_vScale.z) < 0.0f;

@@ -4,14 +4,15 @@
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Pipeline/InstanceDataProvider.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderer, 1, ezRTTIDefaultAllocator<ezMeshRenderer>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderer, 1, ezRTTIDefaultAllocator<ezMeshRenderer>)
+  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezMeshRenderer::ezMeshRenderer() = default;
@@ -79,7 +80,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
   pContext->BindMaterial(hMaterial);
   pContext->BindMeshBuffer(pMesh->GetMeshBuffer());
 
-  if(!bHasExplicitInstanceData)
+  if (!bHasExplicitInstanceData)
   {
     ezUInt32 uiStartIndex = 0;
     while (uiStartIndex < batch.GetCount())
@@ -134,7 +135,8 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
   }
 }
 
-void ezMeshRenderer::FillPerInstanceData(ezArrayPtr<ezPerInstanceData> instanceData, const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount)
+void ezMeshRenderer::FillPerInstanceData(
+  ezArrayPtr<ezPerInstanceData> instanceData, const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount)
 {
   ezUInt32 uiCount = ezMath::Min<ezUInt32>(instanceData.GetCount(), batch.GetCount() - uiStartIndex);
   ezUInt32 uiCurrentIndex = 0;
@@ -177,4 +179,3 @@ void ezMeshRenderer::FillPerInstanceData(ezArrayPtr<ezPerInstanceData> instanceD
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshRenderer);
-

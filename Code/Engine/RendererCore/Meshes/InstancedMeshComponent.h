@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RendererCore/Meshes/MeshComponentBase.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <RendererCore/Meshes/MeshComponentBase.h>
 
 struct ezPerInstanceData;
 class ezInstancedMeshComponent;
@@ -9,28 +9,28 @@ struct ezMsgExtractGeometry;
 class ezStreamWriter;
 class ezStreamReader;
 
-class EZ_RENDERERCORE_DLL ezMeshInstanceData : public ezReflectedClass
+struct EZ_RENDERERCORE_DLL ezMeshInstanceData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMeshInstanceData, ezReflectedClass);
+  void SetLocalPosition(ezVec3 position);
+  ezVec3 GetLocalPosition() const;
 
-  public:
+  void SetLocalRotation(ezQuat rotation);
+  ezQuat GetLocalRotation() const;
 
-    void SetLocalPosition(ezVec3 position);
-    ezVec3 GetLocalPosition() const;
+  void SetLocalScaling(ezVec3 scaling);
+  ezVec3 GetLocalScaling() const;
 
-    void SetLocalRotation(ezQuat rotation);
-    ezQuat GetLocalRotation() const;
+  ezResult Serialize(ezStreamWriter& writer) const;
+  ezResult Deserialize(ezStreamReader& reader);
 
-    void SetLocalScaling(ezVec3 scaling);
-    ezVec3 GetLocalScaling() const;
+  ezTransform m_transform;
 
-    ezResult Serialize(ezStreamWriter& writer) const;
-    ezResult Deserialize(ezStreamReader& reader);
-
-    ezTransform m_transform;
-
-    ezColor m_color;
+  ezColor m_color;
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezMeshInstanceData);
+
+//////////////////////////////////////////////////////////////////////////
 
 class EZ_RENDERERCORE_DLL ezInstancedMeshComponentManager
   : public ezComponentManager<class ezInstancedMeshComponent, ezBlockStorageType::Compact>
@@ -40,15 +40,19 @@ public:
 
   ezInstancedMeshComponentManager(ezWorld* pWorld);
 
-  void EnqueueUpdate(ezComponentHandle hComponent);
+  void EnqueueUpdate(const ezInstancedMeshComponent* pComponent) const;
 
 private:
+  struct ComponentToUpdate
+  {
+    ezComponentHandle m_hComponent;
+    ezArrayPtr<ezPerInstanceData> m_InstanceData;
+  };
 
   mutable ezMutex m_Mutex;
-  ezDeque<ezComponentHandle> m_RequireUpdate;
+  mutable ezDeque<ComponentToUpdate> m_RequireUpdate;
 
 protected:
-
   void OnRenderBegin(ezUInt64 uiFrameCounter);
 
   virtual void Initialize() override;
@@ -69,7 +73,6 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  virtual void Initialize() override;
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
@@ -81,10 +84,7 @@ public:
   void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
 protected:
-
-  void EnqueueForUpdate();
-
-  virtual ezUInt32 GetExplicitInstanceDataCount() const override;
+  virtual ezMeshRenderData* CreateRenderData() const;
 
   ezUInt32 Instances_GetCount() const;
   ezMeshInstanceData Instances_GetValue(ezUInt32 uiIndex) const;
@@ -92,10 +92,12 @@ protected:
   void Instances_Insert(ezUInt32 uiIndex, ezMeshInstanceData value);
   void Instances_Remove(ezUInt32 uiIndex);
 
-  void UpdateRenderInstanceData();
+  ezArrayPtr<ezPerInstanceData> GetInstanceData() const;
 
   // Unpacked, reflected instance data for editing and ease of access
   ezDynamicArray<ezMeshInstanceData> m_rawInstancedData;
 
-  mutable bool m_bInUpdateQueue = false;
+  ezInstanceData* m_pExplicitInstanceData = nullptr;
+
+  mutable bool m_bIsDirty = true;
 };

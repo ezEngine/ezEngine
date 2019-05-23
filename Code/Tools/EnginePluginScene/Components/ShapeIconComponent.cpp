@@ -44,20 +44,11 @@ void ezSceneExportModifier_RemoveShapeIconComponents::ModifyWorld(ezWorld& world
 {
   EZ_LOCK(world.GetWriteMarker());
 
-  ezShapeIconComponentManager* pSiMan = world.GetComponentManager<ezShapeIconComponentManager>();
-
-  if (pSiMan == nullptr)
-    return;
-
-  ezUInt32 num = 0;
-
-  for (auto it = pSiMan->GetComponents(); it.IsValid();)
+  if (ezShapeIconComponentManager* pSiMan = world.GetComponentManager<ezShapeIconComponentManager>())
   {
-    ezShapeIconComponent* pComp = &(*it);
-    it.Next();
-
-    pSiMan->DeleteComponent(pComp->GetHandle());
-
-    ++num;
+    for (auto it = pSiMan->GetComponents(); it.IsValid(); it.Next())
+    {
+      pSiMan->DeleteComponent(it->GetHandle());
+    }
   }
 }
