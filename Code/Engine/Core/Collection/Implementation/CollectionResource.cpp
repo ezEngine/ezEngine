@@ -16,6 +16,7 @@ ezCollectionResource::ezCollectionResource()
 
 void ezCollectionResource::PreloadResources()
 {
+  EZ_LOCK(m_preloadMutex);
   EZ_PROFILE_SCOPE("Inject Resources to Preload");
 
   m_hPreloadedResources.Clear();
@@ -40,6 +41,8 @@ void ezCollectionResource::PreloadResources()
 
 float ezCollectionResource::GetPreloadProgress() const
 {
+  EZ_LOCK(m_preloadMutex);
+
   ezUInt32 uiNumLoaded = 0;
   ezUInt32 uiNumTotal = 0;
 
@@ -86,6 +89,7 @@ ezResourceLoadDesc ezCollectionResource::UnloadData(Unload WhatToUnload)
   {
     UnregisterNames();
 
+    EZ_LOCK(m_preloadMutex);
     m_hPreloadedResources.Clear();
     m_Collection.m_Resources.Clear();
 
@@ -128,6 +132,7 @@ ezResourceLoadDesc ezCollectionResource::UpdateContent(ezStreamReader* Stream)
 
 void ezCollectionResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
+  EZ_LOCK(m_preloadMutex);
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
   out_NewMemoryUsage.m_uiMemoryCPU =
       static_cast<ezUInt32>(m_hPreloadedResources.GetHeapMemoryUsage() + m_Collection.m_Resources.GetHeapMemoryUsage());
