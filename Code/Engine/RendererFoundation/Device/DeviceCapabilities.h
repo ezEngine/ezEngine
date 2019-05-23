@@ -9,6 +9,13 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALDeviceCapabilities
 {
   ezGALDeviceCapabilities();
 
+  // Device description
+  ezString m_sAdapterName = "Unknown";
+  ezUInt64 m_uiDedicatedVRAM = 0;
+  ezUInt64 m_uiDedicatedSystemRAM = 0;
+  ezUInt64 m_uiSharedSystemRAM = 0;
+  bool m_bHardwareAccelerated = false;
+
   // General capabilities
   bool m_bMultithreadedResourceCreation; ///< whether creating resources is allowed on other threads than the main thread
   bool m_bNoOverwriteBufferUpdate;
