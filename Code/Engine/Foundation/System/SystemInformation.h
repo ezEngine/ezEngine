@@ -26,6 +26,9 @@ public:
   inline const char* GetBuildConfiguration() const { return m_szBuildConfiguration; }
 
 public:
+  /// \brief Returns whether a debugger is currently attached to this process.
+  static bool IsDebuggerAttached();
+
   /// \brief Allows access to the current system configuration.
   static const ezSystemInformation& Get()
   {

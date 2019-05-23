@@ -12,6 +12,8 @@
 #include <Foundation/Strings/String.h>
 #include <functional>
 #include <utility>
+#include <thread>
+#include <mutex>
 
 class EZ_TEST_DLL ezTestFramework
 {
@@ -34,7 +36,8 @@ public:
   void SaveTestOrder(const char* const filePath);
   void SetAllTestsEnabledStatus(bool bEnable);
   void SetAllFailedTestsEnabledStatus();
-
+  // Each function on a test must not take longer than the given time or the test process will be terminated.
+  void SetTestTimeout(ezUInt32 testTimeoutMS);
   void GetTestSettingsFromCommandLine(int argc, const char** argv);
 
   // Test execution
@@ -107,6 +110,7 @@ protected:
   virtual void OutputImpl(ezTestOutput::Enum Type, const char* szMsg);
   virtual void TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, double fDuration);
   void FlushAsserts();
+  void TimeoutThread();
 
   // ignore this for now
 public:
@@ -146,6 +150,12 @@ private:
   ezAssertHandler m_PreviousAssertHandler = nullptr;
   ImageDiffExtraInfoCallback m_ImageDiffExtraInfoCallback;
   ImageComparisonCallback m_ImageComparisonCallback;
+
+  std::mutex m_timeoutLock;
+  ezUInt32 m_timeoutMS = 5 * 60 * 1000; // 5 min default timeout
+  bool m_useTimeout = false;
+  std::condition_variable m_timeoutCV;
+  std::thread m_timeoutThread;
 
   ezInt32 m_iExecutingTest = 0;
   ezInt32 m_iExecutingSubTest = 0;

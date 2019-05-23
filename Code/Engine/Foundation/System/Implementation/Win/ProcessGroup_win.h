@@ -44,7 +44,10 @@ void ezProcessGroupImpl::Initialize()
 
     JOBOBJECT_EXTENDED_LIMIT_INFORMATION exinfo = {0};
     exinfo.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
-    SetInformationJobObject(m_hJobObject, JobObjectExtendedLimitInformation, &m_hJobObject, sizeof(m_hJobObject));
+    if (SetInformationJobObject(m_hJobObject, JobObjectExtendedLimitInformation, &exinfo, sizeof(exinfo)) == FALSE)
+    {
+      ezLog::Error("ezProcessGroup: failed to configure 'kill jobs on close' - '{}'", ezArgErrorCode(GetLastError()));
+    }
 
     // the completion port is necessary to implement WaitToFinish()
     // see https://devblogs.microsoft.com/oldnewthing/20130405-00/?p=4743

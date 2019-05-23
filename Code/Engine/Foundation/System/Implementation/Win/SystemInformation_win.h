@@ -27,6 +27,11 @@ bool Is64BitWindows()
 
 /// \endcond
 
+bool ezSystemInformation::IsDebuggerAttached()
+{
+  return ::IsDebuggerPresent();
+}
+
 void ezSystemInformation::Initialize()
 {
   if (s_SystemInformation.m_bIsInitialized)

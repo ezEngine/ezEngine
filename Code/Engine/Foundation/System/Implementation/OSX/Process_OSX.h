@@ -87,3 +87,11 @@ ezOsProcessID ezProcess::GetProcessID() const
   EZ_ASSERT_NOT_IMPLEMENTED;
   return 0;
 }
+
+ezOsProcessID ezProcess::GetCurrentProcessID()
+{
+  /// \todo Implement ezProcess::GetCurrentProcessID on OSX
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return 0;
+}
