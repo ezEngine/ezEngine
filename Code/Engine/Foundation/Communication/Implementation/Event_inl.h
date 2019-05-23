@@ -57,7 +57,7 @@ void ezEventBase<EventData, MutexType>::RemoveEventHandler(Handler handler) cons
 
   for (ezUInt32 idx = 0; idx < m_EventHandlers.GetCount(); ++idx)
   {
-    if (m_EventHandlers[idx].m_Handler == handler)
+    if (m_EventHandlers[idx].m_Handler.IsEqualIfNotHeapAllocated(handler))
     {
       m_EventHandlers.RemoveAtAndCopy(idx);
       return;
@@ -97,7 +97,7 @@ bool ezEventBase<EventData, MutexType>::HasEventHandler(Handler handler) const
 
   for (ezUInt32 i = 0; i < m_EventHandlers.GetCount(); ++i)
   {
-    if (m_EventHandlers[i].m_Handler == handler)
+    if (m_EventHandlers[i].m_Handler.IsEqualIfNotHeapAllocated(handler))
       return true;
   }
 

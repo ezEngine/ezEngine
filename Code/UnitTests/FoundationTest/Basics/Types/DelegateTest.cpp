@@ -50,7 +50,7 @@ namespace
     virtual ~ComplexClass()
     {
       m_dtorDel = ezMakeDelegate(&ComplexClass::nonVirtualFunc, this);
-      EZ_TEST_BOOL(m_ctorDel == m_dtorDel);
+      EZ_TEST_BOOL(m_ctorDel.IsEqualIfNotHeapAllocated(m_dtorDel));
     }
     virtual void bar() override {}
     virtual void foo() override {}
@@ -88,12 +88,12 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     test.m_iA = 42;
 
     d = TestDelegate(&TestType::Method, &test);
-    EZ_TEST_BOOL(d == TestDelegate(&TestType::Method, &test));
+    EZ_TEST_BOOL(d.IsEqualIfNotHeapAllocated(TestDelegate(&TestType::Method, &test)));
     EZ_TEST_BOOL(!d.IsHeapAllocated());
     EZ_TEST_INT(d(4), 46);
 
     d = TestDelegate(&TestTypeDerived::Method, &test);
-    EZ_TEST_BOOL(d == TestDelegate(&TestTypeDerived::Method, &test));
+    EZ_TEST_BOOL(d.IsEqualIfNotHeapAllocated(TestDelegate(&TestTypeDerived::Method, &test)));
     EZ_TEST_BOOL(!d.IsHeapAllocated());
     EZ_TEST_INT(d(4), 8);
 
@@ -108,7 +108,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     test.m_iA = 1000000;
 
     many = TestDelegateMany(&TestType::MethodWithManyParams, &test);
-    EZ_TEST_BOOL(many == TestDelegateMany(&TestType::MethodWithManyParams, &test));
+    EZ_TEST_BOOL(many.IsEqualIfNotHeapAllocated(TestDelegateMany(&TestType::MethodWithManyParams, &test)));
     EZ_TEST_BOOL(!d.IsHeapAllocated());
     EZ_TEST_INT(many(1,10,100,1000,10000,100000), 1111111);
 
@@ -126,7 +126,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     constTest.m_iA = 35;
 
     d = TestDelegate(&TestType::ConstMethod, &constTest);
-    EZ_TEST_BOOL(d == TestDelegate(&TestType::ConstMethod, &constTest));
+    EZ_TEST_BOOL(d.IsEqualIfNotHeapAllocated(TestDelegate(&TestType::ConstMethod, &constTest)));
     EZ_TEST_BOOL(!d.IsHeapAllocated());
     EZ_TEST_INT(d(4), 43);
   }
@@ -136,12 +136,12 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     TestTypeDerived test;
 
     d = TestDelegate(&TestType::VirtualMethod, &test);
-    EZ_TEST_BOOL(d == TestDelegate(&TestType::VirtualMethod, &test));
+    EZ_TEST_BOOL(d.IsEqualIfNotHeapAllocated(TestDelegate(&TestType::VirtualMethod, &test)));
     EZ_TEST_BOOL(!d.IsHeapAllocated());
     EZ_TEST_INT(d(4), 47);
 
     d = TestDelegate(&TestTypeDerived::VirtualMethod, &test);
-    EZ_TEST_BOOL(d == TestDelegate(&TestTypeDerived::VirtualMethod, &test));
+    EZ_TEST_BOOL(d.IsEqualIfNotHeapAllocated(TestDelegate(&TestTypeDerived::VirtualMethod, &test)));
     EZ_TEST_BOOL(!d.IsHeapAllocated());
     EZ_TEST_INT(d(4), 47);
   }
@@ -149,7 +149,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Function")
   {
     d = &Function;
-    EZ_TEST_BOOL(d == &Function);
+    EZ_TEST_BOOL(d.IsEqualIfNotHeapAllocated(&Function));
     EZ_TEST_BOOL(!d.IsHeapAllocated());
     EZ_TEST_INT(d(4), 6);
   }
@@ -161,7 +161,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     EZ_TEST_INT(d(2), 8);
 
     TestDelegate d2 = d;
-    EZ_TEST_BOOL(d2 == d);
+    EZ_TEST_BOOL(d2.IsEqualIfNotHeapAllocated(d));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture by value")
@@ -324,15 +324,15 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezMakeDelegate")
   {
     auto d1 = ezMakeDelegate(&Function);
-    EZ_TEST_BOOL(d1 == ezMakeDelegate(&Function));
+    EZ_TEST_BOOL(d1.IsEqualIfNotHeapAllocated(ezMakeDelegate(&Function)));
 
     TestType instance;
     auto d2 = ezMakeDelegate(&TestType::Method, &instance);
-    EZ_TEST_BOOL(d2 == ezMakeDelegate(&TestType::Method, &instance));
+    EZ_TEST_BOOL(d2.IsEqualIfNotHeapAllocated(ezMakeDelegate(&TestType::Method, &instance)));
     auto d3 = ezMakeDelegate(&TestType::ConstMethod, &instance);
-    EZ_TEST_BOOL(d3 == ezMakeDelegate(&TestType::ConstMethod, &instance));
+    EZ_TEST_BOOL(d3.IsEqualIfNotHeapAllocated(ezMakeDelegate(&TestType::ConstMethod, &instance)));
     auto d4 = ezMakeDelegate(&TestType::VirtualMethod, &instance);
-    EZ_TEST_BOOL(d4 == ezMakeDelegate(&TestType::VirtualMethod, &instance));
+    EZ_TEST_BOOL(d4.IsEqualIfNotHeapAllocated(ezMakeDelegate(&TestType::VirtualMethod, &instance)));
 
     EZ_IGNORE_UNUSED(d1);
     EZ_IGNORE_UNUSED(d2);
