@@ -125,6 +125,15 @@ ezResult ezGALDevice::Init()
   // Fill the capabilities
   FillCapabilitiesPlatform();
 
+  ezLog::Info("Adapter: '{}' - {} VRAM, {} Sys RAM, {} Shared RAM", m_Capabilities.m_sAdapterName,
+    ezArgFileSize(m_Capabilities.m_uiDedicatedVRAM), ezArgFileSize(m_Capabilities.m_uiDedicatedSystemRAM),
+    ezArgFileSize(m_Capabilities.m_uiSharedSystemRAM));
+
+  if (!m_Capabilities.m_bHardwareAccelerated)
+  {
+    ezLog::Warning("Selected graphics adapter has no hardware acceleration.");
+  }
+
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   // Create primary swapchain if requested
