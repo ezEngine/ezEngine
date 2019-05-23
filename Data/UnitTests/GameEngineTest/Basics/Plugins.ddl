@@ -54,7 +54,7 @@ Plugin
 }
 Plugin
 {
-	string %Path{"ezProceduralPlacementPlugin"}
+	string %Path{"ezProcGenPlugin"}
 	bool %LoadCopy{false}
-	string %DependencyOf{"EditorPluginProceduralPlacement"}
+	string %DependencyOf{"EditorPluginProcGen"}
 }
