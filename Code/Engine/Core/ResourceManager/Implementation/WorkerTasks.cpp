@@ -151,3 +151,7 @@ void ezResourceManagerWorkerUpdateContent::Execute()
   m_pLoader = nullptr;
   m_pResourceToLoad = nullptr;
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_WorkerTasks);
+

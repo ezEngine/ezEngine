@@ -34,21 +34,25 @@ EZ_STATICLINK_LIBRARY(Texture)
   EZ_STATICLINK_REFERENCE(Texture_Image_Formats_DdsFileFormat);
   EZ_STATICLINK_REFERENCE(Texture_Image_Formats_StbImageFileFormats);
   EZ_STATICLINK_REFERENCE(Texture_Image_Formats_TgaFileFormat);
+  EZ_STATICLINK_REFERENCE(Texture_Image_Formats_WicFileFormat);
   EZ_STATICLINK_REFERENCE(Texture_Image_Implementation_Image);
   EZ_STATICLINK_REFERENCE(Texture_Image_Implementation_ImageConversion);
+  EZ_STATICLINK_REFERENCE(Texture_Image_Implementation_ImageEnums);
   EZ_STATICLINK_REFERENCE(Texture_Image_Implementation_ImageFileFormat);
   EZ_STATICLINK_REFERENCE(Texture_Image_Implementation_ImageFilter);
   EZ_STATICLINK_REFERENCE(Texture_Image_Implementation_ImageFormat);
   EZ_STATICLINK_REFERENCE(Texture_Image_Implementation_ImageFormatMappings);
   EZ_STATICLINK_REFERENCE(Texture_Image_Implementation_ImageUtils);
+  EZ_STATICLINK_REFERENCE(Texture_TexConv_Implementation_AutoUsage);
   EZ_STATICLINK_REFERENCE(Texture_TexConv_Implementation_InputFiles);
   EZ_STATICLINK_REFERENCE(Texture_TexConv_Implementation_OutputFormat);
   EZ_STATICLINK_REFERENCE(Texture_TexConv_Implementation_Processor);
-  EZ_STATICLINK_REFERENCE(Texture_TexConv_Implementation_TargetFormat);
   EZ_STATICLINK_REFERENCE(Texture_TexConv_Implementation_Texture2D);
+  EZ_STATICLINK_REFERENCE(Texture_TexConv_Implementation_Texture3D);
+  EZ_STATICLINK_REFERENCE(Texture_TexConv_Implementation_TextureAtlas);
   EZ_STATICLINK_REFERENCE(Texture_TexConv_Implementation_TextureCube);
   EZ_STATICLINK_REFERENCE(Texture_TexConv_Implementation_TextureModifications);
-  EZ_STATICLINK_REFERENCE(Texture_Utils_Implementation_TextureGroupDesc);
+  EZ_STATICLINK_REFERENCE(Texture_Utils_Implementation_TextureAtlasDesc);
   EZ_STATICLINK_REFERENCE(Texture_Utils_Implementation_TexturePacker);
   EZ_STATICLINK_REFERENCE(Texture_ezTexFormat_ezTexFormat);
 }

@@ -74,3 +74,7 @@ void ezApplication::RequestQuit()
 ezApplication* ezApplication::s_pApplicationInstance = nullptr;
 
 
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Application_Implementation_Application);
+

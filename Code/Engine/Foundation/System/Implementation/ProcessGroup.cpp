@@ -11,3 +11,7 @@
 #  error "ProcessGroup functions are not implemented on current platform"
 #endif
 
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_System_Implementation_ProcessGroup);
+

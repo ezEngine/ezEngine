@@ -118,3 +118,7 @@ bool ezArchiveReader::ExtractFileProgressCallback(ezUInt64 bytesWritten, ezUInt6
 {
   return true;
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_Archive_Implementation_ArchiveReader);
+

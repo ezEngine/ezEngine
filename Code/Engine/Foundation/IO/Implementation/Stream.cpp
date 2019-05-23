@@ -65,3 +65,7 @@ ezResult ezStreamWriter::WriteString(const ezStringView szStringView)
 
   return EZ_SUCCESS;
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_Stream);
+

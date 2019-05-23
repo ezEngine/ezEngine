@@ -49,3 +49,7 @@ ezResult ezReflectionProbeData::Deserialize(ezStreamReader& stream)
 
   return EZ_SUCCESS;
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ReflectionProbeData);
+

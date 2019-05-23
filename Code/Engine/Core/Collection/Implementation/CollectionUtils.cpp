@@ -38,3 +38,7 @@ void ezCollectionUtils::AddFiles(ezCollectionResourceDescriptor& collection, con
   } while (fsIt.Next().Succeeded());
 }
 #  endif
+
+
+EZ_STATICLINK_FILE(Core, Core_Collection_Implementation_CollectionUtils);
+

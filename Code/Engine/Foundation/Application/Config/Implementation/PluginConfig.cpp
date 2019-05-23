@@ -223,5 +223,5 @@ void ezApplicationPluginConfig::Apply()
 
 
 
-EZ_STATICLINK_FILE(Core, Core_Application_Config_Implementation_PluginConfig);
+EZ_STATICLINK_FILE(Foundation, Foundation_Application_Config_Implementation_PluginConfig);
 

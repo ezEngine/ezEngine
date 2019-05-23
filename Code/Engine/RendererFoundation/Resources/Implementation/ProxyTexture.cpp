@@ -37,3 +37,7 @@ ezResult ezGALProxyTexture::DeInitPlatform(ezGALDevice* pDevice)
 }
 
 void ezGALProxyTexture::SetDebugNamePlatform(const char* szName) const {}
+
+
+EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Resources_Implementation_ProxyTexture);
+

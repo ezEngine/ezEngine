@@ -36,3 +36,7 @@ void ezStringView::Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBac
     --uiShrinkCharsBack;
   }
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringView);
+

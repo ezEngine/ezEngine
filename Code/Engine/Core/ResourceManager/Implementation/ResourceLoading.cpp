@@ -420,3 +420,7 @@ void ezResourceManager::EnsureResourceLoadingState(ezResource* pResource, const 
     HelpResourceLoading();
   }
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_ResourceLoading);
+

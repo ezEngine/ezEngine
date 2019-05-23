@@ -35,3 +35,7 @@ ezString ezExceptionHandler::s_absDumpPath;
 #else
 #  error "ExceptionHandler is not implemented on current platform"
 #endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_ExceptionHandler);
+

@@ -219,5 +219,5 @@ void ezCollectionResourceDescriptor::Load(ezStreamReader& stream)
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Collection_Implementation_CollectionResource);
+EZ_STATICLINK_FILE(Core, Core_Collection_Implementation_CollectionResource);
 

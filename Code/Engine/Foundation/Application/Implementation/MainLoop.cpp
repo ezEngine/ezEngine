@@ -67,5 +67,5 @@ void ezRun(ezApplication* pApplicationInstance)
   ezRun_Shutdown(pApplicationInstance);
 }
 
-EZ_STATICLINK_FILE(Core, Core_Application_Implementation_MainLoop);
+EZ_STATICLINK_FILE(Foundation, Foundation_Application_Implementation_MainLoop);
 
