@@ -12,13 +12,9 @@ public:
   {
     m_pLock->Acquire();
   }
-  EZ_ALWAYS_INLINE ezLockedObject()
-  {
-    m_pLock = nullptr;
-    m_pObject = nullptr;
-  }
+  ezLockedObject() = default;
 
-  EZ_ALWAYS_INLINE ezLockedObject(const ezLockedObject<T, O>&& rhs) { *this = std::move(rhs); }
+  EZ_ALWAYS_INLINE ezLockedObject(ezLockedObject<T, O>&& rhs) { *this = std::move(rhs); }
 
   ezLockedObject(const ezLockedObject<T, O>& rhs) = delete;
   
@@ -60,7 +56,7 @@ public:
   operator bool() const { return m_pObject != nullptr; }
 
 private:
-  mutable T* m_pLock;
-  mutable O* m_pObject;
+  mutable T* m_pLock = nullptr;
+  mutable O* m_pObject = nullptr;
 };
 

@@ -122,9 +122,10 @@ class EZ_FOUNDATION_DLL ezTaskGroupID
 public:
   EZ_ALWAYS_INLINE ezTaskGroupID() = default;
 
-  /// \brief Returns false, if the object has not been initialized before
+  /// \brief Returns false, if the GroupID does not reference a valid ezTaskGroup
   EZ_ALWAYS_INLINE bool IsValid() const { return m_pTaskGroup != nullptr; }
 
+  /// \brief Resets the GroupID into an invalid state.
   void Invalidate() { m_pTaskGroup = nullptr; }
 
 private:
@@ -153,7 +154,7 @@ private:
   ezTaskGroup();
 
   bool m_bInUse = false;
-  bool m_bIsActive = false;
+  bool m_bStartedByUser = false;
   ezUInt16 m_uiTaskGroupIndex = 0xFFFF; // only there as a debugging aid
   ezUInt32 m_uiGroupCounter = 1;
   ezHybridArray<ezTask*, 16> m_Tasks;
@@ -163,4 +164,12 @@ private:
   ezAtomicInteger32 m_iRemainingTasks;
   OnTaskGroupFinished m_OnFinishedCallback;
   ezTaskPriority::Enum m_Priority = ezTaskPriority::ThisFrame;
+};
+
+struct ezTaskGroupDependency
+{
+  EZ_DECLARE_POD_TYPE();
+
+  ezTaskGroupID m_TaskGroup;
+  ezTaskGroupID m_DependsOn;
 };

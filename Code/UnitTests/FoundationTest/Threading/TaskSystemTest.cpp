@@ -80,7 +80,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
   ezUInt32 uiWorkersShort = 4;
   ezUInt32 uiWorkersLong = 4;
 
-  ezTaskSystem::SetWorkThreadCount(uiWorkersShort, uiWorkersLong);
+  ezTaskSystem::SetWorkerThreadCount(uiWorkersShort, uiWorkersLong);
   ezThreadUtils::Sleep(ezTime::Milliseconds(500));
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Single Tasks")

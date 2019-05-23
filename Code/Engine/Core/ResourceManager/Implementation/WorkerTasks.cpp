@@ -82,7 +82,7 @@ void ezResourceManagerWorkerDataLoad::DoWork(bool bCalledExternally)
 
     // schedule the task to run, either on the main thread or on some other thread
     ezTaskSystem::StartSingleTask(
-      pWorkerMainThread, bResourceIsLoadedOnMainThread ? ezTaskPriority::SomeFrameMainThread : ezTaskPriority::LongRunningHighPriority);
+      pWorkerMainThread, bResourceIsLoadedOnMainThread ? ezTaskPriority::SomeFrameMainThread : ezTaskPriority::LateNextFrame);
   }
 
   // all this will happen inside a lock
