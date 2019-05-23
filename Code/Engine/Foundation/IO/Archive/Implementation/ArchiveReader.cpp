@@ -1,11 +1,12 @@
 #include <FoundationPCH.h>
 
 #include <Foundation/IO/Archive/ArchiveReader.h>
+#include <Foundation/IO/Archive/ArchiveUtils.h>
 
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+
 #include <Foundation/Logging/Log.h>
-#include <Foundation/IO/Archive/ArchiveUtils.h>
 
 ezResult ezArchiveReader::OpenArchive(const char* szPath)
 {
@@ -102,6 +103,8 @@ ezResult ezArchiveReader::ExtractFile(ezUInt32 uiEntryIdx, const char* szTargetF
     if (!ExtractFileProgressCallback(uiReadTotal, uiMaxSize))
       return EZ_FAILURE;
   }
+
+  EZ_ASSERT_DEV(uiReadTotal == uiMaxSize, "Failed to read entire file");
 
   return EZ_SUCCESS;
 }

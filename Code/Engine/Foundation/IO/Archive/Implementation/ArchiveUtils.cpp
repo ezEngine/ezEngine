@@ -4,8 +4,8 @@
 
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/CompressedStreamZstd.h>
-#include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/MemoryMappedFile.h>
+#include <Foundation/IO/MemoryStream.h>
 
 ezResult ezArchiveUtils::WriteHeader(ezStreamWriter& stream)
 {
@@ -63,7 +63,7 @@ ezResult ezArchiveUtils::WriteEntry(ezStreamWriter& stream, const char* szAbsSou
   ezStreamWriter* pWriter = &stream;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-  ezCompressedStreamWriterZstd zstdWriter(&stream);
+  ezCompressedStreamWriterZstd zstdWriter;
 #endif
 
   switch (compression)
@@ -73,15 +73,18 @@ ezResult ezArchiveUtils::WriteEntry(ezStreamWriter& stream, const char* szAbsSou
 
     case ezArchiveCompressionMode::Compressed_zstd:
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+      zstdWriter.SetOutputStream(&stream);
       pWriter = &zstdWriter;
 #else
-      uiCompressionMode = 0;
+      compression = ezArchiveCompressionMode::Uncompressed;
 #endif
       break;
 
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
   }
+
+  tocEntry.m_CompressionMode = compression;
 
   ezUInt64 uiRead = 0;
   while (true)
@@ -91,7 +94,6 @@ ezResult ezArchiveUtils::WriteEntry(ezStreamWriter& stream, const char* szAbsSou
     if (uiRead == 0)
       break;
 
-    tocEntry.m_CompressionMode = compression;
     tocEntry.m_uiUncompressedDataSize += uiRead;
 
     if (progress.IsValid())
@@ -106,12 +108,12 @@ ezResult ezArchiveUtils::WriteEntry(ezStreamWriter& stream, const char* szAbsSou
 
   switch (compression)
   {
-    case ezArchiveCompressionMode::Compressed_zstd:
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+    case ezArchiveCompressionMode::Compressed_zstd:
       EZ_SUCCEED_OR_RETURN(zstdWriter.FinishCompressedStream());
       tocEntry.m_uiStoredDataSize = zstdWriter.GetWrittenBytes();
-#endif
       break;
+#endif
 
     default:
       tocEntry.m_uiStoredDataSize = tocEntry.m_uiUncompressedDataSize;
@@ -129,7 +131,7 @@ ezResult ezArchiveUtils::WriteEntryOptimal(ezStreamWriter& stream, const char* s
 {
   if (compression == ezArchiveCompressionMode::Uncompressed)
   {
-    return WriteEntry(stream, szAbsSourcePath, uiPathStringOffset, compression, tocEntry, inout_uiCurrentStreamPosition, progress);
+    return WriteEntry(stream, szAbsSourcePath, uiPathStringOffset, ezArchiveCompressionMode::Uncompressed, tocEntry, inout_uiCurrentStreamPosition, progress);
   }
   else
   {
@@ -142,7 +144,7 @@ ezResult ezArchiveUtils::WriteEntryOptimal(ezStreamWriter& stream, const char* s
     if (tocEntry.m_uiStoredDataSize * 12 >= tocEntry.m_uiUncompressedDataSize * 10)
     {
       // less than 20% size saving -> go uncompressed
-      return WriteEntry(stream, szAbsSourcePath, uiPathStringOffset, compression, tocEntry, inout_uiCurrentStreamPosition, progress);
+      return WriteEntry(stream, szAbsSourcePath, uiPathStringOffset, ezArchiveCompressionMode::Uncompressed, tocEntry, inout_uiCurrentStreamPosition, progress);
     }
     else
     {

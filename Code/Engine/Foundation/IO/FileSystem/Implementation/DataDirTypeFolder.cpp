@@ -209,9 +209,9 @@ namespace ezDataDirectory
     }
   }
 
-  ezDataDirectory::FolderReader* FolderType::CreateFolderReader() const { return EZ_DEFAULT_NEW(FolderReader); }
+  ezDataDirectory::FolderReader* FolderType::CreateFolderReader() const { return EZ_DEFAULT_NEW(FolderReader, 0); }
 
-  ezDataDirectory::FolderWriter* FolderType::CreateFolderWriter() const { return EZ_DEFAULT_NEW(FolderWriter); }
+  ezDataDirectory::FolderWriter* FolderType::CreateFolderWriter() const { return EZ_DEFAULT_NEW(FolderWriter, 0); }
 
   ezDataDirectoryReader* FolderType::OpenFileToRead(const char* szFile, bool bSpecificallyThisDataDir)
   {

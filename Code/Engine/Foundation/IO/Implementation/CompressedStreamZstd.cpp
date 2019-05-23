@@ -145,7 +145,14 @@ ezCompressedStreamWriterZstd::ezCompressedStreamWriterZstd(ezStreamWriter* pOutp
 
 ezCompressedStreamWriterZstd::~ezCompressedStreamWriterZstd()
 {
-  FinishCompressedStream();
+  if (m_pOutputStream != nullptr)
+  {
+    // NOTE: FinishCompressedStream() WILL write a couple of bytes, even if the user did not write anything.
+    // If ezCompressedStreamWriterZstd was not supposed to be used, this may end up in a corrupted output file.
+    EZ_ASSERT_DEV(m_uiWrittenBytes > 0, "Output stream was set, but not a single byte was written to the compressed stream before destruction. Incorrect usage?");
+
+    FinishCompressedStream();
+  }
 
   if (m_pZstdCStream)
   {

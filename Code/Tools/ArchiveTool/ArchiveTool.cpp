@@ -116,7 +116,7 @@ public:
 
     m_sOutput = cmd.GetStringOption("-out");
 
-    if (cmd.GetBoolOption("-pack"))
+    if (cmd.GetStringOptionArguments("-pack") > 0)
     {
       m_Mode = ArchiveMode::Pack;
       const ezUInt32 args = cmd.GetStringOptionArguments("-pack");
@@ -138,7 +138,7 @@ public:
         }
       }
     }
-    else if (cmd.GetBoolOption("-unpack"))
+    else if (cmd.GetStringOptionArguments("-unpack") > 0)
     {
       m_Mode = ArchiveMode::Unpack;
       const ezUInt32 args = cmd.GetStringOptionArguments("-unpack");
