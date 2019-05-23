@@ -7,6 +7,14 @@
 template <typename... ARGS>
 class ezFormatStringImpl : public ezFormatString
 {
+  // this is the size of the temp buffer that BuildString functions get for writing their result to.
+  // The buffer is always available and allocated on the stack, so this prevents the need for memory allocations.
+  // If a BuildString function requires no storage at all, it can return an ezStringView to unrelated memory
+  // (e.g. if the memory already exists).
+  // If a BuildString function requires more storage, it may need to do some trickery.
+  // For an example look at BuildString for ezArgErrorCode, which uses an increased thread_local temp buffer.
+  static constexpr ezUInt32 TempStringLength = 64;
+
 public:
   ezFormatStringImpl(const char* szFormat, ARGS&&... args)
       : m_Arguments(std::forward<ARGS>(args)...)
@@ -27,7 +35,7 @@ public:
 
     ezStringView param[10];
 
-    char tmp[10][64];
+    char tmp[10][TempStringLength];
     ReplaceString<0>(tmp, param);
 
     const char* szString = m_szString;
@@ -82,12 +90,12 @@ public:
 
 private:
   template <ezInt32 N>
-  typename std::enable_if<sizeof...(ARGS) != N>::type ReplaceString(char tmp[10][64], ezStringView* pViews) const
+  typename std::enable_if<sizeof...(ARGS) != N>::type ReplaceString(char tmp[10][TempStringLength], ezStringView* pViews) const
   {
     EZ_CHECK_AT_COMPILETIME_MSG(N < 10, "Maximum number of format arguments reached");
 
     // using a free function allows to overload with various different argument types
-    pViews[N] = BuildString(tmp[N], 63, std::get<N>(m_Arguments));
+    pViews[N] = BuildString(tmp[N], TempStringLength - 1, std::get<N>(m_Arguments));
 
     // Recurse, chip off one argument
     ReplaceString<N + 1>(tmp, pViews);
@@ -95,7 +103,7 @@ private:
 
   // Recursion end if we reached the number of arguments.
   template <ezInt32 N>
-  typename std::enable_if<sizeof...(ARGS) == N>::type ReplaceString(char tmp[10][64], ezStringView* pViews) const
+  typename std::enable_if<sizeof...(ARGS) == N>::type ReplaceString(char tmp[10][TempStringLength], ezStringView* pViews) const
   {
   }
 
