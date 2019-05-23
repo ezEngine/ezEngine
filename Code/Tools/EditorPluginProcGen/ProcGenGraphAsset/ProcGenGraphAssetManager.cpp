@@ -19,11 +19,11 @@ ezProcGenGraphAssetDocumentManager::ezProcGenGraphAssetDocumentManager()
   m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "ProcGen Graph Asset";
   m_AssetDesc.m_sFileExtension = "ezProcGenGraphAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/ProcGen.png";
+  m_AssetDesc.m_sIcon = ":/AssetIcons/ProcGen_Graph.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezProcGenGraphAssetDocument>();
   m_AssetDesc.m_pManager = this;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("ProcGen Graph", QPixmap(":/AssetIcons/ProcGen.png"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("ProcGen Graph", QPixmap(":/AssetIcons/ProcGen_Graph.png"));
 }
 
 ezProcGenGraphAssetDocumentManager::~ezProcGenGraphAssetDocumentManager()
