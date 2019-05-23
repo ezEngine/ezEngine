@@ -1,6 +1,6 @@
-#include <CorePCH.h>
+#include <FoundationPCH.h>
 
-#include <Core/Application/Application.h>
+#include <Foundation/Application/Application.h>
 #include <Foundation/Configuration/Startup.h>
 
 ezResult ezRun_Startup(ezApplication* pApplicationInstance)
@@ -67,5 +67,5 @@ void ezRun(ezApplication* pApplicationInstance)
   ezRun_Shutdown(pApplicationInstance);
 }
 
-EZ_STATICLINK_FILE(Core, Core_Application_Implementation_MainLoop);
+EZ_STATICLINK_FILE(Foundation, Foundation_Application_Implementation_MainLoop);
 

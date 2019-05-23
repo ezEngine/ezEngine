@@ -107,6 +107,47 @@ ezResult ezMemoryMappedFile::Open(const char* szAbsolutePath, Mode mode)
   return EZ_SUCCESS;
 }
 
+ezResult ezMemoryMappedFile::OpenShared(const char* szSharedName, ezUInt64 uiSize, Mode mode)
+{
+  EZ_ASSERT_DEV(mode != Mode::None, "Invalid mode to open the memory mapped file");
+  EZ_ASSERT_DEV(uiSize > 0, "ezMemoryMappedFile::OpenShared() needs a valid file size to map");
+
+  EZ_LOG_BLOCK("MemoryMapFile", szSharedName);
+
+  Close();
+
+  m_Impl->m_Mode = mode;
+
+  DWORD errorCode = 0;
+  DWORD sizeHigh = static_cast<DWORD>((uiSize >> 32) & 0xFFFFFFFFu);
+  DWORD sizeLow = static_cast<DWORD>(uiSize & 0xFFFFFFFFu);
+
+  m_Impl->m_hMapping = CreateFileMappingW(INVALID_HANDLE_VALUE, nullptr, m_Impl->m_Mode == Mode::ReadOnly ? PAGE_READONLY : PAGE_READWRITE, sizeHigh, sizeLow,
+    ezStringWChar(szSharedName).GetData());
+
+  if (m_Impl->m_hMapping == nullptr || m_Impl->m_hMapping == INVALID_HANDLE_VALUE)
+  {
+    errorCode = GetLastError();
+
+    ezLog::Error("Could not create memory mapping of file - {}", ezArgErrorCode(errorCode));
+    Close();
+    return EZ_FAILURE;
+  }
+
+  m_Impl->m_pMappedFilePtr = MapViewOfFile(m_Impl->m_hMapping, mode == Mode::ReadOnly ? FILE_MAP_READ : FILE_MAP_WRITE, 0, 0, 0);
+
+  if (m_Impl->m_pMappedFilePtr == nullptr)
+  {
+    errorCode = GetLastError();
+
+    ezLog::Error("Could not create memory mapping view of file - {}", ezArgErrorCode(errorCode));
+    Close();
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
+}
+
 void ezMemoryMappedFile::Close()
 {
   m_Impl = EZ_DEFAULT_NEW(ezMemoryMappedFileImpl);

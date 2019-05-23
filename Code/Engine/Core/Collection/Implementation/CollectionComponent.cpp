@@ -90,4 +90,4 @@ void ezCollectionComponent::InitiatePreload()
   }
 }
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Collection_Implementation_CollectionComponent);
+EZ_STATICLINK_FILE(Core, Core_Collection_Implementation_CollectionComponent);

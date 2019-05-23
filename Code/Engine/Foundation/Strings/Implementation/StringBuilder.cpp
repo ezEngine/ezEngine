@@ -702,7 +702,6 @@ void ezStringBuilder::MakeCleanPath()
 
   Trim(" \t\r\n");
 
-  const char* const szStartPos = &m_Data[0];
   const char* const szEndPos = &m_Data[m_Data.GetCount() - 1];
   const char* szCurReadPos = &m_Data[0];
   char* const szCurWritePos = &m_Data[0];
@@ -1083,7 +1082,7 @@ void ezStringBuilder::Format(const ezFormatString& string)
 void ezStringBuilder::AppendFormat(const ezFormatString& string)
 {
   ezStringBuilder tmp;
-  const char* szText = string.GetText(tmp);
+  string.GetText(tmp);
 
   Append(ezStringView(tmp.GetData(), tmp.GetData() + tmp.GetElementCount()));
 }
@@ -1091,7 +1090,7 @@ void ezStringBuilder::AppendFormat(const ezFormatString& string)
 void ezStringBuilder::PrependFormat(const ezFormatString& string)
 {
   ezStringBuilder tmp;
-  const char* szText = string.GetText(tmp);
+  string.GetText(tmp);
 
   Prepend(tmp);
 }

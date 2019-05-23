@@ -2,8 +2,9 @@
 
 #include <Foundation/Strings/StringBuilder.h>
 
-inline ezDataDirectoryReaderWriterBase::ezDataDirectoryReaderWriterBase(bool bIsReader)
+inline ezDataDirectoryReaderWriterBase::ezDataDirectoryReaderWriterBase(ezInt32 iDataDirUserData, bool bIsReader)
 {
+  m_iDataDirUserData = iDataDirUserData;
   m_pDataDirectory = nullptr;
   m_bIsReader = bIsReader;
 }

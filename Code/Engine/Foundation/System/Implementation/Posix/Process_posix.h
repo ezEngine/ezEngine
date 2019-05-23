@@ -5,7 +5,7 @@ struct ezProcessImpl
   EZ_DECLARE_POD_TYPE();
 };
 
-  ezProcess::ezProcess()
+ezProcess::ezProcess()
 {
   /// \todo Implement ezProcess::ezProcess on Posix
   EZ_ASSERT_NOT_IMPLEMENTED;
@@ -83,6 +83,14 @@ ezOsProcessHandle ezProcess::GetProcessHandle() const
 ezOsProcessID ezProcess::GetProcessID() const
 {
   /// \todo Implement ezProcess::GetProcessID on Posix
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return 0;
+}
+
+ezOsProcessID ezProcess::GetCurrentProcessID()
+{
+  /// \todo Implement ezProcess::GetCurrentProcessID on Posix
 
   EZ_ASSERT_NOT_IMPLEMENTED;
   return 0;

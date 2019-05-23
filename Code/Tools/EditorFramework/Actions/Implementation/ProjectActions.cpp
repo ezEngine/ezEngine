@@ -547,7 +547,9 @@ void ezProjectAction::Execute(const ezVariant& value)
       ezFileWriter fileWriter;
       if (fileWriter.Open(":appdata/profiling.json") == EZ_SUCCESS)
       {
-        ezProfilingSystem::Capture(fileWriter);
+        ezProfilingSystem::ProfilingData profilingData = ezProfilingSystem::Capture();
+        profilingData.Write(fileWriter);
+
         ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
         ezQtUiServices::GetSingleton()->ShowAllDocumentsStatusBarMessage(
             ezFmt("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData()), ezTime::Seconds(5.0));

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Application/Application.h>
+#include <Foundation/Application/Application.h>
 #include <Foundation/Communication/RemoteInterface.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <FileservePlugin/Fileserver/Fileserver.h>

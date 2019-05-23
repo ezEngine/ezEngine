@@ -32,6 +32,8 @@ void ezQtEditorApp::DetectAvailableEditorPlugins()
       } while (fsit.Next().Succeeded());
     }
   }
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED;
 #endif
 }
 

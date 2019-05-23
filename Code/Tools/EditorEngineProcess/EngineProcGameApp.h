@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Core/Application/Config/FileSystemConfig.h>
-#include <Core/Application/Config/PluginConfig.h>
+#include <Foundation/Application/Config/FileSystemConfig.h>
+#include <Foundation/Application/Config/PluginConfig.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/GameApplication/GameApplication.h>

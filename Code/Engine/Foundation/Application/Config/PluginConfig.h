@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Core/CoreDLL.h>
+#include <Foundation/Basics.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/String.h>
 
-class EZ_CORE_DLL ezApplicationPluginConfig
+class EZ_FOUNDATION_DLL ezApplicationPluginConfig
 {
 public:
   ezApplicationPluginConfig();
@@ -22,7 +22,7 @@ public:
   /// plugin (editors), but NOT also requested by the user.
   void SetOnlyLoadManualPlugins(bool b) { m_bManualOnly = b; }
 
-  struct EZ_CORE_DLL PluginConfig
+  struct EZ_FOUNDATION_DLL PluginConfig
   {
     bool operator<(const PluginConfig& rhs) const;
 
@@ -46,6 +46,6 @@ private:
 
 typedef ezApplicationPluginConfig::PluginConfig ezApplicationPluginConfig_PluginConfig;
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezApplicationPluginConfig);
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezApplicationPluginConfig_PluginConfig);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezApplicationPluginConfig);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezApplicationPluginConfig_PluginConfig);
 

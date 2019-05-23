@@ -3,7 +3,7 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <Foundation/Communication/Event.h>
-#include <Core/Application/Config/PluginConfig.h>
+#include <Foundation/Application/Config/PluginConfig.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <EditorFramework/IPC/EditorProcessCommunicationChannel.h>
 #include <Foundation/Types/UniquePtr.h>

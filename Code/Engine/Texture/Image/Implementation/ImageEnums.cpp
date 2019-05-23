@@ -27,3 +27,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureFilterSetting, 1)
   EZ_ENUM_CONSTANT(ezTextureFilterSetting::HighestQuality),
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
+
+
+EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_ImageEnums);
+

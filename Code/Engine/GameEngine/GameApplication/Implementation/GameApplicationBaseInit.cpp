@@ -2,8 +2,8 @@
 
 #include <GameEngine/GameApplication/GameApplicationBase.h>
 
-#include <Core/Application/Config/FileSystemConfig.h>
-#include <Core/Application/Config/PluginConfig.h>
+#include <Foundation/Application/Config/FileSystemConfig.h>
+#include <Foundation/Application/Config/PluginConfig.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/CVar.h>

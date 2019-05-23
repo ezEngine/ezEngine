@@ -1,6 +1,6 @@
 #include <EditorProcessorPCH.h>
 
-#include <Core/Application/Application.h>
+#include <Foundation/Application/Application.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <EditorFramework/Assets/AssetCurator.h>

@@ -21,7 +21,13 @@ namespace ezLogWriter
       msg.GetWriter() << eventData.m_szText;
 
       if (eventData.m_EventType == ezLogMsgType::EndGroup)
+      {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
         msg.GetWriter() << eventData.m_fSeconds;
+#else
+        msg.GetWriter() << 0.0f;
+#endif
+      }
 
       ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
     }

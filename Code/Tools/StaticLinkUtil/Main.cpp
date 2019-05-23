@@ -11,7 +11,7 @@
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Logging/HTMLWriter.h>
-#include <Core/Application/Application.h>
+#include <Foundation/Application/Application.h>
 
 /* When statically linking libraries into an application the linker will only pull in all the functions and variables that are inside
 translation units (CPP files) that somehow get referenced.

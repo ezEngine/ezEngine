@@ -8,8 +8,13 @@ using namespace ezTokenParseUtils;
 
 ezPreprocessor::ezPreprocessor()
   : m_ClassAllocator("ezPreprocessor", ezFoundation::GetDefaultAllocator())
+  , m_sCurrentFileStack(&m_ClassAllocator)
   , m_Macros(ezCompareHelper<ezString256>(), &m_ClassAllocator)
   , m_CustomDefines(&m_ClassAllocator)
+  , m_IfdefActiveStack(&m_ClassAllocator)
+  , m_MacroParamStack(&m_ClassAllocator)
+  , m_MacroParamStackExpanded(&m_ClassAllocator)
+  , m_CustomTokens(&m_ClassAllocator)
 {
   SetCustomFileCache();
   m_pLog = nullptr;
@@ -71,8 +76,8 @@ ezResult ezPreprocessor::ProcessFile(const char* szFile, TokenStream& TokenOutpu
   m_sCurrentFileStack.PushBack(fd);
 
   ezUInt32 uiNextToken = 0;
-  TokenStream TokensLine;
-  TokenStream TokensCode;
+  TokenStream TokensLine(&m_ClassAllocator);
+  TokenStream TokensCode(&m_ClassAllocator);
 
   while (pTokenizer->GetNextLine(uiNextToken, TokensLine).Succeeded())
   {

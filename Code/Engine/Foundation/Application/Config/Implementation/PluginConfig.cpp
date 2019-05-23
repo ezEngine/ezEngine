@@ -1,6 +1,6 @@
-#include <CorePCH.h>
+#include <FoundationPCH.h>
 
-#include <Core/Application/Config/PluginConfig.h>
+#include <Foundation/Application/Config/PluginConfig.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OpenDdlReader.h>
@@ -223,5 +223,5 @@ void ezApplicationPluginConfig::Apply()
 
 
 
-EZ_STATICLINK_FILE(Core, Core_Application_Config_Implementation_PluginConfig);
+EZ_STATICLINK_FILE(Foundation, Foundation_Application_Config_Implementation_PluginConfig);
 

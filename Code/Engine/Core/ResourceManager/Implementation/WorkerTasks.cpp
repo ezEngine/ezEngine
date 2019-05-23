@@ -82,7 +82,7 @@ void ezResourceManagerWorkerDataLoad::DoWork(bool bCalledExternally)
 
     // schedule the task to run, either on the main thread or on some other thread
     ezTaskSystem::StartSingleTask(
-      pWorkerMainThread, bResourceIsLoadedOnMainThread ? ezTaskPriority::SomeFrameMainThread : ezTaskPriority::LongRunningHighPriority);
+      pWorkerMainThread, bResourceIsLoadedOnMainThread ? ezTaskPriority::SomeFrameMainThread : ezTaskPriority::LateNextFrame);
   }
 
   // all this will happen inside a lock
@@ -151,3 +151,7 @@ void ezResourceManagerWorkerUpdateContent::Execute()
   m_pLoader = nullptr;
   m_pResourceToLoad = nullptr;
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_WorkerTasks);
+

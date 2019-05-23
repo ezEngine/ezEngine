@@ -110,3 +110,7 @@ ezStringView ezStringDeduplicationReadContext::DeserializeString(ezStreamReader&
 
   return m_DeduplicatedStrings[uiIndex].GetView();
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StringDeduplicationContext);
+

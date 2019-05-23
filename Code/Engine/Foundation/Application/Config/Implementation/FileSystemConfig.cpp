@@ -1,6 +1,6 @@
-#include <CorePCH.h>
+#include <FoundationPCH.h>
 
-#include <Core/Application/Config/FileSystemConfig.h>
+#include <Foundation/Application/Config/FileSystemConfig.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -191,5 +191,5 @@ ezResult ezApplicationFileSystemConfig::CreateDataDirStubFiles()
 
 
 
-EZ_STATICLINK_FILE(Core, Core_Application_Config_Implementation_FileSystemConfig);
+EZ_STATICLINK_FILE(Foundation, Foundation_Application_Config_Implementation_FileSystemConfig);
 

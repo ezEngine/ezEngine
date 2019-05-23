@@ -10,7 +10,7 @@
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Logging/HTMLWriter.h>
-#include <Core/Application/Application.h>
+#include <Foundation/Application/Application.h>
 
 // In general it is not possible to have global or static variables that (indirectly) require an allocator.
 // If you create a variable that somehow needs to have an allocator, an assert will fail.

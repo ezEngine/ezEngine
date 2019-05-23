@@ -203,9 +203,12 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgErrorCode& arg
     *pCRLF = L'\0';
   }
 
-  ezStringUtils::snprintf(tmp, uiLength, "%i (\"%s\")", arg.m_ErrorCode, ezStringUtf8((LPWSTR)lpMsgBuf).GetData());
+  // we need a bigger boat
+  static thread_local char FullMessage[256];
+
+  ezStringUtils::snprintf(FullMessage, EZ_ARRAY_SIZE(FullMessage), "%i (\"%s\")", arg.m_ErrorCode, ezStringUtf8((LPWSTR)lpMsgBuf).GetData());
   LocalFree(lpMsgBuf);
-  return ezStringView(tmp);
+  return ezStringView(FullMessage);
 }
 #endif
 

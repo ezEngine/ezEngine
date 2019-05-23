@@ -18,9 +18,9 @@ static const char* GenerateThreadName(ezWorkerThreadType::Enum ThreadType, ezUIn
       break;
     case ezWorkerThreadType::FileAccess:
       if (iThreadNumber > 0)
-        sTemp.Format("Resource Loading {0}", iThreadNumber + 1);
+        sTemp.Format("File Access {0}", iThreadNumber + 1);
       else
-        sTemp = "Resource Loading";
+        sTemp = "File Access";
       break;
     case ezWorkerThreadType::ENUM_COUNT:
       EZ_REPORT_FAILURE("Invalid Thread Type");
@@ -114,16 +114,16 @@ void ezTaskSystem::StopWorkerThreads()
   }
 }
 
-void ezTaskSystem::SetWorkThreadCount(ezInt8 iShortTasks, ezInt8 iLongTasks)
+void ezTaskSystem::SetWorkerThreadCount(ezInt8 iShortTasks, ezInt8 iLongTasks)
 {
   ezSystemInformation info = ezSystemInformation::Get();
 
   // these settings are supposed to be a sensible default for most applications
   // an app can of course change that to optimize for its own usage
 
-  // at least 2 threads, 4 on six cores and up
+  // at least 2 threads, 4 on six cores, 6 on eight cores and up
   if (iShortTasks <= 0)
-    iShortTasks = ezMath::Clamp<ezInt8>(info.GetCPUCoreCount() - 2, 2, 4);
+    iShortTasks = ezMath::Clamp<ezInt8>(info.GetCPUCoreCount() - 2, 2, 6);
 
   // at least 2 threads, 4 on six cores, 6 on eight cores and up
   if (iLongTasks <= 0)
@@ -176,8 +176,6 @@ ezUInt32 ezTaskWorkerThread::Run()
 
   m_bExecutingTask = false;
 
-  ezTaskSystem::FireWorkerThreadStarted();
-
   while (m_bActive)
   {
     if (!m_bExecutingTask)
@@ -197,8 +195,6 @@ ezUInt32 ezTaskWorkerThread::Run()
     else
       m_iTasksExecutionCounter.Increment();
   }
-
-  ezTaskSystem::FireWorkerThreadStopped();
 
   return 0;
 }

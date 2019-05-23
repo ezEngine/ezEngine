@@ -1,5 +1,11 @@
 #include <unistd.h>
 
+bool ezSystemInformation::IsDebuggerAttached()
+{
+  //TODO: No simple way to test without massive overhead.
+  return false;
+}
+
 void ezSystemInformation::Initialize()
 {
   if (s_SystemInformation.m_bIsInitialized)

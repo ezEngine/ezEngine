@@ -2,8 +2,8 @@
 
 #include <Foundation/IO/Archive/DataDirTypeArchive.h>
 #include <Foundation/IO/MemoryStream.h>
-#include <Foundation/Logging/Log.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Logging/Log.h>
 
 ezDataDirectory::ArchiveType::ArchiveType() = default;
 ezDataDirectory::ArchiveType::~ArchiveType() = default;
@@ -30,24 +30,49 @@ ezDataDirectoryReader* ezDataDirectory::ArchiveType::OpenFileToRead(const char* 
 
   const ezArchiveEntry* pEntry = &toc.m_Entries[uiEntryIndex];
 
-  // TODO: reuse readers
   ArchiveReaderUncompressed* pReader = nullptr;
 
-  switch (pEntry->m_CompressionMode)
   {
-  case ezArchiveCompressionMode::Uncompressed:
-      pReader = EZ_DEFAULT_NEW(ArchiveReaderUncompressed);
-      break;
+    EZ_LOCK(m_ReaderMutex);
+
+    switch (pEntry->m_CompressionMode)
+    {
+      case ezArchiveCompressionMode::Uncompressed:
+      {
+        if (!m_FreeReadersUncompressed.IsEmpty())
+        {
+          pReader = m_FreeReadersUncompressed.PeekBack();
+          m_FreeReadersUncompressed.PopBack();
+        }
+        else
+        {
+          m_ReadersUncompressed.PushBack(EZ_DEFAULT_NEW(ArchiveReaderUncompressed, 0));
+          pReader = m_ReadersUncompressed.PeekBack().Borrow();
+        }
+        break;
+      }
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-  case ezArchiveCompressionMode::Compressed_zstd:
-      pReader = EZ_DEFAULT_NEW(ArchiveReaderZstd);
-      break;
+      case ezArchiveCompressionMode::Compressed_zstd:
+      {
+        if (!m_FreeReadersZstd.IsEmpty())
+        {
+          pReader = m_FreeReadersZstd.PeekBack();
+          m_FreeReadersZstd.PopBack();
+        }
+        else
+        {
+          m_ReadersZstd.PushBack(EZ_DEFAULT_NEW(ArchiveReaderZstd, 1));
+          pReader = m_ReadersZstd.PeekBack().Borrow();
+        }
+        break;
+      }
 #endif
 
-    default:
-      EZ_REPORT_FAILURE("Compression mode {} is unknown (or not compiled in)", (ezUInt8)pEntry->m_CompressionMode);
-      return nullptr;
+      default:
+        EZ_REPORT_FAILURE("Compression mode {} is unknown (or not compiled in)", (ezUInt8)pEntry->m_CompressionMode);
+        return nullptr;
+    }
   }
 
   pReader->m_uiUncompressedSize = pEntry->m_uiUncompressedDataSize;
@@ -131,13 +156,32 @@ ezResult ezDataDirectory::ArchiveType::InternalInitializeDataDirectory(const cha
 
 void ezDataDirectory::ArchiveType::OnReaderWriterClose(ezDataDirectoryReaderWriterBase* pClosed)
 {
-  // TODO: reuse readers
-  EZ_DEFAULT_DELETE(pClosed);
+  EZ_LOCK(m_ReaderMutex);
+
+  if (pClosed->GetDataDirUserData() == 0)
+  {
+    m_FreeReadersUncompressed.PushBack(static_cast<ArchiveReaderUncompressed*>(pClosed));
+    return;
+  }
+
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+  if (pClosed->GetDataDirUserData() == 1)
+  {
+    m_FreeReadersZstd.PushBack(static_cast<ArchiveReaderZstd*>(pClosed));
+    return;
+  }
+#endif
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezDataDirectory::ArchiveReaderUncompressed::ArchiveReaderUncompressed() = default;
+ezDataDirectory::ArchiveReaderUncompressed::ArchiveReaderUncompressed(ezInt32 iDataDirUserData)
+  : ezDataDirectoryReader(iDataDirUserData)
+{
+}
+
 ezDataDirectory::ArchiveReaderUncompressed::~ArchiveReaderUncompressed() = default;
 
 ezUInt64 ezDataDirectory::ArchiveReaderUncompressed::Read(void* pBuffer, ezUInt64 uiBytes)
@@ -163,7 +207,11 @@ void ezDataDirectory::ArchiveReaderUncompressed::InternalClose()
 
 //////////////////////////////////////////////////////////////////////////
 
-ezDataDirectory::ArchiveReaderZstd::ArchiveReaderZstd() = default;
+ezDataDirectory::ArchiveReaderZstd::ArchiveReaderZstd(ezInt32 iDataDirUserData)
+  : ArchiveReaderUncompressed(iDataDirUserData)
+{
+}
+
 ezDataDirectory::ArchiveReaderZstd::~ArchiveReaderZstd() = default;
 
 ezUInt64 ezDataDirectory::ArchiveReaderZstd::Read(void* pBuffer, ezUInt64 uiBytes)
@@ -176,3 +224,7 @@ ezResult ezDataDirectory::ArchiveReaderZstd::InternalOpen()
   m_CompressedStreamReader.SetInputStream(&m_MemStreamReader);
   return EZ_SUCCESS;
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_Archive_Implementation_DataDirTypeArchive);
+

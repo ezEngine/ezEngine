@@ -17,7 +17,7 @@
 #include <Core/Input/InputManager.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Logging/Log.h>
-#include <Core/Application/Application.h>
+#include <Foundation/Application/Application.h>
 #include <QApplication>
 #include <qstylefactory.h>
 #include <QSettings>

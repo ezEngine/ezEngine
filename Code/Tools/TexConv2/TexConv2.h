@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Application/Application.h>
+#include <Foundation/Application/Application.h>
 
 class ezStreamWriter;
 

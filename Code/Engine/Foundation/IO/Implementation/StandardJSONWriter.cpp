@@ -62,7 +62,10 @@ ezStandardJSONWriter::ezStandardJSONWriter()
 
 ezStandardJSONWriter::~ezStandardJSONWriter()
 {
-  EZ_ASSERT_DEV(m_StateStack.PeekBack().m_State == ezStandardJSONWriter::Empty, "The JSON stream must be closed properly.");
+  if (!HadWriteError())
+  {
+    EZ_ASSERT_DEV(m_StateStack.PeekBack().m_State == ezStandardJSONWriter::Empty, "The JSON stream must be closed properly.");
+  }
 }
 
 void ezStandardJSONWriter::SetOutputStream(ezStreamWriter* pOutput)
@@ -74,7 +77,10 @@ void ezStandardJSONWriter::OutputString(const char* sz)
 {
   EZ_ASSERT_DEBUG(m_pOutput != nullptr, "No output stream has been set yet.");
 
-  m_pOutput->WriteBytes(sz, ezStringUtils::GetStringElementCount(sz));
+  if (m_pOutput->WriteBytes(sz, ezStringUtils::GetStringElementCount(sz)).Failed())
+  {
+    SetWriteErrorState();
+  }
 }
 
 void ezStandardJSONWriter::OutputEscapedString(const char* sz)
@@ -596,8 +602,6 @@ void ezStandardJSONWriter::WriteBinaryData(const char* szDataType, const void* p
   else
     OutputString("\" }");
 }
-
-
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StandardJSONWriter);
 

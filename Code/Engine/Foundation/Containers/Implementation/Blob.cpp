@@ -64,3 +64,7 @@ void ezBlob::ZeroFill()
     ezMemoryUtils::ZeroFill(static_cast<ezUInt8*>(m_pStorage), static_cast<size_t>(m_uiSize));
   }
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Containers_Implementation_Blob);
+

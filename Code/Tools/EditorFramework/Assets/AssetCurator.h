@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Application/Config/FileSystemConfig.h>
+#include <Foundation/Application/Config/FileSystemConfig.h>
 #include <EditorFramework/Assets/AssetDocumentInfo.h>
 #include <GameEngine/Configuration/PlatformProfile.h>
 #include <EditorFramework/Assets/Declarations.h>

@@ -247,9 +247,20 @@ public:
 
   /// \brief Ends outputting an object variable.
   virtual void EndObject() = 0;
+  
+  /// \brief Indicates if an error was encountered while writing
+  ///
+  /// If any error was encountered at any time during writing, this will return true
+  bool HadWriteError() const;
 
 protected:
   WhitespaceMode m_WhitespaceMode;
+
+  /// \brief called internally when there was an error during writing
+  void SetWriteErrorState();
+
+private:
+  bool m_bHadWriteError = false;
 };
 
 

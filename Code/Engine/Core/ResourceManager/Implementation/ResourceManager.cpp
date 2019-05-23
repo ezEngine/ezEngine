@@ -87,15 +87,27 @@ ezResourceTypeLoader* ezResourceManager::GetResourceTypeLoader(const ezRTTI* pRT
 
 void ezResourceManager::AddResourceCleanupCallback(ResourceCleanupCB cb)
 {
-  if (!s_ResourceCleanupCallbacks.Contains(cb))
+  EZ_ASSERT_DEV(!cb.IsHeapAllocated(), "Delegates with captures are not allowed");
+
+  for (ezUInt32 i = 0; i < s_ResourceCleanupCallbacks.GetCount(); ++i)
   {
-    s_ResourceCleanupCallbacks.PushBack(cb);
+    if (s_ResourceCleanupCallbacks[i].IsEqualIfNotHeapAllocated(cb))
+      return;
   }
+
+  s_ResourceCleanupCallbacks.PushBack(cb);
 }
 
 void ezResourceManager::ClearResourceCleanupCallback(ResourceCleanupCB cb)
 {
-  s_ResourceCleanupCallbacks.RemoveAndSwap(cb);
+  for (ezUInt32 i = 0; i < s_ResourceCleanupCallbacks.GetCount(); ++i)
+  {
+    if (s_ResourceCleanupCallbacks[i].IsEqualIfNotHeapAllocated(cb))
+    {
+      s_ResourceCleanupCallbacks.RemoveAtAndSwap(i);
+      return;
+    }
+  }
 }
 
 void ezResourceManager::ExecuteAllResourceCleanupCallbacks()

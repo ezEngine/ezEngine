@@ -3,7 +3,7 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <QDialog>
 #include <Tools/EditorFramework/ui_WindowCfgDlg.h>
-#include <Core/Application/Config/FileSystemConfig.h>
+#include <Foundation/Application/Config/FileSystemConfig.h>
 #include <System/Window/Window.h>
 
 class EZ_EDITORFRAMEWORK_DLL ezQtWindowCfgDlg : public QDialog, public Ui_ezQtWindowCfgDlg
