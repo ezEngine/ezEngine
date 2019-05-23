@@ -87,8 +87,6 @@ ezLogBlock::~ezLogBlock()
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   m_fSeconds = ezTime::Now().GetSeconds() - m_fSeconds;
-#else
-  m_fSeconds = 0;
 #endif
 
   m_pLogInterface->m_pCurrentBlock = m_pParentBlock;
@@ -106,7 +104,9 @@ void ezLog::EndLogBlock(ezLogInterface* pInterface, ezLogBlock* pBlock)
     le.m_szText = pBlock->m_szName;
     le.m_uiIndentation = pBlock->m_iBlockDepth;
     le.m_szTag = pBlock->m_szContextInfo;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     le.m_fSeconds = pBlock->m_fSeconds;
+#endif
 
     pInterface->HandleLogMessage(le);
   }
@@ -172,9 +172,31 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
   pInterface->HandleLogMessage(le);
 }
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+
+void ezLog::Printf(const char* szFormat, ...)
+{
+  va_list args;
+  va_start(args, szFormat);
+
+  char buffer[1024];
+  ezStringUtils::vsnprintf(buffer, EZ_ARRAY_SIZE(buffer), szFormat, args);
+
+  printf(buffer);
+
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  OutputDebugStringA(buffer);
+#  endif
+
+  va_end(args);
+}
+
+#endif
+
 void ezLog::SetThreadLocalLogSystem(ezLogInterface* pInterface)
 {
-  EZ_ASSERT_DEV(pInterface != nullptr, "You cannot set a nullptr logging system. If you want to discard all log information, set a dummy system that does not do anything.");
+  EZ_ASSERT_DEV(pInterface != nullptr,
+    "You cannot set a nullptr logging system. If you want to discard all log information, set a dummy system that does not do anything.");
 
   s_DefaultLogSystem = pInterface;
 }
@@ -268,4 +290,3 @@ void ezLog::Debug(ezLogInterface* pInterface, const ezFormatString& string)
 #endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_Log);
-
