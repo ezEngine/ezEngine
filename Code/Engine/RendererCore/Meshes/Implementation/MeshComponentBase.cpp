@@ -117,6 +117,8 @@ ezMeshComponentBase::ezMeshComponentBase()
 {
   m_RenderDataCategory = ezInvalidRenderDataCategory;
   m_Color = ezColor::White;
+
+  m_pExplicitInstanceData = nullptr;
 }
 
 ezMeshComponentBase::~ezMeshComponentBase() {}
@@ -224,6 +226,15 @@ void ezMeshComponentBase::OnExtractRenderData(ezMsgExtractRenderData& msg) const
         pRenderData->m_hSkinningMatrices = m_hSkinningTransformsBuffer;
         pRenderData->m_pNewSkinningMatricesData = ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(m_SkinningMatrices.GetPtr()),
                                                                             m_SkinningMatrices.GetCount() * sizeof(ezMat4));
+      }
+
+      if (m_pExplicitInstanceData)
+      {
+        // When explicit instancing is used batching will be disabled.
+        pRenderData->m_uiUniqueID = this->GetUniqueIdForRendering();
+
+        pRenderData->m_pExplicitInstanceData = m_pExplicitInstanceData;
+        pRenderData->m_uiExplicitInstanceCount = GetExplicitInstanceDataCount();
       }
 
       pRenderData->FillBatchIdAndSortingKey();

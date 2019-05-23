@@ -33,6 +33,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
   const ezMeshResourceHandle& hMesh = pRenderData->m_hMesh;
   const ezMaterialResourceHandle& hMaterial = pRenderData->m_hMaterial;
   const ezUInt32 uiPartIndex = pRenderData->m_uiSubMeshIndex;
+  const bool bHasExplicitInstanceData = pRenderData->m_pExplicitInstanceData != nullptr;
 
   ezResourceLock<ezMeshResource> pMesh(hMesh, ezResourceAcquireMode::AllowFallback);
 
@@ -43,7 +44,10 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
     return;
   }
 
-  ezInstanceData* pInstanceData = pPass->GetPipeline()->GetFrameDataProvider<ezInstanceDataProvider>()->GetData(renderViewContext);
+  ezInstanceData* pInstanceData = bHasExplicitInstanceData
+                                    ? pRenderData->m_pExplicitInstanceData
+                                    : pPass->GetPipeline()->GetFrameDataProvider<ezInstanceDataProvider>()->GetData(renderViewContext);
+
   pInstanceData->BindResources(pContext);
 
   if (pRenderData->m_uiFlipWinding)
@@ -75,43 +79,58 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
   pContext->BindMaterial(hMaterial);
   pContext->BindMeshBuffer(pMesh->GetMeshBuffer());
 
-  ezUInt32 uiStartIndex = 0;
-  while (uiStartIndex < batch.GetCount())
+  if(!bHasExplicitInstanceData)
   {
-    const ezUInt32 uiRemainingInstances = batch.GetCount() - uiStartIndex;
-
-    ezUInt32 uiInstanceDataOffset = 0;
-    ezArrayPtr<ezPerInstanceData> instanceData = pInstanceData->GetInstanceData(uiRemainingInstances, uiInstanceDataOffset);
-
-    ezUInt32 uiFilteredCount = 0;
-    FillPerInstanceData(instanceData, batch, uiStartIndex, uiFilteredCount);
-
-    if (uiFilteredCount > 0) // Instance data might be empty if all render data was filtered.
+    ezUInt32 uiStartIndex = 0;
+    while (uiStartIndex < batch.GetCount())
     {
-      pInstanceData->UpdateInstanceData(pContext, uiFilteredCount);
+      const ezUInt32 uiRemainingInstances = batch.GetCount() - uiStartIndex;
 
-      const ezMeshResourceDescriptor::SubMesh& meshPart = subMeshes[uiPartIndex];
+      ezUInt32 uiInstanceDataOffset = 0;
+      ezArrayPtr<ezPerInstanceData> instanceData = pInstanceData->GetInstanceData(uiRemainingInstances, uiInstanceDataOffset);
 
-      unsigned int uiRenderedInstances = uiFilteredCount;
-      if (renderViewContext.m_pCamera->IsStereoscopic())
-        uiRenderedInstances *= 2;
+      ezUInt32 uiFilteredCount = 0;
+      FillPerInstanceData(instanceData, batch, uiStartIndex, uiFilteredCount);
 
-      if (pContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive, uiRenderedInstances).Failed())
+      if (uiFilteredCount > 0) // Instance data might be empty if all render data was filtered.
       {
-        for (auto it = batch.GetIterator<ezMeshRenderData>(uiStartIndex, instanceData.GetCount()); it.IsValid(); ++it)
-        {
-          pRenderData = it;
+        pInstanceData->UpdateInstanceData(pContext, uiFilteredCount);
 
-          // draw bounding box instead
-          if (pRenderData->m_GlobalBounds.IsValid())
+        const ezMeshResourceDescriptor::SubMesh& meshPart = subMeshes[uiPartIndex];
+
+        unsigned int uiRenderedInstances = uiFilteredCount;
+        if (renderViewContext.m_pCamera->IsStereoscopic())
+          uiRenderedInstances *= 2;
+
+        if (pContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive, uiRenderedInstances).Failed())
+        {
+          for (auto it = batch.GetIterator<ezMeshRenderData>(uiStartIndex, instanceData.GetCount()); it.IsValid(); ++it)
           {
-            ezDebugRenderer::DrawLineBox(*renderViewContext.m_pViewDebugContext, pRenderData->m_GlobalBounds.GetBox(), ezColor::Magenta);
+            pRenderData = it;
+
+            // draw bounding box instead
+            if (pRenderData->m_GlobalBounds.IsValid())
+            {
+              ezDebugRenderer::DrawLineBox(*renderViewContext.m_pViewDebugContext, pRenderData->m_GlobalBounds.GetBox(), ezColor::Magenta);
+            }
           }
         }
       }
-    }
 
-    uiStartIndex += instanceData.GetCount();
+      uiStartIndex += instanceData.GetCount();
+    }
+  }
+  else
+  {
+    ezUInt32 uiInstanceCount = pRenderData->m_uiExplicitInstanceCount;
+
+    if (renderViewContext.m_pCamera->IsStereoscopic())
+      uiInstanceCount *= 2;
+
+    const ezMeshResourceDescriptor::SubMesh& meshPart = subMeshes[uiPartIndex];
+
+    // TODO: Handle failed draw call
+    pContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive, uiInstanceCount);
   }
 }
 
