@@ -6,6 +6,12 @@ Plugin
 }
 Plugin
 {
+	string %Path{"ezEnginePluginKraut"}
+	bool %LoadCopy{false}
+	string %DependencyOf{"EditorPluginKraut"}
+}
+Plugin
+{
 	string %Path{"ezEnginePluginParticle"}
 	bool %LoadCopy{false}
 	string %DependencyOf{"EditorPluginParticle"}
@@ -30,6 +36,12 @@ Plugin
 }
 Plugin
 {
+	string %Path{"ezKrautPlugin"}
+	bool %LoadCopy{false}
+	string %DependencyOf{"<manual>","EditorPluginKraut"}
+}
+Plugin
+{
 	string %Path{"ezParticlePlugin"}
 	bool %LoadCopy{false}
 	string %DependencyOf{"<manual>","EditorPluginParticle"}
@@ -42,7 +54,7 @@ Plugin
 }
 Plugin
 {
-	string %Path{"ezProceduralPlacementPlugin"}
+	string %Path{"ezProcGenPlugin"}
 	bool %LoadCopy{false}
-	string %DependencyOf{"EditorPluginProceduralPlacement"}
+	string %DependencyOf{"EditorPluginProcGen"}
 }

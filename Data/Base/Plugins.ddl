@@ -52,3 +52,9 @@ Plugin
 	bool %LoadCopy{false}
 	string %DependencyOf{"EditorPluginPhysX"}
 }
+Plugin
+{
+	string %Path{"ezProcGenPlugin"}
+	bool %LoadCopy{false}
+	string %DependencyOf{"EditorPluginProcGen"}
+}
