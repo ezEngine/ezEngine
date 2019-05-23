@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Core/Application/Config/FileSystemConfig.h>
-#include <Core/Application/Config/PluginConfig.h>
+#include <Foundation/Application/Config/FileSystemConfig.h>
+#include <Foundation/Application/Config/PluginConfig.h>
 #include <EditorFramework/EditorApp/Configuration/Plugins.h>
 #include <EditorFramework/EditorApp/WhatsNew.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>

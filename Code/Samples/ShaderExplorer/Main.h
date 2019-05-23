@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Application/Application.h>
+#include <Foundation/Application/Application.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererCore/Meshes/MeshResource.h>

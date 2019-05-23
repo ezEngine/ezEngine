@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Core/CoreDLL.h>
+#include <Foundation/Basics.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Reflection/Reflection.h>
 
-class EZ_CORE_DLL ezApplicationFileSystemConfig
+class EZ_FOUNDATION_DLL ezApplicationFileSystemConfig
 {
 public:
   ezResult Save();
@@ -42,6 +42,6 @@ public:
 
 typedef ezApplicationFileSystemConfig::DataDirConfig ezApplicationFileSystemConfig_DataDirConfig;
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezApplicationFileSystemConfig);
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezApplicationFileSystemConfig_DataDirConfig);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezApplicationFileSystemConfig);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezApplicationFileSystemConfig_DataDirConfig);
 

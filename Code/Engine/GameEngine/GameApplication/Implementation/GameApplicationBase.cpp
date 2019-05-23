@@ -32,11 +32,6 @@ ezGameApplicationBase::~ezGameApplicationBase()
   s_pGameApplicationBaseInstance = nullptr;
 }
 
-void ezGameApplicationBase::RequestQuit()
-{
-  m_bWasQuitRequested = true;
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 ezWindowOutputTargetBase* ezGameApplicationBase::AddWindow(ezWindowBase* pWindow)

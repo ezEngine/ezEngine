@@ -1,9 +1,11 @@
-#include <CorePCH.h>
+#include <FoundationPCH.h>
 
-#include <Core/Application/Application.h>
+#include <Foundation/Application/Application.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Threading/ThreadUtils.h>
+#include <Foundation/System/SystemInformation.h>
+#include <Foundation/Logging/Log.h>
 
 ezApplication::ezApplication(const char* szAppName)
     : m_iReturnCode(0)
@@ -32,17 +34,16 @@ ezResult ezApplication::BeforeCoreSystemsStartup()
   ezRTTI::VerifyCorrectnessForAllTypes();
 #endif
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-WaitForDebugger"))
   {
-    while (!IsDebuggerPresent())
+    while (!ezSystemInformation::IsDebuggerAttached())
     {
       ezThreadUtils::Sleep(ezTime::Milliseconds(1));
     }
 
     EZ_DEBUG_BREAK;
   }
-#endif
+
   return EZ_SUCCESS;
 }
 
@@ -63,7 +64,13 @@ const char* ezApplication::GetArgument(ezUInt32 uiArgument) const
   return m_ppArguments[uiArgument];
 }
 
+
+void ezApplication::RequestQuit()
+{
+  m_bWasQuitRequested = true;
+}
+
+
 ezApplication* ezApplication::s_pApplicationInstance = nullptr;
 
-EZ_STATICLINK_FILE(Core, Core_Application_Implementation_Application);
 

@@ -2,7 +2,7 @@
 
 #include <GameEngine/GameEngineDLL.h>
 
-#include <Core/Application/Application.h>
+#include <Foundation/Application/Application.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/Configuration/PlatformProfile.h>
 #include <GameEngine/Console/ConsoleFunction.h>
@@ -64,18 +64,8 @@ public:
   /// \brief Returns the ezGameApplicationBase singleton
   static ezGameApplicationBase* GetGameApplicationBaseInstance() { return s_pGameApplicationBaseInstance; }
 
-  /// \brief Calling this function requests that the application quits after the current invocation of Run() finishes.
-  ///
-  /// Can be overridden to prevent quitting under certain conditions.
-  virtual void RequestQuit();
-
-  /// \brief Returns whether RequestQuit() was called.
-  EZ_ALWAYS_INLINE bool WasQuitRequested() const { return m_bWasQuitRequested; }
-
 protected:
   static ezGameApplicationBase* s_pGameApplicationBaseInstance;
-
-  bool m_bWasQuitRequested = false;
 
   ///@}
   /// \name Window Management

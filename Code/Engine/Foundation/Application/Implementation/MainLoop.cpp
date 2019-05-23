@@ -1,6 +1,6 @@
-#include <CorePCH.h>
+#include <FoundationPCH.h>
 
-#include <Core/Application/Application.h>
+#include <Foundation/Application/Application.h>
 #include <Foundation/Configuration/Startup.h>
 
 ezResult ezRun_Startup(ezApplication* pApplicationInstance)

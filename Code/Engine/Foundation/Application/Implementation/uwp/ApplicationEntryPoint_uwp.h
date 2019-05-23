@@ -6,7 +6,7 @@
 #include <Foundation/Memory/MemoryTracker.h>
 
 class ezApplication;
-extern EZ_CORE_DLL ezResult ezUWPRun(ezApplication* pApp);
+extern EZ_FOUNDATION_DLL ezResult ezUWPRun(ezApplication* pApp);
 
 namespace ezApplicationDetails
 {

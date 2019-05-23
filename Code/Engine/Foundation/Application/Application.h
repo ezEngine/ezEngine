@@ -2,8 +2,9 @@
 
 /// \file
 
-#include <Core/Application/Implementation/ApplicationEntryPoint.h>
-#include <Core/CoreDLL.h>
+#include <Foundation/Basics.h>
+
+#include <Foundation/Application/Implementation/ApplicationEntryPoint.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 
 class ezApplication;
@@ -13,14 +14,14 @@ class ezApplication;
 /// This is automatically called by EZ_APPLICATION_ENTRY_POINT() and EZ_CONSOLEAPP_ENTRY_POINT().
 ///
 /// ezRun simply calls ezRun_Startup(), ezRun_MainLoop() and ezRun_Shutdown().
-EZ_CORE_DLL void ezRun(ezApplication* pApplicationInstance);
+EZ_FOUNDATION_DLL void ezRun(ezApplication* pApplicationInstance);
 
 /// \brief [internal] Called by ezRun()
-EZ_CORE_DLL ezResult ezRun_Startup(ezApplication* pApplicationInstance);
+EZ_FOUNDATION_DLL ezResult ezRun_Startup(ezApplication* pApplicationInstance);
 /// \brief [internal] Called by ezRun()
-EZ_CORE_DLL void ezRun_MainLoop(ezApplication* pApplicationInstance);
+EZ_FOUNDATION_DLL void ezRun_MainLoop(ezApplication* pApplicationInstance);
 /// \brief [internal] Called by ezRun()
-EZ_CORE_DLL void ezRun_Shutdown(ezApplication* pApplicationInstance);
+EZ_FOUNDATION_DLL void ezRun_Shutdown(ezApplication* pApplicationInstance);
 
 /// \brief Base class to be used by applications based on ezEngine.
 ///
@@ -59,7 +60,7 @@ EZ_CORE_DLL void ezRun_Shutdown(ezApplication* pApplicationInstance);
 ///
 ///   EZ_APPLICATION_ENTRY_POINT(ezSampleApp);
 /// \endcode
-class EZ_CORE_DLL ezApplication
+class EZ_FOUNDATION_DLL ezApplication
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezApplication);
 
@@ -174,6 +175,20 @@ public:
 
   bool IsMemoryLeakReportingEnabled() const { return m_bReportMemoryLeaks; }
 
+  /// \brief Calling this function requests that the application quits after the current invocation of Run() finishes.
+  ///
+  /// Sets the m_bWasQuitRequested to true as an indicator for derived application objects to engage shutdown procedures.
+  /// Can be overridden to implement custom behavior. There is no other logic associated with this
+  /// function and flag so the respective derived application class has to implement logic to perform the actual
+  /// quit when this function is called or m_bWasQuitRequested is set to true.
+  virtual void RequestQuit();
+
+  /// \brief Returns whether RequestQuit() was called.
+  EZ_ALWAYS_INLINE bool WasQuitRequested() const { return m_bWasQuitRequested; }
+
+protected:
+  bool m_bWasQuitRequested = false;
+
 private:
   ezInt32 m_iReturnCode;
 
@@ -187,9 +202,9 @@ private:
 
   static ezApplication* s_pApplicationInstance;
 
-  friend EZ_CORE_DLL void ezRun(ezApplication* pApplicationInstance);
-  friend EZ_CORE_DLL ezResult ezRun_Startup(ezApplication* pApplicationInstance);
-  friend EZ_CORE_DLL void ezRun_MainLoop(ezApplication* pApplicationInstance);
-  friend EZ_CORE_DLL void ezRun_Shutdown(ezApplication* pApplicationInstance);
+  friend EZ_FOUNDATION_DLL void ezRun(ezApplication* pApplicationInstance);
+  friend EZ_FOUNDATION_DLL ezResult ezRun_Startup(ezApplication* pApplicationInstance);
+  friend EZ_FOUNDATION_DLL void ezRun_MainLoop(ezApplication* pApplicationInstance);
+  friend EZ_FOUNDATION_DLL void ezRun_Shutdown(ezApplication* pApplicationInstance);
 };
 

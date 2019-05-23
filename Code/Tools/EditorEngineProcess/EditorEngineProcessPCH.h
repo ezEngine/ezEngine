@@ -1,4 +1,4 @@
-﻿#include <Foundation/Basics.h>
+#include <Foundation/Basics.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Configuration/CVar.h>
@@ -11,7 +11,7 @@
 #include <Core/Input/InputManager.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Logging/Log.h>
-#include <Core/Application/Application.h>
+#include <Foundation/Application/Application.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Configuration/Startup.h>

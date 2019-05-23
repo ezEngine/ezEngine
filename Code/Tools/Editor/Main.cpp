@@ -1,6 +1,6 @@
 #include <EditorPCH.h>
 
-#include <Core/Application/Application.h>
+#include <Foundation/Application/Application.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <QApplication>

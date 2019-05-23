@@ -1,8 +1,8 @@
-#include <CorePCH.h>
+#include <FoundationPCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#include <Core/Application/Application.h>
-#include <Core/Application/Implementation/uwp/Application_uwp.h>
+#include <Foundation/Application/Application.h>
+#include <Foundation/Application/Implementation/uwp/Application_uwp.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Strings/StringConversion.h>
 
@@ -90,7 +90,7 @@ HRESULT ezUwpApplication::OnActivated(ICoreApplicationView* view, IActivatedEven
   return S_OK;
 }
 
-EZ_CORE_DLL ezResult ezUWPRun(ezApplication* pApp)
+EZ_FOUNDATION_DLL ezResult ezUWPRun(ezApplication* pApp)
 {
   ComPtr<ABI::Windows::ApplicationModel::Core::ICoreApplication> coreApplication;
   HRESULT result = ABI::Windows::Foundation::GetActivationFactory(

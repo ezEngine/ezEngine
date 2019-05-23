@@ -1,6 +1,6 @@
-#include <CorePCH.h>
+#include <FoundationPCH.h>
 
-#include <Core/Application/Config/PluginConfig.h>
+#include <Foundation/Application/Config/PluginConfig.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OpenDdlReader.h>

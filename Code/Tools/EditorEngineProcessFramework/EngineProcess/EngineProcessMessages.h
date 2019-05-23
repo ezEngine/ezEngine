@@ -3,8 +3,8 @@
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
-#include <Core/Application/Config/FileSystemConfig.h>
-#include <Core/Application/Config/PluginConfig.h>
+#include <Foundation/Application/Config/FileSystemConfig.h>
+#include <Foundation/Application/Config/PluginConfig.h>
 #include <RendererCore/Pipeline/Declarations.h>
 #include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Logging/LogEntry.h>
