@@ -24,12 +24,11 @@
     const int iReturnCode = pApp->GetReturnCode();                                                                                         \
     if (iReturnCode != 0)                                                                                                                  \
     {                                                                                                                                      \
-      std::string text = pApp->TranslateReturnCode();                                                                                      \
-      if (!text.empty())                                                                                                                   \
-        printf("Return Code: '%s'\n", text.c_str());                                                                                       \
+      const char* szReturnCode = pApp->TranslateReturnCode();                                                                              \
+      if (szReturnCode != nullptr && szReturnCode[0] != '\0')                                                                              \
+        printf("Return Code: '%s'\n", szReturnCode);                                                                                       \
     }                                                                                                                                      \
     pApp->~AppClass();                                                                                                                     \
     memset(pApp, 0, sizeof(AppClass));                                                                                                     \
     return iReturnCode;                                                                                                                    \
   }
-

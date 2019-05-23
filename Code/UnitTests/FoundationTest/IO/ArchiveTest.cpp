@@ -9,6 +9,8 @@
 #include <Foundation/System/Process.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 
+#if (EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS))
+
 EZ_CREATE_SIMPLE_TEST(IO, Archive)
 {
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
@@ -152,3 +154,5 @@ EZ_CREATE_SIMPLE_TEST(IO, Archive)
 
   ezFileSystem::RemoveDataDirectoryGroup("Clear");
 }
+
+#endif

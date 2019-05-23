@@ -182,7 +182,7 @@ void ezLog::Printf(const char* szFormat, ...)
   char buffer[1024];
   ezStringUtils::vsnprintf(buffer, EZ_ARRAY_SIZE(buffer), szFormat, args);
 
-  printf(buffer);
+  printf("%s", buffer);
 
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   OutputDebugStringA(buffer);

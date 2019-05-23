@@ -70,7 +70,7 @@ namespace ExceptionHandler
 
       ezStackTracer::ResolveStackTrace(tempTrace.GetSubArray(0, uiNumTraces), &PrintHelper);
     }
-    WriteDump();
+    ezExceptionHandler::WriteDump();
     std::_Exit(EXIT_FAILURE);
   }
 } // namespace ExceptionHandler

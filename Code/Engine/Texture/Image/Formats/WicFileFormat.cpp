@@ -259,6 +259,6 @@ bool ezWicFileFormat::CanWriteFileType(const char* szExtension) const
   return CanReadFileType(szExtension);
 }
 
-EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_WicFileFormat);
-
 #endif
+
+EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_WicFileFormat);

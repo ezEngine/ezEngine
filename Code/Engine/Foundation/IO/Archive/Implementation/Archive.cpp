@@ -35,6 +35,7 @@ ezResult ezArchiveTOC::Serialize(ezStreamWriter& stream) const
 ezResult ezArchiveTOC::Deserialize(ezStreamReader& stream)
 {
   ezTypeVersion version = stream.ReadVersion(1);
+  EZ_IGNORE_UNUSED(version);
 
   EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_Entries));
 

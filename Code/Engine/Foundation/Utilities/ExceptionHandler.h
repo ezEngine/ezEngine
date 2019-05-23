@@ -6,7 +6,7 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 typedef LONG(WINAPI* EZ_TOP_LEVEL_EXCEPTION_HANDLER)(struct _EXCEPTION_POINTERS* pExceptionInfo);
 #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-typedef void(__cdecl* EZ_TOP_LEVEL_EXCEPTION_HANDLER)();
+typedef void(* EZ_TOP_LEVEL_EXCEPTION_HANDLER)();
 #else
 #  error "ezExceptionHandler is not implemented on current platform"
 #endif
@@ -30,7 +30,7 @@ public:
   static LONG WINAPI DefaultExceptionHandler(struct _EXCEPTION_POINTERS* pExceptionInfo);
   static ezResult WriteDump(EXCEPTION_POINTERS* exceptionInfo = nullptr);
 #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-  static void __cdecl DefaultExceptionHandler();
+  static void DefaultExceptionHandler() noexcept;
   static ezResult WriteDump();
 #else
 #  error "ezExceptionHandler is not implemented on current platform"

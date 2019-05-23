@@ -8,8 +8,8 @@ using namespace ezTokenParseUtils;
 
 ezPreprocessor::ezPreprocessor()
   : m_ClassAllocator("ezPreprocessor", ezFoundation::GetDefaultAllocator())
-  , m_Macros(ezCompareHelper<ezString256>(), &m_ClassAllocator)
   , m_sCurrentFileStack(&m_ClassAllocator)
+  , m_Macros(ezCompareHelper<ezString256>(), &m_ClassAllocator)
   , m_CustomDefines(&m_ClassAllocator)
   , m_IfdefActiveStack(&m_ClassAllocator)
   , m_MacroParamStack(&m_ClassAllocator)

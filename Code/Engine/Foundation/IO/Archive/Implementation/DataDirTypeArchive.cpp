@@ -177,7 +177,7 @@ void ezDataDirectory::ArchiveType::OnReaderWriterClose(ezDataDirectoryReaderWrit
 
 //////////////////////////////////////////////////////////////////////////
 
-ezDataDirectory::ArchiveReaderUncompressed::ArchiveReaderUncompressed(ezInt32 iDataDirUserData = 0)
+ezDataDirectory::ArchiveReaderUncompressed::ArchiveReaderUncompressed(ezInt32 iDataDirUserData)
   : ezDataDirectoryReader(iDataDirUserData)
 {
 }
