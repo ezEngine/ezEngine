@@ -130,27 +130,44 @@ void AppendCurrentTimestamp(ezStringBuilder& out_String)
 {
   const ezDateTime dt = ezTimestamp::CurrentTimestamp();
 
-  out_String.AppendFormat("{0}-{1}-{2}_{3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true),
+  out_String.AppendFormat("_{0}-{1}-{2}_{3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true),
                           ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true),
                           ezArgU(dt.GetMicroseconds() / 1000, 3, true));
 }
 
 void ezGameApplicationBase::TakeProfilingCapture()
 {
-  ezStringBuilder sPath = ":appdata/profiling ";
-  AppendCurrentTimestamp(sPath);
-  sPath.Append(".json");
+  class WriteProfilingDataTask : public ezTask
+  {
+  public:
+    ezProfilingSystem::ProfilingData m_profilingData;
 
-  ezFileWriter fileWriter;
-  if (fileWriter.Open(sPath) == EZ_SUCCESS)
-  {
-    ezProfilingSystem::Capture(fileWriter);
-    ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
-  }
-  else
-  {
-    ezLog::Error("Could not write profiling capture to '{0}'.", sPath);
-  }
+  private:
+    virtual void Execute() override
+    {
+      ezStringBuilder sPath(":appdata/Profiling/", ezApplication::GetApplicationInstance()->GetApplicationName());
+      AppendCurrentTimestamp(sPath);
+      sPath.Append(".json");
+
+      ezFileWriter fileWriter;
+      if (fileWriter.Open(sPath) == EZ_SUCCESS)
+      { 
+        m_profilingData.Write(fileWriter);
+        ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
+      }
+      else
+      {
+        ezLog::Error("Could not write profiling capture to '{0}'.", sPath);
+      }
+    }
+  };
+
+  WriteProfilingDataTask* pWriteProfilingDataTask = EZ_DEFAULT_NEW(WriteProfilingDataTask);
+  pWriteProfilingDataTask->SetTaskName("Write Profiling Data");
+  pWriteProfilingDataTask->m_profilingData = ezProfilingSystem::Capture();
+  pWriteProfilingDataTask->SetOnTaskFinished([](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
+
+  ezTaskSystem::StartSingleTask(pWriteProfilingDataTask, ezTaskPriority::LongRunning);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -182,6 +199,7 @@ void ezGameApplicationBase::StoreScreenshot(ezImage&& image, const char* szConte
   };
 
   WriteFileTask* pWriteTask = EZ_DEFAULT_NEW(WriteFileTask);
+  pWriteTask->SetTaskName("Write Screenshot");
   pWriteTask->m_Image.ResetAndMove(std::move(image));
   pWriteTask->SetOnTaskFinished([](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
 

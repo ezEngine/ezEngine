@@ -1,8 +1,10 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Time/Time.h>
+#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/StaticRingBuffer.h>
+#include <Foundation/System/Process.h>
+#include <Foundation/Time/Time.h>
 
 class ezStreamWriter;
 class ezThread;
@@ -53,11 +55,76 @@ protected:
 class EZ_FOUNDATION_DLL ezProfilingSystem
 {
 public:
-  /// \brief This is implementation specific. The default profiling captures the current data and writes it as JSON to the output stream.
-  static void Capture(ezStreamWriter& outputStream);
+  struct ThreadInfo
+  {
+    ezUInt64 m_uiThreadId;
+    ezString m_sName;
+  };
+
+  struct Event
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    enum Type
+    {
+      Begin,
+      End
+    };
+
+    static constexpr ezUInt32 NAME_SIZE = 47;
+
+    const char* m_szFunctionName;
+    ezTime m_TimeStamp;
+    char m_szName[NAME_SIZE];
+    ezUInt8 m_Type;
+  };
+
+  struct EventBufferFlat
+  {
+    ezDynamicArray<Event> m_Data;
+    ezUInt64 m_uiThreadId = 0;
+  };
+
+  /// \brief Helper struct to hold GPU profiling data.
+  struct GPUData
+  {
+    static constexpr ezUInt32 NAME_SIZE = 48;
+
+    ezTime m_BeginTime;
+    ezTime m_EndTime;
+    char m_szName[NAME_SIZE];
+  };
+
+  struct EZ_FOUNDATION_DLL ProfilingData
+  {
+    ezUInt32 m_uiFramesThreadID = 0;
+    ezUInt32 m_uiGPUThreadID = 0;
+    ezOsProcessID m_uiProcessID = 0;
+
+    ezHybridArray<ThreadInfo, 16> m_ThreadInfos;
+
+    ezDynamicArray<EventBufferFlat> m_AllEventBuffers;
+
+    ezUInt64 m_uiFrameCount;
+    ezDynamicArray<ezTime> m_FrameStartTimes;
+
+    ezDynamicArray<GPUData> m_GPUData;
+
+    /// \brief Writes profiling data as JSON to the output stream.
+    ezResult Write(ezStreamWriter& outputStream) const;
+  };
+
+public:
+  static ProfilingData Capture();
 
   /// \brief Should be called once per frame to capture the timestamp of the new frame.
   static void StartNewFrame();
+
+  /// \brief Creates a new scope in the profiling system
+  static void BeginScope(const char* szName, ezUInt32 uiNameLength, const char* szFunctionName);
+
+  /// \brief Pops scope with given name
+  static void EndScope(const char* szName, ezUInt32 uiNameLegth);
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, ProfilingSystem);
@@ -74,30 +141,11 @@ private:
   static void RemoveThread();
 
 public:
-
-  /// \brief Helper struct to hold GPU profiling data.
-  struct GPUData
-  {
-    ezTime m_BeginTime;
-    ezTime m_EndTime;
-    char m_szName[48];
-  };
-
   /// \brief Initialized internal data structures for GPU profiling data. Needs to be called before adding any data.
   static void InitializeGPUData();
 
   /// \brief Allocates GPU profiling data in the internal event ringbuffer.
   static GPUData& AllocateGPUData();
-
-  enum
-  {
-    RING_BUFFER_SIZE_FRAMES = 120 * 60, 
-  };
-
-#if EZ_ENABLED(EZ_USE_PROFILING)
-  static ezStaticRingBuffer<ezTime, RING_BUFFER_SIZE_FRAMES> s_FrameStartTimes;
-  static ezUInt64 s_uiFrameCount;
-#endif
 };
 
 #if EZ_ENABLED(EZ_USE_PROFILING) || defined(EZ_DOCS)
