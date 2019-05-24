@@ -5,9 +5,9 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 inline void SetConsoleColorInl(WORD ui)
 {
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+#  if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
   SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), ui);
-#endif
+#  endif
 }
 #else
 inline void SetConsoleColorInl(ezUInt8 ui) {}
@@ -17,6 +17,8 @@ inline void OutputToConsole(ezTestOutput::Enum Type, const char* szMsg)
 {
   static ezInt32 iIndentation = 0;
   static bool bAnyError = false;
+
+  FILE* outStream = stdout;
 
   switch (Type)
   {
@@ -46,6 +48,7 @@ inline void OutputToConsole(ezTestOutput::Enum Type, const char* szMsg)
     case ezTestOutput::Error:
       SetConsoleColorInl(0x0C);
       bAnyError = true;
+      outStream = stderr;
       break;
     case ezTestOutput::FinalResult:
       if (bAnyError)
@@ -60,7 +63,7 @@ inline void OutputToConsole(ezTestOutput::Enum Type, const char* szMsg)
       break;
   }
 
-  printf("%*s%s\n", iIndentation, "", szMsg);
+  fprintf(outStream, "%*s%s\n", iIndentation, "", szMsg);
   SetConsoleColorInl(0x07);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
@@ -73,4 +76,3 @@ inline void OutputToConsole(ezTestOutput::Enum Type, const char* szMsg)
     fflush(stdout);
   }
 }
-

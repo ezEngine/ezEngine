@@ -5,14 +5,14 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 static void SetConsoleColor(WORD ui)
 {
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+#  if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
   SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), ui);
-#endif
+#  endif
 }
 #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
 static void SetConsoleColor(ezUInt8 ui) {}
 #else
-#error "Unknown Platform."
+#  error "Unknown Platform."
 static void SetConsoleColor(ezUInt8 ui) {}
 #endif
 
@@ -43,11 +43,11 @@ void ezLogWriter::Console::LogMessageHandler(const ezLoggingEventData& eventData
       break;
     case ezLogMsgType::ErrorMsg:
       SetConsoleColor(0x0C);
-      printf("Error: %s\n", eventData.m_szText);
+      fprintf(stderr, "Error: %s\n", eventData.m_szText);
       break;
     case ezLogMsgType::SeriousWarningMsg:
       SetConsoleColor(0x0C);
-      printf("Seriously: %s\n", eventData.m_szText);
+      fprintf(stderr, "Seriously: %s\n", eventData.m_szText);
       break;
     case ezLogMsgType::WarningMsg:
       SetConsoleColor(0x0E);
@@ -83,4 +83,3 @@ void ezLogWriter::Console::LogMessageHandler(const ezLoggingEventData& eventData
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_ConsoleWriter);
-
