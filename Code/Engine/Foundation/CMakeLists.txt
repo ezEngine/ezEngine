@@ -11,6 +11,8 @@ if (MSVC)
 
     Rpcrt4.lib
   )
+
+  target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
 endif()
 
 if (EZ_CMAKE_PLATFORM_LINUX)
