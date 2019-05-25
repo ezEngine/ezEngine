@@ -5,8 +5,8 @@ CONSTANT_BUFFER(ezMaterialConstants, 1)
   COLOR4F(BaseColor);
   FLOAT1(MaskThreshold);
   FLOAT1(ExposureBias);
-  BOOL(InverseTonemap);
-  BOOL(UseFog);
+  BOOLEAN(InverseTonemap);
+  BOOLEAN(UseFog);
   FLOAT1(VirtualDistance);
 };
 
