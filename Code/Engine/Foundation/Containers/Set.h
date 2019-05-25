@@ -180,7 +180,7 @@ private:
 
   /// \brief Creates one new node and initializes it.
   template <typename CompatibleKeyType>
-  Node* AcquireNode(CompatibleKeyType&& key, int m_uiLevel, Node* pParent);
+  Node* AcquireNode(CompatibleKeyType&& key, ezUInt16 uiLevel, Node* pParent);
 
   /// \brief Destroys the given node.
   void ReleaseNode(Node* pNode);

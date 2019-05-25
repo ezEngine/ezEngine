@@ -2,9 +2,9 @@
 #pragma once
 
 #include <RendererFoundation/Resources/Buffer.h>
+#include <dxgi.h>
 
 struct ID3D11Buffer;
-enum DXGI_FORMAT;
 
 class EZ_RENDERERDX11_DLL ezGALBufferDX11 : public ezGALBuffer
 {

@@ -34,7 +34,7 @@ bool ezCurve1D::IsEmpty() const
 ezCurve1D::ControlPoint& ezCurve1D::AddControlPoint(double x)
 {
   auto& cp = m_ControlPoints.ExpandAndGetRef();
-  cp.m_uiOriginalIndex = m_ControlPoints.GetCount() - 1;
+  cp.m_uiOriginalIndex = static_cast<ezUInt16>(m_ControlPoints.GetCount() - 1);
   cp.m_Position.x = x;
   cp.m_Position.y = 0;
   cp.m_LeftTangent.x = -0.1f;

@@ -387,8 +387,8 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
   if (Area.m_Rect.y > 0)
   {
     AreaEdge e;
-    e.m_EdgeRect.x = Area.m_Rect.x;
-    e.m_EdgeRect.y = Area.m_Rect.y;
+    e.m_EdgeRect.x = static_cast<ezUInt16>(Area.m_Rect.x);
+    e.m_EdgeRect.y = static_cast<ezUInt16>(Area.m_Rect.y);
     e.m_EdgeRect.width = 1;
     e.m_EdgeRect.height = 1;
     e.m_iNeighborArea = m_NodesGrid.GetCell(ezVec2I32(Area.m_Rect.x, Area.m_Rect.y - 1));
@@ -406,7 +406,7 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
         }
 
         e.m_iNeighborArea = iThisNeighbor;
-        e.m_EdgeRect.x = x;
+        e.m_EdgeRect.x = static_cast<ezUInt16>(x);
         e.m_EdgeRect.width = 0;
       }
 
@@ -423,8 +423,8 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
   if (Area.m_Rect.y + Area.m_Rect.height < m_NodesGrid.GetGridSizeY())
   {
     AreaEdge e;
-    e.m_EdgeRect.x = Area.m_Rect.x;
-    e.m_EdgeRect.y = Area.m_Rect.y + Area.m_Rect.height - 1;
+    e.m_EdgeRect.x = static_cast<ezUInt16>(Area.m_Rect.x);
+    e.m_EdgeRect.y = static_cast<ezUInt16>(Area.m_Rect.y + Area.m_Rect.height - 1);
     e.m_EdgeRect.width = 1;
     e.m_EdgeRect.height = 1;
     e.m_iNeighborArea = m_NodesGrid.GetCell(ezVec2I32(Area.m_Rect.x, Area.m_Rect.y + Area.m_Rect.height));
@@ -442,7 +442,7 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
         }
 
         e.m_iNeighborArea = iThisNeighbor;
-        e.m_EdgeRect.x = x;
+        e.m_EdgeRect.x = static_cast<ezUInt16>(x);
         e.m_EdgeRect.width = 0;
       }
 
@@ -459,8 +459,8 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
   if (Area.m_Rect.x > 0)
   {
     AreaEdge e;
-    e.m_EdgeRect.x = Area.m_Rect.x;
-    e.m_EdgeRect.y = Area.m_Rect.y;
+    e.m_EdgeRect.x = static_cast<ezUInt16>(Area.m_Rect.x);
+    e.m_EdgeRect.y = static_cast<ezUInt16>(Area.m_Rect.y);
     e.m_EdgeRect.width = 1;
     e.m_EdgeRect.height = 1;
     e.m_iNeighborArea = m_NodesGrid.GetCell(ezVec2I32(Area.m_Rect.x - 1, Area.m_Rect.y));
@@ -478,7 +478,7 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
         }
 
         e.m_iNeighborArea = iThisNeighbor;
-        e.m_EdgeRect.y = y;
+        e.m_EdgeRect.y = static_cast<ezUInt16>(y);
         e.m_EdgeRect.height = 0;
       }
 
@@ -495,8 +495,8 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
   if (Area.m_Rect.x + Area.m_Rect.width < m_NodesGrid.GetGridSizeX())
   {
     AreaEdge e;
-    e.m_EdgeRect.x = Area.m_Rect.x + Area.m_Rect.width - 1;
-    e.m_EdgeRect.y = Area.m_Rect.y;
+    e.m_EdgeRect.x = static_cast<ezUInt16>(Area.m_Rect.x + Area.m_Rect.width - 1);
+    e.m_EdgeRect.y = static_cast<ezUInt16>(Area.m_Rect.y);
     e.m_EdgeRect.width = 1;
     e.m_EdgeRect.height = 1;
     e.m_iNeighborArea = m_NodesGrid.GetCell(ezVec2I32(Area.m_Rect.x + Area.m_Rect.width, Area.m_Rect.y));
@@ -514,7 +514,7 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
         }
 
         e.m_iNeighborArea = iThisNeighbor;
-        e.m_EdgeRect.y = y;
+        e.m_EdgeRect.y = static_cast<ezUInt16>(y);
         e.m_EdgeRect.height = 0;
       }
 

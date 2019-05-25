@@ -405,13 +405,13 @@ static void FormatUInt(char* szOutputBuffer, int& iNumDigits, unsigned long long
     const unsigned int digit = uiValue % uiBase;
 
     if (digit <= 9)
-      szOutputBuffer[iNumDigits] = '0' + digit;
+      szOutputBuffer[iNumDigits] = static_cast<char>('0' + digit);
     else if (digit <= 15)
     {
       if (bUpperCase)
-        szOutputBuffer[iNumDigits] = 'A' + (digit - 10);
+        szOutputBuffer[iNumDigits] = static_cast<char>('A' + (digit - 10));
       else
-        szOutputBuffer[iNumDigits] = 'a' + (digit - 10);
+        szOutputBuffer[iNumDigits] = static_cast<char>('a' + (digit - 10));
     }
 
     uiValue /= uiBase;
@@ -956,7 +956,7 @@ int ezStringUtils::vsnprintf(char* szOutputBuffer, unsigned int uiBufferSize, co
     // Character
     if (cSpecifier == 'c')
     {
-      char c2 = va_arg(args, int);
+      char c2 = static_cast<char>(va_arg(args, int));
       char s[2] = {c2, 0};
       OutputString(szOutputBuffer, uiBufferSize, uiWritePos, s, Flags, iWidth, iPrecision);
       continue;

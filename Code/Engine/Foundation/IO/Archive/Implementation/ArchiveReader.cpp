@@ -5,6 +5,9 @@
 
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Types/Types.h>
+#include <Foundation/IO/Archive/ArchiveUtils.h>
 
 #include <Foundation/Logging/Log.h>
 

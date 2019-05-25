@@ -88,7 +88,7 @@ ezResult ezConvexHullGenerator::StoreNormalizedVertices(const ezArrayPtr<const e
   return EZ_SUCCESS;
 }
 
-void ezConvexHullGenerator::StoreTriangle(int i, int j, int k)
+void ezConvexHullGenerator::StoreTriangle(ezUInt16 i, ezUInt16 j, ezUInt16 k)
 {
   Triangle& triangle = m_Triangles.ExpandAndGetRef();
 
@@ -299,11 +299,11 @@ ezResult ezConvexHullGenerator::InitializeHull()
   }
 
   // construct the hull as containing only the first four points
-  for (int i = 0; i < 4; i++)
+  for (ezUInt16 i = 0; i < 4; i++)
   {
-    for (int j = i + 1; j < 4; j++)
+    for (ezUInt16 j = i + 1; j < 4; j++)
     {
-      for (int k = j + 1; k < 4; k++)
+      for (ezUInt16 k = j + 1; k < 4; k++)
       {
         StoreTriangle(i, j, k);
       }
@@ -392,6 +392,7 @@ void ezConvexHullGenerator::RemoveVisibleFaces(ezUInt32 vtxId)
 
 void ezConvexHullGenerator::PatchHole(ezUInt32 vtxId)
 {
+  EZ_ASSERT_DEBUG(vtxId < 0xFFFFu, "Vertex Id is larger than 16 bits can address.");
   const ezUInt32 uiMaxVertices = m_Vertices.GetCount();
 
   const ezUInt32 uiNumFaces = m_Triangles.GetCount();
@@ -409,7 +410,7 @@ void ezConvexHullGenerator::PatchHole(ezUInt32 vtxId)
         if (m_Edges[vtxA * uiMaxVertices + vtxB].GetSize() == 2)
           continue;
 
-        StoreTriangle(vtxA, vtxB, vtxId);
+        StoreTriangle(vtxA, vtxB, static_cast<ezUInt16>(vtxId));
       }
     }
   }
@@ -725,7 +726,7 @@ void ezConvexHullGenerator::Retrieve(ezDynamicArray<ezVec3>& out_Vertices, ezDyn
         vtx.Set((float)pos.x, (float)pos.y, (float)pos.z);
       }
 
-      face.m_uiVertexIdx[v] = it.Value();
+      face.m_uiVertexIdx[v] = static_cast<ezUInt16>(it.Value());
     }
 
     if (tri.m_bFlip)

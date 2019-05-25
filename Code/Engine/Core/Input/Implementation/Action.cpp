@@ -156,7 +156,7 @@ ezInputManager::ezActionMap::Iterator ezInputManager::GetBestAction(ezActionMap&
   {
     ezActionData& ThisAction = ItAction.Value();
 
-    ezInt32 AltSlot = ThisAction.m_iTriggeredViaAlternative;
+    ezInt8 AltSlot = ThisAction.m_iTriggeredViaAlternative;
 
     if (AltSlot >= 0)
     {

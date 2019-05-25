@@ -236,7 +236,7 @@ struct ezObjectMode
 {
   typedef ezUInt8 StorageType;
 
-  enum Enum
+  enum Enum : ezUInt8
   {
     Automatic,
     ForceDynamic,

@@ -4,7 +4,7 @@ EZ_ALWAYS_INLINE const char* ezWorld::GetName() const
   return m_Data.m_sName.GetData();
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezWorld::GetIndex() const
+EZ_ALWAYS_INLINE ezUInt16 ezWorld::GetIndex() const
 {
   return m_uiIndex;
 }

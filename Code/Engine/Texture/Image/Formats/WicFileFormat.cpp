@@ -145,7 +145,7 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
             const uint8_t* sourcePixels = sourceImage->pixels;
             for (ezUInt32 rowIdx = 0; rowIdx < imageHeader.GetHeight(); ++rowIdx)
             {
-              ezMemoryUtils::Copy(destPixels, sourcePixels, bytesPerRow);
+              ezMemoryUtils::Copy(destPixels, sourcePixels, static_cast<size_t>(bytesPerRow));
 
               destPixels += destRowPitch;
               sourcePixels += sourceImage->rowPitch;

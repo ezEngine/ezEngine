@@ -773,14 +773,14 @@ namespace ezConversionUtils
     {
       if (uiLen == 7 || uiLen == 9) // #RRGGBB or #RRGGBBAA
       {
-        ezInt32 cv[4] = {0, 0, 0, 255};
+        ezUInt8 cv[4] = {0, 0, 0, 255};
 
-        cv[0] = (HexCharacterToIntValue(*(szColorName + 1)) << 4) | HexCharacterToIntValue(*(szColorName + 2));
-        cv[1] = (HexCharacterToIntValue(*(szColorName + 3)) << 4) | HexCharacterToIntValue(*(szColorName + 4));
-        cv[2] = (HexCharacterToIntValue(*(szColorName + 5)) << 4) | HexCharacterToIntValue(*(szColorName + 6));
+        cv[0] = static_cast<ezUInt8>((HexCharacterToIntValue(*(szColorName + 1)) << 4) | HexCharacterToIntValue(*(szColorName + 2)));
+        cv[1] = static_cast<ezUInt8>((HexCharacterToIntValue(*(szColorName + 3)) << 4) | HexCharacterToIntValue(*(szColorName + 4)));
+        cv[2] = static_cast<ezUInt8>((HexCharacterToIntValue(*(szColorName + 5)) << 4) | HexCharacterToIntValue(*(szColorName + 6)));
 
         if (uiLen == 9)
-          cv[3] = (HexCharacterToIntValue(*(szColorName + 7)) << 4) | HexCharacterToIntValue(*(szColorName + 8));
+          cv[3] = static_cast<ezUInt8>((HexCharacterToIntValue(*(szColorName + 7)) << 4) | HexCharacterToIntValue(*(szColorName + 8)));
 
         if (out_ValidColorName)
           *out_ValidColorName = true;

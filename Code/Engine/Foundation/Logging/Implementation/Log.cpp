@@ -51,7 +51,7 @@ ezLogBlock::ezLogBlock(const char* szName, const char* szContextInfo)
   m_pParentBlock = m_pLogInterface->m_pCurrentBlock;
   m_pLogInterface->m_pCurrentBlock = this;
 
-  m_iBlockDepth = m_pParentBlock ? (m_pParentBlock->m_iBlockDepth + 1) : 0;
+  m_uiBlockDepth = m_pParentBlock ? (m_pParentBlock->m_uiBlockDepth + 1) : 0;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   m_fSeconds = ezTime::Now().GetSeconds();
@@ -73,7 +73,7 @@ ezLogBlock::ezLogBlock(ezLogInterface* pInterface, const char* szName, const cha
   m_pParentBlock = m_pLogInterface->m_pCurrentBlock;
   m_pLogInterface->m_pCurrentBlock = this;
 
-  m_iBlockDepth = m_pParentBlock ? (m_pParentBlock->m_iBlockDepth + 1) : 0;
+  m_uiBlockDepth = m_pParentBlock ? (m_pParentBlock->m_uiBlockDepth + 1) : 0;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   m_fSeconds = ezTime::Now().GetSeconds();
@@ -102,7 +102,7 @@ void ezLog::EndLogBlock(ezLogInterface* pInterface, ezLogBlock* pBlock)
     ezLoggingEventData le;
     le.m_EventType = ezLogMsgType::EndGroup;
     le.m_szText = pBlock->m_szName;
-    le.m_uiIndentation = pBlock->m_iBlockDepth;
+    le.m_uiIndentation = pBlock->m_uiBlockDepth;
     le.m_szTag = pBlock->m_szContextInfo;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     le.m_fSeconds = pBlock->m_fSeconds;
@@ -124,7 +124,7 @@ void ezLog::WriteBlockHeader(ezLogInterface* pInterface, ezLogBlock* pBlock)
   ezLoggingEventData le;
   le.m_EventType = ezLogMsgType::BeginGroup;
   le.m_szText = pBlock->m_szName;
-  le.m_uiIndentation = pBlock->m_iBlockDepth;
+  le.m_uiIndentation = pBlock->m_uiBlockDepth;
   le.m_szTag = pBlock->m_szContextInfo;
 
   pInterface->HandleLogMessage(le);
@@ -133,11 +133,11 @@ void ezLog::WriteBlockHeader(ezLogInterface* pInterface, ezLogBlock* pBlock)
 void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum type, const char* szString)
 {
   ezLogBlock* pTopBlock = pInterface->m_pCurrentBlock;
-  ezInt32 iIndentation = 0;
+  ezUInt8 uiIndentation = 0;
 
   if (pTopBlock)
   {
-    iIndentation = pTopBlock->m_iBlockDepth + 1;
+    uiIndentation = pTopBlock->m_uiBlockDepth + 1;
 
     WriteBlockHeader(pInterface, pTopBlock);
   }
@@ -166,7 +166,7 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
   ezLoggingEventData le;
   le.m_EventType = type;
   le.m_szText = szString;
-  le.m_uiIndentation = iIndentation;
+  le.m_uiIndentation = uiIndentation;
   le.m_szTag = szTag;
 
   pInterface->HandleLogMessage(le);

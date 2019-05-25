@@ -295,7 +295,7 @@ void ezWorldWriter::WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<con
       // version 7
       {
         ezUInt8 userFlags = 0;
-        for (ezUInt32 i = 0; i < 8; ++i)
+        for (ezUInt8 i = 0; i < 8; ++i)
         {
           userFlags |= pComp->GetUserFlag(i) ? EZ_BIT(i) : 0;
         }
