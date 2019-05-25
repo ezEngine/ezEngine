@@ -77,10 +77,10 @@ public:
 
 EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
 {
-  ezInt32 iWorkersShort = 4;
-  ezInt32 iWorkersLong = 4;
+  ezInt8 iWorkersShort = 4;
+  ezInt8 iWorkersLong = 4;
 
-  ezTaskSystem::SetWorkThreadCount(iWorkersShort, iWorkersLong);
+  ezTaskSystem::SetWorkerThreadCount(iWorkersShort, iWorkersLong);
   ezThreadUtils::Sleep(ezTime::Milliseconds(500));
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Single Tasks")
