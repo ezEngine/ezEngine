@@ -87,15 +87,27 @@ ezResourceTypeLoader* ezResourceManager::GetResourceTypeLoader(const ezRTTI* pRT
 
 void ezResourceManager::AddResourceCleanupCallback(ResourceCleanupCB cb)
 {
-  if (!s_ResourceCleanupCallbacks.Contains(cb))
+  EZ_ASSERT_DEV(!cb.IsHeapAllocated(), "Delegates with captures are not allowed");
+
+  for (ezUInt32 i = 0; i < s_ResourceCleanupCallbacks.GetCount(); ++i)
   {
-    s_ResourceCleanupCallbacks.PushBack(cb);
+    if (s_ResourceCleanupCallbacks[i].IsEqualIfNotHeapAllocated(cb))
+      return;
   }
+
+  s_ResourceCleanupCallbacks.PushBack(cb);
 }
 
 void ezResourceManager::ClearResourceCleanupCallback(ResourceCleanupCB cb)
 {
-  s_ResourceCleanupCallbacks.RemoveAndSwap(cb);
+  for (ezUInt32 i = 0; i < s_ResourceCleanupCallbacks.GetCount(); ++i)
+  {
+    if (s_ResourceCleanupCallbacks[i].IsEqualIfNotHeapAllocated(cb))
+    {
+      s_ResourceCleanupCallbacks.RemoveAtAndSwap(i);
+      return;
+    }
+  }
 }
 
 void ezResourceManager::ExecuteAllResourceCleanupCallbacks()
@@ -495,6 +507,36 @@ ezString ezResourceManager::GenerateUniqueResourceID(const char* prefix)
   return resourceID;
 }
 
+ezTypelessResourceHandle ezResourceManager::GetExistingResourceByType(const ezRTTI* pResourceType, const char* szResourceID)
+{
+  ezResource* pResource = nullptr;
+
+  const ezTempHashedString sResourceHash(szResourceID);
+
+  EZ_LOCK(s_ResourceMutex);
+
+  const ezRTTI* pRtti = FindResourceTypeOverride(pResourceType, szResourceID);
+
+  if (s_LoadedResources[pRtti].m_Resources.TryGetValue(sResourceHash, pResource))
+    return ezTypelessResourceHandle(pResource);
+
+  return ezTypelessResourceHandle();
+}
+
+void ezResourceManager::ForceLoadResourceNow(const ezTypelessResourceHandle& hResource)
+{
+  EZ_ASSERT_DEV(hResource.IsValid(), "Cannot access an invalid resource");
+
+  ezResource* pResource = hResource.m_pResource;
+
+  if (pResource->GetLoadingState() != ezResourceState::LoadedResourceMissing && pResource->GetLoadingState() != ezResourceState::Loaded)
+  {
+    InternalPreloadResource(pResource, true);
+
+    EnsureResourceLoadingState(hResource.m_pResource, ezResourceState::Loaded);
+  }
+}
+
 void ezResourceManager::RegisterNamedResource(const char* szLookupName, const char* szRedirectionResource)
 {
   EZ_LOCK(s_ResourceMutex);
@@ -570,4 +612,13 @@ void ezResourceManager::EnableExportMode(bool enable)
   s_bExportMode = enable;
 }
 
+void ezResourceManager::RestoreResource(const ezTypelessResourceHandle& hResource)
+{
+  EZ_ASSERT_DEV(hResource.IsValid(), "Cannot access an invalid resource");
+
+  ezResource* pResource = hResource.m_pResource;
+  pResource->m_Flags.Remove(ezResourceFlags::PreventFileReload);
+
+  ReloadResource(pResource, true);
+}
 EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_ResourceManager);

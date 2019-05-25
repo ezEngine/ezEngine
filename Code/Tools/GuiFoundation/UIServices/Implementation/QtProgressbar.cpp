@@ -15,6 +15,7 @@ ezQtProgressbar::ezQtProgressbar() = default;
 ezQtProgressbar::~ezQtProgressbar()
 {
   SetProgressbar(nullptr);
+  EnsureDestroyed();
 }
 
 void ezQtProgressbar::SetProgressbar(ezProgress* pProgress)
@@ -95,10 +96,15 @@ void ezQtProgressbar::EnsureCreated()
   if (QApplication::activeWindow())
   {
 #if EZ_ENABLED(USE_WIN_EXTRAS)
+    auto ClearPointers = [this]() {
+      m_pWinTaskBarButton = nullptr;
+      m_pWinTaskBarProgress = nullptr;
+    };
     m_pWinTaskBarButton = new QWinTaskbarButton(QApplication::activeWindow());
     m_pWinTaskBarButton->setWindow(QApplication::activeWindow()->windowHandle());
-
+    m_OnButtonDestroyed = QObject::connect(m_pWinTaskBarButton, &QObject::destroyed, ClearPointers);
     m_pWinTaskBarProgress = m_pWinTaskBarButton->progress();
+    m_OnProgressDestroyed = QObject::connect(m_pWinTaskBarProgress, &QObject::destroyed, ClearPointers);
     m_pWinTaskBarProgress->setMinimum(0);
     m_pWinTaskBarProgress->setMaximum(1000);
     m_pWinTaskBarProgress->setValue(0);
@@ -120,12 +126,14 @@ void ezQtProgressbar::EnsureDestroyed()
 #if EZ_ENABLED(USE_WIN_EXTRAS)
   if (m_pWinTaskBarProgress)
   {
+    QObject::disconnect(m_OnProgressDestroyed);
     m_pWinTaskBarProgress->hide();
     m_pWinTaskBarProgress = nullptr;
   }
 
   if (m_pWinTaskBarButton)
   {
+    QObject::disconnect(m_OnButtonDestroyed);
     delete m_pWinTaskBarButton;
     m_pWinTaskBarButton = nullptr;
   }

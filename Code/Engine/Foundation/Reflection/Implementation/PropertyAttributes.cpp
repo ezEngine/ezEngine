@@ -275,8 +275,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezManipulatorAttribute::ezManipulatorAttribute(const char* szProperty1, const char* szProperty2 /*= nullptr*/,
-                                               const char* szProperty3 /*= nullptr*/, const char* szProperty4 /*= nullptr*/,
-                                               const char* szProperty5 /*= nullptr*/, const char* szProperty6 /*= nullptr*/)
+  const char* szProperty3 /*= nullptr*/, const char* szProperty4 /*= nullptr*/, const char* szProperty5 /*= nullptr*/,
+  const char* szProperty6 /*= nullptr*/)
 {
   m_sProperty1 = szProperty1;
   m_sProperty2 = szProperty2;
@@ -302,12 +302,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezSphereManipulatorAttribute::ezSphereManipulatorAttribute()
-    : ezManipulatorAttribute(nullptr)
+  : ezManipulatorAttribute(nullptr)
 {
 }
 
 ezSphereManipulatorAttribute::ezSphereManipulatorAttribute(const char* szOuterRadius, const char* szInnerRadius)
-    : ezManipulatorAttribute(szOuterRadius, szInnerRadius)
+  : ezManipulatorAttribute(szOuterRadius, szInnerRadius)
 {
 }
 
@@ -326,12 +326,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezCapsuleManipulatorAttribute::ezCapsuleManipulatorAttribute()
-    : ezManipulatorAttribute(nullptr)
+  : ezManipulatorAttribute(nullptr)
 {
 }
 
 ezCapsuleManipulatorAttribute::ezCapsuleManipulatorAttribute(const char* szLength, const char* szRadius)
-    : ezManipulatorAttribute(szLength, szRadius)
+  : ezManipulatorAttribute(szLength, szRadius)
 {
 }
 
@@ -351,12 +351,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezBoxManipulatorAttribute::ezBoxManipulatorAttribute()
-    : ezManipulatorAttribute(nullptr)
+  : ezManipulatorAttribute(nullptr)
 {
 }
 
-ezBoxManipulatorAttribute::ezBoxManipulatorAttribute(const char* szSize)
-    : ezManipulatorAttribute(szSize)
+ezBoxManipulatorAttribute::ezBoxManipulatorAttribute(
+  const char* szSizeProperty, const char* szOffsetProperty, const char* szRotationProperty)
+  : ezManipulatorAttribute(szSizeProperty, szOffsetProperty, szRotationProperty)
 {
 }
 
@@ -376,19 +377,18 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezNonUniformBoxManipulatorAttribute::ezNonUniformBoxManipulatorAttribute()
-    : ezManipulatorAttribute(nullptr)
+  : ezManipulatorAttribute(nullptr)
 {
 }
 
 ezNonUniformBoxManipulatorAttribute::ezNonUniformBoxManipulatorAttribute(const char* szNegXProp, const char* szPosXProp,
-                                                                         const char* szNegYProp, const char* szPosYProp,
-                                                                         const char* szNegZProp, const char* szPosZProp)
-    : ezManipulatorAttribute(szNegXProp, szPosXProp, szNegYProp, szPosYProp, szNegZProp, szPosZProp)
+  const char* szNegYProp, const char* szPosYProp, const char* szNegZProp, const char* szPosZProp)
+  : ezManipulatorAttribute(szNegXProp, szPosXProp, szNegYProp, szPosYProp, szNegZProp, szPosZProp)
 {
 }
 
 ezNonUniformBoxManipulatorAttribute::ezNonUniformBoxManipulatorAttribute(const char* szSizeX, const char* szSizeY, const char* szSizeZ)
-    : ezManipulatorAttribute(szSizeX, szSizeY, szSizeZ)
+  : ezManipulatorAttribute(szSizeX, szSizeY, szSizeZ)
 {
 }
 
@@ -407,12 +407,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezConeLengthManipulatorAttribute::ezConeLengthManipulatorAttribute()
-    : ezManipulatorAttribute(nullptr)
+  : ezManipulatorAttribute(nullptr)
 {
 }
 
 ezConeLengthManipulatorAttribute::ezConeLengthManipulatorAttribute(const char* szRadiusProperty)
-    : ezManipulatorAttribute(szRadiusProperty)
+  : ezManipulatorAttribute(szRadiusProperty)
 {
 }
 
@@ -438,13 +438,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezConeAngleManipulatorAttribute::ezConeAngleManipulatorAttribute()
-    : ezManipulatorAttribute(nullptr)
+  : ezManipulatorAttribute(nullptr)
 {
   m_fScale = 1.0f;
 }
 
 ezConeAngleManipulatorAttribute::ezConeAngleManipulatorAttribute(const char* szAngleProperty, float fScale, const char* szRadiusProperty)
-    : ezManipulatorAttribute(szAngleProperty, szRadiusProperty)
+  : ezManipulatorAttribute(szAngleProperty, szRadiusProperty)
 {
   m_fScale = fScale;
 }
@@ -464,13 +464,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezTransformManipulatorAttribute::ezTransformManipulatorAttribute()
-    : ezManipulatorAttribute(nullptr)
+  : ezManipulatorAttribute(nullptr)
 {
 }
 
-ezTransformManipulatorAttribute::ezTransformManipulatorAttribute(const char* szTranslateProperty, const char* szRotateProperty,
-                                                                 const char* szScaleProperty)
-    : ezManipulatorAttribute(szTranslateProperty, szRotateProperty, szScaleProperty)
+ezTransformManipulatorAttribute::ezTransformManipulatorAttribute(
+  const char* szTranslateProperty, const char* szRotateProperty, const char* szScaleProperty)
+  : ezManipulatorAttribute(szTranslateProperty, szRotateProperty, szScaleProperty)
 {
 }
 
@@ -492,8 +492,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezVisualizerAttribute::ezVisualizerAttribute(const char* szProperty1, const char* szProperty2 /*= nullptr*/,
-                                             const char* szProperty3 /*= nullptr*/, const char* szProperty4 /*= nullptr*/,
-                                             const char* szProperty5 /*= nullptr*/)
+  const char* szProperty3 /*= nullptr*/, const char* szProperty4 /*= nullptr*/, const char* szProperty5 /*= nullptr*/)
 {
   m_sProperty1 = szProperty1;
   m_sProperty2 = szProperty2;
@@ -526,18 +525,25 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezBoxVisualizerAttribute::ezBoxVisualizerAttribute()
-    : ezVisualizerAttribute(nullptr)
+  : ezVisualizerAttribute(nullptr)
 {
 }
 
 ezBoxVisualizerAttribute::ezBoxVisualizerAttribute(const char* szSizeProperty, const char* szColorProperty /*= nullptr*/,
-                                                   const ezColor& fixedColor /*= ezColor::MediumVioletRed*/,
-                                                   const char* szOffsetProperty /*= nullptr*/,
-                                                   ezVec3 fixedOffset /*= ezVec3::ZeroVector()*/)
-    : ezVisualizerAttribute(szSizeProperty, szColorProperty, szOffsetProperty)
+  const ezColor& fixedColor /*= ezColor::MediumVioletRed*/, const char* szOffsetProperty /*= nullptr*/,
+  ezVec3 fixedOffset /*= ezVec3::ZeroVector()*/)
+  : ezVisualizerAttribute(szSizeProperty, szColorProperty, szOffsetProperty)
 {
   m_Color = fixedColor;
   m_vOffset = fixedOffset;
+}
+
+ezBoxVisualizerAttribute::ezBoxVisualizerAttribute(const char* szSizeProperty, const char* szOffsetProperty, const char* szRotationProperty,
+  const char* szColorProperty /*= nullptr*/, const ezColor& fixedColor /*= ezColor::MediumVioletRed*/)
+  : ezVisualizerAttribute(szSizeProperty, szColorProperty, szOffsetProperty, szRotationProperty)
+{
+  m_Color = fixedColor;
+  m_vOffset.SetZero();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -564,15 +570,14 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezSphereVisualizerAttribute::ezSphereVisualizerAttribute()
-    : ezVisualizerAttribute(nullptr)
+  : ezVisualizerAttribute(nullptr)
 {
 }
 
 ezSphereVisualizerAttribute::ezSphereVisualizerAttribute(const char* szRadiusProperty, const char* szColorProperty /*= nullptr*/,
-                                                         const ezColor& fixedColor /*= ezColor::MediumVioletRed*/,
-                                                         const char* szOffsetProperty /*= nullptr*/,
-                                                         ezVec3 fixedOffset /*= ezVec3::ZeroVector()*/)
-    : ezVisualizerAttribute(szRadiusProperty, szColorProperty, szOffsetProperty)
+  const ezColor& fixedColor /*= ezColor::MediumVioletRed*/, const char* szOffsetProperty /*= nullptr*/,
+  ezVec3 fixedOffset /*= ezVec3::ZeroVector()*/)
+  : ezVisualizerAttribute(szRadiusProperty, szColorProperty, szOffsetProperty)
 {
   m_vOffset = fixedOffset;
   m_Color = fixedColor;
@@ -600,20 +605,20 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezCapsuleVisualizerAttribute::ezCapsuleVisualizerAttribute()
-    : ezVisualizerAttribute(nullptr)
+  : ezVisualizerAttribute(nullptr)
 {
 }
 
-ezCapsuleVisualizerAttribute::ezCapsuleVisualizerAttribute(const char* szHeightProperty, const char* szRadiusProperty,
-                                                           const char* szColorProperty)
-    : ezVisualizerAttribute(szHeightProperty, szRadiusProperty, szColorProperty)
+ezCapsuleVisualizerAttribute::ezCapsuleVisualizerAttribute(
+  const char* szHeightProperty, const char* szRadiusProperty, const char* szColorProperty)
+  : ezVisualizerAttribute(szHeightProperty, szRadiusProperty, szColorProperty)
 {
   m_Color = ezColor::MediumVioletRed;
 }
 
-ezCapsuleVisualizerAttribute::ezCapsuleVisualizerAttribute(const char* szHeightProperty, const char* szRadiusProperty,
-                                                           const ezColor& fixedColor /*= ezColor::MediumVioletRed*/)
-    : ezVisualizerAttribute(szHeightProperty, szRadiusProperty)
+ezCapsuleVisualizerAttribute::ezCapsuleVisualizerAttribute(
+  const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor /*= ezColor::MediumVioletRed*/)
+  : ezVisualizerAttribute(szHeightProperty, szRadiusProperty)
 {
   m_Color = fixedColor;
 }
@@ -642,16 +647,14 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezCylinderVisualizerAttribute::ezCylinderVisualizerAttribute()
-    : ezVisualizerAttribute(nullptr)
+  : ezVisualizerAttribute(nullptr)
 {
 }
 
 ezCylinderVisualizerAttribute::ezCylinderVisualizerAttribute(ezEnum<ezBasisAxis> axis, const char* szHeightProperty,
-                                                             const char* szRadiusProperty, const char* szColorProperty /*= nullptr*/,
-                                                             const ezColor& fixedColor /*= ezColor::MediumVioletRed*/,
-                                                             const char* szOffsetProperty /*= nullptr*/,
-                                                             ezVec3 fixedOffset /*= ezVec3::ZeroVector()*/)
-    : ezVisualizerAttribute(szHeightProperty, szRadiusProperty, szColorProperty, szOffsetProperty)
+  const char* szRadiusProperty, const char* szColorProperty /*= nullptr*/, const ezColor& fixedColor /*= ezColor::MediumVioletRed*/,
+  const char* szOffsetProperty /*= nullptr*/, ezVec3 fixedOffset /*= ezVec3::ZeroVector()*/)
+  : ezVisualizerAttribute(szHeightProperty, szRadiusProperty, szColorProperty, szOffsetProperty)
 {
   m_Axis = axis;
   m_Color = fixedColor;
@@ -684,15 +687,15 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute()
-    : ezVisualizerAttribute(nullptr)
+  : ezVisualizerAttribute(nullptr)
 {
   m_Axis = ezBasisAxis::PositiveX;
   m_fScale = 1.0f;
 }
 
-ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(ezEnum<ezBasisAxis> axis, float fScale, const char* szColorProperty,
-                                                               const char* szLengthProperty /*= nullptr*/)
-    : ezVisualizerAttribute(szColorProperty, szLengthProperty)
+ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(
+  ezEnum<ezBasisAxis> axis, float fScale, const char* szColorProperty, const char* szLengthProperty /*= nullptr*/)
+  : ezVisualizerAttribute(szColorProperty, szLengthProperty)
 {
   m_Axis = axis;
   m_fScale = fScale;
@@ -700,9 +703,8 @@ ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(ezEnum<ezBasisAxi
 }
 
 ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(ezEnum<ezBasisAxis> axis, float fScale,
-                                                               const ezColor& fixedColor /*= ezColor::MediumVioletRed*/,
-                                                               const char* szLengthProperty /*= nullptr*/)
-    : ezVisualizerAttribute(nullptr, szLengthProperty)
+  const ezColor& fixedColor /*= ezColor::MediumVioletRed*/, const char* szLengthProperty /*= nullptr*/)
+  : ezVisualizerAttribute(nullptr, szLengthProperty)
 {
   m_Axis = axis;
   m_fScale = fScale;
@@ -733,7 +735,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezConeVisualizerAttribute::ezConeVisualizerAttribute()
-    : ezVisualizerAttribute(nullptr)
+  : ezVisualizerAttribute(nullptr)
 {
   m_Axis = ezBasisAxis::PositiveX;
   m_Color = ezColor::Red;
@@ -741,9 +743,8 @@ ezConeVisualizerAttribute::ezConeVisualizerAttribute()
 }
 
 ezConeVisualizerAttribute::ezConeVisualizerAttribute(ezEnum<ezBasisAxis> axis, const char* szAngleProperty, float fScale,
-                                                     const char* szRadiusProperty, const char* szColorProperty,
-                                                     const ezColor& fixedColor /*= ezColor::MediumVioletRed*/)
-    : ezVisualizerAttribute(szAngleProperty, szRadiusProperty, szColorProperty)
+  const char* szRadiusProperty, const char* szColorProperty, const ezColor& fixedColor /*= ezColor::MediumVioletRed*/)
+  : ezVisualizerAttribute(szAngleProperty, szRadiusProperty, szColorProperty)
 {
   m_Axis = axis;
   m_Color = fixedColor;
@@ -767,14 +768,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezCameraVisualizerAttribute::ezCameraVisualizerAttribute()
-    : ezVisualizerAttribute(nullptr)
+  : ezVisualizerAttribute(nullptr)
 {
 }
 
 ezCameraVisualizerAttribute::ezCameraVisualizerAttribute(const char* szModeProperty, const char* szFovProperty,
-                                                         const char* szOrthoDimProperty, const char* szNearPlaneProperty,
-                                                         const char* szFarPlaneProperty)
-    : ezVisualizerAttribute(szModeProperty, szFovProperty, szOrthoDimProperty, szNearPlaneProperty, szFarPlaneProperty)
+  const char* szOrthoDimProperty, const char* szNearPlaneProperty, const char* szFarPlaneProperty)
+  : ezVisualizerAttribute(szModeProperty, szFovProperty, szOrthoDimProperty, szNearPlaneProperty, szFarPlaneProperty)
 {
 }
 
@@ -823,4 +823,3 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 //////////////////////////////////////////////////////////////////////////
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_PropertyAttributes);
-

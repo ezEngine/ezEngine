@@ -135,6 +135,14 @@ Only concrete and clocks.\n\
     ezStringBuilder dir = sOutputFile2;
     dir.ToLower();
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    // On Windows the drive letter will always be turned upper case by ezOSFile::GetFileCasing()
+    // ensure that our input data ('ground truth') also uses an upper case drive letter
+    auto driveLetterIterator = sOutputFile2.GetIteratorFront();
+    const ezUInt32 uiDriveLetter = ezStringUtils::ToUpperChar(driveLetterIterator.GetCharacter());
+    sOutputFile2.ChangeCharacter(driveLetterIterator, uiDriveLetter);
+#endif
+
     ezStringBuilder sCorrected;
     EZ_TEST_BOOL(ezOSFile::GetFileCasing(dir.GetData(), sCorrected) == EZ_SUCCESS);
 

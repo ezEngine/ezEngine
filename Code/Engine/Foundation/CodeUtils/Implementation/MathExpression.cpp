@@ -186,7 +186,8 @@ namespace
 
     if (tokens[uiCurToken]->m_DataView.GetElementCount() != 1)
       return false;
-    char operatorChar = tokens[uiCurToken]->m_DataView.GetData()[0];
+
+    ezUInt32 operatorChar = tokens[uiCurToken]->m_DataView.GetCharacter();
 
     switch (operatorChar)
     {

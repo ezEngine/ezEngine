@@ -23,7 +23,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezSoundBankAssetDocument::ezSoundBankAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezSoundBankAssetProperties>(szDocumentPath)
+    : ezSimpleAssetDocument<ezSoundBankAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 

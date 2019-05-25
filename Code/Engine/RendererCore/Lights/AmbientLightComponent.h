@@ -2,7 +2,7 @@
 
 #include <Core/World/SettingsComponent.h>
 #include <Core/World/SettingsComponentManager.h>
-#include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/RendererCoreDLL.h>
 
 struct ezMsgUpdateLocalBounds;
 
@@ -31,15 +31,14 @@ public:
   float GetIntensity() const;
 
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
 private:
+  void UpdateSkyIrradiance();
 
   ezColorGammaUB m_TopColor;
   ezColorGammaUB m_BottomColor;
   float m_fIntensity;
 };
-

@@ -1,6 +1,7 @@
 #pragma once
-#include <EditorFramework/EditorFrameworkDLL.h>
+
 #include <EditorFramework/Document/GameObjectDocument.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 
 struct EZ_EDITORFRAMEWORK_DLL ezGameObjectContextEvent
 {
@@ -11,11 +12,13 @@ struct EZ_EDITORFRAMEWORK_DLL ezGameObjectContextEvent
   };
   Type m_Type;
 };
+
 class EZ_EDITORFRAMEWORK_DLL ezGameObjectContextDocument : public ezGameObjectDocument
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectContextDocument, ezGameObjectDocument);
+
 public:
-  ezGameObjectContextDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, bool bUseEngineConnection = true, bool bUseIPCObjectMirror = true);
+  ezGameObjectContextDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType = ezAssetDocEngineConnection::FullObjectMirroring);
   ~ezGameObjectContextDocument();
 
   ezStatus SetContext(ezUuid documentGuid, ezUuid objectGuid);

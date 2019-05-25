@@ -111,3 +111,7 @@ void ezSkyLightComponent::DeserializeComponent(ezWorldReader& stream)
 
   m_ReflectionProbeData.Deserialize(s);
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_SkyLightComponent);
+

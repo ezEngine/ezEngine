@@ -148,3 +148,7 @@ void ezReflectionFilterPass::UpdateIrradianceConstantBuffer()
   constants->Saturation = m_fSaturation;
   constants->OutputIndex = m_uiOutputIndex;
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_ReflectionFilterPass);
+

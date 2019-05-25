@@ -7,6 +7,11 @@ EZ_STATICLINK_LIBRARY(Foundation)
 
   EZ_STATICLINK_REFERENCE(Foundation_Algorithm_Implementation_HashHelperString);
   EZ_STATICLINK_REFERENCE(Foundation_Algorithm_Implementation_HashingUtils);
+  EZ_STATICLINK_REFERENCE(Foundation_Application_Config_Implementation_FileSystemConfig);
+  EZ_STATICLINK_REFERENCE(Foundation_Application_Config_Implementation_PluginConfig);
+  EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_Application);
+  EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_MainLoop);
+  EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_uwp_Application_uwp);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Assert);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Basics);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_IncludeAll);
@@ -42,10 +47,16 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Configuration_Implementation_Plugin);
   EZ_STATICLINK_REFERENCE(Foundation_Configuration_Implementation_Singleton);
   EZ_STATICLINK_REFERENCE(Foundation_Configuration_Implementation_Startup);
+  EZ_STATICLINK_REFERENCE(Foundation_Containers_Implementation_Blob);
   EZ_STATICLINK_REFERENCE(Foundation_DataProcessing_Stream_DefaultImplementations_Implementation_ZeroInitializer);
   EZ_STATICLINK_REFERENCE(Foundation_DataProcessing_Stream_Implementation_ProcessingStream);
   EZ_STATICLINK_REFERENCE(Foundation_DataProcessing_Stream_Implementation_ProcessingStreamGroup);
   EZ_STATICLINK_REFERENCE(Foundation_DataProcessing_Stream_Implementation_ProcessingStreamProcessor);
+  EZ_STATICLINK_REFERENCE(Foundation_IO_Archive_Implementation_Archive);
+  EZ_STATICLINK_REFERENCE(Foundation_IO_Archive_Implementation_ArchiveBuilder);
+  EZ_STATICLINK_REFERENCE(Foundation_IO_Archive_Implementation_ArchiveReader);
+  EZ_STATICLINK_REFERENCE(Foundation_IO_Archive_Implementation_ArchiveUtils);
+  EZ_STATICLINK_REFERENCE(Foundation_IO_Archive_Implementation_DataDirTypeArchive);
   EZ_STATICLINK_REFERENCE(Foundation_IO_FileSystem_Implementation_DataDirType);
   EZ_STATICLINK_REFERENCE(Foundation_IO_FileSystem_Implementation_DataDirTypeFolder);
   EZ_STATICLINK_REFERENCE(Foundation_IO_FileSystem_Implementation_DeferredFileWriter);
@@ -61,6 +72,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_JSONParser);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_JSONReader);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_JSONWriter);
+  EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_MemoryMappedFile);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_MemoryStream);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_OSFile);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_OpenDdlParser);
@@ -68,8 +80,10 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_OpenDdlUtils);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_OpenDdlWriter);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_StandardJSONWriter);
+  EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_Stream);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_StreamOperations);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_StreamOperationsOther);
+  EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_StringDeduplicationContext);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_ConsoleWriter);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_HTMLWriter);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_Log);
@@ -111,8 +125,11 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_StringBuilder);
   EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_StringConversion);
   EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_StringUtils);
+  EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_StringView);
   EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_TranslationLookup);
   EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_snprintf);
+  EZ_STATICLINK_REFERENCE(Foundation_System_Implementation_Process);
+  EZ_STATICLINK_REFERENCE(Foundation_System_Implementation_ProcessGroup);
   EZ_STATICLINK_REFERENCE(Foundation_System_Implementation_SystemInformation);
   EZ_STATICLINK_REFERENCE(Foundation_System_Implementation_UuidGenerator);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_OSThread);
@@ -136,7 +153,10 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Types_Implementation_VarianceTypes);
   EZ_STATICLINK_REFERENCE(Foundation_Types_Implementation_Variant);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_CommandLineUtils);
+  EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Compression);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_ConversionUtils);
+  EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_DGMLWriter);
+  EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_ExceptionHandler);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_GraphicsUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Node);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Progress);

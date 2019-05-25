@@ -60,13 +60,13 @@ const ezAbstractObjectGraph* ezPrefabCache::GetCachedPrefabGraph(const ezUuid& d
 
 void ezPrefabCache::LoadGraph(ezAbstractObjectGraph& out_graph, ezStringView sGraph)
 {
-  ezUInt64 uiHash = ezHashingUtils::xxHash64(sGraph.GetData(), sGraph.GetElementCount());
+  ezUInt64 uiHash = ezHashingUtils::xxHash64(sGraph.GetStartPointer(), sGraph.GetElementCount());
   auto it = m_CachedGraphs.Find(uiHash);
   if (!it.IsValid())
   {
     it = m_CachedGraphs.Insert(uiHash, ezUniquePtr<ezAbstractObjectGraph>(EZ_DEFAULT_NEW(ezAbstractObjectGraph)));
 
-    ezRawMemoryStreamReader stringReader(sGraph.GetData(), sGraph.GetElementCount());
+    ezRawMemoryStreamReader stringReader(sGraph.GetStartPointer(), sGraph.GetElementCount());
     ezUniquePtr<ezAbstractObjectGraph> header;
     ezUniquePtr<ezAbstractObjectGraph> types;
     ezAbstractGraphDdlSerializer::ReadDocument(stringReader, header, it.Value(), types, true);

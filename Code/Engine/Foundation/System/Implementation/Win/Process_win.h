@@ -114,6 +114,12 @@ ezOsProcessID ezProcess::GetProcessID() const
   return m_impl->m_ProcessID;
 }
 
+ezOsProcessID ezProcess::GetCurrentProcessID()
+{
+  const ezOsProcessID processID = GetCurrentProcessId();
+  return processID;
+}
+
 ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaunchFlags> launchFlags /*= ezAsyncProcessFlags::None*/)
 {
   EZ_ASSERT_DEV(m_impl->m_ProcessHandle == nullptr, "Cannot reuse an instance of ezProcess");

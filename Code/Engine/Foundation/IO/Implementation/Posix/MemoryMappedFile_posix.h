@@ -29,6 +29,12 @@ ezResult ezMemoryMappedFile::Open(const char* szAbsolutePath, Mode mode)
   return EZ_FAILURE;
 }
 
+ezResult ezMemoryMappedFile::OpenShared(const char* szSharedName, ezUInt64 uiSize, Mode mode)
+{
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return EZ_FAILURE;
+}
+
 void ezMemoryMappedFile::Close()
 {
   m_Impl = EZ_DEFAULT_NEW(ezMemoryMappedFileImpl);

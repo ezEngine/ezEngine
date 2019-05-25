@@ -55,9 +55,13 @@ public:
   /// \brief Returns the number of the ezWindow over which the mouse moved last.
   static ezInt32 GetWindowNumberMouseIsOver() { return m_iMouseIsOverWindowNumber; }
 
+  /// \brief Returns if the associated ezWindow has focus
+  bool IsFocused() { return m_bIsFocused; }
+
 protected:
   ezVec2 m_vMouseScale;
 
   static ezInt32 m_iMouseIsOverWindowNumber;
+  bool m_bIsFocused = true;
 };
 

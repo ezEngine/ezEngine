@@ -131,11 +131,25 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 
-void ezQtEditorApp::StartupEditor(bool bHeadless)
+void ezQtEditorApp::StartupEditor()
+{
+  ezBitflags<StartupFlags> flags;
+  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-safe"))
+    flags.Add(StartupFlags::SafeMode);
+  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-norecent"))
+    flags.Add(StartupFlags::NoRecent);
+  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-debug"))
+    flags.Add(StartupFlags::Debug);
+
+  StartupEditor(flags);
+}
+
+void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* szUserDataFolder)
 {
   EZ_PROFILE_SCOPE("StartupEditor");
-  m_bHeadless = bHeadless;
-  if (!bHeadless)
+
+  m_bHeadless = flags.IsSet(StartupFlags::Headless);
+  if (!m_bHeadless)
   {
     // ezUniquePtr does not work with forward declared classes :-(
     m_pProgressbar = EZ_DEFAULT_NEW(ezProgress);
@@ -151,8 +165,8 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
     ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-fs_off");
   }
 
-  m_bSafeMode = ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-safe");
-  const bool bNoRecent = m_bSafeMode || bHeadless || ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-norecent");
+  m_bSafeMode = flags.IsSet(StartupFlags::SafeMode);
+  const bool bNoRecent = m_bSafeMode || m_bHeadless || flags.IsSet(StartupFlags::NoRecent);
 
   ezString sApplicationName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-appname", 0, "ezEditor");
   ezApplicationServices::GetSingleton()->SetApplicationName(sApplicationName);
@@ -161,14 +175,14 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
 
   s_pEngineViewProcess = new ezEditorEngineProcessConnection;
 
-  s_pEngineViewProcess->SetWaitForDebugger(ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-debug"));
+  s_pEngineViewProcess->SetWaitForDebugger(flags.IsSet(StartupFlags::Debug));
 
   QCoreApplication::setOrganizationDomain("www.ezEngine.net");
   QCoreApplication::setOrganizationName("ezEngine Project");
   QCoreApplication::setApplicationName(ezApplicationServices::GetSingleton()->GetApplicationName());
   QCoreApplication::setApplicationVersion("1.0.0");
 
-  if (!bHeadless)
+  if (!m_bHeadless)
   {
     EZ_PROFILE_SCOPE("ezQtContainerWindow");
     SetStyleSheet();
@@ -190,8 +204,11 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
   {
     EZ_PROFILE_SCOPE("Filesystem");
     const ezString sAppDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
-    const ezString sUserData = ezApplicationServices::GetSingleton()->GetApplicationUserDataFolder();
-
+    ezString sUserData = ezApplicationServices::GetSingleton()->GetApplicationUserDataFolder();
+    if (!ezStringUtils::IsNullOrEmpty(szUserDataFolder))
+    {
+      sUserData = szUserDataFolder;
+    }
     // make sure these folders exist
     ezFileSystem::CreateDirectoryStructure(sAppDir);
     ezFileSystem::CreateDirectoryStructure(sUserData);
@@ -229,7 +246,7 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
 
   ezQtUiServices::GetSingleton()->LoadState();
 
-  if (!bHeadless)
+  if (!m_bHeadless)
   {
     ezActionManager::LoadShortcutAssignment();
 
@@ -254,10 +271,20 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
       CreateOrOpenProject(false, s_RecentProjects.GetFileList()[0].m_File);
     }
   }
+
+  connect(m_pTimer, SIGNAL(timeout()), this, SLOT(SlotTimedUpdate()), Qt::QueuedConnection);
+  m_pTimer->start(1);
 }
 
 void ezQtEditorApp::ShutdownEditor()
 {
+  ezToolsProject::CloseProject();
+
+  if (!m_bHeadless)
+  {
+    m_WhatsNew.StoreLastRead();
+  }
+
   SaveSettings();
 
   ezToolsProject::CloseProject();
@@ -318,6 +345,9 @@ void ezQtEditorApp::ShutdownEditor()
 
   ezTranslationLookup::Clear();
 
+  ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
+  ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  ezGlobalLog::RemoveLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
   m_LogHTML.EndLog();
 
   EZ_DEFAULT_DELETE(m_pQtProgressbar);

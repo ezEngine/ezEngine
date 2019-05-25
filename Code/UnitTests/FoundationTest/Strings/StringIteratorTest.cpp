@@ -208,7 +208,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
     TestConstruction<ezString>(sTextString, sTextString.GetData(), sTextString.GetData() + sTextString.GetElementCount());
     TestConstruction<ezStringBuilder>(sTestStringBuilder, sTestStringBuilder.GetData(),
                                       sTestStringBuilder.GetData() + sTestStringBuilder.GetElementCount());
-    TestConstruction<ezStringView>(view, view.GetStartPosition(), view.GetEndPosition());
+    TestConstruction<ezStringView>(view, view.GetStartPointer(), view.GetEndPointer());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Operators")
@@ -216,7 +216,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
     TestOperators<ezString>(sTextString, sTextString.GetData(), sTextString.GetData() + sTextString.GetElementCount());
     TestOperators<ezStringBuilder>(sTestStringBuilder, sTestStringBuilder.GetData(),
                                    sTestStringBuilder.GetData() + sTestStringBuilder.GetElementCount());
-    TestOperators<ezStringView>(view, view.GetStartPosition(), view.GetEndPosition());
+    TestOperators<ezStringView>(view, view.GetStartPointer(), view.GetEndPointer());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Loops")
@@ -224,6 +224,6 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
     TestLoops<ezString>(sTextString, sTextString.GetData(), sTextString.GetData() + sTextString.GetElementCount());
     TestLoops<ezStringBuilder>(sTestStringBuilder, sTestStringBuilder.GetData(),
                                sTestStringBuilder.GetData() + sTestStringBuilder.GetElementCount());
-    TestLoops<ezStringView>(view, view.GetStartPosition(), view.GetEndPosition());
+    TestLoops<ezStringView>(view, view.GetStartPointer(), view.GetEndPointer());
   }
 }

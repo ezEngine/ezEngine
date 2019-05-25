@@ -3,8 +3,8 @@
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
-#include <Core/Application/Config/FileSystemConfig.h>
-#include <Core/Application/Config/PluginConfig.h>
+#include <Foundation/Application/Config/FileSystemConfig.h>
+#include <Foundation/Application/Config/PluginConfig.h>
 #include <RendererCore/Pipeline/Declarations.h>
 #include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Logging/LogEntry.h>
@@ -91,6 +91,26 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSimpleConfigMsgToEngine : public ezE
 public:
   ezString m_sWhatToDo;
   ezString m_sPayload;
+};
+
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezResourceUpdateMsgToEngine : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezResourceUpdateMsgToEngine, ezEditorEngineMsg);
+
+public:
+  ezString m_sResourceType;
+  ezString m_sResourceID;
+  ezDataBuffer m_Data;
+};
+
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezRestoreResourceMsgToEngine : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezRestoreResourceMsgToEngine, ezEditorEngineMsg);
+public:
+
+  ezString m_sResourceType;
+  ezString m_sResourceID;
+
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezChangeCVarMsgToEngine : public ezEditorEngineMsg

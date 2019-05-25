@@ -5,6 +5,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
+#include <Foundation/Utilities/ExceptionHandler.h>
 #include <Foundation/Utilities/StackTracer.h>
 #include <TestFramework/Utilities/TestOrder.h>
 
@@ -21,6 +22,8 @@ ezTestFramework* ezTestFramework::s_pInstance = nullptr;
 const char* ezTestFramework::s_szTestBlockName = "";
 int ezTestFramework::s_iAssertCounter = 0;
 bool ezTestFramework::s_bCallstackOnAssert = false;
+
+constexpr int s_iMaxErrorMessageLength = 512;
 
 static void PrintCallstack(const char* szText)
 {
@@ -44,13 +47,17 @@ static bool TestAssertHandler(
   }
   ezTestFramework::Error(szExpression, szSourceFile, (ezInt32)uiLine, szFunction, szAssertMsg);
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   // if a debugger is attached, one typically always wants to know about asserts
-  if (IsDebuggerPresent())
+  if (ezSystemInformation::IsDebuggerAttached())
     return true;
-#endif
 
   return ezTestFramework::GetAssertOnTestFail();
+}
+
+static bool EmptyAssertHandler(
+  const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
+{
+  return false;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -83,7 +90,11 @@ void ezTestFramework::Initialize()
   {
     // if the UI is run with GUI disabled, set the environment variable EZ_SILENT_ASSERTS
     // to make sure that no child process that the tests launch shows an assert dialog in case of a crash
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     _putenv("EZ_SILENT_ASSERTS=1");
+#else
+    putenv("EZ_SILENT_ASSERTS=1");
+#endif
   }
 
   // Don't do this, it will spam the log with sub-system messages
@@ -120,6 +131,9 @@ void ezTestFramework::Initialize()
 void ezTestFramework::DeInitialize()
 {
   m_bIsInitialized = false;
+
+  ezSetAssertHandler(m_PreviousAssertHandler);
+  m_PreviousAssertHandler = nullptr;
 }
 
 const char* ezTestFramework::GetTestName() const
@@ -164,10 +178,8 @@ void ezTestFramework::SetImageDiffExtraInfoCallback(ImageDiffExtraInfoCallback p
 
 bool ezTestFramework::GetAssertOnTestFail()
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  if (!IsDebuggerPresent())
+  if (!ezSystemInformation::IsDebuggerAttached())
     return false;
-#endif
 
   return s_pInstance->m_Settings.m_bAssertOnTestFail;
 }
@@ -332,6 +344,51 @@ void ezTestFramework::SetAllFailedTestsEnabledStatus()
   }
 }
 
+void ezTestFramework::SetTestTimeout(ezUInt32 testTimeoutMS)
+{
+  std::scoped_lock lock(m_timeoutLock);
+  m_timeoutMS = testTimeoutMS;
+  m_timeoutCV.notify_one();
+}
+
+void ezTestFramework::TimeoutThread()
+{
+  std::unique_lock<std::mutex> lock(m_timeoutLock);
+  while (m_useTimeout)
+  {
+    if (m_timeoutMS == 0)
+    {
+      // If no timeout is set, we simply put the thread to sleep.
+      m_timeoutCV.wait(lock, [this] { return !m_useTimeout; });
+    }
+    // We want to be notified when we reach the timeout and not when we are spuriously woken up.
+    // Thus we continue waiting via the predicate if we are still using a timeout until we are either
+    // woken up via the CV or reach the timeout.
+    else if (!m_timeoutCV.wait_for(lock, std::chrono::milliseconds(m_timeoutMS), [this] { return !m_useTimeout; }))
+    {
+      if (ezSystemInformation::IsDebuggerAttached())
+      {
+        // Should we attach a debugger mid run and reach the timeout we obviously do not want to terminate.
+        continue;
+      }
+
+      // CV was not signaled until the timeout was reached.
+      ezTestFramework::Output(ezTestOutput::Error, "Timeout reached, terminating app.");
+
+      ezExceptionHandler::WriteDump();
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+      // Make sure that Windows doesn't show a default message box when we call abort
+      _set_abort_behavior(0, _WRITE_ABORT_MSG);
+#endif
+      // The OS will still call destructors for our objects (even though we called abort ... what a pointless design).
+      // Our code might assert on destruction, so make sure our assert handler doesn't show anything.
+      ezSetAssertHandler(EmptyAssertHandler);
+      abort();
+    }
+  }
+}
+
 void ezTestFramework::ResetTests()
 {
   m_iErrorCount = 0;
@@ -417,8 +474,12 @@ void ezTestFramework::StartTests()
 {
   ResetTests();
   m_bTestsRunning = true;
-
   ezTestFramework::Output(ezTestOutput::StartOutput, "");
+
+  // Start timeout thread.
+  std::scoped_lock lock(m_timeoutLock);
+  m_useTimeout = true;
+  m_timeoutThread = std::thread(&ezTestFramework::TimeoutThread, this);
 }
 
 // Redirects engine warnings / errors to test-framework output
@@ -494,6 +555,7 @@ void ezTestFramework::ExecuteNextTest()
       // *** Test Initialization ***
       if (TestEntry.m_available.Succeeded())
       {
+        m_timeoutCV.notify_one();
         if (pTestClass->DoTestInitialization().Failed())
         {
           m_iExecutingSubTest = (ezInt32)TestEntry.m_SubTests.size(); // make sure all subtests are skipped
@@ -537,6 +599,7 @@ void ezTestFramework::ExecuteNextTest()
         ezTestFramework::Output(ezTestOutput::BeginBlock, "Executing Sub-Test: '%s'", subTest.m_szSubTestName);
 
         // *** Sub-Test Initialization ***
+        m_timeoutCV.notify_one();
         m_bSubTestInitialized = pTestClass->DoSubTestInitialization(iSubTestIdentifier).Succeeded();
       }
 
@@ -550,6 +613,7 @@ void ezTestFramework::ExecuteNextTest()
         // start with 1
         ++m_uiSubTestInvocationCount;
 
+        m_timeoutCV.notify_one();
         subTestResult = pTestClass->DoSubTestRun(iSubTestIdentifier, fDuration, m_uiSubTestInvocationCount);
 
         if (m_bImageComparisonScheduled)
@@ -569,6 +633,7 @@ void ezTestFramework::ExecuteNextTest()
       if (subTestResult == ezTestAppRun::Quit)
       {
         // *** Sub-Test De-Initialization ***
+        m_timeoutCV.notify_one();
         pTestClass->DoSubTestDeInitialization(iSubTestIdentifier);
 
         bool bSubTestSuccess = m_bSubTestInitialized && (m_Result.GetErrorMessageCount(m_iExecutingTest, m_iExecutingSubTest) == 0);
@@ -590,6 +655,7 @@ void ezTestFramework::ExecuteNextTest()
     if (m_iExecutingSubTest >= (ezInt32)TestEntry.m_SubTests.size())
     {
       // *** Test De-Initialization ***
+      m_timeoutCV.notify_one();
       pTestClass->DoTestDeInitialization();
       // Third and last flush of assert counter, these are all asserts for the test de-init.
       FlushAsserts();
@@ -610,9 +676,6 @@ void ezTestFramework::ExecuteNextTest()
 
 void ezTestFramework::EndTests()
 {
-  ezSetAssertHandler(m_PreviousAssertHandler);
-  m_PreviousAssertHandler = nullptr;
-
   m_bTestsRunning = false;
   if (GetTestsFailedCount() == 0)
     ezTestFramework::Output(ezTestOutput::FinalResult, "All tests passed.");
@@ -625,6 +688,14 @@ void ezTestFramework::EndTests()
   m_iExecutingTest = -1;
   m_iExecutingSubTest = -1;
   m_bAbortTests = false;
+
+  // Stop timeout thread.
+  {
+    std::scoped_lock lock(m_timeoutLock);
+    m_useTimeout = false;
+    m_timeoutCV.notify_one();
+  }
+  m_timeoutThread.join();
 }
 
 void ezTestFramework::AbortTests()
@@ -865,6 +936,16 @@ void ezTestFramework::GetCurrentComparisonImageName(ezStringBuilder& sImgName)
   GenerateComparisonImageName(m_uiComparisonImageNumber, sImgName);
 }
 
+void ezTestFramework::SetImageReferenceFolderName(const char* szFolderName)
+{
+  m_sImageReferenceFolderName = szFolderName;
+}
+
+void ezTestFramework::SetImageReferenceOverrideFolderName(const char* szFolderName)
+{
+  m_sImageReferenceOverrideFolderName = szFolderName;
+}
+
 static const ezUInt8 s_Base64EncodingTable[64] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
   'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
   't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
@@ -946,6 +1027,7 @@ static ezDynamicArray<char> ArrayToBase64(ezArrayPtr<const ezUInt8> in, bool ins
     }
   }
 
+  EZ_ASSERT_DEV(offsetOut == out.GetCount(), "All output data should have been written");
   return out;
 }
 
@@ -1126,12 +1208,28 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
   ezImage imgRgba;
   if (ezImageConversion::Convert(img, imgRgba, ezImageFormat::R8G8B8A8_UNORM).Failed())
   {
-    safeprintf(szErrorMsg, 512, "Captured Image '%s' could not be converted to RGBA8", sImgName.GetData());
+    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Captured Image '%s' could not be converted to RGBA8", sImgName.GetData());
     return false;
   }
 
   ezStringBuilder sImgPathReference, sImgPathResult;
-  sImgPathReference.Format("Images_Reference/{0}.png", sImgName);
+
+  if (!m_sImageReferenceOverrideFolderName.empty())
+  {
+    sImgPathReference.Format("{0}/{1}.png", m_sImageReferenceOverrideFolderName.c_str(), sImgName);
+
+    if (!ezFileSystem::ExistsFile(sImgPathReference))
+    {
+      // try the regular path
+      sImgPathReference.Clear();
+    }
+  }
+
+  if (sImgPathReference.IsEmpty())
+  {
+    sImgPathReference.Format("{0}/{1}.png", m_sImageReferenceFolderName.c_str(), sImgName);
+  }
+
   sImgPathResult.Format(":imgout/Images_Result/{0}.png", sImgName);
 
   ezImage imgExp, imgExpRgba;
@@ -1139,7 +1237,7 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
   {
     imgRgba.SaveTo(sImgPathResult);
 
-    safeprintf(szErrorMsg, 512, "Comparison Image '%s' could not be read", sImgPathReference.GetData());
+    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' could not be read", sImgPathReference.GetData());
     return false;
   }
 
@@ -1147,7 +1245,7 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
   {
     imgRgba.SaveTo(sImgPathResult);
 
-    safeprintf(szErrorMsg, 512, "Comparison Image '%s' could not be converted to RGBA8", sImgPathReference.GetData());
+    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' could not be converted to RGBA8", sImgPathReference.GetData());
     return false;
   }
 
@@ -1155,7 +1253,7 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
   {
     imgRgba.SaveTo(sImgPathResult);
 
-    safeprintf(szErrorMsg, 512, "Comparison Image '%s' size (%ix%i) does not match captured image size (%ix%i)",
+    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' size (%ix%i) does not match captured image size (%ix%i)",
       sImgPathReference.GetData(), imgRgba.GetWidth(), imgRgba.GetHeight(), imgExpRgba.GetWidth(), imgExpRgba.GetHeight());
     return false;
   }
@@ -1201,8 +1299,8 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
     WriteImageDiffHtml(sDiffHtmlPath, imgExpRgb, imgExpAlpha, imgRgb, imgAlpha, imgDiffRgb, imgDiffAlpha, uiMeanError, uiMaxError,
       uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
 
-    safeprintf(szErrorMsg, 512, "Image Comparison Failed: Error of %u exceeds threshold of %u for image '%s'.", uiMeanError, uiMaxError,
-      sImgName.GetData());
+    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Image Comparison Failed: Error of %u exceeds threshold of %u for image '%s'.",
+      uiMeanError, uiMaxError, sImgName.GetData());
 
     ezStringBuilder sDataDirRelativePath;
     ezFileSystem::ResolvePath(sDiffHtmlPath, nullptr, &sDataDirRelativePath);
@@ -1221,11 +1319,33 @@ bool ezTestFramework::CompareImages(ezUInt32 uiImageNumber, ezUInt32 uiMaxError,
   ezImage img;
   if (GetTest(GetCurrentTestIndex())->m_pTest->GetImage(img).Failed())
   {
-    safeprintf(szErrorMsg, 512, "Image '%s' could not be captured", sImgName.GetData());
+    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Image '%s' could not be captured", sImgName.GetData());
     return false;
   }
 
-  bool bImagesMatch = PerformImageComparison(sImgName, img, uiMaxError, szErrorMsg);
+  bool bImagesMatch = true;
+  if (img.GetNumArrayIndices() <= 1)
+  {
+    bImagesMatch = PerformImageComparison(sImgName, img, uiMaxError, szErrorMsg);
+  }
+  else
+  {
+    ezStringBuilder lastError;
+    for (ezUInt32 i = 0; i < img.GetNumArrayIndices(); ++i)
+    {
+      ezStringBuilder subImageName;
+      subImageName.AppendFormat("{0}_{1}", sImgName, i);
+      if (!PerformImageComparison(subImageName, img.GetSubImageView(0, 0, i), uiMaxError, szErrorMsg))
+      {
+        bImagesMatch = false;
+        if (!lastError.IsEmpty())
+        {
+          ezTestFramework::Output(ezTestOutput::Error, "%s", lastError.GetData());
+        }
+        lastError = szErrorMsg;
+      }
+    }
+  }
 
   if (m_ImageComparisonCallback)
   {
@@ -1412,27 +1532,27 @@ ezResult ezTestFiles(
 {
   ezTestFramework::s_iAssertCounter++;
 
-  char szErrorText[512];
+  char szErrorText[s_iMaxErrorMessageLength];
 
   ezFileReader ReadFile1;
   ezFileReader ReadFile2;
 
   if (ReadFile1.Open(szFile1) == EZ_FAILURE)
   {
-    safeprintf(szErrorText, 512, "Failure: File '%s' could not be read.", szFile1);
+    safeprintf(szErrorText, s_iMaxErrorMessageLength, "Failure: File '%s' could not be read.", szFile1);
 
     OUTPUT_TEST_ERROR
   }
   else if (ReadFile2.Open(szFile2) == EZ_FAILURE)
   {
-    safeprintf(szErrorText, 512, "Failure: File '%s' could not be read.", szFile2);
+    safeprintf(szErrorText, s_iMaxErrorMessageLength, "Failure: File '%s' could not be read.", szFile2);
 
     OUTPUT_TEST_ERROR
   }
 
   else if (ReadFile1.GetFileSize() != ReadFile2.GetFileSize())
   {
-    safeprintf(szErrorText, 512, "Failure: File sizes do not match: '%s' (%llu Bytes) and '%s' (%llu Bytes)", szFile1,
+    safeprintf(szErrorText, s_iMaxErrorMessageLength, "Failure: File sizes do not match: '%s' (%llu Bytes) and '%s' (%llu Bytes)", szFile1,
       ReadFile1.GetFileSize(), szFile2, ReadFile2.GetFileSize());
 
     OUTPUT_TEST_ERROR
@@ -1448,7 +1568,8 @@ ezResult ezTestFiles(
 
       if (uiRead1 != uiRead2)
       {
-        safeprintf(szErrorText, 512, "Failure: Files could not read same amount of data: '%s' and '%s'", szFile1, szFile2);
+        safeprintf(
+          szErrorText, s_iMaxErrorMessageLength, "Failure: Files could not read same amount of data: '%s' and '%s'", szFile1, szFile2);
 
         OUTPUT_TEST_ERROR
       }
@@ -1459,7 +1580,7 @@ ezResult ezTestFiles(
 
         if (memcmp(uiTemp1, uiTemp2, (size_t)uiRead1) != 0)
         {
-          safeprintf(szErrorText, 512, "Failure: Files contents do not match: '%s' and '%s'", szFile1, szFile2);
+          safeprintf(szErrorText, s_iMaxErrorMessageLength, "Failure: Files contents do not match: '%s' and '%s'", szFile1, szFile2);
 
           OUTPUT_TEST_ERROR
         }
@@ -1473,7 +1594,7 @@ ezResult ezTestFiles(
 ezResult ezTestImage(
   ezUInt32 uiImageNumber, ezUInt32 uiMaxError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
-  char szErrorText[512] = "";
+  char szErrorText[s_iMaxErrorMessageLength] = "";
 
   if (!ezTestFramework::GetInstance()->CompareImages(uiImageNumber, uiMaxError, szErrorText))
   {

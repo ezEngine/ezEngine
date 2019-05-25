@@ -37,7 +37,7 @@ static ezMat3 CalculateTransformationMatrix(const ezCollisionMeshAssetProperties
 }
 
 ezCollisionMeshAssetDocument::ezCollisionMeshAssetDocument(const char* szDocumentPath, bool bConvexMesh)
-    : ezSimpleAssetDocument<ezCollisionMeshAssetProperties>(szDocumentPath, true)
+    : ezSimpleAssetDocument<ezCollisionMeshAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
 {
   m_bIsConvexMesh = bConvexMesh;
 }

@@ -1,6 +1,6 @@
 #include <EditorProcessorPCH.h>
 
-#include <Core/Application/Application.h>
+#include <Foundation/Application/Application.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <EditorFramework/Assets/AssetCurator.h>
@@ -92,7 +92,7 @@ public:
     SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
 #endif
 
-    ezQtEditorApp::GetSingleton()->StartupEditor(true);
+    ezQtEditorApp::GetSingleton()->StartupEditor(ezQtEditorApp::StartupFlags::Headless);
     ezQtUiServices::SetHeadless(true);
 
     const ezStringBuilder sProject = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-project");

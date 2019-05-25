@@ -18,9 +18,9 @@ static const char* GenerateThreadName(ezWorkerThreadType::Enum ThreadType, ezUIn
       break;
     case ezWorkerThreadType::FileAccess:
       if (iThreadNumber > 0)
-        sTemp.Format("Resource Loading {0}", iThreadNumber + 1);
+        sTemp.Format("File Access {0}", iThreadNumber + 1);
       else
-        sTemp = "Resource Loading";
+        sTemp = "File Access";
       break;
     case ezWorkerThreadType::ENUM_COUNT:
       EZ_REPORT_FAILURE("Invalid Thread Type");
@@ -51,6 +51,19 @@ bool ezTaskSystem::IsLoadingThread()
   EZ_ASSERT_DEBUG(s_WorkerThreads[ezWorkerThreadType::FileAccess].GetCount() == 1,
                   "The number of loading threads cannot be changed without adjusting other code");
   return ezThreadUtils::GetCurrentThreadID() == s_WorkerThreads[ezWorkerThreadType::FileAccess][0]->GetThreadID();
+}
+
+bool ezTaskSystem::IsLongRunningThread()
+{
+  for (auto pLongRunningThread : s_WorkerThreads[ezWorkerThreadType::LongTasks])
+  {
+    if (ezThreadUtils::GetCurrentThreadID() == pLongRunningThread->GetThreadID())
+    {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 void ezTaskSystem::StopWorkerThreads()
@@ -101,36 +114,36 @@ void ezTaskSystem::StopWorkerThreads()
   }
 }
 
-void ezTaskSystem::SetWorkThreadCount(ezInt32 iShortTasks, ezInt32 iLongTasks)
+void ezTaskSystem::SetWorkerThreadCount(ezInt8 iShortTasks, ezInt8 iLongTasks)
 {
   ezSystemInformation info = ezSystemInformation::Get();
 
   // these settings are supposed to be a sensible default for most applications
   // an app can of course change that to optimize for its own usage
 
-  // at least 2 threads, 4 on six cores and up
+  // at least 2 threads, 4 on six cores, 6 on eight cores and up
   if (iShortTasks <= 0)
-    iShortTasks = ezMath::Clamp<ezInt32>(static_cast<ezInt32>(info.GetCPUCoreCount() - 2), 2, 4);
+    iShortTasks = ezMath::Clamp<ezInt8>(info.GetCPUCoreCount() - 2, 2, 6);
 
   // at least 2 threads, 4 on six cores, 6 on eight cores and up
   if (iLongTasks <= 0)
-    iLongTasks = ezMath::Clamp<ezInt32>(static_cast<ezInt32>(info.GetCPUCoreCount() - 2), 2, 6);
+    iLongTasks = ezMath::Clamp<ezInt8>(info.GetCPUCoreCount() - 2, 2, 6);
 
   // plus there is always one additional 'file access' thread
   // and the main thread, of course
 
-  const ezUInt32 uiShortTasks = static_cast<ezUInt32>(ezMath::Max<ezInt32>(iShortTasks, 1));
-  const ezUInt32 uiLongTasks = static_cast<ezUInt32>(ezMath::Max<ezInt32>(iLongTasks, 1));
+  iShortTasks = ezMath::Max<ezInt8>(iShortTasks, 1);
+  iLongTasks = ezMath::Max<ezInt8>(iLongTasks, 1);
 
   // if nothing has changed, do nothing
-  if (s_WorkerThreads[ezWorkerThreadType::ShortTasks].GetCount() == uiShortTasks &&
-      s_WorkerThreads[ezWorkerThreadType::LongTasks].GetCount() == uiLongTasks)
+  if (s_WorkerThreads[ezWorkerThreadType::ShortTasks].GetCount() == iShortTasks &&
+      s_WorkerThreads[ezWorkerThreadType::LongTasks].GetCount() == iLongTasks)
     return;
 
   StopWorkerThreads();
 
-  s_WorkerThreads[ezWorkerThreadType::ShortTasks].SetCount(uiShortTasks);
-  s_WorkerThreads[ezWorkerThreadType::LongTasks].SetCount(uiLongTasks);
+  s_WorkerThreads[ezWorkerThreadType::ShortTasks].SetCount(iShortTasks);
+  s_WorkerThreads[ezWorkerThreadType::LongTasks].SetCount(iLongTasks);
   s_WorkerThreads[ezWorkerThreadType::FileAccess].SetCount(1);
 
   for (ezUInt32 type = 0; type < ezWorkerThreadType::ENUM_COUNT; ++type)
@@ -163,8 +176,6 @@ ezUInt32 ezTaskWorkerThread::Run()
 
   m_bExecutingTask = false;
 
-  ezTaskSystem::FireWorkerThreadStarted();
-
   while (m_bActive)
   {
     if (!m_bExecutingTask)
@@ -184,8 +195,6 @@ ezUInt32 ezTaskWorkerThread::Run()
     else
       m_iTasksExecutionCounter.Increment();
   }
-
-  ezTaskSystem::FireWorkerThreadStopped();
 
   return 0;
 }

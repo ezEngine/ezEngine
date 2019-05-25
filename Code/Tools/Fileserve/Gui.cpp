@@ -4,7 +4,7 @@
 
 #ifdef EZ_USE_QT
 
-#include <Core/Application/Application.h>
+#include <Foundation/Application/Application.h>
 #include <EditorPluginFileserve/FileserveUI/FileserveWidget.moc.h>
 #include <Gui.moc.h>
 #include <QTimer>

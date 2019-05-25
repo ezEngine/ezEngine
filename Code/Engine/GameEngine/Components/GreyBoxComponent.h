@@ -10,6 +10,7 @@ class ezMeshRenderData;
 class ezGeometry;
 struct ezMsgExtractRenderData;
 struct ezMsgBuildStaticMesh;
+struct ezMsgExtractGeometry;
 typedef ezTypedResourceHandle<class ezMeshResource> ezMeshResourceHandle;
 typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
 
@@ -90,6 +91,7 @@ public:
   float GetThickness() const { return m_fThickness; }
 
   void OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const;
+  void OnExtractGeometry(ezMsgExtractGeometry& msg) const;
 
 protected:
   ezEnum<ezGreyBoxShape> m_Shape;

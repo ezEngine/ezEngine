@@ -30,7 +30,7 @@ const char* ToCompressionMode(ezTexConvCompressionMode::Enum mode);
 const char* ToMipmapMode(ezTexConvMipmapMode::Enum mode);
 
 ezTextureCubeAssetDocument::ezTextureCubeAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezTextureCubeAssetProperties>(szDocumentPath, true)
+  : ezSimpleAssetDocument<ezTextureCubeAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
 {
   m_iTextureLod = -1;
 }

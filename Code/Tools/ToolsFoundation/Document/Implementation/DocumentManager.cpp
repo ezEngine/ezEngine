@@ -5,6 +5,10 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Serialization/RttiConverter.h>
+#include <Foundation/Serialization/DdlSerializer.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <ToolsFoundation/Document/DocumentUtils.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentManager, 1, ezRTTINoAllocator);
@@ -218,7 +222,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
       EZ_ASSERT_DEV(DocumentTypes[i]->m_bCanCreate, "This document manager cannot create the document type '{0}'", szDocumentTypeName);
 
       {
-        EZ_PROFILE_SCOPE("InternalCreateDocument");
+        EZ_PROFILE_SCOPE(szDocumentTypeName);
         status = InternalCreateDocument(szDocumentTypeName, sPath, bCreate, out_pDocument);
         EZ_ASSERT_DEV(status.m_Result == EZ_FAILURE || out_pDocument != nullptr,
                       "Status was success, but the document manager returned a nullptr document.");
@@ -289,6 +293,70 @@ ezStatus ezDocumentManager::OpenDocument(const char* szDocumentTypeName, const c
   ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
 {
   return CreateOrOpenDocument(false, szDocumentTypeName, szPath, out_pDocument, flags, pOpenContext);
+}
+
+
+ezStatus ezDocumentManager::CloneDocument(const char* szPath, const char* szClonePath, ezUuid& inout_cloneGuid)
+{
+  const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
+  ezStatus res = ezDocumentUtils::IsValidSaveLocationForDocument(szClonePath, &pTypeDesc);
+  if (res.Failed())
+    return res;
+
+  ezUniquePtr<ezAbstractObjectGraph> header;
+  ezUniquePtr<ezAbstractObjectGraph> objects;
+  ezUniquePtr<ezAbstractObjectGraph> types;
+
+  res = ezDocument::ReadDocument(szPath, header, objects, types);
+  if (res.Failed())
+    return res;
+
+  ezUuid documentId;
+  ezAbstractObjectNode::Property* documentIdProp = nullptr;
+  {
+    ezRttiConverterContext context;
+    ezRttiConverterReader rttiConverter(header.Borrow(), &context);
+    auto* pHeaderNode = header->GetNodeByName("Header");
+    EZ_ASSERT_DEV(pHeaderNode, "No header found, document '{0}' is corrupted.", szPath);
+    documentIdProp = pHeaderNode->FindProperty("DocumentID");
+    EZ_ASSERT_DEV(documentIdProp, "No document ID property found in header, document document '{0}' is corrupted.", szPath);
+    documentId = documentIdProp->m_Value.Get<ezUuid>();
+  }
+
+  ezUuid seedGuid;
+  if (inout_cloneGuid.IsValid())
+  {
+    seedGuid = inout_cloneGuid;
+    seedGuid.RevertCombinationWithSeed(documentId);
+
+    ezUuid test = documentId;
+    test.CombineWithSeed(seedGuid);
+    EZ_ASSERT_DEV(test == inout_cloneGuid, "");
+  }
+  else
+  {
+    seedGuid.CreateNewUuid();
+    inout_cloneGuid = documentId;
+    inout_cloneGuid.CombineWithSeed(seedGuid);
+  }
+
+  {
+    // Remap
+    header->ReMapNodeGuids(seedGuid);
+    objects->ReMapNodeGuids(seedGuid);
+    documentIdProp->m_Value = inout_cloneGuid;
+  }
+
+  {
+    ezDeferredFileWriter file;
+    file.SetOutput(szClonePath);
+    ezAbstractGraphDdlSerializer::WriteDocument(file, header.Borrow(), objects.Borrow(), types.Borrow(), false);
+    if (file.Close() == EZ_FAILURE)
+    {
+      return ezStatus(ezFmt("Unable to open file '{0}' for writing!", szClonePath));
+    }
+  }
+  return ezStatus(EZ_SUCCESS);
 }
 
 void ezDocumentManager::CloseDocument(ezDocument* pDocument)

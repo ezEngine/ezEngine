@@ -51,3 +51,7 @@ void ezTestLogInterface::ExpectMessage(const char* msg, ezLogMsgType::Enum type 
   em.m_iCount = count;
   em.m_Type = type;
 }
+
+
+EZ_STATICLINK_FILE(TestFramework, TestFramework_Utilities_TestLogInterface);
+

@@ -35,6 +35,7 @@ ezResult ezArchiveTOC::Serialize(ezStreamWriter& stream) const
 ezResult ezArchiveTOC::Deserialize(ezStreamReader& stream)
 {
   ezTypeVersion version = stream.ReadVersion(1);
+  EZ_IGNORE_UNUSED(version);
 
   EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_Entries));
 
@@ -68,3 +69,7 @@ ezResult ezArchiveEntry::Deserialize(ezStreamReader& stream)
 
   return EZ_SUCCESS;
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_Archive_Implementation_Archive);
+

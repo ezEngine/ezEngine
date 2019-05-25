@@ -6,6 +6,7 @@
 #include <ToolsFoundation/Reflection/PhantomRtti.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
+#include <Foundation/Profiling/Profiling.h>
 
 ezEvent<const ezPhantomRttiManagerEvent&> ezPhantomRttiManager::s_Events;
 
@@ -37,6 +38,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 const ezRTTI* ezPhantomRttiManager::RegisterType(ezReflectedTypeDescriptor& desc)
 {
+  EZ_PROFILE_SCOPE("RegisterType");
   ezRTTI* pType = ezRTTI::FindTypeByName(desc.m_sTypeName);
   ezPhantomRTTI* pPhantom = nullptr;
   m_NameToPhantom.TryGetValue(desc.m_sTypeName, pPhantom);

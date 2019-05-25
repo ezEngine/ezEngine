@@ -13,6 +13,7 @@
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
+#include <Foundation/Profiling/Profiling.h>
 
 EZ_IMPLEMENT_SINGLETON(ezVisualScriptTypeRegistry);
 
@@ -56,7 +57,15 @@ ezVisualScriptTypeRegistry::ezVisualScriptTypeRegistry()
     : m_SingletonRegistrar(this)
 {
   m_pBaseType = nullptr;
+  ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezVisualScriptTypeRegistry::PhantomTypeRegistryEventHandler, this));
+
 }
+
+
+ ezVisualScriptTypeRegistry::~ezVisualScriptTypeRegistry()
+ {
+   ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezVisualScriptTypeRegistry::PhantomTypeRegistryEventHandler, this));
+ }
 
 const ezVisualScriptNodeDescriptor* ezVisualScriptTypeRegistry::GetDescriptorForType(const ezRTTI* pRtti) const
 {
@@ -78,6 +87,8 @@ void ezVisualScriptTypeRegistry::PhantomTypeRegistryEventHandler(const ezPhantom
 
 void ezVisualScriptTypeRegistry::UpdateNodeTypes()
 {
+  EZ_PROFILE_SCOPE("UpdateNodeTypes");
+
   // Base Node Type
   if (m_pBaseType == nullptr)
   {
@@ -90,8 +101,6 @@ void ezVisualScriptTypeRegistry::UpdateNodeTypes()
     desc.m_uiTypeVersion = 1;
 
     m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
-
-    ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezVisualScriptTypeRegistry::PhantomTypeRegistryEventHandler, this));
   }
 
   auto& dynEnum = ezDynamicStringEnum::GetDynamicEnum("ComponentTypes");

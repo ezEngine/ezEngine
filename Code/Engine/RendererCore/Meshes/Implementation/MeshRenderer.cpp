@@ -4,14 +4,15 @@
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Pipeline/InstanceDataProvider.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderer, 1, ezRTTIDefaultAllocator<ezMeshRenderer>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderer, 1, ezRTTIDefaultAllocator<ezMeshRenderer>)
+  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezMeshRenderer::ezMeshRenderer() = default;
@@ -33,6 +34,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
   const ezMeshResourceHandle& hMesh = pRenderData->m_hMesh;
   const ezMaterialResourceHandle& hMaterial = pRenderData->m_hMaterial;
   const ezUInt32 uiPartIndex = pRenderData->m_uiSubMeshIndex;
+  const bool bHasExplicitInstanceData = pRenderData->m_pExplicitInstanceData != nullptr;
 
   ezResourceLock<ezMeshResource> pMesh(hMesh, ezResourceAcquireMode::AllowFallback);
 
@@ -43,7 +45,10 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
     return;
   }
 
-  ezInstanceData* pInstanceData = pPass->GetPipeline()->GetFrameDataProvider<ezInstanceDataProvider>()->GetData(renderViewContext);
+  ezInstanceData* pInstanceData = bHasExplicitInstanceData
+                                    ? pRenderData->m_pExplicitInstanceData
+                                    : pPass->GetPipeline()->GetFrameDataProvider<ezInstanceDataProvider>()->GetData(renderViewContext);
+
   pInstanceData->BindResources(pContext);
 
   if (pRenderData->m_uiFlipWinding)
@@ -75,47 +80,63 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
   pContext->BindMaterial(hMaterial);
   pContext->BindMeshBuffer(pMesh->GetMeshBuffer());
 
-  ezUInt32 uiStartIndex = 0;
-  while (uiStartIndex < batch.GetCount())
+  if (!bHasExplicitInstanceData)
   {
-    const ezUInt32 uiRemainingInstances = batch.GetCount() - uiStartIndex;
-
-    ezUInt32 uiInstanceDataOffset = 0;
-    ezArrayPtr<ezPerInstanceData> instanceData = pInstanceData->GetInstanceData(uiRemainingInstances, uiInstanceDataOffset);
-
-    ezUInt32 uiFilteredCount = 0;
-    FillPerInstanceData(instanceData, batch, uiStartIndex, uiFilteredCount);
-
-    if (uiFilteredCount > 0) // Instance data might be empty if all render data was filtered.
+    ezUInt32 uiStartIndex = 0;
+    while (uiStartIndex < batch.GetCount())
     {
-      pInstanceData->UpdateInstanceData(pContext, uiFilteredCount);
+      const ezUInt32 uiRemainingInstances = batch.GetCount() - uiStartIndex;
 
-      const ezMeshResourceDescriptor::SubMesh& meshPart = subMeshes[uiPartIndex];
+      ezUInt32 uiInstanceDataOffset = 0;
+      ezArrayPtr<ezPerInstanceData> instanceData = pInstanceData->GetInstanceData(uiRemainingInstances, uiInstanceDataOffset);
 
-      unsigned int uiRenderedInstances = uiFilteredCount;
-      if (renderViewContext.m_pCamera->IsStereoscopic())
-        uiRenderedInstances *= 2;
+      ezUInt32 uiFilteredCount = 0;
+      FillPerInstanceData(instanceData, batch, uiStartIndex, uiFilteredCount);
 
-      if (pContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive, uiRenderedInstances).Failed())
+      if (uiFilteredCount > 0) // Instance data might be empty if all render data was filtered.
       {
-        for (auto it = batch.GetIterator<ezMeshRenderData>(uiStartIndex, instanceData.GetCount()); it.IsValid(); ++it)
-        {
-          pRenderData = it;
+        pInstanceData->UpdateInstanceData(pContext, uiFilteredCount);
 
-          // draw bounding box instead
-          if (pRenderData->m_GlobalBounds.IsValid())
+        const ezMeshResourceDescriptor::SubMesh& meshPart = subMeshes[uiPartIndex];
+
+        unsigned int uiRenderedInstances = uiFilteredCount;
+        if (renderViewContext.m_pCamera->IsStereoscopic())
+          uiRenderedInstances *= 2;
+
+        if (pContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive, uiRenderedInstances).Failed())
+        {
+          for (auto it = batch.GetIterator<ezMeshRenderData>(uiStartIndex, instanceData.GetCount()); it.IsValid(); ++it)
           {
-            ezDebugRenderer::DrawLineBox(*renderViewContext.m_pViewDebugContext, pRenderData->m_GlobalBounds.GetBox(), ezColor::Magenta);
+            pRenderData = it;
+
+            // draw bounding box instead
+            if (pRenderData->m_GlobalBounds.IsValid())
+            {
+              ezDebugRenderer::DrawLineBox(*renderViewContext.m_pViewDebugContext, pRenderData->m_GlobalBounds.GetBox(), ezColor::Magenta);
+            }
           }
         }
       }
-    }
 
-    uiStartIndex += instanceData.GetCount();
+      uiStartIndex += instanceData.GetCount();
+    }
+  }
+  else
+  {
+    ezUInt32 uiInstanceCount = pRenderData->m_uiExplicitInstanceCount;
+
+    if (renderViewContext.m_pCamera->IsStereoscopic())
+      uiInstanceCount *= 2;
+
+    const ezMeshResourceDescriptor::SubMesh& meshPart = subMeshes[uiPartIndex];
+
+    // TODO: Handle failed draw call
+    pContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive, uiInstanceCount);
   }
 }
 
-void ezMeshRenderer::FillPerInstanceData(ezArrayPtr<ezPerInstanceData> instanceData, const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount)
+void ezMeshRenderer::FillPerInstanceData(
+  ezArrayPtr<ezPerInstanceData> instanceData, const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount)
 {
   ezUInt32 uiCount = ezMath::Min<ezUInt32>(instanceData.GetCount(), batch.GetCount() - uiStartIndex);
   ezUInt32 uiCurrentIndex = 0;
@@ -158,4 +179,3 @@ void ezMeshRenderer::FillPerInstanceData(ezArrayPtr<ezPerInstanceData> instanceD
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshRenderer);
-

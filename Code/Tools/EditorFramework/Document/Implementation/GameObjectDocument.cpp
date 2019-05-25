@@ -28,11 +28,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectDocument, 2, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezGameObjectDocument::ezGameObjectDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, bool bUseEngineConnection,
-                                           bool bUseIPCObjectMirror)
-    : ezAssetDocument(szDocumentPath, pObjectManager, bUseEngineConnection, bUseIPCObjectMirror)
+ezGameObjectDocument::ezGameObjectDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
+    : ezAssetDocument(szDocumentPath, pObjectManager, engineConnectionType)
 {
-  EZ_ASSERT_DEBUG(bUseEngineConnection && bUseIPCObjectMirror, "IPC mirror must be enabled for ezGameObjectDocument");
+  EZ_ASSERT_DEV(engineConnectionType == ezAssetDocEngineConnection::FullObjectMirroring, "ezGameObjectDocument only supports full mirroring engine connection types. The parameter only exists for interface compatibility.");
 
   m_CurrentMode.m_bRenderSelectionOverlay = true;
   m_CurrentMode.m_bRenderShapeIcons = true;

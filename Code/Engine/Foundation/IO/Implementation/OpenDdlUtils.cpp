@@ -685,7 +685,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       const ezStringView* pValues = pString->GetPrimitivesString();
 
       value.SetCountUninitialized(pValues[0].GetElementCount() / 2);
-      ezConversionUtils::ConvertHexToBinary(pValues[0].GetData(), value.GetData(), value.GetCount());
+      ezConversionUtils::ConvertHexToBinary(pValues[0].GetStartPointer(), value.GetData(), value.GetCount());
 
       out_result = value;
       return EZ_SUCCESS;

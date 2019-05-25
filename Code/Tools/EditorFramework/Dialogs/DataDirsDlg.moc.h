@@ -3,7 +3,7 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <QDialog>
 #include <Tools/EditorFramework/ui_DataDirsDlg.h>
-#include <Core/Application/Config/FileSystemConfig.h>
+#include <Foundation/Application/Config/FileSystemConfig.h>
 
 class EZ_EDITORFRAMEWORK_DLL ezQtDataDirsDlg : public QDialog, public Ui_ezQtDataDirsDlg
 {

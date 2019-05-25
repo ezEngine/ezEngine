@@ -141,7 +141,7 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
           else
           {
             // Row pitches don't match - copy row by row
-            ezUInt64 bytesPerRow = ezMath::Min(destRowPitch, sourceImage->rowPitch);
+            ezUInt64 bytesPerRow = ezMath::Min(destRowPitch, ezUInt64(sourceImage->rowPitch));
             const uint8_t* sourcePixels = sourceImage->pixels;
             for (ezUInt32 rowIdx = 0; rowIdx < imageHeader.GetHeight(); ++rowIdx)
             {
@@ -259,6 +259,6 @@ bool ezWicFileFormat::CanWriteFileType(const char* szExtension) const
   return CanReadFileType(szExtension);
 }
 
-EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_WicFileFormat);
-
 #endif
+
+EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_WicFileFormat);

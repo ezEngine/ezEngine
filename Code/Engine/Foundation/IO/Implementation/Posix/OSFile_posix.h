@@ -11,6 +11,7 @@
 #else
 #include <pwd.h>
 #include <sys/types.h>
+#include <limits.h>
 #include <unistd.h>
 #define EZ_USE_OLD_POSIX_FUNCTIONS EZ_OFF
 #endif
@@ -256,11 +257,10 @@ const char* ezOSFile::GetApplicationDirectory()
     CFRelease(appBundle);
 
 #else
-
-    EZ_ASSERT_DEV(ezCommandLineUtils::GetGlobalInstance()->GetParameterCount() > 0, "Command line arguments have not been passed along to ezCommandLineUtils");
-    ezStringBuilder path = ezCommandLineUtils::GetGlobalInstance()->GetParameter(0);
+    char result[PATH_MAX];
+    ssize_t length = readlink( "/proc/self/exe", result, PATH_MAX);
+    ezStringBuilder path(ezStringView(result, result + length));
     s_Path = path.GetFileDirectory();
-
 #endif
   }
 
@@ -287,7 +287,7 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder)
 {
   if (s_TempDataPath.IsEmpty())
   {
-    s_TempDataPath = GetUserDataFolder(".cache");
+    s_TempDataPath = GetUserDataFolder(".cache").GetData();
   }
 
   ezStringBuilder s = s_TempDataPath;

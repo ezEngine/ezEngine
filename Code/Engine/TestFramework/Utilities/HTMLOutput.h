@@ -129,6 +129,7 @@ struct ezOutputToHTML
 
       case ezTestOutput::Error:
         bError = true;
+        htmlFile.flush();
         // fall through
 
       case ezTestOutput::Warning:

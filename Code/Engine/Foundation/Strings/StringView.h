@@ -6,6 +6,8 @@
 
 #include <Foundation/Strings/Implementation/StringBase.h>
 
+class ezStringBuilder;
+
 /// \brief ezStringView represent a read-only sub-string of a larger string, as it can store a dedicated string end position.
 /// It derives from ezStringBase and thus provides a large set of functions for search and comparisons.
 ///
@@ -40,12 +42,15 @@ public:
   /// \brief Returns true, if the current string pointed to is non empty.
   bool IsValid() const; // [tested]
 
-  // no implicit conversion to ezStringParamImpl or const char* because the string view may not be zero terminated
-  // operator ezStringParamImpl () const;
+  // no implicit conversion to const char* because the string view may not be zero terminated
   // operator const char* () const { return GetData(); }
 
-  /// \brief Returns the string. May not be zero-terminated.
-  const char* GetData() const { return m_pStart; } // [tested]
+  /// \brief Returns the data as a zero-terminated string.
+  ///
+  /// The string will be copied to \a tempStorage and the pointer to that is returned.
+  /// If you really need the raw pointer to the ezStringView memory or are absolutely certain that the view points
+  /// to a zero-terminated string, you can use 
+  const char* GetData(ezStringBuilder& tempStorage) const; // [tested]
 
   /// \brief Returns the number of bytes from the start position up to its end.
   ///
@@ -58,13 +63,14 @@ public:
   void SetStartPosition(const char* szCurPos); // [tested]
 
   /// \brief Returns the start of the view range.
-  const char* GetStartPosition() const { return m_pStart; } // [tested]
+  /// \note Be careful to not use this and assume the view will be zero-terminated. Use GetData(ezStringBuilder&) instead to be safe.
+  const char* GetStartPointer() const { return m_pStart; } // [tested]
 
   /// \brief Returns the end of the view range. This will point to the byte AFTER the last character.
   ///
   /// That means it might point to the '\0' terminator, UNLESS the view only represents a sub-string of a larger string.
   /// Accessing the value at 'GetEnd' has therefore no real use.
-  const char* GetEndPosition() const { return m_pEnd; } // [tested]
+  const char* GetEndPointer() const { return m_pEnd; } // [tested]
 
   using ezStringBase<ezStringView>::IsEqual;
 
@@ -92,11 +98,15 @@ public:
   void Trim(const char* szTrimCharsStart, const char* szTrimCharsEnd); // [tested]
 
 private:
-  const char* m_pStart;
-  const char* m_pEnd;
+  friend struct ezStringBase<ezStringView>;
+
+  /// \brief Private because it does not guarantee zero-terminated results. Use the overload that takes an ezStringBuilder for storage.
+  const char* GetData() const;
+
+private:
+  const char* m_pStart = nullptr;
+  const char* m_pEnd = nullptr;
 };
-
-
 
 #include <Foundation/Strings/Implementation/StringView_inl.h>
 

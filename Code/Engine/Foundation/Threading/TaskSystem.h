@@ -139,7 +139,7 @@ public:
   /// this default configuration.
   /// Unless you have a good idea how to set up the number of worker threads to make good use of the available cores,
   /// it is a good idea to just use the default settings.
-  static void SetWorkThreadCount(ezInt32 iShortTasks = -1, ezInt32 iLongTasks = -1); // [tested]
+  static void SetWorkerThreadCount(ezInt8 iShortTasks = -1, ezInt8 iLongTasks = -1); // [tested]
 
   /// \brief Returns the number of threads that are allocated to work on the given type of task.
   static ezUInt32 GetWorkerThreadCount(ezWorkerThreadType::Enum Type) { return s_WorkerThreads[Type].GetCount(); }
@@ -174,8 +174,14 @@ public:
   /// won't get scheduled for execution, at all, until all its dependencies are actually finished.
   static void AddTaskGroupDependency(ezTaskGroupID Group, ezTaskGroupID DependsOn); // [tested]
 
+  /// \brief Same as AddTaskGroupDependency() but batches multiple dependency additions
+  static void AddTaskGroupDependencyBatch(ezArrayPtr<const ezTaskGroupDependency> batch);
+
   /// \brief Starts the task group. After this no further modifications on the group (new tasks or dependencies) are allowed.
   static void StartTaskGroup(ezTaskGroupID Group); // [tested]
+
+  /// \brief Same as StartTaskGroup() but batches multiple actions
+  static void StartTaskGroupBatch(ezArrayPtr<const ezTaskGroupID> batch);
 
   /// \brief Returns whether the given \a Group id refers to a task group that has been finished already.
   ///
@@ -248,6 +254,9 @@ public:
   /// If bWaitForIt is true, the function returns only after it is guaranteed that all tasks are properly terminated.
   static ezResult CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum OnTaskRunning = ezOnTaskRunning::WaitTillFinished); // [tested]
 
+  /// \brief Helps executing tasks that a suitable for the calling thread. Returns true if a task was found and executed. 
+  static bool HelpExecutingTasks();
+
   /// \brief Returns true when the thread that this function is executed on is the file loading thread.
   static bool IsLoadingThread();
 
@@ -262,18 +271,12 @@ public:
     return s_WorkerThreads[Type][iThread]->m_ThreadUtilization;
   }
 
-  /// \brief Subscribes to the worker thread started event. The callback will be called on each new started worker thread.
-  static void SubscribeToWorkerThreadStarted(ezDelegate<void()> callback);
-
-  /// \brief Subscribes to the worker thread stopped event. The callback will be called on each worker thread before it stops.
-  static void SubscribeToWorkerThreadStopped(ezDelegate<void()> callback);
-
   /// \brief Writes the internal state of the ezTaskSystem as a DGML graph.
   static void WriteStateSnapshotToDGML(ezDGMLGraph& graph);
 
   /// \brief Convenience function to write the task graph snapshot to a file. If no path is given, the file is written to
   /// ":appdata/TaskGraphs/__date__.dgml"
-  static void WriteStateSnapshotToDGML(const char* szPath = nullptr);
+  static void WriteStateSnapshotToFile(const char* szPath = nullptr);
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, TaskSystem);
@@ -305,6 +308,9 @@ private:
   // Is called whenever a dependency of pGroup has finished. Once all dependencies are finished, the group's tasks will get scheduled.
   static void DependencyHasFinished(ezTaskGroup* pGroup);
 
+  /// Returns true when the thread that this function is executed on is a worker thread for long running tasks.
+  static bool IsLongRunningThread();
+
   // Shuts down all worker threads. Does NOT finish the remaining tasks. Does not clear them either, though.
   static void StopWorkerThreads();
 
@@ -324,12 +330,6 @@ private:
   // fSmoothFrameMS.
   static void ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoothFrameMS);
 
-  // Executes the on worker thread started callbacks
-  static void FireWorkerThreadStarted();
-
-  // Executes the on worker thread stopped callbacks
-  static void FireWorkerThreadStopped();
-
 private:
   // *** Internal Data ***
 
@@ -341,9 +341,6 @@ private:
 
   // The lists of all scheduled tasks, for each priority.
   static ezList<TaskData> s_Tasks[ezTaskPriority::ENUM_COUNT];
-
-  static ezDynamicArray<ezDelegate<void()>> s_OnWorkerThreadStarted;
-  static ezDynamicArray<ezDelegate<void()>> s_OnWorkerThreadStopped;
 
   // Thread signals to wake up a worker thread of the proper type, whenever new work becomes available.
   static ezThreadSignal s_TasksAvailableSignal[ezWorkerThreadType::ENUM_COUNT];

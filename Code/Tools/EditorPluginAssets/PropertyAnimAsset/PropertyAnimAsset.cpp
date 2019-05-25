@@ -53,7 +53,7 @@ ezPropertyAnimationTrackGroup::~ezPropertyAnimationTrackGroup()
 
 ezPropertyAnimAssetDocument::ezPropertyAnimAssetDocument(const char* szDocumentPath)
     : ezSimpleAssetDocument<ezPropertyAnimationTrackGroup, ezGameObjectContextDocument>(EZ_DEFAULT_NEW(ezPropertyAnimObjectManager),
-                                                                                        szDocumentPath, true, true)
+                                                                                        szDocumentPath, ezAssetDocEngineConnection::FullObjectMirroring)
 {
   m_GameObjectContextEvents.AddEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::GameObjectContextEventHandler, this));
   m_pAccessor = EZ_DEFAULT_NEW(ezPropertyAnimObjectAccessor, this, GetCommandHistory());

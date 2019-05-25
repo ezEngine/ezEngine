@@ -18,6 +18,12 @@ Plugin
 }
 Plugin
 {
+	string %Path{"ezEnginePluginPhysX"}
+	bool %LoadCopy{false}
+	string %DependencyOf{"EditorPluginPhysX"}
+}
+Plugin
+{
 	string %Path{"ezEnginePluginScene"}
 	bool %LoadCopy{false}
 	string %DependencyOf{"EditorPluginScene"}
@@ -42,7 +48,13 @@ Plugin
 }
 Plugin
 {
-	string %Path{"ezProceduralPlacementPlugin"}
+	string %Path{"ezPhysXPlugin"}
 	bool %LoadCopy{false}
-	string %DependencyOf{"EditorPluginProceduralPlacement"}
+	string %DependencyOf{"EditorPluginPhysX"}
+}
+Plugin
+{
+	string %Path{"ezProcGenPlugin"}
+	bool %LoadCopy{false}
+	string %DependencyOf{"EditorPluginProcGen"}
 }

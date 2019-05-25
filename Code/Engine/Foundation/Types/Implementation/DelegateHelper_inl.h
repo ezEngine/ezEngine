@@ -21,7 +21,7 @@ struct ezLambdaDelegateStorage : public ezLambdaDelegateStorageBase
   }
 
 private:
-  template < typename = typename std::enable_if< std::is_copy_constructible<Function>::value >::type>
+  template < typename = typename std::enable_if< std::is_copy_constructible<Function>::value >>
   ezLambdaDelegateStorage(const Function& func)
     : m_func(func)
   {
@@ -182,15 +182,22 @@ public:
     return (*m_pDispatchFunction)(*this, params...);
   }
 
-  /// \brief Checks whether two delegates are bound to the exact same function, including the class instance.
+  /// \brief This function only exists to make code compile, but it will assert when used. Use IsEqualIfNotHeapAllocated() instead.
   EZ_ALWAYS_INLINE bool operator==(const SelfType& other) const
+  {
+    EZ_REPORT_FAILURE("operator== for ezDelegate must not be used. Use IsEqualIfNotHeapAllocated() and read its documentation!");
+    return false;
+  }
+
+  /// \brief Checks whether two delegates are bound to the exact same function, including the class instance.
+  /// \note If \a this or \a other or both return true for IsHeapAllocated(), the function always false!
+  /// Therefore, do not use this to search for delegates that are heap allocated. ezEvent uses this function, but goes to great lengths to
+  /// assert that it is used correctly. It is best to not use this function at all.
+  EZ_ALWAYS_INLINE bool IsEqualIfNotHeapAllocated(const SelfType& other) const
   {
     return m_pInstance.m_Ptr == other.m_pInstance.m_Ptr && m_pDispatchFunction == other.m_pDispatchFunction &&
            memcmp(m_Data, other.m_Data, DATA_SIZE) == 0;
   }
-
-  /// \brief Checks whether two delegates are bound to the exact same function, including the class instance.
-  EZ_ALWAYS_INLINE bool operator!=(const SelfType& other) const { return !(*this == other); }
 
   /// \brief Returns true when the delegate is bound to a valid non-nullptr function.
   EZ_ALWAYS_INLINE bool IsValid() const { return m_pDispatchFunction != nullptr; }

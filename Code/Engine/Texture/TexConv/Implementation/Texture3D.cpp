@@ -9,3 +9,7 @@ ezResult ezTexConvProcessor::Assemble3DTexture(ezImage& dst) const
 
   return ezImageUtils::CreateVolumeTextureFromSingleFile(dst, images[0]);
 }
+
+
+EZ_STATICLINK_FILE(Texture, Texture_TexConv_Implementation_Texture3D);
+

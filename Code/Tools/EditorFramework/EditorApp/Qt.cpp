@@ -79,14 +79,35 @@ void ezQtEditorApp::InitQt(int argc, char** argv)
   qInstallMessageHandler(QtDebugMessageHandler);
 
   QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-  s_pQtApplication = new QApplication(argc, argv);
-  QFont font = s_pQtApplication->font();
-  int ps = font.pixelSize();
-  // font.setPixelSize(11);
-  s_pQtApplication->setFont(font);
+
+  if (qApp != nullptr)
+  {
+    s_pQtApplication = qApp;
+    bool ok = false;
+    const int iCount = s_pQtApplication->property("Shared").toInt(&ok);
+    EZ_ASSERT_DEV(ok, "Existing QApplication was not constructed by EZ!");
+    s_pQtApplication->setProperty("Shared", QVariant::fromValue(iCount + 1));
+  }
+  else
+  {
+    s_pQtApplication = new QApplication(argc, argv);
+    s_pQtApplication->setProperty("Shared", QVariant::fromValue((int)1));
+    QFont font = s_pQtApplication->font();
+    int ps = font.pixelSize();
+    // font.setPixelSize(11);
+    s_pQtApplication->setFont(font);
+  }
 }
 
 void ezQtEditorApp::DeInitQt()
 {
-  delete s_pQtApplication;
+  const int iCount = s_pQtApplication->property("Shared").toInt();
+  if (iCount == 1)
+  {
+    delete s_pQtApplication;
+  }
+  else
+  {
+    s_pQtApplication->setProperty("Shared", QVariant::fromValue(iCount - 1));
+  }
 }

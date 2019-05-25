@@ -38,7 +38,7 @@ public:
   ///  If type == PatchType::GraphPatch, pNode will be nullptr and the implementation has to figure out waht to patch in pGraph on its own.
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const = 0;
   /// \brief Returns the type to patch.
-  const ezHashedString GetType() const;
+  const char* GetType() const;
   /// \brief Returns the type version to patch to.
   ezUInt32 GetTypeVersion() const;
   PatchType GetPatchType() const;
@@ -46,7 +46,7 @@ public:
   EZ_DECLARE_ENUMERABLE_CLASS(ezGraphPatch);
 
 private:
-  ezHashedString m_sType;
+  const char* m_szType = nullptr;
   ezUInt32 m_uiTypeVersion;
   PatchType m_PatchType;
 };

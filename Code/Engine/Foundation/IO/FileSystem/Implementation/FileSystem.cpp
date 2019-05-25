@@ -136,6 +136,7 @@ ezResult ezFileSystem::AddDataDirectory(const char* szDataDirectory, const char*
   return EZ_FAILURE;
 }
 
+
 bool ezFileSystem::RemoveDataDirectory(const char* szRootName)
 {
   ezStringBuilder sCleanRootName = szRootName;
@@ -437,7 +438,7 @@ const char* ezFileSystem::ExtractRootName(const char* szPath, ezString& rootName
   rootName = sCur;
   ++it;
 
-  return it.GetData(); // return the string after the data-dir filter declaration
+  return it.GetStartPointer(); // return the string after the data-dir filter declaration
 }
 
 ezDataDirectoryReader* ezFileSystem::GetFileReader(const char* szFile, bool bAllowFileEvents)
@@ -836,6 +837,13 @@ ezResult ezFileSystem::ResolveSpecialDirectory(const char* szDirectory, ezString
   }
 
   return EZ_FAILURE;
+}
+
+
+ezMutex& ezFileSystem::GetMutex()
+{
+  EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
+  return s_Data->m_FsMutex;
 }
 
 ezResult ezFileSystem::CreateDirectoryStructure(const char* szPath)

@@ -36,7 +36,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezCollectionAssetDocument::ezCollectionAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezCollectionAssetData>(szDocumentPath)
+    : ezSimpleAssetDocument<ezCollectionAssetData>(szDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 

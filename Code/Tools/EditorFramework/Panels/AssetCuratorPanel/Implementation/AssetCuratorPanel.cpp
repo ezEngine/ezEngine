@@ -27,8 +27,7 @@ bool ezQtAssetCuratorFilter::Less(const ezSubAsset* pInfoA, const ezSubAsset* pI
   ezStringView sSortA = pInfoA->GetName();
   ezStringView sSortB = pInfoB->GetName();
 
-  ezInt32 iValue = ezStringUtils::Compare_NoCase(sSortA.GetData(), sSortB.GetData(), sSortA.GetData() + sSortA.GetElementCount(),
-                                                 sSortB.GetData() + sSortB.GetElementCount());
+  ezInt32 iValue = ezStringUtils::Compare_NoCase(sSortA.GetStartPointer(), sSortB.GetStartPointer(), sSortA.GetEndPointer(), sSortB.GetEndPointer());
   if (iValue == 0)
   {
     return pInfoA->m_Data.m_Guid < pInfoB->m_Data.m_Guid;

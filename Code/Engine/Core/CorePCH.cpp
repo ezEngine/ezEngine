@@ -5,12 +5,11 @@ EZ_STATICLINK_LIBRARY(Core)
   if (bReturn)
     return;
 
-  EZ_STATICLINK_REFERENCE(Core_Application_Config_Implementation_FileSystemConfig);
-  EZ_STATICLINK_REFERENCE(Core_Application_Config_Implementation_PluginConfig);
-  EZ_STATICLINK_REFERENCE(Core_Application_Implementation_Application);
-  EZ_STATICLINK_REFERENCE(Core_Application_Implementation_MainLoop);
-  EZ_STATICLINK_REFERENCE(Core_Application_Implementation_uwp_Application_uwp);
   EZ_STATICLINK_REFERENCE(Core_Assets_Implementation_AssetFileHeader);
+  EZ_STATICLINK_REFERENCE(Core_Collection_Implementation_CollectionComponent);
+  EZ_STATICLINK_REFERENCE(Core_Collection_Implementation_CollectionResource);
+  EZ_STATICLINK_REFERENCE(Core_Collection_Implementation_CollectionUtils);
+  EZ_STATICLINK_REFERENCE(Core_Graphics_Implementation_AmbientCubeBasis);
   EZ_STATICLINK_REFERENCE(Core_Graphics_Implementation_Camera);
   EZ_STATICLINK_REFERENCE(Core_Graphics_Implementation_ConvexHull);
   EZ_STATICLINK_REFERENCE(Core_Graphics_Implementation_Geometry);
@@ -25,8 +24,10 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_Messages_Implementation_Messages);
   EZ_STATICLINK_REFERENCE(Core_ResourceManager_Implementation_Resource);
   EZ_STATICLINK_REFERENCE(Core_ResourceManager_Implementation_ResourceHandle);
+  EZ_STATICLINK_REFERENCE(Core_ResourceManager_Implementation_ResourceLoading);
   EZ_STATICLINK_REFERENCE(Core_ResourceManager_Implementation_ResourceManager);
   EZ_STATICLINK_REFERENCE(Core_ResourceManager_Implementation_ResourceTypeLoader);
+  EZ_STATICLINK_REFERENCE(Core_ResourceManager_Implementation_WorkerTasks);
   EZ_STATICLINK_REFERENCE(Core_Scripting_LuaWrapper_CFunctions);
   EZ_STATICLINK_REFERENCE(Core_Scripting_LuaWrapper_Initialize);
   EZ_STATICLINK_REFERENCE(Core_Scripting_LuaWrapper_Tables);

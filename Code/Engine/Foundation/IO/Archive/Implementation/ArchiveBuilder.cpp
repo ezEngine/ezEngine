@@ -1,15 +1,15 @@
 #include <FoundationPCH.h>
 
 #include <Foundation/IO/Archive/ArchiveBuilder.h>
-
 #include <Foundation/IO/Archive/ArchiveUtils.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
 
 void ezArchiveBuilder::AddFolder(const char* szAbsFolderPath,
   ezArchiveCompressionMode defaultMode /*= ezArchiveCompressionMode::Uncompressed*/, InclusionCallback callback /*= InclusionCallback()*/)
 {
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
   ezFileSystemIterator fileIt;
 
   ezStringBuilder sBasePath = szAbsFolderPath;
@@ -56,6 +56,9 @@ void ezArchiveBuilder::AddFolder(const char* szAbsFolderPath,
     }
 
   } while (fileIt.Next().Succeeded());
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED;
+#endif
 }
 
 ezResult ezArchiveBuilder::WriteArchive(const char* szFile) const
@@ -117,3 +120,5 @@ bool ezArchiveBuilder::WriteFileProgressCallback(ezUInt64 bytesWritten, ezUInt64
 {
   return true;
 }
+
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_Archive_Implementation_ArchiveBuilder);

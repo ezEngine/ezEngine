@@ -5,6 +5,7 @@
 #include <Foundation/Strings/StringConversion.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 
 static ezGameEngineTestBasics s_GameEngineTestBasics;
 
@@ -374,6 +375,9 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
 
 void ezGameEngineTestApplication_Basics::SubTestLoadSceneSetup()
 {
+  ezResourceManager::ForceNoFallbackAcquisition(3);
+  ezRenderContext::GetDefaultInstance()->SetAllowAsyncShaderLoading(false);
+
   LoadScene("Basics/AssetCache/Common/Lighting.ezObjectGraph");
 }
 

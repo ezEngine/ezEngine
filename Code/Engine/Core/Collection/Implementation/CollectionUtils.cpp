@@ -1,12 +1,12 @@
 #include <CorePCH.h>
 
-#include <Foundation/IO/OSFile.h>
 #include <Core/Collection/CollectionUtils.h>
+#include <Foundation/IO/OSFile.h>
 
-
-void ezCollectionUtils::AddFiles(ezCollectionResourceDescriptor& collection, const char* szAssetTypeName,
-  const char* szAbsPathToFolder, const char* szFileExtension, const char* szStripPrefix, const char* szPrependPrefix)
+void ezCollectionUtils::AddFiles(ezCollectionResourceDescriptor& collection, const char* szAssetTypeName, const char* szAbsPathToFolder,
+  const char* szFileExtension, const char* szStripPrefix, const char* szPrependPrefix)
 {
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
   ezFileSystemIterator fsIt;
 
   const ezUInt32 uiStripPrefixLength = ezStringUtils::GetCharacterCount(szStripPrefix);
@@ -36,5 +36,9 @@ void ezCollectionUtils::AddFiles(ezCollectionResourceDescriptor& collection, con
     }
 
   } while (fsIt.Next().Succeeded());
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED;
+#endif
 }
 
+EZ_STATICLINK_FILE(Core, Core_Collection_Implementation_CollectionUtils);

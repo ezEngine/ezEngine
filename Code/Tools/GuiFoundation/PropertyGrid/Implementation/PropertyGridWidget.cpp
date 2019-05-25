@@ -13,6 +13,7 @@
 
 #include <QLayout>
 #include <QScrollArea>
+#include <Foundation/Profiling/Profiling.h>
 
 ezRttiMappedObjectFactory<ezQtPropertyWidget> ezQtPropertyGridWidget::s_Factory;
 
@@ -499,6 +500,11 @@ void ezQtPropertyGridWidget::FactoryEventHandler(const ezRttiMappedObjectFactory
 
 void ezQtPropertyGridWidget::TypeEventHandler(const ezPhantomRttiManagerEvent& e)
 {
+  // Adding types cannot affect the property grid content.
+  if (e.m_Type == ezPhantomRttiManagerEvent::Type::TypeAdded)
+    return;
+
+  EZ_PROFILE_SCOPE("TypeEventHandler");
   if (m_bBindToSelectionManager)
     SetSelection(m_pDocument->GetSelectionManager()->GetSelection());
   else

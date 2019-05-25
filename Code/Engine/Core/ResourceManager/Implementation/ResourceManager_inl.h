@@ -200,7 +200,7 @@ void ezResourceManager::EndAcquireResource(ResourceType* pResource)
 }
 
 template <typename ResourceType>
-static ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> ezResourceManager::GetAllResourcesOfType()
+ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> ezResourceManager::GetAllResourcesOfType()
 {
   const ezRTTI* pBaseType = ezGetStaticRTTI<ResourceType>();
 
@@ -237,17 +237,6 @@ static ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> ezResourceManager::G
   }
 
   return loadedResourcesLock;
-}
-
-template <typename ResourceType>
-void ezResourceManager::RestoreResource(const ezTypedResourceHandle<ResourceType>& hResource)
-{
-  ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
-  pResource->m_Flags.Remove(ezResourceFlags::PreventFileReload);
-
-  ReloadResource(pResource, true);
-
-  EndAcquireResource(pResource);
 }
 
 template <typename ResourceType>

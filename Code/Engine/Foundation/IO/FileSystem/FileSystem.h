@@ -176,6 +176,14 @@ public:
 
   ///@}
 
+  /// \name Misc
+  ///@{
+
+  /// \brief Returns the (recursive) mutex that is used internally by the file system which can be used to guard bundled operations on the file system.
+  static ezMutex& GetMutex();
+
+  ///@}
+
   static ezResult CreateDirectoryStructure(const char* szPath);
 
 public:

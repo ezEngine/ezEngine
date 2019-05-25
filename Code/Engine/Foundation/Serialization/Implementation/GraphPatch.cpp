@@ -8,16 +8,15 @@
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezGraphPatch);
 
 ezGraphPatch::ezGraphPatch(const char* szType, ezUInt32 uiTypeVersion, PatchType type)
-    : m_uiTypeVersion(uiTypeVersion)
-    , m_PatchType(type)
+  : m_szType(szType)
+  , m_uiTypeVersion(uiTypeVersion)
+  , m_PatchType(type)
 {
-  if (!ezStringUtils::IsNullOrEmpty(szType))
-    m_sType.Assign(szType);
 }
 
-const ezHashedString ezGraphPatch::GetType() const
+const char* ezGraphPatch::GetType() const
 {
-  return m_sType;
+  return m_szType;
 }
 
 ezUInt32 ezGraphPatch::GetTypeVersion() const

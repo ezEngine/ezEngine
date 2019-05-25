@@ -96,6 +96,29 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleConfigMsgToEngine, 1, ezRTTIDefaultAlloc
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResourceUpdateMsgToEngine, 1, ezRTTIDefaultAllocator<ezResourceUpdateMsgToEngine>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Type", m_sResourceType),
+    EZ_MEMBER_PROPERTY("ID", m_sResourceID),
+    EZ_MEMBER_PROPERTY("Data", m_Data),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRestoreResourceMsgToEngine, 1, ezRTTIDefaultAllocator<ezRestoreResourceMsgToEngine>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Type", m_sResourceType),
+    EZ_MEMBER_PROPERTY("ID", m_sResourceID),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezChangeCVarMsgToEngine, 1, ezRTTIDefaultAllocator<ezChangeCVarMsgToEngine>)
 {
   EZ_BEGIN_PROPERTIES

@@ -2,6 +2,7 @@
 
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/StringUtils.h>
+#include <Foundation/System/SystemInformation.h>
 
 #include <cstdlib>
 
@@ -22,9 +23,9 @@ bool ezDefaultAssertHandler(
   OutputDebugStringW(ezStringWChar(szTemp).GetData());
 #endif
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  if (IsDebuggerPresent())
+  if (ezSystemInformation::IsDebuggerAttached())
     return true;
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
 // make sure the cursor is definitely shown, since the user must be able to click buttons
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)

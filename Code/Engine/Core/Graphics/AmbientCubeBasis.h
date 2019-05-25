@@ -34,6 +34,9 @@ struct ezAmbientCube
   template <typename U>
   void operator=(const ezAmbientCube<U>& other);
 
+  bool operator==(const ezAmbientCube& other) const;
+  bool operator!=(const ezAmbientCube& other) const;
+
   T Evaluate(const ezVec3& vNormal);
 
   T m_Values[ezAmbientCubeBasis::NumDirs];

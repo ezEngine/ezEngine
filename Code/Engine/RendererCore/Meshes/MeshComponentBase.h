@@ -7,6 +7,7 @@
 #include <RendererCore/Pipeline/RenderData.h>
 
 struct ezMsgSetColor;
+struct ezInstanceData;
 
 class EZ_RENDERERCORE_DLL ezMeshRenderData : public ezRenderData
 {
@@ -21,6 +22,9 @@ public:
   ezGALBufferHandle m_hSkinningMatrices;
   ezArrayPtr<const ezUInt8>
       m_pNewSkinningMatricesData; // Optional - if set the buffer specified in m_hSkinningMatrices will be updated with this data
+
+  ezInstanceData* m_pExplicitInstanceData = nullptr; // Optional - can be used to do explicit instanced rendering
+  ezUInt32 m_uiExplicitInstanceCount = 0;
 
   ezUInt32 m_uiSubMeshIndex : 30;
   ezUInt32 m_uiFlipWinding : 1;

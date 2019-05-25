@@ -239,8 +239,11 @@ void ezQtMaterialAssetDocumentWindow::UpdatePreview()
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
-  ezEditorEngineResourceUpdateMsg msg;
+  ezResourceUpdateMsgToEngine msg;
   msg.m_sResourceType = "Material";
+
+  ezStringBuilder tmp;
+  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
 
   ezMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter memoryWriter(&streamStorage);
@@ -258,7 +261,7 @@ void ezQtMaterialAssetDocumentWindow::UpdatePreview()
   GetMaterialDocument()->WriteMaterialAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), false);
   msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize());
 
-  GetEditorEngineConnection()->SendMessage(&msg);
+  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
 void ezQtMaterialAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
@@ -297,8 +300,13 @@ void ezQtMaterialAssetDocumentWindow::SendRedrawMsg()
 
 void ezQtMaterialAssetDocumentWindow::RestoreResource()
 {
-  ezEditorEngineRestoreResourceMsg msg;
-  GetEditorEngineConnection()->SendMessage(&msg);
+  ezRestoreResourceMsgToEngine msg;
+  msg.m_sResourceType = "Material";
+
+  ezStringBuilder tmp;
+  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+
+  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
 void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()

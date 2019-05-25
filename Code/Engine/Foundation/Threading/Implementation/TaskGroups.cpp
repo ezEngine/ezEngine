@@ -27,7 +27,7 @@ ezTaskGroupID ezTaskSystem::CreateTaskGroup(ezTaskPriority::Enum Priority, ezTas
 foundtaskgroup:
 
   s_TaskGroups[i].m_bInUse = true;
-  s_TaskGroups[i].m_bIsActive = false;
+  s_TaskGroups[i].m_bStartedByUser = false;
   s_TaskGroups[i].m_uiGroupCounter += 2; // even if it wraps around, it will never be zero, thus zero stays an invalid group counter
   s_TaskGroups[i].m_Tasks.Clear();
   s_TaskGroups[i].m_DependsOn.Clear();
@@ -43,12 +43,12 @@ foundtaskgroup:
 
 void ezTaskSystem::DebugCheckTaskGroup(ezTaskGroupID Group)
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   EZ_LOCK(s_TaskSystemMutex);
 
   EZ_ASSERT_DEV(Group.m_pTaskGroup != nullptr, "TaskGroupID is invalid.");
   EZ_ASSERT_DEV(Group.m_pTaskGroup->m_uiGroupCounter == Group.m_uiGroupCounter, "The given TaskGroupID is not valid anymore.");
-  EZ_ASSERT_DEV(!Group.m_pTaskGroup->m_bIsActive, "The given TaskGroupID is already started, you cannot modify it anymore.");
+  EZ_ASSERT_DEV(!Group.m_pTaskGroup->m_bStartedByUser, "The given TaskGroupID is already started, you cannot modify it anymore.");
   EZ_ASSERT_DEV(Group.m_pTaskGroup->m_iActiveDependencies == 0, "Invalid active dependenices");
 #endif
 }
@@ -77,10 +77,22 @@ void ezTaskSystem::AddTaskGroupDependency(ezTaskGroupID Group, ezTaskGroupID Dep
   Group.m_pTaskGroup->m_DependsOn.PushBack(DependsOn);
 }
 
+void ezTaskSystem::AddTaskGroupDependencyBatch(ezArrayPtr<const ezTaskGroupDependency> batch)
+{
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  EZ_LOCK(s_TaskSystemMutex);
+#endif
+
+  for (const ezTaskGroupDependency& dep : batch)
+  {
+    AddTaskGroupDependency(dep.m_TaskGroup, dep.m_DependsOn);
+  }
+}
+
 void ezTaskSystem::StartTaskGroup(ezTaskGroupID Group)
 {
   if (s_WorkerThreads[ezWorkerThreadType::ShortTasks].GetCount() == 0)
-    SetWorkThreadCount(-1, -1); // set the default number of threads, if none are started yet
+    SetWorkerThreadCount(-1, -1); // set the default number of threads, if none are started yet
 
   DebugCheckTaskGroup(Group);
 
@@ -91,7 +103,7 @@ void ezTaskSystem::StartTaskGroup(ezTaskGroupID Group)
 
     ezTaskGroup& tg = *Group.m_pTaskGroup;
 
-    tg.m_bIsActive = true;
+    tg.m_bStartedByUser = true;
 
     for (ezUInt32 i = 0; i < tg.m_DependsOn.GetCount(); ++i)
     {
@@ -118,6 +130,16 @@ void ezTaskSystem::StartTaskGroup(ezTaskGroupID Group)
   if (iActiveDependencies == 0)
   {
     ScheduleGroupTasks(Group.m_pTaskGroup);
+  }
+}
+
+void ezTaskSystem::StartTaskGroupBatch(ezArrayPtr<const ezTaskGroupID> batch)
+{
+  EZ_LOCK(s_TaskSystemMutex);
+
+  for (const ezTaskGroupID& group : batch)
+  {
+    StartTaskGroup(group);
   }
 }
 
@@ -267,6 +289,18 @@ void ezTaskSystem::WaitForGroup(ezTaskGroupID Group)
       {
         // 'give up'
         ezThreadUtils::YieldTimeSlice();
+
+        // if the system hangs / deadlocks, check the following:
+        // is s_Tasks empty ? if so, no tasks are currently available to run
+        // what are the dependencies of Group.m_pTaskGroup (DependsOn)
+        // use the group counter member inside the ezTaskGroup to reference whether an ezTaskGroupID references the same group
+        // or whether it has already been reused (ie. it is finished)
+        // check the m_iActiveDependencies on an ezTaskgroup to see how many dependencies are really still waited for
+        // check that all dependencies have indeed been started by the user, (m_bStartedByUser), if not a task group may be added as a
+        // dependency, but forgotten to be launched, which can easily deadlock the system
+        // also check the various callstacks, that a task may not be waiting in a circular fashion on another task, which is executed
+        // on the same thread, but is also waiting for something else to finish. in that case you may need to handle dependencies and
+        // task priorities better
       }
     }
   }

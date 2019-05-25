@@ -37,12 +37,10 @@ private:
 
   struct DocData
   {
-    bool m_bSubscribed;
     bool m_bActivated;
 
     DocData()
     {
-      m_bSubscribed = false;
       m_bActivated = true;
     }
   };

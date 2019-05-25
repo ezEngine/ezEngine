@@ -30,12 +30,12 @@ static ezStringView ReadLine(ezStringView& szPos)
   while (szPos.GetCharacter() != '\0' && ezStringUtils::IsWhiteSpace(szPos.GetCharacter()))
     ++szPos;
 
-  const char* szStart = szPos.GetData();
+  const char* szStart = szPos.GetStartPointer();
 
   while (szPos.GetCharacter() != '\0' && szPos.GetCharacter() != '\r' && szPos.GetCharacter() != '\n')
     ++szPos;
 
-  const char* szEnd = szPos.GetData();
+  const char* szEnd = szPos.GetStartPointer();
 
   while (szPos.GetCharacter() != '\0' && ezStringUtils::IsWhiteSpace(szPos.GetCharacter()))
     ++szPos;
@@ -48,12 +48,12 @@ static ezStringView ReadString(ezStringView& szPos)
   while (szPos.GetCharacter() != '\0' && ezStringUtils::IsWhiteSpace(szPos.GetCharacter()))
     ++szPos;
 
-  const char* szStart = szPos.GetData();
+  const char* szStart = szPos.GetStartPointer();
 
   while (szPos.GetCharacter() != '\0' && !ezStringUtils::IsWhiteSpace(szPos.GetCharacter()))
     ++szPos;
 
-  const char* szEnd = szPos.GetData();
+  const char* szEnd = szPos.GetStartPointer();
 
   while (szPos.GetCharacter() != '\0' && ezStringUtils::IsWhiteSpace(szPos.GetCharacter()))
     ++szPos;
@@ -100,7 +100,7 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
     if (sFirst.IsEqual_NoCase("v")) // line declares a vertex
     {
       ezVec3 v(0.0f);
-      ezConversionUtils::ExtractFloatsFromString(sLine.GetData(), 3, &v.x);
+      ezConversionUtils::ExtractFloatsFromString(sLine.GetStartPointer(), 3, &v.x);
 
       m_Positions.PushBack(v);
     }
@@ -109,7 +109,7 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
       bContainsTexCoords = true;
 
       ezVec3 v(0.0f);
-      ezConversionUtils::ExtractFloatsFromString(sLine.GetData(), 3, &v.x); // reads up to three texture-coordinates
+      ezConversionUtils::ExtractFloatsFromString(sLine.GetStartPointer(), 3, &v.x); // reads up to three texture-coordinates
 
       m_TexCoords.PushBack(v);
     }
@@ -118,7 +118,7 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
       bContainsNormals = true;
 
       ezVec3 v(0.0f);
-      ezConversionUtils::ExtractFloatsFromString(sLine.GetData(), 3, &v.x);
+      ezConversionUtils::ExtractFloatsFromString(sLine.GetStartPointer(), 3, &v.x);
       v.Normalize(); // make sure normals are indeed normalized
 
       m_Normals.PushBack(v);
@@ -136,7 +136,7 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
         ezInt32 id;
 
         // read the position index
-        if (ezConversionUtils::StringToInt(sLine.GetData(), id, &szCurPos).Failed())
+        if (ezConversionUtils::StringToInt(sLine.GetStartPointer(), id, &szCurPos).Failed())
           break; // nothing found, face-declaration is finished
 
         sLine.SetStartPosition(szCurPos);
@@ -144,13 +144,13 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
         FaceVertex Vertex;
         Vertex.m_uiPositionID = uiPositionOffset + id - 1; // OBJ indices start at 1, so decrement them to start at 0
 
-        // texcoords were declared, so they will be used in the faces
+        // tex-coords were declared, so they will be used in the faces
         if (bContainsTexCoords)
         {
           if (!SkipSlash(sLine))
             break;
 
-          if (ezConversionUtils::StringToInt(sLine.GetData(), id, &szCurPos).Failed())
+          if (ezConversionUtils::StringToInt(sLine.GetStartPointer(), id, &szCurPos).Failed())
             break;
 
           sLine.SetStartPosition(szCurPos);
@@ -164,7 +164,7 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
           if (!SkipSlash(sLine))
             break;
 
-          if (ezConversionUtils::StringToInt(sLine.GetData(), id, &szCurPos).Failed())
+          if (ezConversionUtils::StringToInt(sLine.GetStartPointer(), id, &szCurPos).Failed())
             break;
 
           sLine.SetStartPosition(szCurPos);
@@ -298,7 +298,7 @@ ezResult ezOBJLoader::LoadMTL(const char* szFile, const char* szMaterialBasePath
     else if (sFirst.IsEqual_NoCase("map_Kd"))
     {
       sTemp = szMaterialBasePath;
-      sTemp.AppendPath(sLine.GetData());
+      sTemp.AppendPath(sLine.GetStartPointer());
 
       m_Materials[sCurMatName].m_sDiffuseTexture = sTemp;
     }

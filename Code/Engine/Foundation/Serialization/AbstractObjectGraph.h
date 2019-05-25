@@ -162,10 +162,10 @@ public:
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezAbstractObjectGraph);
 
-  void RemapVariant(ezVariant& value, const ezMap<ezUuid, ezUuid>& guidMap);
+  void RemapVariant(ezVariant& value, const ezHashTable<ezUuid, ezUuid>& guidMap);
   void MergeArrays(const ezVariantArray& baseArray, const ezVariantArray& leftArray, const ezVariantArray& rightArray,
                    ezVariantArray& out) const;
-  void ReMapNodeGuidsToMatchGraphRecursive(ezMap<ezUuid, ezUuid>& guidMap, ezAbstractObjectNode* lhs, const ezAbstractObjectGraph& rhsGraph,
+  void ReMapNodeGuidsToMatchGraphRecursive(ezHashTable<ezUuid, ezUuid>& guidMap, ezAbstractObjectNode* lhs, const ezAbstractObjectGraph& rhsGraph,
                                            const ezAbstractObjectNode* rhs);
 
   ezSet<ezString> m_Strings;

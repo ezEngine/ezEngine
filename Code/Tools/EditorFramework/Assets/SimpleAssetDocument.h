@@ -102,13 +102,13 @@ template<typename PropertyType, typename BaseClass = ezAssetDocument>
 class ezSimpleAssetDocument : public BaseClass
 {
 public:
-  ezSimpleAssetDocument(const char* szDocumentPath, bool bUseEngineConnection = false, bool bUseIPCObjectMirror = false)
-    : BaseClass(szDocumentPath, EZ_DEFAULT_NEW(ezSimpleDocumentObjectManager<PropertyType>), bUseEngineConnection, bUseIPCObjectMirror)
+  ezSimpleAssetDocument(const char* szDocumentPath, ezAssetDocEngineConnection engineConnectionType)
+    : BaseClass(szDocumentPath, EZ_DEFAULT_NEW(ezSimpleDocumentObjectManager<PropertyType>), engineConnectionType)
   {
   }
 
-  ezSimpleAssetDocument(ezDocumentObjectManager* pObjectManager, const char* szDocumentPath, bool bUseEngineConnection = false, bool bUseIPCObjectMirror = false)
-    : BaseClass(szDocumentPath, pObjectManager, bUseEngineConnection, bUseIPCObjectMirror)
+  ezSimpleAssetDocument(ezDocumentObjectManager* pObjectManager, const char* szDocumentPath, ezAssetDocEngineConnection engineConnectionType)
+    : BaseClass(szDocumentPath, pObjectManager, engineConnectionType)
   {
   }
 

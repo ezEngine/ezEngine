@@ -6,7 +6,6 @@ EZ_STATICLINK_LIBRARY(Utilities)
     return;
 
   EZ_STATICLINK_REFERENCE(Utilities_DGML_Implementation_DGMLCreator);
-  EZ_STATICLINK_REFERENCE(Utilities_DGML_Implementation_DGMLWriter);
   EZ_STATICLINK_REFERENCE(Utilities_DataStructures_Implementation_DynamicOctree);
   EZ_STATICLINK_REFERENCE(Utilities_DataStructures_Implementation_DynamicQuadtree);
   EZ_STATICLINK_REFERENCE(Utilities_DataStructures_Implementation_ObjectSelection);

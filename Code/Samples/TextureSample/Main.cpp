@@ -14,7 +14,7 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Clock.h>
 
-#include <Core/Application/Application.h>
+#include <Foundation/Application/Application.h>
 #include <Core/CoreDLL.h>
 #include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>

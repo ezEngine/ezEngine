@@ -1,10 +1,12 @@
 #include <FoundationPCH.h>
 
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/TaskSystem.h>
+#include <Foundation/Time/Timestamp.h>
 #include <Foundation/Utilities/DGMLWriter.h>
-#include <Time/Timestamp.h>
 
 ezMutex ezTaskSystem::s_TaskSystemMutex;
 
@@ -13,8 +15,6 @@ ezThreadSignal ezTaskSystem::s_TasksAvailableSignal[ezWorkerThreadType::ENUM_COU
 ezDynamicArray<ezTaskWorkerThread*> ezTaskSystem::s_WorkerThreads[ezWorkerThreadType::ENUM_COUNT];
 ezDeque<ezTaskGroup> ezTaskSystem::s_TaskGroups;
 ezList<ezTaskSystem::TaskData> ezTaskSystem::s_Tasks[ezTaskPriority::ENUM_COUNT];
-ezDynamicArray<ezDelegate<void()>> ezTaskSystem::s_OnWorkerThreadStarted;
-ezDynamicArray<ezDelegate<void()>> ezTaskSystem::s_OnWorkerThreadStopped;
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, TaskSystem)
@@ -42,8 +42,6 @@ void ezTaskSystem::Startup() {}
 void ezTaskSystem::Shutdown()
 {
   StopWorkerThreads();
-  s_OnWorkerThreadStarted.Clear();
-  s_OnWorkerThreadStopped.Clear();
 }
 
 ezTaskGroupID ezTaskSystem::StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority, ezTaskGroupID Dependency)
@@ -248,42 +246,6 @@ void ezTaskSystem::FinishFrameTasks()
   }
 }
 
-void ezTaskSystem::SubscribeToWorkerThreadStarted(ezDelegate<void()> callback)
-{
-  EZ_LOCK(s_TaskSystemMutex);
-
-  s_OnWorkerThreadStarted.PushBack(callback);
-}
-
-
-void ezTaskSystem::SubscribeToWorkerThreadStopped(ezDelegate<void()> callback)
-{
-  EZ_LOCK(s_TaskSystemMutex);
-
-  s_OnWorkerThreadStopped.PushBack(callback);
-}
-
-void ezTaskSystem::FireWorkerThreadStarted()
-{
-  EZ_LOCK(s_TaskSystemMutex);
-
-  for (auto& callback : s_OnWorkerThreadStarted)
-  {
-    callback();
-  }
-}
-
-
-void ezTaskSystem::FireWorkerThreadStopped()
-{
-  EZ_LOCK(s_TaskSystemMutex);
-
-  for (auto& callback : s_OnWorkerThreadStopped)
-  {
-    callback();
-  }
-}
-
 void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& graph)
 {
   EZ_LOCK(s_TaskSystemMutex);
@@ -300,12 +262,27 @@ void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& graph)
   taskNodeND.m_Color = ezColor::OrangeRed;
   taskNodeND.m_Shape = ezDGMLGraph::NodeShape::RoundedRectangle;
 
-  const ezDGMLGraph::PropertyId activeId = graph.AddPropertyType("Active");
+  const ezDGMLGraph::PropertyId startedByUserId = graph.AddPropertyType("StartByUser");
   const ezDGMLGraph::PropertyId activeDepsId = graph.AddPropertyType("ActiveDependencies");
   const ezDGMLGraph::PropertyId scheduledId = graph.AddPropertyType("Scheduled");
   const ezDGMLGraph::PropertyId finishedId = graph.AddPropertyType("Finished");
   const ezDGMLGraph::PropertyId multiplicityId = graph.AddPropertyType("Multiplicity");
   const ezDGMLGraph::PropertyId remainingRunsId = graph.AddPropertyType("RemainingRuns");
+  const ezDGMLGraph::PropertyId priorityId = graph.AddPropertyType("GroupPriority");
+
+  const char* szTaskPriorityNames[ezTaskPriority::ENUM_COUNT] = {};
+  szTaskPriorityNames[ezTaskPriority::EarlyThisFrame] = "EarlyThisFrame";
+  szTaskPriorityNames[ezTaskPriority::ThisFrame] = "ThisFrame";
+  szTaskPriorityNames[ezTaskPriority::LateThisFrame] = "LateThisFrame";
+  szTaskPriorityNames[ezTaskPriority::EarlyNextFrame] = "EarlyNextFrame";
+  szTaskPriorityNames[ezTaskPriority::NextFrame] = "NextFrame";
+  szTaskPriorityNames[ezTaskPriority::LateNextFrame] = "LateNextFrame";
+  szTaskPriorityNames[ezTaskPriority::LongRunningHighPriority] = "LongRunningHighPriority";
+  szTaskPriorityNames[ezTaskPriority::LongRunning] = "LongRunning";
+  szTaskPriorityNames[ezTaskPriority::FileAccessHighPriority] = "FileAccessHighPriority";
+  szTaskPriorityNames[ezTaskPriority::FileAccess] = "FileAccess";
+  szTaskPriorityNames[ezTaskPriority::ThisFrameMainThread] = "ThisFrameMainThread";
+  szTaskPriorityNames[ezTaskPriority::SomeFrameMainThread] = "SomeFrameMainThread";
 
   for (ezUInt32 g = 0; g < s_TaskGroups.GetCount(); ++g)
   {
@@ -319,7 +296,8 @@ void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& graph)
     const ezDGMLGraph::NodeId taskGroupId = graph.AddGroup(title, ezDGMLGraph::GroupType::Expanded, &taskGroupND);
     groupNodeIds[&tg] = taskGroupId;
 
-    graph.AddNodeProperty(taskGroupId, activeId, tg.m_bIsActive ? "true" : "false");
+    graph.AddNodeProperty(taskGroupId, startedByUserId, tg.m_bStartedByUser ? "true" : "false");
+    graph.AddNodeProperty(taskGroupId, priorityId, szTaskPriorityNames[tg.m_Priority]);
     graph.AddNodeProperty(taskGroupId, activeDepsId, ezFmt("{}", tg.m_iActiveDependencies));
 
     for (ezUInt32 t = 0; t < tg.m_Tasks.GetCount(); ++t)
@@ -368,7 +346,7 @@ void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& graph)
   }
 }
 
-void ezTaskSystem::WriteStateSnapshotToDGML(const char* szPath /*= nullptr*/)
+void ezTaskSystem::WriteStateSnapshotToFile(const char* szPath /*= nullptr*/)
 {
   ezStringBuilder sPath = szPath;
 
@@ -389,8 +367,10 @@ void ezTaskSystem::WriteStateSnapshotToDGML(const char* szPath /*= nullptr*/)
   ezTaskSystem::WriteStateSnapshotToDGML(graph);
 
   ezDGMLGraphWriter::WriteGraphToFile(sPath, graph);
+
+  ezStringBuilder absPath;
+  ezFileSystem::ResolvePath(sPath, &absPath, nullptr);
+  ezLog::Info("Task graph snapshot saved to '{}'", absPath);
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystem);
-
-

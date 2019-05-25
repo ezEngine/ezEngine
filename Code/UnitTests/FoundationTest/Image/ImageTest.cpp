@@ -145,8 +145,10 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
       {"RGBA", "png", 0},
       {"RGB", "jpg", 4650},
       {"RGBA", "jpeg", 16670},
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
       {"RGB", "tif", 0},
       {"RGBA", "tif", 0},
+#endif
     };
 
     const char* szTestImagePath = "TGATestImages/good";

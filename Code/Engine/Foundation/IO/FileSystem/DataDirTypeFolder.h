@@ -20,17 +20,19 @@ namespace ezDataDirectory
     ~FolderType();
 
     /// \brief The factory that can be registered at ezFileSystem to create data directories of this type.
-    static ezDataDirectoryType* Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage);
+    static ezDataDirectoryType* Factory(
+      const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage);
 
-    /// A 'redirection file' is an optional file located inside a data directory that lists which file access is redirected to which other file lookup.
-    /// Each redirection is one line in the file (terminated by a \n).
-    /// Each line consists of the 'key' string, a semicolon and a 'value' string. No unnecessary whitespace is allowed.
-    /// When a file that matches 'key' is accessed through a mounted data directory, the file access will be replaced by 'value' (plus s_sRedirectionPrefix)
-    /// 'key' may be anything (e.g. a GUID string), 'value' should be a valid relative path into the SAME data directory.
-    /// The redirection file can be used to implement an asset lookup, where assets are identified by GUIDs and need to be mapped to the actual asset file.
+    /// A 'redirection file' is an optional file located inside a data directory that lists which file access is redirected to which other
+    /// file lookup. Each redirection is one line in the file (terminated by a \n). Each line consists of the 'key' string, a semicolon and
+    /// a 'value' string. No unnecessary whitespace is allowed. When a file that matches 'key' is accessed through a mounted data directory,
+    /// the file access will be replaced by 'value' (plus s_sRedirectionPrefix) 'key' may be anything (e.g. a GUID string), 'value' should
+    /// be a valid relative path into the SAME data directory. The redirection file can be used to implement an asset lookup, where assets
+    /// are identified by GUIDs and need to be mapped to the actual asset file.
     static ezString s_sRedirectionFile;
 
-    /// If a redirection file is used AND the redirection lookup was successful, s_sRedirectionPrefix is prepended to the redirected file access.
+    /// If a redirection file is used AND the redirection lookup was successful, s_sRedirectionPrefix is prepended to the redirected file
+    /// access.
     static ezString s_sRedirectionPrefix;
 
     /// \brief When s_sRedirectionFile and s_sRedirectionPrefix are used to enable file redirection, this will reload those config files.
@@ -76,7 +78,12 @@ namespace ezDataDirectory
     EZ_DISALLOW_COPY_AND_ASSIGN(FolderReader);
 
   public:
-    FolderReader() { m_bIsInUse = false; }
+    FolderReader(ezInt32 iDataDirUserData)
+      : ezDataDirectoryReader(iDataDirUserData)
+    {
+      m_bIsInUse = false;
+    }
+
     virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) override;
     virtual ezUInt64 GetFileSize() const override;
 
@@ -96,7 +103,12 @@ namespace ezDataDirectory
     EZ_DISALLOW_COPY_AND_ASSIGN(FolderWriter);
 
   public:
-    FolderWriter() { m_bIsInUse = false; }
+    FolderWriter(ezInt32 iDataDirUserData = 0)
+      : ezDataDirectoryWriter(iDataDirUserData)
+    {
+      m_bIsInUse = false;
+    }
+
     virtual ezResult Write(const void* pBuffer, ezUInt64 uiBytes) override;
     virtual ezUInt64 GetFileSize() const override;
 
@@ -109,5 +121,4 @@ namespace ezDataDirectory
     bool m_bIsInUse;
     ezOSFile m_File;
   };
-}
-
+} // namespace ezDataDirectory

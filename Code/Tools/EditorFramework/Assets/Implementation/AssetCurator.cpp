@@ -397,7 +397,7 @@ void ezAssetCurator::TransformAllAssets(const ezPlatformProfile* pAssetProfile)
       // what was specified before
       // since this is a valid case, we just stop updating the progress bar, in case more assets are detected
 
-      range.BeginNextStep(ezPathUtils::GetFileNameAndExtension(pAssetInfo->m_sDataDirRelativePath).GetData());
+      range.BeginNextStep(ezPathUtils::GetFileNameAndExtension(pAssetInfo->m_sDataDirRelativePath).GetStartPointer());
       --uiNumStepsLeft;
     }
 
@@ -471,7 +471,7 @@ void ezAssetCurator::ResaveAllAssets()
 
     ezAssetInfo* pAssetInfo = GetAssetInfo(sortedAssets[i]);
     EZ_ASSERT_DEBUG(pAssetInfo, "Should not happen as data was derived from known assets list.");
-    range.BeginNextStep(ezPathUtils::GetFileNameAndExtension(pAssetInfo->m_sDataDirRelativePath).GetData());
+    range.BeginNextStep(ezPathUtils::GetFileNameAndExtension(pAssetInfo->m_sDataDirRelativePath).GetStartPointer());
 
     auto res = ResaveAsset(pAssetInfo);
     if (res.m_Result.Failed())
@@ -562,11 +562,12 @@ const ezAssetCurator::ezLockedSubAsset ezAssetCurator::FindSubAsset(const char* 
     if (path.IsEmpty())
       return nullptr;
 
-    const ezStringBuilder sPathWithSlash("/", path.GetData());
+    const ezStringBuilder sPath = path;
+    const ezStringBuilder sPathWithSlash("/", sPath);
 
     for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
     {
-      if (it.Value()->m_sDataDirRelativePath.EndsWith_NoCase(path.GetData()))
+      if (it.Value()->m_sDataDirRelativePath.EndsWith_NoCase(sPath))
       {
         // endswith -> could also be equal
         if (path.IsEqual_NoCase(it.Value()->m_sDataDirRelativePath.GetData()))

@@ -52,8 +52,10 @@ struct EZ_FOUNDATION_DLL ezLoggingEventData
   /// additional configuration, or simply be ignored.
   const char* m_szTag = "";
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   /// \brief Used by log-blocks for profiling the duration of the block
   double m_fSeconds = 0;
+#endif
 };
 
 typedef ezEvent<const ezLoggingEventData&, ezMutex> ezLoggingEvent;
@@ -273,6 +275,14 @@ public:
   /// pInterface must be != nullptr.
   static void BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum type, const char* szString);
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  /// \brief Calls low-level OS functionality to print a string to the typical outputs, e.g. printf and OutputDebugString.
+  ///
+  /// This function is meant for short term debugging when actual printing to the console is desired. Code using it should be temporary.
+  /// \note This function uses actual printf formatting, not ezFormatString syntax.
+  static void Printf(const char* szFormat, ...);
+#endif
+
 private:
   // Needed to call 'EndLogBlock'
   friend class ezLogBlock;
@@ -319,7 +329,9 @@ private:
   const char* m_szContextInfo;
   ezUInt8 m_uiBlockDepth;
   bool m_bWritten;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   double m_fSeconds; // for profiling
+#endif
 };
 
 /// \brief A class that sets a custom ezLogInterface as the thread local default log system,

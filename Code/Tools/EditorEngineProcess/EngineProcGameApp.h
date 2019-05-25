@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Core/Application/Config/FileSystemConfig.h>
-#include <Core/Application/Config/PluginConfig.h>
+#include <Foundation/Application/Config/FileSystemConfig.h>
+#include <Foundation/Application/Config/PluginConfig.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/GameApplication/GameApplication.h>
@@ -9,6 +9,8 @@
 class ezEditorEngineProcessApp;
 class ezDocumentOpenMsgToEngine;
 class ezEngineProcessDocumentContext;
+class ezResourceUpdateMsgToEngine;
+class ezRestoreResourceMsgToEngine;
 
 class ezEngineProcessGameApplication : public ezGameApplication
 {
@@ -48,6 +50,9 @@ private:
   void EventHandlerCVar(const ezCVar::CVarEvent& e);
   void EventHandlerCVarPlugin(const ezPlugin::PluginEvent& e);
   void TransmitCVar(const ezCVar* pCVar);
+
+  void HandleResourceUpdateMsg(const ezResourceUpdateMsgToEngine& msg);
+  void HandleResourceRestoreMsg(const ezRestoreResourceMsgToEngine& msg);
 
   ezEngineProcessDocumentContext* CreateDocumentContext(const ezDocumentOpenMsgToEngine* pMsg);
 

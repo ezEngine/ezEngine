@@ -206,7 +206,11 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
     {
       case Qt::DisplayRole:
       {
-        if (bTestEnabled && bParentEnabled)
+        if (testAvailable.Failed())
+        {
+          return QString("Test not available: %1").arg(testAvailable.m_sMessage.GetData());
+        }
+        else if (bTestEnabled && bParentEnabled)
         {
           if (bIsSubTest)
           {

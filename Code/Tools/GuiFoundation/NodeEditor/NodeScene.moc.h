@@ -37,7 +37,7 @@ public:
 
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
-  virtual void mousePressEvent(QGraphicsSceneMouseEvent* /*event*/) override;
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
   virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenuEvent) override;
   virtual void keyPressEvent(QKeyEvent* event) override;

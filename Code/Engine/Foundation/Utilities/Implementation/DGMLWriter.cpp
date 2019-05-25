@@ -237,6 +237,4 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& StringBuilder, c
   return EZ_SUCCESS;
 }
 
-
-
-EZ_STATICLINK_FILE(Utilities, Utilities_DGML_Implementation_DGMLWriter);
+EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_DGMLWriter);

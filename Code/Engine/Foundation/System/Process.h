@@ -2,8 +2,10 @@
 
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Strings/StringView.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/Bitflags.h>
+#include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/UniquePtr.h>
 
 typedef void* ezOsProcessHandle;
@@ -139,8 +141,11 @@ public:
   /// \brief Returns the OS specific handle to the process
   ezOsProcessHandle GetProcessHandle() const;
 
-  /// \brief Returns the OS specific PID
+  /// \brief Returns the OS-specific process ID (PID)
   ezOsProcessID GetProcessID() const;
+
+  /// \brief Returns OS-specific process ID (PID) for the calling process
+  static ezOsProcessID GetCurrentProcessID();
 
 private:
   void BuildFullCommandLineString(const ezProcessOptions& opt, const char* szProcess, ezStringBuilder& cmd) const;

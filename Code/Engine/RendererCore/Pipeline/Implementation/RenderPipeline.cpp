@@ -306,7 +306,7 @@ bool ezRenderPipeline::RebuildInternal(const ezView& view)
 bool ezRenderPipeline::SortPasses()
 {
   ezLogBlock b("Sort Passes");
-  ezDynamicArray<ezRenderPipelinePass*> done;
+  ezHybridArray<ezRenderPipelinePass*, 32> done;
   done.Reserve(m_Passes.GetCount());
 
   ezHybridArray<ezRenderPipelinePass*, 8> usable;     // Stack of passes with all connections setup, they can be asked for descriptions.
@@ -393,7 +393,7 @@ bool ezRenderPipeline::SortPasses()
       return a.Borrow() == b.Borrow();
     }
 
-    ezDynamicArray<ezRenderPipelinePass*>* m_pDone;
+    ezHybridArray<ezRenderPipelinePass*, 32>* m_pDone;
   };
 
   ezPipelineSorter sorter;
@@ -405,8 +405,8 @@ bool ezRenderPipeline::SortPasses()
 bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
 {
   ezLogBlock b("Init Render Target Descriptions");
-  ezHybridArray<ezGALTextureCreationDescription*, 8> inputs;
-  ezHybridArray<ezGALTextureCreationDescription, 8> outputs;
+  ezHybridArray<ezGALTextureCreationDescription*, 10> inputs;
+  ezHybridArray<ezGALTextureCreationDescription, 10> outputs;
 
   for (auto& pPass : m_Passes)
   {
@@ -487,7 +487,8 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
   ezLogBlock b("Create Render Target Usage Data");
   EZ_ASSERT_DEBUG(m_TextureUsage.IsEmpty(), "Need to call ClearRenderPassGraphTextures before re-creating the pipeline.");
 
-  ezMap<ezRenderPipelinePassConnection*, ezUInt32> connectionToTextureIndex;
+  m_ConnectionToTextureIndex.Clear();
+
   // Gather all connections that share the same path-through texture and their first and last usage pass index.
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); i++)
   {
@@ -497,7 +498,7 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
     {
       if (pConn != nullptr)
       {
-        ezUInt32 uiDataIdx = connectionToTextureIndex[pConn];
+        ezUInt32 uiDataIdx = m_ConnectionToTextureIndex[pConn];
         m_TextureUsage[uiDataIdx].m_uiLastUsageIdx = i;
       }
     }
@@ -509,17 +510,17 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
         if (pConn->m_pOutput->m_Type == ezNodePin::Type::PassThrough && data.m_Inputs[pConn->m_pOutput->m_uiInputIndex] != nullptr)
         {
           ezRenderPipelinePassConnection* pCorrespondingInputConn = data.m_Inputs[pConn->m_pOutput->m_uiInputIndex];
-          EZ_ASSERT_DEV(connectionToTextureIndex.Contains(pCorrespondingInputConn), "");
-          ezUInt32 uiDataIdx = connectionToTextureIndex[pCorrespondingInputConn];
+          EZ_ASSERT_DEV(m_ConnectionToTextureIndex.Contains(pCorrespondingInputConn), "");
+          ezUInt32 uiDataIdx = m_ConnectionToTextureIndex[pCorrespondingInputConn];
           m_TextureUsage[uiDataIdx].m_UsedBy.PushBack(pConn);
           m_TextureUsage[uiDataIdx].m_uiLastUsageIdx = i;
 
-          EZ_ASSERT_DEV(!connectionToTextureIndex.Contains(pConn), "");
-          connectionToTextureIndex[pConn] = uiDataIdx;
+          EZ_ASSERT_DEV(!m_ConnectionToTextureIndex.Contains(pConn), "");
+          m_ConnectionToTextureIndex[pConn] = uiDataIdx;
         }
         else
         {
-          connectionToTextureIndex[pConn] = m_TextureUsage.GetCount();
+          m_ConnectionToTextureIndex[pConn] = m_TextureUsage.GetCount();
           TextureUsageData& data = m_TextureUsage.ExpandAndGetRef();
 
           data.m_bTargetTexture = false;
@@ -545,8 +546,8 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
         if (pConn != nullptr)
         {
           ezGALTextureHandle hTexture = pTargetPass->GetTextureHandle(view, pPass->GetInputPins()[j]);
-          EZ_ASSERT_DEV(connectionToTextureIndex.Contains(pConn), "");
-          ezUInt32 uiDataIdx = connectionToTextureIndex[pConn];
+          EZ_ASSERT_DEV(m_ConnectionToTextureIndex.Contains(pConn), "");
+          ezUInt32 uiDataIdx = m_ConnectionToTextureIndex[pConn];
           m_TextureUsage[uiDataIdx].m_bTargetTexture = true;
           for (auto pConn : m_TextureUsage[uiDataIdx].m_UsedBy)
           {
@@ -637,8 +638,8 @@ void ezRenderPipeline::SortExtractors()
     }
   };
 
-  ezDynamicArray<ezUniquePtr<ezExtractor>> sortedExtractors;
-  sortedExtractors.Reserve(m_Extractors.GetCount());
+  m_SortedExtractors.Clear();
+  m_SortedExtractors.Reserve(m_Extractors.GetCount());
 
   ezUInt32 uiIndex = 0;
   while (!m_Extractors.IsEmpty())
@@ -648,7 +649,7 @@ void ezRenderPipeline::SortExtractors()
     bool allDependenciesFound = true;
     for (auto& sDependency : extractor->m_DependsOn)
     {
-      if (!Helper::FindDependency(sDependency, sortedExtractors))
+      if (!Helper::FindDependency(sDependency, m_SortedExtractors))
       {
         allDependenciesFound = false;
         break;
@@ -657,7 +658,7 @@ void ezRenderPipeline::SortExtractors()
 
     if (allDependenciesFound)
     {
-      sortedExtractors.PushBack(std::move(extractor));
+      m_SortedExtractors.PushBack(std::move(extractor));
       m_Extractors.RemoveAtAndCopy(uiIndex);
     }
     else
@@ -671,7 +672,7 @@ void ezRenderPipeline::SortExtractors()
     }
   }
 
-  m_Extractors.Swap(sortedExtractors);
+  m_Extractors.Swap(m_SortedExtractors);
 }
 
 void ezRenderPipeline::UpdateViewData(const ezView& view, ezUInt32 uiDataIndex)
@@ -799,7 +800,7 @@ void ezRenderPipeline::ClearRenderPassGraphTextures()
 }
 
 bool ezRenderPipeline::AreInputDescriptionsAvailable(const ezRenderPipelinePass* pPass,
-                                                     const ezDynamicArray<ezRenderPipelinePass*>& done) const
+                                                     const ezHybridArray<ezRenderPipelinePass*, 32>& done) const
 {
   auto it = m_Connections.Find(pPass);
   const ConnectionData& data = it.Value();
@@ -819,7 +820,7 @@ bool ezRenderPipeline::AreInputDescriptionsAvailable(const ezRenderPipelinePass*
   return true;
 }
 
-bool ezRenderPipeline::ArePassThroughInputsDone(const ezRenderPipelinePass* pPass, const ezDynamicArray<ezRenderPipelinePass*>& done) const
+bool ezRenderPipeline::ArePassThroughInputsDone(const ezRenderPipelinePass* pPass, const ezHybridArray<ezRenderPipelinePass*, 32>& done) const
 {
   auto it = m_Connections.Find(pPass);
   const ConnectionData& data = it.Value();

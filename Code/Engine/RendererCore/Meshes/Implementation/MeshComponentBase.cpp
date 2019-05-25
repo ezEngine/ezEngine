@@ -99,7 +99,7 @@ void ezMeshRenderData::FillBatchIdAndSortingKey()
   // Generate batch id from mesh, material and part index.
   ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, m_uiSubMeshIndex, m_uiFlipWinding};
 
-  if (!m_hSkinningMatrices.IsInvalidated())
+  if (!m_hSkinningMatrices.IsInvalidated() || m_pExplicitInstanceData != nullptr)
   {
     // TODO: When skinning is enabled, batching is prevented. Review this.
     data[2] = this->m_uiUniqueID;

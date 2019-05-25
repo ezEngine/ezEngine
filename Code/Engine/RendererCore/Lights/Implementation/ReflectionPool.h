@@ -21,6 +21,7 @@ public:
     ezMsgExtractRenderData& msg, const ezReflectionProbeData& data, const ezComponent* pComponent, float fPriority = 1.0f);
 
   static void SetConstantSkyIrradiance(const ezWorld* pWorld, const ezAmbientCube<ezColor>& skyIrradiance);
+  static void ResetConstantSkyIrradiance(const ezWorld* pWorld);
 
   static ezUInt32 GetReflectionCubeMapSize();
   static ezGALTextureHandle GetReflectionSpecularTexture();

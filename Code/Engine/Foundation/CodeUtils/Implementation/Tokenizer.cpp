@@ -57,13 +57,13 @@ void ezTokenizer::NextChar()
 
   if (!m_Iterator.IsValid())
   {
-    m_szNextCharStart = m_Iterator.GetEndPosition();
+    m_szNextCharStart = m_Iterator.GetEndPointer();
     m_uiNextChar = '\0';
     return;
   }
 
   m_uiNextChar = m_Iterator.GetCharacter();
-  m_szNextCharStart = m_Iterator.GetData();
+  m_szNextCharStart = m_Iterator.GetStartPointer();
 
   ++m_Iterator;
 }

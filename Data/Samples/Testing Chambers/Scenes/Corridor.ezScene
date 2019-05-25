@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{1977558759748590222}
+		u4 %Hash{6179145179810412830}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -3979,6 +3979,18 @@ o
 }
 o
 {
+	Uuid %id{u4{11068466961908290238,4903866592875722828}}
+	s %t{"ezProcGenBoxExtents"}
+	u3 %v{1}
+	p
+	{
+		Vec3 %Extents{f{0x00004843,0x00004843,0x00002041}}
+		Vec3 %Offset{f{0,0,0}}
+		Quat %Rotation{f{0,0,0,0x0000803F}}
+	}
+}
+o
+{
 	Uuid %id{u4{8711948141835682434,4913688216909541147}}
 	s %t{"ezGreyBoxComponent"}
 	u3 %v{3}
@@ -5720,12 +5732,15 @@ o
 o
 {
 	Uuid %id{u4{16131629614973461429,5208171056684284849}}
-	s %t{"ezProceduralPlacementComponent"}
+	s %t{"ezProcPlacementComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
-		Vec3 %Extents{f{0x00004843,0x00004843,0x00002041}}
+		VarArray %BoxExtents
+		{
+			Uuid{u4{11068466961908290238,4903866592875722828}}
+		}
 		s %Resource{"{ 5f7e8998-fe23-4a33-aa84-d10d4dfcf2a6 }"}
 	}
 }
@@ -19278,24 +19293,6 @@ o
 }
 o
 {
-	Uuid %id{u4{13068179037296247958,1735471371214565641}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"ezEditorPluginProceduralPlacement"}
-		VarArray %Properties{}
-		s %TypeName{"ezProceduralPlacementComponent"}
-		u3 %TypeSize{72}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{4447097914284062604,1918706753753133111}}
 	s %t{"ezCategoryAttribute"}
 	u3 %v{1}
@@ -19588,6 +19585,24 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"MaxSimplification"}
 		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{2406542229663305138,6676649039585463701}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcPlacementComponent"}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -20322,6 +20337,24 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"AgentHeight"}
 		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{10743191096997614114,17783734772379841776}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcGenBoxExtents"}
+		u3 %TypeSize{40}
+		u3 %TypeVersion{1}
 	}
 }
 o

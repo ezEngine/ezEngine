@@ -17,16 +17,14 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, bool bUseEngineConnection,
-                                 bool bUseIPCObjectMirror)
+ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
     : ezDocument(szDocumentPath, pObjectManager)
 {
-  m_EngineStatus = bUseEngineConnection ? EngineStatus::Disconnected : EngineStatus::Unsupported;
-  m_bUseEngineConnection = bUseEngineConnection;
-  m_bUseIPCObjectMirror = bUseIPCObjectMirror;
+  m_EngineConnectionType = engineConnectionType;
+  m_EngineStatus = (m_EngineConnectionType != ezAssetDocEngineConnection::None) ? EngineStatus::Disconnected : EngineStatus::Unsupported;
   m_pEngineConnection = nullptr;
 
-  if (m_bUseEngineConnection)
+  if (m_EngineConnectionType != ezAssetDocEngineConnection::None)
   {
     ezEditorEngineProcessConnection::GetSingleton()->s_Events.AddEventHandler(
         ezMakeDelegate(&ezAssetDocument::EngineConnectionEventHandler, this));
@@ -37,7 +35,7 @@ ezAssetDocument::~ezAssetDocument()
 {
   m_Mirror.DeInit();
 
-  if (m_bUseEngineConnection)
+  if (m_EngineConnectionType != ezAssetDocEngineConnection::None)
   {
     ezEditorEngineProcessConnection::GetSingleton()->s_Events.RemoveEventHandler(
         ezMakeDelegate(&ezAssetDocument::EngineConnectionEventHandler, this));
@@ -93,29 +91,35 @@ void ezAssetDocument::InternalAfterSaveDocument()
   const auto flags = GetAssetFlags();
   ezAssetCurator::GetSingleton()->NotifyOfFileChange(GetDocumentPath());
 
-  if (flags.IsAnySet(ezAssetDocumentFlags::AutoTransformOnSave))
+  // If we request an engine connection but the mirror is not set up yet we are still
+  // creating the document and TransformAsset will most likely fail.
+  if (m_EngineConnectionType != ezAssetDocEngineConnection::None && m_Mirror.GetIPC())
   {
-    /// \todo Should only be done for platform agnostic assets
-    auto ret = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), false);
+    if (flags.IsAnySet(ezAssetDocumentFlags::AutoTransformOnSave))
+    {
+      /// \todo Should only be done for platform agnostic assets
+      auto ret = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), false);
 
-    if (ret.m_Result.Failed())
-    {
-      ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage, GetDocumentPath());
-    }
-    else
-    {
-      ezAssetCurator::GetSingleton()->WriteAssetTables();
+      if (ret.m_Result.Failed())
+      {
+        ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage, GetDocumentPath());
+      }
+      else
+      {
+        ezAssetCurator::GetSingleton()->WriteAssetTables();
+      }
     }
   }
 }
 
 void ezAssetDocument::InitializeAfterLoadingAndSaving()
 {
-  if (m_bUseEngineConnection)
+  if (m_EngineConnectionType != ezAssetDocEngineConnection::None)
   {
     m_pEngineConnection = ezEditorEngineProcessConnection::GetSingleton()->CreateEngineConnection(this);
     m_EngineStatus = EngineStatus::Initializing;
-    if (m_bUseIPCObjectMirror)
+
+    if (m_EngineConnectionType == ezAssetDocEngineConnection::FullObjectMirroring)
     {
       m_Mirror.SetIPC(m_pEngineConnection);
       m_Mirror.InitSender(GetObjectManager());
@@ -681,7 +685,7 @@ void ezAssetDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
   {
-    if (m_bUseIPCObjectMirror)
+    if (m_EngineConnectionType == ezAssetDocEngineConnection::FullObjectMirroring)
     {
       // make sure the engine clears the document first
       ezDocumentClearMsgToEngine msgClear;

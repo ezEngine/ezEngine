@@ -14,6 +14,11 @@ ezWorldModule::ezWorldModule(ezWorld* pWorld)
 
 ezWorldModule::~ezWorldModule() {}
 
+ezUInt32 ezWorldModule::GetWorldIndex() const
+{
+  return GetWorld()->GetIndex();
+}
+
 // protected methods
 
 void ezWorldModule::RegisterUpdateFunction(const UpdateFunctionDesc& desc)

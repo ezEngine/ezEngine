@@ -37,7 +37,9 @@ function(ez_prepare_find_qt)
         set (Qt5Gui_DIR "Qt5Gui_DIR-NOTFOUND" CACHE PATH "" FORCE)
         set (Qt5Widgets_DIR "Qt5Widgets_DIR-NOTFOUND" CACHE PATH "" FORCE)
         set (Qt5Network_DIR "Qt5Network_DIR-NOTFOUND" CACHE PATH "" FORCE)
-        set (Qt5WinExtras_DIR "Qt5WinExtras_DIR-NOTFOUND" CACHE PATH "" FORCE)
+        if (EZ_CMAKE_PLATFORM_WINDOWS)
+            set (Qt5WinExtras_DIR "Qt5WinExtras_DIR-NOTFOUND" CACHE PATH "" FORCE)
+        endif()
     endif()
 
     # force find_package to search for Qt in the correct folder
@@ -64,6 +66,10 @@ function(ez_link_target_qt)
 
     if (FN_ARG_UNPARSED_ARGUMENTS)
         message(FATAL_ERROR "ez_link_target_qt: Invalid arguments '${FN_ARG_UNPARSED_ARGUMENTS}'")
+    endif()
+
+    if (NOT EZ_CMAKE_PLATFORM_WINDOWS)
+        list(REMOVE_ITEM FN_ARG_COMPONENTS WinExtras)
     endif()
 
     ez_prepare_find_qt()

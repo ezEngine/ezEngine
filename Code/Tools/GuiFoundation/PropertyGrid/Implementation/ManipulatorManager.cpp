@@ -232,7 +232,9 @@ void ezManipulatorManager::DocumentManagerEventHandler(const ezDocumentManager::
     ClearActiveManipulator(e.m_pDocument);
 
     e.m_pDocument->GetObjectManager()->m_StructureEvents.RemoveEventHandler(
-        ezMakeDelegate(&ezManipulatorManager::StructureEventHandler, this));
+      ezMakeDelegate(&ezManipulatorManager::StructureEventHandler, this));
+    e.m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezManipulatorManager::SelectionEventHandler, this));
+
     m_ActiveManipulator.Remove(e.m_pDocument);
   }
 }

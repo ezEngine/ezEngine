@@ -627,6 +627,8 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
 
 void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 {
+  EZ_PROFILE_SCOPE("Process Queued Messages");
+
   struct MessageComparer
   {
     EZ_FORCE_INLINE bool Less(const ezInternal::WorldData::MessageQueue::Entry& a,
@@ -697,6 +699,7 @@ void ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctio
                 "Granularity must be 0 for synchronous update functions");
   EZ_ASSERT_DEV(desc.m_Phase != ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_DependsOn.GetCount() == 0,
                 "Asynchronous update functions must not have dependencies");
+  EZ_ASSERT_DEV(!desc.m_Function.IsHeapAllocated(), "Delegates with captures are not allowed as ezWorld update functions.");
 
   m_Data.m_UpdateFunctionsToRegister.PushBack(desc);
 }
@@ -709,7 +712,7 @@ void ezWorld::DeregisterUpdateFunction(const ezComponentManagerBase::UpdateFunct
 
   for (ezUInt32 i = updateFunctions.GetCount(); i-- > 0;)
   {
-    if (updateFunctions[i].m_Function == desc.m_Function)
+    if (updateFunctions[i].m_Function.IsEqualIfNotHeapAllocated(desc.m_Function))
     {
       updateFunctions.RemoveAtAndCopy(i);
     }

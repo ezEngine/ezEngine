@@ -26,7 +26,7 @@ EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 ezTextureAssetDocument::ezTextureAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezTextureAssetProperties>(szDocumentPath, true)
+  : ezSimpleAssetDocument<ezTextureAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
 {
   m_iTextureLod = -1;
 }

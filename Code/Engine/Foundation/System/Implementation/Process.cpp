@@ -128,3 +128,7 @@ void ezProcess::BuildFullCommandLineString(const ezProcessOptions& opt, const ch
 
   opt.BuildCommandLineString(cmd);
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_System_Implementation_Process);
+
