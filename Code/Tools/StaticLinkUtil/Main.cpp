@@ -45,7 +45,7 @@ The parameters and function body will be automatically generated and later updat
 See the Return Codes at the end of the BeforeCoreSystemsShutdown function.
 */
 
-class ezStaticLinkerApp : public ezApplication
+class ezHeaderCheckApp : public ezApplication
 {
 private:
   ezString m_sSearchDir;
@@ -77,7 +77,7 @@ private:
 public:
   typedef ezApplication SUPER;
 
-  ezStaticLinkerApp()
+  ezHeaderCheckApp()
     : ezApplication("StaticLinkerApp")
   {
     m_bHadErrors = false;
@@ -90,7 +90,7 @@ public:
   /// Makes sure the apps return value reflects whether there were any errors or warnings
   static void LogInspector(const ezLoggingEventData& eventData)
   {
-    ezStaticLinkerApp* app = (ezStaticLinkerApp*) ezApplication::GetApplicationInstance();
+    ezHeaderCheckApp* app = (ezHeaderCheckApp*) ezApplication::GetApplicationInstance();
 
     switch (eventData.m_EventType)
     {
@@ -764,4 +764,4 @@ public:
   }
 };
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezStaticLinkerApp);
+EZ_CONSOLEAPP_ENTRY_POINT(ezHeaderCheckApp);

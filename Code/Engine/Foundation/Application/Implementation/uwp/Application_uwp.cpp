@@ -1,6 +1,7 @@
 #include <FoundationPCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Application/Application.h>
 #include <Foundation/Application/Implementation/uwp/Application_uwp.h>
 #include <Foundation/IO/OSFile.h>

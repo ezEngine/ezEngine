@@ -4,6 +4,7 @@
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <RenderDocPlugin/RenderDocSingleton.h>
 #include <RenderDocPlugin/ThirdParty/renderdoc_app.h>
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
 EZ_IMPLEMENT_SINGLETON(ezRenderDoc);
 
@@ -23,7 +24,7 @@ ezRenderDoc::ezRenderDoc()
   if (!dllHandle)
   {
     dllHandle = LoadLibraryW(L"renderdoc.dll");
-    m_HandleToFree = dllHandle;
+    m_HandleToFree = ezMinWindows::FromNative(dllHandle);
   }
 
   if (!dllHandle)
@@ -59,7 +60,7 @@ ezRenderDoc::~ezRenderDoc()
 
   if (m_HandleToFree)
   {
-    FreeLibrary(m_HandleToFree);
+    FreeLibrary(ezMinWindows::ToNative(m_HandleToFree));
     m_HandleToFree = nullptr;
   }
 }

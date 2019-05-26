@@ -4,6 +4,8 @@
 
 #define EZ_STACKTRACER_POSIX_INL_H_INCLUDED
 
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/Math/Math.h>
 #include <execinfo.h>

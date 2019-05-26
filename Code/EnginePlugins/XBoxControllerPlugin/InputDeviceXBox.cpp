@@ -1,6 +1,7 @@
 #include <Core/Input/InputManager.h>
 #include <Foundation/Logging/Log.h>
 #include <XBoxControllerPlugin/InputDeviceXBox.h>
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
 #include <Xinput.h>
 

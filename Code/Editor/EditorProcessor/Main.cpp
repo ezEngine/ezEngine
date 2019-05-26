@@ -1,10 +1,10 @@
 #include <EditorProcessorPCH.h>
 
-#include <Foundation/Application/Application.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <Foundation/Application/Application.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <QApplication>
 #include <QSettings>
@@ -51,8 +51,8 @@ public:
     {
       ezProcessAssetResponseMsg msg;
       {
-        ezLogEntryDelegate logger([&msg](ezLogEntry& entry) -> void { msg.m_LogEntries.PushBack(std::move(entry)); },
-                                  ezLogMsgType::WarningMsg);
+        ezLogEntryDelegate logger(
+          [&msg](ezLogEntry& entry) -> void { msg.m_LogEntries.PushBack(std::move(entry)); }, ezLogMsgType::WarningMsg);
         ezLogSystemScope logScope(&logger);
 
         const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(pMsg->m_sPlatform);
@@ -68,7 +68,7 @@ public:
           ezAssetCurator::GetSingleton()->SetActiveAssetProfileByIndex(uiPlatform);
 
           const ezStatus res = ezAssetCurator::GetSingleton()->TransformAsset(
-              pMsg->m_AssetGuid, false, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
+            pMsg->m_AssetGuid, false, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
 
           msg.m_bSuccess = res.m_Result.Succeeded();
 
@@ -104,26 +104,26 @@ public:
       bool bTransform = true;
 
       ezQtEditorApp::GetSingleton()->connect(
-          ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bTransform]() {
-            if (!bTransform)
-              return;
+        ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bTransform]() {
+          if (!bTransform)
+            return;
 
-            bTransform = false;
+          bTransform = false;
 
-            const ezString sPlatform = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-transform");
-            const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(sPlatform);
+          const ezString sPlatform = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-transform");
+          const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(sPlatform);
 
-            if (uiPlatform == ezInvalidIndex)
-            {
-              ezLog::Error("Asset platform config '{0}' is unknown", sPlatform);
-            }
-            else
-            {
-              ezAssetCurator::GetSingleton()->TransformAllAssets(ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
-            }
+          if (uiPlatform == ezInvalidIndex)
+          {
+            ezLog::Error("Asset platform config '{0}' is unknown", sPlatform);
+          }
+          else
+          {
+            ezAssetCurator::GetSingleton()->TransformAllAssets(ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
+          }
 
-            QApplication::quit();
-          });
+          QApplication::quit();
+        });
 
       const ezInt32 iReturnCode = ezQtEditorApp::GetSingleton()->RunEditor();
       SetReturnCode(iReturnCode);
@@ -136,20 +136,20 @@ public:
         m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEditorApplication::EventHandlerIPC, this));
 
         ezQtEditorApp::GetSingleton()->OpenProject(sProject);
-        ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(),
-                                               [this]() {
-                                                 static bool bRecursionBlock = false;
-                                                 if (bRecursionBlock)
-                                                   return;
-                                                 bRecursionBlock = true;
+        ezQtEditorApp::GetSingleton()->connect(
+          ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]() {
+            static bool bRecursionBlock = false;
+            if (bRecursionBlock)
+              return;
+            bRecursionBlock = true;
 
-                                                 if (!m_IPC.IsHostAlive())
-                                                   QApplication::quit();
+            if (!m_IPC.IsHostAlive())
+              QApplication::quit();
 
-                                                 m_IPC.WaitForMessages();
+            m_IPC.WaitForMessages();
 
-                                                 bRecursionBlock = false;
-                                               });
+            bRecursionBlock = false;
+          });
 
         const ezInt32 iReturnCode = ezQtEditorApp::GetSingleton()->RunEditor();
         SetReturnCode(iReturnCode);

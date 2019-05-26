@@ -12,7 +12,7 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
   if (pWindow != nullptr && pWindow->IsInitialized())
   {
     if (pWindow->GetInputDevice())
-      pWindow->GetInputDevice()->WindowMessage(hWnd, Msg, WParam, LParam);
+      pWindow->GetInputDevice()->WindowMessage(ezMinWindows::FromNative(hWnd), Msg, WParam, LParam);
 
     switch (Msg)
     {
@@ -49,7 +49,7 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
       break;
     }
 
-    pWindow->OnWindowMessage(hWnd, Msg, WParam, LParam);
+    pWindow->OnWindowMessage(ezMinWindows::FromNative(hWnd), Msg, WParam, LParam);
   }
 
   return DefWindowProcW(hWnd, Msg, WParam, LParam);
@@ -172,8 +172,8 @@ ezResult ezWindow::Initialize()
   // create window
   ezStringWChar sTitelWChar(m_CreationDescription.m_Title.GetData());
   const wchar_t* sTitelWCharRaw = sTitelWChar.GetData();
-  m_WindowHandle = CreateWindowExW(dwExStyle, windowClass.lpszClassName, sTitelWCharRaw, dwWindowStyle, m_CreationDescription.m_Position.x,
-    m_CreationDescription.m_Position.y, iWidth, iHeight, nullptr, nullptr, windowClass.hInstance, nullptr);
+  m_WindowHandle = ezMinWindows::FromNative(CreateWindowExW(dwExStyle, windowClass.lpszClassName, sTitelWCharRaw, dwWindowStyle, m_CreationDescription.m_Position.x,
+    m_CreationDescription.m_Position.y, iWidth, iHeight, nullptr, nullptr, windowClass.hInstance, nullptr));
 
   if (m_WindowHandle == INVALID_HANDLE_VALUE)
   {
@@ -181,28 +181,30 @@ ezResult ezWindow::Initialize()
     return EZ_FAILURE;
   }
 
+  auto windowHandle = ezMinWindows::ToNative(m_WindowHandle);
+
   // safe window pointer for lookup in ezWindowsMessageFuncTrampoline
-  SetWindowLongPtrW(m_WindowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+  SetWindowLongPtrW(windowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
   // show window and activate if required
-  ShowWindow(m_WindowHandle, m_CreationDescription.m_bSetForegroundOnInit ? SW_SHOWNORMAL : SW_SHOWNOACTIVATE);
+  ShowWindow(windowHandle, m_CreationDescription.m_bSetForegroundOnInit ? SW_SHOWNORMAL : SW_SHOWNOACTIVATE);
   if (m_CreationDescription.m_bSetForegroundOnInit)
   {
-    SetActiveWindow(m_WindowHandle);
-    SetFocus(m_WindowHandle);
-    SetForegroundWindow(m_WindowHandle);
+    SetActiveWindow(windowHandle);
+    SetFocus(windowHandle);
+    SetForegroundWindow(windowHandle);
   }
 
   RECT r;
-  GetClientRect(m_WindowHandle, &r);
+  GetClientRect(windowHandle, &r);
 
   // Force size change to the desired size if CreateWindowExW 'fixed' the size to fit into your current monitor.
   if (m_CreationDescription.m_WindowMode == ezWindowMode::WindowFixedResolution &&
       (m_CreationDescription.m_Resolution.width != r.right - r.left || m_CreationDescription.m_Resolution.height != r.bottom - r.top))
   {
     ::SetWindowPos(
-      m_WindowHandle, HWND_NOTOPMOST, 0, 0, iWidth, iHeight, SWP_NOSENDCHANGING | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
-    GetClientRect(m_WindowHandle, &r);
+      windowHandle, HWND_NOTOPMOST, 0, 0, iWidth, iHeight, SWP_NOSENDCHANGING | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
+    GetClientRect(windowHandle, &r);
   }
 
   m_CreationDescription.m_Resolution.width = r.right - r.left;
@@ -238,7 +240,7 @@ ezResult ezWindow::Destroy()
   if (m_CreationDescription.m_WindowMode == ezWindowMode::FullscreenFixedResolution)
     ChangeDisplaySettingsW(nullptr, 0);
 
-  HWND hWindow = GetNativeWindowHandle();
+  HWND hWindow = ezMinWindows::ToNative(GetNativeWindowHandle());
   if (!DestroyWindow(hWindow))
   {
     ezLog::SeriousWarning("DestroyWindow failed.");

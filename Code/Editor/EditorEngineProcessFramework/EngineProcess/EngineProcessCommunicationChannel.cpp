@@ -2,6 +2,7 @@
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Communication/IpcChannel.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringUtils.h>
@@ -57,7 +58,7 @@ ezResult ezEngineProcessCommunicationChannel::ConnectToHostProcess()
     ezLog::Debug("Host Process ID: {0}", m_iHostPID);
 
     m_pChannel =
-        ezIpcChannel::CreatePipeChannel(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC"), ezIpcChannel::Mode::Client);
+      ezIpcChannel::CreatePipeChannel(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC"), ezIpcChannel::Mode::Client);
   }
   else
   {

@@ -1,6 +1,9 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+
 #include <QWidget>
 
 // <StaticLinkUtil::StartHere>

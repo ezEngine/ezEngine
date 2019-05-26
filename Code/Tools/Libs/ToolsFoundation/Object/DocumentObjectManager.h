@@ -8,6 +8,11 @@
 class ezDocumentObjectManager;
 class ezDocument;
 
+// Prevent conflicts with windows.h
+#ifdef GetObject
+#undef GetObject
+#endif
+
 class EZ_TOOLSFOUNDATION_DLL ezDocumentRoot : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentRoot, ezReflectedClass);

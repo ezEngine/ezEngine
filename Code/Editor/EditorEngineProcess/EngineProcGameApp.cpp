@@ -1,5 +1,7 @@
 #include <EditorEngineProcessPCH.h>
 
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+
 #include <Core/ResourceManager/ResourceManager.h>
 #include <EditorEngineProcess/EngineProcGameApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>

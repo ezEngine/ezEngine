@@ -1,5 +1,8 @@
 #pragma once
 
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
 #include <Foundation/Basics.h>

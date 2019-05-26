@@ -8,7 +8,7 @@
 #ifdef EZ_USE_QT
 #include <Gui.moc.h>
 #include <QApplication>
-#include <Windows.h>
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #endif
 
 #ifdef EZ_USE_QT
