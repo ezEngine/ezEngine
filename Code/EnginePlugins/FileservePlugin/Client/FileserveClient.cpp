@@ -84,7 +84,7 @@ ezResult ezFileserveClient::EnsureConnected(ezTime timeout)
 
   if (m_Network == nullptr)
   {
-    m_Network = EZ_DEFAULT_NEW(ezRemoteInterfaceEnet); /// \todo Somehow abstract this away ?
+    m_Network = ezRemoteInterfaceEnet::Make(); /// \todo Somehow abstract this away ?
 
     m_sFileserveCacheFolder = ezOSFile::GetUserDataFolder("ezFileserve/Cache");
     m_sFileserveCacheMetaFolder = ezOSFile::GetUserDataFolder("ezFileserve/Meta");
@@ -745,12 +745,12 @@ ezResult ezFileserveClient::TryConnectWithFileserver(const char* szAddress, ezTi
 
   ezLog::Info("File server address: '{0}' ({1} sec)", szAddress, timeout.GetSeconds());
 
-  ezRemoteInterfaceEnet network; /// \todo Abstract this somehow ?
-  if (network.ConnectToServer('EZFS', szAddress, false).Failed())
+  ezUniquePtr<ezRemoteInterfaceEnet> network = ezRemoteInterfaceEnet::Make(); /// \todo Abstract this somehow ?
+  if (network->ConnectToServer('EZFS', szAddress, false).Failed())
     return EZ_FAILURE;
 
   bool bServerFound = false;
-  network.SetMessageHandler('FSRV', [&bServerFound](ezRemoteMessage& msg) {
+  network->SetMessageHandler('FSRV', [&bServerFound](ezRemoteMessage& msg) {
     switch (msg.GetMessageID())
     {
       case ' YES':
@@ -759,22 +759,22 @@ ezResult ezFileserveClient::TryConnectWithFileserver(const char* szAddress, ezTi
     }
   });
 
-  if (network.WaitForConnectionToServer(timeout).Succeeded())
+  if (network->WaitForConnectionToServer(timeout).Succeeded())
   {
     // wait for a proper response
     ezTime tStart = ezTime::Now();
     while (ezTime::Now() - tStart < timeout && !bServerFound)
     {
-      network.Send('FSRV', 'RUTR');
+      network->Send('FSRV', 'RUTR');
 
       ezThreadUtils::Sleep(ezTime::Milliseconds(100));
 
-      network.UpdateRemoteInterface();
-      network.ExecuteAllMessageHandlers();
+      network->UpdateRemoteInterface();
+      network->ExecuteAllMessageHandlers();
     }
   }
 
-  network.ShutdownConnection();
+  network->ShutdownConnection();
 
   if (!bServerFound)
     return EZ_FAILURE;
@@ -796,8 +796,8 @@ ezResult ezFileserveClient::WaitForServerInfo(ezTime timeout /*= ezTime::Seconds
   ezHybridArray<ezStringBuilder, 4> sServerIPs;
 
   {
-    ezRemoteInterfaceEnet network; /// \todo Abstract this somehow ?
-    network.SetMessageHandler('FSRV', [&sServerIPs, &uiPort](ezRemoteMessage& msg)
+    ezUniquePtr<ezRemoteInterfaceEnet> network = ezRemoteInterfaceEnet::Make(); /// \todo Abstract this somehow ?
+    network->SetMessageHandler('FSRV', [&sServerIPs, &uiPort](ezRemoteMessage& msg)
 
                               {
                                 switch (msg.GetMessageID())
@@ -818,18 +818,18 @@ ezResult ezFileserveClient::WaitForServerInfo(ezTime timeout /*= ezTime::Seconds
                                 }
                               });
 
-    network.StartServer('EZIP', "2042", false);
+    network->StartServer('EZIP', "2042", false);
 
     ezTime tStart = ezTime::Now();
     while (ezTime::Now() - tStart < timeout && sServerIPs.IsEmpty())
     {
       ezThreadUtils::Sleep(ezTime::Milliseconds(1));
 
-      network.UpdateRemoteInterface();
-      network.ExecuteAllMessageHandlers();
+      network->UpdateRemoteInterface();
+      network->ExecuteAllMessageHandlers();
     }
 
-    network.ShutdownConnection();
+    network->ShutdownConnection();
   }
 
   if (sServerIPs.IsEmpty())

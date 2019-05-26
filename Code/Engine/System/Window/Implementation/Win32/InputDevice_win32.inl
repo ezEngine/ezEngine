@@ -1,10 +1,12 @@
 #include <SystemPCH.h>
 
+#include <System/Window/Implementation/Win32/InputDevice_win32.h>
+
 #include <Core/Input/InputManager.h>
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringConversion.h>
-#include <System/Window/Implementation/Win32/InputDevice_win32.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator)
   ;
@@ -269,7 +271,7 @@ void ezStandardInputDevice::ResetInputSlotValues()
   m_InputSlotValues[ezInputSlot_MouseDblClick2] = 0;
 }
 
-void ezStandardInputDevice::ApplyClipRect(ezMouseCursorClipMode::Enum mode, HWND hWnd)
+void ezStandardInputDevice::ApplyClipRect(ezMouseCursorClipMode::Enum mode, ezMinWindows::HWND hWnd)
 {
   if (!m_bApplyClipRect)
     return;
@@ -285,15 +287,15 @@ void ezStandardInputDevice::ApplyClipRect(ezMouseCursorClipMode::Enum mode, HWND
   RECT r;
   {
     RECT area;
-    GetClientRect(hWnd, &area);
+    GetClientRect(ezMinWindows::ToNative(hWnd), &area);
     POINT p0, p1;
     p0.x = 0;
     p0.y = 0;
     p1.x = area.right;
     p1.y = area.bottom;
 
-    ClientToScreen(hWnd, &p0);
-    ClientToScreen(hWnd, &p1);
+    ClientToScreen(ezMinWindows::ToNative(hWnd), &p0);
+    ClientToScreen(ezMinWindows::ToNative(hWnd), &p1);
 
     r.top = p0.y;
     r.left = p0.x;
@@ -336,7 +338,8 @@ void ezStandardInputDevice::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode)
 // When this is enabled, mouse clicks are retrieved via standard WM_LBUTTONDOWN.
 #define EZ_MOUSEBUTTON_COMPATIBILTY_MODE EZ_ON
 
-void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+void ezStandardInputDevice::WindowMessage(
+  ezMinWindows::HWND hWnd, ezMinWindows::UINT Msg, ezMinWindows::WPARAM wParam, ezMinWindows::LPARAM lParam)
 {
 #if EZ_ENABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
   static ezInt32 s_iMouseCaptureCount = 0;
@@ -362,7 +365,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
     case WM_MOUSEMOVE:
     {
       RECT area;
-      GetClientRect(hWnd, &area);
+      GetClientRect(ezMinWindows::ToNative(hWnd), &area);
 
       const ezUInt32 uiResX = area.right - area.left;
       const ezUInt32 uiResY = area.bottom - area.top;
@@ -424,7 +427,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
       m_InputSlotValues[ezInputSlot_MouseButton0] = 1.0f;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(hWnd);
+        SetCapture(ezMinWindows::ToNative(hWnd));
       ++s_iMouseCaptureCount;
 
       return;
@@ -443,7 +446,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
       m_InputSlotValues[ezInputSlot_MouseButton1] = 1.0f;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(hWnd);
+        SetCapture(ezMinWindows::ToNative(hWnd));
       ++s_iMouseCaptureCount;
 
       return;
@@ -462,7 +465,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
       m_InputSlotValues[ezInputSlot_MouseButton2] = 1.0f;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(hWnd);
+        SetCapture(ezMinWindows::ToNative(hWnd));
       ++s_iMouseCaptureCount;
       return;
 
@@ -482,7 +485,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
         m_InputSlotValues[ezInputSlot_MouseButton4] = 1.0f;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(hWnd);
+        SetCapture(ezMinWindows::ToNative(hWnd));
       ++s_iMouseCaptureCount;
 
       return;

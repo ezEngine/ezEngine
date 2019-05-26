@@ -2,6 +2,7 @@
 
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
 #include <System/SystemDLL.h>
+#include <Foundation/Basics/Platform/Win/MinWindows.h>
 
 class EZ_SYSTEM_DLL ezStandardInputDevice : public ezInputDeviceMouseKeyboard
 {
@@ -12,7 +13,7 @@ public:
   ~ezStandardInputDevice();
 
   /// \brief This function needs to be called by all Windows functions, to pass the input information through to this input device.
-  void WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+  void WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT Msg, ezMinWindows::WPARAM wParam, ezMinWindows::LPARAM lParam);
 
   /// \brief Calling this function will 'translate' most key names from English to the OS language, by querying that information
   /// from the OS.
@@ -34,7 +35,7 @@ private:
   virtual void RegisterInputSlots() override;
   virtual void ResetInputSlotValues() override;
 
-  void ApplyClipRect(ezMouseCursorClipMode::Enum mode, HWND hWnd);
+  void ApplyClipRect(ezMouseCursorClipMode::Enum mode, ezMinWindows::HWND hWnd);
 
   static bool s_bMainWindowUsed;
   ezUInt32 m_uiWindowNumber = 0;

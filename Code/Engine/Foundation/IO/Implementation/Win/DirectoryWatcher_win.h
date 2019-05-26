@@ -1,8 +1,12 @@
 #pragma once
 
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/IO/DirectoryWatcher.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
 struct ezDirectoryWatcherImpl
 {

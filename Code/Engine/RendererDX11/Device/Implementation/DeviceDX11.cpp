@@ -14,6 +14,7 @@
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
 #include <RendererDX11/State/StateDX11.h>
 #include <System/Window/Window.h>
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
 #include <d3d11.h>
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
@@ -751,7 +752,7 @@ void ezGALDeviceDX11::SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain)
 {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   // Make window association
-  m_pDXGIFactory->MakeWindowAssociation(pSwapChain->GetDescription().m_pWindow->GetNativeWindowHandle(), 0);
+  m_pDXGIFactory->MakeWindowAssociation(ezMinWindows::ToNative(pSwapChain->GetDescription().m_pWindow->GetNativeWindowHandle()), 0);
 #endif
 }
 

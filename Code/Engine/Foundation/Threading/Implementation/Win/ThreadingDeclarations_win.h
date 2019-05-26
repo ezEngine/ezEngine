@@ -3,16 +3,29 @@
 // Deactivate Doxygen document generation for the following block.
 /// \cond
 
-typedef CRITICAL_SECTION ezMutexHandle;
-typedef HANDLE ezThreadHandle;
-typedef DWORD ezThreadID;
-typedef DWORD(__stdcall* ezOSThreadEntryPoint)(LPVOID lpThreadParameter);
+#include <Foundation/Basics/Platform/Win/MinWindows.h>
 
-#define EZ_THREAD_CLASS_ENTRY_POINT DWORD __stdcall ezThreadClassEntryPoint(LPVOID lpThreadParameter);
+#if EZ_ENABLED(EZ_PLATFORM_32BIT)
+struct EZ_ALIGN(ezMutexHandle, 4)
+{
+  ezUInt8 data[24];
+};
+#else
+struct EZ_ALIGN(ezMutexHandle, 8)
+{
+  ezUInt8 data[40];
+};
+#endif
+
+typedef ezMinWindows::HANDLE ezThreadHandle;
+typedef ezMinWindows::DWORD ezThreadID;
+typedef ezMinWindows::DWORD(__stdcall* ezOSThreadEntryPoint)(void* lpThreadParameter);
+
+#define EZ_THREAD_CLASS_ENTRY_POINT ezMinWindows::DWORD __stdcall ezThreadClassEntryPoint(void* lpThreadParameter);
 
 struct ezThreadSignalData
 {
-  HANDLE m_hEvent; // Nobody knows what happened during THE EVENT
+  ezMinWindows::HANDLE m_hEvent; // Nobody knows what happened during THE EVENT
 };
 
 /// \endcond

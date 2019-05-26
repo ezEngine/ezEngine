@@ -1,3 +1,6 @@
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 #include <rpc.h>
 #include <combaseapi.h>
 

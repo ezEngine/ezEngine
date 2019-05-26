@@ -45,6 +45,10 @@ ezMemoryMappedFile::~ezMemoryMappedFile()
 
 ezResult ezMemoryMappedFile::Open(const char* szAbsolutePath, Mode mode)
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  // TODO implement
+  return EZ_FAILURE;
+#else
   EZ_ASSERT_DEV(mode != Mode::None, "Invalid mode to open the memory mapped file");
   EZ_ASSERT_DEV(ezPathUtils::IsAbsolutePath(szAbsolutePath), "ezMemoryMappedFile::Open() can only be used with absolute file paths");
 
@@ -105,6 +109,7 @@ ezResult ezMemoryMappedFile::Open(const char* szAbsolutePath, Mode mode)
   }
 
   return EZ_SUCCESS;
+#endif
 }
 
 ezResult ezMemoryMappedFile::OpenShared(const char* szSharedName, ezUInt64 uiSize, Mode mode)

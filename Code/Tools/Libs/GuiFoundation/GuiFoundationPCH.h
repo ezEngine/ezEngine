@@ -1,5 +1,7 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Logging/Log.h>
 

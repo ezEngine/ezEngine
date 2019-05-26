@@ -7,6 +7,8 @@
 #include <Foundation/Time/Time.h>
 #include <Foundation/Time/Timestamp.h>
 
+#include <stdarg.h>
+
 void TestFormat(const ezFormatString& str, const char* szExpected)
 {
   ezStringBuilder sb;

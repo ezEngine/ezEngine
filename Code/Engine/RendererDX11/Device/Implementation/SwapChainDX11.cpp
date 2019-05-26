@@ -3,6 +3,7 @@
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
 #include <System/Window/Window.h>
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
 #include <Foundation/Basics/Platform/Win/HResultUtils.h>
 #include <d3d11.h>
@@ -70,7 +71,7 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
       DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; /// \todo The mode switch needs to be handled (ResizeBuffers + communication with engine)
   SwapChainDesc.SampleDesc.Count = m_Description.m_SampleCount;
   SwapChainDesc.SampleDesc.Quality = 0; /// \todo Get from MSAA value of the m_Description
-  SwapChainDesc.OutputWindow = m_Description.m_pWindow->GetNativeWindowHandle();
+  SwapChainDesc.OutputWindow = ezMinWindows::ToNative(m_Description.m_pWindow->GetNativeWindowHandle());
   SwapChainDesc.SwapEffect =
       DXGI_SWAP_EFFECT_DISCARD; // The FLIP models are more efficient but only supported in Win8+. See
                                 // https://msdn.microsoft.com/en-us/library/windows/desktop/bb173077(v=vs.85).aspx#DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL

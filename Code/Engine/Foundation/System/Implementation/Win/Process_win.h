@@ -21,9 +21,11 @@ struct ezPipeWin
     if (!CreatePipe(&m_pipeRead, &m_pipeWrite, &saAttr, 0))
       ezLog::Error("ezPipeWin: CreatePipe failed");
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
     // Ensure the read handle to the pipe is not inherited.
     if (!SetHandleInformation(m_pipeRead, HANDLE_FLAG_INHERIT, 0))
       ezLog::Error("Stdout SetHandleInformation");
+#endif
   }
 
   void Close()
@@ -122,6 +124,10 @@ ezOsProcessID ezProcess::GetCurrentProcessID()
 
 ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaunchFlags> launchFlags /*= ezAsyncProcessFlags::None*/)
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  // TODO implement
+  return EZ_FAILURE;
+#else
   EZ_ASSERT_DEV(m_impl->m_ProcessHandle == nullptr, "Cannot reuse an instance of ezProcess");
   EZ_ASSERT_DEV(m_impl->m_ProcessID == 0, "Cannot reuse an instance of ezProcess");
 
@@ -208,6 +214,7 @@ ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaun
   }
 
   return EZ_SUCCESS;
+#endif
 }
 
 ezResult ezProcess::ResumeSuspended()

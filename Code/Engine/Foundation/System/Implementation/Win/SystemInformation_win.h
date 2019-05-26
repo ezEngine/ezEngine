@@ -1,6 +1,11 @@
 // Deactivate Doxygen document generation for the following block.
 /// \cond
 
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 #include <Foundation/Basics/Platform/uwp/UWPUtils.h>
 #include <windows.networking.connectivity.h>

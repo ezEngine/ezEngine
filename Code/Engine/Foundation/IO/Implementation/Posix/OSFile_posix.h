@@ -1,5 +1,8 @@
 #pragma once
 
+#include <Foundation/FoundationPCH.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 #include <Foundation/Logging/Log.h>
 #include <Utilities/CommandLineUtils.h>
 #include <errno.h>

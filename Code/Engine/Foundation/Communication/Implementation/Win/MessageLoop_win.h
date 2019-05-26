@@ -1,8 +1,12 @@
 #pragma once
 
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 #include <Foundation/Basics.h>
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Communication/Implementation/MessageLoop.h>
 
 class ezIpcChannel;

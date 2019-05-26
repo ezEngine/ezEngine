@@ -1,4 +1,5 @@
 #include <SystemPCH.h>
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
 BOOL CALLBACK ezMonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData)
 {

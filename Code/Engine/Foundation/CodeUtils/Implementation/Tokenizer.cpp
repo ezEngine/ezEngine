@@ -25,10 +25,14 @@ namespace
 }
 
 
-ezTokenizer::ezTokenizer()
-  : m_Tokens(&s_ClassAllocator)
-  , m_Data(&s_ClassAllocator)
+ezTokenizer::ezTokenizer(ezAllocatorBase* pAllocator)
 {
+  if (pAllocator == nullptr)
+  {
+    pAllocator = &s_ClassAllocator;
+  }
+  m_Data = ezDynamicArray<ezUInt8>(pAllocator);
+  m_Tokens = ezDeque<ezToken>(pAllocator);
   m_pLog = nullptr;
   m_CurMode = ezTokenType::Unknown;
   m_uiCurLine = 1;
@@ -41,6 +45,12 @@ ezTokenizer::ezTokenizer()
   m_szCurCharStart = nullptr;
   m_szNextCharStart = nullptr;
   m_szTokenStart = nullptr;
+}
+
+
+ezTokenizer::~ezTokenizer()
+{
+
 }
 
 void ezTokenizer::NextChar()
@@ -88,7 +98,7 @@ void ezTokenizer::AddToken()
   m_CurMode = ezTokenType::Unknown;
 }
 
-void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> Data, ezLogInterface* pLog)
+void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> Data, ezLogInterface* pLog, ezAllocatorBase* pAllocator)
 {
   if (Data.GetCount() >= 3)
   {
@@ -315,10 +325,17 @@ void ezTokenizer::HandleString(char terminator)
       m_CurMode = terminator == '\"' ? ezTokenType::String1 : ezTokenType::String2;
       m_szTokenStart = m_szCurCharStart;
     }
+    // escaped backslash
+    else if ((m_uiCurChar == '\\') && (m_uiNextChar == '\\'))
+    {
+      // Skip
+      NextChar();
+      NextChar();
+    }
     // not-escaped line break in string
     else if (m_uiCurChar == '\n')
     {
-      ezLog::Error(m_pLog, "Unescaped Newline in string");
+      ezLog::Error(m_pLog, "Unescaped Newline in string line {0} column {1}", m_uiCurLine, m_uiCurColumn);
       //NextChar(); // not sure whether to include the newline in the string or not
       AddToken();
       return;

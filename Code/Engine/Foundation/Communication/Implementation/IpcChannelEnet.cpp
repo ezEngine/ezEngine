@@ -13,7 +13,7 @@ ezIpcChannelEnet::ezIpcChannelEnet(const char* szAddress, Mode::Enum mode)
     : ezIpcChannel(szAddress, mode)
 {
   m_sAddress = szAddress;
-  m_Network = EZ_DEFAULT_NEW(ezRemoteInterfaceEnet);
+  m_Network = ezRemoteInterfaceEnet::Make();
   m_Network->SetMessageHandler(0, ezMakeDelegate(&ezIpcChannelEnet::NetworkMessageHandler, this));
   m_Network->m_RemoteEvents.AddEventHandler(ezMakeDelegate(&ezIpcChannelEnet::EnetEventHandler, this));
 

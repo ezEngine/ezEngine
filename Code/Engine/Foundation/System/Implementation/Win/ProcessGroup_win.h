@@ -29,6 +29,9 @@ void ezProcessGroupImpl::Close()
 
 void ezProcessGroupImpl::Initialize()
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  // TODO implement
+#else
   if (m_hJobObject == INVALID_HANDLE_VALUE)
   {
     m_hJobObject = CreateJobObjectW(nullptr, nullptr);
@@ -58,6 +61,7 @@ void ezProcessGroupImpl::Initialize()
     Port.CompletionPort = m_hCompletionPort;
     SetInformationJobObject(m_hJobObject, JobObjectAssociateCompletionPortInformation, &Port, sizeof(Port));
   }
+#endif
 }
 
 ezProcessGroup::ezProcessGroup(const char* szGroupName /*= nullptr*/)
@@ -73,6 +77,10 @@ ezProcessGroup::~ezProcessGroup()
 
 ezResult ezProcessGroup::Launch(const ezProcessOptions& opt)
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  // TODO implement
+  return EZ_FAILURE;
+#else
   m_impl->Initialize();
 
   ezProcess& process = m_Processes.ExpandAndGetRef();
@@ -93,6 +101,7 @@ ezResult ezProcessGroup::Launch(const ezProcessOptions& opt)
 
   m_impl->m_bHasNewProcesses = true;
   return EZ_SUCCESS;
+#endif
 }
 
 ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
@@ -160,6 +169,10 @@ ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
 
 ezResult ezProcessGroup::TerminateAll(ezInt32 iForcedExitCode /*= -2*/)
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  // TODO implement
+  return EZ_FAILURE;
+#else
   if (m_impl->m_hJobObject == INVALID_HANDLE_VALUE)
     return EZ_SUCCESS;
 
@@ -172,4 +185,5 @@ ezResult ezProcessGroup::TerminateAll(ezInt32 iForcedExitCode /*= -2*/)
   EZ_SUCCEED_OR_RETURN(WaitToFinish());
 
   return EZ_SUCCESS;
+#endif
 }

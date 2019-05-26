@@ -5,6 +5,11 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <QGraphicsWidget>
 
+// Avoid conflicts with windows.
+#ifdef GetObject
+#undef GetObject
+#endif
+
 class ezQtPin;
 class ezDocumentNodeManager;
 class QLabel;
