@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/ResourceManager/ResourceHandle.h>
-#include <RendererCore/Pipeline/Declarations.h>
+#include <RendererCore/Pipeline/Renderer.h>
 
 struct SpriteData;
 class ezRenderDataBatch;
@@ -18,7 +18,8 @@ public:
   ~ezSpriteRenderer();
 
   // ezRenderer implementation
-  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) override;
+  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const override;
+  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const override;
   virtual void RenderBatch(
     const ezRenderViewContext& renderContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 

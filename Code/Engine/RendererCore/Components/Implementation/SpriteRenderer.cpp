@@ -45,9 +45,18 @@ ezSpriteRenderer::ezSpriteRenderer()
 
 ezSpriteRenderer::~ezSpriteRenderer() {}
 
-void ezSpriteRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)
+void ezSpriteRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)const
 {
   types.PushBack(ezGetStaticRTTI<ezSpriteRenderData>());
+}
+
+void ezSpriteRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const
+{
+  categories.PushBack(ezDefaultRenderDataCategories::LitMasked);
+  categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
+  categories.PushBack(ezDefaultRenderDataCategories::SimpleOpaque);
+  categories.PushBack(ezDefaultRenderDataCategories::SimpleTransparent);
+  categories.PushBack(ezDefaultRenderDataCategories::Selection);
 }
 
 void ezSpriteRenderer::RenderBatch(

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RendererCore/Pipeline/Declarations.h>
+#include <RendererCore/Pipeline/Renderer.h>
 
 struct ezPerInstanceData;
 
@@ -15,7 +15,8 @@ public:
   ~ezMeshRenderer();
 
   // ezRenderer implementation
-  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) override;
+  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const override;
+  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const override;
   virtual void RenderBatch(
     const ezRenderViewContext& renderContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 

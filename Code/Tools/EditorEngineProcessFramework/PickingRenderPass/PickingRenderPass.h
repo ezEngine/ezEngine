@@ -4,9 +4,7 @@
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 
-class ezSceneContext;
-
-class ezPickingRenderPass : public ezRenderPipelinePass
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezPickingRenderPass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezPickingRenderPass, ezRenderPipelinePass);
 

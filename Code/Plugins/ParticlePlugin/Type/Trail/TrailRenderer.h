@@ -1,10 +1,10 @@
 #pragma once
 
-#include <ParticlePlugin/ParticlePluginDLL.h>
 #include <ParticlePlugin/Declarations.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
+#include <ParticlePlugin/Renderer/ParticleRenderer.h>
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Pipeline/RenderData.h>
-#include <ParticlePlugin/Renderer/ParticleRenderer.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/TrailShaderData.h>
 
@@ -34,16 +34,15 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleTrailRenderer : public ezParticleRenderer
   EZ_DISALLOW_COPY_AND_ASSIGN(ezParticleTrailRenderer);
 
 public:
-  ezParticleTrailRenderer() {}
+  ezParticleTrailRenderer();
   ~ezParticleTrailRenderer();
 
-  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) override;
-  virtual void RenderBatch(const ezRenderViewContext& renderContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) override;
-
-  bool ConfigureShader(const ezParticleTrailRenderData* pRenderData, const ezRenderViewContext &renderViewContext);
+  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const override;
+  virtual void RenderBatch(
+    const ezRenderViewContext& renderContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
 protected:
-  void CreateDataBuffer();
+  bool ConfigureShader(const ezParticleTrailRenderData* pRenderData, const ezRenderViewContext& renderViewContext) const;
 
   static const ezUInt32 s_uiParticlesPerBatch = 512;
   ezGALBufferHandle m_hBaseDataBuffer;
@@ -52,6 +51,6 @@ protected:
   ezGALBufferHandle m_hTrailPointsDataBuffer16;
   ezGALBufferHandle m_hTrailPointsDataBuffer32;
   ezGALBufferHandle m_hTrailPointsDataBuffer64;
-  ezGALBufferHandle m_hActiveTrailPointsDataBuffer;
-};
 
+  mutable ezGALBufferHandle m_hActiveTrailPointsDataBuffer;
+};

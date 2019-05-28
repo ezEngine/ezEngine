@@ -2,6 +2,7 @@
 
 #include <EditorEngineProcessFramework/Gizmos/GizmoComponent.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
+#include <EditorEngineProcessFramework/PickingRenderPass/PickingRenderPass.h>
 
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Types/ScopeExit.h>
@@ -15,37 +16,37 @@
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoRenderer, 1, ezRTTIDefaultAllocator<ezGizmoRenderer>);
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Enabled", m_bEnabled)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("HighlightID", m_uiHighlightID),
-    EZ_MEMBER_PROPERTY("OnlyPickable", m_bOnlyPickable)
-  }
-  EZ_END_PROPERTIES;
-}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 float ezGizmoRenderer::s_fGizmoScale = 1.0f;
 
-ezGizmoRenderer::ezGizmoRenderer()
-{
-  m_bEnabled = true;
-  m_uiHighlightID = 0;
-}
+ezGizmoRenderer::ezGizmoRenderer() = default;
+ezGizmoRenderer::~ezGizmoRenderer() = default;
 
-ezGizmoRenderer::~ezGizmoRenderer() {}
-
-void ezGizmoRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)
+void ezGizmoRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const
 {
   types.PushBack(ezGetStaticRTTI<ezGizmoRenderData>());
 }
 
-void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch)
+void ezGizmoRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const
 {
-  if (!m_bEnabled)
-    return;
+  categories.PushBack(ezDefaultRenderDataCategories::SimpleOpaque);
+  categories.PushBack(ezDefaultRenderDataCategories::SimpleForeground);
+}
+
+void ezGizmoRenderer::RenderBatch(
+  const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+{
+  bool bOnlyPickable = false;
+
+  if (auto pPickingRenderPass = ezDynamicCast<ezPickingRenderPass*>(pPass))
+  {
+    if (!pPickingRenderPass->m_bPickSelected)
+      return;
+
+    bOnlyPickable = true;
+  }
 
   const ezGizmoRenderData* pRenderData = batch.GetFirstData<ezGizmoRenderData>();
 
@@ -67,7 +68,6 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
   renderViewContext.m_pRenderContext->BindMeshBuffer(pMesh->GetMeshBuffer());
   renderViewContext.m_pRenderContext->BindMaterial(hMaterial);
 
-  /// \todo This pattern looks like it is inefficient. Should it use the GPU pool instead somehow?
   ezConstantBufferStorage<ezGizmoConstants>* pGizmoConstantBuffer;
   ezConstantBufferStorageHandle hGizmoConstantBuffer = ezRenderContext::CreateConstantBufferStorage(pGizmoConstantBuffer);
   EZ_SCOPE_EXIT(ezRenderContext::DeleteConstantBufferStorage(hGizmoConstantBuffer));
@@ -81,23 +81,16 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
   {
     pRenderData = it;
 
-    if (m_bOnlyPickable && !pRenderData->m_bIsPickable)
+    if (bOnlyPickable && !pRenderData->m_bIsPickable)
       continue;
 
     EZ_ASSERT_DEV(pRenderData->m_hMesh == hMesh, "Invalid batching (mesh)");
     EZ_ASSERT_DEV(pRenderData->m_hMaterial == hMaterial, "Invalid batching (material)");
     EZ_ASSERT_DEV(pRenderData->m_uiSubMeshIndex == uiSubMeshIndex, "Invalid batching (part)");
 
-    ezColor color = pRenderData->m_GizmoColor;
-    // Highest bit is used to indicate whether the object is dynamic, so exclude it in this check
-    if ((pRenderData->m_uiUniqueID & ~(1 << 31)) == m_uiHighlightID)
-    {
-      color = ezColor(0.9f, 0.9f, 0.1f, color.a);
-    }
-
     ezGizmoConstants& cb = pGizmoConstantBuffer->GetDataForWriting();
     cb.ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
-    cb.GizmoColor = color;
+    cb.GizmoColor = pRenderData->m_GizmoColor;
     cb.GizmoScale = fGizmoScale;
     cb.GameObjectID = pRenderData->m_uiUniqueID;
 

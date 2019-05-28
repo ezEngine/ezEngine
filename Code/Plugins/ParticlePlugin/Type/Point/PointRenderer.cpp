@@ -18,25 +18,28 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticlePointRenderer, 1, ezRTTIDefaultAllocat
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+ezParticlePointRenderer::ezParticlePointRenderer()
+{
+  CreateParticleDataBuffer(m_hBaseDataBuffer, sizeof(ezBaseParticleShaderData), s_uiParticlesPerBatch);
+  CreateParticleDataBuffer(m_hBillboardDataBuffer, sizeof(ezBillboardQuadParticleShaderData), s_uiParticlesPerBatch);
+
+  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Particles/Point.ezShader");
+}
+
+
 ezParticlePointRenderer::~ezParticlePointRenderer()
 {
   DestroyParticleDataBuffer(m_hBaseDataBuffer);
   DestroyParticleDataBuffer(m_hBillboardDataBuffer);
 }
 
-void ezParticlePointRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)
+void ezParticlePointRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const
 {
   types.PushBack(ezGetStaticRTTI<ezParticlePointRenderData>());
 }
 
-void ezParticlePointRenderer::CreateDataBuffer()
-{
-  CreateParticleDataBuffer(m_hBaseDataBuffer, sizeof(ezBaseParticleShaderData), s_uiParticlesPerBatch);
-  CreateParticleDataBuffer(m_hBillboardDataBuffer, sizeof(ezBillboardQuadParticleShaderData), s_uiParticlesPerBatch);
-}
-
-void ezParticlePointRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass,
-                                          const ezRenderDataBatch& batch)
+void ezParticlePointRenderer::RenderBatch(
+  const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
@@ -44,13 +47,12 @@ void ezParticlePointRenderer::RenderBatch(const ezRenderViewContext& renderViewC
 
   TempSystemCB systemConstants(pRenderContext);
 
-  BindParticleShader(pRenderContext, "Shaders/Particles/Point.ezShader");
+  pRenderContext->BindShader(m_hShader);
 
   // make sure our structured buffer is allocated and bound
   {
-    CreateDataBuffer();
-    pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Points,
-                                   s_uiParticlesPerBatch);
+    pRenderContext->BindMeshBuffer(
+      ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Points, s_uiParticlesPerBatch);
     pRenderContext->BindBuffer("particleBaseData", pDevice->GetDefaultResourceView(m_hBaseDataBuffer));
     pRenderContext->BindBuffer("particleBillboardQuadData", pDevice->GetDefaultResourceView(m_hBillboardDataBuffer));
   }

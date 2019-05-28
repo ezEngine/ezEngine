@@ -9,6 +9,7 @@ class ezCamera;
 class ezExtractedRenderData;
 class ezExtractor;
 class ezView;
+class ezRenderer;
 class ezRenderData;
 class ezRenderDataBatch;
 class ezRenderPipeline;
@@ -69,19 +70,6 @@ struct ezHashHelper<ezViewHandle>
   {
     return a == b;
   }
-};
-
-/// \brief This is the base class for types that handle rendering of different object types.
-///
-/// E.g. there are different renderers for meshes, particle effects, light sources, etc.
-class EZ_RENDERERCORE_DLL ezRenderer : public ezReflectedClass
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezRenderer, ezReflectedClass);
-
-public:
-  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) = 0;
-
-  virtual void RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const = 0;
 };
 
 /// \brief Usage hint of a camera/view.

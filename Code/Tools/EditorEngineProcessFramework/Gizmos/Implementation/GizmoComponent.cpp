@@ -2,6 +2,11 @@
 
 #include <EditorEngineProcessFramework/Gizmos/GizmoComponent.h>
 
+ezGizmoComponentManager::ezGizmoComponentManager(ezWorld* pWorld)
+  : ezComponentManager(pWorld)
+{
+}
+
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -24,8 +29,16 @@ ezGizmoComponent::ezGizmoComponent()
 
 ezMeshRenderData* ezGizmoComponent::CreateRenderData() const
 {
+  ezColor color = m_GizmoColor;
+
+  auto pManager = static_cast<const ezGizmoComponentManager*>(GetOwningManager());
+  if (GetUniqueID() == pManager->m_uiHighlightID)
+  {
+    color = ezColor(0.9f, 0.9f, 0.1f, color.a);
+  }
+
   ezGizmoRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezGizmoRenderData>(GetOwner());
-  pRenderData->m_GizmoColor = m_GizmoColor;
+  pRenderData->m_GizmoColor = color;
   pRenderData->m_bUseDepthPrepass = m_bUseDepthPrepass;
   pRenderData->m_bIsPickable = m_bIsPickable;
 

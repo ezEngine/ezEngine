@@ -11,16 +11,31 @@
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderer, 1, ezRTTIDefaultAllocator<ezMeshRenderer>)
-  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezMeshRenderer::ezMeshRenderer() = default;
 ezMeshRenderer::~ezMeshRenderer() = default;
 
-void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)
+void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)const
 {
   types.PushBack(ezGetStaticRTTI<ezMeshRenderData>());
+}
+
+void ezMeshRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const
+{
+  categories.PushBack(ezDefaultRenderDataCategories::Sky);
+  categories.PushBack(ezDefaultRenderDataCategories::LitOpaque);
+  categories.PushBack(ezDefaultRenderDataCategories::LitMasked);
+  categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
+  categories.PushBack(ezDefaultRenderDataCategories::LitForeground);
+  categories.PushBack(ezDefaultRenderDataCategories::SimpleOpaque);
+  categories.PushBack(ezDefaultRenderDataCategories::SimpleTransparent);
+  categories.PushBack(ezDefaultRenderDataCategories::SimpleForeground);
+  categories.PushBack(ezDefaultRenderDataCategories::Selection);
+  categories.PushBack(ezDefaultRenderDataCategories::GUI);
 }
 
 void ezMeshRenderer::RenderBatch(

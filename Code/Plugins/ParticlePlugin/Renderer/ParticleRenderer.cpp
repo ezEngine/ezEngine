@@ -23,8 +23,8 @@ ezParticleRenderer::TempSystemCB::~TempSystemCB()
 }
 
 void ezParticleRenderer::TempSystemCB::SetGenericData(bool bApplyObjectTransform, const ezTransform& ObjectTransform,
-                                                      ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY, ezUInt8 uiNumFlipbookAnimsX,
-                                                      ezUInt8 uiNumFlipbookAnimsY, float fDistortionStrength /*= 0*/)
+  ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY, ezUInt8 uiNumFlipbookAnimsX, ezUInt8 uiNumFlipbookAnimsY,
+  float fDistortionStrength /*= 0*/)
 {
   ezParticleSystemConstants& cb = m_pConstants->GetDataForWriting();
   cb.TextureAtlasVariationFramesX = uiNumVariationsX;
@@ -47,12 +47,16 @@ void ezParticleRenderer::TempSystemCB::SetTrailData(float fSnapshotFraction, ezI
   cb.NumUsedTrailPoints = iNumUsedTrailPoints;
 }
 
-ezParticleRenderer::ezParticleRenderer() {}
+ezParticleRenderer::ezParticleRenderer() = default;
+ezParticleRenderer::~ezParticleRenderer() = default;
 
-ezParticleRenderer::~ezParticleRenderer() {}
+void ezParticleRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const
+{
+  categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
+}
 
-void ezParticleRenderer::CreateParticleDataBuffer(ezGALBufferHandle& inout_hBuffer, ezUInt32 uiDataTypeSize,
-                                                  ezUInt32 uiNumParticlesPerBatch)
+void ezParticleRenderer::CreateParticleDataBuffer(
+  ezGALBufferHandle& inout_hBuffer, ezUInt32 uiDataTypeSize, ezUInt32 uiNumParticlesPerBatch)
 {
   if (inout_hBuffer.IsInvalidated())
   {
@@ -78,11 +82,11 @@ void ezParticleRenderer::DestroyParticleDataBuffer(ezGALBufferHandle& inout_hBuf
   }
 }
 
-void ezParticleRenderer::BindParticleShader(ezRenderContext* pRenderContext, const char* szShader)
+void ezParticleRenderer::BindParticleShader(ezRenderContext* pRenderContext, const char* szShader) const
 {
   if (!m_hShader.IsValid())
   {
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>(szShader);
+    // m_hShader = ezResourceManager::LoadResource<ezShaderResource>(szShader);
   }
 
   pRenderContext->BindShader(m_hShader);
