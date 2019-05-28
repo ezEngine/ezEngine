@@ -96,7 +96,7 @@ ezResult ezSpriteComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bA
 void ezSpriteComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't render in orthographic views
-  if (msg.m_pView->GetCamera()->IsOrthographic())
+  if (msg.m_pView->GetCamera()->IsOrthographic() || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
     return;
 
   if (!m_hTexture.IsValid())

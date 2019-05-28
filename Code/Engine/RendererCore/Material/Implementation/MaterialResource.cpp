@@ -3,7 +3,6 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
-#include <Texture/Image/Formats/DdsFileFormat.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
@@ -11,6 +10,7 @@
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererCore/Textures/TextureLoader.h>
+#include <Texture/Image/Formats/DdsFileFormat.h>
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
 #  include <Foundation/IO/CompressedStreamZstd.h>
@@ -45,7 +45,7 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezMaterialResource);
 
 /// \todo Should be done on any thread, but currently crashes when deleting custom loaders in the resource manager
 ezMaterialResource::ezMaterialResource()
-    : ezResource(DoUpdate::OnMainThread, 1)
+  : ezResource(DoUpdate::OnMainThread, 1)
 {
   m_iLastUpdated = 0;
   m_iLastConstantsUpdated = 0;
@@ -578,8 +578,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
         ezMaterialResourceDescriptor::TextureCubeBinding& tc = m_Desc.m_TextureCubeBindings.ExpandAndGetRef();
         tc.m_Name.Assign(sTemp.GetData());
-        tc.m_Value =
-            ezResourceManager::LoadResource<ezTextureCubeResource>(sTemp2);
+        tc.m_Value = ezResourceManager::LoadResource<ezTextureCubeResource>(sTemp2);
       }
     }
 
@@ -739,8 +738,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
           tc.m_Name.Assign(tmp.GetData());
 
           tmp = pValue->GetPrimitivesString()[0];
-          tc.m_Value =
-              ezResourceManager::LoadResource<ezTextureCubeResource>(tmp);
+          tc.m_Value = ezResourceManager::LoadResource<ezTextureCubeResource>(tmp);
         }
       }
     }
@@ -765,11 +763,11 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 void ezMaterialResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryCPU =
-      sizeof(ezMaterialResource) +
-      (ezUInt32)(m_Desc.m_PermutationVars.GetHeapMemoryUsage() + m_Desc.m_Parameters.GetHeapMemoryUsage() +
-                 m_Desc.m_Texture2DBindings.GetHeapMemoryUsage() + m_Desc.m_TextureCubeBindings.GetHeapMemoryUsage() +
-                 m_OriginalDesc.m_PermutationVars.GetHeapMemoryUsage() + m_OriginalDesc.m_Parameters.GetHeapMemoryUsage() +
-                 m_OriginalDesc.m_Texture2DBindings.GetHeapMemoryUsage() + m_OriginalDesc.m_TextureCubeBindings.GetHeapMemoryUsage());
+    sizeof(ezMaterialResource) +
+    (ezUInt32)(m_Desc.m_PermutationVars.GetHeapMemoryUsage() + m_Desc.m_Parameters.GetHeapMemoryUsage() +
+               m_Desc.m_Texture2DBindings.GetHeapMemoryUsage() + m_Desc.m_TextureCubeBindings.GetHeapMemoryUsage() +
+               m_OriginalDesc.m_PermutationVars.GetHeapMemoryUsage() + m_OriginalDesc.m_Parameters.GetHeapMemoryUsage() +
+               m_OriginalDesc.m_Texture2DBindings.GetHeapMemoryUsage() + m_OriginalDesc.m_TextureCubeBindings.GetHeapMemoryUsage());
 
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
@@ -849,14 +847,6 @@ void ezMaterialResource::UpdateCaches()
 
   m_iLastUpdated = m_iLastModified;
 
-  EZ_LOCK(m_CacheMutex);
-
-  m_hCachedShader.Invalidate();
-  m_CachedPermutationVars.Clear();
-  m_CachedParameters.Clear();
-  m_CachedTexture2DBindings.Clear();
-  m_CachedTextureCubeBindings.Clear();
-
   ezHybridArray<ezMaterialResource*, 16> materialHierarchy;
   ezMaterialResource* pCurrentMaterial = this;
 
@@ -870,6 +860,14 @@ void ezMaterialResource::UpdateCaches()
 
     pCurrentMaterial = ezResourceManager::BeginAcquireResource(hParentMaterial, ezResourceAcquireMode::AllowFallback);
   }
+
+  EZ_LOCK(m_CacheMutex);
+
+  m_hCachedShader.Invalidate();
+  m_CachedPermutationVars.Clear();
+  m_CachedParameters.Clear();
+  m_CachedTexture2DBindings.Clear();
+  m_CachedTextureCubeBindings.Clear();
 
   // set state of parent material first
   for (ezUInt32 i = materialHierarchy.GetCount(); i-- > 0;)
@@ -918,7 +916,7 @@ void ezMaterialResource::UpdateConstantBuffer(ezShaderPermutationResource* pShad
 
   ezTempHashedString sConstantBufferName("ezMaterialConstants");
   const ezShaderResourceBinding* pBinding =
-      pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::PixelShader)->GetShaderResourceBinding(sConstantBufferName);
+    pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::PixelShader)->GetShaderResourceBinding(sConstantBufferName);
   if (pBinding == nullptr)
   {
     pBinding = pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::VertexShader)->GetShaderResourceBinding(sConstantBufferName);
@@ -967,4 +965,3 @@ void ezMaterialResource::UpdateConstantBuffer(ezShaderPermutationResource* pShad
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Material_Implementation_MaterialResource);
-
