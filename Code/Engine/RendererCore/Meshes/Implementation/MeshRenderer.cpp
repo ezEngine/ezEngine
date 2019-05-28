@@ -23,7 +23,8 @@ void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>
   types.PushBack(ezGetStaticRTTI<ezMeshRenderData>());
 }
 
-void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch)
+void ezMeshRenderer::RenderBatch(
+  const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezRenderContext* pContext = renderViewContext.m_pRenderContext;
@@ -136,7 +137,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
 }
 
 void ezMeshRenderer::FillPerInstanceData(
-  ezArrayPtr<ezPerInstanceData> instanceData, const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount)
+  ezArrayPtr<ezPerInstanceData> instanceData, const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount) const
 {
   ezUInt32 uiCount = ezMath::Min<ezUInt32>(instanceData.GetCount(), batch.GetCount() - uiStartIndex);
   ezUInt32 uiCurrentIndex = 0;

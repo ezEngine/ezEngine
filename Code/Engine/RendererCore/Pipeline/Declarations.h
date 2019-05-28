@@ -81,7 +81,7 @@ class EZ_RENDERERCORE_DLL ezRenderer : public ezReflectedClass
 public:
   virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) = 0;
 
-  virtual void RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) = 0;
+  virtual void RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const = 0;
 };
 
 /// \brief Usage hint of a camera/view.

@@ -328,10 +328,12 @@ void ezView::ApplyRenderPassProperties()
     const char* szDot = propertyValue.m_sObjectName.FindSubString(".");
     if (szDot != nullptr)
     {
-      ezStringView sPassName(propertyValue.m_sObjectName.GetData(), szDot);
+      EZ_REPORT_FAILURE("Setting renderer properties is not possible anymore");
+
+      /*ezStringView sPassName(propertyValue.m_sObjectName.GetData(), szDot);
       ezRenderPipelinePass* pPass = m_pRenderPipeline->GetPassByName(sPassName);
       if (pPass)
-        pObject = pPass->GetRendererByType(ezRTTI::FindTypeByName(szDot + 1));
+        pObject = pPass->GetRendererByType(ezRTTI::FindTypeByName(szDot + 1));*/
     }
     else
     {

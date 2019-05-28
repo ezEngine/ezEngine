@@ -50,8 +50,8 @@ void ezSpriteRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 
   types.PushBack(ezGetStaticRTTI<ezSpriteRenderData>());
 }
 
-void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass,
-                                   const ezRenderDataBatch& batch)
+void ezSpriteRenderer::RenderBatch(
+  const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezRenderContext* pContext = renderViewContext.m_pRenderContext;
@@ -66,8 +66,8 @@ void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext,
   renderViewContext.m_pRenderContext->BindBuffer("spriteData", pDevice->GetDefaultResourceView(hSpriteData));
   renderViewContext.m_pRenderContext->BindTexture2D("SpriteTexture", pRenderData->m_hTexture);
 
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLEND_MODE",
-                                                                   ezSpriteBlendMode::GetPermutationValue(pRenderData->m_BlendMode));
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable(
+    "BLEND_MODE", ezSpriteBlendMode::GetPermutationValue(pRenderData->m_BlendMode));
 
   ezUInt32 uiStartIndex = 0;
   while (uiStartIndex < batch.GetCount())
@@ -79,8 +79,8 @@ void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext,
     {
       pGALContext->UpdateBuffer(hSpriteData, 0, m_spriteData.GetByteArrayPtr());
 
-      renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr,
-                                                         ezGALPrimitiveTopology::Triangles, uiCount * 2);
+      renderViewContext.m_pRenderContext->BindMeshBuffer(
+        ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, uiCount * 2);
       renderViewContext.m_pRenderContext->DrawMeshBuffer();
     }
 
@@ -88,7 +88,7 @@ void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext,
   }
 }
 
-ezGALBufferHandle ezSpriteRenderer::CreateSpriteDataBuffer()
+ezGALBufferHandle ezSpriteRenderer::CreateSpriteDataBuffer() const
 {
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = sizeof(SpriteData);
@@ -101,12 +101,12 @@ ezGALBufferHandle ezSpriteRenderer::CreateSpriteDataBuffer()
   return ezGPUResourcePool::GetDefaultInstance()->GetBuffer(desc);
 }
 
-void ezSpriteRenderer::DeleteSpriteDataBuffer(ezGALBufferHandle hBuffer)
+void ezSpriteRenderer::DeleteSpriteDataBuffer(ezGALBufferHandle hBuffer) const
 {
   ezGPUResourcePool::GetDefaultInstance()->ReturnBuffer(hBuffer);
 }
 
-void ezSpriteRenderer::FillSpriteData(const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32 uiCount)
+void ezSpriteRenderer::FillSpriteData(const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32 uiCount) const
 {
   m_spriteData.Clear();
   m_spriteData.Reserve(uiCount);
@@ -133,4 +133,3 @@ void ezSpriteRenderer::FillSpriteData(const ezRenderDataBatch& batch, ezUInt32 u
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_SpriteRenderer);
-

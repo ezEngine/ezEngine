@@ -33,6 +33,7 @@ ezRenderData::Category ezRenderData::RegisterCategory(const char* szCategoryName
   return newCategory;
 }
 
+// static
 ezRenderData::Category ezRenderData::FindCategory(const char* szCategoryName)
 {
   ezTempHashedString categoryName(szCategoryName);
@@ -44,6 +45,51 @@ ezRenderData::Category ezRenderData::FindCategory(const char* szCategoryName)
   }
 
   return ezInvalidRenderDataCategory;
+}
+
+void ezRenderData::AddCategoryRendererType(Category category, const ezRTTI* pRendererType)
+{
+  auto& categoryData = s_CategoryData[category.m_uiValue];
+
+  if (!categoryData.m_RendererTypes.Contains(pRendererType))
+  {
+    categoryData.m_RendererTypes.PushBack(pRendererType);
+    categoryData.m_bRendererInstancesDirty = true;
+  }
+}
+
+void ezRenderData::RemoveCategoryRendererType(Category category, const ezRTTI* pRendererType)
+{
+  auto& categoryData = s_CategoryData[category.m_uiValue];
+
+  if (categoryData.m_RendererTypes.RemoveAndCopy(pRendererType))
+  {
+    categoryData.m_bRendererInstancesDirty = true;
+  }
+}
+
+void ezRenderData::CategoryData::CreateRendererInstances()
+{
+  m_TypeToRendererIndex.Clear();
+  m_RendererInstances.Clear();
+
+  for (auto pType : m_RendererTypes)
+  {
+    auto pRenderer = pType->GetAllocator()->Allocate<ezRenderer>();
+
+    ezHybridArray<const ezRTTI*, 8> supportedTypes;
+    pRenderer->GetSupportedRenderDataTypes(supportedTypes);
+
+    ezUInt32 uiIndex = m_RendererInstances.GetCount();
+    m_RendererInstances.PushBack(pRenderer);
+
+    for (ezUInt32 i = 0; i < supportedTypes.GetCount(); ++i)
+    {
+      m_TypeToRendererIndex.Insert(supportedTypes[i], uiIndex);
+    }
+  }
+
+  m_bRendererInstancesDirty = false;
 }
 
 //////////////////////////////////////////////////////////////////////////

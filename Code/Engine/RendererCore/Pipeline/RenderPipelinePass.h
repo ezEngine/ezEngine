@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Strings/HashedString.h>
@@ -32,18 +32,6 @@ class EZ_RENDERERCORE_DLL ezRenderPipelinePass : public ezNode
 public:
   ezRenderPipelinePass(const char* szName, bool bIsStereoAware = false);
   ~ezRenderPipelinePass();
-
-  ezArrayPtr<ezRenderer* const> GetRenderers() const;
-  ezRenderer* GetRendererByType(const ezRTTI* pType);
-
-  template <typename T>
-  EZ_ALWAYS_INLINE T* GetRendererByType()
-  {
-    return static_cast<T*>(GetRendererByType(ezGetStaticRTTI<T>()));
-  }
-
-  void AddRenderer(ezRenderer* pRenderer);
-  void RemoveRenderer(ezRenderer* pRenderer);
 
   /// \brief Sets the name of the pass.
   void SetName(const char* szName);
@@ -93,8 +81,5 @@ private:
   ezHashedString m_sName;
 
   ezRenderPipeline* m_pPipeline;
-
-  ezHashTable<const ezRTTI*, ezUInt32> m_TypeToRendererIndex;
-  ezDynamicArray<ezRenderer*> m_Renderer;
 };
 

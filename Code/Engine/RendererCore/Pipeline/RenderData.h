@@ -39,6 +39,11 @@ public:
   static Category RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc);
   static Category FindCategory(const char* szCategoryName);
 
+  static void AddCategoryRendererType(Category category, const ezRTTI* pRendererType);
+  static void RemoveCategoryRendererType(Category category, const ezRTTI* pRendererType);
+
+  static const ezRenderer* GetCategoryRenderer(Category category, const ezRTTI* pRenderDataType);
+
   static const char* GetCategoryName(Category category);
 
   ezUInt64 GetCategorySortingKey(Category category, const ezCamera& camera) const;
@@ -60,6 +65,14 @@ private:
   {
     ezHashedString m_sName;
     SortingKeyFunc m_sortingKeyFunc;
+
+    ezHybridArray<const ezRTTI*, 8> m_RendererTypes;
+
+    bool m_bRendererInstancesDirty = false;
+    ezHashTable<const ezRTTI*, ezUInt32> m_TypeToRendererIndex;
+    ezDynamicArray<ezUniquePtr<ezRenderer>> m_RendererInstances;
+
+    void CreateRendererInstances();
   };
 
   static ezHybridArray<CategoryData, 32> s_CategoryData;
