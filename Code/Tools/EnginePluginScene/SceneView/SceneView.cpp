@@ -126,6 +126,7 @@ void ezSceneViewContext::Redraw(bool bRenderEditorGizmos)
       pView->m_ExcludeTags.Remove(tagNoOrtho);
     }
 
+    EZ_LOCK(pView->GetWorld()->GetWriteMarker());
     if (auto pGizmoManager = pView->GetWorld()->GetComponentManager<ezGizmoComponentManager>())
     {
       pGizmoManager->m_uiHighlightID = GetDocumentContext()->m_Context.m_uiHighlightID;

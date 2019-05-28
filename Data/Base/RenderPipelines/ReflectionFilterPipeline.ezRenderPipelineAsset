@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5963804767315103672,5433555503478725399}}
-		u4 %Hash{12739559801876848368}
+		u4 %Hash{5205109214650615702}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -67,7 +67,7 @@ o
 			Uuid{u4{12748989557167519964,15040883955414241070}}
 		}
 		Vec2 %Node::Pos{f{0xC1A2F843,0x1B90A143}}
-		VarArray %Renderers{}
+		u3 %OutputIndex{0}
 		f %Saturation{0x0000803F}
 	}
 }
@@ -91,7 +91,6 @@ o
 		s %Name{""}
 		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0xF15E5044,0xCE91A243}}
-		VarArray %Renderers{}
 	}
 }
 o
@@ -226,24 +225,6 @@ o
 }
 o
 {
-	Uuid %id{u4{2702245530968099154,6674394786854131511}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezRenderer"}
-		u3 %TypeSize{8}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{14671395343644237837,7171944080580882341}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -292,7 +273,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezTargetPass"}
-		u3 %TypeSize{312}
+		u3 %TypeSize{256}
 		u3 %TypeVersion{1}
 	}
 }
@@ -346,7 +327,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectionFilterPass"}
-		u3 %TypeSize{240}
+		u3 %TypeSize{192}
 		u3 %TypeVersion{1}
 	}
 }
@@ -382,7 +363,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelinePass"}
-		u3 %TypeSize{168}
+		u3 %TypeSize{112}
 		u3 %TypeVersion{1}
 	}
 }
