@@ -35,7 +35,7 @@ void ezParticleQuadRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezR
 }
 
 void ezParticleQuadRenderer::RenderBatch(
-  const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+  const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();

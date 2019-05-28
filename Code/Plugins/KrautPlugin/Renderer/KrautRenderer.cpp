@@ -37,7 +37,7 @@ void ezKrautRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderDat
 }
 
 void ezKrautRenderer::RenderBatch(
-  const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+  const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
 

@@ -150,7 +150,7 @@ void ezImguiRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderDat
 }
 
 void ezImguiRenderer::RenderBatch(
-  const ezRenderViewContext& renderContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+  const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   if (ezImgui::GetSingleton() == nullptr)
     return;

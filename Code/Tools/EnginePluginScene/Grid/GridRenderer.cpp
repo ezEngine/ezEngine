@@ -175,7 +175,7 @@ void ezGridRenderer::CreateGrid(const ezGridRenderData& rd) const
 }
 
 void ezGridRenderer::RenderBatch(
-  const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+  const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   for (auto it = batch.GetIterator<ezGridRenderData>(); it.IsValid(); ++it)
   {

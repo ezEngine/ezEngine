@@ -36,11 +36,11 @@ void ezGizmoRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderDat
 }
 
 void ezGizmoRenderer::RenderBatch(
-  const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+  const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   bool bOnlyPickable = false;
 
-  if (auto pPickingRenderPass = ezDynamicCast<ezPickingRenderPass*>(pPass))
+  if (auto pPickingRenderPass = ezDynamicCast<const ezPickingRenderPass*>(pPass))
   {
     if (!pPickingRenderPass->m_bPickSelected)
       return;
