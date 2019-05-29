@@ -129,14 +129,8 @@ function(ez_set_common_target_definitions TARGET_NAME)
 	ez_pull_all_vars()
 
 	# set the BUILDSYSTEM_COMPILE_ENGINE_AS_DLL definition
-	if (EZ_CMAKE_PLATFORM_WINDOWS)
-	  set (EZ_COMPILE_ENGINE_AS_DLL ON CACHE BOOL "Whether to compile the code as a shared libraries (DLL).")
-		mark_as_advanced(FORCE EZ_COMPILE_ENGINE_AS_DLL)
-
+	if (EZ_COMPILE_ENGINE_AS_DLL)
 		target_compile_definitions(${TARGET_NAME} PUBLIC BUILDSYSTEM_COMPILE_ENGINE_AS_DLL)
-
-	else()
-	  unset(EZ_COMPILE_ENGINE_AS_DLL CACHE)
 	endif()
 
 	# set the BUILDSYSTEM_CONFIGURATION definition
