@@ -1,10 +1,10 @@
-﻿#pragma once
+#pragma once
 
-#include <RendererCore/Pipeline/Declarations.h>
 #include <Core/ResourceManager/ResourceHandle.h>
-#include <RendererCore/Pipeline/RenderData.h>
-#include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
+#include <RendererCore/Pipeline/Extractor.h>
+#include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Pipeline/Renderer.h>
 
 class ezRenderDataBatch;
 class ezSceneContext;
@@ -28,11 +28,12 @@ public:
 class ezEditorGridExtractor : public ezExtractor
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorGridExtractor, ezExtractor);
+
 public:
   ezEditorGridExtractor(const char* szName = "EditorGridExtractor");
 
-  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-    ezExtractedRenderData& extractedRenderData) override;
+  virtual void Extract(
+    const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData) override;
 
   void SetSceneContext(ezSceneContext* pSceneContext) { m_pSceneContext = pSceneContext; }
   ezSceneContext* GetSceneContext() const { return m_pSceneContext; }
@@ -53,11 +54,13 @@ class ezGridRenderer : public ezRenderer
   EZ_DISALLOW_COPY_AND_ASSIGN(ezGridRenderer);
 
 public:
-  ezGridRenderer() {}
+  ezGridRenderer();
 
   // ezRenderer implementation
-  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) override;
-  virtual void RenderBatch(const ezRenderViewContext& renderContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) override;
+  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const override;
+  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const override;
+  virtual void RenderBatch(
+    const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
 protected:
   void CreateVertexBuffer();
@@ -68,11 +71,8 @@ protected:
   ezShaderResourceHandle m_hShader;
   ezGALBufferHandle m_hVertexBuffer;
   ezVertexDeclarationInfo m_VertexDeclarationInfo;
-  ezDynamicArray<GridVertex, ezAlignedAllocatorWrapper> m_Vertices;
+  mutable ezDynamicArray<GridVertex, ezAlignedAllocatorWrapper> m_Vertices;
 
 private:
-  void CreateGrid(const ezGridRenderData& rd);
-
-
+  void CreateGrid(const ezGridRenderData& rd) const;
 };
-

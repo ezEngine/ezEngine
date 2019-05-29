@@ -14,7 +14,13 @@ public:
 };
 
 class ezGizmoComponent;
-typedef ezComponentManager<ezGizmoComponent, ezBlockStorageType::FreeList> ezGizmoComponentManager;
+class ezGizmoComponentManager : public ezComponentManager<ezGizmoComponent, ezBlockStorageType::FreeList>
+{
+public:
+  ezGizmoComponentManager(ezWorld* pWorld);
+
+  ezUInt32 m_uiHighlightID = 0;
+};
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGizmoComponent : public ezMeshComponent
 {

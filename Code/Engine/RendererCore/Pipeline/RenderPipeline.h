@@ -45,7 +45,7 @@ public:
   ezExtractor* GetExtractorByName(const ezStringView& sExtractorName);
 
   template <typename T>
-  EZ_ALWAYS_INLINE T* GetFrameDataProvider() { return static_cast<T*>(GetFrameDataProvider(ezGetStaticRTTI<T>())); }
+  EZ_ALWAYS_INLINE T* GetFrameDataProvider() const { return static_cast<T*>(GetFrameDataProvider(ezGetStaticRTTI<T>())); }
 
   const ezExtractedRenderData& GetRenderData() const;
   ezRenderDataBatchList GetRenderDataBatchesWithCategory(ezRenderData::Category category, ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter()) const;
@@ -75,7 +75,7 @@ private:
   bool AreInputDescriptionsAvailable(const ezRenderPipelinePass* pPass, const ezHybridArray<ezRenderPipelinePass*, 32>& done) const;
   bool ArePassThroughInputsDone(const ezRenderPipelinePass* pPass, const ezHybridArray<ezRenderPipelinePass*, 32>& done) const;
 
-  ezFrameDataProviderBase* GetFrameDataProvider(const ezRTTI* pRtti);
+  ezFrameDataProviderBase* GetFrameDataProvider(const ezRTTI* pRtti) const;
 
   void ExtractData(const ezView& view);
   void FindVisibleObjects(const ezView& view);
@@ -130,7 +130,7 @@ private: // Member data
   ezDynamicArray<ezUniquePtr<ezExtractor>> m_SortedExtractors;
 
   // Data Providers
-  ezDynamicArray<ezUniquePtr<ezFrameDataProviderBase>> m_DataProviders;
-  ezHashTable<const ezRTTI*, ezUInt32> m_TypeToDataProviderIndex;
+  mutable ezDynamicArray<ezUniquePtr<ezFrameDataProviderBase>> m_DataProviders;
+  mutable ezHashTable<const ezRTTI*, ezUInt32> m_TypeToDataProviderIndex;
 };
 

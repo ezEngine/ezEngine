@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Strings/HashedString.h>
@@ -13,14 +13,11 @@ struct ezGALTextureCreationDescription;
 /// existing connections on each input / output pin index.
 struct ezRenderPipelinePassConnection
 {
-  ezRenderPipelinePassConnection()
-  {
-    m_pOutput = nullptr;
-  }
+  ezRenderPipelinePassConnection() { m_pOutput = nullptr; }
 
   ezGALTextureCreationDescription m_Desc;
   ezGALTextureHandle m_TextureHandle;
-  const ezNodePin* m_pOutput; ///< The output pin that this connection spawns from.
+  const ezNodePin* m_pOutput;                  ///< The output pin that this connection spawns from.
   ezHybridArray<const ezNodePin*, 4> m_Inputs; ///< The various input pins this connection is connected to.
 };
 
@@ -33,18 +30,6 @@ public:
   ezRenderPipelinePass(const char* szName, bool bIsStereoAware = false);
   ~ezRenderPipelinePass();
 
-  ezArrayPtr<ezRenderer* const> GetRenderers() const;
-  ezRenderer* GetRendererByType(const ezRTTI* pType);
-
-  template <typename T>
-  EZ_ALWAYS_INLINE T* GetRendererByType()
-  {
-    return static_cast<T*>(GetRendererByType(ezGetStaticRTTI<T>()));
-  }
-
-  void AddRenderer(ezRenderer* pRenderer);
-  void RemoveRenderer(ezRenderer* pRenderer);
-
   /// \brief Sets the name of the pass.
   void SetName(const char* szName);
 
@@ -56,14 +41,15 @@ public:
 
   /// \brief For a given input pin configuration, provide the output configuration of this node.
   /// Outputs is already resized to the number of output pins.
-  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs,
+  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
     ezArrayPtr<ezGALTextureCreationDescription> outputs) = 0;
 
   /// \brief After GetRenderTargetDescriptions was called successfully for each pass, this function is called
   /// with the inputs and outputs for review. Disconnected pins have a nullptr value in the passed in arrays.
-  /// This is the time to create additional resources that are not covered by the pins automatically, e.g. a picking texture or eye adaptation buffer.
-  virtual void InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs);
+  /// This is the time to create additional resources that are not covered by the pins automatically, e.g. a picking texture or eye
+  /// adaptation buffer.
+  virtual void InitRenderPipelinePass(
+    const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs);
 
   /// \brief Render into outputs. Both inputs and outputs are passed in with actual texture handles.
   /// Disconnected pins have a nullptr value in the passed in arrays. You can now create views and render target setups on the fly and
@@ -77,12 +63,11 @@ public:
   /// \brief Allows for the pass to write data back using ezView::SetRenderPassReadBackProperty. E.g. picking results etc.
   virtual void ReadBackProperties(ezView* pView);
 
-  void RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category, ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter());
+  void RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category,
+    ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter());
 
-  EZ_ALWAYS_INLINE ezRenderPipeline* GetPipeline()
-  {
-    return m_pPipeline;
-  }
+  EZ_ALWAYS_INLINE ezRenderPipeline* GetPipeline() { return m_pPipeline; }
+  EZ_ALWAYS_INLINE const ezRenderPipeline* GetPipeline() const { return m_pPipeline; }
 
 private:
   friend class ezRenderPipeline;
@@ -93,8 +78,4 @@ private:
   ezHashedString m_sName;
 
   ezRenderPipeline* m_pPipeline;
-
-  ezHashTable<const ezRTTI*, ezUInt32> m_TypeToRendererIndex;
-  ezDynamicArray<ezRenderer*> m_Renderer;
 };
-

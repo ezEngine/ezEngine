@@ -13,7 +13,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleQuadRenderer, 1, ezRTTIDefaultAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleQuadRenderer::ezParticleQuadRenderer() = default;
+ezParticleQuadRenderer::ezParticleQuadRenderer()
+{
+  CreateParticleDataBuffer(m_hBaseDataBuffer, sizeof(ezBaseParticleShaderData), s_uiParticlesPerBatch);
+  CreateParticleDataBuffer(m_hBillboardDataBuffer, sizeof(ezBillboardQuadParticleShaderData), s_uiParticlesPerBatch);
+  CreateParticleDataBuffer(m_hTangentDataBuffer, sizeof(ezTangentQuadParticleShaderData), s_uiParticlesPerBatch);
+
+  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Particles/QuadParticle.ezShader");
+}
 
 ezParticleQuadRenderer::~ezParticleQuadRenderer()
 {
@@ -22,20 +29,13 @@ ezParticleQuadRenderer::~ezParticleQuadRenderer()
   DestroyParticleDataBuffer(m_hTangentDataBuffer);
 }
 
-void ezParticleQuadRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)
+void ezParticleQuadRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const
 {
   types.PushBack(ezGetStaticRTTI<ezParticleQuadRenderData>());
 }
 
-void ezParticleQuadRenderer::CreateDataBuffer()
-{
-  CreateParticleDataBuffer(m_hBaseDataBuffer, sizeof(ezBaseParticleShaderData), s_uiParticlesPerBatch);
-  CreateParticleDataBuffer(m_hBillboardDataBuffer, sizeof(ezBillboardQuadParticleShaderData), s_uiParticlesPerBatch);
-  CreateParticleDataBuffer(m_hTangentDataBuffer, sizeof(ezTangentQuadParticleShaderData), s_uiParticlesPerBatch);
-}
-
-void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass,
-                                         const ezRenderDataBatch& batch)
+void ezParticleQuadRenderer::RenderBatch(
+  const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
@@ -43,13 +43,12 @@ void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewCo
 
   TempSystemCB systemConstants(pRenderContext);
 
-  BindParticleShader(pRenderContext, "Shaders/Particles/QuadParticle.ezShader");
+  pRenderContext->BindShader(m_hShader);
 
   // make sure our structured buffer is allocated and bound
   {
-    CreateDataBuffer();
-    pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
-                                   s_uiParticlesPerBatch * 2);
+    pRenderContext->BindMeshBuffer(
+      ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, s_uiParticlesPerBatch * 2);
 
     pRenderContext->BindBuffer("particleBaseData", pDevice->GetDefaultResourceView(m_hBaseDataBuffer));
     pRenderContext->BindBuffer("particleBillboardQuadData", pDevice->GetDefaultResourceView(m_hBillboardDataBuffer));
@@ -72,8 +71,8 @@ void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewCo
     ConfigureRenderMode(pRenderData, pRenderContext);
 
     systemConstants.SetGenericData(pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_uiNumVariationsX,
-                                   pRenderData->m_uiNumVariationsY, pRenderData->m_uiNumFlipbookAnimationsX,
-                                   pRenderData->m_uiNumFlipbookAnimationsY, pRenderData->m_fDistortionStrength);
+      pRenderData->m_uiNumVariationsY, pRenderData->m_uiNumFlipbookAnimationsX, pRenderData->m_uiNumFlipbookAnimationsY,
+      pRenderData->m_fDistortionStrength);
 
     pRenderContext->SetShaderPermutationVariable("PARTICLE_QUAD_MODE", pRenderData->m_QuadModePermutation);
 
@@ -104,7 +103,7 @@ void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewCo
   }
 }
 
-void ezParticleQuadRenderer::ConfigureRenderMode(const ezParticleQuadRenderData* pRenderData, ezRenderContext* pRenderContext)
+void ezParticleQuadRenderer::ConfigureRenderMode(const ezParticleQuadRenderData* pRenderData, ezRenderContext* pRenderContext) const
 {
   switch (pRenderData->m_RenderMode)
   {

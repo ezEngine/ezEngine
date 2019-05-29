@@ -847,7 +847,7 @@ bool ezRenderPipeline::ArePassThroughInputsDone(const ezRenderPipelinePass* pPas
   return true;
 }
 
-ezFrameDataProviderBase* ezRenderPipeline::GetFrameDataProvider(const ezRTTI* pRtti)
+ezFrameDataProviderBase* ezRenderPipeline::GetFrameDataProvider(const ezRTTI* pRtti) const
 {
   ezUInt32 uiIndex = 0;
   if (m_TypeToDataProviderIndex.TryGetValue(pRtti, uiIndex))

@@ -94,11 +94,12 @@ ezInstancedMeshComponentManager::ezInstancedMeshComponentManager(ezWorld* pWorld
 
 void ezInstancedMeshComponentManager::EnqueueUpdate(const ezInstancedMeshComponent* pComponent) const
 {
-  if (!pComponent->m_bIsDirty)
+  ezUInt64 uiCurrentFrame = ezRenderWorld::GetFrameCounter();
+  if (pComponent->m_uiEnqueuedFrame == uiCurrentFrame)
     return;
 
   EZ_LOCK(m_Mutex);
-  if (!pComponent->m_bIsDirty)
+  if (pComponent->m_uiEnqueuedFrame == uiCurrentFrame)
     return;
 
   auto instanceData = pComponent->GetInstanceData();
@@ -106,7 +107,7 @@ void ezInstancedMeshComponentManager::EnqueueUpdate(const ezInstancedMeshCompone
     return;
 
   m_RequireUpdate.PushBack({ pComponent->GetHandle(), instanceData });
-  pComponent->m_bIsDirty = false;
+  pComponent->m_uiEnqueuedFrame = uiCurrentFrame;
 }
 
 void ezInstancedMeshComponentManager::OnRenderBegin(ezUInt64 uiFrameCounter)
@@ -196,8 +197,6 @@ void ezInstancedMeshComponent::OnActivated()
 
   EZ_ASSERT_DEV(m_pExplicitInstanceData == nullptr, "Instance data must not be initialized at this point");
   m_pExplicitInstanceData = EZ_DEFAULT_NEW(ezInstanceData);
-
-  m_bIsDirty = true;
 }
 
 void ezInstancedMeshComponent::OnDeactivated()
@@ -269,21 +268,21 @@ void ezInstancedMeshComponent::Instances_SetValue(ezUInt32 uiIndex, ezMeshInstan
 {
   m_rawInstancedData[uiIndex] = value;
 
-  m_bIsDirty = true;
+  TriggerLocalBoundsUpdate();
 }
 
 void ezInstancedMeshComponent::Instances_Insert(ezUInt32 uiIndex, ezMeshInstanceData value)
 {
   m_rawInstancedData.Insert(value, uiIndex);
 
-  m_bIsDirty = true;
+  TriggerLocalBoundsUpdate();
 }
 
 void ezInstancedMeshComponent::Instances_Remove(ezUInt32 uiIndex)
 {
   m_rawInstancedData.RemoveAtAndCopy(uiIndex);
 
-  m_bIsDirty = true;
+  TriggerLocalBoundsUpdate();
 }
 
 ezArrayPtr<ezPerInstanceData> ezInstancedMeshComponent::GetInstanceData() const

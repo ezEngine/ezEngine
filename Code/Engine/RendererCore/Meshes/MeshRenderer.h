@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RendererCore/Pipeline/Declarations.h>
+#include <RendererCore/Pipeline/Renderer.h>
 
 struct ezPerInstanceData;
 
@@ -11,15 +11,16 @@ class EZ_RENDERERCORE_DLL ezMeshRenderer : public ezRenderer
   EZ_DISALLOW_COPY_AND_ASSIGN(ezMeshRenderer);
 
 public:
-
   ezMeshRenderer();
   ~ezMeshRenderer();
 
   // ezRenderer implementation
-  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) override;
-  virtual void RenderBatch(const ezRenderViewContext& renderContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) override;
+  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const override;
+  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const override;
+  virtual void RenderBatch(
+    const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
 protected:
-  virtual void FillPerInstanceData(ezArrayPtr<ezPerInstanceData> instanceData, const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount);
+  virtual void FillPerInstanceData(
+    ezArrayPtr<ezPerInstanceData> instanceData, const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount) const;
 };
-

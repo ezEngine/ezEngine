@@ -39,6 +39,8 @@ public:
   static Category RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc);
   static Category FindCategory(const char* szCategoryName);
 
+  static const ezRenderer* GetCategoryRenderer(Category category, const ezRTTI* pRenderDataType);
+
   static const char* GetCategoryName(Category category);
 
   ezUInt64 GetCategorySortingKey(Category category, const ezCamera& camera) const;
@@ -56,13 +58,27 @@ public:
 #endif
 
 private:
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RenderData);
+
+  static void PluginEventHandler(const ezPlugin::PluginEvent& e);
+  static void UpdateRendererTypes();
+
+  static void CreateRendererInstances();
+  static void ClearRendererInstances();
+
   struct CategoryData
   {
     ezHashedString m_sName;
     SortingKeyFunc m_sortingKeyFunc;
+
+    ezHashTable<const ezRTTI*, ezUInt32> m_TypeToRendererIndex;
   };
 
   static ezHybridArray<CategoryData, 32> s_CategoryData;
+
+  static ezHybridArray<const ezRTTI*, 16> s_RendererTypes;
+  static ezDynamicArray<ezUniquePtr<ezRenderer>> s_RendererInstances;
+  static bool s_bRendererInstancesDirty;
 };
 
 /// \brief Creates render data that is only valid for this frame. The data is automatically deleted after the frame has been rendered.

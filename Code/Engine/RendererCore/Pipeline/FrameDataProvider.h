@@ -16,7 +16,7 @@ protected:
 private:
   friend class ezRenderPipeline;
 
-  ezRenderPipeline* m_pOwnerPipeline;
+  const ezRenderPipeline* m_pOwnerPipeline;
   void* m_pData;
   ezUInt64 m_uiLastUpdateFrame;
 };

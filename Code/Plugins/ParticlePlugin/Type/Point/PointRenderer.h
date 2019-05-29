@@ -1,9 +1,9 @@
 #pragma once
 
 #include <ParticlePlugin/ParticlePluginDLL.h>
+#include <ParticlePlugin/Renderer/ParticleRenderer.h>
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Pipeline/RenderData.h>
-#include <ParticlePlugin/Renderer/ParticleRenderer.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/BillboardQuadParticleShaderData.h>
 
@@ -24,17 +24,15 @@ class EZ_PARTICLEPLUGIN_DLL ezParticlePointRenderer : public ezParticleRenderer
   EZ_DISALLOW_COPY_AND_ASSIGN(ezParticlePointRenderer);
 
 public:
-  ezParticlePointRenderer() {}
+  ezParticlePointRenderer();
   ~ezParticlePointRenderer();
 
-  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) override;
-  virtual void RenderBatch(const ezRenderViewContext& renderContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) override;
+  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const override;
+  virtual void RenderBatch(
+    const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
 protected:
-  void CreateDataBuffer();
-
   static const ezUInt32 s_uiParticlesPerBatch = 1024;
   ezGALBufferHandle m_hBaseDataBuffer;
   ezGALBufferHandle m_hBillboardDataBuffer;
 };
-

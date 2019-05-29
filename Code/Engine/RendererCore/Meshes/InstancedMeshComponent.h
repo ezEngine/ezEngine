@@ -99,5 +99,5 @@ protected:
 
   ezInstanceData* m_pExplicitInstanceData = nullptr;
 
-  mutable bool m_bIsDirty = true;
+  mutable ezUInt64 m_uiEnqueuedFrame = 0;
 };

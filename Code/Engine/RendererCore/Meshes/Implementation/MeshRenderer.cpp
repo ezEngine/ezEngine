@@ -11,19 +11,35 @@
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderer, 1, ezRTTIDefaultAllocator<ezMeshRenderer>)
-  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezMeshRenderer::ezMeshRenderer() = default;
 ezMeshRenderer::~ezMeshRenderer() = default;
 
-void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)
+void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)const
 {
   types.PushBack(ezGetStaticRTTI<ezMeshRenderData>());
 }
 
-void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch)
+void ezMeshRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const
+{
+  categories.PushBack(ezDefaultRenderDataCategories::Sky);
+  categories.PushBack(ezDefaultRenderDataCategories::LitOpaque);
+  categories.PushBack(ezDefaultRenderDataCategories::LitMasked);
+  categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
+  categories.PushBack(ezDefaultRenderDataCategories::LitForeground);
+  categories.PushBack(ezDefaultRenderDataCategories::SimpleOpaque);
+  categories.PushBack(ezDefaultRenderDataCategories::SimpleTransparent);
+  categories.PushBack(ezDefaultRenderDataCategories::SimpleForeground);
+  categories.PushBack(ezDefaultRenderDataCategories::Selection);
+  categories.PushBack(ezDefaultRenderDataCategories::GUI);
+}
+
+void ezMeshRenderer::RenderBatch(
+  const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezRenderContext* pContext = renderViewContext.m_pRenderContext;
@@ -136,7 +152,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
 }
 
 void ezMeshRenderer::FillPerInstanceData(
-  ezArrayPtr<ezPerInstanceData> instanceData, const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount)
+  ezArrayPtr<ezPerInstanceData> instanceData, const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount) const
 {
   ezUInt32 uiCount = ezMath::Min<ezUInt32>(instanceData.GetCount(), batch.GetCount() - uiStartIndex);
   ezUInt32 uiCurrentIndex = 0;

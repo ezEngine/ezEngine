@@ -21,6 +21,8 @@ public:
   ezParticleRenderer();
   ~ezParticleRenderer();
 
+  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const override;
+
 protected:
   struct TempSystemCB
   {
@@ -37,8 +39,8 @@ protected:
 
   void CreateParticleDataBuffer(ezGALBufferHandle& inout_hBuffer, ezUInt32 uiDataTypeSize, ezUInt32 uiNumParticlesPerBatch);
   void DestroyParticleDataBuffer(ezGALBufferHandle& inout_hBuffer);
-  void BindParticleShader(ezRenderContext* pRenderContext, const char* szShader);
+  void BindParticleShader(ezRenderContext* pRenderContext, const char* szShader) const;
 
-private:
+protected:
   ezShaderResourceHandle m_hShader;
 };

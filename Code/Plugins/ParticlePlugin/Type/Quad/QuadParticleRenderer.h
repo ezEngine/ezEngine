@@ -39,13 +39,13 @@ public:
   ezParticleQuadRenderer();
   ~ezParticleQuadRenderer();
 
-  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) override;
-  virtual void RenderBatch(const ezRenderViewContext& renderContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) override;
+  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const override;
+  virtual void RenderBatch(
+    const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
 
 protected:
-  void CreateDataBuffer();
-  void ConfigureRenderMode(const ezParticleQuadRenderData* pRenderData, ezRenderContext* pRenderContext);
+  void ConfigureRenderMode(const ezParticleQuadRenderData* pRenderData, ezRenderContext* pRenderContext) const;
 
   static const ezUInt32 s_uiParticlesPerBatch = 1024;
   ezGALBufferHandle m_hBaseDataBuffer;

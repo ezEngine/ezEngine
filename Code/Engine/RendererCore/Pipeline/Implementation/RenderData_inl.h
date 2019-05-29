@@ -22,7 +22,26 @@ EZ_ALWAYS_INLINE bool ezRenderData::Category::operator!=(const Category& other) 
 
 //////////////////////////////////////////////////////////////////////////
 
-//static
+// static
+EZ_FORCE_INLINE const ezRenderer* ezRenderData::GetCategoryRenderer(Category category, const ezRTTI* pRenderDataType)
+{
+  if (s_bRendererInstancesDirty)
+  {
+    CreateRendererInstances();
+  }
+
+  auto& categoryData = s_CategoryData[category.m_uiValue];
+  
+  ezUInt32 uiIndex = 0;
+  if (categoryData.m_TypeToRendererIndex.TryGetValue(pRenderDataType, uiIndex))
+  {
+    return s_RendererInstances[uiIndex].Borrow();
+  }
+
+  return nullptr;
+}
+
+// static
 EZ_FORCE_INLINE const char* ezRenderData::GetCategoryName(Category category)
 {
   return s_CategoryData[category.m_uiValue].m_sName.GetString();
@@ -53,4 +72,3 @@ static T* ezCreateRenderDataForThisFrame(const ezGameObject* pOwner)
 
   return pRenderData;
 }
-
