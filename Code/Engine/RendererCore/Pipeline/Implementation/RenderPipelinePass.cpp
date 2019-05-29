@@ -2,6 +2,7 @@
 
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
+#include <RendererCore/Pipeline/Renderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
 #include <RendererFoundation/Profiling/Profiling.h>
