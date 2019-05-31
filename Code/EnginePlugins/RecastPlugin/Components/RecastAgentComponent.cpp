@@ -3,14 +3,14 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <GameEngine/Components/CharacterControllerComponent.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <GameEngine/Physics/CharacterControllerComponent.h>
 #include <Recast/DetourCrowd.h>
 #include <RecastPlugin/Components/RecastAgentComponent.h>
+#include <RecastPlugin/Resources/RecastNavMeshResource.h>
 #include <RecastPlugin/Utils/RcMath.h>
 #include <RecastPlugin/WorldModule/RecastWorldModule.h>
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <RecastPlugin/Resources/RecastNavMeshResource.h>
 
 //////////////////////////////////////////////////////////////////////////
 

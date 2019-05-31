@@ -2,12 +2,12 @@
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorFramework/Document/GameObjectContextDocument.h>
-#include <GameEngine/Resources/PropertyAnimResource.h>
-#include <GuiFoundation/Widgets/CurveEditData.h>
+#include <EditorFramework/Object/ObjectPropertyPath.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
 #include <Foundation/Communication/Event.h>
+#include <GameEngine/Animation/PropertyAnimResource.h>
+#include <GuiFoundation/Widgets/CurveEditData.h>
 #include <GuiFoundation/Widgets/EventTrackEditData.h>
-#include <EditorFramework/Object/ObjectPropertyPath.h>
 
 struct ezGameObjectContextEvent;
 class ezPropertyAnimObjectAccessor;
@@ -17,10 +17,10 @@ struct ezCommandHistoryEvent;
 class ezPropertyAnimationTrack : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAnimationTrack, ezReflectedClass);
-public:
 
+public:
   ezString m_sObjectSearchSequence; ///< Sequence of named objects to search for the target
-  ezString m_sComponentType; ///< Empty to reference the game object properties (position etc.)
+  ezString m_sComponentType;        ///< Empty to reference the game object properties (position etc.)
   ezString m_sPropertyPath;
   ezEnum<ezPropertyAnimTarget> m_Target;
 
@@ -31,6 +31,7 @@ public:
 class ezPropertyAnimationTrackGroup : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAnimationTrackGroup, ezReflectedClass);
+
 public:
   ezPropertyAnimationTrackGroup() = default;
   ezPropertyAnimationTrackGroup(const ezPropertyAnimationTrackGroup&) = delete;
@@ -88,9 +89,11 @@ public:
   const ezPropertyAnimationTrack* GetTrack(const ezUuid& trackGuid) const;
   ezPropertyAnimationTrack* GetTrack(const ezUuid& trackGuid);
 
-  ezStatus CanAnimate(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target) const;
+  ezStatus CanAnimate(
+    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target) const;
 
-  ezUuid FindTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target) const;
+  ezUuid FindTrack(
+    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target) const;
   ezUuid CreateTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target);
 
   ezUuid FindCurveCp(const ezUuid& trackGuid, ezInt64 tickX);
@@ -108,7 +111,8 @@ public:
   ezUuid InsertEventTrackCpAt(ezInt64 tickX, const char* szValue);
 
 protected:
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+    const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
   virtual void InitializeAfterLoading() override;
 
 private:
@@ -125,9 +129,8 @@ private:
   {
     EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezPropertyReference& key)
     {
-      return ezHashingUtils::xxHash32(&key.m_Object, sizeof(ezUuid))
-        + ezHashingUtils::xxHash32(&key.m_pProperty, sizeof(const ezAbstractProperty*))
-        + (ezUInt32)key.m_Index.ComputeHash();
+      return ezHashingUtils::xxHash32(&key.m_Object, sizeof(ezUuid)) +
+             ezHashingUtils::xxHash32(&key.m_pProperty, sizeof(const ezAbstractProperty*)) + (ezUInt32)key.m_Index.ComputeHash();
     }
 
     EZ_ALWAYS_INLINE static bool Equal(const ezPropertyReference& a, const ezPropertyReference& b)
@@ -139,7 +142,8 @@ private:
   void RebuildMapping();
   void RemoveTrack(const ezUuid& track);
   void AddTrack(const ezUuid& track);
-  void FindTrackKeys(const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath, ezHybridArray<ezPropertyReference, 1>& keys) const;
+  void FindTrackKeys(const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath,
+    ezHybridArray<ezPropertyReference, 1>& keys) const;
   void GenerateTrackInfo(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index,
     ezStringBuilder& sObjectSearchSequence, ezStringBuilder& sComponentType, ezStringBuilder& sPropertyPath) const;
   void ApplyAnimation();

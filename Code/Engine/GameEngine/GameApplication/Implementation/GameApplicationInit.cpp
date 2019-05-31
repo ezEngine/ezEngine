@@ -6,8 +6,8 @@
 #include <GameEngine/Curves/Curve1DResource.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
-#include <GameEngine/Resources/PropertyAnimResource.h>
-#include <GameEngine/Surfaces/SurfaceResource.h>
+#include <GameEngine/Animation/PropertyAnimResource.h>
+#include <GameEngine/Physics/SurfaceResource.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>

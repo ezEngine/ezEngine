@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorPluginPhysX/EditorPluginPhysXDLL.h>
-#include <QDialog>
 #include <EditorPlugins/PhysX/EditorPluginPhysX/ui_PhysXProjectSettingsDlg.h>
-#include <GameEngine/CollisionFilter/CollisionFilter.h>
+#include <GameEngine/Physics/CollisionFilter.h>
+#include <QDialog>
 
 class ezQtPhysxProjectSettingsDlg : public QDialog, public Ui_PhysXProjectSettingsDlg
 {
@@ -30,5 +30,3 @@ private:
   ezCollisionFilterConfig m_Config;
   ezCollisionFilterConfig m_ConfigReset;
 };
-
-

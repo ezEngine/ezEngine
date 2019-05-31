@@ -3,7 +3,7 @@
 #include <Core/Input/InputManager.h>
 #include <GameEngine/Configuration/InputConfig.h>
 #include <GameEngine/GameState/FallbackGameState.h>
-#include <GameEngine/Components/PlayerStartPointComponent.h>
+#include <GameEngine/Gameplay/PlayerStartPointComponent.h>
 #include <RendererCore/Components/CameraComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFallbackGameState, 1, ezRTTIDefaultAllocator<ezFallbackGameState>);

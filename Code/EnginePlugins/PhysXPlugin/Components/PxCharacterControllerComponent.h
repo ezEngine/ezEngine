@@ -1,13 +1,14 @@
-﻿#pragma once
+#pragma once
 
-#include <PhysXPlugin/Components/PxComponent.h>
 #include <Core/ResourceManager/ResourceHandle.h>
-#include <GameEngine/Components/CharacterControllerComponent.h>
+#include <GameEngine/Physics/CharacterControllerComponent.h>
+#include <PhysXPlugin/Components/PxComponent.h>
 
 struct ezMsgCollision;
 typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 
-class ezPxCharacterControllerComponentManager : public ezComponentManager<class ezPxCharacterControllerComponent, ezBlockStorageType::Compact>
+class ezPxCharacterControllerComponentManager
+  : public ezComponentManager<class ezPxCharacterControllerComponent, ezBlockStorageType::Compact>
 {
 public:
   ezPxCharacterControllerComponentManager(ezWorld* pWorld);
@@ -37,12 +38,11 @@ public:
 
   // ************************************* PROPERTIES ***********************************
 public:
-
-  float m_fWalkSpeed; ///< How many meters the character walks per second
-  float m_fRunSpeed; ///< How many meters the character runs per second
-  float m_fCrouchSpeed; ///< How many meters the character walks per second while crouching
-  float m_fAirSpeed; ///< How fast the character can change direction while not standing on solid round
-  float m_fAirFriction; ///< How much damping is applied to the velocity when the character is jumping
+  float m_fWalkSpeed;    ///< How many meters the character walks per second
+  float m_fRunSpeed;     ///< How many meters the character runs per second
+  float m_fCrouchSpeed;  ///< How many meters the character walks per second while crouching
+  float m_fAirSpeed;     ///< How fast the character can change direction while not standing on solid round
+  float m_fAirFriction;  ///< How much damping is applied to the velocity when the character is jumping
   ezAngle m_RotateSpeed; ///< How many degrees per second the character turns
   float m_fJumpImpulse;
 
@@ -59,12 +59,9 @@ public:
   const char* GetFallbackWalkSurfaceFile() const;
 
 protected:
-
-
   // ************************************* FUNCTIONS *****************************
 
 public:
-
   virtual void MoveCharacter(ezMsgMoveCharacterController& msg) override;
   void OnCollision(ezMsgCollision& msg);
 
@@ -88,5 +85,3 @@ protected:
 
   float m_fAccumulatedWalkDistance = 0.0f;
 };
-
-

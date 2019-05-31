@@ -1,6 +1,5 @@
 #pragma once
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
-#include <GameEngine/Resources/PropertyAnimResource.h>
 
 class ezPropertyAnimAssetDocument;
 class ezPropertyAnimObjectManager;

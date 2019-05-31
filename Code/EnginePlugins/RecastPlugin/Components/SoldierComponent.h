@@ -1,7 +1,7 @@
 #pragma once
 
+#include <GameEngine/AI/NpcComponent.h>
 #include <RecastPlugin/RecastPluginDLL.h>
-#include <GameEngine/Components/NpcComponent.h>
 
 class ezRecastWorldModule;
 class ezPhysicsWorldModuleInterface;
@@ -26,11 +26,9 @@ public:
 
 
 
-
   //////////////////////////////////////////////////////////////////////////
   // ezComponent Interface
 protected:
-
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
@@ -56,7 +54,4 @@ protected:
   };
 
   State m_State = State::Idle;
-
-
-
 };

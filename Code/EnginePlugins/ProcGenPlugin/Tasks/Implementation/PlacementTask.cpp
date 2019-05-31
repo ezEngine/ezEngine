@@ -5,7 +5,7 @@
 #include <Foundation/SimdMath/SimdRandom.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
-#include <GameEngine/Surfaces/SurfaceResource.h>
+#include <GameEngine/Physics/SurfaceResource.h>
 #include <ProcGenPlugin/Tasks/PlacementTask.h>
 
 using namespace ezProcGenInternal;

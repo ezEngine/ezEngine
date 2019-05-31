@@ -13,7 +13,7 @@
 
 #include <EditorPluginPhysX/Actions/PhysXActions.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetObjects.h>
-#include <GameEngine/CollisionFilter/CollisionFilter.h>
+#include <GameEngine/Physics/CollisionFilter.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/UIServices/DynamicEnums.h>
 #include <PhysXCooking/PhysXCooking.h>

@@ -2,7 +2,6 @@
 
 #include <Foundation/Types/RangeView.h>
 #include <Foundation/Types/SharedPtr.h>
-#include <GameEngine/Surfaces/SurfaceResourceDescriptor.h>
 #include <ParticlePlugin/Events/ParticleEventReaction.h>
 
 typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;

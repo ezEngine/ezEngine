@@ -3,7 +3,7 @@
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorPluginScene/DragDropHandlers/MaterialDragDropHandler.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
-#include <GameEngine/Components/GreyBoxComponent.h>
+#include <GameEngine/Gameplay/GreyBoxComponent.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
@@ -92,7 +92,7 @@ void ezMaterialDragDropHandler::OnDrop(const ezDragDropInfo* pInfo)
     const ezDocumentObject* pComponent = m_pDocument->GetObjectManager()->GetObject(pInfo->m_TargetComponent);
 
     if (pComponent && (pComponent->GetTypeAccessor().GetType()->IsDerivedFrom<ezMeshComponent>() ||
-                       pComponent->GetTypeAccessor().GetType()->IsDerivedFrom<ezGreyBoxComponent>()))
+                        pComponent->GetTypeAccessor().GetType()->IsDerivedFrom<ezGreyBoxComponent>()))
     {
       m_pDocument->GetCommandHistory()->FinishTemporaryCommands();
       return;

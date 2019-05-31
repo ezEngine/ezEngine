@@ -2,7 +2,7 @@
 
 #include <Core/World/World.h>
 #include <Foundation/SimdMath/SimdConversion.h>
-#include <GameEngine/Components/PrefabReferenceComponent.h>
+#include <GameEngine/Prefabs/PrefabReferenceComponent.h>
 #include <ProcGenPlugin/Components/Implementation/PlacementTile.h>
 #include <ProcGenPlugin/Tasks/PlacementTask.h>
 #include <RendererCore/Messages/SetColorMessage.h>

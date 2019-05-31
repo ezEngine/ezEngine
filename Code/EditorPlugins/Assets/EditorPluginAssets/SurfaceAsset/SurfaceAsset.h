@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
-#include <GameEngine/Surfaces/SurfaceResource.h>
+#include <GameEngine/Physics/SurfaceResource.h>
 
 class ezSurfaceAssetDocument : public ezSimpleAssetDocument<ezSurfaceResourceDescriptor>
 {
@@ -13,5 +13,6 @@ public:
   virtual const char* QueryAssetType() const override { return "Surface"; }
 
 protected:
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+    const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
 };

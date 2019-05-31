@@ -1,15 +1,16 @@
 #include "Main.h"
+
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Threading/Lock.h>
-#include <GameEngine/Components/InputComponent.h>
-#include <GameEngine/Components/RotorComponent.h>
-#include <GameEngine/Components/SliderComponent.h>
-#include <GameEngine/Components/SpawnComponent.h>
-#include <GameEngine/Components/TimedDeathComponent.h>
+#include <GameEngine/Animation/RotorComponent.h>
+#include <GameEngine/Animation/SliderComponent.h>
+#include <GameEngine/Gameplay/InputComponent.h>
+#include <GameEngine/Gameplay/TimedDeathComponent.h>
+#include <GameEngine/Prefabs/SpawnComponent.h>
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 

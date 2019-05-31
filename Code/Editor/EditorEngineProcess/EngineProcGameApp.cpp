@@ -11,7 +11,7 @@
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
-#include <GameEngine/Components/PrefabReferenceComponent.h>
+#include <GameEngine/Prefabs/PrefabReferenceComponent.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>

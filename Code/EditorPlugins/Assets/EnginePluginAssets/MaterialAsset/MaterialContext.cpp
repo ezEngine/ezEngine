@@ -7,12 +7,12 @@
 #include <EnginePluginAssets/MaterialAsset/MaterialContext.h>
 #include <EnginePluginAssets/MaterialAsset/MaterialView.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
-#include <GameEngine/Components/InputComponent.h>
-#include <GameEngine/Components/RotorComponent.h>
-#include <GameEngine/Components/SliderComponent.h>
-#include <GameEngine/Components/SpawnComponent.h>
-#include <GameEngine/Components/TimedDeathComponent.h>
+#include <GameEngine/Animation/SliderComponent.h>
+#include <GameEngine/Animation/RotorComponent.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <GameEngine/Gameplay/InputComponent.h>
+#include <GameEngine/Gameplay/TimedDeathComponent.h>
+#include <GameEngine/Prefabs/SpawnComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>

@@ -6,7 +6,6 @@
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAsset.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimObjectAccessor.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimObjectManager.h>
-#include <GameEngine/Resources/PropertyAnimResource.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/DocumentObjectVisitor.h>
 

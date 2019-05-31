@@ -4,7 +4,7 @@
 #include <Foundation/IO/ChunkStream.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
-#include <GameEngine/Surfaces/SurfaceResource.h>
+#include <GameEngine/Physics/SurfaceResource.h>
 #include <ProcGenPlugin/Resources/ProcGenGraphResource.h>
 #include <ProcGenPlugin/VM/ExpressionByteCode.h>
 

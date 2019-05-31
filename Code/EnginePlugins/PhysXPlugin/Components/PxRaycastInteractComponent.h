@@ -1,8 +1,7 @@
 #pragma once
 
-#include <PhysXPlugin/PhysXPluginDLL.h>
 #include <Core/World/World.h>
-#include <GameEngine/Surfaces/SurfaceResource.h>
+#include <PhysXPlugin/PhysXPluginDLL.h>
 
 struct ezPhysicsHitResult;
 typedef ezComponentManager<class ezPxRaycastInteractComponent, ezBlockStorageType::FreeList> ezPxRaycastInteractComponentManager;
@@ -33,9 +32,4 @@ public:
 
 protected:
   virtual void SendMessage(const ezPhysicsHitResult& hit);
-
-
 };
-
-
-

@@ -2,7 +2,6 @@
 
 #include <Core/World/GameObject.h>
 #include <EditorPluginScene/Objects/SceneObjectManager.h>
-#include <GameEngine/Components/PrefabReferenceComponent.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 // clang-format off
@@ -28,7 +27,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezSceneObjectManager::ezSceneObjectManager()
-    : ezDocumentObjectManager(ezGetStaticRTTI<ezSceneDocumentRoot>())
+  : ezDocumentObjectManager(ezGetStaticRTTI<ezSceneDocumentRoot>())
 {
 }
 
@@ -45,8 +44,8 @@ void ezSceneObjectManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& 
   }
 }
 
-ezStatus ezSceneObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty,
-                                              const ezVariant& index) const
+ezStatus ezSceneObjectManager::InternalCanAdd(
+  const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const
 {
   if (IsUnderRootProperty("Children", pParent, szParentProperty))
   {
@@ -62,7 +61,7 @@ ezStatus ezSceneObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocum
     {
       // only prevent adding game objects (as children) to objects that already have a prefab component
       // do allow to attach components to objects with prefab components
-      //if (pRtti->IsDerivedFrom<ezGameObject>())
+      // if (pRtti->IsDerivedFrom<ezGameObject>())
       //{
       //  if (pParent->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
       //  {
@@ -76,7 +75,7 @@ ezStatus ezSceneObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocum
       //}
 
       // in case prefab component should be the only component on a node
-      //if (pRtti->IsDerivedFrom<ezPrefabReferenceComponent>())
+      // if (pRtti->IsDerivedFrom<ezPrefabReferenceComponent>())
       //{
       //  if (!pParent->GetChildren().IsEmpty())
       //    return ezStatus("Prefab components can only be added to empty nodes.");
@@ -86,11 +85,11 @@ ezStatus ezSceneObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocum
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezSceneObjectManager::InternalCanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent,
-                                               const char* szParentProperty, const ezVariant& index) const
+ezStatus ezSceneObjectManager::InternalCanMove(
+  const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const
 {
   // code to disallow attaching nodes to a prefab node
-  //if (pNewParent != nullptr)
+  // if (pNewParent != nullptr)
   //{
   //  if (pNewParent->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
   //  {
@@ -111,7 +110,7 @@ ezStatus ezSceneObjectManager::InternalCanSelect(const ezDocumentObject* pObject
   if (pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())
   {
     return ezStatus(
-        ezFmt("Object of type '{0}' is not a 'ezGameObject' and can't be selected.", pObject->GetTypeAccessor().GetType()->GetTypeName()));
+      ezFmt("Object of type '{0}' is not a 'ezGameObject' and can't be selected.", pObject->GetTypeAccessor().GetType()->GetTypeName()));
   }
   return ezStatus(EZ_SUCCESS);
 }

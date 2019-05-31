@@ -1,8 +1,8 @@
 #pragma once
 
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <PhysXPlugin/Components/PxComponent.h>
 #include <PhysXPlugin/Utilities/PxUserData.h>
-#include <GameEngine/Surfaces/SurfaceResource.h>
 
 struct ezMsgExtractGeometry;
 
@@ -22,7 +22,6 @@ public:
 
   // ************************************* PROPERTIES ***********************************
 public:
-
   // physics material
   // collision flags ?
   // flags: scene query shape, simulate, trigger (?), vdb vis
@@ -54,5 +53,3 @@ protected:
   physx::PxMaterial* GetPxMaterial();
   physx::PxFilterData CreateFilterData();
 };
-
-

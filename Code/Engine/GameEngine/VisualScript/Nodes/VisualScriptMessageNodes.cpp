@@ -1,6 +1,6 @@
 #include <GameEnginePCH.h>
 
-#include <Components/InputComponent.h>
+#include <GameEngine/Gameplay/InputComponent.h>
 #include <Core/World/World.h>
 #include <GameEngine/VisualScript/Nodes/VisualScriptMessageNodes.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>

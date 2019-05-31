@@ -2,7 +2,7 @@
 
 #include <Foundation/Types/RangeView.h>
 #include <Foundation/Types/SharedPtr.h>
-#include <GameEngine/Surfaces/SurfaceResourceDescriptor.h>
+#include <GameEngine/Physics/SurfaceResourceDescriptor.h>
 #include <ParticlePlugin/Events/ParticleEventReaction.h>
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleEventReactionFactory_Effect : public ezParticleEventReactionFactory
