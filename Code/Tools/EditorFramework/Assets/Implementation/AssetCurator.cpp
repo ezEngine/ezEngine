@@ -401,7 +401,7 @@ void ezAssetCurator::TransformAllAssets(const ezPlatformProfile* pAssetProfile)
       --uiNumStepsLeft;
     }
 
-    auto res = ProcessAsset(pAssetInfo, pAssetProfile, false);
+    auto res = ProcessAsset(pAssetInfo, pAssetProfile, true);
     if (res.m_Result.Failed())
     {
       ezLog::Error("{0} ({1})", res.m_sMessage, pAssetInfo->m_sDataDirRelativePath);

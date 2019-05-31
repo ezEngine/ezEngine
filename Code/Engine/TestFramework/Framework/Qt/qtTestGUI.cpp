@@ -179,6 +179,11 @@ void ezQtTestGUI::on_actionSaveTestSettingsAs_triggered()
 
 void ezQtTestGUI::on_actionRunTests_triggered()
 {
+  // For some reason during tests 'run tests' is called again
+  // while already running tests  so we early out here.
+  if (m_pTestFramework->GetTestsRunning())
+    return;
+
   m_pTestFramework->AutoSaveTestOrder();
   m_pModel->InvalidateAll();
   m_bExpandedCurrentTest = false;

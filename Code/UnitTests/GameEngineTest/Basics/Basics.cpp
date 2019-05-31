@@ -3,9 +3,75 @@
 #include "Basics.h"
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Strings/StringConversion.h>
+#include <Foundation/System/Process.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
-#include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/Textures/TextureCubeResource.h>
+
+ezResult TranformProject(const char* szProjectPath)
+{
+  ezStringBuilder sBinPath = ezOSFile::GetApplicationDirectory();
+
+  ezStringBuilder sProjectDir;
+  if (ezPathUtils::IsAbsolutePath(szProjectPath))
+  {
+    sProjectDir = szProjectPath;
+    sProjectDir.MakeCleanPath();
+  }
+  else
+  {
+    // Assume to be relative to ez root.
+    sProjectDir = sBinPath;
+    sProjectDir.PathParentDirectory(3);
+    sProjectDir.AppendPath(szProjectPath);
+    sProjectDir.MakeCleanPath();
+  }
+
+  sBinPath.AppendPath("EditorProcessor.exe");
+  sBinPath.MakeCleanPath();
+
+  ezProcessOptions opt;
+  opt.m_sProcess = sBinPath;
+  opt.m_Arguments.PushBack("-project");
+  opt.AddArgument("\"{0}\"", sProjectDir);
+  opt.m_Arguments.PushBack("-transform");
+  opt.m_Arguments.PushBack("PC");
+
+  ezProcess proc;
+  ezLog::Info("Launching: '{0}'", sBinPath);
+  ezResult res = proc.Launch(opt);
+  if (res.Failed())
+  {
+    proc.Terminate();
+    ezLog::Error("Failed to start process: '{0}'", sBinPath);
+  }
+  res = proc.WaitToFinish(ezTime::Minutes(4));
+  if (res.Failed())
+  {
+    proc.Terminate();
+    ezLog::Error("Process timeout: '{0}'", sBinPath);
+    return EZ_FAILURE;
+  }
+  ezLog::Success("Executed Asset Processor to transform '{}'", szProjectPath);
+  return EZ_SUCCESS;
+}
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+EZ_CREATE_SIMPLE_TEST_GROUP(00_Init);
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformBase)
+{
+  EZ_TEST_BOOL(TranformProject("Data/Base/ezProject").Succeeded());
+}
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformBasics)
+{
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Basics/ezProject").Succeeded());
+}
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformParticles)
+{
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Particles/ezProject").Succeeded());
+}
+#endif
+
 
 static ezGameEngineTestBasics s_GameEngineTestBasics;
 
@@ -22,7 +88,6 @@ ezGameEngineTestApplication* ezGameEngineTestBasics::CreateApplication()
 
 void ezGameEngineTestBasics::SetupSubTests()
 {
-  AddSubTest("00 Transform Assets", SubTests::ST_TransformAssets);
   AddSubTest("Many Meshes", SubTests::ST_ManyMeshes);
   AddSubTest("Skybox", SubTests::ST_Skybox);
   AddSubTest("Debug Rendering", SubTests::ST_DebugRendering);
@@ -32,12 +97,6 @@ void ezGameEngineTestBasics::SetupSubTests()
 ezResult ezGameEngineTestBasics::InitializeSubTest(ezInt32 iIdentifier)
 {
   m_iFrame = -1;
-
-  if (iIdentifier == SubTests::ST_TransformAssets)
-  {
-    m_pOwnApplication->SubTestTransformAssetsSetup();
-    return EZ_SUCCESS;
-  }
 
   if (iIdentifier == SubTests::ST_ManyMeshes)
   {
@@ -70,9 +129,6 @@ ezTestAppRun ezGameEngineTestBasics::RunSubTest(ezInt32 iIdentifier, ezUInt32 ui
 {
   ++m_iFrame;
 
-  if (iIdentifier == SubTests::ST_TransformAssets)
-    return m_pOwnApplication->SubTestTransformAssetsExec(m_iFrame);
-
   if (iIdentifier == SubTests::ST_ManyMeshes)
     return m_pOwnApplication->SubTestManyMeshesExec(m_iFrame);
 
@@ -92,47 +148,8 @@ ezTestAppRun ezGameEngineTestBasics::RunSubTest(ezInt32 iIdentifier, ezUInt32 ui
 //////////////////////////////////////////////////////////////////////////
 
 ezGameEngineTestApplication_Basics::ezGameEngineTestApplication_Basics()
-    : ezGameEngineTestApplication("Basics")
+  : ezGameEngineTestApplication("Basics")
 {
-}
-
-
-void ezGameEngineTestApplication_Basics::SubTestTransformAssetsSetup() {}
-
-
-ezTestAppRun ezGameEngineTestApplication_Basics::SubTestTransformAssetsExec(ezInt32 iCurFrame)
-{
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  ezStringBuilder sBinPath = ezOSFile::GetApplicationDirectory();
-
-  ezStringBuilder sBaseDataPath = sBinPath;
-  sBaseDataPath.PathParentDirectory(3);
-  sBaseDataPath.AppendPath("Data/Base/ezProject");
-
-  sBinPath.AppendFormat("/EditorProcessor.exe -project \"{0}\" -transform PC", sBaseDataPath);
-  sBinPath.MakeCleanPath();
-
-  ezLog::Info("Launching: '{0}'", sBinPath);
-
-  STARTUPINFOW info = {sizeof(info)};
-  PROCESS_INFORMATION processInfo;
-  if (CreateProcessW(nullptr, (wchar_t*)(ezStringWChar(sBinPath).GetData()), nullptr, nullptr, FALSE, 0, nullptr, nullptr, &info,
-                     &processInfo))
-  {
-    if (WaitForSingleObject(processInfo.hProcess, 1000 * 60 * 4) == WAIT_TIMEOUT) // 4min timeout
-    {
-      TerminateProcess(processInfo.hProcess, 0);
-      ezLog::Error("Process timeout: '{0}'", sBinPath);
-    }
-
-    CloseHandle(processInfo.hProcess);
-    CloseHandle(processInfo.hThread);
-
-    ezLog::Success("Executed Asset Processor to transform base data assets");
-  }
-#endif
-
-  return ezTestAppRun::Quit;
 }
 
 void ezGameEngineTestApplication_Basics::SubTestManyMeshesSetup()
@@ -201,7 +218,7 @@ void ezGameEngineTestApplication_Basics::SubTestSkyboxSetup()
   m_pWorld->Clear();
 
   ezTextureCubeResourceHandle hSkybox =
-      ezResourceManager::LoadResource<ezTextureCubeResource>("Textures/Cubemap/ezLogo_Cube_DXT1_Mips_D.dds");
+    ezResourceManager::LoadResource<ezTextureCubeResource>("Textures/Cubemap/ezLogo_Cube_DXT1_Mips_D.dds");
   ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezMesh");
 
   // Skybox
