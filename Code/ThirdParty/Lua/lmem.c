@@ -1,5 +1,5 @@
 /*
-** $Id: lmem.c,v 1.91 2015/03/06 19:45:54 roberto Exp $
+** $Id: lmem.c,v 1.91.1.1 2017/04/19 17:20:42 roberto Exp $
 ** Interface to Memory Manager
 ** See Copyright Notice in lua.h
 */
@@ -97,3 +97,4 @@ void *luaM_realloc_ (lua_State *L, void *block, size_t osize, size_t nsize) {
   g->GCdebt = (g->GCdebt + nsize) - realosize;
   return newblock;
 }
+
