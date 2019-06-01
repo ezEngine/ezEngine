@@ -14,6 +14,8 @@
 #include <wrl/event.h>
 #include <wrl/implements.h>
 #include <wrl/wrappers/corewrappers.h>
+#include <windows.foundation.collections.h>
+#include <asyncinfo.h>
 
 class ezUuid;
 
@@ -99,19 +101,18 @@ namespace ezUwpUtils
   template <typename AsyncCompletedType, typename AsyncResultType, typename Callback, typename ObjectType>
   HRESULT ezWinRtPutCompleted(ObjectType& object, Callback callback)
   {
-    object->put_Completed(Microsoft::WRL::Callback<IAsyncOperationCompletedHandler<AsyncCompletedType>>(
-                              [callback](IAsyncOperation<AsyncCompletedType>* pCompletion, AsyncStatus status) {
-                                if (status != Completed)
-                                  return S_OK;
+    object->put_Completed(Microsoft::WRL::Callback<ABI::Windows::Foundation::IAsyncOperationCompletedHandler<AsyncCompletedType>>(
+      [callback](ABI::Windows::Foundation::IAsyncOperation<AsyncCompletedType>* pCompletion, AsyncStatus status) {
+        if (status != ABI::Windows::Foundation::AsyncStatus::Completed)
+          return S_OK;
 
-                                AsyncResultType pResult;
-                                pCompletion->GetResults(&pResult);
+        AsyncResultType pResult;
+        pCompletion->GetResults(&pResult);
 
-                                callback(pResult);
+        callback(pResult);
 
-                                return S_OK;
-                              })
-                              .Get());
+        return S_OK;
+      }).Get());
 
     return S_OK;
   }

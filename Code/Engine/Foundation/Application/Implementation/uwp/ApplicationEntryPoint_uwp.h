@@ -4,6 +4,10 @@
 /// \file
 
 #include <Foundation/Memory/MemoryTracker.h>
+#include <roapi.h>
+
+// Disable C++/CX adds.
+#pragma warning(disable : 4447)
 
 class ezApplication;
 extern EZ_FOUNDATION_DLL ezResult ezUWPRun(ezApplication* pApp);
@@ -37,7 +41,7 @@ namespace ezApplicationDetails
 
     return iReturnCode;
   }
-}
+} // namespace ezApplicationDetails
 
 /// \brief Same as EZ_APPLICATION_ENTRY_POINT but should be used for applications that shall always show a console window.
 #define EZ_CONSOLEAPP_ENTRY_POINT(AppClass, ...)                                                                                           \
@@ -54,4 +58,3 @@ namespace ezApplicationDetails
   {                                                                                                                                        \
     return ::ezApplicationDetails::EntryFunc<AppClass>(__VA_ARGS__);                                                                       \
   }
-

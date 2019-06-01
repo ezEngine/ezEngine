@@ -113,14 +113,14 @@ public:
   template <typename Function>
   EZ_FORCE_INLINE ezDelegate(Function function)
   {
-    EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Function)), "Wrong alignment. Expected {0} bytes alignment",
-      EZ_ALIGNMENT_OF(Function));
-
     // Only memcpy pure function pointers or lambdas that can be cast into pure functions.
     // Not lambdas with captures, as they can capture non-pod, non-memmoveable data.
     using signature = R(Args...);
     if constexpr (sizeof(Function) <= DATA_SIZE && std::is_assignable<signature*&, Function>::value)
     {
+      EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Function)), "Wrong alignment. Expected {0} bytes alignment",
+        EZ_ALIGNMENT_OF(Function));
+
       m_pInstance.m_ConstPtr = nullptr;
       memcpy(m_Data, &function, sizeof(Function));
       memset(m_Data + sizeof(Function), 0, DATA_SIZE - sizeof(Function));

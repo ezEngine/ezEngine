@@ -40,6 +40,14 @@
 #undef EZ_SUPPORTS_CASE_INSENSITIVE_PATHS
 #define EZ_SUPPORTS_CASE_INSENSITIVE_PATHS EZ_ON
 
+/// Whether starting other processes is supported.
+#undef EZ_SUPPORTS_PROCESSES
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+#  define EZ_SUPPORTS_PROCESSES EZ_OFF
+#else
+#  define EZ_SUPPORTS_PROCESSES EZ_ON
+#endif
+
 // SIMD support
 #undef EZ_SIMD_IMPLEMENTATION
 
