@@ -36,6 +36,7 @@ function(ez_create_target TYPE TARGET_NAME)
         endif()
 
         ez_set_library_properties(${TARGET_NAME})
+        ez_uwp_fix_library_properties(${TARGET_NAME} ${ALL_SOURCE_FILES})
 
     elseif (${TYPE} STREQUAL "APPLICATION")
 

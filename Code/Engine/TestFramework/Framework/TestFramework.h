@@ -17,6 +17,9 @@
 #include <thread>
 #include <utility>
 
+// Disable C++/CX adds.
+#pragma warning(disable : 4447)
+
 class EZ_TEST_DLL ezTestFramework
 {
 public:

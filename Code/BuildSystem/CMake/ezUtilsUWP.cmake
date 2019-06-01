@@ -2,6 +2,28 @@
 ### ez_uwp_add_default_content(<target>)
 ######################################
 
+function(ez_uwp_fix_library_properties TARGET_NAME SOURCE_FILES)
+  if (NOT EZ_CMAKE_PLATFORM_WINDOWS_UWP)
+    return()
+  endif()
+
+  # Needs to be set or cmake does not deploy the dll as only managed and winrt
+  # dlls are set to be deployed by cmake for some arbitrary reason.
+  set_property(TARGET ${TARGET_NAME} PROPERTY VS_WINRT_COMPONENT ON)
+
+  # Cmake refuses to deploy C libraries so we force all of them into C++ mode.
+  # This is because C can't be winrt and without it cmake throws the dll away again.
+  foreach(FILE ${ALL_SOURCE_FILES})
+
+    get_filename_component(FILE_PATH ${FILE} LAST_EXT)
+    if (${FILE_PATH} STREQUAL ".c")
+      set_source_files_properties(${FILE} PROPERTIES LANGUAGE CXX)
+    endif()
+  
+  endforeach()
+  
+endfunction()
+
 function(ez_uwp_add_default_content TARGET_NAME)
 
 	ez_pull_all_vars()
@@ -24,13 +46,14 @@ function(ez_uwp_add_default_content TARGET_NAME)
       "Wide310x150Logo.scale-200.png"
       "Windows_TemporaryKey.pfx")
 
-	foreach(contentFile ${UWP_ASSET_NAMES})
-	
+  foreach(contentFile ${UWP_ASSET_NAMES})
+
     configure_file(${CONTENT_DIRECTORY_SRC}${contentFile} ${CONTENT_DIRECTORY_DST}${contentFile} COPYONLY)
-		list(APPEND UWP_ASSETS ${CONTENT_DIRECTORY_DST}${contentFile})
-		
+    list(APPEND UWP_ASSETS ${CONTENT_DIRECTORY_DST}${contentFile})
+
   endforeach(contentFile)
 
+  set_property(TARGET ${TARGET_NAME} PROPERTY VS_WINRT_COMPONENT ON)
   set_property(SOURCE ${UWP_ASSETS} PROPERTY VS_DEPLOYMENT_LOCATION "Assets")
   set_property(SOURCE ${UWP_ASSETS} PROPERTY VS_DEPLOYMENT_CONTENT 1)
 

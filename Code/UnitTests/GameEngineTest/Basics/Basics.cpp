@@ -8,6 +8,7 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 
+#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
 ezResult TranformProject(const char* szProjectPath)
 {
   ezStringBuilder sBinPath = ezOSFile::GetApplicationDirectory();
@@ -55,6 +56,7 @@ ezResult TranformProject(const char* szProjectPath)
   ezLog::Success("Executed Asset Processor to transform '{}'", szProjectPath);
   return EZ_SUCCESS;
 }
+#endif
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 EZ_CREATE_SIMPLE_TEST_GROUP(00_Init);

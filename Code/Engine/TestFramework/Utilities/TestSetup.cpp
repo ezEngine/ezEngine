@@ -26,6 +26,12 @@ ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const ch
   s_argc = argc;
   s_argv = argv;
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  if (FAILED(RoInitialize(RO_INIT_MULTITHREADED)))
+  {
+    std::cout << "Failed to init WinRT." << std::endl;
+  }
+#endif
 
   // without at proper file system the current working directory is pretty much useless
   std::string sTestFolder = std::string(ezOSFile::GetUserDataFolder());

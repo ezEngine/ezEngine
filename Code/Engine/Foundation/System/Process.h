@@ -11,6 +11,7 @@
 typedef void* ezOsProcessHandle;
 typedef ezUInt32 ezOsProcessID;
 
+#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
 enum class ezProcessState
 {
   NotStarted,
@@ -159,3 +160,4 @@ private:
   ezDelegate<void(ezStringView)> m_onStdOut;
   ezDelegate<void(ezStringView)> m_onStdError;
 };
+#endif

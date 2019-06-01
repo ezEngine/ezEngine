@@ -1,5 +1,6 @@
 #pragma once
 
+#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
 #include <Foundation/System/Process.h>
 
 /// \brief Process groups are used to tie multiple processes together and ensure they get terminated either on demand or when the
@@ -39,3 +40,4 @@ private:
 
   ezHybridArray<ezProcess, 8> m_Processes;
 };
+#endif

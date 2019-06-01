@@ -1,5 +1,6 @@
 #include <FoundationPCH.h>
 
+#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
 // Include inline file
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <Foundation/System/Implementation/Win/ProcessGroup_win.h>
@@ -11,7 +12,7 @@
 #  error "ProcessGroup functions are not implemented on current platform"
 #endif
 
-
+#endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_System_Implementation_ProcessGroup);
 

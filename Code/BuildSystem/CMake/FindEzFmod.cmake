@@ -10,7 +10,7 @@ endif()
 if (CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
 	# UWP builds
 
-	find_path(EZ_EZ_FMOD_DIR api/lowlevel/inc/fmod.h
+	find_path(EZ_FMOD_DIR api/lowlevel/inc/fmod.h
 		PATHS
 		[HKEY_CURRENT_USER\\Software\\FMOD\ Studio\ API\ Universal\ Windows\ Platform]
 	)

@@ -30,8 +30,8 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryMappedFile)
     file.Close();
   }
 
-  /// \todo Enable on POSIX once ezMemoryMappedFile is implemented there as well
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  /// \todo Enable on POSIX / UWP once ezMemoryMappedFile is implemented there as well
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Memory map for writing")
   {

@@ -39,8 +39,11 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	# enable default exception handling
 	target_compile_options(${TARGET_NAME} PRIVATE "/EHsc")
 	
-	# disable permissive mode
-	target_compile_options(${TARGET_NAME} PRIVATE "/permissive-")
+	# nothing in UWP headers is standard conform so have to skip this for UWP
+	if (NOT CMAKE_SYSTEM_NAME MATCHES "WindowsStore")
+		# disable permissive mode
+		target_compile_options(${TARGET_NAME} PRIVATE "/permissive-")
+	endif ()
 	
 	# enable standard conform casting behavior - casting results always in rvalue
 	target_compile_options(${TARGET_NAME} PRIVATE "/Zc:rvalueCast")

@@ -237,7 +237,7 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
     pVar->GetType()->GetDesc(&std);
 
     ezShaderConstantBufferLayout::Constant constant;
-    constant.m_uiArrayElements = ezMath::Max(std.Elements, 1u);
+    constant.m_uiArrayElements = static_cast<ezUInt8>(ezMath::Max(std.Elements, 1u));
     constant.m_uiOffset = svd.StartOffset;
     constant.m_sName.Assign(svd.Name);
 

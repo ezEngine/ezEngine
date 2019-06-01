@@ -10,10 +10,6 @@ ezUwpTestFramework::ezUwpTestFramework(const char* szTestName, const char* szAbs
                                        const char** argv)
     : ezTestFramework(szTestName, szAbsTestDir, szRelTestDataDir, argc, argv)
 {
-  if (FAILED(RoInitialize(RO_INIT_MULTITHREADED)))
-  {
-    std::cout << "Failed to init WinRT." << std::endl;
-  }
 }
 
 ezUwpTestFramework::~ezUwpTestFramework()

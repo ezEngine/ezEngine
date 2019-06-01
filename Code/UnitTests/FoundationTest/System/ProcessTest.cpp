@@ -5,6 +5,8 @@
 
 EZ_CREATE_SIMPLE_TEST_GROUP(System);
 
+#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
+
 EZ_CREATE_SIMPLE_TEST(System, Process)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Command Line")
@@ -176,3 +178,4 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
   ezLog::Warning("ezProcess functions are not implemented on this platform.");
 #endif
 }
+#endif
