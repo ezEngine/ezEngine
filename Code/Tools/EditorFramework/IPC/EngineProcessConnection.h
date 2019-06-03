@@ -1,11 +1,11 @@
 #pragma once
 
-#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <Foundation/Communication/Event.h>
-#include <Foundation/Application/Config/PluginConfig.h>
-#include <Foundation/Configuration/Singleton.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/IPC/EditorProcessCommunicationChannel.h>
+#include <Foundation/Application/Config/PluginConfig.h>
+#include <Foundation/Communication/Event.h>
+#include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Types/UniquePtr.h>
 
 class ezEditorEngineConnection;
@@ -45,12 +45,13 @@ public:
   /// /brief Waits for a message of type pMessageType. If tTimeout is zero, the function will not timeout. If the timeout is valid
   ///        and is it, EZ_FAILURE is returned. If the message type matches and pCallback is valid, the function will be called
   ///        and the return values decides whether the message is to be accepted and the waiting has ended.
-  ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunicationChannel
-                          ::WaitForMessageCallback* pCallback = nullptr);
+  ezResult WaitForMessage(
+    const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunicationChannel ::WaitForMessageCallback* pCallback = nullptr);
   /// /brief Same as WaitForMessage but the message must be to a specific document. Therefore,
   ///        pMessageType must be derived from ezEditorEngineDocumentMsg and the function will only return if the received
   ///        message matches both type, document and is accepted by pCallback.
-  ezResult WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback = nullptr);
+  ezResult WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime tTimeout,
+    ezProcessCommunicationChannel::WaitForMessageCallback* pCallback = nullptr);
 
   void SetWaitForDebugger(bool bWait) { m_bProcessShouldWaitForDebugger = bWait; }
   bool GetWaitForDebugger() const { return m_bProcessShouldWaitForDebugger; }
@@ -63,6 +64,8 @@ public:
   void SendDocumentOpenMessage(const ezDocument* pDocument, bool bOpen);
 
   void ActivateRemoteProcess(const ezDocument* pDocument, ezUInt32 uiViewID);
+
+  ezProcessCommunicationChannel& GetCommunicationChannel() { return m_IPC; }
 
   struct Event
   {
@@ -107,7 +110,6 @@ private:
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineConnection
 {
 public:
-
   void SendMessage(ezEditorEngineDocumentMsg* pMessage);
   void SendHighlightObjectMessage(ezViewHighlightMsgToEngine* pMessage);
 
@@ -116,7 +118,7 @@ public:
 private:
   friend class ezEditorEngineProcessConnection;
   ezEditorEngineConnection(ezDocument* pDocument) { m_pDocument = pDocument; }
-  ~ezEditorEngineConnection() { }
+  ~ezEditorEngineConnection() {}
 
   ezDocument* m_pDocument;
 };

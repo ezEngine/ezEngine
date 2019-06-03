@@ -177,6 +177,8 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
 
   s_pEngineViewProcess->SetWaitForDebugger(flags.IsSet(StartupFlags::Debug));
 
+  m_LongOperationManager.Startup(&s_pEngineViewProcess->GetCommunicationChannel());
+
   QCoreApplication::setOrganizationDomain("www.ezEngine.net");
   QCoreApplication::setOrganizationName("ezEngine Project");
   QCoreApplication::setApplicationName(ezApplicationServices::GetSingleton()->GetApplicationName());
@@ -286,6 +288,8 @@ void ezQtEditorApp::ShutdownEditor()
   }
 
   SaveSettings();
+
+  m_LongOperationManager.Shutdown();
 
   ezToolsProject::CloseProject();
 

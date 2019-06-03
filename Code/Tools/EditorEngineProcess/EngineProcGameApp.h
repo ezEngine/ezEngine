@@ -5,6 +5,7 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <EditorEngineProcessFramework/LongOperation/LongOperationManager.h>
 
 class ezEditorEngineProcessApp;
 class ezDocumentOpenMsgToEngine;
@@ -65,4 +66,5 @@ private:
   ezApplicationPluginConfig m_CustomPluginConfig;
   ezEngineProcessCommunicationChannel m_IPC;
   ezUniquePtr<ezEditorEngineProcessApp> m_pApp;
+  ezLongOperationManager m_LongOperationManager;
 };

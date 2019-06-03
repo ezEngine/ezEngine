@@ -130,6 +130,20 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezChangeCVarMsgToEngine, 1, ezRTTIDefaultAllocat
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReplicateLongOperationMsg, 1, ezRTTIDefaultAllocator<ezReplicateLongOperationMsg>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("OpGuid", m_OperationGuid),
+    EZ_MEMBER_PROPERTY("DocGuid", m_DocumentGuid),
+    EZ_MEMBER_PROPERTY("DisplayName", m_sDisplayName),
+    EZ_MEMBER_PROPERTY("Type", m_sReplicationType),
+    EZ_MEMBER_PROPERTY("Data", m_ReplicationData),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 ///////////////////////////////////// ezEditorEngineDocumentMsg /////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineDocumentMsg, 1, ezRTTINoAllocator)

@@ -377,6 +377,19 @@ public:
   ezVariant m_Value;
 };
 
+
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezReplicateLongOperationMsg : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezReplicateLongOperationMsg, ezEditorEngineMsg);
+
+public:
+  ezUuid m_OperationGuid;
+  ezUuid m_DocumentGuid;
+  ezString m_sDisplayName;
+  ezString m_sReplicationType;
+  ezDataBuffer m_ReplicationData;
+};
+
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineSyncObjectMsg : public ezEditorEngineDocumentMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineSyncObjectMsg, ezEditorEngineDocumentMsg);

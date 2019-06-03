@@ -16,8 +16,10 @@
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
-    : ezGameApplication("ezEditorEngineProcess", nullptr)
+  : ezGameApplication("ezEditorEngineProcess", nullptr)
+  , m_LongOperationManager(ezLongOperationManager::ReplicationMode::AllOperations)
 {
+  m_LongOperationManager.Startup(&m_IPC);
 }
 
 ezResult ezEngineProcessGameApplication::BeforeCoreSystemsStartup()
@@ -97,6 +99,8 @@ void ezEngineProcessGameApplication::BeforeCoreSystemsShutdown()
 {
   m_pApp = nullptr;
 
+  m_LongOperationManager.Shutdown();
+
   ezRTTI::s_TypeUpdatedEvent.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerTypeUpdated, this));
   m_IPC.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerIPC, this));
 
@@ -123,8 +127,8 @@ void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData& e)
   m_IPC.SendMessage(&msg);
 }
 
-static bool EmptyAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression,
-                               const char* szAssertMsg)
+static bool EmptyAssertHandler(
+  const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
   return false;
 }
