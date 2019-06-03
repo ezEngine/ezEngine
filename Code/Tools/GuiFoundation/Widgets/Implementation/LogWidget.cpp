@@ -17,7 +17,7 @@ ezQtLogWidget::ezQtLogWidget(QWidget* parent)
   connect(m_pLog, &QAbstractItemModel::rowsInserted, this,
           [this](const QModelIndex& parent, int first, int last) { ScrollToBottomIfAtEnd(first); });
 
-  const int logIndex = (ezLogMsgType::All - ezLogMsgType::InfoMsg);
+  const int logIndex = ((int)ezLogMsgType::All - (int)ezLogMsgType::InfoMsg);
   ComboFilter->setCurrentIndex(logIndex);
 }
 
@@ -35,14 +35,14 @@ ezQtSearchWidget* ezQtLogWidget::GetSearchWidget()
 
 void ezQtLogWidget::SetLogLevel(ezLogMsgType::Enum logLevel)
 {
-  EZ_ASSERT_DEBUG(logLevel >= ezLogMsgType::ErrorMsg && logLevel <= ezLogMsgType::All, "Invalid log level set.");
+  EZ_ASSERT_DEBUG(logLevel >= (int)ezLogMsgType::ErrorMsg && logLevel <= ezLogMsgType::All, "Invalid log level set.");
   ComboFilter->setCurrentIndex((int)ezLogMsgType::All - (int)logLevel);
 }
 
 ezLogMsgType::Enum ezQtLogWidget::GetLogLevel() const
 {
   int index = ComboFilter->currentIndex();
-  return (ezLogMsgType::Enum)(ezLogMsgType::All - index);
+  return (ezLogMsgType::Enum)((int)ezLogMsgType::All - index);
 }
 
 bool ezQtLogWidget::eventFilter(QObject* pObject, QEvent* pEvent)
@@ -111,6 +111,6 @@ void ezQtLogWidget::on_Search_textChanged(const QString& text)
 
 void ezQtLogWidget::on_ComboFilter_currentIndexChanged(int index)
 {
-  const ezLogMsgType::Enum LogLevel = (ezLogMsgType::Enum)(ezLogMsgType::All - index);
+  const ezLogMsgType::Enum LogLevel = (ezLogMsgType::Enum)((int)ezLogMsgType::All - index);
   m_pLog->SetLogLevel(LogLevel);
 }
