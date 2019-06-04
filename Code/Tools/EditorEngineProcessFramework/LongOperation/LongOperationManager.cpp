@@ -16,12 +16,38 @@ ezLongOperationManager::ezLongOperationManager(ReplicationMode mode)
 
 ezLongOperationManager::~ezLongOperationManager() = default;
 
-void ezLongOperationManager::AddLongOperation(ezUniquePtr<ezLongOperation>&& pOperation)
+class ezLongOpTask : public ezTask
 {
-  m_ActiveOperations.ExpandAndGetRef();
-  m_ActiveOperations.PeekBack() = std::move(pOperation);
+public:
+  ezLongOperationLocal* m_pLocalOp = nullptr;
 
-  ezLongOperation* pNewOp = m_ActiveOperations.PeekBack().Borrow();
+  ezLongOpTask(ezLongOperationLocal* pLocalOp)
+  {
+    m_pLocalOp = pLocalOp;
+    SetOnTaskFinished([](ezTask* pThis) { EZ_DEFAULT_DELETE(pThis); });
+
+    ezStringBuilder name;
+    name.Format("Long Op: '{}'", m_pLocalOp->GetDisplayName());
+    SetTaskName(name);
+  }
+
+  virtual void Execute() override
+  {
+    if (HasBeenCanceled())
+      return;
+
+    m_pLocalOp->Execute(this);
+  }
+};
+
+void ezLongOperationManager::AddLongOperation(ezUniquePtr<ezLongOperation>&& pOperation, const ezUuid& documentGuid)
+{
+  auto& opInfo = m_ActiveOperations.ExpandAndGetRef();
+  opInfo.m_pOperation = std::move(pOperation);
+
+  ezLongOperation* pNewOp = opInfo.m_pOperation.Borrow();
+  pNewOp->m_OperationGuid.CreateNewUuid();
+  pNewOp->m_DocumentGuid = documentGuid;
 
   if (m_ReplicationMode == ReplicationMode::AllOperations || ezDynamicCast<ezLongOperationRemote*>(pNewOp) != nullptr)
   {
@@ -41,11 +67,8 @@ void ezLongOperationManager::AddLongOperation(ezUniquePtr<ezLongOperation>&& pOp
 
     m_pCommunicationChannel->SendMessage(&msg);
   }
-}
 
-const ezDynamicArray<ezUniquePtr<ezLongOperation>>& ezLongOperationManager::GetActiveOperations() const
-{
-  return m_ActiveOperations;
+  LaunchLocalOperation(opInfo);
 }
 
 void ezLongOperationManager::Startup(ezProcessCommunicationChannel* pCommunicationChannel)
@@ -66,14 +89,25 @@ void ezLongOperationManager::ProcessCommunicationChannelEventHandler(const ezPro
 {
   if (auto pMsg = ezDynamicCast<const ezReplicateLongOperationMsg*>(e.m_pMessage))
   {
-    const ezRTTI* pRtti = ezRTTI::FindTypeByName(pMsg->m_sReplicationType);
-    ezLongOperation* pOp = pRtti->GetAllocator()->Allocate<ezLongOperation>();
-
-    pOp->m_DocumentGuid = pMsg->m_DocumentGuid;
-    pOp->m_OperationGuid = pMsg->m_OperationGuid;
-
     ezRawMemoryStreamReader reader(pMsg->m_ReplicationData);
+    const ezRTTI* pRtti = ezRTTI::FindTypeByName(pMsg->m_sReplicationType);
 
-    pOp->InitializeReplicated(reader);
+    auto& opInfo = m_ActiveOperations.ExpandAndGetRef();
+    opInfo.m_pOperation = pRtti->GetAllocator()->Allocate<ezLongOperation>();
+
+    opInfo.m_pOperation->m_DocumentGuid = pMsg->m_DocumentGuid;
+    opInfo.m_pOperation->m_OperationGuid = pMsg->m_OperationGuid;
+    opInfo.m_pOperation->InitializeReplicated(reader);
+
+    LaunchLocalOperation(opInfo);
+  }
+}
+
+void ezLongOperationManager::LaunchLocalOperation(LongOpInfo& opInfo)
+{
+  if (auto pLocalOp = ezDynamicCast<ezLongOperationLocal*>(opInfo.m_pOperation.Borrow()))
+  {
+    ezLongOpTask* pTask = EZ_DEFAULT_NEW(ezLongOpTask, pLocalOp);
+    opInfo.m_TaskID = ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::LongRunning);
   }
 }

@@ -269,7 +269,12 @@ void ezSelectionAction::Execute(const ezVariant& value)
       {
         auto op = EZ_DEFAULT_NEW(ezLongOperationRemote_Dummy);
         op->m_Duration = ezTime::Seconds(5.0);
-        ezLongOperationManager::GetSingleton()->AddLongOperation(std::move(op));
+        ezLongOperationManager::GetSingleton()->AddLongOperation(std::move(op), GetContext().m_pDocument->GetGuid());
+      }
+      {
+        auto op = EZ_DEFAULT_NEW(ezLongOperationLocal_Dummy);
+        op->m_Duration = ezTime::Seconds(5.0);
+        ezLongOperationManager::GetSingleton()->AddLongOperation(std::move(op), GetContext().m_pDocument->GetGuid());
       }
       break;
     case ActionType::HideUnselectedObjects:

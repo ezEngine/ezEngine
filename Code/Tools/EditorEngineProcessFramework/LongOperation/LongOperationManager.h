@@ -5,8 +5,8 @@
 #include <EditorEngineProcessFramework/IPC/ProcessCommunicationChannel.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Containers/DynamicArray.h>
-#include <Foundation/Containers/List.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <Foundation/Threading/Implementation/TaskSystemDeclarations.h>
 
 class ezLongOperation;
 class ezProcessCommunicationChannel;
@@ -28,18 +28,25 @@ public:
   ezLongOperationManager(ReplicationMode mode);
   ~ezLongOperationManager();
 
-  void AddLongOperation(ezUniquePtr<ezLongOperation>&& pOperation);
+  void AddLongOperation(ezUniquePtr<ezLongOperation>&& pOperation, const ezUuid& documentGuid);
 
-  const ezDynamicArray<ezUniquePtr<ezLongOperation>>& GetActiveOperations() const;
 
   void Startup(ezProcessCommunicationChannel* pCommunicationChannel);
   void Shutdown();
 
 private:
+
+  struct LongOpInfo
+  {
+    ezUniquePtr<ezLongOperation> m_pOperation;
+    ezTaskGroupID m_TaskID;
+  };
+
   void ProcessCommunicationChannelEventHandler(const ezProcessCommunicationChannel::Event& e);
+  void LaunchLocalOperation(LongOpInfo& opInfo);
 
   ezProcessCommunicationChannel* m_pCommunicationChannel = nullptr;
   ReplicationMode m_ReplicationMode;
-  ezDynamicArray<ezUniquePtr<ezLongOperation>> m_ActiveOperations;
+  ezDynamicArray<LongOpInfo> m_ActiveOperations;
   ezEvent<const ezProcessCommunicationChannel::Event&>::Unsubscriber m_Unsubscriber;
 };
