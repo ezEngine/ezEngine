@@ -103,20 +103,28 @@ private:
   ezAtomicInteger32 m_iLastConstantsModified;
   ezInt32 m_iLastUpdated;
   ezInt32 m_iLastConstantsUpdated;
+  ezUInt32 m_uiCacheIndex;
 
   bool IsModified();
   bool AreContantsModified();
 
-  void UpdateCaches();
   void UpdateConstantBuffer(ezShaderPermutationResource* pShaderPermutation);
 
   ezConstantBufferStorageHandle m_hConstantBufferStorage;
 
-  ezMutex m_CacheMutex;
-  ezShaderResourceHandle m_hCachedShader;
-  ezHashTable<ezHashedString, ezHashedString> m_CachedPermutationVars;
-  ezHashTable<ezHashedString, ezVariant> m_CachedParameters;
-  ezHashTable<ezHashedString, ezTexture2DResourceHandle> m_CachedTexture2DBindings;
-  ezHashTable<ezHashedString, ezTextureCubeResourceHandle> m_CachedTextureCubeBindings;
+  struct CachedValues
+  {
+    ezShaderResourceHandle m_hShader;
+    ezHashTable<ezHashedString, ezHashedString> m_PermutationVars;
+    ezHashTable<ezHashedString, ezVariant> m_Parameters;
+    ezHashTable<ezHashedString, ezTexture2DResourceHandle> m_Texture2DBindings;
+    ezHashTable<ezHashedString, ezTextureCubeResourceHandle> m_TextureCubeBindings;
+  };
+
+  CachedValues* UpdateCache();
+  CachedValues* AllocateCache();
+  void DeallocateCache(ezUInt32 uiCacheIndex);
+
+  static ezDeque<ezMaterialResource::CachedValues> s_CachedValues;
 };
 
