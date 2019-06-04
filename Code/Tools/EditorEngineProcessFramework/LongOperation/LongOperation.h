@@ -6,6 +6,7 @@
 class ezStringBuilder;
 class ezStreamWriter;
 class ezTask;
+class ezLongOperationManager;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -19,10 +20,6 @@ public:
   virtual const char* GetDisplayName() const = 0;
   virtual void GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& description) = 0;
   virtual void InitializeReplicated(ezStreamReader& description) = 0;
-
-  ezUuid m_OperationGuid;
-  ezUuid m_DocumentGuid;
-  float m_fCompletation = 0.0f;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -36,6 +33,13 @@ public:
   virtual void GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& description) override;
 
   virtual void Execute(const ezTask* pExecutingTask) = 0;
+
+protected:
+  void SetCompletion(float fCompletion);
+
+private:
+  friend ezLongOperationManager;
+  ezLongOperationManager* m_pManager = nullptr;
 };
 
 //////////////////////////////////////////////////////////////////////////

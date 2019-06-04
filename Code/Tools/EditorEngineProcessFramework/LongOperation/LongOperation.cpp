@@ -1,6 +1,7 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
 #include <EditorEngineProcessFramework/LongOperation/LongOperation.h>
+#include <EditorEngineProcessFramework/LongOperation/LongOperationManager.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOperation, 1, ezRTTINoAllocator)
@@ -28,6 +29,11 @@ void ezLongOperationLocal::GetReplicationInfo(ezStringBuilder& out_sReplicationO
   description << GetDisplayName();
 }
 
+void ezLongOperationLocal::SetCompletion(float fCompletion)
+{
+  m_pManager->SetCompletion(this, fCompletion);
+}
+
 void ezLongOperationRemoteReplicant::InitializeReplicated(ezStreamReader& description)
 {
   description >> m_sDisplayName;
@@ -41,14 +47,18 @@ void ezLongOperationLocal_Dummy::Execute(const ezTask* pExecutingTask)
 {
   ezStopwatch sw;
 
-  while (m_fCompletation < 1.0f && !pExecutingTask->HasBeenCanceled())
+  float fCompletion = 0.0f;
+
+  while (fCompletion < 1.0f && !pExecutingTask->HasBeenCanceled())
   {
     m_TimeTaken = sw.GetRunningTotal();
-    m_fCompletation = ezMath::Clamp<float>(m_TimeTaken.GetSeconds() / m_Duration.GetSeconds(), 0.0f, 1.0f);
+    fCompletion = ezMath::Clamp<float>(m_TimeTaken.GetSeconds() / m_Duration.GetSeconds(), 0.0f, 1.0f);
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(50));
+    ezThreadUtils::Sleep(ezTime::Milliseconds(200));
 
-    ezLog::Info("{} completion: {}%%", GetDisplayName(), m_fCompletation * 100.0f);
+    ezLog::Info("{} completion: {}%%", GetDisplayName(), fCompletion * 100.0f);
+
+    SetCompletion(fCompletion);
   }
 }
 

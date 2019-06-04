@@ -25,6 +25,10 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <SharedPluginScene/Common/Messages.h>
 
+
+#include <EditorEngineProcessFramework/LongOperation/LongOperation.h>
+#include <EditorEngineProcessFramework/LongOperation/LongOperationManager.h>
+
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)
 {
@@ -160,6 +164,12 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
   if (const ezPullObjectStateMsgToEngine* msg = ezDynamicCast<const ezPullObjectStateMsgToEngine*>(pMsg))
   {
+    {
+      auto op = EZ_DEFAULT_NEW(ezLongOperationLocal_Dummy);
+      op->m_Duration = ezTime::Seconds(2.0);
+      ezLongOperationManager::GetSingleton()->AddLongOperation(std::move(op), this->GetDocumentGuid());
+    }
+
     HandlePullObjectStateMsg(msg);
     return;
   }

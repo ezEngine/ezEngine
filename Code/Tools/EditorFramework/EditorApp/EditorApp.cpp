@@ -7,8 +7,11 @@
 #include <QTextStream>
 #include <QTimer>
 #include <ToolsFoundation/Application/ApplicationServices.h>
+#include <EditorEngineProcessFramework/LongOperation/LongOperation.h>
 
 EZ_IMPLEMENT_SINGLETON(ezQtEditorApp);
+
+ezEventSubscriptionID subId;
 
 ezQtEditorApp::ezQtEditorApp()
   : m_SingletonRegistrar(this)
@@ -27,12 +30,31 @@ ezQtEditorApp::ezQtEditorApp()
   s_pEngineViewProcess = nullptr;
 
   m_pTimer = new QTimer(nullptr);
+
+  subId = m_LongOperationManager.m_Events.AddEventHandler([&](const ezLongOperationManagerEvent& e) {
+    const auto& opInfo = m_LongOperationManager.GetOperations()[e.m_uiOperationIndex];
+
+    if (e.m_Type == ezLongOperationManagerEvent::Type::OpAdded)
+    {
+      ezLog::Info("Added op '{}'", opInfo.m_pOperation->GetDisplayName());
+    }
+    else if (e.m_Type == ezLongOperationManagerEvent::Type::OpFinished)
+    {
+      ezLog::Info("Finished op '{}'", opInfo.m_pOperation->GetDisplayName());
+    }
+    else if (e.m_Type == ezLongOperationManagerEvent::Type::OpProgress)
+    {
+      ezLog::Info("Op '{}' at {}%%", opInfo.m_pOperation->GetDisplayName(), opInfo.m_fCompletion * 100.0f);
+    }
+  });
 }
 
 ezQtEditorApp::~ezQtEditorApp()
 {
   delete m_pTimer;
   m_pTimer = nullptr;
+
+  m_LongOperationManager.m_Events.RemoveEventHandler(subId);
 }
 
 ezInt32 ezQtEditorApp::RunEditor()

@@ -268,12 +268,12 @@ void ezSelectionAction::Execute(const ezVariant& value)
       // m_pSceneDocument->ShowOrHideSelectedObjects(ezSceneDocument::ShowOrHide::Hide);
       {
         auto op = EZ_DEFAULT_NEW(ezLongOperationRemote_Dummy);
-        op->m_Duration = ezTime::Seconds(5.0);
+        op->m_Duration = ezTime::Seconds(2.0);
         ezLongOperationManager::GetSingleton()->AddLongOperation(std::move(op), GetContext().m_pDocument->GetGuid());
       }
       {
         auto op = EZ_DEFAULT_NEW(ezLongOperationLocal_Dummy);
-        op->m_Duration = ezTime::Seconds(5.0);
+        op->m_Duration = ezTime::Seconds(3.0);
         ezLongOperationManager::GetSingleton()->AddLongOperation(std::move(op), GetContext().m_pDocument->GetGuid());
       }
       break;

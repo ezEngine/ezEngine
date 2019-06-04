@@ -378,9 +378,9 @@ public:
 };
 
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezReplicateLongOperationMsg : public ezEditorEngineMsg
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOperationReplicationMsg : public ezEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezReplicateLongOperationMsg, ezEditorEngineMsg);
+  EZ_ADD_DYNAMIC_REFLECTION(ezLongOperationReplicationMsg, ezEditorEngineMsg);
 
 public:
   ezUuid m_OperationGuid;
@@ -388,6 +388,15 @@ public:
   ezString m_sDisplayName;
   ezString m_sReplicationType;
   ezDataBuffer m_ReplicationData;
+};
+
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOperationProgressMsg : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezLongOperationProgressMsg, ezEditorEngineMsg);
+
+public:
+  ezUuid m_OperationGuid;
+  float m_fCompletion;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineSyncObjectMsg : public ezEditorEngineDocumentMsg
