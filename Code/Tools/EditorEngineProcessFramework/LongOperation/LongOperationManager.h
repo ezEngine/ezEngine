@@ -56,6 +56,7 @@ public:
     float m_fCompletion = 0.0f;
     ezUuid m_OperationGuid;
     ezUuid m_DocumentGuid;
+    ezTime m_StartOrDuration;
   };
 
   mutable ezMutex m_Mutex;

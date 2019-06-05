@@ -22,12 +22,12 @@ public:
   ~ezQtLongOpsPanel();
 
 private:
-  virtual void ToolsProjectEventHandler(const ezToolsProjectEvent& e) override;
-
   void LongOpsEventHandler(const ezLongOperationManagerEvent& e);
+  void RebuildTable();
 
   QTimer m_HandleQueueTimer;
   ezDynamicArray<ezLongOperationManagerEvent> m_EventQueue;
+  ezHashTable<ezUInt32, ezUInt32> m_LongOpIdxToRow;
 
 private Q_SLOTS:
   void HandleEventQueue();

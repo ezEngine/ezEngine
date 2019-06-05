@@ -145,8 +145,6 @@ void ezQtEditorApp::StartupEditor()
   StartupEditor(flags);
 }
 
-ezEventSubscriptionID subId;
-
 void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* szUserDataFolder)
 {
   EZ_PROFILE_SCOPE("StartupEditor");
@@ -279,31 +277,10 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
 
   connect(m_pTimer, SIGNAL(timeout()), this, SLOT(SlotTimedUpdate()), Qt::QueuedConnection);
   m_pTimer->start(1);
-
-  {
-    subId = m_LongOperationManager.m_Events.AddEventHandler([&](const ezLongOperationManagerEvent& e) {
-      const auto& opInfo = m_LongOperationManager.GetOperations()[e.m_uiOperationIndex];
-
-      if (e.m_Type == ezLongOperationManagerEvent::Type::OpAdded)
-      {
-        ezLog::Info("Added op '{}'", opInfo.m_pOperation->GetDisplayName());
-      }
-      else if (e.m_Type == ezLongOperationManagerEvent::Type::OpFinished)
-      {
-        ezLog::Info("Finished op '{}'", opInfo.m_pOperation->GetDisplayName());
-      }
-      else if (e.m_Type == ezLongOperationManagerEvent::Type::OpProgress)
-      {
-        ezLog::Info("Op '{}' at {}%%", opInfo.m_pOperation->GetDisplayName(), opInfo.m_fCompletion * 100.0f);
-      }
-    });
-  }
 }
 
 void ezQtEditorApp::ShutdownEditor()
 {
-  m_LongOperationManager.m_Events.RemoveEventHandler(subId);
-
   ezToolsProject::CloseProject();
 
   if (!m_bHeadless)

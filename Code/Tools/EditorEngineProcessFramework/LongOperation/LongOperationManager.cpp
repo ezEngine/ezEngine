@@ -52,6 +52,7 @@ void ezLongOperationManager::AddLongOperation(ezUniquePtr<ezLongOperation>&& pOp
   opInfo.m_pOperation = std::move(pOperation);
   opInfo.m_OperationGuid.CreateNewUuid();
   opInfo.m_DocumentGuid = documentGuid;
+  opInfo.m_StartOrDuration = ezTime::Now();
 
   ezLongOperation* pNewOp = opInfo.m_pOperation.Borrow();
 
@@ -111,6 +112,7 @@ void ezLongOperationManager::ProcessCommunicationChannelEventHandler(const ezPro
 
     auto& opInfo = m_Operations.ExpandAndGetRef();
     opInfo.m_pOperation = pRtti->GetAllocator()->Allocate<ezLongOperation>();
+    opInfo.m_StartOrDuration = ezTime::Now();
 
     opInfo.m_DocumentGuid = pMsg->m_DocumentGuid;
     opInfo.m_OperationGuid = pMsg->m_OperationGuid;
@@ -218,6 +220,7 @@ void ezLongOperationManager::FinishOperation(ezUuid operationGuid)
     if (opInfo.m_OperationGuid == operationGuid)
     {
       opInfo.m_fCompletion = 1.0f;
+      opInfo.m_StartOrDuration = ezTime::Now() - opInfo.m_StartOrDuration;
 
       {
         ezLongOperationManagerEvent e;
