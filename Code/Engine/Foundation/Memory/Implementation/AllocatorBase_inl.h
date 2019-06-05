@@ -1,11 +1,7 @@
 
-EZ_ALWAYS_INLINE ezAllocatorBase::ezAllocatorBase()
-{
-}
+EZ_ALWAYS_INLINE ezAllocatorBase::ezAllocatorBase() {}
 
-EZ_ALWAYS_INLINE ezAllocatorBase::~ezAllocatorBase()
-{
-}
+EZ_ALWAYS_INLINE ezAllocatorBase::~ezAllocatorBase() {}
 
 namespace ezInternal
 {
@@ -34,15 +30,9 @@ namespace ezInternal
       return NewInstance<U>(static_cast<U*>(m_pInstance), m_pAllocator);
     }
 
-    EZ_ALWAYS_INLINE operator T*()
-    {
-      return m_pInstance;
-    }
+    EZ_ALWAYS_INLINE operator T*() { return m_pInstance; }
 
-    EZ_ALWAYS_INLINE T* operator->()
-    {
-      return m_pInstance;
-    }
+    EZ_ALWAYS_INLINE T* operator->() { return m_pInstance; }
 
     T* m_pInstance;
     ezAllocatorBase* m_pAllocator;
@@ -108,7 +98,8 @@ namespace ezInternal
   template <typename T>
   EZ_FORCE_INLINE T* ExtendRawBuffer(T* ptr, ezAllocatorBase* pAllocator, size_t uiCurrentCount, size_t uiNewCount, ezTypeIsClass)
   {
-    EZ_CHECK_AT_COMPILETIME_MSG(!std::is_trivial<T>::value, "Pod type is treated as class, did you forget EZ_DECLARE_POD_TYPE?")
+    EZ_CHECK_AT_COMPILETIME_MSG(!std::is_trivial<T>::value,
+      "POD type is treated as class. Use EZ_DECLARE_POD_TYPE(YourClass) or EZ_DEFINE_AS_POD_TYPE(ExternalClass) to mark it as POD.");
 
     T* pNewMem = CreateRawBuffer<T>(pAllocator, uiNewCount);
     ezMemoryUtils::RelocateConstruct(pNewMem, ptr, uiCurrentCount);
@@ -129,5 +120,4 @@ namespace ezInternal
     }
     return ExtendRawBuffer(ptr, pAllocator, uiCurrentCount, uiNewCount, ezGetTypeClass<T>());
   }
-}
-
+} // namespace ezInternal
