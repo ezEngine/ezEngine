@@ -19,6 +19,7 @@
 #include <Foundation/Types/Uuid.h>
 #include <Foundation/Types/VarianceTypes.h>
 #include <Foundation/Types/Variant.h>
+#include <Foundation/Types/PointerWithFlags.h>
 
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Communication/GlobalEvent.h>
