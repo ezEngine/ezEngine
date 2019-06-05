@@ -22,6 +22,7 @@
 #include <EditorFramework/Panels/CVarPanel/CVarPanel.moc.h>
 #include <EditorFramework/Panels/GameObjectPanel/GameObjectPanel.moc.h>
 #include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
+#include <EditorFramework/Panels/LongOpsPanel/LongOpsPanel.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/DynamicEnumPropertyWidget.moc.h>
@@ -388,6 +389,7 @@ void ezQtEditorApp::CreatePanels()
   EZ_PROFILE_SCOPE("CreatePanels");
   ezQtApplicationPanel* pAssetBrowserPanel = new ezQtAssetBrowserPanel();
   ezQtApplicationPanel* pLogPanel = new ezQtLogPanel();
+  ezQtApplicationPanel* pLongOpsPanel = new ezQtLongOpsPanel();
   ezQtApplicationPanel* pCVarPanel = new ezQtCVarPanel();
   ezQtApplicationPanel* pAssetCuratorPanel = new ezQtAssetCuratorPanel();
 
@@ -396,6 +398,7 @@ void ezQtEditorApp::CreatePanels()
   pMainWnd->tabifyDockWidget(pAssetBrowserPanel, pLogPanel);
   pMainWnd->tabifyDockWidget(pAssetBrowserPanel, pAssetCuratorPanel);
   pMainWnd->tabifyDockWidget(pAssetBrowserPanel, pCVarPanel);
+  pMainWnd->tabifyDockWidget(pAssetBrowserPanel, pLongOpsPanel);
 
   pAssetBrowserPanel->raise();
 }

@@ -14,6 +14,8 @@ class ezProcessCommunicationChannel;
 
 struct ezLongOperationManagerEvent
 {
+  EZ_DECLARE_POD_TYPE();
+
   enum class Type
   {
     OpAdded,
