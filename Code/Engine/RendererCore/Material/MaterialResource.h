@@ -92,6 +92,7 @@ private:
   ezMaterialResourceDescriptor m_Desc;
 
   friend class ezRenderContext;
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, MaterialResource);
 
   ezEvent<const ezMaterialResource*> m_ModifiedEvent;
   void OnBaseMaterialModified(const ezMaterialResource* pModifiedMaterial);
@@ -103,7 +104,6 @@ private:
   ezAtomicInteger32 m_iLastConstantsModified;
   ezInt32 m_iLastUpdated;
   ezInt32 m_iLastConstantsUpdated;
-  ezUInt32 m_uiCacheIndex;
 
   bool IsModified();
   bool AreContantsModified();
@@ -111,6 +111,9 @@ private:
   void UpdateConstantBuffer(ezShaderPermutationResource* pShaderPermutation);
 
   ezConstantBufferStorageHandle m_hConstantBufferStorage;
+
+  ezMutex m_UpdateCacheMutex;
+  ezUInt32 m_uiCacheIndex;
 
   struct CachedValues
   {
@@ -126,5 +129,7 @@ private:
   void DeallocateCache(ezUInt32 uiCacheIndex);
 
   static ezDeque<ezMaterialResource::CachedValues> s_CachedValues;
+
+  static void ClearCache();
 };
 

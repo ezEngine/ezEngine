@@ -1,6 +1,7 @@
 #include <RendererCorePCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <RendererCore/Material/MaterialResource.h>
@@ -42,6 +43,22 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialResource, 1, ezRTTIDefaultAllocator<ez
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezMaterialResource);
+// clang-format on
+
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, MaterialResource)
+
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "Foundation",
+    "Core"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
+  {
+    ezMaterialResource::ClearCache();
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 ezDeque<ezMaterialResource::CachedValues> ezMaterialResource::s_CachedValues;
@@ -888,9 +905,18 @@ void ezMaterialResource::UpdateConstantBuffer(ezShaderPermutationResource* pShad
 ezMaterialResource::CachedValues* ezMaterialResource::UpdateCache()
 {
   if (!IsModified())
-    return m_uiCacheIndex != ezInvalidIndex ? &s_CachedValues[m_uiCacheIndex] : nullptr;
+  {
+    EZ_ASSERT_DEV(m_uiCacheIndex != ezInvalidIndex, "");
+    return &s_CachedValues[m_uiCacheIndex];
+  }
 
-  m_iLastUpdated = m_iLastModified;
+  EZ_LOCK(m_UpdateCacheMutex);
+
+  if (!IsModified())
+  {
+    EZ_ASSERT_DEV(m_uiCacheIndex != ezInvalidIndex, "");
+    return &s_CachedValues[m_uiCacheIndex];
+  }
 
   ezHybridArray<ezMaterialResource*, 16> materialHierarchy;
   ezMaterialResource* pCurrentMaterial = this;
@@ -945,6 +971,7 @@ ezMaterialResource::CachedValues* ezMaterialResource::UpdateCache()
     materialHierarchy[i] = nullptr;
   }
 
+  m_iLastUpdated = m_iLastModified;
   return pCachedValues;
 }
 
@@ -996,6 +1023,15 @@ void ezMaterialResource::DeallocateCache(ezUInt32 uiCacheIndex)
     freeEntry.m_uiIndex = uiCacheIndex;
     freeEntry.m_uiFrame = ezRenderWorld::GetFrameCounter();
   }
+}
+
+// static
+void ezMaterialResource::ClearCache()
+{
+  EZ_LOCK(s_MaterialCacheMutex);
+
+  s_CachedValues.Clear();
+  s_FreeMaterialCacheEntries.Clear();
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Material_Implementation_MaterialResource);
