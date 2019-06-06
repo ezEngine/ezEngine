@@ -4,6 +4,7 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
+#include <Foundation/Types/ScopeExit.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -80,7 +81,7 @@ ezMaterialResource::~ezMaterialResource()
 
 ezHashedString ezMaterialResource::GetPermutationValue(const ezTempHashedString& sName)
 {
-  auto pCachedValues = UpdateCache();
+  auto pCachedValues = GetOrUpdateCachedValues();
 
   ezHashedString sResult;
   pCachedValues->m_PermutationVars.TryGetValue(sName, sResult);
@@ -198,7 +199,7 @@ void ezMaterialResource::SetParameter(const char* szName, const ezVariant& value
 
 ezVariant ezMaterialResource::GetParameter(const ezTempHashedString& sName)
 {
-  auto pCachedValues = UpdateCache();
+  auto pCachedValues = GetOrUpdateCachedValues();
 
   ezVariant value;
   pCachedValues->m_Parameters.TryGetValue(sName, value);
@@ -286,7 +287,7 @@ void ezMaterialResource::SetTexture2DBinding(const char* szName, const ezTexture
 
 ezTexture2DResourceHandle ezMaterialResource::GetTexture2DBinding(const ezTempHashedString& sName)
 {
-  auto pCachedValues = UpdateCache();
+  auto pCachedValues = GetOrUpdateCachedValues();
 
   // Use pointer to prevent ref counting
   ezTexture2DResourceHandle* pBinding;
@@ -379,7 +380,7 @@ void ezMaterialResource::SetTextureCubeBinding(const char* szName, const ezTextu
 
 ezTextureCubeResourceHandle ezMaterialResource::GetTextureCubeBinding(const ezTempHashedString& sName)
 {
-  auto pCachedValues = UpdateCache();
+  auto pCachedValues = GetOrUpdateCachedValues();
 
   // Use pointer to prevent ref counting
   ezTextureCubeResourceHandle* pBinding;
@@ -866,7 +867,7 @@ void ezMaterialResource::UpdateConstantBuffer(ezShaderPermutationResource* pShad
   if (pLayout == nullptr)
     return;
 
-  auto pCachedValues = UpdateCache();
+  auto pCachedValues = GetOrUpdateCachedValues();
 
   m_iLastConstantsUpdated = m_iLastConstantsModified;
 
@@ -902,16 +903,8 @@ void ezMaterialResource::UpdateConstantBuffer(ezShaderPermutationResource* pShad
   }
 }
 
-ezMaterialResource::CachedValues* ezMaterialResource::UpdateCache()
+ezMaterialResource::CachedValues* ezMaterialResource::GetOrUpdateCachedValues()
 {
-  if (!IsModified())
-  {
-    EZ_ASSERT_DEV(m_uiCacheIndex != ezInvalidIndex, "");
-    return &s_CachedValues[m_uiCacheIndex];
-  }
-
-  EZ_LOCK(m_UpdateCacheMutex);
-
   if (!IsModified())
   {
     EZ_ASSERT_DEV(m_uiCacheIndex != ezInvalidIndex, "");
@@ -930,6 +923,21 @@ ezMaterialResource::CachedValues* ezMaterialResource::UpdateCache()
       break;
 
     pCurrentMaterial = ezResourceManager::BeginAcquireResource(hParentMaterial, ezResourceAcquireMode::AllowFallback);
+  }
+
+  EZ_SCOPE_EXIT(for (ezUInt32 i = materialHierarchy.GetCount(); i-- > 1;) {
+    ezMaterialResource* pMaterial = materialHierarchy[i];
+    ezResourceManager::EndAcquireResource(pMaterial);
+
+    materialHierarchy[i] = nullptr;
+  });
+
+  EZ_LOCK(m_UpdateCacheMutex);
+
+  if (!IsModified())
+  {
+    EZ_ASSERT_DEV(m_uiCacheIndex != ezInvalidIndex, "");
+    return &s_CachedValues[m_uiCacheIndex];
   }
 
   auto pCachedValues = AllocateCache();
@@ -962,13 +970,6 @@ ezMaterialResource::CachedValues* ezMaterialResource::UpdateCache()
     {
       pCachedValues->m_TextureCubeBindings.Insert(textureBinding.m_Name, textureBinding.m_Value);
     }
-
-    // The last material is this material and was not acquired.
-    if (i != 0)
-    {
-      ezResourceManager::EndAcquireResource(pMaterial);
-    }
-    materialHierarchy[i] = nullptr;
   }
 
   m_iLastUpdated = m_iLastModified;

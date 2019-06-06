@@ -973,7 +973,7 @@ ezMaterialResource* ezRenderContext::ApplyMaterialState()
 
   if (m_hNewMaterial != m_hMaterial || pMaterial->IsModified())
   {
-    auto pCachedValues = pMaterial->UpdateCache();
+    auto pCachedValues = pMaterial->GetOrUpdateCachedValues();
 
     BindShaderInternal(pCachedValues->m_hShader, ezShaderBindFlags::Default);
 

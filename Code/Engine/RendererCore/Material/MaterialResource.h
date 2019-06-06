@@ -124,7 +124,7 @@ private:
     ezHashTable<ezHashedString, ezTextureCubeResourceHandle> m_TextureCubeBindings;
   };
 
-  CachedValues* UpdateCache();
+  CachedValues* GetOrUpdateCachedValues();
   CachedValues* AllocateCache();
   void DeallocateCache(ezUInt32 uiCacheIndex);
 
