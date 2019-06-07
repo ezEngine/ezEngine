@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <Tools/EditorFramework/ui_AssetBrowserWidget.h>
+#include <Editor/EditorFramework/ui_AssetBrowserWidget.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
 class ezQtToolBarActionMapView;

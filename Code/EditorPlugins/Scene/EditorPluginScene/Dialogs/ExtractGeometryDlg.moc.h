@@ -3,7 +3,7 @@
 #include <EditorPluginScene/EditorPluginSceneDLL.h>
 #include <Foundation/Math/Declarations.h>
 #include <Foundation/Math/Mat3.h>
-#include <Tools/EditorPluginScene/ui_ExtractGeometryDlg.h>
+#include <EditorPlugins/Scene/EditorPluginScene/ui_ExtractGeometryDlg.h>
 
 #include <QPushButton>
 

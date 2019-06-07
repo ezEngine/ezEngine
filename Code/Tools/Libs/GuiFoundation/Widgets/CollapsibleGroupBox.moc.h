@@ -2,7 +2,7 @@
 
 
 #include <GuiFoundation/GuiFoundationDLL.h>
-#include <Code/Tools/GuiFoundation/ui_CollapsibleGroupBox.h>
+#include <Tools/Libs/GuiFoundation/ui_CollapsibleGroupBox.h>
 #include <GuiFoundation/Widgets/GroupBoxBase.moc.h>
 
 class EZ_GUIFOUNDATION_DLL ezQtCollapsibleGroupBox : public ezQtGroupBoxBase, protected Ui_CollapsibleGroupBox

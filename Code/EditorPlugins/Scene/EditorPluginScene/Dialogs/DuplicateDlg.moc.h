@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorPluginScene/EditorPluginSceneDLL.h>
-#include <Tools/EditorPluginScene/ui_DuplicateDlg.h>
+#include <EditorPlugins/Scene/EditorPluginScene/ui_DuplicateDlg.h>
 
 #include <QDialog>
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorPluginScene/EditorPluginSceneDLL.h>
-#include <Tools/EditorPluginScene/ui_DeltaTransformDlg.h>
+#include <EditorPlugins/Scene/EditorPluginScene/ui_DeltaTransformDlg.h>
 #include <QDialog>
 
 class ezSceneDocument;

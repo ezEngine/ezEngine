@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorPluginFileserve/EditorPluginFileserveDLL.h>
-#include <Tools/EditorPluginFileserve/ui_FileserveWidget.h>
+#include <EditorPlugins/Fileserve/EditorPluginFileserve/ui_FileserveWidget.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Containers/HashTable.h>
 #include <QWidget>

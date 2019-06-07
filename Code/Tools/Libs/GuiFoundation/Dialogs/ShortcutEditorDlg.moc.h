@@ -2,7 +2,7 @@
 
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <QDialog>
-#include <Code/Tools/GuiFoundation/ui_ShortcutEditorDlg.h>
+#include <Tools/Libs/GuiFoundation/ui_ShortcutEditorDlg.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/HybridArray.h>

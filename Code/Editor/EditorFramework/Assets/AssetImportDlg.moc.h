@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <Tools/EditorFramework/ui_AssetImportDlg.h>
+#include <Editor/EditorFramework/ui_AssetImportDlg.h>
 #include <QDialog>
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 

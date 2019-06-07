@@ -2,7 +2,7 @@
 
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Tracks/ColorGradient.h>
-#include <Code/Tools/GuiFoundation/ui_ColorGradientEditorWidget.h>
+#include <Tools/Libs/GuiFoundation/ui_ColorGradientEditorWidget.h>
 #include <Foundation/Math/Color8UNorm.h>
 
 #include <QWidget>

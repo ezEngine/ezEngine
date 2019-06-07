@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
-#include <Code/Tools/GuiFoundation/ui_CVarWidget.h>
+#include <Tools/Libs/GuiFoundation/ui_CVarWidget.h>
 #include <QWidget>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Containers/Map.h>
