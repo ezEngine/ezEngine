@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LongOpsPanel</class>
+ <widget class="QDockWidget" name="LongOpsPanel">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>738</width>
+    <height>597</height>
+   </rect>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../../GuiFoundation/QtResources/resources.qrc">
+    <normaloff>:/GuiFoundation/Icons/Flag_Purple16.png</normaloff>:/GuiFoundation/Icons/Flag_Purple16.png</iconset>
+  </property>
+  <property name="windowTitle">
+   <string>Long Operations</string>
+  </property>
+  <widget class="QFrame" name="dockWidgetContents">
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Sunken</enum>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_3">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QTableWidget" name="OperationsTable">
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::NoSelection</enum>
+      </property>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectRows</enum>
+      </property>
+      <attribute name="verticalHeaderVisible">
+       <bool>false</bool>
+      </attribute>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../../../GuiFoundation/QtResources/resources.qrc"/>
+  <include location="../../QtResources/resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>
