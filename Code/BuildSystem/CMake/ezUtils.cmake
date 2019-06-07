@@ -152,7 +152,25 @@ function(ez_set_project_ide_folder TARGET_NAME PROJECT_SOURCE_DIR)
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 	get_filename_component (PARENT_FOLDER ${PROJECT_SOURCE_DIR} PATH)
-	get_filename_component (IDE_FOLDER ${PARENT_FOLDER} NAME)
+	get_filename_component (FOLDER_NAME ${PARENT_FOLDER} NAME)
+
+	set(IDE_FOLDER "${FOLDER_NAME}")
+
+	if (${PROJECT_SOURCE_DIR} MATCHES "/Code/")
+
+		get_filename_component (PARENT_FOLDER ${PARENT_FOLDER} PATH)
+		get_filename_component (FOLDER_NAME ${PARENT_FOLDER} NAME)
+
+		while(NOT ${FOLDER_NAME} STREQUAL "Code")
+
+			set(IDE_FOLDER "${FOLDER_NAME}/${IDE_FOLDER}")
+
+			get_filename_component (PARENT_FOLDER ${PARENT_FOLDER} PATH)
+			get_filename_component (FOLDER_NAME ${PARENT_FOLDER} NAME)
+		
+		endwhile()
+
+	endif()
 
 	set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER ${IDE_FOLDER})
 
