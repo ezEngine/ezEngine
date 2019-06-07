@@ -16,7 +16,7 @@
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
-  : ezGameApplication("ezEditorEngineProcess", nullptr)
+    : ezGameApplication("ezEditorEngineProcess", nullptr)
   , m_LongOperationManager(ezLongOperationManager::ReplicationMode::AllOperations)
 {
   m_LongOperationManager.Startup(&m_IPC);

@@ -161,7 +161,7 @@ void ezRenderContext::BindMaterial(const ezMaterialResourceHandle& hMaterial)
 }
 
 void ezRenderContext::BindTexture2D(const ezTempHashedString& sSlotName, const ezTexture2DResourceHandle& hTexture,
-                                    ezResourceAcquireMode acquireMode /*= ezResourceAcquireMode::AllowFallback*/)
+  ezResourceAcquireMode acquireMode /*= ezResourceAcquireMode::AllowFallback*/)
 {
   if (hTexture.IsValid())
   {
@@ -176,7 +176,7 @@ void ezRenderContext::BindTexture2D(const ezTempHashedString& sSlotName, const e
 }
 
 void ezRenderContext::BindTextureCube(const ezTempHashedString& sSlotName, const ezTextureCubeResourceHandle& hTexture,
-                                      ezResourceAcquireMode acquireMode /*= ezResourceAcquireMode::AllowFallback*/)
+  ezResourceAcquireMode acquireMode /*= ezResourceAcquireMode::AllowFallback*/)
 {
   if (hTexture.IsValid())
   {
@@ -336,12 +336,11 @@ void ezRenderContext::BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuff
 {
   ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowFallback);
   BindMeshBuffer(pMeshBuffer->GetVertexBuffer(), pMeshBuffer->GetIndexBuffer(), &(pMeshBuffer->GetVertexDeclaration()),
-                 pMeshBuffer->GetTopology(), pMeshBuffer->GetPrimitiveCount());
+    pMeshBuffer->GetTopology(), pMeshBuffer->GetPrimitiveCount());
 }
 
 void ezRenderContext::BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer,
-                                     const ezVertexDeclarationInfo* pVertexDeclarationInfo, ezGALPrimitiveTopology::Enum topology,
-                                     ezUInt32 uiPrimitiveCount)
+  const ezVertexDeclarationInfo* pVertexDeclarationInfo, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount)
 {
   if (m_hVertexBuffer == hVertexBuffer && m_hIndexBuffer == hIndexBuffer && m_pVertexDeclarationInfo == pVertexDeclarationInfo &&
       m_Topology == topology && m_uiMeshBufferPrimitiveCount == uiPrimitiveCount)
@@ -359,7 +358,7 @@ void ezRenderContext::BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBuffe
         if (i1 != i2)
         {
           EZ_ASSERT_DEBUG(pVertexDeclarationInfo->m_VertexStreams[i1].m_Semantic != pVertexDeclarationInfo->m_VertexStreams[i2].m_Semantic,
-                          "Same semantic cannot be used twice in the same vertex declaration");
+            "Same semantic cannot be used twice in the same vertex declaration");
         }
       }
     }
@@ -371,7 +370,7 @@ void ezRenderContext::BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBuffe
     m_Topology = topology;
 
     ezTempHashedString sTopologies[ezGALPrimitiveTopology::ENUM_COUNT] = {
-        ezTempHashedString("TOPOLOGY_POINTS"), ezTempHashedString("TOPOLOGY_LINES"), ezTempHashedString("TOPOLOGY_TRIANGLES")};
+      ezTempHashedString("TOPOLOGY_POINTS"), ezTempHashedString("TOPOLOGY_LINES"), ezTempHashedString("TOPOLOGY_TRIANGLES")};
 
     SetShaderPermutationVariable("TOPOLOGY", sTopologies[m_Topology]);
   }
@@ -393,8 +392,7 @@ ezResult ezRenderContext::DrawMeshBuffer(ezUInt32 uiPrimitiveCount, ezUInt32 uiF
   }
 
   EZ_ASSERT_DEV(uiFirstPrimitive < m_uiMeshBufferPrimitiveCount,
-                "Invalid primitive range: first primitive ({0}) can't be larger than number of primitives ({1})", uiFirstPrimitive,
-                uiPrimitiveCount);
+    "Invalid primitive range: first primitive ({0}) can't be larger than number of primitives ({1})", uiFirstPrimitive, uiPrimitiveCount);
 
   uiPrimitiveCount = ezMath::Min(uiPrimitiveCount, m_uiMeshBufferPrimitiveCount - uiFirstPrimitive);
   EZ_ASSERT_DEV(uiPrimitiveCount > 0, "Invalid primitive range: number of primitives can't be zero.");
@@ -462,7 +460,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
   EZ_SCOPE_EXIT(if (pShaderPermutation != nullptr) { ezResourceManager::EndAcquireResource(pShaderPermutation); });
 
   bool bRebuildVertexDeclaration =
-      m_StateFlags.IsAnySet(ezRenderContextFlags::ShaderStateChanged | ezRenderContextFlags::MeshBufferBindingChanged);
+    m_StateFlags.IsAnySet(ezRenderContextFlags::ShaderStateChanged | ezRenderContextFlags::MeshBufferBindingChanged);
 
   if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::ShaderStateChanged))
   {
@@ -619,10 +617,10 @@ void ezRenderContext::ResetContextState()
   m_BoundSamplers.Clear();
   m_BoundSamplers.Insert(ezTempHashedString::ComputeHash("LinearSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::LinearFiltering));
   m_BoundSamplers.Insert(ezTempHashedString::ComputeHash("LinearClampSampler"),
-                         GetDefaultSamplerState(ezDefaultSamplerFlags::LinearFiltering | ezDefaultSamplerFlags::Clamp));
+    GetDefaultSamplerState(ezDefaultSamplerFlags::LinearFiltering | ezDefaultSamplerFlags::Clamp));
   m_BoundSamplers.Insert(ezTempHashedString::ComputeHash("PointSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering));
   m_BoundSamplers.Insert(ezTempHashedString::ComputeHash("PointClampSampler"),
-                         GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering | ezDefaultSamplerFlags::Clamp));
+    GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering | ezDefaultSamplerFlags::Clamp));
 
   m_BoundUAVs.Clear();
   m_BoundConstantBuffers.Clear();
@@ -675,8 +673,8 @@ void ezRenderContext::SetViewportAndRenderTargetSetup(const ezRectFloat& viewpor
 }
 
 // static
-ezConstantBufferStorageHandle ezRenderContext::CreateConstantBufferStorage(ezUInt32 uiSizeInBytes,
-                                                                           ezConstantBufferStorageBase*& out_pStorage)
+ezConstantBufferStorageHandle ezRenderContext::CreateConstantBufferStorage(
+  ezUInt32 uiSizeInBytes, ezConstantBufferStorageBase*& out_pStorage)
 {
   EZ_ASSERT_DEV(ezMemoryUtils::IsSizeAligned(uiSizeInBytes, 16u), "Storage struct for constant buffer is not aligned to 16 bytes");
 
@@ -819,8 +817,8 @@ void ezRenderContext::OnEndRender(ezUInt64)
 }
 
 // static
-ezResult ezRenderContext::BuildVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl,
-                                                 ezGALVertexDeclarationHandle& out_Declaration)
+ezResult ezRenderContext::BuildVertexDeclaration(
+  ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl, ezGALVertexDeclarationHandle& out_Declaration)
 {
   ShaderVertexDecl svd;
   svd.m_hShader = hShader;
@@ -930,13 +928,13 @@ ezShaderPermutationResource* ezRenderContext::ApplyShaderState()
     return nullptr;
 
   m_hActiveShaderPermutation =
-      ezShaderManager::PreloadSinglePermutation(m_hActiveShader, m_PermutationVariables, m_bAllowAsyncShaderLoading);
+    ezShaderManager::PreloadSinglePermutation(m_hActiveShader, m_PermutationVariables, m_bAllowAsyncShaderLoading);
 
   if (!m_hActiveShaderPermutation.IsValid())
     return nullptr;
 
   ezShaderPermutationResource* pShaderPermutation = ezResourceManager::BeginAcquireResource(
-      m_hActiveShaderPermutation, m_bAllowAsyncShaderLoading ? ezResourceAcquireMode::AllowFallback : ezResourceAcquireMode::NoFallback);
+    m_hActiveShaderPermutation, m_bAllowAsyncShaderLoading ? ezResourceAcquireMode::AllowFallback : ezResourceAcquireMode::NoFallback);
 
   if (!pShaderPermutation->IsShaderValid())
   {
@@ -975,28 +973,26 @@ ezMaterialResource* ezRenderContext::ApplyMaterialState()
 
   if (m_hNewMaterial != m_hMaterial || pMaterial->IsModified())
   {
-    EZ_LOCK(pMaterial->m_CacheMutex);
+    auto pCachedValues = pMaterial->GetOrUpdateCachedValues();
 
-    pMaterial->UpdateCaches();
-
-    BindShaderInternal(pMaterial->m_hCachedShader, ezShaderBindFlags::Default);
+    BindShaderInternal(pCachedValues->m_hShader, ezShaderBindFlags::Default);
 
     if (!pMaterial->m_hConstantBufferStorage.IsInvalidated())
     {
       BindConstantBuffer("ezMaterialConstants", pMaterial->m_hConstantBufferStorage);
     }
 
-    for (auto it = pMaterial->m_CachedPermutationVars.GetIterator(); it.IsValid(); ++it)
+    for (auto it = pCachedValues->m_PermutationVars.GetIterator(); it.IsValid(); ++it)
     {
       SetShaderPermutationVariableInternal(it.Key(), it.Value());
     }
 
-    for (auto it = pMaterial->m_CachedTexture2DBindings.GetIterator(); it.IsValid(); ++it)
+    for (auto it = pCachedValues->m_Texture2DBindings.GetIterator(); it.IsValid(); ++it)
     {
       BindTexture2D(it.Key(), it.Value());
     }
 
-    for (auto it = pMaterial->m_CachedTextureCubeBindings.GetIterator(); it.IsValid(); ++it)
+    for (auto it = pCachedValues->m_TextureCubeBindings.GetIterator(); it.IsValid(); ++it)
     {
       BindTextureCube(it.Key(), it.Value());
     }
@@ -1134,7 +1130,7 @@ void ezRenderContext::ApplyBufferBindings(ezGALShaderStage::Enum stage, const ez
 void ezRenderContext::SetDefaultTextureFilter(ezTextureFilterSetting::Enum filter)
 {
   EZ_ASSERT_DEBUG(filter >= ezTextureFilterSetting::FixedBilinear && filter <= ezTextureFilterSetting::FixedAnisotropic16x,
-                  "Invalid default texture filter");
+    "Invalid default texture filter");
   filter = ezMath::Clamp(filter, ezTextureFilterSetting::FixedBilinear, ezTextureFilterSetting::FixedAnisotropic16x);
 
   if (m_DefaultTextureFilter == filter)
@@ -1179,4 +1175,3 @@ void ezRenderContext::SetAllowAsyncShaderLoading(bool bAllow)
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_RenderContext_Implementation_RenderContext);
-
