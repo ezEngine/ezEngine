@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <Tools/EditorFramework/ui_LogPanel.h>
+#include <Editor/EditorFramework/ui_LogPanel.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>

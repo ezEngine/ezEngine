@@ -2,7 +2,7 @@
 
 #include <Foundation/Configuration/Plugin.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
-#include <Tools/EditorFramework/ui_SettingsTab.h>
+#include <Editor/EditorFramework/ui_SettingsTab.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
 class ezQtSettingsTab : public ezQtDocumentWindow, Ui_SettingsTab

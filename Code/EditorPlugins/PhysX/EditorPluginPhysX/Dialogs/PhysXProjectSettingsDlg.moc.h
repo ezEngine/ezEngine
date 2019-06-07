@@ -2,7 +2,7 @@
 
 #include <EditorPluginPhysX/EditorPluginPhysXDLL.h>
 #include <QDialog>
-#include <Tools/EditorPluginPhysX/ui_PhysXProjectSettingsDlg.h>
+#include <EditorPlugins/PhysX/EditorPluginPhysX/ui_PhysXProjectSettingsDlg.h>
 #include <GameEngine/CollisionFilter/CollisionFilter.h>
 
 class ezQtPhysxProjectSettingsDlg : public QDialog, public Ui_PhysXProjectSettingsDlg

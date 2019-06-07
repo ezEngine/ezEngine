@@ -1,7 +1,7 @@
 #pragma once
 
 #include <GuiFoundation/GuiFoundationDLL.h>
-#include <Code/Tools/GuiFoundation/ui_EventTrackEditorWidget.h>
+#include <Tools/Libs/GuiFoundation/ui_EventTrackEditorWidget.h>
 
 #include <QWidget>
 

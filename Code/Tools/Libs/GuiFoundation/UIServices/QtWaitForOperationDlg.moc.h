@@ -2,7 +2,7 @@
 
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Strings/String.h>
-#include <Code/Tools/GuiFoundation/ui_QtWaitForOperationDlg.h>
+#include <Tools/Libs/GuiFoundation/ui_QtWaitForOperationDlg.h>
 #include <Foundation/Types/Delegate.h>
 
 class QWinTaskbarProgress;

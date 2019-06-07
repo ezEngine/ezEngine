@@ -2,7 +2,7 @@
 
 #ifdef EZ_USE_QT
 
-#  include <Code/Engine/TestFramework/ui_qtTestGUI.h>
+#  include <UnitTests/TestFramework/ui_qtTestGUI.h>
 #  include <QMainWindow>
 
 #  include <TestFramework/TestFrameworkDLL.h>

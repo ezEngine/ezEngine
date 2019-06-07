@@ -3,7 +3,7 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
-#include <Tools/EditorFramework/ui_AssetProfilesDlg.h>
+#include <Editor/EditorFramework/ui_AssetProfilesDlg.h>
 
 #include <QDialog>
 

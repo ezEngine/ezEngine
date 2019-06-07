@@ -2,7 +2,7 @@
 
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <QDialog>
-#include <Code/Tools/GuiFoundation/ui_ModifiedDocumentsDlg.h>
+#include <Tools/Libs/GuiFoundation/ui_ModifiedDocumentsDlg.h>
 #include <ToolsFoundation/Document/Document.h>
 
 class EZ_GUIFOUNDATION_DLL ezQtModifiedDocumentsDlg : public QDialog, public Ui_DocumentList

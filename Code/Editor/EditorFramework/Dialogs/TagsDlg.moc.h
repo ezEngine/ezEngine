@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <Tools/EditorFramework/ui_TagsDlg.h>
+#include <Editor/EditorFramework/ui_TagsDlg.h>
 #include <Foundation/Strings/String.h>
 #include <QDialog>
 #include <Foundation/Containers/Map.h>

@@ -2,7 +2,7 @@
 
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <QDialog>
-#include <Tools/EditorFramework/ui_RemoteConnectionDlg.h>
+#include <Editor/EditorFramework/ui_RemoteConnectionDlg.h>
 #include <Foundation/Strings/String.h>
 
 class EZ_EDITORFRAMEWORK_DLL ezQtRemoteConnectionDlg : public QDialog, public Ui_ezQtRemoteConnectionDlg

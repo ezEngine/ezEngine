@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Tools/EditorPluginAssets/ui_SceneImportDlg.h>
+#include <EditorPlugins/Assets/EditorPluginAssets/ui_SceneImportDlg.h>
 #include <QDialog>
 
 class ezQtSceneImportDlg : public QDialog, public Ui_SceneImportDlg

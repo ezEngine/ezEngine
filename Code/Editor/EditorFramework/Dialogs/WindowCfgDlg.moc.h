@@ -2,7 +2,7 @@
 
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <QDialog>
-#include <Tools/EditorFramework/ui_WindowCfgDlg.h>
+#include <Editor/EditorFramework/ui_WindowCfgDlg.h>
 #include <Foundation/Application/Config/FileSystemConfig.h>
 #include <System/Window/Window.h>
 

@@ -2,7 +2,7 @@
 
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Tracks/Curve1D.h>
-#include <Code/Tools/GuiFoundation/ui_Curve1DEditorWidget.h>
+#include <Tools/Libs/GuiFoundation/ui_Curve1DEditorWidget.h>
 
 #include <QWidget>
 
