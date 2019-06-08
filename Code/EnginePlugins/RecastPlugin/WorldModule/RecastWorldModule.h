@@ -1,11 +1,15 @@
 #pragma once
 
 #include <RecastPlugin/RecastPluginDLL.h>
+
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/WorldModule.h>
 #include <NavMeshBuilder/NavMeshPointsOfInterest.h>
 
 class dtCrowd;
 class dtNavMesh;
+
+typedef ezTypedResourceHandle<class ezRecastNavMeshResource> ezRecastNavMeshResourceHandle;
 
 class EZ_RECASTPLUGIN_DLL ezRecastWorldModule : public ezWorldModule
 {
@@ -17,20 +21,18 @@ public:
   ~ezRecastWorldModule();
 
   virtual void Initialize() override;
-  virtual void Deinitialize() override;
 
-  void SetNavMesh(dtNavMesh* pNavMesh);
-  dtNavMesh* GetNavMesh() const { return m_pNavMesh; }
+  void SetNavMeshResource(const ezRecastNavMeshResourceHandle& hNavMesh);
+  const ezRecastNavMeshResourceHandle& GetNavMeshResource() { return m_hNavMesh; }
 
-  bool IsInitialized() const { return m_pCrowd != nullptr; }
-
-  dtCrowd* m_pCrowd = nullptr;
-
-  ezNavMeshPointOfInterestGraph m_NavMeshPointsOfInterest;
+  const dtNavMesh* GetDetourNavMesh() const { return m_pDetourNavMesh; }
+  const ezNavMeshPointOfInterestGraph* GetNavMeshPointsOfInterestGraph() const { return m_pNavMeshPointsOfInterest.Borrow(); }
+  ezNavMeshPointOfInterestGraph* AccessNavMeshPointsOfInterestGraph() const { return m_pNavMeshPointsOfInterest.Borrow(); }
 
 private:
-  void UpdateCrowd(const UpdateContext& ctxt);
+  void UpdateNavMesh(const UpdateContext& ctxt);
 
-  dtNavMesh* m_pNavMesh = nullptr;
+  const dtNavMesh* m_pDetourNavMesh = nullptr;
+  ezRecastNavMeshResourceHandle m_hNavMesh;
+  ezUniquePtr<ezNavMeshPointOfInterestGraph> m_pNavMeshPointsOfInterest;
 };
-

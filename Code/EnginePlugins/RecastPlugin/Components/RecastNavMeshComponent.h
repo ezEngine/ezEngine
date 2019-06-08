@@ -64,5 +64,4 @@ protected:
   void VisualizePointsOfInterest();
 
   ezUInt32 m_uiDelay = 2;
-  ezRecastNavMeshBuilder m_NavMeshBuilder;
 };

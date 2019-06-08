@@ -49,10 +49,7 @@ ezResult ezRcAgentComponent::InitializeRecast()
   if (m_bRecastInitialized)
     return EZ_SUCCESS;
 
-  if (!GetWorld()->GetOrCreateModule<ezRecastWorldModule>()->IsInitialized())
-    return EZ_FAILURE;
-
-  dtNavMesh* pNavMesh = GetWorld()->GetOrCreateModule<ezRecastWorldModule>()->GetNavMesh();
+  const dtNavMesh* pNavMesh = GetWorld()->GetOrCreateModule<ezRecastWorldModule>()->GetDetourNavMesh();
   if (pNavMesh == nullptr)
     return EZ_FAILURE;
 

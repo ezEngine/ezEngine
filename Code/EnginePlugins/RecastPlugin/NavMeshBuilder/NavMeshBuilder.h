@@ -10,6 +10,7 @@ struct rcPolyMesh;
 struct rcPolyMeshDetail;
 class ezWorld;
 class dtNavMesh;
+struct ezRecastNavMeshResourceDescriptor;
 
 struct ezRecastConfig
 {
@@ -37,19 +38,18 @@ public:
   ezRecastNavMeshBuilder();
   ~ezRecastNavMeshBuilder();
 
-  ezResult Build(const ezRecastConfig& config, const ezWorld& world);
-  ezResult Build(const ezRecastConfig& config, const ezWorldGeoExtractionUtil::Geometry& desc);
-
-  rcPolyMesh* m_polyMesh = nullptr;
-  dtNavMesh* m_pNavMesh = nullptr;
+  ezResult Build(const ezRecastConfig& config, const ezWorld& world, ezRecastNavMeshResourceDescriptor& out_NavMeshDesc);
+  ezResult Build(const ezRecastConfig& config, const ezWorldGeoExtractionUtil::Geometry& desc, ezRecastNavMeshResourceDescriptor& out_NavMeshDesc);
 
 private:
+  static void FillOutConfig(struct rcConfig& cfg, const ezRecastConfig& config, const ezBoundingBox& bbox);
+
+  void Clear();
   void ReserveMemory(const ezWorldGeoExtractionUtil::Geometry& desc);
   void GenerateTriangleMeshFromDescription(const ezWorldGeoExtractionUtil::Geometry& desc);
   void ComputeBoundingBox();
-  ezResult BuildRecastNavMesh(const ezRecastConfig& config);
-  void FillOutConfig(struct rcConfig& cfg, const ezRecastConfig& config);
-
+  ezResult BuildRecastPolyMesh(const ezRecastConfig& config, rcPolyMesh& out_PolyMesh);
+  static ezResult BuildDetourNavMeshData(const ezRecastConfig& config, const rcPolyMesh& polyMesh, ezDataBuffer& NavmeshData);
 
   struct Triangle
   {
@@ -68,9 +68,6 @@ private:
   ezDynamicArray<ezVec3> m_Vertices;
   ezDynamicArray<Triangle> m_Triangles;
   ezDynamicArray<ezUInt8> m_TriangleAreaIDs;
-
   ezRcBuildContext* m_pRecastContext = nullptr;
-
-  ezResult CreateDetourNavMesh(const ezRecastConfig& config);
 };
 

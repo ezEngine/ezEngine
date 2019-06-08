@@ -1,24 +1,27 @@
 #include <RecastPluginPCH.h>
 
 #include <Core/World/World.h>
-#include <RecastPlugin/WorldModule/RecastWorldModule.h>
 #include <Recast/DetourCrowd.h>
+#include <RecastPlugin/Resources/RecastNavMeshResource.h>
+#include <RecastPlugin/WorldModule/RecastWorldModule.h>
 
+// clang-format off
 EZ_IMPLEMENT_WORLD_MODULE(ezRecastWorldModule);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecastWorldModule, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezRecastWorldModule::ezRecastWorldModule(ezWorld* pWorld)
-    : ezWorldModule(pWorld)
+  : ezWorldModule(pWorld)
 {
 }
 
-ezRecastWorldModule::~ezRecastWorldModule() {}
+ezRecastWorldModule::~ezRecastWorldModule() = default;
 
 void ezRecastWorldModule::Initialize()
 {
   {
-    auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezRecastWorldModule::UpdateCrowd, this);
+    auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezRecastWorldModule::UpdateNavMesh, this);
     updateDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostAsync;
     updateDesc.m_bOnlyUpdateWhenSimulating = true;
     updateDesc.m_fPriority = 0.0f;
@@ -27,25 +30,26 @@ void ezRecastWorldModule::Initialize()
   }
 }
 
-void ezRecastWorldModule::Deinitialize()
+void ezRecastWorldModule::SetNavMeshResource(const ezRecastNavMeshResourceHandle& hNavMesh)
 {
-  dtFreeCrowd(m_pCrowd);
-  m_pCrowd = nullptr;
-}
+  m_hNavMesh = hNavMesh;
+  m_pDetourNavMesh = nullptr;
+  m_pNavMeshPointsOfInterest.Clear();
 
-void ezRecastWorldModule::SetNavMesh(dtNavMesh* pNavMesh)
-{
-  m_pNavMesh = pNavMesh;
-  m_pCrowd = dtAllocCrowd();
-  m_pCrowd->init(100, 0.5f, pNavMesh);
-}
-
-void ezRecastWorldModule::UpdateCrowd(const UpdateContext& ctxt)
-{
-  m_NavMeshPointsOfInterest.IncreaseCheckVisibiblityTimeStamp(GetWorld()->GetClock().GetAccumulatedTime());
-
-  if (m_pCrowd)
+  if (hNavMesh.IsValid())
   {
-    m_pCrowd->update((float)GetWorld()->GetClock().GetTimeDiff().GetSeconds(), nullptr);
+    ezResourceLock<ezRecastNavMeshResource> pNavMesh(hNavMesh, ezResourceAcquireMode::NoFallback);
+    m_pDetourNavMesh = pNavMesh->GetNavMesh();
+
+    m_pNavMeshPointsOfInterest = EZ_DEFAULT_NEW(ezNavMeshPointOfInterestGraph);
+    m_pNavMeshPointsOfInterest->ExtractInterestPointsFromMesh(*pNavMesh->GetNavMeshPolygons());
+  }
+}
+
+void ezRecastWorldModule::UpdateNavMesh(const UpdateContext& ctxt)
+{
+  if (m_pNavMeshPointsOfInterest)
+  {
+    m_pNavMeshPointsOfInterest->IncreaseCheckVisibiblityTimeStamp(GetWorld()->GetClock().GetAccumulatedTime());
   }
 }

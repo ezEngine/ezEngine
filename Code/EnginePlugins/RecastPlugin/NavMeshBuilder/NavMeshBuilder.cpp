@@ -1,13 +1,14 @@
 #include <RecastPluginPCH.h>
 
+#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Core/World/World.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Types/ScopeExit.h>
-#include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
 #include <Recast/DetourNavMesh.h>
 #include <Recast/DetourNavMeshBuilder.h>
 #include <Recast/Recast.h>
-#include <Core/Utils/WorldGeoExtractionUtil.h>
+#include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
+#include <RecastPlugin/Resources/RecastNavMeshResource.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRecastConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezRecastConfig>)
@@ -59,14 +60,20 @@ protected:
   }
 };
 
-ezRecastNavMeshBuilder::ezRecastNavMeshBuilder() {}
+ezRecastNavMeshBuilder::ezRecastNavMeshBuilder() = default;
+ezRecastNavMeshBuilder::~ezRecastNavMeshBuilder() = default;
 
-ezRecastNavMeshBuilder::~ezRecastNavMeshBuilder()
+void ezRecastNavMeshBuilder::Clear()
 {
-  rcFreePolyMesh(m_polyMesh);
+  m_BoundingBox.SetInvalid();
+  m_Vertices.Clear();
+  m_Triangles.Clear();
+  m_TriangleAreaIDs.Clear();
+  m_pRecastContext = nullptr;
 }
 
-ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezWorld& world)
+ezResult ezRecastNavMeshBuilder::Build(
+  const ezRecastConfig& config, const ezWorld& world, ezRecastNavMeshResourceDescriptor& out_NavMeshDesc)
 {
   EZ_LOG_BLOCK("ezRecastNavMeshBuilder::Build (world)");
 
@@ -78,14 +85,18 @@ ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezWor
   ezLog::Debug("Gathering NavMesh description: {0}ms", ezArgF(sw.Checkpoint().GetMilliseconds(), 2));
   ezLog::Debug("NavMesh Box Obstacles: {0}", geo.m_BoxShapes.GetCount());
 
-  return Build(config, geo);
+  return Build(config, geo, out_NavMeshDesc);
 }
 
-ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezWorldGeoExtractionUtil::Geometry& geo)
+ezResult ezRecastNavMeshBuilder::Build(
+  const ezRecastConfig& config, const ezWorldGeoExtractionUtil::Geometry& geo, ezRecastNavMeshResourceDescriptor& out_NavMeshDesc)
 {
   EZ_LOG_BLOCK("ezRecastNavMeshBuilder::Build (desc)");
 
   ezStopwatch watch;
+
+  Clear();
+  out_NavMeshDesc.Clear();
 
   ezUniquePtr<ezRcBuildContext> recastContext = EZ_DEFAULT_NEW(ezRcBuildContext);
   m_pRecastContext = recastContext.Borrow();
@@ -102,7 +113,12 @@ ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezWor
 
   ezLog::Debug("Generate Triangle Mesh: {0}ms", ezArgF(watch.Checkpoint().GetMilliseconds()));
 
-  if (BuildRecastNavMesh(config).Failed())
+  out_NavMeshDesc.m_pNavMeshPolygons = EZ_DEFAULT_NEW(rcPolyMesh);
+
+  if (BuildRecastPolyMesh(config, *out_NavMeshDesc.m_pNavMeshPolygons).Failed())
+    return EZ_FAILURE;
+
+  if (BuildDetourNavMeshData(config, *out_NavMeshDesc.m_pNavMeshPolygons, out_NavMeshDesc.m_DetourNavmeshData).Failed())
     return EZ_FAILURE;
 
   ezLog::Debug("Build Recast Navmesh: {0}ms", ezArgF(watch.Checkpoint().GetMilliseconds()));
@@ -139,7 +155,7 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGe
     {
       ezVec3 pos = v.m_vPosition;
 
-    // convert from ez convention (Y up) to recast convention (Z up)
+      // convert from ez convention (Y up) to recast convention (Z up)
       ezMath::Swap(pos.y, pos.z);
 
       m_Vertices.PushBack(pos);
@@ -215,15 +231,15 @@ void ezRecastNavMeshBuilder::ComputeBoundingBox()
   }
 }
 
-void ezRecastNavMeshBuilder::FillOutConfig(rcConfig& cfg, const ezRecastConfig& config)
+void ezRecastNavMeshBuilder::FillOutConfig(rcConfig& cfg, const ezRecastConfig& config, const ezBoundingBox& bbox)
 {
   ezMemoryUtils::ZeroFill(&cfg, 1);
-  cfg.bmin[0] = m_BoundingBox.m_vMin.x;
-  cfg.bmin[1] = m_BoundingBox.m_vMin.y;
-  cfg.bmin[2] = m_BoundingBox.m_vMin.z;
-  cfg.bmax[0] = m_BoundingBox.m_vMax.x;
-  cfg.bmax[1] = m_BoundingBox.m_vMax.y;
-  cfg.bmax[2] = m_BoundingBox.m_vMax.z;
+  cfg.bmin[0] = bbox.m_vMin.x;
+  cfg.bmin[1] = bbox.m_vMin.y;
+  cfg.bmin[2] = bbox.m_vMin.z;
+  cfg.bmax[0] = bbox.m_vMax.x;
+  cfg.bmax[1] = bbox.m_vMax.y;
+  cfg.bmax[2] = bbox.m_vMax.z;
   cfg.ch = config.m_fCellHeight;
   cfg.cs = config.m_fCellSize;
   cfg.walkableSlopeAngle = config.m_WalkableSlope.GetDegree();
@@ -241,10 +257,10 @@ void ezRecastNavMeshBuilder::FillOutConfig(rcConfig& cfg, const ezRecastConfig& 
   rcCalcGridSize(cfg.bmin, cfg.bmax, cfg.cs, &cfg.width, &cfg.height);
 }
 
-ezResult ezRecastNavMeshBuilder::BuildRecastNavMesh(const ezRecastConfig& config)
+ezResult ezRecastNavMeshBuilder::BuildRecastPolyMesh(const ezRecastConfig& config, rcPolyMesh& out_PolyMesh)
 {
   rcConfig cfg;
-  FillOutConfig(cfg, config);
+  FillOutConfig(cfg, config, m_BoundingBox);
 
   ezRcBuildContext* pContext = m_pRecastContext;
   const float* pVertices = &m_Vertices[0].x;
@@ -260,11 +276,11 @@ ezResult ezRecastNavMeshBuilder::BuildRecastNavMesh(const ezRecastConfig& config
   }
 
   // TODO Instead of this, it should use area IDs and then clear the non-walkable triangles
-  rcMarkWalkableTriangles(pContext, cfg.walkableSlopeAngle, pVertices, m_Vertices.GetCount(), pTriangles, m_Triangles.GetCount(),
-                          m_TriangleAreaIDs.GetData());
+  rcMarkWalkableTriangles(
+    pContext, cfg.walkableSlopeAngle, pVertices, m_Vertices.GetCount(), pTriangles, m_Triangles.GetCount(), m_TriangleAreaIDs.GetData());
 
   if (!rcRasterizeTriangles(pContext, pVertices, m_Vertices.GetCount(), pTriangles, m_TriangleAreaIDs.GetData(), m_Triangles.GetCount(),
-                            *heightfield, cfg.walkableClimb))
+        *heightfield, cfg.walkableClimb))
   {
     pContext->log(RC_LOG_ERROR, "Could not rasterize triangles");
     return EZ_FAILURE;
@@ -357,10 +373,7 @@ ezResult ezRecastNavMeshBuilder::BuildRecastNavMesh(const ezRecastConfig& config
     return EZ_FAILURE;
   }
 
-  m_polyMesh = rcAllocPolyMesh();
-  // this is not deallocated, it is the final result !
-
-  if (!rcBuildPolyMesh(pContext, *contourSet, cfg.maxVertsPerPoly, *m_polyMesh))
+  if (!rcBuildPolyMesh(pContext, *contourSet, cfg.maxVertsPerPoly, out_PolyMesh))
   {
     pContext->log(RC_LOG_ERROR, "Could not triangulate contours");
     return EZ_FAILURE;
@@ -371,35 +384,34 @@ ezResult ezRecastNavMeshBuilder::BuildRecastNavMesh(const ezRecastConfig& config
 
   // TODO modify area IDs and flags
 
-  for (int i = 0; i < m_polyMesh->npolys; ++i)
+  for (int i = 0; i < out_PolyMesh.npolys; ++i)
   {
-    if (m_polyMesh->areas[i] == RC_WALKABLE_AREA)
+    if (out_PolyMesh.areas[i] == RC_WALKABLE_AREA)
     {
-      m_polyMesh->flags[i] = 0xFFFF;
+      out_PolyMesh.flags[i] = 0xFFFF;
     }
   }
 
-  return CreateDetourNavMesh(config);
+  return EZ_SUCCESS;
 }
 
-
-ezResult ezRecastNavMeshBuilder::CreateDetourNavMesh(const ezRecastConfig& config)
+ezResult ezRecastNavMeshBuilder::BuildDetourNavMeshData(const ezRecastConfig& config, const rcPolyMesh& polyMesh, ezDataBuffer& NavmeshData)
 {
   dtNavMeshCreateParams params;
   ezMemoryUtils::ZeroFill(&params, 1);
 
-  params.verts = m_polyMesh->verts;
-  params.vertCount = m_polyMesh->nverts;
-  params.polys = m_polyMesh->polys;
-  params.polyAreas = m_polyMesh->areas;
-  params.polyFlags = m_polyMesh->flags;
-  params.polyCount = m_polyMesh->npolys;
-  params.nvp = m_polyMesh->nvp;
+  params.verts = polyMesh.verts;
+  params.vertCount = polyMesh.nverts;
+  params.polys = polyMesh.polys;
+  params.polyAreas = polyMesh.areas;
+  params.polyFlags = polyMesh.flags;
+  params.polyCount = polyMesh.npolys;
+  params.nvp = polyMesh.nvp;
   params.walkableHeight = config.m_fAgentHeight;
   params.walkableRadius = config.m_fAgentRadius;
   params.walkableClimb = config.m_fAgentClimbHeight;
-  rcVcopy(params.bmin, m_polyMesh->bmin);
-  rcVcopy(params.bmax, m_polyMesh->bmax);
+  rcVcopy(params.bmin, polyMesh.bmin);
+  rcVcopy(params.bmax, polyMesh.bmax);
   params.cs = config.m_fCellSize;
   params.ch = config.m_fCellHeight;
   params.buildBvTree = true;
@@ -413,14 +425,9 @@ ezResult ezRecastNavMeshBuilder::CreateDetourNavMesh(const ezRecastConfig& confi
     return EZ_FAILURE;
   }
 
-  m_pNavMesh = dtAllocNavMesh();
+  NavmeshData.SetCountUninitialized(navDataSize);
+  ezMemoryUtils::Copy(NavmeshData.GetData(), navData, navDataSize);
 
-  if (dtStatusFailed(m_pNavMesh->init(navData, navDataSize, DT_TILE_FREE_DATA)))
-  {
-    dtFree(navData);
-    ezLog::Error("Could not init Detour navmesh");
-    return EZ_FAILURE;
-  }
-
+  dtFree(navData);
   return EZ_SUCCESS;
 }

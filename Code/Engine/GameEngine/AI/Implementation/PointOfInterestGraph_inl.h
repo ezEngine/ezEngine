@@ -7,7 +7,6 @@ void ezPointOfInterestGraph<POINTTYPE>::Initialize(const ezVec3& center, const e
 {
   m_Points.Clear();
   m_Octree.CreateTree(center, halfExtents, cellSize);
-
 }
 
 template<typename POINTTYPE>

@@ -417,7 +417,7 @@ struct rcContourSet
 
 /// Represents a polygon mesh suitable for use in building a navigation mesh. 
 /// @ingroup recast
-struct rcPolyMesh
+struct RECAST_API rcPolyMesh
 {
 	rcPolyMesh();
 	~rcPolyMesh();
