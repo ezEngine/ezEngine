@@ -161,7 +161,7 @@ void ezFmod::Shutdown()
   }
 
   // finally delete all data
-  m_pData.Reset();
+  m_pData.Clear();
 }
 
 void ezFmod::SetNumListeners(ezUInt8 uiNumListeners)

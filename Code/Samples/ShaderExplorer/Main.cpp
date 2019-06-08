@@ -372,8 +372,8 @@ void ezShaderExplorerApp::BeforeHighLevelSystemsShutdown()
   m_pWindow->Destroy();
   EZ_DEFAULT_DELETE(m_pWindow);
 
-  m_camera.Reset();
-  m_directoryWatcher.Reset();
+  m_camera.Clear();
+  m_directoryWatcher.Clear();
 }
 
 void ezShaderExplorerApp::CreateScreenQuad()

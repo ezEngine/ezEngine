@@ -96,7 +96,7 @@ void ezResourceManagerWorkerDataLoad::DoWork(bool bCalledExternally)
       ezResourceManager::RunWorkerTask(nullptr);
     }
 
-    pCustomLoader.Reset();
+    pCustomLoader.Clear();
   }
 }
 

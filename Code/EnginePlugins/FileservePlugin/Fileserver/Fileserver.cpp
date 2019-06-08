@@ -42,7 +42,7 @@ void ezFileserver::StopServer()
     return;
 
   m_Network->ShutdownConnection();
-  m_Network.Reset();
+  m_Network.Clear();
 
   ezFileserverEvent e;
   e.m_Type = ezFileserverEvent::Type::ServerStopped;

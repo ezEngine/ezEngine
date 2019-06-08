@@ -3,7 +3,7 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
-#include <Tools/EditorFramework/ui_LongOpsPanel.h>
+#include <Editor/EditorFramework/ui_LongOpsPanel.h>
 
 #include <QTimer>
 
