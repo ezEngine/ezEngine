@@ -125,7 +125,7 @@ public:
 	///  @param[in]		state	TRUE if timers should be enabled.
 	inline void enableTimer(bool state) { m_timerEnabled = state; }
 
-	/// Clears all peformance timers. (Resets all to unused.)
+	/// Clears all performance timers. (Resets all to unused.)
 	inline void resetTimers() { if (m_timerEnabled) doResetTimers(); }
 
 	/// Starts the specified performance timer.

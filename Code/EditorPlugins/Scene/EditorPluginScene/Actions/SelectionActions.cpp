@@ -13,9 +13,10 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectionAction, 1, ezRTTINoAllocator)
-  ;
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectionAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezActionDescriptorHandle ezSelectionActions::s_hGroupSelectedItems;
 ezActionDescriptorHandle ezSelectionActions::s_hCreateEmptyChildObject;

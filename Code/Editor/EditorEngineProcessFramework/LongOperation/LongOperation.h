@@ -54,6 +54,24 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOperationRemote_Simple : public ezLongOperationRemote
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezLongOperationRemote_Simple, ezLongOperationRemote);
+
+public:
+  ezLongOperationRemote_Simple(const char* szDisplayName, const char* szRecplicationOpType);
+
+  virtual const char* GetDisplayName() const override;
+
+  virtual void GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& description) override;
+
+private:
+  ezString m_sDisplayName;
+  const char* m_szRecplicationOpType = nullptr;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOperationRemoteReplicant final : public ezLongOperationRemote
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezLongOperationRemoteReplicant, ezLongOperationRemote);

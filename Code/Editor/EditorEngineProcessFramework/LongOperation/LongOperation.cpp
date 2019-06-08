@@ -13,6 +13,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOperationRemote, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOperationRemote_Simple, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOperationRemoteReplicant, 1, ezRTTIDefaultAllocator<ezLongOperationRemoteReplicant>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -33,6 +36,27 @@ void ezLongOperationLocal::SetCompletion(float fCompletion)
 {
   m_pManager->SetCompletion(this, fCompletion);
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+ezLongOperationRemote_Simple::ezLongOperationRemote_Simple(const char* szDisplayName, const char* szRecplicationOpType)
+{
+  m_sDisplayName = szDisplayName;
+  m_szRecplicationOpType = szRecplicationOpType;
+}
+
+const char* ezLongOperationRemote_Simple::GetDisplayName() const
+{
+  return m_sDisplayName;
+}
+
+void ezLongOperationRemote_Simple::GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& description)
+{
+  EZ_ASSERT_DEBUG(!ezStringUtils::IsNullOrEmpty(m_szRecplicationOpType), "Invalid long op type to replicate");
+  out_sReplicationOpType = m_szRecplicationOpType;
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 void ezLongOperationRemoteReplicant::InitializeReplicated(ezStreamReader& description)
 {
