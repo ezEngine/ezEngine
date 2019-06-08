@@ -54,6 +54,8 @@ void ezLongOperationRemote_Simple::GetReplicationInfo(ezStringBuilder& out_sRepl
 {
   EZ_ASSERT_DEBUG(!ezStringUtils::IsNullOrEmpty(m_szRecplicationOpType), "Invalid long op type to replicate");
   out_sReplicationOpType = m_szRecplicationOpType;
+
+  //description << 
 }
 
 //////////////////////////////////////////////////////////////////////////

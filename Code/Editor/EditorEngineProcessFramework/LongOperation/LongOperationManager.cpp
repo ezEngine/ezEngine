@@ -162,9 +162,16 @@ void ezLongOperationManager::LaunchLocalOperation(LongOpInfo& opInfo)
   if (auto pLocalOp = ezDynamicCast<ezLongOperationLocal*>(opInfo.m_pOperation.Borrow()))
   {
     pLocalOp->m_pManager = this;
-
-    ezLongOpTask* pTask = EZ_DEFAULT_NEW(ezLongOpTask, pLocalOp, opInfo.m_OperationGuid);
-    opInfo.m_TaskID = ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::LongRunning);
+    if (pLocalOp->InitializeExecution(opInfo.m_DocumentGuid).Failed())
+    {
+      // TODO: return failure
+      FinishOperation(opInfo.m_OperationGuid);
+    }
+    else
+    {
+      ezLongOpTask* pTask = EZ_DEFAULT_NEW(ezLongOpTask, pLocalOp, opInfo.m_OperationGuid);
+      opInfo.m_TaskID = ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::LongRunning);
+    }
   }
 }
 

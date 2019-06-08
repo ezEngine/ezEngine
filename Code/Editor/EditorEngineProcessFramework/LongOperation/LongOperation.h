@@ -32,6 +32,7 @@ public:
   /// \brief Sets up a default ezLongOperationRemoteReplicant. Typically does not need to be overridden by derived classes anymore.
   virtual void GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& description) override;
 
+  virtual ezResult InitializeExecution(const ezUuid& DocumentGuid) { return EZ_SUCCESS; }
   virtual void Execute(const ezTask* pExecutingTask) = 0;
 
 protected:
@@ -79,7 +80,10 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOperationRemoteReplicant final :
 public:
   virtual const char* GetDisplayName() const override { return m_sDisplayName; }
   virtual void InitializeReplicated(ezStreamReader& description) override;
-  virtual void GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& description) override { EZ_ASSERT_NOT_IMPLEMENTED; }
+  virtual void GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& description) override
+  {
+    EZ_ASSERT_NOT_IMPLEMENTED;
+  }
 
 private:
   ezString m_sDisplayName;
