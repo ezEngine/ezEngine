@@ -32,7 +32,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_RECASTPLUGIN_DLL, ezRecastConfig);
 
 
 
-class ezRecastNavMeshBuilder
+class EZ_RECASTPLUGIN_DLL ezRecastNavMeshBuilder
 {
 public:
   ezRecastNavMeshBuilder();

@@ -55,3 +55,7 @@ endif()
 if (EZ_BUILD_SAMPLES)
 	add_dependencies(${PROJECT_NAME} RtsGamePlugin)
 endif()
+
+if (EZ_3RDPARTY_RECAST_SUPPORT)
+	add_dependencies(${PROJECT_NAME} EditorPluginRecast)
+endif()
