@@ -8,7 +8,7 @@
 #include <QTimer>
 
 struct ezToolsProjectEvent;
-struct ezLongOperationManagerEvent;
+struct ezLongOpManagerEvent;
 
 /// \brief The application wide panel that shows the engine log output and the editor log output
 class EZ_EDITORFRAMEWORK_DLL ezQtLongOpsPanel : public ezQtApplicationPanel, public Ui_LongOpsPanel
@@ -22,11 +22,11 @@ public:
   ~ezQtLongOpsPanel();
 
 private:
-  void LongOpsEventHandler(const ezLongOperationManagerEvent& e);
+  void LongOpsEventHandler(const ezLongOpManagerEvent& e);
   void RebuildTable();
 
   QTimer m_HandleQueueTimer;
-  ezDynamicArray<ezLongOperationManagerEvent> m_EventQueue;
+  ezDynamicArray<ezLongOpManagerEvent> m_EventQueue;
   ezHashTable<ezUInt32, ezUInt32> m_LongOpIdxToRow;
 
 private Q_SLOTS:

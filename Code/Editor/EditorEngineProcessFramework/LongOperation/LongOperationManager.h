@@ -9,10 +9,10 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <Foundation/Types/Uuid.h>
 
-class ezLongOperation;
+class ezLongOp;
 class ezProcessCommunicationChannel;
 
-struct ezLongOperationManagerEvent
+struct ezLongOpManagerEvent
 {
   EZ_DECLARE_POD_TYPE();
 
@@ -27,9 +27,9 @@ struct ezLongOperationManagerEvent
   ezUInt32 m_uiOperationIndex;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOperationManager final
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOpManager final
 {
-  EZ_DECLARE_SINGLETON(ezLongOperationManager);
+  EZ_DECLARE_SINGLETON(ezLongOpManager);
 
 public:
   /// Which operations to replicate to the other process.
@@ -41,17 +41,17 @@ public:
                          ///< added, no remote one is replicated to the other side. Used on the 'editor process' side.
   };
 
-  ezLongOperationManager(ReplicationMode mode);
-  ~ezLongOperationManager();
+  ezLongOpManager(ReplicationMode mode);
+  ~ezLongOpManager();
 
-  void AddLongOperation(ezUniquePtr<ezLongOperation>&& pOperation, const ezUuid& documentGuid);
+  void AddLongOperation(ezUniquePtr<ezLongOp>&& pOperation, const ezUuid& documentGuid);
 
   void Startup(ezProcessCommunicationChannel* pCommunicationChannel);
   void Shutdown();
 
   struct LongOpInfo
   {
-    ezUniquePtr<ezLongOperation> m_pOperation;
+    ezUniquePtr<ezLongOp> m_pOperation;
     ezTaskGroupID m_TaskID;
     float m_fCompletion = 0.0f;
     ezUuid m_OperationGuid;
@@ -61,15 +61,15 @@ public:
 
   mutable ezMutex m_Mutex;
 
-  ezEvent<const ezLongOperationManagerEvent&> m_Events;
+  ezEvent<const ezLongOpManagerEvent&> m_Events;
 
   const ezDynamicArray<LongOpInfo>& GetOperations() const { return m_Operations; }
 
 private:
   friend class ezLongOpTask;
-  friend class ezLongOperationLocal;
+  friend class ezLongOpWorker;
 
-  void SetCompletion(ezLongOperation* pOperation, float fCompletion);
+  void SetCompletion(ezLongOp* pOperation, float fCompletion);
   void FinishOperation(ezUuid operationGuid);
 
   void ProcessCommunicationChannelEventHandler(const ezProcessCommunicationChannel::Event& e);

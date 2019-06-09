@@ -13,3 +13,5 @@
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <GuiFoundation/Action/ActionMapManager.h>
+#include <EditorEngineProcessFramework/LongOperation/LongOperation.h>

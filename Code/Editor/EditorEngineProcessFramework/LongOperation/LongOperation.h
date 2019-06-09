@@ -6,16 +6,16 @@
 class ezStringBuilder;
 class ezStreamWriter;
 class ezTask;
-class ezLongOperationManager;
+class ezLongOpManager;
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOperation : public ezReflectedClass
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOp : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLongOperation, ezReflectedClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezLongOp, ezReflectedClass);
 
 public:
-  ezLongOperation() = default;
+  ezLongOp() = default;
 
   virtual const char* GetDisplayName() const = 0;
   virtual void GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& description) = 0;
@@ -24,12 +24,12 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOperationLocal : public ezLongOperation
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOpWorker : public ezLongOp
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLongOperationLocal, ezLongOperation);
+  EZ_ADD_DYNAMIC_REFLECTION(ezLongOpWorker, ezLongOp);
 
 public:
-  /// \brief Sets up a default ezLongOperationRemoteReplicant. Typically does not need to be overridden by derived classes anymore.
+  /// \brief Sets up a default ezLongOpProxyReplicant. Typically does not need to be overridden by derived classes anymore.
   virtual void GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& description) override;
 
   virtual ezResult InitializeExecution(const ezUuid& DocumentGuid) { return EZ_SUCCESS; }
@@ -39,15 +39,15 @@ protected:
   void SetCompletion(float fCompletion);
 
 private:
-  friend ezLongOperationManager;
-  ezLongOperationManager* m_pManager = nullptr;
+  friend ezLongOpManager;
+  ezLongOpManager* m_pManager = nullptr;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOperationRemote : public ezLongOperation
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOpProxy : public ezLongOp
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLongOperationRemote, ezLongOperation);
+  EZ_ADD_DYNAMIC_REFLECTION(ezLongOpProxy, ezLongOp);
 
 public:
   virtual void InitializeReplicated(ezStreamReader& description) override { EZ_ASSERT_NOT_IMPLEMENTED; }
@@ -55,12 +55,12 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOperationRemote_Simple : public ezLongOperationRemote
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOpProxy_Simple : public ezLongOpProxy
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLongOperationRemote_Simple, ezLongOperationRemote);
+  EZ_ADD_DYNAMIC_REFLECTION(ezLongOpProxy_Simple, ezLongOpProxy);
 
 public:
-  ezLongOperationRemote_Simple(const char* szDisplayName, const char* szRecplicationOpType);
+  ezLongOpProxy_Simple(const char* szDisplayName, const char* szRecplicationOpType);
 
   virtual const char* GetDisplayName() const override;
 
@@ -73,9 +73,9 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOperationRemoteReplicant final : public ezLongOperationRemote
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOpProxyReplicant final : public ezLongOpProxy
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLongOperationRemoteReplicant, ezLongOperationRemote);
+  EZ_ADD_DYNAMIC_REFLECTION(ezLongOpProxyReplicant, ezLongOpProxy);
 
 public:
   virtual const char* GetDisplayName() const override { return m_sDisplayName; }
@@ -93,9 +93,9 @@ private:
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOperationLocal_Dummy : public ezLongOperationLocal
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOpWorker_Dummy : public ezLongOpWorker
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLongOperationLocal_Dummy, ezLongOperationLocal);
+  EZ_ADD_DYNAMIC_REFLECTION(ezLongOpWorker_Dummy, ezLongOpWorker);
 
 public:
   virtual const char* GetDisplayName() const override { return "Dummy (Local)"; }
@@ -108,9 +108,9 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOperationRemote_Dummy : public ezLongOperationRemote
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOpProxy_Dummy : public ezLongOpProxy
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLongOperationRemote_Dummy, ezLongOperationRemote);
+  EZ_ADD_DYNAMIC_REFLECTION(ezLongOpProxy_Dummy, ezLongOpProxy);
 
 public:
   virtual const char* GetDisplayName() const override { return "Dummy (Remote)"; }

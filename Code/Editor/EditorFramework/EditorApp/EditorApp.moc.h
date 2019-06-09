@@ -256,7 +256,7 @@ private:
   ezRecentFilesList s_RecentDocuments;
 
   QApplication* s_pQtApplication;
-  ezLongOperationManager m_LongOperationManager;
+  ezLongOpManager m_LongOperationManager;
   ezEditorEngineProcessConnection* s_pEngineViewProcess;
   QTimer* m_pTimer;
 

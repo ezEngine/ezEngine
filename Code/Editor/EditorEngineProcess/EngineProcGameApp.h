@@ -66,5 +66,5 @@ private:
   ezApplicationPluginConfig m_CustomPluginConfig;
   ezEngineProcessCommunicationChannel m_IPC;
   ezUniquePtr<ezEditorEngineProcessApp> m_pApp;
-  ezLongOperationManager m_LongOperationManager;
+  ezLongOpManager m_LongOperationManager;
 };

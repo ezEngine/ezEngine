@@ -130,7 +130,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezChangeCVarMsgToEngine, 1, ezRTTIDefaultAllocat
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOperationReplicationMsg, 1, ezRTTIDefaultAllocator<ezLongOperationReplicationMsg>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpReplicationMsg, 1, ezRTTIDefaultAllocator<ezLongOpReplicationMsg>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -144,7 +144,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOperationReplicationMsg, 1, ezRTTIDefaultA
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOperationProgressMsg, 1, ezRTTIDefaultAllocator<ezLongOperationProgressMsg>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpProgressMsg, 1, ezRTTIDefaultAllocator<ezLongOpProgressMsg>)
 {
   EZ_BEGIN_PROPERTIES
   {

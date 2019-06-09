@@ -4,53 +4,53 @@
 #include <EditorEngineProcessFramework/LongOperation/LongOperationManager.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOperation, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOp, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOperationLocal, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpWorker, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOperationRemote, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpProxy, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOperationRemote_Simple, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpProxy_Simple, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOperationRemoteReplicant, 1, ezRTTIDefaultAllocator<ezLongOperationRemoteReplicant>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpProxyReplicant, 1, ezRTTIDefaultAllocator<ezLongOpProxyReplicant>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOperationLocal_Dummy, 1, ezRTTIDefaultAllocator<ezLongOperationLocal_Dummy>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpWorker_Dummy, 1, ezRTTIDefaultAllocator<ezLongOpWorker_Dummy>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOperationRemote_Dummy, 1, ezRTTIDefaultAllocator<ezLongOperationRemote_Dummy>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpProxy_Dummy, 1, ezRTTIDefaultAllocator<ezLongOpProxy_Dummy>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezLongOperationLocal::GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& description)
+void ezLongOpWorker::GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& description)
 {
-  out_sReplicationOpType = "ezLongOperationRemoteReplicant";
+  out_sReplicationOpType = "ezLongOpProxyReplicant";
   description << GetDisplayName();
 }
 
-void ezLongOperationLocal::SetCompletion(float fCompletion)
+void ezLongOpWorker::SetCompletion(float fCompletion)
 {
   m_pManager->SetCompletion(this, fCompletion);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezLongOperationRemote_Simple::ezLongOperationRemote_Simple(const char* szDisplayName, const char* szRecplicationOpType)
+ezLongOpProxy_Simple::ezLongOpProxy_Simple(const char* szDisplayName, const char* szRecplicationOpType)
 {
   m_sDisplayName = szDisplayName;
   m_szRecplicationOpType = szRecplicationOpType;
 }
 
-const char* ezLongOperationRemote_Simple::GetDisplayName() const
+const char* ezLongOpProxy_Simple::GetDisplayName() const
 {
   return m_sDisplayName;
 }
 
-void ezLongOperationRemote_Simple::GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& description)
+void ezLongOpProxy_Simple::GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& description)
 {
   EZ_ASSERT_DEBUG(!ezStringUtils::IsNullOrEmpty(m_szRecplicationOpType), "Invalid long op type to replicate");
   out_sReplicationOpType = m_szRecplicationOpType;
@@ -60,7 +60,7 @@ void ezLongOperationRemote_Simple::GetReplicationInfo(ezStringBuilder& out_sRepl
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezLongOperationRemoteReplicant::InitializeReplicated(ezStreamReader& description)
+void ezLongOpProxyReplicant::InitializeReplicated(ezStreamReader& description)
 {
   description >> m_sDisplayName;
 }
@@ -69,7 +69,7 @@ void ezLongOperationRemoteReplicant::InitializeReplicated(ezStreamReader& descri
 
 #include <Foundation/Time/Stopwatch.h>
 
-void ezLongOperationLocal_Dummy::Execute(const ezTask* pExecutingTask)
+void ezLongOpWorker_Dummy::Execute(const ezTask* pExecutingTask)
 {
   ezStopwatch sw;
 
@@ -88,13 +88,13 @@ void ezLongOperationLocal_Dummy::Execute(const ezTask* pExecutingTask)
   }
 }
 
-void ezLongOperationLocal_Dummy::InitializeReplicated(ezStreamReader& description)
+void ezLongOpWorker_Dummy::InitializeReplicated(ezStreamReader& description)
 {
   description >> m_Duration;
 }
 
-void ezLongOperationRemote_Dummy::GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& description)
+void ezLongOpProxy_Dummy::GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& description)
 {
-  out_sReplicationOpType = "ezLongOperationLocal_Dummy";
+  out_sReplicationOpType = "ezLongOpWorker_Dummy";
   description << m_Duration;
 }

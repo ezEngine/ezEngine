@@ -165,9 +165,9 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
   if (const ezPullObjectStateMsgToEngine* msg = ezDynamicCast<const ezPullObjectStateMsgToEngine*>(pMsg))
   {
     {
-      auto op = EZ_DEFAULT_NEW(ezLongOperationLocal_Dummy);
+      auto op = EZ_DEFAULT_NEW(ezLongOpWorker_Dummy);
       op->m_Duration = ezTime::Seconds(2.0);
-      ezLongOperationManager::GetSingleton()->AddLongOperation(std::move(op), this->GetDocumentGuid());
+      ezLongOpManager::GetSingleton()->AddLongOperation(std::move(op), this->GetDocumentGuid());
     }
 
     HandlePullObjectStateMsg(msg);

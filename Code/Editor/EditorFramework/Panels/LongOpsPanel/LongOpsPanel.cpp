@@ -41,7 +41,7 @@ ezQtLongOpsPanel ::ezQtLongOpsPanel()
     OperationsTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeMode::Fixed);
   }
 
-  ezLongOperationManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtLongOpsPanel::LongOpsEventHandler, this));
+  ezLongOpManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtLongOpsPanel::LongOpsEventHandler, this));
 
   QSettings Settings;
   Settings.beginGroup(QLatin1String("LongOpsPanel"));
@@ -53,7 +53,7 @@ ezQtLongOpsPanel ::ezQtLongOpsPanel()
 
 ezQtLongOpsPanel::~ezQtLongOpsPanel()
 {
-  ezLongOperationManager::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtLongOpsPanel::LongOpsEventHandler, this));
+  ezLongOpManager::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtLongOpsPanel::LongOpsEventHandler, this));
 
   QSettings Settings;
   Settings.beginGroup(QLatin1String("LongOpsPanel"));
@@ -63,9 +63,9 @@ ezQtLongOpsPanel::~ezQtLongOpsPanel()
   Settings.endGroup();
 }
 
-void ezQtLongOpsPanel::LongOpsEventHandler(const ezLongOperationManagerEvent& e)
+void ezQtLongOpsPanel::LongOpsEventHandler(const ezLongOpManagerEvent& e)
 {
-  auto* opMan = ezLongOperationManager::GetSingleton();
+  auto* opMan = ezLongOpManager::GetSingleton();
   EZ_LOCK(opMan->m_Mutex);
 
   m_EventQueue.PushBack(e);
@@ -78,7 +78,7 @@ void ezQtLongOpsPanel::RebuildTable()
   OperationsTable->setRowCount(0);
   m_LongOpIdxToRow.Clear();
 
-  auto* opMan = ezLongOperationManager::GetSingleton();
+  auto* opMan = ezLongOpManager::GetSingleton();
   EZ_LOCK(opMan->m_Mutex);
 
   const auto& opsList = opMan->GetOperations();
@@ -107,20 +107,20 @@ void ezQtLongOpsPanel::HandleEventQueue()
   if (m_EventQueue.IsEmpty())
     return;
 
-  auto* opMan = ezLongOperationManager::GetSingleton();
+  auto* opMan = ezLongOpManager::GetSingleton();
   EZ_LOCK(opMan->m_Mutex);
 
   for (const auto& e : m_EventQueue)
   {
     const auto& opInfo = opMan->GetOperations()[e.m_uiOperationIndex];
 
-    if (e.m_Type == ezLongOperationManagerEvent::Type::OpAdded || e.m_Type == ezLongOperationManagerEvent::Type::OpFinished)
+    if (e.m_Type == ezLongOpManagerEvent::Type::OpAdded || e.m_Type == ezLongOpManagerEvent::Type::OpFinished)
     {
       // if anything was added or removed, recreate the entire table, then break
       RebuildTable();
       break;
     }
-    else if (e.m_Type == ezLongOperationManagerEvent::Type::OpProgress)
+    else if (e.m_Type == ezLongOpManagerEvent::Type::OpProgress)
     {
       ezUInt32 rowIdx;
       if (m_LongOpIdxToRow.TryGetValue(e.m_uiOperationIndex, rowIdx))

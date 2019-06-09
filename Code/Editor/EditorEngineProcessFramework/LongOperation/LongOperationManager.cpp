@@ -6,23 +6,23 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/Stream.h>
 
-EZ_IMPLEMENT_SINGLETON(ezLongOperationManager);
+EZ_IMPLEMENT_SINGLETON(ezLongOpManager);
 
-ezLongOperationManager::ezLongOperationManager(ReplicationMode mode)
+ezLongOpManager::ezLongOpManager(ReplicationMode mode)
   : m_SingletonRegistrar(this)
 {
   m_ReplicationMode = mode;
 }
 
-ezLongOperationManager::~ezLongOperationManager() = default;
+ezLongOpManager::~ezLongOpManager() = default;
 
 class ezLongOpTask : public ezTask
 {
 public:
-  ezLongOperationLocal* m_pLocalOp = nullptr;
+  ezLongOpWorker* m_pLocalOp = nullptr;
   ezUuid m_OperationGuid;
 
-  ezLongOpTask(ezLongOperationLocal* pLocalOp, ezUuid OperationGuid)
+  ezLongOpTask(ezLongOpWorker* pLocalOp, ezUuid OperationGuid)
   {
     m_pLocalOp = pLocalOp;
     m_OperationGuid = OperationGuid;
@@ -40,11 +40,11 @@ public:
 
     m_pLocalOp->Execute(this);
 
-    ezLongOperationManager::GetSingleton()->FinishOperation(m_OperationGuid);
+    ezLongOpManager::GetSingleton()->FinishOperation(m_OperationGuid);
   }
 };
 
-void ezLongOperationManager::AddLongOperation(ezUniquePtr<ezLongOperation>&& pOperation, const ezUuid& documentGuid)
+void ezLongOpManager::AddLongOperation(ezUniquePtr<ezLongOp>&& pOperation, const ezUuid& documentGuid)
 {
   EZ_LOCK(m_Mutex);
 
@@ -54,13 +54,13 @@ void ezLongOperationManager::AddLongOperation(ezUniquePtr<ezLongOperation>&& pOp
   opInfo.m_DocumentGuid = documentGuid;
   opInfo.m_StartOrDuration = ezTime::Now();
 
-  ezLongOperation* pNewOp = opInfo.m_pOperation.Borrow();
+  ezLongOp* pNewOp = opInfo.m_pOperation.Borrow();
 
-  if (m_ReplicationMode == ReplicationMode::AllOperations || ezDynamicCast<ezLongOperationRemote*>(pNewOp) != nullptr)
+  if (m_ReplicationMode == ReplicationMode::AllOperations || ezDynamicCast<ezLongOpProxy*>(pNewOp) != nullptr)
   {
     ezStringBuilder replType;
 
-    ezLongOperationReplicationMsg msg;
+    ezLongOpReplicationMsg msg;
 
     ezMemoryStreamContainerWrapperStorage<ezDataBuffer> storage(&msg.m_ReplicationData);
     ezMemoryStreamWriter writer(&storage);
@@ -78,21 +78,21 @@ void ezLongOperationManager::AddLongOperation(ezUniquePtr<ezLongOperation>&& pOp
   LaunchLocalOperation(opInfo);
 
   {
-    ezLongOperationManagerEvent e;
-    e.m_Type = ezLongOperationManagerEvent::Type::OpAdded;
+    ezLongOpManagerEvent e;
+    e.m_Type = ezLongOpManagerEvent::Type::OpAdded;
     e.m_uiOperationIndex = m_Operations.GetCount() - 1;
     m_Events.Broadcast(e);
   }
 }
 
-void ezLongOperationManager::Startup(ezProcessCommunicationChannel* pCommunicationChannel)
+void ezLongOpManager::Startup(ezProcessCommunicationChannel* pCommunicationChannel)
 {
   m_pCommunicationChannel = pCommunicationChannel;
   m_pCommunicationChannel->m_Events.AddEventHandler(
-    ezMakeDelegate(&ezLongOperationManager::ProcessCommunicationChannelEventHandler, this), m_Unsubscriber);
+    ezMakeDelegate(&ezLongOpManager::ProcessCommunicationChannelEventHandler, this), m_Unsubscriber);
 }
 
-void ezLongOperationManager::Shutdown()
+void ezLongOpManager::Shutdown()
 {
   EZ_LOCK(m_Mutex);
 
@@ -101,9 +101,9 @@ void ezLongOperationManager::Shutdown()
   m_pCommunicationChannel = nullptr;
 }
 
-void ezLongOperationManager::ProcessCommunicationChannelEventHandler(const ezProcessCommunicationChannel::Event& e)
+void ezLongOpManager::ProcessCommunicationChannelEventHandler(const ezProcessCommunicationChannel::Event& e)
 {
-  if (auto pMsg = ezDynamicCast<const ezLongOperationReplicationMsg*>(e.m_pMessage))
+  if (auto pMsg = ezDynamicCast<const ezLongOpReplicationMsg*>(e.m_pMessage))
   {
     EZ_LOCK(m_Mutex);
 
@@ -111,7 +111,7 @@ void ezLongOperationManager::ProcessCommunicationChannelEventHandler(const ezPro
     const ezRTTI* pRtti = ezRTTI::FindTypeByName(pMsg->m_sReplicationType);
 
     auto& opInfo = m_Operations.ExpandAndGetRef();
-    opInfo.m_pOperation = pRtti->GetAllocator()->Allocate<ezLongOperation>();
+    opInfo.m_pOperation = pRtti->GetAllocator()->Allocate<ezLongOp>();
     opInfo.m_StartOrDuration = ezTime::Now();
 
     opInfo.m_DocumentGuid = pMsg->m_DocumentGuid;
@@ -121,13 +121,13 @@ void ezLongOperationManager::ProcessCommunicationChannelEventHandler(const ezPro
     LaunchLocalOperation(opInfo);
 
     {
-      ezLongOperationManagerEvent e;
-      e.m_Type = ezLongOperationManagerEvent::Type::OpAdded;
+      ezLongOpManagerEvent e;
+      e.m_Type = ezLongOpManagerEvent::Type::OpAdded;
       e.m_uiOperationIndex = m_Operations.GetCount() - 1;
       m_Events.Broadcast(e);
     }
   }
-  else if (auto pMsg = ezDynamicCast<const ezLongOperationProgressMsg*>(e.m_pMessage))
+  else if (auto pMsg = ezDynamicCast<const ezLongOpProgressMsg*>(e.m_pMessage))
   {
     EZ_LOCK(m_Mutex);
 
@@ -145,8 +145,8 @@ void ezLongOperationManager::ProcessCommunicationChannelEventHandler(const ezPro
         {
           opInfo.m_fCompletion = pMsg->m_fCompletion;
 
-          ezLongOperationManagerEvent e;
-          e.m_Type = ezLongOperationManagerEvent::Type::OpProgress;
+          ezLongOpManagerEvent e;
+          e.m_Type = ezLongOpManagerEvent::Type::OpProgress;
           e.m_uiOperationIndex = i;
           m_Events.Broadcast(e);
 
@@ -157,9 +157,9 @@ void ezLongOperationManager::ProcessCommunicationChannelEventHandler(const ezPro
   }
 }
 
-void ezLongOperationManager::LaunchLocalOperation(LongOpInfo& opInfo)
+void ezLongOpManager::LaunchLocalOperation(LongOpInfo& opInfo)
 {
-  if (auto pLocalOp = ezDynamicCast<ezLongOperationLocal*>(opInfo.m_pOperation.Borrow()))
+  if (auto pLocalOp = ezDynamicCast<ezLongOpWorker*>(opInfo.m_pOperation.Borrow()))
   {
     pLocalOp->m_pManager = this;
     if (pLocalOp->InitializeExecution(opInfo.m_DocumentGuid).Failed())
@@ -175,7 +175,7 @@ void ezLongOperationManager::LaunchLocalOperation(LongOpInfo& opInfo)
   }
 }
 
-void ezLongOperationManager::SetCompletion(ezLongOperation* pOperation, float fCompletion)
+void ezLongOpManager::SetCompletion(ezLongOp* pOperation, float fCompletion)
 {
   fCompletion = ezMath::Clamp(fCompletion, 0.0f, 1.0f);
 
@@ -192,17 +192,17 @@ void ezLongOperationManager::SetCompletion(ezLongOperation* pOperation, float fC
         opInfo.m_fCompletion = fCompletion;
 
         {
-          ezLongOperationManagerEvent e;
-          e.m_Type = ezLongOperationManagerEvent::Type::OpProgress;
+          ezLongOpManagerEvent e;
+          e.m_Type = ezLongOpManagerEvent::Type::OpProgress;
           e.m_uiOperationIndex = i;
           m_Events.Broadcast(e);
         }
 
         if (m_ReplicationMode == ReplicationMode::AllOperations)
         {
-          if (auto* pLocalOp = ezDynamicCast<ezLongOperationLocal*>(pOperation))
+          if (auto* pLocalOp = ezDynamicCast<ezLongOpWorker*>(pOperation))
           {
-            ezLongOperationProgressMsg msg;
+            ezLongOpProgressMsg msg;
             msg.m_OperationGuid = opInfo.m_OperationGuid;
             msg.m_fCompletion = opInfo.m_fCompletion;
 
@@ -216,7 +216,7 @@ void ezLongOperationManager::SetCompletion(ezLongOperation* pOperation, float fC
   }
 }
 
-void ezLongOperationManager::FinishOperation(ezUuid operationGuid)
+void ezLongOpManager::FinishOperation(ezUuid operationGuid)
 {
   EZ_LOCK(m_Mutex);
 
@@ -230,15 +230,15 @@ void ezLongOperationManager::FinishOperation(ezUuid operationGuid)
       opInfo.m_StartOrDuration = ezTime::Now() - opInfo.m_StartOrDuration;
 
       {
-        ezLongOperationManagerEvent e;
-        e.m_Type = ezLongOperationManagerEvent::Type::OpFinished;
+        ezLongOpManagerEvent e;
+        e.m_Type = ezLongOpManagerEvent::Type::OpFinished;
         e.m_uiOperationIndex = i;
         m_Events.Broadcast(e);
       }
 
       if (m_ReplicationMode == ReplicationMode::AllOperations)
       {
-        ezLongOperationProgressMsg msg;
+        ezLongOpProgressMsg msg;
         msg.m_OperationGuid = opInfo.m_OperationGuid;
         msg.m_fCompletion = -1.0f;
 

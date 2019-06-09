@@ -15,7 +15,7 @@ ezQtEditorApp::ezQtEditorApp()
   : m_SingletonRegistrar(this)
   , s_RecentProjects(5)
   , s_RecentDocuments(50)
-  , m_LongOperationManager(ezLongOperationManager::ReplicationMode::OnlyRemoteOperations)
+  , m_LongOperationManager(ezLongOpManager::ReplicationMode::OnlyRemoteOperations)
 {
   m_pProgressbar = nullptr;
   m_pQtProgressbar = nullptr;
