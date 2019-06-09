@@ -25,6 +25,11 @@ void ezRecastAction::Execute(const ezVariant& value)
 {
   auto pLongOp = EZ_DEFAULT_NEW(ezLongOpProxy_BuildNavMesh);
 
+  ezStringBuilder sOutputFile = GetContext().m_pDocument->GetDocumentPath();
+  sOutputFile.RemoveFileExtension();
+  sOutputFile.Append("_data/Scene.ezRecastNavMesh");
+  pLongOp->m_sOutputPath = sOutputFile;
+
   ezLongOpManager::GetSingleton()->AddLongOperation(std::move(pLongOp), GetContext().m_pDocument->GetGuid());
 }
 
@@ -58,5 +63,4 @@ void ezRecastActions::MapActions(const char* szMapping)
 
   pMap->MapAction(s_hNavMeshCategory, "Menu.Recast", 1.0f);
   pMap->MapAction(s_hGenerateNavMesh, "Menu.Recast/NavMeshCategory", 1.0f);
-
 }

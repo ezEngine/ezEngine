@@ -3,9 +3,9 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Recast/DetourNavMesh.h>
-#include <RecastPlugin/Resources/RecastNavMeshResource.h>
 #include <Recast/Recast.h>
 #include <Recast/RecastAlloc.h>
+#include <RecastPlugin/Resources/RecastNavMeshResource.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecastNavMeshResource, 1, ezRTTIDefaultAllocator<ezRecastNavMeshResource>);
@@ -26,10 +26,10 @@ void ezRecastNavMeshResourceDescriptor::Clear()
   m_pNavMeshPolygons.Clear();
 }
 
-void ezRecastNavMeshResourceDescriptor::Serialize(ezStreamWriter& stream) const
+ezResult ezRecastNavMeshResourceDescriptor::Serialize(ezStreamWriter& stream) const
 {
   stream.WriteVersion(1);
-  stream.WriteArray(m_DetourNavmeshData);
+  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_DetourNavmeshData));
 
   const bool hasPolygons = m_pNavMeshPolygons != nullptr;
   stream << hasPolygons;
@@ -55,18 +55,20 @@ void ezRecastNavMeshResourceDescriptor::Serialize(ezStreamWriter& stream) const
     stream << (int)mesh.borderSize;
     stream << (float)mesh.maxEdgeError;
 
-    stream.WriteBytes(mesh.verts, sizeof(ezUInt16) * mesh.nverts * 3);
-    stream.WriteBytes(mesh.polys, sizeof(ezUInt16) * mesh.maxpolys * mesh.nvp * 2);
-    stream.WriteBytes(mesh.regs, sizeof(ezUInt16) * mesh.maxpolys);
-    stream.WriteBytes(mesh.flags, sizeof(ezUInt16) * mesh.maxpolys);
-    stream.WriteBytes(mesh.areas, sizeof(ezUInt8) * mesh.maxpolys);
+    EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.verts, sizeof(ezUInt16) * mesh.nverts * 3));
+    EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.polys, sizeof(ezUInt16) * mesh.maxpolys * mesh.nvp * 2));
+    EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.regs, sizeof(ezUInt16) * mesh.maxpolys));
+    EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.flags, sizeof(ezUInt16) * mesh.maxpolys));
+    EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.areas, sizeof(ezUInt8) * mesh.maxpolys));
   }
+
+  return EZ_SUCCESS;
 }
 
-void ezRecastNavMeshResourceDescriptor::Deserialize(ezStreamReader& stream)
+ezResult ezRecastNavMeshResourceDescriptor::Deserialize(ezStreamReader& stream)
 {
   const ezTypeVersion version = stream.ReadVersion(1);
-  stream.ReadArray(m_DetourNavmeshData);
+  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_DetourNavmeshData));
 
   bool hasPolygons = false;
   stream >> hasPolygons;
@@ -107,6 +109,8 @@ void ezRecastNavMeshResourceDescriptor::Deserialize(ezStreamReader& stream)
     stream.ReadBytes(mesh.flags, sizeof(ezUInt16) * mesh.maxpolys);
     stream.ReadBytes(mesh.areas, sizeof(ezUInt8) * mesh.maxpolys);
   }
+
+  return EZ_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -22,8 +22,8 @@ struct EZ_RECASTPLUGIN_DLL ezRecastNavMeshResourceDescriptor
 
   void Clear();
 
-  void Serialize(ezStreamWriter& stream) const;
-  void Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& stream) const;
+  ezResult Deserialize(ezStreamReader& stream);
 };
 
 class EZ_RECASTPLUGIN_DLL ezRecastNavMeshResource : public ezResource

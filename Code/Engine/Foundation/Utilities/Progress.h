@@ -53,6 +53,9 @@ public:
   /// \brief Used to inform ezProgress of outside user input. May have an effect or not.
   void UserClickedCancel();
 
+  /// \brief Whether the user requested to cancel the operation.
+  bool WasCanceled() const;
+
   /// \brief Returns whether the current operations may be canceled or not.
   bool AllowUserCancel() const;
 
@@ -62,8 +65,11 @@ public:
   /// \brief Allows to set a custom ezProgress instance as the global default instance.
   static void SetGlobalProgressbar(ezProgress* pProgress);
 
-  /// Events are sent when the progress changes
+  /// \brief Events are sent when the progress changes
   ezEvent<const ezProgressEvent&> m_Events;
+
+  /// \brief Custom user data.
+  void* m_pUserData = nullptr;
 
 private:
   friend class ezProgressRange;

@@ -84,19 +84,21 @@ void ezQtLongOpsPanel::RebuildTable()
   const auto& opsList = opMan->GetOperations();
   for (ezUInt32 idx = 0; idx < opsList.GetCount(); ++idx)
   {
-    if (opsList[idx].m_pOperation == nullptr)
+    const auto& opInfo = *opsList[idx];
+
+    if (opInfo.m_pOperation == nullptr)
       continue;
 
     const int rowIdx = OperationsTable->rowCount();
     OperationsTable->setRowCount(rowIdx + 1);
-    OperationsTable->setItem(rowIdx, 0, new QTableWidgetItem(opsList[idx].m_pOperation->GetDisplayName()));
+    OperationsTable->setItem(rowIdx, 0, new QTableWidgetItem(opInfo.m_pOperation->GetDisplayName()));
 
     QProgressBar* pProgress = new QProgressBar();
-    pProgress->setValue((int)(opsList[idx].m_fCompletion * 100.0f));
+    pProgress->setValue((int)(opInfo.m_Progress.GetCompletion() * 100.0f));
 
     OperationsTable->setCellWidget(rowIdx, 1, pProgress);
     OperationsTable->setItem(
-      rowIdx, 2, new QTableWidgetItem(QString("%1 sec").arg((ezTime::Now() - opsList[idx].m_StartOrDuration).GetSeconds())));
+      rowIdx, 2, new QTableWidgetItem(QString("%1 sec").arg((ezTime::Now() - opInfo.m_StartOrDuration).GetSeconds())));
 
     m_LongOpIdxToRow[idx] = rowIdx;
   }
@@ -112,7 +114,7 @@ void ezQtLongOpsPanel::HandleEventQueue()
 
   for (const auto& e : m_EventQueue)
   {
-    const auto& opInfo = opMan->GetOperations()[e.m_uiOperationIndex];
+    const auto& opInfo = *opMan->GetOperations()[e.m_uiOperationIndex];
 
     if (e.m_Type == ezLongOpManagerEvent::Type::OpAdded || e.m_Type == ezLongOpManagerEvent::Type::OpFinished)
     {
@@ -126,7 +128,7 @@ void ezQtLongOpsPanel::HandleEventQueue()
       if (m_LongOpIdxToRow.TryGetValue(e.m_uiOperationIndex, rowIdx))
       {
         QProgressBar* pProgress = qobject_cast<QProgressBar*>(OperationsTable->cellWidget(rowIdx, 1));
-        pProgress->setValue((int)(opInfo.m_fCompletion * 100.0f));
+        pProgress->setValue((int)(opInfo.m_Progress.GetCompletion() * 100.0f));
 
         OperationsTable->setItem(
           rowIdx, 2, new QTableWidgetItem(QString("%1 sec").arg((ezTime::Now() - opInfo.m_StartOrDuration).GetSeconds())));

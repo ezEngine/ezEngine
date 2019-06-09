@@ -2,6 +2,7 @@
 
 #include <EditorEngineProcessFramework/LongOperation/LongOperation.h>
 #include <EditorEngineProcessFramework/LongOperation/LongOperationManager.h>
+#include <Foundation/Utilities/Progress.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOp, 1, ezRTTINoAllocator)
@@ -30,11 +31,6 @@ void ezLongOpWorker::GetReplicationInfo(ezStringBuilder& out_sReplicationOpType,
 {
   out_sReplicationOpType = "ezLongOpProxyReplicant";
   description << GetDisplayName();
-}
-
-void ezLongOpWorker::SetCompletion(float fCompletion)
-{
-  m_pManager->SetCompletion(this, fCompletion);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -69,13 +65,13 @@ void ezLongOpProxyReplicant::InitializeReplicated(ezStreamReader& description)
 
 #include <Foundation/Time/Stopwatch.h>
 
-void ezLongOpWorker_Dummy::Execute(const ezTask* pExecutingTask)
+void ezLongOpWorker_Dummy::Execute(ezProgress& progress)
 {
   ezStopwatch sw;
 
   float fCompletion = 0.0f;
 
-  while (fCompletion < 1.0f && !pExecutingTask->HasBeenCanceled())
+  while (fCompletion < 1.0f && !progress.WasCanceled())
   {
     m_TimeTaken = sw.GetRunningTotal();
     fCompletion = ezMath::Clamp<float>(m_TimeTaken.GetSeconds() / m_Duration.GetSeconds(), 0.0f, 1.0f);
@@ -84,7 +80,8 @@ void ezLongOpWorker_Dummy::Execute(const ezTask* pExecutingTask)
 
     ezLog::Info("{} completion: {}%%", GetDisplayName(), fCompletion * 100.0f);
 
-    SetCompletion(fCompletion);
+    // usually one would use ezProgressRange instead
+    progress.SetCompletion(fCompletion);
   }
 }
 

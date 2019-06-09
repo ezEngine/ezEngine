@@ -12,7 +12,7 @@ public:
   virtual const char* GetDisplayName() const override { return "Generate NavMesh"; }
   virtual void InitializeReplicated(ezStreamReader& description) override;
   virtual ezResult InitializeExecution(const ezUuid& DocumentGuid) override;
-  virtual void Execute(const ezTask* pExecutingTask) override;
+  virtual void Execute(ezProgress& progress) override;
 
   ezString m_sOutputPath;
 };

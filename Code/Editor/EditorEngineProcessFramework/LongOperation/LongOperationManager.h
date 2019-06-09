@@ -8,9 +8,11 @@
 #include <Foundation/Threading/Implementation/TaskSystemDeclarations.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <Foundation/Types/Uuid.h>
+#include <Foundation/Utilities/Progress.h>
 
 class ezLongOp;
 class ezProcessCommunicationChannel;
+struct ezProgressEvent;
 
 struct ezLongOpManagerEvent
 {
@@ -53,17 +55,18 @@ public:
   {
     ezUniquePtr<ezLongOp> m_pOperation;
     ezTaskGroupID m_TaskID;
-    float m_fCompletion = 0.0f;
     ezUuid m_OperationGuid;
     ezUuid m_DocumentGuid;
     ezTime m_StartOrDuration;
+    ezProgress m_Progress;
+    ezEvent<const ezProgressEvent&>::Unsubscriber m_ProgressSubscription;
   };
 
   mutable ezMutex m_Mutex;
 
   ezEvent<const ezLongOpManagerEvent&> m_Events;
 
-  const ezDynamicArray<LongOpInfo>& GetOperations() const { return m_Operations; }
+  const ezDynamicArray<ezUniquePtr<LongOpInfo>>& GetOperations() const { return m_Operations; }
 
 private:
   friend class ezLongOpTask;
@@ -71,13 +74,15 @@ private:
 
   void SetCompletion(ezLongOp* pOperation, float fCompletion);
   void FinishOperation(ezUuid operationGuid);
+  void ProgressBarEventHandler(const ezProgressEvent& e);
 
   void ProcessCommunicationChannelEventHandler(const ezProcessCommunicationChannel::Event& e);
-  void LaunchLocalOperation(LongOpInfo& opInfo);
+  void LaunchWorkerOperation(LongOpInfo& opInfo);
+
 
   ezProcessCommunicationChannel* m_pCommunicationChannel = nullptr;
   ReplicationMode m_ReplicationMode;
   ezEvent<const ezProcessCommunicationChannel::Event&>::Unsubscriber m_Unsubscriber;
 
-  ezDynamicArray<LongOpInfo> m_Operations;
+  ezDynamicArray<ezUniquePtr<LongOpInfo>> m_Operations;
 };

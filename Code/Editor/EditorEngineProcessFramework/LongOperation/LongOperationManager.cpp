@@ -21,6 +21,7 @@ class ezLongOpTask : public ezTask
 public:
   ezLongOpWorker* m_pLocalOp = nullptr;
   ezUuid m_OperationGuid;
+  ezProgress* m_pProgress = nullptr;
 
   ezLongOpTask(ezLongOpWorker* pLocalOp, ezUuid OperationGuid)
   {
@@ -38,7 +39,7 @@ public:
     if (HasBeenCanceled())
       return;
 
-    m_pLocalOp->Execute(this);
+    m_pLocalOp->Execute(*m_pProgress);
 
     ezLongOpManager::GetSingleton()->FinishOperation(m_OperationGuid);
   }
@@ -48,11 +49,17 @@ void ezLongOpManager::AddLongOperation(ezUniquePtr<ezLongOp>&& pOperation, const
 {
   EZ_LOCK(m_Mutex);
 
-  auto& opInfo = m_Operations.ExpandAndGetRef();
+  auto& opInfoPtr = m_Operations.ExpandAndGetRef();
+  opInfoPtr = EZ_DEFAULT_NEW(LongOpInfo);
+
+  auto& opInfo = *opInfoPtr;
   opInfo.m_pOperation = std::move(pOperation);
   opInfo.m_OperationGuid.CreateNewUuid();
   opInfo.m_DocumentGuid = documentGuid;
   opInfo.m_StartOrDuration = ezTime::Now();
+  opInfo.m_Progress.m_pUserData = opInfo.m_pOperation.Borrow();
+  opInfo.m_Progress.m_Events.AddEventHandler(
+    ezMakeDelegate(&ezLongOpManager::ProgressBarEventHandler, this), opInfo.m_ProgressSubscription);
 
   ezLongOp* pNewOp = opInfo.m_pOperation.Borrow();
 
@@ -75,7 +82,7 @@ void ezLongOpManager::AddLongOperation(ezUniquePtr<ezLongOp>&& pOperation, const
     m_pCommunicationChannel->SendMessage(&msg);
   }
 
-  LaunchLocalOperation(opInfo);
+  LaunchWorkerOperation(opInfo);
 
   {
     ezLongOpManagerEvent e;
@@ -110,15 +117,21 @@ void ezLongOpManager::ProcessCommunicationChannelEventHandler(const ezProcessCom
     ezRawMemoryStreamReader reader(pMsg->m_ReplicationData);
     const ezRTTI* pRtti = ezRTTI::FindTypeByName(pMsg->m_sReplicationType);
 
-    auto& opInfo = m_Operations.ExpandAndGetRef();
+    auto& opInfoPtr = m_Operations.ExpandAndGetRef();
+    opInfoPtr = EZ_DEFAULT_NEW(LongOpInfo);
+
+    auto& opInfo = *opInfoPtr;
     opInfo.m_pOperation = pRtti->GetAllocator()->Allocate<ezLongOp>();
     opInfo.m_StartOrDuration = ezTime::Now();
+    opInfo.m_Progress.m_pUserData = opInfo.m_pOperation.Borrow();
+    opInfo.m_Progress.m_Events.AddEventHandler(
+      ezMakeDelegate(&ezLongOpManager::ProgressBarEventHandler, this), opInfo.m_ProgressSubscription);
 
     opInfo.m_DocumentGuid = pMsg->m_DocumentGuid;
     opInfo.m_OperationGuid = pMsg->m_OperationGuid;
     opInfo.m_pOperation->InitializeReplicated(reader);
 
-    LaunchLocalOperation(opInfo);
+    LaunchWorkerOperation(opInfo);
 
     {
       ezLongOpManagerEvent e;
@@ -139,11 +152,11 @@ void ezLongOpManager::ProcessCommunicationChannelEventHandler(const ezProcessCom
     {
       for (ezUInt32 i = 0; i < m_Operations.GetCount(); ++i)
       {
-        auto& opInfo = m_Operations[i];
+        auto& opInfo = *m_Operations[i];
 
         if (opInfo.m_OperationGuid == pMsg->m_OperationGuid)
         {
-          opInfo.m_fCompletion = pMsg->m_fCompletion;
+          opInfo.m_Progress.SetCompletion(pMsg->m_fCompletion);
 
           ezLongOpManagerEvent e;
           e.m_Type = ezLongOpManagerEvent::Type::OpProgress;
@@ -157,7 +170,7 @@ void ezLongOpManager::ProcessCommunicationChannelEventHandler(const ezProcessCom
   }
 }
 
-void ezLongOpManager::LaunchLocalOperation(LongOpInfo& opInfo)
+void ezLongOpManager::LaunchWorkerOperation(LongOpInfo& opInfo)
 {
   if (auto pLocalOp = ezDynamicCast<ezLongOpWorker*>(opInfo.m_pOperation.Borrow()))
   {
@@ -170,6 +183,7 @@ void ezLongOpManager::LaunchLocalOperation(LongOpInfo& opInfo)
     else
     {
       ezLongOpTask* pTask = EZ_DEFAULT_NEW(ezLongOpTask, pLocalOp, opInfo.m_OperationGuid);
+      pTask->m_pProgress = &opInfo.m_Progress;
       opInfo.m_TaskID = ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::LongRunning);
     }
   }
@@ -183,31 +197,26 @@ void ezLongOpManager::SetCompletion(ezLongOp* pOperation, float fCompletion)
 
   for (ezUInt32 i = 0; i < m_Operations.GetCount(); ++i)
   {
-    auto& opInfo = m_Operations[i];
+    auto& opInfo = *m_Operations[i];
 
     if (opInfo.m_pOperation.Borrow() == pOperation)
     {
-      if (opInfo.m_fCompletion != fCompletion)
       {
-        opInfo.m_fCompletion = fCompletion;
+        ezLongOpManagerEvent e;
+        e.m_Type = ezLongOpManagerEvent::Type::OpProgress;
+        e.m_uiOperationIndex = i;
+        m_Events.Broadcast(e);
+      }
 
+      if (m_ReplicationMode == ReplicationMode::AllOperations)
+      {
+        if (auto* pLocalOp = ezDynamicCast<ezLongOpWorker*>(pOperation))
         {
-          ezLongOpManagerEvent e;
-          e.m_Type = ezLongOpManagerEvent::Type::OpProgress;
-          e.m_uiOperationIndex = i;
-          m_Events.Broadcast(e);
-        }
+          ezLongOpProgressMsg msg;
+          msg.m_OperationGuid = opInfo.m_OperationGuid;
+          msg.m_fCompletion = opInfo.m_Progress.GetCompletion();
 
-        if (m_ReplicationMode == ReplicationMode::AllOperations)
-        {
-          if (auto* pLocalOp = ezDynamicCast<ezLongOpWorker*>(pOperation))
-          {
-            ezLongOpProgressMsg msg;
-            msg.m_OperationGuid = opInfo.m_OperationGuid;
-            msg.m_fCompletion = opInfo.m_fCompletion;
-
-            m_pCommunicationChannel->SendMessage(&msg);
-          }
+          m_pCommunicationChannel->SendMessage(&msg);
         }
       }
 
@@ -222,11 +231,12 @@ void ezLongOpManager::FinishOperation(ezUuid operationGuid)
 
   for (ezUInt32 i = 0; i < m_Operations.GetCount(); ++i)
   {
-    auto& opInfo = m_Operations[i];
+    auto& opInfo = *m_Operations[i];
 
     if (opInfo.m_OperationGuid == operationGuid)
     {
-      opInfo.m_fCompletion = 1.0f;
+      opInfo.m_Progress.SetCompletion(1.0f);
+      opInfo.m_ProgressSubscription.Unsubscribe(); // we are done here
       opInfo.m_StartOrDuration = ezTime::Now() - opInfo.m_StartOrDuration;
 
       {
@@ -248,5 +258,14 @@ void ezLongOpManager::FinishOperation(ezUuid operationGuid)
       opInfo.m_pOperation = nullptr;
       return;
     }
+  }
+}
+
+void ezLongOpManager::ProgressBarEventHandler(const ezProgressEvent& e)
+{
+  if (e.m_Type == ezProgressEvent::Type::ProgressChanged)
+  {
+    auto pOp = static_cast<ezLongOp*>(e.m_pProgressbar->m_pUserData);
+    SetCompletion(pOp, e.m_pProgressbar->GetCompletion());
   }
 }
