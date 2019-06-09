@@ -17,7 +17,7 @@
 
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
     : ezGameApplication("ezEditorEngineProcess", nullptr)
-  , m_LongOperationManager(ezLongOpManager::ReplicationMode::AllOperations)
+  , m_LongOperationManager(ezLongOpManager::Mode::Processor)
 {
   m_LongOperationManager.Startup(&m_IPC);
 }

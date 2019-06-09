@@ -399,6 +399,15 @@ public:
   float m_fCompletion;
 };
 
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOpFinishMsg : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezLongOpFinishMsg, ezEditorEngineMsg);
+
+public:
+  ezUuid m_OperationGuid;
+  bool m_bSuccess;
+};
+
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineSyncObjectMsg : public ezEditorEngineDocumentMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineSyncObjectMsg, ezEditorEngineDocumentMsg);

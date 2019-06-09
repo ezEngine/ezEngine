@@ -31,6 +31,7 @@ ezQtLongOpsPanel ::ezQtLongOpsPanel()
     header.push_back("Operation");
     header.push_back("Progress");
     header.push_back("Duration");
+    header.push_back(""); // Cancel
 
     OperationsTable->setColumnCount(header.size());
     OperationsTable->setHorizontalHeaderLabels(header);
@@ -39,28 +40,15 @@ ezQtLongOpsPanel ::ezQtLongOpsPanel()
     OperationsTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::ResizeToContents);
     OperationsTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::Stretch);
     OperationsTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeMode::Fixed);
+    OperationsTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeMode::Fixed);
   }
 
   ezLongOpManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtLongOpsPanel::LongOpsEventHandler, this));
-
-  QSettings Settings;
-  Settings.beginGroup(QLatin1String("LongOpsPanel"));
-  {
-    // splitter->restoreState(Settings.value("Splitter", splitter->saveState()).toByteArray());
-  }
-  Settings.endGroup();
 }
 
 ezQtLongOpsPanel::~ezQtLongOpsPanel()
 {
   ezLongOpManager::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtLongOpsPanel::LongOpsEventHandler, this));
-
-  QSettings Settings;
-  Settings.beginGroup(QLatin1String("LongOpsPanel"));
-  {
-    // Settings.setValue("Splitter", splitter->saveState());
-  }
-  Settings.endGroup();
 }
 
 void ezQtLongOpsPanel::LongOpsEventHandler(const ezLongOpManagerEvent& e)
@@ -99,6 +87,12 @@ void ezQtLongOpsPanel::RebuildTable()
     OperationsTable->setCellWidget(rowIdx, 1, pProgress);
     OperationsTable->setItem(
       rowIdx, 2, new QTableWidgetItem(QString("%1 sec").arg((ezTime::Now() - opInfo.m_StartOrDuration).GetSeconds())));
+
+    QPushButton* pButton = new QPushButton("Cancel");
+    pButton->setProperty("opIdx", idx);
+
+    OperationsTable->setCellWidget(rowIdx, 3, pButton);
+    connect(pButton, &QPushButton::clicked, this, &ezQtLongOpsPanel::OnClickCancel);
 
     m_LongOpIdxToRow[idx] = rowIdx;
   }
@@ -148,4 +142,15 @@ void ezQtLongOpsPanel::HandleEventQueue()
   }
 
   m_EventQueue.Clear();
+}
+
+void ezQtLongOpsPanel::OnClickCancel(bool)
+{
+  auto* opMan = ezLongOpManager::GetSingleton();
+  EZ_LOCK(opMan->m_Mutex);
+
+  QPushButton* pButton = qobject_cast<QPushButton*>(sender());
+  const int opIdx = pButton->property("opIdx").toInt();
+
+  opMan->CancelOperation(opIdx);
 }

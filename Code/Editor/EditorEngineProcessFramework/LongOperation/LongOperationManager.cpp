@@ -8,10 +8,10 @@
 
 EZ_IMPLEMENT_SINGLETON(ezLongOpManager);
 
-ezLongOpManager::ezLongOpManager(ReplicationMode mode)
+ezLongOpManager::ezLongOpManager(Mode mode)
   : m_SingletonRegistrar(this)
 {
-  m_ReplicationMode = mode;
+  m_Mode = mode;
 }
 
 ezLongOpManager::~ezLongOpManager() = default;
@@ -64,7 +64,7 @@ void ezLongOpManager::AddLongOperation(ezUniquePtr<ezLongOp>&& pOperation, const
 
   ezLongOp* pNewOp = opInfo.m_pOperation.Borrow();
 
-  if (m_ReplicationMode == ReplicationMode::AllOperations || ezDynamicCast<ezLongOpProxy*>(pNewOp) != nullptr)
+  if (m_Mode == Mode::Processor || ezDynamicCast<ezLongOpProxy*>(pNewOp) != nullptr)
   {
     ezStringBuilder replType;
 
@@ -169,6 +169,22 @@ void ezLongOpManager::ProcessCommunicationChannelEventHandler(const ezProcessCom
       }
     }
   }
+  else if (auto pMsg = ezDynamicCast<const ezLongOpFinishMsg*>(e.m_pMessage))
+  {
+    if (pMsg->m_bSuccess == false)
+    {
+      for (ezUInt32 i = 0; i < m_Operations.GetCount(); ++i)
+      {
+        auto& opInfo = *m_Operations[i];
+
+        if (opInfo.m_OperationGuid == pMsg->m_OperationGuid)
+        {
+          opInfo.m_Progress.UserClickedCancel();
+          return;
+        }
+      }
+    }
+  }
 }
 
 void ezLongOpManager::LaunchWorkerOperation(LongOpInfo& opInfo)
@@ -209,7 +225,7 @@ void ezLongOpManager::SetCompletion(ezLongOp* pOperation, float fCompletion)
         m_Events.Broadcast(e);
       }
 
-      if (m_ReplicationMode == ReplicationMode::AllOperations)
+      if (m_Mode == Mode::Processor)
       {
         if (auto* pLocalOp = ezDynamicCast<ezLongOpWorker*>(pOperation))
         {
@@ -247,7 +263,7 @@ void ezLongOpManager::FinishOperation(ezUuid operationGuid)
         m_Events.Broadcast(e);
       }
 
-      if (m_ReplicationMode == ReplicationMode::AllOperations)
+      if (m_Mode == Mode::Processor)
       {
         ezLongOpProgressMsg msg;
         msg.m_OperationGuid = opInfo.m_OperationGuid;
@@ -269,4 +285,32 @@ void ezLongOpManager::ProgressBarEventHandler(const ezProgressEvent& e)
     auto pOp = static_cast<ezLongOp*>(e.m_pProgressbar->m_pUserData);
     SetCompletion(pOp, e.m_pProgressbar->GetCompletion());
   }
+  else if (e.m_Type == ezProgressEvent::Type::CancelClicked)
+  {
+    if (m_Mode == Mode::Controller)
+    {
+      if (auto* pProxyOp = ezDynamicCast<ezLongOpProxy*>(static_cast<ezLongOp*>(e.m_pProgressbar->m_pUserData)))
+      {
+        for (const auto& opInfo : m_Operations)
+        {
+          if (opInfo->m_pOperation.Borrow() == pProxyOp)
+          {
+            ezLongOpFinishMsg msg;
+            msg.m_OperationGuid = opInfo->m_OperationGuid;
+            msg.m_bSuccess = false;
+
+            m_pCommunicationChannel->SendMessage(&msg);
+            break;
+          }
+        }
+      }
+    }
+  }
+}
+
+void ezLongOpManager::CancelOperation(ezUInt32 uiOperationIndex)
+{
+  EZ_LOCK(m_Mutex);
+
+  m_Operations[uiOperationIndex]->m_Progress.UserClickedCancel();
 }

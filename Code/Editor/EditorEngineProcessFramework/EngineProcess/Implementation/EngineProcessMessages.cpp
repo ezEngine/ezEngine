@@ -155,6 +155,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpProgressMsg, 1, ezRTTIDefaultAllocator<e
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpFinishMsg, 1, ezRTTIDefaultAllocator<ezLongOpFinishMsg>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("OpGuid", m_OperationGuid),
+    EZ_MEMBER_PROPERTY("Success", m_bSuccess),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 ///////////////////////////////////// ezEditorEngineDocumentMsg /////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineDocumentMsg, 1, ezRTTINoAllocator)

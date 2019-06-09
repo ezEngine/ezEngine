@@ -35,18 +35,19 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOpManager final
 
 public:
   /// Which operations to replicate to the other process.
-  enum class ReplicationMode
+  enum class Mode
   {
-    AllOperations, ///< If a local or remote operation is added, a remote or local one is replicated to the other side. Used on the 'engine
+    Processor, ///< If a worker or proxy operation is added, a proxy or worker one is replicated to the other side. Used on the 'engine
                    ///< process' side.
-    OnlyRemoteOperations ///< If a remote operation is added, a local operation is replicated to the other side, but if a local operation is
-                         ///< added, no remote one is replicated to the other side. Used on the 'editor process' side.
+    Controller ///< If a proxy operation is added, a worker operation is replicated to the other side, but if a worker operation is
+                        ///< added, no proxy one is replicated to the other side. Used on the 'editor process' side.
   };
 
-  ezLongOpManager(ReplicationMode mode);
+  ezLongOpManager(Mode mode);
   ~ezLongOpManager();
 
   void AddLongOperation(ezUniquePtr<ezLongOp>&& pOperation, const ezUuid& documentGuid);
+  void CancelOperation(ezUInt32 uiOperationIndex);
 
   void Startup(ezProcessCommunicationChannel* pCommunicationChannel);
   void Shutdown();
@@ -81,7 +82,7 @@ private:
 
 
   ezProcessCommunicationChannel* m_pCommunicationChannel = nullptr;
-  ReplicationMode m_ReplicationMode;
+  Mode m_Mode;
   ezEvent<const ezProcessCommunicationChannel::Event&>::Unsubscriber m_Unsubscriber;
 
   ezDynamicArray<ezUniquePtr<LongOpInfo>> m_Operations;
