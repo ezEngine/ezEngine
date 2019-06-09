@@ -125,7 +125,8 @@ public:
   ///
   /// \param szStepDisplayText The sub-text for the next step to be displayed.
   /// \param uiNumSteps How many steps have been completed.
-  void BeginNextStep(const char* szStepDisplayText, ezUInt32 uiNumSteps = 1);
+  /// \return Returns false if the user clicked cancel.
+  bool BeginNextStep(const char* szStepDisplayText, ezUInt32 uiNumSteps = 1);
 
   /// \brief Whether the user requested to cancel the operation.
   bool WasCanceled() const;

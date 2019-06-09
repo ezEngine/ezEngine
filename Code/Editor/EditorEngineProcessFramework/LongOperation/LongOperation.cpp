@@ -65,7 +65,7 @@ void ezLongOpProxyReplicant::InitializeReplicated(ezStreamReader& description)
 
 #include <Foundation/Time/Stopwatch.h>
 
-void ezLongOpWorker_Dummy::Execute(ezProgress& progress)
+ezResult ezLongOpWorker_Dummy::Execute(ezProgress& progress)
 {
   ezStopwatch sw;
 
@@ -83,6 +83,8 @@ void ezLongOpWorker_Dummy::Execute(ezProgress& progress)
     // usually one would use ezProgressRange instead
     progress.SetCompletion(fCompletion);
   }
+
+  return EZ_SUCCESS;
 }
 
 void ezLongOpWorker_Dummy::InitializeReplicated(ezStreamReader& description)

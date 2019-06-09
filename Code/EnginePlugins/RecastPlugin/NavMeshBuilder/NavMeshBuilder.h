@@ -1,9 +1,9 @@
 #pragma once
 
-#include <RecastPlugin/RecastPluginDLL.h>
-#include <Foundation/Types/UniquePtr.h>
-#include <Foundation/Reflection/Reflection.h>
 #include <Core/Utils/WorldGeoExtractionUtil.h>
+#include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Types/UniquePtr.h>
+#include <RecastPlugin/RecastPluginDLL.h>
 
 class ezRcBuildContext;
 struct rcPolyMesh;
@@ -11,6 +11,7 @@ struct rcPolyMeshDetail;
 class ezWorld;
 class dtNavMesh;
 struct ezRecastNavMeshResourceDescriptor;
+class ezProgress;
 
 struct ezRecastConfig
 {
@@ -38,8 +39,10 @@ public:
   ezRecastNavMeshBuilder();
   ~ezRecastNavMeshBuilder();
 
-  ezResult Build(const ezRecastConfig& config, const ezWorld& world, ezRecastNavMeshResourceDescriptor& out_NavMeshDesc);
-  ezResult Build(const ezRecastConfig& config, const ezWorldGeoExtractionUtil::Geometry& desc, ezRecastNavMeshResourceDescriptor& out_NavMeshDesc);
+  static ezResult ExtractWorldGeometry(const ezWorld& world, ezWorldGeoExtractionUtil::Geometry& out_worldGeo);
+
+  ezResult Build(const ezRecastConfig& config, const ezWorldGeoExtractionUtil::Geometry& worldGeo,
+    ezRecastNavMeshResourceDescriptor& out_NavMeshDesc, ezProgress& progress);
 
 private:
   static void FillOutConfig(struct rcConfig& cfg, const ezRecastConfig& config, const ezBoundingBox& bbox);
@@ -48,7 +51,7 @@ private:
   void ReserveMemory(const ezWorldGeoExtractionUtil::Geometry& desc);
   void GenerateTriangleMeshFromDescription(const ezWorldGeoExtractionUtil::Geometry& desc);
   void ComputeBoundingBox();
-  ezResult BuildRecastPolyMesh(const ezRecastConfig& config, rcPolyMesh& out_PolyMesh);
+  ezResult BuildRecastPolyMesh(const ezRecastConfig& config, rcPolyMesh& out_PolyMesh, ezProgress& progress);
   static ezResult BuildDetourNavMeshData(const ezRecastConfig& config, const rcPolyMesh& polyMesh, ezDataBuffer& NavmeshData);
 
   struct Triangle
@@ -70,4 +73,3 @@ private:
   ezDynamicArray<ezUInt8> m_TriangleAreaIDs;
   ezRcBuildContext* m_pRecastContext = nullptr;
 };
-

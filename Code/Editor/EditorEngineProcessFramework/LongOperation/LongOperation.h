@@ -34,7 +34,7 @@ public:
   virtual void GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& description) override;
 
   virtual ezResult InitializeExecution(const ezUuid& DocumentGuid) { return EZ_SUCCESS; }
-  virtual void Execute(ezProgress& progress) = 0;
+  virtual ezResult Execute(ezProgress& progress) = 0;
 
 private:
   friend ezLongOpManager;
@@ -97,7 +97,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOpWorker_Dummy : public ezLongOp
 
 public:
   virtual const char* GetDisplayName() const override { return "Dummy (Local)"; }
-  virtual void Execute(ezProgress& progress) override;
+  virtual ezResult Execute(ezProgress& progress) override;
   virtual void InitializeReplicated(ezStreamReader& description) override;
 
   ezTime m_Duration;

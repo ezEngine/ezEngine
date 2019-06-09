@@ -211,7 +211,7 @@ double ezProgressRange::ComputeInternalCompletion() const
   return internalBase /= m_SummedWeight;
 }
 
-void ezProgressRange::BeginNextStep(const char* szStepDisplayText, ezUInt32 uiNumSteps)
+bool ezProgressRange::BeginNextStep(const char* szStepDisplayText, ezUInt32 uiNumSteps)
 {
   m_sStepDisplayText = szStepDisplayText;
 
@@ -226,6 +226,8 @@ void ezProgressRange::BeginNextStep(const char* szStepDisplayText, ezUInt32 uiNu
   const double finalCompletion = m_PercentageBase + internalCompletion * m_PercentageRange;
 
   m_pProgressbar->SetCompletion((float)finalCompletion);
+
+  return !m_pProgressbar->WasCanceled();
 }
 
 bool ezProgressRange::WasCanceled() const

@@ -4,6 +4,7 @@
 #include <Core/World/World.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Types/ScopeExit.h>
+#include <Foundation/Utilities/Progress.h>
 #include <Recast/DetourNavMesh.h>
 #include <Recast/DetourNavMeshBuilder.h>
 #include <Recast/Recast.h>
@@ -72,34 +73,32 @@ void ezRecastNavMeshBuilder::Clear()
   m_pRecastContext = nullptr;
 }
 
-ezResult ezRecastNavMeshBuilder::Build(
-  const ezRecastConfig& config, const ezWorld& world, ezRecastNavMeshResourceDescriptor& out_NavMeshDesc)
+ezResult ezRecastNavMeshBuilder::ExtractWorldGeometry(const ezWorld& world, ezWorldGeoExtractionUtil::Geometry& out_worldGeo)
 {
-  EZ_LOG_BLOCK("ezRecastNavMeshBuilder::Build (world)");
+  ezWorldGeoExtractionUtil::ExtractWorldGeometry(out_worldGeo, world, ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration);
 
-  ezStopwatch sw;
-
-  ezWorldGeoExtractionUtil::Geometry geo;
-  ezWorldGeoExtractionUtil::ExtractWorldGeometry(geo, world, ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration);
-
-  ezLog::Debug("Gathering NavMesh description: {0}ms", ezArgF(sw.Checkpoint().GetMilliseconds(), 2));
-  ezLog::Debug("NavMesh Box Obstacles: {0}", geo.m_BoxShapes.GetCount());
-
-  return Build(config, geo, out_NavMeshDesc);
+  return EZ_SUCCESS;
 }
 
-ezResult ezRecastNavMeshBuilder::Build(
-  const ezRecastConfig& config, const ezWorldGeoExtractionUtil::Geometry& geo, ezRecastNavMeshResourceDescriptor& out_NavMeshDesc)
+ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezWorldGeoExtractionUtil::Geometry& geo,
+  ezRecastNavMeshResourceDescriptor& out_NavMeshDesc, ezProgress& progress)
 {
-  EZ_LOG_BLOCK("ezRecastNavMeshBuilder::Build (desc)");
+  EZ_LOG_BLOCK("ezRecastNavMeshBuilder::Build");
 
-  ezStopwatch watch;
+  ezProgressRange pg("Generating NavMesh", 4, true, &progress);
+  pg.SetStepWeighting(0, 0.1f);
+  pg.SetStepWeighting(1, 0.1f);
+  pg.SetStepWeighting(2, 0.6f);
+  pg.SetStepWeighting(3, 0.2f);
 
   Clear();
   out_NavMeshDesc.Clear();
 
   ezUniquePtr<ezRcBuildContext> recastContext = EZ_DEFAULT_NEW(ezRcBuildContext);
   m_pRecastContext = recastContext.Borrow();
+
+  if (!pg.BeginNextStep("Triangulate Mesh"))
+    return EZ_FAILURE;
 
   GenerateTriangleMeshFromDescription(geo);
 
@@ -109,19 +108,24 @@ ezResult ezRecastNavMeshBuilder::Build(
     return EZ_SUCCESS;
   }
 
+  if (!pg.BeginNextStep("Compute AABB"))
+    return EZ_FAILURE;
+
   ComputeBoundingBox();
 
-  ezLog::Debug("Generate Triangle Mesh: {0}ms", ezArgF(watch.Checkpoint().GetMilliseconds()));
+  if (!pg.BeginNextStep("Build Poly Mesh"))
+    return EZ_FAILURE;
 
   out_NavMeshDesc.m_pNavMeshPolygons = EZ_DEFAULT_NEW(rcPolyMesh);
 
-  if (BuildRecastPolyMesh(config, *out_NavMeshDesc.m_pNavMeshPolygons).Failed())
+  if (BuildRecastPolyMesh(config, *out_NavMeshDesc.m_pNavMeshPolygons, progress).Failed())
+    return EZ_FAILURE;
+
+  if (!pg.BeginNextStep("Build NavMesh"))
     return EZ_FAILURE;
 
   if (BuildDetourNavMeshData(config, *out_NavMeshDesc.m_pNavMeshPolygons, out_NavMeshDesc.m_DetourNavmeshData).Failed())
     return EZ_FAILURE;
-
-  ezLog::Debug("Build Recast Navmesh: {0}ms", ezArgF(watch.Checkpoint().GetMilliseconds()));
 
   return EZ_SUCCESS;
 }
@@ -257,8 +261,10 @@ void ezRecastNavMeshBuilder::FillOutConfig(rcConfig& cfg, const ezRecastConfig& 
   rcCalcGridSize(cfg.bmin, cfg.bmax, cfg.cs, &cfg.width, &cfg.height);
 }
 
-ezResult ezRecastNavMeshBuilder::BuildRecastPolyMesh(const ezRecastConfig& config, rcPolyMesh& out_PolyMesh)
+ezResult ezRecastNavMeshBuilder::BuildRecastPolyMesh(const ezRecastConfig& config, rcPolyMesh& out_PolyMesh, ezProgress& progress)
 {
+  ezProgressRange pgRange("Build Poly Mesh", 13, true, &progress);
+
   rcConfig cfg;
   FillOutConfig(cfg, config, m_BoundingBox);
 
@@ -269,15 +275,24 @@ ezResult ezRecastNavMeshBuilder::BuildRecastPolyMesh(const ezRecastConfig& confi
   rcHeightfield* heightfield = rcAllocHeightfield();
   EZ_SCOPE_EXIT(rcFreeHeightField(heightfield));
 
+  if (!pgRange.BeginNextStep("Creating Heightfield"))
+    return EZ_FAILURE;
+
   if (!rcCreateHeightfield(pContext, *heightfield, cfg.width, cfg.height, cfg.bmin, cfg.bmax, cfg.cs, cfg.ch))
   {
     pContext->log(RC_LOG_ERROR, "Could not create solid heightfield");
     return EZ_FAILURE;
   }
 
+  if (!pgRange.BeginNextStep("Mark Walkable Area"))
+    return EZ_FAILURE;
+
   // TODO Instead of this, it should use area IDs and then clear the non-walkable triangles
   rcMarkWalkableTriangles(
     pContext, cfg.walkableSlopeAngle, pVertices, m_Vertices.GetCount(), pTriangles, m_Triangles.GetCount(), m_TriangleAreaIDs.GetData());
+
+  if (!pgRange.BeginNextStep("Rasterize Triangles"))
+    return EZ_FAILURE;
 
   if (!rcRasterizeTriangles(pContext, pVertices, m_Vertices.GetCount(), pTriangles, m_TriangleAreaIDs.GetData(), m_Triangles.GetCount(),
         *heightfield, cfg.walkableClimb))
@@ -288,15 +303,27 @@ ezResult ezRecastNavMeshBuilder::BuildRecastPolyMesh(const ezRecastConfig& confi
 
   // Optional stuff
   {
+    if (!pgRange.BeginNextStep("Filter Low Hanging Obstacles"))
+      return EZ_FAILURE;
+
     // if (m_filterLowHangingObstacles)
     rcFilterLowHangingWalkableObstacles(pContext, cfg.walkableClimb, *heightfield);
+
+    if (!pgRange.BeginNextStep("Filter Ledge Spans"))
+      return EZ_FAILURE;
 
     // if (m_filterLedgeSpans)
     rcFilterLedgeSpans(pContext, cfg.walkableHeight, cfg.walkableClimb, *heightfield);
 
+    if (!pgRange.BeginNextStep("Filter Low Height Spans"))
+      return EZ_FAILURE;
+
     // if (m_filterWalkableLowHeightSpans)
     rcFilterWalkableLowHeightSpans(pContext, cfg.walkableHeight, *heightfield);
   }
+
+  if (!pgRange.BeginNextStep("Build Compact Heightfield"))
+    return EZ_FAILURE;
 
   rcCompactHeightfield* compactHeightfield = rcAllocCompactHeightfield();
   EZ_SCOPE_EXIT(rcFreeCompactHeightfield(compactHeightfield));
@@ -306,6 +333,9 @@ ezResult ezRecastNavMeshBuilder::BuildRecastPolyMesh(const ezRecastConfig& confi
     pContext->log(RC_LOG_ERROR, "Could not build compact data");
     return EZ_FAILURE;
   }
+
+  if (!pgRange.BeginNextStep("Erode Walkable Area"))
+    return EZ_FAILURE;
 
   if (!rcErodeWalkableArea(pContext, cfg.walkableRadius, *compactHeightfield))
   {
@@ -327,12 +357,18 @@ ezResult ezRecastNavMeshBuilder::BuildRecastPolyMesh(const ezRecastConfig& confi
   {
     // PARTITION_WATERSHED
     {
+      if (!pgRange.BeginNextStep("Build Distance Field"))
+        return EZ_FAILURE;
+
       // Prepare for region partitioning, by calculating distance field along the walkable surface.
       if (!rcBuildDistanceField(pContext, *compactHeightfield))
       {
         pContext->log(RC_LOG_ERROR, "Could not build distance field.");
         return EZ_FAILURE;
       }
+
+      if (!pgRange.BeginNextStep("Build Regions"))
+        return EZ_FAILURE;
 
       // Partition the walkable surface into simple regions without holes.
       if (!rcBuildRegions(pContext, *compactHeightfield, 0, cfg.minRegionArea, cfg.mergeRegionArea))
@@ -364,6 +400,9 @@ ezResult ezRecastNavMeshBuilder::BuildRecastPolyMesh(const ezRecastConfig& confi
     //}
   }
 
+  if (!pgRange.BeginNextStep("Build Contours"))
+    return EZ_FAILURE;
+
   rcContourSet* contourSet = rcAllocContourSet();
   EZ_SCOPE_EXIT(rcFreeContourSet(contourSet));
 
@@ -373,6 +412,9 @@ ezResult ezRecastNavMeshBuilder::BuildRecastPolyMesh(const ezRecastConfig& confi
     return EZ_FAILURE;
   }
 
+  if (!pgRange.BeginNextStep("Build Poly Mesh"))
+    return EZ_FAILURE;
+
   if (!rcBuildPolyMesh(pContext, *contourSet, cfg.maxVertsPerPoly, out_PolyMesh))
   {
     pContext->log(RC_LOG_ERROR, "Could not triangulate contours");
@@ -381,6 +423,9 @@ ezResult ezRecastNavMeshBuilder::BuildRecastPolyMesh(const ezRecastConfig& confi
 
   //////////////////////////////////////////////////////////////////////////
   // Detour Navmesh
+
+  if (!pgRange.BeginNextStep("Set Area Flags"))
+    return EZ_FAILURE;
 
   // TODO modify area IDs and flags
 

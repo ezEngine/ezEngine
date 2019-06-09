@@ -39,8 +39,9 @@ public:
     if (HasBeenCanceled())
       return;
 
-    m_pLocalOp->Execute(*m_pProgress);
+    ezResult res = m_pLocalOp->Execute(*m_pProgress);
 
+    // TODO: pass along result
     ezLongOpManager::GetSingleton()->FinishOperation(m_OperationGuid);
   }
 };

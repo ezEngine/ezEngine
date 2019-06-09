@@ -87,7 +87,7 @@ void ezRcNavMeshComponent::Update()
   ezRecastNavMeshBuilder NavMeshBuilder;
   ezRecastNavMeshResourceDescriptor NavMeshDescriptor;
 
-  if (NavMeshBuilder.Build(m_NavMeshConfig, *GetWorld(), NavMeshDescriptor).Failed())
+  //if (NavMeshBuilder.Build(m_NavMeshConfig, *GetWorld(), NavMeshDescriptor).Failed())
     return;
 
   // empty navmesh

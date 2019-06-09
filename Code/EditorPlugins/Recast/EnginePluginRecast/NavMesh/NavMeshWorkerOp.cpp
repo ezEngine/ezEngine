@@ -5,8 +5,8 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <ToolsFoundation/Document/DocumentManager.h>
 #include <Foundation/Utilities/Progress.h>
+#include <ToolsFoundation/Document/DocumentManager.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpWorker_BuildNavMesh, 1, ezRTTIDefaultAllocator<ezLongOpWorker_BuildNavMesh>);
@@ -22,14 +22,30 @@ ezResult ezLongOpWorker_BuildNavMesh::InitializeExecution(const ezUuid& Document
 
   pDocContext->GetWorld();
 
-  ezRecastConfig config;
-
   EZ_LOCK(pDocContext->GetWorld()->GetWriteMarker());
 
+  ezRecastNavMeshBuilder::ExtractWorldGeometry(*pDocContext->GetWorld(), m_ExtractedWorldGeometry);
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezLongOpWorker_BuildNavMesh::Execute(ezProgress& progress)
+{
+  ezProgressRange pgRange("Generating NavMesh", 2, true, &progress);
+  pgRange.SetStepWeighting(0, 0.95f);
+  pgRange.SetStepWeighting(1, 0.05f);
+
+  ezRecastConfig config;
+  ezRecastNavMeshBuilder NavMeshBuilder;
   ezRecastNavMeshResourceDescriptor desc;
 
-  ezRecastNavMeshBuilder NavMeshBuilder;
-  EZ_SUCCEED_OR_RETURN(NavMeshBuilder.Build(config, *pDocContext->GetWorld(), desc));
+  if (!pgRange.BeginNextStep("Building NavMesh"))
+    return EZ_FAILURE;
+
+  EZ_SUCCEED_OR_RETURN(NavMeshBuilder.Build(config, m_ExtractedWorldGeometry, desc, progress));
+
+  if (!pgRange.BeginNextStep("Writing Result"))
+    return EZ_FAILURE;
 
   ezFileWriter file;
   EZ_SUCCEED_OR_RETURN(file.Open(m_sOutputPath));
@@ -42,17 +58,6 @@ ezResult ezLongOpWorker_BuildNavMesh::InitializeExecution(const ezUuid& Document
   EZ_SUCCEED_OR_RETURN(desc.Serialize(file));
 
   return EZ_SUCCESS;
-}
-
-void ezLongOpWorker_BuildNavMesh::Execute(ezProgress& progress)
-{
-  ezProgressRange pgRange("Generating NavMesh", 100, true, &progress);
-
-  for (ezUInt32 i = 0; i < 100; ++i)
-  {
-    pgRange.BeginNextStep("Step");
-    ezThreadUtils::Sleep(ezTime::Milliseconds(50));
-  }
 }
 
 void ezLongOpWorker_BuildNavMesh::InitializeReplicated(ezStreamReader& description)
