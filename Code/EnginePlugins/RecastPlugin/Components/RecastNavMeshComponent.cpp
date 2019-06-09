@@ -36,6 +36,11 @@ ezRcComponent::~ezRcComponent() {}
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezRcNavMeshComponent, 1, ezComponentMode::Static)
 {
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezLongOpAttribute("ezLongOpProxy_BuildNavMesh"),
+  }
+  EZ_END_ATTRIBUTES;
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("ShowNavMesh", m_bShowNavMesh),
@@ -87,8 +92,8 @@ void ezRcNavMeshComponent::Update()
   ezRecastNavMeshBuilder NavMeshBuilder;
   ezRecastNavMeshResourceDescriptor NavMeshDescriptor;
 
-  //if (NavMeshBuilder.Build(m_NavMeshConfig, *GetWorld(), NavMeshDescriptor).Failed())
-    return;
+  // if (NavMeshBuilder.Build(m_NavMeshConfig, *GetWorld(), NavMeshDescriptor).Failed())
+  return;
 
   // empty navmesh
   if (NavMeshDescriptor.m_pNavMeshPolygons == nullptr)
@@ -140,8 +145,7 @@ void ezRcNavMeshComponent::VisualizeNavMesh()
   const float fCellSize = pMesh->cs;
   const float fCellHeight = pMesh->ch;
   // add a little height offset to move the visualization up a little
-  const ezVec3 vMeshOrigin(
-    pMesh->bmin[0], pMesh->bmin[2], pMesh->bmin[1] + fCellHeight * 0.3f);
+  const ezVec3 vMeshOrigin(pMesh->bmin[0], pMesh->bmin[2], pMesh->bmin[1] + fCellHeight * 0.3f);
 
   for (ezInt32 i = 0; i < pMesh->npolys; ++i)
   {

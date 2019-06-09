@@ -21,12 +21,13 @@ struct ezLongOpManagerEvent
   enum class Type
   {
     OpAdded,
+    OpRemoved,
     OpFinished,
     OpProgress,
   };
 
   Type m_Type;
-  ezUInt32 m_uiOperationIndex;
+  ezUuid m_OperationGuid;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOpManager final
@@ -46,8 +47,13 @@ public:
   ezLongOpManager(Mode mode);
   ~ezLongOpManager();
 
-  void AddLongOperation(ezUniquePtr<ezLongOp>&& pOperation, const ezUuid& documentGuid);
-  void CancelOperation(ezUInt32 uiOperationIndex);
+  //void AddLongOperation(ezUniquePtr<ezLongOp>&& pOperation, const ezUuid& documentGuid);
+  void CancelOperation(ezUuid opGuid);
+
+  void DocumentClosed(const ezUuid& documentGuid);
+
+  void RegisterLongOp(const ezUuid& documentGuid, const ezUuid& componentGuid, const char* szLongOpType);
+  void UnregisterLongOp(const ezUuid& documentGuid, const ezUuid& componentGuid, const char* szLongOpType);
 
   void Startup(ezProcessCommunicationChannel* pCommunicationChannel);
   void Shutdown();
@@ -58,9 +64,11 @@ public:
     ezTaskGroupID m_TaskID;
     ezUuid m_OperationGuid;
     ezUuid m_DocumentGuid;
+    ezUuid m_ComponentGuid;
     ezTime m_StartOrDuration;
     ezProgress m_Progress;
     ezEvent<const ezProgressEvent&>::Unsubscriber m_ProgressSubscription;
+    ezString m_sLongOpType;
   };
 
   mutable ezMutex m_Mutex;
@@ -68,6 +76,7 @@ public:
   ezEvent<const ezLongOpManagerEvent&> m_Events;
 
   const ezDynamicArray<ezUniquePtr<LongOpInfo>>& GetOperations() const { return m_Operations; }
+  LongOpInfo* GetOperation(const ezUuid& guid) const;
 
 private:
   friend class ezLongOpTask;

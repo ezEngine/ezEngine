@@ -266,17 +266,7 @@ void ezSelectionAction::Execute(const ezVariant& value)
       return;
     }
     case ActionType::HideSelectedObjects:
-      // m_pSceneDocument->ShowOrHideSelectedObjects(ezSceneDocument::ShowOrHide::Hide);
-      {
-        auto op = EZ_DEFAULT_NEW(ezLongOpProxy_Dummy);
-        op->m_Duration = ezTime::Seconds(2.0);
-        ezLongOpManager::GetSingleton()->AddLongOperation(std::move(op), GetContext().m_pDocument->GetGuid());
-      }
-      {
-        auto op = EZ_DEFAULT_NEW(ezLongOpWorker_Dummy);
-        op->m_Duration = ezTime::Seconds(3.0);
-        ezLongOpManager::GetSingleton()->AddLongOperation(std::move(op), GetContext().m_pDocument->GetGuid());
-      }
+      m_pSceneDocument->ShowOrHideSelectedObjects(ezSceneDocument::ShowOrHide::Hide);
       break;
     case ActionType::HideUnselectedObjects:
       m_pSceneDocument->HideUnselectedObjects();

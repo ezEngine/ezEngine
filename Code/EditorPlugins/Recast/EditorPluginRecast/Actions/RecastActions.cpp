@@ -30,7 +30,7 @@ void ezRecastAction::Execute(const ezVariant& value)
   sOutputFile.Append("_data/Scene.ezRecastNavMesh");
   pLongOp->m_sOutputPath = sOutputFile;
 
-  ezLongOpManager::GetSingleton()->AddLongOperation(std::move(pLongOp), GetContext().m_pDocument->GetGuid());
+  //ezLongOpManager::GetSingleton()->AddLongOperation(std::move(pLongOp), GetContext().m_pDocument->GetGuid());
 }
 
 //////////////////////////////////////////////////////////////////////////

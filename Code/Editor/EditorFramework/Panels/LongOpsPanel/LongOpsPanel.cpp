@@ -44,6 +44,8 @@ ezQtLongOpsPanel ::ezQtLongOpsPanel()
   }
 
   ezLongOpManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtLongOpsPanel::LongOpsEventHandler, this));
+
+  RebuildTable();
 }
 
 ezQtLongOpsPanel::~ezQtLongOpsPanel()
@@ -64,7 +66,7 @@ void ezQtLongOpsPanel::RebuildTable()
   ezQtScopedBlockSignals _1(OperationsTable);
 
   OperationsTable->setRowCount(0);
-  m_LongOpIdxToRow.Clear();
+  m_LongOpGuidToRow.Clear();
 
   auto* opMan = ezLongOpManager::GetSingleton();
   EZ_LOCK(opMan->m_Mutex);
@@ -89,12 +91,12 @@ void ezQtLongOpsPanel::RebuildTable()
       rowIdx, 2, new QTableWidgetItem(QString("%1 sec").arg((ezTime::Now() - opInfo.m_StartOrDuration).GetSeconds())));
 
     QPushButton* pButton = new QPushButton("Cancel");
-    pButton->setProperty("opIdx", idx);
+    pButton->setProperty("opGuid", QVariant::fromValue(opInfo.m_OperationGuid));
 
     OperationsTable->setCellWidget(rowIdx, 3, pButton);
     connect(pButton, &QPushButton::clicked, this, &ezQtLongOpsPanel::OnClickCancel);
 
-    m_LongOpIdxToRow[idx] = rowIdx;
+    m_LongOpGuidToRow[opInfo.m_OperationGuid] = rowIdx;
   }
 }
 
@@ -108,9 +110,7 @@ void ezQtLongOpsPanel::HandleEventQueue()
 
   for (const auto& e : m_EventQueue)
   {
-    const auto& opInfo = *opMan->GetOperations()[e.m_uiOperationIndex];
-
-    if (e.m_Type == ezLongOpManagerEvent::Type::OpAdded || e.m_Type == ezLongOpManagerEvent::Type::OpFinished)
+    if (e.m_Type == ezLongOpManagerEvent::Type::OpAdded || e.m_Type == ezLongOpManagerEvent::Type::OpRemoved)
     {
       // if anything was added or removed, recreate the entire table, then break
       RebuildTable();
@@ -118,19 +118,24 @@ void ezQtLongOpsPanel::HandleEventQueue()
     }
     else if (e.m_Type == ezLongOpManagerEvent::Type::OpProgress)
     {
+      const auto* pOpInfo = opMan->GetOperation(e.m_OperationGuid);
+
+      if (pOpInfo == nullptr)
+        continue;
+
       ezUInt32 rowIdx;
-      if (m_LongOpIdxToRow.TryGetValue(e.m_uiOperationIndex, rowIdx))
+      if (m_LongOpGuidToRow.TryGetValue(e.m_OperationGuid, rowIdx))
       {
         QProgressBar* pProgress = qobject_cast<QProgressBar*>(OperationsTable->cellWidget(rowIdx, 1));
-        pProgress->setValue((int)(opInfo.m_Progress.GetCompletion() * 100.0f));
+        pProgress->setValue((int)(pOpInfo->m_Progress.GetCompletion() * 100.0f));
 
         OperationsTable->setItem(
-          rowIdx, 2, new QTableWidgetItem(QString("%1 sec").arg((ezTime::Now() - opInfo.m_StartOrDuration).GetSeconds())));
+          rowIdx, 2, new QTableWidgetItem(QString("%1 sec").arg((ezTime::Now() - pOpInfo->m_StartOrDuration).GetSeconds())));
       }
     }
   }
 
-  if (m_LongOpIdxToRow.IsEmpty())
+  if (m_LongOpGuidToRow.IsEmpty())
   {
     // reduce timer frequency when nothing is happening
     m_HandleQueueTimer.setInterval(500);
@@ -150,7 +155,7 @@ void ezQtLongOpsPanel::OnClickCancel(bool)
   EZ_LOCK(opMan->m_Mutex);
 
   QPushButton* pButton = qobject_cast<QPushButton*>(sender());
-  const int opIdx = pButton->property("opIdx").toInt();
+  const ezUuid opGuid = pButton->property("opGuid").value<ezUuid>();
 
-  opMan->CancelOperation(opIdx);
+  opMan->CancelOperation(opGuid);
 }

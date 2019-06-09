@@ -719,3 +719,16 @@ class EZ_FOUNDATION_DLL ezAutoGenVisScriptMsgHandler : public ezPropertyAttribut
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAutoGenVisScriptMsgHandler, ezPropertyAttribute);
 };
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_FOUNDATION_DLL ezLongOpAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezLongOpAttribute, ezPropertyAttribute);
+
+public:
+  ezLongOpAttribute() = default;
+  ezLongOpAttribute(const char* szOpTypeName) { m_sOpTypeName = szOpTypeName; }
+
+  ezUntrackedString m_sOpTypeName;
+};

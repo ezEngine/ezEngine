@@ -27,7 +27,7 @@ private:
 
   QTimer m_HandleQueueTimer;
   ezDynamicArray<ezLongOpManagerEvent> m_EventQueue;
-  ezHashTable<ezUInt32, ezUInt32> m_LongOpIdxToRow;
+  ezHashTable<ezUuid, ezUInt32> m_LongOpGuidToRow;
 
 private Q_SLOTS:
   void HandleEventQueue();
