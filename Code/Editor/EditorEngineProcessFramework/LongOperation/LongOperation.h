@@ -21,6 +21,7 @@ public:
   virtual const char* GetDisplayName() const = 0;
   virtual void GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& description) = 0;
   virtual void InitializeReplicated(ezStreamReader& description) = 0;
+  virtual void InitializeRegistered(const ezUuid& documentGuid, const ezUuid& componentGuid) {}
 };
 
 //////////////////////////////////////////////////////////////////////////

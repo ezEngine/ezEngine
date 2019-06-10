@@ -22,7 +22,6 @@ struct ezLongOpManagerEvent
   {
     OpAdded,
     OpRemoved,
-    OpFinished,
     OpProgress,
   };
 
@@ -48,6 +47,7 @@ public:
   ~ezLongOpManager();
 
   //void AddLongOperation(ezUniquePtr<ezLongOp>&& pOperation, const ezUuid& documentGuid);
+  void StartOperation(ezUuid opGuid);
   void CancelOperation(ezUuid opGuid);
 
   void DocumentClosed(const ezUuid& documentGuid);
@@ -57,6 +57,7 @@ public:
 
   void Startup(ezProcessCommunicationChannel* pCommunicationChannel);
   void Shutdown();
+
 
   struct LongOpInfo
   {
@@ -68,7 +69,7 @@ public:
     ezTime m_StartOrDuration;
     ezProgress m_Progress;
     ezEvent<const ezProgressEvent&>::Unsubscriber m_ProgressSubscription;
-    ezString m_sLongOpType;
+    bool m_bIsRunning = false;
   };
 
   mutable ezMutex m_Mutex;
@@ -82,13 +83,16 @@ private:
   friend class ezLongOpTask;
   friend class ezLongOpWorker;
 
-  void SetCompletion(ezLongOp* pOperation, float fCompletion);
-  void FinishOperation(ezUuid operationGuid);
-  void ProgressBarEventHandler(const ezProgressEvent& e);
+  void RemoveOperation(ezUuid opGuid);
+
+  void WorkerOperationFinished(ezUuid operationGuid, ezResult result);
+  void WorkerProgressBarEventHandler(const ezProgressEvent& e);
 
   void ProcessCommunicationChannelEventHandler(const ezProcessCommunicationChannel::Event& e);
   void LaunchWorkerOperation(LongOpInfo& opInfo);
 
+  void ReplicateToOtherProcess(LongOpInfo& opInfo);
+  void BroadcastProgress(LongOpInfo& opInfo);
 
   ezProcessCommunicationChannel* m_pCommunicationChannel = nullptr;
   Mode m_Mode;

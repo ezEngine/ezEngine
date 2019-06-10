@@ -31,5 +31,5 @@ private:
 
 private Q_SLOTS:
   void HandleEventQueue();
-  void OnClickCancel(bool);
+  void OnClickButton(bool);
 };

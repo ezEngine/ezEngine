@@ -90,11 +90,11 @@ void ezQtLongOpsPanel::RebuildTable()
     OperationsTable->setItem(
       rowIdx, 2, new QTableWidgetItem(QString("%1 sec").arg((ezTime::Now() - opInfo.m_StartOrDuration).GetSeconds())));
 
-    QPushButton* pButton = new QPushButton("Cancel");
+    QPushButton* pButton = new QPushButton(opInfo.m_bIsRunning ? "Cancel" : "Start");
     pButton->setProperty("opGuid", QVariant::fromValue(opInfo.m_OperationGuid));
 
     OperationsTable->setCellWidget(rowIdx, 3, pButton);
-    connect(pButton, &QPushButton::clicked, this, &ezQtLongOpsPanel::OnClickCancel);
+    connect(pButton, &QPushButton::clicked, this, &ezQtLongOpsPanel::OnClickButton);
 
     m_LongOpGuidToRow[opInfo.m_OperationGuid] = rowIdx;
   }
@@ -129,6 +129,9 @@ void ezQtLongOpsPanel::HandleEventQueue()
         QProgressBar* pProgress = qobject_cast<QProgressBar*>(OperationsTable->cellWidget(rowIdx, 1));
         pProgress->setValue((int)(pOpInfo->m_Progress.GetCompletion() * 100.0f));
 
+        QPushButton* pButton = qobject_cast<QPushButton*>(OperationsTable->cellWidget(rowIdx, 3));
+        pButton->setText(pOpInfo->m_bIsRunning ? "Cancel" : "Start");
+
         OperationsTable->setItem(
           rowIdx, 2, new QTableWidgetItem(QString("%1 sec").arg((ezTime::Now() - pOpInfo->m_StartOrDuration).GetSeconds())));
       }
@@ -149,7 +152,7 @@ void ezQtLongOpsPanel::HandleEventQueue()
   m_EventQueue.Clear();
 }
 
-void ezQtLongOpsPanel::OnClickCancel(bool)
+void ezQtLongOpsPanel::OnClickButton(bool)
 {
   auto* opMan = ezLongOpManager::GetSingleton();
   EZ_LOCK(opMan->m_Mutex);
@@ -157,5 +160,8 @@ void ezQtLongOpsPanel::OnClickCancel(bool)
   QPushButton* pButton = qobject_cast<QPushButton*>(sender());
   const ezUuid opGuid = pButton->property("opGuid").value<ezUuid>();
 
-  opMan->CancelOperation(opGuid);
+  if (pButton->text() == "Cancel")
+    opMan->CancelOperation(opGuid);
+  else
+    opMan->StartOperation(opGuid);
 }

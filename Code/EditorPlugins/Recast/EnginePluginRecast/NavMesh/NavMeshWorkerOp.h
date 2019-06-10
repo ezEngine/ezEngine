@@ -16,5 +16,6 @@ public:
   virtual ezResult Execute(ezProgress& progress) override;
 
   ezString m_sOutputPath;
+  ezRecastConfig m_NavMeshConfig;
   ezWorldGeoExtractionUtil::Geometry m_ExtractedWorldGeometry;
 };

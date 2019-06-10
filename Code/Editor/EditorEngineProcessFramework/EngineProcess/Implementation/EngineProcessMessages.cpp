@@ -155,7 +155,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpProgressMsg, 1, ezRTTIDefaultAllocator<e
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpFinishMsg, 1, ezRTTIDefaultAllocator<ezLongOpFinishMsg>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpResultMsg, 1, ezRTTIDefaultAllocator<ezLongOpResultMsg>)
 {
   EZ_BEGIN_PROPERTIES
   {

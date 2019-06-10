@@ -35,14 +35,13 @@ ezResult ezLongOpWorker_BuildNavMesh::Execute(ezProgress& progress)
   pgRange.SetStepWeighting(0, 0.95f);
   pgRange.SetStepWeighting(1, 0.05f);
 
-  ezRecastConfig config;
   ezRecastNavMeshBuilder NavMeshBuilder;
   ezRecastNavMeshResourceDescriptor desc;
 
   if (!pgRange.BeginNextStep("Building NavMesh"))
     return EZ_FAILURE;
 
-  EZ_SUCCEED_OR_RETURN(NavMeshBuilder.Build(config, m_ExtractedWorldGeometry, desc, progress));
+  EZ_SUCCEED_OR_RETURN(NavMeshBuilder.Build(m_NavMeshConfig, m_ExtractedWorldGeometry, desc, progress));
 
   if (!pgRange.BeginNextStep("Writing Result"))
     return EZ_FAILURE;
@@ -63,4 +62,6 @@ ezResult ezLongOpWorker_BuildNavMesh::Execute(ezProgress& progress)
 void ezLongOpWorker_BuildNavMesh::InitializeReplicated(ezStreamReader& description)
 {
   description >> m_sOutputPath;
+
+  // TODO: read m_NavMeshConfig
 }
