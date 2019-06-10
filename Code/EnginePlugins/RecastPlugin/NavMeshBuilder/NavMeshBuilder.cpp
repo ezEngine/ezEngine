@@ -169,8 +169,8 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGe
     {
       auto& nt = m_Triangles.ExpandAndGetRef();
       nt.m_VertexIdx[0] = tri.m_uiVertexIndices[0];
-      nt.m_VertexIdx[1] = tri.m_uiVertexIndices[1];
-      nt.m_VertexIdx[2] = tri.m_uiVertexIndices[2];
+      nt.m_VertexIdx[1] = tri.m_uiVertexIndices[2];
+      nt.m_VertexIdx[2] = tri.m_uiVertexIndices[1];
     }
   }
 
@@ -474,5 +474,45 @@ ezResult ezRecastNavMeshBuilder::BuildDetourNavMeshData(const ezRecastConfig& co
   ezMemoryUtils::Copy(NavmeshData.GetData(), navData, navDataSize);
 
   dtFree(navData);
+  return EZ_SUCCESS;
+}
+
+ezResult ezRecastConfig::Serialize(ezStreamWriter& stream) const
+{
+  stream.WriteVersion(1);
+
+  stream << m_fAgentHeight;
+  stream << m_fAgentRadius;
+  stream << m_fAgentClimbHeight;
+  stream << m_WalkableSlope;
+  stream << m_fCellSize;
+  stream << m_fCellHeight;
+  stream << m_fMaxEdgeLength;
+  stream << m_fMaxSimplificationError;
+  stream << m_fMinRegionSize;
+  stream << m_fRegionMergeSize;
+  stream << m_fDetailMeshSampleDistanceFactor;
+  stream << m_fDetailMeshSampleErrorFactor;
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezRecastConfig::Deserialize(ezStreamReader& stream)
+{
+  stream.ReadVersion(1);
+
+  stream >> m_fAgentHeight;
+  stream >> m_fAgentRadius;
+  stream >> m_fAgentClimbHeight;
+  stream >> m_WalkableSlope;
+  stream >> m_fCellSize;
+  stream >> m_fCellHeight;
+  stream >> m_fMaxEdgeLength;
+  stream >> m_fMaxSimplificationError;
+  stream >> m_fMinRegionSize;
+  stream >> m_fRegionMergeSize;
+  stream >> m_fDetailMeshSampleDistanceFactor;
+  stream >> m_fDetailMeshSampleErrorFactor;
+
   return EZ_SUCCESS;
 }

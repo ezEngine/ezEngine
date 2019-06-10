@@ -128,7 +128,9 @@ void ezRcNavMeshComponent::VisualizeNavMesh()
   if (!hNavMesh.IsValid())
     return;
 
-  ezResourceLock<ezRecastNavMeshResource> pNavMesh(hNavMesh, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezRecastNavMeshResource> pNavMesh(hNavMesh, ezResourceAcquireMode::NoFallbackAllowMissing);
+  if (pNavMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
+    return;
 
   const auto* pMesh = pNavMesh->GetNavMeshPolygons();
 

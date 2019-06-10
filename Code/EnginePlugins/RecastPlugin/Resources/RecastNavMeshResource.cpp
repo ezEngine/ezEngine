@@ -59,7 +59,7 @@ ezResult ezRecastNavMeshResourceDescriptor::Serialize(ezStreamWriter& stream) co
 
     stream << (int)mesh.nverts;
     stream << (int)mesh.npolys;
-    stream << (int)mesh.maxpolys;
+    stream << (int)mesh.npolys; // do not use mesh.maxpolys
     stream << (int)mesh.nvp;
     stream << (float)mesh.bmin[0];
     stream << (float)mesh.bmin[1];
@@ -75,10 +75,10 @@ ezResult ezRecastNavMeshResourceDescriptor::Serialize(ezStreamWriter& stream) co
     EZ_ASSERT_DEBUG(mesh.maxpolys >= mesh.npolys, "Invalid navmesh polygon count");
 
     EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.verts, sizeof(ezUInt16) * mesh.nverts * 3));
-    EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.polys, sizeof(ezUInt16) * mesh.maxpolys * mesh.nvp * 2));
-    EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.regs, sizeof(ezUInt16) * mesh.maxpolys));
-    EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.flags, sizeof(ezUInt16) * mesh.maxpolys));
-    EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.areas, sizeof(ezUInt8) * mesh.maxpolys));
+    EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.polys, sizeof(ezUInt16) * mesh.npolys * mesh.nvp * 2));
+    EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.regs, sizeof(ezUInt16) * mesh.npolys));
+    EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.flags, sizeof(ezUInt16) * mesh.npolys));
+    EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.areas, sizeof(ezUInt8) * mesh.npolys));
   }
 
   return EZ_SUCCESS;

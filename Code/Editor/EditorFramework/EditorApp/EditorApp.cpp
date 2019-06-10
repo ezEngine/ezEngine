@@ -102,3 +102,10 @@ void ezQtEditorApp::SaveAllOpenDocuments()
     }
   }
 }
+
+void ezQtEditorApp::ReloadEngineResources()
+{
+  ezSimpleConfigMsgToEngine msg;
+  msg.m_sWhatToDo = "ReloadResources";
+  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+}

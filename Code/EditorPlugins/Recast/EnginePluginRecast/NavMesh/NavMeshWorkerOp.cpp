@@ -21,7 +21,7 @@ ezResult ezLongOpWorker_BuildNavMesh::InitializeExecution(ezStreamReader& config
     return EZ_FAILURE;
 
   config >> m_sOutputPath;
-  // TODO: read m_NavMeshConfig
+  m_NavMeshConfig.Deserialize(config);
 
   pDocContext->GetWorld();
 

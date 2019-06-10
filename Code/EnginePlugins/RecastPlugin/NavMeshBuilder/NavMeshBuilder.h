@@ -12,8 +12,10 @@ class ezWorld;
 class dtNavMesh;
 struct ezRecastNavMeshResourceDescriptor;
 class ezProgress;
+class ezStreamWriter;
+class ezStreamReader;
 
-struct ezRecastConfig
+struct EZ_RECASTPLUGIN_DLL ezRecastConfig
 {
   float m_fAgentHeight = 1.5f;
   float m_fAgentRadius = 0.3f;
@@ -27,6 +29,9 @@ struct ezRecastConfig
   float m_fRegionMergeSize = 20.0f;
   float m_fDetailMeshSampleDistanceFactor = 1.0f;
   float m_fDetailMeshSampleErrorFactor = 1.0f;
+
+  ezResult Serialize(ezStreamWriter& stream) const;
+  ezResult Deserialize(ezStreamReader& stream);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RECASTPLUGIN_DLL, ezRecastConfig);

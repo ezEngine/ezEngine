@@ -195,6 +195,9 @@ public:
   /// as txt files. Each line names one input slot.
   void GetKnownInputSlots(ezDynamicArray<ezString>& slots) const;
 
+  /// \brief Instructs the engine to reload its resources
+  void ReloadEngineResources();
+
 Q_SIGNALS:
   void IdleEvent();
 

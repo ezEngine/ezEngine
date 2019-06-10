@@ -9,10 +9,11 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <QClipboard>
 #include <QMimeData>
-#include <ToolsFoundation/Project/ToolsProject.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentAction, 1, ezRTTINoAllocator)
+  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ////////////////////////////////////////////////////////////////////////
@@ -34,25 +35,25 @@ ezActionDescriptorHandle ezDocumentActions::s_hDocumentCategory;
 void ezDocumentActions::RegisterActions()
 {
   s_hSaveCategory = EZ_REGISTER_CATEGORY("SaveCategory");
-  s_hSave = EZ_REGISTER_ACTION_1("Document.Save", ezActionScope::Document, "Document", "Ctrl+S", ezDocumentAction,
-                                 ezDocumentAction::ButtonType::Save);
-  s_hSaveAll = EZ_REGISTER_ACTION_1("Document.SaveAll", ezActionScope::Document, "Document", "Ctrl+Shift+S", ezDocumentAction,
-                                    ezDocumentAction::ButtonType::SaveAll);
-  s_hSaveAs = EZ_REGISTER_ACTION_1("Document.SaveAs", ezActionScope::Document, "Document", "", ezDocumentAction,
-                                   ezDocumentAction::ButtonType::SaveAs);
+  s_hSave = EZ_REGISTER_ACTION_1(
+    "Document.Save", ezActionScope::Document, "Document", "Ctrl+S", ezDocumentAction, ezDocumentAction::ButtonType::Save);
+  s_hSaveAll = EZ_REGISTER_ACTION_1(
+    "Document.SaveAll", ezActionScope::Document, "Document", "Ctrl+Shift+S", ezDocumentAction, ezDocumentAction::ButtonType::SaveAll);
+  s_hSaveAs = EZ_REGISTER_ACTION_1(
+    "Document.SaveAs", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::SaveAs);
   s_hCloseCategory = EZ_REGISTER_CATEGORY("CloseCategory");
-  s_hClose = EZ_REGISTER_ACTION_1("Document.Close", ezActionScope::Document, "Document", "Ctrl+W", ezDocumentAction,
-                                  ezDocumentAction::ButtonType::Close);
+  s_hClose = EZ_REGISTER_ACTION_1(
+    "Document.Close", ezActionScope::Document, "Document", "Ctrl+W", ezDocumentAction, ezDocumentAction::ButtonType::Close);
   s_hOpenContainingFolder = EZ_REGISTER_ACTION_1("Document.OpenContainingFolder", ezActionScope::Document, "Document", "", ezDocumentAction,
-                                                 ezDocumentAction::ButtonType::OpenContainingFolder);
-  s_hCopyAssetGuid = EZ_REGISTER_ACTION_1("Document.CopyAssetGuid", ezActionScope::Document, "Document", "", ezDocumentAction,
-                                          ezDocumentAction::ButtonType::CopyAssetGuid);
+    ezDocumentAction::ButtonType::OpenContainingFolder);
+  s_hCopyAssetGuid = EZ_REGISTER_ACTION_1(
+    "Document.CopyAssetGuid", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::CopyAssetGuid);
   s_hMoveDocumentWindow =
-      EZ_REGISTER_DYNAMIC_MENU("Document.MoveWindow", ezContainerWindowMenuAction, ":/GuiFoundation/Icons/Window16.png");
+    EZ_REGISTER_DYNAMIC_MENU("Document.MoveWindow", ezContainerWindowMenuAction, ":/GuiFoundation/Icons/Window16.png");
 
   s_hDocumentCategory = EZ_REGISTER_CATEGORY("Tools.DocumentCategory");
-  s_hUpdatePrefabs = EZ_REGISTER_ACTION_1("Prefabs.UpdateAll", ezActionScope::Document, "Scene", "Ctrl+Shift+P", ezDocumentAction,
-                                          ezDocumentAction::ButtonType::UpdatePrefabs);
+  s_hUpdatePrefabs = EZ_REGISTER_ACTION_1(
+    "Prefabs.UpdateAll", ezActionScope::Document, "Scene", "Ctrl+Shift+P", ezDocumentAction, ezDocumentAction::ButtonType::UpdatePrefabs);
 }
 
 void ezDocumentActions::UnregisterActions()
@@ -79,11 +80,12 @@ void ezDocumentActions::MapActions(const char* szMapping, const char* szPath, bo
   ezStringBuilder sSubPath(szPath, "/SaveCategory");
 
   pMap->MapAction(s_hSave, sSubPath, 1.0f);
-  pMap->MapAction(s_hSaveAs, sSubPath, 2.0f);
   pMap->MapAction(s_hSaveAll, sSubPath, 3.0f);
 
   if (!bForToolbar)
   {
+    pMap->MapAction(s_hSaveAs, sSubPath, 2.0f);
+
     pMap->MapAction(s_hMoveDocumentWindow, sSubPath, 4.0f);
     sSubPath.Set(szPath, "/CloseCategory");
     pMap->MapAction(s_hCloseCategory, szPath, 2.0f);
@@ -110,7 +112,7 @@ void ezDocumentActions::MapToolsActions(const char* szMapping, const char* szPat
 ////////////////////////////////////////////////////////////////////////
 
 ezDocumentAction::ezDocumentAction(const ezActionContext& context, const char* szName, ButtonType button)
-    : ezButtonAction(context, szName, false, "")
+  : ezButtonAction(context, szName, false, "")
 {
   m_ButtonType = button;
 
@@ -208,7 +210,9 @@ void ezDocumentAction::Execute(const ezVariant& value)
         QString sSelectedExt;
         ezString sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Document"),
           m_Context.m_pDocument->GetDocumentPath(), QString::fromUtf8(sAllFilters.GetData()), &sSelectedExt,
-          QFileDialog::Option::DontResolveSymlinks).toUtf8().data();
+          QFileDialog::Option::DontResolveSymlinks)
+                           .toUtf8()
+                           .data();
 
         if (!sFile.IsEmpty())
         {
@@ -296,11 +300,12 @@ void ezDocumentAction::Execute(const ezVariant& value)
 // ezContainerWindowMenuAction
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezContainerWindowMenuAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezContainerWindowMenuAction, 1, ezRTTINoAllocator)
+  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezContainerWindowMenuAction::ezContainerWindowMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-    : ezDynamicMenuAction(context, szName, szIconPath)
+  : ezDynamicMenuAction(context, szName, szIconPath)
 {
 }
 

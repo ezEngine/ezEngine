@@ -115,7 +115,7 @@ void ezLongOpsAdapter::PhantomTypeRegistryEventHandler(const ezPhantomRttiManage
 
 void ezLongOpsAdapter::CheckAllTypes()
 {
-  for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetParentType())
+  for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
   {
     if (pRtti->GetAttributeByType<ezLongOpAttribute>() != nullptr)
     {
