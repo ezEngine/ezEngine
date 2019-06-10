@@ -32,4 +32,5 @@ private:
 private Q_SLOTS:
   void HandleEventQueue();
   void OnClickButton(bool);
+  void OnCellDoubleClicked(int row, int column);
 };

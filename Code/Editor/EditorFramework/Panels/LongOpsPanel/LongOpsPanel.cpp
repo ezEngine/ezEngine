@@ -11,6 +11,12 @@
 
 EZ_IMPLEMENT_SINGLETON(ezQtLongOpsPanel);
 
+constexpr int COL_DOCUMENT = 0;
+constexpr int COL_OPERATION = 1;
+constexpr int COL_PROGRESS = 2;
+constexpr int COL_DURATION = 3;
+constexpr int COL_BUTTON = 4;
+
 ezQtLongOpsPanel ::ezQtLongOpsPanel()
   : ezQtApplicationPanel("Panel.Log")
   , m_SingletonRegistrar(this)
@@ -28,6 +34,7 @@ ezQtLongOpsPanel ::ezQtLongOpsPanel()
   // setup table
   {
     QStringList header;
+    header.push_back("Document");
     header.push_back("Operation");
     header.push_back("Progress");
     header.push_back("Duration");
@@ -37,10 +44,13 @@ ezQtLongOpsPanel ::ezQtLongOpsPanel()
     OperationsTable->setHorizontalHeaderLabels(header);
 
     OperationsTable->horizontalHeader()->setStretchLastSection(false);
-    OperationsTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::ResizeToContents);
-    OperationsTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::Stretch);
-    OperationsTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeMode::Fixed);
-    OperationsTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeMode::Fixed);
+    OperationsTable->horizontalHeader()->setSectionResizeMode(COL_DOCUMENT, QHeaderView::ResizeMode::ResizeToContents);
+    OperationsTable->horizontalHeader()->setSectionResizeMode(COL_OPERATION, QHeaderView::ResizeMode::ResizeToContents);
+    OperationsTable->horizontalHeader()->setSectionResizeMode(COL_PROGRESS, QHeaderView::ResizeMode::Stretch);
+    OperationsTable->horizontalHeader()->setSectionResizeMode(COL_DURATION, QHeaderView::ResizeMode::Fixed);
+    OperationsTable->horizontalHeader()->setSectionResizeMode(COL_BUTTON, QHeaderView::ResizeMode::Fixed);
+
+    connect(OperationsTable, &QTableWidget::cellDoubleClicked, this, &ezQtLongOpsPanel::OnCellDoubleClicked);
   }
 
   ezLongOpControllerManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtLongOpsPanel::LongOpsEventHandler, this));
@@ -85,28 +95,46 @@ void ezQtLongOpsPanel::RebuildTable()
   for (ezUInt32 idx = 0; idx < opsList.GetCount(); ++idx)
   {
     const auto& opInfo = *opsList[idx];
-
     const int rowIdx = OperationsTable->rowCount();
     OperationsTable->setRowCount(rowIdx + 1);
-    OperationsTable->setItem(rowIdx, 0, new QTableWidgetItem(opInfo.m_pProxyOp->GetDisplayName()));
 
-    QProgressBar* pProgress = new QProgressBar();
-    pProgress->setValue((int)(opInfo.m_fCompletion * 100.0f));
+    // document name
+    {
+      ezStringBuilder docName = ezPathUtils::GetFileName(ezDocumentManager::GetDocumentByGuid(opInfo.m_DocumentGuid)->GetDocumentPath());
 
-    OperationsTable->setCellWidget(rowIdx, 1, pProgress);
+      OperationsTable->setItem(rowIdx, COL_DOCUMENT, new QTableWidgetItem(docName.GetData()));
+    }
 
-    ezTime duration = opInfo.m_StartOrDuration;
+    // operation name
+    {
+      OperationsTable->setItem(rowIdx, COL_OPERATION, new QTableWidgetItem(opInfo.m_pProxyOp->GetDisplayName()));
+    }
 
-    if (opInfo.m_bIsRunning)
-      duration = ezTime::Now() - opInfo.m_StartOrDuration;
+    // progress bar
+    {
+      QProgressBar* pProgress = new QProgressBar();
+      pProgress->setValue((int)(opInfo.m_fCompletion * 100.0f));
+      OperationsTable->setCellWidget(rowIdx, COL_PROGRESS, pProgress);
+    }
 
-    OperationsTable->setItem(rowIdx, 2, new QTableWidgetItem(QString("%1 sec").arg(duration.GetSeconds())));
+    // duration
+    {
+      ezTime duration = opInfo.m_StartOrDuration;
 
-    QPushButton* pButton = new QPushButton(opInfo.m_bIsRunning ? "Cancel" : "Start");
-    pButton->setProperty("opGuid", QVariant::fromValue(opInfo.m_OperationGuid));
+      if (opInfo.m_bIsRunning)
+        duration = ezTime::Now() - opInfo.m_StartOrDuration;
 
-    OperationsTable->setCellWidget(rowIdx, 3, pButton);
-    connect(pButton, &QPushButton::clicked, this, &ezQtLongOpsPanel::OnClickButton);
+      OperationsTable->setItem(rowIdx, COL_DURATION, new QTableWidgetItem(QString("%1 sec").arg(duration.GetSeconds())));
+    }
+
+    // button
+    {
+      QPushButton* pButton = new QPushButton(opInfo.m_bIsRunning ? "Cancel" : "Start");
+      pButton->setProperty("opGuid", QVariant::fromValue(opInfo.m_OperationGuid));
+
+      OperationsTable->setCellWidget(rowIdx, COL_BUTTON, pButton);
+      connect(pButton, &QPushButton::clicked, this, &ezQtLongOpsPanel::OnClickButton);
+    }
 
     m_LongOpGuidToRow[opInfo.m_OperationGuid] = rowIdx;
   }
@@ -139,10 +167,10 @@ void ezQtLongOpsPanel::HandleEventQueue()
       ezUInt32 rowIdx;
       if (m_LongOpGuidToRow.TryGetValue(e.m_OperationGuid, rowIdx))
       {
-        QProgressBar* pProgress = qobject_cast<QProgressBar*>(OperationsTable->cellWidget(rowIdx, 1));
+        QProgressBar* pProgress = qobject_cast<QProgressBar*>(OperationsTable->cellWidget(rowIdx, COL_PROGRESS));
         pProgress->setValue((int)(pOpInfo->m_fCompletion * 100.0f));
 
-        QPushButton* pButton = qobject_cast<QPushButton*>(OperationsTable->cellWidget(rowIdx, 3));
+        QPushButton* pButton = qobject_cast<QPushButton*>(OperationsTable->cellWidget(rowIdx, COL_BUTTON));
         pButton->setText(pOpInfo->m_bIsRunning ? "Cancel" : "Start");
 
         ezTime duration = pOpInfo->m_StartOrDuration;
@@ -150,7 +178,7 @@ void ezQtLongOpsPanel::HandleEventQueue()
         if (pOpInfo->m_bIsRunning)
           duration = ezTime::Now() - pOpInfo->m_StartOrDuration;
 
-        OperationsTable->setItem(rowIdx, 2, new QTableWidgetItem(QString("%1 sec").arg(duration.GetSeconds())));
+        OperationsTable->setItem(rowIdx, COL_DURATION, new QTableWidgetItem(QString("%1 sec").arg(duration.GetSeconds())));
       }
     }
   }
@@ -181,4 +209,24 @@ void ezQtLongOpsPanel::OnClickButton(bool)
     opMan->CancelOperation(opGuid);
   else
     opMan->StartOperation(opGuid);
+}
+
+void ezQtLongOpsPanel::OnCellDoubleClicked(int row, int column)
+{
+  QPushButton* pButton = qobject_cast<QPushButton*>(OperationsTable->cellWidget(row, COL_BUTTON));
+  const ezUuid opGuid = pButton->property("opGuid").value<ezUuid>();
+
+  auto* opMan = ezLongOpControllerManager::GetSingleton();
+  EZ_LOCK(opMan->m_Mutex);
+
+  auto opInfoPtr = opMan->GetOperation(opGuid);
+  if (opInfoPtr == nullptr)
+    return;
+
+  ezDocument* pDoc = ezDocumentManager::GetDocumentByGuid(opInfoPtr->m_DocumentGuid);
+  pDoc->EnsureVisible();
+
+  ezDocumentObject* pObj = pDoc->GetObjectManager()->GetObject(opInfoPtr->m_ComponentGuid);
+
+  pDoc->GetSelectionManager()->SetSelection(pObj->GetParent());
 }
