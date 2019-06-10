@@ -8,6 +8,7 @@
 
 class dtCrowd;
 class dtNavMesh;
+struct ezResourceEvent;
 
 typedef ezTypedResourceHandle<class ezRecastNavMeshResource> ezRecastNavMeshResourceHandle;
 
@@ -21,6 +22,7 @@ public:
   ~ezRecastWorldModule();
 
   virtual void Initialize() override;
+  virtual void Deinitialize() override;
 
   void SetNavMeshResource(const ezRecastNavMeshResourceHandle& hNavMesh);
   const ezRecastNavMeshResourceHandle& GetNavMeshResource() { return m_hNavMesh; }
@@ -31,6 +33,7 @@ public:
 
 private:
   void UpdateNavMesh(const UpdateContext& ctxt);
+  void ResourceEventHandler(const ezResourceEvent& e);
 
   const dtNavMesh* m_pDetourNavMesh = nullptr;
   ezRecastNavMeshResourceHandle m_hNavMesh;

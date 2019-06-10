@@ -10,6 +10,7 @@ public:
   virtual void InitializeRegistered(const ezUuid& documentGuid, const ezUuid& componentGuid) override;
   virtual const char* GetDisplayName() const override { return "Generate NavMesh"; }
   virtual void GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& description) override;
+  virtual void Finalize(ezResult result, const ezDataBuffer& resultData) override;
 
 private:
   ezUuid m_DocumentGuid;

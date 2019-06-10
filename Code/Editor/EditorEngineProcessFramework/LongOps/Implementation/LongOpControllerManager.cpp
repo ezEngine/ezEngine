@@ -42,6 +42,8 @@ void ezLongOpControllerManager::ProcessCommunicationChannelEventHandler(const ez
       pOpInfo->m_StartOrDuration = ezTime::Now() - pOpInfo->m_StartOrDuration;
       pOpInfo->m_fCompletion = 0.0f;
 
+      pOpInfo->m_pProxyOp->Finalize(pMsg->m_bSuccess ? EZ_SUCCESS : EZ_FAILURE, pMsg->m_ResultData);
+
       // TODO: show success/failure in UI
       BroadcastProgress(*pOpInfo);
     }

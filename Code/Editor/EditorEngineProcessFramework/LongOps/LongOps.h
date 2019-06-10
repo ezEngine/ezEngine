@@ -30,5 +30,6 @@ public:
   virtual const char* GetDisplayName() const = 0;
   virtual void GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& config) = 0;
   virtual void InitializeRegistered(const ezUuid& documentGuid, const ezUuid& componentGuid) {}
+  virtual void Finalize(ezResult result, const ezDataBuffer& resultData) {}
 };
 

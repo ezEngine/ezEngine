@@ -3,6 +3,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Recast/Recast.h>
 #include <RecastPlugin/Components/RecastNavMeshComponent.h>
@@ -34,7 +35,7 @@ ezRcComponent::~ezRcComponent() {}
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezRcNavMeshComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezRcNavMeshComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_ATTRIBUTES
   {
@@ -47,6 +48,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezRcNavMeshComponent, 1, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("NavMeshConfig", m_NavMeshConfig),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_FUNCTION_PROPERTY(OnObjectCreated),
+  }
+  EZ_END_FUNCTIONS;
 }
 EZ_END_COMPONENT_TYPE
 // clang-format on
@@ -60,50 +66,38 @@ void ezRcNavMeshComponent::SerializeComponent(ezWorldWriter& stream) const
   ezStreamWriter& s = stream.GetStream();
 
   s << m_bShowNavMesh;
+  s << m_hNavMesh;
 }
 
 void ezRcNavMeshComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
   s >> m_bShowNavMesh;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_hNavMesh;
+  }
 }
 
-void ezRcNavMeshComponent::OnSimulationStarted()
+void ezRcNavMeshComponent::OnObjectCreated(const ezAbstractObjectNode& node)
 {
-  m_uiDelay = 2;
+  ezStringBuilder sComponentGuid, sNavMeshFile;
+  ezConversionUtils::ToString(node.GetGuid(), sComponentGuid);
+
+  // this is where the editor will put the file for this component
+  sNavMeshFile.Format(":project/AssetCache/Generated/{0}.ezRecastNavMesh", sComponentGuid);
+
+  m_hNavMesh = ezResourceManager::LoadResource<ezRecastNavMeshResource>(sNavMeshFile);
 }
 
 void ezRcNavMeshComponent::Update()
 {
-  if (!IsActiveAndSimulating())
-    return;
-
   VisualizeNavMesh();
   VisualizePointsOfInterest();
-
-  --m_uiDelay;
-
-  if (m_uiDelay > 0)
-    return;
-
-  ezRecastNavMeshBuilder NavMeshBuilder;
-  ezRecastNavMeshResourceDescriptor NavMeshDescriptor;
-
-  // if (NavMeshBuilder.Build(m_NavMeshConfig, *GetWorld(), NavMeshDescriptor).Failed())
-  return;
-
-  // empty navmesh
-  if (NavMeshDescriptor.m_pNavMeshPolygons == nullptr)
-    return;
-
-  ezRecastNavMeshResourceHandle hNavMesh =
-    ezResourceManager::CreateResource<ezRecastNavMeshResource>("NavMesh", std::move(NavMeshDescriptor), "NavMesh");
-  ezResourceLock<ezRecastNavMeshResource> pNavMesh(hNavMesh, ezResourceAcquireMode::NoFallback);
-
-  GetWorld()->GetOrCreateModule<ezRecastWorldModule>()->SetNavMeshResource(hNavMesh);
 }
 
 EZ_ALWAYS_INLINE static ezVec3 GetNavMeshVertex(
@@ -115,6 +109,14 @@ EZ_ALWAYS_INLINE static ezVec3 GetNavMeshVertex(
   const float z = vMeshOrigin.z + v[1] * fCellHeight;
 
   return ezVec3(x, y, z);
+}
+
+void ezRcNavMeshComponent::OnActivated()
+{
+  if (m_hNavMesh.IsValid())
+  {
+    GetWorld()->GetOrCreateModule<ezRecastWorldModule>()->SetNavMeshResource(m_hNavMesh);
+  }
 }
 
 void ezRcNavMeshComponent::VisualizeNavMesh()
@@ -279,6 +281,7 @@ void ezRcNavMeshComponentManager::Initialize()
   m_pWorldModule = GetWorld()->GetOrCreateModule<ezRecastWorldModule>();
 
   auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezRcNavMeshComponentManager::Update, this);
+  desc.m_bOnlyUpdateWhenSimulating = false;
 
   RegisterUpdateFunction(desc);
 }

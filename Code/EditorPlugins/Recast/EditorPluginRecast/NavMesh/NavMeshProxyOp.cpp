@@ -17,15 +17,25 @@ void ezLongOpProxy_BuildNavMesh::GetReplicationInfo(ezStringBuilder& out_sReplic
 {
   out_sReplicationOpType = "ezLongOpWorker_BuildNavMesh";
 
-  ezDocument* pDoc = ezDocumentManager::GetDocumentByGuid(m_DocumentGuid);
+  {
+    ezStringBuilder sComponentGuid, sOutputFile;
+    ezConversionUtils::ToString(m_ComponentGuid, sComponentGuid);
 
-  ezStringBuilder sOutputFile = pDoc->GetDocumentPath();
-  sOutputFile.RemoveFileExtension();
-  sOutputFile.Append("_data/Scene.ezRecastNavMesh");
+    sOutputFile.Format(":project/AssetCache/Generated/{0}.ezRecastNavMesh", sComponentGuid);
 
-  description << sOutputFile;
+    description << sOutputFile;
+  }
 
   // TODO: pass along navmesh settings
+  // ezDocument* pDoc = ezDocumentManager::GetDocumentByGuid(m_DocumentGuid);
   // ezDocumentObject* pObject =  pDoc->GetObjectManager()->GetObject(m_ComponentGuid);
   // pObject->GetTypeAccessor().GetValue("");
+}
+
+void ezLongOpProxy_BuildNavMesh::Finalize(ezResult result, const ezDataBuffer& resultData)
+{
+  if (result.Succeeded())
+  {
+    // TODO: reload navmesh resource ?
+  }
 }

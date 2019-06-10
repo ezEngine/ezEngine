@@ -20,14 +20,25 @@ ezRecastWorldModule::~ezRecastWorldModule() = default;
 
 void ezRecastWorldModule::Initialize()
 {
+  SUPER::Initialize();
+
   {
     auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezRecastWorldModule::UpdateNavMesh, this);
     updateDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostAsync;
-    updateDesc.m_bOnlyUpdateWhenSimulating = true;
+    updateDesc.m_bOnlyUpdateWhenSimulating = false;
     updateDesc.m_fPriority = 0.0f;
 
     RegisterUpdateFunction(updateDesc);
   }
+
+  ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezRecastWorldModule::ResourceEventHandler, this));
+}
+
+void ezRecastWorldModule::Deinitialize()
+{
+  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezRecastWorldModule::ResourceEventHandler, this));
+
+  SUPER::Deinitialize();
 }
 
 void ezRecastWorldModule::SetNavMeshResource(const ezRecastNavMeshResourceHandle& hNavMesh)
@@ -35,21 +46,35 @@ void ezRecastWorldModule::SetNavMeshResource(const ezRecastNavMeshResourceHandle
   m_hNavMesh = hNavMesh;
   m_pDetourNavMesh = nullptr;
   m_pNavMeshPointsOfInterest.Clear();
+}
 
-  if (hNavMesh.IsValid())
+void ezRecastWorldModule::UpdateNavMesh(const UpdateContext& ctxt)
+{
+  if (m_pDetourNavMesh == nullptr && m_hNavMesh.IsValid())
   {
-    ezResourceLock<ezRecastNavMeshResource> pNavMesh(hNavMesh, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezRecastNavMeshResource> pNavMesh(m_hNavMesh, ezResourceAcquireMode::NoFallbackAllowMissing);
+
+    if (pNavMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
+      return;
+
     m_pDetourNavMesh = pNavMesh->GetNavMesh();
 
     m_pNavMeshPointsOfInterest = EZ_DEFAULT_NEW(ezNavMeshPointOfInterestGraph);
     m_pNavMeshPointsOfInterest->ExtractInterestPointsFromMesh(*pNavMesh->GetNavMeshPolygons());
   }
-}
 
-void ezRecastWorldModule::UpdateNavMesh(const UpdateContext& ctxt)
-{
   if (m_pNavMeshPointsOfInterest)
   {
     m_pNavMeshPointsOfInterest->IncreaseCheckVisibiblityTimeStamp(GetWorld()->GetClock().GetAccumulatedTime());
+  }
+}
+
+void ezRecastWorldModule::ResourceEventHandler(const ezResourceEvent& e)
+{
+  if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading &&
+      e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezRecastNavMeshResource>())
+  {
+    // triggers a recreation in the next update
+    m_pDetourNavMesh = nullptr;
   }
 }

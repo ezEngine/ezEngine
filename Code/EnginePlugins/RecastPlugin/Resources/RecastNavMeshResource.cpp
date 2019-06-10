@@ -14,17 +14,34 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezRecastNavMeshResource);
 // clang-format on
 
+//////////////////////////////////////////////////////////////////////////
 
 ezRecastNavMeshResourceDescriptor::ezRecastNavMeshResourceDescriptor() = default;
-ezRecastNavMeshResourceDescriptor::ezRecastNavMeshResourceDescriptor(ezRecastNavMeshResourceDescriptor&& rhs) = default;
+ezRecastNavMeshResourceDescriptor::ezRecastNavMeshResourceDescriptor(ezRecastNavMeshResourceDescriptor&& rhs)
+{
+  *this = std::move(rhs);
+}
 
-ezRecastNavMeshResourceDescriptor::~ezRecastNavMeshResourceDescriptor() = default;
+ezRecastNavMeshResourceDescriptor::~ezRecastNavMeshResourceDescriptor()
+{
+  Clear();
+}
+
+void ezRecastNavMeshResourceDescriptor::operator=(ezRecastNavMeshResourceDescriptor&& rhs)
+{
+  m_DetourNavmeshData = std::move(rhs.m_DetourNavmeshData);
+
+  m_pNavMeshPolygons = rhs.m_pNavMeshPolygons;
+  rhs.m_pNavMeshPolygons = nullptr;
+}
 
 void ezRecastNavMeshResourceDescriptor::Clear()
 {
   m_DetourNavmeshData.Clear();
-  m_pNavMeshPolygons.Clear();
+  EZ_DEFAULT_DELETE(m_pNavMeshPolygons);
 }
+
+//////////////////////////////////////////////////////////////////////////
 
 ezResult ezRecastNavMeshResourceDescriptor::Serialize(ezStreamWriter& stream) const
 {
@@ -38,7 +55,7 @@ ezResult ezRecastNavMeshResourceDescriptor::Serialize(ezStreamWriter& stream) co
   {
     EZ_CHECK_AT_COMPILETIME_MSG(sizeof(rcPolyMesh) == sizeof(void*) * 5 + sizeof(int) * 14, "rcPolyMesh data structure has changed");
 
-    const auto& mesh = *m_pNavMeshPolygons.Borrow();
+    const auto& mesh = *m_pNavMeshPolygons;
 
     stream << (int)mesh.nverts;
     stream << (int)mesh.npolys;
@@ -55,6 +72,8 @@ ezResult ezRecastNavMeshResourceDescriptor::Serialize(ezStreamWriter& stream) co
     stream << (int)mesh.borderSize;
     stream << (float)mesh.maxEdgeError;
 
+    EZ_ASSERT_DEBUG(mesh.maxpolys >= mesh.npolys, "Invalid navmesh polygon count");
+
     EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.verts, sizeof(ezUInt16) * mesh.nverts * 3));
     EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.polys, sizeof(ezUInt16) * mesh.maxpolys * mesh.nvp * 2));
     EZ_SUCCEED_OR_RETURN(stream.WriteBytes(mesh.regs, sizeof(ezUInt16) * mesh.maxpolys));
@@ -67,13 +86,13 @@ ezResult ezRecastNavMeshResourceDescriptor::Serialize(ezStreamWriter& stream) co
 
 ezResult ezRecastNavMeshResourceDescriptor::Deserialize(ezStreamReader& stream)
 {
+  Clear();
+
   const ezTypeVersion version = stream.ReadVersion(1);
   EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_DetourNavmeshData));
 
   bool hasPolygons = false;
   stream >> hasPolygons;
-
-  m_pNavMeshPolygons = nullptr;
 
   if (hasPolygons)
   {
@@ -81,7 +100,7 @@ ezResult ezRecastNavMeshResourceDescriptor::Deserialize(ezStreamReader& stream)
 
     m_pNavMeshPolygons = EZ_DEFAULT_NEW(rcPolyMesh);
 
-    auto& mesh = *m_pNavMeshPolygons.Borrow();
+    auto& mesh = *m_pNavMeshPolygons;
 
     stream >> mesh.nverts;
     stream >> mesh.npolys;
@@ -98,10 +117,12 @@ ezResult ezRecastNavMeshResourceDescriptor::Deserialize(ezStreamReader& stream)
     stream >> mesh.borderSize;
     stream >> mesh.maxEdgeError;
 
+    EZ_ASSERT_DEBUG(mesh.maxpolys >= mesh.npolys, "Invalid navmesh polygon count");
+
     mesh.verts = (ezUInt16*)rcAlloc(sizeof(ezUInt16) * mesh.nverts * 3, RC_ALLOC_PERM);
-    mesh.polys = (ezUInt16*)rcAlloc(sizeof(ezUInt16) * mesh.npolys * mesh.nvp * 2, RC_ALLOC_PERM);
-    mesh.regs = (ezUInt16*)rcAlloc(sizeof(ezUInt16) * mesh.npolys, RC_ALLOC_PERM);
-    mesh.areas = (ezUInt8*)rcAlloc(sizeof(ezUInt8) * mesh.npolys, RC_ALLOC_PERM);
+    mesh.polys = (ezUInt16*)rcAlloc(sizeof(ezUInt16) * mesh.maxpolys * mesh.nvp * 2, RC_ALLOC_PERM);
+    mesh.regs = (ezUInt16*)rcAlloc(sizeof(ezUInt16) * mesh.maxpolys, RC_ALLOC_PERM);
+    mesh.areas = (ezUInt8*)rcAlloc(sizeof(ezUInt8) * mesh.maxpolys, RC_ALLOC_PERM);
 
     stream.ReadBytes(mesh.verts, sizeof(ezUInt16) * mesh.nverts * 3);
     stream.ReadBytes(mesh.polys, sizeof(ezUInt16) * mesh.maxpolys * mesh.nvp * 2);
@@ -121,7 +142,11 @@ ezRecastNavMeshResource::ezRecastNavMeshResource()
   ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezRecastNavMeshResource);
 }
 
-ezRecastNavMeshResource::~ezRecastNavMeshResource() = default;
+ezRecastNavMeshResource::~ezRecastNavMeshResource()
+{
+  EZ_DEFAULT_DELETE(m_pNavMeshPolygons);
+  EZ_DEFAULT_DELETE(m_pNavMesh);
+}
 
 ezResourceLoadDesc ezRecastNavMeshResource::UnloadData(Unload WhatToUnload)
 {
@@ -130,7 +155,9 @@ ezResourceLoadDesc ezRecastNavMeshResource::UnloadData(Unload WhatToUnload)
   res.m_uiQualityLevelsLoadable = 0;
   res.m_State = ezResourceState::Unloaded;
 
-  m_pNavMesh.Clear();
+  m_DetourNavmeshData.Clear();
+  EZ_DEFAULT_DELETE(m_pNavMesh);
+  EZ_DEFAULT_DELETE(m_pNavMeshPolygons);
 
   return res;
 }
@@ -158,13 +185,10 @@ ezResourceLoadDesc ezRecastNavMeshResource::UpdateContent(ezStreamReader* Stream
   ezAssetFileHeader AssetHash;
   AssetHash.Read(*Stream);
 
-  ezRecastNavMeshResourceDescriptor desc;
-  desc.Deserialize(*Stream);
+  ezRecastNavMeshResourceDescriptor descriptor;
+  descriptor.Deserialize(*Stream);
 
-  CreateResource(std::move(desc));
-
-  res.m_State = ezResourceState::Loaded;
-  return res;
+  return CreateResource(std::move(descriptor));
 }
 
 void ezRecastNavMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
@@ -176,14 +200,16 @@ void ezRecastNavMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezRecastNavMeshResource, ezRecastNavMeshResourceDescriptor)
+ezResourceLoadDesc ezRecastNavMeshResource::CreateResource(ezRecastNavMeshResourceDescriptor&& descriptor)
 {
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
   res.m_State = ezResourceState::Loaded;
 
-  m_pNavMeshPolygons = std::move(descriptor.m_pNavMeshPolygons);
+  m_pNavMeshPolygons = descriptor.m_pNavMeshPolygons;
+  descriptor.m_pNavMeshPolygons = nullptr;
+
   m_DetourNavmeshData = std::move(descriptor.m_DetourNavmeshData);
 
   m_pNavMesh = EZ_DEFAULT_NEW(dtNavMesh);

@@ -56,6 +56,7 @@ ezResult ezLongOpWorker_BuildNavMesh::Execute(ezProgress& progress, ezStreamWrit
   // thus the scene hash and document version are irrelevant and should just stay static for now
   ezAssetFileHeader header;
   header.SetFileHashAndVersion(1, 1);
+  header.Write(file);
 
   EZ_SUCCEED_OR_RETURN(desc.Serialize(file));
 
