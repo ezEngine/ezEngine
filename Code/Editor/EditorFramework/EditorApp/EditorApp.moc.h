@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorEngineProcessFramework/LongOperation/LongOperationManager.h>
+#include <EditorEngineProcessFramework/LongOps/LongOpControllerManager.h>
 #include <EditorFramework/EditorApp/Configuration/Plugins.h>
 #include <EditorFramework/EditorApp/WhatsNew.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
@@ -256,7 +256,7 @@ private:
   ezRecentFilesList s_RecentDocuments;
 
   QApplication* s_pQtApplication;
-  ezLongOpManager m_LongOperationManager;
+  ezLongOpControllerManager m_LongOpControllerManager;
   ezEditorEngineProcessConnection* s_pEngineViewProcess;
   QTimer* m_pTimer;
 

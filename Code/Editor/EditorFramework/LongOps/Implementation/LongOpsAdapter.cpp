@@ -2,7 +2,7 @@
 
 #include <Core/World/Component.h>
 #include <Core/World/GameObject.h>
-#include <EditorEngineProcessFramework/LongOperation/LongOperationManager.h>
+#include <EditorEngineProcessFramework/LongOps/LongOpControllerManager.h>
 #include <EditorFramework/LongOps/LongOpsAdapter.h>
 #include <Foundation/Configuration/Startup.h>
 
@@ -67,7 +67,7 @@ void ezLongOpsAdapter::DocumentManagerEventHandler(const ezDocumentManager::Even
     const char* szDocType = e.m_pDocument->GetDocumentTypeDescriptor()->m_pDocumentType->GetTypeName();
     if (ezStringUtils::IsEqual(szDocType, "ezSceneDocument"))
     {
-      ezLongOpManager::GetSingleton()->DocumentClosed(e.m_pDocument->GetGuid());
+      ezLongOpControllerManager::GetSingleton()->DocumentClosed(e.m_pDocument->GetGuid());
 
       e.m_pDocument->GetObjectManager()->m_StructureEvents.RemoveEventHandler(
         ezMakeDelegate(&ezLongOpsAdapter::StructureEventHandler, this));
@@ -138,7 +138,7 @@ void ezLongOpsAdapter::ObjectAdded(const ezDocumentObject* pObject)
         {
           if (auto pOpAttr = ezDynamicCast<ezLongOpAttribute*>(pAttr))
           {
-            ezLongOpManager::GetSingleton()->RegisterLongOp(
+            ezLongOpControllerManager::GetSingleton()->RegisterLongOp(
               pObject->GetDocumentObjectManager()->GetDocument()->GetGuid(), pObject->GetGuid(), pOpAttr->m_sOpTypeName);
           }
         }
@@ -171,7 +171,7 @@ void ezLongOpsAdapter::ObjectRemoved(const ezDocumentObject* pObject)
         {
           if (auto pOpAttr = ezDynamicCast<ezLongOpAttribute*>(pAttr))
           {
-            ezLongOpManager::GetSingleton()->UnregisterLongOp(
+            ezLongOpControllerManager::GetSingleton()->UnregisterLongOp(
               pObject->GetDocumentObjectManager()->GetDocument()->GetGuid(), pObject->GetGuid(), pOpAttr->m_sOpTypeName);
           }
         }

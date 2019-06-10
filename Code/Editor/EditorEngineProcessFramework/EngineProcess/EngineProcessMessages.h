@@ -385,7 +385,6 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOpReplicationMsg : public ezEdit
 public:
   ezUuid m_OperationGuid;
   ezUuid m_DocumentGuid;
-  ezString m_sDisplayName;
   ezString m_sReplicationType;
   ezDataBuffer m_ReplicationData;
 };
@@ -406,6 +405,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOpResultMsg : public ezEditorEng
 public:
   ezUuid m_OperationGuid;
   bool m_bSuccess;
+  ezDataBuffer m_ResultData;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineSyncObjectMsg : public ezEditorEngineDocumentMsg

@@ -13,12 +13,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpWorker_BuildNavMesh, 1, ezRTTIDefaultAll
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezLongOpWorker_BuildNavMesh::InitializeExecution(const ezUuid& DocumentGuid)
+ezResult ezLongOpWorker_BuildNavMesh::InitializeExecution(ezStreamReader& config, const ezUuid& DocumentGuid)
 {
   ezEngineProcessDocumentContext* pDocContext = ezEngineProcessDocumentContext::GetDocumentContext(DocumentGuid);
 
   if (pDocContext == nullptr)
     return EZ_FAILURE;
+
+  config >> m_sOutputPath;
+  // TODO: read m_NavMeshConfig
 
   pDocContext->GetWorld();
 
@@ -29,7 +32,7 @@ ezResult ezLongOpWorker_BuildNavMesh::InitializeExecution(const ezUuid& Document
   return EZ_SUCCESS;
 }
 
-ezResult ezLongOpWorker_BuildNavMesh::Execute(ezProgress& progress)
+ezResult ezLongOpWorker_BuildNavMesh::Execute(ezProgress& progress, ezStreamWriter& proxydata)
 {
   ezProgressRange pgRange("Generating NavMesh", 2, true, &progress);
   pgRange.SetStepWeighting(0, 0.95f);
@@ -57,11 +60,4 @@ ezResult ezLongOpWorker_BuildNavMesh::Execute(ezProgress& progress)
   EZ_SUCCEED_OR_RETURN(desc.Serialize(file));
 
   return EZ_SUCCESS;
-}
-
-void ezLongOpWorker_BuildNavMesh::InitializeReplicated(ezStreamReader& description)
-{
-  description >> m_sOutputPath;
-
-  // TODO: read m_NavMeshConfig
 }

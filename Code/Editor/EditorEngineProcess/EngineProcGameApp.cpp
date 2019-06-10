@@ -16,10 +16,9 @@
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
-    : ezGameApplication("ezEditorEngineProcess", nullptr)
-  , m_LongOperationManager(ezLongOpManager::Mode::Processor)
+  : ezGameApplication("ezEditorEngineProcess", nullptr)
 {
-  m_LongOperationManager.Startup(&m_IPC);
+  m_LongOpWorkerManager.Startup(&m_IPC);
 }
 
 ezResult ezEngineProcessGameApplication::BeforeCoreSystemsStartup()
@@ -99,7 +98,7 @@ void ezEngineProcessGameApplication::BeforeCoreSystemsShutdown()
 {
   m_pApp = nullptr;
 
-  m_LongOperationManager.Shutdown();
+  m_LongOpWorkerManager.Shutdown();
 
   ezRTTI::s_TypeUpdatedEvent.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerTypeUpdated, this));
   m_IPC.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerIPC, this));

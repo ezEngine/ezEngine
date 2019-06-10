@@ -25,10 +25,6 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <SharedPluginScene/Common/Messages.h>
 
-
-#include <EditorEngineProcessFramework/LongOperation/LongOperation.h>
-#include <EditorEngineProcessFramework/LongOperation/LongOperationManager.h>
-
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)
 {

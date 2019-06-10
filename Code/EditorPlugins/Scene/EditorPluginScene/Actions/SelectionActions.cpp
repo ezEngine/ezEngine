@@ -1,7 +1,7 @@
 #include <EditorPluginScenePCH.h>
 
 #include <Core/World/GameObject.h>
-#include <EditorEngineProcessFramework/LongOperation/LongOperation.h>
+#include <EditorEngineProcessFramework/LongOps/LongOps.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginScene/Actions/SelectionActions.h>

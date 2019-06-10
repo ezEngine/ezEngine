@@ -136,7 +136,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpReplicationMsg, 1, ezRTTIDefaultAllocato
   {
     EZ_MEMBER_PROPERTY("OpGuid", m_OperationGuid),
     EZ_MEMBER_PROPERTY("DocGuid", m_DocumentGuid),
-    EZ_MEMBER_PROPERTY("DisplayName", m_sDisplayName),
     EZ_MEMBER_PROPERTY("Type", m_sReplicationType),
     EZ_MEMBER_PROPERTY("Data", m_ReplicationData),
   }
@@ -161,6 +160,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpResultMsg, 1, ezRTTIDefaultAllocator<ezL
   {
     EZ_MEMBER_PROPERTY("OpGuid", m_OperationGuid),
     EZ_MEMBER_PROPERTY("Success", m_bSuccess),
+    EZ_MEMBER_PROPERTY("Data", m_ResultData),
   }
   EZ_END_PROPERTIES;
 }

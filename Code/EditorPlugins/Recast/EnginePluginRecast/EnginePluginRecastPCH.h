@@ -11,6 +11,6 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/Component.h>
 #include <Core/World/GameObject.h>
-#include <EditorEngineProcessFramework/LongOperation/LongOperation.h>
+#include <EditorEngineProcessFramework/LongOps/LongOps.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <RendererCore/Debug/DebugRenderer.h>

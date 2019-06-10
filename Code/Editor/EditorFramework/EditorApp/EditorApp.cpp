@@ -1,5 +1,6 @@
 #include <EditorFrameworkPCH.h>
 
+#include <EditorEngineProcessFramework/LongOps/LongOps.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
@@ -7,7 +8,6 @@
 #include <QTextStream>
 #include <QTimer>
 #include <ToolsFoundation/Application/ApplicationServices.h>
-#include <EditorEngineProcessFramework/LongOperation/LongOperation.h>
 
 EZ_IMPLEMENT_SINGLETON(ezQtEditorApp);
 
@@ -15,7 +15,6 @@ ezQtEditorApp::ezQtEditorApp()
   : m_SingletonRegistrar(this)
   , s_RecentProjects(5)
   , s_RecentDocuments(50)
-  , m_LongOperationManager(ezLongOpManager::Mode::Controller)
 {
   m_pProgressbar = nullptr;
   m_pQtProgressbar = nullptr;
@@ -34,8 +33,6 @@ ezQtEditorApp::~ezQtEditorApp()
 {
   delete m_pTimer;
   m_pTimer = nullptr;
-
-  
 }
 
 ezInt32 ezQtEditorApp::RunEditor()

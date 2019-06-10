@@ -1,11 +1,11 @@
 #pragma once
 
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
+#include <EditorEngineProcessFramework/LongOps/LongOpWorkerManager.h>
 #include <Foundation/Application/Config/FileSystemConfig.h>
 #include <Foundation/Application/Config/PluginConfig.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <EditorEngineProcessFramework/LongOperation/LongOperationManager.h>
 
 class ezEditorEngineProcessApp;
 class ezDocumentOpenMsgToEngine;
@@ -36,7 +36,9 @@ protected:
   virtual bool Run_ProcessApplicationInput() override;
   virtual ezUniquePtr<ezEditorEngineProcessApp> CreateEngineProcessApp();
 
-  virtual void ActivateGameStateAtStartup() override { /* do nothing */ }
+  virtual void ActivateGameStateAtStartup() override
+  { /* do nothing */
+  }
 
 private:
   void ConnectToHost();
@@ -66,5 +68,5 @@ private:
   ezApplicationPluginConfig m_CustomPluginConfig;
   ezEngineProcessCommunicationChannel m_IPC;
   ezUniquePtr<ezEditorEngineProcessApp> m_pApp;
-  ezLongOpManager m_LongOperationManager;
+  ezLongOpWorkerManager m_LongOpWorkerManager;
 };

@@ -1,6 +1,6 @@
 #include <EditorPluginRecastPCH.h>
 
-#include <EditorEngineProcessFramework/LongOperation/LongOperation.h>
+#include <EditorEngineProcessFramework/LongOps/LongOps.h>
 
 class ezLongOpProxy_BuildNavMesh : public ezLongOpProxy
 {

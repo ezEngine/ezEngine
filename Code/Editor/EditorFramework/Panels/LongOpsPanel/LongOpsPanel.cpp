@@ -1,7 +1,7 @@
 #include <EditorFrameworkPCH.h>
 
-#include <EditorEngineProcessFramework/LongOperation/LongOperation.h>
-#include <EditorEngineProcessFramework/LongOperation/LongOperationManager.h>
+#include <EditorEngineProcessFramework/LongOps/LongOpControllerManager.h>
+#include <EditorEngineProcessFramework/LongOps/LongOps.h>
 #include <EditorFramework/Panels/LongOpsPanel/LongOpsPanel.moc.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
@@ -31,7 +31,7 @@ ezQtLongOpsPanel ::ezQtLongOpsPanel()
     header.push_back("Operation");
     header.push_back("Progress");
     header.push_back("Duration");
-    header.push_back(""); // Cancel
+    header.push_back(""); // Start / Cancel button
 
     OperationsTable->setColumnCount(header.size());
     OperationsTable->setHorizontalHeaderLabels(header);
@@ -43,32 +43,42 @@ ezQtLongOpsPanel ::ezQtLongOpsPanel()
     OperationsTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeMode::Fixed);
   }
 
-  ezLongOpManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtLongOpsPanel::LongOpsEventHandler, this));
+  ezLongOpControllerManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtLongOpsPanel::LongOpsEventHandler, this));
 
   RebuildTable();
 }
 
 ezQtLongOpsPanel::~ezQtLongOpsPanel()
 {
-  ezLongOpManager::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtLongOpsPanel::LongOpsEventHandler, this));
+  ezLongOpControllerManager::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtLongOpsPanel::LongOpsEventHandler, this));
 }
 
-void ezQtLongOpsPanel::LongOpsEventHandler(const ezLongOpManagerEvent& e)
+void ezQtLongOpsPanel::LongOpsEventHandler(const ezLongOpControllerEvent& e)
 {
-  auto* opMan = ezLongOpManager::GetSingleton();
-  EZ_LOCK(opMan->m_Mutex);
+  if (m_bRebuildTable)
+    return;
 
+  if (e.m_Type != ezLongOpControllerEvent::Type::OpProgress)
+  {
+    m_bRebuildTable = true;
+    return;
+  }
+
+  auto* opMan = ezLongOpControllerManager::GetSingleton();
+  EZ_LOCK(opMan->m_Mutex);
   m_EventQueue.PushBack(e);
 }
 
 void ezQtLongOpsPanel::RebuildTable()
 {
+  m_bRebuildTable = false;
+
   ezQtScopedBlockSignals _1(OperationsTable);
 
   OperationsTable->setRowCount(0);
   m_LongOpGuidToRow.Clear();
 
-  auto* opMan = ezLongOpManager::GetSingleton();
+  auto* opMan = ezLongOpControllerManager::GetSingleton();
   EZ_LOCK(opMan->m_Mutex);
 
   const auto& opsList = opMan->GetOperations();
@@ -76,19 +86,21 @@ void ezQtLongOpsPanel::RebuildTable()
   {
     const auto& opInfo = *opsList[idx];
 
-    if (opInfo.m_pOperation == nullptr)
-      continue;
-
     const int rowIdx = OperationsTable->rowCount();
     OperationsTable->setRowCount(rowIdx + 1);
-    OperationsTable->setItem(rowIdx, 0, new QTableWidgetItem(opInfo.m_pOperation->GetDisplayName()));
+    OperationsTable->setItem(rowIdx, 0, new QTableWidgetItem(opInfo.m_pProxyOp->GetDisplayName()));
 
     QProgressBar* pProgress = new QProgressBar();
-    pProgress->setValue((int)(opInfo.m_Progress.GetCompletion() * 100.0f));
+    pProgress->setValue((int)(opInfo.m_fCompletion * 100.0f));
 
     OperationsTable->setCellWidget(rowIdx, 1, pProgress);
-    OperationsTable->setItem(
-      rowIdx, 2, new QTableWidgetItem(QString("%1 sec").arg((ezTime::Now() - opInfo.m_StartOrDuration).GetSeconds())));
+
+    ezTime duration = opInfo.m_StartOrDuration;
+
+    if (opInfo.m_bIsRunning)
+      duration = ezTime::Now() - opInfo.m_StartOrDuration;
+
+    OperationsTable->setItem(rowIdx, 2, new QTableWidgetItem(QString("%1 sec").arg(duration.GetSeconds())));
 
     QPushButton* pButton = new QPushButton(opInfo.m_bIsRunning ? "Cancel" : "Start");
     pButton->setProperty("opGuid", QVariant::fromValue(opInfo.m_OperationGuid));
@@ -102,21 +114,22 @@ void ezQtLongOpsPanel::RebuildTable()
 
 void ezQtLongOpsPanel::HandleEventQueue()
 {
-  if (m_EventQueue.IsEmpty())
+  if (!m_bRebuildTable && m_EventQueue.IsEmpty())
     return;
 
-  auto* opMan = ezLongOpManager::GetSingleton();
+  auto* opMan = ezLongOpControllerManager::GetSingleton();
   EZ_LOCK(opMan->m_Mutex);
+
+  if (m_bRebuildTable)
+  {
+    m_EventQueue.Clear();
+    RebuildTable();
+    return;
+  }
 
   for (const auto& e : m_EventQueue)
   {
-    if (e.m_Type == ezLongOpManagerEvent::Type::OpAdded || e.m_Type == ezLongOpManagerEvent::Type::OpRemoved)
-    {
-      // if anything was added or removed, recreate the entire table, then break
-      RebuildTable();
-      break;
-    }
-    else if (e.m_Type == ezLongOpManagerEvent::Type::OpProgress)
+    if (e.m_Type == ezLongOpControllerEvent::Type::OpProgress)
     {
       const auto* pOpInfo = opMan->GetOperation(e.m_OperationGuid);
 
@@ -127,16 +140,22 @@ void ezQtLongOpsPanel::HandleEventQueue()
       if (m_LongOpGuidToRow.TryGetValue(e.m_OperationGuid, rowIdx))
       {
         QProgressBar* pProgress = qobject_cast<QProgressBar*>(OperationsTable->cellWidget(rowIdx, 1));
-        pProgress->setValue((int)(pOpInfo->m_Progress.GetCompletion() * 100.0f));
+        pProgress->setValue((int)(pOpInfo->m_fCompletion * 100.0f));
 
         QPushButton* pButton = qobject_cast<QPushButton*>(OperationsTable->cellWidget(rowIdx, 3));
         pButton->setText(pOpInfo->m_bIsRunning ? "Cancel" : "Start");
 
-        OperationsTable->setItem(
-          rowIdx, 2, new QTableWidgetItem(QString("%1 sec").arg((ezTime::Now() - pOpInfo->m_StartOrDuration).GetSeconds())));
+        ezTime duration = pOpInfo->m_StartOrDuration;
+
+        if (pOpInfo->m_bIsRunning)
+          duration = ezTime::Now() - pOpInfo->m_StartOrDuration;
+
+        OperationsTable->setItem(rowIdx, 2, new QTableWidgetItem(QString("%1 sec").arg(duration.GetSeconds())));
       }
     }
   }
+
+  m_EventQueue.Clear();
 
   if (m_LongOpGuidToRow.IsEmpty())
   {
@@ -148,13 +167,11 @@ void ezQtLongOpsPanel::HandleEventQueue()
     // increase timer frequency when stuff is going on
     m_HandleQueueTimer.setInterval(50);
   }
-
-  m_EventQueue.Clear();
 }
 
 void ezQtLongOpsPanel::OnClickButton(bool)
 {
-  auto* opMan = ezLongOpManager::GetSingleton();
+  auto* opMan = ezLongOpControllerManager::GetSingleton();
   EZ_LOCK(opMan->m_Mutex);
 
   QPushButton* pButton = qobject_cast<QPushButton*>(sender());
