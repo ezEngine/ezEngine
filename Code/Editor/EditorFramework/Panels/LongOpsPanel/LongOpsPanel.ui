@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../GuiFoundation/QtResources/resources.qrc">
+   <iconset resource="../../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
     <normaloff>:/GuiFoundation/Icons/Flag_Purple16.png</normaloff>:/GuiFoundation/Icons/Flag_Purple16.png</iconset>
   </property>
   <property name="windowTitle">
@@ -60,7 +60,7 @@
   </widget>
  </widget>
  <resources>
-  <include location="../../../GuiFoundation/QtResources/resources.qrc"/>
+  <include location="../../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc"/>
   <include location="../../QtResources/resources.qrc"/>
  </resources>
  <connections/>

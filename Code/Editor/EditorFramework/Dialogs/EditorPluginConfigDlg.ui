@@ -77,8 +77,8 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc"/>
+  <include location="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc"/>
   <include location="../QtResources/resources.qrc"/>
  </resources>
  <connections/>
-</ui> 
+</ui>
