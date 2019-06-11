@@ -21,6 +21,7 @@ public:
   typedef ezDelegate<bool(ezProcessMessage*)> WaitForMessageCallback;
   ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, WaitForMessageCallback* pMessageCallack = nullptr );
 
+  /// \brief Returns true if any message was processed
   bool ProcessMessages();
   void WaitForMessages();
 

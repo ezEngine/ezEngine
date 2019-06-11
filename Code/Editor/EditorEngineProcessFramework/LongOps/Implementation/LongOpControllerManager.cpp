@@ -2,8 +2,8 @@
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/IPC/ProcessCommunicationChannel.h>
-#include <EditorEngineProcessFramework/LongOps/LongOps.h>
 #include <EditorEngineProcessFramework/LongOps/LongOpControllerManager.h>
+#include <EditorEngineProcessFramework/LongOps/LongOps.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/Stream.h>
 
@@ -157,29 +157,52 @@ ezLongOpControllerManager::ProxyOpInfo* ezLongOpControllerManager::GetOperation(
 
 void ezLongOpControllerManager::DocumentClosed(const ezUuid& documentGuid)
 {
-  EZ_LOCK(m_Mutex);
-
-  for (auto& opInfoPtr : m_ProxyOps)
   {
-    CancelOperation(opInfoPtr->m_OperationGuid);
+    EZ_LOCK(m_Mutex);
+
+    for (auto& opInfoPtr : m_ProxyOps)
+    {
+      CancelOperation(opInfoPtr->m_OperationGuid);
+    }
   }
 
-  for (ezUInt32 i0 = m_ProxyOps.GetCount(); i0 > 0; --i0)
+  bool bOperationsStillActive = true;
+
+  while (bOperationsStillActive)
   {
-    const ezUInt32 i = i0 - 1;
+    bOperationsStillActive = false;
+    m_pCommunicationChannel->ProcessMessages();
 
-    auto& op = m_ProxyOps[i];
-    if (op->m_DocumentGuid == documentGuid)
     {
-      // TODO: wait till canceled
+      EZ_LOCK(m_Mutex);
 
-      ezLongOpControllerEvent e;
-      e.m_Type = ezLongOpControllerEvent::Type::OpRemoved;
-      e.m_OperationGuid = m_ProxyOps[i]->m_OperationGuid;
+      for (ezUInt32 i0 = m_ProxyOps.GetCount(); i0 > 0; --i0)
+      {
+        const ezUInt32 i = i0 - 1;
 
-      m_ProxyOps.RemoveAtAndCopy(i);
+        auto& op = m_ProxyOps[i];
+        if (op->m_DocumentGuid == documentGuid)
+        {
+          if (op->m_bIsRunning)
+          {
+            bOperationsStillActive = true;
+            break;
+          }
 
-      m_Events.Broadcast(e);
+          ezLongOpControllerEvent e;
+          e.m_Type = ezLongOpControllerEvent::Type::OpRemoved;
+          e.m_OperationGuid = m_ProxyOps[i]->m_OperationGuid;
+
+          m_ProxyOps.RemoveAtAndCopy(i);
+
+          m_Events.Broadcast(e);
+        }
+      }
+    }
+
+    if (bOperationsStillActive)
+    {
+      ezThreadUtils::Sleep(ezTime::Milliseconds(100));
     }
   }
 }

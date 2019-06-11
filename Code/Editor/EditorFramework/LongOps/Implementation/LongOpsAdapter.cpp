@@ -38,8 +38,6 @@ ezLongOpsAdapter::ezLongOpsAdapter()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezLongOpsAdapter::DocumentManagerEventHandler, this));
   ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezLongOpsAdapter::PhantomTypeRegistryEventHandler, this));
-
-  CheckAllTypes();
 }
 
 ezLongOpsAdapter::~ezLongOpsAdapter()
@@ -50,12 +48,13 @@ ezLongOpsAdapter::~ezLongOpsAdapter()
 
 void ezLongOpsAdapter::DocumentManagerEventHandler(const ezDocumentManager::Event& e)
 {
-
   if (e.m_Type == ezDocumentManager::Event::Type::DocumentOpened)
   {
     const char* szDocType = e.m_pDocument->GetDocumentTypeDescriptor()->m_pDocumentType->GetTypeName();
     if (ezStringUtils::IsEqual(szDocType, "ezSceneDocument"))
     {
+      CheckAllTypes();
+
       e.m_pDocument->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezLongOpsAdapter::StructureEventHandler, this));
 
       ObjectAdded(e.m_pDocument->GetObjectManager()->GetRootObject());
@@ -95,7 +94,8 @@ void ezLongOpsAdapter::PhantomTypeRegistryEventHandler(const ezPhantomRttiManage
   if (bExists && e.m_Type == ezPhantomRttiManagerEvent::Type::TypeRemoved)
   {
     m_TypesWithLongOps.Remove(e.m_pChangedType);
-    // manager unregister all components
+    // if this ever becomes relevant:
+    // iterate over all open documents and figure out which long ops to remove
   }
 
   if (!bExists && e.m_Type == ezPhantomRttiManagerEvent::Type::TypeAdded)
@@ -103,13 +103,15 @@ void ezLongOpsAdapter::PhantomTypeRegistryEventHandler(const ezPhantomRttiManage
     if (e.m_pChangedType->GetAttributeByType<ezLongOpAttribute>() != nullptr)
     {
       m_TypesWithLongOps.Insert(e.m_pChangedType);
-      // manager register all components
+      // if this ever becomes relevant:
+      // iterate over all open documents and figure out which long ops to add
     }
   }
 
   if (e.m_Type == ezPhantomRttiManagerEvent::Type::TypeChanged)
   {
-    // TODO
+    // if this ever becomes relevant:
+    // iterate over all open documents and figure out which long ops to add or remove
   }
 }
 
