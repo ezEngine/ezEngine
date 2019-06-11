@@ -10,6 +10,7 @@
 #include <RecastPlugin/Utils/RcMath.h>
 #include <RecastPlugin/WorldModule/RecastWorldModule.h>
 #include <RendererCore/Debug/DebugRenderer.h>
+#include <RecastPlugin/Resources/RecastNavMeshResource.h>
 
 //////////////////////////////////////////////////////////////////////////
 
