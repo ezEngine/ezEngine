@@ -3,21 +3,17 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Animation/AnimatedMeshComponent.h>
+#include <Interfaces/PhysicsWorldModule.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <RendererCore/Debug/DebugRendererContext.h>
 #include <RendererFoundation/Device/Device.h>
-#include <Interfaces/PhysicsWorldModule.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 10, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Mesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Animated Mesh")),
-    EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
-    EZ_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new ezAssetBrowserAttribute("Material")),
-
     EZ_ACCESSOR_PROPERTY("AnimationClip", GetAnimationClipFile, SetAnimationClipFile)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
     EZ_ACCESSOR_PROPERTY("Loop", GetLoopAnimation, SetLoopAnimation),
     EZ_ACCESSOR_PROPERTY("Speed", GetAnimationSpeed, SetAnimationSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
@@ -68,9 +64,6 @@ void ezAnimatedMeshComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  // make sure the skinning buffer is deleted
-  EZ_ASSERT_DEBUG(m_hSkinningTransformsBuffer.IsInvalidated(), "The skinning buffer should not exist at this time");
-
   if (m_hMesh.IsValid())
   {
     ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::NoFallback);
@@ -89,24 +82,10 @@ void ezAnimatedMeshComponent::OnSimulationStarted()
 
     m_AnimationPose.ConvertFromObjectSpaceToSkinningSpace(skeleton);
 
-    // m_SkinningMatrices = m_AnimationPose.GetAllTransforms();
-
-    // Create the buffer for the skinning matrices
-    ezGALBufferCreationDescription BufferDesc;
-    BufferDesc.m_uiStructSize = sizeof(ezMat4);
-    BufferDesc.m_uiTotalSize = BufferDesc.m_uiStructSize * m_AnimationPose.GetTransformCount();
-    BufferDesc.m_bUseAsStructuredBuffer = true;
-    BufferDesc.m_bAllowShaderResourceView = true;
-    BufferDesc.m_ResourceAccess.m_bImmutable = false;
-
-    m_hSkinningTransformsBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(
-        BufferDesc,
-        ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(m_AnimationPose.GetAllTransforms().GetPtr()), BufferDesc.m_uiTotalSize));
-
+    CreateSkinningTransformBuffer(m_AnimationPose.GetAllTransforms());
   }
 
   m_AnimationClipSampler.RestartAnimation();
-
 }
 
 void ezAnimatedMeshComponent::SetAnimationClip(const ezAnimationClipResourceHandle& hResource)
@@ -194,10 +173,7 @@ void ezAnimatedMeshComponent::Update()
 
   m_AnimationPose.ConvertFromObjectSpaceToSkinningSpace(skeleton);
 
-  ezArrayPtr<ezMat4> pRenderMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, m_AnimationPose.GetTransformCount());
-  ezMemoryUtils::Copy(pRenderMatrices.GetPtr(), m_AnimationPose.GetAllTransforms().GetPtr(), m_AnimationPose.GetTransformCount());
-
-  m_SkinningMatrices = pRenderMatrices;
+  UpdateSkinningTransformBuffer(m_AnimationPose.GetAllTransforms());
 
   if (m_bApplyRootMotion)
   {
@@ -219,7 +195,7 @@ void ezAnimatedMeshComponent::CreatePhysicsShapes(const ezSkeletonResourceDescri
   if (pPhysicsInterface == nullptr)
     return;
 
-  //m_pRagdoll = pPhysicsInterface->CreateRagdoll(skeleton, GetOwner()->GetGlobalTransform(), pose);
+  // m_pRagdoll = pPhysicsInterface->CreateRagdoll(skeleton, GetOwner()->GetGlobalTransform(), pose);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -230,7 +206,7 @@ class ezAnimatedMeshComponentPatch_4_5 : public ezGraphPatch
 {
 public:
   ezAnimatedMeshComponentPatch_4_5()
-      : ezGraphPatch("ezSimpleAnimationComponent", 5)
+    : ezGraphPatch("ezSimpleAnimationComponent", 5)
   {
   }
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
@@ -244,4 +220,3 @@ ezAnimatedMeshComponentPatch_4_5 g_ezAnimatedMeshComponentPatch_4_5;
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_AnimatedMeshComponent);
-

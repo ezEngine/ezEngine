@@ -14,7 +14,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezMotionMatchingComponent, 2, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Mesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Animated Mesh")),
     EZ_ARRAY_ACCESSOR_PROPERTY("Animations", Animations_GetCount, Animations_GetValue, Animations_SetValue, Animations_Insert, Animations_Remove)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
   }
   EZ_END_PROPERTIES;
@@ -56,9 +55,6 @@ void ezMotionMatchingComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  // make sure the skinning buffer is deleted
-  EZ_ASSERT_DEBUG(m_hSkinningTransformsBuffer.IsInvalidated(), "The skinning buffer should not exist at this time");
-
   if (m_hMesh.IsValid())
   {
     ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::NoFallback);
@@ -74,19 +70,7 @@ void ezMotionMatchingComponent::OnSimulationStarted()
     m_AnimationPose.ConvertFromLocalSpaceToObjectSpace(skeleton);
     m_AnimationPose.ConvertFromObjectSpaceToSkinningSpace(skeleton);
 
-    // m_SkinningMatrices = m_AnimationPose.GetAllTransforms();
-
-    // Create the buffer for the skinning matrices
-    ezGALBufferCreationDescription BufferDesc;
-    BufferDesc.m_uiStructSize = sizeof(ezMat4);
-    BufferDesc.m_uiTotalSize = BufferDesc.m_uiStructSize * m_AnimationPose.GetTransformCount();
-    BufferDesc.m_bUseAsStructuredBuffer = true;
-    BufferDesc.m_bAllowShaderResourceView = true;
-    BufferDesc.m_ResourceAccess.m_bImmutable = false;
-
-    m_hSkinningTransformsBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(
-        BufferDesc,
-        ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(m_AnimationPose.GetAllTransforms().GetPtr()), BufferDesc.m_uiTotalSize));
+    CreateSkinningTransformBuffer(m_AnimationPose.GetAllTransforms());
   }
 
   // m_AnimationClipSampler.RestartAnimation();
@@ -299,10 +283,7 @@ void ezMotionMatchingComponent::Update()
 
   m_AnimationPose.ConvertFromObjectSpaceToSkinningSpace(skeleton);
 
-  ezArrayPtr<ezMat4> pRenderMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, m_AnimationPose.GetTransformCount());
-  ezMemoryUtils::Copy(pRenderMatrices.GetPtr(), m_AnimationPose.GetAllTransforms().GetPtr(), m_AnimationPose.GetTransformCount());
-
-  m_SkinningMatrices = pRenderMatrices;
+  UpdateSkinningTransformBuffer(m_AnimationPose.GetAllTransforms());
 }
 
 void ezMotionMatchingComponent::SetAnimation(ezUInt32 uiIndex, const ezAnimationClipResourceHandle& hResource)

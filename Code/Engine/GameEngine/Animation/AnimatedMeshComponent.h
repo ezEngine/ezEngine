@@ -3,7 +3,7 @@
 #include <GameEngine/GameEngineDLL.h>
 #include <RendererCore/AnimationSystem/AnimationGraph/AnimationClipSampler.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
-#include <RendererCore/Meshes/MeshComponentBase.h>
+#include <RendererCore/Meshes/SkinnedMeshComponent.h>
 
 struct ezSkeletonResourceDescriptor;
 typedef ezTypedResourceHandle<class ezAnimationClipResource> ezAnimationClipResourceHandle;
@@ -11,9 +11,9 @@ typedef ezTypedResourceHandle<class ezSkeletonResource> ezSkeletonResourceHandle
 
 typedef ezComponentManagerSimple<class ezAnimatedMeshComponent, ezComponentUpdateType::WhenSimulating> ezAnimatedMeshComponentManager;
 
-class EZ_GAMEENGINE_DLL ezAnimatedMeshComponent : public ezMeshComponentBase
+class EZ_GAMEENGINE_DLL ezAnimatedMeshComponent : public ezSkinnedMeshComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezAnimatedMeshComponent, ezMeshComponentBase, ezAnimatedMeshComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezAnimatedMeshComponent, ezSkinnedMeshComponent, ezAnimatedMeshComponentManager);
 
 public:
   ezAnimatedMeshComponent();
@@ -57,4 +57,3 @@ protected:
   ezSkeletonResourceHandle m_hSkeleton;
   ezAnimationClipSampler m_AnimationClipSampler;
 };
-

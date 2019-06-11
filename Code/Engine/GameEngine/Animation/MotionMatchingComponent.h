@@ -3,16 +3,16 @@
 #include <GameEngine/GameEngineDLL.h>
 #include <RendererCore/AnimationSystem/AnimationGraph/AnimationClipSampler.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
-#include <RendererCore/Meshes/MeshComponentBase.h>
+#include <RendererCore/Meshes/SkinnedMeshComponent.h>
 
 typedef ezTypedResourceHandle<class ezAnimationClipResource> ezAnimationClipResourceHandle;
 typedef ezTypedResourceHandle<class ezSkeletonResource> ezSkeletonResourceHandle;
 
 typedef ezComponentManagerSimple<class ezMotionMatchingComponent, ezComponentUpdateType::WhenSimulating> ezMotionMatchingComponentManager;
 
-class EZ_GAMEENGINE_DLL ezMotionMatchingComponent : public ezMeshComponentBase
+class EZ_GAMEENGINE_DLL ezMotionMatchingComponent : public ezSkinnedMeshComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezMotionMatchingComponent, ezMeshComponentBase, ezMotionMatchingComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezMotionMatchingComponent, ezSkinnedMeshComponent, ezMotionMatchingComponentManager);
 
 public:
   ezMotionMatchingComponent();
@@ -83,9 +83,7 @@ protected:
   ezDynamicArray<MotionData> m_MotionData;
 
   static void PrecomputeMotion(ezDynamicArray<MotionData>& motionData, ezTempHashedString jointName1, ezTempHashedString jointName2,
-                               const ezAnimationClipResourceDescriptor& animClip, ezUInt16 uiAnimClipIndex, const ezSkeleton& skeleton);
+    const ezAnimationClipResourceDescriptor& animClip, ezUInt16 uiAnimClipIndex, const ezSkeleton& skeleton);
 
-  ezUInt32 FindBestKeyframe(const TargetKeyframe& current, ezVec3 vLeftFootPosition, ezVec3 vRightFootPosition,
-                            ezVec3 vTargetDir) const;
+  ezUInt32 FindBestKeyframe(const TargetKeyframe& current, ezVec3 vLeftFootPosition, ezVec3 vRightFootPosition, ezVec3 vTargetDir) const;
 };
-

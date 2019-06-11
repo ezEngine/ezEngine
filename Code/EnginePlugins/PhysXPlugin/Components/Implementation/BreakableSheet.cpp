@@ -11,7 +11,7 @@
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererCore/Meshes/MeshComponent.h>
+#include <RendererCore/Meshes/SkinnedMeshComponent.h>
 #include <RendererFoundation/Device/Device.h>
 #include <Core/Utils/WorldGeoExtractionUtil.h>
 
@@ -268,29 +268,34 @@ void ezBreakableSheetComponent::OnExtractRenderData(ezMsgExtractRenderData& msg)
     hMesh = m_hUnbrokenMesh;
   }
 
-  ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
+  ezMeshRenderData* pRenderData;
+  if (m_bBroken)
+  {
+    auto pSkinnedRenderData = ezCreateRenderDataForThisFrame<ezSkinnedMeshRenderData>(GetOwner());
+    pSkinnedRenderData->m_hSkinningMatrices = m_hPieceTransformsBuffer;
+
+    // We only supply this pointer if any transform changed
+    if (m_bPiecesMovedThisFrame)
+    {
+      auto pMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, m_PieceTransforms.GetCount());
+      pMatrices.CopyFrom(m_PieceTransforms);
+
+      pSkinnedRenderData->m_pNewSkinningMatricesData = pMatrices.ToByteArray();
+    }
+
+    pRenderData = pSkinnedRenderData;
+  }
+  else
+  {
+    pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
+  }
+
   {
     pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
     pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
     pRenderData->m_hMesh = hMesh;
     pRenderData->m_hMaterial = hMaterial;
     pRenderData->m_Color = ezColor::White;
-
-    if (m_bBroken)
-    {
-      pRenderData->m_hSkinningMatrices = m_hPieceTransformsBuffer;
-
-      // We only supply this pointer if any transform changed
-      if (m_bPiecesMovedThisFrame)
-      {
-        auto pMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, m_PieceTransforms.GetCount());
-        ezMemoryUtils::Copy(pMatrices.GetPtr(), m_PieceTransforms.GetData(), m_PieceTransforms.GetCount());
-
-        pRenderData->m_pNewSkinningMatricesData =
-            ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(pMatrices.GetPtr()), m_PieceTransforms.GetCount() * sizeof(ezMat4));
-      }
-    }
-
     pRenderData->m_uiSubMeshIndex = 0;
     pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
 
