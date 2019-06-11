@@ -1,11 +1,14 @@
 #pragma once
 
-#include <RecastPlugin/RecastPluginDLL.h>
-#include <Core/World/World.h>
 #include <Core/World/Component.h>
+#include <Core/World/World.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
+#include <RecastPlugin/RecastPluginDLL.h>
 
 class ezRecastWorldModule;
+class ezAbstractObjectNode;
+
+typedef ezTypedResourceHandle<class ezRecastNavMeshResource> ezRecastNavMeshResourceHandle;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +19,6 @@ class EZ_RECASTPLUGIN_DLL ezRcComponent : public ezComponent
 public:
   ezRcComponent();
   ~ezRcComponent();
-
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -58,11 +60,17 @@ public:
 
   ezRecastConfig m_NavMeshConfig;
 
+  //////////////////////////////////////////////////////////////////////////
+  // Editor Interface
+private:
+
+  void OnObjectCreated(const ezAbstractObjectNode& node);
+
 protected:
-  virtual void OnSimulationStarted() override;
+  virtual void OnActivated() override;
+
   void VisualizeNavMesh();
   void VisualizePointsOfInterest();
 
-  ezUInt32 m_uiDelay = 2;
-  ezRecastNavMeshBuilder m_NavMeshBuilder;
+  ezRecastNavMeshResourceHandle m_hNavMesh; 
 };

@@ -61,7 +61,7 @@ void ezEditorEngineProcessApp::DestroyRemoteWindow()
   {
     static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->RemoveWindow(m_pRemoteWindow.Borrow());
 
-    m_pRemoteWindow.Reset();
+    m_pRemoteWindow.Clear();
   }
 }
 

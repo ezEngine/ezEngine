@@ -52,7 +52,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+        <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
          <normaloff>:/GuiFoundation/Icons/OpenFolder16.png</normaloff>:/GuiFoundation/Icons/OpenFolder16.png</iconset>
        </property>
       </widget>
@@ -97,7 +97,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+        <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
          <normaloff>:/GuiFoundation/Icons/DataDirAdd16.png</normaloff>:/GuiFoundation/Icons/DataDirAdd16.png</iconset>
        </property>
       </widget>
@@ -111,7 +111,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+        <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
          <normaloff>:/GuiFoundation/Icons/Delete16.png</normaloff>:/GuiFoundation/Icons/Delete16.png</iconset>
        </property>
       </widget>
@@ -138,7 +138,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+        <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
          <normaloff>:/GuiFoundation/Icons/MoveUp16.png</normaloff>:/GuiFoundation/Icons/MoveUp16.png</iconset>
        </property>
       </widget>
@@ -152,7 +152,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+        <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
          <normaloff>:/GuiFoundation/Icons/MoveDown16.png</normaloff>:/GuiFoundation/Icons/MoveDown16.png</iconset>
        </property>
       </widget>
@@ -162,8 +162,8 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc"/>
+  <include location="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc"/>
   <include location="../QtResources/resources.qrc"/>
  </resources>
  <connections/>
-</ui> 
+</ui>

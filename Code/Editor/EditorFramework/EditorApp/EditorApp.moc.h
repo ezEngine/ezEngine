@@ -1,22 +1,23 @@
 #pragma once
 
-#include <Foundation/Application/Config/FileSystemConfig.h>
-#include <Foundation/Application/Config/PluginConfig.h>
+#include <EditorEngineProcessFramework/LongOps/LongOpControllerManager.h>
 #include <EditorFramework/EditorApp/Configuration/Plugins.h>
 #include <EditorFramework/EditorApp/WhatsNew.h>
-#include <EditorFramework/IPC/EngineProcessConnection.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
+#include <EditorFramework/IPC/EngineProcessConnection.h>
+#include <Foundation/Application/Config/FileSystemConfig.h>
+#include <Foundation/Application/Config/PluginConfig.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Logging/HTMLWriter.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <QApplication>
 #include <ToolsFoundation/Basics/RecentFilesList.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
-#include <Foundation/Types/Bitflags.h>
 
 class QMainWindow;
 class QWidget;
@@ -89,7 +90,7 @@ public:
   /// The applications output is parsed and forwarded to the given log interface. A custom log level is applied first.
   /// If the tool cannot be found or it takes longer to execute than the allowed timeout, the function returns failure.
   ezStatus ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout,
-                       ezLogInterface* pLogOutput = nullptr, ezLogMsgType::Enum LogLevel = ezLogMsgType::WarningMsg);
+    ezLogInterface* pLogOutput = nullptr, ezLogMsgType::Enum LogLevel = ezLogMsgType::WarningMsg);
 
   /// \brief Creates the string with which to run Fileserve for the currently open project.
   ezString BuildFileserveCommandLine() const;
@@ -194,6 +195,9 @@ public:
   /// as txt files. Each line names one input slot.
   void GetKnownInputSlots(ezDynamicArray<ezString>& slots) const;
 
+  /// \brief Instructs the engine to reload its resources
+  void ReloadEngineResources();
+
 Q_SIGNALS:
   void IdleEvent();
 
@@ -255,6 +259,7 @@ private:
   ezRecentFilesList s_RecentDocuments;
 
   QApplication* s_pQtApplication;
+  ezLongOpControllerManager m_LongOpControllerManager;
   ezEditorEngineProcessConnection* s_pEngineViewProcess;
   QTimer* m_pTimer;
 

@@ -71,11 +71,16 @@ void ezSoldierComponent::Update()
   {
     ezRecastWorldModule* pRecastModule = GetWorld()->GetOrCreateModule<ezRecastWorldModule>();
 
-    if (pRecastModule == nullptr || pRecastModule->m_pCrowd == nullptr)
+    if (pRecastModule == nullptr)
       return;
 
     ezAgentSteeringComponent* pSteering = nullptr;
     if (!GetWorld()->TryGetComponent(m_hSteeringComponent, pSteering))
+      return;
+
+    const auto pPoiGraph = pRecastModule->GetNavMeshPointsOfInterestGraph();
+
+    if (pPoiGraph == nullptr)
       return;
 
 
@@ -83,25 +88,9 @@ void ezSoldierComponent::Update()
     bool bFoundAny = false;
 
     {
-      dtCrowd* pCrowd = pRecastModule->m_pCrowd;
+      const auto& graph = pPoiGraph->GetGraph();
 
-      dtQueryFilter filter;
-      dtPolyRef ref;
-      float pt[3];
-      if (dtStatusFailed(pCrowd->getNavMeshQuery()->findRandomPoint(&filter, frand, &ref, pt)))
-      {
-        ezLog::Error("Could not find random point");
-      }
-      else
-      {
-        vNewTargetPos = ezVec3(pt[0], pt[2], pt[1]);
-      }
-    }
-
-    {
-      const auto& graph = pRecastModule->m_NavMeshPointsOfInterest.GetGraph();
-
-      const ezUInt32 uiTimestamp = pRecastModule->m_NavMeshPointsOfInterest.GetCheckVisibilityTimeStamp() - 10;
+      const ezUInt32 uiTimestamp = pPoiGraph->GetCheckVisibilityTimeStamp() - 10;
 
       const ezVec3 vOwnPos = GetOwner()->GetGlobalPosition();
 

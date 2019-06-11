@@ -4,9 +4,8 @@
 #include <RecastPlugin/NavMeshBuilder/NavMeshPointsOfInterest.h>
 #include <Recast/Recast.h>
 
-ezNavMeshPointOfInterestGraph::ezNavMeshPointOfInterestGraph() {}
-
-ezNavMeshPointOfInterestGraph::~ezNavMeshPointOfInterestGraph() {}
+ezNavMeshPointOfInterestGraph::ezNavMeshPointOfInterestGraph() = default;
+ezNavMeshPointOfInterestGraph::~ezNavMeshPointOfInterestGraph() = default;
 
 void ezNavMeshPointOfInterestGraph::IncreaseCheckVisibiblityTimeStamp(ezTime tNow)
 {

@@ -76,7 +76,7 @@ ezSoundBankAssetDocumentManager::~ezSoundBankAssetDocumentManager()
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSoundBankAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_Fmod->Shutdown();
-  m_Fmod.Reset();
+  m_Fmod.Clear();
 }
 
 void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo,

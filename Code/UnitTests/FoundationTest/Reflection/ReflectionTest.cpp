@@ -97,6 +97,21 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
     EZ_TEST_STRING(pClass2->GetTypeName(), "ezTestClass2");
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindTypeByNameHash")
+  {
+    ezRTTI* pFloat = ezRTTI::FindTypeByName("float");
+    ezRTTI* pFloat2 = ezRTTI::FindTypeByNameHash(pFloat->GetTypeNameHash());
+    EZ_TEST_BOOL(pFloat == pFloat2);
+
+    ezRTTI* pStruct = ezRTTI::FindTypeByName("ezTestStruct");
+    ezRTTI* pStruct2 = ezRTTI::FindTypeByNameHash(pStruct->GetTypeNameHash());
+    EZ_TEST_BOOL(pStruct == pStruct2);
+
+    ezRTTI* pClass = ezRTTI::FindTypeByName("ezTestClass2");
+    ezRTTI* pClass2 = ezRTTI::FindTypeByNameHash(pClass->GetTypeNameHash());
+    EZ_TEST_BOOL(pClass == pClass2);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetProperties")
   {
     {

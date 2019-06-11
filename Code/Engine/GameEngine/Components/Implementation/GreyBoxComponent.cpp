@@ -307,8 +307,18 @@ void ezGreyBoxComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
 
 void ezGreyBoxComponent::OnExtractGeometry(ezMsgExtractGeometry& msg) const
 {
-  if (msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh)
-    return;
+  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh ||
+    msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
+  {
+    // do not include this for the collision mesh, if the proper tag is not set
+    if (!GetOwner()->GetTags().IsSetByName("AutoColMesh"))
+      return;
+  }
+  else
+  {
+    EZ_ASSERT_DEBUG(msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh, "Unknown geometry extraction mode");
+  }
+    
 
   const ezTransform transform = GetOwner()->GetGlobalTransform();
 

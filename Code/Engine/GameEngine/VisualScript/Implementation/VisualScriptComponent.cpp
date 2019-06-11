@@ -33,7 +33,7 @@ ezVisualScriptComponent::ezVisualScriptComponent() {}
 ezVisualScriptComponent::~ezVisualScriptComponent()
 {
   m_hResource.Invalidate();
-  m_Script.Reset();
+  m_Script.Clear();
 }
 
 void ezVisualScriptComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -172,7 +172,7 @@ void ezVisualScriptComponent::Update()
     if (bEnableDebugOutput)
       m_pActivity = EZ_DEFAULT_NEW(ezVisualScriptInstanceActivity);
     else
-      m_pActivity.Reset();
+      m_pActivity.Clear();
   }
 
   // Script Parameters

@@ -54,12 +54,12 @@ void rcAllocSetCustom(rcAllocFunc *allocFunc, rcFreeFunc *freeFunc);
 ///  @param[in]		hint	A hint to the allocator on how long the memory is expected to be in use.
 ///  @return A pointer to the beginning of the allocated memory block, or null if the allocation failed.
 /// @see rcFree
-void* rcAlloc(size_t size, rcAllocHint hint);
+RECAST_API void* rcAlloc(size_t size, rcAllocHint hint);
 
 /// Deallocates a memory block.
 ///  @param[in]		ptr		A pointer to a memory block previously allocated using #rcAlloc.
 /// @see rcAlloc
-void rcFree(void* ptr);
+RECAST_API void rcFree(void* ptr);
 
 /// An implementation of operator new usable for placement new. The default one is part of STL (which we don't use).
 /// rcNewTag is a dummy type used to differentiate our operator from the STL one, in case users import both Recast
@@ -68,7 +68,7 @@ struct rcNewTag {};
 inline void* operator new(size_t, const rcNewTag&, void* p) { return p; }
 inline void operator delete(void*, const rcNewTag&, void*) {}
 
-/// Signed to avoid warnnings when comparing to int loop indexes, and common error with comparing to zero.
+/// Signed to avoid warnings when comparing to int loop indexes, and common error with comparing to zero.
 /// MSVC2010 has a bug where ssize_t is unsigned (!!!).
 typedef intptr_t rcSizeType;
 #define RC_SIZE_MAX INTPTR_MAX

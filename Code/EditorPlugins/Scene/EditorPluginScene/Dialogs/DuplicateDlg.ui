@@ -832,7 +832,7 @@
  </tabstops>
  <resources>
   <include location="../QtResources/resources.qrc"/>
-  <include location="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc"/>
+  <include location="../../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc"/>
  </resources>
  <connections/>
-</ui> 
+</ui>

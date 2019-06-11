@@ -55,6 +55,7 @@ Panel.AssetBrowser;Asset Browser
 Panel.Log;Log
 Panel.AssetCurator;Asset Curator
 Panel.CVar;CVars
+Panel.LongOps;Background Operations
 ezSceneViewPerspective::Orthogonal_Front;Ortho Front
 ezSceneViewPerspective::Orthogonal_Right;Ortho Right
 ezSceneViewPerspective::Orthogonal_Top;Ortho Top

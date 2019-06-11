@@ -1,5 +1,6 @@
 #include <EditorFrameworkPCH.h>
 
+#include <EditorEngineProcessFramework/LongOps/LongOps.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
@@ -11,9 +12,9 @@
 EZ_IMPLEMENT_SINGLETON(ezQtEditorApp);
 
 ezQtEditorApp::ezQtEditorApp()
-    : m_SingletonRegistrar(this)
-    , s_RecentProjects(5)
-    , s_RecentDocuments(50)
+  : m_SingletonRegistrar(this)
+  , s_RecentProjects(5)
+  , s_RecentDocuments(50)
 {
   m_pProgressbar = nullptr;
   m_pQtProgressbar = nullptr;
@@ -100,4 +101,11 @@ void ezQtEditorApp::SaveAllOpenDocuments()
       }
     }
   }
+}
+
+void ezQtEditorApp::ReloadEngineResources()
+{
+  ezSimpleConfigMsgToEngine msg;
+  msg.m_sWhatToDo = "ReloadResources";
+  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }

@@ -26,7 +26,7 @@
    <string>Delta Transform</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+   <iconset resource="../../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
     <normaloff>:/GuiFoundation/Icons/ezEditor16.png</normaloff>:/GuiFoundation/Icons/ezEditor16.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -275,8 +275,8 @@
  </tabstops>
  <resources>
   <include location="../QtResources/resources.qrc"/>
-  <include location="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc"/>
-  <include location="../../EditorFramework/QtResources/resources.qrc"/>
+  <include location="../../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc"/>
+  <include location="../../../../Editor/EditorFramework/QtResources/resources.qrc"/>
  </resources>
  <connections/>
-</ui> 
+</ui>

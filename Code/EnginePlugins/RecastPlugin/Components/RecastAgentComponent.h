@@ -11,6 +11,7 @@
 
 class ezRecastWorldModule;
 class ezPhysicsWorldModuleInterface;
+struct ezResourceEvent;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -23,9 +24,12 @@ public:
   ~ezRcAgentComponentManager();
 
   virtual void Initialize() override;
+  virtual void Deinitialize() override;
 
   ezRecastWorldModule* GetRecastWorldModule() const { return m_pWorldModule; }
 
+private:
+  void ResourceEventHandler(const ezResourceEvent& e);
   void Update(const ezWorldModule::UpdateContext& context);
 
   ezPhysicsWorldModuleInterface* m_pPhysicsInterface = nullptr;
@@ -88,8 +92,8 @@ private:
   ezVec3 m_vTargetPosition;
   ezEnum<ezAgentPathFindingState> m_PathToTargetState;
   ezVec3 m_vCurrentPositionOnNavmesh; /// \todo ??? keep update ?
-  ezUniquePtr<dtNavMeshQuery> m_pQuery;
-  ezUniquePtr<dtPathCorridor> m_pCorridor;
+  ezUniquePtr<dtNavMeshQuery> m_pQuery; // careful, dtNavMeshQuery is not moveble
+  ezUniquePtr<dtPathCorridor> m_pCorridor; // careful, dtPathCorridor is not moveble
   dtQueryFilter m_QueryFilter; /// \todo hard-coded filter
   ezDynamicArray<dtPolyRef> m_PathCorridor;
   // path following
@@ -113,6 +117,7 @@ public:
 private:
 
   ezResult InitializeRecast();
+  void UninitializeRecast();
   virtual void OnSimulationStarted() override;
   void Update();
 

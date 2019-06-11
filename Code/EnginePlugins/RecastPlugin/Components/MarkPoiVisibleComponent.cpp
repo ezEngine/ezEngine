@@ -61,13 +61,18 @@ void ezRcMarkPoiVisibleComponent::Update()
 
   const ezVec3 vOwnPos = GetOwner()->GetGlobalPosition();
 
-  const ezUInt32 uiCheckTimeStamp = m_pWorldModule->m_NavMeshPointsOfInterest.GetCheckVisibilityTimeStamp();
+  auto pPoiGraph = m_pWorldModule->AccessNavMeshPointsOfInterestGraph();
+
+  if (pPoiGraph == nullptr)
+    return;
+
+  const ezUInt32 uiCheckTimeStamp = pPoiGraph->GetCheckVisibilityTimeStamp();
   const ezUInt32 uiTimeStampFullyVisible = uiCheckTimeStamp | 3U;
   const ezUInt32 uiTimeStampTopVisible = uiCheckTimeStamp | 2U;
 
   const ezUInt32 uiSkipCheckTimeStamp = uiCheckTimeStamp - 10;
 
-  auto& graph = m_pWorldModule->m_NavMeshPointsOfInterest.GetGraph();
+  auto& graph = pPoiGraph->GetGraph();
   auto& POIs = graph.AccessPoints();
 
   ezDynamicArray<ezUInt32> points(ezFrameAllocator::GetCurrentAllocator());

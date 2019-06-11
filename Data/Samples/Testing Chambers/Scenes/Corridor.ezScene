@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{6179145179810412830}
+		u4 %Hash{2548677466807791657}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -501,7 +501,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %AgentClimbHeight{0xCDCCCC3E}
+		f %AgentClimbHeight{0x0000003F}
 		f %AgentHeight{0x0000C03F}
 		f %AgentRadius{0x9A99993E}
 		f %CellHeight{0xCDCC4C3E}
@@ -6683,7 +6683,7 @@ o
 			Uuid{u4{10746396456058563476,5690228047407475115}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x00009C41,0x0000A03F,0x0000003F}}
+		Vec3 %LocalPosition{f{0x00009A41,0x0000003F,0x00002040}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -8181,10 +8181,10 @@ o
 {
 	Uuid %id{u4{10746396456058563476,5690228047407475115}}
 	s %t{"ezRcNavMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
-		b %Active{0}
+		b %Active{1}
 		Uuid %NavMeshConfig{u4{15512005307478216315,742640676345155248}}
 		b %ShowNavMesh{1}
 	}
@@ -19315,7 +19315,7 @@ o
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Phantom"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"ezRecastPlugin"}
+		s %PluginName{"ezEnginePluginRecast"}
 		VarArray %Properties{}
 		s %TypeName{"ezRcComponent"}
 		u3 %TypeSize{48}
@@ -19671,6 +19671,16 @@ o
 }
 o
 {
+	Uuid %id{u4{5511187838816719501,8358481150714353677}}
+	s %t{"ezLongOpAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Type{"ezLongOpProxy_BuildNavMesh"}
+	}
+}
+o
+{
 	Uuid %id{u4{8781371220448777178,8391987746845008996}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -19716,7 +19726,7 @@ o
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
 		VarArray %Functions{}
 		s %ParentTypeName{""}
-		s %PluginName{"ezRecastPlugin"}
+		s %PluginName{"ezEnginePluginRecast"}
 		VarArray %Properties
 		{
 			Uuid{u4{5236764827655052968,17605386531030493442}}
@@ -20046,19 +20056,22 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{5511187838816719501,8358481150714353677}}
+		}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezRcComponent"}
-		s %PluginName{"ezRecastPlugin"}
+		s %PluginName{"ezEnginePluginRecast"}
 		VarArray %Properties
 		{
 			Uuid{u4{8487572756242369900,9240138294589047880}}
 			Uuid{u4{15970607729021301708,2701226320102848644}}
 		}
 		s %TypeName{"ezRcNavMeshComponent"}
-		u3 %TypeSize{224}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{112}
+		u3 %TypeVersion{2}
 	}
 }
 o

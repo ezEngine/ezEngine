@@ -4,3 +4,5 @@ ezRcNavMeshComponent;Recast Navmesh
 NavMeshConfig;Navmesh Config
 ezRcMarkPoiVisibleComponent;Mark POI Visible
 ezSoldierComponent;Soldier
+Menu.Recast;Recast
+NavMesh.Generate;Generate NavMesh

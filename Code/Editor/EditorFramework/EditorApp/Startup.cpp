@@ -22,6 +22,7 @@
 #include <EditorFramework/Panels/CVarPanel/CVarPanel.moc.h>
 #include <EditorFramework/Panels/GameObjectPanel/GameObjectPanel.moc.h>
 #include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
+#include <EditorFramework/Panels/LongOpsPanel/LongOpsPanel.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/DynamicEnumPropertyWidget.moc.h>
@@ -177,6 +178,8 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
 
   s_pEngineViewProcess->SetWaitForDebugger(flags.IsSet(StartupFlags::Debug));
 
+  m_LongOpControllerManager.Startup(&s_pEngineViewProcess->GetCommunicationChannel());
+
   QCoreApplication::setOrganizationDomain("www.ezEngine.net");
   QCoreApplication::setOrganizationName("ezEngine Project");
   QCoreApplication::setApplicationName(ezApplicationServices::GetSingleton()->GetApplicationName());
@@ -287,6 +290,8 @@ void ezQtEditorApp::ShutdownEditor()
 
   SaveSettings();
 
+  m_LongOpControllerManager.Shutdown();
+
   ezToolsProject::CloseProject();
 
   ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::EngineProcessMsgHandler, this));
@@ -361,6 +366,7 @@ void ezQtEditorApp::CreatePanels()
   EZ_PROFILE_SCOPE("CreatePanels");
   ezQtApplicationPanel* pAssetBrowserPanel = new ezQtAssetBrowserPanel();
   ezQtApplicationPanel* pLogPanel = new ezQtLogPanel();
+  ezQtApplicationPanel* pLongOpsPanel = new ezQtLongOpsPanel();
   ezQtApplicationPanel* pCVarPanel = new ezQtCVarPanel();
   ezQtApplicationPanel* pAssetCuratorPanel = new ezQtAssetCuratorPanel();
 
@@ -369,6 +375,7 @@ void ezQtEditorApp::CreatePanels()
   pMainWnd->tabifyDockWidget(pAssetBrowserPanel, pLogPanel);
   pMainWnd->tabifyDockWidget(pAssetBrowserPanel, pAssetCuratorPanel);
   pMainWnd->tabifyDockWidget(pAssetBrowserPanel, pCVarPanel);
+  pMainWnd->tabifyDockWidget(pAssetBrowserPanel, pLongOpsPanel);
 
   pAssetBrowserPanel->raise();
 }

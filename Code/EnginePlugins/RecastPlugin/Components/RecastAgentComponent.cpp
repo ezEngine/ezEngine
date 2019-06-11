@@ -1,14 +1,16 @@
 #include <RecastPluginPCH.h>
 
+#include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Components/CharacterControllerComponent.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <Recast/DetourCrowd.h>
 #include <RecastPlugin/Components/RecastAgentComponent.h>
 #include <RecastPlugin/Utils/RcMath.h>
 #include <RecastPlugin/WorldModule/RecastWorldModule.h>
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <Recast/DetourCrowd.h>
+#include <RecastPlugin/Resources/RecastNavMeshResource.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -49,10 +51,7 @@ ezResult ezRcAgentComponent::InitializeRecast()
   if (m_bRecastInitialized)
     return EZ_SUCCESS;
 
-  if (!GetWorld()->GetOrCreateModule<ezRecastWorldModule>()->IsInitialized())
-    return EZ_FAILURE;
-
-  dtNavMesh* pNavMesh = GetWorld()->GetOrCreateModule<ezRecastWorldModule>()->GetNavMesh();
+  const dtNavMesh* pNavMesh = GetWorld()->GetOrCreateModule<ezRecastWorldModule>()->GetDetourNavMesh();
   if (pNavMesh == nullptr)
     return EZ_FAILURE;
 
@@ -66,6 +65,21 @@ ezResult ezRcAgentComponent::InitializeRecast()
   m_pCorridor->init(256);
 
   return EZ_SUCCESS;
+}
+
+void ezRcAgentComponent::UninitializeRecast()
+{
+  if (!m_bRecastInitialized)
+    return;
+
+  m_bRecastInitialized = false;
+  m_pQuery.Clear();
+  m_pCorridor.Clear();
+
+  if (m_PathToTargetState != ezAgentPathFindingState::HasNoTarget)
+    SetTargetPosition(m_vTargetPosition);
+  else
+    ClearTargetPosition();
 }
 
 void ezRcAgentComponent::ClearTargetPosition()
@@ -106,7 +120,7 @@ ezVec3 ezRcAgentComponent::GetTargetPosition() const
 }
 
 ezResult ezRcAgentComponent::FindNavMeshPolyAt(const ezVec3& vPosition, dtPolyRef& out_PolyRef, ezVec3* out_vAdjustedPosition /*= nullptr*/,
-                                               float fPlaneEpsilon /*= 0.01f*/, float fHeightEpsilon /*= 1.0f*/) const
+  float fPlaneEpsilon /*= 0.01f*/, float fHeightEpsilon /*= 1.0f*/) const
 {
   ezRcPos rcPos = vPosition;
   ezVec3 vSize(fPlaneEpsilon, fHeightEpsilon, fPlaneEpsilon);
@@ -140,7 +154,7 @@ ezResult ezRcAgentComponent::ComputePathCorridor(dtPolyRef startPoly, dtPolyRef 
   // make enough room
   m_PathCorridor.SetCountUninitialized(256);
   if (dtStatusFailed(m_pQuery->findPath(startPoly, endPoly, rcStart, rcEnd, &m_QueryFilter, m_PathCorridor.GetData(), &iPathCorridorLength,
-                                        (int)m_PathCorridor.GetCount())) ||
+        (int)m_PathCorridor.GetCount())) ||
       iPathCorridorLength <= 0)
   {
     m_PathCorridor.Clear();
@@ -347,9 +361,6 @@ void ezRcAgentComponent::SyncSteeringWithReality()
 
 void ezRcAgentComponent::Update()
 {
-  if (!IsActiveAndSimulating())
-    return;
-
   // this can happen the first few frames
   if (InitializeRecast().Failed())
     return;
@@ -555,7 +566,7 @@ void ezRcAgentComponent::VisualizeCurrentPath()
 //////////////////////////////////////////////////////////////////////////
 
 ezRcAgentComponentManager::ezRcAgentComponentManager(ezWorld* pWorld)
-    : SUPER(pWorld)
+  : SUPER(pWorld)
 {
 }
 ezRcAgentComponentManager::~ezRcAgentComponentManager() {}
@@ -572,13 +583,35 @@ void ezRcAgentComponentManager::Initialize()
   auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezRcAgentComponentManager::Update, this);
 
   RegisterUpdateFunction(desc);
+
+  ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezRcAgentComponentManager::ResourceEventHandler, this));
+}
+
+void ezRcAgentComponentManager::Deinitialize()
+{
+  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezRcAgentComponentManager::ResourceEventHandler, this));
+
+  SUPER::Deinitialize();
+}
+
+void ezRcAgentComponentManager::ResourceEventHandler(const ezResourceEvent& e)
+{
+  if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading &&
+      e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezRecastNavMeshResource>())
+  {
+    for (auto it = this->m_ComponentStorage.GetIterator(); it.IsValid(); ++it)
+    {
+      // make sure no agent references previous navmeshes
+      it->UninitializeRecast();
+    }
+  }
 }
 
 void ezRcAgentComponentManager::Update(const ezWorldModule::UpdateContext& context)
 {
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
-    if (it->IsActive())
+    if (it->IsActiveAndSimulating())
       it->Update();
   }
 }
