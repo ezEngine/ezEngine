@@ -722,6 +722,12 @@ class EZ_FOUNDATION_DLL ezAutoGenVisScriptMsgHandler : public ezPropertyAttribut
 
 //////////////////////////////////////////////////////////////////////////
 
+/// \brief Used to mark that a component provides functionality that is executed with a long operation in the editor.
+///
+/// \a szOpTypeName must be the class name of a class derived from ezLongOpProxy.
+/// Once a component is added to a scene with this attribute, the named long op will appear in the UI and can be executed.
+///
+/// The automatic registration is done by ezLongOpsAdapter
 class EZ_FOUNDATION_DLL ezLongOpAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezLongOpAttribute, ezPropertyAttribute);

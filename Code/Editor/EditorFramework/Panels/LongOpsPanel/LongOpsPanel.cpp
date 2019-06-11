@@ -26,11 +26,6 @@ ezQtLongOpsPanel ::ezQtLongOpsPanel()
   setWindowIcon(ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Log.png"));
   setWindowTitle(QString::fromUtf8(ezTranslate("Panel.LongOps")));
 
-  // TODO: find a better way to do a queued UI update when events are available
-  connect(&m_HandleQueueTimer, &QTimer::timeout, this, &ezQtLongOpsPanel::HandleEventQueue, Qt::QueuedConnection);
-  m_HandleQueueTimer.setInterval(500);
-  m_HandleQueueTimer.start();
-
   // setup table
   {
     QStringList header;
@@ -65,31 +60,30 @@ ezQtLongOpsPanel::~ezQtLongOpsPanel()
 
 void ezQtLongOpsPanel::LongOpsEventHandler(const ezLongOpControllerEvent& e)
 {
-  if (m_bRebuildTable)
-    return;
-
-  if (e.m_Type != ezLongOpControllerEvent::Type::OpProgress)
+  if (e.m_Type == ezLongOpControllerEvent::Type::OpProgress)
+  {
+    m_bUpdateTable = true;
+  }
+  else
   {
     m_bRebuildTable = true;
-    return;
   }
 
-  auto* opMan = ezLongOpControllerManager::GetSingleton();
-  EZ_LOCK(opMan->m_Mutex);
-  m_EventQueue.PushBack(e);
+  QMetaObject::invokeMethod(this, "StartUpdateTimer", Qt::ConnectionType::QueuedConnection);
 }
 
 void ezQtLongOpsPanel::RebuildTable()
 {
+  auto* opMan = ezLongOpControllerManager::GetSingleton();
+  EZ_LOCK(opMan->m_Mutex);
+
   m_bRebuildTable = false;
+  m_bUpdateTable = false;
 
   ezQtScopedBlockSignals _1(OperationsTable);
 
   OperationsTable->setRowCount(0);
   m_LongOpGuidToRow.Clear();
-
-  auto* opMan = ezLongOpControllerManager::GetSingleton();
-  EZ_LOCK(opMan->m_Mutex);
 
   const auto& opsList = opMan->GetOperations();
   for (ezUInt32 idx = 0; idx < opsList.GetCount(); ++idx)
@@ -140,60 +134,67 @@ void ezQtLongOpsPanel::RebuildTable()
   }
 }
 
-void ezQtLongOpsPanel::HandleEventQueue()
+void ezQtLongOpsPanel::UpdateTable()
 {
-  if (!m_bRebuildTable && m_EventQueue.IsEmpty())
-    return;
-
   auto* opMan = ezLongOpControllerManager::GetSingleton();
   EZ_LOCK(opMan->m_Mutex);
 
-  if (m_bRebuildTable)
-  {
-    m_EventQueue.Clear();
-    RebuildTable();
-    return;
-  }
+  m_bUpdateTable = false;
 
-  for (const auto& e : m_EventQueue)
+  const auto& opsList = opMan->GetOperations();
+  for (ezUInt32 idx = 0; idx < opsList.GetCount(); ++idx)
   {
-    if (e.m_Type == ezLongOpControllerEvent::Type::OpProgress)
+    const auto& pOpInfo = opsList[idx];
+
+    ezUInt32 rowIdx;
+    if (!m_LongOpGuidToRow.TryGetValue(pOpInfo->m_OperationGuid, rowIdx))
+      continue;
+
+    // progress
     {
-      const auto* pOpInfo = opMan->GetOperation(e.m_OperationGuid);
+      QProgressBar* pProgress = qobject_cast<QProgressBar*>(OperationsTable->cellWidget(rowIdx, COL_PROGRESS));
+      pProgress->setValue((int)(pOpInfo->m_fCompletion * 100.0f));
+    }
 
-      if (pOpInfo == nullptr)
-        continue;
+    // button
+    {
+      QPushButton* pButton = qobject_cast<QPushButton*>(OperationsTable->cellWidget(rowIdx, COL_BUTTON));
+      pButton->setText(pOpInfo->m_bIsRunning ? "Cancel" : "Start");
+    }
 
-      ezUInt32 rowIdx;
-      if (m_LongOpGuidToRow.TryGetValue(e.m_OperationGuid, rowIdx))
-      {
-        QProgressBar* pProgress = qobject_cast<QProgressBar*>(OperationsTable->cellWidget(rowIdx, COL_PROGRESS));
-        pProgress->setValue((int)(pOpInfo->m_fCompletion * 100.0f));
+    // duration
+    {
+      ezTime duration = pOpInfo->m_StartOrDuration;
 
-        QPushButton* pButton = qobject_cast<QPushButton*>(OperationsTable->cellWidget(rowIdx, COL_BUTTON));
-        pButton->setText(pOpInfo->m_bIsRunning ? "Cancel" : "Start");
+      if (pOpInfo->m_bIsRunning)
+        duration = ezTime::Now() - pOpInfo->m_StartOrDuration;
 
-        ezTime duration = pOpInfo->m_StartOrDuration;
-
-        if (pOpInfo->m_bIsRunning)
-          duration = ezTime::Now() - pOpInfo->m_StartOrDuration;
-
-        OperationsTable->setItem(rowIdx, COL_DURATION, new QTableWidgetItem(QString("%1 sec").arg(duration.GetSeconds())));
-      }
+      OperationsTable->setItem(rowIdx, COL_DURATION, new QTableWidgetItem(QString("%1 sec").arg(duration.GetSeconds())));
     }
   }
+}
 
-  m_EventQueue.Clear();
+void ezQtLongOpsPanel::StartUpdateTimer()
+{
+  if (m_bUpdateTimerRunning)
+    return;
 
-  if (m_LongOpGuidToRow.IsEmpty())
+  m_bUpdateTimerRunning = true;
+  QTimer::singleShot(50, this, SLOT(UpdateUI()));
+}
+
+void ezQtLongOpsPanel::UpdateUI()
+{
+  m_bUpdateTimerRunning = false;
+
+  if (m_bRebuildTable)
   {
-    // reduce timer frequency when nothing is happening
-    m_HandleQueueTimer.setInterval(500);
+    RebuildTable();
   }
-  else
+
+  if (m_bUpdateTable)
   {
-    // increase timer frequency when stuff is going on
-    m_HandleQueueTimer.setInterval(50);
+    UpdateTable();
   }
 }
 

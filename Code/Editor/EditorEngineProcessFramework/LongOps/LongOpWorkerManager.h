@@ -10,6 +10,10 @@ class ezLongOpWorker;
 struct ezProgressEvent;
 typedef ezDynamicArray<ezUInt8> ezDataBuffer;
 
+/// \brief The LongOp worker manager is active in the engine process of the editor.
+///
+/// This class has no public functionality, it communicates with the ezLongOpControllerManager
+/// and executes the ezLongOpWorker's that are named by the respective ezLongOpProxy's.
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOpWorkerManager final : public ezLongOpManager
 {
   EZ_DECLARE_SINGLETON(ezLongOpWorkerManager);
@@ -17,7 +21,6 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLongOpWorkerManager final : public e
 public:
   ezLongOpWorkerManager();
   ~ezLongOpWorkerManager();
-
 
 private:
   friend class ezLongOpTask;

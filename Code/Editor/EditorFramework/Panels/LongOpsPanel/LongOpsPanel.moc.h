@@ -1,15 +1,15 @@
 #pragma once
 
+#include <Editor/EditorFramework/ui_LongOpsPanel.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
-#include <Editor/EditorFramework/ui_LongOpsPanel.h>
 
 #include <QTimer>
 
 struct ezLongOpControllerEvent;
 
-/// \brief The application wide panel that shows the engine log output and the editor log output
+/// \brief This panel listens to events from ezLongOpControllerManager and displays all currently known long operations
 class EZ_EDITORFRAMEWORK_DLL ezQtLongOpsPanel : public ezQtApplicationPanel, public Ui_LongOpsPanel
 {
   Q_OBJECT
@@ -23,14 +23,17 @@ public:
 private:
   void LongOpsEventHandler(const ezLongOpControllerEvent& e);
   void RebuildTable();
+  void UpdateTable();
 
-  QTimer m_HandleQueueTimer;
+  bool m_bUpdateTimerRunning = false;
   bool m_bRebuildTable = true;
-  ezDynamicArray<ezLongOpControllerEvent> m_EventQueue;
+  bool m_bUpdateTable = false;
   ezHashTable<ezUuid, ezUInt32> m_LongOpGuidToRow;
 
+
 private Q_SLOTS:
-  void HandleEventQueue();
+  void StartUpdateTimer();
+  void UpdateUI();
   void OnClickButton(bool);
   void OnCellDoubleClicked(int row, int column);
 };

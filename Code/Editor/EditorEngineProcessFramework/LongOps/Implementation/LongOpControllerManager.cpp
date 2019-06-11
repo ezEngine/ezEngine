@@ -142,7 +142,7 @@ void ezLongOpControllerManager::UnregisterLongOp(const ezUuid& documentGuid, con
   }
 }
 
-ezLongOpControllerManager::ProxyOpInfo* ezLongOpControllerManager::GetOperation(const ezUuid& guid) const
+ezLongOpControllerManager::ProxyOpInfo* ezLongOpControllerManager::GetOperation(const ezUuid& guid)
 {
   EZ_LOCK(m_Mutex);
 
@@ -155,7 +155,7 @@ ezLongOpControllerManager::ProxyOpInfo* ezLongOpControllerManager::GetOperation(
   return nullptr;
 }
 
-void ezLongOpControllerManager::DocumentClosed(const ezUuid& documentGuid)
+void ezLongOpControllerManager::CancelAndRemoveAllOpsForDocument(const ezUuid& documentGuid)
 {
   {
     EZ_LOCK(m_Mutex);

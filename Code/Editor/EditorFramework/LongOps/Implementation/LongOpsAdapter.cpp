@@ -66,7 +66,7 @@ void ezLongOpsAdapter::DocumentManagerEventHandler(const ezDocumentManager::Even
     const char* szDocType = e.m_pDocument->GetDocumentTypeDescriptor()->m_pDocumentType->GetTypeName();
     if (ezStringUtils::IsEqual(szDocType, "ezSceneDocument"))
     {
-      ezLongOpControllerManager::GetSingleton()->DocumentClosed(e.m_pDocument->GetGuid());
+      ezLongOpControllerManager::GetSingleton()->CancelAndRemoveAllOpsForDocument(e.m_pDocument->GetGuid());
 
       e.m_pDocument->GetObjectManager()->m_StructureEvents.RemoveEventHandler(
         ezMakeDelegate(&ezLongOpsAdapter::StructureEventHandler, this));
