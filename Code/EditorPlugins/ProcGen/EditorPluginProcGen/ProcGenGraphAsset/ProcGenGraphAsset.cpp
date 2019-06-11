@@ -176,7 +176,8 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
     }
     else
     {
-      chunk << 1u;
+      ezUInt32 uiNumNodes = 1;
+      chunk << uiNumNodes;
 
       m_pDebugNode->Save(chunk);
     }
