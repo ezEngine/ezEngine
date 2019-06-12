@@ -154,14 +154,69 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezVariant& arg)
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezAngle& arg)
 {
   ezUInt32 writepos = 0;
-  ezStringUtils::OutputFormattedFloat(tmp, uiLength-2, writepos, arg.GetDegree(), 1, false, 1, false);
+  ezStringUtils::OutputFormattedFloat(tmp, uiLength - 2, writepos, arg.GetDegree(), 1, false, 1, false);
 
   // Utf-8 representation of the degree sign
-  tmp[writepos+0] = (char)0xC2;
-  tmp[writepos+1] = (char)0xB0;
-  tmp[writepos+2] = '\0';
+  tmp[writepos + 0] = (char)0xC2;
+  tmp[writepos + 1] = (char)0xB0;
+  tmp[writepos + 2] = '\0';
 
   return ezStringView(tmp, tmp + writepos + 2);
+}
+
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezTime& arg)
+{
+  ezUInt32 writepos = 0;
+
+  if (arg.GetMicroseconds() < 1.0)
+  {
+    ezStringUtils::OutputFormattedFloat(tmp, uiLength - 2, writepos, arg.GetNanoseconds(), 1, false, 1, false, true);
+    tmp[writepos++] = 'n';
+    tmp[writepos++] = 's';
+  }
+  else if (arg.GetMilliseconds() < 1.0)
+  {
+    ezStringUtils::OutputFormattedFloat(tmp, uiLength - 3, writepos, arg.GetMicroseconds(), 1, false, 1, false, true);
+
+    // Utf-8 representation of the microsecond (us) sign
+    tmp[writepos++] = (char)0xC2;
+    tmp[writepos++] = (char)0xB5;
+    tmp[writepos++] = 's';
+  }
+  else if (arg.GetSeconds() < 1.0)
+  {
+    ezStringUtils::OutputFormattedFloat(tmp, uiLength - 2, writepos, arg.GetMilliseconds(), 1, false, 1, false, true);
+
+    tmp[writepos++] = 'm';
+    tmp[writepos++] = 's';
+  }
+  else if (arg.GetMinutes() < 1.0)
+  {
+    ezStringUtils::OutputFormattedFloat(tmp, uiLength - 3, writepos, arg.GetSeconds(), 1, false, 1, false, true);
+
+    tmp[writepos++] = 's';
+    tmp[writepos++] = 'e';
+    tmp[writepos++] = 'c';
+  }
+  else if (arg.GetHours() < 1.0)
+  {
+    ezStringUtils::OutputFormattedFloat(tmp, uiLength - 3, writepos, arg.GetMinutes(), 1, false, 1, false, true);
+
+    tmp[writepos++] = 'm';
+    tmp[writepos++] = 'i';
+    tmp[writepos++] = 'n';
+  }
+  else
+  {
+    ezStringUtils::OutputFormattedFloat(tmp, uiLength - 1, writepos, arg.GetHours(), 1, false, 1, false, true);
+
+    tmp[writepos++] = 'h';
+  }
+
+
+
+  tmp[writepos] = '\0';
+  return ezStringView(tmp, tmp + writepos);
 }
 
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgHumanReadable& arg)
@@ -184,7 +239,7 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgHumanReadable&
   {
     ezStringUtils::OutputFormattedFloat(tmp, uiLength, writepos, arg.m_Value / divider, 1, false, 2, false);
   }
-  ezStringUtils::Copy(tmp+writepos, uiLength - writepos, arg.m_Suffixes[suffixIndex]);
+  ezStringUtils::Copy(tmp + writepos, uiLength - writepos, arg.m_Suffixes[suffixIndex]);
 
   return ezStringView(tmp);
 }
@@ -206,11 +261,11 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgErrorCode& arg
   // we need a bigger boat
   static thread_local char FullMessage[256];
 
-  ezStringUtils::snprintf(FullMessage, EZ_ARRAY_SIZE(FullMessage), "%i (\"%s\")", arg.m_ErrorCode, ezStringUtf8((LPWSTR)lpMsgBuf).GetData());
+  ezStringUtils::snprintf(
+    FullMessage, EZ_ARRAY_SIZE(FullMessage), "%i (\"%s\")", arg.m_ErrorCode, ezStringUtf8((LPWSTR)lpMsgBuf).GetData());
   LocalFree(lpMsgBuf);
   return ezStringView(FullMessage);
 }
 #endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_FormatString);
-

@@ -1084,10 +1084,10 @@ void ezStringUtils::OutputFormattedUInt(char* szOutputBuffer, ezUInt32 uiBufferS
 }
 
 void ezStringUtils::OutputFormattedFloat(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, double value, ezUInt8 uiWidth,
-                                         bool bPadZeros, ezInt8 iPrecision, bool bScientific)
+                                         bool bPadZeros, ezInt8 iPrecision, bool bScientific, bool bRemoveTrailingZeroes)
 {
   OutputFloat(szOutputBuffer, uiBufferSize, uiWritePos, value, uiWidth, ezMath::Max<int>(-1, iPrecision),
-              bPadZeros ? sprintfFlags::PadZeros : 0, false, bScientific, false);
+              bPadZeros ? sprintfFlags::PadZeros : 0, false, bScientific, bRemoveTrailingZeroes);
 }
 
 
