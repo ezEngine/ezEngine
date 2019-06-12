@@ -186,5 +186,7 @@ private:
   ezUInt8 m_uiSecond;
 };
 
+EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezDateTime& arg);
+
 #include <Foundation/Time/Implementation/Timestamp_inl.h>
 
