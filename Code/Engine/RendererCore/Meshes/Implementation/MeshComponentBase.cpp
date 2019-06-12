@@ -69,49 +69,31 @@ void ezMsgSetMeshMaterial::Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVer
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderData, 1, ezRTTIDefaultAllocator<ezMeshRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezMeshComponentBase, 1)
-{
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezCategoryAttribute("Rendering"),
-  }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_MESSAGEHANDLERS
-  {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgSetMeshMaterial, OnSetMaterial),
-    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnSetColor),
-  }
-  EZ_END_MESSAGEHANDLERS;
-}
-EZ_END_ABSTRACT_COMPONENT_TYPE;
 // clang-format on
 
 void ezMeshRenderData::FillBatchIdAndSortingKey()
 {
-  m_uiFlipWinding = m_GlobalTransform.ContainsNegativeScale() ? 1 : 0;
-  m_uiUniformScale = m_GlobalTransform.ContainsUniformScale() ? 1 : 0;
-
-  const ezUInt32 uiMeshIDHash = m_hMesh.GetResourceIDHash();
-  const ezUInt32 uiMaterialIDHash = m_hMaterial.IsValid() ? m_hMaterial.GetResourceIDHash() : 0;
-
-  // Generate batch id from mesh, material and part index.
-  ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, m_uiSubMeshIndex, m_uiFlipWinding};
-
-  if (!m_hSkinningMatrices.IsInvalidated() || m_pExplicitInstanceData != nullptr)
-  {
-    // TODO: When skinning is enabled, batching is prevented. Review this.
-    data[2] = this->m_uiUniqueID;
-  }
-
-  m_uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
-
-  // Sort by material and then by mesh
-  m_uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE) | m_uiFlipWinding;
+  FillBatchIdAndSortingKeyInternal(0);
 }
 
 //////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezMeshComponentBase, 1)
+  {
+    EZ_BEGIN_ATTRIBUTES
+    {
+      new ezCategoryAttribute("Rendering"),
+    } EZ_END_ATTRIBUTES;
+    EZ_BEGIN_MESSAGEHANDLERS
+    {
+      EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+      EZ_MESSAGE_HANDLER(ezMsgSetMeshMaterial, OnSetMaterial),
+      EZ_MESSAGE_HANDLER(ezMsgSetColor, OnSetColor),
+    } EZ_END_MESSAGEHANDLERS;
+  }
+EZ_END_ABSTRACT_COMPONENT_TYPE;
+// clang-format on
 
 ezMeshComponentBase::ezMeshComponentBase()
 {
@@ -119,16 +101,7 @@ ezMeshComponentBase::ezMeshComponentBase()
   m_Color = ezColor::White;
 }
 
-ezMeshComponentBase::~ezMeshComponentBase() {}
-
-void ezMeshComponentBase::OnDeactivated()
-{
-  if (!m_hSkinningTransformsBuffer.IsInvalidated())
-  {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hSkinningTransformsBuffer);
-    m_hSkinningTransformsBuffer.Invalidate();
-  }
-}
+ezMeshComponentBase::~ezMeshComponentBase() = default;
 
 void ezMeshComponentBase::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -218,13 +191,6 @@ void ezMeshComponentBase::OnExtractRenderData(ezMsgExtractRenderData& msg) const
       pRenderData->m_Color = m_Color;
       pRenderData->m_uiSubMeshIndex = uiPartIndex;
       pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
-
-      if (!m_SkinningMatrices.IsEmpty())
-      {
-        pRenderData->m_hSkinningMatrices = m_hSkinningTransformsBuffer;
-        pRenderData->m_pNewSkinningMatricesData = ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(m_SkinningMatrices.GetPtr()),
-                                                                            m_SkinningMatrices.GetCount() * sizeof(ezMat4));
-      }
 
       pRenderData->FillBatchIdAndSortingKey();
     }

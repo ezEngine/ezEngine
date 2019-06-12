@@ -11,8 +11,6 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
-
-
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezMeshInstanceData, ezNoBase, 1, ezRTTIDefaultAllocator<ezMeshInstanceData>)
 {
@@ -85,6 +83,18 @@ ezResult ezMeshInstanceData::Deserialize(ezStreamReader& reader)
   return EZ_SUCCESS;
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstancedMeshRenderData, 1, ezRTTIDefaultAllocator<ezInstancedMeshRenderData>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+void ezInstancedMeshRenderData::FillBatchIdAndSortingKey()
+{
+  FillBatchIdAndSortingKeyInternal(m_uiUniqueID);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 ezInstancedMeshComponentManager::ezInstancedMeshComponentManager(ezWorld* pWorld)
@@ -106,7 +116,7 @@ void ezInstancedMeshComponentManager::EnqueueUpdate(const ezInstancedMeshCompone
   if (instanceData.IsEmpty())
     return;
 
-  m_RequireUpdate.PushBack({ pComponent->GetHandle(), instanceData });
+  m_RequireUpdate.PushBack({pComponent->GetHandle(), instanceData});
   pComponent->m_uiEnqueuedFrame = uiCurrentFrame;
 }
 
@@ -243,7 +253,7 @@ void ezInstancedMeshComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) 
 
 ezMeshRenderData* ezInstancedMeshComponent::CreateRenderData() const
 {
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
+  auto pRenderData = ezCreateRenderDataForThisFrame<ezInstancedMeshRenderData>(GetOwner());
 
   if (m_pExplicitInstanceData)
   {
