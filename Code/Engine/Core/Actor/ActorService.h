@@ -1,0 +1,41 @@
+#pragma once
+
+#include <Core/CoreDLL.h>
+
+#include <Foundation/Configuration/Singleton.h>
+#include <Foundation/Types/UniquePtr.h>
+
+class ezActorManager;
+struct ezActorServiceImpl;
+
+class EZ_CORE_DLL ezActorService final
+{
+  EZ_DECLARE_SINGLETON(ezActorService);
+
+public:
+  ezActorService();
+  ~ezActorService();
+
+  /// \brief Calls ezActorManager::Deactivate() and then destroys all ezActorManager instances. Automatically called during service destruction.
+  void DestroyAllActorManagers();
+
+  /// \brief Adds a new actor manager and takes ownership of it.
+  /// ezActorManager::Activate() will be called on it the next time the ezActorService is updated.
+  void AddActorManager(ezUniquePtr<ezActorManager>&& pManager);
+
+  /// \brief Tells the service to deactivate and delete the given manager.
+  /// ezActorManager::Deactivate() will be called on it the next time the ezActorService is updated. Then it will be deleted.
+  void DestroyActorManager(ezActorManager* pManager);
+
+  /// \brief Activates queued managers and calls ezActorManager::Update() on them.
+  void Update();
+
+private:
+  void ActivateQueuedManagers();
+  void DeactivateQueuedManagers();
+  void DeactivateAllManagers();
+  void DeleteDeactivatedManagers();
+  void UpdateAllManagers();
+
+  ezUniquePtr<ezActorServiceImpl> m_pImpl;
+};
