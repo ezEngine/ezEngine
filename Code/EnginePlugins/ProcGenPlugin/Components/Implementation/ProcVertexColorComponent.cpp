@@ -5,6 +5,18 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <ProcGenPlugin/Components/ProcVertexColorComponent.h>
 
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcVertexColorRenderData, 1, ezRTTIDefaultAllocator<ezProcVertexColorRenderData>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+void ezProcVertexColorRenderData::FillBatchIdAndSortingKey()
+{
+  FillBatchIdAndSortingKeyInternal(m_hVertexColorBuffer.GetInternalID().m_Data);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 using namespace ezProcGenInternal;
 
 ezProcVertexColorComponentManager::ezProcVertexColorComponentManager(ezWorld* pWorld)
@@ -113,12 +125,16 @@ ezProcVertexColorComponent::~ezProcVertexColorComponent() = default;
 
 void ezProcVertexColorComponent::OnActivated()
 {
+  SUPER::OnActivated();
+
   auto pManager = static_cast<ezProcVertexColorComponentManager*>(GetOwningManager());
   pManager->AddComponent(this);
 }
 
 void ezProcVertexColorComponent::OnDeactivated()
 {
+  SUPER::OnDeactivated();
+
   auto pManager = static_cast<ezProcVertexColorComponentManager*>(GetOwningManager());
   pManager->RemoveComponent(this);
 }
@@ -177,4 +193,17 @@ void ezProcVertexColorComponent::DeserializeComponent(ezWorldReader& stream)
   ezStreamReader& s = stream.GetStream();
 
   s >> m_hResource;
+}
+
+ezMeshRenderData* ezProcVertexColorComponent::CreateRenderData() const
+{
+  auto pRenderData = ezCreateRenderDataForThisFrame<ezProcVertexColorRenderData>(GetOwner());
+
+  if (m_iBufferOffset >= 0)
+  {
+    pRenderData->m_hVertexColorBuffer = m_hVertexColorBuffer;
+    pRenderData->m_iBufferOffset = m_iBufferOffset;
+  }
+
+  return pRenderData;
 }

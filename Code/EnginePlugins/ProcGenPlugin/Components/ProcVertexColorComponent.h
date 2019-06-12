@@ -1,12 +1,23 @@
 #pragma once
 
 #include <Core/World/World.h>
-#include <Foundation/Types/UniquePtr.h>
 #include <ProcGenPlugin/Resources/ProcGenGraphResource.h>
+#include <RendererCore/Meshes/MeshComponent.h>
 
-class ezProcVertexColorComponent;
+class EZ_PROCGENPLUGIN_DLL ezProcVertexColorRenderData : public ezMeshRenderData
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcVertexColorRenderData, ezMeshRenderData);
+
+public:
+  virtual void FillBatchIdAndSortingKey();
+
+  ezGALBufferHandle m_hVertexColorBuffer;
+  int m_iBufferOffset = -1;
+};
 
 //////////////////////////////////////////////////////////////////////////
+
+class ezProcVertexColorComponent;
 
 class EZ_PROCGENPLUGIN_DLL ezProcVertexColorComponentManager
   : public ezComponentManager<ezProcVertexColorComponent, ezBlockStorageType::Compact>
@@ -31,9 +42,9 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_PROCGENPLUGIN_DLL ezProcVertexColorComponent : public ezComponent
+class EZ_PROCGENPLUGIN_DLL ezProcVertexColorComponent : public ezMeshComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezProcVertexColorComponent, ezComponent, ezProcVertexColorComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezProcVertexColorComponent, ezMeshComponent, ezProcVertexColorComponentManager);
 
 public:
   ezProcVertexColorComponent();
@@ -48,12 +59,15 @@ public:
   void SetResource(const ezProcGenGraphResourceHandle& hResource);
   const ezProcGenGraphResourceHandle& GetResource() const { return m_hResource; }
 
-  
-
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+protected:
+  virtual ezMeshRenderData* CreateRenderData() const override;
 
 private:
   ezProcGenGraphResourceHandle m_hResource;
 
+  ezGALBufferHandle m_hVertexColorBuffer;
+  int m_iBufferOffset = 0;
 };
