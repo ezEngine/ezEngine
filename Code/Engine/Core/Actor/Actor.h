@@ -4,9 +4,12 @@
 
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Types/UniquePtr.h>
 
 class ezActor;
 class ezActorManager;
+class ezActorDevice;
+struct ezActorImpl;
 
 /// \brief Events about important actor updates
 struct ezActorEvent
@@ -38,6 +41,19 @@ public:
   /// \brief Returns the name of this actor
   const char* GetName() const;
 
+  /// \brief Transfers ownership of the ezActorDevice to the ezActor
+  void AddDevice(ezUniquePtr<ezActorDevice>&& pDevice);
+
+  /// \brief Queries the ezActor for an ezActorDevice of the given type. Returns null if no such devices was added to the actor.
+  ezActorDevice* GetDevice(const ezRTTI* pDeviceType) const;
+
+  /// \brief Templated overload of GetDevice() that automatically casts to the desired class type.
+  template <typename ActorDeviceType>
+  ActorDeviceType* GetDevice() const
+  {
+    return static_cast<ActorDeviceType*>(GetDevice(ezGetStaticRTTI<ActorDeviceType>()));
+  }
+
 protected:
   virtual void Activate();
   virtual void Deactivate();
@@ -58,8 +74,8 @@ private: // Functions and data directly touched by ezActorManager
 
   ActivationState m_ActivationState = ActivationState::None;
 
-  ezActorManager* m_pManager = nullptr;
+  ezActorManager* m_pOwningManager = nullptr;
 
 private:
-  ezString m_sName;
+  ezUniquePtr<ezActorImpl> m_pImpl;
 };

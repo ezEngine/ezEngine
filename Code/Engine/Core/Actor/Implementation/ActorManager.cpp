@@ -44,10 +44,10 @@ void ezActorManager::AddActor(ezUniquePtr<ezActor>&& pActor)
   EZ_LOCK(GetMutex());
 
   EZ_ASSERT_DEV(pActor != nullptr, "Invalid actor");
-  EZ_ASSERT_DEV(pActor->m_pManager == nullptr, "Actor already in use");
+  EZ_ASSERT_DEV(pActor->m_pOwningManager == nullptr, "Actor already in use");
   EZ_ASSERT_DEV(pActor->m_ActivationState == ezActor::ActivationState::None, "Actor already in use");
 
-  pActor->m_pManager = this;
+  pActor->m_pOwningManager = this;
   pActor->m_ActivationState = ezActor::ActivationState::Activate;
   m_pImpl->m_AllActors.PushBack(std::move(pActor));
 }
