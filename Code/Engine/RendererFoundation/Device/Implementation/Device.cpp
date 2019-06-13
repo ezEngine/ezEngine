@@ -503,7 +503,7 @@ ezGALBufferHandle ezGALDevice::CreateBuffer(const ezGALBufferCreationDescription
     ezGALBufferHandle hBuffer(m_Buffers.Insert(pBuffer));
 
     // Create default resource view
-    if (desc.m_BufferType == ezGALBufferType::Generic)
+    if (desc.m_bAllowShaderResourceView && desc.m_BufferType == ezGALBufferType::Generic)
     {
       ezGALResourceViewCreationDescription viewDesc;
       viewDesc.m_hBuffer = hBuffer;

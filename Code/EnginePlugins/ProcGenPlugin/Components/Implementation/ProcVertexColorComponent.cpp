@@ -5,6 +5,8 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <ProcGenPlugin/Components/ProcVertexColorComponent.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
+#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/Device/Device.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcVertexColorRenderData, 1, ezRTTIDefaultAllocator<ezProcVertexColorRenderData>)
@@ -18,6 +20,11 @@ void ezProcVertexColorRenderData::FillBatchIdAndSortingKey()
 
 //////////////////////////////////////////////////////////////////////////
 
+enum
+{
+  VERTEX_COLOR_BUFFER_SIZE = 1024 * 1024
+};
+
 using namespace ezProcGenInternal;
 
 ezProcVertexColorComponentManager::ezProcVertexColorComponentManager(ezWorld* pWorld)
@@ -29,6 +36,18 @@ ezProcVertexColorComponentManager::~ezProcVertexColorComponentManager() {}
 
 void ezProcVertexColorComponentManager::Initialize()
 {
+  {
+    ezGALBufferCreationDescription desc;
+    desc.m_uiStructSize = sizeof(ezUInt32);
+    desc.m_uiTotalSize = desc.m_uiStructSize * VERTEX_COLOR_BUFFER_SIZE;
+    desc.m_bAllowShaderResourceView = true;
+    desc.m_ResourceAccess.m_bImmutable = false;
+
+    m_hVertexColorBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
+
+    m_VertexColorData.SetCountUninitialized(VERTEX_COLOR_BUFFER_SIZE);
+  }
+
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProcVertexColorComponentManager::UpdateVertexColors, this);
     desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync;
@@ -45,6 +64,9 @@ void ezProcVertexColorComponentManager::Initialize()
 
 void ezProcVertexColorComponentManager::Deinitialize()
 {
+  ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hVertexColorBuffer);
+  m_hVertexColorBuffer.Invalidate();
+
   ezRenderWorld::s_BeginRenderEvent.RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnBeginRender, this));
   ezRenderWorld::s_EndExtractionEvent.RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnEndExtraction, this));
 
@@ -53,10 +75,31 @@ void ezProcVertexColorComponentManager::Deinitialize()
 
 void ezProcVertexColorComponentManager::UpdateVertexColors(const ezWorldModule::UpdateContext& context)
 {
+  ezExpressionVM vm;
+
   for (const auto& componentToUpdate : m_ComponentsToUpdate)
   {
     ezProcVertexColorComponent* pComponent = nullptr;
     if (!TryGetComponent(componentToUpdate, pComponent))
+      continue;
+
+    pComponent->m_iBufferOffset = INT_MIN;
+    pComponent->m_pOutput = nullptr;
+
+    {
+      ezResourceLock<ezProcGenGraphResource> pResource(pComponent->m_hResource, ezResourceAcquireMode::NoFallback);
+      auto outputs = pResource->GetVertexColorOutputs();
+      for (auto& pOutput : outputs)
+      {
+        if (pOutput->m_sName == pComponent->m_sOutputName)
+        {
+          pComponent->m_pOutput = pOutput;
+          break;
+        }
+      }
+    }
+
+    if (pComponent->m_pOutput == nullptr)
       continue;
 
     const char* szMesh = pComponent->GetMeshFile();
@@ -73,10 +116,19 @@ void ezProcVertexColorComponentManager::UpdateVertexColors(const ezWorldModule::
 
     const auto& mbDesc = pCpuMesh->GetDescriptor().MeshBufferDesc();
 
+    ezUInt32 uiVertexCount = mbDesc.GetVertexCount();
+    for (ezUInt32 i = 0; i < uiVertexCount; ++i)
+    {
+      m_VertexColorData[m_uiCurrentBufferOffset + i] = i * 100;
+    }
+
     pComponent->m_hVertexColorBuffer = m_hVertexColorBuffer;
     pComponent->m_iBufferOffset = m_uiCurrentBufferOffset;
 
-    m_uiCurrentBufferOffset += mbDesc.GetVertexCount();
+    m_uiCurrentBufferOffset += uiVertexCount;
+
+    // Invalidate all cached render data so the new buffer handle and offset are propagated to the render data
+    ezRenderWorld::DeleteCachedRenderData(pComponent->GetOwner()->GetHandle(), pComponent->GetHandle());
   }
 
   m_ComponentsToUpdate.Clear();
@@ -84,7 +136,12 @@ void ezProcVertexColorComponentManager::UpdateVertexColors(const ezWorldModule::
 
 void ezProcVertexColorComponentManager::OnEndExtraction(ezUInt64 uiFrameCounter) {}
 
-void ezProcVertexColorComponentManager::OnBeginRender(ezUInt64 uiFrameCounter) {}
+void ezProcVertexColorComponentManager::OnBeginRender(ezUInt64 uiFrameCounter)
+{
+  ezGALContext* pGALContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
+
+  pGALContext->UpdateBuffer(m_hVertexColorBuffer, 0, m_VertexColorData.GetByteArrayPtr(), ezGALUpdateMode::Discard);
+}
 
 void ezProcVertexColorComponentManager::AddComponent(ezProcVertexColorComponent* pComponent)
 {
@@ -110,6 +167,8 @@ void ezProcVertexColorComponentManager::RemoveComponent(ezProcVertexColorCompone
   if (pComponent->m_iBufferOffset >= 0)
   {
     /// \todo compact buffer somehow?
+
+    pComponent->m_iBufferOffset = INT_MIN;
   }
 }
 
@@ -140,6 +199,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVertexColorComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
       EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("ProcGen Graph")),
+      EZ_ACCESSOR_PROPERTY("OutputName", GetOutputName, SetOutputName)
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -208,6 +268,28 @@ void ezProcVertexColorComponent::SetResource(const ezProcGenGraphResourceHandle&
   }
 }
 
+void ezProcVertexColorComponent::SetOutputName(const char* szOutputName)
+{
+  auto pManager = static_cast<ezProcVertexColorComponentManager*>(GetOwningManager());
+
+  if (IsActiveAndInitialized())
+  {
+    pManager->RemoveComponent(this);
+  }
+
+  m_sOutputName.Assign(szOutputName);
+
+  if (IsActiveAndInitialized())
+  {
+    pManager->AddComponent(this);
+  }
+}
+
+const char* ezProcVertexColorComponent::GetOutputName() const
+{
+  return m_sOutputName.GetData();
+}
+
 void ezProcVertexColorComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
@@ -215,6 +297,7 @@ void ezProcVertexColorComponent::SerializeComponent(ezWorldWriter& stream) const
   ezStreamWriter& s = stream.GetStream();
 
   s << m_hResource;
+  s << m_sOutputName;
 }
 
 void ezProcVertexColorComponent::DeserializeComponent(ezWorldReader& stream)
@@ -224,6 +307,7 @@ void ezProcVertexColorComponent::DeserializeComponent(ezWorldReader& stream)
   ezStreamReader& s = stream.GetStream();
 
   s >> m_hResource;
+  s >> m_sOutputName;
 }
 
 ezMeshRenderData* ezProcVertexColorComponent::CreateRenderData() const

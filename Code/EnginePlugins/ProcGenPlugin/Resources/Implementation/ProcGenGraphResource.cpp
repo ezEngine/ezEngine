@@ -43,6 +43,7 @@ ezResourceLoadDesc ezProcGenGraphResource::UnloadData(Unload WhatToUnload)
 {
   m_ByteCode.Clear();
   m_PlacementOutputs.Clear();
+  m_VertexColorOutputs.Clear();
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

@@ -67,6 +67,9 @@ public:
   void SetResource(const ezProcGenGraphResourceHandle& hResource);
   const ezProcGenGraphResourceHandle& GetResource() const { return m_hResource; }
 
+  void SetOutputName(const char* szOutputName);
+  const char* GetOutputName() const;
+
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
@@ -75,7 +78,10 @@ protected:
 
 private:
   ezProcGenGraphResourceHandle m_hResource;
+  ezHashedString m_sOutputName;
+
+  ezSharedPtr<const ezProcGenInternal::VertexColorOutput> m_pOutput;
 
   ezGALBufferHandle m_hVertexColorBuffer;
-  int m_iBufferOffset = 0;
+  int m_iBufferOffset = INT_MIN;
 };

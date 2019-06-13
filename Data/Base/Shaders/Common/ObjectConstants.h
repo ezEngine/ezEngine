@@ -9,8 +9,9 @@ struct EZ_ALIGN_16(ezPerInstanceData)
   TRANSFORM(ObjectToWorldNormal);
   FLOAT1(BoundingSphereRadius);
   INT1(GameObjectID);
+  INT1(VertexColorOffset);
 
-  INT2(Reserved);
+  INT1(Reserved);
   COLOR4F(Color);
 };
 
@@ -21,7 +22,7 @@ struct EZ_ALIGN_16(ezPerInstanceData)
     StructuredBuffer<float4x4> skinningMatrices;
   #endif
   
-  Buffer<uint> vertexColors;
+  Buffer<uint> perInstanceVertexColors;
 
 #else // C++
 
@@ -46,5 +47,7 @@ CONSTANT_BUFFER(ezObjectConstants, 2)
   #else
     #define GetInstanceData() perInstanceData[G.Input.InstanceID + InstanceDataOffset]
   #endif
+  
+  #define GetInstanceVertexColors() perInstanceVertexColors[GetInstanceData().VertexColorOffset + G.Input.VertexID]
 
 #endif

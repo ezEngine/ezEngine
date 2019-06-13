@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15507879570940844990,5062162254587685694}}
-		u4 %Hash{1145257427580566855}
+		u4 %Hash{2929266636164522108}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -428,7 +428,7 @@ o
 			Uuid{u4{7050326701652390023,18152629010509589666}}
 		}
 		Vec2 %Node::Pos{f{0xC1A204C2,0x11FA16C4}}
-		f %OverlayOpacity{0xCDCCCC3D}
+		f %OverlayOpacity{0}
 	}
 }
 o
@@ -1039,7 +1039,7 @@ o
 			Uuid{u4{16631111678292622734,8500933737344926134}}
 		}
 		s %TypeName{"ezSceneContext"}
-		u3 %TypeSize{1392}
+		u3 %TypeSize{1464}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1645,7 +1645,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEngineProcessDocumentContext"}
-		u3 %TypeSize{1072}
+		u3 %TypeSize{1120}
 		u3 %TypeVersion{1}
 	}
 }

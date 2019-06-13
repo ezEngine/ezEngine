@@ -43,6 +43,7 @@ struct VS_IN
   #endif
 
   uint InstanceID : SV_InstanceID;
+  uint VertexID : SV_VertexID;
 };
 
 struct VS_OUT
