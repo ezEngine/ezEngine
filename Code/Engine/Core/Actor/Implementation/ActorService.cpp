@@ -15,14 +15,22 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ezActorService)
     "Foundation"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_HIGHLEVELSYSTEMS_STARTUP
+  ON_CORESYSTEMS_STARTUP
   {
-  s_pActorService = EZ_DEFAULT_NEW(ezActorService);
+    s_pActorService = EZ_DEFAULT_NEW(ezActorService);
+  }
+
+  ON_CORESYSTEMS_SHUTDOWN
+  {
+    s_pActorService.Clear();
   }
   
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
-    s_pActorService.Clear();
+    if (s_pActorService)
+    {
+      s_pActorService->DestroyAllActors();
+    }
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;
@@ -50,6 +58,16 @@ ezActorService::ezActorService()
 ezActorService::~ezActorService()
 {
   DestroyAllActorManagers();
+}
+
+void ezActorService::DestroyAllActors()
+{
+  EZ_LOCK(m_pImpl->m_Mutex);
+
+  for (auto& pMan : m_pImpl->m_AllManagers)
+  {
+    pMan->DestroyAllActors();
+  }
 }
 
 void ezActorService::DestroyAllActorManagers()
@@ -164,3 +182,18 @@ void ezActorService::Update()
   ActivateQueuedManagers();
   UpdateAllManagers();
 }
+
+ezActorManager* ezActorService::GetActorManager(const ezRTTI* pManagerType)
+{
+  EZ_LOCK(m_pImpl->m_Mutex);
+
+  for (auto& pManager : m_pImpl->m_AllManagers)
+  {
+    if (pManager->GetDynamicRTTI()->IsDerivedFrom(pManagerType))
+      return pManager.Borrow();
+  }
+
+  return nullptr;
+}
+
+

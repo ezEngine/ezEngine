@@ -16,7 +16,11 @@ public:
   ezActorService();
   ~ezActorService();
 
-  /// \brief Calls ezActorManager::Deactivate() and then destroys all ezActorManager instances. Automatically called during service destruction.
+  /// \brief Calls ezActorManager::DestroyAllActors() on all managers
+  void DestroyAllActors();
+
+  /// \brief Calls ezActorManager::Deactivate() and then destroys all ezActorManager instances. Automatically called during service
+  /// destruction.
   void DestroyAllActorManagers();
 
   /// \brief Adds a new actor manager and takes ownership of it.
@@ -26,6 +30,15 @@ public:
   /// \brief Tells the service to deactivate and delete the given manager.
   /// ezActorManager::Deactivate() will be called on it the next time the ezActorService is updated. Then it will be deleted.
   void DestroyActorManager(ezActorManager* pManager);
+
+  /// \brief Returns an actor manager of the given type or null if no such manager has been added before.
+  ezActorManager* GetActorManager(const ezRTTI* pManagerType);
+
+  template <typename ManagerType>
+  ManagerType* GetActorManager()
+  {
+    return static_cast<ManagerType*>(GetActorManager(ezGetStaticRTTI<ManagerType>()));
+  }
 
   /// \brief Activates queued managers and calls ezActorManager::Update() on them.
   void Update();

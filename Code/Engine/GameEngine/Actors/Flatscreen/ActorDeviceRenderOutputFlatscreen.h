@@ -3,6 +3,8 @@
 #include <Core/ActorDevices/ActorDeviceRenderOutput.h>
 #include <GameApplication/WindowOutputTarget.h>
 
+class ezWindowOutputTargetGAL;
+
 class ezActorDeviceRenderOutputFlatscreen : public ezActorDeviceRenderOutput
 {
 EZ_ADD_DYNAMIC_REFLECTION(ezActorDeviceRenderOutputFlatscreen, ezActorDeviceRenderOutput);

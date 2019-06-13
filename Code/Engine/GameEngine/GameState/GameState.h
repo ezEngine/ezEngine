@@ -12,6 +12,7 @@
 class ezWindow;
 class ezWindowOutputTargetBase;
 class ezView;
+struct ezActorEvent;
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
 /// \brief ezGameState is the base class to build custom game logic upon. It works closely together with ezGameApplication.
@@ -109,6 +110,8 @@ protected:
   /// \brief Sets up m_MainCamera for first use
   virtual void ConfigureMainCamera();
 
+  virtual void ActorEventHandler(const ezActorEvent& e);
+
   ezWindow* m_pMainWindow = nullptr;
   ezWindowOutputTargetBase* m_pMainOutputTarget = nullptr;
   ezViewHandle m_hMainView;
@@ -121,4 +124,3 @@ protected:
   bool m_bVirtualRealityMode = false;
 
 };
-

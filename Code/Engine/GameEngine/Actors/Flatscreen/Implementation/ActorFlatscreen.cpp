@@ -18,6 +18,11 @@ ezActorFlatscreen::ezActorFlatscreen(const char* szActorName, ezUniquePtr<ezWind
   m_pWindow = std::move(pWindow);
 }
 
+ezWindow* ezActorFlatscreen::GetWindow()
+{
+  return m_pWindow.Borrow();
+}
+
 void ezActorFlatscreen::Activate()
 {
   SUPER::Activate();
@@ -31,7 +36,8 @@ void ezActorFlatscreen::Activate()
   m_OutputTarget = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
   m_OutputTarget->m_hSwapChain = hSwapChain;
 
-  m_pRenderOutput = EZ_DEFAULT_NEW(ezActorDeviceRenderOutputFlatscreen, m_OutputTarget.Borrow());
+  //m_pRenderOutput = EZ_DEFAULT_NEW(ezActorDeviceRenderOutputFlatscreen, m_OutputTarget.Borrow());
+  AddDevice(EZ_DEFAULT_NEW(ezActorDeviceRenderOutputFlatscreen, m_OutputTarget.Borrow()));
 }
 
 void ezActorFlatscreen::Deactivate()
@@ -42,7 +48,7 @@ void ezActorFlatscreen::Deactivate()
     ezGALDevice::GetDefaultDevice()->DestroySwapChain(m_OutputTarget->m_hSwapChain);
   }
 
-  m_pRenderOutput = nullptr;
+  //m_pRenderOutput = nullptr;
   m_OutputTarget = nullptr;
   m_pWindow = nullptr;
 

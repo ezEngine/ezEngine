@@ -67,6 +67,7 @@ void ezActorManager::Deactivate() {}
 
 void ezActorManager::Update()
 {
+  UpdateActorStates();
   UpdateAllActors();
 }
 
