@@ -31,7 +31,10 @@ void ezActorManager::DestroyAllActors(const char* szInGroup /*= nullptr*/)
   DeactivateAllActors(szInGroup);
   DeleteDeactivatedActors();
 
-  EZ_ASSERT_DEBUG(m_pImpl->m_AllActors.IsEmpty(), "The list of actors should be empty now.");
+  if (szInGroup == nullptr)
+  {
+    EZ_ASSERT_DEBUG(m_pImpl->m_AllActors.IsEmpty(), "The list of actors should be empty now.");
+  }
 }
 
 ezMutex& ezActorManager::GetMutex() const

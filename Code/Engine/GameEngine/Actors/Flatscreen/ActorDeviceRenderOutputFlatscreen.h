@@ -1,13 +1,13 @@
 #pragma once
 
 #include <Core/ActorDevices/ActorDeviceRenderOutput.h>
-#include <GameApplication/WindowOutputTarget.h>
+#include <GameEngine/GameApplication/WindowOutputTarget.h>
 
 class ezWindowOutputTargetGAL;
 
-class ezActorDeviceRenderOutputFlatscreen : public ezActorDeviceRenderOutput
+class EZ_GAMEENGINE_DLL ezActorDeviceRenderOutputFlatscreen : public ezActorDeviceRenderOutput
 {
-EZ_ADD_DYNAMIC_REFLECTION(ezActorDeviceRenderOutputFlatscreen, ezActorDeviceRenderOutput);
+  EZ_ADD_DYNAMIC_REFLECTION(ezActorDeviceRenderOutputFlatscreen, ezActorDeviceRenderOutput);
 
 public:
   ezActorDeviceRenderOutputFlatscreen(ezWindowOutputTargetGAL* pOutputTarget);

@@ -5,7 +5,7 @@
 
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-class ezWindowOutputTargetGAL : public ezWindowOutputTargetBase
+class EZ_GAMEENGINE_DLL ezWindowOutputTargetGAL : public ezWindowOutputTargetBase
 {
 public:
   virtual void Present(bool bEnableVSync) override;

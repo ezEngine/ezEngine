@@ -1,7 +1,9 @@
 #include <EditorEngineProcessPCH.h>
 
+#include <Core/Actor/ActorService.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <EditorEngineProcess/EngineProcGameApp.h>
+#include <EditorEngineProcessFramework/Actors/EditorWnd/ActorManagerEditorWnd.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
@@ -451,7 +453,6 @@ void ezEngineProcessGameApplication::Init_FileSystem_ConfigureDataDirs()
   m_CustomFileSystemConfig.Apply();
 }
 
-
 bool ezEngineProcessGameApplication::Run_ProcessApplicationInput()
 {
   // override the escape action to not shut down the app, but instead close the play-the-game window
@@ -473,6 +474,13 @@ bool ezEngineProcessGameApplication::Run_ProcessApplicationInput()
 ezUniquePtr<ezEditorEngineProcessApp> ezEngineProcessGameApplication::CreateEngineProcessApp()
 {
   return EZ_DEFAULT_NEW(ezEditorEngineProcessApp);
+}
+
+void ezEngineProcessGameApplication::Init_AddActorManagers()
+{
+  SUPER::Init_AddActorManagers();
+
+  ezActorService::GetSingleton()->AddActorManager(EZ_DEFAULT_NEW(ezActorManagerEditorWnd));
 }
 
 void ezEngineProcessGameApplication::BaseInit_ConfigureLogging()

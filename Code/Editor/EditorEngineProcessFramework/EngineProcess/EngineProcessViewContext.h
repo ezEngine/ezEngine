@@ -1,16 +1,18 @@
 #pragma once
 
+#include <Core/Graphics/Camera.h>
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <RendererCore/Pipeline/Declarations.h>
 #include <System/Window/Window.h>
-#include <Core/Graphics/Camera.h>
-#include <Core/ResourceManager/ResourceHandle.h>
 
 class ezEngineProcessDocumentContext;
 class ezEditorEngineDocumentMsg;
 class ezViewRedrawMsgToEngine;
 class ezEditorEngineViewMsg;
 class ezGALRenderTargetSetup;
+class ezActorEditorWnd;
+struct ezActorEvent;
 
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
@@ -29,7 +31,7 @@ public:
   // Inherited via ezWindowBase
   virtual ezSizeU32 GetClientAreaSize() const override { return ezSizeU32(m_uiWidth, m_uiHeight); }
   virtual ezWindowHandle GetNativeWindowHandle() const override { return m_hWnd; }
-  virtual void ProcessWindowMessages() override { }
+  virtual void ProcessWindowMessages() override {}
   virtual bool IsFullscreenWindow(bool bOnlyProperFullscreenMode = false) const override { return false; }
 
   ezWindowHandle m_hWnd;
@@ -71,9 +73,12 @@ protected:
   /// \brief Create the actual view.
   virtual ezViewHandle CreateView() = 0;
 
+  virtual void ActorEventHandler(const ezActorEvent& e);
+
 private:
   ezEngineProcessDocumentContext* m_pDocumentContext;
-  ezEditorProcessViewWindow m_Window;
+  ezActorEditorWnd* m_pEditorWndActor = nullptr;
+  // ezEditorProcessViewWindow m_Window;
 
 protected:
   ezCamera m_Camera;

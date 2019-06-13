@@ -59,7 +59,9 @@ void ezEditorEngineProcessApp::DestroyRemoteWindow()
 
   if (m_pRemoteWindow != nullptr && m_pRemoteWindow->IsInitialized())
   {
-    static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->RemoveWindow(m_pRemoteWindow.Borrow());
+    // TODO: ezActor: fix this
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    //static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->RemoveWindow(m_pRemoteWindow.Borrow());
 
     m_pRemoteWindow.Clear();
   }
@@ -87,8 +89,10 @@ ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCame
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
+    // TODO: ezActor: fix this
+    EZ_ASSERT_NOT_IMPLEMENTED;
     ezWindowOutputTargetGAL* pOutputTarget =
-        static_cast<ezWindowOutputTargetGAL*>(ezGameApplicationBase::GetGameApplicationBaseInstance()->AddWindow(m_pRemoteWindow.Borrow()));
+        nullptr;//static_cast<ezWindowOutputTargetGAL*>(ezGameApplicationBase::GetGameApplicationBaseInstance()->AddWindow(m_pRemoteWindow.Borrow()));
     const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(pOutputTarget->m_hSwapChain);
     EZ_ASSERT_DEV(pPrimarySwapChain != nullptr, "Failed to init swapchain");
 

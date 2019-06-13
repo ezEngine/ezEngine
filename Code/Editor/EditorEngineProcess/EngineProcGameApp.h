@@ -33,12 +33,15 @@ protected:
   virtual void BaseInit_ConfigureLogging() override;
   virtual void Deinit_ShutdownLogging() override;
   virtual void Init_FileSystem_ConfigureDataDirs() override;
+  virtual void Init_AddActorManagers() override;
   virtual bool Run_ProcessApplicationInput() override;
   virtual ezUniquePtr<ezEditorEngineProcessApp> CreateEngineProcessApp();
 
   virtual void ActivateGameStateAtStartup() override
   { /* do nothing */
   }
+
+
 
 private:
   void ConnectToHost();
