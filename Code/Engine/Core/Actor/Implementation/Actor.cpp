@@ -14,16 +14,21 @@ ezEvent<const ezActorEvent&> ezActor::s_Events;
 struct ezActorImpl
 {
   ezString m_sName;
+  ezString m_sGroup;
   ezHybridArray<ezUniquePtr<ezActorDevice>, 4> m_AllDevices;
   ezMap<const ezRTTI*, ezActorDevice*> m_DeviceLookupCache;
 };
 
 
-ezActor::ezActor(const char* szActorName)
+ezActor::ezActor(const char* szActorName, const char* szGroupName)
 {
   m_pImpl = EZ_DEFAULT_NEW(ezActorImpl);
 
   m_pImpl->m_sName = szActorName;
+  m_pImpl->m_sGroup = szGroupName;
+
+  EZ_ASSERT_DEV(!m_pImpl->m_sName.IsEmpty(), "Actor name must not be empty");
+  EZ_ASSERT_DEV(!m_pImpl->m_sGroup.IsEmpty(), "Actor group name must not be empty");
 }
 
 ezActor::~ezActor() = default;
@@ -36,6 +41,11 @@ ezActorManager* ezActor::GetManager() const
 const char* ezActor::GetName() const
 {
   return m_pImpl->m_sName;
+}
+
+const char* ezActor::GetGroup() const
+{
+  return m_pImpl->m_sGroup;
 }
 
 void ezActor::AddDevice(ezUniquePtr<ezActorDevice>&& pDevice)

@@ -18,3 +18,11 @@ ezWindowOutputTargetGAL* ezActorDeviceRenderOutputFlatscreen::GetWindowOutputTar
 {
   return m_pOutputTarget;
 }
+
+void ezActorDeviceRenderOutputFlatscreen::Present()
+{
+  if (m_pOutputTarget)
+  {
+    m_pOutputTarget->Present(m_bVSync);
+  }
+}

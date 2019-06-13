@@ -60,13 +60,13 @@ ezActorService::~ezActorService()
   DestroyAllActorManagers();
 }
 
-void ezActorService::DestroyAllActors()
+void ezActorService::DestroyAllActors(const char* szInGroup /*= nullptr*/)
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
   for (auto& pMan : m_pImpl->m_AllManagers)
   {
-    pMan->DestroyAllActors();
+    pMan->DestroyAllActors(szInGroup);
   }
 }
 
@@ -194,6 +194,14 @@ ezActorManager* ezActorService::GetActorManager(const ezRTTI* pManagerType)
   }
 
   return nullptr;
+}
+
+void ezActorService::GetAllActors(ezHybridArray<ezActor*, 8>& out_AllActors)
+{
+  for (auto& pMan : m_pImpl->m_AllManagers)
+  {
+    pMan->GetAllActors(out_AllActors);
+  }
 }
 
 

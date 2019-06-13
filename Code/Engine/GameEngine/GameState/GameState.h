@@ -4,6 +4,7 @@
 
 #include <Core/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Foundation/Math/Size.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/Pipeline/Declarations.h>
@@ -74,7 +75,7 @@ public:
 
 protected:
   /// \brief Creates a default window (ezGameStateWindow) adds it to the application and fills out m_pMainWindow and m_hMainSwapChain
-  virtual void CreateMainWindow();
+  virtual void CreateActors();
 
   /// \brief Destroys the m_pMainWindow.
   /// Unless overridden Deactivate() will call this.
@@ -89,7 +90,7 @@ protected:
   virtual void ConfigureInputActions();
 
   /// \brief Creates a default render view. Unless overridden, Activate() will do this for the main window.
-  virtual void SetupMainView(ezWindowOutputTargetBase* pOutputTarget);
+  virtual void SetupMainView(ezWindowOutputTargetBase* pOutputTarget, ezSizeU32 viewportSize);
 
   /// \brief Overrideable function that may create a player object.
   ///
@@ -102,7 +103,8 @@ protected:
   virtual ezResult SpawnPlayer(const ezTransform* pStartPosition);
 
   /// \brief Creates a default main view with the given render pipeline.
-  void SetupMainView(ezWindowOutputTargetBase* pOutputTarget, ezTypedResourceHandle<ezRenderPipelineResource> hRenderPipeline);
+  void SetupMainView(
+    ezWindowOutputTargetBase* pOutputTarget, ezSizeU32 viewportSize, ezTypedResourceHandle<ezRenderPipelineResource> hRenderPipeline);
 
   /// \brief Sets m_pMainWorld and updates m_pMainView to use that new world for rendering
   void ChangeMainWorld(ezWorld* pNewMainWorld);
@@ -112,8 +114,8 @@ protected:
 
   virtual void ActorEventHandler(const ezActorEvent& e);
 
-  ezWindow* m_pMainWindow = nullptr;
-  ezWindowOutputTargetBase* m_pMainOutputTarget = nullptr;
+  // ezWindow* m_pMainWindow = nullptr;
+  // ezWindowOutputTargetBase* m_pMainOutputTarget = nullptr;
   ezViewHandle m_hMainView;
 
   ezWorld* m_pMainWorld = nullptr;
@@ -122,5 +124,4 @@ protected:
   bool m_bStateWantsToQuit = false;
   bool m_bMixedRealityMode = false;
   bool m_bVirtualRealityMode = false;
-
 };

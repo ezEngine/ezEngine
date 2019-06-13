@@ -270,18 +270,12 @@ void ezGameApplication::Deinit_ShutdownGraphicsDevice()
   if (!ezGALDevice::HasDefaultDevice())
     return;
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  for (ezUInt32 i = 0; i < m_Windows.GetCount(); ++i)
-  {
-    DestroyWindowOutputTarget(std::move(m_Windows[i].m_pOutputTarget));
-  }
-
   // Cleanup resource pool
   ezGPUResourcePool::SetDefaultInstance(nullptr);
 
   ezResourceManager::FreeUnusedResources(true);
 
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   pDevice->Shutdown();
   EZ_DEFAULT_DELETE(pDevice);
   ezGALDevice::SetDefaultDevice(nullptr);

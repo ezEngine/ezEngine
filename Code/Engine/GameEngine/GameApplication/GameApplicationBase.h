@@ -67,63 +67,6 @@ public:
 protected:
   static ezGameApplicationBase* s_pGameApplicationBaseInstance;
 
-  ///@}
-  /// \name Window Management
-  ///@{
-
-public:
-  /// \brief Adds a top level window to the application.
-  ///
-  /// An output target is created for that window. Run() will call ezWindowBase::ProcessWindowMessages()
-  /// on all windows that have been added.
-  /// Most applications should add exactly one such window to the game application.
-  /// Only few applications will add zero or multiple windows.
-  ezWindowOutputTargetBase* AddWindow(ezWindowBase* pWindow);
-
-  /// \brief Adds a top level window to the application with a custom output target.
-  void AddWindow(ezWindowBase* pWindow, ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget);
-
-  /// \brief Removes a previously added window. Destroys its output target. Should be called at application shutdown.
-  void RemoveWindow(ezWindowBase* pWindow);
-
-  /// \brief Can be called by code that creates windows (e.g. an ezGameStateBase) to adjust or override settings, such as the window title
-  /// or resolution.
-  virtual void AdjustWindowCreation(ezWindowCreationDesc& desc) {}
-
-  /// \brief Calls ezWindowBase::ProcessWindowMessages() on all known windows. Returns true, if any windows are available, at all.
-  ///
-  /// \note This should actually never be executed manually. It is only public for very specific edge cases.
-  /// Otherwise this function is automatically executed once every frame.
-  bool ProcessWindowMessages();
-
-  /// \brief Returns the ezWindowOutputTargetBase object that is associated with the given window. The window must have been added via
-  /// AddWindow()
-  ezWindowOutputTargetBase* GetWindowOutputTarget(const ezWindowBase* pWindow) const;
-
-  /// \brief Sets the ezWindowOutputTargetBase for a given window. The window must have been added via AddWindow()
-  ///
-  /// The previous ezWindowOutputTargetBase object (if any) will be destroyed.
-  void SetWindowOutputTarget(const ezWindowBase* pWindow, ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget);
-
-  /// \brief Returns the number of windows currently registered
-  ezUInt32 GetWindowCount() const;
-
-  /// \brief Retrieves a previously registered window with the respective index
-  ezWindowBase* GetWindow(ezUInt32 uiWindowIndex) const;
-
-protected:
-  virtual ezUniquePtr<ezWindowOutputTargetBase> CreateWindowOutputTarget(ezWindowBase* pWindow) = 0;
-  virtual void DestroyWindowOutputTarget(ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget) = 0;
-
-  struct WindowContext
-  {
-    ezWindowBase* m_pWindow;
-    ezUniquePtr<ezWindowOutputTargetBase> m_pOutputTarget;
-    bool m_bFirstFrame = true;
-  };
-
-  ezDynamicArray<WindowContext> m_Windows;
-
 public:
   /// \brief Does a profiling capture and writes it to disk at ':appdata'
   void TakeProfilingCapture();
@@ -271,6 +214,7 @@ protected:
   virtual void Init_ConfigureCVars();
   virtual void Init_SetupGraphicsDevice() = 0;
   virtual void Init_SetupDefaultResources();
+  virtual void Init_AddActorManagers() = 0;
 
   ezEvent<const ezGameApplicationStaticEvent&> m_StaticEvents;
 

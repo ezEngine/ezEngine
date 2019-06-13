@@ -12,8 +12,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezActorFlatscreen, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezActorFlatscreen::ezActorFlatscreen(const char* szActorName, ezUniquePtr<ezWindow>&& pWindow)
-  : ezActor(szActorName)
+ezActorFlatscreen::ezActorFlatscreen(const char* szActorName, const char* szGroupName, ezUniquePtr<ezWindow>&& pWindow)
+  : ezActor(szActorName, szGroupName)
 {
   m_pWindow = std::move(pWindow);
 }
@@ -36,7 +36,6 @@ void ezActorFlatscreen::Activate()
   m_OutputTarget = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
   m_OutputTarget->m_hSwapChain = hSwapChain;
 
-  //m_pRenderOutput = EZ_DEFAULT_NEW(ezActorDeviceRenderOutputFlatscreen, m_OutputTarget.Borrow());
   AddDevice(EZ_DEFAULT_NEW(ezActorDeviceRenderOutputFlatscreen, m_OutputTarget.Borrow()));
 }
 
@@ -48,10 +47,14 @@ void ezActorFlatscreen::Deactivate()
     ezGALDevice::GetDefaultDevice()->DestroySwapChain(m_OutputTarget->m_hSwapChain);
   }
 
-  //m_pRenderOutput = nullptr;
   m_OutputTarget = nullptr;
   m_pWindow = nullptr;
 
   SUPER::Deactivate();
+}
+
+void ezActorFlatscreen::Update()
+{
+  m_pWindow->ProcessWindowMessages();
 }
 

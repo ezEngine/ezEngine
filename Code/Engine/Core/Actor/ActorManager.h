@@ -17,7 +17,7 @@ public:
   ~ezActorManager();
 
   /// \brief Calls ezActor::Deactivate() and then destroys all ezActor instances owned by this manager. Automatically called during manager destruction.
-  void DestroyAllActors();
+  void DestroyAllActors(const char* szInGroup = nullptr);
 
 protected:
 
@@ -46,6 +46,9 @@ protected:
   /// \brief Calls ezActor::Update() on all actors. By default this is called by ezActorManager::Update().
   void UpdateAllActors();
 
+
+  void GetAllActors(ezHybridArray<ezActor*, 8>& out_AllActors);
+
 private: // Functions called directly by ezActorService
   friend class ezActorService;
 
@@ -66,7 +69,7 @@ private: // Functions called directly by ezActorService
 private:
   void ActivateQueuedActors();
   void DeactivateQueuedActors();
-  void DeactivateAllActors();
+  void DeactivateAllActors(const char* szInGroup = nullptr);
   void DeleteDeactivatedActors();
 
   ezUniquePtr<ezActorManagerImpl> m_pImpl;

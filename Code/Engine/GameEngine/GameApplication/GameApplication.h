@@ -63,9 +63,6 @@ public:
   void ReinitializeInputConfig();
 
 protected:
-  virtual ezUniquePtr<ezWindowOutputTargetBase> CreateWindowOutputTarget(ezWindowBase* pWindow) override;
-  virtual void DestroyWindowOutputTarget(ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget) override;
-
   virtual ezResult BeforeCoreSystemsStartup() override;
 
   virtual void Init_ConfigureInput() override;
@@ -73,6 +70,7 @@ protected:
   virtual void Init_LoadRequiredPlugins() override;
   virtual void Init_SetupDefaultResources() override;
   virtual void Init_SetupGraphicsDevice() override;
+  virtual void Init_AddActorManagers() override;
   virtual void Deinit_ShutdownGraphicsDevice() override;
 
   virtual bool IsGameUpdateEnabled() const override;

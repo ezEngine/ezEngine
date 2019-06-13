@@ -7,6 +7,7 @@
 
 class ezActorManager;
 struct ezActorServiceImpl;
+class ezActor;
 
 class EZ_CORE_DLL ezActorService final
 {
@@ -17,7 +18,7 @@ public:
   ~ezActorService();
 
   /// \brief Calls ezActorManager::DestroyAllActors() on all managers
-  void DestroyAllActors();
+  void DestroyAllActors(const char* szInGroup = nullptr);
 
   /// \brief Calls ezActorManager::Deactivate() and then destroys all ezActorManager instances. Automatically called during service
   /// destruction.
@@ -42,6 +43,8 @@ public:
 
   /// \brief Activates queued managers and calls ezActorManager::Update() on them.
   void Update();
+
+  void GetAllActors(ezHybridArray<ezActor*, 8>& out_AllActors);
 
 private:
   void ActivateQueuedManagers();

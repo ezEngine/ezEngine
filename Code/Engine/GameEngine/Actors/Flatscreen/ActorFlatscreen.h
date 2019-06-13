@@ -18,13 +18,15 @@ public:
 private: // functions called directly by ezActorManagerFlatscreen
   friend class ezActorManagerFlatscreen;
 
-  ezActorFlatscreen(const char* szActorName, ezUniquePtr<ezWindow>&& pWindow);
+  ezActorFlatscreen(const char* szActorName, const char* szGroupName, ezUniquePtr<ezWindow>&& pWindow);
 
 protected:
   virtual void Activate() override;
   virtual void Deactivate() override;
+  virtual void Update() override;
 
   ezUniquePtr<ezWindow> m_pWindow;
   ezUniquePtr<ezWindowOutputTargetGAL> m_OutputTarget;
-  //ezUniquePtr<ezActorDeviceRenderOutputFlatscreen> m_pRenderOutput;
+
+
 };

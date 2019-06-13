@@ -23,6 +23,8 @@ public:
   /// \brief Returns the underlying window output target. Can be nullptr.
   virtual ezWindowOutputTargetBase* GetWindowOutputTarget() const = 0;
 
+  virtual void Present() = 0;
+
 protected:
   bool m_bVSync = true;
 };

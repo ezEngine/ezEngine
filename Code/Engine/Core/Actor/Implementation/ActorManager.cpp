@@ -24,11 +24,11 @@ ezActorManager::~ezActorManager()
   DestroyAllActors();
 }
 
-void ezActorManager::DestroyAllActors()
+void ezActorManager::DestroyAllActors(const char* szInGroup /*= nullptr*/)
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
-  DeactivateAllActors();
+  DeactivateAllActors(szInGroup);
   DeleteDeactivatedActors();
 
   EZ_ASSERT_DEBUG(m_pImpl->m_AllActors.IsEmpty(), "The list of actors should be empty now.");
@@ -130,12 +130,15 @@ void ezActorManager::DeactivateQueuedActors()
   }
 }
 
-void ezActorManager::DeactivateAllActors()
+void ezActorManager::DeactivateAllActors(const char* szInGroup /*= nullptr*/)
 {
   EZ_LOCK(GetMutex());
 
   for (auto& pActor : m_pImpl->m_AllActors)
   {
+    if (szInGroup != nullptr && !ezStringUtils::IsEqual_NoCase(pActor->GetGroup(), szInGroup))
+      continue;
+
     if (pActor->m_ActivationState == ezActor::ActivationState::Active || pActor->m_ActivationState == ezActor::ActivationState::Deactivate)
     {
       ezActorEvent e;
@@ -163,5 +166,13 @@ void ezActorManager::DeleteDeactivatedActors()
     {
       m_pImpl->m_AllActors.RemoveAtAndSwap(i);
     }
+  }
+}
+
+void ezActorManager::GetAllActors(ezHybridArray<ezActor*, 8>& out_AllActors)
+{
+  for (auto& pActor : m_pImpl->m_AllActors)
+  {
+    out_AllActors.PushBack(pActor.Borrow());
   }
 }

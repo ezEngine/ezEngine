@@ -36,6 +36,7 @@ void ezGameApplicationBase::ExecuteInitFunctions()
   Init_ConfigureCVars();
   Init_SetupGraphicsDevice();
   Init_SetupDefaultResources();
+  Init_AddActorManagers();
 }
 
 void ezGameApplicationBase::Init_PlatformProfile_SetPreferred()

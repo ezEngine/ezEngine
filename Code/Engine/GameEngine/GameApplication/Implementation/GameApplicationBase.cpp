@@ -35,98 +35,6 @@ ezGameApplicationBase::~ezGameApplicationBase()
 
 //////////////////////////////////////////////////////////////////////////
 
-ezWindowOutputTargetBase* ezGameApplicationBase::AddWindow(ezWindowBase* pWindow)
-{
-  ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget = CreateWindowOutputTarget(pWindow);
-  ezWindowOutputTargetBase* pOutputPtr = pOutputTarget.Borrow();
-
-  AddWindow(pWindow, std::move(pOutputTarget));
-
-  return pOutputPtr;
-}
-
-void ezGameApplicationBase::AddWindow(ezWindowBase* pWindow, ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget)
-{
-  // make sure not to add the same window twice
-  RemoveWindow(pWindow);
-
-  WindowContext& windowContext = m_Windows.ExpandAndGetRef();
-  windowContext.m_pWindow = pWindow;
-  windowContext.m_pOutputTarget = std::move(pOutputTarget);
-  windowContext.m_bFirstFrame = true;
-}
-
-void ezGameApplicationBase::RemoveWindow(ezWindowBase* pWindow)
-{
-  for (ezUInt32 i = 0; i < m_Windows.GetCount(); ++i)
-  {
-    WindowContext& windowContext = m_Windows[i];
-    if (windowContext.m_pWindow == pWindow)
-    {
-      DestroyWindowOutputTarget(std::move(windowContext.m_pOutputTarget));
-      m_Windows.RemoveAtAndCopy(i);
-      break;
-    }
-  }
-}
-
-bool ezGameApplicationBase::ProcessWindowMessages()
-{
-  for (ezUInt32 i = 0; i < m_Windows.GetCount(); ++i)
-  {
-    m_Windows[i].m_pWindow->ProcessWindowMessages();
-  }
-
-  return !m_Windows.IsEmpty();
-}
-
-ezWindowOutputTargetBase* ezGameApplicationBase::GetWindowOutputTarget(const ezWindowBase* pWindow) const
-{
-  for (auto& windowContext : m_Windows)
-  {
-    if (windowContext.m_pWindow == pWindow)
-    {
-      return windowContext.m_pOutputTarget.Borrow();
-    }
-  }
-
-  return nullptr;
-}
-
-void ezGameApplicationBase::SetWindowOutputTarget(const ezWindowBase* pWindow, ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget)
-{
-  for (auto& windowContext : m_Windows)
-  {
-    if (windowContext.m_pWindow == pWindow)
-    {
-      if (windowContext.m_pOutputTarget != nullptr)
-      {
-        DestroyWindowOutputTarget(std::move(windowContext.m_pOutputTarget));
-      }
-
-      windowContext.m_pOutputTarget = std::move(pOutputTarget);
-      return;
-    }
-  }
-
-  EZ_REPORT_FAILURE("The given window is not part of the application!");
-}
-
-
-ezUInt32 ezGameApplicationBase::GetWindowCount() const
-{
-  return m_Windows.GetCount();
-}
-
-ezWindowBase* ezGameApplicationBase::GetWindow(ezUInt32 uiWindowIndex) const
-{
-  EZ_ASSERT_DEV(m_Windows.GetCount() < uiWindowIndex, "Window index out of bounds!");
-
-  return m_Windows[uiWindowIndex].m_pWindow;
-}
-
-//////////////////////////////////////////////////////////////////////////
-
 void AppendCurrentTimestamp(ezStringBuilder& out_String)
 {
   const ezDateTime dt = ezTimestamp::CurrentTimestamp();
@@ -420,6 +328,9 @@ void ezGameApplicationBase::BeforeHighLevelSystemsShutdown()
 
 void ezGameApplicationBase::BeforeCoreSystemsShutdown()
 {
+  // shut down all actors and APIs that may have been in use
+  ezActorService::GetSingleton()->DestroyAllActorManagers();
+
   {
     ezFrameAllocator::Reset();
     ezResourceManager::FreeUnusedResources(true);
@@ -455,8 +366,6 @@ ezApplication::ApplicationExecution ezGameApplicationBase::Run()
     return ezApplication::Quit;
 
   s_bUpdatePluginsExecuted = false;
-
-  ProcessWindowMessages();
 
   ezClock::GetGlobalClock()->Update();
 

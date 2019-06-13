@@ -15,6 +15,8 @@ public:
 
   virtual ezWindowOutputTargetGAL* GetWindowOutputTarget() const override;
 
+  virtual void Present() override;
+
 protected:
   ezWindowOutputTargetGAL* m_pOutputTarget = nullptr;
 };

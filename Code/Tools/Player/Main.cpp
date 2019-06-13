@@ -47,8 +47,6 @@ void ezPlayerApplication::AfterCoreSystemsStartup()
 {
   ExecuteInitFunctions();
 
-  ezActorService::GetSingleton()->AddActorManager(EZ_DEFAULT_NEW(ezActorManagerFlatscreen));
-
   ezStartup::StartupHighLevelSystems();
 
   SetupLevel();
