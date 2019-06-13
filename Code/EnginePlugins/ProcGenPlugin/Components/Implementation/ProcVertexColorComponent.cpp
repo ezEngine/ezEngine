@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ProcGenPlugin/Components/ProcVertexColorComponent.h>
+#include <RendererCore/Meshes/CpuMeshResource.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcVertexColorRenderData, 1, ezRTTIDefaultAllocator<ezProcVertexColorRenderData>)
@@ -28,37 +29,62 @@ ezProcVertexColorComponentManager::~ezProcVertexColorComponentManager() {}
 
 void ezProcVertexColorComponentManager::Initialize()
 {
-#if 0
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProcVertexColorComponentManager::FindTiles, this);
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProcVertexColorComponentManager::UpdateVertexColors, this);
     desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync;
     desc.m_fPriority = 10000.0f;
 
     this->RegisterUpdateFunction(desc);
   }
 
-  {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProcVertexColorComponentManager::PreparePlace, this);
-    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::Async;
-
-    this->RegisterUpdateFunction(desc);
-  }
-
-  {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProcVertexColorComponentManager::PlaceObjects, this);
-    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostAsync;
-
-    this->RegisterUpdateFunction(desc);
-  }
-#endif
+  ezRenderWorld::s_BeginRenderEvent.AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnBeginRender, this));
+  ezRenderWorld::s_EndExtractionEvent.AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnEndExtraction, this));
 
   ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnResourceEvent, this));
 }
 
 void ezProcVertexColorComponentManager::Deinitialize()
 {
+  ezRenderWorld::s_BeginRenderEvent.RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnBeginRender, this));
+  ezRenderWorld::s_EndExtractionEvent.RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnEndExtraction, this));
+
   ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnResourceEvent, this));
 }
+
+void ezProcVertexColorComponentManager::UpdateVertexColors(const ezWorldModule::UpdateContext& context)
+{
+  for (const auto& componentToUpdate : m_ComponentsToUpdate)
+  {
+    ezProcVertexColorComponent* pComponent = nullptr;
+    if (!TryGetComponent(componentToUpdate, pComponent))
+      continue;
+
+    const char* szMesh = pComponent->GetMeshFile();
+    if (ezStringUtils::IsNullOrEmpty(szMesh))
+      continue;
+
+    ezCpuMeshResourceHandle hCpuMesh = ezResourceManager::LoadResource<ezCpuMeshResource>(szMesh);
+    ezResourceLock<ezCpuMeshResource> pCpuMesh(hCpuMesh, ezResourceAcquireMode::NoFallbackAllowMissing);
+    if (pCpuMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
+    {
+      ezLog::Warning("Failed to retrieve CPU mesh '{}'", szMesh);
+      continue;
+    }
+
+    const auto& mbDesc = pCpuMesh->GetDescriptor().MeshBufferDesc();
+
+    pComponent->m_hVertexColorBuffer = m_hVertexColorBuffer;
+    pComponent->m_iBufferOffset = m_uiCurrentBufferOffset;
+
+    m_uiCurrentBufferOffset += mbDesc.GetVertexCount();
+  }
+
+  m_ComponentsToUpdate.Clear();
+}
+
+void ezProcVertexColorComponentManager::OnEndExtraction(ezUInt64 uiFrameCounter) {}
+
+void ezProcVertexColorComponentManager::OnBeginRender(ezUInt64 uiFrameCounter) {}
 
 void ezProcVertexColorComponentManager::AddComponent(ezProcVertexColorComponent* pComponent)
 {
@@ -79,7 +105,12 @@ void ezProcVertexColorComponentManager::RemoveComponent(ezProcVertexColorCompone
     return;
   }
 
-  //RemoveTilesForComponent(pComponent);
+  m_ComponentsToUpdate.RemoveAndSwap(pComponent->GetHandle());
+
+  if (pComponent->m_iBufferOffset >= 0)
+  {
+    /// \todo compact buffer somehow?
+  }
 }
 
 void ezProcVertexColorComponentManager::OnResourceEvent(const ezResourceEvent& resourceEvent)
