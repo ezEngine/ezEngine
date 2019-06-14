@@ -168,52 +168,69 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezTime& arg)
 {
   ezUInt32 writepos = 0;
 
-  if (arg.GetMicroseconds() < 1.0)
+  const double fAbsSec = ezMath::Abs(arg.GetSeconds());
+
+  if (fAbsSec < 0.000001)
   {
-    ezStringUtils::OutputFormattedFloat(tmp, uiLength - 2, writepos, arg.GetNanoseconds(), 1, false, 1, false, true);
+    ezStringUtils::OutputFormattedFloat(tmp, uiLength - 5, writepos, arg.GetNanoseconds(), 1, false, 1, false, true);
+    //tmp[writepos++] = ' ';
     tmp[writepos++] = 'n';
     tmp[writepos++] = 's';
   }
-  else if (arg.GetMilliseconds() < 1.0)
+  else if (fAbsSec < 0.001)
   {
-    ezStringUtils::OutputFormattedFloat(tmp, uiLength - 3, writepos, arg.GetMicroseconds(), 1, false, 1, false, true);
+    ezStringUtils::OutputFormattedFloat(tmp, uiLength - 5, writepos, arg.GetMicroseconds(), 1, false, 1, false, true);
 
+    //tmp[writepos++] = ' ';
     // Utf-8 representation of the microsecond (us) sign
     tmp[writepos++] = (char)0xC2;
     tmp[writepos++] = (char)0xB5;
     tmp[writepos++] = 's';
   }
-  else if (arg.GetSeconds() < 1.0)
+  else if (fAbsSec < 1.0)
   {
-    ezStringUtils::OutputFormattedFloat(tmp, uiLength - 2, writepos, arg.GetMilliseconds(), 1, false, 1, false, true);
+    ezStringUtils::OutputFormattedFloat(tmp, uiLength - 5, writepos, arg.GetMilliseconds(), 1, false, 1, false, true);
 
+    //tmp[writepos++] = ' ';
     tmp[writepos++] = 'm';
     tmp[writepos++] = 's';
   }
-  else if (arg.GetMinutes() < 1.0)
+  else if (fAbsSec < 60.0)
   {
-    ezStringUtils::OutputFormattedFloat(tmp, uiLength - 3, writepos, arg.GetSeconds(), 1, false, 1, false, true);
+    ezStringUtils::OutputFormattedFloat(tmp, uiLength - 5, writepos, arg.GetSeconds(), 1, false, 1, false, true);
 
+    //tmp[writepos++] = ' ';
     tmp[writepos++] = 's';
     tmp[writepos++] = 'e';
     tmp[writepos++] = 'c';
   }
-  else if (arg.GetHours() < 1.0)
+  else if (fAbsSec < 60.0 * 60.0)
   {
-    ezStringUtils::OutputFormattedFloat(tmp, uiLength - 3, writepos, arg.GetMinutes(), 1, false, 1, false, true);
+    double tRem = fAbsSec;
 
-    tmp[writepos++] = 'm';
-    tmp[writepos++] = 'i';
-    tmp[writepos++] = 'n';
+    ezInt32 iMin = ezMath::Trunc(tRem / 60.0);
+    tRem -= iMin * 60;
+    iMin *= ezMath::Sign(arg.GetSeconds());
+
+    const double fSec = tRem;
+
+    writepos = ezStringUtils::snprintf(tmp, uiLength, "%imin %fsec", iMin, fSec);
   }
   else
   {
-    ezStringUtils::OutputFormattedFloat(tmp, uiLength - 1, writepos, arg.GetHours(), 1, false, 1, false, true);
+    double tRem = fAbsSec;
 
-    tmp[writepos++] = 'h';
+    ezInt32 iHrs = ezMath::Trunc(tRem / (60.0 * 60.0));
+    tRem -= iHrs * 60 * 60;
+    iHrs *= ezMath::Sign(arg.GetSeconds());
+
+    const ezInt32 iMin = ezMath::Trunc(tRem / 60.0);
+    tRem -= iMin * 60;
+
+    const double fSec = tRem;
+
+    writepos = ezStringUtils::snprintf(tmp, uiLength, "%ih %imin %fsec", iHrs, iMin, fSec);
   }
-
-
 
   tmp[writepos] = '\0';
   return ezStringView(tmp, tmp + writepos);
