@@ -33,10 +33,11 @@ private:
   friend class ezProcVertexColorComponent;
 
   void UpdateVertexColors(const ezWorldModule::UpdateContext& context);
+  void UpdateComponentVertexColors(ezProcVertexColorComponent* pComponent);
   void OnEndExtraction(ezUInt64 uiFrameCounter);
   void OnBeginRender(ezUInt64 uiFrameCounter);
 
-  void AddComponent(ezProcVertexColorComponent* pComponent);
+  void EnqueueUpdate(ezProcVertexColorComponent* pComponent);  
   void RemoveComponent(ezProcVertexColorComponent* pComponent);
 
   void OnResourceEvent(const ezResourceEvent& resourceEvent);
@@ -46,6 +47,15 @@ private:
   ezGALBufferHandle m_hVertexColorBuffer;
   ezDynamicArray<ezUInt32> m_VertexColorData;
   ezUInt32 m_uiCurrentBufferOffset = 0;
+
+  ezGAL::ModifiedRange m_ModifiedDataRange;
+
+  struct DataCopy
+  {
+    ezArrayPtr<ezUInt32> m_Data;
+    ezUInt32 m_uiStart = 0;
+  };
+  DataCopy m_DataCopy[2];
 };
 
 //////////////////////////////////////////////////////////////////////////
