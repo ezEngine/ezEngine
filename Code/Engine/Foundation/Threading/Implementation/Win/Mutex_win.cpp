@@ -1,5 +1,6 @@
 #include <FoundationPCH.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #include <Foundation/Threading/Mutex.h>
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
@@ -28,3 +29,4 @@ ezMutex::~ezMutex()
 {
   DeleteCriticalSection((CRITICAL_SECTION*)&m_Handle);
 }
+#endif
