@@ -1,8 +1,6 @@
 Header Files {#HeaderFiles}
 ===============
 
-[TOC]
-
 Types of Header Files
 -------
 
@@ -14,7 +12,7 @@ To mark up a header file as a internal header file first include the components 
 
 The following example shows how to mark a header file as internal for ezFoundation:
 
-~~~c++
+~~~{.cpp}
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 ~~~
@@ -35,7 +33,7 @@ Hiding Implementation Detail
 
 To consider the different options of hiding implementation detail consider the following example
 
-```c++
+```{.cpp}
 #include <d3d11.h>
 
 class ezTexture2D
@@ -53,7 +51,7 @@ If a user includes this header file the underlying implementation detail is leak
 ### Forward Declarations
 Forward declarations can be used to remove the need to include a header file, therefor removing the leaky abstraction. Consider the following fixed version of the ezTexture2D class:
 
-```c++
+```{.cpp}
 struct ID3D11Texture2D; // Forward declare ID3D11Texture2D
 
 class ezTexture2D
@@ -79,7 +77,7 @@ Forward declarations can not be made for:
 
 Enums can be forward declared if they are given an explicit storage type. So ideally to make enums forward declarable always manually specify a storage type.
 
-```c++
+```{.cpp}
 enum MyEnum : int; // Forward declaration
 
 enum MyEnum : int // declaration
@@ -91,7 +89,7 @@ enum MyEnum : int // declaration
 
 Nested types can never be forward declared. A nested type is a type that is inside a class or struct.
 
-```c++
+```{.cpp}
 // does not work
 // struct Outer::Inner;
 
@@ -105,7 +103,7 @@ struct Outer
 ```
 
 So prefer to put nested types into namespaces instead of structs or classes:
-```c++
+```{.cpp}
 // Forward declaration
 namespace Outer
 {
@@ -124,7 +122,7 @@ namespace Outer
 
 Templates can also be forward declared:
 
-```c++
+```{.cpp}
 
 // forward declaration
 template<typename> struct Example;
@@ -150,7 +148,7 @@ struct Example
 
 Consider the following example which leaks implementation detail:
 
-```c++
+```{.cpp}
 // Application.h
 
 #include <roapi.h>
@@ -174,7 +172,7 @@ The two functions `RoInitialize` and `RoUninitialize` are platform specific func
 
 To fix this issue we need to wrap the leaking function calls into seperate functions and forward declare these functions.
 
-```c++
+```{.cpp}
 // Application.h
 
 void InitPlatform();
@@ -195,7 +193,7 @@ void RunApplication(AppClass& app)
 }
 ```
 
-```c++
+```{.cpp}
 // Application.cpp
 #include "Application.h"
 #include <roapi.h>
@@ -219,7 +217,7 @@ The pattern that I call "Pimpl light" can be used to hide implementation detail 
 
 Consider our original `ezTexture2D` example it would be modified like this:
 
-```c++
+```{.cpp}
 // Texture2D.h
 class ezTexture2D
 {
@@ -235,7 +233,7 @@ private:
 };
 ```
 
-```c++
+```{.cpp}
 // Texture2D.cpp
 #include "Texture2D.h"
 #include <d3d11.h>
@@ -277,7 +275,7 @@ This is a easy pattern to hide implementation detail.
 ### Pimpl Inheritance
 The Pimpl pattern can also be implemented by using inheritance instead of a forward declared struct. For our `ezTexture2D` exampel this would look like this:
 
-```c++
+```{.cpp}
 // Texture2D.h
 class ezTexture2D
 {
@@ -293,7 +291,7 @@ private:
 };
 ```
 
-```c++
+```{.cpp}
 // Texture2D.cpp
 #include "Texture2D.h"
 #include <d3d11.h>
@@ -338,7 +336,7 @@ As you see this version of pimpl hides the implementation detail similar to pimp
 
 We can also place an opaque array of bytes large enough to store our implementation detail. Considering our `ezTexture2D` example this would look like this:
 
-```c++
+```{.cpp}
 // ezTexture2D.h
 
 class ezTexture2D
@@ -362,7 +360,7 @@ private:
 };
 ```
 
-```c++
+```{.cpp}
 // ezTexture2D.cpp
 #include "Texture2D.h"
 
@@ -395,7 +393,7 @@ You can choose to ignore the leaky abstraction issue and tell the header checker
 
 Each module in ezEngine that uses the header checker has a headerCkeckerIgnore.json file where you can add ignores. It looks like this:
 
-```json
+```{.json}
 {
 	"includeTarget" :
 	{
