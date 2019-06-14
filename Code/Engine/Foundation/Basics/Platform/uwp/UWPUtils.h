@@ -8,6 +8,7 @@
 #include <Foundation/Types/Types.h>
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+
 #include <guiddef.h>
 #include <windows.foundation.h>
 #include <windows.foundation.numerics.h>
