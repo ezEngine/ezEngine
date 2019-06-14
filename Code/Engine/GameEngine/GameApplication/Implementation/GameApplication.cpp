@@ -1,6 +1,7 @@
 #include <GameEnginePCH.h>
 
 #include <Core/ActorSystem/Actor2.h>
+#include <Core/ActorSystem/ActorManager2.h>
 #include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/World.h>
@@ -25,7 +26,6 @@
 #include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/Formats/TgaFileFormat.h>
 #include <Texture/Image/Image.h>
-#include <Core/ActorSystem/ActorManager2.h>
 
 ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
 ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> ezGameApplication::s_DefaultDeviceCreator;
@@ -146,22 +146,33 @@ void ezGameApplication::Run_WorldUpdateAndRender()
     m_ExecutionEvents.Broadcast(e);
   }
 
+  if (ezRenderWorld::GetFrameCounter() < 10)
+    ezLog::Debug("Finishing Frame: {0}", ezRenderWorld::GetFrameCounter());
+
   {
     ezHybridArray<ezActor2*, 8> allActors;
     ezActorManager2::GetSingleton()->GetAllActors(allActors);
 
     for (ezActor2* pActor : allActors)
     {
+      // Ignore actors without an output target
       if (auto pOutput = pActor->m_pWindowOutputTarget.Borrow())
       {
-        // TODO: ezActor: ignore present on first frame ?
+        // if we have multiple actors, append the actor name to each screenshot
+        ezStringBuilder ctxt;
+        if (allActors.GetCount() > 1)
+        {
+          ctxt.Append(" - ", pActor->GetName());
+        }
 
-        // TODO: ezActor:
-        // ExecuteTakeScreenshot(windowContext.m_pOutputTarget.Borrow(), ctxt);
-        // ExecuteFrameCapture(windowContext.m_pWindow->GetNativeWindowHandle(), ctxt);
+        ExecuteTakeScreenshot(pOutput, ctxt);
 
-        // TODO: ezActor: v-sync ?
-        pOutput->Present(true);
+        if (pActor->m_pWindow)
+        {
+          ExecuteFrameCapture(pActor->m_pWindow->GetNativeWindowHandle(), ctxt);
+        }
+
+        pOutput->Present(CVarEnableVSync);
       }
     }
   }

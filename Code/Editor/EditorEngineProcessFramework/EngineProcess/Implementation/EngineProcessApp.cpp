@@ -69,7 +69,11 @@ void ezEditorEngineProcessApp::DestroyRemoteWindow()
     m_hRemoteView.Invalidate();
   }
 
-  ezActorManager2::GetSingleton()->DestroyAllActors(this);
+  if (ezActorManager2::GetSingleton())
+  {
+    ezActorManager2::GetSingleton()->DestroyAllActors(this);
+  }
+
   m_pActor = nullptr;
 }
 
