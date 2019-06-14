@@ -7,7 +7,7 @@
 #include <RendererCore/Pipeline/Declarations.h>
 #include <System/Window/Window.h>
 
-class ezActor2;
+class ezActor;
 
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
@@ -45,6 +45,6 @@ protected:
 
   ezEditorEngineProcessMode m_Mode = ezEditorEngineProcessMode::Primary;
 
-  ezActor2* m_pActor = nullptr;
+  ezActor* m_pActor = nullptr;
   ezViewHandle m_hRemoteView;
 };

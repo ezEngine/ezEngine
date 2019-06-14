@@ -29,7 +29,7 @@ ezEngineProcessViewContext::~ezEngineProcessViewContext()
   ezRenderWorld::DeleteView(m_hView);
   m_hView.Invalidate();
 
-  ezActorManager2::GetSingleton()->DestroyAllActors(this);
+  ezActorManager::GetSingleton()->DestroyAllActors(this);
 }
 
 void ezEngineProcessViewContext::SetViewID(ezUInt32 id)
@@ -79,12 +79,12 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
     if (wndSize.width == uiWidth && wndSize.height == uiHeight)
       return;
 
-    ezActorManager2::GetSingleton()->DestroyActor(m_pEditorWndActor);
+    ezActorManager::GetSingleton()->DestroyActor(m_pEditorWndActor);
     m_pEditorWndActor = nullptr;
   }
 
   {
-    ezUniquePtr<ezActor2> pActor = EZ_DEFAULT_NEW(ezActor2, "EditorView", this);
+    ezUniquePtr<ezActor> pActor = EZ_DEFAULT_NEW(ezActor, "EditorView", this);
     m_pEditorWndActor = pActor.Borrow();
 
     // create window
@@ -125,7 +125,7 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
       SetupRenderTarget(BackBufferRenderTargetSetup, wndSize.width, wndSize.height);
     }
 
-    ezActorManager2::GetSingleton()->AddActor(std::move(pActor));
+    ezActorManager::GetSingleton()->AddActor(std::move(pActor));
   }
 }
 

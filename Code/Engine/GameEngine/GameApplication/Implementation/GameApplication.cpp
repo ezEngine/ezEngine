@@ -150,10 +150,10 @@ void ezGameApplication::Run_WorldUpdateAndRender()
     ezLog::Debug("Finishing Frame: {0}", ezRenderWorld::GetFrameCounter());
 
   {
-    ezHybridArray<ezActor2*, 8> allActors;
-    ezActorManager2::GetSingleton()->GetAllActors(allActors);
+    ezHybridArray<ezActor*, 8> allActors;
+    ezActorManager::GetSingleton()->GetAllActors(allActors);
 
-    for (ezActor2* pActor : allActors)
+    for (ezActor* pActor : allActors)
     {
       // Ignore actors without an output target
       if (auto pOutput = pActor->m_pWindowOutputTarget.Borrow())

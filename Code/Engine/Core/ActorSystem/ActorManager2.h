@@ -6,11 +6,11 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <Foundation/Communication/Event.h>
 
-struct ezActorManager2Impl;
-class ezActor2;
-class ezActorApiListener;
+struct ezActorManagerImpl;
+class ezActor;
+class ezActorApiService;
 
-struct ezActor2Event
+struct ezActorEvent
 {
   enum class Type
   {
@@ -19,44 +19,44 @@ struct ezActor2Event
   };
 
   Type m_Type;
-  ezActor2* m_pActor = nullptr;
+  ezActor* m_pActor = nullptr;
 };
 
-class EZ_CORE_DLL ezActorManager2 final
+class EZ_CORE_DLL ezActorManager final
 {
-  EZ_DECLARE_SINGLETON(ezActorManager2);
+  EZ_DECLARE_SINGLETON(ezActorManager);
 
 public:
-  ezActorManager2();
-  ~ezActorManager2();
+  ezActorManager();
+  ~ezActorManager();
 
-  static ezEvent<const ezActor2Event&> s_ActorEvents;
+  static ezEvent<const ezActorEvent&> s_ActorEvents;
 
   void Update();
 
   void Shutdown();
 
-  void AddActor(ezUniquePtr<ezActor2>&& pActor);
-  void DestroyActor(ezActor2* pActor);
+  void AddActor(ezUniquePtr<ezActor>&& pActor);
+  void DestroyActor(ezActor* pActor);
   void DestroyAllActors(const void* pCreatedBy);
-  void GetAllActors(ezHybridArray<ezActor2*, 8>& out_AllActors);
+  void GetAllActors(ezHybridArray<ezActor*, 8>& out_AllActors);
 
-  void AddApiListener(ezUniquePtr<ezActorApiListener>&& pListener);
-  void DestroyApiListener(ezActorApiListener* pListener);
-  void DestroyAllApiListeners();
+  void AddApiService(ezUniquePtr<ezActorApiService>&& pService);
+  void DestroyApiService(ezActorApiService* pService);
+  void DestroyAllApiServices();
 
-  ezActorApiListener* GetApiListener(const ezRTTI* pType);
+  ezActorApiService* GetApiService(const ezRTTI* pType);
 
   template <typename Type>
-  Type* GetApiListener()
+  Type* GetApiService()
   {
-    return static_cast<Type*>(GetApiListener(ezGetStaticRTTI<Type>()));
+    return static_cast<Type*>(GetApiService(ezGetStaticRTTI<Type>()));
   }
 
 private:
-  void ActivateQueuedApiListeners();
-  void UpdateAllApiListeners();
+  void ActivateQueuedApiServices();
+  void UpdateAllApiServices();
   void UpdateAllActors();
 
-  ezUniquePtr<ezActorManager2Impl> m_pImpl;
+  ezUniquePtr<ezActorManagerImpl> m_pImpl;
 };

@@ -38,7 +38,7 @@ void ezEditorEngineProcessApp::CreateRemoteWindow()
   if (m_pActor != nullptr)
     return;
 
-  ezUniquePtr<ezActor2> pActor = EZ_DEFAULT_NEW(ezActor2, "Engine View", this);
+  ezUniquePtr<ezActor> pActor = EZ_DEFAULT_NEW(ezActor, "Engine View", this);
   m_pActor = pActor.Borrow();
 
   // create window
@@ -58,7 +58,7 @@ void ezEditorEngineProcessApp::CreateRemoteWindow()
     pActor->m_pWindow = std::move(pWindow);
   }
 
-  ezActorManager2::GetSingleton()->AddActor(std::move(pActor));
+  ezActorManager::GetSingleton()->AddActor(std::move(pActor));
 }
 
 void ezEditorEngineProcessApp::DestroyRemoteWindow()
@@ -69,9 +69,9 @@ void ezEditorEngineProcessApp::DestroyRemoteWindow()
     m_hRemoteView.Invalidate();
   }
 
-  if (ezActorManager2::GetSingleton())
+  if (ezActorManager::GetSingleton())
   {
-    ezActorManager2::GetSingleton()->DestroyAllActors(this);
+    ezActorManager::GetSingleton()->DestroyAllActors(this);
   }
 
   m_pActor = nullptr;

@@ -11,7 +11,7 @@ class ezEditorEngineDocumentMsg;
 class ezViewRedrawMsgToEngine;
 class ezEditorEngineViewMsg;
 class ezGALRenderTargetSetup;
-class ezActor2;
+class ezActor;
 
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
@@ -74,7 +74,7 @@ protected:
 
 private:
   ezEngineProcessDocumentContext* m_pDocumentContext;
-  ezActor2* m_pEditorWndActor = nullptr;
+  ezActor* m_pEditorWndActor = nullptr;
 
 protected:
   ezCamera m_Camera;

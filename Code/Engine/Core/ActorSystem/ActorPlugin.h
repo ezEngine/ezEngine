@@ -4,7 +4,7 @@
 
 #include <Foundation/Reflection/Reflection.h>
 
-class ezActor2;
+class ezActor;
 
 class EZ_CORE_DLL ezActorPlugin : public ezReflectedClass
 {
@@ -14,10 +14,12 @@ public:
   ezActorPlugin();
   ~ezActorPlugin();
 
-  ezActor2* GetActor() const;
+  ezActor* GetActor() const;
+
+protected:
+  friend class ezActor;
+  virtual void Update() = 0;
 
 private:
-  friend class ezActor2;
-
-  ezActor2* m_pOwningActor = nullptr;
+  ezActor* m_pOwningActor = nullptr;
 };

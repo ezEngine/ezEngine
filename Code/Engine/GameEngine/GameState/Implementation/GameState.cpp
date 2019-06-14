@@ -165,7 +165,7 @@ void ezGameState::CreateActors()
   //}
 
   {
-    ezUniquePtr<ezActor2> pActor = EZ_DEFAULT_NEW(ezActor2, "Main Window", this);
+    ezUniquePtr<ezActor> pActor = EZ_DEFAULT_NEW(ezActor, "Main Window", this);
 
     // create window
     {
@@ -195,7 +195,7 @@ void ezGameState::CreateActors()
       SetupMainView(pActor->m_pWindowOutputTarget.Borrow(), pActor->m_pWindow->GetClientAreaSize());
     }
 
-    ezActorManager2::GetSingleton()->AddActor(std::move(pActor));
+    ezActorManager::GetSingleton()->AddActor(std::move(pActor));
   }
 }
 

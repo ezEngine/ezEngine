@@ -10,7 +10,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezActorPlugin::ezActorPlugin() = default;
 ezActorPlugin::~ezActorPlugin() = default;
 
-ezActor2* ezActorPlugin::GetActor() const
+ezActor* ezActorPlugin::GetActor() const
 {
   return m_pOwningActor;
 }

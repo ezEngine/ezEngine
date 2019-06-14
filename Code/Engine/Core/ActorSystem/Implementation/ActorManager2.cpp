@@ -8,10 +8,10 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-static ezUniquePtr<ezActorManager2> s_pActorManager;
+static ezUniquePtr<ezActorManager> s_pActorManager;
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ezActorManager2)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ezActorManager)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation"
@@ -19,7 +19,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ezActorManager2)
 
   ON_CORESYSTEMS_STARTUP
   {
-    s_pActorManager = EZ_DEFAULT_NEW(ezActorManager2);
+    s_pActorManager = EZ_DEFAULT_NEW(ezActorManager);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
@@ -41,51 +41,51 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 //////////////////////////////////////////////////////////////////////////
 
-struct ezActorManager2Impl
+struct ezActorManagerImpl
 {
   ezMutex m_Mutex;
-  ezHybridArray<ezUniquePtr<ezActor2>, 8> m_AllActors;
-  ezHybridArray<ezUniquePtr<ezActorApiListener>, 8> m_AllApiListeners;
+  ezHybridArray<ezUniquePtr<ezActor>, 8> m_AllActors;
+  ezHybridArray<ezUniquePtr<ezActorApiService>, 8> m_AllApiServices;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_SINGLETON(ezActorManager2);
+EZ_IMPLEMENT_SINGLETON(ezActorManager);
 
-ezEvent<const ezActor2Event&> ezActorManager2::s_ActorEvents;
+ezEvent<const ezActorEvent&> ezActorManager::s_ActorEvents;
 
-ezActorManager2::ezActorManager2()
+ezActorManager::ezActorManager()
   : m_SingletonRegistrar(this)
 {
-  m_pImpl = EZ_DEFAULT_NEW(ezActorManager2Impl);
+  m_pImpl = EZ_DEFAULT_NEW(ezActorManagerImpl);
 }
 
-ezActorManager2::~ezActorManager2()
+ezActorManager::~ezActorManager()
 {
   Shutdown();
 }
 
-void ezActorManager2::Shutdown()
+void ezActorManager::Shutdown()
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
   DestroyAllActors(nullptr);
-  DestroyAllApiListeners();
+  DestroyAllApiServices();
 }
 
-void ezActorManager2::AddActor(ezUniquePtr<ezActor2>&& pActor)
+void ezActorManager::AddActor(ezUniquePtr<ezActor>&& pActor)
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
   m_pImpl->m_AllActors.PushBack(std::move(pActor));
 
-  ezActor2Event e;
-  e.m_Type = ezActor2Event::Type::AfterActorCreation;
+  ezActorEvent e;
+  e.m_Type = ezActorEvent::Type::AfterActorCreation;
   e.m_pActor = m_pImpl->m_AllActors.PeekBack().Borrow();
   s_ActorEvents.Broadcast(e);
 }
 
-void ezActorManager2::DestroyActor(ezActor2* pActor)
+void ezActorManager::DestroyActor(ezActor* pActor)
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
@@ -93,8 +93,8 @@ void ezActorManager2::DestroyActor(ezActor2* pActor)
   {
     if (m_pImpl->m_AllActors[i].Borrow() == pActor)
     {
-      ezActor2Event e;
-      e.m_Type = ezActor2Event::Type::BeforeActorDestruction;
+      ezActorEvent e;
+      e.m_Type = ezActorEvent::Type::BeforeActorDestruction;
       e.m_pActor = pActor;
       s_ActorEvents.Broadcast(e);
 
@@ -104,7 +104,7 @@ void ezActorManager2::DestroyActor(ezActor2* pActor)
   }
 }
 
-void ezActorManager2::DestroyAllActors(const void* pCreatedBy)
+void ezActorManager::DestroyAllActors(const void* pCreatedBy)
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
@@ -114,8 +114,8 @@ void ezActorManager2::DestroyAllActors(const void* pCreatedBy)
 
     if (pCreatedBy == nullptr || m_pImpl->m_AllActors[i]->GetCreatedBy() == pCreatedBy)
     {
-      ezActor2Event e;
-      e.m_Type = ezActor2Event::Type::BeforeActorDestruction;
+      ezActorEvent e;
+      e.m_Type = ezActorEvent::Type::BeforeActorDestruction;
       e.m_pActor = m_pImpl->m_AllActors[i].Borrow();
       s_ActorEvents.Broadcast(e);
 
@@ -124,7 +124,7 @@ void ezActorManager2::DestroyAllActors(const void* pCreatedBy)
   }
 }
 
-void ezActorManager2::GetAllActors(ezHybridArray<ezActor2*, 8>& out_AllActors)
+void ezActorManager::GetAllActors(ezHybridArray<ezActor*, 8>& out_AllActors)
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
@@ -136,50 +136,50 @@ void ezActorManager2::GetAllActors(ezHybridArray<ezActor2*, 8>& out_AllActors)
   }
 }
 
-void ezActorManager2::AddApiListener(ezUniquePtr<ezActorApiListener>&& pListener)
+void ezActorManager::AddApiService(ezUniquePtr<ezActorApiService>&& pApiService)
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
-  EZ_ASSERT_DEV(pListener != nullptr, "Invalid API listener");
-  EZ_ASSERT_DEV(!pListener->m_bActivated, "Actor API listener already in use");
+  EZ_ASSERT_DEV(pApiService != nullptr, "Invalid API service");
+  EZ_ASSERT_DEV(!pApiService->m_bActivated, "Actor API service already in use");
 
-  for (auto& pExisting : m_pImpl->m_AllApiListeners)
+  for (auto& pExisting : m_pImpl->m_AllApiServices)
   {
     EZ_ASSERT_ALWAYS(
-      pListener->GetDynamicRTTI() != pExisting->GetDynamicRTTI(), "An actor API listener of this type has already been added");
+      pApiService->GetDynamicRTTI() != pExisting->GetDynamicRTTI(), "An actor API service of this type has already been added");
   }
 
-  m_pImpl->m_AllApiListeners.PushBack(std::move(pListener));
+  m_pImpl->m_AllApiServices.PushBack(std::move(pApiService));
 }
 
-void ezActorManager2::DestroyApiListener(ezActorApiListener* pListener)
+void ezActorManager::DestroyApiService(ezActorApiService* pApiService)
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
-  EZ_ASSERT_DEV(pListener != nullptr, "Invalid API listener");
+  EZ_ASSERT_DEV(pApiService != nullptr, "Invalid API service");
 
-  for (ezUInt32 i = 0; i < m_pImpl->m_AllApiListeners.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < m_pImpl->m_AllApiServices.GetCount(); ++i)
   {
-    if (m_pImpl->m_AllApiListeners[i].Borrow() == pListener)
+    if (m_pImpl->m_AllApiServices[i].Borrow() == pApiService)
     {
-      m_pImpl->m_AllApiListeners.RemoveAtAndSwap(i);
+      m_pImpl->m_AllApiServices.RemoveAtAndSwap(i);
       break;
     }
   }
 }
 
-void ezActorManager2::DestroyAllApiListeners()
+void ezActorManager::DestroyAllApiServices()
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
-  m_pImpl->m_AllApiListeners.Clear();
+  m_pImpl->m_AllApiServices.Clear();
 }
 
-void ezActorManager2::ActivateQueuedApiListeners()
+void ezActorManager::ActivateQueuedApiServices()
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
-  for (auto& pManager : m_pImpl->m_AllApiListeners)
+  for (auto& pManager : m_pImpl->m_AllApiServices)
   {
     if (!pManager->m_bActivated)
     {
@@ -189,34 +189,34 @@ void ezActorManager2::ActivateQueuedApiListeners()
   }
 }
 
-ezActorApiListener* ezActorManager2::GetApiListener(const ezRTTI* pType)
+ezActorApiService* ezActorManager::GetApiService(const ezRTTI* pType)
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
-  EZ_ASSERT_DEV(pType->IsDerivedFrom<ezActorApiListener>(), "The queried type has to derive from ezActorApiListener");
+  EZ_ASSERT_DEV(pType->IsDerivedFrom<ezActorApiService>(), "The queried type has to derive from ezActorApiService");
 
-  for (auto& pListener : m_pImpl->m_AllApiListeners)
+  for (auto& pApiService : m_pImpl->m_AllApiServices)
   {
-    if (pListener->GetDynamicRTTI()->IsDerivedFrom(pType))
-      return pListener.Borrow();
+    if (pApiService->GetDynamicRTTI()->IsDerivedFrom(pType))
+      return pApiService.Borrow();
   }
 
   return nullptr;
 }
 
-void ezActorManager2::UpdateAllApiListeners()
+void ezActorManager::UpdateAllApiServices()
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
-  for (auto& pListener : m_pImpl->m_AllApiListeners)
+  for (auto& pApiService : m_pImpl->m_AllApiServices)
   {
-    EZ_ASSERT_DEBUG(pListener->m_bActivated, "All actor API listeners should be active now");
+    EZ_ASSERT_DEBUG(pApiService->m_bActivated, "All actor API services should be active now");
 
-    pListener->Update();
+    pApiService->Update();
   }
 }
 
-void ezActorManager2::UpdateAllActors()
+void ezActorManager::UpdateAllActors()
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
@@ -226,11 +226,11 @@ void ezActorManager2::UpdateAllActors()
   }
 }
 
-void ezActorManager2::Update()
+void ezActorManager::Update()
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
-  ActivateQueuedApiListeners();
-  UpdateAllApiListeners();
+  ActivateQueuedApiServices();
+  UpdateAllApiServices();
   UpdateAllActors();
 }

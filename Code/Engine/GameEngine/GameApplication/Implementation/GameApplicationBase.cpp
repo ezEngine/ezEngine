@@ -244,7 +244,7 @@ void ezGameApplicationBase::DeactivateGameState()
 
   m_pGameState->OnDeactivation();
 
-  ezActorManager2::GetSingleton()->DestroyAllActors(m_pGameState.Borrow());
+  ezActorManager::GetSingleton()->DestroyAllActors(m_pGameState.Borrow());
 
   m_pGameState = nullptr;
 }
@@ -332,7 +332,7 @@ void ezGameApplicationBase::BeforeHighLevelSystemsShutdown()
 void ezGameApplicationBase::BeforeCoreSystemsShutdown()
 {
   // shut down all actors and APIs that may have been in use
-  ezActorManager2::GetSingleton()->Shutdown();
+  ezActorManager::GetSingleton()->Shutdown();
 
   {
     ezFrameAllocator::Reset();
@@ -372,7 +372,7 @@ ezApplication::ApplicationExecution ezGameApplicationBase::Run()
 
   ezClock::GetGlobalClock()->Update();
 
-  ezActorManager2::GetSingleton()->Update();
+  ezActorManager::GetSingleton()->Update();
 
   if (!IsGameUpdateEnabled())
     return ezApplication::Continue;

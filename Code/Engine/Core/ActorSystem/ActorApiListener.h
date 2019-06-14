@@ -4,20 +4,20 @@
 
 #include <Foundation/Reflection/Reflection.h>
 
-class EZ_CORE_DLL ezActorApiListener: public ezReflectedClass
+class EZ_CORE_DLL ezActorApiService: public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezActorApiListener, ezReflectedClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezActorApiService, ezReflectedClass);
 
 public:
-  ezActorApiListener();
-  ~ezActorApiListener();
+  ezActorApiService();
+  ~ezActorApiService();
 
 protected:
   virtual void Activate() = 0;
   virtual void Update() = 0;
 
-private: // directly by ezActorManager2
-  friend class ezActorManager2;
+private: // directly accessed by ezActorManager
+  friend class ezActorManager;
 
   bool m_bActivated = false;
 };
