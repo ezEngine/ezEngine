@@ -16,6 +16,7 @@
 #include <EditorFramework/Preferences/Preferences.h>
 #include <QLabel>
 #include <QLayout>
+#include <QTimer>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -32,14 +33,14 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezVisualScriptPreferences::ezVisualScriptPreferences()
-    : ezPreferences(ezPreferences::Domain::Document, "Visual Script")
+  : ezPreferences(ezPreferences::Domain::Document, "Visual Script")
 {
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 ezQtVisualScriptAssetDocumentWindow::ezQtVisualScriptAssetDocumentWindow(ezDocument* pDocument, const ezDocumentObject* pOpenContext)
-    : ezQtDocumentWindow(pDocument)
+  : ezQtDocumentWindow(pDocument)
 {
 
   // Menu Bar
@@ -83,12 +84,12 @@ ezQtVisualScriptAssetDocumentWindow::ezQtVisualScriptAssetDocumentWindow(ezDocum
   }
 
   static_cast<ezVisualScriptAssetDocument*>(pDocument)->m_ActivityEvents.AddEventHandler(
-      ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler, m_pScene));
+    ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler, m_pScene));
   static_cast<ezVisualScriptAssetDocument*>(pDocument)->m_InterDocumentMessages.AddEventHandler(
-      ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptInterDocumentMessageHandler, m_pScene));
+    ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptInterDocumentMessageHandler, m_pScene));
 
   GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(
-      ezMakeDelegate(&ezQtVisualScriptAssetDocumentWindow::SelectionEventHandler, this));
+    ezMakeDelegate(&ezQtVisualScriptAssetDocumentWindow::SelectionEventHandler, this));
 
   if (pOpenContext != nullptr)
   {
@@ -111,12 +112,12 @@ ezQtVisualScriptAssetDocumentWindow::~ezQtVisualScriptAssetDocumentWindow()
   if (GetDocument() != nullptr)
   {
     GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(
-        ezMakeDelegate(&ezQtVisualScriptAssetDocumentWindow::SelectionEventHandler, this));
+      ezMakeDelegate(&ezQtVisualScriptAssetDocumentWindow::SelectionEventHandler, this));
 
     GetVisualScriptDocument()->m_ActivityEvents.RemoveEventHandler(
-        ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler, m_pScene));
+      ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler, m_pScene));
     GetVisualScriptDocument()->m_InterDocumentMessages.RemoveEventHandler(
-        ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptInterDocumentMessageHandler, m_pScene));
+      ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptInterDocumentMessageHandler, m_pScene));
   }
 }
 

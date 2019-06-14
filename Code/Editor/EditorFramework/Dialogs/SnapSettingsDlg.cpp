@@ -2,10 +2,11 @@
 
 #include <EditorFramework/Dialogs/SnapSettingsDlg.moc.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
+#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
 ezQtSnapSettingsDlg::ezQtSnapSettingsDlg(QWidget* parent)
-    : QDialog(parent)
+  : QDialog(parent)
 {
   setupUi(this);
 

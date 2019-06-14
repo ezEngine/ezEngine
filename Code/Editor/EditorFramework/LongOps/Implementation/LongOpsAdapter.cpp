@@ -5,6 +5,7 @@
 #include <EditorEngineProcessFramework/LongOps/LongOpControllerManager.h>
 #include <EditorFramework/LongOps/LongOpsAdapter.h>
 #include <Foundation/Configuration/Startup.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 EZ_IMPLEMENT_SINGLETON(ezLongOpsAdapter);
 

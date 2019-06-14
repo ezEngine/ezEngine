@@ -1,14 +1,15 @@
 #include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/IPC/EditorProcessCommunicationChannel.h>
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Communication/IpcChannel.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
 #include <QCoreApplication>
 #include <QProcess>
 
-ezResult ezEditorProcessCommunicationChannel::StartClientProcess(const char* szProcess, const QStringList& args, bool bRemote,
-                                                                 const ezRTTI* pFirstAllowedMessageType, ezUInt32 uiMemSize)
+ezResult ezEditorProcessCommunicationChannel::StartClientProcess(
+  const char* szProcess, const QStringList& args, bool bRemote, const ezRTTI* pFirstAllowedMessageType, ezUInt32 uiMemSize)
 {
   EZ_LOG_BLOCK("ezProcessCommunicationChannel::StartClientProcess");
 

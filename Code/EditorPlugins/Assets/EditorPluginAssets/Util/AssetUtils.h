@@ -1,5 +1,8 @@
 #pragma once
 
+#include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Strings/String.h>
+
 struct ezMaterialResourceSlot
 {
   ezString m_sLabel;

@@ -8,6 +8,7 @@
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <QClipboard>
+#include <QFileDialog>
 #include <QMimeData>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <ToolsFoundation/Project/ToolsProject.h>

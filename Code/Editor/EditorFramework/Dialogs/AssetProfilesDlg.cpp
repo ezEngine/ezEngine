@@ -9,6 +9,7 @@
 #include <Foundation/Serialization/BinarySerializer.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <GameEngine/Configuration/PlatformProfile.h>
+#include <QInputDialog>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
@@ -25,7 +26,7 @@ class ezAssetProfilesDocument : public ezDocument
 {
 public:
   ezAssetProfilesDocument(const char* szDocumentPath)
-      : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezAssetProfilesObjectManager))
+    : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezAssetProfilesObjectManager))
   {
   }
 
@@ -39,7 +40,7 @@ class ezQtAssetConfigAdapter : public ezQtNameableAdapter
 {
 public:
   ezQtAssetConfigAdapter(const ezQtAssetProfilesDlg* pDialog, const ezDocumentObjectManager* pTree, const ezRTTI* pType)
-      : ezQtNameableAdapter(pTree, pType, "", "Name")
+    : ezQtNameableAdapter(pTree, pType, "", "Name")
   {
     m_pDialog = pDialog;
   }
@@ -90,7 +91,7 @@ private:
 };
 
 ezQtAssetProfilesDlg::ezQtAssetProfilesDlg(QWidget* parent)
-    : QDialog(parent)
+  : QDialog(parent)
 {
   setupUi(this);
 
@@ -157,8 +158,8 @@ ezUuid ezQtAssetProfilesDlg::NativeToObject(ezPlatformProfile* pProfile)
   ezDocumentObject* pObject = m_pDocument->GetObjectManager()->CreateObject(pType);
   m_pDocument->GetObjectManager()->AddObject(pObject, pRoot, "Children", -1);
 
-  ezDocumentObjectConverterReader objectConverter(&graph, m_pDocument->GetObjectManager(),
-                                                  ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+  ezDocumentObjectConverterReader objectConverter(
+    &graph, m_pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
   objectConverter.ApplyPropertiesToObject(pNode, pObject);
 
   return pObject->GetGuid();
@@ -192,7 +193,7 @@ void ezQtAssetProfilesDlg::SelectionEventHandler(const ezSelectionManagerEvent& 
   const auto& selection = m_pDocument->GetSelectionManager()->GetSelection();
 
   const bool bAllowModification =
-      !selection.IsEmpty() && (selection[0] != m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
+    !selection.IsEmpty() && (selection[0] != m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
 
   DeleteButton->setEnabled(bAllowModification);
   RenameButton->setEnabled(bAllowModification);
@@ -310,8 +311,8 @@ void ezQtAssetProfilesDlg::on_DeleteButton_clicked()
   if (sel[0] == m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0])
     return;
 
-  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion(ezFmt("Delete the selected profile?"), QMessageBox::Yes | QMessageBox::No,
-                                                         QMessageBox::No) != QMessageBox::Yes)
+  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion(
+        ezFmt("Delete the selected profile?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
     return;
 
   m_ProfileBindings[sel[0]->GetGuid()].m_State = Binding::State::Deleted;

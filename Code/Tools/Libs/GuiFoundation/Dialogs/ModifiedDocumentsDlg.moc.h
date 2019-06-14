@@ -25,5 +25,3 @@ private:
 
   ezHybridArray<ezDocument*, 32> m_ModifiedDocs;
 };
-
-

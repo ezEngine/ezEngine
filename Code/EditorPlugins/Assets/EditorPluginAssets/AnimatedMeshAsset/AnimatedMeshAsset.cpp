@@ -1,5 +1,6 @@
 #include <EditorPluginAssetsPCH.h>
 
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAsset.h>
 #include <EditorPluginAssets/Util/MeshImportUtils.h>
 #include <Foundation/Utilities/Progress.h>
@@ -7,7 +8,8 @@
 #include <ModelImporter/ModelImporter.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetDocument, 5, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetDocument, 5, ezRTTINoAllocator)
+  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 static ezMat3 CalculateTransformationMatrix(const ezAnimatedMeshAssetProperties* pProp)
@@ -18,12 +20,12 @@ static ezMat3 CalculateTransformationMatrix(const ezAnimatedMeshAssetProperties*
 }
 
 ezAnimatedMeshAssetDocument::ezAnimatedMeshAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezAnimatedMeshAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
+  : ezSimpleAssetDocument<ezAnimatedMeshAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
 {
 }
 
-ezStatus ezAnimatedMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                             const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezAnimatedMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
+  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
@@ -40,7 +42,8 @@ ezStatus ezAnimatedMeshAssetDocument::InternalTransformAsset(ezStreamWriter& str
   EZ_SUCCEED_OR_RETURN(CreateMeshFromFile(pProp, desc));
 
   range.BeginNextStep("Writing Result");
-  desc.SetSkeleton(ezResourceManager::LoadResource<ezSkeletonResource>(pProp->m_sSkeletonFile)); // we actually only want the handle for serialization
+  desc.SetSkeleton(
+    ezResourceManager::LoadResource<ezSkeletonResource>(pProp->m_sSkeletonFile)); // we actually only want the handle for serialization
   desc.Save(stream);
 
   return ezStatus(EZ_SUCCESS);
@@ -57,8 +60,8 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
 
   ezSharedPtr<ezModelImporter::Scene> pScene;
   ezModelImporter::Mesh* pMesh = nullptr;
-  EZ_SUCCEED_OR_RETURN(ezMeshImportUtils::TryImportMesh(pScene, pMesh, pProp->m_sMeshFile, "", mTransformation,
-                                                        pProp->m_bRecalculateNormals, pProp->m_bInvertNormals, range, desc, true));
+  EZ_SUCCEED_OR_RETURN(ezMeshImportUtils::TryImportMesh(
+    pScene, pMesh, pProp->m_sMeshFile, "", mTransformation, pProp->m_bRecalculateNormals, pProp->m_bInvertNormals, range, desc, true));
 
   range.BeginNextStep("Importing Materials");
 
@@ -68,7 +71,7 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
     GetObjectAccessor()->StartTransaction("Update Mesh Material Info");
 
     ezMeshImportUtils::UpdateMaterialSlots(GetDocumentPath(), *pScene, *pMesh, pProp->m_bImportMaterials,
-                                           pProp->m_bUseSubFolderForImportedMaterials, pProp->m_sMeshFile, pProp->m_Slots);
+      pProp->m_bUseSubFolderForImportedMaterials, pProp->m_sMeshFile, pProp->m_Slots);
 
     ApplyNativePropertyChangesToObjectManager();
     GetObjectAccessor()->FinishTransaction();
@@ -103,8 +106,8 @@ ezAnimatedMeshAssetDocumentGenerator::ezAnimatedMeshAssetDocumentGenerator()
 
 ezAnimatedMeshAssetDocumentGenerator::~ezAnimatedMeshAssetDocumentGenerator() {}
 
-void ezAnimatedMeshAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath,
-                                                          ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezAnimatedMeshAssetDocumentGenerator::GetImportModes(
+  const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension(GetDocumentExtension());
@@ -126,8 +129,8 @@ void ezAnimatedMeshAssetDocumentGenerator::GetImportModes(const char* szParentDi
   }
 }
 
-ezStatus ezAnimatedMeshAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info,
-                                                        ezDocument*& out_pGeneratedDocument)
+ezStatus ezAnimatedMeshAssetDocumentGenerator::Generate(
+  const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 

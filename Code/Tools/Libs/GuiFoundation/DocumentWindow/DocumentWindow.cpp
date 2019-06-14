@@ -8,6 +8,7 @@
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <QDockWidget>
 #include <QLabel>
 #include <QMessageBox>
 #include <QSettings>
