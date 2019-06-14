@@ -1,4 +1,7 @@
 #include <Foundation/Basics.h>
+
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+
 #include <QDockWidget>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>

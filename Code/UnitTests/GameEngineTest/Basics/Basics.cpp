@@ -1,6 +1,7 @@
 #include <GameEngineTestPCH.h>
 
 #include "Basics.h"
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Strings/StringConversion.h>
 #include <Foundation/System/Process.h>

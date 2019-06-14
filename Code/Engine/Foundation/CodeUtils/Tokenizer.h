@@ -76,7 +76,11 @@ class EZ_FOUNDATION_DLL ezTokenizer
 {
 public:
   /// \brief Constructor.
-  ezTokenizer();
+  ///
+  /// Takes an additional optional allocator. If no allocator is given the default allocator will be used.
+  ezTokenizer(ezAllocatorBase* pAllocator = nullptr);
+
+  ~ezTokenizer();
 
   /// \brief Clears any previous result and creates a new token stream for the given array.
   void Tokenize(ezArrayPtr<const ezUInt8> Data, ezLogInterface* pLog);

@@ -194,10 +194,11 @@ protected:
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#include <Foundation/Basics/Platform/Win/MinWindows.h>
 #  define EZ_NV_OPTIMUS                                                                                                                    \
     extern "C"                                                                                                                             \
     {                                                                                                                                      \
-      _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;                                                                         \
+      _declspec(dllexport) ezMinWindows::DWORD NvOptimusEnablement = 0x00000001;                                                           \
     }
 #else
 #  define EZ_NV_OPTIMUS

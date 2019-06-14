@@ -26,7 +26,7 @@ void ezFileserver::StartServer()
 
   ezStringBuilder tmp;
 
-  m_Network = EZ_DEFAULT_NEW(ezRemoteInterfaceEnet);
+  m_Network = ezRemoteInterfaceEnet::Make();
   m_Network->StartServer('EZFS', ezConversionUtils::ToString(m_uiPort, tmp), false);
   m_Network->SetMessageHandler('FSRV', ezMakeDelegate(&ezFileserver::NetworkMsgHandler, this));
   m_Network->m_RemoteEvents.AddEventHandler(ezMakeDelegate(&ezFileserver::NetworkEventHandler, this));
@@ -459,12 +459,12 @@ ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, ezUInt16 
   ezStringBuilder sAddress = szClientAddress;
   sAddress.Append(":2042"); // hard-coded port
 
-  ezRemoteInterfaceEnet network;
-  EZ_SUCCEED_OR_RETURN(network.ConnectToServer('EZIP', sAddress, false));
+  ezUniquePtr<ezRemoteInterfaceEnet> network = ezRemoteInterfaceEnet::Make();
+  EZ_SUCCEED_OR_RETURN(network->ConnectToServer('EZIP', sAddress, false));
 
-  if (network.WaitForConnectionToServer(timeout).Failed())
+  if (network->WaitForConnectionToServer(timeout).Failed())
   {
-    network.ShutdownConnection();
+    network->ShutdownConnection();
     return EZ_FAILURE;
   }
 
@@ -479,16 +479,16 @@ ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, ezUInt16 
     msg.GetWriter() << info;
   }
 
-  network.Send(ezRemoteTransmitMode::Reliable, msg);
+  network->Send(ezRemoteTransmitMode::Reliable, msg);
 
   // make sure the message is out, before we shut down
   for (ezUInt32 i = 0; i < 10; ++i)
   {
-    network.UpdateRemoteInterface();
+    network->UpdateRemoteInterface();
     ezThreadUtils::Sleep(ezTime::Milliseconds(1));
   }
 
-  network.ShutdownConnection();
+  network->ShutdownConnection();
   return EZ_SUCCESS;
 }
 

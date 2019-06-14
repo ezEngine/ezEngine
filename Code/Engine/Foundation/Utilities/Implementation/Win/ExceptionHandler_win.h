@@ -1,4 +1,7 @@
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  include <Dbghelp.h>
 #  include <Shlwapi.h>
 #  include <tchar.h>
@@ -35,7 +38,7 @@ void ezExceptionHandler::SetExceptionHandler(EZ_TOP_LEVEL_EXCEPTION_HANDLER hand
   SetUnhandledExceptionFilter(handler);
 }
 
-ezResult ezExceptionHandler::WriteDump(EXCEPTION_POINTERS* exceptionInfo)
+ezResult ezExceptionHandler::WriteDump(struct _EXCEPTION_POINTERS* exceptionInfo)
 {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   ezStringBuilder path;
@@ -89,3 +92,20 @@ ezResult ezExceptionHandler::WriteDump(EXCEPTION_POINTERS* exceptionInfo)
 #endif
   return EZ_FAILURE;
 }
+#else
+LONG WINAPI ezExceptionHandler::DefaultExceptionHandler(struct _EXCEPTION_POINTERS* pExceptionInfo)
+{
+  return EXCEPTION_CONTINUE_SEARCH;
+}
+
+void ezExceptionHandler::SetExceptionHandler(EZ_TOP_LEVEL_EXCEPTION_HANDLER handler, const char* appName, const char* absDumpPath)
+{
+  s_appName = appName;
+  s_absDumpPath = absDumpPath;
+}
+
+ezResult ezExceptionHandler::WriteDump(EXCEPTION_POINTERS* exceptionInfo)
+{  
+  return EZ_FAILURE;
+}
+#endif

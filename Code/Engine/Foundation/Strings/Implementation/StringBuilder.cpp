@@ -4,6 +4,8 @@
 #include <Foundation/Strings/FormatString.h>
 #include <Foundation/Strings/StringBuilder.h>
 
+#include <stdarg.h>
+
 ezStringBuilder::ezStringBuilder(const char* pData1, const char* pData2, const char* pData3, const char* pData4, const char* pData5,
                                  const char* pData6)
 {
@@ -1095,6 +1097,15 @@ void ezStringBuilder::PrependFormat(const ezFormatString& string)
   Prepend(tmp);
 }
 
+void ezStringBuilder::Printf(const char* szUtf8Format, ...)
+{
+  va_list args;
+  va_start(args, szUtf8Format);
+
+  PrintfArgs(szUtf8Format, args);
+
+  va_end(args);
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringBuilder);
 

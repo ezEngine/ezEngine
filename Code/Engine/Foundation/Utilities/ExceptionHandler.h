@@ -4,7 +4,12 @@
 #include <Foundation/Strings/String.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-typedef LONG(WINAPI* EZ_TOP_LEVEL_EXCEPTION_HANDLER)(struct _EXCEPTION_POINTERS* pExceptionInfo);
+#include <Foundation/Basics/Platform/Win/MinWindows.h>
+extern "C"
+{
+  struct _EXCEPTION_POINTERS;
+}
+typedef long(EZ_WINDOWS_WINAPI* EZ_TOP_LEVEL_EXCEPTION_HANDLER)(struct _EXCEPTION_POINTERS* pExceptionInfo);
 #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
 typedef void(* EZ_TOP_LEVEL_EXCEPTION_HANDLER)();
 #else
@@ -27,8 +32,8 @@ public:
   static void SetExceptionHandler(EZ_TOP_LEVEL_EXCEPTION_HANDLER handler, const char* appName, const char* absDumpPath);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  static LONG WINAPI DefaultExceptionHandler(struct _EXCEPTION_POINTERS* pExceptionInfo);
-  static ezResult WriteDump(EXCEPTION_POINTERS* exceptionInfo = nullptr);
+  static long EZ_WINDOWS_WINAPI DefaultExceptionHandler(struct _EXCEPTION_POINTERS* pExceptionInfo);
+  static ezResult WriteDump(struct _EXCEPTION_POINTERS* exceptionInfo = nullptr);
 #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
   static void DefaultExceptionHandler() noexcept;
   static ezResult WriteDump();

@@ -9,6 +9,10 @@
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Utilities/StackTracer.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#endif
+
 namespace
 {
   // no tracking for the tracker data itself

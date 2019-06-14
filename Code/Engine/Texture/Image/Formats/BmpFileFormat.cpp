@@ -3,6 +3,7 @@
 #include <Foundation/IO/Stream.h>
 #include <Texture/Image/Formats/BmpFileFormat.h>
 #include <Texture/Image/ImageConversion.h>
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
 ezBmpFileFormat g_bmpFormat;
 

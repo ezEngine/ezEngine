@@ -3,9 +3,10 @@
 
 /// \file
 
+#include <Foundation/Basics/Platform/Win/MinWindows.h>
 #include <Foundation/Memory/MemoryTracker.h>
-#include <Foundation/Threading/Mutex.h>
 #include <Foundation/Threading/Lock.h>
+#include <Foundation/Threading/Mutex.h>
 
 namespace ezApplicationDetails
 {
@@ -35,6 +36,9 @@ namespace ezApplicationDetails
     return iReturnCode;
   }
 
+  EZ_FOUNDATION_DLL void AttachToConsoleWindow(ezMinWindows::BOOL (EZ_WINDOWS_WINAPI *consoleHandler)(ezMinWindows::DWORD dwCtrlType));
+  EZ_FOUNDATION_DLL void DetachFromConsoleWindow();
+
   template <typename AppClass, typename... Args>
   int ApplicationEntry(Args&&... arguments)
   {
@@ -46,29 +50,16 @@ namespace ezApplicationDetails
     static ezMutex shutdownMutex;
     EZ_LOCK(shutdownMutex);
 
-    // We're attaching to a potential console parent process
-    // and ignore failure when no such parent is present
-    if (AttachConsole(ATTACH_PARENT_PROCESS) == TRUE)
-    {
-      // This handler overrides the default handler (which would
-      // call ExitProcess which leads to unorderly engine shutdowns)
-      const auto consoleHandler = [](_In_ DWORD dwCtrlType) -> BOOL
-      {
-        // We have to wait until the application has shut down orderly
-        // since Windows will kill everything after this handler returns
-        reinterpret_cast<AppClass*>(appBuffer)->RequestQuit();
-        EZ_LOCK(shutdownMutex);
-        return TRUE;
-      };
-      SetConsoleCtrlHandler(consoleHandler, TRUE);
-
-      // this is necessary to direct the standard
-      // output to the newly attached console
-      freopen("CONOUT$", "w", stdout);
-      freopen("CONOUT$", "w", stderr);
-      freopen("CONIN$", "r", stdin);
-      printf("\n");
-    }
+    // This handler overrides the default handler (which would
+    // call ExitProcess which leads to unorderly engine shutdowns)
+    const auto consoleHandler = [](_In_ ezMinWindows::DWORD dwCtrlType) -> ezMinWindows::BOOL {
+      // We have to wait until the application has shut down orderly
+      // since Windows will kill everything after this handler returns
+      reinterpret_cast<AppClass*>(appBuffer)->RequestQuit();
+      EZ_LOCK(shutdownMutex);
+      return 1;
+    };
+    AttachToConsoleWindow(consoleHandler);
 
     AppClass* pApp = new (appBuffer) AppClass(std::forward<Args>(arguments)...);
     pApp->SetCommandLineArguments((ezUInt32)__argc, const_cast<const char**>(__argv));
@@ -88,32 +79,27 @@ namespace ezApplicationDetails
     if (memLeaks)
       ezMemoryTracker::DumpMemoryLeaks();
 
-    if (GetConsoleWindow())
-    {
-      // Since the console already printed a new prompt the input pointer ends up in the blanks after
-      // our output and no new prompt appears. Sending an enter keypress works around that limitation.
-      INPUT ip = {};
-
-      ip.type = INPUT_KEYBOARD;
-      // key code for enter
-      ip.ki.wVk = 0x0D;
-      SendInput(1, &ip, sizeof(INPUT));
-
-      ip.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
-      SendInput(1, &ip, sizeof(INPUT));
-    }
-
     return iReturnCode;
   }
-}
+} // namespace ezApplicationDetails
 
 /// \brief Same as EZ_APPLICATION_ENTRY_POINT but should be used for applications that shall always show a console window.
 #define EZ_CONSOLEAPP_ENTRY_POINT(AppClass, ...)                                                                                           \
   /* Enables that on machines with multiple GPUs the NVIDIA GPU is preferred */                                                            \
-  extern "C" {                                                                                                                             \
-  _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;                                                                             \
+  extern "C"                                                                                                                               \
+  {                                                                                                                                        \
+    _declspec(dllexport) ezMinWindows::DWORD NvOptimusEnablement = 0x00000001;                                                             \
   }                                                                                                                                        \
   int main(int argc, const char** argv) { return ezApplicationDetails::ConsoleEntry<AppClass>(argc, argv, __VA_ARGS__); }
+
+// If windows.h is already included use the native types, otherwise use types from ezMinWindows
+#ifdef _WINDOWS_
+#  define _EZ_APPLICATION_ENTRY_POINT_HINSTANCE HINSTANCE
+#  define _EZ_APPLICATION_ENTRY_POINT_LPSTR LPSTR
+#else
+#  define _EZ_APPLICATION_ENTRY_POINT_HINSTANCE ezMinWindows::HINSTANCE
+#  define _EZ_APPLICATION_ENTRY_POINT_LPSTR ezMinWindows::LPSTR
+#endif
 
 /// \brief This macro allows for easy creation of application entry points (since they can't be placed in DLLs)
 ///
@@ -121,11 +107,12 @@ namespace ezApplicationDetails
 /// The additional (optional) parameters are passed to the constructor of your app class.
 #define EZ_APPLICATION_ENTRY_POINT(AppClass, ...)                                                                                          \
   /* Enables that on machines with multiple GPUs the NVIDIA GPU is preferred */                                                            \
-  extern "C" {                                                                                                                             \
-  _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;                                                                             \
+  extern "C"                                                                                                                               \
+  {                                                                                                                                        \
+    _declspec(dllexport) ezMinWindows::DWORD NvOptimusEnablement = 0x00000001;                                                             \
   }                                                                                                                                        \
-  int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)                                        \
+  int EZ_WINDOWS_CALLBACK WinMain(_EZ_APPLICATION_ENTRY_POINT_HINSTANCE hInstance, _EZ_APPLICATION_ENTRY_POINT_HINSTANCE hPrevInstance,    \
+    _EZ_APPLICATION_ENTRY_POINT_LPSTR lpCmdLine, int nCmdShow)                                                                             \
   {                                                                                                                                        \
     return ezApplicationDetails::ApplicationEntry<AppClass>(__VA_ARGS__);                                                                  \
   }
-

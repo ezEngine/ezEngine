@@ -262,6 +262,8 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgHumanReadable&
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgErrorCode& arg)
 {
   LPVOID lpMsgBuf = nullptr;
