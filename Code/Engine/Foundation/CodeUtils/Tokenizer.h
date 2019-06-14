@@ -83,7 +83,7 @@ public:
   ~ezTokenizer();
 
   /// \brief Clears any previous result and creates a new token stream for the given array.
-  void Tokenize(ezArrayPtr<const ezUInt8> Data, ezLogInterface* pLog, ezAllocatorBase* pAllocator = nullptr);
+  void Tokenize(ezArrayPtr<const ezUInt8> Data, ezLogInterface* pLog);
 
   /// \brief Gives read access to the token stream.
   const ezDeque<ezToken>& GetTokens() const { return m_Tokens; }

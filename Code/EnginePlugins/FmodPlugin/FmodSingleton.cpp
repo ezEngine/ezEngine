@@ -12,6 +12,7 @@ EZ_IMPLEMENT_SINGLETON(ezFmod);
 static ezFmod g_FmodSingleton;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 HANDLE g_hLiveUpdateMutex = NULL;
 #endif
 
