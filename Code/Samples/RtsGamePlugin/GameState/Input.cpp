@@ -1,14 +1,17 @@
 #include <RtsGamePluginPCH.h>
 
 #include <RtsGamePlugin/GameState/RtsGameState.h>
+#include <Core/ActorSystem/Actor.h>
+#include <Core/ActorSystem/ActorManager.h>
 
 void RtsGameState::ConfigureInputDevices()
 {
   SUPER::ConfigureInputDevices();
 
-  m_pMainWindow->GetInputDevice()->SetClipMouseCursor(ezMouseCursorClipMode::ClipToWindow);
-  m_pMainWindow->GetInputDevice()->SetShowMouseCursor(true);
-  m_pMainWindow->GetInputDevice()->SetMouseSpeed(ezVec2(0.002f));
+  // TODO: ezActor: fix how to setup input
+  //m_pWindow->GetInputDevice()->SetClipMouseCursor(ezMouseCursorClipMode::ClipToWindow);
+  //m_pWindow->GetInputDevice()->SetShowMouseCursor(true);
+  //m_pWindow->GetInputDevice()->SetMouseSpeed(ezVec2(0.002f));
 }
 
 void RtsGameState::ConfigureInputActions()

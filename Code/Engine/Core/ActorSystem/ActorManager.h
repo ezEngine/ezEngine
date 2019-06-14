@@ -5,6 +5,7 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <Foundation/Communication/Event.h>
+#include <Foundation/Reflection/Reflection.h>
 
 struct ezActorManagerImpl;
 class ezActor;

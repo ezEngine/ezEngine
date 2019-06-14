@@ -25,7 +25,9 @@ ezComputeShaderHistogramApp::~ezComputeShaderHistogramApp() = default;
 
 ezApplication::ApplicationExecution ezComputeShaderHistogramApp::Run()
 {
-  ProcessWindowMessages();
+  // TODO: ezActor: needs to be ported
+  //ProcessWindowMessages();
+
   ezClock::GetGlobalClock()->Update();
   Run_InputUpdate();
 
@@ -147,22 +149,25 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
 
   // Create a window for rendering
   {
-    m_pWindow = EZ_DEFAULT_NEW(ezWindow);
-    ezWindowCreationDesc windowDesc;
-    windowDesc.m_Resolution.width = g_uiWindowWidth;
-    windowDesc.m_Resolution.height = g_uiWindowHeight;
-    windowDesc.m_Title = "Compute Shader Histogram";
-    m_pWindow->Initialize(windowDesc);
-    ezWindowOutputTargetGAL* pOutputTarget = static_cast<ezWindowOutputTargetGAL*>(AddWindow(m_pWindow.Borrow()));
-    device->SetPrimarySwapChain(pOutputTarget->m_hSwapChain);
+    // TODO: ezActor: needs to be ported
+    EZ_ASSERT_NOT_IMPLEMENTED;
 
-    // Update window height/width constants with actual height/width.
-    g_uiWindowHeight = m_pWindow->GetClientAreaSize().height;
-    g_uiWindowWidth = m_pWindow->GetClientAreaSize().width;
+    //m_pWindow = EZ_DEFAULT_NEW(ezWindow);
+    //ezWindowCreationDesc windowDesc;
+    //windowDesc.m_Resolution.width = g_uiWindowWidth;
+    //windowDesc.m_Resolution.height = g_uiWindowHeight;
+    //windowDesc.m_Title = "Compute Shader Histogram";
+    //m_pWindow->Initialize(windowDesc);
+    //ezWindowOutputTargetGAL* pOutputTarget = static_cast<ezWindowOutputTargetGAL*>(AddWindow(m_pWindow.Borrow()));
+    //device->SetPrimarySwapChain(pOutputTarget->m_hSwapChain);
 
-    // Get backbuffer render target view.
-    const ezGALSwapChain* pPrimarySwapChain = device->GetSwapChain(pOutputTarget->m_hSwapChain);
-    m_hBackbufferRTV = device->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
+    //// Update window height/width constants with actual height/width.
+    //g_uiWindowHeight = m_pWindow->GetClientAreaSize().height;
+    //g_uiWindowWidth = m_pWindow->GetClientAreaSize().width;
+
+    //// Get backbuffer render target view.
+    //const ezGALSwapChain* pPrimarySwapChain = device->GetSwapChain(pOutputTarget->m_hSwapChain);
+    //m_hBackbufferRTV = device->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
   }
 
   // Create textures and texture view for screen content (can't use backbuffer as shader resource view)
