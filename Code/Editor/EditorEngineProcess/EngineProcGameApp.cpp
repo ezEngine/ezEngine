@@ -26,24 +26,12 @@ ezEngineProcessGameApplication::ezEngineProcessGameApplication()
 ezResult ezEngineProcessGameApplication::BeforeCoreSystemsStartup()
 {
   m_pApp = CreateEngineProcessApp();
+  ezStartup::AddApplicationTag("editorengineprocess");
 
-  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-remote", false))
-  {
-    ezEditorEngineProcessApp::GetSingleton()->SetRemoteMode();
-  }
-
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  {
-    // on all 'mobile' platforms, we assume we are in remote mode
-    ezEditorEngineProcessApp::GetSingleton()->SetRemoteMode();
-  }
-#else
-
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   // Make sure to disable the fileserve plugin
   ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-fs_off");
 #endif
-
-  ezStartup::AddApplicationTag("editorengineprocess");
 
   return SUPER::BeforeCoreSystemsStartup();
 }
@@ -52,6 +40,18 @@ void ezEngineProcessGameApplication::AfterCoreSystemsStartup()
 {
   // skip project creation at this point
   // SUPER::AfterCoreSystemsStartup();
+
+#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  {
+    // on all 'mobile' platforms, we assume we are in remote mode
+    ezEditorEngineProcessApp::GetSingleton()->SetRemoteMode();
+  }
+#else
+  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-remote", false))
+  {
+    ezEditorEngineProcessApp::GetSingleton()->SetRemoteMode();
+  }
+#endif
 
   WaitForDebugger();
 
