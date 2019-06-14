@@ -1,19 +1,14 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
-#include <Core/Actor/Actor.h>
-#include <Core/Actor/ActorService.h>
 #include <Core/ActorSystem/Actor2.h>
 #include <Core/ActorSystem/ActorManager2.h>
 #include <Core/ResourceManager/ResourceManager.h>
-#include <EditorEngineProcessFramework/Actors/EditorWnd/ActorEditorWnd.h>
-#include <EditorEngineProcessFramework/Actors/EditorWnd/ActorManagerEditorWnd.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
-#include <GameEngine/Actors/Common/ActorDeviceRenderOutputGAL.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <RendererCore/Components/CameraComponent.h>

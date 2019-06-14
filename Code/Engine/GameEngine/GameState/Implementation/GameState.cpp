@@ -1,10 +1,8 @@
 
 #include <GameEnginePCH.h>
 
-#include <Actors/Flatscreen/ActorFlatscreen.h>
-#include <Actors/Flatscreen/ActorManagerFlatscreen.h>
-#include <Core/Actor/Actor.h>
-#include <Core/Actor/ActorService.h>
+#include <Core/ActorSystem/Actor2.h>
+#include <Core/ActorSystem/ActorManager2.h>
 #include <Core/World/World.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
@@ -21,13 +19,6 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <System/Screen/Screen.h>
-
-#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-#  include <MixedReality/MixedRealityFramework.h>
-#  include <WindowsMixedReality/HolographicSpace.h>
-#endif
-#include <Core/ActorSystem/Actor2.h>
-#include <Core/ActorSystem/ActorManager2.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameState, 1, ezRTTINoAllocator);
