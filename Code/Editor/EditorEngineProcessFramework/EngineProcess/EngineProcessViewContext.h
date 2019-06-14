@@ -11,8 +11,7 @@ class ezEditorEngineDocumentMsg;
 class ezViewRedrawMsgToEngine;
 class ezEditorEngineViewMsg;
 class ezGALRenderTargetSetup;
-class ezActorEditorWnd;
-struct ezActorEvent;
+class ezActor2;
 
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
@@ -73,11 +72,9 @@ protected:
   /// \brief Create the actual view.
   virtual ezViewHandle CreateView() = 0;
 
-  virtual void ActorEventHandler(const ezActorEvent& e);
-
 private:
   ezEngineProcessDocumentContext* m_pDocumentContext;
-  ezActorEditorWnd* m_pEditorWndActor = nullptr;
+  ezActor2* m_pEditorWndActor = nullptr;
 
 protected:
   ezCamera m_Camera;

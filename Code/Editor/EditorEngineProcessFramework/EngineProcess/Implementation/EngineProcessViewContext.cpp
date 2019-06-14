@@ -2,6 +2,7 @@
 
 #include <Core/Actor/Actor.h>
 #include <Core/Actor/ActorService.h>
+#include <Core/ActorSystem/Actor2.h>
 #include <Core/ActorSystem/ActorManager2.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <EditorEngineProcessFramework/Actors/EditorWnd/ActorEditorWnd.h>
@@ -26,14 +27,10 @@ ezEngineProcessViewContext::ezEngineProcessViewContext(ezEngineProcessDocumentCo
   : m_pDocumentContext(pContext)
 {
   m_uiViewID = 0xFFFFFFFF;
-
-  ezActor::s_Events.AddEventHandler(ezMakeDelegate(&ezEngineProcessViewContext::ActorEventHandler, this));
 }
 
 ezEngineProcessViewContext::~ezEngineProcessViewContext()
 {
-  ezActor::s_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessViewContext::ActorEventHandler, this));
-
   ezRenderWorld::DeleteView(m_hView);
   m_hView.Invalidate();
 
@@ -82,15 +79,59 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
 
   if (m_pEditorWndActor != nullptr)
   {
-    if (m_pEditorWndActor->GetWindow()->m_uiWidth == uiWidth && m_pEditorWndActor->GetWindow()->m_uiHeight == uiHeight)
+    const ezSizeU32 wndSize = m_pEditorWndActor->m_pWindow->GetClientAreaSize();
+
+    if (wndSize.width == uiWidth && wndSize.height == uiHeight)
       return;
 
-    ezActorService::GetSingleton()->QueueActorForDestruction(m_pEditorWndActor);
+    ezActorManager2::GetSingleton()->DestroyActor(m_pEditorWndActor);
     m_pEditorWndActor = nullptr;
   }
 
-  ezActorManagerEditorWnd* pManager = ezActorService::GetSingleton()->GetActorManager<ezActorManagerEditorWnd>();
-  m_pEditorWndActor = pManager->CreateEditorWndActor("EditorEngineView", this, hWnd, uiWidth, uiHeight);
+  {
+    ezUniquePtr<ezActor2> pActor = EZ_DEFAULT_NEW(ezActor2, "EditorView", this);
+    m_pEditorWndActor = pActor.Borrow();
+
+    // create window
+    {
+      ezUniquePtr<ezEditorProcessViewWindow> pWindow = EZ_DEFAULT_NEW(ezEditorProcessViewWindow);
+      pWindow->m_hWnd = hWnd;
+      pWindow->m_uiWidth = uiWidth;
+      pWindow->m_uiHeight = uiHeight;
+
+      pActor->m_pWindow = std::move(pWindow);
+    }
+
+    // create output target
+    {
+      ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
+
+      ezGALSwapChainCreationDescription desc;
+      desc.m_pWindow = pActor->m_pWindow.Borrow();
+      desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+      desc.m_bAllowScreenshots = true;
+
+      pOutput->CreateSwapchain(desc);
+
+      pActor->m_pWindowOutputTarget = std::move(pOutput);
+    }
+
+    // setup render target
+    {
+      ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+      ezWindowOutputTargetGAL* pOutput = static_cast<ezWindowOutputTargetGAL*>(pActor->m_pWindowOutputTarget.Borrow());
+      const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(pOutput->m_hSwapChain);
+      auto hSwapChainRTV = pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
+
+      ezGALRenderTargetSetup BackBufferRenderTargetSetup;
+      BackBufferRenderTargetSetup.SetRenderTarget(0, hSwapChainRTV);
+
+      const ezSizeU32 wndSize = pActor->m_pWindow->GetClientAreaSize();
+      SetupRenderTarget(BackBufferRenderTargetSetup, wndSize.width, wndSize.height);
+    }
+
+    ezActorManager2::GetSingleton()->AddActor(std::move(pActor));
+  }
 }
 
 void ezEngineProcessViewContext::SetupRenderTarget(ezGALRenderTargetSetup& renderTargetSetup, ezUInt16 uiWidth, ezUInt16 uiHeight)
@@ -247,26 +288,4 @@ ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDefaultRenderPi
 ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDebugRenderPipeline()
 {
   return ezEditorEngineProcessApp::GetSingleton()->CreateDefaultDebugRenderPipeline();
-}
-
-void ezEngineProcessViewContext::ActorEventHandler(const ezActorEvent& e)
-{
-  if (e.m_Type == ezActorEvent::Type::AfterActivation)
-  {
-    if (ezActorEditorWnd* pEditorWnd = ezDynamicCast<ezActorEditorWnd*>(e.m_pActor))
-    {
-      ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-      ezActorDeviceRenderOutputGAL* pOutput = pEditorWnd->GetDevice<ezActorDeviceRenderOutputGAL>();
-
-      const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(pOutput->GetWindowOutputTarget()->m_hSwapChain);
-
-      auto hSwapChainRTV = pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
-
-      ezGALRenderTargetSetup BackBufferRenderTargetSetup;
-      BackBufferRenderTargetSetup.SetRenderTarget(0, hSwapChainRTV);
-
-      SetupRenderTarget(BackBufferRenderTargetSetup, pEditorWnd->GetWindow()->m_uiWidth, pEditorWnd->GetWindow()->m_uiHeight);
-    }
-  }
 }
