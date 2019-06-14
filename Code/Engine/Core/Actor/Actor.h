@@ -16,8 +16,10 @@ struct ezActorEvent
 {
   enum class Type
   {
-    AfterActivation,   ///< An ezActor has just been activated.
-    BeforeDeactivation ///< An ezActor is about to be deactivated.
+    AfterActorCreation,     ///< An ezActor was just created, but not yet activated
+    AfterActivation,        ///< An ezActor has just been activated.
+    BeforeDeactivation,     ///< An ezActor is about to be deactivated.
+    BeforeActorDestruction, ///< An ezActor is already deactivated and will be deleted now
   };
 
   Type m_Type;

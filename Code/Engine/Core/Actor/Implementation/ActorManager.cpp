@@ -53,6 +53,11 @@ void ezActorManager::AddActor(ezUniquePtr<ezActor>&& pActor)
   pActor->m_pOwningManager = this;
   pActor->m_ActivationState = ezActor::ActivationState::Activate;
   m_pImpl->m_AllActors.PushBack(std::move(pActor));
+
+  ezActorEvent e;
+  e.m_pActor = pActor.Borrow();
+  e.m_Type = ezActorEvent::Type::AfterActorCreation;
+  ezActor::s_Events.Broadcast(e);
 }
 
 void ezActorManager::QueueActorForDestruction(ezActor* pActor)
@@ -167,6 +172,11 @@ void ezActorManager::DeleteDeactivatedActors()
 
     if (m_pImpl->m_AllActors[i]->m_ActivationState == ezActor::ActivationState::Deactivated)
     {
+      ezActorEvent e;
+      e.m_pActor = m_pImpl->m_AllActors[i].Borrow();
+      e.m_Type = ezActorEvent::Type::BeforeDeactivation;
+      ezActor::s_Events.Broadcast(e);
+
       m_pImpl->m_AllActors.RemoveAtAndSwap(i);
     }
   }
