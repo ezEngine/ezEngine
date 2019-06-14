@@ -427,7 +427,7 @@ public:
     ezTokenizer tokenizer(m_stackAllocator.Borrow());
     auto dataView = fileContents.GetView();
     tokenizer.Tokenize(ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(dataView.GetStartPointer()), dataView.GetElementCount()),
-      ezLog::GetThreadLocalLogSystem(), m_stackAllocator.Borrow());
+      ezLog::GetThreadLocalLogSystem());
 
     ezStringView hash("#");
     ezStringView include("include");
