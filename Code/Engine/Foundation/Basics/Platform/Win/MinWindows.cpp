@@ -1,5 +1,6 @@
 #include <FoundationPCH.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Basics/Platform/Win/MinWindows.h>
 #include <type_traits>
@@ -41,3 +42,4 @@ void ezCheckWindowsTypeSizes()
   static_assert(
     EZ_WINDOWS_INVALID_HANDLE_VALUE == INVALID_HANDLE_VALUE, "EZ_WINDOWS_INVALID_HANDLE_VALUE does not match INVALID_HANDLE_VALUE");
 }
+#endif
