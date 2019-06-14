@@ -34,6 +34,8 @@ public:
 
   void Update();
 
+  void Shutdown();
+
   void AddActor(ezUniquePtr<ezActor2>&& pActor);
   void DestroyActor(ezActor2* pActor);
   void DestroyAllActors(const void* pCreatedBy);

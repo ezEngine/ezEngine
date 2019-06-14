@@ -476,13 +476,6 @@ ezUniquePtr<ezEditorEngineProcessApp> ezEngineProcessGameApplication::CreateEngi
   return EZ_DEFAULT_NEW(ezEditorEngineProcessApp);
 }
 
-void ezEngineProcessGameApplication::Init_AddActorManagers()
-{
-  SUPER::Init_AddActorManagers();
-
-  ezActorService::GetSingleton()->AddActorManager(EZ_DEFAULT_NEW(ezActorManagerEditorWnd));
-}
-
 void ezEngineProcessGameApplication::BaseInit_ConfigureLogging()
 {
   SUPER::BaseInit_ConfigureLogging();

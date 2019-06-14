@@ -2,6 +2,7 @@
 
 #include <Core/Actor/Actor.h>
 #include <Core/Actor/ActorService.h>
+#include <Core/ActorSystem/ActorManager2.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <EditorEngineProcessFramework/Actors/EditorWnd/ActorEditorWnd.h>
 #include <EditorEngineProcessFramework/Actors/EditorWnd/ActorManagerEditorWnd.h>
@@ -36,7 +37,7 @@ ezEngineProcessViewContext::~ezEngineProcessViewContext()
   ezRenderWorld::DeleteView(m_hView);
   m_hView.Invalidate();
 
-  ezActorService::GetSingleton()->DestroyAllActors(this);
+  ezActorManager2::GetSingleton()->DestroyAllActors(this);
 }
 
 void ezEngineProcessViewContext::SetViewID(ezUInt32 id)

@@ -2,10 +2,12 @@
 
 #include <Core/CoreDLL.h>
 
-#include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Types/UniquePtr.h>
 #include <Core/ActorSystem/ActorPlugin.h>
 #include <Foundation/Communication/Event.h>
+#include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Types/UniquePtr.h>
+#include <GameEngine/GameApplication/WindowOutputTargetBase.h>
+#include <System/Window/Window.h>
 
 class ezActor2;
 struct ezActor2Impl;
@@ -41,6 +43,9 @@ public:
 
   /// \brief Fills the list with all devices that have been added to the actor.
   void GetAllPlugins(ezHybridArray<ezActorPlugin*, 8>& out_AllDevices);
+
+  ezUniquePtr<ezWindowBase> m_pWindow;
+  ezUniquePtr<ezWindowOutputTargetBase> m_pWindowOutputTarget;
 
 private: // directly touched by ezActorManager2
   friend class ezActorManager2;

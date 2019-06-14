@@ -26,6 +26,8 @@
 #  include <MixedReality/MixedRealityFramework.h>
 #  include <WindowsMixedReality/HolographicSpace.h>
 #endif
+#include <Core/ActorSystem/Actor2.h>
+#include <Core/ActorSystem/ActorManager2.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameState, 1, ezRTTINoAllocator);
@@ -34,45 +36,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameState_Implementation_GameState);
 // clang-format on
 
-ezGameState::ezGameState()
-{
-  ezActor::s_Events.AddEventHandler(ezMakeDelegate(&ezGameState::ActorEventHandler, this));
-}
+ezGameState::ezGameState() {}
 
-ezGameState::~ezGameState()
-{
-  ezActor::s_Events.RemoveEventHandler(ezMakeDelegate(&ezGameState::ActorEventHandler, this));
-}
-
-void ezGameState::ActorEventHandler(const ezActorEvent& e)
-{
-  switch (e.m_Type)
-  {
-    case ezActorEvent::Type::AfterActivation:
-    {
-      if (ezActorDeviceRenderOutput* pOutput = e.m_pActor->GetDevice<ezActorDeviceRenderOutput>())
-      {
-        ezSizeU32 viewportSize(1024, 768);
-
-        if (auto pActor = ezDynamicCast<ezActorFlatscreen*>(e.m_pActor))
-        {
-          viewportSize = pActor->GetWindow()->GetClientAreaSize();
-
-          pActor->GetWindow()->GetInputDevice()->SetMouseSpeed(ezVec2(0.002f));
-        }
-
-        SetupMainView(pOutput->GetWindowOutputTarget(), viewportSize);
-      }
-
-      break;
-    }
-
-    case ezActorEvent::Type::BeforeDeactivation:
-    {
-      break;
-    }
-  }
-}
+ezGameState::~ezGameState() {}
 
 void ezGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
 {
@@ -145,13 +111,13 @@ void ezGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPositio
 
 void ezGameState::OnDeactivation()
 {
-  //if (m_bVirtualRealityMode)
+  // if (m_bVirtualRealityMode)
   //{
   //  ezVRInterface* pVRInterface = ezSingletonRegistry::GetRequiredSingletonInstance<ezVRInterface>();
   //  pVRInterface->DestroyVRView();
   //  pVRInterface->Deinitialize();
   //}
-  //else
+  // else
   {
     ezRenderWorld::DeleteView(m_hMainView);
   }
@@ -200,22 +166,46 @@ void ezGameState::CreateActors()
   wndDesc.LoadFromDDL(sWndCfg);
 
   // TODO: VR support
-  //if (m_bVirtualRealityMode)
+  // if (m_bVirtualRealityMode)
   //{
   //  wndDesc.m_bClipMouseCursor = false;
   //  wndDesc.m_bShowMouseCursor = true;
   //  wndDesc.m_WindowMode = ezWindowMode::WindowResizable;
   //}
 
-  ezActorManagerFlatscreen* pFlatscreenManager = ezActorService::GetSingleton()->GetActorManager<ezActorManagerFlatscreen>();
-  if (pFlatscreenManager == nullptr)
   {
-    // if there is no flatscreen manager yet, create one
-    ezActorService::GetSingleton()->AddActorManager(EZ_DEFAULT_NEW(ezActorManagerFlatscreen));
-    pFlatscreenManager = ezActorService::GetSingleton()->GetActorManager<ezActorManagerFlatscreen>();
-  }
+    ezUniquePtr<ezActor2> pActor = EZ_DEFAULT_NEW(ezActor2, "Main Window", this);
 
-  ezActorFlatscreen* pFlatscreenActor = pFlatscreenManager->CreateFlatscreenActor("Main Window", this, wndDesc);
+    // create window
+    {
+      ezUniquePtr<ezGameStateWindow> pWindow = EZ_DEFAULT_NEW(ezGameStateWindow, wndDesc, [] {});
+      pWindow->ResetOnClickClose([]() { ezGameApplicationBase::GetGameApplicationBaseInstance()->RequestQuit(); });
+      pWindow->GetInputDevice()->SetMouseSpeed(ezVec2(0.002f));
+
+      pActor->m_pWindow = std::move(pWindow);
+    }
+
+    // create output target
+    {
+      ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
+
+      ezGALSwapChainCreationDescription desc;
+      desc.m_pWindow = pActor->m_pWindow.Borrow();
+      desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+      desc.m_bAllowScreenshots = true;
+
+      pOutput->CreateSwapchain(desc);
+
+      pActor->m_pWindowOutputTarget = std::move(pOutput);
+    }
+
+    // setup view
+    {
+      SetupMainView(pActor->m_pWindowOutputTarget.Borrow(), pActor->m_pWindow->GetClientAreaSize());
+    }
+
+    ezActorManager2::GetSingleton()->AddActor(std::move(pActor));
+  }
 }
 
 void ezGameState::ConfigureInputDevices() {}

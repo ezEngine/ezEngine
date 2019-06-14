@@ -70,7 +70,6 @@ protected:
   virtual void Init_LoadRequiredPlugins() override;
   virtual void Init_SetupDefaultResources() override;
   virtual void Init_SetupGraphicsDevice() override;
-  virtual void Init_AddActorManagers() override;
   virtual void Deinit_ShutdownGraphicsDevice() override;
 
   virtual bool IsGameUpdateEnabled() const override;

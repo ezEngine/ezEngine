@@ -1,6 +1,7 @@
 #include <GameEnginePCH.h>
 
 #include <Core/Actor/ActorService.h>
+#include <Core/ActorSystem/ActorManager2.h>
 #include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Communication/GlobalEvent.h>
@@ -244,7 +245,7 @@ void ezGameApplicationBase::DeactivateGameState()
 
   m_pGameState->OnDeactivation();
 
-  ezActorService::GetSingleton()->DestroyAllActors(m_pGameState.Borrow());
+  ezActorManager2::GetSingleton()->DestroyAllActors(m_pGameState.Borrow());
 
   m_pGameState = nullptr;
 }
@@ -332,7 +333,7 @@ void ezGameApplicationBase::BeforeHighLevelSystemsShutdown()
 void ezGameApplicationBase::BeforeCoreSystemsShutdown()
 {
   // shut down all actors and APIs that may have been in use
-  ezActorService::GetSingleton()->DestroyAllActorManagers();
+  ezActorManager2::GetSingleton()->Shutdown();
 
   {
     ezFrameAllocator::Reset();
@@ -372,7 +373,7 @@ ezApplication::ApplicationExecution ezGameApplicationBase::Run()
 
   ezClock::GetGlobalClock()->Update();
 
-  ezActorService::GetSingleton()->Update();
+  ezActorManager2::GetSingleton()->Update();
 
   if (!IsGameUpdateEnabled())
     return ezApplication::Continue;

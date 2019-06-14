@@ -31,22 +31,15 @@ void ezActorFlatscreen::Activate()
   desc.m_pWindow = m_pWindow.Borrow();
   desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
   desc.m_bAllowScreenshots = true;
-  auto hSwapChain = ezGALDevice::GetDefaultDevice()->CreateSwapChain(desc);
 
   m_OutputTarget = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
-  m_OutputTarget->m_hSwapChain = hSwapChain;
+  m_OutputTarget->CreateSwapchain(desc);
 
   AddDevice(EZ_DEFAULT_NEW(ezActorDeviceRenderOutputGAL, m_OutputTarget.Borrow()));
 }
 
 void ezActorFlatscreen::Deactivate()
 {
-  // do not try to destroy the primary swapchain, that is handled by the device
-  if (ezGALDevice::GetDefaultDevice()->GetPrimarySwapChain() != m_OutputTarget->m_hSwapChain)
-  {
-    ezGALDevice::GetDefaultDevice()->DestroySwapChain(m_OutputTarget->m_hSwapChain);
-  }
-
   m_OutputTarget = nullptr;
   m_pWindow = nullptr;
 

@@ -42,12 +42,6 @@ void ezActorEditorWnd::Activate()
 
 void ezActorEditorWnd::Deactivate()
 {
-  // do not try to destroy the primary swapchain, that is handled by the device
-  if (ezGALDevice::GetDefaultDevice()->GetPrimarySwapChain() != m_OutputTarget->m_hSwapChain)
-  {
-    ezGALDevice::GetDefaultDevice()->DestroySwapChain(m_OutputTarget->m_hSwapChain);
-  }
-
   m_OutputTarget = nullptr;
   m_pWindow = nullptr;
 

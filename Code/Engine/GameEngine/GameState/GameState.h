@@ -104,8 +104,6 @@ protected:
   /// \brief Sets up m_MainCamera for first use
   virtual void ConfigureMainCamera();
 
-  virtual void ActorEventHandler(const ezActorEvent& e);
-
   ezViewHandle m_hMainView;
 
   ezWorld* m_pMainWorld = nullptr;

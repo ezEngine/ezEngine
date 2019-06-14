@@ -1,10 +1,10 @@
 #include <CorePCH.h>
 
+#include <Core/ActorSystem/Actor2.h>
+#include <Core/ActorSystem/ActorApiListener.h>
 #include <Core/ActorSystem/ActorManager2.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <Core/ActorSystem/ActorApiListener.h>
-#include <Core/ActorSystem/Actor2.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -61,6 +61,11 @@ ezActorManager2::ezActorManager2()
 }
 
 ezActorManager2::~ezActorManager2()
+{
+  Shutdown();
+}
+
+void ezActorManager2::Shutdown()
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
@@ -140,7 +145,8 @@ void ezActorManager2::AddApiListener(ezUniquePtr<ezActorApiListener>&& pListener
 
   for (auto& pExisting : m_pImpl->m_AllApiListeners)
   {
-    EZ_ASSERT_ALWAYS(pListener->GetDynamicRTTI() != pExisting->GetDynamicRTTI(), "An actor API listener of this type has already been added");
+    EZ_ASSERT_ALWAYS(
+      pListener->GetDynamicRTTI() != pExisting->GetDynamicRTTI(), "An actor API listener of this type has already been added");
   }
 
   m_pImpl->m_AllApiListeners.PushBack(std::move(pListener));
@@ -228,8 +234,3 @@ void ezActorManager2::Update()
   UpdateAllApiListeners();
   UpdateAllActors();
 }
-
-
-
-
-

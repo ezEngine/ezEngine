@@ -6,6 +6,24 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Texture.h>
 
+ezWindowOutputTargetGAL::ezWindowOutputTargetGAL() {}
+
+ezWindowOutputTargetGAL::~ezWindowOutputTargetGAL()
+{
+  // do not try to destroy the primary swapchain, that is handled by the device
+  if (ezGALDevice::GetDefaultDevice()->GetPrimarySwapChain() != m_hSwapChain)
+  {
+    ezGALDevice::GetDefaultDevice()->DestroySwapChain(m_hSwapChain);
+  }
+
+  m_hSwapChain.Invalidate();
+}
+
+void ezWindowOutputTargetGAL::CreateSwapchain(const ezGALSwapChainCreationDescription& desc)
+{
+  m_hSwapChain = ezGALDevice::GetDefaultDevice()->CreateSwapChain(desc);
+}
+
 void ezWindowOutputTargetGAL::Present(bool bEnableVSync)
 {
   ezGALDevice::GetDefaultDevice()->Present(m_hSwapChain, bEnableVSync);

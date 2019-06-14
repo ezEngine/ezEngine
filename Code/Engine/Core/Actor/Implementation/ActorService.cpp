@@ -17,7 +17,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ezActorService)
 
   ON_CORESYSTEMS_STARTUP
   {
-    s_pActorService = EZ_DEFAULT_NEW(ezActorService);
+    //s_pActorService = EZ_DEFAULT_NEW(ezActorService);
   }
 
   ON_CORESYSTEMS_SHUTDOWN

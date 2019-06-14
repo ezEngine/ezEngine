@@ -1,5 +1,10 @@
 #include <GameEnginePCH.h>
 
+#include <Actors/Flatscreen/ActorManagerFlatscreen.h>
+#include <Core/Actor/Actor.h>
+#include <Core/Actor/ActorService.h>
+#include <Core/ActorDevices/ActorDeviceRenderOutput.h>
+#include <Core/ActorSystem/Actor2.h>
 #include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/World.h>
@@ -24,10 +29,7 @@
 #include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/Formats/TgaFileFormat.h>
 #include <Texture/Image/Image.h>
-#include <Core/Actor/Actor.h>
-#include <Core/Actor/ActorService.h>
-#include <Core/ActorDevices/ActorDeviceRenderOutput.h>
-#include <Actors/Flatscreen/ActorManagerFlatscreen.h>
+#include <Core/ActorSystem/ActorManager2.h>
 
 ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
 ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> ezGameApplication::s_DefaultDeviceCreator;
@@ -105,11 +107,6 @@ ezString ezGameApplication::FindProjectDirectory() const
   return result;
 }
 
-void ezGameApplication::Init_AddActorManagers()
-{
-  ezActorService::GetSingleton()->AddActorManager(EZ_DEFAULT_NEW(ezActorManagerFlatscreen));
-}
-
 bool ezGameApplication::IsGameUpdateEnabled() const
 {
   return ezRenderWorld::GetMainViews().GetCount() > 0;
@@ -154,20 +151,21 @@ void ezGameApplication::Run_WorldUpdateAndRender()
   }
 
   {
-    ezHybridArray<ezActor*, 8> allActors;
-    ezActorService::GetSingleton()->GetAllActors(allActors);
+    ezHybridArray<ezActor2*, 8> allActors;
+    ezActorManager2::GetSingleton()->GetAllActors(allActors);
 
-    for (ezActor* pActor : allActors)
+    for (ezActor2* pActor : allActors)
     {
-      if (auto pOutput = pActor->GetDevice<ezActorDeviceRenderOutput>())
+      if (auto pOutput = pActor->m_pWindowOutputTarget.Borrow())
       {
-        // TODO: ignore present on first frame ?
+        // TODO: ezActor: ignore present on first frame ?
 
-        // TODO:
-        //ExecuteTakeScreenshot(windowContext.m_pOutputTarget.Borrow(), ctxt);
-        //ExecuteFrameCapture(windowContext.m_pWindow->GetNativeWindowHandle(), ctxt);
+        // TODO: ezActor:
+        // ExecuteTakeScreenshot(windowContext.m_pOutputTarget.Borrow(), ctxt);
+        // ExecuteFrameCapture(windowContext.m_pWindow->GetNativeWindowHandle(), ctxt);
 
-        pOutput->Present();
+        // TODO: ezActor: v-sync ?
+        pOutput->Present(true);
       }
     }
   }

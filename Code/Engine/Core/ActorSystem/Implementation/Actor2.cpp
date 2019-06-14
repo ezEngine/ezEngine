@@ -71,4 +71,10 @@ void ezActor2::GetAllPlugins(ezHybridArray<ezActorPlugin*, 8>& out_AllDevices)
   }
 }
 
-void ezActor2::Update() {}
+void ezActor2::Update()
+{
+  if (m_pWindow)
+  {
+    m_pWindow->ProcessWindowMessages();
+  }
+}

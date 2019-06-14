@@ -214,7 +214,6 @@ protected:
   virtual void Init_ConfigureCVars();
   virtual void Init_SetupGraphicsDevice() = 0;
   virtual void Init_SetupDefaultResources();
-  virtual void Init_AddActorManagers() = 0;
 
   ezEvent<const ezGameApplicationStaticEvent&> m_StaticEvents;
 
