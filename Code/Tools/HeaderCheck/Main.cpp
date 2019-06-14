@@ -17,6 +17,30 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Types/UniquePtr.h>
 
+
+struct Test 
+{
+  struct Impl;
+
+  Test();
+
+  ezUniquePtr<Impl> m_impl;
+};
+
+struct ID3D11Texture2D;
+
+struct Test::Impl
+{
+  EZ_DECLARE_POD_TYPE();
+  ID3D11Texture2D* m_ptr;
+};
+
+Test::Test() :
+ m_impl(EZ_DEFAULT_NEW(Impl))
+{
+
+}
+
 namespace
 {
   EZ_ALWAYS_INLINE void SkipWhitespace(ezToken& token, ezUInt32& i, const ezDeque<ezToken>& tokens)
@@ -406,7 +430,7 @@ public:
       {
         ezLog::Error(
           "Including '{0}' in {1}:{2} leaks underlying implementation detail. Including system or thirdparty headers in public easy header "
-          "files is not allowed. Please use an interface, factory or pimpl to hide the implementation and avoid the include.",
+          "files is not allowed. Please use an interface, factory or pimpl to hide the implementation and avoid the include. See the Documentation Chapter 'General->Header Files' for details.",
           includePath.GetView(), currentFile.GetView(), line);
       }
     }
