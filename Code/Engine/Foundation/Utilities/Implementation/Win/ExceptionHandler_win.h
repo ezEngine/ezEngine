@@ -38,7 +38,7 @@ void ezExceptionHandler::SetExceptionHandler(EZ_TOP_LEVEL_EXCEPTION_HANDLER hand
   SetUnhandledExceptionFilter(handler);
 }
 
-ezResult ezExceptionHandler::WriteDump(EXCEPTION_POINTERS* exceptionInfo)
+ezResult ezExceptionHandler::WriteDump(struct _EXCEPTION_POINTERS* exceptionInfo)
 {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   ezStringBuilder path;

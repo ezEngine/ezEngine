@@ -4,7 +4,6 @@
 /// \file
 
 #include <Foundation/Memory/MemoryTracker.h>
-#include <roapi.h>
 
 // Disable C++/CX adds.
 #pragma warning(disable : 4447)
