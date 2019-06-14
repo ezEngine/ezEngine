@@ -17,6 +17,8 @@
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
 #include <d3d11.h>
+#include <dxgidebug.h>
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 #  include <d3d11_1.h>
 #endif
@@ -53,7 +55,7 @@ retry:
   ID3D11DeviceContext* pImmediateContext = nullptr;
 
   D3D_DRIVER_TYPE driverType = D3D_DRIVER_TYPE_HARDWARE;
-  //driverType = D3D_DRIVER_TYPE_REFERENCE; // enables the Reference Device
+  // driverType = D3D_DRIVER_TYPE_REFERENCE; // enables the Reference Device
 
   if (pUsedAdapter != nullptr)
   {
@@ -110,6 +112,7 @@ retry:
           pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
           pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
           pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
+          pInfoQueue->SetBreakOnCategory(D3D11_MESSAGE_CATEGORY_STATE_CREATION, FALSE);
         }
 
         // Ignore list.
@@ -206,6 +209,20 @@ ezResult ezGALDeviceDX11::InitPlatform()
   return InitPlatform(0, nullptr);
 }
 
+static HMODULE s_dxgiDebugDLL = nullptr;
+HMODULE _getDXGIDebugModule()
+{
+  //#if defined(HK_PLATFORM_UWP)
+  //  return nullptr;
+  //#else
+  if (!s_dxgiDebugDLL)
+  {
+    s_dxgiDebugDLL = LoadLibraryW(L"Dxgidebug.dll");
+  }
+  return s_dxgiDebugDLL;
+  //#endif
+}
+
 ezResult ezGALDeviceDX11::ShutdownPlatform()
 {
   for (ezUInt32 type = 0; type < TempResourceType::ENUM_COUNT; ++type)
@@ -226,6 +243,12 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
     }
     m_UsedTempResources[type].Clear();
   }
+
+  for (auto& timestamp : m_Timestamps)
+  {
+    EZ_GAL_DX11_RELEASE(timestamp);
+  }
+  m_Timestamps.Clear();
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
   {
@@ -258,6 +281,36 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
   EZ_GAL_DX11_RELEASE(m_pDXGIFactory);
   EZ_GAL_DX11_RELEASE(m_pDXGIAdapter);
   EZ_GAL_DX11_RELEASE(m_pDXGIDevice);
+
+  {
+    typedef HRESULT(WINAPI * getDebugInterfacePtr)(REFIID, void**);
+
+    HMODULE dxgiDebugDLL = _getDXGIDebugModule();
+
+    if (dxgiDebugDLL != nullptr)
+    {
+
+      getDebugInterfacePtr getDebugInterfaceFnPtr = (getDebugInterfacePtr)GetProcAddress(dxgiDebugDLL, "DXGIGetDebugInterface");
+
+      if (getDebugInterfaceFnPtr != nullptr)
+      {
+
+        IDXGIDebug* dxgiDebug;
+        getDebugInterfaceFnPtr(IID_PPV_ARGS(&dxgiDebug));
+
+        if (dxgiDebug != nullptr)
+        {
+          OutputDebugStringW(L"Live DX Objects:\n============================================\n");
+
+          dxgiDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
+
+          OutputDebugStringW(L"\n============================================\n");
+
+          dxgiDebug->Release();
+        }
+      }
+    }
+  }
 
   return EZ_SUCCESS;
 }

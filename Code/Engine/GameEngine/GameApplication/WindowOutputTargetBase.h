@@ -19,4 +19,3 @@ public:
   virtual void Present(bool bEnableVSync) = 0;
   virtual ezResult CaptureImage(ezImage& out_Image) = 0;
 };
-

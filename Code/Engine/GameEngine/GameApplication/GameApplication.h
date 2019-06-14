@@ -63,9 +63,6 @@ public:
   void ReinitializeInputConfig();
 
 protected:
-  virtual ezUniquePtr<ezWindowOutputTargetBase> CreateWindowOutputTarget(ezWindowBase* pWindow) override;
-  virtual void DestroyWindowOutputTarget(ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget) override;
-
   virtual ezResult BeforeCoreSystemsStartup() override;
 
   virtual void Init_ConfigureInput() override;

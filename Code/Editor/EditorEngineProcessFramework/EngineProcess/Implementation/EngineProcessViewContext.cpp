@@ -1,5 +1,7 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
+#include <Core/ActorSystem/Actor.h>
+#include <Core/ActorSystem/ActorManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
@@ -17,7 +19,7 @@
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 ezEngineProcessViewContext::ezEngineProcessViewContext(ezEngineProcessDocumentContext* pContext)
-    : m_pDocumentContext(pContext)
+  : m_pDocumentContext(pContext)
 {
   m_uiViewID = 0xFFFFFFFF;
 }
@@ -27,10 +29,7 @@ ezEngineProcessViewContext::~ezEngineProcessViewContext()
   ezRenderWorld::DeleteView(m_hView);
   m_hView.Invalidate();
 
-  if (m_Window.m_hWnd != 0)
-  {
-    static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->RemoveWindow(&m_Window);
-  }
+  ezActorManager::GetSingleton()->DestroyAllActors(this);
 }
 
 void ezEngineProcessViewContext::SetViewID(ezUInt32 id)
@@ -73,33 +72,61 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
 {
   EZ_LOG_BLOCK("ezEngineProcessViewContext::HandleWindowUpdate");
 
-  if (m_Window.m_hWnd != 0)
+  if (m_pEditorWndActor != nullptr)
   {
-    if (m_Window.m_uiWidth == uiWidth && m_Window.m_uiHeight == uiHeight)
+    const ezSizeU32 wndSize = m_pEditorWndActor->m_pWindow->GetClientAreaSize();
+
+    if (wndSize.width == uiWidth && wndSize.height == uiHeight)
       return;
 
-    static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->RemoveWindow(&m_Window);
+    ezActorManager::GetSingleton()->DestroyActor(m_pEditorWndActor);
+    m_pEditorWndActor = nullptr;
   }
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  {
+    ezUniquePtr<ezActor> pActor = EZ_DEFAULT_NEW(ezActor, "EditorView", this);
+    m_pEditorWndActor = pActor.Borrow();
 
-  m_Window.m_hWnd = hWnd;
-  m_Window.m_uiWidth = uiWidth;
-  m_Window.m_uiHeight = uiHeight;
+    // create window
+    {
+      ezUniquePtr<ezEditorProcessViewWindow> pWindow = EZ_DEFAULT_NEW(ezEditorProcessViewWindow);
+      pWindow->m_hWnd = hWnd;
+      pWindow->m_uiWidth = uiWidth;
+      pWindow->m_uiHeight = uiHeight;
 
-  ezLog::Debug("Creating Swapchain with size {0} * {1}", uiWidth, uiHeight);
+      pActor->m_pWindow = std::move(pWindow);
+    }
 
-  ezWindowOutputTargetGAL* pOutputTarget =
-      static_cast<ezWindowOutputTargetGAL*>(ezGameApplicationBase::GetGameApplicationBaseInstance()->AddWindow(&m_Window));
-  const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(pOutputTarget->m_hSwapChain);
-  EZ_ASSERT_DEV(pPrimarySwapChain != nullptr, "Failed to init swapchain");
+    // create output target
+    {
+      ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
 
-  auto hSwapChainRTV = pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
+      ezGALSwapChainCreationDescription desc;
+      desc.m_pWindow = pActor->m_pWindow.Borrow();
+      desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+      desc.m_bAllowScreenshots = true;
 
-  ezGALRenderTargetSetup BackBufferRenderTargetSetup;
-  BackBufferRenderTargetSetup.SetRenderTarget(0, hSwapChainRTV);
+      pOutput->CreateSwapchain(desc);
 
-  SetupRenderTarget(BackBufferRenderTargetSetup, uiWidth, uiHeight);
+      pActor->m_pWindowOutputTarget = std::move(pOutput);
+    }
+
+    // setup render target
+    {
+      ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+      ezWindowOutputTargetGAL* pOutput = static_cast<ezWindowOutputTargetGAL*>(pActor->m_pWindowOutputTarget.Borrow());
+      const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(pOutput->m_hSwapChain);
+      auto hSwapChainRTV = pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
+
+      ezGALRenderTargetSetup BackBufferRenderTargetSetup;
+      BackBufferRenderTargetSetup.SetRenderTarget(0, hSwapChainRTV);
+
+      const ezSizeU32 wndSize = pActor->m_pWindow->GetClientAreaSize();
+      SetupRenderTarget(BackBufferRenderTargetSetup, wndSize.width, wndSize.height);
+    }
+
+    ezActorManager::GetSingleton()->AddActor(std::move(pActor));
+  }
 }
 
 void ezEngineProcessViewContext::SetupRenderTarget(ezGALRenderTargetSetup& renderTargetSetup, ezUInt16 uiWidth, ezUInt16 uiHeight)
@@ -152,8 +179,8 @@ void ezEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
   }
 }
 
-bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& camera, const ezBoundingBoxSphere& objectBounds, float fFov,
-                                                     const ezVec3& vViewDir)
+bool ezEngineProcessViewContext::FocusCameraOnObject(
+  ezCamera& camera, const ezBoundingBoxSphere& objectBounds, float fFov, const ezVec3& vViewDir)
 {
   ezVec3 vDir = vViewDir;
   bool bChanged = false;

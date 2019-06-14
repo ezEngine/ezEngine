@@ -1,5 +1,6 @@
 #include <GameEnginePCH.h>
 
+#include <Core/ActorSystem/ActorManager.h>
 #include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Communication/GlobalEvent.h>
@@ -7,7 +8,6 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Texture/Image/Image.h>
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/TaskSystem.h>
@@ -16,13 +16,14 @@
 #include <GameEngine/GameApplication/GameApplicationBase.h>
 #include <GameEngine/Interfaces/FrameCaptureInterface.h>
 #include <System/Window/Window.h>
+#include <Texture/Image/Image.h>
 
 ezGameApplicationBase* ezGameApplicationBase::s_pGameApplicationBaseInstance = nullptr;
 
 ezGameApplicationBase::ezGameApplicationBase(const char* szAppName)
-    : ezApplication(szAppName)
-    , m_ConFunc_TakeScreenshot("TakeScreenshot", "()", ezMakeDelegate(&ezGameApplicationBase::TakeScreenshot, this))
-    , m_ConFunc_CaptureFrame("CaptureFrame", "()", ezMakeDelegate(&ezGameApplicationBase::CaptureFrame, this))
+  : ezApplication(szAppName)
+  , m_ConFunc_TakeScreenshot("TakeScreenshot", "()", ezMakeDelegate(&ezGameApplicationBase::TakeScreenshot, this))
+  , m_ConFunc_CaptureFrame("CaptureFrame", "()", ezMakeDelegate(&ezGameApplicationBase::CaptureFrame, this))
 {
   s_pGameApplicationBaseInstance = this;
 }
@@ -34,105 +35,13 @@ ezGameApplicationBase::~ezGameApplicationBase()
 
 //////////////////////////////////////////////////////////////////////////
 
-ezWindowOutputTargetBase* ezGameApplicationBase::AddWindow(ezWindowBase* pWindow)
-{
-  ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget = CreateWindowOutputTarget(pWindow);
-  ezWindowOutputTargetBase* pOutputPtr = pOutputTarget.Borrow();
-
-  AddWindow(pWindow, std::move(pOutputTarget));
-
-  return pOutputPtr;
-}
-
-void ezGameApplicationBase::AddWindow(ezWindowBase* pWindow, ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget)
-{
-  // make sure not to add the same window twice
-  RemoveWindow(pWindow);
-
-  WindowContext& windowContext = m_Windows.ExpandAndGetRef();
-  windowContext.m_pWindow = pWindow;
-  windowContext.m_pOutputTarget = std::move(pOutputTarget);
-  windowContext.m_bFirstFrame = true;
-}
-
-void ezGameApplicationBase::RemoveWindow(ezWindowBase* pWindow)
-{
-  for (ezUInt32 i = 0; i < m_Windows.GetCount(); ++i)
-  {
-    WindowContext& windowContext = m_Windows[i];
-    if (windowContext.m_pWindow == pWindow)
-    {
-      DestroyWindowOutputTarget(std::move(windowContext.m_pOutputTarget));
-      m_Windows.RemoveAtAndCopy(i);
-      break;
-    }
-  }
-}
-
-bool ezGameApplicationBase::ProcessWindowMessages()
-{
-  for (ezUInt32 i = 0; i < m_Windows.GetCount(); ++i)
-  {
-    m_Windows[i].m_pWindow->ProcessWindowMessages();
-  }
-
-  return !m_Windows.IsEmpty();
-}
-
-ezWindowOutputTargetBase* ezGameApplicationBase::GetWindowOutputTarget(const ezWindowBase* pWindow) const
-{
-  for (auto& windowContext : m_Windows)
-  {
-    if (windowContext.m_pWindow == pWindow)
-    {
-      return windowContext.m_pOutputTarget.Borrow();
-    }
-  }
-
-  return nullptr;
-}
-
-void ezGameApplicationBase::SetWindowOutputTarget(const ezWindowBase* pWindow, ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget)
-{
-  for (auto& windowContext : m_Windows)
-  {
-    if (windowContext.m_pWindow == pWindow)
-    {
-      if (windowContext.m_pOutputTarget != nullptr)
-      {
-        DestroyWindowOutputTarget(std::move(windowContext.m_pOutputTarget));
-      }
-
-      windowContext.m_pOutputTarget = std::move(pOutputTarget);
-      return;
-    }
-  }
-
-  EZ_REPORT_FAILURE("The given window is not part of the application!");
-}
-
-
-ezUInt32 ezGameApplicationBase::GetWindowCount() const
-{
-  return m_Windows.GetCount();
-}
-
-ezWindowBase* ezGameApplicationBase::GetWindow(ezUInt32 uiWindowIndex) const
-{
-  EZ_ASSERT_DEV(m_Windows.GetCount() < uiWindowIndex, "Window index out of bounds!");
-
-  return m_Windows[uiWindowIndex].m_pWindow;
-}
-
-//////////////////////////////////////////////////////////////////////////
-
 void AppendCurrentTimestamp(ezStringBuilder& out_String)
 {
   const ezDateTime dt = ezTimestamp::CurrentTimestamp();
 
   out_String.AppendFormat("_{0}-{1}-{2}_{3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true),
-                          ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true),
-                          ezArgU(dt.GetMicroseconds() / 1000, 3, true));
+    ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true),
+    ezArgU(dt.GetMicroseconds() / 1000, 3, true));
 }
 
 void ezGameApplicationBase::TakeProfilingCapture()
@@ -151,7 +60,7 @@ void ezGameApplicationBase::TakeProfilingCapture()
 
       ezFileWriter fileWriter;
       if (fileWriter.Open(sPath) == EZ_SUCCESS)
-      { 
+      {
         m_profilingData.Write(fileWriter);
         ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
       }
@@ -334,6 +243,9 @@ void ezGameApplicationBase::DeactivateGameState()
   m_StaticEvents.Broadcast(e);
 
   m_pGameState->OnDeactivation();
+
+  ezActorManager::GetSingleton()->DestroyAllActors(m_pGameState.Borrow());
+
   m_pGameState = nullptr;
 }
 
@@ -419,6 +331,9 @@ void ezGameApplicationBase::BeforeHighLevelSystemsShutdown()
 
 void ezGameApplicationBase::BeforeCoreSystemsShutdown()
 {
+  // shut down all actors and APIs that may have been in use
+  ezActorManager::GetSingleton()->Shutdown();
+
   {
     ezFrameAllocator::Reset();
     ezResourceManager::FreeUnusedResources(true);
@@ -455,9 +370,9 @@ ezApplication::ApplicationExecution ezGameApplicationBase::Run()
 
   s_bUpdatePluginsExecuted = false;
 
-  ProcessWindowMessages();
-
   ezClock::GetGlobalClock()->Update();
+
+  ezActorManager::GetSingleton()->Update();
 
   if (!IsGameUpdateEnabled())
     return ezApplication::Continue;
@@ -580,4 +495,3 @@ void ezGameApplicationBase::Run_FinishFrame()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_GameApplicationBase);
-
