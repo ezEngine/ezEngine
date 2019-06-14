@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ProcGenPlugin/Components/ProcVertexColorComponent.h>
+#include <ProcGenPlugin/Tasks/VertexColorTask.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>
@@ -75,6 +76,7 @@ void ezProcVertexColorComponentManager::Deinitialize()
 
 void ezProcVertexColorComponentManager::UpdateVertexColors(const ezWorldModule::UpdateContext& context)
 {
+  m_UpdateTaskGroupID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
   m_ModifiedDataRange.Reset();
 
   for (const auto& componentToUpdate : m_ComponentsToUpdate)
@@ -90,6 +92,8 @@ void ezProcVertexColorComponentManager::UpdateVertexColors(const ezWorldModule::
   }
 
   m_ComponentsToUpdate.Clear();
+
+  ezTaskSystem::StartTaskGroup(m_UpdateTaskGroupID);
 }
 
 void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertexColorComponent* pComponent)
@@ -125,12 +129,7 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
   }
 
   const auto& mbDesc = pCpuMesh->GetDescriptor().MeshBufferDesc();
-
   ezUInt32 uiVertexCount = mbDesc.GetVertexCount();
-  for (ezUInt32 i = 0; i < uiVertexCount; ++i)
-  {
-    m_VertexColorData[m_uiCurrentBufferOffset + i] = i * 100;
-  }
 
   pComponent->m_hVertexColorBuffer = m_hVertexColorBuffer;
 
@@ -141,10 +140,32 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
   }
 
   m_ModifiedDataRange.SetToIncludeRange(pComponent->m_iBufferOffset, pComponent->m_iBufferOffset + uiVertexCount - 1);
+
+  if (m_uiNextTaskIndex >= m_UpdateTasks.GetCount())
+  {
+    m_UpdateTasks.PushBack(EZ_DEFAULT_NEW(ezProcGenInternal::VertexColorTask));
+  }
+
+  auto& pUpdateTask = m_UpdateTasks[m_uiNextTaskIndex];
+
+  ezStringBuilder taskName = "VertexColor ";
+  taskName.Append(pCpuMesh->GetResourceDescription().GetView());
+  pUpdateTask->SetTaskName(taskName);
+
+  pUpdateTask->Prepare(mbDesc, pComponent->GetOwner()->GetGlobalTransform(), pComponent->m_pOutput,
+    m_VertexColorData.GetArrayPtr().GetSubArray(pComponent->m_iBufferOffset, uiVertexCount));
+
+  ezTaskSystem::AddTaskToGroup(m_UpdateTaskGroupID, pUpdateTask.Borrow());
+
+  ++m_uiNextTaskIndex;
 }
 
 void ezProcVertexColorComponentManager::OnEndExtraction(ezUInt64 uiFrameCounter)
 {
+  ezTaskSystem::WaitForGroup(m_UpdateTaskGroupID);
+  m_UpdateTaskGroupID.Invalidate();
+  m_uiNextTaskIndex = 0;
+
   if (m_ModifiedDataRange.IsValid())
   {
     auto& dataCopy = m_DataCopy[ezRenderWorld::GetDataIndexForExtraction()];

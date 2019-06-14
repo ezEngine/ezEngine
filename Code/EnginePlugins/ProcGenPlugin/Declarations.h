@@ -18,6 +18,7 @@ namespace ezProcGenInternal
   class FindPlacementTilesTask;
   class PreparePlacementTask;
   class PlacementTask;
+  class VertexColorTask;
 
   struct Pattern
   {

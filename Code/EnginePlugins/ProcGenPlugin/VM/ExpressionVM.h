@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ProcGenPlugin/VM/ExpressionFunctions.h>
 #include <Foundation/Containers/DynamicArray.h>
@@ -43,6 +43,14 @@ namespace ezExpression
     ezEnum<Type> m_Type;
     ezUInt16 m_uiByteStride;
   };
+
+  template <typename T>
+  Stream MakeStream(ezArrayPtr<T> data, ezUInt32 uiOffset, const ezHashedString& sName)
+  {
+    auto byteData = data.ToByteArray().GetSubArray(uiOffset);
+
+    return Stream(sName, Stream::Type::Float, byteData, sizeof(T));
+  }
 }
 
 class EZ_PROCGENPLUGIN_DLL ezExpressionVM

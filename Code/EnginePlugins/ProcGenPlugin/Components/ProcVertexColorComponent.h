@@ -22,6 +22,7 @@ class ezProcVertexColorComponent;
 class EZ_PROCGENPLUGIN_DLL ezProcVertexColorComponentManager
   : public ezComponentManager<ezProcVertexColorComponent, ezBlockStorageType::Compact>
 {
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezProcVertexColorComponentManager);
 public:
   ezProcVertexColorComponentManager(ezWorld* pWorld);
   ~ezProcVertexColorComponentManager();
@@ -43,6 +44,10 @@ private:
   void OnResourceEvent(const ezResourceEvent& resourceEvent);
 
   ezDynamicArray<ezComponentHandle> m_ComponentsToUpdate;
+
+  ezDynamicArray<ezUniquePtr<ezProcGenInternal::VertexColorTask>> m_UpdateTasks;
+  ezTaskGroupID m_UpdateTaskGroupID;
+  ezUInt32 m_uiNextTaskIndex = 0;
 
   ezGALBufferHandle m_hVertexColorBuffer;
   ezDynamicArray<ezUInt32> m_VertexColorData;
