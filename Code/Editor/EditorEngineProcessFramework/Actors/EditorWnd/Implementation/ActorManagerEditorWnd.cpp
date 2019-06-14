@@ -12,22 +12,17 @@ ezActorManagerEditorWnd::ezActorManagerEditorWnd() = default;
 ezActorManagerEditorWnd::~ezActorManagerEditorWnd() = default;
 
 ezActorEditorWnd* ezActorManagerEditorWnd::CreateEditorWndActor(
-  const char* szActorName, const char* szGroupName, ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight)
+  const char* szActorName, const void* pCreatedBy, ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight)
 {
   ezUniquePtr<ezEditorProcessViewWindow> pWindow = EZ_DEFAULT_NEW(ezEditorProcessViewWindow);
   pWindow->m_hWnd = hWnd;
   pWindow->m_uiWidth = uiWidth;
   pWindow->m_uiHeight = uiHeight;
 
-  ezUniquePtr<ezActorEditorWnd> pActorEditorWnd = EZ_DEFAULT_NEW(ezActorEditorWnd, szActorName, szGroupName, std::move(pWindow));
+  ezUniquePtr<ezActorEditorWnd> pActorEditorWnd = EZ_DEFAULT_NEW(ezActorEditorWnd, szActorName, pCreatedBy, std::move(pWindow));
   ezActorEditorWnd* pActorToReturn = pActorEditorWnd.Borrow();
 
   AddActor(std::move(pActorEditorWnd));
 
   return pActorToReturn;
-}
-
-void ezActorManagerEditorWnd::DestroyEditorWndActor(ezActorEditorWnd* pActor)
-{
-  DestroyActor(pActor);
 }

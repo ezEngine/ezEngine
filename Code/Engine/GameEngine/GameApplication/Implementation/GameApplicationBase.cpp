@@ -243,6 +243,9 @@ void ezGameApplicationBase::DeactivateGameState()
   m_StaticEvents.Broadcast(e);
 
   m_pGameState->OnDeactivation();
+
+  ezActorService::GetSingleton()->DestroyAllActors(m_pGameState.Borrow());
+
   m_pGameState = nullptr;
 }
 

@@ -78,7 +78,6 @@ protected:
 private:
   ezEngineProcessDocumentContext* m_pDocumentContext;
   ezActorEditorWnd* m_pEditorWndActor = nullptr;
-  // ezEditorProcessViewWindow m_Window;
 
 protected:
   ezCamera m_Camera;

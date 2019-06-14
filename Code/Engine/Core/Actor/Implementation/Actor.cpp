@@ -14,21 +14,20 @@ ezEvent<const ezActorEvent&> ezActor::s_Events;
 struct ezActorImpl
 {
   ezString m_sName;
-  ezString m_sGroup;
+  const void* m_pCreatedBy = nullptr;
   ezHybridArray<ezUniquePtr<ezActorDevice>, 4> m_AllDevices;
   ezMap<const ezRTTI*, ezActorDevice*> m_DeviceLookupCache;
 };
 
 
-ezActor::ezActor(const char* szActorName, const char* szGroupName)
+ezActor::ezActor(const char* szActorName, const void* pCreatedBy)
 {
   m_pImpl = EZ_DEFAULT_NEW(ezActorImpl);
 
   m_pImpl->m_sName = szActorName;
-  m_pImpl->m_sGroup = szGroupName;
+  m_pImpl->m_pCreatedBy = pCreatedBy;
 
   EZ_ASSERT_DEV(!m_pImpl->m_sName.IsEmpty(), "Actor name must not be empty");
-  EZ_ASSERT_DEV(!m_pImpl->m_sGroup.IsEmpty(), "Actor group name must not be empty");
 }
 
 ezActor::~ezActor() = default;
@@ -43,9 +42,9 @@ const char* ezActor::GetName() const
   return m_pImpl->m_sName;
 }
 
-const char* ezActor::GetGroup() const
+const void* ezActor::GetCreatedBy() const
 {
-  return m_pImpl->m_sGroup;
+  return m_pImpl->m_pCreatedBy;
 }
 
 void ezActor::AddDevice(ezUniquePtr<ezActorDevice>&& pDevice)
@@ -66,7 +65,19 @@ void ezActor::AddDevice(ezUniquePtr<ezActorDevice>&& pDevice)
 
 ezActorDevice* ezActor::GetDevice(const ezRTTI* pDeviceType) const
 {
+  EZ_ASSERT_DEV(pDeviceType->IsDerivedFrom<ezActorDevice>(), "The queried type has to derive from ezActorDevice");
+
   return m_pImpl->m_DeviceLookupCache.GetValueOrDefault(pDeviceType, nullptr);
+}
+
+void ezActor::GetAllDevices(ezHybridArray<ezActorDevice*, 8>& out_AllDevices)
+{
+  out_AllDevices.Clear();
+
+  for (auto& pDevice : m_pImpl->m_AllDevices)
+  {
+    out_AllDevices.PushBack(pDevice.Borrow());
+  }
 }
 
 void ezActor::Activate() {}

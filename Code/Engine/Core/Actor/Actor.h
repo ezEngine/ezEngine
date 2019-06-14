@@ -29,7 +29,7 @@ class EZ_CORE_DLL ezActor : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezActor, ezReflectedClass);
 
 public:
-  ezActor(const char* szActorName, const char* szGroupName);
+  ezActor(const char* szActorName, const void* pCreatedBy);
   ~ezActor();
 
   /// \brief Important events about actors
@@ -41,8 +41,8 @@ public:
   /// \brief Returns the name of this actor
   const char* GetName() const;
 
-  /// \brief Returns the group that this actor is part of
-  const char* GetGroup() const;
+  /// \brief Returns the 'created by' pointer of the actor
+  const void* GetCreatedBy() const;
 
   /// \brief Transfers ownership of the ezActorDevice to the ezActor
   void AddDevice(ezUniquePtr<ezActorDevice>&& pDevice);
@@ -56,6 +56,9 @@ public:
   {
     return static_cast<ActorDeviceType*>(GetDevice(ezGetStaticRTTI<ActorDeviceType>()));
   }
+
+  /// \brief Fills the list with all devices that have been added to the actor.
+  void GetAllDevices(ezHybridArray<ezActorDevice*, 8>& out_AllDevices);
 
 protected:
   virtual void Activate();

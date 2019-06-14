@@ -29,7 +29,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ezActorService)
   {
     if (s_pActorService)
     {
-      s_pActorService->DestroyAllActors();
+      s_pActorService->DestroyAllActors(nullptr);
     }
   }
 
@@ -60,13 +60,13 @@ ezActorService::~ezActorService()
   DestroyAllActorManagers();
 }
 
-void ezActorService::DestroyAllActors(const char* szInGroup /*= nullptr*/)
+void ezActorService::DestroyAllActors(const void* pCreatedBy)
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
   for (auto& pMan : m_pImpl->m_AllManagers)
   {
-    pMan->DestroyAllActors(szInGroup);
+    pMan->DestroyAllActors(pCreatedBy);
   }
 }
 
@@ -87,11 +87,16 @@ void ezActorService::AddActorManager(ezUniquePtr<ezActorManager>&& pManager)
   EZ_ASSERT_DEV(pManager != nullptr, "Invalid actor manager");
   EZ_ASSERT_DEV(pManager->m_ActivationState == ezActorManager::ActivationState::None, "Actor manager already in use");
 
+  for (auto& pExisting : m_pImpl->m_AllManagers)
+  {
+    EZ_ASSERT_ALWAYS(pManager->GetDynamicRTTI() != pExisting->GetDynamicRTTI(), "An actor manager of this type has already been added");
+  }
+
   pManager->m_ActivationState = ezActorManager::ActivationState::Activate;
   m_pImpl->m_AllManagers.PushBack(std::move(pManager));
 }
 
-void ezActorService::DestroyActorManager(ezActorManager* pManager)
+void ezActorService::QueueManagerForDestruction(ezActorManager* pManager)
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
@@ -187,6 +192,8 @@ ezActorManager* ezActorService::GetActorManager(const ezRTTI* pManagerType)
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
+  EZ_ASSERT_DEV(pManagerType->IsDerivedFrom<ezActorManager>(), "The queried type has to derive from ezActorManager");
+
   for (auto& pManager : m_pImpl->m_AllManagers)
   {
     if (pManager->GetDynamicRTTI()->IsDerivedFrom(pManagerType))
@@ -198,10 +205,17 @@ ezActorManager* ezActorService::GetActorManager(const ezRTTI* pManagerType)
 
 void ezActorService::GetAllActors(ezHybridArray<ezActor*, 8>& out_AllActors)
 {
+  out_AllActors.Clear();
+
   for (auto& pMan : m_pImpl->m_AllManagers)
   {
     pMan->GetAllActors(out_AllActors);
   }
+}
+
+void ezActorService::QueueActorForDestruction(ezActor* pActor)
+{
+  pActor->GetManager()->QueueActorForDestruction(pActor);
 }
 
 

@@ -17,8 +17,15 @@ public:
   ezActorService();
   ~ezActorService();
 
-  /// \brief Calls ezActorManager::DestroyAllActors() on all managers
-  void DestroyAllActors(const char* szInGroup = nullptr);
+  /// \brief Tells the manager to deactivate and delete the given actor.
+  /// ezActor::Deactivate() will be called on it the next time the ezActorManager is updated. Then it will be deleted.
+  void QueueActorForDestruction(ezActor* pActor);
+
+  /// \brief Calls ezActorManager::DestroyAllActors() on all managers of the given group.
+  ///
+  /// If pCreatedBy is not null, only actors which were given the specified pointer during construction
+  /// will be destroyed.
+  void DestroyAllActors(const void* pCreatedBy);
 
   /// \brief Calls ezActorManager::Deactivate() and then destroys all ezActorManager instances. Automatically called during service
   /// destruction.
@@ -30,11 +37,12 @@ public:
 
   /// \brief Tells the service to deactivate and delete the given manager.
   /// ezActorManager::Deactivate() will be called on it the next time the ezActorService is updated. Then it will be deleted.
-  void DestroyActorManager(ezActorManager* pManager);
+  void QueueManagerForDestruction(ezActorManager* pManager);
 
   /// \brief Returns an actor manager of the given type or null if no such manager has been added before.
   ezActorManager* GetActorManager(const ezRTTI* pManagerType);
 
+  /// \brief Templated overload of GetActorManager() that automatically casts to the desired class type.
   template <typename ManagerType>
   ManagerType* GetActorManager()
   {
@@ -44,6 +52,7 @@ public:
   /// \brief Activates queued managers and calls ezActorManager::Update() on them.
   void Update();
 
+  /// \brief Fills the list with all currently known actors
   void GetAllActors(ezHybridArray<ezActor*, 8>& out_AllActors);
 
 private:

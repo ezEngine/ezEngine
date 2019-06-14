@@ -21,17 +21,17 @@ ezActorManager::ezActorManager()
 
 ezActorManager::~ezActorManager()
 {
-  DestroyAllActors();
+  DestroyAllActors(nullptr);
 }
 
-void ezActorManager::DestroyAllActors(const char* szInGroup /*= nullptr*/)
+void ezActorManager::DestroyAllActors(const void* pCreatedBy)
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
-  DeactivateAllActors(szInGroup);
+  DeactivateAllActors(pCreatedBy);
   DeleteDeactivatedActors();
 
-  if (szInGroup == nullptr)
+  if (pCreatedBy == nullptr)
   {
     EZ_ASSERT_DEBUG(m_pImpl->m_AllActors.IsEmpty(), "The list of actors should be empty now.");
   }
@@ -55,7 +55,7 @@ void ezActorManager::AddActor(ezUniquePtr<ezActor>&& pActor)
   m_pImpl->m_AllActors.PushBack(std::move(pActor));
 }
 
-void ezActorManager::DestroyActor(ezActor* pActor)
+void ezActorManager::QueueActorForDestruction(ezActor* pActor)
 {
   EZ_LOCK(GetMutex());
 
@@ -133,13 +133,13 @@ void ezActorManager::DeactivateQueuedActors()
   }
 }
 
-void ezActorManager::DeactivateAllActors(const char* szInGroup /*= nullptr*/)
+void ezActorManager::DeactivateAllActors(const void* pCreatedBy /*= nullptr*/)
 {
   EZ_LOCK(GetMutex());
 
   for (auto& pActor : m_pImpl->m_AllActors)
   {
-    if (szInGroup != nullptr && !ezStringUtils::IsEqual_NoCase(pActor->GetGroup(), szInGroup))
+    if (pCreatedBy != nullptr && pActor->GetCreatedBy() != pCreatedBy)
       continue;
 
     if (pActor->m_ActivationState == ezActor::ActivationState::Active || pActor->m_ActivationState == ezActor::ActivationState::Deactivate)
@@ -174,6 +174,8 @@ void ezActorManager::DeleteDeactivatedActors()
 
 void ezActorManager::GetAllActors(ezHybridArray<ezActor*, 8>& out_AllActors)
 {
+  // do not clear the list here, the actor service relies on adding to the list
+
   for (auto& pActor : m_pImpl->m_AllActors)
   {
     out_AllActors.PushBack(pActor.Borrow());

@@ -15,23 +15,17 @@ ezActorManagerFlatscreen::~ezActorManagerFlatscreen() = default;
 
 
 ezActorFlatscreen* ezActorManagerFlatscreen::CreateFlatscreenActor(
-  const char* szActorName, const char* szGroupName, const ezWindowCreationDesc& windowDesc0)
+  const char* szActorName, const void* pCreatedBy, const ezWindowCreationDesc& windowDesc0)
 {
   ezWindowCreationDesc windowDesc = windowDesc0;
-  //ezGameApplicationBase::GetGameApplicationBaseInstance()->AdjustWindowCreation(windowDesc);
 
   ezUniquePtr<ezGameStateWindow> pWindow = EZ_DEFAULT_NEW(ezGameStateWindow, windowDesc, [] {});
   pWindow->ResetOnClickClose([]() { ezGameApplicationBase::GetGameApplicationBaseInstance()->RequestQuit(); });
 
-  ezUniquePtr<ezActorFlatscreen> pActorFlatscreen = EZ_DEFAULT_NEW(ezActorFlatscreen, szActorName, szGroupName, std::move(pWindow));
+  ezUniquePtr<ezActorFlatscreen> pActorFlatscreen = EZ_DEFAULT_NEW(ezActorFlatscreen, szActorName, pCreatedBy, std::move(pWindow));
   ezActorFlatscreen* pActorToReturn = pActorFlatscreen.Borrow();
 
   AddActor(std::move(pActorFlatscreen));
 
   return pActorToReturn;
-}
-
-void ezActorManagerFlatscreen::DestroyFlatscreenActor(ezActorFlatscreen* pActor)
-{
-  DestroyActor(pActor);
 }

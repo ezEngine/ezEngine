@@ -4,7 +4,7 @@
 
 #include <Core/Actor/Actor.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <GameEngine/Actors/Flatscreen/ActorDeviceRenderOutputFlatscreen.h>
+#include <GameEngine/Actors/Common/ActorDeviceRenderOutputGAL.h>
 
 class ezWindow;
 
@@ -18,7 +18,7 @@ public:
 private: // functions called directly by ezActorManagerFlatscreen
   friend class ezActorManagerFlatscreen;
 
-  ezActorFlatscreen(const char* szActorName, const char* szGroupName, ezUniquePtr<ezWindow>&& pWindow);
+  ezActorFlatscreen(const char* szActorName, const void* pCreatedBy, ezUniquePtr<ezWindow>&& pWindow);
 
 protected:
   virtual void Activate() override;

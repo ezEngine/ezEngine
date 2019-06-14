@@ -15,6 +15,5 @@ public:
   ezActorManagerEditorWnd();
   ~ezActorManagerEditorWnd();
 
-  ezActorEditorWnd* CreateEditorWndActor(const char* szActorName, const char* szGroupName, ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight);
-  void DestroyEditorWndActor(ezActorEditorWnd* pActor);
+  ezActorEditorWnd* CreateEditorWndActor(const char* szActorName, const void* pCreatedBy, ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight);
 };

@@ -69,17 +69,9 @@ public:
   /// \brief Gives access to the game state's main camera object.
   ezCamera* GetMainCamera() { return &m_MainCamera; }
 
-  /// \brief Returns whether the application is running in full mixed reality mode.
-  /// This is evaluated in OnActivation(), will always return false before that call.
-  bool IsMixedRealityMode() const { return m_bMixedRealityMode; }
-
 protected:
   /// \brief Creates a default window (ezGameStateWindow) adds it to the application and fills out m_pMainWindow and m_hMainSwapChain
   virtual void CreateActors();
-
-  /// \brief Destroys the m_pMainWindow.
-  /// Unless overridden Deactivate() will call this.
-  virtual void DestroyMainWindow();
 
   /// \brief Configures available input devices, e.g. sets mouse speed, cursor clipping, etc.
   /// Unless overridden Activate() will call this.
@@ -114,14 +106,10 @@ protected:
 
   virtual void ActorEventHandler(const ezActorEvent& e);
 
-  // ezWindow* m_pMainWindow = nullptr;
-  // ezWindowOutputTargetBase* m_pMainOutputTarget = nullptr;
   ezViewHandle m_hMainView;
 
   ezWorld* m_pMainWorld = nullptr;
 
   ezCamera m_MainCamera;
   bool m_bStateWantsToQuit = false;
-  bool m_bMixedRealityMode = false;
-  bool m_bVirtualRealityMode = false;
 };

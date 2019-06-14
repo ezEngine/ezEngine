@@ -5,13 +5,13 @@
 
 class ezWindowOutputTargetGAL;
 
-class EZ_GAMEENGINE_DLL ezActorDeviceRenderOutputFlatscreen : public ezActorDeviceRenderOutput
+class EZ_GAMEENGINE_DLL ezActorDeviceRenderOutputGAL : public ezActorDeviceRenderOutput
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezActorDeviceRenderOutputFlatscreen, ezActorDeviceRenderOutput);
+  EZ_ADD_DYNAMIC_REFLECTION(ezActorDeviceRenderOutputGAL, ezActorDeviceRenderOutput);
 
 public:
-  ezActorDeviceRenderOutputFlatscreen(ezWindowOutputTargetGAL* pOutputTarget);
-  ~ezActorDeviceRenderOutputFlatscreen();
+  ezActorDeviceRenderOutputGAL(ezWindowOutputTargetGAL* pOutputTarget);
+  ~ezActorDeviceRenderOutputGAL();
 
   virtual ezWindowOutputTargetGAL* GetWindowOutputTarget() const override;
 

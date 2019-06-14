@@ -15,6 +15,5 @@ public:
   ezActorManagerFlatscreen();
   ~ezActorManagerFlatscreen();
 
-  ezActorFlatscreen* CreateFlatscreenActor(const char* szActorName, const char* szGroupName, const ezWindowCreationDesc& windowDesc);
-  void DestroyFlatscreenActor(ezActorFlatscreen* pActor);
+  ezActorFlatscreen* CreateFlatscreenActor(const char* szActorName, const void* pCreatedBy, const ezWindowCreationDesc& windowDesc);
 };
