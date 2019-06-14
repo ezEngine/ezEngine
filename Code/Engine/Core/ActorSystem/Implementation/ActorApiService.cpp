@@ -1,6 +1,6 @@
 #include <CorePCH.h>
 
-#include <Core/ActorSystem/ActorApiListener.h>
+#include <Core/ActorSystem/ActorApiService.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezActorApiService, 1, ezRTTINoAllocator);

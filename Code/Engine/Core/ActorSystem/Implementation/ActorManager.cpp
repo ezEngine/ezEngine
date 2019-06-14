@@ -1,8 +1,8 @@
 #include <CorePCH.h>
 
-#include <Core/ActorSystem/Actor2.h>
-#include <Core/ActorSystem/ActorApiListener.h>
-#include <Core/ActorSystem/ActorManager2.h>
+#include <Core/ActorSystem/Actor.h>
+#include <Core/ActorSystem/ActorApiService.h>
+#include <Core/ActorSystem/ActorManager.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Types/UniquePtr.h>
 

@@ -1,8 +1,8 @@
 
 #include <GameEnginePCH.h>
 
-#include <Core/ActorSystem/Actor2.h>
-#include <Core/ActorSystem/ActorManager2.h>
+#include <Core/ActorSystem/Actor.h>
+#include <Core/ActorSystem/ActorManager.h>
 #include <Core/World/World.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>

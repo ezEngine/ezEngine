@@ -1,6 +1,6 @@
 #include <CorePCH.h>
 
-#include <Core/ActorSystem/Actor2.h>
+#include <Core/ActorSystem/Actor.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezActor, 1, ezRTTINoAllocator);
