@@ -314,7 +314,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenHeight, 1, ezRTTIDefaultAllocator<ezPro
   {
     EZ_MEMBER_PROPERTY("MinHeight", m_fMinHeight)->AddAttributes(new ezDefaultValueAttribute(0.0f)),
     EZ_MEMBER_PROPERTY("MaxHeight", m_fMaxHeight)->AddAttributes(new ezDefaultValueAttribute(1000.0f)),
-    EZ_MEMBER_PROPERTY("FadeFraction", m_fFadeFraction)->AddAttributes(new ezDefaultValueAttribute(0.2f)),
+    EZ_MEMBER_PROPERTY("FadeFraction", m_fFadeFraction)->AddAttributes(new ezDefaultValueAttribute(0.2f), new ezClampValueAttribute(0.01f, 1.0f)),
 
     EZ_MEMBER_PROPERTY("Value", m_OutputValuePin)
   }
@@ -335,10 +335,10 @@ ezExpressionAST::Node* ezProcGenHeight::GenerateExpressionASTNode(ezArrayPtr<ezE
   auto pOffset = out_Ast.CreateConstant(m_fMinHeight);
   ezExpressionAST::Node* pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Subtract, pHeight, pOffset);
 
-  auto pScale = out_Ast.CreateConstant((m_fMaxHeight - m_fMinHeight) * m_fFadeFraction);
+  auto pScale = out_Ast.CreateConstant(ezMath::Max(m_fMaxHeight - m_fMinHeight, 0.0f) * m_fFadeFraction * 0.5f);
   pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Divide, pValue, pScale);
 
-  auto pFadeFactor = out_Ast.CreateConstant(0.5f / m_fFadeFraction);
+  auto pFadeFactor = out_Ast.CreateConstant(1.0f / m_fFadeFraction);
   pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Subtract, pValue, pFadeFactor);
   pValue = out_Ast.CreateUnaryOperator(ezExpressionAST::NodeType::Absolute, pValue);
   pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Subtract, pFadeFactor, pValue);

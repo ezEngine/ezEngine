@@ -20,12 +20,9 @@ void VertexColorTask::Prepare(const ezMeshBufferResourceDescriptor& mbDesc, cons
 
   const float* pPositions = nullptr;
   const float* pNormals = nullptr;
-  ezUInt32 uiElementStride = 0;
-
+  
   for (ezUInt32 vs = 0; vs < vdi.m_VertexStreams.GetCount(); ++vs)
   {
-    uiElementStride += vdi.m_VertexStreams[vs].m_uiElementSize;
-
     if (vdi.m_VertexStreams[vs].m_Semantic == ezGALVertexAttributeSemantic::Position)
     {
       if (vdi.m_VertexStreams[vs].m_Format != ezGALResourceFormat::RGBFloat)
@@ -48,8 +45,6 @@ void VertexColorTask::Prepare(const ezMeshBufferResourceDescriptor& mbDesc, cons
     }
   }
 
-  EZ_ASSERT_DEV(uiElementStride == mbDesc.GetVertexDataSize(), "");
-
   if (pPositions == nullptr || pNormals == nullptr)
   {
     ezLog::Warning("No position and normal stream found in CPU mesh");
@@ -59,6 +54,8 @@ void VertexColorTask::Prepare(const ezMeshBufferResourceDescriptor& mbDesc, cons
   ezMat3 normalTransform = transform.GetAsMat4().GetRotationalPart();
   normalTransform.Invert(0.0f);
   normalTransform.Transpose();
+
+  const ezUInt32 uiElementStride = mbDesc.GetVertexDataSize();
 
   // write out all vertices
   for (ezUInt32 i = 0; i < mbDesc.GetVertexCount(); ++i)
