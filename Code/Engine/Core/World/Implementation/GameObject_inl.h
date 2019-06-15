@@ -553,7 +553,7 @@ EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateVelocity(const ezS
   // A w value != 0 indicates a custom velocity, don't overwrite it.
   ezSimdVec4b customVel = (m_velocity.Get<ezSwizzle::WWWW>() != ezSimdVec4f::ZeroVector());
   ezSimdVec4f newVel = (m_globalTransform.m_Position - m_lastGlobalPosition) * fInvDeltaSeconds;
-  m_velocity = ezSimdVec4f::Select(newVel, m_velocity, customVel);
+  m_velocity = ezSimdVec4f::Select(customVel, m_velocity, newVel);
 
   m_lastGlobalPosition = m_globalTransform.m_Position;
   m_velocity.SetW(ezSimdFloat::Zero());
