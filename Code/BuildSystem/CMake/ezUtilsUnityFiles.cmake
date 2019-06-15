@@ -56,6 +56,8 @@ function(ez_generate_folder_unity_file TARGET_NAME PROJECT_DIRECTORY SUB_FOLDER_
 
   if (PCH_FILE)
     file(APPEND ${TMP_UNITY_FILE} "#include <${PCH_FILE}.h>\n\n")
+	
+	ez_pch_use("${PCH_FILE}.h" "${FOLDER_UNITY_FILE}")
   endif()
 
   # include all the CPPs in the unity file

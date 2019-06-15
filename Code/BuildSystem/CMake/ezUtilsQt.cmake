@@ -193,6 +193,7 @@ function(ez_qt_wrap_target_moc_files TARGET_NAME FILES_TO_WRAP)
 
     if (PCH_H)
         qt5_wrap_cpp(MOC_FILES TARGET ${TARGET_NAME} ${FILES_TO_WRAP} OPTIONS -b "${PCH_H}.h")
+		ez_pch_use("${PCH_H}.h" "${MOC_FILES}")
     else()
         qt5_wrap_cpp(MOC_FILES TARGET ${TARGET_NAME} ${FILES_TO_WRAP})
     endif()
@@ -227,7 +228,7 @@ function(ez_qt_wrap_target_qrc_files TARGET_NAME FILES_TO_WRAP)
 
     set(Qt5Core_RCC_EXECUTABLE Qt5::rcc)
     qt5_add_resources(QRC_FILES ${FILES_TO_WRAP})
-
+	
     target_sources(${TARGET_NAME} PRIVATE ${QRC_FILES})
 
     source_group("Qt\\QRC Files" FILES ${QRC_FILES})
