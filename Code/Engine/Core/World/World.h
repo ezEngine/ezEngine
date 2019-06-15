@@ -162,21 +162,21 @@ public:
 
   /// \brief Queues the message for the given phase. The message is send to the receiverObject after the given delay in the corresponding
   /// phase.
-  void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType,
-                   ezTime delay = ezTime()) const;
+  void PostMessage(
+    const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
   /// \brief Queues the message for the given phase. The message is send to the receiverObject and all its children after the given delay in
   /// the corresponding phase.
-  void PostMessageRecursive(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType,
-                            ezTime delay = ezTime()) const;
+  void PostMessageRecursive(
+    const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
   /// \brief Sends a message to the component.
   void SendMessage(const ezComponentHandle& receiverComponent, ezMessage& msg);
 
   /// \brief Queues the message for the given phase. The message is send to the receiverComponent after the given delay in the corresponding
   /// phase.
-  void PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType,
-                   ezTime delay = ezTime()) const;
+  void PostMessage(
+    const ezComponentHandle& receiverComponent, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
   ///@}
 
@@ -250,6 +250,16 @@ public:
   /// \brief Returns the associated user data.
   void* GetUserData() const;
 
+  using ReferenceResolver = ezDelegate<ezGameObjectHandle(const void*)>;
+
+  /// \brief If set, this delegate can be used to map some data (GUID or string) to an ezGameObjectHandle.
+  ///
+  /// Currently only used in editor settings, to create a runtime handle from a unique editor reference.
+  void SetGameObjectReferenceResolver(const ReferenceResolver& resolver);
+
+  /// \sa SetGameObjectReferenceResolver()
+  const ReferenceResolver& GetGameObjectReferenceResolver() const;
+
 public:
   /// \brief Returns the number of active worlds.
   static ezUInt32 GetWorldCount();
@@ -274,7 +284,7 @@ private:
   const ezWorldModule* GetModule(const ezRTTI* pRtti) const;
 
   void SetParent(ezGameObject* pObject, ezGameObject* pNewParent,
-                 ezGameObject::TransformPreservation preserve = ezGameObject::TransformPreservation::PreserveGlobal);
+    ezGameObject::TransformPreservation preserve = ezGameObject::TransformPreservation::PreserveGlobal);
   void LinkToParent(ezGameObject* pObject);
   void UnlinkFromParent(ezGameObject* pObject);
 
@@ -282,7 +292,7 @@ private:
   const char* GetObjectGlobalKey(const ezGameObject* pObject) const;
 
   void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay,
-                   bool bRecursive) const;
+    bool bRecursive) const;
   void ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::Entry& entry);
   void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
 
@@ -320,4 +330,3 @@ private:
 };
 
 #include <Core/World/Implementation/World_inl.h>
-

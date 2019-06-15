@@ -70,7 +70,7 @@ void ezSimpleWindComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezSimpleWindComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
   s >> m_fWindStrengthMin;
@@ -139,7 +139,7 @@ void ezSimpleWindComponent::Initialize()
   SUPER::Initialize();
 
   // make sure to query the wind interface before any simulation starts
-  ezWindWorldModuleInterface* pWindInterface = GetWorld()->GetOrCreateModule<ezWindWorldModuleInterface>();
+  /*ezWindWorldModuleInterface* pWindInterface =*/ GetWorld()->GetOrCreateModule<ezWindWorldModuleInterface>();
 }
 
 

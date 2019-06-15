@@ -56,14 +56,14 @@ ezCharacterControllerComponent::ezCharacterControllerComponent() {}
 void ezCharacterControllerComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  //auto& s = stream.GetStream();
 }
 
 void ezCharacterControllerComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  //auto& s = stream.GetStream();
 }
 
 

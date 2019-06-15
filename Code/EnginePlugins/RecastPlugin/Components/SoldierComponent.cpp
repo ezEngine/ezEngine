@@ -2,6 +2,7 @@
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <GameEngine/AI/AgentSteeringComponent.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <Recast/DetourCrowd.h>
 #include <RecastPlugin/Components/SoldierComponent.h>
@@ -19,14 +20,14 @@ ezSoldierComponent::~ezSoldierComponent() {}
 void ezSoldierComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
-  ezStreamWriter& s = stream.GetStream();
+  //ezStreamWriter& s = stream.GetStream();
 }
 
 void ezSoldierComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  //ezStreamReader& s = stream.GetStream();
 }
 
 void ezSoldierComponent::OnSimulationStarted()

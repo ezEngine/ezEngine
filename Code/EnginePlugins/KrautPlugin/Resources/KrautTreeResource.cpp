@@ -125,6 +125,10 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescrip
         case ezKrautMaterialType::BillboardImpostor:
           md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Kraut/BillboardImpostor.ezMaterial");
           break;
+
+        case ezKrautMaterialType::None:
+          EZ_ASSERT_NOT_IMPLEMENTED;
+          break;
       }
 
       auto& m1 = md.m_Texture2DBindings.ExpandAndGetRef();

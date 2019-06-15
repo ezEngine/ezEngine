@@ -53,6 +53,9 @@ public:
   /// \brief Detaches all selected objects from their current parent
   void DetachFromParent();
 
+  /// \brief Puts the GUID of the single selected object into the clipboard
+  void CopyReference();
+
   /// \brief Creates a new empty object, either top-level (selection empty) or as a child of the selected item
   ezStatus CreateEmptyObject(bool bAttachToParent, bool bAtPickedPosition);
 

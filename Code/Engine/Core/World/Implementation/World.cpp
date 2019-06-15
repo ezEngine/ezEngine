@@ -13,8 +13,8 @@ ezStaticArray<ezWorld*, 64> ezWorld::s_Worlds;
 const ezUInt16 c_InvalidWorldIndex = 0xFFFFu;
 
 ezWorld::ezWorld(ezWorldDesc& desc)
-    : m_UpdateTask("", ezMakeDelegate(&ezWorld::UpdateFromThread, this))
-    , m_Data(desc)
+  : m_UpdateTask("", ezMakeDelegate(&ezWorld::UpdateFromThread, this))
+  , m_Data(desc)
 {
   m_Data.m_pCoordinateSystemProvider->m_pOwnerWorld = this;
 
@@ -94,6 +94,16 @@ void ezWorld::SetCoordinateSystemProvider(const ezSharedPtr<ezCoordinateSystemPr
 
   m_Data.m_pCoordinateSystemProvider = pProvider;
   m_Data.m_pCoordinateSystemProvider->m_pOwnerWorld = this;
+}
+
+void ezWorld::SetGameObjectReferenceResolver(const ReferenceResolver& resolver)
+{
+  m_Data.m_GameObjectReferenceResolver = resolver;
+}
+
+const ezWorld::ReferenceResolver& ezWorld::GetGameObjectReferenceResolver() const
+{
+  return m_Data.m_GameObjectReferenceResolver;
 }
 
 ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObject*& out_pObject)
@@ -216,8 +226,8 @@ void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject)
   PostMessage(hObject, msg, ezObjectMsgQueueType::NextFrame);
 }
 
-void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType,
-                          ezTime delay, bool bRecursive) const
+void ezWorld::PostMessage(
+  const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const
 {
   // This method is allowed to be called from multiple threads.
 
@@ -241,8 +251,8 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMess
   }
 }
 
-void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType,
-                          ezTime delay) const
+void ezWorld::PostMessage(
+  const ezComponentHandle& receiverComponent, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
 {
   // This method is allowed to be called from multiple threads.
 
@@ -433,8 +443,8 @@ const ezWorldModule* ezWorld::GetModule(const ezRTTI* pRtti) const
 void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameObject::TransformPreservation preserve)
 {
   EZ_ASSERT_DEV(pObject != pNewParent, "Object can't be its own parent!");
-  EZ_ASSERT_DEV(pNewParent == nullptr || pObject->IsDynamic() || pNewParent->IsStatic(),
-                "Can't attach a static object to a dynamic parent!");
+  EZ_ASSERT_DEV(
+    pNewParent == nullptr || pObject->IsDynamic() || pNewParent->IsStatic(), "Can't attach a static object to a dynamic parent!");
   CheckForWriteAccess();
 
   if (GetObjectUnchecked(pObject->m_ParentIndex) == pNewParent)
@@ -459,7 +469,7 @@ void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameO
 void ezWorld::LinkToParent(ezGameObject* pObject)
 {
   EZ_ASSERT_DEBUG(pObject->m_NextSiblingIndex == 0 && pObject->m_PrevSiblingIndex == 0,
-                  "Object is either still linked to another parent or data was not cleared.");
+    "Object is either still linked to another parent or data was not cleared.");
   if (ezGameObject* pParentObject = pObject->GetParent())
   {
     const ezUInt32 uiIndex = pObject->m_InternalId.m_InstanceIndex;
@@ -532,8 +542,8 @@ void ezWorld::SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sG
 {
   if (m_Data.m_GlobalKeyToIdTable.Contains(sGlobalKey.GetHash()))
   {
-    ezLog::Error("Can't set global key to '{0}' because an object with this global key already exists. Global keys have to be unique.",
-                 sGlobalKey);
+    ezLog::Error(
+      "Can't set global key to '{0}' because an object with this global key already exists. Global keys have to be unique.", sGlobalKey);
     return;
   }
 
@@ -591,7 +601,7 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
       if (entry.m_pMessage->GetDebugMessageRouting())
       {
         ezLog::Warning("ezWorld::ProcessQueuedMessage: Receiver ezComponent for message of type '{0}' does not exist anymore.",
-                       entry.m_pMessage->GetId());
+          entry.m_pMessage->GetId());
       }
 #endif
     }
@@ -618,7 +628,7 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
       if (entry.m_pMessage->GetDebugMessageRouting())
       {
         ezLog::Warning("ezWorld::ProcessQueuedMessage: Receiver ezGameObject for message of type '{0}' does not exist anymore.",
-                       entry.m_pMessage->GetId());
+          entry.m_pMessage->GetId());
       }
 #endif
     }
@@ -631,8 +641,8 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 
   struct MessageComparer
   {
-    EZ_FORCE_INLINE bool Less(const ezInternal::WorldData::MessageQueue::Entry& a,
-                              const ezInternal::WorldData::MessageQueue::Entry& b) const
+    EZ_FORCE_INLINE bool Less(
+      const ezInternal::WorldData::MessageQueue::Entry& a, const ezInternal::WorldData::MessageQueue::Entry& b) const
     {
       if (a.m_MetaData.m_Due != b.m_MetaData.m_Due)
         return a.m_MetaData.m_Due < b.m_MetaData.m_Due;
@@ -696,9 +706,9 @@ void ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctio
   CheckForWriteAccess();
 
   EZ_ASSERT_DEV(desc.m_Phase == ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_uiGranularity == 0,
-                "Granularity must be 0 for synchronous update functions");
+    "Granularity must be 0 for synchronous update functions");
   EZ_ASSERT_DEV(desc.m_Phase != ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_DependsOn.GetCount() == 0,
-                "Asynchronous update functions must not have dependencies");
+    "Asynchronous update functions must not have dependencies");
   EZ_ASSERT_DEV(!desc.m_Function.IsHeapAllocated(), "Delegates with captures are not allowed as ezWorld update functions.");
 
   m_Data.m_UpdateFunctionsToRegister.PushBack(desc);
@@ -773,7 +783,7 @@ void ezWorld::UpdateAsynchronous()
   ezTaskGroupID taskGroupId = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
 
   ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions =
-      m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::Async];
+    m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::Async];
 
   ezUInt32 uiCurrentTaskIndex = 0;
 
@@ -903,7 +913,7 @@ void ezWorld::ProcessUpdateFunctionsToRegister()
     }
 
     EZ_ASSERT_DEV(m_Data.m_UpdateFunctionsToRegister.GetCount() < uiNumFunctionsToRegister,
-                  "No functions have been registered because the dependencies could not be found.");
+      "No functions have been registered because the dependencies could not be found.");
   }
 }
 
@@ -1081,4 +1091,3 @@ void ezWorld::RecreateHierarchyData(ezGameObject* pObject, bool bWasDynamic)
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_World);
-

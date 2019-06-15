@@ -36,6 +36,7 @@ ezActionDescriptorHandle ezSelectionActions::s_hAttachToObject;
 ezActionDescriptorHandle ezSelectionActions::s_hDetachFromParent;
 ezActionDescriptorHandle ezSelectionActions::s_hConvertToEnginePrefab;
 ezActionDescriptorHandle ezSelectionActions::s_hConvertToEditorPrefab;
+ezActionDescriptorHandle ezSelectionActions::s_hCopyReference;
 
 
 
@@ -78,6 +79,8 @@ void ezSelectionActions::RegisterActions()
     ezSelectionAction, ezSelectionAction::ActionType::DeltaTransform);
   s_hSnapObjectToCamera = EZ_REGISTER_ACTION_1("Scene.Camera.SnapObjectToCamera", ezActionScope::Document, "Camera", "", ezSelectionAction,
     ezSelectionAction::ActionType::SnapObjectToCamera);
+  s_hCopyReference = EZ_REGISTER_ACTION_1("Selection.CopyReference", ezActionScope::Document, "Scene - Selection", "", ezSelectionAction,
+    ezSelectionAction::ActionType::CopyReference);
 }
 
 void ezSelectionActions::UnregisterActions()
@@ -100,6 +103,7 @@ void ezSelectionActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hDetachFromParent);
   ezActionManager::UnregisterAction(s_hConvertToEditorPrefab);
   ezActionManager::UnregisterAction(s_hConvertToEnginePrefab);
+  ezActionManager::UnregisterAction(s_hCopyReference);
 }
 
 void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
@@ -120,6 +124,7 @@ void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
   pMap->MapAction(s_hAttachToObject, sSubPath, 7.2f);
   pMap->MapAction(s_hDetachFromParent, sSubPath, 7.3f);
   pMap->MapAction(s_hSnapObjectToCamera, sSubPath, 9.0f);
+  pMap->MapAction(s_hCopyReference, sSubPath, 10.0f);
 
   MapPrefabActions(szMapping, sSubPath, 0.0f);
 }
@@ -151,6 +156,7 @@ void ezSelectionActions::MapContextMenuActions(const char* szMapping, const char
   pMap->MapAction(s_hGroupSelectedItems, sSubPath, 2.0f);
   pMap->MapAction(s_hHideSelectedObjects, sSubPath, 3.0f);
   pMap->MapAction(s_hDetachFromParent, sSubPath, 3.2f);
+  pMap->MapAction(s_hCopyReference, sSubPath, 4.0f);
 
   MapPrefabActions(szMapping, sSubPath, 4.0f);
 }
@@ -168,6 +174,7 @@ void ezSelectionActions::MapViewContextMenuActions(const char* szMapping, const 
   pMap->MapAction(s_hAttachToObject, sSubPath, 3.1f);
   pMap->MapAction(s_hDetachFromParent, sSubPath, 3.2f);
   pMap->MapAction(s_hSnapObjectToCamera, sSubPath, 5.0f);
+  pMap->MapAction(s_hCopyReference, sSubPath, 6.0f);
 
   MapPrefabActions(szMapping, sSubPath, 7.0f);
 }
@@ -230,6 +237,9 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
       // SetIconPath(":/EditorPluginScene/PrefabRevert.png"); // TODO Icon
       break;
     case ActionType::ConvertToEnginePrefab:
+      // SetIconPath(":/EditorPluginScene/PrefabRevert.png"); // TODO Icon
+      break;
+    case ActionType::CopyReference:
       // SetIconPath(":/EditorPluginScene/PrefabRevert.png"); // TODO Icon
       break;
   }
@@ -325,6 +335,10 @@ void ezSelectionAction::Execute(const ezVariant& value)
       break;
     case ActionType::DetachFromParent:
       m_pSceneDocument->DetachFromParent();
+      break;
+
+    case ActionType::CopyReference:
+      m_pSceneDocument->CopyReference();
       break;
 
     case ActionType::ConvertToEditorPrefab:
@@ -434,6 +448,11 @@ void ezSelectionAction::UpdateEnableState()
   if (m_Type == ActionType::CreateEmptyChildObject)
   {
     SetEnabled(m_Context.m_pDocument->GetSelectionManager()->GetSelection().GetCount() <= 1);
+  }
+
+  if (m_Type == ActionType::CopyReference)
+  {
+    SetEnabled(m_Context.m_pDocument->GetSelectionManager()->GetSelection().GetCount() == 1);
   }
 
   if (m_Type == ActionType::OpenPrefabDocument)

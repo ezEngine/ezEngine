@@ -70,6 +70,7 @@ Selection.DuplicateSpecial;Duplicate...
 Selection.DeltaTransform;Delta Transform...
 Selection.Attach;Attach to This
 Selection.Detach;Detach
+Selection.CopyReference;Copy Object Reference
 Prefabs.Menu;Prefabs
 Prefabs.UpdateAll;Update Prefabs
 Prefabs.Create;Create Prefab...
@@ -115,6 +116,7 @@ ezRotorComponent;Rotor
 ezHeadBoneComponent;Head Bone
 ezSliderComponent;Slider
 ezCollectionComponent;Collection
+ezLineToComponent;Draw Line To Object
 ezDebugTextComponent;Debug Text
 ezRenderTargetActivatorComponent;Render Target Activator
 ezAlwaysVisibleComponent;Always Visible

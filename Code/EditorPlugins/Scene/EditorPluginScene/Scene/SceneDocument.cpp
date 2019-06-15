@@ -22,6 +22,8 @@
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
+#include <QApplication>
+#include <QClipboard>
 #include <RendererCore/Components/CameraComponent.h>
 #include <SharedPluginScene/Common/Messages.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
@@ -281,7 +283,6 @@ void ezSceneDocument::AttachToObject()
   pHistory->FinishTransaction();
 }
 
-
 void ezSceneDocument::DetachFromParent()
 {
   const auto& selection = GetSelectionManager()->GetSelection();
@@ -310,6 +311,19 @@ void ezSceneDocument::DetachFromParent()
     }
   }
   pHistory->FinishTransaction();
+}
+
+void ezSceneDocument::CopyReference()
+{
+  if (GetSelectionManager()->GetSelection().GetCount() != 1)
+    return;
+
+  const ezUuid guid = GetSelectionManager()->GetSelection()[0]->GetGuid();
+
+  ezStringBuilder sGuid;
+  ezConversionUtils::ToString(guid, sGuid);
+
+  QApplication::clipboard()->setText(sGuid.GetData());
 }
 
 ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPickedPosition)

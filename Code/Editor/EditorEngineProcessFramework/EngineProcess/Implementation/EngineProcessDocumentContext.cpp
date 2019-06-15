@@ -15,8 +15,6 @@
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Texture/Image/Image.h>
-#include <Texture/Image/ImageUtils.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Memory/MemoryUtils.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
@@ -26,6 +24,8 @@
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
+#include <Texture/Image/Image.h>
+#include <Texture/Image/ImageUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessDocumentContext, 1, ezRTTINoAllocator)
   ;
@@ -40,8 +40,8 @@ ezEngineProcessDocumentContext* ezEngineProcessDocumentContext::GetDocumentConte
   return pResult;
 }
 
-void ezEngineProcessDocumentContext::AddDocumentContext(ezUuid guid, ezEngineProcessDocumentContext* pContext,
-                                                        ezEngineProcessCommunicationChannel* pIPC)
+void ezEngineProcessDocumentContext::AddDocumentContext(
+  ezUuid guid, ezEngineProcessDocumentContext* pContext, ezEngineProcessCommunicationChannel* pIPC)
 {
   EZ_ASSERT_DEV(!s_DocumentContexts.Contains(guid), "Cannot add a view with an index that already exists");
   s_DocumentContexts[guid] = pContext;
@@ -105,14 +105,7 @@ ezBoundingBoxSphere ezEngineProcessDocumentContext::GetWorldBounds(ezWorld* pWor
   return bounds;
 }
 
-ezEngineProcessDocumentContext::ezEngineProcessDocumentContext()
-{
-  m_pWorld = nullptr;
-  m_uiThumbnailConvergenceFrames = 0;
-  m_uiThumbnailWidth = 0;
-  m_uiThumbnailHeight = 0;
-  m_pThumbnailViewContext = nullptr;
-}
+ezEngineProcessDocumentContext::ezEngineProcessDocumentContext() {}
 
 ezEngineProcessDocumentContext::~ezEngineProcessDocumentContext()
 {
@@ -129,6 +122,7 @@ void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, ezEn
   desc.m_bReportErrorWhenStaticObjectMoves = false;
 
   m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
+  m_pWorld->SetGameObjectReferenceResolver(ezMakeDelegate(&ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle, this));
 
   m_Context.m_pWorld = m_pWorld.Borrow();
   m_Mirror.InitReceiver(&m_Context);
@@ -452,8 +446,9 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
         header.SetHeight(m_uiThumbnailHeight);
         ezImage image;
         image.ResetAndAlloc(header);
-        EZ_ASSERT_DEV(m_uiThumbnailWidth * m_uiThumbnailHeight * 4 == header.ComputeDataSize(),
-                      "Thumbnail ezImage has different size than data buffer!");
+        EZ_ASSERT_DEV(
+          static_cast<ezUInt64>(m_uiThumbnailWidth) * static_cast<ezUInt64>(m_uiThumbnailHeight) * 4 == header.ComputeDataSize(),
+          "Thumbnail ezImage has different size than data buffer!");
 
         MemDesc.m_pData = image.GetPixelPointer<ezUInt8>();
         ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
@@ -469,8 +464,8 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
         }
 
 
-        ret.m_ThumbnailData.SetCountUninitialized((m_uiThumbnailWidth / ThumbnailSuperscaleFactor) *
-                                                  (m_uiThumbnailHeight / ThumbnailSuperscaleFactor) * 4);
+        ret.m_ThumbnailData.SetCountUninitialized(
+          (m_uiThumbnailWidth / ThumbnailSuperscaleFactor) * (m_uiThumbnailHeight / ThumbnailSuperscaleFactor) * 4);
         ezMemoryUtils::Copy(ret.m_ThumbnailData.GetData(), pImage->GetPixelPointer<ezUInt8>(), ret.m_ThumbnailData.GetCount());
       }
 
@@ -498,8 +493,8 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
 {
   EZ_ASSERT_DEV(!ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode(), "Wrong mode for thumbnail creation");
   EZ_ASSERT_DEV(m_pThumbnailViewContext == nullptr, "Thumbnail rendering already in progress.");
-  EZ_CHECK_AT_COMPILETIME_MSG((ThumbnailSuperscaleFactor & (ThumbnailSuperscaleFactor - 1)) == 0,
-                              "ThumbnailSuperscaleFactor must be power of 2.");
+  EZ_CHECK_AT_COMPILETIME_MSG(
+    (ThumbnailSuperscaleFactor & (ThumbnailSuperscaleFactor - 1)) == 0, "ThumbnailSuperscaleFactor must be power of 2.");
   m_uiThumbnailConvergenceFrames = 0;
   m_uiThumbnailWidth = pMsg->m_uiWidth * ThumbnailSuperscaleFactor;
   m_uiThumbnailHeight = pMsg->m_uiHeight * ThumbnailSuperscaleFactor;
@@ -534,7 +529,7 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
   m_hThumbnailDepthRT = pDevice->CreateTexture(tcd);
 
   m_ThumbnailRenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hThumbnailColorRT))
-      .SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hThumbnailDepthRT));
+    .SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hThumbnailDepthRT));
   m_pThumbnailViewContext->SetupRenderTarget(m_ThumbnailRenderTargetSetup, m_uiThumbnailWidth, m_uiThumbnailHeight);
 
   ezResourceManager::ForceNoFallbackAcquisition(3);
@@ -623,6 +618,16 @@ void ezEngineProcessDocumentContext::ClearTagRecursive(ezGameObject* pObject, co
   {
     ClearTagRecursive(&itChild.Current(), tag);
   }
+}
+
+ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle(const void* pString) const
+{
+  if (!ezConversionUtils::IsStringUuid(reinterpret_cast<const char*>(pString)))
+    return ezGameObjectHandle();
+
+  ezUuid guid = ezConversionUtils::ConvertStringToUuid(reinterpret_cast<const char*>(pString));
+
+  return m_Context.m_GameObjectMap.GetHandle(guid);
 }
 
 void ezEngineProcessDocumentContext::UpdateSyncObjects()

@@ -35,6 +35,7 @@ public:
   static ezActionDescriptorHandle s_hDetachFromParent;
   static ezActionDescriptorHandle s_hConvertToEnginePrefab;
   static ezActionDescriptorHandle s_hConvertToEditorPrefab;
+  static ezActionDescriptorHandle s_hCopyReference;
 };
 
 ///
@@ -65,6 +66,7 @@ public:
     SnapObjectToCamera,
     AttachToObject,
     DetachFromParent,
+    CopyReference,
   };
 
   ezSelectionAction(const ezActionContext& context, const char* szName, ActionType type);

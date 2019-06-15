@@ -111,6 +111,8 @@ protected:
 protected:
   const ezEngineProcessViewContext* GetViewContext(ezUInt32 uiView) const { return uiView >= m_ViewContexts.GetCount() ? nullptr : m_ViewContexts[uiView]; }
 
+  ezGameObjectHandle ResolveStringToGameObjectHandle(const void* pString) const;
+
 private:
   friend class ezEditorEngineSyncObject;
 
@@ -130,7 +132,7 @@ private:
 
   ezUuid m_DocumentGuid;
 
-  ezEngineProcessCommunicationChannel* m_pIPC;
+  ezEngineProcessCommunicationChannel* m_pIPC = nullptr;
   ezHybridArray<ezEngineProcessViewContext*, 4> m_ViewContexts;
 
   ezMap<ezUuid, ezEditorEngineSyncObject*> m_SyncObjects;
@@ -142,13 +144,13 @@ private:
     ThumbnailConvergenceFramesTarget = 4 ///< Due to multi-threaded rendering, this must be at least 2
   };
 
-  ezUInt8 m_uiThumbnailConvergenceFrames;
-  ezUInt16 m_uiThumbnailWidth;
-  ezUInt16 m_uiThumbnailHeight;
-  ezEngineProcessViewContext* m_pThumbnailViewContext;
+  ezUInt8 m_uiThumbnailConvergenceFrames = 0;
+  ezUInt16 m_uiThumbnailWidth = 0;
+  ezUInt16 m_uiThumbnailHeight = 0;
+  ezEngineProcessViewContext* m_pThumbnailViewContext = nullptr;
   ezGALRenderTargetSetup m_ThumbnailRenderTargetSetup;
   ezGALTextureHandle m_hThumbnailColorRT;
   ezGALTextureHandle m_hThumbnailDepthRT;
-  bool m_bWorldSimStateBeforeThumbnail;
+  bool m_bWorldSimStateBeforeThumbnail = false;
 };
 
