@@ -587,6 +587,13 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Enum)
         EZ_TEST_BOOL(ezReflectionUtils::StringToEnumeration(pEnumPropertyRTTI, sValue, iValue));
         EZ_TEST_INT(iValue, pConstantProp->GetValue());
 
+        // Testing the short enum name version
+        EZ_TEST_BOOL(ezReflectionUtils::EnumerationToString(pEnumPropertyRTTI, pConstantProp->GetValue(), sValue, ezReflectionUtils::EnumConversionMode::ValueNameOnly));
+        EZ_TEST_BOOL(sValue.IsEqual(pConstantProp->GetPropertyName()) || sValue.IsEqual(ezStringUtils::FindLastSubString(pConstantProp->GetPropertyName(), "::") + 2));
+
+        EZ_TEST_BOOL(ezReflectionUtils::StringToEnumeration(pEnumPropertyRTTI, sValue, iValue));
+        EZ_TEST_INT(iValue, pConstantProp->GetValue());
+
         EZ_TEST_INT(iValue, ezReflectionUtils::MakeEnumerationValid(pEnumPropertyRTTI, iValue));
         EZ_TEST_INT(ezExampleEnum::Default, ezReflectionUtils::MakeEnumerationValid(pEnumPropertyRTTI, iValue + 666));
       }
@@ -663,6 +670,15 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Bitflags)
                                     "ezExampleBitflags::Value1|ezExampleBitflags::Value3",
                                     "ezExampleBitflags::Value2|ezExampleBitflags::Value3",
                                     "ezExampleBitflags::Value1|ezExampleBitflags::Value2|ezExampleBitflags::Value3"};
+
+      const char* stringValuesShort[] = { "",
+                              "Value1",
+                              "Value2",
+                              "Value1|Value2",
+                              "Value3",
+                              "Value1|Value3",
+                              "Value2|Value3",
+                              "Value1|Value2|Value3" };
       for (ezInt32 i = 0; i < 8; ++i)
       {
         ezUInt64 uiBitflagValue = 0;
@@ -684,6 +700,13 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Bitflags)
         EZ_TEST_INT(pBitflagsProp->GetValue(&data), uiBitflagValue);
 
         ezInt64 iValue = 0;
+        EZ_TEST_BOOL(ezReflectionUtils::StringToEnumeration(pBitflagsPropertyRTTI, sValue, iValue));
+        EZ_TEST_INT(iValue, uiBitflagValue);
+
+        // Testing the short enum name version
+        EZ_TEST_BOOL(ezReflectionUtils::EnumerationToString(pBitflagsPropertyRTTI, uiBitflagValue, sValue, ezReflectionUtils::EnumConversionMode::ValueNameOnly));
+        EZ_TEST_BOOL(sValue.IsEqual(stringValuesShort[i]));
+
         EZ_TEST_BOOL(ezReflectionUtils::StringToEnumeration(pBitflagsPropertyRTTI, sValue, iValue));
         EZ_TEST_INT(iValue, uiBitflagValue);
 

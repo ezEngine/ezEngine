@@ -53,8 +53,8 @@ void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, c
         if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
         {
           ezStringBuilder sTemp;
-          ezReflectionUtils::EnumerationToString(pPropType,
-                                                 pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName()).ConvertTo<ezInt64>(), sTemp);
+          ezReflectionUtils::EnumerationToString(
+            pPropType, pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName()).ConvertTo<ezInt64>(), sTemp);
           pNode->AddProperty(pProp->GetPropertyName(), sTemp.GetData());
         }
         else if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))

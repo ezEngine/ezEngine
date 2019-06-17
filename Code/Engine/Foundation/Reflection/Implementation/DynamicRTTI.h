@@ -53,12 +53,12 @@ public:                                                                         
 ///   Pass a custom ezRTTIAllocator type to handle allocation differently.
 #define EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Type, Version, AllocatorType)                                                                      \
   EZ_RTTIINFO_DECL(Type, Type::SUPER, Version)                                                                                             \
-  ezRTTI Type::s_RTTI = ezRTTInfo_##Type::GetRTTI();                                                                                       \
-  EZ_RTTIINFO_GETRTTI_IMPL_BEGIN(Type, AllocatorType)
+  ezRTTI Type::s_RTTI = GetRTTI((Type*)0);                                                                                                 \
+  EZ_RTTIINFO_GETRTTI_IMPL_BEGIN(Type, Type::SUPER, AllocatorType)
 
 /// \brief Ends the reflection code block that was opened with EZ_BEGIN_DYNAMIC_REFLECTED_TYPE.
 #define EZ_END_DYNAMIC_REFLECTED_TYPE                                                                                                      \
-  return ezRTTI(GetTypeName(), ezGetStaticRTTI<OwnBaseType>(), sizeof(OwnType), GetTypeVersion(),                                          \
+  return ezRTTI(GetTypeName((OwnType*)0), ezGetStaticRTTI<OwnBaseType>(), sizeof(OwnType), GetTypeVersion((OwnType*)0),                    \
                 ezVariant::TypeDeduction<OwnType>::value, flags, &Allocator, Properties, Functions, Attributes, MessageHandlers,           \
                 MessageSenders, EZ_REFLECTION_DEBUG_GETPARENTFUNC);                                                                        \
   }
