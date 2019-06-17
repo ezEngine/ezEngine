@@ -77,7 +77,7 @@ void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI
   }
   else if (pRtti->IsDerivedFrom<ezComponent>())
   {
-    ezComponentManagerBase* pMan = m_pWorld->GetOrCreateComponentManager(pRtti);
+    ezComponentManagerBase* pMan = m_pWorld->GetOrCreateManagerForComponentType(pRtti);
     if (pMan == nullptr)
     {
       ezLog::Error("Component of type '{0}' cannot be created, no component manager is registered", pRtti->GetTypeName());
@@ -125,7 +125,7 @@ void ezWorldRttiConverterContext::DeleteObject(const ezUuid& guid)
   else if (pRtti->IsDerivedFrom<ezComponent>())
   {
     ezComponentHandle hComponent = m_ComponentMap.GetHandle(guid);
-    ezComponentManagerBase* pMan = m_pWorld->GetOrCreateComponentManager(pRtti);
+    ezComponentManagerBase* pMan = m_pWorld->GetOrCreateManagerForComponentType(pRtti);
     if (pMan == nullptr)
     {
       ezLog::Error("Component of type '{0}' cannot be created, no component manager is registered", pRtti->GetTypeName());

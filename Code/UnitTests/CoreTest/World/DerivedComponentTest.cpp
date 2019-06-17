@@ -89,7 +89,7 @@ EZ_CREATE_SIMPLE_TEST(World, DerivedComponents)
     EZ_TEST_INT(TestComponentDerived1::s_iUpdateCounter, 1);
 
     // Get component manager via rtti
-    EZ_TEST_BOOL(world.GetComponentManager(ezGetStaticRTTI<TestComponentBase>()) == pManagerBase);
-    EZ_TEST_BOOL(world.GetComponentManager(ezGetStaticRTTI<TestComponentDerived1>()) == pManagerDerived1);
+    EZ_TEST_BOOL(world.GetManagerForComponentType(ezGetStaticRTTI<TestComponentBase>()) == pManagerBase);
+    EZ_TEST_BOOL(world.GetManagerForComponentType(ezGetStaticRTTI<TestComponentDerived1>()) == pManagerDerived1);
   }
 }

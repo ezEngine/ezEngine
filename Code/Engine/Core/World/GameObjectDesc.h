@@ -5,6 +5,7 @@
 
 #include <Core/World/Declarations.h>
 #include <Foundation/Types/Uuid.h>
+#include <Foundation/Types/TagSet.h>
 
 /// \brief Describes the initial state of a game object.
 struct EZ_CORE_DLL ezGameObjectDesc
