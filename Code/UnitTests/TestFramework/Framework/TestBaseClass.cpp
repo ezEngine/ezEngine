@@ -4,6 +4,17 @@
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezTestBaseClass);
 
+const char* ezTestBaseClass::GetSubTestName(ezInt32 iIdentifier) const
+{
+  if (iIdentifier < 0 || static_cast<std::size_t>(iIdentifier) > m_Entries.size())
+  {
+    ezLog::Error("Tried to access retrieve sub-test name using invalid identifier.");
+    return "";
+  }
+
+  return m_Entries[iIdentifier].m_szName;
+}
+
 void ezTestBaseClass::UpdateConfiguration(ezTestConfiguration& config) const
 {
   // If the configuration hasn't been set yet this is the first instance of ezTestBaseClass being called

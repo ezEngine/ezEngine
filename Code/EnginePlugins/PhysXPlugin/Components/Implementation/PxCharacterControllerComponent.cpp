@@ -307,7 +307,7 @@ void ezPxCharacterControllerComponent::Update()
           {
             m_fAccumulatedWalkDistance = 0.0f;
 
-            ezResourceLock<ezSurfaceResource> pSurface(hSurface, ezResourceAcquireMode::AllowFallback);
+            ezResourceLock<ezSurfaceResource> pSurface(hSurface, ezResourceAcquireMode::AllowLoadingFallback);
             pSurface->InteractWithSurface(GetWorld(), ezGameObjectHandle(), hitResult.m_vPosition, hitResult.m_vNormal, ezVec3(0, 0, 1),
                                           m_sWalkSurfaceInteraction, &GetOwner()->GetTeamID());
           }

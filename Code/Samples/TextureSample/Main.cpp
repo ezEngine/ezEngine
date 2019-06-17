@@ -360,7 +360,7 @@ public:
 
           // force immediate loading
           if (g_bForceImmediateLoading)
-            ezResourceLock<ezTexture2DResource> l(hTexture, ezResourceAcquireMode::NoFallback);
+            ezResourceLock<ezTexture2DResource> l(hTexture, ezResourceAcquireMode::BlockTillLoaded);
 
           ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", hTexture);
           ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hQuadMeshBuffer);

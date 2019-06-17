@@ -177,7 +177,7 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
   if (!m_hPropertyAnim.IsValid())
     return;
 
-  ezResourceLock<ezPropertyAnimResource> pAnimation(m_hPropertyAnim, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezPropertyAnimResource> pAnimation(m_hPropertyAnim, ezResourceAcquireMode::BlockTillLoaded);
 
   if (!pAnimation || pAnimation.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
     return;

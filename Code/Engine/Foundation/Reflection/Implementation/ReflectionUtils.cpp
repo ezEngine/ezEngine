@@ -1049,7 +1049,7 @@ bool ezReflectionUtils::CreateDependencySortedTypeArray(const ezSet<const ezRTTI
   return true;
 }
 
-bool ezReflectionUtils::EnumerationToString(const ezRTTI* pEnumerationRtti, ezInt64 iValue, ezStringBuilder& out_sOutput)
+bool ezReflectionUtils::EnumerationToString(const ezRTTI* pEnumerationRtti, ezInt64 iValue, ezStringBuilder& out_sOutput, ezEnum<EnumConversionMode> conversionMode)
 {
   out_sOutput.Clear();
   if (pEnumerationRtti->IsDerivedFrom<ezEnumBase>())
@@ -1061,7 +1061,11 @@ bool ezReflectionUtils::EnumerationToString(const ezRTTI* pEnumerationRtti, ezIn
         ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
         if (value.ConvertTo<ezInt64>() == iValue)
         {
-          out_sOutput = pProp->GetPropertyName();
+          const ezInt32 uiMaxSearch = ezStringUtils::GetCharacterCount(pProp->GetPropertyName()) - 2;
+          out_sOutput =
+            conversionMode == EnumConversionMode::FullyQualifiedName
+              ? pProp->GetPropertyName()
+              : ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::", nullptr, pProp->GetPropertyName() + uiMaxSearch) + 2;
           return true;
         }
       }
@@ -1077,7 +1081,12 @@ bool ezReflectionUtils::EnumerationToString(const ezRTTI* pEnumerationRtti, ezIn
         ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
         if ((value.ConvertTo<ezInt64>() & iValue) != 0)
         {
-          out_sOutput.Append(pProp->GetPropertyName(), "|");
+          const ezInt32 uiMaxSearch = ezStringUtils::GetCharacterCount(pProp->GetPropertyName()) - 2;
+          out_sOutput.Append(
+            conversionMode == EnumConversionMode::FullyQualifiedName
+              ? pProp->GetPropertyName()
+              : ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::", nullptr, pProp->GetPropertyName() + uiMaxSearch) + 2,
+            "|");
         }
       }
     }
@@ -1100,7 +1109,11 @@ bool ezReflectionUtils::StringToEnumeration(const ezRTTI* pEnumerationRtti, cons
     {
       if (pProp->GetCategory() == ezPropertyCategory::Constant)
       {
-        if (ezStringUtils::IsEqual(pProp->GetPropertyName(), szValue))
+        // Testing fully qualified and short value name
+        const ezInt32 uiMaxSearch = ezStringUtils::GetCharacterCount(pProp->GetPropertyName()) - 2;
+        const char* valueNameOnly =
+          ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::", nullptr, pProp->GetPropertyName() + uiMaxSearch) + 2;
+        if (ezStringUtils::IsEqual(pProp->GetPropertyName(), szValue) || ezStringUtils::IsEqual(valueNameOnly, szValue))
         {
           ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
           out_iValue = value.ConvertTo<ezInt64>();
@@ -1121,7 +1134,11 @@ bool ezReflectionUtils::StringToEnumeration(const ezRTTI* pEnumerationRtti, cons
       {
         if (pProp->GetCategory() == ezPropertyCategory::Constant)
         {
-          if (sValue.IsEqual(pProp->GetPropertyName()))
+          // Testing fully qualified and short value name
+          const ezInt32 uiMaxSearch = ezStringUtils::GetCharacterCount(pProp->GetPropertyName()) - 2;
+          const char* valueNameOnly =
+            ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::", nullptr, pProp->GetPropertyName() + uiMaxSearch) + 2;
+          if (sValue.IsEqual(pProp->GetPropertyName()) || sValue.IsEqual(valueNameOnly))
           {
             ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
             out_iValue |= value.ConvertTo<ezInt64>();

@@ -216,7 +216,7 @@ ezResult ezGameState::SpawnPlayer(const ezTransform* pStartPosition)
   {
     if (it->GetPlayerPrefab().IsValid())
     {
-      ezResourceLock<ezPrefabResource> pPrefab(it->GetPlayerPrefab(), ezResourceAcquireMode::NoFallback);
+      ezResourceLock<ezPrefabResource> pPrefab(it->GetPlayerPrefab(), ezResourceAcquireMode::BlockTillLoaded);
 
       if (pPrefab.GetAcquireResult() == ezResourceAcquireResult::Final)
       {

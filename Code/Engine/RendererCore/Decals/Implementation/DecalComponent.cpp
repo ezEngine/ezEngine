@@ -297,7 +297,7 @@ void ezDecalComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
   ezVec2 baseAtlasOffset = ezVec2(0.5f);
 
   {
-    ezResourceLock<ezDecalAtlasResource> pDecalAtlas(hDecalAtlas, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezDecalAtlasResource> pDecalAtlas(hDecalAtlas, ezResourceAcquireMode::BlockTillLoaded);
     ezVec2U32 baseTextureSize = pDecalAtlas->GetBaseColorTextureSize();
 
     const auto& atlas = pDecalAtlas->GetAtlas();

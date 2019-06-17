@@ -128,7 +128,7 @@ void ezRcNavMeshComponent::VisualizeNavMesh()
   if (!hNavMesh.IsValid())
     return;
 
-  ezResourceLock<ezRecastNavMeshResource> pNavMesh(hNavMesh, ezResourceAcquireMode::NoFallbackAllowMissing);
+  ezResourceLock<ezRecastNavMeshResource> pNavMesh(hNavMesh, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pNavMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
 

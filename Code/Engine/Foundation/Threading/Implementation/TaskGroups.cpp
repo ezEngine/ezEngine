@@ -203,6 +203,14 @@ void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup)
     case ezTaskPriority::EarlyNextFrame:
     case ezTaskPriority::NextFrame:
     case ezTaskPriority::LateNextFrame:
+    case ezTaskPriority::In2Frames:
+    case ezTaskPriority::In3Frames:
+    case ezTaskPriority::In4Frames:
+    case ezTaskPriority::In5Frames:
+    case ezTaskPriority::In6Frames:
+    case ezTaskPriority::In7Frames:
+    case ezTaskPriority::In8Frames:
+    case ezTaskPriority::In9Frames:
     {
       const ezUInt32 uiNumSignals = ezMath::Min<ezUInt32>(iRemainingTasks, s_WorkerThreads[ezWorkerThreadType::ShortTasks].GetCount());
 
@@ -266,42 +274,24 @@ void ezTaskSystem::WaitForGroup(ezTaskGroupID Group)
 
   EZ_PROFILE_SCOPE("WaitForGroup");
 
-  const bool bIsMainThread = ezThreadUtils::IsMainThread();
-
-  ezTaskPriority::Enum FirstPriority = ezTaskPriority::EarlyThisFrame;
-  ezTaskPriority::Enum LastPriority = ezTaskPriority::LateNextFrame;
-
-  if (bIsMainThread)
-  {
-    // if this is the main thread, we need to execute the main-thread tasks
-    // otherwise a dependency on which Group is waiting, might not get fulfilled
-    FirstPriority = ezTaskPriority::ThisFrameMainThread;
-    LastPriority = ezTaskPriority::SomeFrameMainThread;
-  }
-
   while (!ezTaskSystem::IsTaskGroupFinished(Group))
   {
-    // first try the main-thread tasks
-    if (!ExecuteTask(FirstPriority, LastPriority))
+    if (!HelpExecutingTasks())
     {
-      // retry with other tasks
-      if (!ezTaskSystem::IsTaskGroupFinished(Group) && !ExecuteTask(ezTaskPriority::EarlyThisFrame, ezTaskPriority::LateNextFrame))
-      {
-        // 'give up'
-        ezThreadUtils::YieldTimeSlice();
+      // 'give up'
+      ezThreadUtils::YieldTimeSlice();
 
-        // if the system hangs / deadlocks, check the following:
-        // is s_Tasks empty ? if so, no tasks are currently available to run
-        // what are the dependencies of Group.m_pTaskGroup (DependsOn)
-        // use the group counter member inside the ezTaskGroup to reference whether an ezTaskGroupID references the same group
-        // or whether it has already been reused (ie. it is finished)
-        // check the m_iActiveDependencies on an ezTaskgroup to see how many dependencies are really still waited for
-        // check that all dependencies have indeed been started by the user, (m_bStartedByUser), if not a task group may be added as a
-        // dependency, but forgotten to be launched, which can easily deadlock the system
-        // also check the various callstacks, that a task may not be waiting in a circular fashion on another task, which is executed
-        // on the same thread, but is also waiting for something else to finish. in that case you may need to handle dependencies and
-        // task priorities better
-      }
+      // if the system hangs / deadlocks, check the following:
+      // is s_Tasks empty ? if so, no tasks are currently available to run
+      // what are the dependencies of Group.m_pTaskGroup (DependsOn)
+      // use the group counter member inside the ezTaskGroup to reference whether an ezTaskGroupID references the same group
+      // or whether it has already been reused (ie. it is finished)
+      // check the m_iActiveDependencies on an ezTaskgroup to see how many dependencies are really still waited for
+      // check that all dependencies have indeed been started by the user, (m_bStartedByUser), if not a task group may be added as a
+      // dependency, but forgotten to be launched, which can easily deadlock the system
+      // also check the various callstacks, that a task may not be waiting in a circular fashion on another task, which is executed
+      // on the same thread, but is also waiting for something else to finish. in that case you may need to handle dependencies and
+      // task priorities better
     }
   }
 }

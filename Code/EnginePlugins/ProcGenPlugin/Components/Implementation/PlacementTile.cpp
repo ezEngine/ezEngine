@@ -125,7 +125,7 @@ ezUInt32 PlacementTile::PlaceObjects(ezWorld& world, ezArrayPtr<const PlacementT
 
     if (pPrefab == nullptr)
     {
-      pPrefab = ezResourceManager::BeginAcquireResource(objectsToPlace[uiObjectIndex], ezResourceAcquireMode::NoFallback);
+      pPrefab = ezResourceManager::BeginAcquireResource(objectsToPlace[uiObjectIndex], ezResourceAcquireMode::BlockTillLoaded);
       prefabs[uiObjectIndex] = pPrefab;
     }
 

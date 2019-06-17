@@ -103,7 +103,7 @@ void ezParticleInitializer_RandomSize::InitializeElements(ezUInt64 uiStartIndex,
   }
   else
   {
-    ezResourceLock<ezCurve1DResource> pResource(m_hCurve, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezCurve1DResource> pResource(m_hCurve, ezResourceAcquireMode::BlockTillLoaded);
 
     const ezCurve1D& curve = pResource->GetDescriptor().m_Curves[0];
 

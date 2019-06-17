@@ -86,7 +86,7 @@ void ezTimedDeathComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
 
   if (m_hTimeoutPrefab.IsValid())
   {
-    ezResourceLock<ezPrefabResource> pPrefab(m_hTimeoutPrefab, ezResourceAcquireMode::AllowFallback);
+    ezResourceLock<ezPrefabResource> pPrefab(m_hTimeoutPrefab, ezResourceAcquireMode::AllowLoadingFallback);
 
     pPrefab->InstantiatePrefab(
       *GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr);

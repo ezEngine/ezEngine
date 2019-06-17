@@ -107,7 +107,7 @@ void ezParticleInitializer_RandomColor::InitializeElements(ezUInt64 uiStartIndex
   }
   else
   {
-    ezResourceLock<ezColorGradientResource> pResource(m_hGradient, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezColorGradientResource> pResource(m_hGradient, ezResourceAcquireMode::BlockTillLoaded);
 
     double fMinValue, fMaxValue;
     const ezColorGradient& gradient = pResource->GetDescriptor().m_Gradient;

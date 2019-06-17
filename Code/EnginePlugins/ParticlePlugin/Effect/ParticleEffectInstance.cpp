@@ -229,7 +229,7 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
     return;
   }
 
-  ezResourceLock<ezParticleEffectResource> pResource(m_hResource, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezParticleEffectResource> pResource(m_hResource, ezResourceAcquireMode::BlockTillLoaded);
 
   const auto& desc = pResource->GetDescriptor().m_Effect;
   const auto& systems = desc.GetParticleSystems();

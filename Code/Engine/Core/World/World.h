@@ -119,7 +119,7 @@ public:
   ManagerType* GetOrCreateComponentManager();
 
   /// \brief Returns the component manager that handles the given rtti component type.
-  ezComponentManagerBase* GetOrCreateComponentManager(const ezRTTI* pComponentRtti);
+  ezComponentManagerBase* GetOrCreateManagerForComponentType(const ezRTTI* pComponentRtti);
 
   /// \brief Deletes the component manager of the given type and all its components.
   template <typename ManagerType>
@@ -134,10 +134,10 @@ public:
   const ManagerType* GetComponentManager() const;
 
   /// \brief Returns the component manager that handles the given rtti component type.
-  ezComponentManagerBase* GetComponentManager(const ezRTTI* pComponentRtti);
+  ezComponentManagerBase* GetManagerForComponentType(const ezRTTI* pComponentRtti);
 
   /// \brief Returns the component manager that handles the given rtti component type.
-  const ezComponentManagerBase* GetComponentManager(const ezRTTI* pComponentRtti) const;
+  const ezComponentManagerBase* GetManagerForComponentType(const ezRTTI* pComponentRtti) const;
 
   /// \brief Checks whether the given handle references a valid component.
   bool IsValidComponent(const ezComponentHandle& component) const;

@@ -290,7 +290,7 @@ void ezWorldReader::ReadComponentsOfType(ezUInt32 uiComponentTypeIdx)
   }
   else
   {
-    pManager = m_pWorld->GetOrCreateComponentManager(pRtti);
+    pManager = m_pWorld->GetOrCreateManagerForComponentType(pRtti);
   }
 
   if (bSkip)

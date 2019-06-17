@@ -198,3 +198,14 @@ private:
 
   ezTypelessResourceHandle m_Typeless;
 };
+
+template <typename T>
+struct ezHashHelper<ezTypedResourceHandle<T>>
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezTypedResourceHandle<T>& value)
+  {
+    return value.GetResourceIDHash();
+  }
+
+  EZ_ALWAYS_INLINE static bool Equal(const ezTypedResourceHandle<T>& a, const ezTypedResourceHandle<T>& b) { return a == b; }
+};

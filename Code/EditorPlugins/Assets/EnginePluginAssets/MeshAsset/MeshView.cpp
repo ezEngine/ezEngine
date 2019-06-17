@@ -61,7 +61,7 @@ void ezMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   auto hResource = m_pMeshContext->GetMesh();
   if (hResource.IsValid())
   {
-    ezResourceLock<ezMeshResource> pResource(hResource, ezResourceAcquireMode::AllowFallback);
+    ezResourceLock<ezMeshResource> pResource(hResource, ezResourceAcquireMode::AllowLoadingFallback);
     bbox = pResource->GetBounds().GetBox();
 
     ezStringBuilder sText;

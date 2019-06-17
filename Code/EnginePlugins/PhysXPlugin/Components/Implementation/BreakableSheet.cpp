@@ -187,7 +187,7 @@ ezResult ezBreakableSheetComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, 
   {
     if (m_hUnbrokenMesh.IsValid())
     {
-      ezResourceLock<ezMeshResource> pMesh(m_hUnbrokenMesh, ezResourceAcquireMode::AllowFallback);
+      ezResourceLock<ezMeshResource> pMesh(m_hUnbrokenMesh, ezResourceAcquireMode::AllowLoadingFallback);
       bounds = pMesh->GetBounds();
       return EZ_SUCCESS;
     }
@@ -305,7 +305,7 @@ void ezBreakableSheetComponent::OnExtractRenderData(ezMsgExtractRenderData& msg)
   ezRenderData::Category category = ezDefaultRenderDataCategories::LitOpaque;
   if (hMaterial.IsValid())
   {
-    ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowFallback);
+    ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
     ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
     if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
     {
@@ -946,7 +946,7 @@ static PxMaterial* GetPxMaterial(const ezMaterialResourceHandle& hMaterial)
 
   if (hMaterial.IsValid())
   {
-    ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::BlockTillLoaded);
 
     ezHashedString sSurface = pMaterial->GetSurface();
     if (!sSurface.IsEmpty())
@@ -955,7 +955,7 @@ static PxMaterial* GetPxMaterial(const ezMaterialResourceHandle& hMaterial)
 
       if (hSurface.IsValid())
       {
-        ezResourceLock<ezSurfaceResource> pSurface(hSurface, ezResourceAcquireMode::NoFallback);
+        ezResourceLock<ezSurfaceResource> pSurface(hSurface, ezResourceAcquireMode::BlockTillLoaded);
         if (pSurface->m_pPhysicsMaterial != nullptr)
         {
           pPxMaterial = static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterial);

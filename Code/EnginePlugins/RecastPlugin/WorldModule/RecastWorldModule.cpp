@@ -52,7 +52,7 @@ void ezRecastWorldModule::UpdateNavMesh(const UpdateContext& ctxt)
 {
   if (m_pDetourNavMesh == nullptr && m_hNavMesh.IsValid())
   {
-    ezResourceLock<ezRecastNavMeshResource> pNavMesh(m_hNavMesh, ezResourceAcquireMode::NoFallbackAllowMissing);
+    ezResourceLock<ezRecastNavMeshResource> pNavMesh(m_hNavMesh, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
 
     if (pNavMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
       return;

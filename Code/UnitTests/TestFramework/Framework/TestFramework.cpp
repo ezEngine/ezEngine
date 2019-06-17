@@ -1360,6 +1360,33 @@ void ezTestFramework::SetImageComparisonCallback(const ImageComparisonCallback& 
   m_ImageComparisonCallback = callback;
 }
 
+ezResult ezTestFramework::CaptureRegressionStat(ezStringView testName, ezStringView name, ezStringView unit,
+                                                float value, ezInt32 testId)
+{
+  ezStringBuilder strippedTestName = testName;
+  strippedTestName.ReplaceAll(" ", "");
+
+  ezStringBuilder perTestName;
+  if (testId < 0)
+  {
+    perTestName.Format("{}_{}", strippedTestName, name);
+  }
+  else
+  {
+    perTestName.Format("{}_{}_{}", strippedTestName, name, testId);
+  }
+
+  {
+    ezStringBuilder regression;
+    // The 6 floating point digits are forced as per a requirement of the CI
+    // feature that parses these values.
+    regression.Format("[test][REGRESSION:{}:{}:{}]", perTestName, unit, ezArgF(value, 6));
+    ezLog::Info(regression);
+  }
+
+  return EZ_SUCCESS;
+}
+
 ////////////////////////////////////////////////////////////////////////
 // ezTestFramework static functions
 ////////////////////////////////////////////////////////////////////////

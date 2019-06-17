@@ -124,7 +124,7 @@ bool ezParticleTypeMesh::QueryMeshAndMaterialInfo() const
     return true;
   }
 
-  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowFallback);
+  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
   if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
     return false;
 
@@ -139,7 +139,7 @@ bool ezParticleTypeMesh::QueryMeshAndMaterialInfo() const
     }
   }
 
-  ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowFallback);
+  ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
   if (pMaterial.GetAcquireResult() != ezResourceAcquireResult::Final)
     return false;
 

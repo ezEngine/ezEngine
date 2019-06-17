@@ -79,6 +79,8 @@ ezResult ezTexConv2::ParseCommandLine()
     ezLog::Info("    Whether to multiply the alpha channel into the RGB channels.");
     ezLog::Info("  -hdrExposure float [-20;+20]");
     ezLog::Info("    For scaling HDR image brightness up or down.");
+    ezLog::Info("  -clamp float");
+    ezLog::Info("    Input values will be clamped to [-value;+value] (default 64000).");
     PrintOptionValuesHelp("  -bumpMapFilter", m_AllowedBumpMapFilters);
     ezLog::Info("    Filter used to approximate the x/y bump map gradients.");
 
@@ -392,6 +394,8 @@ ezResult ezTexConv2::ParseMiscOptions()
   {
     EZ_SUCCEED_OR_RETURN(ParseFloatOption("-hdrExposure", -20.0f, 20.0f, m_Processor.m_Descriptor.m_fHdrExposureBias));
   }
+
+  EZ_SUCCEED_OR_RETURN(ParseFloatOption("-clamp", -64000.f, 64000.f, m_Processor.m_Descriptor.m_fMaxValue));
 
   return EZ_SUCCESS;
 }

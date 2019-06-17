@@ -161,7 +161,7 @@ void ezRenderContext::BindMaterial(const ezMaterialResourceHandle& hMaterial)
 }
 
 void ezRenderContext::BindTexture2D(const ezTempHashedString& sSlotName, const ezTexture2DResourceHandle& hTexture,
-  ezResourceAcquireMode acquireMode /*= ezResourceAcquireMode::AllowFallback*/)
+  ezResourceAcquireMode acquireMode /*= ezResourceAcquireMode::AllowLoadingFallback*/)
 {
   if (hTexture.IsValid())
   {
@@ -176,7 +176,7 @@ void ezRenderContext::BindTexture2D(const ezTempHashedString& sSlotName, const e
 }
 
 void ezRenderContext::BindTextureCube(const ezTempHashedString& sSlotName, const ezTextureCubeResourceHandle& hTexture,
-  ezResourceAcquireMode acquireMode /*= ezResourceAcquireMode::AllowFallback*/)
+  ezResourceAcquireMode acquireMode /*= ezResourceAcquireMode::AllowLoadingFallback*/)
 {
   if (hTexture.IsValid())
   {
@@ -334,7 +334,7 @@ void ezRenderContext::BindShader(const ezShaderResourceHandle& hShader, ezBitfla
 
 void ezRenderContext::BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer)
 {
-  ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowFallback);
+  ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
   BindMeshBuffer(pMeshBuffer->GetVertexBuffer(), pMeshBuffer->GetIndexBuffer(), &(pMeshBuffer->GetVertexDeclaration()),
     pMeshBuffer->GetTopology(), pMeshBuffer->GetPrimitiveCount());
 }
@@ -481,7 +481,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
                                          ezRenderContextFlags::ConstantBufferBindingChanged)))
     {
       if (pShaderPermutation == nullptr)
-        pShaderPermutation = ezResourceManager::BeginAcquireResource(m_hActiveShaderPermutation, ezResourceAcquireMode::NoFallback);
+        pShaderPermutation = ezResourceManager::BeginAcquireResource(m_hActiveShaderPermutation, ezResourceAcquireMode::BlockTillLoaded);
     }
 
 
@@ -934,7 +934,7 @@ ezShaderPermutationResource* ezRenderContext::ApplyShaderState()
     return nullptr;
 
   ezShaderPermutationResource* pShaderPermutation = ezResourceManager::BeginAcquireResource(
-    m_hActiveShaderPermutation, m_bAllowAsyncShaderLoading ? ezResourceAcquireMode::AllowFallback : ezResourceAcquireMode::NoFallback);
+    m_hActiveShaderPermutation, m_bAllowAsyncShaderLoading ? ezResourceAcquireMode::AllowLoadingFallback : ezResourceAcquireMode::BlockTillLoaded);
 
   if (!pShaderPermutation->IsShaderValid())
   {
@@ -969,7 +969,7 @@ ezMaterialResource* ezRenderContext::ApplyMaterialState()
   }
 
   // check whether material has been modified
-  ezMaterialResource* pMaterial = ezResourceManager::BeginAcquireResource(m_hNewMaterial, ezResourceAcquireMode::AllowFallback);
+  ezMaterialResource* pMaterial = ezResourceManager::BeginAcquireResource(m_hNewMaterial, ezResourceAcquireMode::AllowLoadingFallback);
 
   if (m_hNewMaterial != m_hMaterial || pMaterial->IsModified())
   {

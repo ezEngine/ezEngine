@@ -206,7 +206,7 @@ ezUInt32 ezParticleEmitter_Continuous::ComputeSpawnCount(const ezTime& tDiff)
 
   if (m_hCountCurve.IsValid())
   {
-    ezResourceLock<ezCurve1DResource> pCurve(m_hCountCurve, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezCurve1DResource> pCurve(m_hCountCurve, ezResourceAcquireMode::BlockTillLoaded);
 
     if (!pCurve->GetDescriptor().m_Curves.IsEmpty())
     {

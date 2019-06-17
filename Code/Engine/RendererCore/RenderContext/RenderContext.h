@@ -54,9 +54,9 @@ public:
   void BindMaterial(const ezMaterialResourceHandle& hMaterial);
 
   void BindTexture2D(const ezTempHashedString& sSlotName, const ezTexture2DResourceHandle& hTexture,
-                     ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowFallback);
+                     ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
   void BindTextureCube(const ezTempHashedString& sSlotName, const ezTextureCubeResourceHandle& hTexture,
-                     ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowFallback);
+                     ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
 
   void BindTexture2D(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
   void BindTextureCube(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);

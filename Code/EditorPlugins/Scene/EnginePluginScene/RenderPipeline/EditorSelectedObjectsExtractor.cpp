@@ -117,7 +117,7 @@ void ezEditorSelectedObjectsExtractor::CreateRenderTargetView(const ezView& view
 {
   EZ_ASSERT_DEV(m_hRenderTargetView.IsInvalidated(), "Render target view is already created");
 
-  ezResourceLock<ezRenderToTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezRenderToTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::BlockTillLoaded);
 
   ezStringBuilder name("EditorCameraRT");
 

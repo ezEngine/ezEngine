@@ -41,7 +41,7 @@ void ezTextureCubeContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
     if (pMsg2->m_sWhatToDo == "ChannelMode" && m_hMaterial.IsValid())
     {
-      ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowFallback);
+      ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
       pMaterial->SetParameter("ShowChannelMode", pMsg2->m_iValue);
       pMaterial->SetParameter("LodLevel", pMsg2->m_fValue);
     }
@@ -70,7 +70,7 @@ void ezTextureCubeContext::OnInitialize()
 
   m_hTexture = ezResourceManager::LoadResource<ezTextureCubeResource>(sTextureGuid);
   {
-    ezResourceLock<ezTextureCubeResource> pTexture(m_hTexture, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezTextureCubeResource> pTexture(m_hTexture, ezResourceAcquireMode::BlockTillLoaded);
 
     m_TextureFormat = pTexture->GetFormat();
     m_uiTextureWidthAndHeight = pTexture->GetWidthAndHeight();
@@ -104,7 +104,7 @@ void ezTextureCubeContext::OnInitialize()
       hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
     }
     {
-      ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowFallback);
+      ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
 
       ezMeshResourceDescriptor md;
       md.UseExistingMeshBuffer(hMeshBuffer);
@@ -157,7 +157,7 @@ void ezTextureCubeContext::OnDeinitialize()
 {
   if (m_bAddedEventHandler)
   {
-    ezResourceLock<ezTextureCubeResource> pTexture(m_hTexture, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezTextureCubeResource> pTexture(m_hTexture, ezResourceAcquireMode::BlockTillLoaded);
 
     pTexture->m_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezTextureCubeContext::OnResourceEvent, this));
   }
@@ -193,7 +193,7 @@ void ezTextureCubeContext::UpdatePreview()
 
   if (!m_bAddedEventHandler)
   {
-    ezResourceLock<ezTextureCubeResource> pTexture(m_hTexture, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezTextureCubeResource> pTexture(m_hTexture, ezResourceAcquireMode::BlockTillLoaded);
 
     if (pTexture.GetAcquireResult() != ezResourceAcquireResult::MissingFallback)
     {

@@ -104,6 +104,12 @@ namespace ezInternal
   {
     return ezTypeFlags::StandardType;
   }
+
+  template <typename T>
+  struct ezStaticRTTIWrapper
+  {
+    static_assert(sizeof(T) < 0, "Type has not been declared as reflectable (use EZ_DECLARE_REFLECTABLE_TYPE macro)");
+  };
 }
 
 /// \brief Use this function, specialized with the type that you are interested in, to get the static RTTI data for some type.
@@ -123,7 +129,8 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 #define EZ_DECLARE_REFLECTABLE_TYPE(Linkage, TYPE)                                                                                         \
   namespace ezInternal                                                                                                                     \
   {                                                                                                                                        \
-    struct Linkage ezStaticRTTIWrapper_##TYPE                                                                                              \
+    template<>                                                                                                                             \
+    struct Linkage ezStaticRTTIWrapper<TYPE>                                                                                               \
     {                                                                                                                                      \
       static ezRTTI s_RTTI;                                                                                                                \
     };                                                                                                                                     \
@@ -134,32 +141,29 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
     template <>                                                                                                                            \
     struct ezStaticRTTI<TYPE>                                                                                                              \
     {                                                                                                                                      \
-      EZ_ALWAYS_INLINE static const ezRTTI* GetRTTI() { return &ezStaticRTTIWrapper_##TYPE::s_RTTI; }                                      \
+      EZ_ALWAYS_INLINE static const ezRTTI* GetRTTI() { return &ezStaticRTTIWrapper<TYPE>::s_RTTI; }                                       \
     };                                                                                                                                     \
   }
 
 /// \brief Insert this into a class/struct to enable properties that are private members.
 /// All types that have dynamic reflection (\see EZ_ADD_DYNAMIC_REFLECTION) already have this ability.
-#define EZ_ALLOW_PRIVATE_PROPERTIES(SELF) friend struct ezRTTInfo_##SELF
+#define EZ_ALLOW_PRIVATE_PROPERTIES(SELF) friend ezRTTI GetRTTI(SELF*)
 
 /// \cond
 // internal helper macro
 #define EZ_RTTIINFO_DECL(Type, BaseType, Version)                                                                                          \
-  struct ezRTTInfo_##Type                                                                                                                  \
-  {                                                                                                                                        \
-    static const char* GetTypeName() { return #Type; }                                                                                     \
-    static ezUInt32 GetTypeVersion() { return Version; }                                                                                   \
                                                                                                                                            \
-    typedef Type OwnType;                                                                                                                  \
-    typedef BaseType OwnBaseType;                                                                                                          \
+    const char* GetTypeName(Type*) { return #Type; }                                                                                       \
+    ezUInt32 GetTypeVersion(Type*) { return Version; }                                                                                     \
                                                                                                                                            \
-    static ezRTTI GetRTTI();                                                                                                               \
-  };
+    ezRTTI GetRTTI(Type*);                                                                                                                 \
 
 // internal helper macro
-#define EZ_RTTIINFO_GETRTTI_IMPL_BEGIN(Type, AllocatorType)                                                                                \
-  ezRTTI ezRTTInfo_##Type::GetRTTI()                                                                                                       \
+#define EZ_RTTIINFO_GETRTTI_IMPL_BEGIN(Type, BaseType, AllocatorType)                                                                      \
+  ezRTTI GetRTTI(Type*)                                                                                                                    \
   {                                                                                                                                        \
+    typedef Type OwnType;                                                                                                                  \
+    typedef BaseType OwnBaseType;                                                                                                          \
     static AllocatorType Allocator;                                                                                                        \
     static ezBitflags<ezTypeFlags> flags = ezInternal::DetermineTypeFlags<Type>();                                                         \
     static ezArrayPtr<ezAbstractProperty*> Properties;                                                                                     \
@@ -185,14 +189,14 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 ///   Pass a custom ezRTTIAllocator type to handle allocation differently.
 #define EZ_BEGIN_STATIC_REFLECTED_TYPE(Type, BaseType, Version, AllocatorType)                                                             \
   EZ_RTTIINFO_DECL(Type, BaseType, Version)                                                                                                \
-  ezRTTI ezInternal::ezStaticRTTIWrapper_##Type::s_RTTI = ezRTTInfo_##Type::GetRTTI();                                                     \
-  EZ_RTTIINFO_GETRTTI_IMPL_BEGIN(Type, AllocatorType)
+  ezRTTI ezInternal::ezStaticRTTIWrapper<Type>::s_RTTI = GetRTTI((Type*)0);                                                                \
+  EZ_RTTIINFO_GETRTTI_IMPL_BEGIN(Type, BaseType, AllocatorType)
 
 
 /// \brief Ends the reflection code block that was opened with EZ_BEGIN_STATIC_REFLECTED_TYPE.
 #define EZ_END_STATIC_REFLECTED_TYPE                                                                                                       \
   ;                                                                                                                                        \
-  return ezRTTI(GetTypeName(), ezGetStaticRTTI<OwnBaseType>(), sizeof(OwnType), GetTypeVersion(),                                          \
+  return ezRTTI(GetTypeName((OwnType*)0), ezGetStaticRTTI<OwnBaseType>(), sizeof(OwnType), GetTypeVersion((OwnType*)0),                    \
                 ezVariant::TypeDeduction<OwnType>::value, flags, &Allocator, Properties, Functions, Attributes, MessageHandlers,           \
                 MessageSenders, nullptr);                                                                                                  \
   }

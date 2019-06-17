@@ -45,7 +45,7 @@ void ezVisualizeSkeletonComponent::Render()
   if (!m_hSkeleton.IsValid())
     return;
 
-  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
 
   if (pSkeleton.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
     return;
@@ -133,7 +133,7 @@ ezResult ezVisualizeSkeletonComponent::GetLocalBounds(ezBoundingBoxSphere& bound
 
   if (m_hMesh.IsValid())
   {
-    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowFallback);
+    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
     bounds = pMesh->GetBounds();
     return EZ_SUCCESS;
   }
@@ -187,7 +187,7 @@ void ezVisualizeSkeletonComponent::CreateRenderMesh()
   if (!m_hSkeleton.IsValid())
     return;
 
-  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
 
   if (pSkeleton.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
     return;
@@ -323,7 +323,7 @@ void ezVisualizeSkeletonComponent::OnExtractRenderData(ezMsgExtractRenderData& m
   if (!m_hMesh.IsValid())
     return;
 
-  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowFallback);
+  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
   ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
 
   for (ezUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)

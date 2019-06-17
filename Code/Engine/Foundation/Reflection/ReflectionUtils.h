@@ -65,10 +65,22 @@ public:
   /// If circular dependencies are found the function returns false.
   static bool CreateDependencySortedTypeArray(const ezSet<const ezRTTI*>& types, ezDynamicArray<const ezRTTI*>& out_sortedTypes);
 
+  struct EnumConversionMode
+  {
+    enum Enum
+    {
+      FullyQualifiedName,
+      ValueNameOnly,
+      Default = FullyQualifiedName
+    };
+
+    using StorageType = ezUInt8;
+  };
+
   /// \brief Converts an enum or bitfield value into its string representation.
   ///
   /// The type of pEnumerationRtti will be automatically detected. The syntax of out_sOutput equals MSVC debugger output.
-  static bool EnumerationToString(const ezRTTI* pEnumerationRtti, ezInt64 iValue, ezStringBuilder& out_sOutput); // [tested]
+  static bool EnumerationToString(const ezRTTI* pEnumerationRtti, ezInt64 iValue, ezStringBuilder& out_sOutput, ezEnum<EnumConversionMode> conversionMode = EnumConversionMode::Default); // [tested]
 
   /// \brief Converts an enum or bitfield in its string representation to its value.
   ///

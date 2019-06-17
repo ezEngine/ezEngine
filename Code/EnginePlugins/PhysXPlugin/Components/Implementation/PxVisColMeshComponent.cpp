@@ -62,7 +62,7 @@ ezResult ezPxVisColMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bo
 
   if (m_hMesh.IsValid())
   {
-    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowFallback);
+    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
     bounds = pMesh->GetBounds();
     return EZ_SUCCESS;
   }
@@ -115,7 +115,7 @@ void ezPxVisColMeshComponent::CreateCollisionRenderMesh()
   if (!m_hCollisionMesh.IsValid())
     return;
 
-  ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::BlockTillLoaded);
 
   if (pMesh.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
     return;
@@ -235,7 +235,7 @@ void ezPxVisColMeshComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) c
   if (!m_hMesh.IsValid())
     return;
 
-  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowFallback);
+  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
   ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
 
   for (ezUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)

@@ -96,7 +96,7 @@ ezHashedString ezMaterialResource::GetSurface() const
 
   if (m_Desc.m_hBaseMaterial.IsValid())
   {
-    ezResourceLock<ezMaterialResource> pBaseMaterial(m_Desc.m_hBaseMaterial, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezMaterialResource> pBaseMaterial(m_Desc.m_hBaseMaterial, ezResourceAcquireMode::BlockTillLoaded);
     return pBaseMaterial->GetSurface();
   }
 
@@ -922,7 +922,7 @@ ezMaterialResource::CachedValues* ezMaterialResource::GetOrUpdateCachedValues()
     if (!hParentMaterial.IsValid())
       break;
 
-    pCurrentMaterial = ezResourceManager::BeginAcquireResource(hParentMaterial, ezResourceAcquireMode::AllowFallback);
+    pCurrentMaterial = ezResourceManager::BeginAcquireResource(hParentMaterial, ezResourceAcquireMode::AllowLoadingFallback);
   }
 
   EZ_SCOPE_EXIT(for (ezUInt32 i = materialHierarchy.GetCount(); i-- > 1;) {

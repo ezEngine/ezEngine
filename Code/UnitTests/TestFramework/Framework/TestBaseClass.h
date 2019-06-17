@@ -20,6 +20,8 @@ public:
   /// Override this function to give the test a proper name.
   virtual const char* GetTestName() const /*override*/ = 0;
 
+  const char* GetSubTestName(ezInt32 iIdentifier) const;
+
   /// Override this function to add additional information to the test configuration
   virtual void UpdateConfiguration(ezTestConfiguration& config) const /*override*/;
 
