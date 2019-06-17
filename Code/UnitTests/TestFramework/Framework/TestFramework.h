@@ -105,6 +105,7 @@ public:
                                                              /// indicating if the images matched or not.
   void SetImageComparisonCallback(const ImageComparisonCallback& callback);
 
+  static ezResult CaptureRegressionStat(ezStringView testName, ezStringView name, ezStringView unit, float value, ezInt32 testId = -1);
 
 protected:
   void Initialize();
