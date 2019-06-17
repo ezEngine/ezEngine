@@ -191,7 +191,7 @@ void ezExpressionByteCode::Save(ezStreamWriter& stream) const
   }
 
   {
-    chunk.BeginChunk("Code", 1);
+    chunk.BeginChunk("Code", 2);
 
     chunk << m_ByteCode.GetCount();
     chunk.WriteBytes(m_ByteCode.GetData(), m_ByteCode.GetCount() * sizeof(StorageType));
@@ -227,11 +227,18 @@ ezResult ezExpressionByteCode::Load(ezStreamReader& stream)
     }
     else if (chunk.GetCurrentChunk().m_sChunkName == "Code")
     {
-      ezUInt32 uiByteCodeCount = 0;
-      chunk >> uiByteCodeCount;
+      if (chunk.GetCurrentChunk().m_uiChunkVersion >= 2)
+      {
+        ezUInt32 uiByteCodeCount = 0;
+        chunk >> uiByteCodeCount;
 
-      m_ByteCode.SetCountUninitialized(uiByteCodeCount);
-      chunk.ReadBytes(m_ByteCode.GetData(), uiByteCodeCount * sizeof(StorageType));
+        m_ByteCode.SetCountUninitialized(uiByteCodeCount);
+        chunk.ReadBytes(m_ByteCode.GetData(), uiByteCodeCount * sizeof(StorageType));
+      }
+      else
+      {
+        ezLog::Error("Invalid Code Chunk Version {0}. Expected >= 2", chunk.GetCurrentChunk().m_uiChunkVersion);
+      }
     }
 
     chunk.NextChunk();
