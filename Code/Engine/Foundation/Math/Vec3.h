@@ -35,7 +35,8 @@ public:
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
   {
-    EZ_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that all code-paths properly initialize this object.");
+    EZ_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please "
+                               "check that all code-paths properly initialize this object.");
   }
 #endif
 
@@ -75,13 +76,16 @@ public:
   /// \brief Returns the length of the vector.
   Type GetLength() const; // [tested]
 
-  /// \brief Tries to rescale the vector to the given length. If the vector is too close to zero, EZ_FAILURE is returned and the vector is set to zero.
+  /// \brief Tries to rescale the vector to the given length. If the vector is too close to zero, EZ_FAILURE is returned and the vector is
+  /// set to zero.
   ezResult SetLength(Type fNewLength, Type fEpsilon = ezMath::BasicType<Type>::DefaultEpsilon()); // [tested]
 
-  /// \brief Returns the squared length. Faster, since no square-root is taken. Useful, if one only wants to compare the lengths of two vectors.
+  /// \brief Returns the squared length. Faster, since no square-root is taken. Useful, if one only wants to compare the lengths of two
+  /// vectors.
   Type GetLengthSquared() const; // [tested]
 
-  /// \brief Normalizes this vector and returns its previous length in one operation. More efficient than calling GetLength and then Normalize.
+  /// \brief Normalizes this vector and returns its previous length in one operation. More efficient than calling GetLength and then
+  /// Normalize.
   Type GetLengthAndNormalize(); // [tested]
 
   /// \brief Returns a normalized version of this vector, leaves the vector itself unchanged.
@@ -90,8 +94,10 @@ public:
   /// \brief Normalizes this vector.
   void Normalize(); // [tested]
 
-  /// \brief Tries to normalize this vector. If the vector is too close to zero, EZ_FAILURE is returned and the vector is set to the given fallback value.
-  ezResult NormalizeIfNotZero(const ezVec3Template& vFallback = ezVec3Template(1, 0, 0), Type fEpsilon = ezMath::BasicType<Type>::SmallEpsilon()); // [tested]
+  /// \brief Tries to normalize this vector. If the vector is too close to zero, EZ_FAILURE is returned and the vector is set to the given
+  /// fallback value.
+  ezResult NormalizeIfNotZero(
+    const ezVec3Template& vFallback = ezVec3Template(1, 0, 0), Type fEpsilon = ezMath::BasicType<Type>::SmallEpsilon()); // [tested]
 
   /// \brief Returns, whether this vector is (0, 0, 0).
   bool IsZero() const; // [tested]
@@ -242,4 +248,3 @@ template <typename Type>
 bool operator<(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2); // [tested]
 
 #include <Foundation/Math/Implementation/Vec3_inl.h>
-
