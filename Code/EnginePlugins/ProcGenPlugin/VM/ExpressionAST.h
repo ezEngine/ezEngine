@@ -23,6 +23,12 @@ public:
       Negate,
       Absolute,
       Sqrt,
+      Sin,
+      Cos,
+      Tan,
+      ASin,
+      ACos,
+      ATan,
       LastUnary,
 
       // Binary

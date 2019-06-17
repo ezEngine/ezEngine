@@ -13,6 +13,21 @@ namespace
         return ezExpressionByteCode::OpCode::Abs_R;
       case ezExpressionAST::NodeType::Sqrt:
         return ezExpressionByteCode::OpCode::Sqrt_R;
+
+      case ezExpressionAST::NodeType::Sin:
+        return ezExpressionByteCode::OpCode::Sin_R;
+      case ezExpressionAST::NodeType::Cos:
+        return ezExpressionByteCode::OpCode::Cos_R;
+      case ezExpressionAST::NodeType::Tan:
+        return ezExpressionByteCode::OpCode::Tan_R;
+
+      case ezExpressionAST::NodeType::ASin:
+        return ezExpressionByteCode::OpCode::ASin_R;
+      case ezExpressionAST::NodeType::ACos:
+        return ezExpressionByteCode::OpCode::ACos_R;
+      case ezExpressionAST::NodeType::ATan:
+        return ezExpressionByteCode::OpCode::ATan_R;
+
       case ezExpressionAST::NodeType::Add:
         return ezExpressionByteCode::OpCode::Add_RR;
       case ezExpressionAST::NodeType::Subtract:
@@ -30,11 +45,10 @@ namespace
         return ezExpressionByteCode::OpCode::FirstUnary;
     }
   }
-}
+} // namespace
 
-ezExpressionCompiler::ezExpressionCompiler() {}
-
-ezExpressionCompiler::~ezExpressionCompiler() {}
+ezExpressionCompiler::ezExpressionCompiler() = default;
+ezExpressionCompiler::~ezExpressionCompiler() = default;
 
 ezResult ezExpressionCompiler::Compile(ezExpressionAST& ast, ezExpressionByteCode& out_byteCode)
 {

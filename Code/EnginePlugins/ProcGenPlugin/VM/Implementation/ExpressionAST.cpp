@@ -1,7 +1,7 @@
 #include <ProcGenPluginPCH.h>
 
-#include <ProcGenPlugin/VM/ExpressionAST.h>
 #include <Foundation/Utilities/DGMLWriter.h>
+#include <ProcGenPlugin/VM/ExpressionAST.h>
 
 // static
 bool ezExpressionAST::NodeType::IsUnary(Enum nodeType)
@@ -37,26 +37,26 @@ namespace
 {
   static const char* s_szNodeTypeNames[] = {"Invalid",
 
-                                            // Unary
-                                            "", "Negate", "Absolute", "Sqrt", "",
+    // Unary
+    "", "Negate", "Absolute", "Sqrt", "Sin", "Cos", "Tan", "ASin", "ACos", "ATan", "",
 
-                                            // Binary
-                                            "", "Add", "Subtract", "Multiply", "Divide", "Min", "Max", "",
+    // Binary
+    "", "Add", "Subtract", "Multiply", "Divide", "Min", "Max", "",
 
-                                            // Constant
-                                            "FloatConstant",
+    // Constant
+    "FloatConstant",
 
-                                            // Input
-                                            "FloatInput",
+    // Input
+    "FloatInput",
 
-                                            // Output
-                                            "FloatOutput",
+    // Output
+    "FloatOutput",
 
-                                            "FunctionCall"};
+    "FunctionCall"};
 
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_ARRAY_SIZE(s_szNodeTypeNames) == ezExpressionAST::NodeType::Count,
-                              "Node name array size does not match node type count");
-}
+  EZ_CHECK_AT_COMPILETIME_MSG(
+    EZ_ARRAY_SIZE(s_szNodeTypeNames) == ezExpressionAST::NodeType::Count, "Node name array size does not match node type count");
+} // namespace
 
 // static
 const char* ezExpressionAST::NodeType::GetName(Enum nodeType)
@@ -68,7 +68,7 @@ const char* ezExpressionAST::NodeType::GetName(Enum nodeType)
 //////////////////////////////////////////////////////////////////////////
 
 ezExpressionAST::ezExpressionAST()
-    : m_Allocator("Expression AST", ezFoundation::GetAlignedAllocator())
+  : m_Allocator("Expression AST", ezFoundation::GetAlignedAllocator())
 {
 }
 
@@ -191,7 +191,7 @@ namespace
     const ezExpressionAST::Node* m_pNode;
     ezUInt32 m_uiParentGraphNode;
   };
-}
+} // namespace
 
 void ezExpressionAST::PrintGraph(ezDGMLGraph& graph) const
 {

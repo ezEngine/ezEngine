@@ -25,45 +25,45 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMath)
     EZ_TEST_BOOL(ezSimdMath::Sin(SimdDegree(315.0f)).IsEqual(ezSimdVec4f(-0.7071067f), 0.000001f).AllSet());
   }
 
-  /*
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Cos")
   {
-    EZ_TEST_BOOL(ezMath::Cos(ezAngle::Degree(0.0f)), 1.0f, 0.000001f);
-    EZ_TEST_BOOL(ezMath::Cos(ezAngle::Degree(90.0f)), 0.0f, 0.000001f);
-    EZ_TEST_BOOL(ezMath::Cos(ezAngle::Degree(180.0f)), -1.0f, 0.000001f);
-    EZ_TEST_BOOL(ezMath::Cos(ezAngle::Degree(270.0f)), 0.0f, 0.000001f);
+    EZ_TEST_BOOL(ezSimdMath::Cos(SimdDegree(0.0f)).IsEqual(ezSimdVec4f(1.0f), 0.000001f).AllSet());
+    EZ_TEST_BOOL(ezSimdMath::Cos(SimdDegree(90.0f)).IsEqual(ezSimdVec4f(0.0f), 0.000001f).AllSet());
+    EZ_TEST_BOOL(ezSimdMath::Cos(SimdDegree(180.0f)).IsEqual(ezSimdVec4f(-1.0f), 0.000001f).AllSet());
+    EZ_TEST_BOOL(ezSimdMath::Cos(SimdDegree(270.0f)).IsEqual(ezSimdVec4f(0.0f), 0.000001f).AllSet());
 
-    EZ_TEST_BOOL(ezMath::Cos(ezAngle::Degree(45.0f)), 0.7071067f, 0.000001f);
-    EZ_TEST_BOOL(ezMath::Cos(ezAngle::Degree(135.0f)), -0.7071067f, 0.000001f);
-    EZ_TEST_BOOL(ezMath::Cos(ezAngle::Degree(225.0f)), -0.7071067f, 0.000001f);
-    EZ_TEST_BOOL(ezMath::Cos(ezAngle::Degree(315.0f)), 0.7071067f, 0.000001f);
+    EZ_TEST_BOOL(ezSimdMath::Cos(SimdDegree(45.0f)).IsEqual(ezSimdVec4f(0.7071067f), 0.000001f).AllSet());
+    EZ_TEST_BOOL(ezSimdMath::Cos(SimdDegree(135.0f)).IsEqual(ezSimdVec4f(-0.7071067f), 0.000001f).AllSet());
+    EZ_TEST_BOOL(ezSimdMath::Cos(SimdDegree(225.0f)).IsEqual(ezSimdVec4f(-0.7071067f), 0.000001f).AllSet());
+    EZ_TEST_BOOL(ezSimdMath::Cos(SimdDegree(315.0f)).IsEqual(ezSimdVec4f(0.7071067f), 0.000001f).AllSet());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Tan")
   {
-    EZ_TEST_BOOL(ezMath::Tan(ezAngle::Degree(0.0f)), 0.0f, 0.000001f);
-    EZ_TEST_BOOL(ezMath::Tan(ezAngle::Degree(45.0f)), 1.0f, 0.000001f);
-    EZ_TEST_BOOL(ezMath::Tan(ezAngle::Degree(-45.0f)), -1.0f, 0.000001f);
-    EZ_TEST_BOOL(ezMath::Tan(ezAngle::Degree(90.00001f)) < 1000000.0f);
-    EZ_TEST_BOOL(ezMath::Tan(ezAngle::Degree(89.99999f)) > 1000000.0f);
+    EZ_TEST_BOOL(ezSimdMath::Tan(SimdDegree(0.0f)).IsEqual(ezSimdVec4f(0.0f), 0.000001f).AllSet());
+    EZ_TEST_BOOL(ezSimdMath::Tan(SimdDegree(45.0f)).IsEqual(ezSimdVec4f(1.0f), 0.000001f).AllSet());
+    EZ_TEST_BOOL(ezSimdMath::Tan(SimdDegree(-45.0f)).IsEqual(ezSimdVec4f(-1.0f), 0.000001f).AllSet());
+    EZ_TEST_BOOL((ezSimdMath::Tan(SimdDegree(90.00001f)) < ezSimdVec4f(1000000.0f)).AllSet());
+    EZ_TEST_BOOL((ezSimdMath::Tan(SimdDegree(89.99999f)) > ezSimdVec4f(1000000.0f)).AllSet());
 
     // Testing the period of tan(x) centered at 0 and the adjacent ones
     ezAngle angle = ezAngle::Degree(-89.0f);
     while (angle.GetDegree() < 89.0f)
     {
-      float fTan = ezMath::Tan(angle);
-      float fTanPrev = ezMath::Tan(ezAngle::Degree(angle.GetDegree() - 180.0f));
-      float fTanNext = ezMath::Tan(ezAngle::Degree(angle.GetDegree() + 180.0f));
-      float fSin = ezMath::Sin(angle);
-      float fCos = ezMath::Cos(angle);
+      ezSimdVec4f simdAngle(angle.GetRadian());
 
-      EZ_TEST_BOOL(fTan - fTanPrev, 0.0f, 0.001f);
-      EZ_TEST_BOOL(fTan - fTanNext, 0.0f, 0.001f);
-      EZ_TEST_BOOL(fTan - (fSin / fCos), 0.0f, 0.0005f);
+      ezSimdVec4f fTan = ezSimdMath::Tan(simdAngle);
+      ezSimdVec4f fTanPrev = ezSimdMath::Tan(SimdDegree(angle.GetDegree() - 180.0f));
+      ezSimdVec4f fTanNext = ezSimdMath::Tan(SimdDegree(angle.GetDegree() + 180.0f));
+      ezSimdVec4f fSin = ezSimdMath::Sin(simdAngle);
+      ezSimdVec4f fCos = ezSimdMath::Cos(simdAngle);
+
+      EZ_TEST_BOOL((fTan - fTanPrev).IsEqual(ezSimdVec4f::ZeroVector(), 0.001f).AllSet());
+      EZ_TEST_BOOL((fTan - fTanNext).IsEqual(ezSimdVec4f::ZeroVector(), 0.001f).AllSet());
+      EZ_TEST_BOOL((fTan - fSin.CompDiv(fCos)).IsEqual(ezSimdVec4f::ZeroVector(), 0.0005f).AllSet());
       angle += ezAngle::Degree(1.234f);
     }
   }
-  */
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ASin")
   {
