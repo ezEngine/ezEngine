@@ -14,6 +14,8 @@ class ezWindow;
 class ezWindowOutputTargetBase;
 class ezView;
 struct ezActorEvent;
+class ezWindowOutputTargetGAL;
+
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
 /// \brief ezGameState is the base class to build custom game logic upon. It works closely together with ezGameApplication.
@@ -70,19 +72,14 @@ public:
   ezCamera* GetMainCamera() { return &m_MainCamera; }
 
 protected:
-  /// \brief Creates a default window (ezGameStateWindow) adds it to the application and fills out m_pMainWindow and m_hMainSwapChain
+  /// \brief Creates an actor with a default window (ezGameStateWindow) adds it to the application
+  ///
+  /// The base implementation calls CreateMainWindow(), CreateMainOutputTarget() and SetupMainView() to configure the main window.
   virtual void CreateActors();
-
-  /// \brief Configures available input devices, e.g. sets mouse speed, cursor clipping, etc.
-  /// Unless overridden Activate() will call this.
-  virtual void ConfigureInputDevices();
 
   /// \brief Adds custom input actions, if necessary.
   /// Unless overridden Activate() will call this.
   virtual void ConfigureInputActions();
-
-  /// \brief Creates a default render view. Unless overridden, Activate() will do this for the main window.
-  virtual void SetupMainView(ezWindowOutputTargetBase* pOutputTarget, ezSizeU32 viewportSize);
 
   /// \brief Overrideable function that may create a player object.
   ///
@@ -103,6 +100,19 @@ protected:
 
   /// \brief Sets up m_MainCamera for first use
   virtual void ConfigureMainCamera();
+
+  /// \brief Override this to modify the default window creation behavior. Called by CreateActors().
+  virtual ezUniquePtr<ezWindow> CreateMainWindow();
+
+  /// \brief Override this to modify the default output target creation behavior. Called by CreateActors().
+  virtual ezUniquePtr<ezWindowOutputTargetBase> CreateMainOutputTarget(ezWindow* pMainWindow);
+
+  /// \brief Creates a default render view. Unless overridden, Activate() will do this for the main window.
+  virtual void SetupMainView(ezWindowOutputTargetBase* pOutputTarget, ezSizeU32 viewportSize);
+
+  /// \brief Configures available input devices, e.g. sets mouse speed, cursor clipping, etc.
+  /// Called by CreateActors() with the result of CreateMainWindow().
+  virtual void ConfigureMainWindowInputDevices(ezWindow* pWindow);
 
   ezViewHandle m_hMainView;
 

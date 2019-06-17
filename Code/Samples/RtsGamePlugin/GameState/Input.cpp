@@ -1,17 +1,16 @@
 #include <RtsGamePluginPCH.h>
 
-#include <RtsGamePlugin/GameState/RtsGameState.h>
 #include <Core/ActorSystem/Actor.h>
 #include <Core/ActorSystem/ActorManager.h>
+#include <RtsGamePlugin/GameState/RtsGameState.h>
 
-void RtsGameState::ConfigureInputDevices()
+void RtsGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow)
 {
-  SUPER::ConfigureInputDevices();
+  SUPER::ConfigureMainWindowInputDevices(pWindow);
 
-  // TODO: ezActor: fix how to setup input
-  //m_pWindow->GetInputDevice()->SetClipMouseCursor(ezMouseCursorClipMode::ClipToWindow);
-  //m_pWindow->GetInputDevice()->SetShowMouseCursor(true);
-  //m_pWindow->GetInputDevice()->SetMouseSpeed(ezVec2(0.002f));
+  pWindow->GetInputDevice()->SetClipMouseCursor(ezMouseCursorClipMode::ClipToWindow);
+  pWindow->GetInputDevice()->SetShowMouseCursor(true);
+  pWindow->GetInputDevice()->SetMouseSpeed(ezVec2(0.002f));
 }
 
 void RtsGameState::ConfigureInputActions()
@@ -87,11 +86,11 @@ void RtsGameState::UpdateMousePosition()
   }
 
   m_MouseInputState.m_bLeftMouseMoved =
-      m_MouseInputState.m_bLeftMouseMoved ||
-      RtsMouseInputState::HasMouseMoved(m_MouseInputState.m_MousePosLeftClick, m_MouseInputState.m_MousePos);
+    m_MouseInputState.m_bLeftMouseMoved ||
+    RtsMouseInputState::HasMouseMoved(m_MouseInputState.m_MousePosLeftClick, m_MouseInputState.m_MousePos);
   m_MouseInputState.m_bRightMouseMoved =
-      m_MouseInputState.m_bRightMouseMoved ||
-      RtsMouseInputState::HasMouseMoved(m_MouseInputState.m_MousePosRightClick, m_MouseInputState.m_MousePos);
+    m_MouseInputState.m_bRightMouseMoved ||
+    RtsMouseInputState::HasMouseMoved(m_MouseInputState.m_MousePosRightClick, m_MouseInputState.m_MousePos);
 
   ComputePickingRay();
 }

@@ -7,10 +7,10 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <GameApplication/WindowOutputTarget.h>
-#include <GameEngine/Gameplay/PlayerStartPointComponent.h>
 #include <GameEngine/Configuration/RendererProfileConfigs.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/GameStateWindow.h>
+#include <GameEngine/Gameplay/PlayerStartPointComponent.h>
 #include <GameEngine/Interfaces/VRInterface.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
@@ -91,8 +91,6 @@ void ezGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPositio
 
 
     ConfigureMainCamera();
-
-    ConfigureInputDevices();
   }
 
   ConfigureInputActions();
@@ -133,29 +131,6 @@ void ezGameState::CreateActors()
   //  }
   //#endif
 
-  ezHybridArray<ezScreenInfo, 2> screens;
-  ezScreen::EnumerateScreens(screens);
-  ezScreen::PrintScreenInfo(screens);
-
-  ezStringBuilder sWndCfg = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-wnd", 0, "");
-
-  if (!sWndCfg.IsEmpty() && !ezFileSystem::ExistsFile(sWndCfg))
-  {
-    ezLog::Dev("Window Config file does not exist: '{0}'", sWndCfg);
-    sWndCfg.Clear();
-  }
-
-  if (sWndCfg.IsEmpty())
-  {
-    if (ezFileSystem::ExistsFile(":appdata/Window.ddl"))
-      sWndCfg = ":appdata/Window.ddl";
-    else
-      sWndCfg = ":project/Window.ddl";
-  }
-
-  ezWindowCreationDesc wndDesc;
-  wndDesc.LoadFromDDL(sWndCfg);
-
   // TODO: VR support
   // if (m_bVirtualRealityMode)
   //{
@@ -164,42 +139,25 @@ void ezGameState::CreateActors()
   //  wndDesc.m_WindowMode = ezWindowMode::WindowResizable;
   //}
 
-  {
-    ezUniquePtr<ezActor> pActor = EZ_DEFAULT_NEW(ezActor, "Main Window", this);
+  ezUniquePtr<ezActor> pActor = EZ_DEFAULT_NEW(ezActor, "Main Window", this);
 
-    // create window
-    {
-      ezUniquePtr<ezGameStateWindow> pWindow = EZ_DEFAULT_NEW(ezGameStateWindow, wndDesc, [] {});
-      pWindow->ResetOnClickClose([]() { ezGameApplicationBase::GetGameApplicationBaseInstance()->RequestQuit(); });
-      pWindow->GetInputDevice()->SetMouseSpeed(ezVec2(0.002f));
+  ezUniquePtr<ezWindow> pMainWindow = CreateMainWindow();
+  EZ_ASSERT_DEV(pMainWindow != nullptr, "To change the main window creation behavior, override ezGameState::CreateActors().");
 
-      pActor->m_pWindow = std::move(pWindow);
-    }
+  ezUniquePtr<ezWindowOutputTargetBase> pOutput = CreateMainOutputTarget(pMainWindow.Borrow());
 
-    // create output target
-    {
-      ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
+  ConfigureMainWindowInputDevices(pMainWindow.Borrow());
 
-      ezGALSwapChainCreationDescription desc;
-      desc.m_pWindow = pActor->m_pWindow.Borrow();
-      desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
-      desc.m_bAllowScreenshots = true;
+  pActor->m_pWindow = std::move(pMainWindow);
+  pActor->m_pWindowOutputTarget = std::move(pOutput);
 
-      pOutput->CreateSwapchain(desc);
+  SetupMainView(pActor->m_pWindowOutputTarget.Borrow(), pActor->m_pWindow->GetClientAreaSize());
 
-      pActor->m_pWindowOutputTarget = std::move(pOutput);
-    }
 
-    // setup view
-    {
-      SetupMainView(pActor->m_pWindowOutputTarget.Borrow(), pActor->m_pWindow->GetClientAreaSize());
-    }
-
-    ezActorManager::GetSingleton()->AddActor(std::move(pActor));
-  }
+  ezActorManager::GetSingleton()->AddActor(std::move(pActor));
 }
 
-void ezGameState::ConfigureInputDevices() {}
+void ezGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow) {}
 
 void ezGameState::ConfigureInputActions() {}
 
@@ -316,4 +274,53 @@ void ezGameState::ConfigureMainCamera()
     m_MainCamera.LookAt(vCameraPos, vCameraPos + coordSys.m_vForwardDir, coordSys.m_vUpDir);
     m_MainCamera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 60.0f, 0.1f, 1000.0f);
   }
+}
+
+ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
+{
+  if (false)
+  {
+    ezHybridArray<ezScreenInfo, 2> screens;
+    ezScreen::EnumerateScreens(screens);
+    ezScreen::PrintScreenInfo(screens);
+  }
+
+  ezStringBuilder sWndCfg = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-wnd", 0, "");
+
+  if (!sWndCfg.IsEmpty() && !ezFileSystem::ExistsFile(sWndCfg))
+  {
+    ezLog::Dev("Window Config file does not exist: '{0}'", sWndCfg);
+    sWndCfg.Clear();
+  }
+
+  if (sWndCfg.IsEmpty())
+  {
+    if (ezFileSystem::ExistsFile(":appdata/Window.ddl"))
+      sWndCfg = ":appdata/Window.ddl";
+    else
+      sWndCfg = ":project/Window.ddl";
+  }
+
+  ezWindowCreationDesc wndDesc;
+  wndDesc.LoadFromDDL(sWndCfg);
+
+  ezUniquePtr<ezGameStateWindow> pWindow = EZ_DEFAULT_NEW(ezGameStateWindow, wndDesc, [] {});
+  pWindow->ResetOnClickClose([]() { ezGameApplicationBase::GetGameApplicationBaseInstance()->RequestQuit(); });
+  pWindow->GetInputDevice()->SetMouseSpeed(ezVec2(0.002f));
+
+  return pWindow;
+}
+
+ezUniquePtr<ezWindowOutputTargetBase> ezGameState::CreateMainOutputTarget(ezWindow* pMainWindow)
+{
+  ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
+
+  ezGALSwapChainCreationDescription desc;
+  desc.m_pWindow = pMainWindow;
+  desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+  desc.m_bAllowScreenshots = true;
+
+  pOutput->CreateSwapchain(desc);
+
+  return pOutput;
 }
