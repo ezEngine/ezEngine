@@ -23,7 +23,7 @@ namespace
 } // namespace
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 3, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -55,13 +55,62 @@ void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_hPrefab;
 
-  // Version 2
   const ezUInt32 numParams = m_Parameters.GetCount();
+
+  ezHybridArray<ezGameObjectHandle, 8> GoReferences;
+  ezArrayMap<ezHashedString, ezVariant> parameters = m_Parameters;
+
+  // Version 4
+  {
+    // to support game object references as exposed parameters (which are currently exposed as strings)
+    // we need to remap the string from an 'editor uuid' to something that can be interpreted as a proper ezGameObjectHandle at runtime
+
+    // so first we get the resolver and try to map any string parameter to a valid ezGameObjectHandle
+    auto resolver = GetWorld()->GetGameObjectReferenceResolver();
+
+    if (resolver.IsValid())
+    {
+      ezStringBuilder tmp;
+
+      for (ezUInt32 i = 0; i < numParams; ++i)
+      {
+        // if this is a string parameter
+        ezVariant& var = parameters.GetValue(i);
+        if (var.IsA<ezString>())
+        {
+          // and the resolver CAN map this string to a game object handle
+          ezGameObjectHandle hObject = resolver(var.Get<ezString>().GetData());
+          if (!hObject.IsInvalidated())
+          {
+            // write the handle properly to file (this enables correct remapping during deserialization)
+            // and discard the string's value, and instead write a string that specifies the index of the serialized handle to use
+
+            // local game object reference - index into GoReferences
+            tmp.Format("#!LGOR-{}", GoReferences.GetCount());
+            var = tmp.GetData();
+
+            GoReferences.PushBack(hObject);
+          }
+        }
+      }
+    }
+
+    // now write all the ezGameObjectHandle's such that during deserialization the ezWorldReader will remap it as needed
+    const ezUInt8 numRefs = static_cast<ezUInt8>(GoReferences.GetCount());
+    s << numRefs;
+
+    for (ezUInt8 i = 0; i < numRefs; ++i)
+    {
+      stream.WriteGameObjectHandle(GoReferences[i]);
+    }
+  }
+
+  // Version 2
   s << numParams;
   for (ezUInt32 i = 0; i < numParams; ++i)
   {
-    s << m_Parameters.GetKey(i);
-    s << m_Parameters.GetValue(i);
+    s << parameters.GetKey(i);
+    s << parameters.GetValue(i); // this may contain modified strings now, to map the game object handle references
   }
 }
 
@@ -79,6 +128,22 @@ void ezPrefabReferenceComponent::DeserializeComponent(ezWorldReader& stream)
     s >> bDummy;
   }
 
+  // temp array to hold (and remap) the serialized game object handles
+  ezHybridArray<ezGameObjectHandle, 8> GoReferences;
+
+  if (uiVersion >= 4)
+  {
+    ezUInt8 numRefs = 0;
+    s >> numRefs;
+    GoReferences.SetCountUninitialized(numRefs);
+
+    // just read them all, this will remap as necessary to the ezWorldReader
+    for (ezUInt8 i = 0; i < numRefs; ++i)
+    {
+      GoReferences[i] = stream.ReadGameObjectHandle();
+    }
+  }
+
   if (uiVersion >= 2)
   {
     ezUInt32 numParams = 0;
@@ -88,11 +153,36 @@ void ezPrefabReferenceComponent::DeserializeComponent(ezWorldReader& stream)
 
     ezHashedString key;
     ezVariant value;
+    ezStringBuilder tmp;
 
     for (ezUInt32 i = 0; i < numParams; ++i)
     {
       s >> key;
       s >> value;
+
+      if (value.IsA<ezString>())
+      {
+        // if we find a string parameter, check if it is a 'local game object reference'
+        const ezString& str = value.Get<ezString>();
+        if (str.StartsWith("#!LGOR-"))
+        {
+          // if so, extract the index into the GoReferences array
+          ezInt32 idx;
+          if (ezConversionUtils::StringToInt(str.GetData() + 7, idx).Succeeded())
+          {
+            // now we can lookup the remapped ezGameObjectHandle from our array
+            const ezGameObjectHandle hObject = GoReferences[idx];
+
+            // and stringify the handle into a 'global game object reference', ie. one that contains the internal integer data of the handle
+            // a regular runtime world has a reference resolver that is capable to reverse this stringified format to a handle again
+            // which will happen once 'InstantiatePrefab' passes the m_Parameters list to the newly created objects
+            tmp.Format("#!GGOR-{}", hObject.GetInternalID().m_Data);
+
+            // map local game object reference to global game object reference
+            value = tmp.GetData();
+          }
+        }
+      }
 
       m_Parameters.Insert(key, value);
     }

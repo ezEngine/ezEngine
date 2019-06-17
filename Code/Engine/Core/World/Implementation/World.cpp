@@ -12,6 +12,29 @@ ezStaticArray<ezWorld*, 64> ezWorld::s_Worlds;
 
 const ezUInt16 c_InvalidWorldIndex = 0xFFFFu;
 
+static ezGameObjectHandle DefaultGameObjectReferenceResolver(const void* pData)
+{
+  const char* szRef = reinterpret_cast<const char*>(pData);
+
+  if (ezStringUtils::IsNullOrEmpty(szRef))
+    return ezGameObjectHandle();
+
+  // this is a convention used by ezPrefabReferenceComponent:
+  // a string starting with this means a 'global game object reference', ie a reference that is valid within the current world
+  // what follows is an integer that is the internal storage of an ezGameObjectHandle
+  // thus parsing the int and casting it to an ezGameObjectHandle gives the desired result
+  if (ezStringUtils::StartsWith(szRef, "#!GGOR-"))
+  {
+    ezInt32 id;
+    if (ezConversionUtils::StringToInt(szRef + 7, id).Succeeded())
+    {
+      return ezGameObjectHandle(static_cast<ezGameObjectId>(id));
+    }
+  }
+
+  return ezGameObjectHandle();
+}
+
 ezWorld::ezWorld(ezWorldDesc& desc)
   : m_UpdateTask("", ezMakeDelegate(&ezWorld::UpdateFromThread, this))
   , m_Data(desc)
@@ -40,6 +63,8 @@ ezWorld::ezWorld(ezWorldDesc& desc)
     m_uiIndex = static_cast<ezUInt16>(s_Worlds.GetCount());
     s_Worlds.PushBack(this);
   }
+
+  SetGameObjectReferenceResolver(DefaultGameObjectReferenceResolver);
 }
 
 ezWorld::~ezWorld()
