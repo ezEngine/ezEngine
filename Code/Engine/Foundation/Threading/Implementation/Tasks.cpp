@@ -206,66 +206,11 @@ void ezTaskSystem::WaitForTask(ezTask* pTask)
 
   EZ_PROFILE_SCOPE("WaitForTask");
 
-  ezTaskPriority::Enum FirstPriority = ezTaskPriority::EarlyThisFrame;
-  ezTaskPriority::Enum LastPriority = ezTaskPriority::LateNextFrame;
-
-  // this specifies whether WaitForTask may fall back to processing standard tasks, when there is no more specific work available
-  // in some cases we absolutely want to avoid that, since it can produce deadlocks
-  // E.g. on the loading thread, if we are in the process of loading something and then we have to wait for something else,
-  // we must not start that work on the loading thread, because once THAT task runs into something where it has to wait for something
-  // to be loaded, we have a circular dependency on the thread itself and thus a deadlock
-  bool bAllowDefaultWork = true;
-
-  if (ezThreadUtils::IsMainThread())
-  {
-    // if this is the main thread, we need to execute the main-thread tasks
-    // otherwise a dependency on which pTask is waiting, might not get fulfilled
-    FirstPriority = ezTaskPriority::ThisFrameMainThread;
-    LastPriority = ezTaskPriority::SomeFrameMainThread;
-
-    /// \todo It is currently unclear whether bAllowDefaultWork should be false here as well (in which case the whole fall back mechanism
-    /// could be removed)
-    bAllowDefaultWork = false;
-  }
-  else if (IsLoadingThread())
-  {
-    FirstPriority = ezTaskPriority::FileAccessHighPriority;
-    LastPriority = ezTaskPriority::FileAccess;
-    bAllowDefaultWork = false;
-  }
-  else if (IsLongRunningThread())
-  {
-    FirstPriority = ezTaskPriority::LongRunningHighPriority;
-    LastPriority = ezTaskPriority::LongRunning;
-    bAllowDefaultWork = false;
-  }
-
   while (!pTask->IsTaskFinished())
   {
-    // we only execute short tasks here, because you should never WAIT for a long running task
-    // and a short task should never have a dependency on a long running task either
-    // so we assume that only short running tasks need to be executed to fulfill the task's dependencies
-    // Since there are threads to deal with long running tasks in parallel, even if we were waiting for such
-    // a task, it will get finished at some point
-    if (!ExecuteTask(FirstPriority, LastPriority, pTask))
+    if (!HelpExecutingTasks(pTask))
     {
-      if (!pTask->IsTaskFinished())
-      {
-        // if there was nothing for us to do, that probably means that the task is either currently being processed by some other thread
-        // or it is in a priority list that we did not want to work on (maybe because we are on the main thread)
-        // in this case try it again with non-main-thread tasks
-
-        // if bAllowDefaultWork is false, we just always yield here
-
-        if (!bAllowDefaultWork || !ExecuteTask(ezTaskPriority::EarlyThisFrame, ezTaskPriority::LateNextFrame, pTask))
-        {
-          // if there is STILL nothing for us to do, it might be a long running task OR it is already being processed
-          // we won't fall back to processing long running tasks, because that might stall the application
-          // instead we assume the task (or any dependency) is currently processed by another thread
-          // and to prevent a busy loop, we just give up our time-slice and try again later
-          ezThreadUtils::YieldTimeSlice();
-        }
-      }
+      ezThreadUtils::YieldTimeSlice();
     }
   }
 }
@@ -330,19 +275,22 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
   return EZ_FAILURE;
 }
 
-bool ezTaskSystem::HelpExecutingTasks()
+bool ezTaskSystem::HelpExecutingTasks(ezTask* pPrioritizeThis)
 {
-  ezTaskPriority::Enum FirstPriority = ezTaskPriority::EarlyThisFrame;
-  ezTaskPriority::Enum LastPriority = ezTaskPriority::LateNextFrame;
+  bool bAllowDefaultWork;
+  ezTaskPriority::Enum FirstPriority;
+  ezTaskPriority::Enum LastPriority;
+  DetermineTasksToExecuteOnThread(FirstPriority, LastPriority, bAllowDefaultWork);
 
-  if (ezThreadUtils::IsMainThread())
+  if (ExecuteTask(FirstPriority, LastPriority, pPrioritizeThis))
+    return true;
+
+  if (bAllowDefaultWork)
   {
-    // if this is the main thread, we need to execute the main-thread tasks
-    FirstPriority = ezTaskPriority::ThisFrameMainThread;
-    LastPriority = ezTaskPriority::SomeFrameMainThread;
+    return ExecuteTask(ezTaskPriority::EarlyThisFrame, ezTaskPriority::In9Frames, pPrioritizeThis);
   }
 
-  return ExecuteTask(FirstPriority, LastPriority);
+  return false;
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_Tasks);

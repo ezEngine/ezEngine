@@ -18,8 +18,8 @@ class ezTask;
 /// For tasks that you start this frame and that need to finish within the same frame,
 /// use 'EarlyThisFrame', 'ThisFrame' or 'LateThisFrame'.\n
 /// However you should generally not rely on starting tasks in the same frame in which they need to finish.\n
-/// Instead prefer to start a task, whose result you need in the next frame.\n
-/// For those tasks, use 'EarlyNextFrame', 'NextFrame' and 'LateNextFrame'.\n
+/// Instead prefer to start a task, whose result you need in the next frame or even later.\n
+/// For those tasks, use 'EarlyNextFrame', 'NextFrame', 'LateNextFrame' and 'InNFrames'.\n
 /// Once 'ezTaskSystem::FinishFrameTasks' is called, all those tasks will be moved into the 'XYZThisFrame' categories.\n
 /// For tasks that run over a longer period (e.g. path searches, procedural data creation), use 'LongRunning'.
 /// Only use 'LongRunningHighPriority' for tasks that occur rarely, otherwise 'LongRunning' tasks might not get processed, at all.\n
@@ -34,28 +34,40 @@ class ezTask;
 /// executed on the main thread should never assume a certain state of other systems.
 struct ezTaskPriority
 {
+  // clang-format off
   enum Enum : ezUInt8
   {
-    EarlyThisFrame,          ///< Highest priority, guaranteed to get finished in this frame.
-    ThisFrame,               ///< Medium priority, guaranteed to get finished in this frame.
-    LateThisFrame,           ///< Low priority, guaranteed to get finished in this frame.
-    EarlyNextFrame,          ///< Highest priority in next frame, guaranteed to get finished this frame or the next.
-    NextFrame,               ///< Medium priority in next frame, guaranteed to get finished this frame or the next.
-    LateNextFrame,           ///< Low priority in next frame, guaranteed to get finished this frame or the next.
-    LongRunningHighPriority, ///< Tasks that might take a while, but should be preferred over 'LongRunning' tasks. Use this priority only
-                             ///< rarely, otherwise 'LongRunning' tasks might never get executed.
-    LongRunning,             ///< Use this priority for tasks that might run for a while.
-    FileAccessHighPriority,  ///< For tasks that require file access (e.g. resource loading). They run on one dedicated thread, such that
-                             ///< file accesses are done sequentially and never in parallel.
-    FileAccess, ///< For tasks that require file access (e.g. resource loading). They run on one dedicated thread, such that file accesses
-                ///< are done sequentially and never in parallel.
-    ThisFrameMainThread, ///< Tasks that need to be executed this frame, but in the main thread. This is mostly intended for resource
-                         ///< creation.
-    SomeFrameMainThread, ///< Tasks that have no hard deadline but need to be executed in the main thread. This is mostly intended for
-                         ///< resource creation.
+    EarlyThisFrame,           ///< Highest priority, guaranteed to get finished in this frame.
+    ThisFrame,                ///< Medium priority, guaranteed to get finished in this frame.
+    LateThisFrame,            ///< Low priority, guaranteed to get finished in this frame.
+    EarlyNextFrame,           ///< Highest priority in next frame, guaranteed to get finished this frame or the next.
+    NextFrame,                ///< Medium priority in next frame, guaranteed to get finished this frame or the next.
+    LateNextFrame,            ///< Low priority in next frame, guaranteed to get finished this frame or the next.
+
+    In2Frames,                ///< A short task that should be finished no later than in 2 frames
+    In3Frames,                ///< A short task that should be finished no later than in 3 frames
+    In4Frames,                ///< A short task that should be finished no later than in 4 frames
+    In5Frames,                ///< A short task that should be finished no later than in 5 frames
+    In6Frames,                ///< A short task that should be finished no later than in 6 frames
+    In7Frames,                ///< A short task that should be finished no later than in 7 frames
+    In8Frames,                ///< A short task that should be finished no later than in 8 frames
+    In9Frames,                ///< A short task that should be finished no later than in 9 frames
+
+    LongRunningHighPriority,  ///< Tasks that might take a while, but should be preferred over 'LongRunning' tasks. Use this priority only
+                              ///< rarely, otherwise 'LongRunning' tasks might never get executed.
+    LongRunning,              ///< Use this priority for tasks that might run for a while.
+    FileAccessHighPriority,   ///< For tasks that require file access (e.g. resource loading). They run on one dedicated thread, such that
+                              ///< file accesses are done sequentially and never in parallel.
+    FileAccess,               ///< For tasks that require file access (e.g. resource loading). They run on one dedicated thread, such that file accesses
+                              ///< are done sequentially and never in parallel.
+    ThisFrameMainThread,      ///< Tasks that need to be executed this frame, but in the main thread. This is mostly intended for resource
+                              ///< creation.
+    SomeFrameMainThread,      ///< Tasks that have no hard deadline but need to be executed in the main thread. This is mostly intended for
+                              ///< resource creation.
 
     ENUM_COUNT
   };
+  // clang-format on
 };
 
 /// \brief Enum that describes what to do when waiting for or canceling tasks, that have already started execution.
@@ -73,6 +85,8 @@ struct ezWorkerThreadType
 {
   enum Enum : ezUInt8
   {
+    Unknown,    ///< Default for all non-ezTaskSystem-worker threads. Will only execute short tasks.
+    MainThread, ///< My only be used by the main thread (automatically used by the ezTaskSystem)
     ShortTasks,
     LongTasks,
     FileAccess,

@@ -103,7 +103,7 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
 
   if (ezThreadUtils::IsMainThread())
     uiThreadType = 1 << 0;
-  else if (ezTaskSystem::IsLoadingThread())
+  else if (ezTaskSystem::GetCurrentThreadWorkerType() == ezWorkerThreadType::FileAccess)
     uiThreadType = 1 << 1;
   else
     uiThreadType = 1 << 2;

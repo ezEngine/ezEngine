@@ -254,11 +254,11 @@ public:
   /// If bWaitForIt is true, the function returns only after it is guaranteed that all tasks are properly terminated.
   static ezResult CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum OnTaskRunning = ezOnTaskRunning::WaitTillFinished); // [tested]
 
-  /// \brief Helps executing tasks that a suitable for the calling thread. Returns true if a task was found and executed. 
-  static bool HelpExecutingTasks();
+  /// \brief Helps executing tasks that are suitable for the calling thread. Returns true if a task was found and executed.
+  static bool HelpExecutingTasks(ezTask* pPrioritizeThis = nullptr);
 
-  /// \brief Returns true when the thread that this function is executed on is the file loading thread.
-  static bool IsLoadingThread();
+  /// \brief Returns the (thread local) type of tasks that would be executed on this thread
+  static ezWorkerThreadType::Enum GetCurrentThreadWorkerType();
 
   /// \brief Returns the utilization (0.0 to 1.0) of the given thread. Note: This will only be valid, if FinishFrameTasks() is called once
   /// per frame.
@@ -308,9 +308,6 @@ private:
   // Is called whenever a dependency of pGroup has finished. Once all dependencies are finished, the group's tasks will get scheduled.
   static void DependencyHasFinished(ezTaskGroup* pGroup);
 
-  /// Returns true when the thread that this function is executed on is a worker thread for long running tasks.
-  static bool IsLongRunningThread();
-
   // Shuts down all worker threads. Does NOT finish the remaining tasks. Does not clear them either, though.
   static void StopWorkerThreads();
 
@@ -329,6 +326,12 @@ private:
   // Executes up to uiSomeFrameTasks tasks of priority 'SomeFrameMainThread', as long as the last duration between frames is no longer than
   // fSmoothFrameMS.
   static void ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoothFrameMS);
+
+  // Figures out the range of tasks that this thread may execute when it has free cycles to help out.
+  // Uses a thread local variable to know whether this is the main thread / loading thread / long running thread and thus also decides
+  // whether the thread is allowed to fall back to 'default' work (short tasks).
+  static void DetermineTasksToExecuteOnThread(
+    ezTaskPriority::Enum& out_FirstPriority, ezTaskPriority::Enum& out_LastPriority, bool& out_bAllowDefaultWork);
 
 private:
   // *** Internal Data ***
