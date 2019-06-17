@@ -32,8 +32,8 @@ private:
   ezResult ConvertAndScaleInputImages(ezUInt32 uiResolutionX, ezUInt32 uiResolutionY);
   ezResult ConvertToNormalMap(ezImage& bumpMap) const;
   ezResult ConvertToNormalMap(ezArrayPtr<ezImage> bumpMap) const;
-  ezResult ClampInputValues(ezArrayPtr<ezImage> images) const;
-  ezResult ClampInputValues(ezImage& image) const;
+  ezResult ClampInputValues(ezArrayPtr<ezImage> images, float maxValue) const;
+  ezResult ClampInputValues(ezImage& image, float maxValue) const;
 
   //////////////////////////////////////////////////////////////////////////
   // Reading from the descriptor

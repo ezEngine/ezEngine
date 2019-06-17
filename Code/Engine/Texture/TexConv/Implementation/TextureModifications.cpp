@@ -235,17 +235,17 @@ ezResult ezTexConvProcessor::ConvertToNormalMap(ezImage& bumpMap) const
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::ClampInputValues(ezArrayPtr<ezImage> images) const
+ezResult ezTexConvProcessor::ClampInputValues(ezArrayPtr<ezImage> images, float maxValue) const
 {
   for (ezImage& image : images)
   {
-    EZ_SUCCEED_OR_RETURN(ClampInputValues(image));
+    EZ_SUCCEED_OR_RETURN(ClampInputValues(image, maxValue));
   }
 
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::ClampInputValues(ezImage& image) const
+ezResult ezTexConvProcessor::ClampInputValues(ezImage& image, float maxValue) const
 {
   // we'll assume that at this point in the processing pipeline, the format is
   // RGBA32F which should result in tightly packed mipmaps.
@@ -253,14 +253,13 @@ ezResult ezTexConvProcessor::ClampInputValues(ezImage& image) const
 
   for (auto& value : image.GetBlobPtr<float>())
   {
-    constexpr float maxVal = 64000.f;
     if (ezMath::IsNaN(value))
     {
       value = 0.f;
     }
     else
     {
-      value = ezMath::Clamp(value, -maxVal, maxVal);
+      value = ezMath::Clamp(value, -maxValue, maxValue);
     }
   }
 
