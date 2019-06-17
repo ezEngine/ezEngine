@@ -28,8 +28,6 @@ private:
   void CreateHistogramQuad();
   void OnFileChanged(const char* filename, ezDirectoryWatcherAction action);
 
-  ezUniquePtr<ezWindow> m_pWindow;
-
   ezGALTextureHandle m_hScreenTexture;
   ezGALRenderTargetViewHandle m_hScreenRTV;
   ezGALResourceViewHandle m_hScreenSRV;
