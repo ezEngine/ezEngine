@@ -94,7 +94,7 @@ void PlacementTask::FindPlacementPoints()
       if (!hitResult.m_hSurface.IsValid())
         continue;
 
-      ezResourceLock<ezSurfaceResource> hitSurface(hitResult.m_hSurface, ezResourceAcquireMode::NoFallbackAllowMissing);
+      ezResourceLock<ezSurfaceResource> hitSurface(hitResult.m_hSurface, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
       if (hitSurface.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
         continue;
 
@@ -218,7 +218,7 @@ void PlacementTask::ExecuteVM()
   const ezColorGradient* pColorGradient = nullptr;
   if (m_pOutput->m_hColorGradient.IsValid())
   {
-    ezResourceLock<ezColorGradientResource> pColorGradientResource(m_pOutput->m_hColorGradient, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezColorGradientResource> pColorGradientResource(m_pOutput->m_hColorGradient, ezResourceAcquireMode::BlockTillLoaded);
     pColorGradient = &(pColorGradientResource->GetDescriptor().m_Gradient);
   }
 

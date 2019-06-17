@@ -199,7 +199,7 @@ void ezFmod::UpdateSound()
   // make sure to reload the sound bank, if it has been unloaded
   if (m_pData->m_hMasterBank.IsValid())
   {
-    ezResourceLock<ezFmodSoundBankResource> pMaster(m_pData->m_hMasterBank, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezFmodSoundBankResource> pMaster(m_pData->m_hMasterBank, ezResourceAcquireMode::BlockTillLoaded);
   }
 
   // Master Volume
@@ -380,7 +380,7 @@ ezResult ezFmod::LoadMasterSoundBank(const char* szMasterBankResourceID)
   m_pData->m_hMasterBank = ezResourceManager::LoadResource<ezFmodSoundBankResource>(szMasterBankResourceID);
 
   {
-    ezResourceLock<ezFmodSoundBankResource> pResource(m_pData->m_hMasterBank, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezFmodSoundBankResource> pResource(m_pData->m_hMasterBank, ezResourceAcquireMode::BlockTillLoaded);
 
     if (pResource.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
       return EZ_FAILURE;
@@ -393,7 +393,7 @@ ezResult ezFmod::LoadMasterSoundBank(const char* szMasterBankResourceID)
   m_pData->m_hMasterBankStrings = ezResourceManager::LoadResource<ezFmodSoundBankResource>(sStringsBankPath);
 
   {
-    ezResourceLock<ezFmodSoundBankResource> pResource(m_pData->m_hMasterBankStrings, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezFmodSoundBankResource> pResource(m_pData->m_hMasterBankStrings, ezResourceAcquireMode::BlockTillLoaded);
 
     if (pResource.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
       return EZ_FAILURE;

@@ -31,7 +31,7 @@ void Level::SetupLevel(ezUniquePtr<ezWorld> pWorld)
   {
     m_hAssetCollection = ezResourceManager::LoadResource<ezCollectionResource>("{ c475e948-2e1d-4af0-b69b-d7c0bbad9130 }");
 
-    ezResourceLock<ezCollectionResource> pCollection(m_hAssetCollection, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezCollectionResource> pCollection(m_hAssetCollection, ezResourceAcquireMode::BlockTillLoaded);
     pCollection->RegisterNames();
   }
 

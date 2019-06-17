@@ -545,7 +545,7 @@ void ezFmodEventComponent::Restart()
 
   if (m_pEventInstance == nullptr)
   {
-    ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::BlockTillLoaded);
 
     if (pEvent.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
       return;
@@ -572,7 +572,7 @@ void ezFmodEventComponent::StartOneShot()
   if (!m_hSoundEvent.IsValid())
     return;
 
-  ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::BlockTillLoaded);
 
   if (pEvent.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
   {
@@ -645,7 +645,7 @@ ezInt32 ezFmodEventComponent::FindParameter(const char* szName) const
   if (!m_hSoundEvent.IsValid())
     return -1;
 
-  ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::BlockTillLoaded);
 
   FMOD::Studio::EventDescription* pEventDesc = pEvent->GetDescriptor();
   if (pEventDesc == nullptr || !pEventDesc->isValid())

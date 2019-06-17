@@ -70,7 +70,7 @@ void ezMeshComponent::OnExtractGeometry(ezMsgExtractGeometry& msg) const
 
   ezCpuMeshResourceHandle hCpuMesh = ezResourceManager::LoadResource<ezCpuMeshResource>(szMesh);
 
-  ezResourceLock<ezCpuMeshResource> pCpuMesh(hCpuMesh, ezResourceAcquireMode::NoFallbackAllowMissing);
+  ezResourceLock<ezCpuMeshResource> pCpuMesh(hCpuMesh, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
 
   if (pCpuMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
   {

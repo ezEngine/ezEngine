@@ -86,7 +86,7 @@ public:
   /// other resources to be loaded first. This is only a hint and there are no guarantees when the resource is available.
   static void PreloadResource(const ezTypelessResourceHandle& hResource);
 
-  /// \brief Similar to locking a resource with 'NoFallback' acquire mode, but can be done with a typeless handle and does not return a result.
+  /// \brief Similar to locking a resource with 'BlockTillLoaded' acquire mode, but can be done with a typeless handle and does not return a result.
   static void ForceLoadResourceNow(const ezTypelessResourceHandle& hResource);
 
   /// \brief Returns the current loading state of the given resource.
@@ -151,7 +151,7 @@ public:
   template <typename ResourceType>
   static void EndAcquireResource(ResourceType* pResource);
 
-  /// \brief Forces the resource manager to treat ezResourceAcquireMode::AllowFallback as ezResourceAcquireMode::NoFallback on
+  /// \brief Forces the resource manager to treat ezResourceAcquireMode::AllowLoadingFallback as ezResourceAcquireMode::BlockTillLoaded on
   /// BeginAcquireResource.
   static void ForceNoFallbackAcquisition(ezUInt32 uiNumFrames = 0xFFFFFFFF);
 

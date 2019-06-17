@@ -10,7 +10,7 @@
 /// Whether the acquisition succeeded or returned a loading fallback, missing fallback or even no result, at all,
 /// can be retrieved through GetAcquireResult().
 /// \note If a resource is missing, but no missing fallback is specified for the resource type, the code will fail with an assertion,
-/// unless you used ezResourceAcquireMode::NoFallbackAllowMissing. Only then will the error be silently ignored and the acquire result
+/// unless you used ezResourceAcquireMode::BlockTillLoaded_NeverFail. Only then will the error be silently ignored and the acquire result
 /// will be ezResourceAcquireResult::None.
 ///
 /// \sa ezResourceManager::BeginAcquireResource()

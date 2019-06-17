@@ -40,7 +40,7 @@ ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResour
   // make sure the sound bank is fully loaded before trying to get the event descriptor (even though we go through the Fmod 'system' the
   // bank resource must be loaded first)
   {
-    ezResourceLock<ezFmodSoundBankResource> pBank(pData->m_hSoundBank, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezFmodSoundBankResource> pBank(pData->m_hSoundBank, ezResourceAcquireMode::BlockTillLoaded);
 
     if (ezConversionUtils::IsStringUuid(sSubPath))
     {

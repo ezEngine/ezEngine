@@ -451,7 +451,7 @@ static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, e
   if (hMesh.IsValid())
     return hMesh;
 
-  ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowFallback);
+  ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
 
   ezMeshResourceDescriptor md;
   md.UseExistingMeshBuffer(hMeshBuffer);

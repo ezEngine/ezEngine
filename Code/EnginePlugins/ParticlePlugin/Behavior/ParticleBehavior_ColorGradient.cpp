@@ -127,7 +127,7 @@ void ezParticleBehavior_ColorGradient::InitializeElements(ezUInt64 uiStartIndex,
   {
     m_InitColor = m_TintColor;
 
-    ezResourceLock<ezColorGradientResource> pGradient(m_hGradient, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezColorGradientResource> pGradient(m_hGradient, ezResourceAcquireMode::BlockTillLoaded);
 
     if (pGradient.GetAcquireResult() != ezResourceAcquireResult::MissingFallback)
     {
@@ -169,7 +169,7 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
 
   EZ_PROFILE_SCOPE("PFX: Color Gradient");
 
-  ezResourceLock<ezColorGradientResource> pGradient(m_hGradient, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezColorGradientResource> pGradient(m_hGradient, ezResourceAcquireMode::BlockTillLoaded);
 
   if (pGradient.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
     return;

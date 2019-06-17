@@ -82,7 +82,7 @@ void ezColorAnimationComponent::Update()
   if (m_CurAnimTime >= m_Duration)
     m_CurAnimTime -= m_Duration;
 
-  ezResourceLock<ezColorGradientResource> pGradient(m_hGradient, ezResourceAcquireMode::AllowFallback);
+  ezResourceLock<ezColorGradientResource> pGradient(m_hGradient, ezResourceAcquireMode::AllowLoadingFallback);
 
   if (pGradient.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;

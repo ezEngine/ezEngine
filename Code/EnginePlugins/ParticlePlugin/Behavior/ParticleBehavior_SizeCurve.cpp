@@ -117,7 +117,7 @@ void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
   ezProcessingStreamIterator<ezFloat16Vec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
   ezProcessingStreamIterator<ezFloat16> itSize(m_pStreamSize, uiNumElements, 0);
 
-  ezResourceLock<ezCurve1DResource> pCurve(m_hCurve, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezCurve1DResource> pCurve(m_hCurve, ezResourceAcquireMode::BlockTillLoaded);
 
   if (pCurve.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
     return;

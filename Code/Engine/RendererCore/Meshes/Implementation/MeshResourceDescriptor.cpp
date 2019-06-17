@@ -488,7 +488,7 @@ void ezMeshResourceDescriptor::ComputeBounds()
 {
   if (m_hMeshBuffer.IsValid())
   {
-    ezResourceLock<ezMeshBufferResource> pMeshBuffer(m_hMeshBuffer, ezResourceAcquireMode::AllowFallback);
+    ezResourceLock<ezMeshBufferResource> pMeshBuffer(m_hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
     m_Bounds = pMeshBuffer->GetBounds();
   }
   else

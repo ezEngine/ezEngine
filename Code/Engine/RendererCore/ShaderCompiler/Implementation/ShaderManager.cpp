@@ -254,7 +254,7 @@ ezArrayPtr<const ezHashedString> ezShaderManager::GetPermutationEnumValues(const
 void ezShaderManager::PreloadPermutations(
   ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, ezTime tShouldBeAvailableIn)
 {
-  ezResourceLock<ezShaderResource> pShader(hShader, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezShaderResource> pShader(hShader, ezResourceAcquireMode::BlockTillLoaded);
 
   if (!pShader->IsShaderValid())
     return;
@@ -281,7 +281,7 @@ ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutation(ezSh
   const ezHashTable<ezHashedString, ezHashedString>& permVars, bool bAllowFallback)
 {
   ezResourceLock<ezShaderResource> pShader(
-    hShader, bAllowFallback ? ezResourceAcquireMode::AllowFallback : ezResourceAcquireMode::NoFallback);
+    hShader, bAllowFallback ? ezResourceAcquireMode::AllowLoadingFallback : ezResourceAcquireMode::BlockTillLoaded);
 
   if (!pShader->IsShaderValid())
     return ezShaderPermutationResourceHandle();

@@ -611,7 +611,7 @@ void ezCameraComponent::ActivateRenderToTexture()
   if (m_bRenderTargetInitialized || !m_hRenderTarget.IsValid() || m_sRenderPipeline.IsEmpty() || !IsActiveAndInitialized())
     return;
 
-  ezResourceLock<ezRenderToTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::NoFallbackAllowMissing);
+  ezResourceLock<ezRenderToTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
 
   if (pRenderTarget.GetAcquireResult() != ezResourceAcquireResult::Final)
   {
@@ -677,7 +677,7 @@ void ezCameraComponent::DeactivateRenderToTexture()
 
   if (m_hRenderTarget.IsValid())
   {
-    ezResourceLock<ezRenderToTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezRenderToTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::BlockTillLoaded);
     pRenderTarget->RemoveRenderView(m_hRenderTargetView);
 
     pRenderTarget->m_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezCameraComponent::ResourceChangeEventHandler, this));

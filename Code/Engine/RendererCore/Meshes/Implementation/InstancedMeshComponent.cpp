@@ -224,7 +224,7 @@ ezResult ezInstancedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, b
   ezBoundingBoxSphere singleBounds;
   if (m_hMesh.IsValid())
   {
-    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowFallback);
+    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
     singleBounds = pMesh->GetBounds();
 
     for (const auto& instance : m_rawInstancedData)
@@ -308,7 +308,7 @@ ezArrayPtr<ezPerInstanceData> ezInstancedMeshComponent::GetInstanceData() const
 
   if (m_hMesh.IsValid())
   {
-    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowFallback);
+    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
     fBoundingSphereRadius = pMesh->GetBounds().GetSphere().m_fRadius;
   }
 

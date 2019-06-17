@@ -260,7 +260,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
     renderViewContext.m_pRenderContext->BindTexture2D("LowResDepthTexture", pDevice->GetDefaultResourceView(hzbTexture));
     renderViewContext.m_pRenderContext->BindSamplerState("DepthSampler", m_hSSAOSamplerState);
 
-    renderViewContext.m_pRenderContext->BindTexture2D("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::NoFallback);
+    renderViewContext.m_pRenderContext->BindTexture2D("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::BlockTillLoaded);
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer();
   }

@@ -62,7 +62,7 @@ void ezKrautTreeViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   auto hResource = m_pKrautTreeContext->GetResource();
   if (hResource.IsValid())
   {
-    ezResourceLock<ezKrautTreeResource> pResource(hResource, ezResourceAcquireMode::AllowFallback);
+    ezResourceLock<ezKrautTreeResource> pResource(hResource, ezResourceAcquireMode::AllowLoadingFallback);
 
     if (pResource->GetDetails().m_Bounds.IsValid())
     {

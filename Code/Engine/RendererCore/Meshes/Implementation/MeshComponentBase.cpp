@@ -155,7 +155,7 @@ ezResult ezMeshComponentBase::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& 
 {
   if (m_hMesh.IsValid())
   {
-    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowFallback);
+    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
     bounds = pMesh->GetBounds();
     return EZ_SUCCESS;
   }
@@ -168,7 +168,7 @@ void ezMeshComponentBase::OnExtractRenderData(ezMsgExtractRenderData& msg) const
   if (!m_hMesh.IsValid())
     return;
 
-  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowFallback);
+  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
   ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
 
   for (ezUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
@@ -201,7 +201,7 @@ void ezMeshComponentBase::OnExtractRenderData(ezMsgExtractRenderData& msg) const
     {
       if (hMaterial.IsValid())
       {
-        ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowFallback);
+        ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
         ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
         if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
         {

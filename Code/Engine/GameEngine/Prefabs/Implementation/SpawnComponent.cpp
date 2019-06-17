@@ -107,7 +107,7 @@ bool ezSpawnComponent::SpawnOnce()
 
 void ezSpawnComponent::DoSpawn(const ezTransform& tLocalSpawn)
 {
-  ezResourceLock<ezPrefabResource> pResource(m_hPrefab, ezResourceAcquireMode::AllowFallback);
+  ezResourceLock<ezPrefabResource> pResource(m_hPrefab, ezResourceAcquireMode::AllowLoadingFallback);
 
   if (m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::AttachAsChild))
   {

@@ -129,7 +129,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
 
     if (m_Descriptor.m_hBaseSurface.IsValid())
     {
-      ezResourceLock<ezSurfaceResource> pBase(m_Descriptor.m_hBaseSurface, ezResourceAcquireMode::NoFallback);
+      ezResourceLock<ezSurfaceResource> pBase(m_Descriptor.m_hBaseSurface, ezResourceAcquireMode::BlockTillLoaded);
       return pBase->InteractWithSurface(pWorld, hObject, vPosition, vSurfaceNormal, vIncomingDirection, sInteraction, pOverrideTeamID);
     }
 
@@ -140,7 +140,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
   if (!pIA->m_hPrefab.IsValid())
     return false;
 
-  ezResourceLock<ezPrefabResource> pPrefab(pIA->m_hPrefab, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezPrefabResource> pPrefab(pIA->m_hPrefab, ezResourceAcquireMode::BlockTillLoaded);
 
   ezVec3 vDir;
 
@@ -276,7 +276,7 @@ bool ezSurfaceResource::IsBasedOn(const ezSurfaceResource* pThisOrBaseSurface) c
 
   if (m_Descriptor.m_hBaseSurface.IsValid())
   {
-    ezResourceLock<ezSurfaceResource> pBase(m_Descriptor.m_hBaseSurface, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezSurfaceResource> pBase(m_Descriptor.m_hBaseSurface, ezResourceAcquireMode::BlockTillLoaded);
 
     return pBase->IsBasedOn(pThisOrBaseSurface);
   }
@@ -286,7 +286,7 @@ bool ezSurfaceResource::IsBasedOn(const ezSurfaceResource* pThisOrBaseSurface) c
 
 bool ezSurfaceResource::IsBasedOn(const ezSurfaceResourceHandle hThisOrBaseSurface) const
 {
-  ezResourceLock<ezSurfaceResource> pThisOrBaseSurface(hThisOrBaseSurface, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezSurfaceResource> pThisOrBaseSurface(hThisOrBaseSurface, ezResourceAcquireMode::BlockTillLoaded);
 
   return IsBasedOn(pThisOrBaseSurface.GetPointer());
 }

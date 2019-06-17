@@ -68,7 +68,7 @@ ezResult ezKrautTreeComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool&
 {
   if (m_hKrautTree.IsValid())
   {
-    ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::AllowFallback);
+    ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::AllowLoadingFallback);
     // TODO: handle fallback case properly
 
     bounds = pTree->GetDetails().m_Bounds;
@@ -136,7 +136,7 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
   if (!m_hKrautTree.IsValid())
     return;
 
-  ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::AllowFallback);
+  ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::AllowLoadingFallback);
 
   // TODO: handle fallback case properly
 
@@ -149,7 +149,7 @@ void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
 
     const ezUInt32 uiMeshIDHash = lodData.m_hMesh.GetResourceIDHash();
 
-    ezResourceLock<ezMeshResource> pMesh(lodData.m_hMesh, ezResourceAcquireMode::AllowFallback);
+    ezResourceLock<ezMeshResource> pMesh(lodData.m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
     ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> subMeshes = pMesh->GetSubMeshes();
 
     const ezGameObject* pOwner = GetOwner();
@@ -208,7 +208,7 @@ ezResult ezKrautTreeComponent::CreateGeometry(ezGeometry& geo, ezWorldGeoExtract
   if (!m_hKrautTree.IsValid())
     return EZ_FAILURE;
 
-  ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::BlockTillLoaded);
 
   if (pTree.GetAcquireResult() != ezResourceAcquireResult::Final)
     return EZ_FAILURE;
@@ -281,7 +281,7 @@ void ezKrautTreeComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
   auto& subMesh = msg.m_pStaticMeshDescription->m_SubMeshes.ExpandAndGetRef();
 
   {
-    ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::BlockTillLoaded);
     const auto& details = pTree->GetDetails();
 
     if (!details.m_sSurfaceResource.IsEmpty())

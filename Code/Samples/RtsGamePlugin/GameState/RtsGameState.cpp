@@ -76,15 +76,15 @@ void RtsGameState::PreloadAssets()
   // Register the loaded assets with the names defined in the collections
   // This allows to easily spawn those objects with human readable names instead of GUIDs
   {
-    ezResourceLock<ezCollectionResource> pCollection(m_CollectionSpace, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezCollectionResource> pCollection(m_CollectionSpace, ezResourceAcquireMode::BlockTillLoaded);
     pCollection->RegisterNames();
   }
   {
-    ezResourceLock<ezCollectionResource> pCollection(m_CollectionFederation, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezCollectionResource> pCollection(m_CollectionFederation, ezResourceAcquireMode::BlockTillLoaded);
     pCollection->RegisterNames();
   }
   {
-    ezResourceLock<ezCollectionResource> pCollection(m_CollectionKlingons, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezCollectionResource> pCollection(m_CollectionKlingons, ezResourceAcquireMode::BlockTillLoaded);
     pCollection->RegisterNames();
   }
 }
@@ -364,7 +364,7 @@ ezGameObject* RtsGameState::SpawnNamedObjectAt(const ezTransform& transform, con
 {
   ezPrefabResourceHandle hPrefab = ezResourceManager::LoadResource<ezPrefabResource>(szObjectName);
 
-  ezResourceLock<ezPrefabResource> pPrefab(hPrefab, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezPrefabResource> pPrefab(hPrefab, ezResourceAcquireMode::BlockTillLoaded);
 
   ezHybridArray<ezGameObject*, 8> CreatedRootObjects;
   pPrefab->InstantiatePrefab(*m_pMainWorld, transform, ezGameObjectHandle(), &CreatedRootObjects, &uiTeamID, nullptr);

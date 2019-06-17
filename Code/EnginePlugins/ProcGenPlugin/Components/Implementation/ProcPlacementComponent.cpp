@@ -82,7 +82,7 @@ void ezProcPlacementComponentManager::FindTiles(const ezWorldModule::UpdateConte
 
     RemoveTilesForComponent(pComponent, &bAnyObjectsRemoved);
 
-    ezResourceLock<ezProcGenGraphResource> pResource(pComponent->m_hResource, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezProcGenGraphResource> pResource(pComponent->m_hResource, ezResourceAcquireMode::BlockTillLoaded);
     auto outputs = pResource->GetPlacementOutputs();
 
     pComponent->m_OutputContexts.Clear();
