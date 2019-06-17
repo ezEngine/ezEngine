@@ -30,9 +30,10 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // Initialization & Setup
 public:
-  virtual 
+  virtual
 
-ezGameStatePriority DeterminePriority(ezWorld* pWorld) const override;
+    ezGameStatePriority
+    DeterminePriority(ezWorld* pWorld) const override;
 
 private:
   virtual void OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition) override;
@@ -78,7 +79,7 @@ private:
   //////////////////////////////////////////////////////////////////////////
   // Input Handling
 private:
-  virtual void ConfigureInputDevices() override;
+  virtual void ConfigureMainWindowInputDevices(ezWindow* pWindow) override;
   virtual void ConfigureInputActions() override;
   virtual void ProcessInput() override;
   void UpdateMousePosition();

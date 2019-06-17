@@ -81,9 +81,9 @@ ezGameStatePriority SampleGameState::DeterminePriority(ezWorld* pWorld) const
     ezGameStatePriority::Default;
 }
 
-void SampleGameState::ConfigureInputDevices()
+void SampleGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow)
 {
-  SUPER::ConfigureInputDevices();
+  SUPER::ConfigureMainWindowInputDevices(pWindow);
 
   // setup devices here
 }

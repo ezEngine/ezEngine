@@ -15,26 +15,22 @@ class ezWindowBase;
 
 struct ezGALSwapChainCreationDescription : public ezHashableStruct<ezGALSwapChainCreationDescription>
 {
-  ezGALSwapChainCreationDescription();
-
-  ezWindowBase* m_pWindow;
+  ezWindowBase* m_pWindow = nullptr;
 
   // Describes the format that should be used for the backbuffer.
   // Note however, that different platforms may enforce restrictions on this.
-  ezGALMSAASampleCount::Enum m_SampleCount;
-  ezGALResourceFormat::Enum m_BackBufferFormat;
+  ezGALMSAASampleCount::Enum m_SampleCount = ezGALMSAASampleCount::None;
+  ezGALResourceFormat::Enum m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
 
-  bool m_bDoubleBuffered;
-  bool m_bAllowScreenshots;
+  bool m_bDoubleBuffered = true;
+  bool m_bAllowScreenshots = false;
 };
 
 struct ezGALDeviceCreationDescription
 {
-  ezGALDeviceCreationDescription();
-
   ezGALSwapChainCreationDescription m_PrimarySwapChainDescription;
-  bool m_bDebugDevice;
-  bool m_bCreatePrimarySwapChain;
+  bool m_bDebugDevice = false;
+  bool m_bCreatePrimarySwapChain = true;
 };
 
 struct ezGALShaderCreationDescription : public ezHashableStruct<ezGALShaderCreationDescription>
@@ -49,30 +45,26 @@ struct ezGALShaderCreationDescription : public ezHashableStruct<ezGALShaderCreat
 
 struct ezGALRenderTargetBlendDescription : public ezHashableStruct<ezGALRenderTargetBlendDescription>
 {
-  ezGALRenderTargetBlendDescription();
+  ezGALBlend::Enum m_SourceBlend = ezGALBlend::One;
+  ezGALBlend::Enum m_DestBlend = ezGALBlend::One;
+  ezGALBlendOp::Enum m_BlendOp = ezGALBlendOp::Add;
 
-  ezGALBlend::Enum m_SourceBlend;
-  ezGALBlend::Enum m_DestBlend;
-  ezGALBlendOp::Enum m_BlendOp;
+  ezGALBlend::Enum m_SourceBlendAlpha = ezGALBlend::One;
+  ezGALBlend::Enum m_DestBlendAlpha = ezGALBlend::One;
+  ezGALBlendOp::Enum m_BlendOpAlpha = ezGALBlendOp::Add;
 
-  ezGALBlend::Enum m_SourceBlendAlpha;
-  ezGALBlend::Enum m_DestBlendAlpha;
-  ezGALBlendOp::Enum m_BlendOpAlpha;
-
-  ezUInt8 m_uiWriteMask; ///< Enables writes to color channels. Bit1 = Red Channel, Bit2 = Green Channel, Bit3 = Blue Channel, Bit4 = Alpha
+  ezUInt8 m_uiWriteMask = 0xFF; ///< Enables writes to color channels. Bit1 = Red Channel, Bit2 = Green Channel, Bit3 = Blue Channel, Bit4 = Alpha
                          ///< Channel, Bit 5-8 are unused
-  bool m_bBlendingEnabled; ///< If enabled, the color will be blended into the render target. Otherwise it will overwrite the render target.
+  bool m_bBlendingEnabled = false; ///< If enabled, the color will be blended into the render target. Otherwise it will overwrite the render target.
                            ///< Set m_uiWriteMask to 0 to disable all writes to the render target.
 };
 
 struct ezGALBlendStateCreationDescription : public ezHashableStruct<ezGALBlendStateCreationDescription>
 {
-  ezGALBlendStateCreationDescription();
-
   ezGALRenderTargetBlendDescription m_RenderTargetBlendDescriptions[EZ_GAL_MAX_RENDERTARGET_COUNT];
 
-  bool m_bAlphaToCoverage;  ///< Alpha-to-coverage can only be used with MSAA render targets. Default is false.
-  bool m_bIndependentBlend; ///< If disabled, the blend state of the first render target is used for all render targets. Otherwise each
+  bool m_bAlphaToCoverage = false;  ///< Alpha-to-coverage can only be used with MSAA render targets. Default is false.
+  bool m_bIndependentBlend = false; ///< If disabled, the blend state of the first render target is used for all render targets. Otherwise each
                             ///< render target uses a different blend state.
 };
 
@@ -177,11 +169,11 @@ struct ezGALVertexAttribute
   ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum eSemantic, ezGALResourceFormat::Enum eFormat, ezUInt16 uiOffset,
     ezUInt8 uiVertexBufferSlot, bool bInstanceData);
 
-  ezGALVertexAttributeSemantic::Enum m_eSemantic;
-  ezGALResourceFormat::Enum m_eFormat;
-  ezUInt16 m_uiOffset;
-  ezUInt8 m_uiVertexBufferSlot;
-  bool m_bInstanceData;
+  ezGALVertexAttributeSemantic::Enum m_eSemantic = ezGALVertexAttributeSemantic::Position;
+  ezGALResourceFormat::Enum m_eFormat = ezGALResourceFormat::XYZFloat;
+  ezUInt16 m_uiOffset = 0;
+  ezUInt8 m_uiVertexBufferSlot = 0;
+  bool m_bInstanceData = false;
 };
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALVertexDeclarationCreationDescription

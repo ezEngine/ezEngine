@@ -1,5 +1,6 @@
 #include <RendererDX11PCH.h>
 
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <RendererDX11/Context/ContextDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
@@ -14,7 +15,6 @@
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
 #include <RendererDX11/State/StateDX11.h>
 #include <System/Window/Window.h>
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
 #include <d3d11.h>
 #include <dxgidebug.h>
@@ -35,7 +35,7 @@ ezGALDeviceDX11::ezGALDeviceDX11(const ezGALDeviceCreationDescription& Descripti
 {
 }
 
-ezGALDeviceDX11::~ezGALDeviceDX11() {}
+ezGALDeviceDX11::~ezGALDeviceDX11() = default;
 
 // Init & shutdown functions
 
@@ -112,7 +112,6 @@ retry:
           pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
           pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
           pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
-          pInfoQueue->SetBreakOnCategory(D3D11_MESSAGE_CATEGORY_STATE_CREATION, FALSE);
         }
 
         // Ignore list.
@@ -209,18 +208,41 @@ ezResult ezGALDeviceDX11::InitPlatform()
   return InitPlatform(0, nullptr);
 }
 
-static HMODULE s_dxgiDebugDLL = nullptr;
-HMODULE _getDXGIDebugModule()
+void ezGALDeviceDX11::ReportLiveGpuObjects()
 {
-  //#if defined(HK_PLATFORM_UWP)
-  //  return nullptr;
-  //#else
-  if (!s_dxgiDebugDLL)
-  {
-    s_dxgiDebugDLL = LoadLibraryW(L"Dxgidebug.dll");
-  }
-  return s_dxgiDebugDLL;
-  //#endif
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  // not implemented
+  return;
+
+#else
+
+  const HMODULE hDxgiDebugDLL = LoadLibraryW(L"Dxgidebug.dll");
+
+  if (hDxgiDebugDLL == nullptr)
+    return;
+
+  typedef HRESULT(WINAPI * FnGetDebugInterfacePtr)(REFIID, void**);
+  FnGetDebugInterfacePtr GetDebugInterfacePtr = (FnGetDebugInterfacePtr)GetProcAddress(hDxgiDebugDLL, "DXGIGetDebugInterface");
+
+  if (GetDebugInterfacePtr == nullptr)
+    return;
+
+  IDXGIDebug* dxgiDebug = nullptr;
+  GetDebugInterfacePtr(IID_PPV_ARGS(&dxgiDebug));
+
+  if (dxgiDebug == nullptr)
+    return;
+
+  OutputDebugStringW(L" +++++ Live DX11 Objects: +++++\n");
+
+  // prints to OutputDebugString
+  dxgiDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
+
+  OutputDebugStringW(L" ----- Live DX11 Objects: -----\n");
+
+  dxgiDebug->Release();
+
+#endif
 }
 
 ezResult ezGALDeviceDX11::ShutdownPlatform()
@@ -282,35 +304,7 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
   EZ_GAL_DX11_RELEASE(m_pDXGIAdapter);
   EZ_GAL_DX11_RELEASE(m_pDXGIDevice);
 
-  {
-    typedef HRESULT(WINAPI * getDebugInterfacePtr)(REFIID, void**);
-
-    HMODULE dxgiDebugDLL = _getDXGIDebugModule();
-
-    if (dxgiDebugDLL != nullptr)
-    {
-
-      getDebugInterfacePtr getDebugInterfaceFnPtr = (getDebugInterfacePtr)GetProcAddress(dxgiDebugDLL, "DXGIGetDebugInterface");
-
-      if (getDebugInterfaceFnPtr != nullptr)
-      {
-
-        IDXGIDebug* dxgiDebug;
-        getDebugInterfaceFnPtr(IID_PPV_ARGS(&dxgiDebug));
-
-        if (dxgiDebug != nullptr)
-        {
-          OutputDebugStringW(L"Live DX Objects:\n============================================\n");
-
-          dxgiDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
-
-          OutputDebugStringW(L"\n============================================\n");
-
-          dxgiDebug->Release();
-        }
-      }
-    }
-  }
+  ReportLiveGpuObjects();
 
   return EZ_SUCCESS;
 }
