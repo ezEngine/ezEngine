@@ -129,5 +129,33 @@ bool ezGraphicsUtils::IsTriangleFlipRequired(const ezMat3& mTransformation)
   return (mTransformation.GetColumn(0).CrossRH(mTransformation.GetColumn(1)).Dot(mTransformation.GetColumn(2)) < 0.0f);
 }
 
+void ezGraphicsUtils::ConvertProjectionMatrixDepthRange(ezMat4& inout_Matrix, ezProjectionDepthRange::Enum SrcDepthRange, ezProjectionDepthRange::Enum DstDepthRange)
+{
+  // exclude identity transformations
+  if (SrcDepthRange == DstDepthRange)
+    return;
+
+  ezVec4 row2 = inout_Matrix.GetRow(2);
+  ezVec4 row3 = inout_Matrix.GetRow(3);
+
+  // only need to check SrcDepthRange, the rest is the logical conclusion from being not equal
+  if (SrcDepthRange == ezProjectionDepthRange::MinusOneToOne /*&& DstDepthRange == ezProjectionDepthRange::ZeroToOne*/)
+  {
+    // map z => (z + w)/2
+    row2 += row3;
+    row2 *= 0.5f;
+  }
+  else // if (SrcDepthRange == ezProjectionDepthRange::ZeroToOne && DstDepthRange == ezProjectionDepthRange::MinusOneToOne)
+  {
+    // map z => 2z - w
+    row2 += row2;
+    row2 -= row3;
+  }
+  
+
+  inout_Matrix.SetRow(2, row2);
+  inout_Matrix.SetRow(3, row3);
+}
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_GraphicsUtils);
 
