@@ -101,7 +101,7 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
   pComponent->m_pOutput = nullptr;
 
   {
-    ezResourceLock<ezProcGenGraphResource> pResource(pComponent->m_hResource, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezProcGenGraphResource> pResource(pComponent->m_hResource, ezResourceAcquireMode::BlockTillLoaded);
     auto outputs = pResource->GetVertexColorOutputs();
     for (auto& pOutput : outputs)
     {
@@ -121,7 +121,7 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
     return;
 
   ezCpuMeshResourceHandle hCpuMesh = ezResourceManager::LoadResource<ezCpuMeshResource>(szMesh);
-  ezResourceLock<ezCpuMeshResource> pCpuMesh(hCpuMesh, ezResourceAcquireMode::NoFallbackAllowMissing);
+  ezResourceLock<ezCpuMeshResource> pCpuMesh(hCpuMesh, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pCpuMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
   {
     ezLog::Warning("Failed to retrieve CPU mesh '{}'", szMesh);
