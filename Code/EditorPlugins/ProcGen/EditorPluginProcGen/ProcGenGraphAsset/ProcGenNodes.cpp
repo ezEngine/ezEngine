@@ -19,6 +19,23 @@ namespace
 
     return pFunctionCall;
   }
+
+  ezExpressionAST::Node* CreateRemapWithFadeout(
+    ezExpressionAST::Node* pInput, float fMin, float fMax, float fFadeFraction, ezExpressionAST& out_Ast)
+  {
+    auto pOffset = out_Ast.CreateConstant(fMin);
+    ezExpressionAST::Node* pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Subtract, pInput, pOffset);
+
+    auto pScale = out_Ast.CreateConstant(ezMath::Max(fMax - fMin, 0.0f) * fFadeFraction * 0.5f);
+    pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Divide, pValue, pScale);
+
+    auto pFadeFactor = out_Ast.CreateConstant(1.0f / fFadeFraction);
+    pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Subtract, pValue, pFadeFactor);
+    pValue = out_Ast.CreateUnaryOperator(ezExpressionAST::NodeType::Absolute, pValue);
+    pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Subtract, pFadeFactor, pValue);
+
+    return pValue;
+  }
 } // namespace
 
 //////////////////////////////////////////////////////////////////////////
@@ -332,16 +349,36 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezExpressionAST::Node* ezProcGenHeight::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast)
 {
   auto pHeight = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionZ);
-  auto pOffset = out_Ast.CreateConstant(m_fMinHeight);
-  ezExpressionAST::Node* pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Subtract, pHeight, pOffset);
+  return CreateRemapWithFadeout(pHeight, m_fMinHeight, m_fMaxHeight, m_fFadeFraction, out_Ast);
+}
 
-  auto pScale = out_Ast.CreateConstant(ezMath::Max(m_fMaxHeight - m_fMinHeight, 0.0f) * m_fFadeFraction * 0.5f);
-  pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Divide, pValue, pScale);
+//////////////////////////////////////////////////////////////////////////
 
-  auto pFadeFactor = out_Ast.CreateConstant(1.0f / m_fFadeFraction);
-  pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Subtract, pValue, pFadeFactor);
-  pValue = out_Ast.CreateUnaryOperator(ezExpressionAST::NodeType::Absolute, pValue);
-  pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Subtract, pFadeFactor, pValue);
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenSlope, 1, ezRTTIDefaultAllocator<ezProcGenSlope>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("MinSlope", m_MinSlope)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(0.0f))),
+    EZ_MEMBER_PROPERTY("MaxSlope", m_MaxSlope)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(60.0f))),
+    EZ_MEMBER_PROPERTY("FadeFraction", m_fFadeFraction)->AddAttributes(new ezDefaultValueAttribute(0.2f), new ezClampValueAttribute(0.01f, 1.0f)),
 
-  return pValue;
+    EZ_MEMBER_PROPERTY("Value", m_OutputValuePin)
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTitleAttribute("Slope: [{MinSlope}, {MaxSlope}]"),
+    new ezCategoryAttribute("Input"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezExpressionAST::Node* ezProcGenSlope::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast)
+{
+  auto pNormalZ = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sNormalZ);
+  auto pAngle = out_Ast.CreateUnaryOperator(ezExpressionAST::NodeType::ACos, pNormalZ);
+  return CreateRemapWithFadeout(pAngle, m_MinSlope.GetRadian(), m_MaxSlope.GetRadian(), m_fFadeFraction, out_Ast);
 }

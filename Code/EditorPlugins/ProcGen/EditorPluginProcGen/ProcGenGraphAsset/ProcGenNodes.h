@@ -131,4 +131,20 @@ public:
   ezOutputNodePin m_OutputValuePin;
 };
 
+//////////////////////////////////////////////////////////////////////////
+
+class ezProcGenSlope : public ezProcGenNodeBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenSlope, ezProcGenNodeBase);
+
+public:
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast) override;
+
+  ezAngle m_MinSlope = ezAngle::Degree(0.0f);
+  ezAngle m_MaxSlope = ezAngle::Degree(30.0f);
+  float m_fFadeFraction = 0.2f;
+
+  ezOutputNodePin m_OutputValuePin;
+};
+
 
