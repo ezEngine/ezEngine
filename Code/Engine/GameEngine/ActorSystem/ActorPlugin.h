@@ -1,12 +1,12 @@
 #pragma once
 
-#include <Core/CoreDLL.h>
+#include <GameEngine/GameEngineDLL.h>
 
 #include <Foundation/Reflection/Reflection.h>
 
 class ezActor;
 
-class EZ_CORE_DLL ezActorPlugin : public ezReflectedClass
+class EZ_GAMEENGINE_DLL ezActorPlugin : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezActorPlugin, ezReflectedClass);
 

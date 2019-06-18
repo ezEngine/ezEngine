@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Core/CoreDLL.h>
+#include <GameEngine/GameEngineDLL.h>
 
 #include <Foundation/Reflection/Reflection.h>
 
-class EZ_CORE_DLL ezActorApiService: public ezReflectedClass
+class EZ_GAMEENGINE_DLL ezActorApiService: public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezActorApiService, ezReflectedClass);
 

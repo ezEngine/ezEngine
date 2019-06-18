@@ -1,6 +1,6 @@
 #include <GameEnginePCH.h>
 
-#include <Core/ActorSystem/ActorManager.h>
+#include <GameEngine/ActorSystem/ActorManager.h>
 #include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Communication/GlobalEvent.h>

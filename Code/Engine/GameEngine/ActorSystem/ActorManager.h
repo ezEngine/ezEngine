@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/CoreDLL.h>
+#include <GameEngine/GameEngineDLL.h>
 
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Types/UniquePtr.h>
@@ -23,7 +23,7 @@ struct ezActorEvent
   ezActor* m_pActor = nullptr;
 };
 
-class EZ_CORE_DLL ezActorManager final
+class EZ_GAMEENGINE_DLL ezActorManager final
 {
   EZ_DECLARE_SINGLETON(ezActorManager);
 

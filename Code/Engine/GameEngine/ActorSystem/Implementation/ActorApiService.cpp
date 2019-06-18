@@ -1,6 +1,6 @@
-#include <CorePCH.h>
+#include <GameEnginePCH.h>
 
-#include <Core/ActorSystem/ActorApiService.h>
+#include <GameEngine/ActorSystem/ActorApiService.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezActorApiService, 1, ezRTTINoAllocator);

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Core/CoreDLL.h>
+#include <GameEngine/GameEngineDLL.h>
 
-#include <Core/ActorSystem/ActorPlugin.h>
+#include <GameEngine/ActorSystem/ActorPlugin.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/UniquePtr.h>
@@ -12,7 +12,7 @@
 class ezActor;
 struct ezActorImpl;
 
-class EZ_CORE_DLL ezActor : public ezReflectedClass
+class EZ_GAMEENGINE_DLL ezActor : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezActor, ezReflectedClass);
 

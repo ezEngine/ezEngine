@@ -1,8 +1,8 @@
-#include <CorePCH.h>
+#include <GameEnginePCH.h>
 
-#include <Core/ActorSystem/Actor.h>
-#include <Core/ActorSystem/ActorApiService.h>
-#include <Core/ActorSystem/ActorManager.h>
+#include <GameEngine/ActorSystem/Actor.h>
+#include <GameEngine/ActorSystem/ActorApiService.h>
+#include <GameEngine/ActorSystem/ActorManager.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Types/UniquePtr.h>
 

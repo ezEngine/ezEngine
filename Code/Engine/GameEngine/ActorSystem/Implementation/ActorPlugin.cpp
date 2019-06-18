@@ -1,6 +1,6 @@
-#include <CorePCH.h>
+#include <GameEnginePCH.h>
 
-#include <Core/ActorSystem/ActorPlugin.h>
+#include <GameEngine/ActorSystem/ActorPlugin.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezActorPlugin, 1, ezRTTINoAllocator)
