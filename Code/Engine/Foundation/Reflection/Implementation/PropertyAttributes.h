@@ -738,3 +738,14 @@ public:
 
   ezUntrackedString m_sOpTypeName;
 };
+
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief A property attribute that indicates that the string property is actually a game object reference.
+class EZ_FOUNDATION_DLL ezGameObjectReferenceAttribute : public ezTypeWidgetAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectReferenceAttribute, ezTypeWidgetAttribute);
+
+public:
+  ezGameObjectReferenceAttribute() = default;
+};

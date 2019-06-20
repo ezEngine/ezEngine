@@ -10,7 +10,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezLineToComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Target", GetLineToTargetGuid, SetLineToTargetGuid),
+    EZ_ACCESSOR_PROPERTY("Target", GetLineToTargetGuid, SetLineToTargetGuid)->AddAttributes(new ezGameObjectReferenceAttribute()),
     EZ_MEMBER_PROPERTY("Color", m_LineColor)->AddAttributes(new ezDefaultValueAttribute(ezColor::Orange)),
   }
   EZ_END_PROPERTIES;

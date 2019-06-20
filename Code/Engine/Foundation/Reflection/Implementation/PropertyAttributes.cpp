@@ -842,4 +842,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectReferenceAttribute, 1, ezRTTIDefaultAllocator<ezGameObjectReferenceAttribute>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_PropertyAttributes);
