@@ -1,5 +1,6 @@
 #include <FoundationPCH.h>
 
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/System/SystemInformation.h>

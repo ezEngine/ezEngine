@@ -4,6 +4,10 @@
 #include <Foundation/Strings/FormatString.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Time/Stopwatch.h>
+#include <Foundation/Time/Time.h>
+#include <Foundation/Time/Timestamp.h>
+
+#include <stdarg.h>
 
 void TestFormat(const ezFormatString& str, const char* szExpected)
 {
@@ -63,7 +67,7 @@ void CompareSnprintf(ezStringBuilder& log, const ezFormatString& str, const char
   }
 
   log.AppendFormat("ez: {0} msec, std: {1} msec, ezFmt: {2} msec : {3} -> {4}\n", ezArgF(t1.GetMilliseconds(), 2),
-                   ezArgF(t2.GetMilliseconds(), 2), ezArgF(t3.GetMilliseconds(), 2), szFormat, Temp1);
+    ezArgF(t2.GetMilliseconds(), 2), ezArgF(t3.GetMilliseconds(), 2), szFormat, Temp1);
 
   va_end(args);
 }
@@ -95,9 +99,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
     TestFormat(ezFmt("{0}, {1}", ezArgFileSize(0u), ezArgFileSize(1u)), "0B, 1B");
     TestFormat(ezFmt("{0}, {1}", ezArgFileSize(1023u), ezArgFileSize(1024u)), "1023B, 1.00KB");
     // 1023.999 gets rounded up for precision 2, so result is 1024.00KB not 1023.99KB
-    TestFormat(ezFmt("{0}, {1}", ezArgFileSize(1024u*1024u - 1u), ezArgFileSize(1024u*1024u)), "1024.00KB, 1.00MB");
+    TestFormat(ezFmt("{0}, {1}", ezArgFileSize(1024u * 1024u - 1u), ezArgFileSize(1024u * 1024u)), "1024.00KB, 1.00MB");
 
-    const char* const suffixes[] = { " Foo", " Bar", " Foobar" };
+    const char* const suffixes[] = {" Foo", " Bar", " Foobar"};
     const ezUInt32 suffixCount = EZ_ARRAY_SIZE(suffixes);
     TestFormat(ezFmt("{0}", ezArgHumanReadable(0ll, 25u, suffixes, suffixCount)), "0 Foo");
     TestFormat(ezFmt("{0}", ezArgHumanReadable(25ll, 25u, suffixes, suffixCount)), "1.00 Bar");
@@ -117,11 +121,11 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
 
   EZ_TEST_BLOCK(ezTestBlock::DisabledNoWarning, "Compare Performance")
   {
-    CompareSnprintf(perfLog, ezFmt("Hello {0}, i = {1}, f = {2}", "World", 42, ezArgF(3.141f, 2)), "Hello %s, i = %i, f = %.2f", "World",
-                    42, 3.141f);
+    CompareSnprintf(
+      perfLog, ezFmt("Hello {0}, i = {1}, f = {2}", "World", 42, ezArgF(3.141f, 2)), "Hello %s, i = %i, f = %.2f", "World", 42, 3.141f);
     CompareSnprintf(perfLog, ezFmt("No formatting at all"), "No formatting at all");
     CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}", "AAAAAA", "BBBBBBB", "CCCCCC", "DDDDDDDDDDDDD", "EE"), "%s, %s, %s, %s, %s",
-                    "AAAAAA", "BBBBBBB", "CCCCCC", "DDDDDDDDDDDDD", "EE");
+      "AAAAAA", "BBBBBBB", "CCCCCC", "DDDDDDDDDDDDD", "EE");
     CompareSnprintf(perfLog, ezFmt("{0}", 23), "%i", 23);
     CompareSnprintf(perfLog, ezFmt("{0}", 23.123456789), "%f", 23.123456789);
     CompareSnprintf(perfLog, ezFmt("{0}", ezArgF(23.123456789, 2)), "%.2f", 23.123456789);
@@ -130,16 +134,16 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
     CompareSnprintf(perfLog, ezFmt("{0}", ezArgU(1234567890987ll, 30, false, 16)), "% 30x", 1234567890987ll);
     CompareSnprintf(perfLog, ezFmt("{0}", ezArgU(1234567890987ll, 30, false, 16, true)), "% 30X", 1234567890987ll);
     CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}", 0, 1, 2, 3, 4), "%i, %i, %i, %i, %i", 0, 1, 2, 3, 4);
-    CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}", 0.1, 1.1, 2.1, 3.1, 4.1), "%.1f, %.1f, %.1f, %.1f, %.1f", 0.1, 1.1, 2.1, 3.1,
-                    4.1);
+    CompareSnprintf(
+      perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}", 0.1, 1.1, 2.1, 3.1, 4.1), "%.1f, %.1f, %.1f, %.1f, %.1f", 0.1, 1.1, 2.1, 3.1, 4.1);
     CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-                    "%i, %i, %i, %i, %i, %i, %i, %i, %i, %i", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+      "%i, %i, %i, %i, %i, %i, %i, %i, %i, %i", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
     CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}", 0.1, 1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1),
-                    "%.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f", 0.1, 1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1);
+      "%.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f", 0.1, 1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1);
     CompareSnprintf(perfLog, ezFmt("{0}", ezArgC('z')), "%c", 'z');
 
     CompareSnprintf(perfLog, ezFmt("{}, {}, {}, {}, {}, {}, {}, {}, {}, {}", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-                    "%i, %i, %i, %i, %i, %i, %i, %i, %i, %i", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+      "%i, %i, %i, %i, %i, %i, %i, %i, %i, %i", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     // FILE* file = fopen("D:\\snprintf_perf.txt", "wb");
     // if (file)
@@ -159,5 +163,53 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
     TestFormat(ezFmt("{1}, {}, {}, {}", ezUInt8(1), ezUInt16(2), ezUInt32(3), ezUInt64(4), ezUInt64(5)), "2, 3, 4, 5");
 
     TestFormat(ezFmt("{2}, {}, {1}, {}", ezUInt8(1), ezUInt16(2), ezUInt32(3), ezUInt64(4), ezUInt64(5)), "3, 4, 2, 3");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTime")
+  {
+    TestFormat(ezFmt("{}", ezTime()), "0ns");
+    TestFormat(ezFmt("{}", ezTime::Nanoseconds(999)), "999ns");
+    TestFormat(ezFmt("{}", ezTime::Nanoseconds(999.1)), "999.1ns");
+    TestFormat(ezFmt("{}", ezTime::Microseconds(999)), u8"999\u00B5s"); // Utf-8 encoding for the microsecond sign
+    TestFormat(ezFmt("{}", ezTime::Microseconds(999.2)), u8"999.2\u00B5s"); // Utf-8 encoding for the microsecond sign
+    TestFormat(ezFmt("{}", ezTime::Milliseconds(-999)), "-999ms");
+    TestFormat(ezFmt("{}", ezTime::Milliseconds(-999.3)), "-999.3ms");
+    TestFormat(ezFmt("{}", ezTime::Seconds(59)), "59sec");
+    TestFormat(ezFmt("{}", ezTime::Seconds(-59.9)), "-59.9sec");
+    TestFormat(ezFmt("{}", ezTime::Seconds(75)), "1min 15sec");
+    TestFormat(ezFmt("{}", ezTime::Seconds(-75.4)), "-1min 15.4sec");
+    TestFormat(ezFmt("{}", ezTime::Minutes(59)), "59min 0sec");
+    TestFormat(ezFmt("{}", ezTime::Minutes(-1)), "-1min 0sec");
+    TestFormat(ezFmt("{}", ezTime::Minutes(90)), "1h 30min 0sec");
+    TestFormat(ezFmt("{}", ezTime::Minutes(-90.5)), "-1h 30min 30sec");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezDateTime")
+  {
+    {
+      ezDateTime dt;
+      dt.SetYear(2019);
+      dt.SetMonth(6);
+      dt.SetDay(12);
+      dt.SetHour(13);
+      dt.SetMinute(26);
+      dt.SetSecond(51);
+      dt.SetMicroseconds(7000);
+
+      TestFormat(ezFmt("{}", dt), "2019-06-12_13-26-51-007");
+    }
+
+    {
+      ezDateTime dt;
+      dt.SetYear(0);
+      dt.SetMonth(1);
+      dt.SetDay(1);
+      dt.SetHour(0);
+      dt.SetMinute(0);
+      dt.SetSecond(0);
+      dt.SetMicroseconds(0);
+
+      TestFormat(ezFmt("{}", dt), "0000-01-01_00-00-00-000");
+    }
   }
 }

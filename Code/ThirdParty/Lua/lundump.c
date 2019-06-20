@@ -1,5 +1,5 @@
 /*
-** $Id: lundump.c,v 2.44 2015/11/02 16:09:30 roberto Exp $
+** $Id: lundump.c,v 2.44.1.1 2017/04/19 17:20:42 roberto Exp $
 ** load precompiled Lua chunks
 ** See Copyright Notice in lua.h
 */
@@ -234,7 +234,9 @@ static void fchecksize (LoadState *S, size_t size, const char *tname) {
 #define checksize(S,t)	fchecksize(S,sizeof(t),#t)
 
 static void checkHeader (LoadState *S) {
-  checkliteral(S, LUA_SIGNATURE + 1, "not a");  /* 1st char already checked */
+  const char* temp = LUA_SIGNATURE;
+  temp += 1;
+  checkliteral(S, temp, "not a"); /* 1st char already checked */
   if (LoadByte(S) != LUAC_VERSION)
     error(S, "version mismatch in");
   if (LoadByte(S) != LUAC_FORMAT)

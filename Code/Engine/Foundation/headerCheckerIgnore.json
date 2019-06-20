@@ -1,0 +1,48 @@
+{
+	"includeTarget" :
+	{
+		"byName" : [
+			"cmath",
+			"cstdio",
+			"cstdlib",
+			"cstring",
+			"cwchar",
+			"cwctype",
+			"new",
+			"type_traits",
+			"TargetConditionals.h",
+			"winapifamily.h",
+			"typeinfo",
+			"algorithm",
+			"utility",
+			"stdint.h",
+			"emmintrin.h",
+			"pmmintrin.h",
+			"tmmintrin.h",
+			"smmintrin.h",
+			"nmmintrin.h",
+			"immintrin.h",
+			"array",
+			"tuple",
+			"corewrappers.h",
+			"future",
+			"stdexcept",
+			"iterator",
+			"stddef.h",
+			"intrin.h",
+			"malloc.h",
+			"pthread.h",
+			"stdarg.h",
+			"time.h",
+			"unistd.h"
+		]
+	},
+	"includeSource" : 
+	{
+		"byName" : [
+			"IncludeWindows.h",
+			"UWPUtils.h",
+			"ThreadingDeclarations_posix.h"
+		]
+	}
+}

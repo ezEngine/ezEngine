@@ -235,7 +235,7 @@ void ezView::EnsureUpToDate()
 {
   if (m_hRenderPipeline.IsValid())
   {
-    ezResourceLock<ezRenderPipelineResource> pPipeline(m_hRenderPipeline, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezRenderPipelineResource> pPipeline(m_hRenderPipeline, ezResourceAcquireMode::BlockTillLoaded);
 
     ezUInt32 uiCounter = pPipeline->GetCurrentResourceChangeCounter();
 

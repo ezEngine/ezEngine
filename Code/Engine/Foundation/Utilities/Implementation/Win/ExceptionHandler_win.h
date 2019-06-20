@@ -1,12 +1,17 @@
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  include <Dbghelp.h>
 #  include <Shlwapi.h>
 #  include <tchar.h>
 #  include <werapi.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 typedef BOOL(WINAPI* MINIDUMPWRITEDUMP)(_In_ HANDLE hProcess, _In_ DWORD ProcessId, _In_ HANDLE hFile, _In_ MINIDUMP_TYPE DumpType,
   _In_opt_ PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, _In_opt_ PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
   _In_opt_ PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
+#endif
 
 LONG WINAPI ezExceptionHandler::DefaultExceptionHandler(struct _EXCEPTION_POINTERS* pExceptionInfo)
 {
@@ -33,8 +38,9 @@ void ezExceptionHandler::SetExceptionHandler(EZ_TOP_LEVEL_EXCEPTION_HANDLER hand
   SetUnhandledExceptionFilter(handler);
 }
 
-ezResult ezExceptionHandler::WriteDump(EXCEPTION_POINTERS* exceptionInfo)
+ezResult ezExceptionHandler::WriteDump(struct _EXCEPTION_POINTERS* exceptionInfo)
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   ezStringBuilder path;
   const ezDateTime dt = ezTimestamp::CurrentTimestamp();
   path.Format("{0}/{1}_", s_absDumpPath, s_appName);
@@ -83,5 +89,23 @@ ezResult ezExceptionHandler::WriteDump(EXCEPTION_POINTERS* exceptionInfo)
   {
     Print("Creating dump file '%s' failed (Error: '%d').", path.GetData(), GetLastError());
   }
+#endif
   return EZ_FAILURE;
 }
+#else
+LONG WINAPI ezExceptionHandler::DefaultExceptionHandler(struct _EXCEPTION_POINTERS* pExceptionInfo)
+{
+  return EXCEPTION_CONTINUE_SEARCH;
+}
+
+void ezExceptionHandler::SetExceptionHandler(EZ_TOP_LEVEL_EXCEPTION_HANDLER handler, const char* appName, const char* absDumpPath)
+{
+  s_appName = appName;
+  s_absDumpPath = absDumpPath;
+}
+
+ezResult ezExceptionHandler::WriteDump(EXCEPTION_POINTERS* exceptionInfo)
+{  
+  return EZ_FAILURE;
+}
+#endif

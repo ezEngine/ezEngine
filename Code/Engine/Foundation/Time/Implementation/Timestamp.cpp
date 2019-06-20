@@ -100,6 +100,15 @@ ezDateTime::ezDateTime(ezTimestamp timestamp)
   SetTimestamp(timestamp);
 }
 
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezDateTime& arg)
+{
+  ezStringUtils::snprintf(tmp, uiLength, "%04u-%02u-%02u_%02u-%02u-%02u-%03u", arg.GetYear(), arg.GetMonth(),
+    arg.GetDay(), arg.GetHour(), arg.GetMinute(), arg.GetSecond(), arg.GetMicroseconds() / 1000);
+
+  return tmp;
+}
+
+
 // Include inline file
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <Foundation/Time/Implementation/Win/Timestamp_win.h>
@@ -110,7 +119,5 @@ ezDateTime::ezDateTime(ezTimestamp timestamp)
 #else
 #  error "Time functions are not implemented on current platform"
 #endif
-
-
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Time_Implementation_Timestamp);

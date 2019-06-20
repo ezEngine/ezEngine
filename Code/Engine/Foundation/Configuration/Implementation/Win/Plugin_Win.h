@@ -1,10 +1,14 @@
 
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
 typedef HMODULE ezPluginModule;
 

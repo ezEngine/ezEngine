@@ -39,19 +39,22 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	# enable default exception handling
 	target_compile_options(${TARGET_NAME} PRIVATE "/EHsc")
 	
-	# disable permissive mode
-	target_compile_options(${TARGET_NAME} PRIVATE "/permissive-")
+	# nothing in UWP headers is standard conform so have to skip this for UWP
+	if (NOT CMAKE_SYSTEM_NAME MATCHES "WindowsStore")
+		# disable permissive mode
+		target_compile_options(${TARGET_NAME} PRIVATE "/permissive-")
+	endif ()
 	
 	# enable standard conform casting behavior - casting results always in rvalue
 	target_compile_options(${TARGET_NAME} PRIVATE "/Zc:rvalueCast")
 	
 	# force the compiler to interpret code as utf8.
-	target_compile_options(${TARGET_NAME} PRIVATE /utf-8)
+	target_compile_options(${TARGET_NAME} PRIVATE "/utf-8")
 	
-  # /WX: treat warnings as errors
-  if (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	# /WX: treat warnings as errors
+	if (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 		target_compile_options(${TARGET_NAME} PRIVATE "/WX")
-  endif()
+	endif()
 	
 	if (CMAKE_SIZEOF_VOID_P EQUAL 4)
 		# enable SSE2 (incompatible with /fp:except)
@@ -70,9 +73,9 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	# /Ox: favor speed for optimizations
 	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:RELEASE>:/Ox /Ob2 /Oi>")
 	
-  # Enable SSE4.1 for Clang on Windows.
-  # Todo: In general we should make this configurable. As of writing SSE4.1 is always active for windows builds (independent of the compiler)
-  if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	# Enable SSE4.1 for Clang on Windows.
+	# Todo: In general we should make this configurable. As of writing SSE4.1 is always active for windows builds (independent of the compiler)
+	if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 		target_compile_options(${TARGET_NAME} PRIVATE "-msse4.1")
 	endif()
 	

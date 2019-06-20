@@ -29,7 +29,7 @@ bool ezAnimationClipSampler::Execute(const ezSkeleton& skeleton, ezAnimationPose
     return false;
 
   // allow animation streaming, don't block
-  ezResourceLock<ezAnimationClipResource> pAnimClip(m_hAnimationClip, ezResourceAcquireMode::AllowFallback);
+  ezResourceLock<ezAnimationClipResource> pAnimClip(m_hAnimationClip, ezResourceAcquireMode::AllowLoadingFallback);
   if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
     return false;
 

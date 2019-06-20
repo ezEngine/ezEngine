@@ -6,8 +6,8 @@
 #include <GameEngine/Curves/Curve1DResource.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
-#include <GameEngine/Resources/PropertyAnimResource.h>
-#include <GameEngine/Surfaces/SurfaceResource.h>
+#include <GameEngine/Animation/PropertyAnimResource.h>
+#include <GameEngine/Physics/SurfaceResource.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
@@ -270,18 +270,12 @@ void ezGameApplication::Deinit_ShutdownGraphicsDevice()
   if (!ezGALDevice::HasDefaultDevice())
     return;
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  for (ezUInt32 i = 0; i < m_Windows.GetCount(); ++i)
-  {
-    DestroyWindowOutputTarget(std::move(m_Windows[i].m_pOutputTarget));
-  }
-
   // Cleanup resource pool
   ezGPUResourcePool::SetDefaultInstance(nullptr);
 
   ezResourceManager::FreeUnusedResources(true);
 
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   pDevice->Shutdown();
   EZ_DEFAULT_DELETE(pDevice);
   ezGALDevice::SetDefaultDevice(nullptr);

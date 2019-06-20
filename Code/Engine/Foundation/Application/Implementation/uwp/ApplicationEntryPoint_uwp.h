@@ -5,20 +5,25 @@
 
 #include <Foundation/Memory/MemoryTracker.h>
 
+// Disable C++/CX adds.
+#pragma warning(disable : 4447)
+
 class ezApplication;
 extern EZ_FOUNDATION_DLL ezResult ezUWPRun(ezApplication* pApp);
 
 namespace ezApplicationDetails
 {
+  EZ_FOUNDATION_DLL ezResult InitializeWinrt();
+  EZ_FOUNDATION_DLL void UninitializeWinrt();
+
   template <typename AppClass, typename... Args>
   int EntryFunc(Args&&... arguments)
   {
     static char appBuffer[sizeof(AppClass)]; // Not on the stack to cope with smaller stacks.
 
-    HRESULT result = RoInitialize(RO_INIT_MULTITHREADED);
-    if (FAILED(result))
+    if (InitializeWinrt().Failed())
     {
-      printf("Failed to init WinRT: %i", result);
+      return 1;
     }
 
     AppClass* pApp = new (appBuffer) AppClass(std::forward<Args>(arguments)...);
@@ -33,11 +38,11 @@ namespace ezApplicationDetails
         printf("Return Code: '%s'\n", text.c_str());
     }
 
-    RoUninitialize();
+    UninitializeWinrt();
 
     return iReturnCode;
   }
-}
+} // namespace ezApplicationDetails
 
 /// \brief Same as EZ_APPLICATION_ENTRY_POINT but should be used for applications that shall always show a console window.
 #define EZ_CONSOLEAPP_ENTRY_POINT(AppClass, ...)                                                                                           \
@@ -54,4 +59,3 @@ namespace ezApplicationDetails
   {                                                                                                                                        \
     return ::ezApplicationDetails::EntryFunc<AppClass>(__VA_ARGS__);                                                                       \
   }
-

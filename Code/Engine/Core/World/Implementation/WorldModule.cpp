@@ -8,7 +8,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezWorldModule::ezWorldModule(ezWorld* pWorld)
-    : m_pWorld(pWorld)
+  : m_pWorld(pWorld)
 {
 }
 
@@ -151,40 +151,49 @@ namespace
     const ezRTTI* m_pRtti;
     ezUInt16 m_uiTypeId;
   };
-
-  static ezDynamicArray<NewEntry, ezStaticAllocatorWrapper> newEntries;
 } // namespace
 
 void ezWorldModuleFactory::FillBaseTypeIds()
 {
-  const ezRTTI* pModuleRtti = ezGetStaticRTTI<ezWorldModule>();
+  // m_TypeToId contains RTTI types for ezWorldModules and ezComponents
+  // m_TypeToId[ezComponent] maps to TypeID for its respective ezComponentManager
+  // m_TypeToId[ezWorldModule] maps to TypeID for itself OR in case of an interface to the derived type that implements the interface
+  // after types are registered we only have a mapping for m_TypeToId[ezWorldModule(impl)] and now we want to add
+  // the mapping for m_TypeToId[ezWorldModule(interface)], such that querying the TypeID for the interface works as well
+  // and yields the implementation
+
+  ezHybridArray<NewEntry, 64, ezStaticAllocatorWrapper> newEntries;
+  const ezRTTI* pModuleRtti = ezGetStaticRTTI<ezWorldModule>(); // base type where we want to stop iterating upwards
 
   for (auto it = m_TypeToId.GetIterator(); it.IsValid(); ++it)
   {
     const ezRTTI* pRtti = it.Key();
-    if (!pRtti->IsDerivedFrom<ezComponent>()) // is not a component manager entry
-    {
-      ezUInt16 uiTypeId = it.Value();
-      const ezRTTI* pParentRtti = pRtti->GetParentType();
-      while (pParentRtti != pModuleRtti)
-      {
-        if (!m_TypeToId.Contains(pParentRtti))
-        {
-          auto& newEntry = newEntries.ExpandAndGetRef();
-          newEntry.m_pRtti = pParentRtti;
-          newEntry.m_uiTypeId = uiTypeId;
-        }
 
-        pParentRtti = pParentRtti->GetParentType();
+    // ignore components, we only want to fill out mappings for the base types of world modules
+    if (!pRtti->IsDerivedFrom<ezWorldModule>())
+      continue;
+
+    const ezUInt16 uiTypeId = it.Value();
+
+    for (const ezRTTI* pParentRtti = pRtti->GetParentType(); pParentRtti != pModuleRtti; pParentRtti = pParentRtti->GetParentType())
+    {
+      // if we do not yet have a mapping for the parent type to TypeID, add it now
+      // and map it to the derived type, such that interfaces map to the derived implementation
+      // this is always a 1 to 1 mapping, each interface can only map to a single derived type
+      if (!m_TypeToId.Contains(pParentRtti))
+      {
+        auto& newEntry = newEntries.ExpandAndGetRef();
+        newEntry.m_pRtti = pParentRtti;
+        newEntry.m_uiTypeId = uiTypeId;
       }
     }
   }
 
+  // delayed insertion to not interfere with the iteration above
   for (auto& newEntry : newEntries)
   {
     m_TypeToId.Insert(newEntry.m_pRtti, newEntry.m_uiTypeId);
   }
-  newEntries.Clear();
 }
 
 void ezWorldModuleFactory::ClearUnloadedTypeToIDs()
@@ -196,11 +205,36 @@ void ezWorldModuleFactory::ClearUnloadedTypeToIDs()
     allRttis.Insert(pRtti);
   }
 
+  const ezRTTI* pModuleRtti = ezGetStaticRTTI<ezWorldModule>(); // base type where we want to stop iterating upwards
+
+  ezSet<ezUInt16> mappedIdsToRemove;
+
   for (auto it = m_TypeToId.GetIterator(); it.IsValid();)
   {
     const ezRTTI* pRtti = it.Key();
+    const ezUInt16 uiTypeId = it.Value();
 
     if (!allRttis.Contains(pRtti))
+    {
+      // type got removed, clear it from the map
+      it = m_TypeToId.Remove(it);
+
+      // and record that all other types that map to the same typeId also must be removed
+      mappedIdsToRemove.Insert(uiTypeId);
+    }
+    else
+    {
+      ++it;
+    }
+  }
+
+  // now remove all mappings that map to an invalid typeId
+  // this can be more than one, since we can map multiple (interface) types to the same implementation
+  for (auto it = m_TypeToId.GetIterator(); it.IsValid();)
+  {
+    const ezUInt16 uiTypeId = it.Value();
+
+    if (mappedIdsToRemove.Contains(uiTypeId))
     {
       it = m_TypeToId.Remove(it);
     }
@@ -212,4 +246,3 @@ void ezWorldModuleFactory::ClearUnloadedTypeToIDs()
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_WorldModule);
-

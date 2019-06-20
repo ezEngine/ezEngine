@@ -102,7 +102,7 @@ void ezResourceManager::RunWorkerTask(ezResource* pResource)
       }
     }
 
-    if (pResource != nullptr && ezTaskSystem::IsLoadingThread())
+    if (pResource != nullptr && ezTaskSystem::GetCurrentThreadWorkerType() == ezWorkerThreadType::FileAccess)
     {
       bDoItYourself = true;
     }
@@ -293,7 +293,7 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
     // make sure existing data is purged
     pResource->CallUnloadData(ezResource::Unload::AllQualityLevels);
 
-    EZ_ASSERT_DEV(pResource->GetLoadingState() <= ezResourceState::UnloadedMetaInfoAvailable,
+    EZ_ASSERT_DEV(pResource->GetLoadingState() <= ezResourceState::LoadedResourceMissing,
       "Resource '{0}' should be in an unloaded state now.", pResource->GetResourceID());
   }
   else

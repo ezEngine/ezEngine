@@ -4,6 +4,11 @@
 
 #define EZ_OSTHREAD_WIN_INL_H_INCLUDED
 
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+
 ezAtomicInteger32 ezOSThread::s_iThreadCount;
 
 // Deactivate Doxygen document generation for the following block.

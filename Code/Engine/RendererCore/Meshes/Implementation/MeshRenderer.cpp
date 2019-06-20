@@ -2,7 +2,7 @@
 
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
-#include <RendererCore/Meshes/MeshComponent.h>
+#include <RendererCore/Meshes/InstancedMeshComponent.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
 #include <RendererCore/Pipeline/InstanceDataProvider.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
@@ -19,9 +19,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezMeshRenderer::ezMeshRenderer() = default;
 ezMeshRenderer::~ezMeshRenderer() = default;
 
-void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)const
+void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const
 {
   types.PushBack(ezGetStaticRTTI<ezMeshRenderData>());
+  types.PushBack(ezGetStaticRTTI<ezInstancedMeshRenderData>());
 }
 
 void ezMeshRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const
@@ -50,9 +51,9 @@ void ezMeshRenderer::RenderBatch(
   const ezMeshResourceHandle& hMesh = pRenderData->m_hMesh;
   const ezMaterialResourceHandle& hMaterial = pRenderData->m_hMaterial;
   const ezUInt32 uiPartIndex = pRenderData->m_uiSubMeshIndex;
-  const bool bHasExplicitInstanceData = pRenderData->m_pExplicitInstanceData != nullptr;
+  const bool bHasExplicitInstanceData = pRenderData->IsInstanceOf<ezInstancedMeshRenderData>();
 
-  ezResourceLock<ezMeshResource> pMesh(hMesh, ezResourceAcquireMode::AllowFallback);
+  ezResourceLock<ezMeshResource> pMesh(hMesh, ezResourceAcquireMode::AllowLoadingFallback);
 
   // This can happen when the resource has been reloaded and now has fewer submeshes.
   const auto& subMeshes = pMesh->GetSubMeshes();
@@ -62,7 +63,7 @@ void ezMeshRenderer::RenderBatch(
   }
 
   ezInstanceData* pInstanceData = bHasExplicitInstanceData
-                                    ? pRenderData->m_pExplicitInstanceData
+                                    ? static_cast<const ezInstancedMeshRenderData*>(pRenderData)->m_pExplicitInstanceData
                                     : pPass->GetPipeline()->GetFrameDataProvider<ezInstanceDataProvider>()->GetData(renderViewContext);
 
   pInstanceData->BindResources(pContext);
@@ -76,25 +77,10 @@ void ezMeshRenderer::RenderBatch(
     pContext->SetShaderPermutationVariable("FLIP_WINDING", "FALSE");
   }
 
-  // Bind skinning matrices if supplied and set the appropriate permutation variable
-  if (pRenderData->m_hSkinningMatrices.IsInvalidated())
-  {
-    pContext->SetShaderPermutationVariable("VERTEX_SKINNING", "FALSE");
-  }
-  else
-  {
-    pContext->SetShaderPermutationVariable("VERTEX_SKINNING", "TRUE");
-
-    if (!pRenderData->m_pNewSkinningMatricesData.IsEmpty())
-    {
-      pContext->GetGALContext()->UpdateBuffer(pRenderData->m_hSkinningMatrices, 0, pRenderData->m_pNewSkinningMatricesData);
-    }
-
-    pContext->BindBuffer("skinningMatrices", pDevice->GetDefaultResourceView(pRenderData->m_hSkinningMatrices));
-  }
-
   pContext->BindMaterial(hMaterial);
   pContext->BindMeshBuffer(pMesh->GetMeshBuffer());
+
+  SetAdditionalData(renderViewContext, pRenderData);
 
   if (!bHasExplicitInstanceData)
   {
@@ -139,7 +125,7 @@ void ezMeshRenderer::RenderBatch(
   }
   else
   {
-    ezUInt32 uiInstanceCount = pRenderData->m_uiExplicitInstanceCount;
+    ezUInt32 uiInstanceCount = static_cast<const ezInstancedMeshRenderData*>(pRenderData)->m_uiExplicitInstanceCount;
 
     if (renderViewContext.m_pCamera->IsStereoscopic())
       uiInstanceCount *= 2;
@@ -192,6 +178,9 @@ void ezMeshRenderer::FillPerInstanceData(
   out_uiFilteredCount = uiCurrentIndex;
 }
 
-
+void ezMeshRenderer::SetAdditionalData(const ezRenderViewContext& renderViewContext, const ezMeshRenderData* pRenderData) const
+{
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("VERTEX_SKINNING", "FALSE");
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshRenderer);

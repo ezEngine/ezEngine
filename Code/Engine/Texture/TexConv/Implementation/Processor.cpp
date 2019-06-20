@@ -52,7 +52,7 @@ ezResult ezTexConvProcessor::Process()
 
     EZ_SUCCEED_OR_RETURN(ConvertAndScaleInputImages(uiTargetResolutionX, uiTargetResolutionY));
 
-    EZ_SUCCEED_OR_RETURN(ClampInputValues(m_Descriptor.m_InputImages));
+    EZ_SUCCEED_OR_RETURN(ClampInputValues(m_Descriptor.m_InputImages, m_Descriptor.m_fMaxValue));
 
     if (m_Descriptor.m_Usage == ezTexConvUsage::BumpMap)
     {

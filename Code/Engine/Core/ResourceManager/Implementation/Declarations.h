@@ -92,7 +92,6 @@ enum class ezResourceState
   Invalid,                    ///< Initial state
   Unloaded,                   ///< The resource instance has been created, but no meta info about the resource is available and no data is loaded.
   LoadedResourceMissing,      ///< The resource could not be loaded, uses a 'Missing Resource' fallback if available
-  UnloadedMetaInfoAvailable,  ///< Meta information about the resource is available (e.g. texture sizes, etc.) but no data is loaded so far.
   Loaded,                     ///< The resource is fully loaded.
 };
 
@@ -108,23 +107,31 @@ struct ezResourceLoadDesc
 };
 
 /// \brief Describes what data of a resource needs to be accessed and thus how much of the resource needs to be loaded.
+///
+/// \note Inspect the ezResourceAcquireResult to know whether acquisition failed or whether a fallback was returned.
 enum class ezResourceAcquireMode
 {
-  PointerOnly,            ///< We really only want the pointer (maybe to update some state), no data needs to be loaded. This will never block.
-  AllowFallback,          ///< We want to use the resource, but if it has a fallback, using that is fine as well. This should be the default usage.
-  MetaInfo,               ///< The actual resource data is not needed, but its meta data is required (e.g. texture dimensions). Thus a fallback resource
-                          ///< cannot be used. This will block until at least the meta info is available.
-  NoFallback,             ///< The full resource data is required. The loader will block until the resource is in the 'Loaded' state. This does NOT mean
-                          ///< that all quality levels are loaded.
-  NoFallbackAllowMissing, ///< Same as 'NoFallback' but in case the resource is actually missing, no assertion triggers and no error is
-                          ///< logged. The calling code signals with this that it can handle the situation.
+  PointerOnly,                ///< We really only want the pointer (maybe to update some state), no data needs to be loaded.
+                              ///< This will never block and can never fail.
+  AllowLoadingFallback,       ///< We want to use the resource, but if it has a loading fallback, using that is fine as well.
+                              ///< This should be the default usage.
+  AllowLoadingFallback_NeverFail,///< Same as 'AllowLoadingFallback' but in case the resource is fully missing (and no 'Missing Fallback' is available),
+                              ///< no assertion triggers and no error is logged.
+                              ///< The calling code signals with this that it can handle the situation.
+  BlockTillLoaded,            ///< The full resource data is required. The loader will block until the resource is in the 'Loaded' state.
+                              ///< This does NOT mean that all quality levels are loaded.
+                              ///< If the resource is missing, the 'Missing Resource' fallback may be returned.
+                              ///< If no 'Missing Fallback' exists, the engine will assert/crash.
+  BlockTillLoaded_NeverFail,  ///< Same as 'BlockTillLoaded' but in case the resource is fully missing (and no 'Missing Fallback' is available),
+                              ///< no assertion triggers and no error is logged.
+                              ///< The calling code signals with this that it can handle the situation.
 };
 
 /// \brief Indicates whether acquiring a resource was successful.
 enum class ezResourceAcquireResult
 {
   None,             ///< No result available, ie the resource could not be loaded, not even a missing fallback was available, the resource pointer is
-                    ///< nullptr. This result mode is only available when ezResourceAcquireMode::NoFallbackAllowMissing was used.
+                    ///< nullptr. This result mode is only available when ezResourceAcquireMode::BlockTillLoaded_NeverFail was used.
   MissingFallback, ///< The resource could not be loaded, but a missing fallback was available and has been returned.
   LoadingFallback, ///< The resource has not yet been loaded, but a loading fallback was available and has been returned.
   Final,           ///< The resource is fully available.

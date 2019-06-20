@@ -7,10 +7,10 @@ CONSTANT_BUFFER(ezMaterialConstants, 1)
   FLOAT1(ReflectanceValue);
   FLOAT1(RoughnessValue);
   FLOAT1(MaskThreshold);
-  BOOLEAN(UseBaseTexture);
-  BOOLEAN(UseMetallicTexture);
-  BOOLEAN(UseNormalAndRoughnessTexture);
-  BOOLEAN(UseEmissiveTexture);
+  BOOL1(UseBaseTexture);
+  BOOL1(UseMetallicTexture);
+  BOOL1(UseNormalAndRoughnessTexture);
+  BOOL1(UseEmissiveTexture);
   COLOR4F(EmissiveColor);
-  BOOLEAN(UseOcclusionTexture);
+  BOOL1(UseOcclusionTexture);
 };

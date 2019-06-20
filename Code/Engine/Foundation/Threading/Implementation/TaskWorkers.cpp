@@ -3,6 +3,8 @@
 #include <Foundation/System/SystemInformation.h>
 #include <Foundation/Threading/TaskSystem.h>
 
+extern thread_local ezWorkerThreadType::Enum g_ThreadTaskType;
+
 // Helper function to generate a nice thread name.
 static const char* GenerateThreadName(ezWorkerThreadType::Enum ThreadType, ezUInt32 iThreadNumber)
 {
@@ -41,29 +43,6 @@ ezTaskWorkerThread::ezTaskWorkerThread(ezWorkerThreadType::Enum ThreadType, ezUI
   m_ThreadUtilization = 0.0;
   m_iTasksExecutionCounter = 0;
   m_uiNumTasksExecuted = 0;
-}
-
-bool ezTaskSystem::IsLoadingThread()
-{
-  if (s_WorkerThreads[ezWorkerThreadType::FileAccess].IsEmpty())
-    return false;
-
-  EZ_ASSERT_DEBUG(s_WorkerThreads[ezWorkerThreadType::FileAccess].GetCount() == 1,
-                  "The number of loading threads cannot be changed without adjusting other code");
-  return ezThreadUtils::GetCurrentThreadID() == s_WorkerThreads[ezWorkerThreadType::FileAccess][0]->GetThreadID();
-}
-
-bool ezTaskSystem::IsLongRunningThread()
-{
-  for (auto pLongRunningThread : s_WorkerThreads[ezWorkerThreadType::LongTasks])
-  {
-    if (ezThreadUtils::GetCurrentThreadID() == pLongRunningThread->GetThreadID())
-    {
-      return true;
-    }
-  }
-
-  return false;
 }
 
 void ezTaskSystem::StopWorkerThreads()
@@ -158,21 +137,17 @@ void ezTaskSystem::SetWorkerThreadCount(ezInt8 iShortTasks, ezInt8 iLongTasks)
 
 ezUInt32 ezTaskWorkerThread::Run()
 {
-  ezTaskPriority::Enum FirstPriority = ezTaskPriority::EarlyThisFrame;
-  ezTaskPriority::Enum LastPriority = ezTaskPriority::LateNextFrame;
-
-  if (m_WorkerType == ezWorkerThreadType::LongTasks)
-  {
-    FirstPriority = ezTaskPriority::LongRunningHighPriority;
-    LastPriority = ezTaskPriority::LongRunning;
-  }
-  else if (m_WorkerType == ezWorkerThreadType::FileAccess)
-  {
-    FirstPriority = ezTaskPriority::FileAccessHighPriority;
-    LastPriority = ezTaskPriority::FileAccess;
-  }
-
+  EZ_ASSERT_DEBUG(m_WorkerType != ezWorkerThreadType::Unknown &&  m_WorkerType != ezWorkerThreadType::MainThread, "Worker threads cannot use this type");
   EZ_ASSERT_DEBUG(m_WorkerType < ezWorkerThreadType::ENUM_COUNT, "Worker Thread Type is invalid: {0}", m_WorkerType);
+
+  // once this thread is running, store the worker type in the thread_local variable
+  // such that the ezTaskSystem is able to look this up (e.g. in WaitForGroup) to know which types of tasks to help with
+  g_ThreadTaskType = m_WorkerType;
+
+  bool bAllowDefaultWork;
+  ezTaskPriority::Enum FirstPriority = ezTaskPriority::EarlyThisFrame;
+  ezTaskPriority::Enum LastPriority = ezTaskPriority::In9Frames;
+  ezTaskSystem::DetermineTasksToExecuteOnThread(FirstPriority, LastPriority, bAllowDefaultWork);
 
   m_bExecutingTask = false;
 

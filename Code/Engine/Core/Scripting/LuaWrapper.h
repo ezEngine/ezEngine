@@ -6,11 +6,16 @@
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
-extern "C" {
-#include <Lua/lauxlib.h>
-#include <Lua/lua.h>
-#include <Lua/lualib.h>
-}
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+// We compile Lua as C++ under UWP so we need to include the headers directly
+// to prevent the addition of extern "C" done by lua.hpp. 
+#    include <Lua/lauxlib.h>
+#    include <Lua/lua.h>
+#    include <Lua/luaconf.h>
+#    include <Lua/lualib.h>
+#  else
+#    include <Lua/lua.hpp>
+#  endif
 
 /// This class encapsulates ONE Lua-Script.
 ///
@@ -59,7 +64,7 @@ public:
   ///   An optional log interface where error messages are written to. If nullptr is passed in, error messages are written to the global
   ///   log.
   ezResult ExecuteString(const char* szString, const char* szDebugChunkName = "chunk",
-                         ezLogInterface* pLogInterface = nullptr) const; // [tested]
+    ezLogInterface* pLogInterface = nullptr) const; // [tested]
 
   /// @}
 
@@ -311,9 +316,9 @@ private:
   struct ezScriptStates
   {
     ezScriptStates()
-        : m_iParametersPushed(0)
-        , m_iOpenTables(0)
-        , m_iLuaReturnValues(0)
+      : m_iParametersPushed(0)
+      , m_iOpenTables(0)
+      , m_iLuaReturnValues(0)
     {
     }
 
@@ -332,7 +337,6 @@ private:
   static const ezInt32 s_ParamOffset = 1; // should be one, to start counting at 0, instead of 1
 };
 
-#include <Core/Scripting/LuaWrapper/LuaWrapper.inl>
+#  include <Core/Scripting/LuaWrapper/LuaWrapper.inl>
 
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
-

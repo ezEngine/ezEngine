@@ -224,7 +224,7 @@ void ezSkyBoxComponent::UpdateMaterials()
 {
   if (m_hCubeMapMaterial.IsValid())
   {
-    ezResourceLock<ezMaterialResource> pMaterial(m_hCubeMapMaterial, ezResourceAcquireMode::AllowFallback);
+    ezResourceLock<ezMaterialResource> pMaterial(m_hCubeMapMaterial, ezResourceAcquireMode::AllowLoadingFallback);
 
     pMaterial->SetParameter("ExposureBias", m_fExposureBias);
     pMaterial->SetParameter("InverseTonemap", m_bInverseTonemap);

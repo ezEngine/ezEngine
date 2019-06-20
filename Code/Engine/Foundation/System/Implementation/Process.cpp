@@ -1,17 +1,18 @@
 #include <FoundationPCH.h>
 
+#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
 // Include inline file
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/System/Implementation/Win/Process_win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX)
-#  include <Foundation/System/Implementation/OSX/Process_OSX.h>
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-#  include <Foundation/System/Implementation/Posix/Process_posix.h>
-#else
-#  error "Process functions are not implemented on current platform"
-#endif
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#    include <Foundation/System/Implementation/Win/Process_win.h>
+#  elif EZ_ENABLED(EZ_PLATFORM_OSX)
+#    include <Foundation/System/Implementation/OSX/Process_OSX.h>
+#  elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#    include <Foundation/System/Implementation/Posix/Process_posix.h>
+#  else
+#    error "Process functions are not implemented on current platform"
+#  endif
 
-#include <Strings/Implementation/StringIterator.h>
+#  include <Strings/Implementation/StringIterator.h>
 
 ezProcess::ezProcess(ezProcess&& rhs) = default;
 
@@ -128,7 +129,6 @@ void ezProcess::BuildFullCommandLineString(const ezProcessOptions& opt, const ch
 
   opt.BuildCommandLineString(cmd);
 }
-
+#endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_System_Implementation_Process);
-

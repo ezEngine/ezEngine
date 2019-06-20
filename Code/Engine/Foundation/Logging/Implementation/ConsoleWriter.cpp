@@ -3,6 +3,8 @@
 #include <Foundation/Logging/ConsoleWriter.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+
 static void SetConsoleColor(WORD ui)
 {
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)

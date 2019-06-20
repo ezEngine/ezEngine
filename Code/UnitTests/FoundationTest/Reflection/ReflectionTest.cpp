@@ -97,6 +97,21 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
     EZ_TEST_STRING(pClass2->GetTypeName(), "ezTestClass2");
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindTypeByNameHash")
+  {
+    ezRTTI* pFloat = ezRTTI::FindTypeByName("float");
+    ezRTTI* pFloat2 = ezRTTI::FindTypeByNameHash(pFloat->GetTypeNameHash());
+    EZ_TEST_BOOL(pFloat == pFloat2);
+
+    ezRTTI* pStruct = ezRTTI::FindTypeByName("ezTestStruct");
+    ezRTTI* pStruct2 = ezRTTI::FindTypeByNameHash(pStruct->GetTypeNameHash());
+    EZ_TEST_BOOL(pStruct == pStruct2);
+
+    ezRTTI* pClass = ezRTTI::FindTypeByName("ezTestClass2");
+    ezRTTI* pClass2 = ezRTTI::FindTypeByNameHash(pClass->GetTypeNameHash());
+    EZ_TEST_BOOL(pClass == pClass2);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetProperties")
   {
     {
@@ -572,6 +587,13 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Enum)
         EZ_TEST_BOOL(ezReflectionUtils::StringToEnumeration(pEnumPropertyRTTI, sValue, iValue));
         EZ_TEST_INT(iValue, pConstantProp->GetValue());
 
+        // Testing the short enum name version
+        EZ_TEST_BOOL(ezReflectionUtils::EnumerationToString(pEnumPropertyRTTI, pConstantProp->GetValue(), sValue, ezReflectionUtils::EnumConversionMode::ValueNameOnly));
+        EZ_TEST_BOOL(sValue.IsEqual(pConstantProp->GetPropertyName()) || sValue.IsEqual(ezStringUtils::FindLastSubString(pConstantProp->GetPropertyName(), "::") + 2));
+
+        EZ_TEST_BOOL(ezReflectionUtils::StringToEnumeration(pEnumPropertyRTTI, sValue, iValue));
+        EZ_TEST_INT(iValue, pConstantProp->GetValue());
+
         EZ_TEST_INT(iValue, ezReflectionUtils::MakeEnumerationValid(pEnumPropertyRTTI, iValue));
         EZ_TEST_INT(ezExampleEnum::Default, ezReflectionUtils::MakeEnumerationValid(pEnumPropertyRTTI, iValue + 666));
       }
@@ -648,6 +670,15 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Bitflags)
                                     "ezExampleBitflags::Value1|ezExampleBitflags::Value3",
                                     "ezExampleBitflags::Value2|ezExampleBitflags::Value3",
                                     "ezExampleBitflags::Value1|ezExampleBitflags::Value2|ezExampleBitflags::Value3"};
+
+      const char* stringValuesShort[] = { "",
+                              "Value1",
+                              "Value2",
+                              "Value1|Value2",
+                              "Value3",
+                              "Value1|Value3",
+                              "Value2|Value3",
+                              "Value1|Value2|Value3" };
       for (ezInt32 i = 0; i < 8; ++i)
       {
         ezUInt64 uiBitflagValue = 0;
@@ -669,6 +700,13 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Bitflags)
         EZ_TEST_INT(pBitflagsProp->GetValue(&data), uiBitflagValue);
 
         ezInt64 iValue = 0;
+        EZ_TEST_BOOL(ezReflectionUtils::StringToEnumeration(pBitflagsPropertyRTTI, sValue, iValue));
+        EZ_TEST_INT(iValue, uiBitflagValue);
+
+        // Testing the short enum name version
+        EZ_TEST_BOOL(ezReflectionUtils::EnumerationToString(pBitflagsPropertyRTTI, uiBitflagValue, sValue, ezReflectionUtils::EnumConversionMode::ValueNameOnly));
+        EZ_TEST_BOOL(sValue.IsEqual(stringValuesShort[i]));
+
         EZ_TEST_BOOL(ezReflectionUtils::StringToEnumeration(pBitflagsPropertyRTTI, sValue, iValue));
         EZ_TEST_INT(iValue, uiBitflagValue);
 

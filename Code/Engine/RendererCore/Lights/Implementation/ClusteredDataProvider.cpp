@@ -101,7 +101,7 @@ void ezClusteredDataGPU::BindResources(ezRenderContext* pRenderContext)
   pRenderContext->BindTexture2D("ShadowAtlasTexture", hShadowAtlasTextureView);
   pRenderContext->BindSamplerState("ShadowSampler", m_hShadowSampler);
 
-  ezResourceLock<ezDecalAtlasResource> pDecalAtlas(m_hDecalAtlas, ezResourceAcquireMode::AllowFallback);
+  ezResourceLock<ezDecalAtlasResource> pDecalAtlas(m_hDecalAtlas, ezResourceAcquireMode::AllowLoadingFallback);
   pRenderContext->BindTexture2D("DecalAtlasBaseColorTexture", pDecalAtlas->GetBaseColorTexture());
   pRenderContext->BindTexture2D("DecalAtlasNormalTexture", pDecalAtlas->GetNormalTexture());
 

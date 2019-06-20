@@ -4,6 +4,9 @@
 
 #define EZ_STACKTRACER_UWP_INL_H_INCLUDED
 
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 void ezStackTracer::OnPluginEvent(const ezPlugin::PluginEvent& e) {}
 
 // static

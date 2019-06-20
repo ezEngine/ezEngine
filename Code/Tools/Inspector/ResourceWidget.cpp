@@ -273,10 +273,6 @@ void ezQtResourceWidget::UpdateTable()
           pItem->setText("Unloaded");
           pItem->setTextColor(QColor::fromRgb(255, 216, 0));
           break;
-        case ezResourceState::UnloadedMetaInfoAvailable:
-          pItem->setText("Meta Data");
-          pItem->setTextColor(QColor::fromRgb(255, 127, 237));
-          break;
         case ezResourceState::Loaded:
           pItem->setText("Loaded");
           pItem->setTextColor(QColor::fromRgb(182, 255, 0));

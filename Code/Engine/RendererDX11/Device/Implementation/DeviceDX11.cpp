@@ -1,5 +1,6 @@
 #include <RendererDX11PCH.h>
 
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <RendererDX11/Context/ContextDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
@@ -16,6 +17,8 @@
 #include <System/Window/Window.h>
 
 #include <d3d11.h>
+#include <dxgidebug.h>
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 #  include <d3d11_1.h>
 #endif
@@ -32,7 +35,7 @@ ezGALDeviceDX11::ezGALDeviceDX11(const ezGALDeviceCreationDescription& Descripti
 {
 }
 
-ezGALDeviceDX11::~ezGALDeviceDX11() {}
+ezGALDeviceDX11::~ezGALDeviceDX11() = default;
 
 // Init & shutdown functions
 
@@ -52,7 +55,7 @@ retry:
   ID3D11DeviceContext* pImmediateContext = nullptr;
 
   D3D_DRIVER_TYPE driverType = D3D_DRIVER_TYPE_HARDWARE;
-  //driverType = D3D_DRIVER_TYPE_REFERENCE; // enables the Reference Device
+  // driverType = D3D_DRIVER_TYPE_REFERENCE; // enables the Reference Device
 
   if (pUsedAdapter != nullptr)
   {
@@ -205,6 +208,43 @@ ezResult ezGALDeviceDX11::InitPlatform()
   return InitPlatform(0, nullptr);
 }
 
+void ezGALDeviceDX11::ReportLiveGpuObjects()
+{
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  // not implemented
+  return;
+
+#else
+
+  const HMODULE hDxgiDebugDLL = LoadLibraryW(L"Dxgidebug.dll");
+
+  if (hDxgiDebugDLL == nullptr)
+    return;
+
+  typedef HRESULT(WINAPI * FnGetDebugInterfacePtr)(REFIID, void**);
+  FnGetDebugInterfacePtr GetDebugInterfacePtr = (FnGetDebugInterfacePtr)GetProcAddress(hDxgiDebugDLL, "DXGIGetDebugInterface");
+
+  if (GetDebugInterfacePtr == nullptr)
+    return;
+
+  IDXGIDebug* dxgiDebug = nullptr;
+  GetDebugInterfacePtr(IID_PPV_ARGS(&dxgiDebug));
+
+  if (dxgiDebug == nullptr)
+    return;
+
+  OutputDebugStringW(L" +++++ Live DX11 Objects: +++++\n");
+
+  // prints to OutputDebugString
+  dxgiDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
+
+  OutputDebugStringW(L" ----- Live DX11 Objects: -----\n");
+
+  dxgiDebug->Release();
+
+#endif
+}
+
 ezResult ezGALDeviceDX11::ShutdownPlatform()
 {
   for (ezUInt32 type = 0; type < TempResourceType::ENUM_COUNT; ++type)
@@ -225,6 +265,12 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
     }
     m_UsedTempResources[type].Clear();
   }
+
+  for (auto& timestamp : m_Timestamps)
+  {
+    EZ_GAL_DX11_RELEASE(timestamp);
+  }
+  m_Timestamps.Clear();
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
   {
@@ -257,6 +303,8 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
   EZ_GAL_DX11_RELEASE(m_pDXGIFactory);
   EZ_GAL_DX11_RELEASE(m_pDXGIAdapter);
   EZ_GAL_DX11_RELEASE(m_pDXGIDevice);
+
+  ReportLiveGpuObjects();
 
   return EZ_SUCCESS;
 }
@@ -751,7 +799,7 @@ void ezGALDeviceDX11::SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain)
 {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   // Make window association
-  m_pDXGIFactory->MakeWindowAssociation(pSwapChain->GetDescription().m_pWindow->GetNativeWindowHandle(), 0);
+  m_pDXGIFactory->MakeWindowAssociation(ezMinWindows::ToNative(pSwapChain->GetDescription().m_pWindow->GetNativeWindowHandle()), 0);
 #endif
 }
 

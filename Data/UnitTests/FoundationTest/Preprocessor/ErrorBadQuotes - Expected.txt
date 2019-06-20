@@ -1,4 +1,4 @@
 Processing failed
-Log: 'Unescaped Newline in string'
+Log: 'Unescaped Newline in string line 4 column 0'
 Preprocessor/ErrorBadQuotes.txt: Line 3 [2]: Error: #error 'Before bad quote ' After bad quote'
 Log: 'File 'Preprocessor/ErrorBadQuotes.txt', Line 3 (2): #error 'Before bad quote ' After bad quote''

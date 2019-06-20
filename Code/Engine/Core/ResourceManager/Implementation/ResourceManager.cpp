@@ -194,7 +194,7 @@ ezUInt32 ezResourceManager::FreeUnusedResources(bool bFreeAllUnused)
         ++uiUnloaded;
         pReference->CallUnloadData(ezResource::Unload::AllQualityLevels);
 
-        EZ_ASSERT_DEBUG(pReference->GetLoadingState() <= ezResourceState::UnloadedMetaInfoAvailable,
+        EZ_ASSERT_DEBUG(pReference->GetLoadingState() <= ezResourceState::LoadedResourceMissing,
           "Resource '{0}' should be in an unloaded state now.", pReference->GetResourceID());
 
         // broadcast that we are going to delete the resource
@@ -291,7 +291,7 @@ void ezResourceManager::PerFrameUpdate()
       // If the resource was still loaded, we are going to unload it now.
       resourceToUnload->CallUnloadData(ezResource::Unload::AllQualityLevels);
 
-      EZ_ASSERT_DEV(resourceToUnload->GetLoadingState() <= ezResourceState::UnloadedMetaInfoAvailable,
+      EZ_ASSERT_DEV(resourceToUnload->GetLoadingState() <= ezResourceState::LoadedResourceMissing,
         "Resource '{0}' should be in an unloaded state now.", resourceToUnload->GetResourceID());
     }
 

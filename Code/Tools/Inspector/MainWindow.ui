@@ -309,7 +309,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+    <iconset resource="../Libs/GuiFoundation/QtResources/resources.qrc">
      <normaloff>:/GuiFoundation/Icons/CVar.png</normaloff>:/GuiFoundation/Icons/CVar.png</iconset>
    </property>
    <property name="text">
@@ -441,8 +441,7 @@
  </widget>
  <resources>
   <include location="resources.qrc"/>
-  <include location="../../Code/Tools/GuiFoundation/QtResources/resources.qrc"/>
+  <include location="../Libs/GuiFoundation/QtResources/resources.qrc"/>
  </resources>
  <connections/>
-</ui> 
-
+</ui>

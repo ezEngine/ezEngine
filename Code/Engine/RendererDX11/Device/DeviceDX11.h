@@ -41,6 +41,8 @@ public:
 
   const ezGALFormatLookupTableDX11& GetFormatLookupTable() const;
 
+  void ReportLiveGpuObjects();
+
   // These functions need to be implemented by a render API abstraction
 protected:
 

@@ -1,5 +1,5 @@
 /*
-** $Id: lstring.c,v 2.56 2015/11/23 11:32:51 roberto Exp $
+** $Id: lstring.c,v 2.56.1.1 2017/04/19 17:20:42 roberto Exp $
 ** String table (keeps all strings handled by Lua)
 ** See Copyright Notice in lua.h
 */
@@ -245,3 +245,4 @@ Udata *luaS_newudata (lua_State *L, size_t s) {
   setuservalue(L, u, luaO_nilobject);
   return u;
 }
+

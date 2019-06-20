@@ -53,6 +53,7 @@ void ezQtDataWidget::ProcessTelemetry(void* pUnuseed)
 
       // this will create the item, do not remove!
       TransferData& td = s_pWidget->m_Transfers[sName];
+      EZ_IGNORE_UNUSED(td);
 
       s_pWidget->ComboTransfers->addItem(sName.GetData());
     }

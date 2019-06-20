@@ -26,6 +26,18 @@ namespace ezArrayPtrDetail
     typedef const ezUInt8 type;
   };
 
+  template <typename U>
+  struct VoidTypeHelper2
+  {
+    typedef void type;
+  };
+
+  template <typename U>
+  struct VoidTypeHelper2<const U>
+  {
+    typedef const void type;
+  };
+
   /// \brief Helper to allow simple pointer arithmetic in case the ArrayPtr's type is
   ///    is void or const void.
   template <typename U>
@@ -94,6 +106,7 @@ public:
 
 public:
   typedef typename ezArrayPtrDetail::ByteTypeHelper<T>::type ByteType;
+  typedef typename ezArrayPtrDetail::VoidTypeHelper2<T>::type VoidType;
   typedef typename ezArrayPtrDetail::VoidTypeHelper<T>::valueType ValueType;
   typedef typename ezArrayPtrDetail::VoidTypeHelper<T>::pointerType PointerType;
 
@@ -190,15 +203,7 @@ public:
   }
 
   /// \brief Creates a sub-array from this array.
-  EZ_FORCE_INLINE ezArrayPtr<const T> GetSubArray(ezUInt32 uiStart, ezUInt32 uiCount) const // [tested]
-  {
-    EZ_ASSERT_DEV(uiStart + uiCount <= GetCount(), "uiStart+uiCount ({0}) has to be smaller or equal than the count ({1}).",
-      uiStart + uiCount, GetCount());
-    return ezArrayPtr<const T>(GetPtr() + uiStart, uiCount);
-  }
-
-  /// \brief Creates a sub-array from this array.
-  EZ_FORCE_INLINE ezArrayPtr<T> GetSubArray(ezUInt32 uiStart, ezUInt32 uiCount) // [tested]
+  EZ_FORCE_INLINE ezArrayPtr<T> GetSubArray(ezUInt32 uiStart, ezUInt32 uiCount) const // [tested]
   {
     EZ_ASSERT_DEV(uiStart + uiCount <= GetCount(), "uiStart+uiCount ({0}) has to be smaller or equal than the count ({1}).",
       uiStart + uiCount, GetCount());
@@ -207,15 +212,7 @@ public:
 
   /// \brief Creates a sub-array from this array.
   /// \note \code ap.GetSubArray(i) \endcode is equivalent to \code ap.GetSubArray(i, ap.GetCount() - i) \endcode.
-  EZ_FORCE_INLINE ezArrayPtr<const T> GetSubArray(ezUInt32 uiStart) const // [tested]
-  {
-    EZ_ASSERT_DEV(uiStart <= GetCount(), "uiStart ({0}) has to be smaller or equal than the count ({1}).", uiStart, GetCount());
-    return ezArrayPtr<const T>(GetPtr() + uiStart, GetCount() - uiStart);
-  }
-
-  /// \brief Creates a sub-array from this array.
-  /// \note \code ap.GetSubArray(i) \endcode is equivalent to \code ap.GetSubArray(i, ap.GetCount() - i) \endcode.
-  EZ_FORCE_INLINE ezArrayPtr<T> GetSubArray(ezUInt32 uiStart) // [tested]
+  EZ_FORCE_INLINE ezArrayPtr<T> GetSubArray(ezUInt32 uiStart) const // [tested]
   {
     EZ_ASSERT_DEV(uiStart <= GetCount(), "uiStart ({0}) has to be smaller or equal than the count ({1}).", uiStart, GetCount());
     return ezArrayPtr<T>(GetPtr() + uiStart, GetCount() - uiStart);
@@ -231,6 +228,24 @@ public:
   EZ_ALWAYS_INLINE ezArrayPtr<ByteType> ToByteArray()
   {
     return ezArrayPtr<ByteType>(reinterpret_cast<ByteType*>(GetPtr()), GetCount() * sizeof(T));
+  }
+
+  /// \brief Reinterprets this array as an ezArrayPtr<const void>
+  EZ_ALWAYS_INLINE ezArrayPtr<const VoidType> ToVoidArray() const
+  {
+    return ezArrayPtr<const VoidType>(reinterpret_cast<const VoidType*>(GetPtr()), GetCount() * sizeof(T));
+  }
+
+  /// \brief Reinterprets this array as an ezArrayPtr<void>
+  EZ_ALWAYS_INLINE ezArrayPtr<VoidType> ToVoidArray()
+  {
+    return ezArrayPtr<VoidType>(reinterpret_cast<VoidType*>(GetPtr()), GetCount() * sizeof(T));
+  }
+
+  /// \brief Reinterprets this array as an ezArrayPtr<const void>
+  EZ_ALWAYS_INLINE ezArrayPtr<const VoidType> ToConstVoidArray() const
+  {
+    return ezArrayPtr<const VoidType>(reinterpret_cast<const VoidType*>(GetPtr()), GetCount() * sizeof(T));
   }
 
   /// \brief Cast an ArrayPtr to an ArrayPtr to a different, but same size, type

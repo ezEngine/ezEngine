@@ -23,7 +23,7 @@ public:
   Type m_fElementsCM[16];
 
   EZ_ALWAYS_INLINE Type& Element(ezInt32 column, ezInt32 row) { return m_fElementsCM[column * 4 + row]; }
-  EZ_ALWAYS_INLINE Type Element(ezInt32 column, ezInt32 row) const { return m_fElementsCM[column * 4 + row]; }
+  EZ_ALWAYS_INLINE const Type Element(ezInt32 column, ezInt32 row) const { return m_fElementsCM[column * 4 + row]; }
 
   // *** Constructors ***
 public:
@@ -40,10 +40,8 @@ public:
   ezMat4Template(const Type* const pData, ezMatrixLayout::Enum layout); // [tested]
 
   /// \brief Sets each element manually: Naming is "column-n row-m"
-  ezMat4Template(Type c1r1, Type c2r1, Type c3r1, Type c4r1,
-                 Type c1r2, Type c2r2, Type c3r2, Type c4r2,
-                 Type c1r3, Type c2r3, Type c3r3, Type c4r3,
-                 Type c1r4, Type c2r4, Type c3r4, Type c4r4); // [tested]
+  ezMat4Template(Type c1r1, Type c2r1, Type c3r1, Type c4r1, Type c1r2, Type c2r2, Type c3r2, Type c4r2, Type c1r3, Type c2r3, Type c3r3,
+    Type c4r3, Type c1r4, Type c2r4, Type c3r4, Type c4r4); // [tested]
 
   /// \brief Creates a transformation matrix from a rotation and a translation.
   ezMat4Template(const ezMat3Template<Type>& Rotation, const ezVec3Template<Type>& vTranslation); // [tested]
@@ -51,7 +49,8 @@ public:
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
   {
-    EZ_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that all code-paths properly initialize this object.");
+    EZ_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please "
+                               "check that all code-paths properly initialize this object.");
   }
 #endif
 
@@ -64,14 +63,13 @@ public:
   ///   The data should be in column-major format, if you want to prevent unnecessary transposes.
   void SetFromArray(const Type* const pData, ezMatrixLayout::Enum layout); // [tested]
 
-  /// \brief Copies the 16 values of this matrix into the given array. 'layout' defines whether the data should end up in column-major or row-major format.
+  /// \brief Copies the 16 values of this matrix into the given array. 'layout' defines whether the data should end up in column-major or
+  /// row-major format.
   void GetAsArray(Type* out_pData, ezMatrixLayout::Enum layout) const; // [tested]
 
   /// \brief Sets each element manually: Naming is "column-n row-m"
-  void SetElements(Type c1r1, Type c2r1, Type c3r1, Type c4r1,
-                   Type c1r2, Type c2r2, Type c3r2, Type c4r2,
-                   Type c1r3, Type c2r3, Type c3r3, Type c4r3,
-                   Type c1r4, Type c2r4, Type c3r4, Type c4r4); // [tested]
+  void SetElements(Type c1r1, Type c2r1, Type c3r1, Type c4r1, Type c1r2, Type c2r2, Type c3r2, Type c4r2, Type c1r3, Type c2r3, Type c3r3,
+    Type c4r3, Type c1r4, Type c2r4, Type c3r4, Type c4r4); // [tested]
 
   /// \brief Sets a transformation matrix from a rotation and a translation.
   void SetTransformationMatrix(const ezMat3Template<Type>& Rotation, const ezVec3Template<Type>& vTranslation); // [tested]
@@ -102,25 +100,33 @@ public:
   /// \brief Sets this matrix to be a rotation matrix around the given axis.
   void SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle); // [tested]
 
-  /// \brief Creates a perspective projection matrix with Left = -fViewWidth/2, Right = +fViewWidth/2, Bottom = -fViewHeight/2, Top = +fViewHeight/2.
-  void SetPerspectiveProjectionMatrix(Type fViewWidth, Type fViewHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange = ezProjectionDepthRange::Default);
+  /// \brief Creates a perspective projection matrix with Left = -fViewWidth/2, Right = +fViewWidth/2, Bottom = -fViewHeight/2, Top =
+  /// +fViewHeight/2.
+  void SetPerspectiveProjectionMatrix(
+    Type fViewWidth, Type fViewHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange = ezProjectionDepthRange::Default);
 
   /// \brief Creates a perspective projection matrix.
-  void SetPerspectiveProjectionMatrix(Type fLeft, Type fRight, Type fBottom, Type fTop, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange = ezProjectionDepthRange::Default);
+  void SetPerspectiveProjectionMatrix(Type fLeft, Type fRight, Type fBottom, Type fTop, Type fNearZ, Type fFarZ,
+    ezProjectionDepthRange::Enum DepthRange = ezProjectionDepthRange::Default);
 
   /// \brief Creates a perspective projection matrix.
   /// \param fFieldOfViewX    Horizontal field of view.
-  void SetPerspectiveProjectionMatrixFromFovX(ezAngle fieldOfViewX, Type fAspectRatioWidthDivHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange = ezProjectionDepthRange::Default);
+  void SetPerspectiveProjectionMatrixFromFovX(ezAngle fieldOfViewX, Type fAspectRatioWidthDivHeight, Type fNearZ, Type fFarZ,
+    ezProjectionDepthRange::Enum DepthRange = ezProjectionDepthRange::Default);
 
   /// \brief Creates a perspective projection matrix.
   /// \param fFieldOfViewY    Vertical field of view.
-  void SetPerspectiveProjectionMatrixFromFovY(ezAngle fieldOfViewY, Type fAspectRatioWidthDivHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange = ezProjectionDepthRange::Default);
+  void SetPerspectiveProjectionMatrixFromFovY(ezAngle fieldOfViewY, Type fAspectRatioWidthDivHeight, Type fNearZ, Type fFarZ,
+    ezProjectionDepthRange::Enum DepthRange = ezProjectionDepthRange::Default);
 
-  /// \brief Creates an orthographic projection matrix with Left = -fViewWidth/2, Right = +fViewWidth/2, Bottom = -fViewHeight/2, Top = +fViewHeight/2.
-  void SetOrthographicProjectionMatrix(Type fViewWidth, Type fViewHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange = ezProjectionDepthRange::Default);
+  /// \brief Creates an orthographic projection matrix with Left = -fViewWidth/2, Right = +fViewWidth/2, Bottom = -fViewHeight/2, Top =
+  /// +fViewHeight/2.
+  void SetOrthographicProjectionMatrix(
+    Type fViewWidth, Type fViewHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange = ezProjectionDepthRange::Default);
 
   /// \brief Creates an orthographic projection matrix.
-  void SetOrthographicProjectionMatrix(Type fLeft, Type fRight, Type fBottom, Type fTop, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange = ezProjectionDepthRange::Default);
+  void SetOrthographicProjectionMatrix(Type fLeft, Type fRight, Type fBottom, Type fTop, Type fNearZ, Type fFarZ,
+    ezProjectionDepthRange::Enum DepthRange = ezProjectionDepthRange::Default);
 
   /// \brief Creates a look-at matrix.
   void SetLookAtMatrix(const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vTargetPos, const ezVec3Template<Type>& vUpDir);
@@ -194,7 +200,8 @@ public:
   /// \brief Returns the 3 scaling factors that are encoded in the matrix.
   const ezVec3Template<Type> GetScalingFactors() const; // [tested]
 
-  /// \brief Tries to set the three scaling factors in the matrix. Returns EZ_FAILURE if the matrix columns cannot be normalized and thus no rescaling is possible.
+  /// \brief Tries to set the three scaling factors in the matrix. Returns EZ_FAILURE if the matrix columns cannot be normalized and thus no
+  /// rescaling is possible.
   ezResult SetScalingFactors(const ezVec3Template<Type>& vXYZ, Type fEpsilon = ezMath::BasicType<Type>::DefaultEpsilon()); // [tested]
 
   // *** Operators ***
@@ -203,13 +210,17 @@ public:
   const ezVec3Template<Type> TransformPosition(const ezVec3Template<Type>& v) const; // [tested]
 
   /// \brief Matrix-vector multiplication, assuming the 4th component of the vector is one (default behavior).
-  void TransformPosition(ezVec3Template<Type>* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
+  void TransformPosition(
+    ezVec3Template<Type>* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
 
-  /// \brief Matrix-vector multiplication, assuming the 4th component of the vector is zero. So, rotation/scaling only. Useful as an optimization.
+  /// \brief Matrix-vector multiplication, assuming the 4th component of the vector is zero. So, rotation/scaling only. Useful as an
+  /// optimization.
   const ezVec3Template<Type> TransformDirection(const ezVec3Template<Type>& v) const; // [tested]
 
-  /// \brief Matrix-vector multiplication, assuming the 4th component of the vector is zero. So, rotation/scaling only. Useful as an optimization.
-  void TransformDirection(ezVec3Template<Type>* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
+  /// \brief Matrix-vector multiplication, assuming the 4th component of the vector is zero. So, rotation/scaling only. Useful as an
+  /// optimization.
+  void TransformDirection(
+    ezVec3Template<Type>* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
 
   /// \brief Matrix-vector multiplication.
   const ezVec4Template<Type> Transform(const ezVec4Template<Type>& v) const; // [tested]
@@ -274,4 +285,3 @@ template <typename Type>
 bool operator!=(const ezMat4Template<Type>& lhs, const ezMat4Template<Type>& rhs); // [tested]
 
 #include <Foundation/Math/Implementation/Mat4_inl.h>
-

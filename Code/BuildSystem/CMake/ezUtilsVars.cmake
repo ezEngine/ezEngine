@@ -66,6 +66,17 @@ set (EZ_3RDPARTY_ZSTD_SUPPORT ON CACHE BOOL "Whether to add support for zstd.")
 mark_as_advanced(FORCE EZ_3RDPARTY_ZSTD_SUPPORT)
 
 ######################################
+### Other Optional Components
+######################################
+
+### Kraut
+set (EZ_BUILD_KRAUT ON CACHE BOOL "Whether support for Kraut should be added")
+mark_as_advanced(FORCE EZ_BUILD_KRAUT) # this can typically stay on
+
+### OpenVR
+set (EZ_BUILD_OPENVR OFF CACHE BOOL "Whether support for OpenVR aka. SteamVR should be added")
+
+######################################
 ### vcpkg
 ######################################
 

@@ -297,7 +297,7 @@ private:                                                                        
 #  define EZ_RESOURCE_VALIDATE_FALLBACK(SELF)                                                                                              \
     if (hResource.IsValid())                                                                                                               \
     {                                                                                                                                      \
-      ezResourceLock<SELF> lock(hResource, ezResourceAcquireMode::NoFallback);                                                             \
+      ezResourceLock<SELF> lock(hResource, ezResourceAcquireMode::BlockTillLoaded);                                                             \
       /* if this fails, the 'fallback resource' is missing itself*/                                                                        \
     }
 #else

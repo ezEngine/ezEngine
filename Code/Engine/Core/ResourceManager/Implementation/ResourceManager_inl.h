@@ -98,13 +98,12 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
     "The requested resource does not have the same type ('{0}') as the resource handle ('{1}').",
     pResource->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<ResourceType>()->GetTypeName());
 
-  if (mode == ezResourceAcquireMode::AllowFallback && s_uiForceNoFallbackAcquisition > 0)
+  if (mode == ezResourceAcquireMode::AllowLoadingFallback && s_uiForceNoFallbackAcquisition > 0)
   {
-    mode = ezResourceAcquireMode::NoFallback;
+    mode = ezResourceAcquireMode::BlockTillLoaded;
   }
 
-  if (mode == ezResourceAcquireMode::PointerOnly ||
-      (mode == ezResourceAcquireMode::MetaInfo && pResource->GetLoadingState() >= ezResourceState::UnloadedMetaInfoAvailable))
+  if (mode == ezResourceAcquireMode::PointerOnly)
   {
     if (out_AcquireResult)
       *out_AcquireResult = ezResourceAcquireResult::Final;
@@ -121,11 +120,11 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
   {
     if (pResource->GetLoadingState() != ezResourceState::Loaded)
     {
-      // if NoFallback is specified, it will prepended to the preload array, thus will be loaded immediately
-      InternalPreloadResource(pResource, mode >= ezResourceAcquireMode::NoFallback);
+      // if BlockTillLoaded is specified, it will prepended to the preload array, thus will be loaded immediately
+      InternalPreloadResource(pResource, mode >= ezResourceAcquireMode::BlockTillLoaded);
 
-      if (mode == ezResourceAcquireMode::AllowFallback && (pResource->m_hLoadingFallback.IsValid() || hFallbackResource.IsValid() ||
-                                                            GetResourceTypeLoadingFallback<ResourceType>().IsValid()))
+      if (mode == ezResourceAcquireMode::AllowLoadingFallback && (pResource->m_hLoadingFallback.IsValid() || hFallbackResource.IsValid() ||
+                                                                   GetResourceTypeLoadingFallback<ResourceType>().IsValid()))
       {
         // return the fallback resource for now, if there is one
         if (out_AcquireResult)
@@ -137,17 +136,15 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
         //  3) If nothing else is available, take the fallback for the whole resource type
 
         if (pResource->m_hLoadingFallback.IsValid())
-          return (ResourceType*)BeginAcquireResource(pResource->m_hLoadingFallback, ezResourceAcquireMode::NoFallback);
+          return (ResourceType*)BeginAcquireResource(pResource->m_hLoadingFallback, ezResourceAcquireMode::BlockTillLoaded);
         else if (hFallbackResource.IsValid())
-          return (ResourceType*)BeginAcquireResource(hFallbackResource, ezResourceAcquireMode::NoFallback);
+          return (ResourceType*)BeginAcquireResource(hFallbackResource, ezResourceAcquireMode::BlockTillLoaded);
         else
-          return (ResourceType*)BeginAcquireResource(GetResourceTypeLoadingFallback<ResourceType>(), ezResourceAcquireMode::NoFallback);
+          return (ResourceType*)BeginAcquireResource(
+            GetResourceTypeLoadingFallback<ResourceType>(), ezResourceAcquireMode::BlockTillLoaded);
       }
 
-      const ezResourceState RequestedState =
-        (mode == ezResourceAcquireMode::MetaInfo) ? ezResourceState::UnloadedMetaInfoAvailable : ezResourceState::Loaded;
-
-      EnsureResourceLoadingState(pResource, RequestedState);
+      EnsureResourceLoadingState(pResource, ezResourceState::Loaded);
     }
     else
     {
@@ -168,10 +165,10 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
         *out_AcquireResult = ezResourceAcquireResult::MissingFallback;
 
       return (ResourceType*)BeginAcquireResource(
-        ezResourceManager::GetResourceTypeMissingFallback<ResourceType>(), ezResourceAcquireMode::NoFallback);
+        ezResourceManager::GetResourceTypeMissingFallback<ResourceType>(), ezResourceAcquireMode::BlockTillLoaded);
     }
 
-    if (mode != ezResourceAcquireMode::NoFallbackAllowMissing)
+    if (mode != ezResourceAcquireMode::AllowLoadingFallback_NeverFail && mode != ezResourceAcquireMode::BlockTillLoaded_NeverFail)
     {
       EZ_REPORT_FAILURE("The resource '{0}' of type '{1}' is missing and no fallback is available", pResource->GetResourceID(),
         ezGetStaticRTTI<ResourceType>()->GetTypeName());

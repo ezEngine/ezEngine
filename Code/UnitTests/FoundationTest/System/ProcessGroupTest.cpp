@@ -1,5 +1,7 @@
 #include <FoundationTestPCH.h>
 
+#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
+
 #include <Foundation/System/ProcessGroup.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 
@@ -70,3 +72,4 @@ EZ_CREATE_SIMPLE_TEST(System, ProcessGroup)
   ezLog::Warning("ezProcess functions are not implemented on this platform.");
 #endif
 }
+#endif

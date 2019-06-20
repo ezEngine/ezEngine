@@ -281,7 +281,7 @@ public:
                                   bool bPadZeros, ezUInt8 uiBase, bool bUpperCase);
   /// \brief [internal] Prefer to use snprintf.
   static void OutputFormattedFloat(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, double value, ezUInt8 uiWidth,
-                                   bool bPadZeros, ezInt8 iPrecision, bool bScientific);
+                                   bool bPadZeros, ezInt8 iPrecision, bool bScientific, bool bRemoveTrailingZeroes = false);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   static void AddUsedStringLength(ezUInt32 uiLength);

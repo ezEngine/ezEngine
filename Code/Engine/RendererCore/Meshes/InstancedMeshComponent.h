@@ -32,6 +32,19 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezMeshInstanceData);
 
 //////////////////////////////////////////////////////////////////////////
 
+class EZ_RENDERERCORE_DLL ezInstancedMeshRenderData : public ezMeshRenderData
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezInstancedMeshRenderData, ezMeshRenderData);
+
+public:
+  virtual void FillBatchIdAndSortingKey() override;
+
+  ezInstanceData* m_pExplicitInstanceData = nullptr;
+  ezUInt32 m_uiExplicitInstanceCount = 0;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 class EZ_RENDERERCORE_DLL ezInstancedMeshComponentManager
   : public ezComponentManager<class ezInstancedMeshComponent, ezBlockStorageType::Compact>
 {

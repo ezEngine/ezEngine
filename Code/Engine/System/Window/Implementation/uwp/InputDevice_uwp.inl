@@ -19,7 +19,7 @@ ezStandardInputDevice::ezStandardInputDevice(ICoreWindow* coreWindow)
     : m_coreWindow(coreWindow)
 {
   // TODO
-  m_bClipCursor = false;
+  m_ClipCursorMode = ezMouseCursorClipMode::NoClip;
   m_bShowCursor = true;
 }
 

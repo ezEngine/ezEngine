@@ -158,7 +158,7 @@ ManagerType* ezWorld::GetOrCreateComponentManager()
   return pModule;
 }
 
-EZ_ALWAYS_INLINE ezComponentManagerBase* ezWorld::GetOrCreateComponentManager(const ezRTTI* pComponentRtti)
+EZ_ALWAYS_INLINE ezComponentManagerBase* ezWorld::GetOrCreateManagerForComponentType(const ezRTTI* pComponentRtti)
 {
   EZ_ASSERT_DEV(pComponentRtti->IsDerivedFrom<ezComponent>(), "Invalid component type '%s'", pComponentRtti->GetTypeName());
 
@@ -218,14 +218,14 @@ EZ_FORCE_INLINE const ManagerType* ezWorld::GetComponentManager() const
   return nullptr;
 }
 
-EZ_ALWAYS_INLINE ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pComponentRtti)
+EZ_ALWAYS_INLINE ezComponentManagerBase* ezWorld::GetManagerForComponentType(const ezRTTI* pComponentRtti)
 {
   EZ_ASSERT_DEV(pComponentRtti->IsDerivedFrom<ezComponent>(), "Invalid component type '{0}'", pComponentRtti->GetTypeName());
 
   return ezStaticCast<ezComponentManagerBase*>(GetModule(pComponentRtti));
 }
 
-EZ_ALWAYS_INLINE const ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pComponentRtti) const
+EZ_ALWAYS_INLINE const ezComponentManagerBase* ezWorld::GetManagerForComponentType(const ezRTTI* pComponentRtti) const
 {
   EZ_ASSERT_DEV(pComponentRtti->IsDerivedFrom<ezComponent>(), "Invalid component type '{0}'", pComponentRtti->GetTypeName());
 

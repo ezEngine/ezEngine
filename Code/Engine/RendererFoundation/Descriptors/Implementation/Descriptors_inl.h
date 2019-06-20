@@ -1,23 +1,4 @@
 
-inline ezGALSwapChainCreationDescription::ezGALSwapChainCreationDescription()
-  : ezHashableStruct(),
-    m_pWindow(nullptr),
-    m_SampleCount(ezGALMSAASampleCount::None),
-    m_BackBufferFormat(ezGALResourceFormat::RGBAUByteNormalizedsRGB),
-    m_bDoubleBuffered(true),
-    m_bAllowScreenshots(false)
-{
-}
-
-
-inline ezGALDeviceCreationDescription::ezGALDeviceCreationDescription()
-  : m_PrimarySwapChainDescription(),
-    m_bDebugDevice(false),
-    m_bCreatePrimarySwapChain(true)
-{
-}
-
-
 inline ezGALShaderCreationDescription::ezGALShaderCreationDescription()
   : ezHashableStruct()
 {
@@ -40,24 +21,6 @@ inline ezGALShaderCreationDescription::~ezGALShaderCreationDescription()
 inline bool ezGALShaderCreationDescription::HasByteCodeForStage(ezGALShaderStage::Enum Stage) const
 {
   return m_ByteCodes[Stage] != nullptr && m_ByteCodes[Stage]->IsValid();
-}
-
-inline ezGALRenderTargetBlendDescription::ezGALRenderTargetBlendDescription()
-  : m_SourceBlend(ezGALBlend::One),
-    m_DestBlend(ezGALBlend::One),
-    m_BlendOp(ezGALBlendOp::Add),
-    m_SourceBlendAlpha(ezGALBlend::One),
-    m_DestBlendAlpha(ezGALBlend::One),
-    m_BlendOpAlpha(ezGALBlendOp::Add),
-    m_uiWriteMask(0xFF),
-    m_bBlendingEnabled(false)
-{
-}
-
-inline ezGALBlendStateCreationDescription::ezGALBlendStateCreationDescription()
-  : m_bAlphaToCoverage(false),
-    m_bIndependentBlend(false)
-{
 }
 
 EZ_FORCE_INLINE ezGALResourceAccess::ezGALResourceAccess()
@@ -153,14 +116,7 @@ inline ezGALRenderTargetViewCreationDescription::ezGALRenderTargetViewCreationDe
 {
 }
 
-EZ_FORCE_INLINE ezGALVertexAttribute::ezGALVertexAttribute()
-  : m_eSemantic(ezGALVertexAttributeSemantic::Position),
-  m_eFormat(ezGALResourceFormat::XYZFloat),
-  m_uiOffset(0),
-  m_uiVertexBufferSlot(0),
-  m_bInstanceData(false)
-{
-}
+EZ_FORCE_INLINE ezGALVertexAttribute::ezGALVertexAttribute() = default;
 
 EZ_FORCE_INLINE ezGALVertexAttribute::ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum eSemantic, ezGALResourceFormat::Enum eFormat, ezUInt16 uiOffset, ezUInt8 uiVertexBufferSlot, bool bInstanceData)
   : m_eSemantic(eSemantic),

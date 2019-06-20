@@ -9,12 +9,13 @@
 #include <Foundation/Utilities/DGMLWriter.h>
 
 ezMutex ezTaskSystem::s_TaskSystemMutex;
-
 double ezTaskSystem::s_fSmoothFrameMS = 1000.0 / 40.0; // => 25 ms
 ezThreadSignal ezTaskSystem::s_TasksAvailableSignal[ezWorkerThreadType::ENUM_COUNT];
 ezDynamicArray<ezTaskWorkerThread*> ezTaskSystem::s_WorkerThreads[ezWorkerThreadType::ENUM_COUNT];
 ezDeque<ezTaskGroup> ezTaskSystem::s_TaskGroups;
 ezList<ezTaskSystem::TaskData> ezTaskSystem::s_Tasks[ezTaskPriority::ENUM_COUNT];
+
+thread_local ezWorkerThreadType::Enum g_ThreadTaskType = ezWorkerThreadType::Unknown;
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, TaskSystem)
@@ -37,7 +38,10 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, TaskSystem)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-void ezTaskSystem::Startup() {}
+void ezTaskSystem::Startup()
+{
+  g_ThreadTaskType = ezWorkerThreadType::MainThread;
+}
 
 void ezTaskSystem::Shutdown()
 {
@@ -92,7 +96,7 @@ void ezTaskSystem::ReprioritizeFrameTasks()
   // There should usually be no 'this frame tasks' left at this time
   // however, while we waited to enter the lock, such tasks might have appeared
   // In this case we move them into the highest-priority 'this frame' queue, to ensure they will be executed asap
-  for (ezUInt32 i = (ezUInt32)ezTaskPriority::ThisFrame; i < (ezUInt32)ezTaskPriority::LateThisFrame; ++i)
+  for (ezUInt32 i = (ezUInt32)ezTaskPriority::ThisFrame; i <= (ezUInt32)ezTaskPriority::LateThisFrame; ++i)
   {
     auto it = s_Tasks[i].GetIterator();
 
@@ -108,7 +112,7 @@ void ezTaskSystem::ReprioritizeFrameTasks()
     s_Tasks[i].Clear();
   }
 
-  for (ezUInt32 i = (ezUInt32)ezTaskPriority::EarlyNextFrame; i < (ezUInt32)ezTaskPriority::LateNextFrame; ++i)
+  for (ezUInt32 i = (ezUInt32)ezTaskPriority::EarlyNextFrame; i <= (ezUInt32)ezTaskPriority::LateNextFrame; ++i)
   {
     auto it = s_Tasks[i].GetIterator();
 
@@ -116,6 +120,23 @@ void ezTaskSystem::ReprioritizeFrameTasks()
     while (it.IsValid())
     {
       s_Tasks[i - 3].PushBack(*it);
+
+      ++it;
+    }
+
+    // remove the tasks from their current queue
+    s_Tasks[i].Clear();
+  }
+
+  for (ezUInt32 i = (ezUInt32)ezTaskPriority::In2Frames; i <= (ezUInt32)ezTaskPriority::In9Frames; ++i)
+  {
+    auto it = s_Tasks[i].GetIterator();
+
+    // move all 'in N frames' tasks into the 'in N-1 frames' queues
+    // moves 'In2Frames' into 'LateNextFrame'
+    while (it.IsValid())
+    {
+      s_Tasks[i - 1].PushBack(*it);
 
       ++it;
     }
@@ -198,6 +219,67 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoo
   }
 }
 
+void ezTaskSystem::DetermineTasksToExecuteOnThread(
+  ezTaskPriority::Enum& out_FirstPriority, ezTaskPriority::Enum& out_LastPriority, bool& out_bAllowDefaultWork)
+{
+  // this specifies whether WaitForTask may fall back to processing standard tasks, when there is no more specific work available
+  // in some cases we absolutely want to avoid that, since it can produce deadlocks
+  // E.g. on the loading thread, if we are in the process of loading something and then we have to wait for something else,
+  // we must not start that work on the loading thread, because once THAT task runs into something where it has to wait for something
+  // to be loaded, we have a circular dependency on the thread itself and thus a deadlock
+  out_bAllowDefaultWork = true;
+
+  out_FirstPriority = ezTaskPriority::EarlyThisFrame;
+  out_LastPriority = ezTaskPriority::In9Frames;
+
+  switch (g_ThreadTaskType)
+  {
+    case ezWorkerThreadType::MainThread:
+    {
+      // if this is the main thread, we need to execute the main-thread tasks
+      // otherwise a dependency on which Group is waiting, might not get fulfilled
+      out_FirstPriority = ezTaskPriority::ThisFrameMainThread;
+      out_LastPriority = ezTaskPriority::SomeFrameMainThread;
+      out_bAllowDefaultWork = false;
+      break;
+    }
+
+    case ezWorkerThreadType::FileAccess:
+    {
+      out_FirstPriority = ezTaskPriority::FileAccessHighPriority;
+      out_LastPriority = ezTaskPriority::FileAccess;
+      out_bAllowDefaultWork = false;
+      break;
+    }
+
+    case ezWorkerThreadType::LongTasks:
+    {
+      // if this is a long-running thread, we need to execute the long-running tasks
+      // otherwise a dependency on which Group is waiting, might not get fulfilled
+      out_FirstPriority = ezTaskPriority::LongRunningHighPriority;
+      out_LastPriority = ezTaskPriority::LongRunning;
+      break;
+    }
+
+    case ezWorkerThreadType::Unknown:
+    {
+      // probably a thread not launched through ez
+      [[fallthrough]];
+    }
+
+    case ezWorkerThreadType::ShortTasks:
+    {
+      break;
+    }
+
+    default:
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
+    }
+  }
+}
+
 void ezTaskSystem::SetTargetFrameTime(double fSmoothFrameMS)
 {
   s_fSmoothFrameMS = fSmoothFrameMS;
@@ -277,6 +359,14 @@ void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& graph)
   szTaskPriorityNames[ezTaskPriority::EarlyNextFrame] = "EarlyNextFrame";
   szTaskPriorityNames[ezTaskPriority::NextFrame] = "NextFrame";
   szTaskPriorityNames[ezTaskPriority::LateNextFrame] = "LateNextFrame";
+  szTaskPriorityNames[ezTaskPriority::In2Frames] = "In 2 Frames";
+  szTaskPriorityNames[ezTaskPriority::In2Frames] = "In 3 Frames";
+  szTaskPriorityNames[ezTaskPriority::In4Frames] = "In 4 Frames";
+  szTaskPriorityNames[ezTaskPriority::In5Frames] = "In 5 Frames";
+  szTaskPriorityNames[ezTaskPriority::In6Frames] = "In 6 Frames";
+  szTaskPriorityNames[ezTaskPriority::In7Frames] = "In 7 Frames";
+  szTaskPriorityNames[ezTaskPriority::In8Frames] = "In 8 Frames";
+  szTaskPriorityNames[ezTaskPriority::In9Frames] = "In 9 Frames";
   szTaskPriorityNames[ezTaskPriority::LongRunningHighPriority] = "LongRunningHighPriority";
   szTaskPriorityNames[ezTaskPriority::LongRunning] = "LongRunning";
   szTaskPriorityNames[ezTaskPriority::FileAccessHighPriority] = "FileAccessHighPriority";
@@ -372,5 +462,11 @@ void ezTaskSystem::WriteStateSnapshotToFile(const char* szPath /*= nullptr*/)
   ezFileSystem::ResolvePath(sPath, &absPath, nullptr);
   ezLog::Info("Task graph snapshot saved to '{}'", absPath);
 }
+
+ezWorkerThreadType::Enum ezTaskSystem::GetCurrentThreadWorkerType()
+{
+  return g_ThreadTaskType;
+}
+
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystem);

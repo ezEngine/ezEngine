@@ -135,8 +135,11 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& outputStream) c
 
     const ezUInt32 uiFramesThreadID = 1;
     const ezUInt32 uiGPUThreadID = 0;
+#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
     const ezOsProcessID uiProcessID = ezProcess::GetCurrentProcessID();
-
+#else
+    const ezOsProcessID uiProcessID = 0;
+#endif
     {
       // Frames thread
       {
@@ -338,7 +341,11 @@ ezProfilingSystem::ProfilingData ezProfilingSystem::Capture()
 
   profilingData.m_uiFramesThreadID = 1;
   profilingData.m_uiGPUThreadID = 0;
+#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
   profilingData.m_uiProcessID = ezProcess::GetCurrentProcessID();
+#else
+  profilingData.m_uiProcessID = 0;
+#endif
 
   {
     EZ_LOCK(s_ThreadInfosMutex);

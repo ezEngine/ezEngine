@@ -1,5 +1,8 @@
 #pragma once
 
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringConversion.h>
 #include <Foundation/Threading/ThreadUtils.h>

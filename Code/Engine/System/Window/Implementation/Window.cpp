@@ -206,5 +206,11 @@ ezWindow::~ezWindow()
     Destroy();
 }
 
+
+void ezWindow::OnWindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT Msg, ezMinWindows::WPARAM WParam, ezMinWindows::LPARAM LParam)
+{
+
+}
+
 EZ_STATICLINK_FILE(System, System_Window_Implementation_Window);
 

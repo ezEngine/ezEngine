@@ -81,7 +81,7 @@ void ezCollectionComponent::InitiatePreload()
 {
   if (m_hCollection.IsValid())
   {
-    ezResourceLock<ezCollectionResource> pCollection(m_hCollection, ezResourceAcquireMode::NoFallbackAllowMissing);
+    ezResourceLock<ezCollectionResource> pCollection(m_hCollection, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
 
     if (pCollection.GetAcquireResult() == ezResourceAcquireResult::Final)
     {
