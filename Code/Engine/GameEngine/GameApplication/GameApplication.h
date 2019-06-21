@@ -49,14 +49,13 @@ public:
   /// function allows to override that by setting a custom function that creates a graphics device.
   static void SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> creator);
 
-  /// \todo Fix this comment
-  /// \brief virtual function that is called by DoProjectSetup(). The result is passed to ezFileSystem::SetProjectDirectory
+  /// \brief Implementation of ezGameApplicationBase::FindProjectDirectory to define the 'project' special data directory.
   ///
-  /// The default implementation relies on a valid path in m_sAppProjectPath.
-  /// It passes that to SearchProjectDirectory() together with the path to the application binary,
-  /// to search for a project somewhere relative to where the application is installed.
+  /// The default implementation will try to resolve m_sAppProjectPath to an absolute path. m_sAppProjectPath can be absolute itself,
+  /// relative to ">sdk/" or relative to ezOSFile::GetApplicationDirectory().
+  /// m_sAppProjectPath must be set either via the ezGameApplication constructor or manually set before project.
   ///
-  /// Override this, if your application uses a different folder structure or way to specify the project directory.
+  /// Alternatively, ezGameApplication::FindProjectDirectory() must be overwritten.
   virtual ezString FindProjectDirectory() const override;
 
   /// \brief Used at runtime (by the editor) to reload input maps. Forwards to Init_ConfigureInput()

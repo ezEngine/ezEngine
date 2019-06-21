@@ -23,6 +23,7 @@ public:
   ezGameEngineTestApplication(const char* szProjectDirName);
 
   virtual ezString FindProjectDirectory() const final override;
+  virtual ezString GetProjectDataDirectoryPath() const final override;
   const ezImage& GetLastScreenshot() { return m_LastScreenshot; }
 
   ezResult LoadScene(const char* szSceneFile);

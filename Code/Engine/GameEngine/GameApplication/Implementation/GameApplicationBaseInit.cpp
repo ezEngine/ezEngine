@@ -20,6 +20,11 @@ ezString ezGameApplicationBase::GetBaseDataDirectoryPath() const
   return ">sdk/Data/Base";
 }
 
+ezString ezGameApplicationBase::GetProjectDataDirectoryPath() const
+{
+  return ">project/";
+}
+
 void ezGameApplicationBase::ExecuteInitFunctions()
 {
   Init_PlatformProfile_SetPreferred();
@@ -116,7 +121,7 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
   ezFileSystem::AddDataDirectory(GetBaseDataDirectoryPath(), "GameApplicationBase", "base", ezFileSystem::DataDirUsage::ReadOnly);
 
   // ":project/" for reading the project specific files
-  ezFileSystem::AddDataDirectory(">project/", "GameApplicationBase", "project", ezFileSystem::DataDirUsage::ReadOnly);
+  ezFileSystem::AddDataDirectory(GetProjectDataDirectoryPath(), "GameApplicationBase", "project", ezFileSystem::DataDirUsage::ReadOnly);
 
   {
     ezApplicationFileSystemConfig appFileSystemConfig;
