@@ -75,7 +75,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferResource(const ezGeometry& geo
 {
   ezMeshBufferResourceDescriptor desc;
   desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  desc.AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized);
+  desc.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
   desc.AllocateStreamsFromGeometry(geom, topology);
   desc.ComputeBounds();
 

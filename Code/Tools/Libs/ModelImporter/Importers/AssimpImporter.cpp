@@ -208,17 +208,21 @@ namespace ezModelImporter
         normals->AddValues(assimpNormalPtr);
         vertexDataStreams.PushBack(normals);
       }
-      if (assimpMesh->HasVertexColors(0))
+
+      if (assimpMesh->GetNumColorChannels() > 2)
+        ezLog::Warning("Mesh '{0}' in '{1}' has {2} sets of vertex colors, only the first two sets will be imported!", mesh->m_Name,
+          szFileName, assimpMesh->GetNumColorChannels());
+
+      ezUInt32 numColorChannels = ezMath::Min(assimpMesh->GetNumColorChannels(), 2u);
+      for (ezUInt32 colorSet = 0; colorSet < numColorChannels; ++colorSet)
       {
-        VertexDataStream* colors = mesh->AddDataStream(ezGALVertexAttributeSemantic::Color, 4);
-        ezArrayPtr<char> assimpColorsPtr(reinterpret_cast<char*>(assimpMesh->mColors[0]), assimpMesh->mNumVertices * sizeof(ezVec4));
+        VertexDataStream* colors =
+          mesh->AddDataStream(static_cast<ezGALVertexAttributeSemantic::Enum>(ezGALVertexAttributeSemantic::Color0 + colorSet), 4);
+        ezArrayPtr<char> assimpColorsPtr(reinterpret_cast<char*>(assimpMesh->mColors[colorSet]), assimpMesh->mNumVertices * sizeof(ezVec4));
         colors->AddValues(assimpColorsPtr);
         vertexDataStreams.PushBack(colors);
-
-        if (assimpMesh->GetNumColorChannels() > 1)
-          ezLog::Warning("Mesh '{0}' in '{1}' has {2} sets of vertex colors, only the first set will be imported!", mesh->m_Name,
-                         szFileName, assimpMesh->GetNumColorChannels());
       }
+
       if (assimpMesh->HasTangentsAndBitangents())
       {
         VertexDataStream* tangents = mesh->AddDataStream(ezGALVertexAttributeSemantic::Tangent, 3);

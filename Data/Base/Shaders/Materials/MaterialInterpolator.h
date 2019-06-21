@@ -8,7 +8,8 @@
 // USE_TANGENT
 // USE_TEXCOORD0
 // USE_TEXCOORD1
-// USE_COLOR
+// USE_COLOR0
+// USE_COLOR1
 // USE_SKINNING
 // USE_DEBUG_INTERPOLATOR
 // CUSTOM_INTERPOLATOR
@@ -33,8 +34,12 @@ struct VS_IN
     #endif
   #endif
 
-  #if defined(USE_COLOR)
-    float4 Color : COLOR;
+  #if defined(USE_COLOR0)
+    float4 Color0 : COLOR0;
+    
+    #if defined(USE_COLOR1)
+      float4 Color1 : COLOR1;
+    #endif
   #endif
 
   #if defined(USE_SKINNING)
@@ -71,8 +76,12 @@ struct VS_OUT
     #endif
   #endif
 
-  #if defined(USE_COLOR)
-    float4 Color : COLOR;
+  #if defined(USE_COLOR0)
+    float4 Color0 : COLOR0;
+    
+    #if defined(USE_COLOR1)
+      float4 Color1 : COLOR1;
+    #endif
   #endif
   
   #if defined(USE_DEBUG_INTERPOLATOR)

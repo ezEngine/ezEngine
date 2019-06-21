@@ -15,7 +15,7 @@ DepthWrite = false
 [VERTEXSHADER]
 
 #define USE_TEXCOORD0
-#define USE_COLOR
+#define USE_COLOR0
 
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
@@ -60,7 +60,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
 	VS_OUT RetVal;
 	RetVal.Position = float4(screenPosition, 0.0, 1.0);
 	RetVal.TexCoord0 = (float2(texCoordX, texCoordY) + vertexPosition) * invAtlasSize;
-	RetVal.Color = RGBA8ToFloat4(data.color);
+	RetVal.Color0 = RGBA8ToFloat4(data.color);
 
 	return RetVal;
 }
@@ -68,7 +68,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
 [PIXELSHADER]
 
 #define USE_TEXCOORD0
-#define USE_COLOR
+#define USE_COLOR0
 
 #include <Shaders/Materials/MaterialInterpolator.h>
 
@@ -77,5 +77,5 @@ SamplerState FontTexture_AutoSampler;
 
 float4 main(PS_IN Input) : SV_Target
 {
-	return FontTexture.Sample(FontTexture_AutoSampler, Input.TexCoord0.xy) * Input.Color;
+	return FontTexture.Sample(FontTexture_AutoSampler, Input.TexCoord0.xy) * Input.Color0;
 }
