@@ -14,20 +14,16 @@ ez_detect_project_name(DETECTED_NAME)
 
 set (EZ_SOLUTION_NAME ${DETECTED_NAME} CACHE STRING "The name of the solution")
 
+set(EZ_LANGUAGES C CXX)
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
-	# C# support only on windows desktop.
-	project (${EZ_SOLUTION_NAME}
-		VERSION 1.0
-		DESCRIPTION "An open-source game engine"
-		HOMEPAGE_URL "http://ezEngine.net"
-		LANGUAGES C CXX CSharp)
-else()
-	project (${EZ_SOLUTION_NAME}
-		VERSION 1.0
-		DESCRIPTION "An open-source game engine"
-		HOMEPAGE_URL "http://ezEngine.net"
-		LANGUAGES C CXX)
+    set(EZ_LANGUAGES C CXX CSharp)
 endif()
+
+project (${EZ_SOLUTION_NAME}
+	VERSION 1.0
+	DESCRIPTION "An open-source game engine"
+	HOMEPAGE_URL "http://ezEngine.net"
+	LANGUAGES ${EZ_LANGUAGES})
 
 ez_check_build_type()
 ez_write_configuration_txt()

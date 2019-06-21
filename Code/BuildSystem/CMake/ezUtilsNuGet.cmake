@@ -3,10 +3,10 @@
 ######################################
 
 ######################################
-### ez_requires_nuget()
+### ez_nuget_init()
 ######################################
 
-function(ez_requires_nuget)
+function(ez_nuget_init)
 
     find_program(NUGET nuget
         HINTS ${CMAKE_BINARY_DIR})
