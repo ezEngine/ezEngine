@@ -55,5 +55,7 @@
 	<file>Icons/ControlSkipBackwards16.png</file>
 	<file>Icons/AdjustDuration16.png</file>
 	<file>Icons/Rename16.png</file>
+	<file>Icons/Cursor16.png</file>
+	<file>Icons/Go16.png</file>
   </qresource>
 </RCC>

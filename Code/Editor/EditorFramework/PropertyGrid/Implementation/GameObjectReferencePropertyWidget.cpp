@@ -8,7 +8,7 @@
 #include <QToolButton>
 
 ezQtGameObjectReferencePropertyWidget::ezQtGameObjectReferencePropertyWidget()
-    : ezQtStandardPropertyWidget()
+  : ezQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
@@ -20,20 +20,21 @@ ezQtGameObjectReferencePropertyWidget::ezQtGameObjectReferencePropertyWidget()
   m_pWidget->setFocusPolicy(Qt::FocusPolicy::StrongFocus);
   setFocusProxy(m_pWidget);
 
-  EZ_VERIFY(connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_TextFinished_triggered())) != nullptr,
-            "signal/slot connection failed");
+  EZ_VERIFY(
+    connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_TextFinished_triggered())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pWidget, SIGNAL(textChanged(const QString&)), this, SLOT(on_TextChanged_triggered(const QString&))) != nullptr,
-            "signal/slot connection failed");
+    "signal/slot connection failed");
 
   m_pButton = new QToolButton(this);
   m_pButton->setText(QStringLiteral("..."));
   m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonIconOnly);
+  m_pButton->setIcon(QIcon(":/GuiFoundation/Icons/Cursor16.png"));
   m_pButton->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
 
-  //EZ_VERIFY(connect(m_pButton, SIGNAL(clicked()), this, SLOT(on_BrowseFile_clicked())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pButton, &QWidget::customContextMenuRequested, this, &ezQtGameObjectReferencePropertyWidget::on_customContextMenuRequested) !=
-                nullptr,
-            "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pButton, SIGNAL(clicked()), this, SLOT(on_PickObject_clicked())) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pButton, &QWidget::customContextMenuRequested, this,
+              &ezQtGameObjectReferencePropertyWidget::on_customContextMenuRequested) != nullptr,
+    "signal/slot connection failed");
 
   m_pLayout->addWidget(m_pWidget);
   m_pLayout->addWidget(m_pButton);
@@ -43,7 +44,7 @@ ezQtGameObjectReferencePropertyWidget::ezQtGameObjectReferencePropertyWidget()
 void ezQtGameObjectReferencePropertyWidget::OnInit()
 {
   EZ_ASSERT_DEV(m_pProp->GetAttributeByType<ezGameObjectReferenceAttribute>() != nullptr,
-                "ezQtGameObjectReferencePropertyWidget was created without a ezGameObjectReferenceAttribute!");
+    "ezQtGameObjectReferencePropertyWidget was created without a ezGameObjectReferenceAttribute!");
 }
 
 void ezQtGameObjectReferencePropertyWidget::InternalSetValue(const ezVariant& value)
@@ -60,24 +61,15 @@ void ezQtGameObjectReferencePropertyWidget::InternalSetValue(const ezVariant& va
     ezStringBuilder sText = value.ConvertTo<ezString>();
 
     const bool bIsGuid = ezConversionUtils::IsStringUuid(sText);
-    bool bIsValidReference = bIsGuid;
+    bool bIsValidReference = false;
 
     if (bIsGuid)
     {
-      //if (!IsValidAssetType(sText))
-      //{
-      //  m_pWidget->setText(QString());
-      //  m_pWidget->setPlaceholderText(QStringLiteral("<Selected Invalid Asset Type>"));
+      const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sText);
 
-      //  m_pButton->setIcon(QIcon());
-      //  m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextOnly);
+      bIsValidReference = m_pObjectAccessor->GetObject(guid) != nullptr;
 
-      //  auto pal = m_pWidget->palette();
-      //  pal.setColor(QPalette::Text, Qt::red);
-      //  m_pWidget->setPalette(pal);
-
-      //  return;
-      //}
+      // TODO: display object name instead of GUID
     }
 
     {
@@ -101,24 +93,23 @@ void ezQtGameObjectReferencePropertyWidget::FillContextMenu(QMenu& menu)
   if (!menu.isEmpty())
     menu.addSeparator();
 
-  //menu.setDefaultAction(menu.addAction(QIcon(), QLatin1String("Select Asset"), this, SLOT(on_BrowseFile_clicked())));
-  //menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open Asset"), this, SLOT(OnOpenAssetDocument()))->setEnabled(bAsset);
-  //menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnCopyAssetGuid()));
+  menu.setDefaultAction(
+    menu.addAction(QIcon(":/GuiFoundation/Icons/Cursor16.png"), QLatin1String("Pick Object"), this, SLOT(on_PickObject_clicked())));
+  menu.addAction(
+    QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Reference"), this, SLOT(OnCopyReference()));
+  menu.addAction(
+    QIcon(":/GuiFoundation/Icons/Go16.png"), QLatin1String("Select Referenced Object"), this, SLOT(OnSelectReferencedObject()));
   menu.addAction(QIcon(":/GuiFoundation/Icons/Delete16.png"), QLatin1String("Clear Reference"), this, SLOT(OnClearReference()));
+}
+
+void ezQtGameObjectReferencePropertyWidget::on_PickObject_clicked()
+{
+  // TODO: pick object mode
 }
 
 void ezQtGameObjectReferencePropertyWidget::on_TextFinished_triggered()
 {
-  ezStringBuilder sText = m_pWidget->text().toUtf8().data();
-
-  //auto pAsset = ezAssetCurator::GetSingleton()->FindSubAsset(sText);
-
-  //if (pAsset)
-  //{
-  //  ezConversionUtils::ToString(pAsset->m_Data.m_Guid, sText);
-  //}
-
-  BroadcastValueChanged(sText.GetData());
+  BroadcastValueChanged(m_pWidget->text().toUtf8().data());
 }
 
 
@@ -135,27 +126,27 @@ void ezQtGameObjectReferencePropertyWidget::on_customContextMenuRequested(const 
 
   m.exec(m_pButton->mapToGlobal(pt));
 }
-//
-//void ezQtGameObjectReferencePropertyWidget::OnCopyAssetGuid()
-//{
-//  ezStringBuilder sGuid;
-//
-//  if (m_AssetGuid.IsValid())
-//  {
-//    ezConversionUtils::ToString(m_AssetGuid, sGuid);
-//  }
-//  else
-//  {
-//    sGuid = m_pWidget->text().toUtf8().data();
-//    if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sGuid))
-//      return;
-//  }
-//
-//  QClipboard* clipboard = QApplication::clipboard();
-//  QMimeData* mimeData = new QMimeData();
-//  mimeData->setText(QString::fromUtf8(sGuid.GetData()));
-//  clipboard->setMimeData(mimeData);
-//}
+
+void ezQtGameObjectReferencePropertyWidget::OnSelectReferencedObject()
+{
+  ezStringBuilder sGuid = m_pWidget->text().toUtf8().data();
+
+  if (!ezConversionUtils::IsStringUuid(sGuid))
+    return;
+
+  const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sGuid);
+
+  if (const ezDocumentObject* pObject = m_pObjectAccessor->GetObject(guid))
+  {
+    m_pGrid->GetDocument()->GetSelectionManager()->SetSelection(pObject);
+  }
+}
+
+void ezQtGameObjectReferencePropertyWidget::OnCopyReference()
+{
+  QClipboard* clipboard = QApplication::clipboard();
+  clipboard->setText(m_pWidget->text());
+}
 
 
 void ezQtGameObjectReferencePropertyWidget::OnClearReference()
