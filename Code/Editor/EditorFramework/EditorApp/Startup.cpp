@@ -54,6 +54,7 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <GuiFoundation/UIServices/QtProgressbar.h>
+#include <PropertyGrid/GameObjectReferencePropertyWidget.moc.h>
 #include <QClipboard>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
@@ -91,6 +92,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicEnumAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtDynamicEnumPropertyWidget(); });
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicStringEnumAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtDynamicStringEnumPropertyWidget(); });
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezExposedParametersAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtExposedParametersPropertyWidget(); });
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezGameObjectReferenceAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtGameObjectReferencePropertyWidget(); });
 
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSphereManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezSphereManipulatorAdapter); });
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezCapsuleManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezCapsuleManipulatorAdapter); });
@@ -126,6 +128,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezAssetBrowserAttribute>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezDynamicEnumAttribute>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezDynamicStringEnumAttribute>());
+    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezGameObjectReferenceAttribute>());
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;

@@ -45,7 +45,10 @@ o
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{6028114371457389670,12069024740909059150}}
+		}
 		s %DefaultValue{""}
 		s %Name{"ExternalReference"}
 		s %Type{"ezConstCharPtr"}
@@ -60,6 +63,13 @@ o
 	{
 		Color %Value{f{0x0000803F,0x71A5C03E,0,0x0000803F}}
 	}
+}
+o
+{
+	Uuid %id{u4{6028114371457389670,12069024740909059150}}
+	s %t{"ezGameObjectReferenceAttribute"}
+	u3 %v{1}
+	p{}
 }
 o
 {
