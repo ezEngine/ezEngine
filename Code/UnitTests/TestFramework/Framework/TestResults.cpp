@@ -8,7 +8,8 @@
 ////////////////////////////////////////////////////////////////////////
 
 const char* const ezTestOutput::s_Names[] = {"StartOutput", "BeginBlock", "EndBlock", "ImportantInfo", "Details",    "Success",
-                                             "Message",     "Warning",    "Error",    "Duration",      "FinalResult"};
+                                             "Message",     "Warning",    "Error", "ImageDiffFile",    "Duration",  "FinalResult"};
+EZ_CHECK_AT_COMPILETIME(EZ_ARRAY_SIZE(ezTestOutput::s_Names) == ezTestOutput::AllOutputTypes);
 
 const char* ezTestOutput::ToString(Enum type)
 {
