@@ -5,6 +5,8 @@
 #include <QLineEdit>
 #include <QModelIndex>
 
+class ezSelectionContext;
+
 class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectReferencePropertyWidget : public ezQtStandardPropertyWidget
 {
   Q_OBJECT
@@ -27,9 +29,11 @@ protected:
   virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
   void FillContextMenu(QMenu& menu);
+  bool PickObjectOverride(const ezDocumentObject* pObject);
 
 protected:
   QHBoxLayout* m_pLayout = nullptr;
   QLineEdit* m_pWidget = nullptr;
   QToolButton* m_pButton = nullptr;
+  ezHybridArray<ezSelectionContext*, 8> m_SelectionContextsToUnsubscribe;
 };

@@ -1,6 +1,9 @@
 #include <EditorFrameworkPCH.h>
 
+#include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
+#include <EditorFramework/DocumentWindow/GameObjectViewWidget.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/InputContexts/SelectionContext.h>
 #include <EditorFramework/PropertyGrid/GameObjectReferencePropertyWidget.moc.h>
 #include <QClipboard>
 #include <QMenu>
@@ -102,9 +105,44 @@ void ezQtGameObjectReferencePropertyWidget::FillContextMenu(QMenu& menu)
   menu.addAction(QIcon(":/GuiFoundation/Icons/Delete16.png"), QLatin1String("Clear Reference"), this, SLOT(OnClearReference()));
 }
 
+bool ezQtGameObjectReferencePropertyWidget::PickObjectOverride(const ezDocumentObject* pObject)
+{
+  ezStringBuilder sGuid;
+  ezConversionUtils::ToString(pObject->GetGuid(), sGuid);
+
+  m_pWidget->setText(sGuid.GetData());
+
+  for (auto pContext : m_SelectionContextsToUnsubscribe)
+  {
+    pContext->ResetPickObjectOverride();
+  }
+
+  m_SelectionContextsToUnsubscribe.Clear();
+  return true;
+}
+
 void ezQtGameObjectReferencePropertyWidget::on_PickObject_clicked()
 {
   // TODO: pick object mode
+
+  ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(m_pGrid->GetDocument());
+
+  ezQtGameObjectDocumentWindow* pGoWindow = qobject_cast<ezQtGameObjectDocumentWindow*>(pWindow);
+
+  if (pGoWindow == nullptr)
+    return;
+
+  m_SelectionContextsToUnsubscribe.Clear();
+
+  for (auto pView : pGoWindow->GetViewWidgets())
+  {
+    if (auto pGoView = qobject_cast<ezQtGameObjectViewWidget*>(pView))
+    {
+      pGoView->m_pSelectionContext->SetPickObjectOverride(ezMakeDelegate(&ezQtGameObjectReferencePropertyWidget::PickObjectOverride, this));
+
+      m_SelectionContextsToUnsubscribe.PushBack(pGoView->m_pSelectionContext);
+    }
+  }
 }
 
 void ezQtGameObjectReferencePropertyWidget::on_TextFinished_triggered()
