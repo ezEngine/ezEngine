@@ -6,7 +6,7 @@ ConstructorInitializerIndentWidth: 2
 BreakBeforeBraces: Allman
 AlignAfterOpenBracket: DontAlign
 AllowShortIfStatementsOnASingleLine: false
-ColumnLimit: 140
+ColumnLimit: 0
 TabWidth: 2
 AccessModifierOffset: -2
 PointerAlignment: Left

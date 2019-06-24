@@ -18,7 +18,7 @@ public:
     m_Viewport = viewport;
   }
 
-  void SetPickObjectOverride(ezDelegate<bool(const ezDocumentObject*)> pickOverride);
+  void SetPickObjectOverride(ezDelegate<void(const ezDocumentObject*)> pickOverride);
   void ResetPickObjectOverride();
 
 protected:
@@ -39,7 +39,7 @@ private:
   void OpenDocumentForPickedObject(const ezObjectPickingResult& res) const;
   void SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo);
 
-  ezDelegate<bool(const ezDocumentObject*)> m_PickObjectOverride;
+  ezDelegate<void(const ezDocumentObject*)> m_PickObjectOverride;
   const ezCamera* m_pCamera;
   ezVec2I32 m_Viewport;
   ezEngineGizmoHandle m_MarqueeGizmo;

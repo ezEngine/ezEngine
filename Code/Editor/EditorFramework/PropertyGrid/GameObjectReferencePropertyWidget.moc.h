@@ -18,22 +18,25 @@ private Q_SLOTS:
   void on_PickObject_clicked();
 
 protected slots:
-  void on_TextFinished_triggered();
-  void on_TextChanged_triggered(const QString& value);
   void on_customContextMenuRequested(const QPoint& pt);
   void OnSelectReferencedObject();
   void OnCopyReference();
   void OnClearReference();
+  void OnPasteReference();
 
 protected:
   virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
   void FillContextMenu(QMenu& menu);
-  bool PickObjectOverride(const ezDocumentObject* pObject);
+  void PickObjectOverride(const ezDocumentObject* pObject);
+  void SetValue(const QString& sText);
+  void ClearPicking();
+  void SelectionManagerEventHandler(const ezSelectionManagerEvent& e);
 
 protected:
   QHBoxLayout* m_pLayout = nullptr;
-  QLineEdit* m_pWidget = nullptr;
+  QLabel* m_pWidget = nullptr;
+  QString m_sInternalValue;
   QToolButton* m_pButton = nullptr;
   ezHybridArray<ezSelectionContext*, 8> m_SelectionContextsToUnsubscribe;
 };

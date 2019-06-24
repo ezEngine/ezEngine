@@ -26,7 +26,7 @@ ezSelectionContext::ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, e
   pOwnerWindow->GetDocument()->AddSyncObject(&m_MarqueeGizmo);
 }
 
-void ezSelectionContext::SetPickObjectOverride(ezDelegate<bool(const ezDocumentObject*)> pickOverride)
+void ezSelectionContext::SetPickObjectOverride(ezDelegate<void(const ezDocumentObject*)> pickOverride)
 {
   m_PickObjectOverride = pickOverride;
   GetOwnerView()->setCursor(Qt::CrossCursor);
@@ -114,7 +114,11 @@ ezEditorInput ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
       {
         const ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedObject);
 
-        if (!m_PickObjectOverride.IsValid() || !m_PickObjectOverride(pObject))
+        if (m_PickObjectOverride.IsValid())
+        {
+          m_PickObjectOverride(pObject);
+        }
+        else
         {
           if (bToggle)
             pDocument->GetSelectionManager()->ToggleObject(determineObjectToSelect(pObject, true, bDirect));
@@ -276,7 +280,15 @@ ezEditorInput ezSelectionContext::DoKeyPressEvent(QKeyEvent* e)
 
   if (e->key() == Qt::Key_Escape)
   {
-    GetOwnerWindow()->GetDocument()->GetSelectionManager()->Clear();
+    if (m_PickObjectOverride.IsValid())
+    {
+      m_PickObjectOverride(nullptr);
+    }
+    else
+    {
+      GetOwnerWindow()->GetDocument()->GetSelectionManager()->Clear();
+    }
+
     return ezEditorInput::WasExclusivelyHandled;
   }
 
