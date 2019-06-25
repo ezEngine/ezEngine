@@ -1135,7 +1135,7 @@ bool ezReflectionUtils::StringToEnumeration(const ezRTTI* pEnumerationRtti, cons
         if (pProp->GetCategory() == ezPropertyCategory::Constant)
         {
           // Testing fully qualified and short value name
-          const ezInt32 uiMaxSearch = ezStringUtils::GetCharacterCount(pProp->GetPropertyName()) - 2;
+          const ezInt32 uiMaxSearch = ezStringUtils::GetStringElementCount(pProp->GetPropertyName());
           const char* valueNameOnly =
             ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::", nullptr, pProp->GetPropertyName() + uiMaxSearch) + 2;
           if (sValue.IsEqual(pProp->GetPropertyName()) || sValue.IsEqual(valueNameOnly))

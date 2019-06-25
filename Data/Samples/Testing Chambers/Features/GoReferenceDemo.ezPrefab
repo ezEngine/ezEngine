@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11281838771480088251,5140108322494537448}}
-		u4 %Hash{7941086536449582425}
+		u4 %Hash{3315340951415751451}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{17374589031583292623,5460030219854842637}}
@@ -156,9 +156,11 @@ o
 		b %Active{1}
 		f %BreakForce{0}
 		f %BreakTorque{0}
+		s %ChildActor{""}
 		f %MaxDistance{0x0000803F}
 		f %MinDistance{0xCDCCCC3D}
 		b %PairCollision{0}
+		s %ParentActor{""}
 		f %SpringDamping{0}
 		f %SpringStiffness{0}
 		f %SpringTolerance{0}
@@ -557,7 +559,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezPxJointComponent"}
 		u3 %TypeSize{160}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
