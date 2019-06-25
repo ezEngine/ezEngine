@@ -9,6 +9,10 @@ get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
 ez_create_target_cs(APPLICATION ${PROJECT_NAME})
 
+add_dependencies(${PROJECT_NAME}
+  Fileserve
+)
+
 set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DOTNET_REFERENCES
   "System"
   "System.Core"

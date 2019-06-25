@@ -14,6 +14,18 @@ target_link_libraries(${PROJECT_NAME}
   RendererDX11
 )
 
+if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
+  # Due to app sandboxing we need to explcitly name required plugins for UWP.
+  target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+    FmodPlugin
+    KrautPlugin
+    ParticlePlugin
+    InspectorPlugin
+  )
+endif()
+
+
 ez_link_target_dx11(${PROJECT_NAME})
 
 ez_ci_add_test(${PROJECT_NAME} NEEDS_HW_ACCESS)

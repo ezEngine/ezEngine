@@ -81,6 +81,12 @@ ezString ezGameEngineTestApplication::FindProjectDirectory() const
   return m_sAppProjectPath;
 }
 
+ezString ezGameEngineTestApplication::GetProjectDataDirectoryPath() const
+{
+  ezStringBuilder sProjectPath(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath(), "/", m_sProjectDirName);
+  return sProjectPath;
+}
+
 ezResult ezGameEngineTestApplication::LoadScene(const char* szSceneFile)
 {
   EZ_LOCK(m_pWorld->GetWriteMarker());
@@ -118,10 +124,8 @@ ezResult ezGameEngineTestApplication::BeforeCoreSystemsStartup()
 {
   EZ_SUCCEED_OR_RETURN(SUPER::BeforeCoreSystemsStartup());
 
-  ezStringBuilder sProjectPath(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath(), "/", m_sProjectDirName);
-
   ezStringBuilder sProject;
-  ezFileSystem::ResolveSpecialDirectory(sProjectPath, sProject);
+  ezFileSystem::ResolveSpecialDirectory(GetProjectDataDirectoryPath(), sProject);
   m_sAppProjectPath = sProject;
 
   return EZ_SUCCESS;

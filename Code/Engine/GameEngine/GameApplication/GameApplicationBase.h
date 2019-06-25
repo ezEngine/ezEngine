@@ -191,8 +191,24 @@ protected:
   virtual ezResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
 
+  /// \brief Returns the target of the 'project' special data directory.
+  ///
+  /// The return value of this function will be passed into ezFileSystem::SetSpecialDirectory.
+  /// Afterwards, any path starting with the special directory marker (">project/") will point
+  /// into this directory.
   virtual ezString FindProjectDirectory() const = 0;
+
+  /// \brief Returns the target of the 'base' data directory.
+  ///
+  /// Path needs to start with a special directory marker (">marker/").
+  /// This is passed into the target of the 'base' data directory. Target defaults to ">sdk/Data/Base".
   virtual ezString GetBaseDataDirectoryPath() const;
+
+  /// \brief Returns the target of the 'project' data directory.
+  ///
+  /// Path needs to start with a special directory marker (">marker/").
+  /// This is passed into the target of the 'project' data directory. Target defaults to ">project/".
+  virtual ezString GetProjectDataDirectoryPath() const;
 
   /// \brief Executes all 'BaseInit_' functions. Typically done very early, before core system startup
   virtual void ExecuteBaseInitFunctions();

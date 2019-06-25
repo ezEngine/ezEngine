@@ -74,7 +74,12 @@ namespace ezUwpTestHarness
     private string GetFileserverPath()
     {
       string absBinDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
-      return System.IO.Path.Combine(absBinDir, "Fileserve.exe");
+      string absFSPath = System.IO.Path.Combine(absBinDir, "Fileserve.exe");
+      if (!File.Exists(absFSPath))
+      {
+        throw new Exception(string.Format("FileServe '{0}' does not exist.", absFSPath));
+      }
+      return absFSPath;
     }
 
     private void DeployAppX(out string fullPackageName)
@@ -114,11 +119,11 @@ namespace ezUwpTestHarness
 
       // "C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\devenv.com" "F:\Development\current_development\ezEngine\build_uwp64\ezEngine.sln" /Deploy "RelWithDebInfo|x64" /project CoreTest
       var deployProcessResults = ezProcessHelper.RunExternalExe(devEnvPath,
-              string.Format("\"{0}\" /Deploy \"{1}|{2}\" /project {3}", absSlnPath, _configuration, _platform, _project), null);
+              string.Format("\"{0}\" /Deploy \"{1}|{2}\" /project {3}", absSlnPath, _configuration, _platform, _project), null, 1000000);
 
       if (deployProcessResults.ExitCode != 0)
       {
-        throw new Exception(string.Format("Deployment failed:\n{0}", deployProcessResults.StdOut));
+        throw new Exception($"Deployment failed: {deployProcessResults.ToString()}");
       }
       else
       {
@@ -156,12 +161,12 @@ namespace ezUwpTestHarness
       string appFamilyName = packageNameParts[0] + "_" + packageNameParts[packageNameParts.Length - 1];
       string appUserModelId = appFamilyName + "!App"; // Apply our knowledge of ezEngine's appx manifests.
 
-      IntPtr errorCode = appActiveManager.ActivateApplication(appUserModelId, args, ActivateOptions.None, out pid);
+      IntPtr errorCode = appActiveManager.ActivateApplication(appUserModelId, args, ActivateOptions.NoErrorUI, out pid);
       if (errorCode.ToInt64() != 0)
       {
         throw new Exception(string.Format("Activating appx '{0}' failed with error code {1}.", fullPackageName, errorCode.ToInt64()));
-
       }
+      Console.WriteLine("AppX started.");
     }
 
     public void ExecuteTest()
@@ -209,7 +214,7 @@ namespace ezUwpTestHarness
 
         // 60s timeout for connect, 2s timeout for closing after connection loss.
         string args = string.Format("-specialdirs eztest \"{0}\" -fs_start -fs_wait_timeout 120 -fs_close_timeout 4", _absTestOutputDirectory);
-        return ezProcessHelper.RunExternalExe(absFilerserveFilename, args, absBinDir);
+        return ezProcessHelper.RunExternalExe(absFilerserveFilename, args, absBinDir, 200000);
       };
 
       using (Task<ezProcessHelper.ProcessResult> runFileServe = Task.Factory.StartNew(startFileserve, System.Threading.Tasks.TaskCreationOptions.LongRunning))
@@ -222,7 +227,12 @@ namespace ezUwpTestHarness
 
         Process appXProcess;
         appXProcess = Process.GetProcessById((int)appXPid);
+        Console.WriteLine($"AppX pid: {appXPid}.");
 
+        if (!runFileServe.Wait(60000))
+        {
+          Console.WriteLine(string.Format("Fileserve did not terminate within 10 minutes."));
+        }
         Task.WaitAll(runFileServe);
 
         // Check whether the AppX is dead by now.
@@ -231,7 +241,7 @@ namespace ezUwpTestHarness
           Console.WriteLine(string.Format("Fileserve is no longer running but the AppX is."));
           try
           {
-            string args = string.Format("-ma {0}", appXPid);
+            string args = string.Format("-accepteula -ma {0}", appXPid);
             ezProcessHelper.RunExternalExe("procdump", args, absBinDir);
           }
           catch (Exception e)
