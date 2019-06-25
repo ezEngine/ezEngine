@@ -26,6 +26,18 @@ ezSelectionContext::ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, e
   pOwnerWindow->GetDocument()->AddSyncObject(&m_MarqueeGizmo);
 }
 
+void ezSelectionContext::SetPickObjectOverride(ezDelegate<void(const ezDocumentObject*)> pickOverride)
+{
+  m_PickObjectOverride = pickOverride;
+  GetOwnerView()->setCursor(Qt::CrossCursor);
+}
+
+void ezSelectionContext::ResetPickObjectOverride()
+{
+  m_PickObjectOverride.Invalidate();
+  GetOwnerView()->unsetCursor();
+}
+
 ezEditorInput ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
 {
   if (e->button() == Qt::MouseButton::LeftButton)
@@ -102,10 +114,17 @@ ezEditorInput ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
       {
         const ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedObject);
 
-        if (bToggle)
-          pDocument->GetSelectionManager()->ToggleObject(determineObjectToSelect(pObject, true, bDirect));
+        if (m_PickObjectOverride.IsValid())
+        {
+          m_PickObjectOverride(pObject);
+        }
         else
-          pDocument->GetSelectionManager()->SetSelection(determineObjectToSelect(pObject, false, bDirect));
+        {
+          if (bToggle)
+            pDocument->GetSelectionManager()->ToggleObject(determineObjectToSelect(pObject, true, bDirect));
+          else
+            pDocument->GetSelectionManager()->SetSelection(determineObjectToSelect(pObject, false, bDirect));
+        }
       }
 
       DoFocusLost(false);
@@ -176,10 +195,10 @@ void ezSelectionContext::SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo)
 
   ezVec3 vPosOnNearPlane0, vRayDir0;
   ezVec3 vPosOnNearPlane1, vRayDir1;
-  ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos0, vPosOnNearPlane0,
-                                              &vRayDir0);
-  ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos1, vPosOnNearPlane1,
-                                              &vRayDir1);
+  ezGraphicsUtils::ConvertScreenPosToWorldPos(
+    mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos0, vPosOnNearPlane0, &vRayDir0);
+  ezGraphicsUtils::ConvertScreenPosToWorldPos(
+    mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos1, vPosOnNearPlane1, &vRayDir1);
 
   ezTransform t;
   t.SetIdentity();
@@ -261,7 +280,15 @@ ezEditorInput ezSelectionContext::DoKeyPressEvent(QKeyEvent* e)
 
   if (e->key() == Qt::Key_Escape)
   {
-    GetOwnerWindow()->GetDocument()->GetSelectionManager()->Clear();
+    if (m_PickObjectOverride.IsValid())
+    {
+      m_PickObjectOverride(nullptr);
+    }
+    else
+    {
+      GetOwnerWindow()->GetDocument()->GetSelectionManager()->Clear();
+    }
+
     return ezEditorInput::WasExclusivelyHandled;
   }
 
@@ -279,8 +306,7 @@ ezEditorInput ezSelectionContext::DoKeyReleaseEvent(QKeyEvent* e)
 }
 
 static const bool IsInSelection(const ezDeque<const ezDocumentObject*>& selection, const ezDocumentObject* pObject,
-                                const ezDocumentObject*& out_ParentInSelection, const ezDocumentObject*& out_ParentChild,
-                                const ezDocumentObject* pRootObject)
+  const ezDocumentObject*& out_ParentInSelection, const ezDocumentObject*& out_ParentChild, const ezDocumentObject* pRootObject)
 {
   if (pObject == pRootObject)
     return false;
