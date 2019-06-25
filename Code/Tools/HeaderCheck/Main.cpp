@@ -268,11 +268,11 @@ public:
     }
 
     if (m_bHadErrors || m_bHadSeriousWarnings)
-      SetReturnCode(2); // Errors or Serious Warnings, yet files modified, this is unusual, requires reverting the source from outside.
+      SetReturnCode(2);
     else if (m_bHadWarnings)
-      SetReturnCode(1); // Warnings, files still modified. (normal operation)
+      SetReturnCode(1);
     else
-      SetReturnCode(0); // No issues, files modified. (normal operation)
+      SetReturnCode(0);
 
     m_stackAllocator = nullptr;
 
@@ -344,6 +344,8 @@ public:
 
         if (sExt.IsEqual_NoCase("h") || sExt.IsEqual_NoCase("inl"))
         {
+          ezLog::Info("Checking: {}", currentFile);
+
           EZ_LOG_BLOCK("Header", &currentFile.GetData()[uiSearchDirLength]);
           CheckHeaderFile(currentFile);
           m_stackAllocator->Reset();
@@ -416,7 +418,6 @@ public:
   {
     ezStringBuilder fileContents(m_stackAllocator.Borrow());
     ReadEntireFile(currentFile.GetData(), fileContents);
-
 
     auto fileDir = currentFile.GetFileDirectory();
 

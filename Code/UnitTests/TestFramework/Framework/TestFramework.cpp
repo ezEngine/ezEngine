@@ -8,6 +8,9 @@
 #include <Foundation/Utilities/ExceptionHandler.h>
 #include <Foundation/Utilities/StackTracer.h>
 #include <TestFramework/Utilities/TestOrder.h>
+#include <Texture/Image/Image.h>
+#include <Texture/Image/ImageConversion.h>
+#include <Texture/Image/ImageUtils.h>
 
 #include <cstdlib>
 
@@ -16,6 +19,8 @@
 #  include <FileservePlugin/Client/FileserveDataDir.h>
 #  include <FileservePlugin/FileservePluginDLL.h>
 #endif
+
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
 ezTestFramework* ezTestFramework::s_pInstance = nullptr;
 
@@ -1363,7 +1368,7 @@ void ezTestFramework::SetImageComparisonCallback(const ImageComparisonCallback& 
 }
 
 ezResult ezTestFramework::CaptureRegressionStat(ezStringView testName, ezStringView name, ezStringView unit,
-                                                float value, ezInt32 testId)
+  float value, ezInt32 testId)
 {
   ezStringBuilder strippedTestName = testName;
   strippedTestName.ReplaceAll(" ", "");
@@ -1440,14 +1445,14 @@ void ezTestFramework::TestResult(ezInt32 iSubTestIndex, bool bSuccess, double fD
 // EZ_TEST_... macro functions
 ////////////////////////////////////////////////////////////////////////
 
-#define OUTPUT_TEST_ERROR                                                                                                                  \
-  {                                                                                                                                        \
-    va_list args;                                                                                                                          \
-    va_start(args, szMsg);                                                                                                                 \
-    ezTestFramework::Error(szErrorText, szFile, iLine, szFunction, szMsg, args);                                                           \
-    EZ_TEST_DEBUG_BREAK                                                                                                                    \
-    va_end(args);                                                                                                                          \
-    return EZ_FAILURE;                                                                                                                     \
+#define OUTPUT_TEST_ERROR                                                        \
+  {                                                                              \
+    va_list args;                                                                \
+    va_start(args, szMsg);                                                       \
+    ezTestFramework::Error(szErrorText, szFile, iLine, szFunction, szMsg, args); \
+    EZ_TEST_DEBUG_BREAK                                                          \
+    va_end(args);                                                                \
+    return EZ_FAILURE;                                                           \
   }
 
 ezResult ezTestBool(

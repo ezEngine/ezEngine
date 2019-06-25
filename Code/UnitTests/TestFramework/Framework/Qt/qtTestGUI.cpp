@@ -11,13 +11,19 @@
 #  include <TestFramework/Framework/Qt/qtTestGUI.h>
 #  include <TestFramework/Framework/Qt/qtTestModel.h>
 
+#  if EZ_ENABLED(USE_WIN_EXTRAS)
+#    include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#    include <QtWinExtras/QWinTaskbarButton>
+#    include <QtWinExtras/QWinTaskbarProgress>
+#  endif
+
 ////////////////////////////////////////////////////////////////////////
 // ezQtTestGUI public functions
 ////////////////////////////////////////////////////////////////////////
 
 ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
-    : QMainWindow()
-    , m_pTestFramework(&testFramework)
+  : QMainWindow()
+  , m_pTestFramework(&testFramework)
 {
   this->setupUi(this);
   this->setWindowTitle(testFramework.GetTestName());
@@ -62,12 +68,12 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
 
   // connect custom context menu
   connect(testTreeView, SIGNAL(customContextMenuRequested(const QPoint&)), this,
-          SLOT(onTestTreeViewCustomContextMenuRequested(const QPoint&)));
+    SLOT(onTestTreeViewCustomContextMenuRequested(const QPoint&)));
 
   // connect current row changed signal
   QItemSelectionModel* pSelectionModel = testTreeView->selectionModel();
   connect(pSelectionModel, SIGNAL(currentRowChanged(const QModelIndex&, const QModelIndex&)), this,
-          SLOT(onSelectionModelCurrentRowChanged(const QModelIndex&)));
+    SLOT(onSelectionModelCurrentRowChanged(const QModelIndex&)));
 
   // Sync actions with test framework settings
   TestSettings settings = m_pTestFramework->GetSettings();
@@ -363,8 +369,8 @@ void ezQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iS
   if (iTestIndex != -1 && iSubTestIndex != -1)
   {
     fSubTestPercentage =
-        (float)m_pTestFramework->GetTestResult().GetSubTestCount(m_pTestFramework->GetCurrentTestIndex(), ezTestResultQuery::Executed) /
-        (float)m_pTestFramework->GetSubTestEnabledCount(m_pTestFramework->GetCurrentTestIndex());
+      (float)m_pTestFramework->GetTestResult().GetSubTestCount(m_pTestFramework->GetCurrentTestIndex(), ezTestResultQuery::Executed) /
+      (float)m_pTestFramework->GetSubTestEnabledCount(m_pTestFramework->GetCurrentTestIndex());
   }
 
   float fProgress = 100.0f * (fSubTestPercentage + uiFailed + uiPassed) / uiTestCount;
@@ -592,4 +598,3 @@ void ezQtTestGUI::SetDarkTheme()
 
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_Qt_qtTestGUI);
-

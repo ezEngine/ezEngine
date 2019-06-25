@@ -2,8 +2,8 @@
 
 #ifdef EZ_USE_QT
 
-#  include <UnitTests/TestFramework/ui_qtTestGUI.h>
 #  include <QMainWindow>
+#  include <UnitTests/TestFramework/ui_qtTestGUI.h>
 
 #  include <TestFramework/TestFrameworkDLL.h>
 
@@ -13,11 +13,6 @@
 #    define USE_WIN_EXTRAS EZ_OFF
 #  endif
 
-#  if EZ_ENABLED(USE_WIN_EXTRAS)
-#    include <QtWinExtras/QWinTaskbarButton>
-#    include <QtWinExtras/QWinTaskbarProgress>
-#  endif
-
 
 class ezQtTestFramework;
 class ezQtTestModel;
@@ -25,6 +20,15 @@ class ezQtTestDelegate;
 class ezQtLogMessageDock;
 class QLabel;
 class QPoint;
+
+QT_BEGIN_NAMESPACE
+
+class QWinTaskbarProgress;
+class QWinTaskbarButton;
+
+QT_END_NAMESPACE
+
+QT_USE_NAMESPACE
 
 /// \brief Main window for the test framework GUI.
 class EZ_TEST_DLL ezQtTestGUI : public QMainWindow, public Ui_qtTestGUI
@@ -98,4 +102,3 @@ private:
 };
 
 #endif
-

@@ -2,6 +2,8 @@
 
 #include <TestFramework/Framework/TestFramework.h>
 
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 inline void SetConsoleColorInl(WORD ui)
 {

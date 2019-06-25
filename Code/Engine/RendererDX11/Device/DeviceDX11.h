@@ -4,6 +4,9 @@
 #include <RendererDX11/RendererDX11DLL.h>
 #include <RendererFoundation/Device/Device.h>
 #include <Foundation/Types/Bitflags.h>
+
+// TODO: This should not be included in a header, it exposes Windows.h to the outside
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <dxgi.h>
 
 struct ID3D11Device;
