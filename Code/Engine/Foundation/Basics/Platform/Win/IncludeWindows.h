@@ -1,5 +1,7 @@
 #pragma once
 
+#define EZ_INCLUDED_WINDOWS_H 1
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 // this is important for code that wants to include winsock2.h later on
 #define _WINSOCKAPI_   /* Prevent inclusion of winsock.h in windows.h */

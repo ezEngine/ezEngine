@@ -5,6 +5,7 @@
 #include <Foundation/Strings/StringConversion.h>
 #include <TestFramework/Framework/uwp/uwpTestApplication.h>
 #include <TestFramework/Framework/uwp/uwpTestFramework.h>
+
 #include <windows.ui.core.h>
 #include <wrl/event.h>
 
