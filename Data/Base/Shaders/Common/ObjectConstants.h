@@ -8,8 +8,8 @@ struct EZ_ALIGN_16(ezPerInstanceData)
   TRANSFORM(ObjectToWorld);
   TRANSFORM(ObjectToWorldNormal);
   FLOAT1(BoundingSphereRadius);
-  INT1(GameObjectID);
-  INT1(VertexColorOffset);
+  UINT1(GameObjectID);
+  UINT1(VertexColorAccessData);
 
   INT1(Reserved);
   COLOR4F(Color);
@@ -48,6 +48,16 @@ CONSTANT_BUFFER(ezObjectConstants, 2)
     #define GetInstanceData() perInstanceData[G.Input.InstanceID + InstanceDataOffset]
   #endif
   
-  #define GetInstanceVertexColors() perInstanceVertexColors[GetInstanceData().VertexColorOffset + G.Input.VertexID]
+  #define VERTEX_COLOR_ACCESS_OFFSET_BITS 28
+  #define VERTEX_COLOR_ACCESS_OFFSET_MASK ((1 << VERTEX_COLOR_ACCESS_OFFSET_BITS) - 1)
+
+  uint GetInstanceVertexColorsHelper(uint accessData, uint vertexID, uint colorIndex)
+  {
+    uint numColorsPerVertex = accessData >> VERTEX_COLOR_ACCESS_OFFSET_BITS;
+    uint offset = (accessData & VERTEX_COLOR_ACCESS_OFFSET_MASK) + (vertexID * numColorsPerVertex + colorIndex);
+    return colorIndex < numColorsPerVertex ? perInstanceVertexColors[offset] : 0;
+  }
+  
+  #define GetInstanceVertexColors(colorIndex) GetInstanceVertexColorsHelper(GetInstanceData().VertexColorAccessData, G.Input.VertexID, colorIndex)
 
 #endif

@@ -39,7 +39,7 @@ void ezProcVertexColorRenderer::FillPerInstanceData(
     auto& perInstanceData = instanceData[uiCurrentIndex];
 
     ezInternal::FillPerInstanceData(perInstanceData, it);
-    perInstanceData.VertexColorOffset = it->m_iBufferOffset;
+    perInstanceData.VertexColorAccessData = it->m_uiBufferAccessData;
 
     ++uiCurrentIndex;
   }

@@ -15,12 +15,12 @@ namespace ezProcGenInternal
     ~VertexColorTask();
 
     void Prepare(const ezMeshBufferResourceDescriptor& mbDesc, const ezTransform& transform,
-      const ezSharedPtr<const VertexColorOutput>& pOutput, ezArrayPtr<ezUInt32> outputVertexColors);
+      ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezUInt32> outputVertexColors);
 
   private:
     virtual void Execute() override;
 
-    ezSharedPtr<const VertexColorOutput> m_pOutput;
+    ezHybridArray<ezSharedPtr<const VertexColorOutput>, 2> m_Outputs;
 
     struct InputVertex
     {

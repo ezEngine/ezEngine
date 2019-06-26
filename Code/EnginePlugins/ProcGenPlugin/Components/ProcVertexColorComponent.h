@@ -12,7 +12,7 @@ public:
   virtual void FillBatchIdAndSortingKey();
 
   ezGALBufferHandle m_hVertexColorBuffer;
-  int m_iBufferOffset = -1;
+  ezUInt32 m_uiBufferAccessData = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -82,8 +82,8 @@ public:
   void SetResource(const ezProcGenGraphResourceHandle& hResource);
   const ezProcGenGraphResourceHandle& GetResource() const { return m_hResource; }
 
-  void SetOutputName(const char* szOutputName);
-  const char* GetOutputName() const;
+  const char* GetOutputName(ezUInt32 uiIndex) const;
+  void SetOutputName(ezUInt32 uiIndex, const char* szName);
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
@@ -92,11 +92,17 @@ protected:
   virtual ezMeshRenderData* CreateRenderData() const override;
 
 private:
-  ezProcGenGraphResourceHandle m_hResource;
-  ezHashedString m_sOutputName;
+  ezUInt32 OutputNames_GetCount() const;
+  void OutputNames_Insert(ezUInt32 uiIndex, const char* szName);
+  void OutputNames_Remove(ezUInt32 uiIndex);
 
-  ezSharedPtr<const ezProcGenInternal::VertexColorOutput> m_pOutput;
+  bool HasValidOutputs() const;
+
+  ezProcGenGraphResourceHandle m_hResource;
+  ezHybridArray<ezHashedString, 2> m_OutputNames;
+
+  ezHybridArray<ezSharedPtr<const ezProcGenInternal::VertexColorOutput>, 2> m_Outputs;
 
   ezGALBufferHandle m_hVertexColorBuffer;
-  int m_iBufferOffset = INT_MIN;
+  ezUInt32 m_uiBufferAccessData = 0;
 };

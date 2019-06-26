@@ -10,7 +10,7 @@ VertexColorTask::VertexColorTask() = default;
 VertexColorTask::~VertexColorTask() = default;
 
 void VertexColorTask::Prepare(const ezMeshBufferResourceDescriptor& mbDesc, const ezTransform& transform,
-  const ezSharedPtr<const VertexColorOutput>& pOutput, ezArrayPtr<ezUInt32> outputVertexColors)
+  ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezUInt32> outputVertexColors)
 {
   m_InputVertices.Clear();
   m_InputVertices.Reserve(mbDesc.GetVertexCount());
@@ -69,7 +69,7 @@ void VertexColorTask::Prepare(const ezMeshBufferResourceDescriptor& mbDesc, cons
     pNormals = ezMemoryUtils::AddByteOffset(pNormals, uiElementStride);
   }
 
-  m_pOutput = pOutput;
+  m_Outputs = outputs;
   m_OutputVertexColors = outputVertexColors;
 }
 
@@ -78,9 +78,14 @@ void VertexColorTask::Execute()
   if (m_InputVertices.IsEmpty())
     return;
 
-  if (m_pOutput->m_pByteCode != nullptr)
+  const ezUInt32 uiNumOutputs = m_Outputs.GetCount();
+  for (ezUInt32 uiOutputIndex = 0; uiOutputIndex < uiNumOutputs; ++uiOutputIndex)
   {
-    EZ_PROFILE_SCOPE("ExecuteVM");
+    auto& pOutput = m_Outputs[uiOutputIndex];
+    if (pOutput == nullptr || pOutput->m_pByteCode == nullptr)
+      continue;
+
+    EZ_PROFILE_SCOPE("ExecuteVM");  
 
     ezUInt32 uiNumVertices = m_InputVertices.GetCount();
     m_TempData.SetCountUninitialized(uiNumVertices);
@@ -114,12 +119,14 @@ void VertexColorTask::Execute()
     }
 
     // Execute expression bytecode
-    m_VM.Execute(*(m_pOutput->m_pByteCode), inputs, outputs, uiNumVertices);
+    m_VM.Execute(*(pOutput->m_pByteCode), inputs, outputs, uiNumVertices);
 
     for (ezUInt32 i = 0; i < uiNumVertices; ++i)
     {
       ezColorLinearUB vertexColor = m_TempData[i];
-      m_OutputVertexColors[i] = *reinterpret_cast<ezUInt32*>(&vertexColor.r);
+
+      // Store output vertex colors interleaved
+      m_OutputVertexColors[i * uiNumOutputs + uiOutputIndex] = *reinterpret_cast<ezUInt32*>(&vertexColor.r);
     }
   }
 }

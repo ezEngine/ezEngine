@@ -30,7 +30,7 @@ namespace ezInternal
 
     perInstanceData.BoundingSphereRadius = pRenderData->m_GlobalBounds.m_fSphereRadius;
     perInstanceData.GameObjectID = pRenderData->m_uiUniqueID;
-    perInstanceData.VertexColorOffset = INT_MIN;
+    perInstanceData.VertexColorAccessData = 0;
     perInstanceData.Color = pRenderData->m_Color;
   }
 }
