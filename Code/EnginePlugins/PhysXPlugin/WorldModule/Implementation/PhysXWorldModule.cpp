@@ -86,7 +86,7 @@ namespace
   static ezPxCpuDispatcher s_CpuDispatcher;
 
   PxFilterFlags ezPxFilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, PxFilterObjectAttributes attributes1,
-                                 PxFilterData filterData1, PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
+    PxFilterData filterData1, PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
   {
     const bool kinematic0 = PxFilterObjectIsKinematic(attributes0);
     const bool kinematic1 = PxFilterObjectIsKinematic(attributes1);
@@ -126,6 +126,7 @@ namespace
         return PxFilterFlag::eDEFAULT;
       }
 
+      // set when "report contacts" is enabled on a shape
       if (filterData0.word3 != 0 || filterData1.word3 != 0)
       {
         pairFlags |= (PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_PERSISTS | PxPairFlag::eNOTIFY_CONTACT_POINTS);
@@ -150,7 +151,7 @@ namespace
   {
   public:
     ezPxRaycastCallback()
-        : PxRaycastCallback(nullptr, 0)
+      : PxRaycastCallback(nullptr, 0)
     {
     }
 
@@ -161,7 +162,7 @@ namespace
   {
   public:
     ezPxSweepCallback()
-        : PxSweepCallback(nullptr, 0)
+      : PxSweepCallback(nullptr, 0)
     {
     }
 
@@ -172,7 +173,7 @@ namespace
   {
   public:
     ezPxOverlapCallback()
-        : PxOverlapCallback(nullptr, 0)
+      : PxOverlapCallback(nullptr, 0)
     {
     }
 
@@ -218,7 +219,20 @@ namespace
 class ezPxSimulationEventCallback : public PxSimulationEventCallback
 {
 public:
-  virtual void onConstraintBreak(PxConstraintInfo* constraints, PxU32 count) override {}
+  struct InteractionContact
+  {
+    ezVec3 m_vPosition;
+    ezVec3 m_vNormal;
+    ezVec3 m_vImpact;
+    ezSurfaceResource* m_pSurface;
+  };
+
+  ezDynamicArray<InteractionContact> m_InteractionContacts;
+
+  virtual void onConstraintBreak(PxConstraintInfo* constraints, PxU32 count) override
+  {
+    // TODO: send a "joint broken" message
+  }
 
   virtual void onWake(PxActor** actors, PxU32 count) override {}
 
@@ -246,6 +260,11 @@ public:
       PxContactPairPoint contactPointBuffer[16];
       ezUInt32 uiNumContactPoints = pair.extractContacts(contactPointBuffer, 16);
 
+      const ezPxShapeComponent* pShape0 = ezPxUserData::GetShapeComponent(pair.shapes[0]->userData);
+      const ezPxShapeComponent* pShape1 = ezPxUserData::GetShapeComponent(pair.shapes[1]->userData);
+
+      // TODO: only do this, when "report contacts" is enabled on the shape
+      // TODO: also only send the contact report to the actor that wants the report (?)
       for (ezUInt32 uiContactPointIndex = 0; uiContactPointIndex < uiNumContactPoints; ++uiContactPointIndex)
       {
         const PxContactPairPoint& point = contactPointBuffer[uiContactPointIndex];
@@ -255,6 +274,50 @@ public:
         msg.m_vImpulse += ezPxConversionUtils::ToVec3(point.impulse);
 
         fNumContactPoints += 1.0f;
+      }
+
+      // TODO: enable this code path even without "Report Contacts" enabled (if contact interaction is set)
+      for (ezUInt32 uiContactPointIndex = 0; uiContactPointIndex < uiNumContactPoints; ++uiContactPointIndex)
+      {
+        const PxContactPairPoint& point = contactPointBuffer[uiContactPointIndex];
+
+        //if (pair.flags.isSet(PxContactPairFlag::eACTOR_PAIR_HAS_FIRST_TOUCH))
+
+        const float fImpactSqr = point.impulse.magnitudeSquared();
+
+        if (pShape0 && !pShape0->m_sContactSurfaceInteraction.IsEmpty() && fImpactSqr >= ezMath::Square(pShape0->m_fContactImpactThreshold))
+        {
+          if (PxMaterial* pMaterial = pair.shapes[0]->getMaterialFromInternalFaceIndex(point.internalFaceIndex0))
+          {
+            if (ezSurfaceResource* pSurface = ezPxUserData::GetSurfaceResource(pMaterial->userData))
+            {
+              InteractionContact& ic = m_InteractionContacts.ExpandAndGetRef();
+              ic.m_pSurface = pSurface;
+              ic.m_vPosition = ezPxConversionUtils::ToVec3(point.position);
+              ic.m_vNormal = ezPxConversionUtils::ToVec3(point.normal);
+              ic.m_vImpact = ezPxConversionUtils::ToVec3(point.impulse);
+
+              continue;
+            }
+          }
+        }
+
+        if (pShape1 && !pShape1->m_sContactSurfaceInteraction.IsEmpty() && fImpactSqr >= ezMath::Square(pShape1->m_fContactImpactThreshold))
+        {
+          if (PxMaterial* pMaterial = pair.shapes[1]->getMaterialFromInternalFaceIndex(point.internalFaceIndex1))
+          {
+            if (ezSurfaceResource* pSurface = ezPxUserData::GetSurfaceResource(pMaterial->userData))
+            {
+              InteractionContact& ic = m_InteractionContacts.ExpandAndGetRef();
+              ic.m_pSurface = pSurface;
+              ic.m_vPosition = ezPxConversionUtils::ToVec3(point.position);
+              ic.m_vNormal = ezPxConversionUtils::ToVec3(point.normal);
+              ic.m_vImpact = ezPxConversionUtils::ToVec3(point.impulse);
+
+              continue;
+            }
+          }
+        }
       }
     }
 
@@ -319,7 +382,7 @@ public:
       if (pTriggerComponent != nullptr && pOtherComponent != nullptr)
       {
         ezTriggerState::Enum triggerState =
-            pair.status == PxPairFlag::eNOTIFY_TOUCH_FOUND ? ezTriggerState::Activated : ezTriggerState::Deactivated;
+          pair.status == PxPairFlag::eNOTIFY_TOUCH_FOUND ? ezTriggerState::Activated : ezTriggerState::Deactivated;
         pTriggerComponent->PostTriggerMessage(pOtherComponent, triggerState);
       }
     }
@@ -331,15 +394,15 @@ public:
 //////////////////////////////////////////////////////////////////////////
 
 ezPhysXWorldModule::ezPhysXWorldModule(ezWorld* pWorld)
-    : ezPhysicsWorldModuleInterface(pWorld)
-    , m_pPxScene(nullptr)
-    , m_pCharacterManager(nullptr)
-    , m_pSimulationEventCallback(nullptr)
-    , m_uiNextShapeId(0)
-    , m_FreeShapeIds(ezPhysX::GetSingleton()->GetAllocator())
-    , m_ScratchMemory(ezPhysX::GetSingleton()->GetAllocator())
-    , m_Settings()
-    , m_SimulateTask("PhysX Simulate", ezMakeDelegate(&ezPhysXWorldModule::Simulate, this))
+  : ezPhysicsWorldModuleInterface(pWorld)
+  , m_pPxScene(nullptr)
+  , m_pCharacterManager(nullptr)
+  , m_pSimulationEventCallback(nullptr)
+  , m_uiNextShapeId(0)
+  , m_FreeShapeIds(ezPhysX::GetSingleton()->GetAllocator())
+  , m_ScratchMemory(ezPhysX::GetSingleton()->GetAllocator())
+  , m_Settings()
+  , m_SimulateTask("PhysX Simulate", ezMakeDelegate(&ezPhysXWorldModule::Simulate, this))
 {
 }
 
@@ -455,9 +518,9 @@ void ezPhysXWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& c
 }
 
 bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer,
-                                 ezPhysicsHitResult& out_HitResult,
-                                 ezBitflags<ezPhysicsShapeType> shapeTypes /*= ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic*/,
-                                 ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/) const
+  ezPhysicsHitResult& out_HitResult,
+  ezBitflags<ezPhysicsShapeType> shapeTypes /*= ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic*/,
+  ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/) const
 {
   if (fDistance <= 0.001f || vDir.IsZero())
     return false;
@@ -482,7 +545,7 @@ bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float
   EZ_PX_READ_LOCK(*m_pPxScene);
 
   if (m_pPxScene->raycast(ezPxConversionUtils::ToVec3(vStart), ezPxConversionUtils::ToVec3(vDir), fDistance, closestHit,
-                          PxHitFlag::eDEFAULT, filterData, &queryFilter))
+        PxHitFlag::eDEFAULT, filterData, &queryFilter))
   {
     FillHitResult(closestHit.block, out_HitResult);
 
@@ -493,7 +556,7 @@ bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float
 }
 
 void* ezPhysXWorldModule::CreateRagdoll(const ezSkeletonResourceDescriptor& skeleton, const ezTransform& rootTransform0,
-                                        const ezAnimationPose& initPose)
+  const ezAnimationPose& initPose)
 {
   const float fScale = rootTransform0.m_vScale.x;
   const ezTransform rootTransform(rootTransform0.m_vPosition, rootTransform0.m_qRotation);
@@ -636,7 +699,7 @@ void* ezPhysXWorldModule::CreateRagdoll(const ezSkeletonResourceDescriptor& skel
         case ezSkeletonJointGeometryType::Box:
         {
           PxBoxGeometry shape(fScale * geom.m_Transform.m_vScale.x, fScale * geom.m_Transform.m_vScale.y,
-                              fScale * geom.m_Transform.m_vScale.z);
+            fScale * geom.m_Transform.m_vScale.z);
           pShape = PxRigidActorExt::createExclusiveShape(*itLink.Value(), shape, *pPxMaterial);
           break;
         }
@@ -673,8 +736,8 @@ void* ezPhysXWorldModule::CreateRagdoll(const ezSkeletonResourceDescriptor& skel
 }
 
 bool ezPhysXWorldModule::SweepTestSphere(float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance,
-                                         ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult,
-                                         ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/) const
+  ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult,
+  ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/) const
 {
   PxSphereGeometry sphere;
   sphere.radius = fSphereRadius;
@@ -685,8 +748,8 @@ bool ezPhysXWorldModule::SweepTestSphere(float fSphereRadius, const ezVec3& vSta
 }
 
 bool ezPhysXWorldModule::SweepTestBox(ezVec3 vBoxExtends, const ezTransform& start, const ezVec3& vDir, float fDistance,
-                                      ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult,
-                                      ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/) const
+  ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult,
+  ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/) const
 {
   PxBoxGeometry box;
   box.halfExtents = ezPxConversionUtils::ToVec3(vBoxExtends * 0.5f);
@@ -697,14 +760,14 @@ bool ezPhysXWorldModule::SweepTestBox(ezVec3 vBoxExtends, const ezTransform& sta
 }
 
 bool ezPhysXWorldModule::SweepTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& start, const ezVec3& vDir,
-                                          float fDistance, ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult,
-                                          ezUInt32 uiIgnoreShapeId) const
+  float fDistance, ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult,
+  ezUInt32 uiIgnoreShapeId) const
 {
   PxCapsuleGeometry capsule;
   capsule.radius = fCapsuleRadius;
   capsule.halfHeight = fCapsuleHeight * 0.5f;
   EZ_ASSERT_DEBUG(capsule.isValid(), "Invalid capsule parameter. Radius = {0}, Height = {1}", ezArgF(fCapsuleRadius, 2),
-                  ezArgF(fCapsuleHeight, 2));
+    ezArgF(fCapsuleHeight, 2));
 
   ezQuat qFixRot;
   qFixRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90.0f));
@@ -719,8 +782,8 @@ bool ezPhysXWorldModule::SweepTestCapsule(float fCapsuleRadius, float fCapsuleHe
 }
 
 bool ezPhysXWorldModule::SweepTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezVec3& vDir,
-                                   float fDistance, ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult,
-                                   ezUInt32 uiIgnoreShapeId) const
+  float fDistance, ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult,
+  ezUInt32 uiIgnoreShapeId) const
 {
   PxQueryFilterData filterData;
   filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId);
@@ -732,7 +795,7 @@ bool ezPhysXWorldModule::SweepTest(const physx::PxGeometry& geometry, const phys
   EZ_PX_READ_LOCK(*m_pPxScene);
 
   if (m_pPxScene->sweep(geometry, transform, ezPxConversionUtils::ToVec3(vDir), fDistance, closestHit, PxHitFlag::eDEFAULT, filterData,
-                        &queryFilter))
+        &queryFilter))
   {
     FillHitResult(closestHit.block, out_HitResult);
 
@@ -743,7 +806,7 @@ bool ezPhysXWorldModule::SweepTest(const physx::PxGeometry& geometry, const phys
 }
 
 bool ezPhysXWorldModule::OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer,
-                                           ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/) const
+  ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/) const
 {
   PxSphereGeometry sphere;
   sphere.radius = fSphereRadius;
@@ -754,13 +817,13 @@ bool ezPhysXWorldModule::OverlapTestSphere(float fSphereRadius, const ezVec3& vP
 }
 
 bool ezPhysXWorldModule::OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& start, ezUInt8 uiCollisionLayer,
-                                            ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/) const
+  ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/) const
 {
   PxCapsuleGeometry capsule;
   capsule.radius = fCapsuleRadius;
   capsule.halfHeight = fCapsuleHeight * 0.5f;
   EZ_ASSERT_DEBUG(capsule.isValid(), "Invalid capsule parameter. Radius = {0}, Height = {1}", ezArgF(fCapsuleRadius, 2),
-                  ezArgF(fCapsuleHeight, 2));
+    ezArgF(fCapsuleHeight, 2));
 
   ezQuat qFixRot;
   qFixRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90.0f));
@@ -775,7 +838,7 @@ bool ezPhysXWorldModule::OverlapTestCapsule(float fCapsuleRadius, float fCapsule
 }
 
 bool ezPhysXWorldModule::OverlapTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, ezUInt8 uiCollisionLayer,
-                                     ezUInt32 uiIgnoreShapeId) const
+  ezUInt32 uiIgnoreShapeId) const
 {
   PxQueryFilterData filterData;
   filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId);
@@ -792,8 +855,8 @@ bool ezPhysXWorldModule::OverlapTest(const physx::PxGeometry& geometry, const ph
 static PxOverlapHit g_OverlapHits[256];
 
 void ezPhysXWorldModule::QueryDynamicShapesInSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer,
-                                                    ezPhysicsOverlapResult& out_Results,
-                                                    ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/) const
+  ezPhysicsOverlapResult& out_Results,
+  ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/) const
 {
   PxQueryFilterData filterData;
   filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId);
@@ -902,6 +965,15 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
       pDynamicActorManager->UpdateDynamicActors(ezMakeArrayPtr(pActiveActors, numActiveActors));
     }
   }
+
+  {
+    for (const auto& ic : m_pSimulationEventCallback->m_InteractionContacts)
+    {
+      ic.m_pSurface->InteractWithSurface(m_pWorld, ezGameObjectHandle(), ic.m_vPosition, ic.m_vNormal, ic.m_vImpact, "Collision", nullptr);
+    }
+
+    m_pSimulationEventCallback->m_InteractionContacts.Clear();
+  }
 }
 
 void ezPhysXWorldModule::Simulate()
@@ -968,7 +1040,7 @@ void ezPhysXWorldModule::SimulateStep(ezTime deltaTime)
   {
     EZ_PROFILE_SCOPE("FetchResult");
 
-    // Help executing tasks while we wait for the simulation to finish    
+    // Help executing tasks while we wait for the simulation to finish
     while (!m_pPxScene->checkResults(false))
     {
       ezTaskSystem::HelpExecutingTasks();

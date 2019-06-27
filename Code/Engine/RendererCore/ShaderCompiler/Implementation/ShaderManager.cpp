@@ -21,6 +21,7 @@ namespace
     ezDynamicArray<ezHashedString> m_EnumValues;
   };
 
+  // TODO: these two arrays will produce memory leak reports when any element resizes its own arrays
   static ezHashTable<ezHashedString, PermutationVarConfig> s_PermutationVarConfigs;
   static ezDynamicArray<ezPermutationVar> s_FilteredPermutationVariables;
 

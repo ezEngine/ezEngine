@@ -8,13 +8,15 @@
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxShapeComponent, 2)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxShapeComponent, 3)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-    EZ_MEMBER_PROPERTY("ReportContact", m_bReportContact)
+    EZ_MEMBER_PROPERTY("ReportContact", m_bReportContact),
+    EZ_MEMBER_PROPERTY("ContactThreshold", m_fContactImpactThreshold)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
+    EZ_ACCESSOR_PROPERTY("ContactInteraction", GetContactSurfaceInteraction, SetContactSurfaceInteraction)
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -45,6 +47,10 @@ void ezPxShapeComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_hSurface;
   s << m_uiCollisionLayer;
   s << m_bReportContact;
+
+  // version 3
+  s << m_fContactImpactThreshold;
+  s << m_sContactSurfaceInteraction;
 }
 
 
@@ -61,6 +67,12 @@ void ezPxShapeComponent::DeserializeComponent(ezWorldReader& stream)
   if (uiVersion >= 2)
   {
     s >> m_bReportContact;
+  }
+
+  if (uiVersion >= 3)
+  {
+    s >> m_fContactImpactThreshold;
+    s >> m_sContactSurfaceInteraction;
   }
 }
 

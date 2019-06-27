@@ -31,11 +31,18 @@ public:
 
   ezUInt32 GetShapeId() const { return m_uiShapeId; }
 
-  ezUInt8 m_uiCollisionLayer;
-  bool m_bReportContact;
+  ezUInt8 m_uiCollisionLayer = 0;
+  bool m_bReportContact = false;
+
+  float m_fContactImpactThreshold = 10.0f;
+
+  ezHashedString m_sContactSurfaceInteraction;
 
 protected:
-  ezUInt32 m_uiShapeId;
+  const char* GetContactSurfaceInteraction() const { return m_sContactSurfaceInteraction.GetData(); }
+  void SetContactSurfaceInteraction(const char* sz) { m_sContactSurfaceInteraction.Assign(sz); }
+
+  ezUInt32 m_uiShapeId = 0;
 
   ezSurfaceResourceHandle m_hSurface;
 
