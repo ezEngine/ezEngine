@@ -41,6 +41,9 @@ public:
       Max,
       LastBinary,
 
+      // Ternary
+      Select,
+
       // Constant
       FloatConstant,
 
@@ -66,76 +69,45 @@ public:
 
   struct Node
   {
-    EZ_FORCE_INLINE Node(NodeType::Enum type)
-      : m_Type(type)
-    {
-    }
-
     ezEnum<NodeType> m_Type;
   };
 
   struct UnaryOperator : public Node
   {
-    EZ_FORCE_INLINE UnaryOperator(NodeType::Enum type)
-      : Node(type)
-      , m_pOperand(nullptr)
-    {
-    }
-
-    Node* m_pOperand;
+    Node* m_pOperand = nullptr;
   };
 
   struct BinaryOperator : public Node
   {
-    EZ_FORCE_INLINE BinaryOperator(NodeType::Enum type)
-      : Node(type)
-      , m_pLeftOperand(nullptr)
-      , m_pRightOperand(nullptr)
-    {
-    }
+    Node* m_pLeftOperand = nullptr;
+    Node* m_pRightOperand = nullptr;
+  };
 
-    Node* m_pLeftOperand;
-    Node* m_pRightOperand;
+  struct Select : public Node
+  {
+    Node* m_pCondition = nullptr;
+    Node* m_pTrueOperand = nullptr;
+    Node* m_pFalseOperand = nullptr;
   };
 
   struct Constant : public Node
   {
-    EZ_FORCE_INLINE Constant(NodeType::Enum type)
-      : Node(type)
-    {
-    }
-
     ezVariant m_Value;
   };
 
   struct Input : public Node
   {
-    EZ_FORCE_INLINE Input(NodeType::Enum type)
-      : Node(type)
-    {
-    }
-
     ezHashedString m_sName;
   };
 
   struct Output : public Node
   {
-    EZ_FORCE_INLINE Output(NodeType::Enum type)
-      : Node(type)
-    {
-    }
-
     ezHashedString m_sName;
-    Node* m_pExpression;
+    Node* m_pExpression = nullptr;
   };
 
   struct FunctionCall : public Node
   {
-    EZ_FORCE_INLINE FunctionCall(NodeType::Enum type)
-      : Node(type)
-    {
-    }
-
     ezHashedString m_sName;
     ezHybridArray<Node*, 8> m_Arguments;
   };
@@ -146,6 +118,7 @@ public:
 
   UnaryOperator* CreateUnaryOperator(NodeType::Enum type, Node* pOperand);
   BinaryOperator* CreateBinaryOperator(NodeType::Enum type, Node* pLeftOperand, Node* pRightOperand);
+  Select* CreateSelect(Node* pCondition, Node* pTrueOperand, Node* pFalseOperand);
   Constant* CreateConstant(const ezVariant& value);
   Input* CreateInput(const ezHashedString& sName);
   Output* CreateOutput(const ezHashedString& sName, Node* pExpression);

@@ -62,7 +62,7 @@ void VertexColorTask::Prepare(const ezMeshBufferResourceDescriptor& mbDesc, cons
   {
     auto& vert = m_InputVertices.ExpandAndGetRef();
     vert.m_vPosition = transform.TransformPosition(ezVec3(pPositions[0], pPositions[1], pPositions[2]));
-    vert.m_vNormal = normalTransform.TransformDirection(ezVec3(pNormals[0], pNormals[1], pNormals[2]));
+    vert.m_vNormal = normalTransform.TransformDirection(ezVec3(pNormals[0], pNormals[1], pNormals[2])).GetNormalized();
     vert.m_fIndex = i;
 
     pPositions = ezMemoryUtils::AddByteOffset(pPositions, uiElementStride);

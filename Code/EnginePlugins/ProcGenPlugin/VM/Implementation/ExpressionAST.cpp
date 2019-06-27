@@ -43,6 +43,9 @@ namespace
     // Binary
     "", "Add", "Subtract", "Multiply", "Divide", "Min", "Max", "",
 
+    // Ternary
+    "Select",
+
     // Constant
     "FloatConstant",
 
@@ -76,7 +79,8 @@ ezExpressionAST::~ezExpressionAST() {}
 
 ezExpressionAST::UnaryOperator* ezExpressionAST::CreateUnaryOperator(NodeType::Enum type, Node* pOperand)
 {
-  auto pUnaryOperator = EZ_NEW(&m_Allocator, UnaryOperator, type);
+  auto pUnaryOperator = EZ_NEW(&m_Allocator, UnaryOperator);
+  pUnaryOperator->m_Type = type;
   pUnaryOperator->m_pOperand = pOperand;
 
   return pUnaryOperator;
@@ -84,7 +88,8 @@ ezExpressionAST::UnaryOperator* ezExpressionAST::CreateUnaryOperator(NodeType::E
 
 ezExpressionAST::BinaryOperator* ezExpressionAST::CreateBinaryOperator(NodeType::Enum type, Node* pLeftOperand, Node* pRightOperand)
 {
-  auto pBinaryOperator = EZ_NEW(&m_Allocator, BinaryOperator, type);
+  auto pBinaryOperator = EZ_NEW(&m_Allocator, BinaryOperator);
+  pBinaryOperator->m_Type = type;
   pBinaryOperator->m_pLeftOperand = pLeftOperand;
   pBinaryOperator->m_pRightOperand = pRightOperand;
 
@@ -95,7 +100,8 @@ ezExpressionAST::Constant* ezExpressionAST::CreateConstant(const ezVariant& valu
 {
   EZ_ASSERT_DEV(value.IsA<float>(), "value needs to be float");
 
-  auto pConstant = EZ_NEW(&m_Allocator, Constant, NodeType::FloatConstant);
+  auto pConstant = EZ_NEW(&m_Allocator, Constant);
+  pConstant->m_Type = NodeType::FloatConstant;
   pConstant->m_Value = value;
 
   return pConstant;
@@ -103,7 +109,8 @@ ezExpressionAST::Constant* ezExpressionAST::CreateConstant(const ezVariant& valu
 
 ezExpressionAST::Input* ezExpressionAST::CreateInput(const ezHashedString& sName)
 {
-  auto pInput = EZ_NEW(&m_Allocator, Input, NodeType::FloatInput);
+  auto pInput = EZ_NEW(&m_Allocator, Input);
+  pInput->m_Type = NodeType::FloatInput;
   pInput->m_sName = sName;
 
   return pInput;
@@ -111,7 +118,8 @@ ezExpressionAST::Input* ezExpressionAST::CreateInput(const ezHashedString& sName
 
 ezExpressionAST::Output* ezExpressionAST::CreateOutput(const ezHashedString& sName, Node* pExpression)
 {
-  auto pOutput = EZ_NEW(&m_Allocator, Output, NodeType::FloatOutput);
+  auto pOutput = EZ_NEW(&m_Allocator, Output);
+  pOutput->m_Type = NodeType::FloatOutput;
   pOutput->m_sName = sName;
   pOutput->m_pExpression = pExpression;
 
@@ -120,7 +128,8 @@ ezExpressionAST::Output* ezExpressionAST::CreateOutput(const ezHashedString& sNa
 
 ezExpressionAST::FunctionCall* ezExpressionAST::CreateFunctionCall(const ezHashedString& sName)
 {
-  auto pFunctionCall = EZ_NEW(&m_Allocator, FunctionCall, NodeType::FunctionCall);
+  auto pFunctionCall = EZ_NEW(&m_Allocator, FunctionCall);
+  pFunctionCall->m_Type = NodeType::FunctionCall;
   pFunctionCall->m_sName = sName;
 
   return pFunctionCall;

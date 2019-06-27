@@ -126,7 +126,8 @@ public:
 
   float m_fMinHeight = 0.0f;
   float m_fMaxHeight = 1000.0f;
-  float m_fFadeFraction = 0.2f;
+  float m_fLowerFade = 0.2f;
+  float m_fUpperFade = 0.2f;
 
   ezOutputNodePin m_OutputValuePin;
 };
@@ -142,7 +143,8 @@ public:
 
   ezAngle m_MinSlope = ezAngle::Degree(0.0f);
   ezAngle m_MaxSlope = ezAngle::Degree(30.0f);
-  float m_fFadeFraction = 0.2f;
+  float m_fLowerFade = 0.0f;
+  float m_fUpperFade = 0.2f;
 
   ezOutputNodePin m_OutputValuePin;
 };
