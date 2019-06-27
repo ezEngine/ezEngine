@@ -36,6 +36,10 @@ void ezPxRevoluteJointComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_bLimitRotation;
   s << m_LowerLimit;
   s << m_UpperLimit;
+
+  s << m_bEnableDrive;
+  s << m_bEnableDriveBraking;
+  s << m_fDriveVelocity;
 }
 
 void ezPxRevoluteJointComponent::DeserializeComponent(ezWorldReader& stream)
@@ -48,6 +52,10 @@ void ezPxRevoluteJointComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_bLimitRotation;
   s >> m_LowerLimit;
   s >> m_UpperLimit;
+
+  s >> m_bEnableDrive;
+  s >> m_bEnableDriveBraking;
+  s >> m_fDriveVelocity;
 }
 
 PxJoint* ezPxRevoluteJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1,
