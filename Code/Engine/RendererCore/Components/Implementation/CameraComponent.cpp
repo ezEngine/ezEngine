@@ -524,6 +524,9 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
   pView->m_IncludeTags = m_IncludeTags;
   pView->m_ExcludeTags = m_ExcludeTags;
 
+  const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
+  pView->m_ExcludeTags.Set(tagEditor);
+
   if (m_bShowStats)
   {
     // draw stats
