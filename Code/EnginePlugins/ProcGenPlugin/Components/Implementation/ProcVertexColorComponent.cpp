@@ -6,6 +6,7 @@
 #include <ProcGenPlugin/Components/ProcVertexColorComponent.h>
 #include <ProcGenPlugin/Tasks/VertexColorTask.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>
 

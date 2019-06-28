@@ -3,6 +3,7 @@
 #include <ProcGenPlugin/Components/ProcVertexColorComponent.h>
 #include <ProcGenPlugin/Components/ProcVertexColorRenderer.h>
 #include <RendererCore/Meshes/Implementation/MeshRendererUtils.h>
+#include <RendererCore/Pipeline/RenderDataBatch.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
 // clang-format off
