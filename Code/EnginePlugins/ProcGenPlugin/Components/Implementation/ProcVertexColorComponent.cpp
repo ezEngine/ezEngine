@@ -202,7 +202,8 @@ void ezProcVertexColorComponentManager::OnBeginRender(ezUInt64 uiFrameCounter)
   {
     ezGALContext* pGALContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
 
-    pGALContext->UpdateBuffer(m_hVertexColorBuffer, dataCopy.m_uiStart, dataCopy.m_Data.ToByteArray(), ezGALUpdateMode::Discard);
+    ezUInt32 uiByteOffset = dataCopy.m_uiStart * sizeof(ezUInt32);
+    pGALContext->UpdateBuffer(m_hVertexColorBuffer, uiByteOffset, dataCopy.m_Data.ToByteArray(), ezGALUpdateMode::CopyToTempStorage);
 
     dataCopy = DataCopy();
   }
