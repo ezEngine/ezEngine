@@ -225,6 +225,8 @@ public:
     ezVec3 m_vNormal;
     ezVec3 m_vImpact;
     ezSurfaceResource* m_pSurface;
+    ezString m_sInteraction;
+    float m_fImpulseSqr;
   };
 
   ezDynamicArray<InteractionContact> m_InteractionContacts;
@@ -283,38 +285,40 @@ public:
 
         //if (pair.flags.isSet(PxContactPairFlag::eACTOR_PAIR_HAS_FIRST_TOUCH))
 
-        const float fImpactSqr = point.impulse.magnitudeSquared();
 
-        if (pShape0 && !pShape0->m_sContactSurfaceInteraction.IsEmpty() && fImpactSqr >= ezMath::Square(pShape0->m_fContactImpactThreshold))
+        if (pShape0 && pShape1)
         {
-          if (PxMaterial* pMaterial = pair.shapes[0]->getMaterialFromInternalFaceIndex(point.internalFaceIndex0))
+          if (PxMaterial* pMaterial0 = pair.shapes[0]->getMaterialFromInternalFaceIndex(point.internalFaceIndex0))
           {
-            if (ezSurfaceResource* pSurface = ezPxUserData::GetSurfaceResource(pMaterial->userData))
+            if (PxMaterial* pMaterial1 = pair.shapes[1]->getMaterialFromInternalFaceIndex(point.internalFaceIndex1))
             {
-              InteractionContact& ic = m_InteractionContacts.ExpandAndGetRef();
-              ic.m_pSurface = pSurface;
-              ic.m_vPosition = ezPxConversionUtils::ToVec3(point.position);
-              ic.m_vNormal = ezPxConversionUtils::ToVec3(point.normal);
-              ic.m_vImpact = ezPxConversionUtils::ToVec3(point.impulse);
+              if (ezSurfaceResource* pSurface0 = ezPxUserData::GetSurfaceResource(pMaterial0->userData))
+              {
+                if (ezSurfaceResource* pSurface1 = ezPxUserData::GetSurfaceResource(pMaterial1->userData))
+                {
+                  const float fImpactSqr = point.impulse.magnitudeSquared();
 
-              continue;
-            }
-          }
-        }
+                  {
+                    InteractionContact& ic = m_InteractionContacts.ExpandAndGetRef();
+                    ic.m_pSurface = pSurface1;
+                    ic.m_vPosition = ezPxConversionUtils::ToVec3(point.position);
+                    ic.m_vNormal = ezPxConversionUtils::ToVec3(point.normal);
+                    ic.m_vImpact = ezPxConversionUtils::ToVec3(point.impulse);
+                    ic.m_sInteraction = pSurface0->GetDescriptor().m_sOnCollideInteraction;
+                    ic.m_fImpulseSqr = fImpactSqr;
+                  }
 
-        if (pShape1 && !pShape1->m_sContactSurfaceInteraction.IsEmpty() && fImpactSqr >= ezMath::Square(pShape1->m_fContactImpactThreshold))
-        {
-          if (PxMaterial* pMaterial = pair.shapes[1]->getMaterialFromInternalFaceIndex(point.internalFaceIndex1))
-          {
-            if (ezSurfaceResource* pSurface = ezPxUserData::GetSurfaceResource(pMaterial->userData))
-            {
-              InteractionContact& ic = m_InteractionContacts.ExpandAndGetRef();
-              ic.m_pSurface = pSurface;
-              ic.m_vPosition = ezPxConversionUtils::ToVec3(point.position);
-              ic.m_vNormal = ezPxConversionUtils::ToVec3(point.normal);
-              ic.m_vImpact = ezPxConversionUtils::ToVec3(point.impulse);
-
-              continue;
+                  {
+                    InteractionContact& ic = m_InteractionContacts.ExpandAndGetRef();
+                    ic.m_pSurface = pSurface0;
+                    ic.m_vPosition = ezPxConversionUtils::ToVec3(point.position);
+                    ic.m_vNormal = ezPxConversionUtils::ToVec3(point.normal);
+                    ic.m_vImpact = ezPxConversionUtils::ToVec3(point.impulse);
+                    ic.m_sInteraction = pSurface1->GetDescriptor().m_sOnCollideInteraction;
+                    ic.m_fImpulseSqr = fImpactSqr;
+                  }
+                }
+              }
             }
           }
         }
@@ -969,7 +973,7 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
   {
     for (const auto& ic : m_pSimulationEventCallback->m_InteractionContacts)
     {
-      ic.m_pSurface->InteractWithSurface(m_pWorld, ezGameObjectHandle(), ic.m_vPosition, ic.m_vNormal, ic.m_vImpact, "Collision", nullptr);
+      ic.m_pSurface->InteractWithSurface(m_pWorld, ezGameObjectHandle(), ic.m_vPosition, ic.m_vNormal, ic.m_vImpact, ezTempHashedString(ic.m_sInteraction.GetData()), nullptr, ezMath::Sqrt(ic.m_fImpulseSqr));
     }
 
     m_pSimulationEventCallback->m_InteractionContacts.Clear();

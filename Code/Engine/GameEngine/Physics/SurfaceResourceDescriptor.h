@@ -38,6 +38,7 @@ struct EZ_GAMEENGINE_DLL ezSurfaceInteraction
   ezPrefabResourceHandle m_hPrefab;
   ezEnum<ezSurfaceInteractionAlignment> m_Alignment;
   ezAngle m_Deviation;
+  float m_fImpulseThreshold = 0.0f;
 };
 
 
@@ -61,6 +62,7 @@ public:
   float m_fPhysicsRestitution;
   float m_fPhysicsFrictionStatic;
   float m_fPhysicsFrictionDynamic;
+  ezString m_sOnCollideInteraction; // TODO: HashedString
 
   ezHybridArray<ezSurfaceInteraction, 16> m_Interactions;
 };

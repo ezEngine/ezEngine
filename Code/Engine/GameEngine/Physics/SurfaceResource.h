@@ -4,6 +4,7 @@
 
 #include <Core/ResourceManager/Resource.h>
 #include <Core/World/Declarations.h>
+#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <GameEngine/Physics/SurfaceResourceDescriptor.h>
 
@@ -41,7 +42,7 @@ public:
   /// \brief Spawns the prefab that was defined for the given interaction at the given position and using the configured orientation.
   /// Returns false, if the interaction type was not defined in this surface or any of its base surfaces
   bool InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle hObject, const ezVec3& vPosition, const ezVec3& vSurfaceNormal,
-    const ezVec3& vIncomingDirection, const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID);
+    const ezVec3& vIncomingDirection, const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID, float fImpulse = 0.0f);
 
   bool IsBasedOn(const ezSurfaceResource* pThisOrBaseSurface) const;
 
@@ -53,7 +54,15 @@ private:
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
+  const ezSurfaceInteraction* FindInteraction(ezUInt32 uiHash, float fImpulse);
+
   ezSurfaceResourceDescriptor m_Descriptor;
 
-  ezHashTable<ezUInt32, const ezSurfaceInteraction*> m_Interactions;
+  struct SurfInt
+  {
+    ezUInt32 m_uiInteractionTypeHash = 0;
+    const ezSurfaceInteraction* m_pInteraction;
+  };
+
+  ezDynamicArray<SurfInt> m_Interactions;
 };

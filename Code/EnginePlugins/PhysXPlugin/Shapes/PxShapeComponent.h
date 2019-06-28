@@ -34,14 +34,7 @@ public:
   ezUInt8 m_uiCollisionLayer = 0;
   bool m_bReportContact = false;
 
-  float m_fContactImpactThreshold = 10.0f;
-
-  ezHashedString m_sContactSurfaceInteraction;
-
 protected:
-  const char* GetContactSurfaceInteraction() const { return m_sContactSurfaceInteraction.GetData(); }
-  void SetContactSurfaceInteraction(const char* sz) { m_sContactSurfaceInteraction.Assign(sz); }
-
   ezUInt32 m_uiShapeId = 0;
 
   ezSurfaceResourceHandle m_hSurface;
