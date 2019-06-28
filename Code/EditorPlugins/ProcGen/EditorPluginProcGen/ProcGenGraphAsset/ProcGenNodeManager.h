@@ -5,24 +5,6 @@
 #include <GuiFoundation/NodeEditor/Pin.h>
 #include <GuiFoundation/NodeEditor/Node.h>
 #include <GuiFoundation/NodeEditor/Connection.h>
-#include <Foundation/Configuration/Singleton.h>
-
-class ezProcGenNodeRegistry
-{
-  EZ_DECLARE_SINGLETON(ezProcGenNodeRegistry);
-
-public:
-  ezProcGenNodeRegistry();
-
-  const ezRTTI* GetBaseType() const { return m_pBaseType; }
-  const ezRTTI* GetPlacementOutputType() const { return m_pPlacementOutputType; }
-
-  void UpdateNodeTypes();
-
-private:
-  const ezRTTI* m_pBaseType;
-  const ezRTTI* m_pPlacementOutputType;
-};
 
 class ezProcGenNodeManager : public ezDocumentNodeManager
 {

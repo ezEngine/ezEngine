@@ -247,7 +247,7 @@ void ezImguiRenderer::SetupRenderer()
 
     {
       ezVertexStreamInfo& si = m_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::Color;
+      si.m_Semantic = ezGALVertexAttributeSemantic::Color0;
       si.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
       si.m_uiOffset = 20;
       si.m_uiElementSize = 4;

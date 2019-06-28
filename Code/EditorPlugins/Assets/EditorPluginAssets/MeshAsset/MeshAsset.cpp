@@ -10,9 +10,10 @@
 #include <ModelImporter/ModelImporter.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 8, ezRTTINoAllocator)
-  ;
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 9, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 static ezMat3 CalculateTransformationMatrix(const ezMeshAssetProperties* pProp)
 {

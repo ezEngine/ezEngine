@@ -17,4 +17,9 @@ namespace ezProcGenInternal
   ezHashedString ExpressionOutputs::s_sScale = ezMakeHashedString("Scale");
   ezHashedString ExpressionOutputs::s_sColorIndex = ezMakeHashedString("ColorIndex");
   ezHashedString ExpressionOutputs::s_sObjectIndex = ezMakeHashedString("ObjectIndex");
+
+  ezHashedString ExpressionOutputs::s_sR = ezMakeHashedString("R");
+  ezHashedString ExpressionOutputs::s_sG = ezMakeHashedString("G");
+  ezHashedString ExpressionOutputs::s_sB = ezMakeHashedString("B");
+  ezHashedString ExpressionOutputs::s_sA = ezMakeHashedString("A");
 }

@@ -151,10 +151,18 @@ PS_OUT main(PS_IN Input)
         Output.Color = float4(0, 0, 0, 1);
       #endif
     }
-    else if (RenderPass == EDITOR_RENDER_PASS_VERTEX_COLORS)
+    else if (RenderPass == EDITOR_RENDER_PASS_VERTEX_COLORS0)
     {
-      #if defined(USE_COLOR)
-        Output.Color = float4(SrgbToLinear(Input.Color.rgb), 1);
+      #if defined(USE_COLOR0)
+        Output.Color = float4(SrgbToLinear(Input.Color0.rgb), 1);
+      #else
+        Output.Color = float4(0, 0, 0, 1);
+      #endif
+    }
+    else if (RenderPass == EDITOR_RENDER_PASS_VERTEX_COLORS1)
+    {
+      #if defined(USE_COLOR1)
+        Output.Color = float4(SrgbToLinear(Input.Color1.rgb), 1);
       #else
         Output.Color = float4(0, 0, 0, 1);
       #endif

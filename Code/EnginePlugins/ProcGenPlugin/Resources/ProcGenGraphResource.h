@@ -21,6 +21,7 @@ public:
   ~ezProcGenGraphResource();
 
   const ezDynamicArray<ezSharedPtr<const ezProcGenInternal::PlacementOutput>>& GetPlacementOutputs() const;
+  const ezDynamicArray<ezSharedPtr<const ezProcGenInternal::VertexColorOutput>>& GetVertexColorOutputs() const;
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
@@ -30,4 +31,5 @@ private:
 private:
   ezDynamicArray<ezExpressionByteCode> m_ByteCode;
   ezDynamicArray<ezSharedPtr<const ezProcGenInternal::PlacementOutput>> m_PlacementOutputs;
+  ezDynamicArray<ezSharedPtr<const ezProcGenInternal::VertexColorOutput>> m_VertexColorOutputs;
 };

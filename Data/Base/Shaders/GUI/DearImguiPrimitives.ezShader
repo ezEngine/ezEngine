@@ -14,7 +14,7 @@ DepthWrite = false
 
 [VERTEXSHADER]
 
-#define USE_COLOR
+#define USE_COLOR0
 #define USE_TEXCOORD0
 
 #include <Shaders/Common/GlobalConstants.h>
@@ -28,7 +28,7 @@ VS_OUT main(VS_IN Input)
   RetVal.Position = float4(screenPosition, Input.Position.z, 1.0f);
 
   RetVal.TexCoord0 = Input.TexCoord0;
-  RetVal.Color = Input.Color;
+  RetVal.Color0 = Input.Color0;
 
   return RetVal;
 }
@@ -36,7 +36,7 @@ VS_OUT main(VS_IN Input)
 
 [PIXELSHADER]
 
-#define USE_COLOR
+#define USE_COLOR0
 #define USE_TEXCOORD0
 
 #include <Shaders/Materials/MaterialInterpolator.h>
@@ -46,5 +46,5 @@ SamplerState BaseTexture_AutoSampler;
 
 float4 main(PS_IN Input) : SV_Target
 {
-  return BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoord0.xy) * Input.Color;
+  return BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoord0.xy) * Input.Color0;
 }

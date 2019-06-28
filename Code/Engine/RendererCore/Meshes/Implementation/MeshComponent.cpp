@@ -92,12 +92,9 @@ void ezMeshComponent::OnExtractGeometry(ezMsgExtractGeometry& msg) const
   const ezUInt8* pRawVertexData = mb.GetVertexBufferData().GetData();
 
   const float* pPositions = nullptr;
-  ezUInt32 uiElementStride = 0;
 
   for (ezUInt32 vs = 0; vs < vdi.m_VertexStreams.GetCount(); ++vs)
   {
-    uiElementStride += vdi.m_VertexStreams[vs].m_uiElementSize;
-
     if (vdi.m_VertexStreams[vs].m_Semantic == ezGALVertexAttributeSemantic::Position)
     {
       if (vdi.m_VertexStreams[vs].m_Format != ezGALResourceFormat::RGBFloat)
@@ -115,6 +112,8 @@ void ezMeshComponent::OnExtractGeometry(ezMsgExtractGeometry& msg) const
     ezLog::Warning("No position stream found in CPU mesh");
     return;
   }
+
+  const ezUInt32 uiElementStride = mb.GetVertexDataSize();
 
   auto& geo = *msg.m_pWorldGeometry;
 

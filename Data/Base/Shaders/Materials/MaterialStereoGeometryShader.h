@@ -39,9 +39,13 @@ struct GS_OUT
     #endif
   #endif
 
-	#if defined(USE_COLOR)
-		float4 Color : COLOR;
-	#endif
+	#if defined(USE_COLOR0)
+    float4 Color0 : COLOR0;
+    
+    #if defined(USE_COLOR1)
+      float4 Color1 : COLOR1;
+    #endif
+  #endif
 
 	// If CAMERA_MODE is CAMERA_MODE_STEREO, every even instance is for the left eye and every odd is for the right eye.
 	uint InstanceID : SV_InstanceID;
@@ -78,8 +82,12 @@ void main(triangle VS_OUT input[3], inout TriangleStream<GS_OUT> outStream)
           output.TexCoord1 = input[i].TexCoord1;
         #endif
 
-        #if defined(USE_COLOR)
-          output.Color = input[i].Color;
+        #if defined(USE_COLOR0)
+          output.Color0 = input[i].Color0;
+        #endif
+        
+        #if defined(USE_COLOR1)
+          output.Color1 = input[i].Color1;
         #endif
 
         output.InstanceID = input[i].InstanceID;

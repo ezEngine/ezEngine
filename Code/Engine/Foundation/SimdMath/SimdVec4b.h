@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/SimdMath/SimdMath.h>
+#include <Foundation/SimdMath/SimdTypes.h>
 #include <Foundation/SimdMath/SimdSwizzle.h>
 
 class EZ_FOUNDATION_DLL ezSimdVec4b

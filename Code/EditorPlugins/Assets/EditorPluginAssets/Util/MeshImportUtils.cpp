@@ -492,7 +492,8 @@ namespace ezMeshImportUtils
       Normal,
       Tangent,
       BiTangent,
-      Color,
+      Color0,
+      Color1,
       BoneIndices0,
       BoneWeights0,
 
@@ -504,7 +505,8 @@ namespace ezMeshImportUtils
     const bool bUseTexCoord0 = true;
     const bool bUseTexCoord1 = mesh.GetDataStream(ezGALVertexAttributeSemantic::TexCoord1) != nullptr;
     const bool bUseTangents = true;
-    const bool bUseColor = mesh.GetDataStream(ezGALVertexAttributeSemantic::Color) != nullptr;
+    const bool bUseColor0 = mesh.GetDataStream(ezGALVertexAttributeSemantic::Color0) != nullptr;
+    const bool bUseColor1 = mesh.GetDataStream(ezGALVertexAttributeSemantic::Color1) != nullptr;
     const bool bUseJoints = bSkinnedMesh;
 
     // query data streams
@@ -524,8 +526,11 @@ namespace ezMeshImportUtils
         dataStreams[BiTangent] = mesh.GetDataStream(ezGALVertexAttributeSemantic::BiTangent);
       }
 
-      if (bUseColor)
-        dataStreams[Color] = mesh.GetDataStream(ezGALVertexAttributeSemantic::Color);
+      if (bUseColor0)
+        dataStreams[Color0] = mesh.GetDataStream(ezGALVertexAttributeSemantic::Color0);
+
+      if (bUseColor1)
+        dataStreams[Color1] = mesh.GetDataStream(ezGALVertexAttributeSemantic::Color1);
 
       if (bUseJoints)
       {
@@ -594,10 +599,16 @@ namespace ezMeshImportUtils
           meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezGALResourceFormat::UVFloat);
       }
 
-      if (dataStreams[Color])
+      if (dataStreams[Color0])
       {
-        uiStreamIdx[Streams::Color] =
-          meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized);
+        uiStreamIdx[Streams::Color0] =
+          meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
+      }
+
+      if (dataStreams[Color1])
+      {
+        uiStreamIdx[Streams::Color1] =
+          meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::RGBAUByteNormalized);
       }
 
       if (bUseJoints)
@@ -722,30 +733,41 @@ namespace ezMeshImportUtils
     }
 
     // Set Color.
-    if (bUseColor)
+    if (bUseColor0 || bUseColor1)
     {
-      if (dataStreams[Color])
+      for (ezUInt32 i = 0; i < 2; ++i)
       {
-        const ezModelImporter::TypedVertexDataStreamView<ezVec4> streamColor(*dataStreams[Color]);
+        if (i == 0 && !bUseColor0)
+          continue;
+        if (i == 1 && !bUseColor1)
+          continue;
 
-        for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
+        const ezUInt32 uiStreamIndex = (i == 0) ? uiStreamIdx[Streams::Color0] : uiStreamIdx[Streams::Color1];
+
+        const ezUInt32 uiDataIndex = Streams::Color0 + i;
+        if (dataStreams[uiDataIndex])
         {
-          ezModelImporter::Mesh::DataIndexBundle<Streams::ENUM_COUNT> dataIndices = it.Key();
-          ezUInt32 uiVertexIndex = it.Value();
+          const ezModelImporter::TypedVertexDataStreamView<ezVec4> streamColor(*dataStreams[uiDataIndex]);
 
-          ezVec4 c = streamColor.GetValue(dataIndices[Color]);
-          ezColorLinearUB color = ezColor(c.x, c.y, c.z, c.w);
-          meshDescriptor.MeshBufferDesc().SetVertexData(uiStreamIdx[Streams::Color], uiVertexIndex, color);
+          for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
+          {
+            ezModelImporter::Mesh::DataIndexBundle<Streams::ENUM_COUNT> dataIndices = it.Key();
+            ezUInt32 uiVertexIndex = it.Value();
+
+            ezVec4 c = streamColor.GetValue(dataIndices[uiDataIndex]);
+            ezColorLinearUB color = ezColor(c.x, c.y, c.z, c.w);
+            meshDescriptor.MeshBufferDesc().SetVertexData(uiStreamIndex, uiVertexIndex, color);
+          }
         }
-      }
-      else
-      {
-        ezColorLinearUB color(255, 255, 255, 255);
-
-        for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
+        else
         {
-          ezUInt32 uiVertexIndex = it.Value();
-          meshDescriptor.MeshBufferDesc().SetVertexData(uiStreamIdx[Streams::Color], uiVertexIndex, color);
+          ezColorLinearUB color(255, 255, 255, 255);
+
+          for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
+          {
+            ezUInt32 uiVertexIndex = it.Value();
+            meshDescriptor.MeshBufferDesc().SetVertexData(uiStreamIndex, uiVertexIndex, color);
+          }
         }
       }
     }

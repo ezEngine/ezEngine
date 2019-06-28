@@ -19,7 +19,7 @@ DepthTest = true
 
 [VERTEXSHADER]
 
-#define USE_COLOR
+#define USE_COLOR0
 #define USE_TEXCOORD0
 
 #include <Shaders/Common/GlobalConstants.h>
@@ -36,7 +36,7 @@ VS_OUT main(VS_IN Input)
     RetVal.Position = mul(GetWorldToScreenMatrix(), float4(Input.Position, 1.0f));
   #endif
 
-  RetVal.Color = Input.Color;
+  RetVal.Color0 = Input.Color0;
   RetVal.InstanceID = 0;
   RetVal.TexCoord0 = Input.TexCoord0;
 
@@ -45,7 +45,7 @@ VS_OUT main(VS_IN Input)
 
 [PIXELSHADER]
 
-#define USE_COLOR
+#define USE_COLOR0
 #define USE_TEXCOORD0
 
 #include <Shaders/Materials/MaterialInterpolator.h>
@@ -55,5 +55,5 @@ SamplerState BaseTexture_AutoSampler;
 
 float4 main(PS_IN Input) : SV_Target
 {
-  return BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoord0.xy) * Input.Color;
+  return BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoord0.xy) * Input.Color0;
 }

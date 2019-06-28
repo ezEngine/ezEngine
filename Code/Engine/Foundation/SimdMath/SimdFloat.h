@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Math/Angle.h>
-#include <Foundation/SimdMath/SimdMath.h>
+#include <Foundation/SimdMath/SimdTypes.h>
 
 class EZ_FOUNDATION_DLL ezSimdFloat
 {

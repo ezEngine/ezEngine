@@ -5,3 +5,4 @@ ProcGen;Procedural Generation
 ezProcPlacementComponent;Procedural Placement
 ezProcGenBoxExtents;Box Extents
 BoxExtents;Extents
+ezProcVertexColorComponent;Procedural Vertex Color

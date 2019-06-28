@@ -1118,10 +1118,7 @@ void ezRenderContext::ApplyBufferBindings(ezGALShaderStage::Enum stage, const ez
     const ezUInt32 uiResourceHash = binding.m_sName.GetHash();
 
     ezGALResourceViewHandle hResourceView;
-    if (!m_BoundBuffer.TryGetValue(uiResourceHash, hResourceView))
-    {
-      ezLog::Error("No buffer is bound for {0} slot '{1}'", ezGALShaderStage::Names[stage], binding.m_sName);
-    }
+    m_BoundBuffer.TryGetValue(uiResourceHash, hResourceView);
 
     m_pGALContext->SetResourceView(stage, binding.m_iSlot, hResourceView);
   }

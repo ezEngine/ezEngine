@@ -140,18 +140,18 @@ Node %VertexColor
   unsigned_int8 %Color { 38, 105, 0 }
   
   string %CodeVertexShader { "
-#define USE_COLOR
+#define USE_COLOR0
 " }
   
   string %CodePixelDefines { "
-#define USE_COLOR
+#define USE_COLOR0
 " }
 
   OutputPin %Color
   {
     string %Type { "float4" }
     unsigned_int8 %Color { 255, 128, 128 }
-    string %Inline { "G.Input.Color" }
+    string %Inline { "G.Input.Color0" }
     string %Tooltip { "The vertex color" }
   }
 }

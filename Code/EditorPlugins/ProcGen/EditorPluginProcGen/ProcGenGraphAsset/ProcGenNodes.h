@@ -13,18 +13,29 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezProcGenPlacementOutput : public ezProcGenNodeBase
+class ezProcGenOutput : public ezProcGenNodeBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenPlacementOutput, ezProcGenNodeBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenOutput, ezProcGenNodeBase);
+
+public:
+  bool m_bActive = true;
+
+  ezString m_sName;
+
+  ezUInt32 m_uiByteCodeIndex = ezInvalidIndex;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezProcGenPlacementOutput : public ezProcGenOutput
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenPlacementOutput, ezProcGenOutput);
 
 public:
   virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast) override;
 
   void Save(ezStreamWriter& stream);
 
-  bool m_bActive = true;
-
-  ezString m_sName;
   ezHybridArray<ezString, 4> m_ObjectsToPlace;
 
   float m_fFootprint = 1.0f;
@@ -45,12 +56,27 @@ public:
 
   ezString m_sColorGradient;
 
-  ezUInt32 m_uiByteCodeIndex = ezInvalidIndex;
-
   ezInputNodePin m_DensityPin;
   ezInputNodePin m_ScalePin;
   ezInputNodePin m_ColorIndexPin;
   ezInputNodePin m_ObjectIndexPin;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezProcGenVertexColorOutput : public ezProcGenOutput
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenVertexColorOutput, ezProcGenOutput);
+
+public:
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast) override;
+
+  void Save(ezStreamWriter& stream);
+
+  ezInputNodePin m_RPin;
+  ezInputNodePin m_GPin;
+  ezInputNodePin m_BPin;
+  ezInputNodePin m_APin;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -100,7 +126,25 @@ public:
 
   float m_fMinHeight = 0.0f;
   float m_fMaxHeight = 1000.0f;
-  float m_fFadeFraction = 0.2f;
+  float m_fLowerFade = 0.2f;
+  float m_fUpperFade = 0.2f;
+
+  ezOutputNodePin m_OutputValuePin;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezProcGenSlope : public ezProcGenNodeBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenSlope, ezProcGenNodeBase);
+
+public:
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast) override;
+
+  ezAngle m_MinSlope = ezAngle::Degree(0.0f);
+  ezAngle m_MaxSlope = ezAngle::Degree(30.0f);
+  float m_fLowerFade = 0.0f;
+  float m_fUpperFade = 0.2f;
 
   ezOutputNodePin m_OutputValuePin;
 };

@@ -15,7 +15,7 @@ DepthTestFunc = CompareFunc_Less
 
 [VERTEXSHADER]
 
-#define USE_COLOR
+#define USE_COLOR0
 
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Editor/GizmoConstants.h>
@@ -27,14 +27,14 @@ VS_OUT main(VS_IN Input)
 
 	VS_OUT RetVal;
 	RetVal.Position = mul(GetWorldToScreenMatrix(), worldSpacePos);
-	RetVal.Color = GizmoColor;
+	RetVal.Color0 = GizmoColor;
 
 	return RetVal;
 }
 
 [PIXELSHADER]
 
-#define USE_COLOR
+#define USE_COLOR0
 
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
@@ -45,5 +45,5 @@ float4 main(PS_IN Input) : SV_Target
 	discard;
 #endif
 
-  return Input.Color;
+  return Input.Color0;
 }

@@ -36,7 +36,8 @@ protected:
   virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const override;
   virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable) override;
 
-  void GetAllOutputNodes(ezDynamicArray<const ezDocumentObject*>& allNodes) const;
+  void GetAllOutputNodes(
+    ezDynamicArray<const ezDocumentObject*>& placementNodes, ezDynamicArray<const ezDocumentObject*>& vertexColorNodes) const;
 
 private:
   friend class ezProcGenAction;

@@ -624,6 +624,13 @@ namespace ezConversionUtils
     return out_Result;
   }
 
+  const ezStringBuilder& ToString(const ezAngle& value, ezStringBuilder& out_Result)
+  {
+    out_Result.Format("{0}", value);
+
+    return out_Result;
+  }
+
 
   const ezStringBuilder& ToString(const ezDynamicArray<ezVariant>& value, ezStringBuilder& out_Result)
   {

@@ -286,7 +286,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::FlipSign(const ezSimdVec4b& cmp) const
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Select(const ezSimdVec4f& ifFalse, const ezSimdVec4f& ifTrue, const ezSimdVec4b& cmp)
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Select(const ezSimdVec4b& cmp, const ezSimdVec4f& ifTrue, const ezSimdVec4f& ifFalse)
 {
   ezSimdVec4f result;
   result.m_v.x = cmp.m_v.x ? ifTrue.m_v.x : ifFalse.m_v.x;

@@ -504,10 +504,10 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       c = a.FlipSign(cmp);
       EZ_TEST_BOOL(c.x() == 3.0f && c.y() == 5.0f && c.z() == -7.0f && c.w() == -9.0f);
 
-      c = ezSimdVec4f::Select(a, b, cmp);
+      c = ezSimdVec4f::Select(cmp, b, a);
       EZ_TEST_BOOL(c.x() == 8.0f && c.y() == 5.0f && c.z() == -7.0f && c.w() == 2.0f);
 
-      c = ezSimdVec4f::Select(b, a, cmp);
+      c = ezSimdVec4f::Select(cmp, a, b);
       EZ_TEST_BOOL(c.x() == -3.0f && c.y() == 6.0f && c.z() == 4.0f && c.w() == 9.0f);
     }
 
