@@ -408,6 +408,16 @@ EZ_ALWAYS_INLINE void ezGameObject::UpdateGlobalTransform()
   m_pTransformationData->ConditionalUpdateGlobalTransform();
 }
 
+EZ_ALWAYS_INLINE void ezGameObject::EnableStaticTransformChangesNotifications()
+{
+  m_Flags.Add(ezObjectFlags::StaticTransformChangesNotifications);
+}
+
+EZ_ALWAYS_INLINE void ezGameObject::DisableStaticTransformChangesNotifications()
+{
+  m_Flags.Remove(ezObjectFlags::StaticTransformChangesNotifications);
+}
+
 EZ_ALWAYS_INLINE ezBoundingBoxSphere ezGameObject::GetLocalBounds() const
 {
   return ezSimdConversion::ToBBoxSphere(m_pTransformationData->m_localBounds);

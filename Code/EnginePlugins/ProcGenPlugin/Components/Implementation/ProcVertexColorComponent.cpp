@@ -1,5 +1,6 @@
 #include <ProcGenPluginPCH.h>
 
+#include <Core/Messages/TransformChangedMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Profiling/Profiling.h>
@@ -266,6 +267,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVertexColorComponent, 1, ezComponentMode::Static)
       EZ_ARRAY_ACCESSOR_PROPERTY("OutputNames", OutputNames_GetCount, GetOutputName, SetOutputName, OutputNames_Insert, OutputNames_Remove),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezMsgTransformChanged, OnTransformChanged)
+  }
+  EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
       new ezCategoryAttribute("Procedural Generation"),
@@ -284,6 +290,8 @@ void ezProcVertexColorComponent::OnActivated()
 
   auto pManager = static_cast<ezProcVertexColorComponentManager*>(GetOwningManager());
   pManager->EnqueueUpdate(this);
+
+  GetOwner()->EnableStaticTransformChangesNotifications();
 }
 
 void ezProcVertexColorComponent::OnDeactivated()
@@ -292,6 +300,9 @@ void ezProcVertexColorComponent::OnDeactivated()
 
   auto pManager = static_cast<ezProcVertexColorComponentManager*>(GetOwningManager());
   pManager->RemoveComponent(this);
+
+  // Don't disable notifications as other components attached to the owner game object might need them too.
+  // GetOwner()->DisableStaticTransformChangesNotifications();
 }
 
 void ezProcVertexColorComponent::SetResourceFile(const char* szFile)
@@ -364,6 +375,12 @@ void ezProcVertexColorComponent::DeserializeComponent(ezWorldReader& stream)
 
   s >> m_hResource;
   s.ReadArray(m_OutputNames);
+}
+
+void ezProcVertexColorComponent::OnTransformChanged(ezMsgTransformChanged& msg)
+{
+  auto pManager = static_cast<ezProcVertexColorComponentManager*>(GetOwningManager());
+  pManager->EnqueueUpdate(this);
 }
 
 ezMeshRenderData* ezProcVertexColorComponent::CreateRenderData() const

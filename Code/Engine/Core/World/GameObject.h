@@ -10,7 +10,7 @@
 
 // Avoid conflicts with windows.h
 #ifdef SendMessage
-#undef SendMessage
+#  undef SendMessage
 #endif
 
 /// \brief This class represents an object inside the world.
@@ -152,14 +152,14 @@ public:
 
   /// \brief Adds the given objects as child objects.
   void AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children,
-                   ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+    ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Detaches the given child object from this object and makes it a top-level object.
   void DetachChild(const ezGameObjectHandle& child, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Detaches the given child objects from this object and makes them top-level objects.
   void DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children,
-                      ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+    ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Returns the number of children.
   ezUInt32 GetChildCount() const;
@@ -193,7 +193,7 @@ public:
 
   /// \brief Same as SearchForChildByNameSequence but returns ALL matches, in case the given path could mean multiple objects
   void SearchForChildrenByNameSequence(const char* szObjectSequence, const ezRTTI* pExpectedComponent,
-                                       ezHybridArray<ezGameObject*, 8>& out_Objects);
+    ezHybridArray<ezGameObject*, 8>& out_Objects);
 
   ezWorld* GetWorld();
   const ezWorld* GetWorld() const;
@@ -272,6 +272,11 @@ public:
 
   /// \brief Updates the global transform immediately. Usually this done during the world update after the "Post-async" phase.
   void UpdateGlobalTransform();
+
+  /// \brief Enables or disabled notification message when this object is static and its transform changes.
+  /// The notification message is sent to this object and thus also to all its components.
+  void EnableStaticTransformChangesNotifications();
+  void DisableStaticTransformChangesNotifications();
 
 
   ezBoundingBoxSphere GetLocalBounds() const;
@@ -483,4 +488,3 @@ private:
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezGameObject);
 
 #include <Core/World/Implementation/GameObject_inl.h>
-

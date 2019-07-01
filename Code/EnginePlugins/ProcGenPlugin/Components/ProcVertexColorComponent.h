@@ -65,6 +65,8 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
+struct ezMsgTransformChanged;
+
 class EZ_PROCGENPLUGIN_DLL ezProcVertexColorComponent : public ezMeshComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezProcVertexColorComponent, ezMeshComponent, ezProcVertexColorComponentManager);
@@ -87,6 +89,8 @@ public:
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+  void OnTransformChanged(ezMsgTransformChanged& msg);
 
 protected:
   virtual ezMeshRenderData* CreateRenderData() const override;

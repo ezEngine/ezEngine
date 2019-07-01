@@ -12,6 +12,8 @@ VertexColorTask::~VertexColorTask() = default;
 void VertexColorTask::Prepare(const ezMeshBufferResourceDescriptor& mbDesc, const ezTransform& transform,
   ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezUInt32> outputVertexColors)
 {
+  EZ_PROFILE_SCOPE("VertexColorPrepare");
+
   m_InputVertices.Clear();
   m_InputVertices.Reserve(mbDesc.GetVertexCount());
 
