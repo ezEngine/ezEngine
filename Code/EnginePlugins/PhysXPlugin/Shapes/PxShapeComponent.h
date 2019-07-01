@@ -33,9 +33,10 @@ public:
 
   ezUInt8 m_uiCollisionLayer = 0;
   bool m_bReportContact = false;
+  bool m_bSurfaceInteractions = false;
 
 protected:
-  ezUInt32 m_uiShapeId = 0;
+  ezUInt32 m_uiShapeId = ezInvalidIndex;
 
   ezSurfaceResourceHandle m_hSurface;
 

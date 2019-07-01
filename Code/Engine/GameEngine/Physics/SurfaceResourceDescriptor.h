@@ -58,11 +58,14 @@ public:
   void SetBaseSurfaceFile(const char* szFile);
   const char* GetBaseSurfaceFile() const;
 
+  void SetCollisionInteraction(const char* szFile);
+  const char* GetCollisionInteraction() const;
+
   ezSurfaceResourceHandle m_hBaseSurface;
   float m_fPhysicsRestitution;
   float m_fPhysicsFrictionStatic;
   float m_fPhysicsFrictionDynamic;
-  ezString m_sOnCollideInteraction; // TODO: HashedString
+  ezHashedString m_sOnCollideInteraction;
 
   ezHybridArray<ezSurfaceInteraction, 16> m_Interactions;
 };

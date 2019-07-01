@@ -126,17 +126,40 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezSurfaceResource, ezSurfaceResourceDescriptor)
   return res;
 }
 
-const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(ezUInt32 uiHash, float fImpulse)
+const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(const ezSurfaceResource* pCurSurf, ezUInt32 uiHash, float fImpulseSqr)
 {
-  for (const auto& interaction : m_Interactions)
+  while (true)
   {
-    if (interaction.m_uiInteractionTypeHash > uiHash)
-      return nullptr;
+    bool bFoundAny = false;
 
-    if (interaction.m_uiInteractionTypeHash == uiHash)
+    // try to find a matching interaction
+    for (const auto& interaction : pCurSurf->m_Interactions)
     {
-      if (fImpulse >= interaction.m_pInteraction->m_fImpulseThreshold)
-        return interaction.m_pInteraction;
+      if (interaction.m_uiInteractionTypeHash > uiHash)
+        break;
+
+      if (interaction.m_uiInteractionTypeHash == uiHash)
+      {
+        bFoundAny = true;
+
+        // only use it if the threshold is large enough
+        if (fImpulseSqr >= ezMath::Square(interaction.m_pInteraction->m_fImpulseThreshold))
+          return interaction.m_pInteraction;
+      }
+    }
+
+    // if we did find something, we just never exceeded the threshold, then do not search in the base surface
+    if (bFoundAny)
+      break;
+
+    if (pCurSurf->m_Descriptor.m_hBaseSurface.IsValid())
+    {
+      ezResourceLock<ezSurfaceResource> pBase(pCurSurf->m_Descriptor.m_hBaseSurface, ezResourceAcquireMode::BlockTillLoaded);
+      pCurSurf = pBase.GetPointer();
+    }
+    else
+    {
+      break;
     }
   }
 
@@ -145,22 +168,12 @@ const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(ezUInt32 uiHash, 
 
 bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle hObject, const ezVec3& vPosition,
   const ezVec3& vSurfaceNormal, const ezVec3& vIncomingDirection,
-  const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID, float fImpulse /*= 0.0f*/)
+  const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID, float fImpulseSqr /*= 0.0f*/)
 {
-  const ezSurfaceInteraction* pIA = FindInteraction(sInteraction.GetHash(), fImpulse);
+  const ezSurfaceInteraction* pIA = FindInteraction(this, sInteraction.GetHash(), fImpulseSqr);
 
   if (pIA == nullptr)
-  {
-    // if this type of interaction is not defined on this surface, try to find it on the base surface
-
-    if (m_Descriptor.m_hBaseSurface.IsValid())
-    {
-      ezResourceLock<ezSurfaceResource> pBase(m_Descriptor.m_hBaseSurface, ezResourceAcquireMode::BlockTillLoaded);
-      return pBase->InteractWithSurface(pWorld, hObject, vPosition, vSurfaceNormal, vIncomingDirection, sInteraction, pOverrideTeamID, fImpulse);
-    }
-
     return false;
-  }
 
   // defined, but set to be empty
   if (!pIA->m_hPrefab.IsValid())

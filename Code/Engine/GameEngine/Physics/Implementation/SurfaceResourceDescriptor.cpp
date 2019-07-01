@@ -33,7 +33,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResourceDescriptor, 2, ezRTTIDefaultAll
     EZ_MEMBER_PROPERTY("Restitution", m_fPhysicsRestitution)->AddAttributes(new ezDefaultValueAttribute(0.25f)),
     EZ_MEMBER_PROPERTY("StaticFriction", m_fPhysicsFrictionStatic)->AddAttributes(new ezDefaultValueAttribute(0.6f)),
     EZ_MEMBER_PROPERTY("DynamicFriction", m_fPhysicsFrictionDynamic)->AddAttributes(new ezDefaultValueAttribute(0.4f)),
-    EZ_MEMBER_PROPERTY("OnCollideInteraction", m_sOnCollideInteraction),
+    EZ_ACCESSOR_PROPERTY("OnCollideInteraction", GetCollisionInteraction, SetCollisionInteraction),
     EZ_ARRAY_MEMBER_PROPERTY("Interactions", m_Interactions),
   }
   EZ_END_PROPERTIES;
@@ -147,6 +147,16 @@ const char* ezSurfaceResourceDescriptor::GetBaseSurfaceFile() const
     return "";
 
   return m_hBaseSurface.GetResourceID();
+}
+
+void ezSurfaceResourceDescriptor::SetCollisionInteraction(const char* szFile)
+{
+  m_sOnCollideInteraction.Assign(szFile);
+}
+
+const char* ezSurfaceResourceDescriptor::GetCollisionInteraction() const
+{
+  return m_sOnCollideInteraction.GetData();
 }
 
 //////////////////////////////////////////////////////////////////////////

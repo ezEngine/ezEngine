@@ -5,4 +5,5 @@ WindowDesc
 	Vec2u %Resolution{uint32{1024,768}}
 	bool %ClipMouseCursor{true}
 	bool %ShowMouseCursor{false}
+	bool %SetForegroundOnInit{true}
 }

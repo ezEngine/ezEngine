@@ -225,7 +225,7 @@ public:
     ezVec3 m_vNormal;
     ezVec3 m_vImpact;
     ezSurfaceResource* m_pSurface;
-    ezString m_sInteraction;
+    ezTempHashedString m_sInteraction;
     float m_fImpulseSqr;
   };
 
@@ -236,9 +236,15 @@ public:
     // TODO: send a "joint broken" message
   }
 
-  virtual void onWake(PxActor** actors, PxU32 count) override {}
+  virtual void onWake(PxActor** actors, PxU32 count) override
+  {
+    // TODO: send a "actor awake" message
+  }
 
-  virtual void onSleep(PxActor** actors, PxU32 count) override {}
+  virtual void onSleep(PxActor** actors, PxU32 count) override
+  {
+    // TODO: send a "actor asleep" message
+  }
 
   virtual void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) override
   {
@@ -247,6 +253,77 @@ public:
       return;
     }
 
+    bool bSendContactReport = false;
+
+    for (ezUInt32 uiPairIndex = 0; uiPairIndex < nbPairs; ++uiPairIndex)
+    {
+      const PxContactPair& pair = pairs[uiPairIndex];
+
+      PxContactPairPoint contactPointBuffer[16];
+      const ezUInt32 uiNumContactPoints = pair.extractContacts(contactPointBuffer, 16);
+
+      const ezPxShapeComponent* pShape0 = ezPxUserData::GetShapeComponent(pair.shapes[0]->userData);
+      const ezPxShapeComponent* pShape1 = ezPxUserData::GetShapeComponent(pair.shapes[1]->userData);
+
+      if (pShape0)
+        bSendContactReport = bSendContactReport || pShape0->m_bReportContact;
+      if (pShape1)
+        bSendContactReport = bSendContactReport || pShape1->m_bReportContact;
+
+      if (pShape0 && pShape1 && (pShape0->m_bSurfaceInteractions || pShape1->m_bSurfaceInteractions))
+      {
+        for (ezUInt32 uiContactPointIndex = 0; uiContactPointIndex < uiNumContactPoints; ++uiContactPointIndex)
+        {
+          const PxContactPairPoint& point = contactPointBuffer[uiContactPointIndex];
+
+          if (PxMaterial* pMaterial0 = pair.shapes[0]->getMaterialFromInternalFaceIndex(point.internalFaceIndex0))
+          {
+            if (PxMaterial* pMaterial1 = pair.shapes[1]->getMaterialFromInternalFaceIndex(point.internalFaceIndex1))
+            {
+              if (ezSurfaceResource* pSurface0 = ezPxUserData::GetSurfaceResource(pMaterial0->userData))
+              {
+                if (ezSurfaceResource* pSurface1 = ezPxUserData::GetSurfaceResource(pMaterial1->userData))
+                {
+                  const float fImpactSqr = point.impulse.magnitudeSquared();
+
+                  // if one actor is static or kinematic, prefer to spawn the interaction from its surface definition
+                  if (pairHeader.actors[0]->getType() == PxActorType::eRIGID_STATIC ||
+                      (pairHeader.actors[0]->getType() == PxActorType::eRIGID_DYNAMIC && static_cast<PxRigidDynamic*>(pairHeader.actors[0])->getRigidBodyFlags().isSet(PxRigidBodyFlag::eKINEMATIC)))
+                  {
+                    InteractionContact& ic = m_InteractionContacts.ExpandAndGetRef();
+                    ic.m_pSurface = pSurface0;
+                    ic.m_vPosition = ezPxConversionUtils::ToVec3(point.position);
+                    ic.m_vNormal = ezPxConversionUtils::ToVec3(point.normal);
+                    ic.m_vImpact = ezPxConversionUtils::ToVec3(point.impulse);
+                    ic.m_sInteraction = pSurface1->GetDescriptor().m_sOnCollideInteraction;
+                    ic.m_fImpulseSqr = fImpactSqr;
+                  }
+                  else
+                  {
+                    InteractionContact& ic = m_InteractionContacts.ExpandAndGetRef();
+                    ic.m_pSurface = pSurface1;
+                    ic.m_vPosition = ezPxConversionUtils::ToVec3(point.position);
+                    ic.m_vNormal = ezPxConversionUtils::ToVec3(point.normal);
+                    ic.m_vImpact = ezPxConversionUtils::ToVec3(point.impulse);
+                    ic.m_sInteraction = pSurface0->GetDescriptor().m_sOnCollideInteraction;
+                    ic.m_fImpulseSqr = fImpactSqr;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if (bSendContactReport)
+    {
+      SendContactReport(pairHeader, pairs, nbPairs);
+    }
+  }
+
+  void SendContactReport(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs)
+  {
     ezMsgCollision msg;
     msg.m_vPosition.SetZero();
     msg.m_vNormal.SetZero();
@@ -262,11 +339,6 @@ public:
       PxContactPairPoint contactPointBuffer[16];
       ezUInt32 uiNumContactPoints = pair.extractContacts(contactPointBuffer, 16);
 
-      const ezPxShapeComponent* pShape0 = ezPxUserData::GetShapeComponent(pair.shapes[0]->userData);
-      const ezPxShapeComponent* pShape1 = ezPxUserData::GetShapeComponent(pair.shapes[1]->userData);
-
-      // TODO: only do this, when "report contacts" is enabled on the shape
-      // TODO: also only send the contact report to the actor that wants the report (?)
       for (ezUInt32 uiContactPointIndex = 0; uiContactPointIndex < uiNumContactPoints; ++uiContactPointIndex)
       {
         const PxContactPairPoint& point = contactPointBuffer[uiContactPointIndex];
@@ -276,52 +348,6 @@ public:
         msg.m_vImpulse += ezPxConversionUtils::ToVec3(point.impulse);
 
         fNumContactPoints += 1.0f;
-      }
-
-      // TODO: enable this code path even without "Report Contacts" enabled (if contact interaction is set)
-      for (ezUInt32 uiContactPointIndex = 0; uiContactPointIndex < uiNumContactPoints; ++uiContactPointIndex)
-      {
-        const PxContactPairPoint& point = contactPointBuffer[uiContactPointIndex];
-
-        //if (pair.flags.isSet(PxContactPairFlag::eACTOR_PAIR_HAS_FIRST_TOUCH))
-
-
-        if (pShape0 && pShape1)
-        {
-          if (PxMaterial* pMaterial0 = pair.shapes[0]->getMaterialFromInternalFaceIndex(point.internalFaceIndex0))
-          {
-            if (PxMaterial* pMaterial1 = pair.shapes[1]->getMaterialFromInternalFaceIndex(point.internalFaceIndex1))
-            {
-              if (ezSurfaceResource* pSurface0 = ezPxUserData::GetSurfaceResource(pMaterial0->userData))
-              {
-                if (ezSurfaceResource* pSurface1 = ezPxUserData::GetSurfaceResource(pMaterial1->userData))
-                {
-                  const float fImpactSqr = point.impulse.magnitudeSquared();
-
-                  {
-                    InteractionContact& ic = m_InteractionContacts.ExpandAndGetRef();
-                    ic.m_pSurface = pSurface1;
-                    ic.m_vPosition = ezPxConversionUtils::ToVec3(point.position);
-                    ic.m_vNormal = ezPxConversionUtils::ToVec3(point.normal);
-                    ic.m_vImpact = ezPxConversionUtils::ToVec3(point.impulse);
-                    ic.m_sInteraction = pSurface0->GetDescriptor().m_sOnCollideInteraction;
-                    ic.m_fImpulseSqr = fImpactSqr;
-                  }
-
-                  {
-                    InteractionContact& ic = m_InteractionContacts.ExpandAndGetRef();
-                    ic.m_pSurface = pSurface0;
-                    ic.m_vPosition = ezPxConversionUtils::ToVec3(point.position);
-                    ic.m_vNormal = ezPxConversionUtils::ToVec3(point.normal);
-                    ic.m_vImpact = ezPxConversionUtils::ToVec3(point.impulse);
-                    ic.m_sInteraction = pSurface1->GetDescriptor().m_sOnCollideInteraction;
-                    ic.m_fImpulseSqr = fImpactSqr;
-                  }
-                }
-              }
-            }
-          }
-        }
       }
     }
 
@@ -973,7 +999,7 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
   {
     for (const auto& ic : m_pSimulationEventCallback->m_InteractionContacts)
     {
-      ic.m_pSurface->InteractWithSurface(m_pWorld, ezGameObjectHandle(), ic.m_vPosition, ic.m_vNormal, ic.m_vImpact, ezTempHashedString(ic.m_sInteraction.GetData()), nullptr, ezMath::Sqrt(ic.m_fImpulseSqr));
+      ic.m_pSurface->InteractWithSurface(m_pWorld, ezGameObjectHandle(), ic.m_vPosition, ic.m_vNormal, ic.m_vImpact, ic.m_sInteraction, nullptr, ic.m_fImpulseSqr);
     }
 
     m_pSimulationEventCallback->m_InteractionContacts.Clear();
