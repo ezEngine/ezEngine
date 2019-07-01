@@ -223,7 +223,6 @@ public:
   {
     ezVec3 m_vPosition;
     ezVec3 m_vNormal;
-    ezVec3 m_vImpact;
     ezSurfaceResource* m_pSurface;
     ezTempHashedString m_sInteraction;
     float m_fImpulseSqr;
@@ -262,15 +261,14 @@ public:
       PxContactPairPoint contactPointBuffer[16];
       const ezUInt32 uiNumContactPoints = pair.extractContacts(contactPointBuffer, 16);
 
-      const ezPxShapeComponent* pShape0 = ezPxUserData::GetShapeComponent(pair.shapes[0]->userData);
-      const ezPxShapeComponent* pShape1 = ezPxUserData::GetShapeComponent(pair.shapes[1]->userData);
+      const ezUInt32 uiContactFlags = pair.shapes[0]->getSimulationFilterData().word3 | pair.shapes[1]->getSimulationFilterData().word3;
 
-      if (pShape0)
-        bSendContactReport = bSendContactReport || pShape0->m_bReportContact;
-      if (pShape1)
-        bSendContactReport = bSendContactReport || pShape1->m_bReportContact;
+      // Bit 0: enable contact reports
+      // Bit 1: enable surface interactions
 
-      if (pShape0 && pShape1 && (pShape0->m_bSurfaceInteractions || pShape1->m_bSurfaceInteractions))
+      bSendContactReport = bSendContactReport || ((uiContactFlags & EZ_BIT(0)) != 0);
+
+      if ((uiContactFlags & EZ_BIT(1)) != 0)
       {
         for (ezUInt32 uiContactPointIndex = 0; uiContactPointIndex < uiNumContactPoints; ++uiContactPointIndex)
         {
@@ -294,7 +292,6 @@ public:
                     ic.m_pSurface = pSurface0;
                     ic.m_vPosition = ezPxConversionUtils::ToVec3(point.position);
                     ic.m_vNormal = ezPxConversionUtils::ToVec3(point.normal);
-                    ic.m_vImpact = ezPxConversionUtils::ToVec3(point.impulse);
                     ic.m_sInteraction = pSurface1->GetDescriptor().m_sOnCollideInteraction;
                     ic.m_fImpulseSqr = fImpactSqr;
                   }
@@ -304,7 +301,6 @@ public:
                     ic.m_pSurface = pSurface1;
                     ic.m_vPosition = ezPxConversionUtils::ToVec3(point.position);
                     ic.m_vNormal = ezPxConversionUtils::ToVec3(point.normal);
-                    ic.m_vImpact = ezPxConversionUtils::ToVec3(point.impulse);
                     ic.m_sInteraction = pSurface0->GetDescriptor().m_sOnCollideInteraction;
                     ic.m_fImpulseSqr = fImpactSqr;
                   }
@@ -556,7 +552,7 @@ bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float
     return false;
 
   PxQueryFilterData filterData;
-  filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId);
+  filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId, false, false);
   filterData.flags = PxQueryFlag::ePREFILTER;
 
   if (shapeTypes.IsSet(ezPhysicsShapeType::Static))
@@ -592,7 +588,7 @@ void* ezPhysXWorldModule::CreateRagdoll(const ezSkeletonResourceDescriptor& skel
   const ezTransform rootTransform(rootTransform0.m_vPosition, rootTransform0.m_qRotation);
 
   const PxMaterial* pPxMaterial = ezPhysX::GetSingleton()->GetDefaultMaterial();
-  const PxFilterData filter = ezPhysX::CreateFilterData(/*m_uiCollisionLayer*/ 0, /*m_uiShapeId*/ 0, /*m_bReportContact*/ false);
+  const PxFilterData filter = ezPhysX::CreateFilterData(/*m_uiCollisionLayer*/ 0, /*m_uiShapeId*/ 0, /*m_bReportContact*/ false, false);
 
   physx::PxArticulation* pArt = m_pPxScene->getPhysics().createArticulation();
 
@@ -816,7 +812,7 @@ bool ezPhysXWorldModule::SweepTest(const physx::PxGeometry& geometry, const phys
   ezUInt32 uiIgnoreShapeId) const
 {
   PxQueryFilterData filterData;
-  filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId);
+  filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId, false, false);
   filterData.flags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
 
   ezPxSweepCallback closestHit;
@@ -871,7 +867,7 @@ bool ezPhysXWorldModule::OverlapTest(const physx::PxGeometry& geometry, const ph
   ezUInt32 uiIgnoreShapeId) const
 {
   PxQueryFilterData filterData;
-  filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId);
+  filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId, false, false);
   filterData.flags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER | PxQueryFlag::eANY_HIT;
 
   ezPxOverlapCallback closestHit;
@@ -889,7 +885,7 @@ void ezPhysXWorldModule::QueryDynamicShapesInSphere(float fSphereRadius, const e
   ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/) const
 {
   PxQueryFilterData filterData;
-  filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId);
+  filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId, false, false);
 
   // PxQueryFlag::eNO_BLOCK : All hits are reported as touching. Overrides eBLOCK returned from user filters with eTOUCH.
   // PxQueryFlag::eDYNAMIC : we ignore all static geometry
@@ -997,9 +993,11 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
   }
 
   {
+    // TODO: sort by impulse, cluster by position, only execute the first N contacts, prevent duplicate spawns at same location within short time
+
     for (const auto& ic : m_pSimulationEventCallback->m_InteractionContacts)
     {
-      ic.m_pSurface->InteractWithSurface(m_pWorld, ezGameObjectHandle(), ic.m_vPosition, ic.m_vNormal, ic.m_vImpact, ic.m_sInteraction, nullptr, ic.m_fImpulseSqr);
+      ic.m_pSurface->InteractWithSurface(m_pWorld, ezGameObjectHandle(), ic.m_vPosition, ic.m_vNormal, -ic.m_vNormal, ic.m_sInteraction, nullptr, ic.m_fImpulseSqr);
     }
 
     m_pSimulationEventCallback->m_InteractionContacts.Clear();

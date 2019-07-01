@@ -70,7 +70,7 @@ public:
 
   // helper functions
 
-  static PxFilterData CreateFilterData(ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId = ezInvalidIndex, bool bReportContact = false);
+  static PxFilterData CreateFilterData(ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId /*= ezInvalidIndex*/, bool bReportContact, bool bSurfaceInteractions);
 
 private:
   void SurfaceResourceEventHandler(const ezSurfaceResource::Event& e);

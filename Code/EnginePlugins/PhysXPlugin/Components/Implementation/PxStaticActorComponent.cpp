@@ -176,7 +176,7 @@ void ezPxStaticActorComponent::OnSimulationStarted()
 
   if (pShape != nullptr)
   {
-    PxFilterData filterData = ezPhysX::CreateFilterData(m_uiCollisionLayer, m_uiShapeId);
+    PxFilterData filterData = ezPhysX::CreateFilterData(m_uiCollisionLayer, m_uiShapeId, false, false);
 
     pShape->setSimulationFilterData(filterData);
     pShape->setQueryFilterData(filterData);

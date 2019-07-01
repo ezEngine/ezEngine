@@ -163,7 +163,7 @@ PxMaterial* ezPxShapeComponent::GetPxMaterial()
 
 PxFilterData ezPxShapeComponent::CreateFilterData()
 {
-  return ezPhysX::CreateFilterData(m_uiCollisionLayer, m_uiShapeId, m_bReportContact || m_bSurfaceInteractions);
+  return ezPhysX::CreateFilterData(m_uiCollisionLayer, m_uiShapeId, m_bReportContact, m_bSurfaceInteractions);
 }
 
 
