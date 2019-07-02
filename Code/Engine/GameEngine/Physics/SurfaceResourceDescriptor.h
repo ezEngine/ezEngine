@@ -38,6 +38,7 @@ struct EZ_GAMEENGINE_DLL ezSurfaceInteraction
   ezPrefabResourceHandle m_hPrefab;
   ezEnum<ezSurfaceInteractionAlignment> m_Alignment;
   ezAngle m_Deviation;
+  float m_fImpulseThreshold = 0.0f;
 };
 
 
@@ -57,10 +58,14 @@ public:
   void SetBaseSurfaceFile(const char* szFile);
   const char* GetBaseSurfaceFile() const;
 
+  void SetCollisionInteraction(const char* szFile);
+  const char* GetCollisionInteraction() const;
+
   ezSurfaceResourceHandle m_hBaseSurface;
   float m_fPhysicsRestitution;
   float m_fPhysicsFrictionStatic;
   float m_fPhysicsFrictionDynamic;
+  ezHashedString m_sOnCollideInteraction;
 
   ezHybridArray<ezSurfaceInteraction, 16> m_Interactions;
 };

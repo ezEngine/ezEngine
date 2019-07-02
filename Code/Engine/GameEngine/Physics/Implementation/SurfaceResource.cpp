@@ -1,8 +1,8 @@
 #include <GameEnginePCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
 #include <GameEngine/Physics/SurfaceResource.h>
+#include <GameEngine/Prefabs/PrefabResource.h>
 #include <RendererCore/Messages/ApplyOnlyToMessage.h>
 
 // clang-format off
@@ -15,7 +15,7 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezSurfaceResource);
 ezEvent<const ezSurfaceResource::Event&, ezMutex> ezSurfaceResource::s_Events;
 
 ezSurfaceResource::ezSurfaceResource()
-    : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnAnyThread, 1)
 {
   m_pPhysicsMaterial = nullptr;
 }
@@ -86,8 +86,17 @@ ezResourceLoadDesc ezSurfaceResource::UpdateContent(ezStreamReader* Stream)
     for (const auto& i : m_Descriptor.m_Interactions)
     {
       ezTempHashedString s(i.m_sInteractionType.GetData());
-      m_Interactions[s.GetHash()] = &i;
+      auto& item = m_Interactions.ExpandAndGetRef();
+      item.m_uiInteractionTypeHash = s.GetHash();
+      item.m_pInteraction = &i;
     }
+
+    m_Interactions.Sort([](const SurfInt& lhs, const SurfInt& rhs) -> bool {
+      if (lhs.m_uiInteractionTypeHash != rhs.m_uiInteractionTypeHash)
+        return lhs.m_uiInteractionTypeHash < rhs.m_uiInteractionTypeHash;
+
+      return lhs.m_pInteraction->m_fImpulseThreshold > rhs.m_pInteraction->m_fImpulseThreshold;
+    });
   }
 
   res.m_State = ezResourceState::Loaded;
@@ -117,24 +126,54 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezSurfaceResource, ezSurfaceResourceDescriptor)
   return res;
 }
 
-
-bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle hObject, const ezVec3& vPosition,
-                                            const ezVec3& vSurfaceNormal, const ezVec3& vIncomingDirection,
-                                            const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID)
+const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(const ezSurfaceResource* pCurSurf, ezUInt32 uiHash, float fImpulseSqr)
 {
-  const ezSurfaceInteraction* pIA = nullptr;
-  if (!m_Interactions.TryGetValue(sInteraction.GetHash(), pIA))
+  while (true)
   {
-    // if this type of interaction is not defined on this surface, try to find it on the base surface
+    bool bFoundAny = false;
 
-    if (m_Descriptor.m_hBaseSurface.IsValid())
+    // try to find a matching interaction
+    for (const auto& interaction : pCurSurf->m_Interactions)
     {
-      ezResourceLock<ezSurfaceResource> pBase(m_Descriptor.m_hBaseSurface, ezResourceAcquireMode::BlockTillLoaded);
-      return pBase->InteractWithSurface(pWorld, hObject, vPosition, vSurfaceNormal, vIncomingDirection, sInteraction, pOverrideTeamID);
+      if (interaction.m_uiInteractionTypeHash > uiHash)
+        break;
+
+      if (interaction.m_uiInteractionTypeHash == uiHash)
+      {
+        bFoundAny = true;
+
+        // only use it if the threshold is large enough
+        if (fImpulseSqr >= ezMath::Square(interaction.m_pInteraction->m_fImpulseThreshold))
+          return interaction.m_pInteraction;
+      }
     }
 
-    return false;
+    // if we did find something, we just never exceeded the threshold, then do not search in the base surface
+    if (bFoundAny)
+      break;
+
+    if (pCurSurf->m_Descriptor.m_hBaseSurface.IsValid())
+    {
+      ezResourceLock<ezSurfaceResource> pBase(pCurSurf->m_Descriptor.m_hBaseSurface, ezResourceAcquireMode::BlockTillLoaded);
+      pCurSurf = pBase.GetPointer();
+    }
+    else
+    {
+      break;
+    }
   }
+
+  return nullptr;
+}
+
+bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle hObject, const ezVec3& vPosition,
+  const ezVec3& vSurfaceNormal, const ezVec3& vIncomingDirection,
+  const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID, float fImpulseSqr /*= 0.0f*/)
+{
+  const ezSurfaceInteraction* pIA = FindInteraction(this, sInteraction.GetHash(), fImpulseSqr);
+
+  if (pIA == nullptr)
+    return false;
 
   // defined, but set to be empty
   if (!pIA->m_hPrefab.IsValid())
@@ -219,7 +258,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
     }
 
     const ezAngle deviation =
-        ezAngle::Radian((float)pWorld->GetRandomNumberGenerator().DoubleMinMax(-maxDeviation.GetRadian(), maxDeviation.GetRadian()));
+      ezAngle::Radian((float)pWorld->GetRandomNumberGenerator().DoubleMinMax(-maxDeviation.GetRadian(), maxDeviation.GetRadian()));
 
     // tilt around the tangent (we don't want to compute another random rotation here)
     ezMat3 matTilt;
@@ -292,4 +331,3 @@ bool ezSurfaceResource::IsBasedOn(const ezSurfaceResourceHandle hThisOrBaseSurfa
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Surfaces_SurfaceResource);
-

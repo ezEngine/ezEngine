@@ -42,6 +42,33 @@ public:
   virtual PxQueryHitType::Enum postFilter(const PxFilterData& filterData, const PxQueryHit& hit) override;
 };
 
+
+//////////////////////////////////////////////////////////////////////////
+
+struct ezPhysXFilterFlags
+{
+  typedef ezUInt32 StorageType;
+
+  enum Enum
+  {
+    None = 0,
+    ContactReports = EZ_BIT(0),
+    SurfaceInteractions = EZ_BIT(1),
+
+    Default = None
+  };
+
+  struct Bits
+  {
+    StorageType ContactReports : 1;
+    StorageType SurfaceInteractions : 1;
+  };
+};
+
+EZ_DECLARE_FLAGS_OPERATORS(ezPhysXFilterFlags);
+
+//////////////////////////////////////////////////////////////////////////
+
 class EZ_PHYSXPLUGIN_DLL ezPhysX : public ezPhysXInterface
 {
   EZ_DECLARE_SINGLETON_OF_INTERFACE(ezPhysX, ezPhysXInterface);
@@ -70,7 +97,7 @@ public:
 
   // helper functions
 
-  static PxFilterData CreateFilterData(ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId = ezInvalidIndex, bool bReportContact = false);
+  static PxFilterData CreateFilterData(ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId = ezInvalidIndex, ezBitflags<ezPhysXFilterFlags> flags = ezPhysXFilterFlags::None);
 
 private:
   void SurfaceResourceEventHandler(const ezSurfaceResource::Event& e);

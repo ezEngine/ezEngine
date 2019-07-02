@@ -223,8 +223,9 @@ public:
   {
     ezVec3 m_vPosition;
     ezVec3 m_vNormal;
-    ezVec3 m_vImpact;
     ezSurfaceResource* m_pSurface;
+    ezTempHashedString m_sInteraction;
+    float m_fImpulseSqr;
   };
 
   ezDynamicArray<InteractionContact> m_InteractionContacts;
@@ -234,9 +235,15 @@ public:
     // TODO: send a "joint broken" message
   }
 
-  virtual void onWake(PxActor** actors, PxU32 count) override {}
+  virtual void onWake(PxActor** actors, PxU32 count) override
+  {
+    // TODO: send a "actor awake" message
+  }
 
-  virtual void onSleep(PxActor** actors, PxU32 count) override {}
+  virtual void onSleep(PxActor** actors, PxU32 count) override
+  {
+    // TODO: send a "actor asleep" message
+  }
 
   virtual void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) override
   {
@@ -245,6 +252,74 @@ public:
       return;
     }
 
+    bool bSendContactReport = false;
+
+    for (ezUInt32 uiPairIndex = 0; uiPairIndex < nbPairs; ++uiPairIndex)
+    {
+      const PxContactPair& pair = pairs[uiPairIndex];
+
+      PxContactPairPoint contactPointBuffer[16];
+      const ezUInt32 uiNumContactPoints = pair.extractContacts(contactPointBuffer, 16);
+
+      const ezUInt32 uiContactFlags = pair.shapes[0]->getSimulationFilterData().word3 | pair.shapes[1]->getSimulationFilterData().word3;
+
+      // Bit 0: enable contact reports
+      // Bit 1: enable surface interactions
+
+      bSendContactReport = bSendContactReport || ((uiContactFlags & ezPhysXFilterFlags::ContactReports) != 0);
+
+      if ((uiContactFlags & ezPhysXFilterFlags::SurfaceInteractions) != 0)
+      {
+        for (ezUInt32 uiContactPointIndex = 0; uiContactPointIndex < uiNumContactPoints; ++uiContactPointIndex)
+        {
+          const PxContactPairPoint& point = contactPointBuffer[uiContactPointIndex];
+
+          if (PxMaterial* pMaterial0 = pair.shapes[0]->getMaterialFromInternalFaceIndex(point.internalFaceIndex0))
+          {
+            if (PxMaterial* pMaterial1 = pair.shapes[1]->getMaterialFromInternalFaceIndex(point.internalFaceIndex1))
+            {
+              if (ezSurfaceResource* pSurface0 = ezPxUserData::GetSurfaceResource(pMaterial0->userData))
+              {
+                if (ezSurfaceResource* pSurface1 = ezPxUserData::GetSurfaceResource(pMaterial1->userData))
+                {
+                  const float fImpactSqr = point.impulse.magnitudeSquared();
+
+                  // if one actor is static or kinematic, prefer to spawn the interaction from its surface definition
+                  if (pairHeader.actors[0]->getType() == PxActorType::eRIGID_STATIC ||
+                      (pairHeader.actors[0]->getType() == PxActorType::eRIGID_DYNAMIC && static_cast<PxRigidDynamic*>(pairHeader.actors[0])->getRigidBodyFlags().isSet(PxRigidBodyFlag::eKINEMATIC)))
+                  {
+                    InteractionContact& ic = m_InteractionContacts.ExpandAndGetRef();
+                    ic.m_pSurface = pSurface0;
+                    ic.m_vPosition = ezPxConversionUtils::ToVec3(point.position);
+                    ic.m_vNormal = ezPxConversionUtils::ToVec3(point.normal);
+                    ic.m_sInteraction = pSurface1->GetDescriptor().m_sOnCollideInteraction;
+                    ic.m_fImpulseSqr = fImpactSqr;
+                  }
+                  else
+                  {
+                    InteractionContact& ic = m_InteractionContacts.ExpandAndGetRef();
+                    ic.m_pSurface = pSurface1;
+                    ic.m_vPosition = ezPxConversionUtils::ToVec3(point.position);
+                    ic.m_vNormal = ezPxConversionUtils::ToVec3(point.normal);
+                    ic.m_sInteraction = pSurface0->GetDescriptor().m_sOnCollideInteraction;
+                    ic.m_fImpulseSqr = fImpactSqr;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if (bSendContactReport)
+    {
+      SendContactReport(pairHeader, pairs, nbPairs);
+    }
+  }
+
+  void SendContactReport(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs)
+  {
     ezMsgCollision msg;
     msg.m_vPosition.SetZero();
     msg.m_vNormal.SetZero();
@@ -260,11 +335,6 @@ public:
       PxContactPairPoint contactPointBuffer[16];
       ezUInt32 uiNumContactPoints = pair.extractContacts(contactPointBuffer, 16);
 
-      const ezPxShapeComponent* pShape0 = ezPxUserData::GetShapeComponent(pair.shapes[0]->userData);
-      const ezPxShapeComponent* pShape1 = ezPxUserData::GetShapeComponent(pair.shapes[1]->userData);
-
-      // TODO: only do this, when "report contacts" is enabled on the shape
-      // TODO: also only send the contact report to the actor that wants the report (?)
       for (ezUInt32 uiContactPointIndex = 0; uiContactPointIndex < uiNumContactPoints; ++uiContactPointIndex)
       {
         const PxContactPairPoint& point = contactPointBuffer[uiContactPointIndex];
@@ -274,50 +344,6 @@ public:
         msg.m_vImpulse += ezPxConversionUtils::ToVec3(point.impulse);
 
         fNumContactPoints += 1.0f;
-      }
-
-      // TODO: enable this code path even without "Report Contacts" enabled (if contact interaction is set)
-      for (ezUInt32 uiContactPointIndex = 0; uiContactPointIndex < uiNumContactPoints; ++uiContactPointIndex)
-      {
-        const PxContactPairPoint& point = contactPointBuffer[uiContactPointIndex];
-
-        //if (pair.flags.isSet(PxContactPairFlag::eACTOR_PAIR_HAS_FIRST_TOUCH))
-
-        const float fImpactSqr = point.impulse.magnitudeSquared();
-
-        if (pShape0 && !pShape0->m_sContactSurfaceInteraction.IsEmpty() && fImpactSqr >= ezMath::Square(pShape0->m_fContactImpactThreshold))
-        {
-          if (PxMaterial* pMaterial = pair.shapes[0]->getMaterialFromInternalFaceIndex(point.internalFaceIndex0))
-          {
-            if (ezSurfaceResource* pSurface = ezPxUserData::GetSurfaceResource(pMaterial->userData))
-            {
-              InteractionContact& ic = m_InteractionContacts.ExpandAndGetRef();
-              ic.m_pSurface = pSurface;
-              ic.m_vPosition = ezPxConversionUtils::ToVec3(point.position);
-              ic.m_vNormal = ezPxConversionUtils::ToVec3(point.normal);
-              ic.m_vImpact = ezPxConversionUtils::ToVec3(point.impulse);
-
-              continue;
-            }
-          }
-        }
-
-        if (pShape1 && !pShape1->m_sContactSurfaceInteraction.IsEmpty() && fImpactSqr >= ezMath::Square(pShape1->m_fContactImpactThreshold))
-        {
-          if (PxMaterial* pMaterial = pair.shapes[1]->getMaterialFromInternalFaceIndex(point.internalFaceIndex1))
-          {
-            if (ezSurfaceResource* pSurface = ezPxUserData::GetSurfaceResource(pMaterial->userData))
-            {
-              InteractionContact& ic = m_InteractionContacts.ExpandAndGetRef();
-              ic.m_pSurface = pSurface;
-              ic.m_vPosition = ezPxConversionUtils::ToVec3(point.position);
-              ic.m_vNormal = ezPxConversionUtils::ToVec3(point.normal);
-              ic.m_vImpact = ezPxConversionUtils::ToVec3(point.impulse);
-
-              continue;
-            }
-          }
-        }
       }
     }
 
@@ -562,7 +588,7 @@ void* ezPhysXWorldModule::CreateRagdoll(const ezSkeletonResourceDescriptor& skel
   const ezTransform rootTransform(rootTransform0.m_vPosition, rootTransform0.m_qRotation);
 
   const PxMaterial* pPxMaterial = ezPhysX::GetSingleton()->GetDefaultMaterial();
-  const PxFilterData filter = ezPhysX::CreateFilterData(/*m_uiCollisionLayer*/ 0, /*m_uiShapeId*/ 0, /*m_bReportContact*/ false);
+  const PxFilterData filter = ezPhysX::CreateFilterData(/*m_uiCollisionLayer*/ 0);
 
   physx::PxArticulation* pArt = m_pPxScene->getPhysics().createArticulation();
 
@@ -919,7 +945,7 @@ void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& con
     {
       SetGravity(pSettings->GetObjectGravity(), pSettings->GetCharacterGravity());
 
-      if (pDynamicActorManager != nullptr && pSettings->IsModified(EZ_BIT(2))) // max depenetration velocity
+      if (pDynamicActorManager != nullptr && pSettings->IsModified(EZ_BIT(2))) // max de-penetration velocity
       {
         pDynamicActorManager->UpdateMaxDepenetrationVelocity(pSettings->GetMaxDepenetrationVelocity());
       }
@@ -967,9 +993,11 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
   }
 
   {
+    // TODO: sort by impulse, cluster by position, only execute the first N contacts, prevent duplicate spawns at same location within short time
+
     for (const auto& ic : m_pSimulationEventCallback->m_InteractionContacts)
     {
-      ic.m_pSurface->InteractWithSurface(m_pWorld, ezGameObjectHandle(), ic.m_vPosition, ic.m_vNormal, ic.m_vImpact, "Collision", nullptr);
+      ic.m_pSurface->InteractWithSurface(m_pWorld, ezGameObjectHandle(), ic.m_vPosition, ic.m_vNormal, -ic.m_vNormal, ic.m_sInteraction, nullptr, ic.m_fImpulseSqr);
     }
 
     m_pSimulationEventCallback->m_InteractionContacts.Clear();

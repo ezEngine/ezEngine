@@ -33,16 +33,10 @@ public:
 
   ezUInt8 m_uiCollisionLayer = 0;
   bool m_bReportContact = false;
-
-  float m_fContactImpactThreshold = 10.0f;
-
-  ezHashedString m_sContactSurfaceInteraction;
+  bool m_bSurfaceInteractions = false;
 
 protected:
-  const char* GetContactSurfaceInteraction() const { return m_sContactSurfaceInteraction.GetData(); }
-  void SetContactSurfaceInteraction(const char* sz) { m_sContactSurfaceInteraction.Assign(sz); }
-
-  ezUInt32 m_uiShapeId = 0;
+  ezUInt32 m_uiShapeId = ezInvalidIndex;
 
   ezSurfaceResourceHandle m_hSurface;
 

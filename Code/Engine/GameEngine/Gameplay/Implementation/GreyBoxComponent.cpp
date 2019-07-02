@@ -285,22 +285,32 @@ void ezGreyBoxComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
 
   subMesh.m_uiNumTriangles = pDesc->m_Triangles.GetCount() - subMesh.m_uiFirstTriangle;
 
-  if (m_hMaterial.IsValid())
+  ezMaterialResourceHandle hMaterial = m_hMaterial;
+  if (!hMaterial.IsValid())
   {
-    ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::BlockTillLoaded);
+    // Data/Base/Materials/Common/Pattern.ezMaterialAsset
+    hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }");
+  }
 
-    const ezString surface = pMaterial->GetSurface().GetString();
+  if (hMaterial.IsValid())
+  {
+    ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
 
-    if (!surface.IsEmpty())
+    if (pMaterial.GetAcquireResult() == ezResourceAcquireResult::Final)
     {
-      ezUInt32 idx = pDesc->m_Surfaces.IndexOf(surface);
-      if (idx == ezInvalidIndex)
-      {
-        idx = pDesc->m_Surfaces.GetCount();
-        pDesc->m_Surfaces.PushBack(surface);
-      }
+      const ezString surface = pMaterial->GetSurface().GetString();
 
-      subMesh.m_uiSurfaceIndex = idx;
+      if (!surface.IsEmpty())
+      {
+        ezUInt32 idx = pDesc->m_Surfaces.IndexOf(surface);
+        if (idx == ezInvalidIndex)
+        {
+          idx = pDesc->m_Surfaces.GetCount();
+          pDesc->m_Surfaces.PushBack(surface);
+        }
+
+        subMesh.m_uiSurfaceIndex = idx;
+      }
     }
   }
 }
@@ -308,7 +318,7 @@ void ezGreyBoxComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
 void ezGreyBoxComponent::OnExtractGeometry(ezMsgExtractGeometry& msg) const
 {
   if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh ||
-    msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
+      msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
   {
     // do not include this for the collision mesh, if the proper tag is not set
     if (!GetOwner()->GetTags().IsSetByName("AutoColMesh"))
@@ -318,7 +328,7 @@ void ezGreyBoxComponent::OnExtractGeometry(ezMsgExtractGeometry& msg) const
   {
     EZ_ASSERT_DEBUG(msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh, "Unknown geometry extraction mode");
   }
-    
+
 
   const ezTransform transform = GetOwner()->GetGlobalTransform();
 
