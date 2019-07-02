@@ -232,10 +232,15 @@ public:
   struct SlidingInfo
   {
     bool m_bStillSliding = false;
-    bool m_bStarted = false;
-    ezGameObjectHandle m_hSlidePrefab;
+    bool m_bStartedSliding = false;
+
+    bool m_bStillRolling = false;
+    bool m_bStartedRolling = false;
+
     ezVec3 m_vPosition;
     ezVec3 m_vNormal;
+    ezGameObjectHandle m_hSlidePrefab;
+    ezGameObjectHandle m_hRollPrefab;
   };
 
   ezDynamicArray<InteractionContact> m_InteractionContacts;
@@ -295,15 +300,14 @@ public:
         }
 
         vAvgPos /= (float)uiNumContactPoints;
-
-        bool bSliding = false;
+        vAvgNormal.NormalizeIfNotZero(ezVec3::ZeroVector());
 
         if (!pair.flags.isSet(PxContactPairFlag::eACTOR_PAIR_HAS_FIRST_TOUCH))
         {
           ezVec3 vVelocity0(0.0f);
           ezVec3 vVelocity1(0.0f);
-          //ezVec3 vAngularVelocity0(0.0f);
-          //ezVec3 vAngularVelocity1(0.0f);
+          ezVec3 vAngularVelocity0(0.0f);
+          ezVec3 vAngularVelocity1(0.0f);
           PxRigidDynamic* pRigid0 = nullptr;
           PxRigidDynamic* pRigid1 = nullptr;
 
@@ -312,7 +316,7 @@ public:
             pRigid0 = static_cast<PxRigidDynamic*>(pairHeader.actors[0]);
 
             vVelocity0 = ezPxConversionUtils::ToVec3(pRigid0->getLinearVelocity());
-            //vAngularVelocity0 = ezPxConversionUtils::ToVec3(static_cast<PxRigidDynamic*>(pairHeader.actors[0])->getAngularVelocity());
+            vAngularVelocity0 = ezPxConversionUtils::ToVec3(static_cast<PxRigidDynamic*>(pairHeader.actors[0])->getAngularVelocity());
           }
 
           if (pairHeader.actors[1]->getType() == PxActorType::eRIGID_DYNAMIC)
@@ -320,7 +324,34 @@ public:
             pRigid1 = static_cast<PxRigidDynamic*>(pairHeader.actors[1]);
 
             vVelocity1 = ezPxConversionUtils::ToVec3(pRigid1->getLinearVelocity());
-            //vAngularVelocity1 = ezPxConversionUtils::ToVec3(static_cast<PxRigidDynamic*>(pairHeader.actors[1])->getAngularVelocity());
+            vAngularVelocity1 = ezPxConversionUtils::ToVec3(static_cast<PxRigidDynamic*>(pairHeader.actors[1])->getAngularVelocity());
+          }
+
+          if (uiNumContactPoints >= 2)
+          {
+            if (!vAngularVelocity0.IsZero(0.2f))
+            {
+              vAngularVelocity0 -= vAvgNormal * vAvgNormal.Dot(vAngularVelocity0);
+
+              if (!vAngularVelocity0.IsZero(0.2f))
+              {
+                m_SlidingActors[pRigid0].m_bStillRolling = true;
+                m_SlidingActors[pRigid0].m_vPosition = vAvgPos;
+                m_SlidingActors[pRigid0].m_vNormal = vAvgNormal;
+              }
+            }
+
+            if (!vAngularVelocity1.IsZero(0.2f))
+            {
+              vAngularVelocity1 -= vAvgNormal * vAvgNormal.Dot(vAngularVelocity1);
+
+              if (!vAngularVelocity1.IsZero(0.2f))
+              {
+                m_SlidingActors[pRigid1].m_bStillRolling = true;
+                m_SlidingActors[pRigid1].m_vPosition = vAvgPos;
+                m_SlidingActors[pRigid1].m_vNormal = vAvgNormal;
+              }
+            }
           }
 
           if (uiNumContactPoints >= 3)
@@ -331,25 +362,32 @@ public:
             {
               const ezVec3 vRelativeVelocityDir = vRelativeVelocity.GetNormalized();
 
-              vAvgNormal.Normalize();
               if (ezMath::Abs(vAvgNormal.Dot(vRelativeVelocityDir)) < 0.1f)
               {
-                bSliding = vRelativeVelocity.GetLengthSquared() > ezMath::Square(0.2f);
-
-                if (bSliding)
+                if (vRelativeVelocity.GetLengthSquared() > ezMath::Square(0.2f))
                 {
                   if (pRigid0 && !pRigid0->getRigidBodyFlags().isSet(PxRigidBodyFlag::eKINEMATIC))
                   {
-                    m_SlidingActors[pRigid0].m_bStillSliding = true;
-                    m_SlidingActors[pRigid0].m_vPosition = vAvgPos;
-                    m_SlidingActors[pRigid0].m_vNormal = vAvgNormal;
+                    auto& info = m_SlidingActors[pRigid0];
+
+                    if (!info.m_bStillRolling)
+                    {
+                      info.m_bStillSliding = true;
+                      info.m_vPosition = vAvgPos;
+                      info.m_vNormal = vAvgNormal;
+                    }
                   }
 
                   if (pRigid1 && !pRigid1->getRigidBodyFlags().isSet(PxRigidBodyFlag::eKINEMATIC))
                   {
-                    m_SlidingActors[pRigid1].m_bStillSliding = true;
-                    m_SlidingActors[pRigid1].m_vPosition = vAvgPos;
-                    m_SlidingActors[pRigid1].m_vNormal = vAvgNormal;
+                    auto& info = m_SlidingActors[pRigid1];
+
+                    if (!info.m_bStillRolling)
+                    {
+                      info.m_bStillSliding = true;
+                      info.m_vPosition = vAvgPos;
+                      info.m_vNormal = vAvgNormal;
+                    }
                   }
 
                   //ezLog::Dev("Sliding: {} / {}", ezArgP(pairHeader.actors[0]), ezArgP(pairHeader.actors[1]));
@@ -1094,14 +1132,53 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
 
       auto& slideInfo = itSlide.Value();
 
+      if (slideInfo.m_bStillRolling)
+      {
+        if (slideInfo.m_bStartedRolling == false)
+        {
+          slideInfo.m_bStartedRolling = true;
+          ezLog::Dev("Started Rolling");
+
+          ezPrefabResourceHandle hPrefab = ezResourceManager::LoadResource<ezPrefabResource>("{ 4d306cc5-c1e6-4ec9-a04d-b804e3755210 }");
+          ezResourceLock<ezPrefabResource> pPrefab(hPrefab, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
+          if (pPrefab.GetAcquireResult() == ezResourceAcquireResult::Final)
+          {
+            ezHybridArray<ezGameObject*, 8> created;
+            pPrefab->InstantiatePrefab(*m_pWorld, ezTransform(slideInfo.m_vPosition), ezGameObjectHandle(), &created, nullptr, nullptr);
+            slideInfo.m_hRollPrefab = created[0]->GetHandle();
+          }
+        }
+        else
+        {
+          ezGameObject* pObject;
+          if (m_pWorld->TryGetObject(slideInfo.m_hRollPrefab, pObject))
+          {
+            pObject->SetGlobalPosition(slideInfo.m_vPosition);
+          }
+        }
+
+        slideInfo.m_bStillRolling = false;
+      }
+      else
+      {
+        if (slideInfo.m_bStartedRolling == true)
+        {
+          m_pWorld->DeleteObjectDelayed(slideInfo.m_hRollPrefab);
+          slideInfo.m_hRollPrefab.Invalidate();
+
+          slideInfo.m_bStartedRolling = false;
+          ezLog::Dev("Stopped Rolling");
+        }
+      }
+
       if (slideInfo.m_bStillSliding)
       {
-        if (slideInfo.m_bStarted == false)
+        if (slideInfo.m_bStartedSliding == false)
         {
-          slideInfo.m_bStarted = true;
+          slideInfo.m_bStartedSliding = true;
           ezLog::Dev("Started Sliding");
 
-          ezPrefabResourceHandle hPrefab = ezResourceManager::LoadResource<ezPrefabResource>("{ 6adb0a92-e705-49a5-96b5-c74cec911705 }");
+          ezPrefabResourceHandle hPrefab = ezResourceManager::LoadResource<ezPrefabResource>("{ c2d8d66d-b123-4cf1-b123-4d015fc69fb0 }");
           ezResourceLock<ezPrefabResource> pPrefab(hPrefab, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
           if (pPrefab.GetAcquireResult() == ezResourceAcquireResult::Final)
           {
@@ -1123,12 +1200,12 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
       }
       else
       {
-        if (slideInfo.m_bStarted == true)
+        if (slideInfo.m_bStartedSliding == true)
         {
           m_pWorld->DeleteObjectDelayed(slideInfo.m_hSlidePrefab);
           slideInfo.m_hSlidePrefab.Invalidate();
 
-          slideInfo.m_bStarted = false;
+          slideInfo.m_bStartedSliding = false;
           ezLog::Dev("Stopped Sliding");
         }
       }
