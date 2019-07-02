@@ -273,7 +273,7 @@ void ezPxCharacterProxyComponent::OnSimulationStarted()
   }
 
   // Setup filter data
-  m_Data->m_FilterData = ezPhysX::CreateFilterData(m_uiCollisionLayer, m_uiShapeId, false, false);
+  m_Data->m_FilterData = ezPhysX::CreateFilterData(m_uiCollisionLayer, m_uiShapeId);
 
   m_Data->m_ControllerFilter.mCCTFilterCallback = nullptr;
   m_Data->m_ControllerFilter.mFilterCallback = &(m_Data->m_QueryFilter);

@@ -284,19 +284,13 @@ ezAllocatorBase* ezPhysX::GetAllocator()
   return &(m_pAllocatorCallback->m_Allocator);
 }
 
-PxFilterData ezPhysX::CreateFilterData(ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId, bool bReportContact, bool bSurfaceInteractions)
+PxFilterData ezPhysX::CreateFilterData(ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId /*= ezInvalidIndex*/, ezBitflags<ezPhysXFilterFlags> flags /*= ezPhysXFilterFlags::None*/)
 {
   PxFilterData filter;
   filter.word0 = EZ_BIT(uiCollisionLayer);
   filter.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(uiCollisionLayer);
   filter.word2 = uiShapeId;
-  filter.word3 = 0;
-
-  if (bReportContact)
-    filter.word3 |= EZ_BIT(0);
-
-  if (bSurfaceInteractions)
-    filter.word3 |= EZ_BIT(1);
+  filter.word3 = flags.GetValue();
 
   return filter;
 }

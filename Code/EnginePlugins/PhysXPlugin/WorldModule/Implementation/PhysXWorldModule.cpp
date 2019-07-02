@@ -266,9 +266,9 @@ public:
       // Bit 0: enable contact reports
       // Bit 1: enable surface interactions
 
-      bSendContactReport = bSendContactReport || ((uiContactFlags & EZ_BIT(0)) != 0);
+      bSendContactReport = bSendContactReport || ((uiContactFlags & ezPhysXFilterFlags::ContactReports) != 0);
 
-      if ((uiContactFlags & EZ_BIT(1)) != 0)
+      if ((uiContactFlags & ezPhysXFilterFlags::SurfaceInteractions) != 0)
       {
         for (ezUInt32 uiContactPointIndex = 0; uiContactPointIndex < uiNumContactPoints; ++uiContactPointIndex)
         {
@@ -552,7 +552,7 @@ bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float
     return false;
 
   PxQueryFilterData filterData;
-  filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId, false, false);
+  filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId);
   filterData.flags = PxQueryFlag::ePREFILTER;
 
   if (shapeTypes.IsSet(ezPhysicsShapeType::Static))
@@ -588,7 +588,7 @@ void* ezPhysXWorldModule::CreateRagdoll(const ezSkeletonResourceDescriptor& skel
   const ezTransform rootTransform(rootTransform0.m_vPosition, rootTransform0.m_qRotation);
 
   const PxMaterial* pPxMaterial = ezPhysX::GetSingleton()->GetDefaultMaterial();
-  const PxFilterData filter = ezPhysX::CreateFilterData(/*m_uiCollisionLayer*/ 0, /*m_uiShapeId*/ 0, /*m_bReportContact*/ false, false);
+  const PxFilterData filter = ezPhysX::CreateFilterData(/*m_uiCollisionLayer*/ 0);
 
   physx::PxArticulation* pArt = m_pPxScene->getPhysics().createArticulation();
 
@@ -812,7 +812,7 @@ bool ezPhysXWorldModule::SweepTest(const physx::PxGeometry& geometry, const phys
   ezUInt32 uiIgnoreShapeId) const
 {
   PxQueryFilterData filterData;
-  filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId, false, false);
+  filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId);
   filterData.flags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
 
   ezPxSweepCallback closestHit;
@@ -867,7 +867,7 @@ bool ezPhysXWorldModule::OverlapTest(const physx::PxGeometry& geometry, const ph
   ezUInt32 uiIgnoreShapeId) const
 {
   PxQueryFilterData filterData;
-  filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId, false, false);
+  filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId);
   filterData.flags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER | PxQueryFlag::eANY_HIT;
 
   ezPxOverlapCallback closestHit;
@@ -885,7 +885,7 @@ void ezPhysXWorldModule::QueryDynamicShapesInSphere(float fSphereRadius, const e
   ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/) const
 {
   PxQueryFilterData filterData;
-  filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId, false, false);
+  filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId);
 
   // PxQueryFlag::eNO_BLOCK : All hits are reported as touching. Overrides eBLOCK returned from user filters with eTOUCH.
   // PxQueryFlag::eDYNAMIC : we ignore all static geometry
@@ -945,7 +945,7 @@ void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& con
     {
       SetGravity(pSettings->GetObjectGravity(), pSettings->GetCharacterGravity());
 
-      if (pDynamicActorManager != nullptr && pSettings->IsModified(EZ_BIT(2))) // max depenetration velocity
+      if (pDynamicActorManager != nullptr && pSettings->IsModified(EZ_BIT(2))) // max de-penetration velocity
       {
         pDynamicActorManager->UpdateMaxDepenetrationVelocity(pSettings->GetMaxDepenetrationVelocity());
       }
