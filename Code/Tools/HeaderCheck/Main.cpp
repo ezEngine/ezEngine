@@ -17,6 +17,7 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Types/UniquePtr.h>
 
+
 namespace
 {
   EZ_ALWAYS_INLINE void SkipWhitespace(ezToken& token, ezUInt32& i, const ezDeque<ezToken>& tokens)
@@ -408,7 +409,7 @@ public:
       {
         ezLog::Error(
           "Including '{0}' in {1}:{2} leaks underlying implementation detail. Including system or thirdparty headers in public easy header "
-          "files is not allowed. Please use an interface, factory or pimpl to hide the implementation and avoid the include.",
+          "files is not allowed. Please use an interface, factory or pimpl to hide the implementation and avoid the include. See the Documentation Chapter 'General->Header Files' for details.",
           includePath.GetView(), currentFile.GetView(), line);
       }
     }

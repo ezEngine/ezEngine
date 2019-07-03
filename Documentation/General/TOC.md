@@ -7,6 +7,7 @@ The following pages contain general information about the ezEngine project.
 * \subpage BuildSystem
 * \subpage SupportedPlatforms
 * \subpage CodingGuidelines
+* \subpage HeaderFiles
 * \subpage DebuggerVarInsp
 * \subpage UsageAgreement
 * \subpage EngineOverview
