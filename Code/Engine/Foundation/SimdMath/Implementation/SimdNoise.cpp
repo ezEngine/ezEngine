@@ -5,7 +5,7 @@
 
 ezSimdPerlinNoise::ezSimdPerlinNoise(ezUInt32 uiSeed)
 {
-  for (ezUInt32 i = 0; i < 256; ++i)
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_Permutations); ++i)
   {
     m_Permutations[i] = i;
   }
@@ -13,15 +13,10 @@ ezSimdPerlinNoise::ezSimdPerlinNoise(ezUInt32 uiSeed)
   ezRandom rnd;
   rnd.Initialize(uiSeed);
 
-  for (ezUInt32 i = 255; i > 0; --i)
+  for (ezUInt32 i = EZ_ARRAY_SIZE(m_Permutations) - 1; i > 0; --i)
   {
-    ezUInt32 uiRandomIndex = rnd.UIntInRange(256);
+    ezUInt32 uiRandomIndex = rnd.UIntInRange(EZ_ARRAY_SIZE(m_Permutations));
     ezMath::Swap(m_Permutations[i], m_Permutations[uiRandomIndex]);
-  }
-
-  for (ezUInt32 i = 0; i < 256; ++i)
-  {
-    m_Permutations[i + 256] = m_Permutations[i];
   }
 }
 

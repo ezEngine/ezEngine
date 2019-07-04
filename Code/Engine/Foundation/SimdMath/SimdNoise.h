@@ -14,8 +14,15 @@ private:
 
   EZ_FORCE_INLINE ezSimdVec4i Permute(const ezSimdVec4i& v)
   {
-    return ezSimdVec4i(m_Permutations[v.x()], m_Permutations[v.y()], m_Permutations[v.z()], m_Permutations[v.w()]);
+#if 0
+    ezArrayPtr<ezUInt8> p = ezMakeArrayPtr(m_Permutations);
+#else
+    ezUInt8* p = m_Permutations;
+#endif
+
+    ezSimdVec4i i = v & ezSimdVec4i(EZ_ARRAY_SIZE(m_Permutations) - 1);
+    return ezSimdVec4i(p[i.x()], p[i.y()], p[i.z()], p[i.w()]);
   }
 
-  ezUInt8 m_Permutations[512];
+  ezUInt8 m_Permutations[256];
 };
