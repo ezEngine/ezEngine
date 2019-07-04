@@ -27,19 +27,23 @@ ezSimdPerlinNoise::ezSimdPerlinNoise(ezUInt32 uiSeed)
 
 ezSimdVec4f ezSimdPerlinNoise::NoiseZeroToOne(const ezSimdVec4f& inX, const ezSimdVec4f& inY, const ezSimdVec4f& inZ, ezUInt32 uiNumOctaves /*= 1*/)
 {
-  ezSimdVec4f x = inX;
-  ezSimdVec4f y = inY;
-  ezSimdVec4f z = inZ;
   ezSimdVec4f result = ezSimdVec4f::ZeroVector();
   ezSimdFloat amplitude = 1.0f;
+  ezUInt32 uiOffset = 0;
 
+  uiNumOctaves = ezMath::Max(uiNumOctaves, 1u);
   for (ezUInt32 i = 0; i < uiNumOctaves; ++i)
   {
+    ezSimdFloat scale = static_cast<float>(EZ_BIT(i));
+    ezSimdVec4f offset = Permute(ezSimdVec4i(uiOffset) + ezSimdVec4i(0, 1, 2, 3)).ToFloat();
+    ezSimdVec4f x = inX * scale + offset.Get<ezSwizzle::XXXX>();
+    ezSimdVec4f y = inY * scale + offset.Get<ezSwizzle::YYYY>();
+    ezSimdVec4f z = inZ * scale + offset.Get<ezSwizzle::ZZZZ>();
+
     result += Noise(x, y, z) * amplitude;
-    x *= 2.0f;
-    y *= 2.0f;
-    z *= 2.0f;
+
     amplitude *= 0.5f;
+    uiOffset += 23;
   }
 
   return result * 0.5f + ezSimdVec4f(0.5f);
