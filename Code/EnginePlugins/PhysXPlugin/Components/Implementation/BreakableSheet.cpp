@@ -997,7 +997,7 @@ void ezBreakableSheetComponent::CreateUnbrokenPhysicsObject()
   if (pShape != nullptr)
   {
     m_uiUnbrokenShapeId = pModule->CreateShapeId();
-    PxFilterData filterData = ezPhysX::CreateFilterData(m_uiCollisionLayerUnbroken, m_uiUnbrokenShapeId, ezPhysXFilterFlags::ContactReports);
+    PxFilterData filterData = ezPhysX::CreateFilterData(m_uiCollisionLayerUnbroken, m_uiUnbrokenShapeId, ezOnPhysXContact::SendReportMsg);
 
     pShape->setSimulationFilterData(filterData);
     pShape->setQueryFilterData(filterData);
@@ -1090,7 +1090,7 @@ void ezBreakableSheetComponent::CreatePiecesPhysicsObjects(ezVec3 vImpulse, ezVe
 
     m_PieceShapeIds[i] = pModule->CreateShapeId();
     m_ShapeIDsToActors.Insert(m_PieceShapeIds[i], pActor);
-    PxFilterData filterData = ezPhysX::CreateFilterData(m_uiCollisionLayerBrokenPieces, m_PieceShapeIds[i], ezPhysXFilterFlags::SurfaceInteractions);
+    PxFilterData filterData = ezPhysX::CreateFilterData(m_uiCollisionLayerBrokenPieces, m_PieceShapeIds[i], ezOnPhysXContact::ImpactReactions);
 
     pShape->setSimulationFilterData(filterData);
     pShape->setQueryFilterData(filterData);

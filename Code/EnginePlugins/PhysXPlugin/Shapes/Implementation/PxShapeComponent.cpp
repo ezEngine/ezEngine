@@ -8,14 +8,13 @@
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxShapeComponent, 4)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxShapeComponent, 5)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-    EZ_MEMBER_PROPERTY("SurfaceInteractions", m_bSurfaceInteractions),
-    EZ_MEMBER_PROPERTY("ReportContact", m_bReportContact),
+    EZ_BITFLAGS_MEMBER_PROPERTY("OnContact", ezOnPhysXContact, m_OnContact),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -42,10 +41,9 @@ void ezPxShapeComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_hSurface;
   s << m_uiCollisionLayer;
-  s << m_bReportContact;
 
-  // version 4
-  s << m_bSurfaceInteractions;
+  // version 5
+  s << m_OnContact;
 }
 
 
@@ -59,9 +57,13 @@ void ezPxShapeComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_hSurface;
   s >> m_uiCollisionLayer;
 
-  if (uiVersion >= 2)
+  if (uiVersion >= 2 && uiVersion <= 4)
   {
+    bool m_bReportContact;
     s >> m_bReportContact;
+
+    if (m_bReportContact)
+      m_OnContact.Add(ezOnPhysXContact::SendReportMsg);
   }
 
   if (uiVersion == 3)
@@ -72,9 +74,18 @@ void ezPxShapeComponent::DeserializeComponent(ezWorldReader& stream)
     s >> tmp1;
   }
 
-  if (uiVersion >= 4)
+  if (uiVersion == 4)
   {
+    bool m_bSurfaceInteractions;
     s >> m_bSurfaceInteractions;
+
+    if (m_bSurfaceInteractions)
+      m_OnContact.Add(ezOnPhysXContact::ImpactReactions | ezOnPhysXContact::SlideReactions);
+  }
+
+  if (uiVersion >= 5)
+  {
+    s >> m_OnContact;
   }
 }
 
@@ -163,11 +174,7 @@ PxMaterial* ezPxShapeComponent::GetPxMaterial()
 
 PxFilterData ezPxShapeComponent::CreateFilterData()
 {
-  ezBitflags<ezPhysXFilterFlags> flags;
-  flags.AddOrRemove(ezPhysXFilterFlags::ContactReports, m_bReportContact);
-  flags.AddOrRemove(ezPhysXFilterFlags::SurfaceInteractions, m_bSurfaceInteractions);
-
-  return ezPhysX::CreateFilterData(m_uiCollisionLayer, m_uiShapeId, flags);
+  return ezPhysX::CreateFilterData(m_uiCollisionLayer, m_uiShapeId, m_OnContact);
 }
 
 

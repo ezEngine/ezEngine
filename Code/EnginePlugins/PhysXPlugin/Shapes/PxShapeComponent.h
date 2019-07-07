@@ -3,6 +3,7 @@
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <PhysXPlugin/Components/PxComponent.h>
 #include <PhysXPlugin/Utilities/PxUserData.h>
+#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 
 struct ezMsgExtractGeometry;
 
@@ -32,8 +33,7 @@ public:
   ezUInt32 GetShapeId() const { return m_uiShapeId; }
 
   ezUInt8 m_uiCollisionLayer = 0;
-  bool m_bReportContact = false;
-  bool m_bSurfaceInteractions = false;
+  ezBitflags<ezOnPhysXContact> m_OnContact;
 
 protected:
   ezUInt32 m_uiShapeId = ezInvalidIndex;
