@@ -1,6 +1,7 @@
 #include <ProcGenPluginPCH.h>
 
 #include <Foundation/Containers/HashTable.h>
+#include <Foundation/SimdMath/SimdNoise.h>
 #include <Foundation/SimdMath/SimdRandom.h>
 #include <ProcGenPlugin/VM/ExpressionFunctions.h>
 
@@ -13,7 +14,7 @@ namespace
   };
 
   static ezHashTable<ezUInt32, FunctionInfo, ezHashHelper<ezUInt32>, ezStaticAllocatorWrapper> s_ExpressionFunctions;
-}
+} // namespace
 
 // static
 bool ezExpressionFunctionRegistry::RegisterFunction(const char* szName, ezExpressionFunction func)
@@ -83,3 +84,34 @@ static void ezExpressionRandom(ezExpression::Inputs inputs, ezExpression::Output
 }
 
 EZ_REGISTER_EXPRESSION_FUNCTION("Random", &ezExpressionRandom);
+
+//////////////////////////////////////////////////////////////////////////
+
+namespace
+{
+  static ezSimdPerlinNoise s_PerlinNoise(12345);
+}
+
+static void ezExpressionPerlinNoise(ezExpression::Inputs inputs, ezExpression::Output output, ezExpression::UserData userData)
+{
+  const ezSimdVec4f* pPosX = inputs[0].GetPtr();
+  const ezSimdVec4f* pPosY = inputs[1].GetPtr();
+  const ezSimdVec4f* pPosZ = inputs[2].GetPtr();
+  const ezSimdVec4f* pPosXEnd = pPosX + inputs[0].GetCount();
+
+  ezUInt32 uiNumOcataves = ezSimdVec4i::Truncate(inputs[3][0]).x();
+
+  ezSimdVec4f* pOutput = output.GetPtr();
+
+  while (pPosX < pPosXEnd)
+  {
+    *pOutput = s_PerlinNoise.NoiseZeroToOne(*pPosX, *pPosY, *pPosZ, uiNumOcataves);
+
+    ++pPosX;
+    ++pPosY;
+    ++pPosZ;
+    ++pOutput;
+  }
+}
+
+EZ_REGISTER_EXPRESSION_FUNCTION("PerlinNoise", &ezExpressionPerlinNoise);

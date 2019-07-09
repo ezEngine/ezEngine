@@ -6,6 +6,7 @@
 namespace
 {
   static ezHashedString s_sRandom = ezMakeHashedString("Random");
+  static ezHashedString s_sPerlinNoise = ezMakeHashedString("PerlinNoise");
 
   ezExpressionAST::Node* CreateRandom(float fSeed, ezExpressionAST& out_Ast)
   {
@@ -20,7 +21,19 @@ namespace
     return pFunctionCall;
   }
 
-  ezExpressionAST::Node* CreateRemapWithFadeout(
+  ezExpressionAST::Node* CreateRemapFrom01(ezExpressionAST::Node* pInput, float fMin, float fMax, ezExpressionAST& out_Ast)
+  {
+    auto pOffset = out_Ast.CreateConstant(fMin);
+    auto pScale = out_Ast.CreateConstant(fMax - fMin);
+
+    auto pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Multiply, pInput, pScale);
+    pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Add, pValue, pOffset);
+    pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Max, out_Ast.CreateConstant(0.0f), pValue);
+
+    return pValue;
+  }
+
+  ezExpressionAST::Node* CreateRemapTo01WithFadeout(
     ezExpressionAST::Node* pInput, float fMin, float fMax, float fLowerFade, float fUpperFade, ezExpressionAST& out_Ast)
   {
     auto pLowerOffset = out_Ast.CreateConstant(fMin);
@@ -284,6 +297,57 @@ void ezProcGenRandom::OnObjectCreated(const ezAbstractObjectNode& node)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenPerlinNoise, 1, ezRTTIDefaultAllocator<ezProcGenPerlinNoise>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Scale", m_Scale)->AddAttributes(new ezDefaultValueAttribute(ezVec3(10))),
+    EZ_MEMBER_PROPERTY("Offset", m_Offset),
+    EZ_MEMBER_PROPERTY("NumOctaves", m_uiNumOctaves)->AddAttributes(new ezClampValueAttribute(1, 6), new ezDefaultValueAttribute(3)),
+    EZ_MEMBER_PROPERTY("OutputMin", m_fOutputMin),
+    EZ_MEMBER_PROPERTY("OutputMax", m_fOutputMax)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+
+    EZ_MEMBER_PROPERTY("Value", m_OutputValuePin)
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTitleAttribute("Perlin Noise"),
+    new ezCategoryAttribute("Input"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezExpressionAST::Node* ezProcGenPerlinNoise::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast)
+{
+  ezExpressionAST::Node* pPosX = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionX);
+  ezExpressionAST::Node* pPosY = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionY);
+  ezExpressionAST::Node* pPosZ = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionZ);
+
+  pPosX = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Divide, pPosX, out_Ast.CreateConstant(m_Scale.x));
+  pPosY = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Divide, pPosY, out_Ast.CreateConstant(m_Scale.y));
+  pPosZ = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Divide, pPosZ, out_Ast.CreateConstant(m_Scale.z));
+
+  pPosX = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Add, pPosX, out_Ast.CreateConstant(m_Offset.x));
+  pPosY = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Add, pPosY, out_Ast.CreateConstant(m_Offset.y));
+  pPosZ = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Add, pPosZ, out_Ast.CreateConstant(m_Offset.z));
+
+  auto pNumOctaves = out_Ast.CreateConstant(static_cast<float>(m_uiNumOctaves));
+
+  auto pNoiseFunc = out_Ast.CreateFunctionCall(s_sPerlinNoise);
+  pNoiseFunc->m_Arguments.PushBack(pPosX);
+  pNoiseFunc->m_Arguments.PushBack(pPosY);
+  pNoiseFunc->m_Arguments.PushBack(pPosZ);
+  pNoiseFunc->m_Arguments.PushBack(pNumOctaves);
+
+  return CreateRemapFrom01(pNoiseFunc, m_fOutputMin, m_fOutputMax, out_Ast);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenBlend, 1, ezRTTIDefaultAllocator<ezProcGenBlend>)
 {
   EZ_BEGIN_PROPERTIES
@@ -352,7 +416,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezExpressionAST::Node* ezProcGenHeight::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast)
 {
   auto pHeight = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionZ);
-  return CreateRemapWithFadeout(pHeight, m_fMinHeight, m_fMaxHeight, m_fLowerFade, m_fUpperFade, out_Ast);
+  return CreateRemapTo01WithFadeout(pHeight, m_fMinHeight, m_fMaxHeight, m_fLowerFade, m_fUpperFade, out_Ast);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -385,5 +449,5 @@ ezExpressionAST::Node* ezProcGenSlope::GenerateExpressionASTNode(ezArrayPtr<ezEx
 {
   auto pNormalZ = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sNormalZ);
   auto pAngle = out_Ast.CreateUnaryOperator(ezExpressionAST::NodeType::ACos, pNormalZ);
-  return CreateRemapWithFadeout(pAngle, m_MinSlope.GetRadian(), m_MaxSlope.GetRadian(), m_fLowerFade, m_fUpperFade, out_Ast);
+  return CreateRemapTo01WithFadeout(pAngle, m_MinSlope.GetRadian(), m_MaxSlope.GetRadian(), m_fLowerFade, m_fUpperFade, out_Ast);
 }
