@@ -2,6 +2,13 @@
 
 #include <ProcGenPlugin/Declarations.h>
 
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProcGenBlendMode, 1)
+EZ_ENUM_CONSTANTS(ezProcGenBlendMode::Add, ezProcGenBlendMode::Subtract, ezProcGenBlendMode::Multiply, ezProcGenBlendMode::Divide)
+EZ_ENUM_CONSTANTS(ezProcGenBlendMode::Max, ezProcGenBlendMode::Min)
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
+
 namespace ezProcGenInternal
 {
   ezHashedString ExpressionInputs::s_sPositionX = ezMakeHashedString("PositionX");

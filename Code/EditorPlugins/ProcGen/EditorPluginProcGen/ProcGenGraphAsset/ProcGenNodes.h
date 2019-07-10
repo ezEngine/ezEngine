@@ -90,6 +90,9 @@ public:
 
   ezInt32 m_iSeed = -1;
 
+  float m_fOutputMin = 0.0f;
+  float m_fOutputMax = 1.0f;
+
   ezOutputNodePin m_OutputValuePin;
 
 private:
@@ -126,6 +129,7 @@ class ezProcGenBlend : public ezProcGenNodeBase
 public:
   virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast) override;
 
+  ezEnum<ezProcGenBlendMode> m_BlendMode;
   float m_fInputValueA = 1.0f;
   float m_fInputValueB = 1.0f;
 
