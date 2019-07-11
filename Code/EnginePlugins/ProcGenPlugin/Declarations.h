@@ -12,6 +12,25 @@ typedef ezTypedResourceHandle<class ezColorGradientResource> ezColorGradientReso
 typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
 typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 
+struct ezProcGenBlendMode
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+    Max,
+    Min,
+
+    Default = Multiply
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcGenBlendMode);
+
 namespace ezProcGenInternal
 {
   class PlacementTile;

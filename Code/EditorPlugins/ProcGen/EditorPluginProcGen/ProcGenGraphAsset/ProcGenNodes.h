@@ -90,12 +90,34 @@ public:
 
   ezInt32 m_iSeed = -1;
 
+  float m_fOutputMin = 0.0f;
+  float m_fOutputMax = 1.0f;
+
   ezOutputNodePin m_OutputValuePin;
 
 private:
   void OnObjectCreated(const ezAbstractObjectNode& node);
 
   ezUInt32 m_uiAutoSeed;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezProcGenPerlinNoise : public ezProcGenNodeBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenPerlinNoise, ezProcGenNodeBase);
+
+public:
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast) override;
+
+  ezVec3 m_Scale = ezVec3(10);
+  ezVec3 m_Offset = ezVec3::ZeroVector();
+  ezUInt32 m_uiNumOctaves = 3;
+
+  float m_fOutputMin = 0.0f;
+  float m_fOutputMax = 1.0f;
+
+  ezOutputNodePin m_OutputValuePin;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -107,6 +129,7 @@ class ezProcGenBlend : public ezProcGenNodeBase
 public:
   virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast) override;
 
+  ezEnum<ezProcGenBlendMode> m_BlendMode;
   float m_fInputValueA = 1.0f;
   float m_fInputValueB = 1.0f;
 
