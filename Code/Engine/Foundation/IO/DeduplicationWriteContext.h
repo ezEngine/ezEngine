@@ -14,6 +14,7 @@ class ezStreamWriter;
 /// only the first occurrence is written to the stream while all subsequence occurrences are just written as an index.
 class EZ_FOUNDATION_DLL ezDeduplicationWriteContext : public ezSerializationContext<ezDeduplicationWriteContext>
 {
+  EZ_DECLARE_SERIALIZATION_CONTEXT(ezDeduplicationWriteContext);
 public:
   ezDeduplicationWriteContext();
   ~ezDeduplicationWriteContext();

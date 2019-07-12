@@ -16,6 +16,7 @@ class ezStreamReader;
 /// deduplicated strings. For a sample see StreamOperationsTest.cpp
 class EZ_FOUNDATION_DLL ezStringDeduplicationWriteContext : public ezSerializationContext<ezStringDeduplicationWriteContext>
 {
+  EZ_DECLARE_SERIALIZATION_CONTEXT(ezStringDeduplicationWriteContext);
 public:
 
   /// \brief Setup the write context to perform string deduplication.
@@ -47,6 +48,7 @@ protected:
 /// \brief This class to restore strings written to a stream using a ezStringDeduplicationWriteContext.
 class EZ_FOUNDATION_DLL ezStringDeduplicationReadContext : public ezSerializationContext<ezStringDeduplicationReadContext>
 {
+  EZ_DECLARE_SERIALIZATION_CONTEXT(ezStringDeduplicationReadContext);
 public:
   /// \brief Setup the string table used internally.
   ezStringDeduplicationReadContext(ezStreamReader& Stream);

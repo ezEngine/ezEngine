@@ -13,6 +13,7 @@ class ezStreamReader;
 /// \brief Serialization Context that reads de-duplicated objects from a stream and restores the pointers.
 class EZ_FOUNDATION_DLL ezDeduplicationReadContext : public ezSerializationContext<ezDeduplicationReadContext>
 {
+  EZ_DECLARE_SERIALIZATION_CONTEXT(ezDeduplicationReadContext);
 public:
   ezDeduplicationReadContext();
   ~ezDeduplicationReadContext();
