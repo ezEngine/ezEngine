@@ -65,8 +65,7 @@ ezMeshRenderData* ezSkinnedMeshComponent::CreateRenderData() const
   if (!m_SkinningMatrices.IsEmpty())
   {
     pRenderData->m_hSkinningMatrices = m_hSkinningTransformsBuffer;
-    pRenderData->m_pNewSkinningMatricesData = ezArrayPtr<const ezUInt8>(
-      reinterpret_cast<const ezUInt8*>(m_SkinningMatrices.GetPtr()), m_SkinningMatrices.GetCount() * sizeof(ezMat4));
+    pRenderData->m_pNewSkinningMatricesData = m_SkinningMatrices.ToByteArray();
   }
 
   return pRenderData;

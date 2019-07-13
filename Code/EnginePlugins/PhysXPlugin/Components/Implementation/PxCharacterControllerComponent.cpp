@@ -9,6 +9,9 @@
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
+#include <Core/ResourceManager/Implementation/Declarations.h>
+#include <Core/ResourceManager/Implementation/ResourceLock.h>
+#include <GameEngine/Physics/SurfaceResource.h>
 
 
 

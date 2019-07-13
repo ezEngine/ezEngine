@@ -408,6 +408,16 @@ EZ_ALWAYS_INLINE void ezGameObject::UpdateGlobalTransform()
   m_pTransformationData->ConditionalUpdateGlobalTransform();
 }
 
+EZ_ALWAYS_INLINE void ezGameObject::EnableStaticTransformChangesNotifications()
+{
+  m_Flags.Add(ezObjectFlags::StaticTransformChangesNotifications);
+}
+
+EZ_ALWAYS_INLINE void ezGameObject::DisableStaticTransformChangesNotifications()
+{
+  m_Flags.Remove(ezObjectFlags::StaticTransformChangesNotifications);
+}
+
 EZ_ALWAYS_INLINE ezBoundingBoxSphere ezGameObject::GetLocalBounds() const
 {
   return ezSimdConversion::ToBBoxSphere(m_pTransformationData->m_localBounds);
@@ -553,7 +563,7 @@ EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateVelocity(const ezS
   // A w value != 0 indicates a custom velocity, don't overwrite it.
   ezSimdVec4b customVel = (m_velocity.Get<ezSwizzle::WWWW>() != ezSimdVec4f::ZeroVector());
   ezSimdVec4f newVel = (m_globalTransform.m_Position - m_lastGlobalPosition) * fInvDeltaSeconds;
-  m_velocity = ezSimdVec4f::Select(newVel, m_velocity, customVel);
+  m_velocity = ezSimdVec4f::Select(customVel, m_velocity, newVel);
 
   m_lastGlobalPosition = m_globalTransform.m_Position;
   m_velocity.SetW(ezSimdFloat::Zero());

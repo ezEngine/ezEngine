@@ -1,15 +1,13 @@
 #include <RendererCorePCH.h>
 
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/GPUResourcePool/GPUResourcePool.h>
+#include <RendererCore/Meshes/Implementation/MeshRendererUtils.h>
 #include <RendererCore/Meshes/InstancedMeshComponent.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
 #include <RendererCore/Pipeline/InstanceDataProvider.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-
-#include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderer, 1, ezRTTIDefaultAllocator<ezMeshRenderer>)
@@ -137,6 +135,11 @@ void ezMeshRenderer::RenderBatch(
   }
 }
 
+void ezMeshRenderer::SetAdditionalData(const ezRenderViewContext& renderViewContext, const ezMeshRenderData* pRenderData) const
+{
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("VERTEX_SKINNING", "FALSE");
+}
+
 void ezMeshRenderer::FillPerInstanceData(
   ezArrayPtr<ezPerInstanceData> instanceData, const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount) const
 {
@@ -145,42 +148,12 @@ void ezMeshRenderer::FillPerInstanceData(
 
   for (auto it = batch.GetIterator<ezMeshRenderData>(uiStartIndex, uiCount); it.IsValid(); ++it)
   {
-    const ezMeshRenderData* pRenderData = it;
-
-    ezMat4 objectToWorld = pRenderData->m_GlobalTransform.GetAsMat4();
-
-    auto& perInstanceData = instanceData[uiCurrentIndex];
-    perInstanceData.ObjectToWorld = objectToWorld;
-
-    if (pRenderData->m_uiUniformScale)
-    {
-      perInstanceData.ObjectToWorldNormal = objectToWorld;
-    }
-    else
-    {
-      ezMat3 mInverse = objectToWorld.GetRotationalPart();
-      mInverse.Invert(0.0f);
-      // we explicitly ignore the return value here (success / failure)
-      // because when we have a scale of 0 (which happens temporarily during editing) that would be annoying
-
-      ezShaderTransform shaderT;
-      shaderT = mInverse.GetTranspose();
-      perInstanceData.ObjectToWorldNormal = shaderT;
-    }
-
-    perInstanceData.BoundingSphereRadius = pRenderData->m_GlobalBounds.m_fSphereRadius;
-    perInstanceData.GameObjectID = pRenderData->m_uiUniqueID;
-    perInstanceData.Color = pRenderData->m_Color;
+    ezInternal::FillPerInstanceData(instanceData[uiCurrentIndex], it);
 
     ++uiCurrentIndex;
   }
 
   out_uiFilteredCount = uiCurrentIndex;
-}
-
-void ezMeshRenderer::SetAdditionalData(const ezRenderViewContext& renderViewContext, const ezMeshRenderData* pRenderData) const
-{
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("VERTEX_SKINNING", "FALSE");
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshRenderer);

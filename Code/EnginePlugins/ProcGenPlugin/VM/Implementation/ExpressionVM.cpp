@@ -2,6 +2,7 @@
 
 #include <ProcGenPlugin/VM/ExpressionByteCode.h>
 #include <ProcGenPlugin/VM/ExpressionVM.h>
+#include <Foundation/SimdMath/SimdMath.h>
 
 namespace
 {
@@ -320,6 +321,30 @@ void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<co
 
       case ezExpressionByteCode::OpCode::Sqrt_R:
         VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return x.GetSqrt(); });
+        break;
+
+      case ezExpressionByteCode::OpCode::Sin_R:
+        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return ezSimdMath::Sin(x); });
+        break;
+
+      case ezExpressionByteCode::OpCode::Cos_R:
+        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return ezSimdMath::Cos(x); });
+        break;
+
+      case ezExpressionByteCode::OpCode::Tan_R:
+        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return ezSimdMath::Tan(x); });
+        break;
+
+      case ezExpressionByteCode::OpCode::ASin_R:
+        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return ezSimdMath::ASin(x); });
+        break;
+
+      case ezExpressionByteCode::OpCode::ACos_R:
+        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return ezSimdMath::ACos(x); });
+        break;
+
+      case ezExpressionByteCode::OpCode::ATan_R:
+        VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return ezSimdMath::ATan(x); });
         break;
 
       case ezExpressionByteCode::OpCode::Mov_R:

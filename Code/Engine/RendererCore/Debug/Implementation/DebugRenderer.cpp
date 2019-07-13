@@ -1022,7 +1022,7 @@ void ezDebugRenderer::OnEngineStartup()
 
     {
       ezVertexStreamInfo& si = s_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::Color;
+      si.m_Semantic = ezGALVertexAttributeSemantic::Color0;
       si.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
       si.m_uiOffset = 12;
       si.m_uiElementSize = 4;
@@ -1043,7 +1043,7 @@ void ezDebugRenderer::OnEngineStartup()
 
     {
       ezVertexStreamInfo& si = s_TexVertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::Color;
+      si.m_Semantic = ezGALVertexAttributeSemantic::Color0;
       si.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
       si.m_uiOffset = 12;
       si.m_uiElementSize = 4;

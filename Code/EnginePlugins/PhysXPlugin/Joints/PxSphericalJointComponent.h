@@ -33,7 +33,7 @@ protected:
   ezAngle m_ConeLimitZ;
 
 
-  void ApplyConeLimit(PxJoint* pJoint0);
+  void ApplyConeLimit(physx::PxJoint* pJoint0);
 
   virtual physx::PxJoint* CreateJointType(physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) override;
 };

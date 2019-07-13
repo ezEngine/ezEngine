@@ -118,7 +118,7 @@ public:
 
   ezSimdVec4f FlipSign(const ezSimdVec4b& cmp) const; // [tested]
 
-  static ezSimdVec4f Select(const ezSimdVec4f& ifFalse, const ezSimdVec4f& ifTrue, const ezSimdVec4b& cmp); // [tested]
+  static ezSimdVec4f Select(const ezSimdVec4b& cmp, const ezSimdVec4f& ifTrue, const ezSimdVec4f& ifFalse); // [tested]
 
   static ezSimdVec4f Lerp(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& t);
 

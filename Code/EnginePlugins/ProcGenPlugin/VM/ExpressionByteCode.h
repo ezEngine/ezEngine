@@ -16,6 +16,14 @@ public:
       Abs_R,
       Sqrt_R,
 
+      Sin_R,
+      Cos_R,
+      Tan_R,
+
+      ASin_R,
+      ACos_R,
+      ATan_R,
+
       Mov_R,
       Mov_C,
       Mov_I,

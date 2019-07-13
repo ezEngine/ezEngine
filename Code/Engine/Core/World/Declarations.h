@@ -86,21 +86,21 @@ typedef ezGenericId<24, 8> ezGenericComponentId;
 struct ezComponentId : public ezGenericComponentId
 {
   EZ_ALWAYS_INLINE ezComponentId()
-      : ezGenericComponentId()
+    : ezGenericComponentId()
   {
     m_TypeId = 0;
     m_WorldIndex = 0;
   }
 
   EZ_ALWAYS_INLINE ezComponentId(StorageType instanceIndex, StorageType generation, ezUInt16 typeId = 0, ezUInt16 worldIndex = 0)
-      : ezGenericComponentId(instanceIndex, generation)
+    : ezGenericComponentId(instanceIndex, generation)
   {
     m_TypeId = typeId;
     m_WorldIndex = worldIndex;
   }
 
   EZ_ALWAYS_INLINE ezComponentId(ezGenericComponentId genericId, ezUInt16 typeId, ezUInt16 worldIndex)
-      : ezGenericComponentId(genericId)
+    : ezGenericComponentId(genericId)
   {
     m_TypeId = typeId;
     m_WorldIndex = worldIndex;
@@ -175,18 +175,19 @@ struct ezObjectFlags
   enum Enum
   {
     None = 0,
-    Dynamic = EZ_BIT(0),            ///< Usually detected automatically. A dynamic object will not cache render data across frames.
-    ForceDynamic = EZ_BIT(1),       ///< Set by the user to enforce the 'Dynamic' mode. Necessary when user code (or scripts) should change
-                                    ///< objects, and the automatic detection cannot know that.
-    Active = EZ_BIT(2),             ///< The object/component is currently in the 'active' state
-    Initialized = EZ_BIT(3),        ///< The object/component has been initialized
-    Initializing = EZ_BIT(4),       ///< The object/component is currently initializing. Used to prevent recursions during initialization.
-    SimulationStarted = EZ_BIT(5),  ///< OnSimulationStarted() has been called on the component
-    SimulationStarting = EZ_BIT(6), ///< Used to prevent recursion during OnSimulationStarted()
+    Dynamic = EZ_BIT(0),                 ///< Usually detected automatically. A dynamic object will not cache render data across frames.
+    ForceDynamic = EZ_BIT(1),            ///< Set by the user to enforce the 'Dynamic' mode. Necessary when user code (or scripts) should change
+                                         ///< objects, and the automatic detection cannot know that.
+    Active = EZ_BIT(2),                  ///< The object/component is currently in the 'active' state
+    Initialized = EZ_BIT(3),             ///< The object/component has been initialized
+    Initializing = EZ_BIT(4),            ///< The object/component is currently initializing. Used to prevent recursions during initialization.
+    SimulationStarted = EZ_BIT(5),       ///< OnSimulationStarted() has been called on the component
+    SimulationStarting = EZ_BIT(6),      ///< Used to prevent recursion during OnSimulationStarted()
     UnhandledMessageHandler = EZ_BIT(7), ///< For components, when a message is not handled, a virtual function is called
 
-    ChildChangesNotifications = EZ_BIT(8), ///< The object should send a notification message when children are added or removed.
-    ComponentChangesNotifications = EZ_BIT(9), ///< The object should send a notification message when components are added or removed.
+    ChildChangesNotifications = EZ_BIT(8),            ///< The object should send a notification message when children are added or removed.
+    ComponentChangesNotifications = EZ_BIT(9),        ///< The object should send a notification message when components are added or removed.
+    StaticTransformChangesNotifications = EZ_BIT(10), ///< The object should send a notification message if it is static and its transform changes.
 
     UserFlag0 = EZ_BIT(24),
     UserFlag1 = EZ_BIT(25),
@@ -331,4 +332,3 @@ class ezSpatialDataHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezSpatialDataHandle, ezSpatialDataId);
 };
-

@@ -2,6 +2,7 @@
 
 #include <Core/Messages/DeleteObjectMessage.h>
 #include <Core/Messages/HierarchyChangedMessages.h>
+#include <Core/Messages/TransformChangedMessage.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/World/World.h>
 
@@ -14,7 +15,7 @@ namespace
     value.PushBack(ezStringView("AutoColMesh")); // TODO: keep this ?
     return value;
   }
-}
+} // namespace
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
@@ -195,6 +196,8 @@ void ezGameObject::UpdateGlobalTransformAndBoundsRecursive()
     ezLog::Error("Static object '{0}' was moved during runtime.", GetName());
   }
 
+  ezSimdTransform oldGlobalTransform = GetGlobalTransformSimd();
+
   if (m_pTransformationData->m_pParentData != nullptr)
   {
     m_pTransformationData->UpdateGlobalTransformWithParent();
@@ -205,6 +208,15 @@ void ezGameObject::UpdateGlobalTransformAndBoundsRecursive()
   }
 
   m_pTransformationData->UpdateGlobalBounds();
+
+  if (IsStatic() && m_Flags.IsSet(ezObjectFlags::StaticTransformChangesNotifications) && oldGlobalTransform != GetGlobalTransformSimd())
+  {
+    ezMsgTransformChanged msg;
+    msg.m_OldGlobalTransform = ezSimdConversion::ToTransform(oldGlobalTransform);
+    msg.m_NewGlobalTransform = GetGlobalTransform();
+
+    SendMessage(msg);
+  }
 
   for (auto it = GetChildren(); it.IsValid(); ++it)
   {
@@ -472,7 +484,7 @@ ezGameObject* ezGameObject::SearchForChildByNameSequence(const char* szObjectSeq
 
 
 void ezGameObject::SearchForChildrenByNameSequence(const char* szObjectSequence, const ezRTTI* pExpectedComponent,
-                                                   ezHybridArray<ezGameObject*, 8>& out_Objects)
+  ezHybridArray<ezGameObject*, 8>& out_Objects)
 {
   /// \test Needs a unit test
 
@@ -691,7 +703,7 @@ bool ezGameObject::SendMessage(ezMessage& msg)
   if (!bSentToAny && msg.GetDebugMessageRouting())
   {
     ezLog::Warning("ezGameObject::SendMessage: None of the target object's components had a handler for messages of type {0}.",
-                   msg.GetId());
+      msg.GetId());
   }
 #endif
 
@@ -715,7 +727,7 @@ bool ezGameObject::SendMessage(ezMessage& msg) const
   if (!bSentToAny && msg.GetDebugMessageRouting())
   {
     ezLog::Warning("ezGameObject::SendMessage (const): None of the target object's components had a handler for messages of type {0}.",
-                   msg.GetId());
+      msg.GetId());
   }
 #endif
 
@@ -897,4 +909,3 @@ void ezGameObject::TransformationData::UpdateSpatialData(bool bWasAlwaysVisible,
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_GameObject);
-

@@ -4,6 +4,7 @@
 #include <Core/Messages/CommonMessages.h>
 #include <Core/Messages/DeleteObjectMessage.h>
 #include <Core/Messages/HierarchyChangedMessages.h>
+#include <Core/Messages/TransformChangedMessage.h>
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 
@@ -54,6 +55,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgComponentsChanged);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgComponentsChanged, 1, ezRTTIDefaultAllocator<ezMsgComponentsChanged>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTransformChanged);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTransformChanged, 1, ezRTTIDefaultAllocator<ezMsgTransformChanged>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 // clang-format on

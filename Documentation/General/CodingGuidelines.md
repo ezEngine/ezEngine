@@ -46,3 +46,5 @@ Look at the existing code to get a general feeling for the coding style.
     * \\bug `Stuff` anywhere in the code, to document a known bug.
   
 Everything else is up to your judgement.
+
+Also see \ref HeaderFiles for guidelines how to author and structure header files.

@@ -18,7 +18,7 @@ WireFrame = false
 [VERTEXSHADER]
 
 #define USE_TEXCOORD0
-#define USE_COLOR
+#define USE_COLOR0
 
 #if (RENDER_PASS == RENDER_PASS_EDITOR) || (RENDER_PASS == RENDER_PASS_PICKING) || (RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
   #define USE_GAME_OBJECT_ID
@@ -91,7 +91,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
   VS_OUT Output;
   Output.Position = screenPosition;
   Output.TexCoord0 = texCoords * texCoordScale + texCoordOffset;
-  Output.Color = RGBA16FToFloat4(data.colorRG, data.colorBA);
+  Output.Color0 = RGBA16FToFloat4(data.colorRG, data.colorBA);
 
   #if defined(USE_GAME_OBJECT_ID)
     Output.GameObjectID = data.gameObjectID;
@@ -103,7 +103,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
 [PIXELSHADER]
 
 #define USE_TEXCOORD0
-#define USE_COLOR
+#define USE_COLOR0
 
 #if (RENDER_PASS == RENDER_PASS_EDITOR) || (RENDER_PASS == RENDER_PASS_PICKING) || (RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
   #define USE_GAME_OBJECT_ID
@@ -135,7 +135,7 @@ SamplerState SpriteTexture_AutoSampler;
 
 float GetOpacity()
 {
-  float opacity = SpriteTexture.Sample(SpriteTexture_AutoSampler, G.Input.TexCoord0.xy).a * G.Input.Color.a;
+  float opacity = SpriteTexture.Sample(SpriteTexture_AutoSampler, G.Input.TexCoord0.xy).a * G.Input.Color0.a;
 
   #if BLEND_MODE == BLEND_MODE_MASKED
     return opacity - 0.5;
@@ -154,7 +154,7 @@ PS_OUT main(PS_IN Input)
     discard;
   }
 
-  float4 color = SpriteTexture.Sample(SpriteTexture_AutoSampler, Input.TexCoord0.xy) * Input.Color;
+  float4 color = SpriteTexture.Sample(SpriteTexture_AutoSampler, Input.TexCoord0.xy) * Input.Color0;
 
   PS_OUT Output;
 

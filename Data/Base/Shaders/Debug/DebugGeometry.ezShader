@@ -14,7 +14,7 @@ DepthWrite = true
 
 [VERTEXSHADER]
 
-#define USE_COLOR
+#define USE_COLOR0
 
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
@@ -41,7 +41,7 @@ VS_OUT main(VS_IN_POS_ONLY Input)
 
   VS_OUT RetVal;
   RetVal.Position = mul(GetWorldToScreenMatrix(), worldPos);
-  RetVal.Color = boxData[Input.InstanceID].color;
+  RetVal.Color0 = boxData[Input.InstanceID].color;
   RetVal.InstanceID = 0;
 
   return RetVal;
@@ -49,12 +49,12 @@ VS_OUT main(VS_IN_POS_ONLY Input)
 
 [PIXELSHADER]
 
-#define USE_COLOR
+#define USE_COLOR0
 
 #include <Shaders/Materials/MaterialInterpolator.h>
 
 float4 main(PS_IN Input) : SV_Target
 {
-  return Input.Color;
+  return Input.Color0;
 }
 

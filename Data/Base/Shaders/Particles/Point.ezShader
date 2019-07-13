@@ -12,7 +12,7 @@ DepthWrite = true
 
 [VERTEXSHADER]
 
-#define USE_COLOR
+#define USE_COLOR0
 
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
@@ -33,7 +33,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
   float4 screenPosition = mul(GetWorldToScreenMatrix(), worldPosition);
 
   ret.Position = screenPosition;
-  ret.Color = UNPACKCOLOR4H(baseParticle.Color);
+  ret.Color0 = UNPACKCOLOR4H(baseParticle.Color);
 
   return ret;
 }
@@ -41,12 +41,12 @@ VS_OUT main(uint VertexID : SV_VertexID)
 
 [PIXELSHADER]
 
-#define USE_COLOR
+#define USE_COLOR0
 
 #include <Shaders/Materials/MaterialInterpolator.h>
 
 float4 main(PS_IN Input) : SV_Target
 {
-  return Input.Color;
+  return Input.Color0;
 }
 

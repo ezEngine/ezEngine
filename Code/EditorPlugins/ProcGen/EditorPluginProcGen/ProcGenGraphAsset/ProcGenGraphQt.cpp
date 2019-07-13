@@ -85,14 +85,16 @@ void ezQtProcGenNode::UpdateState()
 
     ezVariant val;
     ezStringBuilder sVal;
+    ezStringBuilder sEnumVal;
+
     for (const auto& prop : properties)
     {
       val = GetObject()->GetTypeAccessor().GetValue(prop->GetPropertyName());
 
       if (prop->GetSpecificType()->IsDerivedFrom<ezEnumBase>() || prop->GetSpecificType()->IsDerivedFrom<ezBitflagsBase>())
       {
-        ezReflectionUtils::EnumerationToString(prop->GetSpecificType(), val.ConvertTo<ezInt64>(), sVal);
-        sVal = ezTranslate(sVal);
+        ezReflectionUtils::EnumerationToString(prop->GetSpecificType(), val.ConvertTo<ezInt64>(), sEnumVal);
+        sVal = ezTranslate(sEnumVal);
       }
       else if (prop->GetSpecificType() == ezGetStaticRTTI<bool>())
       {

@@ -13,17 +13,6 @@ using namespace ezProcGenInternal;
 EZ_CHECK_AT_COMPILETIME(sizeof(PlacementPoint) == 32);
 // EZ_CHECK_AT_COMPILETIME(sizeof(PlacementTransform) == 64); // TODO: Fails on Linux and Mac
 
-namespace
-{
-  template <typename T>
-  ezExpression::Stream MakeStream(ezArrayPtr<T> data, ezUInt32 uiOffset, const ezHashedString& sName)
-  {
-    auto byteData = data.ToByteArray().GetSubArray(uiOffset);
-
-    return ezExpression::Stream(sName, ezExpression::Stream::Type::Float, byteData, sizeof(T));
-  }
-} // namespace
-
 PlacementTask::PlacementTask(const char* szName)
   : ezTask(szName)
 {
@@ -140,13 +129,13 @@ void PlacementTask::ExecuteVM()
 
     ezHybridArray<ezExpression::Stream, 8> inputs;
     {
-      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.x), ExpressionInputs::s_sPositionX));
-      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.y), ExpressionInputs::s_sPositionY));
-      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.z), ExpressionInputs::s_sPositionZ));
+      inputs.PushBack(ezExpression::MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.x), ExpressionInputs::s_sPositionX));
+      inputs.PushBack(ezExpression::MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.y), ExpressionInputs::s_sPositionY));
+      inputs.PushBack(ezExpression::MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.z), ExpressionInputs::s_sPositionZ));
 
-      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.x), ExpressionInputs::s_sNormalX));
-      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.y), ExpressionInputs::s_sNormalY));
-      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.z), ExpressionInputs::s_sNormalZ));
+      inputs.PushBack(ezExpression::MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.x), ExpressionInputs::s_sNormalX));
+      inputs.PushBack(ezExpression::MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.y), ExpressionInputs::s_sNormalY));
+      inputs.PushBack(ezExpression::MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.z), ExpressionInputs::s_sNormalZ));
 
       // Point index
       ezArrayPtr<float> pointIndex = m_TempData.GetArrayPtr().GetSubArray(0, uiNumInstances);
@@ -154,7 +143,7 @@ void PlacementTask::ExecuteVM()
       {
         pointIndex[i] = m_InputPoints[i].m_uiPointIndex;
       }
-      inputs.PushBack(MakeStream(pointIndex, 0, ExpressionInputs::s_sPointIndex));
+      inputs.PushBack(ezExpression::MakeStream(pointIndex, 0, ExpressionInputs::s_sPointIndex));
     }
 
     ezArrayPtr<float> density = m_TempData.GetArrayPtr().GetSubArray(uiNumInstances * 1, uiNumInstances);
@@ -164,10 +153,10 @@ void PlacementTask::ExecuteVM()
 
     ezHybridArray<ezExpression::Stream, 8> outputs;
     {
-      outputs.PushBack(MakeStream(density, 0, ExpressionOutputs::s_sDensity));
-      outputs.PushBack(MakeStream(scale, 0, ExpressionOutputs::s_sScale));
-      outputs.PushBack(MakeStream(colorIndex, 0, ExpressionOutputs::s_sColorIndex));
-      outputs.PushBack(MakeStream(objectIndex, 0, ExpressionOutputs::s_sObjectIndex));
+      outputs.PushBack(ezExpression::MakeStream(density, 0, ExpressionOutputs::s_sDensity));
+      outputs.PushBack(ezExpression::MakeStream(scale, 0, ExpressionOutputs::s_sScale));
+      outputs.PushBack(ezExpression::MakeStream(colorIndex, 0, ExpressionOutputs::s_sColorIndex));
+      outputs.PushBack(ezExpression::MakeStream(objectIndex, 0, ExpressionOutputs::s_sObjectIndex));
     }
 
     // Execute expression bytecode

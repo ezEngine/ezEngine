@@ -127,6 +127,7 @@
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/SimdMath/SimdFloat.h>
 #include <Foundation/SimdMath/SimdMat4f.h>
+#include <Foundation/SimdMath/SimdMath.h>
 #include <Foundation/SimdMath/SimdQuat.h>
 #include <Foundation/SimdMath/SimdTransform.h>
 #include <Foundation/SimdMath/SimdVec4b.h>

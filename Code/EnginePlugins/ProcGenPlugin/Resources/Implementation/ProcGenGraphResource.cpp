@@ -13,6 +13,8 @@ namespace ezProcGenInternal
   extern Pattern* GetPattern(ezTempHashedString sName);
 }
 
+using namespace ezProcGenInternal;
+
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphResource, 1, ezRTTIDefaultAllocator<ezProcGenGraphResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -27,15 +29,21 @@ ezProcGenGraphResource::ezProcGenGraphResource()
 
 ezProcGenGraphResource::~ezProcGenGraphResource() {}
 
-const ezDynamicArray<ezSharedPtr<const ezProcGenInternal::PlacementOutput>>& ezProcGenGraphResource::GetPlacementOutputs() const
+const ezDynamicArray<ezSharedPtr<const PlacementOutput>>& ezProcGenGraphResource::GetPlacementOutputs() const
 {
   return m_PlacementOutputs;
+}
+
+const ezDynamicArray<ezSharedPtr<const VertexColorOutput>>& ezProcGenGraphResource::GetVertexColorOutputs() const
+{
+  return m_VertexColorOutputs;
 }
 
 ezResourceLoadDesc ezProcGenGraphResource::UnloadData(Unload WhatToUnload)
 {
   m_ByteCode.Clear();
   m_PlacementOutputs.Clear();
+  m_VertexColorOutputs.Clear();
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -77,7 +85,8 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
 
     ezStringBuilder sTemp;
 
-    ezHashTable<ezProcGenInternal::PlacementOutput*, ezUInt32> placementOutputToByteCodeIndex;
+    ezHashTable<PlacementOutput*, ezUInt32> placementOutputToByteCodeIndex;
+    ezHashTable<VertexColorOutput*, ezUInt32> vertexColorOutputToByteCodeIndex;
 
     // skip all chunks that we don't know
     while (chunk.GetCurrentChunk().m_bValid)
@@ -101,10 +110,9 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
         m_PlacementOutputs.Reserve(uiNumOutputs);
         for (ezUInt32 uiIndex = 0; uiIndex < uiNumOutputs; ++uiIndex)
         {
-          auto pOutput = EZ_DEFAULT_NEW(ezProcGenInternal::PlacementOutput);
+          auto pOutput = EZ_DEFAULT_NEW(PlacementOutput);
 
-          chunk >> sTemp;
-          pOutput->m_sName.Assign(sTemp.GetData());
+          chunk >> pOutput->m_sName;
 
           ezUInt32 uiNumObjectsToPlace = 0;
           chunk >> uiNumObjectsToPlace;
@@ -159,6 +167,26 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
           m_PlacementOutputs.PushBack(pOutput);
         }
       }
+      else if (chunk.GetCurrentChunk().m_sChunkName == "VertexColorOutputs")
+      {
+        ezUInt32 uiNumOutputs = 0;
+        chunk >> uiNumOutputs;
+
+        m_VertexColorOutputs.Reserve(uiNumOutputs);
+        for (ezUInt32 uiIndex = 0; uiIndex < uiNumOutputs; ++uiIndex)
+        {
+          auto pOutput = EZ_DEFAULT_NEW(VertexColorOutput);
+
+          chunk >> pOutput->m_sName;
+
+          ezUInt32 uiByteCodeIndex = ezInvalidIndex;
+          chunk >> uiByteCodeIndex;
+
+          vertexColorOutputToByteCodeIndex.Insert(pOutput, uiByteCodeIndex);
+
+          m_VertexColorOutputs.PushBack(pOutput);
+        }
+      }
 
       chunk.NextChunk();
     }
@@ -167,6 +195,15 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
 
     // link bytecode
     for (auto it = placementOutputToByteCodeIndex.GetIterator(); it.IsValid(); ++it)
+    {
+      ezUInt32 uiByteCodeIndex = it.Value();
+      if (uiByteCodeIndex != ezInvalidIndex)
+      {
+        it.Key()->m_pByteCode = &m_ByteCode[uiByteCodeIndex];
+      }
+    }
+
+    for (auto it = vertexColorOutputToByteCodeIndex.GetIterator(); it.IsValid(); ++it)
     {
       ezUInt32 uiByteCodeIndex = it.Value();
       if (uiByteCodeIndex != ezInvalidIndex)
@@ -192,7 +229,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezProcGenGraphResource, ezProcGenGraphResourceD
 
   // Missing resource
 
-  auto pOutput = EZ_DEFAULT_NEW(ezProcGenInternal::PlacementOutput);
+  auto pOutput = EZ_DEFAULT_NEW(PlacementOutput);
   pOutput->m_sName.Assign("MissingPlacementOutput");
   pOutput->m_ObjectsToPlace.PushBack(ezResourceManager::GetResourceTypeMissingFallback<ezPrefabResource>());
   pOutput->m_pPattern = ezProcGenInternal::GetPattern("Bayer");
