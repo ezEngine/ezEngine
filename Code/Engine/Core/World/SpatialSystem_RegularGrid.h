@@ -19,16 +19,16 @@ public:
 
 private:
   // ezSpatialSystem implementation
-  virtual void FindObjectsInSphereInternal(const ezBoundingSphere& sphere, QueryCallback callback,
+  virtual void FindObjectsInSphereInternal(const ezBoundingSphere& sphere, ezUInt32 uiCategoryBitmask, QueryCallback callback,
                                            QueryStats* pStats = nullptr) const override;
-  virtual void FindObjectsInBoxInternal(const ezBoundingBox& box, QueryCallback callback, QueryStats* pStats = nullptr) const override;
+  virtual void FindObjectsInBoxInternal(const ezBoundingBox& box, ezUInt32 uiCategoryBitmask, QueryCallback callback, QueryStats* pStats = nullptr) const override;
 
-  virtual void FindVisibleObjectsInternal(const ezFrustum& frustum, ezDynamicArray<const ezGameObject*>& out_Objects,
+  virtual void FindVisibleObjectsInternal(const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezDynamicArray<const ezGameObject*>& out_Objects,
                                           QueryStats* pStats = nullptr) const override;
 
   virtual void SpatialDataAdded(ezSpatialData* pData) override;
   virtual void SpatialDataRemoved(ezSpatialData* pData) override;
-  virtual void SpatialDataChanged(ezSpatialData* pData, const ezSimdBBoxSphere& oldBounds) override;
+  virtual void SpatialDataChanged(ezSpatialData* pData, const ezSimdBBoxSphere& oldBounds, ezUInt32 uiOldCategoryBitmask) override;
   virtual void FixSpatialDataPointer(ezSpatialData* pOldPtr, ezSpatialData* pNewPtr) override;
 
   ezProxyAllocator m_AlignedAllocator;

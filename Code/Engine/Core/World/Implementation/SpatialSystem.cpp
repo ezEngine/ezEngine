@@ -8,21 +8,19 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpatialSystem, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezSpatialData) == 64);
-
 ezSpatialSystem::ezSpatialSystem()
-    : m_Allocator("Spatial System", ezFoundation::GetDefaultAllocator())
-    , m_AllocatorWrapper(&m_Allocator)
-    , m_BlockAllocator("Spatial System Blocks", &m_Allocator)
-    , m_DataTable(&m_Allocator)
-    , m_DataStorage(&m_BlockAllocator, &m_Allocator)
-    , m_DataAlwaysVisible(&m_Allocator)
+  : m_Allocator("Spatial System", ezFoundation::GetDefaultAllocator())
+  , m_AllocatorWrapper(&m_Allocator)
+  , m_BlockAllocator("Spatial System Blocks", &m_Allocator)
+  , m_DataTable(&m_Allocator)
+  , m_DataStorage(&m_BlockAllocator, &m_Allocator)
+  , m_DataAlwaysVisible(&m_Allocator)
 {
 }
 
-ezSpatialSystem::~ezSpatialSystem() {}
+ezSpatialSystem::~ezSpatialSystem() = default;
 
-ezSpatialDataHandle ezSpatialSystem::CreateSpatialData(const ezSimdBBoxSphere& bounds, ezGameObject* pObject /*= nullptr*/)
+ezSpatialDataHandle ezSpatialSystem::CreateSpatialData(const ezSimdBBoxSphere& bounds, ezGameObject* pObject, ezUInt32 uiCategoryBitmask)
 {
   ezSpatialData* pData = m_DataStorage.Create();
 
@@ -34,7 +32,7 @@ ezSpatialDataHandle ezSpatialSystem::CreateSpatialData(const ezSimdBBoxSphere& b
   return ezSpatialDataHandle(m_DataTable.Insert(pData));
 }
 
-ezSpatialDataHandle ezSpatialSystem::CreateSpatialDataAlwaysVisible(ezGameObject* pObject /* = nullptr */)
+ezSpatialDataHandle ezSpatialSystem::CreateSpatialDataAlwaysVisible(ezGameObject* pObject, ezUInt32 uiCategoryBitmask)
 {
   ezSpatialData* pData = m_DataStorage.Create();
 
@@ -80,7 +78,7 @@ bool ezSpatialSystem::TryGetSpatialData(const ezSpatialDataHandle& hData, const 
 }
 
 void ezSpatialSystem::UpdateSpatialData(const ezSpatialDataHandle& hData, const ezSimdBBoxSphere& bounds,
-                                        ezGameObject* pObject /*= nullptr*/)
+  ezGameObject* pObject, ezUInt32 uiCategoryBitmask)
 {
   ezSpatialData* pData = nullptr;
   if (!m_DataTable.TryGetValue(hData.GetInternalID(), pData))
@@ -90,61 +88,70 @@ void ezSpatialSystem::UpdateSpatialData(const ezSpatialDataHandle& hData, const 
 
   if (!pData->m_Flags.IsSet(ezSpatialData::Flags::AlwaysVisible))
   {
+    ezUInt32 uiOldCategoryBitmask = pData->m_uiCategoryBitmask;
     ezSimdBBoxSphere oldBounds = pData->m_Bounds;
 
+    pData->m_uiCategoryBitmask = uiCategoryBitmask;
     pData->m_Bounds = bounds;
 
-    if (bounds != oldBounds)
+    if (uiCategoryBitmask != uiOldCategoryBitmask || bounds != oldBounds)
     {
-      SpatialDataChanged(pData, oldBounds);
+      SpatialDataChanged(pData, oldBounds, uiOldCategoryBitmask);
+    }
+  }
+  else
+  {
+    pData->m_uiCategoryBitmask = uiCategoryBitmask;
+  }
+}
+
+void ezSpatialSystem::FindObjectsInSphere(const ezBoundingSphere& sphere, ezUInt32 uiCategoryBitmask, ezDynamicArray<ezGameObject*>& out_Objects,
+  QueryStats* pStats /*= nullptr*/) const
+{
+  FindObjectsInSphere(sphere, uiCategoryBitmask,
+    [&](ezGameObject* pObject) {
+      out_Objects.PushBack(pObject);
+
+      return ezVisitorExecution::Continue;
+    },
+    pStats);
+}
+
+void ezSpatialSystem::FindObjectsInSphere(const ezBoundingSphere& sphere, ezUInt32 uiCategoryBitmask, QueryCallback callback, QueryStats* pStats /*= nullptr*/) const
+{
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (pStats != nullptr)
+  {
+    pStats->m_uiTotalNumObjects = m_DataTable.GetCount();
+    pStats->m_uiNumObjectsTested += m_DataAlwaysVisible.GetCount();
+    pStats->m_uiNumObjectsPassed += m_DataAlwaysVisible.GetCount();
+  }
+#endif
+
+  FindObjectsInSphereInternal(sphere, uiCategoryBitmask, callback, pStats);
+
+  for (auto pData : m_DataAlwaysVisible)
+  {
+    if ((pData->m_uiCategoryBitmask & uiCategoryBitmask) != 0)
+    {
+      callback(pData->m_pObject);
     }
   }
 }
 
-void ezSpatialSystem::FindObjectsInSphere(const ezBoundingSphere& sphere, ezDynamicArray<ezGameObject*>& out_Objects,
-                                          QueryStats* pStats /*= nullptr*/) const
+void ezSpatialSystem::FindObjectsInBox(const ezBoundingBox& box, ezUInt32 uiCategoryBitmask, ezDynamicArray<ezGameObject*>& out_Objects,
+  QueryStats* pStats /*= nullptr*/) const
 {
-  FindObjectsInSphere(sphere,
-                      [&](ezGameObject* pObject) {
-                        out_Objects.PushBack(pObject);
+  FindObjectsInBox(box, uiCategoryBitmask,
+    [&](ezGameObject* pObject) {
+      out_Objects.PushBack(pObject);
 
-                        return ezVisitorExecution::Continue;
-                      },
-                      pStats);
+      return ezVisitorExecution::Continue;
+    },
+    pStats);
 }
 
-void ezSpatialSystem::FindObjectsInSphere(const ezBoundingSphere& sphere, QueryCallback callback, QueryStats* pStats /*= nullptr*/) const
-{
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  if (pStats != nullptr)
-  {
-    pStats->m_uiTotalNumObjects = m_DataTable.GetCount();
-    pStats->m_uiNumObjectsTested += m_DataAlwaysVisible.GetCount();
-    pStats->m_uiNumObjectsPassed += m_DataAlwaysVisible.GetCount();
-  }
-#endif
-
-  FindObjectsInSphereInternal(sphere, callback, pStats);
-
-  for (auto pData : m_DataAlwaysVisible)
-  {
-    callback(pData->m_pObject);
-  }
-}
-
-void ezSpatialSystem::FindObjectsInBox(const ezBoundingBox& box, ezDynamicArray<ezGameObject*>& out_Objects,
-                                       QueryStats* pStats /*= nullptr*/) const
-{
-  FindObjectsInBox(box,
-                   [&](ezGameObject* pObject) {
-                     out_Objects.PushBack(pObject);
-
-                     return ezVisitorExecution::Continue;
-                   },
-                   pStats);
-}
-
-void ezSpatialSystem::FindObjectsInBox(const ezBoundingBox& box, QueryCallback callback, QueryStats* pStats /*= nullptr*/) const
+void ezSpatialSystem::FindObjectsInBox(const ezBoundingBox& box, ezUInt32 uiCategoryBitmask, QueryCallback callback, QueryStats* pStats /*= nullptr*/) const
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   if (pStats != nullptr)
@@ -155,16 +162,19 @@ void ezSpatialSystem::FindObjectsInBox(const ezBoundingBox& box, QueryCallback c
   }
 #endif
 
-  FindObjectsInBoxInternal(box, callback, pStats);
+  FindObjectsInBoxInternal(box, uiCategoryBitmask, callback, pStats);
 
   for (auto pData : m_DataAlwaysVisible)
   {
-    callback(pData->m_pObject);
+    if ((pData->m_uiCategoryBitmask & uiCategoryBitmask) != 0)
+    {
+      callback(pData->m_pObject);
+    }
   }
 }
 
-void ezSpatialSystem::FindVisibleObjects(const ezFrustum& frustum, ezDynamicArray<const ezGameObject*>& out_Objects,
-                                         QueryStats* pStats /*= nullptr*/) const
+void ezSpatialSystem::FindVisibleObjects(const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezDynamicArray<const ezGameObject*>& out_Objects,
+  QueryStats* pStats /*= nullptr*/) const
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezStopwatch timer;
@@ -177,11 +187,14 @@ void ezSpatialSystem::FindVisibleObjects(const ezFrustum& frustum, ezDynamicArra
   }
 #endif
 
-  FindVisibleObjectsInternal(frustum, out_Objects, pStats);
+  FindVisibleObjectsInternal(frustum, uiCategoryBitmask, out_Objects, pStats);
 
   for (auto pData : m_DataAlwaysVisible)
   {
-    out_Objects.PushBack(pData->m_pObject);
+    if ((pData->m_uiCategoryBitmask & uiCategoryBitmask) != 0)
+    {
+      out_Objects.PushBack(pData->m_pObject);
+    }    
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -195,4 +208,3 @@ void ezSpatialSystem::FindVisibleObjects(const ezFrustum& frustum, ezDynamicArra
 
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_SpatialSystem);
-
