@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11281838771480088251,5140108322494537448}}
-		u4 %Hash{3315340951415751451}
+		u4 %Hash{15368387128390800840}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{17374589031583292623,5460030219854842637}}
@@ -99,8 +99,8 @@ o
 	{
 		b %Active{1}
 		u1 %CollisionLayer{0}
+		s %OnContact{""}
 		f %Radius{0x0000003F}
-		b %ReportContact{0}
 		s %Surface{""}
 	}
 }
@@ -366,6 +366,24 @@ o
 }
 o
 {
+	Uuid %id{u4{14446680793112045351,3506137973542664143}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Bitflags|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezBitflagsBase"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezOnPhysXContact"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13146435625671389871,5145262613012234345}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -378,8 +396,8 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxShapeComponent"}
-		u3 %TypeSize{88}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{5}
 	}
 }
 o
@@ -451,6 +469,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettings"}
 		u3 %TypeSize{32}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11005437603101136476,7368533338987833088}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBitflagsBase"}
+		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -612,7 +648,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxShapeSphereComponent"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{1}
 	}
 }

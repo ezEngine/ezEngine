@@ -27,7 +27,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9554234785370230426,5467105250672530083}}
-		u4 %Hash{1919417381300041203}
+		u4 %Hash{764539682759530714}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{5058072697638833757,15841374294097003470}}
@@ -106,10 +106,11 @@ o
 {
 	Uuid %id{u4{11218973099157091489,5719244332389350007}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{6}
 		s %Material{""}
@@ -195,10 +196,11 @@ o
 {
 	Uuid %id{u4{6724978363745695079,10460517069894996236}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{""}
@@ -244,10 +246,11 @@ o
 {
 	Uuid %id{u4{7212209617689858041,15315329160502045883}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{""}
@@ -267,10 +270,11 @@ o
 {
 	Uuid %id{u4{2695380919510134051,15324558872845949395}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{""}
@@ -521,8 +525,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxComponent"}
-		u3 %TypeSize{112}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{3}
 	}
 }
 o

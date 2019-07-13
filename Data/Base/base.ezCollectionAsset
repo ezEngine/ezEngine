@@ -11,7 +11,7 @@ o
 		s %AssetType{"Collection"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2066776411180025002,5593963395639352612}}
-		u4 %Hash{11080179406680947042}
+		u4 %Hash{6554010098924872946}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References

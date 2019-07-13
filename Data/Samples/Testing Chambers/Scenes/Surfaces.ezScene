@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{332678910050156717,5413383538482065259}}
-		u4 %Hash{6327059144929515609}
+		u4 %Hash{18334604726830150569}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -30,7 +30,7 @@ o
 {
 	Uuid %id{u4{17800664442260889199,1590643385521219542}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -45,7 +45,7 @@ o
 {
 	Uuid %id{u4{18018340305415867293,1768245609931718672}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -60,7 +60,7 @@ o
 {
 	Uuid %id{u4{6258598505600218281,2018123802554727116}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -153,7 +153,7 @@ o
 {
 	Uuid %id{u4{15202596918452223017,4343869397558370245}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -168,7 +168,7 @@ o
 {
 	Uuid %id{u4{7653291406087635839,4548089839599946986}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -250,7 +250,7 @@ o
 {
 	Uuid %id{u4{17585189139198682263,5057273401121500236}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -466,10 +466,11 @@ o
 {
 	Uuid %id{u4{17036593199534897082,5699454206833440972}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
@@ -538,7 +539,7 @@ o
 {
 	Uuid %id{u4{7115817247502815283,7005269403136716772}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -579,7 +580,7 @@ o
 {
 	Uuid %id{u4{10659531116255448414,7614614119873400246}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -620,7 +621,7 @@ o
 {
 	Uuid %id{u4{16034843693717087284,9256622316747030907}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -635,7 +636,7 @@ o
 {
 	Uuid %id{u4{16309736184962361668,9779574671161943943}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -676,7 +677,7 @@ o
 {
 	Uuid %id{u4{10214997491497980725,10033333224397190645}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -717,7 +718,7 @@ o
 {
 	Uuid %id{u4{13098624902628748613,10421319894072355213}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -784,7 +785,7 @@ o
 {
 	Uuid %id{u4{3859368600142710762,11788959223112897418}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -825,7 +826,7 @@ o
 {
 	Uuid %id{u4{16268558922471508762,12647963027296426483}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -840,7 +841,7 @@ o
 {
 	Uuid %id{u4{4949997124179846128,12919157687660361995}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -907,7 +908,7 @@ o
 {
 	Uuid %id{u4{4584077516834759398,14778214476797685672}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -922,7 +923,7 @@ o
 {
 	Uuid %id{u4{10424730232616324098,15059655040990234650}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -989,7 +990,7 @@ o
 {
 	Uuid %id{u4{7157851751263701761,15700409670485341739}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -1030,7 +1031,7 @@ o
 {
 	Uuid %id{u4{9981397538334605175,17498396454121045084}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -1045,7 +1046,7 @@ o
 {
 	Uuid %id{u4{15684376055300847826,17500042453385892633}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -1198,7 +1199,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezPrefabReferenceComponent"}
 		u3 %TypeSize{96}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -1377,8 +1378,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxComponent"}
-		u3 %TypeSize{112}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{3}
 	}
 }
 o

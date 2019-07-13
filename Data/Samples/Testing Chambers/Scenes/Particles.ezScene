@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10397632043479265953,5177341319926404083}}
-		u4 %Hash{16073240061638553774}
+		u4 %Hash{5873254921352831404}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -138,7 +138,7 @@ o
 {
 	Uuid %id{u4{12875498754989563827,1329889047072970074}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -241,7 +241,7 @@ o
 {
 	Uuid %id{u4{2084093117545270926,1790586141937990579}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -256,10 +256,11 @@ o
 {
 	Uuid %id{u4{827662171783113857,1791139362754156471}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -331,10 +332,11 @@ o
 {
 	Uuid %id{u4{8797077252764957619,1993233463216219993}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{""}
@@ -372,7 +374,7 @@ o
 {
 	Uuid %id{u4{13773916077544944262,2114859884375972981}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -387,7 +389,7 @@ o
 {
 	Uuid %id{u4{6386960076563826521,2117180238286476001}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -402,10 +404,11 @@ o
 {
 	Uuid %id{u4{954439309427813801,2148561318239060393}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{""}
@@ -477,10 +480,11 @@ o
 {
 	Uuid %id{u4{9209243071917196982,2282649034624846955}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{""}
@@ -885,10 +889,11 @@ o
 {
 	Uuid %id{u4{11501565453832730118,3197904391033628729}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -1344,10 +1349,11 @@ o
 {
 	Uuid %id{u4{18353777956480540600,4871897673978240407}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{""}
@@ -1367,10 +1373,11 @@ o
 {
 	Uuid %id{u4{2313981442780605628,4916651660390977939}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{""}
@@ -1800,7 +1807,7 @@ o
 {
 	Uuid %id{u4{12049466160263710391,5147191508196511199}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -2178,7 +2185,7 @@ o
 {
 	Uuid %id{u4{14729553452419622821,5420889389530422785}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -2251,10 +2258,11 @@ o
 {
 	Uuid %id{u4{11530284995869216447,5511732844042659080}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{""}
@@ -2274,10 +2282,11 @@ o
 {
 	Uuid %id{u4{14468093553376024990,5533487897076888995}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -2847,7 +2856,7 @@ o
 {
 	Uuid %id{u4{14715563696146219552,6472501521574073524}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -2898,10 +2907,11 @@ o
 {
 	Uuid %id{u4{16905463598699159096,6704216983229659814}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -2947,7 +2957,7 @@ o
 {
 	Uuid %id{u4{4812921988231554616,6769716253377078533}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -2962,7 +2972,7 @@ o
 {
 	Uuid %id{u4{7384176974413429098,6904852344848626582}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -3073,7 +3083,7 @@ o
 {
 	Uuid %id{u4{12468260424496813331,7230413348242099038}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -3474,10 +3484,11 @@ o
 {
 	Uuid %id{u4{5495128582782986932,8847630399756359824}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -3567,7 +3578,7 @@ o
 {
 	Uuid %id{u4{15510707253215868756,9549251335466395100}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -3895,10 +3906,11 @@ o
 {
 	Uuid %id{u4{11387302214507637855,10230736559586367899}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{""}
@@ -4133,10 +4145,11 @@ o
 {
 	Uuid %id{u4{3434875878305291615,10463742095341551931}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{""}
@@ -4252,10 +4265,11 @@ o
 {
 	Uuid %id{u4{5410672250070115157,10588789276951638930}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{""}
@@ -4275,10 +4289,11 @@ o
 {
 	Uuid %id{u4{18266286994328646244,10595917635166794088}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{""}
@@ -4381,10 +4396,11 @@ o
 {
 	Uuid %id{u4{4727347373191885370,10944370443365264559}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -4653,7 +4669,7 @@ o
 {
 	Uuid %id{u4{7193959936765371316,11645759888363986406}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -4704,10 +4720,11 @@ o
 {
 	Uuid %id{u4{8441782090345308127,11856035550722793023}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -4753,7 +4770,7 @@ o
 {
 	Uuid %id{u4{6652986929388210341,11912328727878181983}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -4821,7 +4838,7 @@ o
 {
 	Uuid %id{u4{17768344281364971503,12344679551152735041}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -4862,7 +4879,7 @@ o
 {
 	Uuid %id{u4{16086162930215333143,12411033163851504123}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -5175,7 +5192,7 @@ o
 {
 	Uuid %id{u4{7448130486457859545,14989078541770503559}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -5190,7 +5207,7 @@ o
 {
 	Uuid %id{u4{3389748770593401857,15121776751781416138}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -5205,7 +5222,7 @@ o
 {
 	Uuid %id{u4{14449536843321835732,15124097105691919158}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -5220,10 +5237,11 @@ o
 {
 	Uuid %id{u4{2575847553875730159,15145046406946184683}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{""}
@@ -5287,10 +5305,11 @@ o
 {
 	Uuid %id{u4{7374728428462171878,15225923256754344608}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{""}
@@ -5543,10 +5562,11 @@ o
 {
 	Uuid %id{u4{1887371985635294428,15574597114612425901}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -5799,10 +5819,11 @@ o
 {
 	Uuid %id{u4{4937913004907292947,15809539613843417593}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{""}
@@ -5874,10 +5895,11 @@ o
 {
 	Uuid %id{u4{10439917714889927657,15967220372729583228}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{""}
@@ -6161,10 +6183,11 @@ o
 {
 	Uuid %id{u4{13251749298417939579,16980788669556158097}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
 		u3 %Detail{16}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -6210,7 +6233,7 @@ o
 {
 	Uuid %id{u4{17578127243716913721,17085587094668094865}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -6251,7 +6274,7 @@ o
 {
 	Uuid %id{u4{8023586163457323932,17850860370155612582}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -6439,7 +6462,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponent"}
-		u3 %TypeSize{128}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{3}
 	}
 }
@@ -6458,7 +6481,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezPrefabReferenceComponent"}
 		u3 %TypeSize{96}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -6511,7 +6534,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponentBase"}
-		u3 %TypeSize{128}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{1}
 	}
 }
@@ -6763,8 +6786,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxComponent"}
-		u3 %TypeSize{112}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{3}
 	}
 }
 o

@@ -11,7 +11,7 @@ o
 		s %AssetType{"ProcGen Graph"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12029954962534532266,5346896610498349464}}
-		u4 %Hash{1889161450190878584}
+		u4 %Hash{10110592853789083019}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -122,7 +122,7 @@ o
 }
 o
 {
-	Uuid %id{u4{3348215827797513989,3151030670214517724}}
+	Uuid %id{u4{66403006278044598,7740869544171155176}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -130,29 +130,11 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"ezEditorPluginProcGen"}
-		VarArray %Properties{}
-		s %TypeName{"ezProcGenNodeBase"}
-		u3 %TypeSize{8}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{1093267139089957756,5922977518126335047}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
 		s %ParentTypeName{"ezProcGenNodeBase"}
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
-		s %TypeName{"ezProcGenPlacementOutput"}
-		u3 %TypeSize{624}
+		s %TypeName{"ezProcGenOutput"}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -171,6 +153,42 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
 		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15359102829867228026,11118511090857846425}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcGenNodeBase"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7464978094588071598,15879580586993333976}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezProcGenOutput"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcGenPlacementOutput"}
+		u3 %TypeSize{624}
 		u3 %TypeVersion{1}
 	}
 }

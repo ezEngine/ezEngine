@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{18244993842488090760,5465890411451931965}}
-		u4 %Hash{13294862790259875216}
+		u4 %Hash{5201355984557198274}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{5697229966826873357,5299780223228843891}}
@@ -157,7 +157,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponent"}
-		u3 %TypeSize{128}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{3}
 	}
 }
@@ -175,7 +175,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponentBase"}
-		u3 %TypeSize{128}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{1}
 	}
 }

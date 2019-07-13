@@ -154,9 +154,12 @@ o
 o
 {
 	Uuid %id{u4{15614578880308395805,512860144951683816}}
-	s %t{"ezExposeColorAlphaAttribute"}
+	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
-	p{}
+	p
+	{
+		Color %Value{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+	}
 }
 o
 {
@@ -385,8 +388,8 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Max{0x0000803F}
-		f %Min{0}
+		d %Max{0x000000000000F03F}
+		d %Min{0}
 	}
 }
 o
@@ -504,7 +507,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0x3333333F}
+		d %Value{0x666666666666E63F}
 	}
 }
 o
@@ -514,7 +517,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0}
+		d %Value{0}
 	}
 }
 o
@@ -719,8 +722,8 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Max{0x0000803F}
-		f %Min{0}
+		d %Max{0x000000000000F03F}
+		d %Min{0}
 	}
 }
 o
@@ -753,9 +756,12 @@ o
 o
 {
 	Uuid %id{u4{6193812648921381760,11438249420582779475}}
-	s %t{"ezExposeColorAlphaAttribute"}
+	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
-	p{}
+	p
+	{
+		Color %Value{f{0,0,0,0x0000803F}}
+	}
 }
 o
 {
@@ -813,7 +819,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0x0000803E}
+		d %Value{0x000000000000D03F}
 	}
 }
 o
@@ -885,12 +891,9 @@ o
 o
 {
 	Uuid %id{u4{16768117881337644912,15211838122901488161}}
-	s %t{"ezDefaultValueAttribute"}
+	s %t{"ezExposeColorAlphaAttribute"}
 	u3 %v{1}
-	p
-	{
-		Color %Value{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-	}
+	p{}
 }
 o
 {
@@ -1038,12 +1041,9 @@ o
 o
 {
 	Uuid %id{u4{6483168346021759237,18137578706197534103}}
-	s %t{"ezDefaultValueAttribute"}
+	s %t{"ezExposeColorAlphaAttribute"}
 	u3 %v{1}
-	p
-	{
-		Color %Value{f{0,0,0,0x0000803F}}
-	}
+	p{}
 }
 o
 {

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8811702944663786905,4631212955170078338}}
-		u4 %Hash{11159490133432633957}
+		u4 %Hash{14585948042778212873}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{6253267324350898853,11680517919950717326}}
@@ -106,8 +106,8 @@ o
 	{
 		b %Active{1}
 		u1 %CollisionLayer{0}
+		s %OnContact{""}
 		f %Radius{0x0000003F}
-		b %ReportContact{0}
 		s %Surface{"{ 059b15b6-e6df-4ffe-aebc-70ef9399c2f0 }"}
 	}
 }
@@ -192,8 +192,26 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponent"}
-		u3 %TypeSize{128}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{14446680793112045351,3506137973542664143}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Bitflags|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezBitflagsBase"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezOnPhysXContact"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -210,8 +228,8 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxShapeComponent"}
-		u3 %TypeSize{88}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{5}
 	}
 }
 o
@@ -246,7 +264,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponentBase"}
-		u3 %TypeSize{128}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{1}
 	}
 }
@@ -283,6 +301,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettings"}
 		u3 %TypeSize{32}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11005437603101136476,7368533338987833088}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBitflagsBase"}
+		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -390,7 +426,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxShapeSphereComponent"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{1}
 	}
 }
