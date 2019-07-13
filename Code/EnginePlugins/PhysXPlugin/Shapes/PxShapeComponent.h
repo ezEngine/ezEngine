@@ -2,8 +2,8 @@
 
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <PhysXPlugin/Components/PxComponent.h>
+#include <PhysXPlugin/PhysXInterface.h>
 #include <PhysXPlugin/Utilities/PxUserData.h>
-#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 
 struct ezMsgExtractGeometry;
 
