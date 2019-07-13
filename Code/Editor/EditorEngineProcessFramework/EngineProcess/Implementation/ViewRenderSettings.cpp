@@ -1,11 +1,10 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
-#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
+#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSceneViewPerspective, 1)
-EZ_BITFLAGS_CONSTANTS(ezSceneViewPerspective::Orthogonal_Front, ezSceneViewPerspective::Orthogonal_Right,
-                      ezSceneViewPerspective::Orthogonal_Top, ezSceneViewPerspective::Perspective)
+  EZ_ENUM_CONSTANTS(ezSceneViewPerspective::Orthogonal_Front, ezSceneViewPerspective::Orthogonal_Right, ezSceneViewPerspective::Orthogonal_Top, ezSceneViewPerspective::Perspective)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 void ezEngineViewConfig::ApplyPerspectiveSetting(float fov, float nearPlane, float farPlane)

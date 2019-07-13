@@ -7,6 +7,15 @@
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezPxSteppingMode, 1)
   EZ_ENUM_CONSTANTS(ezPxSteppingMode::Variable, ezPxSteppingMode::Fixed, ezPxSteppingMode::SemiFixed)
 EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezOnPhysXContact, 1)
+  EZ_BITFLAGS_CONSTANT(ezOnPhysXContact::SendReportMsg),
+  EZ_BITFLAGS_CONSTANT(ezOnPhysXContact::ImpactReactions),
+  EZ_BITFLAGS_CONSTANT(ezOnPhysXContact::SlideReactions),
+  EZ_BITFLAGS_CONSTANT(ezOnPhysXContact::RollXReactions),
+  EZ_BITFLAGS_CONSTANT(ezOnPhysXContact::RollYReactions),
+  EZ_BITFLAGS_CONSTANT(ezOnPhysXContact::RollZReactions),
+EZ_END_STATIC_REFLECTED_BITFLAGS;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
@@ -52,7 +61,7 @@ void ezPxErrorCallback::reportError(PxErrorCode::Enum code, const char* message,
 #define EZ_PX_DETAILED_MEMORY_STATS EZ_OFF
 
 ezPxAllocatorCallback::ezPxAllocatorCallback()
-    : m_Allocator("PhysX", ezFoundation::GetAlignedAllocator())
+  : m_Allocator("PhysX", ezFoundation::GetAlignedAllocator())
 {
 }
 
@@ -97,7 +106,7 @@ void ezPxAllocatorCallback::VerifyAllocations()
 //////////////////////////////////////////////////////////////////////////
 
 PxQueryHitType::Enum ezPxQueryFilter::preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor,
-                                                PxHitFlags& queryFlags)
+  PxHitFlags& queryFlags)
 {
   if (shape->getFlags().isSet(PxShapeFlag::eTRIGGER_SHAPE))
   {
@@ -137,7 +146,7 @@ EZ_IMPLEMENT_SINGLETON(ezPhysX);
 static ezPhysX g_PhysXSingleton;
 
 ezPhysX::ezPhysX()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
   m_bInitialized = false;
 
@@ -284,7 +293,7 @@ ezAllocatorBase* ezPhysX::GetAllocator()
   return &(m_pAllocatorCallback->m_Allocator);
 }
 
-PxFilterData ezPhysX::CreateFilterData(ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId /*= ezInvalidIndex*/, ezBitflags<ezPhysXFilterFlags> flags /*= ezPhysXFilterFlags::None*/)
+PxFilterData ezPhysX::CreateFilterData(ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId /*= ezInvalidIndex*/, ezBitflags<ezOnPhysXContact> flags /*= ezOnPhysXContact::None*/)
 {
   PxFilterData filter;
   filter.word0 = EZ_BIT(uiCollisionLayer);
@@ -302,7 +311,7 @@ void ezPhysX::SurfaceResourceEventHandler(const ezSurfaceResource::Event& e)
     const auto& desc = e.m_pSurface->GetDescriptor();
 
     PxMaterial* pMaterial =
-        m_pPhysX->createMaterial(desc.m_fPhysicsFrictionStatic, desc.m_fPhysicsFrictionDynamic, desc.m_fPhysicsRestitution);
+      m_pPhysX->createMaterial(desc.m_fPhysicsFrictionStatic, desc.m_fPhysicsFrictionDynamic, desc.m_fPhysicsRestitution);
     pMaterial->userData = EZ_DEFAULT_NEW(ezPxUserData, e.m_pSurface);
 
     e.m_pSurface->m_pPhysicsMaterial = pMaterial;
