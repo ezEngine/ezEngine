@@ -57,7 +57,7 @@ void ezPxShapeBoxComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezPxShapeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
 {
-  msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f));
+  msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), ezInvalidSpatialDataCategory);
 }
 
 void ezPxShapeBoxComponent::ExtractGeometry(ezMsgExtractGeometry& msg) const
