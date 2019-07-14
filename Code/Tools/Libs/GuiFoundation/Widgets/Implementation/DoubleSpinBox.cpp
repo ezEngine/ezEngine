@@ -8,8 +8,8 @@
 #include <QStyleOption>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
-inline ezQtDoubleSpinBox::ezQtDoubleSpinBox(QWidget* pParent, bool bIntMode)
-    : QDoubleSpinBox(pParent)
+ezQtDoubleSpinBox::ezQtDoubleSpinBox(QWidget* pParent, bool bIntMode)
+  : QDoubleSpinBox(pParent)
 {
   m_fDefaultValue = 0.0;
   m_fDisplayedValue = ezMath::BasicType<float>::GetNaN();
