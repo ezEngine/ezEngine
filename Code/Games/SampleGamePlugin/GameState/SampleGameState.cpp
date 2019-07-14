@@ -51,7 +51,7 @@ void SampleGameState::BeforeWorldUpdate()
     ezImgui::GetSingleton()->SetPassInputToImgui(
       false); // reset this state, to deactivate input processing as long as SampleGameState::ProcessInput() isn't called again
 
-    ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
     ImGui::Begin("Imgui Window", &window);
     ImGui::Text("Hello World!");
     ImGui::SliderFloat("Slider", &slider, 0.0f, 1.0f);
