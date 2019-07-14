@@ -4,6 +4,8 @@
 
 set (EZ_BUILD_PHYSX OFF CACHE BOOL "Whether support for nVidia PhysX should be added")
 
+set (EZ_VCPKG_INSTALL_PHYSX OFF CACHE BOOL "Whether to install PhysX 4 via vcpkg.")
+
 ######################################
 ### ez_requires_physx()
 ######################################
@@ -67,3 +69,11 @@ function(ez_link_target_physx_cooking TARGET_NAME)
 	endif()
 
 endfunction()
+
+######################################
+######################################
+######################################
+
+if (EZ_VCPKG_INSTALL_PHYSX)
+	ez_vcpkg_install("physx")
+endif()

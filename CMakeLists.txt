@@ -32,9 +32,7 @@ if (EZ_VCPKG_INSTALL_QT)
 	ez_vcpkg_install("qt5-base;qt5-winextras")
 endif()
 
-if (EZ_VCPKG_INSTALL_PHYSX)
-	ez_vcpkg_install("physx")
-endif()
+ez_init_projects()
 
 add_subdirectory(Code)
 
