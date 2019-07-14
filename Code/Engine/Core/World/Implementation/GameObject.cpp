@@ -83,6 +83,9 @@ ezHybridArray<ezGameObject*, 8> ezGameObject::Reflection_GetChildren() const
 
 void ezGameObject::Reflection_AddComponent(ezComponent* pComponent)
 {
+  if (pComponent == nullptr)
+    return;
+
   if (pComponent->IsDynamic())
   {
     MakeDynamic();
@@ -93,6 +96,9 @@ void ezGameObject::Reflection_AddComponent(ezComponent* pComponent)
 
 void ezGameObject::Reflection_RemoveComponent(ezComponent* pComponent)
 {
+  if (pComponent == nullptr)
+    return;
+
   /*Don't call RemoveComponent here, Component is automatically removed when deleted.*/
 
   if (pComponent->IsDynamic())
