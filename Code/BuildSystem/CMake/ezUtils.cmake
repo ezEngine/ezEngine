@@ -4,8 +4,6 @@ include("ezUtilsUnityFiles")
 include("ezUtilsQt")
 include("ezUtilsDetect")
 include("ezUtilsDX11")
-include("ezUtilsPhysX")
-include("ezUtilsFmod")
 include("ezUtilsNuGet")
 include("ezUtilsAssImp")
 include("ezUtilsCI")
@@ -395,4 +393,22 @@ function(ez_add_external_projects_folder PROJECT_NUMBER)
 
 	add_subdirectory(${CACHE_VAR_VALUE} "${CMAKE_BINARY_DIR}/ExternalProject${PROJECT_NUMBER}")
 
+endfunction()
+
+######################################
+### ez_init_projects()
+######################################
+
+function(ez_init_projects)
+
+	# find all init.cmake files below this directory
+	file (GLOB_RECURSE INIT_FILES "init.cmake")
+
+	foreach (INIT_FILE ${INIT_FILES})
+
+		message(STATUS "Including '${INIT_FILE}'")
+		include("${INIT_FILE}")
+
+	endforeach ()
+	
 endfunction()

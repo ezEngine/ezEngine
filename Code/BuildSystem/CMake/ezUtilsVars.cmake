@@ -42,46 +42,10 @@ set (EZ_ENABLE_PVS_STUDIO_HEADER_IN_UNITY_FILES ON CACHE BOOL "Adds the necessar
 mark_as_advanced(FORCE EZ_ENABLE_PVS_STUDIO_HEADER_IN_UNITY_FILES)
 
 ######################################
-### 3rd Party Code
-######################################
-
-### enet
-set (EZ_3RDPARTY_ENET_SUPPORT ON CACHE BOOL "Whether to add support for Enet.")
-mark_as_advanced(FORCE EZ_3RDPARTY_ENET_SUPPORT)
-
-### Recast
-set (EZ_3RDPARTY_RECAST_SUPPORT ON CACHE BOOL "Whether to add support for Recast.")
-mark_as_advanced(FORCE EZ_3RDPARTY_RECAST_SUPPORT)
-
-### ImGui
-set (EZ_3RDPARTY_IMGUI_SUPPORT ON CACHE BOOL "Whether to add support for ImGui.")
-mark_as_advanced(FORCE EZ_3RDPARTY_IMGUI_SUPPORT)
-
-### Lua
-set (EZ_3RDPARTY_LUA_SUPPORT ON CACHE BOOL "Whether to add support for Lua.")
-mark_as_advanced(FORCE EZ_3RDPARTY_LUA_SUPPORT)
-
-### zstd
-set (EZ_3RDPARTY_ZSTD_SUPPORT ON CACHE BOOL "Whether to add support for zstd.")
-mark_as_advanced(FORCE EZ_3RDPARTY_ZSTD_SUPPORT)
-
-######################################
-### Other Optional Components
-######################################
-
-### Kraut
-set (EZ_BUILD_KRAUT ON CACHE BOOL "Whether support for Kraut should be added")
-mark_as_advanced(FORCE EZ_BUILD_KRAUT) # this can typically stay on
-
-### OpenVR
-set (EZ_BUILD_OPENVR OFF CACHE BOOL "Whether support for OpenVR aka. SteamVR should be added")
-
-######################################
 ### vcpkg
 ######################################
 
 ### Qt
 set (EZ_VCPKG_INSTALL_QT OFF CACHE BOOL "Whether to install Qt via vcpkg.")
 
-### PhysX
-set (EZ_VCPKG_INSTALL_PHYSX OFF CACHE BOOL "Whether to install PhysX 4 via vcpkg.")
+
