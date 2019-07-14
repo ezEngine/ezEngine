@@ -1,3 +1,6 @@
 [submodule "Data/Content"]
 	path = Data/Content
 	url = https://github.com/ezEngine/content
+[submodule "Data\\Tools\\Precompiled"]
+	path = Data\\Tools\\Precompiled
+	url = https://github.com/ezEngine/precompiled-tools
