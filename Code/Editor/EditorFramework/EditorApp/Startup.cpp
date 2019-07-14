@@ -239,9 +239,11 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
     ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
   }
   ezUniquePtr<ezTranslatorFromFiles> pTranslatorEn = EZ_DEFAULT_NEW(ezTranslatorFromFiles);
+  m_pTranslatorFromFiles = pTranslatorEn.Borrow();
+
   // ezUniquePtr<ezTranslatorFromFiles> pTranslatorDe = EZ_DEFAULT_NEW(ezTranslatorFromFiles);
 
-  pTranslatorEn->LoadTranslationFilesFromFolder(":app/Localization/en");
+  pTranslatorEn->AddTranslationFilesFromFolder(":app/Localization/en");
   // pTranslatorDe->LoadTranslationFilesFromFolder(":app/Localization/de");
 
   ezTranslationLookup::AddTranslator(EZ_DEFAULT_NEW(ezTranslatorLogMissing));

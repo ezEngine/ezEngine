@@ -87,14 +87,14 @@ public:
   /// The given path must be absolute or resolvable to an absolute path.
   /// On failure, the function does nothing.
   /// This function depends on ezFileSystemIterator to be available.
-  void LoadTranslationFilesFromFolder(const char* szFolder);
+  void AddTranslationFilesFromFolder(const char* szFolder);
 
   virtual void Reload() override;
 
 private:
   void LoadTranslationFile(const char* szFullPath);
 
-  ezString m_sFolder;
+  ezHybridArray<ezString, 4> m_Folders;
 };
 
 /// \brief Handles looking up translations for strings.
