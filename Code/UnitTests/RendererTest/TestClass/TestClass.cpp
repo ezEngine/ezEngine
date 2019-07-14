@@ -93,6 +93,16 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   if (m_pDevice->Init().Failed())
     return EZ_FAILURE;
 
+  if (m_pDevice->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver")
+  {
+    // Use different images for comparison when running the D3D11 Reference Device
+    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");
+  }
+  else
+  {
+    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("");
+  }
+
   ezGALSwapChainHandle hPrimarySwapChain = m_pDevice->GetPrimarySwapChain();
   const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(hPrimarySwapChain);
   EZ_ASSERT_DEV(pPrimarySwapChain != nullptr, "Failed to init swapchain");
@@ -199,7 +209,7 @@ void ezGraphicsTest::ClearScreen(const ezColor& color)
   ezGALSwapChainHandle hPrimarySwapChain = m_pDevice->GetPrimarySwapChain();
   const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(hPrimarySwapChain);
 
-  ezGALRenderTagetSetup RTS;
+  ezGALRenderTargetSetup RTS;
   RTS.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture()))
       .SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture));
 
@@ -223,7 +233,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateMesh(const ezGeometry& geom, co
 
   ezMeshBufferResourceDescriptor desc;
   desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  desc.AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized);
+  desc.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
   desc.AllocateStreamsFromGeometry(geom, Topology);
 
   hMesh = ezResourceManager::CreateResource<ezMeshBufferResource>(szResourceName, std::move(desc), szResourceName);

@@ -13,11 +13,17 @@ namespace ezMath
 {
   /// \brief Returns whether the given value is NaN under this type.
   template <typename Type>
-  constexpr static bool IsNaN(Type value) { return false; }
+  constexpr static bool IsNaN(Type value)
+  {
+    return false;
+  }
 
   /// \brief Returns whether the given value represents a finite value (i.e. not +/- Infinity and not NaN)
   template <typename Type>
-  constexpr static bool IsFinite(Type value) { return true; }
+  constexpr static bool IsFinite(Type value)
+  {
+    return true;
+  }
 
   template <typename Type>
   struct BasicType
@@ -201,6 +207,18 @@ namespace ezMath
   /// \brief Returns 1 / f
   template <typename Type>
   constexpr Type Invert(Type f); // [tested]
+
+  /// \brief Returns a multiple of the given multiple that is larger than or equal to value.
+  constexpr ezInt32 RoundUp(ezInt32 value, ezUInt16 multiple); // [tested]
+
+  /// \brief Returns a multiple of the given multiple that is smaller than or equal to value.
+  constexpr ezInt32 RoundDown(ezInt32 value, ezUInt16 multiple); // [tested]
+
+  /// \brief Returns a multiple of the given multiple that is greater than or equal to value.
+  constexpr ezUInt32 RoundUp(ezUInt32 value, ezUInt16 multiple); // [tested]
+
+  /// \brief Returns a multiple of the given multiple that is smaller than or equal to value.
+  constexpr ezUInt32 RoundDown(ezUInt32 value, ezUInt16 multiple); // [tested]
 
   /// \brief Returns true, if i is an odd number
   constexpr bool IsOdd(ezInt32 i); // [tested]

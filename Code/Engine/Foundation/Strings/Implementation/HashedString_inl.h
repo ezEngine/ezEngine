@@ -58,8 +58,9 @@ EZ_FORCE_INLINE void ezHashedString::operator=(ezHashedString&& rhs)
 template <size_t N>
 EZ_FORCE_INLINE void ezHashedString::Assign(const char (&szString)[N])
 {
+#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   HashedType tmp = m_Data;
-
+#endif
   // this function will already increase the refcount as needed
   m_Data = AddHashedString(szString, ezHashingUtils::MurmurHash32String(szString));
 
@@ -70,8 +71,9 @@ EZ_FORCE_INLINE void ezHashedString::Assign(const char (&szString)[N])
 
 EZ_FORCE_INLINE void ezHashedString::Assign(ezHashingUtils::StringWrapper szString)
 {
+#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   HashedType tmp = m_Data;
-
+#endif
   // this function will already increase the refcount as needed
   m_Data = AddHashedString(szString.m_str, ezHashingUtils::MurmurHash32String(szString));
 

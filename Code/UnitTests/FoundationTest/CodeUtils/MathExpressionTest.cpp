@@ -27,9 +27,9 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
       EZ_TEST_BOOL(!expr.IsValid());
     }
     {
-      ezMathExpression expr("1 + 2");
+      ezMathExpression expr("1.5 + 2.5");
       EZ_TEST_BOOL(expr.IsValid());
-      EZ_TEST_DOUBLE(expr.Evaluate(), 3.0, 0.0);
+      EZ_TEST_DOUBLE(expr.Evaluate(), 4.0, 0.0);
     }
     {
       ezMathExpression expr("1- 2");

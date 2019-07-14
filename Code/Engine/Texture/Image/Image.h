@@ -2,6 +2,7 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Containers/Blob.h>
 #include <Foundation/Logging/Log.h>
 
 #include <Texture/Image/ImageHeader.h>
@@ -14,7 +15,7 @@ public:
   ezImageView();
 
   /// \brief Constructs an image view with the given header and image data.
-  ezImageView(const ezImageHeader& header, ezArrayPtr<const void> imageData);
+  ezImageView(const ezImageHeader& header, ezBlobPtr<const void> imageData);
 
   /// \brief Constructs an empty image view.
   void Clear();
@@ -23,7 +24,7 @@ public:
   bool IsValid() const;
 
   /// \brief Constructs an image view with the given header and image data.
-  void ResetAndViewExternalStorage(const ezImageHeader& header, ezArrayPtr<const void> imageData);
+  void ResetAndViewExternalStorage(const ezImageHeader& header, ezBlobPtr<const void> imageData);
 
   /// \brief Convenience function to save the image to the given file.
   ezResult SaveTo(const char* szFileName, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem()) const;
@@ -33,7 +34,7 @@ public:
 
   /// \brief Returns a view to the entire data contained in this image.
   template <typename T>
-  ezArrayPtr<const T> GetArrayPtr() const;
+  ezBlobPtr<const T> GetBlobPtr() const;
 
   /// \brief Returns a view to the given sub-image.
   ezImageView GetSubImageView(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0) const;
@@ -71,16 +72,16 @@ public:
   using ezImageHeader::GetRowPitch;
 
 protected:
-  ezUInt32 ComputeLayout();
+  ezUInt64 ComputeLayout();
 
   void ValidateSubImageIndices(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const;
   template <typename T>
   void ValidateDataTypeAccessor() const;
 
-  const ezUInt32& GetSubImageOffset(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const;
+  const ezUInt64& GetSubImageOffset(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const;
 
-  ezHybridArray<ezUInt32, 16> m_subImageOffsets;
-  ezArrayPtr<ezUInt8> m_dataPtr;
+  ezHybridArray<ezUInt64, 16> m_subImageOffsets;
+  ezBlobPtr<ezUInt8> m_dataPtr;
 };
 
 /// \brief A class containing image data and associated meta data.
@@ -103,7 +104,7 @@ class EZ_TEXTURE_DLL ezImage : public ezImageView
   explicit ezImage(const ezImageHeader& header);
 
   /// \brief Constructs an image with the given header backed by user-supplied external storage.
-  explicit ezImage(const ezImageHeader& header, ezArrayPtr<void> externalData);
+  explicit ezImage(const ezImageHeader& header, ezBlobPtr<void> externalData);
   
   /// \brief Constructor from image view (copies the image data to internal storage)
   explicit ezImage(const ezImageView& other);
@@ -131,7 +132,7 @@ public:
   /// \brief Constructs an image with the given header and attaches to the user-supplied external storage.
   ///
   /// The user is responsible to keep the external storage alive as long as this ezImage is alive.
-  void ResetAndUseExternalStorage(const ezImageHeader& header, ezArrayPtr<void> externalData);
+  void ResetAndUseExternalStorage(const ezImageHeader& header, ezBlobPtr<void> externalData);
 
   /// \brief Moves the given data into this object.
   ///
@@ -152,9 +153,9 @@ public:
 
   /// \brief Returns a view to the entire data contained in this image.
   template <typename T>
-  ezArrayPtr<T> GetArrayPtr();
+  ezBlobPtr<T> GetBlobPtr();
 
-  using ezImageView::GetArrayPtr;
+  using ezImageView::GetBlobPtr;
 
   /// \brief Returns a view to the given sub-image.
   ezImage GetSubImageView(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0);
@@ -181,7 +182,7 @@ public:
 private:
   bool UsesExternalStorage() const;
 
-  ezDynamicArray<ezUInt8> m_internalStorage;
+  ezBlob m_internalStorage;
 };
 
 #include <Texture/Image/Implementation/Image_inl.h>

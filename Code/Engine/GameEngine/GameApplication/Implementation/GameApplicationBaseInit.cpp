@@ -2,11 +2,12 @@
 
 #include <GameEngine/GameApplication/GameApplicationBase.h>
 
-#include <Core/Application/Config/FileSystemConfig.h>
-#include <Core/Application/Config/PluginConfig.h>
+#include <Foundation/Application/Config/FileSystemConfig.h>
+#include <Foundation/Application/Config/PluginConfig.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/IO/Archive/DataDirTypeArchive.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OpenDdlReader.h>
@@ -19,10 +20,14 @@ ezString ezGameApplicationBase::GetBaseDataDirectoryPath() const
   return ">sdk/Data/Base";
 }
 
+ezString ezGameApplicationBase::GetProjectDataDirectoryPath() const
+{
+  return ">project/";
+}
+
 void ezGameApplicationBase::ExecuteInitFunctions()
 {
   Init_PlatformProfile_SetPreferred();
-  Init_ConfigureLogging();
   Init_ConfigureTelemetry();
   Init_FileSystem_SetSpecialDirs();
   Init_FileSystem_SetDataDirFactories();
@@ -44,7 +49,7 @@ void ezGameApplicationBase::Init_PlatformProfile_SetPreferred()
   m_PlatformProfile.AddMissingConfigs();
 }
 
-void ezGameApplicationBase::Init_ConfigureLogging()
+void ezGameApplicationBase::BaseInit_ConfigureLogging()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
@@ -55,6 +60,8 @@ void ezGameApplicationBase::Init_ConfigureLogging()
 void ezGameApplicationBase::Init_ConfigureTelemetry()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezTelemetry::s_uiPort = ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-TelemetryPort", ezTelemetry::s_uiPort);
+  ezTelemetry::SetServerName(GetApplicationName());
   ezTelemetry::CreateServer();
 #endif
 }
@@ -67,11 +74,17 @@ void ezGameApplicationBase::Init_FileSystem_SetSpecialDirs()
 void ezGameApplicationBase::Init_FileSystem_SetDataDirFactories()
 {
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
+  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::ArchiveType::Factory);
 }
 
 void ezGameApplicationBase::Init_ConfigureAssetManagement() {}
 
-void ezGameApplicationBase::Init_LoadRequiredPlugins() {}
+void ezGameApplicationBase::Init_LoadRequiredPlugins()
+{
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  ezPlugin::LoadPlugin("XBoxControllerPlugin");
+#endif
+}
 
 void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
 {
@@ -108,7 +121,7 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
   ezFileSystem::AddDataDirectory(GetBaseDataDirectoryPath(), "GameApplicationBase", "base", ezFileSystem::DataDirUsage::ReadOnly);
 
   // ":project/" for reading the project specific files
-  ezFileSystem::AddDataDirectory(">project/", "GameApplicationBase", "project", ezFileSystem::DataDirUsage::ReadOnly);
+  ezFileSystem::AddDataDirectory(GetProjectDataDirectoryPath(), "GameApplicationBase", "project", ezFileSystem::DataDirUsage::ReadOnly);
 
   {
     ezApplicationFileSystemConfig appFileSystemConfig;
@@ -212,7 +225,7 @@ void ezGameApplicationBase::Deinit_UnloadPlugins()
   ezPlugin* pPlugin = ezPlugin::GetFirstInstance();
   while (pPlugin != nullptr)
   {
-    s = ezPlugin::GetFirstInstance()->GetPluginName();
+    s = pPlugin->GetPluginName();
     ToUnload.Insert(s);
 
     pPlugin = pPlugin->GetNextInstance();
@@ -231,9 +244,14 @@ void ezGameApplicationBase::Deinit_UnloadPlugins()
   }
 }
 
-void ezGameApplicationBase::Deinit_ShutdownLogging() {}
+void ezGameApplicationBase::Deinit_ShutdownLogging()
+{
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
+  ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+#endif
+}
 
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_GameApplicationBaseInit);
-

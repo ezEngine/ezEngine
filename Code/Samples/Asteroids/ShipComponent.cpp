@@ -2,13 +2,15 @@
 #include "ShipComponent.h"
 #include "ProjectileComponent.h"
 #include "CollidableComponent.h"
-#include <System/XBoxController/InputDeviceXBox.h>
+#include <XboxControllerPlugin/InputDeviceXBox.h>
 #include <Foundation/Utilities/Stats.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <Foundation/Configuration/CVar.h>
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ShipComponent, 1, ezComponentMode::Dynamic);
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
 ezCVarFloat CVar_MaxAmmo("g_MaxAmmo", 20.0f, ezCVarFlags::Default, "How much ammo a ship can store");
 ezCVarFloat CVar_MaxHealth("g_MaxHealth", 30.0f, ezCVarFlags::Default, "How much health a ship can have");

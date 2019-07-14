@@ -3,14 +3,14 @@
 # conveniently, the Fmod installer will set a registry entry for this, so just look it up
 
 # early out, if this target has been created before
-if (TARGET ezezFmod::LowLevel)
+if (TARGET ezFmod::LowLevel)
 	return()
 endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
 	# UWP builds
 
-	find_path(EZ_EZ_FMOD_DIR api/lowlevel/inc/fmod.h
+	find_path(EZ_FMOD_DIR api/lowlevel/inc/fmod.h
 		PATHS
 		[HKEY_CURRENT_USER\\Software\\FMOD\ Studio\ API\ Universal\ Windows\ Platform]
 	)
@@ -74,6 +74,7 @@ if (EZFMOD_FOUND)
 
 endif()
 
+mark_as_advanced(FORCE EZ_FMOD_DIR)
 
 unset (FMOD_DIR_STUDIO)
 unset (FMOD_DIR_FSBANK)

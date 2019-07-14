@@ -4,6 +4,7 @@
 #include <Foundation/Strings/StringConversion.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
 void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& eventData)
 {
@@ -25,7 +26,11 @@ void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& even
       OutputDebugStringW(ezStringWChar(sz).GetData());
       break;
     case ezLogMsgType::EndGroup:
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
       ezStringUtils::snprintf(sz, 1024, "----- %s (%.6f sec) -----\n\n", eventData.m_szText, eventData.m_fSeconds);
+#else
+      ezStringUtils::snprintf(sz, 1024, "----- %s (%s) -----\n\n", eventData.m_szText, "timing info not available");
+#endif
       OutputDebugStringW(ezStringWChar(sz).GetData());
       break;
     case ezLogMsgType::ErrorMsg:

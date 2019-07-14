@@ -7,7 +7,7 @@ using namespace ezTokenParseUtils;
 
 ezResult ezPreprocessor::Expand(const TokenStream& Tokens, TokenStream& Output)
 {
-  TokenStream Temp[2];
+  TokenStream Temp[2] = { TokenStream(&m_ClassAllocator), TokenStream(&m_ClassAllocator) };
   ezInt32 iCur0 = 0;
   ezInt32 iCur1 = 1;
 
@@ -79,9 +79,8 @@ ezResult ezPreprocessor::ExpandOnce(const TokenStream& Tokens, TokenStream& Outp
     }
 
     const ezUInt32 uiIdentifierToken = uiCurToken;
-    const ezString sIdentifier = Tokens[uiIdentifierToken]->m_DataView;
 
-    auto itMacro = m_Macros.Find(sIdentifier);
+    auto itMacro = m_Macros.Find(Tokens[uiIdentifierToken]->m_DataView);
 
     // no known macro name, or flagged as not to be expanded further -> pass through
     if (!itMacro.IsValid() || ((Tokens[uiCurToken]->m_uiCustomFlags & TokenFlags::NoFurtherExpansion) != 0))
@@ -112,7 +111,7 @@ ezResult ezPreprocessor::ExpandOnce(const TokenStream& Tokens, TokenStream& Outp
 
       // we have a function macro -> extract all parameters, pre-expand them, then replace the macro body parameters and expand the macro itself
 
-      MacroParameters AllParameters;
+      MacroParameters AllParameters(&m_ClassAllocator);
       if (ExtractAllMacroParameters(Tokens, uiCurToken, AllParameters).Failed())
         return EZ_FAILURE;
 
@@ -161,8 +160,6 @@ ezResult ezPreprocessor::ExpandObjectMacro(MacroDefinition& Macro, TokenStream& 
     return EZ_SUCCESS;
   }
 
-  const ezString sMacroName = pMacroToken->m_DataView;
-
   ProcessingEvent pe;
   pe.m_pToken = pMacroToken;
   pe.m_Type = ProcessingEvent::BeginExpansion;
@@ -170,7 +167,7 @@ ezResult ezPreprocessor::ExpandObjectMacro(MacroDefinition& Macro, TokenStream& 
 
   pe.m_Type = ProcessingEvent::EndExpansion;
 
-  if (sMacroName == "__FILE__")
+  if (pMacroToken->m_DataView.IsEqual("__FILE__"))
   {
     EZ_ASSERT_DEV(!m_sCurrentFileStack.IsEmpty(), "Implementation error");
 
@@ -187,13 +184,13 @@ ezResult ezPreprocessor::ExpandObjectMacro(MacroDefinition& Macro, TokenStream& 
     return EZ_SUCCESS;
   }
 
-  if (sMacroName == "__LINE__")
+  if (pMacroToken->m_DataView.IsEqual("__LINE__"))
   {
     ezStringBuilder sLine;
     sLine.Format("{0}", m_sCurrentFileStack.PeekBack().m_iCurrentLine);
 
     ezToken* pNewToken = AddCustomToken(pMacroToken, sLine);
-    pNewToken->m_iType = ezTokenType::Identifier;
+    pNewToken->m_iType = ezTokenType::Integer;
 
     Output.PushBack(pNewToken);
 
@@ -411,8 +408,8 @@ void ezPreprocessor::MergeTokens(const ezToken* pFirst, const ezToken* pSecond, 
   }
 
   if (pFirst == nullptr || pSecond == nullptr ||
-      pFirst->m_iType != ezTokenType::Identifier ||
-      pSecond->m_iType != ezTokenType::Identifier)
+      (pFirst->m_iType != ezTokenType::Identifier && pFirst->m_iType != ezTokenType::Integer) ||
+      (pSecond->m_iType != ezTokenType::Identifier && pSecond->m_iType != ezTokenType::Integer))
   {
     if (pFirst != nullptr)
       Output.PushBack(pFirst);
@@ -492,11 +489,11 @@ ezResult ezPreprocessor::ConcatenateParameters(const TokenStream& Tokens, TokenS
 
 ezResult ezPreprocessor::InsertParameters(const TokenStream& Tokens, TokenStream& Output, const MacroDefinition& Macro)
 {
-  TokenStream Stringified;
+  TokenStream Stringified(&m_ClassAllocator);
   if (InsertStringifiedParameters(Tokens, Stringified, Macro).Failed())
     return EZ_FAILURE;
 
-  TokenStream Concatenated;
+  TokenStream Concatenated(&m_ClassAllocator);
   if (ConcatenateParameters(Stringified, Concatenated, Macro).Failed())
     return EZ_FAILURE;
 
@@ -536,8 +533,7 @@ ezResult ezPreprocessor::ExpandFunctionMacro(MacroDefinition& Macro, const Macro
 
   pe.m_Type = ProcessingEvent::EndExpansion;
 
-
-  MacroParameters ExpandedParameters;
+  MacroParameters ExpandedParameters(&m_ClassAllocator);
   ExpandedParameters.SetCount(Parameters.GetCount());
 
   for (ezUInt32 i = 0; i < Parameters.GetCount(); ++i)
@@ -551,7 +547,7 @@ ezResult ezPreprocessor::ExpandFunctionMacro(MacroDefinition& Macro, const Macro
 
   Macro.m_bCurrentlyExpanding = true;
 
-  TokenStream MacroOutput;
+  TokenStream MacroOutput(&m_ClassAllocator);
   if (InsertParameters(Macro.m_Replacement, MacroOutput, Macro).Failed())
     return EZ_FAILURE;
 

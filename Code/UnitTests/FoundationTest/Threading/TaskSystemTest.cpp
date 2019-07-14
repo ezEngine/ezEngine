@@ -4,6 +4,7 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Time.h>
+#include <Foundation/Utilities/DGMLWriter.h>
 
 class ezTestTask : public ezTask
 {
@@ -14,6 +15,7 @@ public:
   ezInt32 m_iTaskID;
 
   ezTestTask()
+    : ezTask("TestTask")
   {
     m_uiIterations = 50;
     m_pDependency = nullptr;
@@ -25,10 +27,14 @@ public:
 
   bool IsStarted() const { return m_bStarted; }
   bool IsDone() const { return m_bDone; }
+  bool IsMultiplicityDone() const { return m_MultiplicityCount == (int)GetMultiplicity(); }
 
 private:
   bool m_bStarted;
   bool m_bDone;
+  mutable ezAtomicInteger32 m_MultiplicityCount;
+
+  virtual void ExecuteWithMultiplicity(ezUInt32 uiInvocation) const override { m_MultiplicityCount.Increment(); }
 
   virtual void Execute() override
   {
@@ -71,10 +77,10 @@ public:
 
 EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
 {
-  ezUInt32 uiWorkersShort = 4;
-  ezUInt32 uiWorkersLong = 4;
+  ezInt8 iWorkersShort = 4;
+  ezInt8 iWorkersLong = 4;
 
-  ezTaskSystem::SetWorkThreadCount(uiWorkersShort, uiWorkersLong);
+  ezTaskSystem::SetWorkerThreadCount(iWorkersShort, iWorkersLong);
   ezThreadUtils::Sleep(ezTime::Milliseconds(500));
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Single Tasks")
@@ -159,6 +165,11 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
       t[i].SetOnTaskFinished(ezMakeDelegate(&TaskCallbacks::TaskFinished, &callbackTask));
     }
 
+    // do a snapshot
+    // we don't validate it, just make sure it doesn't crash
+    ezDGMLGraph graph;
+    ezTaskSystem::WriteStateSnapshotToDGML(graph);
+
     ezTaskSystem::StartTaskGroup(g[3]);
     ezTaskSystem::StartTaskGroup(g[2]);
     ezTaskSystem::StartTaskGroup(g[1]);
@@ -207,7 +218,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     }
 
     // up to the number of worker threads tasks can be still active
-    EZ_TEST_BOOL(iNotAllThisTasksFinished <= (ezInt32)uiWorkersShort);
+    EZ_TEST_BOOL(iNotAllThisTasksFinished <= iWorkersShort);
 
     ezInt32 iNotAllNextTasksFinished = 0;
 
@@ -221,7 +232,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     }
 
     EZ_TEST_BOOL_MSG(iNotAllNextTasksFinished > 0,
-                     "This test CAN fail, if the PC is blocked just right. It does not matter though, it is not really a failure.");
+      "This test CAN fail, if the PC is blocked just right. It does not matter though, it is not really a failure.");
 
     ezTaskSystem::FinishFrameTasks();
 
@@ -296,9 +307,8 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     EZ_TEST_BOOL(iDone < Tasks);
 
     EZ_TEST_BOOL(iStarted > 0);
-    EZ_TEST_BOOL_MSG(
-        iStarted <= 4,
-        "This test can fail when the PC is under heavy load."); // should not have managed to start more tasks than there are threads
+    EZ_TEST_BOOL_MSG(iStarted <= 4,
+      "This test can fail when the PC is under heavy load."); // should not have managed to start more tasks than there are threads
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Canceling Tasks (forcefully)")
@@ -391,6 +401,31 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     }
 
     ezThreadUtils::Sleep(ezTime::Milliseconds(100));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Tasks with Multiplicity")
+  {
+    ezTestTask t[3];
+
+    t[0].SetTaskName("Task 0");
+    t[1].SetTaskName("Task 1");
+    t[2].SetTaskName("Task 2");
+
+    t[0].SetMultiplicity(1);
+    t[1].SetMultiplicity(100);
+    t[2].SetMultiplicity(1000);
+
+    ezTaskSystem::StartSingleTask(&t[0], ezTaskPriority::LateThisFrame);
+    ezTaskSystem::StartSingleTask(&t[1], ezTaskPriority::ThisFrame);
+    ezTaskSystem::StartSingleTask(&t[2], ezTaskPriority::EarlyThisFrame);
+
+    ezTaskSystem::WaitForTask(&t[0]);
+    ezTaskSystem::WaitForTask(&t[1]);
+    ezTaskSystem::WaitForTask(&t[2]);
+
+    EZ_TEST_BOOL(t[0].IsMultiplicityDone());
+    EZ_TEST_BOOL(t[1].IsMultiplicityDone());
+    EZ_TEST_BOOL(t[2].IsMultiplicityDone());
   }
 
   // capture profiling info for testing

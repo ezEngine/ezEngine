@@ -3,18 +3,20 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/TaskSystem.h>
+#include <Foundation/Time/Timestamp.h>
+#include <Foundation/Utilities/DGMLWriter.h>
 
-ezTask::ezTask()
+ezTask::ezTask(const char* szTaskName /*= nullptr*/)
 {
   Reset();
 
-  m_bIsFinished = true;
-  m_sTaskName = "Unnamed Task";
+  m_iRemainingRuns = 0;
+  m_sTaskName = szTaskName;
 }
 
 void ezTask::Reset()
 {
-  m_bIsFinished = false;
+  m_iRemainingRuns = (int)ezMath::Max(1u, m_uiMultiplicity);
   m_bCancelExecution = false;
   m_bTaskIsScheduled = false;
 }
@@ -24,40 +26,63 @@ void ezTask::SetTaskName(const char* szName)
   m_sTaskName = szName;
 }
 
+void ezTask::SetMultiplicity(ezUInt32 uiMultiplicity)
+{
+  EZ_ASSERT_DEV(!m_bTaskIsScheduled, "This task has already been scheduled to run, the multiplicity cannot be changed anymore.");
+
+  m_uiMultiplicity = uiMultiplicity;
+}
+
 void ezTask::SetOnTaskFinished(OnTaskFinished Callback)
 {
   m_OnTaskFinished = Callback;
 }
 
-void ezTask::Run()
+void ezTask::Run(ezUInt32 uiInvocation)
 {
   // actually this should not be possible to happen
-  if (m_bIsFinished || m_bCancelExecution)
+  if (m_iRemainingRuns == 0 || m_bCancelExecution)
   {
-    m_bIsFinished = true;
+    m_iRemainingRuns = 0;
     return;
   }
 
   {
-    EZ_PROFILE_SCOPE(m_sTaskName.GetData());
+    ezStringBuilder scopeName = m_sTaskName;
 
-    Execute();
+    if (m_uiMultiplicity > 0)
+      scopeName.AppendFormat("-{}", uiInvocation);
+
+    EZ_PROFILE_SCOPE(scopeName.GetData());
+
+    if (m_uiMultiplicity > 0)
+    {
+      ExecuteWithMultiplicity(uiInvocation);
+    }
+    else
+    {
+      Execute();
+    }
   }
 
-  m_bIsFinished = true;
+  m_iRemainingRuns.Decrement();
 }
 
 void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
 {
   // this might deallocate the task, make sure not to reference it later anymore
-  if (pTask && pTask->m_OnTaskFinished.IsValid())
+  if (pTask && pTask->m_OnTaskFinished.IsValid() && pTask->m_iRemainingRuns == 0)
+  {
     pTask->m_OnTaskFinished(pTask);
+  }
 
   if (pGroup->m_iRemainingTasks.Decrement() == 0)
   {
     // If this was the last task that had to be finished from this group, make sure all dependent groups are started
 
-    if (!pGroup->m_OthersDependingOnMe.IsEmpty())
+    // set this task group to be finished such that no one tries to append further dependencies
+    pGroup->m_uiGroupCounter += 2;
+
     {
       EZ_LOCK(s_TaskSystemMutex);
 
@@ -70,14 +95,13 @@ void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
     if (pGroup->m_OnFinishedCallback.IsValid())
       pGroup->m_OnFinishedCallback();
 
-    // set this task group to be finished and available for reuse
-    pGroup->m_uiGroupCounter += 2;
+    // set this task available for reuse
     pGroup->m_bInUse = false;
   }
 }
 
-ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority,
-                                                 ezTask* pPrioritizeThis)
+ezTaskSystem::TaskData ezTaskSystem::GetNextTask(
+  ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, ezTask* pPrioritizeThis)
 {
   // this is the central function that selects tasks for the worker threads to work on
 
@@ -90,7 +114,7 @@ ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPrior
   // detect the new work item
 
   EZ_ASSERT_DEV(FirstPriority >= ezTaskPriority::EarlyThisFrame && LastPriority < ezTaskPriority::ENUM_COUNT,
-                "Priority Range is invalid: {0} to {1}", FirstPriority, LastPriority);
+    "Priority Range is invalid: {0} to {1}", FirstPriority, LastPriority);
 
   for (ezUInt32 i = FirstPriority; i <= (ezUInt32)LastPriority; ++i)
   {
@@ -167,7 +191,7 @@ bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriorit
   if (td.m_pTask == nullptr)
     return false;
 
-  td.m_pTask->Run();
+  td.m_pTask->Run(td.m_uiInvocation);
 
   // notify the group, that a task is finished, which might trigger other tasks to be executed
   TaskHasFinished(td.m_pTask, td.m_pBelongsToGroup);
@@ -182,63 +206,11 @@ void ezTaskSystem::WaitForTask(ezTask* pTask)
 
   EZ_PROFILE_SCOPE("WaitForTask");
 
-  const bool bIsMainThread = ezThreadUtils::IsMainThread();
-  const bool bIsLoadingThread = IsLoadingThread();
-
-  ezTaskPriority::Enum FirstPriority = ezTaskPriority::EarlyThisFrame;
-  ezTaskPriority::Enum LastPriority = ezTaskPriority::LateNextFrame;
-
-  // this specifies whether WaitForTask may fall back to processing standard tasks, when there is no more specific work available
-  // in some cases we absolutely want to avoid that, since it can produce deadlocks
-  // E.g. on the loading thread, if we are in the process of loading something and then we have to wait for something else,
-  // we must not start that work on the loading thread, because once THAT task runs into something where it has to wait for something
-  // to be loaded, we have a circular dependency on the thread itself and thus a deadlock
-  bool bAllowDefaultWork = true;
-
-  if (bIsMainThread)
-  {
-    // if this is the main thread, we need to execute the main-thread tasks
-    // otherwise a dependency on which pTask is waiting, might not get fulfilled
-    FirstPriority = ezTaskPriority::ThisFrameMainThread;
-    LastPriority = ezTaskPriority::SomeFrameMainThread;
-
-    /// \todo It is currently unclear whether bAllowDefaultWork should be false here as well (in which case the whole fall back mechanism
-    /// could be removed)
-    bAllowDefaultWork = false;
-  }
-  else if (bIsLoadingThread)
-  {
-    FirstPriority = ezTaskPriority::FileAccessHighPriority;
-    LastPriority = ezTaskPriority::FileAccess;
-    bAllowDefaultWork = false;
-  }
-
   while (!pTask->IsTaskFinished())
   {
-    // we only execute short tasks here, because you should never WAIT for a long running task
-    // and a short task should never have a dependency on a long running task either
-    // so we assume that only short running tasks need to be executed to fulfill the task's dependencies
-    // Since there are threads to deal with long running tasks in parallel, even if we were waiting for such
-    // a task, it will get finished at some point
-    if (!ExecuteTask(FirstPriority, LastPriority, pTask))
+    if (!HelpExecutingTasks(pTask))
     {
-      if (!pTask->IsTaskFinished())
-      {
-        // if there was nothing for us to do, that probably means that the task is either currently being processed by some other thread
-        // or it is in a priority list that we did not want to work on (maybe because we are on the main thread)
-        // in this case try it again with non-main-thread tasks
-
-        // if bAllowDefaultWork is false, we just always yield here
-
-        if (!bAllowDefaultWork || !ExecuteTask(ezTaskPriority::EarlyThisFrame, ezTaskPriority::LateNextFrame, pTask))
-        {
-          // if there is STILL nothing for us to do, it might be a long running task OR it is already being processed
-          // we won't fall back to processing long running tasks, because that might stall the application
-          // instead we assume the task (or any dependency) is currently processed by another thread
-          // and to prevent a busy loop, we just give up our time-slice and try again later
-          ezThreadUtils::YieldTimeSlice();
-        }
-      }
+      ezThreadUtils::YieldTimeSlice();
     }
   }
 }
@@ -251,7 +223,7 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
   EZ_PROFILE_SCOPE("CancelTask");
 
   EZ_ASSERT_DEV(pTask->m_BelongsToGroup.m_pTaskGroup->m_uiGroupCounter == pTask->m_BelongsToGroup.m_uiGroupCounter,
-                "The task to be removed is in an invalid group.");
+    "The task to be removed is in an invalid group.");
 
   // we set the cancel flag, to make sure that tasks that support canceling will terminate asap
   pTask->m_bCancelExecution = true;
@@ -263,7 +235,7 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
     if (!pTask->m_bTaskIsScheduled && pTask->m_BelongsToGroup.m_pTaskGroup->m_Tasks.RemoveAndSwap(pTask))
     {
       // we set the task to finished, even though it was not executed
-      pTask->m_bIsFinished = true;
+      pTask->m_iRemainingRuns = 0;
       return EZ_SUCCESS;
     }
 
@@ -281,7 +253,7 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
             s_Tasks[i].Remove(it);
 
             // we set the task to finished, even though it was not executed
-            pTask->m_bIsFinished = true;
+            pTask->m_iRemainingRuns = 0;
 
             // tell the system that one task of that group is 'finished', to ensure its dependencies will get scheduled
             TaskHasFinished(it->m_pTask, it->m_pBelongsToGroup);
@@ -303,6 +275,22 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
   return EZ_FAILURE;
 }
 
+bool ezTaskSystem::HelpExecutingTasks(ezTask* pPrioritizeThis)
+{
+  bool bAllowDefaultWork;
+  ezTaskPriority::Enum FirstPriority;
+  ezTaskPriority::Enum LastPriority;
+  DetermineTasksToExecuteOnThread(FirstPriority, LastPriority, bAllowDefaultWork);
+
+  if (ExecuteTask(FirstPriority, LastPriority, pPrioritizeThis))
+    return true;
+
+  if (bAllowDefaultWork)
+  {
+    return ExecuteTask(ezTaskPriority::EarlyThisFrame, ezTaskPriority::In9Frames, pPrioritizeThis);
+  }
+
+  return false;
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_Tasks);
-

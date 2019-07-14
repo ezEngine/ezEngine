@@ -242,6 +242,21 @@ ezResult ezStreamWriter::WriteMap(const ezMapBase<KeyType, ValueType, Comparer>&
   return EZ_SUCCESS;
 }
 
+template <typename KeyType, typename ValueType, typename Hasher>
+ezResult ezStreamWriter::WriteHashTable(const ezHashTableBase<KeyType, ValueType, Hasher>& HashTable)
+{
+  const ezUInt64 uiWriteSize = HashTable.GetCount();
+  WriteQWordValue(&uiWriteSize);
+
+  for (auto It = HashTable.GetIterator(); It.IsValid(); ++It)
+  {
+    EZ_SUCCEED_OR_RETURN(ezStreamWriterUtil::Serialize<KeyType>(*this, It.Key()));
+    EZ_SUCCEED_OR_RETURN(ezStreamWriterUtil::Serialize<ValueType>(*this, It.Value()));
+  }
+
+  return EZ_SUCCESS;
+}
+
 namespace ezStreamReaderUtil
 {
   template <class T>
@@ -284,7 +299,7 @@ ezResult ezStreamReader::ReadArray(ezArrayBase<ValueType, ArrayType>& Array)
 
   if (uiCount > 0)
   {
-    static_cast<ArrayType&>(Array).Reserve(uiCount);
+    static_cast<ArrayType&>(Array).Reserve(static_cast<ezUInt32>(uiCount));
 
     for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
     {
@@ -361,3 +376,27 @@ ezResult ezStreamReader::ReadMap(ezMapBase<KeyType, ValueType, Comparer>& Map)
   return EZ_SUCCESS;
 }
 
+template <typename KeyType, typename ValueType, typename Hasher>
+ezResult ezStreamReader::ReadHashTable(ezHashTableBase<KeyType, ValueType, Hasher>& HashTable)
+{
+  ezUInt64 uiCount = 0;
+  ReadQWordValue(&uiCount);
+
+  EZ_ASSERT_DEV(
+    uiCount < std::numeric_limits<ezUInt32>::max(), "Containers currently use 32 bit for counts internally. Value from file is too large.");
+
+  HashTable.Clear();
+  HashTable.Reserve(static_cast<ezUInt32>(uiCount));
+
+  for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
+  {
+    KeyType Key;
+    ValueType Value;
+    EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize(*this, Key));
+    EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize(*this, Value));
+
+    HashTable.Insert(std::move(Key), std::move(Value));
+  }
+
+  return EZ_SUCCESS;
+}

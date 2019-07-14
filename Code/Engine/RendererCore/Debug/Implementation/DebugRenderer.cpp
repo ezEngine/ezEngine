@@ -1022,7 +1022,7 @@ void ezDebugRenderer::OnEngineStartup()
 
     {
       ezVertexStreamInfo& si = s_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::Color;
+      si.m_Semantic = ezGALVertexAttributeSemantic::Color0;
       si.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
       si.m_uiOffset = 12;
       si.m_uiElementSize = 4;
@@ -1043,7 +1043,7 @@ void ezDebugRenderer::OnEngineStartup()
 
     {
       ezVertexStreamInfo& si = s_TexVertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::Color;
+      si.m_Semantic = ezGALVertexAttributeSemantic::Color0;
       si.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
       si.m_uiOffset = 12;
       si.m_uiElementSize = 4;
@@ -1072,8 +1072,8 @@ void ezDebugRenderer::OnEngineStartup()
 
     ezGALSystemMemoryDescription memoryDesc;
     memoryDesc.m_pData = debugFontImage.GetPixelPointer<ezUInt8>();
-    memoryDesc.m_uiRowPitch = debugFontImage.GetRowPitch();
-    memoryDesc.m_uiSlicePitch = debugFontImage.GetDepthPitch();
+    memoryDesc.m_uiRowPitch = static_cast<ezUInt32>(debugFontImage.GetRowPitch());
+    memoryDesc.m_uiSlicePitch = static_cast<ezUInt32>(debugFontImage.GetDepthPitch());
 
     ezTexture2DResourceDescriptor desc;
     desc.m_DescGAL.m_uiWidth = debugFontImage.GetWidth();

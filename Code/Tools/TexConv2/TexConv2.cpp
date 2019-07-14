@@ -25,6 +25,7 @@ ezTexConv2::ezTexConv2()
     m_AllowedUsages.PushBack({"Hdr", ezTexConvUsage::Hdr});
     m_AllowedUsages.PushBack({"NormalMap", ezTexConvUsage::NormalMap});
     m_AllowedUsages.PushBack({"NormalMap_Inverted", ezTexConvUsage::NormalMap_Inverted});
+    m_AllowedUsages.PushBack({"BumpMap", ezTexConvUsage::BumpMap});
   }
 
   // mipmap modes
@@ -71,14 +72,21 @@ ezTexConv2::ezTexConv2()
     m_AllowedFilterModes.PushBack({"Aniso8x", ezTextureFilterSetting::FixedAnisotropic8x});
     m_AllowedFilterModes.PushBack({"Aniso16x", ezTextureFilterSetting::FixedAnisotropic16x});
   }
+
+  // bump map modes
+  {
+    m_AllowedBumpMapFilters.PushBack({"Finite", ezTexConvBumpMapFilter::Finite});
+    m_AllowedBumpMapFilters.PushBack({"Sobel", ezTexConvBumpMapFilter::Sobel});
+    m_AllowedBumpMapFilters.PushBack({"Scharr", ezTexConvBumpMapFilter::Scharr});
+  }
 }
 
-void ezTexConv2::BeforeCoreSystemsStartup()
+ezResult ezTexConv2::BeforeCoreSystemsStartup()
 {
   ezStartup::AddApplicationTag("tool");
   ezStartup::AddApplicationTag("texconv");
 
-  SUPER::BeforeCoreSystemsStartup();
+  return SUPER::BeforeCoreSystemsStartup();
 }
 
 void ezTexConv2::AfterCoreSystemsStartup()
@@ -232,6 +240,8 @@ ezResult ezTexConv2::WriteOutputFile(const char* szFile, const ezImage& image)
 
 ezApplication::ApplicationExecution ezTexConv2::Run()
 {
+  SetReturnCode(-1);
+
   if (ParseCommandLine().Failed())
     return ezApplication::ApplicationExecution::Quit;
 
@@ -292,6 +302,7 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
     }
   }
 
+  SetReturnCode(0);
   return ezApplication::ApplicationExecution::Quit;
 }
 

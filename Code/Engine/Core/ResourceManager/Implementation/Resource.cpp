@@ -2,6 +2,7 @@
 
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Foundation/Profiling/Profiling.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResource, 1, ezRTTINoAllocator);
@@ -25,33 +26,11 @@ ezResource::ezResource(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityLevelsLoa
   m_Flags.AddOrRemove(ezResourceFlags::UpdateOnMainThread, ResourceUpdateThread == DoUpdate::OnMainThread);
 
   m_uiQualityLevelsLoadable = uiQualityLevelsLoadable;
-  m_DueDate = ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 1000.0);
 }
 
 void ezResource::SetResourceDescription(const char* szDescription)
 {
   m_sResourceDescription = szDescription;
-}
-
-void ezResource::SetDueDate(ezTime date /* = ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 1000.0) */)
-{
-  if (m_DueDate != date)
-  {
-    m_DueDate = date;
-  }
-}
-
-void ezResource::SetPriority(ezResourcePriority priority)
-{
-  if (m_Priority != priority)
-  {
-    m_Priority = priority;
-
-    ezResourceEvent e;
-    e.m_pResource = this;
-    e.m_Type = ezResourceEvent::Type::ResourcePriorityChanged;
-    ezResourceManager::BroadcastResourceEvent(e);
-  }
 }
 
 void ezResource::SetUniqueID(const char* szUniqueID, bool bIsReloadable)
@@ -88,6 +67,8 @@ void ezResource::CallUnloadData(Unload WhatToUnload)
 
 void ezResource::CallUpdateContent(ezStreamReader* Stream)
 {
+  EZ_PROFILE_SCOPE("CallUpdateContent");
+
   EZ_LOG_BLOCK("ezResource::UpdateContent", GetResourceID().GetData());
 
   ezResourceLoadDesc ld = UpdateContent(Stream);
@@ -112,38 +93,60 @@ void ezResource::CallUpdateContent(ezStreamReader* Stream)
   e.m_Type = ezResourceEvent::Type::ResourceContentUpdated;
   ezResourceManager::BroadcastResourceEvent(e);
 
-  ezLog::Debug("Updated {0} - '{1}'({2}, {3}) ", GetDynamicRTTI()->GetTypeName(), GetResourceDescription(), (int)GetPriority(),
-               GetLoadingDeadline(ezTime::Now()).GetSeconds());
+  ezLog::Debug("Updated {0} - '{1}'", GetDynamicRTTI()->GetTypeName(), GetResourceDescription());
 }
 
-ezTime ezResource::GetLoadingDeadline(ezTime tNow) const
+float ezResource::GetLoadingPriority(ezTime tNow) const
 {
-  ezTime DueDate = tNow;
+  if (m_Priority == ezResourcePriority::Critical)
+    return 0.0f;
 
-  ezTime tDelay;
+  // low priority values mean it gets loaded earlier
+  float fPriority = static_cast<float>(m_Priority) * 10.0f;
 
-  if (GetLoadingState() != ezResourceState::Loaded)
+  if (GetLoadingState() == ezResourceState::Loaded)
   {
-    if (!GetBaseResourceFlags().IsAnySet(ezResourceFlags::ResourceHasFallback))
-    {
-      DueDate = ezTime::Seconds(0.0);
-      tDelay = ezTime::Seconds(1.0); // to get a sorting by priority
-    }
-    else
-    {
-      tDelay += ezMath::Min((tNow - GetLastAcquireTime()) / 10.0, ezTime::Seconds(10.0));
-    }
+    // already loaded -> more penalty
+    fPriority += 30.0f;
+
+    // the more it could discard, the less important it is to load more of it
+    fPriority += GetNumQualityLevelsDiscardable() * 10.0f;
   }
   else
   {
-    tDelay += ezTime::Seconds(GetNumQualityLevelsDiscardable() * 10.0);
+    const ezBitflags<ezResourceFlags> flags = GetBaseResourceFlags();
 
-    tDelay += (tNow - GetLastAcquireTime()) * 2.0;
+    if (flags.IsAnySet(ezResourceFlags::ResourceHasFallback))
+    {
+      // if the resource has a very specific fallback, it is least important to be get loaded
+      fPriority += 20.0f;
+    }
+    else if (flags.IsAnySet(ezResourceFlags::ResourceHasTypeFallback))
+    {
+      // if it has at least a type fallback, it is less important to get loaded
+      fPriority += 10.0f;
+    }
   }
 
-  DueDate += tDelay * ((double)GetPriority() + 1.0);
+  // everything acquired in the last N seconds gets a higher priority
+  // by getting the lowest penalty
+  const float secondsSinceAcquire = (float)(tNow - GetLastAcquireTime()).GetSeconds();
+  const float fTimePriority = ezMath::Min(10.0f, secondsSinceAcquire);
 
-  return ezMath::Min(DueDate, m_DueDate);
+  return fPriority + fTimePriority;
+}
+
+void ezResource::SetPriority(ezResourcePriority priority)
+{
+  if (m_Priority == priority)
+    return;
+
+  m_Priority = priority;
+
+  ezResourceEvent e;
+  e.m_pResource = this;
+  e.m_Type = ezResourceEvent::Type::ResourcePriorityChanged;
+  ezResourceManager::BroadcastResourceEvent(e);
 }
 
 ezResourceTypeLoader* ezResource::GetDefaultResourceTypeLoader() const
@@ -190,4 +193,3 @@ void ezResource::VerifyAfterCreateResource(const ezResourceLoadDesc& ld)
 }
 
 EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_Resource);
-

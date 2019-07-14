@@ -13,7 +13,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
-#include <GameEngine/Collection/CollectionResource.h>
+#include <Core/Collection/CollectionResource.h>
 
 extern const char* szPlayerActions[MaxPlayerActions];
 
@@ -31,7 +31,7 @@ void Level::SetupLevel(ezUniquePtr<ezWorld> pWorld)
   {
     m_hAssetCollection = ezResourceManager::LoadResource<ezCollectionResource>("{ c475e948-2e1d-4af0-b69b-d7c0bbad9130 }");
 
-    ezResourceLock<ezCollectionResource> pCollection(m_hAssetCollection, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezCollectionResource> pCollection(m_hAssetCollection, ezResourceAcquireMode::BlockTillLoaded);
     pCollection->RegisterNames();
   }
 

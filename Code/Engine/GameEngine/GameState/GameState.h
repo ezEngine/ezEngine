@@ -4,6 +4,7 @@
 
 #include <Core/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Foundation/Math/Size.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/Pipeline/Declarations.h>
@@ -12,6 +13,9 @@
 class ezWindow;
 class ezWindowOutputTargetBase;
 class ezView;
+struct ezActorEvent;
+class ezWindowOutputTargetGAL;
+
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
 /// \brief ezGameState is the base class to build custom game logic upon. It works closely together with ezGameApplication.
@@ -67,28 +71,15 @@ public:
   /// \brief Gives access to the game state's main camera object.
   ezCamera* GetMainCamera() { return &m_MainCamera; }
 
-  /// \brief Returns whether the application is running in full mixed reality mode.
-  /// This is evaluated in OnActivation(), will always return false before that call.
-  bool IsMixedRealityMode() const { return m_bMixedRealityMode; }
-
 protected:
-  /// \brief Creates a default window (ezGameStateWindow) adds it to the application and fills out m_pMainWindow and m_hMainSwapChain
-  virtual void CreateMainWindow();
-
-  /// \brief Destroys the m_pMainWindow.
-  /// Unless overridden Deactivate() will call this.
-  virtual void DestroyMainWindow();
-
-  /// \brief Configures available input devices, e.g. sets mouse speed, cursor clipping, etc.
-  /// Unless overridden Activate() will call this.
-  virtual void ConfigureInputDevices();
+  /// \brief Creates an actor with a default window (ezGameStateWindow) adds it to the application
+  ///
+  /// The base implementation calls CreateMainWindow(), CreateMainOutputTarget() and SetupMainView() to configure the main window.
+  virtual void CreateActors();
 
   /// \brief Adds custom input actions, if necessary.
   /// Unless overridden Activate() will call this.
   virtual void ConfigureInputActions();
-
-  /// \brief Creates a default render view. Unless overridden, Activate() will do this for the main window.
-  virtual void SetupMainView(ezWindowOutputTargetBase* pOutputTarget);
 
   /// \brief Overrideable function that may create a player object.
   ///
@@ -101,7 +92,8 @@ protected:
   virtual ezResult SpawnPlayer(const ezTransform* pStartPosition);
 
   /// \brief Creates a default main view with the given render pipeline.
-  void SetupMainView(ezWindowOutputTargetBase* pOutputTarget, ezTypedResourceHandle<ezRenderPipelineResource> hRenderPipeline);
+  void SetupMainView(
+    ezWindowOutputTargetBase* pOutputTarget, ezSizeU32 viewportSize, ezTypedResourceHandle<ezRenderPipelineResource> hRenderPipeline);
 
   /// \brief Sets m_pMainWorld and updates m_pMainView to use that new world for rendering
   void ChangeMainWorld(ezWorld* pNewMainWorld);
@@ -109,16 +101,23 @@ protected:
   /// \brief Sets up m_MainCamera for first use
   virtual void ConfigureMainCamera();
 
-  ezWindow* m_pMainWindow = nullptr;
-  ezWindowOutputTargetBase* m_pMainOutputTarget = nullptr;
+  /// \brief Override this to modify the default window creation behavior. Called by CreateActors().
+  virtual ezUniquePtr<ezWindow> CreateMainWindow();
+
+  /// \brief Override this to modify the default output target creation behavior. Called by CreateActors().
+  virtual ezUniquePtr<ezWindowOutputTargetBase> CreateMainOutputTarget(ezWindow* pMainWindow);
+
+  /// \brief Creates a default render view. Unless overridden, Activate() will do this for the main window.
+  virtual void SetupMainView(ezWindowOutputTargetBase* pOutputTarget, ezSizeU32 viewportSize);
+
+  /// \brief Configures available input devices, e.g. sets mouse speed, cursor clipping, etc.
+  /// Called by CreateActors() with the result of CreateMainWindow().
+  virtual void ConfigureMainWindowInputDevices(ezWindow* pWindow);
+
   ezViewHandle m_hMainView;
 
   ezWorld* m_pMainWorld = nullptr;
 
   ezCamera m_MainCamera;
   bool m_bStateWantsToQuit = false;
-  bool m_bMixedRealityMode = false;
-  bool m_bVirtualRealityMode = false;
-
 };
-

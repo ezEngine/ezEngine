@@ -143,9 +143,29 @@ PS_OUT main(PS_IN Input)
         Output.Color = float4(0, 0, 0, 1);
       #endif
     }
-    else if (RenderPass == EDITOR_RENDER_PASS_PIXEL_NORMALS)
+    else if (RenderPass == EDITOR_RENDER_PASS_TEXCOORDS_UV1)
     {
-      Output.Color = float4(SrgbToLinear(matData.worldNormal * 0.5 + 0.5), 1);
+      #if defined(USE_TEXCOORD1)
+        Output.Color = float4(SrgbToLinear(float3(frac(Input.TexCoord1.xy), 0)), 1);
+      #else
+        Output.Color = float4(0, 0, 0, 1);
+      #endif
+    }
+    else if (RenderPass == EDITOR_RENDER_PASS_VERTEX_COLORS0)
+    {
+      #if defined(USE_COLOR0)
+        Output.Color = float4(SrgbToLinear(Input.Color0.rgb), 1);
+      #else
+        Output.Color = float4(0, 0, 0, 1);
+      #endif
+    }
+    else if (RenderPass == EDITOR_RENDER_PASS_VERTEX_COLORS1)
+    {
+      #if defined(USE_COLOR1)
+        Output.Color = float4(SrgbToLinear(Input.Color1.rgb), 1);
+      #else
+        Output.Color = float4(0, 0, 0, 1);
+      #endif
     }
     else if (RenderPass == EDITOR_RENDER_PASS_VERTEX_NORMALS)
     {
@@ -162,6 +182,10 @@ PS_OUT main(PS_IN Input)
       #else
         Output.Color = float4(0, 0, 0, 1);
       #endif
+    }
+    else if (RenderPass == EDITOR_RENDER_PASS_PIXEL_NORMALS)
+    {
+      Output.Color = float4(SrgbToLinear(matData.worldNormal * 0.5 + 0.5), 1);
     }
     else if (RenderPass == EDITOR_RENDER_PASS_DIFFUSE_COLOR)
     {

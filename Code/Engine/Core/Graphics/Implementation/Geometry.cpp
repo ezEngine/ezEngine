@@ -3,7 +3,7 @@
 #include <Core/Graphics/Geometry.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Math/Quat.h>
-#include <ThirdParty/mikktspace/mikktspace.h>
+#include <mikktspace/mikktspace.h>
 
 bool ezGeometry::Vertex::operator<(const ezGeometry::Vertex& rhs) const
 {
@@ -313,6 +313,20 @@ void ezGeometry::ComputeTangents()
   m_Vertices = std::move(context.m_Vertices);
 }
 
+void ezGeometry::ValidateTangents(float epsilon)
+{
+  for (auto& vertex : m_Vertices)
+  {
+    // checking for orthogonality to the normal and for squared unit length (standard case) or 3 (magic number for binormal inversion)
+    if (!ezMath::IsEqual(vertex.m_vNormal.GetLengthSquared(), 1.f, epsilon) ||
+      !ezMath::IsEqual(vertex.m_vNormal.Dot(vertex.m_vTangent), 0.f, epsilon) ||
+      !(ezMath::IsEqual(vertex.m_vTangent.GetLengthSquared(), 1.f, epsilon) || ezMath::IsEqual(vertex.m_vTangent.GetLengthSquared(), 3.f, epsilon)))
+    {
+      vertex.m_vTangent.SetZero();
+    }
+  }
+}
+
 ezUInt32 ezGeometry::CalculateTriangleCount() const
 {
   const ezUInt32 numPolys = m_Polygons.GetCount();
@@ -336,6 +350,13 @@ void ezGeometry::SetAllVertexColor(const ezColor& color, ezUInt32 uiFirstVertex)
 {
   for (ezUInt32 v = uiFirstVertex; v < m_Vertices.GetCount(); ++v)
     m_Vertices[v].m_Color = color;
+}
+
+
+void ezGeometry::SetAllVertexTexCoord(const ezVec2& texCoord, ezUInt32 uiFirstVertex /*= 0*/)
+{
+  for (ezUInt32 v = uiFirstVertex; v < m_Vertices.GetCount(); ++v)
+    m_Vertices[v].m_vTexCoord = texCoord;
 }
 
 void ezGeometry::TransformVertices(const ezMat4& mTransform, ezUInt32 uiFirstVertex)
@@ -418,7 +439,7 @@ void ezGeometry::AddTesselatedRectXY(const ezVec2& size, const ezColor& color, e
   const ezVec2 halfSize = size * 0.5f;
   bool bFlipWinding = mTransform.GetRotationalPart().GetDeterminant() < 0;
 
-  const ezVec2 sizeFraction = size.CompDiv(ezVec2(uiTesselationX, uiTesselationY));
+  const ezVec2 sizeFraction = size.CompDiv(ezVec2(static_cast<float>(uiTesselationX), static_cast<float>(uiTesselationY)));
 
   for (ezUInt32 vy = 0; vy < uiTesselationY + 1; ++vy)
   {
@@ -508,7 +529,6 @@ void ezGeometry::AddBox(const ezVec3& size, const ezColor& color, const ezMat4& 
   poly[3] = idx[7];
   AddPolygon(poly, bFlipWinding);
 }
-
 
 void ezGeometry::AddLineBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/,
                             ezInt32 iCustomIndex /*= 0*/)
@@ -1139,7 +1159,9 @@ void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks
       vPos.y = -ezMath::Sin(fDegree) * fRadius * fCosDS;
       vPos.z = fY;
 
-      AddVertex(vPos, vPos.GetNormalized(), ezVec2(fU, fV), color, iCustomIndex, mTransform);
+      ezVec3 vNormal = vPos;
+      vNormal.NormalizeIfNotZero(ezVec3(0, 0, 1));
+      AddVertex(vPos, vNormal, ezVec2(fU, fV), color, iCustomIndex, mTransform);
     }
   }
 
@@ -1399,7 +1421,7 @@ void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSeg
   const ezAngle fAngleStepSegment = ezAngle::Degree(360.0f / uiSegments);
   const ezAngle fAngleStepCylinder = ezAngle::Degree(360.0f / uiSegmentDetail);
 
-  const ezUInt32 uiFirstVertex = m_Vertices.GetCount();
+  const ezUInt16 uiFirstVertex = static_cast<ezUInt16>(m_Vertices.GetCount());
 
   // this is the loop for the torus ring
   for (ezUInt16 seg = 0; seg < uiSegments; ++seg)
@@ -1455,10 +1477,11 @@ void ezGeometry::AddTexturedRamp(const ezVec3& size, const ezColor& color, const
   ezUInt32 idx3[3];
 
   {
-    idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, 1), ezVec2(0, 1), color, iCustomIndex, mTransform);
-    idx[1] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, +halfSize.z), ezVec3(0, 0, 1), ezVec2(0, 0), color, iCustomIndex, mTransform);
-    idx[2] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, +halfSize.z), ezVec3(0, 0, 1), ezVec2(1, 0), color, iCustomIndex, mTransform);
-    idx[3] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, -halfSize.z), ezVec3(0, 0, 1), ezVec2(1, 1), color, iCustomIndex, mTransform);
+    ezVec3 vNormal = ezVec3(-halfSize.z, 0, halfSize.x).GetNormalized();
+    idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), vNormal, ezVec2(0, 1), color, iCustomIndex, mTransform);
+    idx[1] = AddVertex(ezVec3(+halfSize.x, -halfSize.y, +halfSize.z), vNormal, ezVec2(0, 0), color, iCustomIndex, mTransform);
+    idx[2] = AddVertex(ezVec3(+halfSize.x, +halfSize.y, +halfSize.z), vNormal, ezVec2(1, 0), color, iCustomIndex, mTransform);
+    idx[3] = AddVertex(ezVec3(-halfSize.x, +halfSize.y, -halfSize.z), vNormal, ezVec2(1, 1), color, iCustomIndex, mTransform);
     AddPolygon(idx, bFlipWinding);
   }
 

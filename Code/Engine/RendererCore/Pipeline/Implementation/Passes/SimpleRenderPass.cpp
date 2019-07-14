@@ -34,7 +34,7 @@ bool ezSimpleRenderPass::GetRenderTargetDescriptions(const ezView& view, const e
                                                      ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  const ezGALRenderTagetSetup& setup = view.GetRenderTargetSetup();
+  const ezGALRenderTargetSetup& setup = view.GetRenderTargetSetup();
 
   // Color
   if (inputs[m_PinColor.m_uiInputIndex])
@@ -91,7 +91,7 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext,
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   // Setup render target
-  ezGALRenderTagetSetup renderTargetSetup;
+  ezGALRenderTargetSetup renderTargetSetup;
   if (inputs[m_PinColor.m_uiInputIndex])
   {
     renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(inputs[m_PinColor.m_uiInputIndex]->m_TextureHandle));

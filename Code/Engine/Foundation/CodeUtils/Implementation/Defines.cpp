@@ -20,11 +20,10 @@ bool ezPreprocessor::RemoveDefine(const char* szName)
 
 ezResult ezPreprocessor::StoreDefine(const ezToken* pMacroNameToken, const TokenStream* pReplacementTokens, ezUInt32 uiFirstReplacementToken, ezInt32 iNumParameters, bool bUsesVarArgs)
 {
-  const ezString sMacroName = pMacroNameToken->m_DataView;
-
-  if ((sMacroName == "defined") || (sMacroName == "__FILE__") || (sMacroName == "__LINE__"))
+  if ((pMacroNameToken->m_DataView.IsEqual("defined")) || (pMacroNameToken->m_DataView.IsEqual("__FILE__")) ||
+      (pMacroNameToken->m_DataView.IsEqual("__LINE__")))
   {
-    PP_LOG(Error, "Macro name '{0}' is reserved", pMacroNameToken, sMacroName);
+    PP_LOG(Error, "Macro name '{0}' is reserved", pMacroNameToken, pMacroNameToken->m_DataView);
     return EZ_FAILURE;
   }
 
@@ -40,7 +39,7 @@ ezResult ezPreprocessor::StoreDefine(const ezToken* pMacroNameToken, const Token
 
   if (!md.m_Replacement.IsEmpty() && md.m_Replacement.PeekBack()->m_DataView == "#")
   {
-    PP_LOG(Error, "Macro '{0}' ends with invalid character '#'", md.m_Replacement.PeekBack(), sMacroName);
+    PP_LOG(Error, "Macro '{0}' ends with invalid character '#'", md.m_Replacement.PeekBack(), pMacroNameToken->m_DataView);
     return EZ_FAILURE;
   }
 
@@ -56,7 +55,7 @@ ezResult ezPreprocessor::StoreDefine(const ezToken* pMacroNameToken, const Token
   }*/
 
   bool bExisted = false;
-  auto it = m_Macros.FindOrAdd(sMacroName, &bExisted);
+  auto it = m_Macros.FindOrAdd(pMacroNameToken->m_DataView, &bExisted);
 
   ProcessingEvent pe;
   pe.m_Type = bExisted ? ProcessingEvent::Redefine : ProcessingEvent::Define;
@@ -65,7 +64,7 @@ ezResult ezPreprocessor::StoreDefine(const ezToken* pMacroNameToken, const Token
 
   if (bExisted)
   {
-    PP_LOG(Warning, "Redefinition of macro '{0}'", pMacroNameToken, sMacroName);
+    PP_LOG(Warning, "Redefinition of macro '{0}'", pMacroNameToken, pMacroNameToken->m_DataView);
     //return EZ_FAILURE;
   }
 
@@ -175,7 +174,7 @@ ezResult ezPreprocessor::AddCustomDefine(const char* szDefinition)
     NewTokens[t].m_uiLine = m_CustomDefines.GetCount();
     NewTokens[t].m_uiColumn = uiColumn;
 
-    uiColumn += ezString(NewTokens[t].m_DataView).GetCharacterCount();
+    uiColumn += ezStringUtils::GetCharacterCount(NewTokens[t].m_DataView.GetStartPointer(), NewTokens[t].m_DataView.GetEndPointer());
   }
 
   ezUInt32 uiCurToken = 0;

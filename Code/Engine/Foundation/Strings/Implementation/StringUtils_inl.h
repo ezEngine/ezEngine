@@ -91,10 +91,16 @@ inline void ezStringUtils::GetCharacterAndElementCount(const char* szUtf8, ezUIn
   if (IsNullOrEmpty(szUtf8))
     return;
 
-  while ((*szUtf8 != '\0') && (szUtf8 < pStringEnd))
+  while (szUtf8 < pStringEnd)
   {
+    char uiByte = *szUtf8;
+    if(uiByte == '\0')
+    {
+      break;
+    }
+
     // skip all the Utf8 continuation bytes
-    if (!ezUnicodeUtils::IsUtf8ContinuationByte(*szUtf8))
+    if (!ezUnicodeUtils::IsUtf8ContinuationByte(uiByte))
       ++uiCharacterCount;
 
     ++szUtf8;
@@ -123,5 +129,15 @@ EZ_ALWAYS_INLINE bool ezStringUtils::IsEqualN_NoCase(const char* pString1, const
                                                      const char* pString1End, const char* pString2End)
 {
   return ezStringUtils::CompareN_NoCase(pString1, pString2, uiCharsToCompare, pString1End, pString2End) == 0;
+}
+
+EZ_ALWAYS_INLINE bool ezStringUtils::IsDecimalDigit(ezUInt32 uiChar)
+{
+  return (uiChar >= '0' && uiChar <= '9');
+}
+
+EZ_ALWAYS_INLINE bool ezStringUtils::IsHexDigit(ezUInt32 uiChar)
+{
+  return IsDecimalDigit(uiChar) || (uiChar >= 'A' && uiChar <= 'F') || (uiChar >= 'a' && uiChar <= 'f');
 }
 

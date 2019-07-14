@@ -72,7 +72,7 @@ void ezRenderTargetActivatorComponent::OnExtractRenderData(ezMsgExtractRenderDat
   if (!m_hRenderTarget.IsValid())
     return;
 
-  ezResourceLock<ezRenderToTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezRenderToTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::BlockTillLoaded);
 
   for (auto hView : pRenderTarget->GetAllRenderViews())
   {

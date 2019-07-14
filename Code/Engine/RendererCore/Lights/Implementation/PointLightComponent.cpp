@@ -110,8 +110,7 @@ void ezPointLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) con
   float fScreenSpaceSize =
       CalculateScreenSpaceSize(ezBoundingSphere(t.m_vPosition, m_fEffectiveRange * 0.5f), *msg.m_pView->GetCullingCamera());
 
-  ezUInt32 uiBatchId = m_bCastShadows ? 0 : 1;
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezPointLightRenderData>(GetOwner(), uiBatchId);
+  auto pRenderData = ezCreateRenderDataForThisFrame<ezPointLightRenderData>(GetOwner());
 
   pRenderData->m_GlobalTransform = t;
   pRenderData->m_LightColor = m_LightColor;
@@ -120,8 +119,10 @@ void ezPointLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) con
   pRenderData->m_hProjectedTexture = m_hProjectedTexture;
   pRenderData->m_uiShadowDataOffset = m_bCastShadows ? ezShadowPool::AddPointLight(this, fScreenSpaceSize) : ezInvalidIndex;
 
+  pRenderData->FillBatchIdAndSortingKey(fScreenSpaceSize);
+
   ezRenderData::Caching::Enum caching = m_bCastShadows ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId, caching);
+  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, caching);
 }
 
 void ezPointLightComponent::SerializeComponent(ezWorldWriter& stream) const

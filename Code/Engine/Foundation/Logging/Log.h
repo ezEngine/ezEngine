@@ -5,7 +5,8 @@
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/Threading/AtomicInteger.h>
 
-/// \brief Use this helper macro to easily create a scoped logging group. Will generate unique variable names to make the static code analysis happy.
+/// \brief Use this helper macro to easily create a scoped logging group. Will generate unique variable names to make the static code
+/// analysis happy.
 #define EZ_LOG_BLOCK ezLogBlock EZ_CONCAT(_logblock_, EZ_SOURCE_LINE)
 
 // Forward declaration, class is at the end of this file
@@ -17,7 +18,7 @@ struct EZ_FOUNDATION_DLL ezLogMsgType
 {
   typedef ezInt8 StorageType;
 
-  enum Enum
+  enum Enum : ezInt8
   {
     BeginGroup = -2,       ///< A logging group has been opened.
     EndGroup = -1,         ///< A logging group has been closed.
@@ -42,16 +43,19 @@ struct EZ_FOUNDATION_DLL ezLoggingEventData
   ezLogMsgType::Enum m_EventType = ezLogMsgType::None;
 
   /// \brief How many "levels" to indent.
-  ezUInt32 m_uiIndentation = 0;
+  ezUInt8 m_uiIndentation = 0;
 
   /// \brief The information text.
   const char* m_szText = "";
 
-  /// \brief An optional tag extracted from the log-string (if it started with "[SomeTag]Logging String.") Can be used by log-writers for additional configuration, or simply be ignored.
+  /// \brief An optional tag extracted from the log-string (if it started with "[SomeTag]Logging String.") Can be used by log-writers for
+  /// additional configuration, or simply be ignored.
   const char* m_szTag = "";
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   /// \brief Used by log-blocks for profiling the duration of the block
   double m_fSeconds = 0;
+#endif
 };
 
 typedef ezEvent<const ezLoggingEventData&, ezMutex> ezLoggingEvent;
@@ -66,7 +70,8 @@ public:
   /// \brief Override this function to handle logging events.
   virtual void HandleLogMessage(const ezLoggingEventData& le) = 0;
 
-  /// \brief LogLevel is between ezLogEventType::None and ezLogEventType::All and defines which messages will be logged and which will be filtered out.
+  /// \brief LogLevel is between ezLogEventType::None and ezLogEventType::All and defines which messages will be logged and which will be
+  /// filtered out.
   EZ_ALWAYS_INLINE void SetLogLevel(ezLogMsgType::Enum LogLevel) { m_LogLevel = LogLevel; }
 
   /// \brief Returns the currently set log level.
@@ -89,10 +94,13 @@ public:
   virtual void HandleLogMessage(const ezLoggingEventData& le) override;
 
   /// \brief Allows to register a function as an event receiver.
-  static void AddLogWriter(ezLoggingEvent::Handler handler);
+  static ezEventSubscriptionID AddLogWriter(ezLoggingEvent::Handler handler);
 
   /// \brief Unregisters a previously registered receiver. It is an error to unregister a receiver that was not registered.
   static void RemoveLogWriter(ezLoggingEvent::Handler handler);
+
+  /// \brief Unregisters a previously registered receiver. It is an error to unregister a receiver that was not registered.
+  static void RemoveLogWriter(ezEventSubscriptionID subscriptionID);
 
   /// \brief Returns how many message of the given type occurred.
   static ezUInt32 GetMessageCount(ezLogMsgType::Enum MessageType) { return s_uiMessageCount[MessageType]; }
@@ -263,8 +271,17 @@ public:
     Debug(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
-  /// \brief Usually called internally by the other log functions, but can be called directly, if the message type is already known. pInterface must be != nullptr.
+  /// \brief Usually called internally by the other log functions, but can be called directly, if the message type is already known.
+  /// pInterface must be != nullptr.
   static void BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum type, const char* szString);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  /// \brief Calls low-level OS functionality to print a string to the typical outputs, e.g. printf and OutputDebugString.
+  ///
+  /// This function is meant for short term debugging when actual printing to the console is desired. Code using it should be temporary.
+  /// \note This function uses actual printf formatting, not ezFormatString syntax.
+  static void Printf(const char* szFormat, ...);
+#endif
 
 private:
   // Needed to call 'EndLogBlock'
@@ -310,9 +327,11 @@ private:
   ezLogBlock* m_pParentBlock;
   const char* m_szName;
   const char* m_szContextInfo;
-  ezInt32 m_iBlockDepth;
+  ezUInt8 m_uiBlockDepth;
   bool m_bWritten;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   double m_fSeconds; // for profiling
+#endif
 };
 
 /// \brief A class that sets a custom ezLogInterface as the thread local default log system,
@@ -328,16 +347,13 @@ public:
   }
 
   /// \brief Resets the previous ezLogInterface through ezLog::SetThreadLocalLogSystem()
-  ~ezLogSystemScope()
-  {
-    ezLog::SetThreadLocalLogSystem(m_pPrevious);
-  }
+  ~ezLogSystemScope() { ezLog::SetThreadLocalLogSystem(m_pPrevious); }
+
+protected:
+  ezLogInterface* m_pPrevious;
 
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezLogSystemScope);
-
-  ezLogInterface* m_pPrevious;
 };
 
 #include <Foundation/Logging/Implementation/Log_inl.h>
-

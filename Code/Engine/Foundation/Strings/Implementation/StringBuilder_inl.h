@@ -126,6 +126,7 @@ inline void ezStringBuilder::Append(ezUInt32 uiChar)
     m_Data[uiOldCount + i] = szChar[i];
   }
   m_Data[uiOldCount + uiCharLen] = '\0';
+  ++m_uiCharacterCount;
 }
 
 inline void ezStringBuilder::Prepend(ezUInt32 uiChar)
@@ -195,16 +196,6 @@ inline void ezStringBuilder::ToLower()
 
   // the array stores the number of bytes, so set the count to the actually used number of bytes
   m_Data.SetCountUninitialized(uiNewStringLength + 1);
-}
-
-inline void ezStringBuilder::Printf(const char* szUtf8Format, ...)
-{
-  va_list args;
-  va_start(args, szUtf8Format);
-
-  PrintfArgs(szUtf8Format, args);
-
-  va_end(args);
 }
 
 inline void ezStringBuilder::ChangeCharacter(iterator& it, ezUInt32 uiCharacter)

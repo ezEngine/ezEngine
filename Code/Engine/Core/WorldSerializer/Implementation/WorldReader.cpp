@@ -290,7 +290,7 @@ void ezWorldReader::ReadComponentsOfType(ezUInt32 uiComponentTypeIdx)
   }
   else
   {
-    pManager = m_pWorld->GetOrCreateComponentManager(pRtti);
+    pManager = m_pWorld->GetOrCreateManagerForComponentType(pRtti);
   }
 
   if (bSkip)
@@ -340,7 +340,7 @@ void ezWorldReader::ReadComponentsOfType(ezUInt32 uiComponentTypeIdx)
 
       pComponent->SetActive(bActive);
 
-      for (ezUInt32 i = 0; i < 8; ++i)
+      for (ezUInt8 i = 0; i < 8; ++i)
       {
         pComponent->SetUserFlag(i, (userFlags & EZ_BIT(i)) != 0);
       }

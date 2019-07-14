@@ -1,27 +1,29 @@
 ﻿#include <FoundationTestPCH.h>
 
-// NOTE: always save as Unicode UTF-8 with signature
+// NOTE: always save as Unicode UTF-8 with signature or compile with /utf-8 on windows.
 
 #include <Foundation/Strings/String.h>
 
 EZ_CREATE_SIMPLE_TEST(Strings, StringView)
 {
+  ezStringBuilder tmp;
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor (simple)")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
 
     ezStringView it(sz);
 
-    EZ_TEST_BOOL(it.GetStartPosition() == sz);
-    EZ_TEST_BOOL(it.GetData() == sz);
-    EZ_TEST_BOOL(it.GetEndPosition() == sz + 26);
+    EZ_TEST_BOOL(it.GetStartPointer() == sz);
+    EZ_TEST_STRING(it.GetData(tmp), sz);
+    EZ_TEST_BOOL(it.GetEndPointer() == sz + 26);
     EZ_TEST_INT(it.GetElementCount(), 26);
 
     ezStringView it2(sz + 15);
 
-    EZ_TEST_BOOL(it2.GetStartPosition() == &sz[15]);
-    EZ_TEST_BOOL(it2.GetData() == &sz[15]);
-    EZ_TEST_BOOL(it2.GetEndPosition() == sz + 26);
+    EZ_TEST_BOOL(it2.GetStartPointer() == &sz[15]);
+    EZ_TEST_STRING(it2.GetData(tmp), &sz[15]);
+    EZ_TEST_BOOL(it2.GetEndPointer() == sz + 26);
     EZ_TEST_INT(it2.GetElementCount(), 11);
   }
 
@@ -32,9 +34,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     ezStringView it(sz + 3, sz + 17);
     it.SetStartPosition(sz + 5);
 
-    EZ_TEST_BOOL(it.GetStartPosition() == sz + 5);
-    EZ_TEST_BOOL(it.GetData() == sz + 5);
-    EZ_TEST_BOOL(it.GetEndPosition() == sz + 17);
+    EZ_TEST_BOOL(it.GetStartPointer() == sz + 5);
+    EZ_TEST_STRING(it.GetData(tmp), "fghijklmnopq");
+    EZ_TEST_BOOL(it.GetEndPointer() == sz + 17);
     EZ_TEST_INT(it.GetElementCount(), 12);
   }
 
@@ -218,9 +220,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
     ezStringView it(sz + 7, sz + 19);
 
-    EZ_TEST_BOOL(it.GetStartPosition() == sz + 7);
-    EZ_TEST_BOOL(it.GetEndPosition() == sz + 19);
-    EZ_TEST_BOOL(it.GetData() == sz + 7);
+    EZ_TEST_BOOL(it.GetStartPointer() == sz + 7);
+    EZ_TEST_BOOL(it.GetEndPointer() == sz + 19);
+    EZ_TEST_STRING(it.GetData(tmp), "hijklmnopqrs");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Shrink")
@@ -228,44 +230,44 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     ezStringUtf8 s(L"abcäöü€def");
     ezStringView it(s.GetData());
 
-    EZ_TEST_BOOL(it.GetStartPosition() == &s.GetData()[0]);
-    EZ_TEST_BOOL(it.GetEndPosition() == &s.GetData()[15]);
-    EZ_TEST_BOOL(it.GetData() == &s.GetData()[0]);
+    EZ_TEST_BOOL(it.GetStartPointer() == &s.GetData()[0]);
+    EZ_TEST_BOOL(it.GetEndPointer() == &s.GetData()[15]);
+    EZ_TEST_STRING(it.GetData(tmp), &s.GetData()[0]);
     EZ_TEST_BOOL(it.IsValid());
 
     it.Shrink(1, 0);
 
-    EZ_TEST_BOOL(it.GetStartPosition() == &s.GetData()[1]);
-    EZ_TEST_BOOL(it.GetEndPosition() == &s.GetData()[15]);
-    EZ_TEST_BOOL(it.GetData() == &s.GetData()[1]);
+    EZ_TEST_BOOL(it.GetStartPointer() == &s.GetData()[1]);
+    EZ_TEST_BOOL(it.GetEndPointer() == &s.GetData()[15]);
+    EZ_TEST_STRING(it.GetData(tmp), &s.GetData()[1]);
     EZ_TEST_BOOL(it.IsValid());
 
     it.Shrink(3, 0);
 
-    EZ_TEST_BOOL(it.GetStartPosition() == &s.GetData()[5]);
-    EZ_TEST_BOOL(it.GetEndPosition() == &s.GetData()[15]);
-    EZ_TEST_BOOL(it.GetData() == &s.GetData()[5]);
+    EZ_TEST_BOOL(it.GetStartPointer() == &s.GetData()[5]);
+    EZ_TEST_BOOL(it.GetEndPointer() == &s.GetData()[15]);
+    EZ_TEST_STRING(it.GetData(tmp), &s.GetData()[5]);
     EZ_TEST_BOOL(it.IsValid());
 
     it.Shrink(0, 4);
 
-    EZ_TEST_BOOL(it.GetStartPosition() == &s.GetData()[5]);
-    EZ_TEST_BOOL(it.GetEndPosition() == &s.GetData()[9]);
-    EZ_TEST_BOOL(it.GetData() == &s.GetData()[5]);
+    EZ_TEST_BOOL(it.GetStartPointer() == &s.GetData()[5]);
+    EZ_TEST_BOOL(it.GetEndPointer() == &s.GetData()[9]);
+    EZ_TEST_STRING(it.GetData(tmp), u8"öü");
     EZ_TEST_BOOL(it.IsValid());
 
     it.Shrink(1, 1);
 
-    EZ_TEST_BOOL(it.GetStartPosition() == &s.GetData()[7]);
-    EZ_TEST_BOOL(it.GetEndPosition() == &s.GetData()[7]);
-    EZ_TEST_BOOL(it.GetData() == &s.GetData()[7]);
+    EZ_TEST_BOOL(it.GetStartPointer() == &s.GetData()[7]);
+    EZ_TEST_BOOL(it.GetEndPointer() == &s.GetData()[7]);
+    EZ_TEST_STRING(it.GetData(tmp), "");
     EZ_TEST_BOOL(!it.IsValid());
 
     it.Shrink(10, 10);
 
-    EZ_TEST_BOOL(it.GetStartPosition() == &s.GetData()[7]);
-    EZ_TEST_BOOL(it.GetEndPosition() == &s.GetData()[7]);
-    EZ_TEST_BOOL(it.GetData() == &s.GetData()[7]);
+    EZ_TEST_BOOL(it.GetStartPointer() == &s.GetData()[7]);
+    EZ_TEST_BOOL(it.GetEndPointer() == &s.GetData()[7]);
+    EZ_TEST_STRING(it.GetData(tmp), "");
     EZ_TEST_BOOL(!it.IsValid());
   }
 

@@ -23,12 +23,13 @@ public:
   ezGameEngineTestApplication(const char* szProjectDirName);
 
   virtual ezString FindProjectDirectory() const final override;
+  virtual ezString GetProjectDataDirectoryPath() const final override;
   const ezImage& GetLastScreenshot() { return m_LastScreenshot; }
 
   ezResult LoadScene(const char* szSceneFile);
 
 protected:
-  virtual void BeforeCoreSystemsStartup() override;
+  virtual ezResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
   virtual void BeforeHighLevelSystemsShutdown() override;
   virtual void StoreScreenshot(ezImage&& image, const char* szContext) override;

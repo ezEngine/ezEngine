@@ -1,5 +1,8 @@
 #pragma once
 
+#include <Foundation/FoundationPCH.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 #include <Foundation/Logging/Log.h>
 #include <Utilities/CommandLineUtils.h>
 #include <errno.h>
@@ -11,6 +14,7 @@
 #else
 #include <pwd.h>
 #include <sys/types.h>
+#include <limits.h>
 #include <unistd.h>
 #define EZ_USE_OLD_POSIX_FUNCTIONS EZ_OFF
 #endif
@@ -213,7 +217,9 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
 
   out_Stats.m_bIsDirectory = S_ISDIR(tempStat.st_mode);
   out_Stats.m_uiFileSize = tempStat.st_size;
-  out_Stats.m_sFileName = ezPathUtils::GetFileNameAndExtension(szFileOrFolder); // no OS support, so just pass it through
+  out_Stats.m_sParentPath = szFileOrFolder;
+  out_Stats.m_sParentPath.PathParentDirectory();
+  out_Stats.m_sName = ezPathUtils::GetFileNameAndExtension(szFileOrFolder); // no OS support, so just pass it through
   out_Stats.m_LastModificationTime.SetInt64(tempStat.st_mtime, ezSIUnitOfTime::Second);
 
   return EZ_SUCCESS;
@@ -254,11 +260,10 @@ const char* ezOSFile::GetApplicationDirectory()
     CFRelease(appBundle);
 
 #else
-
-    EZ_ASSERT_DEV(ezCommandLineUtils::GetGlobalInstance()->GetParameterCount() > 0, "Command line arguments have not been passed along to ezCommandLineUtils");
-    ezStringBuilder path = ezCommandLineUtils::GetGlobalInstance()->GetParameter(0);
+    char result[PATH_MAX];
+    ssize_t length = readlink( "/proc/self/exe", result, PATH_MAX);
+    ezStringBuilder path(ezStringView(result, result + length));
     s_Path = path.GetFileDirectory();
-
 #endif
   }
 
@@ -276,6 +281,19 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
   }
 
   ezStringBuilder s = s_UserDataPath;
+  s.AppendPath(szSubFolder);
+  s.MakeCleanPath();
+  return s;
+}
+
+ezString ezOSFile::GetTempDataFolder(const char* szSubFolder)
+{
+  if (s_TempDataPath.IsEmpty())
+  {
+    s_TempDataPath = GetUserDataFolder(".cache").GetData();
+  }
+
+  ezStringBuilder s = s_TempDataPath;
   s.AppendPath(szSubFolder);
   s.MakeCleanPath();
   return s;

@@ -229,7 +229,11 @@ void ezQtResourceWidget::UpdateTable()
 
       switch (res.m_Priority)
       {
-        case ezResourcePriority::Highest:
+        case ezResourcePriority::Critical:
+          pItem->setText("Critical");
+          pItem->setTextColor(QColor::fromRgb(255, 0, 0));
+          break;
+        case ezResourcePriority::VeryHigh:
           pItem->setText("Highest");
           pItem->setTextColor(QColor::fromRgb(255, 106, 0));
           break;
@@ -237,7 +241,7 @@ void ezQtResourceWidget::UpdateTable()
           pItem->setText("High");
           pItem->setTextColor(QColor::fromRgb(255, 216, 0));
           break;
-        case ezResourcePriority::Normal:
+        case ezResourcePriority::Medium:
           pItem->setText("Normal");
           pItem->setTextColor(QColor::fromRgb(0, 148, 255));
           break;
@@ -245,20 +249,17 @@ void ezQtResourceWidget::UpdateTable()
           pItem->setText("Low");
           pItem->setTextColor(QColor::fromRgb(127, 146, 255));
           break;
-        case ezResourcePriority::Lowest:
+        case ezResourcePriority::VeryLow:
           pItem->setText("Lowest");
           pItem->setTextColor(QColor::fromRgb(127, 201, 255));
           break;
-
-        case ezResourcePriority::Unchanged:
-          break;
       }
 
-      if (res.m_Flags.IsAnySet(ezResourceFlags::IsPreloading))
-      {
-        pItem->setText("Preloading");
-        pItem->setTextColor(QColor::fromRgb(86, 255, 25));
-      }
+      //if (res.m_Flags.IsAnySet(ezResourceFlags::IsPreloading))
+      //{
+      //  pItem->setText("Preloading");
+      //  pItem->setTextColor(QColor::fromRgb(86, 255, 25));
+      //}
 
       pItem = Table->item(iTableRow, 2);
       pItem->setTextAlignment(Qt::AlignHCenter);
@@ -271,10 +272,6 @@ void ezQtResourceWidget::UpdateTable()
         case ezResourceState::Unloaded:
           pItem->setText("Unloaded");
           pItem->setTextColor(QColor::fromRgb(255, 216, 0));
-          break;
-        case ezResourceState::UnloadedMetaInfoAvailable:
-          pItem->setText("Meta Data");
-          pItem->setTextColor(QColor::fromRgb(255, 127, 237));
           break;
         case ezResourceState::Loaded:
           pItem->setText("Loaded");

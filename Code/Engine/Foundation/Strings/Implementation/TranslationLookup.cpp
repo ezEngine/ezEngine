@@ -63,14 +63,13 @@ void ezTranslationLookup::Clear()
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezTranslatorFromFiles::LoadTranslationFilesFromFolder(const char* szFolder)
+void ezTranslatorFromFiles::AddTranslationFilesFromFolder(const char* szFolder)
 {
-  EZ_LOG_BLOCK("LoadTranslationFilesFromFolder", szFolder);
+  EZ_LOG_BLOCK("AddTranslationFilesFromFolder", szFolder);
 
-  if (m_sFolder != szFolder)
+  if (!m_Folders.Contains(szFolder))
   {
-    // prevent assigning to itself during Reload()
-    m_sFolder = szFolder;
+    m_Folders.PushBack(szFolder);
   }
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
@@ -86,7 +85,7 @@ void ezTranslatorFromFiles::LoadTranslationFilesFromFolder(const char* szFolder)
     do
     {
       fullpath = it.GetCurrentPath();
-      fullpath.AppendPath(it.GetStats().m_sFileName);
+      fullpath.AppendPath(it.GetStats().m_sName);
 
       LoadTranslationFile(fullpath);
     } while (it.Next().Succeeded());
@@ -98,9 +97,9 @@ void ezTranslatorFromFiles::Reload()
 {
   ezTranslatorStorage::Reload();
 
-  if (!m_sFolder.IsEmpty())
+  for (const auto& sFolder : m_Folders)
   {
-    LoadTranslationFilesFromFolder(m_sFolder);
+    AddTranslationFilesFromFolder(sFolder);
   }
 }
 

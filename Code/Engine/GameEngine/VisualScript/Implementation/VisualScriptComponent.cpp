@@ -33,7 +33,7 @@ ezVisualScriptComponent::ezVisualScriptComponent() {}
 ezVisualScriptComponent::~ezVisualScriptComponent()
 {
   m_hResource.Invalidate();
-  m_Script.Reset();
+  m_Script.Clear();
 }
 
 void ezVisualScriptComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -172,7 +172,7 @@ void ezVisualScriptComponent::Update()
     if (bEnableDebugOutput)
       m_pActivity = EZ_DEFAULT_NEW(ezVisualScriptInstanceActivity);
     else
-      m_pActivity.Reset();
+      m_pActivity.Clear();
   }
 
   // Script Parameters
@@ -241,15 +241,14 @@ bool ezVisualScriptComponent::OnUnhandledMessage(ezMessage& msg) const
 
 const ezRangeView<const char*, ezUInt32> ezVisualScriptComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; },
-                                            [this]() -> ezUInt32 { return m_NumberParams.GetCount() + m_BoolParams.GetCount(); },
-                                            [this](ezUInt32& it) { ++it; },
-                                            [this](const ezUInt32& it) -> const char* {
-                                              if (it < m_NumberParams.GetCount())
-                                                return m_NumberParams[it].m_sName.GetData();
-                                              else
-                                                return m_BoolParams[it - m_NumberParams.GetCount()].m_sName.GetData();
-                                            });
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; },
+    [this]() -> ezUInt32 { return m_NumberParams.GetCount() + m_BoolParams.GetCount(); }, [](ezUInt32& it) { ++it; },
+    [this](const ezUInt32& it) -> const char* {
+      if (it < m_NumberParams.GetCount())
+        return m_NumberParams[it].m_sName.GetData();
+      else
+        return m_BoolParams[it - m_NumberParams.GetCount()].m_sName.GetData();
+    });
 }
 
 void ezVisualScriptComponent::SetParameter(const char* szKey, const ezVariant& var)
@@ -353,4 +352,3 @@ bool ezVisualScriptComponent::GetParameter(const char* szKey, ezVariant& out_val
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Implementation_VisualScriptComponent);
-

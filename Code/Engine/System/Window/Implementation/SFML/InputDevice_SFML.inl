@@ -1,6 +1,6 @@
 #include <SystemPCH.h>
 
-#include <SFML/Window.hpp>
+#include <SFML/Window/Window.hpp>
 #include <System/Window/Implementation/SFML/InputDevice_SFML.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator);
@@ -16,7 +16,6 @@ ezStandardInputDevice::ezStandardInputDevice(sf::Window* pWindow, ezUInt32 uiWin
   m_vLastMousePos.SetZero();
 
   m_bShowCursor = true;
-  m_bClipCursor = false;
 
   if (uiWindowNumber == 0)
   {
@@ -456,7 +455,7 @@ void ezStandardInputDevice::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode)
 
   m_ClipCursorMode = mode;
 
-  if (!m_ClipCursorMode != ezMouseCursorClipMode::NoClip)
+  if (m_ClipCursorMode == ezMouseCursorClipMode::NoClip)
   {
     // pass the emulated mouse position back to the OS, to prevent mouse jumping
     sf::Mouse::setPosition(sf::Vector2i(m_vEmulatedMousePos.x, m_vEmulatedMousePos.y), *m_pWindow);
@@ -478,4 +477,3 @@ void ezStandardInputDevice::SetShowMouseCursor(bool bShow)
   m_bShowCursor = bShow;
   m_pWindow->setMouseCursorVisible(m_bShowCursor);
 }
-

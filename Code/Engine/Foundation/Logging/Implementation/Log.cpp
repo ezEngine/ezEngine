@@ -12,17 +12,19 @@ ezLoggingEvent ezGlobalLog::s_LoggingEvent;
 static thread_local ezLogInterface* s_DefaultLogSystem = nullptr;
 
 
-void ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler handler)
+ezEventSubscriptionID ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler handler)
 {
-  if (!s_LoggingEvent.HasEventHandler(handler))
-  {
-    s_LoggingEvent.AddEventHandler(handler);
-  }
+  return s_LoggingEvent.AddEventHandler(handler);
 }
 
 void ezGlobalLog::RemoveLogWriter(ezLoggingEvent::Handler handler)
 {
   s_LoggingEvent.RemoveEventHandler(handler);
+}
+
+void ezGlobalLog::RemoveLogWriter(ezEventSubscriptionID subscriptionID)
+{
+  s_LoggingEvent.RemoveEventHandler(subscriptionID);
 }
 
 void ezGlobalLog::HandleLogMessage(const ezLoggingEventData& le)
@@ -49,7 +51,7 @@ ezLogBlock::ezLogBlock(const char* szName, const char* szContextInfo)
   m_pParentBlock = m_pLogInterface->m_pCurrentBlock;
   m_pLogInterface->m_pCurrentBlock = this;
 
-  m_iBlockDepth = m_pParentBlock ? (m_pParentBlock->m_iBlockDepth + 1) : 0;
+  m_uiBlockDepth = m_pParentBlock ? (m_pParentBlock->m_uiBlockDepth + 1) : 0;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   m_fSeconds = ezTime::Now().GetSeconds();
@@ -71,7 +73,7 @@ ezLogBlock::ezLogBlock(ezLogInterface* pInterface, const char* szName, const cha
   m_pParentBlock = m_pLogInterface->m_pCurrentBlock;
   m_pLogInterface->m_pCurrentBlock = this;
 
-  m_iBlockDepth = m_pParentBlock ? (m_pParentBlock->m_iBlockDepth + 1) : 0;
+  m_uiBlockDepth = m_pParentBlock ? (m_pParentBlock->m_uiBlockDepth + 1) : 0;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   m_fSeconds = ezTime::Now().GetSeconds();
@@ -85,8 +87,6 @@ ezLogBlock::~ezLogBlock()
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   m_fSeconds = ezTime::Now().GetSeconds() - m_fSeconds;
-#else
-  m_fSeconds = 0;
 #endif
 
   m_pLogInterface->m_pCurrentBlock = m_pParentBlock;
@@ -102,9 +102,11 @@ void ezLog::EndLogBlock(ezLogInterface* pInterface, ezLogBlock* pBlock)
     ezLoggingEventData le;
     le.m_EventType = ezLogMsgType::EndGroup;
     le.m_szText = pBlock->m_szName;
-    le.m_uiIndentation = pBlock->m_iBlockDepth;
+    le.m_uiIndentation = pBlock->m_uiBlockDepth;
     le.m_szTag = pBlock->m_szContextInfo;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     le.m_fSeconds = pBlock->m_fSeconds;
+#endif
 
     pInterface->HandleLogMessage(le);
   }
@@ -122,7 +124,7 @@ void ezLog::WriteBlockHeader(ezLogInterface* pInterface, ezLogBlock* pBlock)
   ezLoggingEventData le;
   le.m_EventType = ezLogMsgType::BeginGroup;
   le.m_szText = pBlock->m_szName;
-  le.m_uiIndentation = pBlock->m_iBlockDepth;
+  le.m_uiIndentation = pBlock->m_uiBlockDepth;
   le.m_szTag = pBlock->m_szContextInfo;
 
   pInterface->HandleLogMessage(le);
@@ -131,11 +133,11 @@ void ezLog::WriteBlockHeader(ezLogInterface* pInterface, ezLogBlock* pBlock)
 void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum type, const char* szString)
 {
   ezLogBlock* pTopBlock = pInterface->m_pCurrentBlock;
-  ezInt32 iIndentation = 0;
+  ezUInt8 uiIndentation = 0;
 
   if (pTopBlock)
   {
-    iIndentation = pTopBlock->m_iBlockDepth + 1;
+    uiIndentation = pTopBlock->m_uiBlockDepth + 1;
 
     WriteBlockHeader(pInterface, pTopBlock);
   }
@@ -164,15 +166,37 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
   ezLoggingEventData le;
   le.m_EventType = type;
   le.m_szText = szString;
-  le.m_uiIndentation = iIndentation;
+  le.m_uiIndentation = uiIndentation;
   le.m_szTag = szTag;
 
   pInterface->HandleLogMessage(le);
 }
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+
+void ezLog::Printf(const char* szFormat, ...)
+{
+  va_list args;
+  va_start(args, szFormat);
+
+  char buffer[1024];
+  ezStringUtils::vsnprintf(buffer, EZ_ARRAY_SIZE(buffer), szFormat, args);
+
+  printf("%s", buffer);
+
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  OutputDebugStringA(buffer);
+#  endif
+
+  va_end(args);
+}
+
+#endif
+
 void ezLog::SetThreadLocalLogSystem(ezLogInterface* pInterface)
 {
-  EZ_ASSERT_DEV(pInterface != nullptr, "You cannot set a nullptr logging system. If you want to discard all log information, set a dummy system that does not do anything.");
+  EZ_ASSERT_DEV(pInterface != nullptr,
+    "You cannot set a nullptr logging system. If you want to discard all log information, set a dummy system that does not do anything.");
 
   s_DefaultLogSystem = pInterface;
 }
@@ -266,4 +290,3 @@ void ezLog::Debug(ezLogInterface* pInterface, const ezFormatString& string)
 #endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_Log);
-

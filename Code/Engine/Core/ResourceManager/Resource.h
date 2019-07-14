@@ -80,51 +80,14 @@ public:
   /// \brief Returns how many quality levels the resource may additionally load.
   EZ_ALWAYS_INLINE ezUInt8 GetNumQualityLevelsLoadable() const { return m_uiQualityLevelsLoadable; }
 
-  /// \brief Sets the current priority of this resource.
-  ///
-  /// This is one way for the engine to specify how important this resource is, in relation to others.
-  /// The runtime can use any arbitrary scheme to compute the priority for resources, e.g. it could use
-  /// distance to the camera, on screen size, or random chance.
-  /// However, it should be consistent with the priority computation of other resources, to prevent
-  /// preferring or penalizing other resources too much.
-  ///
-  /// Also make sure to always update the priority of resources when it becomes unimportant.
-  /// If a resource is set to high priority and then never changed back, it will be kept loaded
-  /// longer than others.
-  ///
-  /// The due date is an absolute deadline, whereas the priority is a relative value compared to other resources.
-  /// Both can be combined. The due date always take precedence when it approaches, however as long as it is further away, priority has the
-  /// most influence.
-  ///
-  /// \sa SetDueDate
+  /// \brief Returns the priority that is used by the resource manager to determine which resource to load next.
+  float GetLoadingPriority(ezTime tNow) const;
+
+  /// \brief Returns the current resource priority.
+  ezResourcePriority GetPriority() const { return m_Priority; }
+
+  /// \brief Changes the current resource priority.
   void SetPriority(ezResourcePriority priority);
-
-  /// \brief Returns the currently user-specified priority of this resource. \see SetPriority
-  EZ_ALWAYS_INLINE ezResourcePriority GetPriority() const { return m_Priority; }
-
-  /// \brief Specifies the time (usually in the future) at which this resource is needed and should be fully loaded.
-  ///
-  /// This is another way in which the loading priority of the resource can be influenced by the runtime.
-  /// By specifying a 'due date' or 'deadline', the resource manager is instructed to make sure that this resource
-  /// gets loaded in due time. The closer that the due date is, the higher the priority for loading this resource becomes.
-  ///
-  /// Calling this function without parameters 'resets' the due date to a date into the far future, which practically disables it.
-  ///
-  /// The due date is an absolute deadline, whereas the priority is a relative value compared to other resources.
-  /// Both can be combined. The due date always take precedence when it approaches, however as long as it is further away, priority has the
-  /// most influence.
-  ///
-  /// \sa SetPriority
-  void SetDueDate(ezTime date = ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 1000.0));
-
-  /// \brief Returns the deadline (tNow + x) at which this resource is required to be loaded.
-  ///
-  /// This represents the final priority that is used by the resource manager to determine which resource to load next.
-  /// \note It is fully valid to return a time in the past.
-  ///
-  /// \note Although it is possible to override this function, it is advised not to do so.
-  /// The default algorithm is tweaked well enough already, it should not be necessary to modify it.
-  virtual ezTime GetLoadingDeadline(ezTime tNow) const;
 
   /// \brief Returns the basic flags for the resource type. Mostly used the resource manager.
   EZ_ALWAYS_INLINE const ezBitflags<ezResourceFlags>& GetBaseResourceFlags() const { return m_Flags; }
@@ -163,8 +126,8 @@ public:
 
 private:
   friend class ezResourceManager;
-  friend class ezResourceManagerWorkerDiskRead;
-  friend class ezResourceManagerWorkerMainThread;
+  friend class ezResourceManagerWorkerDataLoad;
+  friend class ezResourceManagerWorkerUpdateContent;
 
   /// \brief Called by ezResourceManager shortly after resource creation.
   void SetUniqueID(const char* szUniqueID, bool bIsReloadable);
@@ -225,12 +188,13 @@ private:
 
   virtual void ReportResourceIsMissing();
 
+  virtual bool HasResourceTypeLoadingFallback() const = 0;
+
   /// \brief Called by ezResourceMananger::CreateResource
   void VerifyAfterCreateResource(const ezResourceLoadDesc& ld);
 
   ezUInt32 m_uiUniqueIDHash = 0;
   ezUInt32 m_uiResourceChangeCounter = 0;
-  ezResourcePriority m_Priority = ezResourcePriority::Normal;
   ezAtomicInteger32 m_iReferenceCount = 0;
   ezAtomicInteger32 m_iLockCount = 0;
   ezString m_UniqueID;
@@ -239,7 +203,7 @@ private:
   ezBitflags<ezResourceFlags> m_Flags;
 
   ezTime m_LastAcquire;
-  ezTime m_DueDate;
+  ezResourcePriority m_Priority = ezResourcePriority::Medium;
   ezTimestamp m_LoadedFileModificationTime;
 };
 
@@ -284,6 +248,7 @@ private:                                                                        
   static void SetResourceTypeMissingFallback(const ezTypedResourceHandle<SELF>& hResource);                                                \
   static const ezTypedResourceHandle<SELF>& GetResourceTypeLoadingFallback() { return s_TypeLoadingFallback; }                             \
   static const ezTypedResourceHandle<SELF>& GetResourceTypeMissingFallback() { return s_TypeMissingFallback; }                             \
+  virtual bool HasResourceTypeLoadingFallback() const override { return s_TypeLoadingFallback.IsValid(); }                                 \
                                                                                                                                            \
   static ezTypedResourceHandle<SELF> s_TypeLoadingFallback;                                                                                \
   static ezTypedResourceHandle<SELF> s_TypeMissingFallback;                                                                                \
@@ -327,11 +292,12 @@ private:                                                                        
     ezResourceManager::AddResourceCleanupCallback(&SELF::CleanupDynamicPluginReferences);                                                  \
   }
 
+
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 #  define EZ_RESOURCE_VALIDATE_FALLBACK(SELF)                                                                                              \
     if (hResource.IsValid())                                                                                                               \
     {                                                                                                                                      \
-      ezResourceLock<SELF> lock(hResource, ezResourceAcquireMode::NoFallback);                                                             \
+      ezResourceLock<SELF> lock(hResource, ezResourceAcquireMode::BlockTillLoaded);                                                             \
       /* if this fails, the 'fallback resource' is missing itself*/                                                                        \
     }
 #else
@@ -345,4 +311,3 @@ protected:                                                                      
 private:
 
 #define EZ_RESOURCE_IMPLEMENT_CREATEABLE(SELF, SELF_DESCRIPTOR) ezResourceLoadDesc SELF::CreateResource(SELF_DESCRIPTOR&& descriptor)
-

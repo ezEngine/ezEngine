@@ -33,7 +33,7 @@ CONSTANT_BUFFER(ezMaterialConstants, 1)
 {
 	INT1(ShowChannelMode);
   FLOAT1(LodLevel);
-  BOOL(IsLinear);
+  BOOL1(IsLinear);
 };
 
 #define USE_WORLDPOS

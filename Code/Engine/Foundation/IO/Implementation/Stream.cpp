@@ -55,7 +55,7 @@ ezResult ezStreamWriter::WriteString(const ezStringView szStringView)
     EZ_SUCCEED_OR_RETURN(WriteDWordValue(&uiCount));
     if(uiCount > 0)
     {
-      EZ_SUCCEED_OR_RETURN(WriteBytes(szStringView.GetData(), uiCount));
+      EZ_SUCCEED_OR_RETURN(WriteBytes(szStringView.GetStartPointer(), uiCount));
     }
   }
   else
@@ -65,3 +65,7 @@ ezResult ezStreamWriter::WriteString(const ezStringView szStringView)
 
   return EZ_SUCCESS;
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_Stream);
+

@@ -5,8 +5,8 @@
 
 #include <Foundation/IO/MemoryStream.h>
 #include <Texture/Image/ImageConversion.h>
-#include <ThirdParty/stb_image/stb_image.h>
-#include <ThirdParty/stb_image/stb_image_write.h>
+#include <stb_image/stb_image.h>
+#include <stb_image/stb_image_write.h>
 
 
 ezStbImageFileFormats g_StbImageFormats;
@@ -111,16 +111,18 @@ ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& stream, ezImage& image
 
   image.ResetAndAlloc(imageHeader);
 
+  const size_t elementsToCopy = static_cast<size_t>(width) * static_cast<size_t>(height) * static_cast<size_t>(numComp);
+
   // Set pixels. Different strategies depending on component count.
   if (isHDR)
   {
-    float* targetImageData = image.GetArrayPtr<float>().GetPtr();
-    ezMemoryUtils::Copy(targetImageData, (const float*)sourceImageData, width * height * numComp);
+    float* targetImageData = image.GetBlobPtr<float>().GetPtr();
+    ezMemoryUtils::Copy(targetImageData, (const float*)sourceImageData, elementsToCopy);
   }
   else
   {
-    ezUInt8* targetImageData = image.GetArrayPtr<ezUInt8>().GetPtr();
-    ezMemoryUtils::Copy(targetImageData, (const ezUInt8*)sourceImageData, width * height * numComp);
+    ezUInt8* targetImageData = image.GetBlobPtr<ezUInt8>().GetPtr();
+    ezMemoryUtils::Copy(targetImageData, (const ezUInt8*)sourceImageData, elementsToCopy);
   }
 
   stbi_image_free((void*)sourceImageData);
@@ -161,7 +163,7 @@ ezResult ezStbImageFileFormats::WriteImage(
   if (ezStringUtils::IsEqual_NoCase(szFileExtension, "png"))
   {
     if (stbi_write_png_to_func(write_func, &stream, image.GetWidth(), image.GetHeight(),
-          ezImageFormat::GetNumChannels(image.GetImageFormat()), image.GetArrayPtr<void>().GetPtr(), 0))
+          ezImageFormat::GetNumChannels(image.GetImageFormat()), image.GetBlobPtr<void>().GetPtr(), 0))
     {
       return EZ_SUCCESS;
     }
@@ -170,7 +172,7 @@ ezResult ezStbImageFileFormats::WriteImage(
   if (ezStringUtils::IsEqual_NoCase(szFileExtension, "jpg") || ezStringUtils::IsEqual_NoCase(szFileExtension, "jpeg"))
   {
     if (stbi_write_jpg_to_func(write_func, &stream, image.GetWidth(), image.GetHeight(),
-          ezImageFormat::GetNumChannels(image.GetImageFormat()), image.GetArrayPtr<void>().GetPtr(), 95))
+          ezImageFormat::GetNumChannels(image.GetImageFormat()), image.GetBlobPtr<void>().GetPtr(), 95))
     {
       return EZ_SUCCESS;
     }

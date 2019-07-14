@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Application/Application.h>
+#include <Foundation/Application/Application.h>
 
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>

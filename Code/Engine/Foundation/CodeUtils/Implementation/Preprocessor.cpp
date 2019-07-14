@@ -7,6 +7,14 @@ ezString ezPreprocessor::s_ParamNames[32];
 using namespace ezTokenParseUtils;
 
 ezPreprocessor::ezPreprocessor()
+  : m_ClassAllocator("ezPreprocessor", ezFoundation::GetDefaultAllocator())
+  , m_sCurrentFileStack(&m_ClassAllocator)
+  , m_Macros(ezCompareHelper<ezString256>(), &m_ClassAllocator)
+  , m_CustomDefines(&m_ClassAllocator)
+  , m_IfdefActiveStack(&m_ClassAllocator)
+  , m_MacroParamStack(&m_ClassAllocator)
+  , m_MacroParamStackExpanded(&m_ClassAllocator)
+  , m_CustomTokens(&m_ClassAllocator)
 {
   SetCustomFileCache();
   m_pLog = nullptr;
@@ -68,8 +76,8 @@ ezResult ezPreprocessor::ProcessFile(const char* szFile, TokenStream& TokenOutpu
   m_sCurrentFileStack.PushBack(fd);
 
   ezUInt32 uiNextToken = 0;
-  TokenStream TokensLine;
-  TokenStream TokensCode;
+  TokenStream TokensLine(&m_ClassAllocator);
+  TokenStream TokensCode(&m_ClassAllocator);
 
   while (pTokenizer->GetNextLine(uiNextToken, TokensLine).Succeeded())
   {
@@ -321,7 +329,7 @@ ezResult ezPreprocessor::HandleLine(const TokenStream& Tokens, ezUInt32 uiCurTok
     CopyRelevantTokens(Tokens, uiHashToken, TokenOutput, true);
 
   ezUInt32 uiNumberToken = 0;
-  if (Expect(Tokens, uiCurToken, ezTokenType::Identifier, &uiNumberToken).Failed())
+  if (Expect(Tokens, uiCurToken, ezTokenType::Integer, &uiNumberToken).Failed())
     return EZ_FAILURE;
 
   ezInt32 iNextLine = 0;
@@ -366,9 +374,7 @@ ezResult ezPreprocessor::HandleIfdef(const TokenStream& Tokens, ezUInt32 uiCurTo
   if (Expect(Tokens, uiCurToken, ezTokenType::Identifier, &uiIdentifier).Failed())
     return EZ_FAILURE;
 
-  const ezString sIdentifier = Tokens[uiIdentifier]->m_DataView;
-
-  const bool bDefined = m_Macros.Find(sIdentifier).IsValid();
+  const bool bDefined = m_Macros.Find(Tokens[uiIdentifier]->m_DataView).IsValid();
 
   // broadcast that '#ifdef' is being evaluated
   {

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AssetCuratorPanel</class>
+ <widget class="QDockWidget" name="AssetCuratorPanel">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>608</width>
+    <height>552</height>
+   </rect>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
+    <normaloff>:/GuiFoundation/Icons/Log.png</normaloff>:/GuiFoundation/Icons/Log.png</iconset>
+  </property>
+  <property name="windowTitle">
+   <string>Asset Curator</string>
+  </property>
+  <widget class="QFrame" name="dockWidgetContents">
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Sunken</enum>
+   </property>
+   <property name="lineWidth">
+    <number>1</number>
+   </property>
+   <property name="midLineWidth">
+    <number>0</number>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Processors:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="ezQtCuratorControl" name="CuratorControl" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QSplitter" name="splitter">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="ezQtLogWidget" name="CuratorLog" native="true"/>
+      <widget class="QListView" name="Processors">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>1</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Transform Issues:</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QSplitter" name="splitter_2">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QTreeView" name="ListAssets"/>
+      <widget class="ezQtLogWidget" name="TransformLog" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>1</horstretch>
+         <verstretch>1</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ezQtLogWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">GuiFoundation/Widgets/LogWidget.moc.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ezQtCuratorControl</class>
+   <extends>QWidget</extends>
+   <header location="global">EditorFramework/Panels/AssetBrowserPanel/CuratorControl.moc.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

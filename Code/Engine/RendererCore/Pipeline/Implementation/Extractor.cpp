@@ -219,14 +219,14 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
   {
     for (auto& cached : msg.m_ExtractedRenderData)
     {
-      extractedRenderData.AddRenderData(cached.m_pRenderData, msg.m_OverrideCategory, cached.m_uiSortingKey);
+      extractedRenderData.AddRenderData(cached.m_pRenderData, msg.m_OverrideCategory);
     }
   }
   else
   {
     for (auto& cached : msg.m_ExtractedRenderData)
     {
-      extractedRenderData.AddRenderData(cached.m_pRenderData, ezRenderData::Category(cached.m_uiCategory), cached.m_uiSortingKey);
+      extractedRenderData.AddRenderData(cached.m_pRenderData, ezRenderData::Category(cached.m_uiCategory));
     }
   }
 

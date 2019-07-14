@@ -152,15 +152,8 @@ ezResult ezDependencyFile::RetrieveFileTimeStamp(const char* szFile, ezTimestamp
   {
     it.Value().m_LastCheck = ezTime::Now();
 
-    ezStringBuilder sAbsPath;
-    if (ezFileSystem::ResolvePath(szFile, &sAbsPath, nullptr).Failed())
-    {
-      ezLog::Error("Could not resolve path for file '{0}'", szFile);
-      return EZ_FAILURE;
-    }
-
     ezFileStats stats;
-    if (ezOSFile::GetFileStats(sAbsPath, stats).Failed())
+    if (ezFileSystem::GetFileStats(szFile, stats).Failed())
     {
       ezLog::Error("Could not query the file stats for '{0}'", szFile);
       return EZ_FAILURE;

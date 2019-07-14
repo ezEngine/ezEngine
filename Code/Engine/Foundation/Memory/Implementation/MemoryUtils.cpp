@@ -1,5 +1,9 @@
 #include <FoundationPCH.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#endif
+
 void ezMemoryUtils::ReserveLower4GBAddressSpace()
 {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_ENABLED(EZ_PLATFORM_64BIT)

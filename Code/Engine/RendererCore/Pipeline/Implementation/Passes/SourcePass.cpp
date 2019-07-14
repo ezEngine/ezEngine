@@ -66,7 +66,7 @@ void ezSourcePass::Execute(const ezRenderViewContext& renderViewContext, const e
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
   // Setup render target
-  ezGALRenderTagetSetup renderTargetSetup;
+  ezGALRenderTargetSetup renderTargetSetup;
   if (ezGALResourceFormat::IsDepthFormat(m_Format))
   {
     renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));

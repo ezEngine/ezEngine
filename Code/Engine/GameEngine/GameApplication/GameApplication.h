@@ -49,24 +49,20 @@ public:
   /// function allows to override that by setting a custom function that creates a graphics device.
   static void SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> creator);
 
-  /// \todo Fix this comment
-  /// \brief virtual function that is called by DoProjectSetup(). The result is passed to ezFileSystem::SetProjectDirectory
+  /// \brief Implementation of ezGameApplicationBase::FindProjectDirectory to define the 'project' special data directory.
   ///
-  /// The default implementation relies on a valid path in m_sAppProjectPath.
-  /// It passes that to SearchProjectDirectory() together with the path to the application binary,
-  /// to search for a project somewhere relative to where the application is installed.
+  /// The default implementation will try to resolve m_sAppProjectPath to an absolute path. m_sAppProjectPath can be absolute itself,
+  /// relative to ">sdk/" or relative to ezOSFile::GetApplicationDirectory().
+  /// m_sAppProjectPath must be set either via the ezGameApplication constructor or manually set before project.
   ///
-  /// Override this, if your application uses a different folder structure or way to specify the project directory.
+  /// Alternatively, ezGameApplication::FindProjectDirectory() must be overwritten.
   virtual ezString FindProjectDirectory() const override;
 
   /// \brief Used at runtime (by the editor) to reload input maps. Forwards to Init_ConfigureInput()
   void ReinitializeInputConfig();
 
 protected:
-  virtual ezUniquePtr<ezWindowOutputTargetBase> CreateWindowOutputTarget(ezWindowBase* pWindow) override;
-  virtual void DestroyWindowOutputTarget(ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget) override;
-
-  virtual void BeforeCoreSystemsStartup() override;
+  virtual ezResult BeforeCoreSystemsStartup() override;
 
   virtual void Init_ConfigureInput() override;
   virtual void Init_ConfigureAssetManagement() override;
@@ -75,9 +71,9 @@ protected:
   virtual void Init_SetupGraphicsDevice() override;
   virtual void Deinit_ShutdownGraphicsDevice() override;
 
-  virtual bool IsGameUpdateEnabled() const;
+  virtual bool IsGameUpdateEnabled() const override;
 
-  virtual bool Run_ProcessApplicationInput();
+  virtual bool Run_ProcessApplicationInput() override;
   virtual void Run_WorldUpdateAndRender() override;
 
   /// \brief Stores what is given to the constructor

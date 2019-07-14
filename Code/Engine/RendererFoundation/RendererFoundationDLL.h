@@ -18,7 +18,7 @@
 
 // Necessary array sizes
 #define EZ_GAL_MAX_CONSTANT_BUFFER_COUNT 16
-#define EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT 16
+#define EZ_GAL_MAX_SAMPLER_COUNT 16
 #define EZ_GAL_MAX_VERTEX_BUFFER_COUNT 16
 #define EZ_GAL_MAX_RENDERTARGET_COUNT 8
 
@@ -142,6 +142,7 @@ struct ezGALTextureType
     Texture2D = 0,
     TextureCube,
     Texture3D,
+    Texture2DProxy,
 
     ENUM_COUNT
   };
@@ -430,5 +431,36 @@ struct ezGALTimestampHandle
   ezUInt64 m_uiIndex;
   ezUInt64 m_uiFrameCounter;
 };
+
+namespace ezGAL
+{
+  struct ModifiedRange
+  {
+    EZ_ALWAYS_INLINE void Reset()
+    {
+      m_uiMin = ezInvalidIndex;
+      m_uiMax = 0;
+    }
+
+    EZ_FORCE_INLINE void SetToIncludeValue(ezUInt32 value)
+    {
+      m_uiMin = ezMath::Min(m_uiMin, value);
+      m_uiMax = ezMath::Max(m_uiMax, value);
+    }
+
+    EZ_FORCE_INLINE void SetToIncludeRange(ezUInt32 uiMin, ezUInt32 uiMax)
+    {
+      m_uiMin = ezMath::Min(m_uiMin, uiMin);
+      m_uiMax = ezMath::Max(m_uiMax, uiMax);
+    }
+
+    EZ_ALWAYS_INLINE bool IsValid() const { return m_uiMin <= m_uiMax; }
+
+    EZ_ALWAYS_INLINE ezUInt32 GetCount() const { return m_uiMax - m_uiMin + 1; }
+
+    ezUInt32 m_uiMin = ezInvalidIndex;
+    ezUInt32 m_uiMax = 0;
+  };
+}
 
 

@@ -7,6 +7,7 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/Strings/StringUtils.h>
 #include <FoundationTest/IO/JSONTestHelpers.h>
+#include <TestFramework/Utilities/TestLogInterface.h>
 
 // Since ezOpenDdlReader is implemented by deriving from ezOpenDdlParser, this tests both classes
 
@@ -292,5 +293,43 @@ unsigned_int64{0,100002111,300040222,560000003333,70000844444,1000009555555,1000
 
     TestDoc(doc, szTestData);
     EZ_TEST_BOOL(!doc.HadFatalParsingError());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Errors")
+  {
+    const char* szTestData = "\
+string{\"s1\",\"back\\slash\"}\n\
+string{\"s\\2\",\"bla\"}\n\
+";
+
+    StringStream stream(szTestData);
+
+    ezTestLogInterface log;
+    ezTestLogSystemScope logSystemScope(&log);
+
+    log.ExpectMessage("Unknown escape-sequence '\\s'", ezLogMsgType::WarningMsg);
+    log.ExpectMessage("Unknown escape-sequence '\\2'", ezLogMsgType::WarningMsg);
+
+    ezOpenDdlReader doc;
+    EZ_TEST_BOOL(doc.ParseDocument(stream).Succeeded()); // no fatal error
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Fatal Errors")
+  {
+    const char* szTestData = "\
+string{\"s1\",\"back\\slash\"\n\
+string{\"s\\2\",\"bla\"}\n\
+";
+
+    StringStream stream(szTestData);
+
+    ezTestLogInterface log;
+    ezTestLogSystemScope logSystemScope(&log);
+
+    log.ExpectMessage("Unknown escape-sequence '\\s'", ezLogMsgType::WarningMsg);
+    log.ExpectMessage("Line 2 (2): Expected , or } or a \"", ezLogMsgType::ErrorMsg);
+
+    ezOpenDdlReader doc;
+    EZ_TEST_BOOL(doc.ParseDocument(stream).Failed());
   }
 }

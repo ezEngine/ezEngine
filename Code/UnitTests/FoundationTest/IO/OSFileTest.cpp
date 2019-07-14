@@ -17,10 +17,12 @@ Only concrete and clocks.\n\
   const ezUInt32 uiTextLen = sFileContent.GetElementCount();
 
   ezStringBuilder sOutputFile = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  sOutputFile.MakeCleanPath();
   sOutputFile.AppendPath("IO", "SubFolder");
   sOutputFile.AppendPath("OSFile_TestFile.txt");
 
   ezStringBuilder sOutputFile2 = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  sOutputFile2.MakeCleanPath();
   sOutputFile2.AppendPath("IO", "SubFolder2");
   sOutputFile2.AppendPath("OSFile_TestFileCopy.txt");
 
@@ -133,6 +135,14 @@ Only concrete and clocks.\n\
     ezStringBuilder dir = sOutputFile2;
     dir.ToLower();
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    // On Windows the drive letter will always be turned upper case by ezOSFile::GetFileCasing()
+    // ensure that our input data ('ground truth') also uses an upper case drive letter
+    auto driveLetterIterator = sOutputFile2.GetIteratorFront();
+    const ezUInt32 uiDriveLetter = ezStringUtils::ToUpperChar(driveLetterIterator.GetCharacter());
+    sOutputFile2.ChangeCharacter(driveLetterIterator, uiDriveLetter);
+#endif
+
     ezStringBuilder sCorrected;
     EZ_TEST_BOOL(ezOSFile::GetFileCasing(dir.GetData(), sCorrected) == EZ_SUCCESS);
 
@@ -162,12 +172,12 @@ Only concrete and clocks.\n\
     ezFileSystemIterator it;
     if (it.StartSearch(sOutputFolder.GetData(), true, true) == EZ_SUCCESS)
     {
-      int SkipFolder = 1;
+      int SkipFolder = 0;
 
       do
       {
         sFullPath = it.GetCurrentPath();
-        sFullPath.AppendPath(it.GetStats().m_sFileName.GetData());
+        sFullPath.AppendPath(it.GetStats().m_sName.GetData());
 
         it.GetStats();
         it.GetCurrentPath();

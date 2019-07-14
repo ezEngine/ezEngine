@@ -92,6 +92,7 @@ private:
   ezMaterialResourceDescriptor m_Desc;
 
   friend class ezRenderContext;
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, MaterialResource);
 
   ezEvent<const ezMaterialResource*> m_ModifiedEvent;
   void OnBaseMaterialModified(const ezMaterialResource* pModifiedMaterial);
@@ -107,16 +108,28 @@ private:
   bool IsModified();
   bool AreContantsModified();
 
-  void UpdateCaches();
   void UpdateConstantBuffer(ezShaderPermutationResource* pShaderPermutation);
 
   ezConstantBufferStorageHandle m_hConstantBufferStorage;
 
-  ezMutex m_CacheMutex;
-  ezShaderResourceHandle m_hCachedShader;
-  ezHashTable<ezHashedString, ezHashedString> m_CachedPermutationVars;
-  ezHashTable<ezHashedString, ezVariant> m_CachedParameters;
-  ezHashTable<ezHashedString, ezTexture2DResourceHandle> m_CachedTexture2DBindings;
-  ezHashTable<ezHashedString, ezTextureCubeResourceHandle> m_CachedTextureCubeBindings;
+  ezMutex m_UpdateCacheMutex;
+  ezUInt32 m_uiCacheIndex;
+
+  struct CachedValues
+  {
+    ezShaderResourceHandle m_hShader;
+    ezHashTable<ezHashedString, ezHashedString> m_PermutationVars;
+    ezHashTable<ezHashedString, ezVariant> m_Parameters;
+    ezHashTable<ezHashedString, ezTexture2DResourceHandle> m_Texture2DBindings;
+    ezHashTable<ezHashedString, ezTextureCubeResourceHandle> m_TextureCubeBindings;
+  };
+
+  CachedValues* GetOrUpdateCachedValues();
+  CachedValues* AllocateCache();
+  void DeallocateCache(ezUInt32 uiCacheIndex);
+
+  static ezDeque<ezMaterialResource::CachedValues> s_CachedValues;
+
+  static void ClearCache();
 };
 

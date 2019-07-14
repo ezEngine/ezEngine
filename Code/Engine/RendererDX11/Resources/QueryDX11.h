@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererFoundation/Resources/Query.h>
 
@@ -7,8 +7,6 @@ struct ID3D11Query;
 class ezGALQueryDX11 : public ezGALQuery
 {
 public:
-
-  void SetDebugName(const char* szName) const override;
 
   EZ_ALWAYS_INLINE ID3D11Query* GetDXQuery() const;
 
@@ -22,6 +20,8 @@ protected:
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+
+  virtual void SetDebugNamePlatform(const char* szName) const override;
 
   ID3D11Query* m_pDXQuery;
 };

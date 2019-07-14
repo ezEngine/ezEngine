@@ -74,7 +74,7 @@ public:
 
 private:
   ezString m_sDirectoryPath;
-  ezDirectoryWatcherImpl* m_pImpl;
+  ezDirectoryWatcherImpl* m_pImpl = nullptr;
 };
 
 EZ_DECLARE_FLAGS_OPERATORS(ezDirectoryWatcher::Watch);

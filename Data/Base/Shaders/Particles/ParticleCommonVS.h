@@ -1,7 +1,7 @@
 #pragma once
 
 #define USE_TEXCOORD0
-#define USE_COLOR
+#define USE_COLOR0
 
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>

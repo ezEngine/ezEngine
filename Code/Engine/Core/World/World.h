@@ -29,7 +29,7 @@ public:
   const char* GetName() const;
 
   /// \brief Returns the index of this world.
-  ezUInt32 GetIndex() const;
+  ezUInt16 GetIndex() const;
 
   /// \name Object Functions
   ///@{
@@ -119,7 +119,7 @@ public:
   ManagerType* GetOrCreateComponentManager();
 
   /// \brief Returns the component manager that handles the given rtti component type.
-  ezComponentManagerBase* GetOrCreateComponentManager(const ezRTTI* pComponentRtti);
+  ezComponentManagerBase* GetOrCreateManagerForComponentType(const ezRTTI* pComponentRtti);
 
   /// \brief Deletes the component manager of the given type and all its components.
   template <typename ManagerType>
@@ -134,10 +134,10 @@ public:
   const ManagerType* GetComponentManager() const;
 
   /// \brief Returns the component manager that handles the given rtti component type.
-  ezComponentManagerBase* GetComponentManager(const ezRTTI* pComponentRtti);
+  ezComponentManagerBase* GetManagerForComponentType(const ezRTTI* pComponentRtti);
 
   /// \brief Returns the component manager that handles the given rtti component type.
-  const ezComponentManagerBase* GetComponentManager(const ezRTTI* pComponentRtti) const;
+  const ezComponentManagerBase* GetManagerForComponentType(const ezRTTI* pComponentRtti) const;
 
   /// \brief Checks whether the given handle references a valid component.
   bool IsValidComponent(const ezComponentHandle& component) const;
@@ -162,21 +162,21 @@ public:
 
   /// \brief Queues the message for the given phase. The message is send to the receiverObject after the given delay in the corresponding
   /// phase.
-  void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType,
-                   ezTime delay = ezTime()) const;
+  void PostMessage(
+    const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
   /// \brief Queues the message for the given phase. The message is send to the receiverObject and all its children after the given delay in
   /// the corresponding phase.
-  void PostMessageRecursive(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType,
-                            ezTime delay = ezTime()) const;
+  void PostMessageRecursive(
+    const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
   /// \brief Sends a message to the component.
   void SendMessage(const ezComponentHandle& receiverComponent, ezMessage& msg);
 
   /// \brief Queues the message for the given phase. The message is send to the receiverComponent after the given delay in the corresponding
   /// phase.
-  void PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType,
-                   ezTime delay = ezTime()) const;
+  void PostMessage(
+    const ezComponentHandle& receiverComponent, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
   ///@}
 
@@ -207,7 +207,7 @@ public:
   void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_CoordinateSystem) const;
 
   /// \brief Sets the coordinate system provider that should be used in this world.
-  void SetCoordinateSystemProvider(ezUniquePtr<ezCoordinateSystemProvider>&& pProvider);
+  void SetCoordinateSystemProvider(const ezSharedPtr<ezCoordinateSystemProvider>& pProvider);
 
   /// \brief Returns the coordinate system provider that is associated with this world.
   ezCoordinateSystemProvider& GetCoordinateSystemProvider();
@@ -250,6 +250,16 @@ public:
   /// \brief Returns the associated user data.
   void* GetUserData() const;
 
+  using ReferenceResolver = ezDelegate<ezGameObjectHandle(const void*)>;
+
+  /// \brief If set, this delegate can be used to map some data (GUID or string) to an ezGameObjectHandle.
+  ///
+  /// Currently only used in editor settings, to create a runtime handle from a unique editor reference.
+  void SetGameObjectReferenceResolver(const ReferenceResolver& resolver);
+
+  /// \sa SetGameObjectReferenceResolver()
+  const ReferenceResolver& GetGameObjectReferenceResolver() const;
+
 public:
   /// \brief Returns the number of active worlds.
   static ezUInt32 GetWorldCount();
@@ -274,7 +284,7 @@ private:
   const ezWorldModule* GetModule(const ezRTTI* pRtti) const;
 
   void SetParent(ezGameObject* pObject, ezGameObject* pNewParent,
-                 ezGameObject::TransformPreservation preserve = ezGameObject::TransformPreservation::PreserveGlobal);
+    ezGameObject::TransformPreservation preserve = ezGameObject::TransformPreservation::PreserveGlobal);
   void LinkToParent(ezGameObject* pObject);
   void UnlinkFromParent(ezGameObject* pObject);
 
@@ -282,7 +292,7 @@ private:
   const char* GetObjectGlobalKey(const ezGameObject* pObject) const;
 
   void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay,
-                   bool bRecursive) const;
+    bool bRecursive) const;
   void ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::Entry& entry);
   void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
 
@@ -315,9 +325,8 @@ private:
 
   typedef ezInternal::WorldData::QueuedMsgMetaData QueuedMsgMetaData;
 
-  ezUInt32 m_uiIndex;
+  ezUInt16 m_uiIndex;
   static ezStaticArray<ezWorld*, 64> s_Worlds;
 };
 
 #include <Core/World/Implementation/World_inl.h>
-

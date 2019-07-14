@@ -21,10 +21,10 @@ ezCVarFloat CVar_TestFloat("test1_Float", 1.1f, ezCVarFlags::RequiresRestart, "D
 ezCVarBool CVar_TestBool("test1_Bool", false, ezCVarFlags::None, "Desc: test1_Bool");
 ezCVarString CVar_TestString("test1_String", "test1", ezCVarFlags::Default, "Desc: test1_String");
 
-ezCVarInt CVar_TestInt2("test1_Int2", 21, ezCVarFlags::Default, "");
-ezCVarFloat CVar_TestFloat2("test1_Float2", 2.1f, ezCVarFlags::Default, "");
-ezCVarBool CVar_TestBool2("test1_Bool2", true, ezCVarFlags::Default, "");
-ezCVarString CVar_TestString2("test1_String2", "test1b", ezCVarFlags::Default, "");
+ezCVarInt CVar_TestInt2("test1_Int2", 21, ezCVarFlags::Default, "Desc: test1_Int2");
+ezCVarFloat CVar_TestFloat2("test1_Float2", 2.1f, ezCVarFlags::Default, "Desc: test1_Float2");
+ezCVarBool CVar_TestBool2("test1_Bool2", true, ezCVarFlags::Default, "Desc: test1_Bool2");
+ezCVarString CVar_TestString2("test1_String2", "test1b", ezCVarFlags::Default, "Desc: test1_String2");
 
 void OnLoadPlugin(bool bReloading)
 {

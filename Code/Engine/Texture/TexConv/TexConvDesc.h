@@ -71,6 +71,7 @@ public:
   bool m_bFlipHorizontal = false;
   bool m_bPremultiplyAlpha = false;
   float m_fHdrExposureBias = 0.0f;
+  float m_fMaxValue = 64000.f;
 
   // ez specific
   ezUInt64 m_uiAssetHash = 0;
@@ -78,4 +79,7 @@ public:
 
   // Texture Atlas
   ezString m_sTextureAtlasDescFile;
+
+  // Bump map filter
+  ezEnum<ezTexConvBumpMapFilter> m_BumpMapFilter;
 };

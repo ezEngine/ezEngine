@@ -24,9 +24,7 @@ int KrautTreeMode; // 0 == regular mesh, 1 == frond, 2 == leaf, 3 == static impo
 
 [VERTEXSHADER]
 
-#define VSE_CONSTANTS INT1(KrautTreeMode);
-
-#define USE_COLOR
+#define USE_COLOR0
 #define USE_NORMAL
 #define USE_TANGENT
 #define USE_TEXCOORD0
@@ -37,7 +35,25 @@ int KrautTreeMode; // 0 == regular mesh, 1 == frond, 2 == leaf, 3 == static impo
   #define USE_DEBUG_INTERPOLATOR
 #endif
 
-#include <Shaders/Materials/DefaultMaterialCB.h>
+#include <Shaders/Common/GlobalConstants.h>
+
+CONSTANT_BUFFER(ezMaterialConstants, 1)
+{
+  COLOR4F(BaseColor);
+  FLOAT1(MetallicValue);
+  FLOAT1(ReflectanceValue);
+  FLOAT1(RoughnessValue);
+  FLOAT1(MaskThreshold);
+  BOOL1(UseBaseTexture);
+  BOOL1(UseMetallicTexture);
+  BOOL1(UseNormalAndRoughnessTexture);
+  BOOL1(UseEmissiveTexture);
+  COLOR4F(EmissiveColor);
+  BOOL1(UseOcclusionTexture);
+  
+  INT1(KrautTreeMode);
+};
+
 #include <Shaders/Materials/MaterialVertexShader.h>
 #include "TreeShaderData.h"
 
@@ -149,9 +165,7 @@ VS_OUT main(VS_IN Input)
 
 [GEOMETRYSHADER]
 
-#define VSE_CONSTANTS INT1(KrautTreeMode);
-
-#define USE_COLOR
+#define USE_COLOR0
 #define USE_NORMAL
 #define USE_TANGENT
 #define USE_TEXCOORD0
@@ -162,9 +176,7 @@ VS_OUT main(VS_IN Input)
 
 [PIXELSHADER]
 
-#define VSE_CONSTANTS INT1(KrautTreeMode);
-
-#define USE_COLOR
+#define USE_COLOR0
 #define USE_NORMAL
 #define USE_TANGENT
 #define USE_TEXCOORD0
@@ -179,7 +191,25 @@ VS_OUT main(VS_IN Input)
   #define USE_DEBUG_INTERPOLATOR
 #endif
 
-#include <Shaders/Materials/DefaultMaterialCB.h>
+#include <Shaders/Common/GlobalConstants.h>
+
+CONSTANT_BUFFER(ezMaterialConstants, 1)
+{
+  COLOR4F(BaseColor);
+  FLOAT1(MetallicValue);
+  FLOAT1(ReflectanceValue);
+  FLOAT1(RoughnessValue);
+  FLOAT1(MaskThreshold);
+  BOOL1(UseBaseTexture);
+  BOOL1(UseMetallicTexture);
+  BOOL1(UseNormalAndRoughnessTexture);
+  BOOL1(UseEmissiveTexture);
+  COLOR4F(EmissiveColor);
+  BOOL1(UseOcclusionTexture);
+  
+  INT1(KrautTreeMode);
+};
+
 #include <Shaders/Materials/MaterialPixelShader.h>
 
 Texture2D BaseTexture;
@@ -208,13 +238,13 @@ float3 GetBaseColor()
 {
   float3 variationColor = BaseColor.rgb;
   float variationStrength = BaseColor.a;
-  float vertexStrength = G.Input.Color.a;
+  float vertexStrength = G.Input.Color0.a;
 
-  //float3 baseColor = BaseColor.rgb * GetInstanceData().Color.rgb;
+  //float3 baseColor = BaseColor.rgb * GetInstanceData().Color0.rgb;
   float3 texColor = BaseTexture.Sample(BaseTexture_AutoSampler, GetTexCoord()).rgb;
 
   float3 finalColor = lerp(texColor, variationColor, vertexStrength * variationStrength);
-  finalColor *= G.Input.Color.rgb;
+  finalColor *= G.Input.Color0.rgb;
 
   return finalColor;
 }

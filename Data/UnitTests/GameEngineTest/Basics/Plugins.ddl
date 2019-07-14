@@ -38,7 +38,7 @@ Plugin
 {
 	string %Path{"ezKrautPlugin"}
 	bool %LoadCopy{false}
-	string %DependencyOf{"<manual>","EditorPluginKraut"}
+	string %DependencyOf{"EditorPluginKraut"}
 }
 Plugin
 {
@@ -54,7 +54,7 @@ Plugin
 }
 Plugin
 {
-	string %Path{"ezProceduralPlacementPlugin"}
+	string %Path{"ezProcGenPlugin"}
 	bool %LoadCopy{false}
-	string %DependencyOf{"EditorPluginProceduralPlacement"}
+	string %DependencyOf{"EditorPluginProcGen"}
 }

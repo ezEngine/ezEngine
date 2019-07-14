@@ -54,8 +54,8 @@ namespace ezShaderHelper
 
         if (m_Sections[s2].m_szSectionStart > m_Sections[s].m_szSectionStart)
         {
-          const char* szContentStart = m_Sections[s].m_Content.GetStartPosition();
-          const char* szSectionEnd = ezMath::Min(m_Sections[s].m_Content.GetEndPosition(), m_Sections[s2].m_szSectionStart);
+          const char* szContentStart = m_Sections[s].m_Content.GetStartPointer();
+          const char* szSectionEnd = ezMath::Min(m_Sections[s].m_Content.GetEndPointer(), m_Sections[s2].m_szSectionStart);
 
           m_Sections[s].m_Content = ezStringView(szContentStart, szSectionEnd);
         }
@@ -77,6 +77,7 @@ namespace ezShaderHelper
     out_Sections.AddSection("[PERMUTATIONS]");
     out_Sections.AddSection("[MATERIALPARAMETER]");
     out_Sections.AddSection("[RENDERSTATE]");
+    out_Sections.AddSection("[SHADER]");
     out_Sections.AddSection("[VERTEXSHADER]");
     out_Sections.AddSection("[HULLSHADER]");
     out_Sections.AddSection("[DOMAINSHADER]");

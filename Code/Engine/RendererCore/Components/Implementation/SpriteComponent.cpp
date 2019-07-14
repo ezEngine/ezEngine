@@ -33,7 +33,23 @@ ezTempHashedString ezSpriteBlendMode::GetPermutationValue(Enum blendMode)
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpriteRenderData, 1, ezRTTIDefaultAllocator<ezSpriteRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
+void ezSpriteRenderData::FillBatchIdAndSortingKey()
+{
+  const ezUInt32 uiTextureIDHash = m_hTexture.GetResourceIDHash();
+
+  // Generate batch id from mode and texture
+  ezUInt32 data[] = {(ezUInt32)m_BlendMode, uiTextureIDHash};
+  m_uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
+
+  // Sort by mode and then by texture
+  m_uiSortingKey = (m_BlendMode << 30) | (uiTextureIDHash & 0x3FFFFFFF);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -80,19 +96,13 @@ ezResult ezSpriteComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bA
 void ezSpriteComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't render in orthographic views
-  if (msg.m_pView->GetCamera()->IsOrthographic())
+  if (msg.m_pView->GetCamera()->IsOrthographic() || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
     return;
 
   if (!m_hTexture.IsValid())
     return;
 
-  const ezUInt32 uiTextureIDHash = m_hTexture.GetResourceIDHash();
-
-  // Generate batch id from mode and texture
-  ezUInt32 data[] = {(ezUInt32)m_BlendMode, uiTextureIDHash};
-  ezUInt32 uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
-
-  ezSpriteRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezSpriteRenderData>(GetOwner(), uiBatchId);
+  ezSpriteRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezSpriteRenderData>(GetOwner());
   {
     pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
     pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
@@ -105,6 +115,8 @@ void ezSpriteComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
     pRenderData->m_texCoordScale = ezVec2(1.0f);
     pRenderData->m_texCoordOffset = ezVec2(0.0f);
     pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
+
+    pRenderData->FillBatchIdAndSortingKey();
   }
 
   // Determine render data category.
@@ -114,9 +126,7 @@ void ezSpriteComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
     category = ezDefaultRenderDataCategories::LitMasked;
   }
 
-  // Sort by mode and then by texture
-  ezUInt32 uiSortingKey = (m_BlendMode << 30) | (uiTextureIDHash & 0x3FFFFFFF);
-  msg.AddRenderData(pRenderData, category, uiSortingKey, ezRenderData::Caching::IfStatic);
+  msg.AddRenderData(pRenderData, category, ezRenderData::Caching::IfStatic);
 }
 
 void ezSpriteComponent::SerializeComponent(ezWorldWriter& stream) const

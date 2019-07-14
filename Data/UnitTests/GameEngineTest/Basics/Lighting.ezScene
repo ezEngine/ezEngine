@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16720824653015378333,5146898993846862963}}
-		u4 %Hash{7330844237950764138}
+		u4 %Hash{17358961875559729239}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -19,8 +19,8 @@ o
 			s{"{ 2a3d3f9d-afb5-412f-85e8-e35ce0b5b0a1 }"}
 			s{"{ 6d619c33-6611-432b-a924-27b1b9bfd8db }"}
 			s{"{ 9fc549fc-8c68-4e48-848d-170ca279f323 }"}
-			s{"{ ac614d7c-2b31-4a7b-aa0c-c5d8200b7b89 }"}
 			s{"{ b342874a-d967-425a-9bf1-87bb3186350e }"}
+			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
 		}
 	}
 }
@@ -755,7 +755,7 @@ o
 		Color %Color{f{0,0x0000803F,0x0000803F,0x0000803F}}
 		f %MaxScreenSize{0x0000C845}
 		f %Size{0x0000803F}
-		s %Texture{"{ ac614d7c-2b31-4a7b-aa0c-c5d8200b7b89 }"}
+		s %Texture{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
 	}
 }
 o
@@ -1102,6 +1102,8 @@ o
 			Uuid{u4{8159834740320200832,2200097414195437992}}
 			Uuid{u4{8486136050359402284,10765959931671926153}}
 			Uuid{u4{569588501747621551,4932669867088024415}}
+			Uuid{u4{2177163063227938381,10034338306028104572}}
+			Uuid{u4{3983121762244146941,15494331651559894371}}
 			Uuid{u4{3373332800275433657,5359347036997611573}}
 			Uuid{u4{9961991025083201368,10609730831733233586}}
 			Uuid{u4{15369082383436708021,4645459558392107162}}
@@ -1744,6 +1746,47 @@ o
 		VarArray %Components{}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x00009040,0x00008040,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{7191912815730409527,10000881751563985440}}
+	s %t{"ezSpriteComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		f %AspectRatio{0x0000803F}
+		s %BlendMode{"ezSpriteBlendMode::Transparent"}
+		Color %Color{f{0,0x0000803F,0x0000803F,0x0000803F}}
+		f %MaxScreenSize{0x0000C845}
+		f %Size{0x0000803F}
+		s %Texture{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{2177163063227938381,10034338306028104572}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{7191912815730409527,10000881751563985440}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000803F,0x00001040,0x0000803F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -3114,6 +3157,22 @@ o
 }
 o
 {
+	Uuid %id{u4{8997871514746618087,15460875097095775239}}
+	s %t{"ezSpriteComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		f %AspectRatio{0x0000803F}
+		s %BlendMode{"ezSpriteBlendMode::Additive"}
+		Color %Color{f{0,0x0000803F,0x0000803F,0x0000803F}}
+		f %MaxScreenSize{0x0000C845}
+		f %Size{0x0000803F}
+		s %Texture{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
+	}
+}
+o
+{
 	Uuid %id{u4{13620291357839914445,15462324530339469000}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -3161,6 +3220,31 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 6d619c33-6611-432b-a924-27b1b9bfd8db }"}
+	}
+}
+o
+{
+	Uuid %id{u4{3983121762244146941,15494331651559894371}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{8997871514746618087,15460875097095775239}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000000BF,0x00001040,0x0000803F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -6627,7 +6711,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeSize{536}
+		u3 %TypeSize{552}
 		u3 %TypeVersion{9}
 	}
 }

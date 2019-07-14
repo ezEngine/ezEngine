@@ -192,6 +192,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
     {
       allocator.Deallocate(allocs[i]);
     }
+    allocator.Reset();
 
     for (size_t i = 0; i < EZ_ARRAY_SIZE(sizes); i++)
     {

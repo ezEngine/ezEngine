@@ -33,7 +33,11 @@ ezLogEntry::ezLogEntry(const ezLoggingEventData& le)
   m_sTag = le.m_szTag;
   m_Type = le.m_EventType;
   m_uiIndentation = le.m_uiIndentation;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   m_fSeconds = le.m_fSeconds;
+#else
+  m_fSeconds = 0.0f;
+#endif
 }
 
 ezLogEntryDelegate::ezLogEntryDelegate(Callback callback, ezLogMsgType::Enum LogLevel) : m_Callback(callback)

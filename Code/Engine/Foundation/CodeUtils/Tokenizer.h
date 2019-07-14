@@ -20,6 +20,8 @@ struct EZ_FOUNDATION_DLL ezTokenType
     BlockComment,  ///< A comment that starts with a slash and a star, and ends at the next star/slash combination (or end of file)
     String1,       ///< A string enclosed in "
     String2,       ///< A string enclosed in '
+    Integer,       ///< An integer number
+    Float,         ///< A floating point number
     EndOfFile,     ///< End-of-file marker
     ENUM_COUNT,
   };
@@ -74,7 +76,11 @@ class EZ_FOUNDATION_DLL ezTokenizer
 {
 public:
   /// \brief Constructor.
-  ezTokenizer();
+  ///
+  /// Takes an additional optional allocator. If no allocator is given the default allocator will be used.
+  ezTokenizer(ezAllocatorBase* pAllocator = nullptr);
+
+  ~ezTokenizer();
 
   /// \brief Clears any previous result and creates a new token stream for the given array.
   void Tokenize(ezArrayPtr<const ezUInt8> Data, ezLogInterface* pLog);
@@ -84,6 +90,9 @@ public:
 
   /// \brief Gives read and write access to the token stream.
   ezDeque<ezToken>& GetTokens() { return m_Tokens; }
+
+  /// \brief Returns an array of all tokens. New line tokens are ignored.
+  void GetAllLines(ezHybridArray<const ezToken*, 32>& Tokens) const;
 
   /// \brief Returns an array of tokens that represent the next line in the file.
   ///
@@ -108,6 +117,7 @@ private:
 
   void HandleUnknown();
   void HandleString(char terminator);
+  void HandleNumber();
   void HandleLineComment();
   void HandleBlockComment();
   void HandleWhitespace();

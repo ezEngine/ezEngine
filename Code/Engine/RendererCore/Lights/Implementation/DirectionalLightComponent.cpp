@@ -111,17 +111,17 @@ void ezDirectionalLightComponent::OnExtractRenderData(ezMsgExtractRenderData& ms
   if (m_fIntensity <= 0.0f)
     return;
 
-  ezUInt32 uiBatchId = m_bCastShadows ? 0 : 1;
-
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezDirectionalLightRenderData>(GetOwner(), uiBatchId);
+  auto pRenderData = ezCreateRenderDataForThisFrame<ezDirectionalLightRenderData>(GetOwner());
 
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_LightColor = m_LightColor;
   pRenderData->m_fIntensity = m_fIntensity;
   pRenderData->m_uiShadowDataOffset = m_bCastShadows ? ezShadowPool::AddDirectionalLight(this, msg.m_pView) : ezInvalidIndex;
 
+  pRenderData->FillBatchIdAndSortingKey(1.0f);
+
   ezRenderData::Caching::Enum caching = m_bCastShadows ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId, caching);
+  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, caching);
 }
 
 void ezDirectionalLightComponent::SerializeComponent(ezWorldWriter& stream) const

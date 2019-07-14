@@ -77,7 +77,7 @@ void ezMsaaUpscalePass::Execute(const ezRenderViewContext& renderViewContext,
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
   // Setup render target
-  ezGALRenderTagetSetup renderTargetSetup;
+  ezGALRenderTargetSetup renderTargetSetup;
   renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
 
   // Bind render target and viewport

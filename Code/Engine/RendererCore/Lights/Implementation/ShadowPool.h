@@ -28,5 +28,8 @@ private:
 
   static void OnEndExtraction(ezUInt64);
   static void OnBeginRender(ezUInt64);
+
+  struct Data;
+  static Data* s_pData;
 };
 

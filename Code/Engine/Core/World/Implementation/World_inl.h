@@ -4,7 +4,7 @@ EZ_ALWAYS_INLINE const char* ezWorld::GetName() const
   return m_Data.m_sName.GetData();
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezWorld::GetIndex() const
+EZ_ALWAYS_INLINE ezUInt16 ezWorld::GetIndex() const
 {
   return m_uiIndex;
 }
@@ -158,7 +158,7 @@ ManagerType* ezWorld::GetOrCreateComponentManager()
   return pModule;
 }
 
-EZ_ALWAYS_INLINE ezComponentManagerBase* ezWorld::GetOrCreateComponentManager(const ezRTTI* pComponentRtti)
+EZ_ALWAYS_INLINE ezComponentManagerBase* ezWorld::GetOrCreateManagerForComponentType(const ezRTTI* pComponentRtti)
 {
   EZ_ASSERT_DEV(pComponentRtti->IsDerivedFrom<ezComponent>(), "Invalid component type '%s'", pComponentRtti->GetTypeName());
 
@@ -218,14 +218,14 @@ EZ_FORCE_INLINE const ManagerType* ezWorld::GetComponentManager() const
   return nullptr;
 }
 
-EZ_ALWAYS_INLINE ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pComponentRtti)
+EZ_ALWAYS_INLINE ezComponentManagerBase* ezWorld::GetManagerForComponentType(const ezRTTI* pComponentRtti)
 {
   EZ_ASSERT_DEV(pComponentRtti->IsDerivedFrom<ezComponent>(), "Invalid component type '{0}'", pComponentRtti->GetTypeName());
 
   return ezStaticCast<ezComponentManagerBase*>(GetModule(pComponentRtti));
 }
 
-EZ_ALWAYS_INLINE const ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pComponentRtti) const
+EZ_ALWAYS_INLINE const ezComponentManagerBase* ezWorld::GetManagerForComponentType(const ezRTTI* pComponentRtti) const
 {
   EZ_ASSERT_DEV(pComponentRtti->IsDerivedFrom<ezComponent>(), "Invalid component type '{0}'", pComponentRtti->GetTypeName());
 
@@ -398,14 +398,6 @@ EZ_FORCE_INLINE const ezSpatialSystem& ezWorld::GetSpatialSystem() const
 EZ_ALWAYS_INLINE void ezWorld::GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_CoordinateSystem) const
 {
   m_Data.m_pCoordinateSystemProvider->GetCoordinateSystem(vGlobalPosition, out_CoordinateSystem);
-}
-
-EZ_FORCE_INLINE void ezWorld::SetCoordinateSystemProvider(ezUniquePtr<ezCoordinateSystemProvider>&& pProvider)
-{
-  EZ_ASSERT_DEV(pProvider != nullptr, "Coordinate System Provider must not be null");
-
-  m_Data.m_pCoordinateSystemProvider = std::move(pProvider);
-  m_Data.m_pCoordinateSystemProvider->m_pOwnerWorld = this;
 }
 
 EZ_ALWAYS_INLINE ezCoordinateSystemProvider& ezWorld::GetCoordinateSystemProvider()

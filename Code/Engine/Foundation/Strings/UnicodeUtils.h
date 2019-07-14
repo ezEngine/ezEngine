@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <ThirdParty/utf8/utf8.h>
+#include <Foundation/ThirdParty/utf8/utf8.h>
 
 // Minus 1 wraps around to the maximum unsigned integer value, which is different on 32 Bit and 64 Bit
 #define ezMaxStringEnd (const char*)-1
@@ -94,6 +94,8 @@ public:
   template <typename IntType, typename Container>
   struct UtfInserter
   {
+    typedef IntType InsertionType;
+    
     EZ_ALWAYS_INLINE UtfInserter(Container* pContainer) { m_pContainer = pContainer; }
     EZ_ALWAYS_INLINE void operator++() {}
     EZ_ALWAYS_INLINE UtfInserter& operator++(int) { return *this; }

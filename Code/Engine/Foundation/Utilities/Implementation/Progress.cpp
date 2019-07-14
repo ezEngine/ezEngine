@@ -31,7 +31,7 @@ void ezProgress::SetCompletion(float fCompletion)
 
   m_fCurrentCompletion = fCompletion;
 
-  if (fCompletion > m_fLastReportedCompletion + 0.05f)
+  if (fCompletion > m_fLastReportedCompletion + 0.01f)
   {
     m_fLastReportedCompletion = fCompletion;
 
@@ -99,6 +99,11 @@ void ezProgress::UserClickedCancel()
   e.m_pProgressbar = this;
 
   m_Events.Broadcast(e, 1);
+}
+
+bool ezProgress::WasCanceled() const
+{
+  return m_bCancelClicked;
 }
 
 bool ezProgress::AllowUserCancel() const
@@ -206,21 +211,23 @@ double ezProgressRange::ComputeInternalCompletion() const
   return internalBase /= m_SummedWeight;
 }
 
-void ezProgressRange::BeginNextStep(const char* szStepDisplayText, ezUInt32 uiNumSteps)
+bool ezProgressRange::BeginNextStep(const char* szStepDisplayText, ezUInt32 uiNumSteps)
 {
   m_sStepDisplayText = szStepDisplayText;
 
   m_uiCurrentStep += uiNumSteps;
 
   // there is one extra step added as an empty step
-  EZ_ASSERT_DEBUG(m_uiCurrentStep < m_StepWeights.GetCount(), "Too many steps completed! ({0} of {1})", m_uiCurrentStep,
-                  m_StepWeights.GetCount());
+  EZ_ASSERT_DEBUG(
+    m_uiCurrentStep < m_StepWeights.GetCount(), "Too many steps completed! ({0} of {1})", m_uiCurrentStep, m_StepWeights.GetCount());
 
   const double internalCompletion = ComputeInternalCompletion();
 
   const double finalCompletion = m_PercentageBase + internalCompletion * m_PercentageRange;
 
   m_pProgressbar->SetCompletion((float)finalCompletion);
+
+  return !m_pProgressbar->WasCanceled();
 }
 
 bool ezProgressRange::WasCanceled() const
@@ -246,4 +253,3 @@ bool ezProgressRange::WasCanceled() const
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_Progress);
-

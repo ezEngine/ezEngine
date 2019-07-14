@@ -184,7 +184,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
   renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
                                                      1);
 
-  ezGALRenderTagetSetup renderTargetSetup;
+  ezGALRenderTargetSetup renderTargetSetup;
 
   // Mip map passes
   {
@@ -260,7 +260,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
     renderViewContext.m_pRenderContext->BindTexture2D("LowResDepthTexture", pDevice->GetDefaultResourceView(hzbTexture));
     renderViewContext.m_pRenderContext->BindSamplerState("DepthSampler", m_hSSAOSamplerState);
 
-    renderViewContext.m_pRenderContext->BindTexture2D("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::NoFallback);
+    renderViewContext.m_pRenderContext->BindTexture2D("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::BlockTillLoaded);
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer();
   }
@@ -302,7 +302,7 @@ void ezAOPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, con
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
-  ezGALRenderTagetSetup renderTargetSetup;
+  ezGALRenderTargetSetup renderTargetSetup;
   renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
   pGALContext->SetRenderTargetSetup(renderTargetSetup);
 

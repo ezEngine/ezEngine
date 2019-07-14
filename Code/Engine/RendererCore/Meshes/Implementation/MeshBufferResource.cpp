@@ -203,7 +203,8 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
       }
       break;
 
-      case ezGALVertexAttributeSemantic::Color:
+      case ezGALVertexAttributeSemantic::Color0:
+      case ezGALVertexAttributeSemantic::Color1:
       {
         if (si.m_Format == ezGALResourceFormat::RGBAUByteNormalized)
         {

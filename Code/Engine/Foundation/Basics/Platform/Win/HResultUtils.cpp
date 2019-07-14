@@ -8,7 +8,7 @@
 
 #  include <comdef.h>
 
-EZ_FOUNDATION_DLL ezString ezHRESULTtoString(HRESULT result)
+EZ_FOUNDATION_DLL ezString ezHRESULTtoString(ezMinWindows::HRESULT result)
 {
   _com_error error(result, nullptr);
   const TCHAR* messageW = error.ErrorMessage();

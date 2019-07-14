@@ -3,10 +3,12 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Math/Size.h>
+#include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/GameEngineDLL.h>
 #include <RendererCore/Pipeline/Declarations.h>
-#include <ThirdParty/Imgui/imgui.h>
+
+#include <Imgui/imgui.h>
 
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
 
@@ -22,7 +24,7 @@ typedef ezDelegate<void(ImGuiStyle&)> ezImguiConfigStyleCallback;
 /// You need to call SetCurrentContextForView before you can use the Imgui functions directly.
 /// E.g. 'ImGui::Text("Hello, world!");'
 /// To prevent Imgui from using mouse and keyboard input (but still do rendering) use SetPassInputToImgui().
-/// To prevent you app from using mouse and keyboard input when Imgui has focus, query WantsInput().
+/// To prevent your app from using mouse and keyboard input when Imgui has focus, query WantsInput().
 ///
 /// \note Don't forget that to see the GUI on screen, your render pipeline must contain an ezImguiExtractor
 /// and you need to have an ezImguiRenderer set (typically on an ezSimpleRenderPass).
@@ -32,7 +34,7 @@ class EZ_GAMEENGINE_DLL ezImgui
 
 public:
   ezImgui(ezImguiConfigFontCallback configFontCallback = ezImguiConfigFontCallback(),
-      ezImguiConfigStyleCallback configStyleCallback = ezImguiConfigStyleCallback());
+    ezImguiConfigStyleCallback configStyleCallback = ezImguiConfigStyleCallback());
   ~ezImgui();
 
   /// \brief Sets the ImGui context for the given view
@@ -63,6 +65,8 @@ private:
   ImGuiContext* CreateContext();
   void BeginFrame(const ezViewHandle& hView);
 
+  ezProxyAllocator m_Allocator;
+
   bool m_bPassInputToImgui = true;
   bool m_bImguiWantsInput = false;
   ezSizeU32 m_CurrentWindowResolution;
@@ -79,6 +83,6 @@ private:
     ezUInt64 m_uiFrameRenderCounter = -1;
   };
 
+  ezMutex m_ViewToContextTableMutex;
   ezHashTable<ezViewHandle, Context> m_ViewToContextTable;
 };
-

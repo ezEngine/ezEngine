@@ -26,7 +26,8 @@ public:
   /// \brief Returns the absolute path to the data directory.
   const ezString128& GetDataDirectoryPath() const { return m_sDataDirectoryPath; }
 
-  /// \brief By default this is the same as GetDataDirectoryPath(), but derived implementations may use a different location where they actually get the files from.
+  /// \brief By default this is the same as GetDataDirectoryPath(), but derived implementations may use a different location where they
+  /// actually get the files from.
   virtual const ezString128& GetRedirectedDataDirectoryPath() const { return GetDataDirectoryPath(); }
 
   /// \brief Some data directory types may use external configuration files (e.g. asset lookup tables)
@@ -37,21 +38,24 @@ public:
 protected:
   friend class ezFileSystem;
 
-  /// \brief Tries to setup the data directory. Can fail, if the type is incorrect (e.g. a ZIP file data directory type cannot handle a simple folder and vice versa)
+  /// \brief Tries to setup the data directory. Can fail, if the type is incorrect (e.g. a ZIP file data directory type cannot handle a
+  /// simple folder and vice versa)
   ezResult InitializeDataDirectory(const char* szDataDirPath);
 
-  /// \brief Must be implemented to create a ezDataDirectoryReader for accessing the given file. Returns nullptr if the file could not be opened.
+  /// \brief Must be implemented to create a ezDataDirectoryReader for accessing the given file. Returns nullptr if the file could not be
+  /// opened.
   ///
   /// \param szFile is given as a path relative to the data directory's path.
   /// So unless the data directory path is empty, this will never be an absolute path.
   /// If a rooted path was given, the root name is also removed and only the relative part is passed along.
   /// \param bSpecificallyThisDataDir This is true when the original path specified to open the file through exactly this data directory,
   /// by using a rooted path.
-  /// If an absolute path is used, which incidentally matches the prefix of this data directory, bSpecificallyThisDataDir is NOT set to true,
-  /// as there might be other data directories that also match.
+  /// If an absolute path is used, which incidentally matches the prefix of this data directory, bSpecificallyThisDataDir is NOT set to
+  /// true, as there might be other data directories that also match.
   virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile, bool bSpecificallyThisDataDir) = 0;
 
-  /// \brief Must be implemented to create a ezDataDirectoryWriter for accessing the given file. Returns nullptr if the file could not be opened.
+  /// \brief Must be implemented to create a ezDataDirectoryWriter for accessing the given file. Returns nullptr if the file could not be
+  /// opened.
   ///
   /// If it always returns nullptr (default) the data directory is read-only (at least through this type).
   virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile) { return nullptr; }
@@ -66,7 +70,7 @@ protected:
 
   /// \brief This function checks whether the given file exists in this data directory.
   ///
-  /// The default implementation will simply calls ezOSFile::ExistsFile
+  /// The default implementation simply calls ezOSFile::ExistsFile
   /// An optimized implementation might look this information up in some hash-map.
   virtual bool ExistsFile(const char* szFile, bool bOneSpecificDataDir);
 
@@ -107,7 +111,7 @@ class EZ_FOUNDATION_DLL ezDataDirectoryReaderWriterBase
 
 public:
   /// \brief The derived class should pass along whether it is a reader or writer.
-  ezDataDirectoryReaderWriterBase(bool bIsReader);
+  ezDataDirectoryReaderWriterBase(ezInt32 iDataDirUserData, bool bIsReader);
 
   virtual ~ezDataDirectoryReaderWriterBase() {}
 
@@ -129,6 +133,8 @@ public:
   /// \brief Returns the current total size of the file.
   virtual ezUInt64 GetFileSize() const = 0;
 
+  ezInt32 GetDataDirUserData() const { return m_iDataDirUserData; }
+
 protected:
   /// \brief This function must be implemented by the derived class.
   virtual ezResult InternalOpen() = 0;
@@ -137,6 +143,7 @@ protected:
   virtual void InternalClose() = 0;
 
   bool m_bIsReader;
+  ezInt32 m_iDataDirUserData = 0;
   ezDataDirectoryType* m_pDataDirectory;
   ezString128 m_sFilePath;
 };
@@ -149,7 +156,10 @@ class EZ_FOUNDATION_DLL ezDataDirectoryReader : public ezDataDirectoryReaderWrit
   EZ_DISALLOW_COPY_AND_ASSIGN(ezDataDirectoryReader);
 
 public:
-  ezDataDirectoryReader() : ezDataDirectoryReaderWriterBase(true) {}
+  ezDataDirectoryReader(ezInt32 iDataDirUserData)
+    : ezDataDirectoryReaderWriterBase(iDataDirUserData, true)
+  {
+  }
 
   virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) = 0;
 };
@@ -162,11 +172,13 @@ class EZ_FOUNDATION_DLL ezDataDirectoryWriter : public ezDataDirectoryReaderWrit
   EZ_DISALLOW_COPY_AND_ASSIGN(ezDataDirectoryWriter);
 
 public:
-  ezDataDirectoryWriter() : ezDataDirectoryReaderWriterBase(false) {}
+  ezDataDirectoryWriter(ezInt32 iDataDirUserData)
+    : ezDataDirectoryReaderWriterBase(iDataDirUserData, false)
+  {
+  }
 
   virtual ezResult Write(const void* pBuffer, ezUInt64 uiBytes) = 0;
 };
 
 
 #include <Foundation/IO/FileSystem/Implementation/DataDirType_inl.h>
-

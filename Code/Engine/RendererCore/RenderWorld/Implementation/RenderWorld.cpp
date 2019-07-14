@@ -304,7 +304,7 @@ void ezRenderWorld::DeleteCachedRenderData(const ezGameObjectHandle& hOwnerObjec
       s_DeletedRenderData.PushBack(pCachedRenderData);
     }
 
-    pCachedRenderDataPerComponent->Clear();
+    s_CachedRenderData.Remove(hOwnerComponent);
   }
 }
 
@@ -552,6 +552,8 @@ bool ezRenderWorld::IsRenderingThread()
 
 void ezRenderWorld::ClearRenderDataCache()
 {
+  EZ_PROFILE_SCOPE("Clear Render Data Cache");
+
   for (auto pRenderData : s_DeletedRenderData)
   {
     ezRenderData* ptr = const_cast<ezRenderData*>(pRenderData);
@@ -563,6 +565,8 @@ void ezRenderWorld::ClearRenderDataCache()
 
 void ezRenderWorld::UpdateRenderDataCache()
 {
+  EZ_PROFILE_SCOPE("Update Render Data Cache");
+
   for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
   {
     ezView* pView = it.Value();
@@ -651,7 +655,10 @@ void ezRenderWorld::RebuildPipelines()
     ezView* pView = nullptr;
     if (s_Views.TryGetValue(pipelineToRebuild.m_hView, pView))
     {
-      pipelineToRebuild.m_pPipeline->Rebuild(*pView);
+      if (pipelineToRebuild.m_pPipeline->Rebuild(*pView) == ezRenderPipeline::PipelineState::RebuildError)
+      {
+        ezLog::Error("Failed to rebuild pipeline '{}' for view '{}'", pipelineToRebuild.m_pPipeline->m_sName, pView->GetName());
+      }
     }
   }
 

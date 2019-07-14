@@ -17,7 +17,9 @@ She isn't greeted by faces,\n\
 Only concrete and clocks.\n\
 ...";
 
-  const ezStringBuilder szOutputFolder = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  ezStringBuilder szOutputFolder = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  szOutputFolder.MakeCleanPath();
+
   ezStringBuilder sOutputFolderResolved;
   ezFileSystem::ResolveSpecialDirectory(szOutputFolder, sOutputFolderResolved);
 
@@ -79,6 +81,19 @@ Only concrete and clocks.\n\
 
     EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1, "", "output1", ezFileSystem::AllowWrites) == EZ_SUCCESS);
     EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2) == EZ_SUCCESS);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Add / Remove Data Dirs")
+  {
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory("", "xyz-rooted", "xyz", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+
+    EZ_TEST_BOOL(ezFileSystem::FindDataDirectoryWithRoot("xyz") != nullptr);
+
+    EZ_TEST_BOOL(ezFileSystem::RemoveDataDirectory("xyz") == true);
+
+    EZ_TEST_BOOL(ezFileSystem::FindDataDirectoryWithRoot("xyz") == nullptr);
+
+    EZ_TEST_BOOL(ezFileSystem::RemoveDataDirectory("xyz") == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Write File")
@@ -177,7 +192,7 @@ Only concrete and clocks.\n\
     EZ_TEST_BOOL(ezFileSystem::GetFileStats(":output1/FileSystemTest.txt", stat).Succeeded());
 
     EZ_TEST_BOOL(!stat.m_bIsDirectory);
-    EZ_TEST_STRING(stat.m_sFileName, "FileSystemTest.txt");
+    EZ_TEST_STRING(stat.m_sName, "FileSystemTest.txt");
     EZ_TEST_INT(stat.m_uiFileSize, 4);
 
     ezFileSystem::DeleteFile(":output1/FileSystemTest.txt");

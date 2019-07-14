@@ -7,25 +7,25 @@
 #include <d3d11.h>
 
 ezGALVertexDeclarationDX11::ezGALVertexDeclarationDX11(const ezGALVertexDeclarationCreationDescription& Description)
-    : ezGALVertexDeclaration(Description)
-    , m_pDXInputLayout(nullptr)
+  : ezGALVertexDeclaration(Description)
+  , m_pDXInputLayout(nullptr)
 {
 }
 
-ezGALVertexDeclarationDX11::~ezGALVertexDeclarationDX11() {}
+ezGALVertexDeclarationDX11::~ezGALVertexDeclarationDX11() = default;
 
-static const char* GALSemanticToDX11[ezGALVertexAttributeSemantic::ENUM_COUNT] = {
-    "POSITION", "NORMAL",   "TANGENT",  "COLOR",    "TEXCOORD",  "TEXCOORD",    "TEXCOORD",    "TEXCOORD",    "TEXCOORD",   "TEXCOORD",
-    "TEXCOORD", "TEXCOORD", "TEXCOORD", "TEXCOORD", "BITANGENT", "BONEINDICES", "BONEINDICES", "BONEWEIGHTS", "BONEWEIGHTS"};
+static const char* GALSemanticToDX11[] = {"POSITION", "NORMAL", "TANGENT", "COLOR", "COLOR", "TEXCOORD", "TEXCOORD", "TEXCOORD", "TEXCOORD",
+  "TEXCOORD", "TEXCOORD", "TEXCOORD", "TEXCOORD", "TEXCOORD", "TEXCOORD", "BITANGENT", "BONEINDICES", "BONEINDICES", "BONEWEIGHTS",
+  "BONEWEIGHTS"};
 
-static UINT GALSemanticToIndexDX11[ezGALVertexAttributeSemantic::ENUM_COUNT] = {0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 1, 0, 1};
+static UINT GALSemanticToIndexDX11[] = {0, 0, 0, 0, 1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 1, 0, 1};
 
-// ??
-template <>
-struct ezIsPodType<D3D11_INPUT_ELEMENT_DESC> : public ezTypeIsPod
-{
-};
+EZ_CHECK_AT_COMPILETIME_MSG(EZ_ARRAY_SIZE(GALSemanticToDX11) == ezGALVertexAttributeSemantic::ENUM_COUNT,
+  "GALSemanticToDX11 array size does not match vertex attribute semantic count");
+EZ_CHECK_AT_COMPILETIME_MSG(EZ_ARRAY_SIZE(GALSemanticToIndexDX11) == ezGALVertexAttributeSemantic::ENUM_COUNT,
+  "GALSemanticToIndexDX11 array size does not match vertex attribute semantic count");
 
+EZ_DEFINE_AS_POD_TYPE(D3D11_INPUT_ELEMENT_DESC);
 
 ezResult ezGALVertexDeclarationDX11::InitPlatform(ezGALDevice* pDevice)
 {
@@ -67,8 +67,8 @@ ezResult ezGALVertexDeclarationDX11::InitPlatform(ezGALDevice* pDevice)
 
   const ezScopedRefPointer<ezGALShaderByteCode>& pByteCode = pShader->GetDescription().m_ByteCodes[ezGALShaderStage::VertexShader];
 
-  if (FAILED(pDXDevice->GetDXDevice()->CreateInputLayout(&DXInputElementDescs[0], DXInputElementDescs.GetCount(), pByteCode->GetByteCode(),
-                                                         pByteCode->GetSize(), &m_pDXInputLayout)))
+  if (FAILED(pDXDevice->GetDXDevice()->CreateInputLayout(
+        &DXInputElementDescs[0], DXInputElementDescs.GetCount(), pByteCode->GetByteCode(), pByteCode->GetSize(), &m_pDXInputLayout)))
   {
     return EZ_FAILURE;
   }

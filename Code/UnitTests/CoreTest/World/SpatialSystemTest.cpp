@@ -195,7 +195,8 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     ezFileWriter fileWriter;
     if (fileWriter.Open(":output/profiling.json") == EZ_SUCCESS)
     {
-      ezProfilingSystem::Capture(fileWriter);
+      ezProfilingSystem::ProfilingData profilingData = ezProfilingSystem::Capture();
+      profilingData.Write(fileWriter);
       ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
     }
   }

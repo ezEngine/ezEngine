@@ -5,8 +5,8 @@
 // Reader implementation
 
 ezMemoryStreamReader::ezMemoryStreamReader(ezMemoryStreamStorageInterface* pStreamStorage)
-    : m_pStreamStorage(pStreamStorage)
-    , m_uiReadPosition(0)
+  : m_pStreamStorage(pStreamStorage)
+  , m_uiReadPosition(0)
 {
 }
 
@@ -17,7 +17,7 @@ ezUInt64 ezMemoryStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRe
   EZ_ASSERT_RELEASE(m_pStreamStorage != nullptr, "The memory stream reader needs a valid memory storage object!");
 
   const ezUInt32 uiBytes =
-      ezMath::Min<ezUInt32>(static_cast<ezUInt32>(uiBytesToRead), m_pStreamStorage->GetStorageSize() - m_uiReadPosition);
+    ezMath::Min<ezUInt32>(static_cast<ezUInt32>(uiBytesToRead), m_pStreamStorage->GetStorageSize() - m_uiReadPosition);
 
   if (uiBytes == 0)
     return 0;
@@ -35,7 +35,7 @@ ezUInt64 ezMemoryStreamReader::SkipBytes(ezUInt64 uiBytesToSkip)
   EZ_ASSERT_RELEASE(m_pStreamStorage != nullptr, "The memory stream reader needs a valid memory storage object!");
 
   const ezUInt32 uiBytes =
-      ezMath::Min<ezUInt32>(static_cast<ezUInt32>(uiBytesToSkip), m_pStreamStorage->GetStorageSize() - m_uiReadPosition);
+    ezMath::Min<ezUInt32>(static_cast<ezUInt32>(uiBytesToSkip), m_pStreamStorage->GetStorageSize() - m_uiReadPosition);
 
   m_uiReadPosition += uiBytes;
 
@@ -65,8 +65,8 @@ void ezMemoryStreamReader::SetDebugSourceInformation(const char* szDebugSourceIn
 
 // Writer implementation
 ezMemoryStreamWriter::ezMemoryStreamWriter(ezMemoryStreamStorageInterface* pStreamStorage)
-    : m_pStreamStorage(pStreamStorage)
-    , m_uiWritePosition(0)
+  : m_pStreamStorage(pStreamStorage)
+  , m_uiWritePosition(0)
 {
 }
 
@@ -142,20 +142,25 @@ void ezMemoryStreamStorageInterface::ReadAll(ezStreamReader& Stream)
 //////////////////////////////////////////////////////////////////////////
 
 
-ezRawMemoryStreamReader::ezRawMemoryStreamReader(const void* pData, ezUInt32 uiDataSize)
-{
-  EZ_ASSERT_DEV(pData != nullptr, "Invalid data storage");
+ezRawMemoryStreamReader::ezRawMemoryStreamReader() = default;
 
+ezRawMemoryStreamReader::ezRawMemoryStreamReader(const void* pData, ezUInt64 uiDataSize)
+{
+  Reset(pData, uiDataSize);
+}
+
+ezRawMemoryStreamReader::~ezRawMemoryStreamReader() = default;
+
+void ezRawMemoryStreamReader::Reset(const void* pData, ezUInt64 uiDataSize)
+{
   m_pRawMemory = static_cast<const ezUInt8*>(pData);
   m_uiChunkSize = uiDataSize;
   m_uiReadPosition = 0;
 }
 
-ezRawMemoryStreamReader::~ezRawMemoryStreamReader() {}
-
 ezUInt64 ezRawMemoryStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
 {
-  const ezUInt32 uiBytes = ezMath::Min<ezUInt32>(static_cast<ezUInt32>(uiBytesToRead), m_uiChunkSize - m_uiReadPosition);
+  const ezUInt64 uiBytes = ezMath::Min<ezUInt64>(uiBytesToRead, m_uiChunkSize - m_uiReadPosition);
 
   if (uiBytes == 0)
     return 0;
@@ -172,20 +177,20 @@ ezUInt64 ezRawMemoryStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesT
 
 ezUInt64 ezRawMemoryStreamReader::SkipBytes(ezUInt64 uiBytesToSkip)
 {
-  const ezUInt32 uiBytes = ezMath::Min<ezUInt32>(static_cast<ezUInt32>(uiBytesToSkip), m_uiChunkSize - m_uiReadPosition);
+  const ezUInt64 uiBytes = ezMath::Min<ezUInt64>(uiBytesToSkip, m_uiChunkSize - m_uiReadPosition);
 
   m_uiReadPosition += uiBytes;
 
   return uiBytes;
 }
 
-void ezRawMemoryStreamReader::SetReadPosition(ezUInt32 uiReadPosition)
+void ezRawMemoryStreamReader::SetReadPosition(ezUInt64 uiReadPosition)
 {
   EZ_ASSERT_RELEASE(uiReadPosition < GetByteCount(), "Read position must be between 0 and GetByteCount()!");
   m_uiReadPosition = uiReadPosition;
 }
 
-ezUInt32 ezRawMemoryStreamReader::GetByteCount() const
+ezUInt64 ezRawMemoryStreamReader::GetByteCount() const
 {
   return m_uiChunkSize;
 }
@@ -199,4 +204,3 @@ void ezRawMemoryStreamReader::SetDebugSourceInformation(const char* szDebugSourc
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_MemoryStream);
-

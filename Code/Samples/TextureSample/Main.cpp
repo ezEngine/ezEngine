@@ -14,7 +14,7 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Clock.h>
 
-#include <Core/Application/Application.h>
+#include <Foundation/Application/Application.h>
 #include <Core/CoreDLL.h>
 #include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
@@ -259,7 +259,7 @@ public:
           ezTexture2DResourceHandle hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sResourceName);
 
           if (g_bPreloadAllTextures)
-            ezResourceManager::PreloadResource(hTexture, ezTime::Seconds(1.0));
+            ezResourceManager::PreloadResource(hTexture);
         }
       }
     }
@@ -306,7 +306,7 @@ public:
       ezGALContext* pContext = m_pDevice->GetPrimaryContext();
 
 
-      ezGALRenderTagetSetup RTS;
+      ezGALRenderTargetSetup RTS;
       RTS.SetRenderTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
 
       pContext->SetRenderTargetSetup(RTS);
@@ -356,11 +356,11 @@ public:
           sResourceName.Printf("Loaded_%+03i_%+03i_D", x, y);
 
           ezTexture2DResourceHandle hTexture =
-              ezResourceManager::LoadResource<ezTexture2DResource>(sResourceName, ezResourcePriority::Highest, ezTexture2DResourceHandle());
+              ezResourceManager::LoadResource<ezTexture2DResource>(sResourceName);
 
           // force immediate loading
           if (g_bForceImmediateLoading)
-            ezResourceLock<ezTexture2DResource> l(hTexture, ezResourceAcquireMode::NoFallback);
+            ezResourceLock<ezTexture2DResource> l(hTexture, ezResourceAcquireMode::BlockTillLoaded);
 
           ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", hTexture);
           ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hQuadMeshBuffer);

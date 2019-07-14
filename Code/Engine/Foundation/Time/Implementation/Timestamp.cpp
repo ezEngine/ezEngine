@@ -17,8 +17,8 @@ EZ_END_STATIC_REFLECTED_TYPE;
 ezInt64 ezTimestamp::GetInt64(ezSIUnitOfTime::Enum unitOfTime) const
 {
   EZ_ASSERT_DEV(IsValid(), "Can't retrieve timestamp of invalid values!");
-  EZ_ASSERT_DEV(unitOfTime >= ezSIUnitOfTime::Nanosecond && unitOfTime <= ezSIUnitOfTime::Second, "Invalid ezSIUnitOfTime value ({0})",
-                unitOfTime);
+  EZ_ASSERT_DEV(
+    unitOfTime >= ezSIUnitOfTime::Nanosecond && unitOfTime <= ezSIUnitOfTime::Second, "Invalid ezSIUnitOfTime value ({0})", unitOfTime);
 
   switch (unitOfTime)
   {
@@ -36,8 +36,8 @@ ezInt64 ezTimestamp::GetInt64(ezSIUnitOfTime::Enum unitOfTime) const
 
 void ezTimestamp::SetInt64(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime)
 {
-  EZ_ASSERT_DEV(unitOfTime >= ezSIUnitOfTime::Nanosecond && unitOfTime <= ezSIUnitOfTime::Second, "Invalid ezSIUnitOfTime value ({0})",
-                unitOfTime);
+  EZ_ASSERT_DEV(
+    unitOfTime >= ezSIUnitOfTime::Nanosecond && unitOfTime <= ezSIUnitOfTime::Second, "Invalid ezSIUnitOfTime value ({0})", unitOfTime);
 
   switch (unitOfTime)
   {
@@ -63,8 +63,13 @@ bool ezTimestamp::Compare(const ezTimestamp& rhs, CompareMode::Enum mode) const
     case CompareMode::FileTimeEqual:
       // Resolution of seconds until all platforms are tuned to milliseconds.
       return (m_iTimestamp / 1000000LL) == (rhs.m_iTimestamp / 1000000LL);
+
     case CompareMode::Identical:
       return m_iTimestamp == rhs.m_iTimestamp;
+
+    case CompareMode::Newer:
+      // Resolution of seconds until all platforms are tuned to milliseconds.
+      return (m_iTimestamp / 1000000LL) > (rhs.m_iTimestamp / 1000000LL);
   }
 
   EZ_ASSERT_NOT_IMPLEMENTED;
@@ -73,40 +78,46 @@ bool ezTimestamp::Compare(const ezTimestamp& rhs, CompareMode::Enum mode) const
 
 
 ezDateTime::ezDateTime()
-    : m_uiMicroseconds(0)
-    , m_iYear(0)
-    , m_uiMonth(0)
-    , m_uiDay(0)
-    , m_uiHour(0)
-    , m_uiMinute(0)
-    , m_uiSecond(0)
+  : m_uiMicroseconds(0)
+  , m_iYear(0)
+  , m_uiMonth(0)
+  , m_uiDay(0)
+  , m_uiHour(0)
+  , m_uiMinute(0)
+  , m_uiSecond(0)
 {
 }
 
 ezDateTime::ezDateTime(ezTimestamp timestamp)
-    : m_uiMicroseconds(0)
-    , m_iYear(0)
-    , m_uiMonth(0)
-    , m_uiDay(0)
-    , m_uiHour(0)
-    , m_uiMinute(0)
-    , m_uiSecond(0)
+  : m_uiMicroseconds(0)
+  , m_iYear(0)
+  , m_uiMonth(0)
+  , m_uiDay(0)
+  , m_uiHour(0)
+  , m_uiMinute(0)
+  , m_uiSecond(0)
 {
   SetTimestamp(timestamp);
 }
 
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezDateTime& arg)
+{
+  ezStringUtils::snprintf(tmp, uiLength, "%04u-%02u-%02u_%02u-%02u-%02u-%03u", arg.GetYear(), arg.GetMonth(),
+    arg.GetDay(), arg.GetHour(), arg.GetMinute(), arg.GetSecond(), arg.GetMicroseconds() / 1000);
+
+  return tmp;
+}
+
+
 // Include inline file
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <Foundation/Time/Implementation/Win/Timestamp_win.h>
+#  include <Foundation/Time/Implementation/Win/Timestamp_win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
-#include <Foundation/Time/Implementation/OSX/Timestamp_osx.h>
+#  include <Foundation/Time/Implementation/OSX/Timestamp_osx.h>
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-#include <Foundation/Time/Implementation/Posix/Timestamp_posix.h>
+#  include <Foundation/Time/Implementation/Posix/Timestamp_posix.h>
 #else
-#error "Time functions are not implemented on current platform"
+#  error "Time functions are not implemented on current platform"
 #endif
 
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Time_Implementation_Timestamp);
-

@@ -4,6 +4,9 @@
 
 #define EZ_STACKTRACER_WIN_INL_H_INCLUDED
 
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 #define EZ_MSVC_WARNING_NUMBER 4091
 #include <Foundation/Basics/Compiler/DisableWarning.h>
 

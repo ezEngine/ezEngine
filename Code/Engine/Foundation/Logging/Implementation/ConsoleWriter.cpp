@@ -3,6 +3,8 @@
 #include <Foundation/Logging/ConsoleWriter.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+
 static void SetConsoleColor(WORD ui)
 {
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
@@ -35,7 +37,11 @@ void ezLogWriter::Console::LogMessageHandler(const ezLoggingEventData& eventData
       break;
     case ezLogMsgType::EndGroup:
       SetConsoleColor(0x02);
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
       printf("----- %s (%.6f sec)-----\n\n", eventData.m_szText, eventData.m_fSeconds);
+#else
+      printf("----- %s (%s)-----\n\n", eventData.m_szText, "timing info not available");
+#endif
       break;
     case ezLogMsgType::ErrorMsg:
       SetConsoleColor(0x0C);

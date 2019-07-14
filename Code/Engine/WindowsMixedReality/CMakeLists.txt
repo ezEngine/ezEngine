@@ -1,33 +1,15 @@
-﻿#cmake
+﻿ez_cmake_init()
 
-#
-# Copy this file into the folder of an engine library to add it to the solution.
-# Below there are configuration options to add preprocessor definitions and link dependencies to the library.
-#
-# *** Modify this file as required ***
-#
+ez_requires(EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 
-# Pass a boolean expression into this macro to build this project only if the expression evaluates to true.
-BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
-BUILD_CONDITIONAL(EZ_ENABLE_MIXEDREALITY_SUPPORT)
+ez_requires(EZ_ENABLE_MIXEDREALITY_SUPPORT)
 
-# Add all the preprocessor definitions that are needed to configure this library
-# add_definitions (-DMY_PREPROCESS_DEFINITION_1)
-# add_definitions (-DMY_PREPROCESS_DEFINITION_2)
+# Get the name of this folder as the project name
+get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
-# Add all the libraries that this project needs to link against here
-# SET (LINK_LIBRARIES
-#  Foundation      # Example: Another library build with cmake
-#  OpenGL32.lib    # Example: A library that can be found in any lib path, but was not built with cmake
-# )
+ez_create_target(LIBRARY ${PROJECT_NAME})
 
-SET (LINK_LIBRARIES 
-  Foundation
-  Core
-  System
-  RendererFoundation
-  RendererDX11
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
   RendererCore
 )
-
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")

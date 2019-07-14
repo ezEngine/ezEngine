@@ -77,15 +77,16 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "convert to ezStringView")
   {
     ezString s(L"aölsdföasld");
+    ezStringBuilder tmp;
 
     ezStringView sv = s;
 
-    EZ_TEST_STRING(sv.GetData(), ezStringUtf8(L"aölsdföasld").GetData());
+    EZ_TEST_STRING(sv.GetData(tmp), ezStringUtf8(L"aölsdföasld").GetData());
     EZ_TEST_BOOL(sv == ezStringUtf8(L"aölsdföasld").GetData());
 
     s = "abcdef";
 
-    EZ_TEST_STRING(sv.GetData(), "abcdef");
+    EZ_TEST_STRING(sv.GetStartPointer(), "abcdef");
     EZ_TEST_BOOL(sv == "abcdef");
   }
 

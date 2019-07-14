@@ -4,6 +4,8 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 
+#include <typeinfo>
+
 /// \file
 
 
@@ -17,32 +19,68 @@
 class EZ_FOUNDATION_DLL ezSingletonRegistry
 {
 public:
+  struct SingletonEntry
+  {
+    ezString m_sName;
+    void* m_pInstance = nullptr;
+  };
+
   /// \todo Events for new/deleted singletons -> ezInspector integration
 
-  /// \brief Retrieves a singleton instance by type name.
-  static void* GetSingletonInstance(const char* szSingletonClassType); // [tested]
-
-  /// \brief Retrieves a singleton instance by type name and casts it to the desired interface.
+  /// \brief Retrieves a singleton instance by type name. Returns nullptr if no
+  /// singleton instance is available.
   template <typename Interface>
-  static Interface* GetSingletonInstance(const char* szSingletonClassType) // [tested]
+  inline static Interface* GetSingletonInstance() // [tested]
   {
-    return static_cast<Interface*>(GetSingletonInstance(szSingletonClassType));
+    return static_cast<Interface*>(s_Singletons.GetValueOrDefault(GetHash<Interface>(), {"", nullptr}).m_pInstance);
+  }
+
+  /// \brief Retrieves a singleton instance by type name. Asserts if no
+  /// singleton instance is available.
+  template <typename Interface>
+  inline static Interface* GetRequiredSingletonInstance() // [tested]
+  {
+    auto value = GetSingletonInstance<Interface>();
+    EZ_ASSERT_ALWAYS(value, "No instance of singleton type \"{0}\" has been registered!", typeid(Interface).name());
+    return value;
   }
 
   /// \brief Allows to inspect all known singletons
-  static const ezMap<ezString, void*>& GetAllRegisteredSingletons();
+  static const ezMap<size_t, SingletonEntry>& GetAllRegisteredSingletons();
 
   /// \brief Registers a singleton instance under a given type name. This is automatically called by ezSingletonRegistrar.
-  static void Register(void* pSingletonInstance, const char* szTypeName); // [tested]
+  template <typename Interface>
+  inline static void Register(Interface* pSingletonInstance) // [tested]
+  {
+    EZ_ASSERT_DEV(pSingletonInstance != nullptr, "Invalid singleton instance pointer");
+    EZ_ASSERT_DEV(s_Singletons[GetHash<Interface>()].m_pInstance == nullptr, "Singleton for type '{0}' has already been registered",
+      typeid(Interface).name());
+
+    s_Singletons[GetHash<Interface>()] = {typeid(Interface).name(), pSingletonInstance};
+  }
 
   /// \brief Unregisters a singleton instance. This is automatically called by ezSingletonRegistrar.
-  static void Unregister(const char* szTypeName); // [tested]
+  template <typename Interface>
+  inline static void Unregister() // [tested]
+  {
+    EZ_ASSERT_DEV(s_Singletons[GetHash<Interface>()].m_pInstance != nullptr, "Singleton for type '{0}' is currently not registered",
+      typeid(Interface).name());
+
+    s_Singletons.Remove(GetHash<Interface>());
+  }
 
 private:
   template <typename>
   friend class ezSingletonRegistrar;
 
-  static ezMap<ezString, void*> s_Singletons;
+  template <typename Interface>
+  inline static const size_t GetHash()
+  {
+    static const size_t hash = typeid(Interface).hash_code();
+    return hash;
+  }
+
+  static ezMap<size_t, SingletonEntry> s_Singletons;
 };
 
 
@@ -69,13 +107,13 @@ private:                                                                        
   void RegisterSingleton()                                                                                                                 \
   {                                                                                                                                        \
     s_pSingleton = this;                                                                                                                   \
-    ezSingletonRegistry::Register(this, #self);                                                                                            \
+    ezSingletonRegistry::Register<self>(this);                                                                                             \
   }                                                                                                                                        \
   static void UnregisterSingleton()                                                                                                        \
   {                                                                                                                                        \
     if (s_pSingleton)                                                                                                                      \
     {                                                                                                                                      \
-      ezSingletonRegistry::Unregister(#self);                                                                                              \
+      ezSingletonRegistry::Unregister<self>();                                                                                             \
       s_pSingleton = nullptr;                                                                                                              \
     }                                                                                                                                      \
   }                                                                                                                                        \
@@ -105,15 +143,15 @@ private:                                                                        
   void RegisterSingleton()                                                                                                                 \
   {                                                                                                                                        \
     s_pSingleton = this;                                                                                                                   \
-    ezSingletonRegistry::Register(this, #self);                                                                                            \
-    ezSingletonRegistry::Register(this, #interface);                                                                                       \
+    ezSingletonRegistry::Register<self>(this);                                                                                             \
+    ezSingletonRegistry::Register<interface>(this);                                                                                        \
   }                                                                                                                                        \
   static void UnregisterSingleton()                                                                                                        \
   {                                                                                                                                        \
     if (s_pSingleton)                                                                                                                      \
     {                                                                                                                                      \
-      ezSingletonRegistry::Unregister(#interface);                                                                                         \
-      ezSingletonRegistry::Unregister(#self);                                                                                              \
+      ezSingletonRegistry::Unregister<interface>();                                                                                        \
+      ezSingletonRegistry::Unregister<self>();                                                                                             \
       s_pSingleton = nullptr;                                                                                                              \
     }                                                                                                                                      \
   }                                                                                                                                        \
@@ -145,4 +183,3 @@ public:
     TYPE::UnregisterSingleton();
   }
 };
-

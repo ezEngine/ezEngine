@@ -6,6 +6,7 @@
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Containers/HashTable.h>
+#include <Foundation/Threading/LockedObject.h>
 
 /// \brief The central class for managing all types derived from ezResource
 class EZ_CORE_DLL ezResourceManager
@@ -48,8 +49,7 @@ public:
   /// If a valid fallback resource is specified, the resource will store that as its instance specific fallback resource. This will be used
   /// when trying to acquire the resource later.
   template <typename ResourceType>
-  static ezTypedResourceHandle<ResourceType> LoadResource(const char* szResourceID, ezResourcePriority Priority,
-                                                          ezTypedResourceHandle<ResourceType> hLoadingFallback);
+  static ezTypedResourceHandle<ResourceType> LoadResource(const char* szResourceID, ezTypedResourceHandle<ResourceType> hLoadingFallback);
 
 
   /// \brief Same as LoadResource(), but instead of a template argument, the resource type to use is given as ezRTTI info. Returns a
@@ -69,8 +69,8 @@ public:
   /// \param szResourceDescription An optional description that might help during debugging. Often a human readable name or path is stored
   /// here, to make it easier to identify this resource.
   template <typename ResourceType, typename DescriptorType>
-  static ezTypedResourceHandle<ResourceType> CreateResource(const char* szResourceID, DescriptorType&& descriptor,
-                                                            const char* szResourceDescription = nullptr);
+  static ezTypedResourceHandle<ResourceType> CreateResource(
+    const char* szResourceID, DescriptorType&& descriptor, const char* szResourceDescription = nullptr);
 
   /// \brief Returns a handle to the resource with the given ID. If the resource does not exist, the handle is invalid.
   ///
@@ -79,18 +79,18 @@ public:
   template <typename ResourceType>
   static ezTypedResourceHandle<ResourceType> GetExistingResource(const char* szResourceID);
 
+  /// \brief Same as GetExistingResourceByType() but allows to specify the resource type as an ezRTTI.
+  static ezTypelessResourceHandle GetExistingResourceByType(const ezRTTI* pResourceType, const char* szResourceID);
+
   /// \brief Triggers loading of the given resource. tShouldBeAvailableIn specifies how long the resource is not yet needed, thus allowing
   /// other resources to be loaded first. This is only a hint and there are no guarantees when the resource is available.
-  static void PreloadResource(const ezTypelessResourceHandle& hResource, ezTime tShouldBeAvailableIn);
+  static void PreloadResource(const ezTypelessResourceHandle& hResource);
 
-  /// \brief Makes sure all resources that are currently in the preload queue, are finished loading.
-  ///
-  /// Returns whether any resources were waited for.
-  /// \note This will only wait for the preload queue to be empty at this point in time. It does not mean that all resources
-  /// are fully loaded (all levels-of-detail). Once you render a frame, more resources might end up in the preload queue again.
-  /// So if one wants to make a full detail screenshot and have all resources loaded with all details, one must render multiple frames
-  /// and only make a screenshot once no resources where waited for anymore.
-  static bool FinishLoadingOfResources();
+  /// \brief Similar to locking a resource with 'BlockTillLoaded' acquire mode, but can be done with a typeless handle and does not return a result.
+  static void ForceLoadResourceNow(const ezTypelessResourceHandle& hResource);
+
+  /// \brief Returns the current loading state of the given resource.
+  static ezResourceState GetLoadingState(const ezTypelessResourceHandle& hResource);
 
   ///@}
   /// \name Reloading resources
@@ -125,8 +125,7 @@ public:
   /// \brief Removes the 'PreventFileReload' flag and forces a reload on the resource.
   ///
   /// \sa UpdateResourceWithCustomLoader()
-  template <typename ResourceType>
-  static void RestoreResource(const ezTypedResourceHandle<ResourceType>& hResource);
+  static void RestoreResource(const ezTypelessResourceHandle& hResource);
 
   ///@}
   /// \name Acquiring resources
@@ -143,15 +142,24 @@ public:
   /// the resource is loaded, in case it is not yet available.
   /// \param out_AcquireResult Returns how successful the acquisition was. See ezResourceAcquireResult for details.
   template <typename ResourceType>
-  static ResourceType*
-  BeginAcquireResource(const ezTypedResourceHandle<ResourceType>& hResource, ezResourceAcquireMode mode,
-                       const ezTypedResourceHandle<ResourceType>& hLoadingFallback = ezTypedResourceHandle<ResourceType>(),
-                       ezResourcePriority Priority = ezResourcePriority::Unchanged, ezResourceAcquireResult* out_AcquireResult = nullptr);
+  static ResourceType* BeginAcquireResource(const ezTypedResourceHandle<ResourceType>& hResource, ezResourceAcquireMode mode,
+    const ezTypedResourceHandle<ResourceType>& hLoadingFallback = ezTypedResourceHandle<ResourceType>(),
+    ezResourceAcquireResult* out_AcquireResult = nullptr);
 
   /// \brief Needs to be called in concert with BeginAcquireResource() after accessing a resource has been finished. Prefer to use
   /// ezResourceLock instead.
   template <typename ResourceType>
   static void EndAcquireResource(ResourceType* pResource);
+
+  /// \brief Forces the resource manager to treat ezResourceAcquireMode::AllowLoadingFallback as ezResourceAcquireMode::BlockTillLoaded on
+  /// BeginAcquireResource.
+  static void ForceNoFallbackAcquisition(ezUInt32 uiNumFrames = 0xFFFFFFFF);
+
+  /// \brief Retrieves an array of pointers to resources of the indicated type which
+  /// are loaded at the moment. Destroy the returned object as soon as possible as it
+  /// holds the entire resource manager locked.
+  template <typename ResourceType>
+  static ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> GetAllResourcesOfType();
 
   ///@}
   /// \name Unloading resources
@@ -248,7 +256,7 @@ public:
 public:
   /// \brief Enables export mode. In this mode the resource manager will assert when it actually tries to load a resource.
   /// This can be useful when exporting resource handles but the actual resource content is not needed.
-  static void EnableExportMode();
+  static void EnableExportMode(bool enable);
 
   /// \brief Creates a resource handle for the given resource ID. This method can only be used if export mode is enabled.
   /// Internally it will create a resource but does not load the content. This way it can be ensured that the resource handle is always only
@@ -332,6 +340,22 @@ private:
   static ezDynamicArray<ResourceCleanupCB> s_ResourceCleanupCallbacks;
 
   ///@}
+  /// \name Resource Priorities
+  ///@{
+
+public:
+
+  /// \brief Specifies which resource to use as a loading fallback for the given type, while a resource is not yet loaded.
+  template <typename RESOURCE_TYPE>
+  static void SetResourceTypeDefaultPriority(ezResourcePriority priority)
+  {
+    s_ResourceTypePriorities[ezGetStaticRTTI<RESOURCE_TYPE>()] = priority;
+  }
+
+private:
+  static ezMap<const ezRTTI*, ezResourcePriority> s_ResourceTypePriorities;
+
+  ///@}
 
   //////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////
@@ -339,8 +363,8 @@ private:
 
 private:
   friend class ezResource;
-  friend class ezResourceManagerWorkerDiskRead;
-  friend class ezResourceManagerWorkerMainThread;
+  friend class ezResourceManagerWorkerDataLoad;
+  friend class ezResourceManagerWorkerUpdateContent;
   friend class ezResourceHandleReadContext;
 
   // Events
@@ -370,25 +394,16 @@ private:
 
   struct LoadingInfo
   {
-    ezTime m_DueDate;
-    ezResource* m_pResource;
+    float m_fPriority = 0;
+    ezResource* m_pResource = nullptr;
 
     EZ_ALWAYS_INLINE bool operator==(const LoadingInfo& rhs) const { return m_pResource == rhs.m_pResource; }
-
-    inline bool operator<(const LoadingInfo& rhs) const
-    {
-      if (m_DueDate < rhs.m_DueDate)
-        return true;
-      if (m_DueDate > rhs.m_DueDate)
-        return false;
-
-      return m_pResource < rhs.m_pResource;
-    }
+    EZ_ALWAYS_INLINE bool operator<(const LoadingInfo& rhs) const { return m_fPriority < rhs.m_fPriority; }
   };
 
   static void EnsureResourceLoadingState(ezResource* pResource, const ezResourceState RequestedState);
   static bool HelpResourceLoading();
-  static void PreloadResource(ezResource* pResource, ezTime tShouldBeAvailableIn);
+  static void PreloadResource(ezResource* pResource);
   static void InternalPreloadResource(ezResource* pResource, bool bHighestPriority);
 
   template <typename ResourceType>
@@ -396,30 +411,34 @@ private:
   static ezResource* GetResource(const ezRTTI* pRtti, const char* szResourceID, bool bIsReloadable);
   static void RunWorkerTask(ezResource* pResource);
   static void UpdateLoadingDeadlines();
+  static void ReverseBubbleSortStep(ezDeque<ezResourceManager::LoadingInfo>& data);
   static bool ReloadResource(ezResource* pResource, bool bForce);
+
+private:
+  static ezUInt32 s_uiForceNoFallbackAcquisition;
 
   // this is the resource preload queue
   static ezDeque<LoadingInfo> s_RequireLoading;
   static ezHashTable<const ezRTTI*, LoadedResources> s_LoadedResources;
-  static const ezUInt32 MaxDiskReadTasks = 2;
-  static const ezUInt32 MaxMainThreadTasks = 16;
+  static const ezUInt32 MaxDataLoadTasks = 4;
+  static const ezUInt32 MaxUpdateContentTasks = 16;
   static bool s_bTaskRunning;
   static bool s_bShutdown;
-  static ezResourceManagerWorkerDiskRead s_WorkerTasksDiskRead[MaxDiskReadTasks];
-  static ezResourceManagerWorkerMainThread s_WorkerTasksMainThread[MaxMainThreadTasks];
-  static ezUInt8 s_uiCurrentWorkerMainThread;
-  static ezUInt8 s_uiCurrentWorkerDiskRead;
-  static ezTime s_LastDeadlineUpdate;
+  static ezResourceManagerWorkerDataLoad s_WorkerTasksDataLoad[MaxDataLoadTasks];
+  static ezResourceManagerWorkerUpdateContent s_WorkerTasksUpdateContent[MaxUpdateContentTasks];
+  static ezUInt8 s_uiCurrentUpdateContentWorkerTask;
+  static ezUInt8 s_uiCurrentLoadDataWorkerTask;
   static ezTime s_LastFrameUpdate;
-  static ezAtomicInteger32 s_ResourcesLoadedRecently;
-  static ezAtomicInteger32 s_ResourcesInLoadingLimbo; // not in the loading queue anymore but not yet finished loading either (typically now
-                                                      // a task in the task system)
+  static ezUInt32 s_uiLastResourcePriorityUpdateIdx;
+
+  static ezDynamicArray<ezResource*> s_LoadedResourceOfTypeTempContainer;
+  static ezHashTable<ezTempHashedString, const ezRTTI*> s_ResourcesToUnloadOnMainThread;
 
   // Type loaders
 private:
   static ezResourceTypeLoader* GetResourceTypeLoader(const ezRTTI* pRTTI);
 
-  static ezMap<ezString, ezResourceTypeLoader*> s_ResourceTypeLoader;
+  static ezMap<const ezRTTI*, ezResourceTypeLoader*> s_ResourceTypeLoader;
   static ezResourceLoaderFromFile s_FileResourceLoader;
   static ezResourceTypeLoader* s_pDefaultResourceLoader;
   static ezMap<ezResource*, ezUniquePtr<ezResourceTypeLoader>> s_CustomLoaders;
@@ -455,4 +474,3 @@ private:
 
 #include <Core/ResourceManager/Implementation/ResourceLock.h>
 #include <Core/ResourceManager/Implementation/ResourceManager_inl.h>
-

@@ -29,7 +29,8 @@ typedef sf::Window* ezWindowHandle;
 
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-typedef HWND ezWindowHandle;
+#include <Foundation/Basics/Platform/Win/MinWindows.h>
+typedef ezMinWindows::HWND ezWindowHandle;
 #define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)
 
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
@@ -133,6 +134,9 @@ struct EZ_SYSTEM_DLL ezWindowCreationDesc
   /// Whether the mouse cursor should be visible or not.
   /// \see ezStandardInputDevice::SetShowMouseCursor
   bool m_bShowMouseCursor = false;
+
+  /// Whether the window is activated and focussed on Initialize()
+  bool m_bSetForegroundOnInit = true;
 };
 
 /// \brief A simple abstraction for platform specific window creation.
@@ -231,7 +235,7 @@ public:
   ///   Will be called <i>after</i> the On[...] callbacks!
   ///
   /// \see OnResizeMessage
-  virtual void OnWindowMessage(HWND hWnd, UINT Msg, WPARAM WParam, LPARAM LParam) {}
+  virtual void OnWindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT Msg, ezMinWindows::WPARAM WParam, ezMinWindows::LPARAM LParam);
 
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
 

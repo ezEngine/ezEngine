@@ -1,4 +1,5 @@
-#cmake
+# TODO: This entire file needs to be migrated to modern CMake
+# e.g. turn it into an Find_EzOpenVR file with IMPORTED targets etc.
 
 macro(AddOpenVR)
 

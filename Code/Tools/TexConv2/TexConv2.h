@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Application/Application.h>
+#include <Foundation/Application/Application.h>
 
 class ezStreamWriter;
 
@@ -25,7 +25,7 @@ public:
 
 public:
   virtual ApplicationExecution Run() override;
-  virtual void BeforeCoreSystemsStartup() override;
+  virtual ezResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
   virtual void BeforeCoreSystemsShutdown() override;
 
@@ -46,6 +46,7 @@ public:
   ezResult ParseResolutionModifiers();
   ezResult ParseMiscOptions();
   ezResult ParseAssetHeader();
+  ezResult ParseBumpMapFilter();
 
   ezResult ParseUIntOption(const char* szOption, ezInt32 iMinValue, ezInt32 iMaxValue, ezUInt32& uiResult) const;
   ezResult ParseFloatOption(const char* szOption, float fMinValue, float fMaxValue, float& fResult) const;
@@ -81,4 +82,5 @@ private:
   ezDynamicArray<KeyEnumValuePair> m_AllowedCompressionModes;
   ezDynamicArray<KeyEnumValuePair> m_AllowedWrapModes;
   ezDynamicArray<KeyEnumValuePair> m_AllowedFilterModes;
+  ezDynamicArray<KeyEnumValuePair> m_AllowedBumpMapFilters;
 };

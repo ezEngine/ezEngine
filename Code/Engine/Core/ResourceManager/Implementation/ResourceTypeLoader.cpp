@@ -5,6 +5,7 @@
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Profiling/Profiling.h>
 
 struct FileResourceLoadData
 {
@@ -19,6 +20,8 @@ struct FileResourceLoadData
 
 ezResourceLoadData ezResourceLoaderFromFile::OpenDataStream(const ezResource* pResource)
 {
+  EZ_PROFILE_SCOPE("ReadResourceFile");
+
   ezResourceLoadData res;
 
   ezFileReader File;
@@ -35,7 +38,6 @@ ezResourceLoadData ezResourceLoaderFromFile::OpenDataStream(const ezResource* pR
   }
 
 #endif
-
 
   FileResourceLoadData* pData = EZ_DEFAULT_NEW(FileResourceLoadData);
 

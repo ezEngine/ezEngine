@@ -69,22 +69,29 @@ void ezMsgSetMeshMaterial::Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVer
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderData, 1, ezRTTIDefaultAllocator<ezMeshRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezMeshComponentBase, 1)
+void ezMeshRenderData::FillBatchIdAndSortingKey()
 {
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezCategoryAttribute("Rendering"),
-  }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_MESSAGEHANDLERS
-  {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgSetMeshMaterial, OnSetMaterial),
-    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnSetColor),
-  }
-  EZ_END_MESSAGEHANDLERS;
+  FillBatchIdAndSortingKeyInternal(0);
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezMeshComponentBase, 1)
+  {
+    EZ_BEGIN_ATTRIBUTES
+    {
+      new ezCategoryAttribute("Rendering"),
+    } EZ_END_ATTRIBUTES;
+    EZ_BEGIN_MESSAGEHANDLERS
+    {
+      EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+      EZ_MESSAGE_HANDLER(ezMsgSetMeshMaterial, OnSetMaterial),
+      EZ_MESSAGE_HANDLER(ezMsgSetColor, OnSetColor),
+    } EZ_END_MESSAGEHANDLERS;
+  }
 EZ_END_ABSTRACT_COMPONENT_TYPE;
 // clang-format on
 
@@ -94,16 +101,7 @@ ezMeshComponentBase::ezMeshComponentBase()
   m_Color = ezColor::White;
 }
 
-ezMeshComponentBase::~ezMeshComponentBase() {}
-
-void ezMeshComponentBase::OnDeactivated()
-{
-  if (!m_hSkinningTransformsBuffer.IsInvalidated())
-  {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hSkinningTransformsBuffer);
-    m_hSkinningTransformsBuffer.Invalidate();
-  }
-}
+ezMeshComponentBase::~ezMeshComponentBase() = default;
 
 void ezMeshComponentBase::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -157,7 +155,7 @@ ezResult ezMeshComponentBase::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& 
 {
   if (m_hMesh.IsValid())
   {
-    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowFallback);
+    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
     bounds = pMesh->GetBounds();
     return EZ_SUCCESS;
   }
@@ -170,12 +168,7 @@ void ezMeshComponentBase::OnExtractRenderData(ezMsgExtractRenderData& msg) const
   if (!m_hMesh.IsValid())
     return;
 
-  const ezUInt32 uiMeshIDHash = m_hMesh.GetResourceIDHash();
-
-  const ezUInt32 uiFlipWinding = GetOwner()->GetGlobalTransformSimd().ContainsNegativeScale() ? 1 : 0;
-  const ezUInt32 uiUniformScale = GetOwner()->GetGlobalTransformSimd().ContainsUniformScale() ? 1 : 0;
-
-  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowFallback);
+  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
   ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
 
   for (ezUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
@@ -189,39 +182,17 @@ void ezMeshComponentBase::OnExtractRenderData(ezMsgExtractRenderData& msg) const
     else
       hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
-    const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? hMaterial.GetResourceIDHash() : 0;
-
-    // Generate batch id from mesh, material and part index.
-    ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, uiPartIndex, uiFlipWinding};
-
-    if (!m_SkinningMatrices.IsEmpty())
-    {
-      // TODO: When skinning is enabled, batching is prevented. Review this.
-      data[2] = this->GetUniqueIdForRendering();
-    }
-
-    ezUInt32 uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
-
-    ezMeshRenderData* pRenderData = CreateRenderData(uiBatchId);
+    ezMeshRenderData* pRenderData = CreateRenderData();
     {
       pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
       pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
       pRenderData->m_hMesh = m_hMesh;
       pRenderData->m_hMaterial = hMaterial;
       pRenderData->m_Color = m_Color;
-
       pRenderData->m_uiSubMeshIndex = uiPartIndex;
-      pRenderData->m_uiFlipWinding = uiFlipWinding;
-      pRenderData->m_uiUniformScale = uiUniformScale;
-
       pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
 
-      if (!m_SkinningMatrices.IsEmpty())
-      {
-        pRenderData->m_hSkinningMatrices = m_hSkinningTransformsBuffer;
-        pRenderData->m_pNewSkinningMatricesData = ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(m_SkinningMatrices.GetPtr()),
-                                                                            m_SkinningMatrices.GetCount() * sizeof(ezMat4));
-      }
+      pRenderData->FillBatchIdAndSortingKey();
     }
 
     // Determine render data category.
@@ -230,7 +201,7 @@ void ezMeshComponentBase::OnExtractRenderData(ezMsgExtractRenderData& msg) const
     {
       if (hMaterial.IsValid())
       {
-        ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowFallback);
+        ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
         ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
         if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
         {
@@ -251,9 +222,7 @@ void ezMeshComponentBase::OnExtractRenderData(ezMsgExtractRenderData& msg) const
       }
     }
 
-    // Sort by material and then by mesh
-    ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE) | uiFlipWinding;
-    msg.AddRenderData(pRenderData, category, uiSortingKey, ezRenderData::Caching::IfStatic);
+    msg.AddRenderData(pRenderData, category, ezRenderData::Caching::IfStatic);
   }
 }
 
@@ -319,9 +288,9 @@ void ezMeshComponentBase::OnSetColor(ezMsgSetColor& msg)
   msg.ModifyColor(m_Color);
 }
 
-ezMeshRenderData* ezMeshComponentBase::CreateRenderData(ezUInt32 uiBatchId) const
+ezMeshRenderData* ezMeshComponentBase::CreateRenderData() const
 {
-  return ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
+  return ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
 }
 
 ezUInt32 ezMeshComponentBase::Materials_GetCount() const
@@ -372,4 +341,3 @@ void ezMeshComponentBase::Materials_Remove(ezUInt32 uiIndex)
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshComponentBase);
-

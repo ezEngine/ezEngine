@@ -79,6 +79,10 @@ ezResult ezTexConv2::ParseCommandLine()
     ezLog::Info("    Whether to multiply the alpha channel into the RGB channels.");
     ezLog::Info("  -hdrExposure float [-20;+20]");
     ezLog::Info("    For scaling HDR image brightness up or down.");
+    ezLog::Info("  -clamp float");
+    ezLog::Info("    Input values will be clamped to [-value;+value] (default 64000).");
+    PrintOptionValuesHelp("  -bumpMapFilter", m_AllowedBumpMapFilters);
+    ezLog::Info("    Filter used to approximate the x/y bump map gradients.");
 
     return EZ_FAILURE;
   }
@@ -98,6 +102,7 @@ ezResult ezTexConv2::ParseCommandLine()
   EZ_SUCCEED_OR_RETURN(ParseMiscOptions());
   EZ_SUCCEED_OR_RETURN(ParseInputFiles());
   EZ_SUCCEED_OR_RETURN(ParseChannelMappings());
+  EZ_SUCCEED_OR_RETURN(ParseBumpMapFilter());
 
   return EZ_SUCCESS;
 }
@@ -390,6 +395,8 @@ ezResult ezTexConv2::ParseMiscOptions()
     EZ_SUCCEED_OR_RETURN(ParseFloatOption("-hdrExposure", -20.0f, 20.0f, m_Processor.m_Descriptor.m_fHdrExposureBias));
   }
 
+  EZ_SUCCEED_OR_RETURN(ParseFloatOption("-clamp", -64000.f, 64000.f, m_Processor.m_Descriptor.m_fMaxValue));
+
   return EZ_SUCCESS;
 }
 
@@ -417,5 +424,14 @@ ezResult ezTexConv2::ParseAssetHeader()
     return EZ_FAILURE;
   }
 
+  return EZ_SUCCESS;
+}
+
+ezResult ezTexConv2::ParseBumpMapFilter()
+{
+  ezInt32 value = -1;
+  EZ_SUCCEED_OR_RETURN(ParseStringOption("-bumpMapFilter", m_AllowedBumpMapFilters, value));
+
+  m_Processor.m_Descriptor.m_BumpMapFilter = static_cast<ezTexConvBumpMapFilter::Enum>(value);
   return EZ_SUCCESS;
 }

@@ -116,6 +116,8 @@ ezCVar::ezCVar(const char* szName, ezBitflags<ezCVarFlags> Flags, const char* sz
   // 'RequiresRestart' only works together with 'Save'
   if (m_Flags.IsAnySet(ezCVarFlags::RequiresRestart))
     m_Flags.Add(ezCVarFlags::Save);
+
+  EZ_ASSERT_DEV(!ezStringUtils::IsNullOrEmpty(m_szDescription), "Please add a useful description for CVar '{}'.", szName);
 }
 
 ezCVar* ezCVar::FindCVarByName(const char* szName)
@@ -399,7 +401,7 @@ void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue)
                 {
                   ezCVarFloat* pTyped = (ezCVarFloat*)pCVar;
                   pTyped->m_Values[ezCVarValue::Stored] = static_cast<float>(Value);
-                  *pTyped = Value;
+                  *pTyped = static_cast<float>(Value);
                 }
               }
               break;
@@ -474,7 +476,7 @@ void ezCVar::LoadCVarsFromCommandLine(bool bOnlyNewOnes /*= true*/, bool bSetAsC
           Value = ezCommandLineUtils::GetGlobalInstance()->GetFloatOption(sTemp, Value);
 
           pTyped->m_Values[ezCVarValue::Stored] = static_cast<float>(Value);
-          *pTyped = Value;
+          *pTyped = static_cast<float>(Value);
         }
         break;
         case ezCVarType::String:

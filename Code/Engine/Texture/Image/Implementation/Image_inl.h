@@ -18,18 +18,18 @@ struct ezImageSizeofHelper<const void>
 };
 
 template <typename T>
-ezArrayPtr<const T> ezImageView::GetArrayPtr() const
+ezBlobPtr<const T> ezImageView::GetBlobPtr() const
 {
   ValidateDataTypeAccessor<T>();
-  return ezArrayPtr<const T>(reinterpret_cast<T*>(static_cast<ezUInt8*>(m_dataPtr.GetPtr())), m_dataPtr.GetCount() / ezImageSizeofHelper<T>::Size);
+  return ezBlobPtr<const T>(reinterpret_cast<T*>(static_cast<ezUInt8*>(m_dataPtr.GetPtr())), m_dataPtr.GetCount() / ezImageSizeofHelper<T>::Size);
 }
 
 template <typename T>
-ezArrayPtr<T> ezImage::GetArrayPtr()
+ezBlobPtr<T> ezImage::GetBlobPtr()
 {
-  ezArrayPtr<const T> constPtr = ezImageView::GetArrayPtr<T>();
+  ezBlobPtr<const T> constPtr = ezImageView::GetBlobPtr<T>();
   
-  return ezArrayPtr<T>(const_cast<T*>(static_cast<const T*>(constPtr.GetPtr())), constPtr.GetCount());
+  return ezBlobPtr<T>(const_cast<T*>(static_cast<const T*>(constPtr.GetPtr())), constPtr.GetCount());
 }
 
 template <typename T>
@@ -41,7 +41,7 @@ const T* ezImageView::GetPixelPointer(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFa
   EZ_ASSERT_DEV(y < GetNumBlocksY(uiMipLevel), "Invalid y coordinate");
   EZ_ASSERT_DEV(z < GetNumBlocksZ(uiMipLevel), "Invalid z coordinate");
 
-  ezUInt32 offset = GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex) + z * GetDepthPitch(uiMipLevel) + y * GetRowPitch(uiMipLevel) + x * ezImageFormat::GetBitsPerBlock(m_format) / 8;
+  ezUInt64 offset = GetSubImageOffset(uiMipLevel, uiFace, uiArrayIndex) + z * GetDepthPitch(uiMipLevel) + y * GetRowPitch(uiMipLevel) + x * ezImageFormat::GetBitsPerBlock(m_format) / 8;
   return reinterpret_cast<const T*>(&m_dataPtr[offset]);
 }
 

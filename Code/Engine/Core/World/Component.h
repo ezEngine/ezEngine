@@ -103,9 +103,9 @@ public:
   void PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const;
 
   /// \brief Stores a custom flag. Index must be between 0 and 7.
-///
-/// This is for component specific usage to have some bool values without additional memory consumption.
-/// Be careful to check which flags may already be in use by base classes.
+  ///
+  /// This is for component specific usage to have some bool values without additional memory consumption.
+  /// Be careful to check which flags may already be in use by base classes.
   void SetUserFlag(ezUInt8 flagIndex, bool set);
 
   /// \brief Retrieves a custom flag. Index must be between 0 and 7.
@@ -210,4 +210,3 @@ private:
 };
 
 #include <Core/World/Implementation/Component_inl.h>
-

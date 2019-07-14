@@ -14,7 +14,7 @@ o
 			s{"Textures/Sky.jpg"}
 		}
 		Uuid %DocumentID{u4{2456737913628888755,5070391613908332040}}
-		u4 %Hash{12648702539818626082}
+		u4 %Hash{9794952077020260364}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -27,21 +27,21 @@ o
 {
 	Uuid %id{u4{17757336740260737700,5695762000385821683}}
 	s %t{"ezTextureCubeAssetProperties"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGB1"}
-		b %Compression{0}
+		s %CompressionMode{"ezTexConvCompressionMode::None"}
+		f %HdrExposureBias{0}
 		s %Input1{"Textures/Sky.jpg"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
 		s %Input5{""}
 		s %Input6{""}
-		b %Mipmaps{1}
-		b %PremultipliedAlpha{0}
+		s %MipmapMode{"ezTexConvMipmapMode::Kaiser"}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTextureCubeUsageEnum::Skybox"}
+		s %Usage{"ezTexConvUsage::Color"}
 	}
 }
 o
@@ -61,6 +61,42 @@ o
 }
 Types
 {
+o
+{
+	Uuid %id{u4{12203372038544747648,1304846957001536306}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezTexConvCompressionMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6606822328587505351,4158023727683023298}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezTexConvUsage"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
 o
 {
 	Uuid %id{u4{6089094783765586323,8705960867921430659}}
@@ -99,24 +135,6 @@ o
 }
 o
 {
-	Uuid %id{u4{3686825137900751860,9318039415499649345}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"ezEditorPluginAssets"}
-		VarArray %Properties{}
-		s %TypeName{"ezTextureCubeUsageEnum"}
-		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{5521764862753681475,11632336601789359210}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -129,8 +147,8 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezTextureCubeAssetProperties"}
-		u3 %TypeSize{400}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{408}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -165,6 +183,24 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2647008765262101666,17105863286049156560}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezTexConvMipmapMode"}
 		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}

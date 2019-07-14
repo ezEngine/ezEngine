@@ -7,24 +7,41 @@
 #include <RendererCore/Pipeline/RenderData.h>
 
 struct ezMsgSetColor;
+struct ezInstanceData;
 
 class EZ_RENDERERCORE_DLL ezMeshRenderData : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMeshRenderData, ezRenderData);
 
 public:
+  virtual void FillBatchIdAndSortingKey();
+  
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
-  ezColor m_Color;
-  ezGALBufferHandle m_hSkinningMatrices;
-  ezArrayPtr<const ezUInt8>
-      m_pNewSkinningMatricesData; // Optional - if set the buffer specified in m_hSkinningMatrices will be updated with this data
+  ezColor m_Color = ezColor::White;
 
   ezUInt32 m_uiSubMeshIndex : 30;
   ezUInt32 m_uiFlipWinding : 1;
   ezUInt32 m_uiUniformScale : 1;
 
-  ezUInt32 m_uiUniqueID;
+  ezUInt32 m_uiUniqueID = 0;
+
+protected:
+  EZ_FORCE_INLINE void FillBatchIdAndSortingKeyInternal(ezUInt32 uiAdditionalBatchData)
+  {
+    m_uiFlipWinding = m_GlobalTransform.ContainsNegativeScale() ? 1 : 0;
+    m_uiUniformScale = m_GlobalTransform.ContainsUniformScale() ? 1 : 0;
+
+    const ezUInt32 uiMeshIDHash = m_hMesh.GetResourceIDHash();
+    const ezUInt32 uiMaterialIDHash = m_hMaterial.IsValid() ? m_hMaterial.GetResourceIDHash() : 0;
+
+    // Generate batch id from mesh, material and part index.
+    ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, m_uiSubMeshIndex, m_uiFlipWinding, uiAdditionalBatchData};
+    m_uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
+
+    // Sort by material and then by mesh
+    m_uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE) | m_uiFlipWinding;
+  }
 };
 
 struct EZ_RENDERERCORE_DLL ezMsgSetMeshMaterial : public ezMessage
@@ -54,8 +71,6 @@ public:
 public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
-  virtual void OnDeactivated() override;
-
 
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent Interface
@@ -86,10 +101,7 @@ public:
   void OnSetColor(ezMsgSetColor& msg);
 
 protected:
-  virtual ezMeshRenderData* CreateRenderData(ezUInt32 uiBatchId) const;
-
-  ezGALBufferHandle m_hSkinningTransformsBuffer;
-  ezArrayPtr<const ezMat4> m_SkinningMatrices;
+  virtual ezMeshRenderData* CreateRenderData() const;
 
   ezUInt32 Materials_GetCount() const;
   const char* Materials_GetValue(ezUInt32 uiIndex) const;

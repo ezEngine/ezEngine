@@ -156,7 +156,6 @@ namespace ezTokenParseUtils
     }
   }
 
-
   void CreateCleanTokenStream(const TokenStream& Tokens, ezUInt32 uiCurToken, TokenStream& Destination, bool bKeepComments)
   {
     SkipWhitespace(Tokens, uiCurToken);
@@ -178,7 +177,8 @@ namespace ezTokenParseUtils
     }
   }
 
-  void CombineTokensToString(const TokenStream& Tokens0, ezUInt32 uiCurToken, ezStringBuilder& sResult, bool bKeepComments, bool bRemoveRedundantWhitespace, bool bInsertLine)
+  void CombineTokensToString(const TokenStream& Tokens0, ezUInt32 uiCurToken, ezStringBuilder& sResult, bool bKeepComments,
+    bool bRemoveRedundantWhitespace, bool bInsertLine)
   {
     TokenStream Tokens;
 

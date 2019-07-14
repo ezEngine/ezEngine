@@ -25,9 +25,6 @@ public:
   ezRenderPipeline();
   ~ezRenderPipeline();
 
-  // \brief Resets the pipeline state to 'Uninitialized' to force a recompute (e.g. when the render target has changed).
-  void ResetPipelineState();
-
   void AddPass(ezUniquePtr<ezRenderPipelinePass>&& pPass);
   void RemovePass(ezRenderPipelinePass* pPass);
   void GetPasses(ezHybridArray<const ezRenderPipelinePass*, 16>& passes) const;
@@ -48,7 +45,7 @@ public:
   ezExtractor* GetExtractorByName(const ezStringView& sExtractorName);
 
   template <typename T>
-  EZ_ALWAYS_INLINE T* GetFrameDataProvider() { return static_cast<T*>(GetFrameDataProvider(ezGetStaticRTTI<T>())); }
+  EZ_ALWAYS_INLINE T* GetFrameDataProvider() const { return static_cast<T*>(GetFrameDataProvider(ezGetStaticRTTI<T>())); }
 
   const ezExtractedRenderData& GetRenderData() const;
   ezRenderDataBatchList GetRenderDataBatchesWithCategory(ezRenderData::Category category, ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter()) const;
@@ -75,10 +72,10 @@ private:
 
   void RemoveConnections(ezRenderPipelinePass* pPass);
   void ClearRenderPassGraphTextures();
-  bool AreInputDescriptionsAvailable(const ezRenderPipelinePass* pPass, const ezDynamicArray<ezRenderPipelinePass*>& done) const;
-  bool ArePassThroughInputsDone(const ezRenderPipelinePass* pPass, const ezDynamicArray<ezRenderPipelinePass*>& done) const;
+  bool AreInputDescriptionsAvailable(const ezRenderPipelinePass* pPass, const ezHybridArray<ezRenderPipelinePass*, 32>& done) const;
+  bool ArePassThroughInputsDone(const ezRenderPipelinePass* pPass, const ezHybridArray<ezRenderPipelinePass*, 32>& done) const;
 
-  ezFrameDataProviderBase* GetFrameDataProvider(const ezRTTI* pRtti);
+  ezFrameDataProviderBase* GetFrameDataProvider(const ezRTTI* pRtti) const;
 
   void ExtractData(const ezView& view);
   void FindVisibleObjects(const ezView& view);
@@ -126,11 +123,14 @@ private: // Member data
   ezDynamicArray<ezUInt16> m_TextureUsageIdxSortedByFirstUsage; ///< Indices map into m_TextureUsage
   ezDynamicArray<ezUInt16> m_TextureUsageIdxSortedByLastUsage; ///< Indices map into m_TextureUsage
 
+  ezHashTable<ezRenderPipelinePassConnection*, ezUInt32> m_ConnectionToTextureIndex;
+
   // Extractors
   ezDynamicArray<ezUniquePtr<ezExtractor>> m_Extractors;
+  ezDynamicArray<ezUniquePtr<ezExtractor>> m_SortedExtractors;
 
   // Data Providers
-  ezDynamicArray<ezUniquePtr<ezFrameDataProviderBase>> m_DataProviders;
-  ezHashTable<const ezRTTI*, ezUInt32> m_TypeToDataProviderIndex;
+  mutable ezDynamicArray<ezUniquePtr<ezFrameDataProviderBase>> m_DataProviders;
+  mutable ezHashTable<const ezRTTI*, ezUInt32> m_TypeToDataProviderIndex;
 };
 

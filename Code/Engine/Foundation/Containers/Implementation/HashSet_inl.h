@@ -1,10 +1,16 @@
 
-#define ezInvalidIndex 0xFFFFFFFF
+/// \brief Value used by containers for indices to indicate an invalid index.
+#ifndef ezInvalidIndex
+#  define ezInvalidIndex 0xFFFFFFFF
+#endif
 
 // ***** Const Iterator *****
 
 template <typename K, typename H>
-ezHashSetBase<K, H>::ConstIterator::ConstIterator(const ezHashSetBase<K, H>& hashSet) : m_hashSet(hashSet), m_uiCurrentIndex(0), m_uiCurrentCount(0)
+ezHashSetBase<K, H>::ConstIterator::ConstIterator(const ezHashSetBase<K, H>& hashSet)
+  : m_hashSet(hashSet)
+  , m_uiCurrentIndex(0)
+  , m_uiCurrentCount(0)
 {
 }
 
@@ -514,32 +520,38 @@ EZ_FORCE_INLINE void ezHashSetBase<K, H>::MarkEntryAsDeleted(ezUInt32 uiEntryInd
 
 
 template <typename K, typename H, typename A>
-ezHashSet<K, H, A>::ezHashSet() : ezHashSetBase<K, H>(A::GetAllocator())
+ezHashSet<K, H, A>::ezHashSet()
+  : ezHashSetBase<K, H>(A::GetAllocator())
 {
 }
 
 template <typename K, typename H, typename A>
-ezHashSet<K, H, A>::ezHashSet(ezAllocatorBase* pAllocator) : ezHashSetBase<K, H>(pAllocator)
+ezHashSet<K, H, A>::ezHashSet(ezAllocatorBase* pAllocator)
+  : ezHashSetBase<K, H>(pAllocator)
 {
 }
 
 template <typename K, typename H, typename A>
-ezHashSet<K, H, A>::ezHashSet(const ezHashSet<K, H, A>& other) : ezHashSetBase<K, H>(other, A::GetAllocator())
+ezHashSet<K, H, A>::ezHashSet(const ezHashSet<K, H, A>& other)
+  : ezHashSetBase<K, H>(other, A::GetAllocator())
 {
 }
 
 template <typename K, typename H, typename A>
-ezHashSet<K, H, A>::ezHashSet(const ezHashSetBase<K, H>& other) : ezHashSetBase<K, H>(other, A::GetAllocator())
+ezHashSet<K, H, A>::ezHashSet(const ezHashSetBase<K, H>& other)
+  : ezHashSetBase<K, H>(other, A::GetAllocator())
 {
 }
 
 template <typename K, typename H, typename A>
-ezHashSet<K, H, A>::ezHashSet(ezHashSet<K, H, A>&& other) : ezHashSetBase<K, H>(std::move(other), A::GetAllocator())
+ezHashSet<K, H, A>::ezHashSet(ezHashSet<K, H, A>&& other)
+  : ezHashSetBase<K, H>(std::move(other), A::GetAllocator())
 {
 }
 
 template <typename K, typename H, typename A>
-ezHashSet<K, H, A>::ezHashSet(ezHashSetBase<K, H>&& other) : ezHashSetBase<K, H>(std::move(other), A::GetAllocator())
+ezHashSet<K, H, A>::ezHashSet(ezHashSetBase<K, H>&& other)
+  : ezHashSetBase<K, H>(std::move(other), A::GetAllocator())
 {
 }
 
@@ -576,4 +588,3 @@ void ezHashSetBase<KeyType, Hasher>::Swap(ezHashSetBase<KeyType, Hasher>& other)
   ezMath::Swap(this->m_uiCapacity, other.m_uiCapacity);
   ezMath::Swap(this->m_pAllocator, other.m_pAllocator);
 }
-

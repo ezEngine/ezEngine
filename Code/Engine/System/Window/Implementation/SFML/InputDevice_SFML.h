@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
-#include <SFML/Window.hpp>
+#include <SFML/Window/Window.hpp>
 #include <System/SystemDLL.h>
 
 /// \brief Implements an input device abstraction on top of the SFML library.
@@ -49,7 +49,12 @@ public:
   /// If, however, you need to allow the user to move the mouse cursor outside the window, be aware that the relative mouse
   /// motions will stop working, once the mouse cursor reaches the screen borders.
   virtual void SetClipMouseCursor(ezMouseCursorClipMode::Enum mode) override;
-  virtual ezMouseCursorClipMode::Enum GetClipMouseCursor() const override { return m_ClipCursorMode; }
+
+  /// \brief Returns whether the mouse is confined to the application window or not.
+  virtual ezMouseCursorClipMode::Enum GetClipMouseCursor() const override
+  {
+    return m_ClipCursorMode;
+  }
 
   /// \brief Shows or hides the mouse cursor inside the application window.
   ///
@@ -79,4 +84,3 @@ private:
 
   void UpdateMouseCursor();
 };
-

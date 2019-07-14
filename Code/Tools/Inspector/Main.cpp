@@ -1,6 +1,6 @@
 #include <InspectorPCH.h>
 
-#include <Core/Application/Application.h>
+#include <Foundation/Application/Application.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Inspector/CVarsWidget.moc.h>
 #include <Inspector/DataTransferWidget.moc.h>
@@ -66,12 +66,12 @@ public:
     QApplication::setPalette(palette);
   }
 
-  virtual void BeforeCoreSystemsStartup() override
+  virtual ezResult BeforeCoreSystemsStartup() override
   {
     ezStartup::AddApplicationTag("tool");
     ezStartup::AddApplicationTag("inspector");
 
-    ezApplication::BeforeCoreSystemsStartup();
+    return ezApplication::BeforeCoreSystemsStartup();
   }
 
   virtual ApplicationExecution Run() override

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ThirdParty/utf8/utf8.h>
+#include <Foundation/ThirdParty/utf8/utf8.h>
 
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Memory/MemoryUtils.h>
@@ -419,7 +419,9 @@ public:
   void RemoveFileExtension(); // [tested]
 
   /// \brief Converts this path into a relative path to the path with the awesome variable name 'szAbsolutePathToMakeThisRelativeTo'
-  void MakeRelativeTo(const char* szAbsolutePathToMakeThisRelativeTo); // [tested]
+  ///
+  /// If the method succeeds the StringBuilder's contents are modified in place.
+  ezResult MakeRelativeTo(const char* szAbsolutePathToMakeThisRelativeTo); // [tested]
 
   /// \brief Cleans this path up and replaces all path separators by the OS specific separator.
   ///

@@ -1,23 +1,38 @@
 #include <FoundationPCH.h>
 
 #include <Foundation/CodeUtils/Tokenizer.h>
+#include <Foundation/Memory/CommonAllocators.h>
 
-const char* ezTokenType::EnumNames[ezTokenType::ENUM_COUNT] =
-    {
-        "Unknown",
-        "Whitespace",
-        "Identifier",
-        "NonIdentifier",
-        "Newline",
-        "LineComment",
-        "BlockComment",
-        "String1",
-        "String2",
+const char* ezTokenType::EnumNames[ezTokenType::ENUM_COUNT] = {
+  "Unknown",
+  "Whitespace",
+  "Identifier",
+  "NonIdentifier",
+  "Newline",
+  "LineComment",
+  "BlockComment",
+  "String1",
+  "String2",
+  "Integer",
+  "Float",
 };
 
-
-ezTokenizer::ezTokenizer()
+namespace
 {
+  // This allocator is used to get rid of some of the memory allocation tracking
+  // that would otherwise occur for allocations made by the tokenizer.
+  thread_local ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryTrackingFlags::None> s_ClassAllocator("ezTokenizer", ezFoundation::GetDefaultAllocator());
+}
+
+
+ezTokenizer::ezTokenizer(ezAllocatorBase* pAllocator)
+{
+  if (pAllocator == nullptr)
+  {
+    pAllocator = &s_ClassAllocator;
+  }
+  m_Data = ezDynamicArray<ezUInt8>(pAllocator);
+  m_Tokens = ezDeque<ezToken>(pAllocator);
   m_pLog = nullptr;
   m_CurMode = ezTokenType::Unknown;
   m_uiCurLine = 1;
@@ -30,6 +45,12 @@ ezTokenizer::ezTokenizer()
   m_szCurCharStart = nullptr;
   m_szNextCharStart = nullptr;
   m_szTokenStart = nullptr;
+}
+
+
+ezTokenizer::~ezTokenizer()
+{
+
 }
 
 void ezTokenizer::NextChar()
@@ -46,13 +67,13 @@ void ezTokenizer::NextChar()
 
   if (!m_Iterator.IsValid())
   {
-    m_szNextCharStart = m_Iterator.GetEndPosition();
+    m_szNextCharStart = m_Iterator.GetEndPointer();
     m_uiNextChar = '\0';
     return;
   }
 
   m_uiNextChar = m_Iterator.GetCharacter();
-  m_szNextCharStart = m_Iterator.GetData();
+  m_szNextCharStart = m_Iterator.GetStartPointer();
 
   ++m_Iterator;
 }
@@ -79,6 +100,7 @@ void ezTokenizer::AddToken()
 
 void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> Data, ezLogInterface* pLog)
 {
+  ezAllocatorBase* pAllocator = m_Data.GetAllocator();
   if (Data.GetCount() >= 3)
   {
     const char* dataStart = reinterpret_cast<const char*>(Data.GetPtr());
@@ -147,6 +169,11 @@ void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> Data, ezLogInterface* pLog)
 
       case ezTokenType::String2:
         HandleString('\'');
+        break;
+
+      case ezTokenType::Integer:
+      case ezTokenType::Float:
+        HandleNumber();
         break;
 
       case ezTokenType::LineComment:
@@ -223,6 +250,13 @@ void ezTokenizer::HandleUnknown()
     return;
   }
 
+  if (ezStringUtils::IsDecimalDigit(m_uiCurChar) || (m_uiCurChar == '.' && ezStringUtils::IsDecimalDigit(m_uiNextChar)))
+  {
+    m_CurMode = m_uiCurChar == '.' ? ezTokenType::Float : ezTokenType::Integer;
+    // Do not advance to next char here since we need the first character in HandleNumber
+    return;
+  }
+
   if (!ezStringUtils::IsIdentifierDelimiter_C_Code(m_uiCurChar))
   {
     m_CurMode = ezTokenType::Identifier;
@@ -292,10 +326,17 @@ void ezTokenizer::HandleString(char terminator)
       m_CurMode = terminator == '\"' ? ezTokenType::String1 : ezTokenType::String2;
       m_szTokenStart = m_szCurCharStart;
     }
+    // escaped backslash
+    else if ((m_uiCurChar == '\\') && (m_uiNextChar == '\\'))
+    {
+      // Skip
+      NextChar();
+      NextChar();
+    }
     // not-escaped line break in string
     else if (m_uiCurChar == '\n')
     {
-      ezLog::Error(m_pLog, "Unescaped Newline in string");
+      ezLog::Error(m_pLog, "Unescaped Newline in string line {0} column {1}", m_uiCurLine, m_uiCurColumn);
       //NextChar(); // not sure whether to include the newline in the string or not
       AddToken();
       return;
@@ -314,6 +355,84 @@ void ezTokenizer::HandleString(char terminator)
   }
 
   ezLog::Error(m_pLog, "String not closed at end of file");
+  AddToken();
+}
+
+void ezTokenizer::HandleNumber()
+{
+  if (m_uiCurChar == '0' && (m_uiNextChar == 'x' || m_uiNextChar == 'X'))
+  {
+    NextChar();
+    NextChar();
+
+    ezUInt32 uiDigitsRead = 0;
+    while (ezStringUtils::IsHexDigit(m_uiCurChar))
+    {
+      NextChar();
+      ++uiDigitsRead;
+    }
+
+    if (uiDigitsRead < 1)
+    {
+      ezLog::Error(m_pLog, "Invalid hex literal");
+    }
+  }
+  else
+  {
+    NextChar();
+
+    while (ezStringUtils::IsDecimalDigit(m_uiCurChar))
+    {
+      NextChar();
+    }
+
+    if (m_CurMode != ezTokenType::Float && (m_uiCurChar == '.' || m_uiCurChar == 'e' || m_uiCurChar == 'E'))
+    {
+      m_CurMode = ezTokenType::Float;
+      bool bAllowExponent = true;
+
+      if (m_uiCurChar == '.')
+      {
+        NextChar();
+
+        ezUInt32 uiDigitsRead = 0;
+        while (ezStringUtils::IsDecimalDigit(m_uiCurChar))
+        {
+          NextChar();
+          ++uiDigitsRead;
+        }
+
+        bAllowExponent = uiDigitsRead > 0;
+      }
+
+      if ((m_uiCurChar == 'e' || m_uiCurChar == 'E') && bAllowExponent)
+      {
+        NextChar();
+        if (m_uiCurChar == '+' || m_uiCurChar == '-')
+        {
+          NextChar();
+        }
+
+        ezUInt32 uiDigitsRead = 0;
+        while (ezStringUtils::IsDecimalDigit(m_uiCurChar))
+        {
+          NextChar();
+          ++uiDigitsRead;
+        }
+
+        if (uiDigitsRead < 1)
+        {
+          ezLog::Error(m_pLog, "Invalid float literal");
+        }
+      }
+
+      if (m_uiCurChar == 'f') // skip float suffix
+      {
+        NextChar();
+      }
+    }
+  }
+
   AddToken();
 }
 
@@ -390,6 +509,20 @@ void ezTokenizer::HandleIdentifier()
 void ezTokenizer::HandleNonIdentifier()
 {
   AddToken();
+}
+
+void ezTokenizer::GetAllLines(ezHybridArray<const ezToken*, 32>& Tokens) const
+{
+  Tokens.Clear();
+  Tokens.Reserve(m_Tokens.GetCount());
+
+  for (const ezToken& curToken : m_Tokens)
+  {
+    if (curToken.m_iType != ezTokenType::Newline)
+    {
+      Tokens.PushBack(&curToken);
+    }
+  }
 }
 
 ezResult ezTokenizer::GetNextLine(ezUInt32& uiFirstToken, ezHybridArray<ezToken*, 32>& Tokens)

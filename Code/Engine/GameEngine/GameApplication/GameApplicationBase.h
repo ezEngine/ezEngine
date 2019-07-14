@@ -2,7 +2,7 @@
 
 #include <GameEngine/GameEngineDLL.h>
 
-#include <Core/Application/Application.h>
+#include <Foundation/Application/Application.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/Configuration/PlatformProfile.h>
 #include <GameEngine/Console/ConsoleFunction.h>
@@ -13,6 +13,20 @@
 class ezWindowBase;
 struct ezWindowCreationDesc;
 class ezWorld;
+
+/// Allows custom code to inject logic at specific points during
+/// initialization or during shutdown. The events are listed in
+/// the order in which they typically happen.
+struct ezGameApplicationStaticEvent
+{
+  enum class Type
+  {
+    AfterGameStateActivated,
+    BeforeGameStateDeactivated
+  };
+
+  Type m_Type;
+};
 
 /// Allows custom code to inject logic at specific update points.
 /// The events are listed in the order in which they typically happen.
@@ -50,69 +64,8 @@ public:
   /// \brief Returns the ezGameApplicationBase singleton
   static ezGameApplicationBase* GetGameApplicationBaseInstance() { return s_pGameApplicationBaseInstance; }
 
-  /// \brief Calling this function requests that the application quits after the current invocation of Run() finishes.
-  ///
-  /// Can be overridden to prevent quitting under certain conditions.
-  virtual void RequestQuit();
-
-  /// \brief Returns whether RequestQuit() was called.
-  EZ_ALWAYS_INLINE bool WasQuitRequested() const { return m_bWasQuitRequested; }
-
 protected:
   static ezGameApplicationBase* s_pGameApplicationBaseInstance;
-
-  bool m_bWasQuitRequested = false;
-
-  ///@}
-  /// \name Window Management
-  ///@{
-
-public:
-  /// \brief Adds a top level window to the application.
-  ///
-  /// An output target is created for that window. Run() will call ezWindowBase::ProcessWindowMessages()
-  /// on all windows that have been added.
-  /// Most applications should add exactly one such window to the game application.
-  /// Only few applications will add zero or multiple windows.
-  ezWindowOutputTargetBase* AddWindow(ezWindowBase* pWindow);
-
-  /// \brief Adds a top level window to the application with a custom output target.
-  void AddWindow(ezWindowBase* pWindow, ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget);
-
-  /// \brief Removes a previously added window. Destroys its output target. Should be called at application shutdown.
-  void RemoveWindow(ezWindowBase* pWindow);
-
-  /// \brief Can be called by code that creates windows (e.g. an ezGameStateBase) to adjust or override settings, such as the window title
-  /// or resolution.
-  virtual void AdjustWindowCreation(ezWindowCreationDesc& desc) {}
-
-  /// \brief Calls ezWindowBase::ProcessWindowMessages() on all known windows. Returns true, if any windows are available, at all.
-  ///
-  /// \note This should actually never be executed manually. It is only public for very specific edge cases.
-  /// Otherwise this function is automatically executed once every frame.
-  bool ProcessWindowMessages();
-
-  /// \brief Returns the ezWindowOutputTargetBase object that is associated with the given window. The window must have been added via
-  /// AddWindow()
-  ezWindowOutputTargetBase* GetWindowOutputTarget(const ezWindowBase* pWindow) const;
-
-  /// \brief Sets the ezWindowOutputTargetBase for a given window. The window must have been added via AddWindow()
-  ///
-  /// The previous ezWindowOutputTargetBase object (if any) will be destroyed.
-  void SetWindowOutputTarget(const ezWindowBase* pWindow, ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget);
-
-protected:
-  virtual ezUniquePtr<ezWindowOutputTargetBase> CreateWindowOutputTarget(ezWindowBase* pWindow) = 0;
-  virtual void DestroyWindowOutputTarget(ezUniquePtr<ezWindowOutputTargetBase> pOutputTarget) = 0;
-
-  struct WindowContext
-  {
-    ezWindowBase* m_pWindow;
-    ezUniquePtr<ezWindowOutputTargetBase> m_pOutputTarget;
-    bool m_bFirstFrame = true;
-  };
-
-  ezDynamicArray<WindowContext> m_Windows;
 
 public:
   /// \brief Does a profiling capture and writes it to disk at ':appdata'
@@ -182,9 +135,15 @@ public:
   ///
   /// In the editor case, there are cases where a 'player start position' is specified, which can be used
   /// by the game state to place the player.
+  ///
+  /// Broadcasts local event: ezGameApplicationStaticEvent::AfterGameStateActivated
+  /// Broadcasts global event: AfterGameStateActivation(ezGameStateBase*)
   ezResult ActivateGameState(ezWorld* pWorld = nullptr, const ezTransform* pStartPosition = nullptr);
 
   /// \brief Deactivates and destroys the active game state.
+  ///
+  /// Broadcasts local event: ezGameApplicationStaticEvent::BeforeGameStateDeactivated
+  /// Broadcasts global event: BeforeGameStateDeactivation(ezGameStateBase*)
   void DeactivateGameState();
 
   /// \brief Returns the currently active game state. Could be nullptr.
@@ -229,16 +188,35 @@ protected:
   /// \name Application Startup
   ///@{
 protected:
-  virtual void BeforeCoreSystemsStartup() override;
+  virtual ezResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
 
+  /// \brief Returns the target of the 'project' special data directory.
+  ///
+  /// The return value of this function will be passed into ezFileSystem::SetSpecialDirectory.
+  /// Afterwards, any path starting with the special directory marker (">project/") will point
+  /// into this directory.
   virtual ezString FindProjectDirectory() const = 0;
+
+  /// \brief Returns the target of the 'base' data directory.
+  ///
+  /// Path needs to start with a special directory marker (">marker/").
+  /// This is passed into the target of the 'base' data directory. Target defaults to ">sdk/Data/Base".
   virtual ezString GetBaseDataDirectoryPath() const;
 
-  virtual void ExecuteInitFunctions();
+  /// \brief Returns the target of the 'project' data directory.
+  ///
+  /// Path needs to start with a special directory marker (">marker/").
+  /// This is passed into the target of the 'project' data directory. Target defaults to ">project/".
+  virtual ezString GetProjectDataDirectoryPath() const;
 
+  /// \brief Executes all 'BaseInit_' functions. Typically done very early, before core system startup
+  virtual void ExecuteBaseInitFunctions();
+  virtual void BaseInit_ConfigureLogging();
+
+  /// \brief Executes all 'Init_' functions. Typically done after core system startup
+  virtual void ExecuteInitFunctions();
   virtual void Init_PlatformProfile_SetPreferred();
-  virtual void Init_ConfigureLogging();
   virtual void Init_ConfigureTelemetry();
   virtual void Init_FileSystem_SetSpecialDirs();
   virtual void Init_FileSystem_SetDataDirFactories();
@@ -252,6 +230,8 @@ protected:
   virtual void Init_ConfigureCVars();
   virtual void Init_SetupGraphicsDevice() = 0;
   virtual void Init_SetupDefaultResources();
+
+  ezEvent<const ezGameApplicationStaticEvent&> m_StaticEvents;
 
   ///@}
   /// \name Application Shutdown

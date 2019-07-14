@@ -1,6 +1,6 @@
 
 ######################################
-### ez_set_target_pch
+### ez_set_target_pch(<target> <pch-name>)
 ######################################
 
 function(ez_set_target_pch TARGET_NAME PCH_NAME)
@@ -15,7 +15,7 @@ function(ez_set_target_pch TARGET_NAME PCH_NAME)
 endfunction()
 
 ######################################
-### ez_retrieve_target_pch
+### ez_retrieve_target_pch(<target> <pch-name>)
 ######################################
 
 function(ez_retrieve_target_pch TARGET_NAME PCH_NAME)
@@ -32,7 +32,56 @@ function(ez_retrieve_target_pch TARGET_NAME PCH_NAME)
 endfunction()
 
 ######################################
-### ez_find_pch_in_file_list
+### ez_pch_use(<pch-header> <cpp-files>)
+######################################
+
+function(ez_pch_use PCH_H TARGET_CPPS)
+
+  if (NOT MSVC)
+    return()
+  endif()
+
+  if (NOT EZ_USE_PCH)
+    return()
+  endif()  
+
+  # only include .cpp files
+  list(FILTER TARGET_CPPS INCLUDE REGEX "\.cpp$")
+
+  # exclude files named 'qrc_*'
+  list(FILTER TARGET_CPPS EXCLUDE REGEX ".*/qrc_.*")
+
+  # exclude files named 'PCH.cpp'
+  list(FILTER TARGET_CPPS EXCLUDE REGEX ".*PCH.cpp$")
+
+  foreach(CPP_FILE ${TARGET_CPPS})
+
+    set_source_files_properties (${CPP_FILE} PROPERTIES COMPILE_FLAGS "/Yu${PCH_H}")
+
+  endforeach()
+
+endfunction()
+
+######################################
+### ez_pch_create(<pch-header> <cpp-file>)
+######################################
+
+function(ez_pch_create PCH_H TARGET_CPP)
+
+  if (NOT MSVC)
+    return()
+  endif()
+
+  if (NOT EZ_USE_PCH)
+    return()
+  endif()
+
+  set_source_files_properties(${TARGET_CPP} PROPERTIES COMPILE_FLAGS "/Yc${PCH_H}")
+
+endfunction()
+
+######################################
+### ez_find_pch_in_file_list(<files> <out-pch-name>)
 ######################################
 
 function(ez_find_pch_in_file_list FILE_LIST PCH_NAME)
@@ -46,7 +95,7 @@ function(ez_find_pch_in_file_list FILE_LIST PCH_NAME)
     get_filename_component(CUR_FILE_NAME ${CUR_FILE} NAME_WE)
     get_filename_component(CUR_FILE_EXT ${CUR_FILE} EXT)
 
-    if ((${CUR_FILE_EXT} STREQUAL ".cpp") AND (CUR_FILE_NAME MATCHES "PCH$"))
+    if ((${CUR_FILE_EXT} STREQUAL ".cpp") AND (${CUR_FILE_NAME} MATCHES "PCH$"))
       set (${PCH_NAME} ${CUR_FILE_NAME} PARENT_SCOPE)
       return()
     endif ()
@@ -56,43 +105,27 @@ function(ez_find_pch_in_file_list FILE_LIST PCH_NAME)
 endfunction()
 
 ######################################
-### ez_find_pch_in_folder
+### ez_auto_pch(<target> <files> [<file-exclude-regex> ... ])
 ######################################
 
-function(ez_find_pch_in_folder PROJECT_DIRECTORY PCH_NAME)
+function(ez_auto_pch TARGET_NAME FILES)
 
-  file(GLOB SOURCE_FILES_CPP "${PROJECT_DIRECTORY}/*.cpp")
+  foreach(EXCLUDE_PATTERN ${ARGN})
 
-  ez_find_pch_in_file_list("${SOURCE_FILES_CPP}" PCH_FROM_FILE_LIST)
+    list(FILTER FILES EXCLUDE REGEX ${EXCLUDE_PATTERN})
 
-  if (PCH_FROM_FILE_LIST)
-    set(${PCH_NAME} ${PCH_FROM_FILE_LIST} PARENT_SCOPE)
+  endforeach()
+
+  ez_find_pch_in_file_list("${FILES}" PCH_NAME)
+
+  if (NOT PCH_NAME)
+    return()
   endif()
 
+  ez_pch_create("${PCH_NAME}.h" "${PCH_NAME}.cpp")
+
+  ez_pch_use("${PCH_NAME}.h" "${FILES}")
+
+  ez_set_target_pch(${TARGET_NAME} ${PCH_NAME})
+  
 endfunction()
-
-######################################
-### ez_auto_detect_pch_for_target
-######################################
-
-function(ez_auto_detect_pch_for_target TARGET_NAME PROJECT_DIRECTORY)
-
-  ez_find_pch_in_folder(${PROJECT_DIRECTORY} PCH_NAME)
-
-  if (PCH_NAME)
-    ez_set_target_pch(${TARGET_NAME} ${PCH_NAME})
-  endif()
-
-endfunction()
-
-######################################
-### ez_auto_detect_pch_for_target
-######################################
-
-function(ez_pch_consume TARGET_FILE)
-
-  # set_source_files_properties (${src_file} PROPERTIES COMPILE_FLAGS "/Yu${PCH_H}")
-
-endfunction()
-
-

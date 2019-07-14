@@ -99,22 +99,22 @@ public:
   ezUInt32 GetNumBlocksZ(ezUInt32 uiMipLevel = 0) const { return ezImageFormat::GetNumBlocksZ(m_format, GetDepth(uiMipLevel)); }
 
   /// \brief Returns the offset in bytes between two subsequent rows of the given mip level.
-  ezUInt32 GetRowPitch(ezUInt32 uiMipLevel = 0) const { return ezImageFormat::GetRowPitch(GetImageFormat(), GetWidth(uiMipLevel)); }
+  ezUInt64 GetRowPitch(ezUInt32 uiMipLevel = 0) const { return ezImageFormat::GetRowPitch(GetImageFormat(), GetWidth(uiMipLevel)); }
 
   /// \brief Returns the offset in bytes between two subsequent depth slices of the given mip level.
-  ezUInt32 GetDepthPitch(ezUInt32 uiMipLevel = 0) const
+  ezUInt64 GetDepthPitch(ezUInt32 uiMipLevel = 0) const
   {
     return ezImageFormat::GetDepthPitch(GetImageFormat(), GetWidth(uiMipLevel), GetHeight(uiMipLevel));
   }
 
   /// \brief Computes the data size required for an image with the header's format and dimensions.
-  ezUInt32 ComputeDataSize() const
+  ezUInt64 ComputeDataSize() const
   {
-    ezUInt32 uiDataSize = 0;
+    ezUInt64 uiDataSize = 0;
 
     for (ezUInt32 uiMipLevel = 0; uiMipLevel < GetNumMipLevels(); uiMipLevel++)
     {
-      uiDataSize += GetDepthPitch(uiMipLevel) * GetDepth(uiMipLevel);
+      uiDataSize += GetDepthPitch(uiMipLevel) * static_cast<ezUInt64>(GetDepth(uiMipLevel));
     }
 
     return uiDataSize * GetNumArrayIndices() * GetNumFaces();

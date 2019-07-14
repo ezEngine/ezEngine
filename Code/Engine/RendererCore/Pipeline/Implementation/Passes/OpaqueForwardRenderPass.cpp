@@ -73,7 +73,7 @@ void ezOpaqueForwardRenderPass::SetupResources(const ezRenderViewContext& render
     }
     else
     {
-      renderViewContext.m_pRenderContext->BindTexture2D("SSAOTexture", m_hWhiteTexture, ezResourceAcquireMode::NoFallback);
+      renderViewContext.m_pRenderContext->BindTexture2D("SSAOTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
     }
   }
 }

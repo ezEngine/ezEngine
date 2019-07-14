@@ -9,7 +9,7 @@ static void AllowScriptCVarAccess(ezLuaWrapper& Script);
 
 static const ezString GetNextWord(ezStringView& sString)
 {
-  const char* szStartWord = ezStringUtils::SkipCharacters(sString.GetData(), ezStringUtils::IsWhiteSpace, false);
+  const char* szStartWord = ezStringUtils::SkipCharacters(sString.GetStartPointer(), ezStringUtils::IsWhiteSpace, false);
   const char* szEndWord = ezStringUtils::FindWordEnd(szStartWord, ezStringUtils::IsIdentifierDelimiter_C_Code, true);
 
   sString = ezStringView(szEndWord);
@@ -19,7 +19,7 @@ static const ezString GetNextWord(ezStringView& sString)
 
 static ezString GetRestWords(ezStringView sString)
 {
-  return ezStringUtils::SkipCharacters(sString.GetData(), ezStringUtils::IsWhiteSpace, false);
+  return ezStringUtils::SkipCharacters(sString.GetStartPointer(), ezStringUtils::IsWhiteSpace, false);
 }
 
 static int LUAFUNC_ConsoleFunc(lua_State* state)

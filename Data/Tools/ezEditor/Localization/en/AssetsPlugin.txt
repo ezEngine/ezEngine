@@ -90,19 +90,6 @@ ezTextureFilterSetting::DefaultQuality;Default Quality
 ezTextureFilterSetting::HighQuality;High Quality
 ezTextureFilterSetting::HighestQuality;Highest Quality
 TextureAsset.LodSlider;Mipmap
-ezTexture2DUsageEnum::Unknown;Unknown
-ezTexture2DUsageEnum::Diffuse;Diffuse
-ezTexture2DUsageEnum::NormalMap;Normal Map
-ezTexture2DUsageEnum::NormalMapInverted;Normal Map (Inverted)
-ezTexture2DUsageEnum::Height;Height
-ezTexture2DUsageEnum::Mask;Mask
-ezTexture2DUsageEnum::LookupTable;Lookup Table
-ezTexture2DUsageEnum::EmissiveColor;Emissive (Color)
-ezTexture2DUsageEnum::EmissiveMask;Emissive (Mask)
-ezTexture2DUsageEnum::Other_sRGB;Other sRGB
-ezTexture2DUsageEnum::Other_Linear;Other Linear
-ezTexture2DUsageEnum::HDR;HDR
-ezTexture2DUsageEnum::RenderTarget;Render Target
 ezTexture2DResolution::Fixed64x64;64 * 64
 ezTexture2DResolution::Fixed128x128;128 * 128
 ezTexture2DResolution::Fixed256x256;256 * 256
@@ -196,3 +183,4 @@ ezTexConvUsage::Linear;Linear
 ezTexConvUsage::Hdr;HDR
 ezTexConvUsage::NormalMap;Normal Map
 ezTexConvUsage::NormalMap_Inverted; Normal Map (inverted)
+ezTexConvUsage::BumpMap;Bump Map

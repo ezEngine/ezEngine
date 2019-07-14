@@ -98,11 +98,19 @@ public:
   /// folder of this data directory. The same can be used for reading exactly that file and ignoring the other data dirs.
   static ezResult AddDataDirectory(const char* szDataDirectory, const char* szGroup = "", const char* szRootName = "", ezFileSystem::DataDirUsage Usage = ReadOnly); // [tested]
 
+  /// \brief Searches for a data directory with the given root name and removes it
+  ///
+  /// Returns true, if one was found and removed, false if no such data dir existed.
+  static bool RemoveDataDirectory(const char* szRootName);
+
   /// \brief Removes all data directories that belong to the given group. Returns the number of data directories that were removed.
   static ezUInt32 RemoveDataDirectoryGroup(const char* szGroup); // [tested]
 
   /// \brief Removes all data directories.
   static void ClearAllDataDirectories(); // [tested]
+
+  /// \brief If a data directory with the given root name already exists, it will be returned, nullptr otherwise.
+  static ezDataDirectoryType* FindDataDirectoryWithRoot(const char* szRootName);
 
   /// \brief Returns the number of currently active data directories.
   static ezUInt32 GetNumDataDirectories(); // [tested]
@@ -160,10 +168,19 @@ public:
   ///
   /// ">sdk/" - Resolves to what GetSdkRootDirectory() returns.
   /// ">user/" - Resolves to what ezOSFile::GetUserDataFolder() returns.
+  /// ">temp/" - Resolves to what ezOSFile::GetTempDataFolder() returns.
   /// ">appdir/" - Resolves to what ezOSFile::GetApplicationDirectory() returns.
   ///
   /// Returns EZ_FAILURE if \a szDirectory starts with an unknown special directory.
   static ezResult ResolveSpecialDirectory(const char* szDirectory, ezStringBuilder& out_Path);
+
+  ///@}
+
+  /// \name Misc
+  ///@{
+
+  /// \brief Returns the (recursive) mutex that is used internally by the file system which can be used to guard bundled operations on the file system.
+  static ezMutex& GetMutex();
 
   ///@}
 
@@ -265,6 +282,7 @@ private:
     ezHybridArray<DataDirectory, 16> m_DataDirectories;
 
     ezEvent<const FileEvent&, ezMutex> m_Event;
+    ezMutex m_FsMutex;
   };
 
   /// \brief Returns a list of data directory categories that were embedded in the path.
@@ -274,6 +292,8 @@ private:
   static const char* GetDataDirRelativePath(const char* szPath, ezUInt32 uiDataDir);
 
   static DataDirectory* GetDataDirForRoot(const ezString& sRoot);
+
+  static void CleanUpRootName(ezStringBuilder& sRoot);
 
   static ezString s_sSdkRootDir;
   static ezMap<ezString, ezString> s_SpecialDirectories;

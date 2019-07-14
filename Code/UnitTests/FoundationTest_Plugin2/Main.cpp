@@ -20,7 +20,7 @@ ezCVarFloat CVar_TestFloat("test2_Float", 2.2f, ezCVarFlags::Default, "Desc: tes
 ezCVarBool CVar_TestBool("test2_Bool", true, ezCVarFlags::Save, "Desc: test2_Bool");
 ezCVarString CVar_TestString("test2_String", "test2", ezCVarFlags::RequiresRestart, "Desc: test2_String");
 
-ezCVarBool CVar_TestInited("test2_Inited", false, ezCVarFlags::None, "");
+ezCVarBool CVar_TestInited("test2_Inited", false, ezCVarFlags::None, "Desc: test2_Inited");
 
 void OnLoadPlugin(bool bReloading)
 {

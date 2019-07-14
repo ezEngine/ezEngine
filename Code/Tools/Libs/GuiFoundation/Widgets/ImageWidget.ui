@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ImageWidget</class>
+ <widget class="QWidget" name="ImageWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>593</width>
+    <height>589</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string/>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGraphicsView" name="GraphicsView"/>
+   </item>
+   <item>
+    <widget class="QWidget" name="ButtonBar" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="ButtonLayout">
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="ButtonZoomOut">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../QtResources/resources.qrc">
+            <normaloff>:/GuiFoundation/Icons/ZoomOut16.png</normaloff>:/GuiFoundation/Icons/ZoomOut16.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="ButtonResetZoom">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../QtResources/resources.qrc">
+            <normaloff>:/GuiFoundation/Icons/ZoomReset16.png</normaloff>:/GuiFoundation/Icons/ZoomReset16.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="ButtonZoomIn">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../QtResources/resources.qrc">
+            <normaloff>:/GuiFoundation/Icons/ZoomIn16.png</normaloff>:/GuiFoundation/Icons/ZoomIn16.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../QtResources/resources.qrc"/>
+ </resources>
+ <connections/>
+</ui> 
+

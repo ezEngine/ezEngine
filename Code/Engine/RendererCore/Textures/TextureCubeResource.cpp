@@ -137,6 +137,8 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
 
         id.m_pData = pImage->GetPixelPointer<ezUInt8>(mip, face, array_index);
 
+        EZ_ASSERT_DEV(pImage->GetDepthPitch(mip) < ezMath::BasicType<ezUInt32>::MaxValue(), "Depth pitch exceeds ezGAL limits.");
+
         if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
         {
           const ezUInt32 uiMemPitchFactor = ezGALResourceFormat::GetBitsPerElement(m_Format) * 4 / 8;
@@ -145,10 +147,10 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
         }
         else
         {
-          id.m_uiRowPitch = pImage->GetRowPitch(mip);
+          id.m_uiRowPitch = static_cast<ezUInt32>(pImage->GetRowPitch(mip));
         }
 
-        id.m_uiSlicePitch = pImage->GetDepthPitch(mip);
+        id.m_uiSlicePitch = static_cast<ezUInt32>(pImage->GetDepthPitch(mip));
 
         m_uiMemoryGPU[m_uiLoadedTextures] += id.m_uiSlicePitch;
       }

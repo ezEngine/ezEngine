@@ -153,7 +153,7 @@ struct EZ_FOUNDATION_DLL ezBasisAxis
   typedef ezInt8 StorageType;
 
   /// \brief An enum that allows to select on of the six main axis (positive / negative)
-  enum Enum
+  enum Enum : ezInt8
   {
     PositiveX,
     PositiveY,

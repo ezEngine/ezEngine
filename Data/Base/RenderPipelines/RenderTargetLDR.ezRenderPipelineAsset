@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9340082855766888863,4792825339744186213}}
-		u4 %Hash{12924447029032155536}
+		u4 %Hash{4717653016472063679}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -96,11 +96,6 @@ o
 			Uuid{u4{764346319544532917,9373171072130357731}}
 		}
 		Vec2 %Node::Pos{f{0xA0372A44,0xD393DC43}}
-		VarArray %Renderers
-		{
-			Uuid{u4{10508079068929860993,4843520745865202116}}
-			Uuid{u4{9700296754448952471,4889481985074646688}}
-		}
 		Uuid %SSAO{u4{5468046685546711420,8801164129771791513}}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
 		b %WriteDepth{0}
@@ -121,26 +116,7 @@ o
 			Uuid{u4{7454331646408329172,12441954611528944990}}
 		}
 		Vec2 %Node::Pos{f{0xC14DB643,0x283FF443}}
-		VarArray %Renderers
-		{
-			Uuid{u4{13143457074123809189,5459087900043973784}}
-			Uuid{u4{5424698411817044389,5534999038548520905}}
-		}
 	}
-}
-o
-{
-	Uuid %id{u4{10508079068929860993,4843520745865202116}}
-	s %t{"ezMeshRenderer"}
-	u3 %v{1}
-	p{}
-}
-o
-{
-	Uuid %id{u4{9700296754448952471,4889481985074646688}}
-	s %t{"ezKrautRenderer"}
-	u3 %v{1}
-	p{}
 }
 o
 {
@@ -165,10 +141,6 @@ o
 			Uuid{u4{15261312847763839036,652025498685030223}}
 		}
 		Vec2 %Node::Pos{f{0xBB487944,0x6999E343}}
-		VarArray %Renderers
-		{
-			Uuid{u4{5970634322177748910,5276506206869534866}}
-		}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
 	}
 }
@@ -192,7 +164,6 @@ o
 		s %Name{""}
 		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x51BBBD44,0xD69CE143}}
-		VarArray %Renderers{}
 	}
 }
 o
@@ -207,13 +178,6 @@ o
 		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x868C7B44,0x4F000C43}}
 	}
-}
-o
-{
-	Uuid %id{u4{5970634322177748910,5276506206869534866}}
-	s %t{"ezMeshRenderer"}
-	u3 %v{1}
-	p{}
 }
 o
 {
@@ -235,7 +199,6 @@ o
 		}
 		Vec2 %Node::Pos{f{0x8C62A044,0x15B1E143}}
 		Uuid %Output{u4{7642371703623570691,6852461079880770907}}
-		VarArray %Renderers{}
 		f %Saturation{0x0000803F}
 		s %VignettingTexture{""}
 	}
@@ -259,27 +222,12 @@ o
 		}
 		Vec2 %Node::Pos{f{0x78392B43,0x5CD4FF43}}
 		Uuid %Output{u4{9559375821426009877,9124962636108765151}}
-		VarArray %Renderers{}
 	}
-}
-o
-{
-	Uuid %id{u4{13143457074123809189,5459087900043973784}}
-	s %t{"ezMeshRenderer"}
-	u3 %v{1}
-	p{}
 }
 o
 {
 	Uuid %id{u4{13466193223350061225,5517917346024768411}}
 	s %t{"ezPassThroughNodePin"}
-	u3 %v{1}
-	p{}
-}
-o
-{
-	Uuid %id{u4{5424698411817044389,5534999038548520905}}
-	s %t{"ezKrautRenderer"}
 	u3 %v{1}
 	p{}
 }
@@ -322,7 +270,6 @@ o
 		}
 		Vec2 %Node::Pos{f{0xD6058F43,0x1832A743}}
 		Uuid %Output{u4{12443079280382946204,2690749705785395176}}
-		VarArray %Renderers{}
 	}
 }
 o
@@ -496,24 +443,6 @@ Types
 {
 o
 {
-	Uuid %id{u4{7771125221385643040,1358210426580550520}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderer"}
-		s %PluginName{"ezEditorPluginKraut"}
-		VarArray %Properties{}
-		s %TypeName{"ezKrautRenderer"}
-		u3 %TypeSize{8}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{18227568620195845934,1489529459222995895}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -580,7 +509,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezTonemapPass"}
-		u3 %TypeSize{272}
+		u3 %TypeSize{216}
 		u3 %TypeVersion{1}
 	}
 }
@@ -616,25 +545,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezOpaqueForwardRenderPass"}
-		u3 %TypeSize{240}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{2702245530968099154,6674394786854131511}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezRenderer"}
-		u3 %TypeSize{8}
+		u3 %TypeSize{184}
 		u3 %TypeVersion{1}
 	}
 }
@@ -652,7 +563,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezForwardRenderPass"}
-		u3 %TypeSize{208}
+		u3 %TypeSize{152}
 		u3 %TypeVersion{1}
 	}
 }
@@ -724,25 +635,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDepthOnlyPass"}
-		u3 %TypeSize{184}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{16226847204728049251,10414622528374758756}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderer"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezMeshRenderer"}
-		u3 %TypeSize{8}
+		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -760,7 +653,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSourcePass"}
-		u3 %TypeSize{216}
+		u3 %TypeSize{160}
 		u3 %TypeVersion{2}
 	}
 }
@@ -778,7 +671,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSkyRenderPass"}
-		u3 %TypeSize{208}
+		u3 %TypeSize{152}
 		u3 %TypeVersion{1}
 	}
 }
@@ -796,7 +689,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezTargetPass"}
-		u3 %TypeSize{312}
+		u3 %TypeSize{256}
 		u3 %TypeVersion{1}
 	}
 }
@@ -940,7 +833,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelinePass"}
-		u3 %TypeSize{168}
+		u3 %TypeSize{112}
 		u3 %TypeVersion{1}
 	}
 }

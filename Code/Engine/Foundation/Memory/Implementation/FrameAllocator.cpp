@@ -60,7 +60,10 @@ void ezFrameAllocator::Swap()
 // static
 void ezFrameAllocator::Reset()
 {
-  s_pAllocator->Reset();
+  if (s_pAllocator)
+  {
+    s_pAllocator->Reset();
+  }
 }
 
 // static

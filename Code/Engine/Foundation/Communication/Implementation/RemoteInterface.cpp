@@ -312,7 +312,7 @@ ezResult ezRemoteInterface::DetermineTargetAddress(const char* szConnectTo, ezUI
 
     ezInt32 tmp;
     if (ezConversionUtils::StringToInt(sPort, tmp).Succeeded())
-      out_Port = tmp;
+      out_Port = static_cast<ezUInt16>(tmp);
   }
 
   ezInt32 ip1 = 0;

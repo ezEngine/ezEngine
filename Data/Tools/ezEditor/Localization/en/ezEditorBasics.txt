@@ -55,6 +55,7 @@ Panel.AssetBrowser;Asset Browser
 Panel.Log;Log
 Panel.AssetCurator;Asset Curator
 Panel.CVar;CVars
+Panel.LongOps;Background Operations
 ezSceneViewPerspective::Orthogonal_Front;Ortho Front
 ezSceneViewPerspective::Orthogonal_Right;Ortho Right
 ezSceneViewPerspective::Orthogonal_Top;Ortho Top
@@ -66,6 +67,9 @@ ezViewRenderMode::LitOnly;Lit Only
 ezViewRenderMode::LightCount;Light Count
 ezViewRenderMode::DecalCount;Decal Count
 ezViewRenderMode::TexCoordsUV0;Texture Coordinates (UV0)
+ezViewRenderMode::TexCoordsUV1;Texture Coordinates (UV1)
+ezViewRenderMode::VertexColors0;Vertex Colors 0
+ezViewRenderMode::VertexColors1;Vertex Colors 1
 ezViewRenderMode::PixelNormals;Pixel Normals
 ezViewRenderMode::VertexNormals;Vertex Normals
 ezViewRenderMode::VertexTangents;Vertex Tangents

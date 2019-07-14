@@ -2,21 +2,11 @@
 
 #include <Core/World/SettingsComponent.h>
 #include <Core/World/SettingsComponentManager.h>
-#include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/RendererCoreDLL.h>
 
 struct ezMsgUpdateLocalBounds;
 
 typedef ezSettingsComponentManager<class ezAmbientLightComponent> ezAmbientLightComponentManager;
-
-/// \brief The render data object for ambient light.
-class EZ_RENDERERCORE_DLL ezAmbientLightRenderData : public ezRenderData
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezAmbientLightRenderData, ezRenderData);
-
-public:
-  ezColor m_TopColor;
-  ezColor m_BottomColor;
-};
 
 class EZ_RENDERERCORE_DLL ezAmbientLightComponent : public ezSettingsComponent
 {
@@ -41,15 +31,14 @@ public:
   float GetIntensity() const;
 
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
 private:
+  void UpdateSkyIrradiance();
 
   ezColorGammaUB m_TopColor;
   ezColorGammaUB m_BottomColor;
   float m_fIntensity;
 };
-

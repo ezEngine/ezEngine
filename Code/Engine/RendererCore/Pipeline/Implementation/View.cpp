@@ -68,13 +68,16 @@ void ezView::SetWorld(ezWorld* pWorld)
   m_pWorld = pWorld;
 }
 
-void ezView::SetRenderTargetSetup(ezGALRenderTagetSetup& renderTargetSetup)
+void ezView::SetRenderTargetSetup(ezGALRenderTargetSetup& renderTargetSetup)
 {
-  m_RenderTargetSetup = renderTargetSetup;
-  if (m_pRenderPipeline)
+  if (m_RenderTargetSetup != renderTargetSetup)
   {
-    ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
-    m_pRenderPipeline->ResetPipelineState();
+    m_RenderTargetSetup = renderTargetSetup;
+
+    if (m_pRenderPipeline)
+    {
+      ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
+    }
   }
 }
 
@@ -232,7 +235,7 @@ void ezView::EnsureUpToDate()
 {
   if (m_hRenderPipeline.IsValid())
   {
-    ezResourceLock<ezRenderPipelineResource> pPipeline(m_hRenderPipeline, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezRenderPipelineResource> pPipeline(m_hRenderPipeline, ezResourceAcquireMode::BlockTillLoaded);
 
     ezUInt32 uiCounter = pPipeline->GetCurrentResourceChangeCounter();
 
@@ -325,10 +328,7 @@ void ezView::ApplyRenderPassProperties()
     const char* szDot = propertyValue.m_sObjectName.FindSubString(".");
     if (szDot != nullptr)
     {
-      ezStringView sPassName(propertyValue.m_sObjectName.GetData(), szDot);
-      ezRenderPipelinePass* pPass = m_pRenderPipeline->GetPassByName(sPassName);
-      if (pPass)
-        pObject = pPass->GetRendererByType(ezRTTI::FindTypeByName(szDot + 1));
+      EZ_REPORT_FAILURE("Setting renderer properties is not possible anymore");
     }
     else
     {

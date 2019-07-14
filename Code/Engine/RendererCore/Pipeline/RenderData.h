@@ -1,11 +1,11 @@
 #pragma once
 
-#include <RendererCore/Pipeline/Declarations.h>
-#include <Foundation/Math/Transform.h>
+#include <Foundation/Communication/Message.h>
 #include <Foundation/Math/BoundingBoxSphere.h>
+#include <Foundation/Math/Transform.h>
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Strings/HashedString.h>
-#include <Foundation/Communication/Message.h>
+#include <RendererCore/Pipeline/Declarations.h>
 
 /// \brief Base class for all render data. Render data must contain all information that is needed to render the corresponding object.
 class EZ_RENDERERCORE_DLL ezRenderData : public ezReflectedClass
@@ -13,7 +13,6 @@ class EZ_RENDERERCORE_DLL ezRenderData : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderData, ezReflectedClass);
 
 public:
-
   struct Category
   {
     Category();
@@ -40,34 +39,51 @@ public:
   static Category RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc);
   static Category FindCategory(const char* szCategoryName);
 
+  static const ezRenderer* GetCategoryRenderer(Category category, const ezRTTI* pRenderDataType);
+
   static const char* GetCategoryName(Category category);
 
-  /// \brief Returns the sorting key for this render data by using the sorting key function for the given category.
-  ezUInt64 GetCategorySortingKey(Category category, ezUInt32 uiRenderDataSortingKey, const ezCamera& camera) const;
+  ezUInt64 GetCategorySortingKey(Category category, const ezCamera& camera) const;
 
-  ezUInt32 m_uiBatchId; ///< BatchId is used to group render data in batches.
+  ezUInt32 m_uiBatchId = 0; ///< BatchId is used to group render data in batches.
+  ezUInt32 m_uiSortingKey = 0;
+
+  ezTransform m_GlobalTransform;
+  ezBoundingBoxSphere m_GlobalBounds;
+
   ezGameObjectHandle m_hOwner;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const ezGameObject* m_pOwner; ///< Debugging only. It is not allowed to access the game object during rendering.
 #endif
 
-  ezTransform m_GlobalTransform;
-  ezBoundingBoxSphere m_GlobalBounds;
-
 private:
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RenderData);
+
+  static void PluginEventHandler(const ezPlugin::PluginEvent& e);
+  static void UpdateRendererTypes();
+
+  static void CreateRendererInstances();
+  static void ClearRendererInstances();
+
   struct CategoryData
   {
     ezHashedString m_sName;
     SortingKeyFunc m_sortingKeyFunc;
+
+    ezHashTable<const ezRTTI*, ezUInt32> m_TypeToRendererIndex;
   };
 
   static ezHybridArray<CategoryData, 32> s_CategoryData;
+
+  static ezHybridArray<const ezRTTI*, 16> s_RendererTypes;
+  static ezDynamicArray<ezUniquePtr<ezRenderer>> s_RendererInstances;
+  static bool s_bRendererInstancesDirty;
 };
 
 /// \brief Creates render data that is only valid for this frame. The data is automatically deleted after the frame has been rendered.
 template <typename T>
-static T* ezCreateRenderDataForThisFrame(const ezGameObject* pOwner, ezUInt32 uiBatchId);
+static T* ezCreateRenderDataForThisFrame(const ezGameObject* pOwner);
 
 struct EZ_RENDERERCORE_DLL ezDefaultRenderDataCategories
 {
@@ -95,15 +111,14 @@ struct EZ_RENDERERCORE_DLL ezMsgExtractRenderData : public ezMessage
   ezRenderData::Category m_OverrideCategory = ezInvalidRenderDataCategory;
 
   /// \brief Adds render data for the current view. This data can be cached depending on the specified caching behavior.
-  /// Non-cached data is only valid for this frame. Cached data must be manually deleted using the ezRenderWorld::DeleteCachedRenderData function.
-  void AddRenderData(ezRenderData* pRenderData, ezRenderData::Category category, ezUInt32 uiSortingKey,
-    ezRenderData::Caching::Enum cachingBehavior);
+  /// Non-cached data is only valid for this frame. Cached data must be manually deleted using the ezRenderWorld::DeleteCachedRenderData
+  /// function.
+  void AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category, ezRenderData::Caching::Enum cachingBehavior);
 
 private:
   friend class ezExtractor;
 
-  ezHybridArray<ezInternal::RenderDataCacheEntry, 4> m_ExtractedRenderData;
+  ezHybridArray<ezInternal::RenderDataCacheEntry, 16> m_ExtractedRenderData;
 };
 
 #include <RendererCore/Pipeline/Implementation/RenderData_inl.h>
-

@@ -138,18 +138,8 @@ namespace
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClusteredDataCPU, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezClusteredDataCPU::ezClusteredDataCPU()
-    : m_AmbientTopColor(ezColor::Black)
-    , m_AmbientBottomColor(ezColor::Black)
-    , m_fFogHeight(0.0f)
-    , m_fFogHeightFalloff(0.0f)
-    , m_fFogDensityAtCameraPos(0.0f)
-    , m_fFogDensity(0.0f)
-    , m_FogColor(ezColor::Black)
-{
-}
-
-ezClusteredDataCPU::~ezClusteredDataCPU() {}
+ezClusteredDataCPU::ezClusteredDataCPU() = default;
+ezClusteredDataCPU::~ezClusteredDataCPU() = default;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -248,11 +238,6 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
 
           RasterizeDirLight(pDirLightRenderData, uiLightIndex, m_TempLightsClusters.GetArrayPtr());
         }
-        else if (auto pAmbientLightRenderData = ezDynamicCast<const ezAmbientLightRenderData*>(it))
-        {
-          pData->m_AmbientTopColor = pAmbientLightRenderData->m_TopColor;
-          pData->m_AmbientBottomColor = pAmbientLightRenderData->m_BottomColor;
-        }
         else if (auto pFogRenderData = ezDynamicCast<const ezFogRenderData*>(it))
         {
           float fogBaseHeight = pFogRenderData->m_GlobalTransform.m_vPosition.z;
@@ -280,6 +265,8 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
 
     pData->m_LightData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezPerLightData, m_TempLightData.GetCount());
     pData->m_LightData.CopyFrom(m_TempLightData);
+
+    pData->m_uiSkyIrradianceIndex = view.GetWorld()->GetIndex();
   }
 
   // Decals

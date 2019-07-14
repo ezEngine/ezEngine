@@ -500,7 +500,7 @@ bool ezMapBase<KeyType, ValueType, Comparer>::Remove(const CompatibleKeyType& ke
 
 template <typename KeyType, typename ValueType, typename Comparer>
 template <typename CompatibleKeyType>
-typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::AcquireNode(CompatibleKeyType&& key, ValueType&& value, ezInt32 uiLevel, Node* pParent)
+typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::AcquireNode(CompatibleKeyType&& key, ValueType&& value, ezUInt8 uiLevel, Node* pParent)
 {
   Node* pNode;
 

@@ -5,16 +5,16 @@
 #include <RendererFoundation/RendererFoundationDLL.h>
 
 // \brief This class can be used to construct render target setups on the stack.
-class EZ_RENDERERFOUNDATION_DLL ezGALRenderTagetSetup
+class EZ_RENDERERFOUNDATION_DLL ezGALRenderTargetSetup
 {
 public:
+  ezGALRenderTargetSetup();
 
-  ezGALRenderTagetSetup();
+  ezGALRenderTargetSetup& SetRenderTarget(ezUInt8 uiIndex, ezGALRenderTargetViewHandle hRenderTarget);
+  ezGALRenderTargetSetup& SetDepthStencilTarget(ezGALRenderTargetViewHandle hDSTarget);
 
-  ezGALRenderTagetSetup& SetRenderTarget(ezUInt8 uiIndex, ezGALRenderTargetViewHandle hRenderTarget);
-  ezGALRenderTagetSetup& SetDepthStencilTarget(ezGALRenderTargetViewHandle hDSTarget);
-
-  bool operator == (const ezGALRenderTagetSetup& Other) const;
+  bool operator==(const ezGALRenderTargetSetup& other) const;
+  bool operator!=(const ezGALRenderTargetSetup& other) const;
 
   inline bool HasRenderTargets() const;
 
@@ -26,7 +26,6 @@ public:
   void DestroyAllAttachedViews();
 
 protected:
-
   ezGALRenderTargetViewHandle m_hRTs[EZ_GAL_MAX_RENDERTARGET_COUNT];
   ezGALRenderTargetViewHandle m_hDSTarget;
 
@@ -34,4 +33,3 @@ protected:
 };
 
 #include <RendererFoundation/Resources/Implementation/RenderTargetSetup_inl.h>
-

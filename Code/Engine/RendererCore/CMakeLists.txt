@@ -1,27 +1,13 @@
-#cmake
+ez_cmake_init()
 
-#
-# Copy this file into the folder of an engine library to add it to the solution.
-# Below there are configuration options to add preprocessor definitions and link dependencies to the library.
-#
-# *** Modify this file as required ***
-#
+# Get the name of this folder as the project name
+get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
-# Add all the preprocessor definitions that are needed to configure this library
-# add_definitions (-DMY_PREPROCESS_DEFINITION_1)
-# add_definitions (-DMY_PREPROCESS_DEFINITION_2)
+ez_create_target(LIBRARY ${PROJECT_NAME})
 
-# Add all the libraries that this project needs to link against here
-# SET (LINK_LIBRARIES
-#  Foundation      # Example: Another library build with cmake
-#  OpenGL32.lib    # Example: A library that can be found in any lib path, but was not built with cmake
-# )
-
-SET (LINK_LIBRARIES
-  Foundation
-  Texture
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   Core
   RendererFoundation
+  Texture
 )
-
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Library.txt")

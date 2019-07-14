@@ -1,22 +1,17 @@
 #pragma once
 
-#include <Foundation/Math/Math.h>
+#include <Foundation/SimdMath/SimdVec4f.h>
 
-struct ezMathAcc
+struct ezSimdMath
 {
-  enum Enum
-  {
-    FULL,
-    BITS_23,
-    BITS_12
-  };
+  static ezSimdVec4f Sin(const ezSimdVec4f& f);
+  static ezSimdVec4f Cos(const ezSimdVec4f& f);
+  static ezSimdVec4f Tan(const ezSimdVec4f& f);
+
+  static ezSimdVec4f ASin(const ezSimdVec4f& f);
+  static ezSimdVec4f ACos(const ezSimdVec4f& f);
+  static ezSimdVec4f ATan(const ezSimdVec4f& f);
 };
 
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-#  include <Foundation/SimdMath/Implementation/SSE/SSEMath_inl.h>
-#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
-#  include <Foundation/SimdMath/Implementation/FPU/FPUMath_inl.h>
-#else
-#  error "Unknown SIMD implementation."
-#endif
+#include <Foundation/SimdMath/Implementation/SimdMath_inl.h>
 

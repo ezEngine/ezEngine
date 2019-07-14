@@ -73,7 +73,7 @@ public:
 
   void SetResourceView(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALResourceViewHandle hResourceView);
 
-  void SetRenderTargetSetup(const ezGALRenderTagetSetup& RenderTargetSetup);
+  void SetRenderTargetSetup(const ezGALRenderTargetSetup& RenderTargetSetup);
 
   void SetUnorderedAccessView(ezUInt32 uiSlot, ezGALUnorderedAccessViewHandle hUnorderedAccessView);
 
@@ -127,6 +127,10 @@ public:
   void ReadbackTexture(ezGALTextureHandle hTexture);
 
   void CopyTextureReadbackResult(ezGALTextureHandle hTexture, const ezArrayPtr<ezGALSystemMemoryDescription>* pData);
+
+  void GenerateMipMaps(ezGALResourceViewHandle hResourceView);
+
+  // Misc
 
   void Flush();
 
@@ -256,6 +260,10 @@ protected:
 
   /// \todo add parameters for mip level & count selection?
   virtual void CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, const ezArrayPtr<ezGALSystemMemoryDescription>* pData) = 0;
+
+  virtual void GenerateMipMapsPlatform(const ezGALResourceView* pResourceView) = 0;
+
+  // Misc
 
   virtual void FlushPlatform() = 0;
 

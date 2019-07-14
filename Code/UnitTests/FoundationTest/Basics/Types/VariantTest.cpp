@@ -1471,10 +1471,10 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Angle);
 
     EZ_TEST_BOOL(v.ConvertTo<ezAngle>() == t);
-    // EZ_TEST_BOOL(v.ConvertTo<ezString>() == "");
+    EZ_TEST_BOOL(v.ConvertTo<ezString>() == "123.0°");
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Angle).Get<ezAngle>() == t);
-    // EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "");
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "123.0°");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (VariantArray)")

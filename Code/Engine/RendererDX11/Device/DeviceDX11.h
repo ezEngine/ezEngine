@@ -5,6 +5,10 @@
 #include <RendererFoundation/Device/Device.h>
 #include <Foundation/Types/Bitflags.h>
 
+// TODO: This should not be included in a header, it exposes Windows.h to the outside
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <dxgi.h>
+
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 struct ID3D11Debug;
@@ -14,8 +18,7 @@ struct IDXGIDevice1;
 struct ID3D11Resource;
 struct ID3D11Query;
 struct IDXGIAdapter;
-enum DXGI_FORMAT;
-enum D3D_FEATURE_LEVEL;
+enum D3D_FEATURE_LEVEL : int;
 
 typedef ezGALFormatLookupEntry<DXGI_FORMAT, (DXGI_FORMAT)0> ezGALFormatLookupEntryDX11;
 typedef ezGALFormatLookupTable<ezGALFormatLookupEntryDX11> ezGALFormatLookupTableDX11;
@@ -40,6 +43,8 @@ public:
   IDXGIFactory1* GetDXGIFactory() const;
 
   const ezGALFormatLookupTableDX11& GetFormatLookupTable() const;
+
+  void ReportLiveGpuObjects();
 
   // These functions need to be implemented by a render API abstraction
 protected:

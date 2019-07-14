@@ -61,7 +61,7 @@ const ezTokenizer* ezTokenizedFileCache::Tokenize(const ezString& sFileName, ezA
     Tokens[i].m_uiLine += iLineOffset;
 
     if (Tokens[i].m_iType == ezTokenType::NonIdentifier &&
-        ezString(Tokens[i].m_DataView) == "#")
+        Tokens[i].m_DataView.IsEqual("#"))
     {
       ezUInt32 uiNext = i + 1;
 
@@ -69,13 +69,13 @@ const ezTokenizer* ezTokenizedFileCache::Tokenize(const ezString& sFileName, ezA
 
       if (uiNext < Tokens.GetCount() &&
           Tokens[uiNext].m_iType == ezTokenType::Identifier &&
-          ezString(Tokens[uiNext].m_DataView) == "line")
+          Tokens[uiNext].m_DataView.IsEqual("line"))
       {
         ++uiNext;
         SkipWhitespace(Tokens, uiNext);
 
         if (uiNext < Tokens.GetCount() &&
-            Tokens[uiNext].m_iType == ezTokenType::Identifier)
+            Tokens[uiNext].m_iType == ezTokenType::Integer)
         {
           ezInt32 iNextLine = 0;
 

@@ -63,7 +63,7 @@ public:
   /// \brief Returns true if this type is derived from the given type.
   bool IsDerivedFrom(const ezRTTI* pBaseType) const; // [tested]
 
-  /// \brief Returns true if this type is derived from the given type.
+  /// \brief Returns true if this type is derived from or identical to the given type.
   template <typename BASE>
   EZ_ALWAYS_INLINE bool IsDerivedFrom() const
   {
@@ -96,8 +96,11 @@ public:
   /// \brief Returns the type flags.
   EZ_ALWAYS_INLINE const ezBitflags<ezTypeFlags>& GetTypeFlags() const { return m_TypeFlags; } // [tested]
 
-  /// \brief Iterates over all ezRTTI instances and returns the one with the given name, or nullptr if no such type exists.
+  /// \brief Searches all ezRTTI instances for the one with the given name, or nullptr if no such type exists.
   static ezRTTI* FindTypeByName(const char* szName); // [tested]
+
+  /// \brief Searches all ezRTTI instances for the one with the given hashed name, or nullptr if no such type exists.
+  static ezRTTI* FindTypeByNameHash(ezUInt32 uiNameHash); // [tested]
 
   /// \brief Will iterate over all properties of this type and (optionally) the base types to search for a property with the given name.
   ezAbstractProperty* FindPropertyByName(const char* szName, bool bSearchBaseTypes = true) const; // [tested]

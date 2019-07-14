@@ -18,7 +18,7 @@ ezStreamWriter& ezStringDeduplicationWriteContext::Begin()
 {
   EZ_ASSERT_DEV(m_TempStreamStorage.GetStorageSize() == 0, "Begin() can only be called once on a string deduplication context.");
 
-  m_TempStreamWriter = ezMemoryStreamWriter(&m_TempStreamStorage);
+  m_TempStreamWriter.SetStorage(&m_TempStreamStorage);
 
   return m_TempStreamWriter;
 }
@@ -26,7 +26,7 @@ ezStreamWriter& ezStringDeduplicationWriteContext::Begin()
 ezResult ezStringDeduplicationWriteContext::End()
 {
   // We set the context manual to null here since we need normal
-  // string serialization to write the deduplicated map
+  // string serialization to write the de-duplicated map
   SetContext(nullptr);
 
   m_OriginalStream.WriteVersion(s_uiStringDeduplicationVersion);
@@ -57,7 +57,7 @@ ezResult ezStringDeduplicationWriteContext::End()
 
 void ezStringDeduplicationWriteContext::SerializeString(const ezStringView& String, ezStreamWriter& Writer)
 {
-  EZ_ASSERT_DEV(&Writer == &m_TempStreamWriter, "The writer paassed to the context needs to be the same as the writer returned by Begin().");
+  EZ_ASSERT_DEV(&Writer == &m_TempStreamWriter, "The writer passed to the context needs to be the same as the writer returned by Begin().");
 
   bool bAlreadDeduplicated = false;
   auto it = m_DeduplicatedStrings.FindOrAdd(String, &bAlreadDeduplicated);
@@ -110,3 +110,7 @@ ezStringView ezStringDeduplicationReadContext::DeserializeString(ezStreamReader&
 
   return m_DeduplicatedStrings[uiIndex].GetView();
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StringDeduplicationContext);
+

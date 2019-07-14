@@ -52,9 +52,7 @@ void operator>>(ezStreamReader& Stream, ezUuid& Value)
 
 void operator<<(ezStreamWriter& Stream, const ezHashedString& Value)
 {
-  /// \todo Could be more efficient, ie add a "WriteString" method that can take a length+data and use that here
-
-  Stream << Value.GetData();
+  Stream.WriteString(Value.GetView());
 }
 
 void operator>>(ezStreamReader& Stream, ezHashedString& Value)
@@ -62,6 +60,20 @@ void operator>>(ezStreamReader& Stream, ezHashedString& Value)
   ezStringBuilder sTemp;
   Stream >> sTemp;
   Value.Assign(sTemp.GetData());
+}
+
+// ezTempHashedString
+
+void operator<<(ezStreamWriter& Stream, const ezTempHashedString& Value)
+{
+  Stream << Value.GetHash();
+}
+
+void operator>>(ezStreamReader& Stream, ezTempHashedString& Value)
+{
+  ezUInt32 hash;
+  Stream >> hash;
+  Value = ezTempHashedString(hash);
 }
 
 // ezVariant

@@ -2,6 +2,7 @@
 
 #include <Core/CoreDLL.h>
 #include <Foundation/IO/Stream.h>
+#include <Foundation/Strings/HashedString.h>
 
 /// \brief Simple class to handle asset file headers (the very first bytes in all transformed asset files)
 class EZ_CORE_DLL ezAssetFileHeader
@@ -10,10 +11,10 @@ public:
   ezAssetFileHeader();
 
   /// \brief Reads the hash from file. If the file is outdated, the hash is set to 0xFFFFFFFFFFFFFFFF.
-  void Read(ezStreamReader& stream);
+  ezResult Read(ezStreamReader& stream);
 
   /// \brief Writes the asset hash to file (plus a little version info)
-  void Write(ezStreamWriter& stream) const;
+  ezResult Write(ezStreamWriter& stream) const;
 
   /// \brief Checks whether the stored file contains the same hash.
   bool IsFileUpToDate(ezUInt64 uiExpectedHash, ezUInt16 uiVersion) const
@@ -34,13 +35,14 @@ public:
   /// \brief Returns the asset type version
   ezUInt16 GetFileVersion() const { return m_uiVersion; }
 
-  /// \brief Returns size of a serialized header. Needed to read header appended to files.
-  ///
-  /// \note Verified by unit test
-  static EZ_ALWAYS_INLINE ezUInt16 GetSerializedSize() { return 18; }
+  /// \brief Returns the generator which was used to produce the asset file
+  const ezHashedString& GetGenerator() { return m_sGenerator; }
+
+  /// \brief Allows to set the generator string
+  void SetGenerator(const char* szGenerator) { m_sGenerator.Assign(szGenerator); }
 
 private:
   ezUInt64 m_uiHash;
   ezUInt16 m_uiVersion;
+  ezHashedString m_sGenerator;
 };
-

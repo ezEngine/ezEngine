@@ -83,7 +83,7 @@ void ezForwardRenderPass::SetupResources(const ezRenderViewContext& renderViewCo
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   // Setup render target
-  ezGALRenderTagetSetup renderTargetSetup;
+  ezGALRenderTargetSetup renderTargetSetup;
   if (inputs[m_PinColor.m_uiInputIndex])
   {
     renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(inputs[m_PinColor.m_uiInputIndex]->m_TextureHandle));

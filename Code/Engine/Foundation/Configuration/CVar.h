@@ -161,7 +161,7 @@ public:
   };
 
   /// \brief Code that needs to be execute whenever a cvar is changed can register itself here to be notified of such events.
-  ezEvent<const CVarEvent&> m_CVarEvents; // [tested]
+  ezEvent<const CVarEvent&, ezNoMutex, ezStaticAllocatorWrapper> m_CVarEvents; // [tested]
 
   /// \brief Broadcasts changes to ANY CVar. Thus code that needs to update when any one of them changes can use this to be notified.
   static ezEvent<const CVarEvent&> s_AllCVarEvents;

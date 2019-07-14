@@ -1,42 +1,9 @@
-#cmake
+ez_cmake_init()
 
-#
-# Copy this file into the folder of an engine library to add it to the solution.
-# Below there are configuration options to add preprocessor definitions and link dependencies to the library.
-#
-# *** Modify this file as required ***
-#
-
-# Pass a boolean expression into this macro to build this project only if the expression evaluates to true.
-BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
-
-# Add all the preprocessor definitions that are needed to configure this library
-# add_definitions (-DMY_PREPROCESS_DEFINITION_1)
-# add_definitions (-DMY_PREPROCESS_DEFINITION_2)
-
-# Add all the libraries that this project needs to link against here
-SET (LINK_LIBRARIES
-  Foundation
-  Core
-  System
-  ThirdParty
-  RendererFoundation
-  RendererCore
-  RendererDX11
-  GameEngine
-)
-
-SET (ADDITIONAL_DEPENDENCIES
-  ShaderCompilerHLSL
-  InspectorPlugin
-  ParticlePlugin
-)
-
-# Set this to true, if your application is a real win32 app (not a console app)
-SET (IS_WIN32_APPLICATION true)
+ez_requires_d3d()
 
 # Add content files for UWP version.
-if(BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
+if(EZ_CMAKE_PLATFORM_WINDOWS_UWP)
   #file(GLOB SAMPLE_FILES ../../Data/Samples/Asteroids/*)
   #set_property(SOURCE ${SAMPLE_FILES} PROPERTY VS_DEPLOYMENT_CONTENT 1)
   #set_property(SOURCE ${SAMPLE_FILES} PROPERTY VS_DEPLOYMENT_LOCATION "Data/Samples/Asteroids")
@@ -48,4 +15,21 @@ if(BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
   #source_group("Content Files" FILES ${CONTENT_FILES})  # Todo: Either recursive folder or just hide
 endif()
 
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")
+# Get the name of this folder as the project name
+get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
+
+ez_create_target(APPLICATION ${PROJECT_NAME})
+
+ez_make_winmain_executable(${PROJECT_NAME})
+
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
+  GameEngine
+  XBoxControllerPlugin
+)
+
+add_dependencies(${PROJECT_NAME}
+  ShaderCompilerHLSL
+  InspectorPlugin
+  ParticlePlugin
+)

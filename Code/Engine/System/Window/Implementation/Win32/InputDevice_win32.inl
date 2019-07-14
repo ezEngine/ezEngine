@@ -1,10 +1,12 @@
 #include <SystemPCH.h>
 
+#include <System/Window/Implementation/Win32/InputDevice_win32.h>
+
 #include <Core/Input/InputManager.h>
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringConversion.h>
-#include <System/Window/Implementation/Win32/InputDevice_win32.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator)
   ;
@@ -14,6 +16,8 @@ bool ezStandardInputDevice::s_bMainWindowUsed = false;
 
 ezStandardInputDevice::ezStandardInputDevice(ezUInt32 uiWindowNumber)
 {
+  m_uiWindowNumber = uiWindowNumber;
+
   if (uiWindowNumber == 0)
   {
     EZ_ASSERT_RELEASE(!s_bMainWindowUsed, "You cannot have two devices of Type ezStandardInputDevice with the window number zero.");
@@ -267,7 +271,7 @@ void ezStandardInputDevice::ResetInputSlotValues()
   m_InputSlotValues[ezInputSlot_MouseDblClick2] = 0;
 }
 
-void ezStandardInputDevice::ApplyClipRect(ezMouseCursorClipMode::Enum mode, HWND hWnd)
+void ezStandardInputDevice::ApplyClipRect(ezMouseCursorClipMode::Enum mode, ezMinWindows::HWND hWnd)
 {
   if (!m_bApplyClipRect)
     return;
@@ -283,15 +287,15 @@ void ezStandardInputDevice::ApplyClipRect(ezMouseCursorClipMode::Enum mode, HWND
   RECT r;
   {
     RECT area;
-    GetClientRect(hWnd, &area);
+    GetClientRect(ezMinWindows::ToNative(hWnd), &area);
     POINT p0, p1;
     p0.x = 0;
     p0.y = 0;
     p1.x = area.right;
     p1.y = area.bottom;
 
-    ClientToScreen(hWnd, &p0);
-    ClientToScreen(hWnd, &p1);
+    ClientToScreen(ezMinWindows::ToNative(hWnd), &p0);
+    ClientToScreen(ezMinWindows::ToNative(hWnd), &p1);
 
     r.top = p0.y;
     r.left = p0.x;
@@ -334,7 +338,8 @@ void ezStandardInputDevice::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode)
 // When this is enabled, mouse clicks are retrieved via standard WM_LBUTTONDOWN.
 #define EZ_MOUSEBUTTON_COMPATIBILTY_MODE EZ_ON
 
-void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+void ezStandardInputDevice::WindowMessage(
+  ezMinWindows::HWND hWnd, ezMinWindows::UINT Msg, ezMinWindows::WPARAM wParam, ezMinWindows::LPARAM lParam)
 {
 #if EZ_ENABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
   static ezInt32 s_iMouseCaptureCount = 0;
@@ -360,7 +365,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
     case WM_MOUSEMOVE:
     {
       RECT area;
-      GetClientRect(hWnd, &area);
+      GetClientRect(ezMinWindows::ToNative(hWnd), &area);
 
       const ezUInt32 uiResX = area.right - area.left;
       const ezUInt32 uiResY = area.bottom - area.top;
@@ -368,7 +373,8 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
       const float fPosX = (float)((short)LOWORD(lParam));
       const float fPosY = (float)((short)HIWORD(lParam));
 
-      m_InputSlotValues[ezInputSlot_MousePositionX] = (fPosX / uiResX) + m_uiWindowNumber;
+      m_iMouseIsOverWindowNumber = m_uiWindowNumber;
+      m_InputSlotValues[ezInputSlot_MousePositionX] = (fPosX / uiResX);
       m_InputSlotValues[ezInputSlot_MousePositionY] = (fPosY / uiResY);
 
       if (m_ClipCursorMode == ezMouseCursorClipMode::ClipToPosition || m_ClipCursorMode == ezMouseCursorClipMode::ClipToWindowImmediate)
@@ -421,7 +427,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
       m_InputSlotValues[ezInputSlot_MouseButton0] = 1.0f;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(hWnd);
+        SetCapture(ezMinWindows::ToNative(hWnd));
       ++s_iMouseCaptureCount;
 
       return;
@@ -440,7 +446,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
       m_InputSlotValues[ezInputSlot_MouseButton1] = 1.0f;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(hWnd);
+        SetCapture(ezMinWindows::ToNative(hWnd));
       ++s_iMouseCaptureCount;
 
       return;
@@ -459,7 +465,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
       m_InputSlotValues[ezInputSlot_MouseButton2] = 1.0f;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(hWnd);
+        SetCapture(ezMinWindows::ToNative(hWnd));
       ++s_iMouseCaptureCount;
       return;
 
@@ -479,7 +485,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
         m_InputSlotValues[ezInputSlot_MouseButton4] = 1.0f;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(hWnd);
+        SetCapture(ezMinWindows::ToNative(hWnd));
       ++s_iMouseCaptureCount;
 
       return;
@@ -537,7 +543,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
 
         static bool bWasStupidLeftShift = false;
 
-        const ezUInt32 uiScanCode = raw->data.keyboard.MakeCode;
+        const ezUInt8 uiScanCode = static_cast<ezUInt8>(raw->data.keyboard.MakeCode);
         const bool bIsExtended = (raw->data.keyboard.Flags & RI_KEY_E0) != 0;
 
         if (uiScanCode == 42 && bIsExtended) // 42 has to be special I guess
@@ -598,13 +604,13 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
         if ((raw->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) == 0)
         {
           m_InputSlotValues[ezInputSlot_MouseMoveNegX] +=
-              ((raw->data.mouse.lLastX < 0) ? (float)-raw->data.mouse.lLastX : 0.0f) * GetMouseSpeed().x;
+            ((raw->data.mouse.lLastX < 0) ? (float)-raw->data.mouse.lLastX : 0.0f) * GetMouseSpeed().x;
           m_InputSlotValues[ezInputSlot_MouseMovePosX] +=
-              ((raw->data.mouse.lLastX > 0) ? (float)raw->data.mouse.lLastX : 0.0f) * GetMouseSpeed().x;
+            ((raw->data.mouse.lLastX > 0) ? (float)raw->data.mouse.lLastX : 0.0f) * GetMouseSpeed().x;
           m_InputSlotValues[ezInputSlot_MouseMoveNegY] +=
-              ((raw->data.mouse.lLastY < 0) ? (float)-raw->data.mouse.lLastY : 0.0f) * GetMouseSpeed().y;
+            ((raw->data.mouse.lLastY < 0) ? (float)-raw->data.mouse.lLastY : 0.0f) * GetMouseSpeed().y;
           m_InputSlotValues[ezInputSlot_MouseMovePosY] +=
-              ((raw->data.mouse.lLastY > 0) ? (float)raw->data.mouse.lLastY : 0.0f) * GetMouseSpeed().y;
+            ((raw->data.mouse.lLastY > 0) ? (float)raw->data.mouse.lLastY : 0.0f) * GetMouseSpeed().y;
 
 // Mouse input does not always work via WM_INPUT
 // e.g. some VMs don't send mouse click input via WM_INPUT when the mouse cursor is visible
@@ -627,32 +633,59 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
         }
         else if ((raw->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) != 0)
         {
-          static int iTouchPoint = 0;
-          static bool bTouchPointDown = false;
-
-          const char* szSlot = ezInputManager::GetInputSlotTouchPoint(iTouchPoint);
-          const char* szSlotX = ezInputManager::GetInputSlotTouchPointPositionX(iTouchPoint);
-          const char* szSlotY = ezInputManager::GetInputSlotTouchPointPositionY(iTouchPoint);
-
-          m_InputSlotValues[szSlotX] = (raw->data.mouse.lLastX / 65535.0f) + m_uiWindowNumber;
-          m_InputSlotValues[szSlotY] = (raw->data.mouse.lLastY / 65535.0f);
-
-          if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN | RI_MOUSE_BUTTON_2_DOWN)) != 0)
+          if ((raw->data.mouse.usFlags & MOUSE_VIRTUAL_DESKTOP) != 0)
           {
-            bTouchPointDown = true;
-            m_InputSlotValues[szSlot] = 1.0f;
+            // if this flag is set, we are getting mouse input through a remote desktop session
+            // and that means we will not get any relative mouse move events, so we need to emulate them
+
+            static const ezInt32 iVirtualDesktopW = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+            static const ezInt32 iVirtualDesktopH = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+
+            static ezVec2 vLastPos(ezMath::BasicType<float>::MaxValue());
+            const ezVec2 vNewPos(
+              (raw->data.mouse.lLastX / 65535.0f) * iVirtualDesktopW, (raw->data.mouse.lLastY / 65535.0f) * iVirtualDesktopH);
+
+            if (vLastPos.x != ezMath::BasicType<float>::MaxValue())
+            {
+              const ezVec2 vDiff = vNewPos - vLastPos;
+
+              m_InputSlotValues[ezInputSlot_MouseMoveNegX] += ((vDiff.x < 0) ? (float)-vDiff.x : 0.0f) * GetMouseSpeed().x;
+              m_InputSlotValues[ezInputSlot_MouseMovePosX] += ((vDiff.x > 0) ? (float)vDiff.x : 0.0f) * GetMouseSpeed().x;
+              m_InputSlotValues[ezInputSlot_MouseMoveNegY] += ((vDiff.y < 0) ? (float)-vDiff.y : 0.0f) * GetMouseSpeed().y;
+              m_InputSlotValues[ezInputSlot_MouseMovePosY] += ((vDiff.y > 0) ? (float)vDiff.y : 0.0f) * GetMouseSpeed().y;
+            }
+
+            vLastPos = vNewPos;
           }
-
-          if ((uiButtons & (RI_MOUSE_BUTTON_1_UP | RI_MOUSE_BUTTON_2_UP)) != 0)
+          else
           {
-            bTouchPointDown = false;
-            m_InputSlotValues[szSlot] = 0.0f;
+            static int iTouchPoint = 0;
+            static bool bTouchPointDown = false;
+
+            const char* szSlot = ezInputManager::GetInputSlotTouchPoint(iTouchPoint);
+            const char* szSlotX = ezInputManager::GetInputSlotTouchPointPositionX(iTouchPoint);
+            const char* szSlotY = ezInputManager::GetInputSlotTouchPointPositionY(iTouchPoint);
+
+            m_InputSlotValues[szSlotX] = (raw->data.mouse.lLastX / 65535.0f) + m_uiWindowNumber;
+            m_InputSlotValues[szSlotY] = (raw->data.mouse.lLastY / 65535.0f);
+
+            if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN | RI_MOUSE_BUTTON_2_DOWN)) != 0)
+            {
+              bTouchPointDown = true;
+              m_InputSlotValues[szSlot] = 1.0f;
+            }
+
+            if ((uiButtons & (RI_MOUSE_BUTTON_1_UP | RI_MOUSE_BUTTON_2_UP)) != 0)
+            {
+              bTouchPointDown = false;
+              m_InputSlotValues[szSlot] = 0.0f;
+            }
           }
         }
         else
         {
           ezLog::Info("Unknown Mouse Move: {0} | {1}, Flags = {2}", ezArgF(raw->data.mouse.lLastX, 1), ezArgF(raw->data.mouse.lLastY, 1),
-              (ezUInt32)raw->data.mouse.usFlags);
+            (ezUInt32)raw->data.mouse.usFlags);
         }
       }
     }

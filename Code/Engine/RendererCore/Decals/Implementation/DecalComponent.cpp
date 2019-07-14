@@ -297,7 +297,7 @@ void ezDecalComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
   ezVec2 baseAtlasOffset = ezVec2(0.5f);
 
   {
-    ezResourceLock<ezDecalAtlasResource> pDecalAtlas(hDecalAtlas, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezDecalAtlasResource> pDecalAtlas(hDecalAtlas, ezResourceAcquireMode::BlockTillLoaded);
     ezVec2U32 baseTextureSize = pDecalAtlas->GetBaseColorTextureSize();
 
     const auto& atlas = pDecalAtlas->GetAtlas();
@@ -314,8 +314,10 @@ void ezDecalComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
     }
   }
 
-  ezUInt32 uiBatchId = 0;
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezDecalRenderData>(GetOwner(), uiBatchId);
+  auto pRenderData = ezCreateRenderDataForThisFrame<ezDecalRenderData>(GetOwner());
+
+  ezUInt32 uiSortingId = (ezUInt32)(ezMath::Min(m_fSortOrder * 512.0f, 32767.0f) + 32768.0f);
+  pRenderData->m_uiSortingKey = (uiSortingId << 16) | (m_uiInternalSortKey & 0xFFFF);
 
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_vHalfExtents = m_vExtents * 0.5f;
@@ -326,14 +328,12 @@ void ezDecalComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
   pRenderData->m_InnerFadeAngle = m_InnerFadeAngle;
   pRenderData->m_OuterFadeAngle = m_OuterFadeAngle;
   pRenderData->m_vBaseAtlasScale = baseAtlasScale;
-  pRenderData->m_vBaseAtlasOffset = baseAtlasOffset;
-
-  ezUInt32 uiSortingId = (ezUInt32)(ezMath::Min(m_fSortOrder * 512.0f, 32767.0f) + 32768.0f);
-  uiSortingId = (uiSortingId << 16) | (m_uiInternalSortKey & 0xFFFF);
+  pRenderData->m_vBaseAtlasOffset = baseAtlasOffset;  
+  
   ezRenderData::Caching::Enum caching = (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
                                             ? ezRenderData::Caching::Never
                                             : ezRenderData::Caching::IfStatic;
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Decal, uiSortingId, caching);
+  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Decal, caching);
 }
 
 void ezDecalComponent::OnObjectCreated(const ezAbstractObjectNode& node)

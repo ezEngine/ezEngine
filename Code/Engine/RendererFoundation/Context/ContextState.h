@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include <Foundation/Math/Rect.h>
 #include <Foundation/Math/Color.h>
+#include <Foundation/Math/Rect.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALContextState
@@ -23,17 +23,17 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALContextState
 
   ezGALRasterizerStateHandle m_hRasterizerState;
 
-  ezGALRenderTagetSetup m_RenderTargetSetup;
+  ezGALRenderTargetSetup m_RenderTargetSetup;
 
   ezGALBufferHandle m_hConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT];
 
-  ezGALResourceViewHandle m_hResourceViews[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
-  const ezGALResourceBase* m_pResourcesForResourceViews[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
+  ezHybridArray<ezGALResourceViewHandle, 16> m_hResourceViews[ezGALShaderStage::ENUM_COUNT];
+  ezHybridArray<const ezGALResourceBase*, 16> m_pResourcesForResourceViews[ezGALShaderStage::ENUM_COUNT];
 
-  ezGALUnorderedAccessViewHandle m_hUnorderedAccessViews[EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
-  const ezGALResourceBase* m_pResourcesForUnorderedAccessViews[EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
+  ezHybridArray<ezGALUnorderedAccessViewHandle, 16> m_hUnorderedAccessViews;
+  ezHybridArray<const ezGALResourceBase*, 16> m_pResourcesForUnorderedAccessViews;
 
-  ezGALSamplerStateHandle m_hSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
+  ezGALSamplerStateHandle m_hSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SAMPLER_COUNT];
 
   ezGALBufferHandle m_hVertexBuffers[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
 
@@ -51,4 +51,3 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALContextState
 
   ezGALPrimitiveTopology::Enum m_Topology;
 };
-

@@ -51,7 +51,7 @@ public:
 private:
   ezResult ComputeCenterAndScale(const ezArrayPtr<const ezVec3> vertices);
   ezResult StoreNormalizedVertices(const ezArrayPtr<const ezVec3> vertices);
-  void StoreTriangle(int i, int j, int k);
+  void StoreTriangle(ezUInt16 i, ezUInt16 j, ezUInt16 k);
   ezResult InitializeHull();
   ezResult ComputeHull();
   bool IsInside(ezUInt32 vtxId) const;

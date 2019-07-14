@@ -16,6 +16,8 @@
 #  define _CRT_SECURE_NO_WARNINGS
 #endif
 
+//#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+
 #include <winapifamily.h>
 
 #undef EZ_PLATFORM_WINDOWS_UWP
@@ -30,30 +32,9 @@
 #  define EZ_PLATFORM_WINDOWS_DESKTOP EZ_ON
 #endif
 
-// this is important for code that wants to include winsock2.h later on
-#define _WINSOCKAPI_   /* Prevent inclusion of winsock.h in windows.h */
-
-// already includes Windows.h, but defines important other things first
-//#include <winsock2.h>
-
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
+#ifndef NULL
+#define NULL 0
 #endif
-#include <Windows.h>
-
-#include <malloc.h>
-
-// unset windows macros
-#undef min
-#undef max
-#undef GetObject
-#undef ERROR
-#undef DeleteFile
-#undef CopyFile
-#undef DispatchMessage
-#undef PostMessage
-#undef SendMessage
-#undef OPAQUE
 
 #if defined(_MSC_VER)
 
@@ -73,7 +54,6 @@
 #    define EZ_COMPILE_FOR_DEBUG EZ_ON
 #  endif
 
-#  include <intrin.h>
 
 // Functions marked as EZ_ALWAYS_INLINE will be inlined even in Debug builds, which means you will step over them in a debugger
 #  define EZ_ALWAYS_INLINE __forceinline
@@ -163,10 +143,6 @@
 #    define EZ_LEFT_PARENTHESIS (
 #    define EZ_RIGHT_PARENTHESIS )
 #    define EZ_VA_NUM_ARGS(...) EZ_VA_NUM_ARGS_HELPER EZ_LEFT_PARENTHESIS __VA_ARGS__, EZ_VA_NUM_ARGS_REVERSE_SEQUENCE EZ_RIGHT_PARENTHESIS
-#  endif
-
-#  ifndef va_copy
-#    define va_copy(dest, source) (dest) = (source)
 #  endif
 
 #  if _M_ARM

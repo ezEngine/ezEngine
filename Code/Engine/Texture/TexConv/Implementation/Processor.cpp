@@ -16,6 +16,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexConvUsage, 1)
   EZ_ENUM_CONSTANT(ezTexConvUsage::Auto), EZ_ENUM_CONSTANT(ezTexConvUsage::Color), EZ_ENUM_CONSTANT(ezTexConvUsage::Linear),
     EZ_ENUM_CONSTANT(ezTexConvUsage::Hdr), EZ_ENUM_CONSTANT(ezTexConvUsage::NormalMap),
     EZ_ENUM_CONSTANT(ezTexConvUsage::NormalMap_Inverted),
+    EZ_ENUM_CONSTANT(ezTexConvUsage::BumpMap),
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang=format on
 
@@ -50,6 +51,14 @@ ezResult ezTexConvProcessor::Process()
       DetermineTargetResolution(m_Descriptor.m_InputImages[0], OutputImageFormat, uiTargetResolutionX, uiTargetResolutionY));
 
     EZ_SUCCEED_OR_RETURN(ConvertAndScaleInputImages(uiTargetResolutionX, uiTargetResolutionY));
+
+    EZ_SUCCEED_OR_RETURN(ClampInputValues(m_Descriptor.m_InputImages, m_Descriptor.m_fMaxValue));
+
+    if (m_Descriptor.m_Usage == ezTexConvUsage::BumpMap)
+    {
+      EZ_SUCCEED_OR_RETURN(ConvertToNormalMap(m_Descriptor.m_InputImages));
+      m_Descriptor.m_Usage = ezTexConvUsage::NormalMap;
+    }
 
     ezImage assembledImg;
     if (m_Descriptor.m_OutputType == ezTexConvOutputType::Texture2D || m_Descriptor.m_OutputType == ezTexConvOutputType::None)
@@ -192,7 +201,7 @@ ezResult ezTexConvProcessor::GenerateThumbnailOutput(const ezImage& srcImg, ezIm
     const float fTileSize = 16.0f;
 
     ezColorLinearUB* pPixels = dstImg.GetPixelPointer<ezColorLinearUB>();
-    const ezUInt32 rowPitch = dstImg.GetRowPitch();
+    const ezUInt64 rowPitch = dstImg.GetRowPitch();
 
     ezInt32 checkCounter = 0;
     ezColor tiles[2]{ezColor::LightGray, ezColor::DarkGray};
@@ -215,7 +224,7 @@ ezResult ezTexConvProcessor::GenerateThumbnailOutput(const ezImage& srcImg, ezIm
         }
       }
 
-      pPixels = ezMemoryUtils::AddByteOffset(pPixels, rowPitch);
+      pPixels = ezMemoryUtils::AddByteOffset(pPixels, static_cast<ptrdiff_t>(rowPitch));
     }
   }
 

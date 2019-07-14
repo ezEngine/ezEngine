@@ -2,7 +2,7 @@
 
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Threading/ThreadUtils.h>
-#include <ThirdParty/enet/enet.h>
+#include <enet/enet.h>
 
 class ezTelemetryThread;
 
@@ -14,7 +14,7 @@ bool ezTelemetry::s_bConnectedToServer = false;
 bool ezTelemetry::s_bConnectedToClient = false;
 bool ezTelemetry::s_bAllowNetworkUpdate = true;
 ezTime ezTelemetry::s_PingToServer;
-//ezString ezTelemetry::s_ServerName;
+ezString ezTelemetry::s_ServerName;
 ezString ezTelemetry::s_ServerIP;
 static bool g_bInitialized = false;
 ezTelemetry::ConnectionMode ezTelemetry::s_ConnectionMode = ezTelemetry::None;
@@ -75,10 +75,12 @@ void ezTelemetry::UpdateNetwork()
           char szHostName[64] = "<unknown>";
 
           enet_address_get_host_ip(&NetworkEvent.peer->address, szHostIP, 63);
-          //enet_address_get_host(&NetworkEvent.peer->address, szHostName, 63);
+
+          // Querying host IP and name can take a lot of time which can lead to timeouts
+          // enet_address_get_host(&NetworkEvent.peer->address, szHostName, 63);
 
           ezTelemetry::s_ServerIP = szHostIP;
-          //ezTelemetry::s_ServerName = szHostName;
+          // ezTelemetry::s_ServerName = szHostName;
 
           // now we are waiting for the server to send its ID
         }
@@ -167,7 +169,14 @@ void ezTelemetry::UpdateNetwork()
 
               s_TelemetryEvents.Broadcast(e);
 
+              SendServerName();
               FlushOutgoingQueues();
+            }
+            break;
+
+            case 'NAME':
+            {
+              s_ServerName = reinterpret_cast<const char*>(pData);
             }
             break;
           }
@@ -183,7 +192,8 @@ void ezTelemetry::UpdateNetwork()
 
             Msg.SetMessageID(uiSystemID, uiMsgID);
 
-            EZ_ASSERT_DEV((ezUInt32)NetworkEvent.packet->dataLength >= 8, "Message Length Invalid: {0}", (ezUInt32)NetworkEvent.packet->dataLength);
+            EZ_ASSERT_DEV(
+              (ezUInt32)NetworkEvent.packet->dataLength >= 8, "Message Length Invalid: {0}", (ezUInt32)NetworkEvent.packet->dataLength);
 
             Msg.GetWriter().WriteBytes(pData, NetworkEvent.packet->dataLength - 8);
           }
@@ -200,6 +210,30 @@ void ezTelemetry::UpdateNetwork()
 
   s_bAllowNetworkUpdate = true;
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
+}
+
+void ezTelemetry::SetServerName(const char* name)
+{
+  if (s_ConnectionMode == ConnectionMode::Client)
+    return;
+
+  if (s_ServerName == name)
+    return;
+
+  s_ServerName = name;
+
+  SendServerName();
+}
+
+void ezTelemetry::SendServerName()
+{
+  if (!IsConnectedToOther())
+    return;
+
+  char data[48];
+  ezStringUtils::Copy(data, EZ_ARRAY_SIZE(data), s_ServerName.GetData());
+
+  Broadcast(ezTelemetry::Reliable, 'EZBC', 'NAME', data, EZ_ARRAY_SIZE(data));
 }
 
 ezResult ezTelemetry::RetrieveMessage(ezUInt32 uiSystemID, ezTelemetryMessage& out_Message)
@@ -244,7 +278,7 @@ ezResult ezTelemetry::InitializeAsClient(const char* szConnectTo)
     sConnectTo.Shrink(0, ezStringUtils::GetStringElementCount(szColon));
 
     ezStringBuilder sPort = szColon + 1;
-    s_uiPort = atoi(sPort.GetData());
+    s_uiPort = static_cast<ezUInt16>(atoi(sPort.GetData()));
   }
 
   if (sConnectTo.IsEmpty() || sConnectTo.IsEqual_NoCase("localhost"))
@@ -475,4 +509,3 @@ void ezTelemetry::CloseConnection()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_Telemetry);
-

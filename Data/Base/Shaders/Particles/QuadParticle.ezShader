@@ -6,6 +6,7 @@ ALL
 PARTICLE_RENDER_MODE
 PARTICLE_QUAD_MODE
 SHADING_QUALITY=SHADING_QUALITY_NORMAL
+CAMERA_MODE
 
 [RENDERSTATE]
 
@@ -49,7 +50,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
 
   ezBaseParticleShaderData baseParticle = particleBaseData[dataIndex];
   UNPACKHALF2(particleLife, particleSize, baseParticle.LifeAndSize);
-  ret.Color = UNPACKCOLOR4H(baseParticle.Color);
+  ret.Color0 = UNPACKCOLOR4H(baseParticle.Color);
 
 
 #if PARTICLE_QUAD_MODE == PARTICLE_QUAD_MODE_BILLBOARD
@@ -98,9 +99,13 @@ float4 main(PS_IN Input) : SV_Target
 {
   float4 texCol = ParticleTexture.Sample(ParticleTexture_AutoSampler, Input.TexCoord0.xy);
 
-  float proximityFadeOut = CalcProximityFadeOut(Input.Position);
+  float proximityFadeOut = 1.0;
 
-  float opacity = Input.Color.a * texCol.a * proximityFadeOut;
+  #if CAMERA_MODE != CAMERA_MODE_ORTHO
+    proximityFadeOut = CalcProximityFadeOut(Input.Position);
+  #endif
+
+  float opacity = Input.Color0.a * texCol.a * proximityFadeOut;
 
 
   #if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_DISTORTION
@@ -109,11 +114,11 @@ float4 main(PS_IN Input) : SV_Target
     float4 texDistort = ParticleDistortionTexture.Sample(ParticleDistortionTexture_AutoSampler, Input.TexCoord0.xy);
     float3 sceneColor = SampleSceneColor(Input.Position.xy + (texDistort - 0.5) * float2(DistortionStrength, DistortionStrength));
 
-    return float4(sceneColor.rgb * Input.Color.rgb, opacity);
+    return float4(sceneColor.rgb * Input.Color0.rgb, opacity);
 
   #else
 
-    float3 finalColor = texCol.rgb * Input.Color.rgb;
+    float3 finalColor = texCol.rgb * Input.Color0.rgb;
 
     //#if defined(USE_FOG)
       #if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_ADDITIVE

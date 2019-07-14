@@ -105,15 +105,32 @@ ezResult ezTexConvProcessor::DetermineTargetResolution(
     out_uiTargetResolutionX = uiOrgResX / uiScaleFactor;
   }
 
-  if (OutputImageFormat != ezImageFormat::UNKNOWN && ezImageFormat::IsCompressed(OutputImageFormat))
+  if (OutputImageFormat != ezImageFormat::UNKNOWN && ezImageFormat::RequiresFirstLevelBlockAlignment(OutputImageFormat))
   {
-    if (out_uiTargetResolutionX % 4 != 0 || out_uiTargetResolutionY % 4 != 0)
+    ezUInt32 blockWidth = ezImageFormat::GetBlockWidth(OutputImageFormat);
+    ezUInt32 currentWidth = out_uiTargetResolutionX;
+    ezUInt32 currentHeight = out_uiTargetResolutionY;
+    bool issueWarning = false;
+    if (out_uiTargetResolutionX % blockWidth != 0)
     {
-      ezLog::Error("Chosen output image format is compressed, but target resolution is not divisible by 4. {}x{} -> downscale {} / "
-                   "clamp({}, {}) -> {}x{}",
-        uiOrgResX, uiOrgResY, m_Descriptor.m_uiDownscaleSteps, m_Descriptor.m_uiMinResolution, m_Descriptor.m_uiMaxResolution,
-        out_uiTargetResolutionX, out_uiTargetResolutionY);
-      return EZ_FAILURE;
+      out_uiTargetResolutionX = ezMath::RoundUp(out_uiTargetResolutionX, static_cast<ezUInt16>(blockWidth));
+      issueWarning = true;
+    }
+
+    ezUInt32 blockHeight = ezImageFormat::GetBlockHeight(OutputImageFormat);
+    if (out_uiTargetResolutionY % blockHeight != 0)
+    {
+      out_uiTargetResolutionY = ezMath::RoundUp(out_uiTargetResolutionY, static_cast<ezUInt16>(blockHeight));
+      issueWarning = true;
+    }
+
+    if (issueWarning)
+    {
+      ezLog::Warning(
+        "Chosen output image format is compressed, but target resolution does not fulfill block size requirements. {}x{} -> downscale {} / "
+        "clamp({}, {}) -> {}x{}, adjusted to {}x{}",
+        uiOrgResX, uiOrgResY, m_Descriptor.m_uiDownscaleSteps, m_Descriptor.m_uiMinResolution, m_Descriptor.m_uiMaxResolution, currentWidth,
+        currentHeight, out_uiTargetResolutionX, out_uiTargetResolutionY);
     }
   }
 

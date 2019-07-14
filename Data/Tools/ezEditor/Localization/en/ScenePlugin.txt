@@ -70,6 +70,7 @@ Selection.DuplicateSpecial;Duplicate...
 Selection.DeltaTransform;Delta Transform...
 Selection.Attach;Attach to This
 Selection.Detach;Detach
+Selection.CopyReference;Copy Object Reference
 Prefabs.Menu;Prefabs
 Prefabs.UpdateAll;Update Prefabs
 Prefabs.Create;Create Prefab...
@@ -107,6 +108,7 @@ ezAmbientLightComponent;Ambient Light
 ezDirectionalLightComponent;Directional Light
 ezSpotLightComponent;Spot Light
 ezPointLightComponent;Point Light
+ezSkyLightComponent;Sky Light
 ezSkyBoxComponent;Sky Box
 ezFogComponent;Fog
 ezSpriteComponent;Sprite
@@ -114,6 +116,7 @@ ezRotorComponent;Rotor
 ezHeadBoneComponent;Head Bone
 ezSliderComponent;Slider
 ezCollectionComponent;Collection
+ezLineToComponent;Draw Line To Object
 ezDebugTextComponent;Debug Text
 ezRenderTargetActivatorComponent;Render Target Activator
 ezAlwaysVisibleComponent;Always Visible
@@ -121,6 +124,7 @@ Components;Components
 Materials;Materials
 Surfaces;Surfaces
 Interactions;Interactions
+ReflectionData;Reflection Data
 ezProjectileSurfaceInteraction;Surface Interaction
 ezProjectileReaction::Absorb;Absorb
 ezProjectileReaction::Reflect;Reflect
@@ -229,3 +233,4 @@ Scene.CreateThumbnail;Create Scene Thumbnail
 Scene.GameMode.PlayFromHere;Play From Here
 Scene.GameObject.CreateEmptyHere;Create Empty Object Here
 ezPlayerStartPointComponent;Player Start Point
+ezInstancedMeshComponent;Instanced Mesh

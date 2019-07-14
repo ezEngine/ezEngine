@@ -8,6 +8,11 @@
 #include <Core/World/ComponentManager.h>
 #include <Core/World/GameObjectDesc.h>
 
+// Avoid conflicts with windows.h
+#ifdef SendMessage
+#  undef SendMessage
+#endif
+
 /// \brief This class represents an object inside the world.
 ///
 /// Game objects only consists of hierarchical data like transformation and a list of components.
@@ -122,6 +127,10 @@ public:
   void SetGlobalKey(const ezHashedString& sGlobalKey);
   const char* GetGlobalKey() const;
 
+  /// \brief Enables or disabled notification message when children are added or removed. The notification message is sent to this object and all its parent objects.
+  void EnableChildChangesNotifications();
+  void DisableChildChangesNotifications();
+
   /// \brief Defines during re-parenting what transform is going to be preserved.
   enum class TransformPreservation
   {
@@ -143,14 +152,14 @@ public:
 
   /// \brief Adds the given objects as child objects.
   void AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children,
-                   ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+    ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Detaches the given child object from this object and makes it a top-level object.
   void DetachChild(const ezGameObjectHandle& child, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Detaches the given child objects from this object and makes them top-level objects.
   void DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children,
-                      ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+    ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Returns the number of children.
   ezUInt32 GetChildCount() const;
@@ -184,7 +193,7 @@ public:
 
   /// \brief Same as SearchForChildByNameSequence but returns ALL matches, in case the given path could mean multiple objects
   void SearchForChildrenByNameSequence(const char* szObjectSequence, const ezRTTI* pExpectedComponent,
-                                       ezHybridArray<ezGameObject*, 8>& out_Objects);
+    ezHybridArray<ezGameObject*, 8>& out_Objects);
 
   ezWorld* GetWorld();
   const ezWorld* GetWorld() const;
@@ -264,6 +273,11 @@ public:
   /// \brief Updates the global transform immediately. Usually this done during the world update after the "Post-async" phase.
   void UpdateGlobalTransform();
 
+  /// \brief Enables or disabled notification message when this object is static and its transform changes.
+  /// The notification message is sent to this object and thus also to all its components.
+  void EnableStaticTransformChangesNotifications();
+  void DisableStaticTransformChangesNotifications();
+
 
   ezBoundingBoxSphere GetLocalBounds() const;
   ezBoundingBoxSphere GetGlobalBounds() const;
@@ -281,6 +295,9 @@ public:
   /// \brief Returns a handle to the internal spatial data.
   ezSpatialDataHandle GetSpatialData() const;
 
+  /// \brief Enables or disabled notification message when components are added or removed. The notification message is sent to this object and all its parent objects.
+  void EnableComponentChangesNotifications();
+  void DisableComponentChangesNotifications();
 
   /// \brief Tries to find a component of the given base type in the objects components list and returns the first match.
   template <typename T>
@@ -379,6 +396,8 @@ private:
   void RemoveComponent(ezComponent* pComponent);
   void FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr);
 
+  void SendNotificationMessage(ezMessage& msg);
+
   struct EZ_CORE_DLL EZ_ALIGN_16(TransformationData)
   {
     EZ_DECLARE_POD_TYPE();
@@ -469,4 +488,3 @@ private:
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezGameObject);
 
 #include <Core/World/Implementation/GameObject_inl.h>
-

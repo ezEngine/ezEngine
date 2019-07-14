@@ -5,7 +5,7 @@
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
 #define ZSTD_STATIC_LINKING_ONLY // ZSTD_findDecompressedSize
-#  include <ThirdParty/zstd/zstd.h>
+#  include <zstd/zstd.h>
 #endif
 
 
@@ -120,3 +120,7 @@ namespace ezCompressionUtils
     }
   }
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_Compression);
+

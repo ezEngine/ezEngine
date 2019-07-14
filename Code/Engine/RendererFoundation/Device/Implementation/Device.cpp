@@ -6,9 +6,9 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/Buffer.h>
+#include <RendererFoundation/Resources/ProxyTexture.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/ResourceView.h>
-#include <RendererFoundation/Resources/Texture.h>
 #include <RendererFoundation/Resources/UnorderedAccesView.h>
 #include <RendererFoundation/Shader/VertexDeclaration.h>
 #include <RendererFoundation/State/State.h>
@@ -50,17 +50,17 @@ namespace
   EZ_CHECK_AT_COMPILETIME(sizeof(ezGALFenceHandle) == sizeof(ezUInt32));
   EZ_CHECK_AT_COMPILETIME(sizeof(ezGALQueryHandle) == sizeof(ezUInt32));
   EZ_CHECK_AT_COMPILETIME(sizeof(ezGALVertexDeclarationHandle) == sizeof(ezUInt32));
-}
+} // namespace
 
 ezGALDevice* ezGALDevice::s_pDefaultDevice = nullptr;
 
 
 ezGALDevice::ezGALDevice(const ezGALDeviceCreationDescription& desc)
-    : m_Allocator("GALDevice", ezFoundation::GetDefaultAllocator())
-    , m_AllocatorWrapper(&m_Allocator)
-    , m_Description(desc)
-    , m_pPrimaryContext(nullptr)
-    , m_bFrameBeginCalled(false)
+  : m_Allocator("GALDevice", ezFoundation::GetDefaultAllocator())
+  , m_AllocatorWrapper(&m_Allocator)
+  , m_Description(desc)
+  , m_pPrimaryContext(nullptr)
+  , m_bFrameBeginCalled(false)
 {
 }
 
@@ -124,6 +124,15 @@ ezResult ezGALDevice::Init()
 
   // Fill the capabilities
   FillCapabilitiesPlatform();
+
+  ezLog::Info("Adapter: '{}' - {} VRAM, {} Sys RAM, {} Shared RAM", m_Capabilities.m_sAdapterName,
+    ezArgFileSize(m_Capabilities.m_uiDedicatedVRAM), ezArgFileSize(m_Capabilities.m_uiDedicatedSystemRAM),
+    ezArgFileSize(m_Capabilities.m_uiSharedSystemRAM));
+
+  if (!m_Capabilities.m_bHardwareAccelerated)
+  {
+    ezLog::Warning("Selected graphics adapter has no hardware acceleration.");
+  }
 
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
@@ -494,7 +503,7 @@ ezGALBufferHandle ezGALDevice::CreateBuffer(const ezGALBufferCreationDescription
     ezGALBufferHandle hBuffer(m_Buffers.Insert(pBuffer));
 
     // Create default resource view
-    if (desc.m_BufferType == ezGALBufferType::Generic)
+    if (desc.m_bAllowShaderResourceView && desc.m_BufferType == ezGALBufferType::Generic)
     {
       ezGALResourceViewCreationDescription viewDesc;
       viewDesc.m_hBuffer = hBuffer;
@@ -539,8 +548,8 @@ ezGALBufferHandle ezGALDevice::CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt3
   return CreateBuffer(desc, pInitialData);
 }
 
-ezGALBufferHandle ezGALDevice::CreateIndexBuffer(ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount,
-                                                 ezArrayPtr<const ezUInt8> pInitialData)
+ezGALBufferHandle ezGALDevice::CreateIndexBuffer(
+  ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, ezArrayPtr<const ezUInt8> pInitialData)
 {
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = ezGALIndexType::GetSize(IndexType);
@@ -563,9 +572,8 @@ ezGALBufferHandle ezGALDevice::CreateConstantBuffer(ezUInt32 uiBufferSize)
 }
 
 
-
-ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescription& desc,
-                                              ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
+ezGALTextureHandle ezGALDevice::CreateTexture(
+  const ezGALTextureCreationDescription& desc, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
@@ -621,7 +629,6 @@ void ezGALDevice::DestroyTexture(ezGALTextureHandle hTexture)
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   ezGALTexture* pTexture = nullptr;
-
   if (m_Textures.TryGetValue(hTexture, pTexture))
   {
     AddDeadObject(GALObjectType::Texture, hTexture);
@@ -629,6 +636,75 @@ void ezGALDevice::DestroyTexture(ezGALTextureHandle hTexture)
   else
   {
     ezLog::Warning("DestroyTexture called on invalid handle (double free?)");
+  }
+}
+
+ezGALTextureHandle ezGALDevice::CreateProxyTexture(ezGALTextureHandle hParentTexture, ezUInt32 uiSlice)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  ezGALTexture* pParentTexture = nullptr;
+
+  if (!hParentTexture.IsInvalidated())
+  {
+    pParentTexture = Get<TextureTable, ezGALTexture>(hParentTexture, m_Textures);
+  }
+
+  if (pParentTexture == nullptr)
+  {
+    ezLog::Error("No valid texture handle given for proxy texture creation!");
+    return ezGALTextureHandle();
+  }
+
+  const auto& parentDesc = pParentTexture->GetDescription();
+  EZ_ASSERT_DEV(parentDesc.m_Type != ezGALTextureType::Texture2DProxy, "Can't create a proxy texture of a proxy texture.");
+  EZ_ASSERT_DEV(parentDesc.m_Type == ezGALTextureType::TextureCube || parentDesc.m_uiArraySize > 1,
+    "Proxy textures can only be created for cubemaps or array textures.");
+
+  ezGALProxyTexture* pProxyTexture = EZ_NEW(&m_Allocator, ezGALProxyTexture, *pParentTexture);
+  ezGALTextureHandle hProxyTexture(m_Textures.Insert(pProxyTexture));
+
+  const auto& desc = pProxyTexture->GetDescription();
+
+  // Create default resource view
+  if (desc.m_bAllowShaderResourceView)
+  {
+    ezGALResourceViewCreationDescription viewDesc;
+    viewDesc.m_hTexture = hProxyTexture;
+    viewDesc.m_uiFirstArraySlice = uiSlice;
+    viewDesc.m_uiArraySize = 1;
+
+    pProxyTexture->m_hDefaultResourceView = CreateResourceView(viewDesc);
+  }
+
+  // Create default render target view
+  if (desc.m_bCreateRenderTarget)
+  {
+    ezGALRenderTargetViewCreationDescription rtDesc;
+    rtDesc.m_hTexture = hProxyTexture;
+    rtDesc.m_uiFirstSlice = uiSlice;
+    rtDesc.m_uiSliceCount = 1;
+
+    pProxyTexture->m_hDefaultRenderTargetView = CreateRenderTargetView(rtDesc);
+  }
+
+  return hProxyTexture;
+}
+
+void ezGALDevice::DestroyProxyTexture(ezGALTextureHandle hProxyTexture)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  ezGALTexture* pTexture = nullptr;
+  if (m_Textures.TryGetValue(hProxyTexture, pTexture))
+  {
+    EZ_ASSERT_DEV(pTexture->GetDescription().m_Type == ezGALTextureType::Texture2DProxy, "Given texture is not a proxy texture");
+
+    AddDeadObject(GALObjectType::Texture, hProxyTexture);
+  }
+  else
+  {
+    ezLog::Warning("DestroyProxyTexture called on invalid handle (double free?)");
   }
 }
 
@@ -729,6 +805,7 @@ ezGALRenderTargetViewHandle ezGALDevice::CreateRenderTargetView(const ezGALRende
 
   if (pTexture == nullptr)
   {
+    ezLog::Error("No valid texture handle given for render target view creation!");
     return ezGALRenderTargetViewHandle();
   }
 
@@ -1408,4 +1485,3 @@ void ezGALDevice::DestroyDeadObjects()
 }
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Device_Implementation_Device);
-

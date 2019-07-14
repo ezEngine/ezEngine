@@ -218,15 +218,32 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(const char* szFi
 
   m_ShaderData.m_StateSource = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::RENDERSTATE, uiFirstLine);
 
+  ezUInt32 uiFirstShaderLine = 0;
+  ezStringView sShaderSource = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::SHADER, uiFirstShaderLine);
+
   for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
-    sTemp = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::VERTEXSHADER + stage, uiFirstLine);
+    ezStringView sStageSource = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::VERTEXSHADER + stage, uiFirstLine);
 
     // later code checks whether the string is empty, to see whether we have any shader source, so this has to be kept empty
-    if (!sTemp.IsEmpty())
-      sTemp.PrependFormat("#line {0}\n", uiFirstLine);
+    if (!sStageSource.IsEmpty())
+    {
+      sTemp.Clear();
 
-    m_ShaderData.m_ShaderStageSource[stage] = sTemp;
+      // prepend common shader section if there is any
+      if (!sShaderSource.IsEmpty())
+      {
+        sTemp.AppendFormat("#line {0}\n{1}", uiFirstShaderLine, sShaderSource);
+      }
+
+      sTemp.AppendFormat("#line {0}\n{1}", uiFirstLine, sStageSource);
+
+      m_ShaderData.m_ShaderStageSource[stage] = sTemp;
+    }
+    else
+    {
+      m_ShaderData.m_ShaderStageSource[stage].Clear();
+    }
   }
 
   ezStringBuilder tmp = szFile;
@@ -359,6 +376,12 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
 
     for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
     {
+      spd.m_StageBinary[stage].m_Stage = (ezGALShaderStage::Enum)stage;
+      spd.m_StageBinary[stage].m_uiSourceHash = 0;
+
+      if (m_ShaderData.m_ShaderStageSource[stage].IsEmpty())
+        continue;
+      
       bool bFoundUndefinedVars = false;
 
       ezPreprocessor pp;
@@ -374,7 +397,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
           bFoundUndefinedVars = true;
 
           ezLog::Error("Undefined variable is evaluated: '{0}' (File: '{1}', Line: {2}", e.m_pToken->m_DataView, e.m_pToken->m_File,
-                       e.m_pToken->m_uiLine);
+            e.m_pToken->m_uiLine);
         }
       });
 
@@ -400,7 +423,6 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
         uiSourceStringLen = sProcessed[stage].GetElementCount();
       }
 
-      spd.m_StageBinary[stage].m_Stage = (ezGALShaderStage::Enum)stage;
       spd.m_StageBinary[stage].m_uiSourceHash = ezHashingUtils::xxHash32(spd.m_szShaderSource[stage], uiSourceStringLen);
 
       if (spd.m_StageBinary[stage].m_uiSourceHash != 0)
@@ -411,7 +433,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
         if (pBinary)
         {
           spd.m_StageBinary[stage] = *pBinary;
-          spd.m_bWriteToDisk[stage] = false;
+          spd.m_bWriteToDisk[stage] = pBinary->GetByteCode().IsEmpty();
         }
       }
     }
@@ -450,7 +472,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
       sTemp.Shrink(0, 1);
 
     const ezUInt32 uiPermutationHash = ezShaderHelper::CalculateHash(m_ShaderData.m_Permutations);
-    sTemp.AppendFormat("{0}.ezPermutation", ezArgU(uiPermutationHash, 8, true, 16, true));
+    sTemp.AppendFormat("_{0}.ezPermutation", ezArgU(uiPermutationHash, 8, true, 16, true));
 
     shaderPermutationBinary.m_DependencyFile.Clear();
     shaderPermutationBinary.m_DependencyFile.AddFileDependency(szFile);
@@ -486,7 +508,7 @@ void ezShaderCompiler::WriteFailedShaderSource(ezShaderProgramCompiler::ezShader
       ezStringBuilder sShaderStageFile = ezShaderManager::GetCacheDirectory();
 
       sShaderStageFile.AppendPath(ezShaderManager::GetActivePlatform().GetData());
-      sShaderStageFile.AppendFormat("/{0}.ezShaderSource", ezArgU(spd.m_StageBinary[stage].m_uiSourceHash, 8, true, 16, true));
+      sShaderStageFile.AppendFormat("/_Failed_{0}_{1}.ezShaderSource", ezGALShaderStage::Names[stage], ezArgU(spd.m_StageBinary[stage].m_uiSourceHash, 8, true, 16, true));
 
       ezFileWriter StageFileOut;
       if (StageFileOut.Open(sShaderStageFile.GetData()).Succeeded())

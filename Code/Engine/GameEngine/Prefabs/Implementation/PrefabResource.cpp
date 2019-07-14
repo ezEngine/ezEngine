@@ -46,7 +46,6 @@ void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedStri
                                                    const ezHybridArray<ezGameObject*, 8>& createdChildObjects,
                                                    const ezHybridArray<ezGameObject*, 8>& createdRootObjects) const
 {
-  const ezRTTI* pGameObjectRtti = ezGetStaticRTTI<ezGameObject>();
   const ezUInt32 uiNumParamDescs = m_PrefabParamDescs.GetCount();
 
   for (ezUInt32 i = 0; i < pExposedParamValues->GetCount(); ++i)

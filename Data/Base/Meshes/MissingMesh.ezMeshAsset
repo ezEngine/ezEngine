@@ -11,7 +11,7 @@ o
 		s %AssetType{"Mesh"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7139397627682754203,4783035615231258983}}
-		u4 %Hash{5093567801901213628}
+		u4 %Hash{12246271017320040568}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -38,10 +38,10 @@ o
 {
 	Uuid %id{u4{16434406659777717432,4891505300638258167}}
 	s %t{"ezMeshAssetProperties"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
-		f %Angle{0x0000B443}
+		Angle %Angle{f{0xDB0FC940}}
 		b %Cap{0}
 		b %Cap2{0}
 		u2 %Detail{0}
@@ -117,7 +117,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezMeshAssetProperties"}
 		u3 %TypeSize{1248}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o

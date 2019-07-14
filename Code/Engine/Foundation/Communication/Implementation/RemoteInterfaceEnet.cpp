@@ -7,11 +7,39 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Types/ScopeExit.h>
-#include <ThirdParty/enet/enet.h>
+#include <enet/enet.h>
 
-bool ezRemoteInterfaceEnet::s_bEnetInitialized = false;
+class ezRemoteInterfaceEnetImpl : public ezRemoteInterfaceEnet
+{
 
-ezResult ezRemoteInterfaceEnet::InternalCreateConnection(ezRemoteMode mode, const char* szServerAddress)
+protected:
+  virtual void InternalUpdateRemoteInterface() override;
+  virtual ezResult InternalCreateConnection(ezRemoteMode mode, const char* szServerAddress) override;
+  virtual void InternalShutdownConnection() override;
+  virtual ezTime InternalGetPingToServer() override;
+  virtual ezResult InternalTransmit(ezRemoteTransmitMode tm, const ezArrayPtr<const ezUInt8>& data) override;
+
+private:
+  ENetAddress m_EnetServerAddress;
+  ENetHost* m_pEnetHost = nullptr;
+  ENetPeer* m_pEnetConnectionToServer = nullptr;
+  bool m_bAllowNetworkUpdates = true;
+  ezMap<void*, ezUInt32> m_EnetPeerToClientID;
+
+  static bool s_bEnetInitialized;
+};
+
+ezInternal::NewInstance<ezRemoteInterfaceEnet> ezRemoteInterfaceEnet::Make(ezAllocatorBase* allocator /*= ezFoundation::GetDefaultAllocator()*/)
+{
+  return EZ_NEW(allocator, ezRemoteInterfaceEnetImpl);
+}
+
+ezRemoteInterfaceEnet::ezRemoteInterfaceEnet() = default;
+ezRemoteInterfaceEnet::~ezRemoteInterfaceEnet() = default;
+
+bool ezRemoteInterfaceEnetImpl::s_bEnetInitialized = false;
+
+ezResult ezRemoteInterfaceEnetImpl::InternalCreateConnection(ezRemoteMode mode, const char* szServerAddress)
 {
   if (!s_bEnetInitialized)
   {
@@ -82,7 +110,7 @@ ezResult ezRemoteInterfaceEnet::InternalCreateConnection(ezRemoteMode mode, cons
   return EZ_SUCCESS;
 }
 
-void ezRemoteInterfaceEnet::InternalShutdownConnection()
+void ezRemoteInterfaceEnetImpl::InternalShutdownConnection()
 {
   m_uiPort = 0;
 
@@ -108,7 +136,7 @@ void ezRemoteInterfaceEnet::InternalShutdownConnection()
   m_pEnetConnectionToServer = nullptr;
 }
 
-ezTime ezRemoteInterfaceEnet::InternalGetPingToServer()
+ezTime ezRemoteInterfaceEnetImpl::InternalGetPingToServer()
 {
   EZ_ASSERT_DEV(m_pEnetConnectionToServer != nullptr, "Client has not connected to server");
 
@@ -116,7 +144,7 @@ ezTime ezRemoteInterfaceEnet::InternalGetPingToServer()
   return ezTime::Milliseconds(m_pEnetConnectionToServer->lastRoundTripTime);
 }
 
-ezResult ezRemoteInterfaceEnet::InternalTransmit(ezRemoteTransmitMode tm, const ezArrayPtr<const ezUInt8>& data)
+ezResult ezRemoteInterfaceEnetImpl::InternalTransmit(ezRemoteTransmitMode tm, const ezArrayPtr<const ezUInt8>& data)
 {
   if (m_pEnetHost == nullptr)
     return EZ_FAILURE;
@@ -127,7 +155,7 @@ ezResult ezRemoteInterfaceEnet::InternalTransmit(ezRemoteTransmitMode tm, const 
   return EZ_SUCCESS;
 }
 
-void ezRemoteInterfaceEnet::InternalUpdateRemoteInterface()
+void ezRemoteInterfaceEnetImpl::InternalUpdateRemoteInterface()
 {
   if (!m_pEnetHost)
     return;

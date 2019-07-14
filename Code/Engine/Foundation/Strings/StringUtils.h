@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ThirdParty/utf8/utf8.h>
+#include <Foundation/ThirdParty/utf8/utf8.h>
 
 #include <Foundation/Basics.h>
 #include <Foundation/Strings/UnicodeUtils.h>
@@ -243,6 +243,12 @@ public:
   /// '\v' (vertical tab)
   static bool IsWhiteSpace(ezUInt32 uiChar); // [tested]
 
+  /// \brief A decimal digit from 0..9
+  static bool IsDecimalDigit(ezUInt32 uiChar); // [tested]
+
+  /// \brief A hexadecimal digit from 0..F
+  static bool IsHexDigit(ezUInt32 uiChar); // [tested]
+
   /// \brief A default word delimiter function for English text.
   static bool IsWordDelimiter_English(ezUInt32 uiChar); // [tested]
 
@@ -275,9 +281,9 @@ public:
                                   bool bPadZeros, ezUInt8 uiBase, bool bUpperCase);
   /// \brief [internal] Prefer to use snprintf.
   static void OutputFormattedFloat(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, double value, ezUInt8 uiWidth,
-                                   bool bPadZeros, ezInt8 iPrecision, bool bScientific);
+                                   bool bPadZeros, ezInt8 iPrecision, bool bScientific, bool bRemoveTrailingZeroes = false);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   static void AddUsedStringLength(ezUInt32 uiLength);
   static void PrintStringLengthStatistics();
   static ezAtomicInteger32 g_MaxUsedStringLength;

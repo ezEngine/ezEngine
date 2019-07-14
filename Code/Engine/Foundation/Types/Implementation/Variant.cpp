@@ -123,6 +123,7 @@ template <>
 EZ_FORCE_INLINE void ComputeHashFunc::operator()<ezVariantArray>()
 {
   ezVariantArray* pData = (ezVariantArray*)m_pData;
+  EZ_IGNORE_UNUSED(pData);
 
   EZ_ASSERT_NOT_IMPLEMENTED;
   // m_uiHash = ezHashingUtils::xxHash64(pData, sizeof(ezMat4), m_uiHash);
@@ -132,6 +133,7 @@ template <>
 EZ_FORCE_INLINE void ComputeHashFunc::operator()<ezVariantDictionary>()
 {
   ezVariantDictionary* pData = (ezVariantDictionary*)m_pData;
+  EZ_IGNORE_UNUSED(pData);
 
   EZ_ASSERT_NOT_IMPLEMENTED;
   // m_uiHash = ezHashingUtils::xxHash64(pData, sizeof(ezMat4), m_uiHash);

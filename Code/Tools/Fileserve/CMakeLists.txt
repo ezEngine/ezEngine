@@ -1,36 +1,26 @@
-#cmake
+ez_cmake_init()
 
-#
-# Copy this file into the folder of an engine library to add it to the solution.
-# Below there are configuration options to add preprocessor definitions and link dependencies to the library.
-#
-# *** Modify this file as required ***
-#
+ez_requires_qt()
 
-# Pass a boolean expression into this macro to build this project only if the expression evaluates to true.
-BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
+ez_requires(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
 
-if (EZ_ENABLE_QT_SUPPORT)
-	QT_MODULES(Core Gui Widgets Network)
-	SET (EZ_COPY_QT_DLLS ON)
-endif()
+# Get the name of this folder as the project name
+get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
-# Add all the preprocessor definitions that are needed to configure this library
-# add_definitions (-DMY_PREPROCESS_DEFINITION_1)
-# add_definitions (-DMY_PREPROCESS_DEFINITION_2)
+ez_create_target(APPLICATION ${PROJECT_NAME})
 
-# Add all the libraries that this project needs to link against here
-SET (LINK_LIBRARIES
-  Foundation
+ez_make_winmain_executable(${PROJECT_NAME})
+
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   Core
   FileservePlugin
 )
 
-#if Qt is enabled, link agains the library that contains the UI code
-if (EZ_ENABLE_QT_SUPPORT)
-	SET (IS_WIN32_APPLICATION true)
-	SET (LINK_LIBRARIES ${LINK_LIBRARIES} EditorPluginFileserve)
-endif()
+ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network)
 
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+  EditorPluginFileserve
+)
 
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_Application.txt")

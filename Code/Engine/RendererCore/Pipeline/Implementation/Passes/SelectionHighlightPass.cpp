@@ -101,7 +101,7 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
     hDepthTexture =
         ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::D24S8, sampleCount, uiSliceCount);
 
-    ezGALRenderTagetSetup renderTargetSetup;
+    ezGALRenderTargetSetup renderTargetSetup;
     renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(hDepthTexture));
 
     renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
@@ -119,7 +119,7 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
     constants->HighlightColor = m_HighlightColor;
     constants->OverlayOpacity = m_fOverlayOpacity;
 
-    ezGALRenderTagetSetup renderTargetSetup;
+    ezGALRenderTargetSetup renderTargetSetup;
     renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
 
     renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);

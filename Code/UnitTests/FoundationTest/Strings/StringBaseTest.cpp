@@ -472,16 +472,16 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     ezStringView it(s.GetData() + 8, s.GetData() + s.GetElementCount() - 8);
     ezStringView it2(s.GetData() + 8, s.GetData() + s.GetElementCount());
 
-    EZ_TEST_BOOL(it.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English) == &it.GetData()[34]);
-    EZ_TEST_BOOL(it.FindWholeWord("def", ezStringUtils::IsWordDelimiter_English) == &it.GetData()[38]);
+    EZ_TEST_BOOL(it.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English) == &it.GetStartPointer()[34]);
+    EZ_TEST_BOOL(it.FindWholeWord("def", ezStringUtils::IsWordDelimiter_English) == &it.GetStartPointer()[38]);
     EZ_TEST_BOOL(it.FindWholeWord("mompfh", ezStringUtils::IsWordDelimiter_English) ==
-                 &it.GetData()[0]); // ü is not english (thus a delimiter)
+                 &it.GetStartPointer()[0]); // ü is not English (thus a delimiter)
 
-    EZ_TEST_BOOL(it.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 34) == &it.GetData()[34]);
-    EZ_TEST_BOOL(it.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 35) == nullptr);
+    EZ_TEST_BOOL(it.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English, it.GetStartPointer() + 34) == &it.GetStartPointer()[34]);
+    EZ_TEST_BOOL(it.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English, it.GetStartPointer() + 35) == nullptr);
 
-    EZ_TEST_BOOL(it2.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 34) == &it.GetData()[34]);
-    EZ_TEST_BOOL(it2.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 35) == &it.GetData()[42]);
+    EZ_TEST_BOOL(it2.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English, it.GetStartPointer() + 34) == &it.GetStartPointer()[34]);
+    EZ_TEST_BOOL(it2.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English, it.GetStartPointer() + 35) == &it.GetStartPointer()[42]);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindWholeWord_NoCase")
@@ -490,15 +490,15 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     ezStringView it(s.GetData() + 8, s.GetData() + s.GetElementCount() - 8);
     ezStringView it2(s.GetData() + 8, s.GetData() + s.GetElementCount());
 
-    EZ_TEST_BOOL(it.FindWholeWord_NoCase("ABC", ezStringUtils::IsWordDelimiter_English) == &it.GetData()[34]);
-    EZ_TEST_BOOL(it.FindWholeWord_NoCase("DEF", ezStringUtils::IsWordDelimiter_English) == &it.GetData()[38]);
-    EZ_TEST_BOOL(it.FindWholeWord_NoCase("momPFH", ezStringUtils::IsWordDelimiter_English) == &it.GetData()[0]);
+    EZ_TEST_BOOL(it.FindWholeWord_NoCase("ABC", ezStringUtils::IsWordDelimiter_English) == &it.GetStartPointer()[34]);
+    EZ_TEST_BOOL(it.FindWholeWord_NoCase("DEF", ezStringUtils::IsWordDelimiter_English) == &it.GetStartPointer()[38]);
+    EZ_TEST_BOOL(it.FindWholeWord_NoCase("momPFH", ezStringUtils::IsWordDelimiter_English) == &it.GetStartPointer()[0]);
 
-    EZ_TEST_BOOL(it.FindWholeWord_NoCase("ABc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 34) == &it.GetData()[34]);
-    EZ_TEST_BOOL(it.FindWholeWord_NoCase("ABc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 35) == nullptr);
+    EZ_TEST_BOOL(it.FindWholeWord_NoCase("ABc", ezStringUtils::IsWordDelimiter_English, it.GetStartPointer() + 34) == &it.GetStartPointer()[34]);
+    EZ_TEST_BOOL(it.FindWholeWord_NoCase("ABc", ezStringUtils::IsWordDelimiter_English, it.GetStartPointer() + 35) == nullptr);
 
-    EZ_TEST_BOOL(it2.FindWholeWord_NoCase("ABc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 34) == &it.GetData()[34]);
-    EZ_TEST_BOOL(it2.FindWholeWord_NoCase("ABc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 35) == &it.GetData()[42]);
+    EZ_TEST_BOOL(it2.FindWholeWord_NoCase("ABc", ezStringUtils::IsWordDelimiter_English, it.GetStartPointer() + 34) == &it.GetStartPointer()[34]);
+    EZ_TEST_BOOL(it2.FindWholeWord_NoCase("ABc", ezStringUtils::IsWordDelimiter_English, it.GetStartPointer() + 35) == &it.GetStartPointer()[42]);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ComputeCharacterPosition")

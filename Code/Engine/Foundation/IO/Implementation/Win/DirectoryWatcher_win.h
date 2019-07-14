@@ -1,8 +1,12 @@
 #pragma once
 
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/IO/DirectoryWatcher.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
 struct ezDirectoryWatcherImpl
 {
@@ -97,7 +101,7 @@ void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, 
   OVERLAPPED* lpOverlapped;
   DWORD numberOfBytes;
   ULONG_PTR completionKey;
-  while (GetQueuedCompletionStatus(m_pImpl->m_completionPort, &numberOfBytes, &completionKey, &lpOverlapped, 10) != 0)
+  while (GetQueuedCompletionStatus(m_pImpl->m_completionPort, &numberOfBytes, &completionKey, &lpOverlapped, 0) != 0)
   {
     if (numberOfBytes <= 0)
     {

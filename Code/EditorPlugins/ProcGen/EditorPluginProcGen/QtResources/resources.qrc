@@ -1,0 +1,11 @@
+<RCC>
+  <qresource prefix="AssetIcons">
+        <file>ProcGen_Graph.png</file>
+  </qresource>
+  <qresource prefix="TypeIcons">
+    <file>ezProcPlacementComponent.png</file>
+  </qresource>
+  <qresource prefix="Icons">
+  </qresource>
+</RCC>
+

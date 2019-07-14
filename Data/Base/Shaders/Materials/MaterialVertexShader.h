@@ -108,8 +108,11 @@ VS_OUT FillVertexData(VS_IN Input)
     #endif
   #endif
 
-  #if defined(USE_COLOR)
-    Output.Color = Input.Color;
+  #if defined(USE_COLOR0)
+    Output.Color0 = Input.Color0;
+    #if defined(USE_COLOR1)
+      Output.Color1 = Input.Color1;
+    #endif
   #endif
   
   #if defined(USE_DEBUG_INTERPOLATOR)

@@ -1,3 +1,1 @@
-#cmake
-
-include ("${EZ_CMAKE_UTILS_PATH}/CMAKE_GlobTools.txt")
+ez_add_all_subdirs()

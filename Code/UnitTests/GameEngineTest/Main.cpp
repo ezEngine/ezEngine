@@ -7,7 +7,7 @@
 EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN("GameEngineTest", "GameEngine Tests")
 {
   ezTextureUtils::s_bForceFullQualityAlways = true; // never allow to use low-res textures
-
+  ezTestFramework::GetInstance()->SetTestTimeout(1000 * 60 * 10);
   ezTestFramework::s_bCallstackOnAssert = true;
 }
 EZ_TESTFRAMEWORK_ENTRY_POINT_END()

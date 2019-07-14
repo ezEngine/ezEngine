@@ -102,7 +102,10 @@ ezUInt32 ezInputDevice::RetrieveLastCharacterFromAllDevices()
   return '\0';
 }
 
-
+float ezInputDevice::GetInputSlotState(const char* slot) const
+{
+  return m_InputSlotValues.GetValueOrDefault(slot, 0.f);
+}
 
 EZ_STATICLINK_FILE(Core, Core_Input_Implementation_InputDevice);
 

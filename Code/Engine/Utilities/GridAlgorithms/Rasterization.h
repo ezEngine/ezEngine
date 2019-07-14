@@ -91,7 +91,7 @@ namespace ez2DGridUtils
                                           void* pPassThrough = nullptr, ezDeque<ezVec2I32>* pTempArray = nullptr);
 
   /// \brief Describes the different circle types that can be rasterized
-  enum ezBlobType
+  enum ezBlobType : ezUInt8
   {
     Point1x1,    ///< The circle has just one point at the center
     Cross3x3,    ///< The circle has 5 points, one at the center, 1 at each edge of that

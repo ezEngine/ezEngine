@@ -47,7 +47,7 @@ float3x3 TransformToRotation(Transform t)
 #define TRANSFORM(Name) Transform Name
 #define COLOR4F(Name) float4 Name
 #define COLOR4UB(Name) uint Name
-#define BOOL(Name) bool Name
+#define BOOL1(Name) bool Name
 #define PACKEDHALF2(Name1, Name2, CombinedName) uint CombinedName
 #define PACKEDCOLOR4H(Name) uint EZ_CONCAT(Name,RG); uint EZ_CONCAT(Name,GB)
 
@@ -80,7 +80,7 @@ float3x3 TransformToRotation(Transform t)
 #define TRANSFORM(Name) ezShaderTransform Name
 #define COLOR4F(Name) ezColor Name
 #define COLOR4UB(Name) ezColorGammaUB Name
-#define BOOL(Name) ezShaderBool Name
+#define BOOL1(Name) ezShaderBool Name
 #define PACKEDHALF2(Name1, Name2, CombinedName) ezFloat16 Name1; ezFloat16 Name2
 #define PACKEDCOLOR4H(Name) ezColorLinear16f Name
 

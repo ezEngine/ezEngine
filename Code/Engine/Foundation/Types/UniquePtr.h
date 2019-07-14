@@ -7,6 +7,8 @@
 template <typename T>
 class ezUniquePtr
 {
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezUniquePtr);
+
 public:
   EZ_DECLARE_MEM_RELOCATABLE_TYPE();
 
@@ -43,19 +45,20 @@ public:
   void operator=(ezUniquePtr<U>&& other);
 
   /// \brief Same as calling 'Reset()'
-  EZ_ALWAYS_INLINE void operator=(std::nullptr_t) { Reset(); }
+  EZ_ALWAYS_INLINE void operator=(std::nullptr_t) { Clear(); }
 
   /// \brief Releases the managed object without destroying it. The unique ptr will be empty afterwards.
   T* Release();
 
-  /// \brief Releases the managed object without destroying it. The unique ptr will be empty afterwards. Also returns the allocator that should be used to destroy the object.
+  /// \brief Releases the managed object without destroying it. The unique ptr will be empty afterwards. Also returns the allocator that
+  /// should be used to destroy the object.
   T* Release(ezAllocatorBase*& out_pAllocator);
 
   /// \brief Borrows the managed object. The unique ptr stays unmodified.
   T* Borrow() const;
 
   /// \brief Destroys the managed object and resets the unique ptr.
-  void Reset();
+  void Clear();
 
   /// \brief Provides access to the managed object.
   T& operator*() const;
@@ -82,15 +85,12 @@ public:
   bool operator>(std::nullptr_t) const;
   bool operator>=(std::nullptr_t) const;
 
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezUniquePtr);
-
 private:
   template <typename U>
   friend class ezUniquePtr;
 
-  T* m_pInstance;
-  ezAllocatorBase* m_pAllocator;
+  T* m_pInstance = nullptr;
+  ezAllocatorBase* m_pAllocator = nullptr;
 };
 
 #include <Foundation/Types/Implementation/UniquePtr_inl.h>
-

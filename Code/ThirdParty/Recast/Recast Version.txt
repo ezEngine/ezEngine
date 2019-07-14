@@ -1,0 +1,3 @@
+Nov 21, 2018
+ commit 14b2631527c4792e95b2c78ebfa8ac4cd3413363
+ Use Travis-CI Matrix to add more type of builds (#366) 

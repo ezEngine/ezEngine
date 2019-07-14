@@ -50,7 +50,7 @@ void ezDepthOnlyPass::Execute(const ezRenderViewContext& renderViewContext, cons
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   // Setup render target
-  ezGALRenderTagetSetup renderTargetSetup;
+  ezGALRenderTargetSetup renderTargetSetup;
   if (inputs[m_PinDepthStencil.m_uiInputIndex])
   {
     renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));

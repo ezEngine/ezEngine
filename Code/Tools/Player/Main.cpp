@@ -1,38 +1,34 @@
 #include "Main.h"
+
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Threading/Lock.h>
-#include <GameEngine/Components/InputComponent.h>
-#include <GameEngine/Components/RotorComponent.h>
-#include <GameEngine/Components/SliderComponent.h>
-#include <GameEngine/Components/SpawnComponent.h>
-#include <GameEngine/Components/TimedDeathComponent.h>
+#include <GameEngine/Animation/RotorComponent.h>
+#include <GameEngine/Animation/SliderComponent.h>
+#include <GameEngine/Gameplay/InputComponent.h>
+#include <GameEngine/Gameplay/TimedDeathComponent.h>
+#include <GameEngine/Prefabs/SpawnComponent.h>
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <System/XBoxController/InputDeviceXBox.h>
-ezInputDeviceXBox360 g_XboxInputDevice;
-#endif
-
 ezPlayerApplication::ezPlayerApplication()
-    : ezGameApplication("ezPlayer", nullptr)
+  : ezGameApplication("ezPlayer", nullptr)
 {
   m_pWorld = nullptr;
 }
 
-void ezPlayerApplication::BeforeCoreSystemsStartup()
+ezResult ezPlayerApplication::BeforeCoreSystemsStartup()
 {
   ezStartup::AddApplicationTag("player");
 
-  SUPER::BeforeCoreSystemsStartup();
+  EZ_SUCCEED_OR_RETURN(SUPER::BeforeCoreSystemsStartup());
 
   m_sSceneFile = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene", 0, "");
-  EZ_ASSERT_ALWAYS(!m_sSceneFile.IsEmpty(),
-                   "Scene file has not been specified. Use the -scene command followed by a full path to the ezBinaryScene file");
+  EZ_ASSERT_ALWAYS(
+    !m_sSceneFile.IsEmpty(), "Scene file has not been specified. Use the -scene command followed by a full path to the ezBinaryScene file");
 
   ezStringBuilder projectPath;
   if (ezFileSystem::FindFolderWithSubPath(m_sSceneFile, "ezProject", projectPath).Succeeded())
@@ -41,6 +37,8 @@ void ezPlayerApplication::BeforeCoreSystemsStartup()
   }
 
   EZ_ASSERT_ALWAYS(!m_sAppProjectPath.IsEmpty(), "No project directory could be found for scene file '{0}'", m_sSceneFile);
+
+  return EZ_SUCCESS;
 }
 
 
@@ -57,9 +55,9 @@ void ezPlayerApplication::AfterCoreSystemsStartup()
 
 void ezPlayerApplication::BeforeHighLevelSystemsShutdown()
 {
-  m_pWorld = nullptr;
-
   SUPER::BeforeHighLevelSystemsShutdown();
+
+  m_pWorld = nullptr;
 }
 
 void ezPlayerApplication::SetupLevel()

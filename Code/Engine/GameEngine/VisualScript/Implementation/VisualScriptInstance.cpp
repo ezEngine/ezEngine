@@ -150,7 +150,7 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScri
 {
   Clear();
 
-  ezResourceLock<ezVisualScriptResource> pScript(hScript, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezVisualScriptResource> pScript(hScript, ezResourceAcquireMode::BlockTillLoaded);
   const auto& resource = pScript->GetDescriptor();
   m_pMessageHandlers = &resource.m_MessageHandlers;
 

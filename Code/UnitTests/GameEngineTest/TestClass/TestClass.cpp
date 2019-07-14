@@ -7,6 +7,7 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <RendererFoundation/Device/Device.h>
 
 ezGameEngineTest::ezGameEngineTest() = default;
 ezGameEngineTest::~ezGameEngineTest() = default;
@@ -26,6 +27,17 @@ ezResult ezGameEngineTest::InitializeTest()
     return EZ_FAILURE;
 
   ezRun_Startup(m_pApplication);
+
+  if (ezGALDevice::GetDefaultDevice() != nullptr &&
+      ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver")
+  {
+    // Use different images for comparison when running the D3D11 Reference Device
+    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");
+  }
+  else
+  {
+    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("");
+  }
 
   return EZ_SUCCESS;
 }
@@ -57,7 +69,7 @@ ezResult ezGameEngineTest::DeInitializeTest()
 
 
 ezGameEngineTestApplication::ezGameEngineTestApplication(const char* szProjectDirName)
-    : ezGameApplication("ezGameEngineTest", nullptr)
+  : ezGameApplication("ezGameEngineTest", nullptr)
 {
   m_pWorld = nullptr;
   m_sProjectDirName = szProjectDirName;
@@ -67,6 +79,12 @@ ezGameEngineTestApplication::ezGameEngineTestApplication(const char* szProjectDi
 ezString ezGameEngineTestApplication::FindProjectDirectory() const
 {
   return m_sAppProjectPath;
+}
+
+ezString ezGameEngineTestApplication::GetProjectDataDirectoryPath() const
+{
+  ezStringBuilder sProjectPath(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath(), "/", m_sProjectDirName);
+  return sProjectPath;
 }
 
 ezResult ezGameEngineTestApplication::LoadScene(const char* szSceneFile)
@@ -102,15 +120,15 @@ ezResult ezGameEngineTestApplication::LoadScene(const char* szSceneFile)
   }
 }
 
-void ezGameEngineTestApplication::BeforeCoreSystemsStartup()
+ezResult ezGameEngineTestApplication::BeforeCoreSystemsStartup()
 {
-  SUPER::BeforeCoreSystemsStartup();
-
-  ezStringBuilder sProjectPath(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath(), "/", m_sProjectDirName);
+  EZ_SUCCEED_OR_RETURN(SUPER::BeforeCoreSystemsStartup());
 
   ezStringBuilder sProject;
-  ezFileSystem::ResolveSpecialDirectory(sProjectPath, sProject);
+  ezFileSystem::ResolveSpecialDirectory(GetProjectDataDirectoryPath(), sProject);
   m_sAppProjectPath = sProject;
+
+  return EZ_SUCCESS;
 }
 
 

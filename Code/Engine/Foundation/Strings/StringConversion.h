@@ -3,6 +3,8 @@
 #include <Foundation/Containers/HybridArray.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+// Include our windows.h header first to get rid of defines.
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 // For HString, HStringReference and co.
 #include <wrl/wrappers/corewrappers.h>
 #endif

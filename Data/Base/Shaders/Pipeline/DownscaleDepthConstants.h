@@ -6,5 +6,5 @@
 CONSTANT_BUFFER(ezDownscaleDepthConstants, 3)
 {
   FLOAT2(PixelSize);
-  BOOL(LinearizeDepth);
+  BOOL1(LinearizeDepth);
 };

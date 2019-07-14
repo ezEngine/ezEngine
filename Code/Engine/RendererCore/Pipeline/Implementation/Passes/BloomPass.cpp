@@ -137,7 +137,7 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
   renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
                                                      1);
 
-  ezGALRenderTagetSetup renderTargetSetup;
+  ezGALRenderTargetSetup renderTargetSetup;
 
   // Downscale passes
   {
@@ -268,7 +268,7 @@ void ezBloomPass::ExecuteInactive(const ezRenderViewContext& renderViewContext,
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
-  ezGALRenderTagetSetup renderTargetSetup;
+  ezGALRenderTargetSetup renderTargetSetup;
   renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
   pGALContext->SetRenderTargetSetup(renderTargetSetup);
 

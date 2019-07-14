@@ -1,13 +1,13 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
-#include <RendererCore/Pipeline/Declarations.h>
 #include <Core/ResourceManager/ResourceHandle.h>
-#include <RendererCore/Pipeline/RenderData.h>
-#include <RendererCore/Pipeline/Extractor.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
 #include <Foundation/Math/Rect.h>
-#include <ThirdParty/Imgui/imgui.h>
+#include <GameEngine/GameEngineDLL.h>
+#include <Imgui/imgui.h>
+#include <RendererCore/Meshes/MeshBufferResource.h>
+#include <RendererCore/Pipeline/Extractor.h>
+#include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Pipeline/Renderer.h>
 
 class ezRenderDataBatch;
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
@@ -35,7 +35,6 @@ class EZ_GAMEENGINE_DLL ezImguiRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezImguiRenderData, ezRenderData);
 
 public:
-
   ezArrayPtr<ezImguiVertex> m_Vertices;
   ezArrayPtr<ImDrawIdx> m_Indices;
   ezArrayPtr<ezImguiBatch> m_Batches;
@@ -44,11 +43,12 @@ public:
 class EZ_GAMEENGINE_DLL ezImguiExtractor : public ezExtractor
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezImguiExtractor, ezExtractor);
+
 public:
   ezImguiExtractor(const char* szName = "ImguiExtractor");
 
-  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-    ezExtractedRenderData& extractedRenderData) override;
+  virtual void Extract(
+    const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData) override;
 };
 
 class EZ_GAMEENGINE_DLL ezImguiRenderer : public ezRenderer
@@ -60,8 +60,10 @@ public:
   ezImguiRenderer();
   ~ezImguiRenderer();
 
-  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) override;
-  virtual void RenderBatch(const ezRenderViewContext& renderContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) override;
+  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const override;
+  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const override;
+  virtual void RenderBatch(
+    const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
 protected:
   void SetupRenderer();
@@ -74,4 +76,3 @@ protected:
   ezGALBufferHandle m_hIndexBuffer;
   ezVertexDeclarationInfo m_VertexDeclarationInfo;
 };
-

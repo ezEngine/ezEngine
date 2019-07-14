@@ -1,7 +1,5 @@
 #pragma once
 
-#include <PhysXPlugin/PhysXPluginDLL.h>
-#include <PhysXPlugin/Resources/PxMeshResource.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Meshes/MeshComponent.h>
@@ -52,7 +50,6 @@ protected:
   void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
 protected:
-  virtual ezMeshRenderData* CreateRenderData(ezUInt32 uiBatchId) const;
   void CreateRenderMesh();
 
   void CreateSkeletonGeometry(const ezSkeleton* pSkeletonData, ezGeometry& geo);

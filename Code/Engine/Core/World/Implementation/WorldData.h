@@ -9,6 +9,7 @@
 
 #include <Core/World/GameObject.h>
 #include <Core/World/WorldDesc.h>
+#include <Foundation/Types/SharedPtr.h>
 
 namespace ezInternal
 {
@@ -120,7 +121,7 @@ namespace ezInternal
     ezDynamicArray<UpdateTask*, ezLocalAllocatorWrapper> m_UpdateTasks;
 
     ezUniquePtr<ezSpatialSystem> m_pSpatialSystem;
-    ezUniquePtr<ezCoordinateSystemProvider> m_pCoordinateSystemProvider;
+    ezSharedPtr<ezCoordinateSystemProvider> m_pCoordinateSystemProvider;
     ezUniquePtr<ezTimeStepSmoothing> m_pTimeStepSmoothing;
 
     ezClock m_Clock;
@@ -161,6 +162,9 @@ namespace ezInternal
 
     bool m_bSimulateWorld;
     bool m_bReportErrorWhenStaticObjectMoves;
+
+    /// \brief Maps some data (given as void*) to an ezGameObjectHandle. Only available in special situations (e.g. editor use cases).
+    ezDelegate<ezGameObjectHandle(const void*)> m_GameObjectReferenceResolver;
 
   public:
     class ReadMarker

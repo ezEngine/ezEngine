@@ -57,12 +57,12 @@ void ezNode::InitializePins()
 
     if (pPin->m_Type == ezNodePin::Type::Input || pPin->m_Type == ezNodePin::Type::PassThrough)
     {
-      pPin->m_uiInputIndex = m_InputPins.GetCount();
+      pPin->m_uiInputIndex = static_cast<ezUInt8>(m_InputPins.GetCount());
       m_InputPins.PushBack(pPin);
     }
     if (pPin->m_Type == ezNodePin::Type::Output || pPin->m_Type == ezNodePin::Type::PassThrough)
     {
-      pPin->m_uiOutputIndex = m_OutputPins.GetCount();
+      pPin->m_uiOutputIndex = static_cast<ezUInt8>(m_OutputPins.GetCount());
       m_OutputPins.PushBack(pPin);
     }
 

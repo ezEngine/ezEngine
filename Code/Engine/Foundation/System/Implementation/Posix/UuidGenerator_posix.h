@@ -1,4 +1,8 @@
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 #include <uuid/uuid.h>
+
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt64) * 2 == sizeof(uuid_t));
 

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererFoundation/Resources/Texture.h>
 
@@ -8,8 +8,6 @@ struct ID3D11Resource;
 class ezGALTextureDX11 : public ezGALTexture
 {
 public:
-
-  void SetDebugName(const char* szName) const override;
 
   EZ_ALWAYS_INLINE ID3D11Resource* GetDXTexture() const;
 
@@ -25,8 +23,9 @@ protected:
   ~ezGALTextureDX11();
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
-
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+
+  virtual void SetDebugNamePlatform(const char* szName) const override;
 
   ezResult CreateStagingTexture(ezGALDeviceDX11* pDevice);
 
