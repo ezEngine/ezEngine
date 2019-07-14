@@ -25,6 +25,7 @@ ezSpatialDataHandle ezSpatialSystem::CreateSpatialData(const ezSimdBBoxSphere& b
   ezSpatialData* pData = m_DataStorage.Create();
 
   pData->m_pObject = pObject;
+  pData->m_uiCategoryBitmask = uiCategoryBitmask;
   pData->m_Bounds = bounds;
 
   SpatialDataAdded(pData);
@@ -37,6 +38,7 @@ ezSpatialDataHandle ezSpatialSystem::CreateSpatialDataAlwaysVisible(ezGameObject
   ezSpatialData* pData = m_DataStorage.Create();
 
   pData->m_pObject = pObject;
+  pData->m_uiCategoryBitmask = uiCategoryBitmask;
   pData->m_Flags.Add(ezSpatialData::Flags::AlwaysVisible);
   pData->m_Bounds.SetInvalid();
 

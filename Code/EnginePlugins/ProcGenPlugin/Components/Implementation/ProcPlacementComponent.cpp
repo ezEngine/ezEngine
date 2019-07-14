@@ -508,9 +508,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProcGenBoxExtents, ezNoBase, 1, ezRTTIDefaultAl
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-      new ezBoxManipulatorAttribute("Extents", "Offset", "Rotation"),
-      new ezBoxVisualizerAttribute("Extents", "Offset", "Rotation", nullptr, ezColor::CornflowerBlue),
-      new ezTransformManipulatorAttribute("Offset", "Rotation"),
+    new ezBoxManipulatorAttribute("Extents", "Offset", "Rotation"),
+    new ezBoxVisualizerAttribute("Extents", "Offset", "Rotation", nullptr, ezColor::CornflowerBlue),
+    new ezTransformManipulatorAttribute("Offset", "Rotation"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -520,19 +520,19 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcPlacementComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-      EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("ProcGen Graph")),
-      EZ_ARRAY_ACCESSOR_PROPERTY("BoxExtents", BoxExtents_GetCount, BoxExtents_GetValue, BoxExtents_SetValue, BoxExtents_Insert, BoxExtents_Remove),
+    EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("ProcGen Graph")),
+    EZ_ARRAY_ACCESSOR_PROPERTY("BoxExtents", BoxExtents_GetCount, BoxExtents_GetValue, BoxExtents_SetValue, BoxExtents_Insert, BoxExtents_Remove),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-      EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
-      EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-      new ezCategoryAttribute("Procedural Generation"),
+    new ezCategoryAttribute("Procedural Generation"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -613,7 +613,7 @@ void ezProcPlacementComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
     bounds.ExpandToInclude(localBox);
   }
 
-  msg.AddBounds(bounds);
+  msg.AddBounds(bounds, GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic);
 }
 
 void ezProcPlacementComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const

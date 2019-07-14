@@ -30,7 +30,7 @@ namespace
       ezBoundingBox bounds;
       bounds.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(x, y, z));
 
-      msg.AddBounds(bounds);
+      msg.AddBounds(bounds, GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic);
     }
   };
 
@@ -65,6 +65,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     float z = (float)rng.DoubleMinMax(-range, range);
 
     ezGameObjectDesc desc;
+    desc.m_bDynamic = (i >= 500);
     desc.m_LocalPosition = ezVec3(x, y, z);
 
     ezGameObject* pObject = nullptr;
@@ -76,13 +77,15 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
   world.Update();
 
+  ezUInt32 uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask();
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindObjectsInSphere")
   {
     ezBoundingSphere testSphere(ezVec3(100.0f, 60.0f, 400.0f), 3000.0f);
 
     ezDynamicArray<ezGameObject*> objectsInSphere;
     ezHashSet<ezGameObject*> uniqueObjects;
-    world.GetSpatialSystem().FindObjectsInSphere(testSphere, objectsInSphere);
+    world.GetSpatialSystem().FindObjectsInSphere(testSphere, uiCategoryBitmask, objectsInSphere);
 
     for (auto pObject : objectsInSphere)
     {
@@ -99,13 +102,14 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       if (testSphere.Overlaps(objSphere))
       {
         EZ_TEST_BOOL(uniqueObjects.Contains(it));
+        EZ_TEST_BOOL(it->IsStatic());
       }
     }
 
     objectsInSphere.Clear();
     uniqueObjects.Clear();
 
-    world.GetSpatialSystem().FindObjectsInSphere(testSphere, [&](ezGameObject* pObject) {
+    world.GetSpatialSystem().FindObjectsInSphere(testSphere, uiCategoryBitmask, [&](ezGameObject* pObject) {
       objectsInSphere.PushBack(pObject);
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
 
@@ -126,6 +130,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       if (testSphere.Overlaps(objSphere))
       {
         EZ_TEST_BOOL(uniqueObjects.Contains(it));
+        EZ_TEST_BOOL(it->IsStatic());
       }
     }
   }
@@ -137,7 +142,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
     ezDynamicArray<ezGameObject*> objectsInBox;
     ezHashSet<ezGameObject*> uniqueObjects;
-    world.GetSpatialSystem().FindObjectsInBox(testBox, objectsInBox);
+    world.GetSpatialSystem().FindObjectsInBox(testBox, uiCategoryBitmask, objectsInBox);
 
     for (auto pObject : objectsInBox)
     {
@@ -154,13 +159,14 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       if (testBox.Overlaps(objBox))
       {
         EZ_TEST_BOOL(uniqueObjects.Contains(it));
+        EZ_TEST_BOOL(it->IsStatic());
       }
     }
 
     objectsInBox.Clear();
     uniqueObjects.Clear();
 
-    world.GetSpatialSystem().FindObjectsInBox(testBox, [&](ezGameObject* pObject) {
+    world.GetSpatialSystem().FindObjectsInBox(testBox, uiCategoryBitmask, [&](ezGameObject* pObject) {
       objectsInBox.PushBack(pObject);
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
 
@@ -181,6 +187,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       if (testBox.Overlaps(objBox))
       {
         EZ_TEST_BOOL(uniqueObjects.Contains(it));
+        EZ_TEST_BOOL(it->IsStatic());
       }
     }
   }

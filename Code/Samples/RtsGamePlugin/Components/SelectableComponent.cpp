@@ -25,6 +25,8 @@ EZ_BEGIN_COMPONENT_TYPE(RtsSelectableComponent, 1, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
+ezSpatialData::Category RtsSelectableComponent::s_SelectableCategory = ezSpatialData::RegisterCategory("Selectable");
+
 RtsSelectableComponent::RtsSelectableComponent() = default;
 RtsSelectableComponent::~RtsSelectableComponent() = default;
 
@@ -60,5 +62,5 @@ void RtsSelectableComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
   bounds.m_vCenter.SetZero();
   bounds.m_vBoxHalfExtends.Set(m_fSelectionRadius);
 
-  msg.AddBounds(bounds);
+  msg.AddBounds(bounds, s_SelectableCategory);
 }

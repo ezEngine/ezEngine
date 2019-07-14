@@ -23,7 +23,7 @@ struct EZ_ALIGN_16(ezSpatialData)
 
     ezUInt32 m_uiValue;
 
-    EZ_ALWAYS_INLINE ezUInt32 GetBitmask() const { return EZ_BIT(m_uiValue); }
+    EZ_ALWAYS_INLINE ezUInt32 GetBitmask() const { return m_uiValue != ezInvalidIndex ? EZ_BIT(m_uiValue) : 0; }
   };
 
   static EZ_CORE_DLL Category RegisterCategory(const char* szCategoryName);
