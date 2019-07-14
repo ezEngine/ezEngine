@@ -401,7 +401,7 @@ void ezAssetCurator::TransformAllAssets(const ezPlatformProfile* pAssetProfile)
       --uiNumStepsLeft;
     }
 
-    auto res = ProcessAsset(pAssetInfo, pAssetProfile, true);
+    auto res = ProcessAsset(pAssetInfo, pAssetProfile, false);
     if (res.m_Result.Failed())
     {
       ezLog::Error("{0} ({1})", res.m_sMessage, pAssetInfo->m_sDataDirRelativePath);
@@ -901,6 +901,10 @@ void ezAssetCurator::CheckFileSystem()
 
 ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformProfile* pAssetProfile, bool bTriggeredManually)
 {
+  EZ_LOG_BLOCK("ProcessAsset", pAssetInfo->m_sDataDirRelativePath);
+
+  if (bTriggeredManually)
+    ezLog::Dev("Asset transform triggered manually (force transform).");
 
   for (const auto& dep : pAssetInfo->m_Info->m_AssetTransformDependencies)
   {
