@@ -68,10 +68,12 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	# /Ob1: Only consider functions for inlining that are marked with inline or forceinline
 	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:DEBUG>:/Ob1>")
 	
-	# /Ob2: Consider all functions for inlining
-	# /Oi: Replace some functions with intrinsics or other special forms of the function
 	# /Ox: favor speed for optimizations
-	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:RELEASE>:/Ox /Ob2 /Oi>")
+	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:RELEASE>:/Ox>")
+	# /Ob2: Consider all functions for inlining
+	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:RELEASE>:/Ob2>")
+	# /Oi: Replace some functions with intrinsics or other special forms of the function
+	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:RELEASE>:/Oi>")
 	
 	# Enable SSE4.1 for Clang on Windows.
 	# Todo: In general we should make this configurable. As of writing SSE4.1 is always active for windows builds (independent of the compiler)
