@@ -25,6 +25,7 @@ class ezProgress;
 class ezQtProgressbar;
 class ezQtEditorApp;
 class QStringList;
+class ezTranslatorFromFiles;
 
 struct EZ_EDITORFRAMEWORK_DLL ezEditorAppEvent
 {
@@ -277,6 +278,10 @@ private:
   // *** Progress Bar ***
   ezProgress* m_pProgressbar;
   ezQtProgressbar* m_pQtProgressbar;
+
+  // *** Localization ***
+  ezTranslatorFromFiles* m_pTranslatorFromFiles = nullptr;
+
 
   ezWhatsNewText m_WhatsNew;
 };

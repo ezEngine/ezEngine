@@ -100,6 +100,12 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
       ReadTagRegistry();
       UpdateInputDynamicEnumValues();
 
+      // add project specific translations
+      // (these are currently never removed)
+      {
+        m_pTranslatorFromFiles->AddTranslationFilesFromFolder(":project/Editor/Localization/en");
+      }
+
       // tell the engine process which file system and plugin configuration to use
       ezEditorEngineProcessConnection::GetSingleton()->SetFileSystemConfig(m_FileSystemConfig);
       ezEditorEngineProcessConnection::GetSingleton()->SetPluginConfig(m_EnginePluginConfig);
