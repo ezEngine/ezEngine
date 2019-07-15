@@ -11,3 +11,11 @@ struct EZ_CORE_DLL ezMsgSetPlaying : public ezMessage
   bool m_bPlay = true;
 };
 
+/// \brief Basic message to set some generic parameter to a float value.
+struct EZ_CORE_DLL ezMsgSetFloatParameter : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgSetFloatParameter, ezMessage);
+
+  ezString m_sParameterName;
+  float m_fValue = 0;
+};

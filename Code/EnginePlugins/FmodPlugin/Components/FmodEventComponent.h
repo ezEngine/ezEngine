@@ -6,6 +6,7 @@
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 
 class ezPhysicsWorldModuleInterface;
+struct ezMsgSetFloatParameter;
 
 class ezFmodEventComponentManager : public ezComponentManager<class ezFmodEventComponent, ezBlockStorageType::FreeList>
 {
@@ -166,6 +167,11 @@ public:
 
   /// \brief Gets an fmod event parameter value. See FindParameter() for the index. Returns 0, if the index is invalid.
   float GetParameter(ezInt32 iParamIndex) const;
+
+  /// \brief Allows to set event parameters through the generic ezMsgSetFloatParameter message.
+  ///
+  /// Requires event parameter lookup via a name, so this is less efficient than SetParameter()
+  void SetEventParameter(ezMsgSetFloatParameter& msg);
 
 protected:
 

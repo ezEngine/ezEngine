@@ -92,19 +92,19 @@ void ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
 
 void ezWorldReader::InstantiateWorld(ezWorld& world, const ezUInt16* pOverrideTeamID)
 {
-  Instantiate(world, false, ezTransform(), ezGameObjectHandle(), nullptr, nullptr, pOverrideTeamID);
+  Instantiate(world, false, ezTransform(), ezGameObjectHandle(), nullptr, nullptr, pOverrideTeamID, false);
 }
 
 void ezWorldReader::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent,
                                       ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects,
-                                      ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects, const ezUInt16* pOverrideTeamID)
+                                      ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects, const ezUInt16* pOverrideTeamID, bool bForceDynamic)
 {
-  Instantiate(world, true, rootTransform, hParent, out_CreatedRootObjects, out_CreatedChildObjects, pOverrideTeamID);
+  Instantiate(world, true, rootTransform, hParent, out_CreatedRootObjects, out_CreatedChildObjects, pOverrideTeamID, bForceDynamic);
 }
 
 void ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent,
                                 ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects,
-                                ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects, const ezUInt16* pOverrideTeamID)
+                                ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects, const ezUInt16* pOverrideTeamID, bool bForceDynamic)
 {
   m_pWorld = &world;
 
@@ -118,14 +118,14 @@ void ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform, const ezTran
 
   if (bUseTransform)
   {
-    CreateGameObjects(m_RootObjectsToCreate, rootTransform, hParent, out_CreatedRootObjects, pOverrideTeamID);
+    CreateGameObjects(m_RootObjectsToCreate, rootTransform, hParent, out_CreatedRootObjects, pOverrideTeamID, bForceDynamic);
   }
   else
   {
-    CreateGameObjects(m_RootObjectsToCreate, hParent, out_CreatedRootObjects, pOverrideTeamID);
+    CreateGameObjects(m_RootObjectsToCreate, hParent, out_CreatedRootObjects, pOverrideTeamID, bForceDynamic);
   }
 
-  CreateGameObjects(m_ChildObjectsToCreate, ezGameObjectHandle(), out_CreatedChildObjects, pOverrideTeamID);
+  CreateGameObjects(m_ChildObjectsToCreate, ezGameObjectHandle(), out_CreatedChildObjects, pOverrideTeamID, bForceDynamic);
 
   // read component data from copied memory stream
   if (m_ComponentStream.GetStorageSize() > 0)
@@ -361,7 +361,7 @@ void ezWorldReader::FulfillComponentHandleRequets()
 }
 
 void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent,
-                                      ezHybridArray<ezGameObject*, 8>* out_CreatedObjects, const ezUInt16* pOverrideTeamID)
+                                      ezHybridArray<ezGameObject*, 8>* out_CreatedObjects, const ezUInt16* pOverrideTeamID, bool bForceDynamic)
 {
   if (hParent.IsInvalidated())
   {
@@ -369,6 +369,7 @@ void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& 
     {
       ezGameObjectDesc desc = godesc.m_Desc; // make a copy
       desc.m_hParent = m_IndexToGameObjectHandle[godesc.m_uiParentHandleIdx];
+      desc.m_bDynamic |= bForceDynamic;
 
       if (pOverrideTeamID != nullptr)
         desc.m_uiTeamID = *pOverrideTeamID;
@@ -391,6 +392,7 @@ void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& 
     {
       ezGameObjectDesc desc = godesc.m_Desc; // make a copy
       desc.m_hParent = hParent;
+      desc.m_bDynamic |= bForceDynamic;
 
       ezGameObject* pObject;
       m_IndexToGameObjectHandle.PushBack(m_pWorld->CreateObject(desc, pObject));
@@ -409,12 +411,13 @@ void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& 
 
 void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, const ezTransform& rootTransform,
                                       ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects,
-                                      const ezUInt16* pOverrideTeamID)
+                                      const ezUInt16* pOverrideTeamID, bool bForceDynamic)
 {
   for (const auto& godesc : objects)
   {
     ezGameObjectDesc desc = godesc.m_Desc; // make a copy
     desc.m_hParent = hParent;
+    desc.m_bDynamic |= bForceDynamic;
 
     if (pOverrideTeamID != nullptr)
       desc.m_uiTeamID = *pOverrideTeamID;

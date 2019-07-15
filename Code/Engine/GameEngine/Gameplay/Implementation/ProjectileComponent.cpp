@@ -354,7 +354,7 @@ void ezProjectileComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
     ezResourceLock<ezPrefabResource> pPrefab(m_hTimeoutPrefab, ezResourceAcquireMode::AllowLoadingFallback);
 
     pPrefab->InstantiatePrefab(
-      *GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr);
+      *GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr, false);
   }
 
   GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());

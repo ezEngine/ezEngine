@@ -13,9 +13,13 @@ EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgCollision);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgCollision, 1, ezRTTIDefaultAllocator<ezMsgCollision>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+//////////////////////////////////////////////////////////////////////////
+
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgDeleteGameObject);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgDeleteGameObject, 1, ezRTTIDefaultAllocator<ezMsgDeleteGameObject>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+//////////////////////////////////////////////////////////////////////////
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgComponentInternalTrigger);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgComponentInternalTrigger, 1, ezRTTIDefaultAllocator<ezMsgComponentInternalTrigger>)
@@ -29,9 +33,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgComponentInternalTrigger, 1, ezRTTIDefaultA
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+//////////////////////////////////////////////////////////////////////////
+
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgUpdateLocalBounds);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgUpdateLocalBounds, 1, ezRTTIDefaultAllocator<ezMsgUpdateLocalBounds>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+//////////////////////////////////////////////////////////////////////////
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSetPlaying);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetPlaying, 1, ezRTTIDefaultAllocator<ezMsgSetPlaying>)
@@ -49,17 +57,44 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetPlaying, 1, ezRTTIDefaultAllocator<ezMsg
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+//////////////////////////////////////////////////////////////////////////
+
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgChildrenChanged);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgChildrenChanged, 1, ezRTTIDefaultAllocator<ezMsgChildrenChanged>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+//////////////////////////////////////////////////////////////////////////
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgComponentsChanged);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgComponentsChanged, 1, ezRTTIDefaultAllocator<ezMsgComponentsChanged>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+//////////////////////////////////////////////////////////////////////////
+
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTransformChanged);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTransformChanged, 1, ezRTTIDefaultAllocator<ezMsgTransformChanged>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSetFloatParameter);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetFloatParameter, 1, ezRTTIDefaultAllocator<ezMsgSetFloatParameter>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Name", m_sParameterName),
+    EZ_MEMBER_PROPERTY("Value", m_fValue),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezAutoGenVisScriptMsgSender(),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+//////////////////////////////////////////////////////////////////////////
 
 // clang-format on
 

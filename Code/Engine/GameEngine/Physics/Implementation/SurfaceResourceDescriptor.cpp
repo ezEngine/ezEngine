@@ -20,6 +20,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSurfaceInteraction, ezNoBase, 1, ezRTTIDefaultA
     EZ_ENUM_MEMBER_PROPERTY("Alignment", ezSurfaceInteractionAlignment, m_Alignment),
     EZ_MEMBER_PROPERTY("Deviation", m_Deviation)->AddAttributes(new ezClampValueAttribute(ezVariant(ezAngle::Degree(0.0f)), ezVariant(ezAngle::Degree(90.0f)))),
     EZ_MEMBER_PROPERTY("ImpulseThreshold", m_fImpulseThreshold),
+    EZ_MEMBER_PROPERTY("ImpulseScale", m_fImpulseScale)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
   }
   EZ_END_PROPERTIES;
 }
@@ -67,7 +68,7 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
 
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion <= 4, "Invalid version {0} for surface resource", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= 5, "Invalid version {0} for surface resource", uiVersion);
 
   stream >> m_fPhysicsRestitution;
   stream >> m_fPhysicsFrictionStatic;
@@ -99,13 +100,18 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
       {
         stream >> m_Interactions[i].m_fImpulseThreshold;
       }
+
+      if (uiVersion >= 5)
+      {
+        stream >> m_Interactions[i].m_fImpulseScale;
+      }
     }
   }
 }
 
 void ezSurfaceResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 4;
+  const ezUInt8 uiVersion = 5;
 
   stream << uiVersion;
   stream << m_fPhysicsRestitution;
@@ -126,6 +132,9 @@ void ezSurfaceResourceDescriptor::Save(ezStreamWriter& stream) const
 
     // version 4
     stream << ia.m_fImpulseThreshold;
+
+    // version 5
+    stream << ia.m_fImpulseScale;
   }
 }
 

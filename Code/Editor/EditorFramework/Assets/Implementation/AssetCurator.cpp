@@ -901,8 +901,6 @@ void ezAssetCurator::CheckFileSystem()
 
 ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformProfile* pAssetProfile, bool bTriggeredManually)
 {
-  EZ_LOG_BLOCK("ProcessAsset", pAssetInfo->m_sDataDirRelativePath);
-
   if (bTriggeredManually)
     ezLog::Dev("Asset transform triggered manually (force transform).");
 

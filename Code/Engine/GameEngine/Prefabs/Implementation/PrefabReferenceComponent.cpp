@@ -245,7 +245,7 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
     {
       ezHybridArray<ezGameObject*, 8> createdRootObjects;
 
-      pResource->InstantiatePrefab(*GetWorld(), id, GetOwner()->GetHandle(), &createdRootObjects, &GetOwner()->GetTeamID(), &m_Parameters);
+      pResource->InstantiatePrefab(*GetWorld(), id, GetOwner()->GetHandle(), &createdRootObjects, &GetOwner()->GetTeamID(), &m_Parameters, false);
 
       // while exporting a scene all game objects with this tag are ignored and not exported
       // set this tag on all game objects that were created by instantiating this prefab
@@ -260,7 +260,7 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
     }
     else
     {
-      pResource->InstantiatePrefab(*GetWorld(), id, GetOwner()->GetHandle(), nullptr, &GetOwner()->GetTeamID(), &m_Parameters);
+      pResource->InstantiatePrefab(*GetWorld(), id, GetOwner()->GetHandle(), nullptr, &GetOwner()->GetTeamID(), &m_Parameters, false);
     }
   }
 }

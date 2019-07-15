@@ -367,7 +367,7 @@ ezGameObject* RtsGameState::SpawnNamedObjectAt(const ezTransform& transform, con
   ezResourceLock<ezPrefabResource> pPrefab(hPrefab, ezResourceAcquireMode::BlockTillLoaded);
 
   ezHybridArray<ezGameObject*, 8> CreatedRootObjects;
-  pPrefab->InstantiatePrefab(*m_pMainWorld, transform, ezGameObjectHandle(), &CreatedRootObjects, &uiTeamID, nullptr);
+  pPrefab->InstantiatePrefab(*m_pMainWorld, transform, ezGameObjectHandle(), &CreatedRootObjects, &uiTeamID, nullptr, false);
 
   return CreatedRootObjects[0];
 }

@@ -289,5 +289,5 @@ void ezParticleEventReaction_Prefab::ProcessEvent(const ezParticleEvent& e)
   trans.m_qRotation = trans.m_qRotation * qRot;
 
   ezResourceLock<ezPrefabResource> pPrefab(m_hPrefab, ezResourceAcquireMode::BlockTillLoaded);
-  pPrefab->InstantiatePrefab(*m_pOwnerEffect->GetWorld(), trans, ezGameObjectHandle(), nullptr, nullptr, nullptr);
+  pPrefab->InstantiatePrefab(*m_pOwnerEffect->GetWorld(), trans, ezGameObjectHandle(), nullptr, nullptr, nullptr, false);
 }

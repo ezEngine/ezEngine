@@ -54,7 +54,7 @@ private:
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
-  static const ezSurfaceInteraction* FindInteraction(const ezSurfaceResource* pCurSurf, ezUInt32 uiHash, float fImpulseSqr);
+  static const ezSurfaceInteraction* FindInteraction(const ezSurfaceResource* pCurSurf, ezUInt32 uiHash, float fImpulseSqr, float& out_fImpulseParamValue);
 
   ezSurfaceResourceDescriptor m_Descriptor;
 

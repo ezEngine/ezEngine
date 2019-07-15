@@ -15,7 +15,7 @@
 using namespace physx;
 
 ezPxDynamicActorComponentManager::ezPxDynamicActorComponentManager(ezWorld* pWorld)
-    : ezComponentManager<ezPxDynamicActorComponent, ezBlockStorageType::FreeList>(pWorld)
+  : ezComponentManager<ezPxDynamicActorComponent, ezBlockStorageType::FreeList>(pWorld)
 {
 }
 
@@ -98,9 +98,11 @@ void ezPxDynamicActorComponentManager::UpdateMaxDepenetrationVelocity(float fMax
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 3, ezComponentMode::Dynamic)
 {
-  EZ_BEGIN_PROPERTIES{
+  EZ_BEGIN_PROPERTIES
+  {
       EZ_ACCESSOR_PROPERTY("Kinematic", GetKinematic, SetKinematic),
       EZ_ACCESSOR_PROPERTY("Mass", GetMass, SetMass)->AddAttributes(new ezSuffixAttribute(" kg")),
       EZ_MEMBER_PROPERTY("Density", m_fDensity)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezSuffixAttribute(" kg/m^3")),
@@ -110,16 +112,20 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 3, ezComponentMode::Dynamic)
       EZ_MEMBER_PROPERTY("MaxContactImpulse", m_fMaxContactImpulse)
           ->AddAttributes(new ezDefaultValueAttribute(1000000.0f), new ezClampValueAttribute(0.0f, ezVariant())),
       EZ_ACCESSOR_PROPERTY("ContinuousCollisionDetection", GetContinuousCollisionDetection, SetContinuousCollisionDetection)
-  } EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS{
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
       EZ_MESSAGE_HANDLER(ezMsgPhysicsAddForce, AddForceAtPos),
       EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, AddImpulseAtPos),
-  } EZ_END_MESSAGEHANDLERS;
+  }
+  EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
 ezPxDynamicActorComponent::ezPxDynamicActorComponent()
-    : m_UserData(this)
+  : m_UserData(this)
 {
   m_bKinematic = false;
   m_bDisableGravity = false;
@@ -417,7 +423,7 @@ void ezPxDynamicActorComponent::AddForceAtPos(ezMsgPhysicsAddForce& msg)
     EZ_PX_WRITE_LOCK(*m_pActor->getScene());
 
     PxRigidBodyExt::addForceAtPos(*m_pActor, ezPxConversionUtils::ToVec3(msg.m_vForce), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition),
-                                  PxForceMode::eFORCE);
+      PxForceMode::eFORCE);
   }
 }
 
@@ -428,7 +434,7 @@ void ezPxDynamicActorComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
     EZ_PX_WRITE_LOCK(*m_pActor->getScene());
 
     PxRigidBodyExt::addForceAtPos(*m_pActor, ezPxConversionUtils::ToVec3(msg.m_vImpulse),
-                                  ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
+      ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
   }
 }
 

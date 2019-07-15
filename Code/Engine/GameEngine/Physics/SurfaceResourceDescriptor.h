@@ -39,6 +39,7 @@ struct EZ_GAMEENGINE_DLL ezSurfaceInteraction
   ezEnum<ezSurfaceInteractionAlignment> m_Alignment;
   ezAngle m_Deviation;
   float m_fImpulseThreshold = 0.0f;
+  float m_fImpulseScale = 1.0f;
 };
 
 
