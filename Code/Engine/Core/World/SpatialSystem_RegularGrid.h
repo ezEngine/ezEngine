@@ -15,16 +15,16 @@ public:
   ezResult GetCellBoxForSpatialData(const ezSpatialDataHandle& hData, ezBoundingBox& out_BoundingBox) const;
 
   /// \brief Returns bounding boxes of all existing cells.
-  void GetAllCellBoxes(ezHybridArray<ezBoundingBox, 16>& out_BoundingBoxes) const;
+  void GetAllCellBoxes(ezHybridArray<ezBoundingBox, 16>& out_BoundingBoxes, ezSpatialData::Category filterCategory = ezInvalidSpatialDataCategory) const;
 
 private:
   // ezSpatialSystem implementation
   virtual void FindObjectsInSphereInternal(const ezBoundingSphere& sphere, ezUInt32 uiCategoryBitmask, QueryCallback callback,
-                                           QueryStats* pStats = nullptr) const override;
+    QueryStats* pStats = nullptr) const override;
   virtual void FindObjectsInBoxInternal(const ezBoundingBox& box, ezUInt32 uiCategoryBitmask, QueryCallback callback, QueryStats* pStats = nullptr) const override;
 
   virtual void FindVisibleObjectsInternal(const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezDynamicArray<const ezGameObject*>& out_Objects,
-                                          QueryStats* pStats = nullptr) const override;
+    QueryStats* pStats = nullptr) const override;
 
   virtual void SpatialDataAdded(ezSpatialData* pData) override;
   virtual void SpatialDataRemoved(ezSpatialData* pData) override;
@@ -38,15 +38,13 @@ private:
 
   struct SpatialUserData;
   struct Cell;
-  struct CellKeyHashHelper;  
+  struct CellKeyHashHelper;
+  struct CellsPerCategory;
 
-  ezHashTable<ezUInt64, Cell*, CellKeyHashHelper, ezLocalAllocatorWrapper> m_Cells;
-
-  Cell* m_pOverflowCell;
+  ezHybridArray<ezUniquePtr<CellsPerCategory>, 2> m_CellsPerCategory;
 
   template <typename Functor>
-  void ForEachCellInBox(const ezSimdBBox& box, Functor func) const;
+  void ForEachCellInBox(const ezSimdBBox& box, ezUInt32 uiCategoryBitmask, Functor func) const;
 
-  Cell* GetOrCreateCell(const ezSimdBBoxSphere& bounds);
+  Cell* GetOrCreateCell(const ezSimdBBoxSphere& bounds, ezUInt32 category);
 };
-
