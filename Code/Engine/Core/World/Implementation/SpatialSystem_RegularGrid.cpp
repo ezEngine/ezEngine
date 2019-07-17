@@ -149,35 +149,37 @@ struct ezSpatialSystem_RegularGrid::Cell
 
     auto pUserData = reinterpret_cast<SpatialUserData*>(&pData->m_uiUserData[0]);
 
-    EZ_ASSERT_DEBUG(pUserData->m_pCell == nullptr, "Data can't be in multiple cells");
-    pUserData->m_pCell = this;
-    pUserData->m_uiDataIndex = dataIndex;
+    EZ_ASSERT_DEBUG(pUserData->m_pCachedCell == nullptr, "Data can't be in multiple cells");
+    pUserData->m_pCachedCell = this;
+    pUserData->m_uiCachedDataIndex = dataIndex;
+    pUserData->m_uiCachedCategory = m_uiCategory;
   }
 
   EZ_FORCE_INLINE void RemoveData(ezSpatialData* pData)
   {
     auto pUserData = reinterpret_cast<SpatialUserData*>(&pData->m_uiUserData[0]);
-    ezUInt32 dataIndex = pUserData->m_uiDataIndex;
+    ezUInt32 dataIndex = pUserData->m_uiCachedDataIndex;
 
     if (dataIndex != m_DataPointers.GetCount() - 1)
     {
       ezSpatialData* pLastData = m_DataPointers.PeekBack();
       auto pLastUserData = reinterpret_cast<SpatialUserData*>(&pLastData->m_uiUserData[0]);
-      pLastUserData->m_uiDataIndex = dataIndex;
+      pLastUserData->m_uiCachedDataIndex = dataIndex;
     }
 
     m_BoundingSpheres.RemoveAtAndSwap(dataIndex);
     m_DataPointers.RemoveAtAndSwap(dataIndex);
 
-    EZ_ASSERT_DEBUG(pUserData->m_pCell == this, "Implementation error");
-    pUserData->m_pCell = nullptr;
-    pUserData->m_uiDataIndex = ezInvalidIndex;
+    EZ_ASSERT_DEBUG(pUserData->m_pCachedCell == this, "Implementation error");
+    pUserData->m_pCachedCell = nullptr;
+    pUserData->m_uiCachedDataIndex = ezInvalidIndex;
+    pUserData->m_uiCachedCategory = ezInvalidIndex;
   }
 
   EZ_FORCE_INLINE void UpdateData(ezSpatialData* pData)
   {
     auto pUserData = reinterpret_cast<SpatialUserData*>(&pData->m_uiUserData[0]);
-    ezUInt32 dataIndex = pUserData->m_uiDataIndex;
+    ezUInt32 dataIndex = pUserData->m_uiCachedDataIndex;
 
     m_BoundingSpheres[dataIndex] = pData->m_Bounds.GetSphere();
   }
@@ -188,7 +190,7 @@ struct ezSpatialSystem_RegularGrid::Cell
   }
 
   ezSimdBBoxSphere m_Bounds;
-  ezUInt32 m_Category;
+  ezUInt32 m_uiCategory = ezInvalidIndex;
 
   ezDynamicArray<ezSimdBSphere> m_BoundingSpheres;
   ezDynamicArray<ezSpatialData*> m_DataPointers;
@@ -249,9 +251,9 @@ ezResult ezSpatialSystem_RegularGrid::GetCellBoxForSpatialData(const ezSpatialDa
     return EZ_FAILURE;
 
   auto pUserData = reinterpret_cast<SpatialUserData*>(&pData->m_uiUserData[0]);
-  if (pUserData->m_pCell != nullptr)
+  if (pUserData->m_pCachedCell != nullptr)
   {
-    out_BoundingBox = pUserData->m_pCell->GetBoundingBox();
+    out_BoundingBox = pUserData->m_pCachedCell->GetBoundingBox();
     return EZ_SUCCESS;
   }
 
@@ -260,10 +262,31 @@ ezResult ezSpatialSystem_RegularGrid::GetCellBoxForSpatialData(const ezSpatialDa
 
 void ezSpatialSystem_RegularGrid::GetAllCellBoxes(ezHybridArray<ezBoundingBox, 16>& out_BoundingBoxes, ezSpatialData::Category filterCategory) const
 {
-  for (auto it = m_Cells.GetIterator(); it.IsValid(); ++it)
+  auto AddAllCellBoxes = [&](ezSpatialSystem_RegularGrid::CellsPerCategory& cellsPerCategory) {
+    for (auto it = cellsPerCategory.m_Cells.GetIterator(); it.IsValid(); ++it)
+    {
+      Cell& cell = *it.Value();
+      out_BoundingBoxes.ExpandAndGetRef() = cell.GetBoundingBox();
+    }
+  };
+
+  if (filterCategory == ezInvalidSpatialDataCategory)
   {
-    Cell& cell = *it.Value();
-    out_BoundingBoxes.ExpandAndGetRef() = cell.GetBoundingBox();
+    for (auto& pCellsPerCategory : m_CellsPerCategory)
+    {
+      if (pCellsPerCategory != nullptr)
+      {
+        AddAllCellBoxes(*pCellsPerCategory);
+      }
+    }
+  }
+  else if (filterCategory.m_uiValue < m_CellsPerCategory.GetCount())
+  {
+    auto& pCellsPerCategory = m_CellsPerCategory[filterCategory.m_uiValue];
+    if (pCellsPerCategory != nullptr)
+    {
+      AddAllCellBoxes(*pCellsPerCategory);
+    }
   }
 }
 
@@ -274,12 +297,12 @@ void ezSpatialSystem_RegularGrid::FindObjectsInSphereInternal(const ezBoundingSp
   ezSimdBBox simdBox;
   simdBox.SetCenterAndHalfExtents(simdSphere.m_CenterAndRadius, simdSphere.m_CenterAndRadius.Get<ezSwizzle::WWWW>());
 
-  ForEachCellInBox(simdBox, uiCategoryBitmask, [&](const ezSimdVec4i& cellIndex, ezUInt64 cellKey, Cell* pCell) {
-    ezSimdBBox cellBox = pCell->m_Bounds.GetBox();
+  ForEachCellInBox(simdBox, uiCategoryBitmask, [&](const ezSimdVec4i& cellIndex, ezUInt64 cellKey, const Cell& cell) {
+    ezSimdBBox cellBox = cell.m_Bounds.GetBox();
     if (!cellBox.Overlaps(simdSphere))
       return;
 
-    const ezUInt32 numSpheres = pCell->m_BoundingSpheres.GetCount();
+    const ezUInt32 numSpheres = cell.m_BoundingSpheres.GetCount();
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     if (pStats != nullptr)
@@ -290,11 +313,11 @@ void ezSpatialSystem_RegularGrid::FindObjectsInSphereInternal(const ezBoundingSp
 
     for (ezUInt32 i = 0; i < numSpheres; ++i)
     {
-      auto& objectSphere = pCell->m_BoundingSpheres[i];
+      auto& objectSphere = cell.m_BoundingSpheres[i];
       if (!simdSphere.Overlaps(objectSphere))
         continue;
 
-      ezSpatialData* pData = pCell->m_DataPointers[i];
+      ezSpatialData* pData = cell.m_DataPointers[i];
 
       // TODO: The return value has to have more control
       if (callback(pData->m_pObject) == ezVisitorExecution::Stop)
@@ -314,8 +337,8 @@ void ezSpatialSystem_RegularGrid::FindObjectsInBoxInternal(const ezBoundingBox& 
 {
   ezSimdBBox simdBox(ezSimdConversion::ToVec3(box.m_vMin), ezSimdConversion::ToVec3(box.m_vMax));
 
-  ForEachCellInBox(simdBox, uiCategoryBitmask, [&](const ezSimdVec4i& cellIndex, ezUInt64 cellKey, Cell* pCell) {
-    const ezUInt32 numSpheres = pCell->m_BoundingSpheres.GetCount();
+  ForEachCellInBox(simdBox, uiCategoryBitmask, [&](const ezSimdVec4i& cellIndex, ezUInt64 cellKey, const Cell& cell) {
+    const ezUInt32 numSpheres = cell.m_BoundingSpheres.GetCount();
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     if (pStats != nullptr)
@@ -326,11 +349,11 @@ void ezSpatialSystem_RegularGrid::FindObjectsInBoxInternal(const ezBoundingBox& 
 
     for (ezUInt32 i = 0; i < numSpheres; ++i)
     {
-      auto& objectSphere = pCell->m_BoundingSpheres[i];
+      auto& objectSphere = cell.m_BoundingSpheres[i];
       if (!simdBox.Overlaps(objectSphere))
         continue;
 
-      ezSpatialData* pData = pCell->m_DataPointers[i];
+      ezSpatialData* pData = cell.m_DataPointers[i];
       if (!simdBox.Overlaps(pData->m_Bounds.GetBox()))
         continue;
 
@@ -394,12 +417,12 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjectsInternal(const ezFrustum& fr
   ezUInt32 uiNumObjectsPassed = 0;
 #endif
 
-  ForEachCellInBox(simdBox, uiCategoryBitmask, [&](const ezSimdVec4i& cellIndex, ezUInt64 cellKey, Cell* pCell) {
-    ezSimdBSphere cellSphere = pCell->m_Bounds.GetSphere();
+  ForEachCellInBox(simdBox, uiCategoryBitmask, [&](const ezSimdVec4i& cellIndex, ezUInt64 cellKey, const Cell& cell) {
+    ezSimdBSphere cellSphere = cell.m_Bounds.GetSphere();
     if (!SphereFrustumIntersect(cellSphere, planeData))
       return;
 
-    const ezUInt32 numSpheres = pCell->m_BoundingSpheres.GetCount();
+    const ezUInt32 numSpheres = cell.m_BoundingSpheres.GetCount();
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     uiNumObjectsTested += numSpheres;
@@ -414,8 +437,8 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjectsInternal(const ezFrustum& fr
 
         for (ezUInt32 i = 0; i < 32; i += 2)
         {
-          auto& objectSphereA = pCell->m_BoundingSpheres[currentIndex + i + 0];
-          auto& objectSphereB = pCell->m_BoundingSpheres[currentIndex + i + 1];
+          auto& objectSphereA = cell.m_BoundingSpheres[currentIndex + i + 0];
+          auto& objectSphereB = cell.m_BoundingSpheres[currentIndex + i + 1];
 
           mask |= SphereFrustumIntersect(objectSphereA, objectSphereB, planeData) << i;
         }
@@ -425,7 +448,7 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjectsInternal(const ezFrustum& fr
           ezUInt32 i = ezMath::FirstBitLow(mask);
           mask &= mask - 1;
 
-          ezSpatialData* pData = pCell->m_DataPointers[currentIndex + i];
+          ezSpatialData* pData = cell.m_DataPointers[currentIndex + i];
           out_Objects.PushBack(pData->m_pObject);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -440,11 +463,11 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjectsInternal(const ezFrustum& fr
         ezUInt32 i = currentIndex;
         ++currentIndex;
 
-        auto& objectSphere = pCell->m_BoundingSpheres[i];
+        auto& objectSphere = cell.m_BoundingSpheres[i];
         if (!SphereFrustumIntersect(objectSphere, planeData))
           continue;
 
-        ezSpatialData* pData = pCell->m_DataPointers[i];
+        ezSpatialData* pData = cell.m_DataPointers[i];
         out_Objects.PushBack(pData->m_pObject);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -478,8 +501,22 @@ void ezSpatialSystem_RegularGrid::SpatialDataAdded(ezSpatialData* pData)
 
 void ezSpatialSystem_RegularGrid::SpatialDataRemoved(ezSpatialData* pData)
 {
-  auto pUserData = reinterpret_cast<SpatialUserData*>(&pData->m_uiUserData[0]);
-  pUserData->m_pCell->RemoveData(pData);
+  ezUInt32 mask = pData->m_uiCategoryBitmask;
+  while (mask > 0)
+  {
+    ezUInt32 category = ezMath::FirstBitLow(mask);
+    mask &= mask - 1;
+
+    auto pUserData = reinterpret_cast<SpatialUserData*>(&pData->m_uiUserData[0]);
+    if (pUserData->m_uiCachedCategory == category)
+    {
+      pUserData->m_pCachedCell->RemoveData(pData);
+    }
+    else
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+    }
+  }
 }
 
 void ezSpatialSystem_RegularGrid::SpatialDataChanged(ezSpatialData* pData, const ezSimdBBoxSphere& oldBounds, ezUInt32 uiOldCategoryBitmask)
@@ -495,7 +532,7 @@ void ezSpatialSystem_RegularGrid::SpatialDataChanged(ezSpatialData* pData, const
     }
     else
     {
-      Cell* pNewCell = GetOrCreateCell(pData->m_Bounds);
+      Cell* pNewCell = GetOrCreateCell(pData->m_Bounds, ezMath::FirstBitLow(uiOldCategoryBitmask));
       if (pOldCell == pNewCell)
       {
         pOldCell->UpdateData(pData);
@@ -509,19 +546,40 @@ void ezSpatialSystem_RegularGrid::SpatialDataChanged(ezSpatialData* pData, const
   }
   else
   {
+    // Restore old bitmask so SpatialDataRemoved works correctly.
+    ezUInt32 uiNewCategoryBitmask = pData->m_uiCategoryBitmask;
+    pData->m_uiCategoryBitmask = uiOldCategoryBitmask;
+
     SpatialDataRemoved(pData);
+
+    pData->m_uiCategoryBitmask = uiNewCategoryBitmask;
+
     SpatialDataAdded(pData);
   }
 }
 
 void ezSpatialSystem_RegularGrid::FixSpatialDataPointer(ezSpatialData* pOldPtr, ezSpatialData* pNewPtr)
 {
-  auto pUserData = reinterpret_cast<SpatialUserData*>(&pNewPtr->m_uiUserData[0]);
-  Cell* pCell = pUserData->m_pCell;
+  ezUInt32 mask = pNewPtr->m_uiCategoryBitmask;
+  while (mask > 0)
+  {
+    ezUInt32 category = ezMath::FirstBitLow(mask);
+    mask &= mask - 1;
 
-  ezUInt32 dataIndex = pUserData->m_uiDataIndex;
+    auto pUserData = reinterpret_cast<SpatialUserData*>(&pNewPtr->m_uiUserData[0]);
+    if (pUserData->m_uiCachedCategory == category)
+    {
+      Cell* pCell = pUserData->m_pCachedCell;
 
-  pCell->m_DataPointers[dataIndex] = pNewPtr;
+      ezUInt32 dataIndex = pUserData->m_uiCachedDataIndex;
+
+      pCell->m_DataPointers[dataIndex] = pNewPtr;
+    }
+    else
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+    }
+  }
 }
 
 template <typename Functor>
@@ -568,29 +626,43 @@ EZ_FORCE_INLINE void ezSpatialSystem_RegularGrid::ForEachCellInBox(const ezSimdB
   const ezInt32 iDiffZ = diff.z();
   const ezInt32 iNumIterations = iDiffX * iDiffY * iDiffZ;
 
-  for (ezInt32 i = 0; i < iNumIterations; ++i)
+  ezUInt32 mask = uiCategoryBitmask;
+  while (mask > 0)
   {
-    ezInt32 index = i;
-    ezInt32 z = i / (iDiffX * iDiffY);
-    index -= z * iDiffX * iDiffY;
-    ezInt32 y = index / iDiffX;
-    ezInt32 x = index - (y * iDiffX);
+    ezUInt32 category = ezMath::FirstBitLow(mask);
+    mask &= mask - 1;
 
-    x += iMinX;
-    y += iMinY;
-    z += iMinZ;
+    if (category >= m_CellsPerCategory.GetCount())
+      break;
 
-    ezUInt64 cellKey = GetCellKey(x, y, z);
+    auto& pCellsPerCategory = m_CellsPerCategory[category];
+    if (pCellsPerCategory == nullptr)
+      continue;
 
-    const Cell* pCell = nullptr;
-    if (m_Cells.TryGetValue(cellKey, pCell))
+    for (ezInt32 i = 0; i < iNumIterations; ++i)
     {
-      ezSimdVec4i cellIndex(x, y, z);
-      func(cellIndex, cellKey, pCell);
-    }
-  }
+      ezInt32 index = i;
+      ezInt32 z = i / (iDiffX * iDiffY);
+      index -= z * iDiffX * iDiffY;
+      ezInt32 y = index / iDiffX;
+      ezInt32 x = index - (y * iDiffX);
 
-  func(ezSimdVec4i::ZeroVector(), 0, m_pOverflowCell);
+      x += iMinX;
+      y += iMinY;
+      z += iMinZ;
+
+      ezUInt64 cellKey = GetCellKey(x, y, z);
+
+      if (auto ppCell = pCellsPerCategory->m_Cells.GetValue(cellKey))
+      {
+        ezSimdVec4i cellIndex(x, y, z);
+        const Cell& constCell = *(*ppCell);
+        func(cellIndex, cellKey, constCell);
+      }
+    }
+
+    func(ezSimdVec4i::ZeroVector(), 0, *(pCellsPerCategory->m_pOverflowCell));
+  }
 
 #endif
 }
@@ -611,6 +683,7 @@ ezSpatialSystem_RegularGrid::Cell* ezSpatialSystem_RegularGrid::GetOrCreateCell(
 
     pCellsPerCategory->m_pOverflowCell = EZ_NEW(&m_AlignedAllocator, Cell, &m_Allocator, &m_AlignedAllocator);
     pCellsPerCategory->m_pOverflowCell->m_Bounds = overflowBox;
+    pCellsPerCategory->m_pOverflowCell->m_uiCategory = category;
 
     m_CellsPerCategory[category] = pCellsPerCategory;
   }
@@ -631,7 +704,7 @@ ezSpatialSystem_RegularGrid::Cell* ezSpatialSystem_RegularGrid::GetOrCreateCell(
 
     ezUniquePtr<Cell> pNewCell = EZ_NEW(&m_AlignedAllocator, Cell, &m_Allocator, &m_AlignedAllocator);
     pNewCell->m_Bounds = cellBox;
-    pNewCell->m_Category = category;
+    pNewCell->m_uiCategory = category;
 
     Cell* pCell = pNewCell.Borrow();
     cellsPerCategory->m_Cells.Insert(cellKey, std::move(pNewCell));

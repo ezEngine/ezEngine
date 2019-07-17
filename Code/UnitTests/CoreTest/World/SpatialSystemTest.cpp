@@ -10,6 +10,8 @@
 
 namespace
 {
+  static ezSpatialData::Category s_SpecialTestCategory = ezSpatialData::RegisterCategory("SpecialTestCategory");
+
   typedef ezComponentManager<class TestBoundsComponent, ezBlockStorageType::Compact> TestBoundsComponentManager;
 
   class TestBoundsComponent : public ezComponent
@@ -30,8 +32,16 @@ namespace
       ezBoundingBox bounds;
       bounds.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(x, y, z));
 
-      msg.AddBounds(bounds, GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic);
+      ezSpatialData::Category category = m_SpecialCategory;
+      if (category == ezInvalidSpatialDataCategory)
+      {
+        category = GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic;
+      }
+
+      msg.AddBounds(bounds, category);
     }
+
+    ezSpatialData::Category m_SpecialCategory = ezInvalidSpatialDataCategory;
   };
 
   // clang-format off
@@ -58,6 +68,9 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
   auto& rng = world.GetRandomNumberGenerator();
   double range = 10000.0;
 
+  ezDynamicArray<ezGameObject*> objects;
+  objects.Reserve(1000);
+
   for (ezUInt32 i = 0; i < 1000; ++i)
   {
     float x = (float)rng.DoubleMinMax(-range, range);
@@ -70,6 +83,8 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
     ezGameObject* pObject = nullptr;
     world.CreateObject(desc, pObject);
+
+    objects.PushBack(pObject);
 
     TestBoundsComponent* pComponent = nullptr;
     TestBoundsComponent::CreateComponent(pObject, pComponent);
@@ -93,6 +108,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
       EZ_TEST_BOOL(testSphere.Overlaps(objSphere));
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
+      EZ_TEST_BOOL(pObject->IsStatic());
     }
 
     // Check for missing objects
@@ -101,8 +117,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezBoundingSphere objSphere = it->GetGlobalBounds().GetSphere();
       if (testSphere.Overlaps(objSphere))
       {
-        EZ_TEST_BOOL(uniqueObjects.Contains(it));
-        EZ_TEST_BOOL(it->IsStatic());
+        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains(it));
       }
     }
 
@@ -121,6 +136,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezBoundingSphere objSphere = pObject->GetGlobalBounds().GetSphere();
 
       EZ_TEST_BOOL(testSphere.Overlaps(objSphere));
+      EZ_TEST_BOOL(pObject->IsStatic());
     }
 
     // Check for missing objects
@@ -129,8 +145,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezBoundingSphere objSphere = it->GetGlobalBounds().GetSphere();
       if (testSphere.Overlaps(objSphere))
       {
-        EZ_TEST_BOOL(uniqueObjects.Contains(it));
-        EZ_TEST_BOOL(it->IsStatic());
+        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains(it));        
       }
     }
   }
@@ -150,6 +165,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
       EZ_TEST_BOOL(testBox.Overlaps(objBox));
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
+      EZ_TEST_BOOL(pObject->IsStatic());
     }
 
     // Check for missing objects
@@ -158,8 +174,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezBoundingBox objBox = it->GetGlobalBounds().GetBox();
       if (testBox.Overlaps(objBox))
       {
-        EZ_TEST_BOOL(uniqueObjects.Contains(it));
-        EZ_TEST_BOOL(it->IsStatic());
+        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains(it));
       }
     }
 
@@ -178,6 +193,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezBoundingSphere objSphere = pObject->GetGlobalBounds().GetSphere();
 
       EZ_TEST_BOOL(testBox.Overlaps(objSphere));
+      EZ_TEST_BOOL(pObject->IsStatic());
     }
 
     // Check for missing objects
@@ -186,8 +202,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezBoundingBox objBox = it->GetGlobalBounds().GetBox();
       if (testBox.Overlaps(objBox))
       {
-        EZ_TEST_BOOL(uniqueObjects.Contains(it));
-        EZ_TEST_BOOL(it->IsStatic());
+        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains(it));
       }
     }
   }
@@ -207,6 +222,18 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
     }
   }
+
+  // Test multiple categories for spatial data
+  for (ezUInt32 i = 0; i < objects.GetCount(); ++i)
+  {
+    ezGameObject* pObject = objects[i];
+
+    TestBoundsComponent* pComponent = nullptr;
+    TestBoundsComponent::CreateComponent(pObject, pComponent);
+    pComponent->m_SpecialCategory = s_SpecialTestCategory;
+  }
+
+  world.Update();
 
   ezDynamicArray<ezGameObjectHandle> allObjects;
   allObjects.Reserve(world.GetObjectCount());
