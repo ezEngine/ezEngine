@@ -39,12 +39,12 @@ private:
   struct SpatialUserData;
   struct Cell;
   struct CellKeyHashHelper;
-  struct CellsPerCategory;
 
-  ezHybridArray<ezUniquePtr<CellsPerCategory>, 2> m_CellsPerCategory;
+  ezHashTable<ezUInt64, ezUniquePtr<Cell>, CellKeyHashHelper, ezLocalAllocatorWrapper> m_Cells;
+  ezUniquePtr<Cell> m_pOverflowCell;
 
   template <typename Functor>
   void ForEachCellInBox(const ezSimdBBox& box, ezUInt32 uiCategoryBitmask, Functor func) const;
 
-  Cell* GetOrCreateCell(const ezSimdBBoxSphere& bounds, ezUInt32 category);
+  Cell* GetOrCreateCell(const ezSimdBBoxSphere& bounds);
 };
