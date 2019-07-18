@@ -67,7 +67,7 @@ namespace
       }
     }
 
-    if (CVarVisSpatialData)
+    if (CVarVisSpatialData && CVarVisSpatialCategory.GetValue().IsEmpty())
     {
       const ezSpatialSystem& spatialSystem = view.GetWorld()->GetSpatialSystem();
       if (auto pSpatialSystemGrid = ezDynamicCast<const ezSpatialSystem_RegularGrid*>(&spatialSystem))

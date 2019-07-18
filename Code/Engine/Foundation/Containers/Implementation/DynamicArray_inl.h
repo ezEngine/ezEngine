@@ -165,12 +165,12 @@ ezDynamicArray<T, A>::ezDynamicArray(const ezArrayPtr<const T>& other) : ezDynam
 }
 
 template <typename T, typename A>
-ezDynamicArray<T, A>::ezDynamicArray(ezDynamicArray<T, A>&& other) : ezDynamicArrayBase<T>(std::move(other), A::GetAllocator())
+ezDynamicArray<T, A>::ezDynamicArray(ezDynamicArray<T, A>&& other) : ezDynamicArrayBase<T>(std::move(other), other.GetAllocator())
 {
 }
 
 template <typename T, typename A>
-ezDynamicArray<T, A>::ezDynamicArray(ezDynamicArrayBase<T>&& other) : ezDynamicArrayBase<T>(std::move(other), A::GetAllocator())
+ezDynamicArray<T, A>::ezDynamicArray(ezDynamicArrayBase<T>&& other) : ezDynamicArrayBase<T>(std::move(other), other.GetAllocator())
 {
 }
 
