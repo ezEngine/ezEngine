@@ -2,6 +2,7 @@
 
 #include <Core/World/SpatialSystem.h>
 #include <Foundation/SimdMath/SimdVec4i.h>
+#include <Foundation/Types/UniquePtr.h>
 
 class EZ_CORE_DLL ezSpatialSystem_RegularGrid : public ezSpatialSystem
 {
