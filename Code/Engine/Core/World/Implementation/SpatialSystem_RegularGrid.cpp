@@ -583,7 +583,10 @@ void ezSpatialSystem_RegularGrid::SpatialDataAdded(ezSpatialData* pData)
 void ezSpatialSystem_RegularGrid::SpatialDataRemoved(ezSpatialData* pData)
 {
   auto pUserData = reinterpret_cast<SpatialUserData*>(&pData->m_uiUserData[0]);
-  pUserData->m_pCell->RemoveData(pData);
+  if (pUserData->m_pCell != nullptr)
+  {
+    pUserData->m_pCell->RemoveData(pData);
+  }
 }
 
 void ezSpatialSystem_RegularGrid::SpatialDataChanged(ezSpatialData* pData, const ezSimdBBoxSphere& oldBounds, ezUInt32 uiOldCategoryBitmask)
@@ -621,7 +624,10 @@ void ezSpatialSystem_RegularGrid::SpatialDataChanged(ezSpatialData* pData, const
 
     pData->m_uiCategoryBitmask = uiNewCategoryBitmask;
 
-    SpatialDataAdded(pData);
+    if (pData->m_uiCategoryBitmask != 0)
+    {
+      SpatialDataAdded(pData);
+    }
   }
 }
 

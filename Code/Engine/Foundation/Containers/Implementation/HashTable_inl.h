@@ -683,13 +683,13 @@ ezHashTable<K, V, H, A>::ezHashTable(const ezHashTableBase<K, V, H>& other)
 
 template <typename K, typename V, typename H, typename A>
 ezHashTable<K, V, H, A>::ezHashTable(ezHashTable<K, V, H, A>&& other)
-  : ezHashTableBase<K, V, H>(std::move(other), A::GetAllocator())
+  : ezHashTableBase<K, V, H>(std::move(other), other.GetAllocator())
 {
 }
 
 template <typename K, typename V, typename H, typename A>
 ezHashTable<K, V, H, A>::ezHashTable(ezHashTableBase<K, V, H>&& other)
-  : ezHashTableBase<K, V, H>(std::move(other), A::GetAllocator())
+  : ezHashTableBase<K, V, H>(std::move(other), other.GetAllocator())
 {
 }
 
