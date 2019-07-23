@@ -10,12 +10,12 @@
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/AnimationSystem/SkeletonBuilder.h>
 
-#include <../ThirdParty/AssImp/include/DefaultLogger.hpp>
-#include <../ThirdParty/AssImp/include/Importer.hpp>
-#include <../ThirdParty/AssImp/include/LogStream.hpp>
-#include <../ThirdParty/AssImp/include/Logger.hpp>
-#include <../ThirdParty/AssImp/include/postprocess.h>
-#include <../ThirdParty/AssImp/include/scene.h>
+#include <../ThirdParty/AssImp/assimp/DefaultLogger.hpp>
+#include <../ThirdParty/AssImp/assimp/Importer.hpp>
+#include <../ThirdParty/AssImp/assimp/LogStream.hpp>
+#include <../ThirdParty/AssImp/assimp/Logger.hpp>
+#include <../ThirdParty/AssImp/assimp/postprocess.h>
+#include <../ThirdParty/AssImp/assimp/scene.h>
 
 namespace ezModelImporter
 {
