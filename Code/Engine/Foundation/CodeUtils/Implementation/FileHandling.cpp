@@ -150,7 +150,7 @@ ezResult ezPreprocessor::DefaultFileOpen(const char* szAbsoluteFile, ezDynamicAr
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   ezFileStats stats;
-  if (ezOSFile::GetFileStats(r.GetFilePathAbsolute(), stats).Succeeded())
+  if (ezFileSystem::GetFileStats(r.GetFilePathAbsolute(), stats).Succeeded())
     out_FileModification = stats.m_LastModificationTime;
 #endif
 

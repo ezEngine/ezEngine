@@ -238,7 +238,7 @@ bool ezShaderPermutationResourceLoader::IsResourceOutdated(const ezResource* pRe
   if (pResource->GetLoadedFileModificationTime().IsValid())
   {
     ezFileStats stat;
-    if (ezOSFile::GetFileStats(sAbs, stat).Failed())
+    if (ezFileSystem::GetFileStats(sAbs, stat).Failed())
       return false;
 
     if (!stat.m_LastModificationTime.Compare(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::FileTimeEqual))
@@ -285,7 +285,7 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
     ezFileStats stat;
-    if (ezOSFile::GetFileStats(File.GetFilePathAbsolute(), stat).Succeeded())
+    if (ezFileSystem::GetFileStats(File.GetFilePathAbsolute(), stat).Succeeded())
     {
       res.m_LoadedFileModificationDate = stat.m_LastModificationTime;
     }
