@@ -312,6 +312,7 @@ ezCollisionMeshAssetDocumentGenerator::ezCollisionMeshAssetDocumentGenerator()
   AddSupportedFileType("obj");
   AddSupportedFileType("fbx");
   AddSupportedFileType("ply");
+  AddSupportedFileType("blend");
 }
 
 ezCollisionMeshAssetDocumentGenerator::~ezCollisionMeshAssetDocumentGenerator() = default;
@@ -362,6 +363,7 @@ ezConvexCollisionMeshAssetDocumentGenerator::ezConvexCollisionMeshAssetDocumentG
   AddSupportedFileType("obj");
   AddSupportedFileType("fbx");
   AddSupportedFileType("ply");
+  AddSupportedFileType("blend");
 }
 
 ezConvexCollisionMeshAssetDocumentGenerator::~ezConvexCollisionMeshAssetDocumentGenerator() = default;
