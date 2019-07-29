@@ -40,6 +40,12 @@ struct ezOutputToHTML
     {
       case ezTestOutput::StartOutput:
       {
+        iIndentation = 0;
+        bError = false;
+        bDetails = false;
+        sSubTest.clear();
+        sDuration.clear();
+
         ezTestFramework::GetInstance()->CreateOutputFolder();
 
         std::string sOutputFile = std::string(ezTestFramework::GetInstance()->GetAbsOutputPath()) + "/UnitTestsLog.htm";
@@ -159,7 +165,7 @@ struct ezOutputToHTML
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
         TestSettings settings = ezTestFramework::GetInstance()->GetSettings();
-        if (settings.m_bOpenHtmlOutput)
+        if (settings.m_bOpenHtmlOutputOnError && bError)
         {
           // opens the html file in a browser
           ShellExecuteA(nullptr, "open", sOutputFile.c_str(), nullptr, nullptr, SW_SHOW);

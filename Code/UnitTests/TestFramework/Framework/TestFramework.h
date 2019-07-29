@@ -11,6 +11,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/String.h>
 
+#include <atomic>
 #include <condition_variable>
 #include <functional>
 #include <mutex>
@@ -119,6 +120,7 @@ protected:
   virtual void TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, double fDuration);
   void FlushAsserts();
   void TimeoutThread();
+  void UpdateTestTimeout();
 
   // ignore this for now
 public:
@@ -152,6 +154,7 @@ private:
   ezInt32 m_iTestsFailed = 0;
   ezInt32 m_iTestsPassed = 0;
   TestSettings m_Settings;
+  std::recursive_mutex m_outputMutex;
   std::deque<OutputHandler> m_OutputHandlers;
   std::deque<ezTestEntry> m_TestEntries;
   ezTestFrameworkResult m_Result;
@@ -162,6 +165,7 @@ private:
   std::mutex m_timeoutLock;
   ezUInt32 m_timeoutMS = 5 * 60 * 1000; // 5 min default timeout
   bool m_useTimeout = false;
+  bool m_reArm = false;
   std::condition_variable m_timeoutCV;
   std::thread m_timeoutThread;
 

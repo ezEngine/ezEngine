@@ -7,6 +7,9 @@
 ezLogMsgType::Enum ezLog::s_DefaultLogLevel = ezLogMsgType::All;
 ezAtomicInteger32 ezGlobalLog::s_uiMessageCount[ezLogMsgType::ENUM_COUNT];
 ezLoggingEvent ezGlobalLog::s_LoggingEvent;
+ezLogInterface* ezGlobalLog::s_pOverrideLog = nullptr;
+static thread_local bool s_bAllowOverrideLog = true;
+static ezMutex s_OverrideLogMutex;
 
 /// \brief The log system that messages are sent to when the user specifies no system himself.
 static thread_local ezLogInterface* s_DefaultLogSystem = nullptr;
@@ -27,14 +30,45 @@ void ezGlobalLog::RemoveLogWriter(ezEventSubscriptionID subscriptionID)
   s_LoggingEvent.RemoveEventHandler(subscriptionID);
 }
 
+void ezGlobalLog::SetGlobalLogOverride(ezLogInterface* pInterface)
+{
+  EZ_LOCK(s_OverrideLogMutex);
+
+  EZ_ASSERT_DEV(pInterface == nullptr || s_pOverrideLog == nullptr, "Only one override log can be set at a time");
+  s_pOverrideLog = pInterface;
+}
+
 void ezGlobalLog::HandleLogMessage(const ezLoggingEventData& le)
 {
-  const ezLogMsgType::Enum ThisType = le.m_EventType;
+  if (s_pOverrideLog != nullptr && s_pOverrideLog != this && s_bAllowOverrideLog)
+  {
+    // only enter the lock when really necessary
+    EZ_LOCK(s_OverrideLogMutex);
 
-  if ((ThisType > ezLogMsgType::None) && (ThisType < ezLogMsgType::All))
-    s_uiMessageCount[ThisType].Increment();
+    // since s_bAllowOverrideLog is thread_local we do not need to re-check it
 
-  s_LoggingEvent.Broadcast(le);
+    // check this again under the lock, to be safe
+    if (s_pOverrideLog != nullptr && s_pOverrideLog != this)
+    {
+      // disable the override log for the period in which it handles the event
+      // to prevent infinite recursions
+      s_bAllowOverrideLog = false;
+      s_pOverrideLog->HandleLogMessage(le);
+      s_bAllowOverrideLog = true;
+
+      return;
+    }
+  }
+
+  // else
+  {
+    const ezLogMsgType::Enum ThisType = le.m_EventType;
+
+    if ((ThisType > ezLogMsgType::None) && (ThisType < ezLogMsgType::All))
+      s_uiMessageCount[ThisType].Increment();
+
+    s_LoggingEvent.Broadcast(le);
+  }
 }
 
 ezLogBlock::ezLogBlock(const char* szName, const char* szContextInfo)
@@ -172,8 +206,6 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
   pInterface->HandleLogMessage(le);
 }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-
 void ezLog::Printf(const char* szFormat, ...)
 {
   va_list args;
@@ -189,9 +221,10 @@ void ezLog::Printf(const char* szFormat, ...)
 #  endif
 
   va_end(args);
-}
 
-#endif
+  fflush(stdout);
+  fflush(stderr);
+}
 
 void ezLog::SetThreadLocalLogSystem(ezLogInterface* pInterface)
 {

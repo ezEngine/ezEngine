@@ -1,7 +1,7 @@
 #pragma once
 
-#include <TestFramework/TestFrameworkDLL.h>
 #include <Foundation/Types/Status.h>
+#include <TestFramework/TestFrameworkDLL.h>
 #include <deque>
 #include <string>
 
@@ -12,9 +12,9 @@ class ezTestBaseClass;
 struct ezSubTestEntry
 {
   ezSubTestEntry()
-      : m_iSubTestIdentifier(-1)
-      , m_szSubTestName("")
-      , m_bEnableTest(true)
+    : m_iSubTestIdentifier(-1)
+    , m_szSubTestName("")
+    , m_bEnableTest(true)
   {
   }
 
@@ -27,10 +27,10 @@ struct ezSubTestEntry
 struct ezTestEntry
 {
   ezTestEntry()
-      : m_pTest(nullptr)
-      , m_szTestName("")
-      , m_available(EZ_SUCCESS)
-      , m_bEnableTest(true)
+    : m_pTest(nullptr)
+    , m_szTestName("")
+    , m_available(EZ_SUCCESS)
+    , m_bEnableTest(true)
   {
   }
 
@@ -43,35 +43,21 @@ struct ezTestEntry
 
 struct TestSettings
 {
-  TestSettings()
-  {
-    m_bAssertOnTestFail = false;
-    m_bOpenHtmlOutput = false;
-    m_bKeepConsoleOpen = false;
-    m_bShowMessageBox = false;
-    m_bRunTests = false;
-    m_bNoAutomaticSaving = false;
-    m_bCloseOnSuccess = false;
-    m_bNoGUI = false;
-    m_iRevision = -1;
-    m_bEnableAllTests = false;
-    m_uiFullPasses = 1;
-  }
-
   // The following settings are stored in the settings file.
-  bool m_bAssertOnTestFail;
-  bool m_bOpenHtmlOutput;
-  bool m_bKeepConsoleOpen;
-  bool m_bShowMessageBox;
+  bool m_bAssertOnTestFail = false;
+  bool m_bOpenHtmlOutputOnError = false;
+  bool m_bKeepConsoleOpen = false;
+  bool m_bShowMessageBox = false;
+  bool m_bAutoDisableSuccessfulTests = false;
 
   // The following settings are only set via command-line.
-  bool m_bRunTests;          /// Only needed for GUI applications, in console mode tests are always run automatically.
-  bool m_bNoAutomaticSaving; /// Allows to run the test with settings through the command line without saving those settings for later.
-  bool m_bCloseOnSuccess;    /// Closes the application upon success immediately.
-  bool m_bNoGUI;             /// Starts the tests in console mode, test are started automatically.
-  int m_iRevision;           /// Revision in the RCS of this test run. Will be written into the test results json file for later reference.
+  bool m_bRunTests = false; /// Only needed for GUI applications, in console mode tests are always run automatically.
+  bool m_bNoAutomaticSaving =
+    false;                        /// Allows to run the test with settings through the command line without saving those settings for later.
+  bool m_bCloseOnSuccess = false; /// Closes the application upon success immediately.
+  bool m_bNoGUI = false;          /// Starts the tests in console mode, test are started automatically.
+  int m_iRevision = -1;      /// Revision in the RCS of this test run. Will be written into the test results json file for later reference.
   std::string m_sJsonOutput; /// Absolute path to the json file the results should be written to.
-  bool m_bEnableAllTests;    /// Enables all test.
-  ezUInt8 m_uiFullPasses;    /// All tests are done this often, to check whether some tests fail only when executed multiple times.
+  bool m_bEnableAllTests = false; /// Enables all test.
+  ezUInt8 m_uiFullPasses = 1;     /// All tests are done this often, to check whether some tests fail only when executed multiple times.
 };
-
