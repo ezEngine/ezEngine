@@ -219,6 +219,13 @@ Only concrete and clocks.\n\
     EZ_TEST_BOOL(f.Open(sOutputFile2.GetData(), ezFileMode::Read) == EZ_FAILURE); // file should not exist anymore
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCurrentWorkingDirectory")
+  {
+    ezStringBuilder cwd = ezOSFile::GetCurrentWorkingDirectory();
+
+    EZ_TEST_BOOL(!cwd.IsEmpty());
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExistsFile")
   {
     EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile.GetData()) == false);

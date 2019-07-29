@@ -8,6 +8,7 @@
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/System/SystemInformation.h>
 
 /* ezArchiveTool command line options:
 
@@ -104,6 +105,23 @@ public:
   {
   }
 
+  ezStringBuilder m_sTmpPath;
+
+  const ezStringBuilder& AbsPath(const char* path)
+  {
+    m_sTmpPath = path;
+    m_sTmpPath.MakeCleanPath();
+
+    if (m_sTmpPath.IsRelativePath())
+    {
+      m_sTmpPath.Prepend('/');
+      m_sTmpPath.Prepend(ezOSFile::GetCurrentWorkingDirectory());
+      m_sTmpPath.MakeCleanPath();
+    }
+
+    return m_sTmpPath;
+  }
+
   ezResult ParseArguments()
   {
     if (GetArgumentCount() <= 1)
@@ -115,6 +133,8 @@ public:
     ezCommandLineUtils& cmd = *ezCommandLineUtils::GetGlobalInstance();
 
     m_sOutput = cmd.GetStringOption("-out");
+
+    ezStringBuilder path;
 
     if (cmd.GetStringOptionArguments("-pack") > 0)
     {
@@ -129,7 +149,7 @@ public:
 
       for (ezUInt32 a = 0; a < args; ++a)
       {
-        m_sInputs.PushBack(cmd.GetStringOption("-pack", a));
+        m_sInputs.PushBack(AbsPath(cmd.GetStringOption("-pack", a)));
 
         if (!ezOSFile::ExistsDirectory(m_sInputs.PeekBack()))
         {
@@ -151,7 +171,7 @@ public:
 
       for (ezUInt32 a = 0; a < args; ++a)
       {
-        m_sInputs.PushBack(cmd.GetStringOption("-unpack", a));
+        m_sInputs.PushBack(AbsPath(cmd.GetStringOption("-unpack", a)));
 
         if (!ezOSFile::ExistsFile(m_sInputs.PeekBack()))
         {
@@ -172,7 +192,7 @@ public:
         if (ezStringUtils::IsEqual_NoCase(szArg, "-out"))
           break;
 
-        m_sInputs.PushBack(szArg);
+        m_sInputs.PushBack(AbsPath(szArg));
 
         if (!ezOSFile::ExistsDirectory(m_sInputs.PeekBack()))
           bInputsFolders = false;
@@ -262,6 +282,8 @@ public:
 
       m_sOutput = sArchive;
     }
+
+    m_sOutput = AbsPath(m_sOutput);
 
     ezLog::Info("Writing archive to '{}'", m_sOutput);
     if (archive.WriteArchive(m_sOutput).Failed())

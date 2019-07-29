@@ -23,6 +23,10 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+#ifndef PATH_MAX
+#define PATH_MAX 1024
+#endif
+
 ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
 {
   switch (OpenMode)
@@ -297,6 +301,12 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder)
   s.AppendPath(szSubFolder);
   s.MakeCleanPath();
   return s;
+}
+
+const ezString ezOSFile::GetCurrentWorkingDirectory()
+{
+  char tmp[PATH_MAX];
+  return getcwd(tmp, EZ_ARRAY_SIZE(tmp));
 }
 
 #endif // EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
