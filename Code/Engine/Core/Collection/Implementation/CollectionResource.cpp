@@ -24,18 +24,22 @@ void ezCollectionResource::PreloadResources()
 
   for (const auto& e : m_Collection.m_Resources)
   {
-    if (e.m_sAssetTypeName.IsEmpty())
-      continue;
+    ezTypelessResourceHandle hTypeless;
 
-    const ezRTTI* pRtti = ezResourceManager::FindResourceForAssetType(e.m_sAssetTypeName);
+    if (!e.m_sAssetTypeName.IsEmpty())
+    {
+      if (const ezRTTI* pRtti = ezResourceManager::FindResourceForAssetType(e.m_sAssetTypeName))
+      {
+        hTypeless = ezResourceManager::LoadResourceByType(pRtti, e.m_sResourceID);
+      }
+    }
 
-    if (pRtti == nullptr)
-      continue;
-
-    ezTypelessResourceHandle hTypeless = ezResourceManager::LoadResourceByType(pRtti, e.m_sResourceID);
     m_hPreloadedResources.PushBack(hTypeless);
 
-    ezResourceManager::PreloadResource(hTypeless);
+    if (hTypeless.IsValid())
+    {
+      ezResourceManager::PreloadResource(hTypeless);
+    }
   }
 }
 
@@ -43,28 +47,42 @@ float ezCollectionResource::GetPreloadProgress() const
 {
   EZ_LOCK(m_preloadMutex);
 
-  ezUInt32 uiNumLoaded = 0;
-  ezUInt32 uiNumTotal = 0;
+  EZ_ASSERT_DEBUG(m_hPreloadedResources.GetCount() == m_Collection.m_Resources.GetCount(), "Collection size mismatch. PreloadResources not called?");
 
-  for (const ezTypelessResourceHandle& hResource : m_hPreloadedResources)
+  double loadedWeight = 0;
+  double totalWeight = 0;
+
+  for (ezUInt32 i = 0; i < m_hPreloadedResources.GetCount(); i++)
   {
+    const ezTypelessResourceHandle& hResource = m_hPreloadedResources[i];
+    if (!hResource.IsValid())
+      continue;
+
+    const ezCollectionEntry& entry = m_Collection.m_Resources[i];
+    double thisWeight = static_cast<double>(ezMath::Max(entry.m_uiFileSize, 1ull)); // if file sizes are not specified, we weight by 1
     ezResourceState state = ezResourceManager::GetLoadingState(hResource);
 
     if (state == ezResourceState::Loaded || state == ezResourceState::LoadedResourceMissing)
     {
-      ++uiNumLoaded;
+      loadedWeight += thisWeight;
     }
 
     if (state != ezResourceState::Invalid)
     {
-      ++uiNumTotal;
+      totalWeight += thisWeight;
     }
   }
 
-  if (uiNumTotal == 0)
+  if (totalWeight == 0)
     return 1.0f;
 
-  return static_cast<float>(uiNumLoaded) / static_cast<float>(uiNumTotal);
+  return static_cast<float>(loadedWeight / totalWeight);
+}
+
+
+const ezCollectionResourceDescriptor& ezCollectionResource::GetDescriptor() const
+{
+  return m_Collection;
 }
 
 EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezCollectionResource, ezCollectionResourceDescriptor)
@@ -178,9 +196,9 @@ void ezCollectionResource::UnregisterNames()
 
 void ezCollectionResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 1;
-  const ezUInt8 uiIdentifier = 0xC0; // dummy to fill the header to 32 Bit
-  const ezUInt16 uiNumResources = static_cast<ezUInt16>(m_Resources.GetCount());
+  const ezUInt8 uiVersion = 3;
+  const ezUInt8 uiIdentifier = 0xC0;
+  const ezUInt32 uiNumResources = m_Resources.GetCount();
 
   stream << uiVersion;
   stream << uiIdentifier;
@@ -191,6 +209,7 @@ void ezCollectionResourceDescriptor::Save(ezStreamWriter& stream) const
     stream << m_Resources[i].m_sAssetTypeName;
     stream << m_Resources[i].m_sOptionalNiceLookupName;
     stream << m_Resources[i].m_sResourceID;
+    stream << m_Resources[i].m_uiFileSize;
   }
 }
 
@@ -198,14 +217,24 @@ void ezCollectionResourceDescriptor::Load(ezStreamReader& stream)
 {
   ezUInt8 uiVersion = 0;
   ezUInt8 uiIdentifier = 0;
-  ezUInt16 uiNumResources = 0;
+  ezUInt32 uiNumResources = 0;
 
   stream >> uiVersion;
   stream >> uiIdentifier;
-  stream >> uiNumResources;
+  
+  if (uiVersion == 1)
+  {
+    ezUInt16 uiNumResourcesShort;
+    stream >> uiNumResourcesShort;
+    uiNumResources = uiNumResourcesShort;
+  }
+  else
+  {
+    stream >> uiNumResources;
+  }
 
   EZ_ASSERT_DEV(uiIdentifier == 0xC0, "File does not contain a valid ezCollectionResourceDescriptor");
-  EZ_ASSERT_DEV(uiVersion == 1, "Invalid file version {0}", uiVersion);
+  EZ_ASSERT_DEV(uiVersion > 0 && uiVersion <= 3, "Invalid file version {0}", uiVersion);
 
   m_Resources.SetCount(uiNumResources);
 
@@ -214,6 +243,10 @@ void ezCollectionResourceDescriptor::Load(ezStreamReader& stream)
     stream >> m_Resources[i].m_sAssetTypeName;
     stream >> m_Resources[i].m_sOptionalNiceLookupName;
     stream >> m_Resources[i].m_sResourceID;
+    if (uiVersion >= 3)
+    {
+      stream >> m_Resources[i].m_uiFileSize;
+    }
   }
 }
 
