@@ -1,6 +1,7 @@
 #include <InspectorPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Inspector/InputWidget.moc.h>
 #include <MainWindow.moc.h>
@@ -9,7 +10,7 @@
 ezQtInputWidget* ezQtInputWidget::s_pWidget = nullptr;
 
 ezQtInputWidget::ezQtInputWidget(QWidget* parent)
-    : QDockWidget(parent)
+  : QDockWidget(parent)
 {
   s_pWidget = this;
 
@@ -150,7 +151,7 @@ void ezQtInputWidget::ProcessTelemetry(void* pUnuseed)
 
 void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
 {
-  TableInputSlots->blockSignals(true);
+  ezQtScopedUpdatesDisabled _1(TableInputSlots);
 
   if (bRecreate)
   {
@@ -285,13 +286,11 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
       ++iRow;
     }
   }
-
-  TableInputSlots->blockSignals(false);
 }
 
 void ezQtInputWidget::UpdateActionTable(bool bRecreate)
 {
-  TableInputActions->blockSignals(true);
+  ezQtScopedUpdatesDisabled _1(TableInputActions);
 
   if (bRecreate)
   {
@@ -399,8 +398,6 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
       ++iRow;
     }
   }
-
-  TableInputActions->blockSignals(false);
 }
 
 void ezQtInputWidget::on_ButtonClearSlots_clicked()

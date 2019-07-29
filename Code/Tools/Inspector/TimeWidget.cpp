@@ -1,6 +1,7 @@
 #include <InspectorPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Inspector/TimeWidget.moc.h>
 #include <QGraphicsPathItem>
 #include <QGraphicsView>
@@ -8,37 +9,39 @@
 ezQtTimeWidget* ezQtTimeWidget::s_pWidget = nullptr;
 
 static QColor s_Colors[ezQtTimeWidget::s_uiMaxColors] = {
-    QColor(255, 106, 0), // orange
-    QColor(182, 255, 0), // lime green
-    QColor(255, 0, 255), // pink
-    QColor(0, 148, 255), // light blue
-    QColor(255, 0, 0),   // red
-    QColor(0, 255, 255), // turquoise
-    QColor(178, 0, 255), // purple
-    QColor(0, 38, 255),  // dark blue
-    QColor(72, 0, 255),  // lilac
+  QColor(255, 106, 0), // orange
+  QColor(182, 255, 0), // lime green
+  QColor(255, 0, 255), // pink
+  QColor(0, 148, 255), // light blue
+  QColor(255, 0, 0),   // red
+  QColor(0, 255, 255), // turquoise
+  QColor(178, 0, 255), // purple
+  QColor(0, 38, 255),  // dark blue
+  QColor(72, 0, 255),  // lilac
 };
 
 ezQtTimeWidget::ezQtTimeWidget(QWidget* parent)
-    : QDockWidget(parent)
+  : QDockWidget(parent)
 {
   s_pWidget = this;
 
   setupUi(this);
 
-  ComboTimeframe->blockSignals(true);
-  ComboTimeframe->addItem("Timeframe: 1 minute");
-  ComboTimeframe->addItem("Timeframe: 2 minutes");
-  ComboTimeframe->addItem("Timeframe: 3 minutes");
-  ComboTimeframe->addItem("Timeframe: 4 minutes");
-  ComboTimeframe->addItem("Timeframe: 5 minutes");
-  ComboTimeframe->addItem("Timeframe: 6 minutes");
-  ComboTimeframe->addItem("Timeframe: 7 minutes");
-  ComboTimeframe->addItem("Timeframe: 8 minutes");
-  ComboTimeframe->addItem("Timeframe: 9 minutes");
-  ComboTimeframe->addItem("Timeframe: 10 minutes");
-  ComboTimeframe->setCurrentIndex(0);
-  ComboTimeframe->blockSignals(false);
+  {
+    ezQtScopedUpdatesDisabled _1(ComboTimeframe);
+
+    ComboTimeframe->addItem("Timeframe: 1 minute");
+    ComboTimeframe->addItem("Timeframe: 2 minutes");
+    ComboTimeframe->addItem("Timeframe: 3 minutes");
+    ComboTimeframe->addItem("Timeframe: 4 minutes");
+    ComboTimeframe->addItem("Timeframe: 5 minutes");
+    ComboTimeframe->addItem("Timeframe: 6 minutes");
+    ComboTimeframe->addItem("Timeframe: 7 minutes");
+    ComboTimeframe->addItem("Timeframe: 8 minutes");
+    ComboTimeframe->addItem("Timeframe: 9 minutes");
+    ComboTimeframe->addItem("Timeframe: 10 minutes");
+    ComboTimeframe->setCurrentIndex(0);
+  }
 
   m_pPathMax = m_Scene.addPath(QPainterPath(), QPen(QBrush(QColor(64, 64, 64)), 0));
 
@@ -88,7 +91,8 @@ void ezQtTimeWidget::UpdateStats()
   {
     m_bClocksChanged = false;
 
-    ListClocks->blockSignals(true);
+    ezQtScopedUpdatesDisabled _1(ListClocks);
+
     ListClocks->clear();
 
     for (ezMap<ezString, ezQtTimeWidget::ClockData>::Iterator it = m_ClockData.GetIterator(); it.IsValid(); ++it)
@@ -104,8 +108,6 @@ void ezQtTimeWidget::UpdateStats()
 
       it.Value().m_pListItem = pItem;
     }
-
-    ListClocks->blockSignals(false);
   }
 
   QPainterPath pp[s_uiMaxColors];
@@ -130,7 +132,7 @@ void ezQtTimeWidget::UpdateStats()
     if (uiFirstSample < Samples.GetCount())
     {
       pp[uiColorPath].moveTo(
-          QPointF((Samples[uiFirstSample].m_AtGlobalTime - m_MaxGlobalTime).GetSeconds(), Samples[uiFirstSample].m_Timestep.GetSeconds()));
+        QPointF((Samples[uiFirstSample].m_AtGlobalTime - m_MaxGlobalTime).GetSeconds(), Samples[uiFirstSample].m_Timestep.GetSeconds()));
 
       for (ezUInt32 i = uiFirstSample + 1; i < Samples.GetCount(); ++i)
       {
@@ -191,7 +193,7 @@ void ezQtTimeWidget::UpdateStats()
 
       ezStringBuilder sTooltip;
       sTooltip.Format("<p>Clock: {0}<br>Max Time Step: <b>{1}ms</b><br>Min Time Step: <b>{2}ms</b><br></p>", it.Key().GetData(),
-                      ezArgF(Clock.m_MaxTimestep.GetMilliseconds(), 2), ezArgF(Clock.m_MinTimestep.GetMilliseconds(), 2));
+        ezArgF(Clock.m_MaxTimestep.GetMilliseconds(), 2), ezArgF(Clock.m_MinTimestep.GetMilliseconds(), 2));
 
       Clock.m_pListItem->setToolTip(sTooltip.GetData());
     }

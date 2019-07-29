@@ -1,6 +1,7 @@
 #include <InspectorPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Inspector/SubsystemsWidget.moc.h>
 #include <MainWindow.moc.h>
@@ -8,7 +9,7 @@
 ezQtSubsystemsWidget* ezQtSubsystemsWidget::s_pWidget = nullptr;
 
 ezQtSubsystemsWidget::ezQtSubsystemsWidget(QWidget* parent)
-    : QDockWidget(parent)
+  : QDockWidget(parent)
 {
   s_pWidget = this;
 
@@ -36,7 +37,8 @@ void ezQtSubsystemsWidget::UpdateSubSystems()
 
   m_bUpdateSubsystems = false;
 
-  TableSubsystems->blockSignals(true);
+  ezQtScopedUpdatesDisabled _1(TableSubsystems);
+
   TableSubsystems->clear();
 
   TableSubsystems->setRowCount(m_Subsystems.GetCount());
@@ -78,8 +80,8 @@ void ezQtSubsystemsWidget::UpdateSubSystems()
       else if (ssd.m_bStartupDone[ezStartupStage::BaseSystems])
         TableSubsystems->setCellWidget(iRow, 3, new QLabel("<p><span style=\"font-weight:600; color:#cece00;\">  Base  </span></p>"));
       else
-        TableSubsystems->setCellWidget(iRow, 3,
-                                       new QLabel("<p><span style=\"font-weight:600; color:#ff0000;\">Not Initialized</span></p>"));
+        TableSubsystems->setCellWidget(
+          iRow, 3, new QLabel("<p><span style=\"font-weight:600; color:#ff0000;\">Not Initialized</span></p>"));
 
       ((QLabel*)TableSubsystems->cellWidget(iRow, 3))->setAlignment(Qt::AlignHCenter);
 
@@ -91,8 +93,6 @@ void ezQtSubsystemsWidget::UpdateSubSystems()
   }
 
   TableSubsystems->resizeColumnsToContents();
-
-  TableSubsystems->blockSignals(false);
 }
 
 void ezQtSubsystemsWidget::ProcessTelemetry(void* pUnuseed)

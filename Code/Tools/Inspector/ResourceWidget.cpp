@@ -6,6 +6,8 @@
 #include <QComboBox>
 #include <qgraphicsitem.h>
 
+#include <GuiFoundation/GuiFoundationDLL.h>
+
 /// \todo Refcount ? (Max?)
 /// \todo Select Resource -> send to App for preview
 
@@ -14,7 +16,7 @@ void FormatSize(ezStringBuilder& s, const char* szPrefix, ezUInt64 uiSize);
 ezQtResourceWidget* ezQtResourceWidget::s_pWidget = nullptr;
 
 ezQtResourceWidget::ezQtResourceWidget(QWidget* parent)
-    : QDockWidget(parent)
+  : QDockWidget(parent)
 {
   s_pWidget = this;
 
@@ -71,7 +73,7 @@ class ByteSizeItem : public QTableWidgetItem
 {
 public:
   ByteSizeItem(ezUInt32 uiBytes, const char* szString)
-      : QTableWidgetItem(szString)
+    : QTableWidgetItem(szString)
   {
     m_uiBytes = uiBytes;
   }
@@ -93,7 +95,7 @@ void ezQtResourceWidget::UpdateTable()
 
   if (m_bUpdateTypeBox)
   {
-    ComboResourceTypes->blockSignals(true);
+    ezQtScopedUpdatesDisabled _1(ComboResourceTypes);
 
     m_bUpdateTypeBox = false;
 
@@ -120,15 +122,14 @@ void ezQtResourceWidget::UpdateTable()
 
     ComboResourceTypes->setCurrentIndex(uiSelected);
 
-    ComboResourceTypes->blockSignals(false);
-
     bResizeFirstColumn = true;
   }
 
   m_LastTableUpdate = ezTime::Now();
   m_bUpdateTable = false;
 
-  Table->blockSignals(true);
+  ezQtScopedUpdatesDisabled _2(Table);
+
   Table->setSortingEnabled(false);
 
   ezStringBuilder sTemp;
@@ -255,7 +256,7 @@ void ezQtResourceWidget::UpdateTable()
           break;
       }
 
-      //if (res.m_Flags.IsAnySet(ezResourceFlags::IsPreloading))
+      // if (res.m_Flags.IsAnySet(ezResourceFlags::IsPreloading))
       //{
       //  pItem->setText("Preloading");
       //  pItem->setTextColor(QColor::fromRgb(86, 255, 25));
@@ -328,7 +329,6 @@ void ezQtResourceWidget::UpdateTable()
   }
 
   Table->setSortingEnabled(true);
-  Table->blockSignals(false);
 }
 
 void ezQtResourceWidget::UpdateAll()
