@@ -1,19 +1,19 @@
 #include <FoundationPCH.h>
 
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/Utilities/StackTracer.h>
+#include <Foundation/System/StackTracer.h>
 
 // Include inline file
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#include <Foundation/Utilities/Implementation/Win/StackTracer_uwp.h>
+#include <Foundation/System/Implementation/Win/StackTracer_uwp.h>
 #else
-#include <Foundation/Utilities/Implementation/Win/StackTracer_win.h>
+#include <Foundation/System/Implementation/Win/StackTracer_win.h>
 #endif
 
 #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-#include <Foundation/Utilities/Implementation/Posix/StackTracer_posix.h>
+#include <Foundation/System/Implementation/Posix/StackTracer_posix.h>
 #else
 #error "StackTracer is not implemented on current platform"
 #endif

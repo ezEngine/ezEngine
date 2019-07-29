@@ -3,6 +3,7 @@
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/StringUtils.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 #include <Foundation/System/SystemInformation.h>
 
 #include <cstdlib>
@@ -15,10 +16,21 @@ bool ezDefaultAssertHandler(
   const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
   char szTemp[1024 * 4] = "";
-  ezStringUtils::snprintf(szTemp, EZ_ARRAY_SIZE(szTemp), "\n\n *** Assertion ***\n\n    Expression: \"%s\"\n    Function: \"%s\"\n    File: \"%s\"\n    Line: %u\n    Message: \"%s\"\n\n", szExpression, szFunction, szSourceFile, uiLine, szAssertMsg);
+  ezStringUtils::snprintf(szTemp, EZ_ARRAY_SIZE(szTemp),
+    "\n\n *** Assertion ***\n\n    Expression: \"%s\"\n    Function: \"%s\"\n    File: \"%s\"\n    Line: %u\n    Message: \"%s\"\n\n",
+    szExpression, szFunction, szSourceFile, uiLine, szAssertMsg);
   szTemp[1024 * 4 - 1] = '\0';
 
   printf("%s", szTemp);
+
+  // if the environment variable "EZ_SILENT_ASSERTS" is set to a value like "1", "on", "true", "enable" or "yes"
+  // the assert handler will never show a GUI that may block the application from continuing to run
+  // this should be set on machines that run tests which should never get stuck but rather crash asap
+  bool bSilentAsserts = false;
+  ezConversionUtils::StringToBool(std::getenv("EZ_SILENT_ASSERTS"), bSilentAsserts);
+
+  if (bSilentAsserts)
+    return true;
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   OutputDebugStringW(ezStringWChar(szTemp).GetData());
@@ -28,42 +40,43 @@ bool ezDefaultAssertHandler(
     return true;
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
-// make sure the cursor is definitely shown, since the user must be able to click buttons
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+    // make sure the cursor is definitely shown, since the user must be able to click buttons
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
     // Todo: Use modern Windows API to show cursor in current window.
     // http://stackoverflow.com/questions/37956628/change-mouse-pointer-in-uwp-app
-#else
+#  else
   ezInt32 iHideCursor = 1;
   while (ShowCursor(true) < 0)
     ++iHideCursor;
-#endif
+#  endif
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
 
-  ezInt32 iRes = _CrtDbgReport(_CRT_ASSERT, szSourceFile, uiLine, nullptr, "'%s'\nFunction: %s\nMessage: %s", szExpression, szFunction, szAssertMsg);
+  ezInt32 iRes =
+    _CrtDbgReport(_CRT_ASSERT, szSourceFile, uiLine, nullptr, "'%s'\nFunction: %s\nMessage: %s", szExpression, szFunction, szAssertMsg);
 
   // currently we will ALWAYS trigger the breakpoint / crash (except for when the user presses 'ignore')
   if (iRes == 0)
   {
-// when the user ignores the assert, restore the cursor show/hide state to the previous count
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  // Todo: Use modern Windows API to restore cursor.
-#else
+    // when the user ignores the assert, restore the cursor show/hide state to the previous count
+#    if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+    // Todo: Use modern Windows API to restore cursor.
+#    else
     for (ezInt32 i = 0; i < iHideCursor; ++i)
       ShowCursor(false);
-#endif
+#    endif
 
     return false;
   }
 
-#else
+#  else
 
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#    if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   MessageBoxA(nullptr, szTemp, "Assertion", MB_ICONERROR);
-#endif
+#    endif
 
-#endif
+#  endif
 
 #endif
 
@@ -93,7 +106,8 @@ bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunc
   return (*g_AssertHandler)(szSourceFile, uiLine, szFunction, szExpression, msg);
 }
 
-bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const class ezFormatString& msg)
+bool ezFailedCheck(
+  const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const class ezFormatString& msg)
 {
   ezStringBuilder tmp;
   return ezFailedCheck(szSourceFile, uiLine, szFunction, szExpression, msg.GetText(tmp));
@@ -101,4 +115,3 @@ bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunc
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Assert);
-

@@ -1,3 +1,6 @@
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 #include <Foundation/Logging/Log.h>
 #include <Foundation/System/ProcessGroup.h>
 
@@ -6,7 +9,6 @@ struct ezProcessGroupImpl
   HANDLE m_hJobObject = INVALID_HANDLE_VALUE;
   HANDLE m_hCompletionPort = INVALID_HANDLE_VALUE;
   ezString m_sName;
-  bool m_bHasNewProcesses = false;
 
   ~ezProcessGroupImpl();
   void Close();
@@ -91,7 +93,6 @@ ezResult ezProcessGroup::Launch(const ezProcessOptions& opt)
     return EZ_FAILURE;
   }
 
-  m_impl->m_bHasNewProcesses = true;
   return EZ_SUCCESS;
 }
 
@@ -99,7 +100,22 @@ ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
 {
   if (m_impl->m_hJobObject == INVALID_HANDLE_VALUE)
     return EZ_SUCCESS;
-  if (m_impl->m_bHasNewProcesses == false) // no new processes were launched, waiting could end up in an infinite loop, so don't even try
+
+  // check if no new processes were launched, because waiting could end up in an infinite loop,
+  // so don't even try in this case
+  bool allProcessesGone = true;
+  for (const ezProcess& p : m_Processes)
+  {
+    DWORD exitCode = 0;
+    GetExitCodeProcess(p.GetProcessHandle(), &exitCode);
+    if (exitCode == STILL_ACTIVE)
+    {
+      allProcessesGone = false;
+      break;
+    }
+  }
+
+  if (allProcessesGone)
     return EZ_SUCCESS;
 
   DWORD dwTimeout = INFINITE;
@@ -117,6 +133,12 @@ ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
 
   while (true)
   {
+    // ATTENTION !
+    // If you are looking at a crash dump of ez this line will typically be at the top of the callstack.
+    // That is because to write the crash dump an external process is called and this is where we are waiting for that process to finish.
+    // To see the actual reason for the crash, locate the call to ezCrashHandlerFunc further down in the callstack.
+    // The crashing code is usually the one calling that function.
+
     if (GetQueuedCompletionStatus(m_impl->m_hCompletionPort, &CompletionCode, &CompletionKey, &Overlapped, dwTimeout) == FALSE)
     {
       DWORD res = GetLastError();
@@ -132,7 +154,6 @@ ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
     // we got the expected result, all processes have finished
     if (((HANDLE)CompletionKey == m_impl->m_hJobObject && CompletionCode == JOB_OBJECT_MSG_ACTIVE_PROCESS_ZERO))
     {
-      m_impl->m_bHasNewProcesses = false;
       return EZ_SUCCESS;
     }
 
